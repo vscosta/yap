@@ -30,6 +30,15 @@
 */
 
 
+/** @pred  listing 
+
+
+Lists in the current output stream all the clauses for which source code
+is available (these include all clauses for dynamic predicates and
+clauses for static predicates compiled when source mode was `on`).
+
+ 
+*/
 listing :-
 	current_output(Stream),
 	'$current_module'(Mod),
@@ -37,6 +46,12 @@ listing :-
         '$list_clauses'(Stream,Mod,Pred).
 listing.
 
+/** @pred  listing(+ _P_)
+
+Lists predicate  _P_ if its source code is available.
+
+ 
+*/
 listing(MV) :-
     current_output(Stream),
     listing(Stream, MV).
@@ -148,12 +163,25 @@ listing(Stream, [MV|MVs]) :- !,
 	'$portray_clause'(Stream,(H:-Body)),
         fail.
 
+/** @pred  portray_clause(+ _S_,+ _C_)
+
+Write clause  _C_ on stream  _S_ as if written by listing/0.
+
+ 
+*/
 portray_clause(Stream, Clause) :-
 	copy_term_nat(Clause, CopiedClause),
 	'$portray_clause'(Stream, CopiedClause),
 	fail.
 portray_clause(_, _).
 
+/** @pred  portray_clause(+ _C_) 
+
+
+Write clause  _C_ as if written by listing/0.
+
+ 
+*/
 portray_clause(Clause) :-
         current_output(Stream),
 	portray_clause(Stream, Clause).

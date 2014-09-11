@@ -13,6 +13,19 @@
 * version:      $Id: TermExt.h,v 1.15 2008-03-25 22:03:13 vsc Exp $	 *
 *************************************************************************/
 
+/**
+
+@file TermExt.h
+
+@page Extensions Extensions to Prolog
+
+YAP includes a number of extensions over the original Prolog
+language. Next, we discuss support to the most important ones.
+
+
+ */
+
+
 #ifdef USE_SYSTEM_MALLOC
 #define SF_STORE  (&(Yap_heap_regs->funcs))
 #else

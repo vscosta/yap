@@ -15,6 +15,7 @@
   * @file maplist.yap
   *
   * @defgroup maplist Map List and Term Operations
+  * @ingroup YAPLibrary
   *
   * This library provides a set of utilities for applying a predicate to
   * all elements of a list. They allow one to easily perform the most common do-loop constructs in Prolog.
@@ -71,6 +72,25 @@ trans(X,X).
   */
 
 
+/** @pred maplist(+ _Pred_,+ _List1_,+ _List2_)
+
+Apply  _Pred_ on all successive pairs of elements from
+ _List1_ and
+ _List2_. Fails if  _Pred_ can not be applied to a
+pair. See the example above.
+
+ 
+*/
+/** @pred maplist(+ _Pred_,+ _List1_,+ _List2_,+ _List4_)
+
+Apply  _Pred_ on all successive triples of elements from  _List1_,
+ _List2_ and  _List3_. Fails if  _Pred_ can not be applied to a
+triple. See the example above.
+
+
+
+
+ */
 :- module(maplist, [selectlist/3,
 	            selectlist/4,
 	            selectlists/5,

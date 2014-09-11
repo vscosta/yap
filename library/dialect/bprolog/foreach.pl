@@ -137,6 +137,12 @@ foreach(A1,A2,A3,A4,A5,A6):-
 foreach(A1,A2,A3,A4,A5):-
     foreach_aux((A1,A2),A3,A4,A5).
 
+/** @pred foreach( _Sequence_,  _Goal_,  _Acc0_,  _AccF_)
+
+Deterministic iterator with accumulator style arguments.
+
+ 
+*/
 foreach(A1,A2,A3,A4):-
     foreach_aux(A1,A2,A3,A4).
 
@@ -165,6 +171,55 @@ foreach_aux(A1,A2,A3):-
     foreach_check_lvars(A2),!, 
     interp_foreach(A1,true,A2,A3,[],[],_).
 
+/** @pred foreach( _Sequence_,  _Goal_) 
+
+
+Deterministic iterator. The ranges are given by  _Sequence_ that is
+either ` _I_ in  _M_.. _N_`, or of the form 
+`[ _I_, _J_] ins  _M_.. _N_`, or a list of the above conditions. 
+
+Variables in the goal are assumed to be global, ie, share a single value
+in the execution. The exceptions are the iteration indices. Moreover, if
+the goal is of the form ` _Locals_^ _G_` all variables
+occurring in  _Locals_ are marked as local. As an example:
+
+~~~~~{.prolog}
+foreach([I,J] ins 1..N, A^(A <==M[I,J], N[I] <== N[I] + A*A) )
+~~~~~
+the variables  _I_,  _J_ and  _A_ are duplicated for every
+call (local), whereas the matrices  _M_ and  _N_ are shared
+throughout the execution (global).
+
+ 
+*/
+/** @pred foreach(:Generator, : _Goal_) 
+
+
+True if the conjunction of instances of  _Goal_ using the
+bindings from Generator is true. Unlike forall/2, which runs a
+failure-driven loop that proves  _Goal_ for each solution of
+Generator, foreach creates a conjunction. Each member of the
+conjunction is a copy of  _Goal_, where the variables it shares
+with Generator are filled with the values from the corresponding
+solution.
+
+The implementation executes forall/2 if  _Goal_ does not contain
+any variables that are not shared with Generator.
+
+Here is an example:
+
+~~~~~{.prolog}
+    ?- foreach( between(1,4,X), dif(X,Y)), Y = 5.
+    Y = 5
+    ?- foreach( between(1,4,X), dif(X,Y)), Y = 3.
+    No
+~~~~~
+
+Notice that  _Goal_ is copied repeatedly, which may cause
+problems if attributed variables are involved.
+
+ 
+*/
 foreach(Iterators,Goal):-
     interp_foreach(Iterators,true,[],Goal,[],[],_).
 

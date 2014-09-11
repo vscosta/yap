@@ -18,10 +18,19 @@
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
 /**
- * @short: Atom, and Atomic manipulation predicates in YAP
+ * @addtogroup Predicates_on_Atoms
  *
 */									 
 
+/** @pred  atom_concat(+ _As_,? _A_) 
+
+
+The predicate holds when the first argument is a list of atoms, and the
+second unifies with the atom obtained by concatenating all the atoms in
+the first list.
+
+ 
+*/
 atom_concat(Xs,At) :-
 	( var(At) ->
 	   '$atom_concat'(Xs, At )
@@ -62,9 +71,42 @@ atom_concat(Xs,At) :-
 	 '$process_atom_holes'(Unbound).
 
 	  
+/** @pred  atomic_list_concat(+ _As_,? _A_) 
+
+
+The predicate holds when the first argument is a list of atomic terms, and
+the second unifies with the atom obtained by concatenating all the
+atomic terms in the first list. The first argument thus may contain
+atoms or numbers.
+
+ 
+*/
 atomic_list_concat(L,At) :-
 	atomic_concat(L, At).
 	
+/** @pred  atomic_list_concat(? _As_,+ _Separator_,? _A_)
+
+Creates an atom just like atomic_list_concat/2, but inserts
+ _Separator_ between each pair of atoms. For example:
+
+~~~~~{.prolog}
+?- atomic_list_concat([gnu, gnat], `, `, A).
+
+A = `gnu, gnat`
+~~~~~
+
+YAP emulates the SWI-Prolog version of this predicate that can also be
+used to split atoms by instantiating  _Separator_ and  _Atom_ as
+shown below.
+
+~~~~~{.prolog}
+?- atomic_list_concat(L, -, 'gnu-gnat').
+
+L = [gnu, gnat]
+~~~~~
+
+ 
+*/
 atomic_list_concat(L, El, At) :-
 	var(El), !,
 	'$do_error'(instantiation_error,atom_list_concat(L,El,At)).
@@ -119,6 +161,14 @@ atomic_list_concat(L, El, At) :-
 '$subtract_lists_of_variables'([V1|VL1],[V2|VL2],[V2|VL]) :-
 	'$subtract_lists_of_variables'([V1|VL1],VL2,VL).
 
+/** @pred  current_atom( _A_) 
+
+
+Checks whether  _A_ is a currently defined atom. It is used to find all
+currently defined atoms by backtracking.
+
+ 
+*/
 current_atom(A) :-				% check
 	atom(A), !.
 current_atom(A) :-				% generate
@@ -165,3 +215,6 @@ string_concat(Xs,At) :-
 	Follow is Next+Sz,
 	 '$process_string_holes'(Unbound).
 
+/**
+@}
+*/

@@ -15,6 +15,364 @@
 *									 *
 *************************************************************************/
 
+/** @defgroup System Calling The Operating System from YAP
+@ingroup YAPLibrary
+@{
+
+YAP now provides a library of system utilities compatible with the
+SICStus Prolog system library. This library extends and to some point
+replaces the functionality of Operating System access routines. The
+library includes Unix/Linux and Win32 `C` code. They
+are available through the `use_module(library(system))` command.
+
+
+
+ @pred datime(datime(- _Year_, - _Month_, - _DayOfTheMonth_, - _Hour_, - _Minute_, - _Second_)
+
+The datime/1 procedure returns the current date and time, with
+information on  _Year_,  _Month_,  _DayOfTheMonth_,
+ _Hour_,  _Minute_, and  _Second_. The  _Hour_ is returned
+on local time. This function uses the WIN32
+`GetLocalTime` function or the Unix `localtime` function.
+
+~~~~~
+   ?- datime(X).
+
+X = datime(2001,5,28,15,29,46) ? 
+~~~~~
+
+ 
+*/
+
+
+/** @pred  environ(+ _E_,- _S_) 
+
+
+
+
+
+Given an environment variable  _E_ this predicate unifies the second argument  _S_ with its value.
+
+ 
+*/
+/** @pred  system(+ _S_) 
+
+
+Passes command  _S_ to the Bourne shell (on UNIX environments) or the
+current command interpreter in WIN32 environments.
+
+ 
+*/
+/** @pred  working_directory(- _CurDir_,? _NextDir_) 
+
+
+Fetch the current directory at  _CurDir_. If  _NextDir_ is bound
+to an atom, make its value the current working directory.
+
+ 
+*/
+/** @pred delete_file(+ _File_) 
+
+
+The delete_file/1 procedure removes file  _File_. If
+ _File_ is a directory, remove the directory <em>and all its subdirectories</em>.
+
+~~~~~
+   ?- delete_file(x).
+~~~~~
+
+ 
+*/
+/** @pred delete_file(+ _File_,+ _Opts_)
+
+The `delete_file/2` procedure removes file  _File_ according to
+options  _Opts_. These options are `directory` if one should
+remove directories, `recursive` if one should remove directories
+recursively, and `ignore` if errors are not to be reported.
+
+This example is equivalent to using the delete_file/1 predicate:
+
+~~~~~
+   ?- delete_file(x, [recursive]).
+~~~~~
+
+ 
+*/
+/** @pred directory_files(+ _Dir_,+ _List_) 
+
+
+Given a directory  _Dir_,  directory_files/2 procedures a
+listing of all files and directories in the directory:
+
+~~~~~
+    ?- directory_files('.',L), writeq(L).
+['Makefile.~1~','sys.so','Makefile','sys.o',x,..,'.']
+~~~~~
+The predicates uses the `dirent` family of routines in Unix
+environments, and `findfirst` in WIN32.
+
+ 
+*/
+/** @pred environ(? _EnvVar_,+ _EnvValue_) 
+
+
+Unify environment variable  _EnvVar_ with its value  _EnvValue_,
+if there is one. This predicate is backtrackable in Unix systems, but
+not currently in Win32 configurations.
+
+~~~~~
+   ?- environ('HOME',X).
+
+X = 'C:\\cygwin\\home\\administrator' ?
+~~~~~
+
+ 
+*/
+/** @pred exec(+ _Command_, _StandardStreams_,- _PID_) 
+
+
+Execute command  _Command_ with its standard streams connected to
+the list [_InputStream_,  _OutputStream_, _ErrorStream_]. The
+process that executes the command is returned as  _PID_. The
+command is executed by the default shell `bin/sh -c` in Unix.
+
+The following example demonstrates the use of exec/3 to send a
+command and process its output:
+
+~~~~~
+exec(ls,[std,pipe(S),null],P),repeat, get0(S,C), (C = -1, close(S) ! ; put(C)).
+~~~~~
+
+The streams may be one of standard stream, `std`, null stream,
+`null`, or `pipe(S)`, where  _S_ is a pipe stream. Note
+that it is up to the user to close the pipe.
+
+ 
+*/
+/** @pred file_exists(+ _File_) 
+
+
+The atom  _File_ corresponds to an existing file.
+
+ 
+*/
+/** @pred file_exists(+ _File_,+ _Permissions_)
+
+The atom  _File_ corresponds to an existing file with permissions
+compatible with  _Permissions_. YAP currently only accepts for
+permissions to be described as a number. The actual meaning of this
+number is Operating System dependent.
+
+ 
+*/
+/** @pred file_property(+ _File_,? _Property_) 
+
+
+The atom  _File_ corresponds to an existing file, and  _Property_
+will be unified with a property of this file. The properties are of the
+form `type( _Type_)`, which gives whether the file is a regular
+file, a directory, a fifo file, or of unknown type;
+`size( _Size_)`, with gives the size for a file, and
+`mod_time( _Time_)`, which gives the last time a file was
+modified according to some Operating System dependent
+timestamp; `mode( _mode_)`, gives the permission flags for the
+file, and `linkto( _FileName_)`, gives the file pointed to by a
+symbolic link. Properties can be obtained through backtracking:
+
+~~~~~
+   ?- file_property('Makefile',P).
+
+P = type(regular) ? ;
+
+P = size(2375) ? ;
+
+P = mod_time(990826911) ? ;
+
+no
+~~~~~
+
+ 
+*/
+/** @pred host_id(- _Id_) 
+
+
+
+Unify  _Id_ with an identifier of the current host. YAP uses the
+`hostid` function when available, 
+
+ 
+*/
+/** @pred host_name(- _Name_) 
+
+
+
+Unify  _Name_ with a name for the current host. YAP uses the
+`hostname` function in Unix systems when available, and the
+`GetComputerName` function in WIN32 systems. 
+
+ 
+*/
+/** @pred make_directory(+ _Dir_) 
+
+
+Create a directory  _Dir_. The name of the directory must be an atom.
+
+ 
+*/
+/** @pred mktemp( _Spec_,- _File_) 
+
+
+
+Direct interface to `mktemp`: given a  _Spec_, that is a file
+name with six  _X_ to it, create a file name  _File_. Use
+tmpnam/1 instead.
+
+ 
+*/
+/** @pred mktime(+_Datime_, - _Seconds_)
+
+The `mktime/2` procedure receives a term of the form _datime(+ _Year_,
++ _Month_, + _DayOfTheMonth_, + _Hour_, + _Minute_, + _Second_)_ and
+returns the number of _Seconds_ elapsed since 00:00:00 on January 1,
+1970, Coordinated Universal Time (UTC).  The user provides information
+on _Year_, _Month_, _DayOfTheMonth_, _Hour_, _Minute_, and
+_Second_. The _Hour_ is given on local time. This function uses the
+WIN32 `GetLocalTime` function or the Unix `mktime` function.
+
+~~~~~
+   ?- mktime(datime(2001,5,28,15,29,46),X).
+
+X = 991081786 ? ;
+~~~~~
+
+ 
+*/
+/** @pred pid(- _Id_) 
+
+
+
+Unify  _Id_ with the process identifier for the current
+process. An interface to the <tt>getpid</tt> function.
+
+ 
+*/
+/** @pred popen(+ _Command_, + _TYPE_, - _Stream_) 
+
+
+Interface to the <tt>popen</tt> function. It opens a process by creating a
+pipe, forking and invoking  _Command_ on the current shell. Since a
+pipe is by definition unidirectional the  _Type_ argument may be
+`read` or `write`, not both. The stream should be closed
+using close/1, there is no need for a special `pclose`
+command.
+
+The following example demonstrates the use of popen/3 to process
+the output of a command, as exec/3 would do:
+
+~~~~~{.prolog}
+   ?- popen(ls,read,X),repeat, get0(X,C), (C = -1, ! ; put(C)).
+
+X = 'C:\\cygwin\\home\\administrator' ?
+~~~~~
+
+The WIN32 implementation of popen/3 relies on exec/3.
+
+ 
+*/
+/** @pred rename_file(+ _OldFile_,+ _NewFile_) 
+
+
+Create file  _OldFile_ to  _NewFile_. This predicate uses the
+`C` built-in function `rename`.
+
+ 
+*/
+/** @pred shell 
+
+
+Start a new shell and leave YAP in background until the shell
+completes. YAP uses the shell given by the environment variable
+`SHELL`. In WIN32 environment YAP will use `COMSPEC` if
+`SHELL` is undefined.
+
+ 
+*/
+/** @pred shell(+ _Command_)
+
+Execute command  _Command_ under a new shell. YAP will be in
+background until the command completes. In Unix environments YAP uses
+the shell given by the environment variable `SHELL` with the option
+`" -c "`. In WIN32 environment YAP will use `COMSPEC` if
+`SHELL` is undefined, in this case with the option `" /c "`.
+
+ 
+*/
+/** @pred shell(+ _Command_,- _Status_)
+
+Execute command  _Command_ under a new shell and unify  _Status_
+with the exit for the command. YAP will be in background until the
+command completes. In Unix environments YAP uses the shell given by the
+environment variable `SHELL` with the option `" -c "`. In
+WIN32 environment YAP will use `COMSPEC` if `SHELL` is
+undefined, in this case with the option `" /c "`.
+
+ 
+*/
+/** @pred sleep(+ _Time_) 
+
+
+Block the current thread for  _Time_ seconds. When YAP is compiled 
+without multi-threading support, this predicate blocks the YAP process. 
+The number of seconds must be a positive number, and it may an integer 
+or a float. The Unix implementation uses `usleep` if the number of 
+seconds is below one, and `sleep` if it is over a second. The WIN32 
+implementation uses `Sleep` for both cases.
+
+ 
+*/
+/** @pred system
+
+Start a new default shell and leave YAP in background until the shell
+completes. YAP uses `/bin/sh` in Unix systems and `COMSPEC` in
+WIN32.
+
+ 
+*/
+/** @pred system(+ _Command_,- _Res_)
+
+Interface to `system`: execute command  _Command_ and unify
+ _Res_ with the result.
+
+ 
+*/
+/** @pred tmp_file(+_Base_, - _File_) 
+
+Create a name for a temporary file.  _Base_ is an user provided
+identifier for the category of file. The  _TmpName_ is guaranteed to
+be unique. If the system halts, it will automatically remove all created
+temporary files.
+
+ 
+*/
+/** @pred tmpnam(- _File_) 
+
+
+
+Interface with  _tmpnam_: obtain a new, unique file name  _File_.
+
+ 
+*/
+/** @pred working_directory(- _Old_,+ _New_) 
+
+
+
+Unify  _Old_ with an absolute path to the current working directory
+and change working directory to  _New_.  Use the pattern
+`working_directory(CWD, CWD)` to get the current directory.  See
+also `absolute_file_name/2` and chdir/1.
+
+ 
+*/
 :- module(operating_system_support, [
 	datime/1,
 	delete_file/1,

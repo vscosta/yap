@@ -3,6 +3,278 @@
 %   Updated: 2006
 %   Purpose: Directed Graph Processing Utilities.
 
+
+/** @defgroup DGraphs Directed Graphs
+@ingroup YAPLibrary
+@{
+
+The following graph manipulation routines use the red-black tree library
+to try to avoid linear-time scans of the graph for all graph
+operations. Graphs are represented as a red-black tree, where the key is
+the vertex, and the associated value is a list of vertices reachable
+from that vertex through an edge (ie, a list of edges). 
+
+
+
+ @pred dgraph_new(+ _Graph_) 
+
+
+Create a new directed graph. This operation must be performed before
+trying to use the graph.
+
+ 
+*/
+
+
+/** @pred dgraph_add_edge(+ _Graph_, + _N1_, + _N2_, - _NewGraph_) 
+
+
+Unify  _NewGraph_ with a new graph obtained by adding the edge
+ _N1_- _N2_ to the graph  _Graph_.
+
+ 
+*/
+/** @pred dgraph_add_edges(+ _Graph_, + _Edges_, - _NewGraph_) 
+
+
+Unify  _NewGraph_ with a new graph obtained by adding the list of
+edges  _Edges_ to the graph  _Graph_.
+
+ 
+*/
+/** @pred dgraph_add_vertices(+ _Graph_, + _Vertex_, - _NewGraph_) 
+
+
+Unify  _NewGraph_ with a new graph obtained by adding
+vertex  _Vertex_ to the graph  _Graph_.
+
+ 
+*/
+/** @pred dgraph_add_vertices(+ _Graph_, + _Vertices_, - _NewGraph_) 
+
+
+Unify  _NewGraph_ with a new graph obtained by adding the list of
+vertices  _Vertices_ to the graph  _Graph_.
+
+ 
+*/
+/** @pred dgraph_complement(+ _Graph_, - _NewGraph_) 
+
+
+Unify  _NewGraph_ with the graph complementary to  _Graph_.
+
+ 
+*/
+/** @pred dgraph_compose(+ _Graph1_, + _Graph2_, - _ComposedGraph_) 
+
+
+Unify  _ComposedGraph_ with a new graph obtained by composing
+ _Graph1_ and  _Graph2_, ie,  _ComposedGraph_ has an edge
+ _V1-V2_ iff there is a  _V_ such that  _V1-V_ in  _Graph1_
+and  _V-V2_ in  _Graph2_.
+
+ 
+*/
+/** @pred dgraph_del_edge(+ _Graph_, + _N1_, + _N2_, - _NewGraph_) 
+
+
+Succeeds if  _NewGraph_ unifies with a new graph obtained by
+removing the edge  _N1_- _N2_ from the graph  _Graph_. Notice
+that no vertices are deleted.
+
+ 
+*/
+/** @pred dgraph_del_edges(+ _Graph_, + _Edges_, - _NewGraph_) 
+
+
+Unify  _NewGraph_ with a new graph obtained by removing the list of
+edges  _Edges_ from the graph  _Graph_. Notice that no vertices
+are deleted.
+
+ 
+*/
+/** @pred dgraph_del_vertex(+ _Graph_, + _Vertex_, - _NewGraph_) 
+
+
+Unify  _NewGraph_ with a new graph obtained by deleting vertex
+ _Vertex_ and all the edges that start from or go to  _Vertex_ to
+the graph  _Graph_.
+
+ 
+*/
+/** @pred dgraph_del_vertices(+ _Graph_, + _Vertices_, - _NewGraph_) 
+
+
+Unify  _NewGraph_ with a new graph obtained by deleting the list of
+vertices  _Vertices_ and all the edges that start from or go to a
+vertex in  _Vertices_ to the graph  _Graph_.
+
+ 
+*/
+/** @pred dgraph_edge(+ _N1_, + _N2_, + _Graph_) 
+
+
+Edge  _N1_- _N2_ is an edge in directed graph  _Graph_.
+
+ 
+*/
+/** @pred dgraph_edges(+ _Graph_, - _Edges_) 
+
+
+Unify  _Edges_ with all edges appearing in graph
+ _Graph_.
+
+ 
+*/
+/** @pred dgraph_isomorphic(+ _Vs_, + _NewVs_, + _G0_, - _GF_) 
+
+
+Unify the list  _GF_ with the graph isomorphic to  _G0_ where 
+vertices in  _Vs_ map to vertices in  _NewVs_.
+
+ 
+*/
+/** @pred dgraph_leaves(+ _Graph_, ? _Vertices_) 
+
+
+The vertices  _Vertices_ have no outgoing edge in graph
+ _Graph_.
+
+
+
+
+ */
+/** @pred dgraph_max_path(+ _V1_, + _V1_, + _Graph_, - _Path_, ? _Costt_) 
+
+
+Unify the list  _Path_ with the maximal cost path between nodes
+ _N1_ and  _N2_ in graph  _Graph_. Path  _Path_ has cost
+ _Cost_.
+
+ 
+*/
+/** @pred dgraph_min_path(+ _V1_, + _V1_, + _Graph_, - _Path_, ? _Costt_) 
+
+
+Unify the list  _Path_ with the minimal cost path between nodes
+ _N1_ and  _N2_ in graph  _Graph_. Path  _Path_ has cost
+ _Cost_.
+
+ 
+*/
+/** @pred dgraph_min_paths(+ _V1_, + _Graph_, - _Paths_) 
+
+
+Unify the list  _Paths_ with the minimal cost paths from node
+ _N1_ to the nodes in graph  _Graph_.
+
+ 
+*/
+/** @pred dgraph_neighbors(+ _Vertex_, + _Graph_, - _Vertices_) 
+
+
+Unify  _Vertices_ with the list of neighbors of vertex  _Vertex_
+in  _Graph_. If the vertice is not in the graph fail.
+
+ 
+*/
+/** @pred dgraph_neighbours(+ _Vertex_, + _Graph_, - _Vertices_) 
+
+
+Unify  _Vertices_ with the list of neighbours of vertex  _Vertex_
+in  _Graph_.
+
+ 
+*/
+/** @pred dgraph_path(+ _Vertex_, + _Graph_, ? _Path_) 
+
+
+The path  _Path_ is a path starting at vertex  _Vertex_ in graph
+ _Graph_.
+
+ 
+*/
+/** @pred dgraph_path(+ _Vertex_, + _Vertex1_, + _Graph_, ? _Path_)
+
+The path  _Path_ is a path starting at vertex  _Vertex_ in graph
+ _Graph_ and ending at path  _Vertex2_.
+
+ 
+*/
+/** @pred dgraph_reachable(+ _Vertex_, + _Graph_, ? _Edges_) 
+
+
+The path  _Path_ is a path starting at vertex  _Vertex_ in graph
+ _Graph_.
+
+ 
+*/
+/** @pred dgraph_symmetric_closure(+ _Graph_, - _Closure_) 
+
+
+Unify  _Closure_ with the symmetric closure of graph  _Graph_,
+that is,  if  _Closure_ contains an edge  _U-V_ it must also
+contain the edge  _V-U_.
+
+ 
+*/
+/** @pred dgraph_to_ugraph(+ _Graph_, - _UGraph_) 
+
+
+Unify  _UGraph_ with the representation used by the  _ugraphs_
+unweighted graphs library, that is, a list of the form
+ _V-Neighbors_, where  _V_ is a node and  _Neighbors_ the nodes
+children.
+
+ 
+*/
+/** @pred dgraph_top_sort(+ _Graph_, - _Vertices_) 
+
+
+Unify  _Vertices_ with the topological sort of graph  _Graph_.
+
+ 
+*/
+/** @pred dgraph_top_sort(+ _Graph_, - _Vertices_, ? _Vertices0_)
+
+Unify the difference list  _Vertices_- _Vertices0_ with the
+topological sort of graph  _Graph_.
+
+ 
+*/
+/** @pred dgraph_transitive_closure(+ _Graph_, - _Closure_) 
+
+
+Unify  _Closure_ with the transitive closure of graph  _Graph_.
+
+ 
+*/
+/** @pred dgraph_transpose(+ _Graph_, - _Transpose_) 
+
+
+Unify  _NewGraph_ with a new graph obtained from  _Graph_ by
+replacing all edges of the form  _V1-V2_ by edges of the form
+ _V2-V1_. 
+
+ 
+*/
+/** @pred dgraph_vertices(+ _Graph_, - _Vertices_) 
+
+
+Unify  _Vertices_ with all vertices appearing in graph
+ _Graph_.
+
+ 
+*/
+/** @pred ugraph_to_dgraph( + _UGraph_, - _Graph_) 
+
+
+Unify  _Graph_ with the directed graph obtain from  _UGraph_,
+represented in the form used in the  _ugraphs_ unweighted graphs
+library.
+
+ 
+*/
 :- module( dgraphs,
 	   [
 	    dgraph_vertices/2,

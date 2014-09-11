@@ -67,6 +67,138 @@
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
+/** @pred _X_ #<  _B_  is det
+reified implication 
+
+As an example. consider finding out the people who wanted to sit
+next to a friend and that are are actually sitting together:
+
+~~~~~{.prolog}
+preference_satisfied(X-Y, B) :-
+    abs(X - Y) #= 1 #<==> B.
+~~~~~
+Note that not all constraints may be reifiable.
+
+ 
+*/
+/** @pred _X_ #<  _Y_ is semidet
+smaller or equal
+
+Arguments to this constraint may be an arithmetic expression with <tt>+</tt>,
+<tt>-</tt>, <tt>\\*</tt>, integer division <tt>/</tt>, <tt>min</tt>, <tt>max</tt>, <tt>sum</tt>,
+<tt>count</tt>, and
+<tt>abs</tt>. Boolean variables support conjunction (/\), disjunction (\/),
+implication (=>), equivalence (<=>), and xor. The <tt>sum</tt> constraint allows  a two argument version using the
+`where` conditional, in Zinc style. 
+
+The send more money equation may be written as:
+
+~~~~~{.prolog}
+          1000*S + 100*E + 10*N + D +
+          1000*M + 100*O + 10*R + E #=
+10000*M + 1000*O + 100*N + 10*E + Y,
+~~~~~
+
+This example uses `where` to select from
+column  _I_ the elements that have value under  _M_:
+
+~~~~~{.prolog}
+OutFlow[I] #= sum(J in 1..N where D[J,I]<M, X[J,I])
+~~~~~
+
+The <tt>count</tt> constraint counts the number of elements that match a
+certain constant or variable (integer sets are not available).
+
+ 
+*/
+/** @pred _X_ #<==>  _B_  is det
+reified equivalence
+ 
+*/
+/** @pred _X_ #=  _Y_ is semidet
+equality
+ 
+*/
+/** @pred _X_ #=<  _Y_ is semidet
+smaller
+ 
+*/
+/** @pred _X_ #==>  _B_  is det
+Reified implication
+ 
+*/
+/** @pred _X_ #>  _Y_ is semidet
+larger
+ 
+*/
+/** @pred _X_ #>=  _Y_ is semidet
+larger or equal
+ 
+*/
+/** @pred _X_ #\=  _Y_ is semidet
+disequality
+ 
+*/
+/** @pred all_different( _Vs_    )
+
+Verifies whether all elements of a list are different.
+*/
+/** @pred labeling( _Opts_,  _Xs_)
+performs labeling, several variable and value selection options are
+available. The defaults are `min` and `min_step`.
+
+Variable selection options are as follows:
+
++ leftmost
+choose the first variable
++ min
+choose one of the variables with smallest minimum value
++ max
+choose one of the variables with greatest maximum value
++ ff
+choose one of the most constrained variables, that is, with the smallest
+domain.
+
+
+Given that we selected a variable, the values chosen for branching may
+be:
+
++ min_step
+smallest value
++ max_step
+largest value
++ bisect
+median
++ enum
+all value starting from the minimum.
+
+
+ 
+*/
+/** @pred scalar_product(+ _Cs_, + _Vs_, + _Rel_, ? _V_    )
+
+The product of constant  _Cs_ by  _Vs_ must be in relation
+ _Rel_ with  _V_ .
+
+ 
+*/
+/** @pred transpose(+ _Graph_, - _NewGraph_) 
+
+
+Unify  _NewGraph_ with a new graph obtained from  _Graph_ by
+replacing all edges of the form  _V1-V2_ by edges of the form
+ _V2-V1_. The cost is `O(|V|^2)`. In the next example:
+
+~~~~~{.prolog}
+?- transpose([1-[3,5],2-[4],3-[],
+              4-[5],5-[],6-[],7-[],8-[]], NL).
+
+NL = [1-[],2-[],3-[1],4-[2],5-[1,4],6-[],7-[],8-[]]
+~~~~~
+Notice that an undirected graph is its own transpose.
+
+ 
+*/
 :- module(clpfd, [
                   op(760, yfx, #<==>),
                   op(750, xfy, #==>),

@@ -3,6 +3,72 @@
 % written in an on-demand basis.
 
 
+/** 
+
+@defgroup system
+
+@file swi.yap
+
+@page SWIhYProlog_Emulation SWI-Prolog Emulation
+
+This library provides a number of SWI-Prolog builtins that are not by
+default in YAP. This support is loaded with the
+`expects_dialect(swi)` command.
+
+
+*/
+
+/** @pred  time_file(+ _File_,- _Time_) 
+
+
+Unify the last modification time of  _File_ with
+ _Time_.  _Time_ is a floating point number expressing the seconds
+elapsed since Jan 1, 1970.
+
+ 
+*/
+/** @pred chdir(+ _Dir_) 
+
+
+
+Compatibility predicate.  New code should use working_directory/2.
+
+ 
+*/
+/** @pred concat_atom(+ _List_,- _Atom_) 
+
+
+
+ _List_ is a list of atoms, integers or floating point numbers. Succeeds
+if  _Atom_ can be unified with the concatenated elements of  _List_. If
+ _List_ has exactly 2 elements it is equivalent to `atom_concat/3`,
+allowing for variables in the list.
+
+ 
+*/
+/** @pred concat_atom(? _List_,+ _Separator_,? _Atom_)
+
+
+Creates an atom just like concat_atom/2, but inserts  _Separator_
+between each pair of atoms.  For example:
+
+~~~~~
+?- concat_atom([gnu, gnat], ', ', A).
+
+A = 'gnu, gnat'
+~~~~~
+
+(Unimplemented) This predicate can also be used to split atoms by
+instantiating  _Separator_ and  _Atom_:
+
+~~~~~
+?- concat_atom(L, -, 'gnu-gnat').
+
+L = [gnu, gnat]
+~~~~~
+
+ 
+*/
 :- module(system, [concat_atom/2,
 		   concat_atom/3,
 		   read_clause/1,
@@ -98,8 +164,32 @@
 swi_get_time(FSecs) :- datime(Datime),  mktime(Datime, Secs), FSecs is Secs*1.0.
 
 goal_expansion(atom_concat(A,B),atomic_concat(A,B)).
+/** @pred  atom_concat(? _A1_,? _A2_,? _A12_) is iso
+
+The predicate holds when the third argument unifies with an atom, and
+the first and second unify with atoms such that their representations
+concatenated are the representation for  _A12_.
+
+If  _A1_ and  _A2_ are unbound, the built-in will find all the atoms
+that concatenated give  _A12_.
+
+ 
+*/
 goal_expansion(atom_concat(A,B,C),atomic_concat(A,B,C)).
 %goal_expansion(arg(A,_,_),_) :- nonvar(A), !, fail.
+/** @pred  arg(+ _N_,+ _T_, _A_) is iso 
+
+
+Succeeds if the argument  _N_ of the term  _T_ unifies with
+ _A_. The arguments are numbered from 1 to the arity of the term.
+
+The current version will generate an error if  _T_ or  _N_ are
+unbound, if  _T_ is not a compound term, of if  _N_ is not a positive
+integer. Note that previous versions of YAP would fail silently
+under these errors.
+
+@} 
+*/
 goal_expansion(arg(A,B,C),genarg(A,B,C)).
 
 % make sure we also use 

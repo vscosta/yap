@@ -19,7 +19,7 @@
 
    \defgroup YAPModules The YAP Module system 
 
-   @group YAPProgramming
+   @ingroup YAPLoading
 
   The YAP module system is based on the Quintus/SISCtus module
 system. In this design, modules are named collections of predicates,
@@ -525,6 +525,15 @@ of predicates.
    : _Mod_ is any user-visible module.
 
 */
+/** @pred  current_module( _M_) 
+
+
+Succeeds if  _M_ are defined modules. A module is defined as soon as some
+predicate defined in the module is loaded, as soon as a goal in the
+module is called, or as soon as it becomes the current type-in module.
+
+ 
+*/
 current_module(Mod) :-
 	'$all_current_modules'(Mod),
 	\+ '$system_module'(Mod).
@@ -533,6 +542,14 @@ current_module(Mod) :-
    : _Mod_ is any user-visible module and _File_ its source file, or `user` if none exists.
 
 */
+/** @pred  current_module( _M_, _F_)
+
+Succeeds if  _M_ are current modules associated to the file  _F_.
+
+
+
+
+ */
 current_module(Mod,TFN) :-
 	'$all_current_modules'(Mod),
 	( recorded('$module','$module'(TFN,Mod,_Publics, _),_) -> true ; TFN = user ).
@@ -991,6 +1008,443 @@ its parent goal.
 % comma has its own problems.
 :- '$install_meta_predicate'(','(0,0), prolog).
 
+/** @pred  all( _T_,+ _G_,- _L_) 
+
+
+Similar to `findall( _T_, _G_, _L_)` but eliminate
+repeated elements. Thus, assuming the same clauses as in the above
+example, the reply to the query
+
+~~~~~
+all(X,a(X,Y),L).
+~~~~~
+would be:
+
+~~~~~
+X = _32
+Y = _33
+L = [2,1];
+no
+~~~~~
+
+Note that all/3 will fail if no answers are found.
+
+ 
+*/
+/** @pred  bagof( _T_,+ _G_,- _L_) is iso 
+
+
+For each set of possible instances of the free variables occurring in
+ _G_ but not in  _T_, generates the list  _L_ of the instances of
+ _T_ satisfying  _G_. Again, assuming the same clauses as in the
+examples above, the reply to the query
+
+~~~~~
+bagof(X,a(X,Y),L).
+
+would be:
+X = _32
+Y = 1
+L = [2,1];
+X = _32
+Y = 2
+L = [2];
+no
+~~~~~
+
+ 
+*/
+/** @pred  bb_delete(+ _Key_,? _Term_) 
+
+
+Delete any term stored in the blackboard under key  _Key_ and unify
+it with  _Term_. Fail silently if no such term exists.
+
+ 
+*/
+/** @pred  bb_get(+ _Key_,? _Term_) 
+
+
+Unify  _Term_ with a term stored in the blackboard under key
+ _Key_, or fail silently if no such term exists.
+
+ 
+*/
+/** @pred  bb_put(+ _Key_,? _Term_) 
+
+
+Store term table  _Term_ in the blackboard under key  _Key_. If a
+previous term was stored under key  _Key_ it is simply forgotten.
+
+ 
+*/
+/** @pred  bb_update(+ _Key_,? _Term_,? _New_) 
+
+
+Atomically  unify a term stored in the blackboard under key  _Key_
+with  _Term_, and if the unification succeeds replace it by
+ _New_. Fail silently if no such term exists or if unification fails.
+
+
+
+
+ */
+/** @pred  call_with_args(+ _Name_,...,? _Ai_,...) 
+
+
+Meta-call where  _Name_ is the name of the procedure to be called and
+the  _Ai_ are the arguments. The number of arguments varies between 0
+and 10. New code should use `call/N` for better portability.
+
+If  _Name_ is a complex term, then call_with_args/n behaves as
+call/n:
+
+~~~~~{.prolog}
+call(p(X1,...,Xm), Y1,...,Yn) :- p(X1,...,Xm,Y1,...,Yn).
+~~~~~
+
+ 
+*/
+/** @pred  findall( _T_,+ _G_,+ _L_,- _L0_)
+
+Similar to findall/3, but appends all answers to list  _L0_.
+
+ 
+*/
+/** @pred  findall( _T_,+ _G_,- _L_) is iso 
+
+
+Unifies  _L_ with a list that contains all the instantiations of the
+term  _T_ satisfying the goal  _G_.
+
+With the following program:
+
+~~~~~
+a(2,1).
+a(1,1).
+a(2,2).
+~~~~~
+the answer to the query
+
+~~~~~
+findall(X,a(X,Y),L).
+~~~~~
+would be:
+
+~~~~~
+X = _32
+Y = _33
+L = [2,1,2];
+no
+~~~~~
+
+ 
+*/
+/** @pred  format(+ _S_,+ _T_,+ _L_)
+
+Print formatted output to stream  _S_.
+
+ 
+*/
+/** @pred  format(+ _T_,+ _L_) 
+
+
+Print formatted output to the current output stream. The arguments in
+list  _L_ are output according to the string or atom  _T_.
+
+A control sequence is introduced by a `w`. The following control
+sequences are available in YAP:
+
+
+
++ `~~`
+Print a single tilde.
+
++ `~a`
+The next argument must be an atom, that will be printed as if by `write`.
+
++ `~Nc`
+The next argument must be an integer, that will be printed as a
+character code. The number  _N_ is the number of times to print the
+character (default 1).
+
++ `~Ne`
++ `~NE`
++ `~Nf`
++ `~Ng`
++ `~NG`
+The next argument must be a floating point number. The float  _F_, the number
+ _N_ and the control code `c` will be passed to `printf` as:
+
+~~~~~{.prolog}
+    printf("%s.Nc", F)
+~~~~~
+
+As an example:
+
+~~~~~{.prolog}
+?- format("~8e, ~8E, ~8f, ~8g, ~8G~w",
+          [3.14,3.14,3.14,3.14,3.14,3.14]).
+3.140000e+00, 3.140000E+00, 3.140000, 3.14, 3.143.14
+~~~~~
+
++ `~Nd`
+The next argument must be an integer, and  _N_ is the number of digits
+after the decimal point. If  _N_ is `0` no decimal points will be
+printed. The default is  _N = 0_.
+
+~~~~~{.prolog}
+?- format("~2d, ~d",[15000, 15000]).
+150.00, 15000
+~~~~~
+
++ `~ND`
+Identical to `~Nd`, except that commas are used to separate groups
+of three digits.
+
+~~~~~{.prolog}
+?- format("~2D, ~D",[150000, 150000]).
+1,500.00, 150,000
+~~~~~
+
++ `~i`
+Ignore the next argument in the list of arguments:
+
+~~~~~{.prolog}
+?- format('The ~i met the boregrove',[mimsy]).
+The  met the boregrove
+~~~~~
+
++ `~k`
+Print the next argument with `write_canonical`:
+
+~~~~~{.prolog}
+?- format("Good night ~k",a+[1,2]).
+Good night +(a,[1,2])
+~~~~~
+
++ `~Nn`
+Print  _N_ newlines (where  _N_ defaults to 1).
+
++ `~NN`
+Print  _N_ newlines if at the beginning of the line (where  _N_
+defaults to 1).
+
++ `~Nr`
+The next argument must be an integer, and  _N_ is interpreted as a
+radix, such that `2 <= N <= 36` (the default is 8).
+
+~~~~~{.prolog}
+?- format("~2r, 0x~16r, ~r",
+          [150000, 150000, 150000]).
+100100100111110000, 0x249f0, 444760
+~~~~~
+
+Note that the letters `a-z` denote digits larger than 9.
+
++ `~NR`
+Similar to `~NR`. The next argument must be an integer, and  _N_ is
+interpreted as a radix, such that `2 <= N <= 36` (the default is 8).
+
+~~~~~{.prolog}
+?- format("~2r, 0x~16r, ~r",
+          [150000, 150000, 150000]).
+100100100111110000, 0x249F0, 444760
+~~~~~
+
+The only difference is that letters `A-Z` denote digits larger than 9.
+
++ `~p`
+Print the next argument with print/1:
+
+~~~~~{.prolog}
+?- format("Good night ~p",a+[1,2]).
+Good night a+[1,2]
+~~~~~
+
++ `~q`
+Print the next argument with writeq/1:
+
+~~~~~{.prolog}
+?- format("Good night ~q",'Hello'+[1,2]).
+Good night 'Hello'+[1,2]
+~~~~~
+
++ `~Ns`
+The next argument must be a list of character codes. The system then
+outputs their representation as a string, where  _N_ is the maximum
+number of characters for the string ( _N_ defaults to the length of the
+string).
+
+~~~~~{.prolog}
+?- format("The ~s are ~4s",["woods","lovely"]).
+The woods are love
+~~~~~
+
++ `~w`
+Print the next argument with write/1:
+
+~~~~~
+?- format("Good night ~w",'Hello'+[1,2]).
+Good night Hello+[1,2]
+~~~~~
+
+
+The number of arguments, `N`, may be given as an integer, or it
+may be given as an extra argument. The next example shows a small
+procedure to write a variable number of `a` characters:
+
+~~~~~
+write_many_as(N) :-
+        format("~*c",[N,0'a]).
+~~~~~
+
+The format/2 built-in also allows for formatted output.  One can
+specify column boundaries and fill the intermediate space by a padding
+character: 
+
++ `~N|`
+Set a column boundary at position  _N_, where  _N_ defaults to the
+current position.
+
++ `~N+`
+Set a column boundary at  _N_ characters past the current position, where
+ _N_ defaults to `8`.
+
++ `~Nt`
+Set padding for a column, where  _N_ is the fill code (default is
+`SPC`).
+
+
+
+The next example shows how to align columns and padding. We first show
+left-alignment:
+
+~~~~~
+   ?- format("~n*Hello~16+*~n",[]).
+*Hello          *
+~~~~~
+
+Note that we reserve 16 characters for the column.
+
+The following example shows how to do right-alignment:
+
+~~~~~
+   ?- format("*~tHello~16+*~n",[]).
+*          Hello*
+
+~~~~~
+
+The `~t` escape sequence forces filling before `Hello`. 
+
+We next show how to do centering:
+
+~~~~~
+   ?- format("*~tHello~t~16+*~n",[]).
+*     Hello     *
+~~~~~
+
+The two `~t` escape sequence force filling both before and after
+`Hello`. Space is then evenly divided between the right and the
+left sides.
+
+ 
+*/
+/** @pred  setof( _X_,+ _P_,- _B_) is iso 
+
+
+Similar to `bagof( _T_, _G_, _L_)` but sorts list
+ _L_ and keeping only one copy of each element.  Again, assuming the
+same clauses as in the examples above, the reply to the query
+
+~~~~~
+setof(X,a(X,Y),L).
+~~~~~
+would be:
+
+~~~~~
+X = _32
+Y = 1
+L = [1,2];
+X = _32
+Y = 2
+L = [2];
+no
+~~~~~
+
+
+
+
+ */
+/** @pred  with_output_to(+ _Ouput_,: _Goal_) 
+
+
+Run  _Goal_ as once/1, while characters written to the current
+output are sent to  _Output_. The predicate is SWI-Prolog
+specific.
+
+Applications should generally avoid creating atoms by breaking and
+concatenating other atoms as the creation of large numbers of
+intermediate atoms generally leads to poor performance, even more so in
+multi-threaded applications. This predicate supports creating
+difference-lists from character data efficiently. The example below
+defines the DCG rule `term/3` to insert a term in the output:
+
+~~~~~
+ term(Term, In, Tail) :-
+        with_output_to(codes(In, Tail), write(Term)).
+
+?- phrase(term(hello), X).
+
+X = [104, 101, 108, 108, 111]
+~~~~~
+
++ A Stream handle or alias
+Temporary switch current output to the given stream. Redirection using with_output_to/2 guarantees the original output is restored, also if Goal fails or raises an exception. See also call_cleanup/2. 
++ atom(- _Atom_)
+Create an atom from the emitted characters. Please note the remark above. 
++ string(- _String_)
+Create a string-object (not supported in YAP). 
++ codes(- _Codes_)
+Create a list of character codes from the emitted characters, similar to atom_codes/2. 
++ codes(- _Codes_, - _Tail_)
+Create a list of character codes as a difference-list. 
++ chars(- _Chars_)
+Create a list of one-character-atoms codes from the emitted characters, similar to atom_chars/2. 
++ chars(- _Chars_, - _Tail_)
+Create a list of one-character-atoms as a difference-list. 
+
+
+
+
+
+ */
+/** @pred call_shared_object_function(+ _Handle_, + _Function_) 
+
+
+Call the named function in the loaded shared library. The function
+is called without arguments and the return-value is
+ignored. In SWI-Prolog, normally this function installs foreign
+language predicates using calls to `PL_register_foreign()`.
+
+
+
+ */
+/** @pred with_mutex(+ _MutexId_, : _Goal_) 
+
+
+Execute  _Goal_ while holding  _MutexId_.  If  _Goal_ leaves
+choicepoints, these are destroyed (as in once/1).  The mutex is unlocked
+regardless of whether  _Goal_ succeeds, fails or raises an exception.
+An exception thrown by  _Goal_ is re-thrown after the mutex has been
+successfully unlocked.  See also `mutex_create/2`.
+
+Although described in the thread-section, this predicate is also
+available in the single-threaded version, where it behaves simply as
+once/1.
+
+ 
+*/
 :- meta_predicate
 	abolish(:),
 	abolish(:,+),

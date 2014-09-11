@@ -71,6 +71,7 @@ backtrace(N) :-
 debug_context(thread).
 
 /** <module> Print debug messages and test assertions
+@ingroup SWILibrary
 
 This library is a replacement for  format/3 for printing debug messages.
 Messages are assigned a _topic_. By   dynamically  enabling or disabling

@@ -438,6 +438,104 @@ error:
 
 static
 PRED_IMPL("char_type", 2, char_type, PL_FA_NONDETERMINISTIC)
+/** @pred  char_type(? _Char_, ? _Type_) 
+
+
+Tests or generates alternative  _Types_ or  _Chars_. The
+character-types are inspired by the standard `C`
+`<ctype.h>` primitives.
+
++  `alnum`
+     _Char_ is a letter (upper- or lowercase) or digit.
+
++ `alpha`
+    _Char_ is a letter (upper- or lowercase).
+
++ `csym`
+    _Char_ is a letter (upper- or lowercase), digit or the underscore (_). These are valid C- and Prolog symbol characters.
+
++ `csymf`
+    _Char_ is a letter (upper- or lowercase) or the underscore (_). These are valid first characters for C- and Prolog symbols
+
++ `ascii`
+    _Char_ is a 7-bits ASCII character (0..127).
+
++ `white`
+    _Char_ is a space or tab. E.i. white space inside a line.
+
++ `cntrl`
+    _Char_ is an ASCII control-character (0..31).
+ 
++ `digit`
+    _Char_ is a digit.
+
++ `digit( _Weight_)`
+    _Char_ is a digit with value _Weight_. I.e. `char_type(X, digit(6))` yields X =  aaasaá'6'. Useful for parsing numbers.
+
++ `xdigit( _Weight_)`
+    _Char_ is a hexa-decimal digit with value  _Weight_. I.e. char_type(a, xdigit(X) yields X = '10'. Useful for parsing numbers.
+
++ `graph`
+    _Char_ produces a visible mark on a page when printed. Note that the space is not included!
+
++ `lower`
+    _Char_ is a lower-case letter.
+
++ `lower(Upper)`
+    _Char_ is a lower-case version of  _Upper_. Only true if _Char_ is lowercase and  _Upper_ uppercase.
+
++ `to_lower(Upper)`
+ _Char_ is a lower-case version of Upper. For non-letters, or letter without case,  _Char_ and Lower are the same. See also upcase_atom/2 and downcase_atom/2.
+
++ `upper`
+ _Char_ is an upper-case letter.
+
++ `upper(Lower)`
+ _Char_ is an upper-case version of Lower. Only true if  _Char_ is uppercase and Lower lowercase.
+
++ `to_upper(Lower)`
+ _Char_ is an upper-case version of Lower. For non-letters, or letter without case,  _Char_ and Lower are the same. See also upcase_atom/2 and downcase_atom/2.
+
++ `punct`
+ _Char_ is a punctuation character. This is a graph character that is not a letter or digit.
+
++ `space`
+ _Char_ is some form of layout character (tab, vertical-tab, newline, etc.).
+
++ `end_of_file`
+ _Char_ is -1.
+
++ `end_of_line`
+ _Char_ ends a line (ASCII: 10..13).
+
++ `newline`
+ _Char_ is a the newline character (10).
+
++ `period`
+ _Char_ counts as the end of a sentence (.,!,?).
+
++ `quote`
+ _Char_ is a quote-character.
+
++ `paren(Close)`
+ _Char_ is an open-parenthesis and Close is the corresponding close-parenthesis. 
+
+
++ `code_type(? _Code_, ? _Type_)`
+
+
+As char_type/2, but uses character-codes rather than
+one-character atoms. Please note that both predicates are as
+flexible as possible. They handle either representation if the
+argument is instantiated and only will instantiate with an integer
+code or one-character atom depending of the version used. See also
+the prolog-flag double_quotes and the built-in predicates 
+atom_chars/2 and atom_codes/2.
+
+
+
+
+ */
 { return do_char_type(A1, A2, PL__ctx, PL_CHAR);
 }
 

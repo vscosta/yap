@@ -1,6 +1,6 @@
 % This file has been included as an YAP library by Vitor Santos Costa, 2008
 
-% it is based on the arg library from Quintus Prolog
+% it is based on the Quintus Prolog arg library
 
 :- module(arg,
 	  [
@@ -12,6 +12,8 @@
 %	   project/3
 	   path_arg/3
 	  ]).
+
+
 
 arg0(0,T,A) :- !,
 	functor(T,A,_).

@@ -1,3 +1,23 @@
+
+/** @defgroup LineUtilities Line Manipulation Utilities
+@ingroup YAPLibrary
+@{
+
+This package provides a set of useful predicates to manipulate
+sequences of characters codes, usually first read in as a line. It is
+available by loading the library `library(lineutils)`.
+
+
+
+ @pred search_for(+ _Char_,+ _Line_) 
+
+
+
+Search for a character  _Char_ in the list of codes  _Line_.
+
+ 
+*/
+
 :- module(line_utils,
 	  [search_for/2,
 	   search_for/3,

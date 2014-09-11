@@ -15,6 +15,52 @@
 *									 *
 *************************************************************************/
 
+
+/** 
+@defgroup Grammars Grammar Rules
+@ingroup YAPBuiltins
+@{
+
+Grammar rules in Prolog are both a convenient way to express definite
+clause grammars and  an extension of the well known context-free grammars.
+
+A grammar rule is of the form:
+
+~~~~~
+head --> body
+~~~~~
+where both \a head and \a body are sequences of one or more items
+linked by the standard conjunction operator `,`.
+
+<em>Items can be:</em>
+
++ 
+a <em>non-terminal</em> symbol may be either a complex term or an atom.
++ 
+a <em>terminal</em> symbol may be any Prolog symbol. Terminals are
+written as Prolog lists.
++ 
+an <em>empty body</em> is written as the empty list `[ ]`.
++ 
+<em>extra conditions</em> may be inserted as Prolog procedure calls, by being
+written inside curly brackets `{` and `}`.
++ 
+the left side of a rule consists of a nonterminal and an optional list
+of terminals.
++ 
+alternatives may be stated in the right-hand side of the rule by using
+the disjunction operator `;`.
++ 
+the <em>cut</em> and <em>conditional</em> symbol (`->`) may be inserted in the 
+right hand side of a grammar rule
+
+
+Grammar related built-in predicates:
+
+ 
+*/
+
+
 :- system_module( '$_grammar', [!/2,
         (',')/4,
         (->)/4,
@@ -147,13 +193,40 @@
 	'$t_tidy'(P2, Q2).
 '$t_tidy'(A, A).
 
+/** @pred  `C`( _S1_, _T_, _S2_) 
 
+
+This predicate is used by the grammar rules compiler and is defined as
+`C`([H|T],H,T)`.
+
+
+
+
+ */
 'C'([X|S],X,S).
 
 
+/** @pred  phrase(+ _P_, _L_)
+
+This predicate succeeds when  _L_ is a phrase of type  _P_. The
+same as `phrase(P,L,[])`.
+
+Both this predicate and the previous are used as a convenient way to
+start execution of grammar rules.
+
+ 
+*/
 phrase(PhraseDef, WordList) :-
 	phrase(PhraseDef, WordList, []).
 
+/** @pred  phrase(+ _P_, _L_, _R_) 
+
+
+This predicate succeeds when the difference list ` _L_- _R_`
+is a phrase of type  _P_.
+
+ 
+*/
 phrase(P, S0, S) :-
 	call(P, S0, S).
 
@@ -189,3 +262,7 @@ phrase(P, S0, S) :-
 \+(A, S0, S) :-
 	 '$t_body'(\+ A, _, last, S0, S, Goal),
 	 '$execute'(Goal).
+
+/**
+@}
+*/

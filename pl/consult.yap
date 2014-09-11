@@ -67,7 +67,7 @@
 /**
 
   \defgroup YAPConsulting Loading files into YAP
-  @ingroup YAPProgramming
+  @ingroup YAPLoading
 
   We present the main predicates and directives available to load
 files and to set-up the Prolog environment. We discuss
@@ -807,6 +807,72 @@ source_file(Mod:Pred, FileName) :-
 '$owned_by'(T, Mod, FileName) :-
 	'$owner_file'(T, Mod, FileName).
 
+/** @pred prolog_load_context(? _Key_, ? _Value_) 
+
+
+Obtain information on what is going on in the compilation process. The
+following keys are available:
+
+
+
++ directory 
+
+
+
+Full name for the directory where YAP is currently consulting the
+file.
+
++ file 
+
+
+
+Full name for the file currently being consulted. Notice that included
+filed are ignored.
+
++ module 
+
+
+
+Current source module.
+
++ `source` (prolog_load_context/2 option) 
+
+    Full name for the file currently being read in, which may be consulted,
+reconsulted, or included.
+
++ `stream` 
+
+    Stream currently being read in.
+
++ `term_position` 
+
+    Stream position at the stream currently being read in. For SWI
+compatibility, it is a term of the form
+'$stream_position'(0,Line,0,0,0).
+
+
++ `source_location(? _FileName_, ? _Line_)` 
+
+    SWI-compatible predicate. If the last term has been read from a physical file (i.e., not from the file user or a string), unify File with an absolute path to the file and Line with the line-number in the file. Please use prolog_load_context/2.
+
++ `source_file(? _File_)`
+
+    SWI-compatible predicate. True if  _File_ is a loaded Prolog source file.
+
++ `source_file(? _ModuleAndPred_,? _File_)`
+
+    SWI-compatible predicate. True if the predicate specified by  _ModuleAndPred_ was loaded from file  _File_, where  _File_ is an absolute path name (see `absolute_file_name/2`).
+
+
+
+@section YAPLibraries Library Predicates
+
+Library files reside in the library_directory path (set by the
+`LIBDIR` variable in the Makefile for YAP). Currently,
+most files in the library are from the Edinburgh Prolog library. 
+
+
+ */
 prolog_load_context(directory, DirName) :- 
 	source_location(F, _),
 	file_directory_name(F, DirName).

@@ -39,6 +39,7 @@
 :- use_module(library(lists)).
 
 /** <module> Access compound arguments by name
+@ingroup SWILibrary
 
 This module creates a set of predicates   to  create a default instance,
 access and modify records represented as a compound term.

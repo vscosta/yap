@@ -16,11 +16,49 @@
 *									 *
 *************************************************************************/
 
+/** @defgroup Messages Message Handling
+@ingroup YAPControl
+@{
+
+The interaction between YAP and the user relies on YAP's ability to
+portray messages. These messages range from prompts to error
+information. All message processing is performed through the builtin
+print_message/2, in two steps:
+
++ The message is processed into a list of commands 
++ The commands in the list are sent to the `format/3` builtin
+in sequence.
+
+
+The first argument to print_message/2 specifies the importance of
+the message. The options are:
+
++ `error`
+error handling
++ `warning`
+compilation and run-time warnings,
++ `informational`
+generic informational messages
++ `help`
+help messages (not currently implemented in YAP)
++ `query`
+query 	used in query processing (not currently implemented in YAP)
++ `silent`
+messages that do not produce output but that can be intercepted by hooks.
+
+
+The next table shows the main predicates and hooks associated to message
+handling in YAP:
+
+
+*/
+
 :- module('$messages',
 	  [system_message/4,
 	   prefix/6,
 	   prefix/5,
 	   file_location/3]).
+
 
 :- use_system_module( user, [generate_message_hook/3]).
 
@@ -513,6 +551,31 @@ syntax_error_token(A) --> !,
 %	Quintus/SICStus/SWI compatibility predicate to print message lines
 %       using  a prefix.
 
+/** @pred  print_message_lines(+ _Stream_, + _Prefix_, + _Lines_) 
+
+
+Print a message (see print_message/2) that has been translated to
+a list of message elements.  The elements of this list are:
+
++ _Format_-_Args_
+Where  _Format_ is an atom and  _Args_ is a list
+of format argument.  Handed to `format/3`.
++ `flush`
+If this appears as the last element,  _Stream_ is flushed
+(see `flush_output/1`) and no final newline is generated.
++ `at_same_line`
+If this appears as first element, no prefix is printed for
+the first line and the line-position is not forced to 0
+(see `format/1`, `~N`).
++ `<Format>`
+Handed to `format/3` as `format(Stream, Format, [])`.
++ nl
+A new line is started and if the message is not complete
+the  _Prefix_ is printed too.
+
+
+ 
+*/
 prolog:print_message_lines(S, _, []) :- !.
 prolog:print_message_lines(S, P, [at_same_line|Lines]) :- !,
 	print_message_line(S, Lines, Rest),
@@ -612,3 +675,7 @@ pred_arity((H-->_),Name,Arity) :- !,
 pred_arity(H,Name,Arity) :-
     functor(H,Name,Arity).
 
+
+/**
+@}
+*/

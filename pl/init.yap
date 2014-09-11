@@ -15,6 +15,13 @@
 *									 *
 *************************************************************************/
 
+/** 
+
+@addtogroup YAPControl
+@{
+
+*/
+
 :- system_module( '$_init', [!/0,
         (:-)/1,
         (?-)/1,
@@ -43,8 +50,22 @@
 
 % These are pseudo declarations
 % so that the user will get a redefining system predicate
+/** @pred  fail is iso 
+
+
+Always fails.
+
+ 
+*/
 fail :- fail.
 
+/** @pred  false is iso 
+
+
+The same as fail.
+
+ 
+*/
 false :- fail.
 
 otherwise.
@@ -204,6 +225,20 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- module(user).
 
+/** @pred  _CurrentModule_:goal_expansion(+ _G_,+ _M_,- _NG_), user:goal_expansion(+ _G_,+ _M_,- _NG_) 
+
+
+YAP now supports goal_expansion/3. This is an user-defined
+procedure that is called after term expansion when compiling or
+asserting goals for each sub-goal in a clause. The first argument is
+bound to the goal and the second to the module under which the goal
+ _G_ will execute. If goal_expansion/3 succeeds the new
+sub-goal  _NG_ will replace  _G_ and will be processed in the same
+way. If goal_expansion/3 fails the system will use the default
+rules.
+
+ 
+*/
 :- multifile goal_expansion/3.
 
 :- dynamic goal_expansion/3.
@@ -220,6 +255,28 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- dynamic goal_expansion/2.
 
+
+/** @pred  _CurrentModule_:term_expansion( _T_,- _X_),  user:term_expansion( _T_,- _X_) 
+
+
+This user-defined predicate is called by `expand_term/3` to
+preprocess all terms read when consulting a file. If it succeeds:
+
++ 
+If  _X_ is of the form `:- G` or `?- G`, it is processed as
+a directive.
++ 
+If  _X_ is of the form `$source_location`( _File_, _Line_): _Clause_` it is processed as if from `File` and line `Line`.
+
++ 
+If  _X_ is a list, all terms of the list are asserted or processed
+as directives.
++ The term  _X_ is asserted instead of  _T_.
+
+
+ 
+*/
+
 :- multifile term_expansion/2.
 
 :- dynamic term_expansion/2.
@@ -230,6 +287,19 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- multifile swi:swi_predicate_table/4.
 
+/** @pred  user:message_hook(+ _Term_, + _Kind_, + _Lines_) 
+
+
+Hook predicate that may be define in the module `user` to intercept
+messages from print_message/2.  _Term_ and  _Kind_ are the
+same as passed to print_message/2.  _Lines_ is a list of
+format statements as described with print_message_lines/3.
+
+This predicate should be defined dynamic and multifile to allow other
+modules defining clauses for it too.
+
+ 
+*/
 :- multifile user:message_hook/3.
 
 :- dynamic user:message_hook/3.
@@ -238,6 +308,22 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- dynamic user:portray_message/2.
 
+/** @pred  exception(+ _Exception_, + _Context_, - _Action_) 
+
+
+Dynamic predicate, normally not defined. Called by the Prolog system on run-time exceptions that can be repaired `just-in-time`. The values for  _Exception_ are described below. See also catch/3 and throw/1.
+If this hook predicate succeeds it must instantiate the  _Action_ argument to the atom `fail` to make the operation fail silently, `retry` to tell Prolog to retry the operation or `error` to make the system generate an exception. The action `retry` only makes sense if this hook modified the environment such that the operation can now succeed without error.
+
++ `undefined_predicate`
+ _Context_ is instantiated to a predicate-indicator ( _Module:Name/Arity_). If the predicate fails Prolog will generate an existence_error exception. The hook is intended to implement alternatives to the SWI built-in autoloader, such as autoloading code from a database. Do not use this hook to suppress existence errors on predicates. See also `unknown`.
++ `undefined_global_variable`
+ _Context_ is instantiated to the name of the missing global variable. The hook must call nb_setval/2 or b_setval/2 before returning with the action retry.
+
+
+
+
+
+ */
 :- multifile user:exception/3.
 
 :- dynamic user:exception/3.
@@ -248,3 +334,6 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 
 
+/**
+@}
+*/

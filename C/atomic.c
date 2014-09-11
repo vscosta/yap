@@ -18,6 +18,17 @@
 static char     SccsId[] = "%W% %G%";
 #endif
 
+/** @defgroup Predicates_on_Atoms Predicates on Atoms
+@ingroup YAPBuiltins
+@{
+
+The following predicates are used to manipulate atoms:
+
+
+ 
+*/
+
+
 #define HAS_CACHE_REGS 1
 /*
  * This file includes the definition of a miscellania of standard operations
@@ -2077,6 +2088,23 @@ Yap_InitBackAtoms(void)
   Yap_InitCPredBack("atom_concat", 3, 2, init_atom_concat3, cont_atom_concat3, 0);
   Yap_InitCPredBack("string_concat", 3, 2, init_string_concat3, cont_string_concat3, 0);
   Yap_InitCPredBack("sub_atom", 5, 5, init_sub_atom, cont_sub_atomic, 0);
+/** @pred  sub_atom(+ _A_,? _Bef_, ? _Size_, ? _After_, ? _At_out_) is iso 
+
+
+True when  _A_ and  _At_out_ are atoms such that the name of
+ _At_out_ has size  _Size_ and is a sub-string of the name of
+ _A_, such that  _Bef_ is the number of characters before and
+ _After_ the number of characters afterwards.
+
+Note that  _A_ must always be known, but  _At_out_ can be unbound when
+calling this built-in. If all the arguments for sub_atom/5 but  _A_
+are unbound, the built-in will backtrack through all possible
+sub-strings of  _A_.
+
+
+
+
+ */
   Yap_InitCPredBack("sub_string", 5, 5, init_sub_string, cont_sub_atomic, 0);
   Yap_InitCPredBack("string_code", 3, 1, init_string_code3, cont_string_code3, 0);
 
@@ -2086,28 +2114,126 @@ void
 Yap_InitAtomPreds(void)
 {
   Yap_InitCPred("name", 2, p_name, 0);
+/** @pred  name( _A_, _L_) 
+
+
+The predicate holds when at least one of the arguments is ground
+(otherwise, an error message will be displayed). The argument  _A_ will
+be unified with an atomic symbol and  _L_ with the list of the ASCII
+codes for the characters of the external representation of  _A_.
+
+~~~~~{.prolog}
+ name(yap,L).
+~~~~~
+will return:
+
+~~~~~{.prolog}
+ L = [121,97,112].
+~~~~~
+and
+
+~~~~~{.prolog}
+ name(3,L).
+~~~~~
+will return:
+
+~~~~~{.prolog}
+ L = [51].
+~~~~~
+
+ 
+*/
   Yap_InitCPred("string_to_atom", 2, p_string_to_atom, 0);
   Yap_InitCPred("atom_string", 2, p_atom_string, 0);
   Yap_InitCPred("string_to_atomic", 2, p_string_to_atomic, 0);
   Yap_InitCPred("string_to_list", 2, p_string_to_list, 0);
   Yap_InitCPred("char_code", 2, p_char_code, SafePredFlag);
+/** @pred  char_code(? _A_,? _I_) is iso 
+
+
+The built-in succeeds with  _A_ bound to character represented as an
+atom, and  _I_ bound to the character code represented as an
+integer. At least, one of either  _A_ or  _I_ must be bound before
+the call.
+
+ 
+*/
   Yap_InitCPred("atom_chars", 2, p_atom_chars, 0);
+/** @pred  atom_chars(? _A_,? _L_) is iso 
+
+
+The predicate holds when at least one of the arguments is ground
+(otherwise, an error message will be displayed). The argument  _A_ must
+be unifiable with an atom, and the argument  _L_ with the list of the
+characters of  _A_.
+
+ 
+*/
   Yap_InitCPred("atom_codes", 2, p_atom_codes, 0);
   Yap_InitCPred("string_codes", 2, p_string_codes, 0);
   Yap_InitCPred("string_chars", 2, p_string_chars, 0);
   Yap_InitCPred("atom_length", 2, p_atom_length, SafePredFlag);
+/** @pred  atom_length(+ _A_,? _I_) is iso 
+
+
+The predicate holds when the first argument is an atom, and the second
+unifies with the number of characters forming that atom.
+
+ 
+*/
   Yap_InitCPred("atomic_length", 2, p_atomic_length, SafePredFlag);
   Yap_InitCPred("string_length", 2, p_string_length, SafePredFlag);
   Yap_InitCPred("$atom_split", 4, p_atom_split, SafePredFlag);
   Yap_InitCPred("number_chars", 2, p_number_chars, 0);
+/** @pred  number_chars(? _I_,? _L_) is iso 
+
+The predicate holds when at least one of the arguments is ground
+(otherwise, an error message will be displayed). The argument  _I_ must
+be unifiable with a number, and the argument  _L_ with the list of the
+characters of the external representation of  _I_.
+
+ 
+*/
   Yap_InitCPred("number_atom", 2, p_number_atom, 0);
+/** @pred  number_atom(? _I_,? _L_) 
+
+
+
+The predicate holds when at least one of the arguments is ground
+(otherwise, an error message will be displayed). The argument  _I_ must
+be unifiable with a number, and the argument  _L_ must be unifiable
+with an atom representing the number.
+
+ 
+*/
   Yap_InitCPred("number_string", 2, p_number_string, 0);
   Yap_InitCPred("number_codes", 2, p_number_codes, 0);
   Yap_InitCPred("atom_number", 2, p_atom_number, 0);
+/** @pred  atom_number(? _Atom_,? _Number_) 
+
+
+The predicate holds when at least one of the arguments is ground
+(otherwise, an error message will be displayed). If the argument
+ _Atom_ is an atom,  _Number_ must be the number corresponding
+to the characters in  _Atom_, otherwise the characters in
+ _Atom_ must encode a number  _Number_.
+
+ 
+*/
   Yap_InitCPred("string_number", 2, p_string_number, 0);
   Yap_InitCPred("$atom_concat", 2, p_atom_concat2, 0);
   Yap_InitCPred("$string_concat", 2, p_string_concat2, 0);
   Yap_InitCPred("atomic_concat", 2, p_atomic_concat2, 0);
+/** @pred  atomic_concat(+ _As_,? _A_) 
+
+
+The predicate holds when the first argument is a list of atomic terms, and
+the second unifies with the atom obtained by concatenating all the
+atomic terms in the first list. The first argument thus may contain
+atoms or numbers.
+
+ 
+*/
   Yap_InitCPred("atomic_concat", 3, p_atomic_concat3, 0);
   Yap_InitCPred("atomics_to_string", 2, p_atomics_to_string2, 0);
   Yap_InitCPred("atomics_to_string", 3, p_atomics_to_string3, 0);
@@ -2117,3 +2243,7 @@ Yap_InitAtomPreds(void)
   Yap_InitCPred("unhide", 1, p_unhide, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$hidden", 1, p_hidden, SafePredFlag|SyncPredFlag);
 }
+
+/**
+@}
+*/

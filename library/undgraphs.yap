@@ -3,6 +3,7 @@
 %   Updated: 2006
 %   Purpose: Directed Graph Processing Utilities.
 
+
 :- module( undgraphs,
 	   [
 	    undgraph_add_edge/4,
@@ -18,6 +19,41 @@
 	    undgraph_components/2,
 	    undgraph_min_tree/2]).
 
+/** @defgroup UnDGraphs Undirected Graphs
+@ingroup YAPLibrary
+@{
+
+The following graph manipulation routines use the red-black tree graph
+library to implement undirected graphs. Mostly, this is done by having
+two directed edges per undirected edge.
+
+
+
+ @pred undgraph_new(+ _Graph_) 
+
+
+Create a new directed graph. This operation must be performed before
+trying to use the graph.
+
+ 
+*/
+
+
+/** @pred undgraph_complement(+ _Graph_, - _NewGraph_) 
+
+
+Unify  _NewGraph_ with the graph complementary to  _Graph_.
+
+ 
+*/
+/** @pred undgraph_vertices(+ _Graph_, - _Vertices_) 
+
+
+Unify  _Vertices_ with all vertices appearing in graph
+ _Graph_.
+
+ 
+*/
 :- reexport( library(dgraphs),
 	   [
 	    dgraph_new/1 as undgraph_new,
@@ -66,6 +102,14 @@ undgraph_add_edge(Vs0,V1,V2,Vs2) :-
 	dgraphs:dgraph_new_edge(V1,V2,Vs0,Vs1),
 	dgraphs:dgraph_new_edge(V2,V1,Vs1,Vs2).
 	
+/** @pred undgraph_add_edges(+ _Graph_, + _Edges_, - _NewGraph_) 
+
+
+Unify  _NewGraph_ with a new graph obtained by adding the list of
+edges  _Edges_ to the graph  _Graph_.
+
+ 
+*/
 undgraph_add_edges(G0, Edges, GF) :-
 	dup_edges(Edges, DupEdges),
 	dgraph_add_edges(G0, DupEdges, GF).
@@ -74,11 +118,27 @@ dup_edges([],[]).
 dup_edges([E1-E2|Edges], [E1-E2,E2-E1|DupEdges]) :-
 	dup_edges(Edges, DupEdges).
 
+/** @pred undgraph_add_vertices(+ _Graph_, + _Vertices_, - _NewGraph_) 
+
+
+Unify  _NewGraph_ with a new graph obtained by adding the list of
+vertices  _Vertices_ to the graph  _Graph_.
+
+ 
+*/
 undgraph_add_vertices(G, [], G).
 undgraph_add_vertices(G0, [V|Vs], GF) :-
 	dgraph_add_vertex(G0, V, GI),
 	undgraph_add_vertices(GI, Vs, GF).
 
+/** @pred undgraph_edges(+ _Graph_, - _Edges_) 
+
+
+Unify  _Edges_ with all edges appearing in graph
+ _Graph_.
+
+ 
+*/
 undgraph_edges(Vs,Edges) :-
 	dgraph_edges(Vs,DupEdges),
 	remove_dups(DupEdges,Edges).
@@ -90,6 +150,14 @@ remove_dups([V1-V2|DupEdges],NEdges) :- V1 @< V2, !,
 remove_dups([_|DupEdges],Edges) :-
 	remove_dups(DupEdges,Edges).
 
+/** @pred undgraph_neighbours(+ _Vertex_, + _Graph_, - _Vertices_) 
+
+
+Unify  _Vertices_ with the list of neighbours of vertex  _Vertex_
+in  _Graph_.
+
+ 
+*/
 undgraph_neighbours(V,Vertices,Children) :-
 	dgraph_neighbours(V,Vertices,Children0),
 	(
@@ -113,6 +181,15 @@ undgraph_del_edge(Vs0,V1,V2,VsF) :-
 	dgraph_del_edge(Vs0,V1,V2,Vs1),
 	dgraph_del_edge(Vs1,V2,V1,VsF).
 
+/** @pred undgraph_del_edges(+ _Graph_, + _Edges_, - _NewGraph_) 
+
+
+Unify  _NewGraph_ with a new graph obtained by removing the list of
+edges  _Edges_ from the graph  _Graph_. Notice that no vertices
+are deleted.
+
+ 
+*/
 undgraph_del_edges(G0, Edges, GF) :-
 	dup_edges(Edges,DupEdges),
 	dgraph_del_edges(G0, DupEdges, GF).
@@ -128,6 +205,15 @@ undgraph_del_vertex(Vs0, V, Vsf) :-
 	),
 	rb_partial_map(Vsi, RealBackEdges, del_edge(V), Vsf).
 
+/** @pred undgraph_del_vertices(+ _Graph_, + _Vertices_, - _NewGraph_) 
+
+
+Unify  _NewGraph_ with a new graph obtained by deleting the list of
+vertices  _Vertices_ and all the edges that start from or go to a
+vertex in  _Vertices_ to the graph  _Graph_.
+
+ 
+*/
 undgraph_del_vertices(G0, Vs, GF) :-
 	sort(Vs,SortedVs),
 	delete_all(SortedVs, [], BackEdges, G0, GI),

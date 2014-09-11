@@ -29,8 +29,7 @@
 
 :- dynamic(persistent_desc/2).
 
-/*
-  persistent_open(PredDesc, File, Opts).
+/**  persistent_open(PredDesc, File, Opts).
   
   declare Module:Functor/Arity (Functor/Arity) to be persistent
   stored in File's (*.db *.log *log.$PID *.lock *.bak)

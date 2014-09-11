@@ -19,6 +19,16 @@
 
     @defgroup arithmetic Arithmetic in YAP 
 
+@ingroup YAPBuiltins
+
+  + See @ref arithmetic_preds for the predicates that implement arithment
+
+  + See @ref arithmetic_cmps for the arithmetic comparisons supported in YAP
+
+  + See @ref arithmetic_operators for how to call arithmetic operations in YAP 
+
+
+
     @tableofcontents
 
     YAP supports several different numeric types:

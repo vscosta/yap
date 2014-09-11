@@ -18,6 +18,91 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
+
+/**
+
+@file globals.c
+
+ @defgroup Global_Variables Global Variables
+@ingroup YAPBuiltins
+@{
+
+Global variables are associations between names (atoms) and
+terms. They differ in various ways from storing information using
+assert/1 or recorda/3.
+
++ The value lives on the Prolog (global) stack. This implies that
+lookup time is independent from the size of the term. This is
+particularly interesting for large data structures such as parsed XML
+documents or the CHR global constraint store. 
+
++ They support both global assignment using nb_setval/2 and
+backtrackable assignment using b_setval/2.
+
++ Only one value (which can be an arbitrary complex Prolog term)
+can be associated to a variable at a time. 
+
++ Their value cannot be shared among threads. Each thread has its own
+namespace and values for global variables.
+
+
+Currently global variables are scoped globally. We may consider module
+scoping in future versions.   Both b_setval/2 and
+nb_setval/2 implicitly create a variable if the referenced name
+does not already refer to a variable.
+
+Global variables may be initialised from directives to make them
+available during the program lifetime, but some considerations are
+necessary for saved-states and threads. Saved-states to not store
+global variables, which implies they have to be declared with
+initialization/1 to recreate them after loading the saved
+state. Each thread has its own set of global variables, starting with
+an empty set. Using `thread_initialization/1` to define a global
+variable it will be defined, restored after reloading a saved state
+and created in all threads that are created after the
+registration. Finally, global variables can be initialised using the
+exception hook called exception/3. The latter technique is used
+by CHR.
+
+SWI-Prolog global variables are associations between names (atoms) and
+terms.  They differ in various ways from storing information using
+assert/1 or recorda/3.
+
++ The value lives on the Prolog (global) stack.  This implies 
+that lookup time is independent from the size of the term.
+This is particulary interesting for large data structures
+such as parsed XML documents or the CHR global constraint
+store.
+
+They support both global assignment using nb_setval/2 and
+backtrackable assignment using b_setval/2.
+
++ Only one value (which can be an arbitrary complex Prolog
+term) can be associated to a variable at a time.
+
++ Their value cannot be shared among threads.  Each thread
+has its own namespace and values for global variables.
+
++ Currently global variables are scoped globally.  We may
+consider module scoping in future versions.
+
+
+Both b_setval/2 and nb_setval/2 implicitly create a variable if the
+referenced name does not already refer to a variable.
+
+Global variables may be initialised from directives to make them
+available during the program lifetime, but some considerations are
+necessary for saved-states and threads. Saved-states to not store global
+variables, which implies they have to be declared with initialization/1
+to recreate them after loading the saved state.  Each thread has
+its own set of global variables, starting with an empty set.  Using
+`thread_inititialization/1` to define a global variable it will be
+defined, restored after reloading a saved state and created in all
+threads that are created <em>after</em> the registration.
+
+ 
+*/
+
 #include "Yap.h"
 #include "Yatom.h"
 #include "YapHeap.h"
@@ -2602,14 +2687,173 @@ void Yap_InitGlobals(void)
   Yap_InitCPred("$allocate_arena", 2, p_allocate_arena, 0);
   Yap_InitCPred("arena_size", 1, p_default_arena_size, 0);
   Yap_InitCPred("b_setval", 2, p_b_setval, SafePredFlag);
+/** @pred  b_setval(+ _Name_, + _Value_)  
+
+
+Associate the term  _Value_ with the atom  _Name_ or replaces
+the currently associated value with  _Value_. If  _Name_ does
+not refer to an existing global variable a variable with initial value
+[] is created (the empty list). On backtracking the assignment is
+reversed. 
+
+ 
+*/
+/** @pred b_setval(+ _Name_,+ _Value_) 
+
+
+Associate the term  _Value_ with the atom  _Name_ or replaces
+the currently associated value with  _Value_.  If  _Name_ does
+not refer to an existing global variable a variable with initial value
+`[]` is created (the empty list).  On backtracking the
+assignment is reversed.
+
+ 
+*/
   Yap_InitCPred("nb_setval", 2, p_nb_setval, 0L);
+/** @pred  nb_setval(+ _Name_, + _Value_)  
+
+
+Associates a copy of  _Value_ created with duplicate_term/2 with
+the atom  _Name_. Note that this can be used to set an initial
+value other than `[]` prior to backtrackable assignment.
+
+ 
+*/
+/** @pred nb_setval(+ _Name_,+ _Value_) 
+
+
+Associates a copy of  _Value_ created with duplicate_term/2
+with the atom  _Name_.  Note that this can be used to set an
+initial value other than `[]` prior to backtrackable assignment.
+
+ 
+*/
   Yap_InitCPred("nb_set_shared_val", 2, p_nb_set_shared_val, 0L);
+/** @pred  nb_set_shared_val(+ _Name_, + _Value_)  
+
+
+Associates the term  _Value_ with the atom  _Name_, but sharing
+non-backtrackable terms. This may be useful if you want to rewrite a
+global variable so that the new copy will survive backtracking, but
+you want to share structure with the previous term.
+
+The next example shows the differences between the three built-ins:
+
+~~~~~
+?- nb_setval(a,a(_)),nb_getval(a,A),nb_setval(b,t(C,A)),nb_getval(b,B).
+A = a(_A),
+B = t(_B,a(_C)) ? 
+
+?- nb_setval(a,a(_)),nb_getval(a,A),nb_set_shared_val(b,t(C,A)),nb_getval(b,B).
+
+?- nb_setval(a,a(_)),nb_getval(a,A),nb_linkval(b,t(C,A)),nb_getval(b,B).
+A = a(_A),
+B = t(C,a(_A)) ?
+~~~~~
+
+ 
+*/
   Yap_InitCPred("nb_linkval", 2, p_nb_linkval, 0L);
+/** @pred  nb_linkval(+ _Name_, + _Value_)  
+
+
+Associates the term  _Value_ with the atom  _Name_ without
+copying it. This is a fast special-purpose variation of nb_setval/2
+intended for expert users only because the semantics on backtracking
+to a point before creating the link are poorly defined for compound
+terms. The principal term is always left untouched, but backtracking
+behaviour on arguments is undone if the original assignment was
+trailed and left alone otherwise, which implies that the history that
+created the term affects the behaviour on backtracking. Please
+consider the following example:
+
+~~~~~
+demo_nb_linkval :-
+        T = nice(N),
+        (   N = world,
+            nb_linkval(myvar, T),
+            fail
+        ;   nb_getval(myvar, V),
+            writeln(V)
+        ).
+~~~~~
+
+ 
+*/
   Yap_InitCPred("$nb_getval", 3, p_nb_getval, SafePredFlag);
   Yap_InitCPred("nb_setarg", 3, p_nb_setarg, 0L);
+/** @pred  nb_setarg(+{Arg], + _Term_, + _Value_) 
+
+
+
+Assigns the  _Arg_-th argument of the compound term  _Term_ with
+the given  _Value_ as setarg/3, but on backtracking the assignment
+is not reversed. If  _Term_ is not atomic, it is duplicated using
+duplicate_term/2. This predicate uses the same technique as
+nb_setval/2. We therefore refer to the description of
+nb_setval/2 for details on non-backtrackable assignment of
+terms. This predicate is compatible to GNU-Prolog
+`setarg(A,T,V,false)`, removing the type-restriction on
+ _Value_. See also nb_linkarg/3. Below is an example for
+counting the number of solutions of a goal. Note that this
+implementation is thread-safe, reentrant and capable of handling
+exceptions. Realising these features with a traditional implementation
+based on assert/retract or flag/3 is much more complicated.
+
+~~~~~
+    succeeds_n_times(Goal, Times) :-
+            Counter = counter(0),
+            (   Goal,
+                arg(1, Counter, N0),
+                N is N0 + 1,
+                nb_setarg(1, Counter, N),
+                fail
+            ;   arg(1, Counter, Times)
+            ).
+~~~~~
+
+ 
+*/
   Yap_InitCPred("nb_set_shared_arg", 3, p_nb_set_shared_arg, 0L);
+/** @pred  nb_set_shared_arg(+ _Arg_, + _Term_, + _Value_)  
+
+
+
+As nb_setarg/3, but like nb_linkval/2 it does not
+duplicate the global sub-terms in  _Value_. Use with extreme care
+and consult the documentation of nb_linkval/2 before use.
+
+ 
+*/
   Yap_InitCPred("nb_linkarg", 3, p_nb_linkarg, 0L);
+/** @pred  nb_linkarg(+ _Arg_, + _Term_, + _Value_)  
+
+
+
+As nb_setarg/3, but like nb_linkval/2 it does not
+duplicate  _Value_. Use with extreme care and consult the
+documentation of nb_linkval/2 before use.
+
+ 
+*/
   Yap_InitCPred("nb_delete", 1, p_nb_delete, 0L);
+/** @pred  nb_delete(+ _Name_)  
+
+
+Delete the named global variable. 
+
+
+Global variables have been introduced by various Prolog
+implementations recently. We follow the implementation of them in
+SWI-Prolog, itself based on hProlog by Bart Demoen.
+
+GNU-Prolog provides a rich set of global variables, including
+arrays. Arrays can be implemented easily in YAP and SWI-Prolog using
+functor/3 and `setarg/3` due to the unrestricted arity of
+compound terms.
+
+
+@}  */
   Yap_InitCPred("nb_create", 3, p_nb_create, 0L);
   Yap_InitCPred("nb_create", 4, p_nb_create2, 0L);
   Yap_InitCPredBack("$nb_current", 1, 1, init_current_nb, cont_current_nb, SafePredFlag);
@@ -2647,3 +2891,7 @@ void Yap_InitGlobals(void)
   Yap_InitCPred("nb_beam_size", 2, p_nb_beam_size, SafePredFlag);
   CurrentModule = cm;
 }
+
+/**
+@}
+*/

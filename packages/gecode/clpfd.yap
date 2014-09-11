@@ -1,3 +1,32 @@
+/**
+@defgroup Gecode_and_ClPbBFDbC Programming Finite Domain Constraints in YAP/Gecode
+@ingroup Gecode
+@{
+
+The gecode/clp(fd) interface is designed to use the GECODE functionality
+in a more CLP like style. It requires
+
+~~~~~{.prolog}
+:- use_module(library(gecode/clpfd)).
+~~~~~
+Several example programs are available with the distribution.
+
+Integer variables are declared as:
+
++ _V_ in  _A_.. _B_
+declares an integer variable  _V_ with range  _A_ to  _B_.
++ _Vs_ ins  _A_.. _B_
+declares a set of integer variabless  _Vs_ with range  _A_ to  _B_.
++ boolvar( _V_)
+declares a  boolean variable.
++ boolvars( _Vs_)
+declares a set of  boolean variable.
+
+
+Constraints supported are:
+
+*/
+
 :- module(gecode_clpfd, [
 		  op(100, yf, []),            
                   op(760, yfx, #<==>),
@@ -199,22 +228,43 @@ process_constraints(B, B, _Env).
 	get_home(Env),
 	check(A, NA),
 	post( rel(NA,  (#=)), Env, _).
+/** @pred _X_ #= is det
+all elements of  _X_  must take the same value
+ 
+*/
 ( A #\= ) :-
 	get_home(Env),
 	check(A, NA),
 	post( rel(NA,  (#\=)), Env, _).
+/** @pred _X_ #<  is det
+elements of  _X_  must be decreasing or equal
+
+ 
+*/
 ( A #< ) :-
 	get_home(Env),
 	check(A, NA),
 	post( rel(NA,  (#<)), Env, _).
+/** @pred _X_ #>  is det
+elements of  _X_  must be increasing
+ 
+*/
 ( A #> ) :-
 	get_home(Env),
 	check(A, NA),
 	post( rel(NA,  (#>)), Env, _).
+/** @pred _X_ #=<  is det
+elements of  _X_  must be decreasing
+ 
+*/
 ( A #=< ) :-
 	get_home(Env),
 	check(A, NA),
 	post( rel(NA,  (#=<) ), Env, _).
+/** @pred _X_ #>=  is det
+elements of  _X_  must be increasinga or equal
+ 
+*/
 ( A #>= ) :-
 	get_home(Env),
 	check(A, NA),
@@ -1147,3 +1197,6 @@ l(NV, OV, A, B, [_|Vs]) :-
 
 is_one(1).
 
+/**
+@}
+*/

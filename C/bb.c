@@ -18,6 +18,26 @@
 static char     SccsId[] = "%W% %G%";
 #endif
 
+
+/** @defgroup BlackBoard The Blackboard
+@ingroup YAPBuiltins
+@{
+
+YAP implements a blackboard in the style of the SICStus Prolog
+blackboard. The blackboard uses the same underlying mechanism as the
+internal data-base but has several important differences:
+
++ It is module aware, in contrast to the internal data-base.
++ Keys can only be atoms or integers, and not compound terms.
++ A single term can be stored per key.
++ An atomic update operation is provided; this is useful for
+parallelism.
+
+
+
+ 
+*/
+
 #include "Yap.h"
 #include "clause.h"
 #ifndef NULL
@@ -263,6 +283,14 @@ BBPut(Term t0, Term t2)
   }
 }
 
+/** @pred  bb_put(+ _Key_,? _Term_) 
+
+
+Store term table  _Term_ in the blackboard under key  _Key_. If a
+previous term was stored under key  _Key_ it is simply forgotten.
+
+ 
+*/
 static Int
 p_bb_put( USES_REGS1 )
 {
@@ -294,6 +322,14 @@ BBGet(Term t, UInt arity USES_REGS)
   }
 }
 
+/** @pred  bb_get(+ _Key_,? _Term_) 
+
+
+Unify  _Term_ with a term stored in the blackboard under key
+ _Key_, or fail silently if no such term exists.
+
+ 
+*/
 static Int
 p_bb_get( USES_REGS1 )
 {
@@ -313,6 +349,14 @@ p_bb_get( USES_REGS1 )
   return Yap_unify(ARG2,out);
 }
 
+/** @pred  bb_delete(+ _Key_,? _Term_) 
+
+
+Delete any term stored in the blackboard under key  _Key_ and unify
+it with  _Term_. Fail silently if no such term exists.
+
+ 
+*/
 static Int
 p_bb_delete( USES_REGS1 )
 {
@@ -333,6 +377,14 @@ p_bb_delete( USES_REGS1 )
   return Yap_unify(ARG2,out);
 }
 
+/** @pred  bb_update( +_Key_, ?_Term_, ?_New_) 
+
+
+Atomically  unify a term stored in the blackboard under key  _Key_
+with  _Term_, and if the unification succeeds replace it by
+ _New_. Fail silently if no such term exists or if unification fails.
+
+ */
 static Int
 p_bb_update( USES_REGS1 )
 {
@@ -378,3 +430,6 @@ Yap_InitBBPreds(void)
   Yap_InitCPred("$resize_bb_int_keys", 1, p_resize_bb_int_keys, SafePredFlag|SyncPredFlag);
 }
 
+/**
+ @}
+*/

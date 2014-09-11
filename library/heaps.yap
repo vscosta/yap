@@ -5,6 +5,27 @@
 %   Updated: 29 November 1983
 %   Purpose: Implement heaps in Prolog.
 
+
+/** @defgroup Heaps Heaps
+@ingroup YAPLibrary
+@{
+
+A heap is a labelled binary tree where the key of each node is less than
+or equal to the keys of its sons.  The point of a heap is that we can
+keep on adding new elements to the heap and we can keep on taking out
+the minimum element.  If there are N elements total, the total time is
+O(NlgN).  If you know all the elements in advance, you are better off
+doing a merge-sort, but this file is for when you want to do say a
+best-first search, and have no idea when you start how many elements
+there will be, let alone what they are.
+
+The following heap manipulation routines are available once included
+with the `use_module(library(heaps))` command. 
+
+
+*/
+
+
 /*  A heap is a labelled binary tree where the key of each node is less
     than or equal to the keys of its sons.  The point of a heap is that
     we can keep on adding new elements to the heap and we can keep on
@@ -40,6 +61,74 @@
 
 */
 
+/**
+
+
+ @pred add_to_heap(+ _Heap_,+ _key_,+ _Datum_,- _NewHeap_) 
+
+
+Inserts the new  _Key-Datum_ pair into the heap. The insertion is not
+stable, that is, if you insert several pairs with the same  _Key_ it
+is not defined which of them will come out first, and it is possible for
+any of them to come out first depending on the  history of the heap.
+
+ */
+/** @pred empty_heap(? _Heap_) 
+
+
+Succeeds if  _Heap_ is an empty heap.
+
+ 
+*/
+/** @pred get_from_heap(+ _Heap_,- _key_,- _Datum_,- _Heap_) 
+
+
+Returns the  _Key-Datum_ pair in  _OldHeap_ with the smallest
+ _Key_, and also a  _Heap_ which is the  _OldHeap_ with that
+pair deleted.
+
+ 
+*/
+/** @pred heap_size(+ _Heap_, - _Size_) 
+
+
+Reports the number of elements currently in the heap.
+
+ 
+*/
+/** @pred heap_to_list(+ _Heap_, - _List_) 
+
+
+Returns the current set of  _Key-Datum_ pairs in the  _Heap_ as a
+ _List_, sorted into ascending order of  _Keys_.
+
+ 
+*/
+/** @pred list_to_heap(+ _List_, - _Heap_) 
+
+
+Takes a list of  _Key-Datum_ pairs (such as keysort could be used to sort)
+and forms them into a heap.
+
+ 
+*/
+/** @pred min_of_heap(+ _Heap_,  - _Key1_,  - _Datum1_,
+- _Key2_,  - _Datum2_)
+
+Returns the smallest (Key1) and second smallest (Key2) pairs in the
+heap, without deleting them.
+
+
+
+ */
+/** @pred min_of_heap(+ _Heap_,  - _Key_,  - _Datum_) 
+
+
+Returns the Key-Datum pair at the top of the heap (which is of course
+the pair with the smallest Key), but does not remove it from the heap.
+
+ 
+*/
 :- module(heaps,[
 	add_to_heap/4,		%   Heap x Key x Datum -> Heap
 	get_from_heap/4,	%   Heap -> Key x Datum x Heap

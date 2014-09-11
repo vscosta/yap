@@ -234,6 +234,12 @@ Yap_InitLoadForeign( void )
   Yap_InitCPred("$open_shared_objects", 0, p_open_shared_objects, SafePredFlag);
   Yap_InitCPred("$open_shared_object", 3, p_open_shared_object, SyncPredFlag);
   Yap_InitCPred("close_shared_object", 1, p_close_shared_object, SyncPredFlag|SafePredFlag);
+/** @pred close_shared_object(+ _Handle_) 
+
+Detach the shared object identified by  _Handle_. 
+
+ 
+*/
   Yap_InitCPred("call_shared_object_function", 2, p_call_shared_object_function, SyncPredFlag);
   Yap_InitCPred("$obj_suffix", 1, p_obj_suffix, SafePredFlag);
 }

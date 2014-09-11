@@ -836,6 +836,12 @@ PRED_IMPL("size_file", 2, size_file, 0)
 
 static
 PRED_IMPL("access_file", 2, access_file, 0)
+/** @pred  access_file(+ _F_,+ _M_) 
+
+Is the file accessible?
+
+ 
+*/
 { PRED_LD
   char *n;
   int md;
@@ -950,6 +956,13 @@ PRED_IMPL("same_file", 2, same_file, 0)
 }
 
 
+/** @pred  file_base_name(+ _Name_,- _FileName_) 
+
+
+Give the path a full path  _FullPath_ extract the  _FileName_.
+
+ 
+*/
 static
 PRED_IMPL("file_base_name", 2, file_base_name, 0)
 { char *n;
@@ -993,7 +1006,6 @@ PRED_IMPL("tmp_file", 2, tmp_file, 0)
 
 /** tmp_file_stream(+Mode, -File, -Stream)
 */
-
 static
 PRED_IMPL("tmp_file_stream", 3, tmp_file_stream, 0)
 { PRED_LD
@@ -1201,6 +1213,20 @@ name_too_long(void)
 }
 
 
+/** @pred  file_name_extension(? _Base_,? _Extension_, ? _Name_) 
+
+
+
+This predicate is used to add, remove or test filename extensions. The
+main reason for its introduction is to deal with different filename
+properties in a portable manner. If the file system is
+case-insensitive, testing for an extension will be done
+case-insensitive too.  _Extension_ may be specified with or
+without a leading dot (.). If an  _Extension_ is generated, it
+will not have a leading dot.
+
+ 
+*/
 static
 PRED_IMPL("file_name_extension", 3, file_name_extension, 0)
 { PRED_LD

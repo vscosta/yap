@@ -36,6 +36,10 @@
 	    day_of_the_week/2           % +Date, -DayOfTheWeek
 	  ]).
 
+/** <module> date time routines
+@ingroup SWILibrary
+*/
+
 %%	date_time_value(?Field:atom, +Struct:datime, -Value) is nondet.
 %
 %	Extract values from a date-time structure.  Provided fields are

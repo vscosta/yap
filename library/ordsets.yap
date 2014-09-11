@@ -17,6 +17,162 @@
 %   unchanged.  The main difficulty with the ordered representation is
 %   remembering to use it!
 
+
+/** @defgroup Ordered_Sets Ordered Sets
+@ingroup YAPLibrary
+@{
+
+The following ordered set manipulation routines are available once
+included with the `use_module(library(ordsets))` command.  An
+ordered set is represented by a list having unique and ordered
+elements. Output arguments are guaranteed to be ordered sets, if the
+relevant inputs are. This is a slightly patched version of Richard
+O'Keefe's original library.
+
+ 
+*/
+
+
+/** @pred list_to_ord_set(+ _List_, ? _Set_) 
+
+
+Holds when  _Set_ is the ordered representation of the set
+represented by the unordered representation  _List_.
+
+ 
+*/
+/** @pred merge(+ _List1_, + _List2_, - _Merged_) 
+
+
+Holds when  _Merged_ is the stable merge of the two given lists.
+
+Notice that merge/3 will not remove duplicates, so merging
+ordered sets will not necessarily result in an ordered set. Use
+`ord_union/3` instead.
+
+ 
+*/
+/** @pred ord_add_element(+ _Set1_, + _Element_, ? _Set2_) 
+
+
+Inserting  _Element_ in  _Set1_ returns  _Set2_.  It should give
+exactly the same result as `merge(Set1, [Element], Set2)`, but a
+bit faster, and certainly more clearly. The same as ord_insert/3.
+
+ 
+*/
+/** @pred ord_del_element(+ _Set1_, + _Element_, ? _Set2_) 
+
+
+Removing  _Element_ from  _Set1_ returns  _Set2_.
+
+ 
+*/
+/** @pred ord_disjoint(+ _Set1_, + _Set2_) 
+
+
+Holds when the two ordered sets have no element in common.
+
+ 
+*/
+/** @pred ord_insert(+ _Set1_, + _Element_, ? _Set2_) 
+
+
+Inserting  _Element_ in  _Set1_ returns  _Set2_.  It should give
+exactly the same result as `merge(Set1, [Element], Set2)`, but a
+bit faster, and certainly more clearly. The same as ord_add_element/3.
+
+ 
+*/
+/** @pred ord_intersect(+ _Set1_, + _Set2_) 
+
+
+Holds when the two ordered sets have at least one element in common.
+
+ 
+*/
+/** @pred ord_intersection(+ _Set1_, + _Set2_, ? _Intersection_)
+
+Holds when Intersection is the ordered representation of  _Set1_
+and  _Set2_.
+
+ 
+*/
+/** @pred ord_intersection(+ _Set1_, + _Set2_, ? _Intersection_, ? _Diff_)
+
+Holds when Intersection is the ordered representation of  _Set1_
+and  _Set2_.  _Diff_ is the difference between  _Set2_ and  _Set1_.
+
+ 
+*/
+/** @pred ord_member(+ _Element_, + _Set_) 
+
+
+Holds when  _Element_ is a member of  _Set_.
+
+ 
+*/
+/** @pred ord_seteq(+ _Set1_, + _Set2_) 
+
+
+Holds when the two arguments represent the same set.
+
+ 
+*/
+/** @pred ord_setproduct(+ _Set1_, + _Set2_, - _Set_) 
+
+
+If Set1 and Set2 are ordered sets, Product will be an ordered
+set of x1-x2 pairs.
+
+ 
+*/
+/** @pred ord_subset(+ _Set1_, + _Set2_) 
+
+
+Holds when every element of the ordered set  _Set1_ appears in the
+ordered set  _Set2_.
+
+ 
+*/
+/** @pred ord_subtract(+ _Set1_, + _Set2_, ? _Difference_) 
+
+
+Holds when  _Difference_ contains all and only the elements of  _Set1_
+which are not also in  _Set2_.
+
+ 
+*/
+/** @pred ord_symdiff(+ _Set1_, + _Set2_, ? _Difference_) 
+
+
+Holds when  _Difference_ is the symmetric difference of  _Set1_
+and  _Set2_.
+
+ 
+*/
+/** @pred ord_union(+ _Set1_, + _Set2_, ? _Union_)
+
+Holds when  _Union_ is the union of  _Set1_ and  _Set2_.
+
+ 
+*/
+/** @pred ord_union(+ _Set1_, + _Set2_, ? _Union_, ? _Diff_)
+
+Holds when  _Union_ is the union of  _Set1_ and  _Set2_ and
+ _Diff_ is the difference.
+
+
+
+
+ */
+/** @pred ord_union(+ _Sets_, ? _Union_) 
+
+
+Holds when  _Union_ is the union of the lists  _Sets_.
+
+ 
+*/
 :- module(ordsets, [
 	list_to_ord_set/2,	%  List -> Set
 	merge/3,		%  OrdList x OrdList -> OrdList

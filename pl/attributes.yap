@@ -15,6 +15,122 @@
 *									 *
 *************************************************************************/
 
+
+/** @defgroup Attributed_Variables Attributed Variables
+@ingroup YAPExtensions
+
+YAP supports attributed variables, originally developed at OFAI by
+Christian Holzbaur. Attributes are a means of declaring that an
+arbitrary term is a property for a variable. These properties can be
+updated during forward execution. Moreover, the unification algorithm is
+aware of attributed variables and will call user defined handlers when
+trying to unify these variables.
+
+Attributed variables provide an elegant abstraction over which one can
+extend Prolog systems. Their main application so far has been in
+implementing constraint handlers, such as Holzbaur's CLPQR, Fruewirth
+and Holzbaur's CHR, and CLP(BN). 
+
+Different Prolog systems implement attributed variables in different
+ways. Traditionally, YAP has used the interface designed by SICStus
+Prolog. This interface is still
+available in the <tt>atts</tt> library, but from YAP-6.0.3 we recommend using
+the hProlog, SWI style interface. The main reason to do so is that 
+most packages included in YAP that use attributed variables, such as CHR, CLP(FD), and CLP(QR),
+rely on the SWI-Prolog interface.
+
+
+ */
+
+
+
+/** @defgroup New_Style_Attribute_Declarations hProlog and SWI-Prolog style Attribute Declarations
+@ingroup Attributed_Variables
+@{
+
+The following documentation is taken from the SWI-Prolog manual.
+
+Binding an attributed variable schedules a goal to be executed at the
+first possible opportunity. In the current implementation the hooks are
+executed immediately after a successful unification of the clause-head
+or successful completion of a foreign language (built-in) predicate. Each
+attribute is associated to a module and the hook attr_unify_hook/2 is
+executed in this module.  The example below realises a very simple and
+incomplete finite domain reasoner.
+
+~~~~~
+:- module(domain,
+      [ domain/2            % Var, ?Domain
+      ]).
+:- use_module(library(ordsets)).
+
+domain(X, Dom) :-
+    var(Dom), !,
+    get_attr(X, domain, Dom).
+domain(X, List) :-
+    list_to_ord_set(List, Domain),
+    put_attr(Y, domain, Domain),
+    X = Y.
+
+%    An attributed variable with attribute value Domain has been
+%    assigned the value Y
+
+attr_unify_hook(Domain, Y) :-
+    (   get_attr(Y, domain, Dom2)
+    ->  ord_intersection(Domain, Dom2, NewDomain),
+        (   NewDomain == []
+        ->    fail
+        ;    NewDomain = [Value]
+        ->    Y = Value
+        ;    put_attr(Y, domain, NewDomain)
+        )
+    ;   var(Y)
+    ->  put_attr( Y, domain, Domain )
+    ;   ord_memberchk(Y, Domain)
+    ).
+
+%    Translate attributes from this module to residual goals
+
+attribute_goals(X) -->
+    { get_attr(X, domain, List) },
+    [domain(X, List)].
+~~~~~
+
+Before explaining the code we give some example queries:
+
+The predicate `domain/2` fetches (first clause) or assigns
+(second clause) the variable a <em>domain</em>, a set of values it can
+be unified with.  In the second clause first associates the domain
+with a fresh variable and then unifies X to this variable to deal
+with the possibility that X already has a domain. The
+predicate attr_unify_hook/2 is a hook called after a variable with
+a domain is assigned a value.  In the simple case where the variable
+is bound to a concrete value we simply check whether this value is in
+the domain. Otherwise we take the intersection of the domains and either
+fail if the intersection is empty (first example), simply assign the
+value if there is only one value in the intersection (second example) or
+assign the intersection as the new domain of the variable (third
+example). The nonterminal `attribute_goals/3` is used to translate
+remaining attributes to user-readable goals that, when executed, reinstate
+these attributes.
+
+
+
+ @pred put_attr(+ _Var_,+ _Module_,+ _Value_) 
+
+
+
+If  _Var_ is a variable or attributed variable, set the value for the
+attribute named  _Module_ to  _Value_. If an attribute with this
+name is already associated with  _Var_, the old value is replaced.
+Backtracking will restore the old value (i.e., an attribute is a mutable
+term. See also `setarg/3`). This predicate raises a representation error if
+ _Var_ is not a variable and a type error if  _Module_ is not an atom.
+
+ 
+*/
+
+
 :- module('$attributes', [
 			  delayed_goals/4
 			  ]).
@@ -41,6 +157,17 @@
 
 :- dynamic attributes:attributed_module/3, attributes:modules_with_attributes/1.
 
+/** @pred get_attr(+ _Var_,+ _Module_,- _Value_) 
+
+
+
+Request the current  _value_ for the attribute named  _Module_.  If
+ _Var_ is not an attributed variable or the named attribute is not
+associated to  _Var_ this predicate fails silently.  If  _Module_
+is not an atom, a type error is raised.
+
+ 
+*/
 prolog:get_attr(Var, Mod, Att) :-
 	functor(AttTerm, Mod, 2),
 	arg(2, AttTerm, Att),
@@ -51,16 +178,45 @@ prolog:put_attr(Var, Mod, Att) :-
 	arg(2, AttTerm, Att),
 	attributes:put_module_atts(Var, AttTerm).
 
+/** @pred del_attr(+ _Var_,+ _Module_) 
+
+
+
+Delete the named attribute.  If  _Var_ loses its last attribute it
+is transformed back into a traditional Prolog variable.  If  _Module_
+is not an atom, a type error is raised. In all other cases this
+predicate succeeds regardless whether or not the named attribute is
+present.
+
+ 
+*/
 prolog:del_attr(Var, Mod) :-
 	functor(AttTerm, Mod, 2),
 	attributes:del_all_module_atts(Var, AttTerm).
 
+/** @pred del_attrs(+ _Var_) 
+
+
+If  _Var_ is an attributed variable, delete <em>all</em> its
+attributes.  In all other cases, this predicate succeeds without
+side-effects.
+
+ 
+*/
 prolog:del_attrs(Var) :-
 	attributes:del_all_atts(Var).
 
 prolog:get_attrs(AttVar, SWIAtts) :-
 	attributes:get_all_swi_atts(AttVar,SWIAtts).
 
+/** @pred put_attrs(+ _Var_,+ _Attributes_) 
+
+
+Set all attributes of  _Var_.  See get_attrs/2 for a description of
+ _Attributes_.
+
+ 
+*/
 prolog:put_attrs(_, []).
 prolog:put_attrs(V, Atts) :-
 	cvt_to_swi_atts(Atts, YapAtts),
@@ -170,6 +326,26 @@ lcall2([Goal|Goals], Mod) :-
 
 
 
+/** @pred call_residue_vars(: _G_, _L_) 
+
+
+
+Call goal  _G_ and unify  _L_ with a list of all constrained variables created <em>during</em> execution of  _G_:
+
+~~~~~
+  ?- dif(X,Z), call_residue_vars(dif(X,Y),L).
+dif(X,Z), call_residue_vars(dif(X,Y),L).
+L = [Y],
+dif(X,Z),
+dif(X,Y) ? ;
+
+no
+~~~~~
+
+
+
+
+ */
 prolog:call_residue_vars(Goal,Residue) :-
 	attributes:all_attvars(Vs0),
 	call(Goal),
@@ -202,6 +378,22 @@ prolog:call_residue_vars(Goal,Residue) :-
 %	defined in the modules the  attributes   stem  from,  is used to
 %	convert attributes to lists of goals.
 
+/** @pred copy_term(? _TI_,- _TF_,- _Goals_) 
+
+Term  _TF_ is a variant of the original term  _TI_, such that for
+each variable  _V_ in the term  _TI_ there is a new variable  _V'_
+in term  _TF_ without any attributes attached.  Attributed
+variables are thus converted to standard variables.   _Goals_ is
+unified with a list that represents the attributes.  The goal
+`maplist(call, _Goals_)` can be called to recreate the
+attributes.
+
+Before the actual copying, `copy_term/3` calls
+`attribute_goals/1` in the module where the attribute is
+defined.
+
+ 
+*/
 prolog:copy_term(Term, Copy, Gs) :-
 	term_attvars(Term, Vs),
 	(   Vs == []
@@ -224,6 +416,11 @@ attvars_residuals([V|Vs]) -->
 	),
 	attvars_residuals(Vs).
 
+/** @pred _Module_:attribute_goal( _-Var_,  _-Goal_)
+
+User-defined procedure, called to convert the attributes in  _Var_ to
+a  _Goal_. Should fail when no interpretation is available.
+ */
 attvar_residuals([], _) --> [].
 attvar_residuals(att(Module,Value,As), V) -->
 	(   { nonvar(V) }
@@ -272,6 +469,35 @@ delete_attributes_([V|Vs]) :-
 
 
 
+/** @pred call_residue(: _G_, _L_) 
+
+
+
+Call goal  _G_. If subgoals of  _G_ are still blocked, return
+a list containing these goals and the variables they are blocked in. The
+goals are then considered as unblocked. The next example shows a case
+where dif/2 suspends twice, once outside call_residue/2,
+and the other inside:
+
+~~~~~
+?- dif(X,Y),
+       call_residue((dif(X,Y),(X = f(Z) ; Y = f(Z))), L).
+
+X = f(Z),
+L = [[Y]-dif(f(Z),Y)],
+dif(f(Z),Y) ? ;
+
+Y = f(Z),
+L = [[X]-dif(X,f(Z))],
+dif(X,f(Z)) ? ;
+
+no
+~~~~~
+The system only reports one invocation of dif/2 as having
+suspended. 
+
+ 
+*/
 prolog:call_residue(Goal,Residue) :-
 	var(Goal), !,
 	'$do_error'(instantiation_error,call_residue(Goal,Residue)).
@@ -322,6 +548,28 @@ att_vars([_|LGs], AttVars) :-
 
 % make sure we set the suspended goal list to its previous state!
 % make sure we have installed a SICStus like constraint solver.
+/** @pred _Module_:project_attributes( _+QueryVars_,  _+AttrVars_) 
+
+
+Given a list of variables  _QueryVars_ and list of attributed
+variables  _AttrVars_, project all attributes in  _AttrVars_ to
+ _QueryVars_. Although projection is constraint system dependent,
+typically this will involve expressing all constraints in terms of
+ _QueryVars_ and considering all remaining variables as existentially
+quantified.
+
+
+Projection interacts with attribute_goal/2 at the Prolog top
+level. When the query succeeds, the system first calls
+project_attributes/2. The system then calls
+attribute_goal/2 to get a user-level representation of the
+constraints. Typically, attribute_goal/2 will convert from the
+original constraints into a set of new constraints on the projection,
+and these constraints are the ones that will have an
+attribute_goal/2 handler.
+
+
+ */
 project_attributes(AllVs, G) :-
 	attributes:modules_with_attributes(LMods),
 	LMods = [_|_],
@@ -344,3 +592,6 @@ project_module([Mod|LMods], LIV, LAV) :-
 project_module([_|LMods], LIV, LAV) :-
 	project_module(LMods,LIV,LAV).
 
+/**
+@}
+*/

@@ -14,6 +14,35 @@
 * comments:	Unification and other auxiliary routines for absmi       *
 *									 *
 *************************************************************************/
+/** @defgroup Rational_Trees Rational Trees
+@ingroup YAPExtensions
+@{
+
+Prolog unification is not a complete implementation. For efficiency
+considerations, Prolog systems do not perform occur checks while
+unifying terms. As an example, `X = a(X)` will not fail but instead
+will create an infinite term of the form `a(a(a(a(a(...)))))`, or
+<em>rational tree</em>.
+
+Rational trees are now supported by default in YAP. In previous
+versions, this was not the default and these terms could easily lead
+to infinite computation. For example, `X = a(X), X = X` would
+enter an infinite loop.
+
+The `RATIONAL_TREES` flag improves support for these
+terms. Internal primitives are now aware that these terms can exist, and
+will not enter infinite loops. Hence, the previous unification will
+succeed. Another example, `X = a(X), ground(X)` will succeed
+instead of looping. Other affected built-ins include the term comparison
+primitives, numbervars/3, copy_term/2, and the internal
+data base routines. The support does not extend to Input/Output routines
+or to assert/1 YAP does not allow directly reading
+rational trees, and you need to use `write_depth/2` to avoid
+entering an infinite cycle when trying to write an infinite term.
+
+
+ */
+
 #define IN_UNIFY_C 1
 
 #define HAS_CACHE_REGS 1
@@ -969,7 +998,37 @@ Yap_InitUnify(void)
   CACHE_REGS
   Term cm = CurrentModule;
   Yap_InitCPred("unify_with_occurs_check", 2, p_ocunify, SafePredFlag);
+/** @pred  unify_with_occurs_check(?T1,?T2) is iso 
+
+
+Obtain the most general unifier of terms  _T1_ and  _T2_, if there
+is one.
+
+This predicate implements the full unification algorithm. An example:n
+
+~~~~~{.prolog}
+unify_with_occurs_check(a(X,b,Z),a(X,A,f(B)).
+~~~~~
+will succeed with the bindings `A = b` and `Z = f(B)`. On the
+other hand:
+
+~~~~~{.prolog}
+unify_with_occurs_check(a(X,b,Z),a(X,A,f(Z)).
+~~~~~
+would fail, because `Z` is not unifiable with `f(Z)`. Note that
+`(=)/2` would succeed for the previous examples, giving the following
+bindings `A = b` and `Z = f(Z)`.
+
+ 
+*/
   Yap_InitCPred("acyclic_term", 1, p_acyclic, SafePredFlag|TestPredFlag);
+/** @pred  acyclic_term( _T_) is iso 
+
+
+Succeeds if there are loops in the term  _T_, that is, it is an infinite term.
+
+ 
+*/
   CurrentModule = TERMS_MODULE;
   Yap_InitCPred("cyclic_term", 1, p_cyclic, SafePredFlag|TestPredFlag);
   Yap_InitCPred("unifiable", 3, p_unifiable, 0);

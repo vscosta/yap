@@ -15,6 +15,102 @@
 *									 *
 *************************************************************************/
 
+/** @defgroup matrix Matrix Library
+@ingroup YAPLibrary
+@{
+
+This package provides a fast implementation of multi-dimensional
+matrices of integers and floats. In contrast to dynamic arrays, these
+matrices are multi-dimensional and compact. In contrast to static
+arrays. these arrays are allocated in the stack. Matrices are available
+by loading the library `library(matrix)`. They are multimensional
+objects of type:
+
++ <tt>terms</tt>: Prolog terms
++ <tt>ints</tt>: bounded integers, represented as an opaque term. The
+maximum integer depends on hardware, but should be obtained from the
+natural size of the machine.
++ <tt>floats</tt>: floating-poiny numbers, represented as an opaque term.
+
+
+Matrix elements can be accessed through the `matrix_get/2`
+predicate or through an <tt>R</tt>-inspired access notation (that uses the ciao
+style extension to `[]`.  Examples include:
+
+ 
++ Access the second row, third column of matrix <tt>X</tt>. Indices start from
+`0`,
+~~~~
+ _E_ <==  _X_[2,3]
+~~~~
+ 
++ Access all the second row, the output is a list ofe elements.
+~~~~
+ _L_ <==  _X_[2,_]
+~~~~
+ 
++ Access all the second, thrd and fourth rows, the output is a list of elements.
+~~~~
+ _L_ <==  _X_[2..4,_]
+~~~~
+
++ Access all the fifth, sixth and eight rows, the output is a list of elements. 
+~~~~
+ _L_ <==  _X_[2..4+3,_]
+~~~~
+
+The matrix library also supports a B-Prolog/ECliPSe inspired `foreach`iterator to iterate over
+elements of a matrix:
+
++ Copy a vector, element by element.
+ 
+~~~~
+ foreach(I in 0..N1, X[I] <== Y[I])
+~~~~
+
++ The lower-triangular matrix  _Z_ is the difference between the
+lower-triangular and upper-triangular parts of  _X_.
+ 
+~~~~
+ foreach([I in 0..N1, J in I..N1], Z[I,J] <== X[I,J] - X[I,J])
+~~~~
+
++ Add all elements of a matrix by using  _Sum_ as an accumulator.
+
+~~~~
+ foreach([I in 0..N1, J in 0..N1], plus(X[I,J]), 0, Sum)
+~~~~
+
+    Notice that the library does not support all known matrix operations. Please
+contact the YAP maintainers if you require extra functionality.
+
+
+
++ _X_ = array[ _Dim1_,..., _Dimn_] of  _Objects_ 
+    The of/2 operator can be used to create a new array of
+ _Objects_. The objects supported are:
+
+  + `Unbound Variable`
+    create an array of free variables
+  + `ints `
+    create an array of integers
+  + `floats `
+    create an array of floating-point numbers
+  + `_I_: _J_`
+    create an array with integers from  _I_ to  _J_
+  + `[..]`
+    create an array from the values in a list
+
+The dimensions can be given as an integer, and the matrix will be
+indexed `C`-style from  `0..( _Max_-1)`, or can be given
+as  an interval ` _Base_.. _Limit_`. In the latter case,
+matrices of integers and of floating-point numbers should have the same
+ _Base_ on every dimension.
+
+ 
+*/
+
+
 /*
   A matrix is an object with integer or floating point numbers. A matrix
   may have a number of dimensions. These routines implement a number of
@@ -37,6 +133,438 @@ typedef enum {
 
   */
 
+/** @pred ?_LHS_ <==  ?_RHS_ is semidet
+
+
+General matrix assignment operation. It evaluates the right-hand side
+and then acts different according to the
+left-hand side and to the matrix:
+
++ if  _LHS_ is part of an integer or floating-point matrix,
+perform non-backtrackable assignment.
++ other unify left-hand side and right-hand size.
+
+
+The right-hand side supports the following operators: 
+
++ `[]/2`
+
+    written as  _M_[ _Offset_]: obtain an element or list of elements
+of matrix  _M_ at offset  _Offset_.
+
++ `matrix/1`
+
+    create a vector from a list
+
++ `matrix/2`
+
+    create a matrix from a list. Options are:
+  + dim=
+a list of dimensions
+  + type=
+integers, floating-point or terms
+  + base=
+a list of base offsets per dimension (all must be the same for arrays of
+integers and floating-points
+
++ `matrix/3`
+
+    create matrix giving two options
+
+  + `dim/1`
+  list with matrix dimensions
+
+  + `nrow/1`
+  number of rows in bi-dimensional matrix
+
++ `ncol/1`
+  number of columns in bi-dimensional matrix
+
++ `length/1`
+  size of a matrix
+
++ `size/1`
+  size of a matrix
+
++ `max/1`
+  
+    maximum element of a numeric matrix
+
++ `maxarg/1`
+  
+    argument of maximum element of a numeric matrix
+
++ `min/1`
+  
+    minimum element of a numeric matrix
+
++ `minarg/1`
+  
+    argument of minimum element of a numeric matrix
+
++ `list/1`
+  
+    represent matrix as a list
+
++ `lists/2`
+  
+    represent matrix as list of embedded lists
+
++ `../2`
+  
+    _I_.. _J_ generates a list with all integers from  _I_ to
+ _J_, included.
+
++ `+/2`
+  
+    add two numbers, add two matrices element-by-element, or add a number to
+all elements of a matrix or list.
+
++ `-/2 `
+
+    subtract two numbers, subtract two matrices or lists element-by-element, or subtract a number from
+all elements of a matrix or list
+
++ `* /2`
+
+    multiply two numbers, multiply two matrices or lists element-by-element, or multiply a number from
+all elements of a matrix or list
+
+ + `log/1`
+ 
+    natural logarithm of a number, matrix or list
+
++ `exp/1 `
+
+    natural exponentiation of a number, matrix or list
+ 
+*/
+/** @pred matrix_add(+ _Matrix_,+ _Position_,+ _Operand_) 
+
+
+
+Add  _Operand_ to the element of  _Matrix_ at position
+ _Position_.
+
+ 
+*/
+/** @pred matrix_agg_cols(+ _Matrix_,+Operator,+ _Aggregate_) 
+
+
+
+If  _Matrix_ is a n-dimensional matrix, unify  _Aggregate_ with
+the one dimensional matrix where each element is obtained by adding all
+Matrix elements with same  first index. Currently, only addition is supported.
+
+ 
+*/
+/** @pred matrix_agg_lines(+ _Matrix_,+Operator,+ _Aggregate_) 
+
+
+
+If  _Matrix_ is a n-dimensional matrix, unify  _Aggregate_ with
+the n-1 dimensional matrix where each element is obtained by adding all
+_Matrix_ elements with same last n-1 index. Currently, only addition is supported.
+
+ 
+*/
+/** @pred matrix_arg_to_offset(+ _Matrix_,+ _Position_,- _Offset_) 
+
+
+
+Given matrix  _Matrix_ return what is the numerical  _Offset_ of
+the element at  _Position_.
+
+ 
+*/
+/** @pred matrix_column(+ _Matrix_,+ _Column_,- _NewMatrix_) 
+
+
+
+Select from  _Matrix_ the column matching  _Column_ as new matrix  _NewMatrix_.  _Column_ must have one less dimension than the original matrix.
+
+
+
+ */
+/** @pred matrix_dec(+ _Matrix_,+ _Position_) 
+
+
+
+Decrement the element of  _Matrix_ at position  _Position_.
+
+ 
+*/
+/** @pred matrix_dec(+ _Matrix_,+ _Position_,- _Element_)
+
+
+Decrement the element of  _Matrix_ at position  _Position_ and
+unify with  _Element_.
+
+ 
+*/
+/** @pred matrix_dims(+ _Matrix_,- _Dims_) 
+
+
+
+Unify  _Dims_ with a list of dimensions for  _Matrix_.
+
+ 
+*/
+/** @pred matrix_expand(+ _Matrix_,+ _NewDimensions_,- _New_) 
+
+
+
+Expand  _Matrix_ to occupy new dimensions. The elements in
+ _NewDimensions_ are either 0, for an existing dimension, or a
+positive integer with the size of the new dimension.
+
+ 
+*/
+/** @pred matrix_get(+ _Matrix_,+ _Position_,- _Elem_) 
+
+
+
+Unify  _Elem_ with the element of  _Matrix_ at position
+ _Position_.
+
+ 
+*/
+/** @pred matrix_get(+ _Matrix_[+ _Position_],- _Elem_)
+
+
+Unify  _Elem_ with the element  _Matrix_[ _Position_].
+
+ 
+*/
+/** @pred matrix_inc(+ _Matrix_,+ _Position_) 
+
+
+
+Increment the element of  _Matrix_ at position  _Position_.
+
+ 
+*/
+/** @pred matrix_inc(+ _Matrix_,+ _Position_,- _Element_)
+
+
+Increment the element of  _Matrix_ at position  _Position_ and
+unify with  _Element_.
+
+ 
+*/
+/** @pred matrix_max(+ _Matrix_,+ _Max_) 
+
+
+
+Unify  _Max_ with the maximum in matrix   _Matrix_.
+
+ 
+*/
+/** @pred matrix_maxarg(+ _Matrix_,+ _Maxarg_) 
+
+
+
+Unify  _Max_ with the position of the maximum in matrix   _Matrix_.
+
+ 
+*/
+/** @pred matrix_min(+ _Matrix_,+ _Min_) 
+
+
+
+Unify  _Min_ with the minimum in matrix   _Matrix_.
+
+ 
+*/
+/** @pred matrix_minarg(+ _Matrix_,+ _Minarg_) 
+
+
+
+Unify  _Min_ with the position of the minimum in matrix   _Matrix_.
+
+ 
+*/
+/** @pred matrix_ndims(+ _Matrix_,- _Dims_) 
+
+
+
+Unify  _NDims_ with the number of dimensions for  _Matrix_.
+
+ 
+*/
+/** @pred matrix_new(+ _Type_,+ _Dims_,+ _List_,- _Matrix_)
+
+
+Create a new matrix  _Matrix_ of type  _Type_, which may be one of
+`ints` or `floats`, with dimensions  _Dims_, and
+initialised from list  _List_.
+
+ 
+*/
+/** @pred matrix_new(+ _Type_,+ _Dims_,- _Matrix_) 
+
+
+
+Create a new matrix  _Matrix_ of type  _Type_, which may be one of
+`ints` or `floats`, and with a list of dimensions  _Dims_.
+The matrix will be initialised to zeros.
+
+~~~~~
+?- matrix_new(ints,[2,3],Matrix).
+
+Matrix = {..}
+~~~~~
+Notice that currently YAP will always write a matrix of numbers as `{..}`.
+
+ 
+*/
+/** @pred matrix_new_set(? _Dims_,+ _OldMatrix_,+ _Value_,- _NewMatrix_) 
+
+
+
+Create a new matrix  _NewMatrix_ of type  _Type_, with dimensions
+ _Dims_. The elements of  _NewMatrix_ are set to  _Value_.
+
+ 
+*/
+/** @pred matrix_offset_to_arg(+ _Matrix_,- _Offset_,+ _Position_) 
+
+
+
+Given a position  _Position _ for matrix  _Matrix_ return the
+corresponding numerical  _Offset_ from the beginning of the matrix.
+
+ 
+*/
+/** @pred matrix_op(+ _Matrix1_,+ _Matrix2_,+ _Op_,- _Result_) 
+
+
+
+ _Result_ is the result of applying  _Op_ to matrix  _Matrix1_
+and  _Matrix2_. Currently, only addition (`+`) is supported.
+
+ 
+*/
+/** @pred matrix_op_to_all(+ _Matrix1_,+ _Op_,+ _Operand_,- _Result_) 
+
+
+
+ _Result_ is the result of applying  _Op_ to all elements of
+ _Matrix1_, with  _Operand_ as the second argument. Currently,
+only addition (`+`), multiplication (`\*`), and division
+(`/`) are supported.
+
+ 
+*/
+/** @pred matrix_op_to_cols(+ _Matrix1_,+ _Cols_,+ _Op_,- _Result_) 
+
+
+
+ _Result_ is the result of applying  _Op_ to all elements of
+ _Matrix1_, with the corresponding element in  _Cols_ as the
+second argument. Currently, only addition (`+`) is
+supported. Notice that  _Cols_ will have n-1 dimensions.
+
+ 
+*/
+/** @pred matrix_op_to_lines(+ _Matrix1_,+ _Lines_,+ _Op_,- _Result_) 
+
+
+
+ _Result_ is the result of applying  _Op_ to all elements of
+ _Matrix1_, with the corresponding element in  _Lines_ as the
+second argument. Currently, only division (`/`) is supported.
+
+ 
+*/
+/** @pred matrix_select(+ _Matrix_,+ _Dimension_,+ _Index_,- _New_) 
+
+
+
+Select from  _Matrix_ the elements who have  _Index_ at
+ _Dimension_.
+
+ 
+*/
+/** @pred matrix_set(+ _Matrix_,+ _Position_,+ _Elem_) 
+
+
+
+Set the element of  _Matrix_ at position
+ _Position_ to   _Elem_.
+
+ 
+*/
+/** @pred matrix_set(+ _Matrix_[+ _Position_],+ _Elem_)
+
+
+Set the element of  _Matrix_[ _Position_] to   _Elem_.
+
+ 
+*/
+/** @pred matrix_set_all(+ _Matrix_,+ _Elem_) 
+
+
+
+Set all element of  _Matrix_ to  _Elem_.
+
+ 
+*/
+/** @pred matrix_shuffle(+ _Matrix_,+ _NewOrder_,- _Shuffle_) 
+
+
+
+Shuffle the dimensions of matrix  _Matrix_ according to
+ _NewOrder_. The list  _NewOrder_ must have all the dimensions of
+ _Matrix_, starting from 0.
+
+ 
+*/
+/** @pred matrix_size(+ _Matrix_,- _NElems_) 
+
+
+
+Unify  _NElems_ with the number of elements for  _Matrix_.
+
+ 
+*/
+/** @pred matrix_sum(+ _Matrix_,+ _Sum_) 
+
+
+
+Unify  _Sum_ with the sum of all elements in matrix   _Matrix_.
+
+ 
+*/
+/** @pred matrix_to_list(+ _Matrix_,- _Elems_) 
+
+
+
+Unify  _Elems_ with the list including all the elements in  _Matrix_.
+
+ 
+*/
+/** @pred matrix_transpose(+ _Matrix_,- _Transpose_) 
+
+
+
+Transpose matrix  _Matrix_ to   _Transpose_. Equivalent to:
+
+~~~~~
+matrix_transpose(Matrix,Transpose) :-
+        matrix_shuffle(Matrix,[1,0],Transpose).
+~~~~~
+
+ 
+*/
+/** @pred matrix_type(+ _Matrix_,- _Type_) 
+
+
+
+Unify  _NElems_ with the type of the elements in  _Matrix_.
+
+ 
+*/
 :- module( matrix,
 	   [op(100, yf, []),
             (<==)/2, op(600, xfx, '<=='),

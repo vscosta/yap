@@ -3,6 +3,262 @@
 %
 % This file includes code from Bob Welham, Lawrence Byrd, and R. A. O'Keefe.
 %
+
+/** @defgroup Lists List Manipulation
+@ingroup YAPLibrary
+@{
+
+The following list manipulation routines are available once included
+with the `use_module(library(lists))` command. 
+
+*/
+/**
+ @pred append(? _Prefix_,? _Suffix_,? _Combined_) 
+
+
+True when all three arguments are lists, and the members of
+ _Combined_ are the members of  _Prefix_ followed by the members of  _Suffix_.
+It may be used to form  _Combined_ from a given  _Prefix_,  _Suffix_ or to take
+a given  _Combined_ apart.
+
+ 
+*/
+/** @pred append(? _Lists_,? _Combined_)
+
+Holds if the lists of  _Lists_ can be concatenated as a
+ _Combined_ list.
+
+ 
+*/
+/** @pred flatten(+ _List_, ? _FlattenedList_) 
+
+
+Flatten a list of lists  _List_ into a single list
+ _FlattenedList_.
+
+~~~~~{.prolog}
+?- flatten([[1],[2,3],[4,[5,6],7,8]],L).
+
+L = [1,2,3,4,5,6,7,8] ? ;
+
+no
+~~~~~
+
+ 
+*/
+/** @pred intersection(+ _Set1_, + _Set2_, + _Set3_) 
+
+
+Succeeds if  _Set3_ unifies with the intersection of  _Set1_ and
+ _Set2_.  _Set1_ and  _Set2_ are lists without duplicates. They
+need not be ordered.
+
+ 
+*/
+/** @pred last(+ _List_,? _Last_) 
+
+
+True when  _List_ is a list and  _Last_ is identical to its last element.
+
+ 
+*/
+/** @pred list_concat(+ _Lists_,? _List_) 
+
+
+True when  _Lists_ is a list of lists and  _List_ is the
+concatenation of  _Lists_.
+
+ 
+*/
+/** @pred max_list(? _Numbers_, ? _Max_) 
+
+
+True when  _Numbers_ is a list of numbers, and  _Max_ is the maximum.
+
+ 
+*/
+/** @pred min_list(? _Numbers_, ? _Min_) 
+
+
+True when  _Numbers_ is a list of numbers, and  _Min_ is the minimum.
+
+ 
+*/
+/** @pred nth(? _N_, ? _List_, ? _Elem_) 
+
+
+The same as nth1/3.
+
+ 
+*/
+/** @pred nth(? _N_, ? _List_, ? _Elem_, ? _Rest_)
+
+Same as `nth1/4`.
+
+ 
+*/
+/** @pred nth0(? _N_, ? _List_, ? _Elem_) 
+
+
+True when  _Elem_ is the Nth member of  _List_,
+counting the first as element 0.  (That is, throw away the first
+N elements and unify  _Elem_ with the next.)  It can only be used to
+select a particular element given the list and index.  For that
+task it is more efficient than member/2
+
+ 
+*/
+/** @pred nth0(? _N_, ? _List_, ? _Elem_, ? _Rest_)
+
+Unifies  _Elem_ with the Nth element of  _List_,
+counting from 0, and  _Rest_ with the other elements.  It can be used
+to select the Nth element of  _List_ (yielding  _Elem_ and  _Rest_), or to
+insert  _Elem_ before the Nth (counting from 1) element of  _Rest_, when
+it yields  _List_, e.g. `nth0(2, List, c, [a,b,d,e])` unifies List with
+`[a,b,c,d,e]`.  `nth/4` is the same except that it counts from 1.  `nth0/4`
+can be used to insert  _Elem_ after the Nth element of  _Rest_.
+
+ 
+*/
+/** @pred nth1(+ _Index_,? _List_,? _Elem_) 
+
+
+Succeeds when the  _Index_-th element of  _List_ unifies with
+ _Elem_. Counting starts at 1.
+
+Set environment variable.   _Name_ and  _Value_ should be
+instantiated to atoms or integers.  The environment variable will be
+passed to `shell/[0-2]` and can be requested using `getenv/2`.
+They also influence expand_file_name/2.
+
+ 
+*/
+/** @pred nth1(? _N_, ? _List_, ? _Elem_) 
+
+
+The same as nth0/3, except that it counts from
+1, that is `nth(1, [H|_], H)`.
+
+ 
+*/
+/** @pred nth1(? _N_, ? _List_, ? _Elem_, ? _Rest_)
+
+Unifies  _Elem_ with the Nth element of  _List_, counting from 1,
+and  _Rest_ with the other elements.  It can be used to select the
+Nth element of  _List_ (yielding  _Elem_ and  _Rest_), or to
+insert  _Elem_ before the Nth (counting from 1) element of
+ _Rest_, when it yields  _List_, e.g. `nth(3, List, c, [a,b,d,e])` unifies List with `[a,b,c,d,e]`.  `nth/4`
+can be used to insert  _Elem_ after the Nth element of  _Rest_.
+
+ 
+*/
+/** @pred numlist(+ _Low_, + _High_, + _List_) 
+
+
+If  _Low_ and  _High_ are integers with  _Low_ =<
+ _High_, unify  _List_ to a list `[Low, Low+1, ...High]`. See
+also between/3.
+
+ 
+*/
+/** @pred permutation(+ _List_,? _Perm_) 
+
+
+True when  _List_ and  _Perm_ are permutations of each other.
+
+ 
+*/
+/** @pred remove_duplicates(+ _List_, ? _Pruned_) 
+
+
+Removes duplicated elements from  _List_.  Beware: if the  _List_ has
+non-ground elements, the result may surprise you.
+
+ 
+*/
+/** @pred same_length(? _List1_, ? _List2_) 
+
+
+True when  _List1_ and  _List2_ are both lists and have the same number
+of elements.  No relation between the values of their elements is
+implied.
+Modes `same_length(-,+)` and `same_length(+,-)` generate either list given
+the other; mode `same_length(-,-)` generates two lists of the same length,
+in which case the arguments will be bound to lists of length 0, 1, 2, ...
+
+ 
+*/
+/** @pred select(? _Element_, ? _List_, ? _Residue_) 
+
+
+True when  _Set_ is a list,  _Element_ occurs in  _List_, and
+ _Residue_ is everything in  _List_ except  _Element_ (things
+stay in the same order).
+
+ 
+*/
+/** @pred selectchk(? _Element_, ? _List_, ? _Residue_) 
+
+
+Semi-deterministic selection from a list. Steadfast: defines as
+
+~~~~~{.prolog}
+selectchk(Elem, List, Residue) :-
+        select(Elem, List, Rest0), !,
+        Rest = Rest0.
+~~~~~
+
+ 
+*/
+/** @pred sublist(? _Sublist_, ? _List_) 
+
+
+True when both `append(_,Sublist,S)` and `append(S,_,List)` hold.
+
+ 
+*/
+/** @pred subtract(+ _Set_, + _Delete_, ? _Result_) 
+
+
+Delete all elements from  _Set_ that   occur  in  _Delete_ (a set)
+and unify the  result  with   _Result_.   Deletion  is  based  on
+unification using memberchk/2. The complexity is
+`|Delete|\*|Set|`.
+
+See ord_subtract/3.
+
+
+
+ */
+/** @pred suffix(? _Suffix_, ? _List_) 
+
+
+Holds when `append(_,Suffix,List)` holds.
+
+ 
+*/
+/** @pred sum_list(? _Numbers_, + _SoFar_, ? _Total_)
+
+True when  _Numbers_ is a list of numbers, and  _Total_ is the sum of their total plus  _SoFar_.
+
+ 
+*/
+/** @pred sum_list(? _Numbers_, ? _Total_) 
+
+
+True when  _Numbers_ is a list of numbers, and  _Total_ is their sum.
+
+ 
+*/
+/** @pred sumlist(? _Numbers_, ? _Total_) 
+
+
+True when  _Numbers_ is a list of integers, and  _Total_ is their
+sum. The same as sum_list/2, please do use sum_list/2
+instead.
+
+ 
+*/
 :- module(lists,
 	  [
 	   append/3,

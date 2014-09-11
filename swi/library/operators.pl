@@ -40,6 +40,7 @@
 
 
 /** <module> Manage operators
+@ingroup SWILibrary
 
 Often, one wants to define operators to  improve the readibility of some
 very specific code. Operators in Prolog  are global objects and changing

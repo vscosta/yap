@@ -18,6 +18,11 @@
 static char     SccsId[] = "%W% %G%";
 #endif
 
+/**
+@ingroup Threads 
+@{
+*/
+
 #include "Yap.h"
 #include "Yatom.h"
 #include "YapHeap.h"
@@ -1070,11 +1075,31 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$thread_join", 1, p_thread_join, 0);
   Yap_InitCPred("$thread_destroy", 1, p_thread_destroy, 0);
   Yap_InitCPred("thread_yield", 0, p_thread_yield, 0);
+/** @pred thread_yield 
+
+
+Voluntarily relinquish the processor.
+
+ 
+*/
   Yap_InitCPred("$detach_thread", 1, p_thread_detach, 0);
   Yap_InitCPred("$thread_detached", 1, p_thread_detached, 0);
   Yap_InitCPred("$thread_detached", 2, p_thread_detached2, 0);
   Yap_InitCPred("$thread_exit", 0, p_thread_exit, 0);
   Yap_InitCPred("thread_setconcurrency", 2, p_thread_set_concurrency, 0);
+/** @pred thread_setconcurrency(+ _Old_, - _New_) 
+
+
+Determine the concurrency of the process, which is defined as the
+maximum number of concurrently active threads. `Active` here means
+they are using CPU time. This option is provided if the
+thread-implementation provides
+`pthread_setconcurrency()`. Solaris is a typical example of this
+family. On other systems this predicate unifies  _Old_ to 0 (zero)
+and succeeds silently.
+
+ 
+*/
   Yap_InitCPred("$valid_thread", 1, p_valid_thread, 0);
   Yap_InitCPred("$new_mutex", 1, p_new_mutex, SafePredFlag);
   Yap_InitCPred("$destroy_mutex", 1, p_destroy_mutex, SafePredFlag);
@@ -1195,3 +1220,6 @@ void Yap_InitThreadPreds(void)
 #endif /* THREADS */
 
 
+/**
+@}
+*/

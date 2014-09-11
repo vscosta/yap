@@ -491,6 +491,31 @@
 *************************************************************************/
 
 
+/**
+
+@file absmi.c
+
+@page Efficiency Efficiency Considerations
+
+We next discuss several issues on trying to make Prolog programs run
+fast in YAP. We assume two different programming styles:
+
++ Execution of <em>deterministic</em> programs often
+boils down to a recursive loop of the form:
+
+~~~~~
+loop(Env) :-
+        do_something(Env,NewEnv),
+        loop(NewEnv).
+~~~~~
+
+
+
+
+ */
+
+
+
 #define IN_ABSMI_C 1
 #define HAS_CACHE_REGS 1
 

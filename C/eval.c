@@ -554,6 +554,20 @@ Yap_InitEval(void)
   Yap_InitCPred("isinf", 1, p_isinf, TestPredFlag);
   Yap_InitCPred("logsum", 3, p_logsum, TestPredFlag);
   Yap_InitCPredBack("between", 3, 2, init_between, cont_between, 0);
+/** @pred between(+ _Low_,+ _High_,? _Value_) 
+
+
+
+ _Low_ and  _High_ are integers,  _High_ less or equal than
+ _Low_. If  _Value_ is an integer,  _Low_ less or equal than
+ _Value_ less or equal than  _High_.  When  _Value_ is a
+variable it is successively bound to all integers between  _Low_ and
+ _High_.  If  _High_ is `inf`, between/3 is true iff
+ _Value_ less or equal than  _Low_, a feature that is particularly
+interesting for generating integers from a certain value.
+
+ 
+*/
 }
 
 /**

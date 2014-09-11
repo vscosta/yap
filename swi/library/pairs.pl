@@ -39,6 +39,7 @@
 	  ]).
 
 /** <module> Operations on key-value lists
+@ingroup SWILibrary
 
 This module implements common operations on  Key-Value lists, also known
 as  _Pairs_.  Pairs  have  great  practical  value,  especially  due  to

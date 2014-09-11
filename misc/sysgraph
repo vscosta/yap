@@ -228,7 +228,8 @@ c_ext( S, Mod, F ) :-
 	number_string(A, AS),
 	stream_property( S, position( Pos ) ),
 	stream_position_data( line_count, Pos, Line ),
-	assert( node( Mod, N/A, F-Line, Fu ) ),
+	Line0 is Line-1,
+	assert( node( Mod, N/A, F-Line0, Fu ) ),
 	handle_pred( Mod, N, A, F )
     ).
 
@@ -1039,8 +1040,8 @@ c_links :-
     clinks(S).
 
 clinks(S) :-
-    node( M, P, _, c(F)),
-    format( S, ':- foreign_predicate( ~q , ~q ).~n', [M:P, F] ),
+    node( M, P, File-Line, c(F)),
+    format( S, ':- foreign_predicate( ~q , ~q, ~q, ~d ).~n', [M:P, F, File, Line] ),
     fail.
 clinks(S) :-
     close(S).
@@ -1436,19 +1437,49 @@ atom2([]) --> [].
 
 add_comments :-
     open( commands, write, S ),
-  findall(File, do_comment( File, Line, C, Type, Dup), Fs ),
+  findall(File, do_comment( File, Line, C, Type, Dup), Fs0 ),
   (
+      sort(Fs0, Fs),
       member( File, Fs ),
       setof(Line-C-Type-Dup, do_comment( File, Line, C, Type, Dup) , Lines0 ),
       reverse( Lines0, Lines),
       member(Line-Comment-Type-Dup, Lines),
-      format(S, '# ~a~nawk \'NR==~d{print ~q}7\' ~a~n~n',[Dup,Line, Comment, File])
+      check_comment( Comment, CN, Line, File ), 
+      Line1 is Line-1,
+      format(S, '#~a~ncat << "EOF" > tmp~n~sEOF~nsed -e "~dr tmp" ~a > x~n mv x ~a~n~n',[Dup,CN, Line1, File, File])
 	  ;
 	  close(S)
    ),
   fail.
 add_comments :-
   listing( open_comment ).
+
+check_comment( Comment, CN, _Line, _File ) :-
+    string_codes( Comment, C),
+    check_quotes(0,C,[]),
+    ( append(C0,[0'@,0'},0' ,0'*,0'/,10], C) ->
+	append(C0,[0'*,0'/,10], CN)
+	      ;
+	      CN = C
+    ),
+    !.
+check_comment( Comment, Comment,  Line, File ) :-
+    format(user_error,'*** bad comment ~a ~d~n~n~s~n~', [File,Line,Comment]).
+
+check_quotes( 0 ) --> [].
+check_quotes( 0 ) --> 
+    "`", !,
+    check_quotes( 1 ).
+check_quotes( 1 ) --> 
+    "`", !,
+    check_quotes( 0 ).
+check_quotes( 1 ) --> 
+    "\"", !, { fail }.
+check_quotes( 1 ) --> 
+    "'",  !, { fail }.
+check_quotes( N ) --> 
+    [_],
+    check_quotes( N ).
 
 
 %%%

@@ -23,6 +23,65 @@
     to match the old tree and a pattern to match the new tree.
 */
 
+
+/** @defgroup Trees Updatable Binary Trees
+@ingroup YAPLibrary
+@{
+
+The following queue manipulation routines are available once
+included with the `use_module(library(trees))` command.
+
+
+
+ @pred get_label(+ _Index_, + _Tree_, ? _Label_) 
+
+
+Treats the tree as an array of  _N_ elements and returns the
+ _Index_-th.
+
+ 
+*/
+
+/** @pred list_to_tree(+ _List_, - _Tree_) 
+
+
+Takes a given  _List_ of  _N_ elements and constructs a binary
+ _Tree_.
+
+ 
+*/
+/** @pred map_tree(+ _Pred_, + _OldTree_, - _NewTree_) 
+
+
+Holds when  _OldTree_ and  _NewTree_ are binary trees of the same shape
+and `Pred(Old,New)` is true for corresponding elements of the two trees.
+
+ 
+*/
+/** @pred put_label(+ _Index_, + _OldTree_, + _Label_, - _NewTree_) 
+
+
+constructs a new tree the same shape as the old which moreover has the
+same elements except that the  _Index_-th one is  _Label_.
+
+ 
+*/
+/** @pred tree_size(+ _Tree_, - _Size_) 
+
+
+Calculates the number of elements in the  _Tree_.
+
+ 
+*/
+/** @pred tree_to_list(+ _Tree_, - _List_) 
+
+
+Is the converse operation to list_to_tree.
+
+
+
+
+ */
 :- module(trees, [
 	get_label/3,
 	list_to_tree/2,

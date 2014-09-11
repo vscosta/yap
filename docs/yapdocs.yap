@@ -331,7 +331,7 @@ Increase heap size  _Size_ kilobytes.
 Increase stack size  _Size_ kilobytes
 
 
-@} */
+ */
 
 /** @defgroup Undefined_Procedures Handling Undefined Procedures
 @ingroup YAPBuiltins
@@ -428,7 +428,7 @@ system will execute default action as specified by unknown/2.
 /** @pred  exception(+ _Exception_, + _Context_, - _Action_) 
 
 
-Dynamic predicate, normally not defined. Called by the Prolog system on run-time exceptions that can be repaired `just-in-time'. The values for  _Exception_ are described below. See also catch/3 and throw/1.
+Dynamic predicate, normally not defined. Called by the Prolog system on run-time exceptions that can be repaired `just-in-time`. The values for  _Exception_ are described below. See also catch/3 and throw/1.
 If this hook predicate succeeds it must instantiate the  _Action_ argument to the atom `fail` to make the operation fail silently, `retry` to tell Prolog to retry the operation or `error` to make the system generate an exception. The action `retry` only makes sense if this hook modified the environment such that the operation can now succeed without error.
 
 + `undefined_predicate`
@@ -440,7 +440,7 @@ If this hook predicate succeeds it must instantiate the  _Action_ argument to th
 
 
 
-@} */
+ */
 
 /** @defgroup Messages Message Handling
 @ingroup YAPBuiltins
@@ -479,7 +479,7 @@ handling in YAP:
 
 */
 
-/** @pred print_message(+ `_Kind_,  _Term_) 
+/** @pred print_message(+ _Kind_,  _Term_) 
 
 The predicate print_message/2 is used to print messages, notably from
 exceptions in a human-readable format.  _Kind_ is one of
@@ -492,7 +492,7 @@ If the Prolog flag verbose is `silent`, messages with
 silent.@c  See \cmdlineoption{-q}.
 
 This predicate first translates the  _Term_ into a list of `message
-lines' (see print_message_lines/3 for details).  Next it will
+lines` (see print_message_lines/3 for details).  Next it will
 call the hook message_hook/3 to allow the user intercepting the
 message.  If message_hook/3 fails it will print the message unless
  _Kind_ is silent.
@@ -512,7 +512,7 @@ the predicate as multifile.
 Print a message (see print_message/2) that has been translated to
 a list of message elements.  The elements of this list are:
 
-+ `Format`-`Args`
++ _Format_-_Args_
 Where  _Format_ is an atom and  _Args_ is a list
 of format argument.  Handed to `format/3`.
 + `flush`
@@ -553,7 +553,7 @@ Translates a message-term into a string object. Primarily intended for SWI-Prolo
 
 
 
-@} */
+ */
 
 /** @defgroup Testing_Terms Predicates on terms
 @ingroup YAPBuiltins
@@ -673,7 +673,7 @@ compound term.
 
 
 Instantiates each variable in term  _T_ to a term of the form:
-`'$VAR'( _I_)`, with  _I_ increasing from  _N1_ to  _Nn_.
+`$VAR( _I_)`, with  _I_ increasing from  _N1_ to  _Nn_.
 
  
 */
@@ -681,7 +681,7 @@ Instantiates each variable in term  _T_ to a term of the form:
 /** @pred  unnumbervars( _T_,+ _NT_) 
 
 
-Replace every `'$VAR'( _I_)` by a free variable.
+Replace every `$VAR( _I_)` by a free variable.
 
  
 */
@@ -980,9 +980,9 @@ Creates an atom just like atomic_list_concat/2, but inserts
  _Separator_ between each pair of atoms. For example:
 
 ~~~~~{.prolog}
-?- atomic_list_concat([gnu, gnat], ', ', A).
+?- atomic_list_concat([gnu, gnat], `, `, A).
 
-A = 'gnu, gnat'
+A = `gnu, gnat`
 ~~~~~
 
 YAP emulates the SWI-Prolog version of this predicate that can also be
@@ -1080,7 +1080,7 @@ sub-strings of  _A_.
 
 
 
-@} */
+ */
 
 /** @defgroup Predicates_on_Characters Predicates on Characters
 @ingroup YAPBuiltins
@@ -1135,7 +1135,7 @@ character-types are inspired by the standard `C`
     _Char_ is a digit.
 
 + `digit( _Weight_)`
-    _Char_ is a digit with value _Weight_. I.e. `char_type(X, digit(6))` yields `X =  '6'`. Useful for parsing numbers.
+    _Char_ is a digit with value _Weight_. I.e. `char_type(X, digit(6))` yields X =  aaasaá'6'. Useful for parsing numbers.
 
 + `xdigit( _Weight_)`
     _Char_ is a hexa-decimal digit with value  _Weight_. I.e. char_type(a, xdigit(X) yields X = '10'. Useful for parsing numbers.
@@ -1180,7 +1180,7 @@ character-types are inspired by the standard `C`
  _Char_ counts as the end of a sentence (.,!,?).
 
 + `quote`
- _Char_ is a quote-character (", ', `).
+ _Char_ is a quote-character.
 
 + `paren(Close)`
  _Char_ is an open-parenthesis and Close is the corresponding close-parenthesis. 
@@ -1200,7 +1200,7 @@ atom_chars/2 and atom_codes/2.
 
 
 
-@} */
+ */
 
 /** @defgroup Comparing_Terms Comparing Terms
 @ingroup YAPBuiltins
@@ -1371,7 +1371,7 @@ of length  _S_.
 
 
 
-@} */
+ */
 
 /** @defgroup Arithmetic Arithmetic
 @ingroup YAPBuiltins
@@ -1386,7 +1386,7 @@ of length  _S_.
   * See @ref arithmetic_operators for how to call arithmetic operations in YAP 
 
 
-@} */
+ */
 
 /** @defgroup InputOutput Input/Output Predicates
 @ingroup YAPBuiltins
@@ -1398,7 +1398,7 @@ If this flag is cleared the same predicates will just fail. Details on
 setting and clearing this flag are given under 7.7.
 
 
-@} */
+ */
 
 /** @defgroup Streams_and_Files Handling Streams and Files
 @ingroup YAPBuiltins
@@ -1412,8 +1412,8 @@ setting and clearing this flag are given under 7.7.
 /** @pred  open(+ _F_,+ _M_,- _S_) is iso 
 
 
-Opens the file with name  _F_ in mode  _M_ ('read', 'write' or
-'append'), returning  _S_ unified with the stream name.
+Opens the file with name  _F_ in mode  _M_ (`read`, `write` or
+`append`), returning  _S_ unified with the stream name.
 
 At most, there are 17 streams  opened at the same time. Each stream is
 either an input or an output stream but not both. There are always 3
@@ -1422,16 +1422,16 @@ and user_error for writing. If there is no  ambiguity, the atoms
 user_input and user_output may be referred to as  `user`.
 
 The `file_errors` flag controls whether errors are reported when in
-mode 'read' or 'append' the file  _F_ does not exist or is not
-readable, and whether in mode 'write' or 'append' the file is not
+mode `read` or `append` the file  _F_ does not exist or is not
+readable, and whether in mode `write` or `append` the file is not
 writable.
 
 */
 
 /** @pred open(+ _F_,+ _M_,- _S_,+ _Opts_) is iso
 
-Opens the file with name  _F_ in mode  _M_ ('read',  'write' or
-'append'), returning  _S_ unified with the stream name, and following
+Opens the file with name  _F_ in mode  _M_ (`read`,  `write` or
+`append`), returning  _S_ unified with the stream name, and following
 these options:
 
 
@@ -1809,7 +1809,7 @@ Given the packaged stream position term  _StreamPosition_, unify
 
 
 
-@} */
+ */
 
 /** @defgroup ChYProlog_File_Handling C-Prolog File Handling
 @ingroup YAPBuiltins
@@ -1893,7 +1893,7 @@ Closes the current input stream (see 6.7.).
 
 
 
-@} */
+ */
 
 /** @defgroup InputOutput_of_Terms Handling Input/Output of Terms
 @ingroup YAPBuiltins
@@ -1908,7 +1908,7 @@ Closes the current input stream (see 6.7.).
 
 
 Reads the next term from the current input stream, and unifies it with
- _T_. The term must be followed by a dot ('.') and any blank-character
+ _T_. The term must be followed by a dot (`.`) and any blank-character
 as previously defined. The syntax of the term must match the current
 declarations for operators (see op). If the end-of-stream is reached, 
  _T_ is unified with the atom `end_of_file`. Further reads from of 
@@ -2032,7 +2032,7 @@ default value is `false`.
 
 + numbervars(+ _Bool_) is iso
 If `true`, output terms of the form
-`'$VAR'(N)`, where  _N_ is an integer, as a sequence of capital
+`$VAR(N)`, where  _N_ is an integer, as a sequence of capital
 letters. The default value is `false`.
 
 + portrayed(+ _Bool_)
@@ -2063,7 +2063,7 @@ Do not loop in rational trees (default).
 
 
 Writes the term  _T_, quoting names to make the result acceptable to
-the predicate 'read' whenever necessary.
+the predicate `read` whenever necessary.
 
  
 */
@@ -2090,22 +2090,22 @@ sequences are available in YAP:
 
 
 
-+ '~~'
++ `~~`
 Print a single tilde.
 
-+ '~a'
++ `~a`
 The next argument must be an atom, that will be printed as if by `write`.
 
-+ '~Nc'
++ `~Nc`
 The next argument must be an integer, that will be printed as a
 character code. The number  _N_ is the number of times to print the
 character (default 1).
 
-+ '~Ne'
-+ '~NE'
-+ '~Nf'
-+ '~Ng'
-+ '~NG'
++ `~Ne`
++ `~NE`
++ `~Nf`
++ `~Ng`
++ `~NG`
 The next argument must be a floating point number. The float  _F_, the number
  _N_ and the control code `c` will be passed to `printf` as:
 
@@ -2121,7 +2121,7 @@ As an example:
 3.140000e+00, 3.140000E+00, 3.140000, 3.14, 3.143.14
 ~~~~~
 
-+ '~Nd'
++ `~Nd`
 The next argument must be an integer, and  _N_ is the number of digits
 after the decimal point. If  _N_ is `0` no decimal points will be
 printed. The default is  _N = 0_.
@@ -2131,8 +2131,8 @@ printed. The default is  _N = 0_.
 150.00, 15000
 ~~~~~
 
-+ '~ND'
-Identical to `'~Nd'`, except that commas are used to separate groups
++ `~ND`
+Identical to `~Nd`, except that commas are used to separate groups
 of three digits.
 
 ~~~~~{.prolog}
@@ -2140,7 +2140,7 @@ of three digits.
 1,500.00, 150,000
 ~~~~~
 
-+ '~i'
++ `~i`
 Ignore the next argument in the list of arguments:
 
 ~~~~~{.prolog}
@@ -2148,7 +2148,7 @@ Ignore the next argument in the list of arguments:
 The  met the boregrove
 ~~~~~
 
-+ '~k'
++ `~k`
 Print the next argument with `write_canonical`:
 
 ~~~~~{.prolog}
@@ -2156,14 +2156,14 @@ Print the next argument with `write_canonical`:
 Good night +(a,[1,2])
 ~~~~~
 
-+ '~Nn'
++ `~Nn`
 Print  _N_ newlines (where  _N_ defaults to 1).
 
-+ '~NN'
++ `~NN`
 Print  _N_ newlines if at the beginning of the line (where  _N_
 defaults to 1).
 
-+ '~Nr'
++ `~Nr`
 The next argument must be an integer, and  _N_ is interpreted as a
 radix, such that `2 <= N <= 36` (the default is 8).
 
@@ -2175,8 +2175,8 @@ radix, such that `2 <= N <= 36` (the default is 8).
 
 Note that the letters `a-z` denote digits larger than 9.
 
-+ '~NR'
-Similar to '~NR'. The next argument must be an integer, and  _N_ is
++ `~NR`
+Similar to `~NR`. The next argument must be an integer, and  _N_ is
 interpreted as a radix, such that `2 <= N <= 36` (the default is 8).
 
 ~~~~~{.prolog}
@@ -2187,7 +2187,7 @@ interpreted as a radix, such that `2 <= N <= 36` (the default is 8).
 
 The only difference is that letters `A-Z` denote digits larger than 9.
 
-+ '~p'
++ `~p`
 Print the next argument with print/1:
 
 ~~~~~{.prolog}
@@ -2195,7 +2195,7 @@ Print the next argument with print/1:
 Good night a+[1,2]
 ~~~~~
 
-+ '~q'
++ `~q`
 Print the next argument with writeq/1:
 
 ~~~~~{.prolog}
@@ -2203,7 +2203,7 @@ Print the next argument with writeq/1:
 Good night 'Hello'+[1,2]
 ~~~~~
 
-+ '~Ns'
++ `~Ns`
 The next argument must be a list of character codes. The system then
 outputs their representation as a string, where  _N_ is the maximum
 number of characters for the string ( _N_ defaults to the length of the
@@ -2214,7 +2214,7 @@ string).
 The woods are love
 ~~~~~
 
-+ '~w'
++ `~w`
 Print the next argument with write/1:
 
 ~~~~~
@@ -2236,15 +2236,15 @@ The format/2 built-in also allows for formatted output.  One can
 specify column boundaries and fill the intermediate space by a padding
 character: 
 
-+ '~N|'
++ `~N|`
 Set a column boundary at position  _N_, where  _N_ defaults to the
 current position.
 
-+ '~N+'
++ `~N+`
 Set a column boundary at  _N_ characters past the current position, where
  _N_ defaults to `8`.
 
-+ '~Nt'
++ `~Nt`
 Set padding for a column, where  _N_ is the fill code (default is
 `SPC`).
 
@@ -2340,7 +2340,7 @@ Create a list of one-character-atoms as a difference-list.
 
 
 
-@} */
+ */
 
 /** @defgroup InputOutput_of_Characters Handling Input/Output of Characters
 @ingroup YAPBuiltins
@@ -2503,7 +2503,7 @@ Outputs a new line to the current output stream.
 
 
 
-@} */
+ */
 
 /** @defgroup InputOutput_for_Streams Input/Output Predicates applied to Streams
 @ingroup YAPBuiltins
@@ -2696,7 +2696,7 @@ Outputs a new line to stream  _S_.
 
 
 
-@} */
+ */
 
 /** @defgroup ChYProlog_to_Terminal Compatible C-Prolog predicates for Terminal Input/Output
 @ingroup YAPBuiltins
@@ -2748,7 +2748,7 @@ Outputs a new line to stream user_output.
 
 
 
-@} */
+ */
 
 /** @defgroup InputOutput_Control Controlling Input/Output
 @ingroup YAPBuiltins
@@ -2782,7 +2782,7 @@ opened or closed.
 Switches on the file_errors flag so that in certain error conditions
 Input/Output predicates will produce an appropriated message and abort.
 
-@} */
+ */
 
 /** @defgroup Sockets Using Sockets From YAP
 @ingroup YAPBuiltins
@@ -2812,10 +2812,10 @@ The new socket object is
 accessible through a descriptor bound to the variable  _SOCKET_.
 
 The current implementation of YAP  accepts socket
-domains `'AF_INET'` and `'AF_UNIX'`. 
+domains `AF_INET` and `AF_UNIX`. 
 Socket types depend on the
 underlying operating system, but at least the following types are
-supported: `'SOCK_STREAM'` and `'SOCK_DGRAM'` (untested in 6.3).
+supported: `SOCK_STREAM'` and `SOCK_DGRAM'` (untested in 6.3).
 
  
 */
@@ -2823,7 +2823,7 @@ supported: `'SOCK_STREAM'` and `'SOCK_DGRAM'` (untested in 6.3).
 /** @pred  socket(+ _DOMAIN_,- _SOCKET_)
 
 
-Call socket/4 with  _TYPE_ bound to `'SOCK_STREAM'` and
+Call socket/4 with  _TYPE_ bound to `SOCK_STREAM'` and
  _PROTOCOL_ bound to `0`.
 
  
@@ -2903,7 +2903,7 @@ must be of type `SOCK_STREAM` or `SOCK_SEQPACKET`.
 Interface to system call `accept`, used for servers to wait for
 connections at socket  _SOCKET_. The stream descriptor  _STREAM_
 represents the resulting connection.  If the socket belongs to the
-domain `'AF_INET'`,  _CLIENT_ unifies with an atom containing
+domain `AF_INET`,  _CLIENT_ unifies with an atom containing
 the IP address for the client in numbers and dots notation.
 
  
@@ -2966,7 +2966,7 @@ address in number and dots notation.
 
 
 
-@} */
+*/
 
 /** @defgroup Database Using the Clausal Data Base
 @ingroup YAPBuiltins
@@ -3048,7 +3048,7 @@ the remainder of the program execution.
 
 
 
-@} */
+ */
 
 /** @defgroup Modifying_the_Database Modification of the Data Base
 @ingroup YAPBuiltins
@@ -3219,7 +3219,7 @@ Retract all the clauses whose head matches the goal  _G_. Goal
 
 
 
-@} */
+ */
 
 /** @defgroup Looking_at_the_Database Looking at the Data Base
 @ingroup YAPBuiltins
@@ -3366,7 +3366,7 @@ of space required to store indices to those clauses (in bytes).
 
 
 
-@} */
+ */
 
 /** @defgroup Database_References Using Data Base References
 @ingroup YAPBuiltins
@@ -3422,7 +3422,7 @@ database reference is  _R_. The predicate must be dynamic.
 
 
 
-@} */
+ */
 
 /** @defgroup Internal_Database Internal Data Base
 @ingroup YAPBuiltins
@@ -3699,7 +3699,7 @@ This predicate is YAP specific.
 
 
 
-@} 
+ 
 */
 
 /** @defgroup BlackBoard The Blackboard
@@ -3758,7 +3758,7 @@ with  _Term_, and if the unification succeeds replace it by
 
 
 
-@} */
+ */
 
 /** @defgroup Sets Collecting Solutions to a Goal
 @ingroup YAPBuiltins
@@ -3888,7 +3888,7 @@ no
 
 
 
-@} */
+ */
 
 /** @defgroup Grammars Grammar Rules
 @ingroup YAPBuiltins
@@ -3903,7 +3903,7 @@ A grammar rule is of the form:
 head --> body
 ~~~~~
 where both \a head and \a body are sequences of one or more items
-linked by the standard conjunction operator ','.
+linked by the standard conjunction operator `,`.
 
 <em>Items can be:</em>
 
@@ -3913,18 +3913,18 @@ a <em>non-terminal</em> symbol may be either a complex term or an atom.
 a <em>terminal</em> symbol may be any Prolog symbol. Terminals are
 written as Prolog lists.
 + 
-an <em>empty body</em> is written as the empty list '[ ]'.
+an <em>empty body</em> is written as the empty list `[ ]`.
 + 
 <em>extra conditions</em> may be inserted as Prolog procedure calls, by being
-written inside curly brackets '{' and '}'.
+written inside curly brackets `{` and `}`.
 + 
 the left side of a rule consists of a nonterminal and an optional list
 of terminals.
 + 
 alternatives may be stated in the right-hand side of the rule by using
-the disjunction operator ';'.
+the disjunction operator `;`.
 + 
-the <em>cut</em> and <em>conditional</em> symbol ('->') may be inserted in the 
+the <em>cut</em> and <em>conditional</em> symbol (`->`) may be inserted in the 
 right hand side of a grammar rule
 
 
@@ -3960,7 +3960,7 @@ preprocess all terms read when consulting a file. If it succeeds:
 If  _X_ is of the form `:- G` or `?- G`, it is processed as
 a directive.
 + 
-If  _X_ is of the form `'$source_location'( _File_, _Line_): _Clause_` it is processed as if from `File` and line `Line`.
+If  _X_ is of the form `$source_location`( _File_, _Line_): _Clause_` it is processed as if from `File` and line `Line`.
 
 + 
 If  _X_ is a list, all terms of the list are asserted or processed
@@ -4006,16 +4006,16 @@ start execution of grammar rules.
  
 */
 
-/** @pred  'C'( _S1_, _T_, _S2_) 
+/** @pred  `C`( _S1_, _T_, _S2_) 
 
 
 This predicate is used by the grammar rules compiler and is defined as
-`'C'([H|T],H,T)`.
+`C`([H|T],H,T)`.
 
 
 
 
-@} */
+ */
 
 /** @defgroup OS Access to Operating System Functionality
 @ingroup YAPBuiltins
@@ -4275,7 +4275,7 @@ order of dispatch.
 
 
 
-@} */
+ */
 
 /** @defgroup Term_Modification Term Modification
 @ingroup YAPBuiltins
@@ -4337,7 +4337,7 @@ Set the current value of mutable term  _M_ to term  _D_.
 
 
 
-@} */
+ */
 
 /** @defgroup Global_Variables Global Variables
 @ingroup YAPBuiltins
@@ -4565,7 +4565,7 @@ functor/3 and `setarg/3` due to the unrestricted arity of
 compound terms.
 
 
-@} */
+ */
 
 /** @defgroup Profiling Profiling Prolog Programs
 @ingroup YAPBuiltins
@@ -4584,7 +4584,7 @@ development. Functionality for this sub-system will increase with newer
 implementation.
 
 
-@} */
+ */
 
 /** @defgroup The_Count_Profiler The Count Profiler
 @ingroup YAPBuiltins
@@ -4657,7 +4657,7 @@ Reset all profiling information.
 
 
 
-@} */
+ */
 
 /** @defgroup Tick_Profiler Tick Profiler
 @ingroup YAPBuiltins
@@ -4710,7 +4710,7 @@ Show profiling info for the top-most  _N_ predicates.
 The showprofres/0 and `showprofres/1` predicates call a user-defined multifile hook predicate, `user:prolog_predicate_name/2`, that can be used for converting a possibly explicitly-qualified callable term into an atom that will used when printing the profiling information.
 
 
-@} */
+ */
 
 /** @defgroup Call_Counting Counting Calls
 @ingroup YAPBuiltins
@@ -4800,7 +4800,7 @@ call_counting `on`. Next, we catch/3 to handle an
 exception when `l/0` performs more than 10000 reductions.
 
 
-@} */
+ */
 
 /** @defgroup Arrays Arrays
 @ingroup YAPBuiltins
@@ -5039,7 +5039,7 @@ terms.
 
 
 
-@} */
+ */
 
 /** @defgroup Preds Predicate Information
 @ingroup YAPBuiltins
@@ -5069,7 +5069,7 @@ Succeeds if  _M_ are current modules associated to the file  _F_.
 
 
 
-@} */
+ */
 
 /** @defgroup Misc Miscellaneous
 @ingroup YAPBuiltins
@@ -5334,8 +5334,8 @@ and if it is bound to `off` disable them. The default for YAP is
 
 + `dollar_as_lower_case `
 
-    If `off` (default)  consider the character '$' a control character, if
-`on` consider '$' a lower case character.
+    If `off` (default)  consider the character `$` a control character, if
+`on` consider `$` a lower case character.
 
 + `double_quotes is iso `
 
@@ -5729,7 +5729,7 @@ returned second argument with  _Value_.
  
 */
 
-/** @pred prolog_flag(? _Flag_,- _OldValue_,+ `_NewValue_) 
+/** @pred prolog_flag(? _Flag_,- _OldValue_,+ _NewValue_) 
 
 
 
@@ -5771,7 +5771,7 @@ Defines the operator  _A_ or the list of operators  _A_ with type
 (see appendix iv for a list of predefined operators).
 
 Note that if there is a preexisting operator with the same name and
-type, this operator will be discarded. Also, `','` may not be defined
+type, this operator will be discarded. Also, `,` may not be defined
 as an operator, and it is not allowed to have the same for an infix and
 a postfix operator.
 
@@ -5868,7 +5868,7 @@ reconsulted, or included.
 
     Stream position at the stream currently being read in. For SWI
 compatibility, it is a term of the form
-`'$stream_position'(0,Line,0,0,0)`.
+'$stream_position'(0,Line,0,0,0).
 
 
 + `source_location(? _FileName_, ? _Line_)` 
@@ -5892,7 +5892,7 @@ Library files reside in the library_directory path (set by the
 most files in the library are from the Edinburgh Prolog library. 
 
 
-@} */
+ */
 
 /** @defgroup Aggregate Aggregate
 @ingroup YAPLibrary
@@ -6062,7 +6062,7 @@ made some SWI-Prolog enhancements, sponsored by SecuritEase,
 http://www.securitease.com. The code is public domain (from DEC10 library).
 
 
-@} */
+ */
 
 /** @defgroup Apply Apply Macros
 @ingroup YAPLibrary
@@ -6073,7 +6073,7 @@ predicate to all elements of a list. The library just forwards
 definitions from the `maplist` library.
 
 
-@} */
+ */
 
 /** @defgroup Association_Lists Association Lists
 @ingroup YAPLibrary
@@ -6259,7 +6259,7 @@ have key  _Key_.
 
 
 
-@} */
+ */
 
 /** @defgroup AVL_Trees AVL Trees
 @ingroup YAPLibrary
@@ -6305,7 +6305,7 @@ Lookup an element with key  _Key_ in the AVL tree
 
 
 
-@} */
+ */
 
 /** @defgroup Exo_Intervals Exo Intervals
 @ingroup YAPLibrary
@@ -6340,7 +6340,7 @@ report of code 36211117, and the last searches for reports after this
 one. All queries run in  constant or log(n) time.
 
 
-@} */
+ */
 
 /** @defgroup Gecode Gecode Interface
 @ingroup YAPPackages
@@ -6352,7 +6352,7 @@ Duchier, with recent work by Vítor Santos Costa to port it to version 4
 of gecode and to have an higher level interface,
 
 
-@} */
+ */
 
 /** @defgroup The_Gecode_Interface The Gecode Interface
 @ingroup Gecode
@@ -6589,7 +6589,7 @@ and lookup values of variables in each solution:
 
 
 
-@} */
+ */
 
 /** @defgroup Gecode_and_ClPbBFDbC Programming Finite Domain Constraints in YAP/Gecode
 @ingroup Gecode
@@ -6895,7 +6895,7 @@ minimise variable  _V_
 
 
 
-@} */
+ */
 
 /** @defgroup Heaps Heaps
 @ingroup YAPLibrary
@@ -6987,7 +6987,7 @@ heap, without deleting them.
 
 
 
-@} */
+ */
 
 /** @defgroup Lists List Manipulation
 @ingroup YAPLibrary
@@ -7293,7 +7293,7 @@ See ord_subtract/3.
 
 
 
-@} */
+ */
 
 /** @defgroup LineUtilities Line Manipulation Utilities
 @ingroup YAPLibrary
@@ -7461,7 +7461,7 @@ Same as file_filter/3, but before starting the filter execute
 
 
 
-@} */
+ */
 
 /** @defgroup matrix Matrix Library
 @ingroup YAPLibrary
@@ -8054,7 +8054,7 @@ Select from  _Matrix_ the column matching  _Column_ as new matrix  _NewMatrix_. 
 
 
 
-@} */
+ */
 
 /** @defgroup MATLAB MATLAB Package Interface
 @ingroup YAPLibrary
@@ -8264,7 +8264,7 @@ MATLAB command `zeros`.
 
 
 
-@} */
+ */
 
 /** @defgroup NonhYBacktrackable_Data_Structures Non-Backtrackable Data Structures
 @ingroup YAPLibrary
@@ -8458,7 +8458,7 @@ Succeeds if   _Beam_ is empty.
 
 
 
-@} */
+ */
 
 /** @defgroup Ordered_Sets Ordered Sets
 @ingroup YAPLibrary
@@ -8630,7 +8630,7 @@ Holds when  _Union_ is the union of  _Set1_ and  _Set2_ and
 
 
 
-@} */
+ */
 
 /** @defgroup Pseudo_Random Pseudo Random Number Integer Generator
 @ingroup YAPLibrary
@@ -8688,7 +8688,7 @@ the result is in 0 ..  _R_-1.
 
 
 
-@} */
+ */
 
 /** @defgroup Queues Queues
 @ingroup YAPLibrary
@@ -8788,7 +8788,7 @@ Creates a new list with the same elements as  _Queue_.
 
 
 
-@} */
+ */
 
 /** @defgroup Random Random Number Generator
 @ingroup YAPLibrary
@@ -8858,7 +8858,7 @@ random number generator. The integer `X` must be in the range
 
 
 
-@} */
+ */
 
 /** @defgroup Read_Utilities Read Utilities
 @ingroup YAPLibrary
@@ -8947,7 +8947,7 @@ Read a file to a list of Prolog terms (see read/1). @c  _Spec_ is a
 
 
 
-@} */
+ */
 
 /** @defgroup RedhYBlack_Trees Red-Black Trees
 @ingroup YAPLibrary
@@ -9155,8 +9155,8 @@ previous node in inorder, `call(G,KeyL,VL,_,Acc0)` must hold, and if
 /** @pred rb_clone(+ _T_,+ _NT_,+ _Nodes_) 
 
 
-``Clone'' the red-back tree into a new tree with the same keys as the
-original but with all values set to unbound values. Nodes is a list
+=Clone= the red-back tree into a new tree with the same keys as the
+original but with all values set to unbound values. _Nodes_ is a list
 containing all new nodes as pairs  _K-V_.
 
  
@@ -9204,7 +9204,7 @@ list  _L_.
 
 
 
-@} */
+ */
 
 /** @defgroup RegExp Regular Expressions
 @ingroup YAPLibrary
@@ -9223,34 +9223,34 @@ further details).
 Much of the description of regular expressions below is copied verbatim
 from Henry Spencer's manual page.
 
-A regular expression is zero or more branches, separated by ``|''.  It
+A regular expression is zero or more branches, separated by ``|`.  It
 matches anything that matches one of the branches.
 
 A branch is zero or more pieces, concatenated.  It matches a match for
 the first, followed by a match for the second, etc.
 
-A piece is an atom possibly followed by ``\*'', ``+'', or ``?''.  An atom
-followed by ``\*'' matches a sequence of 0 or more matches of the atom.
-An atom followed by ``+'' matches a sequence of 1 or more matches of the
-atom.  An atom followed by ``?'' matches a match of the atom, or the
+A piece is an atom possibly followed by `\*`, `+`, or `?`.  An atom
+followed by `\*` matches a sequence of 0 or more matches of the atom.
+An atom followed by `+` matches a sequence of 1 or more matches of the
+atom.  An atom followed by `?` matches a match of the atom, or the
 null string.
 
 An atom is a regular expression in parentheses (matching a match for the
-regular expression), a range (see below), ``.''  (matching any single
-character), ``^'' (matching the null string at the beginning of the
-input string), ``$'' (matching the null string at the end of the input
-string), a ``\'' followed by a single character (matching that
+regular expression), a range (see below), `.`  (matching any single
+character), `^` (matching the null string at the beginning of the
+input string), `$` (matching the null string at the end of the input
+string), a `\` followed by a single character (matching that
 character), or a single character with no other significance (matching
 that character).
 
-A range is a sequence of characters enclosed in ``[]''.  It normally
+A range is a sequence of characters enclosed in `[]`.  It normally
 matches any single character from the sequence.  If the sequence begins
-with ``^'', it matches any single character not from the rest of the
-sequence.  If two characters in the sequence are separated by ``-'',
+with `^`, it matches any single character not from the rest of the
+sequence.  If two characters in the sequence are separated by `-`,
 this is shorthand for the full list of ASCII characters between them
-(e.g. ``[0-9]'' matches any decimal digit).  To include a literal ``]''
+(e.g. `[0-9]` matches any decimal digit).  To include a literal `]`
 in the sequence, make it the first character (following a possible
-``^'').  To include a literal ``-'', make it the first or last
+`^`).  To include a literal `-`, make it the first or last
 character.
 
 
@@ -9303,7 +9303,7 @@ Considering only the rules given so far,  _X_ and  _Y_ could end up
 with the values `"aabb"` and `"aa"`, `"aaab"` and
 `"aaa"`, `"ab"` and `"a"`, or any of several other
 combinations.  To resolve this potential ambiguity `regexp` chooses among
-alternatives using the rule ``first then longest''.  In other words, it
+alternatives using the rule `first then longest`.  In other words, it
 considers the possible matches in order working from left to right
 across the input string and the pattern, and it attempts to match longer
 pieces of the input string before shorter ones.  More specifically, the
@@ -9337,7 +9337,7 @@ sub-expression.  Thus the `"b"` has already been claimed before the
 
 
 
-@} */
+ */
 
 /** @defgroup shlib SWI-Prolog's shlib library
 @ingroup YAPLibrary
@@ -9470,7 +9470,7 @@ loaded shared libraries.
 
 
 
-@} */
+ */
 
 /** @defgroup Splay_Trees Splay Trees
 @ingroup YAPLibrary
@@ -9550,7 +9550,7 @@ greater than  _Key_. This operations destroys  _Tree_.
 
 
 
-@} */
+ */
 
 /** @defgroup String_InputOutput Reading From and Writing To Strings
 @ingroup YAPLibrary
@@ -9660,7 +9660,7 @@ Use  _Atom_ as input to read_term/2 using the option `variable_names` and return
 True if  _Atom_ describes a term that unifies with  _Term_. When
  _Atom_ is instantiated  _Atom_ is converted and then unified with
  _Term_. If  _Atom_ has no valid syntax, a syntax_error exception
-is raised. Otherwise  _Term_ is ``written'' on  _Atom_ using
+is raised. Otherwise  _Term_ is `written` on  _Atom_ using
 write_term/2 with the option quoted(true).
 
  
@@ -9719,7 +9719,7 @@ buffer will be converted to the difference list of character codes
  _Chars-Chars0_ and  _Stream_ receives the stream corresponding to
 the memory buffer.
 
-@} */
+ */
 
 /** @defgroup System Calling The Operating System from YAP
 @ingroup YAPLibrary
@@ -10085,7 +10085,7 @@ Wait until process  _PID_ terminates, and return its exits  _Status_.
 
 
 
-@} */
+ */
 
 /** @defgroup Terms Utilities On Terms
 @ingroup YAPLibrary
@@ -10197,7 +10197,7 @@ Succeed if  _Term1_ and  _Term2_ are unifiable with substitution
 
 
 
-@} */
+ */
 
 /** @defgroup Tries Trie DataStructure
 @ingroup YAPLibrary
@@ -10352,7 +10352,7 @@ Print trie  _Trie_ on standard output.
 
 
 
-@} */
+ */
 
 /** @defgroup Cleanup Call Cleanup
 @ingroup YAPLibrary
@@ -10499,7 +10499,7 @@ CleanUpGoals for other than the current cleanup-context.
 Read the Source Luke.
 
 
-@} */
+ */
 
 /** @defgroup Timeout Calls With Timeout
 @ingroup YAPLibrary
@@ -10536,7 +10536,7 @@ precision on the scale of seconds.
 
 
 
-@} */
+ */
 
 /** @defgroup Trees Updatable Binary Trees
 @ingroup YAPLibrary
@@ -10599,7 +10599,7 @@ Is the converse operation to list_to_tree.
 
 
 
-@} */
+ */
 
 /** @defgroup UGraphs Unweighted Graphs
 @ingroup YAPLibrary
@@ -10894,7 +10894,7 @@ V = [1,3,5]
 
 
 
-@} */
+ */
 
 /** @defgroup DGraphs Directed Graphs
 @ingroup YAPLibrary
@@ -11194,7 +11194,7 @@ The vertices  _Vertices_ have no outgoing edge in graph
 
 
 
-@} */
+ */
 
 /** @defgroup UnDGraphs Undirected Graphs
 @ingroup YAPLibrary
@@ -11314,7 +11314,7 @@ directed graph  _DGraph_.
 
 
 
-@} */
+ */
 
 /** @defgroup DBUsage Memory Usage in Prolog Data-Base
 @ingroup YAPLibrary
@@ -11367,7 +11367,7 @@ than  _Threshold_ bytes.
 
 
 
-@} */
+ */
 
 /** @defgroup Lambda Lambda Expressions
 @ingroup YAPLibrary
@@ -11444,7 +11444,7 @@ Further discussions
 at Ulrich Neumerker's page in <http://www.complang.tuwien.ac.at/ulrich/Prolog-inedit/ISO-Hiord>.
 
 
-@} */
+ */
 
 /** @defgroup LAM LAM
 @ingroup YAPPackages
@@ -11675,7 +11675,7 @@ are released.
 
 
 
-@} */
+ */
 
 /** @defgroup BDDs Binary Decision Diagrams and Friends
 @ingroup YAPPackages
@@ -11864,7 +11864,7 @@ close the BDD and release any resources it holds.
 
 
 
-@} */
+ */
 
 /** @defgroup Block_Diagram Block Diagram
 @ingroup YAPLibrary
@@ -12007,7 +12007,7 @@ They also influence expand_file_name/2.
 Succeeds if  _Atom_ describes a term that unifies with  _Term_. When
  _Atom_ is instantiated  _Atom_ is converted and then unified with
  _Term_.  If  _Atom_ has no valid syntax, a `syntax_error`
-exception is raised. Otherwise  _Term_ is ``written'' on  _Atom_
+exception is raised. Otherwise  _Term_ is `written` on  _Atom_
 using write/1.
 
  
@@ -12034,7 +12034,7 @@ True iff  _Term1_ and  _Term2_ are structurally equivalent. I.e. if  _Term1_ and
 
 
 
-@} */
+ */
 
 /** @defgroup Invoking_Predicates_on_all_Members_of_a_List Invoking Predicates on all Members of a List
 @ingroup YAPLibrary
@@ -12052,7 +12052,7 @@ front of the arguments obtained from the list(s). For example:
 X = [1, 2, 3]
 ~~~~~
 
-we will phrase this as `` _Predicate_ is applied on ...''
+we will phrase this as ` _Predicate_ is applied on ...`
 
 
 
@@ -12085,7 +12085,7 @@ triple. See the example above.
 
 
 
-@} */
+ */
 
 /** @defgroup Forall Forall			
 @ingroup YAPPackages
@@ -12217,7 +12217,7 @@ Delete the named global variable.
 
 
 
-@} */
+ */
 
 /** @defgroup Compatibility_of_Global_Variables Compatibility of Global Variables
 @ingroup YAPPackages
@@ -12243,7 +12243,7 @@ YAP includes a number of extensions over the original Prolog
 language. Next, we discuss support to the most important ones.
 
 
-@} */
+ */
 
 /** @defgroup Rational_Trees Rational Trees
 @ingroup YAPPackages
@@ -12272,7 +12272,7 @@ rational trees, and you need to use `write_depth/2` to avoid
 entering an infinite cycle when trying to write an infinite term.
 
 
-@} */
+ */
 
 /** @defgroup CohYroutining Co-routining
 @ingroup YAPPackages
@@ -12407,7 +12407,7 @@ no
 
 
 
-@} */
+ */
 
 /** @defgroup Attributed_Variables Attributed Variables
 @ingroup YAPPackages
@@ -12434,7 +12434,7 @@ most packages included in YAP that use attributed variables, such as CHR, CLP(FD
 rely on the SWI-Prolog interface.
 
 
-@} */
+ */
 
 /** @defgroup New_Style_Attribute_Declarations hProlog and SWI-Prolog style Attribute Declarations
 @ingroup YAPPackages
@@ -12659,7 +12659,7 @@ by fresh variables.
 
 
 
-@} */
+ */
 
 /** @defgroup Old_Style_Attribute_Declarations SICStus Prolog style Attribute Declarations
 @ingroup YAPLibrary
@@ -12696,7 +12696,7 @@ floundered constraints at the end of a query.
 
 
 
-@} */
+ */
 
 /** @defgroup Attribute_Declarations Attribute Declarations
 @ingroup Old_Style_Attribute_Declarations
@@ -12721,7 +12721,7 @@ preprocessed depending on the module.  The `user:goal_expansion/3`
 mechanism is used for this purpose.
 
 
-@} */
+ */
 
 /** @defgroup Attribute_Manipulation Attribute Manipulation
 @ingroup Old_Style_Attribute_Declarations
@@ -12777,7 +12777,7 @@ simply succeed.
 
 
 
-@} */
+ */
 
 /** @defgroup Attributed_Unification Attributed Unification
 @ingroup Old_Style_Attribute_Declarations
@@ -12820,7 +12820,7 @@ Succeed if  _Var_ is an attributed variable.
 
 
 
-@} */
+ */
 
 /** @defgroup Displaying_Attributes Displaying Attributes
 @ingroup Old_Style_Attribute_Declarations
@@ -12840,7 +12840,7 @@ a  _Goal_. Should fail when no interpretation is available.
 
 
 
-@} */
+ */
 
 /** @defgroup Projecting_Attributes Projecting Attributes
 @ingroup Old_Style_Attribute_Declarations
@@ -12876,14 +12876,14 @@ and these constraints are the ones that will have an
 attribute_goal/2 handler.
 
 
-@} */
+ */
 
 /** @defgroup Attribute_Examples Attribute Examples
 @ingroup Old_Style_Attribute_Declarations
 @{
 
 The following two examples example is taken from the SICStus Prolog manual. It
-sketches the implementation of a simple finite domain ``solver''.  Note
+sketches the implementation of a simple finite domain `solver`.  Note
 that an industrial strength solver would have to provide a wider range
 of functionality and that it quite likely would utilize a more efficient
 representation for the domains proper.  The module exports a single
@@ -12944,7 +12944,7 @@ domain(X, List) :-
         ).
 ~~~~~
 
-Note that the ``implied binding'' `Other=El` was deferred until after
+Note that the _implied binding_ `Other=El` was deferred until after
 the completion of `verify_attribute/3`.  Otherwise, there might be a
 danger of recursively invoking `verify_attribute/3`, which might bind
 `Var`, which is not allowed inside the scope of `verify_attribute/3`.
@@ -13046,7 +13046,7 @@ attributes from other known solvers/modules via the module prefix in
 ` _Module_:get_atts/2`.
 
 
-@} */
+ */
 
 /** @defgroup CLPR Constraint Logic Programming over Reals
 @ingroup YAPPackages
@@ -13074,7 +13074,7 @@ explicitely before using it:
 ~~~~~
 
 
-@} */
+ */
 
 /** @defgroup CLPR_Solver_Predicates Solver Predicates
 @ingroup CLPR
@@ -13166,7 +13166,7 @@ dump([X,Y,Z],[x,y,z],Cons)
 
 
 
-@} */
+ */
 
 /** @defgroup CLPR_Syntax Syntax of the predicate arguments
 @ingroup YAPPackages
@@ -13211,7 +13211,7 @@ result in an exception.
 ~~~~~
 
 
-@} */
+ */
 
 /** @defgroup CLPR_Unification Use of unification
 @ingroup CLPR
@@ -13240,7 +13240,7 @@ X = 5.0
 
 
 
-@} */
+ */
 
 /** @defgroup CLPR_NonhYlinear_Constraints Non-Linear Constraints
 @ingroup CLPR
@@ -13290,7 +13290,7 @@ Contributions (Fruwirth, T. and Meister, M., eds.), pp. 1--5, 2004.
 
 
 
-@} */
+ */
 
 /** @defgroup CHR_Introduction Introduction
 @ingroup CHR
@@ -13313,7 +13313,7 @@ implementation. For a more thorough review of CHR we refer the reader to
 [Freuhwirth:98]. More background on CHR can be found at the CHR web site.
 
 
-@} */
+ */
 
 /** @defgroup CHR_Syntax_and_Semantics Syntax and Semantics
 @ingroup YAPPackages
@@ -13322,7 +13322,7 @@ implementation. For a more thorough review of CHR we refer the reader to
 
 
 
-@} */
+ */
 
 /** @defgroup CHR_Syntax CHR Syntax
 Wingroup CHR
@@ -13334,40 +13334,40 @@ The syntax of CHR rules in hProlog is the following:
 rules --> rule, rules.
 rules --> [].
 
-rule --> name, actual_rule, pragma, [atom('.')].
+rule --> name, actual_rule, pragma, [atom(`.`)].
 
-name --> atom, [atom('@')].
+name --> atom, [atom(`@`)].
 name --> [].
 
 actual_rule --> simplification_rule.
 actual_rule --> propagation_rule.
 actual_rule --> simpagation_rule.
 
-simplification_rule --> constraints, [atom('<=>')], guard, body.
-propagation_rule --> constraints, [atom('==>')], guard, body.
-simpagation_rule --> constraints, [atom('\')], constraints, [atom('<=>')], 
+simplification_rule --> constraints, [atom(`<=>`)], guard, body.
+propagation_rule --> constraints, [atom(`==>`)], guard, body.
+simpagation_rule --> constraints, [atom(`\`)], constraints, [atom(`<=>`)], 
                      guard, body.
 
 constraints --> constraint, constraint_id.
-constraints --> constraint, [atom(',')], constraints.
+constraints --> constraint, [atom(`,`)], constraints.
 
 constraint --> compound_term.
 
 constraint_id --> [].
-constraint_id --> [atom('#')], variable.
+constraint_id --> [atom(`#`)], variable.
 
 guard --> [].
-guard --> goal, [atom('|')].
+guard --> goal, [atom(`|`)].
 
 body --> goal.
 
 pragma --> [].
-pragma --> [atom('pragma')], actual_pragmas.
+pragma --> [atom(`pragma`)], actual_pragmas.
 
 actual_pragmas --> actual_pragma.
-actual_pragmas --> actual_pragma, [atom(',')], actual_pragmas.
+actual_pragmas --> actual_pragma, [atom(`,`)], actual_pragmas.
 
-actual_pragma --> [atom('passive(')], variable, [atom(')')].
+actual_pragma --> [atom(`passive(`)], variable, [atom(`)`)].
 
 ~~~~~
 
@@ -13378,7 +13378,7 @@ the arrow (either `<=>` or `==>`)
 
 
 
-@} */
+ */
 
 /** @defgroup Semantics Semantics
 @ingroup CHR
@@ -13418,7 +13418,7 @@ constraint is triggered, i.e. it becomes an active constraint and all
 the rules are tried.
 
 
-@} */
+ */
 
 /** @defgroup Rule_Types
 @ingroup CHR
@@ -13447,7 +13447,7 @@ constraints are not called in the body.
 
 
 
-@} */
+ */
 
 /** @defgroup CHR_Rule_Names Rule Names
 @ingroup CHR
@@ -13457,7 +13457,7 @@ Naming a rule is optional and has no semantical meaning. It only functions
 as documentation for the programmer.
 
 
-@} */
+ */
 
 /** @defgroup CHRPragmas Pragmas
 @ingroup CHR_Rule_Names
@@ -13473,7 +13473,7 @@ passive constraint in that rule.
 Additional pragmas may be released in the future.
 
 
-@} */
+ */
 
 /** @defgroup CHR_Options Options
 @ingroup CHR_Rule_Names
@@ -13577,7 +13577,7 @@ The mode, type_declaration and type_definition options are provided
 for backward compatibility. The new syntax is described below.
 
 
-@} */
+ */
 
 /** @defgroup CHR_in_YAP_Programs CHR in YAP Programs	
 @ingroup CHR
@@ -13589,7 +13589,7 @@ associated with a module. The default module is `user`. One should
 never load different chr files with the same CHR module name.
 
 
-@} */
+ */
 
 /** @defgroup Constraint_declaration Constraint declaration
 @ingroup CHR_in_YAP_Programs
@@ -13614,7 +13614,7 @@ The new style is as follows:
 ~~~~~
 
 
-@} */
+ */
 
 /** @defgroup Compilation Compilation
 
@@ -13645,7 +13645,7 @@ pl files and the operator definitions required by CHR do not
 leak into modules where they might cause conflicts.
 
 
-@} */
+ */
 
 /** @defgroup CHR_Debugging Debugging
 @ingroup CHR
@@ -13661,7 +13661,7 @@ from the SWI-Prolog flag `generate_debug_info`.  Therefore debug
 info is provided unless the `-nodebug` is used.
 
 
-@} */
+ */
 
 /** @defgroup Ports Ports
 @ingroup CHR
@@ -13703,7 +13703,7 @@ just after committing to the rule.
 
 
 
-@} */
+ */
 
 /** @defgroup Tracing Tracing
 @ingroup CHR
@@ -13753,7 +13753,7 @@ Print the above available debug options.
 
 
 
-@} */
+ */
 
 /** @defgroup CHR_Debugging_Predicates CHR Debugging Predicates
 @ingroup CHR
@@ -13780,7 +13780,7 @@ notrace/0.
 
 Define the set of CHR ports on which the CHR
 tracer asks for user intervention (i.e. stops).  _Spec_ is either a
-list of ports or a predefined `alias'. Defined aliases are:
+list of ports or a predefined `alias`. Defined aliases are:
 `full` to stop at all ports, `none` or `off` to never
 stop, and `default` to stop at the `call`, `exit`,
 `fail`, `wake` and `apply` ports.  See also leash/1.
@@ -13799,7 +13799,7 @@ disables it.
 
 
 
-@} */
+ */
 
 /** @defgroup CHR_Examples Examples
 @ingroup CHR
@@ -13854,7 +13854,7 @@ intersection([_|T],L2,L3) :-
 
 
 
-@} */
+ */
 
 /** @defgroup CHR_Compatibility Compatibility with SICStus CHR
 @ingroup YAPPackages
@@ -13886,7 +13886,7 @@ rules may be defined in a file with any extension.
 
 
 
-@} */
+ */
 
 /** @defgroup CHR_Guidelines Guidelines
 @ingroup YAPPackages
@@ -13919,7 +13919,7 @@ Make sure to disable debug (`-nodebug`) and enable optimization
 
 
 
-@} */
+ */
 
 /** @defgroup Logtalk Logtalk
 @ingroup YAPPackages
@@ -13935,7 +13935,7 @@ please see the URL <http://logtalk.org/>.
 \copydoc real
 
 
-@} */
+ */
 
 /** @defgroup Threads Threads
 @ingroup YAPBuiltins
@@ -13949,7 +13949,7 @@ standard (Butenhof:1997:PPT) used on most popular systems except
 for MS-Windows.
 
 
-@} */
+ */
 
 /** @defgroup Creating_and_Destroying_Prolog_Threads Creating and Destroying Prolog Threads
 @ingroup Threads
@@ -14116,7 +14116,7 @@ using instead the `at_exit/1` option of thread_create/3.
 
 
 Determine the concurrency of the process, which is defined as the
-maximum number of concurrently active threads. `Active' here means
+maximum number of concurrently active threads. `Active` here means
 they are using CPU time. This option is provided if the
 thread-implementation provides
 `pthread_setconcurrency()`. Solaris is a typical example of this
@@ -14136,7 +14136,7 @@ alarms are also being used.
 
 
 
-@} */
+ */
 
 /** @defgroup Monitoring_Threads Monitoring Threads
 @ingroup Threads
@@ -14247,7 +14247,7 @@ Prints a table of current threads and their status.
 
 
 
-@} */
+ */
 
 /** @defgroup Thread_Communication Thread communication
 @ingroup Threads
@@ -14410,7 +14410,7 @@ work(Id, Goal) :-
 ~~~~~
 
 
-@} */
+ */
 
 /** @defgroup Signalling_Threads Signalling Threads
 @ingroup Threadas
@@ -14450,7 +14450,7 @@ tracing the receiving thread.
 
 
 
-@} */
+ */
 
 /** @defgroup Threads_and_Dynamic_Predicates Threads and Dynamic Predicates
 @ingroup Threads
@@ -14504,7 +14504,7 @@ foo(gnat).
 
 
 
-@} */
+ */
 
 /** @defgroup Thread_Synchronisation Thread Synchronisation
 
@@ -14638,7 +14638,7 @@ Enumerates all existing mutexes.  If the mutex is held by some thread,
 
 
 
-@} */
+ */
 
 /** @defgroup Parallelism Parallelism
 @ingroup YAPPackages
@@ -14678,7 +14678,7 @@ We expect that some of these restrictions will be removed in future
 releases.
 
 
-@} */
+ */
 
 /** @defgroup Tabling Tabling
 @ingroup YAPBuiltins
@@ -14868,7 +14868,7 @@ Prints statistics on space used by all tables.
 
 
 
-@} */
+ */
 
 /** @defgroup Low_Level_Tracing Tracing at Low Level
 @ingroup YAPBuiltins
@@ -14891,7 +14891,10 @@ deactivate low level tracing:
 
 Begin display of messages at procedure entry and retry.
 
-+ stop_low_level_trace 
+ 
+*/
+
+/** @pred stop_low_level_trace 
 
 
 Stop display of messages at procedure entry and retry.
@@ -14900,12 +14903,11 @@ Stop display of messages at procedure entry and retry.
 Note that this compile-time option will slow down execution.
 
 
-@} */
+ */
 
 /** @defgroup Low_Level_Profiling Profiling the Abstract Machine
 
-Imp@{
-lementors may be interested in detecting on which abstract machine
+Implementors may be interested in detecting on which abstract machine
 instructions are executed by a program. The `ANALYST` flag can give
 WAM level information. Note that this option slows down execution very
 substantially, and is only of interest to developers of the system
@@ -14940,14 +14942,14 @@ label  _A_. The label must be an atom.
 
 
 
-@} */
+ */
 
 /** @defgroup Debugging Debugging
 @ingroup YAPBuiltins
 @{
 
 
-@} */
+ */
 
 /** @defgroup Deb_Preds Debugging Predicates
 
@@ -15070,7 +15072,7 @@ nodebug/0.
 
 
 
-@} */
+ */
 
 /** @defgroup Deb_Interaction Interacting with the debugger
 
@@ -15101,19 +15103,26 @@ procedure. Each one of these points is named a port:
 
 
 
-+ Call
-The call port is activated before initial invocation of
++ `Call`
+
+    The call port is activated before initial invocation of
 procedure. Afterwards, execution will try to match the goal with the
 head of existing clauses for the procedure.
-+ Exit
-This port is activated if the procedure succeeds.
+
++ `Exit`
+
+    This port is activated if the procedure succeeds.
 Control will  now leave the procedure and return to its ancestor.
-+ Redo
-if the goal, or goals, activated after the call port
+
++ `Redo`
+
+    If the goal, or goals, activated after the call port
 fail  then backtracking will eventually return control to this procedure
 through  the redo port.
-+ Fail
-If all clauses for this predicate fail, then the
+
++ `Fail`
+
+    If all clauses for this predicate fail, then the
 invocation fails,  and control will try to redo the ancestor of this
 invocation.
 
@@ -15297,7 +15306,7 @@ loop(Env) :-
 
 
 
-@} */
+ */
 
 /** @defgroup Indexing Indexing
 
@@ -15451,7 +15460,7 @@ being designed to work with the swig (@url(www.swig.org}) interface compiler.
 
 
 
-@} */
+ */
 
 /** @defgroup Loading_Objects Loading Object Files
 
@@ -15531,7 +15540,7 @@ language predicates using calls to `PL_register_foreign()`.
 
 
 
-@} */
+ */
 
 /** @defgroup SavebQeERest Saving and Restoring
 

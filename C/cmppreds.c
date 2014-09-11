@@ -18,6 +18,40 @@
 
 
 
+/** @defgroup Comparing_Terms Comparing Terms
+@ingroup YAPBuiltins
+@{
+
+The following predicates are used to compare and order terms, using the
+standard ordering:
+
++ 
+variables come before numbers, numbers come before atoms which in turn
+come before compound terms, i.e.: variables @< numbers @< atoms @<
+compound terms.
++ 
+Variables are roughly ordered by "age" (the "oldest" variable is put
+first);
++ 
+Floating point numbers are sorted in increasing order;
++ 
+Rational numbers are sorted in increasing order;
++ 
+Integers are sorted in increasing order;
++ 
+Atoms are sorted in lexicographic order;
++ 
+Compound terms are ordered first by arity of the main functor, then by
+the name of the main functor, and finally by their arguments in
+left-to-right order.
+
+
+
+
+ 
+*/
+
+
 #ifdef SCCS
 static char     SccsId[] = "%W% %G%";
 #endif
@@ -867,9 +901,92 @@ Yap_InitCmpPreds(void)
   Yap_InitCmpPred(">=", 2, a_ge, SafePredFlag | BinaryPredFlag);
   Yap_InitCPred("$a_compare", 3, p_acomp, TestPredFlag | SafePredFlag);
   Yap_InitCmpPred("\\==", 2, a_noteq, BinaryPredFlag | SafePredFlag);
+/** @pred  _X_ \==  _Y_ is iso 
+
+
+Terms  _X_ and  _Y_ are not strictly identical.
+
+ 
+*/
   Yap_InitCmpPred("@<", 2, a_gen_lt, BinaryPredFlag | SafePredFlag);
+/** @pred  _X_ @<  _Y_ is iso 
+
+
+Term  _X_ precedes term  _Y_ in the standard order.
+
+ 
+*/
   Yap_InitCmpPred("@=<", 2, a_gen_le, BinaryPredFlag | SafePredFlag);
+/** @pred  _X_ @=<  _Y_ is iso 
+
+
+Term  _X_ does not follow term  _Y_ in the standard order.
+
+ 
+*/
   Yap_InitCmpPred("@>", 2, a_gen_gt, BinaryPredFlag | SafePredFlag);
+/** @pred  _X_ @>  _Y_ is iso 
+
+
+Term  _X_ follows term  _Y_ in the standard order.
+
+ 
+*/
   Yap_InitCmpPred("@>=", 2, a_gen_ge, BinaryPredFlag | SafePredFlag);
+/** @pred  _X_ @>=  _Y_ is iso 
+
+
+Term  _X_ does not precede term  _Y_ in the standard order.
+
+ 
+*/
   Yap_InitCPred("compare", 3, p_compare, TestPredFlag | SafePredFlag);
+/** @pred  compare( _C_, _X_, _Y_) is iso 
+
+
+As a result of comparing  _X_ and  _Y_,  _C_ may take one of
+the following values:
+
++ 
+`=` if  _X_ and  _Y_ are identical;
++ 
+`<` if  _X_ precedes  _Y_ in the defined order;
++ 
+`>` if  _Y_ precedes  _X_ in the defined order;
+
+
++ _X_ ==  _Y_ is iso 
+
+
+Succeeds if terms  _X_ and  _Y_ are strictly identical. The
+difference between this predicate and =/2 is that, if one of the
+arguments is a free variable, it only succeeds when they have already
+been unified.
+
+~~~~~{.prolog}
+?- X == Y.
+~~~~~
+fails, but,
+
+~~~~~{.prolog}
+?- X = Y, X == Y.
+~~~~~
+succeeds.
+
+~~~~~{.prolog}
+?- X == 2.
+~~~~~
+fails, but,
+
+~~~~~{.prolog}
+?- X = 2, X == 2.
+~~~~~
+succeeds.
+
+ 
+*/
 }
+
+/**
+@}
+*/

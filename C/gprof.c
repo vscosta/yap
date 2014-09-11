@@ -47,6 +47,41 @@
 *									 *
 *************************************************************************/
 
+
+/** @defgroup Tick_Profiler Tick Profiler
+@ingroup Profiling
+@{
+
+The tick profiler works by interrupting the Prolog code every so often
+and checking at each point the code was. The profiler must be able to
+retrace the state of the abstract machine at every moment. The major
+advantage of this approach is that it gives the actual amount of time
+being spent per procedure, or whether garbage collection dominates
+execution time. The major drawback is that tracking down the state of
+the abstract machine may take significant time, and in the worst case
+may slow down the whole execution.
+
+The following procedures are available:
+
++ profinit 
+
+
+Initialise the data-structures for the profiler. Unnecessary for
+dynamic profiler.
+
++ profon 
+
+
+Start profiling.
+
++ profoff 
+
+
+Stop profiling.
+
+ 
+*/
+
 #ifdef SCCS
 static char     SccsId[] = "%W% %G%";
 #endif
@@ -62,6 +97,7 @@ typedef greg_t context_reg;
 #define CONTEXT_BP(scv) (((ucontext_t *)(scv))->uc_mcontext.gregs[6])
 
 #elif defined(__i386__) && defined (__linux__)
+
 
 #include <ucontext.h>
 
@@ -1185,3 +1221,8 @@ Yap_InitLowProf(void)
   Yap_InitCPred("showprofres", 4, getpredinfo, SafePredFlag);
 #endif
 }
+
+
+/**
+@}
+*/

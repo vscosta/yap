@@ -36,6 +36,7 @@
 :- use_module(library(lists)).
 
 /** <module> Provide entry point for scripts
+@ingroup SWILibrary
 
 This library is intended for supporting   PrologScript on Unix using the
 =|#!|= magic sequence for scripts using   commandline options. The entry

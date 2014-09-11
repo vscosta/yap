@@ -105,6 +105,14 @@
 	      user:'$LoopError'(Error, top)).
 '$exec_directive'(discontiguous(D), _, M, _, _) :-
 	'$discontiguous'(D,M).
+
+/** @pred initialization
+
+Execute the goals defined by initialization/1. Only the first answer is
+considered.
+
+ 
+*/
 '$exec_directive'(initialization(D), _, M, _, _) :-
 	'$initialization'(M:D).
 '$exec_directive'(initialization(D,OPT), _, M, _, _) :-

@@ -36,6 +36,17 @@
 
 %   length of a list.
 
+/** @pred  length(? _L_,? _S_) 
+
+
+Unify the well-defined list  _L_ with its length. The procedure can
+be used to find the length of a pre-defined list, or to build a list
+of length  _S_.
+
+
+
+
+ */
 length(L, M) :-
 	  '$skip_list'(L, M, M0, R),
 	  ( var(R) -> '$$_length'(R, M, M0) ;
@@ -64,6 +75,14 @@ length(L, M) :-
 	( N =:= O -> NL = [];
           M is N + 1, NL  = [_|L], '$$_length2'(L, O, M) ).
 
+/** @pred  sort(+ _L_,- _S_) is iso 
+
+
+Unifies  _S_ with the list obtained by sorting  _L_ and  merging
+identical (in the sense of `==`) elements.
+
+ 
+*/
 sort(L,O) :-
 	'$skip_list'(NL,L,RL),
 	( RL == [] -> true ;
@@ -91,6 +110,25 @@ sort(L,O) :-
 msort(L,O) :-
 	'$msort'(L,O).
 
+/** @pred  keysort(+ _L_, _S_) is iso 
+
+
+Assuming L is a list of the form ` _Key_- _Value_`,
+`keysort(+ _L_, _S_)` unifies  _S_ with the list obtained
+from  _L_, by sorting its elements according to the value of
+ _Key_.
+
+~~~~~{.prolog}
+?- keysort([3-a,1-b,2-c,1-a,1-b],S).
+~~~~~
+would return:
+
+~~~~~{.prolog}
+S = [1-b,1-a,1-b,2-c,3-a]
+~~~~~
+
+ 
+*/
 keysort(L,O) :-
 	'$skip_list'(NL,L,RL),
 	( RL == [] -> true ;
@@ -118,6 +156,17 @@ keysort(L,O) :-
 %	 Delta with one of <, > or =. If built-in predicate compare/3 is
 %	 used, the result is the same as sort/2. See also keysort/2.
 
+/** @pred  predsort(+ _Pred_, + _List_, - _Sorted_) 
+
+
+Sorts similar to sort/2, but determines the order of two terms by
+calling  _Pred_(- _Delta_, + _E1_, + _E2_) . This call must
+unify  _Delta_ with one of `<`, `>` or `=`. If
+built-in predicate compare/3 is used, the result is the same as
+sort/2.
+
+ 
+*/
 predsort(P, L, R) :-
 	length(L, N), 
 	predsort(P, N, L, _, R1), !, 

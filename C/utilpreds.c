@@ -17,6 +17,9 @@
 #ifdef SCCS
 static char     SccsId[] = "@(#)utilpreds.c	1.3";
 #endif
+/** @addtogroup YAP_Terms
+
+ */
 
 #include "absmi.h"
 #include "YapHeap.h"
@@ -5277,22 +5280,119 @@ void Yap_InitUtilCPreds(void)
   CACHE_REGS
   Term cm = CurrentModule;
   Yap_InitCPred("copy_term", 2, p_copy_term, 0);
+/** @pred  copy_term(? _TI_,- _TF_) is iso 
+
+
+Term  _TF_ is a variant of the original term  _TI_, such that for
+each variable  _V_ in the term  _TI_ there is a new variable  _V'_
+in term  _TF_. Notice that:
+
++ suspended goals and attributes for attributed variables in _TI_ are also duplicated;
++ ground terms are shared between the new and the old term.
+
+If you do not want any sharing to occur please use
+duplicate_term/2.
+
+ 
+*/
   Yap_InitCPred("duplicate_term", 2, p_duplicate_term, 0);
+/** @pred  duplicate_term(? _TI_,- _TF_) 
+
+
+Term  _TF_ is a variant of the original term  _TI_, such that
+for each variable  _V_ in the term  _TI_ there is a new variable
+ _V'_ in term  _TF_, and the two terms do not share any
+structure. All suspended goals and attributes for attributed variables
+in  _TI_ are also duplicated.
+
+Also refer to copy_term/2.
+
+ 
+*/
   Yap_InitCPred("copy_term_nat", 2, p_copy_term_no_delays, 0);
+/** @pred copy_term_nat(? _TI_,- _TF_)  
+
+
+As copy_term/2.  Attributes however, are <em>not</em> copied but replaced
+by fresh variables.
+
+
+
+
+ */
   Yap_InitCPred("ground", 1, p_ground, SafePredFlag);
+/** @pred  ground( _T_) is iso 
+
+
+Succeeds if there are no free variables in the term  _T_.
+
+ 
+*/
   Yap_InitCPred("$variables_in_term", 3, p_variables_in_term, 0);
   Yap_InitCPred("$free_variables_in_term", 3, p_free_variables_in_term, 0);
   Yap_InitCPred("$non_singletons_in_term", 3, p_non_singletons_in_term, 0);
   Yap_InitCPred("term_variables", 2, p_term_variables, 0);
+/** @pred  term_variables(? _Term_, - _Variables_) is iso 
+
+
+
+Unify  _Variables_ with the list of all variables of term
+ _Term_.  The variables occur in the order of their first
+appearance when traversing the term depth-first, left-to-right.
+
+ 
+*/
   Yap_InitCPred("term_variables", 3, p_term_variables3, 0);
   Yap_InitCPred("term_attvars", 2, p_term_attvars, 0);
+/** @pred term_attvars(+ _Term_,- _AttVars_) 
+
+
+ _AttVars_ is a list of all attributed variables in  _Term_ and
+its attributes. I.e., term_attvars/2 works recursively through
+attributes.  This predicate is Cycle-safe.
+
+ 
+*/
   Yap_InitCPred("is_list", 1, p_is_list, SafePredFlag|TestPredFlag);
   Yap_InitCPred("$is_list_or_partial_list", 1, p_is_list_or_partial_list, SafePredFlag|TestPredFlag);
   Yap_InitCPred("rational_term_to_tree", 4, p_break_rational, 0);
+/** @pred  rational_term_to_tree(? _TI_,- _TF_, ?SubTerms, ?MoreSubterms) 
+
+
+The term _TF_ is a forest representation (without cycles and repeated
+terms) for the Prolog term _TI_. The term _TF_ is the main term.  The
+difference list _SubTerms_-_MoreSubterms_ stores terms of the form
+_V=T_, where _V_ is a new variable occuring in _TF_, and _T_ is a copy
+of a sub-term from _TI_.
+
+ 
+*/
   Yap_InitCPred("term_factorized", 3, p_break_rational3, 0);
+/** @pred  term_factorized(? _TI_,- _TF_, ?SubTerms) 
+
+
+Similar to rational_term_to_tree/4, but _SubTerms_ is a proper list.
+
+ 
+*/
   Yap_InitCPred("=@=", 2, p_variant, 0);
   Yap_InitCPred("numbervars", 3, p_numbervars, 0);
+/** @pred  numbervars( _T_,+ _N1_,- _Nn_) 
+
+
+Instantiates each variable in term  _T_ to a term of the form:
+`$VAR( _I_)`, with  _I_ increasing from  _N1_ to  _Nn_.
+
+ 
+*/
   Yap_InitCPred("unnumbervars", 2, p_unnumbervars, 0);
+/** @pred  unnumbervars( _T_,+ _NT_) 
+
+
+Replace every `$VAR( _I_)` by a free variable.
+
+ 
+*/
   /* use this carefully */
   Yap_InitCPred("$skip_list", 3, p_skip_list, SafePredFlag|TestPredFlag);
   Yap_InitCPred("$skip_list", 4, p_skip_list4, SafePredFlag|TestPredFlag);

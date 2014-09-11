@@ -15,9 +15,97 @@
 *									 *
 *************************************************************************/
 
+#if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
+
+:- load_foreign_files([myddas], [], init_myddas).
+
+/* Initialize MYDDAS GLOBAL STRUCTURES */
+:- c_db_initialize_myddas.
+
+#ifdef DEBUG
+:- yap_flag(single_var_warnings,on).
+#endif
+
+:- module(myddas,[
+		  db_open/5,
+		  db_open/4,
+		  db_close/1,
+		  db_close/0,
+		  
+		  db_verbose/1,
+		  db_module/1,
+		  db_is_database_predicate/3,
+#ifdef MYDDAS_STATS
+		  db_stats/1,
+		  db_stats/2,
+		  db_stats_time/2,
+#endif
+		  db_sql/2,
+		  db_sql/3,
+		  db_sql_select/3,
+		  db_prolog_select/2,
+		  db_prolog_select/3,
+		  db_prolog_select_multi/3,
+		  db_command/2,
+		  db_assert/2,
+		  db_assert/1,
+		  db_create_table/3,
+		  db_export_view/4,
+		  db_update/2,
+
+		  db_get_attributes_types/2,
+		  db_get_attributes_types/3,
+		  db_number_of_fields/2,
+		  db_number_of_fields/3,
+
+		  db_multi_queries_number/2,
+
+		  % myddas_top_level.ypp
+#ifdef MYDDAS_TOP_LEVEL
+		  db_top_level/4,
+		  db_top_level/5,
+		  db_datalog_select/3,
+#endif
+		  % myddas_assert_predicates.ypp
+		  db_import/2,
+		  db_import/3,
+		  db_view/2,
+		  db_view/3,
+		  db_insert/2,
+		  db_insert/3,
+		  db_abolish/2,
+		  db_listing/0,
+		  db_listing/1
+#ifdef MYDDAS_MYSQL		  
+		  % myddas_mysql.ypp
+		 ,
+		  db_my_result_set/1,
+		  db_datalog_describe/1,
+		  db_datalog_describe/2,
+		  db_describe/3,
+		  db_describe/2,
+		  db_datalog_show_tables/1,
+		  db_datalog_show_tables/0,
+		  db_show_tables/2,
+		  db_show_tables/1,
+		  db_show_database/2,
+		  db_show_databases/2,
+		  db_show_databases/1,
+		  db_change_database/2,
+		  db_call_procedure/4,
+		  db_call_procedure/3,
+		  db_my_sql_mode/1,
+		  db_my_sql_mode/2,
+		  db_sql_mode/1,
+		  db_sql_mode/2
+#endif
+		 ]).
+
+
 /**
 
-@section MYDDAS MYDDAS
+@defgroup MYDDAS The MYDDAS Data-base interface.
+@ingroup YAPPackages
 
 The MYDDAS database project was developed within a FCT project aiming at
 the development of a highly efficient deductive database system, based
@@ -712,92 +800,6 @@ You can see the available SQL Modes at the MySQL homepage at
 <http://www.mysql.org>.
 
 */
-
-#if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
-
-:- load_foreign_files([myddas], [], init_myddas).
-
-/* Initialize MYDDAS GLOBAL STRUCTURES */
-:- c_db_initialize_myddas.
-
-#ifdef DEBUG
-:- yap_flag(single_var_warnings,on).
-#endif
-
-:- module(myddas,[
-		  db_open/5,
-		  db_open/4,
-		  db_close/1,
-		  db_close/0,
-		  
-		  db_verbose/1,
-		  db_module/1,
-		  db_is_database_predicate/3,
-#ifdef MYDDAS_STATS
-		  db_stats/1,
-		  db_stats/2,
-		  db_stats_time/2,
-#endif
-		  db_sql/2,
-		  db_sql/3,
-		  db_sql_select/3,
-		  db_prolog_select/2,
-		  db_prolog_select/3,
-		  db_prolog_select_multi/3,
-		  db_command/2,
-		  db_assert/2,
-		  db_assert/1,
-		  db_create_table/3,
-		  db_export_view/4,
-		  db_update/2,
-
-		  db_get_attributes_types/2,
-		  db_get_attributes_types/3,
-		  db_number_of_fields/2,
-		  db_number_of_fields/3,
-
-		  db_multi_queries_number/2,
-
-		  % myddas_top_level.ypp
-#ifdef MYDDAS_TOP_LEVEL
-		  db_top_level/4,
-		  db_top_level/5,
-		  db_datalog_select/3,
-#endif
-		  % myddas_assert_predicates.ypp
-		  db_import/2,
-		  db_import/3,
-		  db_view/2,
-		  db_view/3,
-		  db_insert/2,
-		  db_insert/3,
-		  db_abolish/2,
-		  db_listing/0,
-		  db_listing/1
-#ifdef MYDDAS_MYSQL		  
-		  % myddas_mysql.ypp
-		 ,
-		  db_my_result_set/1,
-		  db_datalog_describe/1,
-		  db_datalog_describe/2,
-		  db_describe/3,
-		  db_describe/2,
-		  db_datalog_show_tables/1,
-		  db_datalog_show_tables/0,
-		  db_show_tables/2,
-		  db_show_tables/1,
-		  db_show_database/2,
-		  db_show_databases/2,
-		  db_show_databases/1,
-		  db_change_database/2,
-		  db_call_procedure/4,
-		  db_call_procedure/3,
-		  db_my_sql_mode/1,
-		  db_my_sql_mode/2,
-		  db_sql_mode/1,
-		  db_sql_mode/2
-#endif
-		 ]).
 
 #ifdef MYDDAS_TOP_LEVEL
 :- use_module(myddas_top_level,[

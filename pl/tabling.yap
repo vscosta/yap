@@ -16,6 +16,33 @@
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
+/** @defgroup Tabling Tabling
+@ingroup YAPBuiltins
+@{
+
+ *YAPTab* is the tabling engine that extends YAP's execution
+model to support tabled evaluation for definite programs. YAPTab was
+implemented by Ricardo Rocha and its implementation is largely based
+on the ground-breaking design of the XSB Prolog system, which
+implements the SLG-WAM. Tables are implemented using tries and YAPTab
+supports the dynamic intermixing of batched scheduling and local
+scheduling at the subgoal level. Currently, the following restrictions
+are of note:
+
++ YAPTab does not handle tabled predicates with loops through negation (undefined behaviour).
++ YAPTab does not handle tabled predicates with cuts (undefined behaviour).
++ YAPTab does not support coroutining (configure error).
++ YAPTab does not support tabling dynamic predicates (permission error).
+
+
+To experiment with YAPTab use `--enable-tabling` in the configure
+script or add `-DTABLING` to `YAP_EXTRAS` in the system's
+`Makefile`. We next describe the set of built-ins predicates
+designed to interact with YAPTab and control tabled execution:
+
+ 
+*/
+
 /*
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                                                     %%
@@ -36,6 +63,106 @@ YapTab extends the Yap Prolog engine to support sequential tabling. YapOr extend
 */
 
 
+/** @pred abolish_table(+ _P_) 
+
+
+Removes all the entries from the table space for predicate  _P_ (or
+a list of predicates  _P1_,..., _Pn_ or
+[ _P1_,..., _Pn_]). The predicate remains as a tabled predicate.
+
+ 
+*/
+/** @pred is_tabled(+ _P_) 
+
+
+Succeeds if the predicate  _P_ (or a list of predicates
+ _P1_,..., _Pn_ or [ _P1_,..., _Pn_]), of the form
+ _name/arity_, is a tabled predicate.
+
+ 
+*/
+/** @pred show_table(+ _P_) 
+
+
+Prints table contents (subgoals and answers) for predicate  _P_
+(or a list of predicates  _P1_,..., _Pn_ or
+[ _P1_,..., _Pn_]).
+
+ 
+*/
+/** @pred table( + _P_ )
+
+
+Declares predicate  _P_ (or a list of predicates
+ _P1_,..., _Pn_ or [ _P1_,..., _Pn_]) as a tabled
+predicate.  _P_ must be written in the form
+ _name/arity_. Examples:
+
+~~~~~
+:- table son/3.
+:- table father/2.
+:- table mother/2.
+~~~~~
+ or
+
+~~~~~
+:- table son/3, father/2, mother/2.
+~~~~~
+ or
+
+~~~~~
+:- table [son/3, father/2, mother/2].
+~~~~~
+
+ 
+*/
+/** @pred table_statistics(+ _P_) 
+
+
+Prints table statistics (subgoals and answers) for predicate  _P_
+(or a list of predicates  _P1_,..., _Pn_ or
+[ _P1_,..., _Pn_]).
+
+ 
+*/
+/** @pred tabling_mode(+ _P_,? _Mode_) 
+
+
+Sets or reads the default tabling mode for a tabled predicate  _P_
+(or a list of predicates  _P1_,..., _Pn_ or
+[ _P1_,..., _Pn_]). The list of  _Mode_ options includes:
+
++ `batched`
+
+    Defines that, by default, batched scheduling is the scheduling
+strategy to be used to evaluated calls to predicate  _P_.
+
++ `local`
+
+    Defines that, by default, local scheduling is the scheduling
+strategy to be used to evaluated calls to predicate  _P_.
+
++ `exec_answers`
+
+    Defines that, by default, when a call to predicate  _P_ is
+already evaluated (completed), answers are obtained by executing
+compiled WAM-like code directly from the trie data
+structure. This reduces the loading time when backtracking, but
+the order in which answers are obtained is undefined.
+
++ `load_answers`
+  
+   Defines that, by default, when a call to predicate  _P_ is
+already evaluated (completed), answers are obtained (as a
+consumer) by loading them from the trie data structure. This
+guarantees that answers are obtained in the same order as they
+were found. Somewhat less efficient but creates less choice-points.
+
+The default tabling mode for a new tabled predicate is `batched`
+and `exec_answers`. To set the tabling mode for all predicates at
+once you can use the yap_flag/2 predicate as described next.
+ 
+*/
 :- meta_predicate 
    table(:), 
    is_tabled(:), 
@@ -77,6 +204,14 @@ global_trie_statistics :-
    current_output(Stream),
    global_trie_statistics(Stream).
 
+/** @pred tabling_statistics/0 
+
+
+Prints statistics on space used by all tables.
+
+
+
+ */
 tabling_statistics :-
    current_output(Stream),
    tabling_statistics(Stream).
@@ -393,3 +528,7 @@ table_statistics(Stream,Pred) :-
    '$do_error'(type_error(callable,Mod:Pred),table_statistics(Mod:Pred)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/**
+@}
+*/

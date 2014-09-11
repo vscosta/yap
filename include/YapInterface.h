@@ -14,6 +14,12 @@
 *									 *
 *************************************************************************/
 
+/**
+
+@file YapInterface.h
+
+*/
+
 
 #ifndef _yap_c_interface_h
 
@@ -36,6 +42,7 @@
 /**
 
 @defgroup c-interface  YAP original C-interface
+@Ingroup ChYInterface
 
 Before describing in full detail how to interface to C code, we will examine 
 a brief example.
@@ -1328,7 +1335,8 @@ arguments to the backtrackable procedure.
 
 
 
-@section YAPLibrary Using YAP as a Library
+@defgroup YAPAsLibrary Using YAP as a Library
+@subgroup  c-interface
 
 YAP can be used as a library to be called from other
 programs. To do so, you must first create the YAP library:

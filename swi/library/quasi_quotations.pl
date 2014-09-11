@@ -38,6 +38,7 @@
 :- use_module( library(lists) ).
 
 /** <module> Define Quasi Quotation syntax
+@ingroup SWILibrary
 
 Inspired                                                              by
 [Haskell](http://www.haskell.org/haskellwiki/Quasiquotation), SWI-Prolog

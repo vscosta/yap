@@ -210,19 +210,14 @@
                      timer_elapsed/2,
                      timer_pause/2]).
 
-% set_alarm(+Seconds, +Execute, -ID)
-%   calls Executes after a time interval of Seconds
-%   ID is returned to be able to unset the alarm (the call will not be executed)
-%   set_alarm/3 supports multiple & nested settings of alarms.
-%   Known Bug: There is the case that an alarm might trigger +-1 second of the set time.
-%
-% unset_alarm(+ID)
-%   It will unschedule the alarm.
-%   It will not affect other concurrent alarms.
-%
-% time_out_call(+Seconds, +Goal, -Return)
-%   It will will execute the closure Goal and returns its success or failure at Return.
-%   If the goal times out in Seconds then Return = timeout.
+/** @defgroup CAlarms Concurrent Alarms
+@ingroup YAPLibrary
+@{
+
+This library provides a concurrent signals.  To use it use:
+`:-use_module(library(c_alarms))`.
+*/
+
 
 :- use_module(library(lists), [member/2, memberchk/2, delete/3]).
 :- use_module(library(ordsets), [ord_add_element/3]).
@@ -250,6 +245,14 @@ set_alarm(Seconds, Execute, ID):-
   get_next_identity(ID), !,
   bb_put(alarms, [alarm(Seconds, ID, Execute)]),
   alarm(Seconds, alarm_handler, _).
+
+%% set_alarm(+Seconds, +Execute, -ID)
+%
+%   calls Executes after a time interval of Seconds
+%   ID is returned to be able to unset the alarm (the call will not be executed)
+%   set_alarm/3 supports multiple & nested settings of alarms.
+%   Known Bug: There is the case that an alarm might trigger +-1 second of the set time.
+%
 set_alarm(Seconds, Execute, ID):-
   get_next_identity(ID), !,
   bb_get(alarms, [alarm(CurrentSeconds, CurrentID, CurrentExecute)|Alarms]),
@@ -265,6 +268,11 @@ set_alarm(Seconds, Execute, ID):-
 subtract(Elapsed, alarm(Seconds, ID, Execute), alarm(NewSeconds, ID, Execute)):-
   NewSeconds is Seconds - Elapsed.
 
+%% unset_alarm(+ID)
+%
+%   It will unschedule the alarm.
+%   It will not affect other concurrent alarms.
+%
 unset_alarm(ID):-
   \+ ground(ID),
   throw(error(instantiation_error, 'Alarm ID needs to be instantiated.')).
@@ -319,6 +327,10 @@ execute([alarm(_, _, Execute)|R]):-
   call(Execute),
   execute(R).
 
+%% time_out_call(+Seconds, +Goal, -Return)
+%
+%   It will will execute the closure Goal and returns its success or failure at Return.
+%   If the goal times out in Seconds then Return = timeout.
 time_out_call_once(Seconds, Goal, Return):-
   bb_get(identity, ID),
   set_alarm(Seconds, throw(timeout(ID)), ID),
@@ -395,3 +407,7 @@ timer_pause(Name, Elapsed):-
   statistics(walltime, [EndTime, _]),
   Elapsed is EndTime - StartTime,
   assertz('$timer'(Name, paused, Elapsed)).
+
+/**
+@}
+*/

@@ -15,6 +15,12 @@
 *									 *
 *************************************************************************/
 
+/** @defgroup LoadForeign Access to Code Written in other Programming Languages
+@ingroup YAPBuiltins
+
+*/
+
+
 :- system_module( '$_load_foreign', [load_foreign_files/3,
         open_shared_object/2,
         open_shared_object/3], ['$import_foreign'/3]).
@@ -23,6 +29,28 @@
 
 :- use_system_module( '$_modules', ['$do_import'/3]).
 
+/** @pred load_foreign_files( _Files_, _Libs_, _InitRoutine_)
+
+should be used, from inside YAP, to load object files produced by the C
+compiler. The argument  _ObjectFiles_ should be a list of atoms
+specifying the object files to load,  _Libs_ is a list (possibly
+empty) of libraries to be passed to the unix loader (`ld`) and
+InitRoutine is the name of the C routine (to be called after the files
+are loaded) to perform the necessary declarations to YAP of the
+predicates defined in the files. 
+
+YAP will search for  _ObjectFiles_ in the current directory first. If
+it cannot find them it will search for the files using the environment
+variable:
+
++ YAPLIBDIR
+
+if defined, or in the default library.
+
+YAP also supports the SWI-Prolog interface to loading foreign code:
+
+ 
+*/
 load_foreign_files(_Objs,_Libs,_Entry) :-
     prolog_load_context(file, F),
     prolog_load_context(module, M),
@@ -103,9 +131,37 @@ load_foreign_files(Objs,Libs,Entry) :-
 '$check_entry_for_load_foreign_files'(Entry,G) :-
 	'$do_error'(type_error(atom,Entry),G).
 
+/** @pred open_shared_object(+ _File_, - _Handle_)
+
+File is the name of a shared object file (called dynamic load
+library in MS-Windows). This file is attached to the current process
+and  _Handle_ is unified with a handle to the library. Equivalent to
+`open_shared_object(File, [], Handle)`. See also
+load_foreign_library/1 and `load_foreign_library/2`.
+
+On errors, an exception `shared_object`( _Action_,
+ _Message_) is raised.  _Message_ is the return value from
+dlerror().
+
+ 
+*/
 open_shared_object(File, Handle) :-
 	'$open_shared_object'(File, 0, Handle).
 
+/** @pred open_shared_object(+ _File_, - _Handle_, + _Options_)
+
+As `open_shared_object/2`, but allows for additional flags to
+be passed.  _Options_ is a list of atoms. `now` implies the
+symbols are 
+resolved immediately rather than lazily (default). `global` implies
+symbols of the loaded object are visible while loading other shared
+objects (by default they are local). Note that these flags may not
+be supported by your operating system. Check the documentation of
+`dlopen()` or equivalent on your operating system. Unsupported
+flags  are silently ignored. 
+
+ 
+*/
 open_shared_object(File, Opts, Handle) :-
 	'$open_shared_opts'(Opts, open_shared_object(File, Opts, Handle), OptsI),
 	'$open_shared_object'(File, OptsI, Handle).

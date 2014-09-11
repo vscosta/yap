@@ -45,6 +45,33 @@
 
 -----------------------------------------------------------------------------*/
 
+/** @defgroup Deb_Preds Debugging Predicates
+@ingroup YAPBuiltins
+
+@{
+The
+ following predicates are available to control the debugging of
+programs:
+
++ debug
+
+    Switches the debugger on.
+
++ debugging 
+
+
+    Outputs status information about the debugger which includes the leash
+mode and the existing spy-points, when the debugger is on.
+
++ nodebug 
+
+
+    Switches the debugger off.
+
+ 
+*/
+
+
 :- op(900,fx,[spy,nospy]).
 
 '$init_debugger' :-
@@ -156,6 +183,18 @@
  '$pred_being_spied'(G, M) :-
 	 recorded('$spy','$spy'(G,M),_), !.
 
+/** @pred spy( + _P_ ). 
+
+
+Sets spy-points on all the predicates represented by
+ _P_.  _P_ can either be a single specification or a list of 
+specifications. Each one must be of the form  _Name/Arity_ 
+or  _Name_. In the last case all predicates with the name 
+ _Name_ will be spied. As in C-Prolog, system predicates and 
+predicates written in C, cannot be spied.
+
+ 
+*/
  spy Spec :-
 	 '$init_debugger',
 	 prolog:debug_action_hook(spy(Spec)), !.
@@ -164,6 +203,14 @@
 	 '$suspy'(L, spy, M), fail.
  spy _ :- debug.
 
+/** @pred nospy( + _P_ )
+
+
+Removes spy-points from all predicates specified by  _P_.
+The possible forms for  _P_ are the same as in `spy P`.
+
+ 
+*/
  nospy Spec :-
 	 '$init_debugger',
 	 prolog:debug_action_hook(nospy(Spec)), !.
@@ -172,6 +219,13 @@
 	 '$suspy'(L, nospy, M), fail.
  nospy _.
 
+/** @pred nospyall 
+
+
+Removes all existing spy-points.
+
+ 
+*/
  nospyall :-
 	 '$init_debugger',
 	 prolog:debug_action_hook(nospyall), !.
@@ -206,6 +260,14 @@
   % remove any debugging info after an abort.
   %
 
+
+/** @pred trace 
+
+
+Switches on the debugger and enters tracing mode.
+
+ 
+*/
 trace :-
 	 '$init_debugger',
 	'$nb_getval'('$trace', on, fail), !.
@@ -215,6 +277,16 @@ trace :-
 	print_message(informational,debug(trace)),
 	'$creep'.
 
+/** @pred notrace 
+
+
+Ends tracing and exits the debugger. This is the same as
+nodebug/0.
+
+
+
+
+ */
 notrace :-
 	'$init_debugger',
 	nodebug.
@@ -226,6 +298,55 @@ notrace :-
 -----------------------------------------------------------------------------*/
 
 
+/** @pred leash(+ _M_) 
+
+
+Sets leashing mode to  _M_.
+The mode can be specified as:
+
++ `full`
+prompt on Call, Exit, Redo and Fail
+
++ `tight`
+prompt on Call, Redo and Fail
+
++ `half`
+prompt on Call and Redo
+
++ `loose`
+prompt on Call
+
++ `off`
+never prompt
+
++ `none`
+never prompt, same as `off`
+
+The initial leashing mode is `full`.
+
+The user may also specify directly the debugger ports 
+where he wants to be prompted. If the argument for leash 
+is a number  _N_, each of lower four bits of the number is used to
+control prompting at one the ports of the box model. The debugger will 
+prompt according to the following conditions:
+
++ if `N/\ 1 =\= 0`  prompt on fail 
++ if `N/\ 2 =\= 0` prompt on redo
++ if `N/\ 4 =\= 0` prompt on exit
++ if `N/\ 8 =\= 0` prompt on call
+
+Therefore, `leash(15)` is equivalent to `leash(full)` and
+`leash(0)` is equivalent to `leash(off)`.
+
+Another way of using `leash` is to give it a list with the names of
+the ports where the debugger should stop. For example,
+`leash([call,exit,redo,fail])` is the same as `leash(full)` or
+`leash(15)` and `leash([fail])` might be used instead of
+`leash(1)`.
+
+ @}
+
+*/
 leash(X) :- var(X),
 	'$do_error'(instantiation_error,leash(X)).
 leash(X) :-
@@ -276,6 +397,7 @@ leash(X) :-
 -----------------------------------------------------------------------------*/
 
 
+
 debugging :-
 	'$init_debugger',
 	prolog:debug_action_hook(nospyall), !.
@@ -289,6 +411,228 @@ debugging :-
 	print_message(help,breakpoints(L)),
 	get_value('$leash',Leash),
 	'$show_leash'(help,Leash).
+
+/*
+
+@}
+
+*/
+
+
+
+/** @defgroup Deb_Interaction Interacting with the debugger
+@ingroup YAPProgramming
+
+Debugging with YAP is similar to debugging with C-Prolog. Both systems
+include a procedural debugger, based on Byrd's four port model. In this
+model, execution is seen at the procedure level: each activation of a
+procedure is seen as a box with control flowing into and out of that
+box.
+
+In the four port model control is caught at four key points: before 
+entering the procedure, after exiting the procedure (meaning successful 
+evaluation of all queries activated by the procedure), after backtracking but 
+before trying new alternative to the procedure and after failing the 
+procedure. Each one of these points is named a port:
+
+~~~~~
+           *--------------------------------------*
+   Call    |                                      |    Exit
+---------> +  descendant(X,Y) :- offspring(X,Y).  + --------->
+           |                                      |
+           |  descendant(X,Z) :-                  |
+<--------- +     offspring(X,Y), descendant(Y,Z). + <---------
+   Fail    |                                      |    Redo
+           *--------------------------------------*
+~~~~~
+
+
+
++ `Call`
+
+    The call port is activated before initial invocation of
+procedure. Afterwards, execution will try to match the goal with the
+head of existing clauses for the procedure.
+
++ `Exit`
+
+    This port is activated if the procedure succeeds.
+Control will  now leave the procedure and return to its ancestor.
+
++ `Redo`
+
+    If the goal, or goals, activated after the call port
+fail  then backtracking will eventually return control to this procedure
+through  the redo port.
+
++ `Fail`
+
+    If all clauses for this predicate fail, then the
+invocation fails,  and control will try to redo the ancestor of this
+invocation.
+
+
+To start debugging, the user will either call `trace` or spy the
+relevant procedures, entering debug mode, and start execution of the
+program. When finding the first spy-point, YAP's debugger will take
+control and show a message of the form:
+
+~~~~~
+* (1)  call:  quicksort([1,2,3],_38) ?
+~~~~~
+
+The debugger message will be shown while creeping, or at spy-points,
+and it includes four or five fields:
+
++ 
+The first three characters are used to point out special states of the
+debugger. If the port is exit and the first character is '?', the
+current call is non-deterministic, that is, it still has alternatives to
+be tried. If the second character is a `\*`, execution is at a
+spy-point. If the third character is a `>`, execution has returned
+either from a skip, a fail or a redo command.
++ 
+The second field is the activation number, and uniquely identifies the
+activation. The number will start from 1 and will be incremented for
+each activation found by the debugger.
++ 
+In the third field, the debugger shows the active port.
++ 
+The fourth field is the goal. The goal is written by
+`write_term/3` on the standard error stream, using the options
+given by debugger_print_options.
+
+
+If the active port is leashed, the debugger will prompt the user with a
+`?`, and wait for a command. A debugger command is just a
+character, followed by a return. By default, only the call and redo
+entries are leashed, but the leash/1 predicate can be used in
+order to make the debugger stop where needed.
+
+There are several commands available, but the user only needs to 
+remember the help command, which is `h`. This command shows all the 
+available options, which are:
+
++ `c` - creep
+
+    this command makes YAP continue execution and stop at the next
+leashed port.
+
++ `return` - creep
+
+    the same as c
+
++ `l` - leap
+
+    YAP will execute until it meets a port for a spied predicate; this mode
+keeps all computation history for debugging purposes, so it is more
+expensive than standard execution. Use <tt>k</tt> or <tt>z</tt> for fast execution.
+
++ `k` - quasi-leap
+
+    similar to leap but faster since the computation history is
+not kept; useful when leap becomes too slow.
+
++ `z` - zip
+
+
+    same as <tt>k</tt>
++ `s` - skip
+
+    YAP will continue execution without showing any messages until
+returning to the current activation. Spy-points will be  ignored in this
+mode. Note that this command keeps all debugging history, use <tt>t</tt> for fast execution. This command is meaningless, and therefore illegal, in the fail
+and exit ports.
+
++ `t` - fast-skip
+
+    similar to skip but faster since computation history is not
+kept; useful if skip becomes slow.
+
++ `f [ _GoalId_]` - fail
+
+    If given no argument, forces YAP to fail the goal, skipping the fail
+port and backtracking to the parent. 
+If <tt>f</tt> receives a goal number as
+the argument, the command fails all the way to the goal. If goal  _GoalId_ has completed execution, YAP fails until meeting the first active ancestor.
+
++ `r` [ _GoalId_] - retry
+
+    This command forces YAP to jump back call to the port. Note that any
+side effects of the goal cannot be undone. This command is not available
+at the call port.  If <tt>f</tt> receives a goal number as the argument, the
+command retries goal  _GoalId_ instead. If goal  _GoalId_ has
+completed execution, YAP fails until meeting the first active ancestor.
+
++ `a` - abort
+
+    execution will be aborted, and the interpreter will return to the
+top-level. YAP disactivates debug mode, but spypoints are not removed.
+
++ `n` - nodebug
+
+    stop debugging and continue execution. The command will not clear active
+spy-points.
+
++ `e` - exit
+
+    leave YAP.
+
++ `h` - help
+
+    show the debugger commands.
+
++ `!` Query
+
+    execute a query. YAP will not show the result of the query.
+
++ `b` - break
+
+    break active execution and launch a break level. This is  the same as `!break`.
+
++ `+` - spy this goal
+
+    start spying the active goal. The same as `! spy  G` where  _G_
+is the active goal.
+
++ `-` - nospy this goal
+
+    stop spying the active goal. The same as `! nospy G` where  _G_ is
+the active goal.
+
++ `p` - print
+
+    shows the active goal using print/1
+
++ `d` - display
+
+    shows the active goal using display/1
+
++ `<Depth` - debugger write depth
+
+    sets the maximum write depth, both for composite terms and lists, that
+will be used by the debugger. For more
+information about `write_depth/2` ( (see Input/Output Control)).
+
++ `<` - full term
+
+    resets to the default of ten the debugger's maximum write depth. For
+more information about `write_depth/2` ( (see Input/Output Control)).
+
++ `A` - alternatives
+
+    show the list of backtrack points in the current execution. 
+
++ `g [ _N_]`
+
+    show the list of ancestors in the current debugging environment. If it
+receives  _N_, show the first  _N_ ancestors.
+
+
+The debugging information, when fast-skip `quasi-leap` is used, will
+be lost.
+
+*/
 
 /*-----------------------------------------------------------------------------
 

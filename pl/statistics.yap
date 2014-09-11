@@ -23,6 +23,49 @@
 
 %%% User interface for statistics
 
+/** @pred  statistics/0 
+
+
+Send to the current user error stream general information on space used and time
+spent by the system.
+
+~~~~~
+?- statistics.
+memory (total)        4784124 bytes
+   program space      3055616 bytes:    1392224 in use,      1663392 free
+                                                             2228132  max
+   stack space        1531904 bytes:        464 in use,      1531440 free
+     global stack:                           96 in use,       616684  max
+      local stack:                          368 in use,       546208  max
+   trail stack         196604 bytes:          8 in use,       196596 free
+
+       0.010 sec. for 5 code, 2 stack, and 1 trail space overflows
+       0.130 sec. for 3 garbage collections which collected 421000 bytes
+       0.000 sec. for 0 atom garbage collections which collected 0 bytes
+       0.880 sec. runtime
+       1.020 sec. cputime
+      25.055 sec. elapsed time
+
+~~~~~
+The example shows how much memory the system spends. Memory is divided
+into Program Space, Stack Space and Trail. In the example we have 3MB
+allocated for program spaces, with less than half being actually
+used. YAP also shows the maximum amount of heap space having been used
+which was over 2MB.
+
+The stack space is divided into two stacks which grow against each
+other. We are in the top level so very little stack is being used. On
+the other hand, the system did use a lot of global and local stack
+during the previous execution (we refer the reader to a WAM tutorial in
+order to understand what are the global and local stacks).
+
+YAP also shows information on how many memory overflows and garbage
+collections the system executed, and statistics on total execution
+time. Cputime includes all running time, runtime excludes garbage
+collection and stack overflow time.
+
+ 
+*/
 statistics :-
 	'$runtime'(Runtime,_), 
 	'$cputime'(CPUtime,_), 
@@ -85,6 +128,132 @@ statistics :-
 	fail.
 '$statistics'(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_).
 
+/** @pred  statistics(? _Param_,- _Info_)
+
+Gives statistical information on the system parameter given by first
+argument:
+
+
+
++ atoms 
+
+`[ _NumberOfAtoms_, _SpaceUsedBy Atoms_]`
+
+
+This gives the total number of atoms `NumberOfAtoms` and how much
+space they require in bytes,  _SpaceUsedBy Atoms_.
+
++ cputime 
+
+`[ _Time since Boot_, _Time From Last Call to Cputime_]`
+
+
+This gives the total cputime in milliseconds spent executing Prolog code,
+garbage collection and stack shifts time included.
+
++ dynamic_code 
+
+`[ _Clause Size_, _Index Size_, _Tree Index Size_, _Choice Point Instructions Size_, _Expansion Nodes Size_, _Index Switch Size_]`
+
+
+Size of static code in YAP in bytes:  _Clause Size_, the number of
+bytes allocated for clauses, plus
+ _Index Size_, the number of bytes spent in the indexing code. The
+indexing code is divided into main tree,  _Tree Index Size_, 
+tables that implement choice-point manipulation,  _Choice xsPoint Instructions Size_, tables that cache clauses for future expansion of the index
+tree,  _Expansion Nodes Size_, and 
+tables such as hash tables that select according to value,   _Index Switch Size_.
+
++ garbage_collection 
+
+`[ _Number of GCs_, _Total Global Recovered_, _Total Time Spent_]`
+
+
+Number of garbage collections, amount of space recovered in kbytes, and
+total time spent doing garbage collection in milliseconds. More detailed
+information is available using `yap_flag(gc_trace,verbose)`.
+
++ global_stack 
+
+`[ _Global Stack Used_, _Execution Stack Free_]`
+
+
+Space in kbytes currently used in the global stack, and space available for
+expansion by the local and global stacks.
+
++ local_stack 
+
+`[ _Local Stack Used_, _Execution Stack Free_]`
+
+
+Space in kbytes currently used in the local stack, and space available for
+expansion by the local and global stacks.
+
++ heap 
+
+`[ _Heap Used_, _Heap Free_]`
+
+
+Total space in kbytes not recoverable
+in backtracking. It includes the program code, internal data base, and,
+atom symbol table.
+
++ program 
+
+`[ _Program Space Used_, _Program Space Free_]`
+
+
+Equivalent to heap.
+
++ runtime 
+
+`[ _Time since Boot_, _Time From Last Call to Runtime_]`
+
+
+This gives the total cputime in milliseconds spent executing Prolog
+code, not including garbage collections and stack shifts. Note that
+until YAP4.1.2 the runtime statistics would return time spent on
+garbage collection and stack shifting.
+
++ stack_shifts 
+
+`[ _Number of Heap Shifts_, _Number of Stack Shifts_, _Number of Trail Shifts_]`
+
+
+Number of times YAP had to
+expand the heap, the stacks, or the trail. More detailed information is
+available using `yap_flag(gc_trace,verbose)`.
+
++ static_code 
+
+`[ _Clause Size_, _Index Size_, _Tree Index Size_, _Expansion Nodes Size_, _Index Switch Size_]`
+
+
+Size of static code in YAP in bytes:  _Clause Size_, the number of
+bytes allocated for clauses, plus
+ _Index Size_, the number of bytes spent in the indexing code. The
+indexing code is divided into a main tree,  _Tree Index Size_, table that cache clauses for future expansion of the index
+tree,  _Expansion Nodes Size_, and and 
+tables such as hash tables that select according to value,   _Index Switch Size_.
+
++ trail 
+
+`[ _Trail Used_, _Trail Free_]`
+
+
+Space in kbytes currently being used and still available for the trail.
+
++ walltime 
+
+`[ _Time since Boot_, _Time From Last Call to Walltime_]`
+
+
+This gives the clock time in milliseconds since starting Prolog.
+
+
+
+ 
+*/
 statistics(runtime,[T,L]) :-
 	'$runtime'(T,L).
 statistics(cputime,[T,L]) :-
@@ -130,6 +299,14 @@ statistics(dynamic_code,[ClauseSize,IndexSize, TreeIndexSize, CPIndexSize, ExtIn
 	'$statistics_lu_db_size'(ClauseSize, TreeIndexSize, CPIndexSize, ExtIndexSize, SWIndexSize),
 	IndexSize is TreeIndexSize+CPIndexSize+ ExtIndexSize+ SWIndexSize.
 
+/** @pred  key_statistics(+ _K_,- _Entries_,- _TotalSize_)
+
+Returns several statistics for a key  _K_. Currently, it says how
+many entries we have for that key,  _Entries_, what is the
+total size spent on this key.
+
+ 
+*/
 key_statistics(Key, NOfEntries, TotalSize) :-
 	key_statistics(Key, NOfEntries, ClSize, IndxSize),
 	TotalSize is ClSize+IndxSize.
@@ -141,6 +318,16 @@ key_statistics(Key, NOfEntries, TotalSize) :-
 %	Based on the SWI-Prolog definition minus reporting the number of inferences,
 %	which YAP does not currently supports
 
+/** @pred  time(: _Goal_) 
+
+
+Prints the CPU time and the wall time for the execution of  _Goal_.
+Possible choice-points of  _Goal_ are removed. Based on the SWI-Prolog 
+definition (minus reporting the number of inferences, which YAP currently
+does not support).
+
+ 
+*/
 :- meta_predicate time(0).
 
 time(Goal) :-

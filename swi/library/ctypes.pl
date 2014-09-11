@@ -57,6 +57,7 @@
 	  ]).
 
 /** <module> Character code classification
+@ingroup SWILibrary
 
 This file implements the functionality of the corresponding Quintus
 library based on SWI-Prolog's code_type/2 predicate. Please check the

@@ -18,6 +18,10 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
+/**
+   @addtogroup YAPOS
+*/
+
 /*
  * In this routine we shall try to include the inevitably machine dependant
  * routines. These include, for the moment : Time, A rudimentary form of
@@ -2962,9 +2966,23 @@ Yap_InitSysPreds(void)
 #endif
   Yap_InitCPred ("log_event", 1, p_log_event, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("sh", 0, p_sh, SafePredFlag|SyncPredFlag);
+/** @pred  sh 
+
+
+Creates a new shell interaction.
+
+ 
+*/
   Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag|UserCPredFlag);
   Yap_InitCPred ("system", 1, p_system, SafePredFlag|SyncPredFlag|UserCPredFlag);
   Yap_InitCPred ("rename", 2, p_mv, SafePredFlag|SyncPredFlag);
+/** @pred  rename(+ _F_,+ _G_) 
+
+
+Renames file  _F_ to  _G_.
+
+ 
+*/
   Yap_InitCPred ("$yap_home", 1, p_yap_home, SafePredFlag);
   Yap_InitCPred ("$yap_paths", 3, p_yap_paths, SafePredFlag);
   Yap_InitCPred ("$dir_separator", 1, p_dir_sp, SafePredFlag);

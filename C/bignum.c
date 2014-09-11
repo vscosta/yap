@@ -564,6 +564,13 @@ Yap_InitBigNums(void)
   Yap_InitCPred("$bignum", 1, p_is_bignum, SafePredFlag);
   Yap_InitCPred("rational", 3, p_rational, 0);
   Yap_InitCPred("rational", 1, p_is_rational, SafePredFlag);
+/** @pred  rational( _T_) 
+
+
+Checks whether `T` is a rational number.
+
+ 
+*/
   Yap_InitCPred("string", 1, p_is_string, SafePredFlag);
   Yap_InitCPred("opaque", 1, p_is_opaque, SafePredFlag);
   Yap_InitCPred("nb_set_bit", 2, p_nb_set_bit, SafePredFlag);

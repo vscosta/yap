@@ -45,6 +45,7 @@
 :- use_module(library(error)).
 
 /** <module> Read utilities
+@ingroup SWILibrary
 
 This library provides some commonly used   reading  predicates. As these
 predicates have proven to be time-critical in some applications we moved

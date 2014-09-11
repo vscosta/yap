@@ -15,6 +15,29 @@
 *									 *
 *************************************************************************/
 
+/** @defgroup Database Using the Clausal Data Base
+@ingroup YAPBuiltins
+@{
+
+Predicates in YAP may be dynamic or static. By default, when
+consulting or reconsulting, predicates are assumed to be static:
+execution is faster and the code will probably use less space.
+Static predicates impose some restrictions: in general there can be no 
+addition or removal of  clauses for a procedure if it is being used in the
+current execution.
+
+Dynamic predicates allow programmers to change the Clausal Data Base with
+the same flexibility as in C-Prolog. With dynamic predicates it is
+always possible to add or remove clauses during execution and the
+semantics will be the same as for C-Prolog. But the programmer should be
+aware of the fact that asserting or retracting are still expensive operations, 
+and therefore he should try to avoid them whenever possible.
+
+
+
+ 
+*/
+
 :- system_module( '$_preds', [abolish/1,
         abolish/2,
         assert/1,
@@ -80,18 +103,55 @@
 % The next predicates are applicable only
 % to dynamic code
 
+/** @pred  asserta(+ _C_) is iso 
+
+
+Adds clause  _C_ to the beginning of the program. If the predicate is
+undefined, declare it as dynamic.
+
+ 
+*/
 asserta(Mod:C) :- !,
 	'$assert'(C,Mod,first,_,asserta(Mod:C)).
 asserta(C) :-
 	'$current_module'(Mod),
 	'$assert'(C,Mod,first,_,asserta(C)).
 
+/** @pred  assertz(+ _C_) is iso 
+
+
+Adds clause  _C_ to the end of the program. If the predicate is
+undefined, declare it as dynamic.
+
+Most Prolog systems only allow asserting clauses for dynamic
+predicates. This is also as specified in the ISO standard. YAP allows
+asserting clauses for static predicates. The current version of YAP
+supports this feature, but this feature is deprecated and support may go
+away in future versions.
+
+ 
+*/
 assertz(Mod:C) :- !,
 	'$assert'(C,Mod,last,_,assertz(Mod:C)).
 assertz(C) :-
 	'$current_module'(Mod),
 	'$assert'(C,Mod,last,_,assertz(C)).
 
+/** @pred  assert(+ _C_) 
+
+
+Same as assertz/1. Adds clause  _C_ to the program. If the predicate is undefined,
+declare it as dynamic. New code should use assertz/1 for better portability.
+
+Most Prolog systems only allow asserting clauses for dynamic
+predicates. This is also as specified in the ISO standard. YAP allows
+asserting clauses for static predicates, as long as the predicate is not
+in use and the language flag is <tt>cprolog</tt>. Note that this feature is
+deprecated, if you want to assert clauses for static procedures you
+should use assert_static/1.
+
+ 
+*/
 assert(Mod:C) :- !,
 	'$assert'(C,Mod,last,_,assert(Mod:C)).
 assert(C) :-
@@ -191,12 +251,28 @@ assert(C) :-
 	    '$do_error'(permission_error(modify,static_procedure,Na/Ar),P)
 	).
 
+/** @pred  assert_static(: _C_) 
+
+
+Adds clause  _C_ to a static procedure. Asserting a static clause
+for a predicate while choice-points for the predicate are available has
+undefined results.
+
+ 
+*/
 assert_static(Mod:C) :- !,
 	'$assert_static'(C,Mod,last,_,assert_static(Mod:C)).
 assert_static(C) :-
 	'$current_module'(Mod),
 	'$assert_static'(C,Mod,last,_,assert_static(C)).
 
+/** @pred  asserta_static(: _C_) 
+
+
+Adds clause  _C_ to the beginning of a static procedure. 
+
+ 
+*/
 asserta_static(Mod:C) :- !,
 	'$assert_static'(C,Mod,first,_,asserta_static(Mod:C)).
 asserta_static(C) :-
@@ -205,6 +281,22 @@ asserta_static(C) :-
 
 asserta_static(Mod:C) :- !,
 	'$assert_static'(C,Mod,last,_,assertz_static(Mod:C)).
+/** @pred  assertz_static(: _C_) 
+
+
+Adds clause  _C_ to the end of a static procedure.  Asserting a
+static clause for a predicate while choice-points for the predicate are
+available has undefined results.
+
+
+
+The following predicates can be used for dynamic predicates and for
+static predicates, if source mode was on when they were compiled:
+
+
+
+ 
+*/
 assertz_static(C) :-
 	'$current_module'(Mod),
 	'$assert_static'(C,Mod,last,_,assertz_static(C)).
@@ -301,30 +393,82 @@ assertz_static(C) :-
 	fail.
 '$erase_all_mf_dynamic'(_,_,_).
 
+/** @pred  asserta(+ _C_,- _R_)
+
+The same as `asserta(C)` but unifying  _R_ with
+the  database reference that identifies the new clause, in a 
+one-to-one way. Note that `asserta/2` only works for dynamic
+predicates. If the predicate is undefined, it will automatically be
+declared dynamic.
+
+ 
+*/
 asserta(M:C,R) :- !,
 	'$assert_dynamic'(C,M,first,R,asserta(M:C,R)).
 asserta(C,R) :-
 	'$current_module'(M),
 	'$assert_dynamic'(C,M,first,R,asserta(C,R)).
 
+/** @pred  assertz(+ _C_,- _R_)
+
+The same as `assertz(C)` but unifying  _R_ with
+the  database reference that identifies the new clause, in a 
+one-to-one way. Note that `asserta/2` only works for dynamic
+predicates. If the predicate is undefined, it will automatically be
+declared dynamic.
+
+ 
+*/
 assertz(M:C,R) :- !,
 	'$assert_dynamic'(C,M,last,R,assertz(M:C,R)).
 assertz(C,R) :-
 	'$current_module'(M),
 	'$assert_dynamic'(C,M,last,R,assertz(C,R)).
 
+/** @pred  assert(+ _C_,- _R_)
+
+The same as `assert(C)` ( (see Modifying the Database)) but
+unifies  _R_ with the  database reference that identifies the new
+clause, in a one-to-one way. Note that `asserta/2` only works for dynamic
+predicates. If the predicate is undefined, it will automatically be
+declared dynamic.
+
+ 
+*/
 assert(M:C,R) :- !,
 	'$assert_dynamic'(C,M,last,R,assert(M:C,R)).
 assert(C,R) :-
 	'$current_module'(M),
 	'$assert_dynamic'(C,M,last,R,assert(C,R)).
 
+/** @pred  clause(+ _H_, _B_) is iso 
+
+
+A clause whose head matches  _H_ is searched for in the
+program. Its head and body are respectively unified with  _H_ and
+ _B_. If the clause is a unit clause,  _B_ is unified with
+ _true_.
+
+This predicate is applicable to static procedures compiled with
+`source` active, and to all dynamic procedures.
+
+ 
+*/
 clause(M:P,Q) :- !,
 	'$clause'(P,M,Q,_).
 clause(V,Q) :-
 	'$current_module'(M),
 	'$clause'(V,M,Q,_).
 
+/** @pred  clause(+ _H_, _B_,- _R_)
+
+The same as clause/2, plus  _R_ is unified with the
+reference to the clause in the database. You can use instance/2
+to access the reference's value. Note that you may not use
+erase/1 on the reference on static procedures.
+
+ 
+*/
 clause(P,Q,R) :- var(P), !,
 	'$current_module'(M),
 	'$clause'(P,M,Q,R).
@@ -390,6 +534,22 @@ clause(V,Q,R) :-
 
 :- '$init_preds'.
 
+/** @pred  nth_clause(+ _H_, _I_,- _R_) 
+
+
+Find the  _I_th clause in the predicate defining  _H_, and give
+a reference to the clause. Alternatively, if the reference  _R_ is
+given the head  _H_ is unified with a description of the predicate
+and  _I_ is bound to its position.
+
+
+
+The following predicates can only be used for dynamic predicates:
+
+
+
+ 
+*/
 nth_clause(V,I,R) :-
 	'$current_module'(M),
 	strip_module(M:V, M1, P), !,
@@ -403,6 +563,16 @@ nth_clause(V,I,R) :-
 '$nth_clause'(P,M,I,R) :-
 	'$fetch_nth_clause'(P,M,I,R).
 
+/** @pred  retract(+ _C_) is iso 
+
+
+Erases the first clause in the program that matches  _C_. This
+predicate may also be used for the static predicates that have been
+compiled when the source mode was `on`. For more information on
+source/0 ( (see Setting the Compiler)).
+
+ 
+*/
 retract(M:C) :- !,
 	'$retract'(C,M).
 retract(C) :-
@@ -440,6 +610,15 @@ retract(C) :-
 	functor(H,Na,Ar),
 	'$do_error'(permission_error(modify,static_procedure,Na/Ar),retract(M:(H:-B))).
 
+/** @pred  retract(+ _C_,- _R_)
+
+Erases from the program the clause  _C_ whose 
+database reference is  _R_. The predicate must be dynamic.
+
+
+
+
+ */
 retract(M:C,R) :- !,
 	'$retract'(C,M,R).
 retract(C,R) :-
@@ -468,6 +647,16 @@ retract(C,R) :-
 	functor(C, Na, Ar).
 	
 
+/** @pred  retractall(+ _G_) is iso 
+
+
+Retract all the clauses whose head matches the goal  _G_. Goal
+ _G_ must be a call to a dynamic predicate.
+
+
+
+
+ */
 retractall(M:V) :- !,
 	'$retractall'(V,M).
 retractall(V) :-
@@ -520,6 +709,13 @@ retractall(V) :-
 	'$recordedp'(M:T,_,_), fail.
 '$erase_all_clauses_for_dynamic'(_,_).
 
+/** @pred  abolish(+ _P_,+ _N_)
+
+Deletes the predicate with name  _P_ and arity  _N_. It will remove
+both static and dynamic predicates.
+
+ 
+*/
 abolish(Mod:N,A) :- !,
 	'$abolish'(N,A,Mod).
 abolish(N,A) :-
@@ -537,6 +733,18 @@ abolish(N,A) :-
 		( '$is_dynamic'(T, M) -> '$abolishd'(T,M) ;
 	      	 /* else */	      '$abolishs'(T,M) ).
 
+/** @pred  abolish(+ _PredSpec_) is iso 
+
+
+Deletes the predicate given by  _PredSpec_ from the database. If
+ _PredSpec_ is an unbound variable, delete all predicates for the
+current module. The
+specification must include the name and arity, and it may include module
+information. Under <tt>iso</tt> language mode this built-in will only abolish
+dynamic procedures. Under other modes it will abolish any procedures. 
+
+ 
+*/
 abolish(V) :- var(V), !,
 	'$do_error'(instantiation_error,abolish(V)).
 abolish(Mod:V) :- var(V), !,
@@ -698,6 +906,15 @@ abolish(X) :-
 	'$purge_clauses'(G, M), fail.
 '$abolishs'(_, _).
 
+/** @pred  dynamic_predicate(+ _P_,+ _Semantics_) 
+
+
+Declares predicate  _P_ or list of predicates [ _P1_,..., _Pn_]
+as a dynamic predicate following either `logical` or
+`immediate` semantics.
+
+ 
+*/
 dynamic_predicate(P,Sem) :-
 	'$bad_if_is_semantics'(Sem, dynamic(P,Sem)).
 dynamic_predicate(P,Sem) :-
@@ -774,6 +991,51 @@ hide_predicate(P) :-
 '$hide_predicate2'(PredDesc, M) :-
 	'$do_error'(type_error(predicate_indicator,PredDesc),hide_predicate(M:PredDesc)).
 
+/** @pred  predicate_property( _P_, _Prop_) is iso 
+
+
+For the predicates obeying the specification  _P_ unify  _Prop_
+with a property of  _P_. These properties may be:
+
++ `built_in `
+true for built-in predicates,
+
++ `dynamic`
+true if the predicate is dynamic
+
++ `static `
+true if the predicate is static
+
++ `meta_predicate( _M_) `
+true if the predicate has a meta_predicate declaration  _M_.
+
++ `multifile `
+true if the predicate was declared to be multifile
+
++ `imported_from( _Mod_) `
+true if the predicate was imported from module  _Mod_.
+
++ `exported `
+true if the predicate is exported in the current module.
+
++ `public`
+true if the predicate is public; note that all dynamic predicates are
+public.
+
++ `tabled `
+true if the predicate is tabled; note that only static predicates can
+be tabled in YAP.
+
++ `source (predicate_property flag) `
+true if source for the predicate is available.
+
++ `number_of_clauses( _ClauseCount_) `
+Number of clauses in the predicate definition. Always one if external
+or built-in.
+
+
+ 
+*/
 predicate_property(Pred,Prop) :- var(Pred), !,
 	'$current_module'(Mod),
 	'$predicate_property2'(Pred,Prop,Mod).
@@ -843,6 +1105,16 @@ predicate_property(Pred,Prop) :-
 	'$owner_file'(P,Mod,F).
 
 
+/** @pred  predicate_statistics( _P_, _NCls_, _Sz_, _IndexSz_)  
+
+
+Given predicate  _P_,  _NCls_ is the number of clauses for
+ _P_,  _Sz_ is the amount of space taken to store those clauses
+(in bytes), and  _IndexSz_ is the amount of space required to store
+indices to those clauses (in bytes).
+
+ 
+*/
 predicate_statistics(V,NCls,Sz,ISz) :- var(V), !,
 	'$do_error'(instantiation_error,predicate_statistics(V,NCls,Sz,ISz)).
 predicate_statistics(M:P,NCls,Sz,ISz) :- !,
@@ -863,6 +1135,18 @@ predicate_statistics(P,NCls,Sz,ISz) :-
 '$predicate_statistics'(P,M,NCls,Sz,ISz) :-
 	'$static_pred_statistics'(P,M,NCls,Sz,ISz).
 
+/** @pred  predicate_erased_statistics( _P_, _NCls_, _Sz_, _IndexSz_)  
+
+
+Given predicate  _P_,  _NCls_ is the number of erased clauses for
+ _P_ that could not be discarded yet,  _Sz_ is the amount of space
+taken to store those clauses (in bytes), and  _IndexSz_ is the amount
+of space required to store indices to those clauses (in bytes).
+
+
+
+
+ */
 predicate_erased_statistics(P,NCls,Sz,ISz) :-
         var(P), !, 
 	current_predicate(_,P),
@@ -873,6 +1157,13 @@ predicate_erased_statistics(P,NCls,Sz,ISz) :-
 	'$current_module'(M),
 	'$predicate_erased_statistics'(M:P,NCls,Sz,_,ISz).
 
+/** @pred  current_predicate( _A_, _P_)
+
+Defines the relation:  _P_ is a currently defined predicate whose
+name is the atom  _A_.
+
+ 
+*/
 current_predicate(A,T) :-
 	var(T), !,		% only for the predicate
 	'$current_module'(M),
@@ -903,6 +1194,14 @@ current_predicate(A,T) :-			% only for the predicate
 	M \= prolog,
 	'$pred_exists'(T,M).
 
+/** @pred  system_predicate( _A_, _P_) 
+
+
+Defines the relation:   _P_ is a built-in predicate whose name
+is the atom  _A_.
+
+ 
+*/
 system_predicate(A,P) :-
 	'$current_predicate_no_modules'(prolog,A,P),
 	\+ '$hidden'(A).
@@ -916,6 +1215,15 @@ system_predicate(P) :-
 	'$ifunctor'(T,A,Arity),
 	'$pred_exists'(T,M).
 
+/** @pred  current_predicate( _F_) is iso 
+
+
+ _F_ is the predicate indicator for a currently defined user or
+library predicate.  _F_ is of the form  _Na/Ar_, where the atom
+ _Na_ is the name of the predicate, and  _Ar_ its arity.
+
+ 
+*/
 current_predicate(F0) :-
 	'$yap_strip_module'(F0, M, F),
 	'$$current_predicate'(F, M).
@@ -960,6 +1268,15 @@ current_predicate(F0) :-
 '$current_predicate3'(BadSpec,M) :-			% only for the predicate
 	'$do_error'(type_error(predicate_indicator,BadSpec),current_predicate(M:BadSpec)).
 
+/** @pred  current_key(? _A_,? _K_) 
+
+
+Defines the relation:  _K_ is a currently defined database key whose
+name is the atom  _A_. It can be used to generate all the keys for
+the internal data-base.
+
+ 
+*/
 current_key(A,K) :-
 	'$current_predicate'(idb,A,Arity),
 	'$ifunctor'(K,A,Arity).
@@ -975,6 +1292,22 @@ current_key(A,K) :-
 	 ).
 
 
+/** @pred  compile_predicates(: _ListOfNameArity_) 
+
+
+
+Compile a list of specified dynamic predicates (see dynamic/1 and
+assert/1 into normal static predicates. This call tells the
+Prolog environment the definition will not change anymore and further
+calls to assert/1 or retract/1 on the named predicates
+raise a permission error. This predicate is designed to deal with parts
+of the program that is generated at runtime but does not change during
+the remainder of the program execution.
+
+
+
+
+ */
 compile_predicates(Ps) :-
 	'$current_module'(Mod),
 	'$compile_predicates'(Ps, Mod, compile_predicates(Ps)).
@@ -1031,6 +1364,55 @@ clause_property(ClauseRef, predicate(PredicateIndicator)) :-
 	'$set_flag'(P, M, Flag, V).
 
 
+/**
+@}
+*/
+
+/** 
+
+@addtogroup Undefined_Procedures
+@{
+
+*/
+
+
+/** @pred  unknown(- _O_,+ _N_) 
+
+
+Specifies an handler to be called is a program tries to call an
+undefined static procedure  _P_.
+
+The arity of  _N_ may be zero or one. If the arity is `0`, the
+new action must be one of `fail`, `warning`, or
+`error`. If the arity is `1`,  _P_ is an user-defined
+handler and at run-time, the argument to the handler  _P_ will be
+unified with the undefined goal. Note that  _N_ must be defined prior
+to calling unknown/2, and that the single argument to  _N_ must
+be unbound.
+
+In YAP, the default action is to `fail` (note that in the ISO
+Prolog standard the default action is `error`).
+
+After defining `undefined/1` by:
+
+~~~~~{.prolog}
+undefined(A) :- format('Undefined predicate: ~w~n',[A]), fail.
+~~~~~
+and executing the goal:
+
+~~~~~{.prolog}
+unknown(U,undefined(X)).
+~~~~~
+a call to a predicate for which no clauses were defined will result in
+the output of a message of the form:
+
+~~~~~{.prolog}
+Undefined predicate: user:xyz(A1,A2)
+~~~~~
+followed by the failure of that call.
+
+ 
+*/
 unknown(V0, V) :-
     strip_module(V, M, G),
     recorded('$unknown_handle', M0:G0, R), !,
@@ -1061,3 +1443,6 @@ unknown(V0, V) :-
 	print_message(error,error(existence_error(procedure,Name/Arity), context(Mod:Goal,PMod:PName/PAr))),
 	fail.
 
+/**
+@}
+*/

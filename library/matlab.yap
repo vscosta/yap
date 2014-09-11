@@ -1,4 +1,195 @@
 
+/** @defgroup MATLAB MATLAB Package Interface
+@ingroup YAPLibrary
+@{
+
+The MathWorks MATLAB is a widely used package for array
+processing. YAP now includes a straightforward interface to MATLAB. To
+actually use it, you need to install YAP calling `configure` with
+the `--with-matlab=DIR` option, and you need to call
+`use_module(library(lists))` command.
+
+Accessing the matlab dynamic libraries can be complicated. In Linux
+machines, to use this interface, you may have to set the environment
+variable <tt>LD_LIBRARY_PATH</tt>. Next, follows an example using bash in a
+64-bit Linux PC:
+
+~~~~~
+export LD_LIBRARY_PATH=''$MATLAB_HOME"/sys/os/glnxa64:''$MATLAB_HOME"/bin/glnxa64:''$LD_LIBRARY_PATH"
+~~~~~
+where `MATLAB_HOME` is the directory where matlab is installed
+at. Please replace `ax64` for `x86` on a 32-bit PC.
+
+
+
+ @pred start_matlab(+ _Options_) 
+
+
+Start a matlab session. The argument  _Options_ may either be the
+empty string/atom or the command to call matlab. The command may fail.
+
+ 
+*/
+
+/** @pred close_matlab 
+
+
+Stop the current matlab session.
+
+ 
+*/
+/** @pred matlab_cells(+ _SizeX_, + _SizeY_, ? _Array_)
+
+MATLAB will create an empty array of cells of size  _SizeX_ and
+ _SizeY_, and if  _Array_ is bound to an atom, store the array
+in the matlab variable with name  _Array_.  Corresponds to the
+MATLAB command `cells`.
+
+ 
+*/
+/** @pred matlab_cells(+ _Size_, ? _Array_) 
+
+
+MATLAB will create an empty vector of cells of size  _Size_, and if
+ _Array_ is bound to an atom, store the array in the matlab
+variable with name  _Array_. Corresponds to the MATLAB command `cells`.
+
+ 
+*/
+/** @pred matlab_eval_string(+ _Command_) 
+
+
+Holds if matlab evaluated successfully the command  _Command_.
+
+ 
+*/
+/** @pred matlab_eval_string(+ _Command_, - _Answer_)
+
+MATLAB will evaluate the command  _Command_ and unify  _Answer_
+with a string reporting the result.
+
+ 
+*/
+/** @pred matlab_get_variable(+ _MatVar_, - _List_) 
+
+
+Unify MATLAB variable  _MatVar_ with the List  _List_.
+
+ 
+*/
+/** @pred matlab_initialized_cells(+ _SizeX_, + _SizeY_, + _List_, ? _Array_) 
+
+
+MATLAB will create an array of cells of size  _SizeX_ and
+ _SizeY_, initialized from the list  _List_, and if  _Array_
+is bound to an atom, store the array in the matlab variable with name
+ _Array_.
+
+ 
+*/
+/** @pred matlab_item(+ _MatVar_, + _X_, + _Y_, ? _Val_)
+
+Read or set MATLAB  _MatVar_( _X_, _Y_) from/to  _Val_. Use
+`C` notation for matrix access (ie, starting from 0).
+
+ 
+*/
+/** @pred matlab_item(+ _MatVar_, + _X_, ? _Val_) 
+
+
+Read or set MATLAB  _MatVar_( _X_) from/to  _Val_. Use
+`C` notation for matrix access (ie, starting from 0).
+
+ 
+*/
+/** @pred matlab_item1(+ _MatVar_, + _X_, + _Y_, ? _Val_)
+
+Read or set MATLAB  _MatVar_( _X_, _Y_) from/to  _Val_. Use
+MATLAB notation for matrix access (ie, starting from 1).
+
+ 
+*/
+/** @pred matlab_item1(+ _MatVar_, + _X_, ? _Val_) 
+
+
+Read or set MATLAB  _MatVar_( _X_) from/to  _Val_. Use
+MATLAB notation for matrix access (ie, starting from 1).
+
+ 
+*/
+/** @pred matlab_matrix(+ _SizeX_, + _SizeY_, + _List_, ? _Array_) 
+
+
+MATLAB will create an array of floats of size  _SizeX_ and  _SizeY_,
+initialized from the list  _List_, and if  _Array_ is bound to
+an atom, store the array in the matlab variable with name  _Array_.
+
+ 
+*/
+/** @pred matlab_on 
+
+
+Holds if a matlab session is on.
+
+ 
+*/
+/** @pred matlab_sequence(+ _Min_, + _Max_, ? _Array_) 
+
+
+MATLAB will create a sequence going from  _Min_ to  _Max_, and
+if  _Array_ is bound to an atom, store the sequence in the matlab
+variable with name  _Array_.
+
+ 
+*/
+/** @pred matlab_set(+ _MatVar_, + _X_, + _Y_, + _Value_) 
+
+
+Call MATLAB to set element  _MatVar_( _X_,  _Y_) to
+ _Value_. Notice that this command uses the MATLAB array access
+convention.
+
+ 
+*/
+/** @pred matlab_vector(+ _Size_, + _List_, ? _Array_) 
+
+
+MATLAB will create a vector of floats of size  _Size_, initialized
+from the list  _List_, and if  _Array_ is bound to an atom,
+store the array in the matlab variable with name  _Array_.
+
+ 
+*/
+/** @pred matlab_zeros(+ _SizeX_, + _SizeY_, + _SizeZ_, ? _Array_)
+
+MATLAB will create an array of zeros of size  _SizeX_,  _SizeY_,
+and  _SizeZ_. If  _Array_ is bound to an atom, store the array
+in the matlab variable with name  _Array_.  Corresponds to the
+MATLAB command `zeros`.
+
+
+
+
+ */
+/** @pred matlab_zeros(+ _SizeX_, + _SizeY_, ? _Array_)
+
+MATLAB will create an array of zeros of size  _SizeX_ and
+ _SizeY_, and if  _Array_ is bound to an atom, store the array
+in the matlab variable with name  _Array_.  Corresponds to the
+MATLAB command `zeros`.
+
+ 
+*/
+/** @pred matlab_zeros(+ _Size_, ? _Array_) 
+
+
+MATLAB will create a vector of zeros of size  _Size_, and if
+ _Array_ is bound to an atom, store the array in the matlab
+variable with name  _Array_. Corresponds to the MATLAB command
+`zeros`.
+
+ 
+*/
 :- module(matlab,
 	  [start_matlab/1,
 	   close_matlab/0,

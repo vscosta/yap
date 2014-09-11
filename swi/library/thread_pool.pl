@@ -43,6 +43,7 @@
 
 
 /** <module> Resource bounded thread management
+@ingroup SWILibrary
 
 The module library(thread_pool) manages threads in pools. A pool defines
 properties of its member threads and the  maximum number of threads that

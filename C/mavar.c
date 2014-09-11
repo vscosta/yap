@@ -15,6 +15,29 @@
 *									 *
 *************************************************************************/
 
+
+/** @defgroup Term_Modification Term Modification
+@ingroup YAPBuiltins
+@{
+
+It is sometimes useful to change the value of instantiated
+variables. Although, this is against the spirit of logic programming, it
+is sometimes useful. As in other Prolog systems, YAP has
+several primitives that allow updating Prolog terms. Note that these
+primitives are also backtrackable.
+
+The `setarg/3` primitive allows updating any argument of a Prolog
+compound terms. The `mutable` family of predicates provides
+<em>mutable variables</em>. They should be used instead of `setarg/3`,
+as they allow the encapsulation of accesses to updatable
+variables. Their implementation can also be more efficient for long
+deterministic computations.
+
+
+ 
+*/
+
+
 #include "Yap.h"
 
 #ifdef MULTI_ASSIGNMENT_VARIABLES
@@ -287,9 +310,49 @@ Yap_InitMaVarCPreds(void)
 #ifdef MULTI_ASSIGNMENT_VARIABLES
   /* The most famous contributions of SICStus to the Prolog language */
   Yap_InitCPred("setarg", 3, p_setarg, SafePredFlag);  
+/** @pred  setarg(+ _I_,+ _S_,? _T_) 
+
+
+Set the value of the  _I_th argument of term  _S_ to term  _T_. 
+
+ 
+*/
   Yap_InitCPred("create_mutable", 2, p_create_mutable, SafePredFlag);  
+/** @pred  create_mutable(+ _D_,- _M_) 
+
+
+Create new mutable variable  _M_ with initial value  _D_.
+
+ 
+*/
   Yap_InitCPred("get_mutable", 2, p_get_mutable, SafePredFlag);  
+/** @pred  get_mutable(? _D_,+ _M_) 
+
+
+Unify the current value of mutable term  _M_ with term  _D_.
+
+ 
+*/
   Yap_InitCPred("update_mutable", 2, p_update_mutable, SafePredFlag);  
+/** @pred  update_mutable(+ _D_,+ _M_) 
+
+
+Set the current value of mutable term  _M_ to term  _D_.
+
+
+
+ */
   Yap_InitCPred("is_mutable", 1, p_is_mutable, SafePredFlag);  
+/** @pred  is_mutable(? _D_) 
+
+
+Holds if  _D_ is a mutable term.
+
+ 
+*/
 #endif
 }
+
+/**
+@}
+*/

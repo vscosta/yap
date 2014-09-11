@@ -984,12 +984,46 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$change_type_of_char", 2, p_change_type_of_char, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$type_of_char", 2, p_type_of_char, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("char_conversion", 2, p_char_conversion, SyncPredFlag);
+/** @pred char_conversion(+ _IN_,+ _OUT_) is iso 
+
+
+While reading terms convert unquoted occurrences of the character
+ _IN_ to the character  _OUT_. Both  _IN_ and  _OUT_ must be
+bound to single characters atoms.
+
+Character conversion only works if the flag `char_conversion` is
+on. This is default in the `iso` and `sicstus` language
+modes. As an example, character conversion can be used for instance to
+convert characters from the ISO-LATIN-1 character set to ASCII.
+
+If  _IN_ is the same character as  _OUT_, char_conversion/2
+will remove this conversion from the table.
+
+ 
+*/
   Yap_InitCPred ("$current_char_conversion", 2, p_current_char_conversion, SyncPredFlag);
   Yap_InitCPred ("$all_char_conversions", 1, p_all_char_conversions, SyncPredFlag);
   Yap_InitCPred ("$force_char_conversion", 0, p_force_char_conversion, SyncPredFlag);
   Yap_InitCPred ("$disable_char_conversion", 0, p_disable_char_conversion, SyncPredFlag);
 #if HAVE_SELECT
     //  Yap_InitCPred ("stream_select", 3, p_stream_select, SafePredFlag|SyncPredFlag);
+/** @pred  stream_select(+ _STREAMS_,+ _TIMEOUT_,- _READSTREAMS_) 
+
+
+Given a list of open  _STREAMS_ opened in read mode and a  _TIMEOUT_
+return a list of streams who are now available for reading. 
+
+If the  _TIMEOUT_ is instantiated to `off`,
+stream_select/3 will wait indefinitely for a stream to become
+open. Otherwise the timeout must be of the form `SECS:USECS` where
+`SECS` is an integer gives the number of seconds to wait for a timeout
+and `USECS` adds the number of micro-seconds.
+
+This built-in is only defined if the system call `select` is
+available in the system.
+
+ 
+*/
 #endif
   Yap_InitCPred ("$float_format", 1, p_float_format, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$style_checker", 1, p_style_checker, SyncPredFlag);

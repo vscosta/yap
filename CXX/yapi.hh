@@ -5,7 +5,7 @@
  *
  *   @defgroup yap-cplus-interface An object oriented interface for YAP.
  *
- *
+ *   @ingroup ChYInterface
  *    @tableofcontents
  *
  *

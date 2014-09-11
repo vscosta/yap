@@ -194,6 +194,16 @@
 *									 *
 *************************************************************************/
 
+
+/** @defgroup YAPError Error Handling
+@ingroup YAPControl
+
+The error handler is called when there is an execution error or a
+warning needs to be displayed. The handlers include a number of hooks
+to allow user-control.
+
+*/
+
 :- system_module( '$_errors', [message_to_string/2,
         print_message/2], ['$Error'/1,
         '$do_error'/2]).
@@ -243,9 +253,43 @@
 '$process_error'(Throw, _) :-
 	print_message(error,error(unhandled_exception,Throw)).
 
+/** @pred  message_to_string(+ _Term_, - _String_) 
+
+
+Translates a message-term into a string object. Primarily intended for SWI-Prolog emulation.
+
+
+
+ */
 message_to_string(Event, Message) :-
 	'$messages':generate_message(Event, Message, []).
 
+/** @pred print_message(+ _Kind_,  _Term_) 
+
+The predicate print_message/2 is used to print messages, notably from
+exceptions in a human-readable format.  _Kind_ is one of
+`informational`, `banner`, `warning`, `error`,
+`help` or `silent`. A human-readable message is printed to
+the stream user_error.
+
+If the Prolog flag verbose is `silent`, messages with
+ _Kind_ `informational`, or `banner` are treated as
+silent.@c  See \cmdlineoption{-q}.
+
+This predicate first translates the  _Term_ into a list of `message
+lines` (see print_message_lines/3 for details).  Next it will
+call the hook message_hook/3 to allow the user intercepting the
+message.  If message_hook/3 fails it will print the message unless
+ _Kind_ is silent.
+
+If you need to report errors from your own predicates, we advise you to
+stick to the existing error terms if you can; but should you need to
+invent new ones, you can define corresponding error messages by
+asserting clauses for `prolog:message/2`. You will need to declare
+the predicate as multifile.
+
+ 
+*/
 print_message(force(_Severity), Msg) :- !,
 	print(user_error,Msg).
 print_message(error, error(Msg,Info)) :- var(Info), !,

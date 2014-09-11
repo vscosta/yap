@@ -11,6 +11,49 @@
 **                                                                     **
 ************************************************************************/
 
+
+/** 
+
+@defgroup Parallelism Parallelism in YAP
+@ingroup YAPExtensions
+@{
+
+There has been a sizeable amount of work on an or-parallel
+implementation for YAP, called  *YAPOr*. Most of this work has
+been performed by Ricardo Rocha. In this system parallelism is exploited
+implicitly by running several alternatives in or-parallel. This option
+can be enabled from the `configure` script or by checking the
+system's `Makefile`.
+
+ *YAPOr* is still a very experimental system, going through rapid
+development. The following restrictions are of note:
+
++ *YAPOr* currently only supports the Linux/X86 and SPARC/Solaris
+platforms. Porting to other Unix-like platforms should be straightforward.
+
++ *YAPOr* does not support parallel updates to the
+data-base.
+
++ *YAPOr* does not support opening or closing of streams during
+parallel execution.
+
++ Garbage collection and stack shifting are not supported in
+ *YAPOr*.  
+
++ Built-ins that cause side-effects can only be executed when
+left-most in the search-tree. There are no primitives to provide
+asynchronous or cavalier execution of these built-ins, as in Aurora or
+Muse.
+
++ YAP does not support voluntary suspension of work.
+
+
+We expect that some of these restrictions will be removed in future
+releases.
+
+
+ */
+
 /* ------------------------- **
 **      Struct or_frame      **
 ** ------------------------- */

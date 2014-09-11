@@ -51,6 +51,7 @@
 	aggregate_all(?,?,0,-).
 
 /** <module> Aggregation operators on backtrackable predicates
+@ingroup SWILibrary
 
 This library provides aggregating operators  over   the  solutions  of a
 predicate. The operations are a generalisation   of the bagof/3, setof/3

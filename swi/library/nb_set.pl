@@ -41,6 +41,8 @@
 
 /** <module> Non-backtrackable sets
 
+@ingroup SWILibrary
+
 This library provides a non-backtrackabe set. It is based on
 nb_setarg/3. See the SWI-Prolog manual for details.
 

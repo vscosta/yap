@@ -71,6 +71,14 @@ ensure_slash(Dir0, Dir) :-
 	atom_concat(Dir0, /, Dir).
 
 
+/** @pred reverse(+ _List_, ? _Reversed_) 
+
+
+True when  _List_ and  _Reversed_ are lists with the same elements
+but in opposite orders. 
+
+ 
+*/
 reverse(List, Reversed) :-
 	reverse(List, [], Reversed).
 

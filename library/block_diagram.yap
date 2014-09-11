@@ -201,6 +201,17 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+/** @defgroup Block_Diagram Block Diagram
+@ingroup YAPLibrary
+@{
+
+This library provides a way of visualizing a prolog program using
+modules with blocks.  To use it use:
+`:-use_module(library(block_diagram))`.
+
+ 
+*/
+
 :- module(block_diagram, [make_diagram/2, make_diagram/5]).
 
 /* ---------------------------------------------------------------------- *\
@@ -220,6 +231,17 @@
 parameter(texts((+inf))).
 parameter(depth((+inf))).
 parameter(default_ext('.yap')).
+
+/** @pred make_diagram(+inputfilename, +ouputfilename) 
+
+
+
+This will crawl the files following the use_module, ensure_loaded directives withing the inputfilename.
+The result will be a file in dot format.
+You can make a pdf at the shell by asking `dot -Tpdf filename > output.pdf`.
+
+ 
+*/
 make_diagram(InputFile, OutputFile):-
   tell(OutputFile),
   write('digraph G {\nrankdir=BT'), nl,
@@ -229,6 +251,13 @@ make_diagram(InputFile, OutputFile):-
   write_explicit,
   write('}'), nl,
   told.
+
+/** @pred make_diagram(+inputfilename, +ouputfilename, +predicate, +depth, +extension)
+
+
+The same as make_diagram/2 but you can define how many of the imported/exporeted predicates will be shown with predicate, and how deep the crawler is allowed to go with depth. The extension is used if the file use module directives do not include a file extension.
+
+*/
 make_diagram(InputFile, OutputFile, Texts, Depth, Ext):-
   integer(Texts),
   integer(Depth),
@@ -355,6 +384,15 @@ read_module_file(File, Module):-
   close(S), working_directory(_,CurDir), !.
 read_module_file(_, _).
 
+/** @pred process(+ _StreamInp_, + _Goal_) 
+
+
+
+For every line  _LineIn_ in stream  _StreamInp_, call
+`call(Goal,LineIn)`.
+
+ 
+*/
 process(_, end_of_file):-!.
 process(_, Term):-
   parse_module_directive(Term, box), !, fail.

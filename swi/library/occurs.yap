@@ -29,6 +29,10 @@
     the GNU General Public License.
 */
 
+/** <module> occur check support
+@ingroup SWILibrary
+*/
+
 :- module(occurs,
 	  [ contains_term/2,		% +SubTerm, +Term
 	    contains_var/2,		% +SubTerm, +Term

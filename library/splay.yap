@@ -15,6 +15,82 @@
 *									 *
 *************************************************************************/
 
+/** @defgroup Splay_Trees Splay Trees
+@ingroup YAPLibrary
+@{
+
+Splay trees are explained in the paper "Self-adjusting Binary Search
+Trees", by D.D. Sleator and R.E. Tarjan, JACM, vol. 32, No.3, July 1985,
+p. 668. They are designed to support fast insertions, deletions and
+removals in binary search trees without the complexity of traditional
+balanced trees. The key idea is to allow the tree to become
+unbalanced. To make up for this, whenever we find a node, we move it up
+to the top. We use code by Vijay Saraswat originally posted to the Prolog
+mailing-list.
+
+
+
+ @pred splay_access(- _Return_,+ _Key_,? _Val_,+ _Tree_,- _NewTree_) 
+
+
+If item  _Key_ is in tree  _Tree_, return its  _Val_ and
+unify  _Return_ with `true`. Otherwise unify  _Return_ with
+`null`. The variable  _NewTree_ unifies with the new tree.
+
+ 
+*/
+
+
+/** @pred splay_del(+ _Item_,+ _Tree_,- _NewTree_) 
+
+
+Delete item  _Key_ from tree  _Tree_, assuming that it is present
+already. The variable  _Val_ unifies with a value for key  _Key_,
+and the variable  _NewTree_ unifies with the new tree. The predicate
+will fail if  _Key_ is not present.
+
+ 
+*/
+/** @pred splay_init(- _NewTree_) 
+
+
+Initialize a new splay tree.
+
+ 
+*/
+/** @pred splay_insert(+ _Key_,? _Val_,+ _Tree_,- _NewTree_) 
+
+
+Insert item  _Key_ in tree  _Tree_, assuming that it is not
+there already. The variable  _Val_ unifies with a value for key
+ _Key_, and the variable  _NewTree_ unifies with the new
+tree. In our implementation,  _Key_ is not inserted if it is
+already there: rather it is unified with the item already in the tree.
+
+ 
+*/
+/** @pred splay_join(+ _LeftTree_,+ _RighTree_,- _NewTree_) 
+
+
+Combine trees  _LeftTree_ and  _RighTree_ into a single
+tree _NewTree_ containing all items from both trees. This operation
+assumes that all items in  _LeftTree_ are less than all those in
+ _RighTree_ and destroys both  _LeftTree_ and  _RighTree_.
+
+ 
+*/
+/** @pred splay_split(+ _Key_,? _Val_,+ _Tree_,- _LeftTree_,- _RightTree_) 
+
+
+Construct and return two trees  _LeftTree_ and  _RightTree_,
+where  _LeftTree_ contains all items in  _Tree_ less than
+ _Key_, and  _RightTree_ contains all items in  _Tree_
+greater than  _Key_. This operations destroys  _Tree_.
+
+
+
+
+ */
 :- module(splay,[
 	splay_access/5,
 	splay_insert/4,
@@ -73,7 +149,7 @@
  
 % The basic workhorse is the routine bst(Op, Item, Tree, NewTree), which
 % returns in NewTree a binary search tree obtained by searching for Item
-% in Tree and splaying. OP controls what must happen if Item is not
+% in< Tree and splaying. OP controls what must happen if Item is not
 % found in the Tree.  If Op = access(V), then V is unified with null if
 % the item is not found in the tree, and with true if it is; in the
 % latter case Item is also unified with the item found in the tree. In

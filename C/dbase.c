@@ -18,6 +18,85 @@
 static char     SccsId[] = "%W% %G%";
 #endif
 
+
+/** @defgroup Internal_Database Internal Data Base
+@ingroup YAPBuiltins
+@{
+
+Some programs need global information for, e.g. counting or collecting 
+data obtained by backtracking. As a rule, to keep this information, the
+internal data base should be used instead of asserting and retracting
+clauses (as most novice programmers  do), .
+In YAP (as in some other Prolog systems) the internal data base (i.d.b. 
+for short) is faster, needs less space and provides a better insulation of 
+program and data than using asserted/retracted clauses.
+The i.d.b. is implemented as a set of terms, accessed by keys that 
+unlikely what happens in (non-Prolog) data bases are not part of the 
+term. Under each key a list of terms is kept. References are provided so that 
+terms can be identified: each term in the i.d.b. has a unique reference 
+(references are also available for clauses of dynamic predicates).
+
+There is a strong analogy between the i.d.b. and the way dynamic 
+predicates are stored. In fact, the main i.d.b. predicates might be 
+implemented using dynamic predicates:
+
+~~~~~
+recorda(X,T,R) :- asserta(idb(X,T),R).
+recordz(X,T,R) :- assertz(idb(X,T),R).
+recorded(X,T,R) :- clause(idb(X,T),R).
+~~~~~
+We can take advantage of this, the other way around, as it is quite 
+easy to write a simple Prolog interpreter, using the i.d.b.:
+
+~~~~~
+asserta(G) :- recorda(interpreter,G,_).
+assertz(G) :- recordz(interpreter,G,_).
+retract(G) :- recorded(interpreter,G,R), !, erase(R).
+call(V) :- var(V), !, fail.
+call((H :- B)) :- !, recorded(interpreter,(H :- B),_), call(B).
+call(G) :- recorded(interpreter,G,_).
+~~~~~
+In YAP, much attention has been given to the implementation of the 
+i.d.b., especially to the problem of accelerating the access to terms kept in 
+a large list under the same key. Besides using the key, YAP uses an internal 
+lookup function, transparent to the user, to find only the terms that might 
+unify. For instance, in a data base containing the terms
+
+~~~~~
+b
+b(a)
+c(d)
+e(g)
+b(X)
+e(h)
+~~~~~
+
+stored under the key k/1, when executing the query 
+
+~~~~~
+:- recorded(k(_),c(_),R).
+~~~~~
+
+`recorded` would proceed directly to the third term, spending almost the 
+time as if `a(X)` or `b(X)` was being searched.
+The lookup function uses the functor of the term, and its first three
+arguments (when they exist). So, `recorded(k(_),e(h),_)` would go
+directly to the last term, while `recorded(k(_),e(_),_)` would find
+first the fourth term, and then, after backtracking, the last one.
+
+This mechanism may be useful to implement a sort of hierarchy, where 
+the functors of the terms (and eventually the first arguments) work as 
+secondary keys.
+
+In the YAP's i.d.b. an optimized representation is used for 
+terms without free variables. This results in a faster retrieval of terms 
+and better space usage. Whenever possible, avoid variables in terms in terms stored in the  i.d.b.
+
+
+ 
+*/
+
+
 #include "Yap.h"
 #include "clause.h"
 #include "yapio.h"
@@ -5477,24 +5556,106 @@ void
 Yap_InitDBPreds(void)
 {
   Yap_InitCPred("recorded", 3, p_recorded, SyncPredFlag);
+/** @pred  recorded(+ _K_, _T_, _R_) 
+
+
+Searches in the internal database under the key  _K_, a term that
+unifies with  _T_ and whose reference matches  _R_. This
+built-in may be used in one of two ways:
+
++ _K_ may be given, in this case the built-in will return all
+elements of the internal data-base that match the key.
++ _R_ may be given, if so returning the key and element that
+match the reference.
+
+
+ 
+*/
   Yap_InitCPred("recorda", 3, p_rcda, SyncPredFlag);
+/** @pred  recorda(+ _K_, _T_,- _R_) 
+
+
+Makes term  _T_ the first record under key  _K_ and  unifies  _R_
+with its reference.
+
+ 
+*/
   Yap_InitCPred("recordz", 3, p_rcdz, SyncPredFlag);
+/** @pred  recordz(+ _K_, _T_,- _R_) 
+
+
+Makes term  _T_ the last record under key  _K_ and unifies  _R_
+with its reference.
+
+ 
+*/
   Yap_InitCPred("$still_variant", 2, p_still_variant, SyncPredFlag);
   Yap_InitCPred("recorda_at", 3, p_rcda_at, SyncPredFlag);
+/** @pred  recorda_at(+ _R0_, _T_,- _R_) 
+
+
+Makes term  _T_ the record preceding record with reference
+ _R0_, and unifies  _R_ with its reference.
+
+ 
+*/
   Yap_InitCPred("recordz_at", 3, p_rcdz_at, SyncPredFlag);
+/** @pred  recordz_at(+ _R0_, _T_,- _R_) 
+
+
+Makes term  _T_ the record following record with reference
+ _R0_, and unifies  _R_ with its reference.
+
+ 
+*/
   Yap_InitCPred("$recordap", 3, p_rcdap, SyncPredFlag);
   Yap_InitCPred("$recordzp", 3, p_rcdzp, SyncPredFlag);
   Yap_InitCPred("$recordap", 4, p_drcdap, SyncPredFlag);
   Yap_InitCPred("$recordzp", 4, p_drcdzp, SyncPredFlag);
   Yap_InitCPred("erase", 1, p_erase, SafePredFlag|SyncPredFlag);
+/** @pred  erase(+ _R_) 
+
+
+The term referred to by  _R_ is erased from the internal database. If
+reference  _R_ does not exist in the database, `erase` just fails.
+
+ 
+*/
   Yap_InitCPred("$erase_clause", 2, p_erase_clause, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("increase_reference_count", 1, p_increase_reference_counter, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("decrease_reference_count", 1, p_decrease_reference_counter, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("current_reference_count", 2, p_current_reference_counter, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("erased", 1, p_erased, TestPredFlag | SafePredFlag|SyncPredFlag);
+/** @pred  erased(+ _R_) 
+
+
+Succeeds if the object whose database reference is  _R_ has been
+erased.
+
+ 
+*/
   Yap_InitCPred("instance", 2, p_instance, SyncPredFlag);
+/** @pred  instance(+ _R_,- _T_) 
+
+
+If  _R_ refers to a clause or a recorded term,  _T_ is unified
+with its most general instance. If  _R_ refers to an unit clause
+ _C_, then  _T_ is unified with ` _C_ :- true`. When
+ _R_ is not a reference to an existing clause or to a recorded term,
+this goal fails.
+
+ 
+*/
   Yap_InitCPred("$instance_module", 2, p_instance_module, SyncPredFlag);
   Yap_InitCPred("eraseall", 1, p_eraseall, SafePredFlag|SyncPredFlag);
+/** @pred  eraseall(+ _K_) 
+
+
+All terms belonging to the key `K` are erased from the internal
+database. The predicate always succeeds.
+
+ 
+*/
   Yap_InitCPred("$record_stat_source", 4, p_rcdstatp, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$some_recordedp", 1, p_somercdedp, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$first_instance", 3, p_first_instance, SafePredFlag|SyncPredFlag);
@@ -5512,6 +5673,16 @@ Yap_InitDBPreds(void)
   Yap_InitCPred("$fetch_reference_from_index", 3, p_fetch_reference_from_index, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$resize_int_keys", 1, p_resize_int_keys, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("key_statistics", 4, p_key_statistics, SyncPredFlag);
+/** @pred  key_statistics(+ _K_,- _Entries_,- _Size_,- _IndexSize_) 
+
+
+Returns several statistics for a key  _K_. Currently, it says how
+many entries we have for that key,  _Entries_, what is the
+total size spent on entries,  _Size_, and what is the amount of
+space spent in indices.
+
+ 
+*/
   Yap_InitCPred("$lu_statistics", 5, p_lu_statistics, SyncPredFlag);
   Yap_InitCPred("total_erased", 4, p_total_erased, SyncPredFlag);
   Yap_InitCPred("key_erased_statistics", 5, p_key_erased_statistics, SyncPredFlag);
@@ -5530,3 +5701,7 @@ Yap_InitBackDB(void)
   Yap_InitCPredBack("$current_immediate_key", 2, 4, init_current_key, cont_current_key,
 		SyncPredFlag);
 }
+
+/**
+@}
+*/

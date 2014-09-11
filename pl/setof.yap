@@ -15,6 +15,25 @@
 *									 *
 *************************************************************************/
 
+
+/** @defgroup Sets Collecting Solutions to a Goal
+@ingroup YAPBuiltins
+@{
+
+When there are several solutions to a goal, if the user wants to collect all
+the solutions he may be led to use the data base, because backtracking will
+forget previous solutions.
+
+YAP allows the programmer to choose from several system
+predicates instead of writing his own routines.  findall/3 gives you
+the fastest, but crudest solution. The other built-in predicates
+post-process the result of the query in several different ways:
+
+
+
+ 
+*/
+
 :- system_module( '$_setof', [(^)/2,
         all/3,
         bagof/3,
@@ -199,4 +218,7 @@ all(T,G,S) :-
 '$$split'([T1 same X|Tn],T,X,[T1|S1],S2) :- '$$split'(Tn,T,X,S1,S2).
 '$$split'([T1|Tn],T,X,S1,[T1|S2]) :- '$$split'(Tn,T,X,S1,S2).
 
+/**
+@}
+*/
 

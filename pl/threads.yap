@@ -15,6 +15,11 @@
 *                                                                        *
 *************************************************************************/
 
+/**
+@ingroup Threads 
+@{
+*/
+
 :- system_module( '$_threads', [current_mutex/3,
         current_thread/2,
         message_queue_create/1,
@@ -65,6 +70,57 @@
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
+/** @pred thread_at_exit(: _Term_) 
+
+
+Run  _Goal_ just before releasing the thread resources. This is to
+be compared to `at_halt/1`, but only for the current
+thread. These hooks are ran regardless of why the execution of the
+thread has been completed. As these hooks are run, the return-code is
+already available through thread_property/2 using the result of
+thread_self/1 as thread-identifier. If you want to guarantee the 
+execution of an exit hook no matter how the thread terminates (the thread 
+can be aborted before reaching the thread_at_exit/1 call), consider
+using instead the `at_exit/1` option of thread_create/3. 
+
+ 
+*/
+/** @pred thread_create(: _Goal_)
+
+
+Create a new Prolog detached thread using default options. See thread_create/3.
+
+ 
+*/
+/** @pred thread_create(: _Goal_, - _Id_)
+
+
+Create a new Prolog thread using default options. See thread_create/3.
+
+ 
+*/
+/** @pred thread_signal(+ _ThreadId_, : _Goal_) 
+
+
+Make thread  _ThreadId_ execute  _Goal_ at the first
+opportunity.  In the current implementation, this implies at the first
+pass through the <em>Call-port</em>. The predicate thread_signal/2
+itself places  _Goal_ into the signalled-thread's signal queue
+and returns immediately.
+
+Signals (interrupts) do not cooperate well with the world of
+multi-threading, mainly because the status of mutexes cannot be
+guaranteed easily.  At the call-port, the Prolog virtual machine
+holds no locks and therefore the asynchronous execution is safe.
+
+ _Goal_ can be any valid Prolog goal, including throw/1 to make
+the receiving thread generate an exception and trace/0 to start
+tracing the receiving thread.
+
+
+
+
+ */
 :- meta_predicate
 	thread_initialization(0),
 	thread_at_exit(0),
@@ -364,6 +420,14 @@ thread_set_default(Default) :-
 '$thread_set_default'(Default, G) :-
 	'$do_error'(domain_error(thread_default, Default), G).
 
+/** @pred thread_self(- _Id_) 
+
+
+Get the Prolog thread identifier of the running thread.  If the thread
+has an alias, the alias-name is returned.
+
+ 
+*/
 thread_self(Id) :-
 	nonvar(Id), \+ integer(Id), \+ atom(Id), !,
 	'$do_error'(domain_error(thread_or_alias, Id), thread_self(Id)).
@@ -372,6 +436,53 @@ thread_self(Id) :-
 	'$thread_id_alias'(Id0, Id).
 
 /* Exit status may be either true, false, exception(Term), or exited(Term) */
+/** @pred thread_join(+ _Id_, - _Status_) 
+
+
+Wait for the termination of thread with given  _Id_.  Then unify the
+result-status of the thread with  _Status_.  After this call,
+ _Id_ becomes invalid and all resources associated with the thread
+are reclaimed.  Note that threads with the attribute `detached`
+`true` cannot be joined.  See also current_thread/2.
+
+A thread that has been completed without thread_join/2 being
+called on it is partly reclaimed: the Prolog stacks are released and the
+C-thread is destroyed. A small data-structure representing the
+exit-status of the thread is retained until thread_join/2 is called on
+the thread.  Defined values for  _Status_ are:
+
++ true
+The goal has been proven successfully.
+
++ false
+The goal has failed.
+
++ exception( _Term_)
+The thread is terminated on an
+exception.  See print_message/2 to turn system exceptions into
+readable messages.
+
++ exited( _Term_)
+The thread is terminated on thread_exit/1 using the argument  _Term_.
+
+
++ thread_detach(+ _Id_) 
+
+
+Switch thread into detached-state (see `detached` option at
+thread_create/3 at runtime.   _Id_ is the identifier of the thread
+placed in detached state.
+
+One of the possible applications is to simplify debugging. Threads that
+are created as `detached` leave no traces if they crash. For
+not-detached threads the status can be inspected using
+current_thread/2.  Threads nobody is waiting for may be created
+normally and detach themselves just before completion.  This way they
+leave no traces on normal completion and their reason for failure can be
+inspected.
+
+ 
+*/
 thread_join(Id, Status) :-
 	nonvar(Status), !,
 	'$do_error'(uninstantiation_error(Status),thread_join(Id, Status)).
@@ -402,6 +513,17 @@ thread_detach(Id) :-
 		'$thread_unlock'(Id0)
 	).
 
+/** @pred thread_exit(+ _Term_) 
+
+
+Terminates the thread immediately, leaving `exited( _Term_)` as
+result-state for thread_join/2.  If the thread has the attribute
+`detached` `true` it terminates, but its exit status cannot be
+retrieved using thread_join/2 making the value of  _Term_
+irrelevant.  The Prolog stacks and C-thread are reclaimed.
+
+ 
+*/
 thread_exit(Term) :-
 	var(Term), !,
 	'$do_error'(instantiation_error, thread_exit(Term)).
@@ -423,6 +545,37 @@ thread_at_exit(Goal) :-
 	'$thread_self'(Id0),
 	recordz('$thread_exit_hook',[Id0|Goal],_).
 
+/** @pred current_thread(+ _Id_, - _Status_) 
+
+
+Enumerates identifiers and status of all currently known threads.
+Calling current_thread/2 does not influence any thread.  See also
+thread_join/2.  For threads that have an alias-name, this name is
+returned in  _Id_ instead of the numerical thread identifier.
+ _Status_ is one of:
+
++ running
+The thread is running.  This is the initial status of a thread.  Please
+note that threads waiting for something are considered running too.
+
++ false
+The  _Goal_ of the thread has been completed and failed.
+
++ true
+The  _Goal_ of the thread has been completed and succeeded.
+
++ exited( _Term_)
+The  _Goal_ of the thread has been terminated using thread_exit/1
+with  _Term_ as argument.  If the underlying native thread has
+exited (using pthread_exit())  _Term_ is unbound.
+
++ exception( _Term_)
+The  _Goal_ of the thread has been terminated due to an uncaught
+exception (see throw/1 and catch/3).
+
+
+ 
+*/
 current_thread(Id, Status) :-
 	catch(thread_property(Id, status(Status)),
 	  error(existence_error(_,_),_), fail).
@@ -438,6 +591,15 @@ current_thread(Id, Status) :-
 '$mutex_id_alias'(Id, Id).
 
 
+/** @pred mutex_create(? _MutexId_) 
+
+
+Create a mutex.  if  _MutexId_ is an atom, a <em>named</em> mutex is
+created.  If it is a variable, an anonymous mutex reference is returned.
+There is no limit to the number of mutexes that can be created.
+
+ 
+*/
 mutex_create(Mutex) :-
 	(	atom(Mutex) ->
 		mutex_create(_, [alias(Mutex)])
@@ -498,6 +660,14 @@ mutex_create(V) :-
 	'$do_error'(type_error(atom,V),mutex_create(V)).
 */
 	
+/** @pred mutex_destroy(+ _MutexId_) 
+
+
+Destroy a mutex.  After this call,  _MutexId_ becomes invalid and
+further references yield an `existence_error` exception.
+
+ 
+*/
 mutex_destroy(Mutex) :-
 	'$check_mutex_or_alias'(Mutex, mutex_destroy(Mutex)),
 	'$mutex_id_alias'(Id, Mutex),
@@ -510,6 +680,27 @@ mutex_destroy(Mutex) :-
 	fail.
 '$erase_mutex_info'(_).
 
+/** @pred mutex_lock(+ _MutexId_) 
+
+
+Lock the mutex.  Prolog mutexes are <em>recursive</em> mutexes: they
+can be locked multiple times by the same thread.  Only after unlocking
+it as many times as it is locked, the mutex becomes available for
+locking by other threads. If another thread has locked the mutex the
+calling thread is suspended until to mutex is unlocked.
+
+If  _MutexId_ is an atom, and there is no current mutex with that
+name, the mutex is created automatically using mutex_create/1.  This
+implies named mutexes need not be declared explicitly.
+
+Please note that locking and unlocking mutexes should be paired
+carefully. Especially make sure to unlock mutexes even if the protected
+code fails or raises an exception. For most common cases use
+with_mutex/2, which provides a safer way for handling Prolog-level
+mutexes.
+
+ 
+*/
 mutex_lock(V) :-
 	var(V), !,
 	'$do_error'(instantiation_error,mutex_lock(V)).
@@ -523,6 +714,14 @@ mutex_lock(A) :-
 mutex_lock(V) :-
 	'$do_error'(type_error(atom,V),mutex_lock(V)).
 	
+/** @pred mutex_trylock(+ _MutexId_) 
+
+
+As mutex_lock/1, but if the mutex is held by another thread, this
+predicates fails immediately.
+
+ 
+*/
 mutex_trylock(V) :-
 	var(V), !,
 	'$do_error'(instantiation_error,mutex_trylock(V)).
@@ -536,6 +735,15 @@ mutex_trylock(A) :-
 mutex_trylock(V) :-
 	'$do_error'(type_error(atom,V),mutex_trylock(V)).
 	
+/** @pred mutex_unlock(+ _MutexId_) 
+
+
+Unlock the mutex. This can only be called if the mutex is held by the
+calling thread. If this is not the case, a `permission_error`
+exception is raised.
+
+ 
+*/
 mutex_unlock(Mutex) :-
 	'$check_mutex_or_alias'(Mutex, mutex_unlock(Mutex)),
 	'$mutex_id_alias'(Id, Mutex),
@@ -545,6 +753,15 @@ mutex_unlock(Mutex) :-
 	    '$do_error'(permission_error(unlock,mutex,Mutex),mutex_unlock(Mutex))
 	).
 
+/** @pred mutex_unlock_all 
+
+
+Unlock all mutexes held by the current thread.  This call is especially
+useful to handle thread-termination using abort/0 or exceptions.  See
+also thread_signal/2.
+
+ 
+*/
 mutex_unlock_all :-
 	'$thread_self'(Tid),
 	'$unlock_all_thread_mutexes'(Tid).
@@ -595,6 +812,17 @@ with_mutex(M, G) :-
 	'$do_error'(type_error(atom,M),with_mutex(M, G))
 	).
 
+/** @pred current_mutex(? _MutexId_, ? _ThreadId_, ? _Count_) 
+
+
+Enumerates all existing mutexes.  If the mutex is held by some thread,
+ _ThreadId_ is unified with the identifier of the holding thread and
+ _Count_ with the recursive count of the mutex. Otherwise,
+ _ThreadId_ is `[]` and  _Count_ is 0.
+
+
+
+ */
 current_mutex(M, T, NRefs) :-
 	recorded('$mutex_alias',[Id|M],_),
 	'$mutex_info'(Id, NRefs, T).
@@ -651,6 +879,16 @@ message_queue_create(Id, [Option| _]) :-
 message_queue_create(Id, Options) :-
 	'$do_error'(type_error(list, Options), message_queue_create(Id, Options)).
 
+/** @pred message_queue_create(? _Queue_) 
+
+
+If  _Queue_ is an atom, create a named queue.  To avoid ambiguity
+on `thread_send_message/2`, the name of a queue may not be in use
+as a thread-name.  If  _Queue_ is unbound an anonymous queue is
+created and  _Queue_ is unified to its identifier.
+
+ 
+*/
 message_queue_create(Id) :-
 	(	var(Id) ->		% ISO DTR
 		message_queue_create(Id, [])
@@ -698,6 +936,16 @@ message_queue_create(Id) :-
 	I is I1-1.
 
 	
+/** @pred message_queue_destroy(+ _Queue_) 
+
+
+Destroy a message queue created with message_queue_create/1.  It is
+<em>not</em> allows to destroy the queue of a thread.  Neither is it
+allowed to destroy a queue other threads are waiting for or, for
+anonymous message queues, may try to wait for later.
+
+ 
+*/
 message_queue_destroy(Name) :-
 	var(Name), !,
 	'$do_error'(instantiation_error,message_queue_destroy(Name)).
@@ -774,6 +1022,28 @@ thread_send_message(Term) :-
 	'$thread_self'(Id),
 	thread_send_message(Id, Term).
 
+/** @pred thread_send_message(+ _QueueOrThreadId_, + _Term_)
+
+Place  _Term_ in the given queue or default queue of the indicated
+thread (which can even be the message queue of itself (see
+thread_self/1). Any term can be placed in a message queue, but note that
+the term is copied to the receiving thread and variable-bindings are
+thus lost. This call returns immediately.
+
+If more than one thread is waiting for messages on the given queue and
+at least one of these is waiting with a partially instantiated
+ _Term_, the waiting threads are <em>all</em> sent a wakeup signal,
+starting a rush for the available messages in the queue.  This behaviour
+can seriously harm performance with many threads waiting on the same
+queue as all-but-the-winner perform a useless scan of the queue. If
+there is only one waiting thread or all waiting threads wait with an
+unbound variable an arbitrary thread is restarted to scan the queue.
+
+
+
+
+ 
+*/
 thread_send_message(Queue, Term) :- var(Queue), !,
 	'$do_error'(instantiation_error,thread_send_message(Queue,Term)).
 thread_send_message(Queue, Term) :-
@@ -795,10 +1065,43 @@ thread_send_message(_, _).
 '$do_thread_send_message'(Queue, Term) :-
 	'$do_error'(existence_error(queue,Queue),thread_send_message(Queue,Term)).
 
+/** @pred thread_get_message(? _Term_) 
+
+
+Examines the thread message-queue and if necessary blocks execution
+until a term that unifies to  _Term_ arrives in the queue.  After
+a term from the queue has been unified unified to  _Term_, the
+term is deleted from the queue and this predicate returns.
+
+Please note that not-unifying messages remain in the queue.  After
+the following has been executed, thread 1 has the term `gnu`
+in its queue and continues execution using  _A_ is `gnat`.
+
+~~~~~
+   <thread 1>
+   thread_get_message(a(A)),
+
+   <thread 2>
+   thread_send_message(b(gnu)),
+   thread_send_message(a(gnat)),
+~~~~~
+
+See also thread_peek_message/1.
+
+ 
+*/
 thread_get_message(Term) :-
 	'$thread_self'(Id),
 	thread_get_message(Id, Term).
 
+/** @pred thread_get_message(+ _Queue_, ? _Term_)
+
+As thread_get_message/1, operating on a given queue. It is allowed to
+peek into another thread's message queue, an operation that can be used
+to check whether a thread has swallowed a message sent to it.
+
+ 
+*/
 thread_get_message(Queue, Term) :- var(Queue), !,
 	'$do_error'(instantiation_error,thread_get_message(Queue,Term)).
 thread_get_message(Queue, Term) :-
@@ -820,10 +1123,64 @@ thread_get_message(Queue, Term) :-
 	'$cond_wait'(Cond, Mutex),
 	'$thread_get_message_loop'(Key, Term, Mutex, Cond).
 
+/** @pred thread_peek_message(? _Term_) 
+
+
+Examines the thread message-queue and compares the queued terms
+with  _Term_ until one unifies or the end of the queue has been
+reached.  In the first case the call succeeds (possibly instantiating
+ _Term_.  If no term from the queue unifies this call fails.
+
+ 
+*/
 thread_peek_message(Term) :-
 	'$thread_self'(Id),
 	thread_peek_message(Id, Term).
 
+/** @pred thread_peek_message(+ _Queue_, ? _Term_)
+
+As thread_peek_message/1, operating on a given queue. It is allowed to
+peek into another thread's message queue, an operation that can be used
+to check whether a thread has swallowed a message sent to it.
+
+
+
+Explicit message queues are designed with the <em>worker-pool</em> model
+in mind, where multiple threads wait on a single queue and pick up the
+first goal to execute.  Below is a simple implementation where the
+workers execute arbitrary Prolog goals.  Note that this example provides
+no means to tell when all work is done. This must be realised using
+additional synchronisation.
+
+~~~~~
+%    create_workers(+Id, +N)
+%    
+%    Create a pool with given Id and number of workers.
+
+create_workers(Id, N) :-
+    message_queue_create(Id),
+    forall(between(1, N, _),
+           thread_create(do_work(Id), _, [])).
+
+do_work(Id) :-
+    repeat,
+      thread_get_message(Id, Goal),
+      (   catch(Goal, E, print_message(error, E))
+      ->  true
+      ;   print_message(error, goal_failed(Goal, worker(Id)))
+      ),
+    fail.
+
+%    work(+Id, +Goal)
+%    
+%    Post work to be done by the pool
+
+work(Id, Goal) :-
+    thread_send_message(Id, Goal).
+~~~~~
+
+
+ */
 thread_peek_message(Queue, Term) :- var(Queue), !,
 	'$do_error'(instantiation_error,thread_peek_message(Queue,Term)).
 thread_peek_message(Queue, Term) :-
@@ -844,6 +1201,37 @@ thread_peek_message(Queue, Term) :-
 	'$unlock_mutex'(Mutex),
 	fail.
 
+/** @pred thread_local( _+Functor/Arity_)  
+
+
+related to the dynamic/1 directive.  It tells the system that the
+predicate may be modified using assert/1, retract/1,
+etc, during execution of the program.  Unlike normal shared dynamic
+data however each thread has its own clause-list for the predicate.
+As a thread starts, this clause list is empty.  If there are still
+clauses as the thread terminates these are automatically reclaimed by
+the system.  The `thread_local` property implies
+the property `dynamic`.
+
+Thread-local dynamic predicates are intended for maintaining
+thread-specific state or intermediate results of a computation.
+
+It is not recommended to put clauses for a thread-local predicate into
+a file as in the example below as the clause is only visible from the
+thread that loaded the source-file.  All other threads start with an
+empty clause-list.
+
+~~~~~
+:- thread_local
+    foo/1.
+
+foo(gnat).
+~~~~~
+
+
+
+
+ */
 thread_local(X) :-
 	'$current_module'(M),
 	'$thread_local'(X,M).
@@ -869,6 +1257,17 @@ thread_local(X) :-
 	'$do_error'(type_error(callable,X),thread_local(Mod:X)).
 
 
+/** @pred thread_sleep(+ _Time_) 
+
+
+Make current thread sleep for  _Time_ seconds.  _Time_ may be an
+integer or a floating point number. When time is zero or a negative value 
+the call succeeds and returns immediately. This call should not be used if
+alarms are also being used.
+
+
+
+ */
 thread_sleep(Time) :-
 	var(Time), !,
 	'$do_error'(instantiation_error,thread_sleep(Time)).
@@ -911,6 +1310,39 @@ thread_property(Prop) :-
 	'$thread_self'(Id),
 	'$thread_property'(Prop, Id).
 
+/** @pred thread_property(? _Id_, ? _Property_) 
+
+
+Enumerates the properties of the specified thread.
+Calling thread_property/2 does not influence any thread.  See also
+thread_join/2.  For threads that have an alias-name, this name can
+be used in  _Id_ instead of the numerical thread identifier.
+ _Property_ is one of:
+
++ status( _Status_)
+The thread status of a thread (see below).
+
++ alias( _Alias_)
+The thread alias, if it exists.
+
++ at_exit( _AtExit_)
+The thread exit hook, if defined (not available if the thread is already terminated).
+
++ detached( _Boolean_)
+The detached state of the thread.
+
++ stack( _Size_)
+The thread stack data-area size.
+
++ trail( _Size_)
+The thread trail data-area size.
+
++ system( _Size_)
+The thread system data-area size.
+
+
+ 
+*/
 thread_property(Id, Prop) :-
 	(	nonvar(Id) ->
 		'$check_thread_or_alias'(Id, thread_property(Id, Prop))
@@ -1017,7 +1449,38 @@ threads :-
 '$mk_tstatus_key'(Id0, Key) :-
 	atomic_concat('$thread_exit_status__',Id0,Key).
 
+/** @pred thread_statistics(+ _Id_, + _Key_, - _Value_) 
+
+
+Obtains statistical information on thread  _Id_ as `statistics/2`
+does in single-threaded applications.  This call returns all keys
+of `statistics/2`, although only information statistics about the
+stacks and CPU time yield different values for each thread.
+
++ mutex_statistics 
+
+
+Print usage statistics on internal mutexes and mutexes associated
+with dynamic predicates.  For each mutex two numbers are printed:
+the number of times the mutex was acquired and the number of
+collisions: the number times the calling thread has to
+wait for the mutex.  The collision-count is not available on
+Windows as this would break portability to Windows-95/98/ME or
+significantly harm performance.  Generally collision count is
+close to zero on single-CPU hardware.
+
++ threads 
+
+
+Prints a table of current threads and their status.
+
+
+
+ */
 thread_statistics(Id, Key, Val) :-
     format("not implemented yet~n",[]).
 
 
+/**
+@}
+*/

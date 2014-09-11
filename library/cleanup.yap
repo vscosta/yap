@@ -1,3 +1,23 @@
+
+
+:- module( cleanup, [
+		     call_cleanup/2,
+		     call_cleanup/1,
+		     on_cleanup/1,
+		     cleanup_all/0,
+		     op(1150, fx,fragile)
+		    ]).
+
+%% @defgroup Cleanup Call Cleanup
+% @ingroup YAPLibrary
+% @{
+%
+% <tt>call_cleanup/1</tt> and <tt>call_cleanup/2</tt> allow predicates to register
+% code for execution after the call is finished. Predicates can be
+% declared to be <tt>fragile</tt> to ensure that <tt>call_cleanup</tt> is called
+% for any Goal which needs it. This library is loaded with the
+% `use_module(library(cleanup))` command.
+%
 % cleanup.yap
 % Copyright (C) 2002 by Christian Thaeter
 %
@@ -28,13 +48,7 @@
 % most private predicates could also be used in special cases, such as manually setting up cleanup-contexts.
 % Read the Source.
 
-:- module( cleanup, [
-		     call_cleanup/2,
-		     call_cleanup/1,
-		     on_cleanup/1,
-		     cleanup_all/0,
-		     op(1150, fx,fragile)
-		    ]).
+
 
 
 :- multifile user:goal_expansion/3.
@@ -105,11 +119,31 @@ next_cleanup(CL) :-
 	next_cleanup(CL).
 
 % clean up all remaining stuff / reinitialize cleanup-module
+/** @pred cleanup_all 
+
+Calls all pending CleanUpGoals and resets the cleanup-system to an
+initial state. Should only be used as one of the last calls in the
+main program.
+
+There are some private predicates which could be used in special
+cases, such as manually setting up cleanup-contexts and registering
+CleanUpGoals for other than the current cleanup-context.
+Read the Source Luke.
+ */
 cleanup_all :-
 	do_cleanup(1).
 cleanup_all.
 
 % register a cleanup predicate (normal reverse-order cleanup)
+/** @pred on_cleanup(+ _CleanUpGoal_) 
+
+Any Predicate might registers a  _CleanUpGoal_. The
+ _CleanUpGoal_ is put onto the current cleanup context. All such
+CleanUpGoals are executed in reverse order of their registration when
+the surrounding cleanup-context ends. This call will throw an exception
+if a predicate tries to register a  _CleanUpGoal_ outside of any
+cleanup-context.
+*/
 on_cleanup(G) :-
 	bb_get(cleanup_level,L),
 	on_cleanup(L,G).
@@ -166,3 +200,7 @@ arity_to_vars(N,L1,L2) :-
 	LT = [L|L1],
 	arity_to_vars(NN,LT,L2).
 arity_to_vars(0,L,L).
+
+/**
+@}
+*/

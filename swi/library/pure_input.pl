@@ -43,6 +43,7 @@
 :- use_module(library(error)).
 
 /** <module> Pure Input from files
+@ingroup SWILibrary
 
 This module is part of pio.pl,   dealing with _pure_ _input_: processing
 input streams from the outside  world   using  pure  predicates, notably

@@ -449,10 +449,27 @@ void
 Yap_InitLowLevelTrace(void)
 {
   Yap_InitCPred("start_low_level_trace", 0, p_start_low_level_trace, SafePredFlag);
+/** @pred start_low_level_trace 
+
+
+Begin display of messages at procedure entry and retry.
+
+ 
+*/
 #if THREADS
   Yap_InitCPred("start_low_level_trace", 1, p_start_low_level_trace2, SafePredFlag);
 #endif
   Yap_InitCPred("stop_low_level_trace", 0, p_stop_low_level_trace, SafePredFlag);
+/** @pred stop_low_level_trace 
+
+
+Stop display of messages at procedure entry and retry.
+
+
+Note that this compile-time option will slow down execution.
+
+
+ */
   Yap_InitCPred("show_low_level_trace", 0, p_show_low_level_trace, SafePredFlag);
   Yap_InitCPred("total_choicepoints", 1, p_total_choicepoints, SafePredFlag);
   Yap_InitCPred("reset_total_choicepoints", 0, p_reset_total_choicepoints, SafePredFlag);

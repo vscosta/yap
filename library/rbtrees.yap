@@ -50,7 +50,9 @@
 	   rb_in/3
        ]).
 
-/** <module> Red black trees
+/** @defgroup RedhYBlack_Trees Red-Black Trees
+@ingroup YAPLibrary
+@{
 
 Red-Black trees are balanced search binary trees. They are named because
 nodes can be classified as either red or   black. The code we include is
@@ -1227,4 +1229,226 @@ build_ntree(X1,X,T0,TF) :-
 	build_ntree(X2,X,TI,TF).
 
 
+
+
+/** @pred is_rbtree(+ _T_) 
+
+
+Check whether  _T_ is a valid red-black tree.
+
+ 
+*/
+/** @pred ord_list_to_rbtree(+ _L_, - _T_) 
+
+
+ _T_ is the red-black tree corresponding to the mapping in ordered
+list  _L_.
+
+
+
+ */
+/** @pred rb_apply(+ _T_,+ _Key_,+ _G_,- _TN_) 
+
+
+If the value associated with key  _Key_ is  _Val0_ in  _T_, and
+if `call(G,Val0,ValF)` holds, then  _TN_ differs from
+ _T_ only in that  _Key_ is associated with value  _ValF_ in
+tree  _TN_. Fails if it cannot find  _Key_ in  _T_, or if
+`call(G,Val0,ValF)` is not satisfiable.
+
+ 
+*/
+/** @pred rb_clone(+ _T_,+ _NT_,+ _Nodes_) 
+
+
+=Clone= the red-back tree into a new tree with the same keys as the
+original but with all values set to unbound values. _Nodes_ is a list
+containing all new nodes as pairs  _K-V_.
+
+ 
+*/
+/** @pred rb_del_max(+ _T_,- _Key_,- _Val_,- _TN_) 
+
+
+Delete the largest element from the tree  _T_, returning the key
+ _Key_, the value  _Val_ associated with the key and a new tree
+ _TN_.
+
+ 
+*/
+/** @pred rb_del_min(+ _T_,- _Key_,- _Val_,- _TN_) 
+
+
+Delete the least element from the tree  _T_, returning the key
+ _Key_, the value  _Val_ associated with the key and a new tree
+ _TN_.
+
+ 
+*/
+/** @pred rb_delete(+ _T_,+ _Key_,- _TN_) 
+
+
+Delete element with key  _Key_ from the tree  _T_, returning a new
+tree  _TN_.
+
+ 
+*/
+/** @pred rb_delete(+ _T_,+ _Key_,- _Val_,- _TN_)
+
+Delete element with key  _Key_ from the tree  _T_, returning the
+value  _Val_ associated with the key and a new tree  _TN_.
+
+ 
+*/
+/** @pred rb_empty(? _T_) 
+
+
+Succeeds if tree  _T_ is empty.
+
+ 
+*/
+/** @pred rb_fold(+ _T_,+ _G_,+ _Acc0_, - _AccF_) 
+
+
+For all nodes  _Key_ in the tree  _T_, if the value
+associated with key  _Key_ is  _V_ in tree  _T_, if
+`call(G,V,Acc1,Acc2)` holds, then if  _VL_ is value of the
+previous node in inorder, `call(G,VL,_,Acc0)` must hold, and if
+ _VR_ is the value of the next node in inorder,
+`call(G,VR,Acc1,_)` must hold.
+
+ 
+*/
+/** @pred rb_insert(+ _T0_,+ _Key_,? _Value_,+ _TF_) 
+
+
+Add an element with key  _Key_ and  _Value_ to the tree
+ _T0_ creating a new red-black tree  _TF_. Duplicated elements are not
+allowed.
+
+Add a new element with key  _Key_ and  _Value_ to the tree
+ _T0_ creating a new red-black tree  _TF_. Fails is an element
+with  _Key_ exists in the tree.
+
+ 
+*/
+/** @pred rb_key_fold(+ _T_,+ _G_,+ _Acc0_, - _AccF_) 
+
+
+For all nodes  _Key_ in the tree  _T_, if the value
+associated with key  _Key_ is  _V_ in tree  _T_, if
+`call(G,Key,V,Acc1,Acc2)` holds, then if  _VL_ is value of the
+previous node in inorder, `call(G,KeyL,VL,_,Acc0)` must hold, and if
+ _VR_ is the value of the next node in inorder,
+`call(G,KeyR,VR,Acc1,_)` must hold.
+
+ 
+*/
+/** @pred rb_keys(+ _T_,+ _Keys_) 
+
+
+ _Keys_ is an infix visit with all keys in tree  _T_. Keys will be
+sorted, but may be duplicate.
+
+ 
+*/
+/** @pred rb_lookup(+ _Key_,- _Value_,+ _T_) 
+
+
+Backtrack through all elements with key  _Key_ in the red-black tree
+ _T_, returning for each the value  _Value_.
+
+ 
+*/
+/** @pred rb_lookupall(+ _Key_,- _Value_,+ _T_) 
+
+
+Lookup all elements with key  _Key_ in the red-black tree
+ _T_, returning the value  _Value_.
+
+ 
+*/
+/** @pred rb_map(+ _T_,+ _G_,- _TN_) 
+
+
+For all nodes  _Key_ in the tree  _T_, if the value associated with
+key  _Key_ is  _Val0_ in tree  _T_, and if
+`call(G,Val0,ValF)` holds, then the value associated with  _Key_
+in  _TN_ is  _ValF_. Fails if or if `call(G,Val0,ValF)` is not
+satisfiable for all  _Var0_.
+
+ 
+*/
+/** @pred rb_max(+ _T_,- _Key_,- _Value_) 
+
+
+ _Key_  is the maximal key in  _T_, and is associated with  _Val_.
+
+ 
+*/
+/** @pred rb_min(+ _T_,- _Key_,- _Value_) 
+
+
+ _Key_  is the minimum key in  _T_, and is associated with  _Val_.
+
+ 
+*/
+/** @pred rb_new(? _T_) 
+
+
+Create a new tree.
+
+ 
+*/
+/** @pred rb_next(+ _T_, + _Key_,- _Next_,- _Value_) 
+
+
+ _Next_ is the next element after  _Key_ in  _T_, and is
+associated with  _Val_.
+
+ 
+*/
+/** @pred rb_partial_map(+ _T_,+ _Keys_,+ _G_,- _TN_) 
+
+
+For all nodes  _Key_ in  _Keys_, if the value associated with key
+ _Key_ is  _Val0_ in tree  _T_, and if `call(G,Val0,ValF)`
+holds, then the value associated with  _Key_ in  _TN_ is
+ _ValF_. Fails if or if `call(G,Val0,ValF)` is not satisfiable
+for all  _Var0_. Assumes keys are not repeated.
+
+ 
+*/
+/** @pred rb_previous(+ _T_, + _Key_,- _Previous_,- _Value_) 
+
+
+ _Previous_ is the previous element after  _Key_ in  _T_, and is
+associated with  _Val_.
+
+ 
+*/
+/** @pred rb_size(+ _T_,- _Size_) 
+
+
+ _Size_ is the number of elements in  _T_.
+
+ 
+*/
+/** @pred rb_update(+ _T_,+ _Key_,+ _NewVal_,- _TN_) 
+
+
+Tree  _TN_ is tree  _T_, but with value for  _Key_ associated
+with  _NewVal_. Fails if it cannot find  _Key_ in  _T_.
+
+ 
+*/
+/** @pred rb_visit(+ _T_,- _Pairs_) 
+
+
+ _Pairs_ is an infix visit of tree  _T_, where each element of
+ _Pairs_ is of the form   _K_- _Val_.
+
+@}
+ 
+*/
 

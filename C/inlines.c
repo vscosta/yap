@@ -15,6 +15,15 @@
 *									 *
 *************************************************************************/
 
+
+/** @defgroup YAP_Terms Predicates on terms
+@ingroup YAPBuiltins
+@{
+
+
+*/
+
+
 #define IN_INLINES_C 1
 
 #include "absmi.h"
@@ -38,6 +47,13 @@ static Int    p_arg( USES_REGS1 );
 static Int    p_functor( USES_REGS1 );
 
 
+/** @pred  atom( _T_) is iso 
+
+
+Succeeds if and only if  _T_ is currently instantiated to an  atom.
+
+ 
+*/
 static Int 
 p_atom( USES_REGS1 )
 {				/* atom(?)	 */
@@ -59,6 +75,13 @@ p_atom( USES_REGS1 )
       ENDD(d0);
 }
 
+/** @pred  atomic(T) is iso 
+
+
+Checks whether  _T_ is an atomic symbol (atom or number).
+
+ 
+*/
 static Int 
 p_atomic( USES_REGS1 )
 {				/* atomic(?)	 */
@@ -80,6 +103,13 @@ p_atomic( USES_REGS1 )
       ENDD(d0);
 }
 
+/** @pred  integer( _T_) is iso 
+
+
+Succeeds if and only if  _T_ is currently instantiated to an  integer.
+
+ 
+*/
 static Int 
 p_integer( USES_REGS1 )
 {				/* integer(?,?)	 */
@@ -118,6 +148,13 @@ p_integer( USES_REGS1 )
       ENDD(d0);
 }
 
+/** @pred  number( _T_) is iso 
+
+
+Checks whether `T` is an integer, rational or a float.
+
+ 
+*/
 static Int 
 p_number( USES_REGS1 )
 {				/* number(?)	 */
@@ -157,6 +194,13 @@ p_number( USES_REGS1 )
       ENDD(d0);
 }
 
+/** @pred  db_reference( _T_) 
+
+
+Checks whether  _T_ is a database reference.
+
+ 
+*/
 static Int 
 p_db_ref( USES_REGS1 )
 {				/* db_reference(?,?)	 */
@@ -178,6 +222,13 @@ p_db_ref( USES_REGS1 )
       ENDD(d0);
 }
 
+/** @pred  primitive( ?_T_) 
+
+
+Checks whether  _T_ is an atomic term or a database reference.
+
+ 
+*/
 static Int 
 p_primitive( USES_REGS1 )
 {				/* primitive(?)	 */
@@ -199,6 +250,13 @@ p_primitive( USES_REGS1 )
       ENDD(d0);
 }
 
+/** @pred  float( _T_) is iso 
+
+
+Checks whether  _T_ is a floating point number.
+
+ 
+*/
 static Int 
 p_float( USES_REGS1 )
 {				/* float(?)	 */
@@ -220,6 +278,13 @@ p_float( USES_REGS1 )
       ENDD(d0);
 }
 
+/** @pred  compound( _T_) is iso 
+
+
+Checks whether  _T_ is a compound term.
+
+ 
+*/
 static Int 
 p_compound( USES_REGS1 )
 {				/* compound(?)	 */
@@ -247,6 +312,13 @@ p_compound( USES_REGS1 )
       ENDD(d0);
 }
 
+/** @pred  nonvar( _T_) is iso 
+
+
+The opposite of `var( _T_)`.
+
+ 
+*/
 static Int 
 p_nonvar( USES_REGS1 )
 {				/* nonvar(?)	 */
@@ -263,6 +335,13 @@ p_nonvar( USES_REGS1 )
       ENDD(d0);
 }
 
+/** @pred  var( _T_) is iso 
+
+
+Succeeds if  _T_ is currently a free variable, otherwise fails. 
+
+ 
+*/
 static Int 
 p_var( USES_REGS1 )
 {				/* var(?)	 */
@@ -279,6 +358,13 @@ p_var( USES_REGS1 )
       ENDD(d0);
 }
 
+/** @pred  _X_ =  _Y_ is iso 
+
+
+Tries to unify terms  _X_ and  _Y_.
+
+ 
+*/
 static Int 
 p_equal( USES_REGS1 )
 {				/* ?=? */
@@ -371,6 +457,37 @@ eq(Term t1, Term t2 USES_REGS)
       ENDD(d0);
 }
 
+
+
+/** @pred ?_X_ ==  ?_Y_ is iso 
+
+Succeeds if terms  _X_ and  _Y_ are strictly identical. The
+difference between this predicate and =/2 is that, if one of the
+arguments is a free variable, it only succeeds when they have already
+been unified.
+
+~~~~~{.prolog}
+?- X == Y.
+~~~~~
+fails, but,
+
+~~~~~{.prolog}
+?- X = Y, X == Y.
+~~~~~
+succeeds.
+
+~~~~~{.prolog}
+?- X == 2.
+~~~~~
+fails, but,
+
+~~~~~{.prolog}
+?- X = 2, X == 2.
+~~~~~
+succeeds.
+
+ 
+*/
 static Int 
 p_eq( USES_REGS1 )
 {				/* ? == ? */
@@ -384,6 +501,13 @@ Yap_eq(Term t1, Term t2)
   return eq(t1,t2 PASS_REGS);
 }
 
+/** @pred  _X_ \=  _Y_ is iso 
+
+
+Succeeds if terms  _X_ and  _Y_ are not unifiable.
+
+ 
+*/
 static Int 
 p_dif( USES_REGS1 )
 {				/* ? \= ?  */
@@ -492,6 +616,20 @@ p_dif( USES_REGS1 )
   ENDD(d0);
 }
 
+
+/** @pred  arg(+ _N_,+ _T_, _A_) is iso 
+
+
+Succeeds if the argument  _N_ of the term  _T_ unifies with
+ _A_. The arguments are numbered from 1 to the arity of the term.
+
+The current version will generate an error if  _T_ or  _N_ are
+unbound, if  _T_ is not a compound term, of if  _N_ is not a positive
+integer. Note that previous versions of YAP would fail silently
+under these errors.
+
+ 
+*/
 static Int 
 p_arg( USES_REGS1 )
 {				/* arg(?,?,?)	 */
@@ -588,6 +726,26 @@ p_arg( USES_REGS1 )
 
 }
 
+/** @pred  functor( _T_, _F_, _N_) is iso 
+
+
+The top functor of term  _T_ is named  _F_ and has  arity  _N_.
+
+When  _T_ is not instantiated,  _F_ and  _N_ must be. If
+ _N_ is 0,  _F_ must be an atomic symbol, which will be unified
+with  _T_. If  _N_ is not 0, then  _F_ must be an atom and
+ _T_ becomes instantiated to the most general term having functor
+ _F_ and arity  _N_. If  _T_ is instantiated to a term then
+ _F_ and  _N_ are respectively unified with its top functor name
+and arity.
+
+In the current version of YAP the arity  _N_ must be an
+integer. Previous versions allowed evaluable expressions, as long as the
+expression would evaluate to an integer. This feature is not available
+in the ISO Prolog standard.
+
+ 
+*/
 static Int
 p_functor( USES_REGS1 )			/* functor(?,?,?) */
 {
@@ -954,3 +1112,7 @@ Yap_InitInlines(void)
   CurrentModule = cm;
 }
 
+
+/**
+@}
+*/

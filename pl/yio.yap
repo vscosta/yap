@@ -15,6 +15,20 @@
 *									 *
 *************************************************************************/
 
+
+/** @defgroup InputOutput Input/Output Predicates
+@ingroup YAPBuiltins
+@{
+
+Some of the Input/Output predicates described below will in certain conditions
+provide error messages and abort only if the file_errors flag is set.
+If this flag is cleared the same predicates will just fail. Details on
+setting and clearing this flag are given under 7.7.
+
+
+ */
+
+
 :- system_module( '$_yio', [at_end_of_line/0,
         at_end_of_line/1,
         consult_depth/1,
@@ -116,6 +130,14 @@
 '$check_boolean'(X,B,T,G) :-
 	'$do_error'(domain_error(B,T),G).
 
+/** @pred  socket(+ _DOMAIN_,- _SOCKET_)
+
+
+Call socket/4 with  _TYPE_ bound to `SOCK_STREAM'` and
+ _PROTOCOL_ bound to `0`.
+
+ 
+*/
 socket(Domain, Sock) :-
 	(
 	 '$undefined'(ip_socket(_,_),yap_sockets)
@@ -126,6 +148,24 @@ socket(Domain, Sock) :-
 	),
 	yap_sockets:ip_socket(Domain, Sock).
 
+/** @pred  socket(+ _DOMAIN_,+ _TYPE_,+ _PROTOCOL_,- _SOCKET_) 
+
+
+Corresponds to the BSD system call `socket`. Create a socket for
+domain  _DOMAIN_ of type  _TYPE_ and protocol
+ _PROTOCOL_. Both  _DOMAIN_ and  _TYPE_ should be atoms,
+whereas  _PROTOCOL_ must be an integer.
+The new socket object is
+accessible through a descriptor bound to the variable  _SOCKET_.
+
+The current implementation of YAP  accepts socket
+domains `AF_INET` and `AF_UNIX`. 
+Socket types depend on the
+underlying operating system, but at least the following types are
+supported: `SOCK_STREAM'` and `SOCK_DGRAM'` (untested in 6.3).
+
+ 
+*/
 socket(Domain, Type, Protocol, Sock) :-
 	(
 	 '$undefined'(ip_socket(_,_),yap_sockets)
@@ -136,6 +176,26 @@ socket(Domain, Type, Protocol, Sock) :-
 	),
 	yap_sockets:ip_socket(Domain, Type, Protocol, Sock).
 
+/** @pred  socket_connect(+ _SOCKET_, + _PORT_, - _STREAM_) 
+
+
+
+Interface to system call `connect`, used for clients: connect
+socket  _SOCKET_ to  _PORT_. The connection results in the
+read/write stream  _STREAM_.
+
+Port information depends on the domain:
+
++ 'AF_UNIX'(+ _FILENAME_)
++ 'AF_FILE'(+ _FILENAME_)
+connect to socket at file  _FILENAME_.
+
++ 'AF_INET'(+ _HOST_,+ _PORT_)
+Connect to socket at host  _HOST_ and port  _PORT_.
+
+
+ 
+*/
 socket_connect(Sock, Host, Read) :-
 	(
 	 '$undefined'(ip_socket(_,_),yap_sockets)
@@ -159,18 +219,58 @@ open_pipe_streams(Read, Write) :-
 	set_stream(Read, encoding(X) ),
 	set_stream(Write, encoding(X) ).
 
+/**  @pred fileerrors 
+
+
+Switches on the file_errors flag so that in certain error conditions
+Input/Output predicates will produce an appropriated message and abort.
+
+ */
 fileerrors :- 	'$swi_set_prolog_flag'(fileerrors, true).
 
+/** @pred  nofileerrors 
+
+
+Switches off the file_errors flag, so that the predicates see/1,
+tell/1, open/3 and close/1 just fail, instead of producing
+an error message and aborting whenever the specified file cannot be
+opened or closed.
+
+*/
 nofileerrors :- '$swi_set_prolog_flag'(fileerrors, false).
 
+/** @pred  exists(+ _F_) 
+
+
+Checks if file  _F_ exists in the current directory.
+
+*/
 exists(F) :-
 	absolute_file_name(F, _, [file_errors(fail),access(exist),expand(true)]).
 
 /* Term IO	*/
 
+/** @pred  read(- _T_) is iso 
+
+
+Reads the next term from the current input stream, and unifies it with
+ _T_. The term must be followed by a dot (`.`) and any blank-character
+as previously defined. The syntax of the term must match the current
+declarations for operators (see op). If the end-of-stream is reached, 
+ _T_ is unified with the atom `end_of_file`. Further reads from of 
+the same stream may cause an error failure (see open/3).
+
+*/
 read(T) :-
 	read_term(T, []).
 
+/** @pred  read(+ _S_,- _T_) is iso
+
+Reads term  _T_ from the stream  _S_ instead of from the current input
+stream.
+
+ 
+*/
 read(Stream,T) :-
 	read_term(Stream, T, []).
 
@@ -184,16 +284,43 @@ read(Stream,T) :-
    flags are defined in yapio.h
 */
 
+/** @pred  display(+ _T_) 
+
+
+Displays term  _T_ on the current output stream. All Prolog terms are
+written in standard parenthesized prefix notation.
+
+ 
+*/
 display(T) :-
 	   current_output(Out),
 	   write_term(Out, T, [ignore_ops(true)]).
 
+/** @pred  display(+ _S_, _T_)
+
+Like display/1, but using stream  _S_ to display the term.
+
+ 
+*/
 display(Stream, T) :-
 	   write_term(Term, T, [ignore_ops(true)]).
 
+/** @pred  format(+ _T_)
+
+Print formatted output to the current output stream.
+
+ 
+*/
 format(T) :-
 	format(T, []).
 
+/** @pred  writeln( _T_) is iso 
+
+
+Same as write/1 followed by nl/0.
+
+ 
+*/
 writeln(T) :-
 	write(T),
 	nl.
@@ -207,23 +334,76 @@ writeln(T) :-
 
 /* character I/O	*/
 
+/** @pred  ttyget(- _C_) 
+
+
+The same as `get(C)`, but from stream user_input.
+
+ 
+*/
 ttyget(N) :- get(user_input,N).
 
+/** @pred  ttyget0(- _C_) 
+
+
+The same as `get0(C)`, but from stream user_input.
+
+ 
+*/
 ttyget0(N) :- get0(user_input,N).
 
+/** @pred  ttyskip(- _C_) 
+
+
+Like skip/1, but always using stream user_input.
+stream.
+
+ 
+*/
 ttyskip(N) :-  N1 is N, '$skip'(user_input,N1).
 
+/** @pred  ttyput(+ _N_) 
+
+
+As `put(N)` but always to user_output.
+
+ 
+*/
 ttyput(N) :-  N1 is N, put(user_output,N1).
 
+/** @pred  ttynl 
+
+
+Outputs a new line to stream user_output.
+
+
+
+
+ */
 ttynl :- nl(user_output).
 
 current_line_number(N) :-
 	current_input(Stream),
 	line_count(Stream, N).
 
+/** @pred  current_line_number(+ _Stream_,- _LineNumber_)
+
+Unify  _LineNumber_ with the line number for the  _Stream_. 
+
+ 
+*/
 current_line_number(Stream,N) :-
 	line_count(Stream, N).
 
+/** @pred  stream_position(+ _Stream_,- _StreamPosition_) 
+
+
+Unify  _StreamPosition_ with the packaged information of position on
+current stream  _Stream_. Use stream_position_data/3 to
+retrieve information on character or line count.
+
+ 
+*/
 stream_position(Stream, Position) :-
 	stream_property(Stream, position(Position)).
 
@@ -243,6 +423,15 @@ at_end_of_line(S) :-
 
 consult_depth(LV) :- '$show_consult_level'(LV).
 
+/** @pred  current_char_conversion(? _IN_,? _OUT_) is iso 
+
+
+If  _IN_ is unbound give all current character
+translations. Otherwise, give the translation for  _IN_, if one
+exists.
+
+ 
+*/
 current_char_conversion(X,Y) :-
 	var(X), !,
 	'$all_char_conversions'(List),
@@ -256,6 +445,19 @@ current_char_conversion(X,Y) :-
 	'$fetch_char_conversion'(List,X,Y).
 
 
+/** @pred  current_stream( _F_, _M_, _S_) 
+
+
+Defines the relation: The stream  _S_ is opened on the file  _F_
+in mode  _M_. It might be used to obtain all open streams (by
+backtracking) or to access the stream for a file  _F_ in mode
+ _M_, or to find properties for a stream  _S_. Notice that some
+streams might not be associated to a file: in this case YAP tries to
+return the file number. If that is not available, YAP unifies  _F_
+with  _S_.
+
+ 
+*/
 current_stream(File, Mode, Stream) :-
     stream_property(Stream, mode(Mode)),
     '$stream_name'(Stream, File).
@@ -306,6 +508,17 @@ sformat(String, Form, Args) :-
 %       Extract values from stream position objects. '$stream_position' is
 %       of the format '$stream_position'(Byte, Char, Line, LinePos)
 
+/** @pred  stream_position_data(+ _Field_,+ _StreamPosition_,- _Info_) 
+
+
+Given the packaged stream position term  _StreamPosition_, unify
+ _Info_ with  _Field_ `line_count`, `byte_count`, or
+`char_count`.
+
+
+
+
+ */
 stream_position_data(Prop, Term, Value) :-
         nonvar(Prop), !,
         (   '$stream_position_field'(Prop, Pos)
@@ -349,7 +562,6 @@ prolog_file_name(File, PrologFileName) :-
 	'$codes_to_chars'(String0, String, Chars).
 
 
-
-
-
-
+/**
+@}
+*/

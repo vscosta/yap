@@ -16,6 +16,41 @@
 *************************************************************************/
 
 
+/** @defgroup CohYroutining Co-routining
+@ingroup YAPExtensions
+@{
+
+Prolog uses a simple left-to-right flow of control. It is sometimes
+convenient to change this control so that goals will only be executed
+when conditions are fulfilled. This may result in a more "data-driven"
+execution, or may be necessary to correctly implement extensions such as
+negation by default.
+
+The `COROUTINING` flag enables this option. Note that the support for
+coroutining  will in general slow down execution.
+
+The following declaration is supported:
+
++ block/1
+The argument to `block/1` is a condition on a goal or a conjunction
+of conditions, with each element separated by commas. Each condition is
+of the form `predname( _C1_,..., _CN_)`, where  _N_ is the
+arity of the goal, and each  _CI_ is of the form `-`, if the
+argument must suspend until the first such variable is bound, or
+`?`, otherwise.
+
++ wait/1
+The argument to `wait/1` is a predicate descriptor or a conjunction
+of these predicates. These predicates will suspend until their first
+argument is bound.
+
+
+The following primitives are supported:
+
+ 
+*/
+
+
 :- module('$coroutining',[
 			  op(1150, fx, block)
 				%dif/2,
@@ -33,6 +68,23 @@
         put_module_atts/2]).
 
 
+/** @pred attr_unify_hook(+ _AttValue_,+ _VarValue_) 
+
+
+
+Hook that must be defined in the module an attributed variable refers
+to. Is is called <em>after</em> the attributed variable has been
+unified with a non-var term, possibly another attributed variable.
+ _AttValue_ is the attribute that was associated to the variable
+in this module and  _VarValue_ is the new value of the variable.
+Normally this predicate fails to veto binding the variable to
+ _VarValue_, forcing backtracking to undo the binding.  If
+ _VarValue_ is another attributed variable the hook often combines
+the two attribute and associates the combined attribute with
+ _VarValue_ using put_attr/3.
+
+ 
+*/
 attr_unify_hook(DelayList, _) :-
 	wake_delays(DelayList).
 	
@@ -53,6 +105,32 @@ wake_delay(redo_eq(Done, X, Y, Goal)) :-
 wake_delay(redo_ground(Done, X, Goal)) :-
 	redo_ground(Done, X, Goal).
 
+/** @pred attribute_goals(+ _Var_,- _Gs_,+ _GsRest_) 
+
+
+
+This nonterminal, if it is defined in a module, is used by  _copy_term/3_
+to project attributes of that module to residual goals. It is also
+used by the toplevel to obtain residual goals after executing a query.
+
+
+Normal user code should deal with put_attr/3, get_attr/3 and del_attr/2.
+The routines in this section fetch or set the entire attribute list of a
+variables. Use of these predicates is anticipated to be restricted to
+printing and other special purpose operations.
+
+
+
+ @pred get_attrs(+ _Var_,- _Attributes_) 
+
+
+
+Get all attributes of  _Var_.  _Attributes_ is a term of the form
+`att( _Module_,  _Value_,  _MoreAttributes_)`, where  _MoreAttributes_ is
+`[]` for the last attribute.
+
+ 
+*/
 attribute_goals(Var) -->
 	{ get_attr(Var, '$coroutining', Delays) },
 	attgoal_for_delays(Delays, Var).
@@ -84,6 +162,13 @@ remove_when_declarations(Goal, Goal).
 				%
 % operators defined in this module:
 %
+/** @pred freeze(? _X_,: _G_) 
+
+
+Delay execution of goal  _G_ until the variable  _X_ is bound.
+
+ 
+*/
 prolog:freeze(V, G) :-
 	var(V), !,
 	freeze_goal(V,G).
@@ -136,6 +221,15 @@ freeze_goal(V,G) :-
 % several times. dif calls a special version of freeze that checks
 % whether that is in fact the case.
 %
+/** @pred dif( _X_, _Y_) 
+
+
+Succeed if the two arguments do not unify. A call to dif/2 will
+suspend if unification may still succeed or fail, and will fail if they
+always unify.
+
+ 
+*/
 prolog:dif(X, Y) :-
 	'$can_unify'(X, Y, LVars), !,
 	LVars = [_|_], 
@@ -213,6 +307,28 @@ redo_ground('$done', _, Goal) :-
 %
 % support for when/2 built-in
 %
+/** @pred when(+ _C_,: _G_) 
+
+
+Delay execution of goal  _G_ until the conditions  _C_ are
+satisfied. The conditions are of the following form:
+
++ _C1_, _C2_
+Delay until both conditions  _C1_ and  _C2_ are satisfied.
++ _C1_; _C2_
+Delay until either condition  _C1_ or condition  _C2_ is satisfied.
++ ?=( _V1_, _C2_)
+Delay until terms  _V1_ and  _V1_ have been unified.
++ nonvar( _V_)
+Delay until variable  _V_ is bound.
++ ground( _V_)
+Delay until variable  _V_ is ground.
+
+
+Note that when/2 will fail if the conditions fail.
+
+ 
+*/
 prolog:when(Conds,Goal) :-
 	'$current_module'(Mod),
 	prepare_goal_for_when(Goal, Mod, ModG),
@@ -446,6 +562,14 @@ prolog:'$wait'(Na/Ar) :-
 	'$$compile'((S :- var(A), !, freeze(A, S)), (S :- var(A), !, freeze(A, S)), 5, M), fail.
 prolog:'$wait'(_).
 
+/** @pred frozen( _X_, _G_) 
+
+
+Unify  _G_ with a conjunction of goals suspended on variable  _X_,
+or `true` if no goal has suspended.
+
+ 
+*/
 prolog:frozen(V, LG) :-
     var(V), !,
     '$attributes':attvars_residuals([V], Gs, []),
@@ -493,3 +617,6 @@ check_first_attvar(V.Vs, V0) :- attvar(V), !, V == V0.
 check_first_attvar(_.Vs, V0) :-
 	check_first_attvar(Vs, V0).
 
+/**
+@}
+*/

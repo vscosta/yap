@@ -15,6 +15,92 @@
 *									 *
 *************************************************************************/
 
+
+/** @defgroup YAPArrays Arrays
+@ingroup YAPBuiltins
+@{
+
+The YAP system includes experimental support for arrays. The
+support is enabled with the option `YAP_ARRAYS`.
+
+There are two very distinct forms of arrays in YAP. The
+<em>dynamic arrays</em> are a different way to access compound terms
+created during the execution. Like any other terms, any bindings to
+these terms and eventually the terms themselves will be destroyed during
+backtracking. Our goal in supporting dynamic arrays is twofold. First,
+they provide an alternative to the standard arg/3
+built-in. Second, because dynamic arrays may have name that are globally
+visible, a dynamic array can be visible from any point in the
+program. In more detail, the clause
+
+~~~~~
+g(X) :- array_element(a,2,X).
+~~~~~
+will succeed as long as the programmer has used the built-in <tt>array/2</tt>
+to create an array term with at least 3 elements in the current
+environment, and the array was associated with the name `a`.  The
+element `X` is a Prolog term, so one can bind it and any such
+bindings will be undone when backtracking. Note that dynamic arrays do
+not have a type: each element may be any Prolog term.
+
+The <em>static arrays</em> are an extension of the database. They provide
+a compact way for manipulating data-structures formed by characters,
+integers, or floats imperatively. They can also be used to provide
+two-way communication between YAP and external programs through
+shared memory.
+
+In order to efficiently manage space elements in a static array must
+have a type. Currently, elements of static arrays in YAP should
+have one of the following predefined types:
+
++ `byte`: an 8-bit signed character.
++ `unsigned_byte`: an 8-bit unsigned character.
++ `int`: Prolog integers. Size would be the natural size for
+the machine's architecture.
++ `float`: Prolog floating point number. Size would be equivalent
+to a double in `C`.
++ `atom`: a Prolog atom.
++ `dbref`: an internal database reference.
++ `term`: a generic Prolog term. Note that this will term will
+not be stored in the array itself, but instead will be stored in the
+Prolog internal database.
+
+
+Arrays may be <em>named</em> or <em>anonymous</em>. Most arrays will be
+<em>named</em>, that is associated with an atom that will be used to find
+the array. Anonymous arrays do not have a name, and they are only of
+interest if the `TERM_EXTENSIONS` compilation flag is enabled. In
+this case, the unification and parser are extended to replace
+occurrences of Prolog terms of the form `X[I]` by run-time calls to
+array_element/3, so that one can use array references instead of
+extra calls to arg/3. As an example:
+
+~~~~~
+g(X,Y,Z,I,J) :- X[I] is Y[J]+Z[I].
+~~~~~
+should give the same results as:
+
+~~~~~
+G(X,Y,Z,I,J) :-
+        array_element(X,I,E1),
+        array_element(Y,J,E2),  
+        array_element(Z,I,E3),  
+        E1 is E2+E3.
+~~~~~
+
+Note that the only limitation on array size are the stack size for
+dynamic arrays; and, the heap size for static (not memory mapped)
+arrays. Memory mapped arrays are limited by available space in the file
+system and in the virtual memory space.
+
+The following predicates manipulate arrays:
+
+
+
+ 
+*/
+
+
 #include "Yap.h"
 #include "clause.h"
 #include "eval.h"
@@ -2440,19 +2526,142 @@ Yap_InitArrayPreds( void )
   Yap_InitCPred("$array_references", 3, p_array_references, SafePredFlag);
   Yap_InitCPred("$array_arg", 3, p_array_arg, SafePredFlag);
   Yap_InitCPred("static_array", 3, p_create_static_array, SafePredFlag|SyncPredFlag);
+/** @pred  static_array(+ _Name_, + _Size_, + _Type_) 
+
+
+Create a new static array with name  _Name_. Note that the  _Name_
+must be an atom (named array). The  _Size_ must evaluate to an
+integer.  The  _Type_ must be bound to one of types mentioned
+previously.
+
+ 
+*/
   Yap_InitCPred("resize_static_array", 3, p_resize_static_array, SafePredFlag|SyncPredFlag);
+/** @pred  resize_static_array(+ _Name_, - _OldSize_, + _NewSize_) 
+
+
+Expand or reduce a static array, The  _Size_ must evaluate to an
+integer. The  _Name_ must be an atom (named array). The  _Type_
+must be bound to one of `int`, `dbref`, `float` or
+`atom`.
+
+Note that if the array is a mmapped array the size of the mmapped file
+will be actually adjusted to correspond to the size of the array.
+
+ 
+*/
   Yap_InitCPred("mmapped_array", 4, p_create_mmapped_array, SafePredFlag|SyncPredFlag);
+/** @pred  mmapped_array(+ _Name_, + _Size_, + _Type_, + _File_) 
+
+
+Similar to static_array/3, but the array is memory mapped to file
+ _File_. This means that the array is initialized from the file, and
+that any changes to the array will also be stored in the file. 
+
+This built-in is only available in operating systems that support the
+system call `mmap`. Moreover, mmapped arrays do not store generic
+terms (type `term`).
+
+ 
+*/
   Yap_InitCPred("update_array", 3, p_assign_static, SafePredFlag);
+/** @pred  update_array(+ _Name_, + _Index_, ? _Value_)  
+
+
+Attribute value  _Value_ to  _Name_[ _Index_]. Type
+restrictions must be respected for static arrays. This operation is
+available for dynamic arrays if `MULTI_ASSIGNMENT_VARIABLES` is
+enabled (true by default). Backtracking undoes  _update_array/3_ for
+dynamic arrays, but not for static arrays.
+
+Note that update_array/3 actually uses `setarg/3` to update
+elements of dynamic arrays, and `setarg/3` spends an extra cell for
+every update. For intensive operations we suggest it may be less
+expensive to unify each element of the array with a mutable terms and
+to use the operations on mutable terms.
+
+ 
+*/
   Yap_InitCPred("dynamic_update_array", 3, p_assign_dynamic, SafePredFlag);
   Yap_InitCPred("add_to_array_element", 4, p_add_to_array_element, SafePredFlag);
+/** @pred  add_to_array_element(+ _Name_, + _Index_, + _Number_, ? _NewValue_)  
+
+
+Add  _Number_  _Name_[ _Index_] and unify  _NewValue_ with
+the incremented value. Observe that  _Name_[ _Index_] must be an
+number. If  _Name_ is a static array the type of the array must be
+`int` or `float`. If the type of the array is `int` you
+only may add integers, if it is `float` you may add integers or
+floats. If  _Name_ corresponds to a dynamic array the array element
+must have been previously bound to a number and `Number` can be
+any kind of number.
+
+The `add_to_array_element/3` built-in actually uses
+`setarg/3` to update elements of dynamic arrays. For intensive
+operations we suggest it may be less expensive to unify each element
+of the array with a mutable terms and to use the operations on mutable
+terms.
+
+
+
+
+ */
   Yap_InitCPred("array_element", 3, p_access_array, 0);
+/** @pred  array_element(+ _Name_, + _Index_, ? _Element_) 
+
+
+Unify  _Element_ with  _Name_[ _Index_]. It works for both
+static and dynamic arrays, but it is read-only for static arrays, while
+it can be used to unify with an element of a dynamic array.
+
+ 
+*/
   Yap_InitCPred("reset_static_array", 1, p_clear_static_array, SafePredFlag);
+/** @pred  reset_static_array(+ _Name_) 
+
+
+Reset static array with name  _Name_ to its initial value.
+
+ 
+*/
   Yap_InitCPred("close_static_array", 1, p_close_static_array, SafePredFlag);
+/** @pred  close_static_array(+ _Name_) 
+
+
+Close an existing static array of name  _Name_. The  _Name_ must
+be an atom (named array). Space for the array will be recovered and
+further accesses to the array will return an error. 
+
+ 
+*/
   Yap_InitCPred("$sync_mmapped_arrays", 0, p_sync_mmapped_arrays, SafePredFlag);
   Yap_InitCPred("$compile_array_refs", 0, p_compile_array_refs, SafePredFlag);
   Yap_InitCPred("$array_refs_compiled", 0, p_array_refs_compiled, SafePredFlag);
   Yap_InitCPred("$static_array_properties", 3, p_static_array_properties, SafePredFlag);
   Yap_InitCPred("static_array_to_term", 2, p_static_array_to_term, 0L);
+/** @pred  static_array_to_term(? _Name_, ? _Term_) 
+
+
+Convert a static array with name
+ _Name_ to a compound term of name  _Name_.
+
+This built-in will silently fail if the there is no static array with
+that name.
+
+ 
+*/
   Yap_InitCPred("static_array_location", 2, p_static_array_location, 0L);
+/** @pred  static_array_location(+ _Name_, - _Ptr_) 
+
+
+Give the location for  a static array with name
+ _Name_.
+
+ 
+*/
 }
 
+
+/**
+@}
+*/

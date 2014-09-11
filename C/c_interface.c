@@ -386,6 +386,7 @@
 
 /**
 @defgroup slotInterface Term Handles or Slots
+@ingroup ChYInterface
 @{
 
 Term handles correspond to SWI-Prolog's term_t datatype: they are a safe representation
@@ -457,6 +458,11 @@ X_API YAP_handle_t     YAP_ArgsToSlots(int HowMany);
 X_API void    YAP_SlotsToArgs(int HowMany, YAP_handle_t slot);
 
 /// @}
+
+/**
+@addtogroup c-interface
+@{
+*/
 
 static arity_t
 current_arity(void)
@@ -4185,3 +4191,6 @@ YAP_IntToAtom(Int i)
   return SWI_Atoms[i];
 }
 
+/**
+@}
+*/

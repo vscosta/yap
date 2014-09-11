@@ -6,6 +6,73 @@
 % and does not really expect to do non-trivial
 % constraint propagation and solving.
 
+
+/** @defgroup Exo_Intervals Exo Intervals
+@ingroup YAPLibrary
+@{
+
+This package assumes you use exo-compilation, that is, that you loaded
+the pedicate using the `exo` option to load_files/2, In this
+case, YAP includes a package for improved search on  intervals of
+integers.
+
+The package is activated by `udi` declarations that state what is
+the argument of interest:
+
+~~~~~{.prolog}
+:- udi(diagnoses(exo_interval,?,?)).
+
+:- load_files(db, [consult(exo)]).
+~~~~~
+It is designed to optimise the following type of queries:
+
+~~~~~{.prolog}
+?- max(X, diagnoses(X, 9, Y), X).
+
+?- min(X, diagnoses(X, 9, 36211117), X).
+
+?- X #< Y, min(X, diagnoses(X, 9, 36211117), X ), diagnoses(Y, 9, _).
+~~~~~
+The first argument gives the time, the second the patient, and the
+third the condition code. The first query should find the last time
+the patient 9 had any code reported, the second looks for the first
+report of code 36211117, and the last searches for reports after this
+one. All queries run in  constant or log(n) time.
+
+
+ */
+
+/** @pred max( _X_,  _Vs_)
+First Argument is the greatest element of a list.
+
++ lex_order( _Vs_)
+All elements must be ordered.
+
+
+
+The following predicates control search:
+
+ 
+*/
+/** @pred max(+ _Expression_)
+Maximizes  _Expression_ within the current constraint store. This is
+the same as computing the supremum and equating the expression to that
+supremum.
+
+ 
+*/
+/** @pred min( _X_,  _Vs_)
+First Argument is the least element of a list.
+
+ 
+*/
+/** @pred min(+ _Expression_)
+Minimizes  _Expression_ within the current constraint store. This is
+the same as computing the infimum and equation the expression to that
+infimum.
+
+ 
+*/
 :- module(exo_interval,
 	[max/2,
 	 min/2,

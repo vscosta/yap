@@ -58,6 +58,7 @@
 		     ]).
 
 /** <module> Prolog syntax colouring support.
+@ingroup SWILibrary
 
 This module defines reusable code to colourise Prolog source.
 

@@ -1369,6 +1369,13 @@ return rval;
 
 static
 PRED_IMPL("read_term", 3, read_term, PL_FA_ISO)
+/** @pred  read_term(+ _S_,- _T_,+ _Options_) is iso
+
+Reads term  _T_ from stream  _S_ with execution controlled by the
+same options as read_term/2.
+
+ 
+*/
 { PRED_LD
 	IOSTREAM *s;
 
@@ -1390,6 +1397,40 @@ return FALSE;
 
 static
 PRED_IMPL("read_term", 2, read_term, PL_FA_ISO)
+/** @pred read_term(- _T_,+ _Options_) is iso 
+
+
+Reads term  _T_ from the current input stream with execution
+controlled by the following options:
+
++ term_position(- _Position_) 
+
+Unify  _Position_ with a term describing the position of the stream
+at the start of parse. Use stream_position_data/3 to obtain extra
+information.
+
++ singletons(- _Names_) 
+
+Unify  _Names_ with a list of the form  _Name=Var_, where
+ _Name_ is the name of a non-anonymous singleton variable in the
+original term, and `Var` is the variable's representation in
+YAP.
+The variables occur in left-to-right traversal order.
+
++ syntax_errors(+ _Val_) 
+
+Control action to be taken after syntax errors. See yap_flag/2
+for detailed information.
+
++ variables(- _Names_) 
+
+Unify  _Names_ with a list of the form  _Name=Var_, where  _Name_ is
+the name of a non-anonymous variable in the original term, and  _Var_
+is the variable's representation in YAP.
+The variables occur in left-to-right traversal order.
+
+
+*/
 { PRED_LD
 	IOSTREAM *s;
 
@@ -1498,6 +1539,13 @@ return Yap_GetFromSlot( tt PASS_REGS);
 
 static
 PRED_IMPL("atom_to_term", 3, atom_to_term, 0)
+/** @pred atom_to_term(+ _Atom_, - _Term_, - _Bindings_) 
+
+
+Use  _Atom_ as input to read_term/2 using the option `variable_names` and return the read term in  _Term_ and the variable bindings in  _Bindings_.  _Bindings_ is a list of `Name = Var` couples, thus providing access to the actual variable names. See also read_term/2. If Atom has no valid syntax, a syntax_error exception is raised.
+
+ 
+*/
 { return atom_to_term(A1, A2, A3);
 }
 

@@ -1,4 +1,15 @@
 
+/** @defgroup DBUsage Memory Usage in Prolog Data-Base
+@ingroup YAPLibrary
+@{
+
+This library provides a set of utilities for studying memory usage in YAP.
+The following routines are available once included with the
+`use_module(library(dbusage))` command.
+
+ 
+*/
+
 :- module(dbusage, [
 	db_usage/0,
 	db_static/0,
@@ -7,6 +18,13 @@
 	db_dynamic/1
     ]).
 
+/** @pred db_usage 
+
+
+Give general overview of data-base usage in the system.
+
+ 
+*/
 db_usage :-
 	statistics(heap,[HeapUsed,HeapFree]),
 	statistics(local_stack,[GInU,FreeS]),
@@ -71,9 +89,23 @@ db_usage:-
 	write(mem_dump_error),nl.
 
 
+/** @pred db_static 
+
+
+List memory usage for every static predicate.
+
+ 
+*/
 db_static :-
     db_static(-1).
 
+/** @pred db_static(+ _Threshold_)
+
+List memory usage for every static predicate. Predicate must use more
+than  _Threshold_ bytes.
+
+ 
+*/
 db_static(Min) :-
 	setof(p(Sz,M:P,Cls,CSz,ISz),
 	      PN^(current_module(M),
@@ -85,9 +117,25 @@ db_static(Min) :-
 	format(user_error,' Static user code~n===========================~n',[]),
 	display_preds(All).
 
+/** @pred db_dynamic 
+
+
+List memory usage for every dynamic predicate.
+
+ 
+*/
 db_dynamic :-
     db_dynamic(-1).
 
+/** @pred db_dynamic(+ _Threshold_)
+
+List memory usage for every dynamic predicate. Predicate must use more
+than  _Threshold_ bytes.
+
+
+
+
+ */
 db_dynamic(Min) :-
 	setof(p(Sz,M:P,Cls,CSz,ISz,ECls,ECSz,EISz),
 	      PN^(current_module(M),

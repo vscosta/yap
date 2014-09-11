@@ -6,6 +6,99 @@
 %   Purpose: define queue operations
 %   Needs  : lib(lists) for append/3.
 
+/** @defgroup Queues Queues
+@ingroup YAPLibrary
+@{
+
+The following queue manipulation routines are available once
+included with the `use_module(library(queues))` command. Queues are
+implemented with difference lists.
+
+*/
+
+/**
+
+ @pred make_queue(+ _Queue_) 
+
+
+Creates a new empty queue. It should only be used to create a new queue.
+
+ 
+*/
+
+
+/** @pred empty_queue(+ _Queue_) 
+
+
+Tests whether the queue is empty.
+
+ 
+*/
+/** @pred head_queue(+ _Queue_, ? _Head_) 
+
+
+Unifies Head with the first element of the queue.
+
+ 
+*/
+/** @pred join_queue(+ _Element_, + _OldQueue_, - _NewQueue_) 
+
+
+Adds the new element at the end of the queue.
+
+ 
+*/
+/** @pred jump_queue(+ _Element_, + _OldQueue_, - _NewQueue_) 
+
+
+Adds the new element at the front of the list.
+
+ 
+*/
+/** @pred length_queue(+ _Queue_, - _Length_) 
+
+
+Counts the number of elements currently in the queue.
+
+ 
+*/
+/** @pred list_join_queue(+ _List_, + _OldQueue_, - _NewQueue_) 
+
+
+Ads the new elements at the end of the queue.
+
+ 
+*/
+/** @pred list_jump_queue(+ _List_, + _OldQueue_, + _NewQueue_) 
+
+
+Adds all the elements of  _List_ at the front of the queue.
+
+ 
+*/
+/** @pred list_to_queue(+ _List_, - _Queue_) 
+
+
+Creates a new queue with the same elements as  _List._
+
+ 
+*/
+/** @pred queue_to_list(+ _Queue_, - _List_) 
+
+
+Creates a new list with the same elements as  _Queue_.
+
+
+
+
+ */
+/** @pred serve_queue(+ _OldQueue_, + _Head_, - _NewQueue_) 
+
+
+Removes the first element of the queue for service.
+
+ 
+*/
 :- module(queues, [
 	make_queue/1,		%   create empty queue
 	join_queue/3,		%   add element to end of queue

@@ -1877,11 +1877,54 @@ Yap_InitCPreds(void)
 {
   /* numerical comparison */
   Yap_InitCPred("set_value", 2, p_setval, SafePredFlag|SyncPredFlag);
+/** @pred  set_value(+ _A_,+ _C_) 
+
+
+Associate atom  _A_ with constant  _C_.
+
+The `set_value` and `get_value` built-ins give a fast alternative to
+the internal data-base. This is a simple form of implementing a global
+counter.
+
+~~~~~
+       read_and_increment_counter(Value) :-
+                get_value(counter, Value),
+                Value1 is Value+1,
+                set_value(counter, Value1).
+~~~~~
+This predicate is YAP specific.
+
+
+
+
+ 
+*/
   Yap_InitCPred("get_value", 2, p_value, TestPredFlag|SafePredFlag|SyncPredFlag);
+/** @pred  get_value(+ _A_,- _V_) 
+
+
+In YAP, atoms can be associated with constants. If one such
+association exists for atom  _A_, unify the second argument with the
+constant. Otherwise, unify  _V_ with `[]`.
+
+This predicate is YAP specific.
+
+ 
+*/
   Yap_InitCPred("$values", 3, p_values, SafePredFlag|SyncPredFlag);
   /* general purpose */
   Yap_InitCPred("$opdec", 4, p_opdec, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("=..", 2, p_univ, 0);
+/** @pred  _T_ =..  _L_ is iso 
+
+
+The list  _L_ is built with the functor and arguments of the term
+ _T_. If  _T_ is instantiated to a variable, then  _L_ must be
+instantiated either to a list whose head is an atom, or to a list
+consisting of just a number.
+
+ 
+*/
   Yap_InitCPred("$statistics_trail_max", 1, p_statistics_trail_max, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$statistics_heap_max", 1, p_statistics_heap_max, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$statistics_global_max", 1, p_statistics_global_max, SafePredFlag|SyncPredFlag);
@@ -1902,6 +1945,16 @@ Yap_InitCPreds(void)
   Yap_InitCPred("$set_yap_flags", 2, p_set_yap_flags, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$system_mode", 1, p_system_mode, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("abort", 0, p_abort, SyncPredFlag);
+/** @pred  abort 
+
+
+Abandons the execution of the current goal and returns to top level. All
+break levels (see break/0 below) are terminated. It is mainly
+used during debugging or after a serious execution error, to return to
+the top-level.
+
+ 
+*/
   Yap_InitCPred("$break", 1, p_break, SafePredFlag);
 #ifdef BEAM
   Yap_InitCPred("@", 0, eager_split, SafePredFlag);

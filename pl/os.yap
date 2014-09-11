@@ -8,6 +8,7 @@
  *									 *
  *************************************************************************/
 
+
 :- system_module( '$os', [ 
 	       cd/0,
 	       cd/1,
@@ -21,20 +22,52 @@
 	 ], [] ).
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
-/**
- * @short YAP core Operating system interface.
- *
+/** @defgroup YAPOS Access to Operating System Functionality
+@ingroup YAPBuiltins
+@{
+
+The following built-in predicates allow access to underlying
+Operating System functionality.
+
  */
 
+/** @pred  cd
+
+Changes the current directory (on UNIX environments) to the user's home directory.
+
+ 
+*/
 cd :-
 	cd('~').
 
+/** @pred  cd(+ _D_) 
+
+
+Changes the current directory (on UNIX environments).
+
+ 
+*/
 cd(F) :-
       absolute_file_name(F, Dir, [file_type(directory),file_errors(fail),access(execute),expand(true)]),
       working_directory(_, Dir).
 
+/** @pred  getcwd(- _D_) 
+
+
+Unify the current directory, represented as an atom, with the argument
+ _D_.
+
+ 
+*/
 getcwd(Dir) :- working_directory(Dir, Dir).
 
+/** @pred  ls 
+
+
+Prints a list of all files in the current directory.
+
+ 
+*/
 ls :-
 	getcwd(X),
 	'$load_system_ls'(X,L),
@@ -60,10 +93,51 @@ ls :-
 '$do_print_file'(F) :-
 	write(F), write('  ').
 
+/** @pred  pwd 
+
+
+Prints the current directory.
+
+ 
+*/
 pwd :-
 	getcwd(X),
 	write(X), nl.
 
+/** @pred  unix(+ _S_) 
+
+
+Access to Unix-like functionality:
+
++ argv/1
+Return a list of arguments to the program. These are the arguments that
+follow a `--`, as in the usual Unix convention.
++ cd/0
+Change to home directory.
++ cd/1
+Change to given directory. Acceptable directory names are strings or
+atoms.
++ environ/2
+If the first argument is an atom, unify the second argument with the
+value of the corresponding environment variable.
++ getcwd/1
+Unify the first argument with an atom representing the current directory.
++ putenv/2
+Set environment variable  _E_ to the value  _S_. If the
+environment variable  _E_ does not exist, create a new one. Both the
+environment variable and the value must be atoms.
++ shell/1
+Execute command under current shell. Acceptable commands are strings or
+atoms.
++ system/1
+Execute command with `/bin/sh`. Acceptable commands are strings or
+atoms.
++ shell/0
+Execute a new shell.
+
+
+ 
+*/
 unix(V) :- var(V), !,
 	'$do_error'(instantiation_error,unix(V)).
 unix(argv(L)) :- '$is_list_of_atoms'(L,L), !, '$argv'(L).
@@ -114,12 +188,34 @@ unix(putenv(X,Y)) :- '$putenv'(X,Y).
 	'$do_error'(type_error(atom,X),unix(environ(X,Y))).
 	
 
+/** @pred  putenv(+ _E_,+ _S_) 
+
+
+Set environment variable  _E_ to the value  _S_. If the
+environment variable  _E_ does not exist, create a new one. Both the
+environment variable and the value must be atoms.
+
+ 
+*/
 putenv(Na,Val) :-
 	'$putenv'(Na,Val).
 
 getenv(Na,Val) :-
 	'$getenv'(Na,Val).
 
+/** @pred setenv(+ _Name_,+ _Value_) 
+
+
+Set environment variable.   _Name_ and  _Value_ should be
+instantiated to atoms or integers.  The environment variable will be
+passed to `shell/[0-2]` and can be requested using `getenv/2`.
+They also influence expand_file_name/2.
+
+ 
+*/
 setenv(Na,Val) :-
 	'$putenv'(Na,Val).
 
+/**
+@}
+*/

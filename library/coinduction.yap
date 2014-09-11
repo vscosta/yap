@@ -8,10 +8,10 @@
 *									 *
 **************************************************************************
 *									 *
-* File:		atts.yap						 *
+* File:		coinduction.yap						 *
 * Last rev:	8/2/88							 *
 * mods:									 *
-* comments:	attribute support for Prolog				 *
+* comments:	coinduction support for Prolog				 *
 *									 *
 *************************************************************************/
 
@@ -31,6 +31,7 @@
 :- use_module(library(error)).
 
 /** <module> Co-Logic Programming
+  @ingroup YAPLibrary
 
 This simple module implements the   directive coinductive/1 as described
 in "Co-Logic Programming: Extending Logic  Programming with Coinduction"
@@ -38,7 +39,7 @@ by Luke Somin et al. The idea behind coinduction is that a goal succeeds
 if it unifies to a parent goal.  This enables some interesting programs,
 notably on infinite trees (cyclic terms).
 
-    ==
+~~~~
     :- use_module(library(coinduction)).
 
     :- coinductive stream/1. 
@@ -52,7 +53,7 @@ notably on infinite trees (cyclic terms).
      X= [s(s(A))|X], stream(X).
      A = 0,
      X = [s(s(0)),**]
-    ==
+~~~~
 
 This predicate is  true  for  any   cyclic  list  containing  only  1-s,
 regardless of the cycle-length.
@@ -162,6 +163,7 @@ writeG_val(G_var) :-
 
   Some examples from Coinductive Logic Programming and its Applications by Gopal Gupta et al, ICLP 97
 
+~~~~
 :- coinductive stream/1. 
 stream([H|T]) :- i(H), stream(T).
 
@@ -194,7 +196,8 @@ i(s(N)) :- i(N).
                 get_code(_),
                 fail.
 
-@}
+~~~~
 
-**************************************/
+@}
+*/
 

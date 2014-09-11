@@ -119,6 +119,42 @@ outof_reducer([X|Xs]) :-
 	),
 	outof_reducer(Xs).
 
+/** @pred all_distinct( _Cs_,  _Vs_)
+
+verifies whether all elements of a list are different. Also tests if
+all the sums between a list of constants and a list of variables are
+different.
+
+This is a formulation of the queens problem that uses both versions of `all_different`:
+
+~~~~~{.prolog}
+queens(N, Queens) :-
+    length(Queens, N),
+    Queens ins 1..N,
+    all_distinct(Queens),
+    foldl(inc, Queens, Inc, 0, _), % [0, 1, 2, .... ]
+    foldl(dec, Queens, Dec, 0, _), % [0, -1, -2, ... ]
+    all_distinct(Inc,Queens),
+    all_distinct(Dec,Queens),
+    labeling([], Queens).
+
+inc(_, I0, I0, I) :-
+    I is I0+1.
+
+dec(_, I0, I0, I) :-
+    I is I0-1.
+~~~~~
+
+The next example uses `all_different/1` and the functionality of the matrix package to verify that all squares in
+sudoku have a different value:
+
+~~~~~{.prolog}
+    foreach( [I,J] ins 0..2 ,
+           all_different(M[I*3+(0..2),J*3+(0..2)]) ),
+~~~~~
+
+ 
+*/
 all_distinct([], _).
 all_distinct([X|Right], Left) :-
 	\+ list_contains(Right, X),
@@ -255,6 +291,17 @@ num_subsets([S|Ss], Dom, Num0, Num) :-
 is_subset(Dom, S) :-
 	S \/ Dom =:= Dom.
 
+/** @pred attr_portray_hook(+ _AttValue_,+ _Var_) 
+
+
+
+Called by write_term/2 and friends for each attribute if the option
+`attributes(portray)` is in effect.  If the hook succeeds the
+attribute is considered printed.  Otherwise  `Module = ...` is
+printed to indicate the existence of a variable.
+
+ 
+*/
 attr_portray_hook(dom_neq(Dom,_,_), _) :-
 	Max is msb(Dom),
 	Min is lsb(Dom),

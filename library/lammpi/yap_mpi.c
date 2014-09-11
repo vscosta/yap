@@ -1026,11 +1026,40 @@ init_mpi(void) {
   YAP_UserCPredicate( "mpi_bcast", mpi_bcast,2);                           // mpi_bcast(Root,Term)
   YAP_UserCPredicate( "mpi_bcast2", mpi_bcast2,2);                         // mpi_bcast2(Root,Term)
   YAP_UserCPredicate( "mpi_bcast3", mpi_bcast3,3);                         // mpi_bcast3(Root,Term,Tag)
+/** @pred mpi_bcast3(+ _Root_, + _Data_, + _Tag_)
+
+
+Broadcasts the message  _Data_ with tag  _Tag_ from the process with rank  _Root_
+to all other processes.
+
+ 
+*/
   YAP_UserCPredicate( "mpi_ibcast", mpi_ibcast2,2);                         // mpi_ibcast(Root,Term)
   YAP_UserCPredicate( "mpi_ibcast", mpi_ibcast3,3);                         // mpi_ibcast(Root,Term,Tag)
+/** @pred mpi_ibcast(+ _Root_, + _Data_, + _Tag_) 
+
+
+
+Non-blocking operation. Broadcasts the message  _Data_ with tag  _Tag_
+from the process with rank  _Root_ to all other processes.
+
+ 
+*/
   YAP_UserCPredicate( "mpi_barrier", mpi_barrier,0);                       // mpi_barrier/0
   YAP_UserCPredicate( "mpi_gc", mpi_gc,0);                                 // mpi_gc/0
   YAP_UserCPredicate( "mpi_default_buffer_size", mpi_default_buffer_size,2);        // buffer size
+/** @pred mpi_default_buffer_size(- _OldBufferSize_, ? _NewBufferSize_) 
+
+
+
+The  _OldBufferSize_ argument unifies with the current size of the
+MPI communication buffer size and sets the communication buffer size
+ _NewBufferSize_. The buffer is used for assynchronous waiting and
+for broadcast receivers. Notice that buffer is local at each MPI
+process.
+
+ 
+*/
 #ifdef MPISTATS
   YAP_UserCPredicate( "mpi_stats", mpi_stats,7);                            // mpi_stats(-Time,#MsgsRecv,BytesRecv,MaxRecev,#MsgSent,BytesSent,MaxSent)
   YAP_UserCPredicate( "mpi_reset_stats", mpi_reset_stats,0);                // cleans the timers

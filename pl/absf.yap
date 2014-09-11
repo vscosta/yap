@@ -10,7 +10,7 @@
 
 /** @defgroup YAPAbsoluteFileName File Name Resolution
 
-   @ingroup YAPProgramming
+   @ingroup YAPBuiltins
 
   Support for file name resolution through absolute_file_name/3 and
   friends. These utility built-ins describe a list of directories that

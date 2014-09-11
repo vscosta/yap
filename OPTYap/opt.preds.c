@@ -208,6 +208,14 @@ void Yap_init_optyap_preds(void) {
   Yap_InitCPred("$c_tabling_mode", 3, p_tabling_mode, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$c_abolish_table", 2, p_abolish_table, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("abolish_all_tables", 0, p_abolish_all_tables, SafePredFlag|SyncPredFlag);
+/** @pred abolish_all_tables/0 
+
+
+Removes all the entries from the table space for all tabled
+predicates. The predicates remain as tabled predicates.
+
+ 
+*/
   Yap_InitCPred("show_tabled_predicates", 1, p_show_tabled_predicates, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$c_show_table", 3, p_show_table, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("show_all_tables", 1, p_show_all_tables, SafePredFlag|SyncPredFlag);

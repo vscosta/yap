@@ -39,6 +39,37 @@ defined  across multiple files. We next join some of these declarations.
 %
 % can only do as goal in YAP mode.
 %
+/** @pred  dynamic( + _P_ )
+
+
+Declares predicate  _P_ or list of predicates [ _P1_,..., _Pn_]
+as a dynamic predicate.  _P_ must be written as a predicate indicator, that is in form
+ _Name/Arity_ or _Module:Name/Arity_.
+
+~~~~~
+:- dynamic god/1.
+~~~~~
+
+ 
+a more convenient form can be used:
+
+~~~~~
+:- dynamic son/3, father/2, mother/2.
+~~~~~
+
+or, equivalently,
+
+~~~~~
+:- dynamic [son/3, father/2, mother/2].
+~~~~~
+
+Note:
+
+a predicate is assumed to be dynamic when 
+asserted before being defined.
+
+ 
+*/
 dynamic(X) :- '$access_yap_flags'(8, 0), !,
         '$current_module'(M),
 	'$dynamic'(X, M).

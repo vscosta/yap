@@ -15,6 +15,15 @@
 *									 *
 *************************************************************************/
 
+/** 
+
+@defgroup YAPControl Control Predicates
+@ingroup YAPBuiltins
+@{
+
+*/
+
+
 /** @pred   :_P_ , :_Q_   is iso 
 
 
@@ -130,7 +139,6 @@ arguments.
 
 /** @pred    :_Condition_ *-> :_Action_  
 
-
 This construct implements the so-called <em>soft-cut</em>. The control is
 defined as follows: If  _Condition_ succeeds at least once, the
 semantics is the same as ( _Condition_,  _Action_). If
@@ -139,7 +147,7 @@ semantics is the same as ( _Condition_,  _Action_). If
 succeeds at least once, simply behave as the conjunction of
  _Condition_ and  _Action_, otherwise execute  _Else_.
 
-The construct  _A \*-> B_, i.e. without an  _Else_ branch, is
+The construct  _A *-> B_, i.e. without an  _Else_ branch, is
 translated as the normal conjunction  _A_,  _B_.
 
  
@@ -179,7 +187,6 @@ definition:
 the same query would return only the first element of the 
 list, since backtracking could not "pass through" the cut.
 
- 
 */
 
 
@@ -292,6 +299,13 @@ private(_).
 %
 %
 %
+/** @pred  true is iso 
+
+
+Succeeds once.
+
+ 
+*/
 true :- true.
 
 '$live' :-
@@ -531,6 +545,30 @@ true :- true.
 	 fail.
  '$version'.
 
+/** @pred  repeat is iso 
+Succeeds repeatedly.
+
+In the next example, `repeat` is used as an efficient way to implement
+a loop. The next example reads all terms in a file:
+~~~~~~~~~~~~~{.prolog}
+ a :- repeat, read(X), write(X), nl, X=end_of_file, !.
+~~~~~~~~~~~~~
+the loop is effectively terminated by the cut-goal, when the test-goal
+`X=end` succeeds. While the test fails, the goals `read(X)`,
+`write(X)`, and `nl` are executed repeatedly, because
+backtracking is caught by the `repeat` goal.
+
+The built-in `repeat/0` could be defined in Prolog by:
+
+~~~~~{.prolog}
+ repeat.
+ repeat :- repeat.
+~~~~~
+
+The predicate between/3 can be used to iterate for a pre-defined
+number of steps.
+ 
+*/
  repeat :- '$repeat'.
 
  '$repeat'.
@@ -1014,8 +1052,45 @@ true :- true.
 	format(user_error,' = ~s',[V]),
 	'$write_output_vars'(VL).
 
+
+/** @pred  + _P_ is nondet
+
+The same as `call( _P_)`. This feature has been kept to provide
+compatibility with C-Prolog. When compiling a goal, YAP
+generates a `call( _X_)` whenever a variable  _X_ is found as
+a goal.
+
+~~~~~{.prolog}
+ a(X) :- X.
+~~~~~
+is converted to:
+
+~~~~~{.prolog}
+ a(X) :- call(X).
+~~~~~
+
+ 
+*/
+
+/** @pred  call(+ _P_) is iso 
+Meta-call predicate.
+
+If _P_ is instantiated to an atom or a compound term, the goal `call(
+_P_)` is executed as if the clause was originally written as _P_
+instead as call( _P_ ), except that any "cut" occurring in _P_ only
+cuts alternatives in the execution of _P_.
+
+ 
+*/
 call(G) :- '$execute'(G).
 
+/** @pred  incore(+ _P_) 
+
+
+The same as call/1.
+
+ 
+*/
 incore(G) :- '$execute'(G).
 
 %
@@ -1214,70 +1289,6 @@ not(G) :-    \+ '$execute'(G).
 	'$do_error'(type_error(callable,R),G).
 '$check_callable'(_,_).
 
-% Called by the abstract machine, if no clauses exist for a predicate
-'$undefp'([M|G]) :-
-	'$find_goal_definition'(M, G, NM, NG),
-	'$execute0'(NG, NM).
-
-'$find_goal_definition'(M, G, NM, NG) :-
-	% make sure we do not loop on undefined predicates
-        % for undefined_predicates.
-	'$enter_undefp',
-	(
-	 '$get_undefined_pred'(G, M, Goal, NM)
-	->
-	 '$exit_undefp',
-	 Goal \= fail,
-	 '$complete_goal'(M, Goal, NM, G, NG)
-	;
-	 '$find_undefp_handler'(G, M),
-	 NG = G, NM = M
-	).
-
-'$complete_goal'(M, G, CurMod, G0, NG) :-
-	  (
-	   '$is_metapredicate'(G,CurMod)
-	  ->
-	   '$meta_expansion'(G, CurMod, M, M, NG,[])
-	  ;
-	   NG = G
-	  ).
-
-'$find_undefp_handler'(G,M,NG,user) :-
-	functor(G, Na, Ar),
-	user:exception(undefined_predicate,M:Na/Ar,Action), !,
-	'$exit_undefp',
-	(
-	     Action == fail
-	 ->
-	  NG = fail
-      ;
-	 Action == retry
-     ->
-	 NG = G
-     ;
-	 Action == error
-     ->
-	 '$unknown_error'(M:G)
-     ;
-	 '$do_error'(type_error(atom, Action),M:G)
-     ).
-
-'$find_undefp_handler'(G,M) :-
-	 '$exit_undefp',
-	'$swi_current_prolog_flag'(M:unknown, Action),
-	(
-	 Action == fail
-	->
-	 fail
-	;
-	 Action == warning
-	->
-	 '$unknown_warning'(M:G),
-	 fail
-	;
-	 '$unknown_error'(M:G)
-	).
 
 '$silent_bootstrap'(F) :-
 	'$init_globals',
@@ -1394,6 +1405,20 @@ bootstrap(F) :-
 '$precompile_term'(Term, Term, Term, _, _).
 	
 
+/** @pred  expand_term( _T_,- _X_) 
+
+
+
+This predicate is used by YAP for preprocessing each top level
+term read when consulting a file and before asserting or executing it.
+It rewrites a term  _T_ to a term  _X_ according to the following
+rules: first try term_expansion/2  in the current module, and then try to use the user defined predicate
+`user:term_expansion/2`. If this call fails then the translating process
+for DCG rules is applied, together with the arithmetic optimizer
+whenever the compilation of arithmetic expressions is in progress.
+
+ 
+*/
 expand_term(Term,Expanded) :-
 	( '$do_term_expansion'(Term,Expanded)
         ->
@@ -1424,6 +1449,21 @@ expand_term(Term,Expanded) :-
 % at each catch point I need to know:
 % what is ball;
 % where was the previous catch	
+/** @pred  catch( : _Goal_,+ _Exception_,+ _Action_) is iso 
+
+
+The goal `catch( _Goal_, _Exception_, _Action_)` tries to
+execute goal  _Goal_. If during its execution,  _Goal_ throws an
+exception  _E'_ and this exception unifies with  _Exception_, the
+exception is considered to be caught and  _Action_ is executed. If
+the exception  _E'_ does not unify with  _Exception_, control
+again throws the exception.
+
+The top-level of YAP maintains a default exception handler that
+is responsible to capture uncaught exceptions.
+
+ 
+*/
 catch(G, C, A) :-
 	'$catch'(C,A,_),
 	'$$save_by'(CP0),
@@ -1451,6 +1491,16 @@ catch(G, C, A) :-
 %
 % throw has to be *exactly* after system catch!
 %
+/** @pred  throw(+ _Ball_) is iso 
+
+
+The goal `throw( _Ball_)` throws an exception. Execution is
+stopped, and the exception is sent to the ancestor goals until reaching
+a matching catch/3, or until reaching top-level.
+
+@}
+ 
+*/
 throw(_Ball) :-
 	% use existing ball
 	'$get_exception'(Ball),
@@ -1480,7 +1530,7 @@ throw(Ball) :-
 	).
 
 catch_ball(Abort, _) :- Abort == '$abort', !, fail.
-% system defined throws should be ignored by used, unless the
+% system defined throws should be ignored by user, unless the
 % user is hacking away.
 catch_ball(Ball, V) :-
 	var(V),
@@ -1508,3 +1558,98 @@ log_event( String, Args ) :-
 	format( atom( M ), String, Args),
 	log_event( M ).
 
+
+/**
+@}
+*/
+
+/** @defgroup Undefined_Procedures Handling Undefined Procedures
+@ingroup YAPControl
+@{
+
+A predicate in a module is said to be undefined if there are no clauses
+defining the predicate, and if the predicate has not been declared to be
+dynamic. What YAP does when trying to execute undefined predicates can
+be specified in three different ways:
+
+
++ By setting an YAP flag, through the yap_flag/2 or
+set_prolog_flag/2 built-ins. This solution generalizes the
+ISO standard.
++ By using the unknown/2 built-in (this solution is
+compatible with previous releases of YAP).
++ By defining clauses for the hook predicate
+`user:unknown_predicate_handler/3`. This solution is compatible
+with SICStus Prolog.
+
+
+*/
+
+% Called by the abstract machine, if no clauses exist for a predicate
+'$undefp'([M|G]) :-
+	'$find_goal_definition'(M, G, NM, NG),
+	'$execute0'(NG, NM).
+
+'$find_goal_definition'(M, G, NM, NG) :-
+	% make sure we do not loop on undefined predicates
+        % for undefined_predicates.
+	'$enter_undefp',
+	(
+	 '$get_undefined_pred'(G, M, Goal, NM)
+	->
+	 '$exit_undefp',
+	 Goal \= fail,
+	 '$complete_goal'(M, Goal, NM, G, NG)
+	;
+	 '$find_undefp_handler'(G, M),
+	 NG = G, NM = M
+	).
+
+'$complete_goal'(M, G, CurMod, G0, NG) :-
+	  (
+	   '$is_metapredicate'(G,CurMod)
+	  ->
+	   '$meta_expansion'(G, CurMod, M, M, NG,[])
+	  ;
+	   NG = G
+	  ).
+
+'$find_undefp_handler'(G,M,NG,user) :-
+	functor(G, Na, Ar),
+	user:exception(undefined_predicate,M:Na/Ar,Action), !,
+	'$exit_undefp',
+	(
+	     Action == fail
+	 ->
+	  NG = fail
+      ;
+	 Action == retry
+     ->
+	 NG = G
+     ;
+	 Action == error
+     ->
+	 '$unknown_error'(M:G)
+     ;
+	 '$do_error'(type_error(atom, Action),M:G)
+     ).
+
+'$find_undefp_handler'(G,M) :-
+	 '$exit_undefp',
+	'$swi_current_prolog_flag'(M:unknown, Action),
+	(
+	 Action == fail
+	->
+	 fail
+	;
+	 Action == warning
+	->
+	 '$unknown_warning'(M:G),
+	 fail
+	;
+	 '$unknown_error'(M:G)
+	).
+
+/**
+@}
+*/

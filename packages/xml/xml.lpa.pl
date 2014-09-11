@@ -26,9 +26,29 @@
 /* atom_codes/2, number_codes/2 and throw/1 are ISO predicates, mapped to
  * the Quintus equivalent here.
  */
+/** @pred  atom_codes(? _A_,? _L_) is iso 
+
+
+The predicate holds when at least one of the arguments is ground
+(otherwise, an error message will be displayed). The argument  _A_ will
+be unified with an atom and  _L_ with the list of the ASCII
+codes for the characters of the external representation of  _A_.
+
+ 
+*/
 atom_codes( Atom, Codes ) :-
 	atom_chars( Atom, Codes ).
 
+/** @pred  number_codes(? _A_,? _L_) is iso 
+
+
+The predicate holds when at least one of the arguments is ground
+(otherwise, an error message will be displayed). The argument  _A_
+will be unified with a number and  _L_ with the list of the ASCII
+codes for the characters of the external representation of  _A_.
+
+ 
+*/
 number_codes( Number, Codes ) :-
 	number_chars( Number, Codes ).
 
@@ -53,6 +73,14 @@ select( Element, [H|T0], [H|T1] ):-
 
 /* is_list( +List ) holds when List is a list.
  */
+/** @pred  is_list(+ _List_) 
+
+
+True when  _List_ is a proper list. That is,  _List_
+is bound to the empty list (nil) or a term with functor '.' and arity 2.
+
+ 
+*/
 is_list( List ) :-
 	nonvar( List ),
 	is_list1( List ).

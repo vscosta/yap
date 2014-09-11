@@ -39,6 +39,7 @@
 :- use_module(debug).
 
 /** <module> Examine Prolog source-files
+@ingroup SWILibrary
 
 The modile prolog_source.pl provides predicates to  open, close and read
 terms from Prolog source-files. This may  seem   easy,  but  there are a

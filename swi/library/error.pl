@@ -48,6 +48,7 @@
 :- endif.
 
 /** <module> Error generating support
+@ingroup SWILibrary
 
 This  module  provides  predicates  to  simplify  error  generation  and
 checking. It's implementation is based on a discussion on the SWI-Prolog
