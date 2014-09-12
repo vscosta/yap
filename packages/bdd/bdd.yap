@@ -6,10 +6,15 @@ This library provides an interface to the BDD package CUDD. It requires
 CUDD compiled as a dynamic library. In Linux this is available out of
 box in Fedora, but can easily be ported to other Linux
 distributions. CUDD is available in the ports OSX package, and in
-cygwin. To use it, call `:-use_module(library(bdd))`.
+cygwin. To use it, call 
+
+~~~~~
+:-use_module(library(bdd))`.
+~~~~~
 
 The following predicates construct a BDD:
 
+\toc
  
 */
 
@@ -42,27 +47,56 @@ tell_warning :-
 
 :- catch(load_foreign_files([cudd], [], init_cudd),_,fail) -> true ; tell_warning.
 
+/**
+@pred bdd_new(? _Exp_, - _BddHandle_) 
 
-% create a new BDD from a tree.
-/** @defgroup BDDs Binary Decision Diagrams and Friends
-@ingroup YAPPackages
-@{
+create a new BDD from the logical expression  _Exp_. The expression
+may include:
 
-This library provides an interface to the BDD package CUDD. It requires
-CUDD compiled as a dynamic library. In Linux this is available out of
-box in Fedora, but can easily be ported to other Linux
-distributions. CUDD is available in the ports OSX package, and in
-cygwin. To use it, call `:-use_module(library(bdd))`.
++ Logical Variables:
 
-The following predicates construct a BDD:
+    a leaf-node can be a logical variable.
 
- 
++ `0` and `1`
+
+    a leaf-node can also be bound to the two boolean constants.
+
++ `or( _X_,  _Y_)`,  `_X_ \/  _Y_`,  `_X_ +  _Y_`
+
+    disjunction
+
++ `and( _X_,  _Y_)`,  `_X_ /\  _Y_`,  `_X_ *  _Y_`
+
+    conjunction
+
++ `nand( _X_,  _Y_)`
+
+    negated conjunction@
+
++ `nor( _X_,  _Y_)`
+
+    negated disjunction
+
++ `xor( _X_,  _Y_)`
+
+    exclusive or
+
++ `not( _X_)`, or `-_X_`
+
+    negation.
+
 */
-
 bdd_new(T, Bdd) :-
 	term_variables(T, Vars),
 	bdd_new(T, Vars, Bdd).
 
+/**
+@pred bdd_new(? _Exp_, +_Vars_, - _BddHandle_) 
+
+Same as bdd_new/2, but receives a term of the form
+`vs(V1,....,Vn)`. This allows incremental construction of BDDs.
+
+*/
 bdd_new(T, Vars, cudd(M,X,VS,TrueVars)) :-
 	term_variables(Vars, TrueVars),
 	VS =.. [vs|TrueVars],
@@ -72,9 +106,7 @@ bdd_new(T, Vars, cudd(M,X,VS,TrueVars)) :-
 
 Convert a _List_ of logical expressions of the form above, that
 includes the set of free variables _Vars_, into a BDD accessible
-through _BddHandle_.
-
- 
+through _BddHandle_. 
 */
 % create a new BDD from a list.
 bdd_from_list(List, Vars, cudd(M,X,VS,TrueVars)) :-
@@ -173,8 +205,6 @@ sum
 subtraction
 + or( _X_,  _Y_),  _X_ \/  _Y_
 logical or
-
-
  
 */
 mtbdd_new(T, Mtbdd) :-

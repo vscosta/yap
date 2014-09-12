@@ -1,7 +1,6 @@
 @defgroup Syntax YAP Syntax
 @ingroup YAPProgramming
 @{
-@page YAPSyntax Syntax
 
 We will describe the syntax of YAP at two levels. We first will
 describe the syntax for Prolog terms. In a second level we describe

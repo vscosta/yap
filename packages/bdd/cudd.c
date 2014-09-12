@@ -1,4 +1,40 @@
+/** 
+@defgroup CUDD CUDD Interface 
+@ingroup BDDs
 
+   @brief Interface to the CUDD Library
+
+   CUDD represents a BDD as a tree of DdNode structures. Each tree has a manager DdManager and a list of booleaan variables, also represented as DdNode structures. Mapping from an Prolog tree to a ground BDD involves the following steps:
+
+1. Collect all logical variables in the Prolog term, and map each
+variable $V$ to a boolean variable $i$ in the BDD. This is easily done
+by having the variable as the argument argument $i$ of a Prolog
+term. The implementation uses vars_of_term/2 and =../2.
+
+2. Allocate an array of boolean variables.
+
+3. Perform a posfix visit of the Prolog term, so that a new DdNode is
+always obtained by composing its children nodes.
+
+YAP supports a few tricks:
+
++ A term of the form `cudd(_Address_)` refers to a compiled BDD. Thus,
+we can pass a BDD to another BDD, ie:
+
+~~~~~.pl
+bdd(BDD) :-
+     Vs = vs(X,Y,Z),
+     bdd_new(X+(Y*Z),Vs,BDD0), 
+     bdd_new(xor(BDD0,-(nand(X,BDD0) + nor(Y,BDD0)) ), Vs, BDD).
+~~~~~
+
+This is useful to construct complex BDDs quickly, but does not mean
+CUDD will generate better/faster code.
+
+
+2. 
+
+ */
 #include <stdio.h>
 
 #include "config.h"
@@ -857,3 +893,6 @@ init_cudd(void)
   YAP_UserCPredicate("cudd_print", p_cudd_print, 3);
 }
 
+/**
+ *@}
+ */

@@ -1,7 +1,7 @@
 
- @defgroup Threads Threads
+@defgroup Threads Threads
 @ingroup YAPExtensions
-
+@{
 
 YAP implements a SWI-Prolog compatible multithreading
 library. Like in SWI-Prolog, Prolog threads have their own stacks and
@@ -10,18 +10,10 @@ global non-backtrackable data.  The package is based on the POSIX thread
 standard (Butenhof:1997:PPT) used on most popular systems except
 for MS-Windows.
 
-
- 
-
-
- @defgroup Creating_and_Destroying_Prolog_Threads Creating and Destroying Prolog Threads
+@defgroup Creating_and_Destroying_Prolog_Threads Creating and Destroying Prolog Threads
 @ingroup Threads
 
-
-
-
- @pred thread_create(: _Goal_, - _Id_, + _Options_)
-
+@pred thread_create(: _Goal_, - _Id_, + _Options_)
 
 Create a new Prolog thread (and underlying C-thread) and start it
 by executing  _Goal_.  If the thread is created successfully, the
@@ -61,10 +53,6 @@ The  _Goal_ argument is <em>copied</em> to the new Prolog engine.
 This implies further instantiation of this term in either thread does
 not have consequences for the other thread: Prolog threads do not share
 data from their stacks.
-
- 
-
-
 
  @defgroup Monitoring_Threads Monitoring Threads
 @ingroup Threads
@@ -153,6 +141,7 @@ attributes, but the clause-list is different in each thread.
 
 
 @defgroup Thread_Synchronisation Thread Synchronisation
+@ingroup Threads
 
 All
  internal Prolog operations are thread-safe. This implies two Prolog
@@ -187,3 +176,4 @@ change_address(Id, Address) :-
 
  
 
+@}

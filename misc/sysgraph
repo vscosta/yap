@@ -1040,8 +1040,12 @@ c_links :-
     clinks(S).
 
 clinks(S) :-
+    exported( ( _-M:F/A :- _-M1:F1/A ) ),
+    format( S, ':- export( ~a:~a/~d , ~a:~a/~d ).~n', [M,F,A , M1,F1,A] ),
+    fail.
+clinks(S) :-
     node( M, P, File-Line, c(F)),
-    format( S, ':- foreign_predicate( ~q , ~q, ~q, ~d ).~n', [M:P, F, File, Line] ),
+    format( S, ':- foreign_predicate( ~q , ~q , ~q , ~d ).~n', [M:P, F, File, Line] ),
     fail.
 clinks(S) :-
     close(S).
@@ -1212,7 +1216,7 @@ preprocess_file(F,F).
 
 
 %%%%%%%
-%% declare a concept exportable
+%% declare a concept export1able
 public( F, M, op(X,Y,Z) ) :-
     retract( private( F, M:op(X,Y,Z) ) ),
     fail.

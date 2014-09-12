@@ -786,7 +786,12 @@ WARN_LOGFILE           =
 # INPUT                  = /Users/vsc/git/yap-6.3/packages/cplint/mcintyre.pl
 #INPUT = /Users/vsc/git/yap-6.3/packages/R/R.pl		
 
-INPUT = foreigns.yap docs/yap.md docs/chr.md docs/threads.md docs/syntax.md docs/clpqr.md \
+INPUT = foreigns.yap \
+      docs/yap.md \
+      docs/chr.md \
+      docs/threads.md \
+      docs/syntax.md \
+      docs/clpqr.md \
                          pl \
                          C \
                          H \

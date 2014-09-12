@@ -1,32 +1,32 @@
 	
 This file documents the YAP Prolog System version 6.3.4, a high-performance Prolog compiler developed at LIACC, Universidade do Porto. YAP is based on David H. D. Warren's WAM (Warren Abstract Machine), with several optimizations for better performance. YAP follows the Edinburgh tradition, and is largely compatible with DEC-10 Prolog, Quintus Prolog, and especially with C-Prolog.
 
-+ @subpage DownloadInstall
++ @ref DownloadInstall
 
-+ @subpage Run describes how to invoke YAP
++ @ref Run describes how to invoke YAP
 
-+ @subpage YAPLoading presents the main predicates and
++ @ref YAPLoading presents the main predicates and
     directives available to load files and to control the Prolog
     environment.
 
       + @ref YAPConsulting
       + @ref YAPModules introduces the YAP module system and meta-predicates.
 
-+ @subpage YAPBuiltins describes predicates providing core YAP
++ @ref YAPBuiltins describes predicates providing core YAP
     functionality:
 
-+ @subpage YAPExtensions presents several extensions over standard
++ @ref YAPExtensions presents several extensions over standard
     Prolog
 
-+ @subpage YAPProgramming
++ @ref YAPProgramming
 	
-+ @subpage ChYInterface
++ @ref ChYInterface
 
-+ @subpage YAPLibrary
++ @ref YAPLibrary
 
-+ @subpage  SWILibrary
++ @ref  SWILibrary
   
-+ @subpage Packages
++ @ref Packages
 		
 		
 \author Vitor Santos Costa,
@@ -125,12 +125,12 @@ authorization to include these packages.
 
 The packages are, in alphabetical order:
 
-  + The CHR package developed by Tom Schrijvers,
++ The CHR package developed by Tom Schrijvers,
 Christian Holzbaur, and Jan Wielemaker.
 
 + The CLP(BN) package and Horus toolkit developed by Tiago Gomes, and Vítor Santos Costa.
 
-  + The CLP(R) package developed by Leslie De Koninck, Bart Demoen, Tom
++ The CLP(R) package developed by Leslie De Koninck, Bart Demoen, Tom
 Schrijvers, and Jan Wielemaker, based on the CLP(Q,R) implementation
 by Christian Holzbaur.
 
@@ -138,7 +138,6 @@ by Christian Holzbaur.
 laboratory at the University of Ferrara. Please see
 
 <http://www.ing.unife.it/Docenti/FabrizioRiguzzi/>
-
 
 + The CUDA interface package developed by Carlos Martínez, Jorge
 Buenabad, Inês Dutra and Vítor Santos Costa.
@@ -150,9 +149,9 @@ Buenabad, Inês Dutra and Vítor Santos Costa.
 + The Logtalk Object-Oriented system is developed at the University 
 	of Beira Interior, Portugal, by Paulo Moura:
 
-	<http://logtalk.org/>
+    <http://logtalk.org/>
 
-	Logtalk is no longer distributed with YAP. Please use the Logtalk standalone 
+    Logtalk is no longer distributed with YAP. Please use the Logtalk standalone 
 	installer for a smooth integration with YAP.
 
 + The minisat SAT solver interface developed by Michael Codish,
@@ -184,7 +183,6 @@ Vítor Santos Costa, João Azevedo, Jan Wielemaker, and Rui Camacho.
 for more information on SWI-Prolog and the SWI packages. 
 
 @page DownloadInstall Downloading, Compiling, and Installing YAP
-
 
 The latest development version of Yap-6 is yap-6.3.4 and can be
 obtained from the repositories
@@ -577,79 +575,81 @@ yap [-s n] [-h n] [-a n] [-c IP_HOST port ] [filename]
 
 All the arguments and flags are optional and have the following meaning:
 
-  + -?
++ -?
 print a short error message.
-  + -s _Size_
++ -s _Size_
 allocate  _Size_ KBytes for local and global stacks. The user may
 specify <tt>M</tt> bytes.
-  + -h _Size_
++ -h _Size_
 allocate  _Size_ KBytes for heap and auxiliary stacks
-  + -t _Size_
++ -t _Size_
 allocate  _Size_ KBytes for the trail stack
-  + -L _Size_ 
++ -L _Size_ 
 SWI-compatible option to allocate  _Size_ K bytes for local and global stacks, the local stack
 cannot be expanded. To avoid confusion with the load option,  _Size_
 must immediately follow the letter `L`.
-  + -G _Size_
++ -G _Size_
 SWI-compatible option to allocate  _Size_ K bytes for local and global stacks; the global
 stack cannot be expanded
-  + -T _Size_
++ -T _Size_
 SWI-compatible option to allocate  _Size_ K bytes for the trail stack; the trail cannot be expanded.
-  + -l  _YAP_FILE_
++ -l  _YAP_FILE_
 compile the Prolog file  _YAP_FILE_ before entering the top-level.
-  + -L  _YAP_FILE_
++ -L  _YAP_FILE_
 compile the Prolog file  _YAP_FILE_ and then halt. This option is
 useful for implementing scripts.
-  + -g  _Goal_
++ -g  _Goal_
 run the goal  _Goal_ before top-level. The goal is converted from
 an atom to a Prolog term.
-  + -z  _Goal_
++ -z  _Goal_
 run the goal  _Goal_ as top-level. The goal is converted from
 an atom to a Prolog term.
-  + -b  _BOOT_FILE_
++ -b  _BOOT_FILE_
 boot code is in Prolog file  _BOOT_FILE_. The filename must define
 the predicate `'$live'/0`.
-  + -c <tt>IP_HOST</tt> <tt>port</tt>
++ -c <tt>IP_HOST</tt> <tt>port</tt>
 connect standard streams to host <tt>IP_HOST</tt> at port <tt>port</tt>
-  + filename
++ filename
 restore state saved in the given file
-  + -f
++ -f
 do not consult initial files
-  + -q
++ -q
 do not print informational messages
-  + --
++ --
 separator for arguments to Prolog code. These arguments are visible
-through the [unix/1](@ref unix) built-in predicate.
+through the unix/1 built-in predicate.
 
 
 Note that YAP will output an error message on the following conditions:
 
-  + 
++ 
 a file name was given but the file does not exist or is not a saved
 YAP state;
-  + 
+
++ 
 the necessary amount of memory could not be allocated;
-  + 
+
++ 
 the allocated memory is not enough to restore the state.
 
-
-When restoring a saved state, YAP will allocate the
+	
+    When restoring a saved state, YAP will allocate the
 same amount of memory as that in use when the state was saved, unless a
 different amount is specified by flags in the command line. By default,
 YAP restores the file startup.yss from the current directory or from
 the YAP library.
 
-  + 
++ 
 YAP usually boots from a saved state. The saved state will use the default
 installation directory to search for the YAP binary unless you define
 the environment variable YAPBINDIR.
 
-  + 
++ 
 YAP always tries to find saved states from the current directory
-first. If it cannot it will use the environment variable YAPLIBDIR, if
-defined, or search the default library directory.
+	first. If it cannot it will use the environment variable YAPLIBDIR, if
+	defined, or search the default library directory.
 
-  + 
++ 
 YAP will try to find library files from the YAPSHAREDIR/library
 directory.
 
@@ -746,6 +746,7 @@ they must be sent directly to the argv built-in. Hence, running
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ./dump_args test
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 will write `test` on the standard output.
 
 @defgroup YAPLoading Loading and Organising YAP Programs
@@ -768,7 +769,8 @@ Prolog programs.
 In the description of the arguments of functors the following notation
 will be used:
 
-+ a preceding plus sign will denote an argument as an "input argument" - it cannot be a free variable at the time of the call; 
++ a preceding plus sign will denote an argument as an "input
+ argument" - it cannot be a free variable at the time of the call; 
 + a preceding minus sign will denote an "output argument";
 + an argument with no preceding symbol can be used in both ways.
 
@@ -776,32 +778,31 @@ will be used:
 
 @page  Core Core Prolog Built-Ins
 
-      + @ref YAPControl 
++ @ref YAPControl 
 
-      + @ref arithmetic
++ @ref arithmetic
 
-      + @ref YAP_Terms
++ @ref YAP_Terms
 
-      + @ref  InputOutput.
++ @ref  InputOutput.
 
-      + @ref YAPOS
++ @ref YAPOS
 
-      + @ref Database
++ @ref Database
 
-      + @ref Sets
++ @ref Sets
 
-      + @ref Grammars
++ @ref Grammars
 
-      + @ref Term_Modification
++ @ref Term_Modification
 	   
-      + @ref LoadForeign
++ @ref LoadForeign
 	   
-      +  @ref Predicates_on_Atoms
-	  
-	  + @ref Deb_Preds
++ @ref Predicates_on_Atoms
+
++ @ref Deb_Preds
 
 @defgroup ChYInterface Foreign Language interface to YAP
-
 
 YAP provides the user with three facilities for writing
 predicates in a language other than Prolog. Under Unix systems,
@@ -815,135 +816,128 @@ being designed to work with the swig (@url(www.swig.org}) interface compiler.
 
 @defgroup YAPExtensions Extensions to core Prolog.
 
-@page  YAP Extensions
-
-+ @subpage Rational_Trees
++ @ref Rational_Trees
   
-+ @subpage CohYroutining
++ @ref CohYroutining
 
-+ @subpage Attributed_Variables
++ @ref Attributed_Variables
 
-+ @subpage  DepthLimited
++ @ref  DepthLimited
 
-+ @subpage  Tabling
++ @ref  Tabling
 
-+ @subpage Threads
++ @ref Threads
 
-+ @subpage Profiling
++ @ref Profiling
 
-+ @subpage YAPArrays
++ @ref YAPArrays
 
-+ @subpage Parallelism
++ @ref Parallelism
 
 @defgroup YAPLibrary The YAP Library
 
 @page  LIbrary The YAP Library
 
-      + @subpage maplist introduces macros to apply an operation over
++  @ref maplist introduces macros to apply an operation over
           all elements of a list
 
-      + @subpage Apply Apply Macros
++  @ref Apply Apply Macros
 		
-      + @subpage Association_Lists Association Lists
++  @ref Association_Lists Association Lists
 		
-      + @subpage AVL_Trees AVL Trees
++  @ref AVL_Trees AVL Trees
 		
-      + @subpage  Exo_Intervals Exo Intervals
++  @ref  Exo_Intervals Exo Intervals
 		
-      + @subpage Heaps Heaps
++  @ref Heaps Heaps
 		
-      + @subpage Lists List Manipulation 
++  @ref Lists List Manipulation 
 		
-      + @subpage LineUtilities Line Manipulation Utilities
++  @ref LineUtilities Line Manipulation Utilities
 		
-      + @subpage matrix Matrix Library
++  @ref matrix Matrix Library
 		
-      + @subpage NonhYBacktrackable_Data_Structures Non-Backtrackable Data Structures
++  @ref NonhYBacktrackable_Data_Structures Non-Backtrackable Data Structures
 		
-      + @subpage Ordered_Sets Ordered Sets
++  @ref Ordered_Sets Ordered Sets
 		
-      + @subpage Pseudo_Random Pseudo Random Number Integer Generator
++  @ref Pseudo_Random Pseudo Random Number Integer Generator
 		
-      + @subpage Queues Queues
++  @ref Queues Queues
 		
-      + @subpage Random Random Number Generator
++  @ref Random Random Number Generator
 		
-      + @subpage RedhYBlack_Trees Red-Black Trees
++  @ref RedhYBlack_Trees Red-Black Trees
 		
-      + @subpage RegExp Regular Expressions
++  @ref RegExp Regular Expressions
 		
-      + @subpage Splay_Trees Splay Trees
++  @ref Splay_Trees Splay Trees
 		
-      + @subpage System Calling The Operating System from YAP
++  @ref System Calling The Operating System from YAP
 		
-      + @subpage Terms Utilities On Terms
++  @ref Terms Utilities On Terms
 		
-      + @subpage Tries Trie DataStructure
++  @ref Tries Trie DataStructure
 		
-      + @subpage Cleanup Call Cleanup
++  @ref Cleanup Call Cleanup
 		
-      + @subpage Timeout Calls With Timeout
++  @ref Timeout Calls With Timeout
 		
-      + @subpage Trees Updatable Binary Trees
++  @ref Trees Updatable Binary Trees
 		
-      + @subpage UGraphs Unweighted Graphs
++  @ref UGraphs Unweighted Graphs
 		
-      + @subpage DGraphs Directed Graphs
++  @ref DGraphs Directed Graphs
 		
-      + @subpage UnDGraphs Undirected Graphs
++  @ref UnDGraphs Undirected Graphs
 		
-      + @subpage DBUsage Memory Usage in Prolog Data-Base
++  @ref DBUsage Memory Usage in Prolog Data-Base
 		
-      + @subpage Lambda Lambda Expressions
++  @ref Lambda Lambda Expressions
 		
-      + @subpage Block_Diagram Block Diagram
++  @ref Block_Diagram Block Diagram
 		
-      + @subpage  Invoking_Predicates_on_all_Members_of_a_List Invoking Predicates on all Members of a List
++  @ref  Invoking_Predicates_on_all_Members_of_a_List Invoking Predicates on all Members of a List
 
 @defgroup YAPProgramming Programming in YAP
 
 @page  Programming Programming in YAP
 
-  + @subpage Syntax
+  + @ref Syntax
 
-  + @subpage Indexing
+  + @ref Indexing
 
-  + @subpage Deb_Interaction
-
+  + @ref Deb_Interaction
 
 @defgroup SWILibrary  SWI-Prolog Libraries and Packages
 
 @page  SWI The SWI-Prolog Library and Packages
 
-
-+ @subpage Read_Utilities Read Utilities
++ @ref Read_Utilities Read Utilities
 		
-+ @subpage shlib SWI-Prolog's shlib library
++ @ref shlib SWI-Prolog's shlib library
 
-+ @subpage Lambda Lambda Expressions
++ @ref Lambda Lambda Expressions
 
-+ archive
++ @ref archive
 
-+ @subpage CHR
++ @ref CHR
 		
-+ @subpage CLPQR
++ @ref CLPQR
 		
-+ zlib
++ @ref zlib
 
 @defgroup YAPPackages The YAP packages
 
 @page  Packages The YAP Packages
 
-+ @subpage REAL
++ @ref REAL
 		
-+ @subpage BDDs
++ @ref BDDs
 		
-+ @subpage  Gecode
++ @ref  Gecode
 
-+ @subpage  MYDDAS
-		
-
-
++ @ref  MYDDAS
 
 @page Compatibility Compatibility with Other Prolog systems
 

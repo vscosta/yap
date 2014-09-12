@@ -1,7 +1,10 @@
 
-@section CHR CHR: Constraint Handling Rules 
+@defgroup CHR CHR: Constraint Handling Rules 
+
 @ingroup SWILibrary
+
 @{
+
 This chapter is written by Tom Schrijvers, K.U. Leuven for the hProlog
 system. Adjusted by Jan Wielemaker to fit the SWI-Prolog documentation
 infrastructure and remove hProlog specific references.
@@ -97,9 +100,7 @@ the arrow (either `<=>` or `==>`)
 
 @}
  
-
-
- @defgroup Semantics Semantics
+@defgroup Semantics Semantics
 @ingroup CHR_Syntax_and_Semantics
 @{
 
@@ -136,7 +137,7 @@ or another variable involved in one or more constraints. In that case the
 constraint is triggered, i.e. it becomes an active constraint and all
 the rules are tried.
 
-
+@}
  
 
 
@@ -169,16 +170,14 @@ constraints are not called in the body.
 
  @defgroup CHR_Rule_Names Rule Names
 @ingroup CHR_Rule_Types
-@{
+
 
 Naming a rule is optional and has no semantical meaning. It only functions
 as documentation for the programmer.
 
+@}
 
- 
-
-
- @defgroup CHRPragmas Pragmas
+@defgroup CHRPragmas Pragmas
 @ingroup CHR
 @{
 
@@ -192,10 +191,10 @@ passive constraint in that rule.
 Additional pragmas may be released in the future.
 
 
- 
+@} 
 
 
- @defgroup CHR_Options Options
+@defgroup CHR_Options Options
 @ingroup CHR
 @{
 
@@ -300,7 +299,7 @@ for backward compatibility. The new syntax is described below.
  
 @}
 
- @defgroup CHR_in_YAP_Programs CHR in Prolog Programs	
+@defgroup CHR_in_YAP_Programs CHR in Prolog Programs	
 @ingroup CHR
 @{
 
@@ -310,10 +309,8 @@ associated with a module. The default module is `user`. One should
 never load different chr files with the same CHR module name.
 
 
- 
 
-
- @defgroup Constraint_declaration Constraint declaration
+@defgroup Constraint_declaration Constraint Declarations
 @ingroup CHR_in_YAP_Programs
 @{
 
@@ -337,8 +334,8 @@ The new style is as follows:
  
 
 
- @defgroup Compilation Compilation
-@ingroup CHR_in_YAP
+@defgroup Compilation Compilation
+@ingroup CHR_in_YAP_Programs
 
 The
  SWI-Prolog CHR compiler exploits term_expansion/2 rules to translate
@@ -371,7 +368,7 @@ leak into modules where they might cause conflicts.
 
 
  @defgroup CHR_Debugging CHR Debugging
-@ingroup CHR_in_YAP
+@ingroup CHR_in_YAP_Programs
 @{
 
 
@@ -382,11 +379,7 @@ controlled by the CHR option debug, whose default is derived
 from the SWI-Prolog flag `generate_debug_info`.  Therefore debug
 info is provided unless the `-nodebug` is used.
 
-
- 
-
-
- @defgroup Ports Ports
+@defgroup Ports Ports
 @ingroup CHR_Debugging
 
 
@@ -423,12 +416,7 @@ An active constraints commits to a rule with possibly
 some passive constraints. The apply port is entered
 just after committing to the rule.
 
-
-
- 
-
-
- @defgroup Tracing Tracing
+@defgroup Tracing Tracing
 @ingroup CHR_Debugging
 
 
@@ -490,11 +478,11 @@ Activate the CHR tracer.  By default the CHR tracer is activated and
 deactivated automatically by the Prolog predicates trace/0 and
 notrace/0.
 
- @}
+@}
 
 
 
- @defgroup CHR_Examples Examples
+@defgroup CHR_Examples Examples
 @ingroup CHR
 @{
 
@@ -618,4 +606,12 @@ Make sure to disable debug (`-nodebug`) and enable optimization
 @}
 
  
+@}
+
+@}
+
+@}
+
+@}
+
 @}

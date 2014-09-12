@@ -495,7 +495,8 @@
 
 @file absmi.c
 
-@page Efficiency Efficiency Considerations
+@defgroup Efficiency Efficiency Considerations
+@ingroup YAPProgramming
 
 We next discuss several issues on trying to make Prolog programs run
 fast in YAP. We assume two different programming styles:
@@ -508,10 +509,6 @@ loop(Env) :-
         do_something(Env,NewEnv),
         loop(NewEnv).
 ~~~~~
-
-
-
-
  */
 
 

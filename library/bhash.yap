@@ -103,7 +103,7 @@ fetch_key(Keys, Index, Size, Key, CmpF, ActualIndex) :-
 	    fetch_key(Keys, I1, Size, Key, CmpF, ActualIndex)
 	).
 
-/** b_hash_size_lookup( +_Key_, +_Hash_, +NewVal )
+/** b_hash_update( +_Key_, +_Hash_, +NewVal )
 
 Update to the value associated with the ground term _Key_ in table _Hash_ to _NewVal_.
 */
@@ -114,11 +114,11 @@ b_hash_update(Hash, Key, NewVal):-
 	array_element(Vals, ActualIndex, Mutable),
 	update_mutable(NewVal, Mutable).
 
-/** b_hash_size_lookup( +_Key_, -_OldVal_, +_Hash_, +NewVal )
+/** b_hash_update( +_Key_, -_OldVal_, +_Hash_, +NewVal )
 
 Update to the value associated with the ground term _Key_ in table _Hash_ to _NewVal_, and unify _OldVal_ with the current value.
 */
-b_hash_update(Hash, Key, OldVal, NewVal):-§
+b_hash_update(Hash, Key, OldVal, NewVal):-
 	Hash = hash(Keys, Vals, Size, _, F, CmpF),
 	hash_f(Key,Size,Index,F),
 	fetch_key(Keys, Index, Size, Key, CmpF, ActualIndex),
