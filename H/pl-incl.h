@@ -767,7 +767,7 @@ COMMON(int)		PL_qualify(term_t raw, term_t qualified);
 
 static inline word
 setBoolean(bool *flag, term_t old, term_t new)
-{ int fl = *flag; if ( !PL_unify_bool_ex(old, &fl) ||
+{ int fl = *flag; if ( !PL_unify_bool_ex(old, fl) ||
        !PL_get_bool_ex(new, &fl) )
     fail;
   *flag = fl;

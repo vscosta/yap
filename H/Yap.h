@@ -104,7 +104,7 @@
 
 typedef int _Bool;
 
-#typedef bool _Bool;
+#define bool _Bool;
 
 #define false 0
 #define true 1

@@ -125,8 +125,8 @@ PL_get_size_ex(term_t t, size_t *i)
 
 
 int
-PL_get_bool_ex(term_t t, int *i)
-{ if ( PL_get_bool(t, i) )
+PL_get_bool_ex(term_t t, int *ip)
+{ if ( PL_get_bool(t, ip) )
     succeed;
 
   return PL_error(NULL, 0, NULL, ERR_TYPE, ATOM_bool, t);
@@ -209,7 +209,7 @@ PL_get_module_ex(term_t name, module_t *m)
 int
 PL_unify_bool_ex(term_t t, int val)
 { GET_LD
-  bool v;
+  int v;
 
   if ( PL_is_variable(t) )
     return PL_unify_atom(t, val ? ATOM_true : ATOM_false);

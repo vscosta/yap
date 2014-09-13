@@ -583,10 +583,7 @@ yes
 
 
 
- @pred db_describe(+).
-
-
-
+ @pred db_describe(+)
 
 The `db_describe/3` predicate does the same action as
 db_datalog_describe/2 predicate but with one major

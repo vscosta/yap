@@ -901,8 +901,6 @@ being designed to work with the swig (@url(www.swig.org}) interface compiler.
 
 @defgroup YAPProgramming Programming in YAP
 
-@page  Programming Programming in YAP
-
   + @ref Syntax
 
   + @ref Indexing
@@ -910,8 +908,6 @@ being designed to work with the swig (@url(www.swig.org}) interface compiler.
   + @ref Deb_Interaction
 
 @defgroup SWILibrary  SWI-Prolog Libraries and Packages
-
-@page  SWI The SWI-Prolog Library and Packages
 
 + @ref Read_Utilities Read Utilities
 		
@@ -921,9 +917,9 @@ being designed to work with the swig (@url(www.swig.org}) interface compiler.
 
 + @ref archive
 
-+ @ref CHR
++ @ref chr
 		
-+ @ref CLPQR
++ @ref clpr
 		
 + @ref zlib
 
@@ -931,13 +927,26 @@ being designed to work with the swig (@url(www.swig.org}) interface compiler.
 
 @page  Packages The YAP Packages
 
-+ @ref REAL
++ @ref real
 		
 + @ref BDDs
 		
 + @ref  Gecode
 
 + @ref  MYDDAS
+
+@defgroup http The SWI The SWI http packages
+
+Tthe package HTTP is a series of libraries developed by Jan Wielmaker
+and the SWI-Prolog community for accessing and serving data on the
+web. It supports lower-level transport protocols, but also
+data-representation primitives, and more. 
+
+The port to YAP focussed on the client-side support. The server
+package has not been as widely tested.
+
+
+\toc
 
 @page Compatibility Compatibility with Other Prolog systems
 
