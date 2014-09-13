@@ -155,17 +155,24 @@ defines all new or redefined predicates to be public.
 	'$flags'(T,Mod,F,NF).
 
 
-/** @pred     multifile) _P_ ) is iso
-A predicate that may be defined in several files.
+/** @pred     multifile( _P_ ) is iso
+
+Declares that a predicate or several predicates may be defined
+throughout several files. _P_ is a collection of one or more predicate
+indicators:
+
+~~~~~~~
+:- multifile user:portray_message/2, multifile user:message_hook/3.
+~~~~~~~
 
 Instructs the compiler about the declaration of a predicate  _P_ in
 more than one file. It must appear in the first of the loaded files
 where the predicate is declared, and before declaration of any of its
 clauses.
 
-Multifile declarations affect [reconsult/1](@ref reconsult) and [compile/1](@ref compile):
-when a multifile predicate is reconsulted, only the clauses from the
-same file are removed.
+Multifile declarations must be supported by reconsult/1 and
+compile/1: when a multifile predicate is reconsulted,
+only the clauses from the same file are removed.
 
 Since YAP4.3.0 multifile procedures can be static or dynamic.
 
@@ -197,14 +204,6 @@ multifile(P) :-
 '$multifile'(P, M) :-
 	'$do_error'(type_error(predicate_indicator,P),multifile(M:P)).
 
-/** @pred no_style_check(+ _X_)
-Turns off style checking according to the attribute specified by
- _X_, which has the same meaning as in style_check/1.
-
-The no_style_check/1 built-in is now deprecated. Please use 
-`set_prolog_flag/1` instead.
-
-**/
 discontiguous(V) :-
 	var(V), !,
 	'$do_error'(instantiation_error,discontiguous(V)).

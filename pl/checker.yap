@@ -74,6 +74,20 @@
 @defgroup   YAPStyle Checker
     @ingroup  YAPCompilerSettings
 
+YAP implements a style-checker thay currently verifies whether:
+
+1 named variables occur once in a clause.
+
+2 clauses from dofferent predicates are mixed together.
+
+3 clauses for the same predicate occur in different files.
+
+One can declare a predicate to be discontiguous (see the
+discontiguous/1 declaration) and/or multifile/1.
+
+*/
+
+/*
 @pred style_check(+ _X_)
 
 Turns on style checking according to the attribute specified by  _X_,
@@ -174,6 +188,15 @@ style_check_('?'(Info) ) :-
 style_check_([]).
 style_check_([H|T]) :- style_check(H), style_check(T).
 
+/** @pred no_style_check(+ _X_)
+
+Turns off style checking according to the attribute specified by
+ _X_, which have the same meaning as in style_check/1.
+
+The no_style_check/1 built-in is now deprecated. Please use 
+`set_prolog_flag/1` instead.
+
+**/
 no_style_check(V) :- var(V), !, fail.
 no_style_check(all) :-
 	'$style_checker'( [ -singleton, -discontiguous, -multiple ] ).
