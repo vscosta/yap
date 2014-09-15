@@ -15,6 +15,11 @@
 *									 *
 *************************************************************************/
 
+/**
+ @groupdef PseudoRandom Van Gelder Random Number Generator
+ @ingroup YAPBuiltins
+ @{
+*/
 
 % The following code produces the same random numbers as my previous 
 % ranpkg.pl, but is more accurately documented and slightly more 
@@ -137,3 +142,4 @@ ranunif(Range, Unif) :-
 	Unif is (Raw * Range) >> (Wsize-1).
 
 
+/%%! @}

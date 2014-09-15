@@ -789,6 +789,7 @@ WARN_LOGFILE           =
 INPUT = foreigns.yap \
       docs/yap.md \
                          pl \
+			 swi \
                          C \
                          H \
                          include \

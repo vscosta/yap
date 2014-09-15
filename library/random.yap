@@ -22,7 +22,7 @@
 %   version which yields 15-bit random integers using only integer
 %   arithmetic.
  
-/** @defgroup Random Random Number Generator
+/** @defgroup Pseudo_Random Random Number Generator
 @ingroup YAPLibrary
 @{
 

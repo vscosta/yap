@@ -835,69 +835,64 @@ being designed to work with the swig (@url(www.swig.org}) interface compiler.
 
 @page  LIbrary The YAP Library
 
-+  @ref maplist introduces macros to apply an operation over
-          all elements of a list
++  @ref maplist
 
 +  @ref Apply Apply Macros
 		
-+  @ref Association_Lists Association Lists
++  @ref Association_Lists 
 		
-+  @ref AVL_Trees AVL Trees
++  @ref AVL_Trees 
 		
-+  @ref  Exo_Intervals Exo Intervals
++  @ref  Exo_Intervals
 		
-+  @ref Heaps Heaps
++  @ref Heaps 
 		
-+  @ref Lists List Manipulation 
++  @ref Lists
 		
-+  @ref LineUtilities Line Manipulation Utilities
++  @ref LineUtilities
 		
-+  @ref matrix Matrix Library
++  @ref matrix 
 		
-+  @ref NonhYBacktrackable_Data_Structures Non-Backtrackable Data Structures
++  @ref NonhYBacktrackable_Data_Structures 
 		
-+  @ref Ordered_Sets Ordered Sets
++  @ref Ordered_Sets 
 		
-+  @ref Pseudo_Random Pseudo Random Number Integer Generator
++  @ref Pseudo_Random 
 		
 +  @ref Queues Queues
 		
-+  @ref Random Random Number Generator
++  @ref PseudoRandom
 		
-+  @ref RedhYBlack_Trees Red-Black Trees
++  @ref RedhYBlack_Trees
 		
-+  @ref RegExp Regular Expressions
-		
-+  @ref Splay_Trees Splay Trees
-		
-+  @ref System Calling The Operating System from YAP
-		
-+  @ref Terms Utilities On Terms
-		
-+  @ref Tries Trie DataStructure
-		
-+  @ref Cleanup Call Cleanup
-		
-+  @ref Timeout Calls With Timeout
-		
-+  @ref Trees Updatable Binary Trees
-		
-+  @ref UGraphs Unweighted Graphs
-		
-+  @ref DGraphs Directed Graphs
-		
-+  @ref UnDGraphs Undirected Graphs
-		
-+  @ref DBUsage Memory Usage in Prolog Data-Base
-		
-+  @ref Lambda Lambda Expressions
-		
-+  @ref Block_Diagram Block Diagram
-		
-+  @ref Lambda
++  @ref RegExp
 
-+  @ref  Invoking_Predicates_on_all_Members_of_a_List Invoking Predicates on all Members of a List
-
++  @ref Splay_Trees 
+		
++  @ref System 
+		
++  @ref Terms 
+		
++  @ref Tries 
+		
++  @ref Cleanup 
+		
++  @ref Timeout
+		
++  @ref Trees
+		
++  @ref UGraphs
+		
++  @ref DGraphs 
+		
++  @ref UnDGraphs
+		
++  @ref DBUsage
+		
++  @ref lambda 
+		
++  @ref Block_Diagram 
+		
 @defgroup YAPProgramming Programming in YAP
 
 @page  Programming Programming in YAP
@@ -912,7 +907,7 @@ being designed to work with the swig (@url(www.swig.org}) interface compiler.
 
 @page  SWICode The SWI-Prolog Libraries and Packages
 
-+ @ref aggregates
++ @ref aggregate
 
 + @ref date
 		

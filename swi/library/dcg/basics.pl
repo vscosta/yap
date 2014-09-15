@@ -62,6 +62,7 @@
 
 
 /** <module> Various general DCG utilities
+@ingroup SWILibrary
 
 This library provides various commonly  used   DCG  primitives acting on
 list  of  character  *codes*.  Character   classification  is  based  on
