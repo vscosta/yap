@@ -17,6 +17,97 @@
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
+
+/**
+
+@defgroup Syntax YAP Syntax
+@ingroup YAPProgramming
+@{
+
+We will describe the syntax of YAP at two levels. We first will
+describe the syntax for Prolog terms. In a second level we describe
+the \a tokens from which Prolog \a terms are
+built.
+
+@defgroup Formal_Syntax Syntax of Terms
+@ingroup Syntax
+@{
+
+Below, we describe the syntax of YAP terms from the different
+classes of tokens defined above. The formalism used will be <em>BNF</em>,
+extended where necessary with attributes denoting integer precedence or
+operator type.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ term       ---->     subterm(1200)   end_of_term_marker
+
+ subterm(N) ---->     term(M)         [M <= N]
+
+ term(N)    ---->     op(N, fx) subterm(N-1)
+             |        op(N, fy) subterm(N)
+             |        subterm(N-1) op(N, xfx) subterm(N-1)
+             |        subterm(N-1) op(N, xfy) subterm(N)
+             |        subterm(N) op(N, yfx) subterm(N-1)
+             |        subterm(N-1) op(N, xf)
+             |        subterm(N) op(N, yf)
+
+ term(0)   ---->      atom '(' arguments ')'
+             |        '(' subterm(1200)  ')'
+             |        '{' subterm(1200)  '}'
+             |        list
+             |        string
+             |        number
+             |        atom
+             |        variable
+
+ arguments ---->      subterm(999)
+             |        subterm(999) ',' arguments
+
+ list      ---->      '[]'
+             |        '[' list_expr ']'
+
+ list_expr ---->      subterm(999)
+             |        subterm(999) list_tail
+
+ list_tail ---->      ',' list_expr
+             |        ',..' subterm(999)
+             |        '|' subterm(999)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Notes:
+
+   + \a op(N,T) denotes an atom which has been previously declared with type
+      \a T and base precedence \a N.
+
+  + Since ',' is itself a pre-declared operator with type \a xfy and
+       precedence 1000, is \a subterm starts with a '(', \a op must be
+       followed by a space to avoid ambiguity with the case of a functor
+       followed by arguments, e.g.:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++ (a,b)        [the same as '+'(','(a,b)) of arity one]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      versus
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++(a,b)         [the same as '+'(a,b) of arity two]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  + 
+In the first rule for term(0) no blank space should exist between
+\a atom and '('.
+
+  + 
+Each term to be read by the YAP parser must end with a single
+dot, followed by a blank (in the sense mentioned in the previous
+paragraph). When a name consisting of a single dot could be taken for
+the end of term marker, the ambiguity should be avoided by surrounding the
+dot with single quotes.
+
+@}
+
+*/
+
 /*
  * Description: 
  *

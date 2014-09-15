@@ -22,7 +22,8 @@
 @ingroup Attributed_Variables
 @{
 
-Old style attribute declarations are activated through loading the library <tt>atts</tt> . The command
+Old style attribute declarations are activated through loading the
+library <tt>atts</tt> . The command
 
 ~~~~~
 | ?- use_module(library(atts)).

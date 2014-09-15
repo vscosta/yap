@@ -5,16 +5,17 @@
 
 /** 
 
-@defgroup system
-
-@file swi.yap
-
-@page SWIhYProlog_Emulation SWI-Prolog Emulation
+@defgroup System SWI Dialect SupportXS
 
 This library provides a number of SWI-Prolog builtins that are not by
 default in YAP. This support is loaded with the
-`expects_dialect(swi)` command.
+~~~~~
+expects_dialect(swi)
+~~~~~
 
+ command.
+
+@{
 
 */
 
@@ -24,14 +25,6 @@ default in YAP. This support is loaded with the
 Unify the last modification time of  _File_ with
  _Time_.  _Time_ is a floating point number expressing the seconds
 elapsed since Jan 1, 1970.
-
- 
-*/
-/** @pred chdir(+ _Dir_) 
-
-
-
-Compatibility predicate.  New code should use working_directory/2.
 
  
 */
@@ -46,29 +39,7 @@ allowing for variables in the list.
 
  
 */
-/** @pred concat_atom(? _List_,+ _Separator_,? _Atom_)
 
-
-Creates an atom just like concat_atom/2, but inserts  _Separator_
-between each pair of atoms.  For example:
-
-~~~~~
-?- concat_atom([gnu, gnat], ', ', A).
-
-A = 'gnu, gnat'
-~~~~~
-
-(Unimplemented) This predicate can also be used to split atoms by
-instantiating  _Separator_ and  _Atom_:
-
-~~~~~
-?- concat_atom(L, -, 'gnu-gnat').
-
-L = [gnu, gnat]
-~~~~~
-
- 
-*/
 :- module(system, [concat_atom/2,
 		   concat_atom/3,
 		   read_clause/1,
@@ -215,7 +186,29 @@ user:file_search_path(foreign, swi(ArchLib)) :-
         atom_concat('lib/', Arch, ArchLib).
 user:file_search_path(foreign, swi(lib)).
 
+/** @pred concat_atom(? _List_,+ _Separator_,? _Atom_)
 
+
+Creates an atom just like concat_atom/2, but inserts  _Separator_
+between each pair of atoms.  For example:
+
+~~~~~
+?- concat_atom([gnu, gnat], ', ', A).
+
+A = 'gnu, gnat'
+~~~~~
+
+(Unimplemented) This predicate can also be used to split atoms by
+instantiating  _Separator_ and  _Atom_:
+
+~~~~~
+?- concat_atom(L, -, 'gnu-gnat').
+
+L = [gnu, gnat]
+~~~~~
+
+ 
+*/
 concat_atom([A|List], Separator, New) :- var(List), !,
 	atom_codes(Separator,[C]),
 	atom_codes(New, NewChars),
@@ -254,6 +247,10 @@ cvt_bindings([[Name|Value]|L],[AName=Value|Bindings]) :-
 	atom_codes(AName, Name),
 	cvt_bindings(L,Bindings).
 
+/** @pred chdir(+ _Dir_) 
+
+Compatibility predicate.  New code should use working_directory/2.
+*/
 chdir(X) :- cd(X).
 
 %%	convert_time(+Stamp, -String)
@@ -342,4 +339,6 @@ required_predicate(Na/Ar, M) :-
          autoloader:find_predicate(G, _)
 	).
 
-
+/**
+@}
+*/

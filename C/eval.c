@@ -191,6 +191,7 @@ BEAM_is(void)
 #endif
 
 /**
+@{
    @pred is( X:number, + Y:ground) is det
 
    This predicate succeeds iff the result of evaluating the expression
@@ -201,8 +202,11 @@ X is 2+3*4
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     succeeds with `X = 14`.
 
+    Consult @ref arithmetic_operators for the complete list of arithmetic_operators 
+
 */
 
+/// @memberof is/2
 static Int
 p_is( USES_REGS1 )
 {				/* X is Y	 */
@@ -223,15 +227,18 @@ p_is( USES_REGS1 )
   return Yap_unify_constant(ARG1,out);
 }
 
+//@}
+
 /**
  @pred isnan(? X:float) is det
 
    Interface to the IEE754 `isnan` test.
 */
 
+/// @memberof isnan/1
 static Int
 p_isnan( USES_REGS1 )
-{				/* X is Y	 */
+{				/* X isnan Y	 */
   Term out = 0L;
   
   while (!(out = Eval(Deref(ARG1) PASS_REGS))) {
@@ -263,7 +270,7 @@ p_isnan( USES_REGS1 )
    Interface to the IEE754 `isinf` test.
 */
 
-
+/// @memberof isnan/1
 static Int
 p_isinf( USES_REGS1 )
 {                               /* X is Y        */
@@ -293,13 +300,15 @@ p_isinf( USES_REGS1 )
 }
 
 /**
-   @pred logsum(+ Log1:float, + Log2:float, - Out:float ) is det
+@{   @pred logsum(+ Log1:float, + Log2:float, - Out:float ) is det
 
 True if  _Log1_ is the logarithm of the positive number  _A1_,
  _Log2_ is the logarithm of the positive number  _A2_, and
  _Out_ is the logarithm of the sum of the numbers  _A1_ and
  _A2_. Useful in probability computation.
 */
+
+/// @memberof logsum/3
 static Int
 p_logsum( USES_REGS1 )
 {                               /* X is Y        */
@@ -372,6 +381,8 @@ p_logsum( USES_REGS1 )
   }
 }
 
+// @}
+
 Int
 Yap_ArithError(yap_error_number type, Term where, char *format,...)
 {
@@ -413,6 +424,7 @@ Yap_ArithError(yap_error_number type, Term where, char *format,...)
 
 */
 
+/// @memberof between/3
 static Int cont_between( USES_REGS1 )
 {
   Term t1 = EXTRA_CBACK_ARG(3,1);
@@ -447,6 +459,7 @@ static Int cont_between( USES_REGS1 )
   }
 }
 
+/// @memberof between/3
 static Int
 init_between( USES_REGS1 )
 {
@@ -542,6 +555,11 @@ init_between( USES_REGS1 )
   return cont_between( PASS_REGS1 );
 }
 
+/**
+ *
+ * @}
+*/
+
 void
 Yap_InitEval(void)
 {
@@ -554,20 +572,6 @@ Yap_InitEval(void)
   Yap_InitCPred("isinf", 1, p_isinf, TestPredFlag);
   Yap_InitCPred("logsum", 3, p_logsum, TestPredFlag);
   Yap_InitCPredBack("between", 3, 2, init_between, cont_between, 0);
-/** @pred between(+ _Low_,+ _High_,? _Value_) 
-
-
-
- _Low_ and  _High_ are integers,  _High_ less or equal than
- _Low_. If  _Value_ is an integer,  _Low_ less or equal than
- _Value_ less or equal than  _High_.  When  _Value_ is a
-variable it is successively bound to all integers between  _Low_ and
- _High_.  If  _High_ is `inf`, between/3 is true iff
- _Value_ less or equal than  _Low_, a feature that is particularly
-interesting for generating integers from a certain value.
-
- 
-*/
 }
 
 /**

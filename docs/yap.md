@@ -3,20 +3,13 @@ This file documents the YAP Prolog System version 6.3.4, a high-performance Prol
 
 + @ref DownloadInstall
 
-+ @ref Run describes how to invoke YAP
++ @ref Run
 
-+ @ref YAPLoading presents the main predicates and
-    directives available to load files and to control the Prolog
-    environment.
++ @ref YAPLoading
 
-      + @ref YAPConsulting
-      + @ref YAPModules introduces the YAP module system and meta-predicates.
++ @ref YAPBuiltins
 
-+ @ref YAPBuiltins describes predicates providing core YAP
-    functionality:
-
-+ @ref YAPExtensions presents several extensions over standard
-    Prolog
++ @ref YAPExtensions
 
 + @ref YAPProgramming
 	
@@ -782,9 +775,11 @@ will be used:
 
 + @ref arithmetic
 
++ @ref YAPChars
+
 + @ref YAP_Terms
 
-+ @ref  InputOutput.
++ @ref  YAP_InputOutput
 
 + @ref YAPOS
 
@@ -816,7 +811,7 @@ being designed to work with the swig (@url(www.swig.org}) interface compiler.
 
 @defgroup YAPExtensions Extensions to core Prolog.
 
-+ @ref Rational_Trees
++@ref Rational_Trees
   
 + @ref CohYroutining
 
@@ -901,6 +896,8 @@ being designed to work with the swig (@url(www.swig.org}) interface compiler.
 
 @defgroup YAPProgramming Programming in YAP
 
+@page  Programming Programming in YAP
+
   + @ref Syntax
 
   + @ref Indexing
@@ -909,17 +906,51 @@ being designed to work with the swig (@url(www.swig.org}) interface compiler.
 
 @defgroup SWILibrary  SWI-Prolog Libraries and Packages
 
-+ @ref Read_Utilities Read Utilities
-		
-+ @ref shlib SWI-Prolog's shlib library
+@page  SWICode The SWI-Prolog Libraries and Packages
 
-+ @ref Lambda Lambda Expressions
++ @ref aggregates
+
++ @ref date
+		
++ @ref debug
+		
++ @ref persistence
+
++ @ref pio
+
++ @ref predicate_options
+
++ @ref prolog_clause
+
++ @ref prolog_colour
+
++ @ref prolog_main
+
++ @ref prolog_source
+
++ @ref quasi_quotations
+
++ @ref swi_option
+		
++ @ref read_util
+		
++ @ref record
+		
++ @ref settings
+		
++ @ref shlib
+
++ @ref url
+
++ @ref Lambda
 
 + @ref archive
 
-+ @ref chr
++ @ref CHR
 		
 + @ref clpr
+		
++ @ref http
 		
 + @ref zlib
 
@@ -935,7 +966,16 @@ being designed to work with the swig (@url(www.swig.org}) interface compiler.
 
 + @ref  MYDDAS
 
-@defgroup http The SWI The SWI http packages
++ @ref PFL
+
++ @ref ProbLog1
+
++ @ref YAPRaptor
+
++ @ref YAP-LBFGS
+
+@defgroup http The SWI http packages
+@ingroup SWILibrary
 
 Tthe package HTTP is a series of libraries developed by Jan Wielmaker
 and the SWI-Prolog community for accessing and serving data on the
@@ -944,9 +984,6 @@ data-representation primitives, and more.
 
 The port to YAP focussed on the client-side support. The server
 package has not been as widely tested.
-
-
-\toc
 
 @page Compatibility Compatibility with Other Prolog systems
 

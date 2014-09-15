@@ -32,14 +32,17 @@ implementing constraint handlers, such as Holzbaur's CLPQR, Fruewirth
 and Holzbaur's CHR, and CLP(BN). 
 
 Different Prolog systems implement attributed variables in different
-ways. Traditionally, YAP has used the interface designed by SICStus
+ways. Originally, YAP  used the interface designed by SICStus
 Prolog. This interface is still
-available in the <tt>atts</tt> library, but from YAP-6.0.3 we recommend using
-the hProlog, SWI style interface. The main reason to do so is that 
-most packages included in YAP that use attributed variables, such as CHR, CLP(FD), and CLP(QR),
-rely on the SWI-Prolog interface.
+available through the <tt>atts</tt> library, and is still used by CLPBN.
 
+From YAP-6.0.3 onwards we recommend using the hProlog, SWI style
+interface. We believe that this design is easier to understand and
+work with. Most packages included in YAP that use attributed
+variables, such as CHR, CLP(FD), and CLP(QR), rely on the SWI-Prolog
+interface.
 
+@{
  */
 
 
@@ -114,21 +117,8 @@ example). The nonterminal `attribute_goals/3` is used to translate
 remaining attributes to user-readable goals that, when executed, reinstate
 these attributes.
 
-
-
- @pred put_attr(+ _Var_,+ _Module_,+ _Value_) 
-
-
-
-If  _Var_ is a variable or attributed variable, set the value for the
-attribute named  _Module_ to  _Value_. If an attribute with this
-name is already associated with  _Var_, the old value is replaced.
-Backtracking will restore the old value (i.e., an attribute is a mutable
-term. See also `setarg/3`). This predicate raises a representation error if
- _Var_ is not a variable and a type error if  _Module_ is not an atom.
-
- 
 */
+
 
 
 :- module('$attributes', [
@@ -173,6 +163,20 @@ prolog:get_attr(Var, Mod, Att) :-
 	arg(2, AttTerm, Att),
 	attributes:get_module_atts(Var, AttTerm).
 
+/**
+ @pred put_attr(+ _Var_,+ _Module_,+ _Value_) 
+
+
+
+If  _Var_ is a variable or attributed variable, set the value for the
+attribute named  _Module_ to  _Value_. If an attribute with this
+name is already associated with  _Var_, the old value is replaced.
+Backtracking will restore the old value (i.e., an attribute is a mutable
+term. See also `setarg/3`). This predicate raises a representation error if
+ _Var_ is not a variable and a type error if  _Module_ is not an atom.
+
+ 
+*/
 prolog:put_attr(Var, Mod, Att) :-
 	functor(AttTerm, Mod, 2),
 	arg(2, AttTerm, Att),
@@ -226,6 +230,46 @@ cvt_to_swi_atts([], _).
 cvt_to_swi_atts(att(Mod,Attribute,Atts), ModAttribute) :-
 	ModAttribute =.. [Mod, YapAtts, Attribute],
 	cvt_to_swi_atts(Atts, YapAtts).
+
+/** @pred copy_term(? _TI_,- _TF_,- _Goals_) 
+
+Term  _TF_ is a variant of the original term  _TI_, such that for
+each variable  _V_ in the term  _TI_ there is a new variable  _V'_
+in term  _TF_ without any attributes attached.  Attributed
+variables are thus converted to standard variables.   _Goals_ is
+unified with a list that represents the attributes.  The goal
+`maplist(call, _Goals_)` can be called to recreate the
+attributes.
+
+Before the actual copying, `copy_term/3` calls
+`attribute_goals/1` in the module where the attribute is
+defined.
+
+ 
+*/
+prolog:copy_term(Term, Copy, Gs) :-
+	term_attvars(Term, Vs),
+	(   Vs == []
+	->  Gs = [],
+	    copy_term(Term, Copy)
+	;   findall(Term-Gs,
+	            '$attributes':residuals_and_delete_attributes(Vs, Gs, Term),
+		    [Copy-Gs])
+	).
+
+residuals_and_delete_attributes(Vs, Gs, Term) :-
+	attvars_residuals(Vs, Gs, []),
+	delete_attributes(Term).
+
+attvars_residuals([]) --> [].
+attvars_residuals([V|Vs]) -->
+	(   { get_attrs(V, As) }
+	->  attvar_residuals(As, V)
+	;   []
+	),
+	attvars_residuals(Vs).
+
+%% @}
 
 %
 % wake_up_goal is called by the system whenever a suspended goal
@@ -341,10 +385,6 @@ dif(X,Y) ? ;
 
 no
 ~~~~~
-
-
-
-
  */
 prolog:call_residue_vars(Goal,Residue) :-
 	attributes:all_attvars(Vs0),
@@ -368,53 +408,6 @@ prolog:call_residue_vars(Goal,Residue) :-
 	;
 	  '$ord_remove'([V1|Vss], Vs0s, Residue)
 	).
-
-%%  from SWI
-%%	copy_term(+Term, -Copy, -Gs) is det.
-%
-%	Creates a regular term Copy  as  a   copy  of  Term (without any
-%	attributes), and a list Gs of goals that when executed reinstate
-%	all attributes onto Copy. The nonterminal attribute_goals//1, as
-%	defined in the modules the  attributes   stem  from,  is used to
-%	convert attributes to lists of goals.
-
-/** @pred copy_term(? _TI_,- _TF_,- _Goals_) 
-
-Term  _TF_ is a variant of the original term  _TI_, such that for
-each variable  _V_ in the term  _TI_ there is a new variable  _V'_
-in term  _TF_ without any attributes attached.  Attributed
-variables are thus converted to standard variables.   _Goals_ is
-unified with a list that represents the attributes.  The goal
-`maplist(call, _Goals_)` can be called to recreate the
-attributes.
-
-Before the actual copying, `copy_term/3` calls
-`attribute_goals/1` in the module where the attribute is
-defined.
-
- 
-*/
-prolog:copy_term(Term, Copy, Gs) :-
-	term_attvars(Term, Vs),
-	(   Vs == []
-	->  Gs = [],
-	    copy_term(Term, Copy)
-	;   findall(Term-Gs,
-	            '$attributes':residuals_and_delete_attributes(Vs, Gs, Term),
-		    [Copy-Gs])
-	).
-
-residuals_and_delete_attributes(Vs, Gs, Term) :-
-	attvars_residuals(Vs, Gs, []),
-	delete_attributes(Term).
-
-attvars_residuals([]) --> [].
-attvars_residuals([V|Vs]) -->
-	(   { get_attrs(V, As) }
-	->  attvar_residuals(As, V)
-	;   []
-	),
-	attvars_residuals(Vs).
 
 /** @pred _Module_:attribute_goal( _-Var_,  _-Goal_)
 

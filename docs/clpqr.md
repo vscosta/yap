@@ -1,5 +1,5 @@
 
-/** @defgroup clpr Constraint Logic Programming over Rationals and Reals
+@defgroup clpr Constraint Logic Programming over Rationals and Reals
 @ingroup SWILibrary
 @{
 
@@ -74,6 +74,7 @@ result in an exception.
 	     | max(<Expression>, <Expression>)	\ maximum \
 ~~~~~
 
+@}
 
 @defgroup CLPR_Unification Use of unification
 @ingroup clpr
@@ -100,7 +101,7 @@ X = 5.0
 ~~~~~
 
 
-
+@}
 
 @defgroup CLPR_NonhYlinear_Constraints Non-Linear Constraints
 @ingroup clpr
@@ -130,6 +131,8 @@ X = sin(Y)	    when X is ground or			// 1 = sin(Y)
 X = cos(Y)	         Y is ground			// X = sin(1.5707) 
 X = tan(Y)
 ~~~~~
+
+@}
 
 @}
 

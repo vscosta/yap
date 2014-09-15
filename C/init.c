@@ -101,6 +101,93 @@ int  Yap_Portray_delays = FALSE;
 #endif
 #endif
 
+
+/**
+
+@defgroup Operators Summary of YAP Predefined Operators
+@ingroup Syntax
+@{
+
+ 
+
+The Prolog syntax caters for operators of three main kinds:
+
+  +  prefix;
+  + infix;
+  + postfix.
+
+
+Each operator has precedence in the range 1 to 1200, and this 
+precedence is used to disambiguate expressions where the structure of the 
+term denoted is not made explicit using brackets. The operator of higher 
+precedence is the main functor.
+
+If there are two operators with the highest precedence, the ambiguity 
+is solved analyzing the types of the operators. The possible infix types are: 
+ _xfx_,  _xfy_, and  _yfx_.
+
+With an operator of type  _xfx_ both sub-expressions must have lower 
+precedence than the operator itself, unless they are bracketed (which 
+assigns to them zero precedence). With an operator type  _xfy_ only the  
+left-hand sub-expression must have lower precedence. The opposite happens 
+for  _yfx_ type.
+
+A prefix operator can be of type  _fx_ or  _fy_. 
+A postfix operator can be of type  _xf_ or  _yf_. 
+The meaning of the notation is analogous to the above.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+a + b * c
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+means
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+a + (b * c)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+as + and \* have the following types and precedences:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:-op(500,yfx,'+').
+:-op(400,yfx,'*').
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Now defining
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:-op(700,xfy,'++').
+:-op(700,xfx,'=:=').
+a ++ b =:= c
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ means
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+a ++ (b =:= c)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following is the list of the declarations of the predefined operators:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:-op(1200,fx,['?-', ':-']).
+:-op(1200,xfx,[':-','-->']).
+:-op(1150,fx,[block,dynamic,mode,public,multifile,meta_predicate,
+              sequential,table,initialization]).
+:-op(1100,xfy,[';','|']).
+:-op(1050,xfy,->).
+:-op(1000,xfy,',').
+:-op(999,xfy,'.').
+:-op(900,fy,['\+', not]).
+:-op(900,fx,[nospy, spy]).
+:-op(700,xfx,[@>=,@=<,@<,@>,<,=,>,=:=,=\=,\==,>=,=<,==,\=,=..,is]).
+:-op(500,yfx,['\/','/\','+','-']).
+:-op(500,fx,['+','-']).
+:-op(400,yfx,['<<','>>','//','*','/']).
+:-op(300,xfx,mod).
+:-op(200,xfy,['^','**']).
+:-op(50,xfx,same).
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+*/
+
 #define	xfx	1
 #define	xfy	2
 #define	yfx	3
@@ -329,6 +416,8 @@ InitOps(void)
   for (i = 0; i < sizeof(Ops) / sizeof(*Ops); ++i)
     SetOp(Ops[i].opPrio, Ops[i].opType, Ops[i].opName, PROLOG_MODULE);
 }
+
+/// @}
 
 #if DEBUG
 #ifdef HAVE_ISATTY

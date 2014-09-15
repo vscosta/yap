@@ -16,7 +16,7 @@
 *************************************************************************/
 
 
-/** @defgroup InputOutput Input/Output Predicates
+/** @defgroup YAP_InputOutput Input/Output Predicates
 @ingroup YAPBuiltins
 @{
 

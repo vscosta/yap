@@ -17,7 +17,7 @@
 
 
 /** @defgroup YAPArrays Arrays
-@ingroup YAPBuiltins
+@ingroup YAPExtensions
 @{
 
 The YAP system includes experimental support for arrays. The
@@ -124,7 +124,8 @@ static Int  p_compile_array_refs( USES_REGS1 );
 static Int  p_array_refs_compiled( USES_REGS1 );
 static Int  p_sync_mmapped_arrays( USES_REGS1 );
 
-/*
+/**
+ * === Implementation Notes
  * 
  * This file works together with pl/arrays.yap and arrays.h.
  * 
@@ -136,7 +137,7 @@ static Int  p_sync_mmapped_arrays( USES_REGS1 );
  * object. Any term can be an argument to a dynamic array.
  * 
  * Dynamic arrays are named as a free variable and are
- * initialised with free variables. 
+ * initialized with free variables.
  * 
  * o named arrays are created during execution but allocated
  * in the code space. They have the lifetime of an heap
@@ -145,13 +146,13 @@ static Int  p_sync_mmapped_arrays( USES_REGS1 );
  * Named arrays are named with atoms and are initialised with
  * free variables.
  * 
- * o static arrays are allocated in the heap. Their space is
- * never recovered unless explictly said so by the
+ * + static arrays are allocated in the heap. Their space is
+ * never recovered unless explicitly said so by the
  * program. Arguments to these arrays must have fixed size,
  * and can only be atomic (at least for now).
  * 
  * Static arrays can be named through an  atom. They are
- * initialised with [].
+ * initialized with [].
  * 
  * Users create arrays by a declaration X array Arity. If X is an atom
  * A, then this it is a static array and A's the array name, otherwise
@@ -165,16 +166,17 @@ static Int  p_sync_mmapped_arrays( USES_REGS1 );
  * of array X. The mechanism used to implement this is the same
  * mechanism used to implement suspension variables.
  * 
- * Representation:
+ * ==== Representation:
  * 
  * Dynamic Arrays are represented as a compound term of arity N, where
  * N is the size of the array. Even so, I will not include array bound
  * checking for now.
  * 
+ * ~~~~
  * |--------------------------------------------------------------|
  * | $ARRAY/N|....
  * |______________________________________________________________
- * 
+ * ~~~~
  * 
  * Unbound Var is used as a place to point to.
  * 
@@ -184,27 +186,7 @@ static Int  p_sync_mmapped_arrays( USES_REGS1 );
  * A term of the form X[I] is represented as a Reference pointing to
  * the compound term:
  * 
- * '$array_arg'(X,I)
- * 
- * Dereferecing will automatically find X[I].
- * 
- * The only exception is the compiler, which uses a different
- * dereferencing routine. The clause cl(a[2], Y[X], Y) will be
- * compiled as:
- * 
- * cl(A, B, Y) :- '$access_array'(a, A, 2), '$access_array'(Y, B, X).
- * 
- * There are three operations to access arrays:
- * 
- * X[I] = A, This is normal unification.
- * 
- * X[I] := A, This is multiassignment, and therefore
- * backtrackable.
- * 
- * X[I] ::= A, This is non-backtrackable multiassignment, ans most
- * useful for static arrays.
- * 
- * The LHS of := and of ::= must be an array element!
+ * []([I],X)
  * 
  */
 
@@ -534,6 +516,17 @@ AccessNamedArray(Atom a, Int indx USES_REGS)
 
 }
 
+/** @pred  array_element(+ _Name_, + _Index_, ? _Element_)
+
+
+Unify  _Element_ with  _Name_[ _Index_]. It works for both
+static and dynamic arrays, but it is read-only for static arrays, while
+it can be used to unify with an element of a dynamic array.
+
+
+*/
+
+/// @memberof array_element/3
 static Int 
 p_access_array( USES_REGS1 )
 {
@@ -1049,6 +1042,15 @@ p_create_array( USES_REGS1 )
 
 /* create an array (+Name, + Size, +Props) */
 static Int 
+/** @pred  static_array(+ _Name_, + _Size_, + _Type_)
+
+
+Create a new static array with name  _Name_. Note that the  _Name_
+must be an atom (named array). The  _Size_ must evaluate to an
+integer.  The  _Type_ must be bound to one of types mentioned
+previously.
+*/
+/// @memberof static_array/3
 p_create_static_array( USES_REGS1 )
 {
   Term ti = Deref(ARG2);
@@ -1258,6 +1260,14 @@ p_resize_static_array( USES_REGS1 )
 
 /* resize a static array (+Name, + Size, +Props) */
 /* does not work for mmap arrays yet */
+/** @pred  reset_static_array(+ _Name_)
+
+
+Reset static array with name  _Name_ to its initial value.
+
+
+*/
+/// @memberof reset_static_array/1
 static Int 
 p_clear_static_array( USES_REGS1 )
 {
@@ -1288,6 +1298,16 @@ p_clear_static_array( USES_REGS1 )
 }
 
 /* Close a named array (+Name) */
+/** @pred  close_static_array(+ _Name_)
+
+
+Close an existing static array of name  _Name_. The  _Name_ must
+be an atom (named array). Space for the array will be recovered and
+further accesses to the array will return an error.
+
+
+*/
+/// @memberof close_static_array/1
 static Int 
 p_close_static_array( USES_REGS1 )
 {
@@ -1337,7 +1357,20 @@ p_close_static_array( USES_REGS1 )
   }
 }
 
-/* create an array (+Name, + Size, +Props) */
+/** @pred  mmapped_array(+ _Name_, + _Size_, + _Type_, + _File_)
+
+
+Similar to static_array/3, but the array is memory mapped to file
+ _File_. This means that the array is initialized from the file, and
+that any changes to the array will also be stored in the file.
+
+This built-in is only available in operating systems that support the
+system call `mmap`. Moreover, mmapped arrays do not store generic
+terms (type `term`).
+
+
+*/
+/// @memberof mmapped_array/4
 static Int 
 p_create_mmapped_array( USES_REGS1 )
 {
@@ -1634,6 +1667,24 @@ p_array_references( USES_REGS1 )
   return (Yap_unify(t1, ARG2) && Yap_unify(t2, ARG3));
 }
 
+/** @pred  update_array(+ _Name_, + _Index_, ? _Value_)
+
+
+Attribute value  _Value_ to  _Name_[ _Index_]. Type
+restrictions must be respected for static arrays. This operation is
+available for dynamic arrays if `MULTI_ASSIGNMENT_VARIABLES` is
+enabled (true by default). Backtracking undoes  _update_array/3_ for
+dynamic arrays, but not for static arrays.
+
+Note that update_array/3 actually uses `setarg/3` to update
+elements of dynamic arrays, and `setarg/3` spends an extra cell for
+every update. For intensive operations we suggest it may be less
+expensive to unify each element of the array with a mutable terms and
+to use the operations on mutable terms.
+
+
+*/
+/// @memberof update_array/3
 static Int 
 p_assign_static( USES_REGS1 )
 {
@@ -2106,6 +2157,30 @@ p_assign_dynamic( USES_REGS1 )
   return TRUE;
 }
 
+/** @pred  add_to_array_element(+ _Name_, + _Index_, + _Number_, ? _NewValue_)
+
+
+Add  _Number_  _Name_[ _Index_] and unify  _NewValue_ with
+the incremented value. Observe that  _Name_[ _Index_] must be an
+number. If  _Name_ is a static array the type of the array must be
+`int` or `float`. If the type of the array is `int` you
+only may add integers, if it is `float` you may add integers or
+floats. If  _Name_ corresponds to a dynamic array the array element
+must have been previously bound to a number and `Number` can be
+any kind of number.
+
+The `add_to_array_element/3` built-in actually uses
+`setarg/3` to update elements of dynamic arrays. For intensive
+operations we suggest it may be less expensive to unify each element
+of the array with a mutable terms and to use the operations on mutable
+terms.
+
+
+
+
+ */
+/// @memberof add_to_array_element/4
+
 static Int 
 p_add_to_array_element( USES_REGS1 )
 {
@@ -2327,6 +2402,18 @@ p_sync_mmapped_arrays( USES_REGS1 )
   return(TRUE);
 }
 
+/** @pred  static_array_to_term(? _Name_, ? _Term_)
+
+
+Convert a static array with name
+ _Name_ to a compound term of name  _Name_.
+
+This built-in will silently fail if the there is no static array with
+that name.
+
+
+*/
+/// @memberof static_array_to_term/2
 static Int
 p_static_array_to_term( USES_REGS1 )
 {
@@ -2490,6 +2577,13 @@ p_static_array_to_term( USES_REGS1 )
   return FALSE;
 }
 
+/** @pred  static_array_location(+ _Name_, - _Ptr_)
+
+
+Give the location or memory address for  a static array with name
+ _Name_. The result is observed as an integer.
+*/
+/// @memberof static_array_location/2
 static Int
 p_static_array_location( USES_REGS1 )
 {
@@ -2526,139 +2620,20 @@ Yap_InitArrayPreds( void )
   Yap_InitCPred("$array_references", 3, p_array_references, SafePredFlag);
   Yap_InitCPred("$array_arg", 3, p_array_arg, SafePredFlag);
   Yap_InitCPred("static_array", 3, p_create_static_array, SafePredFlag|SyncPredFlag);
-/** @pred  static_array(+ _Name_, + _Size_, + _Type_) 
-
-
-Create a new static array with name  _Name_. Note that the  _Name_
-must be an atom (named array). The  _Size_ must evaluate to an
-integer.  The  _Type_ must be bound to one of types mentioned
-previously.
-
- 
-*/
   Yap_InitCPred("resize_static_array", 3, p_resize_static_array, SafePredFlag|SyncPredFlag);
-/** @pred  resize_static_array(+ _Name_, - _OldSize_, + _NewSize_) 
-
-
-Expand or reduce a static array, The  _Size_ must evaluate to an
-integer. The  _Name_ must be an atom (named array). The  _Type_
-must be bound to one of `int`, `dbref`, `float` or
-`atom`.
-
-Note that if the array is a mmapped array the size of the mmapped file
-will be actually adjusted to correspond to the size of the array.
-
- 
-*/
   Yap_InitCPred("mmapped_array", 4, p_create_mmapped_array, SafePredFlag|SyncPredFlag);
-/** @pred  mmapped_array(+ _Name_, + _Size_, + _Type_, + _File_) 
-
-
-Similar to static_array/3, but the array is memory mapped to file
- _File_. This means that the array is initialized from the file, and
-that any changes to the array will also be stored in the file. 
-
-This built-in is only available in operating systems that support the
-system call `mmap`. Moreover, mmapped arrays do not store generic
-terms (type `term`).
-
- 
-*/
   Yap_InitCPred("update_array", 3, p_assign_static, SafePredFlag);
-/** @pred  update_array(+ _Name_, + _Index_, ? _Value_)  
-
-
-Attribute value  _Value_ to  _Name_[ _Index_]. Type
-restrictions must be respected for static arrays. This operation is
-available for dynamic arrays if `MULTI_ASSIGNMENT_VARIABLES` is
-enabled (true by default). Backtracking undoes  _update_array/3_ for
-dynamic arrays, but not for static arrays.
-
-Note that update_array/3 actually uses `setarg/3` to update
-elements of dynamic arrays, and `setarg/3` spends an extra cell for
-every update. For intensive operations we suggest it may be less
-expensive to unify each element of the array with a mutable terms and
-to use the operations on mutable terms.
-
- 
-*/
   Yap_InitCPred("dynamic_update_array", 3, p_assign_dynamic, SafePredFlag);
   Yap_InitCPred("add_to_array_element", 4, p_add_to_array_element, SafePredFlag);
-/** @pred  add_to_array_element(+ _Name_, + _Index_, + _Number_, ? _NewValue_)  
-
-
-Add  _Number_  _Name_[ _Index_] and unify  _NewValue_ with
-the incremented value. Observe that  _Name_[ _Index_] must be an
-number. If  _Name_ is a static array the type of the array must be
-`int` or `float`. If the type of the array is `int` you
-only may add integers, if it is `float` you may add integers or
-floats. If  _Name_ corresponds to a dynamic array the array element
-must have been previously bound to a number and `Number` can be
-any kind of number.
-
-The `add_to_array_element/3` built-in actually uses
-`setarg/3` to update elements of dynamic arrays. For intensive
-operations we suggest it may be less expensive to unify each element
-of the array with a mutable terms and to use the operations on mutable
-terms.
-
-
-
-
- */
   Yap_InitCPred("array_element", 3, p_access_array, 0);
-/** @pred  array_element(+ _Name_, + _Index_, ? _Element_) 
-
-
-Unify  _Element_ with  _Name_[ _Index_]. It works for both
-static and dynamic arrays, but it is read-only for static arrays, while
-it can be used to unify with an element of a dynamic array.
-
- 
-*/
   Yap_InitCPred("reset_static_array", 1, p_clear_static_array, SafePredFlag);
-/** @pred  reset_static_array(+ _Name_) 
-
-
-Reset static array with name  _Name_ to its initial value.
-
- 
-*/
   Yap_InitCPred("close_static_array", 1, p_close_static_array, SafePredFlag);
-/** @pred  close_static_array(+ _Name_) 
-
-
-Close an existing static array of name  _Name_. The  _Name_ must
-be an atom (named array). Space for the array will be recovered and
-further accesses to the array will return an error. 
-
- 
-*/
   Yap_InitCPred("$sync_mmapped_arrays", 0, p_sync_mmapped_arrays, SafePredFlag);
   Yap_InitCPred("$compile_array_refs", 0, p_compile_array_refs, SafePredFlag);
   Yap_InitCPred("$array_refs_compiled", 0, p_array_refs_compiled, SafePredFlag);
   Yap_InitCPred("$static_array_properties", 3, p_static_array_properties, SafePredFlag);
   Yap_InitCPred("static_array_to_term", 2, p_static_array_to_term, 0L);
-/** @pred  static_array_to_term(? _Name_, ? _Term_) 
-
-
-Convert a static array with name
- _Name_ to a compound term of name  _Name_.
-
-This built-in will silently fail if the there is no static array with
-that name.
-
- 
-*/
   Yap_InitCPred("static_array_location", 2, p_static_array_location, 0L);
-/** @pred  static_array_location(+ _Name_, - _Ptr_) 
-
-
-Give the location for  a static array with name
- _Name_.
-
- 
-*/
 }
 
 

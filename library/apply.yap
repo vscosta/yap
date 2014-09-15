@@ -3,9 +3,8 @@
 @{
 
 This library provides a SWI-compatible set of utilities for applying a
-predicate to all elements of a list. The library just forwards
-definitions from the `maplist` library.
-
+predicate to all elements of a list. In practice, the library just forwards
+definitions from the @ref maplist library library.
 
  */
 

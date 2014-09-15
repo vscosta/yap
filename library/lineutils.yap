@@ -22,8 +22,10 @@
 
 This package provides a set of useful predicates to manipulate
 sequences of characters codes, usually first read in as a line. It is
-available by loading the library `library(lineutils)`.
-
+available by loading the 
+~~~~
+:- use_module(library(lineutils)).
+~~~~
 
 */
 
@@ -191,7 +193,19 @@ copy_line(StreamInp, StreamOut) :-
 
 For every line  _LineIn_ in stream  _StreamInp_, execute
 `call(Goal,LineIn,LineOut)`, and output  _LineOut_ to
-stream  _StreamOut_.
+stream  _StreamOut_. If `call(Goal,LineIn,LineOut)` fails, 
+nothing will be output but execution continues with the next
+line. As an example, consider a procedure to select the second and
+fifth field of a CSV table :
+~~~~~{.prolog}
+select(Sep, In, Out) :- 
+	fields(In, Sep, [_,F2,_,_,F5|_]),
+        fields(Out,Sep, [F2,F5]).
+
+select :-
+       filter(",",
+~~~~~
+
 */
 filter(StreamInp, StreamOut, Command) :-
 	repeat,
@@ -206,7 +220,7 @@ filter(StreamInp, StreamOut, Command) :-
 	 fail
 	).
 
-/** @pred process(+ _StreamInp_, + _Goal_) 
+/** @pred process(+ _StreamInp_, + _Goal_) is meta
 
 For every line  _LineIn_ in stream  _StreamInp_, call
 `call(Goal,LineIn)`. 
@@ -224,7 +238,7 @@ process(StreamInp, Command) :-
 	).
 
 
-/** @pred file_filter(+ _FileIn_, + _FileOut_, + _Goal_) 
+/** @pred file_filter(+ _FileIn_, + _FileOut_, + _Goal_)  is meta
 
 For every line  _LineIn_ in file  _FileIn_, execute
 `call(Goal,LineIn,LineOut)`, and output  _LineOut_ to file

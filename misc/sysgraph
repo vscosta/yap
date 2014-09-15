@@ -1399,7 +1399,7 @@ atom_pred(N) -->
   !,
   decl(1,N).
 atom_pred(0) -->
-  blank, !.
+  blanks, !.
 
 int(I0, I) -->
     [A],
@@ -1419,9 +1419,9 @@ decl(I0, I) -->
   [_],
   decl( I0, I).
 
-blank --> " ", !, blank.
-blank --> "\t", !, blank.
-blank --> [].
+blanks --> " ", !, blanks.
+blanks --> "\t", !, blanks.
+blanks --> [].
 
 atom([A|As]) -->
   [A],
@@ -1440,8 +1440,7 @@ atom2([A|As]) -->
 atom2([]) --> [].
 
 add_comments :-
-    open( commands, write, S ),
-  findall(File, do_comment( File, Line, C, Type, Dup), Fs0 ),
+ findall(File, do_comment( File, Line, C, Type, Dup), Fs0 ),
   (
       sort(Fs0, Fs),
       member( File, Fs ),

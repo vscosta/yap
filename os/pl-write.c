@@ -23,6 +23,16 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+/** @defgroup YAPWrite Outputting a term to a Stream
+ *  @ingroup YAP_InputOutput
+ *
+ * @brief Predicates that output a term to a stream. The predicates
+ * call upon write_term/3 to do the actual work. They differ on the
+ * parameters being used
+ * whether they write to user_output or to an user-specified stream.
+ *
+ * @{
+ */
 #include <math.h>
 #include "pl-incl.h"
 #include "pl-dtoa.h"
@@ -67,6 +77,11 @@ typedef struct
   term_t prec_opt;			/* term in write options with prec */
 } write_options;
 
+/** @pred  nl(+ _S_) is iso
+
+Outputs a new line to stream  _S_.
+ */
+/// @memberof nl/1
 word
 pl_nl1(term_t stream)
 { GET_LD
@@ -80,6 +95,12 @@ pl_nl1(term_t stream)
   fail;
 }
 
+/** @pred  nl is iso 
+
+Outputs a new line to the current output stream.
+
+ */
+/// @memberof  nl/0
 word
 pl_nl(void)
 { return pl_nl1(0);
@@ -517,13 +538,69 @@ out:
   return (!s || streamStatus(s)) && rc;
 }
 
+/** @pred  write_term(+ _S_, + _T_, + _Opts_) is iso
 
+Displays term  _T_ on the current output stream, according to the same
+options used by `write_term/3`.
+
+ 
+*/
+/// @memberof write_term/3
 word
 pl_write_term(term_t term, term_t options)
 { return pl_write_term3(0, term, options);
 }
 
+/** @pred  write_term(+ _T_, + _Opts_) is iso 
 
+
+Displays term  _T_ on the current output stream, according to the
+following options:
+
++ quoted(+ _Bool_) is iso
+
+    If `true`, quote atoms if this would be necessary for the atom to
+be recognized as an atom by YAP's parser. The default value is
+`false`.
+
++ ignore_ops(+ _Bool_) is iso
+
+   If `true`, ignore operator declarations when writing the term. The
+default value is `false`.
+
++ numbervars(+ _Bool_) is iso
+
+    If `true`, output terms of the form
+`$VAR(N)`, where  _N_ is an integer, as a sequence of capital
+letters. The default value is `false`.
+
++ portrayed(+ _Bool_)
+
+    If `true`, use <tt>portray/1</tt> to portray bound terms. The default
+value is `false`.
+
++ portray(+ _Bool_)
+
+    If `true`, use <tt>portray/1</tt> to portray bound terms. The default
+value is `false`.
+
++ max_depth(+ _Depth_)
+
+    If `Depth` is a positive integer, use <tt>Depth</tt> as
+the maximum depth to portray a term. The default is `0`, that is,
+unlimited depth.
+
++ priority(+ _Piority_)
+
+    If `Priority` is a positive integer smaller than `1200`, 
+give the context priority. The default is `1200`.
+
++ cycles(+ _Bool_)
+
+    Do not loop in rational trees (default).
+
+*/
+/// @memberof write_term/2
 int
 PL_write_term(IOSTREAM *s, term_t term, int precedence, int flags)
 { write_options options;
@@ -572,22 +649,53 @@ do_write2(term_t stream, term_t term, int flags)
 }
 
 
+/** @pred  write(+ _S_, _T_) is iso
+
+Writes term  _T_ to stream  _S_ instead of to the current output
+stream.
+
+ 
+*/
+/// @memberof write/2
 word
 pl_write2(term_t stream, term_t term)
 { return do_write2(stream, term, PL_WRT_NUMBERVARS);
 }
 
+/** @pred  writeq(+ _S_, _T_) is iso
+
+As writeq/1, but the output is sent to the stream  _S_.
+
+ 
+*/
+/// @memberof writeq/2
 word
 pl_writeq2(term_t stream, term_t term)
 { return do_write2(stream, term, PL_WRT_QUOTED|PL_WRT_NUMBERVARS);
 }
 
+/** @pred  print(+ _S_, _T_)
+
+Prints term  _T_ to the stream  _S_ instead of to the current output
+stream.
+
+ 
+*/
+/// @memberof print/2
 word
 pl_print2(term_t stream, term_t term)
 { return do_write2(stream, term,
 		   PL_WRT_PORTRAY|PL_WRT_NUMBERVARS);
 }
 
+/** @pred  write_canonical(+ _S_,+ _T_) is iso
+
+Displays term  _T_ on the stream  _S_. Atoms are quoted when
+necessary, and operators are ignored.
+
+ 
+*/
+/// @memberof write_canonical/2
 word
 pl_write_canonical2(term_t stream, term_t term)
 { GET_LD
@@ -611,26 +719,69 @@ pl_write_canonical2(term_t stream, term_t term)
   return rc;
 }
 
+/** @pred  write( _T_) is iso 
+
+
+The term  _T_ is written to the current output stream according to
+the operator declarations in force.
+*/
+/// @memberof write/1
 word
 pl_write(term_t term)
 { return pl_write2(0, term);
 }
 
 word
+/** @pred  writeq( _T_) is iso 
+
+Writes the term  _T_, quoting names to make the result acceptable to
+the predicate `read` whenever necessary. 
+*/
+/// @memberof writeq/1
 pl_writeq(term_t term)
 { return pl_writeq2(0, term);
 }
 
+/** @pred  print( _T_) 
+
+
+Prints the term  _T_ to the current output stream using write/1
+unless T is bound and a call to the user-defined  predicate
+`portray/1` succeeds. To do pretty  printing of terms the user should
+define suitable clauses for `portray/1` and use print/1.
+
+ 
+*/
+/// @memberof print/1
 word
 pl_print(term_t term)
 { return pl_print2(0, term);
 }
 
+/** @pred  write_canonical(+ _T_) is iso 
+
+
+Displays term  _T_ on the current output stream. Atoms are quoted
+when necessary, and operators are ignored, that is, the term is written
+in standard parenthesized prefix notation.
+
+ 
+*/
+/// @memberof write_canonical/1
 word
 pl_write_canonical(term_t term)
 { return pl_write_canonical2(0, term);
 }
 
+/** @pred  writeln( _T_) 
+
+
+Prints the term  _T_ to the current output stream using write/1,
+followed by a newline.
+
+ 
+*/
+/// @memberof writeln/1
 word
 pl_writeln(term_t term)
 { return do_write2(0, term, PL_WRT_NUMBERVARS|PL_WRT_NEWLINE);
@@ -641,7 +792,9 @@ pl_writeln(term_t term)
 		 /*******************************
 		 *      PUBLISH PREDICATES	*
 		 *******************************/
+/// @}
 
 BeginPredDefs(write)
 EndPredDefs
+
 

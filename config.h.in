@@ -57,6 +57,9 @@
 /* Define to 1 if you have the `acosh' function. */
 #undef HAVE_ACOSH
 
+/* Define to 1 if you have the `add_history' function. */
+#undef HAVE_ADD_HISTORY
+
 /* Define to 1 if you have the `alarm' function. */
 #undef HAVE_ALARM
 
@@ -170,6 +173,22 @@
 
 /* Define to 1 if you have the <cudd/util.h> header file. */
 #undef HAVE_CUDD_UTIL_H
+
+/* Define to 1 if you have the declaration of `rl_catch_signals ', and to 0 if
+   you don't. */
+#undef HAVE_DECL_RL_CATCH_SIGNALS_
+
+/* Define to 1 if you have the declaration of `rl_done ', and to 0 if you
+   don't. */
+#undef HAVE_DECL_RL_DONE_
+
+/* Define to 1 if you have the declaration of `rl_event_hook', and to 0 if you
+   don't. */
+#undef HAVE_DECL_RL_EVENT_HOOK
+
+/* Define to 1 if you have the declaration of `rl_readline_state', and to 0 if
+   you don't. */
+#undef HAVE_DECL_RL_READLINE_STATE
 
 /* Define to 1 if you have the <direct.h> header file. */
 #undef HAVE_DIRECT_H
@@ -574,11 +593,8 @@
 /* Define to 1 if you have the <Rinterface.h> header file. */
 #undef HAVE_RINTERFACE_H
 
-/* Defined if you can turn off readline's signal handling. */
-#undef HAVE_RL_CATCH_SIGNAL
-
-/* Define to 1 if you have the `rl_cleanup_after_signal' function. */
-#undef HAVE_RL_CLEANUP_AFTER_SIGNAL
+/* Define to 1 if you have the `rl_begin_undo_group' function. */
+#undef HAVE_RL_BEGIN_UNDO_GROUP
 
 /* Define to 1 if you have the `rl_clear_pending_input' function. */
 #undef HAVE_RL_CLEAR_PENDING_INPUT
@@ -589,8 +605,8 @@
 /* Define to 1 if you have the `rl_completion_matches' function. */
 #undef HAVE_RL_COMPLETION_MATCHES
 
-/* Define to 1 if you have the `rl_event_hook' function. */
-#undef HAVE_RL_EVENT_HOOK
+/* Define to 1 if you have the `rl_discard_argument' function. */
+#undef HAVE_RL_DISCARD_ARGUMENT
 
 /* Define to 1 if you have the `rl_filename_completion_function' function. */
 #undef HAVE_RL_FILENAME_COMPLETION_FUNCTION
@@ -604,11 +620,11 @@
 /* Define to 1 if you have the `rl_insert_close' function. */
 #undef HAVE_RL_INSERT_CLOSE
 
+/* Define to 1 if you have the `rl_reset_after_signal' function. */
+#undef HAVE_RL_RESET_AFTER_SIGNAL
+
 /* Define to 1 if you have the `rl_set_prompt' function. */
 #undef HAVE_RL_SET_PROMPT
-
-/* Define to 1 if you have the `rl_state_initialized' function. */
-#undef HAVE_RL_STATE_INITIALIZED
 
 /* Define to 1 if you have the `sbrk' function. */
 #undef HAVE_SBRK

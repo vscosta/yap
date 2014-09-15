@@ -1,9 +1,8 @@
+/**
 
 @defgroup CHR CHR: Constraint Handling Rules 
 
 @ingroup SWILibrary
-
-@{
 
 This chapter is written by Tom Schrijvers, K.U. Leuven for the hProlog
 system. Adjusted by Jan Wielemaker to fit the SWI-Prolog documentation
@@ -19,9 +18,7 @@ The main reference for SWI-Prolog's CHR system is:
 + T. Schrijvers, and B. Demoen, <em>The K.U.Leuven CHR System: Implementation and Application</em>, First Workshop on Constraint Handling Rules: Selected
 Contributions (Fruwirth, T. and Meister, M., eds.), pp. 1--5, 2004.
 
-@defgroup CHR_Introduction Introduction
-@ingroup CHR
-
+# Introduction
 
 Constraint Handling Rules (CHR) is a committed-choice bottom-up language
 embedded in Prolog. It is designed for writing constraint solvers and is
@@ -38,16 +35,12 @@ of CHR in general and mainly focus on elements specific to this
 implementation. For a more thorough review of CHR we refer the reader to
 [Freuhwirth:98]. More background on CHR can be found at the CHR web site.
 
-@defgroup CHR_Syntax_and_Semantics Syntax and Semantics
-@ingroup CHR
-@{
+### Syntax and Semantics
 
 We present informally the syntax and semantics of CHR.
 
 
-@defgroup CHR_Syntax CHR Syntax
-@ingroup CHR_Syntax_and_Semantics
-@{
+####  CHR Syntax
 
 The syntax of CHR rules in hProlog is the following:
 
@@ -98,12 +91,7 @@ Additional syntax-related terminology:
 the arrow (either `<=>` or `==>`)
 
 
-@}
- 
-@defgroup Semantics Semantics
-@ingroup CHR_Syntax_and_Semantics
-@{
-
+#### Semantics Semantics
 
 In this subsection the operational semantics of CHR in Prolog are presented
 informally. They do not differ essentially from other CHR systems.
@@ -137,13 +125,7 @@ or another variable involved in one or more constraints. In that case the
 constraint is triggered, i.e. it becomes an active constraint and all
 the rules are tried.
 
-@}
- 
-
-
-@defgroup CHR_Rule_Types Rules
-@ingroup CHR
-@{
+### Rules
 
 There are three different kinds of rules, each with their specific semantics:
 
@@ -168,18 +150,12 @@ constraints are not called in the body.
 
 
 
- @defgroup CHR_Rule_Names Rule Names
-@ingroup CHR_Rule_Types
-
+#### Rule Names
 
 Naming a rule is optional and has no semantical meaning. It only functions
 as documentation for the programmer.
 
-@}
-
-@defgroup CHRPragmas Pragmas
-@ingroup CHR
-@{
+### Pragmas
 
 The semantics of the pragmas are:
 
@@ -190,13 +166,7 @@ passive constraint in that rule.
 
 Additional pragmas may be released in the future.
 
-
-@} 
-
-
-@defgroup CHR_Options Options
-@ingroup CHR
-@{
+### CHR_Options Options
 
 It is possible to specify options that apply to all the CHR rules in the module.
 Options are specified with the `option/2` declaration:
@@ -297,11 +267,7 @@ for backward compatibility. The new syntax is described below.
 
 
  
-@}
-
-@defgroup CHR_in_YAP_Programs CHR in Prolog Programs	
-@ingroup CHR
-@{
+### CHR in Prolog Programs	
 
 
 The CHR constraints defined in a particulary chr file are
@@ -310,9 +276,7 @@ never load different chr files with the same CHR module name.
 
 
 
-@defgroup Constraint_declaration Constraint Declarations
-@ingroup CHR_in_YAP_Programs
-@{
+#### Constraint Declarations
 
 
 Every constraint used in CHR rules has to be declared.
@@ -334,8 +298,7 @@ The new style is as follows:
  
 
 
-@defgroup Compilation Compilation
-@ingroup CHR_in_YAP_Programs
+#### Compilation
 
 The
  SWI-Prolog CHR compiler exploits term_expansion/2 rules to translate
@@ -367,10 +330,7 @@ leak into modules where they might cause conflicts.
  
 
 
- @defgroup CHR_Debugging CHR Debugging
-@ingroup CHR_in_YAP_Programs
-@{
-
+#### CHR Debugging
 
 The CHR debugging facilities are currently rather limited. Only tracing
 is currently available. To use the CHR debugging facilities for a CHR
@@ -379,9 +339,7 @@ controlled by the CHR option debug, whose default is derived
 from the SWI-Prolog flag `generate_debug_info`.  Therefore debug
 info is provided unless the `-nodebug` is used.
 
-@defgroup Ports Ports
-@ingroup CHR_Debugging
-
+#### Ports
 
 For CHR constraints the four standard ports are defined:
 
@@ -416,9 +374,7 @@ An active constraints commits to a rule with possibly
 some passive constraints. The apply port is entered
 just after committing to the rule.
 
-@defgroup Tracing Tracing
-@ingroup CHR_Debugging
-
+#### Tracing
 
 Tracing is enabled with the chr_trace/0 predicate
 and disabled with the chr_notrace/0 predicate.
@@ -462,12 +418,7 @@ Insert failure in execution.
 Print the above available debug options.
 
 
-
- 
-
-
- @defgroup CHR_Debugging_Predicates CHR Debugging Predicates
-@ingroup CHR_Debugging
+#### CHR Debugging Predicates
 
 
 The chr module contains several predicates that allow
@@ -478,15 +429,7 @@ Activate the CHR tracer.  By default the CHR tracer is activated and
 deactivated automatically by the Prolog predicates trace/0 and
 notrace/0.
 
-@}
-
-
-
-@defgroup CHR_Examples Examples
-@ingroup CHR
-@{
-
-
+### CHR_Examples Examples
 
 Here are two example constraint solvers written in CHR.
 
@@ -534,14 +477,7 @@ intersection([_|T],L2,L3) :-
 
 
 
-@}
- 
-
-
- @defgroup CHR_Compatibility Compatibility with SICStus CHR
-@ingroup CHR
-@{
-
+### Compatibility with SICStus CHR
 
 
 There are small differences between CHR in SWI-Prolog and newer
@@ -566,19 +502,7 @@ SICStus uses a two-step compiler, where chr files are
 first translated into pl files.  For SWI-Prolog CHR
 rules may be defined in a file with any extension.
 
-@}
-
-@}
-
-
- 
-
-
-  @defgroup CHR_Guidelines Guidelines
-@ingroup CHR 
-@{
-
-
+### Guidelines
 
 In this section we cover several guidelines on how to use CHR to write
 constraint solvers and how to do so efficiently.
@@ -603,15 +527,4 @@ Provide mode and type declarations to get more efficient program execution.
 Make sure to disable debug (`-nodebug`) and enable optimization
 (`-O`).
 
-@}
-
- 
-@}
-
-@}
-
-@}
-
-@}
-
-@}
+*/

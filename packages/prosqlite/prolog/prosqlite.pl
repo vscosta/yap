@@ -31,6 +31,7 @@
 :- dynamic( sqlite_db:sqlite_asserted/4 ).
 
 /** <module>  proSQLite: a Prolog interface to the SQLite database system.
+\ingroup SWILibrary
 
 This library follows the design and borrows code from the ODBC library of SWI-Prolog 
 http://www.swi-prolog.org/pldoc/packasqlite_connectge/odbc.html .

@@ -20,6 +20,15 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+/** @defgroup SetLocale Localization Support
+  * @ingroup YAP_InputOutput
+  * @{ 
+  *
+  * This code includes support for localization, that is, the ability to support
+  * different languages and representation formats.
+  *
+  * The code was written by Jan Wielemaker for SWI-Prolog.
+  */
 #include "pl-incl.h"
 #include "pl-locale.h"
 
@@ -475,7 +484,7 @@ get_atom_arg(term_t t, atom_t *a)
 
 /** locale_property(?Locale, ?Property) is nondet.
 */
-
+/// @memberof locale_property/2
 static
 PRED_IMPL("locale_property", 2, locale_property, PL_FA_NONDETERMINISTIC)
 { PRED_LD
@@ -681,7 +690,7 @@ set_grouping(term_t t, char **valp)
 
 /** locale_create(-Locale, +Default, +Options) is det.
 */
-
+/// @memberof locale_create/3
 static
 PRED_IMPL("locale_create", 3, locale_create, 0)
 { PRED_LD
@@ -760,6 +769,9 @@ PRED_IMPL("locale_create", 3, locale_create, 0)
 }
 
 
+/** locale_destroy(+Locale) is det.
+*/
+/// @memberof locale_destroy/1
 static
 PRED_IMPL("locale_destroy", 1, locale_destroy, 0)
 { PL_locale *l;
@@ -787,7 +799,7 @@ PRED_IMPL("locale_destroy", 1, locale_destroy, 0)
 
 /** set_locale(+Locale) is det.
 */
-
+/// @memberof set_locale/1
 static
 PRED_IMPL("set_locale", 1, set_locale, 0)
 { PRED_LD
@@ -820,7 +832,7 @@ PRED_IMPL("set_locale", 1, set_locale, 0)
 
 /** current_locale(-Locale) is det.
 */
-
+/// @memberof current_locale/1
 static
 PRED_IMPL("current_locale", 1, current_locale, 0)
 { PRED_LD
@@ -927,3 +939,5 @@ BeginPredDefs(locale)
 EndPredDefs
 
 #endif /*O_LOCALE*/
+
+/// @}

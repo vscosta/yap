@@ -141,7 +141,10 @@ static int progress(
   return 1;
 }
 
-
+/** @pred optimizer_set_x(+I,+X)
+Set the current value for `x[I]`. Only possible when the optimizer is
+initialized but not running.
+*/
 static int set_x_value(void) {
   YAP_Term t1=YAP_ARG1;
   YAP_Term t2=YAP_ARG2;
@@ -175,6 +178,10 @@ static int set_x_value(void) {
   return TRUE;
 }
 
+/** @pred optimizer_get_x(+I,-X)
+Get the current value for `x[I]`. Only possible when the optimizer is
+initialized or running.
+*/
 static int get_x_value(void) {
   YAP_Term t1=YAP_ARG1;
   YAP_Term t2=YAP_ARG2;
@@ -202,6 +209,10 @@ static int get_x_value(void) {
 
 
 
+/** @pred optimizer_set_g(+I,+G) Set the current value for `g[I]` (the
+partial derivative of _F_ with respect to `x[I]`). Can only be called
+from the evaluate call back predicate.
+*/
 static int set_g_value(void) {
   YAP_Term t1=YAP_ARG1;
   YAP_Term t2=YAP_ARG2;
@@ -235,6 +246,10 @@ static int set_g_value(void) {
   return TRUE;
 }
 
+/** @pred optimizer_get_g(+I,-G)
+Get the current value for `g[I]` (the partial derivative of _F_ with respect to `x[I]`). Only possible when the optimizer is
+initialized or running.
+*/
 static int get_g_value(void) {
   YAP_Term t1=YAP_ARG1;
   YAP_Term t2=YAP_ARG2;
@@ -258,7 +273,47 @@ static int get_g_value(void) {
   return YAP_Unify(t2,YAP_MkFloatTerm(g[i]));
 }
 
+/** @pred optimizer_initialize(+N,+Module,+Evaluate,+Progress)
+Create space to optimize a function with _N_ variables (_N_ has to be
+integer). 
 
++ _Module</span>_ is the name of the module where the call back
+predicates can be found, 
+
++ _Evaluate_ is the call back predicate (arity 3)
+to evaluate the function math <span class="math">_F</span>_, 
+
++ _Progress_ is the call back predicate invoked
+(arity 8) after every iteration
+
+Example 
+~~~~
+optimizer_initialize(1,user,evaluate,progress)</span>
+~~~~
+
+
+The evaluate call back predicate has to be of the type
+`evaluate(-F,+N,+Step)`. It has to calculate the current function
+value _F_. _N_ is the
+size of the parameter vector (the value which was used to initialize
+LBFGS) and _Step_ is the current state of the
+line search. The call back predicate can access the current values of
+`x[i]` by calling `optimizer_get_x(+I,-Xi)`. Finally, the call back
+predicate has to calculate the gradient of _F</span>_
+and set its value by calling `optimizer_set_g(+I,+Gi)` for every `1<=I<=N`.
+
+
+The progress call back predicate has to be of the type
+`progress(+F,+X_Norm,+G_Norm,+Step,+N,+Iteration,+LS,-Continue)`. It
+is called after every iteration. The call back predicate can access
+the current values of _X_ and of the gradient by calling
+`optimizer_get_x(+I,-Xi)` and `optimizer_get_g`(+I,-Gi)`
+respectively. However, it must not call the setter predicates for <span
+class="code"_X_ or _G_. If it tries to do so, the optimizer will
+terminate with an error. If _Continue_ is set to 0 (int) the
+optimization process will continue for one more iteration, any other
+value will terminate the optimization process.
+*/
 static int optimizer_initialize(void) {
   YAP_Term t1 = YAP_ARG1;
   int temp_n=0;
@@ -293,6 +348,14 @@ static int optimizer_initialize(void) {
   return TRUE;
 }
 
+
+
+/** @pred optimizer_run(-F,-Status)
+Runs the optimization, _F is the best (minimal) function value and
+Status (int) is the status code returned by libLBFGS. Anything except
+0 indicates an error, see the documentation of libLBFGS for the
+meaning.
+*/
 static int optimizer_run(void) {
   int ret = 0;
   YAP_Term t1 = YAP_ARG1;
@@ -352,6 +415,10 @@ static int optimizer_finalize( void ) {
 
 
 
+/** @pred  optimizer_set_parameter(+Name,+Value)
+Set the parameter Name to Value. Only possible while the optimizer
+is not running.
+*/
 static int optimizer_set_parameter( void ) {
   YAP_Term t1 = YAP_ARG1;
   YAP_Term t2 = YAP_ARG2;
@@ -506,6 +573,11 @@ static int optimizer_set_parameter( void ) {
   
   return TRUE;
 }
+
+
+/** @pred optimizer_get_parameter(+Name,-Value)</h3>
+Get the current Value for Name
+*/
 
 static int optimizer_get_parameter( void ) {
   YAP_Term t1 = YAP_ARG1;

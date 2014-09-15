@@ -106,20 +106,23 @@
 
 @defgroup MYDDAS The MYDDAS Data-base interface.
 @ingroup YAPPackages
+@{
 
 The MYDDAS database project was developed within a FCT project aiming at
 the development of a highly efficient deductive database system, based
-on the coupling of the MySQL relational database system with the Yap
+on the coupling of the MySQL relational database system with the YAP
 Prolog system. MYDDAS was later expanded to support the ODBC interface.
 
-@section Requirements_and_Installation_Guide Requirements and Installation Guide
+*/
 
+/** @defgroup Requirements_and_Installation_Guide Requirements and Installation Guide
+ee
 Next, we describe how to usen of the YAP with the MYDDAS System.  The
 use of this system is entirely depend of the MySQL development libraries
 or the ODBC development libraries. At least one of the this development
 libraries must be installed on the computer system, otherwise MYDDAS
 will not compile. The MySQL development libraries from MySQL 3.23 an
-above are know to work. We recommend the usage of MySQL versusODBC,
+above are know to work. We recommend the usage of MySQL versus ODBC,
 but it is possible to have both options installed
 
 At the same time, without any problem. The MYDDAS system automatically
@@ -128,20 +131,28 @@ problems in Linux. The usage of this system on Windows has not been
 tested yet.  MYDDAS must be enabled at configure time. This can be done
 with the following options: 
 
-<ul>
++ --enable-myddas
+   
+    This option will detect which development libraries are installed on the computer system, MySQL, ODBC or both, and will compile the Yap system with the support for which libraries it detects;
+    
++ --enable-myddas-stats
 
- <li>--enable-myddas
-This option will detect which development libraries are installed on the computer system, MySQL, ODBC or both, and will compile the Yap system with the support for which libraries it detects;
-    + --enable-myddas-stats
-This option is only available in MySQL. It includes code to get
+    This option is only available in MySQL. It includes code to get
 statistics from the MYDDAS system;
-    + --enable-top-level
-This option is only available in MySQL.  It enables the option to interact with the MySQL server in
+    
+
++ --enable-top-level
+
+    This option is only available in MySQL.  It enables the option to interact with the MySQL server in
 two different ways. As if we were on the MySQL Client Shell, and as if
 we were using Datalog. 
+@}
 
+*/
 
-@section MYDDAS_Architecture MYDDAS Architecture
+/** @defgroup MYDDAS_Architecture MYDDAS Architecture
+@ingroup MYDDAS
+@{
 
 The system includes four main blocks that are put together through the
 MYDDAS interface: the Yap Prolog compiler, the MySQL database system, an
@@ -166,114 +177,8 @@ completely transparent. An example of this transparent support is the
 Prolog cut operator, which has exactly the same behaviour from
 predicates defined in the Prolog program source code, or from predicates
 defined in database as relations.
-
-@section Loading_MYDDAS Loading MYDDAS
-
-Begin by starting YAP and loading the library
-`use_module(library(myddas))`.  This library already includes the
-Prolog to SQL Compiler described in [2] and [1]. In MYDDAS this compiler
-has been extended to support further constructs which allow a more
-efficient SQL translation.  
-
-@section Connecting_to_and_disconnecting_from_a_Database_Server Connecting to and disconnecting from a Database Server
-
- @pred db open(+,+,+,+,+).  
-
-
-
- @pred db open(+,+,+,+). 
-
-
- @pred db close(+).  
-
-
-
-
-
-Assuming the MySQL server is running and we have an account, we can
-login to MySQL by invoking db_open/5 as one of the following:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_open(mysql,Connection,Host/Database,User,Password). 
-?- db_open(mysql,Connection,Host/Database/Port,User,Password).
-?- db_open(mysql,Connection,Host/Database/UnixSocket,User,Password). 
-?- db_open(mysql,Connection,Host/Database/Port/UnixSocket,User,Password).
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-If the login is successful, there will be a response of `yes`. For
-instance:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_open(mysql,con1,localhost/guest_db,guest,'').
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-uses the MySQL native interface, selected by the first argument, to open
-a connection identified by the `con1` atom, to an instance of a
-MySQL server running on host `localhost`, using database guest `db`
-and user `guest` with empty `password`.  To disconnect from the `con1`
-connection we use: 
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_close(con1).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Alternatively, we can use `db_open/4` and `db_close/0,` without an argument
-to identify the connection. In this case the default connection is used,
-with atom `myddas`. Thus using 
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_open(mysql,localhost/guest_db,guest,''). 
-?- db_close.  
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-or
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_open(mysql,myddas,localhost/guest_db,guest,''). 
-?- db_close(myddas). 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-is exactly the same.
-
-MYDDAS also supports ODBC. To connect to a database using an ODBC driver
-you must have configured on your system a ODBC DSN. If so, the `db_open/4`
-and db_open/5 have the following mode:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ?- db_open(odbc,Connection,ODBC_DSN,User,Password). 
- ?- db_open(odbc,ODBC_DSN,User,Password).
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For instance, if you do `db_open(odbc,odbc_dsn,guest,'')`. it will connect
-to a database, through ODBC, using the definitions on the `odbc_dsn` DSN
-configured on the system. The user will be the user `guest` with no
-password.
-
-@section Accessing_a_Relation Accessing a Relation
-
- @pred db_import(+Conn,+RelationName,+PredName).  
-
-
-
- @pred db_import(+RelationName,+PredName).  
-
-
-
-Assuming you have access permission for the relation you wish to import,
-you can use db_import/3 or `db_import/2` as:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_import(Conn,RelationName,PredName).
-?- db_import(RelationName,PredName).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-where  _RelationName_, is the name of
-relation we wish to access,  _PredName_ is the name of the predicate we
-wish to use to access the relation from YAP.  _Conn_, is the connection
-identifier, which again can be dropped so that the default myddas connection
-is used. For instance, if we want to access the relation phonebook,
-using the predicate `phonebook/3` we write: 
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_import(con1,phonebook,phonebook). 
-yes
-?- phonebook(Letter,Name,Number).
-Letter = 'D',
 Name = 'John Doe',
 Number = 123456789 ? 
 yes
@@ -297,7 +202,14 @@ FROM 'phonebook' A
 WHERE A.Name = 'John Doe';
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-@section View_Level_Interface View Level Interface
+@}
+
+
+*/
+
+/** @defgroup View_Level_Interface View Level Interface
+@ingroup MYDDAS
+@{
 
  @pred db view(+,+,+). 
 
@@ -390,7 +302,14 @@ FROM Edge A WHERE A.attr1 = 10;
 To know how to use db `view/3`, please refer to Draxler's Prolog to
 SQL Compiler Manual. 
 
-@section Accessing_Tables_in_Data_Sources_Using_SQL Accessing Tables in Data Sources Using SQL 
+@}
+
+
+*/
+
+/** @defgroup Accessing_Tables_in_Data_Sources_Using_SQL Accessing Tables in Data Sources Using SQL 
+@ingroup MYDDAS
+@{
 
  @pred db_sql(+,+,?).  
 
@@ -493,7 +412,13 @@ yes
 yes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-@section Types_of_Attributes Types of Attributes
+@}
+
+*/
+
+/** @defgroup  Types_of_Attributes Types of AttributesL 
+@ingroup MYDDAS
+@{
 
  @pred db_get_attributes_types(+,+,?). 
 
@@ -524,7 +449,14 @@ yes
 where <tt>Hello World</tt> is the name of the relation and <tt>myddas</tt> is the
 connection identifier. 
 
-@section Number_of_Fields Number of Fields
+
+@}
+
+*/
+
+/** @defgroup  Number_of_Fields Number of Fields 
+@ingroup MYDDAS
+@{
 
  @pred db_number_of_fields(+,?). 
 
@@ -553,7 +485,14 @@ yes
 where `Hello World` is the name of the
 relation and `myddas` is the connection identifier.
 
-@section Describing_a_Relation Describing a Relation
+
+@}
+
+*/
+
+/** @defgroup  Describing_a_Relation Describing a Relation
+@ingroup MYDDAS
+@{
 
  @pred db_datalog_describe(+,+). 
 
@@ -598,7 +537,14 @@ Term = tableInfo('Letter',char(1),'YES','',null(2),'') ? ;
 no
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-@section Enumerating_Relations Enumeration Relations
+
+@}
+
+*/
+
+/** @defgroup Enumerating_Relations Enumeration Relations Describing_a_Relation Describing a Relation
+@ingroup MYDDAS
+@{
 
  @pred db_datalog_show_tables(+).
  @pred db_datalog_show_tables
@@ -638,7 +584,14 @@ Table = table('Hello World') ? ;
 no
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-@section The_MYDDAS_MySQL_Top_Level The MYDDAS MySQL Top Level
+@}
+
+*/
+
+/** @defgroup  The_MYDDAS_MySQL_Top_Level The MYDDAS MySQL Top Level
+@ingroup MYDDAS
+@{
+
 
  @pred db_top_level(+,+,+,+,+).  
 
@@ -691,8 +644,15 @@ Bye
 yes
 ?- 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+@}
 
-@section Other_MYDDAS_Properties Other MYDDAS Properties 
+*/
+
+/** @defgroup   Other_MYDDAS_Properties Other MYDDAS Properties 
+@ingroup MYDDAS
+@{
+
+
 
  @pred db_verbose(+). 
  @pred db_top_level(+,+,+,+).

@@ -20,7 +20,6 @@
 
 /** @defgroup Comparing_Terms Comparing Terms
 @ingroup YAPBuiltins
-@{
 
 The following predicates are used to compare and order terms, using the
 standard ordering:
@@ -45,7 +44,7 @@ Compound terms are ordered first by arity of the main functor, then by
 the name of the main functor, and finally by their arguments in
 left-to-right order.
 
-
+@{
 
 
  
@@ -537,7 +536,21 @@ Int Yap_compare_terms(Term d0, Term d1)
   return compare(Deref(d0),Deref(d1));
 }
 
-static Int 
+/** @pred  compare( _C_, _X_, _Y_) is iso 
+
+
+As a result of comparing  _X_ and  _Y_,  _C_ may take one of
+the following values:
+
++ 
+`=` if  _X_ and  _Y_ are identical;
++ 
+`<` if  _X_ precedes  _Y_ in the defined order;
++ 
+`>` if  _Y_ precedes  _X_ in the defined order;
+
+*/
+Int
 p_compare( USES_REGS1 )
 {				/* compare(?Op,?T1,?T2)	 */
   Int             r = compare(Deref(ARG2), Deref(ARG3));
@@ -552,6 +565,70 @@ p_compare( USES_REGS1 )
   return Yap_unify_constant(ARG1, MkAtomTerm(p));
 }
 
+
+/** @pred  _X_ \==  _Y_ is iso 
+
+Terms  _X_ and  _Y_ are not strictly identical.
+*/
+static Int 
+a_noteq(Term t1, Term t2)
+{
+  return (compare(t1, t2) != 0);
+}
+
+static Int 
+a_gen_lt(Term t1, Term t2)
+{
+  return (compare(t1, t2) < 0);
+}
+
+/** @pred  _X_ @=<  _Y_ is iso 
+
+
+Term  _X_ does not follow term  _Y_ in the standard order.
+
+*/
+static Int 
+a_gen_le(Term t1, Term t2)
+{
+  return (compare(t1, t2) <= 0);
+}
+
+/** @pred  _X_ @>  _Y_ is iso 
+
+
+Term  _X_ does not follow term  _Y_ in the standard order
+*/
+static Int 
+a_gen_gt(Term t1, Term t2)
+{
+  return compare(t1, t2) > 0;
+}
+
+/** @pred  _X_ @>=  _Y_ is iso 
+
+Term  _X_ does not precede term  _Y_ in the standard order. 
+*/
+static Int 
+a_gen_ge(Term t1, Term t2)
+{
+  return compare(t1, t2) >= 0;
+}
+
+
+/**
+@}
+*/
+
+/**
+
+   @defgroup arithmetic_cmps Arithmetic Comparison Predicates
+   @ingroup arithmetic
+
+   Comparison of Numeric Expressions. Both arguments must be valid ground expressions at time of call.
+
+   @{
+*/
 inline static Int
 int_cmp(Int dif)
 {
@@ -685,17 +762,6 @@ a_cmp(Term t1, Term t2 USES_REGS)
   }
 }
 
-/**
-
-   @defgroup arithmetic_cmps Arithmetic Comparison Predicates
-   @ingroup arithmetic
-
-   Comparison of Numeric Expressions. Both arguments must be valid ground expressions at time of call.
-
-   @{
-*/
-
-
 Int
 Yap_acmp(Term t1, Term t2 USES_REGS)
 {
@@ -717,15 +783,12 @@ p_acomp( USES_REGS1 )
 }
 
 /**
-  @[
-   @class arith_eq_2
-   @brief  =:=/2: Equality of arithmetic expressions
+   @pred +_X_ =:= _Y_ is iso
+   Equality of arithmetic expressions
 
-   <b>+ _X_ =:= + _Y_ [ISO]</b><p> @anchor ar_eq_2
-
-
-   The value of the expression  _X_ is less than the value of expression _Y_.
+   The value of the expression  _X_ is equal to the value of expression _Y_.
  */
+/// @memberof =:=/2
 static Int 
 a_eq(Term t1, Term t2)
 {
@@ -760,17 +823,14 @@ a_eq(Term t1, Term t2)
   return out == 0;
 }
 
-/**
-   @}
 
-   @class arith_dif_2
-   @brief  =\\=/2: Difference of arithmetic expressions
-
-   <b>+ _X_ =\\= + _Y_ [ISO]</b><p> @anchor ar_dif_2
-
+/*
+   @pred +_X_ =\\= _Y_ is iso
+    Difference of arithmetic expressions
 
    The value of the expression  _X_ is different from the value of expression _Y_.
  */
+/// @memberof =\\=/2
 static Int 
 a_dif(Term t1, Term t2)
 {
@@ -781,11 +841,8 @@ a_dif(Term t1, Term t2)
 }
 
 /**
-   @class arith_gt_2
-   @brief \>/2: Greater than arithmetic expressions
-
-  <b>+ _X_ \> + _Y_ [ISO]</b><p> @anchor qQlg_2
-
+   @pred +_X_ \> +_Y_ is iso
+   Greater than arithmetic expressions
 
   The value of the expression  _X_ is less than or equal to the value
   of expression  _Y_.
@@ -800,11 +857,8 @@ a_gt(Term t1, Term t2)
 }
 
 /**
-   @class arith_ge_2
-   @brief  \>=/2: Greater than or equal to arithmetic expressions
-
-   <b>+ _X_ \>= + _Y_ [ISO]</b><p> @anchor gGqQ_2
-
+   @pred +_X_ >= +_Y_ is iso
+   Greater than or equal to arithmetic expressions
 
    The value of the expression  _X_ is greater than or equal to the
    value of expression  _Y_.
@@ -819,15 +873,13 @@ a_ge(Term t1, Term t2)
 }
 
 /**
-   @class arith_lt_2
-   @brief \</2: Lesser than arithmetic expressions
-
-   <b>+ _X_ \< + _Y_ [ISO]</b><p> @anchor sS_2
-
+   @pred +_X_ \< +_Y_ is iso
+   Lesser than arithmetic expressions
 
    The value of the expression  _X_ is less than the value of expression
    _Y_.
 */
+/// @memberof </2
 static Int 
 a_lt(Term t1, Term t2)
 {				/* A < B       */
@@ -839,15 +891,14 @@ a_lt(Term t1, Term t2)
 
 /**
  *
- @class arith_le_2
- @brief =\</2: Lesser than or equal to arithmetic expressions
+ @pred _X_ =< + _Y_
+  Lesser than or equal to arithmetic expressions
 
- <b>+ _X_ =\< + _Y_ [ISO]</b><p> @anchor qQsS_2
-
-
+ 
  The value of the expression  _X_ is less than or equal to the value
  of expression  _Y_.
 */
+/// @memberof =</2
 static Int 
 a_le(Term t1, Term t2)
 {				/* A <= B */
@@ -857,38 +908,9 @@ a_le(Term t1, Term t2)
   return out <= 0;
 }
 
-/// @}
-
-static Int 
-a_noteq(Term t1, Term t2)
-{
-  return (compare(t1, t2) != 0);
-}
-
-static Int 
-a_gen_lt(Term t1, Term t2)
-{
-  return (compare(t1, t2) < 0);
-}
-
-static Int 
-a_gen_le(Term t1, Term t2)
-{
-  return (compare(t1, t2) <= 0);
-}
-
-static Int 
-a_gen_gt(Term t1, Term t2)
-{
-  return compare(t1, t2) > 0;
-}
-
-static Int 
-a_gen_ge(Term t1, Term t2)
-{
-  return compare(t1, t2) >= 0;
-}
-
+/**
+ @}
+*/
 
 void 
 Yap_InitCmpPreds(void)
@@ -901,90 +923,11 @@ Yap_InitCmpPreds(void)
   Yap_InitCmpPred(">=", 2, a_ge, SafePredFlag | BinaryPredFlag);
   Yap_InitCPred("$a_compare", 3, p_acomp, TestPredFlag | SafePredFlag);
   Yap_InitCmpPred("\\==", 2, a_noteq, BinaryPredFlag | SafePredFlag);
-/** @pred  _X_ \==  _Y_ is iso 
-
-
-Terms  _X_ and  _Y_ are not strictly identical.
-
- 
-*/
   Yap_InitCmpPred("@<", 2, a_gen_lt, BinaryPredFlag | SafePredFlag);
-/** @pred  _X_ @<  _Y_ is iso 
-
-
-Term  _X_ precedes term  _Y_ in the standard order.
-
- 
-*/
   Yap_InitCmpPred("@=<", 2, a_gen_le, BinaryPredFlag | SafePredFlag);
-/** @pred  _X_ @=<  _Y_ is iso 
-
-
-Term  _X_ does not follow term  _Y_ in the standard order.
-
- 
-*/
   Yap_InitCmpPred("@>", 2, a_gen_gt, BinaryPredFlag | SafePredFlag);
-/** @pred  _X_ @>  _Y_ is iso 
-
-
-Term  _X_ follows term  _Y_ in the standard order.
-
- 
-*/
   Yap_InitCmpPred("@>=", 2, a_gen_ge, BinaryPredFlag | SafePredFlag);
-/** @pred  _X_ @>=  _Y_ is iso 
-
-
-Term  _X_ does not precede term  _Y_ in the standard order.
-
- 
-*/
   Yap_InitCPred("compare", 3, p_compare, TestPredFlag | SafePredFlag);
-/** @pred  compare( _C_, _X_, _Y_) is iso 
-
-
-As a result of comparing  _X_ and  _Y_,  _C_ may take one of
-the following values:
-
-+ 
-`=` if  _X_ and  _Y_ are identical;
-+ 
-`<` if  _X_ precedes  _Y_ in the defined order;
-+ 
-`>` if  _Y_ precedes  _X_ in the defined order;
-
-
-+ _X_ ==  _Y_ is iso 
-
-
-Succeeds if terms  _X_ and  _Y_ are strictly identical. The
-difference between this predicate and =/2 is that, if one of the
-arguments is a free variable, it only succeeds when they have already
-been unified.
-
-~~~~~{.prolog}
-?- X == Y.
-~~~~~
-fails, but,
-
-~~~~~{.prolog}
-?- X = Y, X == Y.
-~~~~~
-succeeds.
-
-~~~~~{.prolog}
-?- X == 2.
-~~~~~
-fails, but,
-
-~~~~~{.prolog}
-?- X = 2, X == 2.
-~~~~~
-succeeds.
-
- 
-*/
 }
 
 /**

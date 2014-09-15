@@ -25,9 +25,7 @@
 
   + See @ref arithmetic_cmps for the arithmetic comparisons supported in YAP
 
-  + See @ref arithmetic_operators for how to call arithmetic operations in YAP 
-
-
+  + See @ref arithmetic_operators for what arithmetic operations are supported in YAP
 
     @tableofcontents
 
@@ -61,7 +59,7 @@ used. Rational numbers that are returned from is/2 are canonical,
 which means the denominator _M_ is positive and that the numerator _N_
 and _M_ have no common divisors. Rational numbers are introduced in
 the computation using the [rational/1][@ref rational_1],
-[rationalize/1][@ref rationalize_1] or the [rdiv/2][@ref rdiv_2]
+[rationalize/1][@ref rationalize/1] or the [rdiv/2][@ref rdiv/2]
 (rational division) function.
 
 </li>
@@ -69,7 +67,7 @@ the computation using the [rational/1][@ref rational_1],
 
 Floating point numbers are represented using the C-type double. On
 most today platforms these are 64-bit IEEE-754 floating point
-numbers. YAP now includes the built-in predicates [isinf/1][@ref isinf_1] and to [isnan/1][@ref isnan_1] tests.
+numbers. YAP now includes the built-in predicates [isinf/1][@ref isinf/1] and to [isnan/1][@ref isnan/1] tests.
 </li>
 </ul>
 
@@ -97,8 +95,8 @@ exceptions:
    @exception "evaluation_error(overflow( V ), Call)" result is arithmetic overflow
    
 @secreflist
-@refitem is_2
-@refitem isnan_1
+@refitem is/2
+@refitem isnan/1
 @endsecreflist
 
 

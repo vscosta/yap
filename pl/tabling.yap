@@ -17,7 +17,7 @@
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
 /** @defgroup Tabling Tabling
-@ingroup YAPBuiltins
+@ingroup YAPExtensions
 @{
 
  *YAPTab* is the tabling engine that extends YAP's execution

@@ -24,7 +24,7 @@ static char     SccsId[] = "%W% %G%";
 
 The following predicates are used to manipulate atoms:
 
-
+\toc
  
 */
 
