@@ -1984,60 +1984,6 @@ fi
 
 } # ac_fn_c_try_link
 
-# ac_fn_c_check_type LINENO TYPE VAR INCLUDES
-# -------------------------------------------
-# Tests whether TYPE exists after having included INCLUDES, setting cache
-# variable VAR accordingly.
-ac_fn_c_check_type ()
-{
-  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $2" >&5
-$as_echo_n "checking for $2... " >&6; }
-if eval \${$3+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  eval "$3=no"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$4
-int
-main ()
-{
-if (sizeof ($2))
-	 return 0;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$4
-int
-main ()
-{
-if (sizeof (($2)))
-	    return 0;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-
-else
-  eval "$3=yes"
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-eval ac_res=\$$3
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
-
-} # ac_fn_c_check_type
-
 # ac_fn_c_check_header_mongrel LINENO HEADER VAR INCLUDES
 # -------------------------------------------------------
 # Tests whether HEADER exists, giving a warning if it cannot be compiled using
@@ -2195,6 +2141,60 @@ $as_echo "$ac_res" >&6; }
   eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
 
 } # ac_fn_c_check_func
+
+# ac_fn_c_check_type LINENO TYPE VAR INCLUDES
+# -------------------------------------------
+# Tests whether TYPE exists after having included INCLUDES, setting cache
+# variable VAR accordingly.
+ac_fn_c_check_type ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $2" >&5
+$as_echo_n "checking for $2... " >&6; }
+if eval \${$3+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  eval "$3=no"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$4
+int
+main ()
+{
+if (sizeof ($2))
+	 return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$4
+int
+main ()
+{
+if (sizeof (($2)))
+	    return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+else
+  eval "$3=yes"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+eval ac_res=\$$3
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+
+} # ac_fn_c_check_type
 
 # ac_fn_c_compute_int LINENO EXPR VAR INCLUDES
 # --------------------------------------------
@@ -6819,110 +6819,6 @@ fi
 
 fi
 
-if test "$yap_cv_readline" != "no"
-then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lncurses" >&5
-$as_echo_n "checking for main in -lncurses... " >&6; }
-if ${ac_cv_lib_ncurses_main+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lncurses  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-int
-main ()
-{
-return main ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_ncurses_main=yes
-else
-  ac_cv_lib_ncurses_main=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ncurses_main" >&5
-$as_echo "$ac_cv_lib_ncurses_main" >&6; }
-if test "x$ac_cv_lib_ncurses_main" = xyes; then :
-
-		LIBS="-lncurses $LIBS"
-
-fi
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lreadline" >&5
-$as_echo_n "checking for main in -lreadline... " >&6; }
-if ${ac_cv_lib_readline_main+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lreadline  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-int
-main ()
-{
-return main ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_readline_main=yes
-else
-  ac_cv_lib_readline_main=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_readline_main" >&5
-$as_echo "$ac_cv_lib_readline_main" >&6; }
-if test "x$ac_cv_lib_readline_main" = xyes; then :
-
-
-$as_echo "#define HAVE_LIBREADLINE 1" >>confdefs.h
-
-		        LIBS="-lreadline $LIBS"
-		        ac_fn_c_check_type "$LINENO" "rl_hook_func_t" "ac_cv_type_rl_hook_func_t" "$ac_includes_default"
-if test "x$ac_cv_type_rl_hook_func_t" = xyes; then :
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_RL_HOOK_FUNC_T 1
-_ACEOF
-
-
-fi
-ac_fn_c_check_type "$LINENO" "rl_completion_func_t" "ac_cv_type_rl_completion_func_t" "$ac_includes_default"
-if test "x$ac_cv_type_rl_completion_func_t" = xyes; then :
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_RL_COMPLETION_FUNC_T 1
-_ACEOF
-
-
-fi
-
-
-else
-
-                 { $as_echo "$as_me:${as_lineno-$LINENO}: result: test for readline failed" >&5
-$as_echo "test for readline failed" >&6; }
-
-
-fi
-
-fi
-
 if test "$yap_cv_gmp" != "no"
 then
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lgmp" >&5
@@ -8373,6 +8269,255 @@ fi
 done
 
 
+if test "$yap_cv_readline" != "no"
+then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lncurses" >&5
+$as_echo_n "checking for main in -lncurses... " >&6; }
+if ${ac_cv_lib_ncurses_main+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lncurses  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_ncurses_main=yes
+else
+  ac_cv_lib_ncurses_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ncurses_main" >&5
+$as_echo "$ac_cv_lib_ncurses_main" >&6; }
+if test "x$ac_cv_lib_ncurses_main" = xyes; then :
+
+		LIBS="-lncurses $LIBS"
+
+fi
+
+ 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lreadline" >&5
+$as_echo_n "checking for main in -lreadline... " >&6; }
+if ${ac_cv_lib_readline_main+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lreadline  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_readline_main=yes
+else
+  ac_cv_lib_readline_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_readline_main" >&5
+$as_echo "$ac_cv_lib_readline_main" >&6; }
+if test "x$ac_cv_lib_readline_main" = xyes; then :
+
+  	for ac_header in readline/readline.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "readline/readline.h" "ac_cv_header_readline_readline_h" "$ac_includes_default"
+if test "x$ac_cv_header_readline_readline_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_READLINE_READLINE_H 1
+_ACEOF
+
+fi
+
+done
+
+  	for ac_header in readline/history.h
+do :
+  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
+if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+
+done
+
+  	if test "x$ac_cv_header_readline_readline_h" = xyes
+  	then
+
+$as_echo "#define HAVE_LIBREADLINE 1" >>confdefs.h
+
+		LIBS="-lreadline $LIBS"
+        ac_fn_c_check_type "$LINENO" "rl_hook_func_t" "ac_cv_type_rl_hook_func_t" "
+        					#include <stdio.h>
+                        #include <readline/readline.h>
+
+"
+if test "x$ac_cv_type_rl_hook_func_t" = xyes; then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_RL_HOOK_FUNC_T 1
+_ACEOF
+
+
+fi
+ac_fn_c_check_type "$LINENO" "rl_completion_func_t" "ac_cv_type_rl_completion_func_t" "
+        					#include <stdio.h>
+                        #include <readline/readline.h>
+
+"
+if test "x$ac_cv_type_rl_completion_func_t" = xyes; then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_RL_COMPLETION_FUNC_T 1
+_ACEOF
+
+
+fi
+
+  		for ac_func in rl_completion_matches rl_clear_pending_input rl_reset_after_signal
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+	  	for ac_func in rl_filename_completion_function rl_free_line_state rl_insert_close
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+ 	    for ac_func in rl_set_prompt rl_free_line_state rl_insert_close add_history
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+ 	 	for ac_func in rl_begin_undo_group rl_discard_argument
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+ 	 	ac_fn_c_check_decl "$LINENO" "rl_event_hook" "ac_cv_have_decl_rl_event_hook" "
+ 	 	                 #include <stdio.h>
+ 	 	                 #include <readline/readline.h>
+
+"
+if test "x$ac_cv_have_decl_rl_event_hook" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_RL_EVENT_HOOK $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "rl_catch_signals " "ac_cv_have_decl_rl_catch_signals_" "
+ 	 	                 #include <stdio.h>
+ 	 	                 #include <readline/readline.h>
+
+"
+if test "x$ac_cv_have_decl_rl_catch_signals_" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_RL_CATCH_SIGNALS_ $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "rl_readline_state" "ac_cv_have_decl_rl_readline_state" "
+ 	 	                 #include <stdio.h>
+ 	 	                 #include <readline/readline.h>
+
+"
+if test "x$ac_cv_have_decl_rl_readline_state" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_RL_READLINE_STATE $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "rl_done " "ac_cv_have_decl_rl_done_" "
+ 	 	                 #include <stdio.h>
+ 	 	                 #include <readline/readline.h>
+
+"
+if test "x$ac_cv_have_decl_rl_done_" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_RL_DONE_ $ac_have_decl
+_ACEOF
+
+  	else
+   		yap_cv_readline=no
+   		 { $as_echo "$as_me:${as_lineno-$LINENO}: result: test for readline failed" >&5
+$as_echo "test for readline failed" >&6; }
+  	fi
+
+else
+
+                 { $as_echo "$as_me:${as_lineno-$LINENO}: result: test for readline failed" >&5
+$as_echo "test for readline failed" >&6; }
+
+
+fi
+
+fi
+
 if test "$yap_cv_gmp" != "no"
 then
   for ac_header in gmp.h
@@ -8416,79 +8561,6 @@ $as_echo "#define USE_JUDY 1" >>confdefs.h
   fi
 fi
 
-if test "$yap_cv_readline" != "no"
-then
-  for ac_header in readline/readline.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "readline/readline.h" "ac_cv_header_readline_readline_h" "$ac_includes_default"
-if test "x$ac_cv_header_readline_readline_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_READLINE_READLINE_H 1
-_ACEOF
-
-fi
-
-done
-
-  for ac_header in readline/history.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "readline/history.h" "ac_cv_header_readline_history_h" "$ac_includes_default"
-if test "x$ac_cv_header_readline_history_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_READLINE_HISTORY_H 1
-_ACEOF
-
-fi
-
-done
-
-  for ac_func in rl_completion_matches  rl_clear_pending_input  rl_cleanup_after_signal rl_event_hook rl_filename_completion_function rl_free_line_state rl_insert_close rl_set_prompt rl_state_initialized
-do :
-  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
-ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
-if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-done
-
-
-if ${yap_cv_rl_catch+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <readline/readline.h>
-
-int
-main ()
-{
-printf("Signal value is %d\n", rl_catch_signal);
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  yap_cv_rl_catch=yes
-else
-  yap_cv_rl_catch=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $yap_cv_rl_catch" >&5
-$as_echo "$yap_cv_rl_catch" >&6; }
-if test "$yap_cv_rl_catch" = yes
-then
-
-$as_echo "#define HAVE_RL_CATCH_SIGNAL 1" >>confdefs.h
-
-fi
-fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for inline" >&5
 $as_echo_n "checking for inline... " >&6; }
@@ -13742,7 +13814,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 13745 "configure" */
+/* #line 13817 "configure" */
 public class Test {
 }
 EOF
@@ -13918,7 +13990,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 13921: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 13993: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -14049,7 +14121,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14052 "configure" */
+/* #line 14124 "configure" */
 public class Test {
 }
 EOF
@@ -14084,7 +14156,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 14087 "configure" */
+/* [#]line 14159 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);

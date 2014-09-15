@@ -650,22 +650,6 @@ else
   AC_CHECK_LIB(pthread,pthread_create)
 fi
 
-if test "$yap_cv_readline" != "no"
-then
-  AC_CHECK_LIB([ncurses], [main],[
-		LIBS="-lncurses $LIBS"
-              ])
-  AC_CHECK_LIB([readline], [main],[
-                AC_DEFINE([HAVE_LIBREADLINE], [1], [Define if you have libreadline])
-		        LIBS="-lreadline $LIBS"
-		        AC_CHECK_TYPES([rl_hook_func_t, rl_completion_func_t])
-              ],
-              [
-                 AC_MSG_RESULT( [test for readline failed])
-              ]
-           )
-fi
-
 if test "$yap_cv_gmp" != "no"
 then
   AC_CHECK_LIB(gmp,main)
@@ -1264,6 +1248,41 @@ AC_CHECK_HEADERS(wctype.h winsock.h winsock2.h)
 AC_CHECK_HEADERS(zlib.h zutil.h)
 AC_CHECK_HEADERS(mach-o/dyld.h LibLoaderAPI.h)
 
+if test "$yap_cv_readline" != "no"
+then
+  AC_CHECK_LIB([ncurses], [main],[
+		LIBS="-lncurses $LIBS"
+              ])
+ 	AC_CHECK_LIB([readline], [main],[
+  	AC_CHECK_HEADERS( readline/readline.h)
+  	AC_CHECK_HEADERS( readline/history.h )
+  	if test "x$ac_cv_header_readline_readline_h" = xyes
+  	then
+    		AC_DEFINE([HAVE_LIBREADLINE], [1], [Define if you have libreadline])
+		LIBS="-lreadline $LIBS"
+        AC_CHECK_TYPES([rl_hook_func_t, rl_completion_func_t], [], [], [
+        					[#include <stdio.h>]
+                        [#include <readline/readline.h>]
+                        ] )
+  		AC_CHECK_FUNCS( rl_completion_matches rl_clear_pending_input rl_reset_after_signal )
+	  	AC_CHECK_FUNCS( rl_filename_completion_function rl_free_line_state rl_insert_close )
+ 	    AC_CHECK_FUNCS( rl_set_prompt rl_free_line_state rl_insert_close add_history )
+ 	 	AC_CHECK_FUNCS( rl_begin_undo_group rl_discard_argument )
+ 	 	AC_CHECK_DECLS( [ rl_event_hook, rl_catch_signals , rl_readline_state, rl_done ], [], [], [
+ 	 	                 [#include <stdio.h>]
+ 	 	                 [#include <readline/readline.h>]
+ 	 	                 ] )
+  	else
+   		yap_cv_readline=no
+   		 AC_MSG_RESULT( [test for readline failed])
+  	fi
+   	           ],
+              [
+                 AC_MSG_RESULT( [test for readline failed])
+              ]
+           )
+fi
+
 if test "$yap_cv_gmp" != "no"
 then
   AC_CHECK_HEADERS(gmp.h)
@@ -1281,25 +1300,6 @@ if test "$yap_cv_judy" != "no"; then
   fi
 fi
 
-if test "$yap_cv_readline" != "no"
-then
-  AC_CHECK_HEADERS( readline/readline.h)
-  AC_CHECK_HEADERS( readline/history.h)
-  AC_CHECK_FUNCS( rl_completion_matches  rl_clear_pending_input  rl_cleanup_after_signal rl_event_hook rl_filename_completion_function rl_free_line_state rl_insert_close rl_set_prompt rl_state_initialized )
-
-AC_CACHE_VAL(yap_cv_rl_catch,[
-AC_TRY_COMPILE(
-	#include <readline/readline.h>
-	,
-	printf("Signal value is %d\n", rl_catch_signal);
-	,
-	yap_cv_rl_catch=yes,yap_cv_rl_catch=no ) ] )
-AC_MSG_RESULT($yap_cv_rl_catch)
-if test "$yap_cv_rl_catch" = yes
-then
-  AC_DEFINE(HAVE_RL_CATCH_SIGNAL, 1, [Defined if you can turn off readline's signal handling.])
-fi
-fi
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE

@@ -99,28 +99,9 @@ extern int rl_done;			/* should be in readline.h, but */
 					/* isn't in some versions ... */
 #ifdef HAVE_READLINE_HISTORY_H
 #include <readline/history.h>
-#else
-extern void add_history(char *);	/* should be in readline.h */
 #endif
 					/* missing prototypes in older */
 					/* readline.h versions */
-extern int rl_begin_undo_group(void);	/* delete when conflict arrises! */
-extern int rl_end_undo_group(void);
-
-#if HAVE_RL_HOOK_FUNC_T
-extern rl_hook_func_t *rl_event_hook;
-#else
-extern Function *rl_event_hook;
-#endif
-
-#ifndef HAVE_RL_FILENAME_COMPLETION_FUNCTION
-#define rl_filename_completion_function filename_completion_function
-extern char *filename_completion_function(const char *, int);
-#endif
-
-#ifndef HAVE_RL_COMPLETION_MATCHES
-#define rl_completion_matches completion_matches
-#endif
 
 #ifndef RL_STATE_INITIALIZED
 int rl_readline_state = 0;
@@ -459,14 +440,8 @@ Sread_readline(void *handle, char *buf, size_t size)
       }
 #endif
 
-#ifdef HAVE_RL_EVENT_HOOK
-      if ( PL_dispatch(0, PL_DISPATCH_INSTALLED) ) {
-#if HAVE_RL_HOOK_FUNC_T
-	rl_event_hook = event_hook;
-#else
-	rl_event_hook = (Function *)event_hook;
-#endif
-      } else {
+#if HAVE_DECL_RL_EVENT_HOOK_
+      if ( !PL_dispatch(0, PL_DISPATCH_INSTALLED) ) {
 	rl_event_hook = NULL;
       }
 #endif
@@ -535,7 +510,7 @@ static int
 prolog_complete(int ignore, int key)
 { if ( rl_point > 0 && rl_line_buffer[rl_point-1] != ' ' )
   {
-#if HAVE_RL_CATCH_SIGNAL		/* actually version >= 1.2, or true readline */
+#if HAVE_DECL_RL_CATCH_SIGNALS_	/* actually version >= 1.2, or true readline */
 	rl_begin_undo_group();
     rl_complete(ignore, key);
     if ( rl_point > 0 && rl_line_buffer[rl_point-1] == ' ' )
@@ -608,7 +583,7 @@ PL_install_readline(void)
 #endif
 
   alevel = setAccessLevel(ACCESS_LEVEL_SYSTEM);
-#if HAVE_RL_CATCH_SIGNAL
+#if HAVE_DECL_RL_CATCH_SIGNALS_
   rl_catch_signals = 0;
 #endif
   rl_readline_name = "Prolog";
@@ -621,7 +596,7 @@ PL_install_readline(void)
 #ifdef HAVE_RL_COMPLETION_FUNC_T
   rl_add_defun("prolog-complete", prolog_complete, '\t');
 #else
-  rl_add_defun("prolog-complete", (Function *)prolog_complete, '\t');
+  rl_add_defun("prolog-complete", (void *)prolog_complete, '\t');
 #endif
 #if HAVE_RL_INSERT_CLOSE
   rl_add_defun("insert-close", rl_insert_close, ')');
