@@ -635,7 +635,6 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
       *pt = AtomTermAdjust(reg);
     pt++;
   }
-  printf("exit with cpt=%p, (%p-%p) %ld\n", cpt, HR, H0, cpt-H0);
 }
 
 /*
