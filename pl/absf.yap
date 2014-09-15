@@ -459,6 +459,21 @@ absolute_file_name(File0,File) :-
 '$add_file_to_dir'(P0,A,Atoms,NFile) :-
 	atom_concat([P0,A,Atoms],NFile).
 
+/** @pred prolog_file_name( +File, -PrologFileName)
+
+Unify _PrologFileName_ with the Prolog file associated to _File_.
+
+*/
+prolog_file_name(File, PrologFileName) :-
+	var(File), !,
+	'$do_error'(instantiation_error, prolog_file_name(File, PrologFileName)).
+prolog_file_name(user, Out) :- !, Out = user.
+prolog_file_name(File, PrologFileName) :-
+	atom(File), !,
+	operating_system_support:true_file_name(File, PrologFileName).
+prolog_file_name(File, PrologFileName) :-
+	'$do_error'(type_error(atom,T), prolog_file_name(File, PrologFileName)).
+
 /**
   @pred path(-Directories:list) is det,deprecated
 

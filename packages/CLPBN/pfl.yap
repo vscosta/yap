@@ -36,7 +36,7 @@ PFL is included with the YAP Prolog system.  The commands to perform a default i
 2 `$ git clone git://yap.git.sourceforge.net/gitroot/yap/yap-6.3`
 3 `$ cd yap-6.3/`
 4 `$ ./configure --enable-clpbn-bp --prefix=$HOME`
-5 `$ make depend \& make install`
+5 `$ make depend & make install`
 
 In case you want to install YAP somewhere else or with different settings, please consult the YAP documentation. From now on, we will assume that the directory `$HOME/bin` (where the binary is) is in your `$PATH` environment variable.
 
@@ -54,7 +54,7 @@ Where,
 
 + _F_ is a comma-separated sequence of Prolog terms that will define sets of random variables under the constraint _C_. If _Type_ is `bayes`, the first term defines the node while the remaining terms define its parents.
 
-+ _Phi_ is either a Prolog list of potential values or a Prolog goal that unifies with one. Notice that if _Type_ is `bayes`, this will correspond to the conditional probability table. Domain combinations are implicitly assumed in ascending order, with the first term being the 'most significant' (e.g. _\mathtt{x_0y_0}_, _\mathtt{x_0y_1}_, _\mathtt{x_0y_2}_, _\mathtt{x_1y_0}_, _\mathtt{x_1y_1}_, _\mathtt{x_1y_2}_).
++ _Phi_ is either a Prolog list of potential values or a Prolog goal that unifies with one. Notice that if _Type_ is `bayes`, this will correspond to the conditional probability table. Domain combinations are implicitly assumed in ascending order, with the first term being the 'most significant' (e.g. _x_0y_0_, _x_0y_1_, _x_0y_2_, _x_1y_0_, _x_1y_1_, _x_1y_2_).
 
 + _C_ is a (possibly empty) list of Prolog goals that will instantiate the logical variables that appear in _F_, that is, the successful substitutions for the goals in _C_ will be the valid values for the logical variables. This allows the constraint to be defined as any relation (set of tuples) over the logical variables.
 
@@ -116,7 +116,7 @@ markov friends(X,Y), smokes(X), smokes(Y) ;
 %markov friends(X,Y) ; [1.0, 99.484] ; [person(X), person(Y)].
 ~~~~
 
-Notice that we have defined the world to be consisted of only two persons, `anna` and `bob`. We can easily add as many persons as we want by inserting in the program a fact like `person @ 10.`~. This would automatically create ten persons named `p1`, `p2`, \dots, `p10`.
+Notice that we have defined the world to be consisted of only two persons, `anna` and `bob`. We can easily add as many persons as we want by inserting in the program a fact like `person @ 10.`~. This would automatically create ten persons named `p1`, `p2`, dots, `p10`.
 
 Unlike other fist-order probabilistic languages, in PFL the logical variables that appear in the terms are not directly typed, and they will be only constrained by the goals that appears in the constraint of the parfactor. This allows the logical variables to be constrained to any relation (set of tuples), and not only pairwise (in)equalities. For instance, the next example defines a network with three ground factors, each defined respectively over the random variables `p(a,b)`, `p(b,d)` and `p(d,e)`.
 
@@ -149,13 +149,13 @@ Assuming that the current directory is the one where the examples are located, f
 
 Let's suppose that we want to estimate the marginal probability for the $WetGrass$ random variable. To do so, we call the following goal.
 
-`?- wet\_grass(X).`
+`?- wet_grass(X).`
 
 The output of this goal will show the marginal probability for each $WetGrass$ possible state or value, that is, `t` and `f`. Notice that in PFL a random variable is identified by a term with the same functor and arguments plus one extra argument.
 
 Now let's suppose that we want to estimate the probability for the same random variable, but this time we have evidence that it had rained in the day before. We can estimate this probability without resorting to static evidence with:
 
-`?- wet\_grass(X), rain(t).`
+`?- wet_grass(X), rain(t).`
 
 PFL also supports calculating joint probability distributions. For instance, we can obtain the joint probability for $Sprinkler$ and $Rain$ with:
 
@@ -168,7 +168,7 @@ PFL also supports calculating joint probability distributions. For instance, we 
 %------------------------------------------------------------------------------
 %------------------------------------------------------------------------------
 ### Options
-PFL supports both ground and lifted inference methods. The inference algorithm can be chosen by calling `set\_solver/1`. The following are supported:
+PFL supports both ground and lifted inference methods. The inference algorithm can be chosen by calling `set_solver/1`. The following are supported:
 + `ve`,  variable elimination (written in Prolog)
 + `hve`, variable elimination (written in C++)
 + `jt`,  junction tree
@@ -182,81 +182,81 @@ PFL supports both ground and lifted inference methods. The inference algorithm c
 
 For instance, if we want to use belief propagation to solve some probabilistic query, we need to call first:
 
-`?- set\_solver(bp).`
+`?- set_solver(bp).`
 
-It is possible to tweak some parameters of PFL through `set\_pfl\_flag/2` predicate. The first argument is a option name that identifies the parameter that we want to tweak. The second argument is some possible value for this option. Next we explain the available options in detail.
+It is possible to tweak some parameters of PFL through `set_pfl_flag/2` predicate. The first argument is a option name that identifies the parameter that we want to tweak. The second argument is some possible value for this option. Next we explain the available options in detail.
 
-\optionsection{verbosity}
++ verbosity
 This option controls the level of debugging information that will be shown.
 
-+ Values: a positive integer (default is 0 - no debugging). The higher the number, the more information that will be shown.
-+ Affects: `hve`, `bp`, `cbp`, `lve`, `lkc` and `lbp`.
+    + Values: a positive integer (default is 0 - no debugging). The higher the number, the more information that will be shown.
+    + Affects: `hve`, `bp`, `cbp`, `lve`, `lkc` and `lbp`.
 
 For instance, we can view some basic debugging information by calling the following goal.
 
-`?- set\_pfl\_flag(verbosity, 1).`
+`?- set_pfl_flag(verbosity, 1).`
 
 
-\optionsection{use\_logarithms}
++ use_logarithms
 This option controls whether the calculations performed during inference should be done in a logarithm domain or not.
-+ Values: `true` (default) or `false`.
-+ Affects: `hve`, `bp`, `cbp`, `lve`, `lkc` and `lbp`.
+    + Values: `true` (default) or `false`.
+    + Affects: `hve`, `bp`, `cbp`, `lve`, `lkc` and `lbp`.
 
 
-\optionsection{hve\_elim\_heuristic}
++ hve_elim_heuristic
 This option allows to choose which elimination heuristic will be used by the `hve`.
-+ Values: `sequential`, `min\_neighbors`, `min\_weight`, `min\_fill` and\\ `weighted\_min\_fill` (default).
-+ Affects: `hve`.
+    + Values: `sequential`, `min_neighbors`, `min_weight`, `min_fill` and `weighted_min_fill` (default).
+    + Affects: `hve`.
 
-An explanation for each of these heuristics can be found in Daphne Koller's book \textit{Probabilistic Graphical Models}.
+An explanation for each of these heuristics can be found in Daphne Koller's book textit{Probabilistic Graphical Models}.
 
 
-\optionsection{bp\_max\_iter}
++ bp_max_iter
 This option establishes a maximum number of iterations. One iteration consists in sending all possible messages.
 
-+ Values: a positive integer (default is `1000`).
-+ Affects: `bp`, `cbp` and `lbp`.
+    + Values: a positive integer (default is `1000`).
+    + Affects: `bp`, `cbp` and `lbp`.
 
 
-\optionsection{bp\_accuracy}
++ bp_accuracy
 This option allows to control when the message passing should cease. Be the residual of one message the difference (according some metric) between the one sent in the current iteration and the one sent in the previous. If the highest residual is lesser than the given value, the message passing is stopped and the probabilities are calculated using the last messages that were sent.
 
-+ Values: a float-point number (default is `0.0001`).
-+ Affects: `bp`, `cbp` and `lbp`.
+    + Values: a float-point number (default is `0.0001`).
+    + Affects: `bp`, `cbp` and `lbp`.
 
 
-+ bp\_msg\_schedule
++ bp_msg_schedule
 This option allows to control the message sending order.
-+ Values:
-  + `seq\_fixed` (default), at each iteration, all messages are sent with the same order.
+  + Values:
+    + `seq_fixed` (default), at each iteration, all messages are sent with the same order.
 
-  + `seq\_random`, at each iteration, all messages are sent with a random order.
+    + `seq_random`, at each iteration, all messages are sent with a random order.
 
-  + `parallel`, at each iteration, all messages are calculated using only the values of the previous iteration.
+    + `parallel`, at each iteration, all messages are calculated using only the values of the previous iteration.
 
-  + `max\_residual`, the next message to be sent is the one with maximum residual (as explained in the paper \textit{Residual Belief Propagation: Informed Scheduling for Asynchronous Message Passing}).
+    + `max_residual`, the next message to be sent is the one with maximum residual (as explained in the paper textit{Residual Belief Propagation: Informed Scheduling for Asynchronous Message Passing}).
 
   + Affects: `bp`, `cbp` and `lbp`.
 
 
-+ export\_libdai
++ export_libdai
 This option allows exporting the current model to the libDAI, http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html,  file format.
   + Values: `true` or `false` (default).
   + Affects: `hve`, `bp`, and `cbp`.
 
 
-+ export\_uai
-This option allows exporting the current model to the \href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08} file format.
++ export_uai
+This option allows exporting the current model to the href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08} file format.
   + Values: `true` or `false` (default).
   + Affects: `hve`, `bp`, and `cbp`.
 
 
-+ export\_graphviz
-This option allows exporting the factor graph's structure into a format that can be parsed by \href{http://www.graphviz.org/}{Graphviz}.
++ export_graphviz
+This option allows exporting the factor graph's structure into a format that can be parsed by href{http://www.graphviz.org/}{Graphviz}.
   + Values: `true` or `false` (default).
   + Affects: `hve`, `bp`, and `cbp`.
 
-+ print\_fg
++ print_fg
 This option allows to print a textual representation of the factor graph.
   + Values: `true` or `false` (default).
   + Affects: `hve`, `bp`, and `cbp`.
@@ -295,9 +295,7 @@ scan_data([cloudy(C), sprinkler(S), rain(R), wet_grass(W)]) :-
 
 Parameter learning is done by calling the `em/5` predicate. Its arguments are the following.
 
-\begin{center}
 `em(+Data, +MaxError, +MaxIters, -CPTs, -LogLik)`
-\end{center}
 
 Where,
 + `Data` is a list of samples for the distribution that we want to estimate. Each sample is a list of either observed random variables or unobserved random variables (denoted when its state or value is not instantiated).
@@ -307,14 +305,14 @@ Where,
 + `LogLik` is the log-likelihood.
 
 
-It is possible to choose the solver that will be used for the inference part during parameter learning with the `set\_em\_solver/1` predicate (defaults to `hve`). At the moment, only the following solvers support parameter learning: `ve`, `hve`, `bdd`, `bp` and `cbp`.
+It is possible to choose the solver that will be used for the inference part during parameter learning with the `set_em_solver/1` predicate (defaults to `hve`). At the moment, only the following solvers support parameter learning: `ve`, `hve`, `bdd`, `bp` and `cbp`.
 
 Inside the `learning` directory from the examples directory, one can find more examples of parameter learning.
 
 
 
 ### External Interface
-This package also includes an external command for perform inference over probabilistic graphical models described in formats other than PFL. Currently two are support, the \href{http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html}{libDAI file format}, and the \href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08 file format}.
+This package also includes an external command for perform inference over probabilistic graphical models described in formats other than PFL. Currently two are support, the href{http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html}{libDAI file format}, and the href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08 file format}.
 
 This command's name is `hcli` and its usage is as follows.
 
@@ -343,7 +341,7 @@ By default, all probability tasks are resolved using the `hve` solver. It is pos
 
 Notice that only the `hve`, `bp` and `cbp` solvers can be used with `hcli`.
 
-The options that are available with the `set\_pfl\_flag/2` predicate can be used in `hcli` too. The syntax is a pair `<Option>=<Value>` before the model's file name.
+The options that are available with the `set_pfl_flag/2` predicate can be used in `hcli` too. The syntax is a pair `<Option>=<Value>` before the model's file name.
 
 */
 

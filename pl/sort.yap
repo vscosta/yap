@@ -14,6 +14,9 @@
 * comments:	sorting in Prolog					 *
 *									 *
 *************************************************************************/
+/** @addtogroup Comparing_Terms
+  @{
+*/
 :- system_module( '$_sort', [keysort/2,
         length/2,
         msort/2,
@@ -200,4 +203,6 @@ predmerge(=, P, H1, _, T1, T2, [H1|R]) :-
 	predmerge(P, T1, T2, R).
 predmerge(<, P, H1, H2, T1, T2, [H1|R]) :-
 	predmerge(P, T1, [H2|T2], R).
+
+%%! @}
 

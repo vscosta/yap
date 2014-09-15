@@ -26,6 +26,11 @@
         yap_flag/2,
         yap_flag/3], []).
 
+/** @defgroup Flags  YAP Execution Flags
+    @ingroup YAPBuiltins
+    @{
+*/
+
 :- use_system_module( '$_boot', ['$prompt_alternatives_on'/1]).
 
 :- use_system_module( '$_checker', ['$syntax_check_discontiguous'/2,
@@ -1377,7 +1382,6 @@ The state of source mode can either be on or off. When the source mode
 is on, all clauses are kept both as compiled code and in a "hidden"
 database.  _O_ is unified with the previous state and the mode is set
 according to  _N_.
-@{
 
 */
 

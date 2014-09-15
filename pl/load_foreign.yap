@@ -15,8 +15,9 @@
 *									 *
 *************************************************************************/
 
-/** @defgroup LoadForeign Access to Code Written in other Programming Languages
+/** @defgroup LoadForeign Access to Foreign Language Programs
 @ingroup YAPBuiltins
+@{
 
 */
 
@@ -183,3 +184,17 @@ open_shared_object(File, Opts, Handle) :-
 '$open_shared_opt'(Opt, Goal, _) :-
 	'$do_error'(domain_error(open_shared_object_option,Opt),Goal).
 	
+/** @pred call_shared_object_function(+ _Handle_, + _Function_) 
+
+
+Call the named function in the loaded shared library. The function
+is called without arguments and the return-value is
+ignored. In SWI-Prolog, normally this function installs foreign
+language predicates using calls to `PL_register_foreign()`.
+
+
+
+ */
+
+%%! @}
+

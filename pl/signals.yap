@@ -15,6 +15,8 @@
 *									 *
 *************************************************************************/
 
+%%! @addtogroup OS
+%%  @{
 :- system_module( '$_signals', [alarm/3,
         on_exception/3,
         on_signal/3,
@@ -328,4 +330,6 @@ read_sig.
 :- '$set_no_trace'('$call'(_,_,_,_), prolog).
 :- '$set_no_trace'('$execute_nonstop'(_,_), prolog).
 :- '$set_no_trace'('$restore_regs'(_,_), prolog).
+
+%%! @}
 

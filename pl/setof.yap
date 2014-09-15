@@ -61,6 +61,36 @@ _^Goal :-
 %   existential quantifier on every variable.
 
 
+/** @pred  findall( _T_,+ _G_,- _L_) is iso 
+
+
+Unifies  _L_ with a list that contains all the instantiations of the
+term  _T_ satisfying the goal  _G_.
+
+With the following program:
+
+~~~~~
+a(2,1).
+a(1,1).
+a(2,2).
+~~~~~
+the answer to the query
+
+~~~~~
+findall(X,a(X,Y),L).
+~~~~~
+would be:
+
+~~~~~
+X = _32
+Y = _33
+L = [2,1,2];
+no
+~~~~~
+
+ 
+*/
+
 findall(Template, Generator, Answers) :-
 	( '$is_list_or_partial_list'(Answers) ->
 		true
@@ -71,6 +101,12 @@ findall(Template, Generator, Answers) :-
 
 
 % If some answers have already been found
+/** @pred  findall( _T_,+ _G_,+ _L_,- _L0_)
+
+Similar to findall/3, but appends all answers to list  _L0_.
+
+ 
+*/
 findall(Template, Generator, Answers, SoFar) :-
 	'$findall'(Template, Generator, SoFar, Answers).
 
@@ -108,7 +144,32 @@ findall(Template, Generator, Answers, SoFar) :-
 	'$collect_with_common_vars'(Answers, VarList).
 	
 % This is the setof predicate
+/** @pred  setof( _X_,+ _P_,- _B_) is iso 
 
+
+Similar to `bagof( _T_, _G_, _L_)` but sorts list
+ _L_ and keeping only one copy of each element.  Again, assuming the
+same clauses as in the examples above, the reply to the query
+
+~~~~~
+setof(X,a(X,Y),L).
+~~~~~
+would be:
+
+~~~~~
+X = _32
+Y = 1
+L = [1,2];
+X = _32
+Y = 2
+L = [2];
+no
+~~~~~
+
+
+
+
+ */
 setof(Template, Generator, Set) :-
 	( '$is_list_or_partial_list'(Set) ->
 		true
@@ -124,6 +185,29 @@ setof(Template, Generator, Set) :-
 % and we need to find the solutions for each instantiation
 % of these variables
 
+/** @pred  bagof( _T_,+ _G_,- _L_) is iso 
+
+
+For each set of possible instances of the free variables occurring in
+ _G_ but not in  _T_, generates the list  _L_ of the instances of
+ _T_ satisfying  _G_. Again, assuming the same clauses as in the
+examples above, the reply to the query
+
+~~~~~
+bagof(X,a(X,Y),L).
+
+would be:
+X = _32
+Y = 1
+L = [2,1];
+X = _32
+Y = 2
+L = [2];
+no
+~~~~~
+
+ 
+*/
 bagof(Template, Generator, Bag) :-
 	( '$is_list_or_partial_list'(Bag) ->
 		true
@@ -171,7 +255,29 @@ bagof(Template, Generator, Bag) :-
 % as an alternative to setof you can use the predicate all(Term,Goal,Solutions)
 % But this version of all does not allow for repeated answers
 % if you want them use findall	
+/** @pred  all( _T_,+ _G_,- _L_) 
 
+
+Similar to `findall( _T_, _G_, _L_)` but eliminate
+repeated elements. Thus, assuming the same clauses as in the above
+example, the reply to the query
+
+~~~~~
+all(X,a(X,Y),L).
+~~~~~
+would be:
+
+~~~~~
+X = _32
+Y = _33
+L = [2,1];
+no
+~~~~~
+
+Note that all/3 will fail if no answers are found.
+
+ 
+*/
 all(T, G same X,S) :- !, all(T same X,G,Sx), '$$produce'(Sx,S,X).
 all(T,G,S) :- 
 	'$init_db_queue'(Ref),

@@ -23,8 +23,8 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/** @defgroup YAPWrite Outputting a term to a Stream
- *  @ingroup YAP_InputOutput
+/** @defgroup Write Outputting a term to a Stream
+ *  @ingroup InputOutput
  *
  * @brief Predicates that output a term to a stream. The predicates
  * call upon write_term/3 to do the actual work. They differ on the

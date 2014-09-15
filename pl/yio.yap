@@ -16,7 +16,7 @@
 *************************************************************************/
 
 
-/** @defgroup YAP_InputOutput Input/Output Predicates
+/** @defgroup InputOutput Input/Output Predicates
 @ingroup YAPBuiltins
 @{
 
@@ -130,8 +130,15 @@ setting and clearing this flag are given under 7.7.
 '$check_boolean'(X,B,T,G) :-
 	'$do_error'(domain_error(B,T),G).
 
-/** @pred  socket(+ _DOMAIN_,- _SOCKET_)
+/** @defgroup IO_Sockets YAP Old Style Socket and Pipe Interface
+    @ingroup InputOutput
+    @{
 
+    Autoload the socket/pipe library 
+
+*/
+
+/** @pred  socket(+ _DOMAIN_,- _SOCKET_)
 
 Call socket/4 with  _TYPE_ bound to `SOCK_STREAM'` and
  _PROTOCOL_ bound to `0`.
@@ -149,7 +156,6 @@ socket(Domain, Sock) :-
 	yap_sockets:ip_socket(Domain, Sock).
 
 /** @pred  socket(+ _DOMAIN_,+ _TYPE_,+ _PROTOCOL_,- _SOCKET_) 
-
 
 Corresponds to the BSD system call `socket`. Create a socket for
 domain  _DOMAIN_ of type  _TYPE_ and protocol
@@ -206,6 +212,11 @@ socket_connect(Sock, Host, Read) :-
 	),
 	yap_sockets:ip_socket(Domain, Type, Protocol, Sock).
 
+/** @pred open_pipe_streams(Read, Write)
+
+  Autoload old pipe access interface
+
+*/
 open_pipe_streams(Read, Write) :-
 	(
 	 '$undefined'(pipe(_,_),unix)
@@ -219,8 +230,10 @@ open_pipe_streams(Read, Write) :-
 	set_stream(Read, encoding(X) ),
 	set_stream(Write, encoding(X) ).
 
-/**  @pred fileerrors 
+%%! @}
 
+
+/**  @pred fileerrors 
 
 Switches on the file_errors flag so that in certain error conditions
 Input/Output predicates will produce an appropriated message and abort.
@@ -229,7 +242,6 @@ Input/Output predicates will produce an appropriated message and abort.
 fileerrors :- 	'$swi_set_prolog_flag'(fileerrors, true).
 
 /** @pred  nofileerrors 
-
 
 Switches off the file_errors flag, so that the predicates see/1,
 tell/1, open/3 and close/1 just fail, instead of producing
@@ -241,17 +253,18 @@ nofileerrors :- '$swi_set_prolog_flag'(fileerrors, false).
 
 /** @pred  exists(+ _F_) 
 
-
 Checks if file  _F_ exists in the current directory.
 
 */
 exists(F) :-
 	absolute_file_name(F, _, [file_errors(fail),access(exist),expand(true)]).
 
+%%! @addtogroup ReadTerm
+%   @{
+
 /* Term IO	*/
 
 /** @pred  read(- _T_) is iso 
-
 
 Reads the next term from the current input stream, and unifies it with
  _T_. The term must be followed by a dot (`.`) and any blank-character
@@ -274,6 +287,10 @@ stream.
 read(Stream,T) :-
 	read_term(Stream, T, []).
 
+%%! @}
+
+%%! @addtogroup Write
+%   @{
 
 /* meaning of flags for '$write' is
 	 1	quote illegal atoms
@@ -305,15 +322,6 @@ Like display/1, but using stream  _S_ to display the term.
 display(Stream, T) :-
 	   write_term(Term, T, [ignore_ops(true)]).
 
-/** @pred  format(+ _T_)
-
-Print formatted output to the current output stream.
-
- 
-*/
-format(T) :-
-	format(T, []).
-
 /** @pred  writeln( _T_) is iso 
 
 
@@ -331,6 +339,25 @@ writeln(T) :-
 	'$system_catch'(call(portray(T)),user,Error,user:'$Error'(Error)), !,
 	set_value('$portray',true), fail.
 '$portray'(_) :- set_value('$portray',false), fail.
+
+%%! @}
+
+%%! @addtogroup Format
+%   @{
+
+/** @pred  format(+ _T_)
+
+Print formatted output to the current output stream.
+
+ 
+*/
+format(T) :-
+	format(T, []).
+
+%%! @}
+
+%%! @addtogroup CharsIO
+%   @{
 
 /* character I/O	*/
 
@@ -376,20 +403,26 @@ ttyput(N) :-  N1 is N, put(user_output,N1).
 
 Outputs a new line to stream user_output.
 
-
-
-
- */
+*/
 ttynl :- nl(user_output).
 
+%%! @}
+
+%%! @addtogroup StreamM
+%   @{
+
+/** @pred  current_line_number(- _LineNumber_)
+
+Unify  _LineNumber_ with the line number for  the current output stream. 
+ 
+*/
 current_line_number(N) :-
 	current_input(Stream),
 	line_count(Stream, N).
 
 /** @pred  current_line_number(+ _Stream_,- _LineNumber_)
 
-Unify  _LineNumber_ with the line number for the  _Stream_. 
-
+Unify  _LineNumber_ with the line number for  _Stream_. 
  
 */
 current_line_number(Stream,N) :-
@@ -397,31 +430,41 @@ current_line_number(Stream,N) :-
 
 /** @pred  stream_position(+ _Stream_,- _StreamPosition_) 
 
-
 Unify  _StreamPosition_ with the packaged information of position on
 current stream  _Stream_. Use stream_position_data/3 to
 retrieve information on character or line count.
 
- 
 */
 stream_position(Stream, Position) :-
 	stream_property(Stream, position(Position)).
 
+/** @pred  stream_position(+ _Stream_,- _StreamPosition_, +_NewPosition_) 
+
+Unify _StreamPosition_ with the packaged information of position on
+current stream _Stream_ an then moves to position _NewPosition_.
+
+*/
 stream_position(Stream, Position, NewPosition) :-
 	stream_property(Stream, position(Position)),
 	set_stream_position(Stream, NewPosition).
+
+/** @pred at_end_of_line
+
+   Tests whether the next character in the current input stream is a line break character.
+*/
 
 at_end_of_line :-
 	current_input(S),
 	at_end_of_line(S).
 
+/** @pred at_end_of_line( +Stream )
+
+   Tests whether the next character in the stream is a line break character.
+*/
 at_end_of_line(S) :-
 	stream_property(S, end_of_stream(past)), !.
 at_end_of_line(S) :-
 	peek_code(S,N), ( N = 10 -> true ; N = -1).
-
-
-consult_depth(LV) :- '$show_consult_level'(LV).
 
 /** @pred  current_char_conversion(? _IN_,? _OUT_) is iso 
 
@@ -545,15 +588,7 @@ stream_position_data(Prop, Term, Value) :-
 '$set_default_expand'(V) :- !,
 	'$do_error'(domain_error(flag_value,V),yap_flag(open_expands_file_name,X)).
 
-prolog_file_name(File, PrologFileName) :-
-	var(File), !,
-	'$do_error'(instantiation_error, prolog_file_name(File, PrologFileName)).
-prolog_file_name(user, Out) :- !, Out = user.
-prolog_file_name(File, PrologFileName) :-
-	atom(File), !,
-	operating_system_support:true_file_name(File, PrologFileName).
-prolog_file_name(File, PrologFileName) :-
-	'$do_error'(type_error(atom,T), prolog_file_name(File, PrologFileName)).
+%%! @}
 
 
 '$codes_to_chars'(String0, String, String0) :- String0 == String, !.

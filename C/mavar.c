@@ -52,6 +52,13 @@ static Int p_get_mutable( USES_REGS1 );
 static Int p_update_mutable( USES_REGS1 );
 static Int p_is_mutable( USES_REGS1 );
 
+/** @pred  setarg(+ _I_,+ _S_,? _T_) 
+
+
+Set the value of the  _I_th argument of term  _S_ to term  _T_. 
+
+ 
+*/
 static Int
 p_setarg( USES_REGS1 )
 {
@@ -239,6 +246,13 @@ Yap_UpdateTimedVar(Term inv, Term new)
   return UpdateTimedVar(inv, new PASS_REGS);
 }
 
+/** @pred  create_mutable(+ _D_,- _M_) 
+
+
+Create new mutable variable  _M_ with initial value  _D_.
+
+ 
+*/
 static Int
 p_create_mutable( USES_REGS1 )
 {
@@ -246,6 +260,13 @@ p_create_mutable( USES_REGS1 )
   return(Yap_unify(ARG2,t));
 }
 
+/** @pred  get_mutable(? _D_,+ _M_) 
+
+
+Unify the current value of mutable term  _M_ with term  _D_.
+
+ 
+*/
 static Int
 p_get_mutable( USES_REGS1 )
 {
@@ -266,6 +287,14 @@ p_get_mutable( USES_REGS1 )
   return(Yap_unify(ARG1, t));
 }
 
+/** @pred  update_mutable(+ _D_,+ _M_) 
+
+
+Set the current value of mutable term  _M_ to term  _D_.
+
+
+
+ */
 static Int
 p_update_mutable( USES_REGS1 )
 {
@@ -287,6 +316,13 @@ p_update_mutable( USES_REGS1 )
 }
 
 static Int
+/** @pred  is_mutable(? _D_) 
+
+
+Holds if  _D_ is a mutable term.
+
+ 
+*/
 p_is_mutable( USES_REGS1 )
 {
   Term t = Deref(ARG1);
@@ -308,48 +344,11 @@ void
 Yap_InitMaVarCPreds(void)
 {
 #ifdef MULTI_ASSIGNMENT_VARIABLES
-  /* The most famous contributions of SICStus to the Prolog language */
   Yap_InitCPred("setarg", 3, p_setarg, SafePredFlag);  
-/** @pred  setarg(+ _I_,+ _S_,? _T_) 
-
-
-Set the value of the  _I_th argument of term  _S_ to term  _T_. 
-
- 
-*/
   Yap_InitCPred("create_mutable", 2, p_create_mutable, SafePredFlag);  
-/** @pred  create_mutable(+ _D_,- _M_) 
-
-
-Create new mutable variable  _M_ with initial value  _D_.
-
- 
-*/
   Yap_InitCPred("get_mutable", 2, p_get_mutable, SafePredFlag);  
-/** @pred  get_mutable(? _D_,+ _M_) 
-
-
-Unify the current value of mutable term  _M_ with term  _D_.
-
- 
-*/
   Yap_InitCPred("update_mutable", 2, p_update_mutable, SafePredFlag);  
-/** @pred  update_mutable(+ _D_,+ _M_) 
-
-
-Set the current value of mutable term  _M_ to term  _D_.
-
-
-
- */
   Yap_InitCPred("is_mutable", 1, p_is_mutable, SafePredFlag);  
-/** @pred  is_mutable(? _D_) 
-
-
-Holds if  _D_ is a mutable term.
-
- 
-*/
 #endif
 }
 

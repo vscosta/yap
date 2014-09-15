@@ -22,8 +22,8 @@
 */
 
 /**
- * @defgroup YAP_Format Formatted Output
- * @ingroup YAP_InputOutput
+ * @defgroup Format Formatted Output
+ * @ingroup InputOutput
  * @{
  */
 

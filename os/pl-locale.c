@@ -21,13 +21,12 @@
 */
 
 /** @defgroup SetLocale Localization Support
-  * @ingroup YAP_InputOutput
+  * @ingroup InputOutput
   * @{ 
   *
   * This code includes support for localization, that is, the ability to support
   * different languages and representation formats.
   *
-  * The code was written by Jan Wielemaker for SWI-Prolog.
   */
 #include "pl-incl.h"
 #include "pl-locale.h"

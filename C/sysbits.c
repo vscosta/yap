@@ -1952,7 +1952,13 @@ p_true_file_name3 ( USES_REGS1 )
 }
 
 /* Executes $SHELL under Prolog */
+/** @pred  sh 
 
+
+Creates a new shell interaction.
+
+ 
+*/
 static Int
 p_sh ( USES_REGS1 )
 {				/* sh				 */
@@ -1983,14 +1989,14 @@ p_sh ( USES_REGS1 )
 #endif
 }
 
-static Int
-p_shell ( USES_REGS1 )
-{				/* '$shell'(+SystCommand)			 */
-#if _MSC_VER || defined(__MINGW32__)
 /** shell(+Command:text, -Status:integer) is det.
 
 Run an external command and wait for its completion.
 */
+static Int
+p_shell ( USES_REGS1 )
+{				/* '$shell'(+SystCommand)			 */
+#if _MSC_VER || defined(__MINGW32__)
   char *cmd;
   term_t A1 = Yap_InitSlot(ARG1 PASS_REGS);
   if ( PL_get_chars(A1, &cmd, CVT_ALL|REP_FN|CVT_EXCEPTION) )
@@ -2061,14 +2067,15 @@ Run an external command and wait for its completion.
 #endif /* _MSC_VER */
 }
 
+/** system(+Command:text).
+
+Run an external command.
+*/
+
 static Int
 p_system ( USES_REGS1 )
 {				/* '$system'(+SystCommand)	       */
 #if _MSC_VER || defined(__MINGW32__)
-/** shell(+Command:text, -Status:integer) is det.
-
-Run an external command and wait for its completion.
-*/
   char *cmd;
   term_t A1 = Yap_InitSlot(ARG1 PASS_REGS);
   if ( PL_get_chars(A1, &cmd, CVT_ALL|REP_FN|CVT_EXCEPTION) )
@@ -2155,6 +2162,13 @@ Run an external command and wait for its completion.
 
 
 /* Rename a file */
+/** @pred  rename(+ _F_,+ _G_) 
+
+
+Renames file  _F_ to  _G_.
+
+ 
+*/
 static Int
 p_mv ( USES_REGS1 )
 {				/* rename(+OldName,+NewName)   */
@@ -2966,23 +2980,9 @@ Yap_InitSysPreds(void)
 #endif
   Yap_InitCPred ("log_event", 1, p_log_event, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("sh", 0, p_sh, SafePredFlag|SyncPredFlag);
-/** @pred  sh 
-
-
-Creates a new shell interaction.
-
- 
-*/
   Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag|UserCPredFlag);
   Yap_InitCPred ("system", 1, p_system, SafePredFlag|SyncPredFlag|UserCPredFlag);
   Yap_InitCPred ("rename", 2, p_mv, SafePredFlag|SyncPredFlag);
-/** @pred  rename(+ _F_,+ _G_) 
-
-
-Renames file  _F_ to  _G_.
-
- 
-*/
   Yap_InitCPred ("$yap_home", 1, p_yap_home, SafePredFlag);
   Yap_InitCPred ("$yap_paths", 3, p_yap_paths, SafePredFlag);
   Yap_InitCPred ("$dir_separator", 1, p_dir_sp, SafePredFlag);

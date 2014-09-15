@@ -21,6 +21,9 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+//! @addtogroup Flags
+//@{
+
 /*#define O_DEBUG 1*/
 #include "pl-incl.h"
 #ifdef __YAP_PROLOG__
@@ -1323,3 +1326,6 @@ BeginPredDefs(prologflag)
   PRED_DEF("$swi_set_prolog_flag",    2, set_prolog_flag,    PL_FA_ISO)
   PRED_DEF("$swi_create_prolog_flag", 3, create_prolog_flag, 0)
 EndPredDefs
+
+  //! @}
+

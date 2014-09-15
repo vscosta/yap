@@ -1509,6 +1509,8 @@ End of conditional compilation.
 	 '$access_yap_flags'(11,1), !.
 '$fetch_comp_status'(compact).
 
+consult_depth(LV) :- '$show_consult_level'(LV).
+
 /**
 @}
 */

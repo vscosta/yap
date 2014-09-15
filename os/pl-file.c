@@ -22,7 +22,7 @@
 */
 
 
-/** @addtogroup YAP_inputOutput
+/** @addtogroup InputOutput
 @{
 
 */
@@ -120,14 +120,13 @@ standardStreamIndexFromStream(IOSTREAM *s)
   return -1;
 }
 
-//! @}
 		 /*******************************
 		 *	   BOOKKEEPING		*
 		 *******************************/
 
 /**
- * @defgroup YAP_StreamM Stream Manipulation
- * @ingroup YAP_InputOutput
+ * @defgroup StreamM Stream Manipulation
+ * @ingroup InputOutput
  * @{
  */
 static void aliasStream(IOSTREAM *s, atom_t alias);
@@ -2665,10 +2664,10 @@ PRED_IMPL("read_pending_input", 3, read_pending_input, 0)
   return FALSE;
 }
 
-// @}
+//! @}
 
-//! @defgroup YAPCharsIO Character Input/Output
-//  @ingroup YAP_InputOutput
+//! @defgroup CharsIO Character Input/Output
+//  @ingroup InputOutput
 //  @{
 //
 
@@ -3735,9 +3734,11 @@ PRED_IMPL("open", 3, open3, PL_FA_ISO)
   return FALSE;
 }
 
+//! @}
+
 /** @defgroup DEC10_IO DEC-10/C-Prolog Compatible File Handling
  *
- * @ingroup YAP_InputOutput
+ * @ingroup InputOutput
  * @{
  */
 		 /*******************************
@@ -3995,8 +3996,8 @@ PRED_IMPL("told", 0, told, 0)
  * @}
  */
 
-//! @defgroup YAPStream Opening and Closing Streams
-//  @ingroup YAP_InputOutput
+//! @defgroup Stream Opening and Closing Streams
+//  @ingroup InputOutput
 //  @{
 //
 
@@ -4869,7 +4870,7 @@ PRED_IMPL("is_stream", 1, is_stream, 0)
  */
 
 /**
- * @addtogroup YAPStreamM
+ * @addtogroup StreamM
  * @{
  */
 
@@ -4918,7 +4919,7 @@ PRED_IMPL("flush_output", 1, flush_output1, PL_FA_ISO)
  */
 
 /**
- * @addtogroup YAPStream
+ * @addtogroup Stream
  * @{
  */
 
@@ -5342,7 +5343,7 @@ peek(term_t stream, term_t chr, int how ARG_LD)
  */
 
 /**
- * @addtogroup YAPCharsIO
+ * @addtogroup CharsIO
  * @{
  */
 
@@ -5441,6 +5442,15 @@ PRED_IMPL("peek_char", 1, peek_char1, 0)
 { PRED_LD
   return peek(0, A1, PL_CHAR PASS_LD);
 }
+
+/**
+ * @}
+ */
+
+/**
+ * @addtogroup StreamM
+ * @{
+ */
 
 
 		 /*******************************
@@ -6028,3 +6038,4 @@ init_yap(void)
 /**
 @}
 */
+

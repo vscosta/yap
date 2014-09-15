@@ -1071,6 +1071,21 @@ mutex_unlock_all :-
 	'$unlock_mutex'(Id),
 	'$mutex_unlock_all'(Id).
 
+/** @pred with_mutex(+ _MutexId_, : _Goal_) 
+
+
+Execute  _Goal_ while holding  _MutexId_.  If  _Goal_ leaves
+choicepoints, these are destroyed (as in once/1).  The mutex is unlocked
+regardless of whether  _Goal_ succeeds, fails or raises an exception.
+An exception thrown by  _Goal_ is re-thrown after the mutex has been
+successfully unlocked.  See also `mutex_create/2`.
+
+Although described in the thread-section, this predicate is also
+available in the single-threaded version, where it behaves simply as
+once/1.
+
+ 
+*/
 with_mutex(M, G) :-
 	( '$no_threads' ->
 	  once(G)
@@ -1516,6 +1531,8 @@ thread_peek_message(Queue, Term) :-
 	'$unlock_mutex'(Mutex),
 	fail.
 
+%% @}
+
 /** @defgroup Signalling_Threads Signalling Threads
 @ingroup Threadas
 
@@ -1667,3 +1684,4 @@ thread_local(X) :-
 /**
 @}
 */
+>

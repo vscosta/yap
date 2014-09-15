@@ -407,6 +407,23 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	'$nb_getval'('$catch', Ball, fail),
 	throw(Ball).	
 
+/** @pred  call_with_args(+ _Name_,...,? _Ai_,...) 
+
+
+Meta-call where  _Name_ is the name of the procedure to be called and
+the  _Ai_ are the arguments. The number of arguments varies between 0
+and 10. New code should use `call/N` for better portability.
+
+If  _Name_ is a complex term, then call_with_args/n behaves as
+call/n:
+
+~~~~~{.prolog}
+call(p(X1,...,Xm), Y1,...,Yn) :- p(X1,...,Xm,Y1,...,Yn).
+~~~~~
+
+ 
+*/
+
 %%% Some "dirty" predicates
 
 % Only efective if yap compiled with -DDEBUG

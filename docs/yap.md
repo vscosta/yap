@@ -767,9 +767,9 @@ will be used:
 + a preceding minus sign will denote an "output argument";
 + an argument with no preceding symbol can be used in both ways.
 
-@defgroup YAPBuiltins The YAP Core Built-Ins
+@defgroup YAPBuiltins  YAP  Built-Ins
 
-@page  Core Core Prolog Built-Ins
+@page  Core  Prolog Built-Ins
 
 + @ref YAPControl 
 
@@ -779,7 +779,7 @@ will be used:
 
 + @ref YAP_Terms
 
-+ @ref  YAP_InputOutput
++ @ref InputOutput
 
 + @ref YAPOS
 
@@ -794,6 +794,8 @@ will be used:
 + @ref LoadForeign
 	   
 + @ref Predicates_on_Atoms
+
++ @ref Flags
 
 + @ref Deb_Preds
 
@@ -892,6 +894,8 @@ being designed to work with the swig (@url(www.swig.org}) interface compiler.
 		
 +  @ref Block_Diagram Block Diagram
 		
++  @ref Lambda
+
 +  @ref  Invoking_Predicates_on_all_Members_of_a_List Invoking Predicates on all Members of a List
 
 @defgroup YAPProgramming Programming in YAP
@@ -940,10 +944,8 @@ being designed to work with the swig (@url(www.swig.org}) interface compiler.
 		
 + @ref shlib
 
-+ @ref url
-
-+ @ref Lambda
-
++ @ref SWIclib
+		
 + @ref archive
 
 + @ref CHR
@@ -953,6 +955,7 @@ being designed to work with the swig (@url(www.swig.org}) interface compiler.
 + @ref http
 		
 + @ref zlib
+
 
 @defgroup YAPPackages The YAP packages
 
@@ -974,10 +977,17 @@ being designed to work with the swig (@url(www.swig.org}) interface compiler.
 
 + @ref YAP-LBFGS
 
+@defgroup SWIclib The SWI Extended Operating System Support Package
+@ingroup SWILibrary
+
+The HTTP package is a series of libraries developed by Jan Wielmaker
+and the SWI-Prolog community for extended Operating System support.
+Please consult clib.doc for the complete documentation.
+
 @defgroup http The SWI http packages
 @ingroup SWILibrary
 
-Tthe package HTTP is a series of libraries developed by Jan Wielmaker
+The HTTP package is a series of libraries developed by Jan Wielmaker
 and the SWI-Prolog community for accessing and serving data on the
 web. It supports lower-level transport protocols, but also
 data-representation primitives, and more. 

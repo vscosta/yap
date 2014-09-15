@@ -7,7 +7,11 @@
 
 #include "pl-read.h"			/* read structure */
 
-
+/**
+ *  @defgroup ReadTerm Read Term from Streams
+ *  @ingroup  InputOutput
+ * @{
+ */
 
 static bool
 isStringStream(IOSTREAM *s)
@@ -1089,17 +1093,6 @@ unify_read_term_position(term_t tpos ARG_LD)
 }
 }
 
-/** read_clause(+Stream:stream, -Clause:clause, +Options:list)
-
-Options:
- * variable_names(-Names)
- * process_comment(+Boolean)
- * comments(-List)
- * syntax_errors(+Atom)
- * term_position(-Position)
- * subterm_positions(-Layout)
- */
-
 static const opt_spec read_clause_options[] =
 { { ATOM_variable_names,    OPT_TERM },
 		{ ATOM_term_position,     OPT_TERM },
@@ -1111,6 +1104,18 @@ static const opt_spec read_clause_options[] =
 };
 
 
+/** read_clause(+Stream:stream, -Clause:clause, +Options:list)
+
+Like read_term/3, but uses current compiler options.
+
+Options:
+ * variable_names(-Names)
+ * process_comment(+Boolean)
+ * comments(-List)
+ * syntax_errors(+Atom)
+ * term_position(-Position)
+ * subterm_positions(-Layout)
+ */
 static int
 read_clause(IOSTREAM *s, term_t term, term_t options ARG_LD)
 {
@@ -1240,7 +1245,7 @@ static const opt_spec read_term_options[] =
 		{ ATOM_variables,         OPT_TERM },
 		{ ATOM_singletons,        OPT_TERM },
 		{ ATOM_term_position,     OPT_TERM },
-		{ ATOM_subterm_positions, OPT_TERM },
+  //		{ ATOM_subterm_positions, OPT_TERM },
 		{ ATOM_character_escapes, OPT_BOOL },
 		{ ATOM_double_quotes,	    OPT_ATOM },
 		{ ATOM_module,	    OPT_ATOM },
@@ -1364,18 +1369,15 @@ return rval;
 }
 
 
-/** read_term(+Stream, -Term, +Options) is det.
- */
+/** @pred  read_term(+ _Stream_,- _T_,+ _Options_) is iso
 
-static
-PRED_IMPL("read_term", 3, read_term, PL_FA_ISO)
-/** @pred  read_term(+ _S_,- _T_,+ _Options_) is iso
-
-Reads term  _T_ from stream  _S_ with execution controlled by the
+Reads term  _T_ from stream  _Stream_ with execution controlled by the
 same options as read_term/2.
 
  
 */
+static
+PRED_IMPL("read_term", 3, read_term, PL_FA_ISO)
 { PRED_LD
 	IOSTREAM *s;
 
@@ -1395,23 +1397,34 @@ return FALSE;
  */
 
 
-static
-PRED_IMPL("read_term", 2, read_term, PL_FA_ISO)
 /** @pred read_term(- _T_,+ _Options_) is iso 
 
 
 Reads term  _T_ from the current input stream with execution
 controlled by the following options:
 
++ comments(- _Comments_) 
+
+    Unify _Comments_ with a list of string terms including comments before
+and within the term.
+
++ module( + _Module_) 
+
+    Read term using _Module_ as source module.
+
++ quasi_quotations(-List)
+
+    Unify _List_ with the quasi-quotations present in the term.
+
 + term_position(- _Position_) 
 
-Unify  _Position_ with a term describing the position of the stream
+    Unify  _Position_ with a term describing the position of the stream
 at the start of parse. Use stream_position_data/3 to obtain extra
 information.
 
 + singletons(- _Names_) 
 
-Unify  _Names_ with a list of the form  _Name=Var_, where
+    Unify  _Names_ with a list of the form  _Name=Var_, where
  _Name_ is the name of a non-anonymous singleton variable in the
 original term, and `Var` is the variable's representation in
 YAP.
@@ -1419,18 +1432,20 @@ The variables occur in left-to-right traversal order.
 
 + syntax_errors(+ _Val_) 
 
-Control action to be taken after syntax errors. See yap_flag/2
+    Control action to be taken after syntax errors. See yap_flag/2
 for detailed information.
 
 + variables(- _Names_) 
 
-Unify  _Names_ with a list of the form  _Name=Var_, where  _Name_ is
+     Unify  _Names_ with a list of the form  _Name=Var_, where  _Name_ is
 the name of a non-anonymous variable in the original term, and  _Var_
 is the variable's representation in YAP.
 The variables occur in left-to-right traversal order.
 
 
 */
+static
+PRED_IMPL("read_term", 2, read_term, PL_FA_ISO)
 { PRED_LD
 	IOSTREAM *s;
 
@@ -1537,8 +1552,6 @@ LD->read_source = oldsrc;
 return Yap_GetFromSlot( tt PASS_REGS);
 }
 
-static
-PRED_IMPL("atom_to_term", 3, atom_to_term, 0)
 /** @pred atom_to_term(+ _Atom_, - _Term_, - _Bindings_) 
 
 
@@ -1546,6 +1559,8 @@ Use  _Atom_ as input to read_term/2 using the option `variable_names` and return
 
  
 */
+static
+PRED_IMPL("atom_to_term", 3, atom_to_term, 0)
 { return atom_to_term(A1, A2, A3);
 }
 
@@ -1589,3 +1604,6 @@ PRED_DEF("term_to_atom", 2, term_to_atom, 0)
 PRED_DEF("$qq_open",            2, qq_open,             0)
 #endif
 EndPredDefs
+
+//! @}
+
