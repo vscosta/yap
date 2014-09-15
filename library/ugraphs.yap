@@ -569,7 +569,23 @@ p_transpose([From-To|Edges], [To-From|Transpose]) :-
 	p_transpose(Edges, Transpose).
  
  
+/** @pred transpose(+ _Graph_, - _NewGraph_) 
+
+
+Unify  _NewGraph_ with a new graph obtained from  _Graph_ by
+replacing all edges of the form  _V1-V2_ by edges of the form
+ _V2-V1_. The cost is `O(|V|^2)`. In the next example:
+
+~~~~~{.prolog}
+?- transpose([1-[3,5],2-[4],3-[],
+              4-[5],5-[],6-[],7-[],8-[]], NL).
+
+NL = [1-[],2-[],3-[1],4-[2],5-[1,4],6-[],7-[],8-[]]
+~~~~~
+Notice that an undirected graph is its own transpose.
+
  
+*/ 
 transpose(S_Graph, Transpose) :-
 	s_transpose(S_Graph, Base, Base, Transpose).
  

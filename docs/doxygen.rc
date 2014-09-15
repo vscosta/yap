@@ -880,7 +880,8 @@ RECURSIVE              = YES
 
 EXCLUDE                = *pltotex.pl packages/swig/android \
 		       paackages/chr \
-		       packages/RDF
+		       packages/RDF \
+		       packages/pyswip
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded

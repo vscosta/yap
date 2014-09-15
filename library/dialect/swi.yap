@@ -5,7 +5,7 @@
 
 /** 
 
-@defgroup System SWI Dialect SupportXS
+@defgroup System SWI Dialect Support
 
 This library provides a number of SWI-Prolog builtins that are not by
 default in YAP. This support is loaded with the

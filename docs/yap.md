@@ -889,7 +889,9 @@ being designed to work with the swig (@url(www.swig.org}) interface compiler.
 		
 +  @ref DBUsage
 		
-+  @ref lambda 
++  @ref lambda
+
++  @ref clpfd
 		
 +  @ref Block_Diagram 
 		
