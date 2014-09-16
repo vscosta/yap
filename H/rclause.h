@@ -2,6 +2,11 @@
   /* This file was generated automatically by "yap -L misc/buildops"
      please do not update */
 
+//#define DEBUG_RESTORE2 1
+#if DEBUG_RESTORE2
+static volatile yamop *cur_opc;
+static volatile op_numbers cur_op;
+#endif
 
 static void 
 restore_opcodes(yamop *pc, yamop *max USES_REGS)
@@ -9,11 +14,18 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
   yamop *opc = NULL;
   do {
     op_numbers op;
-    if (max && pc >= max) return;
+    if (max && pc >= max) {
+#ifdef DEBUG_RESTORE2
+      fprintf(stderr, "\n");
+#endif
+      return;
+    }
     op = Yap_op_from_opcode(pc->opc);
     pc->opc = Yap_opcode(op);
 #ifdef DEBUG_RESTORE2
-    fprintf(stderr, "%s ", Yap_op_names[op]);
+    cur_op = op;
+    cur_opc = pc;
+    fprintf(stderr, "%s\n", Yap_op_names[op]);
 #endif
     switch (op) {
       /* instructions type D */
@@ -239,7 +251,12 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _write_l_list:
     case _write_list:
     case _write_void:
-      if (op == _Nstop || op == _copy_idb_term || op == _unify_idb_term) return;
+      if (op == _Nstop || op == _copy_idb_term || op == _unify_idb_term){
+#ifdef DEBUG_RESTORE2
+	fprintf(stderr, "\n");
+#endif
+	return;
+      }
       pc = NEXTOP(pc,e);
       break;
       /* instructions type fa */
@@ -270,7 +287,12 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _try_clause4:
     case _try_in:
       pc->y_u.l.l = PtoOpAdjust(pc->y_u.l.l);
-      if (op == _Ystop) return;
+      if (op == _Ystop) {
+#ifdef DEBUG_RESTORE2
+	fprintf(stderr, "\n");
+#endif
+	return;
+      }
       pc = NEXTOP(pc,l);
       break;
       /* instructions type llll */
@@ -832,7 +854,12 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       break;
       /* instructions type e */
     case _getwork_first_time:
-      if (op == _Nstop || op == _copy_idb_term || op == _unify_idb_term) return;
+      if (op == _Nstop || op == _copy_idb_term || op == _unify_idb_term) {
+#ifdef DEBUG_RESTORE2
+	fprintf(stderr, "\n");
+#endif
+	return;
+      }
       pc = NEXTOP(pc,e);
       break;
 #endif
@@ -863,7 +890,12 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
 #ifdef TABLING_INNER_CUTS
     case _clause_with_cut:
 #endif
-      if (op == _Nstop || op == _copy_idb_term || op == _unify_idb_term) return;
+      if (op == _Nstop || op == _copy_idb_term || op == _unify_idb_term) {
+#ifdef DEBUG_RESTORE2
+	fprintf(stderr, "\n");
+#endif
+	return;
+      }
       pc = NEXTOP(pc,e);
       break;
       /* instructions type s */
@@ -936,7 +968,12 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _trie_try_val_in_pair:
     case _trie_try_var:
     case _trie_try_var_in_pair:
-      if (op == _Nstop || op == _copy_idb_term || op == _unify_idb_term) return;
+      if (op == _Nstop || op == _copy_idb_term || op == _unify_idb_term) {
+#ifdef DEBUG_RESTORE2
+	fprintf(stderr, "\n");
+#endif
+	return;
+      }
       pc = NEXTOP(pc,e);
       break;
 #endif
@@ -957,4 +994,7 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
 #endif
     }
   } while (TRUE);
+#ifdef DEBUG_RESTORE2
+    fprintf(stderr, "\n");
+#endif
 }

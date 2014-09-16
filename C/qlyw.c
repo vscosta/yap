@@ -537,16 +537,16 @@ static size_t save_bits16(IOSTREAM *stream, BITS16 val)
   return save_bytes(stream, &v, sizeof(BITS16));
 }
 
-static size_t save_uint(IOSTREAM *stream, UInt val)
+static size_t save_UInt(IOSTREAM *stream, UInt val)
 {
   UInt v = val;
   return save_bytes(stream, &v, sizeof(UInt));
 }
 
-static size_t save_int(IOSTREAM *stream, int val)
+static size_t save_Int(IOSTREAM *stream, Int val)
 {
-  UInt v = val;
-  return save_bytes(stream, &v, sizeof(int));
+  Int v = val;
+  return save_bytes(stream, &v, sizeof(Int));
 }
 
 static size_t save_tag(IOSTREAM *stream, qlf_tag_t tag)
@@ -561,63 +561,63 @@ SaveHash(IOSTREAM *stream)
   UInt i;
   /* first, current opcodes */
   CHECK(save_tag(stream, QLY_START_X));
-  save_uint(stream, (UInt)&ARG1);
+  save_UInt(stream, (UInt)&ARG1);
   CHECK(save_tag(stream, QLY_START_OPCODES));
-  save_int(stream, _std_top);
+  save_Int(stream, _std_top);
   for (i= 0; i <= _std_top; i++) {
-    save_uint(stream, (UInt)Yap_opcode(i));
+    save_UInt(stream, (UInt)Yap_opcode(i));
   }
   CHECK(save_tag(stream, QLY_START_ATOMS));
-  CHECK(save_uint(stream, LOCAL_ExportAtomHashTableNum));
+  CHECK(save_UInt(stream, LOCAL_ExportAtomHashTableNum));
   for (i = 0; i < LOCAL_ExportAtomHashTableSize; i++) {
     export_atom_hash_entry_t *a = LOCAL_ExportAtomHashChain+i;
     if (a->val) {
       Atom at = a->val;
-      CHECK(save_uint(stream, (UInt)at));
+      CHECK(save_UInt(stream, (UInt)at));
       if (IsWideAtom(at)) {
 	CHECK(save_tag(stream, QLY_ATOM_WIDE));
-	CHECK(save_uint(stream, wcslen(RepAtom(at)->WStrOfAE)));
+	CHECK(save_UInt(stream, wcslen(RepAtom(at)->WStrOfAE)));
 	CHECK(save_bytes(stream, at->WStrOfAE, (wcslen(at->WStrOfAE)+1)*sizeof(wchar_t)));
       } else {
 	CHECK(save_tag(stream, QLY_ATOM));
-	CHECK(save_uint(stream, strlen(RepAtom(at)->StrOfAE)));
+	CHECK(save_UInt(stream, strlen(RepAtom(at)->StrOfAE)));
 	CHECK(save_bytes(stream, at->StrOfAE, (strlen(at->StrOfAE)+1)*sizeof(char)));
       }
     }
   }
   save_tag(stream, QLY_START_FUNCTORS);
-  save_uint(stream, LOCAL_ExportFunctorHashTableNum);
+  save_UInt(stream, LOCAL_ExportFunctorHashTableNum);
   for (i = 0; i < LOCAL_ExportFunctorHashTableSize; i++) {
     export_functor_hash_entry_t *f = LOCAL_ExportFunctorHashChain+i;
     if (!(f->val))
       continue;
-    CHECK(save_uint(stream, (UInt)(f->val)));
-    CHECK(save_uint(stream, f->arity));
-    CHECK(save_uint(stream, (CELL)(f->name)));
+    CHECK(save_UInt(stream, (UInt)(f->val)));
+    CHECK(save_UInt(stream, f->arity));
+    CHECK(save_UInt(stream, (CELL)(f->name)));
   }
   save_tag(stream, QLY_START_PRED_ENTRIES);
-  save_uint(stream, LOCAL_ExportPredEntryHashTableNum);
+  save_UInt(stream, LOCAL_ExportPredEntryHashTableNum);
   for (i = 0; i < LOCAL_ExportPredEntryHashTableSize; i++) {
     export_pred_entry_hash_entry_t *p = LOCAL_ExportPredEntryHashChain+i;
     if (!(p->val))
       continue;
-    CHECK(save_uint(stream, (UInt)(p->val)));
-    CHECK(save_uint(stream, p->arity));
-    CHECK(save_uint(stream, (UInt)p->module));
-    CHECK(save_uint(stream, (UInt)p->u_af.f));
+    CHECK(save_UInt(stream, (UInt)(p->val)));
+    CHECK(save_UInt(stream, p->arity));
+    CHECK(save_UInt(stream, (UInt)p->module));
+    CHECK(save_UInt(stream, (UInt)p->u_af.f));
   }
   save_tag(stream, QLY_START_DBREFS);
-  save_uint(stream, LOCAL_ExportDBRefHashTableNum);
+  save_UInt(stream, LOCAL_ExportDBRefHashTableNum);
   for (i = 0; i < LOCAL_ExportDBRefHashTableSize; i++) {
     export_dbref_hash_entry_t *p = LOCAL_ExportDBRefHashChain+i;
     if (p->val) {
-      CHECK(save_uint(stream, (UInt)(p->val)));
-      CHECK(save_uint(stream, p->sz));
-      CHECK(save_uint(stream, p->refs));
+      CHECK(save_UInt(stream, (UInt)(p->val)));
+      CHECK(save_UInt(stream, p->sz));
+      CHECK(save_UInt(stream, p->refs));
     }
   }
   save_tag(stream, QLY_FAILCODE);
-  save_uint(stream, (UInt)FAILCODE);
+  save_UInt(stream, (UInt)FAILCODE);
   return 1;
 }
 
@@ -637,8 +637,8 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
       if (IN_BETWEEN(cl->ClTimeStart, pp->TimeStampOfPred, cl->ClTimeEnd)) {
 	UInt size = cl->ClSize;
 	CHECK(save_tag(stream, QLY_START_LU_CLAUSE));
-	CHECK(save_uint(stream, (UInt)cl));
-	CHECK(save_uint(stream, size));
+	CHECK(save_UInt(stream, (UInt)cl));
+	CHECK(save_UInt(stream, size));
 	CHECK(save_bytes(stream, cl, size));
       }
       cl = cl->ClNext;
@@ -648,9 +648,9 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
     MegaClause *cl = ClauseCodeToMegaClause(FirstC);
     UInt size = cl->ClSize;
 
-    CHECK(save_uint(stream, (UInt)cl));
-    CHECK(save_uint(stream, (UInt)(cl->ClFlags)));
-    CHECK(save_uint(stream, size));
+    CHECK(save_UInt(stream, (UInt)cl));
+    CHECK(save_UInt(stream, (UInt)(cl->ClFlags)));
+    CHECK(save_UInt(stream, size));
     CHECK(save_bytes(stream, cl, size));
   } else if (pp->PredFlags & DynamicPredFlag) {
     yamop *cl = FirstC;
@@ -659,8 +659,8 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
       DynamicClause *dcl = ClauseCodeToDynamicClause(cl);
       UInt size = dcl->ClSize;
 
-      CHECK(save_uint(stream, (UInt)cl));
-      CHECK(save_uint(stream, size));
+      CHECK(save_UInt(stream, (UInt)cl));
+      CHECK(save_UInt(stream, size));
       CHECK(save_bytes(stream, dcl, size));
       if (cl == LastC) return 1;
       cl = NextDynamicClause(cl);
@@ -674,8 +674,8 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
     do {
       UInt size = cl->ClSize;
 
-      CHECK(save_uint(stream, (UInt)cl));
-      CHECK(save_uint(stream, size));
+      CHECK(save_UInt(stream, (UInt)cl));
+      CHECK(save_UInt(stream, size));
       CHECK(save_bytes(stream, cl, size));
       if (cl->ClCode == LastC) return 1;
       cl = cl->ClNext;
@@ -686,14 +686,14 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
 
 static size_t
 save_pred(IOSTREAM *stream, PredEntry *ap) {
-  CHECK(save_uint(stream, (UInt)ap));
-  CHECK(save_uint(stream, ap->PredFlags));
+  CHECK(save_UInt(stream, (UInt)ap));
+  CHECK(save_UInt(stream, ap->PredFlags));
 #if SIZEOF_INT_P==4
-  CHECK(save_uint(stream, ap->ExtraPredFlags));
+  CHECK(save_UInt(stream, ap->ExtraPredFlags));
 #endif
-  CHECK(save_uint(stream, ap->cs.p_code.NOfClauses));
-  CHECK(save_uint(stream, ap->src.IndxId));
-  CHECK(save_uint(stream, ap->TimeStampOfPred));
+  CHECK(save_UInt(stream, ap->cs.p_code.NOfClauses));
+  CHECK(save_UInt(stream, ap->src.IndxId));
+  CHECK(save_UInt(stream, ap->TimeStampOfPred));
   return save_clauses(stream, ap);
 }
 
@@ -714,6 +714,9 @@ static size_t
 mark_pred(PredEntry *ap)
 {
   CACHE_REGS
+#if DEBUG_RESTORE2
+    Yap_PrintPredName( ap );
+#endif
   if (ap->ModuleOfPred != IDB_MODULE) {
     if (ap->ArityOfPE) {
       FuncAdjust(ap->FunctorOfPred);
@@ -755,8 +758,8 @@ save_ops(IOSTREAM *stream, Term mod) {
   while (op) {
     if (!mod || op->OpModule == mod) {
       CHECK(save_tag(stream, QLY_NEW_OP));
-      save_uint(stream, (UInt)op->OpName);
-      save_uint(stream, (UInt)op->OpModule);
+      save_UInt(stream, (UInt)op->OpName);
+      save_UInt(stream, (UInt)op->OpModule);
       save_bits16(stream, op->Prefix);
       save_bits16(stream, op->Infix);
       save_bits16(stream, op->Posfix);
@@ -781,7 +784,7 @@ save_module(IOSTREAM *stream, Term mod) {
   mark_ops(stream, mod);
   SaveHash(stream);
   CHECK(save_tag(stream, QLY_START_MODULE));
-  CHECK(save_uint(stream, (UInt)mod));
+  CHECK(save_UInt(stream, (UInt)mod));
   ap = Yap_ModulePred(mod);
   while (ap) {
     CHECK(save_tag(stream, QLY_START_PREDICATE));
@@ -831,7 +834,7 @@ save_program(IOSTREAM *stream) {
     PredEntry *pp;
     pp = me->PredForME;
     CHECK(save_tag(stream, QLY_START_MODULE));
-    CHECK(save_uint(stream, (UInt)MkAtomTerm(me->AtomOfME)));
+    CHECK(save_UInt(stream, (UInt)MkAtomTerm(me->AtomOfME)));
     while (pp != NULL) {
       CHECK(save_tag(stream, QLY_START_PREDICATE));
       CHECK(save_pred(stream, pp));

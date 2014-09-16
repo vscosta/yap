@@ -657,18 +657,18 @@ read_bits16(IOSTREAM *stream)
 }
 
 static UInt
-read_uint(IOSTREAM *stream)
+read_UInt(IOSTREAM *stream)
 {
   UInt v;
   read_bytes(stream, &v, sizeof(UInt));
   return v;
 }
 
-static int
-read_int(IOSTREAM *stream)
+static Int
+read_Int(IOSTREAM *stream)
 {
-  int v;
-  read_bytes(stream, &v, sizeof(int));
+  Int v;
+  read_bytes(stream, &v, sizeof(Int));
   return v;
 }
 
@@ -692,18 +692,18 @@ ReadHash(IOSTREAM *stream)
   CACHE_REGS
   UInt i;
   RCHECK(read_tag(stream) == QLY_START_X);
-  LOCAL_XDiff = (char *)(&ARG1) - (char *)read_uint(stream);
+  LOCAL_XDiff = (char *)(&ARG1) - (char *)read_UInt(stream);
   RCHECK(read_tag(stream) == QLY_START_OPCODES);
-  RCHECK(read_int(stream) == _std_top);
+  RCHECK(read_Int(stream) == _std_top);
   for (i= 0; i <= _std_top; i++) {
-    InsertOPCODE((OPCODE)read_uint(stream), i, Yap_opcode(i));
+    InsertOPCODE((OPCODE)read_UInt(stream), i, Yap_opcode(i));
   }
   RCHECK(read_tag(stream) == QLY_START_ATOMS);
-  LOCAL_ImportAtomHashTableNum = read_uint(stream);
+  LOCAL_ImportAtomHashTableNum = read_UInt(stream);
   LOCAL_ImportAtomHashTableSize = LOCAL_ImportAtomHashTableNum*2;
   LOCAL_ImportAtomHashChain = (import_atom_hash_entry_t **)calloc(LOCAL_ImportAtomHashTableSize, sizeof(import_atom_hash_entry_t *));
   for (i = 0; i < LOCAL_ImportAtomHashTableNum; i++) {
-    Atom oat = (Atom)read_uint(stream);
+    Atom oat = (Atom)read_UInt(stream);
     Atom at;
     qlf_tag_t tg = read_tag(stream);
       
@@ -711,7 +711,7 @@ ReadHash(IOSTREAM *stream)
       wchar_t *rep = (wchar_t *)AllocTempSpace();
       UInt len;
 
-      len = read_uint(stream);
+      len = read_UInt(stream);
       if (!EnoughTempSpace(len)) QLYR_ERROR(OUT_OF_TEMP_SPACE);
       read_bytes(stream, rep, (len+1)*sizeof(wchar_t));
       while (!(at = Yap_LookupWideAtom(rep))) {
@@ -724,7 +724,7 @@ ReadHash(IOSTREAM *stream)
       char *rep = (char *)AllocTempSpace();
       UInt len;
 
-      len = read_uint(stream);
+      len = read_UInt(stream);
       if (!EnoughTempSpace(len)) QLYR_ERROR(OUT_OF_TEMP_SPACE);
       read_bytes(stream, rep, (len+1)*sizeof(char));
       while (!(at = Yap_FullLookupAtom(rep))) {
@@ -741,13 +741,13 @@ ReadHash(IOSTREAM *stream)
   }
   /* functors */
   RCHECK(read_tag(stream) == QLY_START_FUNCTORS);
-  LOCAL_ImportFunctorHashTableNum = read_uint(stream);
+  LOCAL_ImportFunctorHashTableNum = read_UInt(stream);
   LOCAL_ImportFunctorHashTableSize = 2*LOCAL_ImportFunctorHashTableNum;
   LOCAL_ImportFunctorHashChain = (import_functor_hash_entry_t **)calloc(LOCAL_ImportFunctorHashTableSize, sizeof(import_functor_hash_entry_t *));
   for (i = 0; i < LOCAL_ImportFunctorHashTableNum; i++) {
-    Functor of = (Functor)read_uint(stream);
-    UInt arity = read_uint(stream);
-    Atom oat = (Atom)read_uint(stream);
+    Functor of = (Functor)read_UInt(stream);
+    UInt arity = read_UInt(stream);
+    Atom oat = (Atom)read_UInt(stream);
     Atom at = AtomAdjust(oat);
     Functor f;
     while (!(f = Yap_MkFunctor(at, arity))) {
@@ -758,13 +758,13 @@ ReadHash(IOSTREAM *stream)
     InsertFunctor(of, f);
   }
   RCHECK(read_tag(stream) == QLY_START_PRED_ENTRIES);
-  LOCAL_ImportPredEntryHashTableNum = read_uint(stream);
+  LOCAL_ImportPredEntryHashTableNum = read_UInt(stream);
   LOCAL_ImportPredEntryHashTableSize = 2*LOCAL_ImportPredEntryHashTableNum;
   LOCAL_ImportPredEntryHashChain = (import_pred_entry_hash_entry_t **)calloc( LOCAL_ImportPredEntryHashTableSize, sizeof(import_pred_entry_hash_entry_t *));
   for (i = 0; i < LOCAL_ImportPredEntryHashTableNum; i++) {
-    PredEntry *ope = (PredEntry *)read_uint(stream), *pe;
-    UInt arity = read_uint(stream);
-    Atom omod = (Atom)read_uint(stream);
+    PredEntry *ope = (PredEntry *)read_UInt(stream), *pe;
+    UInt arity = read_UInt(stream);
+    Atom omod = (Atom)read_UInt(stream);
     Term mod;
     
     if (omod) {
@@ -776,7 +776,7 @@ ReadHash(IOSTREAM *stream)
 
     if (mod != IDB_MODULE) {
       if (arity) {
-	Functor of = (Functor)read_uint(stream);
+	Functor of = (Functor)read_UInt(stream);
 	Functor f = LookupFunctor(of);
 	while(!(pe = RepPredProp(PredPropByFuncAndMod(f,mod)))) {
 	  if (!Yap_growheap(FALSE, 0, NULL)) {
@@ -784,20 +784,20 @@ ReadHash(IOSTREAM *stream)
 	  }
 	}
       } else {
-	Atom oa = (Atom)read_uint(stream);
+	Atom oa = (Atom)read_UInt(stream);
 	Atom a = LookupAtom(oa);
 	pe = RepPredProp(PredPropByAtomAndMod(a,mod));
       }
     } else {
       if (arity == (UInt)-1) {
-	UInt i = read_uint(stream);
+	UInt i = read_UInt(stream);
 	pe = Yap_FindLUIntKey(i);
       }	else if (arity == (UInt)(-2)) {
-	Atom oa = (Atom)read_uint(stream);
+	Atom oa = (Atom)read_UInt(stream);
 	Atom a = LookupAtom(oa);
 	pe = RepPredProp(PredPropByAtomAndMod(a,mod));
       } else {
-	Functor of = (Functor)read_uint(stream);
+	Functor of = (Functor)read_UInt(stream);
 	Functor f = LookupFunctor(of);
 	pe = RepPredProp(PredPropByFuncAndMod(f,mod));
       }
@@ -806,13 +806,13 @@ ReadHash(IOSTREAM *stream)
     InsertPredEntry(ope, pe);
   }
   RCHECK(read_tag(stream) == QLY_START_DBREFS);
-  LOCAL_ImportDBRefHashTableNum = read_uint(stream);
+  LOCAL_ImportDBRefHashTableNum = read_UInt(stream);
   LOCAL_ImportDBRefHashTableSize = 2*LOCAL_ImportDBRefHashTableNum;
   LOCAL_ImportDBRefHashChain = (import_dbref_hash_entry_t **)calloc(LOCAL_ImportDBRefHashTableSize, sizeof(import_dbref_hash_entry_t *));
   for (i = 0; i < LOCAL_ImportDBRefHashTableNum; i++) {
-    LogUpdClause *ocl = (LogUpdClause *)read_uint(stream);
-    UInt sz = read_uint(stream);
-    UInt nrefs = read_uint(stream);
+    LogUpdClause *ocl = (LogUpdClause *)read_UInt(stream);
+    UInt sz = read_UInt(stream);
+    UInt nrefs = read_UInt(stream);
     LogUpdClause *ncl = (LogUpdClause *)Yap_AlwaysAllocCodeSpace(sz);
     if (!ncl) {
       QLYR_ERROR(OUT_OF_CODE_SPACE);	
@@ -822,7 +822,7 @@ ReadHash(IOSTREAM *stream)
     InsertDBRef((DBRef)ocl,(DBRef)ncl);
   }
   RCHECK(read_tag(stream) == QLY_FAILCODE);
-  LOCAL_ImportFAILCODE = (yamop *)read_uint(stream);
+  LOCAL_ImportFAILCODE = (yamop *)read_UInt(stream);
 }
 
 static void
@@ -843,8 +843,8 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
       return;
     }
     while ((read_tag(stream) == QLY_START_LU_CLAUSE)) {
-      char *base = (void *)read_uint(stream);
-      UInt size = read_uint(stream);
+      char *base = (void *)read_UInt(stream);
+      UInt size = read_UInt(stream);
       LogUpdClause *cl;
       Int nrefs = 0;
 
@@ -862,9 +862,9 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
     }
   } else if (pp->PredFlags & MegaClausePredFlag) {
     CACHE_REGS
-    char *base = (void *)read_uint(stream);
-    UInt mask = read_uint(stream);
-    UInt size = read_uint(stream);
+    char *base = (void *)read_UInt(stream);
+    UInt mask = read_UInt(stream);
+    UInt size = read_UInt(stream);
     MegaClause *cl = (MegaClause *)Yap_AlwaysAllocCodeSpace(size);
 
     if (nclauses) {
@@ -894,8 +894,8 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
     UInt i;
 
     for (i = 0; i < nclauses; i++) {
-      char *base = (void *)read_uint(stream);
-      UInt size = read_uint(stream);
+      char *base = (void *)read_UInt(stream);
+      UInt size = read_UInt(stream);
       DynamicClause *cl = (DynamicClause *)Yap_AlwaysAllocCodeSpace(size);
     
       LOCAL_HDiff = (char *)cl-base;
@@ -917,8 +917,8 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
     }
     Yap_Abolish(pp);
     for (i = 0; i < nclauses; i++) {
-      char *base = (void *)read_uint(stream);
-      UInt size = read_uint(stream);
+      char *base = (void *)read_UInt(stream);
+      UInt size = read_UInt(stream);
       StaticClause *cl = (StaticClause *)Yap_AlwaysAllocCodeSpace(size);
 
       LOCAL_HDiff = (char *)cl-base;
@@ -938,12 +938,12 @@ read_pred(IOSTREAM *stream, Term mod) {
   UInt nclauses, fl1;
   PredEntry *ap;
 
-  ap = LookupPredEntry((PredEntry *)read_uint(stream));
-  flags = read_uint(stream);
+  ap = LookupPredEntry((PredEntry *)read_UInt(stream));
+  flags = read_UInt(stream);
 #if SIZEOF_INT_P==4
-  eflags = read_uint(stream);
+  eflags = read_UInt(stream);
 #endif
-  nclauses = read_uint(stream);
+  nclauses = read_UInt(stream);
   if (ap->PredFlags & IndexedPredFlag) {
     Yap_RemoveIndexation(ap);
   }
@@ -959,14 +959,14 @@ read_pred(IOSTREAM *stream, Term mod) {
   ap->PredFlags |= fl1;
 #endif
   if (flags & NumberDBPredFlag) {
-    ap->src.IndxId = read_uint(stream);
+    ap->src.IndxId = read_UInt(stream);
   } else {
-    ap->src.OwnerFile = (Atom)read_uint(stream);
+    ap->src.OwnerFile = (Atom)read_UInt(stream);
     if (ap->src.OwnerFile) {
       ap->src.OwnerFile = AtomAdjust(ap->src.OwnerFile);
     }
   }
-  ap->TimeStampOfPred = read_uint(stream);
+  ap->TimeStampOfPred = read_UInt(stream);
   /* multifile predicates cannot reside in module 0 */
   if (flags & MultiFileFlag && ap->ModuleOfPred == PROLOG_MODULE) {
     ap->ModuleOfPred = TermProlog;
@@ -981,8 +981,8 @@ static void
 read_ops(IOSTREAM *stream)  {
   Int x;
   while ((x = read_tag(stream)) != QLY_END_OPS) {
-    Atom at = (Atom)read_uint(stream);
-    Term mod = (Term)read_uint(stream);
+    Atom at = (Atom)read_UInt(stream);
+    Term mod = (Term)read_UInt(stream);
     OpEntry *op;
 
     at = AtomAdjust(at);
@@ -1005,7 +1005,7 @@ read_module(IOSTREAM *stream) {
   read_header(stream);
   ReadHash(stream);
   while ((x = read_tag(stream)) == QLY_START_MODULE) {
-    Term mod = (Term)read_uint(stream);
+    Term mod = (Term)read_UInt(stream);
     mod = MkAtomTerm(AtomAdjust(AtomOfTerm(mod)));
     if (mod)
     while ((x = read_tag(stream)) == QLY_START_PREDICATE) {

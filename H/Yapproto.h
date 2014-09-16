@@ -161,6 +161,10 @@ void	Yap_InitBackDB(void);
 void	Yap_InitDBPreds(void);
 
 /* errors.c */
+#if DEBUG
+void
+Yap_PrintPredName( struct pred_entry  *ap );
+#endif
 void	Yap_RestartYap(int);
 void	Yap_exit(int);
 yamop  *Yap_Error(yap_error_number,Term,char *msg, ...);

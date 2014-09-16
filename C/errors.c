@@ -29,6 +29,50 @@
 #endif
 #include "Foreign.h"
 
+#if DEBUG
+void
+Yap_PrintPredName( PredEntry *ap )
+{
+    CACHE_REGS
+    Term tmod = ap->ModuleOfPred;
+    if (!tmod) tmod = TermProlog;
+#if THREADS
+    Yap_DebugPlWrite(MkIntegerTerm(worker_id));
+    Yap_DebugPutc(LOCAL_c_error_stream,' ');
+#endif
+    Yap_DebugPutc(LOCAL_c_error_stream,'>');
+    Yap_DebugPutc(LOCAL_c_error_stream,'\t');
+    Yap_DebugPlWrite(tmod);
+    Yap_DebugPutc(LOCAL_c_error_stream,':');
+    if (ap->ModuleOfPred == IDB_MODULE) {
+      Term t = Deref(ARG1);
+      if (IsAtomTerm(t)) {
+	Yap_DebugPlWrite(t);
+      } else if (IsIntegerTerm(t)) {
+	Yap_DebugPlWrite(t);
+      } else {
+	Functor f = FunctorOfTerm(t);
+	Atom At = NameOfFunctor(f);
+	Yap_DebugPlWrite(MkAtomTerm(At));
+	Yap_DebugPutc(LOCAL_c_error_stream,'/');
+	Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
+      }
+    } else {
+      if (ap->ArityOfPE == 0) {
+	Atom At = (Atom)ap->FunctorOfPred;
+	Yap_DebugPlWrite(MkAtomTerm(At));
+      } else {
+	Functor f = ap->FunctorOfPred;
+	Atom At = NameOfFunctor(f);
+	Yap_DebugPlWrite(MkAtomTerm(At));
+	Yap_DebugPutc(LOCAL_c_error_stream,'/');
+	Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
+      }
+    }
+    Yap_DebugPutc(LOCAL_c_error_stream,'\n');
+}
+#endif
+
 int Yap_HandleError( const char *s, ... ) {
   CACHE_REGS
     yap_error_number err = LOCAL_Error_TYPE;
@@ -1991,7 +2035,7 @@ E);
       Yap_RestartYap( 1 );
     }
 #if DEBUG
-    DumpActiveGoals( PASS_REGS1 );
+    //    DumpActiveGoals( PASS_REGS1 );
 #endif
     /* wait if we we are in user code,
        it's up to her to decide */

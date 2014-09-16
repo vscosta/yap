@@ -1390,7 +1390,7 @@ CleanCode(PredEntry *pp USES_REGS)
       return;
     }
 #ifdef	DEBUG_RESTORE2
-    fprintf(stderr, "at %ux Correcting clauses from %p to %p\n", *(OPCODE *) FirstC, FirstC, LastC);
+    fprintf(stderr, "at %lx Correcting clauses from %p to %p\n", *(OPCODE *) FirstC, FirstC, LastC);
 #endif
     CleanClauses(FirstC, LastC, pp PASS_REGS);
     if (flag & IndexedPredFlag) {
@@ -1632,9 +1632,9 @@ RestoreAtom(AtomEntry *at USES_REGS)
   at->PropsOfAE = PropAdjust(at->PropsOfAE);
 #if DEBUG_RESTORE2			/* useful during debug */
   if (IsWideAtom(AbsAtom(at)))
-    fprintf(errout, "Restoring %S\n", at->WStrOfAE);
+    fprintf(stderr, "Restoring %S\n", at->WStrOfAE);
   else
-    fprintf(errout, "Restoring %s\n", at->StrOfAE);
+    fprintf(stderr, "Restoring %s\n", at->StrOfAE);
 #endif
   RestoreEntries(RepProp(at->PropsOfAE), FALSE PASS_REGS);
   /* cannot use AtomAdjust without breaking agc */
