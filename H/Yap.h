@@ -110,8 +110,12 @@ typedef int _Bool;
 #define true 1
 #endif
 
+#ifndef TRUE
 #define	 TRUE	true
+#endif
+#ifndef FALSE
 #define	 FALSE	false
+#endif
 
 /* Microsoft's Visual C++ Compiler */
 #ifdef _MSC_VER   /* adjust a config.h from mingw32 to work with vc++ */
