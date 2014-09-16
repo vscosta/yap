@@ -1840,7 +1840,6 @@ asserta_stat_clause(PredEntry *p, yamop *q, int spy_flag)
     p->OpcodeOfPred = INDEX_OPCODE;
     p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
   }
-  p->cs.p_code.LastClause->y_u.Otapl.d = q;
 }
 
 /* p is already locked */
