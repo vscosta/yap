@@ -153,50 +153,50 @@ extern "C" {
 #endif
 
 /* === regcomp.c === */
-static void PROTO(p_ere,(struct parse *p, int stop));
-static void PROTO(p_ere_exp,(struct parse *p));
-static void PROTO(p_str,(struct parse *p));
-static void PROTO(p_bre,(struct parse *p, int end1, int end2));
-static int PROTO(p_simp_re,(struct parse *p, int starordinary));
-static int PROTO(p_count,(struct parse *p));
-static void PROTO(p_bracket,(struct parse *p));
-static void PROTO(p_b_term,(struct parse *p, cset *cs));
-static void PROTO(p_b_cclass,(struct parse *p, cset *cs));
-static void PROTO(p_b_eclass,(struct parse *p, cset *cs));
-static char PROTO(p_b_symbol,(struct parse *p));
-static char PROTO(p_b_coll_elem,(struct parse *p, int endc));
-static char PROTO(othercase,(int ch));
-static void PROTO(bothcases,(struct parse *p, int ch));
-static void PROTO(ordinary,(struct parse *p, int ch));
-static void PROTO(nonnewline,(struct parse *p));
-static void PROTO(repeat,(struct parse *p, sopno start, int from, int to));
-static int PROTO(seterr,(struct parse *p, int e));
-static cset *PROTO(allocset,(struct parse *p));
-static void PROTO(freeset,(struct parse *p, cset *cs));
-static int PROTO(freezeset,(struct parse *p, cset *cs));
-static int PROTO(firstch,(struct parse *p, cset *cs));
-static int PROTO(nch,(struct parse *p, cset *cs));
+static void p_ere(struct parse *p, int stop);
+static void p_ere_exp(struct parse *p);
+static void p_str(struct parse *p);
+static void p_bre(struct parse *p, int end1, int end2);
+static int p_simp_re(struct parse *p, int starordinary);
+static int p_count(struct parse *p);
+static void p_bracket(struct parse *p);
+static void p_b_term(struct parse *p, cset *cs);
+static void p_b_cclass(struct parse *p, cset *cs);
+static void p_b_eclass(struct parse *p, cset *cs);
+static char p_b_symbol(struct parse *p);
+static char p_b_coll_elem(struct parse *p, int endc);
+static char othercase(int ch);
+static void bothcases(struct parse *p, int ch);
+static void ordinary(struct parse *p, int ch);
+static void nonnewline(struct parse *p);
+static void repeat(struct parse *p, sopno start, int from, int to);
+static int seterr(struct parse *p, int e);
+static cset *allocset(struct parse *p);
+static void freeset(struct parse *p, cset *cs);
+static int freezeset(struct parse *p, cset *cs);
+static int firstch(struct parse *p, cset *cs);
+static int nch(struct parse *p, cset *cs);
 #if 0
-static void PROTO(mcadd,(struct parse *p, cset *cs, char *cp));
+static void mcadd(struct parse *p, cset *cs, char *cp);
 #endif
 #if used
-static void PROTO(mcsub,(cset *cs, char *cp));
-static int PROTO(mcin,(cset *cs, char *cp));
-static char *PROTO(mcfind,(cset *cs, char *cp));
+static void mcsub(cset *cs, char *cp);
+static int mcin(cset *cs, char *cp);
+static char *mcfind(cset *cs, char *cp);
 #endif
-static void PROTO(mcinvert,(struct parse *p, cset *cs));
-static void PROTO(mccase,(struct parse *p, cset *cs));
-static int PROTO(isinsets,(struct re_guts *g, int c));
-static int PROTO(samesets,(struct re_guts *g, int c1, int c2));
-static void PROTO(categorize,(struct parse *p, struct re_guts *g));
-static sopno PROTO(dupl,(struct parse *p, sopno start, sopno finish));
-static void PROTO(doemit,(struct parse *p, sop op, size_t opnd));
-static void PROTO(doinsert,(struct parse *p, sop op, size_t opnd, sopno pos));
-static void PROTO(dofwd,(struct parse *p, sopno pos, sop value));
-static void PROTO(enlarge,(struct parse *p, sopno size));
-static void PROTO(stripsnug,(struct parse *p, struct re_guts *g));
-static void PROTO(findmust,(struct parse *p, struct re_guts *g));
-static sopno PROTO(pluscount,(struct parse *p, struct re_guts *g));
+static void mcinvert(struct parse *p, cset *cs);
+static void mccase(struct parse *p, cset *cs);
+static int isinsets(struct re_guts *g, int c);
+static int samesets(struct re_guts *g, int c1, int c2);
+static void categorize(struct parse *p, struct re_guts *g);
+static sopno dupl(struct parse *p, sopno start, sopno finish);
+static void doemit(struct parse *p, sop op, size_t opnd);
+static void doinsert(struct parse *p, sop op, size_t opnd, sopno pos);
+static void dofwd(struct parse *p, sopno pos, sop value);
+static void enlarge(struct parse *p, sopno size);
+static void stripsnug(struct parse *p, struct re_guts *g);
+static void findmust(struct parse *p, struct re_guts *g);
+static sopno pluscount(struct parse *p, struct re_guts *g);
 
 #ifdef __cplusplus
 }

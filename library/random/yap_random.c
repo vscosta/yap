@@ -69,7 +69,7 @@ init_random(void)
 
 #ifdef _WIN32
 
-int WINAPI PROTO(win_random, (HANDLE, DWORD, LPVOID));
+int WINAPI win_random(HANDLE, DWORD, LPVOID);
 
 int WINAPI win_random(HANDLE hinst, DWORD reason, LPVOID reserved)
 {

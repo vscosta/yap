@@ -32,7 +32,7 @@
 #define BUFSIZE 512
 #define OBUFSIZE 2048
 
-void PROTO(init_matlab, (void));
+void init_matlab(void);
 
 static YAP_Functor MatlabAddress;
 static Engine *Meng = NULL;
@@ -760,7 +760,7 @@ init_matlab(void)
 
 #ifdef _WIN32
 
-int WINAPI PROTO(win_matlab, (HANDLE, DWORD, LPVOID));
+int WINAPI win_matlab(HANDLE, DWORD, LPVOID);
 
 int WINAPI win_matlab(HANDLE hinst, DWORD reason, LPVOID reserved)
 {

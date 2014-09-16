@@ -1107,7 +1107,7 @@ init_sys(void)
 
 #include <windows.h>
 
-int WINAPI PROTO(win_sys, (HANDLE, DWORD, LPVOID));
+int WINAPI win_sys(HANDLE, DWORD, LPVOID);
 
 int WINAPI win_sys(HANDLE hinst, DWORD reason, LPVOID reserved)
 {

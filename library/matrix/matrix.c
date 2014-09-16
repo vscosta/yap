@@ -2896,7 +2896,7 @@ matrix_sum_out_logs(void)
       j--;
     }
     dd = d*dims[prdim];
-    bzero(ndata, sizeof(double)*nmat[MAT_SIZE]);
+    memset(ndata, 0, sizeof(double)*nmat[MAT_SIZE]);
     for (i=0; i< mat[MAT_SIZE]; i++) {
       YAP_Int k = i % d + (i/dd)*d;
       ndata[k] += exp(data[i]);
@@ -3306,7 +3306,7 @@ init_matrix(void)
 
 #ifdef _WIN32
 
-int WINAPI PROTO(win_matrixs, (HANDLE, DWORD, LPVOID));
+int WINAPI win_matrixs(HANDLE, DWORD, LPVOID);
 
 int WINAPI win_matrixs(HANDLE hinst, DWORD reason, LPVOID reserved)
 {

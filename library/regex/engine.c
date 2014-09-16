@@ -90,12 +90,12 @@ extern "C" {
 #endif
 
 /* === engine.c === */
-static int PROTO(matcher, (struct re_guts *g, char *string, size_t nmatch, regmatch_t pmatch[], int eflags));
-static char * PROTO(dissect, (struct match *m, char *start, char *stop, sopno startst, sopno stopst));
-static char * PROTO(backref, (struct match *m, char *start, char *stop, sopno startst, sopno stopst, sopno lev));
-static char * PROTO(fast, (struct match *m, char *start, char *stop, sopno startst, sopno stopst));
-static char * PROTO(slow, (struct match *m, char *start, char *stop, sopno startst, sopno stopst));
-static states PROTO(step, (struct re_guts *g, sopno start, sopno stop, states bef, int ch, states aft));
+static int matcher(struct re_guts *g, char *string, size_t nmatch, regmatch_t pmatch[], int eflags);
+static char * dissect(struct match *m, char *start, char *stop, sopno startst, sopno stopst);
+static char * backref(struct match *m, char *start, char *stop, sopno startst, sopno stopst, sopno lev);
+static char * fast(struct match *m, char *start, char *stop, sopno startst, sopno stopst);
+static char * slow(struct match *m, char *start, char *stop, sopno startst, sopno stopst);
+static states step(struct re_guts *g, sopno start, sopno stop, states bef, int ch, states aft);
 #define	BOL	(OUT+1)
 #define	EOL	(BOL+1)
 #define	BOLEOL	(BOL+2)
@@ -106,13 +106,13 @@ static states PROTO(step, (struct re_guts *g, sopno start, sopno stop, states be
 #define	NONCHAR(c)	((c) > CHAR_MAX)
 #define	NNONCHAR	(CODEMAX-CHAR_MAX)
 #ifdef REDEBUG
-static void PROTO(print, (struct match *m, char *caption, states st, int ch, FILE *d));
+static void print(struct match *m, char *caption, states st, int ch, FILE *d);
 #endif
 #ifdef REDEBUG
-static void PROTO(at, (struct match *m, char *title, char *start, char *stop, sopno startst, sopno stopst));
+static void at(struct match *m, char *title, char *start, char *stop, sopno startst, sopno stopst);
 #endif
 #ifdef REDEBUG
-static char * PROTO(pchar, (int ch));
+ static char * pchar(int ch);
 #endif
 
 #ifdef __cplusplus

@@ -93,9 +93,9 @@ typedef struct {
 #define	REG_LARGE	01000	/* force large representation */
 #define	REG_BACKR	02000	/* force use of backref code */
 
-int	PROTO(yap_regcomp,  (regex_t *, const char *, int));
-size_t	PROTO(yap_regerror, (int, const regex_t *, char *, size_t));
-int	PROTO(yap_regexec,  (const regex_t *, const char *, size_t, regmatch_t [], int));
-void	PROTO(yap_regfree, (regex_t *));
+int	yap_regcomp(regex_t *, const char *, int);
+size_t	yap_regerror(int, const regex_t *, char *, size_t);
+int	yap_regexec(const regex_t *, const char *, size_t, regmatch_t [], int);
+void	yap_regfree(regex_t *);
 
 #endif /* !_REGEX_H_ */

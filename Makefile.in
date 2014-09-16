@@ -298,11 +298,9 @@ C_SOURCES= \
 	library/dialect/swi/fli/blobs.c \
 	# library/mpi/mpi.c library/mpi/mpe.c \
 	# library/lammpi/yap_mpi.c library/lamm1pi/hash.c library/lammpi/prologterms2c.c
-
 CXX_SOURCES = \
 	CXX/yapi.cpp \
     JIT/JIT_Compiler.cpp
-        
 
 PLCONS_SOURCES = \
 	console/LGPL/pl-nt.c \

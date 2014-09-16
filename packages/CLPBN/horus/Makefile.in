@@ -182,7 +182,7 @@ UTESTS_OBJS = \
 
 
 SOBJS = horus.@SO@
-HCLI = hcli
+HCLI = hcli@EXEC_SUFFIX@
 UTESTING = $(srcdir)/run_tests
 
 

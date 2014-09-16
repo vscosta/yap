@@ -580,6 +580,9 @@
 /* Define to 1 if you have the <regex.h> header file. */
 #undef HAVE_REGEX_H
 
+/* Define to 1 if you have the <Rembedded.h> header file. */
+#undef HAVE_REMBEDDED_H
+
 /* Define to 1 if you have the `rename' function. */
 #undef HAVE_RENAME
 
@@ -589,9 +592,6 @@
 
 /* Define to 1 if you have the `rint' function. */
 #undef HAVE_RINT
-
-/* Define to 1 if you have the <Rinterface.h> header file. */
-#undef HAVE_RINTERFACE_H
 
 /* Define to 1 if you have the `rl_begin_undo_group' function. */
 #undef HAVE_RL_BEGIN_UNDO_GROUP
@@ -623,8 +623,14 @@
 /* Define to 1 if you have the `rl_reset_after_signal' function. */
 #undef HAVE_RL_RESET_AFTER_SIGNAL
 
+/* Define to 1 if you have the `rl_set_keyboard_input_timeout' function. */
+#undef HAVE_RL_SET_KEYBOARD_INPUT_TIMEOUT
+
 /* Define to 1 if you have the `rl_set_prompt' function. */
 #undef HAVE_RL_SET_PROMPT
+
+/* Define to 1 if you have the <R.h> header file. */
+#undef HAVE_R_H
 
 /* Define to 1 if you have the `sbrk' function. */
 #undef HAVE_SBRK

@@ -179,7 +179,7 @@ init_regexp(void)
 
 #include <windows.h>
 
-int WINAPI PROTO(win_regexp, (HANDLE, DWORD, LPVOID));
+int WINAPI winegexp(HANDLE, DWORD, LPVOID);
 
 int WINAPI win_regexp(HANDLE hinst, DWORD reason, LPVOID reserved)
 {
