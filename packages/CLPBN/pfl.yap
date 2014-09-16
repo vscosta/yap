@@ -145,30 +145,26 @@ In this section we demonstrate how to use PFL to solve probabilistic queries. We
 
 Assuming that the current directory is the one where the examples are located, first we load the model with the following command.
 
-`$ yap -l sprinkler.pfl`
+`_ yap -l sprinkler.pfl`
 
-Let's suppose that we want to estimate the marginal probability for the $WetGrass$ random variable. To do so, we call the following goal.
+Let's suppose that we want to estimate the marginal probability for the _WetGrass_ random variable. To do so, we call the following goal.
 
 `?- wet_grass(X).`
 
-The output of this goal will show the marginal probability for each $WetGrass$ possible state or value, that is, `t` and `f`. Notice that in PFL a random variable is identified by a term with the same functor and arguments plus one extra argument.
+The output of this goal will show the marginal probability for each _WetGrass_ possible state or value, that is, `t` and `f`. Notice that in PFL a random variable is identified by a term with the same functor and arguments plus one extra argument.
 
 Now let's suppose that we want to estimate the probability for the same random variable, but this time we have evidence that it had rained in the day before. We can estimate this probability without resorting to static evidence with:
 
 `?- wet_grass(X), rain(t).`
 
-PFL also supports calculating joint probability distributions. For instance, we can obtain the joint probability for $Sprinkler$ and $Rain$ with:
+PFL also supports calculating joint probability distributions. For instance, we can obtain the joint probability for _Sprinkler_ and _Rain_ with:
 
 `?- sprinkler(X), rain(Y).`
 
 
-
-%------------------------------------------------------------------------------
-%------------------------------------------------------------------------------
-%------------------------------------------------------------------------------
-%------------------------------------------------------------------------------
 ### Options
 PFL supports both ground and lifted inference methods. The inference algorithm can be chosen by calling `set_solver/1`. The following are supported:
+
 + `ve`,  variable elimination (written in Prolog)
 + `hve`, variable elimination (written in C++)
 + `jt`,  junction tree
@@ -312,7 +308,7 @@ Inside the `learning` directory from the examples directory, one can find more e
 
 
 ### External Interface
-This package also includes an external command for perform inference over probabilistic graphical models described in formats other than PFL. Currently two are support, the href{http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html}{libDAI file format}, and the href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08 file format}.
+This package also includes an external command for perform inference over probabilistic graphical models described in formats other than PFL. Currently two are supported, the [libDAI file format](http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html), and the [UAI08 file format](http://graphmod.ics.uci.edu/uai08/FileFormat).
 
 This command's name is `hcli` and its usage is as follows.
 
@@ -325,13 +321,13 @@ Let's assume that the current directory is the one where the examples are locate
 
 `$ ./hcli burglary-alarm.uai`
 
-With the above command, the program will load the model and print the marginal probabilities for all defined random variables. We can view only the marginal probability for some variable with a identifier $X$, if we pass $X$ as an extra argument following the file name. For instance, the following command will output only the marginal probability for the variable with identifier $0$.
+With the above command, the program will load the model and print the marginal probabilities for all defined random variables. We can view only the marginal probability for some variable with a identifier _X_, if we pass _X_ as an extra argument following the file name. For instance, the following command will output only the marginal probability for the variable with identifier _0_.
 
 `$ ./hcli burglary-alarm.uai 0`
 
 If we give more than one variable identifier as argument, the program will output the joint probability for all the passed variables.
 
-Evidence can be given as a pair containing a variable identifier and its observed state (index), separated by a '=`. For instance, we can introduce knowledge that some variable with identifier $0$ has evidence on its second state as follows.
+Evidence can be given as a pair containing a variable identifier and its observed state (index), separated by a '=`. For instance, we can introduce knowledge that some variable with identifier _0_ has evidence on its second state as follows.
 
 `$ ./hcli burglary-alarm.uai 0=1`
 
