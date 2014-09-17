@@ -11,7 +11,29 @@ srcdir=@srcdir@
 CPPFLAGS= -I../.. -I$(srcdir)/../../H -I$(srcdir)/../../include  -I$(srcdir)/../../os -I$(srcdir)/../../OPTYap -I$(srcdir)/../../BEAM -I$(srcdir)/../../CXX
 CXXFLAGS=  $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 
-PROGRAMS= $(srcdir)/python/demo.py \
+JNI_SQLITE="$(srcdir)/android/jni/sqlite"
+
+JAVA_SQLITE="$(srcdir)/android/src/org"
+
+SQLITE=$(JNI_SQLITE) $(JAVA_SQLITE)
+
+PROSQLITE=$(srcdir)/../prosqlite/prolog/prosqlite.pl 
+
+PYTHON_PROGRAMS = $(srcdir)/python/demo.py
+
+ANDROID_PROGRAMS=$(srcdir)/android/JavaYap.java $(PROSQLITE) $(SQLITE)
+
+PROGRAMS= $(PYTHON_PROGRAMS) $(JAVA_PROGRAMS) $(ANDROID_PROGRAMS)
+
+YAP_EXPORT_DLLS="$(DESTDIR)$(SOLIBDIR)"
+
+YAP_EXPORT_PLS="$(DESTDIR)$(PLLIBDIR)"
+
+YAP_EXPORT_SAVED_STATE="../../startup.yss"
+
+PYTHON_PROGRAMS = $(srcdir)/python/demo.py
+
+ANDROID_PROGRAMS=$(srcdir)/android/JavaYap.java $(PROSQLITE) $(SQLITE)
 
 SWIG_FILES= \
 	$(srcdir)/yap.i
@@ -42,7 +64,7 @@ jni/yap_wrap.cpp java/yap.java: $(srcdir)/yap.i
 
 jni/yap_wrap.o:  jni/yap_wrap.cpp
 	$(CXX) -c  @SHLIB_CXXFLAGS@ $(CXXFLAGS) @JPLCFLAGS@  $< -o $@
-
+	
 # depends on make install on top-level
 # also, should have an android device running, say
 #   emulator -avd first &
@@ -51,27 +73,38 @@ jni/yap_wrap.o:  jni/yap_wrap.cpp
 # adb install bin/JavaYap-debug.apk
 #
 #
-android: android/jni/yap_wrap.cpp
+android:  JavaYap-debug.apk
+	
+JavaYap-debug.apk: android/libs/armeabi/libexample.so
+	( cd android && ant debug )
+	
+android/libs/armeabi/libexample.so: android/jni/Android.mk android/jni/Application.mk android/jni/yap_wrap.cpp
+	( cd android/jni && NDK_DEBUG=1 ndk-build )
+	
+android/jni/Application.mk: android/jni/Android.mk
+	cp $(srcdir)/android/jni/Application.mk android/jni
 
-android/jni/yap_wrap.cpp:  $(srcdir)/yap.i
-	android create project --target 1 --name JavaYap --path ./android --activity JavaYap --package pt.up.fc.dcc.yap;\
-	( cd android ; mkdir -p jni jni/lib; mkdir -p assets/share/Yap; mkdir -p assets/lib/Yap;\
-	$(SWIG) -c++ -java -I$(srcdir)/../../CXX -package pt.up.fc.dcc.yap -outdir src/pt/up/fc/dcc/yap -o jni/yap_wrap.cpp $(CXXFLAGS) $< ;\
-	cp -r $(srcdir)/android/jni/sqlite jni ;\
-	cp -r $(srcdir)/android/src/* src ;\
-	cp -r $(srcdir)/../prosqlite/prolog/prosqlite.pl assets/share/Yap ;\
-	cp $(srcdir)/android/JavaYap.java src/pt/up/fc/dcc/yap/ ;\
-	cp $(srcdir)/android/main.xml res/layout ;\
-	cp $(srcdir)/android/Application.mk jni ;\
-	cp -r $(DESTDIR)$(PLLIBDIR)/* assets/share/Yap;\
-	cp -r ../../../startup.yss assets/lib/Yap;\
-	cp -r $(DESTDIR)$(SOLIBDIR)/*.so jni;\
-	cp ../Android.mk jni ;\
-	NDK_DEBUG=1 ndk-build ; \
-	ant debug \
-	)
+android/jni/Android.mk: android/AndroidManifest.xml
+	cp $(srcdir)/android/JavaYap.java android/src/pt/up/fc/dcc/yap
+	cp $(srcdir)/android/main.xml android/res/layout
+	cp -r $(YAP_EXPORT_PLS) android/assets/share/Yap
+	cp -r $(YAP_EXPORT_DLLS)/*.so android/jni
+	cp -r $(JNI_SQLITE) android/jni
+	cp -r $(JAVA_SQLITE) android/src 
+	cp -r $(PROSQLITE) android/assets/share/Yap 
+	cp Android.mk android/jni
+	
+android/AndroidManifest.xml: $(ANDROID_PKG)
+	android create project --target 1 --name JavaYap --path ./android --activity JavaYap --package pt.up.fc.dcc.yap
+	mkdir -p android/assets
+	mkdir -p android/assets/share
+	mkdir -p android/assets/share/Yap
+	mkdir -p android/jni
+	
+android/jni/yap_wrap.cpp: $(srcdir)/yap.i android/AndroidManifest.xml
+	$(SWIG) -c++ -java -I$(srcdir)/../../CXX -package pt.up.fc.dcc.yap -outdir android/src/pt/up/fc/dcc/yap -o android/jni/yap_wrap.cpp $<
 
-make install-android: android
+install-android: android
 	adb uninstall pt.up.fc.dcc.yap
 	adb install android/bin/JavaYap-debug.apk
 
