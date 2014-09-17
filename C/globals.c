@@ -843,7 +843,6 @@ CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars, UInt arity, 
   newarena = (CELL *)XREGS[arity+3];
   arena = Deref(XREGS[arity+2]);
   t = XREGS[arity+1];
-  Yap_DebugPlWrite(t);
   old_size = ArenaSz(arena);
   goto restart;
 }

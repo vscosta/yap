@@ -627,6 +627,7 @@ libYap.a: $(LIB_OBJECTS) yapi.o
 	adb push $(GMPDIR)/lib/libgmp.so /data/yap
 	adb push $(srcdir)/swi/library /data/yap/swi/library
 	adb push $(srcdir)/pl /data/yap/pl/
+	adb push $(srcdir)/library /data/yap/library/
 	adb shell "echo \"bootstrap('/data/yap/pl/init.yap'). module(user). qsave_program('/data/yap/startup.yss').\" | LD_LIBRARY_PATH=/data/yap /data/yap/yap@EXEC_SUFFIX@ -b /data/yap/pl/boot.yap"
 	adb pull /data/yap/startup.yss
 	adb shell rm -rf /data/yap
