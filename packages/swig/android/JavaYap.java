@@ -40,11 +40,17 @@ public class JavaYap extends Activity
 		{
 			YAPQuery q = eng.query( str );
 
+			if (BuildConfig.DEBUG) {
+				Log.i(TAG, "onQueryButtonClick called");
+			} 	
 			YAPListTerm vs0 = q.namedVars();
 			Boolean rc;
 
 			// text.setText("");
 			if (vs0.nil()) {
+				if (BuildConfig.DEBUG) {
+					Log.i(TAG, "q=");
+				} 	
 				if (q.next()) {
 					outputText.append( "yes\n" );
 				} else {
@@ -52,8 +58,16 @@ public class JavaYap extends Activity
 				}
 			} else {
 				int i=1;
+				if (BuildConfig.DEBUG) {
+					Log.i(TAG, "q=");
+
+				} 	
 				while (rc = q.next()) {
-					YAPListTerm vs = vs0;
+					if (BuildConfig.DEBUG) {
+						Log.i(TAG, "q=");
+
+					} 	
+				YAPListTerm vs = vs0;
 					while(!vs.nil()){
 						YAPTerm eq = vs.car();
 						//outputText.append(Integer.toString(i) + ": " + eq.text() );

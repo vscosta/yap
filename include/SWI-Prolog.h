@@ -150,7 +150,7 @@ typedef unsigned long uintptr_t;
 
 #ifndef PL_HAVE_TERM_T
 #define PL_HAVE_TERM_Temacs
-typedef	uintptr_t    term_t;
+typedef	intptr_t    term_t;
 #endif
 typedef	struct mod_entry *module_t;
 typedef struct DB_STRUCT *record_t;

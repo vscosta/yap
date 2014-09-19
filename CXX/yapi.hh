@@ -355,19 +355,20 @@ private:
   PredEntry *ap;
 
   /// auxiliary routine to find a predicate in the current module.
-   PredEntry  *getPred( Term t, Term **outp ) ;
+   PredEntry  *getPred( Term t, Term* &outp ) ;
 
   /// String constructor for predicates
   ///
   /// It also communicates the array of arguments t[]  abd the array of variables
   /// back to yapquery
-  YAPPredicate(const char *s, Term **outp, YAPTerm& vnames ) throw (int);
+  YAPPredicate(const char *s, Term* &outp, YAPTerm& vnames ) throw (int);
 
   /// Term constructor for predicates
   ///
   /// It is just a call to getPred
   inline YAPPredicate(Term t) {
-    ap = getPred( t , (Term **)NULL );
+	CELL *  v = NULL;
+    ap = getPred( t , v );
   }
 
   /// Cast constructor for predicates,
@@ -425,19 +426,20 @@ public:
     t = YAP_ReadBuffer(s,&tp);
     if (t == 0L)
       throw YAPError::YAP_SYNTAX_ERROR;
-    ap = getPred( t, (Term **)NULL );
+	CELL *  v;
+    ap = getPred( t, v);
   }
 
 
   /// String constructor for predicates, also keeps arguments in tp[]
   ///
   /// String is a Prolog term, we extract the main functor after considering the module qualifiers.
- inline YAPPredicate(char *s, Term **outp) throw (int) {
+ inline YAPPredicate(char *s, Term* &outp) throw (int) {
     Term t, tp;
     t = YAP_ReadBuffer(s,&tp);
     if (t == 0L)
       throw YAPError::YAP_SYNTAX_ERROR;
-    ap = getPred( t, (Term **)NULL );
+    ap = getPred( t, outp );
   }
 
  /// meta-call this predicate, with arguments ts[]
@@ -508,23 +510,17 @@ public:
   ///
   /// It is given a string, calls the parser and obtains a Prolog term that should be a callable
   /// goal. It does not ask for a list of variables.
-  inline YAPQuery(char *s): YAPPredicate(s, &this->q_g)
+  inline YAPQuery(char *s): YAPPredicate(s, q_g)
   {
-    this->vnames = vnames;
-    Term *ts = this->q_g;
-
-    initQuery( ts );
+    initQuery( q_g );
   }
   /// string constructor with varnames
   ///
   /// It is given a string, calls the parser and obtains a Prolog term that should be a callable
   /// goal and a list of variables. Useful for top-level simulation. Works within the current module.
-  inline YAPQuery(char *s, YAPTerm &vnames): YAPPredicate(s, &this->q_g, vnames)
+  inline YAPQuery(char *s, YAPTerm &vnames): YAPPredicate(s, q_g, vnames)
   {
-    this->vnames = vnames;
-    Term *ts = this->q_g;
-
-    initQuery( ts );
+    initQuery( q_g );
   }
   /// set flags for query execution, currently only for exception handling
   void setFlag(int flag) {q_flags |= flag; }
@@ -537,6 +533,8 @@ public:
   /// ask for the next solution of the current query
   /// same call for every solution
   bool next();
+  /// represent the top-goal
+  char *text();
   /// remove alternatives in the current search space, and finish the current query
   void cut();
   /// finish the current query: undo all bindings.

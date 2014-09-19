@@ -87,11 +87,11 @@ android/jni/Application.mk: android/jni/Android.mk
 android/jni/Android.mk: android/AndroidManifest.xml
 	cp $(srcdir)/android/JavaYap.java android/src/pt/up/fc/dcc/yap
 	cp $(srcdir)/android/main.xml android/res/layout
-	cp -r $(YAP_EXPORT_PLS) android/assets/share/Yap
+	cp -r $(YAP_EXPORT_PLS)/* android/assets/share/Yap
 	cp -r $(YAP_EXPORT_DLLS)/*.so android/jni
+	cp -r $(YAP_EXPORT_SAVED_STATE) android/assets/lib/Yap
 	cp -r $(JNI_SQLITE) android/jni
 	cp -r $(JAVA_SQLITE) android/src 
-	cp -r $(PROSQLITE) android/assets/share/Yap 
 	cp Android.mk android/jni
 	
 android/AndroidManifest.xml: $(ANDROID_PKG)
@@ -99,9 +99,11 @@ android/AndroidManifest.xml: $(ANDROID_PKG)
 	mkdir -p android/assets
 	mkdir -p android/assets/share
 	mkdir -p android/assets/share/Yap
+	mkdir -p android/assets/lib
+	mkdir -p android/assets/lib/Yap	
 	mkdir -p android/jni
 	
-android/jni/yap_wrap.cpp: $(srcdir)/yap.i android/AndroidManifest.xml
+android/jni/yap_wrap.cpp: $(srcdir)/yap.i $(srcdir)/../../CXX/yapi.hh $(srcdir)/../../CXX/yapi.cpp android/AndroidManifest.xml
 	$(SWIG) -c++ -java -I$(srcdir)/../../CXX -package pt.up.fc.dcc.yap -outdir android/src/pt/up/fc/dcc/yap -o android/jni/yap_wrap.cpp $<
 
 install-android: android

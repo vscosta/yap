@@ -272,10 +272,24 @@ char *YAPTerm::text(void) {
   char *os;
   int enc;
 
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "I LCL0+%p/t=(%d) %x", LCL0, t, LCL0[-15]) ; }
   BACKUP_MACHINE_REGS();
   if (!(os = Yap_HandleToString(t, sze, &length, &enc, 0))) {
-      { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "IIa  LCL0+t=(%p) %x",  LCL0, LCL0[-15]) ; }
+      RECOVER_MACHINE_REGS();
+      return (char *)NULL;
+  }
+  RECOVER_MACHINE_REGS();
+  return os;
+}
+
+char *YAPQuery::text(void) {
+  size_t sze = 4096, length;
+  char *os;
+  int enc;
+
+  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "I LCL0+%p/t=(%d) %x", LCL0, *q_g, LCL0[-15]) ; }
+  BACKUP_MACHINE_REGS();
+  if (!(os = Yap_HandleToString(*q_g, sze, &length, &enc, 0))) {
+      { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "IIa  LCL0+t=(%p) %x oz=%p %s",  LCL0, LCL0[-15], os, os) ; }
       RECOVER_MACHINE_REGS();
       return (char *)NULL;
   }
@@ -374,14 +388,13 @@ char *YAPAtom::getName(void) {
 }
 
 
-YAPPredicate::YAPPredicate(const char *s, Term **outp, YAPTerm &vnames) throw (int) {
+YAPPredicate::YAPPredicate(const char *s, Term* &outp, YAPTerm &vnames) throw (int) {
   CACHE_REGS
   vnames = Yap_NewSlots(1 PASS_REGS);
   Term t = Yap_StringToTerm(s, strlen(s)+1, Yap_GetFromSlot( vnames.t PASS_REGS));
   if (t == 0L)
     throw YAPError::YAP_SYNTAX_ERROR;
   ap = getPred( t, outp );
-  //{ CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "OUT vnames=%d ap=%p LCL0=%p",  vnames, ap, LCL0) ; }
 }
 
 YAPPredicate::YAPPredicate(YAPAtom at) {
@@ -400,20 +413,21 @@ YAPPredicate::YAPPredicate(YAPAtom at, arity_t arity) {
 }
 
 /// auxiliary routine to find a predicate in the current module.
-PredEntry  *YAPPredicate::getPred( Term t, Term **outp ) {
+PredEntry  *YAPPredicate::getPred( Term t, Term* &outp ) {
   CACHE_REGS
   Term m = CurrentModule ;
+  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "H= %p, outp=%p", HR, outp) ; }
   t = Yap_StripModule(t, &m);
   if (IsVarTerm(t) || IsNumTerm(t)) {
       ap = (PredEntry  *)NULL;
-      if (outp) *outp = (Term  *)NULL;
+      outp = (Term  *)NULL;
   }
   if (IsAtomTerm(t)) {
       ap = RepPredProp(PredPropByAtom(AtomOfTerm(t), m));
-      if (outp) *outp = (Term  *)NULL;
+      if (outp) outp = (Term  *)NULL;
   }  else if (IsPairTerm(t)) {
       ap = RepPredProp(PredPropByFunc(FunctorCsult, PROLOG_MODULE));
-      if (outp) *outp = HR;
+       outp = HR;
       HR[0] = RepPair(t)[0];
       HR[1] = m;
       HR+=2;
@@ -421,12 +435,14 @@ PredEntry  *YAPPredicate::getPred( Term t, Term **outp ) {
       Functor f = FunctorOfTerm(t);
       if (IsExtensionFunctor(f)) {
 	  ap = (PredEntry  *)NULL;
-	  if (outp) *outp = (Term *)NULL;
-      }
+	  outp = (Term *)NULL;
+      } else {
       ap = RepPredProp(PredPropByFunc(f, m));
-      if (outp) *outp = RepAppl(t)+1;
+       outp = RepAppl(t)+1;
+      }
   }
-  return ap;
+  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "done H= %p, outp=%p", HR, outp) ; }
+ return ap;
 }
 
 YAPPredicate::YAPPredicate(YAPFunctor f) {
@@ -486,21 +502,23 @@ bool YAPQuery::next()
 {
   CACHE_REGS
   int result;
-  if (this->q_open != 1) return false;
+  if (q_open != 1) return false;
   if (setjmp(((YAPQuery *)LOCAL_execution)->q_env))
     return false;
   // don't forget, on success these guys must create slots
-  if (this->q_state == 0) {
+  if (q_state == 0) {
     // extern void toggle_low_level_trace(void);
       //toggle_low_level_trace();
-      result = (bool)YAP_EnterGoal((YAP_PredEntryPtr)this->ap, this->q_g, &this->q_h);
+	  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "next %p", HR) ; }
+      result = (bool)YAP_EnterGoal((YAP_PredEntryPtr)ap, q_g, &q_h);
+      { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "done") ; }
   } else {
       LOCAL_AllowRestart = this->q_open;
-      result = (bool)YAP_RetryGoal(&this->q_h);
+      result = (bool)YAP_RetryGoal(&q_h);
   }
   this->q_state = 1;
   if (!result) {
-      YAP_LeaveGoal(FALSE, &this->q_h);
+      YAP_LeaveGoal(FALSE, &q_h);
       this->q_open = 0;
   }
   return result;
