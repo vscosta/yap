@@ -3408,6 +3408,35 @@ p_set_pred_module( USES_REGS1 )
 }
 
 static Int 
+p_set_pred_owner( USES_REGS1 )
+{				/* '$set_pred_module'(+P,+File)	 */
+  PredEntry      *pe;
+  Term a2 = Deref( ARG2 );
+
+  pe = get_pred(Deref(ARG1), CurrentModule, "set_pred_module/1");
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  PELOCK(35,pe);
+  if (pe->PredFlags & (UserCPredFlag|CArgsPredFlag|NumberDBPredFlag|AtomDBPredFlag|TestPredFlag|AsmPredFlag|CPredFlag|BinaryPredFlag)) {
+    UNLOCKPE(56,pe);
+    return FALSE;
+  }
+  if (IsVarTerm(a2)) {
+    Yap_Error(INSTANTIATION_ERROR, a2, "load_files/2");
+    UNLOCKPE(56,pe);
+    return FALSE;
+  }
+  if (!IsAtomTerm(a2)) {
+    Yap_Error(TYPE_ERROR_ATOM, a2, "load_files/2");
+    UNLOCKPE(56,pe);
+    return FALSE;
+  }
+  pe->src.OwnerFile = AtomOfTerm(a2);
+  UNLOCKPE(56,pe);
+  return(TRUE);
+}
+
+static Int 
 p_undefined( USES_REGS1 )
 {				/* '$undefined'(P,Mod)	 */
   PredEntry      *pe;
@@ -6659,6 +6688,7 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$call_count_reset", 0, p_call_count_reset, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$toggle_static_predicates_in_use", 0, p_toggle_static_predicates_in_use, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$set_pred_module", 2, p_set_pred_module, SafePredFlag);
+  Yap_InitCPred("$set_pred_owner", 2, p_set_pred_owner, SafePredFlag);
   Yap_InitCPred("$parent_pred", 3, p_parent_pred, SafePredFlag);
   Yap_InitCPred("$system_predicate", 2, p_system_pred, SafePredFlag);
   Yap_InitCPred("$all_system_predicate", 3, p_all_system_pred, SafePredFlag);
