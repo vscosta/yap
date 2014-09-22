@@ -693,11 +693,16 @@ FULL_PATH_PL_SOURCES=$(addprefix $(srcdir)/, $(PL_SOURCES) )
 FULL_PATH_HEADERS=$(addprefix $(srcdir)/, $(HEADERS) )
 
 TAGS: $(C_SOURCES) $(PL_SOURCES) $(HEADERS)
-	etags  $(FULL_PATH_C_SOURCES)  $(FULL_PATH_PL_SOURCES) $(FULL_PATH_HEADERS)
-	for p in $(PACKAGES); do \
-	  echo " ============== INSTALLING" $$p; \
-	  if [ -r $$p/Makefile ]; then $(MAKE) -C $$p TAGS || exit 1; fi; \
-	done
+	rm -f TAGS
+	find . -name '*.c' -exec etags -a {} \;
+	find . -name '*.h' -exec etags -a {} \;
+	find . -name '*.i' -exec etags -a {} \;
+	find . -name '*.yap' -exec etags -a {} \;
+	find . -name '*.pl' -exec etags -a {} \;
+	find . -name '*.cpp' -exec etags -a {} \;
+	find . -name '*.hh' -exec etags -a {} \;
+	find . -name '*.java' -exec etags -a {} \;
+	find . -name '*.py' -exec etags -a {} \;
 
 depend: $(HEADERS) $(C_SOURCES)
 	-@if test "$(GCC)" = yes; then\

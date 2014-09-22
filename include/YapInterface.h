@@ -859,10 +859,13 @@ Look for the next solution to the current query by forcing YAP to
 backtrack to the latest goal. Notice that slots allocated since the last
 YAP_RunGoal() will become invalid.
 
-@Item  `int` YAP_Reset(`void`)
-Reset execution environment (similar to the [abort/0](@ref abort)
-built-in). This is useful when you want to start a new query before
-asking all solutions to the previous query.
+@Item `int` YAP_Reset(`yap_reset_t mode`) 
+
+Reset execution environment
+(similar to the abort/0 built-in). This is useful when
+you want to start a new query before asking all solutions to the
+previous query. 'mode` specifies how deep the Reset will go and what
+to do next. It will be most often set to `YAP_FULL_RESET`.
 
 </li>
  <li>`int` YAP_ShutdownGoal(`int backtrack`)
@@ -1829,7 +1832,7 @@ extern X_API YAP_Bool YAP_GoalHasException(YAP_Term *);
 /*  void YAP_ClearExceptions(void) */
 extern X_API void YAP_ClearExceptions(void);
 
-extern X_API int YAP_Reset(void);
+extern X_API int YAP_Reset(yap_reset_t reset);
 
 extern X_API void YAP_Error(int myerrno, YAP_Term t, const char *buf, ...);
 

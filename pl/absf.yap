@@ -76,7 +76,7 @@
 
        3.  `executable`  implies `['.so', ',dylib', '.dll']` depending on the Operating system,
 
-       4.  `qlf` implies `['.qlf', '']`,
+       4.  `qly` implies `['.qly', '']`,
 
        5.  `directory` implies `['']`,
 
@@ -209,7 +209,7 @@ absolute_file_name(File0,File) :-
 '$check_fn_type'(prolog,_) :- !.
 '$check_fn_type'(source,_) :- !.
 '$check_fn_type'(executable,_) :- !.
-'$check_fn_type'(qlf,_) :- !.
+'$check_fn_type'(qly,_) :- !.
 '$check_fn_type'(directory,_) :- !.
 '$check_fn_type'(T,G) :- atom(T), !,
 	'$do_error'(domain_error(file_type,T),G).
@@ -563,6 +563,8 @@ remove_from_path(New) :- '$check_path'(New,Path),
   prolog_file_type(yap, prolog).
   prolog_file_type(pl, prolog).
   prolog_file_type(prolog, prolog).
+  prolog_file_type(qly, prolog).
+  prolog_file_type(qly, qly).
   prolog_file_type(A, prolog) :-
     current_prolog_flag(associate, A),
     A \== prolog,
@@ -586,8 +588,8 @@ user:prolog_file_type(A, prolog) :-
 	A \== prolog,
 	A \==pl,
 	A \== yap.
-%user:prolog_file_type(qlf, prolog).
-%user:prolog_file_type(qlf, qlf).
+user:prolog_file_type(qly, prolog).
+user:prolog_file_type(qly, qly).
 user:prolog_file_type(A, executable) :-
 	current_prolog_flag(shared_object_extension, A).
 

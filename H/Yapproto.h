@@ -182,7 +182,7 @@ Int	Yap_JumpToEnv(Term);
 Term	Yap_RunTopGoal(Term);
 void	Yap_ResetExceptionTerm(int);
 Int	Yap_execute_goal(Term, int, Term);
-Int	Yap_exec_absmi(int);
+Int	Yap_exec_absmi( bool, yap_reset_t );
 void	Yap_trust_last(void);
 Term	Yap_GetException(void);
 void	Yap_PrepGoal(UInt, CELL *, choiceptr USES_REGS);

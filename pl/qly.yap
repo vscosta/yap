@@ -390,38 +390,87 @@ save_program(File, _Goal) :-
 	 
 /** @pred qsave_file(+ _File_, +_State_)
 
-Saves an image of all the information compiled by the systemm from file _F_ to _State_. 
+Saves an image of all the information compiled by the system from file _F_ to _State_. 
 This includes modules and predicatees eventually including multi-predicates.
 **/
+qsave_file(F0, State) :-
+    absolute_file_name( F0, File, [expand(true),file_type(qly)]),
+    '$qsave_file_'(File, State).  
 
-qsave_file(File, State) :-
-	recorded('$module', '$module'(File,Mod,Exps,Line), _),
-	'$fetch_parents_module'(Mod, Parents),
-	'$fetch_imports_module'(Mod, Imps),
-	'$fetch_multi_files_module'(Mod, MFs),
-	'$fetch_meta_predicates_module'(Mod, Metas),
-	'$fetch_module_transparents_module'(Mod, ModTransps),
-	asserta(Mod:'@mod_info'(F, Exps, Line, Parents, Imps, Metas, ModTransps)),
-	atom_concat(Mod,'.qly',OF),
+'$qsave_file_'(File, _State) :-  
+   '$recorded'('$directive','$d'( File, M:G, Mode,  VL, Pos ), _),
+    assert(prolog:'$file_property'( directive( M:G, Mode,  VL, Pos ) ) ),
+    '$set_owner_file'(prolog:'$file_property'( _ ), File ),
+    fail.
+'$qsave_file_'(File, _State) :-
+    recorded('$module', '$module'(F,Mod,Source,Exps,L), _),
+    '$fetch_parents_module'(Mod, Parents),
+    '$fetch_imports_module'(Mod, Imps),
+    assert(prolog:'$file_property'( module( Mod, Exps, L, Parents, Imps ) ) ),
+    '$set_owner_file'(prolog:'$file_property'( _ ), File ),
+    fail.
+'$qsave_file_'(File, _State) :-
+    '$fetch_multi_files_file'(File, MultiFiles),
+    assert(prolog:'$file_property'( multifile(MultiFiles  ) ) ),
+    '$set_owner_file'(prolog:'$file_property'( _ ), File ),
+    fail.
+'$qsave_file_'( File, State ) :-
+    (
+	is_stream( State )
+    ->
+	stream_property(Stream, file_name(File)),
+	S = Stream,
+	'$qsave_file_preds'(S, File)
+	;
+        absolute_file_name( F0, File, [expand(true),file_type(qly)]),
 	open(State, write, S, [type(binary)]),
-	'$qsave_module_preds'(S, Mod),
-	close(S),
-	abolish(Mod:'@mod_info'/7),
-	fail.
-qsave_file(_).
+        '$qsave_file_preds'(S, File),
+        close(S)
+    ), abolish(prolog:'$file_property'/2).
+
+'$fetch_multi_files_file'(File, Multi_Files) :-
+	setof(Info, '$fetch_multi_file_module'(File, Info), Multi_Files).
+
+'$fetch_multi_file_file'(FileName, (M:G :- Body)) :-
+	recorded('$multifile_defs','$defined'(FileName,Name,Arity,Mod), _),
+	functor(G, Name, Arity ), 
+        clause(M:G, Body, ClauseRef),
+	clause_property(ClauseRef, file(FileName) ).
+
 
 /** @pred qsave_module(+ _Module_, +_State_)
 Saves an image of all the information compiled by the systemm on module _F_ to _State_. 
 **/
 
-qsave_module(Mod, OF) :-
-	recorded('$module', '$module'(F,Mod,Exps,L), _),
+qsave_module(Mod, OF) :- 
+    recorded('$module', '$module'(F,Mod,_S,Exps,L), _),
+    '$fetch_parents_module'(Mod, Parents),
+    '$fetch_imports_module'(Mod, Imps),
+    '$fetch_multi_files_module'(Mod, MFs),
+    '$fetch_meta_predicates_module'(Mod, Metas),
+    '$fetch_module_transparents_module'(Mod, ModTransps),
+    asserta(Mod:'@mod_info'(F, Exps, L, Parents, Imps, Metas,
+			    ModTransps)), open(OF, write, S, [type(binary)]),
+	'$qsave_module_preds'(S, Mod), close(S),
+	abolish(Mod:'@mod_info'/7), fail. 
+ qsave_module(_, _).
+
+/** @pred qsave_module(+ _Module_)
+
+Saves an image of all the information compiled by the systemm on
+module _F_ to a file _State.qly_ in the current directory.
+
+**/
+
+qsave_module(Mod) :-
+	recorded('$module', '$module'(F,Mod,_S,Exps,L), _),
 	'$fetch_parents_module'(Mod, Parents),
 	'$fetch_imports_module'(Mod, Imps),
 	'$fetch_multi_files_module'(Mod, MFs),
 	'$fetch_meta_predicates_module'(Mod, Metas),
 	'$fetch_module_transparents_module'(Mod, ModTransps),
-	asserta(Mod:'@mod_info'(F, Exps, L, Parents, Imps, Metas, ModTransps)),
+	'$fetch_foreigns_module'(Mod, Foreigns),
+	asserta(Mod:'@mod_info'(F, Exps, L, Parents, Imps, Metas, ModTransps, Foreigns)),
 	atom_concat(Mod,'.qly',OF),
 	open(OF, write, S, [type(binary)]),
 	'$qsave_module_preds'(S, Mod),
@@ -441,98 +490,192 @@ restore(File) :-
 	close(S).
 
 /**
-@pred qload_module(+ _F_)
-Restores a previously saved state of YAP with  from file  _F_.
+@pred qload_module(+ _M_)
+
+Restores a previously save image of module  _M_. This built-in searches
+for a file M.qly or M according to the rules for qly files.
+
+The q_load_module/1 built-in tries to reload any modules it imports
+from and any foreign files that had been loaded with the original
+module. It tries first reloading from qly images, but if they are not
+available it tries reconsulting the source file.
 
 */
 qload_module(Mod) :-
-	atom_concat(Mod,'.qly',IF),
-	open(IF, read, S, [type(binary)]),
+	absolute_file_name( Mod, File, [expand(true),file_type(qly)]),
+	'$qload_module'(Mod, File).
+
+'$qload_module'(Mod, File) :-
+	open(File, read, S, [type(binary)]),
 	'$qload_module_preds'(S),
 	close(S),
 	fail.
-qload_module(Mod) :-
+'$qload_module'(Mod, _File) :-
 	'$complete_read'(Mod).
 
 '$complete_read'(Mod) :-
-	retract(Mod:'@mod_info'(F, Exps, Line,Parents, Imps, Metas, ModTransps)),
+        '$current_module'(CurrentModule),
+	retract(Mod:'@mod_info'(F, Exps, Line,Parents, Imps, Metas, ModTransps, Foreigns)),
 	abolish(Mod:'$mod_info'/7),
 	recorda('$module', '$module'(F,Mod,Exps,Line), _),
 	'$install_parents_module'(Mod, Parents),
-	'$install_imports_module'(Mod, Imps),
+	'$install_imports_module'(Mod, Imps, []),
 	'$install_multi_files_module'(Mod, MFs),
 	'$install_meta_predicates_module'(Mod, Metas),
-	'$install_module_transparents_module'(Mod, ModTransps).
-	
+	'$install_foreigns_module'(Mod, Foreigns),
+	'$import_to_current_module'(File, ContextModule, Imports, RemainingImports, TOpts).
+
 '$fetch_imports_module'(Mod, Imports) :-
 	findall(Info, '$fetch_import_module'(Mod, Info), Imports).
 
-% detect an importerator that is local to the module.
-'$fetch_import_module'(Mod, '$import'(Mod0,Mod,G0,G,N,K)) :-
-	recorded('$import', '$import'(Mod0,Mod,G0,G,N,K), _).
+% detect an import that is local to the module.
+'$fetch_import_module'(Mod, '$import'(Mod0,Mod,G0,G,N,K) - S) :-
+	recorded('$import', '$import'(Mod0,Mod,G0,G,N,K), _),
+	( recorded('$module','$module'(_, Mod0, S, _, _), R) -> true ; S = user_input ).
 
 '$fetch_parents_module'(Mod, Parents) :-
 	findall(Parent, prolog:'$parent_module'(Mod,Parent), Parents).
 
 '$fetch_module_transparents_module'(Mod, Module_Transparents) :-
-	findall(Info, '$fetch_module_transparent_module'(Mod, Info), Module_Transparents).
+	setof(Info, '$fetch_module_transparent_module'(Mod, Info), Module_Transparents).
 
 % detect an module_transparenterator that is local to the module.
 '$fetch_module_transparent_module'(Mod, '$module_transparent'(F,Mod,N,P)) :-
 	prolog:'$module_transparent'(F,Mod0,N,P), Mod0 == Mod.
 
 '$fetch_meta_predicates_module'(Mod, Meta_Predicates) :-
-	findall(Info, '$fetch_meta_predicate_module'(Mod, Info), Meta_Predicates).
+	setof(Info, '$fetch_meta_predicate_module'(Mod, Info), Meta_Predicates).
 
-% detect an meta_predicateerator that is local to the module.
+% detect a meta_predicate that is local to the module.
 '$fetch_meta_predicate_module'(Mod, '$meta_predicate'(F,Mod,N,P)) :-
 	prolog:'$meta_predicate'(F,Mod0,N,P), Mod0 == Mod.
 
 '$fetch_multi_files_module'(Mod, Multi_Files) :-
-	findall(Info, '$fetch_multi_file_module'(Mod, Info), Multi_Files).
+	setof(Info, '$fetch_multi_file_module'(Mod, Info), Multi_Files).
 
-% detect an multi_fileerator that is local to the module.
+% detect an multi_file that is local to the module.
 '$fetch_multi_file_module'(Mod, '$defined'(FileName,Name,Arity,Mod)) :-
 	recorded('$multifile_defs','$defined'(FileName,Name,Arity,Mod), _).
 
 '$fetch_term_expansions_module'(Mod, Term_Expansions) :-
-	findall(Info, '$fetch_term_expansion_module'(Mod, Info), Term_Expansions).
+	setof(Info, '$fetch_term_expansion_module'(Mod, Info), Term_Expansions).
 
 % detect an term_expansionerator that is local to the module.
 '$fetch_term_expansion_module'(Mod,'$defined'(FileName,Name,Arity,Mod)) :-
 	recorded('$multifile_defs','$defined'(FileName,Name,Arity,Mod), _).
 
+'$fetch_foreigns_module'(Mod, Foreigns) :-
+	setof(Info, '$fetch_foreign_module'(Mod, Info), Foreigns).
 
+% detect an term_expansionerator that is local to the module.
+'$fetch_foreign_module'(Mod,Foreign) :-
+	recorded( '$foreign', Mod:Foreign, _).
 
 '$install_ops_module'(_, []).
-'$install_ops_module'(Mod, op(X,Y,Op).Ops) :-
+'$install_ops_module'(Mod, [op(X,Y,Op)|Ops]) :-
 	op(X, Y, Mod:Op),
 	'$install_ops_module'(Mod, Ops).
 
-'$install_imports_module'(_, []).
-'$install_imports_module'(Mod, Import.Imports) :-
+'$install_imports_module'(_, [], Fs0) :-
+    sort(Fs0, Fs),
+    '$restore_load_files'(Fs).
+'$install_imports_module'(Mod, [Import-F|Imports], Fs0) :-
 	recordz('$import', Import, _),
-	'$install_imports_module'(Mod, Imports).
+	arg(1, Import, M),
+	'$install_imports_module'(Mod, Imports, [M-F|Fs0]).
+
+'$restore_load_files'([]).
+'$restore_load_files'([M-F0|Fs]) :-
+    (
+	absolute_file_name( M, File, [expand(true),file_type(qly),access(read),file_errors(fail)])
+    ->
+        qload_module(M)
+    ;
+	use_module(M, F0, _)
+    ),
+    '$restore_load_files'(Fs).
 
 '$install_parents_module'(_, []).
-'$install_parents_module'(Mod, Parent.Parents) :-
+'$install_parents_module'(Mod, [Parent|Parents]) :-
 	assert(prolog:Parent),
 	'$install_parents_module'(Mod, Parents).
 
 '$install_module_transparents_module'(_, []).
-'$install_module_transparents_module'(Mod, Module_Transparent.Module_Transparents) :-
+'$install_module_transparents_module'(Mod, [Module_Transparent|Module_Transparents]) :-
 	assert(prolog:Module_Transparent),
 	'$install_module_transparents_module'(Mod, Module_Transparents).
 
 '$install_meta_predicates_module'(_, []).
-'$install_meta_predicates_module'(Mod, Meta_Predicate.Meta_Predicates) :-
+'$install_meta_predicates_module'(Mod, [Meta_Predicate|Meta_Predicates]) :-
 	assert(prolog:Meta_Predicate),
 	'$install_meta_predicates_module'(Mod, Meta_Predicates).
 
 '$install_multi_files_module'(_, []).
-'$install_multi_files_module'(Mod, Multi_File.Multi_Files) :-
-	recordz('$multifile_defs',Multi_File, _).
+'$install_multi_files_module'(Mod, [Multi_File|Multi_Files]) :-
+	recordz('$multifile_defs',Multi_File, _),
 	'$install_multi_files_module'(Mod, Multi_Files).
 
+'$install_foreigns_module'(_, []).
+'$install_foreigns_module'(Mod, [Foreign|Foreigns]) :-
+	'$do_foreign'(Foreign, Foreigns),
+	'$install_foreigns_module'(Mod, Foreigns).
+
+'$do_foreign'('$foreign'(Objs,Libs,Entry), _) :-
+    load_foreign_files(Objs,Libs,Entry).
+'$do_foreign'('$swi_foreign'(File, Opts, Handle), More) :-
+    open_shared_object(File, Opts, Handle, NewHandle),
+    '$init_foreigns'(More, NewHandle).
+'$do_foreign'('$swi_foreign'(_,_), More).
+
+'$init_foreigns'([], Handle, NewHandle).
+'$init_foreigns'(['$swi_foreign'( Handle, Function )|More], Handle, NewHandle) :- 
+    !,
+    call_shared_object_function( NewHandle, Function),
+    '$init_foreigns'(More, Handle, NewHandle).
+'$init_foreigns'([_|More], Handle, NewHandle) :-
+    '$init_foreigns'(More, Handle, NewHandle).
+
+/**
+@pred qload_file(+ _F_)
+
+Restores a previously saved state of YAP contaianing a qly file  _F_.
+
+*/
+qload_file(F0) :-
+    H0 is heapused, '$cputime'(T0,_),
+    ( is_strean( F0 ) 
+      ->
+      stream_property(F0, file_name(File) ),
+      S = F0
+    ;
+      absolute_file_name( F0, File, [expand(true),file_type(qly)]),
+      open(File, read, S, [type(binary)])
+    ),
+    '$qload_file_preds'(S, File),
+    close(S),
+    fail 
+    ;
+    '$complete_read_file'(File).
+
+'$complete_read_file'(File) :-
+    file_directory_name(File, DirName),
+    working_directory(OldD, Dir),
+    '$process_directives'( File ),
+    working_directory( _, OldD),
+    H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
+    '$current_module'(Mod, SourceModule),
+    fail.
+
+'$process_directives' :-
+    prolog:'$file_property'( multifile( List ) ),
+    lists:member( Clause, List ),
+    assert( Clause ),
+    fail.
+'$process_directives' :-
+    prolog:'$file_property'( directive( M:G, Mode,  VL, Pos  ) ),
+    '$exec_directive'(G, Mode, M, VL, Pos),
+    fail.
+'$process_directives' :-
+    abolish(prolog:'$file_property'/1).
 
 

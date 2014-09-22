@@ -389,7 +389,8 @@ name with the `:/2` operator.
 **/
 '$module_dec'(N, Ps) :-
 	source_location(F, _),
-	'$add_module_on_file'(N, F, Ps),
+	b_getval( '$source_file', F0 ),
+	'$add_module_on_file'(N, F, F0, Ps),
 	'$current_module'(_,N).
 
 '$module'(_,N,P) :-
@@ -399,7 +400,7 @@ name with the `:/2` operator.
  \pred module(+ M:atom,+ L:list ) is directive
   the current file defines module _M_ with exports _L_. The list may include
 
-  + predicatae indicators
+  + predicate indicators
   
   + operator definitions that look like calls to op/3.
 
@@ -479,21 +480,21 @@ of predicates.
 '$prepare_restore_hidden'(Old,New) :-
 	recorda('$system_initialisation', source_mode(New,Old), _).
 
-'$add_module_on_file'(DonorMod, DonorF, Exports) :-
-    recorded('$module','$module'(DonorF, DonorMod, _, _),R),
+'$add_module_on_file'(DonorMod, DonorF, SourceF, Exports) :-
+    recorded('$module','$module'(DonorF, DonorMod, _, _, _),R),
     % the module has been found, are we reconsulting?
     (
 	DonorF \= OtherF
     ->
         '$do_error'(permission_error(module,redefined,DonorMod, OtherFile, DonorF),module(Mod,Exports))
     ;
-      recorded('$module','$module'(DonorF,DonorM, _, _), R),
+      recorded('$module','$module'(DonorF,DonorMod, SourceF,  _, _), R),
       erase( R ),
       fail
     ).
-'$add_module_on_file'(DonorM, DonorF, Exports) :-
+'$add_module_on_file'(DonorM, DonorF, SourceF, Exports) :-
     '$current_module'( HostM ),
-    ( recorded('$module','$module'( HostF, HostM, _, _),_) -> true ; HostF = user_input ),
+    ( recorded('$module','$module'( HostF, HostM, _, _, _),_) -> true ; HostF = user_input ),
     % first build the initial export tablee
     '$convert_for_export'(all, Exports, DonorM, HostM, TranslationTab, AllExports0, load_files),
     sort( AllExports0, AllExports ),
@@ -501,17 +502,17 @@ of predicates.
     '$add_to_imports'(TranslationTab, DonorM, DonorM), % insert ops, at least for now
     % last, export everything to the host: if the loading crashed you didn't actually do
     % no evil.
-    recorda('$module','$module'(DonorF,DonorM,AllExports, Line),_).
+    recorda('$module','$module'(DonorF,DonorM,SourceF, AllExports, Line),_).
 
 '$extend_exports'(HostF, Exports, DonorF ) :-
-    ( recorded('$module','$module'( DonorF, DonorM, _, DonorExports),_) -> true ; DonorF = user_input ),
-    ( recorded('$module','$module'( HostF, HostM, _, _),_) -> true ; HostF = user_input ),
-    recorded('$module','$module'(HostF,HostM,AllExports, _Line), R), erase(R),
+    ( recorded('$module','$module'( DonorF, DonorM, SourceF, _, DonorExports),_) -> true ; DonorF = user_input ),
+    ( recorded('$module','$module'( HostF, HostM, _, _, _),_) -> true ; HostF = user_input ),
+    recorded('$module','$module'(HostF, HostM, _, AllExports, _Line), R), erase(R),
     '$convert_for_export'(Exports, DonorExports, DonorM, HostM, TranslationTab, AllReExports, reexport(DonorF, Exports)),
     lists:append( AllReExports, AllExports, Everything0 ),
     sort( Everything0, Everything ),
     ( source_location(_, Line) -> true ; Line = 0 ),
-    recorda('$module','$module'(HostF,HostM,Everything, Line),_).
+    recorda('$module','$module'(HostF,HostM,SourceF, Everything, Line),_).
 
 '$module_produced by'(M, M0, N, K) :-
 	recorded('$import','$import'(M,M0,_,_,N,K),_), !.
@@ -552,7 +553,7 @@ Succeeds if  _M_ are current modules associated to the file  _F_.
  */
 current_module(Mod,TFN) :-
 	'$all_current_modules'(Mod),
-	( recorded('$module','$module'(TFN,Mod,_Publics, _),_) -> true ; TFN = user ).
+	( recorded('$module','$module'(TFN,Mod,_,_Publics, _),_) -> true ; TFN = user ).
 
 /** \pred source_module( - Mod:atom ) is nondet
    : _Mod_ is the current read-in or source module.
@@ -1153,7 +1154,7 @@ be associated to a new file.
  get rid of a module and of all predicates included in the module.
 */
 abolish_module(Mod) :-
-	recorded('$module','$module'(_,Mod,_,_),R), erase(R),
+	recorded('$module','$module'(_,Mod,_,_,_),R), erase(R),
 	fail.
 abolish_module(Mod) :-
 	recorded('$import','$import'(Mod,_,_,_,_,_),R), erase(R),
@@ -1180,23 +1181,23 @@ export_resource(Resource) :-
 export_resource(P) :-
 	P = F/N, atom(F), number(N), N >= 0, !,
 	'$current_module'(Mod), 
-	(	recorded('$module','$module'(File,Mod,ExportedPreds,Line),R) ->
+	(	recorded('$module','$module'(File,Mod,SourceF,ExportedPreds,Line),R) ->
 		erase(R), 
 		recorda('$module','$module'(File,Mod,[P|ExportedPreds],Line),_)
 	;	prolog_load_context(file, File) ->
-		recorda('$module','$module'(File,Mod,[P],Line),_)
-	;	recorda('$module','$module'(user_input,Mod,[P],1),_)
+		recorda('$module','$module'(File,Mod,SourceF,[P],Line),_)
+	;	recorda('$module','$module'(user_input,Mod,user_input,[P],1),_)
 	).
 export_resource(P0) :-
 	P0 = F//N, atom(F), number(N), N >= 0, !,
 	N1 is N+2, P = F/N1,
 	'$current_module'(Mod), 
-	(	recorded('$module','$module'(File,Mod,ExportedPreds,Line),R) ->
+	(	recorded('$module','$module'(File,Mod,SourceF,ExportedPreds,Line),R) ->
 		erase(R), 
-		recorda('$module','$module'(File,Mod,[P|ExportedPreds],Line ),_)
+		recorda('$module','$module'(File,Mod,SourceF,[P|ExportedPreds],Line ),_)
 	;	prolog_load_context(file, File) ->
-		recorda('$module','$module'(File,Mod,[P],Line),_)
-	;	recorda('$module','$module'(user_input,Mod,[P],1),_)
+		recorda('$module','$module'(File,Mod,SourceF,[P],Line),_)
+	;	recorda('$module','$module'(user_input,Mod,user_input,[P],1),_)
 	).
 export_resource(op(Prio,Assoc,Name)) :- !,
 	op(Prio,Assoc,prolog:Name).
@@ -1204,7 +1205,7 @@ export_resource(Resource) :-
 	'$do_error'(type_error(predicate_indicator,Resource),export(Resource)).
 	
 export_list(Module, List) :-
-	recorded('$module','$module'(_,Module,List,_),_).
+	recorded('$module','$module'(_,Module,_,List,_),_).
 
 '$convert_for_export'(all, Exports, _Module, _ContextModule, Tab, MyExports, _) :-
 	'$simple_conversion'(Exports, Tab, MyExports).
@@ -1334,7 +1335,7 @@ export_list(Module, List) :-
 	op(Prio,Assoc,ContextMod:Name).
 '$do_import'(N0/K0-N0/K0, Mod, Mod) :- !.
 '$do_import'(_N/K-N1/K, _Mod, ContextMod) :-
-       recorded('$module','$module'(_F, ContextMod, MyExports,_),_),
+       recorded('$module','$module'(_F, ContextMod, _SourceF, MyExports,_),_),
        once(lists:member(N1/K, MyExports)),
        functor(S, N1, K),
        %  reexport predicates if they are undefined in the current module.
@@ -1380,10 +1381,10 @@ export_list(Module, List) :-
 	( C == e -> halt(1) ;
 	  C == y ).  
 '$redefine_action'(true, M1, _, _, _, _) :- !,
-	recorded('$module','$module'(F, M1, _MyExports,_Line),_),
+	recorded('$module','$module'(F, M1, _, _MyExports,_Line),_),
 	unload_file(F).
 '$redefine_action'(false, M1, M2, M, ContextM, N/K) :-
-	recorded('$module','$module'(F, ContextM, _MyExports,_Line),_),
+	recorded('$module','$module'(F, ContextM, _, _MyExports,_Line),_),
 	'$current_module'(_, M2),
 	'$do_error'(permission_error(import,M1:N/K,redefined,M2),F).
 
@@ -1503,11 +1504,11 @@ delete_import_module(Mod, ImportModule) :-
 module_property(Mod, class(L)) :-
 	'$module_class'(Mod, L).
 module_property(Mod, line_count(L)) :-
-	recorded('$module','$module'(_F,Mod,_,L),_).
+	recorded('$module','$module'(_F,Mod,_,_,L),_).
 module_property(Mod, file(F)) :-
-	recorded('$module','$module'(F,Mod,_,_),_).
+	recorded('$module','$module'(F,Mod,_,_,_),_).
 module_property(Mod, exports(Es)) :-
-	recorded('$module','$module'(_,Mod,Es,_),_).
+	recorded('$module','$module'(_,Mod,_,Es,_),_).
 
 '$module_class'(Mod, system) :- '$system_module'( Mod ).
 '$module_class'(Mod, library) :- '$library_module'( Mod ).
@@ -1517,7 +1518,7 @@ module_property(Mod, exports(Es)) :-
 '$module_class'(_, development) :- fail.
 
 '$library_module'(M1) :-
-	recorded('$module','$module'(F, M1, _MyExports,_Line),_),
+	recorded('$module','$module'(F, M1, _, _MyExports,_Line),_),
 	user:library_directory(D),
 	sub_atom(F, 0, _, _, D).
 
