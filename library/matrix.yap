@@ -22,20 +22,21 @@
 This package provides a fast implementation of multi-dimensional
 matrices of integers and floats. In contrast to dynamic arrays, these
 matrices are multi-dimensional and compact. In contrast to static
-arrays. these arrays are allocated in the stack. Matrices are available
-by loading the library `library(matrix)`. They are multimensional
-objects of type:
+arrays. these arrays are allocated in the stack, and disppear in
+backtracking. Matrices are available by loading the library
+`library(matrix)`. They are multimensional objects of type:
 
 + <tt>terms</tt>: Prolog terms
+
 + <tt>ints</tt>: bounded integers, represented as an opaque term. The
 maximum integer depends on hardware, but should be obtained from the
 natural size of the machine.
-+ <tt>floats</tt>: floating-poiny numbers, represented as an opaque term.
 
++ <tt>floats</tt>: floating-point numbers, represented as an opaque term.
 
 Matrix elements can be accessed through the `matrix_get/2`
 predicate or through an <tt>R</tt>-inspired access notation (that uses the ciao
-style extension to `[]`.  Examples include:
+style extension to `[]`).  Examples include:
 
  
 + Access the second row, third column of matrix <tt>X</tt>. Indices start from
@@ -160,21 +161,23 @@ of matrix  _M_ at offset  _Offset_.
 
     create a matrix from a list. Options are:
   + dim=
-a list of dimensions
-  + type=
-integers, floating-point or terms
+    a list of dimensions
+  
+   + type=
+    integers, floating-point or terms
+
   + base=
-a list of base offsets per dimension (all must be the same for arrays of
+    a list of base offsets per dimension (all must be the same for arrays of
 integers and floating-points
 
 + `matrix/3`
 
     create matrix giving two options
 
-  + `dim/1`
++ `dim/1`
   list with matrix dimensions
 
-  + `nrow/1`
++ `nrow/1`
   number of rows in bi-dimensional matrix
 
 + `ncol/1`
@@ -227,8 +230,9 @@ all elements of a matrix or list
 
 + `* /2`
 
-    multiply two numbers, multiply two matrices or lists element-by-element, or multiply a number from
-all elements of a matrix or list
+    multiply two numbers, multiply two matrices or lists
+    element-by-element, or multiply a number from all elements of a
+    matrix or list
 
  + `log/1`
  
@@ -566,8 +570,7 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
  
 */
 :- module( matrix,
-	   [op(100, yf, []),
-            (<==)/2, op(600, xfx, '<=='),
+	   [(<==)/2, op(600, xfx, '<=='),
 	    op(700, xfx, in),
 	    op(700, xfx, ins),
             op(450, xfx, ..), % should bind more tightly than \/
@@ -922,7 +925,7 @@ mtimes(I1, I2, V) :-
 
 %
 % three types of matrix: integers, floats and general terms.
-%
+§%
 
 matrix_new(terms,Dims, '$matrix'(Dims, NDims, Size, Offsets, Matrix) ) :-
 	length(Dims,NDims),
