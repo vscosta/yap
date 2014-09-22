@@ -1046,7 +1046,7 @@ p_pred_goal_expansion_on( USES_REGS1 ) {
 
 
 static Int
-exec_absmi(int top USES_REGS)
+exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
 {
   int lval, out;
 
@@ -1152,7 +1152,7 @@ Yap_PrepGoal(UInt arity, CELL *pt, choiceptr saved_b USES_REGS)
 }
 
 static Int
-do_goal(yamop *CodeAdr, int arity, CELL *pt, int top USES_REGS)
+do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS)
 {
   choiceptr saved_b = B;
   Int out;
@@ -1161,7 +1161,7 @@ do_goal(yamop *CodeAdr, int arity, CELL *pt, int top USES_REGS)
   P = (yamop *) CodeAdr;
   S = CellPtr (RepPredProp (PredPropByFunc (Yap_MkFunctor(AtomCall, 1),0)));	/* A1 mishaps */
 
-  out = exec_absmi(top PASS_REGS);
+  out = exec_absmi(top, YAP_EXEC_ABSMI PASS_REGS);
   Yap_flush();
   //  if (out) {
   //    out = Yap_GetFromSlot(sl);
@@ -1171,10 +1171,10 @@ do_goal(yamop *CodeAdr, int arity, CELL *pt, int top USES_REGS)
 }
 
 Int
-Yap_exec_absmi(int top)
+Yap_exec_absmi(bool top, yap_reset_t has_reset)
 {
   CACHE_REGS
-  return exec_absmi(top PASS_REGS);
+    return exec_absmi(top, has_reset PASS_REGS);
 }
 
 
@@ -1191,7 +1191,7 @@ Yap_execute_pred(PredEntry *ppe, CELL *pt USES_REGS)
   PELOCK(81,ppe);
   CodeAdr = ppe->CodeOfPred;
   UNLOCK(ppe->PELock);
-  out = do_goal(CodeAdr, ppe->ArityOfPE, pt, FALSE PASS_REGS);
+  out = do_goal(CodeAdr, ppe->ArityOfPE, pt, false PASS_REGS);
 
   if (out == 1) {
     choiceptr cut_B;
@@ -1382,7 +1382,7 @@ Yap_RunTopGoal(Term t)
 	  "unable to boot because of too little Trail space");
   }
 #endif
-  goal_out = do_goal(CodeAdr, arity, pt, TRUE PASS_REGS);
+  goal_out = do_goal(CodeAdr, arity, pt, true PASS_REGS);
   return goal_out;
 }
 
