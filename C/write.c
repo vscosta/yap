@@ -1032,7 +1032,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	wrclose_bracket(wglb, TRUE);
       }
     } else if (!wglb->Ignore_ops &&
-	       ( Arity == 1 || ((atom == AtomEmptyBrackets || atom == AtomEmptyCurlyBrackets || atom == AtomEmptySquareBrackets) && !IsVarTerm(ArgOfTerm(1, t)))) &&
+	       ( Arity == 1 || ((atom == AtomEmptyBrackets || atom == AtomEmptyCurlyBrackets || atom == AtomEmptySquareBrackets) && Yap_IsListTerm(ArgOfTerm(1, t)))) &&
 	       Yap_IsPosfixOp(atom, &op, &lp)) {
       Term  tleft = ArgOfTerm(1, t);
 
@@ -1061,7 +1061,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       if (bracket_left) {
 	wrclose_bracket(wglb, TRUE);
       }
-      if (Arity > 1) {
+      if (Arity > 1 ) {
 	if (atom == AtomEmptyBrackets) {
 	  wrputc('(', wglb->stream);  
 	} else if (atom == AtomEmptySquareBrackets) {
@@ -1070,7 +1070,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	  wrputc('{', wglb->stream);  
 	}
 	lastw = separator;
-	write_list(ArgOfTerm(1,t), 0, depth, wglb, rwt);
+	write_list(tleft, 0, depth, wglb, rwt);
 	if (atom == AtomEmptyBrackets) {
 	  wrputc(')', wglb->stream);  
 	} else if (atom == AtomEmptySquareBrackets) {
