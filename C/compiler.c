@@ -622,7 +622,7 @@ try_store_as_dbterm(Term t, Int argno, unsigned int arity, int level, compiler_s
     LOCAL_Error_Size = 0;
     siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_AUX_BOTCH);
   }
-  if (g < 16)
+  // if (g < 16)
     return FALSE;
   /* store ground term away */
   HR = CellPtr(cglobs->cint.freep);
