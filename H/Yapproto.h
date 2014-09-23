@@ -20,7 +20,7 @@ Int	     Yap_absmi(int);
 int	     Yap_absmiEND(void);
 
 /* adtdefs.c */
-Term	Yap_ArrayToList(Term *,int);
+Term	Yap_ArrayToList(Term *,size_t);
 int	Yap_GetName(char *,UInt,Term);
 Term	Yap_GetValue(Atom);
 int     Yap_HasOp(Atom);

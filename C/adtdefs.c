@@ -1267,7 +1267,7 @@ Yap_PutAtomTranslation(Atom a, Int i)
 }
 
 Term
-Yap_ArrayToList(register Term *tp, int nof)
+Yap_ArrayToList(register Term *tp, size_t nof)
 {
   CACHE_REGS
   register Term *pt = tp + nof;
