@@ -387,7 +387,7 @@ save_program(File, _Goal) :-
 	 call(db_import(myddas,Table,Table)),
 	 fail.
  '$myddas_import_all'.
-	 
+
 /** @pred qsave_file(+ _File_, +_State_)
 
 Saves an image of all the information compiled by the systemm from file _F_ to _State_. 
@@ -408,27 +408,35 @@ qsave_file(File, State) :-
 	close(S),
 	abolish(Mod:'@mod_info'/7),
 	fail.
-qsave_file(_).
+qsave_file(_,_).
 
 /** @pred qsave_module(+ _Module_, +_State_)
 Saves an image of all the information compiled by the systemm on module _F_ to _State_. 
 **/
 
-qsave_module(Mod, OF) :-
-	recorded('$module', '$module'(F,Mod,Exps,L), _),
-	'$fetch_parents_module'(Mod, Parents),
-	'$fetch_imports_module'(Mod, Imps),
-	'$fetch_multi_files_module'(Mod, MFs),
-	'$fetch_meta_predicates_module'(Mod, Metas),
-	'$fetch_module_transparents_module'(Mod, ModTransps),
-	asserta(Mod:'@mod_info'(F, Exps, L, Parents, Imps, Metas, ModTransps)),
-	atom_concat(Mod,'.qly',OF),
-	open(OF, write, S, [type(binary)]),
-	'$qsave_module_preds'(S, Mod),
-	close(S),
-	abolish(Mod:'@mod_info'/7),
-	fail.
-qsave_module(_).
+qsave_module(Mod, OF) :- 
+    recorded('$module', '$module'(F,Mod,Exps,L),_),
+    '$fetch_parents_module'(Mod, Parents),
+    '$fetch_imports_module'(Mod, Imps),
+    '$fetch_multi_files_module'(Mod, MFs),
+    '$fetch_meta_predicates_module'(Mod, Metas),
+    '$fetch_module_transparents_module'(Mod, ModTransps),
+    asserta(Mod:'@mod_info'(F, Exps, L, Parents, Imps, Metas, ModTransps))
+    , atom_concat(Mod,'.qly',OF),
+    open(OF, write, S,	[type(binary)]),
+    '$qsave_module_preds'(S, Mod), close(S),
+    abolish(Mod:'@mod_info'/7), 
+    fail.
+qsave_module(_,_).
+
+/** @pred qsave_module(+ _Module_, +_State_)
+Saves an image of all the information compiled by the systemm on module _F_ to _State_. 
+**/
+
+qsave_module(Mod) :-
+    atom_concat( Mod, '.qly', F),
+    qsave_module( Mod, F).
+
 
 /**
 @pred restore(+ _F_)
@@ -455,14 +463,20 @@ qload_module(Mod) :-
 	'$complete_read'(Mod).
 
 '$complete_read'(Mod) :-
-	retract(Mod:'@mod_info'(F, Exps, Line,Parents, Imps, Metas, ModTransps)),
-	abolish(Mod:'$mod_info'/7),
-	recorda('$module', '$module'(F,Mod,Exps,Line), _),
-	'$install_parents_module'(Mod, Parents),
-	'$install_imports_module'(Mod, Imps),
-	'$install_multi_files_module'(Mod, MFs),
-	'$install_meta_predicates_module'(Mod, Metas),
-	'$install_module_transparents_module'(Mod, ModTransps).
+    '$current_module'(HostMod),
+    retract(Mod:'@mod_info'(F, Exps, Line,Parents, Imps, Metas, ModTransps)),
+    abolish(Mod:'$mod_info'/7),
+    '$install_parents_module'(Mod, Parents),
+    '$install_imports_module'(Mod, Imps),
+    '$install_multi_files_module'(Mod, MFs),
+    '$install_meta_predicates_module'(Mod, Metas),
+    '$install_module_transparents_module'(Mod, ModTransps),
+    % last, export everything to the host: if the loading crashed you didn't actually do
+    % no evil.
+    '$convert_for_export'(all, Exps, Mod, HostMod, TranslationTab, AllExports0, qload_module),
+    '$add_to_imports'(TranslationTab, Mod, HostMod), % insert ops, at least for now
+    sort( AllExports0, AllExports ),
+    recorda('$module','$module'(F,Mod,F,AllExports, Line),_).
 	
 '$fetch_imports_module'(Mod, Imports) :-
 	findall(Info, '$fetch_import_module'(Mod, Info), Imports).
