@@ -86,7 +86,7 @@ contact the YAP maintainers if you require extra functionality.
 
 
 
-+ _X_ = array[ _Dim1_,..., _Dimn_] of  _Objects_ 
++ _X_ <== array[ _Dim1_,..., _Dimn_] of  _Objects_ 
     The of/2 operator can be used to create a new array of
  _Objects_. The objects supported are:
 
@@ -137,7 +137,7 @@ typedef enum {
 
 
 General matrix assignment operation. It evaluates the right-hand side
-and then acts different according to the
+ according to the
 left-hand side and to the matrix:
 
 + if  _LHS_ is part of an integer or floating-point matrix,
@@ -567,11 +567,11 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
 */
 :- module( matrix,
 	   [op(100, yf, []),
-            (<==)/2, op(600, xfx, '<=='),
-	    op(700, xfx, in),
-	    op(700, xfx, ins),
+            (<==)/2, op(710, xfx, '<=='),
+	    op(580, xfx, in),
+	    op(580, xfx, ins),
             op(450, xfx, ..), % should bind more tightly than \/
-	    op(710, xfx, of), of/2,
+	    op(590, xfx, of), of/2,
 	    matrix_new/3,
 	    matrix_new/4,
 	    matrix_new_set/4,
@@ -639,29 +639,29 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
 :- use_module(library(mapargs)).
 :- use_module(library(lists)).
 
-( X = '[]'(Dims0, array) of V ) :-
+( X <== '[]'(Dims0, array) of V ) :-
 	var(V), !,
 	foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
 	length( L, Size ),
 	X <== matrix( L, [dim=Dims,base=Bases] ).
-( X = '[]'(Dims0, array) of ints ) :- !,
+( X <== '[]'(Dims0, array) of ints ) :- !,
 	foldl( norm_dim, Dims0, Dims, Bases, 1, _Size ),
 	matrix_new( ints , Dims, X ),
 	matrix_base(X, Bases).
-( X = '[]'(Dims0, array) of floats ) :- !,
+( X <== '[]'(Dims0, array) of floats ) :- !,
 	foldl( norm_dim, Dims0, Dims, Bases, 1, _Size ),
 	matrix_new( floats , Dims, X ),
 	matrix_base(X, Bases).
-( X = '[]'(Dims0, array) of (I:J) ) :- !,
+( X <== '[]'(Dims0, array) of (I:J) ) :- !,
 	foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
 	matrix_seq(I, J, Dims, X),
 	matrixn_size(X, Size),
 	matrix_base(X, Bases).
-( X = '[]'(Dims0, array) of L ) :-
+( X <== '[]'(Dims0, array) of L ) :-
 	length( L, Size ), !,
 	foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
 	X <== matrix( L, [dim=Dims,base=Bases] ).
-( X = '[]'(Dims0, array) of Pattern ) :-
+( X <== '[]'(Dims0, array) of Pattern ) :-
 	array_extension(Pattern, Goal),
 	foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
 	call(Goal, Pattern, Dims, Size, L),
