@@ -168,9 +168,12 @@ static PredEntry *
 LookupPredEntry(PredEntry *op)
 {
   CACHE_REGS
-  CELL hash = (CELL)(op) % LOCAL_ImportPredEntryHashTableSize;
+  CELL hash;
   import_pred_entry_hash_entry_t *p;
 
+  if (LOCAL_ImportPredEntryHashTableSize == 0)
+    return NULL;
+  hash = (CELL)(op) % LOCAL_ImportPredEntryHashTableSize;
   p = LOCAL_ImportPredEntryHashChain[hash];
   while (p) {
     if (p->oval == op) {
@@ -186,9 +189,12 @@ static void
 InsertPredEntry(PredEntry *op, PredEntry *pe)
 {
   CACHE_REGS
-  CELL hash = (CELL)(op) % LOCAL_ImportPredEntryHashTableSize;
+  CELL hash;
   import_pred_entry_hash_entry_t *p;
 
+  if (LOCAL_ImportPredEntryHashTableSize == 0)
+    return NULL;
+  hash = (CELL)(op) % LOCAL_ImportPredEntryHashTableSize;
   p = LOCAL_ImportPredEntryHashChain[hash];
   while (p) {
     if (p->oval == op) {
@@ -807,7 +813,7 @@ ReadHash(IOSTREAM *stream)
   }
   RCHECK(read_tag(stream) == QLY_START_DBREFS);
   LOCAL_ImportDBRefHashTableNum = read_UInt(stream);
-  LOCAL_ImportDBRefHashTableSize = 2*LOCAL_ImportDBRefHashTableNum;
+  LOCAL_ImportDBRefHashTableSize = 2*LOCAL_ImportDBRefHashTableNum+17;
   LOCAL_ImportDBRefHashChain = (import_dbref_hash_entry_t **)calloc(LOCAL_ImportDBRefHashTableSize, sizeof(import_dbref_hash_entry_t *));
   for (i = 0; i < LOCAL_ImportDBRefHashTableNum; i++) {
     LogUpdClause *ocl = (LogUpdClause *)read_UInt(stream);

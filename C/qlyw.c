@@ -875,6 +875,7 @@ p_save_module_preds( USES_REGS1 )
     Yap_Error(TYPE_ERROR_ATOM,tmod,"save_module/2");
     return FALSE;
   }
+  save_header( stream );
   return save_module(stream, tmod) != 0;
 }
 
