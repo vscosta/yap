@@ -276,9 +276,12 @@ static DBRef
 LookupDBRef(DBRef dbr, int inc_ref)
 {
   CACHE_REGS
-  CELL hash = (CELL)(dbr) % LOCAL_ImportDBRefHashTableSize;
+  CELL hash;
   import_dbref_hash_entry_t *p;
 
+  if (LOCAL_ImportDBRefHashTableSize == 0)
+    return NULL;
+  hash = (CELL)(dbr) % LOCAL_ImportDBRefHashTableSize;
   p = LOCAL_ImportDBRefHashChain[hash];
   while (p) {
     if (p->oval == dbr) {
@@ -297,9 +300,12 @@ static LogUpdClause *
 LookupMayFailDBRef(DBRef dbr)
 {
   CACHE_REGS
-  CELL hash = (CELL)(dbr) % LOCAL_ImportDBRefHashTableSize;
+  CELL hash;
   import_dbref_hash_entry_t *p;
 
+  if (LOCAL_ImportDBRefHashTableSize == 0)
+    return NULL;
+  hash = (CELL)(dbr) % LOCAL_ImportDBRefHashTableSize;
   p = LOCAL_ImportDBRefHashChain[hash];
   while (p) {
     if (p->oval == dbr) {
@@ -1007,16 +1013,18 @@ static void
 read_module(IOSTREAM *stream) {
   qlf_tag_t x;
 
-  InitHash();
   read_header(stream);
+  InitHash();
   ReadHash(stream);
   while ((x = read_tag(stream)) == QLY_START_MODULE) {
     Term mod = (Term)read_UInt(stream);
+    if (mod == 0)
+      mod = TermProlog;
     mod = MkAtomTerm(AtomAdjust(AtomOfTerm(mod)));
     if (mod)
-    while ((x = read_tag(stream)) == QLY_START_PREDICATE) {
-      read_pred(stream, mod);
-    }
+      while ((x = read_tag(stream)) == QLY_START_PREDICATE) {
+	read_pred(stream, mod);
+      }
   }
   read_ops(stream);
   CloseHash();
@@ -1047,10 +1055,6 @@ static void
 ReInitProlog(void)
 {
   Term t = MkAtomTerm(AtomInitProlog);
-#if defined(YAPOR) || defined(TABLING)
-  Yap_init_root_frames();
-#endif /* YAPOR || TABLING */
-  Yap_InitYaamRegs( 0 );
   YAP_RunGoalOnce(t);
 }
 
@@ -1073,12 +1077,11 @@ p_read_program( USES_REGS1 )
   if (!(stream = Yap_GetInputStream(AtomOfTerm(t1))) ) {
     return FALSE;
   }
-  YAP_Reset();
+  YAP_Reset( YAP_RESET_FROM_RESTORE );
   read_module(stream);
   Sclose( stream );
   /* back to the top level we go */
   ReInitProlog();
-  Yap_RestartYap( 3 );
   return TRUE;
 }
 

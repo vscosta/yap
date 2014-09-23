@@ -58,13 +58,19 @@ load_foreign_files(_Objs,_Libs,_Entry) :-
     recorded( '$load_foreign_done', [F, M0], _), !,
     '$import_foreign'(F, M0, M).
 load_foreign_files(Objs,Libs,Entry) :-
-	'$check_objs_for_load_foreign_files'(Objs,NewObjs,load_foreign_files(Objs,Libs,Entry)),
-	'$check_libs_for_load_foreign_files'(Libs,NewLibs,load_foreign_files(Objs,Libs,Entry)),
-	'$check_entry_for_load_foreign_files'(Entry,load_foreign_files(Objs,Libs,Entry)),
-	'$load_foreign_files'(NewObjs,NewLibs,Entry),
+    '$check_objs_for_load_foreign_files'(Objs,NewObjs,load_foreign_files(Objs,Libs,Entry)),
+    '$check_libs_for_load_foreign_files'(Libs,NewLibs,load_foreign_files(Objs,Libs,Entry)),
+    '$check_entry_for_load_foreign_files'(Entry,load_foreign_files(Objs,Libs,Entry)),
+    '$load_foreign_files'(NewObjs,NewLibs,Entry),
+    ignore( recordzifnot( '$foreign', M:'$foreign'(Objs,Libs,Entry), _) ),
+    (
 	prolog_load_context(file, F),
-	prolog_load_context(module, M),
-	ignore( recordzifnot( '$load_foreign_done', [F, M], _) ), !.
+	prolog_load_context(module, M)
+	->
+    ignore( recordzifnot( '$load_foreign_done', [F, M], _) )
+   ;
+    true
+    ), !.
 
 '$check_objs_for_load_foreign_files'(V,_,G) :- var(V), !,
 	'$do_error'(instantiation_error,G).
@@ -147,7 +153,7 @@ dlerror().
  
 */
 open_shared_object(File, Handle) :-
-	'$open_shared_object'(File, 0, Handle).
+	open_shared_object(File, [], Handle).
 
 /** @pred open_shared_object(+ _File_, - _Handle_, + _Options_)
 
@@ -165,7 +171,9 @@ flags  are silently ignored.
 */
 open_shared_object(File, Opts, Handle) :-
 	'$open_shared_opts'(Opts, open_shared_object(File, Opts, Handle), OptsI),
-	'$open_shared_object'(File, OptsI, Handle).
+	'$open_shared_object'(File, OptsI, Handle),
+	prolog_load_context(module, M),
+	ignore( recordzifnot( '$foreign', M:'$swi_foreign'(File,Opts, Handle), _) ).
 
 '$open_shared_opts'(Opts, G, OptsI) :-
 	var(Opts), !,
@@ -184,17 +192,18 @@ open_shared_object(File, Opts, Handle) :-
 '$open_shared_opt'(Opt, Goal, _) :-
 	'$do_error'(domain_error(open_shared_object_option,Opt),Goal).
 	
-/** @pred call_shared_object_function(+ _Handle_, + _Function_) 
+/** @pred call_shared_object_function(+ _Handle_, + _Function_)
 
-
-Call the named function in the loaded shared library. The function
-is called without arguments and the return-value is
-ignored. In SWI-Prolog, normally this function installs foreign
-language predicates using calls to `PL_register_foreign()`.
-
-
+Call the named function in the loaded shared library. The function is
+called without arguments and the return-value is ignored. YAP supports
+installing foreign language predicates using calls to 'UserCCall()`,
+`PL_register_foreign()`, and friends.
 
  */
 
+call_shared_object_function( Handle, Function) :-
+    '$call_shared_object_function'( Handle, Function),
+    prolog_load_context(module, M),
+    ignore( recordzifnot( '$foreign', M:'$swi_foreign'( Handle, Function ), _) ).
 %%! @}
 

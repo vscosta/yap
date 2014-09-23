@@ -240,7 +240,7 @@ Detach the shared object identified by  _Handle_.
 
  
 */
-  Yap_InitCPred("call_shared_object_function", 2, p_call_shared_object_function, SyncPredFlag);
+  Yap_InitCPred("$call_shared_object_function", 2, p_call_shared_object_function, SyncPredFlag);
   Yap_InitCPred("$obj_suffix", 1, p_obj_suffix, SafePredFlag);
 }
 

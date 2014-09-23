@@ -125,7 +125,7 @@ exec_top_level(int BootMode, YAP_init_args *iap)
   livegoal = YAP_FullLookupAtom("$live");
   atomfalse = YAP_MkAtomTerm (YAP_FullLookupAtom("$false"));
   while (YAP_GetValue (livegoal) != atomfalse) {
-    YAP_Reset();
+    YAP_Reset( YAP_FULL_RESET );
     do_top_goal (YAP_MkAtomTerm (livegoal));
   }
   YAP_Exit(EXIT_SUCCESS);
@@ -168,7 +168,7 @@ main (int argc, char **argv)
       YAP_RunGoalOnce(t_goal);
     }
   }
-  YAP_Reset();
+  YAP_Reset( YAP_FULL_RESET );
   /* End preprocessor code */
 
   exec_top_level(BootMode, &init_args);

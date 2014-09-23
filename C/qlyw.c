@@ -770,9 +770,19 @@ save_ops(IOSTREAM *stream, Term mod) {
   return 1;
 }
 
+static int
+save_header(IOSTREAM *stream)
+{
+  char     msg[256];
+
+  sprintf(msg, "#!/bin/sh\nexec_dir=${YAPBINDIR:-%s}\nexec $exec_dir/yap $0 \"$@\"\n%s", YAP_BINDIR, YAP_FULL_VERSION);
+  return save_bytes(stream, msg, strlen(msg)+1);
+}
+
 static size_t
 save_module(IOSTREAM *stream, Term mod) {
   PredEntry *ap = Yap_ModulePred(mod);
+  save_header( stream );
   InitHash();
   ModuleAdjust(mod);
   while (ap) {
@@ -798,15 +808,6 @@ save_module(IOSTREAM *stream, Term mod) {
   return 1;
 }
 
-static int
-save_header(IOSTREAM *stream)
-{
-  char     msg[256];
-
-  sprintf(msg, "#!/bin/sh\nexec_dir=${YAPBINDIR:-%s}\nexec $exec_dir/yap $0 \"$@\"\n%s", YAP_BINDIR, YAP_FULL_VERSION);
-  return save_bytes(stream, msg, strlen(msg)+1);
-}
-
 static size_t
 save_program(IOSTREAM *stream) {
   ModEntry *me = CurrentModules;
@@ -821,6 +822,52 @@ save_program(IOSTREAM *stream) {
     while (pp != NULL) {
       pp = PredEntryAdjust(pp);
       CHECK(mark_pred(pp));
+      pp = pp->NextPredOfModule;
+    }
+    me = me->NextME;
+  }
+
+  /* just to make sure */
+  mark_ops(stream, 0);
+  SaveHash(stream);
+  me = CurrentModules;
+  while (me) {
+    PredEntry *pp;
+    pp = me->PredForME;
+    CHECK(save_tag(stream, QLY_START_MODULE));
+    CHECK(save_UInt(stream, (UInt)MkAtomTerm(me->AtomOfME)));
+    while (pp != NULL) {
+      CHECK(save_tag(stream, QLY_START_PREDICATE));
+      CHECK(save_pred(stream, pp));
+      pp = pp->NextPredOfModule;
+    }
+    CHECK(save_tag(stream, QLY_END_PREDICATES));
+    me = me->NextME;
+  }
+  CHECK(save_tag(stream, QLY_END_MODULES));
+  save_ops(stream, 0);
+  CloseHash();
+  return 1;
+}
+
+static size_t
+save_file(IOSTREAM *stream, Atom FileName) {
+  ModEntry *me = CurrentModules;
+
+  InitHash();
+  save_header( stream );
+  /* should we allow the user to see hidden predicates? */
+  while (me) {
+    PredEntry *pp;
+    pp = me->PredForME;
+    AtomAdjust(me->AtomOfME);
+    while (pp != NULL) {
+      pp = PredEntryAdjust(pp);
+      if (pp &&
+	  !(pp->PredFlags & (MultiFileFlag|NumberDBPredFlag|AtomDBPredFlag|CPredFlag|AsmPredFlag|UserCPredFlag)) &&
+	  pp->src.OwnerFile == FileName) {
+	CHECK(mark_pred(pp));
+      }
       pp = pp->NextPredOfModule;
     }
     me = me->NextME;
@@ -902,10 +949,43 @@ p_save_program( USES_REGS1 )
   return save_program(stream) != 0;
 }
 
+static Int
+p_save_file( USES_REGS1 )
+{
+  IOSTREAM *stream;
+  Term t1 = Deref(ARG1);
+  Term tfile = Deref(ARG2);
+
+  if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR,t1,"save_file/3");
+    return FALSE;
+  }
+  if (!IsAtomTerm(t1)) {
+    Yap_Error(TYPE_ERROR_ATOM,t1,"save_file/3");
+    return(FALSE);
+  }
+  if (!(stream = Yap_GetOutputStream(AtomOfTerm(t1))) ) {
+    return FALSE;
+  }
+  if (!(stream = Yap_GetOutputStream(AtomOfTerm(t1))) ) {
+    return FALSE;
+  }
+  if (IsVarTerm(tfile)) {
+    Yap_Error(INSTANTIATION_ERROR,tfile,"save_file/2");
+    return FALSE;
+  }
+  if (!IsAtomTerm(tfile)) {
+    Yap_Error(TYPE_ERROR_ATOM,tfile,"save_file/2");
+    return FALSE;
+  }
+  return save_file(stream, AtomOfTerm(tfile) ) != 0;
+}
+
 void Yap_InitQLY(void)
 {
   Yap_InitCPred("$qsave_module_preds", 2, p_save_module_preds, SyncPredFlag|UserCPredFlag);
   Yap_InitCPred("$qsave_program", 1, p_save_program, SyncPredFlag|UserCPredFlag);
+  Yap_InitCPred("$qsave_file", 2, p_save_file, SyncPredFlag|UserCPredFlag);
   if (FALSE) {
     restore_codes();
   }

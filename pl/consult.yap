@@ -30,7 +30,8 @@
         source_file/1,
         source_file/2,
         source_file_property/2,
-        use_module/3], ['$add_multifile'/3,
+        use_module/3], 
+	['$add_multifile'/3,
         '$csult'/2,
         '$do_startup_reconsult'/1,
         '$elif'/2,
@@ -92,62 +93,79 @@ files and to set-up the Prolog environment. We discuss
 General implementation of the consult/1 family. Execution is controlled by the
 following flags:
 
-  + consult(+ _Mode_)
-  This extension controls the type of file to load. If  _Mode_ is:
-    `consult`, clauses are added to the data-base, unless from the same file;
-   `reconsult`, clauses are recompiled,
-   `db`, these are facts that need to be added to the data-base,
-   `exo`, these are facts with atoms and integers that can be stored in a compact representation (see load_exo/1).
++ consult(+ _Mode_)
 
-  + silent(+ _Bool_)
-  If true, load the file without printing a message. The specified value is the default for all files loaded as a result of loading the specified files.
+    This extension controls the type of file to load. If  _Mode_ is:
+    
+  `consult`, clauses are added to the data-base, unless from the same file;
+  `reconsult`, clauses are recompiled,
+  `db`, these are facts that need to be added to the data-base,
+  `exo`, these are facts with atoms and integers that can be stored in a compact representation (see load_exo/1).
 
-  + stream(+ _Input_)
-  This SWI-Prolog extension compiles the data from the stream _Input_. If this option is used,  _Files_ must be a single atom which is used to identify the source-location of the loaded
-clauses as well as remove all clauses if the data is re-consulted.
++ silent(+ _Bool_)
 
-  This option is added to allow compiling from non-file locations such as databases, the web,  the user (see consult/1) or other servers. 
+    If true, load the file without printing a message. The specified
+    value is the default for all files loaded as a result of loading
+    the specified files.
 
-  + compilation_mode(+ _Mode_)
-  This extension controls how procedures are compiled. If  _Mode_
-  is `compact` clauses are compiled and no source code is stored;
-  if it is `source` clauses are compiled and source code is stored;  
-  if it is `assert_all` clauses are asserted into the data-base.
++ stream(+ _Input_)
 
-  + encoding(+ _Encoding_)
-  Character encoding used in consulting files. Please  (see [Encoding](@ref Encoding)) for
-  supported encodings.
+    This SWI-Prolog extension compiles the data from the stream
+    _Input_. If this option is used, _Files_ must be a single atom
+    which is used to identify the source-location of the loaded
+    clauses as well as remove all clauses if the data is re-consulted.
 
-+ expand(+ _Bool_)
-  If `true`, run the
-  filenames through expand_file_name/2 and load the returned
-  files. Default is false, except for consult/1 which is
-  intended for interactive use.
+    This option is added to allow compiling from non-file locations
+    such as databases, the web, the user (see consult/1) or other
+    servers.
 
-  + if(+ _Condition_)
-  Load the file only if the specified  _Condition_ is
-  satisfied. The value `true` the file unconditionally,
-  `changed` loads the file if it was not loaded before, or has
-  been modified since it was loaded the last time, `not_loaded`
-  loads the file if it was not loaded before.
++ compilation_mode(+ _Mode_)
 
-  + imports(+ _ListOrAll_)
-  If `all` and the file is a module file, import all public
-  predicates. Otherwise import only the named predicates. Each
-  predicate is referred to as `\<name\>/\<arity\>`. This option has
-  no effect if the file is not a module file.
+    This extension controls how procedures are compiled. If _Mode_ is
+    `compact` clauses are compiled and no source code is stored; if it
+    is `source` clauses are compiled and source code is stored; if it
+    is `assert_all` clauses are asserted into the data-base.
 
-  + must_be_module(+ _Bool_)
-  If true, raise an error if the file is not a module file. Used by
-` use_module/1 and use_module/2.
++ encoding(+ _Encoding_)
 
-  + autoload(+ _Autoload_)
-  SWI-compatible option where if  _Autoload_ is `true` undefined predicates
-  are loaded on first call.
+    Character encoding used in consulting files. Please (see
+    [Encoding](@ref Encoding)) for supported encodings.
 
-  + derived_from(+ _File_)
-  SWI-compatible option to control make/0. Currently
-  not supported.
++ expand(+ _Bool_) 
+
+    If `true`, run the filenames through expand_file_name/2 and load
+    the returned files. Default is false, except for consult/1 which
+    is intended for interactive use.
+
++ if(+ _Condition_)
+
+    Load the file only if the specified _Condition_ is satisfied. The
+    value `true` the file unconditionally, `changed` loads the file if
+    it was not loaded before, or has been modified since it was loaded
+    the last time, `not_loaded` loads the file if it was not loaded
+    before.
+
++ imports(+ _ListOrAll_)
+  
+    If `all` and the file is a module file, import all public
+    predicates. Otherwise import only the named predicates. Each
+    predicate is referred to as `\<name\>/\<arity\>`. This option has
+    no effect if the file is not a module file.
+
++ must_be_module(+ _Bool_)
+  
+    If true, raise an error if the file is not a module file. Used by
+    ` use_module/1 and use_module/2.
+
++ autoload(+ _Autoload_)
+  
+    SWI-compatible option where if _Autoload_ is `true` undefined
+    predicates are loaded on first call.
+
++ derived_from(+ _File_)
+
+    SWI-compatible option to control make/0. Currently not supported.
+
 */
 %
 % SWI options
@@ -368,13 +386,18 @@ load_files(Files,Opts) :-
 '$lf'([F|Fs], Mod, Call, TOpts) :- !,
 	% clean up after each consult
 	( '$lf'(F,Mod,Call, TOpts), fail ;
-	  '$lf'(Fs, Mod, Call, TOpts) ).
+	  '$lf'(Fs, Mod, Call, TOpts), fail;
+	  true
+	).
 '$lf'(user, Mod, _, TOpts) :- !,
+	b_setval('$source_file', user_input),
 	'$do_lf'(Mod, user_input, user_input, TOpts).
 '$lf'(user_input, Mod, _, TOpts) :- !,
+	b_setval('$source_file', user_input),
 	'$do_lf'(Mod, user_input, user_input, TOpts).
 '$lf'(File, Mod, Call, TOpts) :-
 	'$lf_opt'(stream, TOpts, Stream),
+	b_setval('$source_file', File),
 	( var(Stream) ->
 	  /* need_to_open_file */
 	  '$full_filename'(File, Y, Call),
@@ -664,16 +687,16 @@ db_files(Fs) :-
 '$bind_module'(Mod, use_module(Mod)).
 
 '$import_to_current_module'(File, ContextModule, Imports, RemainingImports, TOpts) :-
-	\+ recorded('$module','$module'(File, _Module, _ModExports, _),_),
+	\+ recorded('$module','$module'(File, _Module, _,  _ModExports, _),_),
 	% enable loading C-predicates from a different file
 	recorded( '$load_foreign_done', [File, M0], _),
 	'$import_foreign'(File, M0, ContextModule ),
 	fail.
-	
+
 '$import_to_current_module'(File, ContextModule, Imports, RemainingImports, TOpts) :-
-	recorded('$module','$module'(File, Module, ModExports, _),_),
+	recorded('$module','$module'(File, Module, _Source, ModExports, _),_),
 	Module \= ContextModule, !,
-	'$lf_opt'('$call', TOpts, Call),
+%	'$lf_opt'('$call', TOpts, Call),
 	'$convert_for_export'(Imports, ModExports, Module, ContextModule, TranslationTab, RemainingImports, Goal),
 	'$add_to_imports'(TranslationTab, Module, ContextModule).
 '$import_to_current_module'(_, _, _, _, _).
@@ -888,9 +911,9 @@ prolog_load_context(source, F0) :-
 prolog_load_context(stream, Stream) :- 
 	'$nb_getval'('$consulting_file', _, fail),
 	'$current_loop_stream'(Stream).
-% return this term for SWI compatibility.
-prolog_load_context(term_position, '$stream_position'(0,Line,0,0,0)) :- 
-	source_location(_, Line).
+prolog_load_context(term_position, Position) :- 
+	'$current_loop_stream'(Stream),
+        stream_property(Stream, position(Position) ).
 
 
 % if the file exports a module, then we can
@@ -902,7 +925,7 @@ prolog_load_context(term_position, '$stream_position'(0,Line,0,0,0)) :-
 	'$import_to_current_module'(F1, M, Imports, _, TOpts).
 
 '$ensure_file_loaded'(F, M, F1) :-
-	recorded('$module','$module'(F1,_NM,_P,_),_),
+	recorded('$module','$module'(F1,_NM,_Source,_P,_),_),
 	recorded('$lf_loaded','$lf_loaded'(F1, _, _),_),
 	same_file(F1,F), !.
 '$ensure_file_loaded'(F, M, F1) :-
@@ -920,7 +943,7 @@ prolog_load_context(term_position, '$stream_position'(0,Line,0,0,0)) :-
 	'$import_to_current_module'(F1, M, Imports, _, TOpts).
 
 '$ensure_file_unchanged'(F, M, F1) :-
-	recorded('$module','$module'(F1,_NM,_P,_),_),
+	recorded('$module','$module'(F1,_NM,_,_P,_),_),
 	recorded('$lf_loaded','$lf_loaded'(F1,Age,_),R),
 	same_file(F1,F), !,
 	'$file_is_unchanged'(F, R, Age).
@@ -1046,7 +1069,7 @@ source_file_property( File0, Prop) :-
 '$source_file_property'( F, modified(Age)) :-
 	recorded('$lf_loaded','$lf_loaded'( F, Age, _), _).
 '$source_file_property'( F, module(M)) :-
-	recorded('$module','$module'(F,M,_,_),_).
+	recorded('$module','$module'(F,M,_,_,_),_).
 
 
 /**
@@ -1094,13 +1117,13 @@ use_module(M,F,Is) :- '$use_module'(M,F,Is).
 	( var(M) -> true
 	;
 	   absolute_file_name( F0, F1, [expand(true),file_type(prolog)] ),
-	  recorded('$module','$module'(F1,M,_,_),_)
+	  recorded('$module','$module'(F1,M,_,_,_),_)
 	).
 '$use_module'(M,F,Is) :-
 	nonvar(M), !,
 	strip_module(F, M0, F0),
 	(
-	    recorded('$module','$module'(F1,M,_,_),_)
+	    recorded('$module','$module'(F1,M,_,_,_),_)
 	->
 	    '$load_files'(M0:F1, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is))
 	),
@@ -1178,9 +1201,11 @@ may result in incorrect execution.
 
 This section presents a set of built-ins predicates designed to set the 
 environment for the compiler.
-  prolog_to_os_filename(+ _PrologPath_,- _OsPath_) @anchor prolog_to_os_filename
 
+*/
 
+  
+/** @pred prolog_to_os_filename(+ _PrologPath_,- _OsPath_)
 
 This is an SWI-Prolog built-in. Converts between the internal Prolog
 pathname conventions and the operating-system pathname conventions. The
@@ -1222,8 +1247,6 @@ last one, onto underscores.
 	erase(R),
 	fail.
 '$remove_multifile_clauses'(_).
-
-
 
 /** @pred initialization(+ _G_) is iso
 The compiler will execute goals  _G_ after consulting the current

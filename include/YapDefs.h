@@ -302,5 +302,11 @@ typedef enum
     YAPC_ENABLE_AGC                 /* enable or disable atom garbage collection */
   } yap_flag_t;
 
+typedef enum yap_enum_reset_t {
+  YAP_EXEC_ABSMI = 0,
+  YAP_FULL_RESET = 1,
+  YAP_RESET_FROM_RESTORE = 3
+} yap_reset_t;
+						\
 
 #endif /* _YAPDEFS_H */

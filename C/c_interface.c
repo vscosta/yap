@@ -2358,7 +2358,7 @@ YAP_LeaveGoal(int backtrack, YAP_dogoalinfo *dgi)
   /* if backtracking asked for, recover space and bindings */
   if (backtrack) {
     P = FAILCODE;
-    Yap_exec_absmi(TRUE);
+    Yap_exec_absmi( true, YAP_EXEC_ABSMI);
     /* recover stack space */
     HR = B->cp_h;
     TR = B->cp_tr;
@@ -2560,7 +2560,7 @@ YAP_RestartGoal(void)
   if (LOCAL_AllowRestart) {
     P = (yamop *)FAILCODE;
     LOCAL_PrologMode = UserMode;
-    out = Yap_exec_absmi(TRUE);
+    out = Yap_exec_absmi(TRUE, YAP_EXEC_ABSMI);
     LOCAL_PrologMode = UserCCallMode;
     if (out == FALSE) {
       /* cleanup */
@@ -2599,7 +2599,7 @@ YAP_ShutdownGoal(int backtrack)
     B = cut_pt;
     if (backtrack) {
       P = FAILCODE;
-      Yap_exec_absmi(TRUE);
+      Yap_exec_absmi(TRUE, YAP_EXEC_ABSMI);
       /* recover stack space */
       HR = cut_pt->cp_h;
       TR = cut_pt->cp_tr;
@@ -2626,7 +2626,7 @@ YAP_ContinueGoal(void)
   BACKUP_MACHINE_REGS();
 
   LOCAL_PrologMode = UserMode;
-  out = Yap_exec_absmi(TRUE);
+  out = Yap_exec_absmi(TRUE, YAP_EXEC_ABSMI);
   LOCAL_PrologMode = UserCCallMode;
 
   RECOVER_MACHINE_REGS();
@@ -2936,7 +2936,7 @@ do_bootfile (char *bootfilename)
 	    fprintf(stderr, "%s", ErrorMessage);
 	}
       /* do backtrack */
-      YAP_Reset();
+      YAP_Reset( YAP_FULL_RESET );
     }
   YAP_EndConsult(bootfile);
 #if DEBUG
@@ -3268,7 +3268,7 @@ YAP_CompareTerms(Term t1, Term t2)
 } 
 
 X_API int
-YAP_Reset(void)
+YAP_Reset(yap_reset_t mode)
 {
   CACHE_REGS
   int res = TRUE;
@@ -3278,9 +3278,10 @@ YAP_Reset(void)
   /* first, backtrack to the root */
   while (B->cp_b) {
     B = B->cp_b;
-    P = FAILCODE;
-    res = Yap_exec_absmi(0);
   }
+  // B shoul lead to CP with _ystop0,,
+  P = FAILCODE;
+  res = Yap_exec_absmi( true, mode );
   /* reinitialise the engine */
   //  Yap_InitYaamRegs( worker_id );
   GLOBAL_Initialised = TRUE;
