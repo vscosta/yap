@@ -925,7 +925,7 @@ mtimes(I1, I2, V) :-
 
 %
 % three types of matrix: integers, floats and general terms.
-§%
+%
 
 matrix_new(terms,Dims, '$matrix'(Dims, NDims, Size, Offsets, Matrix) ) :-
 	length(Dims,NDims),
