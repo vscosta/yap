@@ -170,8 +170,6 @@ otherwise.
 
 :-	 ['protect.yap'].
 
-:- source.
-
 version(yap,[6,3]).
 
 :- op(1150,fx,(mode)).
@@ -222,6 +220,8 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- multifile
 	prolog:comment_hook/3.
+
+:- source.
 
 :- module(user).
 
@@ -324,6 +324,8 @@ If this hook predicate succeeds it must instantiate the  _Action_ argument to th
 
 
  */
+
+
 :- multifile user:exception/3.
 
 :- dynamic user:exception/3.
