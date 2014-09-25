@@ -505,8 +505,8 @@ of predicates.
     recorda('$module','$module'(DonorF,DonorM,SourceF, AllExports, Line),_).
 
 '$extend_exports'(HostF, Exports, DonorF ) :-
-    ( recorded('$module','$module'( DonorF, DonorM, SourceF, _, DonorExports),_) -> true ; DonorF = user_input ),
-    ( recorded('$module','$module'( HostF, HostM, _, _, _),_) -> true ; HostF = user_input ),
+   ( recorded('$module','$module'( DonorF, DonorM, _,DonorExports, _),_) -> true ; DonorF = user_input ),
+    ( recorded('$module','$module'( HostF, HostM, SourceF, _, _),_) -> true ; HostF = user_input ),
     recorded('$module','$module'(HostF, HostM, _, AllExports, _Line), R), erase(R),
     '$convert_for_export'(Exports, DonorExports, DonorM, HostM, TranslationTab, AllReExports, reexport(DonorF, Exports)),
     lists:append( AllReExports, AllExports, Everything0 ),
@@ -1183,7 +1183,7 @@ export_resource(P) :-
 	'$current_module'(Mod), 
 	(	recorded('$module','$module'(File,Mod,SourceF,ExportedPreds,Line),R) ->
 		erase(R), 
-		recorda('$module','$module'(File,Mod,[P|ExportedPreds],Line),_)
+		recorda('$module','$module'(File,Mod,SourceF,[P|ExportedPreds],Line),_)
 	;	prolog_load_context(file, File) ->
 		recorda('$module','$module'(File,Mod,SourceF,[P],Line),_)
 	;	recorda('$module','$module'(user_input,Mod,user_input,[P],1),_)
@@ -1540,6 +1540,45 @@ ls_imports.
 '$system_module'('system').
 '$system_module'('$attributes').
 
+unload_module(Mod) :-
+    clause( '$meta_predicate'(_F,Mod,_N,_P), _, R),
+    erase(R),
+    fail.
+unload_module(Mod) :-
+    recorded('$multifile_defs','$defined'(_FileName,_Name,_Arity,Mod), R),
+    erase(R),
+    fail.
+unload_module(Mod) :-
+    recorded( '$foreign', Mod:_Foreign, R),
+    erase(R),
+    fail.
+% remove imported modules
+unload_module(Mod) :-
+    setof( M, recorded('$import',_G0^_G^_N^_K^_R^'$import'(Mod,M,_G0,_G,_N,_K),_R), Ms),
+    recorded('$module','$module'( _, Mod, _, _, Exports), R),
+    lists:member(M, Ms),
+    current_op(X, Y, M:Op),
+    lists:member( op(X, Y, Op), Exports ),
+    op(X, 0, M:Op),
+    fail.
+unload_module(Mod) :-
+    recorded('$module','$module'( _, Mod, _, _, Exports), R),
+    lists:member( op(X, Y, Op), Exports ),
+    op(X, 0, Mod:Op),
+    fail.
+unload_module(Mod) :-
+    fail,
+    current_predicate(Mod:P),
+    abolish(P),
+    fail.
+unload_module(Mod) :-
+    recorded('$import','$import'(Mod,_M,_G0,_G,_N,_K),R),
+    erase(R),
+    fail.
+unload_module(Mod) :-
+    recorded('$module','$module'( _, Mod, _, _, _), R),
+    erase(R),
+    fail.
 /**
 
 @}
