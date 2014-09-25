@@ -593,6 +593,9 @@
 /* Define to 1 if you have the `rint' function. */
 #undef HAVE_RINT
 
+/* Define to 1 if you have the <Rinterface.h> header file. */
+#undef HAVE_RINTERFACE_H
+
 /* Define to 1 if you have the `rl_begin_undo_group' function. */
 #undef HAVE_RL_BEGIN_UNDO_GROUP
 
@@ -970,6 +973,9 @@
 
 /* Define to the one symbol short name of this package. */
 #undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
