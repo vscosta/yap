@@ -387,7 +387,7 @@ save_program(File, _Goal) :-
 	 call(db_import(myddas,Table,Table)),
 	 fail.
  '$myddas_import_all'.
-
+	 
 /** @pred qsave_file(+ _File_, +_State_)
 
 Saves an image of all the information compiled by the system from file _F_ to _State_. 
@@ -426,7 +426,7 @@ qsave_file(F0, State) :-
 	open(State, write, S, [type(binary)]),
         '$qsave_file_preds'(S, File),
         close(S)
-    ), abolish(prolog:'$file_property'/1).
+    ), abolish(prolog:'$file_property'/2).
 
 '$fetch_multi_files_file'(File, Multi_Files) :-
 	setof(Info, '$fetch_multi_file_module'(File, Info), Multi_Files).
@@ -437,46 +437,27 @@ qsave_file(F0, State) :-
         clause(M:G, Body, ClauseRef),
 	clause_property(ClauseRef, file(FileName) ).
 
->>>>>>> 3e255ec4a19d133a896343a39ba41bedf47d1ea9
 
 /** @pred qsave_module(+ _Module_, +_State_)
 Saves an image of all the information compiled by the systemm on module _F_ to _State_. 
 **/
 
 qsave_module(Mod, OF) :- 
-<<<<<<< HEAD
-    recorded('$module', '$module'(F,Mod,Exps,L),_),
-=======
-    recorded('$module', '$module'(F,Mod,_S,Exps,L), _),
->>>>>>> 3e255ec4a19d133a896343a39ba41bedf47d1ea9
-    '$fetch_parents_module'(Mod, Parents),
-    '$fetch_imports_module'(Mod, Imps),
-    '$fetch_multi_files_module'(Mod, MFs),
-    '$fetch_meta_predicates_module'(Mod, Metas),
-    '$fetch_module_transparents_module'(Mod, ModTransps),
-<<<<<<< HEAD
-    asserta(Mod:'@mod_info'(F, Exps, L, Parents, Imps, Metas, ModTransps))
-    , atom_concat(Mod,'.qly',OF),
-    open(OF, write, S,	[type(binary)]),
-    '$qsave_module_preds'(S, Mod), close(S),
-    abolish(Mod:'@mod_info'/7), 
-    fail.
-qsave_module(_,_).
-
-/** @pred qsave_module(+ _Module_, +_State_)
-Saves an image of all the information compiled by the systemm on module _F_ to _State_. 
-**/
-
-qsave_module(Mod) :-
-    atom_concat( Mod, '.qly', F),
-    qsave_module( Mod, F).
-
-=======
-    asserta(Mod:'@mod_info'(F, Exps, L, Parents, Imps, Metas,
-			    ModTransps)), open(OF, write, S, [type(binary)]),
-	'$qsave_module_preds'(S, Mod), close(S),
-	abolish(Mod:'@mod_info'/7), fail. 
- qsave_module(_, _).
+	recorded('$module', '$module'(F,Mod,S,Exps,L), _),
+	'$fetch_parents_module'(Mod, Parents),
+	'$fetch_imports_module'(Mod, Imps),
+	'$fetch_multi_files_module'(Mod, MFs),
+	'$fetch_meta_predicates_module'(Mod, Metas),
+	'$fetch_module_transparents_module'(Mod, ModTransps),
+	'$fetch_term_expansions_module'(Mod, TEs),
+	'$fetch_foreigns_module'(Mod, Foreigns),
+	asserta(Mod:'@mod_info'(S, Exps, MFs, L, Parents, Imps, Metas, ModTransps, Foreigns, TEs)),
+	open(OF, write, S, [type(binary)]),
+	'$qsave_module_preds'(S, Mod),
+	close(S),
+	abolish(Mod:'@mod_info'/8),
+	fail.
+qsave_module(_, _).
 
 /** @pred qsave_module(+ _Module_)
 
@@ -486,22 +467,8 @@ module _F_ to a file _State.qly_ in the current directory.
 **/
 
 qsave_module(Mod) :-
-	recorded('$module', '$module'(F,Mod,_S,Exps,L), _),
-	'$fetch_parents_module'(Mod, Parents),
-	'$fetch_imports_module'(Mod, Imps),
-	'$fetch_multi_files_module'(Mod, MFs),
-	'$fetch_meta_predicates_module'(Mod, Metas),
-	'$fetch_module_transparents_module'(Mod, ModTransps),
-	'$fetch_foreigns_module'(Mod, Foreigns),
-	asserta(Mod:'@mod_info'(F, Exps, L, Parents, Imps, Metas, ModTransps, Foreigns)),
 	atom_concat(Mod,'.qly',OF),
-	open(OF, write, S, [type(binary)]),
-	'$qsave_module_preds'(S, Mod),
-	close(S),
-	abolish(Mod:'@mod_info'/7),
-	fail.
-qsave_module(_).
->>>>>>> 3e255ec4a19d133a896343a39ba41bedf47d1ea9
+	qsave_module(Mod, OF).
 
 /**
 @pred restore(+ _F_)
@@ -526,47 +493,53 @@ available it tries reconsulting the source file.
 
 */
 qload_module(Mod) :-
-	absolute_file_name( Mod, File, [expand(true),file_type(qly)]),
-	'$qload_module'(Mod, File).
+    ( '$swi_current_prolog_flag'(verbose_load, false)
+      ->
+	Verbosity = silent
+	;
+	Verbosity = informational
+    ),
+    StartMsg = loading_module,
+    '$current_module'(SourceModule, Mod),
+    H0 is heapused, '$cputime'(T0,_),
+    absolute_file_name( Mod, File, [expand(true),file_type(qly)]),
+    print_message(Verbosity, loading(StartMsg, File)),
+    file_directory_name( File, Dir),
+    working_directory(OldD, Dir),
+    '$qload_module'(Mod, File, SourceModule ),
+    H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
+    print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
+    '$current_module'(_, SourceModule),
+    working_directory(_, OldD).
 
-'$qload_module'(Mod, File) :-
-	open(File, read, S, [type(binary)]),
-	'$qload_module_preds'(S),
-	close(S),
-	fail.
-'$qload_module'(Mod, _File) :-
-	'$complete_read'(Mod).
+'$qload_module'(Mod, File, _SourceModule) :-
+    unload_module( Mod ),
+    fail.
+'$qload_module'(Mod, File, _SourceModule) :-
+    open(File, read, S, [type(binary)]),
+    '$qload_module_preds'(S),
+    close(S),
+    fail.
+'$qload_module'(Mod, File, SourceModule) :-
+    '$complete_read_module'(Mod, File, SourceModule).
 
-'$complete_read'(Mod) :-
-<<<<<<< HEAD
-    '$current_module'(HostMod),
-    retract(Mod:'@mod_info'(F, Exps, Line,Parents, Imps, Metas, ModTransps)),
-    abolish(Mod:'$mod_info'/7),
+'$complete_read_module'(Mod, File, CurrentModule) :-
+    Mod:'@mod_info'(F, Exps, MFs, Line,Parents, Imps, Metas, ModTransps, Foreigns, TEs),
+    abolish(Mod:'@mod_info'/9),
+    recorda('$module', '$module'(File, Mod, F, Exps, Line), _),
     '$install_parents_module'(Mod, Parents),
-    '$install_imports_module'(Mod, Imps),
+    '$install_imports_module'(Mod, Imps, []),
     '$install_multi_files_module'(Mod, MFs),
     '$install_meta_predicates_module'(Mod, Metas),
+    '$install_foreigns_module'(Mod, Foreigns),
     '$install_module_transparents_module'(Mod, ModTransps),
+    '$install_term_expansions_module'(Mod, TEs),
     % last, export everything to the host: if the loading crashed you didn't actually do
     % no evil.
-    '$convert_for_export'(all, Exps, Mod, HostMod, TranslationTab, AllExports0, qload_module),
-    '$add_to_imports'(TranslationTab, Mod, HostMod), % insert ops, at least for now
-    sort( AllExports0, AllExports ),
-    recorda('$module','$module'(F,Mod,F,AllExports, Line),_).
-	
-=======
-        '$current_module'(CurrentModule),
-	retract(Mod:'@mod_info'(F, Exps, Line,Parents, Imps, Metas, ModTransps, Foreigns)),
-	abolish(Mod:'$mod_info'/7),
-	recorda('$module', '$module'(F,Mod,Exps,Line), _),
-	'$install_parents_module'(Mod, Parents),
-	'$install_imports_module'(Mod, Imps, []),
-	'$install_multi_files_module'(Mod, MFs),
-	'$install_meta_predicates_module'(Mod, Metas),
-	'$install_foreigns_module'(Mod, Foreigns),
-	'$import_to_current_module'(File, ContextModule, Imports, RemainingImports, TOpts).
+    '$convert_for_export'(all, Exps, Mod, CurrentModule, TranslationTab, AllExports0, qload_module),
+    '$add_to_imports'(TranslationTab, Mod, CurrentModule), % insert ops, at least for now
+    sort( AllExports0, AllExports ).
 
->>>>>>> 3e255ec4a19d133a896343a39ba41bedf47d1ea9
 '$fetch_imports_module'(Mod, Imports) :-
 	findall(Info, '$fetch_import_module'(Mod, Info), Imports).
 
@@ -579,44 +552,61 @@ qload_module(Mod) :-
 	findall(Parent, prolog:'$parent_module'(Mod,Parent), Parents).
 
 '$fetch_module_transparents_module'(Mod, Module_Transparents) :-
-	setof(Info, '$fetch_module_transparent_module'(Mod, Info), Module_Transparents).
+	findall(Info, '$fetch_module_transparent_module'(Mod, Info), Module_Transparents).
 
 % detect an module_transparenterator that is local to the module.
 '$fetch_module_transparent_module'(Mod, '$module_transparent'(F,Mod,N,P)) :-
 	prolog:'$module_transparent'(F,Mod0,N,P), Mod0 == Mod.
 
 '$fetch_meta_predicates_module'(Mod, Meta_Predicates) :-
-	setof(Info, '$fetch_meta_predicate_module'(Mod, Info), Meta_Predicates).
+	findall(Info, '$fetch_meta_predicate_module'(Mod, Info), Meta_Predicates).
 
 % detect a meta_predicate that is local to the module.
 '$fetch_meta_predicate_module'(Mod, '$meta_predicate'(F,Mod,N,P)) :-
-	prolog:'$meta_predicate'(F,Mod0,N,P), Mod0 == Mod.
+	prolog:'$meta_predicate'(F,M,N,P), M==Mod.
 
 '$fetch_multi_files_module'(Mod, Multi_Files) :-
-	setof(Info, '$fetch_multi_file_module'(Mod, Info), Multi_Files).
+	findall(Info, '$fetch_multi_file_module'(Mod, Info), Multi_Files).
 
 % detect an multi_file that is local to the module.
 '$fetch_multi_file_module'(Mod, '$defined'(FileName,Name,Arity,Mod)) :-
 	recorded('$multifile_defs','$defined'(FileName,Name,Arity,Mod), _).
 
 '$fetch_term_expansions_module'(Mod, Term_Expansions) :-
-	setof(Info, '$fetch_term_expansion_module'(Mod, Info), Term_Expansions).
+	findall(Info, '$fetch_term_expansion_module'(Mod, Info), Term_Expansions).
 
 % detect an term_expansionerator that is local to the module.
-'$fetch_term_expansion_module'(Mod,'$defined'(FileName,Name,Arity,Mod)) :-
-	recorded('$multifile_defs','$defined'(FileName,Name,Arity,Mod), _).
+'$fetch_term_expansion_module'(Mod, ( user:term_expansion(G, GI) :- Bd )) :-
+	clause( user:term_expansion(G, GI), Bd, _),
+	strip_module(G, Mod, _).
+% detect an term_expansionerator that is local to the module.
+'$fetch_term_expansion_module'(Mod, ( system:term_expansion(G, GI) :- Bd )) :-
+	clause( system:term_expansion(G, GI), Bd, _),
+	strip_module(G, Mod, _).
+% detect an term_expansionerator that is local to the module.
+'$fetch_term_expansion_module'(Mod, ( user:goal_expansion(G, CurMod, GI) :- Bd )) :-
+	clause( user:goal_expansion(G, CurMod, GI), Bd, _),
+	Mod == CurMod.
+% detect an term_expansionerator that is local to the module.
+'$fetch_term_expansion_module'(Mod, ( user:goal_expansion(G, GI) :- Bd )) :-
+	clause( user:goal_expansion(G, GI), Bd, _),
+	strip_module(G, Mod, _).
+% detect an term_expansionerator that is local to the module.
+'$fetch_term_expansion_module'(Mod, ( system:goal_expansion(G, GI) :- Bd )) :-
+	clause( system:goal_expansion(G, GI), Bd, _),
+	strip_module(G, Mod, _).
 
 '$fetch_foreigns_module'(Mod, Foreigns) :-
-	setof(Info, '$fetch_foreign_module'(Mod, Info), Foreigns).
+	findall(Info, '$fetch_foreign_module'(Mod, Info), Foreigns).
 
 % detect an term_expansionerator that is local to the module.
 '$fetch_foreign_module'(Mod,Foreign) :-
 	recorded( '$foreign', Mod:Foreign, _).
 
-'$install_ops_module'(_, []).
-'$install_ops_module'(Mod, [op(X,Y,Op)|Ops]) :-
-	op(X, Y, Mod:Op),
-	'$install_ops_module'(Mod, Ops).
+'$install_term_expansions_module'(_, []).
+'$install_term_expansions_module'(Mod, [TE|TEs]) :-
+    assert(TE),
+    '$install_term_expansions_module'(Mod, TEs).
 
 '$install_imports_module'(_, [], Fs0) :-
     sort(Fs0, Fs),
