@@ -113,11 +113,14 @@ swapped, making the call
   valid as well.
 */
 
-absolute_file_name(File,TrueFileName,Opts) :- ( var(TrueFileName) ->
-	true ; atom(TrueFileName), TrueFileName \= [] ), !,
-	absolute_file_name(File,Opts,TrueFileName).
+absolute_file_name(File,TrueFileName,Opts) :- 
+    ( var(TrueFileName) ->
+	  true ;
+      atom(TrueFileName), TrueFileName \= [] 
+    ), !,
+    absolute_file_name(File,Opts,TrueFileName).
 absolute_file_name(File,Opts,TrueFileName) :-
-	'$absolute_file_name'(File,Opts,TrueFileName,absolute_file_name(File,Opts,TrueFileName)).
+    '$absolute_file_name'(File,Opts,TrueFileName,absolute_file_name(File,Opts,TrueFileName)).
 
 /**
   @pred absolute_file_name(+Name:atom,+Path:atom) is nondet
