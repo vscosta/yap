@@ -193,7 +193,7 @@ InsertPredEntry(PredEntry *op, PredEntry *pe)
   import_pred_entry_hash_entry_t *p;
 
   if (LOCAL_ImportPredEntryHashTableSize == 0)
-    return NULL;
+    return;
   hash = (CELL)(op) % LOCAL_ImportPredEntryHashTableSize;
   p = LOCAL_ImportPredEntryHashChain[hash];
   while (p) {
