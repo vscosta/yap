@@ -1651,6 +1651,7 @@ source_pred(PredEntry *p, yamop *q)
 static void 
 add_first_static(PredEntry *p, yamop *cp, int spy_flag)
 {
+  CACHE_REGS
   yamop *pt = cp;
 
   if (is_logupd(p)) {
@@ -1701,12 +1702,17 @@ add_first_static(PredEntry *p, yamop *cp, int spy_flag)
   if (source_pred(p, cp)) {
     p->PredFlags |= SourcePredFlag;
   }
+  if (!(p->PredFlags & MultiFileFlag) &&
+      p->src.OwnerFile == AtomNil)
+    p->src.OwnerFile = Yap_ConsultingFile( PASS_REGS1 );
+
 }
 
 /* p is already locked */
 static void 
 add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag)
 {
+  CACHE_REGS
   yamop    *ncp = ((DynamicClause *)NULL)->ClCode;
   DynamicClause   *cl;
   if (p == PredGoalExpansion || p->FunctorOfPred == FunctorGoalExpansion2) {
@@ -1797,6 +1803,10 @@ add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag)
   ncp = NEXTOP(ncp,e);
   ncp->opc = Yap_opcode(_Ystop);
   ncp->y_u.l.l = cl->ClCode;
+  if (!(p->PredFlags & MultiFileFlag) &&
+      p->src.OwnerFile == AtomNil)
+    p->src.OwnerFile = Yap_ConsultingFile( PASS_REGS1 );
+
 }
 
 /* p is already locked */
@@ -3262,6 +3272,28 @@ p_owner_file( USES_REGS1 )
   if (owner == AtomNil)
     return FALSE;
   return Yap_unify(ARG3, MkAtomTerm(owner));
+}
+
+static Int 
+p_set_owner_file( USES_REGS1 )
+{				/* '$owner_file'(+P,M,F)	 */
+  PredEntry      *pe;
+
+  pe = get_pred(Deref(ARG1),  Deref(ARG2), "$is_source");
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  PELOCK(29,pe);
+  if (pe->ModuleOfPred == IDB_MODULE) {
+    UNLOCKPE(47,pe);
+    return FALSE;
+  }
+  if (pe->PredFlags & MultiFileFlag) {
+    UNLOCKPE(48,pe);
+    return FALSE;
+  }
+  pe->src.OwnerFile = AtomOfTerm(Deref(ARG3));
+  UNLOCKPE(49,pe);
+  return TRUE;
 }
 
 static Int 
@@ -6664,6 +6696,7 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$is_source", 2, p_is_source, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$is_exo", 2, p_is_exo, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$owner_file", 3, p_owner_file, SafePredFlag);
+  Yap_InitCPred("$set_owner_file", 3, p_set_owner_file, SafePredFlag);
   Yap_InitCPred("$mk_d", 2, p_mk_d, SafePredFlag);
   Yap_InitCPred("$sys_export", 2, p_sys_export, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$pred_exists", 2, p_pred_exists, TestPredFlag | SafePredFlag);
