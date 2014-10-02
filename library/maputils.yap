@@ -24,6 +24,9 @@
 
 number_of_expansions(0).
 
+%
+% compile auxiliary routines for term expansion
+%
 compile_aux([Clause|Clauses], Module) :-
 	% compile the predicate declaration if needed
 	( Clause = (Head :- _)
@@ -82,22 +85,6 @@ transformation_id(Id) :-
 	retract(number_of_expansions(Id)),
 	Id1 is Id+1,
 	assert(number_of_expansions(Id1)).
-
-harmless_dcgexception(instantiation_error).	% ex: phrase(([1],x:X,[3]),L)
-harmless_dcgexception(type_error(callable,_)).	% ex: phrase(27,L)
-
-
-%%	contains_illegal_dcgnt(+ Term) is semidet.
-%
-%	`True` if _Term_ contains a non-terminal   we cannot deal with using
-%	goal-expansion. The test is too general approximation, but safe.
-
-contains_illegal_dcgnt(NT) :-
-	sub_term(I, NT),
-	nonvar(I),
-	( I = ! ; I = phrase(_,_,_) ), !.
-%	write(contains_illegal_nt(NT)),		% JW: we do not want to write
-%	nl.
 
 %%	goal_expansion_allowed is semidet.
 %
