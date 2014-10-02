@@ -509,9 +509,8 @@ bool YAPQuery::next()
   if (q_state == 0) {
     // extern void toggle_low_level_trace(void);
       //toggle_low_level_trace();
-	  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "next %p", HR) ; }
       result = (bool)YAP_EnterGoal((YAP_PredEntryPtr)ap, q_g, &q_h);
-      { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "done") ; }
+
   } else {
       LOCAL_AllowRestart = this->q_open;
       result = (bool)YAP_RetryGoal(&q_h);
