@@ -28,7 +28,6 @@
 	     expand_expr/5,
 	     expand_expr/6] ).
 		   
-
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
 :- use_system_module( '$_modules', ['$clean_cuts'/2]).
@@ -60,8 +59,7 @@
 
 */
 
-/**
-  @pred expand_exprs(- _O_,+ _N_) 
+/** @pred expand_exprs(- _O_,+ _N_) 
 	Control term expansion during compilation.
 
 Enables low-level optimizations. It reports the current state by
@@ -86,6 +84,7 @@ expand_exprs(Old,New) :-
 After a call to this predicate, arithmetical expressions will be compiled.
 (see example below). This is the default behavior.
 */
+
 compile_expressions :- set_value('$c_arith',true).
 
 /**  @pred do_not_compile_expressions
@@ -198,6 +197,31 @@ do_c_built_in(Comp0, _, R) :-		% now, do it for comparisons
 	expand_expr(F, Q, V),
 	'$do_and'(P, Q, R0),
 	'$do_and'(R0, Comp, R).
+do_c_built_in(phrase(NT,Xs), NTXsNil) :-
+	'$_arith':do_c_built_in(phrase(NT,Xs,[]), NTXsNil).
+
+do_c_built_in(phrase(NT,Xs0,Xs), Mod, NewGoal) :-
+	'$goal_expansion_allowed'(phrase(NT,Xs0,Xs), Mod),
+	Goal = phrase(NT,Xs0,Xs),
+	callable(NT),
+	catch('$translate_rule'((pseudo_nt --> NT), Rule),
+	      error(Pat,ImplDep),
+	      ( \+ '$harmless_dcgexception'(Pat), 
+		throw(error(Pat,ImplDep))
+	      )),
+	Rule = (pseudo_nt(Xs0c,Xsc) :- NewGoal0),
+	Goal \== NewGoal0,
+	% apply translation only if we are safe
+	\+ '$contains_illegal_dcgnt'(NT), !,
+	(   var(Xsc), Xsc \== Xs0c
+	->  Xs = Xsc, NewGoal1 = NewGoal0
+	;   NewGoal1 = (NewGoal0, Xsc = Xs)
+	),
+	(   var(Xs0c)
+	-> Xs0 = Xs0c,
+	   NewGoal = NewGoal1
+	;  ( Xs0 = Xs0c, NewGoal1 ) = NewGoal
+	).
 do_c_built_in(P, _, P).
 
 do_c_built_metacall(G1, Mod, '$execute_wo_mod'(G1,Mod)) :- 
@@ -368,6 +392,54 @@ expand_expr(Op, X, Y, O, Q, P) :-
 	integer(X), \+ '$bignum'(X), !.
 '$preprocess_args_for_non_commutative'(X, Y, Z, W, E) :-
 	'$do_and'(Z = X, Y = W, E).
+
+
+do_c_built_in(phrase(NT,Xs), NTXsNil) :-
+	'$_arith':do_c_built_in(phrase(NT,Xs,[]), NTXsNil).
+
+do_c_built_in(phrase(NT,Xs0,Xs), Mod, NewGoal) :-
+	'$goal_expansion_allowed'(phrase(NT,Xs0,Xs), Mod),
+	Goal = phrase(NT,Xs0,Xs),
+	callable(NT),
+	catch('$translate_rule'((pseudo_nt --> NT), Rule),
+	      error(Pat,ImplDep),
+	      ( \+ '$harmless_dcgexception'(Pat), 
+		throw(error(Pat,ImplDep))
+	      )),
+	Rule = (pseudo_nt(Xs0c,Xsc) :- NewGoal0),
+	Goal \== NewGoal0,
+	% apply translation only if we are safe
+	\+ '$contains_illegal_dcgnt'(NT), !,
+	(   var(Xsc), Xsc \== Xs0c
+	->  Xs = Xsc, NewGoal1 = NewGoal0
+	;   NewGoal1 = (NewGoal0, Xsc = Xs)
+	),
+	(   var(Xs0c)
+	-> Xs0 = Xs0c,
+	   NewGoal = NewGoal1
+	;  ( Xs0 = Xs0c, NewGoal1 ) = NewGoal
+	).
+
+'$goal_expansion_allowed'(phrase(_NT,_Xs0,_Xs), _Mod).
+
+%%	contains_illegal_dcgnt(+Term) is semidet.
+%
+%	True if Term contains a non-terminal   we cannot deal with using
+%	goal-expansion. The test is too general approximation, but safe.
+
+'$contains_illegal_dcgnt'(NT) :-
+    functor(NT, _, A),
+    between(1, A, I),
+    arg(I, NT),
+    nonvar(I),
+    ( I = ! ; I = phrase(_,_,_) ), !.
+%	write(contains_illegal_nt(NT)),		% JW: we do not want to write
+%	nl.
+
+'$harmless_dcgexception'(instantiation_error).	% ex: phrase(([1],x:X,[3]),L)
+'$harmless_dcgexception'(type_error(callable,_)).	% ex: phrase(27,L)
+
+
 
 /**	
 
