@@ -705,8 +705,10 @@ expand_goal(G, G).
 	
 '$do_expand'(G, _, _, _, G) :- var(G), !.
 '$do_expand'(M:G, _CurMod, SM, HVars, M:GI) :- !,
+	 nonvar(M),
 	'$do_expand'(G, M, SM, HVars, GI).
 '$do_expand'(G, CurMod, _SM, _HVars, GI) :-
+	 nonvar(G),
 	(
 	 '$pred_exists'(goal_expansion(G,GI), CurMod),
 	 call(CurMod:goal_expansion(G, GI))
@@ -1567,7 +1569,6 @@ unload_module(Mod) :-
     op(X, 0, Mod:Op),
     fail.
 unload_module(Mod) :-
-    fail,
     current_predicate(Mod:P),
     abolish(P),
     fail.

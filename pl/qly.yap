@@ -387,46 +387,54 @@ save_program(File, _Goal) :-
 	 call(db_import(myddas,Table,Table)),
 	 fail.
  '$myddas_import_all'.
-	 
+
+qsave_file(F0) :-
+    ensure_loaded(  F0 ),
+    absolute_file_name( F0, File, [expand(true),file_type(prolog),access(read),file_errors(fail),solutions(first)]),
+    absolute_file_name( F0, State, [expand(true),file_type(qly)]),
+    '$qsave_file_'(File, State). 
+
 /** @pred qsave_file(+ _File_, +_State_)
 
 Saves an image of all the information compiled by the system from file _F_ to _State_. 
-This includes modules and predicatees eventually including multi-predicates.
+This includes modules and predicates eventually including multi-predicates.
 **/
 qsave_file(F0, State) :-
-    absolute_file_name( F0, File, [expand(true),file_type(qly)]),
+    ensure_loaded(  F0 ),
+    absolute_file_name( F0, File, [expand(true),file_type(prolog),access(read),file_errors(fail),solutions(first)]),
     '$qsave_file_'(File, State).  
 
-'$qsave_file_'(File, _State) :-  
-   '$recorded'('$directive','$d'( File, M:G, Mode,  VL, Pos ), _),
-    assert(prolog:'$file_property'( directive( M:G, Mode,  VL, Pos ) ) ),
-    '$set_owner_file'(prolog:'$file_property'( _ ), File ),
+'$qsave_file_'(File, UserF, _State) :- 
+    ( File == user_input -> Age = 0 ; time_file64(File, Age) ),
+    assert(user:'$file_property'( '$lf_loaded'( UserF, Age, M) ) ),
+    '$set_owner_file'( '$file_property'( _ ), user, File ),
     fail.
-'$qsave_file_'(File, _State) :-
-    recorded('$module', '$module'(F,Mod,Source,Exps,L), _),
-    '$fetch_parents_module'(Mod, Parents),
-    '$fetch_imports_module'(Mod, Imps),
-    assert(prolog:'$file_property'( module( Mod, Exps, L, Parents, Imps ) ) ),
-    '$set_owner_file'(prolog:'$file_property'( _ ), File ),
+'$qsave_file_'(File, UserF, State) :- 
+    recorded('$lf_loaded','$lf_loaded'( File, M, Reconsult, UserFile, OldF, Line, Opts), _),
+    assert(user:'$file_property'( '$lf_loaded'( UserF, M, Reconsult, UserFile, OldF, Line, Opts) ) ),
+    '$set_owner_file'( '$file_property'( _ ), user, File ),
     fail.
-'$qsave_file_'(File, _State) :-
+'$qsave_file_'(File, _UserF, _State) :-  
+    recorded('$directive',directive( File, M:G, Mode,  VL, Pos ), _),
+    assert(user:'$file_property'( directive( M:G, Mode,  VL, Pos ) ) ),
+    '$set_owner_file'('$file_property'( _ ), user, File ),
+    fail.
+'$qsave_file_'(File, _UserF, _State) :-
     '$fetch_multi_files_file'(File, MultiFiles),
-    assert(prolog:'$file_property'( multifile(MultiFiles  ) ) ),
-    '$set_owner_file'(prolog:'$file_property'( _ ), File ),
+    assert(user:'$file_property'( multifile(MultiFiles  ) ) ),
+    '$set_owner_file'('$file_property'( _ ), user, File ),
     fail.
-'$qsave_file_'( File, State ) :-
+'$qsave_file_'( File, _UserF, State ) :-
     (
 	is_stream( State )
     ->
-	stream_property(Stream, file_name(File)),
-	S = Stream,
-	'$qsave_file_preds'(S, File)
+	'$qsave_file_preds'(State, File)
 	;
-        absolute_file_name( F0, File, [expand(true),file_type(qly)]),
 	open(State, write, S, [type(binary)]),
         '$qsave_file_preds'(S, File),
         close(S)
-    ), abolish(prolog:'$file_property'/2).
+    ), 
+    abolish(user:'$file_property'/1).
 
 '$fetch_multi_files_file'(File, Multi_Files) :-
 	setof(Info, '$fetch_multi_file_module'(File, Info), Multi_Files).
@@ -443,7 +451,7 @@ Saves an image of all the information compiled by the systemm on module _F_ to _
 **/
 
 qsave_module(Mod, OF) :- 
-	recorded('$module', '$module'(F,Mod,S,Exps,L), _),
+	recorded('$module', '$module'(F,Mod,Source,Exps,L), _),
 	'$fetch_parents_module'(Mod, Parents),
 	'$fetch_imports_module'(Mod, Imps),
 	'$fetch_multi_files_module'(Mod, MFs),
@@ -451,11 +459,11 @@ qsave_module(Mod, OF) :-
 	'$fetch_module_transparents_module'(Mod, ModTransps),
 	'$fetch_term_expansions_module'(Mod, TEs),
 	'$fetch_foreigns_module'(Mod, Foreigns),
-	asserta(Mod:'@mod_info'(S, Exps, MFs, L, Parents, Imps, Metas, ModTransps, Foreigns, TEs)),
+	asserta(Mod:'@mod_info'(Source, Exps, MFs, L, Parents, Imps, Metas, ModTransps, Foreigns, TEs)),
 	open(OF, write, S, [type(binary)]),
 	'$qsave_module_preds'(S, Mod),
 	close(S),
-	abolish(Mod:'@mod_info'/8),
+	abolish(Mod:'@mod_info'/10),
 	fail.
 qsave_module(_, _).
 
@@ -512,20 +520,34 @@ qload_module(Mod) :-
     '$current_module'(_, SourceModule),
     working_directory(_, OldD).
 
-'$qload_module'(Mod, File, _SourceModule) :-
-    unload_module( Mod ),
-    fail.
-'$qload_module'(Mod, File, _SourceModule) :-
-    open(File, read, S, [type(binary)]),
-    '$qload_module_preds'(S),
-    close(S),
-    fail.
+'$qload_module'(Mod, S, SourceModule) :-
+    is_stream( S ), !,
+    '$q_header'( S, Type ),
+    stream_property( S, file_name( File )),
+    ( Type == module ->
+	  '$qload_module'(S , Mod, File, SourceModule)
+    ;
+      Type == file ->
+	  '$qload_file'(S, File)	  
+    ).
 '$qload_module'(Mod, File, SourceModule) :-
-    '$complete_read_module'(Mod, File, SourceModule).
+    open(File, read, S, [type(binary)]),
+    '$q_header'( S, Type ),
+    ( Type == module ->
+	  '$qload_module'(S , Mod, File, SourceModule)
+    ;
+      Type == file ->
+	  '$qload_file'(S, File)	  
+    ),
+    close(S).
 
-'$complete_read_module'(Mod, File, CurrentModule) :-
+'$qload_module'(_S, Mod, _File, _SourceModule) :-
+    unload_module( Mod ), fail.
+'$qload_module'(S, _Mod, _File, _SourceModule) :-
+    '$qload_module_preds'(S), fail.
+'$qload_module'(_S, Mod, File, SourceModule) :-
     Mod:'@mod_info'(F, Exps, MFs, Line,Parents, Imps, Metas, ModTransps, Foreigns, TEs),
-    abolish(Mod:'@mod_info'/9),
+    abolish(Mod:'@mod_info'/10),
     recorda('$module', '$module'(File, Mod, F, Exps, Line), _),
     '$install_parents_module'(Mod, Parents),
     '$install_imports_module'(Mod, Imps, []),
@@ -536,8 +558,8 @@ qload_module(Mod) :-
     '$install_term_expansions_module'(Mod, TEs),
     % last, export everything to the host: if the loading crashed you didn't actually do
     % no evil.
-    '$convert_for_export'(all, Exps, Mod, CurrentModule, TranslationTab, AllExports0, qload_module),
-    '$add_to_imports'(TranslationTab, Mod, CurrentModule), % insert ops, at least for now
+    '$convert_for_export'(all, Exps, Mod, SourceModule, TranslationTab, AllExports0, qload_module),
+    '$add_to_imports'(TranslationTab, Mod, SourceModule), % insert ops, at least for now
     sort( AllExports0, AllExports ).
 
 '$fetch_imports_module'(Mod, Imports) :-
@@ -551,7 +573,7 @@ qload_module(Mod) :-
 '$fetch_parents_module'(Mod, Parents) :-
 	findall(Parent, prolog:'$parent_module'(Mod,Parent), Parents).
 
-'$fetch_module_transparents_module'(Mod, Module_Transparents) :-
+'$fetch_module_transparents_module'(Mod, Mmodule_Transparents) :-
 	findall(Info, '$fetch_module_transparent_module'(Mod, Info), Module_Transparents).
 
 % detect an module_transparenterator that is local to the module.
@@ -571,9 +593,12 @@ qload_module(Mod) :-
 % detect an multi_file that is local to the module.
 '$fetch_multi_file_module'(Mod, '$defined'(FileName,Name,Arity,Mod)) :-
 	recorded('$multifile_defs','$defined'(FileName,Name,Arity,Mod), _).
+'$fetch_multi_file_module'(Mod, '$mf_clause'(FileName,_Name,_Arity,_Module,Clause), _) :-
+    recorded('$mf','$mf_clause'(FileName,_Name,_Arity,_Module,ClauseRef), _),
+    instance(R, Clause ).
 
-'$fetch_term_expansions_module'(Mod, Term_Expansions) :-
-	findall(Info, '$fetch_term_expansion_module'(Mod, Info), Term_Expansions).
+'$fetch_term_expansions_module'(Mod, TEs) :-
+	findall(Info, '$fetch_term_expansion_module'(Mod, Info), TEs).
 
 % detect an term_expansionerator that is local to the module.
 '$fetch_term_expansion_module'(Mod, ( user:term_expansion(G, GI) :- Bd )) :-
@@ -673,41 +698,78 @@ qload_module(Mod) :-
 Restores a previously saved state of YAP contaianing a qly file  _F_.
 
 */
-qload_file(F0) :-
-    H0 is heapused, '$cputime'(T0,_),
-    ( is_strean( F0 ) 
+qload_file( F0 ) :-
+    ( '$swi_current_prolog_flag'(verbose_load, false)
+      ->
+	Verbosity = silent
+	;
+	Verbosity = informational
+    ),
+    StartMsg = loading_module,
+    '$current_module'( SourceModule ),
+    H0 is heapused, 
+    '$cputime'(T0,_),
+    ( is_stream( F0 ) 
       ->
       stream_property(F0, file_name(File) ),
-      S = F0
+      File = FilePl,
+      S = File
     ;
       absolute_file_name( F0, File, [expand(true),file_type(qly)]),
+      absolute_file_name( F0, FilePl, [expand(true),file_type(prolog)]),
+      unload_file( FilePl ),
       open(File, read, S, [type(binary)])
     ),
-    '$qload_file_preds'(S, File),
-    close(S),
-    fail 
-    ;
-    '$complete_read_file'(File).
-
-'$complete_read_file'(File) :-
+    print_message(Verbosity, loading(StartMsg, File)),
     file_directory_name(File, DirName),
-    working_directory(OldD, Dir),
-    '$process_directives'( File ),
+    working_directory(OldD, DirName),
+    '$q_header'( S, Type ),
+    ( Type == module ->
+	  '$qload_module'(S , Mod, File, SourceModule)
+    ;
+      Type == file ->
+	  '$qload_file'(S, SourceModule, File, FilePl, F0, all)	  
+    ),
+    close(S),
     working_directory( _, OldD),
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-    '$current_module'(Mod, SourceModule),
-    fail.
+    '$current_module'(Mod, Mod ),
+    print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
+    '$exec_initialisation_goals'.
 
-'$process_directives' :-
-    prolog:'$file_property'( multifile( List ) ),
+'$qload_file'(S, SourceModule, F, FilePl, _F0, _ImportList) :-
+    recorded('$lf_loaded','$lf_loaded'( F, _Age, SourceModule), _),
+   !.
+'$qload_file'(S, _SourceModule, _File, _FilePl, _F0, _ImportList) :-
+    '$qload_file_preds'(S),
+    fail.
+'$qload_file'(S, SourceModule, F, FilePl, _F0, _ImportList) :-
+    user:'$file_property'( '$lf_loaded'( _, Age, _ ) ),
+    recordaifnot('$lf_loaded','$lf_loaded'( F, Age, SourceModule), _),
+    fail.
+'$qload_file'(_S, SourceModule, _File, FilePl, F0, _ImportList) :-
+    b_setval('$source_file', F0 ),
+    '$process_directives'( FilePl ),
+    fail.
+'$qload_file'(_S, SourceModule, _File,  FilePl, _F0, ImportList) :-
+    '$import_to_current_module'(FilePl, SourceModule, ImportList, _, _TOpts).
+
+'$process_directives'( FilePl ) :-
+    user:'$file_property'( '$lf_loaded'( FilePl, M, Reconsult, UserFile, OldF, Line, Opts) ),
+    recorda('$lf_loaded','$lf_loaded'( FilePl, M, Reconsult, UserFile, OldF, Line, Opts), _),
+    fail.
+'$process_directives'( _FilePl ) :-
+    user:'$file_property'( multifile( List ) ),
     lists:member( Clause, List ),
     assert( Clause ),
     fail.
-'$process_directives' :-
-    prolog:'$file_property'( directive( M:G, Mode,  VL, Pos  ) ),
-    '$exec_directive'(G, Mode, M, VL, Pos),
+'$process_directives'( FilePl ) :-
+    user:'$file_property'( directive( MG, Mode,  VL, Pos  ) ),
+    '$set_source'( FilePl, Pos ),
+    strip_module(MG, M, G),
+    '$process_directive'(G, reconsult, M, VL, Pos),
     fail.
-'$process_directives' :-
-    abolish(prolog:'$file_property'/1).
+'$process_directives'( _FilePl ) :-
+    abolish(user:'$file_property'/1).
 
 
