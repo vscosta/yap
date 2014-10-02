@@ -3880,7 +3880,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     DBTerm *x;
     StaticClause *cl;
     UInt osize;
-    if (ap->PredFlags & SourcePredFlag ) printf("BINGO\n");
+
     if(!(x = fetch_clause_space(&t, size, cip, &osize PASS_REGS))) {
       return NULL;
     }
