@@ -325,7 +325,7 @@ struct record_list *yap_records		Yap_Records		=NULL		RestoreYapRecords()
 
 /* SWI atoms and functors */
 Atom		*swi_atoms	SWI_Atoms		InitSWIAtoms() RestoreSWIAtoms()
-Functor		swi_functors[N_SWI_FUNCTORS] SWI_Functors	void void
+Functor		*swi_functors   SWI_Functors	void void
 
 struct swi_reverse_hash	swi_reverse_hash[N_SWI_HASH] SWI_ReverseHash	void void
 
