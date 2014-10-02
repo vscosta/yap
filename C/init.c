@@ -627,7 +627,7 @@ Yap_InitCmpPred(const char *Name, UInt Arity, CmpPredicate cmp_code, UInt flags)
       return;
     }
   } 
-  if (pe->PredFlags & CPredFlag) {
+  if (pe->PredFlags & BinaryPredFlag) {
     flags = update_flags_from_prolog(flags, pe);
     p_code = pe->CodeOfPred;
     /* already exists */
@@ -651,7 +651,7 @@ Yap_InitCmpPred(const char *Name, UInt Arity, CmpPredicate cmp_code, UInt flags)
       }
     }
   }
-  pe->PredFlags = flags | StandardPredFlag | CPredFlag;
+  //pe->PredFlags = flags | StandardPredFlag;
   pe->CodeOfPred = p_code;
   pe->cs.d_code = cmp_code;
   pe->ModuleOfPred = CurrentModule;
@@ -1054,6 +1054,7 @@ InitSWIAtoms(void)
   int j=0;
   MaxAtomTranslations = 2*N_SWI_ATOMS ;
   SWI_Atoms = (Atom *)malloc(sizeof(Atom)*MaxAtomTranslations);
+  SWI_Functors = (Functor *)malloc(sizeof(Functor)*2*N_SWI_ATOMS);
 #include "iswiatoms.h"
   Yap_InitSWIHash();
   ATOM_ = PL_new_atom("");
