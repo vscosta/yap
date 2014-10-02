@@ -1570,6 +1570,24 @@ PRED_IMPL("term_to_atom", 2, term_to_atom, 0)
 { return atom_to_term(A2, A1, 0);
 }
 
+static
+PRED_IMPL("$set_source", 2, set_source, 0)
+{ 
+  GET_LD
+  atom_t at;
+  term_t a = PL_new_term_ref();
+
+  if (!PL_get_atom(A1, &at))
+    return FALSE;
+  source_file_name = at;
+  if (!PL_get_arg(1, A2, a) || !PL_get_int64(a, &source_char_no) ||
+      !PL_get_arg(2, A2, a) || !PL_get_long(a, &source_line_no) ||
+      !PL_get_arg(3, A2, a) || !PL_get_long(a, &source_line_pos) ||
+      !PL_get_arg(4, A2, a) || !PL_get_int64(a, &source_byte_no) ) {
+    return FALSE;
+  }
+  return TRUE;
+}
 
 int
 PL_chars_to_term(const char *s, term_t t)
@@ -1600,6 +1618,7 @@ PRED_DEF("read_term",		  2, read_term,		  PL_FA_ISO)
 PRED_DEF("read_clause",         3, read_clause,         0)
 PRED_DEF("atom_to_term", 3, atom_to_term, 0)
 PRED_DEF("term_to_atom", 2, term_to_atom, 0)
+PRED_DEF("$set_source",  2, set_source, 0)
 #ifdef O_QUASIQUOTATIONS
 PRED_DEF("$qq_open",            2, qq_open,             0)
 #endif
