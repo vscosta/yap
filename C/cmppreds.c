@@ -794,7 +794,9 @@ a_eq(Term t1, Term t2)
 {
   CACHE_REGS
   /* A =:= B		 */
-  int out;
+  Int out;
+  t1 = Deref(t1);
+  t2 = Deref(t2);
 
   if (IsVarTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "=:=/2");
