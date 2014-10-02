@@ -2117,6 +2117,14 @@ p_rcdap( USES_REGS1 )
 }
 
 /* recorda_at(+DBRef,+Term,-Ref) */
+/** @pred  recorda_at(+ _R0_, _T_,- _R_) 
+
+
+Makes term  _T_ the record preceding record with reference
+ _R0_, and unifies  _R_ with its reference.
+
+ 
+*/
 static Int 
 p_rcda_at( USES_REGS1 )
 {
@@ -2159,6 +2167,12 @@ p_rcda_at( USES_REGS1 )
 }
 
 /* recordz(+Functor,+Term,-Ref) */
+/** @pred  recordz(+ _K_, _T_,- _R_) 
+
+Makes term  _T_ the last record under key  _K_ and unifies  _R_
+with its reference.
+ 
+*/
 static Int 
 p_rcdz( USES_REGS1 )
 {
@@ -2255,6 +2269,14 @@ p_rcdzp( USES_REGS1 )
 }
 
 /* recordz_at(+Functor,+Term,-Ref) */
+/** @pred  recordz_at(+ _R0_, _T_,- _R_) 
+
+
+Makes term  _T_ the record following record with reference
+ _R0_, and unifies  _R_ with its reference.
+
+ 
+*/
 static Int 
 p_rcdz_at( USES_REGS1 )
 {
@@ -3747,7 +3769,16 @@ lu_statistics(PredEntry *pe USES_REGS)
     Yap_unify(ARG4,MkIntegerTerm(isz));
 }
 
+/** @pred  key_statistics(+ _K_,- _Entries_,- _Size_,- _IndexSize_) 
 
+
+Returns several statistics for a key  _K_. Currently, it says how
+many entries we have for that key,  _Entries_, what is the
+total size spent on entries,  _Size_, and what is the amount of
+space spent in indices.
+
+ 
+*/
 static Int
 p_key_statistics( USES_REGS1 )
 {
@@ -4434,6 +4465,14 @@ p_decrease_reference_counter( USES_REGS1 )
 }
 
 /* erase(+Ref)	 */
+/** @pred  erase(+ _R_) 
+
+
+The term referred to by  _R_ is erased from the internal database. If
+reference  _R_ does not exist in the database, `erase` just fails.
+
+ 
+*/
 static Int 
 p_current_reference_counter( USES_REGS1 )
 {
@@ -4487,6 +4526,12 @@ p_erase_clause( USES_REGS1 )
 }
  
 /* eraseall(+Key)	 */
+/** @pred  eraseall(+ _K_) 
+
+All terms belonging to the key `K` are erased from the internal
+database. The predicate always succeeds.
+ 
+*/
 static Int 
 p_eraseall( USES_REGS1 )
 {
@@ -4549,6 +4594,14 @@ p_eraseall( USES_REGS1 )
 
 
 /* erased(+Ref) */
+/** @pred  erased(+ _R_) 
+
+
+Succeeds if the object whose database reference is  _R_ has been
+erased.
+
+ 
+*/
 static Int 
 p_erased( USES_REGS1 )
 {
@@ -4678,6 +4731,17 @@ mega_instance(yamop *code, PredEntry *ap USES_REGS)
 }
 
 /* instance(+Ref,?Term) */
+/** @pred  instance(+ _R_,- _T_) 
+
+
+If  _R_ refers to a clause or a recorded term,  _T_ is unified
+with its most general instance. If  _R_ refers to an unit clause
+ _C_, then  _T_ is unified with ` _C_ :- true`. When
+ _R_ is not a reference to an existing clause or to a recorded term,
+this goal fails.
+
+ 
+*/
 static Int 
 p_instance( USES_REGS1 )
 {
@@ -5581,81 +5645,22 @@ with its reference.
  
 */
   Yap_InitCPred("recordz", 3, p_rcdz, SyncPredFlag);
-/** @pred  recordz(+ _K_, _T_,- _R_) 
-
-
-Makes term  _T_ the last record under key  _K_ and unifies  _R_
-with its reference.
-
- 
-*/
   Yap_InitCPred("$still_variant", 2, p_still_variant, SyncPredFlag);
   Yap_InitCPred("recorda_at", 3, p_rcda_at, SyncPredFlag);
-/** @pred  recorda_at(+ _R0_, _T_,- _R_) 
-
-
-Makes term  _T_ the record preceding record with reference
- _R0_, and unifies  _R_ with its reference.
-
- 
-*/
   Yap_InitCPred("recordz_at", 3, p_rcdz_at, SyncPredFlag);
-/** @pred  recordz_at(+ _R0_, _T_,- _R_) 
-
-
-Makes term  _T_ the record following record with reference
- _R0_, and unifies  _R_ with its reference.
-
- 
-*/
   Yap_InitCPred("$recordap", 3, p_rcdap, SyncPredFlag);
   Yap_InitCPred("$recordzp", 3, p_rcdzp, SyncPredFlag);
   Yap_InitCPred("$recordap", 4, p_drcdap, SyncPredFlag);
   Yap_InitCPred("$recordzp", 4, p_drcdzp, SyncPredFlag);
   Yap_InitCPred("erase", 1, p_erase, SafePredFlag|SyncPredFlag);
-/** @pred  erase(+ _R_) 
-
-
-The term referred to by  _R_ is erased from the internal database. If
-reference  _R_ does not exist in the database, `erase` just fails.
-
- 
-*/
   Yap_InitCPred("$erase_clause", 2, p_erase_clause, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("increase_reference_count", 1, p_increase_reference_counter, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("decrease_reference_count", 1, p_decrease_reference_counter, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("current_reference_count", 2, p_current_reference_counter, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("erased", 1, p_erased, TestPredFlag | SafePredFlag|SyncPredFlag);
-/** @pred  erased(+ _R_) 
-
-
-Succeeds if the object whose database reference is  _R_ has been
-erased.
-
- 
-*/
   Yap_InitCPred("instance", 2, p_instance, SyncPredFlag);
-/** @pred  instance(+ _R_,- _T_) 
-
-
-If  _R_ refers to a clause or a recorded term,  _T_ is unified
-with its most general instance. If  _R_ refers to an unit clause
- _C_, then  _T_ is unified with ` _C_ :- true`. When
- _R_ is not a reference to an existing clause or to a recorded term,
-this goal fails.
-
- 
-*/
   Yap_InitCPred("$instance_module", 2, p_instance_module, SyncPredFlag);
   Yap_InitCPred("eraseall", 1, p_eraseall, SafePredFlag|SyncPredFlag);
-/** @pred  eraseall(+ _K_) 
-
-
-All terms belonging to the key `K` are erased from the internal
-database. The predicate always succeeds.
-
- 
-*/
   Yap_InitCPred("$record_stat_source", 4, p_rcdstatp, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$some_recordedp", 1, p_somercdedp, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$first_instance", 3, p_first_instance, SafePredFlag|SyncPredFlag);
@@ -5673,16 +5678,6 @@ database. The predicate always succeeds.
   Yap_InitCPred("$fetch_reference_from_index", 3, p_fetch_reference_from_index, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$resize_int_keys", 1, p_resize_int_keys, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("key_statistics", 4, p_key_statistics, SyncPredFlag);
-/** @pred  key_statistics(+ _K_,- _Entries_,- _Size_,- _IndexSize_) 
-
-
-Returns several statistics for a key  _K_. Currently, it says how
-many entries we have for that key,  _Entries_, what is the
-total size spent on entries,  _Size_, and what is the amount of
-space spent in indices.
-
- 
-*/
   Yap_InitCPred("$lu_statistics", 5, p_lu_statistics, SyncPredFlag);
   Yap_InitCPred("total_erased", 4, p_total_erased, SyncPredFlag);
   Yap_InitCPred("key_erased_statistics", 5, p_key_erased_statistics, SyncPredFlag);
