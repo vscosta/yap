@@ -30,7 +30,6 @@
         remove_from_path/1], ['$full_filename'/3,
         '$system_library_directories'/2]).
 
-
 :- use_system_module( '$_boot', ['$system_catch'/4]).
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
@@ -134,10 +133,8 @@ absolute_file_name(user,user) :- !.
 absolute_file_name(File0,File) :-
 	'$absolute_file_name'(File0,[access(none),file_type(txt),file_errors(fail),solutions(first)],File,absolute_file_name(File0,File)).
 
-'$full_filename'(F0,F,G) :-
-	'$absolute_file_name'(F0,[access(read),file_type(source),file_errors(fail),solutions(first),expand(true)],F,G).
-
-
+'$full_filename'(F0, F, G) :-
+    '$absolute_file_name'(F0,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],F,G).
 
 '$absolute_file_name'(File, _Opts, _TrueFileName, G) :- var(File), !,
 	'$do_error'(instantiation_error, G).
@@ -591,7 +588,6 @@ user:prolog_file_type(A, prolog) :-
 	A \== prolog,
 	A \==pl,
 	A \== yap.
-user:prolog_file_type(qly, prolog).
 user:prolog_file_type(qly, qly).
 user:prolog_file_type(A, executable) :-
 	current_prolog_flag(shared_object_extension, A).
