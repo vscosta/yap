@@ -688,8 +688,17 @@ number of steps.
  %
  % but YAP and SICStus does.
  %
- '$process_directive'(G, _, M, VL, Pos) :-
-	 ( '$execute'(M:G) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
+ '$process_directive'(G, Mode, M, VL, Pos) :-
+     ( '$undefined'('$save_directive'(G, Mode, M, VL, Pos),prolog) ->
+	   true
+	       ;
+	  '$save_directive'(G, Mode, M, VL, Pos)
+	  ->
+	   true
+	   ;
+	   true
+     ),
+     ( '$execute'(M:G) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
 
 '$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :- !,
 	  '$continue_with_command'(Where,V,'$stream_position'(C,L,A1,A2,A3),G,Source).
