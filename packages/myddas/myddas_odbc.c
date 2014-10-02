@@ -455,7 +455,7 @@ c_db_odbc_number_of_fields( USES_REGS1 ) {
   char sql[256];
   SQLSMALLINT number_fields;
 
-  sprintf(sql,"SELECT column_name from INFORMATION_SCHEMA.COLUMNS where table_name = \'%s\'",relation);
+  sprintf(sql,"SELECT column_name from INFORMATION_SCHEMA.COLUMNS where table_name = \'%s\' group by column_name order by min(dtd_identifier)",relation);
   
   if (!SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt, "db_number_of_fields"))
     return FALSE;
@@ -495,7 +495,7 @@ c_db_odbc_get_attributes_types( USES_REGS1 ) {
   Term head, list;
   list = arg_types_list;
 
-  sprintf(sql,"SELECT column_name,data_type FROM INFORMATION_SCHEMA.COLUMNS where table_name = \'%s\'",relation);
+  sprintf(sql,"SELECT column_name,data_type FROM INFORMATION_SCHEMA.COLUMNS where table_name = \'%s\' group by column_name,data_type order by min(dtd_identifier)",relation);
 
   if (!SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt, "db_get_attributes_types"))
     return FALSE;
@@ -765,7 +765,7 @@ c_db_odbc_get_fields_properties( USES_REGS1 ) {
   list = fields_properties_list;
   
   SQLSMALLINT bind_prim_key;
-  //por causa de as rows em odbc come�am em 1 :)
+  // rows in odbc start at 1 :)
   Short *null=(Short *)malloc(sizeof(Short)*(1+num_fields));
   
   if (!SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt2, "db_get_fields_properties"))
