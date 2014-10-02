@@ -259,7 +259,6 @@ static yamop *a_try(op_numbers, CELL, CELL, yamop *, int, struct intermediates *
 static yamop *a_either(op_numbers, CELL, CELL, yamop *,  int, struct intermediates *);
 #endif	/* YAPOR */
 static yamop *a_gl(op_numbers, yamop *, int, struct PSEUDO *, struct intermediates * CACHE_TYPE);
-static yamop *a_bfunc(CELL, clause_info *, yamop *, int, struct intermediates *);
 static 
 COUNT compile_cmp_flags(char *);
 static yamop *a_igl(CELL, op_numbers, yamop *, int, struct intermediates *);
@@ -1622,65 +1621,63 @@ Yap_compile_cmp_flags(PredEntry *pred)
 }
 
 static yamop *
-a_bfunc(CELL pred, clause_info *clinfo, yamop *code_p, int pass_no, struct intermediates *cip)
+a_bfunc(CELL a1, CELL a2, PredEntry *pred, clause_info *clinfo, yamop *code_p, int pass_no, struct intermediates *cip)
 {
-  Ventry *ve = (Ventry *) cip->cpc->rnd1;
-  OPREG var_offset;
-  int is_y_var = (ve->KindOfVE == PermVar);
-  
-  var_offset = Var_Ref(ve, is_y_var);
-  if (ve->KindOfVE == PermVar) {
-    yslot v1 = emit_yreg(var_offset);
-    cip->cpc = cip->cpc->nextInst;
-    ve = (Ventry *) cip->cpc->rnd1;
-    is_y_var = (ve->KindOfVE == PermVar);
-    var_offset = Var_Ref(ve, is_y_var);
-    if (is_y_var) {
+  Ventry *ve1 = (Ventry *)a1;
+  Ventry *ve2 = (Ventry *)a2;
+  OPREG var_offset1;
+  int is_y_var = (ve1->KindOfVE == PermVar);
+ 
+  var_offset1 = Var_Ref(ve1, is_y_var);
+  if (ve1->KindOfVE == PermVar) {
+    yslot v1 = emit_yreg(var_offset1);
+    bool is_y_var2 = (ve2->KindOfVE == PermVar);
+    OPREG var_offset2 = Var_Ref(ve2, is_y_var2);
+    if (is_y_var2) {
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_yy);
-	code_p->y_u.plyys.p = RepPredProp(((Prop)pred));
+	code_p->y_u.plyys.p = pred;
 	code_p->y_u.plyys.f = emit_fail(cip);
 	code_p->y_u.plyys.y1 = v1;
-	code_p->y_u.plyys.y2 = emit_yreg(var_offset);
+	code_p->y_u.plyys.y2 = emit_yreg(var_offset2);
 	code_p->y_u.plyys.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
       }
       GONEXT(plyys);
     } else {
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_yx);
-	code_p->y_u.plxys.p = RepPredProp(((Prop)pred));
+	code_p->y_u.plxys.p = pred;
 	code_p->y_u.plxys.f = emit_fail(cip);
-	code_p->y_u.plxys.x = emit_xreg(var_offset);
+	code_p->y_u.plxys.x = emit_xreg(var_offset2);
 	code_p->y_u.plxys.y = v1;
-	code_p->y_u.plxys.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
+ 	code_p->y_u.plxys.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
       }
       GONEXT(plxys);
     }
   } else {
-    wamreg x1 = emit_xreg(var_offset);
-    OPREG var_offset;
+    wamreg x1 = emit_xreg(var_offset1);
+    OPREG var_offset2;
 
-    cip->cpc = cip->cpc->nextInst;
-    ve = (Ventry *) cip->cpc->rnd1;
-    is_y_var = (ve->KindOfVE == PermVar);
-    var_offset = Var_Ref(ve, is_y_var);
-    if (is_y_var) {
+    bool is_y_var2 = (ve2->KindOfVE == PermVar);
+    var_offset2 = Var_Ref(ve2, is_y_var2);
+    if (is_y_var2) {
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_xy);
-	code_p->y_u.plxys.p = RepPredProp(((Prop)pred));
+	code_p->y_u.plxys.p = pred;
 	code_p->y_u.plxys.f = emit_fail(cip);
 	code_p->y_u.plxys.x = x1;
-	code_p->y_u.plxys.y = emit_yreg(var_offset);
+	code_p->y_u.plxys.y = emit_yreg(var_offset2);
 	code_p->y_u.plxys.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
       }
       GONEXT(plxys);
     } else {
       if (pass_no) {
+	//	printf(" %p --- %p\n", x1, emit_xreg(var_offset2) );
 	code_p->opc = emit_op(_call_bfunc_xx);
-	code_p->y_u.plxxs.p = RepPredProp(((Prop)pred));
+	code_p->y_u.plxxs.p = pred;
 	code_p->y_u.plxxs.f = emit_fail(cip);
 	code_p->y_u.plxxs.x1 = x1;
-	code_p->y_u.plxxs.x2 = emit_xreg(var_offset);
+	code_p->y_u.plxxs.x2 = emit_xreg(var_offset2);
 	code_p->y_u.plxxs.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
       }
       GONEXT(plxxs);
@@ -3685,13 +3682,8 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     case count_retry_op:
       code_p = a_pl(_count_retry, (PredEntry *)(cip->cpc->rnd1), code_p, pass_no);
       break;
-    case fetch_args_for_bccall_op:
-      if (cip->cpc->nextInst->op != bccall_op) {
-	Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "compiling binary test", (int) cip->cpc->op);
-	save_machine_regs();
-	siglongjmp(cip->CompilerBotch, 1);
-      }
-      code_p = a_bfunc(cip->cpc->nextInst->rnd2, &clinfo, code_p, pass_no, cip);
+    case bccall_op:
+      code_p = a_bfunc(cip->cpc->rnd1, cip->cpc->rnd3,  (PredEntry *)(cip->cpc->rnd5), &clinfo, code_p, pass_no, cip);
       break;
     case align_float_op:
       /* install a blob */
@@ -3888,6 +3880,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     DBTerm *x;
     StaticClause *cl;
     UInt osize;
+    if (ap->PredFlags & SourcePredFlag ) printf("BINGO\n");
     if(!(x = fetch_clause_space(&t, size, cip, &osize PASS_REGS))) {
       return NULL;
     }

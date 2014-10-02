@@ -236,7 +236,7 @@ static void c_bifun(basic_preds, Term, Term, Term, Term, Term, compiler_struct *
 static void c_goal(Term, Term, compiler_struct *);
 static void c_body(Term, Term, compiler_struct *);
 static void c_head(Term, compiler_struct *);
-static int usesvar(compiler_vm_op);
+static bool usesvar(compiler_vm_op);
 static CELL *init_bvarray(int, compiler_struct *);
 #ifdef DEBUG
 static void clear_bvarray(int, CELL *, compiler_struct *);
@@ -446,12 +446,6 @@ c_var(Term t, Int argno, unsigned int arity, unsigned int level, compiler_struct
       Yap_emit(f_val_op, t, (CELL)arity, &cglobs->cint);
     }
     break;
-  case bt1_flag:
-    Yap_emit(fetch_args_for_bccall_op, t, 0, &cglobs->cint);
-    break;
-  case bt2_flag:
-    Yap_emit(bccall_op, t, (CELL)cglobs->current_p0, &cglobs->cint);
-    break;
   default:
 #ifdef SFUNC
     if (argno < 0) {
@@ -481,6 +475,24 @@ c_var(Term t, Int argno, unsigned int arity, unsigned int level, compiler_struct
     }
   }
   tag_var(t, new, cglobs);
+}
+
+// built-in like X >= Y.
+static void
+c_2vars(int op, Term t1, Int argno1, Term t2, Int argno2, CELL extra, unsigned int arity, unsigned int level, compiler_struct *cglobs)
+{
+  int new1 = check_var((t1 = Deref(t1)), level, argno1, cglobs);
+  int new2 = check_var((t2 = Deref(t2)), level, argno2, cglobs);
+
+  switch (op) {
+  case bt_flag:
+    Yap_emit_5ops(bccall_op, t1, argno1, t2, argno2, extra, &cglobs->cint);
+    break;
+  default:
+    return;
+  }
+  tag_var(t1, new1, cglobs);
+  tag_var(t2, new2, cglobs);
 }
 
 static void
@@ -1876,9 +1888,8 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       v->FlagsOfVE |= SafeVar;
       return;
     }
-    else if (p->PredFlags & AsmPredFlag) {
+    else if (p->PredFlags & (AsmPredFlag)) {
       basic_preds op = p->PredFlags & 0x7f;
-
       if (profiling)
 	Yap_emit(enter_profiling_op, (CELL)p, Zero, &cglobs->cint);
       else if (call_counting)
@@ -1941,7 +1952,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 #ifdef BEAM
     else if (p->PredFlags & BinaryPredFlag && !EAM) {
 #else
-    else if (p->PredFlags & BinaryPredFlag) {
+    else if (p->PredFlags & BinaryPredFlag ) {
 #endif
       CACHE_REGS
       Term a1 = ArgOfTerm(1,Goal);
@@ -1949,33 +1960,25 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       if (IsVarTerm(a1) && !IsNewVar(a1)) {
 	Term a2 = ArgOfTerm(2,Goal);
 	if (IsVarTerm(a2) && !IsNewVar(a2)) {
-	  if (IsNewVar(a2))  {
-	    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-	    LOCAL_Error_Term = a2;
-	    LOCAL_ErrorMessage = LOCAL_ErrorSay;
-	    sprintf(LOCAL_ErrorMessage, "compiling %s/2 with second arg unbound",  RepAtom(NameOfFunctor(p->FunctorOfPred))->StrOfAE);
-	    save_machine_regs();
-	    siglongjmp(cglobs->cint.CompilerBotch,1);
-	  }
-	  c_var(a1, bt1_flag, 2, 0, cglobs);
 	  cglobs->current_p0 = p0;
-	  c_var(a2, bt2_flag, 2, 0, cglobs);
+	  c_2vars(bt_flag, a1, 0, a2, 0, (CELL)p0, 0, 0, cglobs);
 	}
 	else {
 	  Term t2 = MkVarTerm();
+	  //c_var(t2, --cglobs->tmpreg, 0, 0, cglobs);
 	  if (HR == (CELL *)cglobs->cint.freep0) {
 	    /* oops, too many new variables */
 	    save_machine_regs();
 	    siglongjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
 	  }
-	  c_eq(t2, a2, cglobs);
-	  c_var(a1, bt1_flag, 2, 0, cglobs);
 	  cglobs->current_p0 = p0;
-	  c_var(t2, bt2_flag, 2, 0, cglobs);
+	  c_eq(t2, a2, cglobs);
+	  c_2vars(bt_flag, a1, 0, t2, 0, (CELL)p0, 0, 0, cglobs);
 	}
       } else {
 	Term a2 = ArgOfTerm(2,Goal);
 	Term t1 = MkVarTerm();
+	//c_var(t1, --cglobs->tmpreg, 0, 0, cglobs);
 	if (HR == (CELL *)cglobs->cint.freep0) {
 	  /* oops, too many new variables */
 	  save_machine_regs();
@@ -1984,21 +1987,20 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 	c_eq(t1, a1, cglobs);
 
 	if (IsVarTerm(a2) && !IsNewVar(a2)) {
-	  c_var(t1, bt1_flag, 2, 0, cglobs);
 	  cglobs->current_p0 = p0;
-	  c_var(a2, bt2_flag, 2, 0, cglobs);
+	  c_2vars(bt_flag, t1, 0, a2, 0, (CELL)p0, 0, 0, cglobs);
 	}
 	else {
 	  Term t2 = MkVarTerm();
+	  //	  c_var(t2, --cglobs->tmpreg, 0, 0, cglobs);
 	  if (HR == (CELL *)cglobs->cint.freep0) {
 	    /* oops, too many new variables */
 	    save_machine_regs();
 	    siglongjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
 	  }
 	  c_eq(t2, a2, cglobs);
-	  c_var(t1, bt1_flag, 2, 0, cglobs);
 	  cglobs->current_p0 = p0;
-	  c_var(t2, bt2_flag, 2, 0, cglobs);
+	  c_2vars(bt_flag, t1, 0, t2, 0, (CELL)p0, 0, 0, cglobs);
 	}
       }
       if (cglobs->onlast) {
@@ -2183,11 +2185,11 @@ c_head(Term t, compiler_struct *cglobs)
 }
 
 
-inline static int
+inline static bool
 usesvar(compiler_vm_op ic)
 {
   if (ic >= get_var_op && ic <= put_val_op)
-    return TRUE;
+    return true;
   switch (ic) {
   case save_b_op:
   case commit_b_op:
@@ -2196,19 +2198,34 @@ usesvar(compiler_vm_op ic)
   case save_pair_op:
   case f_val_op:
   case f_var_op:
-  case fetch_args_for_bccall_op:
   case bccall_op:
-    return TRUE;
+    return true;
   default:
     break;
   }
 #ifdef SFUNC
   if (ic >= unify_s_var_op && ic <= write_s_val_op)
-    return TRUE;
+    return true;
 #endif
   return ((ic >= unify_var_op && ic <= write_val_op)
 	  ||
 	  (ic >= unify_last_var_op && ic <= unify_last_val_op));
+}
+
+inline static bool
+  uses_this_var(PInstr *pc, Term arg)
+{
+  compiler_vm_op ic = pc->op;
+
+  if (pc->rnd1 != arg)
+    return arg == pc->rnd3 && ic == bccall_op;
+  return usesvar( ic );
+}
+
+inline static bool
+usesvar2(compiler_vm_op ic)
+{
+  return ic == bccall_op;
 }
 
 /*
@@ -2223,6 +2240,34 @@ typedef  struct env_tmp {
   struct env_tmp *Next;
 }  EnvTmp;
 #endif
+
+
+static void
+  tag_use(Ventry *v USES_REGS) 
+{ 
+#ifdef BEAM
+   if (EAM) {
+      if (v->NoOfVE == Unassigned || v->KindOfVE!=PermVar) {
+	v->NoOfVE = PermVar | (LOCAL_nperm++);
+	v->KindOfVE = PermVar;
+	v->FlagsOfVE |= PermFlag;	
+      }
+   }
+#endif
+      if (v->NoOfVE == Unassigned) {
+	if ((v->AgeOfVE > 1 && (v->AgeOfVE > v->FirstOfVE))
+	    || v->KindOfVE == PermVar	/*
+					 * * || (v->FlagsOfVE & NonVoid && !(v->FlagsOfVE &
+					 * * OnHeadFlag)) 
+					 */ ) {
+	  v->NoOfVE = PermVar | (LOCAL_nperm++);
+	  v->KindOfVE = PermVar;
+	  v->FlagsOfVE |= PermFlag;
+	} else {
+	  v->NoOfVE = v->KindOfVE = TempVar;
+	}
+      }
+}
 
 static void
 AssignPerm(PInstr *pc, compiler_struct *cglobs)
@@ -2277,28 +2322,12 @@ AssignPerm(PInstr *pc, compiler_struct *cglobs)
     if (uses_var) {
       Ventry *v = (Ventry *) (pc->rnd1);
 
-#ifdef BEAM
-   if (EAM) {
-      if (v->NoOfVE == Unassigned || v->KindOfVE!=PermVar) {
-	v->NoOfVE = PermVar | (LOCAL_nperm++);
-	v->KindOfVE = PermVar;
-	v->FlagsOfVE |= PermFlag;	
+      tag_use(v PASS_REGS); 
+      if (usesvar2(pc->op) ) {
+	Ventry *v2 = (Ventry *) (pc->rnd3);
+	tag_use(v2 PASS_REGS); 
       }
-   }
-#endif
-      if (v->NoOfVE == Unassigned) {
-	if ((v->AgeOfVE > 1 && (v->AgeOfVE > v->FirstOfVE))
-	    || v->KindOfVE == PermVar	/*
-					 * * || (v->FlagsOfVE & NonVoid && !(v->FlagsOfVE &
-					 * * OnHeadFlag)) 
-					 */ ) {
-	  v->NoOfVE = PermVar | (LOCAL_nperm++);
-	  v->KindOfVE = PermVar;
-	  v->FlagsOfVE |= PermFlag;
-	} else {
-	  v->NoOfVE = v->KindOfVE = TempVar;
-	}
-      }
+
     } else if (pc->op == empty_call_op) {
       pc->rnd2 = LOCAL_nperm;
     } else if (pc->op == call_op || pc->op == either_op || pc->op == orelse_op || pc->op == push_or_op) {
@@ -2357,7 +2386,6 @@ clear_bvarray(int var, CELL *bvarray
     LOCAL_Error_TYPE = INTERNAL_COMPILER_ERROR;
     LOCAL_Error_Term = TermNil;
     LOCAL_ErrorMessage = "compiler internal error: variable initialised twice";
- fprintf(stderr," vsc: compiling7\n");
     save_machine_regs();
     siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
   }
@@ -2488,6 +2516,22 @@ CheckUnsafe(PInstr *pc, compiler_struct *cglobs)
 	}
 	break;
       }
+    case bccall_op:
+      {
+	Ventry *v = (Ventry *) (pc->rnd1),
+	  *v3 = (Ventry *) (pc->rnd3);
+
+	if ( (v->FlagsOfVE & PermFlag && pc == v->FirstOpForV) ||
+	     (v3->FlagsOfVE & PermFlag && pc == v3->FirstOpForV) ) {
+	  CACHE_REGS
+	    LOCAL_Error_TYPE = INTERNAL_COMPILER_ERROR;
+	  LOCAL_Error_Term = TermNil;
+	  LOCAL_ErrorMessage = "comparison should not have first instance of variables";
+	  save_machine_regs();
+	  siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
+	}
+      }
+      break;
     case put_var_op:
     case get_var_op:
     case save_b_op:
@@ -2625,6 +2669,10 @@ CheckVoids(compiler_struct *cglobs)
     case get_list_op:
     case get_struct_op:
       cglobs->Uses[cpc->rnd2] = 1;
+      break;
+    case bccall_op:
+      cglobs->Uses[cpc->rnd2] = 1;
+      cglobs->Uses[cpc->rnd4] = 1;
     default:
       break;
     }
@@ -2676,7 +2724,9 @@ checktemp(Int arg, Int rn, compiler_vm_op ic, compiler_struct *cglobs)
   n = v->RCountOfVE - 1;
   while (q != v->LastOpForV && (q = q->nextInst) != NIL) {
     if (q->rnd2 <= 0); /* don't try to reuse REGISTER 0 */
-    else if (usesvar(ic = q->op) && arg == q->rnd1) {
+    else if ((usesvar(ic = q->op) && arg == q->rnd1) ||
+	     (ic == bccall_op && arg == q->rnd3)/*uses_this_var(q, arg)*/) {
+      ic = q->op;
       --n;
       if (ic == put_val_op) {
 	if (target1 == cglobs->MaxCTemps && Needed[q->rnd2] == 0)
@@ -2963,9 +3013,11 @@ c_layout(compiler_struct *cglobs)
     case unify_s_var_op:
     case unify_s_val_op:
 #endif
-    case fetch_args_for_bccall_op:
+      checktemp(arg, rn, ic, cglobs);
+      break;
     case bccall_op:
       checktemp(arg, rn, ic, cglobs);
+      checktemp(cglobs->cint.cpc->rnd3, cglobs->cint.cpc->rnd4, ic, cglobs);
       break;
     case get_atom_op:
     case get_num_op:
