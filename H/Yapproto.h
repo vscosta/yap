@@ -283,6 +283,7 @@ void   *Yap_GetOutputStream(Atom at);
 #ifdef DEBUG
 extern void Yap_DebugPlWrite (Term t);
 extern void Yap_DebugErrorPutc (int n);
+extern void Yap_DebugErrorPuts (const char *s);
 #endif
 void    Yap_PlWriteToStream(Term, int, int);
 /* depth_lim.c */
