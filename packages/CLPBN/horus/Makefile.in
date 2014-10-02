@@ -213,7 +213,7 @@ $(UTESTING): $(UTESTS_OBJS)
 
 install: all install-examples
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
-	$(INSTALL_PROGRAM) $(HCLI)@EXEC_SUFFIX@ $(DESTDIR)$(BINDIR)
+	$(INSTALL_PROGRAM) $(HCLI)  $(DESTDIR)$(BINDIR)
 
 install-examples:
 
