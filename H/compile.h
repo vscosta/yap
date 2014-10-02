@@ -18,197 +18,222 @@
 /* consult stack management */
 
 /* virtual machine instruction op-codes					*/
-typedef enum compiler_op {
-  nop_op,
-  get_var_op,
-  put_var_op,
-  get_val_op,
-  put_val_op,
-  get_atom_op,
-  put_atom_op,
-  get_num_op,
-  put_num_op,
-  get_float_op,
-  put_float_op,
-  get_dbterm_op,
-  put_dbterm_op,
-  get_longint_op,
-  put_longint_op,
-  get_string_op,
-  put_string_op,
-  get_bigint_op,
-  put_bigint_op,
-  get_list_op,
-  put_list_op,
-  get_struct_op,
-  put_struct_op,
-  put_unsafe_op,
-  unify_var_op,
-  write_var_op,
-  unify_val_op,
-  write_val_op,
-  unify_atom_op,
-  write_atom_op,
-  unify_num_op,
-  write_num_op,
-  unify_float_op,
-  write_float_op,
-  unify_dbterm_op,
-  write_dbterm_op,
-  unify_longint_op,
-  write_longint_op,
-  unify_string_op,
-  write_string_op,
-  unify_bigint_op,
-  write_bigint_op,
-  unify_list_op,
-  write_list_op,
-  unify_struct_op,
-  write_struct_op,
-  write_unsafe_op,
-  unify_local_op,
-  write_local_op,
-  unify_last_list_op,
-  write_last_list_op,
-  unify_last_struct_op,
-  write_last_struct_op,
-  unify_last_var_op,
-  unify_last_val_op,
-  unify_last_local_op,
-  unify_last_atom_op,
-  unify_last_num_op,
-  unify_last_float_op,
-  unify_last_dbterm_op,
-  unify_last_longint_op,
-  unify_last_string_op,
-  unify_last_bigint_op,
-  ensure_space_op,
-  native_op,
-  f_var_op,
-  f_val_op,
-  f_0_op,
-  align_float_op,
-  fail_op,
-  cut_op,
-  cutexit_op,
-  allocate_op,
-  deallocate_op,
-  tryme_op,
-  jump_op,
-  jumpi_op,
-  procceed_op,
-  call_op,
-  execute_op,
-  safe_call_op,
-  label_op,
-  name_op,
-  pop_op,
-  retryme_op,
-  trustme_op,
-  either_op,
-  orelse_op,
-  orlast_op,
-  push_or_op,
-  pushpop_or_op,
-  pop_or_op,
-  save_b_op,
-  commit_b_op,
-  patch_b_op,
-  try_op,
-  retry_op,
-  trust_op,
-  try_in_op,
-  jump_v_op,
-  jump_nv_op,
-  cache_arg_op,
-  cache_sub_arg_op,
-  user_switch_op,
-  switch_on_type_op,
-  switch_c_op,
-  if_c_op,
-  switch_f_op,
-  if_f_op,
-  if_not_op,
-  index_dbref_op,
-  index_blob_op,
-  index_string_op,
-  index_long_op,
-  if_nonvar_op,
-  save_pair_op,
-  save_appl_op,
-  mark_initialised_pvars_op,
-  mark_live_regs_op,
-  fetch_args_vv_op,
-  fetch_args_cv_op,
-  fetch_args_vc_op,
-  fetch_args_iv_op,
-  fetch_args_vi_op,
-  enter_profiling_op,
-  retry_profiled_op,
-  count_call_op,
-  count_retry_op,
-  restore_tmps_op,
-  restore_tmps_and_skip_op,
-  enter_lu_op,
-  empty_call_op,
+#define mklist0(f) \
+    f( nop_op, "nop") \
+    f( get_var_op, "get_var\t\t%v,%r") \
+    f( put_var_op, "put_var\t\t%v,%r") \
+    f( get_val_op, "get_val\t\t%v,%r") \
+    f( put_val_op, "put_val\t\t%v,%r") \
+    f( get_atom_op, "get_atom\t%a,%r") \
+    f( put_atom_op, "put_atom\t%a,%r") \
+    f( get_num_op, "get_num\t\t%n,%r") \
+    f( put_num_op, "put_num\t\t%n,%r") \
+    f( get_float_op,"get_float\t\t%w,%r" ) \
+    f( put_float_op, "put_float\t\t%w,%r") \
+    f( get_dbterm_op, "get_dbterm\t%w,%r") \
+    f( put_dbterm_op, "put_dbterm\t%w,%r") \
+    f( get_longint_op, "get_longint\t\t%w,%r") \
+    f( put_longint_op, "put_longint\t\t%w,%r") \
+    f( get_string_op, "get_string\t\t%w,%S") \
+    f( put_string_op, "put_string\t\t%w,%S") \
+    f( get_bigint_op, "get_bigint\t\t%l,%r") \
+    f( put_bigint_op, "put_bigint\t\t%l,%r") \
+    f( get_list_op, "get_list\t%r") \
+    f( put_list_op, "put_list\t%r") \
+    f( get_struct_op, "get_struct\t%f,%r") \
+    f( put_struct_op, "put_struct\t%f,%r") \
+    f( put_unsafe_op, "put_unsafe\t%v,%r") \
+    f( unify_var_op, "unify_var\t%v") \
+    f( write_var_op, "write_var\t%v") \
+    f( unify_val_op, "unify_val\t%v") \
+    f( write_val_op, "write_val\t%v") \
+    f( unify_atom_op, "unify_atom\t%a") \
+    f( write_atom_op, "write_atom\t%a") \
+    f( unify_num_op, "unify_num\t%n") \
+    f( write_num_op, "write_num\t%n") \
+    f( unify_float_op, "unify_float\t%w") \
+    f( write_float_op, "write_float\t%w") \
+    f( unify_dbterm_op, "unify_dbterm\t%w") \
+    f( write_dbterm_op, "write_dbterm\t%w") \
+    f( unify_longint_op, "unify_longint\t%w") \
+    f( write_longint_op, "write_longint\t%w") \
+    f( unify_string_op, "unify_string\t%S") \
+      f( write_string_op, "write_string\t%S")	\
+      f( unify_bigint_op, "unify_bigint\t%l")	\
+    f( write_bigint_op, "write_bigint\t%l") \
+    f( unify_list_op, "unify_list") \
+    f( write_list_op, "write_list") \
+    f( unify_struct_op, "unify_struct\t%f") \
+    f( write_struct_op, "write_struct\t%f") \
+    f( write_unsafe_op, "write_unsafe\t%v") \
+    f( unify_local_op, "unify_local\t%v") \
+    f( write_local_op, "write local\t%v") \
+    f( unify_last_list_op, "unify_last_list") \
+    f( write_last_list_op, "write_last_list") \
+    f( unify_last_struct_op, "unify_last_struct\t%f") \
+    f( write_last_struct_op, "write_last_struct\t%f") \
+    f( unify_last_var_op, "unify_last_var\t%v") \
+    f( unify_last_val_op, "unify_last_val\t%v") \
+    f( unify_last_local_op, "unify_last_local\t%v") \
+    f( unify_last_atom_op, "unify_last_atom\t%a") \
+    f( unify_last_num_op, "unify_last_num\t%n") \
+    f( unify_last_float_op, "unify_last_float\t%w") \
+    f( unify_last_dbterm_op, "unify_last_dbterm\t%w") \
+    f( unify_last_longint_op, "unify_last_longint\t%w") \
+    f( unify_last_string_op, "unify_last_string\t%S") \
+    f( unify_last_bigint_op, "unify_last_bigint\t%l") \
+    f( ensure_space_op, "ensure_space") \
+    f( native_op, "native_code") \
+    f( f_var_op, "function_to_var\t%v,%B") \
+    f( f_val_op, "function_to_val\t%v,%B") \
+    f( f_0_op, "function_to_0\t%B") \
+    f( align_float_op, "align_float") \
+    f( fail_op, "fail") \
+    f( cut_op, "cut") \
+    f( cutexit_op, "cutexit") \
+    f( allocate_op, "allocate") \
+    f( deallocate_op, "deallocate") \
+    f( tryme_op, "try_me_else\t\t%l\t%x") \
+    f( jump_op, "jump\t\t%l") \
+    f( jumpi_op, "jump_in_indexing\t\t%i") \
+    f( procceed_op, "proceed") \
+    f( call_op, "call\t\t%p,%d,%z") \
+    f( execute_op, "execute\t\t%p") \
+    f( safe_call_op, "sys\t\t%p") \
+    f( label_op, "%l:") \
+    f( name_op, "name\t\t%m,%d") \
+    f( pop_op, "pop\t\t%l") \
+    f( retryme_op, "retry_me_else\t\t%l\t%x") \
+    f( trustme_op, "trust_me_else_fail\t%x") \
+    f( either_op, "either_me\t\t%l,%d,%z") \
+    f( orelse_op, "or_else\t\t%l,%z") \
+    f( orlast_op, "or_last") \
+    f( push_or_op, "push_or") \
+    f( pushpop_or_op, "pushpop_or") \
+    f( pop_or_op, "pop_or") \
+    f( save_b_op, "save_by\t\t%v") \
+    f( commit_b_op, "commit_by\t\t%v") \
+    f( patch_b_op, "patch_by\t\t%v") \
+    f( try_op, "try\t\t%g\t%x") \
+    f( retry_op, "retry\t\t%g\t%x") \
+    f( trust_op, "trust\t\t%g\t%x") \
+    f( try_in_op, "try_in\t\t%g\t%x") \
+    f( jump_v_op, "jump_if_var\t\t%g") \
+    f( jump_nv_op, "jump_if_nonvar\t\t%g") \
+    f( cache_arg_op, "cache_arg\t%r") \
+    f( cache_sub_arg_op, "cache_sub_arg\t%d") \
+    f( user_switch_op, "user_switch") \
+    f( switch_on_type_op, "switch_on_type\t%h\t%h\t%h\t%h") \
+    f( switch_c_op, "switch_on_constant\t%i\n%c") \
+    f( if_c_op, "if_constant\t%i\n%c") \
+    f( switch_f_op, "switch_on_functor\t%i\n%e") \
+    f( if_f_op, "if_functor\t%i\n%e") \
+    f( if_not_op, "if_not_then\t%i\t%h\t%h\t%h") \
+    f( index_dbref_op, "index_on_dbref") \
+    f( index_blob_op, "index_on_blob") \
+    f( index_string_op, "index_on_string") \
+    f( index_long_op, "index_on_blob") \
+    f( if_nonvar_op, "check_var\t %r") \
+    f( save_pair_op, "save_pair\t%v") \
+    f( save_appl_op, "save_appl\t%v") \
+    f( mark_initialised_pvars_op, "pvar_bitmap\t%l,%b") \
+    f( mark_live_regs_op, "pvar_live_regs\t%l,%b") \
+    f( fetch_args_vv_op, "fetch_reg1_reg2\t%N,%N") \
+    f( fetch_args_cv_op, "fetch_constant_reg\t%l,%N") \
+    f( fetch_args_vc_op, "fetch_reg_constant\t%l,%N") \
+    f( fetch_args_iv_op, "fetch_integer_reg\t%d,%N") \
+    f( fetch_args_vi_op, "fetch_reg_integer\t%d,%N") \
+    f( enter_profiling_op, "enter_profiling\t\t%g") \
+    f( retry_profiled_op, "retry_profiled\t\t%g") \
+    f( count_call_op, "count_call_op\t\t%g") \
+    f( count_retry_op, "count_retry_op\t\t%g") \
+    f( restore_tmps_op, "restore_temps\t\t%l") \
+    f( restore_tmps_and_skip_op, "restore_temps_and_skip\t\t%l") \
+    f( enter_lu_op, "enter_lu") \
+    f( empty_call_op, "empty_call\t\t%l,%d") \
+    f( bccall_op, "binary_cfunc\t\t%v,%r,%2") \
+    f( blob_op, "blob\t%O") \
+    f( string_op, "string\t%O") \
+    f( label_ctl_op, "label_control\t")
 #ifdef YAPOR
-  sync_op,
+#define mklist1(f) \
+    mklist0(f) \
+    f( sync_op, "sync")
+#else
+#define mklist1(f) mklist0(f)
 #endif /* YAPOR */
 #ifdef TABLING
-  table_new_answer_op,
-  table_try_single_op,
+#define mklist2(f) \
+    mklist1(f) \
+    f( table_new_answer_op, "table_new_answer") \
+    f( table_try_single_op, "table_try_single\t%g\t%x")
+#else
+#define mklist2(f) mklist1(f)
 #endif /* TABLING */
 #ifdef TABLING_INNER_CUTS
-  clause_with_cut_op,
+#define mklist3(f) \
+    mklist2(f) \
+    f( clause_with_cut_op, "clause_with_cut")
+#else
+#define mklist3(f) mklist2(f)
 #endif /* TABLING_INNER_CUTS */
 #ifdef BEAM
-  run_op,
-  body_op,
-  endgoal_op,
-  try_me_op,
-  retry_me_op,
-  trust_me_op,
-  only_1_clause_op,
-  create_first_box_op,
-  create_box_op,
-  create_last_box_op,
-  remove_box_op,
-  remove_last_box_op,
-  prepare_tries,
-  std_base_op,
-  direct_safe_call_op,
-  commit_op,
-  skip_while_var_op,
-  wait_while_var_op,
-  force_wait_op,
-  write_op,
-  equal_op,
-  exit_op, 
+#define mklist4(f) \
+    mklist3(f) \
+    f( run_op, "run_op %1,%4") \
+    f( body_op, "body_op %1") \
+    f( endgoal_op, "endgoal_op") \
+    f( try_me_op, "try_me_op %1,%4") \
+    f( retry_me_op, "retry_me_op %1,%4") \
+    f( trust_me_op, "trust_me_op %1,%4") \
+    f( only_1_clause_op, "only_1_clause_op %1,%4") \
+    f( create_first_box_op, "create_first_box_op %1,%4") \
+    f( create_box_op, "create_box_op %1,%4") \
+    f( create_last_box_op, "create_last_box_op %1,%4") \
+    f( remove_box_op, "remove_box_op %1,%4") \
+    f( remove_last_box_op, "remove_last_box_op %1,%4" ) \
+    f( prepare_tries, "prepare_tries") \
+    f( std_base_op, "std_base_op %1,%4") \
+    f( direct_safe_call_op, "direct_safe_call") \
+    f( commit_op, ) \
+    f( skip_while_var_op, "skip_while_var_op") \
+    f( wait_while_var_op, "wait_while_var_op") \
+    f( force_wait_op, "force_wait_op") \
+    f( is_op, "is_op") \
+    f( write_op, "write_op") \
+    f( equal_op, "equal_op") \
+    f( exit_op, "exit")
+#else
+#define mklist4(f) mklist3(f)
 #endif
-  fetch_args_for_bccall_op,
-  bccall_op,
-  blob_op,
-  string_op,
-  label_ctl_op
 #ifdef SFUNC
-  ,
-  get_s_f_op,
-  put_s_f_op,
-  unify_s_f_op,
-  write_s_f_op,
-  unify_s_var_op,
-  write_s_var_op,
-  unify_s_val_op,
-  write_s_val_op,
-  unify_s_a_op,
-  write_s_a_op,
-  get_s_end_op,
-  put_s_end_op,
-  unify_s_end_op,
-  write_s_end_op,
+#define mklist(f) \
+    mklist4(f) \
+    f( get_s_f_op, "get_s_f_op\t%f,%r") \
+    f( put_s_f_op, "put_s_f_op\t%f,%r") \
+    f( unify_s_f_op, "unify_s_f_op\t%f") \
+    f( write_s_f_op, "write_s_f_op\t%f") \
+    f( unify_s_var_op, "unify_s_var\t%v,%r") \
+    f( write_s_var_op, "write_s_var\t%v,%r") \
+    f( unify_s_val_op, "unify_s_val\t%v,%r") \
+    f( write_s_val_op, "write_s_val\t%v,%r") \
+    f( unify_s_a_op, "unify_s_a\t%a,%r") \
+    f( write_s_a_op, "write_s_a\t%a,%r") \
+    f( get_s_end_op, "get_s_end") \
+    f( put_s_end_op, "put_s_end") \
+    f( unify_s_end_op, "unify_s_end") \
+    f( write_s_end_op, "write_s_end")
+#else
+#define mklist(f) mklist4(f)
 #endif
 
-} compiler_vm_op;
+#define f_enum(x, y) x,
+#define f_arr(x, y)  y,
+
+enum compiler_op { mklist(f_enum) };
+
+typedef enum compiler_op compiler_vm_op;
+
 
 typedef struct PSEUDO {
 	struct PSEUDO *nextInst;
@@ -228,6 +253,10 @@ typedef struct PSEUDO {
 #define rnd2  ops.oprnd2
 #define rnd3  ops.opseqt[1]
 #define rnd4  ops.opseqt[2]
+#define rnd5  ops.opseqt[3]
+#define rnd6  ops.opseqt[4]
+#define rnd7  ops.opseqt[5]
+#define rnd8  ops.opseqt[6]
 
 typedef struct VENTRY {
   CELL SelfOfVE;
@@ -325,8 +354,8 @@ typedef enum special_label_op_enum {
 #define save_appl_flag	   0x10002
 #define save_pair_flag	   0x10004
 #define f_flag		   0x10008
-#define bt1_flag	   0x10010
-#define bt2_flag	   0x10020
+#define bt_flag		   0x10010
+#define bt2_flag	   0x10020 // unused
 #define patch_b_flag	   0x10040
 #define init_v_flag	   0x10080
 
@@ -340,6 +369,9 @@ yamop  *Yap_assemble(int,Term,struct pred_entry *,int, struct intermediates *, U
 void	Yap_emit(compiler_vm_op,Int,CELL, struct intermediates *);
 void	Yap_emit_3ops(compiler_vm_op,CELL,CELL,CELL, struct intermediates *);
 void	Yap_emit_4ops(compiler_vm_op,CELL,CELL,CELL,CELL, struct intermediates *);
+void	Yap_emit_5ops(compiler_vm_op,CELL,CELL,CELL,CELL,CELL, struct intermediates *);
+void	Yap_emit_6ops(compiler_vm_op,CELL,CELL,CELL,CELL,CELL,CELL, struct intermediates *);
+void	Yap_emit_7ops(compiler_vm_op,CELL,CELL,CELL,CELL,CELL,CELL,CELL, struct intermediates *);
 CELL   *Yap_emit_extra_size(compiler_vm_op,CELL,int, struct intermediates *);
 char   *Yap_AllocCMem(UInt, struct intermediates *);
 void    Yap_ReleaseCMem(struct intermediates *);
