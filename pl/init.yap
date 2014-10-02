@@ -118,10 +118,10 @@ otherwise.
 :- bootstrap('os.yap').
 :- bootstrap('absf.yap').
 
-:- [	 'utils.yap',
+:- [	 'directives.yap',
+	 'utils.yap',
 	 'control.yap',
 	 'arith.yap',
-	 'directives.yap',
 	 'flags.yap'
    ].
 

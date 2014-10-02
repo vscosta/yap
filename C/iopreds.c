@@ -199,6 +199,14 @@ Yap_DebugPutc(int sno, wchar_t ch)
   return (Sputc(ch, GLOBAL_stderr));
 }
 
+static int 
+Yap_DebugPuts(int sno, const char * s)
+{
+  if (GLOBAL_Option['l' - 96])
+    (void) fputs(s, GLOBAL_logfile);
+  return (Sfputs(s, GLOBAL_stderr));
+}
+
 void
 Yap_DebugPlWrite(Term t)
 {
@@ -210,6 +218,13 @@ Yap_DebugErrorPutc(int c)
 {
   CACHE_REGS
    Yap_DebugPutc (LOCAL_c_error_stream, c);
+}
+
+void 
+Yap_DebugErrorPuts(const char *s)
+{
+  CACHE_REGS
+   Yap_DebugPuts (LOCAL_c_error_stream, s);
 }
 
 #endif

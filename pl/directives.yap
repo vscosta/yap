@@ -93,16 +93,17 @@
 '$directive'(use_module(_,_,_)).
 '$directive'(wait(_)).
 
-'$exec_directives'((G1,G2), Mode, M, VL, Pos) :- !,
-	'$exec_directives'(G1, Mode, M, VL, Pos),
-	'$exec_directives'(G2, Mode, M, VL, Pos).
+'$exec_directives'((G1,G2), Mode, M, VL, Pos) :- 
+    !,
+    '$exec_directives'(G1, Mode, M, VL, Pos),
+    '$exec_directives'(G2, Mode, M, VL, Pos).
 '$exec_directives'(G, Mode, M, VL, Pos) :-
     '$save_directive'(G, Mode, M, VL, Pos),
     '$exec_directive'(G, Mode, M, VL, Pos).
 
 '$save_directive'(G, Mode, M, VL, Pos) :-
     prolog_load_context(file, FileName), !,
-    recorda('$directive', directive(File,M:G, Mode, VL, Pos),_).
+    recordz('$directive', directive(FileName,M:G, Mode, VL, Pos),_).
 
 '$exec_directive'(multifile(D), _, M, _, _) :-
 	'$system_catch'('$multifile'(D, M), M,

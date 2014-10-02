@@ -157,6 +157,23 @@ following flags:
     If true, raise an error if the file is not a module file. Used by
     ` use_module/1 and use_module/2.
 
++ qcompile(+ _Value_)
+  
+    SWI-Prolog flag that controls whether loaded files should be also
+    compiled into `qly` files. The default value is obtained from the flag
+    `qcompile`:
+
+   `never`, no `qly` file is generated unless the user calls
+ qsave_file/1 and friends, or sets the qcompile option in
+ load_files/2; 
+
+  `auto`, all files are qcompiled.
+
+  `large`, files above 100KB are qcompiled.
+
+  `part`, not supported in YAP.
+
+
 + autoload(+ _Autoload_)
   
     SWI-compatible option where if _Autoload_ is `true` undefined
@@ -175,7 +192,7 @@ following flags:
 				% expand(true,false)
 % if(changed,true,not_loaded) => implemented
 % imports(all,List) => implemented
-% qcompile(true,false)
+% qcompile() => implemented
 % silent(true,false)  => implemented
 % stream(Stream)  => implemented
 % consult(consult,reconsult,exo,db) => implemented
@@ -191,7 +208,8 @@ load_files(Files,Opts) :-
 '$lf_option'(expand, 4, false).
 '$lf_option'(if, 5, true).
 '$lf_option'(imports, 6, all).
-'$lf_option'(qcompile, 7, never).
+'$lf_option'(qcompile, 7, Current) :-
+    '$nb_getval'('$qcompile', Current, Current = never).
 '$lf_option'(silent, 8, _).
 '$lf_option'(skip_unix_header, 9, false).
 '$lf_option'(compilation_mode, 10, source).
@@ -315,9 +333,11 @@ load_files(Files,Opts) :-
 	    is_list(Val) -> ( ground(Val) -> true ; '$do_error'(instantiation_error,Call) ) ;
 	    '$do_error'(domain_error(unimplemented_option,imports(Val)),Call) ).
 '$process_lf_opt'(qcompile, Val,Call) :-
-	( Val == true -> '$do_error'(domain_error(unimplemented_option,expand),Call) ;
-	    Val == false -> true ;
-	    '$do_error'(domain_error(unimplemented_option,expand(Val)),Call) ).
+	( Val == part -> '$do_error'(domain_error(unimplemented_option,expand),Call) ;
+	    Val == never -> true ;
+	    Val == auto -> true ;
+	    Val == large -> true ;
+	    '$do_error'(domain_error(unknown_option,qcompile(Val)),Call) ).
 '$process_lf_opt'(silent, Val, Call) :-
 	( Val == false -> true ;
 	    Val == true -> true ;
@@ -327,19 +347,19 @@ load_files(Files,Opts) :-
 	    Val == true -> true ;
 	    '$do_error'(domain_error(unimplemented_option,skip_unix_header(Val)),Call) ).
 '$process_lf_opt'(compilation_mode, Val, Call) :-
-( Val == source -> true ;
-	    Val == compact -> true ;
-	    Val == assert_all -> true ;
-	    '$do_error'(domain_error(unimplemented_option,compilation_mode(Val)),Call) ).
+    ( Val == source -> true ;
+      Val == compact -> true ;
+      Val == assert_all -> true ;
+      '$do_error'(domain_error(unimplemented_option,compilation_mode(Val)),Call) ).
 '$process_lf_opt'(consult, Val , Call) :-
-	( Val == reconsult -> true ;
-	    Val == consult -> true ;
-	    Val == exo -> true ;
-	    Val == db -> true ;
-	    '$do_error'(domain_error(unimplemented_option,consult(Val)),Call) ).
+    ( Val == reconsult -> true ;
+      Val == consult -> true ;
+      Val == exo -> true ;
+      Val == db -> true ;
+      '$do_error'(domain_error(unimplemented_option,consult(Val)),Call) ).
 '$process_lf_opt'(reexport, Val , Call) :-
 	( Val == true -> true ;
-	    Val == false -> true ;
+	  Val == false -> true ;
 	    '$do_error'(domain_error(unimplemented_option,reexport(Val)),Call) ).
 '$process_lf_opt'(must_be_module, Val , Call) :-
 	( Val == true -> true ;
@@ -396,23 +416,54 @@ load_files(Files,Opts) :-
 	b_setval('$source_file', user_input),
 	'$do_lf'(Mod, user_input, user_input, TOpts).
 '$lf'(File, Mod, Call, TOpts) :-
-	'$lf_opt'(stream, TOpts, Stream),
-	b_setval('$source_file', File),
-	( var(Stream) ->
+    '$lf_opt'(stream, TOpts, Stream),
+    var( Stream ),
+    H0 is heapused, '$cputime'(T0,_),
+    % check if there is a qly files
+    '$absolute_file_name'(File,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)],F,load_files(File)),
+    open( F, read, Stream , [type(binary)] ),
+    ( '$q_header'( Stream, Type ),
+       Type == file
+    ->
+       time_file64(F, T0F), 
+       '$absolute_file_name'(File,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],FilePl,load_files(File)),
+       time_file64(FilePl, T0Fl),
+       T0F >= T0Fl,
+       !,
+       file_directory_name(F, Dir),
+       working_directory(OldD, Dir),
+       '$msg_level'( TOpts, Verbosity),
+       '$lf_opt'(imports, TOpts, ImportList),
+       '$qload_file'(Stream, Mod, F, FilePl, File, ImportList),
+       close( Stream ),
+       H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
+       '$current_module'(M, Mod),
+       working_directory( _, OldD),
+       print_message(Verbosity, loaded( loaded, F, M, T, H)),
+       '$exec_initialisation_goals'
+    ;
+       close( Stream),
+       fail
+    ).
+'$lf'(File, Mod, Call, TOpts) :-
+    '$lf_opt'(stream, TOpts, Stream),
+    b_setval('$source_file', File),
+    ( var(Stream) ->
 	  /* need_to_open_file */
 	  '$full_filename'(File, Y, Call),
 	  open(Y, read, Stream)
         ;
-	  true
-        ), !,
-	'$lf_opt'(reexport, TOpts, Reexport),
-	'$lf_opt'(if, TOpts, If),
-	( var(If) -> If = true ; true ),
-	'$lf_opt'(imports, TOpts, Imports),
-	'$start_lf'(If, Mod, Stream, TOpts, File, Reexport, Imports),
-	close(Stream).
+	stream_property(Stream, file_name(Y))
+    ), !,
+    '$lf_opt'(reexport, TOpts, Reexport),
+    '$lf_opt'(if, TOpts, If),
+    ( var(If) -> If = true ; true ),
+    '$lf_opt'(imports, TOpts, Imports),
+    '$start_lf'(If, Mod, Stream, TOpts, File, Reexport, Imports),
+    character_count(Stream, Pos),
+    close(Stream). 
 '$lf'(X, _, Call, _) :-
-	'$do_error'(permission_error(input,stream,X),Call).
+    '$do_error'(permission_error(input,stream,X),Call).
 
 '$start_lf'(not_loaded, Mod, Stream, TOpts, UserFile, Reexport,Imports) :-
 	'$file_loaded'(Stream, Mod, Imports, TOpts), !,
@@ -587,6 +638,9 @@ db_files(Fs) :-
 	'$lf_opt'('$context_module', TOpts, ContextModule),
 	'$lf_opt'(reexport, TOpts, Reexport),
 	'$msg_level'( TOpts, Verbosity),
+	'$lf_opt'(qcompile, TOpts, QCompiling),
+	'$nb_getval'('$qcompile', ContextQCompiling, ContextQCompiling = never),
+	nb_setval('$qcompile', QCompiling),
 %	format( 'I=~w~n', [Verbosity=UserFile] ),
 	'$lf_opt'(encoding, TOpts, Encoding),
 	'$set_encoding'(Stream, Encoding),
@@ -618,18 +672,22 @@ db_files(Fs) :-
 	    StartMsg = consulting,
 	    EndMsg = consulted
 	),
-	print_message(Verbosity, loading(StartMsg, File)),
+	print_message(Verbosity, loading(StartMsg, UserFile)),
 	'$lf_opt'(skip_unix_header , TOpts, SkipUnixHeader),
-	( SkipUnixHeader == true->
+	( SkipUnixHeader == true
+	    ->
 	    '$skip_unix_header'(Stream)
-	;
+	  ;
 	    true
-	),
-	'$loop'(Stream,Reconsult),
+	  ),
+	 '$loop'(Stream,Reconsult),
+	 '$lf_opt'(imports, TOpts, Imports),
+	 '$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
+	 '$end_consult',
+	 '$q_do_save_file'(File, UserFile, ContextModule, TOpts ),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	'$current_module'(Mod, SourceModule),
 	print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
-	'$end_consult',
 	( 
 	    Reconsult = reconsult ->
 	    '$clear_reconsulting'
@@ -646,13 +704,20 @@ db_files(Fs) :-
 	nb_setval('$if_level',OldIfLevel),
 	'$lf_opt'('$use_module', TOpts, UseModule),
 	'$bind_module'(Mod, UseModule),
-	'$lf_opt'(imports, TOpts, Imports),
-	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
 	'$reexport'( TOpts, ParentF, Reexport, Imports, File ),
+	nb_setval('$qcompile', ContextQCompiling),
 	( LC == 0 -> prompt(_,'   |: ') ; true),
 	'$exec_initialisation_goals',
 	% format( 'O=~w~n', [Mod=UserFile] ),
 	!.
+
+'$q_do_save_file'(File, UserF, ContextModule, TOpts ) :-
+    '$lf_opt'(qcompile, TOpts, QComp), 
+    ( QComp ==  auto ; QComp == large,  Pos > 100*1024),
+    '$absolute_file_name'(UserF,[file_type(qly),solutions(first),expand(true)],F,load_files(File)),
+    !,
+    '$qsave_file_'( File, UserF, F ).
+'$q_do_save_file'(_File, _, _ContextModule, _TOpts ).
 
 % are we in autoload and autoload_flag is false?
 '$msg_level'( TOpts, Verbosity) :-
@@ -687,12 +752,11 @@ db_files(Fs) :-
 '$bind_module'(Mod, use_module(Mod)).
 
 '$import_to_current_module'(File, ContextModule, Imports, RemainingImports, TOpts) :-
-	\+ recorded('$module','$module'(File, _Module, _,  _ModExports, _),_),
+	\+ recorded('$module','$module'(File, _Module, _, _ModExports, _),_),
 	% enable loading C-predicates from a different file
 	recorded( '$load_foreign_done', [File, M0], _),
 	'$import_foreign'(File, M0, ContextModule ),
 	fail.
-
 '$import_to_current_module'(File, ContextModule, Imports, RemainingImports, TOpts) :-
 	recorded('$module','$module'(File, Module, _Source, ModExports, _),_),
 	Module \= ContextModule, !,
@@ -836,59 +900,50 @@ source_file(Mod:Pred, FileName) :-
 Obtain information on what is going on in the compilation process. The
 following keys are available:
 
++ directory  (prolog_load_context/2 option)
 
-
-+ directory 
-
-
-
-Full name for the directory where YAP is currently consulting the
+    Full name for the directory where YAP is currently consulting the
 file.
 
-+ file 
++ file  (prolog_load_context/2 option)
 
-
-
-Full name for the file currently being consulted. Notice that included
+    Full name for the file currently being consulted. Notice that included
 filed are ignored.
 
-+ module 
++ module  (prolog_load_context/2 option)
 
-
-
-Current source module.
+    Current source module.
 
 + `source` (prolog_load_context/2 option) 
 
     Full name for the file currently being read in, which may be consulted,
 reconsulted, or included.
 
-+ `stream` 
++ `stream`  (prolog_load_context/2 option)
 
     Stream currently being read in.
 
-+ `term_position` 
++ `term_position`  (prolog_load_context/2 option)
 
     Stream position at the stream currently being read in. For SWI
 compatibility, it is a term of the form
-'$stream_position'(0,Line,0,0,0).
+'$stream_position'(0,Line,0,0).
 
-
-+ `source_location(? _FileName_, ? _Line_)` 
++ `source_location(? _FileName_, ? _Line_)`   (prolog_load_context/2 option)
 
     SWI-compatible predicate. If the last term has been read from a physical file (i.e., not from the file user or a string), unify File with an absolute path to the file and Line with the line-number in the file. Please use prolog_load_context/2.
 
-+ `source_file(? _File_)`
++ `source_file(? _File_)`  (prolog_load_context/2 option)
 
     SWI-compatible predicate. True if  _File_ is a loaded Prolog source file.
 
-+ `source_file(? _ModuleAndPred_,? _File_)`
++ `source_file(? _ModuleAndPred_,? _File_)`  (prolog_load_context/2 option)
 
     SWI-compatible predicate. True if the predicate specified by  _ModuleAndPred_ was loaded from file  _File_, where  _File_ is an absolute path name (see `absolute_file_name/2`).
 
+*/
 
-
-@section YAPLibraries Library Predicates
+/** @addgroup YAPLibraries Library Predicates
 
 Library files reside in the library_directory path (set by the
 `LIBDIR` variable in the Makefile for YAP). Currently,
@@ -919,7 +974,14 @@ prolog_load_context(term_position, Position) :-
 % if the file exports a module, then we can
 % be imported from any module.
 '$file_loaded'(Stream, M, Imports, TOpts) :-
-	'$file_name'(Stream, F),
+	'$file_name'(Stream, F0),
+	( 
+	    atom_concat(Prefix, '.qly', F0 )
+	->
+            '$absolute_file_name'(Prefix,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],F,load_files(Prefix))
+        ;
+           F0 = F
+        ),
 	'$ensure_file_loaded'(F, M, F1),
 %	format( 'IL=~w~n', [(F1:Imports->M)] ),
 	'$import_to_current_module'(F1, M, Imports, _, TOpts).
@@ -960,7 +1022,8 @@ prolog_load_context(term_position, Position) :-
 % inform the file has been loaded and is now available.
 '$loaded'(Stream, UserFile, M, OldF, Line, Reconsult, F, Dir, Opts) :-
 	'$file_name'(Stream, F0),
-	( F0 == user_input, nonvar(UserFile) -> UserFile = F ; F = F0 ),
+	( F0 == user_input, nonvar(UserFile) -> UserFile = F 
+	  ; F = F0 ),
 	( F == user_input -> working_directory(Dir,Dir) ; file_directory_name(F, Dir) ),
 	nb_setval('$consulting_file', F ),
 	( Reconsult \== consult, Reconsult \== not_loaded, Reconsult \== changed, recorded('$lf_loaded','$lf_loaded'(F, _,_),R), erase(R), fail ; var(Reconsult) -> Reconsult = consult ; true ),
@@ -1070,6 +1133,52 @@ source_file_property( File0, Prop) :-
 	recorded('$lf_loaded','$lf_loaded'( F, Age, _), _).
 '$source_file_property'( F, module(M)) :-
 	recorded('$module','$module'(F,M,_,_,_),_).
+
+unload_file( F0 ) :-
+    absolute_file_name( F0, F1, [expand(true),file_type(prolog)] ),
+    '$unload_file'( F1, F0 ).
+
+% eliminate multi-files;
+% get rid of file-only predicataes.
+'$unload_file'( FileName, _F0 ) :-
+    '$current_predicate_var'(A,Mod,P).
+    '$owner_file'(P,Mod,FileName),
+    \+ '$is_multifile'(P,Mod),
+    functor( P, Na, Ar),
+    abolish(Mod:Na/Ar),
+    fail.
+%next multi-file.
+'$unload_file'( FileName, _F0 ) :-
+    recorded('$lf_loaded','$lf_loaded'( F, Age, _), R),
+    erase(R),
+    fail.
+'$unload_file'( FileName, _F0 ) :-
+    recorded('$mf','$mf_clause'(FileName,_Name,_Arity,_Module,ClauseRef), R),
+    erase(R),
+    erase(ClauseRef),
+    fail.
+'$unload_file'( FileName, _F0 ) :-
+    recorded('$multifile_dynamic'(_,_,_), '$mf'(Na,A,M,FFileName,R), R1),
+    erase(R1),
+    erase(R),
+    fail.
+'$unload_file'( FileName, _F0 ) :-
+    recorded('$multifile_defs','$defined'(FileName,Name,Arity,Mod), R),
+    erase(R),
+    fail.
+'$unload_file'( FileName, _F0 ) :-
+    recorded('$multifile_defs','$defined'(FileName,Name,Arity,Mod), R),
+    erase(R),
+    fail.
+'$unload_file'( FileName, _F0 ) :-
+    recorded('$module','$module'( FileName, Mod, _SourceF, _, _), R),
+    erase( R ),
+    unload_module(Mod),	
+    fail.
+'$unload_file'( FileName, _F0 ) :-
+    recorded('$directive','$d'( FileName, _M:_G, _Mode,  _VL, _Pos ), R),
+    erase(R),
+    fail.
 
 
 /**
@@ -1369,12 +1478,6 @@ input.  Typical usage scenarios include:
 part of the code due to different capabilities.
 
     Realise different configuration options for your software.
-
-
-
-
-
-
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 :- if(test1).

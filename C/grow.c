@@ -1079,8 +1079,6 @@ fix_compiler_instructions(PInstr *pcpc USES_REGS)
     case write_local_op:
     case f_var_op:
     case f_val_op:
-    case fetch_args_for_bccall_op:
-    case bccall_op:
     case save_pair_op:
     case save_appl_op:
     case save_b_op:
@@ -1089,6 +1087,10 @@ fix_compiler_instructions(PInstr *pcpc USES_REGS)
     case fetch_args_cv_op:
     case fetch_args_vc_op:
       pcpc->rnd1 = GlobalAdjust(pcpc->rnd1);
+      break;
+    case bccall_op:
+      pcpc->rnd1 = GlobalAdjust(pcpc->rnd1);
+      pcpc->rnd3 = GlobalAdjust(pcpc->rnd3);
       break;
     case get_float_op:
     case put_float_op:

@@ -1370,7 +1370,15 @@ p_nb_getval( USES_REGS1 )
   }
   ge = FindGlobalEntry(AtomOfTerm(t) PASS_REGS);
   if (!ge) {
-    return Yap_unify(TermNil, ARG3);
+    Term t3 = Deref(ARG3);
+    if (IsVarTerm(t3)) 
+      return FALSE;
+    if (IsApplTerm(t3)) {
+      if (FunctorOfTerm(t3) == FunctorEq)
+	return Yap_unify( ArgOfTerm(1, t3) , ArgOfTerm(2, t3) );
+      return FALSE;
+    }
+    return Yap_unify(t3, MkAtomTerm(AtomTrue));
   }
   READ_LOCK(ge->GRWLock);
   to = ge->global;

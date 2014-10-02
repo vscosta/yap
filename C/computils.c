@@ -66,9 +66,6 @@ static char SccsId[] = "%W% %G%";
 #include <string.h>
 #endif
 
-#ifdef DEBUG
-static void ShowOp(const char *, struct PSEUDO *);
-#endif /* DEBUG */
 
 /*
  * The compiler creates an instruction chain which will be assembled after
@@ -288,6 +285,72 @@ Yap_emit_4ops (compiler_vm_op o, CELL r1, CELL r2, CELL r3, CELL r4, struct inte
     }
 }
 
+void
+Yap_emit_5ops (compiler_vm_op o, CELL r1, CELL r2, CELL r3, CELL r4, CELL r5, struct intermediates *cip)
+{
+  PInstr *p;
+  p = (PInstr *) AllocCMem (sizeof (*p)+3*sizeof(CELL), cip);
+  p->op = o;
+  p->rnd1 = r1;
+  p->rnd2 = r2;
+  p->rnd3 = r3;
+  p->rnd4 = r4;
+  p->rnd5 = r5;
+  p->nextInst = NIL;
+  if (cip->cpc == NIL)
+    cip->cpc = cip->CodeStart = p;
+  else
+    {
+      cip->cpc->nextInst = p;
+      cip->cpc = p;
+    }
+}
+
+void
+Yap_emit_6ops (compiler_vm_op o, CELL r1, CELL r2, CELL r3, CELL r4, CELL r5, CELL r6, struct intermediates *cip)
+{
+  PInstr *p;
+  p = (PInstr *) AllocCMem (sizeof (*p)+4*sizeof(CELL), cip);
+  p->op = o;
+  p->rnd1 = r1;
+  p->rnd2 = r2;
+  p->rnd3 = r3;
+  p->rnd4 = r4; 
+  p->rnd5 = r5;
+  p->rnd6 = r6;
+  p->nextInst = NIL;
+  if (cip->cpc == NIL)
+    cip->cpc = cip->CodeStart = p;
+  else
+    {
+      cip->cpc->nextInst = p;
+      cip->cpc = p;
+    }
+}
+
+void
+Yap_emit_7ops (compiler_vm_op o, CELL r1, CELL r2, CELL r3, CELL r4, CELL r5, CELL r6, CELL r7, struct intermediates *cip)
+{
+  PInstr *p;
+  p = (PInstr *) AllocCMem (sizeof (*p)+5*sizeof(CELL), cip);
+  p->op = o;
+  p->rnd1 = r1;
+  p->rnd2 = r2;
+  p->rnd3 = r3;
+  p->rnd4 = r4; 
+  p->rnd5 = r5;
+  p->rnd6 = r6;
+  p->rnd7 = r7;
+  p->nextInst = NIL;
+  if (cip->cpc == NIL)
+    cip->cpc = cip->CodeStart = p;
+  else
+    {
+      cip->cpc->nextInst = p;
+      cip->cpc = p;
+    }
+}
+
 CELL *
 Yap_emit_extra_size (compiler_vm_op o, CELL r1, int size, struct intermediates *cip)
 {
@@ -415,12 +478,49 @@ write_address(CELL address)
     sprintf(buf,"%p",(void *)address);
 #endif
     p[31] = '\0'; /* so that I don't have to worry */
-    Yap_DebugErrorPutc('0');
-    Yap_DebugErrorPutc('x');
+    //Yap_DebugErrorPutc('0');
+    //Yap_DebugErrorPutc('x');
     while (*p != '\0') {
       Yap_DebugErrorPutc(*p++);
     }
   }
+}
+
+static void
+write_special_label(special_label_op arg, special_label_id rn, UInt lab)
+{
+  switch (arg) {
+  case SPECIAL_LABEL_INIT:
+    Yap_DebugErrorPuts("init,");
+    switch (rn) {
+    case SPECIAL_LABEL_EXCEPTION:
+      Yap_DebugErrorPuts("exception,");
+      break;
+    case SPECIAL_LABEL_SUCCESS:
+       Yap_DebugErrorPuts("success,");
+      break;
+    case SPECIAL_LABEL_FAILURE:
+      Yap_DebugErrorPuts("fail,");
+      break;
+    }
+    write_address(lab);
+  case SPECIAL_LABEL_SET:
+    Yap_DebugErrorPuts("set,");
+    break;
+  case SPECIAL_LABEL_CLEAR:
+    Yap_DebugErrorPuts("clear,");
+    switch (rn) {
+    case SPECIAL_LABEL_EXCEPTION:
+      Yap_DebugErrorPuts("exception");
+      break;
+    case SPECIAL_LABEL_SUCCESS:
+       Yap_DebugErrorPuts("success");
+      break;
+    case SPECIAL_LABEL_FAILURE:
+      Yap_DebugErrorPuts("fail");
+      break;
+    }
+  }    
 }
 
 static void
@@ -445,14 +545,38 @@ write_functor(Functor f)
   }
 }
 
-static void
-ShowOp (const char *f, struct PSEUDO *cpc)
+char *opDesc[] = { mklist(f_arr) };
+
+static void send_pred(PredEntry *p)
 {
+  Functor f = p->FunctorOfPred;
+  UInt arity = p->ArityOfPE;
+             Term mod = TermProlog;
+
+            if (p->ModuleOfPred) mod = p->ModuleOfPred;
+             Yap_DebugPlWrite (mod);
+             Yap_DebugErrorPutc (':');
+             if (arity == 0)
+               Yap_DebugPlWrite (MkAtomTerm ((Atom)f));
+            else
+              Yap_DebugPlWrite (MkAtomTerm (NameOfFunctor (f)));
+             Yap_DebugErrorPutc ('/');
+            Yap_DebugPlWrite (MkIntTerm (arity));
+}
+
+
+static void
+ShowOp (compiler_vm_op ic, const char *f, struct PSEUDO *cpc)
+{
+  CACHE_REGS
   char ch;
   Int arg = cpc->rnd1;
   Int rn = cpc->rnd2;
   CELL *cptr = cpc->arnds;
 
+  if (ic != label_op && ic != label_ctl_op && ic != name_op) {
+    Yap_DebugErrorPutc ('\t');
+  }
   while ((ch = *f++) != 0)
     {
       if (ch == '%')
@@ -466,6 +590,19 @@ ShowOp (const char *f, struct PSEUDO *cpc)
 		Yap_DebugPlWrite(MkIntTerm(arg));
 		break;
 #endif
+	  case '2':
+	    {
+	      Ventry *v = (Ventry *) cpc->rnd3;
+	      Yap_DebugErrorPutc (v->KindOfVE == PermVar ? 'Y' : 'X');
+	      Yap_DebugPlWrite (MkIntTerm ((v->NoOfVE) & MaskVarAdrs));
+	      Yap_DebugErrorPutc (',');
+	      Yap_DebugErrorPutc ('A');
+	      Yap_DebugPlWrite (MkIntegerTerm (cpc->rnd4));
+	      Yap_DebugErrorPutc (',');
+	      send_pred( RepPredProp((Prop)(cpc->rnd5)) );
+	    }
+	    break;
+
 	  case 'a':
 	  case 'n':
 	  case 'S':
@@ -474,7 +611,6 @@ ShowOp (const char *f, struct PSEUDO *cpc)
 	  case 'b':
 	    /* write a variable bitmap for a call */
 	    {
-	      CACHE_REGS
 	      int max = arg/(8*sizeof(CELL)), i;
 	      CELL *ptr = cptr;
 	      for (i = 0; i <= max; i++) {
@@ -485,6 +621,9 @@ ShowOp (const char *f, struct PSEUDO *cpc)
 	  case 'l':
 	    write_address (arg);
 	    break;
+	  case 'L':
+	    write_special_label (arg, rn, cpc->rnd3);
+	    break;
 	  case 'B':
 	    {
 	      char s[32];
@@ -494,10 +633,7 @@ ShowOp (const char *f, struct PSEUDO *cpc)
 	    }
 	    break;
 	  case 'd':
-	    {
-	      CACHE_REGS
-	      Yap_DebugPlWrite (MkIntegerTerm (arg));
-	    }
+	    Yap_DebugPlWrite (MkIntegerTerm (arg));
 	    break;
 	  case 'z':
 	    Yap_DebugPlWrite (MkIntTerm (cpc->rnd3));
@@ -520,50 +656,17 @@ ShowOp (const char *f, struct PSEUDO *cpc)
 	      Yap_DebugPlWrite (MkIntTerm ((v->NoOfVE) & MaskVarAdrs));
 	    }
 	    break;
-	  case 'm':
-	    Yap_DebugPlWrite (MkAtomTerm ((Atom) arg));
-	    Yap_DebugErrorPutc ('/');
-	    Yap_DebugPlWrite (MkIntTerm (rn));
-	    break;
+         case 'm':
+           Yap_DebugPlWrite (MkAtomTerm ((Atom) arg));
+           Yap_DebugErrorPutc ('/');
+           Yap_DebugPlWrite (MkIntTerm (rn));
+           break;
 	  case 'p':
-	    {
-	      PredEntry *p = RepPredProp ((Prop) arg);
-	      Functor f = p->FunctorOfPred;
-	      UInt arity = p->ArityOfPE;
-	      Term mod;
-
-	      if (p->ModuleOfPred)
-		mod = p->ModuleOfPred;
-	      else
-		mod = TermProlog;
-	      Yap_DebugPlWrite (mod);
-	      Yap_DebugErrorPutc (':');
-	      if (arity == 0)
-		Yap_DebugPlWrite (MkAtomTerm ((Atom)f));
-	      else
-		Yap_DebugPlWrite (MkAtomTerm (NameOfFunctor (f)));
-	      Yap_DebugErrorPutc ('/');
-	      Yap_DebugPlWrite (MkIntTerm (arity));
-	    }
-	    break;
-	  case 'P':
-	    {
-	      PredEntry *p = RepPredProp((Prop) rn);
-	      Functor f = p->FunctorOfPred;
-	      UInt arity = p->ArityOfPE;
-	      Term mod = TermProlog;
-
-	      if (p->ModuleOfPred) mod = p->ModuleOfPred;
-	      Yap_DebugPlWrite (mod);
-	      Yap_DebugErrorPutc (':');
-	      if (arity == 0)
-		Yap_DebugPlWrite (MkAtomTerm ((Atom)f));
-	      else
-		Yap_DebugPlWrite (MkAtomTerm (NameOfFunctor (f)));
-	      Yap_DebugErrorPutc ('/');
-	      Yap_DebugPlWrite (MkIntTerm (arity));
-	    }
-	    break;
+	   send_pred( RepPredProp((Prop)(arg) ));
+           break;
+         case 'P':
+	   send_pred( RepPredProp((Prop)(rn) ));
+           break;
 	  case 'f':
 	    write_functor((Functor)arg);
 	    break;
@@ -667,342 +770,6 @@ ShowOp (const char *f, struct PSEUDO *cpc)
   Yap_DebugErrorPutc ('\n');
 }
 
-static const char *
-getFormat(compiler_vm_op ic) {
-  switch( ic ) {
-  case nop_op:
-    return "nop";
-  case get_var_op:
-    return "get_var\t\t%v,%r";
-  case put_var_op:
-    return  "put_var\t\t%v,%r";
-  case get_val_op:
-    return "get_val\t\t%v,%r";
-  case put_val_op:
-    return "put_val\t\t%v,%r";
-  case get_atom_op:
-    return "get_atom\t%a,%r";
-  case put_atom_op:
-    return "put_atom\t%a,%r";
-  case get_num_op:
-    return "get_num\t\t%n,%r";
-  case put_num_op:
-    return "put_num\t\t%n,%r";
-  case get_float_op:
-    return "get_float\t\t%w,%r";
-  case put_float_op:
-    return "put_float\t\t%w,%r";
-  case get_string_op:
-    return "get_string\t\t%w,%S";
-  case put_string_op:
-    return "put_string\t\t%w,%S";
-  case get_dbterm_op:
-    return "get_dbterm\t%w,%r";
-  case put_dbterm_op:
-    return "put_dbterm\t%w,%r";
-  case get_longint_op:
-    return "get_longint\t\t%w,%r";
-  case put_longint_op:
-    return "put_longint\t\t%w,%r";
-  case get_bigint_op:
-    return "get_bigint\t\t%l,%r";
-  case put_bigint_op:
-    return "put_bigint\t\t%l,%r";
-  case get_list_op:
-    return "get_list\t%r";
-  case put_list_op:
-    return "put_list\t%r";
-  case get_struct_op:
-    return "get_struct\t%f,%r";
-  case put_struct_op:
-    return "put_struct\t%f,%r";
-  case put_unsafe_op:
-    return "put_unsafe\t%v,%r";
-  case unify_var_op:
-    return "unify_var\t%v";
-  case write_var_op:
-    return "write_var\t%v";
-  case unify_val_op:
-    return "unify_val\t%v";
-  case write_val_op:
-    return "write_val\t%v";
-  case unify_atom_op:
-    return "unify_atom\t%a";
-  case write_atom_op:
-    return "write_atom\t%a";
-  case unify_num_op:
-    return "unify_num\t%n";
-  case write_num_op:
-    return "write_num\t%n";
-  case unify_float_op:
-    return "unify_float\t%w";
-  case write_float_op:
-    return "write_float\t%w";
-  case unify_string_op:
-    return "unify_string\t%S";
-  case write_string_op:
-    return "write_string\t%S";
-  case unify_dbterm_op:
-    return "unify_dbterm\t%w";
-  case write_dbterm_op:
-    return "write_dbterm\t%w";
-  case unify_longint_op:
-    return "unify_longint\t%w";
-  case write_longint_op:
-    return "write_longint\t%w";
-  case unify_bigint_op:
-    return "unify_bigint\t%l";
-  case write_bigint_op:
-    return "write_bigint\t%l";
-  case unify_list_op:
-    return "unify_list";
-  case write_list_op:
-    return "write_list";
-  case unify_struct_op:
-    return "unify_struct\t%f";
-  case write_struct_op:
-    return "write_struct\t%f";
-  case write_unsafe_op:
-    return "write_unsafe\t%v";
-  case unify_local_op:
-    return "unify_local\t%v";
-  case write_local_op:
-    return "write local\t%v";
-  case unify_last_list_op:
-    return "unify_last_list";
-  case write_last_list_op:
-    return "write_last_list";
-  case unify_last_struct_op:
-    return "unify_last_struct\t%f";
-  case write_last_struct_op:
-    return "write_last_struct\t%f";
-  case unify_last_var_op:
-    return "unify_last_var\t%v";
-  case unify_last_val_op:
-    return "unify_last_val\t%v";
-  case unify_last_local_op:
-    return "unify_last_local\t%v";
-  case unify_last_atom_op:
-    return "unify_last_atom\t%a";
-  case unify_last_num_op:
-    return "unify_last_num\t%n";
-  case unify_last_float_op:
-     return "unify_last_float\t%w";
-  case unify_last_string_op:
-     return "unify_last_string\t%S";
-  case unify_last_dbterm_op:
-    return "unify_last_dbterm\t%w";
-  case unify_last_longint_op:
-    return "unify_last_longint\t%w";
-  case unify_last_bigint_op:
-    return "unify_last_bigint\t%l";
-  case ensure_space_op:
-    return "ensure_space";
-  case native_op:
-    return "native_code";
-  case f_var_op:
-    return "function_to_var\t%v,%B";
-  case f_val_op:
-    return "function_to_val\t%v,%B";
-  case f_0_op:
-    return "function_to_0\t%B";
-  case align_float_op:
-    return "align_float";
-  case fail_op:
-    return "fail";
-  case cut_op:
-    return "cut";
-  case cutexit_op:
-    return "cutexit";
-  case allocate_op:
-    return "allocate";
-  case deallocate_op:
-    return "deallocate";
-  case tryme_op:
-    return "try_me_else\t\t%l\t%x";
-  case jump_op:
-    return "jump\t\t%l";
-  case jumpi_op:
-    return "jump_in_indexing\t\t%i";
-  case procceed_op:
-    return "proceed";
-  case call_op:
-    return "call\t\t%p,%d,%z";
-  case execute_op:
-    return "execute\t\t%p";
-  case safe_call_op:
-    return "sys\t\t%p";
-  case label_op:
-    return "%l:";
-  case name_op:
-    return "name\t\t%m,%d";
-  case pop_op:
-    return "pop\t\t%l";
-  case retryme_op:
-    return "retry_me_else\t\t%l\t%x";
-  case trustme_op:
-    return "trust_me_else_fail\t%x";
-  case either_op:
-    return "either_me\t\t%l,%d,%z";
-  case orelse_op:
-    return "or_else\t\t%l,%z";
-  case orlast_op:
-    return "or_last";
-  case push_or_op:
-    return "push_or";
-  case pop_or_op:
-    return "pop_or";
-  case pushpop_or_op:
-    return "pushpop_or";
-  case save_b_op:
-    return "save_by\t\t%v";
-  case commit_b_op:
-    return "commit_by\t\t%v";
-  case patch_b_op:
-    return "patch_by\t\t%v";
-  case try_op:
-    return "try\t\t%g\t%x";
-  case retry_op:
-    return "retry\t\t%g\t%x";
-  case trust_op:
-    return "trust\t\t%g\t%x";
-  case try_in_op:
-    return "try_in\t\t%g\t%x";
-  case jump_v_op:
-    return "jump_if_var\t\t%g";
-  case jump_nv_op:
-    return "jump_if_nonvar\t\t%g";
-  case cache_arg_op:
-    return "cache_arg\t%r";
-  case cache_sub_arg_op:
-    return "cache_sub_arg\t%d";
-  case user_switch_op:
-    return "user_switch";
-  case switch_on_type_op:
-    return "switch_on_type\t%h\t%h\t%h\t%h";
-  case switch_c_op:
-    return "switch_on_constant\t%i\n%c";
-  case if_c_op:
-    return "if_constant\t%i\n%c";
-  case switch_f_op:
-    return "switch_on_functor\t%i\n%e";
-  case if_f_op:
-    return "if_functor\t%i\n%e";
-  case if_not_op:
-    return "if_not_then\t%i\t%h\t%h\t%h";
-  case index_dbref_op:
-    return "index_on_dbref";
-  case index_blob_op:
-    return "index_on_blob";
-  case index_long_op:
-    return "index_on_blob";
-  case index_string_op:
-    return "index_on_string";
-  case 	if_nonvar_op:
-    return "check_var\t %r";
-  case save_pair_op:
-    return "save_pair\t%v";
-  case save_appl_op:
-    return "save_appl\t%v";
-  case mark_initialised_pvars_op:
-    return "pvar_bitmap\t%l,%b";
-  case mark_live_regs_op:
-    return "pvar_live_regs\t%l,%b";
-  case fetch_args_vv_op:
-    return "fetch_reg1_reg2\t%N,%N";
-  case fetch_args_cv_op:
-    return "fetch_constant_reg\t%l,%N";
-  case fetch_args_vc_op:
-    return "fetch_reg_constant\t%l,%N";
-  case fetch_args_iv_op:
-    return "fetch_integer_reg\t%d,%N";
-  case fetch_args_vi_op:
-    return "fetch_reg_integer\t%d,%N";
-  case enter_profiling_op:
-    return "enter_profiling\t\t%g";
-  case retry_profiled_op:
-    return "retry_profiled\t\t%g";
-  case count_call_op:
-    return "count_call_op\t\t%g";
-  case count_retry_op:
-    return "count_retry_op\t\t%g";
-  case restore_tmps_op:
-    return "restore_temps\t\t%l";
-  case restore_tmps_and_skip_op:
-    return "restore_temps_and_skip\t\t%l";
-  case enter_lu_op:
-    return "enter_lu";
-  case empty_call_op:
-    return "empty_call\t\t%l,%d";
-#ifdef YAPOR
-  case sync_op:
-    return "sync";
-#endif /* YAPOR */
-#ifdef TABLING
-  case table_new_answer_op:
-    return "table_new_answer";
-  case table_try_single_op:
-    return "table_try_single\t%g\t%x";
-#endif /* TABLING */
-#ifdef TABLING_INNER_CUTS
-  case "clause_with_cut":
-    return clause_with_cut_op;
-#endif /* TABLING_INNER_CUTS */
-#ifdef BEAM
-  "run_op %1,%4",
-  "body_op %1",
-  "endgoal_op",
-  "try_me_op %1,%4",
-  "retry_me_op %1,%4",
-  "trust_me_op %1,%4",
-  "only_1_clause_op %1,%4",
-  "create_first_box_op %1,%4",
-  "create_box_op %1,%4",
-  "create_last_box_op %1,%4",
-  "remove_box_op %1,%4",
-  "remove_last_box_op %1,%4",
-  "prepare_tries",
-  "std_base_op %1,%4",
-  "direct_safe_call",
-  "skip_while_var_op",
-  "wait_while_var_op",
-  "force_wait_op",
-  "write_op",
-  "is_op",
-  "equal_op",
-  "exit",
-#endif
-  case fetch_args_for_bccall_op:
-    return "fetch_args_for_bccall\t%v";
-  case bccall_op:
-    return "binary_cfunc\t\t%v,%P";
-  case blob_op:
-    return "blob\t%O";
-  case string_op:
-    return "string\t%O";
-  case label_ctl_op:
-    return "label_control\t";
-#ifdef SFUNC
-  ,
-  "get_s_f_op\t%f,%r",
-  "put_s_f_op\t%f,%r",
-  "unify_s_f_op\t%f",
-  "write_s_f_op\t%f",
-  "unify_s_var\t%v,%r",
-  "write_s_var\t%v,%r",
-  "unify_s_val\t%v,%r",
-  "write_s_val\t%v,%r",
-  "unify_s_a\t%a,%r",
-  "write_s_a\t%a,%r",
-  "get_s_end",
-  "put_s_end",
-  "unify_s_end",
-  "write_s_end"
-#endif
-    }
-  return NULL;
-}
-
 void
 Yap_ShowCode (struct intermediates *cint)
 {
@@ -1015,8 +782,8 @@ Yap_ShowCode (struct intermediates *cint)
   while (cpc) {
     compiler_vm_op ic = cpc->op;
     if (ic != nop_op) {
-      }
-    ShowOp (getFormat(ic), cpc);
+      ShowOp (ic, opDesc[ic], cpc);
+    }
     cpc = cpc->nextInst;
   }
   Yap_DebugErrorPutc ('\n');

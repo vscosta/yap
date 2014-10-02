@@ -87,7 +87,7 @@ dbload(F, _, G) :-
 	'$do_error'(type_error(atom,F),G).
 
 do_dbload(F0, M0, G) :-
-	'$full_filename'(F0,F,G),
+	'$full_filename'(F0, F, G),
 	assert(dbprocess(F, M0)),
 	open(F, read, R),
 	check_dbload_stream(R, M0),

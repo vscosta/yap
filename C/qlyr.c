@@ -44,7 +44,8 @@ typedef enum {
   BAD_ATOM = 8,
   MISMATCH = 9,
   INCONSISTENT_CPRED = 10,
-  BAD_READ = 11
+  BAD_READ = 11,
+  BAD_HEADER = 12
 } qlfr_err_t;
 
 static char *
@@ -77,7 +78,7 @@ static void
 QLYR_ERROR(qlfr_err_t my_err)
 {
   Yap_Error(SAVED_STATE_ERROR,TermNil,"error %s in saved state %s",GLOBAL_RestoreFile, qlyr_error[my_err]); 
-  exit(1);
+  Yap_exit(1);
 }
 
 static Atom
@@ -691,11 +692,56 @@ read_tag(IOSTREAM *stream)
   return ch;
 }
 
-static void
-read_header(IOSTREAM *stream)
+static bool
+checkChars(IOSTREAM *stream, char s[])
 {
-  int ch;
+  int ch, c;
+  char *p = s;
+  
+  while ((ch = *p++)) {
+    if ((c  = read_byte(stream)) != ch ) {
+      return false;
+    }
+  }
+  return TRUE;
+}
+
+static Atom
+get_header(IOSTREAM *stream)
+{
+  char s[256], *p = s, ch;
+  Atom at;
+
+  if (!checkChars( stream, "#!/bin/sh\nexec_dir=${YAPBINDIR:-" ))
+    return NIL;
+  while ((ch = read_byte(stream)) != '\n');
+  if (!checkChars( stream, "exec $exec_dir/yap $0 \"$@\"\nsaved " ))
+    return NIL;
+  while ((ch = read_byte(stream)) != ',')
+    *p++ = ch;
+  *p++ = '\0';
+  at = Yap_LookupAtom( s );
   while ((ch = read_byte(stream)));
+  return at;
+}
+
+static Int
+p_get_header( USES_REGS1 )
+{
+  IOSTREAM *stream;
+  Term t1 = Deref(ARG1);
+  Atom at;
+
+  if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR,t1,"read_program/3");
+    return FALSE;
+  }
+  if (!(stream = Yap_GetInputStream(AtomOfTerm(t1))) ) {
+    return FALSE;
+  }
+  if ((at = get_header( stream )) == NIL)
+    return FALSE;
+  return Yap_unify( ARG2, MkAtomTerm( at ) );
 }
 
 static void
@@ -801,6 +847,7 @@ ReadHash(IOSTREAM *stream)
 	pe = RepPredProp(PredPropByAtomAndMod(a,mod));
       }
     } else {
+      /* IDB */
       if (arity == (UInt)-1) {
 	UInt i = read_UInt(stream);
 	pe = Yap_FindLUIntKey(i);
@@ -808,12 +855,18 @@ ReadHash(IOSTREAM *stream)
 	Atom oa = (Atom)read_UInt(stream);
 	Atom a = LookupAtom(oa);
 	pe = RepPredProp(PredPropByAtomAndMod(a,mod));
+	pe->PredFlags |= AtomDBPredFlag;
       } else {
 	Functor of = (Functor)read_UInt(stream);
 	Functor f = LookupFunctor(of);
 	pe = RepPredProp(PredPropByFuncAndMod(f,mod));
       }
+      pe->PredFlags |= LogUpdatePredFlag;
       pe->ArityOfPE = 3;
+      if (pe->OpcodeOfPred == UNDEF_OPCODE) {
+	pe->OpcodeOfPred = Yap_opcode(_op_fail);
+	pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred = FAILCODE;
+      }
     }
     InsertPredEntry(ope, pe);
   }
@@ -959,7 +1012,10 @@ read_pred(IOSTREAM *stream, Term mod) {
   if (ap->PredFlags & IndexedPredFlag) {
     Yap_RemoveIndexation(ap);
   }
-
+  //if (ap->ArityOfPE && ap->ModuleOfPred != IDB_MODULE)
+  //  printf("   %s/%ld\n", NameOfFunctor(ap->FunctorOfPred)->StrOfAE, ap->ArityOfPE);
+  //else if (ap->ModuleOfPred != IDB_MODULE)
+  //  printf("   %s/%ld\n", ((Atom)(ap->FunctorOfPred))->StrOfAE, ap->ArityOfPE);
 #if SIZEOF_INT_P==4
   fl1 = flags & ((UInt)STATIC_PRED_FLAGS);
   ap->PredFlags &= ~((UInt)STATIC_PRED_FLAGS);
@@ -1013,7 +1069,6 @@ static void
 read_module(IOSTREAM *stream) {
   qlf_tag_t x;
 
-  read_header(stream);
   InitHash();
   ReadHash(stream);
   while ((x = read_tag(stream)) == QLY_START_MODULE) {
@@ -1070,14 +1125,12 @@ p_read_program( USES_REGS1 )
     Yap_Error(INSTANTIATION_ERROR,t1,"read_program/3");
     return FALSE;
   }
-  if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM,t1,"read_program/3");
-    return(FALSE);
-  }
-  if (!(stream = Yap_GetInputStream(AtomOfTerm(t1))) ) {
+  if ((stream = Yap_GetInputStream(AtomOfTerm(t1))) ) {
     return FALSE;
   }
   YAP_Reset( YAP_RESET_FROM_RESTORE );
+  if (get_header( stream ) == NIL)
+    return FALSE;
   read_module(stream);
   Sclose( stream );
   /* back to the top level we go */
@@ -1092,6 +1145,8 @@ Yap_Restore(char *s, char *lib_dir)
   if (!stream) 
     return -1;
   GLOBAL_RestoreFile = s;
+  if (get_header( stream ) == NIL)
+    return FALSE;
   read_module(stream);
   Sclose( stream );
   GLOBAL_RestoreFile = NULL;
@@ -1102,7 +1157,9 @@ Yap_Restore(char *s, char *lib_dir)
 void Yap_InitQLYR(void)
 {
   Yap_InitCPred("$qload_module_preds", 1, p_read_module_preds, SyncPredFlag|UserCPredFlag);
+  Yap_InitCPred("$qload_file_preds", 1, p_read_module_preds, SyncPredFlag|UserCPredFlag);
   Yap_InitCPred("$qload_program", 1, p_read_program, SyncPredFlag|UserCPredFlag);
+  Yap_InitCPred("$q_header", 2, p_get_header, SyncPredFlag|UserCPredFlag);
   if (FALSE) {
     restore_codes();
   }

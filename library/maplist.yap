@@ -1248,36 +1248,6 @@ goal_expansion(sumnodes(Meta, Term, AccIn, AccOut), Mod:Goal) :-
 			 RecursiveCall)
 		    ], Mod).
 
-/*
-:- unhide('$translate_rule').
-% stolen from SWI-Prolog
-user:goal_expansion(phrase(NT,Xs), Mod, NTXsNil) :-
-	user:goal_expansion(phrase(NT,Xs,[]), Mod, NTXsNil).
-user:goal_expansion(phrase(NT,Xs0,Xs), Mod, NewGoal) :-
-	goal_expansion_allowed,
-	Goal = phrase(NT,Xs0,Xs),
-	nonvar(NT),
-	catch('$translate_rule'((pseudo_nt --> NT), Rule),
-	      error(Pat,ImplDep),
-	      ( \+ harmless_dcgexception(Pat), 
-		throw(error(Pat,ImplDep))
-	      )),
-	Rule = (pseudo_nt(Xs0c,Xsc) :- NewGoal0),
-	Goal \== NewGoal0,
-	% apply translation only if we are safe
-	\+ contains_illegal_dcgnt(NT), !,
-	(   var(Xsc), Xsc \== Xs0c
-	->  Xs = Xsc, NewGoal1 = NewGoal0
-	;   NewGoal1 = (NewGoal0, Xsc = Xs)
-	),
-	(   var(Xs0c)
-	-> Xs0 = Xs0c,
-	   NewGoal = NewGoal1
-	;  ( Xs0 = Xs0c, NewGoal1 ) = NewGoal
-	).
-:- hide('$translate_rule').
-*/
-
 /**
 @}
 */

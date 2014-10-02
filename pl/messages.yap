@@ -97,8 +97,8 @@ generate_message('$abort') --> !,
 generate_message(abort(user)) --> !,
 	['YAP execution aborted'].
 generate_message(loading(_,F)) --> F == user, !.
-generate_message(loading(What,AbsoluteFileName)) --> !,
-	[ '~a ~a...' - [What, AbsoluteFileName] ].
+generate_message(loading(What,FileName)) --> !,
+	[ '~a ~w...' - [What, FileName] ].
 generate_message(loaded(_,user,_,_,_)) --> !.
 generate_message(loaded(included,AbsoluteFileName,Mod,Time,Space)) --> !,
 	[ '~a included in module ~a, ~d msec ~d bytes' - [AbsoluteFileName,Mod,Time,Space] ].

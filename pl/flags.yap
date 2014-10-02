@@ -279,6 +279,21 @@ profile_data/3 built-in.
 
     SWI-Compatible option, determines prompting for alternatives in the Prolog toplevel. Default is <tt>groundness</tt>, YAP prompts for alternatives if and only if the query contains variables. The alternative, default in SWI-Prolog is <tt>determinism</tt> which implies the system prompts for alternatives if the goal succeeded while leaving choicepoints.
 
++ `qcompile(+{never, auto, large, part}, changeable)`
+
+    SWI-Prolog flag that controls whether loaded files should be also
+    compiled into qfiles. The default value is `never`.
+
+ `never`, no qcompile file is generated unless the user calls
+ qsave_file/1 and friends, or sets the qcompile option in
+ load_files/2; 
+
+  `auto`, all files are qcompiled.
+
+  `large`, files above 100KB are qcompiled.
+
+  `part`, not supported in YAP.
+
 + `redefine_warnings `
 
     If  _Value_ is unbound, tell whether warnings for procedures defined
@@ -873,13 +888,22 @@ yap_flag(chr_toplevel_show_store,X) :-
 yap_flag(chr_toplevel_show_store,X) :-
 	'$do_error'(domain_error(flag_value,chr_toplevel_show_store+X),yap_flag(chr_toplevel_show_store,X)).
 
+yap_flag(qcompile,X) :-
+	var(X), !,
+	'$nb_getval'('$qcompile', X, X=never).
+yap_flag(qcompile,X) :-
+	(X == never ; X == auto ; X == large ; X == part), !,
+	nb_setval('$qcompile',X).
+yap_flag(qcompile,X) :-
+	'$do_error'(domain_error(flag_value,qcompile+X),yap_flag(qcompile,X)).
+
 yap_flag(source,X) :-
 	var(X), !,
 	source_mode( X, X ).
 yap_flag(source,X) :-
 	(X == off -> true ; X == on), !,
 	source_mode( _, X ).
-yap_flag(chr_toplevel_show_store,X) :-
+yap_flag(source,X) :-
 	'$do_error'(domain_error(flag_value,source+X),yap_flag(source,X)).
 
 yap_flag(open_expands_filename,Expand) :-
@@ -1375,8 +1399,8 @@ create_prolog_flag(Name, Value, Options) :-
 '$flag_domain_from_value'(_, term).
 
 
-/**
-    @pred source_mode(- _O_,+ _N_) 
+/** 
+   @pred source_mode(- _O_,+ _N_) 
 
 The state of source mode can either be on or off. When the source mode
 is on, all clauses are kept both as compiled code and in a "hidden"
