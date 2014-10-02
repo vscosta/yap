@@ -61,15 +61,15 @@ load_foreign_files(Objs,Libs,Entry) :-
     '$check_objs_for_load_foreign_files'(Objs,NewObjs,load_foreign_files(Objs,Libs,Entry)),
     '$check_libs_for_load_foreign_files'(Libs,NewLibs,load_foreign_files(Objs,Libs,Entry)),
     '$check_entry_for_load_foreign_files'(Entry,load_foreign_files(Objs,Libs,Entry)),
+    '$current_module'( M ),
     '$load_foreign_files'(NewObjs,NewLibs,Entry),
     ignore( recordzifnot( '$foreign', M:'$foreign'(Objs,Libs,Entry), _) ),
     (
-	prolog_load_context(file, F),
-	prolog_load_context(module, M)
+	prolog_load_context(file, F)
 	->
-    ignore( recordzifnot( '$load_foreign_done', [F, M], _) )
-   ;
-    true
+	    ignore( recordzifnot( '$load_foreign_done', [F, M], _) )
+	;
+	true
     ), !.
 
 '$check_objs_for_load_foreign_files'(V,_,G) :- var(V), !,
