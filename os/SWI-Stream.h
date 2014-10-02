@@ -112,8 +112,8 @@ typedef struct io_functions
 typedef struct io_position
 { int64_t		byteno;		/* byte-position in file */
   int64_t		charno;		/* character position in file */
-  int			lineno;		/* lineno in file */
-  int			linepos;	/* position in line */
+  long int		lineno;		/* lineno in file */
+  long int		linepos;	        /* position in line */
   intptr_t		reserved[2];	/* future extensions */
 } IOPOS;
 
