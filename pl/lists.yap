@@ -74,4 +74,5 @@ lists:delete([Head|List], Elem, Residue) :-
 lists:delete([Head|List], Elem, [Head|Residue]) :-
 	lists:delete(List, Elem, Residue).
 
+:- '$set_yap_flags'(11,0). % disable source.
 

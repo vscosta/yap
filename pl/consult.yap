@@ -212,7 +212,9 @@ load_files(Files,Opts) :-
     '$nb_getval'('$qcompile', Current, Current = never).
 '$lf_option'(silent, 8, _).
 '$lf_option'(skip_unix_header, 9, false).
-'$lf_option'(compilation_mode, 10, source).
+'$lf_option'(compilation_mode, 10, compact) :-
+    '$access_yap_flags'(11,YF),
+    ( YF == 0 -> F = compact ; F = source ).
 '$lf_option'(consult, 11, reconsult).
 '$lf_option'(stream, 12, _).
 '$lf_option'(register, 13, true).
