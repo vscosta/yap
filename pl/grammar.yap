@@ -239,19 +239,19 @@ prolog:','(A,B, S0, S) :-
 	 t_body((A,B), _, last, S0, S, Goal),
 	 '$execute'(Goal).
 
-prolog:;(A,B, S0, S) :-
+prolog:';'(A,B, S0, S) :-
 	 t_body((A;B), _, last, S0, S, Goal),
 	 '$execute'(Goal).
 
-prolog:'|'(A,B, S0, S) :-
+prolog:('|'(A,B, S0, S)) :-
 	 t_body((A|B), _, last, S0, S, Goal),
 	 '$execute'(Goal).
 
-prolog:->(A,B, S0, S) :-
+prolog:'->'(A,B, S0, S) :-
 	 t_body((A->B), _, last, S0, S, Goal),
 	 '$execute'(Goal).
 
-prolog:\+(A, S0, S) :-
+prolog:'\\+'(A, S0, S) :-
 	 t_body(\+ A, _, last, S0, S, Goal),
 	 '$execute'(Goal).
 
