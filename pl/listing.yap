@@ -40,10 +40,16 @@ clauses for static predicates compiled when source mode was `on`).
  
 */
 listing :-
-	current_output(Stream),
-	'$current_module'(Mod),
-        '$current_predicate_no_modules'(Mod,_,Pred),
-        '$list_clauses'(Stream,Mod,Pred).
+    current_output(Stream),
+    '$current_module'(Mod),
+    Mod \= prolog,
+    Mod \= system,
+    \+ '$hidden'( Mod ),
+    '$current_predicate_no_modules'(Mod,_,Pred),
+    '$undefined'(Pred, prolog), % skip predicates exported from prolog.
+    functor(Pred,Name,Arity),
+    '$listing'(Name/Arity,Mod,Stream),
+    fail.
 listing.
 
 /** @pred  listing(+ _P_)
@@ -57,7 +63,8 @@ listing(MV) :-
     listing(Stream, MV).
 
 listing(Stream, MV) :-
-    '$mlisting'(Stream, MV, _).
+    strip_module( MV, M, I),
+    '$mlisting'(Stream, I, M).
 listing(Stream, []) :- !.
 listing(Stream, [MV|MVs]) :- !,
     listing(Stream,  MV),
@@ -98,9 +105,13 @@ listing(Stream, [MV|MVs]) :- !,
 
 '$list_clauses'(Stream, M, Pred) :-
 	'$flags'(Pred,M,Flags,Flags),
-	Flags /\ 0x48602000 =\= 0,
-	nl(Stream),
-	fail.
+	(Flags /\ 0x48602000 =\= 0
+	->
+	  nl(Stream),
+	  fail
+	;
+          !
+        ).
 '$list_clauses'(Stream, M, Pred) :-
     ( '$is_dynamic'(Pred, M) -> true ; '$is_log_updatable'(Pred, M) ), 
     functor( Pred, N, Ar ),
