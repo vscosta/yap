@@ -1931,8 +1931,8 @@ Yap_InitExecFs(void)
   Yap_InitCPred("cut_at", 1, p_clean_ifcp, SafePredFlag);
   CurrentModule = cm;
   Yap_InitCPred("$pred_goal_expansion_on", 0, p_pred_goal_expansion_on, SafePredFlag);
-  Yap_InitCPred("$restore_regs", 1, p_restore_regs, SafePredFlag);
-  Yap_InitCPred("$restore_regs", 2, p_restore_regs2, SafePredFlag);
+  Yap_InitCPred("$restore_regs", 1, p_restore_regs, NoTracePredFlag|SafePredFlag);
+  Yap_InitCPred("$restore_regs", 2, p_restore_regs2, NoTracePredFlag|SafePredFlag);
   Yap_InitCPred("$clean_ifcp", 1, p_clean_ifcp, SafePredFlag);
   Yap_InitCPred("qpack_clean_up_to_disjunction", 0, p_cut_up_to_next_disjunction, SafePredFlag);
   Yap_InitCPred("$jump_env_and_store_ball", 1, p_jump_env, 0);
