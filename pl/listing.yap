@@ -29,7 +29,6 @@
 
 */
 
-
 /** @pred  listing 
 
 
@@ -177,8 +176,6 @@ listing(Stream, [MV|MVs]) :- !,
 /** @pred  portray_clause(+ _S_,+ _C_)
 
 Write clause  _C_ on stream  _S_ as if written by listing/0.
-
- 
 */
 portray_clause(Stream, Clause) :-
 	copy_term_nat(Clause, CopiedClause),
@@ -188,9 +185,7 @@ portray_clause(_, _).
 
 /** @pred  portray_clause(+ _C_) 
 
-
 Write clause  _C_ as if written by listing/0.
-
  
 */
 portray_clause(Clause) :-
@@ -199,18 +194,15 @@ portray_clause(Clause) :-
 
 '$portray_clause'(Stream, (Pred :- true)) :- !,
 	'$beautify_vars'(Pred),
-	writeq(Stream, Pred),
-	format(Stream, '.~n', []).
+	format(Stream, '~q.~n', [Pred]).
 '$portray_clause'(Stream, (Pred:-Body)) :- !,
 	'$beautify_vars'((Pred:-Body)),
-	writeq(Stream, Pred),
-	format(Stream, ' :-', []),
+	format(Stream, '~q :-', [Pred]),
 	'$write_body'(Body, 3, ',', Stream),
 	format(Stream, '.~n', []).
-'$portray_clause'(Stream, Pred) :- !,
+'$portray_clause'(Stream, Pred) :-
 	'$beautify_vars'(Pred),
-	writeq(Stream, Pred),
-	format(Stream, '.~n', []).
+	format(Stream, '~q.~n', [Pred]).
 
 '$write_body'(X,I,T,Stream) :- var(X), !,
 	'$beforelit'(T,I,Stream),
@@ -261,6 +253,8 @@ portray_clause(Clause) :-
         writeq(Stream,X).
 
 
+
+
 '$write_disj'((Q;S),I0,I,C,Stream) :- !,
 	'$write_body'(Q,I,C,Stream),
 	format(Stream, '~n~*c;',[I0,0' ]),
@@ -273,7 +267,9 @@ portray_clause(Clause) :-
 	'$write_body'(S,I,C,Stream).
 	
 
-'$beforelit'('(',_,Stream) :- !, format(Stream,' ',[]).
+'$beforelit'('(',_,Stream) :- 
+    !,
+    format(Stream,' ',[]).
 '$beforelit'(_,I,Stream) :- format(Stream,'~n~*c',[I,0' ]).
 
 '$beautify_vars'(T) :-
@@ -303,4 +299,3 @@ portray_clause(Clause) :-
 	'$list_transform'(L,M).
 '$list_transform'(_.L,M) :-
 	'$list_transform'(L,M).
-
