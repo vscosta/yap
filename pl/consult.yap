@@ -212,9 +212,9 @@ load_files(Files,Opts) :-
     '$nb_getval'('$qcompile', Current, Current = never).
 '$lf_option'(silent, 8, _).
 '$lf_option'(skip_unix_header, 9, false).
-'$lf_option'(compilation_mode, 10, compact) :-
+'$lf_option'(compilation_mode, 10, Flag) :-
     '$access_yap_flags'(11,YF),
-    ( YF == 0 -> F = compact ; F = source ).
+    ( YF == 0 -> Flag = compact ; Flag = source ).
 '$lf_option'(consult, 11, reconsult).
 '$lf_option'(stream, 12, _).
 '$lf_option'(register, 13, true).
@@ -660,7 +660,7 @@ db_files(Fs) :-
 	'$set_current_loop_stream'(OldStream, Stream),
 	'$swi_current_prolog_flag'(generate_debug_info, GenerateDebug),
 	'$lf_opt'(compilation_mode, TOpts, CompMode),
-	'$comp_mode'(OldCompMode, CompMode),
+	'$comp_mode'(OldCompMode, CompMode), 
 	recorda('$initialisation','$',_),
 	( Reconsult \== consult ->
 	    '$start_reconsulting'(File),
@@ -1619,8 +1619,9 @@ End of conditional compilation.
 '$if_directive'((:- endif)).
 
 
-'$comp_mode'(_OldCompMode, CompMode) :-
-	var(CompMode), !. % just do nothing.
+'$comp_mode'( OldCompMode, CompMode) :-
+	var(CompMode), !,
+	'$fetch_comp_status'( OldCompMode ).
 '$comp_mode'(OldCompMode, assert_all) :-
 	'$fetch_comp_status'(OldCompMode),
 	nb_setval('$assert_all',on).
