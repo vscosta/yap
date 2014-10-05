@@ -29,11 +29,11 @@ problem(Z, X, InFlow, OutFlow, N) :-
 	End = 15,
 	M = 999,
 	d( M, DD ),
-	D = array[1..N,1..N] of DD, % distance
-	RHS = array[1..N] of _, % requirements (right hand statement)
-	X = array[1..N, 1..N] of 0..1, % the resulting matrix, 1 if connected, 0 else
-	OutFlow = array[1..N] of 0..1,
-	InFlow = array[1..N] of 0..1,
+	D <== array[1..N,1..N] of DD, % distance
+	RHS <== array[1..N] of _, % requirements (right hand statement)
+	X <== array[1..N, 1..N] of 0..1, % the resulting matrix, 1 if connected, 0 else
+	OutFlow <== array[1..N] of 0..1,
+	InFlow <== array[1..N] of 0..1,
 
 % objective to minimize
 	Z in 0..M,

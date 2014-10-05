@@ -50,8 +50,6 @@ Constraints supported are:
                   op(700,  xf, #=<),
                   op(700,  xf, #=),
                   op(700,  xf, #\=),
-                  op(700, xfx, in),
-                  op(700, xfx, ins),
 		  op(500, yfx, '<=>'),
 		  op(500, yfx, '=>'),
                   op(450, xfx, ..), % should bind more tightly than \/
@@ -236,7 +234,7 @@ The product of constant  _Cs_ by  _Vs_ must be in relation
 :- use_module(library(gecode)).
 :- use_module(library(maplist)).
 
-:- reexport(library(matrix), [(<==)/2, op(600, xfx, '<=='),
+:- reexport(library(matrix), [(<==)/2, op(800, xfx, '<=='),
 	    op(700, xfx, in),
 	    op(700, xfx, ins),
             op(450, xfx, ..), % should bind more tightly than \/
