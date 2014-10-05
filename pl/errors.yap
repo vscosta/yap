@@ -214,7 +214,7 @@ to allow user-control.
 
 
 '$do_error'(Type,Message) :-
-        format('~w~n', [Type]),
+%        format('~w~n', [Type]),
 	'$current_stack'(local_sp(_,CP,Envs,CPs)),
 %	'$stack_dump',
 	throw(error(Type,[Message|local_sp(Message,CP,Envs,CPs)])).
