@@ -934,7 +934,8 @@ dynamic_predicate(P,Sem) :-
 
 '$expand_clause'((H:-B),C1,C2,Mod,HM) :- !,
 	strip_module(Mod:H, HM, H1),
-	'$module_expansion'((H1:-B), C1, C2, Mod, HM),
+	'$current_module'(M),
+	'$module_expansion'((H1:-B), C1, C2, HM, BM, M),
 	( get_value('$strict_iso',on) ->
 	    '$check_iso_strict_clause'(C1)
         ;
