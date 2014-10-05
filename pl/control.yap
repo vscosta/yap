@@ -1,4 +1,4 @@
-g/*************************************************************************
+/*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -459,6 +459,9 @@ The goal `garbage_collect` forces a garbage collection.
 */
 garbage_collect :-
 	'$gc'.
+
+
+
 /** @pred  gc 
 
 
@@ -479,6 +482,7 @@ The goal `nogc` disables garbage collection. The same as
 */
 nogc :-
 	yap_flag(gc,off).
+
 
 /** @pred  garbage_collect_atoms 
 
