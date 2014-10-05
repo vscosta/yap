@@ -689,7 +689,6 @@ db_files(Fs) :-
 	 '$q_do_save_file'(File, UserFile, ContextModule, TOpts ),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	'$current_module'(Mod, SourceModule),
-	print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
 	( 
 	    Reconsult = reconsult ->
 	    '$clear_reconsulting'
