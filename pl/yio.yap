@@ -58,8 +58,7 @@ setting and clearing this flag are given under 7.7.
         ttynl/0,
         ttyput/1,
         ttyskip/1,
-        write_depth/2,
-        writeln/1], ['$default_expand'/1,
+        write_depth/2], ['$default_expand'/1,
         '$extend_file_search_path'/1,
         '$set_default_expand'/1]).
 
@@ -321,17 +320,6 @@ Like display/1, but using stream  _S_ to display the term.
 */
 display(Stream, T) :-
 	   write_term(Term, T, [ignore_ops(true)]).
-
-/** @pred  writeln( _T_) is iso 
-
-
-Same as write/1 followed by nl/0.
-
- 
-*/
-writeln(T) :-
-	write(T),
-	nl.
 
 /* interface to user portray	*/
 '$portray'(T) :-

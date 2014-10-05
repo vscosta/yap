@@ -5877,6 +5877,7 @@ static const PL_extension foreigns[] = {
   FRG("write",			1, pl_write,		      ISO),
   FRG("writeq",			1, pl_writeq,		      ISO),
   FRG("print",			1, pl_print,			0),
+  FRG("writeln",		1, pl_writeln,			0),
   FRG("nl",			1, pl_nl1,		      ISO),
   FRG("format",			2, pl_format,		     META),
 
