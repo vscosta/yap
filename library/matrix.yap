@@ -570,11 +570,11 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
  
 */
 :- module( matrix,
-	   [(<==)/2, op(600, xfx, '<=='),
+	   [(<==)/2, op(800, xfx, '<=='),
 	    op(700, xfx, in),
 	    op(700, xfx, ins),
             op(450, xfx, ..), % should bind more tightly than \/
-	    op(590, xfx, of), of/2,
+	    op(710, xfx, of), of/2,
 	    matrix_new/3,
 	    matrix_new/4,
 	    matrix_new_set/4,
@@ -664,11 +664,15 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
 	length( L, Size ), !,
 	foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
 	X <== matrix( L, [dim=Dims,base=Bases] ).
-( X <== '[]'(Dims0, array) of Pattern ) :-
+( X <== '[]'(Dims0, array) of Pattern ) :- !,
 	array_extension(Pattern, Goal),
 	foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
 	call(Goal, Pattern, Dims, Size, L),
 	X <== matrix( L, [dim=Dims,base=Bases] ).
+( LHS <== RHS ) :-
+	rhs(RHS, R),
+	set_lhs( LHS, R).
+
 
 
 norm_dim( I..J, D, I, P0, P) :- !,
@@ -677,10 +681,6 @@ norm_dim( I..J, D, I, P0, P) :- !,
 norm_dim( I, I, 0, P0, P ) :-
 	P is P0*I.
 
-
-( LHS <== RHS ) :-
-	rhs(RHS, R),
-	set_lhs( LHS, R).
 
 rhs(RHS, RHS) :- var(RHS), !.
 % base case
