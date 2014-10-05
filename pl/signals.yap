@@ -219,7 +219,17 @@ order of dispatch.
 % we may be creeping outside and coming back to system mode.
 '$start_creep'([M|G], _) :-
 	'$is_no_trace'(G, M), !,
-	'$execute0'(G, M).
+	(
+	'$$save_by'(CP),
+	 '$enable_debugging',
+	 '$execute_nonstop'(G, M),
+	 '$$save_by'(CP2),
+	 '$disable_debugging',
+	 (CP == CP2 -> ! ; ( true ; '$enable_debugging', fail ) )
+	;
+	'$disable_debugging',
+	fail
+	).	
 '$start_creep'([Mod|G], WhereFrom) :-
 	CP is '$last_choice_pt',	
 	'$do_spy'(G, Mod, CP, WhereFrom).

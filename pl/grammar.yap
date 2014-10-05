@@ -255,9 +255,6 @@ prolog:'\\+'(A, S0, S) :-
 	 t_body(\+ A, _, last, S0, S, Goal),
 	 '$execute'(Goal).
 
-% stolen from SWI-Prolog
-
-
 
 /**
 @}

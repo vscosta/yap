@@ -738,8 +738,12 @@ qload_file( F0 ) :-
     '$exec_initialisation_goals'.
 
 '$qload_file'(S, SourceModule, F, FilePl, _F0, _ImportList) :-
-    recorded('$lf_loaded','$lf_loaded'( F, _Age, SourceModule), _),
+    recorded('$lf_loaded','$lf_loaded'( FilePl, _Age, SourceModule), _),
    !.
+'$qload_file'(S, SourceModule, F, FilePl, _F0, _ImportList) :-
+    ( FilePl == user_input -> Age = 0 ; time_file64(FilePl, Age) ),
+    recorda('$lf_loaded','$lf_loaded'( FilePl, Age, SourceModule), _),
+    fail.
 '$qload_file'(S, _SourceModule, _File, _FilePl, _F0, _ImportList) :-
     '$qload_file_preds'(S),
     fail.

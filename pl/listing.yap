@@ -158,7 +158,7 @@ listing(Stream, [MV|MVs]) :- !,
     ->
       format( Stream, ':- ~q.~n', [PredDef])
     ;
-      format( Stream, '~:- ~q:~q.~n', [M,PredDef])
+      format( Stream, ':- ~q:~q.~n', [M,PredDef])
      ),
      fail.
 '$list_clauses'(Stream, M, Pred) :-
