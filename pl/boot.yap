@@ -280,7 +280,7 @@ private(_).
 
 :- use_system_module( '$_modules', ['$get_undefined_pred'/4,
         '$meta_expansion'/6,
-        '$module_expansion'/5]).
+        '$module_expansion'/6]).
 
 :- use_system_module( '$_preddecls', ['$dynamic'/2]).
 
@@ -649,11 +649,11 @@ number of steps.
           ;
 	    '$execute_commands'(O,VL,Pos,Option,O)
 	 ).
- '$execute_command'((?-G), V, Pos, Option, Source) :-
+ '$execute_command'((?-G), VL, Pos, Option, Source) :-
 	 Option \= top, !,
-	 '$execute_command'(G, V, Pos, top, Source).
- '$execute_command'(G, V, Pos, Option, Source) :-
-	 '$continue_with_command'(Option, V, Pos, G, Source).
+	 '$execute_command'(G, VL, Pos, top, Source).
+ '$execute_command'(G, VL, Pos, Option, Source) :-
+	 '$continue_with_command'(Option, VL, Pos, G, Source).
 
  %
  % This command is very different depending on the language mode we are in.
@@ -715,22 +715,27 @@ number of steps.
  % not 100% compatible with SICStus Prolog, as SICStus Prolog would put
  % module prefixes all over the place, although unnecessarily so.
  %
- '$go_compile_clause'(G,V,Pos,N,Source) :-
+ % G is the goal to compile
+ % Vs the named variables
+ % Pos the source position
+ % N where to add first or last
+ % Source the original clause
+ '$go_compile_clause'(G,Vs,Pos,N,Source) :-
 	 '$current_module'(Mod),
-	 '$go_compile_clause'(G,V,Pos,N,Mod,Mod,Source).
+	 '$go_compile_clause'(G,Vs,Pos,N,Mod,Mod,Mod,Source).
  
-'$go_compile_clause'(G,_,_,_,_,_,Source) :-
+'$go_compile_clause'(G,_Vs,_Pos,_N,_HM,_BM,_SM,Source) :-
 	var(G), !,
 	'$do_error'(instantiation_error,assert(Source)).	
-'$go_compile_clause'((G:-_),_,_,_,_,_,Source) :-
+'$go_compile_clause'((G:-_),_Vs,_Pos,_N,_HM,_BM,_SM,Source) :-
 	var(G), !,
 	'$do_error'(instantiation_error,assert(Source)).	
-'$go_compile_clause'(M:G,V,Pos,N,_,_,Source) :- !,
-	  '$go_compile_clause'(G,V,Pos,N,M,M,Source).
-'$go_compile_clause'((M:H :- B),V,Pos,N,_,BodyMod,Source) :- !,
-	  '$go_compile_clause'((H :- B),V,Pos,N,M,BodyMod,Source).
-'$go_compile_clause'(G,V,Pos,N,HeadMod,BodyMod,Source) :- !,
-	 '$precompile_term'(G, G0, G1, BodyMod, SourceMod),
+'$go_compile_clause'(M:G,Vs,Pos,N,_,_,SourceMod,Source) :- !,
+	  '$go_compile_clause'(G,Vs,Pos,N,M,M,M,Source).
+'$go_compile_clause'((M:H :- B),Vs,Pos,N,_,BodyMod,SourceMod,Source) :- !,
+	  '$go_compile_clause'((H :- B),Vs,Pos,N,M,BodyMod,SourceMod,Source).
+'$go_compile_clause'(G,Vs,Pos,N,HeadMod,BodyMod,SourceMod,Source) :- !,
+	 '$precompile_term'(G, G0, G1, HeadMod, BodyMod, SourceMod),
 	 '$$compile'(G1, G0, N, HeadMod).
 
 
@@ -1399,9 +1404,9 @@ bootstrap(F) :-
 % return two arguments: Expanded0 is the term after "USER" expansion.
 %                       Expanded is the final expanded term.
 %
-'$precompile_term'(Term, Expanded0, Expanded, BodyMod, SourceMod) :-
+'$precompile_term'(Term, Expanded0, Expanded, HeadMod, BodyMod, SourceMod) :-
 %format('[ ~w~n',[Term]),  
-	'$module_expansion'(Term, Expanded0, ExpandedI, BodyMod, SourceMod), !,
+	'$module_expansion'(Term, Expanded0, ExpandedI, HeadMod, BodyMod, SourceMod), !,
 %format('      -> ~w~n',[Expanded0]),  
 	(
 	 '$access_yap_flags'(9,1)      /* strict_iso on */
@@ -1411,7 +1416,7 @@ bootstrap(F) :-
         ;
 	 '$expand_array_accesses_in_term'(ExpandedI,Expanded)
 	).
-'$precompile_term'(Term, Term, Term, _, _).
+'$precompile_term'(Term, Term, Term, _, _, _).
 	
 
 /** @pred  expand_term( _T_,- _X_) 
