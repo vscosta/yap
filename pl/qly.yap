@@ -730,7 +730,7 @@ qload_file( F0 ) :-
 	  '$qload_module'(S , Mod, File, SourceModule)
     ;
       Type == file ->
-	  '$qload_file'(S, SourceModule, File, FilePl, F0, all)	  
+	  '$qload_file'(S, SourceModule, File, FilePl, F0, all, TOpts)	  
     ),
     close(S),
     working_directory( _, OldD),
@@ -739,26 +739,26 @@ qload_file( F0 ) :-
     print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
     '$exec_initialisation_goals'.
 
-'$qload_file'(_S, SourceModule, _F, FilePl, _F0, _ImportList) :-
+'$qload_file'(_S, SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
     recorded('$lf_loaded','$lf_loaded'( FilePl, _Age, SourceModule), _),
    !.
-'$qload_file'(_S, SourceModule, _F, FilePl, _F0, _ImportList) :-
+'$qload_file'(_S, SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
     ( FilePl == user_input -> Age = 0 ; time_file64(FilePl, Age) ),
     recorda('$lf_loaded','$lf_loaded'( FilePl, Age, SourceModule), _),
     fail.
-'$qload_file'(S, _SourceModule, _File, _FilePl, _F0, _ImportList) :-
+'$qload_file'(S, _SourceModule, _File, _FilePl, _F0, _ImportList, _TOpts) :-
     '$qload_file_preds'(S),
     fail.
-'$qload_file'(_S, SourceModule, F, _FilePl, _F0, _ImportList) :-
+'$qload_file'(_S, SourceModule, F, _FilePl, _F0, _ImportList, _TOpts) :-
     user:'$file_property'( '$lf_loaded'( F, Age, _ ) ),
     recordaifnot('$lf_loaded','$lf_loaded'( F, Age, SourceModule), _),
     fail.
-'$qload_file'(_S, _SourceModule, _File, FilePl, F0, _ImportList) :-
+'$qload_file'(_S, _SourceModule, _File, FilePl, F0, _ImportList, _TOpts) :-
     b_setval('$source_file', F0 ),
     '$process_directives'( FilePl ),
     fail.
-'$qload_file'(_S, SourceModule, _File,  FilePl, _F0, ImportList) :-
-    '$import_to_current_module'(FilePl, SourceModule, ImportList, _, _TOpts).
+'$qload_file'(_S, SourceModule, _File,  FilePl, _F0, ImportList, TOpts) :-
+    '$import_to_current_module'(FilePl, SourceModule, ImportList, _, TOpts).
 
 '$process_directives'( FilePl ) :-
     user:'$file_property'( '$lf_loaded'( FilePl, M, Reconsult, UserFile, OldF, Line, Opts) ),

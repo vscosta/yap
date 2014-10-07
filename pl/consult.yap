@@ -422,36 +422,6 @@ load_files(Files,Opts) :-
 '$lf'(user_input, Mod, _, TOpts) :- !,
 	b_setval('$source_file', user_input),
 	'$do_lf'(Mod, user_input, user_input, TOpts).
-'$lf'(File, Mod, _Call, TOpts) :-
-    '$lf_opt'(stream, TOpts, Stream),
-    var( Stream ),
-    H0 is heapused, '$cputime'(T0,_),
-    % check if there is a qly files
-    '$absolute_file_name'(File,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)],F,load_files(File)),
-    open( F, read, Stream , [type(binary)] ),
-    ( '$q_header'( Stream, Type ),
-       Type == file
-    ->
-       time_file64(F, T0F), 
-       '$absolute_file_name'(File,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],FilePl,load_files(File)),
-       time_file64(FilePl, T0Fl),
-       T0F >= T0Fl,
-       !,
-       file_directory_name(F, Dir),
-       working_directory(OldD, Dir),
-       '$msg_level'( TOpts, Verbosity),
-       '$lf_opt'(imports, TOpts, ImportList),
-       '$qload_file'(Stream, Mod, F, FilePl, File, ImportList),
-       close( Stream ),
-       H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-       '$current_module'(M, Mod),
-       working_directory( _, OldD),
-       print_message(Verbosity, loaded( loaded, F, M, T, H)),
-       '$exec_initialisation_goals'
-    ;
-       close( Stream),
-       fail
-    ).
 '$lf'(File, Mod, Call, TOpts) :-
     '$lf_opt'(stream, TOpts, Stream),
     b_setval('$source_file', File),
@@ -462,29 +432,58 @@ load_files(Files,Opts) :-
         ;
 	stream_property(Stream, file_name(Y))
     ), !,
+    ( '$size_stream'(Stream, Pos) -> true ; Pos = 0),
+    '$set_lf_opt'('$source_pos', TOpts, Pos),
     '$lf_opt'(reexport, TOpts, Reexport),
     '$lf_opt'(if, TOpts, If),
     ( var(If) -> If = true ; true ),
     '$lf_opt'(imports, TOpts, Imports),
     '$start_lf'(If, Mod, Stream, TOpts, File, Reexport, Imports),
-    character_count(Stream, Pos),
-    '$set_lf_opt'('$source_pos', TOpts, Pos),
     close(Stream). 
 '$lf'(X, _, Call, _) :-
     '$do_error'(permission_error(input,stream,X),Call).
 
 '$start_lf'(not_loaded, Mod, Stream, TOpts, UserFile, Reexport,Imports) :-
-	'$file_loaded'(Stream, Mod, Imports, TOpts), !,
-	'$lf_opt'('$options', TOpts, Opts),
-	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$loaded'(Stream, UserFile, Mod, ParentF, Line, not_loaded, _, _File, _Dir, Opts),
-	'$reexport'( TOpts, ParentF, Reexport, Imports, _File ).
+    '$file_loaded'(Stream, Mod, Imports, TOpts), !,
+    '$lf_opt'('$options', TOpts, Opts),
+    '$lf_opt'('$location', TOpts, ParentF:Line),
+    '$loaded'(Stream, UserFile, Mod, ParentF, Line, not_loaded, _, _File, _Dir, Opts),
+    '$reexport'( TOpts, ParentF, Reexport, Imports, _File ).
 '$start_lf'(changed, Mod, Stream, TOpts, UserFile, Reexport, Imports) :-
-	'$file_unchanged'(Stream, Mod, Imports, TOpts), !,
-	'$lf_opt'('$options', TOpts, Opts),
-	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$loaded'(Stream, UserFile, Mod, ParentF, Line, changed, _, _File, _Dir, Opts),
-	'$reexport'( TOpts, ParentF, Reexport, Imports, _File ).
+    '$file_unchanged'(Stream, Mod, Imports, TOpts), !,
+    '$lf_opt'('$options', TOpts, Opts),
+    '$lf_opt'('$location', TOpts, ParentF:Line),
+    '$loaded'(Stream, UserFile, Mod, ParentF, Line, changed, _, File, _Dir, Opts),
+    '$reexport'( TOpts, ParentF, Reexport, Imports, File ).
+'$start_lf'(_, Mod, PlStream, TOpts, File, Reexport, ImportList) :-
+    % check if there is a qly file
+    '$absolute_file_name'(File,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)],F,qload_file(File)),
+    open( F, read, Stream , [type(binary)] ),
+     H0 is heapused, '$cputime'(T0,_),
+    ( '$q_header'( Stream, Type ),
+       Type == file
+    ->
+       time_file64(F, T0F), 
+       stream_property(PlStream, file_name(FilePl)),
+       time_file64(FilePl, T0Fl),
+       T0F >= T0Fl,
+       !,
+       file_directory_name(F, Dir),
+       working_directory(OldD, Dir),
+       '$msg_level'( TOpts, Verbosity),
+       '$qload_file'(Stream, Mod, F, FilePl, File, ImportList, TOpts),
+       close( Stream ),
+       H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
+       '$current_module'(M, Mod),
+       working_directory( _, OldD),
+       '$lf_opt'('$location', TOpts, ParentF:_Line),
+       '$reexport'( TOpts, ParentF, Reexport, ImportList, File ),
+       print_message(Verbosity, loaded( loaded, F, M, T, H)),
+       '$exec_initialisation_goals'
+    ;
+       close( Stream),
+       fail
+    ).
 '$start_lf'(_, Mod, Stream, TOpts, File, _Reexport, _Imports) :-
 	'$do_lf'(Mod, Stream, File, TOpts).
 
@@ -722,7 +721,7 @@ db_files(Fs) :-
 '$q_do_save_file'(File, UserF, TOpts ) :-
     '$lf_opt'(qcompile, TOpts, QComp), 
     '$lf_opt'('$source_pos', TOpts, Pos),
-    ( QComp ==  auto ; QComp == large,  Pos > 100*1024),
+    ( QComp ==  auto ; QComp == large, Pos > 100*1024),
     '$absolute_file_name'(UserF,[file_type(qly),solutions(first),expand(true)],F,load_files(File)),
     !,
     '$qsave_file_'( File, UserF, F ).
