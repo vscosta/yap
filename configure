@@ -5173,7 +5173,7 @@ then
        C_PARSER_FLAGS="-O3 -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
        CFLAGS="-O3 -fomit-frame-pointer -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
        case "`$CC --version < /dev/null`" in
-	  *3.4*)
+	  gcc-3.4*)
 	    CFLAGS="-fno-gcse -fno-crossjumping $CFLAGS"
 	  ;;
        esac
