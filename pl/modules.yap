@@ -1345,7 +1345,7 @@ export_list(Module, List) :-
 '$do_import'( N/K-N1/K, Mod, ContextMod) :-
 	functor(G,N,K),
 	'$follow_import_chain'(Mod,G,M0,G0),
-	G0=..[ N|Args],
+	G0=..[N0|Args],
 	G1=..[N1|Args],
 	( '$check_import'(M0,ContextMod,N1,K) ->
 	  ( ContextMod = user ->
