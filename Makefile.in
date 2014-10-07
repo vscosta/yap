@@ -125,6 +125,8 @@ INTERFACE_HEADERS = \
 	include/dswiatoms.h \
 	include/udi.h \
 	include/yap_structs.h \
+	include/YapDefs.h \
+	include/YapError.h \
 	include/YapInterface.h \
 	include/SWI-Prolog.h \
 	include/YapError.h \
