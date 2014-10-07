@@ -2103,6 +2103,8 @@ PredEntry * Yap_PredFromClause( Term t USES_REGS )
       t = ArgOfTerm( 2, t );
     } else if ( f == FunctorAssert ) {
       t = ArgOfTerm(1, t);
+    } else if ( f == FunctorComma && extra_arity == 2 ) {
+      t = ArgOfTerm(1, t);
     } else if ( f == FunctorDoubleArrow ) {
       extra_arity = 2;
       t = ArgOfTerm(1, t);
