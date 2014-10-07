@@ -1623,7 +1623,7 @@ with SICStus Prolog.
 	  (
 	   '$is_metapredicate'(G,CurMod)
 	  ->
-	   '$meta_expansion'(G, CurMod, M, M, NG,[])
+	   '$meta_expansion'(G, M, CurMod, M, NG,[])
 	  ;
 	   NG = G
 	  ).
