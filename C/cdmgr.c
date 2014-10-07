@@ -2134,7 +2134,7 @@ Yap_discontiguous( PredEntry *ap USES_REGS )
 {
   register consult_obj  *fp;
 
-  if (ap->ExtraPredFlags & DiscontiguousPredFlag)
+  if (ap->ExtraPredFlags & (DiscontiguousPredFlag|MultiFileFlag))
     return FALSE;
   if (!LOCAL_ConsultSp) {
     return FALSE;
