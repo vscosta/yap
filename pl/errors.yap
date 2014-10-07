@@ -290,6 +290,9 @@ the predicate as multifile.
 
  
 */
+print_message(_, _) :-
+    '$nb_getval'('$if_skip_mode',skip,fail), 
+    !.
 print_message(force(_Severity), Msg) :- !,
 	print(user_error,Msg).
 print_message(error, error(Msg,Info)) :- var(Info), !,
