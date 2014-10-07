@@ -406,9 +406,9 @@ expand_expr(Op, X, Y, O, Q, P) :-
 '$contains_illegal_dcgnt'(NT) :-
     functor(NT, _, A),
     between(1, A, I),
-    arg(I, NT),
-    nonvar(I),
-    ( I = ! ; I = phrase(_,_,_) ), !.
+    arg(I, NT, AI),
+    nonvar(AI),
+    ( AI = ! ; AI = phrase(_,_,_) ), !.
 %	write(contains_illegal_nt(NT)),		% JW: we do not want to write
 %	nl.
 

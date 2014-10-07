@@ -960,7 +960,7 @@ meta_predicate declaration
 
 '$meta_expansion0'(G, _HM, _BM, SM, SM:G, _HVars) :-
     var(G), !.
-'$meta_expansion0'(M:G, _HM, _BM, SM, G1, _HVars) :-
+'$meta_expansion0'(M:G, _HM, _BM, _SM, G1, _HVars) :-
     var(M), !,
     G1 = '$execute_wo_mod'(G,M).
 % support for all/3
@@ -1006,7 +1006,7 @@ its parent goal.
 
 '$is_mt'(M, H, CM, B, (context_module(CM),B)) :-
 	'$module_transparent'(_, M, _, H), !.
-'$is_mt'(_M, _H, CM, B, B).
+'$is_mt'(_M, _H, _CM, B, B).
 
 % comma has its own problems.
 :- '$install_meta_predicate'(','(0,0), prolog).
