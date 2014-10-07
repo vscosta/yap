@@ -311,6 +311,7 @@ PLCONS_SOURCES = \
 	console/LGPL/manifest.xml
 
 PL_SOURCES= \
+	pl/absf.yap \
 	pl/arith.yap \
 	pl/arithpreds.yap \
 	pl/arrays.yap \
