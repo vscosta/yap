@@ -38,7 +38,7 @@ run_formats([Com-Args|StackInfo], Stream) :-
 	run_formats(StackInfo, Stream).
 
 display_stack_info(CPs,Envs,Lim,PC) :-
-	display_stack_info(CPs,Envs,Lim,CP,Lines,[]),
+	display_stack_info(CPs,Envs,Lim,PC,Lines,[]),
 	flush_output(user_output),
 	flush_output(user_error),
 	print_message_lines(user_error, '', Lines).
@@ -47,7 +47,7 @@ code_location(Info,Where,Location) :-
 	integer(Where) , !,
 	'$pred_for_code'(Where,Name,Arity,Mod,Clause),
 	construct_code(Clause,Name,Arity,Mod,Info,Location).
-code_location(Ixnfo,_,Info).
+code_location(Info,_,Info).
 
 construct_code(-1,Name,Arity,Mod,Where,Location) :- !,
 	number_codes(Arity,ArityCode),
@@ -157,7 +157,7 @@ list_of_qmarks(I,[?|L]) :-
 	list_of_qmarks(I1,L).
 
 
-beautify_hidden_goal('$yes_no'(G,Query), prolog) -->
+beautify_hidden_goal('$yes_no'(G,_Query), prolog) -->
 	!,
 	{ Call =.. [(?), G] },
 	[Call].
@@ -182,7 +182,7 @@ beautify_hidden_goal('$continue_with_command'(Command,V,P,G,Source),prolog) -->
 	['TopLevel'(Command,G,V,P,Source)].
 beautify_hidden_goal('$spycall'(G,M,InControl,Redo),prolog) -->
 	['DebuggerCall'(M:G, InControl, Redo)].
-beautify_hidden_goal('$do_spy'(Goal, Mod, CP, InControl),prolog) -->
+beautify_hidden_goal('$do_spy'(Goal, Mod, _CP, InControl),prolog) -->
 	['DebuggerCall'(Mod:Goal, InControl)].
 beautify_hidden_goal('$system_catch'(G,Mod,Exc,Handler),prolog) -->
 	[catch(Mod:G, Exc, Handler)].
@@ -200,7 +200,7 @@ beautify_hidden_goal('$load_files'(_,_,Name),prolog) -->
 	[Name].
 beautify_hidden_goal('$reconsult'(Files,Mod),prolog) -->
 	[reconsult(Mod:Files)].
-beautify_hidden_goal('$undefp'([M|G]),prolog) -->
+beautify_hidden_goal('$undefp'([Mod|G]),prolog) -->
 	['CallUndefined'(Mod:G)].
 beautify_hidden_goal('$undefp'(?),prolog) -->
 	['CallUndefined'(?:?)].
@@ -218,9 +218,9 @@ beautify_hidden_goal('$findall'(T,G,S,A),prolog) -->
 	[findall(T,G,S,A)].
 beautify_hidden_goal('$listing'(G,M,_Stream),prolog) -->
 	[listing(M:G)].
-beautify_hidden_goal('$call'(G,CP,?,M),prolog) -->
+beautify_hidden_goal('$call'(G,_CP,?,M),prolog) -->
 	[call(M:G)].
-beautify_hidden_goal('$call'(G,CP,G0,M),prolog) -->
+beautify_hidden_goal('$call'(_G,_CP,G0,M),prolog) -->
 	[call(M:G0)].
 beautify_hidden_goal('$current_predicate'(M,Na,Ar),prolog) -->
 	[current_predicate(M,Na/Ar)].
@@ -228,6 +228,6 @@ beautify_hidden_goal('$current_predicate_for_atom'(Name,M,Ar),prolog) -->
 	{ functor(P, Name, Ar) },
 	[current_predicate(Name,M:P)].
 beautify_hidden_goal('$list_clauses'(Stream,M,Pred),prolog) -->
-	[listing(M:Pred)].
+	[listing(Stream,M:Pred)].
 
 

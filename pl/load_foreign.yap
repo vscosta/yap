@@ -175,7 +175,7 @@ open_shared_object(File, Opts, Handle) :-
 	prolog_load_context(module, M),
 	ignore( recordzifnot( '$foreign', M:'$swi_foreign'(File,Opts, Handle), _) ).
 
-'$open_shared_opts'(Opts, G, OptsI) :-
+'$open_shared_opts'(Opts, G, _OptsI) :-
 	var(Opts), !,
 	'$do_error'(instantiation_error,G).
 '$open_shared_opts'([], _, 0) :- !.

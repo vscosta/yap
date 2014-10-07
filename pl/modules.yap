@@ -481,12 +481,12 @@ of predicates.
 	recorda('$system_initialisation', source_mode(New,Old), _).
 
 '$add_module_on_file'(DonorMod, DonorF, SourceF, Exports) :-
-    recorded('$module','$module'(DonorF, DonorMod, _, _, _),R),
+    recorded('$module','$module'(OtherF, DonorMod, _, _, _),R),
     % the module has been found, are we reconsulting?
     (
 	DonorF \= OtherF
     ->
-        '$do_error'(permission_error(module,redefined,DonorMod, OtherFile, DonorF),module(Mod,Exports))
+        '$do_error'(permission_error(module,redefined,DonorMod, OtherF, DonorF),module(DonorMod,Exports))
     ;
       recorded('$module','$module'(DonorF,DonorMod, SourceF,  _, _), R),
       erase( R ),
@@ -508,7 +508,7 @@ of predicates.
    ( recorded('$module','$module'( DonorF, DonorM, _,DonorExports, _),_) -> true ; DonorF = user_input ),
     ( recorded('$module','$module'( HostF, HostM, SourceF, _, _),_) -> true ; HostF = user_input ),
     recorded('$module','$module'(HostF, HostM, _, AllExports, _Line), R), erase(R),
-    '$convert_for_export'(Exports, DonorExports, DonorM, HostM, TranslationTab, AllReExports, reexport(DonorF, Exports)),
+    '$convert_for_export'(Exports, DonorExports, DonorM, HostM, _TranslationTab, AllReExports, reexport(DonorF, Exports)),
     lists:append( AllReExports, AllExports, Everything0 ),
     sort( Everything0, Everything ),
     ( source_location(_, Line) -> true ; Line = 0 ),
@@ -576,10 +576,10 @@ source_module(Mod) :-
 %
 '$module_expansion'(H, H, H, _HM, _BM, _SM) :- var(H), !.
 '$module_expansion'((H:-B), (H:-B1), (H:-BOO), HM, BM, SM) :- !,
-	'$is_mt'(HM, H, SM, B, IB, MM),
+	'$is_mt'(HM, H, SM, B, IB),
 	'$module_u_vars'(H,UVars,HM),	 % collect head variables in
 					 % expanded positions
-	'$expand_modules'(IB, B1, BO, HM, BM, MM, UVars),
+	'$expand_modules'(IB, B1, BO, HM, BM, SM, UVars),
 	('$full_clause_optimisation'(H, SM, BO, BOO) ->
 	  true
 	  ;
@@ -633,7 +633,7 @@ source_module(Mod) :-
 %  d:b(X) :- a:c(a:X), a:d(X), e(X).
 %
 %
-%       head variables.
+%       head variab'$expand_modules'(M:G,G1,GO,HM,_M,_SM,HVars)les.
 %       goals or arguments/sub-arguments?
 % I cannot use call here because of format/3
 % modules:
@@ -642,6 +642,7 @@ source_module(Mod) :-
 % A6: head module (this is the one used in compiling and accessing).
 %
 %
+%'$expand_modules'(V,NG,NG,_,_,SM,HVars):- writeln(V), fail.
 '$expand_modules'(V,NG,NG,_,_,SM,HVars) :-
 	var(V), !,
 	( '$not_in_vars'(V,HVars)
@@ -707,7 +708,7 @@ expand_goal(G, G).
 '$do_expand'(M:G, HM, _BM, _SM,  HVars, M:GI) :- !,
 	 nonvar(M),
 	'$do_expand'(G, HM, M, M, HVars, GI).
-'$do_expand'(G, HM, BM, SM,  _HVars, GI) :-
+'$do_expand'(G, _HM, _BM, SM,  _HVars, GI) :-
 	(
 	 '$pred_exists'(goal_expansion(G,GI), SM),
 	 call(SM:goal_expansion(G, GI))
@@ -757,13 +758,13 @@ expand_goal(G, G).
 	GI \== G, !,
 	'$expand_modules'(GI, G1, GO, HM, BM, SM, HVars).
 '$complete_goal_expansion'(G, HM, BM, SM, G1, G2, _HVars) :-
-	'$all_system_predicate'(G, M, ORIG), !,
+	'$all_system_predicate'(G, BM, BM0), !,
 	% make built-in processing transparent.
-	'$match_mod'(G, M, ORIG, HM, G1),
-	'$c_built_in'(G1, M, Gi),
+	'$match_mod'(G, HM, BM0, SM, G1),
+	'$c_built_in'(G1, BM0, Gi),
 	Gi = G2.
 '$complete_goal_expansion'(G, HM, BM, SM, NG, NG, _) :-
-	'$match_mod'(G, BM, BM, HM, NG).
+	'$match_mod'(G, HM, BM, SM, NG).
 
 %'$match_mod'(G, GMod, GMod, NG) :- !,
 %	NG = G.
@@ -771,12 +772,12 @@ expand_goal(G, G).
     nonvar(G),
     '$system_predicate'(G,prolog),
 %    \+ '$is_metapredicate'(G, prolog),
-    \+ '$is_multifile'(G,H), 
+    \+ '$is_multifile'(G,M), 
     !. % prolog: needs no module info.
 % same module as head,  and body goal (I cannot get rid of qualifier before
 % meta-call.
-'$match_mod'(G, HMod, _, HM, G) :- HMod == HM, !.
-'$match_mod'(G, GMod, _, _,  GMod:G).
+'$match_mod'(G, HMod, BM, _HM, G) :- HMod == BM, !.
+'$match_mod'(G, _, GMod, _,  GMod:G).
 
 
 % be careful here not to generate an undefined exception.
@@ -951,7 +952,7 @@ meta_predicate declaration
 	arg(I,NG,NA),
 	I1 is I-1,
 	'$meta_expansion_loop'(I1, D, G, NG, HVars, HM, BM, SM).
-'$meta_expansion_loop'(I, D, G, NG, HVars, HM, BM, SM) :- 
+'$meta_expansion_loop'(I, D, G, NG, HVars, HM, BM, SM) :-
 	arg(I,G,A),
 	arg(I,NG,A),
 	I1 is I-1,
@@ -961,11 +962,11 @@ meta_predicate declaration
     var(G), !.
 '$meta_expansion0'(M:G, _HM, _BM, SM, G1, _HVars) :-
     var(M), !,
-    G1 = '$execute_wo_mod'(G,SM).
+    G1 = '$execute_wo_mod'(G,M).
 % support for all/3
 '$meta_expansion0'(same(G, P), HM, BM, SM, same(G1, P),HVars) :- !,
-    '$meta_expansion0'(G, _HM, BM, SM, G1,HVars).
-'$meta_expansion0'(G, HM, BM, SM, M1:G1,HVars) :-
+    '$meta_expansion0'(G, HM, BM, SM, G1,HVars).
+'$meta_expansion0'(G, _HM, _BM, SM, M1:G1,_HVars) :-
     strip_module(SM:G,M1,G1).
 
 
@@ -1003,9 +1004,9 @@ its parent goal.
 	NFlags is Fl \/ 0x200004,
 	'$flags'(P, M, Fl, NFlags).
 
-'$is_mt'(M, H, CM, B, (context_module(CM),B), CM) :-
+'$is_mt'(M, H, CM, B, (context_module(CM),B)) :-
 	'$module_transparent'(_, M, _, H), !.
-'$is_mt'(_M, _H, CM, B, B, CM).
+'$is_mt'(_M, _H, CM, B, B).
 
 % comma has its own problems.
 :- '$install_meta_predicate'(','(0,0), prolog).
@@ -1226,7 +1227,7 @@ export_list(Module, List) :-
 	'$simple_conversion'(Exports, Tab, E).
 '$simple_conversion'([F/N as NF|Exports], [F/N-NF/N|Tab], [NF/N|E]) :-
 	'$simple_conversion'(Exports, Tab, E).
-'$simple_conversion'([F//N as BF|Exports], [F/N2-NF/N2|Tab], [NF/N2|E]) :-
+'$simple_conversion'([F//N as NF|Exports], [F/N2-NF/N2|Tab], [NF/N2|E]) :-
 	N2 is N+1,
 	'$simple_conversion'(Exports, Tab, E).
 '$simple_conversion'([op(Prio,Assoc,Name)|Exports], [op(Prio,Assoc,Name)|Tab], [op(Prio,Assoc,Name)|E]) :-
@@ -1238,7 +1239,7 @@ export_list(Module, List) :-
 	->
 	  true
 	;
-	  '$bad_export'((N1/A1 as A2), Module, ContextModule)
+	  '$bad_export'((N1/A1 as N2), Module, ContextModule)
 	),
 	'$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal).	
 '$clean_conversion'([N1/A1|Ps], List, Module, ContextModule, [N1/A1-N1/A1|Tab], [N1/A1|MyExports], Goal) :- !,
@@ -1344,7 +1345,7 @@ export_list(Module, List) :-
 '$do_import'( N/K-N1/K, Mod, ContextMod) :-
 	functor(G,N,K),
 	'$follow_import_chain'(Mod,G,M0,G0),
-	G0=..[N0|Args],
+	G0=..[ N|Args],
 	G1=..[N1|Args],
 	( '$check_import'(M0,ContextMod,N1,K) ->
 	  ( ContextMod = user ->
@@ -1371,7 +1372,7 @@ export_list(Module, List) :-
 	M2 \= M1,  !,
 	b_getval('$lf_status', TOpts),
 	'$lf_opt'(redefine_module, TOpts, Action),
-	'$redefine_action'(Action, M1, M2, M, ContextM, N/K).
+	'$redefine_action'(Action, M1, M2, Mod, ContextM, N/K).
 '$check_import'(_,_,_,_).
 
 '$redefine_action'(ask, M1, M2, M, _, N/K) :-
@@ -1384,7 +1385,7 @@ export_list(Module, List) :-
 '$redefine_action'(true, M1, _, _, _, _) :- !,
 	recorded('$module','$module'(F, M1, _, _MyExports,_Line),_),
 	unload_file(F).
-'$redefine_action'(false, M1, M2, M, ContextM, N/K) :-
+'$redefine_action'(false, M1, M2, _M, ContextM, N/K) :-
 	recorded('$module','$module'(F, ContextM, _, _MyExports,_Line),_),
 	'$current_module'(_, M2),
 	'$do_error'(permission_error(import,M1:N/K,redefined,M2),F).
@@ -1556,15 +1557,15 @@ unload_module(Mod) :-
 % remove imported modules
 unload_module(Mod) :-
     setof( M, recorded('$import',_G0^_G^_N^_K^_R^'$import'(Mod,M,_G0,_G,_N,_K),_R), Ms),
-    recorded('$module','$module'( _, Mod, _, _, Exports), R),
+    recorded('$module','$module'( _, Mod, _, _, Exports), _),
     lists:member(M, Ms),
     current_op(X, Y, M:Op),
     lists:member( op(X, Y, Op), Exports ),
     op(X, 0, M:Op),
     fail.
 unload_module(Mod) :-
-    recorded('$module','$module'( _, Mod, _, _, Exports), R),
-    lists:member( op(X, Y, Op), Exports ),
+    recorded('$module','$module'( _, Mod, _, _, Exports), _),
+    lists:member( op(X, _Y, Op), Exports ),
     op(X, 0, Mod:Op),
     fail.
 unload_module(Mod) :-

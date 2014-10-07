@@ -146,7 +146,7 @@ notrace(G) :-
 	   '$debug_stop'( State ),
 	   '$call'(G1, CP, G, M),
 	   '$$save_by'(CP2),
-	   (CP == CP2 -> ! ; '$debug_state'( NState ), ( true ; '$debug_restart'(NStart), fail ) ),
+	   (CP == CP2 -> ! ; '$debug_state'( NState ), ( true ; '$debug_restart'(NState), fail ) ),
 	   '$debug_restart'( State )
      ;
 	'$debug_restart'( State ),
@@ -196,10 +196,8 @@ over  _G_.
 If you want  _G_ to be deterministic you should use if-then-else, as
 it is both more efficient and more portable.
 
- 
 */
 if(X,Y,Z) :-
-	yap_hacks:env_choice_point(CP0),
 	(
 	 CP is '$last_choice_pt',
 	 '$call'(X,CP,if(X,Y,Z),M),
@@ -372,9 +370,8 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 '$cleanup_exception'(Exception, _, _) :-
 	throw(Exception).
 
-'$safe_call_cleanup'(Goal, Cleanup, Catcher, Exception) :-
-	'$current_choice_point'(MyCP1),
-	'$coroutining':freeze_goal(Catcher, '$clean_call'(Active, Cleanup)),
+'$safe_call_cleanup'(Goal, Cleanup, Catcher, _Exception) :-
+	'$coroutining':freeze_goal(Catcher, '$clean_call'(_Active, Cleanup)),
 	(
 	 yap_hacks:trail_suspension_marker(Catcher),
 	 yap_hacks:enable_interrupts,

@@ -126,7 +126,7 @@ setting and clearing this flag are given under 7.7.
 	'$do_error'(instantiation_error,G).
 '$check_boolean'(true,_,_,_) :- !.
 '$check_boolean'(false,_,_,_) :- !.
-'$check_boolean'(X,B,T,G) :-
+'$check_boolean'(_X, B, T, G) :-
 	'$do_error'(domain_error(B,T),G).
 
 /** @defgroup IO_Sockets YAP Old Style Socket and Pipe Interface
@@ -209,7 +209,7 @@ socket_connect(Sock, Host, Read) :-
 	;
 	 true
 	),
-	yap_sockets:ip_socket(Domain, Type, Protocol, Sock).
+	yap_sockets:tcp_connect(Sock, Host:Read).
 
 /** @pred open_pipe_streams(Read, Write)
 
@@ -319,7 +319,7 @@ Like display/1, but using stream  _S_ to display the term.
  
 */
 display(Stream, T) :-
-	   write_term(Term, T, [ignore_ops(true)]).
+	   write_term(Stream, T, [ignore_ops(true)]).
 
 /* interface to user portray	*/
 '$portray'(T) :-
@@ -574,7 +574,7 @@ stream_position_data(Prop, Term, Value) :-
 '$set_default_expand'(false) :- !,
 	set_value('$open_expands_filename',false).
 '$set_default_expand'(V) :- !,
-	'$do_error'(domain_error(flag_value,V),yap_flag(open_expands_file_name,X)).
+	'$do_error'(domain_error(flag_value,V),yap_flag(open_expands_file_name,V)).
 
 %%! @}
 

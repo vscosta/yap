@@ -234,12 +234,17 @@ load_files(Files,Opts) :-
 '$lf_option'('$context_module', 27, _).
 '$lf_option'('$parent_topts', 28, _).
 '$lf_option'(must_be_module, 29, false).
+'$lf_option'('$source_pos', 30, _).
 
-'$lf_option'(last_opt, 29).
+'$lf_option'(last_opt, 30).
 
 '$lf_opt'( Op, TOpts, Val) :-
 	'$lf_option'(Op, Id, _),
 	arg( Id, TOpts, Val ).
+
+'$set_lf_opt'( Op, TOpts, Val) :-
+	'$lf_option'(Op, Id, _),
+	setarg( Id, TOpts, Val ).
 
 '$load_files'(Files, Opts, Call) :-
 	( '$nb_getval'('$lf_status', OldTOpts, fail), nonvar(OldTOpts) ->
@@ -374,8 +379,8 @@ load_files(Files,Opts) :-
 	( Val == false -> true ;
 	    Val == true -> true ;
 	    '$do_error'(domain_error(unimplemented_option,register(Val)),Call) ).
-'$process_lf_opt'('$context_module', Val, Call) :-
-	( atom(File) -> true ;  '$do_error'(type_error(atom,File),Call) ).
+'$process_lf_opt'('$context_module', Mod, Call) :-
+	( atom(Mod) -> true ;  '$do_error'(type_error(atom,Mod),Call) ).
 
 
 '$lf_default_opts'(I, LastOpt, _TOpts) :- I > LastOpt, !.
@@ -417,7 +422,7 @@ load_files(Files,Opts) :-
 '$lf'(user_input, Mod, _, TOpts) :- !,
 	b_setval('$source_file', user_input),
 	'$do_lf'(Mod, user_input, user_input, TOpts).
-'$lf'(File, Mod, Call, TOpts) :-
+'$lf'(File, Mod, _Call, TOpts) :-
     '$lf_opt'(stream, TOpts, Stream),
     var( Stream ),
     H0 is heapused, '$cputime'(T0,_),
@@ -463,6 +468,7 @@ load_files(Files,Opts) :-
     '$lf_opt'(imports, TOpts, Imports),
     '$start_lf'(If, Mod, Stream, TOpts, File, Reexport, Imports),
     character_count(Stream, Pos),
+    '$set_lf_opt'('$source_pos', TOpts, Pos),
     close(Stream). 
 '$lf'(X, _, Call, _) :-
     '$do_error'(permission_error(input,stream,X),Call).
@@ -471,15 +477,15 @@ load_files(Files,Opts) :-
 	'$file_loaded'(Stream, Mod, Imports, TOpts), !,
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$loaded'(Stream, UserFile, Mod, ParentF, Line, not_loaded, _File, _Dir, Opts),
+	'$loaded'(Stream, UserFile, Mod, ParentF, Line, not_loaded, _, _File, _Dir, Opts),
 	'$reexport'( TOpts, ParentF, Reexport, Imports, _File ).
 '$start_lf'(changed, Mod, Stream, TOpts, UserFile, Reexport, Imports) :-
 	'$file_unchanged'(Stream, Mod, Imports, TOpts), !,
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$loaded'(Stream, UserFile, Mod, ParentF, Line, changed, _File, _Dir, Opts),
+	'$loaded'(Stream, UserFile, Mod, ParentF, Line, changed, _, _File, _Dir, Opts),
 	'$reexport'( TOpts, ParentF, Reexport, Imports, _File ).
-'$start_lf'(_, Mod, Stream, TOpts, File, Reexport, Imports) :-
+'$start_lf'(_, Mod, Stream, TOpts, File, _Reexport, _Imports) :-
 	'$do_lf'(Mod, Stream, File, TOpts).
 
 
@@ -654,7 +660,7 @@ db_files(Fs) :-
 	'$lf_opt'(consult, TOpts, Reconsult0),
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$loaded'(Stream, UserFile, SourceModule, ParentF, Line, Reconsult, File, Dir, Opts),
+	'$loaded'(Stream, UserFile, SourceModule, ParentF, Line, Reconsult0, Reconsult, File, Dir, Opts),
 	working_directory(OldD, Dir),
 	H0 is heapused, '$cputime'(T0,_),
 	'$set_current_loop_stream'(OldStream, Stream),
@@ -681,18 +687,19 @@ db_files(Fs) :-
 	    '$skip_unix_header'(Stream)
 	  ;
 	    true
-	  ),
-	 '$loop'(Stream,Reconsult),
-	 '$lf_opt'(imports, TOpts, Imports),
-	 '$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
-	 '$end_consult',
-	 '$q_do_save_file'(File, UserFile, ContextModule, TOpts ),
-	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
+	),
+	'$loop'(Stream,Reconsult),
+	'$lf_opt'(imports, TOpts, Imports),
+	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
 	'$current_module'(Mod, SourceModule),
+	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
+	print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
+	'$end_consult',
+	'$q_do_save_file'(File, UserFile, TOpts ),
 	( 
 	    Reconsult = reconsult ->
-	    '$clear_reconsulting'
-	;
+		'$clear_reconsulting'
+	    ;
 	    true
 	),
 	'$set_current_loop_stream'(Stream, OldStream),
@@ -712,13 +719,14 @@ db_files(Fs) :-
 	% format( 'O=~w~n', [Mod=UserFile] ),
 	!.
 
-'$q_do_save_file'(File, UserF, ContextModule, TOpts ) :-
+'$q_do_save_file'(File, UserF, TOpts ) :-
     '$lf_opt'(qcompile, TOpts, QComp), 
+    '$lf_opt'('$source_pos', TOpts, Pos),
     ( QComp ==  auto ; QComp == large,  Pos > 100*1024),
     '$absolute_file_name'(UserF,[file_type(qly),solutions(first),expand(true)],F,load_files(File)),
     !,
     '$qsave_file_'( File, UserF, F ).
-'$q_do_save_file'(_File, _, _ContextModule, _TOpts ).
+'$q_do_save_file'(_File, _, _TOpts ).
 
 % are we in autoload and autoload_flag is false?
 '$msg_level'( TOpts, Verbosity) :-
@@ -752,7 +760,7 @@ db_files(Fs) :-
 '$bind_module'(_, load_files).
 '$bind_module'(Mod, use_module(Mod)).
 
-'$import_to_current_module'(File, ContextModule, Imports, RemainingImports, TOpts) :-
+'$import_to_current_module'(File, ContextModule, _Imports, _RemainingImports, _TOpts) :-
 	\+ recorded('$module','$module'(File, _Module, _, _ModExports, _),_),
 	% enable loading C-predicates from a different file
 	recorded( '$load_foreign_done', [File, M0], _),
@@ -761,7 +769,7 @@ db_files(Fs) :-
 '$import_to_current_module'(File, ContextModule, Imports, RemainingImports, TOpts) :-
 	recorded('$module','$module'(File, Module, _Source, ModExports, _),_),
 	Module \= ContextModule, !,
-%	'$lf_opt'('$call', TOpts, Call),
+	'$lf_opt'('$call', TOpts, Goal),
 	'$convert_for_export'(Imports, ModExports, Module, ContextModule, TranslationTab, RemainingImports, Goal),
 	'$add_to_imports'(TranslationTab, Module, ContextModule).
 '$import_to_current_module'(_, _, _, _, _).
@@ -797,7 +805,6 @@ db_files(Fs) :-
 	  '$system_catch'(('$user_call'(G,M) -> true), M, Error, user:'$LoopError'(Error, top)),
 	  fail
 	;
-          OldMode = on,
 	  fail
 	).
 '$exec_initialisation_goals' :-
@@ -837,7 +844,7 @@ include(+ _F_) is directive
 	),
 	'$set_current_loop_stream'(OldStream, Stream),
 	H0 is heapused, '$cputime'(T0,_),
-	'$loaded'(Stream, X, Mod, F, L, include, Y, _Dir, []),
+	'$loaded'(Stream, X, Mod, F, L, include, _, Y, _Dir, []),
 	( '$nb_getval'('$included_file', OY, fail ) -> true ; OY = [] ),
 	'$lf_opt'(encoding, TOpts, Encoding),
 	'$set_encoding'(Stream, Encoding),
@@ -987,10 +994,10 @@ prolog_load_context(term_position, Position) :-
 %	format( 'IL=~w~n', [(F1:Imports->M)] ),
 	'$import_to_current_module'(F1, M, Imports, _, TOpts).
 
-'$ensure_file_loaded'(F, M, F1) :-
+'$ensure_file_loaded'(F, _M, F1) :-
 	recorded('$module','$module'(F1,_NM,_Source,_P,_),_),
 	recorded('$lf_loaded','$lf_loaded'(F1, _, _),_),
-	same_file(F1,F), !.
+	same_file(F1, F), !.
 '$ensure_file_loaded'(F, M, F1) :-
 	% loaded from the same module, but does not define a module.
 	recorded('$lf_loaded','$lf_loaded'(F1, _, M),_),
@@ -1005,7 +1012,8 @@ prolog_load_context(term_position, Position) :-
 %	format( 'IU=~w~n', [(F1:Imports->M)] ),
 	'$import_to_current_module'(F1, M, Imports, _, TOpts).
 
-'$ensure_file_unchanged'(F, M, F1) :-
+% module can be reexported.
+'$ensure_file_unchanged'(F, _M, F1) :-
 	recorded('$module','$module'(F1,_NM,_,_P,_),_),
 	recorded('$lf_loaded','$lf_loaded'(F1,Age,_),R),
 	same_file(F1,F), !,
@@ -1021,14 +1029,38 @@ prolog_load_context(term_position, Position) :-
 
 
 % inform the file has been loaded and is now available.
-'$loaded'(Stream, UserFile, M, OldF, Line, Reconsult, F, Dir, Opts) :-
+'$loaded'(Stream, UserFile, M, OldF, Line, Reconsult0, Reconsult, F, Dir, Opts) :-
 	'$file_name'(Stream, F0),
 	( F0 == user_input, nonvar(UserFile) -> UserFile = F 
 	  ; F = F0 ),
 	( F == user_input -> working_directory(Dir,Dir) ; file_directory_name(F, Dir) ),
 	nb_setval('$consulting_file', F ),
-	( Reconsult \== consult, Reconsult \== not_loaded, Reconsult \== changed, recorded('$lf_loaded','$lf_loaded'(F, _,_),R), erase(R), fail ; var(Reconsult) -> Reconsult = consult ; true ),
-	( Reconsult \== consult, recorded('$lf_loaded','$lf_loaded'(F, _, _, _, _, _, _),R), erase(R), fail ; var(Reconsult) -> Reconsult = consult ; true ),
+	( 
+	    Reconsult0 \== consult,
+	    Reconsult0 \== not_loaded, 
+	    Reconsult \== changed, 
+	    recorded('$lf_loaded','$lf_loaded'(F, _,_),R), 
+	    erase(R), 
+	    fail 
+	    ; 
+	    var(Reconsult0)
+	    -> 
+	    Reconsult = consult 
+	    ;
+	    Reconsult = Reconsult0
+	),
+	( 
+	    Reconsult \== consult, 
+	    recorded('$lf_loaded','$lf_loaded'(F, _, _, _, _, _, _),R),
+	    erase(R), 
+	    fail 
+	    ; 
+	    var(Reconsult)
+	    ->
+		Reconsult = consult 
+	    ;
+	    Reconsult = Reconsult0
+	),
 	( F == user_input -> Age = 0 ; time_file64(F, Age) ),
 	( recordaifnot('$lf_loaded','$lf_loaded'( F, Age, M), _) -> true ; true ),
 	recorda('$lf_loaded','$lf_loaded'( F, M, Reconsult, UserFile, OldF, Line, Opts), _).
@@ -1142,7 +1174,7 @@ unload_file( F0 ) :-
 % eliminate multi-files;
 % get rid of file-only predicataes.
 '$unload_file'( FileName, _F0 ) :-
-    '$current_predicate_var'(A,Mod,P).
+    '$current_predicate_var'(_A,Mod,P),
     '$owner_file'(P,Mod,FileName),
     \+ '$is_multifile'(P,Mod),
     functor( P, Na, Ar),
@@ -1150,7 +1182,7 @@ unload_file( F0 ) :-
     fail.
 %next multi-file.
 '$unload_file'( FileName, _F0 ) :-
-    recorded('$lf_loaded','$lf_loaded'( F, Age, _), R),
+    recorded('$lf_loaded','$lf_loaded'( FileName, _Age, _), R),
     erase(R),
     fail.
 '$unload_file'( FileName, _F0 ) :-
@@ -1159,16 +1191,12 @@ unload_file( F0 ) :-
     erase(ClauseRef),
     fail.
 '$unload_file'( FileName, _F0 ) :-
-    recorded('$multifile_dynamic'(_,_,_), '$mf'(Na,A,M,FFileName,R), R1),
+    recorded('$multifile_dynamic'(_,_,_), '$mf'(_Na,_A,_M,FileName,R), R1),
     erase(R1),
     erase(R),
     fail.
 '$unload_file'( FileName, _F0 ) :-
-    recorded('$multifile_defs','$defined'(FileName,Name,Arity,Mod), R),
-    erase(R),
-    fail.
-'$unload_file'( FileName, _F0 ) :-
-    recorded('$multifile_defs','$defined'(FileName,Name,Arity,Mod), R),
+    recorded('$multifile_defs','$defined'(FileName,_Name,_Arity,_Mod), R),
     erase(R),
     fail.
 '$unload_file'( FileName, _F0 ) :-
@@ -1442,7 +1470,8 @@ initialization(G,OPT) :-
 	  '$do_error'(type_error(OPT),initialization(G,OPT))
 	).
 '$initialization'(G,now) :-
-	( call(G) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
+	( call(G) -> true ; 
+	  format(user_error,':- ~w failed.~n',[G]) ).
 '$initialization'(G,after_load) :-
 	'$initialization'(G).
 % ignore for now.

@@ -228,7 +228,7 @@ assert(C) :-
 	'$do_error'(instantiation_error,assert(Mod:V)).
 '$assert_dynamic'(M:C,_,Where,R,P) :- !,
 	'$assert_dynamic'(C,M,Where,R,P).
-'$assert_dynamic'((H:-G),M1,Where,R,P) :-
+'$assert_dynamic'((H:-_G),_M1,_Where,_R,P) :-
         var(H), !, '$do_error'(instantiation_error,P).
 '$assert_dynamic'(CI,Mod,Where,R,P) :-
 	'$expand_clause'(CI,C0,C,Mod,HM),
@@ -305,7 +305,7 @@ assertz_static(C) :-
 	'$do_error'(instantiation_error,assert(M:V)).
 '$assert_static'(M:C,_,Where,R,P) :- !,
 	'$assert_static'(C,M,Where,R,P).
-'$assert_static'((H:-G),M1,Where,R,P) :-
+'$assert_static'((H:-_G),_M1,_Where,_R,P) :-
 	var(H), !, '$do_error'(instantiation_error,P).
 '$assert_static'(CI,Mod,Where,R,P) :-
 	'$expand_clause'(CI,C0,C,Mod, HM),
@@ -599,7 +599,7 @@ retract(C) :-
 %	'$is_dynamic'(H,M), !,
 	F /\ 0x00002000 =:= 0x00002000, !,
 	'$recordedp'(M:H,(H:-B),R),
-	( F /\ 0x20000000  =:= 0x20000000, recorded('$mf','$mf_clause'(_,_,_,_,MRef),MR), erase(MR), fail ; true),
+	( F /\ 0x20000000  =:= 0x20000000, recorded('$mf','$mf_clause'(_,_,_,_,MRef),MR), erase(MR), erase(MRef), fail ; true),
 	erase(R).
 '$retract2'(_, H,M,_,_) :- 	
 	'$undefined'(H,M), !,
@@ -748,7 +748,7 @@ dynamic procedures. Under other modes it will abolish any procedures.
 abolish(V) :- var(V), !,
 	'$do_error'(instantiation_error,abolish(V)).
 abolish(Mod:V) :- var(V), !,
-	'$do_error'(instantiation_error,abolish(M:V)).
+	'$do_error'(instantiation_error,abolish(Mod:V)).
 abolish(M:X) :- !,
 	'$abolish'(X,M).
 abolish(X) :- 
@@ -935,7 +935,7 @@ dynamic_predicate(P,Sem) :-
 '$expand_clause'((H:-B),C1,C2,Mod,HM) :- !,
 	strip_module(Mod:H, HM, H1),
 	'$current_module'(M),
-	'$module_expansion'((H1:-B), C1, C2, HM, BM, M),
+	'$module_expansion'((H1:-B), C1, C2, HM, M, M),
 	( get_value('$strict_iso',on) ->
 	    '$check_iso_strict_clause'(C1)
         ;
@@ -1319,11 +1319,11 @@ compile_predicates(Ps) :-
 '$compile_predicates'(M:Ps, _, Call) :-
 	'$compile_predicates'(Ps, M, Call).
 '$compile_predicates'([], _, _).
-'$compile_predicates'(P.Ps, M, Call) :-
-	'$compile_predicate'(P, M, Call).
+'$compile_predicates'([P|Ps], M, Call) :-
+	'$compile_predicate'(P, M, Call),
 	'$compile_predicates'(Ps, M, Call).
 
-'$compile_predicate'(P, M, Call) :-
+'$compile_predicate'(P, _M, Call) :-
 	var(P), !,
 	'$do_error'(instantiation_error,Call).
 '$compile_predicate'(M:P, _, Call) :-

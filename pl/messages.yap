@@ -137,7 +137,7 @@ generate_message(M) -->
 
 stack_dump(error(_,_)) -->
 	{ fail }, 
-	{ recorded(sp_info,local_sp(P,CP,Envs,CPs),_) },
+	{ recorded(sp_info,local_sp(_P,CP,Envs,CPs),_) },
 	{ Envs = [_|_] ; CPs = [_|_] }, !,
 	[nl],
 	'$hacks':display_stack_info(CPs, Envs, 20, CP).
@@ -222,7 +222,7 @@ system_message(myddas_version(Version)) -->
 	[ 'MYDDAS version ~a' - [Version] ].
 system_message(yes) -->
 	[  'yes'  ].
-system_message(error,error(Msg,Info)) -->
+system_message(error(Msg,Info)) -->
 	( { var(Msg) } ; { var(Info)} ), !,
 	['bad error ~w' - [error(Msg,Info)]].
 system_message(error(consistency_error(Who),Where)) -->
@@ -233,8 +233,7 @@ system_message(error(domain_error(DomainType,Opt), Where)) -->
 	[ 'DOMAIN ERROR- ~w: ' - Where],
 	domain_error(DomainType, Opt).
 system_message(error(format_argument_type(Type,Arg), Where)) -->
-	[ 'FORMAT ARGUMENT ERROR- ~~~a called with ~w in ~w: ' - [Type,Arg,Where]],
-	domain_error(DomainType, Opt).
+	[ 'FORMAT ARGUMENT ERROR- ~~~a called with ~w in ~w: ' - [Type,Arg,Where]].
 system_message(error(existence_error(directory,Key), Where)) -->
 	[ 'EXISTENCE ERROR- ~w: ~w not an existing directory' - [Where,Key] ].
 system_message(error(existence_error(key,Key), Where)) -->
@@ -269,14 +268,14 @@ system_message(error(evaluation_error(zero_divisor), Where)) -->
 system_message(error(instantiation_error, Where)) -->
 	[ 'INSTANTIATION ERROR- ~w: expected bound value' - [Where] ].
 system_message(error(not_implemented(Type, What), Where)) -->
-	[ '~w not implemented- ~w' - [Type, What] ].
+	[ '~w: ~w not implemented- ~w' - [Where, Type, What] ].
 system_message(error(operating_system_error, Where)) -->
 	[ 'OPERATING SYSTEM ERROR- ~w' - [Where] ].
 system_message(error(out_of_heap_error, Where)) -->
 	[ 'OUT OF DATABASE SPACE ERROR- ~w' - [Where] ].
 system_message(error(out_of_stack_error, Where)) -->
 	[ 'OUT OF STACK SPACE ERROR- ~w' - [Where] ].
-vsystem_message(error(out_of_trail_error, Where)) -->
+system_message(error(out_of_trail_error, Where)) -->
 	[ 'OUT OF TRAIL SPACE ERROR- ~w' - [Where] ].
 system_message(error(out_of_attvars_error, Where)) -->
 	[ 'OUT OF STACK SPACE ERROR- ~w' - [Where] ].
@@ -385,7 +384,7 @@ system_message(error(unknown, Where)) -->
 	[ 'EXISTENCE ERROR- procedure ~w undefined' - [Where] ].
 system_message(error(unhandled_exception,Throw)) -->
 	[ 'UNHANDLED EXCEPTION - message ~w unknown' - [Throw] ].
-system_message(error(uninstantiation_error(TE), Where)) -->
+system_message(error(uninstantiation_error(TE), _Where)) -->
 	[ 'UNINSTANTIATION ERROR - expected unbound term, got ~q' - [TE] ].
 system_message(Messg) -->
 	[ '~q' - Messg ].
@@ -431,10 +430,10 @@ domain_error(predicate_spec, Opt) --> !,
 	[ '~w invalid predicate specifier' - [Opt] ].
 domain_error(radix, Opt) --> !,
 	[ 'invalid radix ~w' - [Opt] ].
-vdomain_error(read_option, Opt) --> !,
+domain_error(read_option, Opt) --> !,
 	[ '~w invalid option to read_term' - [Opt] ].
-domain_error(semantics_indicatior, Opt) --> !,
-	[ '~w expected predicate indicator, got ~w' - [Opt] ].
+domain_error(semantics_indicator, Opt) --> !,
+	[ 'predicate indicator, got ~w' - [Opt] ].
 domain_error(shift_count_overflow, Opt) --> !,
 	[ 'shift count overflow in ~w' - [Opt] ].
 domain_error(source_sink, Opt) --> !,
@@ -576,8 +575,8 @@ the  _Prefix_ is printed too.
 
  
 */
-prolog:print_message_lines(S, _, []) :- !.
-prolog:print_message_lines(S, P, [at_same_line|Lines]) :- !,
+prolog:print_message_lines(_S, _, []) :- !.
+prolog:print_message_lines(_S, P, [at_same_line|Lines]) :- !,
 	print_message_line(S, Lines, Rest),
 	prolog:print_message_lines(S, P, Rest).
 prolog:print_message_lines(S, kind(Kind), Lines) :- !,
@@ -670,7 +669,7 @@ pred_arity((H:-_),Name,Arity) :-
 pred_arity((H-->_),Name,Arity) :- !,
     nonvar(H),
     !,
-    functor(HL,Name,1),
+    functor(H,Name,A1),
     Arity is A1+2.
 pred_arity(H,Name,Arity) :-
     functor(H,Name,Arity).

@@ -117,19 +117,18 @@ mode and the existing spy-points, when the debugger is on.
 	 ),
 	 !,
 	 '$do_suspy_predicates_by_name'(NA,S,EM).
- '$suspy_predicates_by_name'(A,spy,M) :- !,
+'$suspy_predicates_by_name'(A,spy,M) :- !,
 	 print_message(warning,no_match(spy(M:A))).
- '$suspy_predicates_by_name'(A,nospy,M) :-
+'$suspy_predicates_by_name'(A,nospy,M) :-
 	 print_message(warning,no_match(nospy(M:A))).
 
- '$do_suspy_predicates_by_name'(A,S,M) :-
+'$do_suspy_predicates_by_name'(A,S,M) :-
 	 current_predicate(A,M:T),
 	 functor(T,A,N),
 	 '$do_suspy'(S, A, N, T, M).
- '$do_suspy_predicates_by_name'(A, S, M) :-
-	 recorded('$import','$import'(EM,M,T0,_,A,N),_),
-	 functor(T0,A0,N0),
-	 '$do_suspy'(S, A0, N0, T, EM).
+'$do_suspy_predicates_by_name'(A, S, M) :-
+	 recorded('$import','$import'(EM,M,_,T,A,N),_),
+	 '$do_suspy'(S, A, N, T, EM).
 
 
  %
@@ -217,7 +216,7 @@ The possible forms for  _P_ are the same as in `spy P`.
  nospy L :-
 	 '$current_module'(M),
 	 '$suspy'(L, nospy, M), fail.
- nospy _.
+nospy _.
 
 /** @pred nospyall 
 
@@ -226,18 +225,18 @@ Removes all existing spy-points.
 
  
 */
- nospyall :-
+nospyall :-
 	 '$init_debugger',
 	 prolog:debug_action_hook(nospyall), !.
- nospyall :-
+nospyall :-
 	 recorded('$spy','$spy'(T,M),_), functor(T,F,N), '$suspy'(F/N,nospy,M), fail.
- nospyall.
+nospyall.
 
  % debug mode -> debug flag = 1
 
- debug :-
+debug :-
 	 '$init_debugger',
-	 ( nb_getval('$spy_gn',L) -> true ; nb_setval('$spy_gn',1) ),
+	 ( nb_getval('$spy_gn',_) -> true ; nb_setval('$spy_gn',1) ),
 	 '$start_debugging'(on),
 	 print_message(informational,debug(debug)).
 
@@ -748,7 +747,7 @@ be lost.
 	'$loop_fail'(GoalNumber, G, Module, CalledFromDebugger).
 '$loop_spy_event'(error('$fail_spy'(GoalNumber),_), _, _, _, _) :- !,
 	throw(error('$fail_spy'(GoalNumber),[])).
-'$loop_spy_event'(error('$done_spy'(G0),_), GoalNumber, G, _, CalledFromDebugger) :-
+'$loop_spy_event'(error('$done_spy'(G0),_), GoalNumber, _G, _, CalledFromDebugger) :-
 	G0 >= GoalNumber, !,
 	'$continue_debugging'(zip, CalledFromDebugger).
 '$loop_spy_event'(error('$done_spy'(GoalNumber),_), _, _, _, _) :- !,
@@ -891,7 +890,7 @@ be lost.
 '$spycall'(G, M, CalledFromDebugger, InRedo) :-
 	'$spycall_expanded'(G, M, CalledFromDebugger, InRedo).
 
-'$spycall_expanded'(G, M, CalledFromDebugger, InRedo) :-
+'$spycall_expanded'(G, M, _CalledFromDebugger, InRedo) :-
 	'$flags'(G,M,F,F),
 	F /\ 0x08402000 =\= 0, !, % dynamic procedure, logical semantics, or source
 	% use the interpreter

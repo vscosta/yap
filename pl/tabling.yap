@@ -283,21 +283,21 @@ table(Pred) :-
 '$do_table'(Mod,Pred) :-
    '$do_error'(type_error(callable,Mod:Pred),table(Mod:Pred)).
 
-'$set_table'(Mod,PredFunctor,PredModeList) :-
+'$set_table'(Mod,PredFunctor,_PredModeList) :-
    '$undefined'('$c_table'(_,_,_),prolog), !,
    functor(PredFunctor, PredName, PredArity),
    '$do_error'(resource_error(tabling,Mod:PredName/PredArity),table(Mod:PredName/PredArity)).
 '$set_table'(Mod,PredFunctor,PredModeList) :-
    '$undefined'(PredFunctor,Mod), !,
    '$c_table'(Mod,PredFunctor,PredModeList).
-'$set_table'(Mod,PredFunctor,PredModeList) :-
+'$set_table'(Mod,PredFunctor,_PredModeList) :-
    '$flags'(PredFunctor,Mod,Flags,Flags),
    Flags /\ 0x00000040 =:= 0x00000040, !.
 '$set_table'(Mod,PredFunctor,PredModeList) :-
    '$flags'(PredFunctor,Mod,Flags,Flags),
    Flags /\ 0x1991F8C0 =:= 0,
    '$c_table'(Mod,PredFunctor,PredModeList), !.
-'$set_table'(Mod,PredFunctor,PredModeList) :-
+'$set_table'(Mod,PredFunctor,_PredModeList) :-
    functor(PredFunctor,PredName,PredArity), 
    '$do_error'(permission_error(modify,table,Mod:PredName/PredArity),table(Mod:PredName/PredArity)).
 

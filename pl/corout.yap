@@ -101,7 +101,7 @@ wake_delay(redo_dif(Done, X, Y)) :-
 wake_delay(redo_freeze(Done, V, Goal)) :-
 	redo_freeze(Done, V, Goal).
 wake_delay(redo_eq(Done, X, Y, Goal)) :-
-	redo_eq(Done, X, Y, Goal, G).
+	redo_eq(Done, X, Y, Goal, _G).
 wake_delay(redo_ground(Done, X, Goal)) :-
 	redo_ground(Done, X, Goal).
 
@@ -135,7 +135,7 @@ attribute_goals(Var) -->
 	{ get_attr(Var, '$coroutining', Delays) },
 	attgoal_for_delays(Delays, Var).
 	
-attgoal_for_delays([], V) --> [].
+attgoal_for_delays([], _V) --> [].
 attgoal_for_delays([G|AllAtts], V) -->
 	attgoal_for_delay(G, V),
 	attgoal_for_delays(AllAtts, V).
@@ -150,10 +150,10 @@ attgoal_for_delay(redo_freeze(Done, V, Goal), V) -->
 attgoal_for_delay(redo_eq(Done, X, Y, Goal), V) -->
 	{ var(Done), first_att(Goal, V) }, !,
 	[ prolog:when(X=Y,Goal) ].
-attgoal_for_delay(redo_ground(Done, X, Goal), V) -->
+attgoal_for_delay(redo_ground(Done, X, Goal), _V) -->
 	{ var(Done) },  !,
 	[ prolog:when(ground(X),Goal) ].
-attgoal_for_delay(_, V) --> [].
+attgoal_for_delay(_, _V) --> [].
 
 remove_when_declarations(when(Cond,Goal,_), when(Cond,NoWGoal)) :- !,
 	remove_when_declarations(Goal, NoWGoal).
@@ -380,7 +380,7 @@ prepare_goal_for_when(G, Mod, Mod:G).
 % when/5 and when_suspend succeds when there is need to suspend a goal
 %
 %
-when(V, G, Done, LG0, LGF) :- var(V), !,
+when(V, G, _Done, LG, LG) :- var(V), !,
 	'$do_error'(instantiation_error,when(V,G)).
 when(nonvar(V), G, Done, LG0, LGF) :-
 	when_suspend(nonvar(V), G, Done, LG0, LGF).
@@ -613,8 +613,8 @@ first_att(T, V) :-
 	term_variables(T, Vs),
 	check_first_attvar(Vs, V).
 
-check_first_attvar(V.Vs, V0) :- attvar(V), !, V == V0.
-check_first_attvar(_.Vs, V0) :-
+check_first_attvar([V|_Vs], V0) :- attvar(V), !, V == V0.
+check_first_attvar([_|Vs], V0) :-
 	check_first_attvar(Vs, V0).
 
 /**

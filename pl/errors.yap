@@ -339,7 +339,7 @@ print_message(_, Term) :-
 	flush_output(user_output),
 	flush_output(user_error),
 	print_message_lines(Stream, LinePrefix, [nl|LinesF]).
-'$print_system_message'(Error, Level, Lines) :-
+'$print_system_message'(_Error, Level, Lines) :-
 	flush_output(user_output),
 	flush_output(user_error),
 	'$messages':prefix(Level, LinePrefix, Stream, LinesF, Lines), !,

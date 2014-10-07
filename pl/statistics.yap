@@ -289,9 +289,7 @@ statistics(stack_shifts,[NOfHO,NOfSO,NOfTO]) :-
 	'$inform_stack_overflows'(NOfSO,_),
 	'$inform_trail_overflows'(NOfTO,_).
 statistics(atoms,[NOf,SizeOf]) :-
-	'$statistics_atom_info'(NOf,SizeOf),
-	'$inform_stack_overflows'(NOfSO,_),
-	'$inform_trail_overflows'(NOfTO,_).
+	'$statistics_atom_info'(NOf,SizeOf).
 statistics(static_code,[ClauseSize, IndexSize, TreeIndexSize, ExtIndexSize, SWIndexSize]) :-
 	'$statistics_db_size'(ClauseSize, TreeIndexSize, ExtIndexSize, SWIndexSize),
 	IndexSize is TreeIndexSize+ ExtIndexSize+ SWIndexSize.

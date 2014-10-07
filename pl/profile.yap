@@ -220,7 +220,7 @@ showprofres(A) :-
 
 '$display_preds'(_, _, _, N, N) :- !.
 '$display_preds'([], _, _, _, _).
-'$display_preds'([0-_|_], _Tot, _SoFar, _I, N) :- !.
+'$display_preds'([0-_|_], _Tot, _SoFar, _I, _N) :- !.
 '$display_preds'([NSum-P|Ps], Tot, SoFar, I, N) :-
 	Sum is -NSum,
 	Perc is (100*Sum)/Tot,

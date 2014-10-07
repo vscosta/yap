@@ -66,7 +66,7 @@ a postfix operator.
 	'$do_error'(domain_error(operator_priority,P),G).
 '$check_op'(_,T,_,G) :-
 	\+ atom(T), !,
-	'$do_error'(type_error(atom,P),G).
+	'$do_error'(type_error(atom,T),G).
 '$check_op'(_,T,_,G) :-
 	\+  '$associativity'(T), !,
 	'$do_error'(domain_error(operator_specifier,T),G).
@@ -80,7 +80,7 @@ a postfix operator.
 '$check_top_op'(P, T, V, G) :-
 	atom(V), !,
 	'$check_op_name'(P, T, V, G).
-'$check_top_op'(P, T, V, G) :-
+'$check_top_op'(_P, _T, V, G) :-
 	'$do_error'(type_error(atom,V),G).
 
  '$associativity'(xfx).
@@ -95,18 +95,18 @@ a postfix operator.
 '$check_module_for_op'(MOp, G, _) :-
 	var(MOp), !,
 	'$do_error'(instantiation_error,G).
-'$check_module_for_op'(M:V, G, _) :-
+'$check_module_for_op'(M:_V, G, _) :-
 	var(M), !,
 	'$do_error'(instantiation_error,G).
 '$check_module_for_op'(M:V, G, NV) :-
 	atom(M), !,
 	'$check_module_for_op'(V, G, NV).
-'$check_module_for_op'(M:V, G, _) :- !,
-	'$do_error'(type_error(atom,P),G).
-'$check_module_for_op'(V, G, V).
+'$check_module_for_op'(M:_V, G, _) :- !,
+	'$do_error'(type_error(atom,M),G).
+'$check_module_for_op'(V, _G, V).
 
-'$check_ops'(P, T, [], G) :- !.
-'$check_ops'(P, T, Op.NV, G) :- !,
+'$check_ops'(_P, _T, [], _G) :- !.
+'$check_ops'(P, T, [Op|NV], G) :- !,
 	(
 	 var(NV)
 	->
@@ -116,7 +116,7 @@ a postfix operator.
 	 '$check_op_name'(P, T, NOp, G),
 	 '$check_ops'(P, T, NV, G)
 	).	
-'$check_ops'(P, T, Ops, G) :-
+'$check_ops'(_P, _T, Ops, G) :-
 	'$do_error'(type_error(list,Ops),G).
 
 '$check_op_name'(_,_,V,G) :-
@@ -147,7 +147,7 @@ a postfix operator.
 '$op'(P, T, A) :-
 	'$op2'(P,T,A).
 
-'$opl'(P, T, _, []).
+'$opl'(_P, _T, _, []).
 '$opl'(P, T, M, [A|As]) :-
 	'$op2'(P, T, M:A),
 	'$opl'(P, T, M, As).
@@ -315,10 +315,6 @@ Checks whether  _T_ is unbound, an atom, or a number.
 simple(V) :- var(V), !.
 simple(A) :- atom(A), !.
 simple(N) :- number(N).
-
-callable(V) :- var(V), !, fail.
-callable(V) :- atom(V), !.
-callable(V) :- functor(V,_,Ar), Ar > 0.
 
 /** @pred  nth_instance(? _Key_,? _Index_,? _R_) 
 

@@ -129,7 +129,7 @@ style_check(V) :-
 	'$do_error'( type_error('+|-|?(Flag)', V), style_check(V) ).
 style_check(V) :-
 	\+atom(V), \+ list(V), V \= + _, V \= + _, !,
-	'$do_error'( domain_error(style_name(Flag), V), style_check(V) ).
+	'$do_error'( domain_error(style_name, V), style_check(V) ).
 	
 
 style_check_(all) :-
@@ -183,7 +183,7 @@ style_check_(+charset) :-
 style_check_(-charset) :-
 	'$style_checker'( [  -charset ] ).
 style_check_('?'(Info) ) :-
-	lists:member( Style,  [ singleton, discontiguous, multiple ] ),
+	L =  [ singleton, discontiguous, multiple ],
 	( lists:member(Style, L ) -> Info = +Style ; Info = -Style ).
 style_check_([]).
 style_check_([H|T]) :- style_check(H), style_check(T).

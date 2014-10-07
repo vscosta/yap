@@ -64,7 +64,7 @@ listing(MV) :-
 listing(Stream, MV) :-
     strip_module( MV, M, I),
     '$mlisting'(Stream, I, M).
-listing(Stream, []) :- !.
+listing(_Stream, []) :- !.
 listing(Stream, [MV|MVs]) :- !,
     listing(Stream,  MV),
     listing(Stream, MVs).	    
@@ -74,9 +74,9 @@ listing(Stream, [MV|MVs]) :- !,
 	 ;
       atom(MV) -> MV/_ = NA, '$do_listing'(Stream, M, NA)
 	 ;
-      MV = N//Ar -> ( integer(Ar) -> Ar2 is Ar+2, NA is N/Ar2 ; '$do_listing'(Stream, Na/Ar2, M), Ar2 >= 2, Ar is Ar2-2 )
+      MV = N//Ar -> ( integer(Ar) -> Ar2 is Ar+2, NA is N/Ar2 ; '$do_listing'(Stream, NA/Ar2, M), Ar2 >= 2, Ar is Ar2-2 )
 	 ;
-      MV = N/Ar, ( atom(N) -> true ; var(N) ), ( integer(Ar) -> true ; var(A) )  -> '$do_listing'(Stream, M, MV)
+      MV = N/Ar, ( atom(N) -> true ; var(N) ), ( integer(Ar) -> true ; var(Ar) )  -> '$do_listing'(Stream, M, MV)
 	 ;
       MV = M1:PP ->  '$mlisting'(Stream, PP, M1)
 	 ;
@@ -160,7 +160,7 @@ listing(Stream, [MV|MVs]) :- !,
       format( Stream, ':- ~q:~q.~n', [M,PredDef])
      ),
      fail.
-'$list_clauses'(Stream, M, Pred) :-
+'$list_clauses'(Stream, _M, _Pred) :-
         nl( Stream ),
         fail.
 '$list_clauses'(Stream, M, Pred) :-

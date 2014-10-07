@@ -189,6 +189,31 @@ do_c_built_in(X is Y, _, P) :-
 		expand_expr(Y, P0, X0),
 		'$drop_is'(X0, X, P0, P)
 	).
+do_c_built_in(phrase(NT,Xs), Mod, NTXsNil) :-
+	'$_arith':do_c_built_in(phrase(NT,Xs,[]), Mod, NTXsNil).
+do_c_built_in(phrase(NT,Xs0,Xs), Mod, NewGoal) :-
+    '$goal_expansion_allowed'(phrase(NT,Xs0,Xs), Mod),
+    Goal = phrase(NT,Xs0,Xs),
+    callable(NT),
+    catch('$translate_rule'((pseudo_nt --> NT), Rule),
+	  error(Pat,ImplDep),
+	  ( \+ '$harmless_dcgexception'(Pat), 
+	    throw(error(Pat,ImplDep))
+	  )
+	 ),
+    Rule = (pseudo_nt(Xs0c,Xsc) :- NewGoal0),
+    Goal \== NewGoal0,
+    % apply translation only if we are safe
+    \+ '$contains_illegal_dcgnt'(NT), !,
+    (   var(Xsc), Xsc \== Xs0c
+	->  Xs = Xsc, NewGoal1 = NewGoal0
+	;   NewGoal1 = (NewGoal0, Xsc = Xs)
+    ),
+    (   var(Xs0c)
+	-> Xs0 = Xs0c,
+	   NewGoal = NewGoal1
+	;  ( Xs0 = Xs0c, NewGoal1 ) = NewGoal
+    ).
 do_c_built_in(Comp0, _, R) :-		% now, do it for comparisons
 	'$compop'(Comp0, Op, E, F),
 	!,
@@ -197,32 +222,7 @@ do_c_built_in(Comp0, _, R) :-		% now, do it for comparisons
 	expand_expr(F, Q, V),
 	'$do_and'(P, Q, R0),
 	'$do_and'(R0, Comp, R).
-do_c_built_in(phrase(NT,Xs), NTXsNil) :-
-	'$_arith':do_c_built_in(phrase(NT,Xs,[]), NTXsNil).
-
-do_c_built_in(phrase(NT,Xs0,Xs), Mod, NewGoal) :-
-	'$goal_expansion_allowed'(phrase(NT,Xs0,Xs), Mod),
-	Goal = phrase(NT,Xs0,Xs),
-	callable(NT),
-	catch('$translate_rule'((pseudo_nt --> NT), Rule),
-	      error(Pat,ImplDep),
-	      ( \+ '$harmless_dcgexception'(Pat), 
-		throw(error(Pat,ImplDep))
-	      )),
-	Rule = (pseudo_nt(Xs0c,Xsc) :- NewGoal0),
-	Goal \== NewGoal0,
-	% apply translation only if we are safe
-	\+ '$contains_illegal_dcgnt'(NT), !,
-	(   var(Xsc), Xsc \== Xs0c
-	->  Xs = Xsc, NewGoal1 = NewGoal0
-	;   NewGoal1 = (NewGoal0, Xsc = Xs)
-	),
-	(   var(Xs0c)
-	-> Xs0 = Xs0c,
-	   NewGoal = NewGoal1
-	;  ( Xs0 = Xs0c, NewGoal1 ) = NewGoal
-	).
-do_c_built_in(P, _, P).
+do_c_built_in(P, _M, P).
 
 do_c_built_metacall(G1, Mod, '$execute_wo_mod'(G1,Mod)) :- 
 	var(Mod), !.
@@ -241,11 +241,13 @@ do_c_built_metacall(G1, Mod, call(Mod:G1)).
 % V is the result of the simplification,
 % X the result of the initial expression
 % and the last argument is how we are writing this result
-'$drop_is'(V, V1, P0, G) :- var(V), !,		% usual case
-        V = V1, P0 = G.
+'$drop_is'(V, V1, P0, G) :- 
+    var(V),
+    !,		% usual case
+    V = V1,
+    P0 = G.
 '$drop_is'(V, X, P0, P) :-			% atoms
-        '$do_and'(P1, X is V, P).
-
+    '$do_and'(P0, X is V, P).
 
 % Table of arithmetic comparisons
 '$compop'(X < Y, < , X, Y).
@@ -393,32 +395,6 @@ expand_expr(Op, X, Y, O, Q, P) :-
 '$preprocess_args_for_non_commutative'(X, Y, Z, W, E) :-
 	'$do_and'(Z = X, Y = W, E).
 
-
-do_c_built_in(phrase(NT,Xs), NTXsNil) :-
-	'$_arith':do_c_built_in(phrase(NT,Xs,[]), NTXsNil).
-
-do_c_built_in(phrase(NT,Xs0,Xs), Mod, NewGoal) :-
-	'$goal_expansion_allowed'(phrase(NT,Xs0,Xs), Mod),
-	Goal = phrase(NT,Xs0,Xs),
-	callable(NT),
-	catch('$translate_rule'((pseudo_nt --> NT), Rule),
-	      error(Pat,ImplDep),
-	      ( \+ '$harmless_dcgexception'(Pat), 
-		throw(error(Pat,ImplDep))
-	      )),
-	Rule = (pseudo_nt(Xs0c,Xsc) :- NewGoal0),
-	Goal \== NewGoal0,
-	% apply translation only if we are safe
-	\+ '$contains_illegal_dcgnt'(NT), !,
-	(   var(Xsc), Xsc \== Xs0c
-	->  Xs = Xsc, NewGoal1 = NewGoal0
-	;   NewGoal1 = (NewGoal0, Xsc = Xs)
-	),
-	(   var(Xs0c)
-	-> Xs0 = Xs0c,
-	   NewGoal = NewGoal1
-	;  ( Xs0 = Xs0c, NewGoal1 ) = NewGoal
-	).
 
 '$goal_expansion_allowed'(phrase(_NT,_Xs0,_Xs), _Mod).
 

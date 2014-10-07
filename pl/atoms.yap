@@ -45,21 +45,21 @@ atom_concat(Xs,At) :-
 % just slice first atom
 '$atom_concat_constraints'([At0|Xs], 0, At, Unbound) :-
 	atom(At0), !,
-	sub_atom(At, 0, Sz, L, At0 ),
+	sub_atom(At, 0, _Sz, L, At0 ),
 	sub_atom(At, _, L, 0, Atr ), %remainder
 	'$atom_concat_constraints'(Xs, 0, Atr, Unbound).
 % first hole: Follow says whether we have two holes in a row, At1 will be our atom
 '$atom_concat_constraints'([At0|Xs], 0, At, [hole(At0, 0, At, Next)|Unbound]) :-
-	 '$atom_concat_constraints'(Xs, mid(Next,At1), At, Unbound).
+	 '$atom_concat_constraints'(Xs, mid(Next,_At1), At, Unbound).
 % end of a run
 '$atom_concat_constraints'([At0|Xs], mid(end, At1), At, Unbound) :-
 	atom(At0), !,
-	sub_atom(At, Next, Sz, L, At0),
+	sub_atom(At, Next, _Sz, L, At0),
 	sub_atom(At, 0, Next, Next, At1),
 	sub_atom(At, _, L, 0, Atr), %remainder
 	'$atom_concat_constraints'(Xs, 0, Atr, Unbound).
 '$atom_concat_constraints'([At0|Xs], mid(Next,At1), At, Next, [hole(At0, Next, At, Follow)|Unbound]) :-
-	 '$atom_concat_constraints'(Xs, mid(NextFollow, At1), At, Unbound).
+	 '$atom_concat_constraints'(Xs, mid(Follow, At1), At, Unbound).
 
 '$process_atom_holes'([]).
 '$process_atom_holes'([hole(At0, Next, At1, End)|Unbound]) :- End == end, !,
@@ -190,21 +190,21 @@ string_concat(Xs,At) :-
 % just slice first string
 '$string_concat_constraints'([At0|Xs], 0, At, Unbound) :-
 	string(At0), !,
-	sub_string(At, 0, Sz, L, At0 ),
+	sub_string(At, 0, _Sz, L, At0 ),
 	sub_string(At, _, L, 0, Atr ), %remainder
 	'$string_concat_constraints'(Xs, 0, Atr, Unbound).
 % first hole: Follow says whether we have two holes in a row, At1 will be our string
 '$string_concat_constraints'([At0|Xs], 0, At, [hole(At0, 0, At, Next)|Unbound]) :-
-	 '$string_concat_constraints'(Xs, mid(Next,At1), At, Unbound).
+	 '$string_concat_constraints'(Xs, mid(Next,_At1), At, Unbound).
 % end of a run
 '$string_concat_constraints'([At0|Xs], mid(end, At1), At, Unbound) :-
 	string(At0), !,
-	sub_string(At, Next, Sz, L, At0),
+	sub_string(At, Next, _Sz, L, At0),
 	sub_string(At, 0, Next, Next, At1),
 	sub_string(At, _, L, 0, Atr), %remainder
 	'$string_concat_constraints'(Xs, 0, Atr, Unbound).
 '$string_concat_constraints'([At0|Xs], mid(Next,At1), At, Next, [hole(At0, Next, At, Follow)|Unbound]) :-
-	 '$string_concat_constraints'(Xs, mid(NextFollow, At1), At, Unbound).
+	 '$string_concat_constraints'(Xs, mid(Follow, At1), At, Unbound).
 
 '$process_string_holes'([]).
 '$process_string_holes'([hole(At0, Next, At1, End)|Unbound]) :- End == end, !,

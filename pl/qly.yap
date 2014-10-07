@@ -113,7 +113,7 @@ Saves an image of the current state of the YAP database in file
  _F_, and guarantee that execution of the restored code will start by
 trying goal  _G_.
 **/
-save_program(File, Goal) :-
+save_program(_File, Goal) :-
 	recorda('$restore_goal', Goal ,_R),	
 	fail.
 save_program(File, _Goal) :-
@@ -210,8 +210,8 @@ save_program(File, _Goal) :-
     '$do_error'(domain_error(qsave_program,Opt), G).
 
 % there is some ordering between flags.
-'$x_yap_flag'(goal, Goal).
-'$x_yap_flag'(language, V).
+'$x_yap_flag'(goal, _Goal).
+'$x_yap_flag'(language, _V).
 '$x_yap_flag'(M:unknown, V) :-
 	current_module(M),
 	yap_flag(M:unknown, V).
@@ -275,7 +275,7 @@ save_program(File, _Goal) :-
 	load_files(library(win_menu), [silent(true)]),
 	fail.
 '$init_from_saved_state_and_args' :-
-	recorded('$reload_foreign_libraries',G,R),
+	recorded('$reload_foreign_libraries',_G,R),
 	erase(R),
 	shlib:reload_foreign_libraries,
 	fail.
@@ -406,10 +406,11 @@ qsave_file(F0, State) :-
 
 '$qsave_file_'(File, UserF, _State) :- 
     ( File == user_input -> Age = 0 ; time_file64(File, Age) ),
+    '$current_module'(M),
     assert(user:'$file_property'( '$lf_loaded'( UserF, Age, M) ) ),
     '$set_owner_file'( '$file_property'( _ ), user, File ),
     fail.
-'$qsave_file_'(File, UserF, State) :- 
+'$qsave_file_'(File, UserF, _State) :- 
     recorded('$lf_loaded','$lf_loaded'( File, M, Reconsult, UserFile, OldF, Line, Opts), _),
     assert(user:'$file_property'( '$lf_loaded'( UserF, M, Reconsult, UserFile, OldF, Line, Opts) ) ),
     '$set_owner_file'( '$file_property'( _ ), user, File ),
@@ -440,7 +441,7 @@ qsave_file(F0, State) :-
 	setof(Info, '$fetch_multi_file_module'(File, Info), Multi_Files).
 
 '$fetch_multi_file_file'(FileName, (M:G :- Body)) :-
-	recorded('$multifile_defs','$defined'(FileName,Name,Arity,Mod), _),
+	recorded('$multifile_defs','$defined'(FileName,Name,Arity,M), _),
 	functor(G, Name, Arity ), 
         clause(M:G, Body, ClauseRef),
 	clause_property(ClauseRef, file(FileName) ).
@@ -451,7 +452,7 @@ Saves an image of all the information compiled by the systemm on module _F_ to _
 **/
 
 qsave_module(Mod, OF) :- 
-	recorded('$module', '$module'(F,Mod,Source,Exps,L), _),
+	recorded('$module', '$module'(_F,Mod,Source,Exps,L), _),
 	'$fetch_parents_module'(Mod, Parents),
 	'$fetch_imports_module'(Mod, Imps),
 	'$fetch_multi_files_module'(Mod, MFs),
@@ -508,6 +509,7 @@ qload_module(Mod) :-
 	Verbosity = informational
     ),
     StartMsg = loading_module,
+    EndMsg = module_loaded,
     '$current_module'(SourceModule, Mod),
     H0 is heapused, '$cputime'(T0,_),
     absolute_file_name( Mod, File, [expand(true),file_type(qly)]),
@@ -558,9 +560,8 @@ qload_module(Mod) :-
     '$install_term_expansions_module'(Mod, TEs),
     % last, export everything to the host: if the loading crashed you didn't actually do
     % no evil.
-    '$convert_for_export'(all, Exps, Mod, SourceModule, TranslationTab, AllExports0, qload_module),
-    '$add_to_imports'(TranslationTab, Mod, SourceModule), % insert ops, at least for now
-    sort( AllExports0, AllExports ).
+    '$convert_for_export'(all, Exps, Mod, SourceModule, TranslationTab, _AllExports0, qload_module),
+    '$add_to_imports'(TranslationTab, Mod, SourceModule). % insert ops, at least for now
 
 '$fetch_imports_module'(Mod, Imports) :-
 	findall(Info, '$fetch_import_module'(Mod, Info), Imports).
@@ -568,12 +569,12 @@ qload_module(Mod) :-
 % detect an import that is local to the module.
 '$fetch_import_module'(Mod, '$import'(Mod0,Mod,G0,G,N,K) - S) :-
 	recorded('$import', '$import'(Mod0,Mod,G0,G,N,K), _),
-	( recorded('$module','$module'(_, Mod0, S, _, _), R) -> true ; S = user_input ).
+	( recorded('$module','$module'(_, Mod0, S, _, _), _) -> true ; S = user_input ).
 
 '$fetch_parents_module'(Mod, Parents) :-
 	findall(Parent, prolog:'$parent_module'(Mod,Parent), Parents).
 
-'$fetch_module_transparents_module'(Mod, Mmodule_Transparents) :-
+'$fetch_module_transparents_module'(Mod, Module_Transparents) :-
 	findall(Info, '$fetch_module_transparent_module'(Mod, Info), Module_Transparents).
 
 % detect an module_transparenterator that is local to the module.
@@ -593,9 +594,9 @@ qload_module(Mod) :-
 % detect an multi_file that is local to the module.
 '$fetch_multi_file_module'(Mod, '$defined'(FileName,Name,Arity,Mod)) :-
 	recorded('$multifile_defs','$defined'(FileName,Name,Arity,Mod), _).
-'$fetch_multi_file_module'(Mod, '$mf_clause'(FileName,_Name,_Arity,_Module,Clause), _) :-
-    recorded('$mf','$mf_clause'(FileName,_Name,_Arity,_Module,ClauseRef), _),
-    instance(R, Clause ).
+'$fetch_multi_file_module'(Mod, '$mf_clause'(FileName,_Name,_Arity,Mod,Clause), _) :-
+    recorded('$mf','$mf_clause'(FileName,_Name,_Arity,Mod,ClauseRef), _),
+    instance(ClauseRef, Clause ).
 
 '$fetch_term_expansions_module'(Mod, TEs) :-
 	findall(Info, '$fetch_term_expansion_module'(Mod, Info), TEs).
@@ -644,7 +645,7 @@ qload_module(Mod) :-
 '$restore_load_files'([]).
 '$restore_load_files'([M-F0|Fs]) :-
     (
-	absolute_file_name( M, File, [expand(true),file_type(qly),access(read),file_errors(fail)])
+	absolute_file_name( M,_File, [expand(true),file_type(qly),access(read),file_errors(fail)])
     ->
         qload_module(M)
     ;
@@ -682,9 +683,9 @@ qload_module(Mod) :-
 '$do_foreign'('$swi_foreign'(File, Opts, Handle), More) :-
     open_shared_object(File, Opts, Handle, NewHandle),
     '$init_foreigns'(More, NewHandle).
-'$do_foreign'('$swi_foreign'(_,_), More).
+'$do_foreign'('$swi_foreign'(_,_), _More).
 
-'$init_foreigns'([], Handle, NewHandle).
+'$init_foreigns'([], _Handle, _NewHandle).
 '$init_foreigns'(['$swi_foreign'( Handle, Function )|More], Handle, NewHandle) :- 
     !,
     call_shared_object_function( NewHandle, Function),
@@ -706,6 +707,7 @@ qload_file( F0 ) :-
 	Verbosity = informational
     ),
     StartMsg = loading_module,
+    EndMsg = module_loaded,
     '$current_module'( SourceModule ),
     H0 is heapused, 
     '$cputime'(T0,_),
@@ -737,21 +739,21 @@ qload_file( F0 ) :-
     print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
     '$exec_initialisation_goals'.
 
-'$qload_file'(S, SourceModule, F, FilePl, _F0, _ImportList) :-
+'$qload_file'(_S, SourceModule, _F, FilePl, _F0, _ImportList) :-
     recorded('$lf_loaded','$lf_loaded'( FilePl, _Age, SourceModule), _),
    !.
-'$qload_file'(S, SourceModule, F, FilePl, _F0, _ImportList) :-
+'$qload_file'(_S, SourceModule, _F, FilePl, _F0, _ImportList) :-
     ( FilePl == user_input -> Age = 0 ; time_file64(FilePl, Age) ),
     recorda('$lf_loaded','$lf_loaded'( FilePl, Age, SourceModule), _),
     fail.
 '$qload_file'(S, _SourceModule, _File, _FilePl, _F0, _ImportList) :-
     '$qload_file_preds'(S),
     fail.
-'$qload_file'(S, SourceModule, F, FilePl, _F0, _ImportList) :-
-    user:'$file_property'( '$lf_loaded'( _, Age, _ ) ),
+'$qload_file'(_S, SourceModule, F, _FilePl, _F0, _ImportList) :-
+    user:'$file_property'( '$lf_loaded'( F, Age, _ ) ),
     recordaifnot('$lf_loaded','$lf_loaded'( F, Age, SourceModule), _),
     fail.
-'$qload_file'(_S, SourceModule, _File, FilePl, F0, _ImportList) :-
+'$qload_file'(_S, _SourceModule, _File, FilePl, F0, _ImportList) :-
     b_setval('$source_file', F0 ),
     '$process_directives'( FilePl ),
     fail.
@@ -768,7 +770,7 @@ qload_file( F0 ) :-
     assert( Clause ),
     fail.
 '$process_directives'( FilePl ) :-
-    user:'$file_property'( directive( MG, Mode,  VL, Pos  ) ),
+    user:'$file_property'( directive( MG, _Mode,  VL, Pos  ) ),
     '$set_source'( FilePl, Pos ),
     strip_module(MG, M, G),
     '$process_directive'(G, reconsult, M, VL, Pos),

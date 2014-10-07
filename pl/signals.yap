@@ -275,7 +275,7 @@ on_signal(Signal,OldAction,NewAction) :-
 	on_signal(Signal, OldAction, NewAction).
 on_signal(Signal,OldAction,default) :-
 	'$reset_signal'(Signal, OldAction).
-on_signal(Signal,OldAction,Action) :-
+on_signal(_Signal,_OldAction,Action) :-
 	var(Action), !,
 	throw(error(system_error,'Somehow the meta_predicate declarations of on_signal are subverted!')).
 on_signal(Signal,OldAction,Action) :-
@@ -318,8 +318,8 @@ alarm(Number, Goal, Left) :-
 	Secs is integer(Number),
 	USecs is integer((Number-Secs)*1000000) mod 1000000,
 	on_signal(sig_alarm, _, Goal),
-	'$alarm'(Interval, 0, Left, _).
-alarm(Interval.USecs, Goal, Left.LUSecs) :-
+	'$alarm'(Secs, USecs, Left, _).
+alarm([Interval|USecs], Goal, Left.LUSecs) :-
 	on_signal(sig_alarm, _, Goal),
 	'$alarm'(Interval, USecs, Left, LUSecs).
 

@@ -691,24 +691,18 @@ yap_flag(index,X) :-
 	'$do_error'(domain_error(flag_value,index+X),yap_flag(index,X)).
 
 % do or do not indexation
-yap_flag(index_sub_term_search_depth,X) :- var(X),
-	'$access_yap_flags'(23, X), !.
-yap_flag(index_sub_term_search_depth,X,X)  :-
-	integer(X), X > 0,
-	'$set_yap_flags'(23,X1).
-yap_flag(index_sub_term_search_depth,X,X)  :-
-	\+ integer(X),
-	'$do_error'(type_error(integer,X),yap_flag(index_sub_term_search_depth,X)).
-yap_flag(index_sub_term_search_depth,X,X) :-
-	'$do_error'(domain_error(out_of_range,index_sub_term_search_depth+X),yap_flag(index_sub_term_search_depth,X)).
-
-% should match definitions in Yap.h
-'$transl_to_index_mode'(0, off).
-'$transl_to_index_mode'(1, single).
-'$transl_to_index_mode'(2, compact).
-'$transl_to_index_mode'(3, multi).
-'$transl_to_index_mode'(3, on). % default is multi argument indexing
-'$transl_to_index_mode'(4, max).
+yap_flag(index_sub_term_search_depth,X) :- 
+    var(X),
+    '$access_yap_flags'(23, X), !.
+yap_flag(index_sub_term_search_depth,X)  :-
+    integer(X),
+    X > 0,
+    '$set_yap_flags'(23,X).
+yap_flag(index_sub_term_search_depth,X)  :-
+    \+ integer(X),
+    '$do_error'(type_error(integer,X),yap_flag(index_sub_term_search_depth,X)).
+yap_flag(index_sub_term_search_depth,X) :-
+    '$do_error'(domain_error(out_of_range,index_sub_term_search_depth+X),yap_flag(index_sub_term_search_depth,X)).
 
 % tabling mode
 yap_flag(tabling_mode,Options) :- 
@@ -724,16 +718,6 @@ yap_flag(tabling_mode,Option) :-
    '$set_yap_flags'(20,Flag).
 yap_flag(tabling_mode,Options) :-
    '$do_error'(domain_error(flag_value,tabling_mode+Options),yap_flag(tabling_mode,Options)).
-
-% should match with code in stdpreds.c
-'$transl_to_yap_flag_tabling_mode'(0,default).
-'$transl_to_yap_flag_tabling_mode'(1,batched).
-'$transl_to_yap_flag_tabling_mode'(2,local).
-'$transl_to_yap_flag_tabling_mode'(3,exec_answers).
-'$transl_to_yap_flag_tabling_mode'(4,load_answers).
-'$transl_to_yap_flag_tabling_mode'(5,local_trie).
-'$transl_to_yap_flag_tabling_mode'(6,global_trie).
-'$transl_to_yap_flag_tabling_mode'(7,coinductive).
 
 yap_flag(informational_messages,X) :- var(X), !,
 	 yap_flag(verbose, X).
@@ -933,27 +917,6 @@ yap_flag(single_var_warnings,X) :-
 
 yap_flag(system_options,X) :-
 	'$system_options'(X).
-
-'$system_options'(big_numbers) :-
-	'$has_bignums'.
-'$system_options'(coroutining) :-
-	'$yap_has_coroutining'.
-'$system_options'(depth_limit) :-
-	\+ '$undefined'(get_depth_limit(_), prolog).
-'$system_options'(low_level_tracer) :-
-	\+ '$undefined'(start_low_level_trace, prolog).
-'$system_options'(or_parallelism) :-
-	\+ '$undefined'('$c_yapor_start', prolog).
-'$system_options'(rational_trees) :-
-	'$yap_has_rational_trees'.
-'$system_options'(readline) :-
-	'$swi_current_prolog_flag'(readline, true).
-'$system_options'(tabling) :-
-	\+ '$undefined'('$c_table'(_,_,_), prolog).
-'$system_options'(threads) :-
-	\+ '$undefined'('$thread_join'(_), prolog).
-'$system_options'(wam_profiler) :-
-	\+ '$undefined'(reset_op_counters, prolog).
 	
 yap_flag(update_semantics,X) :-
 	var(X), !,
@@ -1080,6 +1043,46 @@ yap_flag(max_threads,X) :-
 	'$do_error'(permission_error(modify,flag,max_threads),yap_flag(max_threads,X)).
 yap_flag(max_threads,X) :-
 	'$do_error'(domain_error(flag_value,max_threads+X),yap_flag(max_threads,X)).
+
+% should match definitions in Yap.h
+'$transl_to_index_mode'(0, off).
+'$transl_to_index_mode'(1, single).
+'$transl_to_index_mode'(2, compact).
+'$transl_to_index_mode'(3, multi).
+'$transl_to_index_mode'(3, on). % default is multi argument indexing
+'$transl_to_index_mode'(4, max).
+
+
+% should match with code in stdpreds.c
+'$transl_to_yap_flag_tabling_mode'(0,default).
+'$transl_to_yap_flag_tabling_mode'(1,batched).
+'$transl_to_yap_flag_tabling_mode'(2,local).
+'$transl_to_yap_flag_tabling_mode'(3,exec_answers).
+'$transl_to_yap_flag_tabling_mode'(4,load_answers).
+'$transl_to_yap_flag_tabling_mode'(5,local_trie).
+'$transl_to_yap_flag_tabling_mode'(6,global_trie).
+'$transl_to_yap_flag_tabling_mode'(7,coinductive).
+
+'$system_options'(big_numbers) :-
+	'$has_bignums'.
+'$system_options'(coroutining) :-
+	'$yap_has_coroutining'.
+'$system_options'(depth_limit) :-
+	\+ '$undefined'(get_depth_limit(_), prolog).
+'$system_options'(low_level_tracer) :-
+	\+ '$undefined'(start_low_level_trace, prolog).
+'$system_options'(or_parallelism) :-
+	\+ '$undefined'('$c_yapor_start', prolog).
+'$system_options'(rational_trees) :-
+	'$yap_has_rational_trees'.
+'$system_options'(readline) :-
+	'$swi_current_prolog_flag'(readline, true).
+'$system_options'(tabling) :-
+	\+ '$undefined'('$c_table'(_,_,_), prolog).
+'$system_options'(threads) :-
+	\+ '$undefined'('$thread_join'(_), prolog).
+'$system_options'(wam_profiler) :-
+	\+ '$undefined'(reset_op_counters, prolog).
 
 '$yap_system_flag'(agc_margin).
 '$yap_system_flag'(chr_toplevel_show_store).
@@ -1307,7 +1310,7 @@ create_prolog_flag(Name, Value, Options) :-
 '$check_flag_name'(Name, _) :-
 	atom(Name), !.
 '$check_flag_name'(Name, G) :-
-	'$do_error'(type_error(atom),G).
+	'$do_error'(type_error(atom,Name),G).
 	
 '$check_flag_options'(O, _, _, G) :-
 	var(O),
@@ -1316,11 +1319,11 @@ create_prolog_flag(Name, Value, Options) :-
 '$check_flag_options'([O1|Os], Domain, RW, G) :- !,
 	'$check_flag_optionsl'([O1|Os], Domain, RW, G).
 '$check_flag_options'(O, _, _, G) :-
-	'$do_error'(type_error(list),G).
+	'$do_error'(type_error(list,O),G).
 
 
-'$check_flag_optionsl'([], _, read_write, G).
-'$check_flag_optionsl'([V|Os], Domain, RW, G) :-
+'$check_flag_optionsl'([], _, read_write, _G).
+'$check_flag_optionsl'([V|_Os], _Domain, _RW, G) :-
 	var(V),
 	'$do_error'(instantiation_error,G).
 '$check_flag_optionsl'([type(Type)|Os], Domain, RW, G) :- !,
@@ -1329,7 +1332,7 @@ create_prolog_flag(Name, Value, Options) :-
 '$check_flag_optionsl'([access(Access)|Os], Domain, RW, G) :- !,
 	'$check_flag_access'(Access, RW, G),
 	'$check_flag_optionsl'(Os, Domain, _, G).
-'$check_flag_optionsl'(Os, Domain, RW, G) :-
+'$check_flag_optionsl'(Os, _Domain, _RW, G) :-
 	'$do_error'(domain_error(create_prolog_flag,Os),G).
 
 '$check_flag_type'(V, _, G) :-
@@ -1348,7 +1351,7 @@ create_prolog_flag(Name, Value, Options) :-
 	'$do_error'(instantiation_error,G).
 '$check_flag_access'(read_write, read_write, _) :- !.
 '$check_flag_access'(read_only, read_only, _) :- !.
-'$check_flag_type'(Atom, _, G) :-
+'$check_flag_access'(Atom, _, G) :-
 	'$do_error'(domain_error(create_prolog_flag_option(access),Atom),G).
 
 '$user_flag_value'(F, Val) :-
@@ -1376,7 +1379,7 @@ create_prolog_flag(Name, Value, Options) :-
 '$check_flag_value'(Value, _, G) :-
 	\+ ground(Value), !,
 	'$do_error'(instantiation_error,G).
-'$check_flag_value'(Value, Domain, G) :-
+'$check_flag_value'(Value, Domain, _G) :-
 	var(Domain), !,
 	'$flag_domain_from_value'(Value, Domain).
 '$check_flag_value'(_, term, _) :- !.

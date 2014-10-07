@@ -179,7 +179,7 @@ Since YAP4.3.0 multifile procedures can be static or dynamic.
 **/
 multifile(P) :-
 	'$current_module'(OM),
-	'$multifile'(P, M).
+	'$multifile'(P, OM).
 
 '$multifile'(V, _) :- var(V), !,
 	'$do_error'(instantiation_error,multifile(V)).

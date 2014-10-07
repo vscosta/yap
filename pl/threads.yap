@@ -307,7 +307,7 @@ thread_create(Goal, Id, Options) :-
 	 '$thread_options'(LOpts, Alias, Stack, Trail, System, Detached, AtExit, Mod, G)
 	).
 
-'$thread_options'([], _, Stack, Trail, System, Detached, AtExit, M, _) :-
+'$thread_options'([], _, Stack, Trail, System, Detached, AtExit, _M, _) :-
 	recorded('$thread_defaults', [DefaultStack, DefaultTrail, DefaultSystem, DefaultDetached, DefaultAtExit], _),
 	( var(Stack) -> Stack = DefaultStack; true ),
 	( var(Trail) -> Trail = DefaultTrail; true ),
@@ -330,17 +330,17 @@ thread_create(Goal, Id, Options) :-
 	( \+ integer(System) -> '$do_error'(type_error(integer,System),G0) ; true ).
 '$thread_option'(detached(Detached), _, _, _, _, Detached, _, _, G0) :- !,
 	( Detached \== true, Detached \== false -> '$do_error'(domain_error(thread_option,Detached+[true,false]),G0) ; true ).
-'$thread_option'(at_exit(AtExit), _, _, _, _, _, AtExit, M, G0) :- !,
+'$thread_option'(at_exit(AtExit), _, _, _, _, _, AtExit, _M, G0) :- !,
 	( \+ callable(AtExit) -> '$do_error'(type_error(callable,AtExit),G0) ; true ).
 % succeed silently, like SWI.
-'$thread_option'(Option, _, _, _, _, _, _, _, G0).
+'$thread_option'(_Option, _, _, _, _, _, _, _, _G0).
 %	'$do_error'(domain_error(thread_option,Option),G0).
 
 '$record_alias_info'(_, Alias) :-
 	var(Alias), !.
 '$record_alias_info'(_, Alias) :-
 	recorded('$thread_alias', [_|Alias], _), !,
-	'$do_error'(permission_error(create,thread,alias(Alias)), Goal).
+	'$do_error'(permission_error(create,thread,alias(Alias)), create_thread).
 '$record_alias_info'(Id, Alias) :-
 	recorda('$thread_alias', [Id|Alias], _).
 
@@ -554,7 +554,7 @@ thread_exit(Term) :-
 thread_exit(Term) :-
 	throw('$thread_finished'(exited(Term))).
 
-'$run_at_thread_exit'(Id0) :-
+'$run_at_thread_exit'(_Id0) :-
 	'$thread_run_at_exit'(G, M),
 	catch(once(M:G), _, fail),
 	fail.
@@ -714,7 +714,7 @@ thread_property(Id, Prop) :-
 	).
 '$thread_property'(detached(Detached), Id) :-
 	( '$thread_detached'(Id,Detached) -> true ; Detached = false ).
-'$thread_property'(at_exit(M:G), Id) :-
+'$thread_property'(at_exit(M:G), _Id) :-
 	'$thread_run_at_exit'(G,M).
 '$thread_property'(stack(Stack), Id) :-
 	'$thread_stacks'(Id, Stack, _, _).
@@ -824,7 +824,7 @@ Prints a table of current threads and their status.
 
  */
 thread_statistics(Id, Key, Val) :-
-    format("not implemented yet~n",[]).
+    format("not implemented yet: ~w, ~w, ~w~n",[Id, Key, Val]).
 
 %% @}
 

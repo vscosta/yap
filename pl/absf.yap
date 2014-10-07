@@ -377,7 +377,7 @@ absolute_file_name(File0,File) :-
 	'$system_catch'(win_registry_get_value(HKEY, Library, Dir), prolog,_,fail).
 % not installed on registry
 '$system_library_directories'(Library, Dir) :-
-	'$yap_paths'(_DLLs, ODir1, OBinDir ),
+	'$yap_paths'(_DLLs, ODir1, _OBinDir ),
 %	'$absolute_file_name'( OBinDir, BinDir ),
 %	'$swi_current_prolog_flag'(executable, Bin1),
 %	prolog_to_os_filename( Bin2, Bin1 ),
@@ -434,7 +434,7 @@ absolute_file_name(File0,File) :-
     '$split_by_sep'(Start, N1, Dirs, Sep, Dir).
 
 
-'$extend_path_directory'(_Name, D, File, _Opts, File, Call) :-
+'$extend_path_directory'(_Name, _D, File, _Opts, File, _Call) :-
 	is_absolute_file_name(File), !.
 '$extend_path_directory'(Name, D, File, Opts, NewFile, Call) :-
 	user:file_search_path(Name, IDirs),
@@ -472,7 +472,7 @@ prolog_file_name(File, PrologFileName) :-
 	atom(File), !,
 	operating_system_support:true_file_name(File, PrologFileName).
 prolog_file_name(File, PrologFileName) :-
-	'$do_error'(type_error(atom,T), prolog_file_name(File, PrologFileName)).
+	'$do_error'(type_error(atom,File), prolog_file_name(File, PrologFileName)).
 
 /**
   @pred path(-Directories:list) is det,deprecated
