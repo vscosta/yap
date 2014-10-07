@@ -6009,6 +6009,7 @@ init_yap(void)
   initLocale();
 #endif
   initCharTypes();
+  debugstatus.styleCheck = LONGATOM_CHECK|MULTITON_CHECK|DISCONTIGUOUS_STYLE|MULTIPLE_CHECK|SINGLETON_CHECK;
   initPrologFlags();
   clearPrologFlagMask(PLFLAG_DEBUGINFO);
   setPrologFlagMask(PLFLAG_TTY_CONTROL);
