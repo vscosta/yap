@@ -40,7 +40,7 @@ count_answers(G, N) :-
 
 cuda_rule((Head :- Body) , IdRules) :-
 	body_to_list( Body, L, [], 1, N),
-	functor(Head, Na, Ar),
+	functor(Head, _Na, Ar),
 	load_rule( N, Ar, [Head|L], IdRules ).
 
 
