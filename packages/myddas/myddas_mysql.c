@@ -95,7 +95,7 @@ void Yap_InitMYDDAS_MySQLPreds(void)
 
 void Yap_InitBackMYDDAS_MySQLPreds(void)
 {
-  /* db_row: ResultSet x Arity x ListOfArgs */
+	/* db_row: ResultSet x Arity x ListOfArgs */
   Yap_InitCPredBackCut("c_db_my_row", 3, sizeof(Int),
 		    c_db_my_row,
 		    c_db_my_row,
@@ -515,7 +515,7 @@ c_db_my_row( USES_REGS1 ) {
 	  
 	  for (i = 0; i < arity; i++)
 	    {
-	      /* Aqui serão feitas as conversões de tipos de dados */
+	      /* Aqui serï¿½o feitas as conversï¿½es de tipos de dados */
 	      field = mysql_fetch_field(res_set);
 	      head = HeadOfTerm(list);
 	      list = TailOfTerm(list);
@@ -635,7 +635,7 @@ c_db_my_get_fields_properties( USES_REGS1 ) {
 
   /* guardar os tuplos do lado do cliente */
   /* nao precisamos do resultado, mas apenas no res_set */
-  /* para obter a informação através do mysql_fetch_fields*/
+  /* para obter a informaï¿½ï¿½o atravï¿½s do mysql_fetch_fields*/
   res_set = mysql_store_result(conn);
   
   num_fields = mysql_num_fields(res_set);
