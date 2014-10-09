@@ -730,6 +730,9 @@ qload_file( F0 ) :-
 	  '$qload_module'(S , Mod, File, SourceModule)
     ;
       Type == file ->
+	'$lf_option'(last_opt, LastOpt),
+	functor( TOpts, opt, LastOpt ),
+	'$lf_default_opts'(1, LastOpt, TOpts),
 	  '$qload_file'(S, SourceModule, File, FilePl, F0, all, TOpts)	  
     ),
     close(S),
