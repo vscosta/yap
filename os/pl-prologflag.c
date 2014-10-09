@@ -298,8 +298,10 @@ setUnknown(term_t value, atom_t a, Module m)
 		      ATOM_modify, ATOM_flag, key);
     }
 
+#ifndef __YAP_PROLOG__
     if ( !SYSTEM_MODE )
       printMessage(ATOM_warning, PL_CHARS, "unknown_in_module_user");
+#endif
   }
 
   m->flags = flags;
