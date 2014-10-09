@@ -526,7 +526,7 @@ p_number_atom( USES_REGS1 )
   } else {
     /* ARG1 unbound */
     Term   t = Deref(ARG2);
-    Term tf = Yap_ListToNumber(t PASS_REGS);
+    Term tf = Yap_AtomToNumber(t PASS_REGS);
     if (tf)
       return Yap_unify( ARG1, tf );
   }
