@@ -16940,7 +16940,12 @@ fi
      *darwin*)
        CUDA_LDFLAGS="$LDFLAGS"
     CUDA_CPPFLAGS="-arch=sm_20  -Xcompiler -fPIC -O3 "
-    CUDA_SHLIB_LD="$NVCC  -Xcompiler -dynamiclib  -L../.. -lYap "
+    CUDA_SHLIB_LD="$NVCC  -L../.. -lYap "
+     ;;
+     *linux*)
+       CUDA_LDFLAGS="$LDFLAGS"
+    CUDA_CPPFLAGS="-arch=sm_20  -Xcompiler -fPIC -O3 "
+    CUDA_SHLIB_LD="$NVCC  -Xcompiler -shared  -L../.. -lYap "
      ;;
     **)
        CUDA_LDFLAGS="$LDFLAGS $LIBS"
