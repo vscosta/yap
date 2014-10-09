@@ -711,10 +711,10 @@ retractall(V) :-
 
 /** @pred  abolish(+ _P_,+ _N_)
 
-Deletes the predicate with name  _P_ and arity  _N_. It will remove
-both static and dynamic predicates.
-
- 
+Completely delete the predicate with name _P_ and arity _N_. It will
+remove both static and dynamic predicates. All state on the predicate,
+including whether it is dynamic or static, multifile, or
+meta-predicate, will be lost. 
 */
 abolish(Mod:N,A) :- !,
 	'$abolish'(N,A,Mod).
@@ -934,8 +934,8 @@ dynamic_predicate(P,Sem) :-
 
 '$expand_clause'((H:-B),C1,C2,Mod,HM) :- !,
 	strip_module(Mod:H, HM, H1),
-	'$current_module'(M),
-	'$module_expansion'((H1:-B), C1, C2, HM, M, M),
+	% Mod has scope over the full clause
+	'$module_expansion'((H1:-B), C1, C2, HM, Mod, Mod),
 	( get_value('$strict_iso',on) ->
 	    '$check_iso_strict_clause'(C1)
         ;
