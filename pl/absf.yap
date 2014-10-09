@@ -356,6 +356,8 @@ absolute_file_name(File0,File) :-
 '$system_library_directories'(foreign, Dir) :-
 	getenv('YAPLIBDIR', Dirs),
 	'$split_by_sep'(0, 0, Dirs, Dir).
+% compatibility with old versions
+% search the current directory first.
 '$system_library_directories'(commons, Dir) :-
 	getenv('YAPCOMMONSDIR', Dirs),
 	'$split_by_sep'(0, 0, Dirs, Dir).
@@ -643,6 +645,8 @@ user:file_search_path(yap, Home) :-
         current_prolog_flag(home, Home).
 user:file_search_path(system, Dir) :-
 	prolog_flag(host_type, Dir).
+user:file_search_path(foreign, Dir) :-
+    working_directory(Dir,Dir).
 user:file_search_path(foreign, yap('lib/Yap')).
 user:file_search_path(path, C) :-
     (   getenv('PATH', A),
