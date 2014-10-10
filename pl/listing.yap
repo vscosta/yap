@@ -36,7 +36,25 @@ Lists in the current output stream all the clauses for which source code
 is available (these include all clauses for dynamic predicates and
 clauses for static predicates compiled when source mode was `on`).
 
+- listing/0 lists in the current module
  
+- listing/1 receives a generalization of the predicate indicator:
+
+    + `listing(_)` will list the whole sources.
+
+    + `listing(lists:_)` will list the module lists.
+
+    + `listing(lists:append)` will list all `append` predicates in the module lists.
+
+    + `listing(lists:append/_)` will do the same.
+
+    +  listing(lists:append/3)` will list the popular `append/3` predicate in the module lists.
+
+- listing/2 is similar to listing/1, but t he first argument is a stream reference.
+
+The `listing` family of built-ins does not enumerate predicates whose
+name starts with a `$` character.
+
 */
 listing :-
     current_output(Stream),
@@ -47,7 +65,8 @@ listing :-
     '$current_predicate_no_modules'(Mod,_,Pred),
     '$undefined'(Pred, prolog), % skip predicates exported from prolog.
     functor(Pred,Name,Arity),
-    '$listing'(Name/Arity,Mod,Stream),
+    \+ atom_concat('$', _, Name),
+    '$listing'(Name,Arity,Mod,Stream),
     fail.
 listing.
 
@@ -70,32 +89,41 @@ listing(Stream, [MV|MVs]) :- !,
     listing(Stream, MVs).	    
 
 '$mlisting'(Stream, MV, M) :-
-    ( var(MV) -> MV = NA, '$do_listing'(Stream, M, NA)
+    ( var(MV) -> 
+	  MV = NA, 
+	  '$do_listing'(Stream, M, NA)
 	 ;
-      atom(MV) -> MV/_ = NA, '$do_listing'(Stream, M, NA)
+      atom(MV) ->
+	  MV/_ = NA,
+	  '$do_listing'(Stream, M, NA)
 	 ;
-      MV = N//Ar -> ( integer(Ar) -> Ar2 is Ar+2, NA is N/Ar2 ; '$do_listing'(Stream, NA/Ar2, M), Ar2 >= 2, Ar is Ar2-2 )
+	 MV = N//Ar -> ( integer(Ar) -> Ar2 is Ar+2, NA is N/Ar2 ; '$do_listing'(Stream, NA/Ar2, M), Ar2 >= 2, Ar is Ar2-2 )
 	 ;
-      MV = N/Ar, ( atom(N) -> true ; var(N) ), ( integer(Ar) -> true ; var(Ar) )  -> '$do_listing'(Stream, M, MV)
+      MV = N/Ar, ( atom(N) -> true ; var(N) ), ( integer(Ar) -> true ; var(Ar) )  ->
+	  '$do_listing'(Stream, M, MV)
 	 ;
       MV = M1:PP ->  '$mlisting'(Stream, PP, M1)
 	 ;
      '$do_error'(type_error(predicate_indicator,MV),listing(Stream, MV) )
     ).
 
-'$do_listing'(Stream, M, NA) :-
-    ( '$$current_predicate'(NA, M),
-     '$listing'(NA,M,Stream),
-     fail
+'$do_listing'(Stream, M, Name/Arity) :-
+    ( current_predicate(M:Name/Arity),
+      \+ atom_concat('$', _, Name),
+      '$listing'(Name,Arity,M,Stream),
+      fail
    ;
-     true
+   true
    ).
 
-'$listing'(X, M, Stream) :-
-        '$funcspec'(X,Name,Arity),
+%
+% at this point we are ground and wew know who we want to list.
+%
+'$listing'(Name, Arity, M, Stream) :-
+	% skip by default predicates starting with $
         functor(Pred,Name,Arity),
         '$list_clauses'(Stream,M,Pred).
-'$listing'(_,_,_).
+'$listing'(_,_,_,_).
 
 '$funcspec'(Name/Arity,Name,Arity) :- !, atom(Name).
 '$funcspec'(Name,Name,_) :- atom(Name), !.
