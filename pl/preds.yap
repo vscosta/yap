@@ -892,11 +892,11 @@ abolish(X) :-
 	functor(G,Name,Arity),
 	print_message(warning,no_match(abolish(Module:Name/Arity))).
 '$abolishs'(G, M) :-
-	'$is_multifile'(G,M), !,
+	'$is_multifile'(G,M),
 	functor(G,Name,Arity),
-	recorded('$mf','$mf_clause'(_,Name,Arity,M,Ref),R),
+	recorded('$mf','$mf_clause'(_,Name,Arity,M,_Ref),R),
 	erase(R),
-	erase(Ref),
+% no need	erase(Ref),
 	fail.
 '$abolishs'(T, M) :-
 	recorded('$import','$import'(_,M,_,_,T,_,_),R),
@@ -1369,81 +1369,3 @@ clause_property(ClauseRef, predicate(PredicateIndicator)) :-
 @}
 */
 
-/** 
-
-@addtogroup Undefined_Procedures
-@{
-
-*/
-
-
-/** @pred  unknown(- _O_,+ _N_) 
-
-
-Specifies an handler to be called is a program tries to call an
-undefined static procedure  _P_.
-
-The arity of  _N_ may be zero or one. If the arity is `0`, the
-new action must be one of `fail`, `warning`, or
-`error`. If the arity is `1`,  _P_ is an user-defined
-handler and at run-time, the argument to the handler  _P_ will be
-unified with the undefined goal. Note that  _N_ must be defined prior
-to calling unknown/2, and that the single argument to  _N_ must
-be unbound.
-
-In YAP, the default action is to `fail` (note that in the ISO
-Prolog standard the default action is `error`).
-
-After defining `undefined/1` by:
-
-~~~~~{.prolog}
-undefined(A) :- format('Undefined predicate: ~w~n',[A]), fail.
-~~~~~
-and executing the goal:
-
-~~~~~{.prolog}
-unknown(U,undefined(X)).
-~~~~~
-a call to a predicate for which no clauses were defined will result in
-the output of a message of the form:
-
-~~~~~{.prolog}
-Undefined predicate: user:xyz(A1,A2)
-~~~~~
-followed by the failure of that call.
-
- 
-*/
-unknown(V0, V) :-
-    strip_module(V, M, G),
-    recorded('$unknown_handle', M0:G0, R), !,
-    recordz('$unknown_handle', M:G, _),
-    erase( R ),
-    strip_module(V0, M0, G0).
-unknown(V0, V) :-
-    strip_module(V, M, G),
-    recordz('$unknown_handle', M:G, _),
-    V0 = fail.
-
-%%% The unknown predicate,
-%	informs about what the user wants to be done when
-%	there are no clauses for a certain predicate */
-
-'$unknown_error'(Call) :-
-    recorded( '$unknown_handle', M:Goal, _), 
-    arg(1, Goal, Call), !,
-    once(M:Goal).
-'$unknown_error'(Mod:Goal) :-
-	functor(Goal,Name,Arity),
-	'$program_continuation'(PMod,PName,PAr),
-	'$do_error'(existence_error(procedure,Name/Arity),context(Mod:Goal,PMod:PName/PAr)).
-
-'$unknown_warning'(Mod:Goal) :-
-	functor(Goal,Name,Arity),
-	'$program_continuation'(PMod,PName,PAr),
-	print_message(error,error(existence_error(procedure,Name/Arity), context(Mod:Goal,PMod:PName/PAr))),
-	fail.
-
-/**
-@}
-*/

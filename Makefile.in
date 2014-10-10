@@ -356,6 +356,7 @@ PL_SOURCES= \
 	pl/strict_iso.yap \
 	pl/tabling.yap pl/threads.yap \
 	pl/udi.yap \
+	pl/undefined.yap \
 	pl/utils.yap \
 	pl/history.pl \
 	pl/swi.yap \

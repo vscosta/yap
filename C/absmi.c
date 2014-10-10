@@ -8159,6 +8159,7 @@ Yap_absmi(int inp)
 	  PELOCK(19,pe);
 #endif
 	if ((pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|MultiFileFlag)) ||
+	    CurrentModule == PROLOG_MODULE ||
 	    (UndefCode->OpcodeOfPred == UNDEF_OPCODE)) {
 #if defined(YAPOR) || defined(THREADS)
 	  PP = NULL;
@@ -8207,6 +8208,7 @@ Yap_absmi(int inp)
 	ENDD(d0);
 	HR[0] = Yap_Module_Name(pe);
 	ARG1 = (Term) AbsPair(HR);
+	ARG2 = MkIntTerm(getUnknownModule(Yap_GetModuleEntry(HR[0])));
 	HR += 2;
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)

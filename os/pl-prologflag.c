@@ -287,6 +287,7 @@ setUnknown(term_t value, atom_t a, Module m)
   else
     return PL_error(NULL, 0, NULL, ERR_DOMAIN, ATOM_unknown, value);
 
+#ifndef __YAP_PROLOG__
   if ( !(flags&UNKNOWN_ERROR) && (m == MODULE_user || m == MODULE_system) )
   { GET_LD
 
@@ -297,12 +298,11 @@ setUnknown(term_t value, atom_t a, Module m)
       return PL_error(NULL, 0, NULL, ERR_PERMISSION,
 		      ATOM_modify, ATOM_flag, key);
     }
-
-#ifndef __YAP_PROLOG__
+    
     if ( !SYSTEM_MODE )
       printMessage(ATOM_warning, PL_CHARS, "unknown_in_module_user");
-#endif
   }
+#endif
 
   m->flags = flags;
 
@@ -1203,11 +1203,7 @@ initPrologFlags(void)
   setPrologFlag("occurs_check", FT_ATOM, "false");
   setPrologFlag("access_level", FT_ATOM, "user");
   setPrologFlag("double_quotes", FT_ATOM, "codes");
-#ifdef __YAP_PROLOG__
-  setPrologFlag("unknown", FT_ATOM, "fail");
-#else
   setPrologFlag("unknown", FT_ATOM, "error");
-#endif
   setPrologFlag("debug", FT_BOOL, FALSE, 0);
   setPrologFlag("verbose", FT_ATOM|FF_KEEP, GD->options.silent ? "silent" : "normal");
   setPrologFlag("verbose_load", FT_ATOM, "normal");

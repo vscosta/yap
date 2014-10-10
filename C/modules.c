@@ -27,11 +27,6 @@ static Int p_current_module( USES_REGS1 );
 static Int p_current_module1( USES_REGS1 );
 static ModEntry *LookupModule(Term a);
 
- unsigned int
-getUnknownModule(ModEntry * m) {
-  return m->flags & UNKNOWN_MASK;
-}
-
 inline static ModEntry *
 FetchModuleEntry(Atom at)
 /* get predicate entry for ap/arity; create it if neccessary.              */
@@ -90,6 +85,15 @@ GetModuleEntry(Atom at)
   return new;
 }
 
+ unsigned int
+ getUnknownModule(ModEntry * m) {
+   if (m && m->flags & UNKNOWN_MASK)
+     return m->flags & UNKNOWN_MASK;
+   else {
+     return GetModuleEntry(AtomUser)->flags & UNKNOWN_MASK;
+   }
+     
+}
 
 #define ByteAdr(X) ((char *) &(X))
 Term 

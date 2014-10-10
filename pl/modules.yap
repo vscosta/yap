@@ -1093,7 +1093,6 @@ its parent goal.
 	setup_call_catcher_cleanup(0,0,?,0),
 	spy(:),
 	stash_predicate(:),
-	unknown(+,:),
 	use_module(:),
 	use_module(:,?),
 	use_module(?,:,?),

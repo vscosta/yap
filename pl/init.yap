@@ -182,6 +182,8 @@ version(yap,[6,3]).
 
 :- 	['arrays.yap'].
 
+:- 	['undefined.yap'].
+
 :- use_module('messages.yap').
 :- use_module('hacks.yap').
 :- use_module('attributes.yap').
@@ -334,7 +336,7 @@ If this hook predicate succeeds it must instantiate the  _Action_ argument to th
 
 :- dynamic user:exception/3.
 
-:- yap_flag(user:unknown,error). 
+:- yap_flag(unknown,error). 
 
 :- stream_property(user_input, tty(true)) -> set_prolog_flag(readline, true) ; true.
 
