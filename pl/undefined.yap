@@ -52,7 +52,7 @@ with SICStus Prolog.
 	user:unknown_predicate_handler(G0,M0,NG)
 	->
 	    '$exit_undefp',
-	    call(M:NG)
+	    call(M0:NG)
 	;
 	'$exit_undefp',
 	'$handle_error'(Default,G0,M0)
