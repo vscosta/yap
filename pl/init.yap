@@ -127,11 +127,11 @@ otherwise.
 	 'flags.yap'
    ].
 
-:- compile_expressions.
-
 :- [	 'preds.yap',
 	 'modules.yap'
    ].
+
+:- compile_expressions.
 
 :- [
     % lists is often used.

@@ -125,54 +125,9 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 do_c_built_in(G, M, OUT) :- var(G), !,
 	do_c_built_metacall(G, M, OUT).
 do_c_built_in(Mod:G, _, OUT) :- 
-	strip_module(Mod:G, M, G1),
-	( var(G1) -> M = M2, G1 = G2 ; G1 = M2:G2), !, 
-	do_c_built_metacall(G2, M2, OUT).
-do_c_built_in(\+ G, _, OUT) :-
-	nonvar(G),
-	G = (A = B),
-	!,
-	OUT = (A \= B).
-do_c_built_in(call(G), _, OUT) :-
-	nonvar(G),
-	G = (Mod:G1), !,
-	do_c_built_metacall(G1, Mod, OUT).
-do_c_built_in(call(G), Mod, OUT) :-
-	var(G), !,
-	do_c_built_metacall(G, Mod, OUT).
-do_c_built_in(depth_bound_call(G,D), M, OUT) :- !,
-	do_c_built_in(G, M, NG),
-	% make sure we don't have something like (A,B) -> $depth_next(D), A, B.
-	( '$composed_built_in'(NG) ->
-	    OUT = depth_bound_call(NG,D)
-	;
-	    OUT = ('$set_depth_limit_for_next_call'(D),NG)
-	).
-do_c_built_in(once(G), M, (yap_hacks:current_choice_point(CP),NG,'$$cut_by'(CP))) :- !,
-	do_c_built_in(G,M,NG0),
-	'$clean_cuts'(NG0, NG).
-do_c_built_in(forall(Cond,Action), M, \+((NCond, \+(NAction)))) :- !,
-	do_c_built_in(Cond,M,ICond),
-	do_c_built_in(Action,M,IAction),
-	'$clean_cuts'(ICond, NCond),
-	'$clean_cuts'(IAction, NAction).
-do_c_built_in(ignore(Goal), M, (NGoal -> true ; true)) :- !,
-	do_c_built_in(Goal,M,IGoal),
-	'$clean_cuts'(IGoal, NGoal).
-do_c_built_in(if(G,A,B), M, (yap_hacks:current_choicepoint(DCP),NG,yap_hacks:cut_at(DCP),NA; NB)) :- !,
-	do_c_built_in(G,M,NG0),
-	'$clean_cuts'(NG0, NG),
-	do_c_built_in(A,M,NA),
-	do_c_built_in(B,M,NB).
-do_c_built_in((G*->A;B), M, (yap_hacks:current_choicepoint(DCP),NG,yap_hacks:cut_at(DCP),NA; NB)) :- !,
-	do_c_built_in(G,M,NG0),
-	'$clean_cuts'(NG0, NG),
-	do_c_built_in(A,M,NA),
-	do_c_built_in(B,M,NB).
-do_c_built_in((G*->A), M, (NG,NA)) :- !,
-	do_c_built_in(G,M,NG0),
-	'$clean_cuts'(NG0, NG),
-	do_c_built_in(A,M,NA).
+	'$yap_strip_module'(Mod:G, M1, G1),
+	var(G1), !,
+	do_c_built_metacall(G1, M1, OUT).
 do_c_built_in('C'(A,B,C), _, (A=[B|C])) :- !.
 do_c_built_in(X is Y, M, P) :-
         primitive(X), !,
@@ -225,13 +180,9 @@ do_c_built_in(Comp0, _, R) :-		% now, do it for comparisons
 do_c_built_in(P, _M, P).
 
 do_c_built_metacall(G1, Mod, '$execute_wo_mod'(G1,Mod)) :- 
-	var(Mod), !.
+    var(Mod), !.
 do_c_built_metacall(G1, Mod, '$execute_in_mod'(G1,Mod)) :- 
-	var(G1), atom(Mod), !.
-do_c_built_metacall(Mod:G1, _, OUT) :-  !,
-	do_c_built_metacall(G1, Mod, OUT).
-do_c_built_metacall(G1, Mod, '$execute_in_mod'(G1,Mod)) :-
-	atom(Mod), !.
+    atom(Mod), !.
 do_c_built_metacall(G1, Mod, call(Mod:G1)).
 
 '$do_and'(true, P, P) :- !.

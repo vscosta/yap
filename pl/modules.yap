@@ -642,15 +642,22 @@ source_module(Mod) :-
 % A6: head module (this is the one used in compiling and accessing).
 %
 %
-%'$expand_modules'(V,NG,NG,_,_,SM,HVars):- writeln(V), fail.
+%'$expand_modules'(V,NG,NG,_,_,SM,HVars):-l writeln(V), fail.
 '$expand_modules'(V,NG,NG,_,_,SM,HVars) :-
 	var(V), !,
 	( '$not_in_vars'(V,HVars)
 	->
-	  NG = call(SM:V)
+	  NG = call(SM:V), 
+	  ( atom(SM) -> NGO = '$execute_in_mod'(V,SM) ; NGO = NG )
 	;
 	  NG = call(V)
 	).	
+'$expand_modules'(depth_bound_call(G,D),
+		  depth_bound_call(G1,D),
+		  ('$set_depth_limit_for_next_call'(D),GO),
+		  HM,BM,SM,HVars) :- 
+    '$expand_modules'(G,G1,GO,HM,BM,SM,HVars),
+    '$composed_built_in'(GO), !.
 '$expand_modules'((A,B),(A1,B1),(AO,BO),HM,BM,SM,HVars) :- !,
 	'$expand_modules'(A,A1,AO,HM,BM,SM,HVars),
 	'$expand_modules'(B,B1,BO,HM,BM,SM,HVars).
@@ -672,10 +679,43 @@ source_module(Mod) :-
 	'$expand_modules'(A,A1,AOO,HM,BM,SM,HVars),
 	'$clean_cuts'(AOO, AO),
 	'$expand_modules'(B,B1,BO,HM,BM,SM,HVars).
-'$expand_modules'(\+A,\+A1,\+AO,HM,BM,SM,HVars) :- !,
+'$expand_modules'(\+G,\+G,A\=B,_HM,_BM,_SM,_HVars) :- 
+    nonvar(G),
+    G = (A = B),
+    !.
+'$expand_modules'(\+A,\+A1,(AO-> false;true),HM,BM,SM,HVars) :- !,
 	'$expand_modules'(A,A1,AO,HM,BM,SM,HVars).
-'$expand_modules'(not(A),not(A1),not(AO),HM,BM,SM,HVars) :- !,
+'$expand_modules'(once(A),once(A1),
+	(yap_hacks:current_choice_point(CP),AO,'$$cut_by'(CP)),HM,BM,SM,HVars) :- !,
+	'$expand_modules'(A,A1,AO0,HM,BM,SM,HVars),
+        '$clean_cuts'(AO0, CP, AO).
+'$expand_modules'(ignore(A),ignore(A1),
+	(AO -> true ; true),HM,BM,SM,HVars) :- !,
+	'$expand_modules'(A,A1,AO0,HM,BM,SM,HVars),
+        '$clean_cuts'(AO0, AO).
+'$expand_modules'(forall(A,B),forall(A1,B1),
+		  ((AO, ( BO-> false ; true)) -> false ; true),HM,BM,SM,HVars) :- !,
+	'$expand_modules'(A,A1,AO0,HM,BM,SM,HVars),
+	'$expand_modules'(B,B1,BO,HM,BM,SM,HVars),
+        '$clean_cuts'(AO0, AO).
+'$expand_modules'(not(A),not(A1),(AO -> fail; true),HM,BM,SM,HVars) :- !,
 	'$expand_modules'(A,A1,AO,HM,BM,SM,HVars).
+'$expand_modules'(if(A,B,C),if(A1,B1,C1),
+	(yap_hacks:current_choicepoint(DCP),AO,yap_hacks:cut_at(DCP),BO; CO)),HM,BM,SM,HVars) :- !,
+	'$expand_modules'(A,A1,AO0,HM,BM,SM,HVars),
+	'$expand_modules'(B,B1,BO,HM,BM,SM,HVars),
+	'$expand_modules'(C,C1,CO,HM,BM,SM,HVars),
+        '$clean_cuts'(AO0, DCP, AO).
+'$expand_modules'((A*->B;C),(A1*->B1;C1),
+	(yap_hacks:current_choicepoint(DCP),AO,yap_hacks:cut_at(DCP),BO; CO)),HM,BM,SM,HVars) :- !,
+	'$expand_modules'(A,A1,AO0,HM,BM,SM,HVars),
+	'$expand_modules'(B,B1,BO,HM,BM,SM,HVars),
+	'$expand_modules'(C,C1,CO,HM,BM,SM,HVars),
+        '$clean_cuts'(AO0, DCP, AO).
+'$expand_modules'((A*->B),(A1*->B1),
+	(yap_hacks:current_choicepoint(DCP),AO,BO)),HM,BM,SM,HVars) :- !,
+	'$expand_modules'(A,A1,AO0,HM,BM,SM,HVars),
+        '$clean_cuts'(AO0, DCP, AO).
 '$expand_modules'(true,true,true,_,_,_,_) :- !.
 '$expand_modules'(fail,fail,fail,_,_,_,_) :- !.
 '$expand_modules'(false,false,false,_,_,_,_) :- !.
@@ -757,12 +797,11 @@ expand_goal(G, G).
 	'$do_expand'(G, HM, BM, SM, HVars, GI),
 	GI \== G, !,
 	'$expand_modules'(GI, G1, GO, HM, BM, SM, HVars).
-'$complete_goal_expansion'(G, HM, BM, SM, G1, G2, _HVars) :-
+'$complete_goal_expansion'(G, HM, BM, SM, G1, G2, HVars) :-
 	'$all_system_predicate'(G, BM, BM0), !,
 	% make built-in processing transparent.
-	'$match_mod'(G, HM, BM0, SM, G1),
-	'$c_built_in'(G1, BM0, Gi),
-	Gi = G2.
+       '$match_mod'(G, HM, BM0, SM, G1),
+       '$c_built_in'(G1, SM, G2).
 '$complete_goal_expansion'(G, HM, BM, SM, NG, NG, _) :-
 	'$match_mod'(G, HM, BM, SM, NG).
 
@@ -1399,6 +1438,10 @@ export_list(Module, List) :-
 '$clean_cuts'(G,(yap_hacks:current_choicepoint(DCP),NG)) :-
 	'$conj_has_cuts'(G,DCP,NG,OK), OK == ok, !.
 '$clean_cuts'(G,G).
+
+'$clean_cuts'(G,DCP,NG) :-
+	'$conj_has_cuts'(G,DCP,NG,OK), OK == ok, !.
+'$clean_cuts'(G,_,G).
 
 '$conj_has_cuts'(V,_,V, _) :- var(V), !.
 '$conj_has_cuts'(!,DCP,'$$cut_by'(DCP), ok) :- !. 
