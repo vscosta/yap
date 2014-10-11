@@ -715,6 +715,7 @@ source_module(Mod) :-
 '$expand_modules'((A*->B),(A1*->B1),
 	(yap_hacks:current_choicepoint(DCP),AO,BO),HM,BM,SM,HVars) :- !,
 	'$expand_modules'(A,A1,AO0,HM,BM,SM,HVars),
+	'$expand_modules'(B,B1,BO,HM,BM,SM,HVars),
         '$clean_cuts'(AO0, DCP, AO).
 '$expand_modules'(true,true,true,_,_,_,_) :- !.
 '$expand_modules'(fail,fail,fail,_,_,_,_) :- !.
@@ -797,7 +798,7 @@ expand_goal(G, G).
 	'$do_expand'(G, HM, BM, SM, HVars, GI),
 	GI \== G, !,
 	'$expand_modules'(GI, G1, GO, HM, BM, SM, HVars).
-'$complete_goal_expansion'(G, HM, BM, SM, G1, G2, HVars) :-
+'$complete_goal_expansion'(G, HM, BM, SM, G1, G2, _HVars) :-
 	'$all_system_predicate'(G, BM, BM0), !,
 	% make built-in processing transparent.
        '$match_mod'(G, HM, BM0, SM, G1),
