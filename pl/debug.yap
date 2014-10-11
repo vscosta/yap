@@ -900,7 +900,7 @@ be lost.
 	( '$do_spy'(Cl, M, CP, debugger) ; InRedo = true ).
 '$spycall_expanded'(G, M, CalledFromDebugger, InRedo) :-
 	'$undefined'(G, M), !,
-	'$find_goal_definition'(M, G, NM, Goal),
+	'$get_undefined_pred'(G, M, Goal, NM), NM \= M,
 	'$spycall'(Goal, NM, CalledFromDebugger, InRedo).
 '$spycall_expanded'(G, M, _, InRedo) :-
 	% I lost control here.
