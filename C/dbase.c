@@ -1918,7 +1918,7 @@ new_lu_db_entry(Term t, PredEntry *pe)
 
 #if MULTIPLE_STACKS
   /* we cannot allow sharing between threads (for now) */ 
-  if (!(pe->PredFlags & ThreadLocalPredFlag))
+  if (!pe || !(pe->PredFlags & ThreadLocalPredFlag))
     d_flag |= InQueue;
 #endif
   LOCAL_s_dbg = &dbg;
