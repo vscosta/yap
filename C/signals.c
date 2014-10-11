@@ -131,7 +131,7 @@ do_signal(int wid, yap_signals sig USES_REGS)
 	  Unsigned(REMOTE_ThreadHandle(wid).current_yaam_regs->LCL0_);
   }
 #else
-  LOCAL_Signals += SIGNAL_TO_BIT(sig);
+  LOCAL_Signals |= SIGNAL_TO_BIT(sig);
   if (!LOCAL_InterruptsDisabled) {
       CreepFlag =
 	  Unsigned(LCL0);
