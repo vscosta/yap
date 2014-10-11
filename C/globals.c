@@ -1372,7 +1372,7 @@ p_nb_getval( USES_REGS1 )
   if (!ge) {
     Term t3 = Deref(ARG3);
     if (IsVarTerm(t3)) 
-      return FALSE;
+      return TRUE; // weird stuff, but allows using an handler.
     if (IsApplTerm(t3)) {
       if (FunctorOfTerm(t3) == FunctorEq)
 	return Yap_unify( ArgOfTerm(1, t3) , ArgOfTerm(2, t3) );
