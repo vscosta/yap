@@ -372,7 +372,7 @@ nb_current(GlobalVariable, Val) :-
 	'$nb_current'(GlobalVariable),
 	'$nb_getval'(GlobalVariable, Val, _).
 
-'$getval_exception'(GlobalVariable, Val, Caller) :-
+'$getval_exception'(GlobalVariable, _Val, Caller) :-
 	user:exception(undefined_global_variable, GlobalVariable, Action),
 	!,
 	(
@@ -382,7 +382,7 @@ nb_current(GlobalVariable, Val) :-
 	;
 	 Action == retry
 	->
-	 b_getval(GlobalVariable, Val)
+	 true
 	;
 	 Action == error
 	->
