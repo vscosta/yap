@@ -263,6 +263,9 @@ residuals_and_delete_attributes(Vs, Gs, Term) :-
 
 attvars_residuals([]) --> [].
 attvars_residuals([V|Vs]) -->
+	{ nonvar(V) }, !,
+	attvars_residuals(Vs).
+attvars_residuals([V|Vs]) -->
 	(   { get_attrs(V, As) }
 	->  attvar_residuals(As, V)
 	;   []
