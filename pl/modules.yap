@@ -701,19 +701,19 @@ source_module(Mod) :-
 '$expand_modules'(not(A),not(A1),(AO -> fail; true),HM,BM,SM,HVars) :- !,
 	'$expand_modules'(A,A1,AO,HM,BM,SM,HVars).
 '$expand_modules'(if(A,B,C),if(A1,B1,C1),
-	(yap_hacks:current_choicepoint(DCP),AO,yap_hacks:cut_at(DCP),BO; CO)),HM,BM,SM,HVars) :- !,
+	(yap_hacks:current_choicepoint(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),HM,BM,SM,HVars) :- !,
 	'$expand_modules'(A,A1,AO0,HM,BM,SM,HVars),
 	'$expand_modules'(B,B1,BO,HM,BM,SM,HVars),
 	'$expand_modules'(C,C1,CO,HM,BM,SM,HVars),
         '$clean_cuts'(AO0, DCP, AO).
 '$expand_modules'((A*->B;C),(A1*->B1;C1),
-	(yap_hacks:current_choicepoint(DCP),AO,yap_hacks:cut_at(DCP),BO; CO)),HM,BM,SM,HVars) :- !,
+	(yap_hacks:current_choicepoint(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),HM,BM,SM,HVars) :- !,
 	'$expand_modules'(A,A1,AO0,HM,BM,SM,HVars),
 	'$expand_modules'(B,B1,BO,HM,BM,SM,HVars),
 	'$expand_modules'(C,C1,CO,HM,BM,SM,HVars),
         '$clean_cuts'(AO0, DCP, AO).
 '$expand_modules'((A*->B),(A1*->B1),
-	(yap_hacks:current_choicepoint(DCP),AO,BO)),HM,BM,SM,HVars) :- !,
+	(yap_hacks:current_choicepoint(DCP),AO,BO),HM,BM,SM,HVars) :- !,
 	'$expand_modules'(A,A1,AO0,HM,BM,SM,HVars),
         '$clean_cuts'(AO0, DCP, AO).
 '$expand_modules'(true,true,true,_,_,_,_) :- !.
