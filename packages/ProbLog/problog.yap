@@ -347,7 +347,9 @@ This predicate returns the lower and upper bound of the probability of achieving
 This predicate returns the lower bound of the probability of achieving the goal G obtained by cutting the sld tree at the given probability for each branch.
 */
 
+/**
 ### ProbLog Parameter Learning Predicates
+*/
 
 /**
  * @pred example(+N, +Q, +Prob)
@@ -370,6 +372,7 @@ Test examples are ignored during learning but are used afterwards to check the p
  *
 Starts the learning algorithm with N iterations.
 paragraph{}
+*/
 
 /**
  * @pred do_learning(+N, +Epsilon).
@@ -377,7 +380,6 @@ paragraph{}
 The output is created in the output subfolder of the current folder where YAP was started. There you will find the file log.dat which contains MSE on training and test set for every iteration, the timings, and some metrics on the gradient in CSV format. The files factprobs_N.pl contain the fact probabilities after the Nth iteration and the files predictions_N.pl contain the estimated probabilities for each training and test example - per default these file are generated every 5th iteration only.
 
 Starts the learning algorithm. The learning will stop after N iterations or if the difference of the Mean Squared Error (MSE) between two iterations gets smaller than Epsilon - depending on what happens first.
-*/
 
 ### Miscelaneous
 
@@ -1764,7 +1766,7 @@ export_facts(Filename) :-
 
 is_mvs_aux_fact(A) :-
 	functor(A,B,_),
-	atomic_concat(mvs_fact_,_,B).
+	atom_concat(mvs_fact_,_,B).
 
 % code for printing the compiled ADs
 print_ad_intern(Handle,(Head<--Body),_ID,Facts) :-

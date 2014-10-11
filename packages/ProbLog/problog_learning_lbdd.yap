@@ -222,7 +222,7 @@
 :- use_module(library(rbtrees)).
 
 % load our own modules
-:- use_module(problog).
+:- reexport(problog).
 :- use_module('problog/logger').
 :- use_module('problog/flags').
 :- use_module('problog/os').
