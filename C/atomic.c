@@ -658,27 +658,100 @@ init_atom_concat3( USES_REGS1 )
   cut_fail();
 }
 
+#define CastToAtom(x) CastToAtom__(x PASS_REGS)
+
+static Term
+CastToAtom__(Term t USES_REGS)
+{
+  if (IsAtomTerm(t))
+    return t;
+  return MkAtomTerm(Yap_AtomicToAtom( t PASS_REGS));
+}
+
+#define CastToNumeric(x) CastToNumeric__(x PASS_REGS)
+
+static Term
+CastToNumeric__(Atom at USES_REGS)
+{
+    Term t;
+  if ((t = Yap_AtomToNumber( MkAtomTerm( at ) PASS_REGS) ) )
+    return t;
+  return MkAtomTerm(at);
+}
+
+
 static Int 
-p_atomic_concat3( USES_REGS1 )
+cont_atomic_concat3( USES_REGS1 )
+{
+  Term t3;
+  Atom ats[2];
+  size_t i, max;
+ restart_aux:
+  t3 = Deref(ARG3);
+  i = IntOfTerm(EXTRA_CBACK_ARG(3,1));
+  max = IntOfTerm(EXTRA_CBACK_ARG(3,2));
+  EXTRA_CBACK_ARG(3,1) = MkIntTerm(i+1);
+  if ( ! Yap_SpliceAtom( t3, ats, i, max PASS_REGS ) ) {
+    cut_fail();
+  } else {
+      Term t1 = CastToNumeric(ats[0]);
+      Term t2 = CastToNumeric(ats[1]);
+    if (i < max) return Yap_unify( ARG1, t1) &&
+		   Yap_unify( ARG2, t2) ;
+    if (Yap_unify( ARG1, t1) &&
+	Yap_unify( ARG2, t2)) cut_succeed();
+    cut_fail();
+  }
+  /* Error handling */
+  if (LOCAL_Error_TYPE) {
+    if (Yap_HandleError( "string_concat/3" )) {
+      goto restart_aux;
+    } else {
+      return FALSE;
+    }
+  }
+  cut_fail();
+}
+
+static Int
+init_atomic_concat3( USES_REGS1 )
 {
   Term t1;
-  Term t2;
-  Term t;
+  Term t2, t3, ot;
   Atom at;
  restart_aux:
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
-  at = Yap_ConcatAtomics( t1, t2 PASS_REGS );
+  t3 = Deref(ARG3);
+  if (Yap_IsGroundTerm(t1) && Yap_IsGroundTerm(t2)) {
+    at = Yap_ConcatAtoms( CastToAtom(t1), CastToAtom(t2) PASS_REGS );
+    ot = ARG3;
+  } else if (Yap_IsGroundTerm(t1) && Yap_IsGroundTerm(t3) ) {
+    at = Yap_SubtractHeadAtom( t3, CastToAtom(t1) PASS_REGS );
+    ot = ARG2;
+  } else if (Yap_IsGroundTerm(t2) && Yap_IsGroundTerm(t3)) {
+    at = Yap_SubtractTailAtom( t3, CastToAtom(t2) PASS_REGS );
+    ot = ARG1;
+  } else {
+    EXTRA_CBACK_ARG(3,1) = MkIntTerm(0);
+    EXTRA_CBACK_ARG(3,2) = MkIntTerm(Yap_AtomicToLength(t3 PASS_REGS));
+    return cont_atomic_concat3( PASS_REGS1 );
+  }
   if (at) {
-    t = MkAtomTerm(at);
-    return Yap_unify(ARG3, t);
+    if (Yap_unify(ot, CastToNumeric(at))) cut_succeed();
+    else cut_fail();
   }
   /* Error handling */
-  if (LOCAL_Error_TYPE && Yap_HandleError( "atomic_concat/3" )) {
-    goto restart_aux;
+  if (LOCAL_Error_TYPE) {
+    if (Yap_HandleError( "atomic_concat/3" )) {
+      goto restart_aux;
+    } else {
+      return FALSE;
+    }
   }
-  return FALSE;
+  cut_fail();
 }
+
 
 static Int 
 cont_string_concat3( USES_REGS1 )
@@ -695,9 +768,9 @@ cont_string_concat3( USES_REGS1 )
     cut_fail();
   } else {
     if (i < max) return Yap_unify( ARG1, ts[0]) &&
-		   Yap_unify( ARG2, ts[1]) ;
+                   Yap_unify( ARG2, ts[1]) ;
     if (Yap_unify( ARG1, ts[0]) &&
-	Yap_unify( ARG2, ts[1])) cut_succeed();
+        Yap_unify( ARG2, ts[1])) cut_succeed();
     cut_fail();
   }
   /* Error handling */
@@ -712,7 +785,7 @@ cont_string_concat3( USES_REGS1 )
 }
 
 
-static Int 
+static Int
 init_string_concat3( USES_REGS1 )
 {
   Term t1;
@@ -750,6 +823,7 @@ init_string_concat3( USES_REGS1 )
   }
   cut_fail();
 }
+
 
 static Int 
 cont_string_code3( USES_REGS1 )
@@ -2086,6 +2160,7 @@ Yap_InitBackAtoms(void)
   Yap_InitCPredBack("$current_atom", 1, 2, init_current_atom, cont_current_atom,SafePredFlag|SyncPredFlag);
   Yap_InitCPredBack("$current_wide_atom", 1, 2, init_current_wide_atom,cont_current_wide_atom,SafePredFlag|SyncPredFlag);
   Yap_InitCPredBack("atom_concat", 3, 2, init_atom_concat3, cont_atom_concat3, 0);
+  Yap_InitCPredBack("atomic_concat", 3, 2, init_atomic_concat3, cont_atomic_concat3, 0);
   Yap_InitCPredBack("string_concat", 3, 2, init_string_concat3, cont_string_concat3, 0);
   Yap_InitCPredBack("sub_atom", 5, 5, init_sub_atom, cont_sub_atomic, 0);
 /** @pred  sub_atom(+ _A_,? _Bef_, ? _Size_, ? _After_, ? _At_out_) is iso 
@@ -2234,7 +2309,6 @@ atoms or numbers.
 
  
 */
-  Yap_InitCPred("atomic_concat", 3, p_atomic_concat3, 0);
   Yap_InitCPred("atomics_to_string", 2, p_atomics_to_string2, 0);
   Yap_InitCPred("atomics_to_string", 3, p_atomics_to_string3, 0);
   Yap_InitCPred("get_string_code", 3, p_get_string_code3, 0);
