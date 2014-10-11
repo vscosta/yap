@@ -3148,19 +3148,22 @@ Yap_absmi(int inp)
 #if PARALLEL_YAP
 		  PredEntry *ap = cl->ClPred;
 #endif
+		  /* BB support */
+		  if (ap) {
 
-		  PELOCK(9,ap);
-		  DEC_CLREF_COUNT(cl);
-		  erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
-		  if (erase) {
-		    saveregs();
-		    /* at this point,
-		       we are the only ones accessing the clause,
-		       hence we don't need to have a lock it */
-		    Yap_ErLogUpdCl(cl);
-		    setregs();
+		    PELOCK(9,ap);
+		    DEC_CLREF_COUNT(cl);
+		    erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
+		    if (erase) {
+		      saveregs();
+		      /* at this point,
+			 we are the only ones accessing the clause,
+			 hence we don't need to have a lock it */
+		      Yap_ErLogUpdCl(cl);
+		      setregs();
+		    }
+		    UNLOCK(ap->PELock);
 		  }
-		  UNLOCK(ap->PELock);
 		}
 	      } else {
 		DynamicClause *cl = ClauseFlagsToDynamicClause(pt1);
