@@ -576,11 +576,11 @@ source_module(Mod) :-
 %
 '$module_expansion'(H, H, H, _HM, _BM, _SM) :- var(H), !.
 '$module_expansion'((H:-B), (H:-B1), (H:-BOO), HM, BM, SM) :- !,
-	'$is_mt'(HM, H, SM, B, IB),
+	'$is_mt'(HM, H, SM, B, IB, NSM),
 	'$module_u_vars'(H,UVars,HM),	 % collect head variables in
 					 % expanded positions
-	'$expand_modules'(IB, B1, BO, HM, BM, SM, UVars),
-	('$full_clause_optimisation'(H, SM, BO, BOO) ->
+	'$expand_modules'(IB, B1, BO, HM, BM, NSM, UVars),
+	('$full_clause_optimisation'(H, NSM, BO, BOO) ->
 	  true
 	  ;
 	  BO = BOO
@@ -1044,9 +1044,11 @@ its parent goal.
 	NFlags is Fl \/ 0x200004,
 	'$flags'(P, M, Fl, NFlags).
 
-'$is_mt'(M, H, CM, B, (context_module(CM),B)) :-
+%% handle module transparent predicates by defining a 
+%% new context module.
+'$is_mt'(M, H, _, B, (context_module(CM),B), CM) :-
 	'$module_transparent'(_, M, _, H), !.
-'$is_mt'(_M, _H, _CM, B, B).
+'$is_mt'(_M, _H, CM, B, B, CM).
 
 % comma has its own problems.
 :- '$install_meta_predicate'(','(0,0), prolog).
