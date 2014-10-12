@@ -1355,6 +1355,18 @@ p_b_setval( USES_REGS1 )
 #endif
 }
 
+static int
+undefined_global( USES_REGS1 ) {
+  Term t3 = Deref(ARG3);
+
+  if (IsApplTerm(t3)) {
+    if (FunctorOfTerm(t3) == FunctorEq)
+      return Yap_unify( ArgOfTerm(1, t3) , ArgOfTerm(2, t3) );
+    return FALSE;
+  }
+  return Yap_unify(t3, TermNil);
+}
+
 static Int
 p_nb_getval( USES_REGS1 )
 {
@@ -1369,17 +1381,8 @@ p_nb_getval( USES_REGS1 )
     return FALSE;
   }
   ge = FindGlobalEntry(AtomOfTerm(t) PASS_REGS);
-  if (!ge) {
-    Term t3 = Deref(ARG3);
-    if (IsVarTerm(t3)) 
-      return TRUE; // weird stuff, but allows using an handler.
-    if (IsApplTerm(t3)) {
-      if (FunctorOfTerm(t3) == FunctorEq)
-	return Yap_unify( ArgOfTerm(1, t3) , ArgOfTerm(2, t3) );
-      return FALSE;
-    }
-    return Yap_unify(t3, MkAtomTerm(AtomTrue));
-  }
+  if (!ge) 
+    return undefined_global( PASS_REGS1 );
   READ_LOCK(ge->GRWLock);
   to = ge->global;
   if (IsVarTerm(to) && IsUnboundVar(VarOfTerm(to))) {
@@ -1388,8 +1391,9 @@ p_nb_getval( USES_REGS1 )
     to = t;
   }
   READ_UNLOCK(ge->GRWLock);
-  if (to == TermFoundVar)
+  if (to == TermFoundVar) {
     return FALSE;
+  }
   return Yap_unify(ARG2, to);
 }
 
