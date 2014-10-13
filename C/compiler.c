@@ -2212,6 +2212,7 @@ usesvar(compiler_vm_op ic)
 	  (ic >= unify_last_var_op && ic <= unify_last_val_op));
 }
 
+/*
 inline static bool
   uses_this_var(PInstr *pc, Term arg)
 {
@@ -2221,6 +2222,7 @@ inline static bool
     return arg == pc->rnd3 && ic == bccall_op;
   return usesvar( ic );
 }
+*/
 
 inline static bool
 usesvar2(compiler_vm_op ic)
