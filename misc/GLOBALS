@@ -69,6 +69,8 @@ int             		PrologShouldHandleInterrupts		void
 /* This is the guy who actually started the system, and who has the correct registers */
 #if defined(THREADS)
 pthread_t 			master_thread				void
+struct thread_mbox* named_mboxes                =NULL
+lockvar				mboxq_lock					MkLock
 #endif /* THREADS */
 
 // streams 

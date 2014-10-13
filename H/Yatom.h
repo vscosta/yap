@@ -904,7 +904,7 @@ typedef struct DB_STRUCT
 
 #define DBStructFlagsToDBStruct(X) ((DBRef)((char *)(X) - (CELL) &(((DBRef) NULL)->Flags)))
 
-#if MULTIPLE_STAACKS
+#if MULTIPLE_STACKS
 #define INIT_DBREF_COUNT(X) (X)->ref_count = 0
 #define  INC_DBREF_COUNT(X) (X)->ref_count++
 #define  DEC_DBREF_COUNT(X) (X)->ref_count--

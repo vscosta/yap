@@ -652,7 +652,39 @@ typedef enum
 
 
 /************************/
+  // queues are an example of collections of DB objects
+  typedef struct queue_entry {
+    struct queue_entry *next;
+    struct DB_TERM *DBT;
+  } QueueEntry;
+
+  typedef struct idb_queue
+  {
+    struct FunctorEntryStruct *id;		/* identify this as being pointed to by a DBRef */
+    SMALLUNSGN    Flags;  /* always required */
+  #if PARALLEL_YAP
+    rwlock_t    QRWLock;         /* a simple lock to protect this entry */
+  #endif
+    QueueEntry *FirstInQueue, *LastInQueue;
+  }  db_queue;
+
+void Yap_init_tqueue( db_queue *dbq );
+void Yap_destroy_tqueue( db_queue *dbq  USES_REGS);
+bool Yap_enqueue_tqueue(db_queue *father_key, Term t USES_REGS);
+bool Yap_dequeue_tqueue(db_queue *father_key, Term t, bool first, bool release USES_REGS);
+
 #ifdef THREADS
+
+
+typedef struct thread_mbox {
+    Term name;
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;
+    struct idb_queue msgs;
+    int  nmsgs, nclients;  // if nclients < 0 mailbox has been closed.
+    struct thread_mbox *next;
+} mbox_t;
+
 typedef struct thandle {
   int in_use;
   int zombie;
@@ -669,6 +701,7 @@ typedef struct thandle {
   REGSTORE *current_yaam_regs;
   struct pred_entry *local_preds;
   pthread_t pthread_handle;
+  mbox_t    mbox_handle;
   int ref_count;
 #ifdef LOW_LEVEL_TRACER
   long long int thread_inst_count;

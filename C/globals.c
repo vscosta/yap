@@ -190,10 +190,11 @@ CreateNewArena(CELL *ptr, UInt size)
 }
 
 static Term
-NewArena(UInt size, UInt arity, CELL *where USES_REGS)
+NewArena(UInt size, int wid, UInt arity, CELL *where)
 {
   Term t;
   UInt new_size;
+  WORKER_REGS(wid)
 
   if (where == NULL || where == HR) {
     while (HR+size > ASP-1024) {
@@ -226,7 +227,7 @@ p_allocate_arena( USES_REGS1 )
       Yap_Error(TYPE_ERROR_INTEGER,t,"allocate_arena");
       return FALSE;
   }
-  return Yap_unify(ARG2,NewArena(IntegerOfTerm(t), 1, NULL PASS_REGS));
+  return Yap_unify(ARG2,NewArena(IntegerOfTerm(t), worker_id, 1, NULL));
 }
 
 
@@ -240,8 +241,7 @@ p_default_arena_size( USES_REGS1 )
 void
 Yap_AllocateDefaultArena(Int gsize, Int attsize, int wid)
 {
-  CACHE_REGS
-    REMOTE_GlobalArena(wid) = NewArena(gsize, 2, NULL PASS_REGS);
+  REMOTE_GlobalArena(wid) = NewArena(gsize, wid, 2, NULL);
 }
 
 static void
@@ -1579,7 +1579,7 @@ nb_queue(UInt arena_sz USES_REGS)
     return FALSE;
   if (arena_sz < 4*1024)
     arena_sz = 4*1024;
-  queue_arena = NewArena(arena_sz, 1, NULL PASS_REGS);
+  queue_arena = NewArena(arena_sz, worker_id, 1, NULL);
   if (queue_arena == 0L) {
     return FALSE;
   }
@@ -1933,7 +1933,7 @@ p_nb_heap( USES_REGS1 )
   ar[HEAP_MAX] = tsize;
   if (arena_sz < 1024)
     arena_sz = 1024;
-  heap_arena = NewArena(arena_sz,1,NULL PASS_REGS);
+  heap_arena = NewArena(arena_sz,worker_id,1,NULL);
   if (heap_arena == 0L) {
     return FALSE;
   }
@@ -2215,7 +2215,7 @@ p_nb_beam( USES_REGS1 )
   ar[HEAP_MAX] = tsize;
   if (arena_sz < 1024)
     arena_sz = 1024;
-  beam_arena = NewArena(arena_sz,1,NULL PASS_REGS);
+  beam_arena = NewArena(arena_sz,worker_id,1,NULL);
   if (beam_arena == 0L) {
     return FALSE;
   }

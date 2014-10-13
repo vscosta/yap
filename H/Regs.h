@@ -85,6 +85,7 @@ INLINE_ONLY inline EXTERN void save_B(void);
 #define PASS_REGS
 #define USES_REGS1 void
 #define USES_REGS
+#define WORKER_REGS(WID)
 
 typedef struct regstore_t
   {
@@ -179,13 +180,16 @@ extern pthread_key_t Yap_yaamregs_key;
 #undef CACHE_REGS
 #undef REFRESH_CACHE_REGS
 #undef INIT_REGS
+#undef CACHE_REGS
 #undef PASS_REGS
 #undef PASS_REGS1
 #undef USES_REGS
 #undef USES_REGS1
+#undef WORKER_REGS
 #define CACHE_REGS REGSTORE *regcache = ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
 #define REFRESH_CACHE_REGS regcache = ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
 #define INIT_REGS , ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key))
+#define WORKER_REGS(WID)  REGSTORE *regcache = REMOTE_ThreadHandle(WID).current_yaam_regs;
 #define PASS_REGS1 regcache
 #define PASS_REGS , regcache
 #define USES_REGS1 struct regstore_t *regcache

@@ -122,18 +122,21 @@ volatile(P) :-
 '$init_thread0' :-
 	'$no_threads', !.
 '$init_thread0' :-
-	recorda('$thread_defaults', [0, 0, 0, false, true], _),
-	'$create_thread_mq'(0),
-	'$new_mutex'(Id),
-	assert_static(prolog:'$with_mutex_mutex'(Id)).
+    mutex_create(WMId),
+    assert_static(prolog:'$with_mutex_mutex'(WMId) ),
+    fail.
+'$init_thread0' :-
+	recorda('$thread_defaults', [0, 0, 0, false, true], _).
 
 '$reinit_thread0' :-
 	'$no_threads', !.
+'$reinit_thread0' :- fail,
+	abolish(prolog:'$with_mutex_mutex'/1),
+        fail.
 '$reinit_thread0' :-
-	'$create_thread_mq'(0),
-%	abolish(prolog:'$with_mutex_mutex',1),
-	'$new_mutex'(Id),
-	asserta_static((prolog:'$with_mutex_mutex'(Id) :- !)).
+    mutex_create(WMId),
+    asserta_static( ( prolog:'$with_mutex_mutex'(WMId) :- !) ).
+
 
 '$top_thread_goal'(G, Detached) :-
 	'$thread_self'(Id),
@@ -175,7 +178,6 @@ thread_create(Goal) :-
 	'$thread_options'([detached(true)], [], Stack, Trail, System, Detached, AtExit, G0),
 	'$thread_new_tid'(Id),
 %	'$erase_thread_info'(Id), % this should not be here
-	'$create_thread_mq'(Id),
 	(
 	'$create_thread'(Goal, Stack, Trail, System, Detached, AtExit, Id)
 	->
@@ -199,7 +201,6 @@ thread_create(Goal, Id) :-
 	'$thread_options'([], [], Stack, Trail, System, Detached, AtExit, G0),
 	'$thread_new_tid'(Id),
 %	'$erase_thread_info'(Id), % this should not be here
-	'$create_thread_mq'(Id),
 	(
 	 '$create_thread'(Goal, Stack, Trail, System, Detached, AtExit, Id)
 	->
@@ -260,7 +261,6 @@ thread_create(Goal, Id, Options) :-
 	'$thread_new_tid'(Id),
 %	'$erase_thread_info'(Id), % this should not be here
 	'$record_alias_info'(Id, Alias),
-	'$create_thread_mq'(Id),
 	(
 	 '$create_thread'(Goal, Stack, Trail, System, Detached, AtExit, Id)
 	->
@@ -277,10 +277,6 @@ thread_create(Goal, Id, Options) :-
 '$erase_thread_info'(Id) :-
 	recorded('$thread_exit_hook', [Id|_], R),
 	erase(R),
-	fail.
-'$erase_thread_info'(Id) :-
-	recorded('$queue',q(Id,_,_,_,QKey),_),
-	'$empty_mqueue'(QKey),
 	fail.
 '$erase_thread_info'(_).
 
@@ -1187,15 +1183,10 @@ message_queue_create(Id, [alias(Alias)]) :-
 message_queue_create(Id, [alias(Alias)]) :-
 	\+ atom(Alias), !,
 	'$do_error'(type_error(atom,Alias), message_queue_create(Id, [alias(Alias)])).
-message_queue_create(Id, [alias(Alias)]) :- !,
-	'$new_mutex'(Mutex),
-	'$cond_create'(Cond),
-	(	recorded('$queue', q(Alias,_,_,_,_), _) ->
-		'$do_error'(permission_error(create,queue,alias(Alias)),message_queue_create(Id, [alias(Alias)]))
-	;	recorded('$thread_alias', [_|Alias], _) ->
-		'$do_error'(permission_error(create,queue,alias(Alias)),message_queue_create(Id, [alias(Alias)]))
-	;	'$mq_new_id'(Id, NId, Key),
-		recorda('$queue',q(Alias,Mutex,Cond,NId,Key), _)
+message_queue_create(Alias, [alias(Alias)]) :- !,
+	(	recorded('$thread_alias', [_|Alias], _) ->
+		'$do_error'(permission_error(create,queue,alias(Alias)),message_queue_create(Alias, [alias(Alias)]))
+	;	'$message_queue_create'(Alias)
 	).
 message_queue_create(Id, [Option| _]) :-
 	'$do_error'(domain_error(queue_option, Option), message_queue_create(Id, [Option| _])).
@@ -1214,51 +1205,12 @@ created and  _Queue_ is unified to its identifier.
 */
 message_queue_create(Id) :-
 	(	var(Id) ->		% ISO DTR
-		message_queue_create(Id, [])
+		'$message_queue_create'(Id)
 	;	atom(Id) ->		% old behavior
-		message_queue_create(_, [alias(Id)])
+		'$message_queue_create'(Id)
 	;	'$do_error'(uninstantiation_error(Id), message_queue_create(Id))
 	).
 
-'$do_msg_queue_create'(Id) :-
-	\+ recorded('$queue',q(Id,_,_,_,_), _),
-	'$new_mutex'(Mutex),
-	'$cond_create'(Cond),
-	'$mq_new_id'(Id, NId, Key),
-	recorda('$queue',q(Id,Mutex,Cond,NId,Key), _),
-	fail.
-'$do_msg_queue_create'(_).
-
-'$create_thread_mq'(TId) :-
-	recorded('$queue',q(TId,_,_,_,_), R),
-	erase(R),
-	fail.
-'$create_thread_mq'(TId) :-
-	\+ recorded('$queue',q(TId,_,_,_,_), _),
-	'$new_mutex'(Mutex),
-	'$cond_create'(Cond),
-	'$mq_new_id'(TId, TId, Key),
-	recorda('$queue', q(TId,Mutex,Cond,TId,Key), _),
-	fail.
-% recover space
-'$create_thread_mq'(_).
-
-'$mq_new_id'(Id, Id, AtId) :-
-	integer(Id), !,
-	\+ recorded('$queue', q(_,_,_,Id,_), _),
-	'$init_db_queue'(AtId).
-'$mq_new_id'(_, Id, AtId) :-
-	'$integers'(Id),
-	\+ recorded('$queue', q(_,_,_,Id,_), _),
-	!,
-	'$init_db_queue'(AtId).
-
-'$integers'(-1).
-'$integers'(I) :-
-	'$integers'(I1),
-	I is I1-1.
-
-	
 /** @pred message_queue_destroy(+ _Queue_) 
 
 
@@ -1276,29 +1228,6 @@ message_queue_destroy(Name) :-
 	'$message_queue_destroy'(Name),
 	fail.
 message_queue_destroy(_).
-
-
-'$message_queue_destroy'(Queue) :-
-	recorded('$queue',q(Queue,Mutex,Cond,_,QKey),R), !,
-	'$clean_mqueue'(QKey),
-	'$cond_destroy'(Cond),
-	'$destroy_mutex'(Mutex),
-	erase(R).
-'$message_queue_destroy'(Queue) :-
-	atomic(Queue), !,
-	'$do_error'(existence_error(message_queue,Queue),message_queue_destroy(Queue)).
-'$message_queue_destroy'(Name) :-
-	'$do_error'(type_error(atom,Name),message_queue_destroy(Name)).
-
-'$clean_mqueue'(Queue) :-
-	'$db_dequeue'(Queue, _),
-	fail.
-'$clean_mqueue'(_).
-
-'$empty_mqueue'(Queue) :-
-	'$db_dequeue_unlocked'(Queue, _),
-	fail.
-'$empty_mqueue'(_).
 
 message_queue_property(Id, Prop) :-
 	(	nonvar(Id) ->
@@ -1368,32 +1297,15 @@ can seriously harm performance with many threads waiting on the same
 queue as all-but-the-winner perform a useless scan of the queue. If
 there is only one waiting thread or all waiting threads wait with an
 unbound variable an arbitrary thread is restarted to scan the queue.
-
-
-
-
  
 */
 thread_send_message(Queue, Term) :- var(Queue), !,
 	'$do_error'(instantiation_error,thread_send_message(Queue,Term)).
 thread_send_message(Queue, Term) :-
-	recorded('$thread_alias',[Id|Queue],_), !,
-	thread_send_message(Id, Term).
+	recorded('$thread_alias',[Id|Queue],_R), !,
+	'$message_queue_send'(Id, Term).
 thread_send_message(Queue, Term) :-
-	'$do_thread_send_message'(Queue, Term),
-	fail.
-% release pointers
-thread_send_message(_, _).
-
-'$do_thread_send_message'(Queue, Term) :-
-	recorded('$queue',q(Queue,Mutex,Cond,_,Key),_), !,
-	'$lock_mutex'(Mutex),
-	'$db_enqueue_unlocked'(Key, Term),
-%	write(+Queue:Term),nl,
-	'$cond_signal'(Cond),
-	'$unlock_mutex'(Mutex).
-'$do_thread_send_message'(Queue, Term) :-
-	'$do_error'(existence_error(queue,Queue),thread_send_message(Queue,Term)).
+	'$message_queue_send'(Queue, Term).
 
 /** @pred thread_get_message(? _Term_) 
 
@@ -1435,23 +1347,11 @@ to check whether a thread has swallowed a message sent to it.
 thread_get_message(Queue, Term) :- var(Queue), !,
 	'$do_error'(instantiation_error,thread_get_message(Queue,Term)).
 thread_get_message(Queue, Term) :-
-	recorded('$thread_alias',[Id|Queue],_), !,
-	thread_get_message(Id, Term).
+	recorded('$thread_alias',[Id|Queue],_R), !,
+	'$message_queue_receive'(Id, Term).
 thread_get_message(Queue, Term) :-
-	recorded('$queue',q(Queue,Mutex,Cond,_,Key),_), !,
-	'$lock_mutex'(Mutex),
-%	write(-Queue:Term),nl,
-	'$thread_get_message_loop'(Key, Term, Mutex, Cond).
-thread_get_message(Queue, Term) :-
-	'$do_error'(existence_error(message_queue,Queue),thread_get_message(Queue,Term)).
+	'$message_queue_receive'(Queue, Term).
 
-
-'$thread_get_message_loop'(Key, Term, Mutex, _) :-
-	'$db_dequeue_unlocked'(Key, Term), !,
-	'$unlock_mutex'(Mutex).
-'$thread_get_message_loop'(Key, Term, Mutex, Cond) :-
-	'$cond_wait'(Cond, Mutex),
-	'$thread_get_message_loop'(Key, Term, Mutex, Cond).
 
 /** @pred thread_peek_message(? _Term_) 
 
@@ -1514,22 +1414,10 @@ work(Id, Goal) :-
 thread_peek_message(Queue, Term) :- var(Queue), !,
 	'$do_error'(instantiation_error,thread_peek_message(Queue,Term)).
 thread_peek_message(Queue, Term) :-
-	recorded('$thread_alias',[Id|Queue],_), !,
-	thread_peek_message(Id, Term).
-thread_peek_message(Queue, Term) :-
-	recorded('$queue',q(Queue,Mutex,_,_,Key),_), !,
-	'$lock_mutex'(Mutex),
-	'$thread_peek_message2'(Key, Term, Mutex).
-thread_peek_message(Queue, Term) :-
-	'$do_error'(existence_error(message_queue,Queue),thread_peek_message(Queue,Term)).
-
-
-'$thread_peek_message2'(Key, Term, Mutex) :-
-	'$db_peek_queue'(Key, Term), !,
-	'$unlock_mutex'(Mutex).
-'$thread_peek_message2'(_, _, Mutex) :-
-	'$unlock_mutex'(Mutex),
-	fail.
+	recorded('$thread_alias',[Id|Queue],_R), !,
+	'$message_peek_message'(Id, Term).
+tthread_peek_message(Queue, Term) :-
+	'$message_queue_peek'(Queue, Term).
 
 %% @}
 

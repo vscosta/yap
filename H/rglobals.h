@@ -61,6 +61,8 @@ static void RestoreGlobal(void) {
 
 #if defined(THREADS)
 
+
+  REINIT_LOCK(GLOBAL_mboxq_lock);
 #endif /* THREADS */
 
 

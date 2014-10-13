@@ -61,6 +61,8 @@
 
 #if defined(THREADS)
 #define GLOBAL_master_thread Yap_global->master_thread_
+#define GLOBAL_named_mboxes Yap_global->named_mboxes_
+#define GLOBAL_mboxq_lock Yap_global->mboxq_lock_
 #endif /* THREADS */
 
 #define GLOBAL_stdout Yap_global->stdout_

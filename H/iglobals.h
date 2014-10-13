@@ -61,6 +61,8 @@ static void InitGlobal(void) {
 
 #if defined(THREADS)
 
+  GLOBAL_named_mboxes = NULL;
+  INIT_LOCK(GLOBAL_mboxq_lock);
 #endif /* THREADS */
 
   GLOBAL_stdout = Soutput;

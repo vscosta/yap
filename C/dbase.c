@@ -181,21 +181,6 @@ typedef struct {
 }               SFKeep;
 #endif
 
-typedef struct queue_entry {
-  struct queue_entry *next;
-  DBTerm *DBT;
-} QueueEntry;
-
-typedef struct idb_queue
-{
-  Functor id;		/* identify this as being pointed to by a DBRef */
-  SMALLUNSGN    Flags;  /* always required */
-#if PARALLEL_YAP
-  rwlock_t    QRWLock;         /* a simple lock to protect this entry */
-#endif
-  QueueEntry *FirstInQueue, *LastInQueue;
-}  db_queue;
-
 #define HashFieldMask		((CELL)0xffL)
 #define DualHashFieldMask	((CELL)0xffffL)
 #define TripleHashFieldMask	((CELL)0xffffffL)
@@ -5184,6 +5169,108 @@ Yap_StoreTermInDBPlusExtraSpace(Term t, UInt extra_size, UInt *sz) {
   return o;
 }
 
+void
+Yap_init_tqueue( db_queue *dbq )
+{
+  dbq->id = FunctorDBRef;
+  dbq->Flags = DBClMask;
+  dbq->FirstInQueue = dbq->LastInQueue = NULL;
+  INIT_RWLOCK(dbq->QRWLock);
+}
+
+void
+Yap_destroy_tqueue( db_queue *dbq  USES_REGS)
+{
+  QueueEntry * cur_instance = dbq->FirstInQueue;
+  while (cur_instance) {
+      /* release space for cur_instance */
+      keepdbrefs(cur_instance->DBT PASS_REGS);
+      ErasePendingRefs(cur_instance->DBT PASS_REGS);
+      FreeDBSpace((char *) cur_instance->DBT);
+      FreeDBSpace((char *) cur_instance);
+  }
+  dbq->FirstInQueue =
+      dbq->LastInQueue = NULL;
+
+}
+
+bool
+Yap_enqueue_tqueue(db_queue *father_key, Term t USES_REGS)
+{
+  QueueEntry *x;
+  while ((x = (QueueEntry *)AllocDBSpace(sizeof(QueueEntry))) == NULL) {
+    if (!Yap_growheap(FALSE, sizeof(QueueEntry), NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "in findall");
+      return false;
+    }
+  }
+  /* Yap_LUClauseSpace += sizeof(QueueEntry); */
+  x->DBT = StoreTermInDB(Deref(t), 2 PASS_REGS);
+  if (x->DBT == NULL) {
+    return false;
+  }
+  x->next = NULL;
+  if (father_key->LastInQueue != NULL)
+    father_key->LastInQueue->next = x;
+  father_key->LastInQueue = x;
+  if (father_key->FirstInQueue == NULL) {
+    father_key->FirstInQueue = x;
+  }
+  return true;
+
+}
+
+bool
+Yap_dequeue_tqueue(db_queue *father_key, Term t, bool first, bool release USES_REGS)
+{
+  Term TDB;
+  QueueEntry * cur_instance = father_key->FirstInQueue, *prev = NULL;
+  while (cur_instance) {
+      while ((TDB = GetDBTerm(cur_instance->DBT, false PASS_REGS)) == 0L) {
+	  if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	      LOCAL_Error_TYPE = YAP_NO_ERROR;
+	      if (!Yap_growglobal(NULL)) {
+		  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
+		  return false;
+	      }
+	  } else {
+	      LOCAL_Error_TYPE = YAP_NO_ERROR;
+	      if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, gc_P(P,CP))) {
+		  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+		  return false;
+	      }
+	  }
+      }
+      if (Yap_unify(t, TDB)) {
+	  if (release) {
+	      if (cur_instance == father_key->FirstInQueue) {
+		  father_key->FirstInQueue = cur_instance->next;
+	      }
+	      if (cur_instance == father_key->LastInQueue) {
+		  father_key->LastInQueue = prev;
+	      }
+	      if (prev) {
+		  prev->next = cur_instance->next;
+	      }
+	      /* release space for cur_instance */
+	      keepdbrefs(cur_instance->DBT PASS_REGS);
+	      ErasePendingRefs(cur_instance->DBT PASS_REGS);
+	      FreeDBSpace((char *) cur_instance->DBT);
+	      FreeDBSpace((char *) cur_instance);
+	  }
+	  return true;
+      } else {
+	  // just getting the first
+	  if (first)
+	    return false;
+	  // but keep on going, if we want to check everything.
+	  prev = cur_instance;
+	  cur_instance = cur_instance->next;
+      }
+  }
+  return false;
+
+}
 
 static Int 
 p_init_queue( USES_REGS1 )
@@ -5198,10 +5285,7 @@ p_init_queue( USES_REGS1 )
     }
   }
   /* Yap_LUClauseSpace += sizeof(db_queue); */
-  dbq->id = FunctorDBRef;
-  dbq->Flags = DBClMask;
-  dbq->FirstInQueue = dbq->LastInQueue = NULL;
-  INIT_RWLOCK(dbq->QRWLock);
+  Yap_init_tqueue( dbq );
   t = MkIntegerTerm((Int)dbq);
   return Yap_unify(ARG1, t);
 }
@@ -5211,8 +5295,8 @@ static Int
 p_enqueue( USES_REGS1 )
 {
   Term Father = Deref(ARG1);
-  QueueEntry *x;
   db_queue *father_key;
+  bool rc;
 
   if (IsVarTerm(Father)) {
     Yap_Error(INSTANTIATION_ERROR, Father, "enqueue");
@@ -5222,34 +5306,16 @@ p_enqueue( USES_REGS1 )
     return FALSE;
   } else
     father_key = (db_queue *)IntegerOfTerm(Father);
-  while ((x = (QueueEntry *)AllocDBSpace(sizeof(QueueEntry))) == NULL) {
-    if (!Yap_growheap(FALSE, sizeof(QueueEntry), NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "in findall");
-      return FALSE;
-    }
-  }
-  /* Yap_LUClauseSpace += sizeof(QueueEntry); */
-  x->DBT = StoreTermInDB(Deref(ARG2), 2 PASS_REGS);
-  if (x->DBT == NULL) {
-    return FALSE;
-  }
-  x->next = NULL;
   WRITE_LOCK(father_key->QRWLock);
-  if (father_key->LastInQueue != NULL)
-    father_key->LastInQueue->next = x;
-  father_key->LastInQueue = x;
-  if (father_key->FirstInQueue == NULL) {
-    father_key->FirstInQueue = x;
-  }
+  rc = Yap_enqueue_tqueue(father_key, Deref(ARG2) PASS_REGS);
   WRITE_UNLOCK(father_key->QRWLock);
-  return TRUE;
+  return rc;
 }
 
 static Int 
 p_enqueue_unlocked( USES_REGS1 )
 {
   Term Father = Deref(ARG1);
-  QueueEntry *x;
   db_queue *father_key;
 
   if (IsVarTerm(Father)) {
@@ -5260,25 +5326,7 @@ p_enqueue_unlocked( USES_REGS1 )
     return FALSE;
   } else
     father_key = (db_queue *)IntegerOfTerm(Father);
-  while ((x = (QueueEntry *)AllocDBSpace(sizeof(QueueEntry))) == NULL) {
-    if (!Yap_growheap(FALSE, sizeof(QueueEntry), NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "in findall");
-      return FALSE;
-    }
-  }
-  /* Yap_LUClauseSpace += sizeof(QueueEntry); */
-  x->DBT = StoreTermInDB(Deref(ARG2), 2 PASS_REGS);
-  if (x->DBT == NULL) {
-    return FALSE;
-  }
-  x->next = NULL;
-  if (father_key->LastInQueue != NULL)
-    father_key->LastInQueue->next = x;
-  father_key->LastInQueue = x;
-  if (father_key->FirstInQueue == NULL) {
-    father_key->FirstInQueue = x;
-  }
-  return TRUE;
+  return Yap_enqueue_tqueue(father_key, Deref(ARG2) PASS_REGS);
 }
 
 /* when reading an entry in the data base we are making it accessible from
@@ -5301,14 +5349,14 @@ keepdbrefs(DBTerm *entryref USES_REGS)
     return;
   }
   while ((ref = *--cp) != NIL) {
-    if (!(ref->Flags & LogUpdMask)) {
-      LOCK(ref->lock);
-      if(!(ref->Flags & InUseMask)) {
-	ref->Flags |= InUseMask;
-	TRAIL_REF(ref);	/* So that fail will erase it */
+      if (!(ref->Flags & LogUpdMask)) {
+	  LOCK(ref->lock);
+	  if(!(ref->Flags & InUseMask)) {
+	      ref->Flags |= InUseMask;
+	      TRAIL_REF(ref);	/* So that fail will erase it */
+	  }
+	  UNLOCK(ref->lock);
       }
-      UNLOCK(ref->lock);
-    }
   }
 
 }
@@ -5321,47 +5369,28 @@ p_dequeue( USES_REGS1 )
   Term Father = Deref(ARG1);
 
   if (IsVarTerm(Father)) {
-    Yap_Error(INSTANTIATION_ERROR, Father, "dequeue");
-    return FALSE;
+      Yap_Error(INSTANTIATION_ERROR, Father, "dequeue");
+      return FALSE;
   } else if (!IsIntegerTerm(Father)) {
-    Yap_Error(TYPE_ERROR_INTEGER, Father, "dequeue");
-    return FALSE;
-  } else
-    father_key = (db_queue *)IntegerOfTerm(Father);
-  WRITE_LOCK(father_key->QRWLock);
-  if ((cur_instance = father_key->FirstInQueue) == NULL) {
-    /* an empty queue automatically goes away */
-    WRITE_UNLOCK(father_key->QRWLock);
-    FreeDBSpace((char *)father_key);
-    return FALSE;
+      Yap_Error(TYPE_ERROR_INTEGER, Father, "dequeue");
+      return FALSE;
   } else {
-    Term TDB;
-    if (cur_instance == father_key->LastInQueue)
-      father_key->FirstInQueue = father_key->LastInQueue = NULL;
-    else
-      father_key->FirstInQueue = cur_instance->next;
-    WRITE_UNLOCK(father_key->QRWLock);
-    while ((TDB = GetDBTerm(cur_instance->DBT, FALSE PASS_REGS)) == 0L) {
-      if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-	LOCAL_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_growglobal(NULL)) {
-	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
+      father_key = (db_queue *)IntegerOfTerm(Father);
+      WRITE_LOCK(father_key->QRWLock);
+      if ((cur_instance = father_key->FirstInQueue) == NULL) {
+	  /* an empty queue automatically goes away */
+	  WRITE_UNLOCK(father_key->QRWLock);
+	  FreeDBSpace((char *)father_key);
 	  return FALSE;
-	}
-      } else {
-	LOCAL_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
-	  return FALSE;
-	}
       }
-    }
-    /* release space for cur_instance */
-    keepdbrefs(cur_instance->DBT PASS_REGS);
-    ErasePendingRefs(cur_instance->DBT PASS_REGS);
-    FreeDBSpace((char *) cur_instance->DBT);
-    FreeDBSpace((char *) cur_instance);
-    return Yap_unify(ARG2, TDB);
+      if (!Yap_dequeue_tqueue(father_key, ARG2, true,  true PASS_REGS) )
+	return FALSE;
+      if (cur_instance == father_key->LastInQueue)
+	father_key->FirstInQueue = father_key->LastInQueue = NULL;
+      else
+	father_key->FirstInQueue = cur_instance->next;
+      WRITE_UNLOCK(father_key->QRWLock);
+      return TRUE;
   }
 }
 
@@ -5370,58 +5399,30 @@ static Int
 p_dequeue_unlocked( USES_REGS1 )
 {
   db_queue *father_key;
-  QueueEntry *cur_instance, *prev_instance;
+  QueueEntry *cur_instance;
   Term Father = Deref(ARG1);
 
   if (IsVarTerm(Father)) {
-    Yap_Error(INSTANTIATION_ERROR, Father, "dequeue");
-    return FALSE;
+      Yap_Error(INSTANTIATION_ERROR, Father, "dequeue");
+      return FALSE;
   } else if (!IsIntegerTerm(Father)) {
-    Yap_Error(TYPE_ERROR_INTEGER, Father, "dequeue");
-    return FALSE;
-  } else
-    father_key = (db_queue *)IntegerOfTerm(Father);
-  prev_instance = NULL;
-  cur_instance = father_key->FirstInQueue;
-  while (cur_instance) {
-    Term TDB;
-    while ((TDB = GetDBTerm(cur_instance->DBT, FALSE PASS_REGS)) == 0L) {
-      if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-	LOCAL_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_growglobal(NULL)) {
-	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
+      Yap_Error(TYPE_ERROR_INTEGER, Father, "dequeue");
+      return FALSE;
+  } else {
+      father_key = (db_queue *)IntegerOfTerm(Father);
+      if ((cur_instance = father_key->FirstInQueue) == NULL) {
+	  /* an empty queue automatically goes away */
+	  FreeDBSpace((char *)father_key);
 	  return FALSE;
-	}
-      } else {
-	LOCAL_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
-	  return FALSE;
-	}
       }
-    }
-    if (Yap_unify(ARG2, TDB)) {
-      if (prev_instance)  {
-	prev_instance->next = cur_instance->next;
-	if (father_key->LastInQueue == cur_instance)
-	  father_key->LastInQueue = prev_instance;
-      } else if (cur_instance == father_key->LastInQueue)
+      if (!Yap_dequeue_tqueue(father_key, ARG2, true,  true PASS_REGS) )
+	return FALSE;
+      if (cur_instance == father_key->LastInQueue)
 	father_key->FirstInQueue = father_key->LastInQueue = NULL;
       else
 	father_key->FirstInQueue = cur_instance->next;
-      /* release space for cur_instance */
-      keepdbrefs(cur_instance->DBT PASS_REGS);
-      ErasePendingRefs(cur_instance->DBT PASS_REGS);
-      FreeDBSpace((char *) cur_instance->DBT);
-      FreeDBSpace((char *) cur_instance);
       return TRUE;
-    } else {
-      prev_instance = cur_instance;
-      cur_instance = cur_instance->next;
-    }
   }
-  /* an empty queue automatically goes away */
-  return FALSE;
 }
 
 static Int 
@@ -5432,39 +5433,27 @@ p_peek_queue( USES_REGS1 )
   Term Father = Deref(ARG1);
 
   if (IsVarTerm(Father)) {
-    Yap_Error(INSTANTIATION_ERROR, Father, "dequeue");
-    return FALSE;
+      Yap_Error(INSTANTIATION_ERROR, Father, "dequeue");
+      return FALSE;
   } else if (!IsIntegerTerm(Father)) {
-    Yap_Error(TYPE_ERROR_INTEGER, Father, "dequeue");
-    return FALSE;
-  } else
-    father_key = (db_queue *)IntegerOfTerm(Father);
-  cur_instance = father_key->FirstInQueue;
-  while (cur_instance) {
-    Term TDB;
-    while ((TDB = GetDBTerm(cur_instance->DBT, FALSE PASS_REGS)) == 0L) {
-      if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-	LOCAL_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_growglobal(NULL)) {
-	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
+      Yap_Error(TYPE_ERROR_INTEGER, Father, "dequeue");
+      return FALSE;
+  } else {
+      father_key = (db_queue *)IntegerOfTerm(Father);
+      if ((cur_instance = father_key->FirstInQueue) == NULL) {
+	  /* an empty queue automatically goes away */
+	  FreeDBSpace((char *)father_key);
 	  return FALSE;
-	}
-      } else {
-	LOCAL_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
-	  return FALSE;
-	}
       }
-    }
-    if (Yap_unify(ARG2, TDB)) {
+      if (!Yap_dequeue_tqueue(father_key, ARG2, true,  false PASS_REGS) )
+	return FALSE;
+      if (cur_instance == father_key->LastInQueue)
+	father_key->FirstInQueue = father_key->LastInQueue = NULL;
+      else
+	father_key->FirstInQueue = cur_instance->next;
       return TRUE;
-    }
-    cur_instance = cur_instance->next;
   }
-  return FALSE;
 }
-
 
 
 static Int

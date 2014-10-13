@@ -133,7 +133,7 @@ check_area(void)
 PredEntry *old_p[10000];
 Term old_x1[10000], old_x2[10000], old_x3[10000];
 
-static CELL oldv;
+//static CELL oldv;
 
 void
 low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
