@@ -9290,7 +9290,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 int
 main ()
 {
-printf("SIGINFO value is %d\n", SA_SIGINFO);
+printf("SIGINFO value is %d\n", SIGINFO);
 
   ;
   return 0;
@@ -9327,7 +9327,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 int
 main ()
 {
-printf("SIGFPE value is %d\n", SA_SIGFPE);
+printf("SIGFPE value is %d\n", SIGFPE);
 
   ;
   return 0;
