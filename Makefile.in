@@ -597,7 +597,7 @@ all: startup.yss
 	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). qsave_program('startup.yss')." |  @PRE_INSTALL_ENV@ ./yap@EXEC_SUFFIX@ -b $(srcdir)/pl/boot.yap
 
 yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@ libYap.a 
-	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap@EXEC_SUFFIX@ yap.o @YAPLIB@ $(PAPILIB) $(JITLIBS) $(JITLD)
+	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap@EXEC_SUFFIX@ yap.o @YAPLIB@ $(LIBS) $(PAPILIB) $(JITLIBS) $(JITLD)
 
 yap-win: yap-win@EXEC_SUFFIX@
 
