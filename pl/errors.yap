@@ -248,7 +248,7 @@ to allow user-control.
 	Level \= top, !,
 	throw(error(permission_error(module,redefined,A),B)).
 '$process_error'(error(Msg, Where), _) :- !,
-	'$set_fpu_exceptions',
+	'$set_fpu_exceptions'(true),
 	print_message(error,error(Msg, Where)).
 '$process_error'(Throw, _) :-
 	print_message(error,error(unhandled_exception,Throw)).

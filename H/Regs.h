@@ -658,6 +658,7 @@ INLINE_ONLY EXTERN inline void restore_B(void) {
 #define frame_tail    Yap_REGS.frame_tail_
 #endif /* YAPOR_SBA */
 #else
+#define worker_id     0
 #define LOCAL	      (&Yap_local)
 #endif /* YAPOR || THREADS */
 #define CurrentModule Yap_REGS.CurrentModule_

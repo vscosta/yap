@@ -63,6 +63,8 @@ typedef struct global_data {
   pthread_t  master_thread_;
   struct thread_mbox*  named_mboxes_;
   lockvar  mboxq_lock_;
+  UInt  mbox_count_;
+  struct swi_mutex*  WithMutex_;
 #endif /* THREADS */
 
   struct io_stream*  stdout_;

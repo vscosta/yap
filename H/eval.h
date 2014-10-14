@@ -358,15 +358,18 @@ Term	Yap_eval_atom(Int);
 Term	Yap_eval_unary(Int,Term);
 Term	Yap_eval_binary(Int,Term,Term);
 
-Term	Yap_InnerEval(Term);
+Term	Yap_InnerEval__(Term USES_REGS);
 Int     Yap_ArithError(yap_error_number,Term,char *msg, ...);
 
 #include "inline-only.h"
-INLINE_ONLY inline EXTERN Term
-Yap_Eval(Term t);
+
+#define Yap_InnerEval(x) Yap_InnerEval__(x PASS_REGS)
+#define Yap_Eval(x) Yap_Eval__(x PASS_REGS)
+
+INLINE_ONLY inline EXTERN Term Yap_Eval__(Term t USES_REGS);
 
 INLINE_ONLY inline EXTERN Term
-Yap_Eval(Term t)
+Yap_Eval__(Term t USES_REGS)
 {
   if (t == 0L || ( !IsVarTerm(t) && IsNumTerm(t) ))
     return t;

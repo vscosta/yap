@@ -122,20 +122,11 @@ volatile(P) :-
 '$init_thread0' :-
 	'$no_threads', !.
 '$init_thread0' :-
-    mutex_create(WMId),
-    assert_static(prolog:'$with_mutex_mutex'(WMId) ),
-    fail.
-'$init_thread0' :-
 	recorda('$thread_defaults', [0, 0, 0, false, true], _).
 
 '$reinit_thread0' :-
 	'$no_threads', !.
-'$reinit_thread0' :- fail,
-	abolish(prolog:'$with_mutex_mutex'/1),
-        fail.
-'$reinit_thread0' :-
-    mutex_create(WMId),
-    asserta_static( ( prolog:'$with_mutex_mutex'(WMId) :- !) ).
+'$reinit_thread0'.
 
 
 '$top_thread_goal'(G, Detached) :-
@@ -1096,15 +1087,14 @@ with_mutex(M, G) :-
 	  '$do_error'(type_error(callable,G),with_mutex(M, G))
 	;
 	  atom(M) ->
-	  '$with_mutex_mutex'(WMId),
-	  '$lock_mutex'(WMId),
+	  '$with_with_mutex'(WMId),
 	  (	recorded('$mutex_alias',[Id|M],_) ->
 		true
 	  ;	'$new_mutex'(Id),
 		recorda('$mutex_alias',[Id|M],_)
 	  ),
-	  '$unlock_mutex'(WMId),
 	  '$lock_mutex'(Id),
+	  '$unlock_with_mutex'(WMId),
 	  (	catch('$execute'(G), E, ('$unlock_mutex'(Id), throw(E))) ->
 		'$unlock_mutex'(Id)
 	  ;	'$unlock_mutex'(Id),
@@ -1176,13 +1166,19 @@ message_queue_create(Id, Options) :-
 	var(Options), !,
 	'$do_error'(instantiation_error, message_queue_create(Id, Options)).
 message_queue_create(Id, []) :- !,
-	'$do_msg_queue_create'(Id).
+	'$message_queue_create'(Id).
 message_queue_create(Id, [alias(Alias)]) :-
 	var(Alias), !,
 	'$do_error'(instantiation_error, message_queue_create(Id, [alias(Alias)])).
 message_queue_create(Id, [alias(Alias)]) :-
 	\+ atom(Alias), !,
 	'$do_error'(type_error(atom,Alias), message_queue_create(Id, [alias(Alias)])).
+message_queue_create(Id, [alias(Alias)]) :- var(Id), !,
+	(	recorded('$thread_alias', [_|Alias], _) ->
+		'$do_error'(permission_error(create,queue,alias(Alias)),message_queue_create(Alias, [alias(Alias)]))
+	;	'$message_queue_create'(Id),
+		recordz('$thread_alias', [Id|Alias], _)
+	).
 message_queue_create(Alias, [alias(Alias)]) :- !,
 	(	recorded('$thread_alias', [_|Alias], _) ->
 		'$do_error'(permission_error(create,queue,alias(Alias)),message_queue_create(Alias, [alias(Alias)]))
@@ -1229,45 +1225,28 @@ message_queue_destroy(Name) :-
 	fail.
 message_queue_destroy(_).
 
-message_queue_property(Id, Prop) :-
-	(	nonvar(Id) ->
-		'$check_message_queue_or_alias'(Id, message_queue_property(Id, Prop))
-	;	recorded('$queue', q(Id,_,_,_,_), _)
-	),
-	'$check_message_queue_property'(Prop, message_queue_property(Id, Prop)),
-	'$message_queue_id_alias'(Id0, Id),
-	'$message_queue_property'(Id0, Prop).
+/* @pred message_queue_property(+ _Queue_) 
 
-'$check_message_queue_or_alias'(Term, Goal) :-
-	var(Term), !,
-	'$do_error'(instantiation_error, Goal).
-'$check_message_queue_or_alias'(Term, Goal) :-
-	\+ integer(Term),
-	\+ atom(Term),
-	Term \= '$message_queue'(_), !,
-	'$do_error'(domain_error(queue_or_alias, Term), Goal).
-'$check_message_queue_or_alias'('$message_queue'(I), Goal) :-
-	\+ recorded('$queue', q(_,_,_,I,_), _), !,
-	'$do_error'(existence_error(queue, '$message_queue'(I)), Goal).
-'$check_message_queue_or_alias'(Term, Goal) :-
-	\+ recorded('$queue', q(Term,_,_,_,_), _), !,
-	'$do_error'(existence_error(queue, Term), Goal).
-'$check_message_queue_or_alias'(_, _).
 
-'$message_queue_id_alias'(Id, Alias) :-
-	recorded('$queue', q(Alias,_,_,Id,_), _), !.
-'$message_queue_id_alias'(Id, Id).
+Report on the alias and number of messages stored in a queue created
+with message_queue_create/1.
 
-'$check_message_queue_property'(Term, _) :-
-	var(Term), !.
-'$check_message_queue_property'(alias(_), _) :- !.
-'$check_message_queue_property'(size(_), _) :- !.
-'$check_message_queue_property'(max_size(_), _) :- !.
-'$check_message_queue_property'(Term, Goal) :-
-	'$do_error'(domain_error(queue_property, Term), Goal).
++ `alias(Alias)` report the alias for stream _S_. It can also be used
+to enumerate all message queues that have aliases, including anonymous
+queues.
 
-'$message_queue_property'(Id, alias(Alias)) :-
-	recorded('$queue', q(Alias,_,_,Id,_), _).
++ `size(Size)` unifies _Size_ with the number of messages in the queue.
+*/
+
+message_queue_property( Id, alias(Alias) ) :-
+    recorded('$thread_alias',[Id|Alias],_).
+message_queue_property( Alias, size(Size) ) :-
+    ground(Alias),
+    recorded('$thread_alias',[Id|Alias],_),
+    '$message_queue_size'(Id, Size).
+message_queue_property( Id, size(Size) ) :-
+    '$message_queue_size'(Id, Size).
+
 
 
 /** @pred thread_send_message(+ _Term_) 
@@ -1415,7 +1394,7 @@ thread_peek_message(Queue, Term) :- var(Queue), !,
 	'$do_error'(instantiation_error,thread_peek_message(Queue,Term)).
 thread_peek_message(Queue, Term) :-
 	recorded('$thread_alias',[Id|Queue],_R), !,
-	'$message_peek_message'(Id, Term).
+	'$message_queue_peek'(Id, Term).
 tthread_peek_message(Queue, Term) :-
 	'$message_queue_peek'(Queue, Term).
 

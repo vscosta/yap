@@ -449,6 +449,7 @@ void	Yap_swi_install(void);
 void    Yap_InitSWIHash(void);
 int     Yap_get_stream_handle(Term, int, int, void *);
 Term    Yap_get_stream_position(void *);
+AtomEntry *Yap_lookupBlob(void *blob, size_t len, void *type, int *newp);
 
 /* opt.preds.c */
 void    Yap_init_optyap_preds(void);

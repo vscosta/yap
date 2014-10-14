@@ -1551,7 +1551,7 @@ AC_TRY_COMPILE(
 	#include <signal.h>
 	#include <stdio.h>
 	,
-	printf("SIGINFO value is %d\n", SA_SIGINFO);
+	printf("SIGINFO value is %d\n", SIGINFO);
 	,
 	yap_cv_siginfo=yes,yap_cv_siginfo=no)])
 AC_MSG_RESULT($yap_cv_siginfo)
@@ -1567,7 +1567,7 @@ AC_TRY_COMPILE(
 	#include <signal.h>
 	#include <stdio.h>
 	,
-	printf("SIGFPE value is %d\n", SA_SIGFPE);
+	printf("SIGFPE value is %d\n", SIGFPE);
 	,
 	yap_cv_sigfpe=yes,yap_cv_sigfpe=no)])
 AC_MSG_RESULT($yap_cv_sigfpe)

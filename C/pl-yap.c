@@ -152,14 +152,14 @@ callProlog(module_t module, term_t goal, int flags, term_t *ex )
   }
 }
 
-extern YAP_Term Yap_InnerEval(YAP_Term t);
+extern YAP_Term Yap_InnerEval__(YAP_Term t USES_REGS);
 
 inline static YAP_Term
-Yap_Eval(YAP_Term t)
+Yap_Eval(YAP_Term t USES_REGS)
 {
-  if (t == 0L || ( !YAP_IsVarTerm(t) && (YAP_IsIntTerm(t) || YAP_IsFloatTerm(t)) ))
+  if (t == 0L || ( !YAP_IsVarTerm(t) && (YAP_IsIntTerm(t) || YAP_IsFloatTerm(t)) ) )
     return t;
-  return Yap_InnerEval(t);
+  return Yap_InnerEval__(t PASS_REGS);
 }
 
 IOENC
@@ -196,7 +196,8 @@ PL_qualify(term_t raw, term_t qualified)
 int
 valueExpression(term_t t, Number r ARG_LD)
 {
-  YAP_Term t0 = Yap_Eval(YAP_GetFromSlot(t));
+  REGS_FROM_LD
+  YAP_Term t0 = Yap_Eval(Yap_GetFromSlot(t PASS_REGS) PASS_REGS);
   if (YAP_IsIntTerm(t0)) {
     r->type = V_INTEGER;
     r->value.i = YAP_IntOfTerm(t0);

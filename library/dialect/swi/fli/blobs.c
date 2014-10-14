@@ -76,11 +76,12 @@ PL_is_blob(term_t t, PL_blob_t **type)
 /*     } */
 /* } */
 
-static AtomEntry *
-lookupBlob(void *blob, size_t len, PL_blob_t *type, int *new)
+AtomEntry *
+Yap_lookupBlob(void *blob, size_t len, void *type0, int *new)
 {
   BlobPropEntry *b;
   AtomEntry *ae;
+  PL_blob_t *type = type0;
   if (new)
     *new = FALSE;
 
@@ -136,7 +137,7 @@ PL_unify_blob(term_t t, void *blob, size_t len, PL_blob_t *type)
 
   if (!blob)
     return FALSE;
-  ae = lookupBlob(blob, len, type, NULL);
+  ae = Yap_lookupBlob(blob, len, type, NULL);
   if (!ae) {
     return FALSE;
   }
@@ -155,7 +156,7 @@ PL_put_blob(term_t t, void *blob, size_t len, PL_blob_t *type)
 
   if (!blob)
     return FALSE;
-  ae = lookupBlob(blob, len, type, & ret);
+  ae = Yap_lookupBlob(blob, len, type, & ret);
   if (!ae) {
     return FALSE;
   }
