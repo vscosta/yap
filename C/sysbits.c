@@ -1538,9 +1538,6 @@ static RETSIGTYPE
 ReceiveSignal (int s, void *x, void *y)
 {
   CACHE_REGS
-#ifndef THREADS
-#define worker_id 0
-#endif
   LOCAL_PrologMode |= InterruptMode;
   my_signal (s, ReceiveSignal);
   switch (s)

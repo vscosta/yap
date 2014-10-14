@@ -40,9 +40,6 @@ static char     SccsId[] = "%W% %G%";
 #include <tracer.h>
 #endif
 
-#ifndef THREADS
-#define worker_id 0
-#endif
 
 /*
  * The InteractSIGINT function is called after a normal interrupt had been caught.
