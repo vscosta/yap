@@ -1421,7 +1421,6 @@ static void
 HandleMatherr(int  sig, void *sipv, void *uapv)
 {
   CACHE_REGS
-  yap_error_number error_no;
 
   /* reset the registers so that we don't have trash in abstract machine */
 #if HAVE_FETESTEXCEPT
@@ -1437,7 +1436,7 @@ HandleMatherr(int  sig, void *sipv, void *uapv)
     LOCAL_matherror  = EVALUATION_ERROR_FLOAT_UNDERFLOW;
   } else
     LOCAL_matherror  = EVALUATION_ERROR_UNDEFINED;
-  if (!feclearexcept())
+  if (!feclearexcept(FE_ALL_EXCEPT))
     return;
   Yap_Error(LOCAL_matherror , TermNil, "Arithmetic Exception");
 #elif (defined(__svr4__) || defined(__SVR4))
