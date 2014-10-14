@@ -281,8 +281,13 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term tgoal, 
     REMOTE_ThreadHandle(new_worker_id).tdetach = 
       tdetach;
   }
+  tmod = CurrentModule;
   texit = Yap_StripModule(Deref(texit), &tmod);
-  REMOTE_ThreadHandle(new_worker_id).texit_mod = tmod;
+  if (IsAtomTerm(tmod)) {
+      REMOTE_ThreadHandle(new_worker_id).texit_mod = tmod;
+  } else {
+     Yap_Error(TYPE_ERROR_ATOM,tmod,"module in exit call should be an atom");
+  }
   REMOTE_ThreadHandle(new_worker_id).texit =
     Yap_StoreTermInDB(texit,7);
   REMOTE_ThreadHandle(new_worker_id).local_preds =
@@ -1141,13 +1146,12 @@ p_thread_atexit( USES_REGS1 )
 {				/* '$thread_signal'(+P)	 */
   Term t;
 
-  if (!LOCAL_ThreadHandle.texit ||
+  if (LOCAL_ThreadHandle.texit == NULL ||
       LOCAL_ThreadHandle.texit->Entry == MkAtomTerm(AtomTrue)) {
     return FALSE;
   }
   do {
     t = Yap_PopTermFromDB(LOCAL_ThreadHandle.texit);
-    LOCAL_ThreadHandle.texit = NULL;
     if (t == 0) {
       if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -1166,6 +1170,7 @@ p_thread_atexit( USES_REGS1 )
       }
     }
   } while (t == 0);
+  LOCAL_ThreadHandle.texit = NULL;
   return Yap_unify(ARG1, t) && Yap_unify(ARG2, LOCAL_ThreadHandle.texit_mod);
 }
 
