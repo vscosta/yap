@@ -107,7 +107,7 @@ static Int p_srandom( USES_REGS1 );
 static Int p_alarm( USES_REGS1 );
 static Int p_getenv( USES_REGS1 );
 static Int p_putenv( USES_REGS1 );
-static void  set_fpu_exceptions(int);
+static bool set_fpu_exceptions(bool);
 #ifdef MACYAP
 static int chdir(char *);
 /* #define signal	skel_signal */
@@ -1424,8 +1424,23 @@ HandleMatherr(int  sig, void *sipv, void *uapv)
   yap_error_number error_no;
 
   /* reset the registers so that we don't have trash in abstract machine */
+#if HAVE_FETESTEXCEPT
+  int raised = fetestexcept(FE_ALL_EXCEPT);
 
-#if (defined(__svr4__) || defined(__SVR4))
+  if (raised & FE_OVERFLOW) {
+    LOCAL_matherror  = EVALUATION_ERROR_FLOAT_OVERFLOW;
+  } else if (raised & (FE_INVALID|FE_INEXACT)) {
+    LOCAL_matherror  = EVALUATION_ERROR_UNDEFINED;
+  } else if (raised & FE_DIVBYZERO) {
+    LOCAL_matherror  = EVALUATION_ERROR_ZERO_DIVISOR;
+  } else if (raised & FE_UNDERFLOW) {
+    LOCAL_matherror  = EVALUATION_ERROR_FLOAT_UNDERFLOW;
+  } else
+    LOCAL_matherror  = EVALUATION_ERROR_UNDEFINED;
+  if (!feclearexcept())
+    return;
+  Yap_Error(LOCAL_matherror , TermNil, "Arithmetic Exception");
+#elif (defined(__svr4__) || defined(__SVR4))
   switch(sip->si_code) {
   case FPE_INTDIV:
     error_no = EVALUATION_ERROR_ZERO_DIVISOR;
@@ -2164,10 +2179,7 @@ p_system ( USES_REGS1 )
 /* Rename a file */
 /** @pred  rename(+ _F_,+ _G_) 
 
-
 Renames file  _F_ to  _G_.
-
- 
 */
 static Int
 p_mv ( USES_REGS1 )
@@ -2526,14 +2538,20 @@ p_virtual_alarm( USES_REGS1 )
 #endif
 
 /* by default Linux with glibc is IEEE compliant anyway..., but we will pretend it is not. */
-static void
-set_fpu_exceptions(int flag)
+static bool
+set_fpu_exceptions(bool flag)
 {
   if (flag) {
-#if defined(__hpux)
+#if HAVE_FESETEXCEPTFLAG
+      fexcept_t excepts;
+      return fesetexceptflag(&excepts, FE_DIVBYZERO| FE_UNDERFLOW|FE_OVERFLOW) == 0;
+#elif HAVE_FEENABLEEXCEPT
+      /* I shall ignore de-normalization and precision errors */
+  feenableexcept(FE_DIVBYZERO| FE_INVALID|FE_OVERFLOW);
+#elif defined(__hpux)
 # if HAVE_FESETTRAPENABLE
 /* From HP-UX 11.0 onwards: */
-    fesettrapenable(FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW|FE_UNDERFLOW);
+      fesettrapenable(FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW|FE_UNDERFLOW);
 # else
 /*
   Up until HP-UX 10.20:
@@ -2544,53 +2562,60 @@ set_fpu_exceptions(int flag)
   FP_X_IMP   imprecise (inexact result)
   FP_X_CLEAR simply zero to clear all flags
 */
-    fpsetmask(FP_X_INV|FP_X_DZ|FP_X_OFL|FP_X_UFL);
+      fpsetmask(FP_X_INV|FP_X_DZ|FP_X_OFL|FP_X_UFL);
 # endif
 #endif /* __hpux */
 #if HAVE_FPU_CONTROL_H && i386 && defined(__GNUC__)
-    /* I shall ignore denormalization and precision errors */
-    int v = _FPU_IEEE & ~(_FPU_MASK_IM|_FPU_MASK_ZM|_FPU_MASK_OM|_FPU_MASK_UM);
-    _FPU_SETCW(v);
+      /* I shall ignore denormalization and precision errors */
+      int v = _FPU_IEEE & ~(_FPU_MASK_IM|_FPU_MASK_ZM|_FPU_MASK_OM|_FPU_MASK_UM);
+      _FPU_SETCW(v);
 #endif
 #if HAVE_FETESTEXCEPT
-    feclearexcept(FE_ALL_EXCEPT);
+      feclearexcept(FE_ALL_EXCEPT);
 #endif
 #ifdef HAVE_SIGFPE
-    my_signal (SIGFPE, HandleMatherr);
+      my_signal (SIGFPE, HandleMatherr);
 #endif
   } else {
     /* do IEEE arithmetic in the way the big boys do */
-#if defined(__hpux)
+#if HAVE_FESETEXCEPTFLAG
+      fexcept_t excepts;
+      return fesetexceptflag(&excepts, 0) == 0;
+#elif HAVE_FEENABLEEXCEPT
+      /* I shall ignore de-normalization and precision errors */
+      feenableexcept(0);
+#elif defined(__hpux)
 # if HAVE_FESETTRAPENABLE
-    fesettrapenable(FE_ALL_EXCEPT);
+      fesettrapenable(FE_ALL_EXCEPT);
 # else
-    fpsetmask(FP_X_CLEAR);
+      fpsetmask(FP_X_CLEAR);
 # endif
 #endif /* __hpux */
 #if HAVE_FPU_CONTROL_H && i386 && defined(__GNUC__)
-    /* this will probably not work in older releases of Linux */
-    int v = _FPU_IEEE;
-   _FPU_SETCW(v);
+      /* this will probably not work in older releases of Linux */
+      int v = _FPU_IEEE;
+      _FPU_SETCW(v);
 #endif    
 #ifdef HAVE_SIGFPE
-    my_signal (SIGFPE, SIG_IGN);
+      my_signal (SIGFPE, SIG_IGN);
 #endif
   }
+  return true;
 }
 
-void
-Yap_set_fpu_exceptions(int flag)
+bool
+Yap_set_fpu_exceptions(bool flag)
 {
-  set_fpu_exceptions(flag);
+  return set_fpu_exceptions(flag);
 }
+
 static Int
 p_set_fpu_exceptions( USES_REGS1 ) {
-  if (yap_flags[LANGUAGE_MODE_FLAG] == 1) {
-    set_fpu_exceptions(FALSE); /* can't make it work right */
+  if (Deref(ARG1) == MkAtomTerm(AtomTrue)) {
+    return set_fpu_exceptions(true);
   } else {
-    set_fpu_exceptions(FALSE);
+    return set_fpu_exceptions( false );
   }
-  return(TRUE);
 }
 
 static Int
@@ -2989,7 +3014,7 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$alarm", 4, p_alarm, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$getenv", 2, p_getenv, SafePredFlag);
   Yap_InitCPred ("$putenv", 2, p_putenv, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$set_fpu_exceptions", 0, p_set_fpu_exceptions, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$set_fpu_exceptions", 	1, p_set_fpu_exceptions, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$host_type", 1, p_host_type, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$env_separator", 1, p_env_separator, SafePredFlag);
   Yap_InitCPred ("$unix", 0, p_unix, SafePredFlag);

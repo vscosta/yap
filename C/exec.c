@@ -1078,7 +1078,7 @@ exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
 	/* must be done here, otherwise siglongjmp will clobber all the registers */
 	Yap_Error(LOCAL_matherror ,TermNil,NULL);
 	/* reset the registers so that we don't have trash in abstract machine */
-	Yap_set_fpu_exceptions(yap_flags[LANGUAGE_MODE_FLAG] == 1);
+	Yap_set_fpu_exceptions(true);
 	P = (yamop *)FAILCODE;
 	LOCAL_PrologMode = UserMode;
       }

@@ -364,7 +364,7 @@ int	Yap_IsOpMaxPrio(Atom);
 
 /* sysbits.c */
 void    Yap_InitPageSize(void);
-void	Yap_set_fpu_exceptions(int);
+bool	Yap_set_fpu_exceptions(bool);
 UInt	Yap_cputime(void);
 Int	Yap_walltime(void);
 int	Yap_dir_separator(int);

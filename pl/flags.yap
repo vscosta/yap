@@ -1147,7 +1147,7 @@ yap_flag(max_threads,X) :-
 	'$syntax_check_multiple'(_,off),
 	'$swi_set_prolog_flag'(character_escapes, false), % disable character escapes.
 	'$set_yap_flags'(14,1),
-	'$set_fpu_exceptions',
+%	'$set_fpu_exceptions'(false),
 	unknown(_,fail).
 '$adjust_language'(sicstus) :-
 	'$switch_log_upd'(1),
@@ -1162,7 +1162,7 @@ yap_flag(max_threads,X) :-
 	'$set_yap_flags'(14,0),
 	% CHARACTER_ESCAPE
 	'$swi_set_prolog_flag'(character_escapes, true), % disable character escapes.
-	'$set_fpu_exceptions',
+	'$set_fpu_exceptions'(true),
 	'$swi_set_prolog_flag'(fileerrors, true),
 	unknown(_,error).
 '$adjust_language'(iso) :-
@@ -1177,7 +1177,7 @@ yap_flag(max_threads,X) :-
 	'$set_yap_flags'(14,0),
 	% CHARACTER_ESCAPE
 	'$swi_set_prolog_flag'(character_escapes, true), % disable character escapes.
-	'$set_fpu_exceptions',
+	'$set_fpu_exceptions'(true),
 	unknown(_,error).
 
 

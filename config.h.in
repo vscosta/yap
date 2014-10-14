@@ -226,8 +226,17 @@
 /* Define to 1 if you have the `feclearexcept' function. */
 #undef HAVE_FECLEAREXCEPT
 
+/* Define to 1 if you have the `feenableexcept' function. */
+#undef HAVE_FEENABLEEXCEPT
+
 /* Define to 1 if you have the <fenv.h> header file. */
 #undef HAVE_FENV_H
+
+/* Define to 1 if you have the `fesetexceptflag' function. */
+#undef HAVE_FESETEXCEPTFLAG
+
+/* Define to 1 if you have the `fesetround' function. */
+#undef HAVE_FESETROUND
 
 /* Define to 1 if you have the `fesettrapenable' function. */
 #undef HAVE_FESETTRAPENABLE

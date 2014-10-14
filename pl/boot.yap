@@ -329,6 +329,7 @@ true :- true.
 '$init_system' :-
     get_value('$yap_inited', true), !.
 '$init_system' :-
+    '$set_fpu_exceptions'(true),
     set_value('$yap_inited', true),
     % do catch as early as possible
     (
