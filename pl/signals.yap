@@ -196,7 +196,6 @@ order of dispatch.
 	'$hacks':'$stack_dump',
 	'$execute0'(G,M).
 '$do_signal'(sig_fpe, [_M|_G]) :-
-    start_low_level_trace,
         '$fpe_error'.
 % Unix signals
 '$do_signal'(sig_alarm, G) :-
