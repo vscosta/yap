@@ -339,6 +339,12 @@ kill_thread_engine (int wid, int always_die)
   }
   Yap_KillStacks(wid);
   REMOTE_Signals(wid) = 0L;
+  // must be done before relessing the memory used to store 
+  // thread local time.
+  if (!always_die) {
+    /* called by thread itself */
+    GLOBAL_ThreadsTotalTime += Yap_cputime();
+  }
   if (REMOTE_ScratchPad(wid).ptr)
     free(REMOTE_ScratchPad(wid).ptr);
   REMOTE_PL_local_data_p(wid)->reg_cache =
@@ -355,10 +361,6 @@ kill_thread_engine (int wid, int always_die)
   REMOTE_ThreadHandle(wid).default_yaam_regs = NULL;
   LOCK(GLOBAL_ThreadHandlesLock);
   GLOBAL_NOfThreads--;
-  if (!always_die) {
-    /* called by thread itself */
-    GLOBAL_ThreadsTotalTime += Yap_cputime();
-  }
   MUTEX_LOCK(&(REMOTE_ThreadHandle(wid).tlock));
   if (REMOTE_ThreadHandle(wid).tdetach == MkAtomTerm(AtomTrue) ||
       always_die) {
