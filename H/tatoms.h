@@ -548,6 +548,8 @@
 #define AtomSigDebug Yap_heap_regs->AtomSigDebug_
   Atom AtomSigDelayCreep_;
 #define AtomSigDelayCreep Yap_heap_regs->AtomSigDelayCreep_
+  Atom AtomSigFPE_;
+#define AtomSigFPE Yap_heap_regs->AtomSigFPE_
   Atom AtomSigHup_;
 #define AtomSigHup Yap_heap_regs->AtomSigHup_
   Atom AtomSigInt_;

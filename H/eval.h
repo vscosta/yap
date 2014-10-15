@@ -117,6 +117,9 @@ exceptions:
 #ifdef HAVE_LIMITS_H
 #include <limits.h>
 #endif
+#ifdef HAVE_FENV_H
+#include <fenv.h>
+#endif
 
 #ifdef LONG_MAX
 #define Int_MAX  LONG_MAX
@@ -313,6 +316,8 @@ typedef enum {
   op_rdiv
 } arith2_op;
 
+yap_error_number
+Yap_MathException__(USES_REGS1);
 Functor     EvalArg(Term);
 
 /* Needed to handle numbers:
@@ -363,8 +368,11 @@ Int     Yap_ArithError(yap_error_number,Term,char *msg, ...);
 
 #include "inline-only.h"
 
+#define Yap_MathException() Yap_MathException__(PASS_REGS1)
+
 #define Yap_InnerEval(x) Yap_InnerEval__(x PASS_REGS)
 #define Yap_Eval(x) Yap_Eval__(x PASS_REGS)
+#define Yap_FoundArithError() Yap_FoundArithError__(PASS_REGS1)
 
 INLINE_ONLY inline EXTERN Term Yap_Eval__(Term t USES_REGS);
 
@@ -376,19 +384,25 @@ Yap_Eval__(Term t USES_REGS)
   return Yap_InnerEval(t);
 }
 
-#ifdef P
-inline static Term
-Yap_FoundArithError(Term t, Term inp)
-{ 
-  CACHE_REGS
-  if (LOCAL_Error_TYPE) {
-    Yap_Error(LOCAL_Error_TYPE, (inp ? inp : LOCAL_Error_Term), LOCAL_ErrorMessage);
-    P = FAILCODE;
-    return 0L;
-  }
-  return t;
+inline static void
+Yap_ClearExs(void)
+{
+  feclearexcept(FE_ALL_EXCEPT);
 }
-#endif
+
+inline static bool
+Yap_FoundArithError__(USES_REGS1)
+{ 
+  if (Yap_MathException() || LOCAL_Error_TYPE) {
+      Yap_external_signal( worker_id, YAP_FPE_SIGNAL );
+    regcache->P_ = FAILCODE;
+    return true;
+  }
+  return false;
+}
+
+Atom Yap_NameOfUnaryOp(int i);
+Atom Yap_NameOfBinaryOp(int i);
 
 
 #define RINT(v)       return(MkIntegerTerm(v))

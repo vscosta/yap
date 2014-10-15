@@ -173,6 +173,9 @@ static void InitWorker(int wid) {
 
 
   REMOTE_matherror(wid) = YAP_NO_ERROR;
+
+  REMOTE_mathn(wid) = 0;
+  REMOTE_mathop(wid) = YAP_NO_ERROR;
   REMOTE_CurrentError(wid) = YAP_NO_ERROR;
 
   REMOTE_heap_overflows(wid) = 0;

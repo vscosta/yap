@@ -171,45 +171,11 @@ Eval(Term t USES_REGS)
   }
 }
 
-
-#if HAVE_FENV_H
 Term
 Yap_InnerEval__(Term t USES_REGS)
 {
-#pragma STDC FENV_ACCESS ON
-  int raised;
-  Term ret;
-
-  feclearexcept(FE_ALL_EXCEPT);
-  ret = Eval(t PASS_REGS);
-  if ( ret && (raised = fetestexcept( FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW)) ) {
-
-	feclearexcept(FE_ALL_EXCEPT);
-	 if (raised & FE_OVERFLOW) {
-	     LOCAL_Error_TYPE  = EVALUATION_ERROR_FLOAT_OVERFLOW;
-	  } else if (raised & (FE_INVALID|FE_INEXACT)) {
-	      LOCAL_Error_TYPE  = EVALUATION_ERROR_UNDEFINED;
-	  } else if (raised & FE_DIVBYZERO) {
-	      LOCAL_Error_TYPE  = EVALUATION_ERROR_ZERO_DIVISOR;
-	  } else if (raised & FE_UNDERFLOW) {
-	      LOCAL_Error_TYPE  = EVALUATION_ERROR_FLOAT_UNDERFLOW;
-	  } else {
-	      LOCAL_Error_TYPE  = EVALUATION_ERROR_UNDEFINED;
-	  }
-	 LOCAL_Error_Term = t;
-	 LOCAL_ErrorMessage="Arithmetic Exception";
-	 return 0L;
-  }
-  return ret;
-}
-#else
-Term
-Yap_InnerEval__(Term t USES_REGS)
-{
-  CACHE_REGS
   return Eval(t PASS_REGS);
 }
-#endif
 
 #ifdef BEAM
 Int BEAM_is(void);
@@ -248,18 +214,26 @@ static Int
 p_is( USES_REGS1 )
 {				/* X is Y	 */
   Term out = 0L;
-  
+
+  Yap_ClearExs();
   while (!(out = Yap_InnerEval(Deref(ARG2)))) {
-    if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
-      LOCAL_Error_TYPE = YAP_NO_ERROR;
-      if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, CP)) {
-	Yap_Error(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
-	return FALSE;
+      if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
+	  LOCAL_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, CP)) {
+	      Yap_Error(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
+	      return FALSE;
+	  }
+      } else {
+	  LOCAL_mathtt[0] = Deref(ARG2);
+	  LOCAL_mathop = 0;
+	  LOCAL_mathn = 0;
+	  return FALSE;
       }
-    } else {
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+      Yap_Error(LOCAL_Error_TYPE, LOCAL_mathtt[0], LOCAL_ErrorMessage);
       return FALSE;
-    }
+  }
+  if (Yap_FoundArithError()) {
+      return TRUE;
   }
   return Yap_unify_constant(ARG1,out);
 }

@@ -1151,18 +1151,27 @@ p_binary_is( USES_REGS1 )
     Yap_ArithError(INSTANTIATION_ERROR,t, "X is Y");
     return(FALSE);
   }
+  Yap_ClearExs();
   t1 = Yap_Eval(Deref(ARG3));
-  if (!Yap_FoundArithError(t1, ARG3)) {
-    return FALSE;
+  if (Yap_FoundArithError()) {
+      LOCAL_mathtt[0] = t1;
+      return FALSE;
   }
+  LOCAL_mathtt[0] = t1;
   t2 = Yap_Eval(Deref(ARG4));
-  if (!Yap_FoundArithError(t2, ARG4)) {
+  if (Yap_FoundArithError()) {
+      LOCAL_mathtt[0] = t2;
     return FALSE;
   }
   if (IsIntTerm(t)) {
-    Term tout = Yap_FoundArithError(eval2(IntOfTerm(t), t1, t2 PASS_REGS), 0L);
-    if (!tout)
-      return FALSE;
+    Term tout = eval2(IntOfTerm(t), t1, t2 PASS_REGS);
+    if (Yap_FoundArithError()) {
+	  LOCAL_mathtt[0] = t1;
+	  LOCAL_mathtt[1] = t2;
+	  LOCAL_mathn = 2;
+	  LOCAL_mathop = IntOfTerm(t);
+     return FALSE;
+    }
     return Yap_unify_constant(ARG1,tout);
   }
   if (IsAtomTerm(t)) {
@@ -1183,12 +1192,20 @@ p_binary_is( USES_REGS1 )
       P = FAILCODE;
       return(FALSE);
     }
-    if (!(out=Yap_FoundArithError(eval2(p->FOfEE, t1, t2 PASS_REGS), 0L)))
+    out= eval2(p->FOfEE, t1, t2 PASS_REGS);
+    if (Yap_FoundArithError()) {
+	  LOCAL_mathtt[0] = t1;
+	  LOCAL_mathtt[1] = t2;
+	  LOCAL_mathn = 2;
+	  LOCAL_mathop = IntOfTerm(t);
       return FALSE;
+    }
     return Yap_unify_constant(ARG1,out);
   }
   return FALSE;
 }
+
+
 
 static Int 
 do_arith23(arith2_op op USES_REGS)
@@ -1197,6 +1214,7 @@ do_arith23(arith2_op op USES_REGS)
   Int out;
   Term t1, t2;
 
+  Yap_ClearExs();
   if (IsVarTerm(t)) {
     Yap_ArithError(INSTANTIATION_ERROR,t, "X is Y");
     return(FALSE);
@@ -1207,8 +1225,14 @@ do_arith23(arith2_op op USES_REGS)
   t2 = Yap_Eval(Deref(ARG2));
   if (t2 == 0L)
     return FALSE;
-  if (!(out=Yap_FoundArithError(eval2(op, t1, t2 PASS_REGS), 0L)))
-    return FALSE;
+  out= eval2(op, t1, t2 PASS_REGS);
+  if (Yap_FoundArithError()) {
+	  LOCAL_mathtt[0] = t1;
+	  LOCAL_mathtt[1] = t2;
+	  LOCAL_mathn = 2;
+	  LOCAL_mathop = op;
+   return FALSE;
+  }
   return Yap_unify_constant(ARG3,out);
 }
 
@@ -1282,6 +1306,12 @@ p_binary_op_as_integer( USES_REGS1 )
     return Yap_unify_constant(ARG2,MkIntTerm(p->FOfEE));
   }
   return(FALSE);
+}
+
+Atom
+Yap_NameOfBinaryOp(int i)
+{
+  return Yap_LookupAtom(InitBinTab[i].OpName);
 }
 
 

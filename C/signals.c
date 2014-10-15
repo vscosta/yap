@@ -406,6 +406,11 @@ p_first_signal( USES_REGS1 )
       at = AtomSigUsr2;
       break;
 #endif
+#ifdef SIGFPE
+    case YAP_FPE_SIGNAL:
+      at = AtomSigFPE;
+      break;
+#endif
     default:
       return FALSE;
   }

@@ -275,6 +275,7 @@
   AtomSigCreep = Yap_LookupAtom("sig_creep");
   AtomSigDebug = Yap_LookupAtom("sig_debug");
   AtomSigDelayCreep = Yap_LookupAtom("sig_delay_creep");
+  AtomSigFPE = Yap_LookupAtom("sig_fpe");
   AtomSigHup = Yap_LookupAtom("sig_hup");
   AtomSigInt = Yap_LookupAtom("sig_int");
   AtomSigIti = Yap_LookupAtom("sig_iti");

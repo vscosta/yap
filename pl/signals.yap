@@ -195,6 +195,9 @@ order of dispatch.
 	'$continue_signals',
 	'$hacks':'$stack_dump',
 	'$execute0'(G,M).
+'$do_signal'(sig_fpe, [_M|_G]) :-
+    start_low_level_trace,
+        '$fpe_error'.
 % Unix signals
 '$do_signal'(sig_alarm, G) :-
 	'$signal_handler'(sig_alarm, G).
@@ -257,6 +260,7 @@ order of dispatch.
 '$signal_def'(sig_usr1, throw(error(signal(usr1,[]),true))).
 '$signal_def'(sig_usr2, throw(error(signal(usr2,[]),true))).
 '$signal_def'(sig_pipe, throw(error(signal(pipe,[]),true))).
+'$signal_def'(sig_fpe, throw(error(signal(fpe,[]),true))).
 % ignore sig_alarm by default
 '$signal_def'(sig_alarm, true). 
 
@@ -267,6 +271,7 @@ order of dispatch.
 '$signal'(sig_pipe).
 '$signal'(sig_alarm).
 '$signal'(sig_vtalarm).
+'$signal'(sig_fpe).
 
 on_signal(Signal,OldAction,NewAction) :-
 	var(Signal), !,

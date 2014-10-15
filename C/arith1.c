@@ -957,18 +957,29 @@ p_unary_is( USES_REGS1 )
   Term t = Deref(ARG2);
   Term top;
 
+  LOCAL_mathn = 1;
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, ARG2, "X is Y");
     return FALSE;
   }
+  Yap_ClearExs();
   top = Yap_Eval(Deref(ARG3));
-  if (!Yap_FoundArithError(top, ARG3)) {
-    return FALSE;
+  if (Yap_FoundArithError()) {
+      LOCAL_mathtt[0] = top;
+      return TRUE;
   }
   if (IsIntTerm(t)) {
-    Term tout = Yap_FoundArithError(eval1(IntegerOfTerm(t), top PASS_REGS), Deref(ARG3));
-    if (!tout)
-      return FALSE;
+    Term tout;
+    Int i;
+
+    LOCAL_mathop = i = IntegerOfTerm(t);
+    tout = eval1(i, top PASS_REGS);
+    if (Yap_FoundArithError()) {
+	      LOCAL_mathtt[0] = top;
+	      LOCAL_mathop = i;
+	      LOCAL_mathn = 1;
+      return TRUE;
+    }
     return Yap_unify_constant(ARG1,tout);
   }
   if (IsAtomTerm(t)) {
@@ -989,8 +1000,14 @@ p_unary_is( USES_REGS1 )
       P = FAILCODE;
       return(FALSE);
     }
-    if (!(out=Yap_FoundArithError(eval1(p->FOfEE, top PASS_REGS),Deref(ARG3))))
+    LOCAL_mathop = p->FOfEE;
+    out= eval1(p->FOfEE, top PASS_REGS);
+   if (Yap_FoundArithError()) {
+	      LOCAL_mathtt[0] = top;
+	      LOCAL_mathop = p->FOfEE;
+	      LOCAL_mathn = 1;
       return FALSE;
+   }
     return Yap_unify_constant(ARG1,out);
   }
   return(FALSE);
@@ -1018,6 +1035,12 @@ p_unary_op_as_integer( USES_REGS1 )
     return Yap_unify_constant(ARG2,MkIntTerm(p->FOfEE));
   }
   return(FALSE);
+}
+
+Atom
+Yap_NameOfUnaryOp(int i)
+{
+  return Yap_LookupAtom(InitUnTab[i].OpName);
 }
 
 void

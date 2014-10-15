@@ -275,6 +275,7 @@
   AtomSigCreep = AtomAdjust(AtomSigCreep);
   AtomSigDebug = AtomAdjust(AtomSigDebug);
   AtomSigDelayCreep = AtomAdjust(AtomSigDelayCreep);
+  AtomSigFPE = AtomAdjust(AtomSigFPE);
   AtomSigHup = AtomAdjust(AtomSigHup);
   AtomSigInt = AtomAdjust(AtomSigInt);
   AtomSigIti = AtomAdjust(AtomSigIti);
