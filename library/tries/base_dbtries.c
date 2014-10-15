@@ -237,7 +237,8 @@ YAP_Term trie_depth_breadth(TrEntry trie, TrEntry db_trie, YAP_Int opt_level, YA
   core_initialize_depth_breadth_trie(TrEntry_trie(db_trie), &depth_node, &breadth_node);
   set_depth_breadth_reduction_current_data(NULL);
   /* We only need to simplify the trie once! */
-  simplification_reduction(trie);
+  if (TrNode_child(TrEntry_trie(trie)))
+    simplification_reduction(trie);
   while (TrNode_child(TrEntry_trie(trie))) {
     nested_trie = depth_reduction(trie, depth_node, opt_level);
     if (nested_trie) {
