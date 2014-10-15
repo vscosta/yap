@@ -41,8 +41,8 @@ CPLINT_LIBS=@CPLINT_LIBS@
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)
 #
-OBJS=cplint_yap.o cplint_Prob.o
-SOBJS=cplint.@SHLIB_SUFFIX@
+OBJS=cplint_yap.o cplint_Prob.o 
+SOBJS=cplint.@SHLIB_SUFFIX@ 
 
 
 
@@ -148,7 +148,9 @@ CPLINT_LEARNING_PROGRAMS=\
 	$(CPLINT_SRCDIR)/em \
 	$(CPLINT_SRCDIR)/rib \
 	$(CPLINT_SRCDIR)/slipcase \
-	$(CPLINT_SRCDIR)/slipcover
+	$(CPLINT_SRCDIR)/slipcover \
+	$(CPLINT_SRCDIR)/lemur
+	
 
 
 all: $(SOBJS)
@@ -167,7 +169,7 @@ cplint_Prob.o: $(srcdir)/cplint_Prob.c  $(srcdir)/cplint.h
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
 
-install: all install-examples
+install: all 
 	mkdir -p $(DESTDIR)$(SHAREDIR)/cplint
 	mkdir -p $(DESTDIR)$(SHAREDIR)/cplint/examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)/cplint/doc
@@ -183,9 +185,8 @@ install: all install-examples
 	cp $(CPLINT_SRCDIR)/rib/*.pl $(DESTDIR)$(SHAREDIR)/cplint/
 	cp $(CPLINT_SRCDIR)/slipcase/*.pl $(DESTDIR)$(SHAREDIR)/cplint/
 	cp $(CPLINT_SRCDIR)/slipcover/*.pl $(DESTDIR)$(SHAREDIR)/cplint/
-	$(INSTALL_PROGRAM) slipcase/bddem.so $(DESTDIR)$(YAPLIBDIR)
+	cp $(CPLINT_SRCDIR)/lemur/*.pl $(DESTDIR)$(SHAREDIR)/cplint/
 
-install_examples:
 
 installcheck: 
 	for h in ${CPLINT_TEST_PROGRAMS}; do echo "t. halt." | $(BINDIR)/yap -l $$h; done
