@@ -45,6 +45,5 @@ mkdir -p  packages/cplint/approx/simplecuddLPADs
 
 AC_CONFIG_FILES([packages/cplint/Makefile])
 AC_CONFIG_FILES([packages/cplint/approx/simplecuddLPADs/Makefile])
-AC_CONFIG_FILES([packages/cplint/slipcase/Makefile])
 
 
