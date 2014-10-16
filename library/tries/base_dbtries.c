@@ -208,12 +208,13 @@
 /*      Local Procedures      */
 /* -------------------------- */
 
-static TrNode depth_reduction(TrEntry trie, TrNode depth_node, YAP_Int opt_level);
-static TrNode breadth_reduction(TrEntry trie, TrNode breadth_node, YAP_Int opt_level);
+static void          simplification_reduction(TrEntry trie);
+static TrNode        depth_reduction(TrEntry trie, TrNode depth_node, YAP_Int opt_level);
+static TrNode        breadth_reduction(TrEntry trie, TrNode breadth_node, YAP_Int opt_level);
 static inline int    compare_label_nodes(TrData data1, TrData data2);
-static inline  void   move_after(TrData data_source, TrData data_dest);
-static inline  void   move_last_data_after(TrData moveto_data);
-static inline  void   set_depth_breadth_reduction_current_data(TrData data);
+static inline void   move_after(TrData data_source, TrData data_dest);
+static inline void   move_last_data_after(TrData moveto_data);
+static inline void   set_depth_breadth_reduction_current_data(TrData data);
 
 
 /* -------------------------- */
@@ -235,6 +236,9 @@ YAP_Term trie_depth_breadth(TrEntry trie, TrEntry db_trie, YAP_Int opt_level, YA
   core_set_trie_db_return_term(YAP_MkAtomTerm(YAP_LookupAtom("false")));
   core_initialize_depth_breadth_trie(TrEntry_trie(db_trie), &depth_node, &breadth_node);
   set_depth_breadth_reduction_current_data(NULL);
+  /* We only need to simplify the trie once! */
+  if (TrNode_child(TrEntry_trie(trie)))
+    simplification_reduction(trie);
   while (TrNode_child(TrEntry_trie(trie))) {
     nested_trie = depth_reduction(trie, depth_node, opt_level);
     if (nested_trie) {
@@ -302,6 +306,27 @@ void set_depth_breadth_reduction_current_data(TrData data) {
 
 
 static
+void simplification_reduction(TrEntry trie) {
+  TrNode node;
+  TrData stop_data, new_data, data = NULL;
+  stop_data = TrData_previous(TrEntry_first_data(trie));
+  data = TrEntry_traverse_data(trie) = TrEntry_last_data(trie);
+  while ((data != stop_data) && (data != NULL)) {
+    node = core_simplification_reduction(TRIE_ENGINE, TrData_leaf(data), &trie_data_destruct);
+    if (node) {
+      new_trie_data(new_data, trie, node);
+      PUT_DATA_IN_LEAF_TRIE_NODE(node, new_data);
+    }
+    if (data == TrEntry_traverse_data(trie)) {
+      data = TrData_previous(data);
+      TrEntry_traverse_data(trie) = data;
+    } else
+      data = TrEntry_traverse_data(trie);
+  }
+}
+
+
+static
 TrNode depth_reduction(TrEntry trie, TrNode depth_node, YAP_Int opt_level) {
   TrNode node;
   TrData stop_data, new_data, data = NULL;
@@ -309,9 +334,7 @@ TrNode depth_reduction(TrEntry trie, TrNode depth_node, YAP_Int opt_level) {
   stop_data = TrData_previous(TrEntry_first_data(trie));
   data = TrEntry_traverse_data(trie) = TrEntry_last_data(trie);
   while (data != stop_data) {
-//   printf("hi0\n");
     node = core_depth_reduction(TRIE_ENGINE, TrData_leaf(data), depth_node, opt_level, &trie_data_construct, &trie_data_destruct, &trie_data_copy, &trie_data_order_correction);
-//   printf("bye0\n");
     if (node && IS_FUNCTOR_NODE(TrNode_parent(node)) && (strcmp(YAP_AtomName(YAP_NameOfFunctor((YAP_Functor)(~ApplTag & TrNode_entry(TrNode_parent(node))))), NESTED_TRIE_TERM) == 0)) {
       //nested trie stop procedure return nested trie node
       return node;
@@ -338,9 +361,7 @@ TrNode breadth_reduction(TrEntry trie, TrNode breadth_node, YAP_Int opt_level) {
   stop_data = TrData_previous(TrEntry_first_data(trie));
   data = TrEntry_traverse_data(trie) = TrEntry_last_data(trie);
   while ((data != stop_data) && (data != NULL)) {
-//     printf("hi\n");
     node = core_breadth_reduction(TRIE_ENGINE, TrData_leaf(data), breadth_node, opt_level, &trie_data_construct, &trie_data_destruct, &trie_data_copy, &trie_data_order_correction);
-//     printf("bye\n");
     if (node && IS_FUNCTOR_NODE(TrNode_parent(node)) && (strcmp(YAP_AtomName(YAP_NameOfFunctor((YAP_Functor)(~ApplTag & TrNode_entry(TrNode_parent(node))))), NESTED_TRIE_TERM) == 0)) {
       //nested trie stop procedure return nested trie node
       return node;

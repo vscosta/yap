@@ -519,6 +519,7 @@ TrNode core_trie_load(TrEngine engine, FILE *file, void (*load_function)(TrNode,
   DATA_LOAD_FUNCTION = load_function;
   node = core_trie_open(engine);
   traverse_and_load(node, file);
+  if (n) n = 0; // just added to remove the warning of not used!
   return node;
 }
 
@@ -1450,6 +1451,7 @@ void traverse_and_load(TrNode parent, FILE *file) {
     traverse_and_load(child, file);
   } while (fscanf(file, "%lu", &t));
   CURRENT_DEPTH--;
+  if (n) n = 0; // just added to remove the warning of not used!
   return;
 }
 

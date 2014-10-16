@@ -13,7 +13,7 @@ BINDIR = $(EROOTDIR)/bin
 # where YAP should look for libraries
 #
 LIBDIR=@libdir@/Yap
-DESTDIR=$(prefix)/share/Yap
+DESTDIR=$(prefix)/lib/Yap
 #
 #
 CC=@CC@

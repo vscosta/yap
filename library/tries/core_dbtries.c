@@ -206,13 +206,22 @@
 /*      Local Procedures      */
 /* -------------------------- */
 
-inline void displaynode(TrNode node);
 inline int      traverse_get_counter(TrNode node);
 inline YAP_Term generate_label(YAP_Int Index);
 YAP_Term update_depth_breadth_trie(TrEngine engine, TrNode root, YAP_Int opt_level, void (*construct_function)(TrNode), void (*destruct_function)(TrNode), void (*copy_function)(TrNode, TrNode), void (*correct_order_function)(void));
 YAP_Term get_return_node_term(TrNode node);
 void     traverse_and_replace_nested_trie(TrNode node, YAP_Int nested_trie_id, YAP_Term new_term);
 TrNode   replace_nested_trie(TrNode node, TrNode child, YAP_Term new_term);
+inline TrNode   get_simplification_sibling(TrNode node);
+inline TrNode   check_parent_first(TrNode node);
+inline TrNode   TrNode_myparent(TrNode node);
+
+/* -------------------------- */
+/*       Debug Procedures     */
+/* -------------------------- */
+
+inline void   displaynode(TrNode node);
+inline void   displayentry(TrNode node);
 
 
 /* -------------------------- */
@@ -271,6 +280,17 @@ void displaynode(TrNode node) {
   } else
     printf("null\n");
   return;
+}
+
+
+inline
+void displayentry(TrNode node) {
+  printf("Entry Contains Bottom Up:\n");
+  while (node) {
+    displaynode(node);
+    node = TrNode_parent(node);
+  }
+  printf("--- End of Entry ---\n");
 }
 
 
@@ -463,6 +483,52 @@ void core_finalize_depth_breadth_trie(TrNode depth_node, TrNode breadth_node) {
 }
 
 
+inline
+TrNode get_simplification_sibling(TrNode node) {
+  TrNode sibling = node;
+  while (sibling != NULL && TrNode_entry(sibling) != PairEndTag)
+    sibling = TrNode_next(sibling);
+  if (sibling != NULL && TrNode_entry(sibling) == PairEndTag) return sibling;
+  sibling = node;
+  while (sibling != NULL && TrNode_entry(sibling) != PairEndTag)
+    sibling = TrNode_previous(sibling);
+  return sibling;
+}
+
+inline
+TrNode check_parent_first(TrNode node) {
+  TrNode simplification;
+  if (TrNode_entry(TrNode_myparent(node)) != PairInitTag) {
+    simplification = check_parent_first(TrNode_myparent(node));
+    if (simplification != NULL && TrNode_entry(simplification) == PairEndTag) return simplification;
+  }
+  simplification = get_simplification_sibling(node);
+  return simplification;
+}
+
+inline
+TrNode TrNode_myparent(TrNode node) {
+  TrNode parent = TrNode_parent(node);
+  while (parent != NULL && IS_FUNCTOR_NODE(parent))
+    parent = TrNode_parent(parent);
+  return parent;
+}
+
+TrNode core_simplification_reduction(TrEngine engine, TrNode node, void (*destruct_function)(TrNode)) {
+  /* Try to find the greatest parent that has a sibling that is a PairEndTag: this indicates a deep simplification */
+  node = check_parent_first(TrNode_myparent(node));
+  if (node != NULL) {
+    /* do breadth reduction simplification */
+    node = TrNode_parent(node);
+    DATA_DESTRUCT_FUNCTION = destruct_function;
+    remove_child_nodes(TrNode_child(node));
+    TrNode_child(node) = NULL;
+    node = trie_node_check_insert(node, PairEndTag);
+    INCREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
+  }
+  return node;
+}
+
 
 TrNode core_depth_reduction(TrEngine engine, TrNode node, TrNode depth_node, YAP_Int opt_level, void (*construct_function)(TrNode), void (*destruct_function)(TrNode), void (*copy_function)(TrNode, TrNode), void (*correct_order_function)(void)) {
   TrNode leaf = node;
@@ -534,14 +600,18 @@ TrNode core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node,
   YAP_Term t, *stack_top;
   int count = -1;
   TrNode child;
+  
+  /* Simplification with breadth reduction (faster dbtrie execution worse BDD)
+  child = core_simplification_reduction(engine, node, destruct_function);
+  if (child) return child;
+  */
+
   /* collect breadth nodes */
   stack_args_base = stack_args = AUXILIARY_TERM_STACK;
   stack_top = AUXILIARY_TERM_STACK + CURRENT_AUXILIARY_TERM_STACK_SIZE - 1;
   node = TrNode_parent(TrNode_parent(node));
-//   printf("1\n");
 //   printf("start node: "); displaynode(node);
   if (IS_FUNCTOR_NODE(node)) {
-//   printf("2\n");
     while(IS_FUNCTOR_NODE(node))
       node = TrNode_parent(node);
     child = TrNode_child(node);
@@ -613,6 +683,7 @@ TrNode core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node,
     do {
       if (TrNode_entry(child) == PairEndTag) {
         /* do breadth reduction simplification */
+        printf("I should never arrive here, please contact Theo!\n");
         node = TrNode_parent(child);
         DATA_DESTRUCT_FUNCTION = destruct_function;
         remove_child_nodes(TrNode_child(node));
@@ -676,10 +747,7 @@ TrNode core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node,
           child = TrNode_parent(child);
       }
       child = TrNode_next(child);
-         //   printf("Siblings: ");displaynode(child);
-
     } while (child);
-//      printf("pass through\n");
   }
   if (!count) {
     /* termination condition */
@@ -699,7 +767,6 @@ TrNode core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node,
   node = trie_node_check_insert(node, t);
   node = trie_node_check_insert(node, PairEndTag);
   INCREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
-//    printf("end node: "); displaynode(node);
   return node;
 }
 

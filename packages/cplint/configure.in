@@ -27,7 +27,7 @@ if test ! "$yap_cv_cplint" = "no"
 		CPLINT_SHLIB_LD=$SHLIB_LD
 		SHLIB_SUFFIX="so"
 	fi
-	PKG_CPLINT="packages/cplint packages/cplint/splipcase packages/cplint/approx/simplecuddLPADs"
+	PKG_CPLINT="packages/cplint packages/cplint/approx/simplecuddLPADs"
 	AC_SUBST(CPLINT_LIBS)
 	AC_SUBST(CPLINT_CFLAGS)
 	AC_SUBST(CPLINT_LDFLAGS)
