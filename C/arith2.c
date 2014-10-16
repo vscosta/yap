@@ -1180,14 +1180,14 @@ p_binary_is( USES_REGS1 )
   if (IsIntTerm(t)) {
     Int i = IntOfTerm(t);
     Term tout = eval2(i, t1, t2 PASS_REGS);
-    if (Yap_FoundArithError()) {
+    if ((err = Yap_FoundArithError()) != YAP_NO_ERROR) {
       Term ts[2], terr;
       Atom name = Yap_NameOfBinaryOp( i );
       Functor f = Yap_MkFunctor( name, 2 );
       ts[0] = t1;
       ts[1] = t2;
       terr = Yap_MkApplTerm( f, 2, ts );
-      Yap_EvalError(err, terr ,"error in ~s/2 ", RepAtom(name)->StrOfAE);
+      Yap_EvalError(err, terr ,"error in %s/2 ", RepAtom(name)->StrOfAE);
       return FALSE;
     }
     return Yap_unify_constant(ARG1,tout);
@@ -1205,13 +1205,13 @@ p_binary_is( USES_REGS1 )
       ti[1] = MkIntTerm(1);
       t = Yap_MkApplTerm(FunctorSlash, 2, ti);
       Yap_EvalError(TYPE_ERROR_EVALUABLE, t,
-		"functor %s/%d for arithmetic expression",
-		RepAtom(name)->StrOfAE,2);
+		"functor %s/2 for arithmetic expression",
+		RepAtom(name)->StrOfAE);
       P = FAILCODE;
       return(FALSE);
     }
     out= eval2(p->FOfEE, t1, t2 PASS_REGS);
-    if (Yap_FoundArithError()) {
+    if ((err = Yap_FoundArithError()) != YAP_NO_ERROR) {
       Term ts[2], terr;
       Functor f = Yap_MkFunctor( name, 2 );
       ts[0] = t1;
