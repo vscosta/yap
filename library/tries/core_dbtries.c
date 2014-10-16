@@ -206,15 +206,15 @@
 /*      Local Procedures      */
 /* -------------------------- */
 
-inline int      traverse_get_counter(TrNode node);
-inline YAP_Term generate_label(YAP_Int Index);
+int      traverse_get_counter(TrNode node);
+YAP_Term generate_label(YAP_Int Index);
 YAP_Term update_depth_breadth_trie(TrEngine engine, TrNode root, YAP_Int opt_level, void (*construct_function)(TrNode), void (*destruct_function)(TrNode), void (*copy_function)(TrNode, TrNode), void (*correct_order_function)(void));
 YAP_Term get_return_node_term(TrNode node);
 void     traverse_and_replace_nested_trie(TrNode node, YAP_Int nested_trie_id, YAP_Term new_term);
 TrNode   replace_nested_trie(TrNode node, TrNode child, YAP_Term new_term);
-inline TrNode   get_simplification_sibling(TrNode node);
-inline TrNode   check_parent_first(TrNode node);
-inline TrNode   TrNode_myparent(TrNode node);
+TrNode   get_simplification_sibling(TrNode node);
+TrNode   check_parent_first(TrNode node);
+TrNode   TrNode_myparent(TrNode node);
 
 /* -------------------------- */
 /*       Debug Procedures     */
@@ -483,7 +483,6 @@ void core_finalize_depth_breadth_trie(TrNode depth_node, TrNode breadth_node) {
 }
 
 
-inline
 TrNode get_simplification_sibling(TrNode node) {
   TrNode sibling = node;
   while (sibling != NULL && TrNode_entry(sibling) != PairEndTag)
@@ -495,7 +494,6 @@ TrNode get_simplification_sibling(TrNode node) {
   return sibling;
 }
 
-inline
 TrNode check_parent_first(TrNode node) {
   TrNode simplification;
   if (TrNode_entry(TrNode_myparent(node)) != PairInitTag) {
@@ -506,7 +504,6 @@ TrNode check_parent_first(TrNode node) {
   return simplification;
 }
 
-inline
 TrNode TrNode_myparent(TrNode node) {
   TrNode parent = TrNode_parent(node);
   while (parent != NULL && IS_FUNCTOR_NODE(parent))
@@ -791,7 +788,6 @@ YAP_Term get_return_node_term(TrNode node) {
 }
 
 
-inline
 int traverse_get_counter(TrNode node) {
   int count = -1;
   while (TrNode_entry(node) != PairEndTag) {
@@ -818,7 +814,6 @@ int traverse_get_counter(TrNode node) {
 }
 
 
-inline
 YAP_Term generate_label(YAP_Int Index) {
   char label[20];
   sprintf(label,"L%ld", Index);
