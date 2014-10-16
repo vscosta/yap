@@ -173,9 +173,8 @@ typedef struct worker_local {
   struct db_globs*  s_dbg_;
 
   yap_error_number  matherror_;
-  Term  mathtt_[4];
-  Int  mathn_;
-  Term  mathop_;
+  Term  mathtt_;
+  char*  mathstring_;
   yap_error_number  CurrentError_;
 
   int  heap_overflows_;

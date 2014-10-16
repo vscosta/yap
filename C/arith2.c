@@ -1146,31 +1146,49 @@ p_binary_is( USES_REGS1 )
 {				/* X is Y	 */
   Term t = Deref(ARG2);
   Term t1, t2;
+  yap_error_number err;
 
   if (IsVarTerm(t)) {
-    Yap_ArithError(INSTANTIATION_ERROR,t, "X is Y");
+    Yap_ArithError(INSTANTIATION_ERROR,t, "VAR(X , Y)");
     return(FALSE);
   }
   Yap_ClearExs();
   t1 = Yap_Eval(Deref(ARG3));
-  if (Yap_FoundArithError()) {
-      LOCAL_mathtt[0] = t1;
-      return FALSE;
+  if ((err = Yap_FoundArithError())) {
+    Atom name;
+    if (IsIntTerm(t)) {
+      Int i = IntOfTerm(t);
+      name = Yap_NameOfBinaryOp(i);
+    } else {
+      name = AtomOfTerm(Deref(ARG2));
+    }
+    Yap_EvalError(err,ARG3,"X is ~s/2: error in first argument ", RepAtom(name)->StrOfAE);
+    return FALSE;
   }
-  LOCAL_mathtt[0] = t1;
   t2 = Yap_Eval(Deref(ARG4));
-  if (Yap_FoundArithError()) {
-      LOCAL_mathtt[0] = t2;
+  if ((err=Yap_FoundArithError())) {
+    Atom name;
+    if (IsIntTerm(t)) {
+      Int i = IntOfTerm(t);
+      name = Yap_NameOfBinaryOp(i);
+    } else {
+      name = AtomOfTerm(Deref(ARG2));
+    }
+    Yap_EvalError(err,ARG3,"X is ~s/2: error in first argument ", RepAtom(name)->StrOfAE);
     return FALSE;
   }
   if (IsIntTerm(t)) {
-    Term tout = eval2(IntOfTerm(t), t1, t2 PASS_REGS);
+    Int i = IntOfTerm(t);
+    Term tout = eval2(i, t1, t2 PASS_REGS);
     if (Yap_FoundArithError()) {
-	  LOCAL_mathtt[0] = t1;
-	  LOCAL_mathtt[1] = t2;
-	  LOCAL_mathn = 2;
-	  LOCAL_mathop = IntOfTerm(t);
-     return FALSE;
+      Term ts[2], terr;
+      Atom name = Yap_NameOfBinaryOp( i );
+      Functor f = Yap_MkFunctor( name, 2 );
+      ts[0] = t1;
+      ts[1] = t2;
+      terr = Yap_MkApplTerm( f, 2, ts );
+      Yap_EvalError(err, terr ,"error in ~s/2 ", RepAtom(name)->StrOfAE);
+      return FALSE;
     }
     return Yap_unify_constant(ARG1,tout);
   }
@@ -1186,7 +1204,7 @@ p_binary_is( USES_REGS1 )
       ti[0] = t;
       ti[1] = MkIntTerm(1);
       t = Yap_MkApplTerm(FunctorSlash, 2, ti);
-      Yap_Error(TYPE_ERROR_EVALUABLE, t,
+      Yap_EvalError(TYPE_ERROR_EVALUABLE, t,
 		"functor %s/%d for arithmetic expression",
 		RepAtom(name)->StrOfAE,2);
       P = FAILCODE;
@@ -1194,10 +1212,12 @@ p_binary_is( USES_REGS1 )
     }
     out= eval2(p->FOfEE, t1, t2 PASS_REGS);
     if (Yap_FoundArithError()) {
-	  LOCAL_mathtt[0] = t1;
-	  LOCAL_mathtt[1] = t2;
-	  LOCAL_mathn = 2;
-	  LOCAL_mathop = IntOfTerm(t);
+      Term ts[2], terr;
+      Functor f = Yap_MkFunctor( name, 2 );
+      ts[0] = t1;
+      ts[1] = t2;
+      terr = Yap_MkApplTerm( f, 2, ts );
+      Yap_EvalError(err, terr ,"error in ~s/2 ", RepAtom(name)->StrOfAE);
       return FALSE;
     }
     return Yap_unify_constant(ARG1,out);
@@ -1213,10 +1233,11 @@ do_arith23(arith2_op op USES_REGS)
   Term t = Deref(ARG1);
   Int out;
   Term t1, t2;
+  yap_error_number err;
 
   Yap_ClearExs();
   if (IsVarTerm(t)) {
-    Yap_ArithError(INSTANTIATION_ERROR,t, "X is Y");
+    Yap_EvalError(INSTANTIATION_ERROR,t, "X is Y");
     return(FALSE);
   }
   t1 = Yap_Eval(t);
@@ -1226,12 +1247,14 @@ do_arith23(arith2_op op USES_REGS)
   if (t2 == 0L)
     return FALSE;
   out= eval2(op, t1, t2 PASS_REGS);
-  if (Yap_FoundArithError()) {
-	  LOCAL_mathtt[0] = t1;
-	  LOCAL_mathtt[1] = t2;
-	  LOCAL_mathn = 2;
-	  LOCAL_mathop = op;
-   return FALSE;
+  if ((err=Yap_FoundArithError())) {
+      Term ts[2], t;
+      Functor f = Yap_MkFunctor( Yap_NameOfBinaryOp(op), 2 );
+      ts[0] = t1;
+      ts[1] = t2;
+      t = Yap_MkApplTerm( f, 2, ts );
+      Yap_EvalError(err, t ,"error in ~s(Y,Z) ",Yap_NameOfBinaryOp(op));
+      return FALSE;
   }
   return Yap_unify_constant(ARG3,out);
 }
@@ -1290,7 +1313,7 @@ p_binary_op_as_integer( USES_REGS1 )
   Term t = Deref(ARG1);
 
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR,t, "X is Y");
+    Yap_EvalError(INSTANTIATION_ERROR,t, "X is Y");
     return(FALSE);
   }
   if (IsIntTerm(t)) {
@@ -1324,7 +1347,7 @@ Yap_InitBinaryExps(void)
   for (i = 0; i < sizeof(InitBinTab)/sizeof(InitBinEntry); ++i) {
     AtomEntry *ae = RepAtom(Yap_LookupAtom(InitBinTab[i].OpName));
     if (ae == NULL) {
-      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"at InitBinaryExps");
+      Yap_EvalError(OUT_OF_HEAP_ERROR,TermNil,"at InitBinaryExps");
       return;
     }
     WRITE_LOCK(ae->ARWLock);

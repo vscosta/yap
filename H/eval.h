@@ -365,6 +365,7 @@ Term	Yap_eval_binary(Int,Term,Term);
 
 Term	Yap_InnerEval__(Term USES_REGS);
 Int     Yap_ArithError(yap_error_number,Term,char *msg, ...);
+yamop*  Yap_EvalError(yap_error_number,Term,char *msg, ...);
 
 #include "inline-only.h"
 
@@ -390,15 +391,12 @@ Yap_ClearExs(void)
   feclearexcept(FE_ALL_EXCEPT);
 }
 
-inline static bool
+inline static   yap_error_number 
 Yap_FoundArithError__(USES_REGS1)
 { 
-  if (Yap_MathException() || LOCAL_Error_TYPE) {
-      Yap_external_signal( worker_id, YAP_FPE_SIGNAL );
-    regcache->P_ = FAILCODE;
-    return true;
-  }
-  return false;
+  if (LOCAL_Error_TYPE != YAP_NO_ERROR)
+    return LOCAL_Error_TYPE;
+  return Yap_MathException();
 }
 
 Atom Yap_NameOfUnaryOp(int i);

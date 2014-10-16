@@ -554,7 +554,8 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
   int psize = YAP_BUF_SIZE;
 
   LOCAL_Error_TYPE = YAP_NO_ERROR;
-  if (where == 0L)
+  Yap_ClearExs();
+ if (where == 0L)
     where = TermNil;
 #if DEBUG_STRICT
   if (Yap_heap_regs && !(LOCAL_PrologMode & BootMode)) 
