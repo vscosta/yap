@@ -1428,12 +1428,12 @@ Yap_MathException__( USES_REGS1 )
 	feclearexcept(FE_ALL_EXCEPT);
 	 if (raised & FE_OVERFLOW) {
 	     return  EVALUATION_ERROR_FLOAT_OVERFLOW;
-	  } else if (raised & (FE_INVALID|FE_INEXACT)) {
-	      return  EVALUATION_ERROR_UNDEFINED;
 	  } else if (raised & FE_DIVBYZERO) {
 	      return  EVALUATION_ERROR_ZERO_DIVISOR;
 	  } else if (raised & FE_UNDERFLOW) {
 	      return  EVALUATION_ERROR_FLOAT_UNDERFLOW;
+	  //} else if (raised & (FE_INVALID|FE_INEXACT)) {
+	  //    return  EVALUATION_ERROR_UNDEFINED;
 	  } else {
 	      return  EVALUATION_ERROR_UNDEFINED;
 	  }
