@@ -1427,39 +1427,39 @@ Yap_MathException__( USES_REGS1 )
 
 	feclearexcept(FE_ALL_EXCEPT);
 	 if (raised & FE_OVERFLOW) {
-	     LOCAL_matherror =  EVALUATION_ERROR_FLOAT_OVERFLOW;
+	     return  EVALUATION_ERROR_FLOAT_OVERFLOW;
 	  } else if (raised & (FE_INVALID|FE_INEXACT)) {
-	      LOCAL_matherror =  EVALUATION_ERROR_UNDEFINED;
+	      return  EVALUATION_ERROR_UNDEFINED;
 	  } else if (raised & FE_DIVBYZERO) {
-	      LOCAL_matherror =  EVALUATION_ERROR_ZERO_DIVISOR;
+	      return  EVALUATION_ERROR_ZERO_DIVISOR;
 	  } else if (raised & FE_UNDERFLOW) {
-	      LOCAL_matherror =  EVALUATION_ERROR_FLOAT_UNDERFLOW;
+	      return  EVALUATION_ERROR_FLOAT_UNDERFLOW;
 	  } else {
-	      LOCAL_matherror =  EVALUATION_ERROR_UNDEFINED;
+	      return  EVALUATION_ERROR_UNDEFINED;
 	  }
   }
 #elif (defined(__svr4__) || defined(__SVR4))
   switch(sip->si_code) {
   case FPE_INTDIV:
-    LOCAL_matherror = EVALUATION_ERROR_ZERO_DIVISOR;
+    return EVALUATION_ERROR_ZERO_DIVISOR;
     break;
   case FPE_INTOVF:
-    LOCAL_matherror = EVALUATION_ERROR_INT_OVERFLOW;
+    return EVALUATION_ERROR_INT_OVERFLOW;
     break;
   case FPE_FLTDIV:
-    LOCAL_matherror = EVALUATION_ERROR_ZERO_DIVISOR;
+    return EVALUATION_ERROR_ZERO_DIVISOR;
     break;
   case FPE_FLTOVF:
-    LOCAL_matherror = EVALUATION_ERROR_FLOAT_OVERFLOW;
+    return EVALUATION_ERROR_FLOAT_OVERFLOW;
     break;
   case FPE_FLTUND:
-    LOCAL_matherror = EVALUATION_ERROR_FLOAT_UNDERFLOW;
+    return EVALUATION_ERROR_FLOAT_UNDERFLOW;
     break;
   case FPE_FLTRES:
   case FPE_FLTINV:
   case FPE_FLTSUB:
   default:
-    LOCAL_matherror = EVALUATION_ERROR_UNDEFINED;
+    return EVALUATION_ERROR_UNDEFINED;
   }
   set_fpu_exceptions(0);
 #endif
@@ -1470,24 +1470,10 @@ Yap_MathException__( USES_REGS1 )
 static Int
 p_fpe_error( USES_REGS1 )
 {
-  if (LOCAL_mathn == 0) {
-    Yap_Error(LOCAL_matherror, LOCAL_mathtt[0], "arithmetic");
-  } else if (LOCAL_mathn == 1) {
-      Term t;
-      Functor f;
-
-      f = Yap_MkFunctor( Yap_NameOfUnaryOp(LOCAL_mathop), 1);
-      t = Yap_MkApplTerm(f, 1, LOCAL_mathtt);
-      Yap_Error(LOCAL_matherror, t, "arithmetic");
-    } else if (LOCAL_mathn == 2) {
-    Term t;
-    Functor f;
-
-    f = Yap_MkFunctor( Yap_NameOfBinaryOp(LOCAL_mathop), 2);
-    t = Yap_MkApplTerm(f, 2, LOCAL_mathtt);
-    Yap_Error(LOCAL_matherror, t, "arithmetic");
-  }
+  Yap_Error(LOCAL_matherror, LOCAL_mathtt, LOCAL_mathstring);
   LOCAL_matherror = YAP_NO_ERROR;
+  LOCAL_mathtt = TermNil;
+  LOCAL_mathstring = NULL;
   return FALSE;
 }
 

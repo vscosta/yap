@@ -154,12 +154,12 @@ eval0(Int fi) {
   case op_inf:
     {
 #ifdef _MSC_VER /* Microsoft's Visual C++ Compiler */
-      Yap_Error(TYPE_ERROR_EVALUABLE, TermNil, "evaluating infinity");
+      Yap_ArithError(TYPE_ERROR_EVALUABLE, TermNil, "evaluating infinity");
       P = (yamop *)FAILCODE;
       RERROR();
 #else
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) {/* iso */
-	Yap_Error(TYPE_ERROR_EVALUABLE, TermNil, "evaluating infinity");
+	Yap_ArithError(TYPE_ERROR_EVALUABLE, TermNil, "evaluating infinity");
 	P = (yamop *)FAILCODE;
 	RERROR();
       } else {
@@ -170,13 +170,11 @@ eval0(Int fi) {
   case op_nan:
     {
 #ifdef _MSC_VER /* Microsoft's Visual C++ Compi<ler */
-      Yap_Error(TYPE_ERROR_EVALUABLE, TermNil, "evaluating infinity");
-      P = (yamop *)FAILCODE;
+      Yap_ArithError(TYPE_ERROR_EVALUABLE, TermNil, "evaluating infinity");
       RERROR();
 #else
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) {/* iso */
-	Yap_Error(TYPE_ERROR_EVALUABLE, TermNil, "evaluating not-a-number");
-	P = (yamop *)FAILCODE;
+	Yap_ArithError(TYPE_ERROR_EVALUABLE, TermNil, "evaluating not-a-number");
 	RERROR();
       } else {
 	RFLOAT(NAN);
@@ -287,7 +285,7 @@ Yap_InitConstExps(void)
   for (i = 0; i < sizeof(InitConstTab)/sizeof(InitConstEntry); ++i) {
     AtomEntry *ae = RepAtom(Yap_LookupAtom(InitConstTab[i].OpName));
     if (ae == NULL) {
-      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"at InitConstExps");
+      Yap_EvalError(OUT_OF_HEAP_ERROR,TermNil,"at InitConstExps");
       return;
     }
     WRITE_LOCK(ae->ARWLock);

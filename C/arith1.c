@@ -951,34 +951,40 @@ static InitUnEntry InitUnTab[] = {
   {"random", op_random1}
 };
 
+Atom
+Yap_NameOfUnaryOp(int i)
+{
+  return Yap_LookupAtom(InitUnTab[i].OpName);
+}
+
 static Int 
 p_unary_is( USES_REGS1 )
 {				/* X is Y	 */
   Term t = Deref(ARG2);
   Term top;
+  yap_error_number err;
 
-  LOCAL_mathn = 1;
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, ARG2, "X is Y");
+    Yap_EvalError(INSTANTIATION_ERROR, t, "unbound unary operator");
     return FALSE;
   }
   Yap_ClearExs();
   top = Yap_Eval(Deref(ARG3));
-  if (Yap_FoundArithError()) {
-      LOCAL_mathtt[0] = top;
-      return TRUE;
+  if ((err=Yap_FoundArithError())) {
+    Yap_EvalError(err,ARG3,"X is op(Y): error in Y ");
+    return FALSE;
   }
   if (IsIntTerm(t)) {
     Term tout;
     Int i;
 
-    LOCAL_mathop = i = IntegerOfTerm(t);
+    i = IntegerOfTerm(t);
     tout = eval1(i, top PASS_REGS);
-    if (Yap_FoundArithError()) {
-	      LOCAL_mathtt[0] = top;
-	      LOCAL_mathop = i;
-	      LOCAL_mathn = 1;
-      return TRUE;
+    if ((err=Yap_FoundArithError())) {
+      Functor f = Yap_MkFunctor( Yap_NameOfUnaryOp(i), 1 );
+      Term t = Yap_MkApplTerm( f, 1, &top );
+      Yap_EvalError(err, t ,"error in %s/1 ", RepAtom(NameOfFunctor(f))->StrOfAE);
+      return FALSE;
     }
     return Yap_unify_constant(ARG1,tout);
   }
@@ -988,26 +994,25 @@ p_unary_is( USES_REGS1 )
     Term out;
 
     if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, 1)))) {
+
       Term ti[2];
 
       /* error */
       ti[0] = t;
       ti[1] = MkIntTerm(1);
       t = Yap_MkApplTerm(FunctorSlash, 2, ti);
-      Yap_Error(TYPE_ERROR_EVALUABLE, t,
+      Yap_EvalError(TYPE_ERROR_EVALUABLE, t,
 		"functor %s/%d for arithmetic expression",
 		RepAtom(name)->StrOfAE,1);
-      P = FAILCODE;
-      return(FALSE);
-    }
-    LOCAL_mathop = p->FOfEE;
-    out= eval1(p->FOfEE, top PASS_REGS);
-   if (Yap_FoundArithError()) {
-	      LOCAL_mathtt[0] = top;
-	      LOCAL_mathop = p->FOfEE;
-	      LOCAL_mathn = 1;
       return FALSE;
-   }
+    }
+    out= eval1(p->FOfEE, top PASS_REGS);
+    if ((err=Yap_FoundArithError())) {
+      Functor f = Yap_MkFunctor( name, 1 );
+      Term t = Yap_MkApplTerm( f, 1, &top );
+      Yap_EvalError(err, t ,"error in %s/1", RepAtom(name)->StrOfAE);
+      return FALSE;
+    }
     return Yap_unify_constant(ARG1,out);
   }
   return(FALSE);
@@ -1019,7 +1024,7 @@ p_unary_op_as_integer( USES_REGS1 )
   Term t = Deref(ARG1);
 
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR,t, "X is Y");
+    Yap_EvalError(INSTANTIATION_ERROR,t, "X is _Y");
     return(FALSE);
   }
   if (IsIntTerm(t)) {
@@ -1037,12 +1042,6 @@ p_unary_op_as_integer( USES_REGS1 )
   return(FALSE);
 }
 
-Atom
-Yap_NameOfUnaryOp(int i)
-{
-  return Yap_LookupAtom(InitUnTab[i].OpName);
-}
-
 void
 Yap_InitUnaryExps(void)
 {
@@ -1052,7 +1051,7 @@ Yap_InitUnaryExps(void)
   for (i = 0; i < sizeof(InitUnTab)/sizeof(InitUnEntry); ++i) {
     AtomEntry *ae = RepAtom(Yap_LookupAtom(InitUnTab[i].OpName));
     if (ae == NULL) {
-      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"at InitUnaryExps");
+      Yap_EvalError(OUT_OF_HEAP_ERROR,TermNil,"at InitUnaryExps");
       return;
     }
     WRITE_LOCK(ae->ARWLock);

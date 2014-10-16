@@ -308,10 +308,8 @@
 #define REMOTE_matherror(wid) REMOTE(wid)->matherror_
 #define LOCAL_mathtt LOCAL->mathtt_
 #define REMOTE_mathtt(wid) REMOTE(wid)->mathtt_
-#define LOCAL_mathn LOCAL->mathn_
-#define REMOTE_mathn(wid) REMOTE(wid)->mathn_
-#define LOCAL_mathop LOCAL->mathop_
-#define REMOTE_mathop(wid) REMOTE(wid)->mathop_
+#define LOCAL_mathstring LOCAL->mathstring_
+#define REMOTE_mathstring(wid) REMOTE(wid)->mathstring_
 #define LOCAL_CurrentError LOCAL->CurrentError_
 #define REMOTE_CurrentError(wid) REMOTE(wid)->CurrentError_
 

@@ -107,8 +107,15 @@ Eval(Term t USES_REGS)
 
     if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, 0)))) {
       /* error */
+      Term ti[2];
+
+      /* error */
+      ti[0] = t;
+      ti[1] = MkIntTerm(0);
+      t = Yap_MkApplTerm(FunctorSlash, 2, ti);
+
       return Yap_ArithError(TYPE_ERROR_EVALUABLE, t,
-			    "atom %s for arithmetic expression",
+			    "atom %s in arithmetic expression",
 			    RepAtom(name)->StrOfAE);
     }
     return Yap_eval_atom(p->FOfEE);
@@ -214,27 +221,29 @@ static Int
 p_is( USES_REGS1 )
 {				/* X is Y	 */
   Term out = 0L;
+  yap_error_number err;
 
+  Term t = Deref(ARG2);
+  if (IsVarTerm(t)) {
+    Yap_EvalError(INSTANTIATION_ERROR,t, "X is Y");
+    return(FALSE);
+  }
   Yap_ClearExs();
-  while (!(out = Yap_InnerEval(Deref(ARG2)))) {
-      if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
-	  LOCAL_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, CP)) {
-	      Yap_Error(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
-	      return FALSE;
-	  }
-      } else {
-	  LOCAL_mathtt[0] = Deref(ARG2);
-	  LOCAL_mathop = 0;
-	  LOCAL_mathn = 0;
-	  return FALSE;
+  do {
+    out = Yap_InnerEval(Deref(ARG2));
+    if ((err = Yap_FoundArithError()) == YAP_NO_ERROR)
+      break;
+    if (err == RESOURCE_ERROR_STACK) {
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
+      if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, CP)) {
+	Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
+	return FALSE;
       }
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_mathtt[0], LOCAL_ErrorMessage);
-      return FALSE;
-  }
-  if (Yap_FoundArithError()) {
-      return TRUE;
-  }
+    } else {
+      Yap_EvalError(err, ARG2, "X is Exp");
+    return FALSE;
+    }
+  } while (TRUE);
   return Yap_unify_constant(ARG1,out);
 }
 
@@ -256,20 +265,20 @@ p_isnan( USES_REGS1 )
     if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       if (!Yap_gcl(LOCAL_Error_Size, 1, ENV, CP)) {
-	Yap_Error(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
+	Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
 	return FALSE;
       }
     } else {
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+      Yap_EvalError(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
       return FALSE;
     }
   }
   if (IsVarTerm(out)) {
-    Yap_Error(INSTANTIATION_ERROR, out, "isnan/1");
+    Yap_EvalError(INSTANTIATION_ERROR, out, "isnan/1");
     return FALSE;
   }
   if (!IsFloatTerm(out)) {
-    Yap_Error(TYPE_ERROR_FLOAT, out, "isnan/1");
+    Yap_EvalError(TYPE_ERROR_FLOAT, out, "isnan/1");
     return FALSE;
   }
   return isnan(FloatOfTerm(out));
@@ -291,20 +300,20 @@ p_isinf( USES_REGS1 )
     if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       if (!Yap_gcl(LOCAL_Error_Size, 1, ENV, CP)) {
-        Yap_Error(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
+        Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
         return FALSE;
       }
     } else {
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+      Yap_EvalError(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
       return FALSE;
     }
   }
   if (IsVarTerm(out)) {
-    Yap_Error(INSTANTIATION_ERROR, out, "isinf/1");
+    Yap_EvalError(INSTANTIATION_ERROR, out, "isinf/1");
     return FALSE;
   }
   if (!IsFloatTerm(out)) {
-    Yap_Error(TYPE_ERROR_FLOAT, out, "isinf/1");
+    Yap_EvalError(TYPE_ERROR_FLOAT, out, "isinf/1");
     return FALSE;
   }
   return isinf(FloatOfTerm(out));
@@ -345,11 +354,11 @@ p_logsum( USES_REGS1 )
 	if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
 	  LOCAL_Error_TYPE = YAP_NO_ERROR;
 	  if (!Yap_gcl(LOCAL_Error_Size, 1, ENV, CP)) {
-	    Yap_Error(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
+	    Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
 	    return FALSE;
 	  }
 	} else {
-	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	  Yap_EvalError(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
       }
@@ -373,11 +382,11 @@ p_logsum( USES_REGS1 )
 	if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
 	  LOCAL_Error_TYPE = YAP_NO_ERROR;
 	  if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, CP)) {
-	    Yap_Error(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
+	    Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
 	    return FALSE;
 	  }
 	} else {
-	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	  Yap_EvalError(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
       }
@@ -400,6 +409,8 @@ Yap_ArithError(yap_error_number type, Term where, char *format,...)
   CACHE_REGS
   va_list ap;
 
+  if (LOCAL_ArithError)
+    return 0L;
   LOCAL_ArithError = TRUE;
   LOCAL_Error_TYPE = type;
   LOCAL_Error_Term = where;
@@ -417,6 +428,32 @@ Yap_ArithError(yap_error_number type, Term where, char *format,...)
   }
   va_end (ap);
   return 0L;
+}
+
+yamop *
+Yap_EvalError(yap_error_number type, Term where, char *format,...)
+{
+  CACHE_REGS
+  va_list ap;
+
+  if (LOCAL_ArithError) {
+    return Yap_Error( LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+  }
+  
+  if (!LOCAL_ErrorMessage)
+    LOCAL_ErrorMessage = LOCAL_ErrorSay;
+  va_start (ap, format);
+  if (format != NULL) {
+#if   HAVE_VSNPRINTF
+    (void) vsnprintf(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE, format, ap);
+#else
+    (void) vsprintf(LOCAL_ErrorMessage, format, ap);
+#endif
+  } else {
+    LOCAL_ErrorMessage[0] = '\0';
+  }
+  va_end (ap);
+  return Yap_Error( type, where, LOCAL_ErrorMessage);
 }
 
 /**
@@ -478,23 +515,23 @@ init_between( USES_REGS1 )
   Term t2 = Deref(ARG2);
 
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "between/3");
+    Yap_EvalError(INSTANTIATION_ERROR, t1, "between/3");
     return FALSE;
   }
   if (IsVarTerm(t2)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "between/3");
+    Yap_EvalError(INSTANTIATION_ERROR, t1, "between/3");
     return FALSE;
   }
   if (!IsIntegerTerm(t1) && 
       !IsBigIntTerm(t1)) {
-    Yap_Error(TYPE_ERROR_INTEGER, t1, "between/3");
+    Yap_EvalError(TYPE_ERROR_INTEGER, t1, "between/3");
     return FALSE;
   }
   if (!IsIntegerTerm(t2) && 
       !IsBigIntTerm(t2) &&
       t2 != MkAtomTerm(AtomInf) &&
       t2 != MkAtomTerm(AtomInfinity)) {
-    Yap_Error(TYPE_ERROR_INTEGER, t2, "between/3");
+    Yap_EvalError(TYPE_ERROR_INTEGER, t2, "between/3");
     return FALSE;
   }
   if (IsIntegerTerm(t1) && IsIntegerTerm(t2)) {
@@ -506,7 +543,7 @@ init_between( USES_REGS1 )
     if (!IsVarTerm(t3)) {
       if (!IsIntegerTerm(t3)) {
 	if (!IsBigIntTerm(t3)) {
-	  Yap_Error(TYPE_ERROR_INTEGER, t3, "between/3");
+	  Yap_EvalError(TYPE_ERROR_INTEGER, t3, "between/3");
 	  return FALSE;
 	}
 	cut_fail();
@@ -530,7 +567,7 @@ init_between( USES_REGS1 )
     if (!IsVarTerm(t3)) {
       if (!IsIntegerTerm(t3)) {
 	if (!IsBigIntTerm(t3)) {
-	  Yap_Error(TYPE_ERROR_INTEGER, t3, "between/3");
+	  Yap_EvalError(TYPE_ERROR_INTEGER, t3, "between/3");
 	  return FALSE;
 	}
 	cut_fail();
@@ -547,7 +584,7 @@ init_between( USES_REGS1 )
 
     if (!IsVarTerm(t3)) {
       if (!IsIntegerTerm(t3) && !IsBigIntTerm(t3)) {
-	Yap_Error(TYPE_ERROR_INTEGER, t3, "between/3");
+	Yap_EvalError(TYPE_ERROR_INTEGER, t3, "between/3");
 	return FALSE;
       }
       if (Yap_acmp(t3, t1 PASS_REGS) >= 0 && Yap_acmp(t2,t3 PASS_REGS) >= 0 && P != FAILCODE)
