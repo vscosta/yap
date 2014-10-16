@@ -45,6 +45,9 @@ typedef enum
 #ifdef SIGVTALRM
   YAP_VTALARM_SIGNAL = SIGVTALRM, /* received SIGVTALARM */
 #endif
+#ifdef SIGFPE
+  YAP_FPE_SIGNAL = SIGFPE, 	/* received SIGFPE */
+#endif
   YAP_WAKEUP_SIGNAL = (NSIG+1),	/* goals to wake up */
   YAP_ITI_SIGNAL = (NSIG+2),	/* received inter thread signal */
   YAP_TROVF_SIGNAL = (NSIG+3),	/* received trail overflow */

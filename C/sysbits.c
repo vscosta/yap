@@ -1416,88 +1416,104 @@ HandleSIGSEGV(int   sig,   void   *sipv, void *uap)
 }
 #endif /* SIGSEGV */
 
-#if HAVE_SIGFPE
-static void
-HandleMatherr(int  sig, void *sipv, void *uapv)
+yap_error_number
+Yap_MathException__( USES_REGS1 )
 {
-  CACHE_REGS
+  int raised;
 
-  /* reset the registers so that we don't have trash in abstract machine */
 #if HAVE_FETESTEXCEPT
-  int raised = fetestexcept(FE_ALL_EXCEPT);
+#pragma STDC FENV_ACCESS ON
+  if ((raised = fetestexcept( FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW)) ) {
 
-  if (raised & FE_OVERFLOW) {
-    LOCAL_matherror  = EVALUATION_ERROR_FLOAT_OVERFLOW;
-  } else if (raised & (FE_INVALID|FE_INEXACT)) {
-    LOCAL_matherror  = EVALUATION_ERROR_UNDEFINED;
-  } else if (raised & FE_DIVBYZERO) {
-    LOCAL_matherror  = EVALUATION_ERROR_ZERO_DIVISOR;
-  } else if (raised & FE_UNDERFLOW) {
-    LOCAL_matherror  = EVALUATION_ERROR_FLOAT_UNDERFLOW;
-  } else
-    LOCAL_matherror  = EVALUATION_ERROR_UNDEFINED;
-  if (!feclearexcept(FE_ALL_EXCEPT))
-    return;
-  Yap_Error(LOCAL_matherror , TermNil, "Arithmetic Exception");
+	feclearexcept(FE_ALL_EXCEPT);
+	 if (raised & FE_OVERFLOW) {
+	     LOCAL_matherror =  EVALUATION_ERROR_FLOAT_OVERFLOW;
+	  } else if (raised & (FE_INVALID|FE_INEXACT)) {
+	      LOCAL_matherror =  EVALUATION_ERROR_UNDEFINED;
+	  } else if (raised & FE_DIVBYZERO) {
+	      LOCAL_matherror =  EVALUATION_ERROR_ZERO_DIVISOR;
+	  } else if (raised & FE_UNDERFLOW) {
+	      LOCAL_matherror =  EVALUATION_ERROR_FLOAT_UNDERFLOW;
+	  } else {
+	      LOCAL_matherror =  EVALUATION_ERROR_UNDEFINED;
+	  }
+  }
 #elif (defined(__svr4__) || defined(__SVR4))
   switch(sip->si_code) {
   case FPE_INTDIV:
-    error_no = EVALUATION_ERROR_ZERO_DIVISOR;
+    LOCAL_matherror = EVALUATION_ERROR_ZERO_DIVISOR;
     break;
   case FPE_INTOVF:
-    error_no = EVALUATION_ERROR_INT_OVERFLOW;
+    LOCAL_matherror = EVALUATION_ERROR_INT_OVERFLOW;
     break;
   case FPE_FLTDIV:
-    error_no = EVALUATION_ERROR_ZERO_DIVISOR;
+    LOCAL_matherror = EVALUATION_ERROR_ZERO_DIVISOR;
     break;
   case FPE_FLTOVF:
-    error_no = EVALUATION_ERROR_FLOAT_OVERFLOW;
+    LOCAL_matherror = EVALUATION_ERROR_FLOAT_OVERFLOW;
     break;
   case FPE_FLTUND:
-    error_no = EVALUATION_ERROR_FLOAT_UNDERFLOW;
+    LOCAL_matherror = EVALUATION_ERROR_FLOAT_UNDERFLOW;
     break;
   case FPE_FLTRES:
   case FPE_FLTINV:
   case FPE_FLTSUB:
   default:
-    error_no = EVALUATION_ERROR_UNDEFINED;
+    LOCAL_matherror = EVALUATION_ERROR_UNDEFINED;
   }
   set_fpu_exceptions(0);
-  Yap_Error(error_no, TermNil, "");
-#elif __linux__
-#if HAVE_FETESTEXCEPT
-
-  /* This should work in Linux, but it doesn't seem to. */
-  
-  int raised = fetestexcept(FE_ALL_EXCEPT);
-
-  if (raised & FE_OVERFLOW) {
-    LOCAL_matherror  = EVALUATION_ERROR_FLOAT_OVERFLOW;
-  } else if (raised & (FE_INVALID|FE_INEXACT)) {
-    LOCAL_matherror  = EVALUATION_ERROR_UNDEFINED;
-  } else if (raised & FE_DIVBYZERO) {
-    LOCAL_matherror  = EVALUATION_ERROR_ZERO_DIVISOR;
-  } else if (raised & FE_UNDERFLOW) {
-    LOCAL_matherror  = EVALUATION_ERROR_FLOAT_UNDERFLOW;
-  } else
 #endif
-    LOCAL_matherror  = EVALUATION_ERROR_UNDEFINED;
-  /* something very bad happened on the way to the forum */
-  set_fpu_exceptions(FALSE);
-  Yap_Error(LOCAL_matherror , TermNil, "");
-#endif
+
+  return LOCAL_matherror;
+}
+
+static Int
+p_fpe_error( USES_REGS1 )
+{
+  if (LOCAL_mathn == 0) {
+    Yap_Error(LOCAL_matherror, LOCAL_mathtt[0], "arithmetic");
+  } else if (LOCAL_mathn == 1) {
+      Term t;
+      Functor f;
+
+      f = Yap_MkFunctor( Yap_NameOfUnaryOp(LOCAL_mathop), 1);
+      t = Yap_MkApplTerm(f, 1, LOCAL_mathtt);
+      Yap_Error(LOCAL_matherror, t, "arithmetic");
+    } else if (LOCAL_mathn == 2) {
+    Term t;
+    Functor f;
+
+    f = Yap_MkFunctor( Yap_NameOfBinaryOp(LOCAL_mathop), 2);
+    t = Yap_MkApplTerm(f, 2, LOCAL_mathtt);
+    Yap_Error(LOCAL_matherror, t, "arithmetic");
+  }
+  LOCAL_matherror = YAP_NO_ERROR;
+  return FALSE;
+}
+
+#if HAVE_SIGFPE
+static void
+HandleMatherr(int  sig, void *sipv, void *uapv)
+{
+  CACHE_REGS
+  LOCAL_matherror = Yap_MathException( );
+  /* reset the registers so that we don't have trash in abstract machine */
+  Yap_external_signal( worker_id, YAP_FPE_SIGNAL );
 }
 
 #endif /* SIGFPE */
 
 
+
+typedef void (*signal_handler_t)(int, void *, void *);
+
 #if HAVE_SIGACTION 
 static void
-my_signal_info(int sig, void (*handler)(int, void  *, void *))
+my_signal_info(int sig, void * handler)
 {
   struct sigaction sigact;
 
-  sigact.sa_handler = (void *)handler;
+  sigact.sa_handler = handler;
   sigemptyset(&sigact.sa_mask);
   sigact.sa_flags = SA_SIGINFO;
 
@@ -1505,7 +1521,7 @@ my_signal_info(int sig, void (*handler)(int, void  *, void *))
 }
 
 static void
-my_signal(int sig, void (*handler)(int, void *, void *))
+my_signal(int sig, void * handler)
 {
   struct sigaction sigact;
 
@@ -1518,13 +1534,13 @@ my_signal(int sig, void (*handler)(int, void *, void *))
 #else
 
 static void
-my_signal(int sig, void (*handler)(int, void  *, void *))
+my_signal(int sig, void *handler)
 {
-  signal(sig, (void *)handler);
+  signal(sig, void *handler);
 }
 
 static void
-my_signal_info(int sig, void (*handler)(int, void  *, void *))
+my_signal_info(int sig, void *handler)
 {
   if(signal(sig, (void *)handler) == SIG_ERR)
     exit(1);
@@ -1554,9 +1570,7 @@ ReceiveSignal (int s, void *x, void *y)
 #ifndef MPW
 #ifdef HAVE_SIGFPE
     case SIGFPE:
-      set_fpu_exceptions(FALSE);
-      LOCAL_PrologMode &= ~InterruptMode;
-      Yap_Error (SYSTEM_ERROR, TermNil, "floating point exception ]");
+      Yap_external_signal( worker_id, YAP_FPE_SIGNAL );
       break;
 #endif
 #endif
@@ -3018,6 +3032,7 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$ld_path", 1, p_ld_path, SafePredFlag);
   Yap_InitCPred ("$address_bits", 1, p_address_bits, SafePredFlag);
   Yap_InitCPred ("$expand_file_name", 2, p_expand_file_name, SyncPredFlag);
+  Yap_InitCPred ("$fpe_error", 0, p_fpe_error, 0);
 #ifdef _WIN32
   Yap_InitCPred ("win_registry_get_value", 3, p_win_registry_get_value,0);
 #endif

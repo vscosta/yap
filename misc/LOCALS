@@ -195,6 +195,9 @@ struct db_globs*		s_dbg					void
 
 //eval.c
 yap_error_number 		matherror 				=YAP_NO_ERROR
+Term		 		mathtt[4]	 			void
+Int		 		mathn					=0
+int		 		mathop					=0
 yap_error_number 		CurrentError 				=YAP_NO_ERROR
 
 //grow.c

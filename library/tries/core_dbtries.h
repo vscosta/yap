@@ -219,6 +219,7 @@ void      core_set_label_counter(YAP_Int value);
 YAP_Int   core_get_label_counter(void);
 void      core_initialize_depth_breadth_trie(TrNode node, TrNode *depth_node, TrNode *breadth_node);
 void      core_finalize_depth_breadth_trie(TrNode depth_node, TrNode breadth_node);
+TrNode    core_simplification_reduction(TrEngine engine, TrNode node, void (*destruct_function)(TrNode));
 TrNode    core_depth_reduction(TrEngine engine, TrNode node, TrNode depth_node, YAP_Int opt_level, void (*construct_function)(TrNode), void (*destruct_function)(TrNode), void (*copy_function)(TrNode, TrNode), void (*correct_order_function)(void));
 TrNode    core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node, YAP_Int opt_level, void (*construct_function)(TrNode), void (*destruct_function)(TrNode), void (*copy_function)(TrNode, TrNode), void (*correct_order_function)(void));
 YAP_Term  core_get_trie_db_return_term(void);
