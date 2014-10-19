@@ -21,7 +21,7 @@
 
 #include <pthread.h>
 
-#define DEBUG_PE_LOCKS 1
+//#define DEBUG_PE_LOCKS 1
 //#define DEBUG_LOCKS
 #include <stdio.h>
 

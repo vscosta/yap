@@ -1789,9 +1789,12 @@ PredPropByAtomAndMod (Atom at, Term cur_mod)
   { LOCK((Z)->PELock); (Z)->StatisticsForPred.NOfEntries=(I);(Z)->StatisticsForPred.NOfHeadSuccesses=pthread_self(); }
 #define UNLOCKPE(I,Z)						\
   ( (Z)->StatisticsForPred.NOfRetries=(I),  UNLOCK((Z)->PELock) )
-#else
+#elif YAPOR || THREADS
 #define PELOCK(I,Z) (LOCK((Z)->PELock))
 #define UNLOCKPE(I,Z)	(UNLOCK((Z)->PELock))
+#else
+#define PELOCK(I,Z)
+#define UNLOCKPE(I,Z)
 #endif
 
 INLINE_ONLY EXTERN inline void AddPropToAtom(AtomEntry *, PropEntry *p);

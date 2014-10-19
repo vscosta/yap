@@ -33,7 +33,7 @@
 #define O_STRING		1
 #define O_QUASIQUOTATIONS	1
 #if HAVE_LOCALE_H && HAVE_SETLOCALE
-#define O_LOCALE		1
+//#define O_LOCALE		1
 #endif
 //#define O_ATOMGC		1
 //#define O_CLAUSEGC		1

@@ -70,7 +70,7 @@ locking is required.
 
 #define PL_KERNEL 1
 #if HAVE_LOCALE_H && HAVE_SETLOCALE
-#define O_LOCALE 1
+//#define O_LOCALE 1
 #endif
 #include <wchar.h>
 #define NEEDS_SWINSOCK
