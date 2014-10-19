@@ -338,7 +338,7 @@ Yap_udi_search(PredEntry *p)
 			J1N(count, result, idx_r);
 		}
 		J1FA(count,result);
-			fprintf(stderr,"J1 used space %d bytes for %d clausules\n",
+			fprintf(stderr,"J1 used space %ld bytes for %d clausules\n",
 					count, Yap_ClauseListCount(&clauselist));
 		Yap_ClauseListClose(&clauselist);
 #else
