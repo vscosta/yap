@@ -1079,7 +1079,7 @@ with_mutex(M, G) :-
     ( recorded('$mutex_alias',[Id|M],_) ->
     '$with_mutex'(Id, G )
     ;
-    '$atom'(M ) ->
+    atom(M ) ->
     mutex_create(Id, [alias(M)]),
     '$with_mutex'(M, G )
     ;
