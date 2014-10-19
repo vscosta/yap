@@ -96,8 +96,8 @@ control when threads can be created.
 We  assume  id  ==  L_THREAD  is  optimized  away  if  id  is  known  at
 compile-time
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#define IF_MT(id, g) if ( id == L_THREAD  ) g
+#define IF_MT(id,g) g
+//#define IF_MT(id, g) if ( id == L_THREAD  ) g
 
 #ifdef O_CONTENTION_STATISTICS
 #define countingMutexLock(cm) \

@@ -682,6 +682,7 @@ typedef struct thread_mbox {
     pthread_cond_t cond;
     struct idb_queue msgs;
     int  nmsgs, nclients;  // if nclients < 0 mailbox has been closed.
+    bool open;
     struct thread_mbox *next;
 } mbox_t;
 

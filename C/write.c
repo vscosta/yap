@@ -316,7 +316,7 @@ wrputf(Float f, struct write_globs *wglb)	/* writes a float	 */
     localeconv()->decimal_point;
   size_t l1 = strlen((const char *)decimalpoint+1);
 #else
-  const unsigned char *decimalpoint = ".";
+  const unsigned char decimalpoint[2] = ".";
   size_t l1 = 0;
 #endif
 

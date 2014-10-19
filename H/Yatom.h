@@ -1790,8 +1790,8 @@ PredPropByAtomAndMod (Atom at, Term cur_mod)
 #define UNLOCKPE(I,Z)						\
   ( (Z)->StatisticsForPred.NOfRetries=(I),  UNLOCK((Z)->PELock) )
 #else
-#define PELOCK(I,Z) LOCK((Z)->PELock)
-#define UNLOCKPE(I,Z)	UNLOCK((Z)->PELock)
+#define PELOCK(I,Z) (LOCK((Z)->PELock))
+#define UNLOCKPE(I,Z)	(UNLOCK((Z)->PELock))
 #endif
 
 INLINE_ONLY EXTERN inline void AddPropToAtom(AtomEntry *, PropEntry *p);

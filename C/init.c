@@ -238,10 +238,10 @@ OpDec(int p, const char *type, Atom a, Term m)
     info->KindOfPE = Ord(OpProperty);
     info->OpModule = m;
     info->OpName = a;
-    LOCK(OpListLock);
+    //LOCK(OpListLock);
     info->OpNext = OpList;
     OpList = info;
-    UNLOCK(OpListLock);
+    //UNLOCK(OpListLock);
     AddPropToAtom(ae, (PropEntry *)info);
     INIT_RWLOCK(info->OpRWLock);
     WRITE_LOCK(info->OpRWLock);
@@ -1196,6 +1196,8 @@ InitThreadHandle(int wid)
   pthread_mutex_init(mutexp, NULL);
   msgsp = & mboxp->msgs;
   mboxp->nmsgs = 0;
+  mboxp->nclients = 0;
+  mboxp->open = true;
   Yap_init_tqueue(msgsp);
 }
 

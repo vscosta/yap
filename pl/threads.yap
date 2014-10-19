@@ -957,6 +957,7 @@ mutex_destroy(Mutex) :-
 	erase(R),
 	fail.
 '$erase_mutex_info'(_).
+    
 
 /** @pred mutex_lock(+ _MutexId_) 
 
@@ -990,7 +991,7 @@ mutex_lock(A) :-
 	mutex_create(A),
 	mutex_lock(A).
 mutex_lock(V) :-
-	'$do_error'(type_error(atom,V),mutex_lock(V)).
+	'$do_error'(type_error(mutex,V),mutex_lock(V)).
 	
 /** @pred mutex_trylock(+ _MutexId_) 
 
@@ -1011,7 +1012,7 @@ mutex_trylock(A) :-
 	mutex_create(A),
 	mutex_trylock(A).
 mutex_trylock(V) :-
-	'$do_error'(type_error(atom,V),mutex_trylock(V)).
+	'$do_error'(type_error(mutex,V),mutex_trylock(V)).
 	
 /** @pred mutex_unlock(+ _MutexId_) 
 
@@ -1073,37 +1074,39 @@ once/1.
 
  
 */
+
+with_mutex(M, G) :-
+    ( recorded('$mutex_alias',[Id|M],_) ->
+    '$with_mutex'(Id, G )
+    ;
+    '$atom'(M ) ->
+    mutex_create(Id, [alias(M)]),
+    '$with_mutex'(M, G )
+    ;
+    integer(M) ->
+    '$with_mutex'(M, G )
+    ;
+    '$do_error'(type_error(mutex,M), with_mutex(M, G))
+    ), nonvar(G). % preserve env.
+
+    
+/*
 with_mutex(M, G) :-
 	( '$no_threads' ->
 	  once(G)
 	;
-	  var(M) ->
-	  '$do_error'(instantiation_error,with_mutex(M, G))
-	;
-	  var(G) ->
-	  '$do_error'(instantiation_error,with_mutex(M, G))
+	  mutex_lock(M),
+	  var(G) -> mutex_unlock(M), '$do_error'(instantiation_error,with_mutex(M, G))
 	;
 	  \+ callable(G) ->
-	  '$do_error'(type_error(callable,G),with_mutex(M, G))
+	  mutex_unlock(M), '$do_error'(type_error(callable,G),with_mutex(M, G))
 	;
-	  atom(M) ->
-	  '$with_with_mutex'(WMId),
-	  (	recorded('$mutex_alias',[Id|M],_) ->
-		true
-	  ;	'$new_mutex'(Id),
-		recorda('$mutex_alias',[Id|M],_)
-	  ),
-	  '$lock_mutex'(Id),
-	  '$unlock_with_mutex'(WMId),
-	  (	catch('$execute'(G), E, ('$unlock_mutex'(Id), throw(E))) ->
-		'$unlock_mutex'(Id)
-	  ;	'$unlock_mutex'(Id),
+  	  catch('$execute'(G), E, (mutex_unlock(M), throw(E))) ->
+		mutex_unlock(M)
+	  ;	mutex_unlock(M),
 		fail
-	  )
-	;
-	'$do_error'(type_error(atom,M),with_mutex(M, G))
 	).
-
+*/
 /** @pred current_mutex(? _MutexId_, ? _ThreadId_, ? _Count_) 
 
 
@@ -1116,8 +1119,8 @@ Enumerates all existing mutexes.  If the mutex is held by some thread,
 
  */
 current_mutex(M, T, NRefs) :-
-	recorded('$mutex_alias',[Id|M],_),
-	'$mutex_info'(Id, NRefs, T).
+    recorded('$mutex_alias',[Id|M],_),
+    '$mutex_info'(Id, NRefs, T).
 
 mutex_property(Mutex, Prop) :-
 	(	nonvar(Mutex) ->
@@ -1220,9 +1223,17 @@ anonymous message queues, may try to wait for later.
 message_queue_destroy(Name) :-
 	var(Name), !,
 	'$do_error'(instantiation_error,message_queue_destroy(Name)).
+message_queue_destroy(Alias) :-
+    recorded('$thread_alias', [Id|Alias], Ref),
+    atom(Id), !,
+    '$message_queue_destroy'(Id),
+    erase(Ref).
 message_queue_destroy(Name) :-
-	'$message_queue_destroy'(Name),
-	fail.
+    atom(Name),
+    '$message_queue_destroy'(Name),
+    recorded('$thread_alias', [Name|_Alias], Ref),
+    erase(Ref),
+    fail.
 message_queue_destroy(_).
 
 /* @pred message_queue_property(+ _Queue_) 
