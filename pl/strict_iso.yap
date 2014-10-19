@@ -8,7 +8,7 @@
 	'$do_error'(instantiation_error,call(G)).
 '$iso_check_goal'(V,G) :-
 	number(V), !,
-	'$do_error'(type_error(callable,V),G).
+	'$do_error'(type_error(callable,V/0),G).
 '$iso_check_goal'(_:G,G0) :- !,
 	'$iso_check_goal'(G,G0).
 '$iso_check_goal'((G1,G2),G0) :- !,
@@ -44,7 +44,7 @@
 	'$do_error'(instantiation_error,call(G)).
 '$iso_check_a_goal'(V,E,G) :-
 	number(V), !,
-	'$do_error'(type_error(callable,E),call(G)).
+	'$do_error'(type_error(callable,E/0),call(G)).
 '$iso_check_a_goal'(_:G,E,G0) :- !,
 	'$iso_check_a_goal'(G,E,G0).
 '$iso_check_a_goal'((G1,G2),E,G0) :- !,

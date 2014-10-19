@@ -1398,9 +1398,9 @@ environment. Use initialization/2 for more flexible behavior.
 	var(V), !,
 	'$do_error'(instantiation_error,initialization(V)).
 '$initialization'(C) :- number(C), !,
-	'$do_error'(type_error(callable,C),initialization(C)).
+	'$do_error'(type_error(callable,C/0),initialization(C)).
 '$initialization'(C) :- db_reference(C), !,
-	'$do_error'(type_error(callable,C),initialization(C)).
+	'$do_error'(type_error(callable,C/0),initialization(C)).
 '$initialization'(G) :-
 	'$show_consult_level'(Level1),
 	% it will be done after we leave the current consult level.
@@ -1438,11 +1438,11 @@ initialization(G,OPT) :-
 	;
 	   number(G)
 	->
-	  '$do_error'(type_error(callable,G),initialization(G,OPT))
+	  '$do_error'(type_error(callable,G/0),initialization(G,OPT))
 	;
 	   db_reference(G)
 	->
-	  '$do_error'(type_error(callable,G),initialization(G,OPT))
+	  '$do_error'(type_error(callable,G/0),initialization(G,OPT))
 	;
 	   var(OPT)
 	->

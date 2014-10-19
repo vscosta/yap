@@ -103,12 +103,42 @@ Yap_ExecuteCallMetaCall(Term mod) {
   return(Yap_MkApplTerm(PredMetaCall->FunctorOfPred,4,ts));
 }
 
+Term
+Yap_PredicateIndicator(Term t, Term mod)
+{
+  CACHE_REGS
+      // generate predicate indicator in this case
+      Term ti[2];
+      t = Yap_StripModule( t, &mod );
+      if (IsApplTerm(t) && !IsExtensionFunctor(FunctorOfTerm(t))) {
+	ti[0] = MkAtomTerm(NameOfFunctor(FunctorOfTerm(t)));
+	ti[1] = MkIntegerTerm(ArityOfFunctor(FunctorOfTerm(t)));
+      } else if (IsPairTerm(t)) {
+	ti[0] = MkAtomTerm(AtomDot);
+	ti[1] = MkIntTerm(2);	
+      } else {
+	ti[0] = t;
+	ti[1] = MkIntTerm(0);
+      }
+      t = Yap_MkApplTerm(FunctorSlash, 2, ti);
+      if (mod != CurrentModule) {
+ 	ti[0] = mod;
+	ti[1] = t;
+	return Yap_MkApplTerm(FunctorModule, 2, ti);
+     }
+      return t;
+}
+
+
 static Int
 CallError(yap_error_number err, Term t, Term mod USES_REGS)
 {
   if (yap_flags[LANGUAGE_MODE_FLAG] == 1) {
     return(CallMetaCall(t, mod PASS_REGS));
   } else {
+    if (err == TYPE_ERROR_CALLABLE) {
+      t = Yap_PredicateIndicator(t, mod);
+    }
     Yap_Error(err, t, "call/1");
     return(FALSE);
   }
@@ -181,11 +211,11 @@ do_execute(Term t, Term mod USES_REGS)
 
     f = FunctorOfTerm(t);
     if (IsExtensionFunctor(f)) {
-      return CallError(TYPE_ERROR_CALLABLE, t0, mod PASS_REGS);
+      return CallError(TYPE_ERROR_CALLABLE, t, mod PASS_REGS);
     }
     arity = ArityOfFunctor(f);
     if (arity > MaxTemps) {
-      return CallError(TYPE_ERROR_CALLABLE, t0, mod PASS_REGS);
+      return CallError(TYPE_ERROR_CALLABLE, t, mod PASS_REGS);
     }    
     pen = RepPredProp(PredPropByFunc(f, mod));
     /* You thought we would be over by now */
@@ -239,7 +269,7 @@ do_execute(Term t, Term mod USES_REGS)
     pe = RepPredProp(PredPropByAtom(a, mod));
     return (CallPredicate(pe, B, pe->CodeOfPred PASS_REGS));
   } else if (IsIntTerm(t)) {
-    return CallError(TYPE_ERROR_CALLABLE, t0, mod PASS_REGS);
+    return CallError(TYPE_ERROR_CALLABLE, t, mod PASS_REGS);
   } else {
     /* Is Pair Term */
     return(CallMetaCall(t, mod PASS_REGS));
@@ -301,7 +331,7 @@ do_execute_n(Term t, Term mod, unsigned int n USES_REGS)
     Name = AtomOfTerm(t);
     pt = NULL;
   } else if (IsIntTerm(t)) {
-    return CallError(TYPE_ERROR_CALLABLE, t0, mod PASS_REGS);
+    return CallError(TYPE_ERROR_CALLABLE,  t, mod PASS_REGS);
   } else if (IsPairTerm(t)) {
     arity = n+2;
     pt = RepPair(t);
@@ -328,7 +358,7 @@ do_execute_n(Term t, Term mod, unsigned int n USES_REGS)
   }
   f = Yap_MkFunctor(Name,arity);
   if (IsExtensionFunctor(f)) {
-    return CallError(TYPE_ERROR_CALLABLE, t0, mod PASS_REGS);
+    return CallError(TYPE_ERROR_CALLABLE, t, mod PASS_REGS);
   }
   if (PRED_GOAL_EXPANSION_ALL) {
     /* disable creeping when we do goal expansion */
@@ -343,7 +373,7 @@ do_execute_n(Term t, Term mod, unsigned int n USES_REGS)
     return EnterCreepMode(copy_execn_to_heap(f, pt, n, arity, CurrentModule PASS_REGS), mod PASS_REGS);
   }
   if (arity > MaxTemps) {
-    return CallError(TYPE_ERROR_CALLABLE, t0, mod PASS_REGS);
+    return CallError(TYPE_ERROR_CALLABLE, t, mod PASS_REGS);
   }
   pen = RepPredProp(PredPropByFunc(f, mod));
   /* You thought we would be over by now */
@@ -572,7 +602,7 @@ p_execute12( USES_REGS1 )
 static Int
 p_execute_clause( USES_REGS1 )
 {				/* '$execute_clause'(Goal)	 */
-  Term            t = Deref(ARG1), t0 = t;
+  Term            t = Deref(ARG1);
   Term            mod = Deref(ARG2);
   choiceptr       cut_cp = cp_from_integer(Deref(ARG4) PASS_REGS);
   unsigned int    arity;
@@ -605,7 +635,7 @@ p_execute_clause( USES_REGS1 )
     pe = PredPropByFunc(f, mod);
     arity = ArityOfFunctor(f);
     if (arity > MaxTemps) {
-      return CallError(TYPE_ERROR_CALLABLE, t0, mod PASS_REGS);
+      return CallError(TYPE_ERROR_CALLABLE, t, mod PASS_REGS);
     }
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
@@ -623,8 +653,7 @@ p_execute_clause( USES_REGS1 )
 #endif
     }
   } else {
-    Yap_Error(TYPE_ERROR_CALLABLE,ARG3,"call/1");    
-    return FALSE;
+    return CallError(TYPE_ERROR_CALLABLE, t, mod PASS_REGS);
   }
   /*	N = arity; */
   /* call may not define new system predicates!! */
@@ -783,7 +812,7 @@ p_execute0( USES_REGS1 )
     //    Yap_DebugPlWrite(mod);fprintf(stderr,"\n");
     arity = ArityOfFunctor(f);
     if (arity > MaxTemps) {
-      return CallError(TYPE_ERROR_CALLABLE, t0, mod PASS_REGS);
+      return CallError(TYPE_ERROR_CALLABLE, t, mod PASS_REGS);
     }
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
@@ -801,7 +830,7 @@ p_execute0( USES_REGS1 )
 #endif
     }
   } else {
-    Yap_Error(TYPE_ERROR_CALLABLE,ARG1,"call/1");    
+    Yap_Error(TYPE_ERROR_CALLABLE,Yap_PredicateIndicator(t, mod),"call/1");    
     return FALSE;
   }
   /*	N = arity; */
@@ -847,14 +876,14 @@ p_execute_nonstop( USES_REGS1 )
 	if (IsVarTerm(tmod)) {
 	  return CallError(INSTANTIATION_ERROR, t0, mod PASS_REGS);
 	} else {
-	  return CallError(TYPE_ERROR_ATOM, t0, mod PASS_REGS);
+	  return CallError(TYPE_ERROR_ATOM, t, mod PASS_REGS);
 	}
       }
     }
     pe = PredPropByFunc(f, mod);
     arity = ArityOfFunctor(f);
     if (arity > MaxTemps) {
-      return CallError(TYPE_ERROR_CALLABLE, t0, mod PASS_REGS);
+      return CallError(TYPE_ERROR_CALLABLE, t, mod PASS_REGS);
     }
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
@@ -872,7 +901,7 @@ p_execute_nonstop( USES_REGS1 )
 #endif
     }
   } else {
-    Yap_Error(TYPE_ERROR_CALLABLE,ARG3,"call/1");    
+    Yap_Error(TYPE_ERROR_CALLABLE,Yap_PredicateIndicator(t, mod),"call/1");    
     return FALSE;
   }
   /*	N = arity; */
@@ -1276,7 +1305,7 @@ Yap_execute_goal(Term t, int nargs, Term mod)
     Functor f = FunctorOfTerm(t);
 
     if (IsBlobFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE,t,"call/1");
+      Yap_Error(TYPE_ERROR_CALLABLE,Yap_PredicateIndicator(t, mod),"call/1");
       return(FALSE);
     }
     /* I cannot use the standard macro here because
@@ -1285,7 +1314,7 @@ Yap_execute_goal(Term t, int nargs, Term mod)
     pt = RepAppl(t)+1;
     pe = PredPropByFunc(f, mod);
   } else {
-    Yap_Error(TYPE_ERROR_CALLABLE,t,"call/1");
+    Yap_Error(TYPE_ERROR_CALLABLE,Yap_PredicateIndicator(t, mod),"call/1");
     return(FALSE);
   }
   ppe = RepPredProp(pe);
@@ -1339,7 +1368,7 @@ Yap_RunTopGoal(Term t)
     Functor f = FunctorOfTerm(t);
 
     if (IsBlobFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE,t,"call/1");
+      Yap_Error(TYPE_ERROR_CALLABLE,Yap_PredicateIndicator(t, mod),"call/1");
       return(FALSE);
     }
     if (f == FunctorModule) {
@@ -1364,7 +1393,7 @@ Yap_RunTopGoal(Term t)
     pt = RepAppl(t)+1;
     arity = ArityOfFunctor(f); 
   } else {
-    Yap_Error(TYPE_ERROR_CALLABLE,t,"call/1");
+    Yap_Error(TYPE_ERROR_CALLABLE,Yap_PredicateIndicator(t, mod),"call/1");
     return(FALSE);
   }
   ppe = RepPredProp(pe);

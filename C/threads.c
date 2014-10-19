@@ -995,12 +995,12 @@ p_with_mutex( USES_REGS1 )
 
    f = FunctorOfTerm(tg);
     if (IsExtensionFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, tg, "with_mutex/2");
+      Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(tg, tm), "with_mutex/2");
       goto end;
     }
     arity = ArityOfFunctor(f);
     if (arity > MaxTemps) {
-      Yap_Error(TYPE_ERROR_CALLABLE, tg, "with_mutex/2");
+      Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(tg, tm), "with_mutex/2");
       goto end;
     }
     pe = RepPredProp(PredPropByFunc(f, tm));
@@ -1019,7 +1019,7 @@ p_with_mutex( USES_REGS1 )
     XREGS[1] = pt[0];
     XREGS[2] = pt[1];
     } else {
-	     Yap_Error(TYPE_ERROR_CALLABLE, tg, "with_mutex/2");
+	     Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(tg, tm), "with_mutex/2");
 	      goto end;
     }
   if (

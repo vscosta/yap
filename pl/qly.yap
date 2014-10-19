@@ -186,14 +186,16 @@ save_program(File, _Goal) :-
       strip_module(M:B, M1, G1),
       recordz('$restore_flag',goal(M1:G1),_)
     ;
-      '$do_error'(type_error(callable,B),G)
+       strip_module(M:B, M1, G1),
+     '$do_error'(type_error(callable,G1/0),G)
     ).
 '$cvt_qsave_flag'(toplevel(B), G, M) :- !,
     ( callable(B) -> 
       strip_module(M:B, M1, G1),
       recordz('$restore_flag',toplevel(M1:G1),_)
     ;
-      '$do_error'(type_error(callable,B),G)
+       strip_module(M:B, M1, G1),
+     '$do_error'(type_error(callable,G1/0),G)
     ).
 '$cvt_qsave_flag'(init_file(B), G, M) :- !,
     ( atom(B) -> 

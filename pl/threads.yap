@@ -421,7 +421,7 @@ thread_set_default(Default) :-
 
 '$thread_set_default'(at_exit(AtExit), G) :-
 	\+ callable(AtExit), !,
-	'$do_error'(type_error(callable, AtExit), G).
+	'$do_error'(type_error(callable, AtExit/0), G).
 '$thread_set_default'(at_exit(AtExit), _) :- !,
 	recorded('$thread_defaults', [Stack, Trail, System, Detached, _], Ref),
 	erase(Ref),
@@ -1099,7 +1099,7 @@ with_mutex(M, G) :-
 	  var(G) -> mutex_unlock(M), '$do_error'(instantiation_error,with_mutex(M, G))
 	;
 	  \+ callable(G) ->
-	  mutex_unlock(M), '$do_error'(type_error(callable,G),with_mutex(M, G))
+	  mutex_unlock(M), '$do_error'(type_error(callable,G/0),with_mutex(M, G))
 	;
   	  catch('$execute'(G), E, (mutex_unlock(M), throw(E))) ->
 		mutex_unlock(M)
@@ -1552,7 +1552,7 @@ thread_local(X) :-
 	   '$do_error'(permission_error(modify,static_procedure,A/N),thread_local(Mod:A/N))
 	).
 '$thread_local2'(X,Mod) :- 
-	'$do_error'(type_error(callable,X),thread_local(Mod:X)).
+	'$do_error'(type_error(callable,X/0),thread_local(Mod:X)).
 
 
 

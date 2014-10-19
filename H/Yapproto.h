@@ -188,7 +188,7 @@ Term	Yap_GetException(void);
 void	Yap_PrepGoal(UInt, CELL *, choiceptr USES_REGS);
 int     Yap_execute_pred(struct pred_entry  *ppe, CELL *pt USES_REGS);
 int     Yap_dogc( int extra_args, Term *tp USES_REGS );
-
+Term    Yap_PredicateIndicator(Term t, Term mod);
 /* exo.c */
 void	Yap_InitExoPreds(void);
 void    Yap_udi_Interval_init(void);

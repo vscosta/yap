@@ -163,7 +163,7 @@ assert(C) :-
 '$assert'(V,Mod,_,_,_) :- var(Mod), !,
 	'$do_error'(instantiation_error,assert(Mod:V)).
 '$assert'(I,Mod,_,_,_) :- number(I), !,
-	'$do_error'(type_error(callable,I),assert(Mod:I)).
+	'$do_error'(type_error(callable,I/0),assert(Mod:I)).
 '$assert'(M:C,_,Where,R,P) :- !,
 	'$assert'(C,M,Where,R,P).
 '$assert'((H:-G),M1,Where,R,P) :- !,
@@ -487,10 +487,10 @@ clause(V,Q,R) :-
 	'$do_error'(instantiation_error,clause(M:V,Q,R)).
 '$clause'(C,M,Q,R) :- 
 	number(C), !,
-	'$do_error'(type_error(callable,C),clause(M:C,Q,R)).
+	'$do_error'(type_error(callable,C/0),clause(M:C,Q,R)).
 '$clause'(C,M,Q,R) :-
 	db_reference(C), !,
-	'$do_error'(type_error(callable,C),clause(M:R,Q,R)).
+	'$do_error'(type_error(callable,C/0),clause(M:R,Q,R)).
 '$clause'(M:P,_,Q,R) :- !,
 	'$clause'(P,M,Q,R).
 '$clause'(P,M,Q,R) :-

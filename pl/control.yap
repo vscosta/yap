@@ -516,7 +516,7 @@ prolog_initialization(G) :- var(G), !,
 prolog_initialization(T) :- callable(T), !,
 	'$assert_init'(T).
 prolog_initialization(T) :-
-	'$do_error'(type_error(callable,T),initialization(T)).
+	'$do_error'(type_error(callable,T/0),initialization(T)).
 
 '$assert_init'(T) :- recordz('$startup_goal',T,_), fail.
 '$assert_init'(_).

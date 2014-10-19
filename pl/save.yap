@@ -38,7 +38,7 @@ save_program(A, G) :- var(A), !,
 save_program(A, G) :- var(G), !,
 	'$do_error'(instantiation_error, save_program(A,G)).
 save_program(A, G) :- \+ callable(G), !,
-	'$do_error'(type_error(callable,G), save_program(A,G)).
+	'$do_error'(type_error(callable,G/0), save_program(A,G)).
 save_program(A, G) :-
 	( atom(A) -> atom_codes(A,S) ; A = S),
 	'$save_program2'(S, G),
