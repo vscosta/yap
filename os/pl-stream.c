@@ -111,6 +111,10 @@ locking is required.
 #include SYSLIB_H
 #endif
 
+#if THREADS
+#define O_PLMT 1
+#endif
+
 #define ROUND(p, n) ((((p) + (n) - 1) & ~((n) - 1)))
 #define UNDO_SIZE ROUND(PL_MB_LEN_MAX, sizeof(wchar_t))
 
@@ -271,7 +275,9 @@ S__removebuf(IOSTREAM *s)
   return 0;
 }
 
-
+#ifdef DEBUGX
+#define DEBUG_IO_LOCKS 1
+#endif
 #ifdef DEBUG_IO_LOCKS
 static char *
 Sname(IOSTREAM *s)
@@ -316,7 +322,7 @@ Slock(IOSTREAM *s)
   }
 
 #ifdef DEBUG_IO_LOCKS
-  if ( s->locks > 2 )
+  if ( DEBUG || s->locks > 2 )
   { printf("  Lock [%d]: %s: %d locks", PL_thread_self(), Sname(s), s->locks+1);
     print_trace();
   }
