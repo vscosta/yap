@@ -687,12 +687,13 @@ p_exp(Term t1, Term t2 USES_REGS)
       {
 	Int i1 = IntegerOfTerm(t1);
 	Int i2 = IntegerOfTerm(t2);
-	Int pow = ipow(i1,i2);
+	Int pow;
 
 	if (i2 < 0) {
 	  return Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2,
 		    "%d ^ %d", i1, i2);
 	}
+    pow = ipow(i1,i2);
 #ifdef USE_GMP
 	/* two integers */
 	if ((i1 && !pow)) {

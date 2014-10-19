@@ -437,6 +437,7 @@ Yap_EvalError(yap_error_number type, Term where, char *format,...)
   va_list ap;
 
   if (LOCAL_ArithError) {
+      LOCAL_ArithError = YAP_NO_ERROR;
     return Yap_Error( LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
   }
   
