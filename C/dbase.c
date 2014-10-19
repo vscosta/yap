@@ -5224,8 +5224,12 @@ bool
 Yap_dequeue_tqueue(db_queue *father_key, Term t, bool first, bool release USES_REGS)
 {
   Term TDB;
+  CELL *oldH =  HR ;
+  tr_fr_ptr oldTR = TR;
   QueueEntry * cur_instance = father_key->FirstInQueue, *prev = NULL;
   while (cur_instance) {
+      HR = oldH;
+      HB = LCL0;
       while ((TDB = GetDBTerm(cur_instance->DBT, false PASS_REGS)) == 0L) {
 	  if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	      LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -5240,6 +5244,8 @@ Yap_dequeue_tqueue(db_queue *father_key, Term t, bool first, bool release USES_R
 		  return false;
 	      }
 	  }
+	  oldTR = TR;
+	  oldH = HR;
       }
       if (Yap_unify(t, TDB)) {
 	  if (release) {
@@ -5257,6 +5263,15 @@ Yap_dequeue_tqueue(db_queue *father_key, Term t, bool first, bool release USES_R
 	      ErasePendingRefs(cur_instance->DBT PASS_REGS);
 	      FreeDBSpace((char *) cur_instance->DBT);
 	      FreeDBSpace((char *) cur_instance);
+	  } else {
+	      // undo if you'rejust peeking
+	      while (oldTR < TR) {
+		  CELL d1 = TrailTerm(TR-1);
+		  TR--;
+		  /* normal variable */
+		  RESET_VARIABLE(d1);
+	      }
+
 	  }
 	  return true;
       } else {
