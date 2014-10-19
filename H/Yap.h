@@ -391,6 +391,7 @@ typedef enum
 {
   LANGUAGE_MODE_FLAG = 8,
   SOURCE_MODE_FLAG = 11,
+  FLOATING_POINT_EXCEPTION_MODE_FLAG = 12,
   WRITE_QUOTED_STRING_FLAG = 13,
   ALLOW_ASSERTING_STATIC_FLAG = 14,
   HALT_AFTER_CONSULT_FLAG = 15,
@@ -680,7 +681,7 @@ typedef struct thread_mbox {
     Term name;
     pthread_mutex_t mutex;
     pthread_cond_t cond;
-    struct idb_queue msgs;
+   struct idb_queue msgs;
     int  nmsgs, nclients;  // if nclients < 0 mailbox has been closed.
     bool open;
     struct thread_mbox *next;

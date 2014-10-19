@@ -67,7 +67,26 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
     Read-write flag telling a suffix for files associated to Prolog
 sources. It is `yap` by default.
 
-+ `bounded is iso `
++ `arithmetic_exceptions `
+
+    Read-write flag telling whether arithmetic exceptions generate
+    Prolog exceptions. If enabled:
+
+~~~~
+ ?- X is 2/0.
+     ERROR!!
+     ZERO DIVISOR ERROR- X is Exp
+~~~~
+
+    If disabled:
+~~~~
+ ?- X is 2/0.
+X = (+inf).
+~~~~
+
+    It is `true` by default, but it is disabled by packages like CLP(BN) and ProbLog.
+
++ `bounded` is iso
 
     Read-only flag telling whether integers are bounded. The value depends
 on whether YAP uses the GMP library or not.
@@ -955,6 +974,19 @@ yap_flag(write_strings,off) :- !,
 yap_flag(write_strings,X) :-
 	'$do_error'(domain_error(flag_value,write_strings+X),yap_flag(write_strings,X)).
 
+yap_flag(arithmetic_exceptions,OUT) :-
+	var(OUT), !,
+	'$access_yap_flags'(12,X),
+	'$transl_to_true_false'(X,OUT).
+yap_flag(arithmetic_exceptions,true) :- !,
+	'$transl_to_true_false'(X,true),
+	'$set_yap_flags'(12,X).
+yap_flag(arithmetic_exceptions,false) :- !,
+	'$transl_to_true_false'(X,false),
+	'$set_yap_flags'(12,X).
+yap_flag(arithmetic_exceptions,X) :-
+	'$do_error'(domain_error(flag_value,arithmetic_exceptions+X),yap_flag(arithmetic_exceptions,[true,false])).
+
 yap_flag(prompt_alternatives_on,OUT) :-
 	var(OUT), !,
 	'$prompt_alternatives_on'(OUT).
@@ -1085,6 +1117,7 @@ yap_flag(max_threads,X) :-
 	\+ '$undefined'(reset_op_counters, prolog).
 
 '$yap_system_flag'(agc_margin).
+'$yap_system_flag'(arithmetic_exceptions).
 '$yap_system_flag'(chr_toplevel_show_store).
 '$yap_system_flag'(debugger_print_options).
 '$yap_system_flag'(discontiguous_warnings).

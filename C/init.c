@@ -954,6 +954,7 @@ InitFlags(void)
   /* note that Yap_heap_regs must be set first */
 
   yap_flags[LANGUAGE_MODE_FLAG] = 0;
+  yap_flags[FLOATING_POINT_EXCEPTION_MODE_FLAG] = TRUE;
   yap_flags[SOURCE_MODE_FLAG] = FALSE;
   yap_flags[WRITE_QUOTED_STRING_FLAG] = FALSE;
   /* we do not garantee safe assert in parallel mode */

@@ -1638,6 +1638,11 @@ p_set_yap_flags( USES_REGS1 )
       return(FALSE);
     yap_flags[SOURCE_MODE_FLAG] = value;
     break;
+  case FLOATING_POINT_EXCEPTION_MODE_FLAG:
+    if (value != 0 && value !=  1)
+      return(FALSE);
+    yap_flags[FLOATING_POINT_EXCEPTION_MODE_FLAG] = value;
+    break;
   case WRITE_QUOTED_STRING_FLAG:
     if (value != 0 && value !=  1)
       return(FALSE);

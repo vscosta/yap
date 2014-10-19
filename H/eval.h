@@ -396,7 +396,9 @@ Yap_FoundArithError__(USES_REGS1)
 { 
   if (LOCAL_Error_TYPE != YAP_NO_ERROR)
     return LOCAL_Error_TYPE;
-  return Yap_MathException();
+  if (yap_flags[FLOATING_POINT_EXCEPTION_MODE_FLAG]) // test support for exception
+    return Yap_MathException();
+  return YAP_NO_ERROR;
 }
 
 Atom Yap_NameOfUnaryOp(int i);

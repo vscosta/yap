@@ -1422,7 +1422,7 @@ Yap_MathException__( USES_REGS1 )
   int raised;
 
 #if HAVE_FETESTEXCEPT
-#pragma STDC FENV_ACCESS ON
+  // #pragma STDC FENV_ACCESS ON
   if ((raised = fetestexcept( FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW)) ) {
 
 	feclearexcept(FE_ALL_EXCEPT);

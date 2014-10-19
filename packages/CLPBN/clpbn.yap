@@ -29,6 +29,8 @@
 
 :- use_module(library(maplist)).
 
+:- yap_flag(arithmetic_exceptions,false).
+
 :- attribute key/1, dist/2, evidence/1.
 
 :- use_module('clpbn/ve',
