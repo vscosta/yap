@@ -1262,10 +1262,11 @@ not(G) :-    \+ '$execute'(G).
 	    '$call'(B,CP,G0,M)
 	).
 '$call'(\+ X, _CP, _G0, M) :- !,
-	'$current_choice_point'(CP),
-	\+  '$call'(X,CP,G0,M).
+	\+ ('$current_choice_point'(CP),
+	  '$call'(X,CP,G0,M) ).
 '$call'(not(X), _CP, _G0, M) :- !,
-	\+  '$call'(X,CP,G0,M).
+	\+ ('$current_choice_point'(CP),
+	  '$call'(X,CP,G0,M) ).
 '$call'(!, CP, _,_) :- !,
 	'$$cut_by'(CP).
 '$call'([A|B], _, _, M) :- !,
