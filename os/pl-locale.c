@@ -54,14 +54,15 @@ typedef struct
   char *grouping;
 } lconv;
 
-struct lconv *
-localeconv(void)
-{ static struct lconv defl =
+static struct lconv defl =
   { ".",
     ",",
     "\003\003"
   };
 
+struct lconv *
+localeconv(void)
+{ 
   return &defl;
 }
 #endif
