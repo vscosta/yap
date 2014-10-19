@@ -949,6 +949,7 @@ interrupt_execute( USES_REGS1 )
   if ((v = check_alarm_fail_int(  true PASS_REGS )) >= 0) {
     return v;
   }
+  if (PP) UNLOCKPE(1,PP);
   PP  = P->y_u.pp.p0;
   if ((PP->ExtraPredFlags & (NoTracePredFlag|HiddenPredFlag)) && Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
     return 2;
@@ -975,6 +976,7 @@ interrupt_call( USES_REGS1 )
   if ((v = check_alarm_fail_int( true PASS_REGS )) >= 0) {
     return v;
   }
+  if (PP) UNLOCKPE(1,PP);
   PP = P->y_u.Osbpp.p0;
   if (Yap_only_has_signal(YAP_CREEP_SIGNAL) &&
       (PP->ExtraPredFlags & (NoTracePredFlag|HiddenPredFlag)) ) {
@@ -1002,6 +1004,7 @@ interrupt_pexecute( PredEntry *pen USES_REGS )
   if ((v = check_alarm_fail_int( 2 PASS_REGS )) >= 0) {
     return v;
   }
+  if (PP) UNLOCKPE(1,PP);
   PP = NULL;
   if (Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
     return 2; /* keep on creeping */
@@ -1046,6 +1049,7 @@ interrupt_deallocate( USES_REGS1 )
   } else {
     CELL cut_b = LCL0-(CELL *)(S[E_CB]);
 
+    if (PP) UNLOCKPE(1,PP);
     PP = PREVOP(P,p)->y_u.p.p;
     ASP = YENV+E_CB;
     /* cut_e */
@@ -1174,6 +1178,7 @@ interrupt_commit_x( USES_REGS1 )
   if (Yap_only_has_signals(YAP_CDOVF_SIGNAL , YAP_CREEP_SIGNAL )) {
     return 2;
   }
+  if (PP) UNLOCKPE(1,PP);
   PP = P->y_u.xps.p0;
   /* find something to fool S */
   if (P->opc == Yap_opcode(_fcall)) {
@@ -1205,6 +1210,7 @@ interrupt_either( USES_REGS1 )
   if (Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
     return 2;
   }
+  if (PP) UNLOCKPE(1,PP);
   PP = P->y_u.Osblp.p0;
   /* find something to fool S */
   SET_ASP(YENV, P->y_u.Osbpp.s);
@@ -1229,6 +1235,7 @@ interrupt_dexecute( USES_REGS1 )
   if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s/%d (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal,  \
 	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
+  if (PP) UNLOCKPE(1,PP);
   PP = P->y_u.pp.p0;
   pe = P->y_u.pp.p;
   if ((PP->ExtraPredFlags & (NoTracePredFlag|HiddenPredFlag)) && Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
@@ -2042,6 +2049,13 @@ Yap_absmi(int inp)
 	UInt timestamp;
 	CACHE_Y(B);
 
+#if defined(YAPOR) || defined(THREADS)
+	if (PP != PREG->y_u.OtaLl.d->ClPred) {
+	  if (PP) UNLOCKPE(15,PP);
+	  PP = PREG->y_u.OtaLl.d->ClPred;
+	  PELOCK(15,PP);
+	}
+#endif
 	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->y_u.OtaLl.s]);
 	if (!VALID_TIMESTAMP(timestamp, PREG->y_u.OtaLl.d)) {
 	  /* jump to next instruction */
@@ -2077,6 +2091,13 @@ Yap_absmi(int inp)
 	LogUpdClause *lcl = PREG->y_u.OtILl.d;
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]);
 
+#if defined(YAPOR) || defined(THREADS)
+	if (PP != ap) {
+	  if (PP) UNLOCKPE(16,PP);
+	  PP = ap;
+	  PELOCK(16,PP);
+	}
+#endif
 	if (!VALID_TIMESTAMP(timestamp, lcl)) {
 	  /* jump to next alternative */
 	  PREG = FAILCODE;
@@ -2089,8 +2110,6 @@ Yap_absmi(int inp)
 	/* HEY, leave indexing block alone!! */
 	/* check if we are the ones using this code */
 #if MULTIPLE_STACKS
-	PELOCK(1, ap);
-	PP = ap;
 	DEC_CLREF_COUNT(cl);
 	/* clear the entry from the trail */
 	B->cp_tr--;
@@ -2322,6 +2341,13 @@ Yap_absmi(int inp)
 	UInt timestamp;
 	CACHE_Y(B);
 
+#if defined(YAPOR) || defined(THREADS)
+	if (PP != PREG->y_u.OtaLl.d->ClPred) {
+	  if (PP) UNLOCKPE(15,PP);
+	  PP = PREG->y_u.OtaLl.d->ClPred;
+	  PELOCK(15,PP);
+	}
+#endif
 	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->y_u.OtaLl.s]);
 	if (!VALID_TIMESTAMP(timestamp, PREG->y_u.OtaLl.d)) {
 	  /* jump to next instruction */
@@ -2371,6 +2397,13 @@ Yap_absmi(int inp)
 	LogUpdClause *lcl = PREG->y_u.OtILl.d;
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]);
 
+#if defined(YAPOR) || defined(THREADS)
+	if (PP != ap) {
+	  if (PP) UNLOCKPE(16,PP);
+	  PP = ap;
+	  PELOCK(16,PP);
+	}
+#endif
 	if (!VALID_TIMESTAMP(timestamp, lcl)) {
 	  /* jump to next alternative */
 	  PREG = FAILCODE;
@@ -2511,8 +2544,10 @@ Yap_absmi(int inp)
       /* lock logical updates predicate.  */
       Op(unlock_lu, e);
 #if defined(YAPOR) || defined(THREADS)
-      UNLOCKPE(1,PP);
-      PP = NULL;
+      if (PP) {
+	UNLOCKPE(1,PP);
+	PP = NULL;
+      }
 #endif
       PREG = NEXTOP(PREG, e);
       GONext();
@@ -8620,7 +8655,8 @@ Yap_absmi(int inp)
 	CACHE_Y(B);
 
 #if defined(YAPOR) || defined(THREADS)
-	if (!PP) {
+	if (PP != PREG->y_u.OtaLl.d->ClPred) {
+	  if (PP) UNLOCKPE(15,PP);
 	  PP = PREG->y_u.OtaLl.d->ClPred;
 	  PELOCK(15,PP);
 	}
@@ -8660,9 +8696,10 @@ Yap_absmi(int inp)
 
 	/* fprintf(stderr,"- %p/%p %d %d %p\n",PREG,ap,timestamp,ap->TimeStampOfPred,PREG->y_u.OtILl.d->ClCode);*/
 #if defined(YAPOR) || defined(THREADS)
-	if (!PP) {
-	  PELOCK(16,ap);
+	if (PP != ap) {
+	  if (PP) UNLOCKPE(16,PP);
 	  PP = ap;
+	  PELOCK(16,PP);
 	}
 #endif
 	if (!VALID_TIMESTAMP(timestamp, lcl)) {

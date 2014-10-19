@@ -3054,6 +3054,13 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_try(_try_me, 0, LOCAL_IPredArity, code_p, pass_no, cip);
 #endif	/* YAPOR */
     }
+#if THREADS||YAPOR
+    if (log_update) {
+      // separate from indexing code,
+      //clauses are protected by time-stamps
+      code_p = a_e(_unlock_lu, code_p, pass_no);
+    }
+#endif
   } else {
     /* index code */
     if (log_update) {
@@ -3365,13 +3372,6 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	 (*clause_has_blobsp  || *clause_has_dbtermp) &&
 	  !clinfo.alloc_found)
 	code_p = a_cle(_alloc_for_logical_pred, code_p, pass_no, cip);
-#if defined(THREADS) || defined(YAPOR)
-     else
-       if (cip->CurrentPred->PredFlags & LogUpdatePredFlag &&
-	   !(cip->CurrentPred->PredFlags & ThreadLocalPredFlag) &&
-	   !clinfo.alloc_found)
-	 code_p = a_e(_unlock_lu, code_p, pass_no);
-#endif
       code_p = a_cut(&clinfo, code_p, pass_no, cip);
       break;
     case allocate_op:
@@ -3465,25 +3465,12 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	  (*clause_has_blobsp || *clause_has_dbtermp) &&
 	  !clinfo.alloc_found)
 	code_p = a_cle(_alloc_for_logical_pred, code_p, pass_no, cip);
-#if defined(THREADS) || defined(YAPOR)
-     else
-       if (cip->CurrentPred->PredFlags & LogUpdatePredFlag &&
-	   !(cip->CurrentPred->PredFlags & ThreadLocalPredFlag) &&
-	  !clinfo.alloc_found)
-	code_p = a_e(_unlock_lu, code_p, pass_no);
-#endif
       code_p = a_pl(_procceed, cip->CurrentPred, code_p, pass_no);
       break;
     case call_op:
       code_p = a_p(_call, &clinfo, code_p, pass_no, cip);
       break;
     case execute_op:
-#if defined(THREADS) || defined(YAPOR)
-      if (cip->CurrentPred->PredFlags & LogUpdatePredFlag &&
-	  !(cip->CurrentPred->PredFlags & ThreadLocalPredFlag) &&
-	  !clinfo.alloc_found)
-	code_p = a_e(_unlock_lu, code_p, pass_no);
-#endif
       code_p = a_p(_execute, &clinfo, code_p, pass_no, cip);
       break;
     case safe_call_op:

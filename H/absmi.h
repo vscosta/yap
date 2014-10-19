@@ -1616,6 +1616,7 @@ prune(choiceptr cp USES_REGS)
       setregs(); \
       SREG = Yap_REGS.S_; \
       if (!d0) FAIL(); \
+      PP = NULL;\
       if (d0 == 2) goto C; \
       JMPNext(); \
       ENDD(d0);
@@ -1625,6 +1626,7 @@ prune(choiceptr cp USES_REGS)
       saveregs(); \
       d0 = F ( PASS_REGS1 );\
       setregs(); \
+      PP = NULL;\
       if (!d0) FAIL(); \
       if (d0 == 2) goto C; \
       JMPNext(); \
