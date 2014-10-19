@@ -987,8 +987,7 @@ p_unary_is( USES_REGS1 )
       return FALSE;
     }
     return Yap_unify_constant(ARG1,tout);
-  }
-  if (IsAtomTerm(t)) {
+  } else if (IsAtomTerm(t)) {
     Atom name = AtomOfTerm(t);
     ExpEntry *p;
     Term out;
@@ -1002,8 +1001,8 @@ p_unary_is( USES_REGS1 )
       ti[1] = MkIntTerm(1);
       t = Yap_MkApplTerm(FunctorSlash, 2, ti);
       Yap_EvalError(TYPE_ERROR_EVALUABLE, t,
-		"functor %s/%d for arithmetic expression",
-		RepAtom(name)->StrOfAE,1);
+		"functor %s/1 for arithmetic expression",
+		RepAtom(name)->StrOfAE);
       return FALSE;
     }
     out= eval1(p->FOfEE, top PASS_REGS);
