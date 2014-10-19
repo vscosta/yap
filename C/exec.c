@@ -1114,7 +1114,7 @@ Yap_PrepGoal(UInt arity, CELL *pt, choiceptr saved_b USES_REGS)
   EX = NULL;
   //  sl = Yap_InitSlot(t);
   YENV = ASP;
-  YENV[E_CP] = (CELL)P;
+  YENV[E_CP] = (CELL)YESCODE;
   YENV[E_CB] = (CELL)B;
   YENV[E_E]  = (CELL)ENV;
 #ifdef  TABLING
