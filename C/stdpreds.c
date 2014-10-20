@@ -607,13 +607,13 @@ p_univ( USES_REGS1 )
     if (IsNumTerm(twork)) {
       Term tt = TailOfTerm(t2);
       if (IsVarTerm(tt) || tt != MkAtomTerm(AtomNil)) {
-	Yap_Error(TYPE_ERROR_ATOM, twork, "(=..)/2");
+	Yap_Error(TYPE_ERROR_ATOMIC, twork, "(=..)/2");
 	return (FALSE);
       }
       return (Yap_unify_constant(ARG1, twork));
     }
     if (!IsAtomTerm(twork)) {
-      Yap_Error(TYPE_ERROR_ATOM, twork, "(=..)/2");
+      Yap_Error(TYPE_ERROR_ATOMIC, twork, "(=..)/2");
       return (FALSE);
     }      
     at = AtomOfTerm(twork);

@@ -506,7 +506,7 @@ p_number_chars( USES_REGS1 )
       return Yap_unify( ARG1, tf );
   }
   /* error handling */
-  if (LOCAL_Error_TYPE && Yap_HandleError( "atom_chars/2" )) {
+  if (LOCAL_Error_TYPE && Yap_HandleError( "number_chars/2" )) {
     goto restart_aux;
   }
   return FALSE;
