@@ -628,9 +628,9 @@ number of steps.
  '$execute_command'(C,_,_,top,Source) :- var(C), !,
 	 '$do_error'(instantiation_error,meta_call(Source)).
  '$execute_command'(C,_,_,top,Source) :- number(C), !,
-	 '$do_error'(type_error(callable,C/0),meta_call(Source)).
+	 '$do_error'(type_error(callable,C),meta_call(Source)).
  '$execute_command'(R,_,_,top,Source) :- db_reference(R), !,
-	 '$do_error'(type_error(callable,R/0),meta_call(Source)).
+	 '$do_error'(type_error(callable,R),meta_call(Source)).
  '$execute_command'(end_of_file,_,_,_,_) :- !.
  '$execute_command'(Command,_,_,_,_) :-
 	 '$nb_getval'('$if_skip_mode', skip, fail),
@@ -1299,9 +1299,9 @@ not(G) :-    \+ '$execute'(G).
 '$check_callable'(_:G1,G) :- !,
 	'$check_callable'(G1,G).
 '$check_callable'(A,G) :- number(A), !,
-	'$do_error'(type_error(callable,A/0),G).
+	'$do_error'(type_error(callable,A),G).
 '$check_callable'(R,G) :- db_reference(R), !,
-	'$do_error'(type_error(callable,R/0),G).
+	'$do_error'(type_error(callable,R),G).
 '$check_callable'(_,_).
 
 
@@ -1395,9 +1395,9 @@ bootstrap(F) :-
 '$check_head'(H,P) :- var(H), !,
 	'$do_error'(instantiation_error,P).
 '$check_head'(H,P) :- number(H), !,
-	'$do_error'(type_error(callable,H/0),P).
+	'$do_error'(type_error(callable,H),P).
 '$check_head'(H,P) :- db_reference(H), !,
-	'$do_error'(type_error(callable,H/0),P).
+	'$do_error'(type_error(callable,H),P).
 '$check_head'(_,_).
 
 % term expansion

@@ -281,7 +281,7 @@ table(Pred) :-
     functor(PredFunctor,PredName,PredArity), !,
     '$set_table'(Mod,PredFunctor,PredModeList).
 '$do_table'(Mod,Pred) :-
-   '$do_error'(type_error(callable,Pred/0),table(Mod:Pred)).
+   '$do_error'(type_error(callable,Pred),table(Mod:Pred)).
 
 '$set_table'(Mod,PredFunctor,_PredModeList) :-
    '$undefined'('$c_table'(_,_,_),prolog), !,
@@ -349,7 +349,7 @@ is_tabled(Pred) :-
    '$flags'(PredFunctor,Mod,Flags,Flags), !,
    Flags /\ 0x000040 =\= 0.
 '$do_is_tabled'(Mod,Pred) :- 
-   '$do_error'(type_error(callable,Pred/0),is_tabled(Mod:Pred)).
+   '$do_error'(type_error(callable,Pred),is_tabled(Mod:Pred)).
 
 
 
@@ -384,7 +384,7 @@ tabling_mode(Pred,Options) :-
        '$do_error'(domain_error(table,Mod:PredName/PredArity),tabling_mode(Mod:PredName/PredArity,Options))
    ).
 '$do_tabling_mode'(Mod,Pred,Options) :- 
-   '$do_error'(type_error(callable,Pred/0),tabling_mode(Mod:Pred,Options)).
+   '$do_error'(type_error(callable,Pred),tabling_mode(Mod:Pred,Options)).
 
 '$set_tabling_mode'(Mod,PredFunctor,Options) :-
    var(Options), !,
@@ -445,7 +445,7 @@ abolish_table(Pred) :-
        '$do_error'(domain_error(table,Mod:PredName/PredArity),abolish_table(Mod:PredName/PredArity))
    ).
 '$do_abolish_table'(Mod,Pred) :-
-   '$do_error'(type_error(callable,Pred/0),abolish_table(Mod:Pred)).
+   '$do_error'(type_error(callable,Pred),abolish_table(Mod:Pred)).
 
 
 
@@ -485,7 +485,7 @@ show_table(Stream,Pred) :-
        '$do_error'(domain_error(table,Mod:PredName/PredArity),show_table(Mod:PredName/PredArity))
    ).
 '$do_show_table'(_,Mod,Pred) :-
-   '$do_error'(type_error(callable,Pred/0),show_table(Mod:Pred)).
+   '$do_error'(type_error(callable,Pred),show_table(Mod:Pred)).
 
 
 
@@ -525,7 +525,7 @@ table_statistics(Stream,Pred) :-
        '$do_error'(domain_error(table,Mod:PredName/PredArity),table_statistics(Mod:PredName/PredArity))
    ).
 '$do_table_statistics'(_,Mod,Pred) :-
-   '$do_error'(type_error(callable,Pred/0),table_statistics(Mod:Pred)).
+   '$do_error'(type_error(callable,Pred),table_statistics(Mod:Pred)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

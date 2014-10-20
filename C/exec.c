@@ -137,10 +137,10 @@ CallError(yap_error_number err, Term t, Term mod USES_REGS)
     return(CallMetaCall(t, mod PASS_REGS));
   } else {
     if (err == TYPE_ERROR_CALLABLE) {
-      t = Yap_PredicateIndicator(t, mod);
+      t = Yap_StripModule(t, &mod);
     }
     Yap_Error(err, t, "call/1");
-    return(FALSE);
+    return FALSE;
   }
 }
 
@@ -830,7 +830,7 @@ p_execute0( USES_REGS1 )
 #endif
     }
   } else {
-    Yap_Error(TYPE_ERROR_CALLABLE,Yap_PredicateIndicator(t, mod),"call/1");    
+    Yap_Error(TYPE_ERROR_CALLABLE, t,"call/1");
     return FALSE;
   }
   /*	N = arity; */
@@ -901,7 +901,7 @@ p_execute_nonstop( USES_REGS1 )
 #endif
     }
   } else {
-    Yap_Error(TYPE_ERROR_CALLABLE,Yap_PredicateIndicator(t, mod),"call/1");    
+    Yap_Error(TYPE_ERROR_CALLABLE,t,"call/1");
     return FALSE;
   }
   /*	N = arity; */
@@ -1305,7 +1305,7 @@ Yap_execute_goal(Term t, int nargs, Term mod)
     Functor f = FunctorOfTerm(t);
 
     if (IsBlobFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE,Yap_PredicateIndicator(t, mod),"call/1");
+      Yap_Error(TYPE_ERROR_CALLABLE,t,"call/1");
       return(FALSE);
     }
     /* I cannot use the standard macro here because
@@ -1314,7 +1314,7 @@ Yap_execute_goal(Term t, int nargs, Term mod)
     pt = RepAppl(t)+1;
     pe = PredPropByFunc(f, mod);
   } else {
-    Yap_Error(TYPE_ERROR_CALLABLE,Yap_PredicateIndicator(t, mod),"call/1");
+    Yap_Error(TYPE_ERROR_CALLABLE,t,"call/1");
     return(FALSE);
   }
   ppe = RepPredProp(pe);
@@ -1368,7 +1368,7 @@ Yap_RunTopGoal(Term t)
     Functor f = FunctorOfTerm(t);
 
     if (IsBlobFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE,Yap_PredicateIndicator(t, mod),"call/1");
+      Yap_Error(TYPE_ERROR_CALLABLE,t,"call/1");
       return(FALSE);
     }
     if (f == FunctorModule) {

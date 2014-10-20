@@ -260,7 +260,7 @@ p_strip_module( USES_REGS1 )
   }
   t1 = Yap_StripModule( t1, &tmod );
   if (!t1) {
-    Yap_Error(TYPE_ERROR_CALLABLE,Yap_PredicateIndicator(t1,tmod),"trying to obtain module");
+    Yap_Error(TYPE_ERROR_CALLABLE,t1,"trying to obtain module");
     return FALSE;
   }
   return Yap_unify(ARG3, t1) &&
@@ -316,7 +316,7 @@ p_yap_strip_module( USES_REGS1 )
   }
   t1 = Yap_YapStripModule( t1, &tmod );
   if (!t1) {
-    Yap_Error(TYPE_ERROR_CALLABLE,Yap_PredicateIndicator(t1, tmod),"trying to obtain module");
+    Yap_Error(TYPE_ERROR_CALLABLE, t1, "trying to obtain module");
     return FALSE;
   }
   return Yap_unify(ARG3, t1) &&

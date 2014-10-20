@@ -335,7 +335,7 @@ time(_:Goal) :-
 	var(Goal),
 	'$do_error'(instantiation_error,time(Goal)).
 time(Goal) :- \+ callable(Goal), !,
-	'$do_error'(type_error(callable,Goal/0),time(Goal)).
+	'$do_error'(type_error(callable,Goal),time(Goal)).
 time(Goal) :-
 	statistics(walltime, _),
 	statistics(cputime, _), 

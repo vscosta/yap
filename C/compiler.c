@@ -3604,8 +3604,8 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
   }
   if (IsVarTerm(head) || IsPairTerm(head) || IsIntTerm(head) || IsFloatTerm(head) || IsRefTerm(head)) {
     LOCAL_Error_TYPE = TYPE_ERROR_CALLABLE;
-    LOCAL_Error_Term = my_clause;
-    LOCAL_ErrorMessage = "clause should be atom or term";
+    LOCAL_Error_Term = head;
+    LOCAL_ErrorMessage = "clause head should be atom or compound term";
     return (0);
   } else {
     

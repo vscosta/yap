@@ -103,7 +103,7 @@ dynamic(X) :-
 	    '$do_error'(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N))
 	).
 '$dynamic2'(X,Mod) :- 
-	'$do_error'(type_error(callable,X/0),dynamic(Mod:X)).
+	'$do_error'(type_error(callable,X),dynamic(Mod:X)).
 
 '$logical_updatable'(A//N,Mod) :- integer(N), !,
 	N1 is N+2,
@@ -118,7 +118,7 @@ dynamic(X) :-
 	    '$do_error'(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N))
 	).
 '$logical_updatable'(X,Mod) :- 
-	'$do_error'(type_error(callable,X/0),dynamic(Mod:X)).
+	'$do_error'(type_error(callable,X),dynamic(Mod:X)).
 
 /** @pred public(  _P_ ) is iso
 
@@ -145,7 +145,7 @@ defines all new or redefined predicates to be public.
 	functor(T,A,N),
 	'$do_make_public'(T, Mod).
 '$public'(X, Mod) :- 
-	'$do_error'(type_error(callable,X/0),dynamic(Mod:X)).
+	'$do_error'(type_error(callable,X),dynamic(Mod:X)).
 
 '$do_make_public'(T, Mod) :-
 	'$is_dynamic'(T, Mod), !.  % all dynamic predicates are public.

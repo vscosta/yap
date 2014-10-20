@@ -2616,7 +2616,7 @@ p_compile( USES_REGS1 )
   YAPLeaveCriticalSection();
   if (LOCAL_ErrorMessage) {
     if (LOCAL_Error_TYPE == TYPE_ERROR_CALLABLE) {
-      Yap_Error(LOCAL_Error_TYPE, Yap_PredicateIndicator(t, mod), LOCAL_ErrorMessage);
+      Yap_Error(LOCAL_Error_TYPE, t, LOCAL_ErrorMessage);
     }
     if (IntOfTerm(t1) & 4) {
       Yap_Error(TYPE_ERROR_CALLABLE, LOCAL_Error_Term,
