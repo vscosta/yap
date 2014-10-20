@@ -625,6 +625,9 @@
     case _lock_lu:
       cl = NEXTOP(cl,p);
       break;
+    case _unlock_lu:
+      cl = NEXTOP(cl,e);
+      break;
     case _call_bfunc_xx:
       cl = NEXTOP(cl,plxxs);
       break;

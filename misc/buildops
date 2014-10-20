@@ -171,6 +171,8 @@ special_op("table_answer_resolution_completion","THREADS_CONSUMER_SHARING").
 special_op("run_eam","BEAM").
 special_op("retry_eam","BEAM").
 special_op("thread_local","THREADS").
+special_op("lock_lu","THREADS").
+special_op("unlock_lu","THREADS").
 
 output_rclause(C) :-
 	setof(T,O^op(T,O),Types),
@@ -196,7 +198,7 @@ output_typeinfo(_,_).
 
 % tables require access to the table info. 
 special_formats(C,"e") :- !,
-	format(C,'      if (op == _Nstop || op == _copy_idb_term || op == _unify_idb_term) return;~n',[]).
+	format(C,'      if (pp == _nstop || op == _copy_idb_term || op == _unify_idb_term) return;~n',[]).
 special_formats(C,"l") :- !,
 	format(C,'      if (op == _Ystop) return;~n',[]).
 special_formats(C,"sssl") :- !,
@@ -858,6 +860,8 @@ opinfo("p_nonvar_y",[body,ifthenelse]).
 opinfo("save_b_x",[body,new("x")]).
 opinfo("save_b_y",[body,new("y")]).
 opinfo("ensure_space",[]).
+opinfo("lock_lu",[body]).
+opinfo("unlock_lu",[]).
 opinfo("write_x_loc",[body]).
 opinfo("write_x_var",[body,new("x")]).
 opinfo("write_y_var",[body,new("y")]).
@@ -1128,7 +1132,6 @@ opinfo("put_i_val_x",[body]).
 opinfo("put_fi_val_y",[body]).
 opinfo("put_f_val_y",[body]).
 opinfo("put_i_val_y",[body]).
-opinfo("lock_lu",[body]).
 opinfo("call_bfunc_xx",[body]).
 opinfo("call_bfunc_yx",[body]).
 opinfo("call_bfunc_xy",[body]).
@@ -1148,12 +1151,14 @@ output_save_clause(S) :-
 output_save_clause(_).
 
 output_save_type(S, T) :-
+(T=="e" -> start_low_level_trace; true),
 	format(S,'      /* instructions type ~s */~n',[T]),
 	setof(Op,op(T,Op),Ops),
 	dump_ops(S,Ops),
 	% then the code for every instruction with this header.
 	tinfo(T, Desc),
 	output_save(S, T, Desc, T),
+(T=="e" -> stop_low_level_trace; true),
 	format(S,'      pc = NEXTOP(pc,~s);~n',[T]),
 	format(S,'      break;~n',[]).
 

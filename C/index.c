@@ -1118,6 +1118,11 @@ move_next(ClauseDef *clause, UInt regno)
   switch (op) {
   case _native_me:
     return;
+#if THREADS
+  case _unlock_lu:
+    clause->CurrentCode = NEXTOP(cl,e);
+    return;
+#endif
   case _p_db_ref_x:
   case _p_float_x:
     if (wreg == cl->y_u.xl.x) {
@@ -1387,6 +1392,11 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
       cl = NEXTOP(cl,os);
       break;
 #endif   
+#ifdef THREADS
+    case _unlock_lu:
+      cl = NEXTOP(cl,e);
+      break;
+#endif   
     case _get_dbterm:
       cl = NEXTOP(cl,xc);
       break;      
@@ -1508,6 +1518,9 @@ skip_to_arg(ClauseDef *clause, PredEntry *ap, UInt argno, int at_point)
     case _unify_struct_write:
       cl = NEXTOP(cl,ofa);
       break;      
+#ifdef THREADS
+    case _unlock_lu:
+#endif
     case _pop:
       cl = NEXTOP(cl,e);
       break;            
@@ -5579,9 +5592,6 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       break;
     case _lock_lu:
       ipc = NEXTOP(ipc,p);
-      break;
-    case _unlock_lu:
-      ipc = NEXTOP(ipc,e);
       break;
     case _op_fail:
       while ((--sp)->flag != block_entry);

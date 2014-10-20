@@ -7,8 +7,11 @@
     op_numbers op = Yap_op_from_opcode(cl->opc);
     switch (op) {
     case _ensure_space:
-      cl = NEXTOP(cl,Osbpa);
-      break;
+       cl = NEXTOP(cl,Osbpa);
+       break;
+    case _unlock_lu:
+       cl = NEXTOP(cl,e);
+       break;
     case _native_me:
       cl = NEXTOP(cl,aFlp);
       break;
