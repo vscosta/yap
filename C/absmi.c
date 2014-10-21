@@ -12081,6 +12081,8 @@ Yap_absmi(int inp)
 	      PREG = NEXTOP(PREG, l);
 	      GONext();
 	    }
+	    PREG = PREG->y_u.l.l;
+	    GONext();
 	    break;
 	  default:
 	    PREG = PREG->y_u.l.l;
