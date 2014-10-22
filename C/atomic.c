@@ -638,10 +638,13 @@ init_atom_concat3( USES_REGS1 )
   } else if (Yap_IsGroundTerm(t2) && Yap_IsGroundTerm(t3)) {
     at = Yap_SubtractTailAtom( Deref(ARG3), t2 PASS_REGS );
     ot = ARG1;
-  } else {
+  } else if (Yap_IsGroundTerm(t3)) {
     EXTRA_CBACK_ARG(3,1) = MkIntTerm(0);
     EXTRA_CBACK_ARG(3,2) = MkIntTerm(Yap_AtomToLength(t3 PASS_REGS));
     return cont_atom_concat3( PASS_REGS1 );
+  } else {
+    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+    LOCAL_Error_Term = t1;
   }
   if (at) {
     if (Yap_unify(ot, MkAtomTerm(at))) cut_succeed();
@@ -732,10 +735,13 @@ init_atomic_concat3( USES_REGS1 )
   } else if (Yap_IsGroundTerm(t2) && Yap_IsGroundTerm(t3)) {
     at = Yap_SubtractTailAtom( t3, CastToAtom(t2) PASS_REGS );
     ot = ARG1;
+  } else if (Yap_IsGroundTerm(t3)) {
+      EXTRA_CBACK_ARG(3,1) = MkIntTerm(0);
+      EXTRA_CBACK_ARG(3,2) = MkIntTerm(Yap_AtomicToLength(t3 PASS_REGS));
+      return cont_atomic_concat3( PASS_REGS1 );
   } else {
-    EXTRA_CBACK_ARG(3,1) = MkIntTerm(0);
-    EXTRA_CBACK_ARG(3,2) = MkIntTerm(Yap_AtomicToLength(t3 PASS_REGS));
-    return cont_atomic_concat3( PASS_REGS1 );
+    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+    LOCAL_Error_Term = t1;
   }
   if (at) {
     if (Yap_unify(ot, CastToNumeric(at))) cut_succeed();
