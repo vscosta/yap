@@ -1282,6 +1282,230 @@ interrupt_dexecute( USES_REGS1 )
   return interrupt_handler( pe PASS_REGS );
 }
 
+static void
+undef_goal( USES_REGS1 )
+{
+  PredEntry *pe = PredFromDefCode(P);
+  BEGD(d0);
+  /* avoid trouble with undefined dynamic procedures */
+  /* I assume they were not locked beforehand */
+#if defined(YAPOR) || defined(THREADS)
+  if (!PP) {
+    PELOCK(19,pe);
+    PP = pe;
+  }
+#endif
+  if ((pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|MultiFileFlag)) ||
+      CurrentModule == PROLOG_MODULE ||
+      (UndefCode->OpcodeOfPred == UNDEF_OPCODE)) {
+#if defined(YAPOR) || defined(THREADS)
+    UNLOCKPE(19,PP);
+    PP = NULL;
+#endif
+    P = FAILCODE;
+    return;
+  }
+#if defined(YAPOR) || defined(THREADS)
+  UNLOCKPE(19,PP);
+  PP = NULL;
+#endif
+  d0 = pe->ArityOfPE;
+  if (d0 == 0) {
+    HR[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
+  }
+  else {
+    HR[d0 + 2] = AbsAppl(HR);
+    *HR = (CELL) pe->FunctorOfPred;
+    HR++;
+    BEGP(pt1);
+    pt1 = XREGS + 1;
+    for (; d0 > 0; --d0) {
+      BEGD(d1);
+      BEGP(pt0);
+      pt0 = pt1++;
+      d1 = *pt0;
+      deref_head(d1, undef_unk);
+    undef_nonvar:
+      /* just copy it to the heap */
+      *HR++ = d1;
+      continue;
+
+      derefa_body(d1, pt0, undef_unk, undef_nonvar);
+      if (pt0 <= HR) {
+	/* variable is safe */
+	*HR++ = (CELL)pt0;
+      } else {
+	/* bind it, in case it is a local variable */
+	d1 = Unsigned(HR);
+	RESET_VARIABLE(HR);
+	HR += 1;
+	Bind_Local(pt0, d1);
+      }
+      ENDP(pt0);
+      ENDD(d1);
+    }
+    ENDP(pt1);
+  }
+  ENDD(d0);
+  HR[0] = Yap_Module_Name(pe);
+  ARG1 = (Term) AbsPair(HR);
+  ARG2 = MkIntTerm(getUnknownModule(Yap_GetModuleEntry(HR[0])));
+  HR += 2;
+#ifdef LOW_LEVEL_TRACER
+  if (Yap_do_low_level_trace)
+    low_level_trace(enter_pred,UndefCode,XREGS+1);
+#endif	/* LOW_LEVEL_TRACE */
+  P = UndefCode->CodeOfPred;
+}
+
+
+static void
+spy_goal( USES_REGS1 )
+{
+  PredEntry *pe = PredFromDefCode(P);
+
+#if defined(YAPOR) || defined(THREADS)
+  if (!PP) {
+    PELOCK(14,pe);
+    PP = pe;
+  } 
+#endif
+  BEGD(d0);
+  if (!(pe->PredFlags & IndexedPredFlag) &&
+      pe->cs.p_code.NOfClauses > 1) {
+    /* update ASP before calling IPred */
+    SET_ASP(YREG, E_CB*sizeof(CELL));
+    Yap_IPred(pe, 0, CP);
+    /* IPred can generate errors, it thus must get rid of the lock itself */
+    if (P == FAILCODE) {
+#if defined(YAPOR) || defined(THREADS)
+      if (PP) {
+	UNLOCKPE(20,pe);
+	PP = NULL;
+      }
+#endif
+      return;
+    }
+  }
+  /* first check if we need to increase the counter */
+  if ((pe->PredFlags & CountPredFlag)) {
+    LOCK(pe->StatisticsForPred.lock);
+    pe->StatisticsForPred.NOfEntries++;
+    UNLOCK(pe->StatisticsForPred.lock);
+    LOCAL_ReductionsCounter--;
+    if (LOCAL_ReductionsCounter == 0 && LOCAL_ReductionsCounterOn) {
+#if defined(YAPOR) || defined(THREADS)
+      if (PP) {
+	UNLOCKPE(20,pe);
+	PP = NULL;
+      }
+#endif
+      Yap_NilError(CALL_COUNTER_UNDERFLOW,"");
+      return;
+    }
+    LOCAL_PredEntriesCounter--;
+    if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) {
+#if defined(YAPOR) || defined(THREADS)
+      if (PP) {
+	UNLOCKPE(21,pe);
+	PP = NULL;
+      }
+#endif
+      Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
+      return;
+    }
+    if ((pe->PredFlags & (CountPredFlag|ProfiledPredFlag|SpiedPredFlag)) ==
+	CountPredFlag) {
+#if defined(YAPOR) || defined(THREADS)
+      if (PP) {
+	UNLOCKPE(22,pe);
+	PP = NULL;
+      }
+#endif
+      P = pe->cs.p_code.TrueCodeOfPred;
+      return;
+    }
+  }
+  /* standard profiler */
+  if ((pe->PredFlags & ProfiledPredFlag)) {
+    LOCK(pe->StatisticsForPred.lock);
+    pe->StatisticsForPred.NOfEntries++;
+    UNLOCK(pe->StatisticsForPred.lock);
+    if (!(pe->PredFlags & SpiedPredFlag)) {
+      P = pe->cs.p_code.TrueCodeOfPred;
+#if defined(YAPOR) || defined(THREADS)
+      if (PP) {
+	UNLOCKPE(23,pe);
+	PP = NULL;
+      }
+#endif
+      return;
+    }
+  }
+#if defined(YAPOR) || defined(THREADS)
+  if (PP) {
+    UNLOCKPE(25,pe);
+    PP = NULL;
+  }
+#endif
+
+  d0 = pe->ArityOfPE;
+  /* save S for ModuleName */
+  if (d0 == 0) {
+    HR[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
+  } else {
+    *HR = (CELL) pe->FunctorOfPred;
+    HR[d0 + 2] = AbsAppl(HR);
+    HR++;
+    BEGP(pt1);
+    pt1 = XREGS + 1;
+    for (; d0 > 0; --d0) {
+      BEGD(d1);
+      BEGP(pt0);
+      pt0 = pt1++;
+      d1 = *pt0;
+      deref_head(d1, dospy_unk);
+    dospy_nonvar:
+      /* just copy it to the heap */
+      *HR++ = d1;
+      continue;
+
+      derefa_body(d1, pt0, dospy_unk, dospy_nonvar);
+      if (pt0 <= HR) {
+	/* variable is safe */
+	*HR++ = (CELL)pt0;
+      } else {
+	/* bind it, in case it is a local variable */
+	d1 = Unsigned(HR);
+	RESET_VARIABLE(HR);
+	HR += 1;
+	Bind_Local(pt0, d1);
+      }
+      ENDP(pt0);
+      ENDD(d1);
+    }
+    ENDP(pt1);
+  }
+  ENDD(d0);
+  HR[0] = Yap_Module_Name(pe);
+
+  ARG1 = (Term) AbsPair(HR);
+  HR += 2;
+  {
+    PredEntry *pt0;
+    LOCK(GLOBAL_ThreadHandlesLock);
+    pt0 = SpyCode;
+    P_before_spy = P;
+    P = pt0->CodeOfPred;
+    /* for profiler */
+    UNLOCK(GLOBAL_ThreadHandlesLock);
+#ifdef LOW_LEVEL_TRACER
+    if (Yap_do_low_level_trace)
+      low_level_trace(enter_pred,pt0,XREGS+1);
+#endif	/* LOW_LEVEL_TRACE */
+  }
+}
+
 Int
 Yap_absmi(int inp)
 {
@@ -2754,7 +2978,7 @@ Yap_absmi(int inp)
       PELOCK(5, ((PredEntry *)(PREG->y_u.Otapl.p)));
       PREG = (yamop *)(&(((PredEntry *)(PREG->y_u.Otapl.p))->OpcodeOfPred));
       UNLOCKPE(11,(PredEntry *)(PREG->y_u.Otapl.p));
-      goto dospy;
+      spy_goal( PASS_REGS1 );
       ENDBOp();
 
       /* try_and_mark   Label,NArgs       */
@@ -8187,197 +8411,19 @@ Yap_absmi(int inp)
 
       BOp(undef_p, e);
       /* save S for module name */
-      {
-	PredEntry *pe = PredFromDefCode(PREG);
-	BEGD(d0);
-	/* avoid trouble with undefined dynamic procedures */
-	/* I assume they were not locked beforehand */
-#if defined(YAPOR) || defined(THREADS)
-	if (!PP)
-	  PELOCK(19,pe);
-#endif
-	if ((pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|MultiFileFlag)) ||
-	    CurrentModule == PROLOG_MODULE ||
-	    (UndefCode->OpcodeOfPred == UNDEF_OPCODE)) {
-#if defined(YAPOR) || defined(THREADS)
-	  PP = NULL;
-	  UNLOCKPE(19,pe);
-#endif
-	  FAIL();
-	}
-	UNLOCKPE(19,pe);
-	d0 = pe->ArityOfPE;
-	if (d0 == 0) {
-	  HR[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
-	}
-	else {
-	  HR[d0 + 2] = AbsAppl(HR);
-	  *HR = (CELL) pe->FunctorOfPred;
-	  HR++;
-	  BEGP(pt1);
-	  pt1 = XREGS + 1;
-	  for (; d0 > 0; --d0) {
-	    BEGD(d1);
-	    BEGP(pt0);
-	    pt0 = pt1++;
-	    d1 = *pt0;
-	    deref_head(d1, undef_unk);
-	  undef_nonvar:
-	    /* just copy it to the heap */
-	    *HR++ = d1;
-	    continue;
-
-	    derefa_body(d1, pt0, undef_unk, undef_nonvar);
-	    if (pt0 <= HR) {
-	      /* variable is safe */
-	      *HR++ = (CELL)pt0;
-	    } else {
-	      /* bind it, in case it is a local variable */
-	      d1 = Unsigned(HR);
-	      RESET_VARIABLE(HR);
-	      HR += 1;
-	      Bind_Local(pt0, d1);
-	    }
-	    ENDP(pt0);
-	    ENDD(d1);
-	  }
-	  ENDP(pt1);
-	}
-	ENDD(d0);
-	HR[0] = Yap_Module_Name(pe);
-	ARG1 = (Term) AbsPair(HR);
-	ARG2 = MkIntTerm(getUnknownModule(Yap_GetModuleEntry(HR[0])));
-	HR += 2;
-#ifdef LOW_LEVEL_TRACER
-      if (Yap_do_low_level_trace)
-	low_level_trace(enter_pred,UndefCode,XREGS+1);
-#endif	/* LOW_LEVEL_TRACE */
-      }
-
-      PREG = UndefCode->CodeOfPred;
+      saveregs();
+      undef_goal( PASS_REGS1 );
+      setregs();
       /* for profiler */
-      save_pc();
       CACHE_A1();
       JMPNext();
       ENDBOp();
 
       BOp(spy_pred, e);
-    dospy:
-      {
-	PredEntry *pe = PredFromDefCode(PREG);
-	BEGD(d0);
- 	PELOCK(14,pe);
-	if (!(pe->PredFlags & IndexedPredFlag) &&
-	      pe->cs.p_code.NOfClauses > 1) {
-	  /* update ASP before calling IPred */
-	  SET_ASP(YREG, E_CB*sizeof(CELL));
-	  saveregs();
-	  Yap_IPred(pe, 0, CP);
-	  /* IPred can generate errors, it thus must get rid of the lock itself */
-	  setregs();
-	}
-	/* first check if we need to increase the counter */
-	if ((pe->PredFlags & CountPredFlag)) {
-	  LOCK(pe->StatisticsForPred.lock);
-	  pe->StatisticsForPred.NOfEntries++;
-	  UNLOCK(pe->StatisticsForPred.lock);
-	  LOCAL_ReductionsCounter--;
-	  if (LOCAL_ReductionsCounter == 0 && LOCAL_ReductionsCounterOn) {
-	    UNLOCKPE(20,pe);
-	    saveregs();
-	    Yap_NilError(CALL_COUNTER_UNDERFLOW,"");
-	    setregs();
-	    JMPNext();
-	  }
-	  LOCAL_PredEntriesCounter--;
-	  if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) {
-	    UNLOCKPE(21,pe);
-	    saveregs();
-	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
-	    setregs();
-	    JMPNext();
-	  }
-	  if ((pe->PredFlags & (CountPredFlag|ProfiledPredFlag|SpiedPredFlag)) ==
-	    CountPredFlag) {
-	    PREG = pe->cs.p_code.TrueCodeOfPred;
-	    UNLOCKPE(22,pe);
-	    JMPNext();
-	  }
-	}
-	/* standard profiler */
-	if ((pe->PredFlags & ProfiledPredFlag)) {
-	  LOCK(pe->StatisticsForPred.lock);
-	  pe->StatisticsForPred.NOfEntries++;
-	  UNLOCK(pe->StatisticsForPred.lock);
-	  if (!(pe->PredFlags & SpiedPredFlag)) {
-	    PREG = pe->cs.p_code.TrueCodeOfPred;
-	    UNLOCKPE(23,pe);
-	    JMPNext();
-	  }
-	}
-	UNLOCKPE(25,pe);
-
-	d0 = pe->ArityOfPE;
-	/* save S for ModuleName */
-	if (d0 == 0) {
-	  HR[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
-	} else {
-	  *HR = (CELL) pe->FunctorOfPred;
-	  HR[d0 + 2] = AbsAppl(HR);
-	  HR++;
-	  BEGP(pt1);
-	  pt1 = XREGS + 1;
-	  for (; d0 > 0; --d0) {
-	    BEGD(d1);
-	    BEGP(pt0);
-	    pt0 = pt1++;
-	    d1 = *pt0;
-	    deref_head(d1, dospy_unk);
-	  dospy_nonvar:
-	    /* just copy it to the heap */
-	    *HR++ = d1;
-	    continue;
-
-	    derefa_body(d1, pt0, dospy_unk, dospy_nonvar);
-	    if (pt0 <= HR) {
-	      /* variable is safe */
-	      *HR++ = (CELL)pt0;
-	    } else {
-	      /* bind it, in case it is a local variable */
-	      d1 = Unsigned(HR);
-	      RESET_VARIABLE(HR);
-	      HR += 1;
-	      Bind_Local(pt0, d1);
-	    }
-	    ENDP(pt0);
-	    ENDD(d1);
-	  }
-	  ENDP(pt1);
-	}
-	ENDD(d0);
-	HR[0] = Yap_Module_Name(pe);
-      }
-      ARG1 = (Term) AbsPair(HR);
-      HR += 2;
-      {
-	PredEntry *pt0;
-#ifdef THREADS
-	LOCK(GLOBAL_ThreadHandlesLock);
-#endif
-	pt0 = SpyCode;
-	P_before_spy = PREG;
-	PREG = pt0->CodeOfPred;
-	/* for profiler */
-#ifdef THREADS
-	UNLOCK(GLOBAL_ThreadHandlesLock);
-#endif
-	save_pc();
-	CACHE_A1();
-#ifdef LOW_LEVEL_TRACER
-	if (Yap_do_low_level_trace)
-	  low_level_trace(enter_pred,pt0,XREGS+1);
-#endif	/* LOW_LEVEL_TRACE */
-      }
+      saveregs();
+      spy_goal( PASS_REGS1 );
+      setregs();
+      CACHE_A1();
       JMPNext();
       ENDBOp();
 
