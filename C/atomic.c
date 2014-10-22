@@ -810,10 +810,13 @@ init_string_concat3( USES_REGS1 )
   } else if (Yap_IsGroundTerm(t2) && Yap_IsGroundTerm(t3)) {
     tf = Yap_SubtractTailString( t3, t2 PASS_REGS );
     ot = ARG1;
+  } else if (Yap_IsGroundTerm(t3)) {
+      EXTRA_CBACK_ARG(3,1) = MkIntTerm(0);
+      EXTRA_CBACK_ARG(3,2) = MkIntTerm(Yap_StringToLength(t3 PASS_REGS));
+      return cont_string_concat3( PASS_REGS1 );
   } else {
-    EXTRA_CBACK_ARG(3,1) = MkIntTerm(0);
-    EXTRA_CBACK_ARG(3,2) = MkIntTerm(Yap_StringToLength(t3 PASS_REGS));
-    return cont_string_concat3( PASS_REGS1 );
+    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+    LOCAL_Error_Term = t1;
   }
   if (tf) {
     if (Yap_unify(ot, tf)) { cut_succeed(); }
