@@ -117,6 +117,25 @@ typedef int _Bool;
 #define	 FALSE	false
 #endif
 
+/**
+ * Stolen from Mozzila, this code should deal with bad implementations of stdc++.
+ *
+ * Use C++11 nullptr if available; otherwise use a C++ typesafe template; and
+ * for C, fall back to longs.  See bugs 547964 and 626472.
+ */
+#ifndef HAVE_NULLPTR
+#ifndef __cplusplus
+# define nullptr ((void*)0)
+#elif defined(__GNUC__)
+# define nullptr __null
+#elif defined(_WIN64)
+# define nullptr 0LL
+#else
+# define nullptr 0L
+#endif
+#endif /* defined(HAVE_NULLPTR) */
+
+
 /* Microsoft's Visual C++ Compiler */
 #ifdef _MSC_VER   /* adjust a config.h from mingw32 to work with vc++ */
 #ifdef HAVE_GCC

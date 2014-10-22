@@ -111,6 +111,24 @@ case "$target_cpu" in
       YAP_TARGET=unknown
     ;;
  esac
+ 
+ 
+dnl Check for nullptr (bug 626472)
+AC_LANG_CPLUSPLUS
+AC_MSG_CHECKING(for nullptr)
+AC_CACHE_VAL(ac_cv_nullptr,
+      [AC_TRY_COMPILE([],
+                    [int* foo = nullptr;],
+                   [ac_cv_nullptr=true],
+                   [ac_cv_nullptr=false])])
+if test "$ac_cv_nullptr" = true -o $_MSC_VER -ge 1600; then
+    AC_DEFINE(HAVE_NULLPTR)
+    AC_MSG_RESULT(yes)
+else
+    AC_MSG_RESULT(no)
+fi
+ 
+AC_LANG_C 
 
 dnl hardware/engine
 AC_DEFINE(MSHIFTOFFS, 1, [compiler should shift offsets.])
