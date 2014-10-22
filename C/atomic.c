@@ -1225,23 +1225,29 @@ p_atomics_to_string3( USES_REGS1 )
 static Int 
 p_atom_length( USES_REGS1 )
 {
-  Term t1;
+  Term t1 = Deref(ARG1);;
   Term t2 = Deref(ARG2);
   ssize_t len;
+
+  if (!Yap_IsGroundTerm(t1)) {
+      Yap_Error(INSTANTIATION_ERROR, t1, "atom_length/2");
+      return(FALSE);
+  } else if (!IsAtomTerm(t1)) {
+      Yap_Error(TYPE_ERROR_ATOM, t1, "atom_length/2");
+      return(FALSE);
+  }
 
   if (Yap_IsGroundTerm(t2)) {
 
     if (!IsIntegerTerm(t2)) {
       Yap_Error(TYPE_ERROR_INTEGER, t2, "atom_length/2");
       return(FALSE);
-    }
-    if (FALSE && (len = IntegerOfTerm(t2)) < 0) {
+    } else if ((len = IntegerOfTerm(t2)) < 0) {
       Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "atom_length/2");
       return(FALSE);
     }
   }
 restart_aux:
-  t1  = Deref(ARG1);
   len = Yap_AtomicToLength(t1 PASS_REGS);
   if (len != (size_t)-1)
     return Yap_unify( ARG2, MkIntegerTerm(len) );
@@ -1255,9 +1261,17 @@ restart_aux:
 static Int
 p_atomic_length( USES_REGS1 )
 {
-  Term t1;
+  Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
   ssize_t len;
+
+  if (!Yap_IsGroundTerm(t1)) {
+      Yap_Error(INSTANTIATION_ERROR, t1, "atomic_length/2");
+      return(FALSE);
+  } else if (!IsAtomicTerm(t1)) {
+      Yap_Error(TYPE_ERROR_ATOM, t1, "atomic_length/2");
+      return(FALSE);
+  }
 
   if (Yap_IsGroundTerm(t2)) {
 
@@ -1265,13 +1279,12 @@ p_atomic_length( USES_REGS1 )
       Yap_Error(TYPE_ERROR_INTEGER, t2, "atomic_length/2");
       return(FALSE);
     }
-    if (FALSE && (len = IntegerOfTerm(t2)) < 0) {
+    if ((len = IntegerOfTerm(t2)) < 0) {
       Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "atomic_length/2");
       return(FALSE);
     }
   }
 restart_aux:
-  t1  = Deref(ARG1);
   len = Yap_AtomicToLength(t1 PASS_REGS);
   if (len != (size_t)-1)
     return Yap_unify( ARG2, MkIntegerTerm(len) );
