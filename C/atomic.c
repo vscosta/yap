@@ -1831,6 +1831,10 @@ init_sub_atomic( int sub_atom USES_REGS )
     return FALSE;
   } else {
     min = IntegerOfTerm(tbef);
+	if ((Int)min < 0) {
+	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, tbef, "sub_string/5");
+	    return FALSE;
+	};
     mask |= SUB_ATOM_HAS_MIN;
     bnds++;
   }
@@ -1841,6 +1845,10 @@ init_sub_atomic( int sub_atom USES_REGS )
     return FALSE;
   } else {
     len = IntegerOfTerm(tsize);
+	if ((Int)len < 0) {
+	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, tsize, "sub_string/5");
+	    return FALSE;
+	};
     mask |= SUB_ATOM_HAS_SIZE;
     bnds++;
   }
@@ -1851,6 +1859,10 @@ init_sub_atomic( int sub_atom USES_REGS )
     return FALSE;
   } else {
     after = IntegerOfTerm(tafter);
+	if ((Int)after < 0) {
+	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, tafter, "sub_string/5");
+	    return FALSE;
+	};
     mask |= SUB_ATOM_HAS_AFTER;
     bnds++;
   }
