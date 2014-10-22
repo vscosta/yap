@@ -97,7 +97,6 @@ Eval(Term t USES_REGS)
 {
 
   if (IsVarTerm(t)) {
-    LOCAL_ArithError = TRUE;
     return Yap_ArithError(INSTANTIATION_ERROR,t,"in arithmetic");
   } else if (IsNumTerm(t)) {
     return t;
@@ -220,7 +219,7 @@ X is 2+3*4
 static Int
 p_is( USES_REGS1 )
 {				/* X is Y	 */
-  Term out = 0L;
+  Term out;
   yap_error_number err;
 
   Term t = Deref(ARG2);
@@ -241,7 +240,7 @@ p_is( USES_REGS1 )
       }
     } else {
       Yap_EvalError(err, ARG2, "X is Exp");
-    return FALSE;
+      return FALSE;
     }
   } while (TRUE);
   return Yap_unify_constant(ARG1,out);

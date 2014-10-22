@@ -606,22 +606,35 @@ p_univ( USES_REGS1 )
     }
     if (IsNumTerm(twork)) {
       Term tt = TailOfTerm(t2);
-      if (IsVarTerm(tt) || tt != MkAtomTerm(AtomNil)) {
+      if (IsVarTerm(tt)) {
+	Yap_Error(INSTANTIATION_ERROR, tt, "(=..)/2");
+	return (FALSE);
+      }
+      if ( tt != MkAtomTerm(AtomNil)) {
 	Yap_Error(TYPE_ERROR_ATOMIC, twork, "(=..)/2");
 	return (FALSE);
       }
       return (Yap_unify_constant(ARG1, twork));
     }
     if (!IsAtomTerm(twork)) {
-      Yap_Error(TYPE_ERROR_ATOMIC, twork, "(=..)/2");
-      return (FALSE);
+      Term tt = TailOfTerm(t2);
+      if (IsVarTerm(tt)) {
+	Yap_Error(INSTANTIATION_ERROR, twork, "(=..)/2");
+	return(FALSE);
+      } else if (tt == MkAtomTerm(AtomNil)) {
+	Yap_Error(TYPE_ERROR_ATOMIC, twork, "(=..)/2");
+	return (FALSE);
+      } else {
+	Yap_Error(TYPE_ERROR_ATOM, twork, "(=..)/2");
+	return (FALSE);
+      }
     }      
     at = AtomOfTerm(twork);
     twork = TailOfTerm(t2);
     if (IsVarTerm(twork)) {
       Yap_Error(INSTANTIATION_ERROR, twork, "(=..)/2");
       return(FALSE);
-    } else if (!IsPairTerm(twork)) {
+    } else  if (!IsPairTerm(twork)) {
       if (twork != TermNil) {
 	Yap_Error(TYPE_ERROR_LIST, ARG2, "(=..)/2");
 	return(FALSE);
