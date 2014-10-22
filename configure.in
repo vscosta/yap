@@ -169,13 +169,6 @@ AC_ARG_ENABLE(use-malloc,
 AC_ARG_ENABLE(condor,
 	[ --enable-condor            allow YAP to be used from condor ],
 	use_condor="$enableval", use_condor=no)
-AC_ARG_ENABLE(chr,
-	[ --enable-chr            install chr library ],
-	use_chr="$enableval", use_chr=yes)
-AC_ARG_ENABLE(clpqr,
-	[ --enable-clpqr            install clpqr library ],
-	use_clpqr="$enableval", use_clpqr=yes)
-
 AC_ARG_ENABLE(april,
 	[ --enable-april             compile Yap to support April ILP system],
 	use_april="$enableval", use_april=no)

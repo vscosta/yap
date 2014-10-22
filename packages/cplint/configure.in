@@ -1,40 +1,62 @@
 dnl  CPLINT
 dnl
 dnl CPLINT_LIBS= 
-dnl CPLINT_LIBS= 
 dnl CPLINT_LDFLAGS= 
 dnl CPLINT_SHLIB_LD= 
 dnl
 
+found_cplint=false
+
 AC_ARG_ENABLE(cplint,
-	[ --enable-cplint[=DIR]       enable the cplint library using the CUDD library in DIR/lib],
-		yap_cv_cplint=$enableval, yap_cv_cplint=no)
+    [ --enable-cplint[=DIR]      enable the cplint library using the CUDD library in DIR/lib],
+    yap_cv_cplint=$enableval, yap_cv_cplint=no)
 
-
-if test ! "$yap_cv_cplint" = "no"
-  then	
-	if test ! "$yap_cv_cplint" = "yes"
+if test x"$yap_cv_cplint"  = "xno"
+then
+    PKG_CPLINT=""
+else
+    if test  x"$yap_cv_cplint" != "xyes"
+    then
+	CPLINT_LDFLAGS+=" -L${yap_cv_cplint}/cudd -L${yap_cv_cplint}/mtr -L${yap_cv_cplint}/st -L${yap_cv_cplint}/util -L${yap_cv_cplint}/epd "
+	#typical of user-compiled cudd	fi
+  	CPLINT_CFLAGS+=" -I${yap_cv_cplint}/include"
+ 	CPLINT_LIBS="$LIBS"
+  	found_cplint=true
+    fi
+    # cudd has been probably just tested, so why try again?
+    # cudd is available on fedora, and maybe other linux distributions
+    if test -d "/usr/include/cudd" -a x"$CPLINT_CFLAGS" = x
+    then
+	CPLINT_CFLAGS=" -I/usr/include/cudd"
+	CPLINT_LIBS="-lcudd  -lmtr -lcuddst -lepd -lcuddutil -lm $LIBS"
+  	found_cplint=true
+    elif test -d "/usr/local/include/cudd" -a x"$CPLINT_CFLAGS" = x
+    then
+  	found_cplint=true
+	CPLINT_CFLAGS=" -I/usr/local/include/cudd"
+	CPLINT_LIBS+=" -L/usr/local/lib"
+    fi
+    if test "$found_cplint" = true
+    then
+	if test x"$CPLINT_LIBS" = x
 	then
-		CPLINT_LDFLAGS+=" -L${yap_cv_cplint}/cudd -L${yap_cv_cplint}/mtr -L${yap_cv_cplint}/st -L${yap_cv_cplint}/util -L${yap_cv_cplint}/epd "
-		CPLINT_CFLAGS+=" -I${yap_cv_cplint}/include"
-		CPLINT_LIBS="-lcudd  -lmtr -lst -lepd -lutil -lm "$CPLINT_LIBS
+	    CPLINT_LIBS="-lcudd  -lmtr -lst -lepd -lutil -lm $LIBS"
 	fi
-	if test "$target_os" = "cygwin" -o "$target_os" = "mingw32"
+     	if test "$target_os" = "cygwin" -o "$target_os" = "mingw32"
 	then
-		CPLINT_SHLIB_LD="gcc -shared ../../yap.dll"
-		SHLIB_SUFFIX="dll"
+	    CPLINT_SHLIB_LD="gcc -shared ../../yap.dll"
 	else
-		CPLINT_SHLIB_LD=$SHLIB_LD
-		SHLIB_SUFFIX="so"
+	    CPLINT_SHLIB_LD="$SHLIB_LD"
 	fi
-	PKG_CPLINT="packages/cplint packages/cplint/approx/simplecuddLPADs"
+	PKG_CPLINT="packages/cplint/approx/simplecuddLPADs packages/cplint"
 	AC_SUBST(CPLINT_LIBS)
 	AC_SUBST(CPLINT_CFLAGS)
 	AC_SUBST(CPLINT_LDFLAGS)
 	AC_SUBST(CPLINT_SHLIB_LD)
 	AC_SUBST(SHLIB_SUFFIX)
-else
-	PKG_CPLINT=""
+    else
+        PKG_CPLINT="" 
+    fi
 fi
 
 AC_SUBST(PKG_CPLINT)

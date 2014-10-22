@@ -884,8 +884,6 @@ enable_dynamic_loading
 enable_static_compilation
 enable_use_malloc
 enable_condor
-enable_chr
-enable_clpqr
 enable_april
 enable_dlcompat
 enable_horus
@@ -1569,8 +1567,6 @@ Optional Features:
  --enable-static-compilation   compile YAP statically
  --enable-use-malloc        use malloc to allocate memory
  --enable-condor            allow YAP to be used from condor
- --enable-chr            install chr library
- --enable-clpqr            install clpqr library
  --enable-april             compile Yap to support April ILP system
  --enable-dlcompat          use dlcompat library for dynamic loading on Mac OS X
  --enable-horus           enable CLPBN HORUS library.
@@ -1582,7 +1578,7 @@ Optional Features:
  --enable-statistic-predicates  support statistic predicates
   --enable-mimecharset=charset   Default MIME charset to set on new messages
  --enable-bddlib           dynamic bdd library
- --enable-cplint=DIR       enable the cplint library using the CUDD library in DIR/lib
+ --enable-cplint=DIR      enable the cplint library using the CUDD library in DIR/lib
  --enable-gecode            install gecode library
 
 Optional Packages:
@@ -4531,21 +4527,6 @@ if test "${enable_condor+set}" = set; then :
 else
   use_condor=no
 fi
-
-# Check whether --enable-chr was given.
-if test "${enable_chr+set}" = set; then :
-  enableval=$enable_chr; use_chr="$enableval"
-else
-  use_chr=yes
-fi
-
-# Check whether --enable-clpqr was given.
-if test "${enable_clpqr+set}" = set; then :
-  enableval=$enable_clpqr; use_clpqr="$enableval"
-else
-  use_clpqr=yes
-fi
-
 
 # Check whether --enable-april was given.
 if test "${enable_april+set}" = set; then :
@@ -12314,7 +12295,7 @@ if test "$PKG_ODBC" != ""; then
 # Check whether --with-odbc was given.
 if test "${with_odbc+set}" = set; then :
   withval=$with_odbc; case $withval in
-		no|yes)	echo 'Specify dir for XPM please';
+		no|yes)	echo 'Specify dir for ODBC please';
 			exit 1 ;;
 		*)	ODBC_DIR=${withval}
 	esac
@@ -13332,6 +13313,8 @@ fi
 
 
 
+found_cplint=false
+
 # Check whether --enable-cplint was given.
 if test "${enable_cplint+set}" = set; then :
   enableval=$enable_cplint; yap_cv_cplint=$enableval
@@ -13340,31 +13323,52 @@ else
 fi
 
 
-
-if test ! "$yap_cv_cplint" = "no"
-  then
-	if test ! "$yap_cv_cplint" = "yes"
-	then
-		CPLINT_LDFLAGS+=" -L${yap_cv_cplint}/cudd -L${yap_cv_cplint}/mtr -L${yap_cv_cplint}/st -L${yap_cv_cplint}/util -L${yap_cv_cplint}/epd "
-		CPLINT_CFLAGS+=" -I${yap_cv_cplint}/include"
-		CPLINT_LIBS="-lcudd  -lmtr -lst -lepd -lutil -lm "$CPLINT_LIBS
-	fi
-	if test "$target_os" = "cygwin" -o "$target_os" = "mingw32"
-	then
-		CPLINT_SHLIB_LD="gcc -shared ../../yap.dll"
-		SHLIB_SUFFIX="dll"
-	else
-		CPLINT_SHLIB_LD=$SHLIB_LD
-		SHLIB_SUFFIX="so"
-	fi
-	PKG_CPLINT="packages/cplint packages/cplint/approx/simplecuddLPADs"
-
-
-
-
-
+if test x"$yap_cv_cplint"  = "xno"
+then
+    PKG_CPLINT=""
 else
-	PKG_CPLINT=""
+    if test  x"$yap_cv_cplint" != "xyes"
+    then
+	CPLINT_LDFLAGS+=" -L${yap_cv_cplint}/cudd -L${yap_cv_cplint}/mtr -L${yap_cv_cplint}/st -L${yap_cv_cplint}/util -L${yap_cv_cplint}/epd "
+	#typical of user-compiled cudd	fi
+  	CPLINT_CFLAGS+=" -I${yap_cv_cplint}/include"
+ 	CPLINT_LIBS="$LIBS"
+  	found_cplint=true
+    fi
+    # cudd has been probably just tested, so why try again?
+    # cudd is available on fedora, and maybe other linux distributions
+    if test -d "/usr/include/cudd" -a x"$CPLINT_CFLAGS" = x
+    then
+	CPLINT_CFLAGS=" -I/usr/include/cudd"
+	CPLINT_LIBS="-lcudd  -lmtr -lcuddst -lepd -lcuddutil -lm $LIBS"
+  	found_cplint=true
+    elif test -d "/usr/local/include/cudd" -a x"$CPLINT_CFLAGS" = x
+    then
+  	found_cplint=true
+	CPLINT_CFLAGS=" -I/usr/local/include/cudd"
+	CPLINT_LIBS+=" -L/usr/local/lib"
+    fi
+    if test "$found_cplint" = true
+    then
+	if test x"$CPLINT_LIBS" = x
+	then
+	    CPLINT_LIBS="-lcudd  -lmtr -lst -lepd -lutil -lm $LIBS"
+	fi
+     	if test "$target_os" = "cygwin" -o "$target_os" = "mingw32"
+	then
+	    CPLINT_SHLIB_LD="gcc -shared ../../yap.dll"
+	else
+	    CPLINT_SHLIB_LD="$SHLIB_LD"
+	fi
+	PKG_CPLINT="packages/cplint/approx/simplecuddLPADs packages/cplint"
+
+
+
+
+
+    else
+        PKG_CPLINT=""
+    fi
 fi
 
 
@@ -13900,7 +13904,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 13903 "configure" */
+/* #line 13907 "configure" */
 public class Test {
 }
 EOF
@@ -14076,7 +14080,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 14079: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 14083: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -14207,7 +14211,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14210 "configure" */
+/* #line 14214 "configure" */
 public class Test {
 }
 EOF
@@ -14242,7 +14246,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 14245 "configure" */
+/* [#]line 14249 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);

@@ -34,7 +34,7 @@ INSTALL_PROGRAM=@INSTALL_PROGRAM@
 SHELL=/bin/sh
 RANLIB=@RANLIB@
 srcdir=@srcdir@
-SHLIB_SUFFIX=@SHLIB_SUFFIX@
+SO=@SO@
 CPLINT_CFLAGS=@CPLINT_CFLAGS@
 CPLINT_LDFLAGS=@CPLINT_LDFLAGS@
 CPLINT_LIBS=@CPLINT_LIBS@
@@ -42,7 +42,7 @@ CPLINT_LIBS=@CPLINT_LIBS@
 CWD=$(PWD)
 #
 OBJS=cplint_yap.o cplint_Prob.o bddem.o
-SOBJS=cplint.@SHLIB_SUFFIX@ bddem.@SHLIB_SUFFIX@
+SOBJS=cplint.@SO@ bddem.@SO@
 
 
 
@@ -150,7 +150,6 @@ CPLINT_LEARNING_PROGRAMS=\
 	$(CPLINT_SRCDIR)/slipcase \
 	$(CPLINT_SRCDIR)/slipcover \
 	$(CPLINT_SRCDIR)/lemur
-	
 
 
 all: $(SOBJS)
@@ -165,11 +164,11 @@ bddem.o : $(srcdir)/slipcase/bddem.c
 	$(CC) -c $(CFLAGS) $(CPLINT_CFLAGS)  $(srcdir)/slipcase/bddem.c -o bddem.o
 
 
-@DO_SECOND_LD@cplint.@SHLIB_SUFFIX@: cplint_yap.o cplint_Prob.o
-@DO_SECOND_LD@	@CPLINT_SHLIB_LD@ -o cplint.@SHLIB_SUFFIX@ $(CPLINT_LDFLAGS) cplint_yap.o cplint_Prob.o $(CPLINT_LIBS) @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@cplint.@SO@: cplint_yap.o cplint_Prob.o
+@DO_SECOND_LD@	@CPLINT_SHLIB_LD@ -o cplint.@SO@ $(CPLINT_LDFLAGS) cplint_yap.o cplint_Prob.o $(CPLINT_LIBS) @EXTRA_LIBS_FOR_DLLS@
 
-@DO_SECOND_LD@bddem.@SHLIB_SUFFIX@: bddem.o
-@DO_SECOND_LD@	@CPLINT_SHLIB_LD@ -o bddem.@SHLIB_SUFFIX@ $(CPLINT_LDFLAGS) bddem.o $(CPLINT_LIBS) @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@bddem.@SO@: bddem.o
+@DO_SECOND_LD@	@CPLINT_SHLIB_LD@ -o bddem.@SO@ $(CPLINT_LDFLAGS) bddem.o $(CPLINT_LIBS) @EXTRA_LIBS_FOR_DLLS@
 
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
