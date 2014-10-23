@@ -124,6 +124,13 @@ Yap_NewSlots(int n USES_REGS)
   return((ASP+1)-LCL0);
 }
 
+/// @brief report the number of slots in the current
+static inline size_t
+Yap_countSlots( USES_REGS1 )
+{
+  return IntOfTerm(ASP[0]);;
+}
+
 /// @brief create a new slot with term t
 static inline Int
 Yap_InitSlot(Term t USES_REGS)
@@ -139,14 +146,15 @@ Yap_InitSlot(Term t USES_REGS)
 static inline int
 Yap_RecoverSlots(int n, yhandle_t topSlot USES_REGS)
 {
-  yhandle_t old_slots = IntOfTerm(ASP[0]);
+  yhandle_t old_slots = IntOfTerm(ASP[0]),
+    new_slots = old_slots-n;
   if (old_slots  < n) {
     return FALSE;
   }
   if (ASP+1 != LCL0+topSlot)
 	return FALSE;
   ASP += n;
-  ASP[old_slots+(n-1)] = ASP[0] = MkIntTerm(old_slots-n);
+  ASP[new_slots+1] = ASP[0] = MkIntTerm(new_slots);
   return TRUE;
 }
 
