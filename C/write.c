@@ -83,6 +83,23 @@ typedef struct write_globs {
 #define lastw wglb->lw
 #define last_minus wglb->last_atom_minus
 
+static bool
+callPortray(Term t, struct DB_TERM **old_EXp USES_REGS)
+{
+  PredEntry *pe;
+
+  EX = NULL;
+  if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorPortray, USER_MODULE) ) ) &&
+       pe->OpcodeOfPred != FAIL_OPCODE &&
+       pe->OpcodeOfPred != UNDEF_OPCODE &&
+       Yap_execute_pred(pe, &t PASS_REGS) ) {
+    if (EX && !*old_EXp) *old_EXp = EX;
+    return true;
+  }
+  if (EX && !*old_EXp) *old_EXp = EX;
+  return false;
+}
+ 
 static void wrputn(Int, struct write_globs *);
 static void wrputf(Float, struct write_globs *);
 static void wrputref(CODEADDR, int, struct write_globs *);
@@ -698,6 +715,7 @@ from_pointer(CELL *ptr0, struct rewind_term *rwt, struct write_globs *wglb)
 
     rwt->u_sd.s.old = Yap_InitSlot(t PASS_REGS);
     rwt->u_sd.s.ptr = Yap_InitSlot((CELL)ptr0 PASS_REGS);
+
     if (!IsAtomicTerm(t) && !IsVarTerm(t)) {
       while (x) {
 	if (Yap_GetDerefedFromSlot(x->u_sd.s.old PASS_REGS) == t)
@@ -729,7 +747,8 @@ restore_from_write(struct rewind_term *rwt, struct write_globs *wglb)
 
   if (wglb->Keep_terms) {
     ptr = (CELL*)Yap_GetPtrFromSlot(rwt->u_sd.s.ptr PASS_REGS);
-    Yap_RecoverSlots(2, rwt->u_sd.s.ptr PASS_REGS);
+    if (!Yap_RecoverSlots(2, rwt->u_sd.s.ptr PASS_REGS))
+      return NULL;
   } else {
     ptr = rwt->u_sd.d.ptr;
   }
@@ -897,6 +916,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
      if (wglb->Ignore_ops) {
       wrputs("'.'(",wglb->stream);
       lastw = separator;
+
       writeTerm(from_pointer(RepPair(t),  &nrwt, wglb), 999, depth + 1, FALSE, wglb, &nrwt);
       t = AbsPair(restore_from_write(&nrwt, wglb));
       wrputs(",",wglb->stream);	
@@ -905,22 +925,8 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       wrclose_bracket(wglb, TRUE);
       return;
     } 
-    if (wglb->Use_portray) {
-      Term targs[1];
-      struct DB_TERM *old_EX = NULL;
-      Int sl = 0;
-
-     targs[0] = t;
-      Yap_PutValue(AtomPortray, MkAtomTerm(AtomNil));
-      if (EX) old_EX = EX;
-      sl = Yap_InitSlot(t PASS_REGS);      
-     Yap_execute_goal(Yap_MkApplTerm(FunctorPortray, 1, targs), 0, 1);
-      t = Yap_GetFromSlot(sl PASS_REGS);
-      Yap_RecoverSlots(1, sl PASS_REGS);
-      if (old_EX != NULL) EX = old_EX;
-     if (Yap_GetValue(AtomPortray) == MkAtomTerm(AtomTrue))
-	return;
-    }
+    if (wglb->Use_portray)
+      if (callPortray(t, &EX PASS_REGS) ) return;
     if (yap_flags[WRITE_QUOTED_STRING_FLAG] && IsCodesTerm(t)) {
       putString(t, wglb);
     } else {
@@ -990,20 +996,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
     }
 #endif
     if (wglb->Use_portray) {
-      Term targs[1];
-      struct DB_TERM *old_EX = NULL;
-      Int sl = 0;
-
-      targs[0] = t;
-      Yap_PutValue(AtomPortray, MkAtomTerm(AtomNil));
-      if (EX) old_EX = EX;
-      sl = Yap_InitSlot(t PASS_REGS);      
-      Yap_execute_goal(Yap_MkApplTerm(FunctorPortray, 1, targs),0, 1);
-      t = Yap_GetFromSlot(sl PASS_REGS);
-      Yap_RecoverSlots(1, sl PASS_REGS);
-      if (old_EX) EX = old_EX;
-      if (Yap_GetValue(AtomPortray) == MkAtomTerm(AtomTrue) || EX)
-	return;
+      if (callPortray(t, &EX PASS_REGS) ) return;
     }
     if (!wglb->Ignore_ops &&
 	Arity == 1 &&

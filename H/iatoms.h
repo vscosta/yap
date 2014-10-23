@@ -234,7 +234,7 @@
   AtomPipe = Yap_LookupAtom("pipe");
   AtomPlus = Yap_LookupAtom("+");
   AtomPointer = Yap_LookupAtom("pointer");
-  AtomPortray = Yap_FullLookupAtom("$portray");
+  AtomPortray = Yap_FullLookupAtom("portray");
   AtomPredicateIndicator = Yap_LookupAtom("predicate_indicator");
   AtomPrimitive = Yap_LookupAtom("primitive");
   AtomPrintMessage = Yap_LookupAtom("print_message");
