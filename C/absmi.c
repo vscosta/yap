@@ -1379,7 +1379,7 @@ spy_goal( USES_REGS1 )
     /* IPred can generate errors, it thus must get rid of the lock itself */
     if (P == FAILCODE) {
 #if defined(YAPOR) || defined(THREADS)
-      if (PP) {
+      if (PP && !(PP->PredFlags & LogUpdatePredFlag)){
 	UNLOCKPE(20,pe);
 	PP = NULL;
       }
@@ -2821,7 +2821,7 @@ Yap_absmi(int inp)
 	  if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	    LOCAL_Error_TYPE = YAP_NO_ERROR;
 	    if (!Yap_growglobal(NULL)) {
-	      UNLOCKPE(3,PP);
+	      if (PP) UNLOCKPE(3,PP);
 #if defined(YAPOR) || defined(THREADS)
 	      PP = NULL;
 #endif
@@ -2831,7 +2831,7 @@ Yap_absmi(int inp)
 	  } else {
 	    LOCAL_Error_TYPE = YAP_NO_ERROR;
 	    if (!Yap_gc(3, ENV, CP)) {
-	      UNLOCKPE(4,PP);
+	     if (PP) UNLOCKPE(4,PP);
 #if defined(YAPOR) || defined(THREADS)
 	      PP = NULL;
 #endif
@@ -2839,19 +2839,23 @@ Yap_absmi(int inp)
 	      FAIL();
 	    }
 	  }
+#if defined(YAPOR) || defined(THREADS)
+	  PELOCK(5,ClauseCodeToLogUpdClause(PREG)->ClPred);
+	  PP = ClauseCodeToLogUpdClause(PREG)->ClPred;
+#endif
 	}
 	if (!Yap_IUnify(ARG2, t)) {
 	  setregs();
-	  UNLOCKPE(5,PP);
 #if defined(YAPOR) || defined(THREADS)
+	  if (PP) UNLOCKPE(6,PP);
 	  PP = NULL;
 #endif
 	  FAIL();
 	}
 	if (!Yap_IUnify(ARG3, MkDBRefTerm((DBRef)cl))) {
 	  setregs();
-	  UNLOCKPE(6,PP);
 #if defined(YAPOR) || defined(THREADS)
+	  if (PP) UNLOCKPE(5,PP);
 	  PP = NULL;
 #endif
 	  FAIL();
@@ -2862,7 +2866,7 @@ Yap_absmi(int inp)
 	/* always add an extra reference */
 	INC_CLREF_COUNT(cl);
 	TRAIL_CLREF(cl);
-	UNLOCKPE(7,PP);
+	if (PP) UNLOCKPE(7,PP);
 	PP = NULL;
 #else
 	if (!(cl->ClFlags & InUseMask)) {
