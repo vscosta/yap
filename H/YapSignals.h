@@ -48,22 +48,23 @@ typedef enum
 #ifdef SIGFPE
   YAP_FPE_SIGNAL = SIGFPE, 	/* received SIGFPE */
 #endif
-  YAP_WAKEUP_SIGNAL = (NSIG+1),	/* goals to wake up */
-  YAP_ITI_SIGNAL = (NSIG+2),	/* received inter thread signal */
-  YAP_TROVF_SIGNAL = (NSIG+3),	/* received trail overflow */
-  YAP_CDOVF_SIGNAL = (NSIG+4),	/* received code overflow */
-  YAP_STOVF_SIGNAL = (NSIG+5),	/* received stack overflow */
-  YAP_TRACE_SIGNAL = (NSIG+6),	/* received start trace */
-  YAP_DEBUG_SIGNAL = (NSIG+7),	/* received start debug */
-  YAP_BREAK_SIGNAL = (NSIG+8),	/* received break signal */
-  YAP_STACK_DUMP_SIGNAL = (NSIG+9),	/* received stack dump signal */
-  YAP_STATISTICS_SIGNAL = (NSIG+10),	/* received statistics */
-  YAP_AGC_SIGNAL = (NSIG+11),	/* call atom garbage collector asap */
-  YAP_WINTIMER_SIGNAL = (NSIG+12),	/* windows alarm */
-  YAP_FAIL_SIGNAL = (NSIG+13),	/* P = FAILCODE */
-  YAP_ABORT_SIGNAL = (NSIG+14),	/* P = FAILCODE */
-  YAP_EXIT_SIGNAL = (NSIG+15),	/* P = FAILCODE */
-  YAP_CREEP_SIGNAL = (NSIG+16)	/* received a creep, make sure it is the last signal */
+#define PROLOG_SIG 31
+  YAP_WAKEUP_SIGNAL = (PROLOG_SIG+1),	/* goals to wake up */
+  YAP_ITI_SIGNAL = (PROLOG_SIG+2),	/* received inter thread signal */
+  YAP_TROVF_SIGNAL = (PROLOG_SIG+3),	/* received trail overflow */
+  YAP_CDOVF_SIGNAL = (PROLOG_SIG+4),	/* received code overflow */
+  YAP_STOVF_SIGNAL = (PROLOG_SIG+5),	/* received stack overflow */
+  YAP_TRACE_SIGNAL = (PROLOG_SIG+6),	/* received start trace */
+  YAP_DEBUG_SIGNAL = (PROLOG_SIG+7),	/* received start debug */
+  YAP_BREAK_SIGNAL = (PROLOG_SIG+8),	/* received break signal */
+  YAP_STACK_DUMP_SIGNAL = (PROLOG_SIG+9),	/* received stack dump signal */
+  YAP_STATISTICS_SIGNAL = (PROLOG_SIG+10),	/* received statistics */
+  YAP_AGC_SIGNAL = (PROLOG_SIG+11),	/* call atom garbage collector asap */
+  YAP_WINTIMER_SIGNAL = (PROLOG_SIG+12),	/* windows alarm */
+  YAP_FAIL_SIGNAL = (PROLOG_SIG+13),	/* P = FAILCODE */
+  YAP_ABORT_SIGNAL = (PROLOG_SIG+14),	/* P = FAILCODE */
+  YAP_EXIT_SIGNAL = (PROLOG_SIG+15),	/* P = FAILCODE */
+  YAP_CREEP_SIGNAL = (PROLOG_SIG+16)	/* received a creep, make sure it is the last signal */
 } yap_signals;
 
 #define	Yap_get_signal(S) Yap_get_signal__(S PASS_REGS)
