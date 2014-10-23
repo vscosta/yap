@@ -176,6 +176,7 @@ int     Yap_SWIHandleError( const char *, ... );
 void	Yap_InitEval(void);
 
 /* exec.c */
+void    Yap_fail_all( choiceptr bb USES_REGS);
 Term	Yap_ExecuteCallMetaCall(Term);
 void	Yap_InitExecFs(void);
 Int	Yap_JumpToEnv(Term);

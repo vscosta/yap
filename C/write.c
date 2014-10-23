@@ -87,13 +87,16 @@ static bool
 callPortray(Term t, struct DB_TERM **old_EXp USES_REGS)
 {
   PredEntry *pe;
+  Int b0 = LCL0-(CELL*)B;
 
   EX = NULL;
   if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorPortray, USER_MODULE) ) ) &&
        pe->OpcodeOfPred != FAIL_OPCODE &&
        pe->OpcodeOfPred != UNDEF_OPCODE &&
        Yap_execute_pred(pe, &t PASS_REGS) ) {
+    choiceptr B0 = (choiceptr)(LCL0-b0);
     if (EX && !*old_EXp) *old_EXp = EX;
+    Yap_fail_all(B0 PASS_REGS);
     return true;
   }
   if (EX && !*old_EXp) *old_EXp = EX;

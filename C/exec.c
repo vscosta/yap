@@ -1206,6 +1206,51 @@ Yap_exec_absmi(bool top, yap_reset_t has_reset)
 }
 
 
+void
+Yap_fail_all( choiceptr bb USES_REGS )
+{
+  yamop *saved_p, *saved_cp;
+
+  saved_p = P;
+  saved_cp = CP;
+  /* prune away choicepoints */
+  while (B && B->cp_b != bb) {
+    B = B->cp_b;
+#ifdef YAPOR
+    CUT_prune_to(B);
+#endif
+  }
+  P = FAILCODE;
+  Yap_exec_absmi( true, YAP_EXEC_ABSMI);
+  /* recover stack space */
+  HR = B->cp_h;
+  TR = B->cp_tr;
+#ifdef DEPTH_LIMIT
+  DEPTH = B->cp_depth;
+#endif /* DEPTH_LIMIT */
+  YENV = ENV = B->cp_env;
+  /* recover local stack */
+#ifdef DEPTH_LIMIT
+  DEPTH= ENV[E_DEPTH];
+#endif
+  /* make sure we prune C-choicepoints */
+  if (POP_CHOICE_POINT(B->cp_b))
+    {
+      POP_EXECUTE();
+    }
+  ENV  = (CELL *)(ENV[E_E]);
+  /* ASP should be set to the top of the local stack when we
+     did the call */
+  ASP = B->cp_env;
+  /* YENV should be set to the current environment */
+  YENV = ENV  = (CELL *)((B->cp_env)[E_E]);
+  B    = B->cp_b;
+  //SET_BB(B);
+  HB = PROTECT_FROZEN_H(B);
+  CP   = saved_cp;
+  P    = saved_p;
+}
+
 int
 Yap_execute_pred(PredEntry *ppe, CELL *pt USES_REGS)
 {
