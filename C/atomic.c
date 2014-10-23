@@ -638,10 +638,13 @@ init_atom_concat3( USES_REGS1 )
   } else if (Yap_IsGroundTerm(t2) && Yap_IsGroundTerm(t3)) {
     at = Yap_SubtractTailAtom( Deref(ARG3), t2 PASS_REGS );
     ot = ARG1;
-  } else {
+  } else if (Yap_IsGroundTerm(t3)) {
     EXTRA_CBACK_ARG(3,1) = MkIntTerm(0);
     EXTRA_CBACK_ARG(3,2) = MkIntTerm(Yap_AtomToLength(t3 PASS_REGS));
     return cont_atom_concat3( PASS_REGS1 );
+  } else {
+    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+    LOCAL_Error_Term = t1;
   }
   if (at) {
     if (Yap_unify(ot, MkAtomTerm(at))) cut_succeed();
@@ -732,10 +735,13 @@ init_atomic_concat3( USES_REGS1 )
   } else if (Yap_IsGroundTerm(t2) && Yap_IsGroundTerm(t3)) {
     at = Yap_SubtractTailAtom( t3, CastToAtom(t2) PASS_REGS );
     ot = ARG1;
+  } else if (Yap_IsGroundTerm(t3)) {
+      EXTRA_CBACK_ARG(3,1) = MkIntTerm(0);
+      EXTRA_CBACK_ARG(3,2) = MkIntTerm(Yap_AtomicToLength(t3 PASS_REGS));
+      return cont_atomic_concat3( PASS_REGS1 );
   } else {
-    EXTRA_CBACK_ARG(3,1) = MkIntTerm(0);
-    EXTRA_CBACK_ARG(3,2) = MkIntTerm(Yap_AtomicToLength(t3 PASS_REGS));
-    return cont_atomic_concat3( PASS_REGS1 );
+    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+    LOCAL_Error_Term = t1;
   }
   if (at) {
     if (Yap_unify(ot, CastToNumeric(at))) cut_succeed();
@@ -804,10 +810,13 @@ init_string_concat3( USES_REGS1 )
   } else if (Yap_IsGroundTerm(t2) && Yap_IsGroundTerm(t3)) {
     tf = Yap_SubtractTailString( t3, t2 PASS_REGS );
     ot = ARG1;
+  } else if (Yap_IsGroundTerm(t3)) {
+      EXTRA_CBACK_ARG(3,1) = MkIntTerm(0);
+      EXTRA_CBACK_ARG(3,2) = MkIntTerm(Yap_StringToLength(t3 PASS_REGS));
+      return cont_string_concat3( PASS_REGS1 );
   } else {
-    EXTRA_CBACK_ARG(3,1) = MkIntTerm(0);
-    EXTRA_CBACK_ARG(3,2) = MkIntTerm(Yap_StringToLength(t3 PASS_REGS));
-    return cont_string_concat3( PASS_REGS1 );
+    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+    LOCAL_Error_Term = t1;
   }
   if (tf) {
     if (Yap_unify(ot, tf)) { cut_succeed(); }
@@ -1216,23 +1225,29 @@ p_atomics_to_string3( USES_REGS1 )
 static Int 
 p_atom_length( USES_REGS1 )
 {
-  Term t1;
+  Term t1 = Deref(ARG1);;
   Term t2 = Deref(ARG2);
   ssize_t len;
+
+  if (!Yap_IsGroundTerm(t1)) {
+      Yap_Error(INSTANTIATION_ERROR, t1, "atom_length/2");
+      return(FALSE);
+  } else if (!IsAtomTerm(t1)) {
+      Yap_Error(TYPE_ERROR_ATOM, t1, "atom_length/2");
+      return(FALSE);
+  }
 
   if (Yap_IsGroundTerm(t2)) {
 
     if (!IsIntegerTerm(t2)) {
       Yap_Error(TYPE_ERROR_INTEGER, t2, "atom_length/2");
       return(FALSE);
-    }
-    if (FALSE && (len = IntegerOfTerm(t2)) < 0) {
+    } else if ((len = IntegerOfTerm(t2)) < 0) {
       Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "atom_length/2");
       return(FALSE);
     }
   }
 restart_aux:
-  t1  = Deref(ARG1);
   len = Yap_AtomicToLength(t1 PASS_REGS);
   if (len != (size_t)-1)
     return Yap_unify( ARG2, MkIntegerTerm(len) );
@@ -1246,9 +1261,17 @@ restart_aux:
 static Int
 p_atomic_length( USES_REGS1 )
 {
-  Term t1;
+  Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
   ssize_t len;
+
+  if (!Yap_IsGroundTerm(t1)) {
+      Yap_Error(INSTANTIATION_ERROR, t1, "atomic_length/2");
+      return(FALSE);
+  } else if (!IsAtomicTerm(t1)) {
+      Yap_Error(TYPE_ERROR_ATOM, t1, "atomic_length/2");
+      return(FALSE);
+  }
 
   if (Yap_IsGroundTerm(t2)) {
 
@@ -1256,13 +1279,12 @@ p_atomic_length( USES_REGS1 )
       Yap_Error(TYPE_ERROR_INTEGER, t2, "atomic_length/2");
       return(FALSE);
     }
-    if (FALSE && (len = IntegerOfTerm(t2)) < 0) {
+    if ((len = IntegerOfTerm(t2)) < 0) {
       Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "atomic_length/2");
       return(FALSE);
     }
   }
 restart_aux:
-  t1  = Deref(ARG1);
   len = Yap_AtomicToLength(t1 PASS_REGS);
   if (len != (size_t)-1)
     return Yap_unify( ARG2, MkIntegerTerm(len) );
@@ -1831,6 +1853,10 @@ init_sub_atomic( int sub_atom USES_REGS )
     return FALSE;
   } else {
     min = IntegerOfTerm(tbef);
+	if ((Int)min < 0) {
+	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, tbef, "sub_string/5");
+	    return FALSE;
+	};
     mask |= SUB_ATOM_HAS_MIN;
     bnds++;
   }
@@ -1841,6 +1867,10 @@ init_sub_atomic( int sub_atom USES_REGS )
     return FALSE;
   } else {
     len = IntegerOfTerm(tsize);
+	if ((Int)len < 0) {
+	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, tsize, "sub_string/5");
+	    return FALSE;
+	};
     mask |= SUB_ATOM_HAS_SIZE;
     bnds++;
   }
@@ -1851,6 +1881,10 @@ init_sub_atomic( int sub_atom USES_REGS )
     return FALSE;
   } else {
     after = IntegerOfTerm(tafter);
+	if ((Int)after < 0) {
+	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, tafter, "sub_string/5");
+	    return FALSE;
+	};
     mask |= SUB_ATOM_HAS_AFTER;
     bnds++;
   }

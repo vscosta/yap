@@ -676,6 +676,9 @@ retractall(V) :-
 	   '$retractall_lu'(T,M)
 	 )
 	;
+	  \+ callable(T) ->
+	  '$do_error'(type_error(callable,T),retractall(T))
+	;
 	  '$undefined'(T,M) ->
 	  functor(T,Na,Ar),
 	  '$dynamic'(Na/Ar,M), !
