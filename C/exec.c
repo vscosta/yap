@@ -89,7 +89,7 @@ CallMetaCall(Term t, Term mod USES_REGS) {
   } else {
     ARG4 = TermProlog;
   }
-  return (CallPredicate(PredMetaCall, B, PredMetaCall->CodeOfPred PASS_REGS));
+  return CallPredicate(PredMetaCall, B, PredMetaCall->CodeOfPred PASS_REGS);
 }
 
 Term
@@ -100,7 +100,7 @@ Yap_ExecuteCallMetaCall(Term mod) {
   ts[1] = cp_as_integer(B PASS_REGS); /* p_save_cp */
   ts[2] = ARG1;
   ts[3] = mod;
-  return(Yap_MkApplTerm(PredMetaCall->FunctorOfPred,4,ts));
+  return Yap_MkApplTerm(PredMetaCall->FunctorOfPred,4,ts);
 }
 
 Term
@@ -129,7 +129,6 @@ Yap_PredicateIndicator(Term t, Term mod)
       return t;
 }
 
-
 static Int
 CallError(yap_error_number err, Term t, Term mod USES_REGS)
 {
@@ -155,7 +154,7 @@ p_save_cp( USES_REGS1 )
   if (!IsVarTerm(t)) return(FALSE);
   td = cp_as_integer(B PASS_REGS);
   YapBind((CELL *)t,td);
-  return(TRUE);
+  return TRUE;
 }
 
 static Int
@@ -169,7 +168,7 @@ p_save_env_b( USES_REGS1 )
   if (!IsVarTerm(t)) return(FALSE);
   td = cp_as_integer((choiceptr)YENV[E_CB] PASS_REGS);
   YapBind((CELL *)t,td);
-  return(TRUE);
+  return TRUE;
 }
 
 static Int
