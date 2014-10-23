@@ -2818,23 +2818,19 @@ Yap_absmi(int inp)
 	SET_ASP(YREG, E_CB*sizeof(CELL));
 	saveregs();
 	while ((t = Yap_FetchTermFromDB(cl->lusl.ClSource)) == 0L) {
+	  if (PP) UNLOCKPE(3,PP);
+#if defined(YAPOR) || defined(THREADS)
+	  PP = NULL;
+#endif
 	  if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	    LOCAL_Error_TYPE = YAP_NO_ERROR;
 	    if (!Yap_growglobal(NULL)) {
-	      if (PP) UNLOCKPE(3,PP);
-#if defined(YAPOR) || defined(THREADS)
-	      PP = NULL;
-#endif
 	      Yap_NilError(OUT_OF_ATTVARS_ERROR, LOCAL_ErrorMessage);
 	      FAIL();
 	    }
 	  } else {
 	    LOCAL_Error_TYPE = YAP_NO_ERROR;
 	    if (!Yap_gc(3, ENV, CP)) {
-	     if (PP) UNLOCKPE(4,PP);
-#if defined(YAPOR) || defined(THREADS)
-	      PP = NULL;
-#endif
 	      Yap_NilError(OUT_OF_STACK_ERROR, LOCAL_ErrorMessage);
 	      FAIL();
 	    }
