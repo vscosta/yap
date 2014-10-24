@@ -566,6 +566,10 @@ add_int(Int i, Int j USES_REGS)
 #endif
 }
 
+/* calculate the most significant bit for an integer */
+Int
+Yap_msb(Int inp USES_REGS);
+
 static inline Term
 p_plus(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {

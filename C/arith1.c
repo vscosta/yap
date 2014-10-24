@@ -330,21 +330,31 @@ msb(Int inp USES_REGS)	/* calculate the most significant bit for an integer */
 	      "msb/1 received %d", inp);
   }
 
-#if 0
-
+#if HAVE__BUILTIN_FFSLL
+      out = __builtin_ffsll(inp);
+#elif HAVE_FFSLL
+      out = ffsll(inp);
 #else
-  int off = sizeof(CELL)*4;
-  while (off) {
-    Int limit = ((CELL)1) << (off);
-    if (inp >= limit) {
-      out += off;
-      inp >>= off;
-    }
-    off >>= 1;
-  }
+  if (inp==0)
+    return 0L;
+#if SIZEOF_INT_P == 8
+  if (inp & ((CELL)0xffffffffLL << 32)) {inp >>= 32; out += 32;}
 #endif
-  return(out);
+  if (inp &     ((CELL)0xffffL << 16)) {inp >>= 16; out += 16;}
+  if (inp &       ((CELL)0xffL << 8)) {inp >>=  8; out +=  8;}
+  if (inp &   ((CELL)0xfL << 4)) {inp >>=  4; out +=  4;}
+  if (inp &        ((CELL)0x3L << 2)) {inp >>=  2; out +=  2;}
+  if (inp &        ((CELL)0x1 << 1)) out++;
+#endif
+  return out;
 }
+
+Int
+Yap_msb(Int inp USES_REGS)	/* calculate the most significant bit for an integer */
+{
+  return msb(inp PASS_REGS);
+}
+
 
 static Int
 lsb(Int inp USES_REGS)	/* calculate the least significant bit for an integer */
@@ -359,12 +369,12 @@ lsb(Int inp USES_REGS)	/* calculate the least significant bit for an integer */
   if (inp==0)
     return 0L;
 #if SIZEOF_INT_P == 8
-  if (!(inp & 0xffffffffLL)) {inp >>= 32; out += 32;}
+  if (!(inp & (CELL)0xffffffffLL)) {inp >>= 32; out += 32;}
 #endif
-  if (!(inp &     0xffffL)) {inp >>= 16; out += 16;}
-  if (!(inp &       0xffL)) {inp >>=  8; out +=  8;}
-  if (!(inp &   0xfL)) {inp >>=  4; out +=  4;}
-  if (!(inp &        0x3L)) {inp >>=  2; out +=  2;}
+  if (!(inp &     (CELL)0xffffL)) {inp >>= 16; out += 16;}
+  if (!(inp &       (CELL)0xffL)) {inp >>=  8; out +=  8;}
+  if (!(inp &   (CELL)0xfL)) {inp >>=  4; out +=  4;}
+  if (!(inp &        (CELL)0x3L)) {inp >>=  2; out +=  2;}
   if (!(inp &        ((CELL)0x1))) out++;
 
   return out;

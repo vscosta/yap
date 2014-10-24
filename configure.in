@@ -122,7 +122,7 @@ AC_CACHE_VAL(ac_cv_nullptr,
                    [ac_cv_nullptr=true],
                    [ac_cv_nullptr=false])])
 if test "$ac_cv_nullptr" = true -o $_MSC_VER -ge 1600; then
-    AC_DEFINE(HAVE_NULLPTR)
+    AC_DEFINE(HAVE_NULLPTR, [], [c++ nullptr support])
     AC_MSG_RESULT(yes)
 else
     AC_MSG_RESULT(no)
@@ -1650,7 +1650,7 @@ AC_CHECK_FUNCS(_NSGetEnviron _chsize_s access acosh)
 AC_CHECK_FUNCS(alloca asinh atanh chdir clock clock_gettime)
 AC_CHECK_FUNCS(ctime dlopen dup2)
 AC_CHECK_FUNCS(erf feclearexcept)
-AC_CHECK_FUNCS(feenableexcept fesetexceptflag fesettrapenable fesetround ffsl ffsll fgetpos finite)
+AC_CHECK_FUNCS(feenableexcept fesetexceptflag fesettrapenable fesetround ffsl ffsll __builtin_ffsll fgetpos finite)
 AC_CHECK_FUNCS(flsl flsll fpclass ftime ftruncate getcwd getenv)
 AC_CHECK_FUNCS(getexecname)
 AC_CHECK_FUNCS(gethostbyname gethostent gethostid gethostname)

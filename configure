@@ -4433,7 +4433,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 fi
 
 if test "$ac_cv_nullptr" = true -o $_MSC_VER -ge 1600; then
-    $as_echo "#define HAVE_NULLPTR 1" >>confdefs.h
+
+$as_echo "#define HAVE_NULLPTR /**/" >>confdefs.h
 
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
@@ -9575,7 +9576,7 @@ _ACEOF
 fi
 done
 
-for ac_func in feenableexcept fesetexceptflag fesettrapenable fesetround ffsl ffsll fgetpos finite
+for ac_func in feenableexcept fesetexceptflag fesettrapenable fesetround ffsl ffsll __builtin_ffsll fgetpos finite
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -12343,7 +12344,7 @@ if test "$PKG_ODBC" != ""; then
 # Check whether --with-odbc was given.
 if test "${with_odbc+set}" = set; then :
   withval=$with_odbc; case $withval in
-		no|yes)	echo 'Specify dir for XPM please';
+		no|yes)	echo 'Specify dir for ODBC please';
 			exit 1 ;;
 		*)	ODBC_DIR=${withval}
 	esac
@@ -13952,7 +13953,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 13955 "configure" */
+/* #line 13956 "configure" */
 public class Test {
 }
 EOF
@@ -14128,7 +14129,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 14131: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 14132: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -14259,7 +14260,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14262 "configure" */
+/* #line 14263 "configure" */
 public class Test {
 }
 EOF
@@ -14294,7 +14295,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 14297 "configure" */
+/* [#]line 14298 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);

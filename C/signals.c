@@ -21,6 +21,10 @@ static char     SccsId[] = "%W% %G%";
 #define HAS_CACHE_REGS 1
 
 #include "Yap.h"
+#if _WIN32
+#include <stdio.h>
+#include <io.h>
+#endif
 #include "Yatom.h"
 #include "YapHeap.h"
 #include "eval.h"
@@ -105,7 +109,11 @@ ProcessSIGINT(void)
 {
   CACHE_REGS
   int ch, out;
-#if HAVE_ISATTY
+#if _WIN32
+  if (!_isatty(0)) {
+      return YAP_INT_SIGNAL;
+  }
+#elif HAVE_ISATTY
   if (!isatty(0)) {
       return YAP_INT_SIGNAL;
   }
@@ -318,7 +326,13 @@ p_first_signal( USES_REGS1 )
       uint64_t mask = LOCAL_Signals;
       if (mask == 0)
 	return FALSE;
+#if HAVE___BUILTIN_FFSLL
+x      sig = __builtin_ffsll(mask);
+#elif HAVE_FFSLL
       sig = ffsll(mask);
+#else
+      sig = Yap_msb( mask );
+#endif
      if (get_signal(sig PASS_REGS)) {
 	  break;
       }

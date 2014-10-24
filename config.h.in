@@ -535,6 +535,9 @@
 /* Define to 1 if you have the `NSLinkModule' function. */
 #undef HAVE_NSLINKMODULE
 
+/* c++ nullptr support */
+#undef HAVE_NULLPTR
+
 /* Define to 1 if you have the `opendir' function. */
 #undef HAVE_OPENDIR
 
@@ -937,6 +940,9 @@
 
 /* Define to 1 if you have the `_NSGetEnviron' function. */
 #undef HAVE__NSGETENVIRON
+
+/* Define to 1 if you have the `__builtin_ffsll' function. */
+#undef HAVE___BUILTIN_FFSLL
 
 /* what is the configure host name */
 #undef HOST_ALIAS

@@ -19,8 +19,6 @@ static char     SccsId[] = "@(#)save.c	1.3 3/15/90";
 #endif
 
 #include "config.h"
-#include "absmi.h"
-#include "SWI-Stream.h"
 #if _MSC_VER || defined(__MINGW32__)
 #if HAVE_WINSOCK2_H
 #include <winsock2.h>
@@ -28,6 +26,8 @@ static char     SccsId[] = "@(#)save.c	1.3 3/15/90";
 #include <windows.h>
 #include <psapi.h>
 #endif
+#include "absmi.h"
+#include "SWI-Stream.h"
 #include "alloc.h"
 #if USE_DL_MALLOC
 #include "dlmalloc.h"
@@ -89,9 +89,9 @@ void initIO(void);
 
 #endif
 
-static int   myread(int, char *, Int);
-static Int   mywrite(int, char *, Int);
-static int   open_file(char *, int);
+static int   myread(IOSTREAM *, char *, Int);
+static Int   mywrite(IOSTREAM *, char *, Int);
+static IOSTREAM *open_file(char *, int);
 static int   close_file(void);
 static Int   putout(CELL);
 static Int   putcellptr(CELL *);
@@ -187,11 +187,11 @@ do_system_error(yap_error_number etype, const char *msg)
 
 
 inline static
-int myread(int fd, char *buffer, Int len) {
+int myread(IOSTREAM *fd, char *buffer, Int len) {
   ssize_t nread;
 
   while (len > 0) {
-    nread = read(fd, buffer,  (int)len);
+    nread = Sfread(buffer, 1,  (int)len, fd);
     if (nread < 1) {
       return do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"bad read on saved state");
     }
@@ -203,11 +203,11 @@ int myread(int fd, char *buffer, Int len) {
 
 inline static
 Int
-mywrite(int fd, char *buff, Int len) {
+mywrite(IOSTREAM *fd, char *buff, Int len) {
   ssize_t nwritten;
 
   while (len > 0) {
-    nwritten = write(fd, buff, (size_t)len);
+    nwritten = Sfwrite(buff, 1, (size_t)len, fd);
     if (nwritten < 0) {
       return do_system_error(SYSTEM_ERROR,"bad write on saved state");
     }
@@ -225,7 +225,7 @@ mywrite(int fd, char *buff, Int len) {
 
 typedef CELL   *CELLPOINTER;
 
-static int      splfild = 0;
+static IOSTREAM *splfild = NULL;
 
 #ifdef DEBUG
 
@@ -242,10 +242,12 @@ static Int      OldHeapUsed;
 static CELL     which_save;
 
 /* Open a file to read or to write */
-static int 
+static IOSTREAM *
 open_file(char *my_file, int flag)
 {
-  int splfild;
+  IOSTREAM *splfild;
+  char flags[6];
+  int i=0;
 
 #if __ANDROID__
   if (strstr(my_file, "/assets/") == my_file) {
@@ -253,36 +255,34 @@ open_file(char *my_file, int flag)
 	  my_file += strlen("/assets/");
 	  AAsset* asset = AAssetManager_open(GLOBAL_assetManager, my_file, AASSET_MODE_UNKNOWN);
 	   if (!asset)
-	      return -1;
+	      return NULL;
 	  AAsset_close( asset );
-	  return 0; // usually the file will be compressed, so there is no point in actually trying to open it.
+	  return NULL; // usually the file will be compressed, so there is no point in actually trying to open it.
       }
-      return -1;
+      return NULL;
   }
 #endif
-#ifdef M_WILLIAMS
-  if (flag & O_CREAT)
-    splfild = creat(my_file, flag);
-  else
-    splfild = open(my_file, flag);
-  if (splfild < 0) {
-#else
-#ifdef O_BINARY
-#if _MSC_VER
-    if ((splfild = _open(my_file, flag | O_BINARY), _S_IREAD | _S_IWRITE) < 0)
-#else
-    if ((splfild = open(my_file, flag | O_BINARY, 0775)) < 0)
+  if (flag & O_RDONLY) {
+    flags[i++] = 'r';
+  }
+  if (flag & O_CREAT) {
+    flags[i++] = 'w';
+  }
+  if (flag & O_WRONLY) {
+    flags[i++] = 'w';
+  }
+  if (flag & O_APPEND) {
+    flags[i++] = 'a';
+  }
+#if _WIN32
+  if (flag & O_BINARY) {
+    flags[i++] = 'b';
+  }
 #endif
-#else  /* O_BINARY */
-    if ((splfild = open(my_file, flag, 0755)) < 0)
-#endif  /* O_BINARY */
-#endif 	/* M_WILLIAMS */
-      {
-	splfild = -1;	/* We do not have an open file */
-	return -1;
-      }
+  flags[i] = '\0';
+  splfild = Sopen_file( my_file, flags);
 #ifdef undf0
-      fprintf(errout, "Opened file %s\n", my_file);
+  fprintf(errout, "Opened file %s\n", my_file);
 #endif
       return splfild;
 }
@@ -292,7 +292,7 @@ close_file(void)
 {
   if (splfild == 0)
     return 0;
-  if (close(splfild) < 0)
+  if (Sclose(splfild) < 0)
     return do_system_error(SYSTEM_ERROR,"bad close on saved state");
   splfild = 0;
   return 1;
@@ -326,9 +326,9 @@ static CELL
 get_header_cell(void)
 {
   CELL l;
-  int count = 0, n;
+  size_t count = 0, n;
   while (count < sizeof(CELL)) {
-    if ((n = read(splfild, &l, sizeof(CELL)-count)) < 0) {
+    if ((n = Sfread(&l, 1, sizeof(CELL)-count, splfild)) < 0) {
       do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"failed to read saved state header");
       return 0L;
     }
@@ -684,7 +684,7 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap USES_REGS)
   /* skip the first line */
   pp[0] = '\0';
   do {
-    if ((n = read(splfild, pp, 1)) <= 0) {
+    if ((n = Sfread(pp, 1, 1, splfild)) <= 0) {
       do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"failed to scan first line from saved state");
       return FAIL_RESTORE;
     }
@@ -694,7 +694,7 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap USES_REGS)
   {
     int count = 0, n, to_read = Unsigned(strlen(msg) + 1);
     while (count < to_read) {
-      if ((n = read(splfild, pp, to_read-count)) <= 0) {
+      if ((n = Sfread(pp, 1, to_read-count, splfild)) <= 0) {
 	do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"failed to scan version info from saved state");
 	return FAIL_RESTORE;
       }

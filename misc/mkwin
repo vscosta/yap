@@ -19,6 +19,8 @@
 # http://nsis.sourceforge.net/Main_Page
 #
 #
+TOP=$HOME
+TOP="/z"
 VERSION=6.3.4
 # by default, compile without threads
 THREADS=no

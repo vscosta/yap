@@ -1581,6 +1581,8 @@ INLINE_ONLY EXTERN inline Prop GetPredPropByFuncAndModHavingLock(FunctorEntry *,
 INLINE_ONLY EXTERN inline Prop PredPropByFuncAndMod(FunctorEntry *, Term);
 INLINE_ONLY EXTERN inline Prop PredPropByAtomAndMod(Atom, Term);
 INLINE_ONLY EXTERN inline Prop GetPredPropByFuncHavingLock(FunctorEntry *, Term);
+INLINE_ONLY EXTERN inline Prop PredPropByFunc (Functor fe, Term cur_mod);
+INLINE_ONLY EXTERN inline Prop PredPropByAtom (Atom at, Term cur_mod);
 
 #ifdef THREADS
 

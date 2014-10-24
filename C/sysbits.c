@@ -1419,11 +1419,35 @@ HandleSIGSEGV(int   sig,   void   *sipv, void *uap)
 yap_error_number
 Yap_MathException__( USES_REGS1 )
 {
+#if HAVE_FETESTEXCEPT
   int raised;
 
-#if HAVE_FETESTEXCEPT
   // #pragma STDC FENV_ACCESS ON
   if ((raised = fetestexcept( FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW)) ) {
+
+	feclearexcept(FE_ALL_EXCEPT);
+	 if (raised & FE_OVERFLOW) {
+	     return  EVALUATION_ERROR_FLOAT_OVERFLOW;
+	  } else if (raised & FE_DIVBYZERO) {
+	      return  EVALUATION_ERROR_ZERO_DIVISOR;
+	  } else if (raised & FE_UNDERFLOW) {
+	      return  EVALUATION_ERROR_FLOAT_UNDERFLOW;
+	  //} else if (raised & (FE_INVALID|FE_INEXACT)) {
+	  //    return  EVALUATION_ERROR_UNDEFINED;
+	  } else {
+	      return  EVALUATION_ERROR_UNDEFINED;
+	  }
+  }
+#elif _WIN32
+  unsigned int raised;
+  int err;
+
+    // Show original FP control word and do calculation.
+    err = _controlfp_s(&raised, 0, 0);
+    if (err) {
+      return  EVALUATION_ERROR_UNDEFINED;
+    }
+    if (raised ) {
 
 	feclearexcept(FE_ALL_EXCEPT);
 	 if (raised & FE_OVERFLOW) {
@@ -1522,7 +1546,7 @@ my_signal(int sig, void * handler)
 static void
 my_signal(int sig, void *handler)
 {
-  signal(sig, void *handler);
+  signal(sig,  handler);
 }
 
 static void
@@ -2544,6 +2568,9 @@ set_fpu_exceptions(bool flag)
 #elif HAVE_FEENABLEEXCEPT
       /* I shall ignore de-normalization and precision errors */
   feenableexcept(FE_DIVBYZERO| FE_INVALID|FE_OVERFLOW);
+#elif _WIN32
+  // Enable zero-divide, overflow and underflow exception
+  _controlfp_s(0, ~(_EM_ZERODIVIDE|_EM_UNDERFLOW|_EM_OVERFLOW), _MCW_EM); // Line B
 #elif defined(__hpux)
 # if HAVE_FESETTRAPENABLE
 /* From HP-UX 11.0 onwards: */
@@ -2580,6 +2607,9 @@ set_fpu_exceptions(bool flag)
 #elif HAVE_FEENABLEEXCEPT
       /* I shall ignore de-normalization and precision errors */
       feenableexcept(0);
+#elif _WIN32
+  // Enable zero-divide, overflow and underflow exception
+  _controlfp_s(0, (_EM_ZERODIVIDE|_EM_UNDERFLOW|_EM_OVERFLOW), _MCW_EM); // Line B
 #elif defined(__hpux)
 # if HAVE_FESETTRAPENABLE
       fesettrapenable(FE_ALL_EXCEPT);

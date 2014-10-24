@@ -53,6 +53,11 @@ If you find this file and know better, please contact info@swi-prolog.org.
 #include <io.h>
 #include "pl-utf8.h"
 
+DWORD RunSilent(const char* strCommand);
+FILE *pt_popen(const char *cmd, const char *mode);
+int pt_pclose(FILE *fd);
+
+
 DWORD RunSilent(const char* strCommand)
 {
 	STARTUPINFO StartupInfo;

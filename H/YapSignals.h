@@ -83,6 +83,10 @@ SIGNAL_TO_BIT( yap_signals sig)
 
 INLINE_ONLY inline EXTERN int Yap_has_a_signal__ ( USES_REGS1 );
 
+INLINE_ONLY inline EXTERN int Yap_has_signal__ ( yap_signals sig USES_REGS );
+
+INLINE_ONLY inline EXTERN int Yap_only_has_signal__(yap_signals sig USES_REGS);
+
 INLINE_ONLY inline EXTERN int
 Yap_has_a_signal__ (USES_REGS1)
 {

@@ -149,7 +149,7 @@ static struct trie_statistics{
 #define CHECK_DECREMENT_GLOBAL_TRIE_REFERENCE(REF,MODE)		                                            \
         if (MODE == TRAVERSE_MODE_NORMAL && IsVarTerm(REF) && REF > VarIndexOfTableTerm(MAX_TABLE_VARS)) {  \
           register gt_node_ptr gt_node = (gt_node_ptr) (REF);	                                            \
-          TrNode_child(gt_node) = (gt_node_ptr) ((unsigned long int) TrNode_child(gt_node) - 1);            \
+          TrNode_child(gt_node) = (gt_node_ptr) ((uintptr_t) TrNode_child(gt_node) - 1);            \
           if (TrNode_child(gt_node) == 0)                                                                   \
             FREE_GLOBAL_TRIE_BRANCH(gt_node,TRAVERSE_MODE_NORMAL);		                            \
         }
@@ -842,7 +842,7 @@ static void traverse_global_trie(gt_node_ptr current_node, char *str, int str_in
   else {
     TrStat_gt_terms++;
     str[str_index] = 0;
-    SHOW_TABLE_STRUCTURE("  TERMx%ld: %s\n", (unsigned long int) TrNode_child(current_node), str);
+    SHOW_TABLE_STRUCTURE("  TERMx" UInt_FORMAT ": %s\n", (CELL) TrNode_child(current_node), str);
   }
 
   /* restore the initial state and continue with sibling nodes */
@@ -913,11 +913,7 @@ static inline void traverse_trie_node(Term t, char *str, int *str_index_ptr, int
     mode = TRAVERSE_MODE_NORMAL;
   } else if (mode == TRAVERSE_MODE_LONGINT) {
     Int li = (Int) t;
-#if SHORT_INTS
-    str_index += sprintf(& str[str_index], "%ld", li);
-#else
-    str_index += sprintf(& str[str_index], "%d", li);
-#endif /* SHORT_INTS */
+    str_index += sprintf(& str[str_index], Int_FORMAT, li);
     traverse_update_arity(str, &str_index, arity);
     if (type == TRAVERSE_TYPE_SUBGOAL)
       mode = TRAVERSE_MODE_NORMAL;
@@ -955,11 +951,7 @@ static inline void traverse_trie_node(Term t, char *str, int *str_index_ptr, int
       traverse_update_arity(str, &str_index, arity);
     }
   } else if (IsIntTerm(t)) {
-#if SHORT_INTS
-    str_index += sprintf(& str[str_index], "%ld", IntOfTerm(t));
-#else
-    str_index += sprintf(& str[str_index], "%d", IntOfTerm(t));
-#endif /* SHORT_INTS */
+    str_index += sprintf(& str[str_index], Int_FORMAT, IntOfTerm(t));
     traverse_update_arity(str, &str_index, arity);
   } else if (IsAtomTerm(t)) {
 #ifndef TRIE_COMPACT_PAIRS

@@ -1043,13 +1043,17 @@ PRED_IMPL("win_registry_get_value", 3, win_registry_get_value, 0)
   DEBUG(9, Sdprintf("key = %p, name = %s\n", key, name));
   if ( RegQueryValueExW(key, name, NULL, &type, data, &len) == ERROR_SUCCESS )
   { RegCloseKey(key);
+    DWORD *datap;
 
     switch(type)
     { case REG_SZ:
 	return PL_unify_wchars(Value, PL_ATOM,
 			       len/sizeof(wchar_t)-1, (wchar_t*)data);
       case REG_DWORD:
-	return PL_unify_integer(Value, *((DWORD *)data));
+	{
+	  datap = (DWORD *)data;
+	  return PL_unify_integer(Value, datap[0]);
+	}
       default:
 	warning("get_registry_value/2: Unknown registry-type: %d", type);
         fail;
@@ -1089,9 +1093,10 @@ setStacksFromKey(HKEY key)
   { if ( RegQueryValueEx(key, rd->name, NULL, &type, data, &len) ==
 							ERROR_SUCCESS &&
 	 type == REG_DWORD )
-    { DWORD v = *((DWORD *)data);
+      { DWORD v, *datap = (DWORD *)data;
+	v = datap[0];
 
-      *rd->address = (int)v;
+      *rd->address =  (int)v;
     }
   }
 }

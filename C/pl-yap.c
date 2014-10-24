@@ -4,6 +4,12 @@
 #define PL_KERNEL 1
 
 #include <stdio.h>
+#if HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#if HAVE_SYS_TIMES_H
+#include <sys/times.h>
+#endif
 #include "Yap.h"
 #include "Yatom.h"
 #include "pl-incl.h"
