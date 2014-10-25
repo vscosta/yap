@@ -326,7 +326,8 @@ static CELL
 get_header_cell(void)
 {
   CELL l;
-  size_t count = 0, n;
+  size_t count = 0;
+  int n;
   while (count < sizeof(CELL)) {
     if ((n = Sfread(&l, 1, sizeof(CELL)-count, splfild)) < 0) {
       do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"failed to read saved state header");

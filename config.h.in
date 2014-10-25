@@ -415,6 +415,9 @@
 /* Define to 1 if you have the `raptor' library (-lraptor). */
 #undef HAVE_LIBRAPTOR
 
+/* Define to 1 if you have the `raptor2' library (-lraptor2). */
+#undef HAVE_LIBRAPTOR2
+
 /* Define if you have libreadline */
 #undef HAVE_LIBREADLINE
 

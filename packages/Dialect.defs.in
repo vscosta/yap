@@ -43,7 +43,7 @@ PL=@PRE_INSTALL_ENV@  YAPSHAREDIR=$(abs_top_srcdir)/library:$(abs_top_srcdir)/sw
 CC=@CC@
 LD=@SHLIB_LD@
 SO=@SO@
-COFLAGS=$(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../.. -I$(srcdir)/../../include -I$(srcdir)/../../os @CPPFLAGS@
+COFLAGS=$(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../.. -I$(srcdir)/../../include -I$(srcdir)/../../os $(CPPFLAGS)
 CWFLAGS=
 CMFLAGS=@SHLIB_CFLAGS@ 
 CIFLAGS=

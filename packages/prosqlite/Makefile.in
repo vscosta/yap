@@ -13,7 +13,7 @@ PACKAGE=prosqlite
 DOC=prosqlite
 include ../Makefile.defs
 
-CFLAGS+= @PROSQLITE_CFLAGS@ -I.
+CPPFLAGS+= @PROSQLITE_CPPFLAGS@ -I.
 LDSOFLAGS+= @PROSQLITE_LDFLAGS@
 
 LIBS=@LIBS@

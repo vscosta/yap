@@ -625,7 +625,7 @@ ac_subst_vars='PKG_ODBC
 PKG_LIBARCHIVE
 PROSQLITE_LIBS
 PROSQLITE_LDFLAGS
-PROSQLITE_CFLAGS
+PROSQLITE_CPPFLAGS
 PROSQLITE_PLTARGETS
 PROSQLITE_TARGETS
 PKG_PROSQLITE
@@ -656,7 +656,7 @@ MATLAB_INCLUDE
 LTLIBOBJS
 LIBOBJS
 RAPTOR_CPPFLAGS
-RAPTOR_LDFLAGS
+RAPTOR_LIBS
 PKG_RAPTOR
 _ACJNI_JAVAC
 JAVADOC
@@ -677,6 +677,8 @@ REXE
 REAL_TARGET
 REAL_LIBS
 REAL_INCLUDES
+ZLDFLAGS
+ZCPPFLAGS
 ZLIBS
 ZLIB_PLTARGETS
 ZLIB_TARGETS
@@ -694,6 +696,8 @@ ODBC_LDFLAGS
 ODBC_CFLAGS
 ODBC_PLTARGETS
 ODBC_TARGETS
+ARCHIVE_LDFLAGS
+ARCHIVE_CPPFLAGS
 ARCHIVE_LIBS
 ARCHIVE_PLTARGETS
 ARCHIVE_TARGETS
@@ -888,7 +892,6 @@ enable_april
 enable_dlcompat
 enable_horus
 with_gmp
-with_R
 with_judy
 with_minisat
 with_java
@@ -898,7 +901,7 @@ with_stack_space
 with_trail_space
 with_max_workers
 with_max_threads
-enable_myddas
+with_myddas
 enable_myddas_stats
 enable_myddas_top_level
 enable_jit
@@ -908,10 +911,13 @@ with_rfc2045_package
 with_rfc2045_version
 enable_mimecharset
 with_time
+with_libarchive
 with_odbc
 with_cudd
 enable_bddlib
 enable_cplint
+with_zlib
+with_R
 with_junit
 with_raptor
 with_matlab
@@ -920,8 +926,8 @@ with_mpe
 with_python
 with_swig
 with_cuda
-enable_gecode
-with_sqlite
+with_gecode
+with_prosqlite
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1570,7 +1576,6 @@ Optional Features:
  --enable-april             compile Yap to support April ILP system
  --enable-dlcompat          use dlcompat library for dynamic loading on Mac OS X
  --enable-horus           enable CLPBN HORUS library.
- --enable-myddas[=DIR]      enable the MYDDAS library
  --enable-myddas-stats      enable the MYDDAS library statistics support
  --enable-myddas-top-level  enable the MYDDAS top-level support to MySQL
  --enable-jit                   support just-in-time (JIT) compilation
@@ -1579,14 +1584,12 @@ Optional Features:
   --enable-mimecharset=charset   Default MIME charset to set on new messages
  --enable-bddlib           dynamic bdd library
  --enable-cplint=DIR      enable the cplint library using the CUDD library in DIR/lib
- --enable-gecode            install gecode library
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
  --with-sysroot=DIR           set sysroot in compiler
  --with-gmp=DIR           use GNU Multiple Precision in DIR
- --with-R=DIR              interface to R language
   --with-judy=DIR UDI needs judy library
  --enable-minisat           use minisat interface
  --with-java=JAVA_HOME       use JPL with Java setup in JAVA_HOME
@@ -1596,18 +1599,23 @@ Optional Packages:
  --with-trail-space=space default trail size in Kbytes
  --with-max-workers=integer maximum number of or-parallel processes
  --with-max-threads=integer maximum number of or-parallel processes
+ --with-myddas[=DIR]      with the MYDDAS library
 
   --without-time		  Exclude alarm library
+ --with-libarchive=DIR              libarchive package
   --with-odbc=<dir>	  Location of ODBC include/lib
  --with-cudd=DIR           use CUDD package in DIR
+ --with-zlib=DIR              zlib compression library
+ --with-R=DIR              interface to the R language
   --with-junit=PATH	  Specify location of the junit JAR file
- --with-raptor=DIR           use RAPTOR package in DIR
+ --with-raptor=DIR              raptor RDF parser
  --with-matlab=DIR      use MATLAB package in DIR
  --with-mpi=DIR           use LAM/MPI library in DIR
  --with-mpe=DIR           use MPE library in DIR
  --with-python=DIR              interface to R language
  --with-swig=DIR              swig interface generator
- --enable-cuda           use minisat interface
+ --with-cuda           use minisat interface
+ --with-gecode            install gecode library
  --with-prosqlite(=location)              interface to sqlite
 
 Some influential environment variables:
@@ -4432,7 +4440,7 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 fi
 
-if test "$ac_cv_nullptr" = true -o $_MSC_VER -ge 1600; then
+if test x"$ac_cv_nullptr" = xtrue -o 0$_MSC_VER -ge 01600; then
 
 $as_echo "#define HAVE_NULLPTR /**/" >>confdefs.h
 
@@ -4620,21 +4628,6 @@ if test "${with_gmp+set}" = set; then :
 	fi
 else
   yap_cv_gmp=yes
-fi
-
-
-
-# Check whether --with-R was given.
-if test "${with_R+set}" = set; then :
-  withval=$with_R; if test "$withval" = yes; then
-	    yap_cv_R=yes
-	elif test "$withval" = no; then
-	    yap_cv_R=no
-	else
-	    yap_cv_R=$withval
-	fi
-else
-  yap_cv_R=no
 fi
 
 
@@ -10283,14 +10276,15 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
-# Check whether --enable-myddas was given.
-if test "${enable_myddas+set}" = set; then :
-  enableval=$enable_myddas; if test "$enableval" = yes; then
+
+# Check whether --with-myddas was given.
+if test "${with_myddas+set}" = set; then :
+  withval=$with_myddas; if test "$withval" = yes; then
 		yap_cv_myddas=/usr
-	elif test "$enableval" = no; then
+	elif test "$withval" = no; then
 		yap_cv_myddas=no
 	else
-		yap_cv_myddas=$enable_myddas
+		yap_cv_myddas=$with_myddas
 		LDFLAGS="$LDFLAGS -L${yap_cv_myddas}/lib "
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include "
 		ODBC_LDFLAGS="-L${yap_cv_myddas}/lib "
@@ -11718,51 +11712,13 @@ fi
 
 
 
-if test x"$CLIB_LIBUUID" = "x"; then
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for uuid_create in -lossp-uuid" >&5
-$as_echo_n "checking for uuid_create in -lossp-uuid... " >&6; }
-if ${ac_cv_lib_ossp_uuid_uuid_create+:} false; then :
-  $as_echo_n "(cached) " >&6
+ac_fn_c_check_func "$LINENO" "uuid_create" "ac_cv_func_uuid_create"
+if test "x$ac_cv_func_uuid_create" = xyes; then :
+  has_uuid=true
 else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lossp-uuid  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
 
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char uuid_create ();
-int
-main ()
-{
-return uuid_create ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_ossp_uuid_uuid_create=yes
-else
-  ac_cv_lib_ossp_uuid_uuid_create=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ossp_uuid_uuid_create" >&5
-$as_echo "$ac_cv_lib_ossp_uuid_uuid_create" >&6; }
-if test "x$ac_cv_lib_ossp_uuid_uuid_create" = xyes; then :
-   CLIB_LIBUUID=-lossp-uuid
-
-fi
-
-fi
-if test x"$CLIB_LIBUUID" = "x"; then
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for uuid_create in -luuid" >&5
+	      if test x"$CLIB_LIBUUID" = "x"; then
+	      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for uuid_create in -luuid" >&5
 $as_echo_n "checking for uuid_create in -luuid... " >&6; }
 if ${ac_cv_lib_uuid_uuid_create+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -11800,18 +11756,33 @@ fi
 $as_echo "$ac_cv_lib_uuid_uuid_create" >&6; }
 if test "x$ac_cv_lib_uuid_uuid_create" = xyes; then :
    CLIB_LIBUUID=-luuid
+	        has_uuid=true
 
 fi
 
-fi
-if test x"$CLIB_LIBUUID" = "x"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING:  Cannot find libossp-uuid or libuuid -- dropping uuid.pl" >&5
+	      fi
+	      if test x"$has_uuid" = "x"; then
+  	      { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING:  Cannot find libossp-uuid or libuuid -- dropping uuid.pl" >&5
 $as_echo "$as_me: WARNING:  Cannot find libossp-uuid or libuuid -- dropping uuid.pl" >&2;}
-else
+	      fi
+
+
+fi
+
+if test x"$has_uuid" != "x"; then
   if test x"$UUID_H" = "x"; then
   ac_fn_c_check_header_compile "$LINENO" "ossp/uuid.h" "ac_cv_header_ossp_uuid_h" "/*first*/
 "
 if test "x$ac_cv_header_ossp_uuid_h" = xyes; then :
+   UUID_H=ossp/uuid.h
+fi
+
+
+  fi
+  if test x"$UUID_H" = "x"; then
+  ac_fn_c_check_header_compile "$LINENO" "uuid/uuid.h" "ac_cv_header_uuid_uuid_h" "/*first*/
+"
+if test "x$ac_cv_header_uuid_uuid_h" = xyes; then :
    UUID_H=ossp/uuid.h
 fi
 
@@ -12194,7 +12165,39 @@ then
 
 
 
+# Check whether --with-libarchive was given.
+if test "${with_libarchive+set}" = set; then :
+  withval=$with_libarchive; if test "$withval" = yes; then
+	    yap_cv_libarchive=yes
+	elif test "$withval" = no; then
+	    yap_cv_libarchive=no
+	else
+	    yap_cv_libarchive=$withval
+	fi
+else
+  yap_cv_libarchive=yes
+fi
 
+
+if test "$yap_cv_libarchive" != no;
+then
+
+
+
+
+
+
+
+old_inc="$CPPFLAGS"
+old_libs="$LDFLAGS"
+ARCHIVE_TARGETS=nolib
+
+
+if test "yap_cv_libarchive" != yes;
+then
+   CPPFLAGS+=" -I $yap_cv_libarchive/include"
+   LDFLAGS+=" -L$yap_cv_libarchive/lib"
+fi
 
 
 
@@ -12204,15 +12207,15 @@ if test "x$ac_cv_header_archive_h" = xyes; then :
 
 $as_echo "#define HAVE_ARCHIVE_H 1" >>confdefs.h
 
-		  ARCHIVEH=yes
+			    has_archive_h=true
 
 else
-  ARCHIVEH=no
+  has_archive_h=true
 fi
 
 
 
-if test "$ARCHIVEH" = yes; then
+if test $has_archive_h = true; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for archive_read_new in -larchive" >&5
 $as_echo_n "checking for archive_read_new in -larchive... " >&6; }
 if ${ac_cv_lib_archive_archive_read_new+:} false; then :
@@ -12250,7 +12253,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_archive_archive_read_new" >&5
 $as_echo "$ac_cv_lib_archive_archive_read_new" >&6; }
 if test "x$ac_cv_lib_archive_archive_read_new" = xyes; then :
-  ARCHIVE_LIBS="$LIBS -larchive"
+  LIBS="$LIBS -larchive"
 	       ARCHIVELIB=yes
 else
   ARCHIVELIB=no
@@ -12297,6 +12300,12 @@ done
 
 
 if test "$ARCHIVELIB" = yes; then
+   ARCHIVE_CPPFLAGS="$CPPFLAGS"
+   ARCHIVE_LDFLAGS="$LDFLAGS"
+
+  CPPFLAGS="$old_cppflags"
+  LDFLAGS="$old_ldflags"
+
   ARCHIVE_TARGETS="archive4pl.$SO"
   ARCHIVE_PLTARGETS=archive.pl
 else
@@ -12315,6 +12324,7 @@ else
 #   MacOS (Macports):   port install libarchive
 ##################################################################
 EOF
+fi
 fi
 
 
@@ -12344,7 +12354,7 @@ if test "$PKG_ODBC" != ""; then
 # Check whether --with-odbc was given.
 if test "${with_odbc+set}" = set; then :
   withval=$with_odbc; case $withval in
-		no|yes)	echo 'Specify dir for ODBC please';
+		no|yes)	echo 'Specify dir for XPM please';
 			exit 1 ;;
 		*)	ODBC_DIR=${withval}
 	esac
@@ -13442,8 +13452,37 @@ then
 
 
 
+# Check whether --with-zlib was given.
+if test "${with_zlib+set}" = set; then :
+  withval=$with_zlib; if test "$withval" = yes; then
+	    yap_cv_zlib=yes
+	elif test "$withval" = no; then
+	    yap_cv_zlib=no
+	else
+	    yap_cv_zlib=$withval
+	fi
+else
+  yap_cv_zlib=yes
+fi
 
 
+if test "$yap_cv_zlib" != no;
+then
+
+
+
+
+
+
+old_inc="$CPPFLAGS"
+old_libs="$LDFLAGS"
+ZLIB_TARGETS=nolib
+
+if test "yap_cv_zlib" != yes;
+then
+   CPPFLAGS+=" -I $yap_cv_zlib/include"
+   LDFLAGS+=" -L $yap_cv_zlib/lib"
+fi
 
 
 
@@ -13505,6 +13544,12 @@ fi
 
 
 if test "$ZLIB" = yes; then
+   ZLIB_CPPFLAGS="$CPPFLAGS"
+   ZLIB_LDFLAGS="$LDFLAGS"
+
+  CPPFLAGS="$old_cppflags"
+  LDFLAGS="$old_ldflags"
+
   ZLIB_TARGETS="zlib4pl.$SO"
   ZLIB_PLTARGETS=zlib.pl
 else
@@ -13518,6 +13563,8 @@ else
 ##################################################################
 EOF
 fi
+fi
+
 
 
 
@@ -13536,6 +13583,21 @@ if test "$yap_cv_R" != "no" -a  -e "$srcdir"/packages/real/Makefile.in; then
 
 
 
+
+
+
+# Check whether --with-R was given.
+if test "${with_R+set}" = set; then :
+  withval=$with_R; if test "$withval" = yes; then
+	    yap_cv_R=yes
+	elif test "$withval" = no; then
+	    yap_cv_R=no
+	else
+	    yap_cv_R=$withval
+	fi
+else
+  yap_cv_R=no
+fi
 
 
 
@@ -13953,7 +14015,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 13956 "configure" */
+/* #line 14018 "configure" */
 public class Test {
 }
 EOF
@@ -14129,7 +14191,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 14132: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 14194: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -14260,7 +14322,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14263 "configure" */
+/* #line 14325 "configure" */
 public class Test {
 }
 EOF
@@ -14295,7 +14357,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 14298 "configure" */
+/* [#]line 14360 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -14968,25 +15030,28 @@ then
 
 
 
-
 # Check whether --with-raptor was given.
 if test "${with_raptor+set}" = set; then :
-  withval=$with_raptor; yap_cv_raptor="$withval"
+  withval=$with_raptor; if test "$withval" = yes; then
+	    yap_cv_raptor=yes
+	elif test "$withval" = no; then
+	    yap_cv_raptor=no
+	else
+	    yap_cv_raptor=$withval
+	fi
 else
-  yap_cv_raptor=no
+  yap_cv_raptor=yes
 fi
 
 
-if test "$yap_cv_raptor" = no
+if test "$yap_cv_raptor" != no;
 then
-  PKG_RAPTOR=""
-else
-  PKG_RAPTOR="packages/raptor"
-fi
 
-if test "$yap_cv_raptor" != no; then
 
-oldlibs="$LIBS"
+
+
+old_inc="$CPPFLAGS"
+old_libs="$LIBS"
 
 if test "$yap_cv_raptor" != "NONE" -a "$yap_cv_raptor" != "yes"; then
    RAPTOR_CPPFLAGS="-I $yap_cv_raptor/include"
@@ -14999,7 +15064,6 @@ else
    raptor_dir=/usr/local
 fi
 
-OLD_CPPFLAGS="$CPPFLAGS"
 CPPFLAGS="$CPPFLAGS $RAPTOR_CPPFLAGS"
 
 for ac_header in raptor2/raptor2.h
@@ -15029,18 +15093,63 @@ done
 
 
 if test -d "$raptor_dir/lib64/raptor" -a "$YAP_TARGET" = amd64; then
-  RAPTOR_LDFLAGS="-L $raptor_dir/lib64/raptor"
+  LIBS="-L $raptor_dir/lib64/raptor"
 elif test -d "$raptor_dir/lib64" -a "$YAP_TARGET" = amd64; then
-  LIBS="$LIBS -L $raptor_dir/lib64  -L $raptor_dir/lib -lraptor"
+  LIBS="$LIBS -L $raptor_dir/lib64  -L $raptor_dir/lib "
 elif test -d "$raptor_dir/lib/raptor"; then
-  LIBS="$LIBS -L $raptor_dir/lib/raptor -lraptor"
+  LIBS="$LIBS -L $raptor_dir/lib/raptor"
 elif test -d "$raptor_dir/lib"; then
-  LIBS="$LIBS -L $raptor_dir/lib -lraptor"
+  LIBS="$LIBS -L $raptor_dir/lib"
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for raptor_new_world in -lraptor" >&5
-$as_echo_n "checking for raptor_new_world in -lraptor... " >&6; }
-if ${ac_cv_lib_raptor_raptor_new_world+:} false; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for raptor_world_open in -lraptor2" >&5
+$as_echo_n "checking for raptor_world_open in -lraptor2... " >&6; }
+if ${ac_cv_lib_raptor2_raptor_world_open+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lraptor2  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char raptor_world_open ();
+int
+main ()
+{
+return raptor_world_open ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_raptor2_raptor_world_open=yes
+else
+  ac_cv_lib_raptor2_raptor_world_open=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_raptor2_raptor_world_open" >&5
+$as_echo "$ac_cv_lib_raptor2_raptor_world_open" >&6; }
+if test "x$ac_cv_lib_raptor2_raptor_world_open" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBRAPTOR2 1
+_ACEOF
+
+  LIBS="-lraptor2 $LIBS"
+
+else
+
+	      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for raptor_world_open in -lraptor" >&5
+$as_echo_n "checking for raptor_world_open in -lraptor... " >&6; }
+if ${ac_cv_lib_raptor_raptor_world_open+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -15054,27 +15163,27 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #ifdef __cplusplus
 extern "C"
 #endif
-char raptor_new_world ();
+char raptor_world_open ();
 int
 main ()
 {
-return raptor_new_world ();
+return raptor_world_open ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_raptor_raptor_new_world=yes
+  ac_cv_lib_raptor_raptor_world_open=yes
 else
-  ac_cv_lib_raptor_raptor_new_world=no
+  ac_cv_lib_raptor_raptor_world_open=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_raptor_raptor_new_world" >&5
-$as_echo "$ac_cv_lib_raptor_raptor_new_world" >&6; }
-if test "x$ac_cv_lib_raptor_raptor_new_world" = xyes; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_raptor_raptor_world_open" >&5
+$as_echo "$ac_cv_lib_raptor_raptor_world_open" >&6; }
+if test "x$ac_cv_lib_raptor_raptor_world_open" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_LIBRAPTOR 1
 _ACEOF
@@ -15085,7 +15194,10 @@ else
   raptor_available=no
 fi
 
-RAPTOR_LDFLAGS="$LIBS"
+
+fi
+
+RAPTOR_LIBS="$LIBS"
 
 if test "$raptor_available" = no
 then
@@ -15101,7 +15213,7 @@ else
 fi
 
 
-CPPFLAGS="$OLD_CPPFLAGS"
+CPPFLAGS="$old_inc"
 LIBS="$oldlibs"
 
 fi
@@ -16922,7 +17034,7 @@ fi
 # Check whether --with-cuda was given.
 if test "${with_cuda+set}" = set; then :
   withval=$with_cuda; if test "$withval" = yes; then
-		yap_cv_cuda=/usr
+		yap_cv_cuda=/usr/local/cuda
 	elif test "$withval" = no; then
 		yap_cv_cuda=no
 	else
@@ -17020,25 +17132,29 @@ mkdir -p  packages/cuda
 
 
 
-# Check whether --enable-gecode was given.
-if test "${enable_gecode+set}" = set; then :
-  enableval=$enable_gecode; use_gecode="$enableval"
+
+# Check whether --with-gecode was given.
+if test "${with_gecode+set}" = set; then :
+  withval=$with_gecode; use_gecode="$withval"
 else
   use_gecode=no
 fi
 
 
-if test -d /usr/local/include/gecode -a x$SYSROOT = x; then
-  CFLAGS="$CFLAGS -I/usr/local/include"
-  SHLIB_CXXFLAGS="$SHLIB_CXXFLAGS -I/usr/local/include"
-  GECODE_EXTRALIBS="-L/usr/local/lib"
-fi
-
 if test "$use_gecode" = no; then
   PKG_GECODE=""
 else
   PKG_GECODE="packages/gecode"
+if test -d "$use_gecode"; then
+  CPPFLAGS="$CPPFLAGS -I $use_gecode/include"
+  GECODE_EXTRALIBS="-L $use_gecode/lib"
+     GECODE_PATH="$use_gecode/bin"
+elif test -d /usr/local/include/gecode -a x$SYSROOT = x; then
+  CPPFLAGS="$CPPFLAGS -I/usr/local/include"
+  GECODE_EXTRALIBS="-L/usr/local/lib"
 fi
+fi
+
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if dynamic arrays are supported" >&5
@@ -17076,7 +17192,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 GECODE_VERSION=unknown-gecode-version
 
 
-if test "$use_gecode" = yes; then
+if test "$use_gecode" != no; then
    if test $i_am_cross_compiling = yes
    then
      GECODE_VERSION=4.2.1
@@ -17086,9 +17202,12 @@ if test "$use_gecode" = yes; then
      else
        GECODE_ARCH=i386
      fi
-     GECODE_PATH=`which fzn-gecode`
+     if test "$use_gecode" = yes; then
+       GECODE_PATH=`which fzn-gecode`
      GECODE_PATH=`dirname "$GECODE_PATH"`
-     GECODE_PATH=`dirname "$GECODE_PATH"`
+     else
+       GECODE_PATH="$use_gecode"
+     fi
      GECODE_INCLUDES="$GECODE_PATH"/include
      GECODE_LIBDIR="\"$GECODE_PATH\""/lib
      GECODE_BINDIR="\"$GECODE_PATH\""/bin
@@ -17146,6 +17265,7 @@ fi
 
    case "$target_os" in
      *darwin*)
+     if test "$use_gecode" = yes; then
      { $as_echo "$as_me:${as_lineno-$LINENO}: checking if -framework gecode is required" >&5
 $as_echo_n "checking if -framework gecode is required... " >&6; }
      ac_ext=cpp
@@ -17188,6 +17308,7 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
      CXXFLAGS="$saved_CXXFLAGS"
+     fi
      ;;
    esac
 
@@ -17244,9 +17365,9 @@ yap_cv_prosqlite=yes
 
 yap_cv_prosqlite=yes
 
-# Check whether --with-sqlite was given.
-if test "${with_sqlite+set}" = set; then :
-  withval=$with_sqlite; if test "$withval" = yes; then
+# Check whether --with-prosqlite was given.
+if test "${with_prosqlite+set}" = set; then :
+  withval=$with_prosqlite; if test "$withval" = yes; then
 	    PROSQLITE_DIR=/usr
 	elif test "$withval" = no; then
 	    yap_cv_prosqlite=no
@@ -17261,15 +17382,15 @@ fi
 havelib=no
 
 if test $yap_cv_prosqlite = yes; then
-    OCFLAGS="${CFLAGS}"
+    OCPPFLAGS="${CPPFLAGS}"
     OCPPFLAGS="${CPPFLAGS}"
     OCIFLAGS="${CIFLAGS}"
     OLDFLAGS="${LDFLAGS}"
 
   if test ! -z "$PROSQLITE_DIR"; then
-    PROSQLITE_CFLAGS="-I${PROSQLITE_DIR}/include"
+    PROSQLITE_CPPFLAGS="-I${PROSQLITE_DIR}/include"
     PROSQLITE_LDFLAGS="-L${PROSQLITE_DIR}/lib"
-    CFLAGS="-I${PROSQLITE_DIR}/include ${CFLAGS}"
+    CPPFLAGS="-I${PROSQLITE_DIR}/include ${CPPFLAGS}"
     CPPFLAGS="-I${PROSQLITE_DIR}/include ${CPPFLAGS}"
     CIFLAGS="-I${PROSQLITE_DIR}/include ${CIFLAGS}"
     LDFLAGS="-L${PROSQLITE_DIR}/lib ${LDFLAGS}"
@@ -17330,7 +17451,7 @@ fi
 done
 
 
-    CFLAGS="${OCFLAGS}"
+    CPPFLAGS="${OCPPFLAGS}"
     CPPFLAGS="${OCPPFLAGS}"
     CIFLAGS="${OCIFLAGS}"
     LDFLAGS="${OLDFLAGS}"

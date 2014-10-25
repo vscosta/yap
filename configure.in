@@ -121,7 +121,7 @@ AC_CACHE_VAL(ac_cv_nullptr,
                     [int* foo = nullptr;],
                    [ac_cv_nullptr=true],
                    [ac_cv_nullptr=false])])
-if test "$ac_cv_nullptr" = true -o $_MSC_VER -ge 1600; then
+if test x"$ac_cv_nullptr" = xtrue -o 0$_MSC_VER -ge 01600; then
     AC_DEFINE(HAVE_NULLPTR, [], [c++ nullptr support])
     AC_MSG_RESULT(yes)
 else
@@ -215,17 +215,6 @@ AC_ARG_WITH(gmp,
 	    CFLAGS="$CFLAGS -I${yap_cv_gmp}/include"
 	fi,
 	[yap_cv_gmp=yes])
-
-AC_ARG_WITH(R,
-	[ --with-R[=DIR]              interface to R language],
-	if test "$withval" = yes; then
-	    yap_cv_R=yes
-	elif test "$withval" = no; then
-	    yap_cv_R=no
-	else
-	    yap_cv_R=$withval
-	fi,
-	[yap_cv_R=no])
 
 AC_ARG_WITH(judy,
 	[  --with-judy[=DIR] UDI needs judy library],

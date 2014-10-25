@@ -1,14 +1,14 @@
 MYDDAS_VERSION=0.9.1
 AC_DEFINE_UNQUOTED(MYDDAS_VERSION, $MYDDAS_VERSION, [myddas release])
 
-AC_ARG_ENABLE(myddas,
-	[ --enable-myddas[[=DIR]]      enable the MYDDAS library],
-	if test "$enableval" = yes; then
+AC_ARG_WITH(myddas,
+	[ --with-myddas[[=DIR]]      with the MYDDAS library],
+	if test "$withval" = yes; then
 		yap_cv_myddas=/usr
-	elif test "$enableval" = no; then
+	elif test "$withval" = no; then
 		yap_cv_myddas=no
 	else
-		yap_cv_myddas=$enable_myddas
+		yap_cv_myddas=$with_myddas
 		LDFLAGS="$LDFLAGS -L${yap_cv_myddas}/lib "
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include "
 		ODBC_LDFLAGS="-L${yap_cv_myddas}/lib "

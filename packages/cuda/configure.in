@@ -1,7 +1,7 @@
 AC_ARG_WITH(cuda,
-	[ --enable-cuda           use minisat interface],
+	[ --with-cuda           use minisat interface],
 	if test "$withval" = yes; then
-		yap_cv_cuda=/usr
+		yap_cv_cuda=/usr/local/cuda
 	elif test "$withval" = no; then
 		yap_cv_cuda=no
 	else
