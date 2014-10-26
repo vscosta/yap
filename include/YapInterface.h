@@ -1,6 +1,6 @@
 /*************************************************************************
 *									 *
-  *	 YAP Prolog 	@(#)c_interface.h	2.2			 *
+*	 YAP Prolog 	@(#)c_interface.h	2.2			 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
@@ -923,7 +923,7 @@ array of terms  _Array_.  _infop_ is the address of a goal
 handle that can be used to backtrack and to recover space. Succeeds if
 a solution was found.
 
-Notice that you cannot create new slots if an YAP_EnterGoal goal is open.
+Notice that you cannot create new slots if an YAP_ExnterGoal goal is open.
 
 </li>
  <li>`YAP_Bool` YAP_RetryGoal(`YAP_dogoalinfo \*`  _infop_) @anchor YAP_RetryGoal
@@ -1420,6 +1420,15 @@ The following C-functions are available from YAP:
 Compile the Prolog term  _Clause_ and assert it as the last clause
 for the corresponding procedure.
 
+    + YAP_MkExo(`YAP_PredEntryPtr` _pred_, `size_t` _sz_, `void *` _uid_) 
+Predicate _pred_ is an exo-predicate that needs _sz_ bytes of
+contiguous storage. If _uid_ is non-null associate user-defined 
+code with _pred_.
+
+    + YAP_AssertTuples(`YAP_PredEntryPtr` pred, `const YAP_Term *`  _Facts_, `size_t` nb)
+Add the array of _nb_ Prolog term `Facts` to the table 
+`Predicate`.
+
     + `int` YAP_ContinueGoal(`void`)
 Continue execution from the point where it stopped.
 
@@ -1845,6 +1854,10 @@ extern X_API YAP_Term YAP_CopyTerm(YAP_Term);
 
 /*  char *YAP_CompileClause(YAP_Term) */
 extern X_API char *YAP_CompileClause(YAP_Term);
+
+extern X_API int YAP_NewExo( YAP_PredEntryPtr ap, size_t data, void *user_di);
+
+extern X_API int YAP_AssertTuples( YAP_PredEntryPtr pred, const YAP_Term *ts, size_t sz);
 
 /*  int YAP_Init(YAP_init_args *) */
 extern X_API YAP_Int YAP_Init(YAP_init_args *);
