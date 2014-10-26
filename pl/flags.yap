@@ -1049,6 +1049,15 @@ yap_flag(toplevel_print_options,Opts) :-
 yap_flag(host_type,X) :-
 	'$host_type'(X).
 
+yap_flag(host_type,X) :-
+	'$host_type'(X).
+
+yap_flag(argv,X) :-
+	'$argv'(X).
+
+yap_flag(os_argv,X) :-
+    '$os_argv'(X).
+
 yap_flag(float_format,X) :-
 	var(X), !,
 	'$float_format'(X).
@@ -1118,6 +1127,7 @@ yap_flag(max_threads,X) :-
 
 '$yap_system_flag'(agc_margin).
 '$yap_system_flag'(arithmetic_exceptions).
+'$yap_system_flag'(argv).
 '$yap_system_flag'(chr_toplevel_show_store).
 '$yap_system_flag'(debugger_print_options).
 '$yap_system_flag'(discontiguous_warnings).
@@ -1144,6 +1154,7 @@ yap_flag(max_threads,X) :-
 '$yap_system_flag'(max_threads).
 '$yap_system_flag'(n_of_integer_keys_in_db).
 '$yap_system_flag'(open_expands_filename).
+'$yap_system_flag'(os_argv).
 '$yap_system_flag'(profiling).
 '$yap_system_flag'(prompt_alternatives_on).
 '$yap_system_flag'(redefine_warnings).

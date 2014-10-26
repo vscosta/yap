@@ -1526,10 +1526,29 @@ mk_argc_list( USES_REGS1 )
   return(t);
 }
 
+static Term
+mk_os_argc_list( USES_REGS1 )
+{
+  int i =0;
+  Term t = TermNil;
+  for (i = 0 ; i < GLOBAL_argc; i++) {
+    char *arg = GLOBAL_argv[i];
+    t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(arg)),t);
+  } 
+  return(t);
+}
+
 static Int 
 p_argv( USES_REGS1 )
 {
   Term t = mk_argc_list( PASS_REGS1 );
+  return Yap_unify(t, ARG1);
+}
+
+static Int 
+p_os_argv( USES_REGS1 )
+{
+  Term t = mk_os_argc_list( PASS_REGS1 );
   return Yap_unify(t, ARG1);
 }
 
@@ -1954,6 +1973,7 @@ consisting of just a number.
   Yap_InitCPred("$statistics_db_size", 4, p_statistics_db_size, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$statistics_lu_db_size", 5, p_statistics_lu_db_size, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$argv", 1, p_argv, SafePredFlag);
+  Yap_InitCPred("$os_argv", 1, p_os_argv, SafePredFlag);
   Yap_InitCPred("$executable", 1, p_executable, SafePredFlag);
   Yap_InitCPred("$runtime", 2, p_runtime, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$cputime", 2, p_cputime, SafePredFlag|SyncPredFlag);

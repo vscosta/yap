@@ -77,7 +77,7 @@ we want to be able to have a lot of flags and don't harm thread_create/3
 too much.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-static void setArgvPrologFlag(const char *flag, int argc, char **argv);
+//static void setArgvPrologFlag(const char *flag, int argc, char **argv);
 static void setTZPrologFlag(void);
 static void setVersionPrologFlag(void);
 static void initPrologFlagTable(void);
@@ -1243,11 +1243,14 @@ initPrologFlags(void)
   setTZPrologFlag();
   setOSPrologFlags();
   setVersionPrologFlag();
+#ifndef __YAP_PROLOG__
   setArgvPrologFlag("os_argv", GD->cmdline.os_argc,   GD->cmdline.os_argv);
   setArgvPrologFlag("argv",    GD->cmdline.appl_argc, GD->cmdline.appl_argv);
+#endif
 }
 
 
+#ifndef __YAP_PROLOG__
 static void
 setArgvPrologFlag(const char *flag, int argc, char **argv)
 { GET_LD
@@ -1267,7 +1270,7 @@ setArgvPrologFlag(const char *flag, int argc, char **argv)
   setPrologFlag(flag, FT_TERM, l);
   PL_discard_foreign_frame(fid);
 }
-
+#endif
 
 static void
 setTZPrologFlag(void)
