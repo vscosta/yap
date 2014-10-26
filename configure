@@ -677,9 +677,9 @@ REXE
 REAL_TARGET
 REAL_LIBS
 REAL_INCLUDES
-ZLDFLAGS
-ZCPPFLAGS
-ZLIBS
+ZLIB_LDFLAGS
+ZLIB_CPPFLAGS
+ZLIB_LIBS
 ZLIB_PLTARGETS
 ZLIB_TARGETS
 PKG_CPLINT
@@ -12189,14 +12189,15 @@ then
 
 
 old_inc="$CPPFLAGS"
-old_libs="$LDFLAGS"
+old_libs="$LIBS"
+old_ldflags="$LDFLAGS"
 ARCHIVE_TARGETS=nolib
 
 
 if test "yap_cv_libarchive" != yes;
 then
    CPPFLAGS+=" -I $yap_cv_libarchive/include"
-   LDFLAGS+=" -L$yap_cv_libarchive/lib"
+   LIBS+=" -L$yap_cv_libarchive/lib"
 fi
 
 
@@ -12301,10 +12302,10 @@ done
 
 if test "$ARCHIVELIB" = yes; then
    ARCHIVE_CPPFLAGS="$CPPFLAGS"
-   ARCHIVE_LDFLAGS="$LDFLAGS"
+   ARCHIVE_LIBS="$LIBS"
 
   CPPFLAGS="$old_cppflags"
-  LDFLAGS="$old_ldflags"
+  LIBS="$old_libs"
 
   ARCHIVE_TARGETS="archive4pl.$SO"
   ARCHIVE_PLTARGETS=archive.pl
@@ -12328,6 +12329,7 @@ fi
 fi
 
 
+1
 
 
 if test "$ARCHIVE_TARGETS" = "nolib"
@@ -12354,7 +12356,7 @@ if test "$PKG_ODBC" != ""; then
 # Check whether --with-odbc was given.
 if test "${with_odbc+set}" = set; then :
   withval=$with_odbc; case $withval in
-		no|yes)	echo 'Specify dir for XPM please';
+		no|yes)	echo 'Specify dir for ODBC please';
 			exit 1 ;;
 		*)	ODBC_DIR=${withval}
 	esac
@@ -13536,7 +13538,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_z_zlibVersion" >&5
 $as_echo "$ac_cv_lib_z_zlibVersion" >&6; }
 if test "x$ac_cv_lib_z_zlibVersion" = xyes; then :
-  ZLIBS="$LIBS -lz"
+  ZLIB_LIBS="$LIBS -lz"
 	     ZLIB=yes
 else
   ZLIB=no
@@ -14015,7 +14017,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14018 "configure" */
+/* #line 14020 "configure" */
 public class Test {
 }
 EOF
@@ -14191,7 +14193,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 14194: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 14196: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -14322,7 +14324,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14325 "configure" */
+/* #line 14327 "configure" */
 public class Test {
 }
 EOF
@@ -14357,7 +14359,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 14360 "configure" */
+/* [#]line 14362 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
