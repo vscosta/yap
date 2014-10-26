@@ -196,9 +196,25 @@ variable=value
 #include <string.h>
 #include <math.h>
 #include <time.h>
-#include "util.h"
+#include "config.h"
+#if HAVE_UTIL_H
+#include <util.h>
+#endif
+#if HAVE_CUDD_UTIL_H
+#include <cudd/util.h>
+#endif
+#if HAVE_CUDD_H
 #include "cudd.h"
+#endif
+#if HAVE_CUDD_CUDD_H
+#include "cudd/cudd.h"
+#endif
+#if HAVE_CUDDINT_H
 #include "cuddInt.h"
+#endif
+#if HAVE_CUDD_CUDDINT_H
+#include "cudd/cuddInt.h"
+#endif
 #include "general.h"
 
 #define IsHigh(manager, node)  HIGH(manager) == node

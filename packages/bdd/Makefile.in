@@ -55,16 +55,16 @@ cudd.o: $(srcdir)/cudd.c
 	$(CC) -c $(CFLAGS) $(srcdir)/cudd.c -o cudd.o
 
 @DO_SECOND_LD@%.@SO@: %.o
-@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $< @EXTRA_LIBS_FOR_DLLS@  @CUDD_LDFLAGS@
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $< @EXTRA_LIBS_FOR_DLLS@  @CUDD_LIBS@
 
 @DO_SECOND_LD@cudd.@SO@: cudd.o
-@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o cudd.@SO@ cudd.o @EXTRA_LIBS_FOR_DLLS@  @CUDD_LDFLAGS@
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o cudd.@SO@ cudd.o @EXTRA_LIBS_FOR_DLLS@  @CUDD_LIBS@
 
 install: all install-examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)
 	for h in $(BDD_PROLOG); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
-	@WINDOWS@ $(INSTALL_PROGRAM) @CUDD_LDFLAGS@ $(DESTDIR)$(BINDIR)
+	@WINDOWS@ $(INSTALL_PROGRAM) @CUDD_LIBS@ $(DESTDIR)$(BINDIR)
 
 install-examples:
 

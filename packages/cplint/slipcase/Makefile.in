@@ -17,7 +17,7 @@ DESTDIR=$(prefix)/lib/Yap
 #
 #
 CC=@CC@
-CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS)  -I$(srcdir)/../../../include  @CPPFLAGS@
+CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS)  -I$(srcdir)/../../../include -I../../.. @CPPFLAGS@
 #
 #
 # You shouldn't need to change what follows.

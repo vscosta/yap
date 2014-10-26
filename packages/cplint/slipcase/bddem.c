@@ -13,7 +13,12 @@ for the relative license.
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "config.h"
+#if HAVE_CUDD_CUDDINT_H
+#include "cudd/cuddInt.h"
+#else
 #include "cuddInt.h"
+#endif
 #include "YapInterface.h"
 #define LOGZERO log(0.000001)
 #define CACHE_SLOTS 1 

@@ -13,7 +13,7 @@ BINDIR = $(EROOTDIR)/bin
 # where YAP should look for libraries
 #
 LIBDIR=@libdir@/Yap
-DESTDIR=$(prefix)/share/Yap
+DESTDIR=$(BINDIR)
 #
 #
 CC=@CC@
@@ -25,14 +25,14 @@ INSTALL=@INSTALL@
 INSTALL_DATA=@INSTALL_DATA@
 INSTALL_PROGRAM=@INSTALL_PROGRAM@
 SHELL=/bin/sh
-RANLIB=ranlib
-SHLIB_CFLAGS=-shared -fPIC
-SHLIB_SUFFIX=.so
+RANLIB=@RANLIB@
+SHLIB_SUFFIX=@SO@
 CWD=$(PWD)
 srcdir=@srcdir@
-CPLINT_CFLAGS=@CPLINT_CFLAGS@
+CPLINT_CPPFLAGS=@CPPFLAGS@ @CPLINT_CPPFLAGS@ -I@abs_top_builddir@ 
 CPLINT_LDFLAGS=@CPLINT_LDFLAGS@
 CPLINT_LIBS=@CPLINT_LIBS@
+CFLAGS=@CFLAGS@  $(YAP_EXTRAS) $(DEFS) 
 
 #
 
@@ -45,7 +45,7 @@ LPADBDD: ProblogBDD.o simplecudd.o general.o
 	$(CC) $(CPLINT_LDFLAGS) ProblogBDD.o simplecudd.o general.o  $(CPLINT_LIBS) -o LPADBDD
 
 %.o : $(srcdir)/%.c
-	$(CC)  $(CPLINT_CFLAGS)  -c $<
+	$(CC)  $(CPLINT_CPPFLAGS)  -c $<
 
 clean: 
 	rm -f *.o LPADBDD 

@@ -3,13 +3,14 @@ dnl
 dnl CPLINT_LIBS= 
 dnl CPLINT_LDFLAGS= 
 dnl CPLINT_SHLIB_LD= 
+dnl CPLINT_CPPFLAGS=
 dnl
 
 found_cplint=false
 
-AC_ARG_ENABLE(cplint,
-    [ --enable-cplint[=DIR]      enable the cplint library using the CUDD library in DIR/lib],
-    yap_cv_cplint=$enableval, yap_cv_cplint=no)
+AC_ARG_WITH(cplint,
+    [ --with-cplint[=DIR]      with the cplint library using the CUDD library in DIR/lib],
+    yap_cv_cplint=$withval, yap_cv_cplint=no)
 
 if test x"$yap_cv_cplint"  = "xno"
 then
@@ -17,23 +18,27 @@ then
 else
     if test  x"$yap_cv_cplint" != "xyes"
     then
-	CPLINT_LDFLAGS+=" -L${yap_cv_cplint}/cudd -L${yap_cv_cplint}/mtr -L${yap_cv_cplint}/st -L${yap_cv_cplint}/util -L${yap_cv_cplint}/epd "
+	CPLINT_LIBS+=" -L${yap_cv_cplint}/cudd -L${yap_cv_cplint}/mtr -L${yap_cv_cplint}/st -L${yap_cv_cplint}/util -L${yap_cv_cplint}/epd "
 	#typical of user-compiled cudd	fi
-  	CPLINT_CFLAGS+=" -I${yap_cv_cplint}/include"
- 	CPLINT_LIBS="$LIBS"
+  	CPLINT_CPPFLAGS+=" -I${yap_cv_cplint}/include"
   	found_cplint=true
     fi
     # cudd has been probably just tested, so why try again?
     # cudd is available on fedora, and maybe other linux distributions
-    if test -d "/usr/include/cudd" -a x"$CPLINT_CFLAGS" = x
+    if test x"$CUDD_LIBS" != x -a x"$CPLINT_CPPFLAGS" = x
     then
-	CPLINT_CFLAGS=" -I/usr/include/cudd"
-	CPLINT_LIBS="-lcudd  -lmtr -lcuddst -lepd -lcuddutil -lm $LIBS"
+	CPLINT_CPPFLAGS="$CUDD_CPPFLAGS"
+	CPLINT_LIBS="$CUDD_LIBS"
   	found_cplint=true
-    elif test -d "/usr/local/include/cudd" -a x"$CPLINT_CFLAGS" = x
+    elif test -d "/usr/include/cudd" -a x"$CPLINT_CPPFLAGS" = x
+    then
+	CPLINT_CPPFLAGS=" -I/usr/include/cudd"
+	CPLINT_LIBS+="-lcudd  -lmtr -lcuddst -lepd -lcuddutil -lm"
+  	found_cplint=true
+    elif test -d "/usr/local/include/cudd" -a x"$CPLINT_CPPFLAGS" = x
     then
   	found_cplint=true
-	CPLINT_CFLAGS=" -I/usr/local/include/cudd"
+	CPLINT_CPPFLAGS+=" -I/usr/local/include/cudd"
 	CPLINT_LIBS+=" -L/usr/local/lib"
     fi
     if test "$found_cplint" = true
@@ -49,11 +54,11 @@ else
 	    CPLINT_SHLIB_LD="$SHLIB_LD"
 	fi
 	PKG_CPLINT="packages/cplint/approx/simplecuddLPADs packages/cplint"
+ 	CPLINT_LDFLAGS="$LDFLAGS"
 	AC_SUBST(CPLINT_LIBS)
-	AC_SUBST(CPLINT_CFLAGS)
 	AC_SUBST(CPLINT_LDFLAGS)
+	AC_SUBST(CPLINT_CPPFLAGS)
 	AC_SUBST(CPLINT_SHLIB_LD)
-	AC_SUBST(SHLIB_SUFFIX)
     else
         PKG_CPLINT="" 
     fi

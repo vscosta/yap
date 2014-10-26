@@ -23,7 +23,7 @@ SHAREDIR=$(ROOTDIR)/share/Yap
 #
 DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1
 CC=@CC@
-CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I$(srcdir)/../../include  @CPPFLAGS@
+CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I$(srcdir)/../../include -I../.. @CPPFLAGS@
 #
 #
 # You shouldn't need to change what follows.
@@ -35,8 +35,7 @@ SHELL=/bin/sh
 RANLIB=@RANLIB@
 srcdir=@srcdir@
 SO=@SO@
-CPLINT_CFLAGS=@CPLINT_CFLAGS@
-CPLINT_LDFLAGS=@CPLINT_LDFLAGS@
+CPLINT_CFLAGS=@CPLINT_CPPFLAGS@
 CPLINT_LIBS=@CPLINT_LIBS@
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)

@@ -53,7 +53,7 @@ fi
 if test "$target_os" = "mingw32"  -o "$target_os" = "mingw64"
 then
      #mingw: we know where things are
-  CUDD_LDFLAGS="$cudd_dir/lib/all_cudd.dll"
+  CUDD_LIBS="$cudd_dir/lib/all_cudd.dll"
   cudd_installed="yes"
 else
 
@@ -90,7 +90,7 @@ AC_SEARCH_LIBS(Cudd_Init, [cudd], [cudd_installed="yes"], [cudd_installed="no"])
 CPPFLAGS="$OLD_CPPFLAGS"
 
 if test "$cudd_installed" = yes; then
-  CUDD_LDFLAGS="$LIBS"
+  CUDD_LIBS="$LIBS"
 else
   cat << EOF
 ##################################################################
@@ -106,7 +106,7 @@ fi
 fi
 
 AC_SUBST(PKG_BDDLIB)
-AC_SUBST(CUDD_LDFLAGS)
+AC_SUBST(CUDD_LIBS)
 AC_SUBST(CUDD_CPPFLAGS)
 
 mkdir -p  packages/bdd

@@ -7,10 +7,16 @@ This package uses the library cudd, see http://vlsi.colorado.edu/~fabio/CUDD/
 for the relative license.
 
 */
-
+#include "config.h"
+#if HAVE_CUDD_UTIL_H
+#include "cudd/util.h"
+#include "cudd/cuddInt.h"
+#include "cudd/mtr.h"
+#else
 #include "util.h"
 #include "cuddInt.h"
 #include "mtr.h"
+#endif
 #include "YapInterface.h"
  
 typedef struct

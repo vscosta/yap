@@ -42,7 +42,7 @@ DYNAMIC =
 CFLAGS = @CFLAGS@
 INCLUDE =  -I@abs_top_builddir@ @CUDD_CPPFLAGS@
 LINKFLAGS = -lm
-LINKLIBS =  @CUDD_LDFLAGS@
+LINKLIBS =  @CUDD_LIBS@
 
 default: problogbdd_lfi
 

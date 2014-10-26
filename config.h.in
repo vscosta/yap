@@ -929,7 +929,7 @@
 /* Define to 1 if you have the <winsock.h> header file. */
 #undef HAVE_WINSOCK_H
 
-/* Define to 1 if you have the <zlib.h> header file. */
+/* Define to 1 if you have <zlib.h>. */
 #undef HAVE_ZLIB_H
 
 /* Define to 1 if you have the <zutil.h> header file. */

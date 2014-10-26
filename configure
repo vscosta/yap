@@ -683,13 +683,12 @@ ZLIB_LIBS
 ZLIB_PLTARGETS
 ZLIB_TARGETS
 PKG_CPLINT
-SHLIB_SUFFIX
 CPLINT_SHLIB_LD
+CPLINT_CPPFLAGS
 CPLINT_LDFLAGS
-CPLINT_CFLAGS
 CPLINT_LIBS
 CUDD_CPPFLAGS
-CUDD_LDFLAGS
+CUDD_LIBS
 PKG_BDDLIB
 ODBC_LIBS
 ODBC_LDFLAGS
@@ -915,7 +914,7 @@ with_libarchive
 with_odbc
 with_cudd
 enable_bddlib
-enable_cplint
+with_cplint
 with_zlib
 with_R
 with_junit
@@ -1583,7 +1582,6 @@ Optional Features:
  --enable-statistic-predicates  support statistic predicates
   --enable-mimecharset=charset   Default MIME charset to set on new messages
  --enable-bddlib           dynamic bdd library
- --enable-cplint=DIR      enable the cplint library using the CUDD library in DIR/lib
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -1605,6 +1603,7 @@ Optional Packages:
  --with-libarchive=DIR              libarchive package
   --with-odbc=<dir>	  Location of ODBC include/lib
  --with-cudd=DIR           use CUDD package in DIR
+ --with-cplint=DIR      with the cplint library using the CUDD library in DIR/lib
  --with-zlib=DIR              zlib compression library
  --with-R=DIR              interface to the R language
   --with-junit=PATH	  Specify location of the junit JAR file
@@ -4625,6 +4624,7 @@ if test "${with_gmp+set}" = set; then :
 		LIBS="$LIBS -L${yap_cv_gmp}/lib"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_gmp}/include"
 	    CFLAGS="$CFLAGS -I${yap_cv_gmp}/include"
+	    CXXFLAGS="$CXXFLAGS -I${yap_cv_gmp}/include"
 	fi
 else
   yap_cv_gmp=yes
@@ -11779,11 +11779,11 @@ fi
 
 
   fi
-  if test x"$UUID_H" = "x"; then
+  if test x"$UUID_H" = "x" -a ! -d /usr/include/uuid; then
   ac_fn_c_check_header_compile "$LINENO" "uuid/uuid.h" "ac_cv_header_uuid_uuid_h" "/*first*/
 "
 if test "x$ac_cv_header_uuid_uuid_h" = xyes; then :
-   UUID_H=ossp/uuid.h
+   UUID_H=uuid/uuid.h
 fi
 
 
@@ -12188,7 +12188,7 @@ then
 
 
 
-old_inc="$CPPFLAGS"
+old_cppflags="$CPPFLAGS"
 old_libs="$LIBS"
 old_ldflags="$LDFLAGS"
 ARCHIVE_TARGETS=nolib
@@ -12260,8 +12260,12 @@ else
   ARCHIVELIB=no
 fi
 
+
+else
+ARCHIVELIB=no
 fi
 
+if test "$ARCHIVELIB" = yes; then
 for ac_func in archive_read_support_compression_bzip2 \
 	       archive_read_support_compression_compress \
 	       archive_read_support_compression_gzip \
@@ -12299,8 +12303,6 @@ _ACEOF
 fi
 done
 
-
-if test "$ARCHIVELIB" = yes; then
    ARCHIVE_CPPFLAGS="$CPPFLAGS"
    ARCHIVE_LIBS="$LIBS"
 
@@ -12329,7 +12331,7 @@ fi
 fi
 
 
-1
+
 
 
 if test "$ARCHIVE_TARGETS" = "nolib"
@@ -13027,7 +13029,7 @@ fi
 if test "$target_os" = "mingw32"  -o "$target_os" = "mingw64"
 then
      #mingw: we know where things are
-  CUDD_LDFLAGS="$cudd_dir/lib/all_cudd.dll"
+  CUDD_LIBS="$cudd_dir/lib/all_cudd.dll"
   cudd_installed="yes"
 else
 
@@ -13341,7 +13343,7 @@ fi
 CPPFLAGS="$OLD_CPPFLAGS"
 
 if test "$cudd_installed" = yes; then
-  CUDD_LDFLAGS="$LIBS"
+  CUDD_LIBS="$LIBS"
 else
   cat << EOF
 ##################################################################
@@ -13376,9 +13378,10 @@ fi
 
 found_cplint=false
 
-# Check whether --enable-cplint was given.
-if test "${enable_cplint+set}" = set; then :
-  enableval=$enable_cplint; yap_cv_cplint=$enableval
+
+# Check whether --with-cplint was given.
+if test "${with_cplint+set}" = set; then :
+  withval=$with_cplint; yap_cv_cplint=$withval
 else
   yap_cv_cplint=no
 fi
@@ -13390,23 +13393,27 @@ then
 else
     if test  x"$yap_cv_cplint" != "xyes"
     then
-	CPLINT_LDFLAGS+=" -L${yap_cv_cplint}/cudd -L${yap_cv_cplint}/mtr -L${yap_cv_cplint}/st -L${yap_cv_cplint}/util -L${yap_cv_cplint}/epd "
+	CPLINT_LIBS+=" -L${yap_cv_cplint}/cudd -L${yap_cv_cplint}/mtr -L${yap_cv_cplint}/st -L${yap_cv_cplint}/util -L${yap_cv_cplint}/epd "
 	#typical of user-compiled cudd	fi
-  	CPLINT_CFLAGS+=" -I${yap_cv_cplint}/include"
- 	CPLINT_LIBS="$LIBS"
+  	CPLINT_CPPFLAGS+=" -I${yap_cv_cplint}/include"
   	found_cplint=true
     fi
     # cudd has been probably just tested, so why try again?
     # cudd is available on fedora, and maybe other linux distributions
-    if test -d "/usr/include/cudd" -a x"$CPLINT_CFLAGS" = x
+    if test x"$CUDD_LIBS" != x -a x"$CPLINT_CPPFLAGS" = x
     then
-	CPLINT_CFLAGS=" -I/usr/include/cudd"
-	CPLINT_LIBS="-lcudd  -lmtr -lcuddst -lepd -lcuddutil -lm $LIBS"
+	CPLINT_CPPFLAGS="$CUDD_CPPFLAGS"
+	CPLINT_LIBS="$CUDD_LIBS"
   	found_cplint=true
-    elif test -d "/usr/local/include/cudd" -a x"$CPLINT_CFLAGS" = x
+    elif test -d "/usr/include/cudd" -a x"$CPLINT_CPPFLAGS" = x
+    then
+	CPLINT_CPPFLAGS=" -I/usr/include/cudd"
+	CPLINT_LIBS+="-lcudd  -lmtr -lcuddst -lepd -lcuddutil -lm"
+  	found_cplint=true
+    elif test -d "/usr/local/include/cudd" -a x"$CPLINT_CPPFLAGS" = x
     then
   	found_cplint=true
-	CPLINT_CFLAGS=" -I/usr/local/include/cudd"
+	CPLINT_CPPFLAGS+=" -I/usr/local/include/cudd"
 	CPLINT_LIBS+=" -L/usr/local/lib"
     fi
     if test "$found_cplint" = true
@@ -13422,7 +13429,7 @@ else
 	    CPLINT_SHLIB_LD="$SHLIB_LD"
 	fi
 	PKG_CPLINT="packages/cplint/approx/simplecuddLPADs packages/cplint"
-
+ 	CPLINT_LDFLAGS="$LDFLAGS"
 
 
 
@@ -13468,19 +13475,19 @@ else
 fi
 
 
+
+
+
+
+
+
 if test "$yap_cv_zlib" != no;
 then
-
-
-
-
-
-
-old_inc="$CPPFLAGS"
+old_cppflags="$CPPFLAGS"
 old_libs="$LDFLAGS"
 ZLIB_TARGETS=nolib
 
-if test "yap_cv_zlib" != yes;
+if test "$yap_cv_zlib" != yes;
 then
    CPPFLAGS+=" -I $yap_cv_zlib/include"
    LDFLAGS+=" -L $yap_cv_zlib/lib"
@@ -13488,19 +13495,31 @@ fi
 
 
 
-for ac_header in zlib.h zutil.h
+ac_fn_c_check_header_mongrel "$LINENO" "zlib.h" "ac_cv_header_zlib_h" "$ac_includes_default"
+if test "x$ac_cv_header_zlib_h" = xyes; then :
+
+$as_echo "#define HAVE_ZLIB_H 1" >>confdefs.h
+
+			    has_zlib_h=true
+
+else
+  has_zlib_h=true
+fi
+
+
+for ac_header in zutil.h
 do :
-  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
-ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
-if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
+  ac_fn_c_check_header_mongrel "$LINENO" "zutil.h" "ac_cv_header_zutil_h" "$ac_includes_default"
+if test "x$ac_cv_header_zutil_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+#define HAVE_ZUTIL_H 1
 _ACEOF
 
 fi
 
 done
 
+if test "$has_zlib_h" = true; then
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for zlibVersion in -lz" >&5
 $as_echo_n "checking for zlibVersion in -lz... " >&6; }
 if ${ac_cv_lib_z_zlibVersion+:} false; then :
@@ -13544,13 +13563,14 @@ else
   ZLIB=no
 fi
 
+else
+ZLIB=no
+ZLIB_LIBS="$LIBS"
+fi
 
 if test "$ZLIB" = yes; then
    ZLIB_CPPFLAGS="$CPPFLAGS"
    ZLIB_LDFLAGS="$LDFLAGS"
-
-  CPPFLAGS="$old_cppflags"
-  LDFLAGS="$old_ldflags"
 
   ZLIB_TARGETS="zlib4pl.$SO"
   ZLIB_PLTARGETS=zlib.pl
@@ -13565,6 +13585,11 @@ else
 ##################################################################
 EOF
 fi
+
+  CPPFLAGS="$old_cppflags"
+  LIBS="$old_libs"
+
+
 fi
 
 
@@ -14017,7 +14042,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14020 "configure" */
+/* #line 14045 "configure" */
 public class Test {
 }
 EOF
@@ -14193,7 +14218,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 14196: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 14221: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -14324,7 +14349,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14327 "configure" */
+/* #line 14352 "configure" */
 public class Test {
 }
 EOF
@@ -14359,7 +14384,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 14362 "configure" */
+/* [#]line 14387 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -17104,12 +17129,12 @@ fi
      *darwin*)
        CUDA_LDFLAGS="$LDFLAGS"
     CUDA_CPPFLAGS="-arch=sm_20  -Xcompiler -fPIC -O3 "
-    CUDA_SHLIB_LD="$NVCC  -Xcompiler -shared -L../.. -lYap "
+    CUDA_SHLIB_LD="$NVCC  --shared -L../.. -lYap "
      ;;
      *linux*)
        CUDA_LDFLAGS="$LDFLAGS"
     CUDA_CPPFLAGS="-arch=sm_20  -Xcompiler -fPIC -O3 "
-    CUDA_SHLIB_LD="$NVCC  -Xcompiler -shared  -L../.. -lYap "
+    CUDA_SHLIB_LD="$NVCC  --shared -L../.. -lYap "
      ;;
     **)
        CUDA_LDFLAGS="$LDFLAGS $LIBS"
