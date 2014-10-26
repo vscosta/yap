@@ -39,7 +39,7 @@
 #endif
 
 bool YAP_NewExo( PredEntry *ap, size_t data, struct udi_info *udi);
-bool YAP_ExoAssert( PredEntry *pe, const Term *ts, size_t m);
+bool YAP_AssertTuples( PredEntry *pe, const Term *ts, size_t m);
 
 //static int exo_write=FALSE;
 
@@ -726,7 +726,7 @@ store_exo(yamop *pc, UInt arity, Term t0)
 }
 
 bool
-YAP_ExoAssert( PredEntry *pe, const Term *ts, size_t m)
+YAP_AssertTuples( PredEntry *pe, const Term *ts, size_t m)
 {
   MegaClause *mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
   size_t           i, n = pe->cs.p_code.NOfClauses;
