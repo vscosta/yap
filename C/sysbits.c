@@ -276,7 +276,7 @@ Yap_InitSysPath(void) {
 
       /* couldn't find it where it was supposed to be,
 	 let's try using the executable */
-      if (!GetModuleFileNameEx( GetCurrentProcess(), NULL, LOCAL_FileNameBuf, YAP_FILENAME_MAX)) {
+      if (!GetModuleFileName( GetCurrentProcess(), LOCAL_FileNameBuf, YAP_FILENAME_MAX)) {
 	Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "could not find executable name"); 
 	/* do nothing */
 	return;

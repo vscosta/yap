@@ -13484,7 +13484,7 @@ fi
 if test "$yap_cv_zlib" != no;
 then
 old_cppflags="$CPPFLAGS"
-old_libs="$LDFLAGS"
+old_libs="$LIBS"
 ZLIB_TARGETS=nolib
 
 if test "$yap_cv_zlib" != yes;

@@ -1553,7 +1553,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
 	!(fatts & FILE_ATTRIBUTE_DIRECTORY)) {
       /* couldn't find it where it was supposed to be,
 	 let's try using the executable */
-      if (!GetModuleFileNameEx( GetCurrentProcess(), NULL, LOCAL_FileNameBuf, YAP_FILENAME_MAX)) {
+      if (!GetModuleFileName( GetCurrentProcess(), LOCAL_FileNameBuf, YAP_FILENAME_MAX)) {
 	/* do nothing */
 	goto end;
       }
