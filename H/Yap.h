@@ -217,6 +217,22 @@ typedef int _Bool;
 #define LOW_PROF 1
 #endif
 
+#if !defined(HAVE_STRNLEN)
+INLINE_ONLY inline EXTERN size_t
+strnlen(const char *s, size_t maxlen);
+
+INLINE_ONLY inline EXTERN size_t
+strnlen(const char *s, size_t maxlen)
+{
+  size_t i = 0;
+  while (s[i]) {
+    if (i == maxlen)
+      return i;
+    i++;
+  }
+  return i;
+}
+#endif
 
 /* #define FORCE_SECOND_QUADRANT 1 */
 

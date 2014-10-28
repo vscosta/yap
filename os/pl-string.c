@@ -196,15 +196,19 @@ int_mbscoll(const char *s1, const char *s2, int icase)
   mbstate_t mbs;
   int rc;
 
+#if HAVE_ALLOCA
   if ( l1 < 1024 && (w1 = alloca(sizeof(wchar_t)*(l1+1))) )
   { ml1 = FALSE;
   } else
+#endif
   { w1 = PL_malloc_atomic(sizeof(wchar_t)*(l1+1));
     ml1 = TRUE;
   }
+#if HAVE_ALLOCA
   if ( l2 < 1024 && (w2 = alloca(sizeof(wchar_t)*(l2+1))) )
   { ml2 = FALSE;
   } else
+#endif
   { w2 = PL_malloc_atomic(sizeof(wchar_t)*(l2+1));
     ml2 = TRUE;
   }

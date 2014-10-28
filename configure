@@ -6936,6 +6936,31 @@ fi
 
 fi
 
+for ac_header in IntSafe.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "IntSafe.h" "ac_cv_header_IntSafe_h" "$ac_includes_default"
+if test "x$ac_cv_header_IntSafe_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_INTSAFE_H 1
+_ACEOF
+
+fi
+
+done
+
+for ac_header in windows.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "windows.h" "ac_cv_header_windows_h" "$ac_includes_default"
+if test "x$ac_cv_header_windows_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_WINDOWS_H 1
+_ACEOF
+
+fi
+
+done
+
+
 if test "$threads" = yes
 then
   for ac_header in pthread.h
@@ -9792,7 +9817,19 @@ _ACEOF
 fi
 done
 
-for ac_func in strchr strerror stricmp strlwr strncat strncpy strtod
+for ac_func in strchr strerror stricmp
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+for ac_func in strnlen strlwr strncat strncpy strtod
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -14042,7 +14079,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14045 "configure" */
+/* #line 14082 "configure" */
 public class Test {
 }
 EOF
@@ -14218,7 +14255,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 14221: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 14258: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -14349,7 +14386,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14352 "configure" */
+/* #line 14389 "configure" */
 public class Test {
 }
 EOF
@@ -14384,7 +14421,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 14387 "configure" */
+/* [#]line 14424 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);

@@ -338,7 +338,8 @@ Yap_gmp_ior_int_big(Int i, Term t)
 }
 
 #if USE_GMP
-#if !defined(HAVE_MPZ_XOR)
+// cross-compilers...
+#if !defined(HAVE_MPZ_XOR) && !defined(mpz_xor)
 static void
 mpz_xor(MP_INT *new, MP_INT *r1, MP_INT *r2)
 {

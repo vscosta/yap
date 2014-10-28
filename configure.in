@@ -660,6 +660,9 @@ if test "$yap_cv_judy" != "no"; then
 	AC_CHECK_LIB(Judy, Judy1Set,,[AC_MSG_RESULT([libJudy not found, UDI will only work with one Index at a time])])
 fi
 
+AC_CHECK_HEADERS(IntSafe.h)
+AC_CHECK_HEADERS(windows.h)
+
 if test "$threads" = yes
 then
   AC_CHECK_HEADERS(pthread.h)
@@ -1659,7 +1662,8 @@ AC_CHECK_FUNCS(rename rint sbrk select setbuf setlinebuf)
 AC_CHECK_FUNCS(setitimer setsid setlinebuf sigaction)
 AC_CHECK_FUNCS(siggetmask siginterrupt)
 AC_CHECK_FUNCS(signal sigprocmask socket srand srandom stat)
-AC_CHECK_FUNCS(strchr strerror stricmp strlwr strncat strncpy strtod)
+AC_CHECK_FUNCS(strchr strerror stricmp)
+AC_CHECK_FUNCS(strnlen strlwr strncat strncpy strtod)
 AC_CHECK_FUNCS(time times tmpnam usleep utime vsnprintf wcsdup wcsnlen)
 
 # android does not really have locale stuff..

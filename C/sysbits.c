@@ -276,7 +276,7 @@ Yap_InitSysPath(void) {
 
       /* couldn't find it where it was supposed to be,
 	 let's try using the executable */
-      if (!GetModuleFileName( GetCurrentProcess(), LOCAL_FileNameBuf, YAP_FILENAME_MAX)) {
+      if (!GetModuleFileName( NULL, LOCAL_FileNameBuf, YAP_FILENAME_MAX)) {
 	Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "could not find executable name"); 
 	/* do nothing */
 	return;
@@ -1438,7 +1438,7 @@ Yap_MathException__( USES_REGS1 )
 	      return  EVALUATION_ERROR_UNDEFINED;
 	  }
   }
-#elif _WIN32
+#elif _WIN32 && FALSE
   unsigned int raised;
   int err;
 
