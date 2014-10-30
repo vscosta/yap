@@ -19,6 +19,7 @@
 # http://nsis.sourceforge.net/Main_Page
 #
 #
+YHOME=/y/vsc
 VERSION=6.3.4
 #cross-compiler for OSX, see http://mxe.cc/
 #notice that OSX does not allow WIN64 emulation (wine64)
@@ -27,9 +28,10 @@ MXE=$HOME/Yap/mxe/usr
 THREADS=no
 # use 64 bits
 ABI=64
+SRC=/c/cygwin/Yap/yap-6.3
 #SRC=/l/work/noth/git
 #SRC_WIN=L:\\work\\noth\\git
-SRC="$HOME"/git/yap-6.3
+#SRC="$HOME"/git/yap-6.3
 TARGET=/c/Yap64
 NSIS="/c/Program Files (x86)/NSIS/makensis"
 # by default, ""
@@ -57,7 +59,7 @@ do
 done
 
 # srcdir comes from here, please avoid relative paths
-CONFIGURE=$SRC/configure
+CONFIGURE="$SRC"/configure
 
 # debugging setup
 do_compile=true
@@ -66,41 +68,39 @@ do_install=true
 # HOME WIN64 configuration
 
 # DOCS_DIR=/l/work/noth/yapdocs
-DOCS_DIR=$HOME/Yap/bins/threads
+DOCS_DIR="$YHOME"/Yap/bins/threads
+
 if test "$THREADS" = yes; then
   FULL_VERSION="$VERSION"-threads
 else
   FULL_VERSION="$VERSION"
-fi
+fi                                                           
 
 if test $ABI = 64; then
-  #GCC_PATH=/l/Work/noth/mingw-w64/x86_64-4.9.0-posix-seh-rt_v3-rev1/mingw64
+  BUILD=/c/cygwin/Yap/mingw"$ABI"
+  #GCC_DIR=/l/Work/noth/mingw-w64/x86_64-4.9.0-posix-seh-rt_v3-rev1/mingw64
   case $( uname ) in
     *Darwin*)
-     GCC_PATH="$MXE"/bin
-     PATH=$PATH:$GCC_PATH
+     GCC_DIR="$MXE"
      HOST="x86_64-w64-mingw32"
      LIB_PATH="$MXE"/"$HOST"/lib
      ;;
-   esac
+    *MINGW64*)
+     GCC_DIR=/c/TDM-GCC-64
+     HOST="x86_64-w64-mingw32"
+     LIB_PATH="$GCC_DIR"/"$HOST"/lib
+     ;;
+  esac
   # ok.
-
-  CUDD=no # BDD compiler package. Get version that compiles on Windows from Vitor!
-  GECODE=no  #does not link with mingw64, VC++ trouble
-  GMP=yes    # Compile it for infinite precision numbers and rationals
-  JAVA=no    # for JPL only
-  PYTHON=no  # does not work in Windows anyway (currently)
-  REAL=no    # interface to R
-
-  # it seems python2.7 does not support mingw64
-  PYTHON_PATH="/c/Python33-64"
-  export PATH="$PYTHON_PATH"/bin:"$PATH"
-  GECODE_PATH="/c/Program Files/Gecode"
+  # BDD compiler package. Get version that compiles on Windows from Vitor!
   #  GMP=/l/Work/noth/msys/1.0/local
-  GMP=yes
-  CUDD_PATH=/c/cygwin/Yap/cudd-2.5.0-mingw64
-  JAVA_PATH="/c/Program Files/Java/jdk1.7.0_51"
-  R_PATH="/c/Program Files/R/R-3.1.0"
+  GMP=/c/msys64/usr/win64
+  CUDD=/c/cygwin/Yap/cudd-2.5.0-mingw64
+  GECODE=no  # "/c/Program Files/Gecode"
+  JAVA="$( echo /c/Program\ Files/Java/jdk* )"
+  PYTHON="/c/Python33-64"
+  R="$( echo /c/Program\ Files/R/R-*/bin/x64 )"
+
 fi
 
 # HOME WIN32 configuration
@@ -108,12 +108,10 @@ if test $ABI = 32; then
   case $( uname ) in
     *Darwin*)
     #use mxe as a cross compiler
-    echo $( uname )
-    GCC_PATH="$MXE"/bin
-    PATH="$GCC_PATH":"$PATH"
+    GCC_DIR="$MXE"/bin
+    PATH="$GCC_DIR":"$PATH"
     HOST="i686-pc-mingw32"
     LIB_PATH="$MXE"/"$HOST"/lib
-    CUDD=yes
     GECODE=no # install only allows one of 32 or 64 bits
     GMP=yes
     JAVA=no
@@ -123,17 +121,32 @@ if test $ABI = 32; then
   esac
 
   PYTHON_PATH="/c/Python27"
-  export PATH="$GCC_PATH"/bin:$PATH
+  export PATH="$GCC_DIR"/bin:$PATH
   GECODE_PATH="/c/Program Files/Gecode"
   GMP=/c/cygwin/Yap/win32
   CUDD_PATH=/c/cygwin/Yap/cudd-2.5.0-mingw32
   JAVA_PATH="/c/Program Files (x86)/Java/jdk1.7.0_51"
-  R_PATH="/c/Program Files/R/R-3.0.2"
   HOST+=" --enable-abi=32"
 
 fi
 
-if test $THREADS = yes
+export PATH="$GCC_DIR"/bin:"$PATH"
+# echo "gcc= " $GCC_DIR
+# echo "host= " $HOST
+if test x"$JAVA" != xno
+then
+  export PATH="$PATH":"$JAVA"/bin
+fi
+if test x"$PYTHON" != xno
+then
+  export PATH="$PATH":"$PYTHON"/"python.exe"
+fi
+if test x"$R" != xno
+then
+    export PATH="$PATH":"$R"
+fi
+
+if test ${THREADS} = yes
 then
   cp "$LIB_PATH"/libwinpthread-1.dll .
   cp libwinpthread-1.dll pthreadGC2.dll
@@ -142,7 +155,6 @@ fi
 
 if test $CUDD != no
 then
-  CUDD="$CUDD_PATH"
   BDDLIB="yes"
   CPLINT="yes"
 else
@@ -150,37 +162,45 @@ else
   CPLINT="no"
 fi
 
-if test $GECODE = yes
+if test x"$GECODE" != xno
 then
-  export PATH="$PATH":"$GECODE_PATH"/bin
+  export PATH="$PATH":"$GECODE"/bin
 fi
 
-if test $JAVA = yes
+if test "$JAVA" = yes
 then
-  export PATH="$PATH":"$JAVA_PATH"/bin
+  export PATH="$PATH":"$JAVA"/bin
 fi
 
-if test $PYTHON = yes
+if test "$PYTHON" = yes
 then
-  export PATH="$PATH":"$PYTHON_PATH"
+  export PATH="$PATH":"$PYTHON"
 fi
 
-if test $REAL = yes
+if test x"$R"  != xno
 then
   if test $ABI = 32; then
     R_ABI=i386
   else
     R_ABI=x64
   fi
-  export PATH="$PATH":"$R_PATH"/bin/"$R_ABI"
+  export PATH="$PATH":"$R"
+fi
+
+if test do_compile = true
+then
+   make distclean
 fi
 
 export INSTALL_SH=$SRC/yap-6.3/install.sh
 # avoid using relative paths
 if test "$do_compile" = true; then
-  "$CONFIGURE" --host=$HOST \
-   --prefix=$TARGET \
-     --with-R="$REAL" \
+  BUILD=/c/cygwin/Yap/mingw"$ABI"
+  mkdir -p  "$BUILD"
+#  /bin/rm -rf "$BUILD"/*
+  "$CONFIGURE" --host="$HOST" \
+   --prefix="$TARGET" \
+     --with-R="$R" \
        --with-java="$JAVA" \
          --with-gmp="$GMP" \
            --with-python="$PYTHON" \
@@ -199,7 +219,7 @@ if test "$do_install" = true; then
       -DROOTDIR=$TARGET \
         -DABI="$ABI" \
           -DVERSION="$FULL_VERSION" \
-            -DOPTIONS="$SRC_WIN\\yap-6.3\\misc\\options.ini" \
+            -DOPTIONS="$SRC_WIN\\misc\\options.ini" \
               -DOUT_DIR=".." -D"WIN64=1" \
                 -NOCD $SRC/yap-6.3/misc/Yap.nsi
   else
@@ -209,7 +229,7 @@ if test "$do_install" = true; then
       -DROOTDIR=$TARGET \
         -DABI="$ABI" \
           -DVERSION="$FULL_VERSION" \
-            -DOPTIONS="$SRC_WIN\\yap-6.3\\misc\\options.ini" \
+            -DOPTIONS="$SRC_WIN\\misc\\options.ini" \
               -DOUT_DIR=".." \
                 -NOCD $SRC/yap-6.3/misc/Yap.nsi
   fi
