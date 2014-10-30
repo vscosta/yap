@@ -6,6 +6,7 @@ prefix = @prefix@
 exec_prefix = ${prefix}
 ROOTDIR = $(prefix)
 EROOTDIR = ${prefix}
+abs_top_builddir = @abs_top_builddir@
 #
 # where the binary should be
 #
