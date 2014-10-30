@@ -789,7 +789,7 @@ simple:
 
 
 int
-_xos_chmod(const char *path, int mode)
+_xos_chmod(const char *path, mode_t mode)
 { TCHAR buf[PATH_MAX];
 
   if ( !_xos_os_filenameW(path, buf, PATH_MAX) )
@@ -995,6 +995,20 @@ _xos_rmdir(const char *path)
 
 char *
 _xos_getcwd(char *buf, size_t len)
+{ TCHAR buf0[PATH_MAX];
+  TCHAR buf1[PATH_MAX];
+
+  if ( _wgetcwd(buf0, sizeof(buf0)/sizeof(TCHAR)) &&
+       _xos_long_file_nameW(buf0, buf1, sizeof(buf0)/sizeof(TCHAR)) )
+  { return _xos_canonical_filenameW(buf1, buf, len, 0);
+  }
+
+  return NULL;
+}
+
+
+char *
+_xos_getcwd_i(char *buf, int len)
 { TCHAR buf0[PATH_MAX];
   TCHAR buf1[PATH_MAX];
 
