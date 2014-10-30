@@ -27,9 +27,9 @@ Last rev: $Id: yap_rl.c,v 1.1 2008-03-26 23:05:22 nunofonseca Exp $
 #include "range_list.h"
 #include <YapInterface.h>
 
-#define  IDTYPE long
-#define  PTR2ID(ptr) (IDTYPE)ptr
-#define  ID2PTR(id)  (RL_Tree*)id
+#define  IDTYPE YAP_Int
+#define  PTR2ID(ptr) ((IDTYPE)(ptr))
+#define  ID2PTR(id)  ((RL_Tree*)(id))
 
 
 /* ############################################################ */

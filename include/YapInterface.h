@@ -1599,6 +1599,20 @@ __BEGIN_DECLS
 #define X_API
 #endif
 
+#ifndef Int_FORMAT
+
+#if _WIN64
+#define Int_FORMAT "%I64d"
+#define Int_ANYFORMAT "%I64i"
+#define UInt_FORMAT "%I64u"
+#else
+#define Int_FORMAT "%ld"
+#define Int_ANYFORMAT "%li"
+#define UInt_FORMAT "%lu"
+#endif
+
+#endif /* portable form of formatted output for Prolog terms */
+
 /* Primitive Functions */
 
 #define YAP_Deref(t)  (t)

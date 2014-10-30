@@ -119,7 +119,7 @@ typedef struct trie_hash {
 #define SIZEOF_TR_HASH    sizeof(TYPE_TR_HASH)
 #define SIZEOF_TR_BUCKET  sizeof(TYPE_TR_NODE *)
 
-#define AS_TR_NODE_NEXT(ADDR) (TrNode)((unsigned long int)(ADDR) - 2 * sizeof(struct trie_node *))
+#define AS_TR_NODE_NEXT(ADDR) (TrNode)((YAP_UInt)(ADDR) - 2 * sizeof(struct trie_node *))
 
 
 
@@ -127,12 +127,12 @@ typedef struct trie_hash {
 /*           Macros            */
 /* --------------------------- */
 
-#define TAG_ADDR(ADDR)                            ((unsigned long int)(ADDR) | 0x1)
-#define UNTAG_ADDR(ADDR)                          ((unsigned long int)(ADDR) & ~(0x1))
+#define TAG_ADDR(ADDR)                            ((YAP_UInt)(ADDR) | 0x1)
+#define UNTAG_ADDR(ADDR)                          ((YAP_UInt)(ADDR) & ~(0x1))
 #define PUT_DATA_IN_LEAF_TRIE_NODE(TR_NODE, DATA) TrNode_child(TR_NODE) = (TrNode)TAG_ADDR(DATA)
 #define GET_DATA_FROM_LEAF_TRIE_NODE(TR_NODE)     UNTAG_ADDR(TrNode_child(TR_NODE))
 #define MARK_AS_LEAF_TRIE_NODE(TR_NODE)           PUT_DATA_IN_LEAF_TRIE_NODE(TR_NODE, TrNode_child(TR_NODE))
-#define IS_LEAF_TRIE_NODE(TR_NODE)                ((unsigned long int)(TrNode_child(TR_NODE)) & 0x1)
+#define IS_LEAF_TRIE_NODE(TR_NODE)                ((YAP_UInt)(TrNode_child(TR_NODE)) & 0x1)
 
 #define IsTrieVar(TERM, STACK, STACK_BASE) ((YAP_Term *)(TERM) > STACK && (YAP_Term *)(TERM) <= STACK_BASE)
 #define MkTrieVar(INDEX)                   ((INDEX) << 4)

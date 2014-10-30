@@ -45,7 +45,7 @@ void itrie_data_save(TrNode node, FILE *file) {
   TrData data;
 
   data = (TrData) GET_DATA_FROM_LEAF_TRIE_NODE(node);
-  fprintf(file, "%ld %ld %ld ", TrData_pos(data), TrData_neg(data), TrData_timestamp(data));
+  fprintf(file, Int_FORMAT " " Int_FORMAT " " Int_FORMAT " ", TrData_pos(data), TrData_neg(data), TrData_timestamp(data));
   return;
 }
 
@@ -55,7 +55,7 @@ void itrie_data_load(TrNode node, YAP_Int depth, FILE *file) {
   TrData data;
   YAP_Int pos, neg, timestamp;
 
-  fscanf(file, "%ld %ld %ld", &pos, &neg, &timestamp);
+  fscanf(file,  Int_FORMAT " "  Int_FORMAT " "  Int_FORMAT, &pos, &neg, &timestamp);
   new_itrie_data(data, CURRENT_ITRIE, node, pos, neg, timestamp, depth);
   PUT_DATA_IN_LEAF_TRIE_NODE(node, data);
   return;
@@ -67,7 +67,7 @@ void itrie_data_print(TrNode node) {
   TrData data;
 
   data = (TrData) GET_DATA_FROM_LEAF_TRIE_NODE(node);
-  printf("   pos: %ld neg: %ld timestamp: %ld\n", TrData_pos(data), TrData_neg(data), TrData_timestamp(data));
+  printf("   pos: " Int_FORMAT " neg: " Int_FORMAT "  timestamp: " Int_FORMAT "\\n", TrData_pos(data), TrData_neg(data), TrData_timestamp(data));
   return;
 }
 
