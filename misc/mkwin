@@ -28,6 +28,7 @@ MXE=$HOME/Yap/mxe/usr
 THREADS=no
 # use 64 bits
 ABI=64
+
 SRC=/c/cygwin/Yap/yap-6.3
 #SRC=/l/work/noth/git
 #SRC_WIN=L:\\work\\noth\\git
@@ -60,6 +61,7 @@ done
 
 # srcdir comes from here, please avoid relative paths
 CONFIGURE="$SRC"/configure
+DEBUG=" --enable-debug-yap --enable-low-level-tracer"
 
 # debugging setup
 do_compile=true
@@ -105,6 +107,7 @@ fi
 
 # HOME WIN32 configuration
 if test $ABI = 32; then
+  ABI=32
   case $( uname ) in
     *Darwin*)
     #use mxe as a cross compiler
@@ -120,12 +123,27 @@ if test $ABI = 32; then
     ;;
   esac
 
-  PYTHON_PATH="/c/Python27"
-  export PATH="$GCC_DIR"/bin:$PATH
-  GECODE_PATH="/c/Program Files/Gecode"
-  GMP=/c/cygwin/Yap/win32
-  CUDD_PATH=/c/cygwin/Yap/cudd-2.5.0-mingw32
-  JAVA_PATH="/c/Program Files (x86)/Java/jdk1.7.0_51"
+  case $( uname ) in
+    *Darwin*)
+     GCC_DIR="$MXE"
+     HOST="x86_64-w64-mingw32"
+     LIB_PATH="$MXE"/"$HOST"/lib
+     ;;
+    *MINGW64*)
+     GCC_DIR=/c/TDM-GCC-64
+     HOST="x86_64-w64-mingw32"
+     LIB_PATH="$GCC_DIR"/"$HOST"/lib
+     ;;
+  esac
+  # ok.
+  # BDD compiler package. Get version that compiles on Windows from Vitor!
+  #  GMP=/l/Work/noth/msys/1.0/local
+  GMP=/c/msys64/usr/win32
+  CUDD=/c/cygwin/Yap/cudd-2.5.0-mingw32
+  GECODE=no  # "/c/Program Files/Gecode"
+  JAVA="$( echo /c/Program\ Files\ */Java/jdk* )"
+  PYTHON="/c/Python27"
+  R="$( echo /c/Program\ Files/R/R-*/bin/i* )"
   HOST+=" --enable-abi=32"
 
 fi
@@ -199,15 +217,14 @@ if test "$do_compile" = true; then
   mkdir -p  "$BUILD"
 #  /bin/rm -rf "$BUILD"/*
   "$CONFIGURE" --host="$HOST" \
-   --prefix="$TARGET" \
+   --prefix="$TARGET"  $DEBUG\
      --with-R="$R" \
        --with-java="$JAVA" \
          --with-gmp="$GMP" \
            --with-python="$PYTHON" \
              --with-cudd="$CUDD" --enable-bddlib="$BDDLIB" --with-cplint="$CPLINT" \
                --with-gecode="$GECODE" \
-                 --enable-threads="$THREADS"  --enable-pthread-locking \
-                   --enable-debug-yap --enable-low-level-tracer
+                 --enable-threads="$THREADS"  --enable-pthread-locking
 
  make #-j 4 install
 fi
