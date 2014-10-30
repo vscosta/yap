@@ -4,16 +4,14 @@
 #define PL_INCL_H 1
 
 #ifndef __WINDOWS__
-#if defined(_MSC_VER) || defined(__MINGW32__)
+#if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MSYS__)
 #define __WINDOWS__ 1
 #endif
 #endif
 
 #ifdef __WINDOWS__
-#if HAVE_WINSOCK2_H
-#include <winsock2.h>
-#endif
 
+#include <winsock2.h>
 #include <windows.h>
 
 #if HAVE_XOS_H

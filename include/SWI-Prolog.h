@@ -888,8 +888,6 @@ PL_EXPORT(void)         PL_YAP_InitSWIIO(struct SWI_IO *swio);
 
 #endif /* _FLI_H_INCLUDED */
 
-#ifdef _WIN32
-#if O_PLMT
+#ifdef __WINDOWS__
 X_API int PL_w32thread_raise(DWORD id, int sig);
-#endif
 #endif

@@ -36,8 +36,10 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <io.h>
+#if HAVE_DIRECT_H
 #include <direct.h>
-#if !defined(__MINGW32__)
+#endif
+#if !defined(__MINGW32__) && !defined(__MSYS__)
 #if (_MSC_VER < 1300)
 typedef long intptr_t;
 typedef unsigned long uintptr_t;
@@ -81,13 +83,13 @@ typedef intptr_t ssize_t;		/* signed version of size_t */
 #define chdir _xos_chdir
 #define mkdir _xos_mkdir
 #define rmdir _xos_rmdir
-#define getcwd _xos_getcwd
+#define getcwd _xos_getcwd_i
 #define setenv _xos_setenv
 #define fopen(p, m) _xos_fopen(p, m)
 
 #endif /*_UXNT_KERNEL*/
 
-#ifndef __MINGW32__
+#if !defined(__MINGW32__) && !defined(__MSYS__)
 #define F_OK 00
 #define R_OK 04				/* access() fields */
 #define W_OK 06
@@ -99,6 +101,10 @@ typedef intptr_t ssize_t;		/* signed version of size_t */
 
 #ifndef PATH_MAX
 #define PATH_MAX 1024
+#endif
+
+#if __MSYS__
+#define _stati64 stat
 #endif
 
 #undef _xos_stat
@@ -130,7 +136,7 @@ _export ssize_t	_xos_write(int handle, const void *buf, size_t size);
 _export long	_xos_lseek(int handle, long offset, int whence);
 _export long	_xos_tell(int handle);
 _export int	_xos_access(const char *path, int mode);
-_export int	_xos_chmod(const char *path, int mode);
+_export int	_xos_chmod(const char *path, mode_t mode);
 _export int	_xos_remove(const char *path);
 _export int	_xos_rename(const char *old, const char *newname);
 _export int	_xos_stat(const char *path, struct _stati64 *sbuf);
@@ -138,6 +144,7 @@ _export int	_xos_chdir(const char *path);
 _export int	_xos_mkdir(const char *path, int mode);
 _export int	_xos_rmdir(const char *path);
 _export char *	_xos_getcwd(char *buf, size_t len);
+_export char *	_xos_getcwd_i(char *buf, int len);
 _export int	_xos_errno(void);
 _export int	_xos_exists(const char *path, int flags);
 _export size_t  _xos_getenv(const char *name, char *buf, size_t buflen);
