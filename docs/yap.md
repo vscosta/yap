@@ -917,7 +917,7 @@ library are originally from the public-domain Edinburgh Prolog library.
 
 + @ref date
 		
-+ @ref debug
++ @ref Print debug messages and test assertions
 		
 + @ref persistence
 
