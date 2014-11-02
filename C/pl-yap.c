@@ -18,6 +18,11 @@
 #if HAVE_MATH_H
 #include <math.h>
 #endif
+#if __WINDOWS__
+#include <process.h>
+
+#define getpid _getpid
+#endif
 
 #ifdef HAVE_LIMITS_H
 #include <limits.h>

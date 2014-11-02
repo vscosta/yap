@@ -73,15 +73,19 @@ static IOFUNCTIONS *saved_functions;
 
 static void
 Message(const char *fm, ...)
-{ char buf[1024];
+{ LPWSTR wbuf;
+  char buf[1024];
+
   va_list(args);
-
-  return;
-
   va_start(args, fm);
-  vsprintf(buf, fm, args);
-  MessageBox(NULL, buf, "YAP-Prolog", MB_OK|MB_TASKMODAL);
+  vsprintf(buf, fm, args); 
   va_end(args);
+  wbuf = (LPWSTR)malloc(1024*sizeof(LPWSTR *));
+  if (!wbuf)
+    return;
+  MultiByteToWideChar( 0,0, (LPCCH)buf, -1, wbuf, 0);
+  MessageBox(NULL, wbuf, L"YAP-Prolog", MB_OK|MB_TASKMODAL);
+  free((void *)wbuf);
 }
 
 

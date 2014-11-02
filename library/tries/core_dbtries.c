@@ -264,7 +264,7 @@ void displaynode(TrNode node) {
       {printf("1\n");} else {printf("2\n");}
   printf("bye\n");*/
     if (IS_HASH_NODE(node))
-      printf("HASH n%i, b%i, p%li\n", TrHash_num_nodes((TrHash) node), TrHash_num_buckets((TrHash) node), (long) node);
+      printf("HASH n%i, b%i, p%p\n", TrHash_num_nodes((TrHash) node), TrHash_num_buckets((TrHash) node), node);
     else if (TrNode_entry(node) == PairInitTag)
       printf("PairInitTag\n");
     else if (TrNode_entry(node) == PairEndTag)
@@ -272,7 +272,7 @@ void displaynode(TrNode node) {
     else if (IS_FUNCTOR_NODE(node))
       printf("functor(%s)\n", YAP_AtomName(YAP_NameOfFunctor((YAP_Functor)( ~ApplTag & TrNode_entry(node)))));
     else if (YAP_IsIntTerm(TrNode_entry(node)))
-      printf("int(%ld)\n", YAP_IntOfTerm(TrNode_entry(node)));
+      printf("int(" Int_FORMAT ")\n", YAP_IntOfTerm(TrNode_entry(node)));
     else if (YAP_IsAtomTerm(TrNode_entry(node)))
        printf("atom(%s)\n", YAP_AtomName(YAP_AtomOfTerm(TrNode_entry(node))));
     else
@@ -816,7 +816,7 @@ int traverse_get_counter(TrNode node) {
 
 YAP_Term generate_label(YAP_Int Index) {
   char label[20];
-  sprintf(label,"L%ld", Index);
+  sprintf(label,"L" Int_FORMAT, Index);
   return YAP_MkAtomTerm(YAP_LookupAtom(label));
 }
 

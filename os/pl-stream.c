@@ -22,6 +22,7 @@
 */
 
 #if defined(__WINDOWS__) || defined(__MINGW32__)
+#include <stdint.h>
 #include "windows/uxnt.h"
 #ifdef _YAP_NOT_INSTALLED_
 #include <config.h>

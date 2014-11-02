@@ -1323,7 +1323,7 @@ void traverse_and_save(TrNode node, FILE *file, int float_block) {
     TrNode *first_bucket, *bucket;
     TrHash hash;
     hash = (TrHash) node;
-    fprintf(file, "%lu %d ", HASH_SAVE_MARK, TrHash_num_buckets(hash));
+    fprintf(file, UInt_FORMAT " %d ", HASH_SAVE_MARK, TrHash_num_buckets(hash));
     first_bucket = TrHash_buckets(hash);
     bucket = first_bucket + TrHash_num_buckets(hash);
     do {
@@ -1341,7 +1341,7 @@ void traverse_and_save(TrNode node, FILE *file, int float_block) {
   t = TrNode_entry(node);
   if (float_block) {
     float_block--;
-    fprintf(file, "%lu %lu ", FLOAT_SAVE_MARK, t);
+    fprintf(file, UInt_FORMAT " " UInt_FORMAT "  ", FLOAT_SAVE_MARK, t);
   } else if (YAP_IsPairTerm(t)) {
     if (t == FloatInitTag) {
 #ifdef TAG_LOW_BITS_32
@@ -1349,9 +1349,9 @@ void traverse_and_save(TrNode node, FILE *file, int float_block) {
 #endif /* TAG_LOW_BITS_32 */
       float_block ++;
     }
-    fprintf(file, "%lu ", t);
+    fprintf(file, UInt_FORMAT " ", t);
   } else if (YAP_IsVarTerm(t) || YAP_IsIntTerm(t))
-    fprintf(file, "%lu ", t);
+    fprintf(file, UInt_FORMAT" ", t);
   else {
     int index;
     for (index = 0; index <= CURRENT_INDEX; index++)
@@ -1363,16 +1363,16 @@ void traverse_and_save(TrNode node, FILE *file, int float_block) {
 	expand_auxiliary_term_stack();
       AUXILIARY_TERM_STACK[CURRENT_INDEX] = t;
       if (YAP_IsAtomTerm(t))
-	  fprintf(file, "%lu %d %s%c ", ATOM_SAVE_MARK, index, YAP_AtomName(YAP_AtomOfTerm(t)), '\0');
+	  fprintf(file, UInt_FORMAT " %d %s%c ", ATOM_SAVE_MARK, index, YAP_AtomName(YAP_AtomOfTerm(t)), '\0');
       else  /* (ApplTag & t) */
-	fprintf(file, "%lu %d %s %lu ", FUNCTOR_SAVE_MARK, index,
+	fprintf(file, UInt_FORMAT " %d %s " UInt_FORMAT " ", FUNCTOR_SAVE_MARK, index,
 		YAP_AtomName(YAP_NameOfFunctor((YAP_Functor)(~ApplTag & t))),
 		YAP_ArityOfFunctor((YAP_Functor)(~ApplTag & t)));
     } else
       if (YAP_IsAtomTerm(t))
-	fprintf(file, "%lu %d ", ATOM_SAVE_MARK, index);
+	fprintf(file, UInt_FORMAT " %d ", ATOM_SAVE_MARK, index);
       else
-	fprintf(file, "%lu %d ", FUNCTOR_SAVE_MARK, index);
+	fprintf(file, UInt_FORMAT " %d ", FUNCTOR_SAVE_MARK, index);
   }
   if (IS_LEAF_TRIE_NODE(node)) {
     fprintf(file, "- ");
@@ -1393,7 +1393,7 @@ void traverse_and_load(TrNode parent, FILE *file) {
   YAP_Term t;
   int n;
 
-  if (!fscanf(file, "%lu", &t)) {
+  if (!fscanf(file, UInt_FORMAT , &t)) {
     MARK_AS_LEAF_TRIE_NODE(parent);
     INCREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
     if (DATA_LOAD_FUNCTION)
@@ -1407,7 +1407,7 @@ void traverse_and_load(TrNode parent, FILE *file) {
     n = fscanf(file, "%d", &num_buckets);
     new_trie_hash(hash, 0, num_buckets);
     TrNode_child(parent) = (TrNode) hash;
-    n = fscanf(file, "%lu", &t);
+    n = fscanf(file, UInt_FORMAT , &t);
   }
   do {
     TrNode child;
@@ -1446,10 +1446,10 @@ void traverse_and_load(TrNode parent, FILE *file) {
       }
       t = AUXILIARY_TERM_STACK[index];
     } else if (t == FLOAT_SAVE_MARK)
-      n = fscanf(file, "%lu", &t);
+      n = fscanf(file, UInt_FORMAT , &t);
     child = trie_node_insert(parent, t, hash);
     traverse_and_load(child, file);
-  } while (fscanf(file, "%lu", &t));
+  } while (fscanf(file, UInt_FORMAT , &t));
   CURRENT_DEPTH--;
   if (n) n = 0; // just added to remove the warning of not used!
   return;
@@ -1545,7 +1545,7 @@ void traverse_and_print(TrNode node, int *arity, char *str, int str_index, int m
     }
     mode = TRIE_PRINT_NORMAL;
   } else if (YAP_IsVarTerm(t)) {
-    str_index += sprintf(& str[str_index], "VAR%ld", TrieVarIndex(t));
+    str_index += sprintf(& str[str_index], "VAR" UInt_FORMAT, TrieVarIndex(t));
     while (arity[0]) {
       if (arity[arity[0]] == 1) {
 	str_index += sprintf(& str[str_index], ")");
@@ -1571,7 +1571,7 @@ void traverse_and_print(TrNode node, int *arity, char *str, int str_index, int m
       }
     }
   } else if (YAP_IsIntTerm(t)) {
-    str_index += sprintf(& str[str_index], "%ld", YAP_IntOfTerm(t));
+    str_index += sprintf(& str[str_index], UInt_FORMAT , YAP_IntOfTerm(t));
     while (arity[0]) {
       if (arity[arity[0]] == 1) {
 	str_index += sprintf(& str[str_index], ")");

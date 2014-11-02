@@ -52,8 +52,8 @@ typedef struct trie_data {
 #define SIZEOF_TR_ENTRY       sizeof(TYPE_TR_ENTRY)
 #define SIZEOF_TR_DATA        sizeof(TYPE_TR_DATA)
 
-#define AS_TR_ENTRY_NEXT(ADDR) (TrEntry)((unsigned long int)(ADDR) - sizeof(struct trie_node *) - 3 * sizeof(struct trie_data *))
-#define AS_TR_DATA_NEXT(ADDR)  (TrData)((unsigned long int)(ADDR) - sizeof(struct trie_entry *) - sizeof(struct trie_node *))
+#define AS_TR_ENTRY_NEXT(ADDR) (TrEntry)((YAP_UInt)(ADDR) - sizeof(struct trie_node *) - 3 * sizeof(struct trie_data *))
+#define AS_TR_DATA_NEXT(ADDR)  (TrData)((YAP_UInt)(ADDR) - sizeof(struct trie_entry *) - sizeof(struct trie_node *))
 
 
 
