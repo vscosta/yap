@@ -252,7 +252,7 @@ You can also use the CUDD interface package in YAP. You will need to
 
 2. If a Mac user, there is a ports package.  
 
-3 Otherwise, you can obtain the version at . This version compiles under WIN32.
+3. Otherwise, you can obtain the version at . This version compiles under WIN32.
 
 Last, when you configure YAP you need to add the options --with-cidd --enable-bddlib. Binary distributed versions already have the interface.
 
@@ -291,8 +291,10 @@ Instead of probabilities every fact has a t( ) prefix. The t stands for tunable 
 ~~~~
 t(0.5)::heads(_).
 ~~~~
+*/
 
-### ProbLog Predicates
+/** @defgroup ProbLogPredicates ProbLog Predicates
+@ingroup ProbLog1
 
 This chapter describes the predicates defined by ProbLog for evaluating the probability of queries.
 
@@ -347,8 +349,12 @@ This predicate returns the lower and upper bound of the probability of achieving
 This predicate returns the lower bound of the probability of achieving the goal G obtained by cutting the sld tree at the given probability for each branch.
 */
 
+%% @}
+
 /**
-### ProbLog Parameter Learning Predicates
+@defgroup ProbLogParameterLearning ProbLog Parameter Learning Predicates
+@ingroup ProbLog1
+@{
 */
 
 /**
@@ -371,7 +377,7 @@ Test examples are ignored during learning but are used afterwards to check the p
  * @pred do_learning(+N).
  *
 Starts the learning algorithm with N iterations.
-paragraph{}
+
 */
 
 /**
@@ -381,7 +387,15 @@ The output is created in the output subfolder of the current folder where YAP wa
 
 Starts the learning algorithm. The learning will stop after N iterations or if the difference of the Mean Squared Error (MSE) between two iterations gets smaller than Epsilon - depending on what happens first.
 
-### Miscelaneous
+*/
+
+%% @}
+
+
+/** @defgroup ProbLogMiscellaneous ProbLog Miscellaneous Predicates
+@ingroup ProbLog1
+@{
+
 
 Both the learning and the inference module have various parameters, or flags, that can be adjusted by the user.
 The following predicates are defined by ProbLog to access and set these flags.
@@ -395,11 +409,9 @@ This predicate lists all the flags name, value, domain and description.
 */
 
 
-/**
- * @pred problog_flag(+Name, -Value)
- *
-This predicate gives the value of the flag with the specified name. The supported flags are:
+/**  @pred problog_flag(+Name, -Value)
 
+This predicate gives the value of the flag with the specified name. The supported flags are:
 
 + use_db_trie
 
@@ -461,7 +473,7 @@ The possible values for this flag are true or false.
     Flag that sets the representation of the ancestor list.
 The possible values for this flag are list or integer
 
-+ max\cccccccccccc_depth
++ max_depth
 
     Sets the maximum proof depth.
 The possible values for this flag are any integer.
@@ -478,8 +490,7 @@ The possible values for this flag are any integer greater than zero.
 
 + min_mc_samples
 
-    Flag related to Monte Carlo Sampling that sets the minimum number of samples before convergence.
-The possible values for this flag are any integer greater than or equal to zero.
+    Flag related to Monte Carlo Sampling that sets the minimum number of samples before convergence. The possible values for this flag are any integer greater than or equal to zero.
 
 + max_mc_samples
 
@@ -591,6 +602,8 @@ The possible values for this flag are true or false.
     Flag telling the location of the output files directory.
 The possible values for this flag are any valid directory name.
 
+*/
+
 /** @pred set_problog_flag(+Name, +Value)
 
 the predicate sets the value of the given flag. The supported flags are the ones listed in above
@@ -601,7 +614,7 @@ the predicate sets the value of the given flag. The supported flags are the ones
 the predicate sets the value of the given flag. The supported flags are the ones listed in above
 */
 
-/** @pred learning_flag(+Name, -Value)}
+/** @pred learning_flag(+Name, -Value)
 
 This predicate gives the value of the learning flag with the specified name. The supported flags are:
 

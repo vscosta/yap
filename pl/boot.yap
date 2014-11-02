@@ -15,7 +15,7 @@
 *									 *
 *************************************************************************/
 
-/** 
+/**
 
 @defgroup YAPControl Control Predicates
 @ingroup YAPBuiltins
@@ -24,25 +24,8 @@
 */
 
 
-/** @pred   :_P_ , :_Q_   is iso 
 
-
-Conjunction of goals (and).
-
-Example:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- p(X) :- q(X), r(X).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-should be read as "p( _X_) if q( _X_) and r( _X_)".
-
- 
-*/
-
-/** @pred   :_P_ ; :_Q_  is iso 
-
-
+/** @pred   :_P_ ; :_Q_  is iso
 Disjunction of goals (or).
 
 Example:
@@ -52,11 +35,11 @@ Example:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 should be read as "p( _X_) if q( _X_) or r( _X_)".
 
- 
+
 */
 
-/** @pred  \+ :_P_  is iso 
-
+/** @pred  \+ :_P_  is iso
+Negation by failure.
 
 Goal  _P_ is not provable. The execution of this predicate fails if
 and only if the goal  _P_ finitely succeeds. It is not a true logical
@@ -65,17 +48,24 @@ negation, which is impossible in standard Prolog, but
 
 This predicate might be defined as:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
  \+(P) :- P, !, fail.
  \+(_).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
 if  _P_ did not include "cuts".
 
- 
+If _P_ includes cuts, the cuts are defined to be scoped by _P_: they canno cut over the calling prredicate.
+
+ ~~~~~~~~~~~~
+  go(P).
+          :- \+ P, !, fail.
+  \+(_).
+ ~~~~~~~~~~~~
+
 */
 
 
-/** @pred  not :_P_  
+/** @pred  not :_P_
 
 
 Goal  _P_ is not provable. The same as `\+  _P_`.
@@ -84,12 +74,12 @@ This predicate is kept for compatibility with C-Prolog and previous
 versions of YAP. Uses of not/1 should be replaced by
 `\+`/1, as YAP does not implement true negation.
 
- 
+
 */
 
 
 
-/** @pred   :_P_ -> :_Q_ is iso 
+/** @pred   :_Condition__ -> :_Action_  is iso
 
 
 Read as "if-then-else" or "commit". This operator is similar to the
@@ -134,26 +124,31 @@ Note also that you can use chains of commit operators like:
 Note that `(->)/2` does not affect the scope of cuts in its
 arguments.
 
- 
+
 */
 
-/** @pred    :_Condition_ *-> :_Action_  
+/** @pred    :_Condition_ *-> :_Action_ is iso
 
 This construct implements the so-called <em>soft-cut</em>. The control is
-defined as follows: If  _Condition_ succeeds at least once, the
-semantics is the same as ( _Condition_,  _Action_). If
+defined as follows:
+  + If  _Condition_ succeeds at least once, the
+semantics is the same as ( _Condition_,  _Action_).
+
+  + If
  _Condition_ does not succeed, the semantics is that of (\\+
- _Condition_,  _Else_). In other words, If  _Condition_
+ _Condition_,  _Else_).
+
+ In other words, if  _Condition_
 succeeds at least once, simply behave as the conjunction of
  _Condition_ and  _Action_, otherwise execute  _Else_.
 
 The construct  _A *-> B_, i.e. without an  _Else_ branch, is
 translated as the normal conjunction  _A_,  _B_.
 
- 
+
 */
 
-/** @pred  ! is iso 
+/** @pred  ! is iso
 
 
 Read as "cut". Cuts any choices taken in the current procedure.
@@ -184,7 +179,7 @@ definition:
  member(X,[_|L]) :- member(X,L).
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-the same query would return only the first element of the 
+the same query would return only the first element of the
 list, since backtracking could not "pass through" the cut.
 
 */
@@ -219,11 +214,7 @@ private(_).
 %
 % boootstrap predicates.
 %
-:- system_module( '$_boot', [(*->)/2,
-        (',')/2,
-        (->)/2,
-        (;)/2,
-        (\+)/1,
+:- system_module( '$_boot', [
         bootstrap/1,
         call/1,
         catch/3,
@@ -234,8 +225,7 @@ private(_).
         (not)/1,
         repeat/0,
         throw/1,
-        true/0,
-        ('|')/2], ['$$compile'/4,
+        true/0], ['$$compile'/4,
         '$call'/4,
         '$catch'/3,
         '$check_callable'/2,
@@ -299,12 +289,13 @@ private(_).
 %
 %
 %
-/** @pred  true is iso 
 
+/** @pred true is iso
+Succeed.
 
 Succeeds once.
 
- 
+
 */
 true :- true.
 
@@ -385,7 +376,7 @@ true :- true.
 
 '$init_globals' :-
 	% '$swi_set_prolog_flag'(break_level, 0),
-	% '$set_read_error_handler'(error), let the user do that 
+	% '$set_read_error_handler'(error), let the user do that
 	nb_setval('$chr_toplevel_show_store',false).
 
 '$init_consult' :-
@@ -458,15 +449,15 @@ true :- true.
 	'$system_catch'('$raw_read'(user_input, Line), prolog, E,
 			(print_message(error, E),
 	                 '$handle_toplevel_error'(Line, E))),
-	(   
+	(
 	    '$pred_exists'(rl_add_history(_), user)
-	-> 
+	->
 	    format(atom(CompleteLine), '~W~W',
 		   [ Line, [partial(true)],
 		     '.', [partial(true)]
 		   ]),
 	    user:rl_add_history(CompleteLine)
-	;   
+	;
 	    true
 	),
 	'$system_catch'(
@@ -524,15 +515,15 @@ true :- true.
 	( BreakLevel \= 0 -> true ; '$pred_exists'(halt(_), user) -> halt(0) ; '$halt'(0) ).
 
 
- '$erase_sets' :- 
+ '$erase_sets' :-
 		 eraseall('$'),
 		 eraseall('$$set'),
-		 eraseall('$$one'), 
+		 eraseall('$$one'),
 		 eraseall('$reconsulted'), fail.
  '$erase_sets' :- \+ recorded('$path',_,_), recorda('$path',"",_).
  '$erase_sets'.
 
- '$version' :- 
+ '$version' :-
 	 get_value('$version_name',VersionName),
 	 print_message(help, version(VersionName)),
 	 get_value('$myddas_version_name',MYDDASVersionName),
@@ -545,7 +536,7 @@ true :- true.
 	 fail.
  '$version'.
 
-/** @pred  repeat is iso 
+/** @pred  repeat is iso
 Succeeds repeatedly.
 
 In the next example, `repeat` is used as an efficient way to implement
@@ -567,7 +558,7 @@ The built-in `repeat/0` could be defined in Prolog by:
 
 The predicate between/3 can be used to iterate for a pre-defined
 number of steps.
- 
+
 */
  repeat :- '$repeat'.
 
@@ -582,7 +573,7 @@ number of steps.
  '$repeat'.
  '$repeat' :- '$repeat'.
 
-'$start_corouts' :- 
+'$start_corouts' :-
 	eraseall('$corout'),
 	eraseall('$result'),
 	eraseall('$actual'),
@@ -595,7 +586,7 @@ number of steps.
 	'$access_yap_flags'(9,1), !,
 	 '$execute_command'(C,VL,Pos,Con,C).
 '$command'(C,VL,Pos,Con) :-
-	( (Con = top ; var(C) ; C = [_|_])  ->  
+	( (Con = top ; var(C) ; C = [_|_])  ->
 	  '$execute_command'(C,VL,Pos,Con,C), ! ;
 	  % do term expansion
 	  expand_term(C, EC),
@@ -614,7 +605,7 @@ number of steps.
  '$execute_commands'([C|Cs],VL,Pos,Con,Source) :- !,
 	 (
 	   '$system_catch'('$execute_command'(C,VL,Pos,Con,C),prolog,Error,user:'$LoopError'(Error, Con)),
-	   fail	
+	   fail
 	 ;
 	   '$execute_commands'(Cs,VL,Pos,Con,Source)
 	 ).
@@ -637,7 +628,7 @@ number of steps.
 	 \+ '$if_directive'(Command),
 	 !.
  '$execute_command'((:-G),VL,Pos,Option,_) :-
-%          !, 
+%          !,
 	 Option \= top, !,
 	 '$current_module'(M),
 	 % allow user expansion
@@ -661,7 +652,7 @@ number of steps.
  % ISO only wants directives in files
  % SICStus accepts everything in files
  % YAP accepts everything everywhere
- % 
+ %
  '$process_directive'(G, top, M, VL, Pos) :-
 	 '$access_yap_flags'(8, 0), !, % YAP mode, go in and do it,
 	 '$process_directive'(G, consult, M, VL, Pos).
@@ -723,13 +714,13 @@ number of steps.
  '$go_compile_clause'(G,Vs,Pos,N,Source) :-
 	 '$current_module'(Mod),
 	 '$go_compile_clause'(G,Vs,Pos,N,Mod,Mod,Mod,Source).
- 
+
 '$go_compile_clause'(G,_Vs,_Pos,_N,_HM,_BM,_SM,Source) :-
 	var(G), !,
-	'$do_error'(instantiation_error,assert(Source)).	
+	'$do_error'(instantiation_error,assert(Source)).
 '$go_compile_clause'((G:-_),_Vs,_Pos,_N,_HM,_BM,_SM,Source) :-
 	var(G), !,
-	'$do_error'(instantiation_error,assert(Source)).	
+	'$do_error'(instantiation_error,assert(Source)).
 '$go_compile_clause'(M:G,Vs,Pos,N,_,_,SourceMod,Source) :- !,
 	  '$go_compile_clause'(G,Vs,Pos,N,M,M,M,Source).
 '$go_compile_clause'((M:H :- B),Vs,Pos,N,_,BodyMod,SourceMod,Source) :- !,
@@ -773,13 +764,13 @@ number of steps.
 '$not_imported'(_, _).
 
 
-'$check_if_reconsulted'(N,A) :- 
-         once(recorded('$reconsulted',N/A,_)), 
-	 recorded('$reconsulted',X,_), 
-	 ( X = N/A , !; 
-	   X = '$', !, fail; 
-	   fail 
-	 ). 
+'$check_if_reconsulted'(N,A) :-
+         once(recorded('$reconsulted',N/A,_)),
+	 recorded('$reconsulted',X,_),
+	 ( X = N/A , !;
+	   X = '$', !, fail;
+	   fail
+	 ).
 
 '$inform_as_reconsulted'(N,A) :-
 	 recorda('$reconsulted',N/A,_).
@@ -810,7 +801,7 @@ number of steps.
 	  '$write_answer'(NV, LGs, Written),
 	  '$write_query_answer_true'(Written),
 	  (
-	   '$prompt_alternatives_on'(determinism), CP == NCP, DCP = 0 
+	   '$prompt_alternatives_on'(determinism), CP == NCP, DCP = 0
 	   ->
 	   format(user_error, '.~n', []),
 	   !
@@ -818,7 +809,7 @@ number of steps.
 	   '$another',
 	   !
 	  ),
-	  fail	 
+	  fail
 	 ;
 	  '$out_neg_answer'
 	 ).
@@ -851,14 +842,14 @@ number of steps.
 	  '$clean_ifcp'(CP),
 	   NCP is NCP2-NCP1
 	  ;
-	   copy_term_nat(V, NV), 
-	   LGs = [], 
+	   copy_term_nat(V, NV),
+	   LGs = [],
 %	   term_factorized(V, NV, LGs),
 	   NCP = 0
         ).
 
 '$out_neg_answer' :-
-	 ( '$undefined'(print_message(_,_),prolog) -> 
+	 ( '$undefined'(print_message(_,_),prolog) ->
 	    '$present_answer'(user_error,'false.~n')
 	 ;
 	    print_message(help,false)
@@ -905,15 +896,15 @@ number of steps.
 	    fail
 	;
 	    C== 10 -> '$add_nl_outside_console',
-		( '$undefined'(print_message(_,_),prolog) -> 
+		( '$undefined'(print_message(_,_),prolog) ->
 			format(user_error,'yes~n', [])
 	        ;
 		   print_message(help,yes)
 		)
 	;
-	    C== 13 -> 
+	    C== 13 ->
 	    get0(user_input,NC),
-	    '$do_another'(NC)	    
+	    '$do_another'(NC)
 	;
 	    C== -1 -> halt
 	;
@@ -940,7 +931,7 @@ number of steps.
         '$write_vars_and_goals'(NLAnsw, first, FLAnsw).
 
 '$purge_dontcares'([],[]).
-'$purge_dontcares'([Name=_|Vs],NVs) :- 
+'$purge_dontcares'([Name=_|Vs],NVs) :-
 	atom_codes(Name, [C|_]), C is "_", !,
 	'$purge_dontcares'(Vs,NVs).
 '$purge_dontcares'([V|Vs],[V|NVs]) :-
@@ -948,7 +939,7 @@ number of steps.
 
 
 '$prep_answer_var_by_var'([], L, L).
-'$prep_answer_var_by_var'([Name=Value|L], LF, L0) :- 
+'$prep_answer_var_by_var'([Name=Value|L], LF, L0) :-
 	'$delete_identical_answers'(L, Value, NL, Names),
 	'$prep_answer_var'([Name|Names], Value, LF, LI),
 	'$prep_answer_var_by_var'(NL, LI, L0).
@@ -1083,10 +1074,10 @@ is converted to:
  a(X) :- call(X).
 ~~~~~
 
- 
+
 */
 
-/** @pred  call(+ _P_) is iso 
+/** @pred  call(+ _P_) is iso
 Meta-call predicate.
 
 If _P_ is instantiated to an atom or a compound term, the goal `call(
@@ -1094,16 +1085,16 @@ _P_)` is executed as if the clause was originally written as _P_
 instead as call( _P_ ), except that any "cut" occurring in _P_ only
 cuts alternatives in the execution of _P_.
 
- 
+
 */
 call(G) :- '$execute'(G).
 
-/** @pred  incore(+ _P_) 
+/** @pred  incore(+ _P_)
 
 
 The same as call/1.
 
- 
+
 */
 incore(G) :- '$execute'(G).
 
@@ -1137,6 +1128,19 @@ incore(G) :- '$execute'(G).
 	'$stop_creeping'.
 
 
+/** @pred   :_P_ , :_Q_   is iso, meta
+Conjunction of goals (and).
+
+The conjunction is a fundamental construct of Prolog. Example:
+
+~~~~~~~
+ p(X) :- q(X), r(X).
+~~~~~~~
+
+should be read as `p( _X_) if q( _X_) and r( _X_).
+
+
+*/
 ','(X,Y) :-
 	yap_hacks:env_choice_point(CP),
 	'$current_module'(M),
@@ -1346,7 +1350,7 @@ bootstrap(F) :-
 	close(Stream).
 
 '$loop'(Stream,exo) :-
-	prolog_flag(agc_margin,Old,0),	
+	prolog_flag(agc_margin,Old,0),
 	prompt1('|     '), prompt(_,'| '),
 	'$current_module'(OldModule),
 	repeat,
@@ -1355,7 +1359,7 @@ bootstrap(F) :-
 	prolog_flag(agc_margin,_,Old),
 	!.
 '$loop'(Stream,db) :-
-	prolog_flag(agc_margin,Old,0),	
+	prolog_flag(agc_margin,Old,0),
 	prompt1('|     '), prompt(_,'| '),
 	'$current_module'(OldModule),
 	repeat,
@@ -1406,9 +1410,9 @@ bootstrap(F) :-
 %                       Expanded is the final expanded term.
 %
 '$precompile_term'(Term, Expanded0, Expanded, HeadMod, BodyMod, SourceMod) :-
-%format('[ ~w~n',[Term]),  
+%format('[ ~w~n',[Term]),
 	'$module_expansion'(Term, Expanded0, ExpandedI, HeadMod, BodyMod, SourceMod), !,
-%format('      -> ~w~n',[Expanded0]),  
+%format('      -> ~w~n',[Expanded0]),
 	(
 	 '$access_yap_flags'(9,1)      /* strict_iso on */
         ->
@@ -1418,9 +1422,9 @@ bootstrap(F) :-
 	 '$expand_array_accesses_in_term'(ExpandedI,Expanded)
 	).
 '$precompile_term'(Term, Term, Term, _, _, _).
-	
 
-/** @pred  expand_term( _T_,- _X_) 
+
+/** @pred  expand_term( _T_,- _X_)
 
 
 
@@ -1432,7 +1436,7 @@ rules: first try term_expansion/2  in the current module, and then try to use th
 for DCG rules is applied, together with the arithmetic optimizer
 whenever the compilation of arithmetic expressions is in progress.
 
- 
+
 */
 expand_term(Term,Expanded) :-
 	( '$do_term_expansion'(Term,Expanded)
@@ -1463,8 +1467,8 @@ expand_term(Term,Expanded) :-
 
 % at each catch point I need to know:
 % what is ball;
-% where was the previous catch	
-/** @pred  catch( : _Goal_,+ _Exception_,+ _Action_) is iso 
+% where was the previous catch
+/** @pred  catch( : _Goal_,+ _Exception_,+ _Action_) is iso
 
 
 The goal `catch( _Goal_, _Exception_, _Action_)` tries to
@@ -1477,7 +1481,7 @@ again throws the exception.
 The top-level of YAP maintains a default exception handler that
 is responsible to capture uncaught exceptions.
 
- 
+
 */
 catch(G, C, A) :-
 	'$catch'(C,A,_),
@@ -1506,7 +1510,7 @@ catch(G, C, A) :-
 %
 % throw has to be *exactly* after system catch!
 %
-/** @pred  throw(+ _Ball_) is iso 
+/** @pred  throw(+ _Ball_) is iso
 
 
 The goal `throw( _Ball_)` throws an exception. Execution is
@@ -1514,7 +1518,7 @@ stopped, and the exception is sent to the ancestor goals until reaching
 a matching catch/3, or until reaching top-level.
 
 @}
- 
+
 */
 throw(_Ball) :-
 	% use existing ball
@@ -1522,7 +1526,7 @@ throw(_Ball) :-
 	!,
 	'$jump_env_and_store_ball'(Ball).
 throw(Ball) :-
-	( var(Ball) -> 
+	( var(Ball) ->
 	    '$do_error'(instantiation_error,throw(Ball))
 	;
 	% get current jump point
@@ -1558,7 +1562,7 @@ catch_ball(C, C).
 
 '$run_toplevel_hooks' :-
 	'$swi_current_prolog_flag'(break_level, 0 ),
-	recorded('$toplevel_hooks',H,_), 
+	recorded('$toplevel_hooks',H,_),
 	H \= fail, !,
 	( call(user:H1) -> true ; true).
 '$run_toplevel_hooks'.
@@ -1576,4 +1580,3 @@ log_event( String, Args ) :-
 /**
 @}
 */
-
