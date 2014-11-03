@@ -173,7 +173,7 @@ fi
 if test x${THREADS} != xno
 then
   cp "$DLL_PATH"/libwinpthread-1.dll .
-  cp "$DLL_PATH=gmp*.dll .
+  cp "$DLL_PATH"/gmp*.dll .
   cp libwinpthread-1.dll pthreadGC2.dll
 fi
 
