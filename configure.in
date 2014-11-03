@@ -517,7 +517,8 @@ AC_PROG_INSTALL
 AC_PROG_RANLIB
 AC_CHECK_TOOL(AR,[ar],:)
 AC_PATH_PROG(INSTALL_INFO,install-info,true,$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin)
-AC_CHECK_HEADERS(winsock.h winsock2.h)
+dnl do this before windows.h
+AC_CHECK_HEADERS(winsock.h winsock2.h windows.h)
 AC_PATH_PROG(SHELL,sh)
 AC_CHECK_TOOL([INDENT], [indent], [:])
 
@@ -660,9 +661,6 @@ fi
 if test "$yap_cv_judy" != "no"; then
 	AC_CHECK_LIB(Judy, Judy1Set,,[AC_MSG_RESULT([libJudy not found, UDI will only work with one Index at a time])])
 fi
-
-AC_CHECK_HEADERS(IntSafe.h)
-AC_CHECK_HEADERS(windows.h)
 
 if test "$threads" = yes
 then
@@ -1091,7 +1089,7 @@ dnl Linux has both elf and a.out, in this case we found elf
            INSTALL_ENV="YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
         fi
 	;;
-      *cyg*|*mingw*)
+      *cyg*|*mingw*|*msys*)
 	# gcc on cygwin seems to have trouble with longjmp
         # and -fomit-frame-point -DBP_FREE
 	YAPLIB="yap.dll"
@@ -1918,11 +1916,11 @@ if test "x$PLARCH" = "x"; then
     *linux*)
       PLARCH=`echo $host | sed 's/-.*/-linux/'`
     ;;
-    i?86-*mingw32*)
+    i?86-*mingw32*|i?86-msys*)
       # Make PLARCH match the definition in src/config/win32.h
       PLARCH=i386-win32
       ;;
-    x86_64-*mingw32*)
+    x86_64-*mingw32*|x86_64-msys*)
       # Make PLARCH match the definition in src/config/win64.h
       PLARCH=x64-win64
       ;;

@@ -23,7 +23,7 @@
 #endif
 
 #ifndef __WINDOWS__
-#if defined(_MSC_VER) || defined(__MINGW32__)
+#if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MSYS__)
 #define __WINDOWS__ 1
 #endif
 #endif

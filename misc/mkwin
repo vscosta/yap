@@ -14,30 +14,47 @@
 #
 # http://sourceforge.net/projects/mingwbuilds/
 #   PS: don't install in the default location.
-#   mingw should avoid space in its directory,
+#   mingw should avoid space in its directory path,
 #   it freaks winres out.
 # http://nsis.sourceforge.net/Main_Page
 #
 #
-YHOME=/y/vsc
-VERSION=6.3.4
-#cross-compiler for OSX, see http://mxe.cc/
-#notice that OSX does not allow WIN64 emulation (wine64)
-MXE=$HOME/Yap/mxe/usr
-# by default, compile without threads
-THREADS=no
-# use 64 bits
-ABI=64
+for YHOME in /y/vsc /z /home/vsc /home/vitor /Users/vsc /u/vitor;
+do
+  if test -d $YHOME/Yap
+  then
+  break
+  fi
+done
 
-SRC=/c/cygwin/Yap/yap-6.3
+#!/bin/sh
+#
+# /**
+#
+# assumes o mingw32/mingw64 compiler
+#         native sh like env: msys usually, such as 
+#            http://msys2.sourceforge.net/
+#          
+
+# Major and Minor
+VER="6.3"
+# Patch
+PATCHID="4"
+# SRC in the way it loks to the script
+SRC=/c/cygwin/Yap/yap-"$VER"
+# the way it looks to win32
+SRC_WIN="c:\\cygwin\\Yap\\yap-${VER}"
 #SRC=/l/work/noth/git
 #SRC_WIN=L:\\work\\noth\\git
 #SRC="$HOME"/git/yap-6.3
-TARGET=/c/Yap64
+# do we support THREADS
+THREADS=no
+# makes install bundle
 NSIS="/c/Program Files (x86)/NSIS/makensis"
-# by default, ""
+# emulator, by default, ""
 PREFIX_CMD=wine
 
+VERSION="$VER"."$PATCHID"
 I=$#
 while test $I -gt 0
 do
@@ -61,16 +78,17 @@ done
 
 # srcdir comes from here, please avoid relative paths
 CONFIGURE="$SRC"/configure
-DEBUG=" --enable-debug-yap --enable-low-level-tracer"
+#DEBUG=" --enable-debug-yap --enable-low-level-tracer"
+DEBUG=
 
 # debugging setup
-do_compile=true
-do_install=true
+do_compile=yes
+do_install=yes
 
 # HOME WIN64 configuration
 
 # DOCS_DIR=/l/work/noth/yapdocs
-DOCS_DIR="$YHOME"/Yap/bins/threads
+DOCS_DIR="$YHOME"/Yap/doxout
 
 if test "$THREADS" = yes; then
   FULL_VERSION="$VERSION"-threads
@@ -79,94 +97,83 @@ else
 fi                                                           
 
 if test $ABI = 64; then
-  BUILD=/c/cygwin/Yap/mingw"$ABI"
-  #GCC_DIR=/l/Work/noth/mingw-w64/x86_64-4.9.0-posix-seh-rt_v3-rev1/mingw64
+  TARGET=YAP64
   case $( uname ) in
     *Darwin*)
      GCC_DIR="$MXE"
      HOST="x86_64-w64-mingw32"
-     LIB_PATH="$MXE"/"$HOST"/lib
+     BUILD=/c/cygwin/Yap/mingw"$ABI"
      ;;
     *MINGW64*)
-     GCC_DIR=/c/TDM-GCC-64
+     # GCC_DIR=/l/Work/noth/mingw-w64/x86_64-4.9.0-posix-seh-rt_v3-rev1/mingw64
+     # GCC_DIR=/c/TDM-GCC-64
+     GCC_DIR=/c/MinGW64
      HOST="x86_64-w64-mingw32"
-     LIB_PATH="$GCC_DIR"/"$HOST"/lib
+     ;;
+    MSYS*)
+     # GCC_DIR=/c/TDM-GCC-64
+     GCC_DIR=/usr
+     HOST="x86_64-pc-msys"
+     BLD="--build=$HOST"
      ;;
   esac
   # ok.
   # BDD compiler package. Get version that compiles on Windows from Vitor!
   #  GMP=/l/Work/noth/msys/1.0/local
-  GMP=/c/msys64/usr/win64
+  GMP=yes #/c/msys64/usr/win64
   CUDD=/c/cygwin/Yap/cudd-2.5.0-mingw64
   GECODE=no  # "/c/Program Files/Gecode"
   JAVA="$( echo /c/Program\ Files/Java/jdk* )"
   PYTHON="/c/Python33-64"
   R="$( echo /c/Program\ Files/R/R-*/bin/x64 )"
-
-fi
-
 # HOME WIN32 configuration
-if test $ABI = 32; then
-  ABI=32
+elif test $ABI = 32; then
+  TARGET=YAP
   case $( uname ) in
     *Darwin*)
     #use mxe as a cross compiler
-    GCC_DIR="$MXE"/bin
-    PATH="$GCC_DIR":"$PATH"
+    GCC_DIR="$MXE"
     HOST="i686-pc-mingw32"
-    LIB_PATH="$MXE"/"$HOST"/lib
-    GECODE=no # install only allows one of 32 or 64 bits
-    GMP=yes
-    JAVA=no
-    PYTHON=no
-    REAL=no
+    GMP=/c/msys64/usr/win32
     ;;
-  esac
-
-  case $( uname ) in
-    *Darwin*)
-     GCC_DIR="$MXE"
-     HOST="x86_64-w64-mingw32"
-     LIB_PATH="$MXE"/"$HOST"/lib
-     ;;
-    *MINGW64*)
-     GCC_DIR=/c/TDM-GCC-64
-     HOST="x86_64-w64-mingw32"
-     LIB_PATH="$GCC_DIR"/"$HOST"/lib
+    *MINGW32*)
+     GCC_DIR=/mingw32
+     HOST="i686-w64-mingw32"
+     GMP=yes
      ;;
   esac
   # ok.
   # BDD compiler package. Get version that compiles on Windows from Vitor!
   #  GMP=/l/Work/noth/msys/1.0/local
-  GMP=/c/msys64/usr/win32
   CUDD=/c/cygwin/Yap/cudd-2.5.0-mingw32
   GECODE=no  # "/c/Program Files/Gecode"
-  JAVA="$( echo /c/Program\ Files\ */Java/jdk* )"
-  PYTHON="/c/Python27"
+  JAVA="$( echo /c/Program\ Files\ *x86*/Java/jdk* )"
+  PYTHON="/c/Python27/DLLs"
   R="$( echo /c/Program\ Files/R/R-*/bin/i* )"
-  HOST+=" --enable-abi=32"
+  # HOST=" --enable-abi=32"
 
 fi
 
 export PATH="$GCC_DIR"/bin:"$PATH"
 # echo "gcc= " $GCC_DIR
-# echo "host= " $HOST
+ echo "host= " $HOST
 if test x"$JAVA" != xno
 then
   export PATH="$PATH":"$JAVA"/bin
 fi
 if test x"$PYTHON" != xno
 then
-  export PATH="$PATH":"$PYTHON"/"python.exe"
+  export PATH="$PATH":"$PYTHON"
 fi
 if test x"$R" != xno
 then
     export PATH="$PATH":"$R"
 fi
 
-if test ${THREADS} = yes
+if test x${THREADS} != xno
 then
-  cp "$LIB_PATH"/libwinpthread-1.dll .
+  cp "$DLL_PATH"/libwinpthread-1.dll .
+  cp "$DLL_PATH=gmp*.dll .
   cp libwinpthread-1.dll pthreadGC2.dll
 fi
 
@@ -185,7 +192,7 @@ then
   export PATH="$PATH":"$GECODE"/bin
 fi
 
-if test "$JAVA" = yes
+if test x"$JAVA" != xno
 then
   export PATH="$PATH":"$JAVA"/bin
 fi
@@ -210,44 +217,45 @@ then
    make distclean
 fi
 
-export INSTALL_SH=$SRC/yap-6.3/install.sh
+export INSTALL_SH=$SRC/yap-"$VERSION"/install.sh
 # avoid using relative paths
 if test "$do_compile" = true; then
   BUILD=/c/cygwin/Yap/mingw"$ABI"
   mkdir -p  "$BUILD"
+  cd "$BUILD"
+#  make distclean
 #  /bin/rm -rf "$BUILD"/*
-  "$CONFIGURE" --host="$HOST" \
-   --prefix="$TARGET"  $DEBUG\
+  "$CONFIGURE" --host="$HOST" "$BLD" \
+   --prefix=/c/"$TARGET"  $DEBUG\
      --with-R="$R" \
        --with-java="$JAVA" \
          --with-gmp="$GMP" \
-           --with-python="$PYTHON" \
+           --with-python="$PYTHON"/python.exe \
              --with-cudd="$CUDD" --enable-bddlib="$BDDLIB" --with-cplint="$CPLINT" \
                --with-gecode="$GECODE" \
                  --enable-threads="$THREADS"  --enable-pthread-locking
 
  make #-j 4 install
 fi
-if test "$do_install" = true; then
+if test "$do_install" = yes; then
+  make install
+  cp -a $DOCS_DIR/html /c/$TARGET/share/doc/Yap
+  cp $DOCS_DIR/latex/*pdf /c/$TARGET/share/doc/Yap
   if test $ABI = 64; then
-    cp $DOCS_DIR/*html $TARGET/share/doc/Yap
-    cp $DOCS_DIR/*pdf $TARGET/share/doc/Yap
     "$NSIS" -DREGKEY=SOFTWARE\\YAP\\Prolog64 \
-      -DROOTDIR=$TARGET \
+      -DROOTDIR=/c/$TARGET \
         -DABI="$ABI" \
           -DVERSION="$FULL_VERSION" \
             -DOPTIONS="$SRC_WIN\\misc\\options.ini" \
               -DOUT_DIR=".." -D"WIN64=1" \
-                -NOCD $SRC/yap-6.3/misc/Yap.nsi
+                -NOCD $SRC/misc/Yap.nsi
   else
-    cp $DOCS_DIR/*html $TARGET/share/doc/Yap
-    cp $DOCS_DIR/*pdf $TARGET/share/doc/Yap
     "$NSIS" -DREGKEY=SOFTWARE\\YAP\\Prolog \
-      -DROOTDIR=$TARGET \
+      -DROOTDIR=/c/$TARGET\
         -DABI="$ABI" \
           -DVERSION="$FULL_VERSION" \
             -DOPTIONS="$SRC_WIN\\misc\\options.ini" \
               -DOUT_DIR=".." \
-                -NOCD $SRC/yap-6.3/misc/Yap.nsi
+                -NOCD $SRC/misc/Yap.nsi
   fi
 fi

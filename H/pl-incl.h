@@ -11,8 +11,11 @@
 
 #ifdef __WINDOWS__
 
+#ifndef __MSYS__
 #include <winsock2.h>
+#endif
 #include <windows.h>
+
 
 #if HAVE_XOS_H
 #include <xos.h>			/* Windows POSIX enhancements */
