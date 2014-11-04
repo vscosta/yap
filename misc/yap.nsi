@@ -18,9 +18,9 @@ ReserveFile "${NSISDIR}\Plugins\x86-unicode\InstallOptions.dll"
 ReserveFile "${OPTIONS}"
 
 !ifdef WIN64
-InstallDir "$PROGRAMFILES64\${ROOTDIR}"
+InstallDir "$PROGRAMFILES64\${TARGET}"
 !else
-InstallDir "$PROGRAMFILES\${ROOTDIR}"
+InstallDir "$PROGRAMFILES\${TARGET}"
 !endif
 InstallDirRegKey HKLM ${REGKEY} "home"
 
@@ -72,7 +72,7 @@ Section "Base system (required)"
   File /r ${ROOTDIR}\share\Yap\*
 
   SetOutPath $INSTDIR\share\doc\Yap
-  File ${ROOTDIR}\share\doc\Yap\html\index.html
+  File ${ROOTDIR}\share\doc\Yap\html\*
 ;  File ${ROOTDIR}\share\doc\Yap\refman.pdf
 ;  File ${ROOTDIR}\share\doc\Yap\yap.info
   File ${ROOTDIR}\share\doc\Yap\Artistic

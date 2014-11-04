@@ -36,7 +36,7 @@ elif test -e "$srcdir"/packages/python/Makefile.in ; then
      if test -d "$PYTHONHOME/libs"; then
        #mingw
        PYTHON_DIR="$PYTHONHOME"
-       PYTHON_DLL=`echo "$PYTHON_DIR"/python*.dll`
+       PYTHON_DLL=`echo "$PYTHON_DIR"/DLLs/python*.dll`
        PYTHON_LIBS="\"$PYTHON_DLL\""
        PYTHON_INCLUDES="-I \"$PYTHON_DIR\"/include"
      elif test -d "$PYTHONHOME/lib"; then

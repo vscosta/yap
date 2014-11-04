@@ -511,13 +511,13 @@ JIT_Compiler.o: IT/JIT_Compiler.cpp
 	$(CC) -c $(CFLAGS) $< -o $@
 
 pl-ntcon.o: console/LGPL/pl-ntcon.c config.h
-	$(CC) -c $(CFLAGS) -DPL_CONSOLE=1 -I$(srcdir)/include $< -o $@
+	$(CC) -c $(CFLAGS)   -DUNICODE -D_UNICODE -DPL_CONSOLE=1 -I$(srcdir)/include $< -o $@
 
 pl-ntconsole.o: console/LGPL/pl-ntconsole.c config.h
-	$(CC) -c $(CFLAGS) -DPL_CONSOLE=1  -I$(srcdir) -I$(srcdir)/include -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $< -o $@
+	$(CC) -c $(CFLAGS)   -DUNICODE -D_UNICODE -DPL_CONSOLE=1  -I$(srcdir) -I$(srcdir)/include -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $< -o $@
 
 pl-ntmain.o: console/LGPL/pl-ntmain.c config.h
-	$(CC) -c $(CFLAGS) -DPL_CONSOLE=1 -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $< -o $@
+	$(CC) -c $(CFLAGS)   -DUNICODE -D_UNICODE -DPL_CONSOLE=1 -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $< -o $@
 
 yapres.o: console/LGPL/yap.rc console/LGPL/manifest.xml config.h
 	$(RC) $(RCFLAGS) -DUNICODE -D_UNICODE -DPL_CONSOLE=1 -I. -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os -I$(srcdir)/console/LGPL @EXTRA_INCLUDES_FOR_WIN32@ -i $< -o $@
