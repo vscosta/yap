@@ -27,6 +27,10 @@ do
   fi
 done
 
+#!/bin/sh
+#
+# /**
+#
 # assumes o mingw32/mingw64 compiler
 #         native sh like env: msys usually, such as 
 #            http://msys2.sourceforge.net/
@@ -49,9 +53,10 @@ THREADS=no
 NSIS="/c/Program Files (x86)/NSIS/makensis"
 # emulator, by default, ""
 PREFIX_CMD=wine
+# work from scratch
+CLEAN=yes
 
 VERSION="$VER"."$PATCHID"
-ABI=64
 I=$#
 while test $I -gt 0
 do
@@ -61,14 +66,12 @@ do
   elif test $1 = no_threads
   then
     THREADS=no
-  elif test $1 = all
+  elif test $1 = reuse
   then
-    rm -rf /c/Yap/*
-    rm -rf /c/Yap64/*
-    "$SRC"/misc/mkwin 32
-    "$SRC"/misc/mkwin 32 threads
-    "$SRC"/misc/mkwin 64
-    "$SRC"/misc/mkwin 64 threads
+    CLEAN=no
+  elif test $1 = clean
+  then
+    CLEAN=yes
   elif test $1 = 32
   then
     ABI=32
@@ -76,10 +79,9 @@ do
   then
     ABI=64
   else
-    echo "received \"$1\", should be one of threads, no_threads, 32, 64"
+    echo "received \"$1\", should be one of threads, no_threads, 32, 64, reuse, clean"
   fi
   I=$(( $I - 1 ))
-  shift
 done
 
 # srcdir comes from here, please avoid relative paths
@@ -168,6 +170,7 @@ BUILD+="/mingw""$ABI""$EXTRA_THREADS"
 
 export PATH="$GCC_DIR"/bin:"$PATH"
 # echo "gcc= " $GCC_DIR
+ echo "host= " $HOST
 if test x"$JAVA" != xno
 then
   export PATH="$PATH":"$JAVA"/bin
@@ -215,6 +218,11 @@ then
   export PATH="$PATH":"$R"
 fi
 
+if test $CLEAN = yes
+then
+   make distclean
+fi
+
 export INSTALL_SH=$SRC/yap-"$VERSION"/install.sh
 
 # avoid using relative paths
@@ -233,11 +241,11 @@ if test "$do_compile" = yes; then
                --with-gecode="$GECODE" \
                  --enable-threads="$THREADS"  --enable-pthread-locking
 
- make #-j 4 install
+ make -j 4
 fi
 if test "$do_install" = yes; then
   make install
-  cp -a $DOCS_DIR/html /c/$TARGET/share/doc/Yap
+  cp -a "$DOCS_DIR"0/html /c/$TARGET/share/doc/Yap
   cp $DOCS_DIR/latex/*pdf /c/$TARGET/share/doc/Yap
 
   DLL_PATH="$GCC_DIR"/bin
@@ -248,7 +256,7 @@ if test "$do_install" = yes; then
 
   if test $ABI = 64; then
     "$NSIS" -DREGKEY=SOFTWARE\\YAP\\Prolog64 \
-      -DROOTDIR=/c/$TARGET  -DTARGET="$TARGET""$EXTRA_THREADS"  \
+      -DROOTDIR=/c/$TARGET  -DTARGET="$TARGET"  \
         -DABI="$ABI" \
           -DVERSION="$VERSION""$EXTRA_THREADS" \
             -DOPTIONS="$SRC_WIN\\misc\\options.ini" \
@@ -256,7 +264,7 @@ if test "$do_install" = yes; then
                 -NOCD $SRC/misc/Yap.nsi
   else
     "$NSIS" -DREGKEY=SOFTWARE\\YAP\\Prolog \
-	-DROOTDIR=/c/$TARGET -DTARGET="$TARGET""$EXTRA_THREADS" \
+	-DROOTDIR=/c/$TARGET -DTARGET="$TARGET" \
         -DABI="$ABI" \
           -DVERSION="$VERSION""$EXTRA_THREADS" \
             -DOPTIONS="$SRC_WIN\\misc\\options.ini" \
