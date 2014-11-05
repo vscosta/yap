@@ -538,20 +538,32 @@ remove_from_path(New) :- '$check_path'(New,Path),
   `library( _File_ )` are searched by the predicates consult/1,
   reconsult/1, use_module/1, ensure_loaded/1, and load_files/2.
 
+  This directory is initialized through the system predicate
+  library_directories/2.
 */
 
 :- multifile user:library_directory/1.
 
 :- dynamic user:library_directory/1.
 
-/**
-  @pred user:commons_directory(?Directory:atom) is nondet, dynamic
+user:library_directory( Path ):-
+    library_directories( Path, _ ).
 
+/**
+  @pred user:commons_directory(? _Directory_:atom) is nondet, dynamic
+
+  State the location of the Commons Prolog Initiative.
+
+  This directory is initialized through the system predicate
+  library_directories/2.
 */
 
 :- multifile user:commons_directory/1.
 
 :- dynamic user:commons_directory/1.
+
+user:commons_directory( Path ):-
+    library_directories( _, Path ).
 
 /**
   @pred user:prolog_file_type(?Suffix:atom, ?Handler:atom) is nondet, dynamic

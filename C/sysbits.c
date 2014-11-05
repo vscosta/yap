@@ -116,7 +116,7 @@ static int chdir(char *);
 
 void exit(int);
 
-#ifdef _WIN32
+#ifdef __WINDOWS__
 void
 Yap_WinError(char *yap_error)
 {
@@ -211,119 +211,120 @@ Yap_dir_separator (int ch)
 char *libdir = NULL;
 #endif
 
-void
-Yap_InitSysPath(void) {
+static Int
+initSysPath(Term tlib, Term tcommons) {
   CACHE_REGS
   int len;
   int dir_done = FALSE;
   int commons_done = FALSE;
-#if _MSC_VER || defined(__MINGW32__)
+  Int rcl, rcc;
+
+#if _MSC_VER || defined(__MINGW32__) || defined(__MSYS__)
   {
     char *dir;
     if ((dir = Yap_RegistryGetString("library")) &&
 	is_directory(dir)) {
-      Yap_PutValue(AtomSystemLibraryDir,
-		   MkAtomTerm(Yap_LookupAtom(dir)));
-      dir_done = TRUE;
+      if (! Yap_unify( tlib,
+		       MkAtomTerm(Yap_LookupAtom(dir))) )
+	return FALSE;
     }
     if ((dir = Yap_RegistryGetString("prolog_commons")) &&
 	is_directory(dir)) {
-      Yap_PutValue(AtomPrologCommonsDir,
-		   MkAtomTerm(Yap_LookupAtom(dir)));
-      commons_done = TRUE;
+      if (! Yap_unify( tcommons,
+		   MkAtomTerm(Yap_LookupAtom(dir))) )
+	return FALSE;
     }
   }
   if (dir_done && commons_done)
-    return;
+    return rcl && rcc;
 #endif
   strncpy(LOCAL_FileNameBuf, YAP_SHAREDIR, YAP_FILENAME_MAX);
-  if (is_directory(LOCAL_FileNameBuf)) {
-    strncat(LOCAL_FileNameBuf,"/", YAP_FILENAME_MAX);
-    len = strlen(LOCAL_FileNameBuf);
+  strncat(LOCAL_FileNameBuf,"/", YAP_FILENAME_MAX);
+  len = strlen(LOCAL_FileNameBuf);
+  if (!dir_done) {
     strncat(LOCAL_FileNameBuf, "Yap", YAP_FILENAME_MAX);
-#if _MSC_VER || defined(__MINGW32__)
-    if (!dir_done && is_directory(LOCAL_FileNameBuf)) 
-#endif
+    if (is_directory(LOCAL_FileNameBuf)) 
     {
-      Yap_PutValue(AtomSystemLibraryDir,
-		   MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
-#if _MSC_VER || defined(__MINGW32__)
-      dir_done = TRUE;
-      return;
-#endif
+      if (! Yap_unify( tlib,
+		   MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))) )
+	return FALSE;
     }
-#if _MSC_VER || defined(__MINGW32__)
-  if (!commons_done) 
-#endif
-    {
-      LOCAL_FileNameBuf[len] = '\0';
-      strncat(LOCAL_FileNameBuf, "PrologCommons", YAP_FILENAME_MAX);
-      if (is_directory(LOCAL_FileNameBuf))
-	Yap_PutValue(AtomPrologCommonsDir,
-		     MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
-#if _MSC_VER || defined(__MINGW32__)
-      commons_done = TRUE;
-#endif
+  }
+  if (!commons_done) {
+    LOCAL_FileNameBuf[len] = '\0';
+    strncat(LOCAL_FileNameBuf, "PrologCommons", YAP_FILENAME_MAX);
+    if (is_directory(LOCAL_FileNameBuf)) {
+      if (! Yap_unify( tcommons,
+		       MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))) )
+	return FALSE;
     }
   }
   if (dir_done && commons_done)
-    return;
+    return rcl && rcc;
 
-#if _MSC_VER || defined(__MINGW32__)
+#if __WINDOWS__
   {
     size_t buflen;
     char *pt;
-
-      /* couldn't find it where it was supposed to be,
-	 let's try using the executable */
-      if (!GetModuleFileName( NULL, LOCAL_FileNameBuf, YAP_FILENAME_MAX)) {
-	Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "could not find executable name"); 
+    
+    /* couldn't find it where it was supposed to be,
+       let's try using the executable */
+    if (!GetModuleFileName( NULL, LOCAL_FileNameBuf, YAP_FILENAME_MAX)) {
+      Yap_WinError( "could not find executable name" ); 
+      /* do nothing */
+      return FALSE;
+    }
+    buflen = strlen(LOCAL_FileNameBuf);
+    pt = LOCAL_FileNameBuf+buflen;
+    while (*--pt != '\\') {
+      /* skip executable */
+      if (pt == LOCAL_FileNameBuf) {
+	Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "could not find executable name");
 	/* do nothing */
-	return;
+	return FALSE;
       }
-      buflen = strlen(LOCAL_FileNameBuf);
-      pt = LOCAL_FileNameBuf+buflen;
-      while (*--pt != '\\') {
-	/* skip executable */
-	if (pt == LOCAL_FileNameBuf) {
-	  Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "could not find executable name");
-	  /* do nothing */
-	  return;
-	}
+    }
+    while (*--pt != '\\') {
+      /* skip parent directory "bin\\" */
+      if (pt == LOCAL_FileNameBuf) {
+	Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "could not find executable name");
+	/* do nothing */
+	return FALSE;
       }
-      while (*--pt != '\\') {
-	/* skip parent directory "bin\\" */
-	if (pt == LOCAL_FileNameBuf) {
-	  Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "could not find executable name");
-	  /* do nothing */
-	}
-      }
-      /* now, this is a possible location for the ROOT_DIR, let's look for a share directory here */
-      pt[1] = '\0';
-      /* grosse */
-      strncat(LOCAL_FileNameBuf,"lib\\Yap",YAP_FILENAME_MAX);
-      libdir = Yap_AllocCodeSpace(strlen(LOCAL_FileNameBuf)+1);
-      strncpy(libdir, LOCAL_FileNameBuf, strlen(LOCAL_FileNameBuf)+1);
-      pt[1] = '\0';
-      strncat(LOCAL_FileNameBuf,"share",YAP_FILENAME_MAX);
+    }
+    /* now, this is a possible location for the ROOT_DIR, let's look for a share directory here */
+    pt[1] = '\0';
+    /* grosse */
+    strncat(LOCAL_FileNameBuf,"lib\\Yap",YAP_FILENAME_MAX);
+    libdir = Yap_AllocCodeSpace(strlen(LOCAL_FileNameBuf)+1);
+    strncpy(libdir, LOCAL_FileNameBuf, strlen(LOCAL_FileNameBuf)+1);
+    pt[1] = '\0';
+    strncat(LOCAL_FileNameBuf,"share",YAP_FILENAME_MAX);
   }
   strncat(LOCAL_FileNameBuf,"\\", YAP_FILENAME_MAX);
   len = strlen(LOCAL_FileNameBuf);
   strncat(LOCAL_FileNameBuf, "Yap", YAP_FILENAME_MAX);
-  if (!dir_done && is_directory(LOCAL_FileNameBuf)) 
-    {
-      Yap_PutValue(AtomSystemLibraryDir,
-		   MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
-    }
-  if (!commons_done) 
-    {
-      LOCAL_FileNameBuf[len] = '\0';
-      strncat(LOCAL_FileNameBuf, "PrologCommons", YAP_FILENAME_MAX);
-      if (is_directory(LOCAL_FileNameBuf))
-	Yap_PutValue(AtomPrologCommonsDir,
-		     MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
-    }
+  if (!dir_done && is_directory(LOCAL_FileNameBuf)) {
+    if (! Yap_unify( tlib,
+		     MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))) )
+      return FALSE;
+  }
+  LOCAL_FileNameBuf[len] = '\0';
+  strncat(LOCAL_FileNameBuf, "PrologCommons", YAP_FILENAME_MAX);
+  if (!commons_done && is_directory(LOCAL_FileNameBuf)) {
+    if (! Yap_unify( tcommons,
+		     MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))) )
+      return FALSE;
+  }
 #endif
+  return dir_done && commons_done;
+}
+
+
+static Int
+p_libraries_path( USES_REGS1 )
+{
+  return initSysPath( ARG1, ARG2 );
 }
 
 static Int
@@ -3030,6 +3031,7 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("release_random_state", 1, p_release_random_state, SafePredFlag);
 #endif
   Yap_InitCPred ("log_event", 1, p_log_event, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("library_directories", 2, p_libraries_path, SafePredFlag);
   Yap_InitCPred ("sh", 0, p_sh, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag|UserCPredFlag);
   Yap_InitCPred ("system", 1, p_system, SafePredFlag|SyncPredFlag|UserCPredFlag);

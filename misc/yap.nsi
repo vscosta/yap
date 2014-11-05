@@ -71,20 +71,17 @@ Section "Base system (required)"
 ; SYSTEM STUFF
   File /r ${ROOTDIR}\share\Yap\*
 
+  SetOutPath $INSTDIR\share\PrologCommons
+; SYSTEM STUFF
+  File /r ${ROOTDIR}\share\PrologCommons
+
   SetOutPath $INSTDIR\share\doc\Yap
-  File ${ROOTDIR}\share\doc\Yap\html\*
+  File /r ${ROOTDIR}\share\doc\Yap\html\*
 ;  File ${ROOTDIR}\share\doc\Yap\refman.pdf
 ;  File ${ROOTDIR}\share\doc\Yap\yap.info
   File ${ROOTDIR}\share\doc\Yap\Artistic
   File ${ROOTDIR}\share\doc\Yap\README.TXT
   File ${ROOTDIR}\share\doc\Yap\COPYING
-
-  WriteRegStr HKLM ${REGKEY} "home" "$INSTDIR"
-  WriteRegStr HKLM ${REGKEY} "bin" "$INSTDIR\bin\yap.exe"
-  WriteRegStr HKLM ${REGKEY} "dlls" "$INSTDIR\lib\Yap"
-  WriteRegStr HKLM ${REGKEY} "startup" "$INSTDIR\lib\Yap\startup.yss"
-  WriteRegStr HKLM ${REGKEY} "library" "$INSTDIR\share\Yap"
-  WriteRegStr HKLM ${REGKEY} "commons" "$INSTDIR\share\PrologCommons"
 
   ; Write uninstaller
 !ifdef WIN64

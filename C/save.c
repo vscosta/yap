@@ -1820,7 +1820,6 @@ Restore(char *s, char *lib_dir USES_REGS)
   initIO();
   /* reset time */
   Yap_ReInitWallTime();
-  Yap_InitSysPath();
 #if USE_DL_MALLOC || USE_SYSTEM_MALLOC
   if (!AuxSp) {
     Yap_InitPreAllocCodeSpace( 0 );
