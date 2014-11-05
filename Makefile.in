@@ -667,6 +667,7 @@ install_common: install_startup
 	mkdir -p $(DESTDIR)$(SHAREDIR)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/PrologCommons
+	$(INSTALL) $(srcdir)/PrologCommons/PROLOGCOMMONS.md $(DESTDIR)$(SHAREDIR)/PrologCommons
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/pl
 	mkdir -p $(DESTDIR)$(DOCSDIR)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
