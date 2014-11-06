@@ -337,9 +337,6 @@
 /* Define to 1 if you have the <ieeefp.h> header file. */
 #undef HAVE_IEEEFP_H
 
-/* Define to 1 if you have the <IntSafe.h> header file. */
-#undef HAVE_INTSAFE_H
-
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
@@ -958,6 +955,9 @@
 
 /* what is the configure host name */
 #undef HOST_ALIAS
+
+/* type of int64_t */
+#undef INT64_T_DEFINED
 
 /* malloc_t */
 #undef MALLOC_T

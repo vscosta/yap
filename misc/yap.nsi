@@ -14,13 +14,13 @@ SetCompressor /FINAL bzip2
   
 ; Preload files that are needed by the installer itself
 ReserveFile "${NSISDIR}\Plugins\x86-unicode\UserInfo.dll"
-ReserveFile "${NSISDIR}\Plugins\\x86-unicode\InstallOptions.dll"
+ReserveFile "${NSISDIR}\Plugins\x86-unicode\InstallOptions.dll"
 ReserveFile "${OPTIONS}"
 
 !ifdef WIN64
-InstallDir "$PROGRAMFILES64\${ROOTDIR}"
+InstallDir "$PROGRAMFILES64\${TARGET}"
 !else
-InstallDir "$PROGRAMFILES\${ROOTDIR}"
+InstallDir "$PROGRAMFILES\${TARGET}"
 !endif
 InstallDirRegKey HKLM ${REGKEY} "home"
 
@@ -71,20 +71,17 @@ Section "Base system (required)"
 ; SYSTEM STUFF
   File /r ${ROOTDIR}\share\Yap\*
 
+  SetOutPath $INSTDIR\share\PrologCommons
+; SYSTEM STUFF
+  File /r ${ROOTDIR}\share\PrologCommons
+
   SetOutPath $INSTDIR\share\doc\Yap
-  File ${ROOTDIR}\share\doc\Yap\yap.html
-  File ${ROOTDIR}\share\doc\Yap\yap.pdf
+  File /r ${ROOTDIR}\share\doc\Yap\html\*
+;  File ${ROOTDIR}\share\doc\Yap\refman.pdf
 ;  File ${ROOTDIR}\share\doc\Yap\yap.info
   File ${ROOTDIR}\share\doc\Yap\Artistic
   File ${ROOTDIR}\share\doc\Yap\README.TXT
   File ${ROOTDIR}\share\doc\Yap\COPYING
-
-  WriteRegStr HKLM ${REGKEY} "home" "$INSTDIR"
-  WriteRegStr HKLM ${REGKEY} "bin" "$INSTDIR\bin\yap.exe"
-  WriteRegStr HKLM ${REGKEY} "dlls" "$INSTDIR\lib\Yap"
-  WriteRegStr HKLM ${REGKEY} "startup" "$INSTDIR\lib\Yap\startup.yss"
-  WriteRegStr HKLM ${REGKEY} "library" "$INSTDIR\share\Yap"
-  WriteRegStr HKLM ${REGKEY} "commons" "$INSTDIR\share\PrologCommons"
 
   ; Write uninstaller
 !ifdef WIN64
@@ -120,13 +117,13 @@ Section "Start Menu shortcuts"
 		  "$INSTDIR\share\doc\Yap\README.TXT" 0 \
 		  "SW_SHOWNORMAL" "" "View readme"
   CreateShortCut "$SMPROGRAMS\${GRP}\Manual Html.lnk" \
-  		  "$INSTDIR\share\doc\Yap\yap.html" "" \
-		  "$INSTDIR\share\doc\Yap\yap.html" 0 \
+  		  "$INSTDIR\share\doc\Yap\html\index.html" "" \
+		  "$INSTDIR\share\doc\Yap\html\index.html" 0 \
 		  "SW_SHOWNORMAL" "" "View readme"
-  CreateShortCut "$SMPROGRAMS\${GRP}\Manual PDF.lnk" \
-  		  "$INSTDIR\share\doc\Yap\yap.pdf" "" \
-		  "$INSTDIR\share\doc\Yap\yap.pdf" 0 \
-		  "SW_SHOWNORMAL" "" "View readme"
+;  CreateShortCut "$SMPROGRAMS\${GRP}\Manual PDF.lnk" \
+;  		  "$INSTDIR\share\doc\Yap\refman.pdf" "" \
+;		  "$INSTDIR\share\doc\Yap\refman.pdf" 0 \
+;		  "SW_SHOWNORMAL" "" "View readme"
   CreateShortCut "$SMPROGRAMS\${GRP}\Uninstall.lnk" \
 		 "$INSTDIR\uninstall.exe" \
 		 "" \

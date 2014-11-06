@@ -21,7 +21,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#if defined(_WIN32) || defined(__MINGW32__)
+#if defined(_WIN32) || defined(__MINGW32__) || defined(__MSYS__)
 
 #define UNICODE 1
 #define _UNICODE 1

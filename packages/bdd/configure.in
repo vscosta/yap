@@ -50,7 +50,7 @@ elif test -d "$cudd_dir/lib"; then
   LIBS="$LIBS -L $cudd_dir/lib"
 fi
 
-if test "$target_os" = "mingw32"  -o "$target_os" = "mingw64"
+if test "$target_os" = "mingw32"  -o "$target_os" = "mingw64" -o "$target_os" = "msys"  
 then
      #mingw: we know where things are
   CUDD_LIBS="$cudd_dir/lib/all_cudd.dll"

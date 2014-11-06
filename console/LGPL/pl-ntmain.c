@@ -28,7 +28,7 @@
 #define MAX_FILE_NAME 1024
 #include "config.h"
 #include "console/LGPL/resource.h"
-#ifdef THREADSx
+#ifdef THREADS
 #define O_PLMT 1
 #endif
 #else
@@ -1087,7 +1087,7 @@ set_window_title(rlc_console c)
   int v = (int)PL_query(PL_QUERY_VERSION);
   int major = v / 10000;
   int minor = (v / 100) % 100;
-  int patch = v % 100;
+  int patch = v / 100;
 #ifdef O_PLMT
   TCHAR *mt = _T("Multi-threaded, ");
 #else

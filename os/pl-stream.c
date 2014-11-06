@@ -886,6 +886,13 @@ put_code(int c, IOSTREAM *s)
       unsigned char *q = (unsigned char *)&chr;
       unsigned char *e = &q[sizeof(pl_wchar_t)];
 
+#if __WINDOWS__
+  if (s == Soutput || s == Serror ) {
+    if (!(*s->functions->write)(s->handle, (char *)q, sizeof(wchar_t)))
+      return -1;
+    break;
+   }
+#endif
       while(q<e)
       { if ( put_byte(*q++, s) < 0 )
 	  return -1;

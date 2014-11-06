@@ -52,3 +52,6 @@ clean:
 
 install: default
 	$(INSTALL_PROGRAM) LPADBDD $(DESTDIR)
+
+distclean: clean
+	rm -f Makefile

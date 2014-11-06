@@ -1506,6 +1506,17 @@ import_module(Mod, ImportModule) :-
 import_module(Mod, EM) :-
 	'$do_error'(type_error(atom,Mod),import_module(Mod, EM)).
 
+
+/** add_import_module( + _Module_, + _ImportModule_ , +_Pos_) is det
+Add all exports in _ImportModule_ as available to _Module_.
+
+    
+All exported predicates from _ExportModule_ are made available to the 
+ source  module _ImportModule_. If _Position_ is bound to `start` the 
+ module _ImportModule_ is tried first, if _Position_ is bound to `end`, 
+ the module is consulted last.
+
+*/
 add_import_module(Mod, ImportModule, Pos) :-
 	var(Mod),
 	'$do_error'(instantiation_error,add_import_module(Mod, ImportModule, Pos)).
@@ -1526,6 +1537,14 @@ add_import_module(Mod, ImportModule, Pos) :-
 add_import_module(Mod, ImportModule, Pos) :-
 	'$do_error'(domain_error(start_end,Pos),add_import_module(Mod, ImportModule, Pos)).
 
+/** delete_import_module( + _ExportModule_, + _ImportModule_ ) is det
+Exports in _ImportModule_ are no longer available to _Module_.
+
+    
+All exported predicates from _ExportModule_ are discarded from the 
+ ones used vy the source  module _ImportModule_.
+
+*/
 delete_import_module(Mod, ImportModule) :-
 	var(Mod),
 	'$do_error'(instantiation_error,delete_import_module(Mod, ImportModule)).
@@ -1548,6 +1567,21 @@ delete_import_module(Mod, ImportModule) :-
 '$set_source_module'(Source0, SourceF) :-
 	current_module(Source0, SourceF).
 
+/** module_property( + _Module_, ? _Property_ ) is nondet
+Enumerate non-deterministically the main properties of _Module_ .
+
+Reports the following properties of _Module_:
+
+  + `class`( ?_Class_ ): whether it is a `system`, `library`, or `user` module.
+
+  + `line_count`(?_Ls_): number of lines in source file.
+
+  + `file`(?_F_): source file for _Module_.
+
+  + `exports`(-Es): list of all predicate symbols and
+   operator symbols exported or re-exported by this module.
+
+*/
 module_property(Mod, class(L)) :-
 	'$module_class'(Mod, L).
 module_property(Mod, line_count(L)) :-

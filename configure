@@ -784,6 +784,7 @@ STARTUP_ANDROID
 ARCH
 M4GENHDRS
 M4
+INT64_T_DEFINED
 PRE_INSTALL_ENV
 INSTALL_ENV
 PKG_PRISM
@@ -1941,52 +1942,6 @@ $as_echo "$ac_res" >&6; }
 
 } # ac_fn_c_check_header_compile
 
-# ac_fn_c_try_link LINENO
-# -----------------------
-# Try to link conftest.$ac_ext, and return whether this succeeded.
-ac_fn_c_try_link ()
-{
-  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
-  rm -f conftest.$ac_objext conftest$ac_exeext
-  if { { ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
-$as_echo "$ac_try_echo"; } >&5
-  (eval "$ac_link") 2>conftest.err
-  ac_status=$?
-  if test -s conftest.err; then
-    grep -v '^ *+' conftest.err >conftest.er1
-    cat conftest.er1 >&5
-    mv -f conftest.er1 conftest.err
-  fi
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext && {
-	 test "$cross_compiling" = yes ||
-	 test -x conftest$ac_exeext
-       }; then :
-  ac_retval=0
-else
-  $as_echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	ac_retval=1
-fi
-  # Delete the IPA/IPO (Inter Procedural Analysis/Optimization) information
-  # created by the PGI compiler (conftest_ipa8_conftest.oo), as it would
-  # interfere with the next link command; also delete a directory that is
-  # left behind by Apple's compiler.  We do this before executing the actions.
-  rm -rf conftest.dSYM conftest_ipa8_conftest.oo
-  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
-  as_fn_set_status $ac_retval
-
-} # ac_fn_c_try_link
-
 # ac_fn_c_check_header_mongrel LINENO HEADER VAR INCLUDES
 # -------------------------------------------------------
 # Tests whether HEADER exists, giving a warning if it cannot be compiled using
@@ -2077,6 +2032,52 @@ fi
   eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
 
 } # ac_fn_c_check_header_mongrel
+
+# ac_fn_c_try_link LINENO
+# -----------------------
+# Try to link conftest.$ac_ext, and return whether this succeeded.
+ac_fn_c_try_link ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  rm -f conftest.$ac_objext conftest$ac_exeext
+  if { { ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
+$as_echo "$ac_try_echo"; } >&5
+  (eval "$ac_link") 2>conftest.err
+  ac_status=$?
+  if test -s conftest.err; then
+    grep -v '^ *+' conftest.err >conftest.er1
+    cat conftest.er1 >&5
+    mv -f conftest.er1 conftest.err
+  fi
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext && {
+	 test "$cross_compiling" = yes ||
+	 test -x conftest$ac_exeext
+       }; then :
+  ac_retval=0
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_retval=1
+fi
+  # Delete the IPA/IPO (Inter Procedural Analysis/Optimization) information
+  # created by the PGI compiler (conftest_ipa8_conftest.oo), as it would
+  # interfere with the next link command; also delete a directory that is
+  # left behind by Apple's compiler.  We do this before executing the actions.
+  rm -rf conftest.dSYM conftest_ipa8_conftest.oo
+  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+  as_fn_set_status $ac_retval
+
+} # ac_fn_c_try_link
 
 # ac_fn_c_check_func LINENO FUNC VAR
 # ----------------------------------
@@ -5606,6 +5607,19 @@ $as_echo "no" >&6; }
 fi
 
 
+for ac_header in winsock.h winsock2.h windows.h
+do :
+  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
+if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+
+done
+
 # Extract the first word of "sh", so it can be a program name with args.
 set dummy sh; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -6936,31 +6950,6 @@ fi
 
 fi
 
-for ac_header in IntSafe.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "IntSafe.h" "ac_cv_header_IntSafe_h" "$ac_includes_default"
-if test "x$ac_cv_header_IntSafe_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_INTSAFE_H 1
-_ACEOF
-
-fi
-
-done
-
-for ac_header in windows.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "windows.h" "ac_cv_header_windows_h" "$ac_includes_default"
-if test "x$ac_cv_header_windows_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_WINDOWS_H 1
-_ACEOF
-
-fi
-
-done
-
-
 if test "$threads" = yes
 then
   for ac_header in pthread.h
@@ -7658,7 +7647,7 @@ fi
            INSTALL_ENV="YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
         fi
 	;;
-      *cyg*|*mingw*)
+      *cyg*|*mingw*|*msys*)
 	# gcc on cygwin seems to have trouble with longjmp
         # and -fomit-frame-point -DBP_FREE
 	YAPLIB="yap.dll"
@@ -8277,13 +8266,12 @@ fi
 
 done
 
-for ac_header in wctype.h winsock.h winsock2.h
+for ac_header in wctype.h
 do :
-  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
-ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
-if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
+  ac_fn_c_check_header_mongrel "$LINENO" "wctype.h" "ac_cv_header_wctype_h" "$ac_includes_default"
+if test "x$ac_cv_header_wctype_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+#define HAVE_WCTYPE_H 1
 _ACEOF
 
 fi
@@ -8957,6 +8945,48 @@ cat >>confdefs.h <<_ACEOF
 #define CELLSIZE $ac_cv_sizeof_void_p
 _ACEOF
 
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether int64_t is defined" >&5
+$as_echo_n "checking whether int64_t is defined... " >&6; }
+if ${yap_cv_int64_t_defined+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+if test "$cross_compiling" = yes; then :
+  yap_cv_int64_t_defined=no
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <stdint.h>
+	int main() {
+	   int64_t i;
+	   return 0;
+	}
+
+_ACEOF
+if ac_fn_c_try_run "$LINENO"; then :
+  yap_cv_int64_t_defined=yes
+else
+  yap_cv_int64_t_defined=no
+fi
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+  conftest.$ac_objext conftest.beam conftest.$ac_ext
+fi
+
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $yap_cv_int64_t_defined" >&5
+$as_echo "$yap_cv_int64_t_defined" >&6; }
+if test $yap_cv_int64_t_defined = yes
+then
+
+cat >>confdefs.h <<_ACEOF
+#define INT64_T_DEFINED 1
+_ACEOF
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for int64_t" >&5
+$as_echo_n "checking for int64_t... " >&6; }
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for type of malloc" >&5
@@ -10287,11 +10317,11 @@ if test "x$PLARCH" = "x"; then
     *linux*)
       PLARCH=`echo $host | sed 's/-.*/-linux/'`
     ;;
-    i?86-*mingw32*)
+    i?86-*mingw32*|i?86-msys*)
       # Make PLARCH match the definition in src/config/win32.h
       PLARCH=i386-win32
       ;;
-    x86_64-*mingw32*)
+    x86_64-*mingw32*|x86_64-msys*)
       # Make PLARCH match the definition in src/config/win64.h
       PLARCH=x64-win64
       ;;
@@ -13063,7 +13093,7 @@ elif test -d "$cudd_dir/lib"; then
   LIBS="$LIBS -L $cudd_dir/lib"
 fi
 
-if test "$target_os" = "mingw32"  -o "$target_os" = "mingw64"
+if test "$target_os" = "mingw32"  -o "$target_os" = "mingw64" -o "$target_os" = "msys"
 then
      #mingw: we know where things are
   CUDD_LIBS="$cudd_dir/lib/all_cudd.dll"
@@ -14079,7 +14109,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14082 "configure" */
+/* #line 14112 "configure" */
 public class Test {
 }
 EOF
@@ -14255,7 +14285,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 14258: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 14288: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -14386,7 +14416,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14389 "configure" */
+/* #line 14419 "configure" */
 public class Test {
 }
 EOF
@@ -14421,7 +14451,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 14424 "configure" */
+/* [#]line 14454 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);

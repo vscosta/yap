@@ -370,7 +370,6 @@ UInt	Yap_cputime(void);
 Int	Yap_walltime(void);
 int	Yap_dir_separator(int);
 int	Yap_volume_header(char *);
-void	Yap_InitSysPath(void);
 int	Yap_signal_index(const char *);
 #ifdef MAC
 void	Yap_SetTextFile(char *);

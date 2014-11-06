@@ -370,70 +370,91 @@ CC="gcc -mabi=64" ./configure --...
 Be careful. At least for some versions of `GCC`, compiling with
 `-g` seems to result in broken code.
 
-  + WIN32: GCC is distributed in the MINGW32 and CYGWIN packages.
-
-The Mingw32 environment is available from the URL:
-
-<http://www.mingw.org>
-
-You will need to install the `msys` and `mingw`
-packages. You should be able to do configure, make and make install.
-
-If you use mingw32 you may want to search the contributed packages for
-the `gmp` multi-precision arithmetic library. If you do setup YAP
-with `gmp` note that libgmp.dll must be in the path,
-otherwise YAP will not be able to execute.
-
-The CygWin environment is available from the URL:
-
-<http://www.cygwin.com>
-
-and mirrors. We suggest using recent versions of the cygwin shell. The
-compilation steps under the cygwin shell are as follows:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-mkdir cyg
-$YAPSRC/configure --enable-coroutining \\
-                  --enable-depth-limit \\
-                  --enable-max-performance
-make
-make install
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-By default, YAP will use the `-mno-cygwin` option to
-disable the use of the cygwin dll and to enable the mingw32 subsystem
-instead. YAP thus will not need the cygwin dll. It instead accesses
-the system's CRTDLL.DLL `C` run time library supplied with
-Win32 platforms through the mingw32 interface. Note that some older
-WIN95 systems may not have CRTDLL.DLL, in this case it should
-be sufficient to import the file from a newer WIN95 or WIN98 machine.
-
-You should check the default installation path which is set to
-/YAP in the standard Makefile. This string will usually
-be expanded into c:\\YAP by Windows.
-
-The cygwin environment does not provide <tt>gmp</tt> on the MINGW
-subsystem. You can fetch a dll for the <tt>gmp</tt> library from
-<http://www.sf.net/projects/mingwrep>.
-
-It is also possible to configure YAP to be a part of the cygwin
-environment. In this case you should use:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-mkdir cyg
-$YAPSRC/configure --enable-max-performance \\
-                  --enable-cygwin=yes
-make
-make install
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-YAP will then compile using the cygwin library and will be installed
-in cygwin's /usr/local. You can use YAP from a cygwin console,
-or as a standalone application as long as it can find
-cygwin1.dll in its path. Note that you may use to use
-`--enable-depth-limit` for Aleph compatibility, and that you may
-want to be sure that GMP is installed.
+@section Compiling_under_mingw Compiling Under MINGW's GCC
 
 
+AT the time of this writing (Nov 2014), YAP uses the mkwin script to
+compile in WIN32. The script requires either a WIN32 environment, or a
+cross-compiler/emulator package.
+
+YAP has been known to compile under VISUAL C++, and should compile and
+work under cygwin, but the favorite approach is to use a native
+msys/mingw environment. This approach has two key advantages:
+
+  + it does not need an interface layer and a DLL, like cygwin.
+
+  + it enables cross-compilation.
+
+YAP uses rge `mkwin` script to generate a new YAP installer. The script is
+controlled by a set of of variables that should be defined early on in
+the text. It executes by first calling `configure`, next running `make`, and
+last (if all went well) executing `nsys`.
+
+In more detail, the following mingw based environments have been
+tested to develop YAP:
+
+  * MSYS 1 and mingw32/64: most WIN32 development did occur in this
+    native environment. Best results were achieved with
+    MSYS-1.0.* and TDM-GCC:
+     
+    mingw: http://www.mingw.org/
+    original msys: http://www.mingw.org/wiki/MSYS
+    mingw64: http://mingw-w64.sourceforge.net/
+    TDM-GCC: http://tdm-gcc.tdragon.net/
+
+  * This distribution was compiled with the MSYS2 integrated
+    development, that supports 32 and 64 bit compilation. Setting up
+    MSYS2 should be done with care, but it is worth it as the
+    distribution works nicely in MINGW32 and MINGW64 mode. A third
+    compilation mode, MSYS mode, has problems with compiling sockets.
+
+    msys2: http://sourceforge.net/projects/msys2/
+
+  * cygwin and cygwin64 now can generate native applications
+
+    cygwin: https://www.cygwin.com/
+
+  * Linux has a nice cross-compilation environment, with some of the best 
+    work done for Fedora.
+
+    fedora mingw cross-compiler: http://fedoraproject.org/wiki/MinGW/CrossCompilerFramework
+
+    One problem is that this environment requires emulation of WIN32
+    executables to generate the initial saved state and to compile
+    `chr`. `wine` sometimes does the task, but it sometimes fails.
+
+  * OSX has the `mxe` package, a port of mingw that is in active 
+    development.
+
+    mxe: http://mxe.cc/
+
+    Note that OSX has technical limitations that preclude porting
+    wine64. wine32 is distributed with package managers such as ports
+    and brew.
+
+=== Setting up WIN32 compilation
+
+Compiling WIN32 packages depends on a number of parameters: chosen compiler,
+packages to install, directory setup. You may have to change these ones that
+control the `mkwin` script:
+
+ * `VER`: major/minor number  
+ * `PATCHID`: third digit
+ * `SRC`: directory containing yap sources, in the local environment notation.
+ * `SRC_WIN`: same, but in WIN32 standard notation.
+ * `THREADS`: yes or no? controllable from the command line.
+ * `ABI`: "32" or "64", controllable from the command line.
+ * `NSIS`: installer generator, usually "/c/Program Files (x86)/NSIS/makensis".
+ * `DOCS_DIR`: where you have the doxygen output.
+ * `GCC_DIR`: root of gcc seup.
+ * `HOST`: argument to `--host` configure command.
+ * `BUILD`: build directory
+ * `GMP`: multi-precision package; yes, no, or the installation directory; usually in the distribution.
+ * `CUDD`: BDD package, usually in the distribution.
+ * `JAVA`: Java sdk directory, usually in the distribution.
+ * `PYTHON`: Python package, usually in the distribution.
+ * `R`: R environment package, usually in the distribution.
+ * `GECODE`: constraint solver package, usually not in the WIN32 distribution.
 
 @subsection Compiling_Under_Visual_C Compiling Under Visual C++
 
