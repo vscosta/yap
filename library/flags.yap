@@ -264,9 +264,8 @@ flag_define(FlagName, FlagGroup, FlagType, DefaultValue, Description, Access, MH
     throw(error(permission_error(create, flag, FlagName), message('Re-defining a flag is not allowed.', flag_define(FlagName, FlagGroup, FlagType, DefaultValue, Description, Access, Module:Handler))))
   ; \+ memberchk(Access, [read_write, read_only, hidden, hidden_read_only]),
     throw(error(domain_error(access, Access), message('Wrong access attribute, available are: read_write, read_only, hidden, hidden_read_only.', flag_define(FlagName, FlagGroup, FlagType, DefaultValue, Description, Access, Module:Handler))))
-  ; \+ callable(Handler) ->
-	strip_module(Handler, Mod, G),
-    throw(error(type_error(callable, G), message('Flag handler needs to be callable.', flag_define(FlagName, FlagGroup, FlagType, DefaultValue, Description, Access, Module:Handler))))
+  ; \+ callable(Handler) -> % the Handler comes from: strip_module(MHandler, Module, Handler)
+    throw(error(type_error(callable, Handler), message('Flag handler needs to be callable.', flag_define(FlagName, FlagGroup, FlagType, DefaultValue, Description, Access, Module:Handler))))
   ;
     validate(FlagType, Module:Handler, DefaultValue, FlagName),
     assertz('$defined_flag$'(FlagName, FlagGroup, FlagType, DefaultValue, Description, Access, Module:Handler)),
