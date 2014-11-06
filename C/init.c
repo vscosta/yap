@@ -1395,7 +1395,6 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   InitOps();
   InitDebug();
   InitVersion();
-  Yap_InitSysPath();
 #if THREADS
   /* make sure we use the correct value of regcache */
   regcache =  ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
