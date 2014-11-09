@@ -254,8 +254,8 @@ open_file(char *my_file, int flag)
       if (flag == O_RDONLY) {
 	  my_file += strlen("/assets/");
 	  AAsset* asset = AAssetManager_open(GLOBAL_assetManager, my_file, AASSET_MODE_UNKNOWN);
-	   if (!asset)
-	      return NULL;
+	  if (!asset)
+	    return NULL;
 	  AAsset_close( asset );
 	  return NULL; // usually the file will be compressed, so there is no point in actually trying to open it.
       }
@@ -284,7 +284,7 @@ open_file(char *my_file, int flag)
 #ifdef undf0
   fprintf(errout, "Opened file %s\n", my_file);
 #endif
-      return splfild;
+  return splfild;
 }
 
 static int 
@@ -1535,7 +1535,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
       }
     }
   }
-#if _MSC_VER || defined(__MINGW32__)
+#if __WINDOWS__
   if ((inpf = Yap_RegistryGetString("startup"))) {
     if (!((splfild = Sopen_file(inpf, "r")) < 0)) {
       if ((mode = try_open(inpf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {
@@ -1553,7 +1553,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
 	!(fatts & FILE_ATTRIBUTE_DIRECTORY)) {
       /* couldn't find it where it was supposed to be,
 	 let's try using the executable */
-      if (!GetModuleFileName( GetCurrentProcess(), LOCAL_FileNameBuf, YAP_FILENAME_MAX)) {
+      if (!GetModuleFileName( NULL, LOCAL_FileNameBuf, YAP_FILENAME_MAX)) {
 	/* do nothing */
 	goto end;
       }
