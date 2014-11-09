@@ -1210,6 +1210,20 @@ X_API int PL_unify_integer(term_t t, long n)
   return Yap_unify(Yap_GetFromSlot(t PASS_REGS),iterm);
 }
 
+X_API int PL_unify_intptr(term_t t, intptr_t n)
+{	
+  CACHE_REGS
+  Term iterm = MkIntegerTerm(n);
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS),iterm);
+}
+
+X_API int PL_unify_uintptr(term_t t, uintptr_t n)
+{	
+  CACHE_REGS
+  Term iterm = MkIntegerTerm(n);
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS),iterm);
+}
+
 /* SWI: int PL_unify_integer(term_t ?t, long n)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_functor(term_t t, functor_t f)
