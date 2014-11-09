@@ -309,7 +309,10 @@ char		*char_conversion_table2	CharConversionTable2	=NULL CodeCharPAdjust
 int		parser_error_style	ParserErrorStyle	=EXCEPTION_ON_PARSER_ERROR void
 
 /* library location.  */
-char		*yap_lib_dir		Yap_LibDir		=NULL CodeCharPAdjust
+const char	*yap_lib_dir		Yap_LibDir		=NULL CodeCharPAdjust
+const char	*yap_foreign_dir	Yap_ForeignDir		=NULL CodeCharPAdjust
+const char	*yap_commons_dir	Yap_CommonsDir		=NULL CodeCharPAdjust
+const char	*yap_bin_dir		Yap_BinDir		=NULL CodeCharPAdjust
 
 /* time */
 void		*last_wtime		LastWtimePtr		=NULL CodeVoidPAdjust
