@@ -209,6 +209,7 @@ absolute_file_name(File0,File) :-
 '$check_fn_type'(prolog,_) :- !.
 '$check_fn_type'(source,_) :- !.
 '$check_fn_type'(executable,_) :- !.
+'$check_fn_type'(exe,_) :- !.
 '$check_fn_type'(qly,_) :- !.
 '$check_fn_type'(directory,_) :- !.
 '$check_fn_type'(T,G) :- atom(T), !,
@@ -351,59 +352,14 @@ absolute_file_name(File0,File) :-
 	atom_concat([Path,File],PFile).
 
 '$system_library_directories'(library, Dir) :-
-	getenv('YAPSHAREDIR', Dirs),
-	'$split_by_sep'(0, 0, Dirs, Dir).
+	library_directory( Dir ).
+%	'$split_by_sep'(0, 0, Dirs, Dir).
 '$system_library_directories'(foreign, Dir) :-
-	getenv('YAPLIBDIR', Dirs),
-	'$split_by_sep'(0, 0, Dirs, Dir).
+	foreign_directory( Dir ).
 % compatibility with old versions
 % search the current directory first.
 '$system_library_directories'(commons, Dir) :-
-	getenv('YAPCOMMONSDIR', Dirs),
-	'$split_by_sep'(0, 0, Dirs, Dir).
-% windows has stuff installed in the registry
-'$system_library_directories'(Library, Dir) :-
-	 '$swi_current_prolog_flag'(windows, true),
-	( (
-	  '$swi_current_prolog_flag'(address_bits, 64) ->
-		( HKEY='HKEY_LOCAL_MACHINE/Software/YAP/Prolog64';
-		  HKEY='HKEY_CURRENT_USER/Software/YAP/Prolog64' )
-	      ;
-		( HKEY='HKEY_LOCAL_MACHINE/Software/YAP/Prolog';
-		  HKEY='HKEY_CURRENT_USER/Software/YAP/Prolog' )
-	      ),  % do not use once/1
-	% sanity check: are we running the binary mentioned in the registry?
-        '$system_catch'(win_registry_get_value(HKEY,'bin', Bin), prolog,_,fail) ) -> true,
-	'$swi_current_prolog_flag'(executable, Bin1),
-	same_file(Bin, Bin1),
-	'$system_catch'(win_registry_get_value(HKEY, Library, Dir), prolog,_,fail).
-% not installed on registry
-'$system_library_directories'(Library, Dir) :-
-	'$yap_paths'(_DLLs, ODir1, _OBinDir ),
-%	'$absolute_file_name'( OBinDir, BinDir ),
-%	'$swi_current_prolog_flag'(executable, Bin1),
-%	prolog_to_os_filename( Bin2, Bin1 ),
-%	file_directory_name( Bin2, BinDir1 ),
-%	same_file( BinDir, BinDir1 ),
-	( Library == library ->
-	  atom_concat( ODir1, '/Yap' , ODir )
-	;
-	  atom_concat( ODir1, '/PrologCommons' , ODir )
-	),
-	'$absolute_file_name'( ODir, Dir ),
-	exists_directory( Dir ), !.
-% desperation: let's check the executable directory
-'$system_library_directories'(Library, Dir) :-
-	'$swi_current_prolog_flag'(executable, Bin1),
-	prolog_to_os_filename( Bin2, Bin1 ),
-	file_directory_name( Bin2, Dir1 ),
-	( Library == library ->
-	  atom_concat( Dir1, '../share/Yap' , Dir )
-	;
-	  atom_concat( Dir1, '../share/PrologCommons' , Dir )
-	),
-	exists_directory( Dir ), !.
-
+	commons_directory( Dir ).
 
 
 '$split_by_sep'(Start, Next, Dirs, Dir) :-
@@ -538,7 +494,7 @@ remove_from_path(New) :- '$check_path'(New,Path),
   `library( _File_ )` are searched by the predicates consult/1,
   reconsult/1, use_module/1, ensure_loaded/1, and load_files/2.
 
-  This directory is initialized through the system predicate
+  This directory is initialized s a rule that calls  the system predicate
   library_directories/2.
 */
 
@@ -547,14 +503,14 @@ remove_from_path(New) :- '$check_path'(New,Path),
 :- dynamic user:library_directory/1.
 
 user:library_directory( Path ):-
-    library_directories( Path, _ ).
+    system_library( Path ).
 
 /**
   @pred user:commons_directory(? _Directory_:atom) is nondet, dynamic
 
   State the location of the Commons Prolog Initiative.
 
-  This directory is initialized through the system predicate
+  This directory is initialized as a rule that calls the system predicate
   library_directories/2.
 */
 
@@ -563,7 +519,23 @@ user:library_directory( Path ):-
 :- dynamic user:commons_directory/1.
 
 user:commons_directory( Path ):-
-    library_directories( _, Path ).
+    system_commons( Path ).
+
+/**
+  @pred user:foreign_directory(? _Directory_:atom) is nondet, dynamic
+
+  State the location of the Foreign Prolog Initiative.
+
+  This directory is initialized as a rule that calls the system predicate
+  library_directories/2.
+*/
+
+:- multifile user:foreign_directory/1.
+
+:- dynamic user:foreign_directory/1.
+
+user:foreign_directory( Path ):-
+    system_foreign( Path ).
 
 /**
   @pred user:prolog_file_type(?Suffix:atom, ?Handler:atom) is nondet, dynamic
@@ -600,7 +572,7 @@ user:prolog_file_type(prolog, prolog).
 user:prolog_file_type(A, prolog) :-
 	current_prolog_flag(associate, A),
 	A \== prolog,
-	A \==pl,
+	A \== pl,
 	A \== yap.
 user:prolog_file_type(qly, qly).
 user:prolog_file_type(A, executable) :-
@@ -622,9 +594,10 @@ file_search_path(swi, Home) :-
   current_prolog_flag(home, Home).
 file_search_path(yap, Home) :-
         current_prolog_flag(home, Home).
-file_search_path(system, Dir) :-
+file_search_path,(system, Dir) :-
   prolog_flag(host_type, Dir).
-file_search_path(foreign, yap('lib/Yap')).
+file_search_path(foreign, Dir) :-
+  foreign_directory(Dir).
 file_search_path(path, C) :-
     (   getenv('PATH', A),
         (   current_prolog_flag(windows, true)
