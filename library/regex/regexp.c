@@ -175,11 +175,11 @@ init_regexp(void)
   YAP_UserCPredicate("check_regexp", regexp, 7);
 }
 
-#if defined(_WIN32) || defined(__MINGW32__)
+#if __WINDOWS__
 
 #include <windows.h>
 
-int WINAPI winegexp(HANDLE, DWORD, LPVOID);
+int WINAPI win_regexp(HANDLE, DWORD, LPVOID);
 
 int WINAPI win_regexp(HANDLE hinst, DWORD reason, LPVOID reserved)
 {
