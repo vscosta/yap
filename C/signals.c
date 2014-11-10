@@ -253,8 +253,10 @@ Yap_signal(yap_signals sig)
   do_signal(worker_id, sig PASS_REGS);
 }
 
+#ifdef DEBUG
 static Int
 p_debug( USES_REGS1 );
+#endif
 
 void 
 Yap_external_signal(int wid, yap_signals sig)
