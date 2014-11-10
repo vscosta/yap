@@ -321,20 +321,6 @@ save_program(File, _Goal) :-
 	P \= [],
 	set_value('$extend_file_search_path',[]),
 	'$extend_file_search_path'(P).
-'$init_path_extensions' :-
-	retractall(user:library_directory(_)),
-	% make sure library_directory is open.
-	\+ clause(user:library_directory(_),_),
-	'$system_library_directories'(library,D),
-	assert(user:library_directory(D)),
-	fail.
-'$init_path_extensions' :-
-	retractall(user:library_directory(_)),
-	% make sure library_directory is open.
-	\+ clause(user:library_directory(_),_),
-	'$system_library_directories'(commons,D),
-	assert(user:commons_directory(D)),
-	fail.
 '$init_path_extensions'.
  
 % then we can execute the programs.
