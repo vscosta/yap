@@ -270,18 +270,18 @@ registerConsole(rlc_console c)
 }
 
 
-static void
-closeConsoles(void)
-{ int i;
-  rlc_console *p;
+/* static void */
+/* closeConsoles(void) */
+/* { int i; */
+/*   rlc_console *p; */
 
-  LOCK();
-  for(i=0, p=consoles; i<consoles_length; i++, p++)
-  { if ( *p )
-      rlc_close(*p);
-  }
-  UNLOCK();
-}
+/*   LOCK(); */
+/*   for(i=0, p=consoles; i<consoles_length; i++, p++) */
+/*   { if ( *p ) */
+/*       rlc_close(*p); */
+/*   } */
+/*   UNLOCK(); */
+/* } */
 
 
 		 /*******************************
