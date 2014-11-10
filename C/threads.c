@@ -1276,7 +1276,7 @@ p_new_mutex( USES_REGS1 )
 
    if (pthread_cond_broadcast(condp) < 0)
      return FALSE;
- v  return TRUE;
+   return TRUE;
  }
 
  static Int
@@ -1623,10 +1623,9 @@ p_new_mutex( USES_REGS1 )
 
    if (IsVarTerm(t1)) {
        p_new_mutex( PASS_REGS1 );
-       t1 = Deref(ARG1);
-       mut = IntOfTerm(t1);
    }
-
+   t1 = Deref(ARG1);
+   mut = IntOfTerm(t1);
    tg = Yap_StripModule(tg, &tm);
    if (IsVarTerm(tg)) {
       Yap_Error(INSTANTIATION_ERROR, ARG2, "with_mutex/2");
