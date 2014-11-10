@@ -518,7 +518,7 @@ AC_PROG_RANLIB
 AC_CHECK_TOOL(AR,[ar],:)
 AC_PATH_PROG(INSTALL_INFO,install-info,true,$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin)
 dnl do this before windows.h
-AC_CHECK_HEADERS(winsock.h winsock2.h windows.h)
+AC_CHECK_HEADERS(winsock.h winsock2.h windows.h Shlobj.h )
 AC_PATH_PROG(SHELL,sh)
 AC_CHECK_TOOL([INDENT], [indent], [:])
 
