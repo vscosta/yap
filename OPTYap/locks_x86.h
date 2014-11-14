@@ -71,10 +71,10 @@ extern int debug_locks;
 		      __BASE_FILE__, __LINE__,&(LOCK_VAR)); \
 	     spin_unlock((spinlock_t *)&(LOCK_VAR))
 #else
-#define LOCK(LOCK_VAR)         do {	\
+#define LOCK(LOCK_VAR)         { do {					\
                                  if (TRY_LOCK(&(LOCK_VAR))) break;      \
 		                 while (IS_LOCKED(LOCK_VAR)) continue;  \
-                               } while (1)
+				 } while (1); }
 #define IS_LOCKED(LOCK_VAR)    ((LOCK_VAR) != 0)
 #define IS_UNLOCKED(LOCK_VAR)  ((LOCK_VAR) == 0)
 #define UNLOCK(LOCK_VAR)       spin_unlock((spinlock_t *)&(LOCK_VAR))
