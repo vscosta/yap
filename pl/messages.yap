@@ -404,8 +404,10 @@ domain_error(delete_file_option, Opt) --> !,
 	[ 'invalid list of options ~w' - [Opt] ].
 domain_error(encoding, Opt) --> !,
 	[ 'invalid encoding ~w' - [Opt] ].
+domain_error(flag_value, [Opt,Flag]) --> !,
+	[ 'invalid value ~w for flag ~w' - [Opt,Flag] ].
 domain_error(flag_value, Opt) --> !,
-	[ 'invalid value ~w for flag ~w' - [Opt] ].
+	[ 'invalid value ~w for flag' - [Opt] ].
 domain_error(io_mode, Opt) --> !,
 	[ 'invalid io mode ~w' - [Opt] ].
 domain_error(mutable, Opt) --> !,
