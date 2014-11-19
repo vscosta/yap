@@ -74,8 +74,23 @@ void trie_data_destruct(TrNode node) {
 
   data = (TrData) GET_DATA_FROM_LEAF_TRIE_NODE(node);
   trie = TrData_trie(data);
-  if (data == TrEntry_traverse_data(trie))
-    TrEntry_traverse_data(trie) = TrData_previous(data);
+  if (data == TrEntry_traverse_data(trie)) {
+    if (CURRENT_TRAVERSE_MODE == TRAVERSE_MODE_FORWARD) {
+      TrEntry_traverse_data(trie) = TrData_previous(data);
+    } else {
+      if (TrData_next(data)) {
+        TrEntry_traverse_data(trie) = TrData_next(data);
+      } else {
+        TrData special;
+        new_struct(special, TYPE_TR_DATA, SIZEOF_TR_DATA);
+        TrData_next(special) = NULL;
+        TrData_previous(special) = TrData_previous(data);
+        TrData_trie(special) = NULL;
+        TrData_leaf(special) = NULL;
+        TrEntry_traverse_data(trie) = special; /* This special data is necessery to allow proper backwards traverse when the last entry is removed this is freed only if the trie is kept traversing */
+      }
+    }
+  }
   if (TrData_next(data)) {
     TrData_previous(TrData_next(data)) = TrData_previous(data);
     TrData_next(TrData_previous(data)) = TrData_next(data);
@@ -211,10 +226,19 @@ TrData trie_traverse_init(TrEntry trie, TrData init_data) {
 
 
 TrData trie_traverse_cont(TrEntry trie) {
-  TrData data;
-
+  TrData data, temp = NULL;
   data = TrEntry_traverse_data(trie);
   if (data) {
+    if (!TrData_trie(data)) {
+      if (TrEntry_first_data(trie)) {
+        temp = data;
+      } else  {
+        free_trie_data(data);
+        data = NULL;
+        TrEntry_traverse_data(trie) = NULL;
+        return NULL;
+      }
+    }
     if (CURRENT_TRAVERSE_MODE == TRAVERSE_MODE_FORWARD)
       data = TrData_next(data);
     else {
@@ -223,6 +247,8 @@ TrData trie_traverse_cont(TrEntry trie) {
         data = NULL;
     }
     TrEntry_traverse_data(trie) = data;
+    if (temp)
+      free_trie_data(temp);
   }
   return data;
 }
@@ -325,7 +351,6 @@ void trie_print(TrEntry trie) {
 
 void trie_data_construct(TrNode node) {
   TrData data;
-
   new_trie_data(data, CURRENT_TRIE, node);
   PUT_DATA_IN_LEAF_TRIE_NODE(node, data);
   return;

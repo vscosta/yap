@@ -807,7 +807,7 @@ YAP_Term get_entry(TrNode node, YAP_Term *stack_mark, TrNode *cur_node) {
           fprintf(stderr, "**************************************\n");
           fprintf(stderr, "  Tries core module: term stack full\n");
           fprintf(stderr, "**************************************\n");
-	  fflush(stderr);
+          fflush(stderr);
         }
         for (i = index; i > CURRENT_INDEX; i--)
           stack_vars_base[i] = 0;
@@ -875,10 +875,10 @@ YAP_Term get_entry(TrNode node, YAP_Term *stack_mark, TrNode *cur_node) {
         *cur_node = node;
         return t;
       } else if (t == FloatEndTag) {
-	volatile union {
-	  double f;
-	  YAP_Term p[SIZE_FLOAT_AS_TERM];
-	} tf;  /* to avoid gcc warning */
+        volatile union {
+          double f;
+          YAP_Term p[SIZE_FLOAT_AS_TERM];
+        } tf;  /* to avoid gcc warning */
 #ifdef TAG_LOW_BITS_32
         node = TrNode_parent(node);
         tf.p[1] = TrNode_entry(node);
@@ -915,29 +915,29 @@ void remove_entry(TrNode node) {
   while (parent) {
     if (TrNode_previous(node)) {
       if (IS_HASH_NODE(TrNode_child(parent))) {
-	TrHash hash = (TrHash) TrNode_child(parent);
-	TrHash_num_nodes(hash)--;
-	if (TrHash_num_nodes(hash)) {
-	  if (TrNode_next(node)) {
-	    TrNode_next(TrNode_previous(node)) = TrNode_next(node);
-	    TrNode_previous(TrNode_next(node)) = TrNode_previous(node);
-	  } else {
-	    TrNode_next(TrNode_previous(node)) = NULL;
-	  }
-	  free_trie_node(node);
-	  return;
-	}
-	free_hash_buckets(TrHash_buckets(hash), TrHash_num_buckets(hash));
-	free_trie_hash(hash);
+        TrHash hash = (TrHash) TrNode_child(parent);
+        TrHash_num_nodes(hash)--;
+        if (TrHash_num_nodes(hash)) {
+          if (TrNode_next(node)) {
+            TrNode_next(TrNode_previous(node)) = TrNode_next(node);
+            TrNode_previous(TrNode_next(node)) = TrNode_previous(node);
+          } else {
+            TrNode_next(TrNode_previous(node)) = NULL;
+          }
+          free_trie_node(node);
+          return;
+        }
+        free_hash_buckets(TrHash_buckets(hash), TrHash_num_buckets(hash));
+        free_trie_hash(hash);
       } else {
-	if (TrNode_next(node)) {
-	  TrNode_next(TrNode_previous(node)) = TrNode_next(node);
-	  TrNode_previous(TrNode_next(node)) = TrNode_previous(node);
-	} else {
-	  TrNode_next(TrNode_previous(node)) = NULL;
-	}
-	free_trie_node(node);
-	return;
+        if (TrNode_next(node)) {
+          TrNode_next(TrNode_previous(node)) = TrNode_next(node);
+          TrNode_previous(TrNode_next(node)) = TrNode_previous(node);
+        } else {
+          TrNode_next(TrNode_previous(node)) = NULL;
+        }
+        free_trie_node(node);
+        return;
       }
     } else if (TrNode_next(node)) {
       TrNode_child(parent) = TrNode_next(node);
@@ -963,7 +963,7 @@ void remove_child_nodes(TrNode node) {
     bucket = first_bucket + TrHash_num_buckets(hash);
     do {
       if (*--bucket)
-	remove_child_nodes(*bucket);
+        remove_child_nodes(*bucket);
     } while (bucket != first_bucket);
     free_hash_buckets(first_bucket, TrHash_num_buckets(hash));
     free_trie_hash(hash);
@@ -971,9 +971,9 @@ void remove_child_nodes(TrNode node) {
   }
   if (TrNode_next(node))
     remove_child_nodes(TrNode_next(node));
-  if (!IS_LEAF_TRIE_NODE(node))
+  if (!IS_LEAF_TRIE_NODE(node)) {
     remove_child_nodes(TrNode_child(node));
-  else {
+  } else {
     if (DATA_DESTRUCT_FUNCTION)
       (*DATA_DESTRUCT_FUNCTION)(node);
     DECREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
@@ -998,10 +998,10 @@ TrNode copy_child_nodes(TrNode parent_dest, TrNode child_source) {
     do {
       bucket_dest--;
       if (*--bucket_source) {
-	*bucket_dest = copy_child_nodes(parent_dest, *bucket_source);
-	TrNode_previous(*bucket_dest) = AS_TR_NODE_NEXT(bucket_dest);
+        *bucket_dest = copy_child_nodes(parent_dest, *bucket_source);
+        TrNode_previous(*bucket_dest) = AS_TR_NODE_NEXT(bucket_dest);
       } else
-	*bucket_dest = NULL;
+        *bucket_dest = NULL;
     } while (bucket_source != first_bucket_source);
     return (TrNode) hash_dest;
   }
@@ -1039,18 +1039,18 @@ void traverse_and_add(TrNode parent_dest, TrNode parent_source) {
     do {
       child_source = *--bucket_source;
       while (child_source) {
-	/* parent_dest is not a leaf node */
-	child_dest = trie_node_check(parent_dest, TrNode_entry(child_source));
-	if (child_dest) {
-	  if (IS_LEAF_TRIE_NODE(child_dest)) {
-	    /* child_source is a leaf node */
-	    if (DATA_ADD_FUNCTION)
-	      (*DATA_ADD_FUNCTION)(child_dest, child_source);
-	  } else
-	    /* child_dest and child_source are not leaf nodes */
-	    traverse_and_add(child_dest, child_source);
-	}
-	child_source = TrNode_next(child_source);
+        /* parent_dest is not a leaf node */
+        child_dest = trie_node_check(parent_dest, TrNode_entry(child_source));
+        if (child_dest) {
+          if (IS_LEAF_TRIE_NODE(child_dest)) {
+            /* child_source is a leaf node */
+            if (DATA_ADD_FUNCTION)
+              (*DATA_ADD_FUNCTION)(child_dest, child_source);
+          } else
+            /* child_dest and child_source are not leaf nodes */
+            traverse_and_add(child_dest, child_source);
+        }
+        child_source = TrNode_next(child_source);
       }
     } while (bucket_source != first_bucket_source);
     return;
@@ -1060,12 +1060,12 @@ void traverse_and_add(TrNode parent_dest, TrNode parent_source) {
     child_dest = trie_node_check(parent_dest, TrNode_entry(child_source));
     if (child_dest) {
       if (IS_LEAF_TRIE_NODE(child_dest)) {
-	/* child_source is a leaf node */
-	if (DATA_ADD_FUNCTION)
-	  (*DATA_ADD_FUNCTION)(child_dest, child_source);
+        /* child_source is a leaf node */
+        if (DATA_ADD_FUNCTION)
+          (*DATA_ADD_FUNCTION)(child_dest, child_source);
       } else
-	/* child_dest and child_source are not leaf nodes */
-	traverse_and_add(child_dest, child_source);
+        /* child_dest and child_source are not leaf nodes */
+        traverse_and_add(child_dest, child_source);
     }
     child_source = TrNode_next(child_source);
   }
@@ -1088,27 +1088,27 @@ void traverse_and_join(TrNode parent_dest, TrNode parent_source) {
     do {
       child_source = *--bucket_source;
       while (child_source) {
-	/* parent_dest is not a leaf node */
-	child_dest = trie_node_check(parent_dest, TrNode_entry(child_source));
-	if (child_dest) {
-	  if (IS_LEAF_TRIE_NODE(child_dest)) {
-	    /* child_source is a leaf node */
-	    if (DATA_ADD_FUNCTION)
-	      (*DATA_ADD_FUNCTION)(child_dest, child_source);
-	  } else
-	    /* child_dest and child_source are not leaf nodes */
-	    traverse_and_join(child_dest, child_source);
-	} else {
-	  child_dest = trie_node_check_insert(parent_dest, TrNode_entry(child_source));
-	  if (IS_LEAF_TRIE_NODE(child_source)) {
-	    MARK_AS_LEAF_TRIE_NODE(child_dest);
-	    INCREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
-	    if (DATA_COPY_FUNCTION)
-	      (*DATA_COPY_FUNCTION)(child_dest, child_source);
-	  } else
+        /* parent_dest is not a leaf node */
+        child_dest = trie_node_check(parent_dest, TrNode_entry(child_source));
+        if (child_dest) {
+          if (IS_LEAF_TRIE_NODE(child_dest)) {
+            /* child_source is a leaf node */
+            if (DATA_ADD_FUNCTION)
+              (*DATA_ADD_FUNCTION)(child_dest, child_source);
+          } else
+            /* child_dest and child_source are not leaf nodes */
+            traverse_and_join(child_dest, child_source);
+        } else {
+          child_dest = trie_node_check_insert(parent_dest, TrNode_entry(child_source));
+          if (IS_LEAF_TRIE_NODE(child_source)) {
+            MARK_AS_LEAF_TRIE_NODE(child_dest);
+            INCREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
+            if (DATA_COPY_FUNCTION)
+              (*DATA_COPY_FUNCTION)(child_dest, child_source);
+          } else
             TrNode_child(child_dest) = copy_child_nodes(child_dest, TrNode_child(child_source));
-	}
-	child_source = TrNode_next(child_source);
+        }
+        child_source = TrNode_next(child_source);
       }
     } while (bucket_source != first_bucket_source);
     return;
@@ -1118,19 +1118,19 @@ void traverse_and_join(TrNode parent_dest, TrNode parent_source) {
     child_dest = trie_node_check(parent_dest, TrNode_entry(child_source));
     if (child_dest) {
       if (IS_LEAF_TRIE_NODE(child_dest)) {
-	/* child_source is a leaf node */
-	if (DATA_ADD_FUNCTION)
-	  (*DATA_ADD_FUNCTION)(child_dest, child_source);
+        /* child_source is a leaf node */
+        if (DATA_ADD_FUNCTION)
+          (*DATA_ADD_FUNCTION)(child_dest, child_source);
       } else
-	/* child_dest and child_source are not leaf nodes */
-	traverse_and_join(child_dest, child_source);
+        /* child_dest and child_source are not leaf nodes */
+        traverse_and_join(child_dest, child_source);
     } else {
       child_dest = trie_node_check_insert(parent_dest, TrNode_entry(child_source));
       if (IS_LEAF_TRIE_NODE(child_source)) {
-	MARK_AS_LEAF_TRIE_NODE(child_dest);
-	INCREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
-	if (DATA_COPY_FUNCTION)
-	  (*DATA_COPY_FUNCTION)(child_dest, child_source);
+        MARK_AS_LEAF_TRIE_NODE(child_dest);
+        INCREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
+        if (DATA_COPY_FUNCTION)
+          (*DATA_COPY_FUNCTION)(child_dest, child_source);
       } else
         TrNode_child(child_dest) = copy_child_nodes(child_dest, TrNode_child(child_source));
     }
@@ -1155,27 +1155,27 @@ void traverse_and_intersect(TrNode parent_dest, TrNode parent_source) {
     do {
       child_dest = *--bucket_dest;
       while (child_dest) {
-	child_next = TrNode_next(child_dest);
-	/* parent_source is not a leaf node */
-	child_source = trie_node_check(parent_source, TrNode_entry(child_dest));
-	if (child_source) {
-	  if (IS_LEAF_TRIE_NODE(child_dest)) {
-	    /* child_source is a leaf node */
-	    if (DATA_ADD_FUNCTION)
-	      (*DATA_ADD_FUNCTION)(child_dest, child_source);
-	  } else
-	    /* child_dest and child_source are not leaf nodes */
-	    traverse_and_intersect(child_dest, child_source);
-	} else {
-	  if (IS_LEAF_TRIE_NODE(child_dest)) {
-	    if (DATA_DESTRUCT_FUNCTION)
-	      (*DATA_DESTRUCT_FUNCTION)(child_dest);
-	    DECREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
-	  } else
-	    remove_child_nodes(TrNode_child(child_dest));
-	  remove_entry(child_dest);
-	}
-	child_dest = child_next;
+        child_next = TrNode_next(child_dest);
+        /* parent_source is not a leaf node */
+        child_source = trie_node_check(parent_source, TrNode_entry(child_dest));
+        if (child_source) {
+          if (IS_LEAF_TRIE_NODE(child_dest)) {
+            /* child_source is a leaf node */
+            if (DATA_ADD_FUNCTION)
+              (*DATA_ADD_FUNCTION)(child_dest, child_source);
+          } else
+            /* child_dest and child_source are not leaf nodes */
+            traverse_and_intersect(child_dest, child_source);
+        } else {
+          if (IS_LEAF_TRIE_NODE(child_dest)) {
+            if (DATA_DESTRUCT_FUNCTION)
+              (*DATA_DESTRUCT_FUNCTION)(child_dest);
+            DECREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
+          } else
+            remove_child_nodes(TrNode_child(child_dest));
+          remove_entry(child_dest);
+        }
+        child_dest = child_next;
       }
     } while (bucket_dest != first_bucket_dest);
     return;
@@ -1186,19 +1186,19 @@ void traverse_and_intersect(TrNode parent_dest, TrNode parent_source) {
     child_source = trie_node_check(parent_source, TrNode_entry(child_dest));
     if (child_source) {
       if (IS_LEAF_TRIE_NODE(child_dest)) {
-	/* child_source is a leaf node */
-	if (DATA_ADD_FUNCTION)
-	  (*DATA_ADD_FUNCTION)(child_dest, child_source);
+        /* child_source is a leaf node */
+        if (DATA_ADD_FUNCTION)
+          (*DATA_ADD_FUNCTION)(child_dest, child_source);
       } else
-	/* child_dest and child_source are not leaf nodes */
-	traverse_and_intersect(child_dest, child_source);
+        /* child_dest and child_source are not leaf nodes */
+        traverse_and_intersect(child_dest, child_source);
     } else {
       if (IS_LEAF_TRIE_NODE(child_dest)) {
-	if (DATA_DESTRUCT_FUNCTION)
-	  (*DATA_DESTRUCT_FUNCTION)(child_dest);
-	DECREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
+        if (DATA_DESTRUCT_FUNCTION)
+          (*DATA_DESTRUCT_FUNCTION)(child_dest);
+        DECREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
       } else
-	remove_child_nodes(TrNode_child(child_dest));
+        remove_child_nodes(TrNode_child(child_dest));
       remove_entry(child_dest);
     }
     child_dest = child_next;
@@ -1223,17 +1223,17 @@ YAP_Int traverse_and_count_common_entries(TrNode parent1, TrNode parent2) {
     do {
       child1 = *--bucket;
       while (child1) {
-	/* parent2 is not a leaf node */
-	child2 = trie_node_check(parent2, TrNode_entry(child1));
-	if (child2) {
-	  if (IS_LEAF_TRIE_NODE(child1))
-	    /* child2 is a leaf node */
-	    count++;
-	  else
-	    /* child1 and child2 are not leaf nodes */
-	    count += traverse_and_count_common_entries(child1, child2);
-	}
-	child1 = TrNode_next(child1);
+        /* parent2 is not a leaf node */
+        child2 = trie_node_check(parent2, TrNode_entry(child1));
+        if (child2) {
+          if (IS_LEAF_TRIE_NODE(child1))
+            /* child2 is a leaf node */
+            count++;
+          else
+            /* child1 and child2 are not leaf nodes */
+            count += traverse_and_count_common_entries(child1, child2);
+        }
+        child1 = TrNode_next(child1);
       }
     } while (bucket != first_bucket);
     return count;
@@ -1243,11 +1243,11 @@ YAP_Int traverse_and_count_common_entries(TrNode parent1, TrNode parent2) {
     child2 = trie_node_check(parent2, TrNode_entry(child1));
     if (child2) {
       if (IS_LEAF_TRIE_NODE(child1))
-	/* child2 is a leaf node */
-	count++;
+        /* child2 is a leaf node */
+        count++;
       else
-	/* child1 and child2 are not leaf nodes */
-	count += traverse_and_count_common_entries(child1, child2);
+        /* child1 and child2 are not leaf nodes */
+        count += traverse_and_count_common_entries(child1, child2);
     }
     child1 = TrNode_next(child1);
   }
@@ -1329,7 +1329,7 @@ void traverse_and_save(TrNode node, FILE *file, int float_block) {
     do {
       if (*--bucket) {
         node = *bucket;
-	traverse_and_save(node, file, float_block);
+        traverse_and_save(node, file, float_block);
       }
     } while (bucket != first_bucket);
     return;
@@ -1356,23 +1356,23 @@ void traverse_and_save(TrNode node, FILE *file, int float_block) {
     int index;
     for (index = 0; index <= CURRENT_INDEX; index++)
       if (AUXILIARY_TERM_STACK[index] == t)
-	break;
+        break;
     if (index > CURRENT_INDEX) {
       CURRENT_INDEX = index;
       if (CURRENT_INDEX == CURRENT_AUXILIARY_TERM_STACK_SIZE)
-	expand_auxiliary_term_stack();
+        expand_auxiliary_term_stack();
       AUXILIARY_TERM_STACK[CURRENT_INDEX] = t;
       if (YAP_IsAtomTerm(t))
-	  fprintf(file, UInt_FORMAT " %d %s%c ", ATOM_SAVE_MARK, index, YAP_AtomName(YAP_AtomOfTerm(t)), '\0');
+          fprintf(file, UInt_FORMAT " %d %s%c ", ATOM_SAVE_MARK, index, YAP_AtomName(YAP_AtomOfTerm(t)), '\0');
       else  /* (ApplTag & t) */
-	fprintf(file, UInt_FORMAT " %d %s " UInt_FORMAT " ", FUNCTOR_SAVE_MARK, index,
-		YAP_AtomName(YAP_NameOfFunctor((YAP_Functor)(~ApplTag & t))),
-		YAP_ArityOfFunctor((YAP_Functor)(~ApplTag & t)));
+        fprintf(file, UInt_FORMAT " %d %s " UInt_FORMAT " ", FUNCTOR_SAVE_MARK, index,
+                YAP_AtomName(YAP_NameOfFunctor((YAP_Functor)(~ApplTag & t))),
+                YAP_ArityOfFunctor((YAP_Functor)(~ApplTag & t)));
     } else
       if (YAP_IsAtomTerm(t))
-	fprintf(file, UInt_FORMAT " %d ", ATOM_SAVE_MARK, index);
+        fprintf(file, UInt_FORMAT " %d ", ATOM_SAVE_MARK, index);
       else
-	fprintf(file, UInt_FORMAT " %d ", FUNCTOR_SAVE_MARK, index);
+        fprintf(file, UInt_FORMAT " %d ", FUNCTOR_SAVE_MARK, index);
   }
   if (IS_LEAF_TRIE_NODE(node)) {
     fprintf(file, "- ");
@@ -1415,34 +1415,34 @@ void traverse_and_load(TrNode parent, FILE *file) {
       int index;
       n = fscanf(file, "%d", &index);
       if (index > CURRENT_INDEX) {
-	char atom[1000];
-	if (CURRENT_LOAD_VERSION == 2) {
-	  char *ptr, ch;
-	  ptr = atom;
-	  fgetc(file);  /* skip the first empty space */
-	  while ((ch = fgetc(file)))
-	    *ptr++ = ch;
-	  *ptr = '\0';
-	} else if (CURRENT_LOAD_VERSION == 1) {
-	  n = fscanf(file, "%s", atom);
-	}
-	CURRENT_INDEX = index;
-	if (CURRENT_INDEX == CURRENT_AUXILIARY_TERM_STACK_SIZE)
-	  expand_auxiliary_term_stack();
-	AUXILIARY_TERM_STACK[CURRENT_INDEX] = YAP_MkAtomTerm(YAP_LookupAtom(atom));
+        char atom[1000];
+        if (CURRENT_LOAD_VERSION == 2) {
+          char *ptr, ch;
+          ptr = atom;
+          fgetc(file);  /* skip the first empty space */
+          while ((ch = fgetc(file)))
+            *ptr++ = ch;
+          *ptr = '\0';
+        } else if (CURRENT_LOAD_VERSION == 1) {
+          n = fscanf(file, "%s", atom);
+        }
+        CURRENT_INDEX = index;
+        if (CURRENT_INDEX == CURRENT_AUXILIARY_TERM_STACK_SIZE)
+          expand_auxiliary_term_stack();
+        AUXILIARY_TERM_STACK[CURRENT_INDEX] = YAP_MkAtomTerm(YAP_LookupAtom(atom));
       }
       t = AUXILIARY_TERM_STACK[index];
     } else if (t == FUNCTOR_SAVE_MARK) {
       int index;
       n = fscanf(file, "%d", &index);
       if (index > CURRENT_INDEX) {
-	char atom[1000];
-	int arity;
-	n = fscanf(file, "%s %d", atom, &arity);
-	CURRENT_INDEX = index;
-	if (CURRENT_INDEX == CURRENT_AUXILIARY_TERM_STACK_SIZE)
-	  expand_auxiliary_term_stack();
-	AUXILIARY_TERM_STACK[CURRENT_INDEX] = ApplTag | ((YAP_Term) YAP_MkFunctor(YAP_LookupAtom(atom), arity));
+        char atom[1000];
+        int arity;
+        n = fscanf(file, "%s %d", atom, &arity);
+        CURRENT_INDEX = index;
+        if (CURRENT_INDEX == CURRENT_AUXILIARY_TERM_STACK_SIZE)
+          expand_auxiliary_term_stack();
+        AUXILIARY_TERM_STACK[CURRENT_INDEX] = ApplTag | ((YAP_Term) YAP_MkFunctor(YAP_LookupAtom(atom), arity));
       }
       t = AUXILIARY_TERM_STACK[index];
     } else if (t == FLOAT_SAVE_MARK)
@@ -1473,15 +1473,15 @@ void traverse_and_print(TrNode node, int *arity, char *str, int str_index, int m
       if (*--bucket) {
         node = *bucket;
         traverse_and_print(node, arity, str, str_index, mode);
-	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
-	if (mode != TRIE_PRINT_FLOAT2 && arity[arity[0]] < 0) {
-	  /* restore possible PairEndEmptyTag/PairEndTermTag/CommaEndTag side-effect */
-	  if (str_index > 0 && str[str_index - 1] != '[')
-	    str[str_index - 1] = ',';
-	  /* restore possible PairEndTermTag side-effect */
-	  if (str[last_pair_mark] == '|')
-	    str[last_pair_mark] = ',';
-	}
+        memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+        if (mode != TRIE_PRINT_FLOAT2 && arity[arity[0]] < 0) {
+          /* restore possible PairEndEmptyTag/PairEndTermTag/CommaEndTag side-effect */
+          if (str_index > 0 && str[str_index - 1] != '[')
+            str[str_index - 1] = ',';
+          /* restore possible PairEndTermTag side-effect */
+          if (str[last_pair_mark] == '|')
+            str[last_pair_mark] = ',';
+        }
       }
     } while (bucket != first_bucket);
     free(current_arity);
@@ -1496,10 +1496,10 @@ void traverse_and_print(TrNode node, int *arity, char *str, int str_index, int m
     if (mode != TRIE_PRINT_FLOAT2 && arity[arity[0]] < 0) {
       /* restore possible PairEndEmptyTag/PairEndTermTag/CommaEndTag side-effect */
       if (str_index > 0 && str[str_index - 1] != '[')
-	str[str_index - 1] = ',';
+        str[str_index - 1] = ',';
       /* restore possible PairEndTermTag side-effect */
       if (str[last_pair_mark] == '|')
-	str[last_pair_mark] = ',';
+        str[last_pair_mark] = ',';
     }
     free(current_arity);
   }
@@ -1534,13 +1534,13 @@ void traverse_and_print(TrNode node, int *arity, char *str, int str_index, int m
     arity[0]--;
     while (arity[0]) {
       if (arity[arity[0]] == 1) {
-	str_index += sprintf(& str[str_index], ")");
-	arity[0]--;
+        str_index += sprintf(& str[str_index], ")");
+        arity[0]--;
       } else {
-	if (arity[arity[0]] > 1)
-	  arity[arity[0]]--;
-	str_index += sprintf(& str[str_index], ",");
-	break;
+        if (arity[arity[0]] > 1)
+          arity[arity[0]]--;
+        str_index += sprintf(& str[str_index], ",");
+        break;
       }
     }
     mode = TRIE_PRINT_NORMAL;
@@ -1548,39 +1548,39 @@ void traverse_and_print(TrNode node, int *arity, char *str, int str_index, int m
     str_index += sprintf(& str[str_index], "VAR" UInt_FORMAT, TrieVarIndex(t));
     while (arity[0]) {
       if (arity[arity[0]] == 1) {
-	str_index += sprintf(& str[str_index], ")");
-	arity[0]--;
+        str_index += sprintf(& str[str_index], ")");
+        arity[0]--;
       } else {
-	if (arity[arity[0]] > 1)
-	  arity[arity[0]]--;
-	str_index += sprintf(& str[str_index], ",");
-	break;
+        if (arity[arity[0]] > 1)
+          arity[arity[0]]--;
+        str_index += sprintf(& str[str_index], ",");
+        break;
       }
     }
   } else if (YAP_IsAtomTerm(t)) {
     str_index += sprintf(& str[str_index], "%s", YAP_AtomName(YAP_AtomOfTerm(t)));
     while (arity[0]) {
       if (arity[arity[0]] == 1) {
-	str_index += sprintf(& str[str_index], ")");
-	arity[0]--;
+        str_index += sprintf(& str[str_index], ")");
+        arity[0]--;
       } else {
-	if (arity[arity[0]] > 1)
-	  arity[arity[0]]--;
-	str_index += sprintf(& str[str_index], ",");
-	break;
+        if (arity[arity[0]] > 1)
+          arity[arity[0]]--;
+        str_index += sprintf(& str[str_index], ",");
+        break;
       }
     }
   } else if (YAP_IsIntTerm(t)) {
     str_index += sprintf(& str[str_index], UInt_FORMAT , YAP_IntOfTerm(t));
     while (arity[0]) {
       if (arity[arity[0]] == 1) {
-	str_index += sprintf(& str[str_index], ")");
-	arity[0]--;
+        str_index += sprintf(& str[str_index], ")");
+        arity[0]--;
       } else {
-	if (arity[arity[0]] > 1)
-	  arity[arity[0]]--;
-	str_index += sprintf(& str[str_index], ",");
-	break;
+        if (arity[arity[0]] > 1)
+          arity[arity[0]]--;
+        str_index += sprintf(& str[str_index], ",");
+        break;
       }
     }
   } else if (YAP_IsPairTerm(t)) {
@@ -1598,23 +1598,23 @@ void traverse_and_print(TrNode node, int *arity, char *str, int str_index, int m
       arity[arity[0]] = -1;
     } else {
       if (t == PairEndEmptyTag)
-	str[str_index - 1] = ']';
+        str[str_index - 1] = ']';
       else if (t == PairEndTermTag) {
-	str[last_pair_mark] = '|';
-	str[str_index - 1] = ']';
+        str[last_pair_mark] = '|';
+        str[str_index - 1] = ']';
       } else /*   (t == CommaEndTag)   */
-	str[str_index - 1] = ')';
+        str[str_index - 1] = ')';
       arity[0]--;
       while (arity[0]) {
-	if (arity[arity[0]] == 1) {
-	  str_index += sprintf(& str[str_index], ")");
-	  arity[0]--;
-	} else {
-	  if (arity[arity[0]] > 1)
-	    arity[arity[0]]--;
-	  str_index += sprintf(& str[str_index], ",");
-	  break;
-	}
+        if (arity[arity[0]] == 1) {
+          str_index += sprintf(& str[str_index], ")");
+          arity[0]--;
+        } else {
+          if (arity[arity[0]] > 1)
+            arity[arity[0]]--;
+          str_index += sprintf(& str[str_index], ",");
+          break;
+        }
       }
     }
   } else if (ApplTag & t) {
