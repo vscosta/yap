@@ -192,6 +192,8 @@
 #include <stdarg.h>
 #define  VERSION "2.0.0"
 
+int all_loaded_for_deterministic_variables(namedvars varmap, int disp);
+
 typedef struct _parameters {
   int loadfile;
   int savedfile;
@@ -721,14 +723,14 @@ void myexpand(extmanager MyManager, DdNode *Current) {
   }
 }
 
-/* Angelicas Algorithm */
+/* Angelika's Algorithm */
 
 double CalcProbability(extmanager MyManager, DdNode *Current) {
   DdNode *h, *l;
   hisnode *Found;
-  char *curnode, *dynvalue;
+  char *curnode;
   double lvalue, hvalue, tvalue;
-  density_integral dynvalue_parsed;
+
   if (params.debug) {
     curnode = GetNodeVarNameDisp(MyManager.manager, MyManager.varmap, Current);
     fprintf(stderr, "%s\n", curnode);
@@ -811,7 +813,7 @@ static
 void PrintNodeQueue(Queue q , extmanager MyManager){
 
     QueueIterator qiter = QueueIteratorNew(q, 1);
-    fprintf(stderr,"Queue %p is [", *q);
+    fprintf(stderr,"Queue %p is [", &*q);
 
     while (qiter->currentItem != NULL) {
       DdNode* val = (DdNode*) qiter->currentItem->element;

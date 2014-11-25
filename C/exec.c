@@ -1991,8 +1991,8 @@ Yap_InitExecFs(void)
 #ifdef DEPTH_LIMIT
   Yap_InitCPred("$execute_under_depth_limit", 2, p_execute_depth_limit, 0);
 #endif
-  Yap_InitCPred("$execute0", 2, p_execute0, 0);
-  Yap_InitCPred("$execute_nonstop", 2, p_execute_nonstop, 0);
+  Yap_InitCPred("$execute0", 2, p_execute0, NoTracePredFlag);
+  Yap_InitCPred("$execute_nonstop", 2, p_execute_nonstop,NoTracePredFlag  );
   Yap_InitCPred("$execute_clause", 4, p_execute_clause, 0);
   Yap_InitCPred("$current_choice_point", 1, p_save_cp, 0);
   Yap_InitCPred("$current_choicepoint", 1, p_save_cp, 0);

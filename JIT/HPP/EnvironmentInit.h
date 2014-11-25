@@ -1,7 +1,7 @@
 #if YAP_STAT_PREDS
 #include <papi.h>
 #endif
-
+#include "Yap.h"
 extern Environment ExpEnv;
 
 #if YAP_JIT

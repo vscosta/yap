@@ -11,7 +11,8 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2008-07-24 16:02:00 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-07-24 16:02:00 $,$Author: vsc $
+**
 * $Log: not supported by cvs2svn $
 * Revision 1.131  2008/06/12 10:55:52  vsc
 * fix syntax error messages
@@ -145,7 +146,8 @@
 * solved warning: cast from pointer to integer of different size
 *
 * Revision 1.91  2005/07/06 19:33:54  ricroc
-* TABLING: answers for completed calls can now be obtained by loading (new option) or executing (default) them from the trie data structure.
+* TABLING: answers for completed calls can now be obtained by loading (new
+*option) or executing (default) them from the trie data structure.
 *
 * Revision 1.90  2005/07/06 15:10:14  vsc
 * improvements to compiler: merged instructions and fixes for ->
@@ -160,10 +162,15 @@
 * changs to support gibbs sampling in CLP(BN)
 *
 * Revision 1.87  2005/04/07 17:48:55  ricroc
-* Adding tabling support for mixed strategy evaluation (batched and local scheduling)
-*   UPDATE: compilation flags -DTABLING_BATCHED_SCHEDULING and -DTABLING_LOCAL_SCHEDULING removed. To support tabling use -DTABLING in the Makefile or --enable-tabling in configure.
-*   NEW: yap_flag(tabling_mode,MODE) changes the tabling execution mode of all tabled predicates to MODE (batched, local or default).
-*   NEW: tabling_mode(PRED,MODE) changes the default tabling execution mode of predicate PRED to MODE (batched or local).
+* Adding tabling support for mixed strategy evaluation (batched and local
+*scheduling)
+*   UPDATE: compilation flags -DTABLING_BATCHED_SCHEDULING and
+*-DTABLING_LOCAL_SCHEDULING removed. To support tabling use -DTABLING in the
+*Makefile or --enable-tabling in configure.
+*   NEW: yap_flag(tabling_mode,MODE) changes the tabling execution mode of all
+*tabled predicates to MODE (batched, local or default).
+*   NEW: tabling_mode(PRED,MODE) changes the default tabling execution mode of
+*predicate PRED to MODE (batched or local).
 *
 * Revision 1.86  2005/03/13 06:26:11  vsc
 * fix excessive pruning in meta-calls
@@ -194,7 +201,8 @@
 * Ricardo's latest version of profiler.
 *
 * Revision 1.79  2004/12/28 22:20:36  vsc
-* some extra bug fixes for trail overflows: some cannot be recovered that easily,
+* some extra bug fixes for trail overflows: some cannot be recovered that
+*easily,
 * some can.
 *
 * Revision 1.78  2004/12/08 04:45:03  vsc
@@ -221,7 +229,8 @@
 * a few fixes for 64 bit compiling.
 *
 * Revision 1.72  2004/11/18 22:32:37  vsc
-* fix situation where we might assume nonextsing double initialisation of C predicates (use
+* fix situation where we might assume nonextsing double initialisation of C
+*predicates (use
 * Hidden Pred Flag).
 * $host_type was double initialised.
 *
@@ -254,19 +263,19 @@
 *									 *
 *************************************************************************/
 #ifdef SCCS
-static char     SccsId[] = "%W% %G%";
+static char SccsId[] = "%W% %G%";
 #endif
 
 #define HAS_CACHE_REGS 1
 /*
- * This file includes the definition of a miscellania of standard predicates
- * for yap refering to: Consulting, Executing a C predicate from call,
- * Comparisons (both general and numeric), Structure manipulation, Direct
- * access to atoms and predicates, Basic support for the debugger 
- *
- * It also includes a table where all C-predicates are initializated 
- *
- */
+* This file includes the definition of a miscellania of standard predicates
+* for yap refering to: Consulting, Executing a C predicate from call,
+* Comparisons (both general and numeric), Structure manipulation, Direct
+* access to atoms and predicates, Basic support for the debugger
+*
+* It also includes a table where all C-predicates are initializated
+*
+*/
 
 #include "Yap.h"
 #include "Yatom.h"
@@ -286,170 +295,174 @@ static char     SccsId[] = "%W% %G%";
 #endif
 #include <wchar.h>
 
-static Int p_setval( USES_REGS1 );
-static Int p_value( USES_REGS1 );
-static Int p_values( USES_REGS1 );
+static Int p_setval(USES_REGS1);
+static Int p_value(USES_REGS1);
+static Int p_values(USES_REGS1);
 #ifdef undefined
 static CODEADDR *FindAtom(CODEADDR, int *);
 #endif /* undefined */
-static Int p_opdec( USES_REGS1 );
-static Int p_univ( USES_REGS1 );
-static Int p_abort( USES_REGS1 );
+static Int p_opdec(USES_REGS1);
+static Int p_univ(USES_REGS1);
+static Int p_abort(USES_REGS1);
 #ifdef BEAM
-Int p_halt( USES_REGS1 );
+Int p_halt(USES_REGS1);
 #else
-static Int p_halt( USES_REGS1 );
+static Int p_halt(USES_REGS1);
 #endif
-static Int init_current_predicate( USES_REGS1 );
-static Int cont_current_predicate( USES_REGS1 );
-static Int init_current_predicate_for_atom( USES_REGS1 );
-static Int cont_current_predicate_for_atom( USES_REGS1 );
-static OpEntry *NextOp(OpEntry * CACHE_TYPE);
-static Int init_current_op( USES_REGS1 );
-static Int cont_current_op( USES_REGS1 );
-static Int init_current_atom_op( USES_REGS1 );
-static Int cont_current_atom_op( USES_REGS1 );
-static Int p_flags( USES_REGS1 );
+static Int init_current_predicate(USES_REGS1);
+static Int cont_current_predicate(USES_REGS1);
+static OpEntry *NextOp(OpEntry *CACHE_TYPE);
+static Int init_current_op(USES_REGS1);
+static Int cont_current_op(USES_REGS1);
+static Int init_current_atom_op(USES_REGS1);
+static Int cont_current_atom_op(USES_REGS1);
+static Int p_flags(USES_REGS1);
 static Int TrailMax(void);
 static Int GlobalMax(void);
 static Int LocalMax(void);
-static Int p_statistics_heap_max( USES_REGS1 );
-static Int p_statistics_global_max( USES_REGS1 );
-static Int p_statistics_local_max( USES_REGS1 );
-static Int p_statistics_heap_info( USES_REGS1 );
-static Int p_statistics_stacks_info( USES_REGS1 );
-static Int p_statistics_trail_info( USES_REGS1 );
-static Term mk_argc_list( USES_REGS1 );
-static Int p_argv( USES_REGS1 );
-static Int p_cputime( USES_REGS1 );
-static Int p_systime( USES_REGS1 );
-static Int p_runtime( USES_REGS1 );
-static Int p_walltime( USES_REGS1 );
-static Int p_access_yap_flags( USES_REGS1 );
-static Int p_set_yap_flags( USES_REGS1 );
-static Int p_break( USES_REGS1 );
+static Int p_statistics_heap_max(USES_REGS1);
+static Int p_statistics_global_max(USES_REGS1);
+static Int p_statistics_local_max(USES_REGS1);
+static Int p_statistics_heap_info(USES_REGS1);
+static Int p_statistics_stacks_info(USES_REGS1);
+static Int p_statistics_trail_info(USES_REGS1);
+static Term mk_argc_list(USES_REGS1);
+static Int p_argv(USES_REGS1);
+static Int p_cputime(USES_REGS1);
+static Int p_systime(USES_REGS1);
+static Int p_runtime(USES_REGS1);
+static Int p_walltime(USES_REGS1);
+static Int p_access_yap_flags(USES_REGS1);
+static Int p_set_yap_flags(USES_REGS1);
+static Int p_break(USES_REGS1);
 
 #ifdef BEAM
-Int use_eam( USES_REGS1 );
-Int eager_split( USES_REGS1 );
-Int force_wait( USES_REGS1 );
-Int commit( USES_REGS1 );
-Int skip_while_var( USES_REGS1 );
-Int wait_while_var( USES_REGS1 );
-Int show_time( USES_REGS1 );
-Int start_eam( USES_REGS1 );
-Int cont_eam( USES_REGS1 );
+Int use_eam(USES_REGS1);
+Int eager_split(USES_REGS1);
+Int force_wait(USES_REGS1);
+Int commit(USES_REGS1);
+Int skip_while_var(USES_REGS1);
+Int wait_while_var(USES_REGS1);
+Int show_time(USES_REGS1);
+Int start_eam(USES_REGS1);
+Int cont_eam(USES_REGS1);
 
 extern int EAM;
-extern int eam_am(PredEntry*);
-extern int showTime(void); 
+extern int eam_am(PredEntry *);
+extern int showTime(void);
 
-Int start_eam( USES_REGS1 ) {
-  if (eam_am((PredEntry *) 0x1)) return (TRUE); 
-  else { cut_fail(); return (FALSE); }
-}
-
-Int cont_eam( USES_REGS1 ) {
-  if (eam_am((PredEntry *) 0x2)) return (TRUE); 
-  else { cut_fail(); return (FALSE); }
-}
-
-Int use_eam( USES_REGS1 ) { 
-  if (EAM)  EAM=0;
-    else { Yap_PutValue(AtomCArith,0); EAM=1; }
-  return(TRUE);
-}
-
-Int commit( USES_REGS1 ) { 
-  if (EAM) {
-  printf("Nao deveria ter sido chamado commit do stdpreds\n");
-  exit(1);
+Int start_eam(USES_REGS1) {
+  if (eam_am((PredEntry *)0x1))
+    return (TRUE);
+  else {
+    cut_fail();
+    return (FALSE);
   }
-  return(TRUE);
 }
 
-Int skip_while_var( USES_REGS1 ) { 
-  if (EAM) {
-  printf("Nao deveria ter sido chamado skip_while_var do stdpreds\n");
-  exit(1);
+Int cont_eam(USES_REGS1) {
+  if (eam_am((PredEntry *)0x2))
+    return (TRUE);
+  else {
+    cut_fail();
+    return (FALSE);
   }
-  return(TRUE);
 }
 
-Int wait_while_var( USES_REGS1 ) { 
-  if (EAM) {
-  printf("Nao deveria ter sido chamado wait_while_var do stdpreds\n");
-  exit(1);
+Int use_eam(USES_REGS1) {
+  if (EAM)
+    EAM = 0;
+  else {
+    Yap_PutValue(AtomCArith, 0);
+    EAM = 1;
   }
-  return(TRUE);
+  return (TRUE);
 }
 
-Int force_wait( USES_REGS1 ) {
+Int commit(USES_REGS1) {
   if (EAM) {
-  printf("Nao deveria ter sido chamado force_wait do stdpreds\n");
-  exit(1);
+    printf("Nao deveria ter sido chamado commit do stdpreds\n");
+    exit(1);
   }
-  return(TRUE);
+  return (TRUE);
 }
 
-Int eager_split( USES_REGS1 ) {
+Int skip_while_var(USES_REGS1) {
   if (EAM) {
-  printf("Nao deveria ter sido chamado eager_split do stdpreds\n");
-  exit(1);
+    printf("Nao deveria ter sido chamado skip_while_var do stdpreds\n");
+    exit(1);
   }
-  return(TRUE);
+  return (TRUE);
 }
 
-Int show_time( USES_REGS1 )  /* MORE PRECISION */
+Int wait_while_var(USES_REGS1) {
+  if (EAM) {
+    printf("Nao deveria ter sido chamado wait_while_var do stdpreds\n");
+    exit(1);
+  }
+  return (TRUE);
+}
+
+Int force_wait(USES_REGS1) {
+  if (EAM) {
+    printf("Nao deveria ter sido chamado force_wait do stdpreds\n");
+    exit(1);
+  }
+  return (TRUE);
+}
+
+Int eager_split(USES_REGS1) {
+  if (EAM) {
+    printf("Nao deveria ter sido chamado eager_split do stdpreds\n");
+    exit(1);
+  }
+  return (TRUE);
+}
+
+Int show_time(USES_REGS1) /* MORE PRECISION */
 {
   return (showTime());
 }
 
-#endif /* BEAM */ 
+#endif /* BEAM */
 
-static Int 
-p_setval( USES_REGS1 )
-{				/* '$set_value'(+Atom,+Atomic) */
-	Term            t1 = Deref(ARG1), t2 = Deref(ARG2);
-	if (!IsVarTerm(t1) && IsAtomTerm(t1) &&
-	    (!IsVarTerm(t2) && (IsAtomTerm(t2) || IsNumTerm(t2)))) {
-		Yap_PutValue(AtomOfTerm(t1), t2);
-		return (TRUE);
-	}
-	return (FALSE);
+static Int p_setval(USES_REGS1) { /* '$set_value'(+Atom,+Atomic) */
+  Term t1 = Deref(ARG1), t2 = Deref(ARG2);
+  if (!IsVarTerm(t1) && IsAtomTerm(t1) &&
+      (!IsVarTerm(t2) && (IsAtomTerm(t2) || IsNumTerm(t2)))) {
+    Yap_PutValue(AtomOfTerm(t1), t2);
+    return (TRUE);
+  }
+  return (FALSE);
 }
 
-static Int 
-p_value( USES_REGS1 )
-{				/* '$get_value'(+Atom,?Val) */
+static Int p_value(USES_REGS1) { /* '$get_value'(+Atom,?Val) */
   Term t1 = Deref(ARG1);
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR,t1,"get_value/2");
+    Yap_Error(INSTANTIATION_ERROR, t1, "get_value/2");
     return (FALSE);
   }
   if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM,t1,"get_value/2");
+    Yap_Error(TYPE_ERROR_ATOM, t1, "get_value/2");
     return (FALSE);
   }
   return (Yap_unify_constant(ARG2, Yap_GetValue(AtomOfTerm(t1))));
 }
 
-
-static Int 
-p_values( USES_REGS1 )
-{				/* '$values'(Atom,Old,New) */
-  Term            t1 = Deref(ARG1), t3 = Deref(ARG3);
+static Int p_values(USES_REGS1) { /* '$values'(Atom,Old,New) */
+  Term t1 = Deref(ARG1), t3 = Deref(ARG3);
 
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR,t1,"set_value/2");
+    Yap_Error(INSTANTIATION_ERROR, t1, "set_value/2");
     return (FALSE);
   }
   if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM,t1,"set_value/2");
+    Yap_Error(TYPE_ERROR_ATOM, t1, "set_value/2");
     return (FALSE);
   }
-  if (!Yap_unify_constant(ARG2, Yap_GetValue(AtomOfTerm(t1))))
+  if (!Yap_unify_constant(ARG2, Yap_GetValue(AtomOfTerm(t1)))) {
     return (FALSE);
+  }
   if (!IsVarTerm(t3)) {
     if (IsAtomTerm(t3) || IsNumTerm(t3)) {
       Yap_PutValue(AtomOfTerm(t1), t3);
@@ -459,19 +472,16 @@ p_values( USES_REGS1 )
   return (TRUE);
 }
 
-static Int 
-p_opdec( USES_REGS1 )
-{				/* '$opdec'(p,type,atom)		 */
+static Int p_opdec(USES_REGS1) { /* '$opdec'(p,type,atom)		 */
   /* we know the arguments are integer, atom, atom */
-  Term            p = Deref(ARG1), t = Deref(ARG2), at = Deref(ARG3);
+  Term p = Deref(ARG1), t = Deref(ARG2), at = Deref(ARG3);
   Term tmod = Deref(ARG4);
   if (tmod == TermProlog) {
     tmod = PROLOG_MODULE;
   }
-  return Yap_OpDec((int) IntOfTerm(p), RepAtom(AtomOfTerm(t))->StrOfAE,
-		   AtomOfTerm(at), tmod);
+  return Yap_OpDec((int)IntOfTerm(p), RepAtom(AtomOfTerm(t))->StrOfAE,
+                   AtomOfTerm(at), tmod);
 }
-
 
 #ifdef NO_STRTOD
 
@@ -479,32 +489,39 @@ p_opdec( USES_REGS1 )
 #include <ctype.h>
 #endif
 
-double 
-strtod(s, pe)
-	char           *s, **pe;
+double strtod(s, pe) char *s, **pe;
 {
-	double          r = atof(s);
-	*pe = s;
-	while (*s == ' ')
-		++s;
-	if (*s == '+' || *s == '-')
-		++s;
-	if (!isdigit(*s))
-		return (r);
-	while (isdigit(*s))
-		++s;
-	if (*s == '.')
-		++s;
-	while (isdigit(*s))
-		++s;
-	if (*s == 'e' || *s == 'E')
-		++s;
-	if (*s == '+' || *s == '-')
-		++s;
-	while (isdigit(*s))
-		++s;
-	*pe = s;
-	return (r);
+  double r = atof(s);
+  *pe = s;
+  while (*s == ' ') {
+    ++s;
+  }
+  if (*s == '+' || *s == '-') {
+    ++s;
+  }
+  if (!isdigit(*s)) {
+    return (r);
+  }
+  while (isdigit(*s)) {
+    ++s;
+  }
+  if (*s == '.') {
+    ++s;
+  }
+  while (isdigit(*s)) {
+    ++s;
+  }
+  if (*s == 'e' || *s == 'E') {
+    ++s;
+  }
+  if (*s == '+' || *s == '-') {
+    ++s;
+  }
+  while (isdigit(*s)) {
+    ++s;
+  }
+  *pe = s;
+  return (r);
 }
 
 #else
@@ -514,23 +531,16 @@ strtod(s, pe)
 #endif
 
 #ifndef INFINITY
-#define INFINITY (1.0/0.0)
+#define INFINITY (1.0 / 0.0)
 #endif
 
-
-static UInt 
-runtime( USES_REGS1 )
-{
-  return(Yap_cputime()-Yap_total_gc_time()-Yap_total_stack_shift_time());
+static UInt runtime(USES_REGS1) {
+  return (Yap_cputime() - Yap_total_gc_time() - Yap_total_stack_shift_time());
 }
 
 /* $runtime(-SinceInterval,-SinceStart)	 */
-static Int 
-p_runtime( USES_REGS1 )
-{
-  Int now, interval,
-    gc_time,
-    ss_time;
+static Int p_runtime(USES_REGS1) {
+  Int now, interval, gc_time, ss_time;
   Term tnow, tinterval;
 
   Yap_cputime_interval(&now, &interval);
@@ -538,106 +548,98 @@ p_runtime( USES_REGS1 )
   now -= gc_time;
   ss_time = Yap_total_stack_shift_time();
   now -= ss_time;
-  interval -= (gc_time-LOCAL_LastGcTime)+(ss_time-LOCAL_LastSSTime);
+  interval -= (gc_time - LOCAL_LastGcTime) + (ss_time - LOCAL_LastSSTime);
   LOCAL_LastGcTime = gc_time;
   LOCAL_LastSSTime = ss_time;
   tnow = MkIntegerTerm(now);
   tinterval = MkIntegerTerm(interval);
-  return( Yap_unify_constant(ARG1, tnow) && 
-	 Yap_unify_constant(ARG2, tinterval) );
+  return (Yap_unify_constant(ARG1, tnow) &&
+          Yap_unify_constant(ARG2, tinterval));
 }
 
 /* $cputime(-SinceInterval,-SinceStart)	 */
-static Int 
-p_cputime( USES_REGS1 )
-{
+static Int p_cputime(USES_REGS1) {
   Int now, interval;
   Yap_cputime_interval(&now, &interval);
-  return( Yap_unify_constant(ARG1, MkIntegerTerm(now)) && 
-	 Yap_unify_constant(ARG2, MkIntegerTerm(interval)) );
+  return (Yap_unify_constant(ARG1, MkIntegerTerm(now)) &&
+          Yap_unify_constant(ARG2, MkIntegerTerm(interval)));
 }
 
-static Int 
-p_systime( USES_REGS1 )
-{
+static Int p_systime(USES_REGS1) {
   Int now, interval;
   Yap_systime_interval(&now, &interval);
-  return( Yap_unify_constant(ARG1, MkIntegerTerm(now)) && 
-	 Yap_unify_constant(ARG2, MkIntegerTerm(interval)) );
+  return (Yap_unify_constant(ARG1, MkIntegerTerm(now)) &&
+          Yap_unify_constant(ARG2, MkIntegerTerm(interval)));
 }
 
-static Int 
-p_walltime( USES_REGS1 )
-{
+static Int p_walltime(USES_REGS1) {
   Int now, interval;
   Yap_walltime_interval(&now, &interval);
-  return( Yap_unify_constant(ARG1, MkIntegerTerm(now)) && 
-	 Yap_unify_constant(ARG2, MkIntegerTerm(interval)) );
+  return (Yap_unify_constant(ARG1, MkIntegerTerm(now)) &&
+          Yap_unify_constant(ARG2, MkIntegerTerm(interval)));
 }
 
-static Int 
-p_univ( USES_REGS1 )
-{				/* A =.. L			 */
-  unsigned int    arity;
-  register Term   tin;
-  Term            twork, t2;
-  Atom            at;
+static Int p_univ(USES_REGS1) { /* A =.. L			 */
+  unsigned int arity;
+  register Term tin;
+  Term twork, t2;
+  Atom at;
 
   tin = Deref(ARG1);
   t2 = Deref(ARG2);
   if (IsVarTerm(tin)) {
     /* we need to have a list */
-    Term           *Ar;
+    Term *Ar;
     if (IsVarTerm(t2)) {
       Yap_Error(INSTANTIATION_ERROR, t2, "(=..)/2");
-      return(FALSE);
+      return (FALSE);
     }
     if (!IsPairTerm(t2)) {
       if (t2 == TermNil)
-	Yap_Error(DOMAIN_ERROR_NON_EMPTY_LIST, t2, "(=..)/2");
+        Yap_Error(DOMAIN_ERROR_NON_EMPTY_LIST, t2, "(=..)/2");
       else
-	Yap_Error(TYPE_ERROR_LIST, ARG2, "(=..)/2");
+        Yap_Error(TYPE_ERROR_LIST, ARG2, "(=..)/2");
       return (FALSE);
     }
     twork = HeadOfTerm(t2);
     if (IsVarTerm(twork)) {
       Yap_Error(INSTANTIATION_ERROR, twork, "(=..)/2");
-      return(FALSE);
+      return (FALSE);
     }
     if (IsNumTerm(twork)) {
       Term tt = TailOfTerm(t2);
       if (IsVarTerm(tt)) {
-	Yap_Error(INSTANTIATION_ERROR, tt, "(=..)/2");
-	return (FALSE);
+        Yap_Error(INSTANTIATION_ERROR, tt, "(=..)/2");
+        return (FALSE);
       }
-      if ( tt != MkAtomTerm(AtomNil)) {
-	Yap_Error(TYPE_ERROR_ATOMIC, twork, "(=..)/2");
-	return (FALSE);
+      if (tt != MkAtomTerm(AtomNil)) {
+        Yap_Error(TYPE_ERROR_ATOMIC, twork, "(=..)/2");
+        return (FALSE);
       }
       return (Yap_unify_constant(ARG1, twork));
     }
     if (!IsAtomTerm(twork)) {
       Term tt = TailOfTerm(t2);
       if (IsVarTerm(tt)) {
-	Yap_Error(INSTANTIATION_ERROR, twork, "(=..)/2");
-	return(FALSE);
+        Yap_Error(INSTANTIATION_ERROR, twork, "(=..)/2");
+        return (FALSE);
       } else if (tt == MkAtomTerm(AtomNil)) {
-	Yap_Error(TYPE_ERROR_ATOMIC, twork, "(=..)/2");
-	return (FALSE);
+        Yap_Error(TYPE_ERROR_ATOMIC, twork, "(=..)/2");
+        return (FALSE);
       } else {
-	Yap_Error(TYPE_ERROR_ATOM, twork, "(=..)/2");
-	return (FALSE);
+        Yap_Error(TYPE_ERROR_ATOM, twork, "(=..)/2");
+        return (FALSE);
       }
-    }      
+    }
     at = AtomOfTerm(twork);
     twork = TailOfTerm(t2);
     if (IsVarTerm(twork)) {
       Yap_Error(INSTANTIATION_ERROR, twork, "(=..)/2");
-      return(FALSE);
-    } else  if (!IsPairTerm(twork)) {
+      return (FALSE);
+    } else if (!IsPairTerm(twork)) {
       if (twork != TermNil) {
-	Yap_Error(TYPE_ERROR_LIST, ARG2, "(=..)/2");
-	return(FALSE);
+        Yap_Error(TYPE_ERROR_LIST, ARG2, "(=..)/2");
+        return (FALSE);
       }
       return (Yap_unify_constant(ARG1, MkAtomTerm(at)));
     }
@@ -645,24 +647,24 @@ p_univ( USES_REGS1 )
     /* build the term directly on the heap */
     Ar = HR;
     HR++;
-    
+
     while (!IsVarTerm(twork) && IsPairTerm(twork)) {
       *HR++ = HeadOfTerm(twork);
       if (HR > ASP - 1024) {
-	/* restore space */
-	HR = Ar;
-	if (!Yap_gcl((ASP-HR)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
-	  return FALSE;
-	}
-	twork = TailOfTerm(Deref(ARG2));
-	goto build_compound;
+        /* restore space */
+        HR = Ar;
+        if (!Yap_gcl((ASP - HR) * sizeof(CELL), 2, ENV, gc_P(P, CP))) {
+          Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+          return FALSE;
+        }
+        twork = TailOfTerm(Deref(ARG2));
+        goto build_compound;
       }
       twork = TailOfTerm(twork);
     }
     if (IsVarTerm(twork)) {
       Yap_Error(INSTANTIATION_ERROR, twork, "(=..)/2");
-      return(FALSE);
+      return (FALSE);
     }
     if (twork != TermNil) {
       Yap_Error(TYPE_ERROR_LIST, ARG2, "(=..)/2");
@@ -671,22 +673,21 @@ p_univ( USES_REGS1 )
 #ifdef SFUNC
     DOES_NOT_WORK();
     {
-      SFEntry        *pe = (SFEntry *) Yap_GetAProp(at, SFProperty);
+      SFEntry *pe = (SFEntry *)Yap_GetAProp(at, SFProperty);
       if (pe)
-	twork = MkSFTerm(Yap_MkFunctor(at, SFArity),
-			 arity, CellPtr(TR), pe->NilValue);
+        twork = MkSFTerm(Yap_MkFunctor(at, SFArity), arity, CellPtr(TR),
+                         pe->NilValue);
       else
-	twork = Yap_MkApplTerm(Yap_MkFunctor(at, arity),
-			   arity, CellPtr(TR));
+        twork = Yap_MkApplTerm(Yap_MkFunctor(at, arity), arity, CellPtr(TR));
     }
 #else
-    arity = HR-Ar-1;
+    arity = HR - Ar - 1;
     if (at == AtomDot && arity == 2) {
       Ar[0] = Ar[1];
       Ar[1] = Ar[2];
-      HR --;
+      HR--;
       twork = AbsPair(Ar);
-    } else {      
+    } else {
       *Ar = (CELL)(Yap_MkFunctor(at, arity));
       twork = AbsAppl(Ar);
     }
@@ -700,8 +701,8 @@ p_univ( USES_REGS1 )
   if (IsRefTerm(tin))
     return (FALSE);
   if (IsApplTerm(tin)) {
-    Functor         fun = FunctorOfTerm(tin);
-    if (IsExtensionFunctor ( fun ) ) {
+    Functor fun = FunctorOfTerm(tin);
+    if (IsExtensionFunctor(fun)) {
       twork = MkPairTerm(tin, MkAtomTerm(AtomNil));
       return (Yap_unify(twork, ARG2));
     }
@@ -709,35 +710,35 @@ p_univ( USES_REGS1 )
     at = NameOfFunctor(fun);
 #ifdef SFUNC
     if (arity == SFArity) {
-      CELL           *p = CellPtr(TR);
-      CELL           *q = ArgsOfSFTerm(tin);
-      int             argno = 1;
+      CELL *p = CellPtr(TR);
+      CELL *q = ArgsOfSFTerm(tin);
+      int argno = 1;
       while (*q) {
-	while (*q > argno++)
-	  *p++ = MkVarTerm();
-	++q;
-	*p++ = Deref(*q++);
+        while (*q > argno++)
+          *p++ = MkVarTerm();
+        ++q;
+        *p++ = Deref(*q++);
       }
       twork = Yap_ArrayToList(CellPtr(TR), argno - 1);
       while (IsIntTerm(twork)) {
-	if (!Yap_gc(2, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
-	  return(FALSE);
-	}    
-	twork = Yap_ArrayToList(CellPtr(TR), argno - 1);
+        if (!Yap_gc(2, ENV, gc_P(P, CP))) {
+          Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+          return (FALSE);
+        }
+        twork = Yap_ArrayToList(CellPtr(TR), argno - 1);
       }
     } else
 #endif
-      {
-	while (HR+arity*2 > ASP-1024) {
-	  if (!Yap_gcl((arity*2)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
-	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
-	    return(FALSE);
-	  }
-	  tin = Deref(ARG1);
-	}
-	twork = Yap_ArrayToList(RepAppl(tin) + 1, arity);
+    {
+      while (HR + arity * 2 > ASP - 1024) {
+        if (!Yap_gcl((arity * 2) * sizeof(CELL), 2, ENV, gc_P(P, CP))) {
+          Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+          return (FALSE);
+        }
+        tin = Deref(ARG1);
       }
+      twork = Yap_ArrayToList(RepAppl(tin) + 1, arity);
+    }
   } else {
     /* We found a list */
     at = AtomDot;
@@ -747,189 +748,286 @@ p_univ( USES_REGS1 )
   return (Yap_unify(ARG2, twork));
 }
 
-static Int 
-p_abort( USES_REGS1 )
-{				/* abort			 */
+static Int p_abort(USES_REGS1) { /* abort			 */
   /* make sure we won't go creeping around */
   Yap_Error(PURE_ABORT, TermNil, "");
-  return(FALSE);
+  return (FALSE);
 }
 
 #ifdef BEAM
-extern void exit_eam(char *s); 
+extern void exit_eam(char *s);
 
-Int 
+Int
 #else
-static Int 
+static Int
 #endif
-p_halt( USES_REGS1 )
-{				/* halt				 */
+    p_halt(USES_REGS1) { /* halt				 */
   Term t = Deref(ARG1);
   Int out;
 
 #ifdef BEAM
-  if (EAM) exit_eam("\n\n[ Prolog execution halted ]\n");
+  if (EAM)
+    exit_eam("\n\n[ Prolog execution halted ]\n");
 #endif
 
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR,t,"halt/1");
-    return(FALSE);
+    Yap_Error(INSTANTIATION_ERROR, t, "halt/1");
+    return (FALSE);
   }
   if (!IsIntegerTerm(t)) {
-    Yap_Error(TYPE_ERROR_INTEGER,t,"halt/1");
-    return(FALSE);
+    Yap_Error(TYPE_ERROR_INTEGER, t, "halt/1");
+    return (FALSE);
   }
   out = IntegerOfTerm(t);
   Yap_exit(out);
   return TRUE;
 }
 
-
-static Int 
-cont_current_predicate( USES_REGS1 )
-{
-  PredEntry      *pp = (PredEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(3,1));
+static Int cont_current_predicate(USES_REGS1) {
+  PredEntry *pp = NULL;
   UInt Arity;
   Term name;
+  Term t1 = Deref(ARG1), t2 = Deref(ARG2), t3;
+  bool is_det = false, rc;
+  Functor f;
 
-  while (pp != NULL) {
-    if (pp->PredFlags & HiddenPredFlag) {
-      pp = pp->NextPredOfModule;
-    } else
-      break;
+  if (IsNonVarTerm(t1)) {
+    PropEntry *p = AddressOfTerm(EXTRA_CBACK_ARG(4, 1));
+    PropEntry *q = AddressOfTerm(EXTRA_CBACK_ARG(4, 2));
+    // restart inner loop
+    for (; q; q = q->NextOfPE) {
+      if (q->KindOfPE == PEProp) {
+        pp = RepPredProp(q);
+        q = q->NextOfPE;
+        if (q == NIL)
+          p = p->NextOfPE;
+        if (!p)
+          is_det = true;
+        // we are done with this loop.
+        break;
+      }
+    }
+    if (!pp) {
+      // try using outer loop
+      for (; p; p = p->NextOfPE) {
+        if (p->KindOfPE == PEProp) {
+          q = NULL;
+          pp = RepPredProp(p);
+          p = p->NextOfPE;
+          if (!p)
+            is_det = true;
+          break;
+        } else if (p->KindOfPE == FunctorProperty) {
+          // looping on p/n
+          for (q = RepFunctorProp(p)->PropsOfFE; q; q = q->NextOfPE) {
+            if (q->KindOfPE == PEProp) {
+              pp = RepPredProp(q);
+              q = q->NextOfPE;
+              if (!q)
+                p = p->NextOfPE;
+              if (!p)
+                is_det = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+    if (pp == NULL) // nothing more
+      cut_fail();
+    if (!is_det) {
+      EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(p);
+      EXTRA_CBACK_ARG(4, 2) = MkAddressTerm(q);
+    }
+  } else if (IsNonVarTerm(t2)) {
+    // operating within the same module.
+    PredEntry *npp;
+    pp = AddressOfTerm(EXTRA_CBACK_ARG(4, 1));
+
+    if (!pp)
+      cut_fail();
+    // just try next one
+    npp = pp->NextPredOfModule;
+    if (npp) {
+      EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(npp);
+    } else {
+      is_det = true;
+    }
+  } else {
+    pp = AddressOfTerm(EXTRA_CBACK_ARG(4, 1));
+
+    while (!pp) {
+      ModEntry *m = AddressOfTerm(EXTRA_CBACK_ARG(4, 2));
+      m = m->NextME;
+      if (!m)
+        cut_fail();
+      else {
+        pp = m->PredForME;
+        EXTRA_CBACK_ARG(4, 2) = MkAddressTerm(m);
+      }
+    } // we found a new answer
+    if (!pp)
+      cut_fail();
+    else
+      EXTRA_CBACK_ARG(4, 2) = MkAddressTerm(pp->NextPredOfModule);
   }
-  if (pp == NULL)
-    cut_fail();
-  EXTRA_CBACK_ARG(3,1) = (CELL)MkIntegerTerm((Int)(pp->NextPredOfModule));
-  if (pp->FunctorOfPred == FunctorModule)
-    return FALSE;
   if (pp->ModuleOfPred != IDB_MODULE) {
+    f = pp->FunctorOfPred;
     Arity = pp->ArityOfPE;
     if (Arity)
-      name = MkAtomTerm(NameOfFunctor(pp->FunctorOfPred));
+      name = MkAtomTerm(NameOfFunctor(f));
     else
-      name = MkAtomTerm((Atom)pp->FunctorOfPred);
+      name = MkAtomTerm((Atom)f);
   } else {
     if (pp->PredFlags & NumberDBPredFlag) {
       name = MkIntegerTerm(pp->src.IndxId);
       Arity = 0;
     } else if (pp->PredFlags & AtomDBPredFlag) {
-      name = MkAtomTerm((Atom)pp->FunctorOfPred);
+      f = pp->FunctorOfPred;
+      name = MkAtomTerm((Atom)f);
       Arity = 0;
     } else {
-      Functor f = pp->FunctorOfPred;
+      f = pp->FunctorOfPred;
+      f = pp->FunctorOfPred;
       name = MkAtomTerm(NameOfFunctor(f));
-      Arity = ArityOfFunctor(f);
+      Arity = ArityOfFunctor(pp->FunctorOfPred);
     }
   }
-  if (pp->PredFlags & HiddenPredFlag)
-    return FALSE;
-  return
-    Yap_unify(ARG2,name) &&
-    Yap_unify(ARG3, MkIntegerTerm((Int)Arity));
-}
-
-static Int 
-init_current_predicate( USES_REGS1 )
-{
-  Term t1 = Deref(ARG1);
-
-  if (IsVarTerm(t1) || !IsAtomTerm(t1)) cut_fail();
-  EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)Yap_ModulePred(t1));
-  return cont_current_predicate( PASS_REGS1 );
-}
-
-static Int 
-cont_current_predicate_for_atom( USES_REGS1 )
-{
-  Prop pf = (Prop)IntegerOfTerm(EXTRA_CBACK_ARG(3,1));
-  Term mod = Deref(ARG2);
-
-  while (pf != NIL) {
-    FunctorEntry *pp = RepFunctorProp(pf);
-    if (IsFunctorProperty(pp->KindOfPE)) {
-      Prop p0;
-      FUNC_READ_LOCK(pp);
-      p0 = pp->PropsOfFE;
-      if (p0) {
-	PredEntry *p = RepPredProp(p0);
-	if (p->ModuleOfPred == mod ||
-	    p->ModuleOfPred == 0) {
-	  UInt ar = p->ArityOfPE;
-	  /* we found the predicate */
-	  EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)(pp->NextOfPE));
-	  FUNC_READ_UNLOCK(pp);
-	  return 
-	    Yap_unify(ARG3,MkIntegerTerm(ar));
-	} else if (p->NextOfPE) {
-	  UInt hash = PRED_HASH(pp,mod,PredHashTableSize);
-	  READ_LOCK(PredHashRWLock);
-	  PredEntry *p = PredHash[hash];
-    
-	  while (p) {
-	    if (p->FunctorOfPred == pp &&
-		p->ModuleOfPred == mod)
-	      {
-		READ_UNLOCK(PredHashRWLock);
-        FUNC_READ_UNLOCK(pp);
-		/* we found the predicate */
-		EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)(p->NextOfPE));
-		return Yap_unify(ARG3,MkIntegerTerm(p->ArityOfPE));
-	      }
-	    p = RepPredProp(p->NextOfPE);
-	  }
-	}
-      }
-      FUNC_READ_UNLOCK(pp);
-    } else if (pp->KindOfPE == PEProp) {
-      PredEntry *pe = RepPredProp(pf);
-      PELOCK(31,pe);
-      if (pe->PredFlags & HiddenPredFlag)
-	return FALSE;
-      if (pe->ModuleOfPred == mod ||
-	  pe->ModuleOfPred == 0) {
-	/* we found the predicate */
-	EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)(pp->NextOfPE));
-	UNLOCKPE(31,pe);
-	return Yap_unify(ARG3,MkIntTerm(0));
-      }
-      UNLOCKPE(31,pe);
-    }
-    pf = pp->NextOfPE;
+  if (Arity) {
+    t3 = Yap_MkNewApplTerm(f, Arity);
+  } else {
+    t3 = name;
   }
-  cut_fail();
+  rc = (!(pp->PredFlags & HiddenPredFlag)) &&
+       Yap_unify(ARG2, ModToTerm(pp->ModuleOfPred)) && Yap_unify(ARG1, name) &&
+       Yap_unify(ARG3, t3) && Yap_unify(ARG4, MkIntegerTerm(pp->PredFlags));
+  if (is_det) {
+    if (rc)
+      cut_succeed();
+    else
+      cut_fail();
+  }
+  return rc;
 }
 
-static Int 
-init_current_predicate_for_atom( USES_REGS1 )
-{
-  Term t1 = Deref(ARG1);
+static Int init_current_predicate(USES_REGS1) {
+  Term t1 = Deref(ARG1), t2 = Deref(ARG2), t3 = Deref(ARG3);
+  unsigned int arity;
+  Functor f = NIL;
+  Atom at;
+  PredEntry *pp = NULL;
+  ModEntry *m = NULL;
 
-  if (IsVarTerm(t1) || !IsAtomTerm(t1)) cut_fail();
-  EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)RepAtom(AtomOfTerm(t1))->PropsOfAE);
-  return (cont_current_predicate_for_atom( PASS_REGS1 ));
+  // check term
+  if (!IsVarTerm(t3)) {
+    t3 = Yap_StripModule(t3, &t2);
+    if (IsAtomTerm(t3)) {
+      at = AtomOfTerm(t3);
+      arity = 0;
+    } else if (IsIntTerm(t3)) {
+      if (IsNonVarTerm(t2) && t2 != IDB_MODULE) {
+        Yap_Error(TYPE_ERROR_CALLABLE, t3, "current_predicate/2");
+        cut_fail();
+      } else if (IsVarTerm(t2)) {
+        Yap_unify(t2, IDB_MODULE); // should always succeed
+        if (Yap_unify(ARG1, t3))
+          cut_succeed();
+        else
+          cut_fail();
+      }
+    } else if (IsPairTerm(t3)) {
+      f = FunctorDot;
+      at = AtomDot;
+      arity = 2;
+    } else {
+      f = FunctorOfTerm(t3);
+      if (IsExtensionFunctor(f)) {
+        Yap_Error(TYPE_ERROR_CALLABLE, t3, "current_predicate/2");
+        cut_fail();
+      }
+      at = NameOfFunctor(f);
+      arity = ArityOfFunctor(f);
+    }
+    if (IsAtomTerm(t2)) // we know the module and the main predicate
+    // so that we are deterministic
+    {
+      if (arity == 0) {
+        if (Yap_GetPredPropByAtom(at, t2) != NIL &&
+            Yap_unify(ARG1, MkAtomTerm(at)))
+          cut_succeed();
+      } else {
+        if (Yap_GetPredPropByFunc(f, t2) != NIL &&
+            Yap_unify(ARG1, MkAtomTerm(at)))
+          cut_succeed();
+      }
+      cut_fail();
+    }
+  }
+  // check name
+  if (IsNonVarTerm(t1)) {
+    if (IsIntTerm(t1) && (IsVarTerm(t2) || t2 == IDB_MODULE)) {
+      // idb allows numeric keys.
+      if (Yap_FindLUIntKey(IntOfTerm(t2))) {
+        if (Yap_unify(ARG2, IDB_MODULE))
+          cut_succeed();
+        cut_fail();
+      }
+    } else if (!IsAtomTerm(t1)) {
+      Yap_Error(TYPE_ERROR_ATOM, t1, "current_predicate/2");
+      cut_fail();
+    } else {
+      PropEntry *p = RepAtom(AtomOfTerm(t1))->PropsOfAE, *q = NIL;
+      while (p && p->KindOfPE == FunctorProperty &&
+             (q = RepFunctorProp(p)->PropsOfFE) == NIL) {
+        p = p->NextOfPE;
+      }
+      if (!q) {
+        if (p)
+          p = p->NextOfPE;
+      } else if (!p)
+        cut_fail();
+      EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(p);
+      EXTRA_CBACK_ARG(4, 2) = MkAddressTerm(q);
+    }
+  }
+  // check module
+  else {
+    if (IsNonVarTerm(t2)) {
+      if (!IsAtomTerm(t2)) {
+        Yap_Error(TYPE_ERROR_ATOM, t2, "current_predicate/2");
+        cut_fail();
+      }
+      m = Yap_GetModuleEntry(t2);
+    } else {
+      m = CurrentModules;
+    }
+    if (!m)
+      cut_fail();
+    pp = m->PredForME;
+    if (IsNonVarTerm(t2) && !pp) {
+      cut_fail();
+    }
+    EXTRA_CBACK_ARG(4, 2) = MkAddressTerm(m);
+    EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(pp);
+  }
+  // ensure deref access to choice-point fields.
+  return cont_current_predicate(PASS_REGS1);
 }
 
-static OpEntry *
-NextOp(OpEntry *pp USES_REGS)
-{
+static OpEntry *NextOp(OpEntry *pp USES_REGS) {
   while (!EndOfPAEntr(pp) && pp->KindOfPE != OpProperty &&
-	 (pp->OpModule != PROLOG_MODULE || pp->OpModule != CurrentModule))
+         (pp->OpModule != PROLOG_MODULE || pp->OpModule != CurrentModule))
     pp = RepOpProp(pp->NextOfPE);
   return (pp);
 }
 
-int
-Yap_IsOp(Atom at)
-{
+int Yap_IsOp(Atom at) {
   CACHE_REGS
   OpEntry *op = NextOp(RepOpProp((Prop)(RepAtom(at)->PropsOfAE)) PASS_REGS);
   return (!EndOfPAEntr(op));
 }
 
-int
-Yap_IsOpMaxPrio(Atom at)
-{
+int Yap_IsOpMaxPrio(Atom at) {
   CACHE_REGS
   OpEntry *op = NextOp(RepOpProp((Prop)(RepAtom(at)->PropsOfAE)) PASS_REGS);
   int max;
@@ -944,32 +1042,27 @@ Yap_IsOpMaxPrio(Atom at)
   return max;
 }
 
-static Int
-unify_op(OpEntry         *op USES_REGS)
-{
+static Int unify_op(OpEntry *op USES_REGS) {
   Term tmod = op->OpModule;
 
   if (tmod == PROLOG_MODULE)
     tmod = TermProlog;
-  return 
-    Yap_unify_constant(ARG2,tmod) &&
-    Yap_unify_constant(ARG3,MkIntegerTerm(op->Prefix)) &&
-    Yap_unify_constant(ARG4,MkIntegerTerm(op->Infix)) &&
-    Yap_unify_constant(ARG5,MkIntegerTerm(op->Posfix));
+  return Yap_unify_constant(ARG2, tmod) &&
+         Yap_unify_constant(ARG3, MkIntegerTerm(op->Prefix)) &&
+         Yap_unify_constant(ARG4, MkIntegerTerm(op->Infix)) &&
+         Yap_unify_constant(ARG5, MkIntegerTerm(op->Posfix));
 }
 
-static Int 
-cont_current_op( USES_REGS1 )
-{
-  OpEntry         *op = (OpEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(5,1)), *next;
-  
+static Int cont_current_op(USES_REGS1) {
+  OpEntry *op = (OpEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(5, 1)), *next;
+
   READ_LOCK(op->OpRWLock);
   next = op->OpNext;
-  if (Yap_unify_constant(ARG1,MkAtomTerm(op->OpName)) &&
+  if (Yap_unify_constant(ARG1, MkAtomTerm(op->OpName)) &&
       unify_op(op PASS_REGS)) {
     READ_UNLOCK(op->OpRWLock);
     if (next) {
-      EXTRA_CBACK_ARG(5,1) = (CELL) MkIntegerTerm((CELL)next);
+      EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((CELL)next);
       return TRUE;
     } else {
       cut_succeed();
@@ -977,7 +1070,7 @@ cont_current_op( USES_REGS1 )
   } else {
     READ_UNLOCK(op->OpRWLock);
     if (next) {
-      EXTRA_CBACK_ARG(5,1) = (CELL) MkIntegerTerm((CELL)next);
+      EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((CELL)next);
       return FALSE;
     } else {
       cut_fail();
@@ -985,24 +1078,21 @@ cont_current_op( USES_REGS1 )
   }
 }
 
-static Int 
-init_current_op( USES_REGS1 )
-{				/* current_op(-Precedence,-Type,-Atom)		 */
-  EXTRA_CBACK_ARG(5,1) = (CELL) MkIntegerTerm((CELL)OpList);
-  return cont_current_op( PASS_REGS1 );
+static Int init_current_op(
+    USES_REGS1) { /* current_op(-Precedence,-Type,-Atom)		 */
+  EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((CELL)OpList);
+  return cont_current_op(PASS_REGS1);
 }
 
-static Int 
-cont_current_atom_op( USES_REGS1 )
-{
-  OpEntry         *op = (OpEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(5,1)), *next;
-  
+static Int cont_current_atom_op(USES_REGS1) {
+  OpEntry *op = (OpEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(5, 1)), *next;
+
   READ_LOCK(op->OpRWLock);
   next = NextOp(RepOpProp(op->NextOfPE) PASS_REGS);
   if (unify_op(op PASS_REGS)) {
     READ_UNLOCK(op->OpRWLock);
     if (next) {
-      EXTRA_CBACK_ARG(5,1) = (CELL) MkIntegerTerm((CELL)next);
+      EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((CELL)next);
       return TRUE;
     } else {
       cut_succeed();
@@ -1010,7 +1100,7 @@ cont_current_atom_op( USES_REGS1 )
   } else {
     READ_UNLOCK(op->OpRWLock);
     if (next) {
-      EXTRA_CBACK_ARG(5,1) = (CELL) MkIntegerTerm((CELL)next);
+      EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((CELL)next);
       return FALSE;
     } else {
       cut_fail();
@@ -1018,53 +1108,50 @@ cont_current_atom_op( USES_REGS1 )
   }
 }
 
-static Int 
-init_current_atom_op( USES_REGS1 )
-{				/* current_op(-Precedence,-Type,-Atom)		 */
+static Int init_current_atom_op(
+    USES_REGS1) { /* current_op(-Precedence,-Type,-Atom)		 */
   Term t = Deref(ARG1);
   AtomEntry *ae;
   OpEntry *ope;
 
   if (IsVarTerm(t) || !IsAtomTerm(t)) {
-    Yap_Error(TYPE_ERROR_ATOM,t,"current_op/3");
+    Yap_Error(TYPE_ERROR_ATOM, t, "current_op/3");
     cut_fail();
   }
   ae = RepAtom(AtomOfTerm(t));
   if (EndOfPAEntr((ope = NextOp(RepOpProp(ae->PropsOfAE) PASS_REGS)))) {
     cut_fail();
   }
-  EXTRA_CBACK_ARG(5,1) = (CELL) MkIntegerTerm((Int)ope);
-  return cont_current_atom_op( PASS_REGS1 );
+  EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((Int)ope);
+  return cont_current_atom_op(PASS_REGS1);
 }
 
-static Int 
-p_flags( USES_REGS1 )
-{				/* $flags(+Functor,+Mod,?OldFlags,?NewFlags) */
-  PredEntry      *pe;
-  Int             newFl;
+static Int p_flags(USES_REGS1) { /* $flags(+Functor,+Mod,?OldFlags,?NewFlags) */
+  PredEntry *pe;
+  Int newFl;
   Term t1 = Deref(ARG1);
   Term mod = Deref(ARG2);
 
   if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
-    return(FALSE);
+    return (FALSE);
   }
   if (IsVarTerm(t1))
     return (FALSE);
   if (IsAtomTerm(t1)) {
-    while ((pe = RepPredProp(PredPropByAtom(AtomOfTerm(t1), mod)))== NULL) {
+    while ((pe = RepPredProp(PredPropByAtom(AtomOfTerm(t1), mod))) == NULL) {
       if (!Yap_growheap(FALSE, 0, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, ARG1, "while generating new predicate");
-	return FALSE;
+        Yap_Error(OUT_OF_HEAP_ERROR, ARG1, "while generating new predicate");
+        return FALSE;
       }
       t1 = Deref(ARG1);
       mod = Deref(ARG2);
     }
   } else if (IsApplTerm(t1)) {
-    Functor         funt = FunctorOfTerm(t1);
-    while ((pe = RepPredProp(PredPropByFunc(funt, mod)))== NULL) {
+    Functor funt = FunctorOfTerm(t1);
+    while ((pe = RepPredProp(PredPropByFunc(funt, mod))) == NULL) {
       if (!Yap_growheap(FALSE, 0, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, ARG1, "while generating new predicate");
-	return FALSE;
+        Yap_Error(OUT_OF_HEAP_ERROR, ARG1, "while generating new predicate");
+        return FALSE;
       }
       t1 = Deref(ARG1);
       mod = Deref(ARG2);
@@ -1073,10 +1160,10 @@ p_flags( USES_REGS1 )
     return (FALSE);
   if (EndOfPAEntr(pe))
     return (FALSE);
-  PELOCK(92,pe);
+  PELOCK(92, pe);
   if (!Yap_unify_constant(ARG3, MkIntegerTerm(pe->PredFlags))) {
     UNLOCK(pe->PELock);
-    return(FALSE);
+    return (FALSE);
   }
   ARG4 = Deref(ARG4);
   if (IsVarTerm(ARG4)) {
@@ -1090,7 +1177,7 @@ p_flags( USES_REGS1 )
     } else {
       UNLOCK(pe->PELock);
       Yap_Error(TYPE_ERROR_INTEGER, ARG4, "flags");
-      return(FALSE);
+      return (FALSE);
     }
   } else
     newFl = IntegerOfTerm(ARG4);
@@ -1099,35 +1186,34 @@ p_flags( USES_REGS1 )
   return TRUE;
 }
 
-static Int 
-p_set_flag( USES_REGS1 )
-{				/* $flags(+Functor,+Mod,?OldFlags,?NewFlags) */
-  PredEntry      *pe;
+static Int
+    p_set_flag(USES_REGS1) { /* $flags(+Functor,+Mod,?OldFlags,?NewFlags) */
+  PredEntry *pe;
   Term t1 = Deref(ARG1);
   Term mod = Deref(ARG2);
   Term v = Deref(ARG4);
   char *s;
 
   if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
-    return(FALSE);
+    return (FALSE);
   }
   if (IsVarTerm(t1))
     return (FALSE);
   if (IsAtomTerm(t1)) {
-    while ((pe = RepPredProp(PredPropByAtom(AtomOfTerm(t1), mod)))== NULL) {
+    while ((pe = RepPredProp(PredPropByAtom(AtomOfTerm(t1), mod))) == NULL) {
       if (!Yap_growheap(FALSE, 0, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, ARG1, "while generating new predicate");
-	return FALSE;
+        Yap_Error(OUT_OF_HEAP_ERROR, ARG1, "while generating new predicate");
+        return FALSE;
       }
       t1 = Deref(ARG1);
       mod = Deref(ARG2);
     }
   } else if (IsApplTerm(t1)) {
-    Functor         funt = FunctorOfTerm(t1);
-    while ((pe = RepPredProp(PredPropByFunc(funt, mod)))== NULL) {
+    Functor funt = FunctorOfTerm(t1);
+    while ((pe = RepPredProp(PredPropByFunc(funt, mod))) == NULL) {
       if (!Yap_growheap(FALSE, 0, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, ARG1, "while generating new predicate");
-	return FALSE;
+        Yap_Error(OUT_OF_HEAP_ERROR, ARG1, "while generating new predicate");
+        return FALSE;
       }
       t1 = Deref(ARG1);
       mod = Deref(ARG2);
@@ -1141,47 +1227,45 @@ p_set_flag( USES_REGS1 )
     UNLOCK(pe->PELock);
     return (FALSE);
   } else if (!IsAtomTerm(ARG3)) {
-    Yap_Error(TYPE_ERROR_ATOM,ARG3,"set_property/1");
-    return(FALSE);
+    Yap_Error(TYPE_ERROR_ATOM, ARG3, "set_property/1");
+    return (FALSE);
   }
   v = Deref(ARG4);
   if (IsVarTerm(ARG4)) {
     UNLOCK(pe->PELock);
     return (FALSE);
   } else if (!IsIntTerm(v)) {
-    Yap_Error(TYPE_ERROR_ATOM,v,"set_property/1");
-    return(FALSE);
+    Yap_Error(TYPE_ERROR_ATOM, v, "set_property/1");
+    return (FALSE);
   }
   s = RepAtom(AtomOfTerm(ARG3))->StrOfAE;
   if (v == MkIntTerm(1)) {
     if (!strcmp(s, "quasi_quotation_syntax")) {
-      pe->ExtraPredFlags |= QuasiQuotationPredFlag;
+      pe->PredFlags |= QuasiQuotationPredFlag;
     } else if (!strcmp(s, "trace")) {
       // proc->ExtraPredFlags |= QuasiQuotationPredFlag;
     } else {
-      fprintf( stderr, "not implemented");
+      fprintf(stderr, "not implemented");
       UNLOCK(pe->PELock);
       return FALSE;
     }
   } else if (v == MkIntTerm(0)) {
     if (!strcmp(s, "quasi_quotation_syntax")) {
-      pe->ExtraPredFlags &= ~QuasiQuotationPredFlag;
+      pe->PredFlags &= ~QuasiQuotationPredFlag;
     } else if (!strcmp(s, "trace")) {
-      // proc->ExtraPredFlags |= QuasiQuotationPredFlag;
+      // proc->PredFlags |= QuasiQuotationPredFlag;
     } else {
-      fprintf( stderr, "not implemented");
+      fprintf(stderr, "not implemented");
       UNLOCK(pe->PELock);
       return FALSE;
     }
   }
-  
+
   UNLOCK(pe->PELock);
   return TRUE;
 }
 
-void
-Yap_show_statistics(void)
-{
+void Yap_show_statistics(void) {
   CACHE_REGS
   unsigned long int heap_space_taken;
   double frag;
@@ -1189,48 +1273,50 @@ Yap_show_statistics(void)
 #if USE_SYSTEM_MALLOC && HAVE_MALLINFO
   struct mallinfo mi = mallinfo();
 
-  heap_space_taken = (mi.arena+mi.hblkhd)-Yap_HoleSize;
+  heap_space_taken = (mi.arena + mi.hblkhd) - Yap_HoleSize;
 #else
-  heap_space_taken = 
-    (unsigned long int)(Unsigned(HeapTop)-Unsigned(Yap_HeapBase))-Yap_HoleSize;
+  heap_space_taken =
+      (unsigned long int)(Unsigned(HeapTop) - Unsigned(Yap_HeapBase)) -
+      Yap_HoleSize;
 #endif
-  frag  = (100.0*(heap_space_taken-HeapUsed))/heap_space_taken;
+  frag = (100.0 * (heap_space_taken - HeapUsed)) / heap_space_taken;
 
-  Sfprintf(GLOBAL_stderr, "Code Space:  %ld (%ld bytes needed, %ld bytes used, fragmentation %.3f%%).\n", 
-	     (unsigned long int)(Unsigned (H0) - Unsigned (Yap_HeapBase)),
-	     (unsigned long int)(Unsigned(HeapTop)-Unsigned(Yap_HeapBase)),
-	     (unsigned long int)(HeapUsed),
-	     frag);
-  Sfprintf(GLOBAL_stderr, "Stack Space: %ld (%ld for Global, %ld for local).\n", 
-	     (unsigned long int)(sizeof(CELL)*(LCL0-H0)),
-	     (unsigned long int)(sizeof(CELL)*(HR-H0)),
-	     (unsigned long int)(sizeof(CELL)*(LCL0-ASP)));
-  Sfprintf(GLOBAL_stderr, "Trail Space: %ld (%ld used).\n", 
-	     (unsigned long int)(sizeof(tr_fr_ptr)*(Unsigned(LOCAL_TrailTop)-Unsigned(LOCAL_TrailBase))),
-	     (unsigned long int)(sizeof(tr_fr_ptr)*(Unsigned(TR)-Unsigned(LOCAL_TrailBase))));
-  Sfprintf(GLOBAL_stderr, "Runtime: %lds.\n", (unsigned long int)(runtime ( PASS_REGS1 )));
-  Sfprintf(GLOBAL_stderr, "Cputime: %lds.\n", (unsigned long int)(Yap_cputime ()));
-  Sfprintf(GLOBAL_stderr, "Walltime: %lds.\n", (unsigned long int)(Yap_walltime ()));
+  Sfprintf(GLOBAL_stderr, "Code Space:  %ld (%ld bytes needed, %ld bytes used, "
+                          "fragmentation %.3f%%).\n",
+           (unsigned long int)(Unsigned(H0) - Unsigned(Yap_HeapBase)),
+           (unsigned long int)(Unsigned(HeapTop) - Unsigned(Yap_HeapBase)),
+           (unsigned long int)(HeapUsed), frag);
+  Sfprintf(GLOBAL_stderr, "Stack Space: %ld (%ld for Global, %ld for local).\n",
+           (unsigned long int)(sizeof(CELL) * (LCL0 - H0)),
+           (unsigned long int)(sizeof(CELL) * (HR - H0)),
+           (unsigned long int)(sizeof(CELL) * (LCL0 - ASP)));
+  Sfprintf(GLOBAL_stderr, "Trail Space: %ld (%ld used).\n",
+           (unsigned long int)(sizeof(tr_fr_ptr) * (Unsigned(LOCAL_TrailTop) -
+                                                    Unsigned(LOCAL_TrailBase))),
+           (unsigned long int)(sizeof(tr_fr_ptr) *
+                               (Unsigned(TR) - Unsigned(LOCAL_TrailBase))));
+  Sfprintf(GLOBAL_stderr, "Runtime: %lds.\n",
+           (unsigned long int)(runtime(PASS_REGS1)));
+  Sfprintf(GLOBAL_stderr, "Cputime: %lds.\n",
+           (unsigned long int)(Yap_cputime()));
+  Sfprintf(GLOBAL_stderr, "Walltime: %lds.\n",
+           (unsigned long int)(Yap_walltime()));
 }
 
-static Int
-p_statistics_heap_max( USES_REGS1 )
-{
+static Int p_statistics_heap_max(USES_REGS1) {
   Term tmax = MkIntegerTerm(HeapMax);
 
-  return(Yap_unify(tmax, ARG1));
+  return (Yap_unify(tmax, ARG1));
 }
 
 /* The results of the next routines are not to be trusted too */
 /* much. Basically, any stack shifting will seriously confuse the */
 /* results */
 
-static Int    TrailTide = -1, LocalTide = -1, GlobalTide = -1;
+static Int TrailTide = -1, LocalTide = -1, GlobalTide = -1;
 
 /* maximum Trail usage */
-static Int
-TrailMax(void)
-{
+static Int TrailMax(void) {
   CACHE_REGS
   Int i;
   Int TrWidth = Unsigned(LOCAL_TrailTop) - Unsigned(LOCAL_TrailBase);
@@ -1238,40 +1324,33 @@ TrailMax(void)
 
   if (TrailTide != TrWidth) {
     pt = (CELL *)TR;
-    while (pt+2 < (CELL *)LOCAL_TrailTop) {
-      if (pt[0] == 0 &&
-	  pt[1] == 0 &&
-	  pt[2] == 0)
-	break;
+    while (pt + 2 < (CELL *)LOCAL_TrailTop) {
+      if (pt[0] == 0 && pt[1] == 0 && pt[2] == 0)
+        break;
       else
-	pt++;
+        pt++;
     }
-    if (pt+2 < (CELL *)LOCAL_TrailTop)
+    if (pt + 2 < (CELL *)LOCAL_TrailTop)
       i = Unsigned(pt) - Unsigned(LOCAL_TrailBase);
     else
       i = TrWidth;
   } else
-    return(TrWidth);
+    return (TrWidth);
   if (TrailTide > i)
     i = TrailTide;
   else
     TrailTide = i;
-  return(i);
+  return (i);
 }
 
-static Int
-p_statistics_trail_max( USES_REGS1 )
-{
+static Int p_statistics_trail_max(USES_REGS1) {
   Term tmax = MkIntegerTerm(TrailMax());
 
-  return(Yap_unify(tmax, ARG1));
-  
+  return (Yap_unify(tmax, ARG1));
 }
 
 /* maximum Global usage */
-static Int
-GlobalMax(void)
-{
+static Int GlobalMax(void) {
   CACHE_REGS
   Int i;
   Int StkWidth = Unsigned(LCL0) - Unsigned(H0);
@@ -1279,41 +1358,33 @@ GlobalMax(void)
 
   if (GlobalTide != StkWidth) {
     pt = HR;
-    while (pt+2 < ASP) {
-      if (pt[0] == 0 &&
-	  pt[1] == 0 &&
-	  pt[2] == 0)
-	break;
+    while (pt + 2 < ASP) {
+      if (pt[0] == 0 && pt[1] == 0 && pt[2] == 0)
+        break;
       else
-	pt++;
+        pt++;
     }
-    if (pt+2 < ASP)
+    if (pt + 2 < ASP)
       i = Unsigned(pt) - Unsigned(H0);
     else
       /* so that both Local and Global have reached maximum width */
       GlobalTide = LocalTide = i = StkWidth;
   } else
-    return(StkWidth);
+    return (StkWidth);
   if (GlobalTide > i)
     i = GlobalTide;
   else
     GlobalTide = i;
-  return(i);
+  return (i);
 }
 
-static Int 
-p_statistics_global_max( USES_REGS1 )
-{
+static Int p_statistics_global_max(USES_REGS1) {
   Term tmax = MkIntegerTerm(GlobalMax());
 
-  return(Yap_unify(tmax, ARG1));
-  
+  return (Yap_unify(tmax, ARG1));
 }
 
-
-static Int
-LocalMax(void)
-{
+static Int LocalMax(void) {
   CACHE_REGS
   Int i;
   Int StkWidth = Unsigned(LCL0) - Unsigned(H0);
@@ -1321,89 +1392,70 @@ LocalMax(void)
 
   if (LocalTide != StkWidth) {
     pt = LCL0;
-    while (pt-3 > HR) {
-      if (pt[-1] == 0 &&
-	  pt[-2] == 0 &&
-	  pt[-3] == 0)
-	break;
+    while (pt - 3 > HR) {
+      if (pt[-1] == 0 && pt[-2] == 0 && pt[-3] == 0)
+        break;
       else
-	--pt;
+        --pt;
     }
-    if (pt-3 > HR)
+    if (pt - 3 > HR)
       i = Unsigned(LCL0) - Unsigned(pt);
     else
       /* so that both Local and Global have reached maximum width */
       GlobalTide = LocalTide = i = StkWidth;
   } else
-    return(StkWidth);
+    return (StkWidth);
   if (LocalTide > i)
     i = LocalTide;
   else
     LocalTide = i;
-  return(i);
+  return (i);
 }
 
-static Int 
-p_statistics_local_max( USES_REGS1 )
-{
+static Int p_statistics_local_max(USES_REGS1) {
   Term tmax = MkIntegerTerm(LocalMax());
 
-  return(Yap_unify(tmax, ARG1));
-  
+  return (Yap_unify(tmax, ARG1));
 }
 
-
-
-static Int 
-p_statistics_heap_info( USES_REGS1 )
-{
+static Int p_statistics_heap_info(USES_REGS1) {
   Term tusage = MkIntegerTerm(HeapUsed);
 
 #if USE_SYSTEM_MALLOC && HAVE_MALLINFO
   struct mallinfo mi = mallinfo();
 
-  UInt sstack = Yap_HoleSize+(LOCAL_TrailTop-LOCAL_GlobalBase);
-  UInt mmax = (mi.arena+mi.hblkhd);
-  Term tmax = MkIntegerTerm(mmax-sstack);
-  tusage = MkIntegerTerm(mmax-(mi.fordblks+sstack));
+  UInt sstack = Yap_HoleSize + (LOCAL_TrailTop - LOCAL_GlobalBase);
+  UInt mmax = (mi.arena + mi.hblkhd);
+  Term tmax = MkIntegerTerm(mmax - sstack);
+  tusage = MkIntegerTerm(mmax - (mi.fordblks + sstack));
 #else
-  Term tmax = MkIntegerTerm((LOCAL_GlobalBase - Yap_HeapBase)-Yap_HoleSize);
+  Term tmax = MkIntegerTerm((LOCAL_GlobalBase - Yap_HeapBase) - Yap_HoleSize);
 #endif
 
-  return(Yap_unify(tmax, ARG1) && Yap_unify(tusage,ARG2));
-  
+  return (Yap_unify(tmax, ARG1) && Yap_unify(tusage, ARG2));
 }
 
-
-static Int 
-p_statistics_stacks_info( USES_REGS1 )
-{
+static Int p_statistics_stacks_info(USES_REGS1) {
   Term tmax = MkIntegerTerm(Unsigned(LCL0) - Unsigned(H0));
   Term tgusage = MkIntegerTerm(Unsigned(HR) - Unsigned(H0));
   Term tlusage = MkIntegerTerm(Unsigned(LCL0) - Unsigned(ASP));
 
-  return(Yap_unify(tmax, ARG1) && Yap_unify(tgusage,ARG2) && Yap_unify(tlusage,ARG3));
-  
+  return (Yap_unify(tmax, ARG1) && Yap_unify(tgusage, ARG2) &&
+          Yap_unify(tlusage, ARG3));
 }
 
-
-
-static Int 
-p_statistics_trail_info( USES_REGS1 )
-{
-  Term tmax = MkIntegerTerm(Unsigned(LOCAL_TrailTop) - Unsigned(LOCAL_TrailBase));
+static Int p_statistics_trail_info(USES_REGS1) {
+  Term tmax =
+      MkIntegerTerm(Unsigned(LOCAL_TrailTop) - Unsigned(LOCAL_TrailBase));
   Term tusage = MkIntegerTerm(Unsigned(TR) - Unsigned(LOCAL_TrailBase));
 
-  return(Yap_unify(tmax, ARG1) && Yap_unify(tusage,ARG2));
-  
+  return (Yap_unify(tmax, ARG1) && Yap_unify(tusage, ARG2));
 }
 
-static Int 
-p_statistics_atom_info( USES_REGS1 )
-{
+static Int p_statistics_atom_info(USES_REGS1) {
   UInt count = 0, spaceused = 0, i;
 
-  for (i =0; i < AtomHashTableSize; i++) {
+  for (i = 0; i < AtomHashTableSize; i++) {
     Atom catom;
 
     READ_LOCK(HashChain[i].AERWLock);
@@ -1415,16 +1467,16 @@ p_statistics_atom_info( USES_REGS1 )
     while (catom != NIL) {
       Atom ncatom;
       count++;
-      spaceused += sizeof(AtomEntry)+strlen(RepAtom(catom)->StrOfAE)+1;
+      spaceused += sizeof(AtomEntry) + strlen(RepAtom(catom)->StrOfAE) + 1;
       ncatom = RepAtom(catom)->NextOfAE;
       if (ncatom != NIL) {
-	READ_LOCK(RepAtom(ncatom)->ARWLock);
+        READ_LOCK(RepAtom(ncatom)->ARWLock);
       }
       READ_UNLOCK(RepAtom(catom)->ARWLock);
       catom = ncatom;
     }
   }
-  for (i =0; i < WideAtomHashTableSize; i++) {
+  for (i = 0; i < WideAtomHashTableSize; i++) {
     Atom catom;
 
     READ_LOCK(WideHashChain[i].AERWLock);
@@ -1436,59 +1488,44 @@ p_statistics_atom_info( USES_REGS1 )
     while (catom != NIL) {
       Atom ncatom;
       count++;
-      spaceused += sizeof(AtomEntry)+sizeof(wchar_t)*(wcslen((wchar_t *)( RepAtom(catom)->StrOfAE)+1));
+      spaceused +=
+          sizeof(AtomEntry) +
+          sizeof(wchar_t) * (wcslen((wchar_t *)(RepAtom(catom)->StrOfAE) + 1));
       ncatom = RepAtom(catom)->NextOfAE;
       if (ncatom != NIL) {
-	READ_LOCK(RepAtom(ncatom)->ARWLock);
+        READ_LOCK(RepAtom(ncatom)->ARWLock);
       }
       READ_UNLOCK(RepAtom(catom)->ARWLock);
       catom = ncatom;
     }
   }
   return Yap_unify(ARG1, MkIntegerTerm(count)) &&
-    Yap_unify(ARG2, MkIntegerTerm(spaceused));
+         Yap_unify(ARG2, MkIntegerTerm(spaceused));
 }
 
-
-static Int 
-p_statistics_db_size( USES_REGS1 )
-{
+static Int p_statistics_db_size(USES_REGS1) {
   Term t = MkIntegerTerm(Yap_ClauseSpace);
   Term tit = MkIntegerTerm(Yap_IndexSpace_Tree);
   Term tis = MkIntegerTerm(Yap_IndexSpace_SW);
   Term tie = MkIntegerTerm(Yap_IndexSpace_EXT);
 
-  return
-    Yap_unify(t, ARG1) &&
-    Yap_unify(tit, ARG2) &&
-    Yap_unify(tis, ARG3) &&
-    Yap_unify(tie, ARG4);
-  
+  return Yap_unify(t, ARG1) && Yap_unify(tit, ARG2) && Yap_unify(tis, ARG3) &&
+         Yap_unify(tie, ARG4);
 }
 
-static Int 
-p_statistics_lu_db_size( USES_REGS1 )
-{
+static Int p_statistics_lu_db_size(USES_REGS1) {
   Term t = MkIntegerTerm(Yap_LUClauseSpace);
   Term tit = MkIntegerTerm(Yap_LUIndexSpace_Tree);
   Term tic = MkIntegerTerm(Yap_LUIndexSpace_CP);
   Term tix = MkIntegerTerm(Yap_LUIndexSpace_EXT);
   Term tis = MkIntegerTerm(Yap_LUIndexSpace_SW);
 
-  return
-    Yap_unify(t, ARG1) &&
-    Yap_unify(tit, ARG2) &&
-    Yap_unify(tic, ARG3) &&
-    Yap_unify(tis, ARG4) &&
-    Yap_unify(tix, ARG5);
+  return Yap_unify(t, ARG1) && Yap_unify(tit, ARG2) && Yap_unify(tic, ARG3) &&
+         Yap_unify(tis, ARG4) && Yap_unify(tix, ARG5);
 }
 
-
-
-static Term
-mk_argc_list( USES_REGS1 )
-{
-  int i =0;
+static Term mk_argc_list(USES_REGS1) {
+  int i = 0;
   Term t = TermNil;
   while (i < GLOBAL_argc) {
     char *arg = GLOBAL_argv[i];
@@ -1496,91 +1533,83 @@ mk_argc_list( USES_REGS1 )
     if (arg[0] == '-' && arg[1] == 'L') {
       arg += 2;
       while (*arg != '\0' && (*arg == ' ' || *arg == '\t'))
-	arg++;
+        arg++;
       if (*arg == '-' && arg[1] == '-' && arg[2] == '\0') {
-	/* we found the separator */
-	int j;
-	for (j = GLOBAL_argc-1; j > i+1; --j) {
-	  t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(GLOBAL_argv[j])),t);
-	}
-	return t;
-      } else if (GLOBAL_argv[i+1] && GLOBAL_argv[i+1][0] == '-' && GLOBAL_argv[i+1][1] == '-'  && GLOBAL_argv[i+1][2] == '\0') {
-	/* we found the separator */
-	int j;
-	for (j = GLOBAL_argc-1; j > i+2; --j) {
-	  t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(GLOBAL_argv[j])),t);
-	}
-	return t;
+        /* we found the separator */
+        int j;
+        for (j = GLOBAL_argc - 1; j > i + 1; --j) {
+          t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(GLOBAL_argv[j])), t);
+        }
+        return t;
+      } else if (GLOBAL_argv[i + 1] && GLOBAL_argv[i + 1][0] == '-' &&
+                 GLOBAL_argv[i + 1][1] == '-' &&
+                 GLOBAL_argv[i + 1][2] == '\0') {
+        /* we found the separator */
+        int j;
+        for (j = GLOBAL_argc - 1; j > i + 2; --j) {
+          t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(GLOBAL_argv[j])), t);
+        }
+        return t;
       }
     }
     if (arg[0] == '-' && arg[1] == '-' && arg[2] == '\0') {
       /* we found the separator */
       int j;
-      for (j = GLOBAL_argc-1; j > i; --j) {
-	t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(GLOBAL_argv[j])),t);
+      for (j = GLOBAL_argc - 1; j > i; --j) {
+        t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(GLOBAL_argv[j])), t);
       }
-      return(t);
+      return (t);
     }
     i++;
-  } 
-  return(t);
+  }
+  return (t);
 }
 
-static Term
-mk_os_argc_list( USES_REGS1 )
-{
-  int i =0;
+static Term mk_os_argc_list(USES_REGS1) {
+  int i = 0;
   Term t = TermNil;
-  for (i = 0 ; i < GLOBAL_argc; i++) {
+  for (i = 0; i < GLOBAL_argc; i++) {
     char *arg = GLOBAL_argv[i];
-    t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(arg)),t);
-  } 
-  return(t);
+    t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(arg)), t);
+  }
+  return (t);
 }
 
-static Int 
-p_argv( USES_REGS1 )
-{
-  Term t = mk_argc_list( PASS_REGS1 );
+static Int p_argv(USES_REGS1) {
+  Term t = mk_argc_list(PASS_REGS1);
   return Yap_unify(t, ARG1);
 }
 
-static Int 
-p_os_argv( USES_REGS1 )
-{
-  Term t = mk_os_argc_list( PASS_REGS1 );
+static Int p_os_argv(USES_REGS1) {
+  Term t = mk_os_argc_list(PASS_REGS1);
   return Yap_unify(t, ARG1);
 }
 
-static Int 
-p_executable( USES_REGS1 )
-{
+static Int p_executable(USES_REGS1) {
   if (GLOBAL_argv && GLOBAL_argv[0])
-    Yap_TrueFileName (GLOBAL_argv[0], LOCAL_FileNameBuf, FALSE);
+    Yap_TrueFileName(GLOBAL_argv[0], LOCAL_FileNameBuf, FALSE);
   else
-    strncpy(LOCAL_FileNameBuf, Yap_FindExecutable(), YAP_FILENAME_MAX-1) ;
+    strncpy(LOCAL_FileNameBuf, Yap_FindExecutable(), YAP_FILENAME_MAX - 1);
 
-  return Yap_unify(MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)),ARG1);
+  return Yap_unify(MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)), ARG1);
 }
 
-static Int
-p_access_yap_flags( USES_REGS1 )
-{
+static Int p_access_yap_flags(USES_REGS1) {
   Term tflag = Deref(ARG1);
   Int flag;
   Term tout = 0;
 
   if (IsVarTerm(tflag)) {
     Yap_Error(INSTANTIATION_ERROR, tflag, "access_yap_flags/2");
-    return(FALSE);		
+    return (FALSE);
   }
   if (!IsIntTerm(tflag)) {
     Yap_Error(TYPE_ERROR_INTEGER, tflag, "access_yap_flags/2");
-    return(FALSE);		
+    return (FALSE);
   }
   flag = IntOfTerm(tflag);
   if (flag < 0 || flag >= NUMBER_OF_YAP_FLAGS) {
-    return(FALSE);
+    return (FALSE);
   }
   if (flag == TABLING_MODE_FLAG) {
 #ifdef TABLING
@@ -1603,188 +1632,181 @@ p_access_yap_flags( USES_REGS1 )
     tout = MkAtomTerm(AtomFalse);
 #endif /* TABLING */
   } else
-  tout = MkIntegerTerm(yap_flags[flag]);
-  return(Yap_unify(ARG2, tout));
+    tout = MkIntegerTerm(yap_flags[flag]);
+  return (Yap_unify(ARG2, tout));
 }
 
-static Int 
-p_has_yap_or( USES_REGS1 )
-{
+static Int p_has_yap_or(USES_REGS1) {
 #ifdef YAPOR
-  return(TRUE);
+  return (TRUE);
 #else
-  return(FALSE);
+  return (FALSE);
 #endif
 }
 
-static Int 
-p_has_eam( USES_REGS1 )
-{
+static Int p_has_eam(USES_REGS1) {
 #ifdef BEAM
-  return(TRUE);
+  return (TRUE);
 #else
-  return(FALSE);
+  return (FALSE);
 #endif
 }
 
-
-static Int
-p_set_yap_flags( USES_REGS1 )
-{
+static Int p_set_yap_flags(USES_REGS1) {
   Term tflag = Deref(ARG1);
   Term tvalue = Deref(ARG2);
   Int flag, value;
 
   if (IsVarTerm(tflag)) {
     Yap_Error(INSTANTIATION_ERROR, tflag, "set_yap_flags/2");
-    return(FALSE);		
+    return (FALSE);
   }
   if (!IsIntTerm(tflag)) {
     Yap_Error(TYPE_ERROR_INTEGER, tflag, "set_yap_flags/2");
-    return(FALSE);		
+    return (FALSE);
   }
   flag = IntOfTerm(tflag);
   if (IsVarTerm(tvalue)) {
     Yap_Error(INSTANTIATION_ERROR, tvalue, "set_yap_flags/2");
-    return(FALSE);		
+    return (FALSE);
   }
   if (!IsIntTerm(tvalue)) {
     Yap_Error(TYPE_ERROR_INTEGER, tvalue, "set_yap_flags/2");
-    return(FALSE);		
+    return (FALSE);
   }
   value = IntOfTerm(tvalue);
   /* checking should have been performed */
-  switch(flag) {
+  switch (flag) {
   case LANGUAGE_MODE_FLAG:
     if (value < 0 || value > 2)
-      return(FALSE);
+      return (FALSE);
     if (value == 1) {
-      Yap_heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(FunctorMetaCall,0));
+      Yap_heap_regs->pred_meta_call =
+          RepPredProp(PredPropByFunc(FunctorMetaCall, 0));
     } else {
-      Yap_heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(FunctorMetaCall,0));
+      Yap_heap_regs->pred_meta_call =
+          RepPredProp(PredPropByFunc(FunctorMetaCall, 0));
     }
     yap_flags[LANGUAGE_MODE_FLAG] = value;
     break;
   case SOURCE_MODE_FLAG:
-    if (value != 0 && value !=  1)
-      return(FALSE);
+    if (value != 0 && value != 1)
+      return (FALSE);
     yap_flags[SOURCE_MODE_FLAG] = value;
     break;
   case FLOATING_POINT_EXCEPTION_MODE_FLAG:
-    if (value != 0 && value !=  1)
-      return(FALSE);
+    if (value != 0 && value != 1)
+      return (FALSE);
     yap_flags[FLOATING_POINT_EXCEPTION_MODE_FLAG] = value;
     break;
   case WRITE_QUOTED_STRING_FLAG:
-    if (value != 0 && value !=  1)
-      return(FALSE);
+    if (value != 0 && value != 1)
+      return (FALSE);
     yap_flags[WRITE_QUOTED_STRING_FLAG] = value;
     break;
   case ALLOW_ASSERTING_STATIC_FLAG:
-    if (value != 0 && value !=  1)
-      return(FALSE);
+    if (value != 0 && value != 1)
+      return (FALSE);
     yap_flags[ALLOW_ASSERTING_STATIC_FLAG] = value;
     break;
   case STACK_DUMP_ON_ERROR_FLAG:
-    if (value != 0 && value !=  1)
-      return(FALSE);
+    if (value != 0 && value != 1)
+      return (FALSE);
     yap_flags[STACK_DUMP_ON_ERROR_FLAG] = value;
     break;
   case INDEXING_MODE_FLAG:
-    if (value < INDEX_MODE_OFF || value >  INDEX_MODE_MAX)
-      return(FALSE);
+    if (value < INDEX_MODE_OFF || value > INDEX_MODE_MAX)
+      return (FALSE);
     yap_flags[INDEXING_MODE_FLAG] = value;
     break;
 #ifdef TABLING
   case TABLING_MODE_FLAG:
-    if (value == 0) {  /* default */
+    if (value == 0) { /* default */
       tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
-      while(tab_ent) {
-	TabEnt_mode(tab_ent) = TabEnt_flags(tab_ent);
-	tab_ent = TabEnt_next(tab_ent);
+      while (tab_ent) {
+        TabEnt_mode(tab_ent) = TabEnt_flags(tab_ent);
+        tab_ent = TabEnt_next(tab_ent);
       }
       yap_flags[TABLING_MODE_FLAG] = 0;
-    } else if (value == 1) {  /* batched */
+    } else if (value == 1) { /* batched */
       tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
-      while(tab_ent) {
-	SetMode_Batched(TabEnt_mode(tab_ent));
-	tab_ent = TabEnt_next(tab_ent);
+      while (tab_ent) {
+        SetMode_Batched(TabEnt_mode(tab_ent));
+        tab_ent = TabEnt_next(tab_ent);
       }
       SetMode_Batched(yap_flags[TABLING_MODE_FLAG]);
-    } else if (value == 2) {  /* local */
+    } else if (value == 2) { /* local */
       tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
-      while(tab_ent) {
-	SetMode_Local(TabEnt_mode(tab_ent));
-	tab_ent = TabEnt_next(tab_ent);
+      while (tab_ent) {
+        SetMode_Local(TabEnt_mode(tab_ent));
+        tab_ent = TabEnt_next(tab_ent);
       }
       SetMode_Local(yap_flags[TABLING_MODE_FLAG]);
-    } else if (value == 3) {  /* exec_answers */
+    } else if (value == 3) { /* exec_answers */
       tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
-      while(tab_ent) {
-	SetMode_ExecAnswers(TabEnt_mode(tab_ent));
-	tab_ent = TabEnt_next(tab_ent);
+      while (tab_ent) {
+        SetMode_ExecAnswers(TabEnt_mode(tab_ent));
+        tab_ent = TabEnt_next(tab_ent);
       }
       SetMode_ExecAnswers(yap_flags[TABLING_MODE_FLAG]);
-    } else if (value == 4) {  /* load_answers */
+    } else if (value == 4) { /* load_answers */
       tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
-      while(tab_ent) {
-	SetMode_LoadAnswers(TabEnt_mode(tab_ent));
-	tab_ent = TabEnt_next(tab_ent);
+      while (tab_ent) {
+        SetMode_LoadAnswers(TabEnt_mode(tab_ent));
+        tab_ent = TabEnt_next(tab_ent);
       }
       SetMode_LoadAnswers(yap_flags[TABLING_MODE_FLAG]);
-    } else if (value == 5) {  /* local_trie */
+    } else if (value == 5) { /* local_trie */
       tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
-      while(tab_ent) {
-	SetMode_LocalTrie(TabEnt_mode(tab_ent));
-	tab_ent = TabEnt_next(tab_ent);
+      while (tab_ent) {
+        SetMode_LocalTrie(TabEnt_mode(tab_ent));
+        tab_ent = TabEnt_next(tab_ent);
       }
       SetMode_LocalTrie(yap_flags[TABLING_MODE_FLAG]);
-    } else if (value == 6) {  /* global_trie */
+    } else if (value == 6) { /* global_trie */
       tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
-      while(tab_ent) {
-	SetMode_GlobalTrie(TabEnt_mode(tab_ent));
-	tab_ent = TabEnt_next(tab_ent);
+      while (tab_ent) {
+        SetMode_GlobalTrie(TabEnt_mode(tab_ent));
+        tab_ent = TabEnt_next(tab_ent);
       }
       SetMode_GlobalTrie(yap_flags[TABLING_MODE_FLAG]);
-    } else if (value == 7) {  /* CoInductive */
+    } else if (value == 7) { /* CoInductive */
       tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
-      while(tab_ent) {
+      while (tab_ent) {
         SetMode_CoInductive(TabEnt_mode(tab_ent));
         tab_ent = TabEnt_next(tab_ent);
       }
       SetMode_CoInductive(yap_flags[TABLING_MODE_FLAG]);
-    } 
+    }
     break;
 #endif /* TABLING */
   case VARS_CAN_HAVE_QUOTE_FLAG:
-    if (value != 0  && value != 1)
-      return(FALSE);
+    if (value != 0 && value != 1)
+      return (FALSE);
     yap_flags[VARS_CAN_HAVE_QUOTE_FLAG] = value;
     break;
   case QUIET_MODE_FLAG:
-    if (value != 0  && value != 1)
+    if (value != 0 && value != 1)
       return FALSE;
     yap_flags[QUIET_MODE_FLAG] = value;
     break;
   default:
-    return(FALSE);
+    return (FALSE);
   }
-  return(TRUE);
+  return (TRUE);
 }
 
-static Int
-p_system_mode( USES_REGS1 )
-{
+static Int p_system_mode(USES_REGS1) {
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1)) {
     if (LOCAL_PrologMode & SystemMode)
-      return Yap_unify( t1, MkAtomTerm(AtomTrue));
+      return Yap_unify(t1, MkAtomTerm(AtomTrue));
     else
-      return Yap_unify( t1, MkAtomTerm(AtomFalse));
+      return Yap_unify(t1, MkAtomTerm(AtomFalse));
   } else {
     Atom at = AtomOfTerm(t1);
-    if (at == AtomFalse) 
+    if (at == AtomFalse)
       LOCAL_PrologMode &= ~SystemMode;
     else
       LOCAL_PrologMode |= SystemMode;
@@ -1792,23 +1814,17 @@ p_system_mode( USES_REGS1 )
   return TRUE;
 }
 
-static Int
-p_lock_system( USES_REGS1 )
-{
+static Int p_lock_system(USES_REGS1) {
   LOCK(GLOBAL_BGL);
   return TRUE;
 }
 
-static Int
-p_unlock_system( USES_REGS1 )
-{
+static Int p_unlock_system(USES_REGS1) {
   UNLOCK(GLOBAL_BGL);
   return TRUE;
 }
 
-static Int
-p_enterundefp( USES_REGS1 )
-{
+static Int p_enterundefp(USES_REGS1) {
   if (LOCAL_DoingUndefp) {
     return FALSE;
   }
@@ -1816,9 +1832,7 @@ p_enterundefp( USES_REGS1 )
   return TRUE;
 }
 
-static Int
-p_exitundefp( USES_REGS1 )
-{
+static Int p_exitundefp(USES_REGS1) {
   if (LOCAL_DoingUndefp) {
     LOCAL_DoingUndefp = FALSE;
     return TRUE;
@@ -1829,38 +1843,37 @@ p_exitundefp( USES_REGS1 )
 #ifdef DEBUG
 extern void DumpActiveGoals(void);
 
-static Int
-p_dump_active_goals( USES_REGS1 ) {
+static Int p_dump_active_goals(USES_REGS1) {
   DumpActiveGoals();
-  return(TRUE);
+  return (TRUE);
 }
 #endif
 
 #ifdef INES
-static Int
-p_euc_dist( USES_REGS1 ) {
+static Int p_euc_dist(USES_REGS1) {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
-  double d1 = (double)(IntegerOfTerm(ArgOfTerm(1,t1))-IntegerOfTerm(ArgOfTerm(1,t2)));
-  double d2 = (double)(IntegerOfTerm(ArgOfTerm(2,t1))-IntegerOfTerm(ArgOfTerm(2,t2)));
-  double d3 = (double)(IntegerOfTerm(ArgOfTerm(3,t1))-IntegerOfTerm(ArgOfTerm(3,t2)));
-  Int result = (Int)sqrt(d1*d1+d2*d2+d3*d3);
-  return(Yap_unify(ARG3,MkIntegerTerm(result)));
+  double d1 = (double)(IntegerOfTerm(ArgOfTerm(1, t1)) -
+                       IntegerOfTerm(ArgOfTerm(1, t2)));
+  double d2 = (double)(IntegerOfTerm(ArgOfTerm(2, t1)) -
+                       IntegerOfTerm(ArgOfTerm(2, t2)));
+  double d3 = (double)(IntegerOfTerm(ArgOfTerm(3, t1)) -
+                       IntegerOfTerm(ArgOfTerm(3, t2)));
+  Int result = (Int)sqrt(d1 * d1 + d2 * d2 + d3 * d3);
+  return (Yap_unify(ARG3, MkIntegerTerm(result)));
 }
 
 volatile int loop_counter = 0;
 
-static Int
-p_loop( USES_REGS1 ) {
-  while (loop_counter == 0);
-  return(TRUE);
+static Int p_loop(USES_REGS1) {
+  while (loop_counter == 0)
+    ;
+  return (TRUE);
 }
 #endif
 
-
-static Int
-p_break( USES_REGS1 ) {
-  Atom at = AtomOfTerm(Deref( ARG1 ));
+static Int p_break(USES_REGS1) {
+  Atom at = AtomOfTerm(Deref(ARG1));
   if (at == AtomTrue) {
     LOCAL_PL_local_data_p->break_level++;
     return TRUE;
@@ -1872,20 +1885,15 @@ p_break( USES_REGS1 ) {
   return FALSE;
 }
 
-void 
-Yap_InitBackCPreds(void)
-{
-  Yap_InitCPredBack("$current_predicate", 3, 1, init_current_predicate, cont_current_predicate,
-		SafePredFlag|SyncPredFlag);
-  Yap_InitCPredBack("$current_predicate_for_atom", 3, 1, init_current_predicate_for_atom, cont_current_predicate_for_atom,
-		SafePredFlag|SyncPredFlag);
+void Yap_InitBackCPreds(void) {
+  Yap_InitCPredBack("$current_predicate", 4, 2, init_current_predicate,
+                    cont_current_predicate, SafePredFlag | SyncPredFlag);
   Yap_InitCPredBack("$current_op", 5, 1, init_current_op, cont_current_op,
-		SafePredFlag|SyncPredFlag);
-  Yap_InitCPredBack("$current_atom_op", 5, 1, init_current_atom_op, cont_current_atom_op,
-		SafePredFlag|SyncPredFlag);
+                    SafePredFlag | SyncPredFlag);
+  Yap_InitCPredBack("$current_atom_op", 5, 1, init_current_atom_op,
+                    cont_current_atom_op, SafePredFlag | SyncPredFlag);
 #ifdef BEAM
-  Yap_InitCPredBack("eam", 1, 0, start_eam, cont_eam,
-		SafePredFlag);
+  Yap_InitCPredBack("eam", 1, 0, start_eam, cont_eam, SafePredFlag);
 #endif
 
   Yap_InitBackAtoms();
@@ -1896,110 +1904,115 @@ Yap_InitBackCPreds(void)
 
 typedef void (*Proc)(void);
 
-Proc E_Modules[]= {/* init_fc,*/ (Proc) 0 };
+Proc E_Modules[] = {/* init_fc,*/ (Proc)0};
 
 #ifndef YAPOR
-static Int p_parallel_mode( USES_REGS1 ) {
-  return FALSE;
-}
+static Int p_parallel_mode(USES_REGS1) { return FALSE; }
 
-static Int p_yapor_workers( USES_REGS1 ) {
-  return FALSE;
-}
+static Int p_yapor_workers(USES_REGS1) { return FALSE; }
 #endif /* YAPOR */
 
-
-void 
-Yap_InitCPreds(void)
-{
+void Yap_InitCPreds(void) {
   /* numerical comparison */
-  Yap_InitCPred("set_value", 2, p_setval, SafePredFlag|SyncPredFlag);
-/** @pred  set_value(+ _A_,+ _C_) 
+  Yap_InitCPred("set_value", 2, p_setval, SafePredFlag | SyncPredFlag);
+  /** @pred  set_value(+ _A_,+ _C_)
 
 
-Associate atom  _A_ with constant  _C_.
+  Associate atom  _A_ with constant  _C_.
 
-The `set_value` and `get_value` built-ins give a fast alternative to
-the internal data-base. This is a simple form of implementing a global
-counter.
+  The `set_value` and `get_value` built-ins give a fast alternative to
+  the internal data-base. This is a simple form of implementing a global
+  counter.
 
-~~~~~
-       read_and_increment_counter(Value) :-
-                get_value(counter, Value),
-                Value1 is Value+1,
-                set_value(counter, Value1).
-~~~~~
-This predicate is YAP specific.
-
-
+  ~~~~~
+  read_and_increment_counter(Value) :-
+  get_value(counter, Value),
+  Value1 is Value+1,
+  set_value(counter, Value1).
+  ~~~~~
+  This predicate is YAP specific.
 
 
- 
-*/
-  Yap_InitCPred("get_value", 2, p_value, TestPredFlag|SafePredFlag|SyncPredFlag);
-/** @pred  get_value(+ _A_,- _V_) 
 
 
-In YAP, atoms can be associated with constants. If one such
-association exists for atom  _A_, unify the second argument with the
-constant. Otherwise, unify  _V_ with `[]`.
 
-This predicate is YAP specific.
+  */
+  Yap_InitCPred("get_value", 2, p_value,
+                TestPredFlag | SafePredFlag | SyncPredFlag);
+  /** @pred  get_value(+ _A_,- _V_)
 
- 
-*/
-  Yap_InitCPred("$values", 3, p_values, SafePredFlag|SyncPredFlag);
+
+  In YAP, atoms can be associated with constants. If one such
+  association exists for atom  _A_, unify the second argument with the
+  constant. Otherwise, unify  _V_ with `[]`.
+
+  This predicate is YAP specific.
+
+
+  */
+  Yap_InitCPred("$values", 3, p_values, SafePredFlag | SyncPredFlag);
   /* general purpose */
-  Yap_InitCPred("$opdec", 4, p_opdec, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$opdec", 4, p_opdec, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("=..", 2, p_univ, 0);
-/** @pred  _T_ =..  _L_ is iso 
+  /** @pred  _T_ =..  _L_ is iso
 
 
-The list  _L_ is built with the functor and arguments of the term
- _T_. If  _T_ is instantiated to a variable, then  _L_ must be
-instantiated either to a list whose head is an atom, or to a list
-consisting of just a number.
+  The list  _L_ is built with the functor and arguments of the term
+  _T_. If  _T_ is instantiated to a variable, then  _L_ must be
+  instantiated either to a list whose head is an atom, or to a list
+  consisting of just a number.
 
- 
-*/
-  Yap_InitCPred("$statistics_trail_max", 1, p_statistics_trail_max, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$statistics_heap_max", 1, p_statistics_heap_max, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$statistics_global_max", 1, p_statistics_global_max, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$statistics_local_max", 1, p_statistics_local_max, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$statistics_heap_info", 2, p_statistics_heap_info, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$statistics_stacks_info", 3, p_statistics_stacks_info, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$statistics_trail_info", 2, p_statistics_trail_info, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$statistics_atom_info", 2, p_statistics_atom_info, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$statistics_db_size", 4, p_statistics_db_size, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$statistics_lu_db_size", 5, p_statistics_lu_db_size, SafePredFlag|SyncPredFlag);
+
+  */
+  Yap_InitCPred("$statistics_trail_max", 1, p_statistics_trail_max,
+                SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$statistics_heap_max", 1, p_statistics_heap_max,
+                SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$statistics_global_max", 1, p_statistics_global_max,
+                SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$statistics_local_max", 1, p_statistics_local_max,
+                SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$statistics_heap_info", 2, p_statistics_heap_info,
+                SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$statistics_stacks_info", 3, p_statistics_stacks_info,
+                SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$statistics_trail_info", 2, p_statistics_trail_info,
+                SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$statistics_atom_info", 2, p_statistics_atom_info,
+                SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$statistics_db_size", 4, p_statistics_db_size,
+                SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$statistics_lu_db_size", 5, p_statistics_lu_db_size,
+                SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$argv", 1, p_argv, SafePredFlag);
   Yap_InitCPred("$os_argv", 1, p_os_argv, SafePredFlag);
   Yap_InitCPred("$executable", 1, p_executable, SafePredFlag);
-  Yap_InitCPred("$runtime", 2, p_runtime, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$cputime", 2, p_cputime, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$systime", 2, p_systime, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$walltime", 2, p_walltime, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$runtime", 2, p_runtime, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$cputime", 2, p_cputime, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$systime", 2, p_systime, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$walltime", 2, p_walltime, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$access_yap_flags", 2, p_access_yap_flags, SafePredFlag);
-  Yap_InitCPred("$set_yap_flags", 2, p_set_yap_flags, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$system_mode", 1, p_system_mode, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$set_yap_flags", 2, p_set_yap_flags,
+                SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$system_mode", 1, p_system_mode, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("abort", 0, p_abort, SyncPredFlag);
-/** @pred  abort 
+  /** @pred  abort
 
 
-Abandons the execution of the current goal and returns to top level. All
-break levels (see break/0 below) are terminated. It is mainly
-used during debugging or after a serious execution error, to return to
-the top-level.
+  Abandons the execution of the current goal and returns to top level. All
+  break levels (see break/0 below) are terminated. It is mainly
+  used during debugging or after a serious execution error, to return to
+  the top-level.
 
- 
-*/
+
+  */
   Yap_InitCPred("$break", 1, p_break, SafePredFlag);
 #ifdef BEAM
   Yap_InitCPred("@", 0, eager_split, SafePredFlag);
   Yap_InitCPred(":", 0, force_wait, SafePredFlag);
   Yap_InitCPred("/", 0, commit, SafePredFlag);
-  Yap_InitCPred("skip_while_var",1,skip_while_var,SafePredFlag);
-  Yap_InitCPred("wait_while_var",1,wait_while_var,SafePredFlag);
+  Yap_InitCPred("skip_while_var", 1, skip_while_var, SafePredFlag);
+  Yap_InitCPred("wait_while_var", 1, wait_while_var, SafePredFlag);
   Yap_InitCPred("eamtime", 0, show_time, SafePredFlag);
   Yap_InitCPred("eam", 0, use_eam, SafePredFlag);
 #endif
@@ -2011,22 +2024,25 @@ the top-level.
   /* Accessing and changing the flags for a predicate */
   Yap_InitCPred("$flags", 4, p_flags, SyncPredFlag);
   Yap_InitCPred("$set_flag", 4, p_set_flag, SyncPredFlag);
-  Yap_InitCPred("$has_yap_or", 0, p_has_yap_or, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$has_eam", 0, p_has_eam, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$has_yap_or", 0, p_has_yap_or, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$has_eam", 0, p_has_eam, SafePredFlag | SyncPredFlag);
 #ifndef YAPOR
-  Yap_InitCPred("parallel_mode", 1, p_parallel_mode, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$c_yapor_workers", 1, p_yapor_workers, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("parallel_mode", 1, p_parallel_mode,
+                SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$c_yapor_workers", 1, p_yapor_workers,
+                SafePredFlag | SyncPredFlag);
 #endif /* YAPOR */
 #ifdef INES
   Yap_InitCPred("euc_dist", 3, p_euc_dist, SafePredFlag);
   Yap_InitCPred("loop", 0, p_loop, SafePredFlag);
 #endif
 #if QSAR
-  Yap_InitCPred("in_range", 8, p_in_range, TestPredFlag|SafePredFlag);
-  Yap_InitCPred("in_range", 4, p_in_range2, TestPredFlag|SafePredFlag);
+  Yap_InitCPred("in_range", 8, p_in_range, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("in_range", 4, p_in_range2, TestPredFlag | SafePredFlag);
 #endif
 #ifdef DEBUG
-  Yap_InitCPred("dump_active_goals", 0, p_dump_active_goals, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("dump_active_goals", 0, p_dump_active_goals,
+                SafePredFlag | SyncPredFlag);
 #endif
 
   Yap_InitArrayPreds();
@@ -2074,21 +2090,21 @@ the top-level.
 #endif /* YAPOR || TABLING */
   Yap_InitThreadPreds();
   {
-    void            (*(*(p))) (void) = E_Modules;
+    void (*(*(p)))(void) = E_Modules;
     while (*p)
-      (*(*p++)) ();
+      (*(*p++))();
   }
 #if CAMACHO
   {
     extern void InitForeignPreds(void);
-  
+
     Yap_InitForeignPreds();
   }
 #endif
 #if APRIL
   {
     extern void init_ol(void), init_time(void);
-  
+
     init_ol();
     init_time();
   }

@@ -205,7 +205,7 @@ Yap_dir_separator (int ch)
   return dir_separator (ch);
 }
 
-#if _MSC_VER || defined(__MINGW32__)
+#if __WINDOWS__
 #include <psapi.h>
 
 char *libdir = NULL;
@@ -217,9 +217,8 @@ initSysPath(Term tlib, Term tcommons) {
   int len;
   int dir_done = FALSE;
   int commons_done = FALSE;
-  Int rcl, rcc;
 
-#if _MSC_VER || defined(__MINGW32__) || defined(__MSYS__)
+#if __WINDOWS__
   {
     char *dir;
     if ((dir = Yap_RegistryGetString("library")) &&
@@ -236,7 +235,7 @@ initSysPath(Term tlib, Term tcommons) {
     }
   }
   if (dir_done && commons_done)
-    return rcl && rcc;
+    return TRUE;
 #endif
   strncpy(LOCAL_FileNameBuf, YAP_SHAREDIR, YAP_FILENAME_MAX);
   strncat(LOCAL_FileNameBuf,"/", YAP_FILENAME_MAX);
@@ -260,7 +259,7 @@ initSysPath(Term tlib, Term tcommons) {
     }
   }
   if (dir_done && commons_done)
-    return rcl && rcc;
+    return TRUE;
 
 #if __WINDOWS__
   {

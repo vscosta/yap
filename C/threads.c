@@ -356,6 +356,8 @@ kill_thread_engine (int wid, int always_die)
   }
   if (REMOTE_ScratchPad(wid).ptr)
     free(REMOTE_ScratchPad(wid).ptr);
+//  if (REMOTE_TmpPred(wid).ptr)
+//    free(REMOTE_TmpPred(wid).ptr);
   REMOTE_PL_local_data_p(wid)->reg_cache =
     REMOTE_ThreadHandle(wid).current_yaam_regs = NULL;
   if (REMOTE_ThreadHandle(wid).start_of_timesp)
@@ -882,6 +884,18 @@ typedef struct swi_mutex {
   pthread_mutex_t m;
 } SWIMutex;
 
+static SWIMutex *MutexOfTerm(Term t)
+{
+  Term t1 = Deref(t);
+  SWIMutex *mut = NULL;
+  if (IsVarTerm(t1)) {
+  } else if (IsAtomTerm(t1)) {
+  } else {
+    mut = AddressOfTerm(t1);
+  }
+  return mut;
+}
+
 static Int
 p_new_mutex( USES_REGS1 )
 {
@@ -906,25 +920,30 @@ p_new_mutex( USES_REGS1 )
   pthread_mutex_init(&mutp->m, &mat);
   mutp->owners = 0;
   mutp->tid_own = 0;
-  return Yap_unify(ARG1, MkIntegerTerm((Int)mutp));
+  return Yap_unify(ARG1, MkAddressTerm(mutp));
 }
 
 
  static Int
  p_destroy_mutex( USES_REGS1 )
  {
-   SWIMutex *mut = (SWIMutex*)IntegerOfTerm(Deref(ARG1));
-
-   if (pthread_mutex_destroy(&mut->m) < 0)
-     return FALSE;
-   Yap_FreeCodeSpace((void *)mut);
+   Term t1 = Deref(ARG1);
+   SWIMutex *mut;
+   if (IsVarTerm(t1)) {
+   } else if (IsAtomTerm(t1)) {
+   } else {
+     mut = AddressOfTerm(Deref(ARG1));
+     if (pthread_mutex_destroy(&mut->m) < 0)
+       return FALSE;
+     Yap_FreeCodeSpace((void *)mut);
+   }
    return TRUE;
  }
 
  static Int
  p_lock_mutex( USES_REGS1 )
  {
-   SWIMutex *mut = (SWIMutex*)IntegerOfTerm(Deref(ARG1));
+   SWIMutex *mut = MutexOfTerm( ARG1 );   
 
  #if DEBUG_LOCKS
    MUTEX_LOCK(&mut->m);
@@ -940,7 +959,7 @@ p_new_mutex( USES_REGS1 )
  static Int
  p_trylock_mutex( USES_REGS1 )
  {
-   SWIMutex *mut = (SWIMutex*)IntegerOfTerm(Deref(ARG1));
+   SWIMutex *mut = MutexOfTerm( ARG1 );      
 
    if (MUTEX_TRYLOCK(&mut->m) == EBUSY)
      return FALSE;
@@ -952,7 +971,7 @@ p_new_mutex( USES_REGS1 )
  static Int
  p_unlock_mutex( USES_REGS1 )
  {
-   SWIMutex *mut = (SWIMutex*)IntegerOfTerm(Deref(ARG1));
+   SWIMutex *mut = MutexOfTerm( ARG1 );      
 
  #if DEBUG_LOCKS
    MUTEX_UNLOCK(&mut->m);
@@ -979,9 +998,13 @@ p_new_mutex( USES_REGS1 )
        p_new_mutex( PASS_REGS1 );
        t1 = Deref(ARG1);
    }
-   mut = (SWIMutex*)IntegerOfTerm(t1);
-   if (!p_lock_mutex( PASS_REGS1 )) {
+   if (IsAtomTerm(t1)) {
+     
+   } else {
+     mut = AddressOfTerm(Deref(ARG1));
+     if (FALSE && !p_lock_mutex( PASS_REGS1 )) {
        return FALSE;
+     }
    }
 
    tg = Yap_StripModule(tg, &tm);
@@ -1030,7 +1053,7 @@ p_new_mutex( USES_REGS1 )
    end:
    ARG1 = MkIntegerTerm((Int)mut);
    excep = Yap_GetException();
-   p_unlock_mutex( PASS_REGS1 );
+   if (FALSE) p_unlock_mutex( PASS_REGS1 );
    if (creeping) {
        Yap_signal( YAP_CREEP_SIGNAL );
    } else if ( excep != 0) {
@@ -1276,7 +1299,7 @@ p_new_mutex( USES_REGS1 )
 
    if (pthread_cond_broadcast(condp) < 0)
      return FALSE;
- v  return TRUE;
+   return TRUE;
  }
 
  static Int

@@ -71,7 +71,7 @@ and therefore he should try to avoid them whenever possible.
         unknown/2], ['$assert_static'/5,
         '$assertz_dynamic'/4,
         '$clause'/4,
-        '$current_predicate_no_modules'/3,
+        '$current_predicate'/4,
         '$init_preds'/0,
         '$noprofile'/2,
         '$public'/2,
@@ -788,13 +788,15 @@ abolish(X) :-
 	'$do_error'(type_error(predicate_indicator,T),abolish(M:T)).
 
 '$abolish_all'(M) :-
-        '$current_predicate'(M,Na,Ar),
+        '$current_predicate'(Na, M, S, _),
+        functor(S, Na, Ar),
 	'$new_abolish'(Na/Ar, M),
 	fail.
 '$abolish_all'(_).
 
 '$abolish_all_atoms'(Na, M) :-
-        '$current_predicate_for_atom'(Na,M,Ar),
+        '$current_predicate'(Na,M,S,_),
+        functor(S, Na, Ar),
 	'$new_abolish'(Na/Ar, M),
 	fail.
 '$abolish_all_atoms'(_,_).
@@ -858,13 +860,15 @@ abolish(X) :-
 	'$do_error'(type_error(predicate_indicator,T),abolish(M:T)).
 	
 '$abolish_all_old'(M) :-
-        '$current_predicate'(M, Na, Ar),
+        '$current_predicate'(Na, M, S, _),
+	functor( S, Na, Ar ),
 	'$abolish'(Na, Ar, M),
 	fail.
 '$abolish_all_old'(_).
 
 '$abolish_all_atoms_old'(Na, M) :-
-        '$current_predicate_for_atom'(Na, M, Ar),
+        '$current_predicate'(Na, M, S, _),
+	functor(S, Na, Ar),
 	'$abolish'(Na, Ar, M),
 	fail.
 '$abolish_all_atoms_old'(_,_).
@@ -1071,7 +1075,8 @@ predicate_property(Pred,Prop) :-
 	).
 
 '$generate_all_preds_from_mod'(Pred, M, M) :-
-	'$current_predicate'(M,Na,Ar),
+	'$current_predicate'(Na,M,S,_),
+	functor(S,Na,Ar),
 	'$ifunctor'(Pred,Na,Ar).
 '$generate_all_preds_from_mod'(Pred, SourceMod, Mod) :-
 	recorded('$import','$import'(SourceMod, Mod, Orig, Pred,_,_),_),
@@ -1165,59 +1170,37 @@ predicate_erased_statistics(P,NCls,Sz,ISz) :-
 
 Defines the relation:  _P_ is a currently defined predicate whose
 name is the atom  _A_.
-
- 
 */
 current_predicate(A,T) :-
-	var(T), !,		% only for the predicate
-	'$current_module'(M),
-	'$current_predicate_no_modules'(M,A,T).
-current_predicate(A,M:T) :-			% module unspecified
-	var(M), !,
-	'$current_predicate_var'(A,M,T).
-current_predicate(A,M:T) :- % module specified
-	nonvar(T),
-	!,
-	functor(T,A,_),
-	'$pred_exists'(T,M).
-current_predicate(A,M:T) :- % module specified
-	!,
-	'$current_predicate_no_modules'(M,A,T).
-current_predicate(A,T) :-			% only for the predicate
-	'$current_module'(M),
-	'$current_predicate_no_modules'(M,A,T).
-
-'$current_predicate_var'(A,M,T) :-
-	var(T), !,
-	current_module(M),
-	M \= prolog,
-	'$current_predicate_no_modules'(M,A,T).
-'$current_predicate_var'(A,M,T) :-
-	functor(T,A,_),
-	current_module(M),
-	M \= prolog,
-	'$pred_exists'(T,M).
-
+	'$ground_module'(T, M, T0),
+	(
+	 '$current_predicate'(A, M, T0, _)
+	;
+	 '$imported_predicate'(A, M, A/_Arity, T0, _)
+	).
+	 
 /** @pred  system_predicate( _A_, _P_) 
 
-
 Defines the relation:   _P_ is a built-in predicate whose name
-is the atom  _A_.
-
- 
+is the atom  _A_. 
 */
-system_predicate(A,P) :-
-	'$current_predicate_no_modules'(prolog,A,P),
+system_predicate(A,T) :-
+	'$ground_module'(T, M, T0),
+	(
+	 '$current_predicate'(A, M, T0, Flags)
+	;
+	 '$current_predicate'(A, prolog, T0, Flags)
+	),
+	Flags /\ 0x00004000 =\= 0,
 	\+ '$hidden'(A).
 
-system_predicate(P) :-
-	'$current_module'(M),
-	'$system_predicate'(P,M).
+/** @pred  system_predicate( ?_P_ )
 
-'$current_predicate_no_modules'(M,A,T) :-
-	'$current_predicate'(M,A,Arity),
-	'$ifunctor'(T,A,Arity),
-	'$pred_exists'(T,M).
+Defines the relation:  _P_ is a currently defined system predicate.
+*/
+system_predicate(P) :-
+	system_predicate(_, P).
+
 
 /** @pred  current_predicate( _F_) is iso 
 
@@ -1225,65 +1208,32 @@ system_predicate(P) :-
  _F_ is the predicate indicator for a currently defined user or
 library predicate.  _F_ is of the form  _Na/Ar_, where the atom
  _Na_ is the name of the predicate, and  _Ar_ its arity.
-
- 
 */
 current_predicate(F0) :-
-	'$yap_strip_module'(F0, M, F),
-	'$$current_predicate'(F, M).
-
-'$$current_predicate'(F, M) :-
-        ( var(M) ->			% only for the predicate
-	'$all_current_modules'(M)
-	; true),
-	M \= prolog,
-	'$current_predicate3'(F,M).
-
-'$current_predicate3'(A/Arity,M) :-
-	nonvar(A), nonvar(Arity), !,
-	( '$ifunctor'(T,A,Arity),
-	 '$pred_exists'(T,M)
-	->
-	 true
-	;
-%	 '$current_predicate'(prolog,A,Arity)
-%	->
-%	 functor(T,A,Arity),
-%	'$pred_exists'(T,M)
-%	;
-	 recorded('$import','$import'(NM,M,G,T,A,Arity),_)
-	->
-	'$pred_exists'(G,NM)
-	).
-'$current_predicate3'(A/Arity,M) :- !,
+	'$ground_module'(F0, M, F),
 	(
-	 '$current_predicate'(M,A,Arity),
-	 '$ifunctor'(T,A,Arity),
-	 '$pred_exists'(T,M)
+	 '$current_predicate'(N, M, S, _),
+	 functor( S, N, Ar),
+	 F = N/Ar
 	;
-%	 '$current_predicate'(prolog,A,Arity),
-%	 functor(T,A,Arity),
-%	'$pred_exists'(T,M)
-%	;
-	 recorded('$import','$import'(NM,M,G,T,A,Arity),_),
-	 functor(T,A,Arity),
-	'$pred_exists'(G,NM)
+	 '$imported_predicate'(_Name, M, F, _S, _)
 	).
-'$current_predicate3'(BadSpec,M) :-			% only for the predicate
-	'$do_error'(type_error(predicate_indicator,BadSpec),current_predicate(M:BadSpec)).
+
+'$imported_predicate'(A, ImportingMod, A/Arity, G, Flags) :-
+	'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod),
+	functor(G, A, Arity),
+	'$pred_exists'(G, ExportingMod),
+	'$flags'(G0, ExportingMod, Flags, Flags).
 
 /** @pred  current_key(? _A_,? _K_) 
 
 
 Defines the relation:  _K_ is a currently defined database key whose
 name is the atom  _A_. It can be used to generate all the keys for
-the internal data-base.
-
- 
+  the internal data-base.
 */
 current_key(A,K) :-
-	'$current_predicate'(idb,A,Arity),
-	'$ifunctor'(K,A,Arity).
+	'$current_predicate'(A,idb,K,_).
 
 % do nothing for now.
 '$noprofile'(_, _).
@@ -1307,10 +1257,6 @@ calls to assert/1 or retract/1 on the named predicates
 raise a permission error. This predicate is designed to deal with parts
 of the program that is generated at runtime but does not change during
 the remainder of the program execution.
-
-
-
-
  */
 compile_predicates(Ps) :-
 	'$current_module'(Mod),

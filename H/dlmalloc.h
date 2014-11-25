@@ -179,7 +179,9 @@ extern "C" {
 #if DEBUG_DLMALLOC
 #include <assert.h>
 #else
+#ifndef assert
 #define assert(x) ((void)0)
+#endif
 #endif
 
 /*

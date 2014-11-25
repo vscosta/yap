@@ -161,6 +161,7 @@ typedef struct _density_integral {
 
 
 double sigmoid(double x, double slope);
+double normal(double x, double mu,double sigma);
 double Phi(double x);
 double cumulative_normal(double low, double high, double sigma, double mu);
 double cumulative_normal_dmu(double low, double high,double mu,double sigma);

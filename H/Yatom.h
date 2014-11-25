@@ -403,7 +403,8 @@ AbsModProp (ModEntry * p)
   return (Prop) (p);
 }
 
-
+#define ModToTerm(m) (m == PROLOG_MODULE ? TermProlog : m )
+ 
 #endif
 
 #define ModProperty	((PropFlags)0xfffa)
@@ -651,55 +652,55 @@ IsValProperty (int flags)
     C_Preds are	things write, read, ...	implemented in C. In this case
 	    CodeOfPred holds the address of the	correspondent C-function.
 
-don;t forget to also add in qly.h
+don't forget to also add in qly.h
 */
 typedef enum
 {
-  DiscontiguousPredFlag = ((UInt)0x00000010 << EXTRA_FLAG_BASE),	/* predicates whose clauses may be all-over the place.. */
-  SysExportPredFlag = ((UInt)0x00000008 << EXTRA_FLAG_BASE),		/* reuse export list to prolog module. */
-  NoTracePredFlag = ((UInt)0x00000004 << EXTRA_FLAG_BASE),		/* cannot trace this predicate */
-  NoSpyPredFlag = ((UInt)0x00000002 << EXTRA_FLAG_BASE),		/* cannot spy this predicate */
-  QuasiQuotationPredFlag = ((UInt)0x00000001 << EXTRA_FLAG_BASE),		/* SWI-like quasi quotations */
-  MegaClausePredFlag =   (UInt)0x80000000, /* predicate is implemented as a mega-clause */
-  ThreadLocalPredFlag = (UInt)0x40000000,	/* local to a thread */
-  MultiFileFlag = (UInt)0x20000000,	/* is multi-file */
-  UserCPredFlag = (UInt)0x10000000,	/* CPred defined by the user */
-  LogUpdatePredFlag = (UInt)0x08000000,	/* dynamic predicate with log. upd. sem. */
-  InUsePredFlag = (UInt)0x04000000,	/* count calls to pred */
-  CountPredFlag = (UInt)0x02000000,	/* count calls to pred */
-  HiddenPredFlag = (UInt)0x01000000,	/* invisible predicate */
-  CArgsPredFlag = (UInt)0x00800000,	/* SWI-like C-interface pred. */
-  SourcePredFlag = (UInt)0x00400000,	/* static predicate with source declaration */
-  MetaPredFlag = (UInt)0x00200000,	/* predicate subject to a meta declaration */
-  SyncPredFlag = (UInt)0x00100000,	/* has to synch before it can execute */
-  NumberDBPredFlag = (UInt)0x00080000,	/* entry for a number key */
-  AtomDBPredFlag = (UInt)0x00040000,	/* entry for an atom key */
-  GoalExPredFlag = (UInt)0x00020000,	/* predicate that is called by goal_expand */
-  TestPredFlag = (UInt)0x00010000,	/* is a test (optim. comit) */
-  AsmPredFlag = (UInt)0x00008000,	/* inline */
-  StandardPredFlag = (UInt)0x00004000,	/* system predicate */
-  DynamicPredFlag = (UInt)0x00002000,	/* dynamic predicate */
-  CPredFlag = (UInt)0x00001000,	/* written in C */
-  SafePredFlag = (UInt)0x00000800,	/* does not alter arguments */
-  CompiledPredFlag = (UInt)0x00000400,	/* is static */
-  IndexedPredFlag = (UInt)0x00000200,	/* has indexing code */
-  SpiedPredFlag = (UInt)0x00000100,	/* is a spy point */
-  BinaryPredFlag = (UInt)0x00000080,	/* test predicate */
-  TabledPredFlag = (UInt)0x00000040,	/* is tabled */
-  SequentialPredFlag = (UInt)0x00000020,	/* may not create parallel choice points! */
-  ProfiledPredFlag = (UInt)0x00000010,	/* pred is being profiled   */
-  BackCPredFlag = (UInt)0x00000008,    /*	Myddas Imported pred  */
-  ModuleTransparentPredFlag = (UInt)0x00000004,	/* ModuleTransparent pred  */
-  SWIEnvPredFlag = (UInt)0x00000002,	/* new SWI interface */
-  UDIPredFlag = (UInt)0x00000001	/* User Defined Indexing */
+  DiscontiguousPredFlag = ((uint64_t)((uint64_t)0x1000000000)),	/* predicates whose clauses may be all-over the place.. */
+  SysExportPredFlag = ((uint64_t)0x800000000),		/* reuse export list to prolog module. */
+  NoTracePredFlag = ((uint64_t)0x400000000),		/* cannot trace this predicate */
+  NoSpyPredFlag = ((uint64_t)0x200000000),		/* cannot spy this predicate */
+  QuasiQuotationPredFlag = ((uint64_t)0x100000000),		/* SWI-like quasi quotations */
+  MegaClausePredFlag =   (uint64_t)0x80000000, /* predicate is implemented as a mega-clause */
+  ThreadLocalPredFlag = (uint64_t)0x40000000,	/* local to a thread */
+  MultiFileFlag = (uint64_t)0x20000000,	/* is multi-file */
+  UserCPredFlag = (uint64_t)0x10000000,	/* CPred defined by the user */
+  LogUpdatePredFlag = (uint64_t)0x08000000,	/* dynamic predicate with log. upd. sem. */
+  InUsePredFlag = (uint64_t)0x04000000,	/* count calls to pred */
+  CountPredFlag = (uint64_t)0x02000000,	/* count calls to pred */
+  HiddenPredFlag = (uint64_t)0x01000000,	/* invisible predicate */
+  CArgsPredFlag = (uint64_t)0x00800000,	/* SWI-like C-interface pred. */
+  SourcePredFlag = (uint64_t)0x00400000,	/* static predicate with source declaration */
+  MetaPredFlag = (uint64_t)0x00200000,	/* predicate subject to a meta declaration */
+  SyncPredFlag = (uint64_t)0x00100000,	/* has to synch before it can execute */
+  NumberDBPredFlag = (uint64_t)0x00080000,	/* entry for a number key */
+  AtomDBPredFlag = (uint64_t)0x00040000,	/* entry for an atom key */
+  GoalExPredFlag = (uint64_t)0x00020000,	/* predicate that is called by goal_expand */
+  TestPredFlag = (uint64_t)0x00010000,	/* is a test (optim. comit) */
+  AsmPredFlag = (uint64_t)0x00008000,	/* inline */
+  StandardPredFlag = (uint64_t)0x00004000,	/* system predicate */
+  DynamicPredFlag = (uint64_t)0x00002000,	/* dynamic predicate */
+  CPredFlag = (uint64_t)0x00001000,	/* written in C */
+  SafePredFlag = (uint64_t)0x00000800,	/* does not alter arguments */
+  CompiledPredFlag = (uint64_t)0x00000400,	/* is static */
+  IndexedPredFlag = (uint64_t)0x00000200,	/* has indexing code */
+  SpiedPredFlag = (uint64_t)0x00000100,	/* is a spy point */
+  BinaryPredFlag = (uint64_t)0x00000080,	/* test predicate */
+  TabledPredFlag = (uint64_t)0x00000040,	/* is tabled */
+  SequentialPredFlag = (uint64_t)0x00000020,	/* may not create parallel choice points! */
+  ProfiledPredFlag = (uint64_t)0x00000010,	/* pred is being profiled   */
+  BackCPredFlag = (uint64_t)0x00000008,    /*	Myddas Imported pred  */
+  ModuleTransparentPredFlag = (uint64_t)0x00000004,	/* ModuleTransparent pred  */
+  SWIEnvPredFlag = (uint64_t)0x00000002,	/* new SWI interface */
+  UDIPredFlag = (uint64_t)0x00000001	/* User Defined Indexing */
 } pred_flag;
 
 /* profile data */
 typedef struct
 {
-  YAP_ULONG_LONG NOfEntries;	/* nbr of times head unification succeeded */
-  YAP_ULONG_LONG NOfHeadSuccesses;	/* nbr of times head unification succeeded */
-  YAP_ULONG_LONG NOfRetries;	/* nbr of times a clause for the pred
+  uint64_t NOfEntries;	/* nbr of times head unification succeeded */
+  uint64_t NOfHeadSuccesses;	/* nbr of times head unification succeeded */
+  uint64_t NOfRetries;	/* nbr of times a clause for the pred
 				   was retried */
 #if defined(YAPOR) || defined(THREADS)
   lockvar lock;			/* a simple lock to protect this entry */
@@ -721,12 +722,7 @@ typedef struct pred_entry
   PropFlags KindOfPE;		/* kind of property                     */
   struct yami *CodeOfPred;
   OPCODE OpcodeOfPred;		/* undefcode, indexcode, spycode, ....  */
-#if SIZEOF_INT_P==4
-  CELL PredFlags, ExtraPredFlags;
-#else
-  CELL PredFlags;
-#define ExtraPredFlags   PredFlags
-#endif
+  uint64_t PredFlags;
   UInt ArityOfPE;		/* arity of property                    */
   union
   {

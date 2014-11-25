@@ -188,6 +188,9 @@
 #include <errno.h>
 #include "simplecudd.h"
 
+int my_index_calc(int varstart, DdNode *node);
+int all_loaded_for_deterministic_variables(namedvars varmap, int disp);
+
 /* BDD manager initialization */
 
 int _debug = 0;
@@ -1717,8 +1720,7 @@ int GetParam(char *inputline, int iParam) {
 
 void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, DdNode *bdd) {
   char buf, *inputline;
-  int icur, maxlinesize, iline, index, iloop, ivalue, iQsize, i, inQ, iRoot;
-  double dvalue;
+  int icur, maxlinesize, iline, index, iloop, iQsize, i, inQ, iRoot;
   DdNode **Q, **Q2, *h_node, *l_node, *curnode;
   hisqueue *his;
   hisnode *hnode;
@@ -1756,10 +1758,10 @@ void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, Dd
               inQ = 0;
               for(i = 0; (i < iQsize / 2) && (inQ < 3); i++)
                 inQ = (Q[i] == l_node) || (Q[iQsize - i] == l_node) + 2 * (Q[i] == h_node) || (Q[iQsize - i] == h_node);
-              if (inQ & 1 == 0) inQ = inQ + (GetNode(his, varmap.varstart, l_node) != NULL);
-              if (inQ & 2 == 0) inQ = inQ + 2 * (GetNode(his, varmap.varstart, h_node) != NULL);
-              if (inQ & 1 == 1) inQ = inQ - (l_node == HIGH(manager) || l_node == LOW(manager));
-              if (inQ & 2 == 2) inQ = inQ - 2 * (h_node == HIGH(manager) || h_node == LOW(manager));
+              if ((inQ & 1) == 0) inQ = inQ + (GetNode(his, varmap.varstart, l_node) != NULL);
+              if ((inQ & 2) == 0) inQ = inQ + 2 * (GetNode(his, varmap.varstart, h_node) != NULL);
+	    if ((inQ & 1) == 1) inQ = inQ - (l_node == HIGH(manager) || l_node == LOW(manager));
+	if ((inQ & 2) == 2) inQ = inQ - 2 * (h_node == HIGH(manager) || h_node == LOW(manager));
               inQ = 0;
               switch(inQ) {
                 case 0:

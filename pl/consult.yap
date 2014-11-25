@@ -63,7 +63,7 @@
         '$convert_for_export'/7,
         '$extend_exports'/3]).
 
-:- use_system_module( '$_preds', ['$current_predicate_no_modules'/3]).
+:- use_system_module( '$_preds', ['$current_predicate'/4]).
 
 /**
 
@@ -890,7 +890,7 @@ source_file(FileName) :-
 source_file(Mod:Pred, FileName) :-
 	current_module(Mod),
 	Mod \= prolog,
-	'$current_predicate_no_modules'(Mod,_,Pred),
+	'$current_predicate'(_,Mod,Pred,_),
 	'$owned_by'(Pred, Mod, FileName).
 
 '$owned_by'(T, Mod, FileName) :-
@@ -1173,12 +1173,13 @@ unload_file( F0 ) :-
 % eliminate multi-files;
 % get rid of file-only predicataes.
 '$unload_file'( FileName, _F0 ) :-
-    '$current_predicate_var'(_A,Mod,P),
-    '$owner_file'(P,Mod,FileName),
-    \+ '$is_multifile'(P,Mod),
-    functor( P, Na, Ar),
-    abolish(Mod:Na/Ar),
-    fail.
+	current_module(Mod),
+	'$current_predicate'(_A,Mod,P,_),
+	'$owner_file'(P,Mod,FileName),
+	\+ '$is_multifile'(P,Mod),
+	functor( P, Na, Ar),
+	abolish(Mod:Na/Ar),
+	fail.
 %next multi-file.
 '$unload_file'( FileName, _F0 ) :-
     recorded('$lf_loaded','$lf_loaded'( FileName, _Age, _), R),

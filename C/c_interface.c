@@ -3096,7 +3096,7 @@ YAP_Init(YAP_init_args *yap_init)
       /* slaves, waiting for work */
       CurrentModule = USER_MODULE;
       P = GETWORK_FIRST_TIME;
-      Yap_exec_absmi(FALSE);
+      Yap_exec_absmi(FALSE,  YAP_EXEC_ABSMI);
       Yap_Error(INTERNAL_ERROR, TermNil, "abstract machine unexpected exit (YAP_Init)");
     }
 #endif /* YAPOR */

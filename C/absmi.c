@@ -951,7 +951,7 @@ interrupt_execute( USES_REGS1 )
   }
   if (PP) UNLOCKPE(1,PP);
   PP  = P->y_u.pp.p0;
-  if ((PP->ExtraPredFlags & (NoTracePredFlag|HiddenPredFlag)) && Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
+  if ((PP->PredFlags & (NoTracePredFlag|HiddenPredFlag)) && Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
     return 2;
   }
   SET_ASP(YENV, E_CB*sizeof(CELL));
@@ -979,7 +979,7 @@ interrupt_call( USES_REGS1 )
   if (PP) UNLOCKPE(1,PP);
   PP = P->y_u.Osbpp.p0;
   if (Yap_only_has_signal(YAP_CREEP_SIGNAL) &&
-      (PP->ExtraPredFlags & (NoTracePredFlag|HiddenPredFlag)) ) {
+      (PP->PredFlags & (NoTracePredFlag|HiddenPredFlag)) ) {
     return 2;
   }
   SET_ASP(YENV, P->y_u.Osbpp.s);
@@ -1238,7 +1238,7 @@ interrupt_dexecute( USES_REGS1 )
   if (PP) UNLOCKPE(1,PP);
   PP = P->y_u.pp.p0;
   pe = P->y_u.pp.p;
-  if ((PP->ExtraPredFlags & (NoTracePredFlag|HiddenPredFlag)) && Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
+  if ((PP->PredFlags & (NoTracePredFlag|HiddenPredFlag)) && Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
     return 2;
   }
   /* set S for next instructions */
@@ -7826,8 +7826,7 @@ Yap_absmi(int inp)
 
       BOp(call_cpred, Osbpp);
       check_trail(TR);
-      if (!(PREG->y_u.Osbpp.p->PredFlags & (SafePredFlag)) &&
-	  !(PREG->y_u.Osbpp.p0->ExtraPredFlags & (NoTracePredFlag|HiddenPredFlag))) {
+      if (!(PREG->y_u.Osbpp.p->PredFlags & (SafePredFlag|NoTracePredFlag|HiddenPredFlag))) {
 	CACHE_Y_AS_ENV(YREG);
 	check_stack(NoStackCCall, HR);
 	ENDCACHE_Y_AS_ENV();

@@ -227,7 +227,8 @@ order of dispatch.
 	 '$execute_nonstop'(G, M),
 	 '$$save_by'(CP2),
 	 '$disable_debugging',
-	 (CP == CP2 -> ! ; ( true ; '$enable_debugging', fail ) )
+	 (CP == CP2 -> ! ; ( true ; '$enable_debugging', fail ) ),
+	 '$enable_debugging'
 	;
 	'$disable_debugging',
 	fail
