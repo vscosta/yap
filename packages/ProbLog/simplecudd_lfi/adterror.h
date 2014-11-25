@@ -67,8 +67,8 @@ void ADTWarning(char *name, ADTWarningCodes warning, char *proc);
 
 #else
 
-void ADTError();
-void ADTWarning();
+void ADTError(void);
+void ADTWarning(void);
 
 #endif
 

@@ -455,7 +455,7 @@ c_db_odbc_number_of_fields( USES_REGS1 ) {
   char sql[256];
   SQLSMALLINT number_fields;
 
-  sprintf(sql,"SELECT column_name from INFORMATION_SCHEMA.COLUMNS where table_name = \'%s\' group by column_name order by min(dtd_identifier)",relation);
+  sprintf(sql,"SELECT column_name from INFORMATION_SCHEMA.COLUMNS where table_name = \'%s\' GROUP BY column_name, dtd_identifier ORDER BY CAST(dtd_identifier AS INTEGER)",relation);
   
   if (!SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt, "db_number_of_fields"))
     return FALSE;
@@ -495,7 +495,7 @@ c_db_odbc_get_attributes_types( USES_REGS1 ) {
   Term head, list;
   list = arg_types_list;
 
-  sprintf(sql,"SELECT column_name,data_type FROM INFORMATION_SCHEMA.COLUMNS where table_name = \'%s\' group by column_name,data_type order by min(dtd_identifier)",relation);
+  sprintf(sql,"SELECT column_name,data_type from INFORMATION_SCHEMA.COLUMNS WHERE table_name = \'%s\' GROUP BY column_name, dtd_identifier ORDER BY CAST(dtd_identifier AS INTEGER)",relation);
 
   if (!SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt, "db_get_attributes_types"))
     return FALSE;

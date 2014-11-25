@@ -562,7 +562,8 @@ int pc_clean_external_tables_0(void)
  */
 int pc_export_sw_info_1(void)
 {
-    int sw_id,instance_id,fixed,fixed_h;
+  //  int sw_id;
+  int instance_id,fixed,fixed_h;
     double prob,smooth;
     TERM p_switches, p_switch;
     TERM p_instance_list,p_prob_list,p_smooth_list;
@@ -574,7 +575,7 @@ int pc_export_sw_info_1(void)
         /* p_switch: sw(Id,InstList,ProbList,SmoothCList,FixedP,FixedH) */
         p_switch = bpx_get_car(p_switches);
 
-        sw_id           = bpx_get_integer(bpx_get_arg(1,p_switch));
+	//   sw_id           = bpx_get_integer(bpx_get_arg(1,p_switch));
         p_instance_list = bpx_get_arg(2,p_switch);
         p_prob_list     = bpx_get_arg(3,p_switch);
         p_smooth_list   = bpx_get_arg(4,p_switch);

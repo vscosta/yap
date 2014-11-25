@@ -725,13 +725,16 @@ void myexpand(extmanager MyManager, DdNode *Current) {
 
 double CalcProbability(extmanager MyManager, DdNode *Current) {
   DdNode *h, *l;
-  hisnode *Found;
-  char *curnode, *dynvalue;
+  hisnode *Found = NULL;
+  char *curnode; //, *dynvalue;
   double lvalue, hvalue, tvalue;
-  density_integral dynvalue_parsed;
+  // density_integral dynvalue_parsed;
   if (params.debug) {
     curnode = GetNodeVarNameDisp(MyManager.manager, MyManager.varmap, Current);
     fprintf(stderr, "%s\n", curnode);
+  } else {
+    // gcc stupidly complains.
+    curnode = NULL;
   }
   if (Current == MyManager.t) return 1.0;
   if (Current == MyManager.f) return 0.0;
@@ -811,7 +814,7 @@ static
 void PrintNodeQueue(Queue q , extmanager MyManager){
 
     QueueIterator qiter = QueueIteratorNew(q, 1);
-    fprintf(stderr,"Queue %p is [", *q);
+    fprintf(stderr,"Queue %p is [", q);
 
     while (qiter->currentItem != NULL) {
       DdNode* val = (DdNode*) qiter->currentItem->element;

@@ -64,8 +64,10 @@ int start;
 
   if (q)
      qi = ((QueueIterator)Allocate(sizeof(_QueueIterator)));
-  else
-     ADTError(ADT_QueueIter, E_NullQueue, "QueueIteratorNew");
+  else {
+    ADTError(ADT_QueueIter, E_NullQueue, "QueueIteratorNew");
+    return NULL;
+  }
   if (qi) {
      qi->queue = q;
      QueueIteratorAbsoluteSeek(qi, start);

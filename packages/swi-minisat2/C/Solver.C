@@ -580,7 +580,7 @@ lbool Solver::search(int nof_conflicts, int nof_learnts)
 
     starts++;
 
-    bool first = true;
+    // bool first = true;
 
     for (;;){
         Clause* confl = propagate();
@@ -589,7 +589,7 @@ lbool Solver::search(int nof_conflicts, int nof_learnts)
             conflicts++; conflictC++;
             if (decisionLevel() == 0) return l_False;
 
-            first = false;
+	    //            first = false;
 
             learnt_clause.clear();
             analyze(confl, learnt_clause, backtrack_level);

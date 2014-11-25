@@ -13,6 +13,8 @@
 #ifndef APT_H
 #define APT_H
 
+#include <stdlib.h>
+
 /* ---------- Defines */
 
 #ifndef ERROR
@@ -52,8 +54,9 @@
 #endif
 
 /* ---------- Types */
-
+#ifndef __ANSI_C__
 #define __ANSI_C__
+#endif
 
 typedef void (*ApplyFunction)(void*);
 typedef void (*ApplyFunction1)(void*,void*);

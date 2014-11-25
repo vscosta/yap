@@ -27,6 +27,8 @@
 #include "myddas_statistics.h"
 #endif
 
+void init_myddas(void);
+
 static Int c_db_initialize_myddas( USES_REGS1 );
 static Int c_db_connection_type( USES_REGS1 );
 static Int c_db_add_preds( USES_REGS1 );

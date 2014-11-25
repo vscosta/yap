@@ -25,7 +25,7 @@ void ADTError(char *name, ADTErrorCodes error, char *proc)
   fprintf(stderr,"ADT Error: ");
   fprintf(stderr," Module: %s\n",name);
   fprintf(stderr," Procedure: %s\n",proc);
-  fprintf(stderr," Error Code: %s\n",error);
+  fprintf(stderr," Error Code: %u\n",error);
   exit(1);
 }
 
@@ -43,5 +43,5 @@ void ADTWarning(char *name, ADTWarningCodes warning, char *proc)
   fprintf(stderr,"ADT Warning: ");
   fprintf(stderr," Module: %s\n",name);
   fprintf(stderr," Procedure: %s\n",proc);
-  fprintf(stderr," Warning Code: %s\n",warning);
+  fprintf(stderr," Warning Code: %u\n",warning);
 }

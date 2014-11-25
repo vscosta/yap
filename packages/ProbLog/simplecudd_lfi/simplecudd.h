@@ -320,6 +320,7 @@ int RepairVarcnt(namedvars *varmap);
 char* GetNodeVarName(DdManager *manager, namedvars varmap, DdNode *node);
 char* GetNodeVarNameDisp(DdManager *manager, namedvars varmap, DdNode *node);
 int all_loaded(namedvars varmap, int disp);
+int all_loaded_for_deterministic_variables(namedvars varmap, int disp);
 
 /* Traversal */
 
