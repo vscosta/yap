@@ -1493,12 +1493,16 @@ spy_goal( USES_REGS1 )
   HR += 2;
   {
     PredEntry *pt0;
+#if THREADS
     LOCK(GLOBAL_ThreadHandlesLock);
+#endif
     pt0 = SpyCode;
     P_before_spy = P;
     P = pt0->CodeOfPred;
     /* for profiler */
+#if THREADS
     UNLOCK(GLOBAL_ThreadHandlesLock);
+#endif
 #ifdef LOW_LEVEL_TRACER
     if (Yap_do_low_level_trace)
       low_level_trace(enter_pred,pt0,XREGS+1);

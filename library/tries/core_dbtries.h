@@ -225,6 +225,6 @@ TrNode    core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_no
 YAP_Term  core_get_trie_db_return_term(void);
 void      core_set_trie_db_return_term(YAP_Term return_value);
 YAP_Int   core_db_trie_get_optimization_level_count(YAP_Int opt_level);
-void      core_depth_breadth_trie_replace_nested_trie(TrNode node, YAP_Int nested_trie_id, YAP_Term new_term);
+void      core_depth_breadth_trie_replace_nested_trie(TrNode node, YAP_Int nested_trie_id, YAP_Term new_term, void (*construct_function)(TrNode), void (*destruct_function)(TrNode));
 YAP_Int   core_get_trie_db_opt_min_prefix(void);
 void      core_set_trie_db_opt_min_prefix(YAP_Int min_prefix);

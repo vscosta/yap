@@ -210,9 +210,9 @@ int      traverse_get_counter(TrNode node);
 YAP_Term generate_label(YAP_Int Index);
 YAP_Term update_depth_breadth_trie(TrEngine engine, TrNode root, YAP_Int opt_level, void (*construct_function)(TrNode), void (*destruct_function)(TrNode), void (*copy_function)(TrNode, TrNode), void (*correct_order_function)(void));
 YAP_Term get_return_node_term(TrNode node);
-void     traverse_and_replace_nested_trie(TrNode node, YAP_Int nested_trie_id, YAP_Term new_term);
-TrNode   replace_nested_trie(TrNode node, TrNode child, YAP_Term new_term);
-void     check_attach_childs(TrNode search_child, TrNode existing_child);
+void     traverse_and_replace_nested_trie(TrNode node, YAP_Int nested_trie_id, YAP_Term new_term, void (*construct_function)(TrNode), void (*destruct_function)(TrNode));
+TrNode   replace_nested_trie(TrNode node, TrNode child, YAP_Term new_term, void (*construct_function)(TrNode), void (*destruct_function)(TrNode));
+void     check_attach_childs(TrNode parent, TrNode search_child, TrNode existing_child, void (*construct_function)(TrNode), void (*destruct_function)(TrNode));
 TrNode   get_simplification_sibling(TrNode node);
 TrNode   check_parent_first(TrNode node);
 TrNode   TrNode_myparent(TrNode node);
@@ -257,18 +257,18 @@ void core_set_trie_db_opt_min_prefix(YAP_Int min_prefix) {
 
 
 
-void core_depth_breadth_trie_replace_nested_trie(TrNode node, YAP_Int nested_trie_id, YAP_Term new_term) {
-  traverse_and_replace_nested_trie(node, nested_trie_id, new_term);
+void core_depth_breadth_trie_replace_nested_trie(TrNode node, YAP_Int nested_trie_id, YAP_Term new_term, void (*construct_function)(TrNode), void (*destruct_function)(TrNode)) {
+  traverse_and_replace_nested_trie(node, nested_trie_id, new_term, construct_function, destruct_function);
   return;
 }
 
 
 inline
-void traverse_and_replace_nested_trie(TrNode node, YAP_Int nested_trie_id, YAP_Term new_term) {
+void traverse_and_replace_nested_trie(TrNode node, YAP_Int nested_trie_id, YAP_Term new_term, void (*construct_function)(TrNode), void (*destruct_function)(TrNode)) {
   TrNode child, temp;
   if (TrNode_entry(node) == PairEndTag) {
     if (TrNode_next(node))
-      traverse_and_replace_nested_trie(TrNode_next(node), nested_trie_id, new_term);
+      traverse_and_replace_nested_trie(TrNode_next(node), nested_trie_id, new_term, construct_function, destruct_function);
     return;
   } else if (IS_HASH_NODE(node)) {
     printf("HASH NODE ERROR: db_tries do not support hash nodes.\n");
@@ -280,7 +280,7 @@ void traverse_and_replace_nested_trie(TrNode node, YAP_Int nested_trie_id, YAP_T
     do {
       if ((node = *--bucket)) {
         do {
-          traverse_and_replace_nested_trie(node, nested_trie_id, new_term);
+          traverse_and_replace_nested_trie(node, nested_trie_id, new_term, construct_function, destruct_function);
           node = TrNode_next(node);
         } while(node);
       }
@@ -303,13 +303,13 @@ void traverse_and_replace_nested_trie(TrNode node, YAP_Int nested_trie_id, YAP_T
               do {
                 if (YAP_IntOfTerm(TrNode_entry(child)) == nested_trie_id) {
                   temp = TrNode_previous(node);
-                  node = replace_nested_trie(node, child, new_term);
+                  node = replace_nested_trie(node, child, new_term, construct_function, destruct_function);
                   if (temp) {
                     temp = TrNode_next(node);
                     if (temp)
                       node = temp;
                   } else {
-                    traverse_and_replace_nested_trie(TrNode_child(node), nested_trie_id, new_term);
+                    traverse_and_replace_nested_trie(TrNode_child(node), nested_trie_id, new_term, construct_function, destruct_function);
                     return;
                   }
                 }
@@ -322,10 +322,10 @@ void traverse_and_replace_nested_trie(TrNode node, YAP_Int nested_trie_id, YAP_T
           do {
             if (YAP_IntOfTerm(TrNode_entry(child)) == nested_trie_id) {
               temp = TrNode_next(node);
-              node = replace_nested_trie(node, child, new_term);
-              traverse_and_replace_nested_trie(TrNode_child(node), nested_trie_id, new_term);
+              node = replace_nested_trie(node, child, new_term, construct_function, destruct_function);
+              traverse_and_replace_nested_trie(TrNode_child(node), nested_trie_id, new_term, construct_function, destruct_function);
               if(temp)
-                traverse_and_replace_nested_trie(temp, nested_trie_id, new_term);
+                traverse_and_replace_nested_trie(temp, nested_trie_id, new_term, construct_function, destruct_function);
               return;
             }
             child = TrNode_next(child);
@@ -333,17 +333,16 @@ void traverse_and_replace_nested_trie(TrNode node, YAP_Int nested_trie_id, YAP_T
         }
       }
     }
-    traverse_and_replace_nested_trie(TrNode_child(node), nested_trie_id, new_term);
+    traverse_and_replace_nested_trie(TrNode_child(node), nested_trie_id, new_term, construct_function, destruct_function);
     if (TrNode_next(node))
-      traverse_and_replace_nested_trie(TrNode_next(node), nested_trie_id, new_term);
+      traverse_and_replace_nested_trie(TrNode_next(node), nested_trie_id, new_term, construct_function, destruct_function);
   }
   return;
 }
 
 /* fixmeeee */
-TrNode replace_nested_trie(TrNode node, TrNode child, YAP_Term new_term) {
+TrNode replace_nested_trie(TrNode node, TrNode child, YAP_Term new_term, void (*construct_function)(TrNode), void (*destruct_function)(TrNode)) {
   TrNode newnode, temp, newnodef = NULL;
-  YAP_Term term_search = (YAP_Term) NULL;
   if (YAP_IsApplTerm(new_term)) {
     YAP_Term new_term_functor = ApplTag | ((YAP_Term) YAP_FunctorOfTerm(new_term));
     YAP_Int arity = YAP_ArityOfFunctor(YAP_FunctorOfTerm(new_term));
@@ -369,27 +368,19 @@ TrNode replace_nested_trie(TrNode node, TrNode child, YAP_Term new_term) {
       TrNode_previous(TrNode_child(newnodef)) = newnode;
     TrNode_child(newnodef) = newnode;
   } else {
-    // Rewind to first uncle node
-    temp = TrNode_parent(node);
-    if (IS_FUNCTOR_NODE(temp))
-      term_search = TrNode_entry(temp);
+    /* Check if one of the node siblings have new_term */
+    temp = node;
     while (TrNode_previous(temp))
       temp = TrNode_previous(temp);
-    // Handles cases like not(t(?)) but doesn't handle case like not(not(...)
-    if (term_search) {
-      while (temp && TrNode_entry(temp) != term_search)
-        temp = TrNode_next(temp);
-      if (temp)
-        temp = TrNode_child(temp);
-    } 
     while (temp && TrNode_entry(temp) != new_term)
       temp = TrNode_next(temp);
-    if (temp) { // Found a node we can reuse
+    if (temp) {
       newnode = temp;
       // Check if the childs of node/child exist already otherwise attach them
-      check_attach_childs(TrNode_child(child), TrNode_child(newnode));
-      //DATA_DESTRUCT_FUNCTION = destruct_function;
+      check_attach_childs(newnode, TrNode_child(child), TrNode_child(newnode), construct_function, destruct_function);
+      DATA_DESTRUCT_FUNCTION = destruct_function;
       remove_child_nodes(TrNode_child(child));
+      TrNode_child(child) = NULL;
       remove_entry(child);
       return newnode;
     } else { // Make a new node
@@ -426,20 +417,56 @@ TrNode replace_nested_trie(TrNode node, TrNode child, YAP_Term new_term) {
 }
 
 
-void check_attach_childs(TrNode search_child, TrNode existing_child) {
+void check_attach_childs(TrNode parent, TrNode search_child, TrNode existing_child, void (*construct_function)(TrNode), void (*destruct_function)(TrNode)) {
+  TrNode newnode;
   // Check if the childs of node/child exist already otherwise attach them
   do {
-    while(existing_child && (TrNode_entry(existing_child) != TrNode_entry(search_child)))
+    while(existing_child && (TrNode_entry(existing_child) != PairEndTag) && (TrNode_entry(existing_child) != TrNode_entry(search_child)))
       existing_child = TrNode_next(existing_child);
+
     if (existing_child) {
-      if (TrNode_entry(existing_child) != PairEndTag) {
-        check_attach_childs(TrNode_child(search_child), TrNode_child(existing_child));
-      }
+      if (TrNode_entry(existing_child) != PairEndTag)
+        check_attach_childs(existing_child, TrNode_child(search_child), TrNode_child(existing_child), construct_function, destruct_function);
+      existing_child = TrNode_child(parent);
+      search_child = TrNode_next(search_child);
+    } else if (TrNode_entry(search_child) == PairEndTag) {
+      newnode = parent;
+      DATA_DESTRUCT_FUNCTION = destruct_function;
+      remove_child_nodes(TrNode_child(newnode));
+      TrNode_child(newnode) = NULL;
+      newnode = trie_node_check_insert(newnode, PairEndTag);
+      INCREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
+      (*construct_function)(newnode);
+      return;
     } else {
-      printf("Need to attach child!\n");
-      abort();
+      existing_child = search_child;
+      search_child = TrNode_next(search_child);
+      if(TrNode_child(TrNode_parent(existing_child)) == existing_child) {
+        if(TrNode_next(existing_child)) {
+          TrNode_child(TrNode_parent(existing_child)) = TrNode_next(existing_child);
+        } else {
+          newnode = TrNode_parent(existing_child);
+//          DATA_DESTRUCT_FUNCTION = destruct_function;
+//          remove_child_nodes(TrNode_child(newnode));
+          TrNode_child(newnode) = NULL;
+          newnode = trie_node_check_insert(newnode, PairEndTag);
+          INCREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
+          (*construct_function)(newnode);
+        }
+      }
+
+      if (TrNode_next(existing_child))
+        TrNode_previous(TrNode_next(existing_child)) = TrNode_previous(existing_child);
+      if (TrNode_previous(existing_child))
+        TrNode_next(TrNode_previous(existing_child)) = TrNode_next(existing_child);
+
+      TrNode_parent(existing_child) = parent;
+      TrNode_previous(existing_child) = NULL;
+      TrNode_next(existing_child) = TrNode_child(parent);
+      TrNode_previous(TrNode_child(parent)) = existing_child;
+      TrNode_child(parent) = existing_child;
+      existing_child = TrNode_child(parent);
     }
-    search_child = TrNode_next(search_child);
   } while(search_child);
 }
 
@@ -624,7 +651,7 @@ TrNode core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node,
   stack_args_base = stack_args = AUXILIARY_TERM_STACK;
   stack_top = AUXILIARY_TERM_STACK + CURRENT_AUXILIARY_TERM_STACK_SIZE - 1;
   node = TrNode_parent(TrNode_parent(node));
-//   printf("start node: "); displaynode(node);
+  // printf("start node: "); displaynode(node);
   if (IS_FUNCTOR_NODE(node)) {
     while(IS_FUNCTOR_NODE(node))
       node = TrNode_parent(node);
@@ -633,7 +660,7 @@ TrNode core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node,
       child = TrNode_child(child);
   } else
     child = TrNode_child(node);
-//   printf("Chosen start node: "); displaynode(child);
+  // printf("Chosen start node: "); displaynode(child);
   if (IS_HASH_NODE(child)) {
     printf("HASH NODE ERROR: db_tries do not support hash nodes.\n");
     abort();
@@ -729,7 +756,6 @@ TrNode core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node,
       /* nested trie: stop procedure and return nested trie node */
       if (IS_FUNCTOR_NODE(TrNode_parent(child)) && (strcmp(YAP_AtomName(YAP_NameOfFunctor((YAP_Functor)(~ApplTag & TrNode_entry(TrNode_parent(child))))), NESTED_TRIE_TERM) == 0))
         return child;
-
       PUSH_DOWN(stack_args, TrNode_entry(child), stack_top);
       count++;
       if (IS_FUNCTOR_NODE(TrNode_parent(child))) {
