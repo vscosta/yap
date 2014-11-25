@@ -238,9 +238,11 @@ YAP_Term trie_depth_breadth(TrEntry trie, TrEntry db_trie, YAP_Int opt_level, YA
   set_depth_breadth_reduction_current_data(NULL);
   /* We only need to simplify the trie once! */
   /* This can be a 10% overhead for sld cases :-( */
+//  printf("simplification\n"); trie_print(trie);
   if (TrNode_child(TrEntry_trie(trie)))
     simplification_reduction(trie);
   while (TrNode_child(TrEntry_trie(trie))) {
+//  printf("depth\n"); trie_print(trie);
     nested_trie = depth_reduction(trie, depth_node, opt_level);
     if (nested_trie) {
       set_depth_breadth_reduction_current_data(get_data_from_trie_node(nested_trie));
@@ -248,6 +250,7 @@ YAP_Term trie_depth_breadth(TrEntry trie, TrEntry db_trie, YAP_Int opt_level, YA
       *end_counter = core_get_label_counter();
       return YAP_MkApplTerm((YAP_Functor)(~ApplTag & TrNode_entry(TrNode_parent(nested_trie))), 1, &TrNode_entry(nested_trie));
     }
+//  printf("breadth\n"); trie_print(trie);
     nested_trie = breadth_reduction(trie, breadth_node, opt_level);
     if (nested_trie) {
       set_depth_breadth_reduction_current_data(get_data_from_trie_node(nested_trie));
@@ -276,7 +279,8 @@ TrData trie_get_depth_breadth_reduction_current_data(void) {
 
 
 void trie_replace_nested_trie(TrEntry trie, YAP_Int nested_trie_id, YAP_Term new_term) {
-  core_depth_breadth_trie_replace_nested_trie(TrNode_child(TrEntry_trie(trie)), nested_trie_id, new_term);
+  CURRENT_TRIE = trie;
+  core_depth_breadth_trie_replace_nested_trie(TrNode_child(TrEntry_trie(trie)), nested_trie_id, new_term, &trie_data_construct, &trie_data_destruct);
   return;
 }
 

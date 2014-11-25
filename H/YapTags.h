@@ -394,6 +394,34 @@ IntegerOfTerm (Term t)
   return (Int) (IsIntTerm (t) ? IntOfTerm (t) : LongIntOfTerm (t));
 }
 
+#define MkAddressTerm(i) __MkAddressTerm(i PASS_REGS)
+
+INLINE_ONLY inline EXTERN Term __MkAddressTerm (void * USES_REGS);
+
+INLINE_ONLY inline EXTERN Term
+__MkAddressTerm (void * n USES_REGS)
+{
+  return __MkIntegerTerm((Int)n PASS_REGS);
+}
+
+
+INLINE_ONLY inline EXTERN bool IsAddressTerm (Term);
+
+INLINE_ONLY inline EXTERN bool
+IsAddressTerm (Term t)
+{
+  return (bool) IsIntegerTerm (t);
+}
+
+INLINE_ONLY inline EXTERN void * AddressOfTerm (Term);
+
+INLINE_ONLY inline EXTERN void *
+AddressOfTerm (Term t)
+{
+
+  return (void *) (IsIntTerm (t) ? IntOfTerm (t) : LongIntOfTerm (t));
+}
+
 #ifndef YAP_H
 
 #endif

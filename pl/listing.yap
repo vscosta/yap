@@ -23,7 +23,7 @@
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
 :- use_system_module( '$_preds', ['$clause'/4,
-        '$current_predicate_no_modules'/3]).
+        '$current_predicate'/4]).
 
 /* listing : Listing clauses in the database
 
@@ -62,7 +62,7 @@ listing :-
     Mod \= prolog,
     Mod \= system,
     \+ '$hidden'( Mod ),
-    '$current_predicate_no_modules'(Mod,_,Pred),
+    '$current_predicate'(_,Mod,Pred, _),
     '$undefined'(Pred, prolog), % skip predicates exported from prolog.
     functor(Pred,Name,Arity),
     \+ atom_concat('$', _, Name),

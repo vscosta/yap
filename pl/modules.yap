@@ -831,21 +831,25 @@ expand_goal(G, G).
 	'$exit_undefp',
 	fail.
 
+% This predicate should be bidirectional: both
+% a consumer and a generator.
 '$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
 	recorded('$import','$import'(ExportingModI,ImportingMod,G0I,G,_,_),_),
-	'$continue_imported'(ExportingMod, ExportingModI, G0, G0I), !.
+	'$continue_imported'(ExportingMod, ExportingModI, G0, G0I).
 % SWI builtin
 '$get_undefined_pred'(G, _ImportingMod, G0, ExportingMod) :-
 	recorded('$dialect',Dialect,_),
 	Dialect \= yap,
 	functor(G, Name, Arity),
 	call(Dialect:index(Name,Arity,ExportingModI,_)), !,
-	'$continue_imported'(ExportingMod, ExportingModI, G0, G), !.
+	'$continue_imported'(ExportingMod, ExportingModI, G0, G).
+% autoload
 '$get_undefined_pred'(G, _ImportingMod, G0, ExportingMod) :-
 	yap_flag(autoload, V),
 	V = true,
-	'$autoloader_find_predicate'(G,ExportingModI), !,
+	'$autoloader_find_predicate'(G,ExportingModI),
 	'$continue_imported'(ExportingMod, ExportingModI, G0, G).
+% parent module mechanism
 '$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
 	prolog:'$parent_module'(ImportingMod,ExportingModI),
 	'$continue_imported'(ExportingMod, ExportingModI, G0, G).
@@ -1203,7 +1207,8 @@ abolish_module(Mod) :-
 	recorded('$import','$import'(Mod,_,_,_,_,_),R), erase(R),
 	fail.
 abolish_module(Mod) :-
-	'$current_predicate'(Mod,Na,Ar),
+	'$current_predicate'(Na,Mod,S,_),
+	functor(S, Na, Ar),
 	abolish(Mod:Na/Ar),
 	fail.
 abolish_module(_).

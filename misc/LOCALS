@@ -54,6 +54,8 @@ Int				DepthArenas				=0
 
 int				ArithError				=FALSE
 struct pred_entry*		LastAssertedPred			=NULL
+struct pred_entry*		TmpPred					=NULL
+struct pred_entry*		LastAssertedPred			=NULL
 char*				ScannerStack				=NULL
 struct scanner_extra_alloc*	 ScannerExtraBlocks			=NULL
 struct DB_TERM*			BallTerm				=NULL 		RestoreBallTerm(wid)

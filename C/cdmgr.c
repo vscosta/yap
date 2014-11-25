@@ -2136,7 +2136,7 @@ Yap_discontiguous( PredEntry *ap USES_REGS )
 {
   register consult_obj  *fp;
 
-  if (ap->ExtraPredFlags & (DiscontiguousPredFlag|MultiFileFlag))
+  if (ap->PredFlags & (DiscontiguousPredFlag|MultiFileFlag))
     return FALSE;
   if (!LOCAL_ConsultSp) {
     return FALSE;
@@ -2339,7 +2339,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   PELOCK(20,p);
   pflags = p->PredFlags;
   /* we are redefining a prolog module predicate */
-  if (((p->ExtraPredFlags & SysExportPredFlag) == (UInt)0) &&
+  if (((p->PredFlags & SysExportPredFlag) == (UInt)0) &&
       (
        (pflags & (UserCPredFlag|CArgsPredFlag|NumberDBPredFlag|AtomDBPredFlag|TestPredFlag|AsmPredFlag|CPredFlag|BinaryPredFlag)) ||
        (p->ModuleOfPred == PROLOG_MODULE && 
@@ -2847,7 +2847,7 @@ p_sys_export( USES_REGS1 )
     return (FALSE);
   }
   PELOCK(100,pred);  
-  pred->ExtraPredFlags |= SysExportPredFlag;
+  pred->PredFlags |= SysExportPredFlag;
   UNLOCKPE(100,pred);
   return TRUE;
 }
@@ -2868,7 +2868,7 @@ p_is_no_trace( USES_REGS1 )
   if (EndOfPAEntr(pe))
     return TRUE;
   PELOCK(36,pe);
-  if (pe->ExtraPredFlags & NoTracePredFlag) {
+  if (pe->PredFlags & NoTracePredFlag) {
     UNLOCKPE(57,pe);
     return TRUE;
   }
@@ -2886,7 +2886,7 @@ p_set_no_trace( USES_REGS1 )
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(36,pe);
-  pe->ExtraPredFlags |= NoTracePredFlag;
+  pe->PredFlags |= NoTracePredFlag;
   UNLOCKPE(57,pe);
   return TRUE;
 }
@@ -2904,7 +2904,7 @@ Yap_SetNoTrace(char *name, UInt arity, Term tmod)
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(36,pe);
-  pe->ExtraPredFlags |= NoTracePredFlag;
+  pe->PredFlags |= NoTracePredFlag;
   UNLOCKPE(57,pe);
   return TRUE;
 }
@@ -3164,7 +3164,7 @@ p_new_discontiguous( USES_REGS1 )
   else 
     pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, arity),mod));
   PELOCK(26,pe);
-  pe->ExtraPredFlags |= DiscontiguousPredFlag;
+  pe->PredFlags |= DiscontiguousPredFlag;
   /* mutifile-predicates are weird, they do not seat really on the default module */
   if (pe->ModuleOfPred == PROLOG_MODULE)
     pe->ModuleOfPred = TermProlog;
@@ -3183,7 +3183,7 @@ p_is_discontiguous( USES_REGS1 )
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(27,pe);
-  out = (pe->ExtraPredFlags & DiscontiguousPredFlag);
+  out = (pe->PredFlags & DiscontiguousPredFlag);
   UNLOCKPE(44,pe);
   return(out);
 }

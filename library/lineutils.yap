@@ -4,6 +4,9 @@
 	   search_for/3,
 	   scan_natural/3,
 	   scan_integer/3,
+	   natural/3,
+	   integer/3,
+	   blank/3,
 	   split/2,
 	   split/3,
 	   fields/2,
@@ -66,6 +69,19 @@ scan_integer(N) -->
 scan_integer(N) -->
 	scan_natural(0, N).
 
+/** @pred integer(? _Int_,+ _Line_,+ _RestOfLine_) 
+
+Scan the list of codes  _Line_ for an integer  _Nat_, either a
+positive, zero, or negative integer, and unify  _RestOfLine_ with
+the remainder of the line. 
+*/
+integer(N) -->
+	"-", !,
+	natural(0, N0),
+	N is -N0.
+integer(N) -->
+	natural(0, N).
+
 /** @pred scan_natural(? _Nat_,+ _Line_,+ _RestOfLine_) 
 
 Scan the list of codes  _Line_ for a natural number  _Nat_, zero
@@ -81,6 +97,49 @@ scan_natural(N0,N) -->
 	{ N1 is N0*10+(C-0'0) }, %'
 	get_natural(N1,N).
 scan_natural(N,N) --> [].
+
+/** @pred natural(? _Nat_,+ _Line_,+ _RestOfLine_) 
+
+Scan the list of codes  _Line_ for a natural number  _Nat_, zero
+or a positive integer, and unify  _RestOfLine_ with the remainder
+of the line.
+*/
+natural(N) -->
+	natural(0, N).
+
+natural(N0,N) -->
+	[C],
+	{C >= 0'0, C =< 0'9 }, !,
+	{ N1 is N0*10+(C-0'0) }, %'
+	get_natural(N1,N).
+natural(N,N) --> [].
+
+/** @pred skip_whitespace(+ _Line_,+ _RestOfLine_) 
+
+Scan the list of codes  _Line_ for white space,  namely for tabbing and space characters.
+*/
+skip_whitespace([0' |Blanks]) -->
+	" ",
+	skip_whitespace( Blanks ).
+skip_whitespace([0'	|Blanks]) -->
+	"	",
+	skip_whitespace( Blanks ).
+skip_whitespace( [] ) -->
+	!.
+
+/** @pred blank(+ _Line_,+ _RestOfLine_) 
+
+ The list of codes  _Line_ is formed by white space,  namely by tabbing and space characters.
+*/
+blank([0' |Blanks]) -->
+	" ",
+	blank( Blanks ).
+blank([0'	|Blanks]) -->
+	"	",
+	blank( Blanks ).
+blank( [] ) -->
+	[].
+
 
 /** @pred split(+ _Line_,- _Split_)
 
@@ -243,9 +302,12 @@ process(StreamInp, Command) :-
 For every line  _LineIn_ in file  _FileIn_, execute
 `call(Goal,LineIn,LineOut)`, and output  _LineOut_ to file
  _FileOut_.
+
+  The input stream is accessible through the alias `filter_input`, and the output
+  stream is accessible through `filter_output`.
 */
 file_filter(Inp, Out, Command) :-
-	open(Inp, read, StreamInp),
+	open(Inp, read, StreamInp, [alias(filter_input)]),
 	open(Out, write, StreamOut),
 	filter(StreamInp, StreamOut, Command),
 	close(StreamInp),
@@ -258,8 +320,8 @@ Same as file_filter/3, but before starting the filter execute
  _Arguments_.
 */
 file_filter_with_initialization(Inp, Out, Command, FormatString, Parameters) :-
-	open(Inp, read, StreamInp),
-	open(Out, write, StreamOut),
+	open(Inp, read, StreamInp, [alias(filter_input)]),
+	open(Out, write, StreamOut, [alias(filter_output)]),
 	format(StreamOut, FormatString, Parameters),
 	filter(StreamInp, StreamOut, Command),
 	close(StreamInp),
