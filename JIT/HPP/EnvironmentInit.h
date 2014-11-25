@@ -2,6 +2,14 @@
 #include <papi.h>
 #endif
 
+#ifndef X_API
+#if (defined(_MSC_VER) || defined(__MINGW32__)) && defined(PL_KERNEL)
+#define X_API __declspec(dllexport)
+#else
+#define X_API
+#endif
+#endif
+
 extern Environment ExpEnv;
 
 #if YAP_JIT
