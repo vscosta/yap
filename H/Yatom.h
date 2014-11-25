@@ -1242,7 +1242,7 @@ RepTranslationProp (Prop p)
 
 INLINE_ONLY inline EXTERN Prop AbsTranslationProp (TranslationEntry * p);
 
-INLINE_ONLY inline EXTERN Prop
+ INLINE_ONLY inline EXTERN Prop
 AbsTranslationProp (TranslationEntry * p)
 {
   return (Prop) (p);
@@ -1252,7 +1252,7 @@ AbsTranslationProp (TranslationEntry * p)
 #endif
 #define	TranslationProperty  0xfff4
 
-void Yap_PutAtomTranslation(Atom a, Int i);
+bool Yap_PutAtomTranslation(Atom a, Int i);
 
 /* get translation prop for atom;               */
 static inline TranslationEntry *
@@ -1270,10 +1270,7 @@ Yap_GetTranslationProp(Atom at)
   if (p0 == NIL) return (TranslationEntry *)NULL;
   return p;
 }
-
-
-/* only unary and binary expressions are acceptable */
-
+ 
 INLINE_ONLY inline EXTERN PropFlags IsTranslationProperty (int);
 
 INLINE_ONLY inline EXTERN PropFlags
@@ -1282,7 +1279,90 @@ IsTranslationProperty (int flags)
   return (PropFlags) ((flags == TranslationProperty));
 }
 
+/*** handle named mutexes */
 
+/*              translationnamed mutex property entry structure                            */
+ typedef struct mutex_entry
+ {
+   Prop NextOfPE;               /* used to chain properties             */
+   PropFlags KindOfPE;          /* kind of property                     */
+   void *Mutex;            /* used to hash the atom as an integer; */
+ }  MutexEntry;
+
+#if USE_OFFSETS_IN_PROPS
+
+ INLINE_ONLY inline EXTERN MutexEntry *RepMutexProp (Prop p);
+
+ INLINE_ONLY inline EXTERN MutexEntry *
+   RepMutexProp (Prop p)
+ {
+   return (MutexEntry *) (AtomBase + Unsigned (p));
+ }
+
+
+
+ INLINE_ONLY inline EXTERN Prop AbsMutexProp (MutexEntry * p);
+
+ INLINE_ONLY inline EXTERN Prop
+   AbsMutexProp (MutexEntry * p)
+ {
+   return (Prop) (Addr (p) - AtomBase);
+ }
+
+
+#else
+
+ INLINE_ONLY inline EXTERN MutexEntry *RepMutexProp (Prop p);
+
+ INLINE_ONLY inline EXTERN MutexEntry *
+   RepMutexProp (Prop p)
+ {
+   return (MutexEntry *) (p);
+ }
+
+
+
+ INLINE_ONLY inline EXTERN Prop AbsMutexProp (MutexEntry * p);
+
+ INLINE_ONLY inline EXTERN Prop
+   AbsMutexProp (MutexEntry * p)
+ {
+   return (Prop) (p);
+ }
+
+
+#endif
+#define MutexProperty  0xfff5
+
+ bool Yap_PutAtomMutex(Atom a, void *ptr);
+
+ /* get mutex prop for atom;               */
+ static inline MutexEntry *
+   Yap_GetMutexProp(Atom at)
+ {
+   Prop p0;
+   AtomEntry *ae = RepAtom(at);
+   MutexEntry *p;
+
+   READ_LOCK(ae->ARWLock);
+   p = RepMutexProp(p0 = ae->PropsOfAE);
+   while (p0 && p->KindOfPE != MutexProperty)
+     p = RepMutexProp(p0 = p->NextOfPE);
+   READ_UNLOCK(ae->ARWLock);
+   if (p0 == NIL) return NULL;
+   return p;
+ }
+
+ INLINE_ONLY inline EXTERN PropFlags IsMutexProperty (int);
+
+ INLINE_ONLY inline EXTERN PropFlags
+   IsMutexProperty (int flags)
+ {
+   return (PropFlags) ((flags == MutexProperty));
+ }
+
+ /* end of code for named mutexes */
+ 
 typedef enum {
   STATIC_ARRAY = 1,
   DYNAMIC_ARRAY = 2,

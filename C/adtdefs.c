@@ -1242,7 +1242,7 @@ Yap_PutValue(Atom a, Term v)
   WRITE_UNLOCK(p->VRWLock);
 }
 
-void
+bool
 Yap_PutAtomTranslation(Atom a, Int i)
 {
   AtomEntry *ae = RepAtom(a);
@@ -1255,7 +1255,7 @@ Yap_PutAtomTranslation(Atom a, Int i)
     p = (TranslationEntry *) Yap_AllocAtomSpace(sizeof(TranslationEntry));
     if (p == NULL) {
       WRITE_UNLOCK(ae->ARWLock);
-      return;
+      return false;
     }
     p->KindOfPE = TranslationProperty;
     p->Translation = i;
@@ -1264,6 +1264,32 @@ Yap_PutAtomTranslation(Atom a, Int i)
   /* take care that the lock for the property will be inited even
      if someone else searches for the property */
   WRITE_UNLOCK(ae->ARWLock);
+  return true;
+}
+
+bool
+Yap_PutAtomMutex(Atom a, void * i)
+{
+  AtomEntry *ae = RepAtom(a);
+  Prop p0;
+  MutexEntry *p;
+
+  WRITE_LOCK(ae->ARWLock);
+  p0 = GetAPropHavingLock(ae, MutexProperty);
+  if (p0 == NIL) {
+    p = (MutexEntry *) Yap_AllocAtomSpace(sizeof(MutexEntry));
+    if (p == NULL) {
+      WRITE_UNLOCK(ae->ARWLock);
+      return false;
+    }
+    p->KindOfPE = MutexProperty;
+    p->Mutex = i;
+    AddPropToAtom(RepAtom(a), (PropEntry *)p);
+  }
+  /* take care that the lock for the property will be inited even
+     if someone else searches for the property */
+  WRITE_UNLOCK(ae->ARWLock);
+  return true;
 }
 
 Term
