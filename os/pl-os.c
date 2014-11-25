@@ -2384,6 +2384,7 @@ argument to wait()
 
 #endif /*HAVE_SYS_WAIT_H*/
 
+typedef sighandler_t sigf_t;
 
 int
 System(char *cmd)
@@ -2391,9 +2392,8 @@ System(char *cmd)
   int pid;
   char *shell = "/bin/sh";
   int rval;
-  void (*old_int)();
-  void (*old_stop)();
-
+  sigf_t old_int, old_stop;
+  
   if ( (pid = fork()) == -1 )
   { return PL_error("shell", 2, OsError(), ERR_SYSCALL, "fork");
   } else if ( pid == 0 )		/* The child */
@@ -2407,9 +2407,9 @@ System(char *cmd)
   { wait_t status;			/* the parent */
     int n;
 
-    old_int  = signal(SIGINT,  SIG_IGN);
+    old_int  = (sigf_t)signal(SIGINT,  SIG_IGN);
 #ifdef SIGTSTP
-    old_stop = signal(SIGTSTP, SIG_DFL);
+    old_stop = (sigf_t)signal(SIGTSTP, SIG_DFL);
 #endif /* SIGTSTP */
 
     for(;;)

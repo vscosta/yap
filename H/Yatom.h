@@ -1333,8 +1333,8 @@ IsTranslationProperty (int flags)
  bool Yap_PutAtomMutex(Atom a, void *ptr);
 
  /* get mutex prop for atom;               */
- static inline MutexEntry *
-   Yap_GetMutexProp(Atom at)
+ static inline void *
+   Yap_GetMutexFromProp(Atom at)
  {
    Prop p0;
    AtomEntry *ae = RepAtom(at);

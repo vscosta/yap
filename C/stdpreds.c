@@ -944,13 +944,13 @@ static Int init_current_predicate(USES_REGS1) {
       if (IsExtensionFunctor(f)) {
         Yap_Error(TYPE_ERROR_CALLABLE, t3, "current_predicate/2");
         cut_fail();
+	return FALSE;
       }
       at = NameOfFunctor(f);
       arity = ArityOfFunctor(f);
     }
     if (IsAtomTerm(t2)) // we know the module and the main predicate
     // so that we are deterministic
-    {
       if (arity == 0) {
         if (Yap_GetPredPropByAtom(at, t2) != NIL &&
             Yap_unify(ARG1, MkAtomTerm(at)))

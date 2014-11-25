@@ -64,7 +64,7 @@ static inline int si_callback(void *key, void *data, void *arg)
 /* Judy1 integer sparse set intersection */
 static inline int j1_callback(void *key, void *data, void *arg)
 {
-	int r;
+	intptr_t r;
 	Pvoid_t *array = (Pvoid_t *) arg;
 	J1S(r, *array, (int) data);
 	if (r == JERR)
