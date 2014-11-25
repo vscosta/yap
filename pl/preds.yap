@@ -1164,9 +1164,7 @@ predicate_erased_statistics(P,NCls,Sz,ISz) :-
 /** @pred  current_predicate( _A_, _P_)
 
 Defines the relation:  _P_ is a currently defined predicate whose
-name is the atom  _A_.
-
- 
+name is the atom  _A_. 
 */
 current_predicate(A,T) :-
 	var(T), !,		% only for the predicate
@@ -1200,17 +1198,40 @@ current_predicate(A,T) :-			% only for the predicate
 
 /** @pred  system_predicate( _A_, _P_) 
 
-
 Defines the relation:   _P_ is a built-in predicate whose name
-is the atom  _A_.
+is the atom  _A_. 
 
- 
+Notice that this predicatae always reports alll built-ins that are available to a module.
+Also, it is possible to enumerate over all modules by allowing the module to be unbound:
+~~~~~~
+?- system_predicate(A,M:P).
+~~~~~~
+will report all built-in predicates _P_ in the system, independently of their module _M_.
 */
-system_predicate(A,P) :-
-	'$current_predicate_no_modules'(prolog,A,P),
-	\+ '$hidden'(A).
+system_predicate( A, P ) :-
+    strip_module(P, M, P0),
+    ( atom(A) ->
+	  (
+	      atom( M ) ->
+		  ( '$current_system_predicate_for_atom'( M, A, P0 ) 
+		    ;
+		    '$imported_system_predicate'( M, A, P0 )
+		  )
+	      ;
+	      '$current_system_predicate_for_atom'( M , A , P0 )
+	  )
+      ;
+      atom( M ) ->
+	  ( '$current_system_predicate'( M, A, P )
+	    ;
+	    '$imported_system_predicate'( M, A, P )
+	  )
+      ;
+      /* var(M) */
+      '$current_system_predicate'( M , A , P )
+    ).
 
-system_predicate(P) :-
+    system_predicate(P) :-
 	'$current_module'(M),
 	'$system_predicate'(P,M).
 
