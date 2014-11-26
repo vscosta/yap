@@ -134,7 +134,6 @@ to allow for debugging.
 
 find_library(Spec, Lib) :-
 	current_prolog_flag(windows, true),
-false,
 	current_prolog_flag(kernel_compile_mode, debug),
 	libd_spec(Spec, SpecD),
 	catch(find_library2(SpecD, Lib), _, fail).

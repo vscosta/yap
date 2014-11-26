@@ -586,9 +586,9 @@ void ExpandNodes(hisqueue *Nodes, int index, int nodenum) {
 
 int LoadVariableData(namedvars varmap, char *filename) {
   FILE *data;
-  char *dataread, buf, *varname, *dynvalue;
-  double dvalue = 0.0;
-  int icur = 0,values, maxbufsize = 10, hasvar = 0, index = -1, idat = 0, ivalue = 0,i;
+  char *dataread, *varname, *dynvalue;
+  // double dvalue = 0.0;
+  int values, maxbufsize = 10, index = -1;
   dynvalue = NULL;
   if ((data = fopen(filename, "r")) == NULL) {
     perror("fopen");
@@ -619,9 +619,8 @@ int LoadVariableData(namedvars varmap, char *filename) {
 
 int LoadMultiVariableData(DdManager * mgr,namedvars varmap, char *filename) {
   FILE *data;
-  char *dataread, buf, *varname, *dynvalue;
-  double dvalue = 0.0;
-  int icur = 0,values, maxbufsize = 10, hasvar = 0, index = -1, idat = 0, ivalue = 0,i;
+  char *dataread, *varname, *dynvalue;
+  int values, maxbufsize = 10, index = -1,i;
   dynvalue = NULL;
   if ((data = fopen(filename, "r")) == NULL) {
     perror("fopen");
@@ -892,7 +891,7 @@ int SetNamedVarValues(namedvars varmap, const char *varname, double dvalue, int 
 }
 
 int GetNamedVarIndex(const namedvars varmap, const char *varname) {
-  int i,j;
+  int i;
   for (i = 0; i < varmap.varcnt; i++) {
     if (varmap.vars[i] == NULL) return -1 * i;
     if (strcmp(varmap.vars[i], varname) == 0) return i;
@@ -1227,7 +1226,7 @@ DdNode* LineParser(DdManager *manager, namedvars varmap, DdNode **inter, int max
         else bdd = BDD_Operator(manager, inter[ivar], bdd, curoper, inegoper);
         endAt = clock();
         secs = ((double) (endAt - startAt)) / ((double) CLOCKS_PER_SEC);
-        if (_debug) fprintf(stderr, "term: %s of line: %i took: %i\n", term, iline, endAt - startAt);
+        if (_debug) fprintf(stderr, "term: %s of line: %i took: %li\n", term, iline, endAt - startAt);
         //if ((endAt - startAt) > 10000000) Cudd_AutodynDisable(manager);
         if (bdd == NULL) {
           fprintf(stderr, "Line Parser Error at line: %i. Error using operator %c on term: %s.\n", iline, curoper, term);
@@ -1596,8 +1595,7 @@ int GetParam(char *inputline, int iParam) {
 
 void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, DdNode *bdd) {
   char buf, *inputline;
-  int icur, maxlinesize, iline, index, iloop, ivalue, iQsize, i, inQ;
-  double dvalue;
+  int icur, maxlinesize, iline, index, iloop, iQsize, i, inQ;
   DdNode **Q, **Q2, *h_node, *l_node, *curnode;
   hisqueue *his;
   hisnode *hnode;
@@ -1628,10 +1626,10 @@ void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, Dd
               inQ = 0;
               for(i = 0; (i < iQsize / 2) && (inQ < 3); i++)
                 inQ = (Q[i] == l_node) || (Q[iQsize - i] == l_node) + 2 * (Q[i] == h_node) || (Q[iQsize - i] == h_node);
-              if (inQ & 1 == 0) inQ = inQ + (GetNode(his, varmap.varstart, l_node) != NULL);
-              if (inQ & 2 == 0) inQ = inQ + 2 * (GetNode(his, varmap.varstart, h_node) != NULL);
-              if (inQ & 1 == 1) inQ = inQ - (l_node == HIGH(manager) || l_node == LOW(manager));
-              if (inQ & 2 == 2) inQ = inQ - 2 * (h_node == HIGH(manager) || h_node == LOW(manager));
+              if ((inQ & 1) == 0) inQ = inQ + (GetNode(his, varmap.varstart, l_node) != NULL);
+              if ((inQ & 2) == 0) inQ = inQ + 2 * (GetNode(his, varmap.varstart, h_node) != NULL);
+	      if ((inQ & 1) == 1) inQ = inQ - (l_node == HIGH(manager) || l_node == LOW(manager));
+              if ((inQ & 2) == 2) inQ = inQ - 2 * (h_node == HIGH(manager) || h_node == LOW(manager));
               switch(inQ) {
                 case 0:
                   iQsize += 2;

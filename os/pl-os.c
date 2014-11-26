@@ -2384,7 +2384,7 @@ argument to wait()
 
 #endif /*HAVE_SYS_WAIT_H*/
 
-typedef sighandler_t sigf_t;
+typedef void (*sigf_t)(int sig);
 
 int
 System(char *cmd)

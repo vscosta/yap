@@ -60,16 +60,7 @@ typedef enum _ADTWarningCodes {
 
 /* ADT Error Handler */
 
-#ifdef __ANSI_C__
-
 void ADTError(char *name, ADTErrorCodes error, char *proc);
 void ADTWarning(char *name, ADTWarningCodes warning, char *proc);
-
-#else
-
-void ADTError(void);
-void ADTWarning(void);
-
-#endif
 
 #endif
