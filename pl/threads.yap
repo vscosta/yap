@@ -878,12 +878,6 @@ There is no limit to the number of mutexes that can be created.
 
  
 */
-mutex_create(Mutex) :-
-	(	atom(Mutex) ->
-		mutex_create(_, [alias(Mutex)])
-	;	mutex_create(Mutex, [])
-	).
-
 mutex_create(Id, Options) :-
 	nonvar(Id), !,
 	'$do_error'(uninstantiation_error(Id), mutex_create(Id, Options)).
@@ -891,13 +885,8 @@ mutex_create(Id, Options) :-
 	Goal = mutex_create(Id, Options),
 	'$mutex_options'(Options, Alias, Goal),
 	(	atom(Alias) ->
-		(	recorded('$mutex_alias',[_| Alias], _) ->
-			'$do_error'(permission_error(create, mutex, Alias), Goal)
-		;	'$new_mutex'(Id),
-			recorda('$mutex_alias', [Id| Alias], _)
-		)
-	;	'$new_mutex'(Id),
-		recorda('$mutex_alias', [Id| Id], _)
+		mutex_create(Alias)
+	;	mutex_create(Id)
 	).	
 
 '$mutex_options'(Var, _, Goal) :-
