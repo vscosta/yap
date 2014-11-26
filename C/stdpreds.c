@@ -949,16 +949,18 @@ static Int init_current_predicate(USES_REGS1) {
       at = NameOfFunctor(f);
       arity = ArityOfFunctor(f);
     }
-    if (IsAtomTerm(t2)) // we know the module and the main predicate
+    if (IsAtomTerm(t2)) { // we know the module and the main predicate
     // so that we are deterministic
       if (arity == 0) {
         if (Yap_GetPredPropByAtom(at, t2) != NIL &&
-            Yap_unify(ARG1, MkAtomTerm(at)))
+            Yap_unify(ARG1, MkAtomTerm(at))) {
           cut_succeed();
+	}
       } else {
         if (Yap_GetPredPropByFunc(f, t2) != NIL &&
-            Yap_unify(ARG1, MkAtomTerm(at)))
+            Yap_unify(ARG1, MkAtomTerm(at))) {
           cut_succeed();
+	}
       }
       cut_fail();
     }
