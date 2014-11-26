@@ -918,6 +918,12 @@ static SWIMutex *MutexOfTerm__(Term t USES_REGS){
     mut = AddressOfTerm(t1);
   } else if (IsAtomTerm(t1)) {
     mut = Yap_GetMutexFromProp(AtomOfTerm(t1));
+    if (!mut) {
+      mut = NewMutex();
+      if ( !Yap_PutAtomMutex( AtomOfTerm(t1), mut ) ) {
+	return NULL;
+      }
+    }
   }
   return mut;
 }
@@ -931,9 +937,18 @@ p_new_mutex( USES_REGS1 ){
       return FALSE;
     return Yap_unify(ARG1, MkAddressTerm(mutp));
   } else if(IsAtomTerm(t1)) {
-    mutp = NewMutex(  );
+    if (!(mutp = NewMutex()))
+      return FALSE;
     return Yap_PutAtomMutex( AtomOfTerm(t1), mutp );
   } else if (IsAddressTerm(t1)) {
+
+
+
+
+
+
+
+
     return FALSE;
   }
   return FALSE;
@@ -943,21 +958,16 @@ p_new_mutex( USES_REGS1 ){
 {
   SWIMutex *mut = MutexOfTerm(Deref(ARG1));
   if (!mut)
-    return FALSE;
-  
+    return FALSE;  
   if (pthread_mutex_destroy(&mut->m) < 0)
     return FALSE;
   Yap_FreeCodeSpace((void *)mut);
   return TRUE;
 }
 
-static Int
-p_lock_mutex( USES_REGS1 )
+static bool
+LockMutex( SWIMutex *mut USES_REGS)
 {
-  SWIMutex *mut = MutexOfTerm(Deref(ARG1));
-  if (!mut)
-    return FALSE;
-  
 #if DEBUG_LOCKS
   MUTEX_LOCK(&mut->m);
 #else
@@ -966,6 +976,28 @@ p_lock_mutex( USES_REGS1 )
 #endif
   mut->owners++;
   mut->tid_own = worker_id;
+  return true;
+}
+
+static bool
+UnLockMutex( SWIMutex *mut )
+{
+#if DEBUG_LOCKS
+  MUTEX_UNLOCK(&mut->m);
+#else
+  if (MUTEX_UNLOCK(&mut->m) < 0)
+    return FALSE;
+#endif
+  mut->owners--;
+  return true;
+}
+
+static Int
+p_lock_mutex( USES_REGS1 )
+{
+  SWIMutex *mut = MutexOfTerm(Deref(ARG1));
+  if (!mut || !LockMutex( mut PASS_REGS))
+    return FALSE;
   return TRUE;
 }
 
@@ -987,34 +1019,25 @@ static Int
 p_unlock_mutex( USES_REGS1 )
 {
   SWIMutex *mut = MutexOfTerm(Deref(ARG1));
-  if (!mut)
+  if (!mut || !UnLockMutex( mut ))
     return FALSE;
-  
-#if DEBUG_LOCKS
-  MUTEX_UNLOCK(&mut->m);
-#else
-  if (MUTEX_UNLOCK(&mut->m) < 0)
-    return FALSE;
-#endif
-  mut->owners--;
   return TRUE;
 }
 
 static Int
 p_with_mutex( USES_REGS1 )
 {
-  Term t1 = Deref(ARG1), excep;
+  Term excep;
   Int rc = FALSE;
   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
   PredEntry *pe;
   Term tm = CurrentModule;
   Term tg = Deref(ARG2);
+  SWIMutex *mut = MutexOfTerm( ARG1 );
 
-  if (!p_lock_mutex( PASS_REGS1 )) {
+  if (!mut || !LockMutex(mut PASS_REGS)) {
     return FALSE;
   }
-  // this created the mutex
-  t1 = Deref(ARG1);
 
   tg = Yap_StripModule(tg, &tm);
   if (IsVarTerm(tg)) {
@@ -1060,9 +1083,10 @@ p_with_mutex( USES_REGS1 )
     rc = TRUE;
   }
  end:
-  ARG1 = t1;
   excep = Yap_GetException();
-  p_unlock_mutex( PASS_REGS1 );
+  if ( !UnLockMutex(mut) ) {
+    return FALSE;
+  }
   if (creeping) {
     Yap_signal( YAP_CREEP_SIGNAL );
   } else if ( excep != 0) {
@@ -1534,7 +1558,7 @@ void Yap_InitThreadPreds(void)
 
   */
   Yap_InitCPred("$valid_thread", 1, p_valid_thread, 0);
-  Yap_InitCPred("$new_mutex", 1, p_new_mutex, SafePredFlag);
+  Yap_InitCPred("mutex_create", 1, p_new_mutex, SafePredFlag);
   Yap_InitCPred("$destroy_mutex", 1, p_destroy_mutex, SafePredFlag);
   Yap_InitCPred("$lock_mutex", 1, p_lock_mutex, SafePredFlag);
   Yap_InitCPred("$trylock_mutex", 1, p_trylock_mutex, SafePredFlag);
@@ -1722,7 +1746,7 @@ Yap_InitFirstWorkerThreadHandle(void)
 void Yap_InitThreadPreds(void)
 { 
   Yap_InitCPred("$with_mutex", 2, p_with_mutex, MetaPredFlag);
-  Yap_InitCPred("$new_mutex", 1, p_new_mutex, SafePredFlag);
+  Yap_InitCPred("mutex_create", 1, p_new_mutex, SafePredFlag);
   Yap_InitCPred("$max_workers", 1, p_max_workers, 0);
   Yap_InitCPred("$thread_self", 1, p_thread_self, SafePredFlag);
   Yap_InitCPred("$no_threads", 0, p_no_threads, SafePredFlag);
