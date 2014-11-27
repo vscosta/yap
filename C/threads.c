@@ -1784,31 +1784,30 @@ p_new_mutex(void)
   return Yap_unify(ARG1, MkIntegerTerm(mutexes++) );
 }
 
-static Int
-p_with_mutex( USES_REGS1 )
-{
-  Int mut;
-  Term t1 = Deref(ARG1), excep;
-  Int rc = FALSE;
-  Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
-  PredEntry *pe;
-  Term tm = CurrentModule;
-  Term tg = Deref(ARG2);
+ static Int
+ p_with_mutex( USES_REGS1 )
+ {
+   Int mut;
+   Term t1 = Deref(ARG1), excep;
+   Int rc = FALSE;
+   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
+   PredEntry *pe;
+   Term tm = CurrentModule;
+   Term tg = Deref(ARG2);
 
-  if (IsVarTerm(t1)) {
-    p_new_mutex( PASS_REGS1 );
-    t1 = Deref(ARG1);
-    mut = IntOfTerm(t1);
-  }
-
-  tg = Yap_StripModule(tg, &tm);
-  if (IsVarTerm(tg)) {
-    Yap_Error(INSTANTIATION_ERROR, ARG2, "with_mutex/2");
-    goto end;
-  } else if (IsApplTerm(tg)) {
-    register Functor f = FunctorOfTerm(tg);
-    register CELL *pt;
-    size_t i, arity;
+   if (IsVarTerm(t1)) {
+       p_new_mutex( PASS_REGS1 );
+   }
+   t1 = Deref(ARG1);
+   mut = IntOfTerm(t1);
+   tg = Yap_StripModule(tg, &tm);
+   if (IsVarTerm(tg)) {
+      Yap_Error(INSTANTIATION_ERROR, ARG2, "with_mutex/2");
+      goto end;
+   } else if (IsApplTerm(tg)) {
+     register Functor f = FunctorOfTerm(tg);
+     register CELL *pt;
+     size_t i, arity;
 
     f = FunctorOfTerm(tg);
     if (IsExtensionFunctor(f)) {

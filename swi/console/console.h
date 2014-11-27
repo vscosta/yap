@@ -27,7 +27,7 @@
 
 #ifndef RLC_VENDOR
 #ifdef __YAP_PROLOG__
-#define RLC_VENDOR _T("YAP")
+#define RLC_VENDOR TEXT("YAP")
 #else
 #define RLC_VENDOR TEXT("SWI")
 #endif

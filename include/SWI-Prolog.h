@@ -525,6 +525,8 @@ extern X_API  int PL_unify_atom_nchars(term_t, size_t len, const char *);
 extern X_API  int PL_unify_float(term_t, double);
 extern X_API  int PL_unify_functor(term_t, functor_t);
 extern X_API  int PL_unify_int64(term_t, int64_t);
+extern X_API  int PL_unify_intptr(term_t, intptr_t);
+extern X_API  int PL_unify_uintptr(term_t, uintptr_t);
 extern X_API  int PL_unify_integer(term_t, long);
 extern X_API  int PL_unify_list(term_t, term_t, term_t);
 extern X_API  int PL_unify_list_chars(term_t, const char *);

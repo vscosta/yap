@@ -389,16 +389,6 @@ true :- true.
 	\+ '$undefined'('$init_preds',prolog),
 	'$init_preds',
 	fail.
-'$init_consult' :-
-	retractall(user:library_directory(_)),
-	'$system_library_directories'(library, D),
-	assert(user:library_directory(D)),
-	fail.
-'$init_consult' :-
-	retractall(user:commons_directory(_)),
-	'$system_library_directories'(commons, D),
-	assert(user:commons_directory(D)),
-	fail.
 '$init_consult'.
 
 '$init_win_graphics' :-

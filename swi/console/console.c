@@ -738,7 +738,7 @@ static HKEY
 rlc_option_key(rlc_console_attr *attr, int create)
 { TCHAR Prog[256];
   TCHAR *address[] = { _T("Software"),
-		      RLC_VENDOR,
+		       _T(RLC_VENDOR),
 		      Prog,
 		      _T("Console"),
 		      (TCHAR *)attr->key,	/* possible secondary key */

@@ -113,6 +113,24 @@ static int chdir(char *);
 /* #define signal	skel_signal */
 #endif /* MACYAP */
 
+#if DEBUG
+
+void
+LOG(const char *fmt, ...);
+
+void
+LOG(const char *fmt, ...)
+{
+  FILE * fd;
+  va_list ap;
+
+  fd = fopen("c:\\cygwin\\Log.txt", "a");
+  va_start(ap, fmt);
+   vfprintf(fd, fmt, ap);
+  va_end(ap);
+  fclose( fd );
+}
+#endif
 
 void exit(int);
 
@@ -128,7 +146,7 @@ Yap_WinError(char *yap_error)
 		  NULL);
     Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "%s at %s", msg, yap_error);
 }
-#endif /* _WIN32 */
+#endif /* __WINDOWS__ */
 
 
 #define is_valid_env_char(C) ( ((C) >= 'a' && (C) <= 'z') || ((C) >= 'A' && \
@@ -136,15 +154,23 @@ Yap_WinError(char *yap_error)
 
 
 static int
-is_directory(char *FileName)
+is_directory(const char *FileName)
 {
-#ifdef _WIN32
+#ifdef __WINDOWS__
   char s[YAP_FILENAME_MAX+1];
-  char *s0 = FileName;
+  const char *s0 = FileName;
   char *s1 = s;
   int ch;
 
   // win32 syntax
+  if (s0[0] == '/' &&  s0[1] == '/' && isalpha(s0[2]) && s0[3] == '/')
+    {
+      s1[0] = s0[2];
+      s1[1] = ':';
+      s1[2] = '\\';
+      s0+=4;
+      s1+=3;
+    }
   while ((ch = *s1++ = *s0++)) {
     if (ch == '$') {
       s1[-1] = '%';
@@ -163,167 +189,193 @@ is_directory(char *FileName)
 	*s1++ = ch;
 	if (ch == '\0') { s1--; s0--; }
       }
-    } else if (ch == '/')
-      s1[-1] = '\\';
-  }
-  if (ExpandEnvironmentStrings(s, FileName, YAP_FILENAME_MAX) == 0)
-    return FALSE; 
-  DWORD dwAtts = GetFileAttributes( FileName );
-  if (dwAtts == INVALID_FILE_ATTRIBUTES)
-    return FALSE;
-  return (dwAtts & FILE_ATTRIBUTE_DIRECTORY);
-#elif HAVE_LSTAT 
-  struct stat buf;
+     } else if (ch == '/')
+       s1[-1] = '\\';
+   }
+   if (ExpandEnvironmentStrings(s, FileName, YAP_FILENAME_MAX) == 0)
+     return FALSE; 
 
-  if (lstat(FileName, &buf) == -1) {
-    /* return an error number */
-    return FALSE;
-  }
-  return S_ISDIR(buf.st_mode);
-#else
-  return FALSE;
-#endif
-}
+   DWORD dwAtts = GetFileAttributes( FileName );
+   if (dwAtts == INVALID_FILE_ATTRIBUTES)
+     return FALSE;
+   return (dwAtts & FILE_ATTRIBUTE_DIRECTORY);
+ #elif HAVE_LSTAT 
+   struct stat buf;
 
-static int
-dir_separator (int ch)
+   if (lstat(FileName, &buf) == -1) {
+     /* return an error number */
+     return FALSE;
+   }
+   return S_ISDIR(buf.st_mode);
+ #else
+   return FALSE;
+ #endif
+ }
+
+ static int
+ dir_separator (int ch)
+ {
+ #ifdef MAC
+   return (ch == ':');
+ #elif ATARI || _MSC_VER
+   return (ch == '\\');
+ #elif defined(__MINGW32__) || defined(__CYGWIN__)
+   return (ch == '\\' || ch == '/');
+ #else
+   return (ch == '/');
+ #endif
+ }
+
+ int
+ Yap_dir_separator (int ch)
+ {
+   return dir_separator (ch);
+ }
+
+static char *
+  get_exec( char *s)
 {
-#ifdef MAC
-  return (ch == ':');
-#elif ATARI || _MSC_VER
-  return (ch == '\\');
-#elif defined(__MINGW32__) || defined(__CYGWIN__)
-  return (ch == '\\' || ch == '/');
-#else
-  return (ch == '/');
-#endif
-}
-
-int
-Yap_dir_separator (int ch)
-{
-  return dir_separator (ch);
-}
-
+   char *ptr;
 #if __WINDOWS__
-#include <psapi.h>
-
-char *libdir = NULL;
+   ptr = max( strrchr(LOCAL_FileNameBuf, '\\') ,  strrchr(LOCAL_FileNameBuf, '/') );
+#else
+   ptr = strrchr(LOCAL_FileNameBuf, '/');
 #endif
+   if (!ptr || ptr < LOCAL_FileNameBuf)
+     return NULL;
+   return ptr;
+ }
+
+ static const char *
+   initLibPath(const char *regp, const char *path, const char *offset, const char *envp USES_REGS) 
+ {
+
+   // environment variables trump all
+ #if HAVE_GETENV
+   {
+     const char *dir = getenv( envp );
+     if (dir != NULL  &&
+	 is_directory(dir)) {
+       if (strlen(dir) >= YAP_FILENAME_MAX)
+	 return NULL;
+       strcpy(LOCAL_FileNameBuf, dir );
+       return LOCAL_FileNameBuf;
+     }
+   }
+ #endif
+ #if __WINDOWS__
+   {
+     const char *dir;
+     if ((dir = (const char *)Yap_RegistryGetString((char *)regp)) &&
+	 is_directory(dir)) {
+       if (strlen(dir) >= YAP_FILENAME_MAX)
+	 return NULL;
+       strcpy(LOCAL_FileNameBuf, dir );
+       return LOCAL_FileNameBuf;
+     }
+   }
+ #endif
+   if ( DESTDIR ) {
+     if (strlen( DESTDIR "/" ) >= YAP_FILENAME_MAX)
+       return NULL;
+     strcpy(LOCAL_FileNameBuf, DESTDIR "/" );
+     strncat(LOCAL_FileNameBuf, path, YAP_FILENAME_MAX);
+   } else {
+     strcpy(LOCAL_FileNameBuf, path );
+   }
+   if (is_directory(LOCAL_FileNameBuf)) {
+     return LOCAL_FileNameBuf;
+   }
+
+   {
+     size_t buflen;
+     char *pt;
+
+     /* couldn't find it where it was supposed to be,
+	let's try using the executable */
+     pt = Yap_FindExecutable( );
+     if (!pt)
+       return NULL;
+     if ((buflen = strlen(pt)) >= YAP_FILENAME_MAX)
+       return NULL;
+     if (!strcpy( LOCAL_FileNameBuf, pt )) {
+	 /* do nothing */
+	 return NULL;
+       }
+     /* should have space for absolute path */
+     if ((pt = get_exec( LOCAL_FileNameBuf ))
+     /* should have space for absolute path, including drive */
+	 && pt -4 > LOCAL_FileNameBuf
+         && !strncmp(pt-3, "bin", 3)
+	 && (pt = pt-4)
+#if __WINDOWS__
+	 && (pt[0] == '/' || pt[0] == '\\')
+#else
+	 && (pt[0] == '/')
+#endif
+	 ) {
+       pt[1] = '\0';
+       strncat(LOCAL_FileNameBuf, offset , YAP_FILENAME_MAX);
+     printf("done  %s\n", LOCAL_FileNameBuf);
+       if ( is_directory(LOCAL_FileNameBuf) ) {
+	 return LOCAL_FileNameBuf; 
+       }
+     }
+   }
+   return NULL;
+ }
 
 static Int
-initSysPath(Term tlib, Term tcommons) {
-  CACHE_REGS
-  int len;
-  int dir_done = FALSE;
-  int commons_done = FALSE;
-
-#if __WINDOWS__
-  {
-    char *dir;
-    if ((dir = Yap_RegistryGetString("library")) &&
-	is_directory(dir)) {
-      if (! Yap_unify( tlib,
-		       MkAtomTerm(Yap_LookupAtom(dir))) )
-	return FALSE;
-    }
-    if ((dir = Yap_RegistryGetString("prolog_commons")) &&
-	is_directory(dir)) {
-      if (! Yap_unify( tcommons,
-		   MkAtomTerm(Yap_LookupAtom(dir))) )
-	return FALSE;
-    }
-  }
-  if (dir_done && commons_done)
-    return TRUE;
-#endif
-  strncpy(LOCAL_FileNameBuf, YAP_SHAREDIR, YAP_FILENAME_MAX);
-  strncat(LOCAL_FileNameBuf,"/", YAP_FILENAME_MAX);
-  len = strlen(LOCAL_FileNameBuf);
-  if (!dir_done) {
-    strncat(LOCAL_FileNameBuf, "Yap", YAP_FILENAME_MAX);
-    if (is_directory(LOCAL_FileNameBuf)) 
-    {
-      if (! Yap_unify( tlib,
-		   MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))) )
-	return FALSE;
-    }
-  }
-  if (!commons_done) {
-    LOCAL_FileNameBuf[len] = '\0';
-    strncat(LOCAL_FileNameBuf, "PrologCommons", YAP_FILENAME_MAX);
-    if (is_directory(LOCAL_FileNameBuf)) {
-      if (! Yap_unify( tcommons,
-		       MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))) )
-	return FALSE;
-    }
-  }
-  if (dir_done && commons_done)
-    return TRUE;
-
-#if __WINDOWS__
-  {
-    size_t buflen;
-    char *pt;
-    
-    /* couldn't find it where it was supposed to be,
-       let's try using the executable */
-    if (!GetModuleFileName( NULL, LOCAL_FileNameBuf, YAP_FILENAME_MAX)) {
-      Yap_WinError( "could not find executable name" ); 
-      /* do nothing */
+p_system_library( USES_REGS1 )
+{
+  if (Yap_LibDir == NULL) {
+    const char *path  = initLibPath(  "library",  YAP_SHAREDIR"/Yap", "share/Yap", "YAPSHAREDIR" );
+    if (!path)
       return FALSE;
-    }
-    buflen = strlen(LOCAL_FileNameBuf);
-    pt = LOCAL_FileNameBuf+buflen;
-    while (*--pt != '\\') {
-      /* skip executable */
-      if (pt == LOCAL_FileNameBuf) {
-	Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "could not find executable name");
-	/* do nothing */
-	return FALSE;
-      }
-    }
-    while (*--pt != '\\') {
-      /* skip parent directory "bin\\" */
-      if (pt == LOCAL_FileNameBuf) {
-	Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "could not find executable name");
-	/* do nothing */
-	return FALSE;
-      }
-    }
-    /* now, this is a possible location for the ROOT_DIR, let's look for a share directory here */
-    pt[1] = '\0';
-    /* grosse */
-    strncat(LOCAL_FileNameBuf,"lib\\Yap",YAP_FILENAME_MAX);
-    libdir = Yap_AllocCodeSpace(strlen(LOCAL_FileNameBuf)+1);
-    strncpy(libdir, LOCAL_FileNameBuf, strlen(LOCAL_FileNameBuf)+1);
-    pt[1] = '\0';
-    strncat(LOCAL_FileNameBuf,"share",YAP_FILENAME_MAX);
+    Yap_LibDir = (const char *)malloc( strlen(path)+1 );
+    strcpy( Yap_LibDir, path );
   }
-  strncat(LOCAL_FileNameBuf,"\\", YAP_FILENAME_MAX);
-  len = strlen(LOCAL_FileNameBuf);
-  strncat(LOCAL_FileNameBuf, "Yap", YAP_FILENAME_MAX);
-  if (!dir_done && is_directory(LOCAL_FileNameBuf)) {
-    if (! Yap_unify( tlib,
-		     MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))) )
-      return FALSE;
-  }
-  LOCAL_FileNameBuf[len] = '\0';
-  strncat(LOCAL_FileNameBuf, "PrologCommons", YAP_FILENAME_MAX);
-  if (!commons_done && is_directory(LOCAL_FileNameBuf)) {
-    if (! Yap_unify( tcommons,
-		     MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))) )
-      return FALSE;
-  }
-#endif
-  return dir_done && commons_done;
+  return Yap_unify( ARG1, MkAtomTerm(Yap_LookupAtom(Yap_LibDir)) );
 }
 
+static Int
+p_system_foreign( USES_REGS1 )
+{
+  if (Yap_ForeignDir == NULL) {
+    const char *path  = initLibPath(  "dlls",  YAP_LIBDIR"/Yap", "lib/Yap", "YAPLIBDIR" );
+    if (!path)
+      return FALSE;
+    Yap_ForeignDir = (const char *)malloc( strlen(path)+1 );
+    strcpy( Yap_ForeignDir, path );
+  }
+  return Yap_unify( ARG1, MkAtomTerm(Yap_LookupAtom(Yap_ForeignDir)) );
+}
 
 static Int
-p_libraries_path( USES_REGS1 )
+p_system_commons( USES_REGS1 )
 {
-  return initSysPath( ARG1, ARG2 );
+  if (Yap_CommonsDir == NULL) {
+    const char *path  = initLibPath(  "commons",  YAP_SHAREDIR"/PrologCommons", "share/PrologCommons", "YAPCOMMONSDIR" );
+    if (!path)
+      return FALSE;
+    Yap_CommonsDir = (const char *)malloc( strlen(path)+1 );
+    strcpy( Yap_CommonsDir, path );
+  }
+  return Yap_unify( ARG1, MkAtomTerm(Yap_LookupAtom(Yap_CommonsDir)) );
+}
+
+static Int
+p_system_bin( USES_REGS1 )
+
+{
+  if (Yap_BinDir == NULL) {
+    const char *path  = initLibPath(  "bin",  YAP_BINDIR"/PrologBin", "bin", "YAPBINDIR" );
+    if (!path)
+      return FALSE;
+    Yap_BinDir = (const char *)malloc( strlen(path)+1 );
+    strcpy( Yap_BinDir, path );
+  }
+  return Yap_unify( ARG1, MkAtomTerm(Yap_LookupAtom(Yap_BinDir)) );
 }
 
 static Int
@@ -1850,9 +1902,9 @@ TrueFileName (char *source, char *root, char *result, int in_lib, int expand_roo
 	    strncpy(ares1, yap_env, YAP_FILENAME_MAX);
 #endif
 	  } else {
-#if _MSC_VER || defined(__MINGW32__)
-	    if (libdir)
-	      strncpy(ares1, libdir, YAP_FILENAME_MAX);
+#if __WINDOWS__
+	    if (Yap_LibDir)
+	      strncpy(ares1, Yap_LibDir, YAP_FILENAME_MAX);
 	    else
 #endif
 	      strncpy(ares1, YAP_LIBDIR, YAP_FILENAME_MAX);
@@ -3030,7 +3082,10 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("release_random_state", 1, p_release_random_state, SafePredFlag);
 #endif
   Yap_InitCPred ("log_event", 1, p_log_event, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("library_directories", 2, p_libraries_path, SafePredFlag);
+  Yap_InitCPred ("system_library", 1, p_system_library, SafePredFlag);
+  Yap_InitCPred ("system_commons", 1, p_system_commons, SafePredFlag);
+  Yap_InitCPred ("system_foreign", 1, p_system_foreign, SafePredFlag);
+  Yap_InitCPred ("system_bin", 1, p_system_bin, SafePredFlag);
   Yap_InitCPred ("sh", 0, p_sh, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag|UserCPredFlag);
   Yap_InitCPred ("system", 1, p_system, SafePredFlag|SyncPredFlag|UserCPredFlag);
@@ -3041,7 +3096,7 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$alarm", 4, p_alarm, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$getenv", 2, p_getenv, SafePredFlag);
   Yap_InitCPred ("$putenv", 2, p_putenv, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$set_fpu_exceptions", 	1, p_set_fpu_exceptions, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$set_fpu_exceptions",1, p_set_fpu_exceptions, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$host_type", 1, p_host_type, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$env_separator", 1, p_env_separator, SafePredFlag);
   Yap_InitCPred ("$unix", 0, p_unix, SafePredFlag);
