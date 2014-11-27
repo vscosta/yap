@@ -672,14 +672,6 @@ ParseList(read_data *rd, JMPBUFF *FailBuff USES_REGS)
   return (o);
 }
 
-#ifndef INFINITY
-#define INFINITY (1.0/0.0)
-#endif
-
-#ifndef NAN
-#define NAN      (0.0/0.0)
-#endif
-
 static Term
 ParseTerm(read_data *rd, int prio, JMPBUFF *FailBuff USES_REGS)
 {

@@ -138,6 +138,14 @@ exceptions:
 #define PLMAXINT Int_MAX
 #define PLMININT Int_MIN
 
+#ifndef INFINITY
+#define INFINITY (1.0/0.0)
+#endif
+
+#ifndef NAN
+#define NAN      (0.0/0.0)
+#endif
+
 /**
  * @addtogroup arithmetic_operators
  * @enum arith0_op constant operators 
