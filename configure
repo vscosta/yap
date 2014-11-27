@@ -4294,6 +4294,130 @@ test -n "$target_alias" &&
   program_prefix=${target_alias}-
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking _XOPEN_SOURCE" >&5
+$as_echo_n "checking _XOPEN_SOURCE... " >&6; }
+
+if ${ac_cv_xopen+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+      #define _XOPEN_SOURCE 700
+      #include <unistd.h>
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  ac_cv_xopen=true
+else
+  ac_cv_xopen=false
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+
+if test "$ac_cv_xopen" = true; then
+
+$as_echo "#define _XOPEN_SOURCE 700" >>confdefs.h
+
+     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking _FILE_OFFSET_BITS" >&5
+$as_echo_n "checking _FILE_OFFSET_BITS... " >&6; }
+if ${ac_cv_file_offset_bits+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+      #define _FILE_OFFSET_BITS
+      #include <unistd.h>
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  ac_cv_file_offset_bits=true
+else
+  ac_cv_file_offset_bits=false
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+
+if test "$ac_cv_file_offset_bits" = true; then
+
+$as_echo "#define _FILE_OFFSET_BITS 64" >>confdefs.h
+
+     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking _ISOC99_SOURCE" >&5
+$as_echo_n "checking _ISOC99_SOURCE... " >&6; }
+if ${ac_cv_isoc99_source+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+      #define _ISOC99_SOURCE
+      #include <unistd.h>
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  ac_cv_isoc99_source=true
+else
+  ac_cv_isoc99_source=false
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+
+if test "$ac_cv_isoc99_source" = true; then
+
+$as_echo "#define _ISOC99_SOURCE 1" >>confdefs.h
+
+     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+if test "$yap_cv_minisat" = no -a "$INSTALL_DLLS" = "no"
+then
+  PKG_MINISAT=""
+else
+  PKG_MINISAT="packages/swi-minisat2 packages/swi-minisat2/C"
+fi
+
 
 cat >>confdefs.h <<_ACEOF
 #define HOST_ALIAS "${target}"
@@ -4913,7 +5037,6 @@ else
   static_compilation="no"
   STATIC_MODE="# "
 fi
-
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for grep that handles long lines and -e" >&5
@@ -10275,42 +10398,6 @@ $as_echo "#define HAVE_STRUCT_TIME_TM_GMTOFF 1" >>confdefs.h
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking _XOPEN_SOURCE" >&5
-$as_echo_n "checking _XOPEN_SOURCE... " >&6; }
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-#define _XOPEN_SOURCE
-#include <unistd.h>
-
-int
-main ()
-{
-
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-
-$as_echo "#define DEFINE_XOPEN_SOURCE 1" >>confdefs.h
-
-   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-if test "$yap_cv_minisat" = no -a "$INSTALL_DLLS" = "no"
-then
-  PKG_MINISAT=""
-else
-  PKG_MINISAT="packages/swi-minisat2 packages/swi-minisat2/C"
-fi
-
 
 if test "x$PLARCH" = "x"; then
   case "$host" in
@@ -13698,22 +13785,25 @@ fi
 
 if test "$host" != "$build" -a "$yap_cv_R" != "yes"
 then
+    # cross-compiler
     REAL_TARGET="ritf"
-    REAL_INCLUDES=-I"$yap_cv_R"/include
+    REAL_INCLUDES=-I"'""$yap_cv_R""'"/include
     case "$target_cpu" in
     i*86*)
-      REAL_LIBS="-L"$yap_cv_R"/bin/i386 -lR"
+      REAL_LIBS="-L"'""$yap_cv_R""'"/bin/i386 -lR"
     ;;
     x86*)
-      REAL_LIBS="-L"$yap_cv_R"/bin/x64 -lR"
+      REAL_LIBS="-L"'""$yap_cv_R""'"/bin/x64 -lR"
     ;;
     **)
       REAL_TARGET="dummy"
     ;;
     esac
 else
+  # default instalation
   if test "$yap_cv_R" = "yes"
   then
+   #assumes we have r on path
    for ac_prog in R.exe R r
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
@@ -13803,20 +13893,23 @@ done
 test -n "$REXE" || REXE=""none""
 
   fi
+  #it worked?
   if test "$REXE" = none -o x"$REXE" = "x"; then
     REAL_TARGET="dummy"
+    #give up on installing R, we couldn't find it.
   else
     REAL_TARGET="ritf"
-    REAL_INCLUDES="$($REXE CMD config --cppflags | grep -v ^WARNING)"
+    REAL_INCLUDES="$( $REXE CMD config --cppflags | grep -v ^WARNING)"
     REAL_LIBS="$($REXE CMD config --ldflags | grep -v ^WARNING)"
+    # if non-nil we're done
     if test x"$REAL_INCLUDES" = x; then
-      REAL_INCLUDES=-I"$yap_cv_R"/include
+      REAL_INCLUDES=-I\"$yap_cv_R\"/include
       case "$target_cpu" in
       i*86*)
-        REAL_LIBS="-L$yap_cv_R/bin/i386 -lR"
+        REAL_LIBS="-L\"$yap_cv_R/bin/i386\" -lR"
       ;;
       x86*)
-        REAL_LIBS="-L$yap_cv_R/bin/x64 -lR"
+        REAL_LIBS="-L\"$yap_cv_R/bin/x64\" -lR"
       ;;
       **)
         REAL_TARGET="dummy"
@@ -14109,7 +14202,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14112 "configure" */
+/* #line 14205 "configure" */
 public class Test {
 }
 EOF
@@ -14285,7 +14378,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 14288: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 14381: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -14416,7 +14509,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14419 "configure" */
+/* #line 14512 "configure" */
 public class Test {
 }
 EOF
@@ -14451,7 +14544,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 14454 "configure" */
+/* [#]line 14547 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -16979,7 +17072,7 @@ test -n "$PYTHON" || PYTHON=""none""
      if test -d "$PYTHONHOME/libs"; then
        #mingw
        PYTHON_DIR="$PYTHONHOME"
-       PYTHON_DLL=`echo "$PYTHON_DIR"/python*.dll`
+       PYTHON_DLL=`echo "$PYTHON_DIR"/DLLs/python*.dll`
        PYTHON_LIBS="\"$PYTHON_DLL\""
        PYTHON_INCLUDES="-I \"$PYTHON_DIR\"/include"
      elif test -d "$PYTHONHOME/lib"; then

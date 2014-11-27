@@ -1154,6 +1154,12 @@
 /* name of YAP library */
 #undef YAP_YAPLIB
 
+/* Define if _FILE_OFFSET_BITS is needed */
+#undef _FILE_OFFSET_BITS
+
+/* Define if _ISOC99_SOURCE is needed */
+#undef _ISOC99_SOURCE
+
 /* HP-UX old socket stuff */
 #undef _XOPEN_SOURCE
 
