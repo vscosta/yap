@@ -125,3 +125,9 @@
 #define GLOBAL_FPreds Yap_global->FPreds_
 #endif /* LOW_PROF */
 
+#if THREADS
+#define GLOBAL_FreeMutexes Yap_global->FreeMutexes_
+#define GLOBAL_mutex_backbone Yap_global->mutex_backbone_
+#define GLOBAL_MUT_ACCESS Yap_global->MUT_ACCESS_
+#endif
+

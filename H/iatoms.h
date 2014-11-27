@@ -189,6 +189,7 @@
   AtomMultiple = Yap_FullLookupAtom("multiple");
   AtomMutable = Yap_LookupAtom("mutable");
   AtomMutableVariable = Yap_FullLookupAtom("$mutable_variable");
+  AtomMutex = Yap_LookupAtom("mutex");
   AtomMyddasDB = Yap_FullLookupAtom("$myddas_db");
   AtomMyddasGoal = Yap_FullLookupAtom("$myddas_goal");
   AtomMyddasHost = Yap_FullLookupAtom("$myddas_host");
@@ -435,6 +436,7 @@
   FunctorModule = Yap_MkFunctor(AtomColomn,2);
   FunctorMultiFileClause = Yap_MkFunctor(AtomMfClause,5);
   FunctorMutable = Yap_MkFunctor(AtomMutableVariable,(sizeof(timed_var)/sizeof(CELL)));
+  FunctorMutex = Yap_MkFunctor(AtomMutex,2);
   FunctorNotImplemented = Yap_MkFunctor(AtomNotImplemented,2);
   FunctorNBQueue = Yap_MkFunctor(AtomQueue,4);
   FunctorNot = Yap_MkFunctor(AtomNot,1);

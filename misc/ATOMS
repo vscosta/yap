@@ -194,6 +194,7 @@ A	MultiFile		F	"$mf"
 A	Multiple		F	"multiple"
 A	Mutable			N	"mutable"
 A	MutableVariable		F	"$mutable_variable"
+A	Mutex			N	"mutex"
 A	MyddasDB		F	"$myddas_db"
 A	MyddasGoal		F	"$myddas_goal"
 A	MyddasHost		F	"$myddas_host"
@@ -440,6 +441,7 @@ F	Minus			Minus		2
 F	Module			Colomn		2
 F	MultiFileClause		MfClause	5
 F	Mutable			MutableVariable	(sizeof(timed_var)/sizeof(CELL))
+F	Mutex			Mutex		2
 F	NotImplemented		NotImplemented	2
 F	NBQueue			Queue		4
 F	Not			Not		1

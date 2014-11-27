@@ -342,8 +342,8 @@ print_message(_, Term) :-
 	current_prolog_flag(verbose, silent), !.
 '$print_system_message'(Term, Level, Lines) :-
 	( Level == error -> Term \= error(syntax_error(_), _) ; Level == warning ),
-	'$messages':prefix(Level, LinePrefix, Stream, LinesF, Lines2),
-	'$messages':file_location(Lines2, Lines), !,
+	'$messages':prefix(Level, LinePrefix, Stream, Lines2, Lines),
+	'$messages':file_location(LinesF, Lines2), !,
 	flush_output(user_output),
 	flush_output(user_error),
 	print_message_lines(Stream, LinePrefix, [nl|LinesF]).

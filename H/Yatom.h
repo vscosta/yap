@@ -1346,7 +1346,7 @@ IsTranslationProperty (int flags)
      p = RepMutexProp(p0 = p->NextOfPE);
    READ_UNLOCK(ae->ARWLock);
    if (p0 == NIL) return NULL;
-   return p;
+   return p->Mutex;
  }
 
  INLINE_ONLY inline EXTERN PropFlags IsMutexProperty (int);

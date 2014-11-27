@@ -124,4 +124,10 @@ static void InitGlobal(void) {
   GLOBAL_FProf = NULL;
   GLOBAL_FPreds = NULL;
 #endif /* LOW_PROF */
+
+#if THREADS
+  GLOBAL_FreeMutexes = NULL;
+  GLOBAL_mutex_backbone = NULL;
+  INIT_LOCK(GLOBAL_MUT_ACCESS);
+#endif
 }

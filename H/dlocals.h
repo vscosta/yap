@@ -91,6 +91,8 @@
 #define REMOTE_ArithError(wid) REMOTE(wid)->ArithError_
 #define LOCAL_LastAssertedPred LOCAL->LastAssertedPred_
 #define REMOTE_LastAssertedPred(wid) REMOTE(wid)->LastAssertedPred_
+#define LOCAL_TmpPred LOCAL->TmpPred_
+#define REMOTE_TmpPred(wid) REMOTE(wid)->TmpPred_
 #define LOCAL_ScannerStack LOCAL->ScannerStack_
 #define REMOTE_ScannerStack(wid) REMOTE(wid)->ScannerStack_
 #define LOCAL_ScannerExtraBlocks LOCAL->ScannerExtraBlocks_
@@ -424,6 +426,9 @@
 
 #define LOCAL_CurSlot LOCAL->CurSlot_
 #define REMOTE_CurSlot(wid) REMOTE(wid)->CurSlot_
+
+#define LOCAL_Mutexes LOCAL->Mutexes_
+#define REMOTE_Mutexes(wid) REMOTE(wid)->Mutexes_
 #define LOCAL_SourceModule LOCAL->SourceModule_
 #define REMOTE_SourceModule(wid) REMOTE(wid)->SourceModule_
 #define LOCAL_MAX_SIZE LOCAL->MAX_SIZE_

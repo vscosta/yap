@@ -189,6 +189,7 @@
   AtomMultiple = AtomAdjust(AtomMultiple);
   AtomMutable = AtomAdjust(AtomMutable);
   AtomMutableVariable = AtomAdjust(AtomMutableVariable);
+  AtomMutex = AtomAdjust(AtomMutex);
   AtomMyddasDB = AtomAdjust(AtomMyddasDB);
   AtomMyddasGoal = AtomAdjust(AtomMyddasGoal);
   AtomMyddasHost = AtomAdjust(AtomMyddasHost);
@@ -435,6 +436,7 @@
   FunctorModule = FuncAdjust(FunctorModule);
   FunctorMultiFileClause = FuncAdjust(FunctorMultiFileClause);
   FunctorMutable = FuncAdjust(FunctorMutable);
+  FunctorMutex = FuncAdjust(FunctorMutex);
   FunctorNotImplemented = FuncAdjust(FunctorNotImplemented);
   FunctorNBQueue = FuncAdjust(FunctorNBQueue);
   FunctorNot = FuncAdjust(FunctorNot);

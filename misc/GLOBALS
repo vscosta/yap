@@ -146,6 +146,12 @@ FILE*				FProf					=NULL
 FILE*				FPreds					=NULL
 #endif /* LOW_PROF */
 
+// Mutexes
+#if THREADS
+struct swi_mutex*		FreeMutexes				=NULL
+struct swi_mutex*		mutex_backbone				=NULL
+lockvar				MUT_ACCESS				MkLock
+#endif
 
 END_GLOBAL_DATA
 

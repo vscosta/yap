@@ -4,7 +4,7 @@
 *                                                                        *
 *  Yap Prolog was developed at NCCUP - Universidade do Porto             *
 *                                                                        *
-*  Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997      *
+  *  Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997      *
 *                                                                        *
 **************************************************************************
 *                                                                        *
@@ -628,13 +628,8 @@ current_thread(Id, Status) :-
 
 
 '$thread_id_alias'(Id, Alias) :-
-	recorded('$thread_alias', [Id|Alias], _), !.
+        recorded('$thread_alias', [Id|Alias], _), !.
 '$thread_id_alias'(Id, Id).
-
-
-'$mutex_id_alias'(Id, Alias) :-
-	recorded('$mutex_alias', [Id|Alias], _), !.
-'$mutex_id_alias'(Id, Id).
 
 
 
@@ -872,11 +867,11 @@ change_address(Id, Address) :-
 /** @pred mutex_create(? _MutexId_) 
 
 
-Create a mutex.  if  _MutexId_ is an atom, a <em>named</em> mutex is
-created.  If it is a variable, an anonymous mutex reference is returned.
-There is no limit to the number of mutexes that can be created.
+  Create a mutex.  if  _MutexId_ is an atom, a <em>named</em> mutex is
+  created.  If it is a variable, an anonymous mutex reference is returned.
+  There is no limit to the number of mutexes that can be created.
 
- 
+  
 */
 mutex_create(Id, Options) :-
 	nonvar(Id), !,
@@ -910,117 +905,6 @@ mutex_create(Id, Options) :-
 '$mutex_option'(Option, _, Goal) :-
 	'$do_error'(domain_error(mutex_option, Option), Goal).
 
-/*
-mutex_create(V) :-
-	var(V), !,
-	'$new_mutex'(V),
-	recorda('$mutex_alias',[V|V],_).
-mutex_create(A) :-
-	atom(A),
-	recorded('$mutex_alias',[_|A],_), !,
-	'$do_error'(permission_error(create,mutex,A),mutex_create(A)).
-mutex_create(A) :-
-	atom(A), !,
-	'$new_mutex'(Id),
-	recorda('$mutex_alias',[Id|A],_).
-mutex_create(V) :-
-	'$do_error'(type_error(atom,V),mutex_create(V)).
-*/
-	
-/** @pred mutex_destroy(+ _MutexId_) 
-
-
-Destroy a mutex.  After this call,  _MutexId_ becomes invalid and
-further references yield an `existence_error` exception.
-
- 
-*/
-mutex_destroy(Mutex) :-
-	'$check_mutex_or_alias'(Mutex, mutex_destroy(Mutex)),
-	'$mutex_id_alias'(Id, Mutex),
-	'$destroy_mutex'(Id),
-	'$erase_mutex_info'(Id).
-
-'$erase_mutex_info'(Id) :-
-	recorded('$mutex_alias',[Id|_],R),
-	erase(R),
-	fail.
-'$erase_mutex_info'(_).
-    
-
-/** @pred mutex_lock(+ _MutexId_) 
-
-
-Lock the mutex.  Prolog mutexes are <em>recursive</em> mutexes: they
-can be locked multiple times by the same thread.  Only after unlocking
-it as many times as it is locked, the mutex becomes available for
-locking by other threads. If another thread has locked the mutex the
-calling thread is suspended until to mutex is unlocked.
-
-If  _MutexId_ is an atom, and there is no current mutex with that
-name, the mutex is created automatically using mutex_create/1.  This
-implies named mutexes need not be declared explicitly.
-
-Please note that locking and unlocking mutexes should be paired
-carefully. Especially make sure to unlock mutexes even if the protected
-code fails or raises an exception. For most common cases use
-with_mutex/2, which provides a safer way for handling Prolog-level
-mutexes.
-
- 
-*/
-mutex_lock(V) :-
-	var(V), !,
-	'$do_error'(instantiation_error,mutex_lock(V)).
-mutex_lock(A) :-
-	recorded('$mutex_alias',[Id|A],_), !,
-	'$lock_mutex'(Id).
-mutex_lock(A) :-
-	atom(A), !,
-	mutex_create(A),
-	mutex_lock(A).
-mutex_lock(V) :-
-	'$do_error'(type_error(mutex,V),mutex_lock(V)).
-	
-/** @pred mutex_trylock(+ _MutexId_) 
-
-
-As mutex_lock/1, but if the mutex is held by another thread, this
-predicates fails immediately.
-
- 
-*/
-mutex_trylock(V) :-
-	var(V), !,
-	'$do_error'(instantiation_error,mutex_trylock(V)).
-mutex_trylock(A) :-
-	recorded('$mutex_alias',[Id|A],_), !,
-	'$trylock_mutex'(Id).
-mutex_trylock(A) :-
-	atom(A), !,
-	mutex_create(A),
-	mutex_trylock(A).
-mutex_trylock(V) :-
-	'$do_error'(type_error(mutex,V),mutex_trylock(V)).
-	
-/** @pred mutex_unlock(+ _MutexId_) 
-
-
-Unlock the mutex. This can only be called if the mutex is held by the
-calling thread. If this is not the case, a `permission_error`
-exception is raised.
-
- 
-*/
-mutex_unlock(Mutex) :-
-	'$check_mutex_or_alias'(Mutex, mutex_unlock(Mutex)),
-	'$mutex_id_alias'(Id, Mutex),
-	( '$unlock_mutex'(Id) ->
-	    true
-	;
-	    '$do_error'(permission_error(unlock,mutex,Mutex),mutex_unlock(Mutex))
-	).
-
 /** @pred mutex_unlock_all 
 
 
@@ -1048,54 +932,6 @@ mutex_unlock_all :-
 	'$unlock_mutex'(Id),
 	'$mutex_unlock_all'(Id).
 
-/** @pred with_mutex(+ _MutexId_, : _Goal_) 
-
-
-Execute  _Goal_ while holding  _MutexId_.  If  _Goal_ leaves
-choicepoints, these are destroyed (as in once/1).  The mutex is unlocked
-regardless of whether  _Goal_ succeeds, fails or raises an exception.
-An exception thrown by  _Goal_ is re-thrown after the mutex has been
-successfully unlocked.  See also `mutex_create/2`.
-
-Although described in the thread-section, this predicate is also
-available in the single-threaded version, where it behaves simply as
-once/1.
-
- 
-*/
-
-with_mutex(M, G) :-
-    ( recorded('$mutex_alias',[Id|M],_) ->
-    '$with_mutex'(Id, G )
-    ;
-    atom(M ) ->
-    mutex_create(Id, [alias(M)]),
-    '$with_mutex'(M, G )
-    ;
-    integer(M) ->
-    '$with_mutex'(M, G )
-    ;
-    '$do_error'(type_error(mutex,M), with_mutex(M, G))
-    ), nonvar(G). % preserve env.
-
-    
-/*
-with_mutex(M, G) :-
-	( '$no_threads' ->
-	  once(G)
-	;
-	  mutex_lock(M),
-	  var(G) -> mutex_unlock(M), '$do_error'(instantiation_error,with_mutex(M, G))
-	;
-	  \+ callable(G) ->
-	  mutex_unlock(M), '$do_error'(type_error(callable,G),with_mutex(M, G))
-	;
-  	  catch('$execute'(G), E, (mutex_unlock(M), throw(E))) ->
-		mutex_unlock(M)
-	  ;	mutex_unlock(M),
-		fail
-	).
-*/
 /** @pred current_mutex(? _MutexId_, ? _ThreadId_, ? _Count_) 
 
 

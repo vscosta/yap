@@ -68,13 +68,12 @@ handling in YAP:
 
 file_location -->
 	{ source_location(FileName, LN) },
-	file_position(FileName,LN),
-	[ nl ].
+	file_position(FileName,LN).
 
 file_position(user_input,LN) -->
-	[ 'at line ~d in user_input,' - [LN] ].
+	[ 'user_input:~d:0: ' - [LN] ].
 file_position(FileName,LN) -->
-	[ 'at line ~d in ~a,' - [LN,FileName] ].
+	[ '~a:~d:0: ' - [FileName,LN] ].
 
 translate_message(Term) -->
 	generate_message(Term), !.
@@ -125,7 +124,7 @@ generate_message(debug) --> !,
 generate_message(trace) --> !,
 	[ trace ].
 generate_message(error(Error,Context)) -->
-	{ Error = existence_error(procedure,_) }, !,	
+	{ Error = existence_error(procedure,_) }, !,
 	system_message(error(Error,Context)),
 	stack_dump(error(Error,Context)).
 generate_message(error(Error,context(Cause,Extra))) -->
@@ -146,7 +145,7 @@ stack_dump(_) --> [].
 prolog_message(X,Y,Z) :-
 	system_message(X,Y,Z).	      
 
-%message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
+				%message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
 system_message(query(_QueryResult,_)) --> [].
 system_message(format(Msg, Args)) -->
 	[Msg - Args].
@@ -238,6 +237,8 @@ system_message(error(existence_error(directory,Key), Where)) -->
 	[ 'EXISTENCE ERROR- ~w: ~w not an existing directory' - [Where,Key] ].
 system_message(error(existence_error(key,Key), Where)) -->
 	[ 'EXISTENCE ERROR- ~w: ~w not an existing key' - [Where,Key] ].
+system_message(error(existence_error(mutex,Key), Where)) -->
+        [ 'EXISTENCE ERROR- ~w: ~w is an erased mutex' - [Where,Key] ].
 system_message(existence_error(prolog_flag,F)) -->
 	[ 'Prolog Flag ~w: new Prolog flags must be created using create_prolog_flag/3.' - [F] ].
 system_message(error(existence_error(prolog_flag,P), Where)) --> !,
@@ -624,33 +625,33 @@ print_message_line(S, [Fmt|T0], T) :-
 prefix(help,	      '',          user_error) --> [].
 prefix(query,	      '',          user_error) --> [].
 prefix(debug,	      '',          user_output) --> [].
-prefix(warning,	      '% ',      user_error) -->
+prefix(warning,	      '',      user_error) -->
 	{ thread_self(Id) },
 	(   { Id == main }
-	->  [ 'Warning: ', nl ]
+	->  [ 'warning: ', nl ]
 	;   { atom(Id) }
-	->  ['Warning: [Thread ~a ]' - [Id], nl ]
-	;   ['Warning: [Thread ~d ]' - [Id], nl ]
+	->  ['warning: [Thread ~a ]' - [Id], nl ]
+	;   ['warning: [Thread ~d ]' - [Id], nl ]
 	).
-prefix(error,	      '     ',   user_error) -->
+prefix(error,	      '',   user_error) -->
 	{ recorded(sp_info,local_sp(P,_,_,_),_) },
 	{ thread_self(Id) },
 	(   { Id == main }
-	->  [ 'ERROR at ' ]
+	->  [ 'error at ' ]
 	;   { atom(Id) }
-	->  [ 'ERROR [ Thread ~a ] at ' - [Id] ]
-	;   [ 'ERROR [ Thread ~d ] at ' - [Id] ]
+	->  [ 'error [ Thread ~a ] at ' - [Id] ]
+	;   [ 'error [ Thread ~d ] at ' - [Id] ]
 	),
 	'$hacks':display_pc(P),
 	!,
 	[' !!', nl].
-prefix(error,	      '     ',   user_error) -->
+prefix(error,	      '',   user_error) -->
 	{ thread_self(Id) },
 	(   { Id == main }
-	->  [ 'ERROR!!', nl ]
+	->  [ 'error!!', nl ]
 	;   { atom(Id) }
-	->  [ 'ERROR!! [ Thread ~a ]' - [Id], nl ]
-	;   [ 'ERROR!! [ Thread ~d ]' - [Id], nl ]
+	->  [ 'error!! [ Thread ~a ]' - [Id], nl ]
+	;   [ 'error!! [ Thread ~d ]' - [Id], nl ]
 	).
 prefix(banner,	      '',	   user_error) --> [].
 prefix(informational, '~*|% '-[LC],     user_error) -->

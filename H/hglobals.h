@@ -124,4 +124,10 @@ typedef struct global_data {
   FILE*  FProf_;
   FILE*  FPreds_;
 #endif /* LOW_PROF */
+
+#if THREADS
+  struct swi_mutex*  FreeMutexes_;
+  struct swi_mutex*  mutex_backbone_;
+  lockvar  MUT_ACCESS_;
+#endif
 } w_shared;

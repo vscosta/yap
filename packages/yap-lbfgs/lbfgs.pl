@@ -163,6 +163,11 @@ optimizer_initialize(1,evaluate,progress)
 */
 optimizer_initialize(N,Call_Evaluate,Call_Progress) :-
 	optimizer_initialize(N,user,Call_Evaluate,Call_Progress).
+
+optimizer_initialize(N,Module,Call_Evaluate,Call_Progress) :-
+        optimizer_finalize,
+	!,
+	optimizer_initialize(N,Module,Call_Evaluate,Call_Progress).
 optimizer_initialize(N,Module,Call_Evaluate,Call_Progress) :-
 	\+ initialized,
 

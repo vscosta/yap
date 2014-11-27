@@ -52,6 +52,7 @@ typedef struct worker_local {
   Int  DepthArenas_;
   int  ArithError_;
   struct pred_entry*  LastAssertedPred_;
+  struct pred_entry*  TmpPred_;
   char*  ScannerStack_;
   struct scanner_extra_alloc*  ScannerExtraBlocks_;
   struct DB_TERM*  BallTerm_;
@@ -239,6 +240,8 @@ typedef struct worker_local {
   struct scan_atoms*  search_atoms_;
 
   yhandle_t  CurSlot_;
+
+  struct swi_mutex*  Mutexes_;
   Term  SourceModule_;
   size_t  MAX_SIZE_;
 } w_local;

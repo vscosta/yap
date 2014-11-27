@@ -124,4 +124,10 @@ static void RestoreGlobal(void) {
 
 
 #endif /* LOW_PROF */
+
+#if THREADS
+
+
+  REINIT_LOCK(GLOBAL_MUT_ACCESS);
+#endif
 }

@@ -877,7 +877,11 @@ p_valid_thread( USES_REGS1 )
 typedef struct swi_mutex {
   UInt owners;
   Int tid_own;
+  MutexEntry *alias;
   pthread_mutex_t m;
+  UInt timestamp;
+  struct swi_mutex *backbone; // chain of all mutexes
+  struct swi_mutex *prev, *next; // chain of locked mutexes
 } SWIMutex;
 
 static SWIMutex *NewMutex(void) {
@@ -887,21 +891,42 @@ static SWIMutex *NewMutex(void) {
   extern int pthread_mutexattr_setkind_np(pthread_mutexattr_t *attr, int kind);
 #endif
 
-  mutp = (SWIMutex *)Yap_AllocCodeSpace(sizeof(SWIMutex));
-  if (mutp == NULL) {
-    return FALSE;
+  LOCK(GLOBAL_MUT_ACCESS);
+  mutp = GLOBAL_FreeMutexes;
+  while (mutp) {
+    if ((Int)(mutp->owners) < 0) {
+      // just making sure
+      break;
+    }
+    mutp = mutp->next;
   }
-  pthread_mutexattr_init(&mat);
+  if (mutp == NULL) {
+    mutp = (SWIMutex *)Yap_AllocCodeSpace(sizeof(SWIMutex));
+    if (mutp == NULL) {
+      UNLOCK(GLOBAL_MUT_ACCESS);
+      return NULL;
+    } else {
+      pthread_mutexattr_init(&mat);
+      mutp->timestamp = 0;
 #if defined(HAVE_PTHREAD_MUTEXATTR_SETKIND_NP)  && !defined(__MINGW32__)
-  pthread_mutexattr_setkind_np(&mat, PTHREAD_MUTEX_RECURSIVE_NP);
+      pthread_mutexattr_setkind_np(&mat, PTHREAD_MUTEX_RECURSIVE_NP);
 #else
 #ifdef HAVE_PTHREAD_MUTEXATTR_SETTYPE
-  pthread_mutexattr_settype(&mat, PTHREAD_MUTEX_RECURSIVE);
+      pthread_mutexattr_settype(&mat, PTHREAD_MUTEX_RECURSIVE);
 #endif
 #endif
-  pthread_mutex_init(&mutp->m, &mat);
+      pthread_mutex_init(&mutp->m, &mat);
+    }
+    mutp->backbone  = GLOBAL_mutex_backbone;
+    GLOBAL_mutex_backbone = mutp;
+  } else {
+    // reuse existing mutex
+    mutp->timestamp++;
+  }
   mutp->owners = 0;
-  mutp->tid_own = 0;
+  mutp->tid_own = 0;  
+  mutp->alias = NIL;  
+  UNLOCK(GLOBAL_MUT_ACCESS);
   return mutp;
 }
 
@@ -912,10 +937,15 @@ static SWIMutex *MutexOfTerm__(Term t USES_REGS){
   SWIMutex *mut = NULL;
   
   if (IsVarTerm(t1)) {
-    mut = NewMutex();
-    Yap_unify(MkAddressTerm(mut), ARG1);
-  } else if (IsIntegerTerm(t1)) {
-    mut = AddressOfTerm(t1);
+    Yap_Error(INSTANTIATION_ERROR, t1, "mutex operation");
+    return NULL;
+  } else if (IsApplTerm(t1) && FunctorOfTerm(t1) == FunctorMutex) {
+    mut = AddressOfTerm(ArgOfTerm(1,t1));
+    if ((Int)(mut->owners) < 0 ||
+	IntegerOfTerm(ArgOfTerm(2,t1)) != mut->timestamp) {
+      Yap_Error(EXISTENCE_ERROR_MUTEX,  t1, "mutex access");
+      return NULL;
+    }
   } else if (IsAtomTerm(t1)) {
     mut = Yap_GetMutexFromProp(AtomOfTerm(t1));
     if (!mut) {
@@ -933,35 +963,53 @@ p_new_mutex( USES_REGS1 ){
   SWIMutex* mutp;
   Term t1;
   if (IsVarTerm((t1 = Deref(ARG1)))) {
+    Term ts[2];
+    
     if (!(mutp = NewMutex()))
       return FALSE;
-    return Yap_unify(ARG1, MkAddressTerm(mutp));
+    ts[0] = MkAddressTerm(mutp);    
+    ts[1] = MkIntegerTerm(mutp->timestamp);    
+    if (Yap_unify(ARG1, Yap_MkApplTerm(FunctorMutex, 2, ts) ) ) {
+      return TRUE;
+    }
+    Yap_Error(UNINSTANTIATION_ERROR, t1, "mutex_create on an existing mutex");
+    return FALSE;
   } else if(IsAtomTerm(t1)) {
     if (!(mutp = NewMutex()))
       return FALSE;
     return Yap_PutAtomMutex( AtomOfTerm(t1), mutp );
-  } else if (IsAddressTerm(t1)) {
-
-
-
-
-
-
-
-
+  } else if (IsApplTerm(t1)  && FunctorOfTerm(t1) == FunctorMutex) {
+    Yap_Error(UNINSTANTIATION_ERROR, t1, "mutex_create on an existing mutex");
     return FALSE;
   }
   return FALSE;
 }
   
-  static Int p_destroy_mutex( USES_REGS1 )
+/** @pred mutex_destroy(+ _MutexId_)
+    
+    Destroy a mutex.  After this call,  _MutexId_ becomes invalid and
+    further references yield an `existence_error` exception. 
+*/
+static Int p_destroy_mutex( USES_REGS1 )
 {
   SWIMutex *mut = MutexOfTerm(Deref(ARG1));
   if (!mut)
     return FALSE;  
   if (pthread_mutex_destroy(&mut->m) < 0)
-    return FALSE;
-  Yap_FreeCodeSpace((void *)mut);
+     return FALSE;
+  if (mut->alias) {
+    mut->alias->Mutex  = NULL;
+  }
+  mut->owners = -1;
+  mut->tid_own = -1;
+  LOCK(GLOBAL_MUT_ACCESS);
+  if (GLOBAL_FreeMutexes)
+    mut->prev = GLOBAL_FreeMutexes->prev;
+  else
+    mut->prev = NULL;
+  mut->next = GLOBAL_FreeMutexes;
+  GLOBAL_FreeMutexes = mut;
+  UNLOCK(GLOBAL_MUT_ACCESS);
   return TRUE;
 }
 
@@ -976,11 +1024,17 @@ LockMutex( SWIMutex *mut USES_REGS)
 #endif
   mut->owners++;
   mut->tid_own = worker_id;
+  if (LOCAL_Mutexes)
+    mut->prev = LOCAL_Mutexes->prev;
+  else
+    mut->prev = NULL;
+  mut->next = LOCAL_Mutexes;
+  LOCAL_Mutexes = NULL;
   return true;
 }
 
 static bool
-UnLockMutex( SWIMutex *mut )
+UnLockMutex( SWIMutex *mut USES_REGS)
 {
 #if DEBUG_LOCKS
   MUTEX_UNLOCK(&mut->m);
@@ -989,9 +1043,39 @@ UnLockMutex( SWIMutex *mut )
     return FALSE;
 #endif
   mut->owners--;
+  if (mut->prev) {
+    mut->prev->next = mut->next;
+  } else {
+    LOCAL_Mutexes = mut->next;
+    if (mut->next)
+      mut->next->prev = NULL;
+  }
+  if (mut->next)
+    mut->next->prev = mut->prev;
   return true;
 }
 
+/** @pred mutex_lock(+ _MutexId_) 
+
+
+    Lock the mutex.  Prolog mutexes are <em>recursive</em> mutexes: they
+    can be locked multiple times by the same thread.  Only after unlocking
+    it as many times as it is locked, the mutex becomes available for
+    locking by other threads. If another thread has locked the mutex the
+    calling thread is suspended until to mutex is unlocked.
+
+    If  _MutexId_ is an atom, and there is no current mutex with that
+    name, the mutex is created automatically using mutex_create/1.  This
+    implies named mutexes need not be declared explicitly.
+
+    Please note that locking and unlocking mutexes should be paired
+    carefully. Especially make sure to unlock mutexes even if the protected
+    code fails or raises an exception. For most common cases use
+    with_mutex/2, which provides a safer way for handling Prolog-level
+    mutexes.
+
+ 
+*/
 static Int
 p_lock_mutex( USES_REGS1 )
 {
@@ -1001,6 +1085,14 @@ p_lock_mutex( USES_REGS1 )
   return TRUE;
 }
 
+/** @pred mutex_trylock(+ _MutexId_) 
+
+
+    As mutex_lock/1, but if the mutex is held by another thread, this
+    predicates fails immediately.
+
+ 
+*/
 static Int
 p_trylock_mutex( USES_REGS1 )
 {
@@ -1015,14 +1107,39 @@ p_trylock_mutex( USES_REGS1 )
   return TRUE;
 }
 
+/** @pred mutex_unlock(+ _MutexId_) 
+
+
+    Unlock the mutex. This can only be called if the mutex is held by the
+    calling thread. If this is not the case, a `permission_error`
+    exception is raised.
+
+ 
+*/
 static Int
 p_unlock_mutex( USES_REGS1 )
 {
   SWIMutex *mut = MutexOfTerm(Deref(ARG1));
-  if (!mut || !UnLockMutex( mut ))
+  if (!mut || !UnLockMutex( mut PASS_REGS))
     return FALSE;
   return TRUE;
 }
+
+/** @pred with_mutex(+ _MutexId_, : _Goal_) 
+
+
+    Execute  _Goal_ while holding  _MutexId_.  If  _Goal_ leaves
+    choicepoints, these are destroyed (as in once/1).  The mutex is unlocked
+    regardless of whether  _Goal_ succeeds, fails or raises an exception.
+    An exception thrown by  _Goal_ is re-thrown after the mutex has been
+    successfully unlocked.  See also `mutex_create/2`.
+
+    Although described in the thread-section, this predicate is also
+    available in the single-threaded version, where it behaves simply as
+    once/1.
+
+ 
+*/
 
 static Int
 p_with_mutex( USES_REGS1 )
@@ -1084,7 +1201,7 @@ p_with_mutex( USES_REGS1 )
   }
  end:
   excep = Yap_GetException();
-  if ( !UnLockMutex(mut) ) {
+  if ( !UnLockMutex(mut PASS_REGS) ) {
     return FALSE;
   }
   if (creeping) {
@@ -1559,11 +1676,11 @@ void Yap_InitThreadPreds(void)
   */
   Yap_InitCPred("$valid_thread", 1, p_valid_thread, 0);
   Yap_InitCPred("mutex_create", 1, p_new_mutex, SafePredFlag);
-  Yap_InitCPred("$destroy_mutex", 1, p_destroy_mutex, SafePredFlag);
-  Yap_InitCPred("$lock_mutex", 1, p_lock_mutex, SafePredFlag);
-  Yap_InitCPred("$trylock_mutex", 1, p_trylock_mutex, SafePredFlag);
-  Yap_InitCPred("$unlock_mutex", 1, p_unlock_mutex, SafePredFlag);
-  Yap_InitCPred("$with_mutex", 2, p_with_mutex, MetaPredFlag);
+  Yap_InitCPred("mutex_destroy", 1, p_destroy_mutex, SafePredFlag);
+  Yap_InitCPred("mutex_lock", 1, p_lock_mutex, SafePredFlag);
+  Yap_InitCPred("mutex_trylock", 1, p_trylock_mutex, SafePredFlag);
+  Yap_InitCPred("mutex_unlock", 1, p_unlock_mutex, SafePredFlag);
+  Yap_InitCPred("with_mutex", 2, p_with_mutex, MetaPredFlag);
   Yap_InitCPred("$with_with_mutex", 1, p_with_with_mutex, 0);
   Yap_InitCPred("$unlock_with_mutex", 1, p_unlock_with_mutex, 0);
   Yap_InitCPred("$mutex_info", 3, p_mutex_info, SafePredFlag);

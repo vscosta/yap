@@ -376,6 +376,8 @@
 #define AtomMutable Yap_heap_regs->AtomMutable_
   Atom AtomMutableVariable_;
 #define AtomMutableVariable Yap_heap_regs->AtomMutableVariable_
+  Atom AtomMutex_;
+#define AtomMutex Yap_heap_regs->AtomMutex_
   Atom AtomMyddasDB_;
 #define AtomMyddasDB Yap_heap_regs->AtomMyddasDB_
   Atom AtomMyddasGoal_;
@@ -868,6 +870,8 @@
 #define FunctorMultiFileClause Yap_heap_regs->FunctorMultiFileClause_
   Functor FunctorMutable_;
 #define FunctorMutable Yap_heap_regs->FunctorMutable_
+  Functor FunctorMutex_;
+#define FunctorMutex Yap_heap_regs->FunctorMutex_
   Functor FunctorNotImplemented_;
 #define FunctorNotImplemented Yap_heap_regs->FunctorNotImplemented_
   Functor FunctorNBQueue_;

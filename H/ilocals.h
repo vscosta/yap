@@ -52,6 +52,7 @@ static void InitWorker(int wid) {
   REMOTE_DepthArenas(wid) = 0;
   REMOTE_ArithError(wid) = FALSE;
   REMOTE_LastAssertedPred(wid) = NULL;
+  REMOTE_TmpPred(wid) = NULL;
   REMOTE_ScannerStack(wid) = NULL;
   REMOTE_ScannerExtraBlocks(wid) = NULL;
   REMOTE_BallTerm(wid) = NULL;
@@ -239,6 +240,8 @@ static void InitWorker(int wid) {
 
 
   REMOTE_CurSlot(wid) = 0;
+
+  REMOTE_Mutexes(wid) = NULL;
   REMOTE_SourceModule(wid) = 0;
   REMOTE_MAX_SIZE(wid) = 1024L;
 }

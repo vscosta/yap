@@ -1075,6 +1075,20 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       serious = TRUE;
     }
     break;
+  case EXISTENCE_ERROR_MUTEX:
+    {
+      int i;
+      Term ti[2];
+
+      i = strlen(tmpbuf);
+      ti[0] = MkAtomTerm(AtomMutex);
+      ti[1] = where;
+      nt[0] = Yap_MkApplTerm(FunctorExistenceError, 2, ti);
+      psize -= i;
+      fun = FunctorError;
+      serious = TRUE;
+    }
+    break;
   case EXISTENCE_ERROR_VARIABLE:
     {
       int i;
