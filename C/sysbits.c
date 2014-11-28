@@ -239,11 +239,9 @@ char *libdir = NULL;
 #endif
 
 static Int
-initSysPath(Term tlib, Term tcommons) {
+initSysPath(Term tlib, Term tcommons, bool dir_done, bool commons_done) {
   CACHE_REGS
     int len;
-  int dir_done = FALSE;
-  int commons_done = FALSE;
 
 #if __WINDOWS__
   {
@@ -254,12 +252,14 @@ initSysPath(Term tlib, Term tcommons) {
                        MkAtomTerm(Yap_LookupAtom(dir))) )
         return FALSE;
     }
+    dir_done = true;
     if ((dir = Yap_RegistryGetString("prolog_commons")) &&
         is_directory(dir)) {
       if (! Yap_unify( tcommons,
                        MkAtomTerm(Yap_LookupAtom(dir))) )
         return FALSE;
     }
+    commons_done = true;  
   }
   if (dir_done && commons_done)
     return TRUE;
@@ -275,6 +275,8 @@ initSysPath(Term tlib, Term tcommons) {
                          MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))) )
           return FALSE;
       }
+      dir_done = true;
+
   }
   if (!commons_done) {
     LOCAL_FileNameBuf[len] = '\0';
@@ -284,6 +286,7 @@ initSysPath(Term tlib, Term tcommons) {
                        MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))) )
         return FALSE;
     }
+    commons_done = true;
   }
   if (dir_done && commons_done)
     return TRUE;
@@ -334,6 +337,7 @@ initSysPath(Term tlib, Term tcommons) {
                      MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))) )
       return FALSE;
   }
+  dir_done = true;
   LOCAL_FileNameBuf[len] = '\0';
   strncat(LOCAL_FileNameBuf, "PrologCommons", YAP_FILENAME_MAX);
   if (!commons_done && is_directory(LOCAL_FileNameBuf)) {
@@ -341,6 +345,7 @@ initSysPath(Term tlib, Term tcommons) {
                      MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))) )
       return FALSE;
   }
+  commons_done = true;
 #endif
   return dir_done && commons_done;
 }
@@ -349,20 +354,20 @@ initSysPath(Term tlib, Term tcommons) {
 static Int
 p_libraries_path( USES_REGS1 )
 {
-  return initSysPath( ARG1, ARG2 );
+  return initSysPath( ARG1, ARG2 , false, false );
 }
 
 
 static Int
 p_library_dir( USES_REGS1 )
 {
-  return initSysPath( ARG1, MkVarTerm() );
+  return initSysPath( ARG1, MkVarTerm(), false, true );
 }
 
 static Int
 p_commons_dir( USES_REGS1 )
 {
-  return initSysPath( ARG2, MkVarTerm() );
+  return initSysPath( MkVarTerm(), ARG1, true, false );
 }
 
 static Int
@@ -3076,9 +3081,9 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$yap_home", 1, p_yap_home, SafePredFlag);
   Yap_InitCPred ("$yap_paths", 3, p_yap_paths, SafePredFlag);
   Yap_InitCPred ("$dir_separator", 1, p_dir_sp, SafePredFlag);
-  Yap_InitCPred ("libraries_directory", 2, p_libraries_path, SafePredFlag);    
-  Yap_InitCPred ("system_library", 1, p_library_dir, SafePredFlag);    
-  Yap_InitCPred ("commons_library", 1, p_commons_dir, SafePredFlag);
+  Yap_InitCPred ("libraries_directory", 2, p_libraries_path, 0);    
+  Yap_InitCPred ("system_library", 1, p_library_dir, 0);    
+  Yap_InitCPred ("commons_library", 1, p_commons_dir, 0);
   Yap_InitCPred ("$alarm", 4, p_alarm, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$getenv", 2, p_getenv, SafePredFlag);
   Yap_InitCPred ("$putenv", 2, p_putenv, SafePredFlag|SyncPredFlag);
