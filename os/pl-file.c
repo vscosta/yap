@@ -47,6 +47,7 @@ handling times must be cleaned, but that not only holds for this module.
 #include "pl-utf8.h"
 #include <errno.h>
 
+#include <stdlib.h>
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
@@ -65,6 +66,9 @@ handling times must be cleaned, but that not only holds for this module.
 #endif
 #ifdef HAVE_BSTRING_H
 #include <bstring.h>
+#endif
+#if HAVE_ALLOCA_H
+#include <alloca.h>
 #endif
 
 #define LOCK()   PL_LOCK(L_FILE)	/* MT locking */

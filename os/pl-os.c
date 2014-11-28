@@ -43,6 +43,7 @@ is supposed to give the POSIX standard one.
 #include "pl-incl.h"
 #include "pl-ctype.h"
 #include "pl-utf8.h"
+#include <stdlib.h>
 #include <math.h>
 #include <stdio.h>		/* rename() and remove() prototypes */
 
@@ -59,6 +60,9 @@ is supposed to give the POSIX standard one.
 
 #if HAVE_SYS_STAT_H
 #include <sys/stat.h>
+#endif
+#if HAVE_ALLOCA_H
+#include <alloca.h>
 #endif
 #ifdef O_XOS
 #define statstruct struct _stati64

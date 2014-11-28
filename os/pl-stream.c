@@ -38,6 +38,7 @@
 #else
 #include <config.h>
 #endif
+#include <stdio.h>
 
 #if __ANDROID__
 #include <android/asset_manager.h>
