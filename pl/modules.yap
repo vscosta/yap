@@ -37,7 +37,7 @@ The main predicates in the module system are:
 YAP pre-defines a number of modules. Most system predicates belong to
 the module `prolog`. Predicates from the module `prolog` are
 automatically visible to every module.  The `system` module was
-introduced for SWI-Prolog compatibility, and in YAP mostly acts as an
+  introduced for SWI-Prolog compatibility, and in YAP mostly acts as an
 alias to `prolog`.
 
 YAP is always associated to a module, the current <em>source

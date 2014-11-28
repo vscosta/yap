@@ -1075,9 +1075,7 @@ predicate_property(Pred,Prop) :-
 	).
 
 '$generate_all_preds_from_mod'(Pred, M, M) :-
-	'$current_predicate'(Na,M,S,_),
-	functor(S,Na,Ar),
-	'$ifunctor'(Pred,Na,Ar).
+	'$current_predicate'(_Na,M,Pred,_).
 '$generate_all_preds_from_mod'(Pred, SourceMod, Mod) :-
 	recorded('$import','$import'(SourceMod, Mod, Orig, Pred,_,_),_),
 	'$pred_exists'(Orig, SourceMod).
@@ -1114,15 +1112,13 @@ predicate_property(Pred,Prop) :-
 	'$owner_file'(P,Mod,F).
 
 
-/** @pred  predicate_statistics( _P_, _NCls_, _Sz_, _IndexSz_)  
-
+/**
+  @pred  predicate_statistics( _P_, _NCls_, _Sz_, _IndexSz_)
 
 Given predicate  _P_,  _NCls_ is the number of clauses for
  _P_,  _Sz_ is the amount of space taken to store those clauses
 (in bytes), and  _IndexSz_ is the amount of space required to store
 indices to those clauses (in bytes).
-
- 
 */
 predicate_statistics(V,NCls,Sz,ISz) :- var(V), !,
 	'$do_error'(instantiation_error,predicate_statistics(V,NCls,Sz,ISz)).
@@ -1202,11 +1198,12 @@ system_predicate(P) :-
 	system_predicate(_, P).
 
 
-/** @pred  current_predicate( _F_) is iso 
+/**
+  @pred  current_predicate( _F_) is iso
 
-
- _F_ is the predicate indicator for a currently defined user or
-library predicate.  _F_ is of the form  _Na/Ar_, where the atom
+  True if _F_ is the predicate indicator for a currently defined user or
+  library predicate.The indicator  _F_ is of the form _Mod_:_Na_/_Ar_ or _Na/Ar_,
+  where the atom _Mod_ is the module of the predicate,
  _Na_ is the name of the predicate, and  _Ar_ its arity.
 */
 current_predicate(F0) :-
