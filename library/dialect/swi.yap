@@ -326,7 +326,7 @@ require(F) :-
 	required_predicates(F, Mod).
 
 required_predicates([], _).
-required_predicates(F.Fs, M) :-
+required_predicates([F|Fs], M) :-
 	required_predicate(F, M),
 	required_predicates(Fs, M).
 

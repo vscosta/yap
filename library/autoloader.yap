@@ -10,7 +10,7 @@ make_library_index :-
 	scan_swi_exports.
 
 scan_library_exports :-
-	% init table file.
+				% init table file.
 	open('INDEX.pl', write, W),
 	close(W),
 	scan_exports('../GPL/aggregate', library(aggregate)),
@@ -109,8 +109,14 @@ publish_export(F, A, W, Path, Module) :-
 	portray_clause(W, index(F, A, Module, Path)).
 
 find_predicate(G,ExportingModI) :-
+	nonvar(G), !,
 	functor(G, Name, Arity),
 	index(Name,Arity,ExportingModI,File),
+	ensure_file_loaded(File).
+find_predicate(G,ExportingModI) :-
+        var(G),
+	index(Name,Arity,ExportingModI,File),   
+	functor(G, Name, Arity),
 	ensure_file_loaded(File).
 
 ensure_file_loaded(File) :-
