@@ -84,7 +84,6 @@ CLPBN_EXAMPLES= \
 	$(CLPBN_EXDIR)/burglary-alarm.fg \
 	$(CLPBN_EXDIR)/burglary-alarm.pfl \
 	$(CLPBN_EXDIR)/burglary-alarm.uai \
-	$(CLPBN_EXDIR)/cg.yap \
 	$(CLPBN_EXDIR)/city.pfl \
 	$(CLPBN_EXDIR)/comp_workshops.pfl \
 	$(CLPBN_EXDIR)/social_network1.pfl \
