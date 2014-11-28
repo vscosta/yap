@@ -77,55 +77,55 @@ AC_LANG(C)
 
 AC_CANONICAL_SYSTEM
 
-dnl includes _POSIX_C_SOURCE=200809
-AC_MSG_CHECKING(_XOPEN_SOURCE)
-AC_CACHE_VAL(ac_cv_xopen,
-      [AC_TRY_COMPILE([
-      #define _XOPEN_SOURCE 700
-      #include <unistd.h>
-],
-[],
-                   [ac_cv_xopen=true],
-                   [ac_cv_xopen=false])])
-if test "$ac_cv_xopen" = true; then
-   AC_DEFINE(_XOPEN_SOURCE, 700, [Define if _XOPEN_SOURCE is needed])
-     AC_MSG_RESULT(yes)	       
-else
-    AC_MSG_RESULT(no)
-fi
+dnl dnl includes _POSIX_C_SOURCE=200809
+dnl AC_MSG_CHECKING(_XOPEN_SOURCE)
+dnl AC_CACHE_VAL(ac_cv_xopen,
+dnl       [AC_TRY_COMPILE([
+dnl       #define _XOPEN_SOURCE 700
+dnl       #include <unistd.h>
+dnl ],
+dnl [],
+dnl                    [ac_cv_xopen=true],
+dnl                    [ac_cv_xopen=false])])
+dnl if test "$ac_cv_xopen" = true; then
+dnl    AC_DEFINE(_XOPEN_SOURCE, 700, [Define if _XOPEN_SOURCE is needed])
+dnl      AC_MSG_RESULT(yes)	       
+dnl else
+dnl     AC_MSG_RESULT(no)
+dnl fi
 
 
-AC_MSG_CHECKING(_FILE_OFFSET_BITS)
-AC_CACHE_VAL(ac_cv_file_offset_bits,
-      [AC_TRY_COMPILE([
-      #define _FILE_OFFSET_BITS
-      #include <unistd.h>
-],
-[],
-                   [ac_cv_file_offset_bits=true],
-                   [ac_cv_file_offset_bits=false])])
-if test "$ac_cv_file_offset_bits" = true; then
-   AC_DEFINE(_FILE_OFFSET_BITS, 64, [Define if _FILE_OFFSET_BITS is needed])
-     AC_MSG_RESULT(yes)	       
-else
-    AC_MSG_RESULT(no)
-fi
+dnl AC_MSG_CHECKING(_FILE_OFFSET_BITS)
+dnl AC_CACHE_VAL(ac_cv_file_offset_bits,
+dnl       [AC_TRY_COMPILE([
+dnl       #define _FILE_OFFSET_BITS
+dnl       #include <unistd.h>
+dnl ],
+dnl [],
+dnl                    [ac_cv_file_offset_bits=true],
+dnl                    [ac_cv_file_offset_bits=false])])
+dnl if test "$ac_cv_file_offset_bits" = true; then
+dnl    AC_DEFINE(_FILE_OFFSET_BITS, 64, [Define if _FILE_OFFSET_BITS is needed])
+dnl      AC_MSG_RESULT(yes)	       
+dnl else
+dnl     AC_MSG_RESULT(no)
+dnl fi
 
-AC_MSG_CHECKING(_ISOC99_SOURCE)
-AC_CACHE_VAL(ac_cv_isoc99_source,
-      [AC_TRY_COMPILE([
-      #define _ISOC99_SOURCE
-      #include <unistd.h>
-],
-[],
-                   [ac_cv_isoc99_source=true],
-                   [ac_cv_isoc99_source=false])])
-if test "$ac_cv_isoc99_source" = true; then
-   AC_DEFINE(_ISOC99_SOURCE, 1, [Define if _ISOC99_SOURCE is needed])
-     AC_MSG_RESULT(yes)	       
-else
-    AC_MSG_RESULT(no)
-fi
+dnl AC_MSG_CHECKING(_ISOC99_SOURCE)
+dnl AC_CACHE_VAL(ac_cv_isoc99_source,
+dnl       [AC_TRY_COMPILE([
+dnl       #define _ISOC99_SOURCE
+dnl       #include <unistd.h>
+dnl ],
+dnl [],
+dnl                    [ac_cv_isoc99_source=true],
+dnl                    [ac_cv_isoc99_source=false])])
+dnl if test "$ac_cv_isoc99_source" = true; then
+dnl    AC_DEFINE(_ISOC99_SOURCE, 1, [Define if _ISOC99_SOURCE is needed])
+dnl      AC_MSG_RESULT(yes)	       
+dnl else
+dnl     AC_MSG_RESULT(no)
+dnl fi
 
 dnl AC_MSG_CHECKING(_ISOC11_SOURCE)
 dnl AC_CACHE_VAL(ac_cv_isoc11_source,
@@ -1312,7 +1312,7 @@ AC_CHECK_HEADERS(float.h fpu_control.h ieeefp.h inttypes.h io.h limits.h)
 AC_CHECK_HEADERS(malloc.h math.h memory.h)
 AC_CHECK_HEADERS(netdb.h netinet/in.h netinet/tcp.h pwd.h regex.h shlobj.h)
 AC_CHECK_HEADERS(siginfo.h signal.h stdarg.h  stdbool.h)
-AC_CHECK_HEADERS(stdint.h string.h stropts.h)
+AC_CHECK_HEADERS(stdint.h string.h strings.h stropts.h)
 AC_CHECK_HEADERS(sys/conf.h sys/dir.h sys/file.h)
 AC_CHECK_HEADERS(sys/mman.h sys/ndir.h sys/param.h)
 AC_CHECK_HEADERS(sys/resource.h sys/select.h)

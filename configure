@@ -4294,121 +4294,9 @@ test -n "$target_alias" &&
   program_prefix=${target_alias}-
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking _XOPEN_SOURCE" >&5
-$as_echo_n "checking _XOPEN_SOURCE... " >&6; }
-
-if ${ac_cv_xopen+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-      #define _XOPEN_SOURCE 700
-      #include <unistd.h>
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  ac_cv_xopen=true
-else
-  ac_cv_xopen=false
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-
-if test "$ac_cv_xopen" = true; then
-
-$as_echo "#define _XOPEN_SOURCE 700" >>confdefs.h
-
-     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking _FILE_OFFSET_BITS" >&5
-$as_echo_n "checking _FILE_OFFSET_BITS... " >&6; }
-if ${ac_cv_file_offset_bits+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
 
-      #define _FILE_OFFSET_BITS
-      #include <unistd.h>
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  ac_cv_file_offset_bits=true
-else
-  ac_cv_file_offset_bits=false
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-
-if test "$ac_cv_file_offset_bits" = true; then
-
-$as_echo "#define _FILE_OFFSET_BITS 64" >>confdefs.h
-
-     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking _ISOC99_SOURCE" >&5
-$as_echo_n "checking _ISOC99_SOURCE... " >&6; }
-if ${ac_cv_isoc99_source+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-      #define _ISOC99_SOURCE
-      #include <unistd.h>
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  ac_cv_isoc99_source=true
-else
-  ac_cv_isoc99_source=false
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-
-if test "$ac_cv_isoc99_source" = true; then
-
-$as_echo "#define _ISOC99_SOURCE 1" >>confdefs.h
-
-     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
 
 
 if test "$yap_cv_minisat" = no -a "$INSTALL_DLLS" = "no"
@@ -5037,6 +4925,7 @@ else
   static_compilation="no"
   STATIC_MODE="# "
 fi
+
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for grep that handles long lines and -e" >&5
@@ -5730,7 +5619,7 @@ $as_echo "no" >&6; }
 fi
 
 
-for ac_header in winsock.h winsock2.h windows.h
+for ac_header in winsock.h winsock2.h windows.h Shlobj.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -8285,7 +8174,7 @@ fi
 
 done
 
-for ac_header in stdint.h string.h stropts.h
+for ac_header in stdint.h string.h strings.h stropts.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -14202,7 +14091,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14205 "configure" */
+/* #line 14094 "configure" */
 public class Test {
 }
 EOF
@@ -14378,7 +14267,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 14381: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 14270: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -14509,7 +14398,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14512 "configure" */
+/* #line 14401 "configure" */
 public class Test {
 }
 EOF
@@ -14544,7 +14433,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 14547 "configure" */
+/* [#]line 14436 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
