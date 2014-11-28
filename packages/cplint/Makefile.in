@@ -69,7 +69,6 @@ CPLINT_PROGRAMS= \
 	$(CPLINT_SRCDIR)/approx/montecarlo.pl \
 	$(CPLINT_SRCDIR)/approx/params.pl \
 	$(CPLINT_SRCDIR)/approx/parsing.pl \
-	$(CPLINT_SRCDIR)/approx/tptreefile.pl \
 	$(CPLINT_SRCDIR)/approx/utility.pl \
 	$(CPLINT_SRCDIR)/approx/tptree_lpad.pl
 
