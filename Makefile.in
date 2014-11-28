@@ -124,7 +124,6 @@ INTERFACE_HEADERS = \
 	include/clause_list.h \
 	include/dswiatoms.h \
 	include/udi.h \
-	include/yap_structs.h \
 	include/YapDefs.h \
 	include/YapError.h \
 	include/YapInterface.h \
