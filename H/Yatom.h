@@ -654,46 +654,44 @@ IsValProperty (int flags)
 
 don't forget to also add in qly.h
 */
-typedef enum
-{
-  DiscontiguousPredFlag = ((uint64_t)((uint64_t)0x1000000000)),	/* predicates whose clauses may be all-over the place.. */
-  SysExportPredFlag = ((uint64_t)0x800000000),		/* reuse export list to prolog module. */
-  NoTracePredFlag = ((uint64_t)0x400000000),		/* cannot trace this predicate */
-  NoSpyPredFlag = ((uint64_t)0x200000000),		/* cannot spy this predicate */
-  QuasiQuotationPredFlag = ((uint64_t)0x100000000),		/* SWI-like quasi quotations */
-  MegaClausePredFlag =   (uint64_t)0x80000000, /* predicate is implemented as a mega-clause */
-  ThreadLocalPredFlag = (uint64_t)0x40000000,	/* local to a thread */
-  MultiFileFlag = (uint64_t)0x20000000,	/* is multi-file */
-  UserCPredFlag = (uint64_t)0x10000000,	/* CPred defined by the user */
-  LogUpdatePredFlag = (uint64_t)0x08000000,	/* dynamic predicate with log. upd. sem. */
-  InUsePredFlag = (uint64_t)0x04000000,	/* count calls to pred */
-  CountPredFlag = (uint64_t)0x02000000,	/* count calls to pred */
-  HiddenPredFlag = (uint64_t)0x01000000,	/* invisible predicate */
-  CArgsPredFlag = (uint64_t)0x00800000,	/* SWI-like C-interface pred. */
-  SourcePredFlag = (uint64_t)0x00400000,	/* static predicate with source declaration */
-  MetaPredFlag = (uint64_t)0x00200000,	/* predicate subject to a meta declaration */
-  SyncPredFlag = (uint64_t)0x00100000,	/* has to synch before it can execute */
-  NumberDBPredFlag = (uint64_t)0x00080000,	/* entry for a number key */
-  AtomDBPredFlag = (uint64_t)0x00040000,	/* entry for an atom key */
-  GoalExPredFlag = (uint64_t)0x00020000,	/* predicate that is called by goal_expand */
-  TestPredFlag = (uint64_t)0x00010000,	/* is a test (optim. comit) */
-  AsmPredFlag = (uint64_t)0x00008000,	/* inline */
-  StandardPredFlag = (uint64_t)0x00004000,	/* system predicate */
-  DynamicPredFlag = (uint64_t)0x00002000,	/* dynamic predicate */
-  CPredFlag = (uint64_t)0x00001000,	/* written in C */
-  SafePredFlag = (uint64_t)0x00000800,	/* does not alter arguments */
-  CompiledPredFlag = (uint64_t)0x00000400,	/* is static */
-  IndexedPredFlag = (uint64_t)0x00000200,	/* has indexing code */
-  SpiedPredFlag = (uint64_t)0x00000100,	/* is a spy point */
-  BinaryPredFlag = (uint64_t)0x00000080,	/* test predicate */
-  TabledPredFlag = (uint64_t)0x00000040,	/* is tabled */
-  SequentialPredFlag = (uint64_t)0x00000020,	/* may not create parallel choice points! */
-  ProfiledPredFlag = (uint64_t)0x00000010,	/* pred is being profiled   */
-  BackCPredFlag = (uint64_t)0x00000008,    /*	Myddas Imported pred  */
-  ModuleTransparentPredFlag = (uint64_t)0x00000004,	/* ModuleTransparent pred  */
-  SWIEnvPredFlag = (uint64_t)0x00000002,	/* new SWI interface */
-  UDIPredFlag = (uint64_t)0x00000001	/* User Defined Indexing */
-} pred_flag;
+#define  DiscontiguousPredFlag ((uint64_t)0x1000000000)	/* predicates whose clauses may be all-over the place.. */
+#define SysExportPredFlag ((uint64_t)0x800000000)
+/* reuse export list to prolog module. */
+#define NoTracePredFlag ((uint64_t)0x400000000)		/* cannot trace this predicate */
+#define NoSpyPredFlag  ((uint64_t)0x200000000)		/* cannot spy this predicate */
+#define QuasiQuotationPredFlag  ((uint64_t)0x100000000)		/* SWI-like quasi quotations */
+#define MegaClausePredFlag    ((uint64_t)0x80000000) /* predicate is implemented as a mega-clause */
+#define ThreadLocalPredFlag  ((uint64_t)0x40000000)	/* local to a thread */
+#define MultiFileFlag  ((uint64_t)0x20000000)	/* is multi-file */
+#define UserCPredFlag  ((uint64_t)0x10000000)	/* CPred defined by the user */
+#define LogUpdatePredFlag  ((uint64_t)0x08000000)	/* dynamic predicate with log. upd. sem. */
+#define InUsePredFlag  ((uint64_t)0x04000000)	/* count calls to pred */
+#define CountPredFlag  ((uint64_t)0x02000000)	/* count calls to pred */
+#define HiddenPredFlag  ((uint64_t)0x01000000)	/* invisible predicate */
+#define CArgsPredFlag  ((uint64_t)0x00800000)	/* SWI-like C-interface pred. */
+#define SourcePredFlag  ((uint64_t)0x00400000)	/* static predicate with source declaration */
+#define MetaPredFlag  ((uint64_t)0x00200000)	/* predicate subject to a meta declaration */
+#define SyncPredFlag  ((uint64_t)0x00100000)	/* has to synch before it can execute */
+#define NumberDBPredFlag  ((uint64_t)0x00080000)	/* entry for a number key */
+#define AtomDBPredFlag  ((uint64_t)0x00040000)	/* entry for an atom key */
+#define GoalExPredFlag  ((uint64_t)0x00020000)	/* predicate that is called by goal_expand */
+#define TestPredFlag  ((uint64_t)0x00010000)	/* is a test (optim. comit) */
+#define AsmPredFlag  ((uint64_t)0x00008000)	/* inline */
+#define StandardPredFlag  ((uint64_t)0x00004000)	/* system predicate */
+#define DynamicPredFlag  ((uint64_t)0x00002000)	/* dynamic predicate */
+#define CPredFlag  ((uint64_t)0x00001000)	/* written in C */
+#define SafePredFlag  ((uint64_t)0x00000800)	/* does not alter arguments */
+#define CompiledPredFlag  ((uint64_t)0x00000400)	/* is static */
+#define IndexedPredFlag  ((uint64_t)0x00000200)	/* has indexing code */
+#define SpiedPredFlag  ((uint64_t)0x00000100)	/* is a spy point */
+#define BinaryPredFlag  ((uint64_t)0x00000080)	/* test predicate */
+#define TabledPredFlag  ((uint64_t)0x00000040)	/* is tabled */
+#define SequentialPredFlag  ((uint64_t)0x00000020)	/* may not create parallel choice points! */
+#define ProfiledPredFlag  ((uint64_t)0x00000010)	/* pred is being profiled   */
+#define BackCPredFlag  ((uint64_t)0x00000008)    /*	Myddas Imported pred  */
+#define ModuleTransparentPredFlag ((uint64_t)0x00000004)	/* ModuleTransparent pred  */
+#define SWIEnvPredFlag  ((uint64_t)0x00000002)	/* new SWI interface */
+#define UDIPredFlag ((uint64_t)0x00000001)	/* User Defined Indexing */
 
 /* profile data */
 typedef struct
