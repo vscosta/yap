@@ -80,8 +80,6 @@ EXS    = $(exdir)/README        \
 	   $(exdir)/dcoin.psm \
 	   $(exdir)/direction.psm \
 	   $(exdir)/hmm.psm \
-	   $(exdir)/jtree \
-	   $(exdir)/noisy_or \
 	   $(exdir)/pdcg.psm \
 	   $(exdir)/pdcg_c.psm \
 	   $(exdir)/phmm.dat \
