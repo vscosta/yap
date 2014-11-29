@@ -807,7 +807,7 @@ static Int cont_current_predicate(USES_REGS1) {
         break;
       }
     }
-    if (!pp) {
+    if (!pp && p) {
       // try using outer loop
       for (; p; p = p->NextOfPE) {
         if (p->KindOfPE == PEProp) {
@@ -823,13 +823,12 @@ static Int cont_current_predicate(USES_REGS1) {
             if (q->KindOfPE == PEProp) {
               pp = RepPredProp(q);
               q = q->NextOfPE;
-              if (!q)
-                p = p->NextOfPE;
-              if (!p)
+              if (!q && !p->NextOfPE)
                 is_det = true;
               break;
             }
           }
+          break;
         }
       }
     }
