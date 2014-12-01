@@ -32,8 +32,6 @@
 #if HAVE_STRING_H
 #include <string.h>
 #endif
-#define YAP_Term Term
-#define YAP_Atom Atom
 #include <udi.h>
 
 
