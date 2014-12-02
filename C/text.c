@@ -707,6 +707,10 @@ write_atoms( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
   Term t = AbsPair(HR);
   size_t sz = 0;
   size_t min = 0, max = leng;
+  if (leng == 0) {
+    out->val.t = t;
+    return TermNil;
+  }
   if (out->type & (YAP_STRING_NCHARS|YAP_STRING_TRUNC)) {
     if (out->type & YAP_STRING_NCHARS) min = out->sz;
     if (out->type & YAP_STRING_TRUNC && out->max < max) max = out->max;
@@ -719,13 +723,16 @@ write_atoms( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
       wchar_t w[2];
       w[1] = '\0';
       LOCAL_TERM_ERROR( 2*(lim-s) );
-      while (cp < lim) {
+      while (cp < lim && *cp) {
 	int chr;
+	CELL *cl;
 	cp = utf8_get_char(cp, &chr);
+	if (chr == '\0') break; 
 	w[0] = chr;
-	HR[0] = MkAtomTerm(Yap_LookupMaybeWideAtom(w));
-	HR[1] = AbsPair(HR+2);
-	HR += 2;
+	cl = HR;
+        HR += 2;
+	cl[0] = MkAtomTerm(Yap_LookupMaybeWideAtom(w));
+	cl[1] = AbsPair(HR);
 	sz++;
 	if (sz == max) break;
       }
@@ -741,6 +748,7 @@ write_atoms( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
       while (cp < lim) {
 	int chr;
 	cp = get_char(cp, &chr);
+	if (chr == '\0') break;
 	w[0] = chr;
 	HR[0] = MkAtomTerm(Yap_LookupAtom(w));
 	HR[1] = AbsPair(HR+2);
@@ -750,8 +758,8 @@ write_atoms( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
       }
       break;
     }
- case YAP_WCHAR:
-   { wchar_t *s = s0, *lim = s + wcsnlen(s, max);
+  case YAP_WCHAR:
+    { wchar_t *s = s0, *lim = s + wcsnlen(s, max);
       wchar_t *cp = s;
       wchar_t w[2];
       w[1] = '\0';
@@ -760,6 +768,7 @@ write_atoms( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
       while (*cp && cp < lim) {
 	int chr;
 	cp = get_wchar(cp, &chr);
+        if (chr == '\0') break;
 	w[0] = chr;
 	HR[0] = MkAtomTerm(Yap_LookupMaybeWideAtom(w));
 	HR[1] = AbsPair(HR+2);
@@ -768,12 +777,6 @@ write_atoms( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
 	if (sz == max) break;
       }
     }
-  }
-  while (sz < min) {
-    HR[0] = MkAtomTerm(AtomEmptyAtom);
-    HR[1] = AbsPair(HR+2);
-    HR += 2;
-    sz++;
   }
   if (out->type & YAP_STRING_DIFF) {
     if (sz == 0) t = out->dif;
@@ -1015,7 +1018,6 @@ write_term( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng US
 int
 write_Text( void *inp, seq_tv_t *out, encoding_t enc, int minimal, size_t leng USES_REGS)
 {
-
   /* we know what the term is */
   switch (out->type &  YAP_TYPE_MASK) {
   case YAP_STRING_STRING:
