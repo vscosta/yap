@@ -959,22 +959,34 @@ most files in the library are from the Edinburgh Prolog library.
 
  */
 prolog_load_context(directory, DirName) :- 
-	source_location(F, _),
-	file_directory_name(F, DirName).
+        ( source_location(F, _)
+        -> file_directory_name(F, DirName) ;
+          working_directory( DirName, DirName )
+        ).
 prolog_load_context(file, FileName) :- 
-	source_location(FileName, _).
+        ( source_location(FileName, _)
+        ->
+          true
+        ;
+          FileName = user_input
+        ).
 prolog_load_context(module, X) :-
-	'$nb_getval'('$consulting_file', _, fail),
-	'$current_module'(X).
+        '$nb_getval'('$consulting_file', _, fail),
+        '$current_module'(X).
 prolog_load_context(source, F0) :-
-	source_location(F0, _) /*,
-	'$input_context'(Context),
-	'$top_file'(Context, F0, F) */.
+        ( source_location(F0, _) /*,
+                                   '$input_context'(Context),
+                                   '$top_file'(Context, F0, F) */
+          ->
+          true
+        ;
+          F0 = user_input
+        ).
 prolog_load_context(stream, Stream) :- 
-	'$nb_getval'('$consulting_file', _, fail),
-	'$current_loop_stream'(Stream).
+        '$nb_getval'('$consulting_file', _, fail),
+        '$current_loop_stream'(Stream).
 prolog_load_context(term_position, Position) :- 
-	'$current_loop_stream'(Stream),
+        '$current_loop_stream'(Stream),
         stream_property(Stream, position(Position) ).
 
 
