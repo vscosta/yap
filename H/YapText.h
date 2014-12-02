@@ -117,14 +117,14 @@ static inline seq_type_t
 mod_to_type( Term mod USES_REGS )
 {
   unsigned int flags = Yap_GetModuleEntry(mod)->flags;
-  if (!(flags & DBLQ_MASK)) {
-    return YAP_STRING_CODES;
+  if (flags & DBLQ_ATOM) {
+    return YAP_STRING_ATOM;
   } else if (flags & DBLQ_STRING) {
     return YAP_STRING_STRING;
   } else if (flags &  DBLQ_CHARS) {
-    return YAP_STRING_CHARS;
+    return YAP_STRING_ATOMS;
   }
-  return YAP_STRING_ATOM;
+  return YAP_STRING_CODES;
 }
 
 // the routines
