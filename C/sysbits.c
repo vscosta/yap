@@ -158,7 +158,7 @@ is_directory(const char *FileName)
 {
 #ifdef __WINDOWS__
   char s[YAP_FILENAME_MAX+1];
-  const char *s0 = FileName;
+  char *s0 = (char *)FileName;
   char *s1 = s;
   int ch;
 
@@ -192,7 +192,7 @@ is_directory(const char *FileName)
      } else if (ch == '/')
        s1[-1] = '\\';
    }
-   if (ExpandEnvironmentStrings(s, FileName, YAP_FILENAME_MAX) == 0)
+  if (ExpandEnvironmentStrings(s, (LPSTR)FileName, YAP_FILENAME_MAX) == 0)
      return FALSE; 
 
    DWORD dwAtts = GetFileAttributes( FileName );
@@ -1774,7 +1774,7 @@ TrueFileName (char *source, char *root, char *result, int in_lib, int expand_roo
 {
   CACHE_REGS
   char *work;
-  char ares1[YAP_FILENAME_MAX];
+  char ares1[YAP_FILENAME_MAX+1];
 
   result[0] = '\0';
   if (strlen(source) >= YAP_FILENAME_MAX) {
@@ -2703,17 +2703,32 @@ p_yap_home( USES_REGS1 ) {
 static Int
 p_yap_paths( USES_REGS1 ) {
   Term out1, out2, out3;
-  if (strlen(DESTDIR)) {
-    out1 = MkAtomTerm(Yap_LookupAtom(DESTDIR "/" YAP_LIBDIR));
-    out2 = MkAtomTerm(Yap_LookupAtom(DESTDIR "/" YAP_SHAREDIR));
-    out3 = MkAtomTerm(Yap_LookupAtom(DESTDIR "/" YAP_BINDIR));
+  const char *env_destdir = getenv("DESTDIR");
+  char destdir[YAP_FILENAME_MAX+1];
+
+  if (env_destdir) {
+    strncat(destdir, env_destdir, YAP_FILENAME_MAX );        
+    strncat(destdir, "/" YAP_LIBDIR, YAP_FILENAME_MAX );    
+    out1 = MkAtomTerm(Yap_LookupAtom(destdir));
   } else {
     out1 = MkAtomTerm(Yap_LookupAtom(YAP_LIBDIR));
+  }
+  if (env_destdir) {
+    strncat(destdir, env_destdir, YAP_FILENAME_MAX );        
+    strncat(destdir, "/" YAP_SHAREDIR, YAP_FILENAME_MAX );
+    out2 = MkAtomTerm(Yap_LookupAtom(destdir));
+  } else {
 #if __ANDROID__
     out2 = MkAtomTerm(Yap_LookupAtom("/assets/share"));
 #else
     out2 = MkAtomTerm(Yap_LookupAtom(YAP_SHAREDIR));
 #endif
+  }
+  if (env_destdir) {
+    strncat(destdir, env_destdir, YAP_FILENAME_MAX );        
+    strncat(destdir, "/" YAP_BINDIR, YAP_FILENAME_MAX );
+    out3 = MkAtomTerm(Yap_LookupAtom(destdir));
+  } else {
     out3 = MkAtomTerm(Yap_LookupAtom(YAP_BINDIR));
   }
   return(Yap_unify(out1,ARG1) &&

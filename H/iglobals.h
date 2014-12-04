@@ -130,4 +130,5 @@ static void InitGlobal(void) {
   GLOBAL_mutex_backbone = NULL;
   INIT_LOCK(GLOBAL_MUT_ACCESS);
 #endif
+  GLOBAL_Home = NULL;
 }

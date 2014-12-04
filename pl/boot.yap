@@ -1308,6 +1308,12 @@ not(G) :-    \+ '$execute'(G).
 	% -p option must be processed after initializing the system
 	'$swi_set_prolog_flag'(verbose_load, OldSilent).
 
+bootstrap :-
+	'$argv'([F]),
+	bootstrap(F),
+	module(user),
+	qsave_program('startup.yss'). 
+
 bootstrap(F) :-
 %	'$open'(F, '$csult', Stream, 0, 0, F),
 %	'$file_name'(Stream,File),
@@ -1570,3 +1576,4 @@ log_event( String, Args ) :-
 /**
 @}
 */
+

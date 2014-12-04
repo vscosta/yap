@@ -51,11 +51,6 @@
 #define INT64_T_DEFINED 1
 typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
-#if (_MSC_VER < 1300)
-typedef long intptr_t;
-typedef unsigned long uintptr_t;
-typedef intptr_t ssize_t;		/* signed version of size_t */
-#endif
 #endif
 #else
 #include <unistd.h>

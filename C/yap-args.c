@@ -35,6 +35,12 @@
 #if HAVE_STRING_H
 #include <string.h>
 #endif
+#if HAVE_ERRNO_H
+#include <errno.h>
+#endif
+#if HAVE_DIRECT_H
+#include <direct.h>
+#endif
 
 void    YAP_SetOutputMessage(void);
 int     YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap);
@@ -459,8 +465,49 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	      break;
 	    }
 	    break;
-	  case 'p':
-	    if ((*argv)[0] == '\0') 
+	  case '-':
+            if (!strcmp("-nosignals", p)) {
+              iap->PrologShouldHandleInterrupts = FALSE;
+              break;
+            } else if (!strncmp("-home=",p,strlen("-home="))) {
+	      GLOBAL_Home = p+strlen("-home=");
+	    } else if (!strncmp("-cwd=",p,strlen("-cwd="))) {
+#if __WINDOWS__
+	      if (_chdir( p+strlen("-cwd=") ) < 0) {
+#else
+	        if (chdir( p+strlen("-cwd=") ) < 0) {
+#endif
+		fprintf(stderr," [ YAP unrecoverable error in setting cwd: %s ]\n", strerror(errno));
+	      }
+	    } else if (!strncmp("-stack=",p,strlen("-stack="))) {
+	      ssize = &(iap->StackSize);
+              p+=strlen("-stack=");
+              goto GetSize;
+	    } else if (!strncmp("-trail=",p,strlen("-trail="))) {
+	      ssize = &(iap->TrailSize);
+	      p+=strlen("-trail=");
+	      goto GetSize;
+	    } else if (!strncmp("-heap=",p,strlen("-heap="))) {
+              ssize = &(iap->HeapSize);
+              p+=strlen("-heap=");
+              goto GetSize;
+            } else if (!strncmp("-goal=",p,strlen("-goal="))) {
+	      iap->YapPrologGoal = p+strlen("-goal=");
+            } else if (!strncmp("-top-level=",p,strlen("-top-level="))) {
+              iap->YapPrologTopLevelGoal = p+strlen("-top-level=");
+            } else if (!strncmp("-table=",p,strlen("-table="))) {
+              ssize = &(iap->MaxTableSpaceSize);
+              p +=strlen( "-table=");
+              goto GetSize;
+            } else if (!strncmp("-",p,strlen("-="))) {
+              ssize = &(iap->MaxTableSpaceSize);
+	      p +=strlen( "-table=");
+              /* skip remaining arguments */
+              argc = 1;
+            }
+            break;
+          case 'p':
+            if ((*argv)[0] == '\0') 
 	      iap->YapPrologAddPath = *argv;
 	    else {
 	      argc--;
@@ -494,10 +541,6 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	      break;
 	    }
 	    /* End preprocessor code */
-	  case '-':
-	    /* skip remaining arguments */
-	    argc = 1;
-	    break;
 	  default:
 	    {
 	      fprintf(stderr,"[ YAP unrecoverable error: unknown switch -%c ]\n", *p);

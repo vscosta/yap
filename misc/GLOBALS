@@ -153,5 +153,8 @@ struct swi_mutex*		mutex_backbone				=NULL
 lockvar				MUT_ACCESS				MkLock
 #endif
 
+char*				Home					=NULL
+
+
 END_GLOBAL_DATA
 

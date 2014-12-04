@@ -130,4 +130,5 @@
 #define GLOBAL_mutex_backbone Yap_global->mutex_backbone_
 #define GLOBAL_MUT_ACCESS Yap_global->MUT_ACCESS_
 #endif
+#define GLOBAL_Home Yap_global->Home_
 

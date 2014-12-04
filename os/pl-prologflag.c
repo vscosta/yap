@@ -1300,7 +1300,7 @@ setVersionPrologFlag(void)
   setPrologFlag("version_data", FF_READONLY|FT_TERM, t);
   PL_discard_foreign_frame(fid);
 
-  setGITVersion();
+  //setGITVersion();
 }
 
 

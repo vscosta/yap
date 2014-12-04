@@ -341,14 +341,10 @@
 #include "Foreign.h"
 #include "attvar.h"
 #include "SWI-Stream.h"
+#include <stdlib.h>
+#include <string.h>
 #if HAVE_STDARG_H
 #include <stdarg.h>
-#endif
-#if HAVE_STDINT_H
-#include <stdint.h>
-#endif
-#if HAVE_STRING_H
-#include <string.h>
 #endif
 #if _MSC_VER || defined(__MINGW32__) 
 #include <windows.h>

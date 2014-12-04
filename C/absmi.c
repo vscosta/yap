@@ -2982,7 +2982,9 @@ Yap_absmi(int inp)
       PELOCK(5, ((PredEntry *)(PREG->y_u.Otapl.p)));
       PREG = (yamop *)(&(((PredEntry *)(PREG->y_u.Otapl.p))->OpcodeOfPred));
       UNLOCKPE(11,(PredEntry *)(PREG->y_u.Otapl.p));
+      saveregs();
       spy_goal( PASS_REGS1 );
+      setregs();
       ENDBOp();
 
       /* try_and_mark   Label,NArgs       */

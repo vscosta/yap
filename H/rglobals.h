@@ -130,4 +130,5 @@ static void RestoreGlobal(void) {
 
   REINIT_LOCK(GLOBAL_MUT_ACCESS);
 #endif
+
 }
