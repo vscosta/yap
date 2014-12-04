@@ -934,6 +934,7 @@ static Int init_current_predicate(USES_REGS1) {
         else
           cut_fail();
       }
+      return FALSE;
     } else if (IsPairTerm(t3)) {
       f = FunctorDot;
       at = AtomDot;

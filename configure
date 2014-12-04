@@ -6260,9 +6260,7 @@ _ACEOF
 fi
 
     yap_cv_readline=no
-    if test "$prefix" = "NONE"
-    then
-      #mingw64
+    #mingw64??
       case "$build_os" in
       *linux*)
         if test "${WINEPREFIX}x" = x
@@ -6273,12 +6271,13 @@ fi
         fi
         if test "$target_cpu" = "x86_64"
         then
-         prefix="$SYSTEMDRIVE/Yap64"
+           PRE_INSTALL_ENV="wine64"
+          prefix="$SYSTEMDRIVE/Yap64"
         else
+           PRE_INSTALL_ENV="wine"
           prefix="$SYSTEMDRIVE/Yap"
         fi
 	i_am_cross_compiling=yes
-	PRE_INSTALL_ENV="wine "
  	;;
       **)
       if test "$target_cpu" = "x86_64"
@@ -6289,7 +6288,6 @@ fi
       fi
        ;;
       esac
-    fi
     WINDOWS=""
     PKG_WINCONSOLE="swi/console"
   else
@@ -14091,7 +14089,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14094 "configure" */
+/* #line 14092 "configure" */
 public class Test {
 }
 EOF
@@ -14267,7 +14265,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 14270: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 14268: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -14398,7 +14396,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14401 "configure" */
+/* #line 14399 "configure" */
 public class Test {
 }
 EOF
@@ -14433,7 +14431,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 14436 "configure" */
+/* [#]line 14434 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);

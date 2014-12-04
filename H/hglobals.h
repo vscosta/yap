@@ -130,4 +130,5 @@ typedef struct global_data {
   struct swi_mutex*  mutex_backbone_;
   lockvar  MUT_ACCESS_;
 #endif
+  char*  Home_;
 } w_shared;

@@ -858,8 +858,9 @@ char *
 Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int flags)
 {
   CACHE_REGS
-  Int l, CurSlot;
-
+    Int l, CurSlot;
+  Int myASP = LCL0-ASP;
+  
   CurSlot = Yap_StartSlots( PASS_REGS1 );
   l = Yap_InitSlot(t  PASS_REGS );
 
@@ -898,12 +899,17 @@ Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int 
 	    /* found, just check if using local space */
 	    if (r == buf) {
 	      char *bf = malloc(*length+1);
-	      if (!bf)
+	      if (!bf) {
+		LOCAL_CurSlot = CurSlot;
+                ASP = LCL0-myASP;
 		return NULL;
+	      }
 	      strncpy(bf,buf,*length+1);
 	      r = bf;
 	    }
-	    return r;
+            LOCAL_CurSlot = CurSlot;
+            ASP = LCL0-myASP;
+  	    return r;
 	  } else
 	  { Sclose(fd);
 	  }
@@ -914,6 +920,7 @@ Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int 
     }
   }
   LOCAL_CurSlot = CurSlot;
+  ASP = LCL0-myASP;
   return NULL;
 }
 

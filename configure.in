@@ -636,9 +636,7 @@ then
     EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll $EXTRA_LIBS_FOR_DLLS"
     AC_CHECK_LIB(psapi,main)
     yap_cv_readline=no
-    if test "$prefix" = "NONE"
-    then
-      #mingw64
+    #mingw64??
       case "$build_os" in
       *linux*)
         if test "${WINEPREFIX}x" = x
@@ -649,12 +647,13 @@ then
         fi
         if test "$target_cpu" = "x86_64"
         then
-         prefix="$SYSTEMDRIVE/Yap64"
+           PRE_INSTALL_ENV="wine64"				
+          prefix="$SYSTEMDRIVE/Yap64"
         else
+           PRE_INSTALL_ENV="wine"
           prefix="$SYSTEMDRIVE/Yap"
         fi
 	i_am_cross_compiling=yes
-	PRE_INSTALL_ENV="wine "
  	;;
       **)
       if test "$target_cpu" = "x86_64"
@@ -665,7 +664,6 @@ then
       fi
        ;;
       esac
-    fi
     WINDOWS=""
     PKG_WINCONSOLE="swi/console"
   else
