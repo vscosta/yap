@@ -801,9 +801,7 @@ db_files(Fs) :-
 	lists:member(G,LGs),
 	% run initialization under user control (so allow debugging this stuff).
 	(
-	  '$system_catch'(('$user_call'(G,M) -> true), M, Error, user:'$LoopError'(Error, top)),
-	  fail
-	;
+	 '$system_catch'('$user_call'(G,M), M, Error, user:'$LoopError'(Error, top)) ->
 	  fail
 	).
 '$exec_initialisation_goals' :-

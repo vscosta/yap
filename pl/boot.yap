@@ -2,7 +2,7 @@
 *									 *
 *	 YAP Prolog 							 *
 *									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-2014	 *
 *									 *
@@ -361,13 +361,22 @@ true :- true.
 	% boot from a saved state
 	(
 	  '$undefined'('$init_preds',prolog)
+	->
+	 get_value('$consult_on_boot',X),
+         (
+	  X \= []
 	 ->
+	  bootstrap(X),
+	  module( user ),
+	  qsave_program( "startup.yss")
+	 ;
 	  true
+	 )
 	 ;
 	 '$init_state'
         ),
 	'$db_clean_queues'(0),
-% this must be executed from C-code.
+				% this must be executed from C-code.
 %	'$startup_saved_state',
 	set_input(user_input),
 	set_output(user_output),
@@ -457,8 +466,11 @@ true :- true.
 			)
 		       ), !.
 
-'$handle_toplevel_error'(_, syntax_error(_)) :- !, fail.
-'$handle_toplevel_error'(end_of_file, error(io_error(read,user_input),_)) :- !.
+'$handle_toplevel_error'(_, syntax_error(_)) :-
+	!,
+	fail.
+'$handle_toplevel_error'(end_of_file, error(io_error(read,user_input),_)) :-
+	!.
 '$handle_toplevel_error'(_, E) :-
 	throw(E).
 
@@ -490,7 +502,17 @@ true :- true.
 	set_value('$top_level_goal',[]),
 	'$run_atom_goal'(GA),
 	'$swi_current_prolog_flag'(break_level, BreakLevel),
-	( Breaklevel \= 0 -> true ; '$pred_exists'(halt(_), user) -> halt(0) ; '$halt'(0) ).
+	(
+	 Breaklevel \= 0
+	->
+	 true
+	;
+	 '$pred_exists'(halt(_), user)
+	->
+	 halt(0)
+	;
+	 '$halt'(0)
+	).
 '$enter_top_level' :-
         flush_output,
 	'$run_toplevel_hooks',
@@ -502,7 +524,16 @@ true :- true.
 	nb_setval('$debug_jump',off),
 	'$command'(Command,Varnames,_Pos,top),
 	'$swi_current_prolog_flag'(break_level, BreakLevel),
-	( BreakLevel \= 0 -> true ; '$pred_exists'(halt(_), user) -> halt(0) ; '$halt'(0) ).
+	(
+	 BreakLevel \= 0
+	->
+	 true
+	;
+	 '$pred_exists'(halt(_), user)
+	-> halt(0)
+	;
+	 '$halt'(0)
+	).
 
 
  '$erase_sets' :-
@@ -513,8 +544,8 @@ true :- true.
  '$erase_sets' :- \+ recorded('$path',_,_), recorda('$path',"",_).
  '$erase_sets'.
 
- '$version' :-
-	 get_value('$version_name',VersionName),
+'$version' :-
+	get_value('$version_name',VersionName),
 	 print_message(help, version(VersionName)),
 	 get_value('$myddas_version_name',MYDDASVersionName),
 	 MYDDASVersionName \== [],
@@ -608,7 +639,7 @@ number of steps.
 
  '$execute_command'(C,_,_,top,Source) :- var(C), !,
 	 '$do_error'(instantiation_error,meta_call(Source)).
- '$execute_command'(C,_,_,top,Source) :- number(C), !,
+'$execute_command'(C,_,_,top,Source) :- number(C), !,
 	 '$do_error'(type_error(callable,C),meta_call(Source)).
  '$execute_command'(R,_,_,top,Source) :- db_reference(R), !,
 	 '$do_error'(type_error(callable,R),meta_call(Source)).
@@ -697,7 +728,7 @@ number of steps.
  % module prefixes all over the place, although unnecessarily so.
  %
  % G is the goal to compile
- % Vs the named variables
+				% Vs the named variables
  % Pos the source position
  % N where to add first or last
  % Source the original clause
@@ -827,7 +858,7 @@ number of steps.
 	(
 	  CP is '$last_choice_pt',
 	  '$current_choice_point'(NCP1),
-	  '$attributes':delayed_goals(G, V, NV, LGs),
+	 '$attributes':delayed_goals(G, V, NV, LGs),
 	  '$current_choice_point'(NCP2),
 	  '$clean_ifcp'(CP),
 	   NCP is NCP2-NCP1
@@ -1299,21 +1330,6 @@ not(G) :-    \+ '$execute'(G).
 '$check_callable'(_,_).
 
 
-'$silent_bootstrap'(F) :-
-	'$init_globals',
-	nb_setval('$if_level',0),
-	'$swi_current_prolog_flag'(verbose_load, OldSilent),
-	'$swi_set_prolog_flag'(verbose_load, silent),
-	bootstrap(F),
-	% -p option must be processed after initializing the system
-	'$swi_set_prolog_flag'(verbose_load, OldSilent).
-
-bootstrap :-
-	'$argv'([F]),
-	bootstrap(F),
-	module(user),
-	qsave_program('startup.yss'). 
-
 bootstrap(F) :-
 %	'$open'(F, '$csult', Stream, 0, 0, F),
 %	'$file_name'(Stream,File),
@@ -1328,7 +1344,7 @@ bootstrap(F) :-
 	  true
 	;
 	  H0 is heapused, '$cputime'(T0,_),
-	  format(user_error, '~*|% consulting ~w...~n', [LC,F])
+	 format(user_error, '~*|% consulting ~w...~n', [LC,F])
 	),
 	'$loop'(Stream,consult),
 	working_directory(_, OldD),

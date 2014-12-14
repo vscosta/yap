@@ -118,7 +118,7 @@ otherwise.
 :- bootstrap('os.yap').
 :- bootstrap('absf.yap').
 
-
+:-'$swi_set_prolog_flag'(verbose,  normal).
 
 :- [	 'directives.yap',
 	 'utils.yap',
