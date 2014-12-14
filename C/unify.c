@@ -602,14 +602,14 @@ unify_var_nvar_trail:
 static void
 InitReverseLookupOpcode(void)
 {
-  opentry *opeptr;
+  op_entry *opeptr;
   op_numbers i;
   /* 2 K should be OK */
   int hash_size_mask = OP_HASH_SIZE-1;
   UInt sz = OP_HASH_SIZE*sizeof(struct opcode_tab_entry);
 
   while (OP_RTABLE == NULL) {
-    if ((OP_RTABLE = (opentry *)Yap_AllocCodeSpace(sz)) == NULL) {
+    if ((OP_RTABLE = (op_entry *)Yap_AllocCodeSpace(sz)) == NULL) {
       if (!Yap_growheap(FALSE, sz, NULL)) {
 	Yap_Error(INTERNAL_ERROR, TermNil,
 		  "Couldn't obtain space for the reverse translation opcode table");
