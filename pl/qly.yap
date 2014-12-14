@@ -119,6 +119,16 @@ save_program(_File, Goal) :-
 save_program(File, _Goal) :-
         qsave_program(File).
 
+/** @pred qsave_program
+
+  Saves an image of the current state of the YAP database in default
+  filee, usually `startup.yss`.
+  **/
+qend_program :-
+	module(user),
+	qsave_program('startup.yss'),
+	halt(0).
+
 '$save_program_status'(Flags, G) :-
     findall(F:V,'$x_yap_flag'(F,V),L),
     recordz('$program_state',L,_),
