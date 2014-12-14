@@ -625,6 +625,7 @@ XAdjust__ (wamreg reg USES_REGS)
 #define YAdjust(X) (X)
 #define HoldEntryAdjust(P) (P)
 #define CodeCharPAdjust(P) (P)
+#define CodeConstCharPAdjust(P) (P)
 #define CodeVoidPAdjust(P) (P)
 #define HaltHookAdjust(P) (P)
 

@@ -1427,7 +1427,7 @@ commit_to_saved_state(char *s, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *A
 }
 
 static void
-cat_file_name(char *s, char *prefix, char *name, unsigned int max_length)
+cat_file_name(char *s, const char *prefix, char *name, unsigned int max_length)
 {
   strncpy(s, prefix, max_length);
 #if _MSC_VER || defined(__MINGW32__)
@@ -1517,7 +1517,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
     }
 #if HAVE_GETENV
     {
-      char *yap_env = getenv("YAPLIBDIR");
+      const char *yap_env = getenv("YAPLIBDIR");
       if (yap_env != NULL) {
 	cat_file_name(LOCAL_FileNameBuf, yap_env, inpf, YAP_FILENAME_MAX);
 	if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {

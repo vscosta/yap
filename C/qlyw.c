@@ -498,6 +498,7 @@ DBRefAdjust__ (DBRef dbt USES_REGS)
 #define YAdjust(P) (P)
 #define HoldEntryAdjust(P) (P)
 #define CodeCharPAdjust(P) (P)
+#define CodeConstCharPAdjust(P) (P)
 #define CodeVoidPAdjust(P) (P)
 #define HaltHookAdjust(P) (P)
 
