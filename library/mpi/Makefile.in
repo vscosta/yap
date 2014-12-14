@@ -104,7 +104,7 @@ mpi.o: $(srcdir)/mpi.c
 mpe.o: $(srcdir)/mpe.c
 	$(CC) -c $(CFLAGS) $(srcdir)/mpe.c -o $@
 
-depend: $(HEADERS) $(C_SOURCES) 
+.depend: $(HEADERS) $(C_SOURCES) 
 	-@if test "$(GCC)" = yes; then\
 	  $(CC) -MM $(CFLAGS) -I$(srcdir)/include -i ../.. $(C_SOURCES) > .depend;\
 	else\

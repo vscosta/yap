@@ -16700,7 +16700,7 @@ else
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-as_dummy="$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin"
+as_dummy="$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin:/usr/lib64/openmpi/bin:/usr/lib/openmpi/bin"
 for as_dir in $as_dummy
 do
   IFS=$as_save_IFS
@@ -16715,7 +16715,7 @@ done
   done
 IFS=$as_save_IFS
 
-  test -z "$ac_cv_path_MPI_CC" && ac_cv_path_MPI_CC="true"
+  test -z "$ac_cv_path_MPI_CC" && ac_cv_path_MPI_CC=""$CC""
   ;;
 esac
 fi
@@ -16743,7 +16743,7 @@ else
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-as_dummy="$yap_cv_mpi/bin:$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin"
+as_dummy="$yap_cv_mpi/bin:$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin:/usr/lib/openmpi/bin:/usr/lib/openmpi/bin"
 for as_dir in $as_dummy
 do
   IFS=$as_save_IFS
@@ -16758,7 +16758,7 @@ done
   done
 IFS=$as_save_IFS
 
-  test -z "$ac_cv_path_MPI_CC" && ac_cv_path_MPI_CC="true"
+  test -z "$ac_cv_path_MPI_CC" && ac_cv_path_MPI_CC=""$CC""
   ;;
 esac
 fi
