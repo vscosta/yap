@@ -107,6 +107,7 @@
 #define TrailAdjust(P) TrailAdjust__(P PASS_REGS)
 #define HoldEntryAdjust(P) HoldEntryAdjust__(P PASS_REGS)
 #define CodeCharPAdjust(P) CodeCharPAdjust__(P PASS_REGS)
+#define CodeConstCharPAdjust(P) CodeConstCharPAdjust__(P PASS_REGS)
 #define CodeVoidPAdjust(P) CodeVoidPAdjust__(P PASS_REGS)
 #define HaltHookAdjust(P) HaltHookAdjust__(P PASS_REGS)
 #define TokEntryAdjust(P) TokEntryAdjust__(P PASS_REGS)
@@ -720,6 +721,16 @@ CodeCharPAdjust__ (char * addr USES_REGS)
   return addr + LOCAL_HDiff;
 }
 
+INLINE_ONLY inline EXTERN const char * CodeConstCharPAdjust__ (const char * CACHE_TYPE);
+
+INLINE_ONLY inline EXTERN const char *
+CodeConstCharPAdjust__ (const char * addr USES_REGS)
+{
+  if (!addr)
+    return NULL;
+  return addr + LOCAL_HDiff;
+}
+
 INLINE_ONLY inline EXTERN void * CodeVoidPAdjust__ (void * CACHE_TYPE);
 
 INLINE_ONLY inline EXTERN void *
@@ -829,12 +840,12 @@ TermToGlobalOrAtomAdjust__ (Term t USES_REGS)
   return t;
 }
 
-INLINE_ONLY inline EXTERN opentry *OpRTableAdjust__ (opentry * CACHE_TYPE);
+INLINE_ONLY inline EXTERN op_entry *OpRTableAdjust__ (op_entry * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN opentry *
-OpRTableAdjust__ (opentry * ptr USES_REGS)
+INLINE_ONLY inline EXTERN op_entry *
+OpRTableAdjust__ (op_entry * ptr USES_REGS)
 {
-  return (opentry *) (((opentry *) (CharP (ptr) + LOCAL_HDiff)));
+  return (op_entry *) (((op_entry *) (CharP (ptr) + LOCAL_HDiff)));
 }
 
 INLINE_ONLY inline EXTERN OpEntry *OpEntryAdjust__ (OpEntry * CACHE_TYPE);

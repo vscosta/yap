@@ -59,7 +59,7 @@ UInt		MaxTrail_		MaxTrail		=0 void
 /* execution info */
 /* OPCODE TABLE, needed to recover op tables */
 #if USE_THREADED_CODE
-opentry		*op_rtable		OP_RTABLE		void	OpRTableAdjust
+op_entry	*op_rtable		OP_RTABLE		void	OpRTableAdjust
 #endif
 
 /* popular opcodes */
@@ -309,10 +309,10 @@ char		*char_conversion_table2	CharConversionTable2	=NULL CodeCharPAdjust
 int		parser_error_style	ParserErrorStyle	=EXCEPTION_ON_PARSER_ERROR void
 
 /* library location.  */
-const char	*yap_lib_dir		Yap_LibDir		=NULL CodeCharPAdjust
-const char	*yap_foreign_dir	Yap_ForeignDir		=NULL CodeCharPAdjust
-const char	*yap_commons_dir	Yap_CommonsDir		=NULL CodeCharPAdjust
-const char	*yap_bin_dir		Yap_BinDir		=NULL CodeCharPAdjust
+const char	*yap_lib_dir		Yap_LibDir		=NULL CodeConstCharPAdjust
+const char	*yap_foreign_dir	Yap_ForeignDir		=NULL CodeConstCharPAdjust
+const char	*yap_commons_dir	Yap_CommonsDir		=NULL CodeConstCharPAdjust
+const char	*yap_bin_dir		Yap_BinDir		=NULL CodeConstCharPAdjust
 
 /* time */
 void		*last_wtime		LastWtimePtr		=NULL CodeVoidPAdjust

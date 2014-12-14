@@ -556,7 +556,7 @@ typedef struct opcode_tab_entry
 {
   OPCODE opc;
   op_numbers opnum;
-} opentry;
+} op_entry;
 
 #endif
 

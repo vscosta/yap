@@ -277,6 +277,9 @@
 #define ParserErrorStyle Yap_heap_regs->parser_error_style
 
 #define Yap_LibDir Yap_heap_regs->yap_lib_dir
+#define Yap_ForeignDir Yap_heap_regs->yap_foreign_dir
+#define Yap_CommonsDir Yap_heap_regs->yap_commons_dir
+#define Yap_BinDir Yap_heap_regs->yap_bin_dir
 
 #define LastWtimePtr Yap_heap_regs->last_wtime
 

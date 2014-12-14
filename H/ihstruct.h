@@ -277,6 +277,9 @@
   ParserErrorStyle = EXCEPTION_ON_PARSER_ERROR;
 
   Yap_LibDir = NULL;
+  Yap_ForeignDir = NULL;
+  Yap_CommonsDir = NULL;
+  Yap_BinDir = NULL;
 
   LastWtimePtr = NULL;
 

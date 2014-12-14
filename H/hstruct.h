@@ -61,7 +61,7 @@
 
 
 #if USE_THREADED_CODE
-  opentry  *op_rtable;
+  op_entry  *op_rtable;
 #endif
 
   OPCODE  execute_cpred_op_code;
@@ -276,7 +276,10 @@
 
   int  parser_error_style;
 
-  char  *yap_lib_dir;
+  const char  *yap_lib_dir;
+  const char  *yap_foreign_dir;
+  const char  *yap_commons_dir;
+  const char  *yap_bin_dir;
 
   void  *last_wtime;
 

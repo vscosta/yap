@@ -276,7 +276,10 @@
 
 
 
-  Yap_LibDir = CodeCharPAdjust(Yap_LibDir);
+  Yap_LibDir = CodeConstCharPAdjust(Yap_LibDir);
+  Yap_ForeignDir = CodeConstCharPAdjust(Yap_ForeignDir);
+  Yap_CommonsDir = CodeConstCharPAdjust(Yap_CommonsDir);
+  Yap_BinDir = CodeConstCharPAdjust(Yap_BinDir);
 
   LastWtimePtr = CodeVoidPAdjust(LastWtimePtr);
 
