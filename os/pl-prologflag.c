@@ -1136,7 +1136,7 @@ initPrologFlags(void)
 #endif
 #if defined(HAVE_DLOPEN) || defined(HAVE_SHL_LOAD) || defined(EMULATE_DLOPEN) || defined(HAVE_LOAD_LIBRARY)
   setPrologFlag("open_shared_object",	  FT_BOOL|FF_READONLY, TRUE, 0);
-  setPrologFlag("shared_object_extension",	  FT_ATOM|FF_READONLY, SO_EXT+1);
+  setPrologFlag("shared_object_extension",	  FT_ATOM|FF_READONLY, SO_EXT);
   setPrologFlag("shared_object_search_path", FT_ATOM|FF_READONLY, SO_PATH);
 #endif
   setPrologFlag("address_bits", FT_INTEGER|FF_READONLY, sizeof(void*)*8);
