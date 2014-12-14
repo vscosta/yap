@@ -65,6 +65,9 @@ gen_struct(Inp,Out) :-
 gen_struct(Inp,Out) :-
 	split(Inp,"	 ",["union",Type, Field|_]), !,
 	append(["  union ",Type,"  ",Field,";"], Out).
+gen_struct(Inp,Out) :-
+        split(Inp," 	",["const",Type, Field|_]), !,
+        append(["  const ",Type,"  ",Field,";"], Out).
 gen_struct(Inp,"") :-
 	split(Inp,"	 ",["void","void"|_]), !.
 gen_struct(Inp,Out) :-
@@ -105,6 +108,10 @@ gen_dstruct(Inp,Out) :-
 	split(Inp,"	 ",["union"|Inp2]), !,
 	glue(Inp2, " ", Inp3),
 	gen_dstruct(Inp3, Out).
+gen_dstruct(Inp,Out) :-
+        split(Inp," 	",["const"|Inp2]), !,
+        glue(Inp2, " ", Inp3),
+        gen_dstruct(Inp3, Out).
 gen_dstruct(Inp,Out) :-
 	split(Inp,"	 ",[_, Field, Name|_]), !,
 	cut_c_stuff(Field, RField),
@@ -177,6 +184,10 @@ gen_hstruct(Inp,Out) :-
 	split(Inp,"	 ",["union"|Inp2]), !,
 	glue(Inp2, " ", Inp3),
 	gen_hstruct(Inp3,Out).
+gen_hstruct(Inp,Out) :-
+        split(Inp," 	",["const"|Inp2]), !,
+        glue(Inp2, " ", Inp3),
+        gen_hstruct(Inp3,Out).
 gen_hstruct(Inp,Out) :-
 	split(Inp,"	 ",[_, Field, MacroName, "MkAT", _]), !,
 	fetch_name(Global,Field,MacroName),
@@ -254,6 +265,10 @@ gen_init(Inp,Out) :-
 	split(Inp,"	 ",["union"|Inp2]), !,
 	glue(Inp2, " ", Inp3),
 	gen_init(Inp3, Out).
+gen_init(Inp,Out) :-
+        split(Inp,"	 ",["const"|Inp2]), !,
+        glue(Inp2, " ", Inp3),
+        gen_init(Inp3, Out).
 gen_init(Inp,"") :-
 	split(Inp,"	 ",[_, _, _, "void"|_]), !.
 gen_init(Inp,Init) :-

@@ -1,4 +1,8 @@
 #CHECK: PythonLibs
+
+set (PYTHON_SOURCES
+  python.c)
+
 macro_optional_find_package(PythonInterp ON)
 macro_optional_find_package (PythonLibs ON)
 macro_log_feature (PYTHONLIBS_FOUND "Python"
@@ -30,5 +34,21 @@ if (PYTHONLIBS_FOUND)         #   PYTHONLIBS_FOUND           - have the Python l
   # first to get the currently active Python version by default with a consistent
   # version of PYTHON_LIBRARIES.
   
+  add_library (python SHARED ${PYTHON_SOURCES})
+
+  target_link_libraries(python libYap ${PYTHON_LIBRARIES})
+
+  set_target_properties (python PROPERTIES PREFIX "")
+
+  include_directories (${PYTHON_INCLUDE_DIRS})
   
+  install(TARGETS  python
+    LIBRARY DESTINATION ${dlls}
+    )
+
+  install(FILES python.pl
+    DESTINATION ${libpl}
+    )
+
+ 
 endif (PYTHONLIBS_FOUND)

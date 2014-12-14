@@ -167,6 +167,7 @@ main (int argc, char **argv)
       t_goal  = YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom("ypp_define"),2), 2, t_args); 
       YAP_RunGoalOnce(t_goal);
     }
+    
   }
   YAP_Reset( YAP_FULL_RESET );
   /* End preprocessor code */

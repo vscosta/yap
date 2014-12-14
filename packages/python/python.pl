@@ -83,7 +83,7 @@ fetch_module(M:E, M1, E1, MRef) :-
 %
 % extend the module as much as we can.
 %
-module_extend(M0, M:E, MF, EF, MRef0, MRef) :-
+module_extend(M0, M:E, MF, EF, _MRef0, MRef) :-
 	atom(M),
 	atom_concat([M0,'.',M], MM),
 	python_import(MM, MRef1), !,
@@ -118,7 +118,7 @@ python_class(Obj) :-
 process_obj(Obj, _, S, Obj, NS, Dict) :-
 	python_callable(Obj), !,
 	python_check_args(S, NS, Dict).
-process_obj(Obj, _, S, Obj, NS, Dict) :-
+process_obj(Obj, _, S, FObj, NS, Dict) :-
 	python_class(Obj),
 	descend_object(Obj:'__init__', FObj, _, _),
 	python_check_args(S, NS, Dict).
@@ -133,7 +133,7 @@ python_eval_term([H|T], [NH|NT]) :- !,
 	python_eval_term(T, NT).
 python_eval_term(N, N) :- atomic(N), !.
 python_eval_term(Exp, O) :-
-	descend_exp(Exp, Obj, Old, S), !,
+	descend_exp(Exp, Obj, _Old, S), !,
 	(functor(S, _, 0) -> 
 	   O = Obj
         ; 
@@ -185,7 +185,7 @@ match_from_anames([_|ArgNames], K, VA, [V|Defaults], [V|NDefaults]) :-
 
 fetch_args(FRef, Args, Kwd, Defaults) :-
 	FRef = '__obj__'(_), !,
-	python_mref_cache('inspect', M),
+	%python_mref_cache('inspect', M),
 	python_obj_cache(inspect:getargspec(_), F),
 	python_apply(F, getargspec(FRef), {}, ExtraArgs),
 	ExtraArgs=t(Args, _, Kwd, Defaults).

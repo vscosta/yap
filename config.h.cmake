@@ -16,7 +16,7 @@
 
 /* longs should be in addresses that are multiple of four. */
 #ifndef ALIGN_LONGS
-#cmakedefine ALIGN_LONGS "${ALIGN_LONGS}"
+#define ALIGN_LONGS 1
 #endif
 
 /* if fflush(NULL) clobbers input pipes1 */
@@ -54,14 +54,9 @@
 #define C_LIBS "${EXTRALIBS}" 
 #endif
 
-/* "Define if _XOPEN_SOURCE is needed" */
-#ifndef DEFINE_XOPEN_SOURCE
-#cmakedefine DEFINE_XOPEN_SOURCE "${DEFINE_XOPEN_SOURCE}"
-#endif
-
 /* IEEE floating-point, basically everyone except old VAXEN */
 #ifndef FFIEEE
-#cmakedefine FFIEEE "${FFIEEE}"
+#define FFIEEE 1
 #endif
 
 /* old HP-UX VM magic, should be irrelevant now */
@@ -69,14 +64,11 @@
 #cmakedefine FORCE_SECOND_QUADRANT "${FORCE_SECOND_QUADRANT}"
 #endif
 
-/* support GNU extensions */
-#ifndef _GNU_SOURCE
-#cmakedefine _GNU_SOURCE "${_GNU_SOURCE}"
-#endif
-
-/* use Barts idea of allocating extra memory */
+/* use Barts idea of allocating extra memory,
+   probbly better to use two bits on 64bit machines
+*/
 #ifndef GC_NO_TAGS
-#cmakedefine GC_NO_TAGS "${GC_NO_TAGS}"
+#define GC_NO_TAGS 1
 #endif
 
 /* Define if gethostname() is provided */
@@ -286,7 +278,7 @@ function. */
 /* Define to 1 if you have the declaration of `rl_catch_signals ', and to 0 if
 you don't. */
 #ifndef HAVE_DECL_RL_CATCH_SIGNALS_
-#cmakedefine HAVE_DECL_RL_CATCH_SIGNALS_ ${HAVE_DECL_RL_CATCH_SIGNALS_}
+#cmakedefine HAVE_DECL_RL_CATCH_SIGNALS ${HAVE_DECL_RL_CATCH_SIGNALS}
 #endif
 
 /* Define to 1 if you have the declaration of `rl_done ', and to 0 if you
@@ -604,132 +596,132 @@ you don't. */
 
 /* Define to 1 if you have the `android' library (-landroid). */
 #ifndef HAVE_LIBANDROID
-#cmakedefine HAVE_LIBANDROID ${HAVE_LIBANDROID}
+#define HAVE_LIBANDROID ${HAVE_LIBANDROID}
 #endif
 
 /* Define to 1 if you have the `comdlg32' library (-lcomdlg32). */
 #ifndef HAVE_LIBCOMDLG32
-#cmakedefine HAVE_LIBCOMDLG32 ${HAVE_LIBCOMDLG32}
+#define HAVE_LIBCOMDLG32 ${HAVE_LIBCOMDLG32}
 #endif
 
 /* Define to 1 if you have the `crypt' library (-lcrypt). */
 #ifndef HAVE_LIBCRYPT
-#cmakedefine HAVE_LIBCRYPT ${HAVE_LIBCRYPT}
+#define HAVE_LIBCRYPT ${HAVE_LIBCRYPT}
 #endif
 
 /* Define to 1 if you have the `gmp' library (-lgmp). */
 #ifndef HAVE_LIBGMP
-#cmakedefine HAVE_LIBGMP ${HAVE_LIBGMP}
+#define HAVE_LIBGMP ${HAVE_LIBGMP}
 #endif
 
 /* Define to 1 if you have the `Judy' library (-lJudy). */
 #ifndef HAVE_LIBJUDY
-#cmakedefine HAVE_LIBJUDY ${HAVE_LIBJUDY}
+#define HAVE_LIBJUDY ${HAVE_LIBJUDY}
 #endif
 
 /* Define to 1 if you have the <LibLoaderAPI.h> header file. */
 #ifndef HAVE_LIBLOADERAPI_H
-#cmakedefine HAVE_LIBLOADERAPI_H ${HAVE_LIBLOADERAPI_H}
+#define HAVE_LIBLOADERAPI_H ${HAVE_LIBLOADERAPI_H}
 #endif
 
 /* Define to 1 if you have the `log' library (-llog). */
 #ifndef HAVE_LIBLOG
-#cmakedefine HAVE_LIBLOG ${HAVE_LIBLOG}
+#define HAVE_LIBLOG ${HAVE_LIBLOG}
 #endif
 
 /* Define to 1 if you have the `m' library (-lm). */
 #ifndef HAVE_LIBM
-#cmakedefine HAVE_LIBM ${HAVE_LIBM}
+#define HAVE_LIBM ${HAVE_LIBM}
 #endif
 
 /* MPI Debugging off */
 #ifndef HAVE_LIBMPE
-#cmakedefine HAVE_LIBMPE ${HAVE_LIBMPE}
+#define HAVE_LIBMPE ${HAVE_LIBMPE}
 #endif
 
 /* Define to 1 if you have the `mscrt' library (-lmscrt). */
 #ifndef HAVE_LIBMSCRT
-#cmakedefine HAVE_LIBMSCRT ${HAVE_LIBMSCRT}
+#define HAVE_LIBMSCRT ${HAVE_LIBMSCRT}
 #endif
 
 /* "Define if you have the nsl library (-lnsl)." */
 #ifndef HAVE_LIBNSL
-#cmakedefine HAVE_LIBNSL ${HAVE_LIBNSL}
+#define HAVE_LIBNSL ${HAVE_LIBNSL}
 #endif
 
 /* Define to 1 if you have the `nss_dns' library (-lnss_dns). */
 #ifndef HAVE_LIBNSS_DNS
-#cmakedefine HAVE_LIBNSS_DNS ${HAVE_LIBNSS_DNS}
+#define HAVE_LIBNSS_DNS ${HAVE_LIBNSS_DNS}
 #endif
 
 /* Define to 1 if you have the `nss_files' library (-lnss_files). */
 #ifndef HAVE_LIBNSS_FILES
-#cmakedefine HAVE_LIBNSS_FILES ${HAVE_LIBNSS_FILES}
+#define HAVE_LIBNSS_FILES ${HAVE_LIBNSS_FILES}
 #endif
 
 /* Define to 1 if you have the `psapi' library (-lpsapi). */
 #ifndef HAVE_LIBPSAPI
-#cmakedefine HAVE_LIBPSAPI ${HAVE_LIBPSAPI}
+#define HAVE_LIBPSAPI ${HAVE_LIBPSAPI}
 #endif
 
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #ifndef HAVE_LIBPTHREAD
-#cmakedefine HAVE_LIBPTHREAD ${HAVE_LIBPTHREAD}
+#define HAVE_LIBPTHREAD ${HAVE_LIBPTHREAD}
 #endif
 
 /* Define to 1 if you have the `raptor' library (-lraptor). */
 #ifndef HAVE_LIBRAPTOR
-#cmakedefine HAVE_LIBRAPTOR ${HAVE_LIBRAPTOR}
+#define HAVE_LIBRAPTOR ${HAVE_LIBRAPTOR}
 #endif
 
 /* Define to 1 if you have the `raptor2' library (-lraptor2). */
 #ifndef HAVE_LIBRAPTOR2
-#cmakedefine HAVE_LIBRAPTOR2 ${HAVE_LIBRAPTOR2}
+#define HAVE_LIBRAPTOR2 ${HAVE_LIBRAPTOR2}
 #endif
 
 /* Define if you have libreadline */
 #ifndef HAVE_LIBREADLINE
-#cmakedefine HAVE_LIBREADLINE ${READLINE_FOUND}
+#define HAVE_LIBREADLINE ${READLINE_FOUND}
 #endif
 
 /* Define to 1 if you have the `resolv' library (-lresolv). */
 #ifndef HAVE_LIBRESOLV
-#cmakedefine HAVE_LIBRESOLV ${HAVE_LIBRESOLV}
+#define HAVE_LIBRESOLV ${HAVE_LIBRESOLV}
 #endif
 
 /* Define to 1 if you have the `shell32' library (-lshell32). */
 #ifndef HAVE_LIBSHELL32
-#cmakedefine HAVE_LIBSHELL32 ${HAVE_LIBSHELL32}
+#define HAVE_LIBSHELL32 ${HAVE_LIBSHELL32}
 #endif
 
 /* "Define if you have the socket library (-lsocket)." */
 #ifndef HAVE_LIBSOCKET
-#cmakedefine HAVE_LIBSOCKET ${HAVE_LIBSOCKET}
+#define HAVE_LIBSOCKET ${HAVE_LIBSOCKET}
 #endif
 
 /* Define to 1 if you have the `stdc++' library (-lstdc++). */
 #ifndef HAVE_LIBSTDC__
-#cmakedefine HAVE_LIBSTDC__ ${HAVE_LIBSTDC__}
+#define HAVE_LIBSTDC__ ${HAVE_LIBSTDC__}
 #endif
 
 /* Whether we have libunicode.a */
 #ifndef HAVE_LIBUNICODE
-#cmakedefine HAVE_LIBUNICODE ${HAVE_LIBUNICODE}
+#define HAVE_LIBUNICODE ${HAVE_LIBUNICODE}
 #endif
 
 /* Define to 1 if you have the `ws2_32' library (-lws2_32). */
 #ifndef HAVE_LIBWS2_32
-#cmakedefine HAVE_LIBWS2_32 ${HAVE_LIBWS2_32}
+#define HAVE_LIBWS2_32 ${HAVE_LIBWS2_32}
 #endif
 
 /* Define to 1 if you have the `wsock32' library (-lwsock32). */
 #ifndef HAVE_LIBWSOCK32
-#cmakedefine HAVE_LIBWSOCK32 ${HAVE_LIBWSOCK32}
+#define HAVE_LIBWSOCK32 ${HAVE_LIBWSOCK32}
 #endif
 
 /* Define to 1 if you have the `xnet' library (-lxnet). */
 #ifndef HAVE_LIBXNET
-#cmakedefine HAVE_LIBXNET ${HAVE_LIBXNET}
+#define HAVE_LIBXNET ${HAVE_LIBXNET}
 #endif
 
 /* Define to 1 if you have the <limits.h> header file. */
@@ -959,12 +951,12 @@ you don't. */
 
 /* Define to 1 if you have the <readline/history.h> header file. */
 #ifndef HAVE_READLINE_HISTORY_H
-#cmakedefine HAVE_READLINE_HISTORY_H ${HAVE_READLINE_HISTORY_H}
+#define HAVE_READLINE_HISTORY_H ${HAVE_READLINE_HISTORY_H}
 #endif
 
 /* Define to 1 if you have the <readline/readline.h> header file. */
 #ifndef HAVE_READLINE_READLINE_H
-#cmakedefine HAVE_READLINE_READLINE_H ${HAVE_READLINE_READLINE_H}
+#define HAVE_READLINE_READLINE_H ${HAVE_READLINE_READLINE_H}
 #endif
 
 /* Define to 1 if you have the `readlink' function. */
@@ -1038,9 +1030,14 @@ signal. */
 #cmakedefine HAVE_RL_DISCARD_ARGUMENT ${HAVE_RL_DISCARD_ARGUMENT}
 #endif
 
+/* Define to 1 if you have the `rl_done' variable. */
+#ifndef HAVE_RL_DONE
+#define HAVE_RL_DONE ${HAVE_RL_DONE}
+#endif
+
 /* Define to 1 if you have the `rl_filename_completion_function' function. */
 #ifndef HAVE_RL_FILENAME_COMPLETION_FUNCTION
-#cmakedefine HAVE_RL_FILENAME_COMPLETION_FUNCTION ${HAVE_RL_FILENAME_COMPLETION_FUNCTION}
+#define HAVE_RL_FILENAME_COMPLETION_FUNCTION ${HAVE_RL_FILENAME_COMPLETION_FUNCTION}
 #endif
 
 /* Define to 1 if you have the `rl_free_line_state' function. */
@@ -1406,6 +1403,7 @@ signal. */
 
 /* Define to 1 if you have the <sys/socket.h> header file. */
 #ifndef HAVE_SYS_SOCKET_H
+
 #cmakedefine HAVE_SYS_SOCKET_H ${HAVE_SYS_SOCKET_H}
 #endif
 
@@ -1616,12 +1614,12 @@ signal. */
 
 /* max number of threads, default 1 or 1024 */
 #ifndef MAX_THREADS
-#cmakedefine MAX_THREADS "${MAX_THREADS}"
+#cmakedefine MAX_THREADS ${MAX_THREADS}
 #endif
 
 /* maximum amount of or-parallelism */
 #ifndef MAX_WORKERS
-#cmakedefine MAX_WORKERS "${MAX_WORKERS}"
+#cmakedefine MAX_WORKERS ${MAX_WORKERS}
 #endif
 
 /* o not use realloc() from HP-UX 10.20 together with MPI */
@@ -1631,12 +1629,12 @@ signal. */
 
 /* compiler should shift offsets. */
 #ifndef MSHIFTOFFS
-#cmakedefine MSHIFTOFFS "${MSHIFTOFFS}"
+#cmakedefine MSHIFTOFFS ${MSHIFTOFFS}
 #endif
 
 /* myddas release */
 #ifndef MYDDAS_VERSION
-#cmakedefine MYDDAS_VERSION "${MYDDAS_VERSION}"
+#define MYDDAS_VERSION "${MYDDAS_VERSION}"
 #endif
 
 /* at least 2M Cells for Heap */
@@ -1701,7 +1699,7 @@ signal. */
 
 /* Define to the version of this package. */
 #ifndef PACKAGE_VERSION
-#cmakedefine PACKAGE_VERSION "${PACKAGE_VERSION}"
+#define PACKAGE_VERSION "${YAP_VERSION}"
 #endif
 
 /* Define as the return type of signal handlers (`int' or `void'). */
@@ -1786,7 +1784,7 @@ signal. */
 
 /* relocable objects */
 #ifndef SO_EXT
-#define SO_EXT "${CMAKE_SHARED_LIBRARY_PREFIX}"
+#define SO_EXT "${CMAKE_SHARED_LIBRARY_SUFFIX}"
 #endif
 
 /* library search variable */
@@ -1886,17 +1884,17 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 
 /* where the yap executable lives */
 #ifndef YAP_BINDIR
-#define YAP_BINDIR "${bindir}"
+#define YAP_BINDIR "${YAP_BINDIR}"
 #endif
 
 /* YAP version string */
 #ifndef YAP_FULL_VERSION
-#define YAP_FULL_VERSION "${YAP_FULL_VERSION}"
+#define YAP_FULL_VERSION "YAP ${YAP_FULL_VERSION}: ${YAP_ARCH}-${CMAKE_SYSTEM}, @${YAP_SITE}, ${YAP_TIMESTAMP}"
 #endif
 
 /* where to look for shared libraries */
 #ifndef YAP_LIBDIR
-#define YAP_LIBDIR "${libdir}"
+#define YAP_LIBDIR "${YAP_LIBDIR}"
 #endif
 
 /* numerical version */
@@ -1941,7 +1939,7 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 
 /* name of YAP library */
 #ifndef YAP_YAPLIB
-#cmakedefine YAP_YAPLIB "${YAP_YAPLIB}"
+#define YAP_YAPLIB "${YAP_YAPLIB}"
 #endif
 
 /* HP-UX old socket stuff */

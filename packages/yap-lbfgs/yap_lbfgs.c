@@ -69,7 +69,7 @@ static lbfgsfloatval_t evaluate(
   optimizer_status=OPTIMIZER_STATUS_RUNNING;
 
   if (result==FALSE) {
-    printf("ERROR: Calling the evaluate call back function in YAP.\n");
+    printf("ERROR: the evaluate call failed in YAP.\n");
     // Goal did not succeed
     return FALSE;
   }
@@ -127,7 +127,7 @@ static int progress(
   call = YAP_GetFromSlot( s1 );
 
   if (result==FALSE) {
-   printf("ERROR: Calling the progress call back function in YAP.\n");
+   printf("ERROR:  the progress call failed in YAP.\n");
     // Goal did not succeed
     return FALSE;
   }

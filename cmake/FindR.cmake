@@ -1,99 +1,77 @@
-#                                               -*- cmake -*-
+
 #
-#  FindR.cmake: Try to find R
+# - This module locates an installed R distribution.
 #
-#  (C) Copyright 2005-2012 EDF-EADS-Phimeca
+# Defines the following:
+#  R_COMMAND           - Path to R command
+#  R_HOME              - Path to 'R home', as reported by R
+#  R_INCLUDE_DIR       - Path to R include directory
+#  R_LIBRARY_BASE      - Path to R library
+#  R_LIBRARY_BLAS      - Path to Rblas / blas library
+#  R_LIBRARY_LAPACK    - Path to Rlapack / lapack library
+#  R_LIBRARY_READLINE  - Path to readline library
+#  R_LIBRARIES         - Array of: R_LIBRARY_BASE, R_LIBRARY_BLAS, R_LIBRARY_LAPACK, R_LIBRARY_BASE [, R_LIBRARY_READLINE]
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+#  VTK_R_HOME          - (deprecated, use R_HOME instead) Path to 'R home', as reported by R
 #
-#  This library is distributed in the hope that it will be useful
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# Variable search order:
+#   1. Attempt to locate and set R_COMMAND
+#     - If unsuccessful, generate error and prompt user to manually set R_COMMAND
+#   2. Use R_COMMAND to set R_HOME
+#   3. Locate other libraries in the priority:
+#     1. Within a user-built instance of R at R_HOME
+#     2. Within an installed instance of R
+#     3. Within external system libraries
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-#
-#  @author dutka
-#  @date   2010-02-04 16:44:49 +0100 (Thu, 04 Feb 2010)
-#  Id      Makefile.am 1473 2010-02-04 15:44:49Z dutka
-#
-#
-# - Try to find R
-# Once done this will define
-#
-#  R_FOUND - System has R
-#  R_LIBRARIES - The libraries needed to use R
-#  R_DEFINITIONS - Compiler switches required for using R
-#  R_EXECUTABLE - The R interpreter
 
+set(TEMP_CMAKE_FIND_APPBUNDLE ${CMAKE_FIND_APPBUNDLE})
+set(CMAKE_FIND_APPBUNDLE "NEVER")
+find_program(R_COMMAND R DOC "R executable.")
+set(CMAKE_FIND_APPBUNDLE ${TEMP_CMAKE_FIND_APPBUNDLE})
 
-if ( R_EXECUTABLE AND R_LIBRARIES )
-   # in cache already
-   set( R_FIND_QUIETLY TRUE )
-endif ( R_EXECUTABLE AND R_LIBRARIES )
+if(R_COMMAND)
+  execute_process(WORKING_DIRECTORY .
+                  COMMAND ${R_COMMAND} RHOME
+                  OUTPUT_VARIABLE R_ROOT_DIR
+                  OUTPUT_STRIP_TRAILING_WHITESPACE)
+  # deprecated
+  if(VTK_R_HOME)
+    set(R_HOME ${VTK_R_HOME} CACHE PATH "R home directory obtained from R RHOME")
+  else()
+    set(R_HOME ${R_ROOT_DIR} CACHE PATH "R home directory obtained from R RHOME")
+    set(VTK_R_HOME ${R_HOME})
+  endif()
+  # /deprecated
+  # the following command does nothing currently, but will be used when deprecated code is removed
+  set(R_HOME ${R_ROOT_DIR} CACHE PATH "R home directory obtained from R RHOME")
 
-#IF (NOT WIN32)
-#   # use pkg-config to get the directories and then use these values
-#   # in the FIND_PATH() and FIND_LIBRARY() calls
-#   FIND_PACKAGE(PkgConfig)
-#   PKG_CHECK_MODULES(PC_R R)
-#   SET(R_DEFINITIONS ${PC_R_CFLAGS_OTHER})
-#ENDIF (NOT WIN32)
+  find_path(R_INCLUDE_DIR R.h
+            HINTS ${R_ROOT_DIR}
+            PATHS /usr/local/lib /usr/local/lib64 /usr/share
+            PATH_SUFFIXES include R/include
+            DOC "Path to file R.h")
 
-find_program ( R_EXECUTABLE
-               NAMES R R.exe
-               DOC "Path to the R command interpreter"
-              )
+  find_library(R_LIBRARY_BASE R
+            HINTS ${R_ROOT_DIR}/lib
+            DOC "R library (example libR.a, libR.dylib, etc.).")
 
-get_filename_component ( _R_EXE_PATH ${R_EXECUTABLE} PATH )
+  find_library(R_LIBRARY_BLAS NAMES Rblas blas
+            HINTS ${R_ROOT_DIR}/lib
+            DOC "Rblas library (example libRblas.a, libRblas.dylib, etc.).")
 
-if ( R_EXECUTABLE )
-  execute_process ( COMMAND ${R_EXECUTABLE} RHOME
-                    OUTPUT_VARIABLE _R_HOME 
-                    OUTPUT_STRIP_TRAILING_WHITESPACE
-                  )
-endif ( R_EXECUTABLE )
+  find_library(R_LIBRARY_LAPACK NAMES Rlapack lapack
+            HINTS ${R_ROOT_DIR}/lib
+            DOC "Rlapack library (example libRlapack.a, libRlapack.dylib, etc.).")
 
-find_library ( R_LIBRARIES
-  NAMES R
-  HINTS
-  ${PC_R_LIBDIR}
-  ${PC_R_LIBRARY_DIRS}
-  ${_R_HOME}/lib
-  ${_R_HOME}/lib/x86_64
-)
+  find_library(R_LIBRARY_READLINE readline
+            DOC "(Optional) system readline library. Only required if the R libraries were built with readline support.")
 
-set ( R_PACKAGES )
-if ( R_EXECUTABLE )
-  foreach ( _component ${R_FIND_COMPONENTS} )
-    if ( NOT R_${_component}_FOUND )
-    execute_process ( COMMAND echo "library(${_component})"
-                      COMMAND ${R_EXECUTABLE} --no-save --silent --no-readline --slave
-                      RESULT_VARIABLE _res
-                      OUTPUT_VARIABLE _trashout
-                      ERROR_VARIABLE  _trasherr
-                    )
-    if ( NOT _res )
-      message ( STATUS "Looking for R package ${_component} - found" )
-      set ( R_${_component}_FOUND 1 CACHE INTERNAL "True if R package ${_component} is here" )
-    else ( NOT _res )
-      message ( STATUS "Looking for R package ${_component} - not found" )
-      set ( R_${_component}_FOUND 0 CACHE INTERNAL "True if R package ${_component} is here" )
-    endif ( NOT _res )
-    list ( APPEND R_PACKAGES R_${_component}_FOUND )
-    endif ( NOT R_${_component}_FOUND )
-  endforeach ( _component )
-endif ( R_EXECUTABLE )
+else()
+  message(SEND_ERROR "FindR.cmake requires the following variables to be set: R_COMMAND")
+endif()
 
-include ( FindPackageHandleStandardArgs )
-
-# handle the QUIETLY and REQUIRED arguments and set R_FOUND to TRUE if 
-# all listed variables are TRUE
-find_package_handle_standard_args ( R DEFAULT_MSG R_EXECUTABLE R_LIBRARIES ${R_PACKAGES} )
-
-mark_as_advanced ( R_EXECUTABLE R_LIBRARIES ${R_PACKAGES} )
+# Note: R_LIBRARY_BASE is added to R_LIBRARIES twice; this may be due to circular linking dependencies; needs further investigation
+set(R_LIBRARIES ${R_LIBRARY_BASE} ${R_LIBRARY_BLAS} ${R_LIBRARY_LAPACK} ${R_LIBRARY_BASE})
+if(R_LIBRARY_READLINE)
+  set(R_LIBRARIES ${R_LIBRARIES} ${R_LIBRARY_READLINE})
+endif()

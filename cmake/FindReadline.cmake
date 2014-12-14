@@ -1,21 +1,82 @@
-#  Find the Readline libraries
-#
-#  READLINE_FOUND - system has Readline lib
-#  READLINE_INCLUDE_DIR - the Readline include directory
-#  READLINE_LIBRARIES - Libraries needed to use Readline
-#  READLINE_HAVE_READLINE_HISTORY_H - true if readline/history.h is available
+# - Find the readline library
+# This module defines
+#  READLINE_INCLUDE_DIR, path to readline/readline.h, etc.
+#  READLINE_LIBRARIES, the libraries required to use READLINE.
+#  READLINE_FOUND, If false, do not try to use READLINE.
+# also defined, but not for general use are
+# READLINE_readline_LIBRARY, where to find the READLINE library.
+# READLINE_ncurses_LIBRARY, where to find the ncurses library [might not be defined]
 
-if (READLINE_INCLUDE_DIR AND READLINE_LIBRARIES)
-  # Already in cache, be silent
-  set(READLINE_FIND_QUIETLY TRUE)
-endif (READLINE_INCLUDE_DIR AND READLINE_LIBRARIES)
+# Apple readline does not support readline hooks
+# So we look for another one by default
+IF(APPLE)
+  FIND_PATH(READLINE_INCLUDE_DIR NAMES readline/readline.h PATHS
+    /sw/include
+    /opt/local/include
+    /opt/include
+    /usr/local/opt/readline/include #brew    
+    /usr/local/include
+    /usr/include/
+    NO_DEFAULT_PATH
+    )
+ENDIF(APPLE)
+FIND_PATH(READLINE_INCLUDE_DIR NAMES readline/readline.h)
 
-find_path(READLINE_INCLUDE_DIR NAMES readline/readline.h )
-find_library(READLINE_LIBRARIES NAMES readline libreadline)
 
-find_file(READLINE_HAVE_READLINE_HISTORY_H readline/history.h)
+# Apple readline does not support readline hooks
+# So we look for another one by default
+IF(APPLE)
+  FIND_LIBRARY(READLINE_readline_LIBRARY NAMES readline PATHS
+    /sw/lib
+    /opt/local/lib
+    /usr/local/opt/readline/lib #brew    
+    /opt/lib
+    /usr/local/lib
+    /usr/lib
+    NO_DEFAULT_PATH
+    )
+ENDIF(APPLE)
+FIND_LIBRARY(READLINE_readline_LIBRARY NAMES readline)
 
-include(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(READLINE DEFAULT_MSG READLINE_INCLUDE_DIR READLINE_LIBRARIES)
+# Sometimes readline really needs ncurses
+IF(APPLE)
+  FIND_LIBRARY(READLINE_ncurses_LIBRARY NAMES ncurses PATHS
+    /sw/lib
+    /opt/local/lib
+    /opt/lib
+    /usr/local/lib
+    /usr/lib
+    NO_DEFAULT_PATH
+    )
+ENDIF(APPLE)
+FIND_LIBRARY(READLINE_ncurses_LIBRARY NAMES ncurses)
 
-mark_as_advanced(READLINE_INCLUDE_DIR READLINE_LIBRARIES)
+MARK_AS_ADVANCED(
+  READLINE_INCLUDE_DIR
+  READLINE_readline_LIBRARY
+  READLINE_ncurses_LIBRARY
+  )
+
+SET( READLINE_FOUND "NO" )
+IF(READLINE_INCLUDE_DIR)
+  IF(READLINE_readline_LIBRARY)
+    SET( READLINE_FOUND "YES" )
+    SET( READLINE_LIBRARIES
+      ${READLINE_readline_LIBRARY}
+      )
+
+    # some readline libraries depend on ncurses
+    IF(READLINE_ncurses_LIBRARY)
+      SET(READLINE_LIBRARIES ${READLINE_LIBRARIES} ${READLINE_ncurses_LIBRARY})
+    ENDIF(READLINE_ncurses_LIBRARY)
+
+  ENDIF(READLINE_readline_LIBRARY)
+ENDIF(READLINE_INCLUDE_DIR)
+
+IF(READLINE_FOUND)
+  MESSAGE(STATUS "Found readline library")
+ELSE(READLINE_FOUND)
+  IF(READLINE_FIND_REQUIRED)
+    MESSAGE(FATAL_ERROR "Could not find readline -- please give some paths to CMake")
+  ENDIF(READLINE_FIND_REQUIRED)
+ENDIF(READLINE_FOUND)

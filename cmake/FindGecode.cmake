@@ -2,7 +2,7 @@
 
 #Works under the assumption than when gecode is installed at least the kernel component exists
 # Look for the header file
-find_path(GECODE_INCLUDE_DIR NAMES gecode/kernel.hh)
+find_path(GECODE_INCLUDE_DIR NAMES gecode/kernel.hh )
 find_file(GECODE_CONFIG gecode/support/config.hpp)
 # Look for the library
 find_library(GECODE_LIBRARY NAMES gecodekernel)
@@ -39,6 +39,10 @@ if(GECODE_FOUND)
   find_library(GECODE_INT_LIBRARY gecodeint)
   if(GECODE_INT_LIBRARY)
     list(APPEND GECODE_LIBRARIES ${GECODE_INT_LIBRARY})
+  endif()
+  find_library(GECODE_FLOAT_LIBRARY gecodefloat)
+  if(GECODE_FLOAT_LIBRARY)
+    list(APPEND GECODE_LIBRARIES ${GECODE_FLOAT_LIBRARY})
   endif()
   find_library(GECODE_MM_LIBRARY gecodeminimodel)
   if(GECODE_MM_LIBRARY)
