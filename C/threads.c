@@ -1861,7 +1861,7 @@ Yap_InitFirstWorkerThreadHandle(void)
 
 void Yap_InitThreadPreds(void)
 { 
-  Yap_InitCPred("$with_mutex", 2, p_with_mutex, MetaPredFlag);
+  Yap_InitCPred("with_mutex", 2, p_with_mutex, MetaPredFlag);
   Yap_InitCPred("mutex_create", 1, p_new_mutex, SafePredFlag);
   Yap_InitCPred("$max_workers", 1, p_max_workers, 0);
   Yap_InitCPred("$thread_self", 1, p_thread_self, SafePredFlag);
