@@ -117,7 +117,7 @@ followed by the failure of that call.
 '$handle_error'(0x0020,_Goal,_Mod) :-
     fail.
 
-'$complete_goal'(M, G, CurMod, CurG, NG) :-
+'$complete_goal'(M, G, CurG, CurMod, NG) :-
 	  (
 	   '$is_metapredicate'(CurG,CurMod)
 	  ->
