@@ -2,7 +2,7 @@
 *									 *
 *	 YAP Prolog 							 *
 *									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
@@ -211,7 +211,7 @@ load_files(Files,Opts) :-
 '$lf_option'(qcompile, 7, Current) :-
     '$nb_getval'('$qcompile', Current, Current = never).
 '$lf_option'(silent, 8, _).
-'$lf_option'(skip_unix_header, 9, false).
+'$lf_option'(skip_unix_header, 9, true).
 '$lf_option'(compilation_mode, 10, Flag) :-
     '$access_yap_flags'(11,YF),
     ( YF == 0 -> Flag = compact ; Flag = source ).
