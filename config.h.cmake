@@ -1784,7 +1784,7 @@ signal. */
 
 /* relocable objects */
 #ifndef SO_EXT
-#define SO_EXT "${CMAKE_SHARED_LIBRARY_SUFFIX}"
+#define SO_EXT "${SO_EXT}"
 #endif
 
 /* library search variable */

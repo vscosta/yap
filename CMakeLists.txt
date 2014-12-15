@@ -42,7 +42,9 @@ set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
 set(CMAKE_TOP_BINARY_DIR ${CMAKE_BINARY_DIR})
 set(YAP_PL_SRCDIR ${CMAKE_SOURCE_DIR}/pl)
 
-cmake_policy( SET CMP0042 NEW)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  cmake_policy( SET CMP0042 NEW)
+endif()
 
 # Compatibility vars with autotols
 set ( prefix "${CMAKE_INSTALL_PREFIX}")
@@ -70,7 +72,7 @@ set(YAP_ROOTDIR "${prefix}")
 set(YAP_YAPLIB libYap${CMAKE_SHARED_LIBRARY_SUFFIX})
 set(YAP_STARTUP startup.yss)
 string(TIMESTAMP YAP_TIMESTAMP)
-
+string( SUBSTRING ${CMAKE_SHARED_LIBRARY_SUFFIX} 1 -1 SO_EXT )
 #
 # Optional libraries that affect compilation
 #
@@ -130,11 +132,16 @@ if ( ${C_COMPILER} MATCHES "Intel")
   set (HAVE_GCC 1)
 endif()
 
-# replace instructions codes by the address of their code
-option (WITH_THREADED_CODE "Use threaded code" ON)
-if (WITH_THREADED_CODE)
-  set (USE_THREADED_CODE 1)
-endif (WITH_THREADED_CODE)
+if (HAVE_GCC)
+  # replace instructions codes by the address of their code
+  option (WITH_THREADED_CODE "Use threaded code" ON)
+  if (WITH_THREADED_CODE)
+    set (USE_THREADED_CODE 1)
+  endif (WITH_THREADED_CODE)
+endif (HAVE_GCC)
+
+# 
+set (BUILD_SHARED_LIBS ON)
 
 #
 # include libtai package as an independent library
@@ -330,9 +337,8 @@ set(CONSOLE_SOURCES console/yap.c)
 #   console/LGPL/pl-ntmain.c
 # )
 
-# ADD_SUBDIRECTORY(GPL)
-# ADD_SUBDIRECTORY(LGPL)
-# ADD_SUBDIRECTORY(library)
+ADD_SUBDIRECTORY(library)
+ADD_SUBDIRECTORY(swi/library)
 # ADD_SUBDIRECTORY(os)
 # ADD_SUBDIRECTORY(packages)
 # ADD_SUBDIRECTORY(packages)
@@ -506,7 +512,7 @@ option (WITH_Static_compilation
 
 option (Use_MALLOC
   "use malloc to allocate memory" ON)
-if (Use_Malloc)
+if (Use_MALLOC)
   # use default allocator
   set ( USE_SYSTEM_MALLOC 1 )
 endif()
