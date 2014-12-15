@@ -37,7 +37,6 @@ message(STATUS "Building YAP version ${YAP_VERSION}")
 
 # set path to additional CMake modules
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
-set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
 
 set(CMAKE_TOP_BINARY_DIR ${CMAKE_BINARY_DIR})
 set(YAP_PL_SRCDIR ${CMAKE_SOURCE_DIR}/pl)
@@ -74,6 +73,8 @@ set(YAP_STARTUP startup.yss)
 string(TIMESTAMP YAP_TIMESTAMP)
 string( SUBSTRING ${CMAKE_SHARED_LIBRARY_SUFFIX} 1 -1 SO_EXT )
 #
+include_directories (H include os ${CMAKE_BINARY_DIR})
+
 # Optional libraries that affect compilation
 #
 include (ConfigureChecks)
@@ -337,13 +338,6 @@ set(CONSOLE_SOURCES console/yap.c)
 #   console/LGPL/pl-ntmain.c
 # )
 
-ADD_SUBDIRECTORY(library)
-ADD_SUBDIRECTORY(swi/library)
-# ADD_SUBDIRECTORY(os)
-# ADD_SUBDIRECTORY(packages)
-# ADD_SUBDIRECTORY(packages)
-ADD_SUBDIRECTORY(pl)
-
 ## define system
 
 add_library(libYap SHARED
@@ -369,8 +363,6 @@ option (WITH_Dynamic_BDD
 #TODO:
 
 #TODO:
-
-include_directories (H include os ${CMAKE_CURRENT_BINARY_DIR})
 
 #
 # Arch checks
@@ -470,7 +462,18 @@ cmake_dependent_option (WITH_PThreadLocking
   "use pthread locking primitives for internal locking" ON
   System_Threads OFF)
 
+ADD_SUBDIRECTORY(library)
+ADD_SUBDIRECTORY(swi/library)
+# ADD_SUBDIRECTORY(os)
+# ADD_SUBDIRECTORY(packages)
+# ADD_SUBDIRECTORY(packages)
+ADD_SUBDIRECTORY(pl)
+
 macro_optional_add_subdirectory (packages/cuda)  
+
+macro_optional_add_subdirectory (packages/real)  
+
+macro_optional_add_subdirectory (packages/python)  
 
 macro_optional_add_subdirectory (packages/raptor)  
 
