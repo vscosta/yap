@@ -17834,6 +17834,8 @@ fi
 if test "$PKG_REAL" != ""; then
 ac_config_files="$ac_config_files packages/real/Makefile"
 
+ac_config_files="$ac_config_files packages/real/rconfig.h"
+
 fi
 
 if test "$PKG_MYDDAS" != ""; then
@@ -18614,6 +18616,7 @@ do
     "packages/swi-minisat2/Makefile") CONFIG_FILES="$CONFIG_FILES packages/swi-minisat2/Makefile" ;;
     "packages/swi-minisat2/C/Makefile") CONFIG_FILES="$CONFIG_FILES packages/swi-minisat2/C/Makefile" ;;
     "packages/real/Makefile") CONFIG_FILES="$CONFIG_FILES packages/real/Makefile" ;;
+    "packages/real/rconfig.h") CONFIG_FILES="$CONFIG_FILES packages/real/rconfig.h" ;;
     "packages/myddas/Makefile") CONFIG_FILES="$CONFIG_FILES packages/myddas/Makefile" ;;
     "packages/CLPBN/Makefile") CONFIG_FILES="$CONFIG_FILES packages/CLPBN/Makefile" ;;
     "packages/CLPBN/horus/Makefile") CONFIG_FILES="$CONFIG_FILES packages/CLPBN/horus/Makefile" ;;

@@ -2270,6 +2270,7 @@ fi
 
 if test "$PKG_REAL" != ""; then
 AC_CONFIG_FILES([packages/real/Makefile])
+AC_CONFIG_FILES([packages/real/rconfig.h])
 fi
 
 if test "$PKG_MYDDAS" != ""; then
