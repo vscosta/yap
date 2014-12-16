@@ -983,10 +983,7 @@ static Int init_current_predicate(USES_REGS1) {
              (q = RepFunctorProp(p)->PropsOfFE) == NIL) {
         p = p->NextOfPE;
       }
-      if (!q) {
-        if (p)
-          p = p->NextOfPE;
-      } else if (!p)
+      if (!p)
         cut_fail();
       EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(p);
       EXTRA_CBACK_ARG(4, 2) = MkAddressTerm(q);
