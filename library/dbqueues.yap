@@ -1,4 +1,12 @@
-% A library to implement queues of NB Terms
+/**
+  @defgroup DBQUeue Non-baacktrackable queues in YAP.
+  @ingroup YAPLibrary
+  @{
+  
+A library to implement queues of NB Terms
+
+  @{
+*/
 
 :- module(nbqueue, [
 		    nb_enqueue/2,
@@ -50,3 +58,7 @@ nb_dequeue_all(Ref) :-
 
 nb_dequeue_size(Ref, Size) :-
 	prolog:'$nb_size'(Ref, Size).
+
+/**
+  @}
+*/

@@ -769,7 +769,7 @@ WARN_LOGFILE =
 # INPUT                  = /Users/vsc/git/yap-6.3/packages/cplint/mcintyre.pl
 #INPUT = /Users/vsc/git/yap-6.3/packages/R/R.pl		
 
-INPUT = foreigns.yap docs/yap.md pl swi C H include os packages library CXX OPTYap
+INPUT = docs/yap.md pl swi C H include os packages library CXX OPTYap
 			 
 
 # This tag can be used to specify the character encoding of the source files

@@ -32,7 +32,7 @@
  term_to_atom/2 
     ]).
 
-/** @defgrou CharsIO Operations on Sequences of Codes.
+/** @defgroup CharsIO Operations on Sequences of Codes.
 @ingroup YAPLibrary
 
 Term to sequence of codes conversion, mostly replaced by engine code.

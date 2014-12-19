@@ -17,7 +17,7 @@
 
 /** 
 
-@addtogroup YAPControl
+@defgroup YAPControl
 @{
 
 */

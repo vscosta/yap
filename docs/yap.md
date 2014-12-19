@@ -162,11 +162,10 @@ DTAI group of KULeuven. For general information on ProbLog 1 and 2, please see
     
     <http://dtai.cs.kuleuven.be/problog>
 
-+ The real R interface package developed by 	Nicos Angelopoulos,
++ The `real` R interface package developed by 	Nicos Angelopoulos,
 Vítor Santos Costa, João Azevedo, Jan Wielemaker, and Rui Camacho.
-</li>
 
-+ YAP includes the yap2swi library that ports to YAP code from
++ YAP includes the `yap2swi` library that ports to YAP code from
  of SWI's PL interface. This includes the Input/Output Layer, the SWI
  Foreign Language Interface, and the RDF, archive, clib, http, odbc, plunit,
  semweb, sgml, and zlib packages written by Jan Wielemaker. Please do refer to the SWI-Prolog home page:
@@ -804,7 +803,7 @@ will be used:
 
 + @ref YAPOS
 
-+ @ref Database
++ @ref Internal_Database
 
 + @ref Sets
 
