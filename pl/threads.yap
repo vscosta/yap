@@ -16,14 +16,11 @@
 *************************************************************************/
 
 /**
-@addtogroup Threads 
-@defgroup Threads Threads
-@ingroup YAPExtensions
-@{
+  @defgroup Threads Threads
+  @ingroup YAPExtensions
+  @{
 
-@page YAPThreads Threads in YAP
-
-YAP implements a SWI-Prolog compatible multithreading
+  YAP implements a SWI-Prolog compatible multithreading
 library. Like in SWI-Prolog, Prolog threads have their own stacks and
 only share the Prolog <em>heap</em>: predicates, records, flags and other
 global non-backtrackable data.  The package is based on the POSIX thread

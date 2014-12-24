@@ -17,15 +17,87 @@
 
 /**
 
+  @defgroup YAPPackages The YAP packages
+
+
+  @defgroup YAPLibrary The YAP Library
+
+  Library files reside in the library_directory path (set by the
+  `LIBDIR` variable in the Makefile for YAP). Several files in the
+  library are originally from the public-domain Edinburgh Prolog library. 
+
+  +  @ref maplist
+
+  +  @ref Apply Apply Macros
+  
+  +  @ref Association_Lists 
+  
+  +  @ref AVL_Trees 
+  
+  +  @ref  Exo_Intervals
+  
+  +  @ref Heaps 
+  
+  +  @ref Lists
+  
+  +  @ref LineUtilities
+  
+  +  @ref matrix 
+  
+  +  @ref NonhYBacktrackable_Data_Structures 
+  
+  +  @ref Ordered_Sets 
+  
+  +  @ref Pseudo_Random 
+  
+  +  @ref Queues Queues
+  
+  +  @ref PseudoRandom
+  
+  +  @ref RedhYBlack_Trees
+  
+  +  @ref RegExp
+
+  +  @ref Splay_Trees 
+  
+  +  @ref System 
+  
+  +  @ref Terms 
+  
+  +  @ref Tries 
+  
+  +  @ref Cleanup 
+  
+  +  @ref Timeout
+  
+  +  @ref Trees
+  
+  +  @ref UGraphs
+  
+  +  @ref DGraphs 
+  
+  +  @ref UnDGraphs
+  
+  +  @ref DBUsage
+  
+  +  @ref lambda
+
+  +  @ref clpfd
+  
+  +  @ref Block_Diagram 
+*/  
+
+/**
+
    \defgroup YAPModules The YAP Module system 
 
    @ingroup YAPLoading
 
   The YAP module system is based on the Quintus/SISCtus module
-system. In this design, modules are named collections of predicates,
-and all predicates belong to a single module. Predicates are only
-visible within a module, or _private_ to that module, but the module
-will most often will also define a list of predicates that are
+system ˜\cite quintus . In this design, modules are named collections of predicates,
+and all predicates belong to a single module. By default, predicates are only
+visible within a module, or _private_ to that module. The module
+may also define a list of predicates that are
 _exported_, that is, visible to other modules.
 
 The main predicates in the module system are:
@@ -40,7 +112,7 @@ automatically visible to every module.  The `system` module was
   introduced for SWI-Prolog compatibility, and in YAP mostly acts as an
 alias to `prolog`.
 
-YAP is always associated to a module, the current <em>source
+The YAP engine is always associated to a module, the current <em>source
 module</em> or <em>type-in module</em>. By default, all predicates
 read-in and all calls to a goal will be made to predicates visible to
 the current source module, Initially, the source module for YAP is the
@@ -48,7 +120,7 @@ module `user`. Thus Prolog programs that do not define modules will
 operate within the `user` module. In this case, all predicates will be
 visible to all source files.
 
-YAP also includes a number of libraries and packages, most of them
+YAP  includes a number of libraries and packages, most of them
  defining their own modules. Note that there is no system mechanism to
  avoid clashes between module names, so it is up to the programmer to
  carefully choose the names for her own program modules.
@@ -112,7 +184,7 @@ YAP and other Prolog systems allow the module prefix to see all
 predicates visible in the module, including predicates private to the
 module.  This rule allows maximum flexibility, but it also breaks
 encapsulation and should be used with care. The ciao language proposes
-a different approach to this problem, see \cite .
+a different approach to this problem, see \cite DBLP:conf/cl/GrasH00 .
 
 Modules are not always associated with a source-file. They
 may range over several files, by using the
@@ -1472,7 +1544,7 @@ export_list(Module, List) :-
 '$conj_has_cuts'(G,_,G, _).
 
 /**
-    set_base_module( +ExportingModule ) is det
+  @pred  set_base_module( +ExportingModule ) is det
 All exported predicates from _ExportingModule_ are automatically available to the 
 current source  module.
 
@@ -1493,7 +1565,7 @@ set_base_module(ExportingModule) :-
 	'$do_error'(type_error(atom,ExportingModule),set_base_module(ExportingModule)).
 
 /**
-    import_module( +ImportingModule, +ExportingModule ) is det
+   @pred  import_module( +ImportingModule, +ExportingModule ) is det
 All exported predicates from _ExportingModule_ are automatically available to the 
  source  module _ImportModule_.
 
@@ -1512,7 +1584,8 @@ import_module(Mod, EM) :-
 	'$do_error'(type_error(atom,Mod),import_module(Mod, EM)).
 
 
-/** add_import_module( + _Module_, + _ImportModule_ , +_Pos_) is det
+/**
+  @pred add_import_module( + _Module_, + _ImportModule_ , +_Pos_) is det
 Add all exports in _ImportModule_ as available to _Module_.
 
     
@@ -1542,7 +1615,8 @@ add_import_module(Mod, ImportModule, Pos) :-
 add_import_module(Mod, ImportModule, Pos) :-
 	'$do_error'(domain_error(start_end,Pos),add_import_module(Mod, ImportModule, Pos)).
 
-/** delete_import_module( + _ExportModule_, + _ImportModule_ ) is det
+/**
+  @pred delete_import_module( + _ExportModule_, + _ImportModule_ ) is det
 Exports in _ImportModule_ are no longer available to _Module_.
 
     
@@ -1572,7 +1646,8 @@ delete_import_module(Mod, ImportModule) :-
 '$set_source_module'(Source0, SourceF) :-
 	current_module(Source0, SourceF).
 
-/** module_property( + _Module_, ? _Property_ ) is nondet
+/**
+  @pred module_property( + _Module_, ? _Property_ ) is nondet
 Enumerate non-deterministically the main properties of _Module_ .
 
 Reports the following properties of _Module_:

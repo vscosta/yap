@@ -62,7 +62,7 @@ atom-garbage collection, perform atom garbage collection at the first
 opportunity. Initial value is 10,000. May be changed. A value of 0
 (zero) disables atom garbage collection.
 
-+ `associate `
++ `associate`
 
     Read-write flag telling a suffix for files associated to Prolog
 sources. It is `yap` by default.

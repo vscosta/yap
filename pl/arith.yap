@@ -35,27 +35,25 @@
 /** @defgroup CompilerAnalysis Internal Clause Rewriting
     @ingroup YAPCompilerSettings
 
- YAP supports several clause optimisation mechanisms, that
- are designed to improve execution of arithmetic
- and term construction built-ins. In other words, during the
- compilation process a clause is rewritten twice:
+  YAP supports several clause optimisation mechanisms, that
+  are designed to improve execution of arithmetic
+  and term construction built-ins. In other words, during the
+  compilation process a clause is rewritten twice:
 
- 1. first, perform user-defined goal_expansion as described
-   in the predicates goal_expansion/1 and goal_expansion/2.
+  1. first, perform user-defined goal_expansion as described
+  in the predicates goal_expansion/1 and goal_expansion/2.
 
- 2. Perform expansion of some built-ins like:
+  2. Perform expansion of some built-ins like:
 
-	+ pruning operators, like ->/2 and *->/2
+     + pruning operators, like ->/2 and *->/2
 
-    * arithmetic, including early evaluation of constant expressions
+     + arithmetic, including early evaluation of constant expressions
 
-    * specialise versions for some built-ins, if we are aware of the
+     + specialise versions for some built-ins, if we are aware of the
       run-time execution mode
 
   The user has some control over this process, through some
   built-ins and through execution flsgs.
-
-@{	
 
 */
 
@@ -111,7 +109,6 @@ p(A):-
 q(A):-
       A is 22.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 
 */
 do_not_compile_expressions :- set_value('$c_arith',[]).
@@ -369,7 +366,5 @@ expand_expr(Op, X, Y, O, Q, P) :-
 
 
 /**	
-
-@}
-
+  @} 
 */

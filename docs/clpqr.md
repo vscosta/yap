@@ -1,7 +1,6 @@
+Constraint Logic Programming over Rationals and Reals  {#clpqr}
+=====================================================
 
-@defgroup clpr Constraint Logic Programming over Rationals and Reals
-@ingroup SWILibrary
-@{
 
 YAP now uses the CLP(R) package developed by <em>Leslie De Koninck</em>,
 K.U. Leuven as part of a thesis with supervisor Bart Demoen and daily
@@ -24,17 +23,12 @@ explicitely before using it:
 :- use_module(library(clpr)).
 ~~~~~
 
-@defgroup CLPR_Solver_Predicates Solver Predicates
-@ingroup clpr
-@{
-
+###  Solver Predicates {#CLPQR_Solver_Predicates}
 
 The following predicates are provided to work with constraints:
 
  
-* @defgroup CLPR_Syntax Syntax of the predicate arguments
-@ingroup YAPPackages
-@{
+### Syntax of the predicate arguments {#CLPQR_Syntax}
 
 
 The arguments of the predicates defined in the subsection above are
@@ -74,11 +68,8 @@ result in an exception.
 	     | max(<Expression>, <Expression>)	\ maximum \
 ~~~~~
 
-@}
 
-@defgroup CLPR_Unification Use of unification
-@ingroup clpr
-@{
+###  Use of unification {#CLPQR_Unification}
 
 Instead of using the `{}/1` predicate, you can also use the standard
 unification mechanism to store constraints. The following code samples
@@ -101,11 +92,7 @@ X = 5.0
 ~~~~~
 
 
-@}
-
-@defgroup CLPR_NonhYlinear_Constraints Non-Linear Constraints
-@ingroup clpr
-@{
+####  Non-Linear Constraints {#CLPQR_NonhYlinear_Constraints}
 
 
 In this version, non-linear constraints do not get solved until certain
@@ -131,8 +118,4 @@ X = sin(Y)	    when X is ground or			// 1 = sin(Y)
 X = cos(Y)	         Y is ground			// X = sin(1.5707) 
 X = tan(Y)
 ~~~~~
-
-@}
-
-@}
 

@@ -68,6 +68,72 @@
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
+   To make the predicate terminate if any argument is instantiated, add
+   the (implied) constraint F #\= 0 before the recursive call. Otherwise,
+   the query fac(N, 0) is the only non-terminating case of this kind.
+
+   This library uses goal_expansion/2 to rewrite constraints at
+   compilation time. The expansion's aim is to transparently bring the
+performance of CLP(FD) constraints close to that of conventional
+arithmetic predicates (</2, =:=/2, is/2 etc.) when the constraints are
+used in modes that can also be handled by built-in arithmetic. To
+   disable the expansion, set the flag clpfd_goal_expansion to false.
+
+   Use call_residue_vars/2 and copy_term/3 to inspect residual goals and
+   the constraints in which a variable is involved. This library also
+   provides _reflection_ predicates (like fd_dom/2, fd_size/2 etc.) with
+   which you can inspect a variable's current domain. These predicates
+   can be useful if you want to implement your own labeling strategies.
+
+   You can also define custom constraints. The mechanism to do this is
+   not yet finalised, and we welcome suggestions and descriptions of use
+   cases that are important to you. As an example of how it can be done
+   currently, let us define a new custom constraint "oneground(X,Y,Z)",
+   where Z shall be 1 if at least one of X and Y is instantiated:
+
+   ==
+   :- use_module(library(clpfd)).
+
+   :- multifile clpfd:run_propagator/2.
+
+   oneground(X, Y, Z) :-
+   clpfd:make_propagator(oneground(X, Y, Z), Prop),
+   clpfd:init_propagator(X, Prop),
+   clpfd:init_propagator(Y, Prop),
+   clpfd:trigger_once(Prop).
+
+   clpfd:run_propagator(oneground(X, Y, Z), MState) :-
+   (   integer(X) -> clpfd:kill(MState), Z = 1
+   ;   integer(Y) -> clpfd:kill(MState), Z = 1
+   ;   true
+   ).
+   ==
+
+   First, clpfd:make_propagator/2 is used to transform a user-defined
+   representation of the new constraint to an internal form. With
+   clpfd:init_propagator/2, this internal form is then attached to X and
+   Y. From now on, the propagator will be invoked whenever the domains of
+   X or Y are changed. Then, clpfd:trigger_once/1 is used to give the
+   propagator its first chance for propagation even though the variables'
+   domains have not yet changed. Finally, clpfd:run_propagator/2 is
+   extended to define the actual propagator. As explained, this predicate
+   is automatically called by the constraint solver. The first argument
+   is the user-defined representation of the constraint as used in
+   clpfd:make_propagator/2, and the second argument is a mutable state
+   that can be used to prevent further invocations of the propagator when
+   the constraint has become entailed, by using clpfd:kill/1. An example
+   of using the new constraint:
+
+   ==
+   ?- oneground(X, Y, Z), Y = 5.
+   Y = 5,
+   Z = 1,
+   X in inf..sup.
+   ==
+
+   @author Markus Triska
+*/
+
 :- module(clpfd, [
                   op(760, yfx, #<==>),
                   op(750, xfy, #==>),
@@ -140,208 +206,6 @@
 :- op(700, xfx, cis_gt).
 :- op(700, xfx, cis_leq).
 :- op(700, xfx, cis_lt).
-
-/** <module> Constraint Logic Programming over Finite Domains
-
-Constraint programming is a declarative formalism that lets you
-describe conditions a solution must satisfy. This library provides
-CLP(FD), Constraint Logic Programming over Finite Domains. It can be
-used to model and solve various combinatorial problems such as
-planning, scheduling and allocation tasks.
-
-Most predicates of this library are finite domain _constraints_, which
-are relations over integers. They generalise arithmetic evaluation of
-integer expressions in that propagation can proceed in all directions.
-This library also provides _enumeration_ _predicates_, which let you
-systematically search for solutions on variables whose domains have
-become finite. A finite domain _expression_ is one of:
-
-    | an integer         | Given value                   |
-    | a variable         | Unknown value                 |
-    | -Expr              | Unary minus                   |
-    | Expr + Expr        | Addition                      |
-    | Expr * Expr        | Multiplication                |
-    | Expr - Expr        | Subtraction                   |
-    | min(Expr,Expr)     | Minimum of two expressions    |
-    | max(Expr,Expr)     | Maximum of two expressions    |
-    | Expr mod Expr      | Remainder of integer division |
-    | abs(Expr)          | Absolute value                |
-    | Expr / Expr        | Integer division              |
-
-The most important finite domain constraints are:
-
-    | Expr1 #>= Expr2  | Expr1 is larger than or equal to Expr2  |
-    | Expr1 #=< Expr2  | Expr1 is smaller than or equal to Expr2 |
-    | Expr1 #=  Expr2  | Expr1 equals Expr2 |
-    | Expr1 #\= Expr2  | Expr1 is not equal to Expr2 |
-    | Expr1 #> Expr2   | Expr1 is strictly larger than Expr2 |
-    | Expr1 #< Expr2   | Expr1 is strictly smaller than Expr2 |
-
-The constraints in/2, #=/2, #\=/2, #</2, #>/2, #=</2, and #>=/2 can be
-_reified_, which means reflecting their truth values into Boolean
-values represented by the integers 0 and 1. Let P and Q denote
-reifiable constraints or Boolean variables, then:
-
-    | #\ Q      | True iff Q is false             |
-    | P #\/ Q   | True iff either P or Q          |
-    | P #/\ Q   | True iff both P and Q           |
-    | P #<==> Q | True iff P and Q are equivalent |
-    | P #==> Q  | True iff P implies Q            |
-    | P #<== Q  | True iff Q implies P            |
-
-The constraints of this table are reifiable as well. If a variable
-occurs at the place of a constraint that is being reified, it is
-implicitly constrained to the Boolean values 0 and 1. Therefore, the
-following queries all fail: ?- #\ 2., ?- #\ #\ 2. etc.
-
-A common usage of this library is to first post the desired
-constraints among the variables of a model, and then to use
-enumeration predicates to search for solutions. As an example of a
-constraint satisfaction problem, consider the cryptoarithmetic puzzle
-SEND + MORE = MONEY, where different letters denote distinct integers
-between 0 and 9. It can be modeled in CLP(FD) as follows:
-
-==
-:- use_module(library(clpfd)).
-
-puzzle([S,E,N,D] + [M,O,R,E] = [M,O,N,E,Y]) :-
-        Vars = [S,E,N,D,M,O,R,Y],
-        Vars ins 0..9,
-        all_different(Vars),
-                  S*1000 + E*100 + N*10 + D +
-                  M*1000 + O*100 + R*10 + E #=
-        M*10000 + O*1000 + N*100 + E*10 + Y,
-        M #\= 0, S #\= 0.
-==
-
-Sample query and its result:
-
-==
-?- puzzle(As+Bs=Cs).
-As = [9, _G10107, _G10110, _G10113],
-Bs = [1, 0, _G10128, _G10107],
-Cs = [1, 0, _G10110, _G10107, _G10152],
-_G10107 in 4..7,
-1000*9+91*_G10107+ -90*_G10110+_G10113+ -9000*1+ -900*0+10*_G10128+ -1*_G10152#=0,
-all_different([_G10107, _G10110, _G10113, _G10128, _G10152, 0, 1, 9]),
-_G10110 in 5..8,
-_G10113 in 2..8,
-_G10128 in 2..8,
-_G10152 in 2..8.
-==
-
-Here, the constraint solver has deduced more stringent bounds for all
-variables. Keeping the modeling part separate from the search lets you
-view these residual goals, observe termination and determinism
-properties of the modeling part in isolation from the search, and more
-easily experiment with different search strategies. Labeling can then
-be used to search for solutions:
-
-==
-?- puzzle(As+Bs=Cs), label(As).
-As = [9, 5, 6, 7],
-Bs = [1, 0, 8, 5],
-Cs = [1, 0, 6, 5, 2] ;
-false.
-==
-
-In this case, it suffices to label a subset of variables to find the
-puzzle's unique solution, since the constraint solver is strong enough
-to reduce the domains of remaining variables to singleton sets. In
-general though, it is necessary to label all variables to obtain
-ground solutions.
-
-You can also use CLP(FD) constraints as a more declarative alternative
-for ordinary integer arithmetic with is/2, >/2 etc. For example:
-
-==
-:- use_module(library(clpfd)).
-
-fac(0, 1).
-fac(N, F) :- N #> 0, N1 #= N - 1, F #= N * F1, fac(N1, F1).
-==
-
-This predicate can be used in all directions. For example:
-
-==
-?- fac(47, F).
-F = 258623241511168180642964355153611979969197632389120000000000 ;
-false.
-
-?- fac(N, 1).
-N = 0 ;
-N = 1 ;
-false.
-
-?- fac(N, 3).
-false.
-==
-
-To make the predicate terminate if any argument is instantiated, add
-the (implied) constraint F #\= 0 before the recursive call. Otherwise,
-the query fac(N, 0) is the only non-terminating case of this kind.
-
-This library uses goal_expansion/2 to rewrite constraints at
-compilation time. The expansion's aim is to transparently bring the
-performance of CLP(FD) constraints close to that of conventional
-arithmetic predicates (</2, =:=/2, is/2 etc.) when the constraints are
-used in modes that can also be handled by built-in arithmetic. To
-disable the expansion, set the flag clpfd_goal_expansion to false.
-
-Use call_residue_vars/2 and copy_term/3 to inspect residual goals and
-the constraints in which a variable is involved. This library also
-provides _reflection_ predicates (like fd_dom/2, fd_size/2 etc.) with
-which you can inspect a variable's current domain. These predicates
-can be useful if you want to implement your own labeling strategies.
-
-You can also define custom constraints. The mechanism to do this is
-not yet finalised, and we welcome suggestions and descriptions of use
-cases that are important to you. As an example of how it can be done
-currently, let us define a new custom constraint "oneground(X,Y,Z)",
-where Z shall be 1 if at least one of X and Y is instantiated:
-
-==
-:- use_module(library(clpfd)).
-
-:- multifile clpfd:run_propagator/2.
-
-oneground(X, Y, Z) :-
-        clpfd:make_propagator(oneground(X, Y, Z), Prop),
-        clpfd:init_propagator(X, Prop),
-        clpfd:init_propagator(Y, Prop),
-        clpfd:trigger_once(Prop).
-
-clpfd:run_propagator(oneground(X, Y, Z), MState) :-
-        (   integer(X) -> clpfd:kill(MState), Z = 1
-        ;   integer(Y) -> clpfd:kill(MState), Z = 1
-        ;   true
-        ).
-==
-
-First, clpfd:make_propagator/2 is used to transform a user-defined
-representation of the new constraint to an internal form. With
-clpfd:init_propagator/2, this internal form is then attached to X and
-Y. From now on, the propagator will be invoked whenever the domains of
-X or Y are changed. Then, clpfd:trigger_once/1 is used to give the
-propagator its first chance for propagation even though the variables'
-domains have not yet changed. Finally, clpfd:run_propagator/2 is
-extended to define the actual propagator. As explained, this predicate
-is automatically called by the constraint solver. The first argument
-is the user-defined representation of the constraint as used in
-clpfd:make_propagator/2, and the second argument is a mutable state
-that can be used to prevent further invocations of the propagator when
-the constraint has become entailed, by using clpfd:kill/1. An example
-of using the new constraint:
-
-==
-?- oneground(X, Y, Z), Y = 5.
-Y = 5,
-Z = 1,
-X in inf..sup.
-==
-
-@author Markus Triska
-*/
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    A bound is either:

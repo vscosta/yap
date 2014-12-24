@@ -15,12 +15,6 @@
 *									 *
 *************************************************************************/
 
-/** @defgroup LoadForeign Access to Foreign Language Programs
-@ingroup YAPBuiltins
-@{
-
-*/
-
 
 :- system_module( '$_load_foreign', [load_foreign_files/3,
         open_shared_object/2,
@@ -29,6 +23,11 @@
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
 :- use_system_module( '$_modules', ['$do_import'/3]).
+
+/** @defgroup LoadForeign Access to Foreign Language Programs
+@ingroup YAPBuiltins
+
+*/
 
 /** @pred load_foreign_files( _Files_, _Libs_, _InitRoutine_)
 

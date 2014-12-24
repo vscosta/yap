@@ -22,7 +22,7 @@
 */
 
 
-/** @addtogroup InputOutput
+/** @ingroup InputOutput
 @{
 
 */
@@ -4874,7 +4874,7 @@ PRED_IMPL("is_stream", 1, is_stream, 0)
  */
 
 /**
- * @addtogroup StreamM
+ * @ingroup StreamM
  * @{
  */
 
@@ -4923,7 +4923,7 @@ PRED_IMPL("flush_output", 1, flush_output1, PL_FA_ISO)
  */
 
 /**
- * @addtogroup Stream
+ * @ingroup Stream
  * @{
  */
 
@@ -5347,7 +5347,7 @@ peek(term_t stream, term_t chr, int how ARG_LD)
  */
 
 /**
- * @addtogroup CharsIO
+ * @ingroup CharsIO
  * @{
  */
 
@@ -5452,7 +5452,7 @@ PRED_IMPL("peek_char", 1, peek_char1, 0)
  */
 
 /**
- * @addtogroup StreamM
+ * @ingroup StreamM
  * @{
  */
 

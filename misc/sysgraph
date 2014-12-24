@@ -1,3 +1,6 @@
+#!/usr/local/bin/yap -L -- *
+#.
+
 
 :- style_check(all).
 
@@ -28,7 +31,8 @@
    library/1,
    undef/2,
    c_dep/2,
-   do_comment/5.
+   do_comment/5,
+   module_file/2.
 
 % @short node(?Module:module, ?Predicate:pred_indicator, ?File:file, ?Generator:atom) is nondet
 %
@@ -133,6 +137,9 @@ init :-
     user_expand(N,A),
     do_user_expand(N,A),
     fail.
+init :-
+    catch( make_directory(tmp), _, fail),
+    fail.
 init.
 
 init_loop( _Dirs ).
@@ -188,7 +195,7 @@ c_file(F, Mod) :-
       c_ext(S, Mod, F),
       fail
       ;
-      split_string(String, ",; ()\t\"\'", Fields),
+      split_string(String, ",; ()\t\"\'", Fields), %'
 %writeln(Fields),
       line_count(S, Lines),
       c_line(Fields , Mod, F:Lines),
@@ -213,7 +220,7 @@ c_ext( S, Mod, F ) :-
 	sub_string( String, _, _, _, "NULL" ),
 	!
 	;
-	split_string(String, ",; (){}\t\"\'", ["FRG", NS,AS,FS|_]),
+	split_string(String, ",; (){}\t\"\'", ["FRG", NS,AS,FS|_]), %'
 	atom_string(N,NS),
 	atom_string(Fu,FS),
 	number_string(A, AS),
@@ -222,7 +229,7 @@ c_ext( S, Mod, F ) :-
 	assert( node( Mod , N/A,  F-Line, Fu ) ),
 	handle_pred( Mod, N, A, F )
 	;
-	split_string(String, ",; (){}\t\"\'", [NS,AS,FS|_]),
+	split_string(String, ",; (){}\t\"\'", [NS,AS,FS|_]), %'
 	atom_string(N,NS),
 	atom_string(Fu,FS),
 	number_string(A, AS),
@@ -453,6 +460,7 @@ get_interf( (:- V ), _F, _M ) :-
     !.
 get_interf( (:- module( NM, Is ) ), F, _M ) :-
     !,
+	assert(module_file( F, NM ) ),
     nb_setval( current_module, NM ),
     assert( module_on( F , NM, Is) ),
     maplist( public(F, NM), Is ),
@@ -648,14 +656,22 @@ exported( NF, F, NM, M, op(X,Y,Z)) :-
     public( NF , NM:op(X,Y,Z) ),
     handle_op( F, M , op(X,Y,Z) ).
 exported( NF, F, NM, M, N/A) :- !,
+    % sink no more
+    retractall( exported(( _ :- F-M:N/A) ) ),
     assert_new( exported( (F-M:N/A :- NF-NM:N/A )) ).
 exported( NF, F, NM, M, N/A as NN) :- !,
+    % sink no more
+    retractall( exported(( _ :- F-M:N/A) ) ),
     assert_new( exported( ( F-M:NN/A :- NF-NM:N/A ) ) ).
 exported( NF, F, NM, M, N//A) :- !,
     A2 is A+2,
+    % sink no more
+    retractall( exported(( _ :- F-M:N/A2) ) ),
     assert_new( exported( (F-M:N/A2 :- NF-NM:N/A2) ) ).
 exported( NF, F, NM, M, N//A as NN) :- !,
     A2 is A+2,
+    % sink no more
+    retractall( exported(( _ :- F-M:N/A2) ) ),
     assert_new( exported( ( F-M:NN/A2 :- NF-NM:N/A2 )) ).
 
 import_publics( F, ProducerMod, ConsumerMod ) :-
@@ -1036,16 +1052,29 @@ always_strip_module(M0:A, M0, call(A)) :- var(A),!.
 always_strip_module(M0:A, M0, A).
 
 c_links :-
-    open('foreigns.yap', write, S),
+    open('tmp/foreigns.yap', write, S),
     clinks(S).
 
 clinks(S) :-
-    exported( ( _-M:F/A :- _-M1:F1/A ) ),
-    format( S, ':- export( ~a:~a/~d , ~a:~a/~d ).~n', [M,F,A , M1,F1,A] ),
+	module_file( F, NM ),
+	format( S, 'mod( ~q , ~q ). ~n', [NM, F] ),
+	fail.
+clinks(S) :-
+    exported( ( Fi0-M:F/A :- Fi1-M1:F1/A ) ),
+    ( M \= M1 -> M \= prolog ; F \= F1 ),
+    functor(S0, F, A),
+    S0 =.. [F| Args],
+    S1 =.. [F1| Args],
+    numbervars(Args, 0, _),
+    format( S, '% ~q <- ~q.~n~q:~q :- ~q:~q. ~n', [Fi0, Fi1, M,S0, M1,S1] ),
     fail.
 clinks(S) :-
-    node( M, P, File-Line, c(F)),
-    format( S, ':- foreign_predicate( ~q , ~q , ~q , ~d ).~n', [M:P, F, File, Line] ),
+    node( M, F/A, File-Line, c(F)),
+    functor( S0, F, A),
+    S0 =.. [F| Args],
+    S1 =.. [foreign, F| Args],
+    numbervars(Args, 0, _),
+    format( S, ' ~a:~d~nforeign(~q , ~q , ~q, ~q ).~n', [File, Line, M:S0, S1, File, Line] ),
     fail.
 clinks(S) :-
     close(S).
@@ -1060,7 +1089,8 @@ warn_singletons(_Vars, _Pos).
 comment( _Pos - Comment) :-
     skip_blanks(1, Comment, N),
     doc( Comment, N ), !,
-    format( "%s\n", [Comment] ).
+    format( "%s\n", [Comment] ),
+    verif
 comment( _Pos - _Comment).
 
 skip_blanks(I, Comment, N) :-
@@ -1073,7 +1103,7 @@ skip_blanks(N, _Comment, N).
 doc( Comment , N ) :-
     N1 is N+1,
     sub_string( Comment, N1, 3, _, Header ),
-    ( Header == "/**" -> true ; Header == "/*!" ), !,
+    ( Header == "/**" -> true ; Header == "/*!" ), !, % */
     N4 is N+4,
     get_string_code( N4, Comment, Code ),
     code_type( Code, space ).
@@ -1291,11 +1321,11 @@ error( Error ) :- throw(Error ).
 %
 %
 mkdocs :-
-  open( pages, write, S1),
+  open( 'tmp/pages', write, S1),
   close( S1 ),
-  open( bads, write, S2),
+  open( 'tmp/bads', write, S2),
   close( S2 ),
-  open( groups, write, S3),
+  open( 'tmp/groups', write, S3),
   close( S3 ),
     open( 'docs/yapdocs.yap', read, S),
     repeat,
@@ -1315,7 +1345,7 @@ blanks( S , T, TF) :-
     read_line_to_codes(S, T1, T2),
     ( T1 == end_of_file -> fail;
       T2 == [] -> fail;
-      T1 \== T2, foldl( check, [0'/,0'*,0'*],T1, _) -> TF = T2, T = T1 ;
+      T1 \== T2, foldl( check, [0'/,0'*,0'*],T1, _) -> TF = T2, T = T1 ; % '
       blanks( S , T, TF) ).
 
 get_comment( S , T) :-
@@ -1329,7 +1359,7 @@ check(C, [C0|L], L) :-
   C == C0.
 
 diff_end( L, T, [] ) :-
-   append(_, L, T). 
+   append(_, L, T).
 
 store_comment(Comment) :-
   header( Pred, A, Comment, _ ),
@@ -1338,7 +1368,9 @@ store_comment(Comment) :-
     true
   ;
     format('Missing definition for ~q.~n', [P/A] ),
-    ( node( Mod, P/Ar, File-Line, Type), format('  ~w exists.~n',[Mod:P/Ar]), fail )
+    node( Mod, P/Ar, File-Line, Type),
+    format('  ~w exists.~n',[Mod:P/Ar]),
+    fail
   ),
   ( node( M1, P/A, _, _),  M1 \= Mod -> Dup = true ; Dup = false),
   !,
@@ -1346,46 +1378,46 @@ store_comment(Comment) :-
   assert( do_comment( File, Line, C, Type, Dup ) ).
 store_comment(Comment) :-
   page( Comment, _ ), !,
-  open( pages, append, S),
+  open( 'tmp/pages', append, S),
   format(S, '*******************************~n~n~s~n~n', [Comment]),
   close(S).
 store_comment(Comment) :-
   defgroup( Comment, _ ), !,
-  open( groups, append, S),
+  open( 'tmp/groups', append, S),
   format(S, '*******************************~n~n~s~n~n', [Comment]),
   close(S).
 store_comment(Comment) :-
-  open( bads, append, S),
+  open( 'tmp/bads', append, S),
   format(S, '*******************************~n~n~s~n~n', [Comment]),
   close(S).
 
 defgroup -->
-  "/**",
-  blank,
+  "/**", % */
+  blanks,
   "@defgroup".
 
 page -->
-  "/**",
-  blank,
+  "/**", % */
+  blanks,
   "@page".
 
 header(Pred, Arity) -->
-  "/**",
-  blank,
+  "/**", % */
+  blanks,
   "@pred",
-  blank,
+  blanks,
   atom(_),
-  ":", 
+  ":",
   !,
   atom(Pred),
   atom_pred(Arity).
 header(Pred, Arity) -->
-  "/**",
-  blank,
+  "/**", % */
+  blanks,
   "@pred",
-  blank,
+  blanks,
   atom(Pred),
-  atom_pred(Arity), 
+  atom_pred(Arity),
   !.
 header(Pred, 2, Comment, _) :-
     split(Comment, [[0'/,0'*,0'*],[0'@,0'p,0'r,0'e,0'd],_,Pred,_,[0'i,0's]|_]), !.
@@ -1440,6 +1472,7 @@ atom2([A|As]) -->
 atom2([]) --> [].
 
 add_comments :-
+ open('tmp/comments.yap', write, S),
  findall(File, do_comment( File, Line, C, Type, Dup), Fs0 ),
   (
       sort(Fs0, Fs),
@@ -1447,9 +1480,10 @@ add_comments :-
       setof(Line-C-Type-Dup, do_comment( File, Line, C, Type, Dup) , Lines0 ),
       reverse( Lines0, Lines),
       member(Line-Comment-Type-Dup, Lines),
-      check_comment( Comment, CN, Line, File ), 
+      check_comment( Comment, CN, Line, File ),
       Line1 is Line-1,
-      format(S, '#~a~ncat << "EOF" > tmp~n~sEOF~nsed -e "~dr tmp" ~a > x~n mv x ~a~n~n',[Dup,CN, Line1, File, File])
+      format(S, '#~a~ncat << "EOF" > tmp~n~sEOF~nsed -e "~dr tmp" ~a > x~n\
+     mv x ~a~n~n',[Dup,CN, Line1, File, File])
 	  ;
 	  close(S)
    ),
@@ -1457,11 +1491,13 @@ add_comments :-
 add_comments :-
   listing( open_comment ).
 
-check_comment( Comment, CN, _Line, _File ) :-
-    string_codes( Comment, C),
+check_comment( Comment, CN, _Line, File ) :-
+    string_codes( Comment, [_,_,_|C]),
+    check_groups(0,C,[]),
     check_quotes(0,C,[]),
-    ( append(C0,[0'@,0'},0' ,0'*,0'/,10], C) ->
-	append(C0,[0'*,0'/,10], CN)
+    (
+        append(C0,[0'@,0'},0' ,0'*,0'/,10], C) -> %'
+	    append(C0,[0'*,0'/,10], CN)
 	      ;
 	      CN = C
     ),
@@ -1469,18 +1505,20 @@ check_comment( Comment, CN, _Line, _File ) :-
 check_comment( Comment, Comment,  Line, File ) :-
     format(user_error,'*** bad comment ~a ~d~n~n~s~n~', [File,Line,Comment]).
 
+check_groups(0,
+
 check_quotes( 0 ) --> [].
-check_quotes( 0 ) --> 
+check_quotes( 0 ) -->
     "`", !,
     check_quotes( 1 ).
-check_quotes( 1 ) --> 
+check_quotes( 1 ) -->
     "`", !,
     check_quotes( 0 ).
-check_quotes( 1 ) --> 
+check_quotes( 1 ) -->
     "\"", !, { fail }.
-check_quotes( 1 ) --> 
-    "'",  !, { fail }.
-check_quotes( N ) --> 
+check_quotes( 1 ) -->
+    "'",  !, { fail }. %'
+check_quotes( N ) -->
     [_],
     check_quotes( N ).
 

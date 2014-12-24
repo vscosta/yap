@@ -14,9 +14,6 @@
 * comments:	sorting in Prolog					 *
 *									 *
 *************************************************************************/
-/** @addtogroup Comparing_Terms
-  @{
-*/
 :- system_module( '$_sort', [keysort/2,
         length/2,
         msort/2,
@@ -28,6 +25,9 @@
         sort2/4], []).
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
+
+/** @addtogroup Comparing_Terms
+*/
 
 
 /*  The three sorting routines are all variations of merge-sort, done by

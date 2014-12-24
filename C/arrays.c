@@ -16,7 +16,7 @@
 *************************************************************************/
 
 
-/** @defgroup YAPArrays Arrays
+/** @defgroup YAPArrays Named Arrays
 @ingroup YAPExtensions
 @{
 

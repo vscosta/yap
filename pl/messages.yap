@@ -25,7 +25,7 @@ portray messages. These messages range from prompts to error
 information. All message processing is performed through the builtin
 print_message/2, in two steps:
 
-+ The message is processed into a list of commands 
++ The message is processed into a list of commands
 + The commands in the list are sent to the `format/3` builtin
 in sequence.
 
@@ -95,7 +95,7 @@ generate_message('$abort') --> !,
 	['YAP execution aborted'].
 generate_message(abort(user)) --> !,
 	['YAP execution aborted'].
-generate_message(loading(_,F)) --> F == user, !.
+generate_message(loading(_,F)) --> { F == user }, !.
 generate_message(loading(What,FileName)) --> !,
 	[ '~a ~w...' - [What, FileName] ].
 generate_message(loaded(_,user,_,_,_)) --> !.
@@ -135,7 +135,7 @@ generate_message(M) -->
 	stack_dump(M).
 
 stack_dump(error(_,_)) -->
-	{ fail }, 
+	{ fail },
 	{ recorded(sp_info,local_sp(_P,CP,Envs,CPs),_) },
 	{ Envs = [_|_] ; CPs = [_|_] }, !,
 	[nl],
@@ -143,7 +143,7 @@ stack_dump(error(_,_)) -->
 stack_dump(_) --> [].
 
 prolog_message(X,Y,Z) :-
-	system_message(X,Y,Z).	      
+	system_message(X,Y,Z).
 
 				%message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
 system_message(query(_QueryResult,_)) --> [].
@@ -553,7 +553,7 @@ syntax_error_token(A) --> !,
 %	Quintus/SICStus/SWI compatibility predicate to print message lines
 %       using  a prefix.
 
-/** @pred  print_message_lines(+ _Stream_, + _Prefix_, + _Lines_) 
+/** @pred  print_message_lines(+ _Stream_, + _Prefix_, + _Lines_)
 
 
 Print a message (see print_message/2) that has been translated to
@@ -576,7 +576,7 @@ A new line is started and if the message is not complete
 the  _Prefix_ is printed too.
 
 
- 
+
 */
 prolog:print_message_lines(_S, _, []) :- !.
 prolog:print_message_lines(_S, P, [at_same_line|Lines]) :- !,
@@ -665,7 +665,7 @@ clause_to_indicator(T, M:Name/Arity) :-
 	pred_arity( T1, Name, Arity ).
 
 pred_arity(V,call,1) :- var(V), !.
-pred_arity((H:-_),Name,Arity) :- 
+pred_arity((H:-_),Name,Arity) :-
     nonvar(H),
     !,
     functor(H,Name,Arity).

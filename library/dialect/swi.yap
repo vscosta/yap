@@ -2,11 +2,13 @@
 % SWI emulation.
 % written in an on-demand basis.
 
+%% @defgroup SWILibrary Compatibility with SWI-Prolog and Other Prolog systems
 
 /** 
 
 @defgroup System SWI Dialect Support
 
+  
 This library provides a number of SWI-Prolog builtins that are not by
 default in YAP. This support is loaded with the
 ~~~~~

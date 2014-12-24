@@ -1,8 +1,5 @@
-/**
-
-@defgroup CHR CHR: Constraint Handling Rules 
-
-@ingroup SWILibrary
+CHR: Constraint Handling Rules  {#chr}
+==============================
 
 This chapter is written by Tom Schrijvers, K.U. Leuven for the hProlog
 system. Adjusted by Jan Wielemaker to fit the SWI-Prolog documentation
@@ -527,4 +524,4 @@ Provide mode and type declarations to get more efficient program execution.
 Make sure to disable debug (`-nodebug`) and enable optimization
 (`-O`).
 
-*/
+

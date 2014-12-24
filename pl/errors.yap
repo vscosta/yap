@@ -9,7 +9,7 @@
 **************************************************************************
 *									 *
 * File:		errors.yap						 *
-* comments:	error messages for YAP					 *
+  * comments:	error messages for YAP					 *
 *									 *
 * Last rev:     $Date: 2008-07-22 23:34:50 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
@@ -279,7 +279,7 @@ the stream user_error.
 
 If the Prolog flag verbose is `silent`, messages with
  _Kind_ `informational`, or `banner` are treated as
-silent.@c  See \cmdlineoption{-q}.
+  silent.  See `-q` in [Running_YAP_Interactively].
 
 This predicate first translates the  _Term_ into a list of `message
 lines` (see print_message_lines/3 for details).  Next it will

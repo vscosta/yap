@@ -15,6 +15,19 @@
 *									 *
 *************************************************************************/
 
+/**
+  @defgroup YAPProgramming Programming in YAP
+
+  + @ref Syntax
+
+  + @ref YAPCompilerSettings
+
+  + @ref Indexing
+
+  + @ref Deb_Interaction
+
+*/
+
 :- system_module( '$_directives', [user_defined_directive/2], ['$all_directives'/1,
         '$exec_directives'/5]).
 

@@ -5,6 +5,17 @@
 %   Updated: 29 November 1983
 %   Purpose: Implement heaps in Prolog.
 
+:- module(heaps,[
+                 add_to_heap/4, %   Heap x Key x Datum -> Heap
+                 get_from_heap/4, %   Heap -> Key x Datum x Heap
+                 empty_heap/1,    %   Heap
+                 heap_size/2,     %   Heap -> Size
+                 heap_to_list/2,  %   Heap -> List
+                 list_to_heap/2,  %   List -> Heap
+                 min_of_heap/3,   %   Heap -> Key x Datum
+                 min_of_heap/5 %   Heap -> (Key x Datum) x (Key x Datum)
+        	]).
+
 
 /** @defgroup Heaps Heaps
 @ingroup YAPLibrary
@@ -129,16 +140,6 @@ the pair with the smallest Key), but does not remove it from the heap.
 
  
 */
-:- module(heaps,[
-	add_to_heap/4,		%   Heap x Key x Datum -> Heap
-	get_from_heap/4,	%   Heap -> Key x Datum x Heap
-	empty_heap/1,           %   Heap
-	heap_size/2,		%   Heap -> Size
-	heap_to_list/2,		%   Heap -> List
-	list_to_heap/2,		%   List -> Heap
-	min_of_heap/3,		%   Heap -> Key x Datum
-	min_of_heap/5		%   Heap -> (Key x Datum) x (Key x Datum)
-    ]).
 
 /*
 :- mode
@@ -160,7 +161,8 @@ the pair with the smallest Key), but does not remove it from the heap.
 */
 
 
-%   add_to_heap(OldHeap, Key, Datum, NewHeap)
+%% @pred   add_to_heap(OldHeap, Key, Datum, NewHeap)
+%
 %   inserts the new Key-Datum pair into the heap.  The insertion is
 %   not stable, that is, if you insert several pairs with the same
 %   Key it is not defined which of them will come out first, and it
@@ -204,7 +206,8 @@ sort2(Key1, Datum1, Key2, Datum2, Key2, Datum2, Key1, Datum1).
 
 
 
-%   get_from_heap(OldHeap, Key, Datum, NewHeap)
+%% @pred   get_from_heap(OldHeap, Key, Datum, NewHeap)
+%
 %   returns the Key-Datum pair in OldHeap with the smallest Key, and
 %   also a New Heap which is the Old Heap with that pair deleted.
 %   The easy part is picking off the smallest element.  The hard part
@@ -236,14 +239,16 @@ repair_heap(t, t, t, 1) :- !.
 
 
 
-%   heap_size(Heap, Size)
+%% @pred   heap_size(Heap, Size)
+%
 %   reports the number of elements currently in the heap.
 
 heap_size(t(Size,_,_), Size).
 
 
 
-%   heap_to_list(Heap, List)
+%% @pred   heap_to_list(Heap, List)
+%
 %   returns the current set of Key-Datum pairs in the Heap as a
 %   List, sorted into ascending order of Keys.  This is included
 %   simply because I think every data structure foo ought to have
@@ -275,7 +280,8 @@ heap_tree_to_list(T, [], T).
 
 
 
-%   list_to_heap(List, Heap)
+%% @pred   list_to_heap(List, Heap)
+%
 %   takes a list of Key-Datum pairs (such as keysort could be used to
 %   sort) and forms them into a heap.  We could do that a wee bit
 %   faster by keysorting the list and building the tree directly, but
@@ -295,12 +301,14 @@ list_to_heap([Key-Datum|Rest], M, OldTree, Heap) :-
 
 
 
-%   min_of_heap(Heap, Key, Datum)
+%% @pred   min_of_heap(Heap, Key, Datum)
+%
 %   returns the Key-Datum pair at the top of the heap (which is of
 %   course the pair with the smallest Key), but does not remove it
 %   from the heap.  It fails if the heap is empty.
 
-%   min_of_heap(Heap, Key1, Datum1, Key2, Datum2)
+%% @pred   min_of_heap(Heap, Key1, Datum1, Key2, Datum2)
+%
 %   returns the smallest (Key1) and second smallest (Key2) pairs in
 %   the heap, without deleting them.  It fails if the heap does not
 %   have at least two elements.

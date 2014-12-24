@@ -1,3 +1,10 @@
+/**
+
+@defgroup YAPControl Meta- and Control Predicates
+@{
+
+*/
+
 %   Also has code from:
 %   File   : APPLIC.PL
 %   Author : Lawrence Byrd + Richard A. O'Keefe
@@ -34,13 +41,13 @@
   * @author E. Alphonse
   * @author Vitor Santos Costa
 
- 
+
 Examples:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
 %given
 plus(X,Y,Z) :- Z is X + Y.
-  
+
 plus_if_pos(X,Y,Z) :- Y > 0, Z is X + Y.
 
 vars(X, Y, [X|Y]) :- var(X), !.
@@ -68,8 +75,42 @@ trans(X,X).
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   @{
-  
+
   */
+
+  :- module(maplist,
+    [maplist/2,
+    maplist/3,
+    maplist/4,
+    maplist/5,
+    checklist/2,
+  checknodes/2,
+  convlist/3,
+  foldl/4,
+  foldl/5,
+  foldl/6,
+  foldl/7,
+  foldl2/6,
+  foldl2/7,
+  foldl2/8,
+  foldl3/8,
+  foldl4/10,
+  include/3,
+  exclude/3,
+  mapnodes/3,
+  partition/4,
+  partition/5,
+  scanl/4,
+  scanl/5,
+  scanl/6,
+  scanl/7,
+  selectlist/3,
+  selectlist/4,
+  selectlists/5,
+  sumlist/4,
+  sumnodes/4
+    ]).
+
 
 
 /** @pred maplist(+ _Pred_,+ _List1_,+ _List2_)
@@ -79,7 +120,7 @@ Apply  _Pred_ on all successive pairs of elements from
  _List2_. Fails if  _Pred_ can not be applied to a
 pair. See the example above.
 
- 
+
 */
 /** @pred maplist(+ _Pred_,+ _List1_,+ _List2_,+ _List4_)
 
@@ -87,43 +128,7 @@ Apply  _Pred_ on all successive triples of elements from  _List1_,
  _List2_ and  _List3_. Fails if  _Pred_ can not be applied to a
 triple. See the example above.
 
-
-
-
  */
-:- module(maplist, [selectlist/3,
-	            selectlist/4,
-	            selectlists/5,
-		    checklist/2,
-		    maplist/2,			% :Goal, +List
-		    maplist/3,			% :Goal, ?List1, ?List2
-		    maplist/4,			% :Goal, ?List1, ?List2, ?List
-		    maplist/5,			% :Goal, ?List1, ?List2, ?List3, List4
-		    convlist/3,
-		    mapnodes/3,
-		    checknodes/2,
-		    sumlist/4,
-		    sumnodes/4,
-		    include/3,
-		    exclude/3,
-		    partition/4,
-		    partition/5,			
-		    foldl/4,			% :Pred, +List, ?V0, ?V
-		    foldl2/6,			% :Pred, +List, ?V0, ?V, ?W0, ?W
-		    foldl2/7,			% :Pred, +List1, ?List2, ?V0, ?V, ?W0, ?W
-		    foldl2/8,			% :Pred, +List1, ?List2, ?List3, ?V0, ?V, ?W0, ?W
-		    foldl3/8,			% :Pred, +List, ?V0, ?V, ?W0, ?W
-		    foldl4/10,			% :Pred, +List, ?V0, ?V, ?W0, ?W, ...
-		    foldl/5,			% :Pred, +List1, +List2, ?V0, ?V
-		    foldl/6,			% :Pred, +List1, +List2, +List3, ?V0, ?V
-		    foldl/7,			% :Pred, +List1, +List2, +List3, +List4,
-				% ?V0, ?V
-		    scanl/4,			% :Pred, +List, ?V0, ?Vs
-		    scanl/5,			% :Pred, +List1, +List2, ?V0, ?Vs
-		    scanl/6,			% :Pred, +List1, +List2, +List3, ?V0, ?Vs
-		    scanl/7			% :Pred, +List1, +List2, +List3, +List4,
-			]).
-
 
 :- meta_predicate
 	selectlist(2,+,-),
@@ -158,7 +163,7 @@ triple. See the example above.
 	scanl(4, +, +, +, -),
 	scanl(5, +, +, +, +, -),
 	scanl(6, +, +, +, +, +, -).
-	
+
 :- use_module(library(maputils)).
 :- use_module(library(lists), [append/3]).
 :- use_module(library(charsio), [format_to_chars/3, read_from_chars/2]).
@@ -176,7 +181,7 @@ triple. See the example above.
 */
 include(G,In,Out) :-
 	selectlist(G, In, Out).
- 
+
 /** selectlist(: _Pred_, + _ListIn_, ? _ListOut_))
   Creates  _ListOut_ of all list elements of  _ListIn_ that pass a given test
 */
@@ -304,7 +309,7 @@ maplist(Pred, [In|ListIn]) :-
   corresponding element in lists  _L1_,   _L2_.
 
   Comment from Richard O'Keefe: succeeds when _Pred( _Old_, _New_) succeeds for each corresponding
-  _Gi_ in _Listi_, _New_ in _NewList_.  In InterLisp, this is MAPCAR. 
+  _Gi_ in _Listi_, _New_ in _NewList_.  In InterLisp, this is MAPCAR.
    It is also MAP2C.  Isn't bidirectionality wonderful?
 */
 maplist(_, [], []).
@@ -360,9 +365,9 @@ convlist(Pred, [_|Olds], News) :-
 
 /**
   mapnodes(+ _Pred_, + _TermIn_, ? _TermOut_)
-  
+
   Creates  _TermOut_ by applying the predicate  _Pred_
-  to all sub-terms of  _TermIn_ (depth-first and left-to-right order).  
+  to all sub-terms of  _TermIn_ (depth-first and left-to-right order).
 */
 mapnodes(Pred, TermIn, TermOut) :-
     (atomic(TermIn); var(TermIn)), !,
@@ -462,7 +467,7 @@ foldl_([H|T], Goal, V0, V) :-
   _List2_ and collects a result in  _Accumulator_. Same as
   foldr/4.
 
-  The foldl family of predicates is defined 
+  The foldl family of predicates is defined
 	  ==
 	  foldl(P, [X11,...,X1n],V0, Vn, W0, WN) :-
 		P(X11, V0, V1, W0, W1),
@@ -479,7 +484,7 @@ foldl_([H1|T1], [H2|T2], Goal, V0, V) :-
 	foldl_(T1, T2, Goal, V1, V).
 
 /**
-  
+
 */
 foldl(Goal, List1, List2, List3, V0, V) :-
 	foldl_(List1, List2, List3, Goal, V0, V).
@@ -491,7 +496,7 @@ foldl_([H1|T1], [H2|T2], [H3|T3], Goal, V0, V) :-
 
 
 /**
-  
+
 */
 foldl(Goal, List1, List2, List3, List4, V0, V) :-
 	foldl_(List1, List2, List3, List4, Goal, V0, V).
@@ -504,7 +509,7 @@ foldl_([H1|T1], [H2|T2], [H3|T3], [H4|T4], Goal, V0, V) :-
 
 /**
   foldl2(: _Pred_, + _List_, ? _X0_, ? _X_, ? _Y0_, ? _Y_)
-  
+
   Calls  _Pred_ on all elements of `List` and collects a result in
   _X_ and  _Y_.
 
@@ -623,7 +628,7 @@ scanl_([H|T], Goal, V, [VH|VT]) :-
 /**
   scanl(: _Pred_, + _List1_, + _List2_, ? _V0_, ? _Vs_)
 
-Left scan of  list.  
+Left scan of  list.
  */
 scanl(Goal, List1, List2, V0, [V0|Values]) :-
 	scanl_(List1, List2, Goal, V0, Values).
@@ -636,7 +641,7 @@ scanl_([H1|T1], [H2|T2], Goal, V, [VH|VT]) :-
 /**
  scanl(: _Pred_, + _List1_, + _List2_, + _List3_, ? _V0_, ? _Vs_)
 
-Left scan of  list.  
+Left scan of  list.
 */
 scanl(Goal, List1, List2, List3, V0, [V0|Values]) :-
 	scanl_(List1, List2, List3, Goal, V0, Values).
@@ -648,8 +653,8 @@ scanl_([H1|T1], [H2|T2], [H3|T3], Goal, V, [VH|VT]) :-
 
 /**
   scanl(: _Pred_, + _List1_, + _List2_, + _List3_, + _List4_, ? _V0_, ? _Vs_)
-  
-  Left scan of  list.  
+
+  Left scan of  list.
 */
 scanl(Goal, List1, List2, List3, List4, V0, [V0|Values]) :-
 	scanl_(List1, List2, List3, List4, Goal, V0, Values).
@@ -685,7 +690,7 @@ goal_expansion(maplist(Meta, List), Mod:Goal) :-
 	goal_expansion_allowed,
 	callable(Meta),
 	prolog_load_context(module, Mod),
-	aux_preds(Meta, MetaVars, Pred, PredVars, Proto), 
+	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
 	!,
 	% the new goal
 	pred_name(maplist, 2, Proto, GoalName),
@@ -705,7 +710,7 @@ goal_expansion(maplist(Meta, List), Mod:Goal) :-
 goal_expansion(maplist(Meta, ListIn, ListOut), Mod:Goal) :-
 	goal_expansion_allowed,
 	callable(Meta),
-	prolog_load_context(module, Mod),	
+	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
 	!,
 	% the new goal
@@ -713,7 +718,7 @@ goal_expansion(maplist(Meta, ListIn, ListOut), Mod:Goal) :-
 	append(MetaVars, [ListIn, ListOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
+	HeadPrefix =.. [GoalName|PredVars],
 	append_args(HeadPrefix, [[], []], Base),
 	append_args(HeadPrefix, [[In|Ins], [Out|Outs]], RecursionHead),
 	append_args(Pred, [In, Out], Apply),
@@ -734,7 +739,7 @@ goal_expansion(maplist(Meta, L1, L2, L3), Mod:Goal) :-
 	append(MetaVars, [L1, L2, L3], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
+	HeadPrefix =.. [GoalName|PredVars],
 	append_args(HeadPrefix, [[], [], []], Base),
 	append_args(HeadPrefix, [[A1|A1s], [A2|A2s], [A3|A3s]], RecursionHead),
 	append_args(Pred, [A1, A2, A3], Apply),
@@ -755,7 +760,7 @@ goal_expansion(maplist(Meta, L1, L2, L3, L4), Mod:Goal) :-
 	append(MetaVars, [L1, L2, L3, L4], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
+	HeadPrefix =.. [GoalName|PredVars],
 	append_args(HeadPrefix, [[], [], [], []], Base),
 	append_args(HeadPrefix, [[A1|A1s], [A2|A2s], [A3|A3s], [A4|A4s]], RecursionHead),
 	append_args(Pred, [A1, A2, A3, A4], Apply),
@@ -776,7 +781,7 @@ goal_expansion(selectlist(Meta, ListIn, ListOut), Mod:Goal) :-
 	append(MetaVars, [ListIn, ListOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
+	HeadPrefix =.. [GoalName|PredVars],
 	append_args(HeadPrefix, [[], []], Base),
 	append_args(HeadPrefix, [[In|Ins], Outs], RecursionHead),
 	append_args(Pred, [In], Apply),
@@ -799,7 +804,7 @@ goal_expansion(selectlist(Meta, ListIn, ListIn1, ListOut), Mod:Goal) :-
 	append(MetaVars, [ListIn, ListIn1, ListOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
+	HeadPrefix =.. [GoalName|PredVars],
 	append_args(HeadPrefix, [[], [], []], Base),
 	append_args(HeadPrefix, [[In|Ins], [In1|Ins1], Outs], RecursionHead),
 	append_args(Pred, [In, In1], Apply),
@@ -822,7 +827,7 @@ goal_expansion(selectlists(Meta, ListIn, ListIn1, ListOut, ListOut1), Mod:Goal) 
 	append(MetaVars, [ListIn, ListIn1, ListOut, ListOut1], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
+	HeadPrefix =.. [GoalName|PredVars],
 	append_args(HeadPrefix, [[], [], [], []], Base),
 	append_args(HeadPrefix, [[In|Ins], [In1|Ins1], Outs, Outs1], RecursionHead),
 	append_args(Pred, [In, In1], Apply),
@@ -846,7 +851,7 @@ goal_expansion(include(Meta, ListIn, ListOut), Mod:Goal) :-
 	append(MetaVars, [ListIn, ListOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
+	HeadPrefix =.. [GoalName|PredVars],
 	append_args(HeadPrefix, [[], []], Base),
 	append_args(HeadPrefix, [[In|Ins], Outs], RecursionHead),
 	append_args(Pred, [In], Apply),
@@ -869,7 +874,7 @@ goal_expansion(exclude(Meta, ListIn, ListOut), Mod:Goal) :-
 	append(MetaVars, [ListIn, ListOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
+	HeadPrefix =.. [GoalName|PredVars],
 	append_args(HeadPrefix, [[], []], Base),
 	append_args(HeadPrefix, [[In|Ins], Outs], RecursionHead),
 	append_args(Pred, [In], Apply),
@@ -892,7 +897,7 @@ goal_expansion(partition(Meta, ListIn, List1, List2), Mod:Goal) :-
 	append(MetaVars, [ListIn, List1, List2], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
+	HeadPrefix =.. [GoalName|PredVars],
 	append_args(HeadPrefix, [[], [], []], Base),
 	append_args(HeadPrefix, [[In|Ins], Outs1, Outs2], RecursionHead),
 	append_args(Pred, [In], Apply),
@@ -915,7 +920,7 @@ goal_expansion(partition(Meta, ListIn, List1, List2, List3), Mod:Goal) :-
 	append(MetaVars, [ListIn, List1, List2, List3], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
+	HeadPrefix =.. [GoalName|PredVars],
 	append_args(HeadPrefix, [[], [], [], []], Base),
 	append_args(HeadPrefix, [[In|Ins], Outs1, Outs2, Outs3], RecursionHead),
 	append_args(Pred, [In,Diff], Apply),
@@ -955,7 +960,7 @@ goal_expansion(convlist(Meta, ListIn, ListOut), Mod:Goal) :-
 	append(MetaVars, [ListIn, ListOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
+	HeadPrefix =.. [GoalName|PredVars],
 	append_args(HeadPrefix, [[], []], Base),
 	append_args(HeadPrefix, [[In|Ins], Outs], RecursionHead),
 	append_args(Pred, [In, Out], Apply),
@@ -978,7 +983,7 @@ goal_expansion(sumlist(Meta, List, AccIn, AccOut), Mod:Goal) :-
 	append(MetaVars, [List, AccIn, AccOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
+	HeadPrefix =.. [GoalName|PredVars],
 	append_args(HeadPrefix, [[], Acc, Acc], Base),
 	append_args(HeadPrefix, [[In|Ins], Acc1, Acc2], RecursionHead),
 	append_args(Pred, [In, Acc1, Acc3], Apply),
@@ -999,7 +1004,7 @@ goal_expansion(foldl(Meta, List, AccIn, AccOut), Mod:Goal) :-
 	append(MetaVars, [List, AccIn, AccOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
+	HeadPrefix =.. [GoalName|PredVars],
 	append_args(HeadPrefix, [[], Acc, Acc], Base),
 	append_args(HeadPrefix, [[In|Ins], Acc1, Acc2], RecursionHead),
 	append_args(Pred, [In, Acc1, Acc3], Apply),
@@ -1020,7 +1025,7 @@ goal_expansion(foldl(Meta, List1, List2, AccIn, AccOut), Mod:Goal) :-
 	append(MetaVars, [List1, List2, AccIn, AccOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
+	HeadPrefix =.. [GoalName|PredVars],
 	append_args(HeadPrefix, [[], [], Acc, Acc], Base),
 	append_args(HeadPrefix, [[In|Ins], [I2|Is2], Acc1, Acc2], RecursionHead),
 	append_args(Pred, [In, I2, Acc1, Acc3], Apply),
@@ -1041,7 +1046,7 @@ goal_expansion(foldl(Meta, List1, List2, List3, AccIn, AccOut), Mod:Goal) :-
 	append(MetaVars, [List1, List2, List3, AccIn, AccOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
+	HeadPrefix =.. [GoalName|PredVars],
 	append_args(HeadPrefix, [[], [], [], Acc, Acc], Base),
 	append_args(HeadPrefix, [[In|Ins], [I2|I2s], [I3|I3s], Acc1, Acc2], RecursionHead),
 	append_args(Pred, [In, I2, I3, Acc1, Acc3], Apply),
@@ -1062,7 +1067,7 @@ goal_expansion(foldl2(Meta, List, AccIn, AccOut, W0, W), Mod:Goal) :-
 	append(MetaVars, [List, AccIn, AccOut, W0, W], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
+	HeadPrefix =.. [GoalName|PredVars],
 	append_args(HeadPrefix, [[], Acc, Acc, W, W], Base),
 	append_args(HeadPrefix, [[In|Ins], Acc1, Acc2, W1, W2], RecursionHead),
 	append_args(Pred, [In, Acc1, Acc3, W1, W3], Apply),
@@ -1083,7 +1088,7 @@ goal_expansion(foldl2(Meta, List1, List2, AccIn, AccOut, W0, W), Mod:Goal) :-
 	append(MetaVars, [List1, List2, AccIn, AccOut, W0, W], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
+	HeadPrefix =.. [GoalName|PredVars],
 	append_args(HeadPrefix, [[], [], Acc, Acc, W, W], Base),
 	append_args(HeadPrefix, [[In1|Ins1], [In2|Ins2], Acc1, Acc2, W1, W2], RecursionHead),
 	append_args(Pred, [In1, In2, Acc1, Acc3, W1, W3], Apply),
@@ -1104,7 +1109,7 @@ goal_expansion(foldl2(Meta, List1, List2, List3, AccIn, AccOut, W0, W), Mod:Goal
 	append(MetaVars, [List1, List2, List3, AccIn, AccOut, W0, W], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
+	HeadPrefix =.. [GoalName|PredVars],
 	append_args(HeadPrefix, [[], [], [], Acc, Acc, W, W], Base),
 	append_args(HeadPrefix, [[In1|Ins1], [In2|Ins2], [In3|Ins3], Acc1, Acc2, W1, W2], RecursionHead),
 	append_args(Pred, [In1, In2, In3, Acc1, Acc3, W1, W3], Apply),
@@ -1125,7 +1130,7 @@ goal_expansion(foldl3(Meta, List, AccIn, AccOut, W0, W, X0, X), Mod:Goal) :-
 	append(MetaVars, [List, AccIn, AccOut, W0, W, X0, X], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
+	HeadPrefix =.. [GoalName|PredVars],
 	append_args(HeadPrefix, [[], Acc, Acc, W, W, X, X], Base),
 	append_args(HeadPrefix, [[In|Ins], Acc1, Acc2, W1, W2, X1, X2], RecursionHead),
 	append_args(Pred, [In, Acc1, Acc3, W1, W3, X1, X3], Apply),
@@ -1146,7 +1151,7 @@ goal_expansion(foldl4(Meta, List, AccIn, AccOut, W0, W, X0, X, Y0, Y), Mod:Goal)
 	append(MetaVars, [List, AccIn, AccOut, W0, W, X0, X, Y0, Y], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
+	HeadPrefix =.. [GoalName|PredVars],
 	append_args(HeadPrefix, [[], Acc, Acc, W, W, X, X, Y, Y], Base),
 	append_args(HeadPrefix, [[In|Ins], Acc1, Acc2, W1, W2, X1, X2, Y1, Y2], RecursionHead),
 	append_args(Pred, [In, Acc1, Acc3, W1, W3, X1, X3, Y1, Y3], Apply),
@@ -1229,7 +1234,7 @@ goal_expansion(sumnodes(Meta, Term, AccIn, AccOut), Mod:Goal) :-
 	append(MetaVars, [[Term], AccIn, AccOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
+	HeadPrefix =.. [GoalName|PredVars],
 	append_args(HeadPrefix, [[], Acc, Acc], Base),
 	append_args(HeadPrefix, [[In|Ins], Acc1, Acc2], RecursionHead),
 	append_args(Pred, [In, Acc1, Acc3], Apply),
@@ -1251,4 +1256,3 @@ goal_expansion(sumnodes(Meta, Term, AccIn, AccOut), Mod:Goal) :-
 /**
 @}
 */
-

@@ -14,12 +14,13 @@
 * comments:	initializing the full prolog system			 *
 *									 *
 *************************************************************************/
+%%   @defgroup YAPBuiltins  YAP  Built-Ins
 
-/** 
+/*
+  
+  @addtogroup YAPControl
 
-@addtogroup YAPControl
-@{
-
+    @{    
 */
 
 :- system_module( '$_init', [!/0,

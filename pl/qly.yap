@@ -94,12 +94,12 @@ Saves an image of the current state of the YAP database in file
      Limit for the trail stack.
 
    + goal(: _Callable_)
-     Initialization goal for the new executable (see -g).
+     Initialization goal for the new executable (see `-g`).
 
    + init_file(+ _Atom_)
-     Default initialization file for the new executable. See -f.
+     Default initialization file for the new executable. See `-f`.
 
-**/
+*/
 qsave_program(File, Opts) :-
 	'$save_program_status'(Opts, qsave_program(File,Opts)),
 	open(File, write, S, [type(binary)]),

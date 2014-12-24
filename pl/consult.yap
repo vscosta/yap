@@ -1,6 +1,6 @@
 /*************************************************************************
 *									 *
-*	 YAP Prolog 							 *
+  *	 YAP Prolog 							 *
 *									 *
   *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
@@ -66,7 +66,6 @@
 :- use_system_module( '$_preds', ['$current_predicate'/4]).
 
 /**
-
   \defgroup YAPConsulting Loading files into YAP
   @ingroup YAPLoading
 
@@ -75,8 +74,9 @@ files and to set-up the Prolog environment. We discuss
 
   + @ref YAPReadFiles
 
-  + @ref YAPCompilerSettings 
+  + @ref YAPCompilerSettings
 
+  @{
 
 @defgroup YAPReadFiles The Predicates that Read Source Files
 @ingroup  YAPConsulting
@@ -814,14 +814,16 @@ db_files(Fs) :-
 	G\='$'.
 
 /**
-include(+ _F_) is directive
+  @pred include(+ _F_) is directive
 
-	The `include` directive adds the text files or sequence of text
-	files specified by  _F_ into the files being currently consulted. It may be used
-	as an replacement to consult/1 by allowing the programmer to include a data-base
-	split into several files. 
-
+  The `include` directive adds the text files or sequence of text
+  files specified by  _F_ into the files being currently consulted.
+  It may be used
+  as an replacement to consult/1 by allowing the programmer to include a
+  data-base
+  split into several files.
 */
+
 '$include'(V, _) :- var(V), !,
 	'$do_error'(instantiation_error,include(V)).
 '$include'([], _) :- !.
@@ -901,60 +903,62 @@ source_file(Mod:Pred, FileName) :-
 
 /** @pred prolog_load_context(? _Key_, ? _Value_) 
 
+  Obtain information on what is going on in the compilation process. The
+  following keys are available:
 
-Obtain information on what is going on in the compilation process. The
-following keys are available:
+  + directory  (prolog_load_context/2 option)
 
-+ directory  (prolog_load_context/2 option)
+  Full name for the directory where YAP is currently consulting the
+  file.
 
-    Full name for the directory where YAP is currently consulting the
-file.
+  + file  (prolog_load_context/2 option)
 
-+ file  (prolog_load_context/2 option)
+  Full name for the file currently being consulted. Notice that included
+  filed are ignored.
 
-    Full name for the file currently being consulted. Notice that included
-filed are ignored.
+  + module  (prolog_load_context/2 option)
 
-+ module  (prolog_load_context/2 option)
+  Current source module.
 
-    Current source module.
+  + `source` (prolog_load_context/2 option)
 
-+ `source` (prolog_load_context/2 option) 
+  Full name for the file currently being read in, which may be consulted,
+  reconsulted, or included.
 
-    Full name for the file currently being read in, which may be consulted,
-reconsulted, or included.
+  + `stream`  (prolog_load_context/2 option)
 
-+ `stream`  (prolog_load_context/2 option)
+  Stream currently being read in.
 
-    Stream currently being read in.
+  + `term_position`  (prolog_load_context/2 option)
 
-+ `term_position`  (prolog_load_context/2 option)
+  Stream position at the stream currently being read in. For SWI
+  compatibility, it is a term of the form
+  '$stream_position'(0,Line,0,0).
 
-    Stream position at the stream currently being read in. For SWI
-compatibility, it is a term of the form
-'$stream_position'(0,Line,0,0).
+  + `source_location(? _File Name_, ? _Line_)`   (prolog_load_context/2 option)
 
-+ `source_location(? _FileName_, ? _Line_)`   (prolog_load_context/2 option)
+  SWI-compatible predicate. If the last term has been read from a physical file (i.e., not from the file user or a string), unify File with an absolute path to the file and Line with the line-number in the file. Please use prolog_load_context/2.
 
-    SWI-compatible predicate. If the last term has been read from a physical file (i.e., not from the file user or a string), unify File with an absolute path to the file and Line with the line-number in the file. Please use prolog_load_context/2.
+  + `source_file(? _File_)`  (prolog_load_context/2 option)
 
-+ `source_file(? _File_)`  (prolog_load_context/2 option)
+  SWI-compatible predicate. True if  _File_ is a loaded Prolog source file.
 
-    SWI-compatible predicate. True if  _File_ is a loaded Prolog source file.
+  + `source_file(? _ModuleAndPred_ ,? _File_)`  (prolog_load_context/2 option)
 
-+ `source_file(? _ModuleAndPred_,? _File_)`  (prolog_load_context/2 option)
+  SWI-compatible predicate. True if the predicate specified by  _ModuleAndPred_ was loaded from file  _File_, where  _File_ is an absolute path name (see `absolute_file_name/2`).
 
-    SWI-compatible predicate. True if the predicate specified by  _ModuleAndPred_ was loaded from file  _File_, where  _File_ is an absolute path name (see `absolute_file_name/2`).
-
+  @}
+  
 */
 
-/** @addgroup YAPLibraries Library Predicates
+/** @addtogroup YAPLibraries Library Predicates
 
 Library files reside in the library_directory path (set by the
 `LIBDIR` variable in the Makefile for YAP). Currently,
 most files in the library are from the Edinburgh Prolog library. 
 
-
+  @{
+  
  */
 prolog_load_context(directory, DirName) :- 
         ( source_location(F, _)
@@ -1309,22 +1313,20 @@ account the following observations:
 
 <ul>
     
-The `reexport` declarations must be the first declarations to
-follow the  `module` declaration.
-
+  <li> The `reexport` declarations must be the first declarations to
+  follow the `module` declaration.  </li>
     
-It is possible to use both `reexport` and `use_module`, but
-all predicates reexported are automatically available for use in the
-current module.
-
+  <li> It is possible to use both `reexport` and `use_module`, but all
+  predicates reexported are automatically available for use in the
+  current module.  </li>
     
-In order to obtain efficient execution, YAP compiles dependencies
-between re-exported predicates. In practice, this means that changing a
-`reexport` declaration and then  *just* recompiling the file
-may result in incorrect execution.
-
+  <li> In order to obtain efficient execution, YAP compiles
+  dependencies between re-exported predicates. In practice, this means
+  that changing a `reexport` declaration and then *just* recompiling
+  the file may result in incorrect execution.  </li>
+  
 </ul>
-**/
+*/
 '$reexport'( TOpts, File, Reexport, Imports, OldF ) :-
     ( Reexport == false -> true ;
 	  '$lf_opt'('$parent_topts', TOpts, OldTOpts),
@@ -1350,6 +1352,7 @@ may result in incorrect execution.
 This section presents a set of built-ins predicates designed to set the 
 environment for the compiler.
 
+  @{
 */
 
   
@@ -1498,6 +1501,8 @@ initialization(G,OPT) :-
 
 @ingroup  YAPCompilerSettings
 
+  @{
+  
 Conditional compilation builds on the same principle as
 term_expansion/2, goal_expansion/2 and the expansion of
 grammar rules to compile sections of the source-code
@@ -1679,5 +1684,11 @@ End of conditional compilation.
 consult_depth(LV) :- '$show_consult_level'(LV).
 
 /**
-@}
+  @}
+
+  @}
+
+  @}
+
 */
+

@@ -2,7 +2,7 @@
 *									 *
 *	 YAP Prolog 							 *
 *									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
@@ -15,18 +15,6 @@
 *									 *
 *************************************************************************/
 
-
-/** @defgroup InputOutput Input/Output Predicates
-@ingroup YAPBuiltins
-@{
-
-Some of the Input/Output predicates described below will in certain conditions
-provide error messages and abort only if the file_errors flag is set.
-If this flag is cleared the same predicates will just fail. Details on
-setting and clearing this flag are given under 7.7.
-
-
- */
 
 
 :- system_module( '$_yio', [at_end_of_line/0,
@@ -65,6 +53,17 @@ setting and clearing this flag are given under 7.7.
 :- use_system_module( '$_boot', ['$system_catch'/4]).
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
+
+/** @defgroup InputOutput Input/Output Predicates
+@ingroup YAPBuiltins
+
+Some of the Input/Output predicates described below will in certain conditions
+provide error messages and abort only if the file_errors flag is set.
+If this flag is cleared the same predicates will just fail. Details on
+setting and clearing this flag are given under 7.7.
+
+  @{
+ */
 
 /* stream predicates							*/
 
@@ -229,7 +228,7 @@ open_pipe_streams(Read, Write) :-
 	set_stream(Read, encoding(X) ),
 	set_stream(Write, encoding(X) ).
 
-%%! @}
+%! @}
 
 
 /**  @pred fileerrors 
@@ -258,7 +257,7 @@ Checks if file  _F_ exists in the current directory.
 exists(F) :-
 	absolute_file_name(F, _, [file_errors(fail),access(exist),expand(true)]).
 
-%%! @addtogroup ReadTerm
+%! @addtogroup ReadTerm
 %   @{
 
 /* Term IO	*/
@@ -286,9 +285,9 @@ stream.
 read(Stream,T) :-
 	read_term(Stream, T, []).
 
-%%! @}
+%! @}
 
-%%! @addtogroup Write
+%! @addtogroup Write
 %   @{
 
 /* meaning of flags for '$write' is
@@ -328,9 +327,9 @@ display(Stream, T) :-
 	set_value('$portray',true), fail.
 '$portray'(_) :- set_value('$portray',false), fail.
 
-%%! @}
+%! @}
 
-%%! @addtogroup Format
+%! @addtogroup Format
 %   @{
 
 /** @pred  format(+ _T_)
@@ -342,9 +341,9 @@ Print formatted output to the current output stream.
 format(T) :-
 	format(T, []).
 
-%%! @}
+%! @}
 
-%%! @addtogroup CharsIO
+%! @addtogroup CharsIO
 %   @{
 
 /* character I/O	*/
@@ -394,9 +393,9 @@ Outputs a new line to stream user_output.
 */
 ttynl :- nl(user_output).
 
-%%! @}
+%! @}
 
-%%! @addtogroup StreamM
+%! @addtogroup StreamM
 %   @{
 
 /** @pred  current_line_number(- _LineNumber_)
@@ -534,20 +533,15 @@ current_stream(File, Mode, Stream) :-
 sformat(String, Form, Args) :-
 	format(codes(String, []), Form, Args).
 
-%%      stream_position_data(?Field, +Pos, ?Date)
-%
-%       Extract values from stream position objects. '$stream_position' is
-%       of the format '$stream_position'(Byte, Char, Line, LinePos)
 
 /** @pred  stream_position_data(+ _Field_,+ _StreamPosition_,- _Info_) 
+  Extract values from stream position objects.
 
 
-Given the packaged stream position term  _StreamPosition_, unify
- _Info_ with  _Field_ `line_count`, `byte_count`, or
-`char_count`.
-
-
-
+  '$stream_position' is of the format '$stream_position'(Byte, Char,
+  Line, LinePos).  Given the packaged stream position term
+  _StreamPosition_, unify _Info_ with _Field_ `line_count`,
+  `byte_count`, or `char_count`.
 
  */
 stream_position_data(Prop, Term, Value) :-
@@ -576,7 +570,7 @@ stream_position_data(Prop, Term, Value) :-
 '$set_default_expand'(V) :- !,
 	'$do_error'(domain_error(flag_value,V),yap_flag(open_expands_file_name,V)).
 
-%%! @}
+%! @}
 
 
 '$codes_to_chars'(String0, String, String0) :- String0 == String, !.

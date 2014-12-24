@@ -4,7 +4,7 @@
 *									 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+  * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
 **************************************************************************
 *									 *
@@ -31,7 +31,7 @@
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
 
-/** succ(? _Int1_:int, ? _Int2_:int) is det
+/** @pred succ(? _Int1_:int, ? _Int2_:int) is det
   *
 
   True if  _Int2_ =  _Int1_ + 1 and  _Int1_ \>= 0. At least
@@ -98,7 +98,7 @@ succ(M,N) :-
 	N < 0,
 	'$do_error'(domain_error(not_less_than_zero, N),succ(M,N)).
 
-/** plus(? _Int1_:int, ? _Int2_:int, ? _Int3_:int) is det
+/** @pred plus(? _Int1_:int, ? _Int2_:int, ? _Int3_:int) is det
 
   True if  _Int3_ =  _Int1_ +  _Int2_. At least two of the
   three arguments must be instantiated to integers.

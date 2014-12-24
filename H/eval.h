@@ -21,7 +21,7 @@
 
 @ingroup YAPBuiltins
 
-  + See @ref arithmetic_preds for the predicates that implement arithment
++ See @ref arithmetic_preds for the predicates that implement arithment
 
   + See @ref arithmetic_cmps for the arithmetic comparisons supported in YAP
 
@@ -58,8 +58,8 @@ quotients of two integers. Rational arithmetic is provided if GMP is
 used. Rational numbers that are returned from is/2 are canonical,
 which means the denominator _M_ is positive and that the numerator _N_
 and _M_ have no common divisors. Rational numbers are introduced in
-the computation using the [rational/1][@ref rational_1],
-[rationalize/1][@ref rationalize/1] or the [rdiv/2][@ref rdiv/2]
+the computation using the rational/1,
+rationalize/1 or the rdiv/2
 (rational division) function.
 
 </li>
@@ -67,9 +67,8 @@ the computation using the [rational/1][@ref rational_1],
 
 Floating point numbers are represented using the C-type double. On
 most today platforms these are 64-bit IEEE-754 floating point
-numbers. YAP now includes the built-in predicates [isinf/1][@ref isinf/1] and to [isnan/1][@ref isnan/1] tests.
-</li>
-</ul>
+numbers. YAP now includes the built-in predicates isinf/1 and to
+isnan/1 tests.  </li> </ul>
 
 Arithmetic functions that require integer arguments accept, in addition
 to integers, rational numbers with denominator `1' and floating point

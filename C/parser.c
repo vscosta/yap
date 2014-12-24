@@ -20,7 +20,7 @@ static char SccsId[] = "%W% %G%";
 
 /**
 
-@defgroup Syntax YAP Syntax
+@defgroup YAPSyntax YAP Syntax
 @ingroup YAPProgramming
 @{
 

@@ -18,6 +18,9 @@
 
 @file YapInterface.h
 
+@defgroup ChYInterface Foreign Language interface to YAP
+
+
 */
 
 
@@ -42,7 +45,7 @@
 /**
 
 @defgroup c-interface  YAP original C-interface
-@Ingroup ChYInterface
+@ingroup ChYInterface
 
 Before describing in full detail how to interface to C code, we will examine 
 a brief example.
@@ -206,7 +209,7 @@ YAP_Bool YAP_IsVarTerm(YAP_Term  _t_)
 
 returns true iff its argument is an uninstantiated variable. Conversely the
 primitive
-</li>
+<ul>
  <li>YAP_Bool YAP_NonVarTerm(YAP_Term  _t_) 
 
 returns true iff its argument is not a variable.
@@ -277,7 +280,7 @@ The set of possible values is an enumerated type, with the following values:
 </li>
  <li>`YAP_TAG_FLOAT`: a floating point number
 </li>
- <li>`YAP_TAG_OPAQUE`: an opaque term
+<li>`YAP_TAG_OPAQUE`: an opaque term
 </li>
  <li>`YAP_TAG_APPL`: a compound term
 </li>
@@ -285,7 +288,7 @@ The set of possible values is an enumerated type, with the following values:
 
 Next, we mention the primitives that allow one to destruct and construct
 terms. All the above primitives ensure that their result is
-\a dereferenced, i.e. that it is not a pointer to another term.
+a dereferenced, i.e. that it is not a pointer to another term.
 
 The following primitives are provided for creating an integer term from an
 integer and to access the value of an integer term.
@@ -736,7 +739,7 @@ The next functions provides a way to recover the term from the data-base:
 
 </li>
 </ul>
-Notice that the semantics are the same as for [recorded/3](@ref recorded): this
+Notice that the semantics are the same as for recorded/3: this
 function creates a new copy of the term in the stack, with fresh
 variables. The function returns <tt>0L</tt> if it cannot create a new term.
 
@@ -753,7 +756,7 @@ lead to a crash.
 The following functions are often required to compare terms.
 
 Succeed if two terms are actually the same term, as in
-[==/2](@ref qQqQ):
+==/2:
 
 <ul>
  <li>int      YAP_ExactlyEqual(YAP_Term t1, YAP_Term t2)
@@ -762,7 +765,7 @@ Succeed if two terms are actually the same term, as in
 
 The next function succeeds if two terms are variant terms, and returns
 0 otherwise, as
-[=@=/2](@ref qQaAqQ):
+=@=/2:
 
 <ul>
  <li>int      YAP_Variant(YAP_Term t1, YAP_Term t2)
@@ -789,7 +792,7 @@ The next one returns the length of a well-formed list  _t_, or
 </ul>
 
 Last, this function succeeds if two terms are unifiable:
-[=@=/2](@ref qQaAqQ):
+=@=/2:
 
 <ul>
  <li>int      YAP_Unifiable(YAP_Term t1, YAP_Term t2)
@@ -859,7 +862,7 @@ Look for the next solution to the current query by forcing YAP to
 backtrack to the latest goal. Notice that slots allocated since the last
 YAP_RunGoal() will become invalid.
 
-@Item `int` YAP_Reset(`yap_reset_t mode`) 
+<li> `int` YAP_Reset(`yap_reset_t mode`) 
 
 Reset execution environment
 (similar to the abort/0 built-in). This is useful when
@@ -1339,7 +1342,7 @@ arguments to the backtrackable procedure.
 
 
 @defgroup YAPAsLibrary Using YAP as a Library
-@subgroup  c-interface
+@ingroup  c-interface
 
 YAP can be used as a library to be called from other
 programs. To do so, you must first create the YAP library:
@@ -2155,3 +2158,5 @@ extern X_API YAP_Atom     YAP_IntToAtom(YAP_Int i);
 __END_DECLS
 
 #endif
+
+/// @}

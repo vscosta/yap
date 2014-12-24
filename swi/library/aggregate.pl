@@ -67,7 +67,7 @@ average_country_area(Name, Area) :-
 
 There are four aggregation predicates, distinguished on two properties.
 
-    $ aggregate vs. aggregate_all :
+  + aggregate vs. aggregate_all :
     The aggregate predicates use setof/3 (aggregate/4) or bagof/3
     (aggregate/3), dealing with existential qualified variables
     (Var^Goal) and providing multiple solutions for the remaining free
@@ -76,7 +76,7 @@ There are four aggregation predicates, distinguished on two properties.
     solution, while aggregate_all/4 uses sort/2 over solutions and
     Distinguish (see below) generated using findall/3.
 
-    $ The Distinguish argument :
+  + The Distinguish argument :
     The versions with 4 arguments provide a Distinguish argument that
     allow for keeping duplicate bindings of a variable in the result.
     For example, if we wish to compute the total population of all
@@ -92,25 +92,25 @@ Template. In addition, they allow for an arbitrary named compound term
 where each of the arguments is a term from the list below. I.e. the term
 r(min(X), max(X)) computes both the minimum and maximum binding for X.
 
-	* count
+  * count
 	Count number of solutions.  Same as sum(1).
-	* sum(Expr)
+  * sum(Expr)
 	Sum of Expr for all solutions.
-	* min(Expr)
+  * min(Expr)
 	Minimum of Expr for all solutions.
-	* min(Expr, Witness)
+  * min(Expr, Witness)
 	A term min(Min, Witness), where Min is the minimal version
 	of Expr over all Solution and Witness is any other template
 	the applied to the solution that produced Min.  If multiple
 	solutions provide the same minimum, Witness corresponds to
 	the first solution.
-	* max(Expr)
+  * max(Expr)
 	Maximum of Expr for all solutions.
-	* max(Expr, Witness)
+  * max(Expr, Witness)
 	As min(Expr, Witness), but producing the maximum result.
-	* set(X)
+  * set(X)
 	An ordered set with all solutions for X.
-	* bag(X)
+  * bag(X)
 	A list of all solutions for X.
 
 ---+++ Acknowledgements

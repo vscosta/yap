@@ -15,13 +15,6 @@
 *									 *
 *************************************************************************/
 
-/** 
-
-@defgroup YAPControl
-@{
-
-*/
-
 :- system_module( '$_control', [at_halt/1,
         b_getval/2,
         break/0,
@@ -74,6 +67,14 @@
 :- use_system_module( '$_utils', ['$getval_exception'/3]).
 
 :- use_system_module( '$coroutining', [freeze_goal/2]).
+
+/** 
+
+@addtogroup YAPControl
+@{
+
+*/
+
 
 /** @pred  once(: _G_) is iso 
 

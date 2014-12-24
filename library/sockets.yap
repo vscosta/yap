@@ -14,7 +14,7 @@ from sockets. The following calls are available:
 
 
 @tbd Our implementation does not support AF_UNIX sockets.
-@TBD Implement socket_select/5
+@tbd Implement socket_select/5
 @see http://www.sics.se/sicstus/docs/3.7.1/html/sicstus_28.html
 */
 

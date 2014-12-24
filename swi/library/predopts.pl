@@ -27,7 +27,7 @@
     the GNU General Public License.
 */
 
-:- module('$predopts',
+:- module(predopts,
 	  [
 	  ]).
 
