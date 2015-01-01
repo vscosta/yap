@@ -1,7 +1,14 @@
-YAP Manual Main Page                         {#mainpage}
+ YAP 6-3.4 Manual                         {#mainpage}
 ====================
 
+<center>
+![The YAP Logo](yap_256x256x32.png) 
+</center>
+
+
 This file documents the YAP Prolog System version 6.3.4, a high-performance Prolog compiler developed at LIACC, Universidade do Porto. YAP is based on David H. D. Warren's WAM (Warren Abstract Machine), with several optimizations for better performance. YAP follows the Edinburgh tradition, and is largely compatible with DEC-10 Prolog, Quintus Prolog, and especially with C-Prolog.
+
++ @ref  download
 
 + @ref  install
 
@@ -16,14 +23,14 @@ This file documents the YAP Prolog System version 6.3.4, a high-performance Prol
 + @ref library
 
 + @ref packages
-		
+
 + @ref swi
-  
+
 + @ref YAPProgramming
 
 + @ref fli
 
-	
+
 
 \author Vitor Santos Costa,
 \author Luís Damas,
@@ -45,7 +52,7 @@ us to include his text in this document.
 
 \endhtmlonly
 
-== Introduction
+## Introduction
 
 This document provides User information on version 6.3.4 of
 YAP (<em>Yet Another Prolog</em>). The YAP Prolog System is a
@@ -142,12 +149,12 @@ Buenabad, Inês Dutra and Vítor Santos Costa.
 
 + The JPL (Java-Prolog Library) package developed by .
 
-+ The Logtalk Object-Oriented system is developed at the University 
++ The Logtalk Object-Oriented system is developed at the University
 	of Beira Interior, Portugal, by Paulo Moura:
 
     <http://logtalk.org/>
 
-    Logtalk is no longer distributed with YAP. Please use the Logtalk standalone 
+    Logtalk is no longer distributed with YAP. Please use the Logtalk standalone
 	installer for a smooth integration with YAP.
 
 + The minisat SAT solver interface developed by Michael Codish,
@@ -162,7 +169,7 @@ Research Laboratory, TITECH, Japan.
 
 + The ProbLog 1 system developed by the ProbLog team in the
 DTAI group of KULeuven. For general information on ProbLog 1 and 2, please see
-    
+
     <http://dtai.cs.kuleuven.be/problog>
 
 + The `real` R interface package developed by 	Nicos Angelopoulos,
@@ -172,8 +179,8 @@ Vítor Santos Costa, João Azevedo, Jan Wielemaker, and Rui Camacho.
  of SWI's PL interface. This includes the Input/Output Layer, the SWI
  Foreign Language Interface, and the RDF, archive, clib, http, odbc, plunit,
  semweb, sgml, and zlib packages written by Jan Wielemaker.
- 
-Installing YAP           {#install}
+
+Downloding YAP           {#download}
 ==============
 
 The latest development version of Yap-6 is yap-6.3.4 and can be
@@ -198,7 +205,15 @@ Most of these repositories are basically copies of the original
 repositories at the SWI-Prolog site. YAP-6 will work either with or
 without these packages.
 
-###  Compiling YAP {#CompilingYAP}
+Installing YAP           {#install}
+==============
+
+YAP is a `configure` based system. We discuss how to use `configure`
+to install YAP, and what are the major options.
+
+Compiling YAP {#CompilingYAP}
+-------------
+
 
 To compile YAP it should be sufficient to:
 
@@ -224,7 +239,8 @@ To compile YAP it should be sufficient to:
 5 In most systems you will need to be superuser in order to do
     `make install` and `make info` on the standard directories.
 
-### Tuning the Functionality of YAP 
+Tuning the Functionality of YAP
+-------------------------------
 
 Compiling YAP with the standard options give you a plain vanilla
 Prolog. You can tune YAP to include extra functionality by calling
@@ -260,26 +276,27 @@ is still experimental.
 or-parallelism supported by one of these three forms. This option is
 still highly experimental.
 
-  + `--with-max-workers` allows definition of the maximum 
-number of parallel processes (its value can be consulted at runtime 
+  + `--with-max-workers` allows definition of the maximum
+number of parallel processes (its value can be consulted at runtime
 using the flag `max_workers`).
 
   + `--with-gmp[=DIR]` give a path to where one can find the
 `GMP` library if not installed in the default path.
 
-  + `--enable-threads` allows using of the multi-threading 
-predicates provided by YAP. Depending on the operating system, the 
+  + `--enable-threads` allows using of the multi-threading
+predicates provided by YAP. Depending on the operating system, the
 option `--enable-pthread-locking` may also need to be used.
 
-  + `--with-max-threads` allows definition of the maximum 
-number of threads (the default value is 1024; its value can be consulted 
+  + `--with-max-threads` allows definition of the maximum
+number of threads (the default value is 1024; its value can be consulted
 at runtime using the flag [max_threads](@ref max_threads)).
 
 
 
 Next section discusses machine dependent details.
 
-####  Tuning YAP for a Particular Machine and Compiler {#Machine_Options}
+Tuning YAP for a Particular Machine and Compiler {#Machine_Options}
+------------------------------------------------
 
 The default options should give you best performance under
 `GCC`. Although the system is tuned for this compiler
@@ -287,14 +304,14 @@ we have been able to compile versions of YAP under lcc in Linux,
 Sun's cc compiler, IBM's xlc, SGI's cc, and Microsoft's Visual C++
 6.0.
 
-######  Tuning YAP for `GCC`. {#Tuning_for_GCC}
+###  Tuning YAP for `GCC`. {#Tuning_for_GCC}
 
 YAP has been developed to take advantage of `GCC` (but not to
 depend on it). The major advantage of `GCC` is threaded code and
 explicit register reservation.
 
 YAP is set by default to compile with the best compilation flags we
-know. Even so, a few specific options reduce portability.  The option 
+know. Even so, a few specific options reduce portability.  The option
 
   + `--enable-max-performance=yes` will try to support the best
 available flags for a specific architectural model. Currently, the option
@@ -369,7 +386,7 @@ CC="gcc -mabi=64" ./configure --...
 Be careful. At least for some versions of `GCC`, compiling with
 `-g` seems to result in broken code.
 
-#### Compiling Under MINGW's GCC {#Compiling_under_mingw}
+### Compiling Under MINGW's GCC {#Compiling_under_mingw}
 
 
 AT the time of this writing (Nov 2014), YAP uses the mkwin script to
@@ -395,7 +412,7 @@ tested to develop YAP:
   * MSYS 1 and mingw32/64: most WIN32 development did occur in this
     native environment. Best results were achieved with
     MSYS-1.0.* and TDM-GCC:
-     
+
     mingw: http://www.mingw.org/
     original msys: http://www.mingw.org/wiki/MSYS
     mingw64: http://mingw-w64.sourceforge.net/
@@ -413,7 +430,7 @@ tested to develop YAP:
 
     cygwin: https://www.cygwin.com/
 
-  * Linux has a nice cross-compilation environment, with some of the best 
+  * Linux has a nice cross-compilation environment, with some of the best
     work done for Fedora.
 
     fedora mingw cross-compiler: http://fedoraproject.org/wiki/MinGW/CrossCompilerFramework
@@ -422,7 +439,7 @@ tested to develop YAP:
     executables to generate the initial saved state and to compile
     `chr`. `wine` sometimes does the task, but it sometimes fails.
 
-  * OSX has the `mxe` package, a port of mingw that is in active 
+  * OSX has the `mxe` package, a port of mingw that is in active
     development.
 
     mxe: http://mxe.cc/
@@ -431,7 +448,7 @@ tested to develop YAP:
     wine64. wine32 is distributed with package managers such as ports
     and brew.
 
-##### Setting up WIN32 compilation
+### Setting up WIN32 compilation
 
 Compiling WIN32 packages depends on a number of parameters: chosen compiler,
 packages to install, directory setup. You may have to change these ones that
@@ -455,7 +472,7 @@ control the `mkwin` script:
  * `R`: R environment package, usually in the distribution.
  * `GECODE`: constraint solver package, usually not in the WIN32 distribution.
 
-#####  Compiling Under Visual C++ {#Compiling_Under_Visual_C}
+###  Compiling Under Visual C++ {#Compiling_Under_Visual_C}
 
 YAP used to compile cleanly under Microsoft's Visual C++ release 6.0. We next
 give a step-by-step review on how the core YAP compiled manually using this
@@ -533,7 +550,7 @@ to `Project.Project Settings.Link.Object/Library Modules`
 
 You may also need to set the `Link Path` so that VC++ will find `yapdll.lib`.
 
-  + set `Project.Project Settings.C/C++.Preprocessor.Additional Include Directories` to include the 
+  + set `Project.Project Settings.C/C++.Preprocessor.Additional Include Directories` to include the
  _$YAPSRC/VC/include_ and
  _$YAPSRC/include_.
 
@@ -561,7 +578,7 @@ Loading and Organising YAP Programs      {#consult}
 ===================================
 
   @ingroup main
-  
+
   Next, we present the main predicates and directives available to load
   files and to control the Prolog environment.
 
@@ -579,7 +596,7 @@ Loading and Organising YAP Programs      {#consult}
   will be used:
 
   + a preceding plus sign will denote an argument as an "input
-  argument" - it cannot be a free variable at the time of the call; 
+  argument" - it cannot be a free variable at the time of the call;
   + a preceding minus sign will denote an "output argument";
   + an argument with no preceding symbol can be used in both ways.
 
@@ -588,7 +605,8 @@ Running YAP                      {#run}
 
 We next describe how to invoke YAP in Unix systems.
 
-#### Running YAP Interactively
+Running YAP Interactively
+-------------------------
 
 Most often you will want to use YAP in interactive mode. Assuming that
 YAP is in the user's search path, the top-level can be invoked under
@@ -609,7 +627,7 @@ specify <tt>M</tt> bytes.
 allocate  _Size_ KBytes for heap and auxiliary stacks
 + -t _Size_
 allocate  _Size_ KBytes for the trail stack
-+ -L _Size_ 
++ -L _Size_
 SWI-compatible option to allocate  _Size_ K bytes for local and global stacks, the local stack
 cannot be expanded. To avoid confusion with the load option,  _Size_
 must immediately follow the letter `L`.
@@ -647,39 +665,40 @@ through the unix/1 built-in predicate.
 
 Note that YAP will output an error message on the following conditions:
 
-+ 
++
 a file name was given but the file does not exist or is not a saved
 YAP state;
 
-+ 
++
 the necessary amount of memory could not be allocated;
 
-+ 
++
 the allocated memory is not enough to restore the state.
 
-	
+
     When restoring a saved state, YAP will allocate the
 same amount of memory as that in use when the state was saved, unless a
 different amount is specified by flags in the command line. By default,
 YAP restores the file startup.yss from the current directory or from
 the YAP library.
 
-+ 
++
 YAP usually boots from a saved state. The saved state will use the default
 installation directory to search for the YAP binary unless you define
 the environment variable YAPBINDIR.
 
-+ 
++
 YAP always tries to find saved states from the current directory
 	first. If it cannot it will use the environment variable YAPLIBDIR, if
 	defined, or search the default library directory.
 
-+ 
++
 YAP will try to find library files from the YAPSHAREDIR/library
 directory.
 
 
-#### Prolog Scripts
+Prolog Scripts
+--------------
 
 YAP can also be used to run Prolog files as scripts, at least in
 Unix-like environments. A simple example is shown next (do not forget
@@ -773,11 +792,11 @@ they must be sent directly to the argv built-in. Hence, running
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 will write `test` on the standard output.
-           
+
 YAP Built-ins          {#builtins}
 =============
 
-  + @ref YAPControl 
+  + @ref YAPControl
 
   + @ref arithmetic
 
@@ -800,7 +819,7 @@ YAP includes a number of extensions over the original Prolog
 language. Next, we discuss how to use the most important ones.
 
   + @ref Rational_Trees
-  
+
   + @ref CohYroutining
 
   + @ref Attributed_Variables
@@ -822,75 +841,75 @@ The YAP Library        {#library}
 
   Library files reside in the library_directory path (set by the
   `LIBDIR` variable in the Makefile for YAP). Several files in the
-  library are originally from the public-domain Edinburgh Prolog library. 
+  library are originally from the public-domain Edinburgh Prolog library.
 
   +  @ref maplist
 
   +  @ref Apply Apply Macros
-  
-  +  @ref Association_Lists 
-  
-  +  @ref AVL_Trees 
-  
+
+  +  @ref Association_Lists
+
+  +  @ref AVL_Trees
+
   +  @ref  Exo_Intervals
-  
-  +  @ref Heaps 
-  
+
+  +  @ref Heaps
+
   +  @ref Lists
-  
+
   +  @ref LineUtilities
-  
-  +  @ref matrix 
-  
-  +  @ref NonhYBacktrackable_Data_Structures 
-  
-  +  @ref Ordered_Sets 
-  
-  +  @ref Pseudo_Random 
-  
+
+  +  @ref matrix
+
+  +  @ref NonhYBacktrackable_Data_Structures
+
+  +  @ref Ordered_Sets
+
+  +  @ref Pseudo_Random
+
   +  @ref Queues Queues
-  
+
   +  @ref PseudoRandom
-  
+
   +  @ref RedhYBlack_Trees
-  
+
   +  @ref RegExp
 
-  +  @ref Splay_Trees 
-  
-  +  @ref System 
-  
-  +  @ref Terms 
-  
-  +  @ref Tries 
-  
-  +  @ref Cleanup 
-  
+  +  @ref Splay_Trees
+
+  +  @ref System
+
+  +  @ref Terms
+
+  +  @ref Tries
+
+  +  @ref Cleanup
+
   +  @ref Timeout
-  
+
   +  @ref Trees
-  
+
   +  @ref UGraphs
-  
-  +  @ref DGraphs 
-  
+
+  +  @ref DGraphs
+
   +  @ref UnDGraphs
-  
+
   +  @ref DBUsage
-  
+
   +  @ref lambda
 
   +  @ref clpfd
-  
-  +  @ref Block_Diagram 
+
+  +  @ref Block_Diagram
 
 The YAP Packages  {#packages}
 ================
 
 + @ref real
-                
+
 + @ref BDDs
-                
+
 + @ref  Gecode
 
 + @ref  MYDDAS
@@ -978,9 +997,10 @@ Please do refer to the SWI-Prolog home page:
 
 <http://www.swi-prolog.org>
 
-for more information on SWI-Prolog and the SWI packages. 
+for more information on SWI-Prolog and the SWI packages.
 
-####  Compatibility with the C-Prolog interpreter {#ChYProlog}
+Compatibility with the C-Prolog interpreter {#ChYProlog}
+-------------------------------------------
 
 YAP was designed so that most C-Prolog programs should run under YAP
 without changes.
@@ -1020,7 +1040,8 @@ or by using:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-#### Compatibility with the Quintus and SICStus Prolog systems
+Compatibility with the Quintus and SICStus Prolog systems
+---------------------------------------------------------
 
 The Quintus Prolog system was the first Prolog compiler to use Warren's
 Abstract Machine. This system was very influential in the Prolog
@@ -1052,7 +1073,8 @@ SICStus Prolog or SWI-Prolog.
 
   + This list is incomplete.
 
-#### Compatibility with the ISO Prolog standard
+Compatibility with the ISO Prolog standard
+------------------------------------------
 
 The Prolog standard was developed by ISO/IEC JTC1/SC22/WG17, the
 international standardization working group for the programming language
@@ -1066,14 +1088,14 @@ ISO-standard, and,
   + Error-handling is as required by the standard.
 
 
-YAP by default is not fully ISO standard compliant. You can set the 
+YAP by default is not fully ISO standard compliant. You can set the
 language flag to `iso` to obtain better
 compatibility. Setting this flag changes the following:
 
 
-  + By default, YAP implements the 
-atom_chars/2( (see Testing Terms)), and 
-number_chars/2, ( (see Testing Terms)), 
+  + By default, YAP implements the
+atom_chars/2( (see Testing Terms)), and
+number_chars/2, ( (see Testing Terms)),
 built-ins as per the original Quintus Prolog definition, and
 not as per the ISO definition.
 
@@ -1105,15 +1127,18 @@ Please inform the authors on other incompatibilities that may still
 exist.
 
 Foreign Language interface for YAP     {#fli}
-=================================
+==================================
 
 YAP provides the user with three facilities for writing
 predicates in a language other than Prolog. Under Unix systems,
 most language implementations were linkable to `C`, and the first interface exported  the YAP machinery to the C language. YAP also implements most of the SWI-Prolog foreign language interface.
-This gives portability with a number of SWI-Prolog packages and avoids garnage collection by using @ref slotInterface. Last, a new C++ based interface is 
-being designed to work with the swig (@url(www.swig.org}) interface compiler.
+This gives portability with a number of SWI-Prolog packages and avoids garnage collection by using @ref slotInterface. Last, a new C++ based interface is
+being designed to work with the swig (www.swig.orgv) interface compiler.
 
 + The @ref c-interface exports the YAP engine.
+
 + The @ref swi-c-interface emulates Jan Wielemaker's SWI foreign language interface.
-+ The @ref  yap-cplus-interface is desiged to interface with Object-Oriented systems.
+
++ The @ref  yap-cplus-interface is desiged to interface with the SWI ackage \cite x Object-Oriented systems.
+
 
