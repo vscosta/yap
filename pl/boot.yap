@@ -15,12 +15,13 @@
 *									 *
 *************************************************************************/
 
+%% @{  
+
 /**
 
 @defgroup YAPControl Control Predicates
-@ingroup YAPBuiltins
-@{
-
+@ingroup builtins
+  
 */
 
 
@@ -1529,8 +1530,6 @@ The goal `throw( _Ball_)` throws an exception. Execution is
 stopped, and the exception is sent to the ancestor goals until reaching
 a matching catch/3, or until reaching top-level.
 
-@}
-
 */
 throw(_Ball) :-
 	% use existing ball
@@ -1590,6 +1589,6 @@ log_event( String, Args ) :-
 	log_event( M ).
 
 /**
-@}
+  @}
 */
 

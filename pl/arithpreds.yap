@@ -15,13 +15,14 @@
 *									 *
 *************************************************************************/
 
+%% @{
+
 /**
   @file arithpreds.yap
 
   @addtogroup arithmetic_preds
 
   
-  @{
 */
 
 :- system_module(arithmetic_predicates, [

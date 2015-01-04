@@ -9,7 +9,10 @@
 *************************************************************************/
 
 /** 
-  @file swi.h
+
+    @{
+  
+    @file swi.h
 
   @defgroup swi-c-interface SWI-Prolog Foreign Language Interface
   @ingroup ChYInterface
@@ -30,8 +33,6 @@
  * Prolog has all the information necessary to perform its memory management without special precautions
  *  from the C programmer.
 
-  @{
-  
  */
 void Yap_swi_install(void);
 void Yap_install_blobs(void);

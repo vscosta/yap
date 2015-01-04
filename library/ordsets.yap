@@ -19,7 +19,7 @@
 
 
 /** @defgroup Ordered_Sets Ordered Sets
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The following ordered set manipulation routines are available once

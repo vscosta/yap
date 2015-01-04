@@ -15,11 +15,11 @@
 *									 *
 *************************************************************************/
 
+%% @{
 
 /** @defgroup Profiling Profiling Prolog Programs
-@ingroup YAPExtensions
-@{
-
+@ingroup extensions
+  
 YAP includes two profilers. The count profiler keeps information on the
 number of times a predicate was called. This information can be used to
 detect what are the most commonly called predicates in the program.  The
@@ -35,15 +35,11 @@ implementation.
 
  */
 
-/**
-@}
-*/
-
+%% @{  
 
 /** @defgroup Call_Counting Counting Calls
 @ingroup Profiling
-@{
-
+  
 Predicates compiled with YAP's flag call_counting set to
 `on` update counters on the numbers of calls and of
 retries. Counters are actually decreasing counters, so that they can be
@@ -63,10 +59,7 @@ The code for the call counters piggybacks on the profiling
 code. Therefore, activating the call counters also activates the profiling
 counters.
 
-These are  the predicates that access and manipulate the call counters:
-
-
- 
+These are  the predicates that access and manipulate the call counters. 
 */
 
 :- system_module( '$_callcount', [call_count/3,
@@ -151,6 +144,7 @@ call_count(Calls, Retries, Both) :-
 '$check_if_call_count_on'(Calls, A) :-
 	'$do_error'(type_error(integer,Calls),call_count(A)).
 
+%% @}
 
 /**
 @}

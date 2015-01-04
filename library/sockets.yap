@@ -2,7 +2,7 @@
 
 <module> SICStus compatible socket library
 
-@ingroup YAPBuiltins
+@ingroup builtins
 
 YAP includes a SICStus Prolog compatible socket interface. In YAP-6.3
 this uses the `clib` package to emulate the old low level interface that

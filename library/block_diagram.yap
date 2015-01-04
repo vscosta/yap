@@ -202,7 +202,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /** @defgroup Block_Diagram Block Diagram
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 This library provides a way of visualizing a prolog program using
@@ -232,7 +232,7 @@ parameter(texts((+inf))).
 parameter(depth((+inf))).
 parameter(default_ext('.yap')).
 
-/** @pred make_diagram(+inputfilename, +ouputfilename) 
+/** @pred make_diagram(+Inputfilename, +Ouputfilename) 
 
 
 
@@ -252,7 +252,7 @@ make_diagram(InputFile, OutputFile):-
   write('}'), nl,
   told.
 
-/** @pred make_diagram(+inputfilename, +ouputfilename, +predicate, +depth, +extension)
+/** @pred make_diagram(+Inputfilename, +Ouputfilename, +Predicate, +Depth, +Extension)
 
 
 The same as make_diagram/2 but you can define how many of the imported/exporeted predicates will be shown with predicate, and how deep the crawler is allowed to go with depth. The extension is used if the file use module directives do not include a file extension.

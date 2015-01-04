@@ -15,7 +15,7 @@
 /** 
 
 @defgroup Parallelism Parallelism in YAP
-@ingroup YAPExtensions
+@ingroup extensions
 @{
 
 There has been a sizeable amount of work on an or-parallel

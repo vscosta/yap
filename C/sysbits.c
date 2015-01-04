@@ -18,6 +18,8 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
+// @{
+
 /**
    @addtogroup YAPOS
 */
@@ -3258,3 +3260,5 @@ rw_lock_voodoo(void) {
 
 
 #endif /* YAPOR || THREADS */
+
+//@

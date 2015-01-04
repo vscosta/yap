@@ -18,13 +18,14 @@
 static char     SccsId[] = "%W% %G%";
 #endif
 
-/**
-   @file eval.c
+//! @file eval.c
 
+//! @{   
+
+/**
    @defgroup arithmetic_preds Arithmetic Predicates
    @ingroup arithmetic
 
-   @{
 */
 
 
@@ -200,7 +201,6 @@ BEAM_is(void)
 #endif
 
 /**
-@{
    @pred is( X:number, + Y:ground) is det
 
    This predicate succeeds iff the result of evaluating the expression
@@ -245,8 +245,6 @@ p_is( USES_REGS1 )
   } while (TRUE);
   return Yap_unify_constant(ARG1,out);
 }
-
-//@}
 
 /**
  @pred isnan(? X:float) is det
@@ -319,7 +317,7 @@ p_isinf( USES_REGS1 )
 }
 
 /**
-@{   @pred logsum(+ Log1:float, + Log2:float, - Out:float ) is det
+   @pred logsum(+ Log1:float, + Log2:float, - Out:float ) is det
 
 True if  _Log1_ is the logarithm of the positive number  _A1_,
  _Log2_ is the logarithm of the positive number  _A2_, and
@@ -400,7 +398,6 @@ p_logsum( USES_REGS1 )
   }
 }
 
-// @}
 
 Int
 Yap_ArithError(yap_error_number type, Term where, char *format,...)
@@ -458,9 +455,7 @@ Yap_EvalError(yap_error_number type, Term where, char *format,...)
 
 /**
 
-   @{
- 
-  @pred between(+ Low:int, + High:int, ? Value:int) is nondet
+   @pred between(+ Low:int, + High:int, ? Value:int) is nondet
 
    _Low_ and  _High_ are integers,  _High_ \>= _Low_. If
    _Value_ is an integer,  _Low_ =\< _Value_
@@ -602,11 +597,6 @@ init_between( USES_REGS1 )
   EXTRA_CBACK_ARG(3,2) = t2;
   return cont_between( PASS_REGS1 );
 }
-
-/**
- *
- * @}
-*/
 
 void
 Yap_InitEval(void)

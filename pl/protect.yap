@@ -20,6 +20,13 @@
 % This protects all code from further changes
 % and also makes it impossible from some predicates to be seen
 '$protect' :-
+	fail,
+        '$system_mod'( M ),
+        '$current_predicate'(A, M, T0, Flags),
+        NFlags is Flags \/ 0x00004000,
+	'$flags'(M:T0, Flags, NFlags),
+	fail.
+'$protect' :-
 	current_atom(Name),
 	atom_codes(Name,[0'$|_]),
 %	'$hide_predicates'(Name),
@@ -30,8 +37,8 @@
 '$protect'.
 
 '$hide_predicates'(Name) :-
-	'$current_predicate'(Name, prolog, P, _),
-	'$hide_predicate'(P,prolog),
+	'$current_predicate'(Name, Mod, P, _),
+	'$hide_predicate'(P,Mod),
 	fail.
 '$hide_predicates'(_).
 

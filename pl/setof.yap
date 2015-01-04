@@ -17,7 +17,7 @@
 
 
 /** @defgroup Sets Collecting Solutions to a Goal
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 When there are several solutions to a goal, if the user wants to collect all

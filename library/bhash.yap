@@ -39,14 +39,14 @@ It relies on dynamic array code.
 
 array_default_size(2048).
 
-/** is_b_hash( +Hash )
+/** @pred is_b_hash( +Hash )
 
 Term _Hash_ is a hash table.
 */
 is_b_hash(V) :- var(V), !, fail.
 is_b_hash(hash(_,_,_,_,_)).
 
-/** b_hash_new( -NewHash )
+/** @pred b_hash_new( -NewHash )
 
 Create a empty hash table _NewHash_, with size 2048 entries.
 */
@@ -56,7 +56,7 @@ b_hash_new(hash(Keys, Vals, Size, N, _, _)) :-
 	array(Vals, Size),
 	create_mutable(0, N).
 
-/** b_hash_new( -_NewHash_, +_Size_ )
+/** @pred b_hash_new( -_NewHash_, +_Size_ )
 
 Create a empty hash table, with size _Size_ entries.
 */
@@ -65,7 +65,7 @@ b_hash_new(hash(Keys, Vals, Size, N, _, _), Size) :-
 	array(Vals, Size),
 	create_mutable(0, N).
 
-/** b_hash_new( -_NewHash_, +_Size_, :_Hash_, :_Cmp_ )
+/** @pred b_hash_new( -_NewHash_, +_Size_, :_Hash_, :_Cmp_ )
 
 Create a empty hash table, with size _Size_ entries.
 _Hash_ defines a partition function, and _Cmp_ defined a comparison function.
@@ -75,13 +75,15 @@ b_hash_new(hash(Keys,Vals, Size, N, HashF, CmpF), Size, HashF, CmpF) :-
 	array(Vals, Size),
 	create_mutable(0, N).
 
-/** b_hash_size( +_Hash_, -_Size_ )
+/**
+  @pred  b_hash_size( +_Hash_, -_Size_ )
 
 _Size_ unifies with the size of the hash table _Hash_.
 */
 b_hash_size(hash(_, _, Size, _, _, _), Size).
 
-/** b_hash_size_lookup( +_Key_, ?_Val_, +_Hash_ )
+/**
+  @pred b_hash_lookup( +_Key_, ?_Val_, +_Hash_ )
 
 Search the ground term _Key_ in table _Hash_ and unify _Val_ with the associated entry.
 */
@@ -103,7 +105,8 @@ fetch_key(Keys, Index, Size, Key, CmpF, ActualIndex) :-
 	    fetch_key(Keys, I1, Size, Key, CmpF, ActualIndex)
 	).
 
-/** b_hash_update( +_Key_, +_Hash_, +NewVal )
+/**
+  @pred b_hash_update( +_Key_, +_Hash_, +NewVal )
 
 Update to the value associated with the ground term _Key_ in table _Hash_ to _NewVal_.
 */
@@ -114,7 +117,8 @@ b_hash_update(Hash, Key, NewVal):-
 	array_element(Vals, ActualIndex, Mutable),
 	update_mutable(NewVal, Mutable).
 
-/** b_hash_update( +_Key_, -_OldVal_, +_Hash_, +NewVal )
+/**
+  @pred b_hash_update( +_Key_, -_OldVal_, +_Hash_, +NewVal )
 
 Update to the value associated with the ground term _Key_ in table _Hash_ to _NewVal_, and unify _OldVal_ with the current value.
 */
@@ -153,7 +157,8 @@ find_or_insert(Keys, Index, Size, N, CmpF, Vals, Key, NewVal, Hash, NewHash) :-
 	    find_or_insert(Keys, I1, Size, N, CmpF, Vals, Key, NewVal, Hash, NewHash)
 	).
 
-/** b_hash_insert_new(+_Hash_, +_Key_, _Val_, +_NewHash_ )
+/**
+  @pred b_hash_insert_new(+_Hash_, +_Key_, _Val_, +_NewHash_ )
 
 Insert the term _Key_-_Val_ in table _Hash_ and unify _NewHash_ with the result. If ground term _Key_ exists, fail.
 */
@@ -259,7 +264,8 @@ cmp_f(F, A, B) :-
 cmp_f(F, A, B) :-
 	call(F, A, B).
 
-/** b_hash_to_list(+_Hash_, -_KeyValList_ )
+/**
+  @pred b_hash_to_list(+_Hash_, -_KeyValList_ )
 
 The term _KeyValList_ unifies with a list containing all terms _Key_-_Val_ in the hash table.
 */
@@ -268,7 +274,8 @@ b_hash_to_list(hash(Keys, Vals, _, _, _, _), LKeyVals) :-
 	Vals =.. (_.LVs),
 	mklistpairs(LKs, LVs, LKeyVals).
 
-/** b_key_to_list(+_Hash_, -_KeyList_ )
+/**
+  @pred b_key_to_list(+_Hash_, -_KeyList_ )
 
 The term _KeyList_ unifies with a list containing all keys in the hash table.
 */
@@ -276,7 +283,8 @@ b_hash_keys_to_list(hash(Keys, _, _, _, _, _), LKeys) :-
 	Keys =.. (_.LKs),
 	mklistels(LKs, LKeys).
 
-/** b_key_to_list(+_Hash_, -_ValList_ )
+/**
+  @pred b_key_to_list(+_Hash_, -_ValList_ )
 
 The term _`valList_ unifies with a list containing all values in the hash table.
 */

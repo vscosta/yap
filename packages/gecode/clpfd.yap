@@ -187,10 +187,6 @@ larger or equal
 disequality
  
 */
-/** @pred all_different( _Vs_    )
-
-Verifies whether all elements of a list are different.
-*/
 /** @pred labeling( _Opts_,  _Xs_)
 performs labeling, several variable and value selection options are
 available. The defaults are `min` and `min_step`.
@@ -464,10 +460,15 @@ boolvars( Xs ) :-
 	maplist(lm(0, 1, Map), Xs, NXs),
 	length(Xs, N),
 	NXs := boolvars( Space, N ).
+
+/** @pred all_different( _Vs_    )
+  Verifies whether all elements of a list are different.
+*/
 all_different( Xs ) :-
 	get_home(Env),
 	check(Xs, NXs),
 	post( all_different( NXs ), Env, _ ).
+
 all_distinct( Xs ) :-
 	get_home(Env),
 	check(Xs, NXs),

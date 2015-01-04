@@ -16,7 +16,7 @@
 *************************************************************************/
 
 /** @defgroup NonhYBacktrackable_Data_Structures Non-Backtrackable Data Structures
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The following routines implement well-known data-structures using global

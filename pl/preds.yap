@@ -1,6 +1,6 @@
 /*************************************************************************
 *									 *
-*	 YAP Prolog 							 *
+  *	 YAP Prolog 							 *
 *									 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
@@ -16,7 +16,7 @@
 *************************************************************************/
 
 /** @defgroup Database Using the Clausal Data Base
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 Predicates in YAP may be dynamic or static. By default, when
@@ -1167,6 +1167,7 @@ predicate_erased_statistics(P,NCls,Sz,ISz) :-
 Defines the relation:  _P_ is a currently defined predicate whose name is the atom  _A_. 
 */
 current_predicate(A,T) :-
+	'$system_module'(M),
 	'$ground_module'(T, M, T0),
 	(
 	 '$current_predicate'(A, M, T0, _)
@@ -1187,7 +1188,6 @@ system_predicate(A,T) :-
 	;
 	 '$current_predicate'(A, prolog, T0, Flags)
 	),
-	Flags /\ 0x00004000 =\= 0,
 	\+ '$hidden'(A).
 
 /** @pred  system_predicate( ?_P_ )

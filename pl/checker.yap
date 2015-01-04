@@ -69,6 +69,8 @@
         '$syntax_check_multiple'/2,
         '$syntax_check_single_var'/2]).
 
+%% @{
+
 /**
 
 @defgroup   YAPStyle Checker
@@ -113,9 +115,7 @@ By default, style checking is disabled in YAP unless we are in
 The style_check/1 built-in is now deprecated. Please use
 `set_prolog_flag/1` instead.
 
-@{
-
-**/
+  **/
 %
 % A Small style checker for YAP
 

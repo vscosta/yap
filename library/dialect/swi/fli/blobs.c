@@ -16,11 +16,11 @@
 *************************************************************************/
 /**
  *
- *   @file blobs.c
+ * @{ 
+*   @file blobs.c
  *
  *   @addtogroup swi-c-interface
  *
- * @{
  */
 
 #include	<Yap.h>
@@ -250,7 +250,7 @@ PL_unregister_blob_type(PL_blob_t *type)
 {
   fprintf(stderr,"PL_unregister_blob_type not implemented yet\n");
   return FALSE;
-}
+xs}
 
 void
 Yap_install_blobs(void)

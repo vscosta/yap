@@ -8,6 +8,8 @@
  *									 *
  *************************************************************************/
 
+%% @{
+
 :- system_module( '$_atoms', [
 			      atom_concat/2,
 			      string_concat/2,
@@ -17,8 +19,11 @@
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
+%% @{
+
 /**
- * @addtogroup Predicates_on_Atoms
+  * @addtogroup Predicates_on_Atoms
+  * @ingroup YAPChars
  *
 */									 
 

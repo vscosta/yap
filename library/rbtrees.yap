@@ -50,10 +50,13 @@
 	   rb_in/3
        ]).
 
-/** @defgroup RedhYBlack_Trees Red-Black Trees
-@ingroup YAPLibrary
-@{
+%%! @{
 
+/**
+  @file rbtrees.yap
+  @defgroup rbtrees Red-Black Trees
+  @ingroup library
+  
 Red-Black trees are balanced search binary trees. They are named because
 nodes can be classified as either red or   black. The code we include is
 based on "Introduction  to  Algorithms",   second  edition,  by  Cormen,
@@ -109,7 +112,6 @@ rb_new(K,V,t(Nil,black(Nil,K,V,Nil))) :- Nil = black('',_,_,'').
 %%	rb_empty(?T) is semidet.
 %
 %	Succeeds if T is an empty Red-Black tree.
-
 rb_empty(t(Nil,Nil)) :- Nil = black('',_,_,'').
 
 %%	rb_lookup(+Key, -Value, +T) is semidet.
@@ -1036,7 +1038,6 @@ list_to_rbtree(List, T) :-
 %
 %	T is the red-black tree corresponding  to the mapping in ordered
 %	list L.
-
 ord_list_to_rbtree([], t(Nil,Nil)) :- !,
 	Nil = black('', _, _, '').
 ord_list_to_rbtree([K-V], t(Nil,black(Nil,K,V,Nil))) :- !,
@@ -1085,10 +1086,9 @@ size(black(L,_,_,R),Sz0,Szf) :-
 
 %%	is_rbtree(?Term) is semidet.
 %
-%	True if Term is a valide Red-Black tree.
+%	True if Term is a valid Red-Black tree.
 %	
 %	@tbd	Catch variables.
-
 is_rbtree(X) :-
 	var(X), !, fail.
 is_rbtree(t(Nil,Nil)) :- !.
@@ -1231,26 +1231,11 @@ build_ntree(X1,X,T0,TF) :-
 
 
 
-/** @pred is_rbtree(+ _T_) 
 
-
-Check whether  _T_ is a valid red-black tree.
-
- 
-*/
-/** @pred ord_list_to_rbtree(+ _L_, - _T_) 
-
-
- _T_ is the red-black tree corresponding to the mapping in ordered
-list  _L_.
-
-
-
- */
 /** @pred rb_apply(+ _T_,+ _Key_,+ _G_,- _TN_) 
 
 
-If the value associated with key  _Key_ is  _Val0_ in  _T_, and
+  If the value associated with key  _Key_ is  _Val0_ in  _T_, and
 if `call(G,Val0,ValF)` holds, then  _TN_ differs from
  _T_ only in that  _Key_ is associated with value  _ValF_ in
 tree  _TN_. Fails if it cannot find  _Key_ in  _T_, or if
@@ -1448,7 +1433,8 @@ with  _NewVal_. Fails if it cannot find  _Key_ in  _T_.
  _Pairs_ is an infix visit of tree  _T_, where each element of
  _Pairs_ is of the form   _K_- _Val_.
 
-@}
- 
+  
 */
+
+%%! @}  
 

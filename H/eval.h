@@ -19,7 +19,7 @@
 
     @defgroup arithmetic Arithmetic in YAP 
 
-@ingroup YAPBuiltins
+@ingroup builtins
 
 + See @ref arithmetic_preds for the predicates that implement arithment
 

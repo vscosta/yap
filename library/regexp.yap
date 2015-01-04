@@ -16,7 +16,7 @@
 *************************************************************************/
 
 /** @defgroup RegExp Regular Expressions
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 This library includes routines to determine whether a regular expression

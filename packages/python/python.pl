@@ -11,16 +11,6 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-/** <module> python
-
-A C-based  Prolog interface to python.
-
-@author		Vitor Santos Costa
-@version	0:0:5, 2012/10/8
-@license	Perl Artistic License
-
-*/
-
 %%%
 
 :- module(python, [
@@ -35,7 +25,18 @@ A C-based  Prolog interface to python.
      op(950,yfx,:=),
      (:=)/2,
      (:=)/1
-     ]).
+		  ]).
+
+/** <module> python
+
+  A C-based  Prolog interface to python.
+
+  @author               Vitor Santos Costa
+  @version      0:0:5, 2012/10/8
+  @license      Perl Artistic License
+
+*/
+
 
 
 /************************************************************************************************************

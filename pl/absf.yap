@@ -8,9 +8,11 @@
 *									 *
 *************************************************************************/
 
+%% @{
+
 /** @defgroup YAPAbsoluteFileName File Name Resolution
 
-   @ingroup YAPBuiltins
+   @ingroup builtins
 
   Support for file name resolution through absolute_file_name/3 and
   friends. These utility built-ins describe a list of directories that
@@ -18,9 +20,7 @@
   plus user-defined directories, directories based on environment
   variables and registry information to search for files.
 
-  @{
-
- **/
+  **/
 
 :- system_module( absolute_file_name, [absolute_file_name/2,
         absolute_file_name/3,

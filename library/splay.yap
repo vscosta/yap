@@ -16,7 +16,7 @@
 *************************************************************************/
 
 /** @defgroup Splay_Trees Splay Trees
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 Splay trees are explained in the paper "Self-adjusting Binary Search

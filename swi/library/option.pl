@@ -40,7 +40,7 @@
 :- use_module(library(lists)).
 
 /** <module> Option list processing
-@ingroup SWILibrary
+@ingroup swi
 
 The library(option) provides some utilities for processing option lists.
 Option lists are commonly used  as   an  alternative for many arguments.

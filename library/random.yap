@@ -23,7 +23,7 @@
 %   arithmetic.
  
 /** @defgroup Pseudo_Random Random Number Generator
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The following random number operations are included with the
@@ -55,7 +55,7 @@ integers then  _NUMBER_ will also be an integer, otherwise
 
 
 /** @defgroup Pseudo_Random Pseudo Random Number Integer Generator
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The following routines produce random non-negative integers in the range

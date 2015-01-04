@@ -5,7 +5,7 @@
 %
 
 /** @defgroup Lists List Manipulation
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The following list manipulation routines are available once included

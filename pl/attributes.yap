@@ -1,6 +1,6 @@
 /*************************************************************************
 *									 *
-*	 YAP Prolog 							 *
+  *	 YAP Prolog 							 *
 *									 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
@@ -15,17 +15,22 @@
 *									 *
 *************************************************************************/
 
+%% @{
 
-/** @defgroup Attributed_Variables Attributed Variables
-@ingroup YAPExtensions
+/**
+  @file attributes.yap
+  
+  @defgroup Attributed_Variables Attributed Variables
+  @ingroup extensions
 
 YAP supports attributed variables, originally developed at OFAI by
 Christian Holzbaur. Attributes are a means of declaring that an
-arbitrary term is a property for a variable. These properties can be
+  arbitrary term is a property for a variable. These properties can be
 updated during forward execution. Moreover, the unification algorithm is
 aware of attributed variables and will call user defined handlers when
-trying to unify these variables.
+  trying to unify these variables.
 
+  
 Attributed variables provide an elegant abstraction over which one can
 extend Prolog systems. Their main application so far has been in
 implementing constraint handlers, such as Holzbaur's CLPQR, Fruewirth
@@ -42,83 +47,11 @@ work with. Most packages included in YAP that use attributed
 variables, such as CHR, CLP(FD), and CLP(QR), rely on the SWI-Prolog
 interface.
 
-@{
+  + Old_Style_Attribute_Declarations
+  
+  + New_Style_Attribute_Declarations
+  
  */
-
-
-
-/** @defgroup New_Style_Attribute_Declarations hProlog and SWI-Prolog style Attribute Declarations
-@ingroup Attributed_Variables
-@{
-
-The following documentation is taken from the SWI-Prolog manual.
-
-Binding an attributed variable schedules a goal to be executed at the
-first possible opportunity. In the current implementation the hooks are
-executed immediately after a successful unification of the clause-head
-or successful completion of a foreign language (built-in) predicate. Each
-attribute is associated to a module and the hook attr_unify_hook/2 is
-executed in this module.  The example below realises a very simple and
-incomplete finite domain reasoner.
-
-~~~~~
-:- module(domain,
-      [ domain/2            % Var, ?Domain
-      ]).
-:- use_module(library(ordsets)).
-
-domain(X, Dom) :-
-    var(Dom), !,
-    get_attr(X, domain, Dom).
-domain(X, List) :-
-    list_to_ord_set(List, Domain),
-    put_attr(Y, domain, Domain),
-    X = Y.
-
-%    An attributed variable with attribute value Domain has been
-%    assigned the value Y
-
-attr_unify_hook(Domain, Y) :-
-    (   get_attr(Y, domain, Dom2)
-    ->  ord_intersection(Domain, Dom2, NewDomain),
-        (   NewDomain == []
-        ->    fail
-        ;    NewDomain = [Value]
-        ->    Y = Value
-        ;    put_attr(Y, domain, NewDomain)
-        )
-    ;   var(Y)
-    ->  put_attr( Y, domain, Domain )
-    ;   ord_memberchk(Y, Domain)
-    ).
-
-%    Translate attributes from this module to residual goals
-
-attribute_goals(X) -->
-    { get_attr(X, domain, List) },
-    [domain(X, List)].
-~~~~~
-
-Before explaining the code we give some example queries:
-
-The predicate `domain/2` fetches (first clause) or assigns
-(second clause) the variable a <em>domain</em>, a set of values it can
-be unified with.  In the second clause first associates the domain
-with a fresh variable and then unifies X to this variable to deal
-with the possibility that X already has a domain. The
-predicate attr_unify_hook/2 is a hook called after a variable with
-a domain is assigned a value.  In the simple case where the variable
-is bound to a concrete value we simply check whether this value is in
-the domain. Otherwise we take the intersection of the domains and either
-fail if the intersection is empty (first example), simply assign the
-value if there is only one value in the intersection (second example) or
-assign the intersection as the new domain of the variable (third
-example). The nonterminal `attribute_goals/3` is used to translate
-remaining attributes to user-readable goals that, when executed, reinstate
-these attributes.
-
-*/
-
 
 
 :- module('$attributes', [
@@ -144,6 +77,83 @@ these attributes.
         unbind_attvar/1,
         woken_att_do/4]).
 
+
+
+
+
+
+/**
+  @{  
+  @defgroup New_Style_Attribute_Declarations hProlog and SWI-Prolog style Attribute Declarations
+  @ingroup Attributed_Variables
+  
+  The following documentation is taken from the SWI-Prolog manual.
+
+  Binding an attributed variable schedules a goal to be executed at the
+  first possible opportunity. In the current implementation the hooks are
+  executed immediately after a successful unification of the clause-head
+  or successful completion of a foreign language (built-in) predicate. Each
+  attribute is associated to a module and the hook attr_unify_hook/2 is
+  executed in this module.  The example below realises a very simple and
+  incomplete finite domain reasoner.
+
+  ~~~~~
+  :- module(domain,
+  [ domain/2            % Var, ?Domain %
+  ]).
+  :- use_module(library(ordsets)).
+
+  domain(X, Dom) :-
+  var(Dom), !,
+  get_attr(X, domain, Dom).
+  domain(X, List) :-
+  list_to_ord_set(List, Domain),
+  put_attr(Y, domain, Domain),
+  X = Y.
+
+                                %    An attributed variable with attribute value Domain has been %
+                                %    assigned the value Y %
+
+  attr_unify_hook(Domain, Y) :-
+  (   get_attr(Y, domain, Dom2)
+  ->  ord_intersection(Domain, Dom2, NewDomain),
+  (   NewDomain == []
+  ->    fail
+  ;    NewDomain = [Value]
+  ->    Y = Value
+  ;    put_attr(Y, domain, NewDomain)
+  )
+  ;   var(Y)
+  ->  put_attr( Y, domain, Domain )
+  ;   ord_memberchk(Y, Domain)
+  ).
+
+                                %    Translate attributes from this module to residual goals %
+
+  attribute_goals(X) -->
+  { get_attr(X, domain, List) },
+  [domain(X, List)].
+  ~~~~~
+
+  Before explaining the code we give some example queries:
+
+  The predicate `domain/2` fetches (first clause) or assigns
+  (second clause) the variable a <em>domain</em>, a set of values it can
+  be unified with.  In the second clause first associates the domain
+  with a fresh variable and then unifies X to this variable to deal
+  with the possibility that X already has a domain. The
+  predicate attr_unify_hook/2 is a hook called after a variable with
+  a domain is assigned a value.  In the simple case where the variable
+  is bound to a concrete value we simply check whether this value is in
+  the domain. Otherwise we take the intersection of the domains and either
+  fail if the intersection is empty (first example), simply assign the
+  value if there is only one value in the intersection (second example) or
+  assign the intersection as the new domain of the variable (third
+  example). The nonterminal `attribute_goals/3` is used to translate
+  remaining attributes to user-readable goals that, when executed, reinstate
+  these attributes.
+
+*/
 
 :- dynamic attributes:attributed_module/3, attributes:modules_with_attributes/1.
 

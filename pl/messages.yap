@@ -16,9 +16,10 @@
 *									 *
 *************************************************************************/
 
-/** @defgroup Messages Message Handling
-@ingroup YAPControl
-@{
+/**
+  @defgroup Messages Message Handling
+  @ingroup YAPControl
+  @{
 
 The interaction between YAP and the user relies on YAP's ability to
 portray messages. These messages range from prompts to error
@@ -679,5 +680,6 @@ pred_arity(H,Name,Arity) :-
 
 
 /**
-@}
+  @}
+  @}
 */

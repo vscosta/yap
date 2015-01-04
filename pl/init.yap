@@ -14,7 +14,7 @@
 * comments:	initializing the full prolog system			 *
 *									 *
 *************************************************************************/
-%%   @defgroup YAPBuiltins  YAP  Built-Ins
+%%   @defgroup builtins  YAP  Built-Ins
 
 /*
   

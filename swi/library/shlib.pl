@@ -44,7 +44,7 @@
 :- set_prolog_flag(generate_debug_info, false).
 
 /** <module> Utility library for loading foreign objects (DLLs, shared objects)
-@ingroup SWILibrary
+@ingroup swi
 
 This   section   discusses   the   functionality   of   the   (autoload)
 library(shlib), providing an interface to   manage  shared libraries. We

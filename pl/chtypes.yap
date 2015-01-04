@@ -17,6 +17,12 @@
 
 :- system_module( '$_chtypes', [], []).
 
+/**
+  * @defgroup YAPChars Sequences of Characters: atoms, strings, lists of codes.  
+  * @ingroup builtins     
+  *
+*/                                                                       
+
 /*
   
 In addition, there is the library library(ctype) providing compatibility to some other Prolog systems. The predicates of this library are defined in terms of code_type/2.

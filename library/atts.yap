@@ -17,11 +17,12 @@
 
 :- module(attributes, [op(1150, fx, attribute)]).
 
+%% @{  
 
-/** @defgroup Old_Style_Attribute_Declarations SICStus Prolog style Attribute Declarations
-@ingroup Attributed_Variables
-@{
-
+/**
+  @defgroup Old_Style_Attribute_Declarations SICStus Prolog style Attribute Declarations
+  @ingroup Attributed_Variables
+  
 Old style attribute declarations are activated through loading the
 library <tt>atts</tt> . The command
 
@@ -50,12 +51,17 @@ variable. Unification will resume after this call.
 <tt>project_attributes/2</tt> is used from a set of variables into a set of
 constraints or goals. One application of <tt>project_attributes/2</tt> is in
 the top-level, where it is used to output the set of
-floundered constraints at the end of a query.
+  floundered constraints at the end of a query.
+*/
+
+%% @}
+
+
+%% @{
 
 /** @defgroup Attribute_Declarations Attribute Declarations
 @ingroup Old_Style_Attribute_Declarations
-@{
-
+  
 Attributes are compound terms associated with a variable. Each attribute
 has a <em>name</em> which is <em>private</em> to the module in which the
 attribute was defined. Variables may have at most one attribute with a
@@ -498,5 +504,5 @@ do_verify_attributes([_|Mods], AttVar, Binding, Goals) :-
 	do_verify_attributes(Mods, AttVar, Binding, Goals).
 
 /**
-@}
+  @}
 */

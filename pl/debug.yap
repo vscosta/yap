@@ -46,7 +46,7 @@
 -----------------------------------------------------------------------------*/
 
 /** @defgroup Deb_Preds Debugging Predicates
-@ingroup YAPBuiltins
+@ingroup builtins
 
 @{
 The

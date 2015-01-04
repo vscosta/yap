@@ -17,7 +17,7 @@
 
 
 /** @defgroup AVL_Trees AVL Trees
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 AVL trees are balanced search binary trees. They are named after their

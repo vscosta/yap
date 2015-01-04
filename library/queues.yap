@@ -7,7 +7,7 @@
 %   Needs  : lib(lists) for append/3.
 
 /** @defgroup Queues Queues
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The following queue manipulation routines are available once

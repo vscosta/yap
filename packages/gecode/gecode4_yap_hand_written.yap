@@ -18,7 +18,7 @@
 
 /** @defgroup Gecode Gecode Interface
 
-@ingroup YAPPackages
+@ingroup packages
 @{
 
 

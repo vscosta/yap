@@ -27,8 +27,8 @@
 #include <ctype.h>
 #include "pl-ctype.h"
 
-//! @defgroup YAPChars Character Classification and Manipulation
-//  @ingroup YAPBuiltins
+//! @defgroup YAPCharsC C-code for Character Classification and Manipulation
+//  @ingroup YAPChars
 //
 // This module defines routines to manipulate individual characters.
 //

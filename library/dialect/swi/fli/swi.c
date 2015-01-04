@@ -140,9 +140,10 @@ UserCPredicate(char *a, CPredicate def, unsigned long int arity, Term mod, int f
   CurrentModule = cm;
 } 
 
+//!  @{ 
+
 /** @defgroup swi-ATOMS Atom Construction
  *  @ingroup swi-c-interface
- *  @{
  *  */
 
 
@@ -177,11 +178,12 @@ X_API char* PL_atom_nchars(atom_t a, size_t *len)	 /* SAM check type */
   return s;
 }
 
-/** @}
+//!  @}
+
+/** @{
  *
  * @defgroup swi-term_references Term References
  *  @ingroup swi-c-interface
- *  @{
  *  */
 
 /** @brief duplicate a term reference
@@ -226,14 +228,17 @@ X_API void PL_reset_term_refs(term_t after)
 }
 
 /** @}
- *  @defgroup swi-term_manipulation Term Manipulation
+ */
+
+//!  @{
+
+/**  @defgroup swi-term_manipulation Term Manipulation
  *  @ingroup swi-c-interface
  *  */
 
 /**
  *  @defgroup swi-get-operations Reading Terms
  *  @ingroup swi-term_manipulation
- *  @{
  *  */
 
 /** @brief *name is assigned the name and *arity the arity if term ts, or the operaton fails.
@@ -647,10 +652,11 @@ X_API int PL_get_string(term_t t, char **s, size_t *len)
  *  @}
  *  */
 
+//!  @{
 /**
  *  @defgroup swi-unify-operations Unifying Terms
  *  @ingroup swi-term_manipulation
- *  @{
+
  *  */
 
 

@@ -7,7 +7,7 @@
 
 
 /** @defgroup Tries Trie DataStructure
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The next routines provide a set of utilities to create and manipulate

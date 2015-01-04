@@ -17,7 +17,7 @@
 
 /**
  @groupdef PseudoRandom Van Gelder Random Number Generator
- @ingroup YAPBuiltins
+ @ingroup builtins
  @{
 */
 

@@ -29,10 +29,6 @@
     the GNU General Public License.
 */
 
-/** <module> occur check support
-@ingroup SWILibrary
-*/
-
 :- module(occurs,
 	  [ contains_term/2,		% +SubTerm, +Term
 	    contains_var/2,		% +SubTerm, +Term
@@ -47,6 +43,10 @@
 :- use_module(library(arg),
 	      [genarg/3]).
    
+/** <module> occur check support
+  @ingroup swi
+*/
+
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 This  is  a  SWI-Prolog  implementation  of  the  corresponding  Quintus

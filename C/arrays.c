@@ -17,7 +17,7 @@
 
 
 /** @defgroup YAPArrays Named Arrays
-@ingroup YAPExtensions
+@ingroup extensions
 @{
 
 The YAP system includes experimental support for arrays. The
@@ -1050,7 +1050,6 @@ must be an atom (named array). The  _Size_ must evaluate to an
 integer.  The  _Type_ must be bound to one of types mentioned
 previously.
 */
-/// @memberof static_array/3
 p_create_static_array( USES_REGS1 )
 {
   Term ti = Deref(ARG2);
@@ -1267,7 +1266,6 @@ Reset static array with name  _Name_ to its initial value.
 
 
 */
-/// @memberof reset_static_array/1
 static Int 
 p_clear_static_array( USES_REGS1 )
 {
@@ -1307,7 +1305,6 @@ further accesses to the array will return an error.
 
 
 */
-/// @memberof close_static_array/1
 static Int 
 p_close_static_array( USES_REGS1 )
 {
@@ -1370,7 +1367,6 @@ terms (type `term`).
 
 
 */
-/// @memberof mmapped_array/4
 static Int 
 p_create_mmapped_array( USES_REGS1 )
 {
@@ -1684,7 +1680,6 @@ to use the operations on mutable terms.
 
 
 */
-/// @memberof update_array/3
 static Int 
 p_assign_static( USES_REGS1 )
 {
@@ -2179,7 +2174,6 @@ terms.
 
 
  */
-/// @memberof add_to_array_element/4
 
 static Int 
 p_add_to_array_element( USES_REGS1 )
@@ -2413,7 +2407,6 @@ that name.
 
 
 */
-/// @memberof static_array_to_term/2
 static Int
 p_static_array_to_term( USES_REGS1 )
 {
@@ -2583,7 +2576,6 @@ p_static_array_to_term( USES_REGS1 )
 Give the location or memory address for  a static array with name
  _Name_. The result is observed as an integer.
 */
-/// @memberof static_array_location/2
 static Int
 p_static_array_location( USES_REGS1 )
 {

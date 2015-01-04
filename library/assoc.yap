@@ -5,7 +5,7 @@
 %   Note   : the keys should be bound, the associated values need not be.
 
 /** @defgroup Association_Lists Association Lists
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The following association list manipulation predicates are available

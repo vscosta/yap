@@ -57,6 +57,8 @@
 
 */
 
+%% @{
+
 /** @pred expand_exprs(- _O_,+ _N_) 
 	Control term expansion during compilation.
 

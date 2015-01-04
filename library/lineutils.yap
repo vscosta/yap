@@ -20,7 +20,7 @@
 	  ]).
 
 /** @defgroup LineUtilities Line Manipulation Utilities
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 This package provides a set of useful predicates to manipulate

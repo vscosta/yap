@@ -21,7 +21,7 @@
 
 
 /** @defgroup Timeout Calls With Timeout
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The <tt>time_out/3</tt> command relies on the <tt>alarm/3</tt> built-in to

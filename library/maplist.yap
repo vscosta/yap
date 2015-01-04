@@ -1,6 +1,7 @@
 /**
 
-@defgroup YAPControl Meta- and Control Predicates
+  @defgroup YAPMapList Meta- and Control Predicates
+  @ingroup library
 @{
 
 */
@@ -22,7 +23,7 @@
   * @file maplist.yap
   *
   * @defgroup maplist Map List and Term Operations
-  * @ingroup YAPLibrary
+  * @ingroup library
   *
   * This library provides a set of utilities for applying a predicate to
   * all elements of a list. They allow one to easily perform the most common do-loop constructs in Prolog.

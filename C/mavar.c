@@ -17,7 +17,7 @@
 
 
 /** @defgroup Term_Modification Term Modification
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 It is sometimes useful to change the value of instantiated

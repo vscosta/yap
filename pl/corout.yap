@@ -16,9 +16,10 @@
 *************************************************************************/
 
 
-/** @defgroup CohYroutining Co-routining
-@ingroup YAPExtensions
-@{
+/**
+  @defgroup CohYroutining Co-routining
+  @ingroup extensions
+  @{
 
 Prolog uses a simple left-to-right flow of control. It is sometimes
 convenient to change this control so that goals will only be executed
@@ -119,16 +120,14 @@ The routines in this section fetch or set the entire attribute list of a
 variables. Use of these predicates is anticipated to be restricted to
 printing and other special purpose operations.
 
+*/
 
-
- @pred get_attrs(+ _Var_,- _Attributes_) 
-
-
+/**
+ @pred get_attrs(+ _Var_,- _Attributes_)
 
 Get all attributes of  _Var_.  _Attributes_ is a term of the form
 `att( _Module_,  _Value_,  _MoreAttributes_)`, where  _MoreAttributes_ is
 `[]` for the last attribute.
-
  
 */
 attribute_goals(Var) -->
@@ -162,9 +161,9 @@ remove_when_declarations(Goal, Goal).
 				%
 % operators defined in this module:
 %
-/** @pred freeze(? _X_,: _G_) 
-
-
+/**
+  @pred freeze(? _X_,: _G_)
+  
 Delay execution of goal  _G_ until the variable  _X_ is bound.
 
  
@@ -618,5 +617,6 @@ check_first_attvar([_|Vs], V0) :-
 	check_first_attvar(Vs, V0).
 
 /**
-@}
+  @}
+  @}
 */

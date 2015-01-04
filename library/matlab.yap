@@ -1,6 +1,6 @@
 
 /** @defgroup MATLAB MATLAB Package Interface
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The MathWorks MATLAB is a widely used package for array

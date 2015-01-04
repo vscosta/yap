@@ -1,5 +1,5 @@
 /** @defgroup BDDs Binary Decision Diagrams and Friends
-@ingroup YAPPackages
+@ingroup packages
 @{
 
 This library provides an interface to the BDD package CUDD. It requires
@@ -71,7 +71,7 @@ may include:
 
 + `nand( _X_,  _Y_)`
 
-    negated conjunction@
+    negated conjunction
 
 + `nor( _X_,  _Y_)`
 
@@ -383,3 +383,4 @@ fetch(pp(P,_,_,_)._Tree, -1, N) :- N is 1-P.
 fetch(pn(P,_,_,_)._Tree, 1, P).
 fetch(pn(P,_,_,_)._Tree, -1, N) :- N is 1-P.
 
+%% @}

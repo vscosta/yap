@@ -28,6 +28,12 @@ static char SccsId[]="%W% %G%";
 #define NULL (void *)0
 #endif
 
+/** @{ */
+
+/** @defgroup Attribute_Variables_Builtins Implementation of Attribute Declarations
+    @ingroup Attributed_Variables
+*/
+
 #ifdef COROUTINING
 
 #define TermVoidAtt TermFoundVar
@@ -995,6 +1001,14 @@ p_all_attvars( USES_REGS1 )
   } while (TRUE);
 }
 
+/** @pred attvar( _-Var_) 
+
+
+    Succeed if  _Var_ is an attributed variable.
+
+
+
+*/
 static Int
 p_is_attvar( USES_REGS1 )
 {
@@ -1104,16 +1118,10 @@ void Yap_InitAttVarPreds(void)
   Yap_InitCPred("all_attvars", 1, p_all_attvars, 0);
   CurrentModule = OldCurrentModule;
   Yap_InitCPred("attvar", 1, p_is_attvar, SafePredFlag|TestPredFlag);
-/** @pred attvar( _-Var_) 
-
-
-Succeed if  _Var_ is an attributed variable.
-
-
-
- */
   Yap_InitCPred("$att_bound", 1, p_attvar_bound, SafePredFlag|TestPredFlag);
 }
 
 
+
+/** @} */
 

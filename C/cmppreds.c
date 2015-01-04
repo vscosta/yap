@@ -19,7 +19,7 @@
 
 
 /** @defgroup Comparing_Terms Comparing Terms
-@ingroup YAPBuiltins
+@ingroup builtins
 
 The following predicates are used to compare and order terms, using the
 standard ordering:

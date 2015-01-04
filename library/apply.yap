@@ -1,5 +1,5 @@
 /** @defgroup Apply Apply Macros
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 This library provides a SWI-compatible set of utilities for applying a

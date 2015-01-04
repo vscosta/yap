@@ -4,7 +4,7 @@
 
 
 /** @defgroup LAM LAM
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 This library provides a set of utilities for interfacing with LAM MPI.

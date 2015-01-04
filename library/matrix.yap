@@ -16,7 +16,7 @@
 *************************************************************************/
 
 /** @defgroup matrix Matrix Library
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 This package provides a fast implementation of multi-dimensional

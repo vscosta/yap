@@ -1,7 +1,7 @@
 
 /**
   @defgroup DBUsage Memory Usage in Prolog Data-Base
-  @ingroup YAPLibrary
+  @ingroup library
   @{
 
   This library provides a set of utilities for studying memory usage in YAP.

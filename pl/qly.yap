@@ -45,7 +45,7 @@
 /**
 
 @defgroup YAPSaving Saving and Loading Prolog States
-@ingroup YAPLoading
+@ingroup consult
 
 YAP can save and read images of its current state to files, known as
 saved states. It is possible to save the entire state or just a module

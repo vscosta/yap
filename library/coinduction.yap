@@ -31,7 +31,7 @@
 :- use_module(library(error)).
 
 /** <module> Co-Logic Programming
-  @ingroup YAPLibrary
+  @ingroup library
 
 This simple module implements the   directive coinductive/1 as described
 in "Co-Logic Programming: Extending Logic  Programming with Coinduction"

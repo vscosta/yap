@@ -24,7 +24,7 @@ static char SccsId[] = "%W% %G%";
 @file globals.c
 
  @defgroup Global_Variables Global Variables
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 Global variables are associations between names (atoms) and

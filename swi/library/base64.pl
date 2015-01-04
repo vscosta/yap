@@ -35,7 +35,7 @@
 	  ]).
 
 /** <module> Base64 encoding and decoding
-@ingroup SWILibrary
+@ingroup swi
 
 Prolog-based base64 encoding using  DCG   rules.  Encoding  according to
 rfc2045. For example:

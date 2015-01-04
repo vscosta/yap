@@ -20,7 +20,7 @@ static char     SccsId[] = "%W% %G%";
 
 
 /** @defgroup BlackBoard The Blackboard
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 YAP implements a blackboard in the style of the SICStus Prolog

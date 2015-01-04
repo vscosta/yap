@@ -8,7 +8,7 @@
 
 
 /** @defgroup Exo_Intervals Exo Intervals
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 This package assumes you use exo-compilation, that is, that you loaded

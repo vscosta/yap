@@ -211,7 +211,7 @@
                      timer_pause/2]).
 
 /** @defgroup CAlarms Concurrent Alarms
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 This library provides a concurrent signals.  To use it use:

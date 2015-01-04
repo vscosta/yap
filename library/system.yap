@@ -16,7 +16,7 @@
 *************************************************************************/
 
 /** @defgroup System Calling The Operating System from YAP
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 YAP now provides a library of system utilities compatible with the

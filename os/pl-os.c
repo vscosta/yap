@@ -29,6 +29,8 @@
 #include <os2.h>                /* this has to appear before pl-incl.h */
 #endif
 
+//@{
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Solaris has asctime_r() with 3 arguments. Using _POSIX_PTHREAD_SEMANTICS
 is supposed to give the POSIX standard one.
@@ -2826,3 +2828,5 @@ Pause(double t)
 BeginPredDefs(system)
   PRED_DEF("shell", 2, shell, 0)
 EndPredDefs
+
+  // @}

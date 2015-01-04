@@ -17,81 +17,9 @@
 
 /**
 
-  @defgroup YAPPackages The YAP packages
-
-
-  @defgroup YAPLibrary The YAP Library
-
-  Library files reside in the library_directory path (set by the
-  `LIBDIR` variable in the Makefile for YAP). Several files in the
-  library are originally from the public-domain Edinburgh Prolog library. 
-
-  +  @ref maplist
-
-  +  @ref Apply Apply Macros
-  
-  +  @ref Association_Lists 
-  
-  +  @ref AVL_Trees 
-  
-  +  @ref  Exo_Intervals
-  
-  +  @ref Heaps 
-  
-  +  @ref Lists
-  
-  +  @ref LineUtilities
-  
-  +  @ref matrix 
-  
-  +  @ref NonhYBacktrackable_Data_Structures 
-  
-  +  @ref Ordered_Sets 
-  
-  +  @ref Pseudo_Random 
-  
-  +  @ref Queues Queues
-  
-  +  @ref PseudoRandom
-  
-  +  @ref RedhYBlack_Trees
-  
-  +  @ref RegExp
-
-  +  @ref Splay_Trees 
-  
-  +  @ref System 
-  
-  +  @ref Terms 
-  
-  +  @ref Tries 
-  
-  +  @ref Cleanup 
-  
-  +  @ref Timeout
-  
-  +  @ref Trees
-  
-  +  @ref UGraphs
-  
-  +  @ref DGraphs 
-  
-  +  @ref UnDGraphs
-  
-  +  @ref DBUsage
-  
-  +  @ref lambda
-
-  +  @ref clpfd
-  
-  +  @ref Block_Diagram 
-*/  
-
-/**
-
    \defgroup YAPModules The YAP Module system 
 
-   @ingroup YAPLoading
+   @ingroup consult
 
   The YAP module system is based on the Quintus/SISCtus module
 system ˜\cite quintus . In this design, modules are named collections of predicates,
@@ -127,7 +55,7 @@ YAP  includes a number of libraries and packages, most of them
 
 The main mechanism to change the current type-in module is by using
 the module/2 declaration.This declaration sets the source module when
-it starts consulting a file, and resets it at the end.  One can set
+  it starts consulting a file, and resets it at the end.  One can set
 the type-in module permanently by using the built-in `module/1`.
 
 \subsection Explicit Naming

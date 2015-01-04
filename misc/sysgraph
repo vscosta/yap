@@ -1053,30 +1053,44 @@ always_strip_module(M0:A, M0, A).
 
 c_links :-
     open('tmp/foreigns.yap', write, S),
-    clinks(S).
+    clinks(S),
+    fail.
+c_links :-
+    open('tmp/foreigns.c', write, S),
+    cclinks(S),
+    fail.
 
 clinks(S) :-
 	module_file( F, NM ),
-	format( S, 'mod( ~q , ~q ). ~n', [NM, F] ),
+	format( S, 'mod( ~q , ~q ).~n', [NM, F] ),
+	fail.
+clinks(S) :-
+        system_predicate(C),
+	functor(C, N, A),
+	format( S, 'sys ~q/~d.~n', [N, A] ),
 	fail.
 clinks(S) :-
     exported( ( Fi0-M:F/A :- Fi1-M1:F1/A ) ),
     ( M \= M1 -> M \= prolog ; F \= F1 ),
-    functor(S0, F, A),
-    S0 =.. [F| Args],
-    S1 =.. [F1| Args],
-    numbervars(Args, 0, _),
-    format( S, '% ~q <- ~q.~n~q:~q :- ~q:~q. ~n', [Fi0, Fi1, M,S0, M1,S1] ),
-    fail.
+%    functor(S0, F, A),
+%    S0 =.. [F| Args],
+%    S1 =.. [F1| Args],
+%    numbervars(Args, 0, _),
+    format( S, '% ~q <- ~q.~n~q:~q imports ~q:~q. ~n', [Fi0, Fi1, M,F/A, M1,F1/A] ),
+			fail.
 clinks(S) :-
-    node( M, F/A, File-Line, c(F)),
-    functor( S0, F, A),
-    S0 =.. [F| Args],
-    S1 =.. [foreign, F| Args],
-    numbervars(Args, 0, _),
-    format( S, ' ~a:~d~nforeign(~q , ~q , ~q, ~q ).~n', [File, Line, M:S0, S1, File, Line] ),
+    close(S).
+
+cclinks(S) :-
+    node( M, F/A, File-_Line, c(F)),
+%    functor( S0, F, A),
+%    S0 =.. [F| Args],
+%    S1 =.. [foreign, F| Args],
+%    numbervars(Args, 0, _),
+    format( S, '/// @file ~a~n', [File] ),
+    format( S, '/// @memberof ~a ~a:~a/~d~n', [F, M, F, A] ),
     fail.
-clinks(S) :-
+cclinks(S) :-
     close(S).
 
 warn_singletons(_Vars, _Pos).
@@ -1088,9 +1102,9 @@ warn_singletons(_Vars, _Pos).
 %
 comment( _Pos - Comment) :-
     skip_blanks(1, Comment, N),
-    doc( Comment, N ), !,
+    doc( Comment, N ),
     format( "%s\n", [Comment] ),
-    verif
+    !.
 comment( _Pos - _Comment).
 
 skip_blanks(I, Comment, N) :-
@@ -1491,9 +1505,9 @@ add_comments :-
 add_comments :-
   listing( open_comment ).
 
-check_comment( Comment, CN, _Line, File ) :-
+check_comment( Comment, CN, _Line, _qFile ) :-
     string_codes( Comment, [_,_,_|C]),
-    check_groups(0,C,[]),
+    check_groups(0,_C,[]),
     check_quotes(0,C,[]),
     (
         append(C0,[0'@,0'},0' ,0'*,0'/,10], C) -> %'
@@ -1505,7 +1519,8 @@ check_comment( Comment, CN, _Line, File ) :-
 check_comment( Comment, Comment,  Line, File ) :-
     format(user_error,'*** bad comment ~a ~d~n~n~s~n~', [File,Line,Comment]).
 
-check_groups(0,
+check_groups(0) --> [].
+
 
 check_quotes( 0 ) --> [].
 check_quotes( 0 ) -->

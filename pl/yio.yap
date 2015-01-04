@@ -55,7 +55,7 @@
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
 /** @defgroup InputOutput Input/Output Predicates
-@ingroup YAPBuiltins
+@ingroup builtins
 
 Some of the Input/Output predicates described below will in certain conditions
 provide error messages and abort only if the file_errors flag is set.

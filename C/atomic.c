@@ -18,8 +18,8 @@
 static char     SccsId[] = "%W% %G%";
 #endif
 
-/** @defgroup Predicates_on_Atoms Predicates on Atoms
-@ingroup YAPBuiltins
+/** @addgroup Predicates_on_Atoms Predicates on Atoms
+    @ingroup YAPChars
 @{
 
 The following predicates are used to manipulate atoms:

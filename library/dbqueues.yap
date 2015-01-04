@@ -1,6 +1,6 @@
 /**
   @defgroup DBQUeue Non-baacktrackable queues in YAP.
-  @ingroup YAPLibrary
+  @ingroup library
   @{
   
 A library to implement queues of NB Terms

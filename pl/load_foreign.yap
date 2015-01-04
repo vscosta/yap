@@ -25,7 +25,7 @@
 :- use_system_module( '$_modules', ['$do_import'/3]).
 
 /** @defgroup LoadForeign Access to Foreign Language Programs
-@ingroup YAPBuiltins
+@ingroup builtins
 
 */
 

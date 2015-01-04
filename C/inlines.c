@@ -17,7 +17,7 @@
 
 
 /** @defgroup YAP_Terms Predicates on terms
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 

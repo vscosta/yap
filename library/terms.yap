@@ -15,7 +15,7 @@
 *									 *
 *************************************************************************/
 /** @defgroup Terms Utilities On Terms
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The next routines provide a set of commonly used utilities to manipulate

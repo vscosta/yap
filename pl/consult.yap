@@ -65,9 +65,11 @@
 
 :- use_system_module( '$_preds', ['$current_predicate'/4]).
 
+%% @{  
+
 /**
-  \defgroup YAPConsulting Loading files into YAP
-  @ingroup YAPLoading
+  @defgroup YAPConsulting Loading files into YAP
+  @ingroup consult
 
   We present the main predicates and directives available to load
 files and to set-up the Prolog environment. We discuss
@@ -79,10 +81,9 @@ files and to set-up the Prolog environment. We discuss
   @{
 
 @defgroup YAPReadFiles The Predicates that Read Source Files
-@ingroup  YAPConsulting
+@ingroup  consult
 
-@{
-
+  
  */
 
 
@@ -947,9 +948,12 @@ source_file(Mod:Pred, FileName) :-
 
   SWI-compatible predicate. True if the predicate specified by  _ModuleAndPred_ was loaded from file  _File_, where  _File_ is an absolute path name (see `absolute_file_name/2`).
 
-  @}
-  
 */
+
+%% @}
+
+%% @{
+{
 
 /** @addtogroup YAPLibraries Library Predicates
 
@@ -957,9 +961,7 @@ Library files reside in the library_directory path (set by the
 `LIBDIR` variable in the Makefile for YAP). Currently,
 most files in the library are from the Edinburgh Prolog library. 
 
-  @{
-  
- */
+*/
 prolog_load_context(directory, DirName) :- 
         ( source_location(F, _)
         -> file_directory_name(F, DirName) ;
@@ -1223,14 +1225,14 @@ unload_file( F0 ) :-
     erase(R),
     fail.
 
+%% @}
+
 
 /**
 
-@}
+  @{
 
 @addtogroup YAPModules
-
-@{
 
 **/
 
@@ -1339,8 +1341,10 @@ account the following observations:
 @}
 **/
 
+%%   @{  
+
 /** @defgroup  YAPCompilerSettings Directing and Configuring the Compiler
-    @ingroup  YAPConsulting
+    @ingroup  YAPProgramming
 
   The YAP system also includes a number of primitives designed to set
   compiler parameters and to track the state of the compiler. One
@@ -1352,7 +1356,6 @@ account the following observations:
 This section presents a set of built-ins predicates designed to set the 
 environment for the compiler.
 
-  @{
 */
 
   
@@ -1364,8 +1367,6 @@ internal conventions are Unix and this predicates is equivalent to =/2
 (unify) on Unix systems. On DOS systems it will change the
 directory-separator, limit the filename length map dots, except for the
 last one, onto underscores.
-
-@{
 
 */
 
@@ -1495,15 +1496,17 @@ initialization(G,OPT) :-
 @}
 */
 
+%%   @{  
+
+
+
 /**
 
 @defgroup Conditional_Compilation Conditional Compilation
 
 @ingroup  YAPCompilerSettings
 
-  @{
-  
-Conditional compilation builds on the same principle as
+  Conditional compilation builds on the same principle as
 term_expansion/2, goal_expansion/2 and the expansion of
 grammar rules to compile sections of the source-code
 conditionally. One of the reasons for introducing conditional
@@ -1533,12 +1536,9 @@ section_2.
 section_3.
 :- else.
 section_else.
-:- endif.
+  :- endif.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-@{
-
+  
 */
 
 /** @pred    if( : _Goal_) 
@@ -1687,8 +1687,5 @@ consult_depth(LV) :- '$show_consult_level'(LV).
   @}
 
   @}
-
-  @}
-
 */
 

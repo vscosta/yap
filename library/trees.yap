@@ -25,7 +25,7 @@
 
 
 /** @defgroup Trees Updatable Binary Trees
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The following queue manipulation routines are available once

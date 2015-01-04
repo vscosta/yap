@@ -52,7 +52,7 @@
 	make_varnames_hook/5.
 
 /** <module> Get detailed source-information about a clause
-@ingroup SWILibrary
+@ingroup swi
 
 This module started life as part of the   GUI tracer. As it is generally
 useful for debugging  purposes  it  has   moved  to  the  general Prolog

@@ -27,7 +27,7 @@
         yap_flag/3], []).
 
 /** @defgroup Flags  YAP Execution Flags
-    @ingroup YAPBuiltins
+    @ingroup builtins
     @{
 */
 

@@ -2,7 +2,7 @@
 % SWI emulation.
 % written in an on-demand basis.
 
-%% @defgroup SWILibrary Compatibility with SWI-Prolog and Other Prolog systems
+%% @defgroup swi Compatibility with SWI-Prolog and Other Prolog systems
 
 /** 
 
@@ -148,21 +148,9 @@ that concatenated give  _A12_.
 
  
 */
+
 goal_expansion(atom_concat(A,B,C),atomic_concat(A,B,C)).
 %goal_expansion(arg(A,_,_),_) :- nonvar(A), !, fail.
-/** @pred  arg(+ _N_,+ _T_, _A_) is iso 
-
-
-Succeeds if the argument  _N_ of the term  _T_ unifies with
- _A_. The arguments are numbered from 1 to the arity of the term.
-
-The current version will generate an error if  _T_ or  _N_ are
-unbound, if  _T_ is not a compound term, of if  _N_ is not a positive
-integer. Note that previous versions of YAP would fail silently
-under these errors.
-
-@} 
-*/
 goal_expansion(arg(A,B,C),genarg(A,B,C)).
 
 % make sure we also use 

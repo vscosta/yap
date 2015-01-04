@@ -425,7 +425,32 @@ Int show_time(USES_REGS1) /* MORE PRECISION */
 }
 
 #endif /* BEAM */
+// @{
 
+/**
+   @defgroup YAPSetVal
+   @ingroup Internal_Database
+
+   Maintain a light-weight map where the key is an atom, and the value can be any constant.
+*/
+   
+/** @pred  set_value(+ _A_,+ _C_)
+
+
+    Associate atom  _A_ with constant  _C_.
+
+    The `set_value` and `get_value` built-ins give a fast alternative to
+    the internal data-base. This is a simple form of implementing a global
+    counter.
+
+    ~~~~~
+    read_and_increment_counter(Value) :-
+    get_value(counter, Value),
+    Value1 is Value+1,
+    set_value(counter, Value1).
+    ~~~~~
+    This predicate is YAP specific.
+*/
 static Int p_setval(USES_REGS1) { /* '$set_value'(+Atom,+Atomic) */
   Term t1 = Deref(ARG1), t2 = Deref(ARG2);
   if (!IsVarTerm(t1) && IsAtomTerm(t1) &&
@@ -436,6 +461,13 @@ static Int p_setval(USES_REGS1) { /* '$set_value'(+Atom,+Atomic) */
   return (FALSE);
 }
 
+/** @pred  get_value(+ _A_,- _V_)
+    In YAP, atoms can be associated with constants. If one such
+    association exists for atom  _A_, unify the second argument with the
+    constant. Otherwise, unify  _V_ with `[]`.
+
+    This predicate is YAP specific.
+*/
 static Int p_value(USES_REGS1) { /* '$get_value'(+Atom,?Val) */
   Term t1 = Deref(ARG1);
   if (IsVarTerm(t1)) {
@@ -453,7 +485,7 @@ static Int p_values(USES_REGS1) { /* '$values'(Atom,Old,New) */
   Term t1 = Deref(ARG1), t3 = Deref(ARG3);
 
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "set_value/2");
+     Yap_Error(INSTANTIATION_ERROR, t1, "set_value/2");
     return (FALSE);
   }
   if (!IsAtomTerm(t1)) {
@@ -471,6 +503,9 @@ static Int p_values(USES_REGS1) { /* '$values'(Atom,Old,New) */
   }
   return (TRUE);
 }
+
+//@}
+
 
 static Int p_opdec(USES_REGS1) { /* '$opdec'(p,type,atom)		 */
   /* we know the arguments are integer, atom, atom */
@@ -1914,42 +1949,9 @@ static Int p_yapor_workers(USES_REGS1) { return FALSE; }
 void Yap_InitCPreds(void) {
   /* numerical comparison */
   Yap_InitCPred("set_value", 2, p_setval, SafePredFlag | SyncPredFlag);
-  /** @pred  set_value(+ _A_,+ _C_)
-
-
-  Associate atom  _A_ with constant  _C_.
-
-  The `set_value` and `get_value` built-ins give a fast alternative to
-  the internal data-base. This is a simple form of implementing a global
-  counter.
-
-  ~~~~~
-  read_and_increment_counter(Value) :-
-  get_value(counter, Value),
-  Value1 is Value+1,
-  set_value(counter, Value1).
-  ~~~~~
-  This predicate is YAP specific.
-
-
-
-
-
-  */
-  Yap_InitCPred("get_value", 2, p_value,
+    Yap_InitCPred("get_value", 2, p_value,
                 TestPredFlag | SafePredFlag | SyncPredFlag);
-  /** @pred  get_value(+ _A_,- _V_)
-
-
-  In YAP, atoms can be associated with constants. If one such
-  association exists for atom  _A_, unify the second argument with the
-  constant. Otherwise, unify  _V_ with `[]`.
-
-  This predicate is YAP specific.
-
-
-  */
-  Yap_InitCPred("$values", 3, p_values, SafePredFlag | SyncPredFlag);
+    Yap_InitCPred("$values", 3, p_values, SafePredFlag | SyncPredFlag);
   /* general purpose */
   Yap_InitCPred("$opdec", 4, p_opdec, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("=..", 2, p_univ, 0);

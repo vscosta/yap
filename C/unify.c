@@ -15,7 +15,7 @@
 *									 *
 *************************************************************************/
 /** @defgroup Rational_Trees Rational Trees
-@ingroup YAPExtensions
+@ingroup extensions
 @{
 
 Prolog unification is not a complete implementation. For efficiency
@@ -998,7 +998,7 @@ Yap_InitUnify(void)
   CACHE_REGS
   Term cm = CurrentModule;
   Yap_InitCPred("unify_with_occurs_check", 2, p_ocunify, SafePredFlag);
-/** @pred  unify_with_occurs_check(?T1,?T2) is iso 
+  /** @pred  unify_with_occurs_check(?T1,?T2) is iso 
 
 
 Obtain the most general unifier of terms  _T1_ and  _T2_, if there
@@ -1064,3 +1064,5 @@ Yap_TrimTrail(void)
 
 #include "trim_trail.h"
 }
+
+//! @}

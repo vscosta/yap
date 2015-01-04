@@ -33,7 +33,7 @@
     ]).
 
 /** @defgroup CharsIO Operations on Sequences of Codes.
-@ingroup YAPLibrary
+@ingroup library
 
 Term to sequence of codes conversion, mostly replaced by engine code.
 */

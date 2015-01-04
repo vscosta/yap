@@ -48,7 +48,7 @@
 	listener/4.
 
 /** <module> Event service
-@ingroup SWILibrary
+@ingroup swi
 
 Generic broadcasting service. Broadcasts are   made  using the predicate
 broadcast(+Templ). All registered  `listeners'  will   have  their  goal

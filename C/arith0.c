@@ -21,6 +21,11 @@ static char     SccsId[] = "%W% %G%";
 /**
    @file arith0.c
 
+*/
+
+//! @{
+
+/**
    @defgroup arithmetic_operators Arithmetic Functions
    @ingroup arithmetic
 

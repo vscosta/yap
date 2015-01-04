@@ -10,7 +10,7 @@
  
 
 /** @defgroup UGraphs Unweighted Graphs
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The following graph manipulation routines are based in code originally
