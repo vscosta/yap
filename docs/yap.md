@@ -1,10 +1,6 @@
  YAP 6-3.4 Manual                         {#mainpage}
 ====================
 
-<center>
-![The YAP Logo](yap_256x256x32.png) 
-</center>
-
 
 This file documents the YAP Prolog System version 6.3.4, a high-performance Prolog compiler developed at LIACC, Universidade do Porto. YAP is based on David H. D. Warren's WAM (Warren Abstract Machine), with several optimizations for better performance. YAP follows the Edinburgh tradition, and is largely compatible with DEC-10 Prolog, Quintus Prolog, and especially with C-Prolog.
 
@@ -44,13 +40,14 @@ Permission is granted to make and distribute verbatim copies of this manual prov
 Permission is granted to copy and distribute modified versions of this manual under the conditions for verbatim copying, provided that the entire resulting derived work is distributed under the terms of a permission notice identical to this one.
 Permission is granted to copy and distribute translations of this manual into another language, under the above conditions for modified versions.
 
-\htmlonly
+<center>
+![The YAP Logo](yap_256x256x32.png) 
+</center>
 
 This file contains extracts of the SWI-Prolog manual, as written by Jan
 Wielemaker. Our thanks to the author for his kind permission in allowing
 us to include his text in this document.
 
-\endhtmlonly
 
 ## Introduction
 
@@ -59,14 +56,14 @@ YAP (<em>Yet Another Prolog</em>). The YAP Prolog System is a
 high-performance Prolog compiler developed at LIACC, Universidade do
 Porto. YAP provides several important features:
 
-  + Speed: YAP is widely considered one of the fastest available
-Prolog systems.
++ Speed: YAP is widely considered one of the fastest
+  available Prolog systems.
 
-  + Functionality: it supports stream Input/Output, sockets, modules,
-exceptions, Prolog debugger, C-interface, dynamic code, internal
-database, DCGs, saved states, co-routining, arrays, threads.
++ Functionality: it supports stream Input/Output, sockets, modules,
+  exceptions, Prolog debugger, C-interface, dynamic code, internal
+  database, DCGs, saved states, co-routining, arrays, threads.
 
-  + We explicitly allow both commercial and non-commercial use of YAP.
++ We explicitly allow both commercial and non-commercial use of YAP.
 
 
 YAP is based on the David H. D. Warren's WAM (Warren Abstract Machine),
@@ -180,7 +177,7 @@ Vítor Santos Costa, João Azevedo, Jan Wielemaker, and Rui Camacho.
  Foreign Language Interface, and the RDF, archive, clib, http, odbc, plunit,
  semweb, sgml, and zlib packages written by Jan Wielemaker.
 
-Downloding YAP           {#download}
+Downloading YAP           {#download}
 ==============
 
 The latest development version of Yap-6 is yap-6.3.4 and can be
@@ -851,7 +848,7 @@ The YAP Library        {#library}
 
   +  @ref AVL_Trees
 
-  +  @ref  Exo_Intervals
+  +  @ref Exo_Intervals
 
   +  @ref Heaps
 
@@ -871,7 +868,7 @@ The YAP Library        {#library}
 
   +  @ref PseudoRandom
 
-  +  @ref RedhYBlack_Trees
+  +  @ref rbtrees
 
   +  @ref RegExp
 
@@ -917,6 +914,8 @@ The YAP Packages  {#packages}
 + @ref PFL
 
 + @ref ProbLog1
+
++ @ref python
 
 + @ref YAPRaptor
 
@@ -1006,7 +1005,7 @@ YAP was designed so that most C-Prolog programs should run under YAP
 without changes.
 The most important difference between YAP and C-Prolog is that, being
 YAP a compiler, some changes should be made if predicates such as
-`assert`, `clause` and `retract` are used. First
+assert/1, clause/1 and retract/1 are used. First
 predicates which will change during execution should be declared as
 `dynamic` by using commands like:
 
@@ -1063,8 +1062,8 @@ the WAM. Even so, there are major important differences:
 
   + The following SICStus Prolog v3 built-ins are not (currently)
 implemented in YAP (note that this is only a partial list):
-`stream_interrupt/3`, `reinitialize/0`, `help/0`, `help/1`,
-`trimcore/0`, and `require/1`.
+stream_interrupt/3, reinitialize/0, help/0, help/1,
+trimcore/0, and require/1.
 
   + The consult/1 predicate in YAP follows C-Prolog
 semantics. That is, it adds clauses to the data base, even for
@@ -1094,8 +1093,8 @@ compatibility. Setting this flag changes the following:
 
 
   + By default, YAP implements the
-atom_chars/2( (see Testing Terms)), and
-number_chars/2, ( (see Testing Terms)),
+atom_chars/2 (see Testing Terms), and
+number_chars/2,  (see Testing Terms),
 built-ins as per the original Quintus Prolog definition, and
 not as per the ISO definition.
 

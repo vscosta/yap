@@ -1,7 +1,7 @@
 /** 
 
 @defgroup YAPControl Control Predicates
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 */
@@ -334,7 +334,7 @@ Increase stack size  _Size_ kilobytes
  */
 
 /** @defgroup Undefined_Procedures Handling Undefined Procedures
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 A predicate in a module is said to be undefined if there are no clauses
@@ -443,7 +443,7 @@ If this hook predicate succeeds it must instantiate the  _Action_ argument to th
  */
 
 /** @defgroup Messages Message Handling
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 The interaction between YAP and the user relies on YAP's ability to
@@ -556,7 +556,7 @@ Translates a message-term into a string object. Primarily intended for SWI-Prolo
  */
 
 /** @defgroup Testing_Terms Predicates on terms
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 
@@ -881,7 +881,7 @@ Similar to rational_term_to_tree/4, but _SubTerms_ is a proper list.
 
 
 /** @defgroup Predicates_on_Atoms Predicates on Atoms
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 The following predicates are used to manipulate atoms:
@@ -1083,7 +1083,7 @@ sub-strings of  _A_.
  */
 
 /** @defgroup Predicates_on_Characters Predicates on Characters
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 The following predicates are used to manipulate characters:
@@ -1203,7 +1203,7 @@ atom_chars/2 and atom_codes/2.
  */
 
 /** @defgroup Comparing_Terms Comparing Terms
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 The following predicates are used to compare and order terms, using the
@@ -1374,7 +1374,7 @@ of length  _S_.
  */
 
 /** @defgroup Arithmetic Arithmetic
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 @copydoc arithmetic 
@@ -1389,7 +1389,7 @@ of length  _S_.
  */
 
 /** @defgroup InputOutput Input/Output Predicates
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 Some of the Input/Output predicates described below will in certain conditions
@@ -1401,7 +1401,7 @@ setting and clearing this flag are given under 7.7.
  */
 
 /** @defgroup Streams_and_Files Handling Streams and Files
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 
@@ -1812,7 +1812,7 @@ Given the packaged stream position term  _StreamPosition_, unify
  */
 
 /** @defgroup ChYProlog_File_Handling C-Prolog File Handling
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 
@@ -1896,7 +1896,7 @@ Closes the current input stream (see 6.7.).
  */
 
 /** @defgroup InputOutput_of_Terms Handling Input/Output of Terms
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 
@@ -2343,7 +2343,7 @@ Create a list of one-character-atoms as a difference-list.
  */
 
 /** @defgroup InputOutput_of_Characters Handling Input/Output of Characters
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 
@@ -2506,7 +2506,7 @@ Outputs a new line to the current output stream.
  */
 
 /** @defgroup InputOutput_for_Streams Input/Output Predicates applied to Streams
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 
@@ -2699,7 +2699,7 @@ Outputs a new line to stream  _S_.
  */
 
 /** @defgroup ChYProlog_to_Terminal Compatible C-Prolog predicates for Terminal Input/Output
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 
@@ -2751,7 +2751,7 @@ Outputs a new line to stream user_output.
  */
 
 /** @defgroup InputOutput_Control Controlling Input/Output
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 
@@ -2785,7 +2785,7 @@ Input/Output predicates will produce an appropriated message and abort.
  */
 
 /** @defgroup Sockets Using Sockets From YAP
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 YAP includes a SICStus Prolog compatible socket interface. In YAP-6.3
@@ -2969,7 +2969,7 @@ address in number and dots notation.
 */
 
 /** @defgroup Database Using the Clausal Data Base
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 Predicates in YAP may be dynamic or static. By default, when
@@ -3051,7 +3051,7 @@ the remainder of the program execution.
  */
 
 /** @defgroup Modifying_the_Database Modification of the Data Base
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 These predicates can be used either for static or for dynamic
@@ -3222,7 +3222,7 @@ Retract all the clauses whose head matches the goal  _G_. Goal
  */
 
 /** @defgroup Looking_at_the_Database Looking at the Data Base
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 
@@ -3369,7 +3369,7 @@ of space required to store indices to those clauses (in bytes).
  */
 
 /** @defgroup Database_References Using Data Base References
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 Data Base references are a fast way of accessing terms. The predicates
@@ -3425,7 +3425,7 @@ database reference is  _R_. The predicate must be dynamic.
  */
 
 /** @defgroup Internal_Database Internal Data Base
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 Some programs need global information for, e.g. counting or collecting 
@@ -3703,7 +3703,7 @@ This predicate is YAP specific.
 */
 
 /** @defgroup BlackBoard The Blackboard
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 YAP implements a blackboard in the style of the SICStus Prolog
@@ -3761,7 +3761,7 @@ with  _Term_, and if the unification succeeds replace it by
  */
 
 /** @defgroup Sets Collecting Solutions to a Goal
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 When there are several solutions to a goal, if the user wants to collect all
@@ -3891,7 +3891,7 @@ no
  */
 
 /** @defgroup Grammars Grammar Rules
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 Grammar rules in Prolog are both a convenient way to express definite
@@ -4018,7 +4018,7 @@ This predicate is used by the grammar rules compiler and is defined as
  */
 
 /** @defgroup OS Access to Operating System Functionality
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 The following built-in predicates allow access to underlying
@@ -4278,7 +4278,7 @@ order of dispatch.
  */
 
 /** @defgroup Term_Modification Term Modification
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 It is sometimes useful to change the value of instantiated
@@ -4340,7 +4340,7 @@ Set the current value of mutable term  _M_ to term  _D_.
  */
 
 /** @defgroup Global_Variables Global Variables
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 Global variables are associations between names (atoms) and
@@ -4568,7 +4568,7 @@ compound terms.
  */
 
 /** @defgroup Profiling Profiling Prolog Programs
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 YAP includes two profilers. The count profiler keeps information on the
@@ -4587,7 +4587,7 @@ implementation.
  */
 
 /** @defgroup The_Count_Profiler The Count Profiler
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
  *Notes:*
@@ -4660,7 +4660,7 @@ Reset all profiling information.
  */
 
 /** @defgroup Tick_Profiler Tick Profiler
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 The tick profiler works by interrupting the Prolog code every so often
@@ -4713,7 +4713,7 @@ The showprofres/0 and `showprofres/1` predicates call a user-defined multifile h
  */
 
 /** @defgroup Call_Counting Counting Calls
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 Predicates compiled with YAP's flag call_counting set to
@@ -4803,7 +4803,7 @@ exception when `l/0` performs more than 10000 reductions.
  */
 
 /** @defgroup Arrays Arrays
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 The YAP system includes experimental support for arrays. The
@@ -5042,7 +5042,7 @@ terms.
  */
 
 /** @defgroup Preds Predicate Information
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 Built-ins that return information on the current predicates and modules:
@@ -5072,7 +5072,7 @@ Succeeds if  _M_ are current modules associated to the file  _F_.
  */
 
 /** @defgroup Misc Miscellaneous
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 
@@ -5885,7 +5885,7 @@ compatibility, it is a term of the form
 
 
 
-@section YAPLibrary Library Predicates
+@section library Library Predicates
 
 Library files reside in the library_directory path (set by the
 `LIBDIR` variable in the Makefile for YAP). Currently,
@@ -5895,7 +5895,7 @@ most files in the library are from the Edinburgh Prolog library.
  */
 
 /** @defgroup Aggregate Aggregate
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 This is the SWI-Prolog library based on  the Quintus and SICStus 4
@@ -6065,7 +6065,7 @@ http://www.securitease.com. The code is public domain (from DEC10 library).
  */
 
 /** @defgroup Apply Apply Macros
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 This library provides a SWI-compatible set of utilities for applying a
@@ -6076,7 +6076,7 @@ definitions from the `maplist` library.
  */
 
 /** @defgroup Association_Lists Association Lists
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The following association list manipulation predicates are available
@@ -6262,7 +6262,7 @@ have key  _Key_.
  */
 
 /** @defgroup AVL_Trees AVL Trees
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 AVL trees are balanced search binary trees. They are named after their
@@ -6308,7 +6308,7 @@ Lookup an element with key  _Key_ in the AVL tree
  */
 
 /** @defgroup Exo_Intervals Exo Intervals
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 This package assumes you use exo-compilation, that is, that you loaded
@@ -6343,7 +6343,7 @@ one. All queries run in  constant or log(n) time.
  */
 
 /** @defgroup Gecode Gecode Interface
-@ingroup YAPPackages
+@ingroup packages
 @{
 
 
@@ -6898,7 +6898,7 @@ minimise variable  _V_
  */
 
 /** @defgroup Heaps Heaps
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 A heap is a labelled binary tree where the key of each node is less than
@@ -6990,7 +6990,7 @@ heap, without deleting them.
  */
 
 /** @defgroup Lists List Manipulation
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The following list manipulation routines are available once included
@@ -7296,7 +7296,7 @@ See ord_subtract/3.
  */
 
 /** @defgroup LineUtilities Line Manipulation Utilities
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 This package provides a set of useful predicates to manipulate
@@ -7464,7 +7464,7 @@ Same as file_filter/3, but before starting the filter execute
  */
 
 /** @defgroup matrix Matrix Library
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 This package provides a fast implementation of multi-dimensional
@@ -8057,7 +8057,7 @@ Select from  _Matrix_ the column matching  _Column_ as new matrix  _NewMatrix_. 
  */
 
 /** @defgroup MATLAB MATLAB Package Interface
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The MathWorks MATLAB is a widely used package for array
@@ -8267,7 +8267,7 @@ MATLAB command `zeros`.
  */
 
 /** @defgroup NonhYBacktrackable_Data_Structures Non-Backtrackable Data Structures
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The following routines implement well-known data-structures using global
@@ -8461,7 +8461,7 @@ Succeeds if   _Beam_ is empty.
  */
 
 /** @defgroup Ordered_Sets Ordered Sets
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The following ordered set manipulation routines are available once
@@ -8633,7 +8633,7 @@ Holds when  _Union_ is the union of  _Set1_ and  _Set2_ and
  */
 
 /** @defgroup Pseudo_Random Pseudo Random Number Integer Generator
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The following routines produce random non-negative integers in the range
@@ -8691,7 +8691,7 @@ the result is in 0 ..  _R_-1.
  */
 
 /** @defgroup Queues Queues
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The following queue manipulation routines are available once
@@ -8791,7 +8791,7 @@ Creates a new list with the same elements as  _Queue_.
  */
 
 /** @defgroup Random Random Number Generator
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The following random number operations are included with the
@@ -8861,7 +8861,7 @@ random number generator. The integer `X` must be in the range
  */
 
 /** @defgroup Read_Utilities Read Utilities
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The `readutil` library contains primitives to read lines, files,
@@ -8950,7 +8950,7 @@ Read a file to a list of Prolog terms (see read/1). @c  _Spec_ is a
  */
 
 /** @defgroup RedhYBlack_Trees Red-Black Trees
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 Red-Black trees are balanced search binary trees. They are named because
@@ -9207,7 +9207,7 @@ list  _L_.
  */
 
 /** @defgroup RegExp Regular Expressions
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 This library includes routines to determine whether a regular expression
@@ -9340,7 +9340,7 @@ sub-expression.  Thus the `"b"` has already been claimed before the
  */
 
 /** @defgroup shlib SWI-Prolog's shlib library
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 This section discusses the functionality of the (autoload)
@@ -9473,7 +9473,7 @@ loaded shared libraries.
  */
 
 /** @defgroup Splay_Trees Splay Trees
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 Splay trees are explained in the paper "Self-adjusting Binary Search
@@ -9553,7 +9553,7 @@ greater than  _Key_. This operations destroys  _Tree_.
  */
 
 /** @defgroup String_InputOutput Reading From and Writing To Strings
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 From Version 4.3.2 onwards YAP implements SICStus Prolog compatible
@@ -9722,7 +9722,7 @@ the memory buffer.
  */
 
 /** @defgroup System Calling The Operating System from YAP
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 YAP now provides a library of system utilities compatible with the
@@ -10088,7 +10088,7 @@ Wait until process  _PID_ terminates, and return its exits  _Status_.
  */
 
 /** @defgroup Terms Utilities On Terms
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The next routines provide a set of commonly used utilities to manipulate
@@ -10200,7 +10200,7 @@ Succeed if  _Term1_ and  _Term2_ are unifiable with substitution
  */
 
 /** @defgroup Tries Trie DataStructure
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The next routines provide a set of utilities to create and manipulate
@@ -10355,7 +10355,7 @@ Print trie  _Trie_ on standard output.
  */
 
 /** @defgroup Cleanup Call Cleanup
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 <tt>call_cleanup/1</tt> and <tt>call_cleanup/2</tt> allow predicates to register
@@ -10502,7 +10502,7 @@ Read the Source Luke.
  */
 
 /** @defgroup Timeout Calls With Timeout
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The <tt>time_out/3</tt> command relies on the <tt>alarm/3</tt> built-in to
@@ -10539,7 +10539,7 @@ precision on the scale of seconds.
  */
 
 /** @defgroup Trees Updatable Binary Trees
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The following queue manipulation routines are available once
@@ -10602,7 +10602,7 @@ Is the converse operation to list_to_tree.
  */
 
 /** @defgroup UGraphs Unweighted Graphs
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The following graph manipulation routines are based in code originally
@@ -10897,7 +10897,7 @@ V = [1,3,5]
  */
 
 /** @defgroup DGraphs Directed Graphs
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The following graph manipulation routines use the red-black tree library
@@ -11197,7 +11197,7 @@ The vertices  _Vertices_ have no outgoing edge in graph
  */
 
 /** @defgroup UnDGraphs Undirected Graphs
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 The following graph manipulation routines use the red-black tree graph
@@ -11317,7 +11317,7 @@ directed graph  _DGraph_.
  */
 
 /** @defgroup DBUsage Memory Usage in Prolog Data-Base
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 This library provides a set of utilities for studying memory usage in YAP.
@@ -11370,7 +11370,7 @@ than  _Threshold_ bytes.
  */
 
 /** @defgroup Lambda Lambda Expressions
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 This library, designed and implemented by Ulrich Neumerkel, provides
@@ -11447,7 +11447,7 @@ at Ulrich Neumerker's page in <http://www.complang.tuwien.ac.at/ulrich/Prolog-in
  */
 
 /** @defgroup LAM LAM
-@ingroup YAPPackages
+@ingroup packages
 @{
 
 This library provides a set of utilities for interfacing with LAM MPI.
@@ -11678,7 +11678,7 @@ are released.
  */
 
 /** @defgroup BDDs Binary Decision Diagrams and Friends
-@ingroup YAPPackages
+@ingroup packages
 @{
 
 This library provides an interface to the BDD package CUDD. It requires
@@ -11867,7 +11867,7 @@ close the BDD and release any resources it holds.
  */
 
 /** @defgroup Block_Diagram Block Diagram
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 This library provides a way of visualizing a prolog program using
@@ -12037,7 +12037,7 @@ True iff  _Term1_ and  _Term2_ are structurally equivalent. I.e. if  _Term1_ and
  */
 
 /** @defgroup Invoking_Predicates_on_all_Members_of_a_List Invoking Predicates on all Members of a List
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 
@@ -12088,7 +12088,7 @@ triple. See the example above.
  */
 
 /** @defgroup Forall Forall			
-@ingroup YAPPackages
+@ingroup packages
 @{
 
 
@@ -12220,7 +12220,7 @@ Delete the named global variable.
  */
 
 /** @defgroup Compatibility_of_Global_Variables Compatibility of Global Variables
-@ingroup YAPPackages
+@ingroup packages
 @{
 
 Global variables have been introduced by various Prolog
@@ -12246,7 +12246,7 @@ language. Next, we discuss support to the most important ones.
  */
 
 /** @defgroup Rational_Trees Rational Trees
-@ingroup YAPPackages
+@ingroup packages
 @{
 
 Prolog unification is not a complete implementation. For efficiency
@@ -12275,7 +12275,7 @@ entering an infinite cycle when trying to write an infinite term.
  */
 
 /** @defgroup CohYroutining Co-routining
-@ingroup YAPPackages
+@ingroup packages
 @{
 
 Prolog uses a simple left-to-right flow of control. It is sometimes
@@ -12410,7 +12410,7 @@ no
  */
 
 /** @defgroup Attributed_Variables Attributed Variables
-@ingroup YAPPackages
+@ingroup packages
 @{
 
 YAP supports attributed variables, originally developed at OFAI by
@@ -12437,7 +12437,7 @@ rely on the SWI-Prolog interface.
  */
 
 /** @defgroup New_Style_Attribute_Declarations hProlog and SWI-Prolog style Attribute Declarations
-@ingroup YAPPackages
+@ingroup packages
 @{
 
 The following documentation is taken from the SWI-Prolog manual.
@@ -12662,7 +12662,7 @@ by fresh variables.
  */
 
 /** @defgroup Old_Style_Attribute_Declarations SICStus Prolog style Attribute Declarations
-@ingroup YAPLibrary
+@ingroup library
 @{
 
 Old style attribute declarations are activated through loading the library <tt>atts</tt> . The command
@@ -13049,7 +13049,7 @@ attributes from other known solvers/modules via the module prefix in
  */
 
 /** @defgroup CLPR Constraint Logic Programming over Reals
-@ingroup YAPPackages
+@ingroup packages
 @{
 
 YAP now uses the CLP(R) package developed by <em>Leslie De Koninck</em>,
@@ -13169,7 +13169,7 @@ dump([X,Y,Z],[x,y,z],Cons)
  */
 
 /** @defgroup CLPR_Syntax Syntax of the predicate arguments
-@ingroup YAPPackages
+@ingroup packages
 @{
 
 
@@ -13272,7 +13272,7 @@ X = tan(Y)
 ~~~~~
 
 @section CHR CHR: Constraint Handling Rules 
-@ingroup YAPPackages
+@ingroup packages
 
 This chapter is written by Tom Schrijvers, K.U. Leuven for the hProlog
 system. Adjusted by Jan Wielemaker to fit the SWI-Prolog documentation
@@ -13316,7 +13316,7 @@ implementation. For a more thorough review of CHR we refer the reader to
  */
 
 /** @defgroup CHR_Syntax_and_Semantics Syntax and Semantics
-@ingroup YAPPackages
+@ingroup packages
 @{
 
 
@@ -13857,7 +13857,7 @@ intersection([_|T],L2,L3) :-
  */
 
 /** @defgroup CHR_Compatibility Compatibility with SICStus CHR
-@ingroup YAPPackages
+@ingroup packages
 @{
 
 
@@ -13889,7 +13889,7 @@ rules may be defined in a file with any extension.
  */
 
 /** @defgroup CHR_Guidelines Guidelines
-@ingroup YAPPackages
+@ingroup packages
 @{
 
 
@@ -13922,7 +13922,7 @@ Make sure to disable debug (`-nodebug`) and enable optimization
  */
 
 /** @defgroup Logtalk Logtalk
-@ingroup YAPPackages
+@ingroup packages
 @{
 
 The Logtalk object-oriented extension is available after running its 
@@ -13938,7 +13938,7 @@ please see the URL <http://logtalk.org/>.
  */
 
 /** @defgroup Threads Threads
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 YAP implements a SWI-Prolog compatible multithreading
@@ -14641,7 +14641,7 @@ Enumerates all existing mutexes.  If the mutex is held by some thread,
  */
 
 /** @defgroup Parallelism Parallelism
-@ingroup YAPPackages
+@ingroup packages
 @{
 
 There has been a sizeable amount of work on an or-parallel
@@ -14681,7 +14681,7 @@ releases.
  */
 
 /** @defgroup Tabling Tabling
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
  *YAPTab* is the tabling engine that extends YAP's execution
@@ -14871,7 +14871,7 @@ Prints statistics on space used by all tables.
  */
 
 /** @defgroup Low_Level_Tracing Tracing at Low Level
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 It is possible to follow the flow at abstract machine level if
@@ -14945,7 +14945,7 @@ label  _A_. The label must be an atom.
  */
 
 /** @defgroup Debugging Debugging
-@ingroup YAPBuiltins
+@ingroup builtins
 @{
 
 
