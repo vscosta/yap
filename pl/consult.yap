@@ -81,7 +81,7 @@ files and to set-up the Prolog environment. We discuss
   @{
 
 @defgroup YAPReadFiles The Predicates that Read Source Files
-@ingroup  consult
+  @ingroup  YAPConsulting
 
   
  */
