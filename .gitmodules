@@ -39,7 +39,7 @@
 	url = git://git.code.sf.net/p/yap/odbc
 [submodule "packages/udi"]
 	path = packages/udi
-	url = https://github.com/davidvaz/yap-udi-indexers.git
+	url = https://github.com/vscosta/yap-udi-indexers.git
 [submodule "packages/raptor"]
 	path = packages/raptor
 	url = git://git.code.sf.net/p/yap/raptor
