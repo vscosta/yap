@@ -19,7 +19,7 @@ typedef void *SYM_REC_PTR;
 #define trail_top TR
 #define trail_up_addr ((tr_fr_ptr)LCL0)
 
-#define UNDO_TRAILING while (TR > (tr_fr_ptr)trail_top0) { RESET_VARIABLE(VarOfTerm(TrailTerm(TR--))); }
+#define UNDO_TRAILING while (TR > (tr_fr_ptr)trail_top0) { RESET_VARIABLE(VarOfTerm(TrailTerm(TR))); TR--; }
 
 #define NEW_HEAP_NODE(x)          (*heap_top++ = (x))
 

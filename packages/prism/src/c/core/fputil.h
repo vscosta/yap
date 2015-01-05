@@ -39,7 +39,9 @@
 #ifndef isnan
 #define isnan(x)    ((x) != (x))
 #endif
+#ifndef INFINITY
 #define INFINITY    HUGE_VAL
+#endif
 #endif
 
 #define SNAN fputil_snan()

@@ -485,7 +485,7 @@ static Int p_values(USES_REGS1) { /* '$values'(Atom,Old,New) */
   Term t1 = Deref(ARG1), t3 = Deref(ARG3);
 
   if (IsVarTerm(t1)) {
-     Yap_Error(INSTANTIATION_ERROR, t1, "set_value/2");
+    Yap_Error(INSTANTIATION_ERROR, t1, "set_value/2");
     return (FALSE);
   }
   if (!IsAtomTerm(t1)) {

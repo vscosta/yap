@@ -660,11 +660,11 @@ int update_params_smooth(void)
     SW_INS_PTR ptr,next;
     double sum,cur_prob_sum;
     double denom;
-    int n;
+    // int n;
 
     for (i = 0; i < occ_switch_tab_size; i++) {
         ptr = occ_switches[i];
-        n = num_sw_vals[i];
+        // n = num_sw_vals[i];
         sum = 0.0;
         while (ptr != NULL) {
             sum += ptr->total_expect + ptr->smooth;

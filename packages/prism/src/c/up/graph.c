@@ -779,7 +779,7 @@ int pc_import_occ_switches_3(void)
     TERM p_num_sw, p_num_sw_ins;
     int i;
     int num_sw_ins;
-    void release_occ_switches();
+    void release_occ_switches( void );
 
 #ifdef __YAP_PROLOG__
     TERM *hstart;

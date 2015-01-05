@@ -641,7 +641,7 @@ char** GetVariableOrder(char *filename, int varcnt) {
 
 int LoadVariableData(namedvars varmap, char *filename) {
   FILE *data;
-  char *dataread, buf, *varname, *dynvalue;
+  char *dataread, buf, *varname = NULL, *dynvalue;
   char * unparsed_string;
   double dvalue = 0.0;
   int icur = 0, maxbufsize = 10, hasvar = 0, index = -1, idat = 0, ivalue = 0;
@@ -1237,7 +1237,6 @@ char* getFileName(const char *function) {
 DdNode* LineParser(DdManager *manager, namedvars varmap, DdNode **inter, int maxinter, char *function, int iline) {
   int istart, iend, ilength, i, symbol, ivar, inegvar, inegoper, iconst;
   long startAt, endAt;
-  double secs;
   DdNode *bdd;
   char *term, curoper;
   bdd = HIGH(manager);
@@ -1318,7 +1317,7 @@ DdNode* LineParser(DdManager *manager, namedvars varmap, DdNode **inter, int max
           }
         }
         endAt = clock();
-        secs = ((double) (endAt - startAt)) / ((double) CLOCKS_PER_SEC);
+        // secs = ((double) (endAt - startAt)) / ((double) CLOCKS_PER_SEC);
         if (_debug) fprintf(stderr, "term: %s of line: %i took: %ld\n", term, iline, endAt - startAt);
         //if ((endAt - startAt) > 10000000) Cudd_AutodynDisable(manager);
         if (bdd == NULL) {
@@ -1350,7 +1349,7 @@ DdNode* LineParser(DdManager *manager, namedvars varmap, DdNode **inter, int max
         if (inegvar) bdd = BDD_Operator(manager, NOT(inter[ivar]), bdd, curoper, inegoper);
         else bdd = BDD_Operator(manager, inter[ivar], bdd, curoper, inegoper);
         endAt = clock();
-        secs = ((double) (endAt - startAt)) / ((double) CLOCKS_PER_SEC);
+        // secs = ((double) (endAt - startAt)) / ((double) CLOCKS_PER_SEC);
         if (_debug) fprintf(stderr, "term: %s of line: %i took: %ld\n", term, iline, endAt - startAt);
         //if ((endAt - startAt) > 10000000) Cudd_AutodynDisable(manager);
         if (bdd == NULL) {
@@ -1545,7 +1544,7 @@ DdNode* OnlineGenerateBDD(DdManager *manager, namedvars *varmap) {
 DdNode* OnlineLineParser(DdManager *manager, namedvars *varmap, DdNode **inter, int maxinter, char *function, int iline) {
   int istart, iend, ilength, i, symbol, ivar, inegvar, inegoper, iconst;
   long startAt, endAt;
-  double secs;
+  // double secs;
   DdNode *bdd;
   char *term, curoper;
   bdd = HIGH(manager);
@@ -1630,7 +1629,7 @@ DdNode* OnlineLineParser(DdManager *manager, namedvars *varmap, DdNode **inter, 
           }
         }
         endAt = clock();
-        secs = ((double) (endAt - startAt)) / ((double) CLOCKS_PER_SEC);
+        // secs = ((double) (endAt - startAt)) / ((double) CLOCKS_PER_SEC);
         if (_debug) fprintf(stderr, "term: %s of line: %i took: %ld\n", term, iline, endAt - startAt);
         //if ((endAt - startAt) > 10000000) Cudd_AutodynDisable(manager);
         if (bdd == NULL) {
@@ -1662,7 +1661,7 @@ DdNode* OnlineLineParser(DdManager *manager, namedvars *varmap, DdNode **inter, 
         if (inegvar) bdd = BDD_Operator(manager, NOT(inter[ivar]), bdd, curoper, inegoper);
         else bdd = BDD_Operator(manager, inter[ivar], bdd, curoper, inegoper);
         endAt = clock();
-        secs = ((double) (endAt - startAt)) / ((double) CLOCKS_PER_SEC);
+        // secs = ((double) (endAt - startAt)) / ((double) CLOCKS_PER_SEC);
         if (_debug) fprintf(stderr, "term: %s of line: %i took: %ld\n", term, iline, endAt - startAt);
         //if ((endAt - startAt) > 10000000) Cudd_AutodynDisable(manager);
         if (bdd == NULL) {

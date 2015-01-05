@@ -19,11 +19,10 @@ static char     SccsId[] = "%W% %G%";
 #endif /* SCCS */
 
 #include <math.h>
-#ifndef INFINITY
-#define INFINITY (1.0/0.0)
-#endif
 
 #include "Yap.h"
+#include "Yatom.h"
+#include "eval.h"
 
 #ifdef DEPTH_LIMIT
 

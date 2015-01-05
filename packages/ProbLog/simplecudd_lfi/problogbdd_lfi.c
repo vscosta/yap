@@ -245,7 +245,7 @@ char * extractpattern(char *thestr);
 
 int main(int argc, char **arg) {
   extmanager MyManager;
-  DdNode *bdd, **forest, *bakbdd;
+  DdNode *bdd = NULL, **forest = NULL, *bakbdd= NULL;
   bddfileheader fileheader;
   int i, ivarcnt, code, curbdd;
   gradientpair tvalue;
@@ -869,7 +869,7 @@ skip_nodes(extmanager * MyManager, double (*counts)[] , DdNode* node, DdNode* l,
   int skipcnt;
   skipcnt = Cudd_ReadPerm(MyManager->manager,GetIndex(node))+1;
   if(LOG_EXPECTED){fprintf(stderr,">> skipper >> %s=%i@%i of %i -> %i@%i %i\n",
-			   MyManager->varmap.dynvalue[GetIndex(node) - MyManager->varmap.varstart],
+			   (char *)(MyManager->varmap.dynvalue[GetIndex(node) - MyManager->varmap.varstart]),
 			   GetIndex(node),
 			   Cudd_ReadPerm(MyManager->manager,GetIndex(node)),
 			   Cudd_ReadSize( MyManager->manager),
@@ -934,7 +934,7 @@ double CalcExpectedCountsDown(extmanager * MyManager, DdNode *Current, char *que
   char *curnode, *curh, *curl,*dynvalue;
   DdNode *h, *l, *node;
   ComparisonFunction fun;
-  hisnode *Found,*lfound, *hfound;
+  hisnode *Found = NULL,*lfound, *hfound;
   double dprob; //downward probability of current node
   double tvalue; // probability of prob fact corresp to node
   int ivalue;
@@ -1052,7 +1052,7 @@ double CalcExpectedCountsUp(extmanager * MyManager, DdNode *Current, char *query
 
   DdNode *h, *l;
   hisnode *Found;
-  char *curnode;
+  char *curnode = NULL;
   double lvalue, hvalue, tvalue;
   //  tvalue=0.0;
   int ivalue;
@@ -1105,7 +1105,7 @@ double CalcExpectedCountsUp(extmanager * MyManager, DdNode *Current, char *query
 gradientpair CalcGradient(extmanager MyManager, DdNode *Current, int TargetVar, char *TargetPattern, int type) {
   DdNode *h, *l;
   hisnode *Found;
-  char *curnode, *dynvalue;
+  char *curnode = NULL, *dynvalue;
   gradientpair lowvalue, highvalue, tvalue;
   double this_probability;
   double *gradient;
@@ -1142,6 +1142,7 @@ gradientpair CalcGradient(extmanager MyManager, DdNode *Current, int TargetVar, 
   highvalue = CalcGradient(MyManager, h, TargetVar, TargetPattern,type);
   dynvalue = (char*) MyManager.varmap.dynvalue[GetIndex(Current) - MyManager.varmap.varstart];
   if (dynvalue == NULL) { // no dynvalue, it's a regular probabilistic fact
+    memset( &dynvalue_parsed, 0, sizeof(dynvalue_parsed) );
     this_probability = sigmoid(MyManager.varmap.dvalue[GetIndex(Current) - MyManager.varmap.varstart], params.sigmoid_slope);
   } else { // there is a dynvalue, it's a continuous fact! let's do the hybrid ProbLog magic here
     curnode = GetNodeVarNameDisp(MyManager.manager, MyManager.varmap, Current);
