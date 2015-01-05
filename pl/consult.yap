@@ -1,6 +1,6 @@
 /*************************************************************************
 *									 *
-  *	 YAP Prolog 							 *
+  *	 YAP Prolog  							 *
 *									 *
   *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
@@ -953,7 +953,6 @@ source_file(Mod:Pred, FileName) :-
 %% @}
 
 %% @{
-{
 
 /** @addtogroup YAPLibraries Library Predicates
 

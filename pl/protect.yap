@@ -22,7 +22,7 @@
 '$protect' :-
 	fail,
         '$system_mod'( M ),
-        '$current_predicate'(A, M, T0, Flags),
+        '$current_predicate'(_A, M, T0, Flags),
         NFlags is Flags \/ 0x00004000,
 	'$flags'(M:T0, Flags, NFlags),
 	fail.
