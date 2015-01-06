@@ -1335,7 +1335,7 @@ restore_static_array(StaticArrayEntry *ae USES_REGS)
 static void 
 CleanCode(PredEntry *pp USES_REGS)
 {
-  CELL            flag;
+  pred_flags_t            flag;
 
 
   /* Init takes care of the first 2 cases */

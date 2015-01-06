@@ -638,11 +638,8 @@ IsValProperty (int flags)
   return (PropFlags) ((flags == ValProperty));
 }
 
-#if SIZEOF_INT_P==4
-#define EXTRA_FLAG_BASE 0
-#else
-#define EXTRA_FLAG_BASE 33
-#endif
+ typedef uint64_t pred_flags_t; 
+ 
 
 /*	    predicate property entry structure				*/
 /*  AsmPreds are things like var, nonvar, atom ...which are implemented
@@ -654,51 +651,51 @@ IsValProperty (int flags)
 
 don't forget to also add in qly.h
 */
-#define  DiscontiguousPredFlag ((uint64_t)0x1000000000)	/* predicates whose clauses may be all-over the place.. */
-#define SysExportPredFlag ((uint64_t)0x800000000)
+#define  DiscontiguousPredFlag ((pred_flags_t)0x1000000000)	/* predicates whose clauses may be all-over the place.. */
+#define SysExportPredFlag ((pred_flags_t)0x800000000)
 /* reuse export list to prolog module. */
-#define NoTracePredFlag ((uint64_t)0x400000000)		/* cannot trace this predicate */
-#define NoSpyPredFlag  ((uint64_t)0x200000000)		/* cannot spy this predicate */
-#define QuasiQuotationPredFlag  ((uint64_t)0x100000000)		/* SWI-like quasi quotations */
-#define MegaClausePredFlag    ((uint64_t)0x80000000) /* predicate is implemented as a mega-clause */
-#define ThreadLocalPredFlag  ((uint64_t)0x40000000)	/* local to a thread */
-#define MultiFileFlag  ((uint64_t)0x20000000)	/* is multi-file */
-#define UserCPredFlag  ((uint64_t)0x10000000)	/* CPred defined by the user */
-#define LogUpdatePredFlag  ((uint64_t)0x08000000)	/* dynamic predicate with log. upd. sem. */
-#define InUsePredFlag  ((uint64_t)0x04000000)	/* count calls to pred */
-#define CountPredFlag  ((uint64_t)0x02000000)	/* count calls to pred */
-#define HiddenPredFlag  ((uint64_t)0x01000000)	/* invisible predicate */
-#define CArgsPredFlag  ((uint64_t)0x00800000)	/* SWI-like C-interface pred. */
-#define SourcePredFlag  ((uint64_t)0x00400000)	/* static predicate with source declaration */
-#define MetaPredFlag  ((uint64_t)0x00200000)	/* predicate subject to a meta declaration */
-#define SyncPredFlag  ((uint64_t)0x00100000)	/* has to synch before it can execute */
-#define NumberDBPredFlag  ((uint64_t)0x00080000)	/* entry for a number key */
-#define AtomDBPredFlag  ((uint64_t)0x00040000)	/* entry for an atom key */
-#define GoalExPredFlag  ((uint64_t)0x00020000)	/* predicate that is called by goal_expand */
-#define TestPredFlag  ((uint64_t)0x00010000)	/* is a test (optim. comit) */
-#define AsmPredFlag  ((uint64_t)0x00008000)	/* inline */
-#define StandardPredFlag  ((uint64_t)0x00004000)	/* system predicate */
-#define DynamicPredFlag  ((uint64_t)0x00002000)	/* dynamic predicate */
-#define CPredFlag  ((uint64_t)0x00001000)	/* written in C */
-#define SafePredFlag  ((uint64_t)0x00000800)	/* does not alter arguments */
-#define CompiledPredFlag  ((uint64_t)0x00000400)	/* is static */
-#define IndexedPredFlag  ((uint64_t)0x00000200)	/* has indexing code */
-#define SpiedPredFlag  ((uint64_t)0x00000100)	/* is a spy point */
-#define BinaryPredFlag  ((uint64_t)0x00000080)	/* test predicate */
-#define TabledPredFlag  ((uint64_t)0x00000040)	/* is tabled */
-#define SequentialPredFlag  ((uint64_t)0x00000020)	/* may not create parallel choice points! */
-#define ProfiledPredFlag  ((uint64_t)0x00000010)	/* pred is being profiled   */
-#define BackCPredFlag  ((uint64_t)0x00000008)    /*	Myddas Imported pred  */
-#define ModuleTransparentPredFlag ((uint64_t)0x00000004)	/* ModuleTransparent pred  */
-#define SWIEnvPredFlag  ((uint64_t)0x00000002)	/* new SWI interface */
-#define UDIPredFlag ((uint64_t)0x00000001)	/* User Defined Indexing */
+#define NoTracePredFlag ((pred_flags_t)0x400000000)		/* cannot trace this predicate */
+#define NoSpyPredFlag  ((pred_flags_t)0x200000000)		/* cannot spy this predicate */
+#define QuasiQuotationPredFlag  ((pred_flags_t)0x100000000)		/* SWI-like quasi quotations */
+#define MegaClausePredFlag    ((pred_flags_t)0x80000000) /* predicate is implemented as a mega-clause */
+#define ThreadLocalPredFlag  ((pred_flags_t)0x40000000)	/* local to a thread */
+#define MultiFileFlag  ((pred_flags_t)0x20000000)	/* is multi-file */
+#define UserCPredFlag  ((pred_flags_t)0x10000000)	/* CPred defined by the user */
+#define LogUpdatePredFlag  ((pred_flags_t)0x08000000)	/* dynamic predicate with log. upd. sem. */
+#define InUsePredFlag  ((pred_flags_t)0x04000000)	/* count calls to pred */
+#define CountPredFlag  ((pred_flags_t)0x02000000)	/* count calls to pred */
+#define HiddenPredFlag  ((pred_flags_t)0x01000000)	/* invisible predicate */
+#define CArgsPredFlag  ((pred_flags_t)0x00800000)	/* SWI-like C-interface pred. */
+#define SourcePredFlag  ((pred_flags_t)0x00400000)	/* static predicate with source declaration */
+#define MetaPredFlag  ((pred_flags_t)0x00200000)	/* predicate subject to a meta declaration */
+#define SyncPredFlag  ((pred_flags_t)0x00100000)	/* has to synch before it can execute */
+#define NumberDBPredFlag  ((pred_flags_t)0x00080000)	/* entry for a number key */
+#define AtomDBPredFlag  ((pred_flags_t)0x00040000)	/* entry for an atom key */
+#define GoalExPredFlag  ((pred_flags_t)0x00020000)	/* predicate that is called by goal_expand */
+#define TestPredFlag  ((pred_flags_t)0x00010000)	/* is a test (optim. comit) */
+#define AsmPredFlag  ((pred_flags_t)0x00008000)	/* inline */
+#define StandardPredFlag  ((pred_flags_t)0x00004000)	/* system predicate */
+#define DynamicPredFlag  ((pred_flags_t)0x00002000)	/* dynamic predicate */
+#define CPredFlag  ((pred_flags_t)0x00001000)	/* written in C */
+#define SafePredFlag  ((pred_flags_t)0x00000800)	/* does not alter arguments */
+#define CompiledPredFlag  ((pred_flags_t)0x00000400)	/* is static */
+#define IndexedPredFlag  ((pred_flags_t)0x00000200)	/* has indexing code */
+#define SpiedPredFlag  ((pred_flags_t)0x00000100)	/* is a spy point */
+#define BinaryPredFlag  ((pred_flags_t)0x00000080)	/* test predicate */
+#define TabledPredFlag  ((pred_flags_t)0x00000040)	/* is tabled */
+#define SequentialPredFlag  ((pred_flags_t)0x00000020)	/* may not create parallel choice points! */
+#define ProfiledPredFlag  ((pred_flags_t)0x00000010)	/* pred is being profiled   */
+#define BackCPredFlag  ((pred_flags_t)0x00000008)    /*	Myddas Imported pred  */
+#define ModuleTransparentPredFlag ((pred_flags_t)0x00000004)	/* ModuleTransparent pred  */
+#define SWIEnvPredFlag  ((pred_flags_t)0x00000002)	/* new SWI interface */
+#define UDIPredFlag ((pred_flags_t)0x00000001)	/* User Defined Indexing */
 
 /* profile data */
 typedef struct
 {
-  uint64_t NOfEntries;	/* nbr of times head unification succeeded */
-  uint64_t NOfHeadSuccesses;	/* nbr of times head unification succeeded */
-  uint64_t NOfRetries;	/* nbr of times a clause for the pred
+  UInt NOfEntries;	/* nbr of times head unification succeeded */
+  UInt NOfHeadSuccesses;	/* nbr of times head unification succeeded */
+  UInt NOfRetries;	/* nbr of times a clause for the pred
 				   was retried */
 #if defined(YAPOR) || defined(THREADS)
   lockvar lock;			/* a simple lock to protect this entry */
@@ -714,13 +711,13 @@ typedef enum {
 #define TIMESTAMP_EOT   ((UInt)(~0L))
 #define TIMESTAMP_RESET (TIMESTAMP_EOT-1024)
 
-typedef struct pred_entry
+ typedef struct pred_entry
 {
   Prop NextOfPE;		/* used to chain properties             */
   PropFlags KindOfPE;		/* kind of property                     */
   struct yami *CodeOfPred;
   OPCODE OpcodeOfPred;		/* undefcode, indexcode, spycode, ....  */
-  uint64_t PredFlags;
+  pred_flags_t PredFlags;
   UInt ArityOfPE;		/* arity of property                    */
   union
   {
@@ -841,6 +838,14 @@ typedef enum
   SrcMask = 0x0020,		/* has a source term, only for static references */
 /* other flags belong to DB */
 } dbentry_flags;
+
+/* predicate initialization */
+ void   Yap_InitCPred(const char *, UInt, CPredicate, pred_flags_t);
+ void   Yap_InitAsmPred(const char *, UInt, int, CPredicate, pred_flags_t);
+ void   Yap_InitCmpPred(const char *, UInt, CmpPredicate, pred_flags_t);
+ void   Yap_InitCPredBack(const char *, UInt, unsigned int, CPredicate,CPredicate,pred_flags_t);
+ void   Yap_InitCPredBackCut(const char *, UInt, unsigned int, CPredicate,CPredicate,CPredicate,pred_flags_t);
+ void    Yap_InitCPredBack_(const char *, UInt, unsigned int, CPredicate,CPredicate,CPredicate,pred_flags_t);
 
 /* *********************** DBrefs **************************************/
 

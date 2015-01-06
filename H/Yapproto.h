@@ -250,12 +250,6 @@ void	Yap_DebugEndline(void);
 int	Yap_DebugGetc(void);
 #endif
 int	Yap_IsOpType(char *);
-void	Yap_InitCPred(const char *, UInt, CPredicate, UInt);
-void	Yap_InitAsmPred(const char *, UInt, int, CPredicate, UInt);
-void	Yap_InitCmpPred(const char *, UInt, CmpPredicate, UInt);
-void	Yap_InitCPredBack(const char *, UInt, unsigned int, CPredicate,CPredicate,UInt);
-void	Yap_InitCPredBackCut(const char *, UInt, unsigned int, CPredicate,CPredicate,CPredicate,UInt);
-void    Yap_InitCPredBack_(const char *, UInt, unsigned int, CPredicate,CPredicate,CPredicate,UInt);
 void	Yap_InitWorkspace(UInt,UInt,UInt,UInt,UInt,int,int,int);
 
 #ifdef YAPOR
@@ -425,15 +419,16 @@ size_t	Yap_ExportTerm(Term, char *, size_t, UInt);
 size_t	Yap_SizeOfExportedTerm(char *);
 Term	Yap_ImportTerm(char *);
 int	Yap_IsListTerm(Term);
-int	Yap_IsListOrPartialListTerm(Term);
-Term	Yap_CopyTermNoShare(Term);
-int	Yap_SizeGroundTerm(Term, int);
-int	Yap_IsGroundTerm(Term);
-int	Yap_IsAcyclicTerm(Term);
-void	Yap_InitUtilCPreds(void);
+int    Yap_IsListOrPartialListTerm(Term);
+Term   Yap_CopyTermNoShare(Term);
+int    Yap_SizeGroundTerm(Term, int);
+int    Yap_IsGroundTerm(Term);
+int    Yap_IsAcyclicTerm(Term);
+void   Yap_InitUtilCPreds(void);
 Int     Yap_TermHash(Term, Int, Int, int);
 Int     Yap_NumberVars(Term, Int, int);
 Term    Yap_TermVariables( Term t, UInt arity USES_REGS );
+int	Yap_IsListOrPartialListTerm( UInt arity USES_REGS );
 Term    Yap_UnNumberTerm(Term, int);
 Int     Yap_SkipList(Term *, Term **);
 /* yap.c */

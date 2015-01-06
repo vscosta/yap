@@ -515,7 +515,7 @@ static Int  p_call_count_info( USES_REGS1 );
 static Int  p_call_count_set( USES_REGS1 );
 static Int  p_call_count_reset( USES_REGS1 );
 static Int  p_toggle_static_predicates_in_use( USES_REGS1 );
-static Int  PredForCode(yamop *, Atom *, UInt *, Term *);
+static Int  PredForCode(yamop *, Atom *, arity_t *, Term *);
 static void  kill_first_log_iblock(LogUpdIndex *, LogUpdIndex *, PredEntry *);
 static LogUpdIndex *find_owner_log_index(LogUpdIndex *, yamop *);
 static StaticIndex *find_owner_static_index(StaticIndex *, yamop *);
@@ -672,7 +672,7 @@ static_in_use(PredEntry *p, int check_everything)
 #if defined(YAPOR) || defined(THREADS)
   return TRUE;
 #else
-  CELL pflags = p->PredFlags;
+  pred_flags_t pflags = p->PredFlags;
   if (pflags & (DynamicPredFlag|LogUpdatePredFlag)) {
     return FALSE;
   }
@@ -2090,7 +2090,7 @@ addcl_permission_error(AtomEntry *ap, Int Arity, int in_use)
 PredEntry * Yap_PredFromClause( Term t USES_REGS )
 {
   Term cmod = LOCAL_SourceModule;
-  UInt extra_arity = 0;
+  arity_t extra_arity = 0;
 
   if (IsVarTerm( t )) return NULL;
   while (IsApplTerm(t)) {
@@ -2316,8 +2316,8 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   PredEntry      *p;
   int             spy_flag = FALSE;
   Atom           at;
-  UInt           Arity;
-  CELL		 pflags;
+  arity_t           Arity;
+  pred_flags_t		 pflags;
   Term		 tf;
 
 
@@ -2339,7 +2339,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   PELOCK(20,p);
   pflags = p->PredFlags;
   /* we are redefining a prolog module predicate */
-  if (((p->PredFlags & SysExportPredFlag) == (UInt)0) &&
+  if (!(p->PredFlags & SysExportPredFlag) &&
       (
        (pflags & (UserCPredFlag|CArgsPredFlag|NumberDBPredFlag|AtomDBPredFlag|TestPredFlag|AsmPredFlag|CPredFlag|BinaryPredFlag)) ||
        (p->ModuleOfPred == PROLOG_MODULE && 
@@ -2892,7 +2892,7 @@ p_set_no_trace( USES_REGS1 )
 }
 
 int
-Yap_SetNoTrace(char *name, UInt arity, Term tmod)
+Yap_SetNoTrace(char *name, arity_t arity, Term tmod)
 {
   PredEntry      *pe;
 
@@ -2915,7 +2915,7 @@ p_setspy( USES_REGS1 )
 {				/* '$set_spy'(+Fun,+M)	 */
   Atom            at;
   PredEntry      *pred;
-  CELL            fg;
+  pred_flags_t            fg;
   Term            t, mod;
 
   at = AtomSpy;
@@ -3085,7 +3085,7 @@ static Int
 p_new_multifile( USES_REGS1 )
 {				/* '$new_multifile'(+N,+Ar,+Mod)  */
   Atom            at;
-  int             arity;
+  arity_t             arity;
   PredEntry      *pe;
   Term            t = Deref(ARG1);
   Term            mod = Deref(ARG3);
@@ -3126,7 +3126,7 @@ static Int
 p_is_multifile( USES_REGS1 )
 {				/* '$is_multifile'(+S,+Mod)	 */
   PredEntry      *pe;
-  Int		  out;
+  bool		  out;
 
   pe = get_pred(Deref(ARG1),  Deref(ARG2), "$is_multifile");
   if (EndOfPAEntr(pe))
@@ -3141,7 +3141,7 @@ static Int
 p_new_discontiguous( USES_REGS1 )
 {				/* '$new_discontiguous'(+N,+Ar,+Mod)  */
   Atom            at;
-  int             arity;
+  arity_t             arity;
   PredEntry      *pe;
   Term            t = Deref(ARG1);
   Term            mod = Deref(ARG3);
@@ -3177,7 +3177,7 @@ static Int
 p_is_discontiguous( USES_REGS1 )
 {				/* '$is_multifile'(+S,+Mod)	 */
   PredEntry      *pe;
-  Int		  out;
+  bool		  out;
 
   pe = get_pred(Deref(ARG1),  Deref(ARG2), "discontiguous");
   if (EndOfPAEntr(pe))
@@ -3192,7 +3192,7 @@ static Int
 p_is_thread_local( USES_REGS1 )
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
-  Int             out;
+  bool             out;
 
   pe = get_pred(Deref(ARG1),  Deref(ARG2), "$is_log_updatable");
   if (EndOfPAEntr(pe))
@@ -3207,7 +3207,7 @@ static Int
 p_is_log_updatable( USES_REGS1 )
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
-  Int             out;
+  bool             out;
 
   pe = get_pred(Deref(ARG1),  Deref(ARG2), "$is_log_updatable");
   if (EndOfPAEntr(pe))
@@ -3222,7 +3222,7 @@ static Int
 p_is_source( USES_REGS1 )
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
-  Int             out;
+  bool             out;
 
   pe = get_pred(Deref(ARG1),  Deref(ARG2), "$is_source");
   if (EndOfPAEntr(pe))
@@ -3237,7 +3237,7 @@ static Int
 p_is_exo( USES_REGS1 )
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
-  Int             out;
+  bool             out;
   MegaClause *mcl;
 
   pe = get_pred(Deref(ARG1),  Deref(ARG2), "$is_exo");
@@ -3322,7 +3322,7 @@ static Int
 p_is_dynamic( USES_REGS1 )
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
-  Int             out;
+  bool             out;
 
   pe = get_pred(Deref(ARG1),  Deref(ARG2), "$is_dynamic");
   if (EndOfPAEntr(pe))
@@ -3337,7 +3337,7 @@ static Int
 p_is_metapredicate( USES_REGS1 )
 {				/* '$is_metapredicate'(+P)	 */
   PredEntry      *pe;
-  Int             out;
+  bool             out;
 
   pe = get_pred(Deref(ARG1),  Deref(ARG2), "$is_meta");
   if (EndOfPAEntr(pe))
@@ -3354,7 +3354,7 @@ p_is_expandgoalormetapredicate( USES_REGS1 )
   PredEntry      *pe;
   Term            t = Deref(ARG1);
   Term            mod = Deref(ARG2);
-  Int             out;
+  bool             out;
 
   if (PRED_GOAL_EXPANSION_ALL)
     return TRUE;
@@ -3415,7 +3415,7 @@ static Int
 p_pred_exists( USES_REGS1 )
 {				/* '$pred_exists'(+P,+M)	 */
   PredEntry      *pe;
-  Int             out;
+  bool             out;
 
   pe = get_pred(Deref(ARG1),  Deref(ARG2), "$exists");
   if (EndOfPAEntr(pe))
@@ -3914,7 +3914,7 @@ p_toggle_static_predicates_in_use( USES_REGS1 )
 }
 
 static void
-clause_was_found(PredEntry *pp, Atom *pat, UInt *parity) {
+clause_was_found(PredEntry *pp, Atom *pat, arity_t *parity) {
   if (pp->ModuleOfPred == IDB_MODULE) {
     if (pp->PredFlags & NumberDBPredFlag) {
       *parity = 0;
@@ -3937,7 +3937,7 @@ clause_was_found(PredEntry *pp, Atom *pat, UInt *parity) {
 }
 
 static void
-code_in_pred_info(PredEntry *pp, Atom *pat, UInt *parity) {
+code_in_pred_info(PredEntry *pp, Atom *pat, arity_t *parity) {
   clause_was_found(pp, pat, parity);
 }
 
@@ -4086,7 +4086,7 @@ cl_code_in_pred(PredEntry *pp, yamop *codeptr, CODEADDR *startp, CODEADDR *endp)
 }
 
 static Int
-code_in_pred(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
+code_in_pred(PredEntry *pp, Atom *pat, arity_t *parity, yamop *codeptr) {
   Int out;
 
   // PELOCK(40,pp); this is deadlocking...
@@ -4114,7 +4114,7 @@ code_in_pred(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
 }
 
 static Int
-PredForCode(yamop *codeptr, Atom *pat, UInt *parity, Term *pmodule) {
+PredForCode(yamop *codeptr, Atom *pat, arity_t *parity, Term *pmodule) {
   Int found = 0;
   ModEntry *me = CurrentModules;
 
@@ -4136,7 +4136,7 @@ PredForCode(yamop *codeptr, Atom *pat, UInt *parity, Term *pmodule) {
 }
 
 Int
-Yap_PredForCode(yamop *codeptr, find_pred_type where_from, Atom *pat, UInt *parity, Term *pmodule) {
+Yap_PredForCode(yamop *codeptr, find_pred_type where_from, Atom *pat, arity_t *parity, Term *pmodule) {
   PredEntry *p;
 
   if (where_from == FIND_PRED_FROM_CP) {
@@ -4352,7 +4352,7 @@ static Int
 p_pred_for_code( USES_REGS1 ) {
   yamop *codeptr;
   Atom at;
-  UInt arity;
+  arity_t arity;
   Term tmodule = TermProlog;
   Int cl;
   Term t = Deref(ARG1);
@@ -4580,7 +4580,7 @@ p_parent_pred( USES_REGS1 )
   /* This predicate is called from the debugger.
      We assume a sequence of the form a -> b */
   Atom at;
-  UInt arity;
+  arity_t arity;
   Term module;
   if (!PredForCode(P_before_spy, &at, &arity, &module)) {
     return(Yap_unify(ARG1, MkIntTerm(0)) &&
@@ -4895,7 +4895,7 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
     }
     if (pe->ArityOfPE) {
       Functor f = FunctorOfTerm(th);
-      UInt arity = ArityOfFunctor(f), i;
+      arity_t arity = ArityOfFunctor(f), i;
       CELL *pt = RepAppl(th)+1;
 
       for (i=0; i<arity; i++) {
@@ -5043,7 +5043,7 @@ fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th, Term tb, Term 
     }
     if (pe->ArityOfPE) {
       Functor f = FunctorOfTerm(th);
-      UInt arity = ArityOfFunctor(f), i;
+      arity_t arity = ArityOfFunctor(f), i;
       CELL *pt = RepAppl(th)+1;
 
       for (i=0; i<arity; i++) {
@@ -5207,7 +5207,7 @@ Yap_UpdateTimestamps(PredEntry *ap)
   yamop *cl0 = NEXTOP(PredLogUpdClause0->CodeOfPred,Otapl);
   yamop *cl = NEXTOP(PredLogUpdClause->CodeOfPred,Otapl);
   yamop *cle = NEXTOP(PredLogUpdClauseErase->CodeOfPred,Otapl);
-  UInt ar = ap->ArityOfPE;
+  arity_t ar = ap->ArityOfPE;
   UInt *arp, *top, *base;
   LogUpdClause *lcl;
 
@@ -5358,7 +5358,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
     }
     if (pe->ArityOfPE) {
       Functor f = FunctorOfTerm(th);
-      UInt arity = ArityOfFunctor(f), i;
+      arity_t arity = ArityOfFunctor(f), i;
       CELL *pt = RepAppl(th)+1;
 
       for (i=0; i<arity; i++) {
@@ -5386,7 +5386,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
 
     if (pe->ArityOfPE) {
       Functor f = FunctorOfTerm(th);
-      UInt arity = ArityOfFunctor(f), i;
+      arity_t arity = ArityOfFunctor(f), i;
       CELL *pt = RepAppl(th)+1;
 
       for (i=0; i<arity; i++) {
@@ -5793,7 +5793,7 @@ static Term
 BuildActivePred(PredEntry *ap, CELL *vect)
 {
   CACHE_REGS
-  UInt i;
+  arity_t i;
 
   if (!ap->ArityOfPE) {
     return MkVarTerm();
@@ -5814,7 +5814,7 @@ BuildActivePred(PredEntry *ap, CELL *vect)
 
 static int
 UnifyPredInfo(PredEntry *pe, int start_arg USES_REGS) {
-  UInt arity = pe->ArityOfPE;
+  arity_t arity = pe->ArityOfPE;
   Term tmod, tname;
 
   if (pe->ModuleOfPred != IDB_MODULE) {
@@ -6073,7 +6073,7 @@ p_choicepoint_info( USES_REGS1 )
 
 
 static UInt
-compute_dbcl_size(UInt arity)
+compute_dbcl_size(arity_t arity)
 {
   UInt sz;
   switch(arity) {
@@ -6103,7 +6103,7 @@ compute_dbcl_size(UInt arity)
   t = Deref(V); if(IsVarTerm(t) || !(IsAtomOrIntTerm(t))) Yap_Error(TYPE_ERROR_ATOM, t0, "load_db");
 
 static int 
-store_dbcl_size(yamop *pc, UInt arity, Term t0, PredEntry *pe)
+store_dbcl_size(yamop *pc, arity_t arity, Term t0, PredEntry *pe)
 {
   Term t;
   CELL *tp = RepAppl(t0)+1;
@@ -6170,7 +6170,7 @@ store_dbcl_size(yamop *pc, UInt arity, Term t0, PredEntry *pe)
     break;
   default:
     {
-      UInt i;
+      arity_t i;
       for (i = 0; i< arity; i++) {
 	pc->opc = Yap_opcode(_get_atom);
 #if PRECOMPUTE_REGADDRESS
@@ -6197,7 +6197,7 @@ p_dbload_get_space( USES_REGS1 )
   Term            t = Deref(ARG1);
   Term            mod = Deref(ARG2);
   Term            tn = Deref(ARG3);
-  UInt		  arity;
+  arity_t		  arity;
   Prop            pe;
   PredEntry      *ap;
   UInt sz;
@@ -6344,7 +6344,7 @@ p_instance_property( USES_REGS1 )
 	      t[1] = MkAtomTerm((Atom)ap->FunctorOfPred);
 	    } else {
 	      Functor nf = ap->FunctorOfPred;
-	      UInt arity = ArityOfFunctor(nf);
+	      arity_t arity = ArityOfFunctor(nf);
 	      Atom name = NameOfFunctor(nf);
 	    
 	      t[0] = MkAtomTerm(name);
@@ -6388,7 +6388,7 @@ p_instance_property( USES_REGS1 )
 	      return FALSE;
 	  } else {
 	    Functor nf = ap->FunctorOfPred;
-	    UInt arity = ArityOfFunctor(nf);
+	    arity_t arity = ArityOfFunctor(nf);
 	    Atom name = NameOfFunctor(nf);
 	    Term t[2];
 	    
@@ -6437,7 +6437,7 @@ p_instance_property( USES_REGS1 )
 	t[1] = MkAtomTerm((Atom)ap->FunctorOfPred);
       } else {
 	Functor nf = ap->FunctorOfPred;
-	UInt arity = ArityOfFunctor(nf);
+	arity_t arity = ArityOfFunctor(nf);
 	Atom name = NameOfFunctor(nf);
 	    
 	t[0] = MkAtomTerm(name);
@@ -6473,7 +6473,7 @@ static Int
 p_nth_instance( USES_REGS1 )
 {
   PredEntry      *pe;
-  UInt pred_arity;
+  arity_t pred_arity;
   Functor pred_f;
   Term pred_module;
   Term t4 = Deref(ARG4);
@@ -6507,7 +6507,7 @@ p_nth_instance( USES_REGS1 )
       return Yap_db_nth_recorded( pe, Count PASS_REGS );
     } else {
       Int CurSlot, sl4;
-      UInt i;
+      arity_t i;
       void *cl0;
 
       if (!pe)

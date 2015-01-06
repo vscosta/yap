@@ -555,6 +555,12 @@ static size_t save_tag(IOSTREAM *stream, qlf_tag_t tag)
   return save_byte(stream, tag);
 }
 
+static size_t save_predFlags(IOSTREAM *stream, pred_flags_t predFlags)
+{
+  pred_flags_t v = predFlags;
+  return save_bytes(stream, &v, sizeof(pred_flags_t));
+}
+
 static int
 SaveHash(IOSTREAM *stream)
 {
@@ -688,10 +694,7 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
 static size_t
 save_pred(IOSTREAM *stream, PredEntry *ap) {
   CHECK(save_UInt(stream, (UInt)ap));
-  CHECK(save_UInt(stream, ap->PredFlags));
-#if SIZEOF_INT_P==4
-  CHECK(save_UInt(stream, ap->ExtraPredFlags));
-#endif
+  CHECK(save_predFlags(stream, ap->PredFlags));
   CHECK(save_UInt(stream, ap->cs.p_code.NOfClauses));
   CHECK(save_UInt(stream, ap->src.IndxId));
   CHECK(save_UInt(stream, ap->TimeStampOfPred));

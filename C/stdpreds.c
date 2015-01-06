@@ -1162,7 +1162,7 @@ static Int init_current_atom_op(
 
 static Int p_flags(USES_REGS1) { /* $flags(+Functor,+Mod,?OldFlags,?NewFlags) */
   PredEntry *pe;
-  Int newFl;
+  pred_flags_t newFl;
   Term t1 = Deref(ARG1);
   Term mod = Deref(ARG2);
 
@@ -1215,7 +1215,7 @@ static Int p_flags(USES_REGS1) { /* $flags(+Functor,+Mod,?OldFlags,?NewFlags) */
     }
   } else
     newFl = IntegerOfTerm(ARG4);
-  pe->PredFlags = (CELL)newFl;
+  pe->PredFlags = newFl;
   UNLOCK(pe->PELock);
   return TRUE;
 }

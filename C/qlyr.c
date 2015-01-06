@@ -693,6 +693,14 @@ read_tag(IOSTREAM *stream)
   return ch;
 }
 
+static UInt
+read_predFlags(IOSTREAM *stream)
+{
+  pred_flags_t v;
+  read_bytes(stream, &v, sizeof(pred_flags_t));
+  return v;
+}
+
 static bool
 checkChars(IOSTREAM *stream, char s[])
 {
@@ -998,17 +1006,11 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
 static void
 read_pred(IOSTREAM *stream, Term mod) {
   UInt flags;
-#if SIZEOF_INT_P==4
-  UInt eflags;
-#endif
   UInt nclauses, fl1;
   PredEntry *ap;
 
   ap = LookupPredEntry((PredEntry *)read_UInt(stream));
-  flags = read_UInt(stream);
-#if SIZEOF_INT_P==4
-  eflags = read_UInt(stream);
-#endif
+  flags = read_predFlags(stream);
   nclauses = read_UInt(stream);
   if (ap->PredFlags & IndexedPredFlag) {
     Yap_RemoveIndexation(ap);
@@ -1017,16 +1019,9 @@ read_pred(IOSTREAM *stream, Term mod) {
   //  printf("   %s/%ld\n", NameOfFunctor(ap->FunctorOfPred)->StrOfAE, ap->ArityOfPE);
   //else if (ap->ModuleOfPred != IDB_MODULE)
   //  printf("   %s/%ld\n", ((Atom)(ap->FunctorOfPred))->StrOfAE, ap->ArityOfPE);
-#if SIZEOF_INT_P==4
-  fl1 = flags & ((UInt)STATIC_PRED_FLAGS);
-  ap->PredFlags &= ~((UInt)STATIC_PRED_FLAGS);
-  ap->PredFlags |= fl1;
-  ap->ExtraPredFlags = eflags;
-#else
   fl1 = flags & ((UInt)STATIC_PRED_FLAGS|(UInt)EXTRA_PRED_FLAGS);
   ap->PredFlags &= ~((UInt)STATIC_PRED_FLAGS|(UInt)EXTRA_PRED_FLAGS);
   ap->PredFlags |= fl1;
-#endif
   if (flags & NumberDBPredFlag) {
     ap->src.IndxId = read_UInt(stream);
   } else {

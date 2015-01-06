@@ -2936,9 +2936,9 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
   yamop *either_inst[MAX_DISJ_BRANCHES];
   int either_cont = 0;
 #endif	/* YAPOR */
-  int log_update;
-  int dynamic;
-  int tabled;
+  bool log_update;
+  bool dynamic;
+  bool tabled;
   int ystop_found = FALSE;
   union clause_obj *cl_u;
   yamop *code_p;

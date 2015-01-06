@@ -1,6 +1,8 @@
 
 #define YAP_CPP_INTERFACE 1
 
+//! @{
+
 /**
  *
  *   @defgroup yap-cplus-interface An object oriented interface for YAP.
@@ -12,8 +14,6 @@
  * C++ interface to YAP. Designed to be object oriented and to fit naturally
  * with the swig interface language generator. It uses ideas from the old YAP
  * interface and from the SWI foreign language interface.
- *
- * @{
  *
  */
 #include <stdlib.h>

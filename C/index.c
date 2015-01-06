@@ -698,7 +698,7 @@ recover_from_failed_susp_on_cls(struct intermediates *cint, UInt sz)
      just follow the code through. */
   struct PSEUDO *cpc = cint->CodeStart;
   OPCODE ecls = Yap_opcode(_expand_clauses);
-  UInt log_upd_pred = cint->CurrentPred->PredFlags & LogUpdatePredFlag;
+  pred_flags_t log_upd_pred = cint->CurrentPred->PredFlags & LogUpdatePredFlag;
 
   while (cpc) {
     switch(cpc->op) {
@@ -2714,7 +2714,8 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, struct intermedi
   CELL *top0 = top;
   ClauseDef *min, *max;
   PredEntry *ap = cint->CurrentPred;
-  int found_index = FALSE, lu_pred = ap->PredFlags & LogUpdatePredFlag;
+  int found_index = FALSE;
+  pred_flags_t lu_pred = ap->PredFlags & LogUpdatePredFlag;
   UInt old_last_depth, old_last_depth_size;
 
   newlabp = & ret_lab;
@@ -6257,7 +6258,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 #if defined(YAPOR) || defined(THREADS)
   yamop **jlbl = NULL;
 #endif
-  int lu_pred = ap->PredFlags & LogUpdatePredFlag;
+  pred_flags_t lu_pred = ap->PredFlags & LogUpdatePredFlag;
   int unbounded = TRUE;
 
   if (ap->ModuleOfPred != IDB_MODULE) {
