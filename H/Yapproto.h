@@ -428,7 +428,6 @@ void   Yap_InitUtilCPreds(void);
 Int     Yap_TermHash(Term, Int, Int, int);
 Int     Yap_NumberVars(Term, Int, int);
 Term    Yap_TermVariables( Term t, UInt arity USES_REGS );
-int	Yap_IsListOrPartialListTerm( UInt arity USES_REGS );
 Term    Yap_UnNumberTerm(Term, int);
 Int     Yap_SkipList(Term *, Term **);
 /* yap.c */
