@@ -15118,29 +15118,33 @@ else
 fi
 
 
-if test "$yap_cv_raptor" != no;
+
+
+
+
+
+if test "$yap_cv_raptor" = no;
 then
-
-
-
-
-old_inc="$CPPFLAGS"
-old_libs="$LIBS"
-
-if test "$yap_cv_raptor" != "NONE" -a "$yap_cv_raptor" != "yes"; then
-   RAPTOR_CPPFLAGS="-I $yap_cv_raptor/include"
-   raptor_dir="$yap_cv_raptor"
-elif test "$prefix" != "NONE"; then
-   RAPTOR_CPPFLAGS="-I $prefix/include"
-   raptor_dir="$prefix"
+      PKG_RAPTOR=""
 else
-   RAPTOR_CPPFLAGS="-I /usr/local/include"
-   raptor_dir=/usr/local
-fi
 
-CPPFLAGS="$CPPFLAGS $RAPTOR_CPPFLAGS"
+  old_inc="$CPPFLAGS"
+  old_libs="$LIBS"
 
-for ac_header in raptor2/raptor2.h
+  if test "$yap_cv_raptor" != "NONE" -a "$yap_cv_raptor" != "yes"; then
+     RAPTOR_CPPFLAGS="-I $yap_cv_raptor/include"
+     raptor_dir="$yap_cv_raptor"
+  elif test "$prefix" != "NONE"; then
+     RAPTOR_CPPFLAGS="-I $prefix/include"
+     raptor_dir="$prefix"
+  else
+     RAPTOR_CPPFLAGS="-I /usr/local/include"
+     raptor_dir=/usr/local
+  fi
+
+  CPPFLAGS="$CPPFLAGS $RAPTOR_CPPFLAGS"
+
+  for ac_header in raptor2/raptor2.h
 do :
   ac_fn_c_check_header_mongrel "$LINENO" "raptor2/raptor2.h" "ac_cv_header_raptor2_raptor2_h" "$ac_includes_default"
 if test "x$ac_cv_header_raptor2_raptor2_h" = xyes; then :
@@ -15152,7 +15156,7 @@ fi
 
 done
 
-for ac_header in raptor.h
+  for ac_header in raptor.h
 do :
   ac_fn_c_check_header_mongrel "$LINENO" "raptor.h" "ac_cv_header_raptor_h" "$ac_includes_default"
 if test "x$ac_cv_header_raptor_h" = xyes; then :
@@ -15166,17 +15170,17 @@ done
 
 
 
-if test -d "$raptor_dir/lib64/raptor" -a "$YAP_TARGET" = amd64; then
-  LIBS="-L $raptor_dir/lib64/raptor"
-elif test -d "$raptor_dir/lib64" -a "$YAP_TARGET" = amd64; then
-  LIBS="$LIBS -L $raptor_dir/lib64  -L $raptor_dir/lib "
-elif test -d "$raptor_dir/lib/raptor"; then
-  LIBS="$LIBS -L $raptor_dir/lib/raptor"
-elif test -d "$raptor_dir/lib"; then
-  LIBS="$LIBS -L $raptor_dir/lib"
-fi
+  if test -d "$raptor_dir/lib64/raptor" -a "$YAP_TARGET" = amd64; then
+    LIBS="-L $raptor_dir/lib64/raptor"
+  elif test -d "$raptor_dir/lib64" -a "$YAP_TARGET" = amd64; then
+    LIBS="$LIBS -L $raptor_dir/lib64  -L $raptor_dir/lib "
+  elif test -d "$raptor_dir/lib/raptor"; then
+    LIBS="$LIBS -L $raptor_dir/lib/raptor"
+  elif test -d "$raptor_dir/lib"; then
+    LIBS="$LIBS -L $raptor_dir/lib"
+  fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for raptor_world_open in -lraptor2" >&5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for raptor_world_open in -lraptor2" >&5
 $as_echo_n "checking for raptor_world_open in -lraptor2... " >&6; }
 if ${ac_cv_lib_raptor2_raptor_world_open+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -15271,12 +15275,12 @@ fi
 
 fi
 
-RAPTOR_LIBS="$LIBS"
+  RAPTOR_LIBS="$LIBS"
 
-if test "$raptor_available" = no
-then
-  PKG_RAPTOR=""
-  cat << EOF
+  if test "$raptor_available" = no
+  then
+    PKG_RAPTOR=""
+    cat << EOF
 ##################################################################
 # ERROR: Could not find raptor library. Either I don't have the
 # correct path, or RAPTOR is installed in some strange way
@@ -15287,8 +15291,8 @@ else
 fi
 
 
-CPPFLAGS="$old_inc"
-LIBS="$oldlibs"
+  CPPFLAGS="$old_inc"
+  LIBS="$oldlibs"
 
 fi
 
