@@ -16,7 +16,7 @@
 *************************************************************************/
 
 #ifndef lint
-static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpe.c,v 1.6 2003-07-03 15:46:10 stasinos Exp $";
+// static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpe.c,v 1.6 2003-07-03 15:46:10 stasinos Exp $";
 #endif
 
 #include "Yap.h"

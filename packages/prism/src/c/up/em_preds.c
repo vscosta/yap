@@ -149,7 +149,7 @@ int pc_compute_inside_2(void)
 
 int pc_compute_probf_1(void)
 {
-    EG_NODE_PTR eg_ptr;
+    // EG_NODE_PTR eg_ptr;
     int prmode;
 
     prmode = bpx_get_integer(bpx_get_call_arg(1,1));
@@ -159,7 +159,7 @@ int pc_compute_probf_1(void)
         return BP_TRUE;
     }
 
-    eg_ptr = expl_graph[roots[0]->id];
+    // eg_ptr = expl_graph[roots[0]->id];
     failure_root_index = -1;
 
     /* [31 Mar 2008, by yuizumi]

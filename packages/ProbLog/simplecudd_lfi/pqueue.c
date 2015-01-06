@@ -32,14 +32,14 @@ PRIVATE QueueItem QueueGetItem(Queue);
 PRIVATE QueueItem QueueNewItem(void*, int);
 PRIVATE void QueuePutItem(Queue, QueueItem);
 PRIVATE QueueItem QueueRemoveItem(Queue, QueueItem);
-PRIVATE int QueueCompareEqual(void *, void *);
+//PRIVATE int QueueCompareEqual(void *, void *);
 #else
 PRIVATE void QueueDisposeItem();
 PRIVATE QueueItem QueueGetItem();
 PRIVATE QueueItem QueueNewItem();
 PRIVATE void QueuePutItem();
 PRIVATE QueueItem QueueRemoveItem();
-PRIVATE int QueueCompareEqual();
+//PRIVATE int QueueCompareEqual();
 #endif
 
 /* ---------- Functions */
@@ -701,6 +701,8 @@ Queue q;
   return q != NULL ? q->tail : NULL;
 }
 
+#ifdef UNUSED
+
 PRIVATE
 #ifdef __ANSI_C__
 int QueueCompareEqual(void *x, void *y)
@@ -712,4 +714,5 @@ void *x, *y;
   return 0;
 }
 
+#endif
 

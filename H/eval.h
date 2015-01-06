@@ -119,6 +119,13 @@ exceptions:
 #ifdef HAVE_FENV_H
 #include <fenv.h>
 #endif
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
+
 
 #ifdef LONG_MAX
 #define Int_MAX  LONG_MAX
@@ -633,3 +640,27 @@ p_plus(Term t1, Term t2 USES_REGS) {
   RERROR();
 }
 
+#ifndef PI
+#ifdef M_PI
+#define PI M_PI
+#else
+#define PI 3.14159265358979323846
+#endif
+#endif
+
+#ifndef M_E
+#define M_E 2.7182818284590452354
+#endif
+
+#ifndef INFINITY
+#define INFINITY (1.0/0.0)
+#endif
+
+#ifndef NAN
+#define NAN      (0.0/0.0)
+#endif
+
+/* copied from SWI-Prolog */
+#ifndef DBL_EPSILON /* normal for IEEE 64-bit double */
+#define DBL_EPSILON 0.00000000000000022204
+#endif

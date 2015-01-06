@@ -196,7 +196,9 @@
 
 int IsRealNumber(char *c);
 int IsPosNumber(const char *c);
+int IsRealNumber(char *c);
 int IsNumber(const char *c);
 char * freadstr(FILE *fd, const char *separators);
 int CharIn(const char c, const char *in);
 int patternmatch(char *pattern, char *thestr);
+

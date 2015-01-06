@@ -54,9 +54,9 @@ typedef struct si_callback_h * si_callback_h_t;
 
 static inline int si_callback(void *key, void *data, void *arg)
 {
-	si_callback_h_t c = (si_callback_h_t) arg;
-	yamop **cl = (yamop **) utarray_eltptr(c->clauselist, ((YAP_Int) data) - 1);
-	return Yap_ClauseListExtend(c->cl, *cl, c->pred);
+  si_callback_h_t c = (si_callback_h_t) arg;
+  yamop **cl = (yamop **) utarray_eltptr(c->clauselist, ((YAP_Int) data) - 1);
+  return Yap_ClauseListExtend(c->cl, *cl, c->pred);
 }
 
 #ifdef USE_JUDY
@@ -64,11 +64,11 @@ static inline int si_callback(void *key, void *data, void *arg)
 /* Judy1 integer sparse set intersection */
 static inline int j1_callback(void *key, void *data, void *arg)
 {
-	intptr_t r;
-	Pvoid_t *array = (Pvoid_t *) arg;
-	J1S(r, *array, (int) data);
-	if (r == JERR)
-		return FALSE;
-	return TRUE;
+  int r;
+  Pvoid_t *arrayP = (Pvoid_t *) arg;
+  J1S(r, *arrayP, (Word_t) data);
+  if (r == JERR)
+    return FALSE;
+  return TRUE;
 }
 #endif

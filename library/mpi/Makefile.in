@@ -106,11 +106,16 @@ mpe.o: $(srcdir)/mpe.c
 
 .depend: $(HEADERS) $(C_SOURCES) 
 	-@if test "$(GCC)" = yes; then\
-	  $(CC) -MM $(CFLAGS) -I$(srcdir)/include -i ../.. $(C_SOURCES) > .depend;\
+	  $(CC) -MM $(CFLAGS) -I$(srcdir)/include -I ../.. $(C_SOURCES) > .depend;\
 	else\
           makedepend -f - -- $(CFLAGS) -I$(srcdir)/include -- $(C_SOURCES) |\
           sed 's|.*/\([^:]*\):|\1:|' > .depend ;\
 	fi
+
+install: all  install-examples
+	@if test "$(SOBJS)" = ""; then echo ""; else $(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR); fi
+
+install-examples:
 
 clean:
 	$(RM) $(RUBBISH)

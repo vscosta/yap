@@ -13,6 +13,10 @@
 * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
 *************************************************************************/
 
+#ifndef YAPTAGS_H
+
+#define YAPTAGS_H 1
+
 #ifndef EXTERN
 #define EXTERN extern
 #endif
@@ -394,6 +398,8 @@ IntegerOfTerm (Term t)
   return (Int) (IsIntTerm (t) ? IntOfTerm (t) : LongIntOfTerm (t));
 }
 
+#ifdef YAP_H
+
 #define MkAddressTerm(i) __MkAddressTerm(i PASS_REGS)
 
 INLINE_ONLY inline EXTERN Term __MkAddressTerm (void * USES_REGS);
@@ -404,6 +410,7 @@ __MkAddressTerm (void * n USES_REGS)
   return __MkIntegerTerm((Int)n PASS_REGS);
 }
 
+#endif
 
 INLINE_ONLY inline EXTERN bool IsAddressTerm (Term);
 
@@ -418,10 +425,8 @@ INLINE_ONLY inline EXTERN void * AddressOfTerm (Term);
 INLINE_ONLY inline EXTERN void *
 AddressOfTerm (Term t)
 {
-
   return (void *) (IsIntTerm (t) ? IntOfTerm (t) : LongIntOfTerm (t));
 }
 
-#ifndef YAP_H
 
 #endif

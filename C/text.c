@@ -706,13 +706,12 @@ write_atoms( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
 {
   Term t = AbsPair(HR);
   size_t sz = 0;
-  size_t min = 0, max = leng;
+  size_t max = leng;
   if (leng == 0) {
     out->val.t = t;
     return TermNil;
   }
   if (out->type & (YAP_STRING_NCHARS|YAP_STRING_TRUNC)) {
-    if (out->type & YAP_STRING_NCHARS) min = out->sz;
     if (out->type & YAP_STRING_TRUNC && out->max < max) max = out->max;
   }
 

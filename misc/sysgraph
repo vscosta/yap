@@ -274,13 +274,16 @@ take_line( Line, NS, AS, FS ) :-
 take_line( Line, NS, AS, FS ) :-
      append( _, [ "YAP_UserCPredicate", NS, FS, AS|_], Line), !.
 take_line( Line, NS, AS, FS ) :-
-     append( _, [ "PRED", NS, AS, FS|_], Line), !.
+     append( _, [ "PRED", NS0, AS, FS|_], Line), !,
+     append( ["pl_", NS0, AS, "_va"], NS ).
 take_line( Line, NS, AS, FS ) :-
-     append( _, [ "PRED_IMPL", NS, AS, FS|_], Line), !.
+     append( _, [ "PRED_IMPL", NS0, AS, FS|_], Line), !,
+     append( ["pl_", NS0, AS, "_va"], NS ).
 take_line( Line, NS, AS, FS ) :-
      append( _, [ "PL_register_foreign", NS, AS, FS|_], Line), !.
 take_line( Line, NS, AS, FS ) :-
-     append( _, [ "PRED_DEF", NS, AS, FS|_], Line), !.
+     append( _, [ "PRED_DEF", NS0, AS, FS|_], Line), !,
+     append( ["pl_", NS0, AS, "_va"], NS ).
 take_line( Line, NS, AS, FS ) :-
      append( _, [ "FRG", NS, AS, FS|_], Line), !.
 % from odbc
