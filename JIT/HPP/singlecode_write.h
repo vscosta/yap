@@ -1,5 +1,5 @@
 #define WRITE_X_VAR_INSTINIT \
-      XREG((*_PREG)->u.x.x) = Unsigned((*_SREG)); \
+      XREG((*_PREG)->y_u.x.x) = Unsigned((*_SREG)); \
       (*_PREG) = NEXTOP((*_PREG), x); \
       RESET_VARIABLE((*_SREG)); \
       (*_SREG)++; \
@@ -13,7 +13,7 @@
 
 #define WRITE_N_VOIDS_INSTINIT \
       register CELL d0; \
-      d0 = (*_PREG)->u.s.s; \
+      d0 = (*_PREG)->y_u.s.s; \
       (*_PREG) = NEXTOP((*_PREG), s); \
       for (; d0 > 0; d0--) { \
 	RESET_VARIABLE((*_SREG)); \
@@ -22,7 +22,7 @@
       GONext();
 
 #define _write_y_var_instinit \
-      INITIALIZE_PERMVAR(YREG+(*_PREG)->u.y.y,Unsigned((*_SREG))); \
+      INITIALIZE_PERMVAR(YREG+(*_PREG)->y_u.y.y,Unsigned((*_SREG))); \
       (*_PREG) = NEXTOP((*_PREG), y); \
       RESET_VARIABLE((*_SREG)); \
       (*_SREG)++; \
@@ -30,7 +30,7 @@
 
 #define _write_x_val_instinit \
       register CELL d0; \
-      d0 = XREG((*_PREG)->u.x.x); \
+      d0 = XREG((*_PREG)->y_u.x.x); \
       *(*_SREG)++ = d0; \
       (*_PREG) = NEXTOP((*_PREG), x); \
       GONEXT();
@@ -39,7 +39,7 @@
 #ifdef FROZEN_STACKS
 #define _write_x_loc_instinit \
       BEGD(d0); \
-      d0 = XREG((*_PREG)->u.x.x); \
+      d0 = XREG((*_PREG)->y_u.x.x); \
       (*_PREG) = NEXTOP((*_PREG), x); \
       deref_head(d0, w_x_unk); \
     w_x_bound: \
@@ -63,7 +63,7 @@
 #else /* FROZEN_STACKS */
 #define _write_x_loc_instinit \
       BEGD(d0); \
-      d0 = XREG((*_PREG)->u.x.x); \
+      d0 = XREG((*_PREG)->y_u.x.x); \
       (*_PREG) = NEXTOP((*_PREG), x); \
       deref_head(d0, w_x_unk); \
     w_x_bound: \
@@ -90,7 +90,7 @@
 #ifdef FROZEN_STACKS
 #define _write_x_loc_instinit \
       BEGD(d0); \
-      d0 = XREG((*_PREG)->u.x.x); \
+      d0 = XREG((*_PREG)->y_u.x.x); \
       (*_PREG) = NEXTOP((*_PREG), x); \
       deref_head(d0, w_x_unk); \
     w_x_bound: \
@@ -114,7 +114,7 @@
 #else /* FROZEN_STACKS */
 #define _write_x_loc_instinit \
       BEGD(d0); \
-      d0 = XREG((*_PREG)->u.x.x); \
+      d0 = XREG((*_PREG)->y_u.x.x); \
       (*_PREG) = NEXTOP((*_PREG), x); \
       deref_head(d0, w_x_unk); \
     w_x_bound: \
@@ -142,9 +142,9 @@
 #ifdef YAPOR_SBA
 #define _write_y_val_instinit \
       register CELL d0; \
-      d0 = YREG[(*_PREG)->u.y.y]; \
+      d0 = YREG[(*_PREG)->y_u.y.y]; \
       if (d0 == 0) \
-	*(*_SREG)++ = (CELL)(YREG+(*_PREG)->u.y.y); \
+	*(*_SREG)++ = (CELL)(YREG+(*_PREG)->y_u.y.y); \
       else \
 	*(*_SREG)++ = d0; \
       (*_PREG) = NEXTOP((*_PREG), y); \
@@ -152,7 +152,7 @@
 #else /* YAPOR_SBA */
 #define _write_y_val_instinit \
       register CELL d0; \
-      d0 = YREG[(*_PREG)->u.y.y]; \
+      d0 = YREG[(*_PREG)->y_u.y.y]; \
 	*(*_SREG)++ = d0; \
       (*_PREG) = NEXTOP((*_PREG), y); \
       GONEXT();
@@ -163,7 +163,7 @@
 #define _write_y_loc_instinit \
       BEGD(d0); \
       BEGP(pt0); \
-      pt0 = YREG+(*_PREG)->u.y.y; \
+      pt0 = YREG+(*_PREG)->y_u.y.y; \
       d0 = *pt0; \
       deref_head(d0, w_y_unk); \
     w_y_bound: \
@@ -191,7 +191,7 @@
 #define _write_y_loc_instinit \
       BEGD(d0); \
       BEGP(pt0); \
-      pt0 = YREG+(*_PREG)->u.y.y; \
+      pt0 = YREG+(*_PREG)->y_u.y.y; \
       d0 = *pt0; \
       deref_head(d0, w_y_unk); \
     w_y_bound: \
@@ -222,7 +222,7 @@
 #define _write_y_loc_instinit \
       BEGD(d0); \
       BEGP(pt0); \
-      pt0 = YREG+(*_PREG)->u.y.y; \
+      pt0 = YREG+(*_PREG)->y_u.y.y; \
       d0 = *pt0; \
       deref_head(d0, w_y_unk); \
     w_y_bound: \
@@ -249,7 +249,7 @@
 #define _write_y_loc_instinit \
       BEGD(d0); \
       BEGP(pt0); \
-      pt0 = YREG+(*_PREG)->u.y.y; \
+      pt0 = YREG+(*_PREG)->y_u.y.y; \
       d0 = *pt0; \
       deref_head(d0, w_y_unk); \
     w_y_bound: \
@@ -278,43 +278,43 @@
 
 #define _write_atom_instinit \
       register CELL d0; \
-      d0 = (*_PREG)->u.c.c; \
+      d0 = (*_PREG)->y_u.c.c; \
       *(*_SREG)++ = d0; \
       (*_PREG) = NEXTOP((*_PREG), c); \
       GONEXT();
 
 #define WRITE_BIGINT_INSTINIT \
       register CELL d0; \
-      d0 = (*_PREG)->u.N.b; \
+      d0 = (*_PREG)->y_u.N.b; \
       *(*_SREG)++ = d0; \
       (*_PREG) = NEXTOP((*_PREG), N); \
       GONext();
 
 #define _write_dbterm_instinit \
       register CELL d0; \
-      d0 = (*_PREG)->u.D.D; \
+      d0 = (*_PREG)->y_u.D.D; \
       *(*_SREG)++ = d0; \
       (*_PREG) = NEXTOP((*_PREG), D); \
       GONEXT();
 
 #define _write_float_instinit \
       register CELL d0; \
-      d0 = AbsAppl((*_PREG)->u.d.d); \
+      d0 = AbsAppl((*_PREG)->y_u.d.d); \
       *(*_SREG)++ = d0; \
       (*_PREG) = NEXTOP((*_PREG), d); \
       GONEXT();
 
 #define WRITE_LONGIT_INSTINIT \
       register CELL d0; \
-      d0 = AbsAppl((*_PREG)->u.i.i); \
+      d0 = AbsAppl((*_PREG)->y_u.i.i); \
       *(*_SREG)++ = d0; \
       (*_PREG) = NEXTOP((*_PREG), i); \
       GONext();
 
 #define WRITE_N_ATOMS_INSTINIT \
       register CELL d0, d1; \
-      d0 = (*_PREG)->u.sc.s; \
-      d1 = (*_PREG)->u.sc.c; \
+      d0 = (*_PREG)->y_u.sc.s; \
+      d1 = (*_PREG)->y_u.sc.c; \
       for (; d0 > 0; d0--) { \
 	*(*_SREG)++ = d1; \
 	  } \
@@ -352,9 +352,9 @@
       SP[-1] = Unsigned((*_SREG)); \
       SP[-2] = 1; \
       SP -= 2; \
-      d0 = (CELL) ((*_PREG)->u.fa.f); \
-      *H++ = d0; \
-      d0 = (*_PREG)->u.fa.a; \
+      d0 = (CELL) ((*_PREG)->y_u.fa.f); \
+      *HR++ = d0; \
+      d0 = (*_PREG)->y_u.fa.a; \
       (*_PREG) = NEXTOP((*_PREG), fa); \
       (*_SREG) = HR; \
       HR += d0; \
@@ -364,10 +364,10 @@
       register CELL d0; \
       d0 = AbsAppl(HR); \
       *(*_SREG) = d0; \
-      d0 = (CELL) ((*_PREG)->u.fa.f); \
-      *H++ = d0; \
+      d0 = (CELL) ((*_PREG)->y_u.fa.f); \
+      *HR++ = d0; \
       (*_SREG) = HR; \
-      d0 = (*_PREG)->u.fa.a; \
+      d0 = (*_PREG)->y_u.fa.a; \
       (*_PREG) = NEXTOP((*_PREG), fa); \
       HR += d0; \
       GONEXT();

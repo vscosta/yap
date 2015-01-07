@@ -1,20 +1,20 @@
 #define P_ATOM_X_INSTINIT \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xl.x);
+      d0 = XREG((*_PREG)->y_u.xl.x);
 	  
 #define P_ATOM_X_ATOM \
 	(*_PREG) = NEXTOP((*_PREG), xl); \
 	GONext(); \
 	  
 #define P_ATOM_X_NOATOM \
-	(*_PREG) = (*_PREG)->u.xl.F; \
+	(*_PREG) = (*_PREG)->y_u.xl.F; \
 	GONext();
 
 #define P_ATOM_Y_INSTINIT \
       register CELL d0; \
 	  register CELL* pt0; \
-      pt0 = YREG + (*_PREG)->u.yl.y; \
+      pt0 = YREG + (*_PREG)->y_u.yl.y; \
       d0 = *pt0;
 	  
 #define P_ATOM_Y_IFOK \
@@ -22,34 +22,34 @@
 	GONext();
 	  
 #define P_ATOM_Y_NOIF \
-	(*_PREG) = (*_PREG)->u.yl.F; \
+	(*_PREG) = (*_PREG)->y_u.yl.F; \
 	GONext();
   
 #define P_ATOM_Y_END \
-      (*_PREG) = (*_PREG)->u.yl.F; \
+      (*_PREG) = (*_PREG)->y_u.yl.F; \
       GONext();
 
 #define P_ATOMIC_X_INSTINIT \
       register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xl.x);
+      d0 = XREG((*_PREG)->y_u.xl.x);
 	  
 #define P_ATOMIC_X_NONVAR \
 	(*_PREG) = NEXTOP((*_PREG), xl); \
 	GONext();
 	  
 #define P_ATOMIC_X_VAR \
-	(*_PREG) = (*_PREG)->u.xl.F; \
+	(*_PREG) = (*_PREG)->y_u.xl.F; \
 	GONext();
 	  
 #define P_ATOMIC_X_END \
-      (*_PREG) = (*_PREG)->u.xl.F; \
+      (*_PREG) = (*_PREG)->y_u.xl.F; \
       GONext();
 
 #define P_ATOMIC_Y_INSTINIT \
       register CELL d0; \
 	  register CELL* pt0; \
-      pt0 = YREG + (*_PREG)->u.yl.y; \
+      pt0 = YREG + (*_PREG)->y_u.yl.y; \
       d0 = *pt0;
 	  
 #define P_ATOMIC_Y_NONVAR \
@@ -57,35 +57,35 @@
 	GONext();
 	  
 #define P_ATOMIC_Y_VAR \
-	(*_PREG) = (*_PREG)->u.yl.F; \
+	(*_PREG) = (*_PREG)->y_u.yl.F; \
 	GONext();
 	  
 #define P_ATOMIC_Y_END \
-      (*_PREG) = (*_PREG)->u.yl.F; \
+      (*_PREG) = (*_PREG)->y_u.yl.F; \
       GONext();
 
 #define P_INTEGER_X_INSTINIT \
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xl.x); \
+      d0 = XREG((*_PREG)->y_u.xl.x); \
 	  
 #define P_INTEGER_X_INTEGER_X_NVAR_OK \
 	(*_PREG) = NEXTOP((*_PREG), xl); \
 	GONext();
 	
 #define P_INTEGER_X_INTEGER_X_NVAR_NOOK \
-	    (*_PREG) = (*_PREG)->u.xl.F; \
+	    (*_PREG) = (*_PREG)->y_u.xl.F; \
 	    GONext();
 
 #define P_INTEGER_X_INTEGER_X_UNK \
-      (*_PREG) = (*_PREG)->u.xl.F; \
+      (*_PREG) = (*_PREG)->y_u.xl.F; \
       GONext();
 
 #define P_INTEGER_Y_INSTINIT \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      pt0 = YREG + (*_PREG)->u.yl.y; \
+      pt0 = YREG + (*_PREG)->y_u.yl.y; \
       d0 = *pt0;
 	  
 #define P_INTEGER_Y_INTEGER_Y_NVAR_OK \
@@ -93,30 +93,30 @@
 	GONext();
 	  
 #define P_INTEGER_Y_INTEGER_Y_NVAR_NOOK \
-	    (*_PREG) = (*_PREG)->u.yl.F; \
+	    (*_PREG) = (*_PREG)->y_u.yl.F; \
 	    GONext();
 		
 #define P_INTEGER_Y_INTEGER_Y_UNK \
-	    (*_PREG) = (*_PREG)->u.yl.F; \
+	    (*_PREG) = (*_PREG)->y_u.yl.F; \
 	    GONext();
 
 #define P_NONVAR_X_INSTINIT \
       register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xl.x);
+      d0 = XREG((*_PREG)->y_u.xl.x);
 	
 #define P_NONVAR_X_NONVAR \
       (*_PREG) = NEXTOP((*_PREG), xl); \
       GONext();
 	  
 #define P_NONVAR_X_NONONVAR \
-      (*_PREG) = (*_PREG)->u.xl.F; \
+      (*_PREG) = (*_PREG)->y_u.xl.F; \
       GONext();
 
 #define P_NONVAR_Y_INSTINIT \
       register CELL d0; \
 	  register CELL* pt0; \
-      pt0 = YREG + (*_PREG)->u.yl.y; \
+      pt0 = YREG + (*_PREG)->y_u.yl.y; \
       d0 = *pt0;
 
 #define P_NONVAR_Y_NONVAR \
@@ -124,13 +124,13 @@
       GONext();
 
 #define P_NONVAR_Y_NONONVAR \
-      (*_PREG) = (*_PREG)->u.yl.F; \
+      (*_PREG) = (*_PREG)->y_u.yl.F; \
       GONext();
 
 #define P_NUMBER_X_INSTINIT \
       register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xl.x);
+      d0 = XREG((*_PREG)->y_u.xl.x);
 	  
 #define P_NUMBER_X_INT \
 	(*_PREG) = NEXTOP((*_PREG), xl); \
@@ -141,21 +141,21 @@
 	    GONext();
 
 #define P_NUMBER_X_FUNCTORDEFAULT \
-	    (*_PREG) = (*_PREG)->u.xl.F; \
+	    (*_PREG) = (*_PREG)->y_u.xl.F; \
 	    GONext();
 
 #define P_NUMBER_X_POST_IF \
-      (*_PREG) = (*_PREG)->u.xl.F; \
+      (*_PREG) = (*_PREG)->y_u.xl.F; \
       GONext();
 
 #define P_NUMBER_X_NUMBER_X_UNK \
-      (*_PREG) = (*_PREG)->u.xl.F; \
+      (*_PREG) = (*_PREG)->y_u.xl.F; \
       GONext();
 
 #define P_NUMBER_Y_INSTINIT \
 	  register CELL d0; \
 	  register CELL *pt0; \
-      pt0 = YREG + (*_PREG)->u.yl.y; \
+      pt0 = YREG + (*_PREG)->y_u.yl.y; \
       d0 = *pt0;
 
 #define P_NUMBER_Y_INT \
@@ -167,24 +167,24 @@
 	    GONext();
 
 #define P_NUMBER_Y_FUNCTORDEFAULT \
-	    (*_PREG) = (*_PREG)->u.yl.F; \
+	    (*_PREG) = (*_PREG)->y_u.yl.F; \
 	    GONext();
 
 #define P_NUMBER_Y_POST_IF \
-      (*_PREG) = (*_PREG)->u.xl.F; \
+      (*_PREG) = (*_PREG)->y_u.xl.F; \
       GONext();
 
 #define P_NUMBER_Y_NUMBER_Y_UNK \
-      (*_PREG) = (*_PREG)->u.yl.F; \
+      (*_PREG) = (*_PREG)->y_u.yl.F; \
       GONext();
 
 #define P_VAR_X_INSTINIT \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xl.x);
+      d0 = XREG((*_PREG)->y_u.xl.x);
 
 #define P_VAR_X_NONVAR \
-      (*_PREG) = (*_PREG)->u.xl.F; \
+      (*_PREG) = (*_PREG)->y_u.xl.F; \
       GONext();
 
 #define P_VAR_X_VAR \
@@ -194,11 +194,11 @@
 #define P_VAR_Y_INSTINIT \
 	  register CELL d0; \
 	  register CELL *pt0; \
-      pt0 = YREG + (*_PREG)->u.yl.y; \
+      pt0 = YREG + (*_PREG)->y_u.yl.y; \
       d0 = *pt0;
 
 #define P_VAR_Y_NONVAR \
-      (*_PREG) = (*_PREG)->u.yl.F; \
+      (*_PREG) = (*_PREG)->y_u.yl.F; \
       GONext();
 
 #define P_VAR_Y_VAR \
@@ -208,24 +208,24 @@
 #define P_DB_REF_X_INSTINIT \
       register CELL d0; \
 	  register CELL *pt0; \
-      d0 = XREG((*_PREG)->u.xl.x);
+      d0 = XREG((*_PREG)->y_u.xl.x);
 
 #define P_DB_REF_X_DBREF \
 	(*_PREG) = NEXTOP((*_PREG), xl); \
 	GONext();
 
 #define P_DB_REF_X_NODBREF \
-	(*_PREG) = (*_PREG)->u.xl.F; \
+	(*_PREG) = (*_PREG)->y_u.xl.F; \
 	GONext();
 
 #define P_DB_REF_X_DBREF_X_UNK \
-      (*_PREG) = (*_PREG)->u.xl.F; \
+      (*_PREG) = (*_PREG)->y_u.xl.F; \
       GONext();
 
 #define P_DB_REF_Y_INSTINIT \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      pt0 = YREG + (*_PREG)->u.yl.y; \
+      pt0 = YREG + (*_PREG)->y_u.yl.y; \
       d0 = *pt0;
 	  
 #define P_DB_REF_Y_DBREF \
@@ -233,34 +233,34 @@
 	GONext();
 	  
 #define P_DB_REF_Y_NODBREF \
-	(*_PREG) = (*_PREG)->u.yl.F; \
+	(*_PREG) = (*_PREG)->y_u.yl.F; \
 	GONext();
 
 #define P_DB_REF_Y_DBREF_Y_UNK \
-      (*_PREG) = (*_PREG)->u.yl.F; \
+      (*_PREG) = (*_PREG)->y_u.yl.F; \
       GONext();
 
 #define P_PRIMITIVE_X_INSTINIT \
 	  register CELL d0; \
 	  register CELL *pt0; \
-      d0 = XREG((*_PREG)->u.xl.x);
+      d0 = XREG((*_PREG)->y_u.xl.x);
 
 #define P_PRIMITIVE_X_PRIMITIVE \
 	(*_PREG) = NEXTOP((*_PREG), xl); \
 	GONext();
 
 #define P_PRIMITIVE_X_NOPRIMITIVE \
-	(*_PREG) = (*_PREG)->u.xl.F; \
+	(*_PREG) = (*_PREG)->y_u.xl.F; \
 	GONext();
 
 #define P_PRIMITIVE_X_PRIMI_X_UNK \
-      (*_PREG) = (*_PREG)->u.xl.F; \
+      (*_PREG) = (*_PREG)->y_u.xl.F; \
       GONext();
 
 #define P_PRIMITIVE_Y_INSTINIT \
 	  register CELL d0; \
 	  register CELL *pt0; \
-      pt0 = YREG + (*_PREG)->u.yl.y; \
+      pt0 = YREG + (*_PREG)->y_u.yl.y; \
       d0 = *pt0;
 
 #define P_PRIMITIVE_Y_PRIMITIVE \
@@ -268,24 +268,24 @@
 	GONext();
 
 #define P_PRIMITIVE_Y_NOPRIMITIVE \
-	(*_PREG) = (*_PREG)->u.yl.F; \
+	(*_PREG) = (*_PREG)->y_u.yl.F; \
 	GONext();
 
 #define P_PRIMITIVE_Y_PRIMI_Y_UNK \
-      (*_PREG) = (*_PREG)->u.yl.F; \
+      (*_PREG) = (*_PREG)->y_u.yl.F; \
       GONext();
 
 #define P_COMPOUND_X_INSTINIT \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xl.x);
+      d0 = XREG((*_PREG)->y_u.xl.x);
 
 #define P_COMPOUND_X_PAIR \
 	(*_PREG) = NEXTOP((*_PREG), xl); \
 	GONext();
 
 #define P_COMPOUND_X_APPL_IFOK \
-	  (*_PREG) = (*_PREG)->u.xl.F; \
+	  (*_PREG) = (*_PREG)->y_u.xl.F; \
 	  GONext();
 
 #define P_COMPOUND_X_APPL \
@@ -293,17 +293,17 @@
 	GONext();
 	  
 #define P_COMPOUND_X_NOAPPL \
-	(*_PREG) = (*_PREG)->u.xl.F; \
+	(*_PREG) = (*_PREG)->y_u.xl.F; \
 	GONext();
 
 #define P_COMPOUND_X_COMPOUND_X_UNK \
-      (*_PREG) = (*_PREG)->u.xl.F; \
+      (*_PREG) = (*_PREG)->y_u.xl.F; \
       GONext();
 
 #define P_COMPOUND_Y_INSTINIT \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      pt0 = YREG + (*_PREG)->u.yl.y; \
+      pt0 = YREG + (*_PREG)->y_u.yl.y; \
       d0 = *pt0;
 
 #define P_COMPOUND_Y_PAIR \
@@ -311,7 +311,7 @@
 	GONext();
 
 #define P_COMPOUND_Y_APPL_IFOK \
-	  (*_PREG) = (*_PREG)->u.yl.F; \
+	  (*_PREG) = (*_PREG)->y_u.yl.F; \
 	  GONext();
 
 #define P_COMPOUND_Y_APPL \
@@ -319,34 +319,34 @@
 	GONext();
 	
 #define P_COMPOUND_Y_NOAPPL \
-	(*_PREG) = (*_PREG)->u.yl.F; \
+	(*_PREG) = (*_PREG)->y_u.yl.F; \
 	GONext();
 
 #define P_COMPOUND_Y_COMPOUND_Y_UNK \
-      (*_PREG) = (*_PREG)->u.yl.F; \
+      (*_PREG) = (*_PREG)->y_u.yl.F; \
       GONext();
 
 #define P_FLOAT_X_INSTINIT \
       register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xl.x);
+      d0 = XREG((*_PREG)->y_u.xl.x);
 
 #define P_FLOAT_X_FLOAT \
 	(*_PREG) = NEXTOP((*_PREG), xl); \
 	GONext();
 
 #define P_FLOAT_X_POST_IF \
-      (*_PREG) = (*_PREG)->u.xl.F; \
+      (*_PREG) = (*_PREG)->y_u.xl.F; \
       GONext();
 
 #define P_FLOAT_X_FLOAT_X_UNK \
-      (*_PREG) = (*_PREG)->u.xl.F; \
+      (*_PREG) = (*_PREG)->y_u.xl.F; \
       GONext();
 
 #define P_FLOAT_Y_INSTINIT \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      pt0 = YREG + (*_PREG)->u.yl.y; \
+      pt0 = YREG + (*_PREG)->y_u.yl.y; \
       d0 = *pt0;
 
 #define P_FLOAT_Y_FLOAT \
@@ -354,26 +354,26 @@
 	GONext();
 
 #define P_FLOAT_Y_POST_IF \
-      (*_PREG) = (*_PREG)->u.yl.F; \
+      (*_PREG) = (*_PREG)->y_u.yl.F; \
       GONext();
 
 #define P_FLOAT_Y_FLOAT_Y_UNK \
-      (*_PREG) = (*_PREG)->u.yl.F; \
+      (*_PREG) = (*_PREG)->y_u.yl.F; \
       GONext();
 
 #define P_PLUS_VV_INSTINIT \
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  register CELL d0, d1; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xxx.x1);
+      d0 = XREG((*_PREG)->y_u.xxx.x1);
 
 #define P_PLUS_VV_PLUS_VV_NVAR \
-      d1 = XREG((*_PREG)->u.xxx.x2);
+      d1 = XREG((*_PREG)->y_u.xxx.x2);
 	  
 #define P_PLUS_VV_PLUS_VV_NVAR_NVAR_INT \
     if (!IsIntTerm(d0) || !IsIntTerm(d1)) { BACK(); } \
 	d0 = MkIntegerTerm(IntOfTerm(d0) + IntOfTerm(d1)); \
-	  XREG((*_PREG)->u.xxx.x) = d0; \
+	  XREG((*_PREG)->y_u.xxx.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxx); \
       GONext();
 
@@ -381,7 +381,7 @@
 	saveregs(); \
 	d0 = p_plus(Yap_Eval(d0), Yap_Eval(d1)); \
 	setregs(); \
-	  XREG((*_PREG)->u.xxx.x) = d0; \
+	  XREG((*_PREG)->y_u.xxx.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxx); \
       GONext();
 
@@ -401,12 +401,12 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xxn.xi); \
-	  Int d1 = (*_PREG)->u.xxn.c;
+      d0 = XREG((*_PREG)->y_u.xxn.xi); \
+	  Int d1 = (*_PREG)->y_u.xxn.c;
 	  
 #define P_PLUS_VC_PLUS_VC_NVAR_INT \
 	d0 = MkIntegerTerm(IntOfTerm(d0) + d1); \
-	  XREG((*_PREG)->u.xxn.x) = d0; \
+	  XREG((*_PREG)->y_u.xxn.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxn); \
       GONext();
 	  
@@ -414,13 +414,13 @@
 	saveregs(); \
 	d0 = p_plus(Yap_Eval(d0), MkIntegerTerm(d1)); \
 	setregs(); \
-	  XREG((*_PREG)->u.xxn.x) = d0; \
+	  XREG((*_PREG)->y_u.xxn.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxn); \
       GONext();
 
 #define P_PLUS_VC_PLUS_VC_UNK \
       saveregs(); \
-      Yap_NilError(INSTANTIATION_ERROR, "X is A + " Int_FORMAT, (*_PREG)->u.xxn.c); \
+      Yap_NilError(INSTANTIATION_ERROR, "X is A + " Int_FORMAT, (*_PREG)->y_u.xxn.c); \
       setregs(); \
       FAIL();
 
@@ -428,15 +428,15 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  register CELL d0, d1; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.yxx.x1);
+      d0 = XREG((*_PREG)->y_u.yxx.x1);
 
 #define P_PLUS_Y_VV_PLUS_Y_VV_NVAR \
-      d1 = XREG((*_PREG)->u.xxx.x2);
+      d1 = XREG((*_PREG)->y_u.xxx.x2);
 	  
 #define P_PLUS_Y_VV_PLUS_Y_VV_NVAR_NVAR_INT \
 	if (!IsIntTerm(d0) || !IsIntTerm(d1)) { BACK(); } \
 	d0 = MkIntegerTerm(IntOfTerm(d0) + IntOfTerm(d1)); \
-      pt0 = YREG + (*_PREG)->u.yxx.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxx.y; \
       (*_PREG) = NEXTOP((*_PREG), yxx); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
@@ -445,7 +445,7 @@
 	saveregs(); \
 	d0 = p_plus(Yap_Eval(d0), Yap_Eval(d1)); \
 	setregs(); \
-      pt0 = YREG + (*_PREG)->u.yxx.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxx.y; \
       (*_PREG) = NEXTOP((*_PREG), yxx); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
@@ -466,12 +466,12 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.yxn.xi); \
-	  Int d1 = (*_PREG)->u.yxn.c;
+      d0 = XREG((*_PREG)->y_u.yxn.xi); \
+	  Int d1 = (*_PREG)->y_u.yxn.c;
 
 #define P_PLUS_Y_VC_PLUS_Y_VC_NVAR_INT \
 	d0 = MkIntegerTerm(IntOfTerm(d0) + d1); \
-      pt0 = YREG + (*_PREG)->u.yxn.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxn.y; \
       (*_PREG) = NEXTOP((*_PREG), yxn); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
@@ -480,14 +480,14 @@
 	saveregs(); \
 	d0 = p_plus(Yap_Eval(d0), MkIntegerTerm(d1)); \
 	setregs(); \
-      pt0 = YREG + (*_PREG)->u.yxn.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxn.y; \
       (*_PREG) = NEXTOP((*_PREG), yxn); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
 
 #define P_PLUS_Y_VC_PLUS_Y_VC_UNK \
       saveregs(); \
-      Yap_NilError(INSTANTIATION_ERROR, "X is A + " Int_FORMAT, (*_PREG)->u.yxn.c); \
+      Yap_NilError(INSTANTIATION_ERROR, "X is A + " Int_FORMAT, (*_PREG)->y_u.yxn.c); \
       setregs(); \
       FAIL();
 
@@ -495,15 +495,15 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  register CELL d0, d1; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xxx.x1);
+      d0 = XREG((*_PREG)->y_u.xxx.x1);
 
 #define P_MINUS_VV_MINUS_VV_NVAR \
-      d1 = XREG((*_PREG)->u.xxx.x2);
+      d1 = XREG((*_PREG)->y_u.xxx.x2);
 
 #define P_MINUS_VV_MINUS_VV_NVAR_NVAR_INT \
     if (!IsIntTerm(d0) || !IsIntTerm(d1)) { BACK(); } \
 	d0 = MkIntegerTerm(IntOfTerm(d0) - IntOfTerm(d1)); \
-	  XREG((*_PREG)->u.xxx.x) = d0; \
+	  XREG((*_PREG)->y_u.xxx.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxx); \
       GONext();
 	  
@@ -511,7 +511,7 @@
 	saveregs(); \
 	d0 = p_minus(Yap_Eval(d0), Yap_Eval(d1)); \
 	setregs(); \
-	  XREG((*_PREG)->u.xxx.x) = d0; \
+	  XREG((*_PREG)->y_u.xxx.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxx); \
       GONext();
 
@@ -530,12 +530,12 @@
 #define P_MINUS_CV_INSTINIT \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xxn.xi); \
-	  Int d1 = (*_PREG)->u.xxn.c;
+      d0 = XREG((*_PREG)->y_u.xxn.xi); \
+	  Int d1 = (*_PREG)->y_u.xxn.c;
 
 #define P_MINUS_CV_MINUS_CV_NVAR_INT \
 	d0 = MkIntegerTerm(d1 - IntOfTerm(d0)); \
-	  XREG((*_PREG)->u.xxn.x) = d0; \
+	  XREG((*_PREG)->y_u.xxn.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxn); \
       GONext();
 	
@@ -543,23 +543,23 @@
 	saveregs(); \
 	d0 = p_minus(MkIntegerTerm(d1),Yap_Eval(d0)); \
 	setregs(); \
-	  XREG((*_PREG)->u.xxn.x) = d0; \
+	  XREG((*_PREG)->y_u.xxn.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxn); \
       GONext();
 
 #define P_MINUS_CV_MINUS_CV_UNK \
       saveregs(); \
-      Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "-A", (*_PREG)->u.xxn.c); \
+      Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "-A", (*_PREG)->y_u.xxn.c); \
       setregs(); \
       FAIL();
 
 #define P_MINUS_Y_VV_INSTINIT \
 	  register CELL d0, d1; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.yxx.x1);
+      d0 = XREG((*_PREG)->y_u.yxx.x1);
 
 #define P_MINUS_Y_VV_MINUS_Y_VV_NVAR \
-      d1 = XREG((*_PREG)->u.xxx.x2);
+      d1 = XREG((*_PREG)->y_u.xxx.x2);
 
 #define P_MINUS_Y_VV_INTTERM \
 	d0 = MkIntegerTerm(IntOfTerm(d0) - IntOfTerm(d1));
@@ -576,7 +576,7 @@
 	  FAIL();
 	  
 #define P_MINUS_Y_VV_NVAR_END \
-      pt0 = YREG + (*_PREG)->u.yxx.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxx.y; \
       (*_PREG) = NEXTOP((*_PREG), yxx); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
@@ -596,10 +596,10 @@
 #define P_MINUS_Y_CV_INSTINIT \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.yxn.xi);
+      d0 = XREG((*_PREG)->y_u.yxn.xi);
 
 #define P_MINUS_Y_CV_MINUS_Y_CV_NVAR \
-	Int d1 = (*_PREG)->u.yxn.c;
+	Int d1 = (*_PREG)->y_u.yxn.c;
 
 #define P_MINUS_Y_CV_INTTERM \
 	  d0 = MkIntegerTerm(d1 - IntOfTerm(d0));
@@ -616,14 +616,14 @@
 	    FAIL();
 
 #define P_MINUS_Y_CV_NVAR_END \
-      pt0 = YREG + (*_PREG)->u.yxn.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxn.y; \
       (*_PREG) = NEXTOP((*_PREG), yxn); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
 
 #define P_MINUS_Y_CV_MINUS_Y_CV_UNK \
       saveregs(); \
-      Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "-A", (*_PREG)->u.yxn.c); \
+      Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "-A", (*_PREG)->y_u.yxn.c); \
       setregs(); \
       FAIL();
 
@@ -631,15 +631,15 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
       register CELL d0, d1; \
       register CELL *pt0; \
-      d0 = XREG((*_PREG)->u.xxx.x1);
+      d0 = XREG((*_PREG)->y_u.xxx.x1);
 
 #define P_TIMES_VV_TIMES_VV_NVAR \
-      d1 = XREG((*_PREG)->u.xxx.x2);
+      d1 = XREG((*_PREG)->y_u.xxx.x2);
   
 #define P_TIMES_VV_TIMES_VV_NVAR_NVAR_INT \
 	if (!IsIntTerm(d0) || !IsIntTerm(d1)) { BACK(); } \
 	d0 = times_int(IntOfTerm(d0), IntOfTerm(d1)); \
-      XREG((*_PREG)->u.xxx.x) = d0; \
+      XREG((*_PREG)->y_u.xxx.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxx); \
       GONext();
 	  
@@ -647,7 +647,7 @@
 	saveregs(); \
 	d0 = p_times(Yap_Eval(d0), Yap_Eval(d1)); \
 	setregs(); \
-      XREG((*_PREG)->u.xxx.x) = d0; \
+      XREG((*_PREG)->y_u.xxx.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxx); \
       GONext();
   
@@ -667,12 +667,12 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xxn.xi); \
-	  Int d1 = (*_PREG)->u.xxn.c;
+      d0 = XREG((*_PREG)->y_u.xxn.xi); \
+	  Int d1 = (*_PREG)->y_u.xxn.c;
     
 #define P_TIMES_VC_TIMES_VC_NVAR_INT \
 	d0 = times_int(IntOfTerm(d0), d1); \
-      XREG((*_PREG)->u.xxn.x) = d0; \
+      XREG((*_PREG)->y_u.xxn.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxn); \
       GONext();
 	  
@@ -680,23 +680,23 @@
 	saveregs(); \
 	d0 = p_times(Yap_Eval(d0), MkIntegerTerm(d1)); \
 	setregs(); \
-      XREG((*_PREG)->u.xxn.x) = d0; \
+      XREG((*_PREG)->y_u.xxn.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxn); \
       GONext();
 
 #define P_TIMES_VC_TIMES_VC_UNK \
       saveregs(); \
-      Yap_NilError(INSTANTIATION_ERROR, "X is A* " Int_FORMAT, (*_PREG)->u.xxn.c); \
+      Yap_NilError(INSTANTIATION_ERROR, "X is A* " Int_FORMAT, (*_PREG)->y_u.xxn.c); \
       setregs(); \
       FAIL();
 
 #define P_TIMES_Y_VV_INSTINIT \
 	  register CELL d0, d1; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.yxx.x1);
+      d0 = XREG((*_PREG)->y_u.yxx.x1);
 
 #define P_TIMES_Y_VV_TIMES_Y_VV_NVAR \
-      d1 = XREG((*_PREG)->u.xxx.x2);
+      d1 = XREG((*_PREG)->y_u.xxx.x2);
 
 #define P_TIMES_Y_VV_INTTERM \
 	d0 = times_int(IntOfTerm(d0), IntOfTerm(d1));
@@ -713,7 +713,7 @@
 	  FAIL();
 
 #define P_TIMES_Y_VV_NVAR_END \
-      pt0 = YREG + (*_PREG)->u.yxx.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxx.y; \
       (*_PREG) = NEXTOP((*_PREG), yxx); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
@@ -734,12 +734,12 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.yxn.xi); \
-	  Int d1 = (*_PREG)->u.yxn.c;
+      d0 = XREG((*_PREG)->y_u.yxn.xi); \
+	  Int d1 = (*_PREG)->y_u.yxn.c;
 
 #define P_TIMES_Y_VC_TIMES_Y_VC_NVAR_INT \
 	d0 = times_int(IntOfTerm(d0), d1); \
-      pt0 = YREG + (*_PREG)->u.yxn.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxn.y; \
       (*_PREG) = NEXTOP((*_PREG), yxn); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
@@ -748,20 +748,20 @@
 	saveregs(); \
 	d0 = p_times(Yap_Eval(d0), MkIntegerTerm(d1)); \
 	setregs(); \
-	  pt0 = YREG + (*_PREG)->u.yxn.y; \
+	  pt0 = YREG + (*_PREG)->y_u.yxn.y; \
       (*_PREG) = NEXTOP((*_PREG), yxn); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
 
 #define P_TIMES_Y_VC_NVAR_END \
-      pt0 = YREG + (*_PREG)->u.yxn.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxn.y; \
       (*_PREG) = NEXTOP((*_PREG), yxn); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
 
 #define P_TIMES_Y_VC_TIMES_Y_VC_UNK \
       saveregs(); \
-      Yap_NilError(INSTANTIATION_ERROR, "X is A* " Int_FORMAT, (*_PREG)->u.yxn.c); \
+      Yap_NilError(INSTANTIATION_ERROR, "X is A* " Int_FORMAT, (*_PREG)->y_u.yxn.c); \
       setregs(); \
       FAIL();
 
@@ -769,10 +769,10 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  register CELL d0, d1; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xxx.x1);
+      d0 = XREG((*_PREG)->y_u.xxx.x1);
 
 #define P_DIV_VV_DIV_VV_NVAR \
-      d1 = XREG((*_PREG)->u.xxx.x2);
+      d1 = XREG((*_PREG)->y_u.xxx.x2);
 
 #define P_DIV_VV_DIV_VV_NVAR_NVAR_INT \
       BLOCK = (CELL)P_DIV_VV_DIV_VV_NVAR_NVAR_INT; \
@@ -787,7 +787,7 @@
 	  } \
 	  else { \
 	    d0 = MkIntTerm(IntOfTerm(d0) / div); \
-        XREG((*_PREG)->u.xxx.x) = d0; \
+        XREG((*_PREG)->y_u.xxx.x) = d0; \
         (*_PREG) = NEXTOP((*_PREG), xxx); \
         GONext(); \
 	  }
@@ -796,7 +796,7 @@
 	  saveregs(); \
 	  d0 = p_div(Yap_Eval(d0), Yap_Eval(d1)); \
 	  setregs(); \
-        XREG((*_PREG)->u.xxx.x) = d0; \
+        XREG((*_PREG)->y_u.xxx.x) = d0; \
         (*_PREG) = NEXTOP((*_PREG), xxx); \
         GONext();
 
@@ -815,10 +815,10 @@
 #define P_DIV_VC_INSTINIT \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xxn.xi);
+      d0 = XREG((*_PREG)->y_u.xxn.xi);
 
 #define P_DIV_VC_DIV_VC_NVAR \
-	Int d1 = (*_PREG)->u.xxn.c;
+	Int d1 = (*_PREG)->y_u.xxn.c;
 
 #define P_DIV_VC_INTTERM \
 	  d0 = MkIntTerm(IntOfTerm(d0) / d1);
@@ -835,7 +835,7 @@
 	    FAIL();
 
 #define P_DIV_VC_NVAR_END \
-      XREG((*_PREG)->u.xxn.x) = d0; \
+      XREG((*_PREG)->y_u.xxn.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxn); \
       GONext();
 	  
@@ -848,10 +848,10 @@
 #define P_DIV_CV_INSTINIT \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xxn.xi);
+      d0 = XREG((*_PREG)->y_u.xxn.xi);
 
 #define P_DIV_CV_DIV_CV_NVAR \
-	Int d1 = (*_PREG)->u.xxn.c;
+	Int d1 = (*_PREG)->y_u.xxn.c;
 
 #define P_DIV_CV_INTTERM_INIT \
 	  Int div = IntOfTerm(d0);
@@ -876,23 +876,23 @@
 	    FAIL();
 
 #define P_DIV_CV_NVAR_END \
-      XREG((*_PREG)->u.xxn.x) = d0; \
+      XREG((*_PREG)->y_u.xxn.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxn); \
       GONext();
 
 #define P_DIV_CV_DIV_CV_UNK \
       saveregs(); \
-      Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "// A", (*_PREG)->u.xxn.c); \
+      Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "// A", (*_PREG)->y_u.xxn.c); \
       setregs(); \
       FAIL();
 
 #define P_DIV_Y_VV_INSTINIT \
 	  register CELL d0, d1; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.yxx.x1);
+      d0 = XREG((*_PREG)->y_u.yxx.x1);
 
 #define P_DIV_Y_VV_DIV_Y_VV_NVAR \
-      d1 = XREG((*_PREG)->u.xxx.x2);
+      d1 = XREG((*_PREG)->y_u.xxx.x2);
 
 #define P_DIV_Y_VV_INTTERM_INIT \
 	Int div = IntOfTerm(d1);
@@ -918,7 +918,7 @@
 	  FAIL();
 
 #define P_DIV_Y_VV_NVAR_END \
-      pt0 = YREG + (*_PREG)->u.yxx.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxx.y; \
       (*_PREG) = NEXTOP((*_PREG), yxx); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
@@ -938,10 +938,10 @@
 #define P_DIV_Y_VC_INSTINIT \
 	  register CELL d0; \
 	  register CELL *pt0; \
-      d0 = XREG((*_PREG)->u.yxn.xi);
+      d0 = XREG((*_PREG)->y_u.yxn.xi);
 
 #define P_DIV_Y_VC_DIV_Y_VC_NVAR \
-	Int d1 = (*_PREG)->u.yxn.c;
+	Int d1 = (*_PREG)->y_u.yxn.c;
 
 #define P_DIV_Y_VC_INTTERM \
 	  d0 = MkIntTerm(IntOfTerm(d0)/d1);
@@ -958,7 +958,7 @@
 	    FAIL();
 
 #define P_DIV_Y_VC_NVAR_END \
-      pt0 = YREG + (*_PREG)->u.yxn.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxn.y; \
       (*_PREG) = NEXTOP((*_PREG), yxn); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
@@ -972,10 +972,10 @@
 #define P_DIV_Y_CV_INSTINIT \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.yxn.xi);
+      d0 = XREG((*_PREG)->y_u.yxn.xi);
 
 #define P_DIV_Y_CV_DIV_Y_CV_NVAR \
-	Int d1 = (*_PREG)->u.yxn.c;
+	Int d1 = (*_PREG)->y_u.yxn.c;
 
 #define P_DIV_Y_CV_INTTERM_INIT \
 	  Int div = IntOfTerm(d0);
@@ -1001,14 +1001,14 @@
 	    FAIL();
 
 #define P_DIV_Y_CV_NVAR_END \
-      pt0 = YREG + (*_PREG)->u.yxn.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxn.y; \
       (*_PREG) = NEXTOP((*_PREG), yxn); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
 
 #define P_DIV_Y_CV_DIV_Y_CV_UNK \
       saveregs(); \
-      Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "// A", (*_PREG)->u.yxn.c); \
+      Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "// A", (*_PREG)->y_u.yxn.c); \
       setregs(); \
       FAIL();
 
@@ -1016,15 +1016,15 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  register CELL d0, d1; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xxx.x1);
+      d0 = XREG((*_PREG)->y_u.xxx.x1);
 
 #define P_AND_VV_AND_VV_NVAR \
-      d1 = XREG((*_PREG)->u.xxx.x2);
+      d1 = XREG((*_PREG)->y_u.xxx.x2);
       
 #define P_AND_VV_AND_VV_NVAR_NVAR_INT \
 	if (!IsIntTerm(d0) || !IsIntTerm(d1)) { BACK(); } \
 	d0 = MkIntegerTerm(IntOfTerm(d0) & IntOfTerm(d1)); \
-      XREG((*_PREG)->u.xxx.x) = d0; \
+      XREG((*_PREG)->y_u.xxx.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxx); \
       GONext();
 	  
@@ -1032,7 +1032,7 @@
 	saveregs(); \
 	d0 = p_and(Yap_Eval(d0), Yap_Eval(d1)); \
 	setregs(); \
-      XREG((*_PREG)->u.xxx.x) = d0; \
+      XREG((*_PREG)->y_u.xxx.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxx); \
       GONext();
 
@@ -1052,12 +1052,12 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xxn.xi); \
-	  Int d1 = (*_PREG)->u.xxn.c;
+      d0 = XREG((*_PREG)->y_u.xxn.xi); \
+	  Int d1 = (*_PREG)->y_u.xxn.c;
 
 #define P_AND_VC_AND_VC_NVAR_INT \
 	d0 = MkIntegerTerm(IntOfTerm(d0) & d1); \
-      XREG((*_PREG)->u.xxn.x) = d0; \
+      XREG((*_PREG)->y_u.xxn.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxn); \
       GONext();
 	  
@@ -1065,23 +1065,23 @@
 	saveregs(); \
 	d0 = p_and(Yap_Eval(d0), MkIntegerTerm(d1)); \
 	setregs(); \
-      XREG((*_PREG)->u.xxn.x) = d0; \
+      XREG((*_PREG)->y_u.xxn.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxn); \
       GONext();
 
 #define P_AND_VC_AND_VC_UNK \
       saveregs(); \
-      Yap_NilError(INSTANTIATION_ERROR, "X is A /\\ " Int_FORMAT , (*_PREG)->u.xxn.c); \
+      Yap_NilError(INSTANTIATION_ERROR, "X is A /\\ " Int_FORMAT , (*_PREG)->y_u.xxn.c); \
       setregs(); \
       FAIL();
 
 #define P_AND_Y_VV_INSTINIT \
 	  register CELL d0, d1; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.yxx.x1);
+      d0 = XREG((*_PREG)->y_u.yxx.x1);
 
 #define P_AND_Y_VV_AND_Y_VV_NVAR \
-      d1 = XREG((*_PREG)->u.xxx.x2);
+      d1 = XREG((*_PREG)->y_u.xxx.x2);
 
 #define P_AND_Y_VV_INTTERM \
 	d0 = MkIntegerTerm(IntOfTerm(d0) & IntOfTerm(d1));
@@ -1098,7 +1098,7 @@
 	  FAIL();
 
 #define P_AND_Y_VV_NVAR_END \
-      pt0 = YREG + (*_PREG)->u.yxx.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxx.y; \
       (*_PREG) = NEXTOP((*_PREG), yxx); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
@@ -1118,10 +1118,10 @@
 #define P_AND_Y_VC_INSTINIT \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.yxn.xi);
+      d0 = XREG((*_PREG)->y_u.yxn.xi);
 
 #define P_AND_Y_VC_AND_Y_VC_NVAR \
-	Int d1 = (*_PREG)->u.yxn.c;
+	Int d1 = (*_PREG)->y_u.yxn.c;
 
 #define P_AND_Y_VC_INTTERM \
 	  d0 = MkIntegerTerm(IntOfTerm(d0) & d1);
@@ -1138,24 +1138,24 @@
 	    FAIL();
 
 #define P_AND_Y_VC_NVAR_END \
-      pt0 = YREG + (*_PREG)->u.yxn.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxn.y; \
       (*_PREG) = NEXTOP((*_PREG), yxn); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
 
 #define P_AND_Y_VC_AND_Y_VC_UNK \
       saveregs(); \
-      Yap_NilError(INSTANTIATION_ERROR, "X is A /\\ " Int_FORMAT , (*_PREG)->u.yxn.c); \
+      Yap_NilError(INSTANTIATION_ERROR, "X is A /\\ " Int_FORMAT , (*_PREG)->y_u.yxn.c); \
       setregs(); \
       FAIL();
 
 #define P_OR_VV_INSTINIT \
 	  register CELL d0, d1; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xxx.x1);
+      d0 = XREG((*_PREG)->y_u.xxx.x1);
 
 #define P_OR_VV_OR_VV_NVAR \
-      d1 = XREG((*_PREG)->u.xxx.x2);
+      d1 = XREG((*_PREG)->y_u.xxx.x2);
 
 #define P_OR_VV_INTTERM \
 	d0 = MkIntegerTerm(IntOfTerm(d0) | IntOfTerm(d1));
@@ -1172,7 +1172,7 @@
 	  FAIL();
 
 #define P_OR_VV_NVAR_END \
-      XREG((*_PREG)->u.xxx.x) = d0; \
+      XREG((*_PREG)->y_u.xxx.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxx); \
       GONext();
 
@@ -1191,10 +1191,10 @@
 #define P_OR_VC_INSTINIT \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xxn.xi);
+      d0 = XREG((*_PREG)->y_u.xxn.xi);
 
 #define P_OR_VC_OR_VC_NVAR \
-	Int d1 = (*_PREG)->u.xxn.c;
+	Int d1 = (*_PREG)->y_u.xxn.c;
 
 #define P_OR_VC_INTTERM \
 	  d0 = MkIntegerTerm(IntOfTerm(d0) | d1);
@@ -1210,23 +1210,23 @@
 	    FAIL();
 
 #define P_OR_VC_NVAR_END \
-      XREG((*_PREG)->u.xxn.x) = d0; \
+      XREG((*_PREG)->y_u.xxn.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxn); \
       GONext();
 
 #define P_OR_VC_OR_VC_UNK \
       saveregs(); \
-      Yap_NilError(INSTANTIATION_ERROR, "X is A \\/ " Int_FORMAT , (*_PREG)->u.xxn.c); \
+      Yap_NilError(INSTANTIATION_ERROR, "X is A \\/ " Int_FORMAT , (*_PREG)->y_u.xxn.c); \
       setregs(); \
       FAIL();
 
 #define P_OR_Y_VV_INSTINIT \
 	  register CELL d0, d1; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.yxx.x1);
+      d0 = XREG((*_PREG)->y_u.yxx.x1);
 
 #define P_OR_Y_VV_OR_Y_VV_NVAR \
-      d1 = XREG((*_PREG)->u.xxx.x2);
+      d1 = XREG((*_PREG)->y_u.xxx.x2);
 
 #define P_OR_Y_VV_INTTERM \
 	d0 = MkIntegerTerm(IntOfTerm(d0) | IntOfTerm(d1));
@@ -1243,7 +1243,7 @@
 	  FAIL();
 
 #define P_OR_Y_VV_NVAR_END \
-      pt0 = YREG + (*_PREG)->u.yxx.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxx.y; \
       (*_PREG) = NEXTOP((*_PREG), yxx); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
@@ -1263,10 +1263,10 @@
 #define P_OR_Y_VC_INSTINIT \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.yxn.xi);
+      d0 = XREG((*_PREG)->y_u.yxn.xi);
 
 #define P_OR_Y_VC_OR_Y_VC_NVAR \
-	Int d1 = (*_PREG)->u.yxn.c;
+	Int d1 = (*_PREG)->y_u.yxn.c;
 
 #define P_OR_Y_VC_INTTERM \
 	  d0 = MkIntegerTerm(IntOfTerm(d0) | d1);
@@ -1283,24 +1283,24 @@
 	    FAIL();
 
 #define P_OR_Y_VC_NVAR_END \
-      pt0 = YREG + (*_PREG)->u.yxn.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxn.y; \
       (*_PREG) = NEXTOP((*_PREG), yxn); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
 
 #define P_OR_Y_VC_OR_Y_VC_UNK \
       saveregs(); \
-      Yap_NilError(INSTANTIATION_ERROR, "X is A \\/ " Int_FORMAT , (*_PREG)->u.yxn.c); \
+      Yap_NilError(INSTANTIATION_ERROR, "X is A \\/ " Int_FORMAT , (*_PREG)->y_u.yxn.c); \
       setregs(); \
       FAIL();
 
 #define P_SLL_VV_INSTINIT \
 	  register CELL d0, d1; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xxx.x1);
+      d0 = XREG((*_PREG)->y_u.xxx.x1);
 
 #define P_SLL_VV_SLL_VV_NVAR \
-      d1 = XREG((*_PREG)->u.xxx.x2);
+      d1 = XREG((*_PREG)->y_u.xxx.x2);
 
 #define P_SLL_VV_INTTERM_INIT \
 	Int i2 = IntOfTerm(d1);
@@ -1323,7 +1323,7 @@
 	FAIL();
 
 #define P_SLL_VV_NVAR_END \
-      XREG((*_PREG)->u.xxx.x) = d0; \
+      XREG((*_PREG)->y_u.xxx.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxx); \
       GONext();
 
@@ -1342,10 +1342,10 @@
 #define P_SLL_VC_INSTINIT \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xxn.xi);
+      d0 = XREG((*_PREG)->y_u.xxn.xi);
 
 #define P_SLL_VC_SLL_VC_NVAR \
-	Int d1 = (*_PREG)->u.xxn.c;
+	Int d1 = (*_PREG)->y_u.xxn.c;
 
 #define P_SLL_VC_INTTERM \
 	  d0 = do_sll(IntOfTerm(d0), (Int)d1);
@@ -1362,7 +1362,7 @@
 	FAIL();
 
 #define P_SLL_VC_NVAR_END \
-      XREG((*_PREG)->u.xxn.x) = d0; \
+      XREG((*_PREG)->y_u.xxn.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxn); \
       GONext();
 
@@ -1376,8 +1376,8 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xxn.xi); \
-	  Int d1 = (*_PREG)->u.xxn.c;
+      d0 = XREG((*_PREG)->y_u.xxn.xi); \
+	  Int d1 = (*_PREG)->y_u.xxn.c;
 
 #define P_SLL_CV_SLL_CV_NVAR_INT \
     Int i2 = IntOfTerm(d0); \
@@ -1386,7 +1386,7 @@
 	} else { \
 	  d0 = do_sll(d1,i2); \
 	} \
-      XREG((*_PREG)->u.xxn.x) = d0; \
+      XREG((*_PREG)->y_u.xxn.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxn); \
       GONext();
 	  
@@ -1394,7 +1394,7 @@
     saveregs(); \
 	d0 = p_sll(MkIntegerTerm(d1), Yap_Eval(d0)); \
 	setregs(); \
-      XREG((*_PREG->u.xxn.x) = d0; \
+      XREG((*_PREG->y_u.xxn.x) = d0; \
       (*_PREG = NEXTOP((*_PREG, xxn); \
       GONext();
 
@@ -1407,10 +1407,10 @@
 #define P_SLL_Y_VV_INSTINIT \
 	  register CELL d0, d1; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.yxx.x1);
+      d0 = XREG((*_PREG)->y_u.yxx.x1);
 
 #define P_SLL_Y_VV_SLL_Y_VV_NVAR \
-      d1 = XREG((*_PREG)->u.xxx.x2);
+      d1 = XREG((*_PREG)->y_u.xxx.x2);
 
 #define P_SLL_Y_VV_INTTERM_INIT \
 	Int i2 = IntOfTerm(d1);
@@ -1433,7 +1433,7 @@
 	FAIL();
 	  
 #define P_SLL_Y_VV_NVAR_END \
-      pt0 = YREG + (*_PREG)->u.yxx.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxx.y; \
       (*_PREG) = NEXTOP((*_PREG), yxx); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
@@ -1453,10 +1453,10 @@
 #define P_SLL_Y_VC_INSTINIT \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.yxn.xi);
+      d0 = XREG((*_PREG)->y_u.yxn.xi);
 
 #define P_SLL_Y_VC_SLL_Y_VC_NVAR \
-	Int d1 = (*_PREG)->u.yxn.c;
+	Int d1 = (*_PREG)->y_u.yxn.c;
 
 #define P_SLL_Y_VC_INTTERM \
 	  d0 = do_sll(IntOfTerm(d0), Yap_Eval(d1));
@@ -1473,7 +1473,7 @@
 	FAIL();
 
 #define P_SLL_Y_VC_NVAR_END \
-      pt0 = YREG + (*_PREG)->u.yxn.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxn.y; \
       (*_PREG) = NEXTOP((*_PREG), yxn); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
@@ -1487,10 +1487,10 @@
 #define P_SLL_Y_CV_INSTINIT \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.yxn.xi);
+      d0 = XREG((*_PREG)->y_u.yxn.xi);
 
 #define P_SLL_Y_CV_SLL_Y_CV_NVAR \
-	Int d1 = (*_PREG)->u.yxn.c;
+	Int d1 = (*_PREG)->y_u.yxn.c;
 	
 #define P_SLL_Y_CV_INTTERM_INIT \
 	  Int i2 = IntOfTerm(d0);
@@ -1513,7 +1513,7 @@
 	FAIL();
 
 #define P_SLL_Y_CV_NVAR_END \
-      pt0 = YREG + (*_PREG)->u.yxn.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxn.y; \
       (*_PREG) = NEXTOP((*_PREG), yxn); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
@@ -1527,10 +1527,10 @@
 #define P_SLR_VV_INSTINIT \
 	  register CELL d0, d1; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xxx.x1);
+      d0 = XREG((*_PREG)->y_u.xxx.x1);
 
 #define P_SLR_VV_SLR_VV_NVAR \
-      d1 = XREG((*_PREG)->u.xxx.x2);
+      d1 = XREG((*_PREG)->y_u.xxx.x2);
 
 #define P_SLR_VV_INTTERM_INIT \
 	Int i2 = IntOfTerm(d1);
@@ -1553,7 +1553,7 @@
 	FAIL();
 
 #define P_SLR_VV_NVAR_END \
-      XREG((*_PREG)->u.xxx.x) = d0; \
+      XREG((*_PREG)->y_u.xxx.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxx); \
       GONext();
 
@@ -1573,12 +1573,12 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xxn.xi); \
-	  Int d1 = (*_PREG)->u.xxn.c;
+      d0 = XREG((*_PREG)->y_u.xxn.xi); \
+	  Int d1 = (*_PREG)->y_u.xxn.c;
 
 #define P_SLR_VC_SLR_VC_NVAR_INT \
 	d0 = MkIntTerm(SLR(IntOfTerm(d0), d1)); \
-      XREG((*_PREG)->u.xxn.x) = d0; \
+      XREG((*_PREG)->y_u.xxn.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxn); \
       GONext();
 	  
@@ -1586,7 +1586,7 @@
 	saveregs(); \
 	d0 = p_slr(Yap_Eval(d0), MkIntegerTerm(d1)); \
     setregs(); \
-      XREG((*_PREG)->u.xxn.x) = d0; \
+      XREG((*_PREG)->y_u.xxn.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxn); \
       GONext();
 
@@ -1599,10 +1599,10 @@
 #define P_SLR_CV_INSTINIT \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.xxn.xi);
+      d0 = XREG((*_PREG)->y_u.xxn.xi);
 
 #define P_SLR_CV_SLR_CV_NVAR \
-	Int d1 = (*_PREG)->u.xxn.c;
+	Int d1 = (*_PREG)->y_u.xxn.c;
 
 #define P_SLR_CV_INTTERM_INIT \
 	 Int i2 = IntOfTerm(d0);
@@ -1625,7 +1625,7 @@
 	FAIL();
 
 #define P_SLR_CV_NVAR_END \
-      XREG((*_PREG)->u.xxn.x) = d0; \
+      XREG((*_PREG)->y_u.xxn.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), xxn); \
       GONext();
 
@@ -1638,10 +1638,10 @@
 #define P_SLR_Y_VV_INSTINIT \
 	  register CELL d0, d1; \
 	  register CELL8 pt0; \
-      d0 = XREG((*_PREG)->u.yxx.x1);
+      d0 = XREG((*_PREG)->y_u.yxx.x1);
 
 #define P_SLR_Y_VV_SLR_Y_VV_NVAR \
-      d1 = XREG((*_PREG)->u.xxx.x2);
+      d1 = XREG((*_PREG)->y_u.xxx.x2);
 
 #define P_SLR_Y_VV_INTTERM_INIT \
 	 Int i2 = IntOfTerm(d1);
@@ -1664,7 +1664,7 @@
 	FAIL();
 
 #define P_SLR_Y_VV_NVAR_END \
-      pt0 = YREG + (*_PREG)->u.yxx.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxx.y; \
       (*_PREG) = NEXTOP((*_PREG), yxx); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
@@ -1684,10 +1684,10 @@
 #define P_SLR_Y_VC_INSTINIT \
 	  register CELL d0; \
 	  register CELL8 pt0; \
-      d0 = XREG((*_PREG)->u.yxn.xi);
+      d0 = XREG((*_PREG)->y_u.yxn.xi);
 
 #define P_SLR_Y_VC_SLR_Y_VC_NVAR \
-	Int d1 = (*_PREG)->u.yxn.c;
+	Int d1 = (*_PREG)->y_u.yxn.c;
 
 #define P_SLR_Y_VC_INTTERM \
 	  d0 = MkIntTerm(SLR(IntOfTerm(d0), d1));
@@ -1704,7 +1704,7 @@
 	    FAIL();
 
 #define P_SLR_Y_VC_NVAR_END \
-      pt0 = YREG + (*_PREG)->u.yxn.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxn.y; \
       (*_PREG) = NEXTOP((*_PREG), yxn); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
@@ -1717,10 +1717,10 @@
 #define P_SLR_Y_CV_INSTINIT \
 	  register CELL d0; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.yxn.xi);
+      d0 = XREG((*_PREG)->y_u.yxn.xi);
 
 #define P_SLR_Y_CV_SLR_Y_CV_NVAR \
-	Int d1 = (*_PREG)->u.yxn.c;
+	Int d1 = (*_PREG)->y_u.yxn.c;
 
 #define P_SLR_Y_CV_INTTERM_INIT \
 	 Int i2 = IntOfTerm(d0);
@@ -1743,7 +1743,7 @@
 	FAIL();
 
 #define P_SLR_Y_CV_NVAR_END \
-      pt0 = YREG + (*_PREG)->u.yxn.y; \
+      pt0 = YREG + (*_PREG)->y_u.yxn.y; \
       (*_PREG) = NEXTOP((*_PREG), yxn); \
       INITIALIZE_PERMVAR(pt0,d0); \
       GONext();
@@ -1758,17 +1758,17 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  register CELL d0, d1; \
 	  register CELL* pt0; \
-      d0 = XREG((*_PREG)->u.plxxs.x1);
+      d0 = XREG((*_PREG)->y_u.plxxs.x1);
 
 #define CALL_BFUNC_XX_CALL_BFUNC_XX_NVAR \
-      d1 = XREG((*_PREG)->u.plxxs.x2);
+      d1 = XREG((*_PREG)->y_u.plxxs.x2);
 
 #define CALL_BFUNC_XX_CALL_BFUNC_XX2_NVAR_INT \
       BLOCK = (CELL)CALL_BFUNC_XX_CALL_BFUNC_XX2_NVAR_INT; \
       if (IsIntTerm(d0) && IsIntTerm(d1)) { \
 	    COUNT flags; \
 	    Int v = IntOfTerm(d0) - IntOfTerm(d1); \
-	    flags = (*_PREG)->u.plxxs.flags; \
+	    flags = (*_PREG)->y_u.plxxs.flags; \
 	    if (v > 0) { \
 	      if (flags & GT_OK_IN_CMP) { \
 	        yamop *nextp = NEXTOP((*_PREG), plxxs); \
@@ -1776,7 +1776,7 @@
 	        ALWAYS_GONext(); \
           } \
 	      else { \
-	        yamop *nextp = (*_PREG)->u.plxxs.f; \
+	        yamop *nextp = (*_PREG)->y_u.plxxs.f; \
 	        (*_PREG) = nextp; \
 	        ALWAYS_GONext(); \
           } \
@@ -1788,7 +1788,7 @@
 	        ALWAYS_GONext(); \
           } \
 	      else { \
-	        yamop *nextp = (*_PREG)->u.plxxs.f; \
+	        yamop *nextp = (*_PREG)->y_u.plxxs.f; \
 	        (*_PREG) = nextp; \
 	        ALWAYS_GONext(); \
           } \
@@ -1800,7 +1800,7 @@
 	        ALWAYS_GONext(); \
 	      } \
 	      else { \
-	        yamop *nextp = (*_PREG)->u.plxxs.f; \
+	        yamop *nextp = (*_PREG)->y_u.plxxs.f; \
 	        (*_PREG) = nextp; \
 	        ALWAYS_GONext(); \
 	      } \
@@ -1809,7 +1809,7 @@
 
 #define CALL_BFUNC_XX_CALL_BFUNC_XX2_NVAR_NOINT \
       BLOCK = (CELL)CALL_BFUNC_XX_CALL_BFUNC_XX2_NVAR_NOINT; \
-	    CmpPredicate f = (*_PREG)->u.plxxs.p->cs.d_code; \
+	    CmpPredicate f = (*_PREG)->y_u.plxxs.p->cs.d_code; \
 	    saveregs(); \
 	    d0 = (CELL) (f) (d0,d1); \
 	    setregs(); \
@@ -1817,7 +1817,7 @@
 	      JMPNext(); \
         } \
         else if (!d0) { \
-	      (*_PREG) = (*_PREG)->u.plxxs.f; \
+	      (*_PREG) = (*_PREG)->y_u.plxxs.f; \
 	      JMPNext(); \
         } \
         else { \
@@ -1832,8 +1832,8 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  register CELL d0, d1; \
 	  register CELL *pt0; \
-      pt0 = YREG + (*_PREG)->u.plxys.y; \
-      d1 = XREG((*_PREG)->u.plxys.x); \
+      pt0 = YREG + (*_PREG)->y_u.plxys.y; \
+      d1 = XREG((*_PREG)->y_u.plxys.x); \
       d0 = *pt0;
 
 #define CALL_BFUNC_YX_CALL_BFUNC_YX2_NVAR_INT \
@@ -1841,13 +1841,13 @@
       if (IsIntTerm(d0) && IsIntTerm(d1)) { \
 	    int flags; \
 	    Int v = IntOfTerm(d0) - IntOfTerm(d1); \
-	    flags = (*_PREG)->u.plxys.flags; \
+	    flags = (*_PREG)->y_u.plxys.flags; \
 	    if (v > 0) { \
 	      if (flags & GT_OK_IN_CMP) { \
 	        (*_PREG) = NEXTOP((*_PREG), plxys); \
 	        JMPNext(); \
 	      } else { \
-	        (*_PREG) = (*_PREG)->u.plxys.f; \
+	        (*_PREG) = (*_PREG)->y_u.plxys.f; \
 	        JMPNext(); \
 	      } \
 	    } else if (v < 0) { \
@@ -1855,7 +1855,7 @@
 	        (*_PREG) = NEXTOP((*_PREG), plxys); \
 	        JMPNext(); \
 	      } else { \
-	        (*_PREG) = (*_PREG)->u.plxys.f; \
+	        (*_PREG) = (*_PREG)->y_u.plxys.f; \
 	        JMPNext(); \
 	      } \
 	    } else { \
@@ -1863,7 +1863,7 @@
 	        (*_PREG) = NEXTOP((*_PREG), plxys); \
 	        JMPNext(); \
 	      } else { \
-	        (*_PREG) = (*_PREG)->u.plxys.f; \
+	        (*_PREG) = (*_PREG)->y_u.plxys.f; \
 	        JMPNext(); \
 	      } \
 	    } \
@@ -1871,13 +1871,13 @@
 
 #define CALL_BFUNC_YX_CALL_BFUNC_YX2_NVAR_NOINT \
       BLOCK = (CELL)CALL_BFUNC_YX_CALL_BFUNC_YX2_NVAR_NOINT; \
-	    CmpPredicate f = (*_PREG)->u.plxys.p->cs.d_code; \
+	    CmpPredicate f = (*_PREG)->y_u.plxys.p->cs.d_code; \
 	    saveregs(); \
 	    d0 = (CELL) (f) (d0,d1); \
 	    setregs(); \
         if (!d0 || (*_PREG) == FAILCODE) { \
 	      if ((*_PREG) != FAILCODE) { \
-	        (*_PREG) = (*_PREG)->u.plxys.f; \
+	        (*_PREG) = (*_PREG)->y_u.plxys.f; \
 	      } \
 	      JMPNext(); \
         } \
@@ -1893,8 +1893,8 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  register CELL d0, d1; \
 	  register CELL *pt0; \
-      pt0 = YREG + (*_PREG)->u.plxys.y; \
-      d0 = XREG((*_PREG)->u.plxys.x); \
+      pt0 = YREG + (*_PREG)->y_u.plxys.y; \
+      d0 = XREG((*_PREG)->y_u.plxys.x); \
       d1 = *pt0;
 
 #define CALL_BFUNC_XY_CALL_BFUNC_XY2_NVAR_INT \
@@ -1902,13 +1902,13 @@
       if (IsIntTerm(d0) && IsIntTerm(d1)) { \
 	    int flags; \
 	    Int v = IntOfTerm(d0) - IntOfTerm(d1); \
-	    flags = (*_PREG)->u.plxys.flags; \
+	    flags = (*_PREG)->y_u.plxys.flags; \
 	    if (v > 0) { \
 	      if (flags & GT_OK_IN_CMP) { \
 	        (*_PREG) = NEXTOP((*_PREG), plxys); \
 	        JMPNext(); \
 	      } else { \
-	        (*_PREG) = (*_PREG)->u.plxys.f; \
+	        (*_PREG) = (*_PREG)->y_u.plxys.f; \
 	        JMPNext(); \
 	      } \
 	    } else if (v < 0) { \
@@ -1916,7 +1916,7 @@
 	        (*_PREG) = NEXTOP((*_PREG), plxys); \
 	        JMPNext(); \
 	      } else { \
-	        (*_PREG) = (*_PREG)->u.plxys.f; \
+	        (*_PREG) = (*_PREG)->y_u.plxys.f; \
 	        JMPNext(); \
 	      } \
 	    } else { \
@@ -1924,7 +1924,7 @@
 	        (*_PREG) = NEXTOP((*_PREG), plxys); \
 	        JMPNext(); \
 	      } else { \
-	        (*_PREG) = (*_PREG)->u.plxys.f; \
+	        (*_PREG) = (*_PREG)->y_u.plxys.f; \
 	        JMPNext(); \
 	      } \
 	    } \
@@ -1932,13 +1932,13 @@
 
 #define CALL_BFUNC_XY_CALL_BFUNC_XY2_NVAR_NOINT \
       BLOCK = (CELL)CALL_BFUNC_XY_CALL_BFUNC_XY2_NVAR_NOINT; \
-	    CmpPredicate f = (*_PREG)->u.plxys.p->cs.d_code; \
+	    CmpPredicate f = (*_PREG)->y_u.plxys.p->cs.d_code; \
 	    saveregs(); \
 	    d0 = (CELL) (f) (d0,d1); \
 	    setregs(); \
         if (!d0 || (*_PREG) == FAILCODE) { \
 	      if ((*_PREG) != FAILCODE) { \
-	        (*_PREG) = (*_PREG)->u.plxys.f; \
+	        (*_PREG) = (*_PREG)->y_u.plxys.f; \
 	      } \
 	      JMPNext(); \
         } \
@@ -1954,8 +1954,8 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  register CELL d0, d1; \
 	  register CELL *pt0, *pt1; \
-      pt0 = YREG + (*_PREG)->u.plyys.y1; \
-      pt1 = YREG + (*_PREG)->u.plyys.y2; \
+      pt0 = YREG + (*_PREG)->y_u.plyys.y1; \
+      pt1 = YREG + (*_PREG)->y_u.plyys.y2; \
       d0 = *pt0; \
       d1 = *pt1;
 
@@ -1964,13 +1964,13 @@
       if (IsIntTerm(d0) && IsIntTerm(d1)) { \
 	    int flags; \
 	    Int v = IntOfTerm(d0) - IntOfTerm(d1); \
-	    flags = (*_PREG)->u.plyys.flags; \
+	    flags = (*_PREG)->y_u.plyys.flags; \
 	    if (v > 0) { \
 	      if (flags & GT_OK_IN_CMP) { \
 	        (*_PREG) = NEXTOP((*_PREG), plyys); \
 	        JMPNext(); \
 	      } else { \
-	        (*_PREG) = (*_PREG)->u.plyys.f; \
+	        (*_PREG) = (*_PREG)->y_u.plyys.f; \
 	        JMPNext(); \
 	      } \
 	    } else if (v < 0) { \
@@ -1978,7 +1978,7 @@
 	        (*_PREG) = NEXTOP((*_PREG), plyys); \
 	        JMPNext(); \
 	      } else { \
-	        (*_PREG) = (*_PREG)->u.plyys.f; \
+	        (*_PREG) = (*_PREG)->y_u.plyys.f; \
 	        JMPNext(); \
 	      } \
 	    } else { \
@@ -1986,7 +1986,7 @@
 	        (*_PREG) = NEXTOP((*_PREG), plyys); \
 	        JMPNext(); \
 	      } else { \
-	        (*_PREG) = (*_PREG)->u.plyys.f; \
+	        (*_PREG) = (*_PREG)->y_u.plyys.f; \
 	        JMPNext(); \
 	      } \
 	    } \
@@ -1994,13 +1994,13 @@
 
 #define CALL_BFUNC_YY_CALL_BFUNC_YY2_NVAR_NOINT \
       BLOCK = (CELL)CALL_BFUNC_YY_CALL_BFUNC_YY2_NVAR_NOINT; \
-	    CmpPredicate f = (*_PREG)->u.plyys.p->cs.d_code; \
+	    CmpPredicate f = (*_PREG)->y_u.plyys.p->cs.d_code; \
 	    saveregs(); \
 	    d0 = (CELL) (f) (d0,d1); \
 	    setregs(); \
         if (!d0 || (*_PREG) == FAILCODE) { \
 	      if ((*_PREG) != FAILCODE) { \
-	        (*_PREG) = (*_PREG)->u.plyys.f; \
+	        (*_PREG) = (*_PREG)->y_u.plyys.f; \
 	      } \
 	      JMPNext(); \
         } \
@@ -2010,7 +2010,7 @@
         }
 
 #define CALL_BFUNC_YY_NOINTTERM_NOFAILCODE \
-	  (*_PREG) = (*_PREG)->u.plyys.f;
+	  (*_PREG) = (*_PREG)->y_u.plyys.f;
 
 #define CALL_BFUNC_YY_NOINTTERM_NOD0 \
 	JMPNext();
@@ -2038,16 +2038,16 @@
 
 #ifdef LOW_LEVEL_TRACER
 #define P_ARG_VV_LOW_LEVEL_TRACER \
-	H[0] = XREG((*_PREG)->u.xxx.x1); \
-	H[1] = XREG((*_PREG)->u.xxx.x2); \
+	HR[0] = XREG((*_PREG)->y_u.xxx.x1); \
+	HR[1] = XREG((*_PREG)->y_u.xxx.x2); \
 	RESET_VARIABLE(HR+2); \
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),HR);
 #endif
 
 #define P_ARG_VV_TEST_D0 \
 	  register CELL d0, d1; \
 	  register CELL *pt0; \
-      d0 = XREG((*_PREG)->u.xxx.x1);
+      d0 = XREG((*_PREG)->y_u.xxx.x1);
       
 #define P_ARG_VV_ARG_ARG1_NVAR \
       FAILED = 0; \
@@ -2064,7 +2064,7 @@
 
 #define P_ARG_VV_TEST_D1 \
     if (!FAILED) { \
-      d1 = XREG((*_PREG)->u.xxx.x2);
+      d1 = XREG((*_PREG)->y_u.xxx.x2);
       
 #define P_ARG_VV_ARG_ARG2_NVAR \
       BLOCK = (CELL)P_ARG_VV_ARG_ARG2_NVAR; \
@@ -2079,7 +2079,7 @@
 	  YAAM_FAIL; \
 	} \
 	else { \
-	  XREG((*_PREG)->u.xxx.x) = pt0[d0]; \
+	  XREG((*_PREG)->y_u.xxx.x) = pt0[d0]; \
 	  (*_PREG) = NEXTOP((*_PREG), xxx); \
 	  GONext(); \
   } \
@@ -2096,7 +2096,7 @@
 	  YAAM_FAIL; \
 	} \
 	else { \
-	  XREG((*_PREG)->u.xxx.x) = pt0[d0-1]; \
+	  XREG((*_PREG)->y_u.xxx.x) = pt0[d0-1]; \
 	  (*_PREG) = NEXTOP((*_PREG), xxx); \
 	  GONext(); \
 	} \
@@ -2124,19 +2124,19 @@
 #ifdef LOW_LEVEL_TRACER
 #define P_ARG_CV_LOW_LEVEL_TRACER \
 	CELL *Ho = HR; \
-	Term t = MkIntegerTerm((*_PREG)->u.xxn.c); \
-	H[0] =  t; \
-	H[1] = XREG((*_PREG)->u.xxn.xi); \
+	Term t = MkIntegerTerm((*_PREG)->y_u.xxn.c); \
+	HR[0] =  t; \
+	HR[1] = XREG((*_PREG)->y_u.xxn.xi); \
 	RESET_VARIABLE(HR+2); \
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),H); \
-	H = HRo;
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),HR); \
+	HR = Ho;
 #endif
 
 #define P_ARG_CV_TEST_D1 \
 	  register CELL d0, d1; \
 	  register CELL *pt0; \
-      d0 = (*_PREG)->u.xxn.c; \
-      d1 = XREG((*_PREG)->u.xxn.xi);
+      d0 = (*_PREG)->y_u.xxn.c; \
+      d1 = XREG((*_PREG)->y_u.xxn.xi);
 
 #define P_ARG_CV_ARG_ARG2_VC_NVAR \
       BLOCK = (CELL)P_ARG_CV_ARG_ARG2_VC_NVAR; \
@@ -2152,7 +2152,7 @@
 	  YAAM_FAIL; \
 	} \
 	else { \
-	  XREG((*_PREG)->u.xxn.x) = pt0[d0]; \
+	  XREG((*_PREG)->y_u.xxn.x) = pt0[d0]; \
 	  (*_PREG) = NEXTOP((*_PREG), xxn); \
 	  GONext(); \
 	} \
@@ -2169,7 +2169,7 @@
 	  YAAM_FAIL; \
 	} \
 	else { \
-	  XREG((*_PREG)->u.xxn.x) = pt0[d0-1]; \
+	  XREG((*_PREG)->y_u.xxn.x) = pt0[d0-1]; \
 	  (*_PREG) = NEXTOP((*_PREG), xxn); \
 	  GONext(); \
 	} \
@@ -2189,17 +2189,17 @@
 
 #ifdef LOW_LEVEL_TRACER
 #define P_ARG_Y_VV_LOW_LEVEL_TRACER \
-	H[0] = XREG((*_PREG)->u.yxx.x1); \
-	H[1] = XREG((*_PREG)->u.yxx.x2); \
-	H[2] = YREG[(*_PREG)->u.yxx.y]; \
+	HR[0] = XREG((*_PREG)->y_u.yxx.x1); \
+	HR[1] = XREG((*_PREG)->y_u.yxx.x2); \
+	HR[2] = YREG[(*_PREG)->y_u.yxx.y]; \
 	RESET_VARIABLE(HR+2); \
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),HR);
 #endif
 
 #define P_ARG_Y_VV_TEST_D0 \
 	  register CELL d0, d1; \
 	  register CELL *pt0, *pt1; \
-      d0 = XREG((*_PREG)->u.yxx.x1);
+      d0 = XREG((*_PREG)->y_u.yxx.x1);
 
 #define P_ARG_Y_VV_ARG_Y_ARG1_NVAR \
     FAILED = 0; \
@@ -2216,7 +2216,7 @@
 
 #define P_ARG_Y_VV_TEST_D1 \
     if (!FAILED) { \
-      d1 = XREG((*_PREG)->u.yxx.x2);
+      d1 = XREG((*_PREG)->y_u.yxx.x2);
 
 #define P_ARG_Y_VV_ARG_Y_ARG2_NVAR \
       BLOCK = (CELL)P_ARG_Y_VV_ARG_Y_ARG2_NVAR; \
@@ -2231,7 +2231,7 @@
 	  YAAM_FAIL; \
 	} \
 	else { \
-	  pt1 = YREG + (*_PREG)->u.yxx.y; \
+	  pt1 = YREG + (*_PREG)->y_u.yxx.y; \
 	  (*_PREG) = NEXTOP((*_PREG), yxx); \
 	  INITIALIZE_PERMVAR(pt1,pt0[d0]); \
 	  GONext(); \
@@ -2249,7 +2249,7 @@
 	  YAAM_FAIL; \
 	} \
 	else { \
-	  pt1 = YREG + (*_PREG)->u.yxx.y; \
+	  pt1 = YREG + (*_PREG)->y_u.yxx.y; \
 	  (*_PREG) = NEXTOP((*_PREG), yxx); \
 	  INITIALIZE_PERMVAR(pt1,pt0[d0-1]); \
 	  GONext(); \
@@ -2277,27 +2277,27 @@
 #ifdef LOW_LEVEL_TRACER
 #define P_ARG_Y_CV_LOW_LEVEL_TRACER \
 	CELL *Ho = HR; \
-	Term t = MkIntegerTerm((*_PREG)->u.yxn.c); \
-	H[0] =  t; \
-	H[1] = XREG((*_PREG)->u.yxn.xi); \
-	H[2] = YREG[(*_PREG)->u.yxn.y]; \
+	Term t = MkIntegerTerm((*_PREG)->y_u.yxn.c); \
+	HR[0] =  t; \
+	HR[1] = XREG((*_PREG)->y_u.yxn.xi); \
+	HR[2] = YREG[(*_PREG)->y_u.yxn.y]; \
 	RESET_VARIABLE(HR+2); \
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),H); \
-	H = HRo;
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),HR); \
+	HR = Ho;
 #endif
 
 #define P_ARG_Y_CV_TEST_D1 \
 	  register CELL d0, d1; \
 	  register CELL *pt0, *pt1; \
-      d0 = (*_PREG)->u.yxn.c; \
-      d1 = XREG((*_PREG)->u.yxn.xi);
+      d0 = (*_PREG)->y_u.yxn.c; \
+      d1 = XREG((*_PREG)->y_u.yxn.xi);
 
 #define P_ARG_Y_CV_D1APPL_INIT \
 	pt0 = RepAppl(d1); \
 	d1 = *pt0;
 
 #define P_ARG_Y_CV_D1APPL_END \
-	pt1 = YREG + (*_PREG)->u.yxn.y; \
+	pt1 = YREG + (*_PREG)->y_u.yxn.y; \
 	(*_PREG) = NEXTOP((*_PREG), yxn); \
 	INITIALIZE_PERMVAR(pt1,pt0[d0]); \
 	GONext();
@@ -2312,7 +2312,7 @@
 	    setregs();
 
 #define P_ARG_Y_CV_D1PAIR_END \
-	pt1 = YREG + (*_PREG)->u.yxn.y; \
+	pt1 = YREG + (*_PREG)->y_u.yxn.y; \
 	(*_PREG) = NEXTOP((*_PREG), yxn); \
 	INITIALIZE_PERMVAR(pt1,pt0[d0-1]); \
 	GONext();
@@ -2328,18 +2328,18 @@
 #ifdef LOW_LEVEL_TRACER
 #define P_FUNC2S_VV_LOW_LEVEL_TRACER \
 	RESET_VARIABLE(HR); \
-	H[1] = XREG((*_PREG)->u.xxx.x1); \
-	H[2] = XREG((*_PREG)->u.xxx.x2); \
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
+	HR[1] = XREG((*_PREG)->y_u.xxx.x1); \
+	HR[2] = XREG((*_PREG)->y_u.xxx.x2); \
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
 #endif
 
 #define P_FUNC2S_TEST_D0 \
 	  register CELL d0, d1; \
 	  register CELL *pt0, *pt1; \
-      d0 = XREG((*_PREG)->u.xxx.x1);
+      d0 = XREG((*_PREG)->y_u.xxx.x1);
 
 #define P_FUNC2S_VV_TEST_D1 \
-      d1 = XREG((*_PREG)->u.xxx.x2);
+      d1 = XREG((*_PREG)->y_u.xxx.x2);
 
 #define P_FUNC2S_VV_D1INT \
 	d1 = IntegerOfTerm(d1);
@@ -2367,8 +2367,8 @@
 	RESET_VARIABLE(HR); \
 	RESET_VARIABLE(HR+1); \
 	d0 = AbsPair(HR); \
-	H += 2; \
-	XREG((*_PREG)->u.xxx.x) = d0; \
+	HR += 2; \
+	XREG((*_PREG)->y_u.xxx.x) = d0; \
 	(*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), xxx),Osbpp),l); \
 	GONext();
 
@@ -2402,13 +2402,13 @@
 	  pt1++;
 
 #define P_FUNC2S_VV_SECONDIFOK_END \
-	H = pt1; \
-	XREG((*_PREG)->u.xxx.x) = d0; \
+	HR = pt1; \
+	XREG((*_PREG)->y_u.xxx.x) = d0; \
 	(*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), xxx),Osbpp),l); \
 	GONext();
 
 #define P_FUNC2S_VV_THIRDIFOK \
-	XREG((*_PREG)->u.xxx.x) = d0; \
+	XREG((*_PREG)->y_u.xxx.x) = d0; \
 	(*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), xxx),Osbpp),l); \
 	GONext();
 
@@ -2435,16 +2435,16 @@
 #ifdef LOW_LEVEL_TRACER
 #define P_FUNC2S_CV_LOW_LEVEL_TRACER \
 	RESET_VARIABLE(HR); \
-	H[1] = (*_PREG)->u.xxc.c; \
-	H[2] = XREG((*_PREG)->u.xxc.xi); \
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
+	HR[1] = (*_PREG)->y_u.xxc.c; \
+	HR[2] = XREG((*_PREG)->y_u.xxc.xi); \
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
 #endif
 
 #define P_FUNC2S_CV_TEST_D1 \
 	  register CELL d0, d1; \
 	  register CELL *pt0, *pt1; \
-      d0 = (*_PREG)->u.xxc.c; \
-      d1 = XREG((*_PREG)->u.xxc.xi);
+      d0 = (*_PREG)->y_u.xxc.c; \
+      d1 = XREG((*_PREG)->y_u.xxc.xi);
 
 #define P_FUNC2S_CV_D1INT \
 	d1 = IntegerOfTerm(d1);
@@ -2466,8 +2466,8 @@
 	RESET_VARIABLE(HR); \
 	RESET_VARIABLE(HR+1); \
 	d0 = AbsPair(HR); \
-	H += 2; \
-	XREG((*_PREG)->u.xxc.x) = d0; \
+	HR += 2; \
+	XREG((*_PREG)->y_u.xxc.x) = d0; \
 	(*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), xxc),Osbpp),l); \
 	GONext();
 
@@ -2501,13 +2501,13 @@
 	  pt1++;
 
 #define P_FUNC2S_CV_D1GREATER_END \
-	H = pt1; \
-	XREG((*_PREG)->u.xxc.x) = d0; \
+	HR = pt1; \
+	XREG((*_PREG)->y_u.xxc.x) = d0; \
 	(*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), xxc),Osbpp),l); \
 	GONext();
 
 #define P_FUNC2S_CV_D1ISZERO \
-	XREG((*_PREG)->u.xxc.x) = d0; \
+	XREG((*_PREG)->y_u.xxc.x) = d0; \
 	(*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), xxc),Osbpp),l); \
 	GONext();
 
@@ -2529,21 +2529,21 @@
 #define P_FUNC2S_VC_LOW_LEVEL_TRACER \
 	Term ti; \
 	CELL *hi = HR; \
-	ti = MkIntegerTerm((*_PREG)->u.xxn.c); \
+	ti = MkIntegerTerm((*_PREG)->y_u.xxn.c); \
 	RESET_VARIABLE(HR); \
-	H[1] = XREG((*_PREG)->u.xxn.xi); \
-	H[2] = ti; \
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H); \
-	H = hi;
+	HR[1] = XREG((*_PREG)->y_u.xxn.xi); \
+	HR[2] = ti; \
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR); \
+	HR = hi;
 #endif
 
 #define P_FUNC2S_VC_TEST_D0 \
 	  register CELL d0, d1; \
 	  register CELL *pt0, *pt1; \
-      d0 = XREG((*_PREG)->u.xxn.xi);
+      d0 = XREG((*_PREG)->y_u.xxn.xi);
 
 #define P_FUNC2S_VC_FUNC2S_NVAR_VC \
-      d1 = (*_PREG)->u.xxn.c;
+      d1 = (*_PREG)->y_u.xxn.c;
 
 #define P_FUNC2S_VC_D0NOATOMIC \
 	saveregs(); \
@@ -2555,13 +2555,13 @@
 	RESET_VARIABLE(HR); \
 	RESET_VARIABLE(HR+1); \
 	d0 = AbsPair(HR); \
-	H += 2; \
-	XREG((*_PREG)->u.xxn.x) = d0; \
+	HR += 2; \
+	XREG((*_PREG)->y_u.xxn.x) = d0; \
 	(*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), xxn),Osbpp),l); \
 	GONext();
 
 #define P_FUNC2S_VC_D1ISZERO \
-	XREG((*_PREG)->u.xxn.x) = d0; \
+	XREG((*_PREG)->y_u.xxn.x) = d0; \
 	(*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), xxn),Osbpp),l); \
 	GONext();
 
@@ -2596,7 +2596,7 @@
 
 #define P_FUNC2S_VC_END1 \
       HR = pt1; \
-      XREG((*_PREG)->u.xxn.x) = d0; \
+      XREG((*_PREG)->y_u.xxn.x) = d0; \
       (*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), xxn),Osbpp),l); \
       GONext();
 
@@ -2611,18 +2611,18 @@
 #ifdef LOW_LEVEL_TRACER
 #define P_FUNC2S_Y_VV_LOW_LEVEL_TRACER \
 	RESET_VARIABLE(HR); \
-	H[1] = XREG((*_PREG)->u.yxx.x1); \
-	H[2] = XREG((*_PREG)->u.yxx.x2); \
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
+	HR[1] = XREG((*_PREG)->y_u.yxx.x1); \
+	HR[2] = XREG((*_PREG)->y_u.yxx.x2); \
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
 #endif
 
 #define P_FUNC2S_Y_VV_TEST_D0 \
 	  register CELL d0, d1; \
 	  register CELL *pt0, *pt1; \
-      d0 = XREG((*_PREG)->u.yxx.x1);
+      d0 = XREG((*_PREG)->y_u.yxx.x1);
 
 #define P_FUNC2S_Y_VV_TEST_D1 \
-      d1 = XREG((*_PREG)->u.yxx.x2);
+      d1 = XREG((*_PREG)->y_u.yxx.x2);
 
 #define P_FUNC2S_Y_VV_D1INT \
 	d1 = IntegerOfTerm(d1);
@@ -2650,8 +2650,8 @@
 	RESET_VARIABLE(HR); \
 	RESET_VARIABLE(HR+1); \
 	d0 = AbsPair(HR); \
-	H += 2; \
-	pt1 = YREG + (*_PREG)->u.yxx.y; \
+	HR += 2; \
+	pt1 = YREG + (*_PREG)->y_u.yxx.y; \
 	(*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), yxx),Osbpp),l); \
 	INITIALIZE_PERMVAR(pt1,d0); \
 	GONext();
@@ -2686,14 +2686,14 @@
 	  pt1++;
 
 #define P_FUNC2S_Y_VV_D1GREATER_END \
-	H = pt1; \
-	pt1 = YREG + (*_PREG)->u.yxx.y; \
+	HR = pt1; \
+	pt1 = YREG + (*_PREG)->y_u.yxx.y; \
 	(*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), yxx),Osbpp),l); \
 	INITIALIZE_PERMVAR(pt1,d0); \
 	GONext();
 
 #define P_FUNC2S_Y_VV_D1ISZERO \
-	pt1 = YREG + (*_PREG)->u.yxx.y; \
+	pt1 = YREG + (*_PREG)->y_u.yxx.y; \
 	(*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), yxx),Osbpp),l); \
 	INITIALIZE_PERMVAR(pt1,d0); \
 	GONext();
@@ -2721,16 +2721,16 @@
 #ifdef LOW_LEVEL_TRACER
 #define P_FUNC2S_Y_CV_LOW_LEVEL_TRACER \
 	RESET_VARIABLE(HR); \
-	H[1] = (*_PREG)->u.yxn.c; \
-	H[2] = XREG((*_PREG)->u.yxn.xi); \
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
+	HR[1] = (*_PREG)->y_u.yxn.c; \
+	HR[2] = XREG((*_PREG)->y_u.yxn.xi); \
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
 #endif
 
 #define P_FUNC2S_Y_CV_TEST_D1 \
 	  register CELL d0, d1; \
 	  register CELL *pt0, *pt1; \
-      d0 = (*_PREG)->u.yxn.c; \
-      d1 = XREG((*_PREG)->u.yxn.xi);
+      d0 = (*_PREG)->y_u.yxn.c; \
+      d1 = XREG((*_PREG)->y_u.yxn.xi);
 
 #define P_FUNC2S_Y_CV_D1INT \
 	d1 = IntegerOfTerm(d1);
@@ -2752,8 +2752,8 @@
 	RESET_VARIABLE(HR); \
 	RESET_VARIABLE(HR+1); \
 	d0 = AbsPair(HR); \
-	H += 2; \
-	pt1 = YREG + (*_PREG)->u.yxn.y; \
+	HR += 2; \
+	pt1 = YREG + (*_PREG)->y_u.yxn.y; \
 	(*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), yxn),Osbpp),l); \
 	INITIALIZE_PERMVAR(pt1,d0); \
 	GONext();
@@ -2788,14 +2788,14 @@
 	  pt1++;
 
 #define P_FUNC2S_Y_CV_D1GREATER_END \
-	H = pt1; \
-	pt1 = YREG + (*_PREG)->u.yxn.y; \
+	HR = pt1; \
+	pt1 = YREG + (*_PREG)->y_u.yxn.y; \
 	(*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), yxn),Osbpp),l); \
 	INITIALIZE_PERMVAR(pt1,d0); \
 	GONext();
 
 #define P_FUNC2S_Y_CV_D1ISZERO \
-	pt1 = YREG + (*_PREG)->u.yxn.y; \
+	pt1 = YREG + (*_PREG)->y_u.yxn.y; \
 	(*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), yxn),Osbpp),l); \
 	INITIALIZE_PERMVAR(pt1,d0); \
 	GONext();
@@ -2818,21 +2818,21 @@
 #define P_FUNC2S_Y_VC_LOW_LEVEL_TRACER \
 	Term ti; \
 	CELL *hi = HR; \
-	ti = MkIntegerTerm((Int)((*_PREG)->u.yxn.c)); \
+	ti = MkIntegerTerm((Int)((*_PREG)->y_u.yxn.c)); \
 	RESET_VARIABLE(HR); \
-	H[1] = XREG((*_PREG)->u.yxn.xi); \
-	H[2] = ti; \
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H); \
-	H = hi;
+	HR[1] = XREG((*_PREG)->y_u.yxn.xi); \
+	HR[2] = ti; \
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR); \
+	HR = hi;
 #endif
 
 #define P_FUNC2S_Y_VC_TEST_D0 \
 	  register CELL d0, d1; \
 	  register CELL *pt0, *pt1; \
-      d0 = XREG((*_PREG)->u.yxn.xi);
+      d0 = XREG((*_PREG)->y_u.yxn.xi);
 
 #define P_FUNC2S_Y_VC_FUNC2S_Y_NVAR_VC \
-      d1 = (*_PREG)->u.yxn.c;
+      d1 = (*_PREG)->y_u.yxn.c;
 	  
 #define P_FUNC2S_Y_VC_D0NOATOMIC \
 	saveregs(); \
@@ -2844,14 +2844,14 @@
 	RESET_VARIABLE(HR); \
 	RESET_VARIABLE(HR+1); \
 	d0 = AbsPair(HR); \
-	H += 2; \
-	pt1 = YREG + (*_PREG)->u.yxn.y; \
+	HR += 2; \
+	pt1 = YREG + (*_PREG)->y_u.yxn.y; \
 	(*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), yxn),Osbpp),l); \
 	INITIALIZE_PERMVAR(pt1,d0); \
 	GONext();
 
 #define P_FUNC2S_Y_VC_D1ISZERO \
-	pt1 = YREG + (*_PREG)->u.yxn.y; \
+	pt1 = YREG + (*_PREG)->y_u.yxn.y; \
 	(*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), yxn),Osbpp),l); \
 	INITIALIZE_PERMVAR(pt1,d0); \
 	GONext();
@@ -2893,7 +2893,7 @@
 
 #define P_FUNC2S_Y_VC_END1 \
       HR = pt1; \
-      pt1 = YREG + (*_PREG)->u.yxn.y; \
+      pt1 = YREG + (*_PREG)->y_u.yxn.y; \
       (*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), yxn),Osbpp),l); \
       INITIALIZE_PERMVAR(pt1,d0); \
       GONext();
@@ -2908,42 +2908,42 @@
 
 #ifdef LOW_LEVEL_TRACER
 #define P_FUNC2F_XX_LOW_LEVEL_TRACER \
-	H[0] = XREG((*_PREG)->u.xxx.x); \
+	HR[0] = XREG((*_PREG)->y_u.xxx.x); \
 	RESET_VARIABLE(HR+1); \
 	RESET_VARIABLE(HR+2); \
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
 #endif
 
 #define P_FUNC2F_XX_TEST_D0 \
 	  register CELL d0; \
 	  register CELL* pt1; \
-      d0 = XREG((*_PREG)->u.xxx.x);
+      d0 = XREG((*_PREG)->y_u.xxx.x);
 
 #define P_FUNC2F_XX_D0APPL \
 	Functor d1 = FunctorOfTerm(d0);
 
 #define P_FUNC2F_XX_D0APPL_D1EXTFUNC \
-	  XREG((*_PREG)->u.xxx.x1) = d0; \
-	  XREG((*_PREG)->u.xxx.x2) = MkIntTerm(0); \
+	  XREG((*_PREG)->y_u.xxx.x1) = d0; \
+	  XREG((*_PREG)->y_u.xxx.x2) = MkIntTerm(0); \
 	  (*_PREG) = NEXTOP((*_PREG), xxx); \
 	  GONext();
 
 #define P_FUNC2F_XX_D0APPL_END \
-	XREG((*_PREG)->u.xxx.x1) = MkAtomTerm(NameOfFunctor(d1)); \
-	XREG((*_PREG)->u.xxx.x2) = MkIntegerTerm(ArityOfFunctor(d1)); \
+	XREG((*_PREG)->y_u.xxx.x1) = MkAtomTerm(NameOfFunctor(d1)); \
+	XREG((*_PREG)->y_u.xxx.x2) = MkIntegerTerm(ArityOfFunctor(d1)); \
 	(*_PREG) = NEXTOP((*_PREG), xxx); \
 	GONext();
 
 
 #define P_FUNC2F_XX_D0PAIR \
-	XREG((*_PREG)->u.xxx.x1) = TermDot; \
-	XREG((*_PREG)->u.xxx.x2) = MkIntTerm(2); \
+	XREG((*_PREG)->y_u.xxx.x1) = TermDot; \
+	XREG((*_PREG)->y_u.xxx.x2) = MkIntTerm(2); \
 	(*_PREG) = NEXTOP((*_PREG), xxx); \
 	GONext();
 
 #define P_FUNC2F_XX_D0NOCOMPOUND \
-	XREG((*_PREG)->u.xxx.x1) = d0; \
-	XREG((*_PREG)->u.xxx.x2) = MkIntTerm(0); \
+	XREG((*_PREG)->y_u.xxx.x1) = d0; \
+	XREG((*_PREG)->y_u.xxx.x2) = MkIntTerm(0); \
 	(*_PREG) = NEXTOP((*_PREG), xxx); \
 	GONext();
 
@@ -2957,43 +2957,43 @@
 
 #ifdef LOW_LEVEL_TRACER
 #define P_FUNC2F_XY_LOW_LEVEL_TRACER \
-	H[0] = XREG((*_PREG)->u.xxy.x); \
+	HR[0] = XREG((*_PREG)->y_u.xxy.x); \
 	RESET_VARIABLE(HR+1); \
 	RESET_VARIABLE(HR+2); \
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
 #endif
 
 #define P_FUNC2F_XY_TEST_D0 \
 	  register CELL d0; \
 	  register CELL *pt1; \
-      d0 = XREG((*_PREG)->u.xxy.x);
+      d0 = XREG((*_PREG)->y_u.xxy.x);
 
 #define P_FUNC2F_XY_D0APPL \
 	Functor d1 = FunctorOfTerm(d0); \
-	CELL *pt0 = YREG+(*_PREG)->u.xxy.y2;
+	CELL *pt0 = YREG+(*_PREG)->y_u.xxy.y2;
 
 #define P_FUNC2F_XY_D0APPL_D1EXTFUNC \
-	  XREG((*_PREG)->u.xxy.x1) = d0; \
+	  XREG((*_PREG)->y_u.xxy.x1) = d0; \
 	  (*_PREG) = NEXTOP((*_PREG), xxy); \
 	  INITIALIZE_PERMVAR(pt0, MkIntTerm(0)); \
 	  GONext();
 
 #define P_FUNC2F_XY_D0APPL_END \
-	XREG((*_PREG)->u.xxy.x1) = MkAtomTerm(NameOfFunctor(d1)); \
+	XREG((*_PREG)->y_u.xxy.x1) = MkAtomTerm(NameOfFunctor(d1)); \
 	(*_PREG) = NEXTOP((*_PREG), xxy); \
 	INITIALIZE_PERMVAR(pt0, MkIntegerTerm(ArityOfFunctor(d1))); \
 	GONext();
 
 #define P_FUNC2F_XY_D0PAIR \
-	CELL *pt0 = YREG+(*_PREG)->u.xxy.y2; \
-	XREG((*_PREG)->u.xxy.x1) = TermDot; \
+	CELL *pt0 = YREG+(*_PREG)->y_u.xxy.y2; \
+	XREG((*_PREG)->y_u.xxy.x1) = TermDot; \
 	(*_PREG) = NEXTOP((*_PREG), xxy); \
 	INITIALIZE_PERMVAR(pt0, MkIntTerm(2)); \
 	GONext();
 
 #define P_FUNC2F_XY_D0NOCOMPOUND \
-	CELL *pt0 = YREG+(*_PREG)->u.xxy.y2; \
-	XREG((*_PREG)->u.xxy.x1) = d0; \
+	CELL *pt0 = YREG+(*_PREG)->y_u.xxy.y2; \
+	XREG((*_PREG)->y_u.xxy.x1) = d0; \
 	(*_PREG) = NEXTOP((*_PREG), xxy); \
 	INITIALIZE_PERMVAR(pt0, MkIntTerm(0)); \
 	GONext();
@@ -3008,43 +3008,43 @@
 
 #ifdef LOW_LEVEL_TRACER
 #define P_FUNC2F_YX_LOW_LEVEL_TRACER \
-	H[0] = XREG((*_PREG)->u.yxx.x2); \
+	HR[0] = XREG((*_PREG)->y_u.yxx.x2); \
 	RESET_VARIABLE(HR+1); \
 	RESET_VARIABLE(HR+2); \
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
 #endif
 
 #define P_FUNC2F_YX_TEST_D0 \
 	  register CELL d0; \
 	  register CELL *pt1; \
-      d0 = XREG((*_PREG)->u.yxx.x2);
+      d0 = XREG((*_PREG)->y_u.yxx.x2);
 
 #define P_FUNC2F_YX_D0APPL \
 	Functor d1 = FunctorOfTerm(d0); \
-	CELL *pt0 = YREG+(*_PREG)->u.yxx.y;
+	CELL *pt0 = YREG+(*_PREG)->y_u.yxx.y;
 
 #define P_FUNC2F_YX_D0APPL_D1EXTFUNC \
-	  XREG((*_PREG)->u.yxx.x1) = MkIntTerm(0); \
+	  XREG((*_PREG)->y_u.yxx.x1) = MkIntTerm(0); \
 	  (*_PREG) = NEXTOP((*_PREG), yxx); \
 	  INITIALIZE_PERMVAR(pt0, d0); \
 	  GONext();
 
 #define P_FUNC2F_YX_D0APPL_END \
-	XREG((*_PREG)->u.yxx.x1) = MkIntegerTerm(ArityOfFunctor(d1)); \
+	XREG((*_PREG)->y_u.yxx.x1) = MkIntegerTerm(ArityOfFunctor(d1)); \
 	(*_PREG) = NEXTOP((*_PREG), yxx); \
 	INITIALIZE_PERMVAR(pt0,  MkAtomTerm(NameOfFunctor(d1))); \
 	GONext();
 
 #define P_FUNC2F_YX_D0PAIR \
-	CELL *pt0 = YREG+(*_PREG)->u.yxx.y; \
-	XREG((*_PREG)->u.yxx.x1) = MkIntTerm(2); \
+	CELL *pt0 = YREG+(*_PREG)->y_u.yxx.y; \
+	XREG((*_PREG)->y_u.yxx.x1) = MkIntTerm(2); \
 	(*_PREG) = NEXTOP((*_PREG), yxx); \
 	INITIALIZE_PERMVAR(pt0 ,TermDot); \
 	GONext();
 	  
 #define P_FUNC2F_YX_D0NOCOMPOUND \
-	CELL *pt0 = YREG+(*_PREG)->u.yxx.y; \
-	XREG((*_PREG)->u.yxx.x1) = MkIntTerm(0); \
+	CELL *pt0 = YREG+(*_PREG)->y_u.yxx.y; \
+	XREG((*_PREG)->y_u.yxx.x1) = MkIntTerm(0); \
 	(*_PREG) = NEXTOP((*_PREG), yxx); \
 	INITIALIZE_PERMVAR(pt0, d0); \
 	GONext();
@@ -3059,20 +3059,20 @@
 
 #ifdef LOW_LEVEL_TRACER
 #define P_FUNC2F_YY_LOW_LEVEL_TRACER \
-	H[0] = XREG((*_PREG)->u.yyx.x); \
+	HR[0] = XREG((*_PREG)->y_u.yyx.x); \
 	RESET_VARIABLE(HR+1); \
 	RESET_VARIABLE(HR+2); \
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
 #endif
 
 #define P_FUNC2F_YY_TEST_D0 \
 	  register CELL d0; \
-      d0 = XREG((*_PREG)->u.yyx.x);
+      d0 = XREG((*_PREG)->y_u.yyx.x);
 
 #define P_FUNC2F_YY_D0APPL \
 	Functor d1 = FunctorOfTerm(d0); \
-	CELL *pt0 = YREG+(*_PREG)->u.yyx.y1; \
-	CELL *pt1 = YREG+(*_PREG)->u.yyx.y2;
+	CELL *pt0 = YREG+(*_PREG)->y_u.yyx.y1; \
+	CELL *pt1 = YREG+(*_PREG)->y_u.yyx.y2;
 
 #define P_FUNC2F_YY_D0APPL_D1EXTFUNC \
 	  (*_PREG) = NEXTOP((*_PREG), yyx); \
@@ -3087,16 +3087,16 @@
 	GONext();
 
 #define P_FUNC2F_YY_D0PAIR \
-	CELL *pt0 = YREG+(*_PREG)->u.yyx.y1; \
-	CELL *pt1 = YREG+(*_PREG)->u.yyx.y2; \
+	CELL *pt0 = YREG+(*_PREG)->y_u.yyx.y1; \
+	CELL *pt1 = YREG+(*_PREG)->y_u.yyx.y2; \
 	(*_PREG) = NEXTOP((*_PREG), yyx); \
 	INITIALIZE_PERMVAR(pt0, TermDot); \
 	INITIALIZE_PERMVAR(pt1, MkIntTerm(2)); \
 	GONext();
 
 #define P_FUNC2F_YY_D0NOCOMPOUND \
-	CELL *pt0 = YREG+(*_PREG)->u.yyx.y1; \
-	CELL *pt1 = YREG+(*_PREG)->u.yyx.y2; \
+	CELL *pt0 = YREG+(*_PREG)->y_u.yyx.y1; \
+	CELL *pt1 = YREG+(*_PREG)->y_u.yyx.y2; \
 	(*_PREG) = NEXTOP((*_PREG), yyx); \
 	INITIALIZE_PERMVAR(pt0, d0); \
 	INITIALIZE_PERMVAR(pt1, MkIntTerm(0)); \

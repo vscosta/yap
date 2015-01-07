@@ -13,19 +13,19 @@
 extern Environment ExpEnv;
 
 #if YAP_JIT
-Int           STD_PROTO(Get_N_Cores,(void));
-X_API Int     STD_PROTO(Init_Analysis_Struc,(void));
-X_API Int     STD_PROTO(Init_Transform_Struc,(void));
-X_API Int     STD_PROTO(Init_Codegen_Struc,(void));
-X_API Int     STD_PROTO(Init_Config_Struc,(void));
+Int           Get_N_Cores(void);
+X_API Int     Init_Analysis_Struc(void);
+X_API Int     Init_Transform_Struc(void);
+X_API Int     Init_Codegen_Struc(void);
+X_API Int     Init_Config_Struc(void);
 #if YAP_STAT_PREDS
-X_API Int     STD_PROTO(Init_Stats_Struc, (void));
+X_API Int     Init_Stats_Struc(void);
 #endif
 #endif /* YAP_JIT */
 #if YAP_DBG_PREDS
-X_API Int     STD_PROTO(Init_Debug_Struc,(void));
+X_API Int     Init_Debug_Struc(void);
 #endif
-X_API Int     STD_PROTO(YAP_Init_ExpEnv,(void));
+X_API Int     YAP_Init_ExpEnv(void);
 
 #if YAP_JIT
 Int
@@ -39,11 +39,11 @@ Get_N_Cores() {
     size_t len = 4;
     uint32_t count;
 
-    nm[0] = CTL_HW; nm[1] = HRW_AVAILCPU;
+    nm[0] = CTL_HW; nm[1] = HW_AVAILCPU;
     sysctl(nm, 2, &count, &len, NULL, 0);
 
     if(count < 1) {
-        nm[1] = HRW_NCPU;
+        nm[1] = HW_NCPU;
         sysctl(nm, 2, &count, &len, NULL, 0);
         if(count < 1) { count = 1; }
     }
@@ -119,7 +119,7 @@ Init_Config_Struc()
     ExpEnv.config_struc.frequency_type = COUNTER;
     ExpEnv.config_struc.frequency_bound = 1024.0;
     ExpEnv.config_struc.profiling_startp = 0.72;
-    ExpEnv.config_struc.mainclause_ty = HROT_AND_CALLEE;
+    ExpEnv.config_struc.mainclause_ty = HOT_AND_CALLEE;
     ExpEnv.config_struc.torecompile = 1;
   }
   else {

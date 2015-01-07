@@ -1,6 +1,6 @@
 #if (defined(YAPOR_SBA) && defined(YAPOR)) || defined(TABLING)
 #define check_stack_on_either \
-  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,H))) < CreepFlag), 0)  ) return external_labels[4];
+  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,HR))) < CreepFlag), 0)  ) return external_labels[4];
 #else
 #define check_stack_on_either \
   if  (__builtin_expect(((Int)(Unsigned(ENV_YREG) - Unsigned(HR)) < CreepFlag ), 0) ) return external_labels[4];
@@ -13,7 +13,7 @@
 	GONext();
 
 #define LOCK_LU_PARALLEL \
-      PP = (*_PREG)->u.p.p; \
+      PP = (*_PREG)->y_u.p.p; \
       PELOCK(3, PP);
 #endif
 
@@ -37,7 +37,7 @@
 
 #if MULTIPLE_STACKS
 #define ALLOC_FOR_LOGICAL_PRED_MULTIPLE_STACKS \
-	LogUpdClause *cl = (*_PREG)->u.L.ClBase;
+	LogUpdClause *cl = (*_PREG)->y_u.L.ClBase;
 #if PARALLEL_YAP
 #define ALLOC_FOR_LOGICAL_PRED_MULTIPLE_STACKS_PARALLEL \
 	PredEntry *ap = cl->ClPred;
@@ -49,7 +49,7 @@
 	PP = NULL;
 #else
 #define ALLOC_FOR_LOGICAL_PRED_NOMULTIPLE_STACKS_INIT \
-	LogUpdClause *cl = (LogUpdClause *)(*_PREG)->u.L.ClBase;
+	LogUpdClause *cl = (LogUpdClause *)(*_PREG)->y_u.L.ClBase;
 
 #define ALLOC_FOR_LOGICAL_PRED_NOMULTIPLE_STACKS_IFOK \
 	  cl->ClFlags |= InUseMask; \
@@ -539,8 +539,8 @@
       JMPNext();
 
 #define ENSURE_SPACE_INSTINIT \
-	Int sz =  (*_PREG)->u.Osbpa.i; \
-	UInt arity = (*_PREG)->u.Osbpa.p->ArityOfPE;
+	Int sz =  (*_PREG)->y_u.Osbpa.i; \
+	UInt arity = (*_PREG)->y_u.Osbpa.p->ArityOfPE;
 
 #define ENSURE_SPACE_FIRSTIFOK_INIT \
 	  YENV[E_CP] = (CELL) (*_CPREG); \
@@ -552,7 +552,7 @@
 #endif
 
 #define ENSURE_SPACE_FIRSTIFOK_END \
-	  SET_ASP(YREG, (*_PREG)->u.Osbpa.s); \
+	  SET_ASP(YREG, (*_PREG)->y_u.Osbpa.s); \
 	  (*_PREG) = NEXTOP((*_PREG),Osbpa); \
 	  saveregs();
 
@@ -571,7 +571,7 @@
       JMPNext();
 
 #define _jump_instinit \
-      (*_PREG) = (*_PREG)->u.l.l; \
+      (*_PREG) = (*_PREG)->y_u.l.l; \
       BACK();
 
 #define MOVE_BACK_INSTINIT \
@@ -596,7 +596,7 @@
       ENDCACHE_Y_AS_ENV(); \
       either_notest: \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
 	choiceptr top_b = PROTECT_FROZEN_B(B); \
@@ -604,7 +604,7 @@
 	  pt1 = top_b; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SCH_set_load(pt1); \
       SET_BB(pt1); \
@@ -622,7 +622,7 @@
       ENDCACHE_Y_AS_ENV(); \
       either_notest: \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
 	choiceptr top_b = PROTECT_FROZEN_B(B); \
@@ -630,7 +630,7 @@
 	  pt1 = top_b; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SCH_set_load(pt1); \
       SET_BB(pt1); \
@@ -649,14 +649,14 @@
       ENDCACHE_Y_AS_ENV(); \
       either_notest: \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
       if (pt1 > B) \
 	pt1 = B; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SCH_set_load(pt1); \
       SET_BB(pt1); \
@@ -674,7 +674,7 @@
       ENDCACHE_Y_AS_ENV(); \
       either_notest: \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
 	choiceptr top_b = PROTECT_FROZEN_B(B); \
@@ -682,7 +682,7 @@
 	  pt1 = top_b; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SCH_set_load(pt1); \
       SET_BB(pt1); \
@@ -697,7 +697,7 @@
       ENDCACHE_Y_AS_ENV(); \
       either_notest: \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
 	choiceptr top_b = PROTECT_FROZEN_B(B); \
@@ -705,7 +705,7 @@
 	  pt1 = top_b; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SCH_set_load(pt1); \
       SET_BB(pt1); \
@@ -721,14 +721,14 @@
       ENDCACHE_Y_AS_ENV(); \
       either_notest: \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
       if (pt1 > B) \
 	pt1 = B; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SCH_set_load(pt1); \
       SET_BB(pt1); \
@@ -747,7 +747,7 @@
 	low_level_trace(try_or, (PredEntry *)(*_PREG), NULL); \
       } \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
 	choiceptr top_b = PROTECT_FROZEN_B(B); \
@@ -755,7 +755,7 @@
 	  pt1 = top_b; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SCH_set_load(pt1); \
       SET_BB(pt1); \
@@ -769,7 +769,7 @@
 	low_level_trace(try_or, (PredEntry *)(*_PREG), NULL); \
       } \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
 	choiceptr top_b = PROTECT_FROZEN_B(B); \
@@ -777,7 +777,7 @@
 	  pt1 = top_b; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SCH_set_load(pt1); \
       SET_BB(pt1); \
@@ -792,14 +792,14 @@
 	low_level_trace(try_or, (PredEntry *)(*_PREG), NULL); \
       } \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
       if (pt1 > B) \
 	pt1 = B; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SCH_set_load(pt1); \
       SET_BB(pt1); \
@@ -813,7 +813,7 @@
 #ifdef YAPOR_SBA
 #define _either_instinit \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
 	choiceptr top_b = PROTECT_FROZEN_B(B); \
@@ -821,7 +821,7 @@
 	  pt1 = top_b; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SCH_set_load(pt1); \
       SET_BB(pt1); \
@@ -832,7 +832,7 @@
 #else /* YAPOR_SBA */
 #define _either_instinit \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
 	choiceptr top_b = PROTECT_FROZEN_B(B); \
@@ -840,7 +840,7 @@
 	  pt1 = top_b; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SCH_set_load(pt1); \
       SET_BB(pt1); \
@@ -852,14 +852,14 @@
 #else /* FROZEN_STACKS */
 #define _either_instinit \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
       if (pt1 > B) \
 	pt1 = B; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SCH_set_load(pt1); \
       SET_BB(pt1); \
@@ -884,7 +884,7 @@
       ENDCACHE_Y_AS_ENV(); \
       either_notest: \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
 	choiceptr top_b = PROTECT_FROZEN_B(B); \
@@ -892,7 +892,7 @@
 	  pt1 = top_b; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SET_BB(pt1); \
       ENDCHO(pt1); \
@@ -909,7 +909,7 @@
       ENDCACHE_Y_AS_ENV(); \
       either_notest: \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
 	choiceptr top_b = PROTECT_FROZEN_B(B); \
@@ -917,7 +917,7 @@
 	  pt1 = top_b; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SET_BB(pt1); \
       ENDCHO(pt1); \
@@ -935,14 +935,14 @@
       ENDCACHE_Y_AS_ENV(); \
       either_notest: \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
       if (pt1 > B) \
 	pt1 = B; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SET_BB(pt1); \
       ENDCHO(pt1); \
@@ -959,7 +959,7 @@
       ENDCACHE_Y_AS_ENV(); \
       either_notest: \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
 	choiceptr top_b = PROTECT_FROZEN_B(B); \
@@ -967,7 +967,7 @@
 	  pt1 = top_b; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SET_BB(pt1); \
       ENDCHO(pt1); \
@@ -981,7 +981,7 @@
       ENDCACHE_Y_AS_ENV(); \
       either_notest: \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
 	choiceptr top_b = PROTECT_FROZEN_B(B); \
@@ -989,7 +989,7 @@
 	  pt1 = top_b; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SET_BB(pt1); \
       ENDCHO(pt1); \
@@ -1004,14 +1004,14 @@
       ENDCACHE_Y_AS_ENV(); \
       either_notest: \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
       if (pt1 > B) \
 	pt1 = B; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SET_BB(pt1); \
       ENDCHO(pt1); \
@@ -1029,7 +1029,7 @@
 	low_level_trace(try_or, (PredEntry *)(*_PREG), NULL); \
       } \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
 	choiceptr top_b = PROTECT_FROZEN_B(B); \
@@ -1037,7 +1037,7 @@
 	  pt1 = top_b; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SET_BB(pt1); \
       ENDCHO(pt1); \
@@ -1050,7 +1050,7 @@
 	low_level_trace(try_or, (PredEntry *)(*_PREG), NULL); \
       } \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
 	choiceptr top_b = PROTECT_FROZEN_B(B); \
@@ -1058,7 +1058,7 @@
 	  pt1 = top_b; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SET_BB(pt1); \
       ENDCHO(pt1); \
@@ -1072,14 +1072,14 @@
 	low_level_trace(try_or, (PredEntry *)(*_PREG), NULL); \
       } \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
       if (pt1 > B) \
 	pt1 = B; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SET_BB(pt1); \
       ENDCHO(pt1); \
@@ -1092,7 +1092,7 @@
 #ifdef YAPOR_SBA
 #define _either_instinit \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
 	choiceptr top_b = PROTECT_FROZEN_B(B); \
@@ -1100,7 +1100,7 @@
 	  pt1 = top_b; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SET_BB(pt1); \
       ENDCHO(pt1); \
@@ -1110,7 +1110,7 @@
 #else /* YAPOR_SBA */
 #define _either_instinit \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
 	choiceptr top_b = PROTECT_FROZEN_B(B); \
@@ -1118,7 +1118,7 @@
 	  pt1 = top_b; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SET_BB(pt1); \
       ENDCHO(pt1); \
@@ -1129,14 +1129,14 @@
 #else /* FROZEN_STACKS */
 #define _either_instinit \
       BEGD(d0); \
-      d0 = (*_PREG)->u.Osblp.s; \
+      d0 = (*_PREG)->y_u.Osblp.s; \
       BEGCHO(pt1); \
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0); \
       if (pt1 > B) \
 	pt1 = B; \
       pt1 = (choiceptr)(((CELL *) pt1)-1); \
       *(CELL **) pt1 = YREG; \
-      store_yaam_regs_for_either((*_PREG)->u.Osblp.l, (*_PREG)); \
+      store_yaam_regs_for_either((*_PREG)->y_u.Osblp.l, (*_PREG)); \
       (*_SREG) = (CELL *) (B = pt1); \
       SET_BB(pt1); \
       ENDCHO(pt1); \
@@ -1149,7 +1149,7 @@
 #endif /* YAPOR */
 
 #define OR_ELSE_INSTINIT \
-      HR = HRBREG = PROTECT_FROZEN_H(B); \
+      HR = HBREG = PROTECT_FROZEN_H(B); \
       ENV = B->cp_env; \
       B->cp_cp = (*_PREG);
 	  
@@ -1163,11 +1163,11 @@
 	  
 #ifdef YAPOR
 #define OR_ELSE_YAPOR \
-	SCH_new_alternative((*_PREG), (*_PREG)->u.Osblp.l);
+	SCH_new_alternative((*_PREG), (*_PREG)->y_u.Osblp.l);
 #endif
 
 #define OR_ELSE_END \
-      B->cp_ap = (*_PREG)->u.Osblp.l; \
+      B->cp_ap = (*_PREG)->y_u.Osblp.l; \
       (*_PREG) = NEXTOP((*_PREG), Osblp); \
       YREG = (CELL *) B->cp_a1; \
       GONext();
@@ -1178,7 +1178,7 @@
 	  
 #ifdef YAPOR
 #define OR_LAST_IFOK_INIT \
-	H = HRBREG = PROTECT_FROZEN_H(pt0); \
+	HR = HBREG = PROTECT_FROZEN_H(pt0); \
 	YREG = (CELL *) pt0->cp_a1; \
 	ENV = pt0->cp_env;
 	
@@ -1193,7 +1193,7 @@
 
 #define OR_LAST_NOIF_INIT \
 	B = pt0->cp_b; \
-	H = PROTECT_FROZEN_H(pt0); \
+	HR = PROTECT_FROZEN_H(pt0); \
 	YREG = (CELL *) pt0->cp_a1; \
 	ENV = pt0->cp_env;
 	
@@ -1346,7 +1346,7 @@
 	JMPNext();
 
 #define EXPAND_CLAUSES_INSTINIT \
-	PredEntry *pe = (*_PREG)->u.sssllp.p; \
+	PredEntry *pe = (*_PREG)->y_u.sssllp.p; \
 	yamop *pt0; \
 	SET_ASP(YREG, E_CB*sizeof(CELL));
 	
@@ -1400,7 +1400,7 @@
 	  } \
 	  else { \
 	    HR[d0 + 2] = AbsAppl(HR); \
-	    *H = (CELL) pe->FunctorOfPred; \
+	    *HR = (CELL) pe->FunctorOfPred; \
 	    HR++; \
 	    pt1 = XREGS + 1; \
 	    for (; d0 > 0; --d0) { \
@@ -1412,14 +1412,14 @@
 		      (pt0) = (CELL *)(d1); \
               (d1) = *(CELL *)(d1); \
 			  if(!IsVarTerm(d1)) { \
-			    *H++ = d1; \
+			    *HR++ = d1; \
 			    setHwithd1 = 1; \
 			    break; \
 			  } \
 		    } \
 		    if (setHwithd1) { continue; } \
 		    if (pt0 <= HR) { \
-	          *H++ = (CELL)pt0; \
+	          *HR++ = (CELL)pt0; \
 	        } else { \
 	          d1 = Unsigned(HR); \
 	          RESET_VARIABLE(HR); \
@@ -1428,7 +1428,7 @@
 	        } \
 		  } \
 		  else { \
-	        *H++ = d1; \
+	        *HR++ = d1; \
 		  } \
 	    } \
 	  } \
@@ -1463,7 +1463,7 @@
 	  } \
 	  else { \
 	    HR[d0 + 2] = AbsAppl(HR); \
-	    *H = (CELL) pe->FunctorOfPred; \
+	    *HR = (CELL) pe->FunctorOfPred; \
 	    HR++; \
 	    pt1 = XREGS + 1; \
 	    for (; d0 > 0; --d0) { \
@@ -1475,14 +1475,14 @@
 		      (pt0) = (CELL *)(d1); \
               (d1) = *(CELL *)(d1); \
 			  if(!IsVarTerm(d1)) { \
-			    *H++ = d1; \
+			    *HR++ = d1; \
 			    setHwithd1 = 1; \
 			    break; \
 			  } \
 		    } \
 		    if (setHwithd1) { continue; } \
 		    if (pt0 <= HR) { \
-	          *H++ = (CELL)pt0; \
+	          *HR++ = (CELL)pt0; \
 	        } else { \
 	          d1 = Unsigned(HR); \
 	          RESET_VARIABLE(HR); \
@@ -1491,7 +1491,7 @@
 	        } \
 		  } \
 		  else { \
-	        *H++ = d1; \
+	        *HR++ = d1; \
 		  } \
 	    } \
 	  } \
@@ -1525,7 +1525,7 @@
 	  } \
 	  else { \
 	    HR[d0 + 2] = AbsAppl(HR); \
-	    *H = (CELL) pe->FunctorOfPred; \
+	    *HR = (CELL) pe->FunctorOfPred; \
 	    HR++; \
 	    pt1 = XREGS + 1; \
 	    for (; d0 > 0; --d0) { \
@@ -1537,14 +1537,14 @@
 		      (pt0) = (CELL *)(d1); \
               (d1) = *(CELL *)(d1); \
 			  if(!IsVarTerm(d1)) { \
-			    *H++ = d1; \
+			    *HR++ = d1; \
 			    setHwithd1 = 1; \
 			    break; \
 			  } \
 		    } \
 		    if (setHwithd1) { continue; } \
 		    if (pt0 <= HR) { \
-	          *H++ = (CELL)pt0; \
+	          *HR++ = (CELL)pt0; \
 	        } else { \
 	          d1 = Unsigned(HR); \
 	          RESET_VARIABLE(HR); \
@@ -1553,7 +1553,7 @@
 	        } \
 		  } \
 		  else { \
-	        *H++ = d1; \
+	        *HR++ = d1; \
 		  } \
 	    } \
 	  } \
@@ -1588,7 +1588,7 @@
 	  } \
 	  else { \
 	    HR[d0 + 2] = AbsAppl(HR); \
-	    *H = (CELL) pe->FunctorOfPred; \
+	    *HR = (CELL) pe->FunctorOfPred; \
 	    HR++; \
 	    pt1 = XREGS + 1; \
 	    for (; d0 > 0; --d0) { \
@@ -1600,14 +1600,14 @@
 		      (pt0) = (CELL *)(d1); \
               (d1) = *(CELL *)(d1); \
 			  if(!IsVarTerm(d1)) { \
-			    *H++ = d1; \
+			    *HR++ = d1; \
 			    setHwithd1 = 1; \
 			    break; \
 			  } \
 		    } \
 		    if (setHwithd1) { continue; } \
 		    if (pt0 <= HR) { \
-	          *H++ = (CELL)pt0; \
+	          *HR++ = (CELL)pt0; \
 	        } else { \
 	          d1 = Unsigned(HR); \
 	          RESET_VARIABLE(HR); \
@@ -1616,7 +1616,7 @@
 	        } \
 		  } \
 		  else { \
-	        *H++ = d1; \
+	        *HR++ = d1; \
 		  } \
 	    } \
 	  } \
@@ -1697,7 +1697,7 @@
 	  HR[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
 
 #define SPY_PRED_D0ISNOZERO_INIT \
-	  *H = (CELL) pe->FunctorOfPred; \
+	  *HR = (CELL) pe->FunctorOfPred; \
 	  HR[d0 + 2] = AbsAppl(HR); \
 	  HR++; \
 	  pt1 = XREGS + 1;
@@ -1707,10 +1707,10 @@
 	    d1 = *pt0;
 
 #define SPY_PRED_D0ISNOZERO_INSIDEFOR_DOSPY_NONVAR \
-	    *H++ = d1;
+	    *HR++ = d1;
 
 #define SPY_PRED_D0ISNOZERO_INSIDEFOR_SAFEVAR \
-	      *H++ = (CELL)pt0;
+	      *HR++ = (CELL)pt0;
 
 #define SPY_PRED_D0ISNOZERO_INSIDEFOR_UNSAFEVAR \
 	      d1 = Unsigned(HR); \
@@ -1719,7 +1719,7 @@
 	      Bind_Local(pt0, d1);
 
 #define SPY_PRED_POST_IFS \
-	H[0] = Yap_Module_Name(pe); \
+	HR[0] = Yap_Module_Name(pe); \
       ARG1 = (Term) AbsPair(HR); \
       HR += 2; \
 	PredEntry *pt0;

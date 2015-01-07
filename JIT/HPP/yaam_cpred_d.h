@@ -5,14 +5,14 @@
 		
 #if (defined(YAPOR_SBA) && defined(YAPOR)) || defined(TABLING)
 #define CALL_CPRED_TEST_STACK \
-      if (!((*_PREG)->u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
+      if (!((*_PREG)->y_u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
 	CACHE_Y_AS_ENV(YREG); \
-	if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,H))) < CreepFlag), 0)  ) {  return external_labels[6]; } \
+	if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,HR))) < CreepFlag), 0)  ) {  return external_labels[6]; } \
 	ENDCACHE_Y_AS_ENV(); \
       }
 #else
 #define CALL_CPRED_TEST_STACK \
-      if (!((*_PREG)->u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
+      if (!((*_PREG)->y_u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
 	CACHE_Y_AS_ENV(YREG); \
 	if  (__builtin_expect(((Int)(Unsigned(ENV_YREG) - Unsigned(HR)) < CreepFlag ), 0) ) { return external_labels[6]; } \
 	ENDCACHE_Y_AS_ENV(); \
@@ -28,27 +28,27 @@
 	if (YREG > (CELL *) top_b || YREG < HR) \
 	    ASP = (CELL *)top_b; \
 	else \
-	    ASP = (CELL *)(((char *)YREG) +  (*_PREG)->u.Osbpp.s);
+	    ASP = (CELL *)(((char *)YREG) +  (*_PREG)->y_u.Osbpp.s);
 #else /* YAPOR_SBA */
 #define CALL_CPRED_TOPB \
 	if (YREG > (CELL *) top_b) \
 	    ASP = (CELL *)top_b; \
 	else \
-	    ASP = (CELL *)(((char *)YREG) +  (*_PREG)->u.Osbpp.s);
+	    ASP = (CELL *)(((char *)YREG) +  (*_PREG)->y_u.Osbpp.s);
 #endif /* YAPOR_SBA */
 
 #else
 #define CALL_CPRED_NOFROZEN \
-      SET_ASP(YREG, (*_PREG)->u.Osbpp.s);
+      SET_ASP(YREG, (*_PREG)->y_u.Osbpp.s);
 #endif
 
 #ifdef LOW_LEVEL_TRACER
 #define CALL_CPRED_LOW_LEVEL_TRACER \
-	low_level_trace(enter_pred,(*_PREG)->u.Osbpp.p,XREGS+1);
+	low_level_trace(enter_pred,(*_PREG)->y_u.Osbpp.p,XREGS+1);
 #endif
 
 #define CALL_CPRED_POST_LOW_LEVEL_TRACER \
-      CPredicate f = (*_PREG)->u.Osbpp.p->cs.f_code; \
+      CPredicate f = (*_PREG)->y_u.Osbpp.p->cs.f_code; \
       (*_PREG) = NEXTOP((*_PREG), Osbpp); \
       saveregs(); \
       d0 = (f)(PASS_REGS1); \
@@ -107,7 +107,7 @@
 #endif
 
 #define EXECUTE_CPRED_POST_FROZEN \
-	pt0 = (*_PREG)->u.pp.p;
+	pt0 = (*_PREG)->y_u.pp.p;
 
 #ifdef LOW_LEVEL_TRACER
 #define EXECUTE_CPRED_LOW_LEVEL_TRACER \
@@ -148,7 +148,7 @@
 #define EXECUTE_CPRED_END \
       BLOCK = (CELL)EXECUTE_CPRED_END; \
 	if (!FAILED) { \
-	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -174,7 +174,7 @@
 #define EXECUTE_CPRED_END \
       BLOCK = (CELL)EXECUTE_CPRED_END; \
 	if (!FAILED) { \
-	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -201,7 +201,7 @@
 #define EXECUTE_CPRED_END \
       BLOCK = (CELL)EXECUTE_CPRED_END; \
 	if (!FAILED) { \
-	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -226,7 +226,7 @@
 #define EXECUTE_CPRED_END \
       BLOCK = (CELL)EXECUTE_CPRED_END; \
 	if (!FAILED) { \
-	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -254,7 +254,7 @@
       print_instruction((*_PREG), ON_NATIVE); \
       BLOCKADDRESS = (CELL)(*_PREG); \
 	CACHE_Y_AS_ENV(YREG); \
-	if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,H))) < CreepFlag), 0)  ) {  return external_labels[6]; } \
+	if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,HR))) < CreepFlag), 0)  ) {  return external_labels[6]; } \
 	ENDCACHE_Y_AS_ENV();
 #else
 #define CALL_USERCPRED_INSTINIT \
@@ -267,7 +267,7 @@
 
 #ifdef LOW_LEVEL_TRACER
 #define CALL_USERCPRED_LOW_LEVEL_TRACER \
-	  low_level_trace(enter_pred,(*_PREG)->u.Osbpp.p,XREGS+1);
+	  low_level_trace(enter_pred,(*_PREG)->y_u.Osbpp.p,XREGS+1);
 #endif
 
 #ifdef FROZEN_STACKS
@@ -277,18 +277,18 @@
 	if (YREG > (CELL *) top_b || YREG < HR) \
 	  ASP = (CELL *) top_b; \
 	else \
-      ASP = (CELL *)(((char *)YREG) +  (*_PREG)->u.Osbpp.s);
+      ASP = (CELL *)(((char *)YREG) +  (*_PREG)->y_u.Osbpp.s);
 #else /* YAPOR_SBA */
 #define CALL_USERCPRED_FROZEN \
 	choiceptr top_b = PROTECT_FROZEN_B(B); \
 	if (YREG > (CELL *) top_b) \
       ASP = (CELL *) top_b; \
 	else \
-      ASP = (CELL *)(((char *)YREG) +  (*_PREG)->u.Osbpp.s);
+      ASP = (CELL *)(((char *)YREG) +  (*_PREG)->y_u.Osbpp.s);
 #endif /* YAPOR_SBA */
 #else /* FROZEN_STACKS */
 #define CALL_USERCPRED_FROZEN \
-      SET_ASP(YREG, (*_PREG)->u.Osbpp.s);
+      SET_ASP(YREG, (*_PREG)->y_u.Osbpp.s);
 #endif /* FROZEN_STACKS */
 
 #define CALL_USERCPRED_POST_FROZEN \
@@ -296,7 +296,7 @@
 	Yap_StartSlots( PASS_REGS1 ); \
 	LOCAL_PrologMode = UserCCallMode; \
 	{ \
-	  PredEntry *p = (*_PREG)->u.Osbpp.p; \
+	  PredEntry *p = (*_PREG)->y_u.Osbpp.p; \
 	  (*_PREG) = NEXTOP((*_PREG), Osbpp); \
 	  savedP = (*_PREG); \
 	  saveregs(); \

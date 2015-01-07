@@ -1,8 +1,8 @@
 #define COUNT_CALL_INSTINIT \
       print_instruction((*_PREG), ON_NATIVE); \
-      LOCK((*_PREG)->u.p.p->StatisticsForPred.lock); \
-      (*_PREG)->u.p.p->StatisticsForPred.NOfEntries++; \
-      UNLOCK((*_PREG)->u.p.p->StatisticsForPred.lock); \
+      LOCK((*_PREG)->y_u.p.p->StatisticsForPred.lock); \
+      (*_PREG)->y_u.p.p->StatisticsForPred.NOfEntries++; \
+      UNLOCK((*_PREG)->y_u.p.p->StatisticsForPred.lock); \
       LOCAL_ReductionsCounter--;
 
 #define COUNT_CALL_MIDDLE \
@@ -28,9 +28,9 @@
 
 #define COUNT_RETRY_INSTINIT \
       print_instruction((*_PREG), ON_NATIVE); \
-      LOCK((*_PREG)->u.p.p->StatisticsForPred.lock); \
-      (*_PREG)->u.p.p->StatisticsForPred.NOfRetries++; \
-      UNLOCK((*_PREG)->u.p.p->StatisticsForPred.lock); \
+      LOCK((*_PREG)->y_u.p.p->StatisticsForPred.lock); \
+      (*_PREG)->y_u.p.p->StatisticsForPred.NOfRetries++; \
+      UNLOCK((*_PREG)->y_u.p.p->StatisticsForPred.lock); \
       LOCAL_RetriesCounter--;
 
 #define COUNT_RETRY_MIDDLE \
@@ -59,8 +59,8 @@
 #define COUNT_RETRY_ME_INSTINIT \
       print_instruction((*_PREG), ON_NATIVE); \
       CACHE_Y(B); \
-      restore_yaam_regs((*_PREG)->u.Otapl.d); \
-      restore_args((*_PREG)->u.Otapl.s);
+      restore_yaam_regs((*_PREG)->y_u.Otapl.d); \
+      restore_args((*_PREG)->y_u.Otapl.s);
 	  
 #ifdef FROZEN_STACKS
 #define COUNT_RETRY_ME_MIDDLE \
@@ -68,9 +68,9 @@
       set_cut(S_YREG, B->cp_b); \
       SET_BB(B_YREG); \
       ENDCACHE_Y(); \
-      LOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred.lock); \
-      ((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred.NOfRetries++; \
-      UNLOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred.lock); \
+      LOCK(((PredEntry *)((*_PREG)->y_u.Otapl.p))->StatisticsForPred.lock); \
+      ((PredEntry *)((*_PREG)->y_u.Otapl.p))->StatisticsForPred.NOfRetries++; \
+      UNLOCK(((PredEntry *)((*_PREG)->y_u.Otapl.p))->StatisticsForPred.lock); \
       LOCAL_RetriesCounter--; \
       if (LOCAL_RetriesCounter == 0 && LOCAL_RetriesCounterOn) { \
 	saveregs(); \
@@ -90,9 +90,9 @@
       set_cut(S_YREG, B_YREG->cp_b); \
       SET_BB(B_YREG); \
       ENDCACHE_Y(); \
-      LOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred.lock); \
-      ((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred.NOfRetries++; \
-      UNLOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred.lock); \
+      LOCK(((PredEntry *)((*_PREG)->y_u.Otapl.p))->StatisticsForPred.lock); \
+      ((PredEntry *)((*_PREG)->y_u.Otapl.p))->StatisticsForPred.NOfRetries++; \
+      UNLOCK(((PredEntry *)((*_PREG)->y_u.Otapl.p))->StatisticsForPred.lock); \
       LOCAL_RetriesCounter--; \
       if (LOCAL_RetriesCounter == 0 && LOCAL_RetriesCounterOn) { \
 	saveregs(); \
@@ -122,14 +122,14 @@
 #define COUNT_TRUST_ME_MIDDLE \
       if (SCH_top_shared_cp(B)) { \
 	SCH_last_alternative((*_PREG), B_YREG); \
-	restore_args((*_PREG)->u.Otapl.s); \
+	restore_args((*_PREG)->y_u.Otapl.s); \
         S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG); \
 	set_cut(S_YREG, B->cp_b); \
       } \
       else \
       { \
 	pop_yaam_regs(); \
-	pop_args((*_PREG)->u.Otapl.s); \
+	pop_args((*_PREG)->y_u.Otapl.s); \
 	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG); \
 	set_cut(S_YREG, B); \
       } \
@@ -153,13 +153,13 @@
 #define COUNT_TRUST_ME_MIDDLE \
       if (SCH_top_shared_cp(B)) { \
 	SCH_last_alternative((*_PREG), B_YREG); \
-	restore_args((*_PREG)->u.Otapl.s); \
+	restore_args((*_PREG)->y_u.Otapl.s); \
 	set_cut(S_YREG, B->cp_b); \
       } \
       else \
       { \
 	pop_yaam_regs(); \
-	pop_args((*_PREG)->u.Otapl.s); \
+	pop_args((*_PREG)->y_u.Otapl.s); \
 	set_cut(S_YREG, B); \
       } \
       SET_BB(B_YREG); \
@@ -184,7 +184,7 @@
 #define COUNT_TRUST_ME_MIDDLE \
       { \
 	pop_yaam_regs(); \
-	pop_args((*_PREG)->u.Otapl.s); \
+	pop_args((*_PREG)->y_u.Otapl.s); \
 	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG); \
 	set_cut(S_YREG, B); \
       } \
@@ -208,7 +208,7 @@
 #define COUNT_TRUST_ME_MIDDLE \
       { \
 	pop_yaam_regs(); \
-	pop_args((*_PREG)->u.Otapl.s); \
+	pop_args((*_PREG)->y_u.Otapl.s); \
 	set_cut(S_YREG, B); \
       } \
       SET_BB(B_YREG); \
@@ -231,9 +231,9 @@
 #endif /* YAPOR */
 
 #define COUNT_TRUST_ME_END \
-      LOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred.lock); \
-      ((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred.NOfRetries++; \
-      UNLOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred.lock); \
+      LOCK(((PredEntry *)((*_PREG)->y_u.Otapl.p))->StatisticsForPred.lock); \
+      ((PredEntry *)((*_PREG)->y_u.Otapl.p))->StatisticsForPred.NOfRetries++; \
+      UNLOCK(((PredEntry *)((*_PREG)->y_u.Otapl.p))->StatisticsForPred.lock); \
       (*_PREG) = NEXTOP((*_PREG), Otapl); \
       GONext();
 
@@ -246,13 +246,13 @@
 	  { \
 	UInt timestamp; \
 	CACHE_Y(B); \
-	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[(*_PREG)->u.OtaLl.s]); \
-	if (!VALID_TIMESTAMP(timestamp, (*_PREG)->u.OtaLl.d)) { \
-	  (*_PREG)=(*_PREG)->u.OtaLl.n; \
+	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[(*_PREG)->y_u.OtaLl.s]); \
+	if (!VALID_TIMESTAMP(timestamp, (*_PREG)->y_u.OtaLl.d)) { \
+	  (*_PREG)=(*_PREG)->y_u.OtaLl.n; \
 	  JMPNext(); \
 	} \
-	restore_yaam_regs((*_PREG)->u.OtaLl.n); \
-	restore_args((*_PREG)->u.OtaLl.s); \
+	restore_yaam_regs((*_PREG)->y_u.OtaLl.n); \
+	restore_args((*_PREG)->y_u.OtaLl.s); \
 	LOCAL_RetriesCounter--; \
 	if (LOCAL_RetriesCounter == 0) { \
 	  saveregs(); \
@@ -267,11 +267,11 @@
 	  setregs(); \
 	  JMPNext(); \
 	} \
-	LOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.lock); \
-	(*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++; \
-	UNLOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.lock); \
-	PP = (*_PREG)->u.OtaLl.d->ClPred; \
-	(*_PREG) = (*_PREG)->u.OtaLl.d->ClCode; \
+	LOCK((*_PREG)->y_u.OtaLl.d->ClPred->StatisticsForPred.lock); \
+	(*_PREG)->y_u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++; \
+	UNLOCK((*_PREG)->y_u.OtaLl.d->ClPred->StatisticsForPred.lock); \
+	PP = (*_PREG)->y_u.OtaLl.d->ClPred; \
+	(*_PREG) = (*_PREG)->y_u.OtaLl.d->ClCode; \
 	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG); \
 	set_cut(S_YREG, B->cp_b); \
 	SET_BB(B_YREG); \
@@ -286,13 +286,13 @@
 	  { \
 	UInt timestamp; \
 	CACHE_Y(B); \
-	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[(*_PREG)->u.OtaLl.s]); \
-	if (!VALID_TIMESTAMP(timestamp, (*_PREG)->u.OtaLl.d)) { \
-	  (*_PREG)=(*_PREG)->u.OtaLl.n; \
+	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[(*_PREG)->y_u.OtaLl.s]); \
+	if (!VALID_TIMESTAMP(timestamp, (*_PREG)->y_u.OtaLl.d)) { \
+	  (*_PREG)=(*_PREG)->y_u.OtaLl.n; \
 	  JMPNext(); \
 	} \
-	restore_yaam_regs((*_PREG)->u.OtaLl.n); \
-	restore_args((*_PREG)->u.OtaLl.s); \
+	restore_yaam_regs((*_PREG)->y_u.OtaLl.n); \
+	restore_args((*_PREG)->y_u.OtaLl.s); \
 	LOCAL_RetriesCounter--; \
 	if (LOCAL_RetriesCounter == 0) { \
 	  saveregs(); \
@@ -307,11 +307,11 @@
 	  setregs(); \
 	  JMPNext(); \
 	} \
-	LOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.lock); \
-	(*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++; \
-	UNLOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.lock); \
-	PP = (*_PREG)->u.OtaLl.d->ClPred; \
-	(*_PREG) = (*_PREG)->u.OtaLl.d->ClCode; \
+	LOCK((*_PREG)->y_u.OtaLl.d->ClPred->StatisticsForPred.lock); \
+	(*_PREG)->y_u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++; \
+	UNLOCK((*_PREG)->y_u.OtaLl.d->ClPred->StatisticsForPred.lock); \
+	PP = (*_PREG)->y_u.OtaLl.d->ClPred; \
+	(*_PREG) = (*_PREG)->y_u.OtaLl.d->ClCode; \
 	set_cut(S_YREG, B_YREG->cp_b); \
 	SET_BB(B_YREG); \
 	ENDCACHE_Y(); \
@@ -327,13 +327,13 @@
 	  { \
 	UInt timestamp; \
 	CACHE_Y(B); \
-	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[(*_PREG)->u.OtaLl.s]); \
-	if (!VALID_TIMESTAMP(timestamp, (*_PREG)->u.OtaLl.d)) { \
-	  (*_PREG)=(*_PREG)->u.OtaLl.n; \
+	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[(*_PREG)->y_u.OtaLl.s]); \
+	if (!VALID_TIMESTAMP(timestamp, (*_PREG)->y_u.OtaLl.d)) { \
+	  (*_PREG)=(*_PREG)->y_u.OtaLl.n; \
 	  JMPNext(); \
 	} \
-	restore_yaam_regs((*_PREG)->u.OtaLl.n); \
-	restore_args((*_PREG)->u.OtaLl.s); \
+	restore_yaam_regs((*_PREG)->y_u.OtaLl.n); \
+	restore_args((*_PREG)->y_u.OtaLl.s); \
 	LOCAL_RetriesCounter--; \
 	if (LOCAL_RetriesCounter == 0) { \
 	  saveregs(); \
@@ -348,10 +348,10 @@
 	  setregs(); \
 	  JMPNext(); \
 	} \
-	LOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.lock); \
-	(*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++; \
-	UNLOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.lock); \
-	(*_PREG) = (*_PREG)->u.OtaLl.d->ClCode; \
+	LOCK((*_PREG)->y_u.OtaLl.d->ClPred->StatisticsForPred.lock); \
+	(*_PREG)->y_u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++; \
+	UNLOCK((*_PREG)->y_u.OtaLl.d->ClPred->StatisticsForPred.lock); \
+	(*_PREG) = (*_PREG)->y_u.OtaLl.d->ClCode; \
 	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG); \
 	set_cut(S_YREG, B->cp_b); \
 	SET_BB(B_YREG); \
@@ -366,13 +366,13 @@
 	  { \
 	UInt timestamp; \
 	CACHE_Y(B); \
-	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[(*_PREG)->u.OtaLl.s]); \
-	if (!VALID_TIMESTAMP(timestamp, (*_PREG)->u.OtaLl.d)) { \
-	  (*_PREG)=(*_PREG)->u.OtaLl.n; \
+	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[(*_PREG)->y_u.OtaLl.s]); \
+	if (!VALID_TIMESTAMP(timestamp, (*_PREG)->y_u.OtaLl.d)) { \
+	  (*_PREG)=(*_PREG)->y_u.OtaLl.n; \
 	  JMPNext(); \
 	} \
-	restore_yaam_regs((*_PREG)->u.OtaLl.n); \
-	restore_args((*_PREG)->u.OtaLl.s); \
+	restore_yaam_regs((*_PREG)->y_u.OtaLl.n); \
+	restore_args((*_PREG)->y_u.OtaLl.s); \
 	LOCAL_RetriesCounter--; \
 	if (LOCAL_RetriesCounter == 0) { \
 	  saveregs(); \
@@ -387,10 +387,10 @@
 	  setregs(); \
 	  JMPNext(); \
 	} \
-	LOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.lock); \
-	(*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++; \
-	UNLOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.lock); \
-	(*_PREG) = (*_PREG)->u.OtaLl.d->ClCode; \
+	LOCK((*_PREG)->y_u.OtaLl.d->ClPred->StatisticsForPred.lock); \
+	(*_PREG)->y_u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++; \
+	UNLOCK((*_PREG)->y_u.OtaLl.d->ClPred->StatisticsForPred.lock); \
+	(*_PREG) = (*_PREG)->y_u.OtaLl.d->ClCode; \
 	set_cut(S_YREG, B_YREG->cp_b); \
 	SET_BB(B_YREG); \
 	ENDCACHE_Y(); \
@@ -410,9 +410,9 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  CACHE_Y(B); \
       { \
-	LogUpdIndex *cl = (*_PREG)->u.OtILl.block; \
+	LogUpdIndex *cl = (*_PREG)->y_u.OtILl.block; \
 	PredEntry *ap = cl->ClPred; \
-	LogUpdClause *lcl = (*_PREG)->u.OtILl.d; \
+	LogUpdClause *lcl = (*_PREG)->y_u.OtILl.d; \
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]); \
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
@@ -482,9 +482,9 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  CACHE_Y(B); \
       { \
-	LogUpdIndex *cl = (*_PREG)->u.OtILl.block; \
+	LogUpdIndex *cl = (*_PREG)->y_u.OtILl.block; \
 	PredEntry *ap = cl->ClPred; \
-	LogUpdClause *lcl = (*_PREG)->u.OtILl.d; \
+	LogUpdClause *lcl = (*_PREG)->y_u.OtILl.d; \
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]); \
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
@@ -555,9 +555,9 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  CACHE_Y(B); \
       { \
-	LogUpdIndex *cl = (*_PREG)->u.OtILl.block; \
+	LogUpdIndex *cl = (*_PREG)->y_u.OtILl.block; \
 	PredEntry *ap = cl->ClPred; \
-	LogUpdClause *lcl = (*_PREG)->u.OtILl.d; \
+	LogUpdClause *lcl = (*_PREG)->y_u.OtILl.d; \
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]); \
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
@@ -621,9 +621,9 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  CACHE_Y(B); \
       { \
-	LogUpdIndex *cl = (*_PREG)->u.OtILl.block; \
+	LogUpdIndex *cl = (*_PREG)->y_u.OtILl.block; \
 	PredEntry *ap = cl->ClPred; \
-	LogUpdClause *lcl = (*_PREG)->u.OtILl.d; \
+	LogUpdClause *lcl = (*_PREG)->y_u.OtILl.d; \
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]); \
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
@@ -691,9 +691,9 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  CACHE_Y(B); \
       { \
-	LogUpdIndex *cl = (*_PREG)->u.OtILl.block; \
+	LogUpdIndex *cl = (*_PREG)->y_u.OtILl.block; \
 	PredEntry *ap = cl->ClPred; \
-	LogUpdClause *lcl = (*_PREG)->u.OtILl.d; \
+	LogUpdClause *lcl = (*_PREG)->y_u.OtILl.d; \
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]); \
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
@@ -766,9 +766,9 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  CACHE_Y(B); \
       { \
-	LogUpdIndex *cl = (*_PREG)->u.OtILl.block; \
+	LogUpdIndex *cl = (*_PREG)->y_u.OtILl.block; \
 	PredEntry *ap = cl->ClPred; \
-	LogUpdClause *lcl = (*_PREG)->u.OtILl.d; \
+	LogUpdClause *lcl = (*_PREG)->y_u.OtILl.d; \
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]); \
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
@@ -842,9 +842,9 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  CACHE_Y(B); \
       { \
-	LogUpdIndex *cl = (*_PREG)->u.OtILl.block; \
+	LogUpdIndex *cl = (*_PREG)->y_u.OtILl.block; \
 	PredEntry *ap = cl->ClPred; \
-	LogUpdClause *lcl = (*_PREG)->u.OtILl.d; \
+	LogUpdClause *lcl = (*_PREG)->y_u.OtILl.d; \
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]); \
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
@@ -911,9 +911,9 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  CACHE_Y(B); \
       { \
-	LogUpdIndex *cl = (*_PREG)->u.OtILl.block; \
+	LogUpdIndex *cl = (*_PREG)->y_u.OtILl.block; \
 	PredEntry *ap = cl->ClPred; \
-	LogUpdClause *lcl = (*_PREG)->u.OtILl.d; \
+	LogUpdClause *lcl = (*_PREG)->y_u.OtILl.d; \
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]); \
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
@@ -983,9 +983,9 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  CACHE_Y(B); \
       { \
-	LogUpdIndex *cl = (*_PREG)->u.OtILl.block; \
+	LogUpdIndex *cl = (*_PREG)->y_u.OtILl.block; \
 	PredEntry *ap = cl->ClPred; \
-	LogUpdClause *lcl = (*_PREG)->u.OtILl.d; \
+	LogUpdClause *lcl = (*_PREG)->y_u.OtILl.d; \
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]); \
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
@@ -1057,9 +1057,9 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  CACHE_Y(B); \
       { \
-	LogUpdIndex *cl = (*_PREG)->u.OtILl.block; \
+	LogUpdIndex *cl = (*_PREG)->y_u.OtILl.block; \
 	PredEntry *ap = cl->ClPred; \
-	LogUpdClause *lcl = (*_PREG)->u.OtILl.d; \
+	LogUpdClause *lcl = (*_PREG)->y_u.OtILl.d; \
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]); \
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
@@ -1132,9 +1132,9 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  CACHE_Y(B); \
       { \
-	LogUpdIndex *cl = (*_PREG)->u.OtILl.block; \
+	LogUpdIndex *cl = (*_PREG)->y_u.OtILl.block; \
 	PredEntry *ap = cl->ClPred; \
-	LogUpdClause *lcl = (*_PREG)->u.OtILl.d; \
+	LogUpdClause *lcl = (*_PREG)->y_u.OtILl.d; \
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]); \
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
@@ -1200,9 +1200,9 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
 	  CACHE_Y(B); \
       { \
-	LogUpdIndex *cl = (*_PREG)->u.OtILl.block; \
+	LogUpdIndex *cl = (*_PREG)->y_u.OtILl.block; \
 	PredEntry *ap = cl->ClPred; \
-	LogUpdClause *lcl = (*_PREG)->u.OtILl.d; \
+	LogUpdClause *lcl = (*_PREG)->y_u.OtILl.d; \
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]); \
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \

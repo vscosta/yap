@@ -413,14 +413,14 @@
 		} \
 	      case _jump: \
 		{ \
-		ipc = ipc->u.l.l; \
+		ipc = ipc->y_u.l.l; \
 		go_on = TRUE; \
 		break; \
 		} \
 	      case _retry_c: \
 	      case _retry_userc: \
 		{ \
-		low_level_trace(retry_pred, ipc->u.OtapFs.p, B->cp_args); \
+		low_level_trace(retry_pred, ipc->y_u.OtapFs.p, B->cp_args); \
 		break; \
 		} \
 	      case _retry_profiled: \
@@ -441,7 +441,7 @@
 	      case _retry: \
 	      case _trust: \
 		{ \
-		low_level_trace(retry_pred, ipc->u.Otapl.p, B->cp_args); \
+		low_level_trace(retry_pred, ipc->y_u.Otapl.p, B->cp_args); \
 		break; \
 		} \
 	      case _try_logical: \
@@ -452,7 +452,7 @@
 	      case _profiled_trust_logical: \
 	      case _count_trust_logical: \
 		{ \
-		low_level_trace(retry_pred, ipc->u.OtILl.d->ClPred, B->cp_args); \
+		low_level_trace(retry_pred, ipc->y_u.OtILl.d->ClPred, B->cp_args); \
 		break; \
 		} \
 	      case _Nstop: \
@@ -564,7 +564,7 @@
 	      pt0 = (tr_fr_ptr) pt1; \
 	      continue; \
 	    } else \
-	      if (IN_BETWEEN(H0,pt1,H)) { \
+	      if (IN_BETWEEN(H0,pt1,HR)) { \
 		if (IsAttVar(pt1)) { \
 		  continue; \
 		} else if (*pt1 == (CELL)FunctorBigInt) { \
@@ -595,7 +595,7 @@
 	      pt0 = (tr_fr_ptr) pt1; \
 	      continue; \
 	    } else \
-	      if (IN_BETWEEN(H0,pt1,H)) { \
+	      if (IN_BETWEEN(H0,pt1,HR)) { \
 		if (IsAttVar(pt1)) { \
 		  continue; \
 		} else if (*pt1 == (CELL)FunctorBigInt) { \
@@ -620,7 +620,7 @@
 	      insert_into_global_sg_fr_list(sg_fr); \
 	      continue; \
 	    } \
-	      if (IN_BETWEEN(H0,pt1,H)) { \
+	      if (IN_BETWEEN(H0,pt1,HR)) { \
 		if (IsAttVar(pt1)) { \
 		  continue; \
 		} else if (*pt1 == (CELL)FunctorBigInt) { \
@@ -644,7 +644,7 @@
 	      pt0 = (tr_fr_ptr) pt1; \
 	      continue; \
 	    } else \
-	      if (IN_BETWEEN(H0,pt1,H)) { \
+	      if (IN_BETWEEN(H0,pt1,HR)) { \
 		if (IsAttVar(pt1)) { \
 		  continue; \
 		} else if (*pt1 == (CELL)FunctorBigInt) { \
@@ -668,7 +668,7 @@
 	      pt0 = (tr_fr_ptr) pt1; \
 	      continue; \
 	    } else \
-	      if (IN_BETWEEN(H0,pt1,H)) { \
+	      if (IN_BETWEEN(H0,pt1,HR)) { \
 		if (IsAttVar(pt1)) { \
 		  continue; \
 		} else if (*pt1 == (CELL)FunctorBigInt) { \
@@ -686,7 +686,7 @@
 	  { \
 	    register CELL flags; \
 	    CELL *pt1 = RepPair(d1); \
-	      if (IN_BETWEEN(H0,pt1,H)) { \
+	      if (IN_BETWEEN(H0,pt1,HR)) { \
 		if (IsAttVar(pt1)) { \
 		  continue; \
 		} else if (*pt1 == (CELL)FunctorBigInt) { \
@@ -718,7 +718,7 @@
 	      pt0 = (tr_fr_ptr) pt1; \
 	      continue; \
 	    } else \
-	      if (IN_BETWEEN(H0,pt1,H)) { \
+	      if (IN_BETWEEN(H0,pt1,HR)) { \
 		if (IsAttVar(pt1)) { \
 		  continue; \
 		} else if (*pt1 == (CELL)FunctorBigInt) { \
@@ -748,7 +748,7 @@
 	      pt0 = (tr_fr_ptr) pt1; \
 	      continue; \
 	    } else \
-	      if (IN_BETWEEN(H0,pt1,H)) { \
+	      if (IN_BETWEEN(H0,pt1,HR)) { \
 		if (IsAttVar(pt1)) { \
 		  continue; \
 		} else if (*pt1 == (CELL)FunctorBigInt) { \
@@ -772,7 +772,7 @@
 	      insert_into_global_sg_fr_list(sg_fr); \
 	      continue; \
 	    } \
-	      if (IN_BETWEEN(H0,pt1,H)) { \
+	      if (IN_BETWEEN(H0,pt1,HR)) { \
 		if (IsAttVar(pt1)) { \
 		  continue; \
 		} else if (*pt1 == (CELL)FunctorBigInt) { \
@@ -795,7 +795,7 @@
 	      pt0 = (tr_fr_ptr) pt1; \
 	      continue; \
 	    } else \
-	      if (IN_BETWEEN(H0,pt1,H)) { \
+	      if (IN_BETWEEN(H0,pt1,HR)) { \
 		if (IsAttVar(pt1)) { \
 		  continue; \
 		} else if (*pt1 == (CELL)FunctorBigInt) { \
@@ -818,7 +818,7 @@
 	      pt0 = (tr_fr_ptr) pt1; \
 	      continue; \
 	    } else \
-	      if (IN_BETWEEN(H0,pt1,H)) { \
+	      if (IN_BETWEEN(H0,pt1,HR)) { \
 		if (IsAttVar(pt1)) { \
 		  continue; \
 		} else if (*pt1 == (CELL)FunctorBigInt) { \
@@ -835,7 +835,7 @@
 	  { \
 	    register CELL flags; \
 	    CELL *pt1 = RepPair(d1); \
-	      if (IN_BETWEEN(H0,pt1,H)) { \
+	      if (IN_BETWEEN(H0,pt1,HR)) { \
 		if (IsAttVar(pt1)) { \
 		  continue; \
 		} else if (*pt1 == (CELL)FunctorBigInt) { \

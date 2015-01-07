@@ -89,53 +89,53 @@
 
 #if (defined(YAPOR_SBA) && defined(YAPOR)) || defined(TABLING)
 #define NoStackDeallocate_Exception                            \
-  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,H))) < CreepFlag), 0)  ) { \
+  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,HR))) < CreepFlag), 0)  ) { \
       return external_labels[8]; \
   }
 
 #define NoStackCall_Exception                            \
   CACHE_Y_AS_ENV(YREG); \
-  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,H))) < CreepFlag), 0)  ) { \
+  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,HR))) < CreepFlag), 0)  ) { \
       return external_labels[6]; \
   } \
   ENDCACHE_Y_AS_ENV();
 
 #define NoStackDExecute_Exception                            \
-  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,H))) < CreepFlag), 0)  ) { \
+  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,HR))) < CreepFlag), 0)  ) { \
       return external_labels[7]; \
   }
 
 #define NoStackExecute_Exception                            \
   CACHE_Y_AS_ENV(YREG); \
-  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,H))) < CreepFlag), 0)  ) { \
+  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,HR))) < CreepFlag), 0)  ) { \
       return external_labels[5]; \
   } \
   ENDCACHE_Y_AS_ENV();
 
 #define NoStackFail_Exception                            \
   CACHE_Y_AS_ENV(YREG); \
-  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,H))) < CreepFlag), 0)  ) { \
+  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,HR))) < CreepFlag), 0)  ) { \
       return external_labels[10]; \
   } \
   ENDCACHE_Y_AS_ENV();
 
 #define NoStackEither_Exception                            \
   CACHE_Y_AS_ENV(YREG); \
-  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,H))) < CreepFlag), 0)  ) { \
+  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,HR))) < CreepFlag), 0)  ) { \
       return external_labels[4]; \
   } \
   ENDCACHE_Y_AS_ENV();
 
 #define NoStackCommitY_Exception                            \
   CACHE_Y_AS_ENV(YREG); \
-  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,H))) < CreepFlag), 0)  ) { \
+  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,HR))) < CreepFlag), 0)  ) { \
       return external_labels[2]; \
   } \
   ENDCACHE_Y_AS_ENV();
 
 #define NoStackCommitX_Exception                            \
   CACHE_Y_AS_ENV(YREG); \
-  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,H))) < CreepFlag), 0)  ) { \
+  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,HR))) < CreepFlag), 0)  ) { \
       return external_labels[11]; \
   } \
   ENDCACHE_Y_AS_ENV();

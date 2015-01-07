@@ -2,7 +2,7 @@
       print_instruction((*_PREG), ON_NATIVE); \
       BLOCKADDRESS = (CELL)(*_PREG); \
       register CELL d0; \
-      d0 = (*_PREG)->u.os.s; \
+      d0 = (*_PREG)->y_u.os.s; \
       SP = (CELL *) (((char *) SP) + d0); \
       d0 = SP[0]; \
       if (d0) { \

@@ -25,14 +25,14 @@
     else { \
       if (IsPairTerm(d0)) { \
 	    if (!IsPairTerm(d1)) { \
-	      (*_PREG) = (*_PREG)->u.l.l; \
+	      (*_PREG) = (*_PREG)->y_u.l.l; \
 	      GONext(); \
 	    } \
 	    else { \
 	      always_save_pc(); \
 	      d2 = iequ_complex(RepPair(d0)-1, RepPair(d0)+1,RepPair(d1)-1); \
 	      if (d2 == FALSE) { \
-	        (*_PREG) = (*_PREG)->u.l.l; \
+	        (*_PREG) = (*_PREG)->y_u.l.l; \
 	        GONext(); \
 	      } \
 	      else { \
@@ -46,7 +46,7 @@
 	    Functor f0 = FunctorOfTerm(d0); \
 	    Functor f1; \
 	    if (!IsApplTerm(d1)) { \
-	      (*_PREG) = (*_PREG)->u.l.l; \
+	      (*_PREG) = (*_PREG)->y_u.l.l; \
 	      GONext(); \
 	    } \
 	    else { \
@@ -59,13 +59,13 @@
 	              GONext(); \
 	            } \
 	            else { \
-	              (*_PREG) = (*_PREG)->u.l.l; \
+	              (*_PREG) = (*_PREG)->y_u.l.l; \
 	              GONext(); \
 	            } \
 	            break; \
 	          case (CELL)FunctorLongInt: \
 	            if (f1 != FunctorLongInt) { \
-	              (*_PREG) = (*_PREG)->u.l.l; \
+	              (*_PREG) = (*_PREG)->y_u.l.l; \
 	              GONext(); \
 	            } \
 	            else if (LongIntOfTerm(d0) == LongIntOfTerm(d1)) { \
@@ -73,13 +73,13 @@
 	              GONext(); \
 	            } \
 	            else { \
-	              (*_PREG) = (*_PREG)->u.l.l; \
+	              (*_PREG) = (*_PREG)->y_u.l.l; \
 	              GONext(); \
 	            } \
 	            break; \
 	          case (CELL)FunctorBigInt: \
 	            if (f1 != FunctorBigInt) { \
-	              (*_PREG) = (*_PREG)->u.l.l; \
+	              (*_PREG) = (*_PREG)->y_u.l.l; \
 	              GONext(); \
 	            } \
 	            else if (Yap_gmp_tcmp_big_big(d0,d1) == 0) { \
@@ -87,13 +87,13 @@
 	              GONext(); \
 	            } \
 	            else { \
-	              (*_PREG) = (*_PREG)->u.l.l; \
+	              (*_PREG) = (*_PREG)->y_u.l.l; \
 	              GONext(); \
 	            } \
 	            break; \
 	          case (CELL)FunctorDouble: \
 	            if (f1 != FunctorDouble) { \
-	              (*_PREG) = (*_PREG)->u.l.l; \
+	              (*_PREG) = (*_PREG)->y_u.l.l; \
 	              GONext(); \
 	            } \
 	            else if (FloatOfTerm(d0) == FloatOfTerm(d1)) { \
@@ -102,20 +102,20 @@
 	            } \
 	            break; \
 	          default: \
-	            (*_PREG) = (*_PREG)->u.l.l; \
+	            (*_PREG) = (*_PREG)->y_u.l.l; \
 	            GONext(); \
 	        } \
 	      } \
 	      else { \
 	        if (f0 != f1) { \
-	          (*_PREG) = (*_PREG)->u.l.l; \
+	          (*_PREG) = (*_PREG)->y_u.l.l; \
 	          GONext(); \
 	        } \
 	        else { \
 	          always_save_pc(); \
 	          d2 = iequ_complex(RepAppl(d0), RepAppl(d0)+ArityOfFunctor(f0), RepAppl(d1)); \
 	          if (d2 == FALSE) { \
-	            (*_PREG) = (*_PREG)->u.l.l; \
+	            (*_PREG) = (*_PREG)->y_u.l.l; \
 	            GONext(); \
 	          } \
 	          else { \
@@ -128,7 +128,7 @@
 	    } \
       } \
       else { \
-        (*_PREG) = (*_PREG)->u.l.l; \
+        (*_PREG) = (*_PREG)->y_u.l.l; \
         GONext(); \
       } \
     }
@@ -143,14 +143,14 @@
     else { \
       if (IsPairTerm(d0)) { \
 	    if (!IsPairTerm(d1)) { \
-	      (*_PREG) = (*_PREG)->u.l.l; \
+	      (*_PREG) = (*_PREG)->y_u.l.l; \
 	      GONext(); \
 	    } \
 	    else { \
 	      always_save_pc(); \
 	      d2 = iequ_complex(RepPair(d0)-1, RepPair(d0)+1,RepPair(d1)-1); \
 	      if (d2 == FALSE) { \
-	        (*_PREG) = (*_PREG)->u.l.l; \
+	        (*_PREG) = (*_PREG)->y_u.l.l; \
 	        GONext(); \
 	      } \
 	      else { \
@@ -164,7 +164,7 @@
 	    Functor f0 = FunctorOfTerm(d0); \
 	    Functor f1; \
 	    if (!IsApplTerm(d1)) { \
-	      (*_PREG) = (*_PREG)->u.l.l; \
+	      (*_PREG) = (*_PREG)->y_u.l.l; \
 	      GONext(); \
 	    } \
 	    else { \
@@ -177,13 +177,13 @@
 	              GONext(); \
 	            } \
 	            else { \
-	              (*_PREG) = (*_PREG)->u.l.l; \
+	              (*_PREG) = (*_PREG)->y_u.l.l; \
 	              GONext(); \
 	            } \
 	            break; \
 	          case (CELL)FunctorLongInt: \
 	            if (f1 != FunctorLongInt) { \
-	              (*_PREG) = (*_PREG)->u.l.l; \
+	              (*_PREG) = (*_PREG)->y_u.l.l; \
 	              GONext(); \
 	            } \
 	            else if (LongIntOfTerm(d0) == LongIntOfTerm(d1)) { \
@@ -191,13 +191,13 @@
 	              GONext(); \
 	            } \
 	            else { \
-	              (*_PREG) = (*_PREG)->u.l.l; \
+	              (*_PREG) = (*_PREG)->y_u.l.l; \
 	              GONext(); \
 	            } \
 	            break; \
 	          case (CELL)FunctorDouble: \
 	            if (f1 != FunctorDouble) { \
-	              (*_PREG) = (*_PREG)->u.l.l; \
+	              (*_PREG) = (*_PREG)->y_u.l.l; \
 	              GONext(); \
 	            } \
 	            else if (FloatOfTerm(d0) == FloatOfTerm(d1)) { \
@@ -206,20 +206,20 @@
 	            } \
 	            break; \
 	          default: \
-	            (*_PREG) = (*_PREG)->u.l.l; \
+	            (*_PREG) = (*_PREG)->y_u.l.l; \
 	            GONext(); \
 	        } \
 	      } \
 	      else { \
 	        if (f0 != f1) { \
-	          (*_PREG) = (*_PREG)->u.l.l; \
+	          (*_PREG) = (*_PREG)->y_u.l.l; \
 	          GONext(); \
 	        } \
 	        else { \
 	          always_save_pc(); \
 	          d2 = iequ_complex(RepAppl(d0), RepAppl(d0)+ArityOfFunctor(f0), RepAppl(d1)); \
 	          if (d2 == FALSE) { \
-	            (*_PREG) = (*_PREG)->u.l.l; \
+	            (*_PREG) = (*_PREG)->y_u.l.l; \
 	            GONext(); \
 	          } \
 	          else { \
@@ -232,27 +232,27 @@
 	    } \
       } \
       else { \
-        (*_PREG) = (*_PREG)->u.l.l; \
+        (*_PREG) = (*_PREG)->y_u.l.l; \
         GONext(); \
       } \
     }
 #endif /* USE_GMP */
 
 #define P_EQ_P_EQ_NVAR1_UNK2 \
-      (*_PREG) = (*_PREG)->u.l.l; \
+      (*_PREG) = (*_PREG)->y_u.l.l; \
       GONext();
 
 #define P_EQ_P_EQ_UNK1 \
       d1 = ARG2;
 
 #define P_EQ_P_EQ_VAR1_NVAR2 \
-      (*_PREG) = (*_PREG)->u.l.l; \
+      (*_PREG) = (*_PREG)->y_u.l.l; \
       GONext();
 
 #define P_EQ_P_EQ_VAR1_UNK2_END \
     BLOCK = (CELL)P_EQ_P_EQ_VAR1_UNK2_END; \
       if (pt1 != pt0) { \
-	(*_PREG) = (*_PREG)->u.l.l; \
+	(*_PREG) = (*_PREG)->y_u.l.l; \
 	GONext(); \
       } \
       else { \

@@ -20,46 +20,46 @@
 #define N_TRANSFORM_PASSES 69
 
 // Disable one (passed by argument) LLVM transform pass
-static Int  p_disable_transform_pass( USES_REGS1 );
+static Int  p_disable_transform_pass(void);
 
 // Enable one (passed by argument) LLVM transform pass
-static Int  p_transform_pass( USES_REGS1 );
+static Int  p_transform_pass(void);
 
 // Enable one (passed by argument) LLVM transform pass
-static Int  p_enable_transform_pass( USES_REGS1 );
+static Int  p_enable_transform_pass(void);
 
 // Enable a list (passed by argument) of LLVM transform passes
-static Int  p_transform_passes( USES_REGS1 );
+static Int  p_transform_passes(void);
 
 // Enable all available LLVM transform passes
-static Int  p_enable_all_transform_passes( USES_REGS1 );
+static Int  p_enable_all_transform_passes(void);
 
 // Disable all available LLVM transform passes
-static Int  p_disable_all_transform_passes( USES_REGS1 );
+static Int  p_disable_all_transform_passes(void);
 
 // Enable n LLVM transform passes (randomly)
-static Int  p_n_transform_passes( USES_REGS1 );
+static Int  p_n_transform_passes(void);
 
 // Enable a transform level
-static Int  p_transform_level( USES_REGS1 );
+static Int  p_transform_level(void);
 
 // Max element of Argument Promotion Pass
-static Int  p_argument_promotion_max_elements( USES_REGS1 );
+static Int  p_argument_promotion_max_elements(void);
 
 // Threshold of Scalar Repl Aggregates Pass
-static Int  p_scalar_replace_aggregates_threshold( USES_REGS1 );
+static Int  p_scalar_replace_aggregates_threshold(void);
 
 // Threshold of Loop Unroll Pass
-static Int  p_loop_unroll_threshold( USES_REGS1 );
+static Int  p_loop_unroll_threshold(void);
 
 // Threshold of Function Inlining Pass
-static Int  p_inline_threshold( USES_REGS1 );
+static Int  p_inline_threshold(void);
 
 // Eliminates (or not) only debugging information on Strip Symbols Pass
-static Int  p_strip_symbols_pass_type( USES_REGS1 );
+static Int  p_strip_symbols_pass_type(void);
 
 // Optimizes (or not) for size on Loop Unswitch Pass
-static Int  p_loop_unswitch_optimize_for_size( USES_REGS1 );
+static Int  p_loop_unswitch_optimize_for_size(void);
 
 /*
  * Default value of 'max elements on Argument Promotion Pass *
@@ -69,25 +69,25 @@ static Int  p_loop_unswitch_optimize_for_size( USES_REGS1 );
  *                  'Strip Symbols Pass *
  *                  'Loop Unswitch Pass *
 */
-static Int  p_default_optimization_args( USES_REGS1 );
+static Int  p_default_optimization_args(void);
 
 // Same as 'p_default_optimization_args'
-static Int  p_reset_optimization_args( USES_REGS1 );
+static Int  p_reset_optimization_args(void);
 
 // Enable IPO by LLVM
-static Int  p_enable_unit_at_time( USES_REGS1 );
+static Int  p_enable_unit_at_time(void);
 
 // Enable libcalls simplification by LLVM
-static Int  p_enable_simplify_libcalls( USES_REGS1 );
+static Int  p_enable_simplify_libcalls(void);
 
 // Disable IPO by LLVM
-static Int  p_disable_unit_at_time( USES_REGS1 );
+static Int  p_disable_unit_at_time(void);
 
 // Disable libcalls simplification by LLVM
-static Int  p_disable_simplify_libcalls( USES_REGS1 );
+static Int  p_disable_simplify_libcalls(void);
 
 // Enable (or not) link-time optimization
-static Int  p_link_time_opt1( USES_REGS1 );
+static Int  p_link_time_opt1(void);
 
 /*
  * Same as 'p_link_time_opt1', but accepts 3 arguments: *
@@ -95,26 +95,26 @@ static Int  p_link_time_opt1( USES_REGS1 );
  *   2 -- Should I run internalize?                     *
  *   3 -- Should I run inliner?                         *
 */
-static Int  p_link_time_opt3( USES_REGS1 );
+static Int  p_link_time_opt3(void);
 
 // Enable link-time optimization. Same as 'link_time_opt(true)'
-static Int  p_enable_link_time_opt( USES_REGS1 );
+static Int  p_enable_link_time_opt(void);
 
 /*
  * Same as 'p_enable_link_time_opt', but accepts 2 arguments: *
  *   1 -- Should I run internalize?                     *
  *   2 -- Should I run inliner?                         *
 */
-static Int  p_enable_link_time_opt2( USES_REGS1 );
+static Int  p_enable_link_time_opt2(void);
 
 // Disable link-time optimization.
-static Int  p_disable_link_time_opt( USES_REGS1 );
+static Int  p_disable_link_time_opt(void);
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
-
+	
 static Int
-p_disable_transform_pass( USES_REGS1 )
+p_disable_transform_pass(void)
 {
   // First: stores what transform pass should be disabled
 
@@ -250,7 +250,7 @@ p_disable_transform_pass( USES_REGS1 )
 }
 
 static Int
-p_transform_pass( USES_REGS1 )
+p_transform_pass(void)
 {
   // First: disables analysis pass (if be active)
   p_disable_transform_pass();
@@ -375,13 +375,13 @@ p_transform_pass( USES_REGS1 )
 }
 
 static Int
-p_enable_transform_pass( USES_REGS1 )
+p_enable_transform_pass(void)
 {
   return p_transform_pass();
 }
 
 static Int
-p_transform_passes( USES_REGS1 )
+p_transform_passes(void)
 {
   int i = 0, j = 0;
   char *tmp;
@@ -557,7 +557,7 @@ p_transform_passes( USES_REGS1 )
 }
 
 static Int
-p_enable_all_transform_passes( USES_REGS1 )
+p_enable_all_transform_passes(void)
 {
   // Same as 'transform_passes(all)'
   // First, disable all analysis passes
@@ -577,7 +577,7 @@ p_enable_all_transform_passes( USES_REGS1 )
 }
 
 static Int
-p_disable_all_transform_passes( USES_REGS1 )
+p_disable_all_transform_passes(void)
 {
   // Just empty 'ExpEnv.analysis_struc.act_tr'
   if (ExpEnv.transform_struc.act_tr) free(ExpEnv.transform_struc.act_tr);
@@ -587,7 +587,7 @@ p_disable_all_transform_passes( USES_REGS1 )
 }
 
 static Int
-p_n_transform_passes( USES_REGS1 )
+p_n_transform_passes(void)
 {
   // valid value for ARG1 is just 'integer' (number of transform passes added randomly)
   Term t = Deref(ARG1);
@@ -651,7 +651,7 @@ p_n_transform_passes( USES_REGS1 )
 }
 
 static Int
-p_transform_level( USES_REGS1 )
+p_transform_level(void)
 {
   Term t = Deref(ARG1);
   // valid value for ARG1 is just 'integer'
@@ -682,7 +682,7 @@ p_transform_level( USES_REGS1 )
 }
 
 static Int
-p_argument_promotion_max_elements( USES_REGS1 )
+p_argument_promotion_max_elements(void)
 {
   Term t = Deref(ARG1);
   // valid value for ARG1 is just 'integer'
@@ -710,7 +710,7 @@ p_argument_promotion_max_elements( USES_REGS1 )
 }
 
 static Int
-p_scalar_replace_aggregates_threshold( USES_REGS1 )
+p_scalar_replace_aggregates_threshold(void)
 {
   Term t = Deref(ARG1);
   // valid value for ARG1 is just 'integer'
@@ -734,7 +734,7 @@ p_scalar_replace_aggregates_threshold( USES_REGS1 )
 }
 
 static Int
-p_loop_unroll_threshold( USES_REGS1 )
+p_loop_unroll_threshold(void)
 {
   Term t = Deref(ARG1);
   // valid value for ARG1 is just 'integer'
@@ -758,7 +758,7 @@ p_loop_unroll_threshold( USES_REGS1 )
 }
 
 static Int
-p_inline_threshold( USES_REGS1 )
+p_inline_threshold(void)
 {
   Term t = Deref(ARG1);
   // valid value for ARG1 is just 'integer'
@@ -782,7 +782,7 @@ p_inline_threshold( USES_REGS1 )
 }
 
 static Int
-p_strip_symbols_pass_type( USES_REGS1 )
+p_strip_symbols_pass_type(void)
 {
   Term t = Deref(ARG1);
   // valid values for ARG1 are 'integer' and 'atom'
@@ -820,7 +820,7 @@ p_strip_symbols_pass_type( USES_REGS1 )
 }
 
 static Int
-p_loop_unswitch_optimize_for_size( USES_REGS1 )
+p_loop_unswitch_optimize_for_size(void)
 {
   Term t = Deref(ARG1);
   // valid values for ARG1 are 'integer' and 'atom'
@@ -858,7 +858,7 @@ p_loop_unswitch_optimize_for_size( USES_REGS1 )
 }
 
 static Int
-p_default_optimization_args( USES_REGS1 )
+p_default_optimization_args(void)
 {
   /* resetting arguments used in some passes */
   ExpEnv.transform_struc.opt_args.arg_promotion_max_elements = 3; // Argument Promotion Pass
@@ -886,7 +886,7 @@ p_default_optimization_args( USES_REGS1 )
 }
 
 static Int
-p_reset_optimization_args( USES_REGS1 )
+p_reset_optimization_args(void)
 {
   // Same as 'p_default_optimization_args'
   p_default_optimization_args();
@@ -894,7 +894,7 @@ p_reset_optimization_args( USES_REGS1 )
 }
 
 static Int
-p_enable_unit_at_time( USES_REGS1 )
+p_enable_unit_at_time(void)
 {
   // Enable IPO
   ExpEnv.transform_struc.unit_at_time_enabled = 1;
@@ -902,7 +902,7 @@ p_enable_unit_at_time( USES_REGS1 )
 }
 
 static Int
-p_enable_simplify_libcalls( USES_REGS1 )
+p_enable_simplify_libcalls(void)
 {
   // Enable libcalls simplification
   ExpEnv.transform_struc.simplify_libcalls_enabled = 1;
@@ -910,7 +910,7 @@ p_enable_simplify_libcalls( USES_REGS1 )
 }
 
 static Int
-p_disable_unit_at_time( USES_REGS1 )
+p_disable_unit_at_time(void)
 {
   // Disable IPO
   ExpEnv.transform_struc.unit_at_time_enabled = 0;
@@ -918,7 +918,7 @@ p_disable_unit_at_time( USES_REGS1 )
 }
 
 static Int
-p_disable_simplify_libcalls( USES_REGS1 )
+p_disable_simplify_libcalls(void)
 {
   // Disable libcalls simplification
   ExpEnv.transform_struc.simplify_libcalls_enabled = 0;
@@ -926,7 +926,7 @@ p_disable_simplify_libcalls( USES_REGS1 )
 }
 
 static Int
-p_link_time_opt1( USES_REGS1 )
+p_link_time_opt1(void)
 {
   Term t = Deref(ARG1);
   // valid value for ARG1 are 'integer' and 'atom'
@@ -976,7 +976,7 @@ p_link_time_opt1( USES_REGS1 )
 }
 
 static Int
-p_link_time_opt3( USES_REGS1 )
+p_link_time_opt3(void)
 {
   Term t = Deref(ARG1);
   // valid value for ARG1 are 'integer' and 'atom'
@@ -1085,7 +1085,7 @@ p_link_time_opt3( USES_REGS1 )
 }
 
 static Int
-p_enable_link_time_opt( USES_REGS1 )
+p_enable_link_time_opt(void)
 {
   // Same as 'link_time_opt(true)'
   ExpEnv.transform_struc.link_time_opt.enabled = 1;
@@ -1095,7 +1095,7 @@ p_enable_link_time_opt( USES_REGS1 )
 }
 
 static Int
-p_enable_link_time_opt2( USES_REGS1 )
+p_enable_link_time_opt2(void)
 {
   Term t = Deref(ARG1);
   // valid value for ARG1 are 'integer' and 'atom'
@@ -1172,7 +1172,7 @@ p_enable_link_time_opt2( USES_REGS1 )
 }
 
 static Int
-p_disable_link_time_opt( USES_REGS1 )
+p_disable_link_time_opt(void)
 {
   ExpEnv.transform_struc.link_time_opt.enabled = 0;
   ExpEnv.transform_struc.link_time_opt.internalize = 0;
@@ -1183,7 +1183,7 @@ p_disable_link_time_opt( USES_REGS1 )
 #pragma GCC diagnostic pop
 
 void
-Yap_InitJitTransformPreds( void )
+Yap_InitJitTransformPreds(void)
 {
   Yap_InitCPred("disable_transform_pass", 1, p_disable_transform_pass, SafePredFlag);
   Yap_InitCPred("transform_pass", 1, p_transform_pass, SafePredFlag);

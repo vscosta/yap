@@ -21,7 +21,7 @@
 #define P_DIF_DIF_NVAR1_NVAR2 \
     BLOCK = (CELL)P_DIF_DIF_NVAR1_NVAR2; \
     if (d0 == d1) { \
-	  (*_PREG) = (*_PREG)->u.l.l; \
+	  (*_PREG) = (*_PREG)->y_u.l.l; \
 	  GONext(); \
     } \
     else { \
@@ -36,7 +36,7 @@
 	    pt0 = TR; \
 	    BEGCHO(pt1); \
 	    pt1 = B; \
-	    HRBREG = HR; \
+	    HBREG = HR; \
 	    B = (choiceptr) HR; \
 	    B->cp_h = HR; \
 	    SET_BB(B); \
@@ -48,8 +48,8 @@
 	    }\
 	    B = pt1; \
 	    SET_BB(PROTECT_FROZEN_B(pt1)); \
-	    HR = HRBREG; \
-	    HRBREG = B->cp_h; \
+	    HR = HBREG; \
+	    HBREG = B->cp_h; \
 	    while (TR != pt0) { \
 	      d1 = TrailTerm(--TR); \
 	      if (IsVarTerm(d1)) { \
@@ -64,7 +64,7 @@
 	      } \
 	    } \
 	    if (opresult) { \
-	      (*_PREG) = (*_PREG)->u.l.l; \
+	      (*_PREG) = (*_PREG)->y_u.l.l; \
 	      GONext(); \
 	    } \
 	    else { \
@@ -78,7 +78,7 @@
 #define P_DIF_DIF_NVAR1_NVAR2 \
     BLOCK = (CELL)P_DIF_DIF_NVAR1_NVAR2; \
     if (d0 == d1) { \
-	  (*_PREG) = (*_PREG)->u.l.l; \
+	  (*_PREG) = (*_PREG)->y_u.l.l; \
 	  GONext(); \
     } \
     else { \
@@ -93,7 +93,7 @@
 	    pt0 = TR; \
 	    BEGCHO(pt1); \
 	    pt1 = B; \
-	    HRBREG = HR; \
+	    HBREG = HR; \
 	    B = (choiceptr) HR; \
 	    B->cp_h = HR; \
 	    SET_BB(B); \
@@ -105,8 +105,8 @@
 	    }\
 	    B = pt1; \
 	    SET_BB(PROTECT_FROZEN_B(pt1)); \
-	    HR = HRBREG; \
-	    HRBREG = B->cp_h; \
+	    HR = HBREG; \
+	    HBREG = B->cp_h; \
 	    while (TR != pt0) { \
 	      d1 = TrailTerm(--TR); \
 	      if (IsVarTerm(d1)) { \
@@ -122,7 +122,7 @@
 	      } \
 	    } \
 	    if (opresult) { \
-	      (*_PREG) = (*_PREG)->u.l.l; \
+	      (*_PREG) = (*_PREG)->y_u.l.l; \
 	      GONext(); \
 	    } \
 	    else { \
@@ -137,7 +137,7 @@
 #define P_DIF_DIF_NVAR1_NVAR2 \
     BLOCK = (CELL)P_DIF_DIF_NVAR1_NVAR2; \
     if (d0 == d1) { \
-	  (*_PREG) = (*_PREG)->u.l.l; \
+	  (*_PREG) = (*_PREG)->y_u.l.l; \
 	  GONext(); \
     } \
     else { \
@@ -152,7 +152,7 @@
 	    pt0 = TR; \
 	    BEGCHO(pt1); \
 	    pt1 = B; \
-	    HRBREG = HR; \
+	    HBREG = HR; \
 	    B = (choiceptr) HR; \
 	    B->cp_h = HR; \
 	    SET_BB(B); \
@@ -164,8 +164,8 @@
 	    }\
 	    B = pt1; \
 	    SET_BB(PROTECT_FROZEN_B(pt1)); \
-	    HR = HRBREG; \
-	    HRBREG = B->cp_h; \
+	    HR = HBREG; \
+	    HBREG = B->cp_h; \
 	    while (TR != pt0) { \
 	      d1 = TrailTerm(--TR); \
 	      if (IsVarTerm(d1)) { \
@@ -177,7 +177,7 @@
 	      } \
 	    } \
 	    if (opresult) { \
-	      (*_PREG) = (*_PREG)->u.l.l; \
+	      (*_PREG) = (*_PREG)->y_u.l.l; \
 	      GONext(); \
 	    } \
 	    else { \
@@ -194,7 +194,7 @@
 #define P_DIF_DIF_NVAR1_NVAR2 \
     BLOCK = (CELL)P_DIF_DIF_NVAR1_NVAR2; \
     if (d0 == d1) { \
-	  (*_PREG) = (*_PREG)->u.l.l; \
+	  (*_PREG) = (*_PREG)->y_u.l.l; \
 	  GONext(); \
     } \
     else { \
@@ -209,7 +209,7 @@
 	    pt0 = TR; \
 	    BEGCHO(pt1); \
 	    pt1 = B; \
-	    HRBREG = HR; \
+	    HBREG = HR; \
 	    B = (choiceptr) HR; \
 	    B->cp_h = HR; \
 	    SET_BB(B); \
@@ -221,8 +221,8 @@
 	    } \
 	    B = pt1; \
 	    SET_BB(PROTECT_FROZEN_B(pt1)); \
-	    HR = HRBREG; \
-	    HRBREG = B->cp_h; \
+	    HR = HBREG; \
+	    HBREG = B->cp_h; \
 	    while (TR != pt0) { \
 	      d1 = TrailTerm(--TR); \
 	      if (IsVarTerm(d1)) { \
@@ -233,7 +233,7 @@
 	      } \
 	    } \
 	    if (opresult) { \
-	      (*_PREG) = (*_PREG)->u.l.l; \
+	      (*_PREG) = (*_PREG)->y_u.l.l; \
 	      GONext(); \
 	    } \
 	    else { \
@@ -247,7 +247,7 @@
 #define P_DIF_DIF_NVAR1_NVAR2 \
     BLOCK = (CELL)P_DIF_DIF_NVAR1_NVAR2; \
     if (d0 == d1) { \
-	  (*_PREG) = (*_PREG)->u.l.l; \
+	  (*_PREG) = (*_PREG)->y_u.l.l; \
 	  GONext(); \
     } \
     else { \
@@ -262,7 +262,7 @@
 	    pt0 = TR; \
 	    BEGCHO(pt1); \
 	    pt1 = B; \
-	    HRBREG = HR; \
+	    HBREG = HR; \
 	    B = (choiceptr) HR; \
 	    B->cp_h = HR; \
 	    SET_BB(B); \
@@ -274,8 +274,8 @@
 	    }\
 	    B = pt1; \
 	    SET_BB(PROTECT_FROZEN_B(pt1)); \
-	    HR = HRBREG; \
-	    HRBREG = B->cp_h; \
+	    HR = HBREG; \
+	    HBREG = B->cp_h; \
 	    while (TR != pt0) { \
 	      d1 = TrailTerm(--TR); \
 	      if (IsVarTerm(d1)) { \
@@ -287,7 +287,7 @@
 	      } \
 	    } \
 	    if (opresult) { \
-	      (*_PREG) = (*_PREG)->u.l.l; \
+	      (*_PREG) = (*_PREG)->y_u.l.l; \
 	      GONext(); \
 	    } \
 	    else { \
@@ -302,7 +302,7 @@
 #define P_DIF_DIF_NVAR1_NVAR2 \
     BLOCK = (CELL)P_DIF_DIF_NVAR1_NVAR2; \
     if (d0 == d1) { \
-	  (*_PREG) = (*_PREG)->u.l.l; \
+	  (*_PREG) = (*_PREG)->y_u.l.l; \
 	  GONext(); \
     } \
     else { \
@@ -317,7 +317,7 @@
 	    pt0 = TR; \
 	    BEGCHO(pt1); \
 	    pt1 = B; \
-	    HRBREG = HR; \
+	    HBREG = HR; \
 	    B = (choiceptr) HR; \
 	    B->cp_h = HR; \
 	    SET_BB(B); \
@@ -329,8 +329,8 @@
 	    }\
 	    B = pt1; \
 	    SET_BB(PROTECT_FROZEN_B(pt1)); \
-	    HR = HRBREG; \
-	    HRBREG = B->cp_h; \
+	    HR = HBREG; \
+	    HBREG = B->cp_h; \
 	    while (TR != pt0) { \
 	      d1 = TrailTerm(--TR); \
 	      if (IsVarTerm(d1)) { \
@@ -338,7 +338,7 @@
 	      } \
 	    } \
 	    if (opresult) { \
-	      (*_PREG) = (*_PREG)->u.l.l; \
+	      (*_PREG) = (*_PREG)->y_u.l.l; \
 	      GONext(); \
 	    } \
 	    else { \
@@ -357,7 +357,7 @@
 #define P_DIF_DIF_NVAR1_NVAR2 \
     BLOCK = (CELL)P_DIF_DIF_NVAR1_NVAR2; \
     if (d0 == d1) { \
-	  (*_PREG) = (*_PREG)->u.l.l; \
+	  (*_PREG) = (*_PREG)->y_u.l.l; \
 	  GONext(); \
     } \
     else { \
@@ -371,7 +371,7 @@
 	    pt0 = TR; \
 	    BEGCHO(pt1); \
 	    pt1 = B; \
-	    HRBREG = HR; \
+	    HBREG = HR; \
 	    B = (choiceptr) HR; \
 	    B->cp_h = HR; \
 	    SET_BB(B); \
@@ -379,7 +379,7 @@
 	    opresult = Yap_IUnify(d0, d1); \
 	    B = pt1; \
 	    SET_BB(PROTECT_FROZEN_B(pt1)); \
-	    HRBREG = B->cp_h; \
+	    HBREG = B->cp_h; \
 	    while (TR != pt0) { \
 	      d1 = TrailTerm(--TR); \
 	      if (IsVarTerm(d1)) { \
@@ -394,7 +394,7 @@
 	      } \
 	    } \
 	    if (opresult) { \
-	      (*_PREG) = (*_PREG)->u.l.l; \
+	      (*_PREG) = (*_PREG)->y_u.l.l; \
 	      GONext(); \
 	    } \
 	    else { \
@@ -408,7 +408,7 @@
 #define P_DIF_DIF_NVAR1_NVAR2 \
     BLOCK = (CELL)P_DIF_DIF_NVAR1_NVAR2; \
     if (d0 == d1) { \
-	  (*_PREG) = (*_PREG)->u.l.l; \
+	  (*_PREG) = (*_PREG)->y_u.l.l; \
 	  GONext(); \
     } \
     else { \
@@ -422,7 +422,7 @@
 	    pt0 = TR; \
 	    BEGCHO(pt1); \
 	    pt1 = B; \
-	    HRBREG = HR; \
+	    HBREG = HR; \
 	    B = (choiceptr) HR; \
 	    B->cp_h = HR; \
 	    SET_BB(B); \
@@ -430,7 +430,7 @@
 	    opresult = Yap_IUnify(d0, d1); \
 	    B = pt1; \
 	    SET_BB(PROTECT_FROZEN_B(pt1)); \
-	    HRBREG = B->cp_h; \
+	    HBREG = B->cp_h; \
 	    while (TR != pt0) { \
 	      d1 = TrailTerm(--TR); \
 	      if (IsVarTerm(d1)) { \
@@ -446,7 +446,7 @@
 	      } \
 	    } \
 	    if (opresult) { \
-	      (*_PREG) = (*_PREG)->u.l.l; \
+	      (*_PREG) = (*_PREG)->y_u.l.l; \
 	      GONext(); \
 	    } \
 	    else { \
@@ -461,7 +461,7 @@
 #define P_DIF_DIF_NVAR1_NVAR2 \
     BLOCK = (CELL)P_DIF_DIF_NVAR1_NVAR2; \
     if (d0 == d1) { \
-	  (*_PREG) = (*_PREG)->u.l.l; \
+	  (*_PREG) = (*_PREG)->y_u.l.l; \
 	  GONext(); \
     } \
     else { \
@@ -475,7 +475,7 @@
 	    pt0 = TR; \
 	    BEGCHO(pt1); \
 	    pt1 = B; \
-	    HRBREG = HR; \
+	    HBREG = HR; \
 	    B = (choiceptr) HR; \
 	    B->cp_h = HR; \
 	    SET_BB(B); \
@@ -483,7 +483,7 @@
 	    opresult = Yap_IUnify(d0, d1); \
 	    B = pt1; \
 	    SET_BB(PROTECT_FROZEN_B(pt1)); \
-	    HRBREG = B->cp_h; \
+	    HBREG = B->cp_h; \
 	    while (TR != pt0) { \
 	      d1 = TrailTerm(--TR); \
 	      if (IsVarTerm(d1)) { \
@@ -495,7 +495,7 @@
 	      } \
 	    } \
 	    if (opresult) { \
-	      (*_PREG) = (*_PREG)->u.l.l; \
+	      (*_PREG) = (*_PREG)->y_u.l.l; \
 	      GONext(); \
 	    } \
 	    else { \
@@ -512,7 +512,7 @@
 #define P_DIF_DIF_NVAR1_NVAR2 \
     BLOCK = (CELL)P_DIF_DIF_NVAR1_NVAR2; \
     if (d0 == d1) { \
-	  (*_PREG) = (*_PREG)->u.l.l; \
+	  (*_PREG) = (*_PREG)->y_u.l.l; \
 	  GONext(); \
     } \
     else { \
@@ -526,7 +526,7 @@
 	    pt0 = TR; \
 	    BEGCHO(pt1); \
 	    pt1 = B; \
-	    HRBREG = HR; \
+	    HBREG = HR; \
 	    B = (choiceptr) HR; \
 	    B->cp_h = HR; \
 	    SET_BB(B); \
@@ -534,7 +534,7 @@
 	    opresult = Yap_IUnify(d0, d1); \
 	    B = pt1; \
 	    SET_BB(PROTECT_FROZEN_B(pt1)); \
-	    HRBREG = B->cp_h; \
+	    HBREG = B->cp_h; \
 	    while (TR != pt0) { \
 	      d1 = TrailTerm(--TR); \
 	      if (IsVarTerm(d1)) { \
@@ -545,7 +545,7 @@
 	      } \
 	    } \
 	    if (opresult) { \
-	      (*_PREG) = (*_PREG)->u.l.l; \
+	      (*_PREG) = (*_PREG)->y_u.l.l; \
 	      GONext(); \
 	    } \
 	    else { \
@@ -559,7 +559,7 @@
 #define P_DIF_DIF_NVAR1_NVAR2 \
     BLOCK = (CELL)P_DIF_DIF_NVAR1_NVAR2; \
     if (d0 == d1) { \
-	  (*_PREG) = (*_PREG)->u.l.l; \
+	  (*_PREG) = (*_PREG)->y_u.l.l; \
 	  GONext(); \
     } \
     else { \
@@ -573,7 +573,7 @@
 	    pt0 = TR; \
 	    BEGCHO(pt1); \
 	    pt1 = B; \
-	    HRBREG = HR; \
+	    HBREG = HR; \
 	    B = (choiceptr) HR; \
 	    B->cp_h = HR; \
 	    SET_BB(B); \
@@ -581,7 +581,7 @@
 	    opresult = Yap_IUnify(d0, d1); \
 	    B = pt1; \
 	    SET_BB(PROTECT_FROZEN_B(pt1)); \
-	    HRBREG = B->cp_h; \
+	    HBREG = B->cp_h; \
 	    while (TR != pt0) { \
 	      d1 = TrailTerm(--TR); \
 	      if (IsVarTerm(d1)) { \
@@ -593,7 +593,7 @@
 	      } \
 	    } \
 	    if (opresult) { \
-	      (*_PREG) = (*_PREG)->u.l.l; \
+	      (*_PREG) = (*_PREG)->y_u.l.l; \
 	      GONext(); \
 	    } \
 	    else { \
@@ -608,7 +608,7 @@
 #define P_DIF_DIF_NVAR1_NVAR2 \
     BLOCK = (CELL)P_DIF_DIF_NVAR1_NVAR2; \
     if (d0 == d1) { \
-	  (*_PREG) = (*_PREG)->u.l.l; \
+	  (*_PREG) = (*_PREG)->y_u.l.l; \
 	  GONext(); \
     } \
     else { \
@@ -622,7 +622,7 @@
 	    pt0 = TR; \
 	    BEGCHO(pt1); \
 	    pt1 = B; \
-	    HRBREG = HR; \
+	    HBREG = HR; \
 	    B = (choiceptr) HR; \
 	    B->cp_h = HR; \
 	    SET_BB(B); \
@@ -630,7 +630,7 @@
 	    opresult = Yap_IUnify(d0, d1); \
 	    B = pt1; \
 	    SET_BB(PROTECT_FROZEN_B(pt1)); \
-	    HRBREG = B->cp_h; \
+	    HBREG = B->cp_h; \
 	    while (TR != pt0) { \
 	      d1 = TrailTerm(--TR); \
 	      if (IsVarTerm(d1)) { \
@@ -638,7 +638,7 @@
 	      } \
 	    } \
 	    if (opresult) { \
-	      (*_PREG) = (*_PREG)->u.l.l; \
+	      (*_PREG) = (*_PREG)->y_u.l.l; \
 	      GONext(); \
 	    } \
 	    else { \
@@ -653,9 +653,9 @@
 #endif /* COROUTINING */
 
 #define P_DIF_DIF_UNK1 \
-      (*_PREG) = (*_PREG)->u.l.l; \
+      (*_PREG) = (*_PREG)->y_u.l.l; \
       GONext();
 
 #define P_DIF_DIF_NVAR1_UNK2 \
-      (*_PREG) = (*_PREG)->u.l.l; \
+      (*_PREG) = (*_PREG)->y_u.l.l; \
       GONext();
