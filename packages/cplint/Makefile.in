@@ -140,8 +140,9 @@ CPLINT_DOCS=\
 	$(CPLINT_DOCDIR)/manual.pdf \
 	$(CPLINT_DOCDIR)/manual.html \
 	$(CPLINT_DOCDIR)/manual.css \
-	$(CPLINT_DOCDIR)/manual0x.png \
-	$(CPLINT_DOCDIR)/Makefile
+	$(CPLINT_DOCDIR)/manual0x.png
+	
+#	$(CPLINT_DOCDIR)/Makefile
 
 CPLINT_LEARNING_PROGRAMS=\
 	$(CPLINT_SRCDIR)/em \
