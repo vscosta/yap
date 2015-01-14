@@ -489,7 +489,8 @@ Term  Yap_gmp_exp_big_big(Term,Term);
 Term  Yap_gmp_gcd_int_big(Int,Term);
 Term  Yap_gmp_gcd_big_big(Term,Term);
 
-Term  Yap_gmp_big_from_64bits(YAP_LONG_LONG);
+Term  Yap_gmp_big_from_64bits(int64_t);
+int64_t  Yap_gmp_big_to_64bits(Term);
 
 Term  Yap_gmp_float_to_big(Float);
 Term  Yap_gmp_float_to_rational(Float);
@@ -538,12 +539,12 @@ int   Yap_term_to_existing_rat(Term, MP_RAT *);
 void  Yap_gmp_set_bit(Int i, Term t);
 #endif
 
-#define Yap_Mk64IntegerTerm(i) __Yap_Mk64IntegerTerm((i) PASS_REGS)
+#define Yap_MkInt64Term(i) __Yap_MkInt64Term((i) PASS_REGS)
 
-INLINE_ONLY inline EXTERN Term __Yap_Mk64IntegerTerm(YAP_LONG_LONG USES_REGS);
+INLINE_ONLY inline EXTERN Term __Yap_MkInt64Term(YAP_LONG_LONG USES_REGS);
 
 INLINE_ONLY inline EXTERN Term
-__Yap_Mk64IntegerTerm(YAP_LONG_LONG i USES_REGS)
+__Yap_MkInt64Term(YAP_LONG_LONG i USES_REGS)
 {
   if (i <= Int_MAX && i >= Int_MIN) {
     return MkIntegerTerm((Int)i);
@@ -552,6 +553,37 @@ __Yap_Mk64IntegerTerm(YAP_LONG_LONG i USES_REGS)
     return Yap_gmp_big_from_64bits(i);
 #else
     return MkIntTerm(-1);
+#endif
+  }
+}
+
+INLINE_ONLY inline EXTERN bool IsInt64Term (Term);
+
+INLINE_ONLY inline EXTERN bool
+IsInt64Term (Term t)
+{
+  CELL *pt;
+  return IsIntegerTerm (t)
+	  ||(FunctorOfTerm (t) == FunctorBigInt &&
+	     ( pt = RepAppl(t)) &&
+	     pt[1] == BIG_INT &&
+	     mpz_sizeinbase(Yap_BigIntOfTerm(t), 2) < 64);
+}
+
+#define Yap_Int64OfTerm(i) __Yap_Int64OfTerm((i) PASS_REGS)
+
+INLINE_ONLY inline EXTERN int64_t __Yap_Int64OfTerm(Term t USES_REGS);
+
+INLINE_ONLY inline EXTERN int64_t
+__Yap_Int64OfTerm( Term t USES_REGS)
+{
+  if (IsIntegerTerm( t )) {
+    return IntegerOfTerm(t);
+  } else {
+#if USE_GMP
+    return Yap_gmp_big_to_64bits(t);
+#else
+    return 0;
 #endif
   }
 }

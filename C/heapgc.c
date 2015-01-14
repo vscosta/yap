@@ -4179,7 +4179,7 @@ p_inform_gc( USES_REGS1 )
 {
   Term tn = MkIntegerTerm(LOCAL_TotGcTime);
   Term tt = MkIntegerTerm(LOCAL_GcCalls);
-  Term ts = Yap_Mk64IntegerTerm((LOCAL_TotGcRecovered*sizeof(CELL)));
+  Term ts = Yap_MkInt64Term((LOCAL_TotGcRecovered*sizeof(CELL)));
  
   return(Yap_unify(tn, ARG2) && Yap_unify(tt, ARG1) && Yap_unify(ts, ARG3));
 

@@ -193,7 +193,7 @@ do_execute(Term t, Term mod USES_REGS)
 	Yap_get_signal( YAP_CREEP_SIGNAL ) ) {
       CalculateStackGap( PASS_REGS1 );
     }
-    return CallMetaCall(ARG1, mod PASS_REGS);
+    return CallMetaCall(t, mod PASS_REGS);
   } else if (Yap_has_a_signal()  &&
 	     !LOCAL_InterruptsDisabled &&
 	     !(LOCAL_PrologMode & (AbortMode|InterruptMode|SystemMode))) {
@@ -406,7 +406,14 @@ do_execute_n(Term t, Term mod, unsigned int n USES_REGS)
 static Int
 EnterCreepMode(Term t, Term mod USES_REGS) {
   PredEntry *PredCreep;
-
+  
+  if ( Yap_only_has_signal( YAP_CREEP_SIGNAL ) ) { 
+    PredEntry *pen = Yap_Pred( t, mod, " creep" );
+    if (pen->PredFlags & NoTracePredFlag) {
+      Yap_get_signal( YAP_CREEP_SIGNAL );
+      return do_execute(ARG1, mod PASS_REGS);
+    }
+  }
   if (Yap_get_signal( YAP_CDOVF_SIGNAL ) ) {
     ARG1 = t;
     if (!Yap_locked_growheap(FALSE, 0, NULL)) {
