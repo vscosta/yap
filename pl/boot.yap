@@ -1471,7 +1471,7 @@ expand_term(Term,Expanded) :-
 %
 '$expand_array_accesses_in_term'(Expanded0,ExpandedF) :-
 	'$array_refs_compiled',
-	'$arrays':'$c_arrays'(Expanded0,ExpandedF), !.
+	'$c_arrays'(Expanded0,ExpandedF), !.
 '$expand_array_accesses_in_term'(Expanded,Expanded).
 
 
