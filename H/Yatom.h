@@ -1865,6 +1865,38 @@ PredPropByAtomAndMod (Atom at, Term cur_mod)
   return Yap_NewPredPropByAtom (ae, cur_mod);
 }
 
+//
+// report arity, name, and module for a predicate.
+//
+INLINE_ONLY inline EXTERN 
+  UInt IndicatorOfPred(PredEntry * ap, const char *name, const char *module);
+
+INLINE_ONLY inline EXTERN 
+  UInt IndicatorOfPred(PredEntry * ap, const char *name, const char *module)
+{
+  Term tmod = ap->ModuleOfPred;
+  if (!tmod) module = "prolog";
+  else module = RepAtom(AtomOfTerm( tmod ))->StrOfAE;
+  if (ap->ModuleOfPred == IDB_MODULE &&
+      ap->PredFlags & NumberDBPredFlag) {
+	Int id = ap->src.IndxId;
+	char *s = (char *)malloc(16);
+        snprintf(s, 15, Int_FORMAT, id);
+	name = s;
+	return 0;
+  }
+  if (ap->ArityOfPE == 0) {
+	Atom At = (Atom)ap->FunctorOfPred;
+	name = RepAtom(At)->StrOfAE;
+	return 0;
+      } else {
+	Functor f = ap->FunctorOfPred;
+	Atom At = NameOfFunctor(f);
+	name = RepAtom(At)->StrOfAE;
+	return ArityOfFunctor(f);
+     }
+}
+
 #if DEBUG_PELOCKING
 #define PELOCK(I,Z)						\
   { LOCK((Z)->PELock); (Z)->StatisticsForPred.NOfEntries=(I);(Z)->StatisticsForPred.NOfHeadSuccesses=pthread_self(); }
