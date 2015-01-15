@@ -693,7 +693,7 @@ read_tag(IOSTREAM *stream)
   return ch;
 }
 
-static UInt
+static pred_flags_t
 read_predFlags(IOSTREAM *stream)
 {
   pred_flags_t v;
