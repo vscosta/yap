@@ -1577,12 +1577,15 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
   if (pe->PredFlags & SWIEnvPredFlag) {
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context ctx;
-    UInt i;
-    Int sl = 0;
+    UInt i, arity = pe->ArityOfPE;
+    yhandle_t sl = 0;
 
     ctx.engine = NULL;
-    for (i=pe->ArityOfPE; i > 0; i--) {
-      sl = Yap_InitSlot(XREGS[i] PASS_REGS);
+    if (arity > 0) {
+      sl = Yap_NewSlots( arity );
+      for (i= 0; i <  arity; i++ ) {
+	Yap_PutInSlot(sl+i, XREGS[i+1] PASS_REGS);
+      }
     }
     PP = pe;
     ret = ((codev)(sl,0,&ctx));
@@ -1625,7 +1628,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
   CACHE_REGS
   CELL ocp = LCL0-(CELL *)B;
   /* for slots to work */
-  Int CurSlot = Yap_StartSlots( PASS_REGS1 );
+  yhandle_t CurSlot = Yap_StartSlots( PASS_REGS1 );
   if (pe->PredFlags & (SWIEnvPredFlag|CArgsPredFlag|ModuleTransparentPredFlag)) {
     uintptr_t val;
     CPredicateV codev = (CPredicateV)exec_code;
@@ -1693,7 +1696,7 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
-    Int CurSlot;
+    yhandle_t CurSlot;
     CELL *args = B->cp_args;
 
     B = oB;
@@ -1726,7 +1729,8 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
       return TRUE;
     } 
   } else {
-    Int ret, CurSlot;
+    Int ret;
+    yhandle_t CurSlot;
     B = oB;
     /* for slots to work */
     CurSlot = Yap_StartSlots( PASS_REGS1 );
@@ -1752,7 +1756,7 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
 {
   CACHE_REGS
     /* for slots to work */
-  Int CurSlot = Yap_StartSlots( PASS_REGS1 );
+  yhandle_t CurSlot = Yap_StartSlots( PASS_REGS1 );
   UInt ocp = LCL0-(CELL *)B;
   if (pe->PredFlags & (SWIEnvPredFlag|CArgsPredFlag)) {
     Int val;
