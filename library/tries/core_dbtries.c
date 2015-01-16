@@ -215,7 +215,7 @@ TrNode   replace_nested_trie(TrNode node, TrNode child, YAP_Term new_term, void 
 void     check_attach_childs(TrNode parent, TrNode search_child, TrNode existing_child, void (*construct_function)(TrNode), void (*destruct_function)(TrNode));
 TrNode   get_simplification_sibling(TrNode node);
 TrNode   check_parent_first(TrNode node);
-TrNode   TrNode_myparent(TrNode node);
+//TrNode   TrNode_myparent(TrNode node);
 
 /* -------------------------- */
 /*       Debug Procedures     */
@@ -538,24 +538,24 @@ TrNode get_simplification_sibling(TrNode node) {
 
 TrNode check_parent_first(TrNode node) {
   TrNode simplification;
-  if (TrNode_entry(TrNode_myparent(node)) != PairInitTag) {
-    simplification = check_parent_first(TrNode_myparent(node));
+  if (TrNode_entry(TrNode_parent(node)) != PairInitTag) {
+    simplification = check_parent_first(TrNode_parent(node));
     if (simplification != NULL && TrNode_entry(simplification) == PairEndTag) return simplification;
   }
   simplification = get_simplification_sibling(node);
   return simplification;
 }
 
-TrNode TrNode_myparent(TrNode node) {
+/*TrNode TrNode_myparent(TrNode node) {
   TrNode parent = TrNode_parent(node);
   while (parent != NULL && IS_FUNCTOR_NODE(parent))
     parent = TrNode_parent(parent);
   return parent;
-}
+}*/
 
 TrNode core_simplification_reduction(TrEngine engine, TrNode node, void (*destruct_function)(TrNode)) {
   /* Try to find the greatest parent that has a sibling that is a PairEndTag: this indicates a deep simplification */
-  node = check_parent_first(TrNode_myparent(node));
+  node = check_parent_first(TrNode_parent(node));
   if (node != NULL) {
     /* do breadth reduction simplification */
     node = TrNode_parent(node);
