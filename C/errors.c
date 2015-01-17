@@ -530,7 +530,7 @@ Yap_bug_location(yamop *pc)
 static char tmpbuf[YAP_BUF_SIZE];
 
 yamop *
-Yap_NilError(yap_error_number type, char *format,...)
+Yap_NilError(yap_error_number type, const char *format,...)
 {
   va_list ap;
   yamop *res;
@@ -544,7 +544,7 @@ Yap_NilError(yap_error_number type, char *format,...)
 }
 
 yamop *
-Yap_Error(yap_error_number type, Term where, char *format,...)
+Yap_Error(yap_error_number type, Term where, const char *format,...)
 {
   CACHE_REGS
   va_list ap;
