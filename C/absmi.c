@@ -532,6 +532,19 @@ Term Yap_XREGS[MaxTemps];	/* 29                                     */
 
 #include "arith2.h"
 
+// #include "print_preg.h"
+//#include "sprint_op.hpp"
+//#include "print_op.hpp"
+
+#if YAP_JIT
+#include "IsGround.h"
+#include "yaam_macros.hpp"
+#include "fprintblock.h"
+#endif /* YAP_JIT */
+#if YAP_DBG_PREDS
+#include "debug_printers.h"
+#endif
+
 #ifdef COROUTINING
 /*
   Imagine we are interrupting the execution, say, because we have a spy
@@ -750,6 +763,7 @@ interrupt_handler( PredEntry *pe USES_REGS )
   CACHE_A1();
   return true;
 }
+
 
 // interrupt handling code that sets up the case when we do not have
 // a guaranteed environment.
@@ -1552,6 +1566,43 @@ Yap_absmi(int inp)
    * reason */
 #define I_R (XREGS[0])
 
+#if YAP_JIT
+#if YAP_STAT_PREDS
+  struct timeval timstart, timend;
+  struct rusage rustart, ruend;
+#endif
+  static void *control_labels[] = { &&fail, &&NoStackCut, &&NoStackCommitY, &&NoStackCutT, &&NoStackEither, &&NoStackExecute, &&NoStackCall, &&NoStackDExecute, &&NoStackDeallocate, &&notrailleft, &&NoStackFail, &&NoStackCommitX, &&dospy };
+  curtrace = NULL;
+  curpreg = NULL;
+  globalcurblock = NULL;
+  ineedredefinedest = 0;
+  NativeArea = (NativeContext*)malloc(sizeof(NativeContext));
+  NativeArea->area.p = NULL;
+  NativeArea->area.ok = NULL;
+  NativeArea->area.pc = NULL;
+#if YAP_STAT_PREDS
+  NativeArea->area.nrecomp = NULL;
+  NativeArea->area.compilation_time = NULL;
+  NativeArea->area.native_size_bytes = NULL;
+  NativeArea->area.trace_size_bytes = NULL;
+  NativeArea->success = NULL;
+  NativeArea->runs = NULL;
+  NativeArea->t_runs = NULL;
+#endif
+  NativeArea->n = 0;
+  IntermediatecodeArea = (IntermediatecodeContext*)malloc(sizeof(IntermediatecodeContext));
+  IntermediatecodeArea->area.t = NULL;
+  IntermediatecodeArea->area.ok = NULL;
+  IntermediatecodeArea->area.isactive = NULL;
+  IntermediatecodeArea->area.lastblock = NULL;
+#if YAP_STAT_PREDS
+  IntermediatecodeArea->area.profiling_time = NULL;
+#endif
+  IntermediatecodeArea->n = 0;
+  nnexec = 0;
+  l = 0;
+#endif /* YAP_JIT */
+  
 #if USE_THREADED_CODE
 /************************************************************************/
 /*     Abstract Machine Instruction Address Table                       */
@@ -1565,8 +1616,18 @@ Yap_absmi(int inp)
 #undef  OPCODE
   };
 
+#if YAP_JIT
+  ExpEnv.config_struc.TOTAL_OF_OPCODES = sizeof(OpAddress)/(2*sizeof(void*));
+#endif
+  
 #endif /* USE_THREADED_CODE */
 
+  /*static void* (*nat_glist_valx)(yamop**,yamop**,CELL**,void**,int*);
+    
+    if (nat_glist_valx == NULL) {
+    nat_glist_valx = (void*(*)(yamop**,yamop**,CELL**,void**,int*))call_JIT_Compiler(J, _glist_valx);
+    }*/
+  
 #ifdef SHADOW_REGS
 
   /* work with a local pointer to the registers */
@@ -1735,8 +1796,12 @@ Yap_absmi(int inp)
 
 // move instructions to separate file
 // so that they are easier to analyse.
-#include "absmi_insts.i"
+#include "absmi_insts.h"
 
+#if YAP_JIT
+#include "traced_absmi_insts.i"
+#endif
+        
 #if !USE_THREADED_CODE
     default:
       saveregs();
