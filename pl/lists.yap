@@ -76,6 +76,9 @@ lists:delete([Head|List], Elem, [Head|Residue]) :-
 
 :- '$set_yap_flags'(11,0). % disable source.
 
+conjunctions:conj_member(X, Y) :-
+    var(Y), !,
+    X = Y.
 conjunctions:conj_member(X, (C1,C2)) :-
     conjunctions:conj_member(X, C1).
 conjunctions:conj_member(X, (C1,C2)) :-
