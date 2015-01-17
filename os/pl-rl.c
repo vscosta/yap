@@ -613,7 +613,7 @@ PL_install_readline(void)
   Serror->functions  = &GD->os.rl_functions;
 
 #define PRED(name, arity, func, attr) \
-	PL_register_foreign_in_module("system", name, arity, func, attr)
+  PL_register_foreign_in_module("prolog", name, arity, func, attr)
 
   PRED("rl_read_init_file", 1, pl_rl_read_init_file, 0);
   PRED("rl_add_history",    1, pl_rl_add_history,    PL_FA_NOTRACE);
