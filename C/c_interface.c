@@ -330,7 +330,6 @@
 */
 
 
-#define Bool int
 #define flt double
 #define C_INTERFACE
 
@@ -376,12 +375,20 @@
 #define strncat(X,Y,Z) strcat(X,Y)
 #endif
 
+#ifndef X_API
+
 #if defined(_MSC_VER) && defined(YAP_EXPORTS)
 #define X_API __declspec(dllexport)
+#else
+#define X_API
 #endif
 
+#endif
+
+//!    @{   
+
 /**
-@defgroup slotInterface Term Handles or Slots
+   @defgroup slotInterface Term Handles or Slots
 @ingroup ChYInterface
 @{
 
@@ -495,25 +502,25 @@ YAP_A(int i)
   return(Deref(XREGS[i]));
 }
 
-X_API Bool 
+X_API bool 
 YAP_IsIntTerm(Term t)
 {
   return IsIntegerTerm(t);
 }
 
-X_API Bool 
+X_API bool 
 YAP_IsNumberTerm(Term t)
 {
   return IsIntegerTerm(t) || IsIntTerm(t) || IsFloatTerm(t) || IsBigIntTerm(t);
 }
 
-X_API Bool 
+X_API bool 
 YAP_IsLongIntTerm(Term t)
 {
   return IsLongIntTerm(t);
 }
 
-X_API Bool 
+X_API bool 
 YAP_IsBigNumTerm(Term t)
 {
 #if USE_GMP
@@ -529,7 +536,7 @@ YAP_IsBigNumTerm(Term t)
 #endif
 }
 
-X_API Bool 
+X_API bool 
 YAP_IsRationalTerm(Term t)
 {
 #if USE_GMP
@@ -545,49 +552,49 @@ YAP_IsRationalTerm(Term t)
 #endif
 }
 
-X_API Bool 
+X_API bool 
 YAP_IsVarTerm(Term t)
 {
   return (IsVarTerm(t));
 }
 
-X_API Bool 
+X_API bool 
 YAP_IsNonVarTerm(Term t)
 {
   return (IsNonVarTerm(t));
 }
 
-X_API Bool 
+X_API bool 
 YAP_IsFloatTerm(Term t)
 {
   return (IsFloatTerm(t));
 }
 
-X_API Bool 
+X_API bool 
 YAP_IsDbRefTerm(Term t)
 {
   return (IsDBRefTerm(t));
 }
 
-X_API Bool 
+X_API bool 
 YAP_IsAtomTerm(Term t)
 {
   return (IsAtomTerm(t));
 }
 
-X_API Bool 
+X_API bool 
 YAP_IsPairTerm(Term t)
 {
   return (IsPairTerm(t));
 }
 
-X_API Bool 
+X_API bool 
 YAP_IsApplTerm(Term t)
 {
   return (IsApplTerm(t) && !IsExtensionFunctor(FunctorOfTerm(t)));
 }
 
-X_API Bool 
+X_API bool 
 YAP_IsCompoundTerm(Term t)
 {
   return (IsApplTerm(t) && !IsExtensionFunctor(FunctorOfTerm(t))) ||
@@ -631,7 +638,7 @@ YAP_MkBigNumTerm(void *big)
 #endif /* USE_GMP */
 }
 
-X_API int
+X_API bool
 YAP_BigNumOfTerm(Term t, void *b)
 {
 #if USE_GMP
@@ -661,7 +668,7 @@ YAP_MkRationalTerm(void *big)
 #endif /* USE_GMP */
 }
 
-X_API int
+X_API bool
 YAP_RationalOfTerm(Term t, void *b)
 {
 #if USE_GMP
@@ -753,7 +760,7 @@ YAP_AtomOfTerm(Term t)
 }
 
 
-X_API int
+X_API bool
 YAP_IsWideAtom(Atom a)
 {
   return IsWideAtom(a);
@@ -1127,7 +1134,7 @@ YAP_cut_up(void)
   RECOVER_B();
 }
 
-X_API int
+X_API bool
 YAP_Unify(Term t1, Term t2)
 {
   Int out;
@@ -2278,7 +2285,7 @@ run_emulator(YAP_dogoalinfo *dgi USES_REGS)
   return out;
 }
 
-X_API int
+X_API bool
 YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
 {
   CACHE_REGS
@@ -2305,7 +2312,7 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
   return out;
 }
 
-X_API int
+X_API bool
 YAP_RetryGoal(YAP_dogoalinfo *dgi)
 {
   CACHE_REGS
@@ -2332,7 +2339,7 @@ YAP_RetryGoal(YAP_dogoalinfo *dgi)
   return out;
 }
 
-X_API int
+X_API bool
 YAP_LeaveGoal(int backtrack, YAP_dogoalinfo *dgi)
 {
   CACHE_REGS
@@ -2436,7 +2443,7 @@ YAP_AllocExternalDataInStack(size_t bytes)
   return t;
 }
 
-X_API Bool
+X_API bool
 YAP_IsExternalDataInStackTerm(Term t)
 {
   return IsExternalBlobTerm(t, EXTERNAL_BLOB);
@@ -2475,7 +2482,7 @@ Term YAP_NewOpaqueObject(YAP_opaque_tag_t tag, size_t bytes)
   return t;
 }
 
-X_API Bool
+X_API bool
 YAP_IsOpaqueObjectTerm(Term t, YAP_opaque_tag_t tag)
 {
   return IsExternalBlobTerm(t, (CELL)tag);
@@ -2493,9 +2500,10 @@ YAP_HeapStoreOpaqueTerm(Term t)
   return Yap_HeapStoreOpaqueTerm(t);
 }
 
-X_API Int
-YAP_RunGoalOnce(Term t)
+Int
+Yap_RunGoalOnce(Term t)
 {
+  return Yap_RunGoalOnce( t );
   CACHE_REGS
   Term out;
   yamop *old_CP = CP;
@@ -2547,7 +2555,13 @@ YAP_RunGoalOnce(Term t)
   return out;
 }
 
-X_API int
+X_API Int
+YAP_RunGoalOnce(Term t)
+{
+  return Yap_RunGoalOnce( t );
+}
+
+X_API bool
 YAP_RestartGoal(void)
 {
   CACHE_REGS
@@ -2570,7 +2584,7 @@ YAP_RestartGoal(void)
   return(out);
 }
 
-X_API int
+X_API bool
 YAP_ShutdownGoal(int backtrack)
 {
   CACHE_REGS
@@ -2614,7 +2628,7 @@ YAP_ShutdownGoal(int backtrack)
   return TRUE;
 }
 
-X_API int
+X_API bool
 YAP_ContinueGoal(void)
 {
   CACHE_REGS
@@ -2651,7 +2665,7 @@ YAP_PruneGoal(YAP_dogoalinfo *gi)
   RECOVER_B();
 }
 
-X_API int
+X_API bool
 YAP_GoalHasException(Term *t)
 {
   CACHE_REGS
