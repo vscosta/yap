@@ -129,7 +129,7 @@ Yap_InitSWIHash(void)
 }
 
 static void
-UserCPredicate(char *a, CPredicate def, unsigned long int arity, Term mod, int flags)
+UserCPredicate(char *a, CPredicate def, unsigned long int arity, Term mod, pred_flags_t flags)
 {
   CACHE_REGS
 
@@ -2503,7 +2503,7 @@ X_API void PL_register_foreign_in_module(const char *module, const char *name, i
 {
   CACHE_REGS
   Term tmod;
-  Int nflags = 0;
+  pred_flags_t nflags = 0;
 
 #ifdef DEBUG
   if (flags & (PL_FA_CREF)) {
@@ -2523,13 +2523,14 @@ X_API void PL_register_foreign_in_module(const char *module, const char *name, i
   } else {
     nflags |= CArgsPredFlag;
   }
+  if (flags & PL_FA_NOTRACE) {
+    nflags |= NoTracePredFlag;
+  }
   if (flags & PL_FA_NONDETERMINISTIC) {
     Yap_InitCPredBackCut((char *)name, arity, sizeof(struct foreign_context)/sizeof(CELL), (CPredicate)function, (CPredicate)function, (CPredicate)function, UserCPredFlag|nflags);
   } else {
+    printf(" %s %llx\n", name, nflags);
     UserCPredicate((char *)name,(CPredicate)function,arity,tmod,nflags);
-  }
-  if (flags & PL_FA_NOTRACE) {
-    Yap_SetNoTrace((char *)name, arity, tmod);
   }
 }
 
