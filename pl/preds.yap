@@ -22,7 +22,7 @@
 Predicates in YAP may be dynamic or static. By default, when
 consulting or reconsulting, predicates are assumed to be static:
 execution is faster and the code will probably use less space.
-Static predicates impose some restrictions: in general there can be no 
+Static predicates impose some restrictions: in general there can be no
 addition or removal of  clauses for a procedure if it is being used in the
 current execution.
 
@@ -30,12 +30,12 @@ Dynamic predicates allow programmers to change the Clausal Data Base with
 the same flexibility as in C-Prolog. With dynamic predicates it is
 always possible to add or remove clauses during execution and the
 semantics will be the same as for C-Prolog. But the programmer should be
-aware of the fact that asserting or retracting are still expensive operations, 
+aware of the fact that asserting or retracting are still expensive operations,
 and therefore he should try to avoid them whenever possible.
 
 
 
- 
+
 */
 
 :- system_module( '$_preds', [abolish/1,
@@ -103,13 +103,13 @@ and therefore he should try to avoid them whenever possible.
 % The next predicates are applicable only
 % to dynamic code
 
-/** @pred  asserta(+ _C_) is iso 
+/** @pred  asserta(+ _C_) is iso
 
 
 Adds clause  _C_ to the beginning of the program. If the predicate is
 undefined, declare it as dynamic.
 
- 
+
 */
 asserta(Mod:C) :- !,
 	'$assert'(C,Mod,first,_,asserta(Mod:C)).
@@ -117,7 +117,7 @@ asserta(C) :-
 	'$current_module'(Mod),
 	'$assert'(C,Mod,first,_,asserta(C)).
 
-/** @pred  assertz(+ _C_) is iso 
+/** @pred  assertz(+ _C_) is iso
 
 
 Adds clause  _C_ to the end of the program. If the predicate is
@@ -129,7 +129,7 @@ asserting clauses for static predicates. The current version of YAP
 supports this feature, but this feature is deprecated and support may go
 away in future versions.
 
- 
+
 */
 assertz(Mod:C) :- !,
 	'$assert'(C,Mod,last,_,assertz(Mod:C)).
@@ -137,7 +137,7 @@ assertz(C) :-
 	'$current_module'(Mod),
 	'$assert'(C,Mod,last,_,assertz(C)).
 
-/** @pred  assert(+ _C_) 
+/** @pred  assert(+ _C_)
 
 
 Same as assertz/1. Adds clause  _C_ to the program. If the predicate is undefined,
@@ -150,7 +150,7 @@ in use and the language flag is <tt>cprolog</tt>. Note that this feature is
 deprecated, if you want to assert clauses for static procedures you
 should use assert_static/1.
 
- 
+
 */
 assert(Mod:C) :- !,
 	'$assert'(C,Mod,last,_,assert(Mod:C)).
@@ -186,7 +186,7 @@ assert(C) :-
 	 '$is_dynamic'(H, Mod) ->
 	    '$assertat_d'(Where, H, true, H, Mod, R)
 	;
-	  '$undefined'(H,Mod) -> 
+	  '$undefined'(H,Mod) ->
 	    functor(H, Na, Ar),
 	    '$dynamic'(Na/Ar, Mod),
 	    '$assert_fact'(H,Mod,Where,R)
@@ -211,7 +211,7 @@ assert(C) :-
           '$is_dynamic'(H, Mod) ->
 	    '$assertat_d'(Where, H, B, C0, Mod, R)
 	;
-	  '$undefined'(H,Mod) -> 
+	  '$undefined'(H,Mod) ->
 	    functor(H, Na, Ar),
 	    '$dynamic'(Na/Ar, Mod),
 	    '$assert_clause3'(C0,C,Mod,Where,R,P)
@@ -242,7 +242,7 @@ assert(C) :-
 	  '$is_dynamic'(H, Mod) ->
 	    '$assertat_d'(Where,H,B,C0,Mod,R)
 	;
-	  '$undefined'(H, Mod) -> 
+	  '$undefined'(H, Mod) ->
 	    functor(H, Na, Ar),
 	    '$dynamic'(Na/Ar, Mod),
 	    '$assert_dynamic2'(C0,C,Mod,Where,R,P)
@@ -251,14 +251,14 @@ assert(C) :-
 	    '$do_error'(permission_error(modify,static_procedure,Na/Ar),P)
 	).
 
-/** @pred  assert_static(: _C_) 
+/** @pred  assert_static(: _C_)
 
 
 Adds clause  _C_ to a static procedure. Asserting a static clause
 for a predicate while choice-points for the predicate are available has
 undefined results.
 
- 
+
 */
 assert_static(Mod:C) :- !,
 	'$assert_static'(C,Mod,last,_,assert_static(Mod:C)).
@@ -266,12 +266,12 @@ assert_static(C) :-
 	'$current_module'(Mod),
 	'$assert_static'(C,Mod,last,_,assert_static(C)).
 
-/** @pred  asserta_static(: _C_) 
+/** @pred  asserta_static(: _C_)
 
 
-Adds clause  _C_ to the beginning of a static procedure. 
+Adds clause  _C_ to the beginning of a static procedure.
 
- 
+
 */
 asserta_static(Mod:C) :- !,
 	'$assert_static'(C,Mod,first,_,asserta_static(Mod:C)).
@@ -281,7 +281,7 @@ asserta_static(C) :-
 
 asserta_static(Mod:C) :- !,
 	'$assert_static'(C,Mod,last,_,assertz_static(Mod:C)).
-/** @pred  assertz_static(: _C_) 
+/** @pred  assertz_static(: _C_)
 
 
 Adds clause  _C_ to the end of a static procedure.  Asserting a
@@ -295,7 +295,7 @@ static predicates, if source mode was on when they were compiled:
 
 
 
- 
+
 */
 assertz_static(C) :-
 	'$current_module'(Mod),
@@ -328,13 +328,13 @@ assertz_static(C) :-
 	    ( Fl /\ 0x20000000 =\= 0 -> '$check_multifile_pred'(Head,Mod,Fl) ; true )
           ;
             true
-        ),	    
+        ),
 	'$head_and_body'(C0, H0, B0),
 	'$recordap'(Mod:Head,(H0 :- B0),R,CR),
 	( '$is_multifile'(Head, Mod) ->
 	    source_location(F, _),
 	    functor(H0, Na, Ar),
-	    recorda('$multifile_dynamic'(_,_,_), '$mf'(Na,Ar,Mod,F,R), _) 
+	    recorda('$multifile_dynamic'(_,_,_), '$mf'(Na,Ar,Mod,F,R), _)
 	;
 	    true
 	).
@@ -346,13 +346,13 @@ assertz_static(C) :-
 	    ( Fl /\ 0x20000000 =\= 0 -> '$check_multifile_pred'(Head,Mod,Fl) ; true )
           ;
             true
-        ),	    
+        ),
 	'$head_and_body'(C0, H0, B0),
 	'$recordzp'(Mod:Head,(H0 :- B0),R,CR),
 	( '$is_multifile'(H0, Mod) ->
 	    source_location(F, _),
 	    functor(H0, Na, Ar),
-	    recordz('$multifile_dynamic'(_,_,_), '$mf'(Na,Ar,Mod,F,R), _) 
+	    recordz('$multifile_dynamic'(_,_,_), '$mf'(Na,Ar,Mod,F,R), _)
 	;
 	    true
 	).
@@ -363,8 +363,8 @@ assertz_static(C) :-
 '$assertz_dynamic'(X, C, C0, Mod) :- (X/\4)=:=0, !,
 	'$head_and_body'(C,H,B),
 	'$assertat_d'(last,H,B,C0,Mod,_).
-'$assertz_dynamic'(X,C,C0,Mod) :- 
-	'$head_and_body'(C,H,B), 
+'$assertz_dynamic'(X,C,C0,Mod) :-
+	'$head_and_body'(C,H,B),
 	functor(H,N,A),
 	('$check_if_reconsulted'(N,A) ->
 		true
@@ -396,12 +396,12 @@ assertz_static(C) :-
 /** @pred  asserta(+ _C_,- _R_)
 
 The same as `asserta(C)` but unifying  _R_ with
-the  database reference that identifies the new clause, in a 
+the  database reference that identifies the new clause, in a
 one-to-one way. Note that `asserta/2` only works for dynamic
 predicates. If the predicate is undefined, it will automatically be
 declared dynamic.
 
- 
+
 */
 asserta(M:C,R) :- !,
 	'$assert_dynamic'(C,M,first,R,asserta(M:C,R)).
@@ -412,12 +412,12 @@ asserta(C,R) :-
 /** @pred  assertz(+ _C_,- _R_)
 
 The same as `assertz(C)` but unifying  _R_ with
-the  database reference that identifies the new clause, in a 
+the  database reference that identifies the new clause, in a
 one-to-one way. Note that `asserta/2` only works for dynamic
 predicates. If the predicate is undefined, it will automatically be
 declared dynamic.
 
- 
+
 */
 assertz(M:C,R) :- !,
 	'$assert_dynamic'(C,M,last,R,assertz(M:C,R)).
@@ -433,7 +433,7 @@ clause, in a one-to-one way. Note that `asserta/2` only works for dynamic
 predicates. If the predicate is undefined, it will automatically be
 declared dynamic.
 
- 
+
 */
 assert(M:C,R) :- !,
 	'$assert_dynamic'(C,M,last,R,assert(M:C,R)).
@@ -441,7 +441,7 @@ assert(C,R) :-
 	'$current_module'(M),
 	'$assert_dynamic'(C,M,last,R,assert(C,R)).
 
-/** @pred  clause(+ _H_, _B_) is iso 
+/** @pred  clause(+ _H_, _B_) is iso
 
 
 A clause whose head matches  _H_ is searched for in the
@@ -452,7 +452,7 @@ program. Its head and body are respectively unified with  _H_ and
 This predicate is applicable to static procedures compiled with
 `source` active, and to all dynamic procedures.
 
- 
+
 */
 clause(M:P,Q) :- !,
 	'$clause'(P,M,Q,_).
@@ -467,7 +467,7 @@ reference to the clause in the database. You can use instance/2
 to access the reference's value. Note that you may not use
 erase/1 on the reference on static procedures.
 
- 
+
 */
 clause(P,Q,R) :- var(P), !,
 	'$current_module'(M),
@@ -483,9 +483,9 @@ clause(V,Q,R) :-
 	M0 = M,
 	instance(R,T),
 	( T = (H :- B) -> P = H, Q = B ; P=T, Q = true).
-'$clause'(V,M,Q,R) :- var(V), !, 
+'$clause'(V,M,Q,R) :- var(V), !,
 	'$do_error'(instantiation_error,clause(M:V,Q,R)).
-'$clause'(C,M,Q,R) :- 
+'$clause'(C,M,Q,R) :-
 	number(C), !,
 	'$do_error'(type_error(callable,C),clause(M:C,Q,R)).
 '$clause'(C,M,Q,R) :-
@@ -515,26 +515,26 @@ clause(V,Q,R) :-
 	'$do_error'(permission_error(access,private_procedure,Name/Arity),
 	      clause(M:P,Q,R)).
 
-'$init_preds' :- 
+'$init_preds' :-
 	once('$handle_throw'(_,_,_)),
 	fail.
-'$init_preds' :- 
+'$init_preds' :-
 	once('$do_static_clause'(_,_,_,_,_)),
 	fail.
-'$init_preds' :- 
+'$init_preds' :-
 	once('$do_log_upd_clause0'(_,_,_,_,_,_)),
 	fail.
-'$init_preds' :- 
+'$init_preds' :-
 	once('$do_log_upd_clause'(_,_,_,_,_,_)),
 	fail.
-'$init_preds' :- 
+'$init_preds' :-
 	once('$do_log_upd_clause_erase'(_,_,_,_,_,_)),
 	fail.
 '$init_preds'.
 
 :- '$init_preds'.
 
-/** @pred  nth_clause(+ _H_, _I_,- _R_) 
+/** @pred  nth_clause(+ _H_, _I_,- _R_)
 
 
 Find the  _I_th clause in the predicate defining  _H_, and give
@@ -548,7 +548,7 @@ The following predicates can only be used for dynamic predicates:
 
 
 
- 
+
 */
 nth_clause(V,I,R) :-
 	'$current_module'(M),
@@ -563,7 +563,7 @@ nth_clause(V,I,R) :-
 '$nth_clause'(P,M,I,R) :-
 	'$fetch_nth_clause'(P,M,I,R).
 
-/** @pred  retract(+ _C_) is iso 
+/** @pred  retract(+ _C_) is iso
 
 
 Erases the first clause in the program that matches  _C_. This
@@ -571,20 +571,20 @@ predicate may also be used for the static predicates that have been
 compiled when the source mode was `on`. For more information on
 source/0 ( (see Setting the Compiler)).
 
- 
+
 */
 retract(M:C) :- !,
 	'$retract'(C,M).
 retract(C) :-
 	'$current_module'(M),
 	'$retract'(C,M).
-	
-	
+
+
 '$retract'(V,_) :- var(V), !,
 	'$do_error'(instantiation_error,retract(V)).
 '$retract'(M:C,_) :- !,
 	'$retract'(C,M).
-'$retract'(C,M) :- 
+'$retract'(C,M) :-
 	'$check_head_and_body'(C,H,B,retract(M:C)), !,
 	'$flags'(H, M, F, F),
 	'$retract2'(F, H,M,B,_).
@@ -595,24 +595,24 @@ retract(C) :-
 	'$log_update_clause'(H,M,B,R),
 	( F /\ 0x20000000  =:= 0x20000000, recorded('$mf','$mf_clause'(_,_,_,_,R),MR), erase(MR), fail ; true),
 	erase(R).
-'$retract2'(F, H, M, B, R) :- 	
+'$retract2'(F, H, M, B, R) :-
 %	'$is_dynamic'(H,M), !,
 	F /\ 0x00002000 =:= 0x00002000, !,
 	'$recordedp'(M:H,(H:-B),R),
 	( F /\ 0x20000000  =:= 0x20000000, recorded('$mf','$mf_clause'(_,_,_,_,MRef),MR), erase(MR), erase(MRef), fail ; true),
 	erase(R).
-'$retract2'(_, H,M,_,_) :- 	
+'$retract2'(_, H,M,_,_) :-
 	'$undefined'(H,M), !,
 	functor(H,Na,Ar),
 	'$dynamic'(Na/Ar,M),
 	fail.
-'$retract2'(_, H,M,B,_) :- 	
+'$retract2'(_, H,M,B,_) :-
 	functor(H,Na,Ar),
 	'$do_error'(permission_error(modify,static_procedure,Na/Ar),retract(M:(H:-B))).
 
 /** @pred  retract(+ _C_,- _R_)
 
-Erases from the program the clause  _C_ whose 
+Erases from the program the clause  _C_ whose
 database reference is  _R_. The predicate must be dynamic.
 
 
@@ -645,9 +645,9 @@ retract(C,R) :-
 	functor(C, Na, Ar).
 '$fetch_predicate_indicator_from_clause'(C, Na/Ar) :-
 	functor(C, Na, Ar).
-	
 
-/** @pred  retractall(+ _G_) is iso 
+
+/** @pred  retractall(+ _G_) is iso
 
 
 Retract all the clauses whose head matches the goal  _G_. Goal
@@ -689,7 +689,7 @@ retractall(V) :-
 	  functor(T,Na,Ar),
 	  '$do_error'(permission_error(modify,static_procedure,Na/Ar),retractall(T))
 	).
-	
+
 '$retractall_lu'(T,M) :-
 	'$free_arguments'(T), !,
 	( '$purge_clauses'(T,M), fail ; true ).
@@ -717,14 +717,14 @@ retractall(V) :-
 Completely delete the predicate with name _P_ and arity _N_. It will
 remove both static and dynamic predicates. All state on the predicate,
 including whether it is dynamic or static, multifile, or
-meta-predicate, will be lost. 
+meta-predicate, will be lost.
 */
 abolish(Mod:N,A) :- !,
 	'$abolish'(N,A,Mod).
 abolish(N,A) :-
 	'$current_module'(Mod),
 	'$abolish'(N,A,Mod).
-	
+
 '$abolish'(N,A,M) :- var(N), !,
 	'$do_error'(instantiation_error,abolish(M:N,A)).
 '$abolish'(N,A,M) :- var(A), !,
@@ -736,7 +736,7 @@ abolish(N,A) :-
 		( '$is_dynamic'(T, M) -> '$abolishd'(T,M) ;
 	      	 /* else */	      '$abolishs'(T,M) ).
 
-/** @pred  abolish(+ _PredSpec_) is iso 
+/** @pred  abolish(+ _PredSpec_) is iso
 
 
 Deletes the predicate given by  _PredSpec_ from the database. If
@@ -744,9 +744,9 @@ Deletes the predicate given by  _PredSpec_ from the database. If
 current module. The
 specification must include the name and arity, and it may include module
 information. Under <tt>iso</tt> language mode this built-in will only abolish
-dynamic procedures. Under other modes it will abolish any procedures. 
+dynamic procedures. Under other modes it will abolish any procedures.
 
- 
+
 */
 abolish(V) :- var(V), !,
 	'$do_error'(instantiation_error,abolish(V)).
@@ -754,14 +754,14 @@ abolish(Mod:V) :- var(V), !,
 	'$do_error'(instantiation_error,abolish(Mod:V)).
 abolish(M:X) :- !,
 	'$abolish'(X,M).
-abolish(X) :- 
+abolish(X) :-
 	'$current_module'(M),
 	'$abolish'(X,M).
 
-'$abolish'(X,M) :- 
+'$abolish'(X,M) :-
 	'$access_yap_flags'(8, 2), !,
 	'$new_abolish'(X,M).
-'$abolish'(X, M) :- 
+'$abolish'(X, M) :-
 	'$old_abolish'(X,M).
 
 '$new_abolish'(V,M) :- var(V), !,
@@ -858,7 +858,7 @@ abolish(X) :-
 '$old_abolish'([H|T], M) :- !,  '$old_abolish'(H, M), '$old_abolish'(T, M).
 '$old_abolish'(T, M) :-
 	'$do_error'(type_error(predicate_indicator,T),abolish(M:T)).
-	
+
 '$abolish_all_old'(M) :-
         '$current_predicate'(Na, M, S, _),
 	functor( S, Na, Ar ),
@@ -913,14 +913,14 @@ abolish(X) :-
 	'$purge_clauses'(G, M), fail.
 '$abolishs'(_, _).
 
-/** @pred  dynamic_predicate(+ _P_,+ _Semantics_) 
+/** @pred  dynamic_predicate(+ _P_,+ _Semantics_)
 
 
 Declares predicate  _P_ or list of predicates [ _P1_,..., _Pn_]
 as a dynamic predicate following either `logical` or
 `immediate` semantics.
 
- 
+
 */
 dynamic_predicate(P,Sem) :-
 	'$bad_if_is_semantics'(Sem, dynamic(P,Sem)).
@@ -999,7 +999,7 @@ hide_predicate(P) :-
 '$hide_predicate2'(PredDesc, M) :-
 	'$do_error'(type_error(predicate_indicator,PredDesc),hide_predicate(M:PredDesc)).
 
-/** @pred  predicate_property( _P_, _Prop_) is iso 
+/** @pred  predicate_property( _P_, _Prop_) is iso
 
 
 For the predicates obeying the specification  _P_ unify  _Prop_
@@ -1041,15 +1041,18 @@ true if source for the predicate is available.
 Number of clauses in the predicate definition. Always one if external
 or built-in.
 
++ `notrace`
+The predicate definition cannot be traced.
 
- 
+
+
 */
 predicate_property(Pred,Prop) :- var(Pred), !,
 	'$current_module'(Mod),
 	'$predicate_property2'(Pred,Prop,Mod).
 predicate_property(Mod:Pred,Prop) :- !,
 	'$predicate_property2'(Pred,Prop,Mod).
-predicate_property(Pred,Prop) :- 
+predicate_property(Pred,Prop) :-
 	'$current_module'(Mod),
 	'$predicate_property2'(Pred,Prop,Mod).
 
@@ -1062,10 +1065,10 @@ predicate_property(Pred,Prop) :-
 	'$predicate_property'(Pred,SourceMod,M,Prop).
 '$predicate_property2'(M:Pred,Prop,_) :- !,
 	'$predicate_property2'(Pred,Prop,M).
-'$predicate_property2'(Pred,Prop,Mod) :- 
+'$predicate_property2'(Pred,Prop,Mod) :-
 	'$pred_exists'(Pred,Mod), !,
 	'$predicate_property'(Pred,Mod,Mod,Prop).
-'$predicate_property2'(Pred,Prop,Mod) :- 
+'$predicate_property2'(Pred,Prop,Mod) :-
 	'$imported_pred'(Pred, Mod, NPred, M),
 	(
 	 Prop = imported_from(M)
@@ -1080,12 +1083,12 @@ predicate_property(Pred,Prop) :-
 	recorded('$import','$import'(SourceMod, Mod, Orig, Pred,_,_),_),
 	'$pred_exists'(Orig, SourceMod).
 
-'$predicate_property'(P,M,_,built_in) :- 
+'$predicate_property'(P,M,_,built_in) :-
 	'$system_predicate'(P,M).
-'$predicate_property'(P,M,_,source) :- 
+'$predicate_property'(P,M,_,source) :-
 	'$flags'(P,M,F,F),
 	F /\ 0x00400000 =\= 0.
-'$predicate_property'(P,M,_,tabled) :- 
+'$predicate_property'(P,M,_,tabled) :-
 	'$flags'(P,M,F,F),
 	F /\ 0x00000040 =\= 0.
 '$predicate_property'(P,M,_,dynamic) :-
@@ -1109,7 +1112,11 @@ predicate_property(Pred,Prop) :-
 '$predicate_property'(P,Mod,_,number_of_clauses(NCl)) :-
 	'$number_of_clauses'(P,Mod,NCl).
 '$predicate_property'(P,Mod,_,file(F)) :-
-	'$owner_file'(P,Mod,F).
+    '$owner_file'(P,Mod,F).
+'$predicate_property'(P,Mod,_,notrace) :-
+    '$owner_file'(P,Mod,F).
+    '$flags'(P,Mod,F,F),
+    F /\ 0x400000000 =\= 0.
 
 
 /**
@@ -1140,7 +1147,7 @@ predicate_statistics(P,NCls,Sz,ISz) :-
 '$predicate_statistics'(P,M,NCls,Sz,ISz) :-
 	'$static_pred_statistics'(P,M,NCls,Sz,ISz).
 
-/** @pred  predicate_erased_statistics( _P_, _NCls_, _Sz_, _IndexSz_)  
+/** @pred  predicate_erased_statistics( _P_, _NCls_, _Sz_, _IndexSz_)
 
 
 Given predicate  _P_,  _NCls_ is the number of erased clauses for
@@ -1153,7 +1160,7 @@ of space required to store indices to those clauses (in bytes).
 
  */
 predicate_erased_statistics(P,NCls,Sz,ISz) :-
-        var(P), !, 
+        var(P), !,
 	current_predicate(_,P),
 	predicate_erased_statistics(P,NCls,Sz,ISz).
 predicate_erased_statistics(M:P,NCls,Sz,ISz) :- !,
@@ -1164,7 +1171,7 @@ predicate_erased_statistics(P,NCls,Sz,ISz) :-
 
 /** @pred  current_predicate( _A_, _P_)
 
-Defines the relation:  _P_ is a currently defined predicate whose name is the atom  _A_. 
+Defines the relation:  _P_ is a currently defined predicate whose name is the atom  _A_.
 */
 current_predicate(A,T) :-
 	'$system_module'(M),
@@ -1174,11 +1181,11 @@ current_predicate(A,T) :-
 	;
 	 '$imported_predicate'(A, M, A/_Arity, T0, _)
 	).
-	 
-/** @pred  system_predicate( _A_, _P_) 
+
+/** @pred  system_predicate( _A_, _P_)
 
 Defines the relation:   _P_ is a built-in predicate whose name
-is the atom  _A_. 
+is the atom  _A_.
 
 */
 system_predicate(A,T) :-
@@ -1222,7 +1229,7 @@ current_predicate(F0) :-
 	'$pred_exists'(G, ExportingMod),
 	'$flags'(G0, ExportingMod, Flags, Flags).
 
-/** @pred  current_key(? _A_,? _K_) 
+/** @pred  current_key(? _A_,? _K_)
 
 
 Defines the relation:  _K_ is a currently defined database key whose
@@ -1243,7 +1250,7 @@ current_key(A,K) :-
 	 ).
 
 
-/** @pred  compile_predicates(: _ListOfNameArity_) 
+/** @pred  compile_predicates(: _ListOfNameArity_)
 
 
 
@@ -1314,4 +1321,3 @@ clause_property(ClauseRef, predicate(PredicateIndicator)) :-
 /**
 @}
 */
-
