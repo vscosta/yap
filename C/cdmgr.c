@@ -660,13 +660,13 @@ Yap_ResetConsultStack( void )
 
 
 /******************************************************************
-  
+
 			EXECUTING PROLOG CLAUSES
-  
+
 ******************************************************************/
 
 
-static int 
+static int
 static_in_use(PredEntry *p, int check_everything)
 {
 #if defined(YAPOR) || defined(THREADS)
@@ -686,9 +686,9 @@ static_in_use(PredEntry *p, int check_everything)
 }
 
 /******************************************************************
-  
+
 		ADDING AND REMOVE INFO TO A PROCEDURE
-  
+
 ******************************************************************/
 
 
@@ -697,7 +697,7 @@ static_in_use(PredEntry *p, int check_everything)
  * static 		CompiledPredFlag fast		FastPredFlag all the
  * database predicates are supported for dynamic predicates only abolish and
  * assertz are supported for static predicates no database predicates are
- * supportted for fast predicates 
+ * supportted for fast predicates
  */
 
 #define is_dynamic(pe)  (pe->PredFlags & DynamicPredFlag)
@@ -725,7 +725,7 @@ get_pred(Term t,  Term tmod, char *pname)
     Functor    fun = FunctorOfTerm(t);
     if (IsExtensionFunctor(fun)) {
       Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), pname);
-      return NULL;      
+      return NULL;
     }
     if (fun == FunctorModule) {
       Term tmod = ArgOfTerm(1, t);
@@ -748,12 +748,12 @@ get_pred(Term t,  Term tmod, char *pname)
 /******************************************************************
 
 		Mega Clauses
-  
+
 ******************************************************************/
 
 
-#define OrArgAdjust(P) 
-#define TabEntryAdjust(P) 
+#define OrArgAdjust(P)
+#define TabEntryAdjust(P)
 #define DoubleInCodeAdjust(D)
 #define IntegerInCodeAdjust(D)
 #define IntegerAdjust(D)  (D)
@@ -773,7 +773,7 @@ get_pred(Term t,  Term tmod, char *pname)
 #define OpcodeAdjust(X) (X)
 #define ModuleAdjust(X) (X)
 #define ExternalFunctionAdjust(X) (X)
-#define AdjustSwitchTable(X,Y,Z) 
+#define AdjustSwitchTable(X,Y,Z)
 #define DBGroundTermAdjust(X)  (X)
 #define rehash(A,B,C)
 
@@ -955,15 +955,15 @@ split_megaclause(PredEntry *ap)
 
 
 /******************************************************************
-  
+
 		Indexation Info
-  
+
 ******************************************************************/
 #define ByteAdr(X)   ((Int) &(X))
 
 /* Index a prolog pred, given its predicate entry */
 /* ap is already locked. */
-static void 
+static void
 IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
 {
   yamop          *BaseAddr;
@@ -1016,13 +1016,13 @@ IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
   }
   if (ap->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
-    ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
+    ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
 #if defined(YAPOR) || defined(THREADS)
   } else if (ap->PredFlags & LogUpdatePredFlag &&
 	     !(ap->PredFlags & ThreadLocalPredFlag) &&
 	     ap->ModuleOfPred != IDB_MODULE) {
     ap->OpcodeOfPred = LOCKPRED_OPCODE;
-    ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
+    ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
 #endif
   } else {
     ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred;
@@ -1034,7 +1034,7 @@ IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
 #endif
 }
 
-void 
+void
 Yap_IPred(PredEntry *p, UInt NSlots, yamop *next_pc)
 {
   IPred(p, NSlots, next_pc);
@@ -1056,14 +1056,14 @@ RemoveMainIndex(PredEntry *ap)
   }
   if (First != NULL && spied) {
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
-    ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
+    ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
   } else if (ap->cs.p_code.NOfClauses > 1
 #ifdef TABLING
 	     ||ap->PredFlags & TabledPredFlag
 #endif /* TABLING */
 	     ) {
     ap->OpcodeOfPred = INDEX_OPCODE;
-    ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
+    ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
   } else {
     ap->OpcodeOfPred = ap->cs.p_code.TrueCodeOfPred->opc;
     ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred;
@@ -1073,8 +1073,8 @@ RemoveMainIndex(PredEntry *ap)
       !(ap->PredFlags & ThreadLocalPredFlag) &&
       ap->ModuleOfPred != IDB_MODULE) {
     ap->OpcodeOfPred = LOCKPRED_OPCODE;
-    ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
-  }    
+    ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
+  }
 #endif
 }
 
@@ -1287,7 +1287,7 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
     }
 #if defined(YAPOR) || defined(THREADS)
     ipc = (yamop *)((CELL)ipc & ~1);
-#endif    
+#endif
   }
 }
 
@@ -1438,7 +1438,7 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
     /* try to move up, so that we don't hold a switch table */
     if (parent != NULL &&
 	parent->ClFlags & SwitchTableMask) {
-    
+
       c->ParentIndex = parent->ParentIndex;
       parent->ParentIndex->ClRefCount++;
       parent->ClRefCount--;
@@ -1524,9 +1524,9 @@ Yap_ErLogUpdIndex(LogUpdIndex *clau)
 
 /* Routine used when wanting to remove the indexation */
 /* ap is known to already have been locked for WRITING */
-static int 
+static int
 RemoveIndexation(PredEntry *ap)
-{ 
+{
   if (ap->OpcodeOfPred == INDEX_OPCODE) {
     return TRUE;
   }
@@ -1537,21 +1537,21 @@ RemoveIndexation(PredEntry *ap)
 
     cl = ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred);
 
-    kill_top_static_iblock(cl, ap);    
-    
+    kill_top_static_iblock(cl, ap);
+
   }
   return TRUE;
 }
 
-int 
+int
 Yap_RemoveIndexation(PredEntry *ap)
 {
   return RemoveIndexation(ap);
 }
 /******************************************************************
-  
+
 			Adding clauses
-  
+
 ******************************************************************/
 
 
@@ -1560,21 +1560,21 @@ Yap_RemoveIndexation(PredEntry *ap)
 #define	asserta	2
 
 /* p is already locked */
-static void 
+static void
 retract_all(PredEntry *p, int in_use)
 {
   yamop          *q;
 
   q = p->cs.p_code.FirstClause;
   if (q != NULL) {
-    if (p->PredFlags & LogUpdatePredFlag) { 
+    if (p->PredFlags & LogUpdatePredFlag) {
       LogUpdClause *cl = ClauseCodeToLogUpdClause(q);
       do {
 	LogUpdClause *ncl = cl->ClNext;
 	Yap_ErLogUpdCl(cl);
 	cl = ncl;
       } while (cl != NULL);
-    } else if (p->PredFlags & MegaClausePredFlag) { 
+    } else if (p->PredFlags & MegaClausePredFlag) {
       MegaClause *cl = ClauseCodeToMegaClause(q);
 
       if (in_use || cl->ClFlags & HasBlobsMask) {
@@ -1648,7 +1648,7 @@ source_pred(PredEntry *p, yamop *q)
 }
 
 /* p is already locked */
-static void 
+static void
 add_first_static(PredEntry *p, yamop *cp, int spy_flag)
 {
   CACHE_REGS
@@ -1663,7 +1663,7 @@ add_first_static(PredEntry *p, yamop *cp, int spy_flag)
 #ifdef TABLING
     if (is_tabled(p)) {
       p->OpcodeOfPred = INDEX_OPCODE;
-      p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+      p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
     }
 #endif /* TABLING */
   }
@@ -1675,7 +1675,7 @@ add_first_static(PredEntry *p, yamop *cp, int spy_flag)
       !(p->PredFlags & ThreadLocalPredFlag) &&
       p->ModuleOfPred != IDB_MODULE) {
     p->OpcodeOfPred = LOCKPRED_OPCODE;
-    p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+    p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
   } else
 #endif
     p->CodeOfPred = pt;
@@ -1697,7 +1697,7 @@ add_first_static(PredEntry *p, yamop *cp, int spy_flag)
   }
   if (spy_flag) {
     p->OpcodeOfPred = Yap_opcode(_spy_pred);
-    p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+    p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
   }
   if (source_pred(p, cp)) {
     p->PredFlags |= SourcePredFlag;
@@ -1709,7 +1709,7 @@ add_first_static(PredEntry *p, yamop *cp, int spy_flag)
 }
 
 /* p is already locked */
-static void 
+static void
 add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag)
 {
   CACHE_REGS
@@ -1772,7 +1772,7 @@ add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag)
       !(p->PredFlags & ThreadLocalPredFlag) &&
       p->ModuleOfPred != IDB_MODULE) {
     p->OpcodeOfPred = LOCKPRED_OPCODE;
-    p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+    p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
   }
 #endif
   /* set the first clause to have a retry and mark which will
@@ -1810,7 +1810,7 @@ add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag)
 }
 
 /* p is already locked */
-static void 
+static void
 asserta_stat_clause(PredEntry *p, yamop *q, int spy_flag)
 {
   StaticClause *cl = ClauseCodeToStaticClause(q);
@@ -1826,16 +1826,16 @@ asserta_stat_clause(PredEntry *p, yamop *q, int spy_flag)
     p->cs.p_code.FirstClause = q;
     if (p->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
       p->OpcodeOfPred = Yap_opcode(_spy_pred);
-      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
     } else if (!(p->PredFlags & IndexedPredFlag)) {
       p->OpcodeOfPred = INDEX_OPCODE;
-      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
     }
 #if defined(YAPOR) || defined(THREADS)
     if (p->ModuleOfPred != IDB_MODULE &&
 	!(p->PredFlags & ThreadLocalPredFlag)) {
       p->OpcodeOfPred = LOCKPRED_OPCODE;
-      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
     }
 #endif
     return;
@@ -1845,15 +1845,15 @@ asserta_stat_clause(PredEntry *p, yamop *q, int spy_flag)
   p->cs.p_code.TrueCodeOfPred = q;
   if (p->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
     p->OpcodeOfPred = Yap_opcode(_spy_pred);
-    p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+    p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
   } else if (!(p->PredFlags & IndexedPredFlag)) {
     p->OpcodeOfPred = INDEX_OPCODE;
-    p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+    p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
   }
 }
 
 /* p is already locked */
-static void 
+static void
 asserta_dynam_clause(PredEntry *p, yamop *cp)
 {
   yamop        *q;
@@ -1885,7 +1885,7 @@ asserta_dynam_clause(PredEntry *p, yamop *cp)
 }
 
 /* p is already locked */
-static void 
+static void
 assertz_stat_clause(PredEntry *p, yamop *cp, int spy_flag)
 {
   yamop        *pt;
@@ -1903,19 +1903,19 @@ assertz_stat_clause(PredEntry *p, yamop *cp, int spy_flag)
     p->cs.p_code.LastClause = cp;
     if (!(p->PredFlags & IndexedPredFlag)) {
       p->OpcodeOfPred = INDEX_OPCODE;
-      p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+      p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
     }
 #if defined(YAPOR) || defined(THREADS)
     if (p->ModuleOfPred != IDB_MODULE &&
 	!(p->PredFlags & ThreadLocalPredFlag)) {
       p->OpcodeOfPred = LOCKPRED_OPCODE;
-      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
     }
 #endif
     if (p->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
       p->OpcodeOfPred = Yap_opcode(_spy_pred);
-      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
-    } 
+      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+    }
     return;
   } else {
     StaticClause *cl =   ClauseCodeToStaticClause(pt);
@@ -1925,14 +1925,14 @@ assertz_stat_clause(PredEntry *p, yamop *cp, int spy_flag)
   if (p->cs.p_code.FirstClause == p->cs.p_code.LastClause) {
     if (!(p->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag))) {
       p->OpcodeOfPred = INDEX_OPCODE;
-      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
     }
   }
   p->cs.p_code.LastClause = cp;
 }
 
 /* p is already locked */
-static void 
+static void
 assertz_dynam_clause(PredEntry *p, yamop *cp)
 {
   yamop       *q;
@@ -1959,7 +1959,7 @@ assertz_dynam_clause(PredEntry *p, yamop *cp)
   p->cs.p_code.NOfClauses++;
 }
 
-void 
+void
 Yap_AssertzClause(PredEntry *p, yamop *cp)
 {
   if (p->PredFlags & DynamicPredFlag) {
@@ -2007,7 +2007,7 @@ static void  expand_consult( void )
   LOCAL_ConsultLow = new_cl;
 }
 
-static int 
+static int
 not_was_reconsulted(PredEntry *p, Term t, int mode)
 {
   CACHE_REGS
@@ -2030,7 +2030,7 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
   if (fp != LOCAL_ConsultBase) {
     return FALSE;
   } else if (mode) { // consulting again a predicate in the original file.
-    if ((p->cs.p_code.NOfClauses && 
+    if ((p->cs.p_code.NOfClauses &&
 	 p->src.OwnerFile == Yap_ConsultingFile( PASS_REGS1 ) &&
 	 p->src.OwnerFile != AtomNil &&
 	 !(p->PredFlags & MultiFileFlag) &&
@@ -2049,7 +2049,7 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
     }
     --LOCAL_ConsultSp;
     LOCAL_ConsultSp->p = p0;
-    if (LOCAL_ConsultBase[1].mode && 
+    if (LOCAL_ConsultBase[1].mode &&
 	!(p->PredFlags & MultiFileFlag)) /* we are in reconsult mode */ {
       retract_all(p, static_in_use(p,TRUE));
     }
@@ -2059,7 +2059,7 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
 }
 
 static void
-addcl_permission_error(AtomEntry *ap, Int Arity, int in_use) 
+addcl_permission_error(AtomEntry *ap, Int Arity, int in_use)
 {
   CACHE_REGS
   Term t, ti[2];
@@ -2158,7 +2158,7 @@ Yap_multiple( PredEntry *ap USES_REGS )
     return FALSE;
   if (ap == LOCAL_LastAssertedPred)
     return FALSE;
-  return 
+  return
     ap->cs.p_code.NOfClauses > 0 &&
     Yap_ConsultingFile( PASS_REGS1 ) != ap->src.OwnerFile;
 }
@@ -2192,7 +2192,7 @@ mark_preds_with_this_func(Functor f, Prop p0)
     while (p) {
       Prop nextp = p->NextOfPE;
       if (p->FunctorOfPred == f)
-	p->PredFlags |= GoalExPredFlag;	    
+	p->PredFlags |= GoalExPredFlag;
       p = RepPredProp(nextp);
     }
   }
@@ -2204,7 +2204,7 @@ mark_preds_with_this_atom(Prop p)
   while (p) {
     Prop nextp = p->NextOfPE;
     if (p->KindOfPE == PEProp)
-      RepPredProp(p)->PredFlags |= GoalExPredFlag;	    
+      RepPredProp(p)->PredFlags |= GoalExPredFlag;
     p = nextp;
   }
 }
@@ -2219,7 +2219,7 @@ goal_expansion_support(PredEntry *p, Term tf)
     if (IsVarTerm(tg) || IsVarTerm(tm)) {
       if (!IsVarTerm(tg)) {
 	/* this is the complicated case, first I need to inform
-	   predicates for this functor */ 
+	   predicates for this functor */
 	PRED_GOAL_EXPANSION_FUNC = TRUE;
 	if (IsAtomTerm(tg)) {
 	  AtomEntry *ae = RepAtom(AtomOfTerm(tg));
@@ -2236,7 +2236,7 @@ goal_expansion_support(PredEntry *p, Term tf)
 	  }
 	  if (!found) {
 	    PredEntry *npe = RepPredProp(PredPropByAtom(AtomOfTerm(tg),IDB_MODULE));
-	    npe->PredFlags |= GoalExPredFlag;	    
+	    npe->PredFlags |= GoalExPredFlag;
 	  }
 	} else if (IsApplTerm(tg)) {
 	  FunctorEntry *fe = (FunctorEntry *)FunctorOfTerm(tg);
@@ -2252,7 +2252,7 @@ goal_expansion_support(PredEntry *p, Term tf)
 	    if (CurrentModule == PROLOG_MODULE)
 	      mod = IDB_MODULE;
 	    npe = RepPredProp(PredPropByFunc(fe,mod));
-	    npe->PredFlags |= GoalExPredFlag;	    
+	    npe->PredFlags |= GoalExPredFlag;
 	  }
 	}
       } else {
@@ -2285,7 +2285,7 @@ goal_expansion_support(PredEntry *p, Term tf)
 	PRED_GOAL_EXPANSION_FUNC = TRUE;
       }
       npe = RepPredProp(PredPropByFunc(fe,p->ModuleOfPred));
-      npe->PredFlags |= GoalExPredFlag;	    
+      npe->PredFlags |= GoalExPredFlag;
     } else if (IsAtomTerm(tg)) {
       Atom at = AtomOfTerm(tg);
       Prop p0;
@@ -2297,7 +2297,7 @@ goal_expansion_support(PredEntry *p, Term tf)
 	PRED_GOAL_EXPANSION_FUNC = TRUE;
       }
       npe = RepPredProp(PredPropByAtom(at,p->ModuleOfPred));
-      npe->PredFlags |= GoalExPredFlag;	    
+      npe->PredFlags |= GoalExPredFlag;
     }
   }
 }
@@ -2342,7 +2342,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   if (!(p->PredFlags & SysExportPredFlag) &&
       (
        (pflags & (UserCPredFlag|CArgsPredFlag|NumberDBPredFlag|AtomDBPredFlag|TestPredFlag|AsmPredFlag|CPredFlag|BinaryPredFlag)) ||
-       (p->ModuleOfPred == PROLOG_MODULE && 
+       (p->ModuleOfPred == PROLOG_MODULE &&
 	mod != TermProlog && mod)
        )
       ) {
@@ -2364,7 +2364,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   if (pflags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag))
     spy_flag = TRUE;
   goal_expansion_support(p, tf);
-  if (mode == consult) 
+  if (mode == consult)
     not_was_reconsulted(p, t, TRUE);
   /* always check if we have a valid error first */
   if (LOCAL_ErrorMessage && LOCAL_Error_TYPE == PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE) {
@@ -2409,7 +2409,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
 	  !(p->PredFlags & ThreadLocalPredFlag) &&
 	     p->ModuleOfPred != IDB_MODULE) {
 	p->OpcodeOfPred = LOCKPRED_OPCODE;
-	p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+	p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
       }
 #endif
     } else {
@@ -2434,7 +2434,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
 	!(p->PredFlags & ThreadLocalPredFlag) &&
 	p->ModuleOfPred != IDB_MODULE) {
       p->OpcodeOfPred = LOCKPRED_OPCODE;
-      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
     }
 #endif
   }
@@ -2501,7 +2501,7 @@ Yap_EraseStaticClause(StaticClause *cl, PredEntry *ap, Term mod) {
       ap->cs.p_code.LastClause = ap->cs.p_code.FirstClause = NULL;
       ap->OpcodeOfPred = UNDEF_OPCODE;
       ap->cs.p_code.TrueCodeOfPred =
-	(yamop *)(&(ap->OpcodeOfPred)); 
+	(yamop *)(&(ap->OpcodeOfPred));
     } else {
       yamop *ncl = cl->ClNext->ClCode;
       ap->cs.p_code.FirstClause = ncl;
@@ -2539,14 +2539,14 @@ Yap_EraseStaticClause(StaticClause *cl, PredEntry *ap, Term mod) {
     Yap_FreeCodeSpace((char *)cl);
   }
   if (ap->cs.p_code.NOfClauses == 0) {
-    ap->CodeOfPred = 
+    ap->CodeOfPred =
       ap->cs.p_code.TrueCodeOfPred;
   } else if (ap->cs.p_code.NOfClauses > 1) {
     ap->OpcodeOfPred = INDEX_OPCODE;
-    ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
+    ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
   } else if (ap->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
       ap->OpcodeOfPred = Yap_opcode(_spy_pred);
-      ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
+      ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
   } else {
     ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred;
   }
@@ -2555,7 +2555,7 @@ Yap_EraseStaticClause(StaticClause *cl, PredEntry *ap, Term mod) {
       !(ap->PredFlags & ThreadLocalPredFlag) &&
       ap->ModuleOfPred != IDB_MODULE) {
     ap->OpcodeOfPred = LOCKPRED_OPCODE;
-    ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
+    ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
   }
 #endif
 }
@@ -2577,12 +2577,12 @@ Yap_add_logupd_clause(PredEntry *pe, LogUpdClause *cl, int mode) {
 	  !(pe->PredFlags & ThreadLocalPredFlag) &&
 	  pe->ModuleOfPred != IDB_MODULE) {
 	pe->OpcodeOfPred = LOCKPRED_OPCODE;
-	pe->CodeOfPred = (yamop *)(&(pe->OpcodeOfPred)); 
+	pe->CodeOfPred = (yamop *)(&(pe->OpcodeOfPred));
       } else {
 #endif
 	pe->CodeOfPred = pe->cs.p_code.TrueCodeOfPred;
 	pe->OpcodeOfPred = ((yamop *)(pe->CodeOfPred))->opc;
-#if defined(YAPOR) || defined(THREADS) 
+#if defined(YAPOR) || defined(THREADS)
       }
 #endif
    }
@@ -2593,7 +2593,7 @@ Yap_add_logupd_clause(PredEntry *pe, LogUpdClause *cl, int mode) {
   }
 }
 
-static Int 
+static Int
 p_compile( USES_REGS1 )
 {				/* '$compile'(+C,+Flags, Mod) */
   Term            t = Deref(ARG1);
@@ -2629,7 +2629,7 @@ p_compile( USES_REGS1 )
   return TRUE;
 }
 
-static Int 
+static Int
 p_compile_dynamic( USES_REGS1 )
 {				/* '$compile_dynamic'(+C,+Flags,Mod,-Ref) */
   Term            t = Deref(ARG1);
@@ -2644,11 +2644,11 @@ p_compile_dynamic( USES_REGS1 )
     return FALSE;
   if (IsAtomTerm(t1)) {
     if (RepAtom(AtomOfTerm(t1))->StrOfAE[0] == 'f') mode = asserta;
-    else mode = assertz;						    
+    else mode = assertz;
   } else mode = IntegerOfTerm(t1);
   /* separate assert in current file from reconsult
     if (mode == assertz && LOCAL_consult_level && mod == CurrentModule)
-      mode = consult;    
+      mode = consult;
   */
   old_optimize = optimizer_on;
   optimizer_on = FALSE;
@@ -2657,11 +2657,11 @@ p_compile_dynamic( USES_REGS1 )
 			       cclause() in case there is a overflow */
   t = Deref(ARG1);        /* just in case there was an heap overflow */
   if (!LOCAL_ErrorMessage) {
-    
-    
+
+
     optimizer_on = old_optimize;
     addclause(t, code_adr, mode , mod, &ARG5);
-  } 
+  }
   if (LOCAL_ErrorMessage) {
     if (!LOCAL_Error_Term)
       LOCAL_Error_Term = TermNil;
@@ -2712,20 +2712,20 @@ Yap_init_consult(int mode, const char *file)
   init_consult(mode,file);
 }
 
-static Int 
+static Int
 p_startconsult( USES_REGS1 )
 {				/* '$start_consult'(+Mode)	 */
   Term            t;
   char           *smode = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
   int             mode;
-  
+
   mode = strcmp("consult",smode);
   init_consult(mode, RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE);
   t = MkIntTerm(LOCAL_consult_level);
   return (Yap_unify_constant(ARG3, t));
 }
 
-static Int 
+static Int
 p_showconslultlev( USES_REGS1 )
 {
   Term            t;
@@ -2755,7 +2755,7 @@ Yap_end_consult( void ) {
 }
 
 
-static Int 
+static Int
 p_endconsult( USES_REGS1 )
 {				/* '$end_consult'		 */
   end_consult( PASS_REGS1 );
@@ -2783,14 +2783,14 @@ Yap_Abolish(PredEntry *pred)
   pred->src.OwnerFile = AtomNil;
 }
 
-static Int 
+static Int
 p_purge_clauses( USES_REGS1 )
 {				/* '$purge_clauses'(+Func) */
   PredEntry      *pred;
   Term            t = Deref(ARG1);
   Term            mod = Deref(ARG2);
   MegaClause      *before = DeadMegaClauses;
-  
+
   Yap_PutValue(AtomAbol, MkAtomTerm(AtomNil));
   if (IsVarTerm(t))
     return FALSE;
@@ -2825,7 +2825,7 @@ p_purge_clauses( USES_REGS1 )
 }
 
 
-static Int 
+static Int
 p_sys_export( USES_REGS1 )
 {				/* '$set_spy'(+Fun,+M)	 */
   PredEntry      *pred;
@@ -2846,7 +2846,7 @@ p_sys_export( USES_REGS1 )
   } else {
     return (FALSE);
   }
-  PELOCK(100,pred);  
+  PELOCK(100,pred);
   pred->PredFlags |= SysExportPredFlag;
   UNLOCKPE(100,pred);
   return TRUE;
@@ -2854,12 +2854,12 @@ p_sys_export( USES_REGS1 )
 
 
 /******************************************************************
-  
+
 		MANAGING SPY-POINTS
-  
+
 ******************************************************************/
 
-static Int 
+static Int
 p_is_no_trace( USES_REGS1 )
 {				/* '$undefined'(P,Mod)	 */
   PredEntry      *pe;
@@ -2877,7 +2877,7 @@ p_is_no_trace( USES_REGS1 )
 }
 
 
-static Int 
+static Int
 p_set_no_trace( USES_REGS1 )
 {				/* '$set_no_trace'(+Fun,+M)	 */
   PredEntry      *pe;
@@ -2910,7 +2910,7 @@ Yap_SetNoTrace(char *name, arity_t arity, Term tmod)
 }
 
 
-static Int 
+static Int
 p_setspy( USES_REGS1 )
 {				/* '$set_spy'(+Fun,+M)	 */
   Atom            at;
@@ -2962,14 +2962,14 @@ p_setspy( USES_REGS1 )
       Yap_opcode(_spy_or_trymark);
   } else {
     pred->OpcodeOfPred = Yap_opcode(_spy_pred);
-    pred->CodeOfPred = (yamop *)(&(pred->OpcodeOfPred)); 
+    pred->CodeOfPred = (yamop *)(&(pred->OpcodeOfPred));
   }
   pred->PredFlags |= SpiedPredFlag;
   UNLOCKPE(37,pred);
   return TRUE;
 }
 
-static Int 
+static Int
 p_rmspy( USES_REGS1 )
 {				/* '$rm_spy'(+T,+Mod)	 */
   Atom            at;
@@ -3002,7 +3002,7 @@ p_rmspy( USES_REGS1 )
     pred->PredFlags ^= SpiedPredFlag;
     UNLOCKPE(39,pred);
     return TRUE;
-  } 
+  }
 #endif
   if (!(pred->PredFlags & (CountPredFlag|ProfiledPredFlag))) {
     if (!(pred->PredFlags & DynamicPredFlag)) {
@@ -3011,7 +3011,7 @@ p_rmspy( USES_REGS1 )
 	  !(pred->PredFlags & ThreadLocalPredFlag) &&
 	  pred->ModuleOfPred != IDB_MODULE) {
 	pred->OpcodeOfPred = LOCKPRED_OPCODE;
-	pred->CodeOfPred = (yamop *)(&(pred->OpcodeOfPred)); 
+	pred->CodeOfPred = (yamop *)(&(pred->OpcodeOfPred));
       } else {
 #endif
 	pred->CodeOfPred = pred->cs.p_code.TrueCodeOfPred;
@@ -3033,12 +3033,12 @@ p_rmspy( USES_REGS1 )
 
 
 /******************************************************************
-  
+
 		INFO ABOUT PREDICATES
-  
+
 ******************************************************************/
 
-static Int 
+static Int
 p_number_of_clauses( USES_REGS1 )
 {				/* '$number_of_clauses'(Predicate,M,N) */
   Term            t = Deref(ARG1);
@@ -3066,7 +3066,7 @@ p_number_of_clauses( USES_REGS1 )
   return (Yap_unify_constant(ARG3, MkIntegerTerm(ncl)));
 }
 
-static Int 
+static Int
 p_in_use( USES_REGS1 )
 {				/* '$in_use'(+P,+Mod)	 */
   PredEntry      *pe;
@@ -3081,7 +3081,7 @@ p_in_use( USES_REGS1 )
   return(out);
 }
 
-static Int 
+static Int
 p_new_multifile( USES_REGS1 )
 {				/* '$new_multifile'(+N,+Ar,+Mod)  */
   Atom            at;
@@ -3103,9 +3103,9 @@ p_new_multifile( USES_REGS1 )
     arity = IntOfTerm(t);
   else
     return FALSE;
-  if (arity == 0) 
+  if (arity == 0)
     pe = RepPredProp(PredPropByAtom(at, mod));
-  else 
+  else
     pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, arity),mod));
   PELOCK(26,pe);
   pe->PredFlags |= MultiFileFlag;
@@ -3122,7 +3122,7 @@ p_new_multifile( USES_REGS1 )
 }
 
 
-static Int 
+static Int
 p_is_multifile( USES_REGS1 )
 {				/* '$is_multifile'(+S,+Mod)	 */
   PredEntry      *pe;
@@ -3137,7 +3137,7 @@ p_is_multifile( USES_REGS1 )
   return(out);
 }
 
-static Int 
+static Int
 p_new_discontiguous( USES_REGS1 )
 {				/* '$new_discontiguous'(+N,+Ar,+Mod)  */
   Atom            at;
@@ -3159,9 +3159,9 @@ p_new_discontiguous( USES_REGS1 )
     arity = IntOfTerm(t);
   else
     return FALSE;
-  if (arity == 0) 
+  if (arity == 0)
     pe = RepPredProp(PredPropByAtom(at, mod));
-  else 
+  else
     pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, arity),mod));
   PELOCK(26,pe);
   pe->PredFlags |= DiscontiguousPredFlag;
@@ -3173,7 +3173,7 @@ p_new_discontiguous( USES_REGS1 )
 }
 
 
-static Int 
+static Int
 p_is_discontiguous( USES_REGS1 )
 {				/* '$is_multifile'(+S,+Mod)	 */
   PredEntry      *pe;
@@ -3188,7 +3188,7 @@ p_is_discontiguous( USES_REGS1 )
   return(out);
 }
 
-static Int 
+static Int
 p_is_thread_local( USES_REGS1 )
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
@@ -3203,7 +3203,7 @@ p_is_thread_local( USES_REGS1 )
   return(out);
 }
 
-static Int 
+static Int
 p_is_log_updatable( USES_REGS1 )
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
@@ -3218,7 +3218,7 @@ p_is_log_updatable( USES_REGS1 )
   return(out);
 }
 
-static Int 
+static Int
 p_is_source( USES_REGS1 )
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
@@ -3233,7 +3233,7 @@ p_is_source( USES_REGS1 )
   return(out);
 }
 
-static Int 
+static Int
 p_is_exo( USES_REGS1 )
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
@@ -3254,7 +3254,7 @@ p_is_exo( USES_REGS1 )
   return(out);
 }
 
-static Int 
+static Int
 p_owner_file( USES_REGS1 )
 {				/* '$owner_file'(+P,M,F)	 */
   PredEntry      *pe;
@@ -3279,7 +3279,7 @@ p_owner_file( USES_REGS1 )
   return Yap_unify(ARG3, MkAtomTerm(owner));
 }
 
-static Int 
+static Int
 p_set_owner_file( USES_REGS1 )
 {				/* '$owner_file'(+P,M,F)	 */
   PredEntry      *pe;
@@ -3301,7 +3301,7 @@ p_set_owner_file( USES_REGS1 )
   return TRUE;
 }
 
-static Int 
+static Int
 p_mk_d( USES_REGS1 )
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
@@ -3318,7 +3318,7 @@ p_mk_d( USES_REGS1 )
   return TRUE;
 }
 
-static Int 
+static Int
 p_is_dynamic( USES_REGS1 )
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
@@ -3333,7 +3333,7 @@ p_is_dynamic( USES_REGS1 )
   return(out);
 }
 
-static Int 
+static Int
 p_is_metapredicate( USES_REGS1 )
 {				/* '$is_metapredicate'(+P)	 */
   PredEntry      *pe;
@@ -3348,7 +3348,7 @@ p_is_metapredicate( USES_REGS1 )
   return out;
 }
 
-static Int 
+static Int
 p_is_expandgoalormetapredicate( USES_REGS1 )
 {				/* '$is_expand_goal_predicate'(+P)	 */
   PredEntry      *pe;
@@ -3411,7 +3411,7 @@ p_is_expandgoalormetapredicate( USES_REGS1 )
   return(out);
 }
 
-static Int 
+static Int
 p_pred_exists( USES_REGS1 )
 {				/* '$pred_exists'(+P,+M)	 */
   PredEntry      *pe;
@@ -3430,7 +3430,7 @@ p_pred_exists( USES_REGS1 )
   return out;
 }
 
-static Int 
+static Int
 p_set_pred_module( USES_REGS1 )
 {				/* '$set_pred_module'(+P,+Mod)	 */
   PredEntry      *pe;
@@ -3444,7 +3444,7 @@ p_set_pred_module( USES_REGS1 )
   return(TRUE);
 }
 
-static Int 
+static Int
 p_set_pred_owner( USES_REGS1 )
 {				/* '$set_pred_module'(+P,+File)	 */
   PredEntry      *pe;
@@ -3473,7 +3473,7 @@ p_set_pred_owner( USES_REGS1 )
   return(TRUE);
 }
 
-static Int 
+static Int
 p_undefined( USES_REGS1 )
 {				/* '$undefined'(P,Mod)	 */
   PredEntry      *pe;
@@ -3496,10 +3496,10 @@ p_undefined( USES_REGS1 )
 
 /*
  * this predicate should only be called when all clauses for the dynamic
- * predicate were remove, otherwise chaos will follow!! 
+ * predicate were remove, otherwise chaos will follow!!
  */
 
-static Int 
+static Int
 p_kill_dynamic( USES_REGS1 )
 {				/* '$kill_dynamic'(P,M)       */
   PredEntry      *pe;
@@ -3518,27 +3518,27 @@ p_kill_dynamic( USES_REGS1 )
   }
   pe->cs.p_code.LastClause = pe->cs.p_code.FirstClause = NULL;
   pe->OpcodeOfPred = UNDEF_OPCODE;
-  pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred = (yamop *)(&(pe->OpcodeOfPred)); 
+  pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred = (yamop *)(&(pe->OpcodeOfPred));
   pe->PredFlags = pe->PredFlags & GoalExPredFlag;
   UNLOCKPE(62,pe);
   return (TRUE);
 }
 
-static Int 
+static Int
 p_optimizer_on( USES_REGS1 )
 {				/* '$optimizer_on'		 */
   optimizer_on = TRUE;
   return (TRUE);
 }
 
-static Int 
+static Int
 p_optimizer_off( USES_REGS1 )
 {				/* '$optimizer_off'		 */
   optimizer_on = FALSE;
   return (TRUE);
 }
 
-static Int 
+static Int
 p_compile_mode( USES_REGS1 )
 {				/* $compile_mode(Old,New)	 */
   Term            t2, t3 = MkIntTerm(compile_mode);
@@ -3600,7 +3600,7 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
 
     /* check first environments that are younger than our latest choicepoint */
     if (check_everything && env_ptr) {
-      /* 
+      /*
 	 I do not need to check environments for asserts,
 	 only for retracts
       */
@@ -3615,7 +3615,7 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
       }
     }
     /* now mark the choicepoint */
-    
+
     if (b_ptr)
       pe = PredForChoicePt(b_ptr->cp_ap);
     else
@@ -3632,11 +3632,11 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
 
 	if (p->PredFlags & LogUpdatePredFlag) {
 	  LogUpdIndex *cl = ClauseCodeToLogUpdIndex(code_beg);
-	  if (find_owner_log_index(cl, code_p)) 
+	  if (find_owner_log_index(cl, code_p))
 	    b_ptr->cp_ap = cur_log_upd_clause(pe, b_ptr->cp_ap->y_u.Otapl.d);
 	} else if (p->PredFlags & MegaClausePredFlag) {
 	  StaticIndex *cl = ClauseCodeToStaticIndex(code_beg);
-	  if (find_owner_static_index(cl, code_p)) 
+	  if (find_owner_static_index(cl, code_p))
 	    b_ptr->cp_ap = cur_clause(pe, b_ptr->cp_ap->y_u.Otapl.d);
 	} else {
 	  /* static clause */
@@ -3670,7 +3670,7 @@ mark_pred(int mark, PredEntry *pe)
 }
 
 /* go up the chain of choice_points and environments,
-   marking all static predicates that current execution is depending 
+   marking all static predicates that current execution is depending
    upon */
 static void
 do_toggle_static_predicates_in_use(int mask)
@@ -3686,7 +3686,7 @@ do_toggle_static_predicates_in_use(int mask)
     /* check first environments that are younger than our latest choicepoint */
     while (b_ptr > (choiceptr)env_ptr) {
       PredEntry *pe = EnvPreg((yamop *)env_ptr[E_CP]);
-      
+
       mark_pred(mask, pe);
       env_ptr = (CELL *)(env_ptr[E_E]);
     }
@@ -3710,7 +3710,7 @@ find_owner_log_index(LogUpdIndex *cl, yamop *code_p)
 {
   yamop *code_beg = cl->ClCode;
   yamop *code_end = (yamop *)((char *)cl + cl->ClSize);
-  
+
   if (code_p >= code_beg && code_p <= code_end) {
     return cl;
   }
@@ -3730,7 +3730,7 @@ find_owner_static_index(StaticIndex *cl, yamop *code_p)
 {
   yamop *code_beg = cl->ClCode;
   yamop *code_end = (yamop *)((char *)cl + cl->ClSize);
-  
+
   if (code_p >= code_beg && code_p <= code_end) {
     return cl;
   }
@@ -3764,7 +3764,7 @@ all_envs(CELL *env_ptr USES_REGS)
   Term tf = AbsPair(HR);
   CELL *start = HR;
   CELL *bp = NULL;
-  
+
   /* walk the environment chain */
   while (env_ptr) {
     bp = HR;
@@ -3776,13 +3776,13 @@ all_envs(CELL *env_ptr USES_REGS)
       LOCAL_Error_Size = (ASP-1024)-HR;
       while (env_ptr) {
 	LOCAL_Error_Size += 2;
-	env_ptr = (CELL *)(env_ptr[E_E]);      
+	env_ptr = (CELL *)(env_ptr[E_E]);
       }
       return 0L;
     } else {
       bp[1] = AbsPair(HR);
     }
-    env_ptr = (CELL *)(env_ptr[E_E]);      
+    env_ptr = (CELL *)(env_ptr[E_E]);
   }
   bp[1] = TermNil;
   return tf;
@@ -3896,7 +3896,7 @@ p_toggle_static_predicates_in_use( USES_REGS1 )
 #if !defined(YAPOR) && !defined(THREADS)
   Term t = Deref(ARG1);
   Int mask;
-  
+
   /* find out whether we need to mark or unmark */
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR,t,"toggle_static_predicates_in_use/1");
@@ -3932,7 +3932,7 @@ clause_was_found(PredEntry *pp, Atom *pat, arity_t *parity) {
       *pat = NameOfFunctor(pp->FunctorOfPred);
     } else {
       *pat = (Atom)(pp->FunctorOfPred);
-    }  
+    }
   }
 }
 
@@ -3998,7 +3998,7 @@ find_code_in_clause(PredEntry *pp, yamop *codeptr, CODEADDR *startp, CODEADDR *e
     } else if (pp->PredFlags & DynamicPredFlag) {
       do {
 	DynamicClause *cl;
-	
+
 	cl = ClauseCodeToDynamicClause(clcode);
 	if (IN_BLOCK(codeptr,cl,cl->ClSize)) {
 	  if (startp)
@@ -4014,7 +4014,7 @@ find_code_in_clause(PredEntry *pp, yamop *codeptr, CODEADDR *startp, CODEADDR *e
       } while (TRUE);
     } else if (pp->PredFlags & MegaClausePredFlag) {
       MegaClause *cl;
-	
+
       cl = ClauseCodeToMegaClause(clcode);
       if (IN_BLOCK(codeptr,cl,cl->ClSize)) {
 	  if (startp)
@@ -4025,7 +4025,7 @@ find_code_in_clause(PredEntry *pp, yamop *codeptr, CODEADDR *startp, CODEADDR *e
       }
     } else {
       StaticClause *cl;
-	
+
       cl = ClauseCodeToStaticClause(clcode);
       do {
 	if (IN_BLOCK(codeptr,cl,cl->ClSize)) {
@@ -4080,7 +4080,7 @@ cl_code_in_pred(PredEntry *pp, yamop *codeptr, CODEADDR *startp, CODEADDR *endp)
   } else {
     out = find_code_in_clause(pp, codeptr, startp, endp);
   }
-  UNLOCK(pp->PELock); 
+  UNLOCK(pp->PELock);
   if (out) return TRUE;
   return FALSE;
 }
@@ -4149,7 +4149,7 @@ Yap_PredForCode(yamop *codeptr, find_pred_type where_from, Atom *pat, arity_t *p
 	*pmodule = TermProlog;
       else
 	*pmodule = p->ModuleOfPred;
-      out = find_code_in_clause(p, codeptr, NULL, NULL); 
+      out = find_code_in_clause(p, codeptr, NULL, NULL);
       clause_was_found(p, pat, parity);
       return out;
     }
@@ -4609,13 +4609,13 @@ p_system_pred( USES_REGS1 )
     Functor         funt = FunctorOfTerm(t1);
     if (IsExtensionFunctor(funt)) {
       return FALSE;
-    } 
+    }
     if (funt == FunctorModule) {
       Term nmod = ArgOfTerm(1, t1);
       if (IsVarTerm(nmod)) {
 	Yap_Error(INSTANTIATION_ERROR,ARG1,"system_predicate/1");
 	return FALSE;
-      } 
+      }
       if (!IsAtomTerm(nmod)) {
 	Yap_Error(TYPE_ERROR_ATOM,ARG1,"system_predicate/1");
 	return FALSE;
@@ -4654,13 +4654,13 @@ p_all_system_pred( USES_REGS1 )
     Functor         funt = FunctorOfTerm(t1);
     if (IsExtensionFunctor(funt)) {
       return FALSE;
-    } 
+    }
     if (funt == FunctorModule) {
       Term nmod = ArgOfTerm(1, t1);
       if (IsVarTerm(nmod)) {
 	Yap_Error(INSTANTIATION_ERROR,ARG1,"system_predicate/1");
 	return FALSE;
-      } 
+      }
       if (!IsAtomTerm(nmod)) {
 	Yap_Error(TYPE_ERROR_ATOM,ARG1,"system_predicate/1");
 	return FALSE;
@@ -4681,7 +4681,7 @@ p_all_system_pred( USES_REGS1 )
   } else {
     if (!Yap_unify(ARG3,TermProlog))
       return FALSE;
-  } 
+  }
   return(!pe->ModuleOfPred || /* any predicate in prolog module */
 	 /* any C-pred */
 	 pe->PredFlags & (UserCPredFlag|CPredFlag|BinaryPredFlag|AsmPredFlag|TestPredFlag) ||
@@ -4722,7 +4722,7 @@ Yap_HidePred(PredEntry *pe)
   }
   pe->NextOfPE = HIDDEN_PREDICATES;
   HIDDEN_PREDICATES = AbsPredProp(pe);
-  pe->PredFlags |= HiddenPredFlag;  
+  pe->PredFlags |= HiddenPredFlag|NoTracePredFlag;  
 }
 
 static Int			/* $system_predicate(P) */
@@ -4744,13 +4744,13 @@ p_stash_predicate( USES_REGS1 )
     Functor         funt = FunctorOfTerm(t1);
     if (IsExtensionFunctor(funt)) {
       return(FALSE);
-    } 
+    }
     if (funt == FunctorModule) {
       Term nmod = ArgOfTerm(1, t1);
       if (IsVarTerm(nmod)) {
 	Yap_Error(INSTANTIATION_ERROR,ARG1,"hide_predicate/1");
 	return(FALSE);
-      } 
+      }
       if (!IsAtomTerm(nmod)) {
 	Yap_Error(TYPE_ERROR_ATOM,ARG1,"hide_predicate/1");
 	return(FALSE);
@@ -4788,13 +4788,13 @@ p_hide_predicate( USES_REGS1 )
     Functor         funt = FunctorOfTerm(t1);
     if (IsExtensionFunctor(funt)) {
       return(FALSE);
-    } 
+    }
     if (funt == FunctorModule) {
       Term nmod = ArgOfTerm(1, t1);
       if (IsVarTerm(nmod)) {
 	Yap_Error(INSTANTIATION_ERROR,ARG1,"hide_predicate/1");
 	return(FALSE);
-      } 
+      }
       if (!IsAtomTerm(nmod)) {
 	Yap_Error(TYPE_ERROR_ATOM,ARG1,"hide_predicate/1");
 	return(FALSE);
@@ -4809,7 +4809,7 @@ p_hide_predicate( USES_REGS1 )
     return FALSE;
   if (EndOfPAEntr(pe))
     return FALSE;
-  pe->PredFlags |= HiddenPredFlag;  
+  pe->PredFlags |= HiddenPredFlag;
   return TRUE;
 }
 
@@ -4831,13 +4831,13 @@ p_hidden_predicate( USES_REGS1 )
     Functor         funt = FunctorOfTerm(t1);
     if (IsExtensionFunctor(funt)) {
       return(FALSE);
-    } 
+    }
     if (funt == FunctorModule) {
       Term nmod = ArgOfTerm(1, t1);
       if (IsVarTerm(nmod)) {
 	Yap_Error(INSTANTIATION_ERROR,ARG1,"hide_predicate/1");
 	return(FALSE);
-      } 
+      }
       if (!IsAtomTerm(nmod)) {
 	Yap_Error(TYPE_ERROR_ATOM,ARG1,"hide_predicate/1");
 	return(FALSE);
@@ -4914,7 +4914,7 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 #if defined(YAPOR) || defined(THREADS)
       if (pe->PredFlags & ThreadLocalPredFlag) {
 	/* we don't actually need to execute code */
-	UNLOCK(pe->PELock);	
+	UNLOCK(pe->PELock);
       } else {
 	PP = pe;
       }
@@ -5061,7 +5061,7 @@ fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th, Term tb, Term 
 #if defined(YAPOR) || defined(THREADS)
       if (pe->PredFlags & ThreadLocalPredFlag) {
 	/* we don't actually need to execute code */
-	UNLOCK(pe->PELock);	
+	UNLOCK(pe->PELock);
       } else {
 	PP = pe;
       }
@@ -5184,7 +5184,7 @@ replace_integer(Term orig, UInt new)
 {
   CELL *pt;
 
-  if (IntInBnd((Int)new)) 
+  if (IntInBnd((Int)new))
     return MkIntTerm(new);
   /* should create an old integer */
   if (!IsApplTerm(orig)) {
@@ -5406,7 +5406,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
     return TRUE;
   } else {
     Term t;
-    
+
     if (!(pe->PredFlags & SourcePredFlag)) {
       /* no source */
       rtn = Yap_MkStaticRefTerm(cl, pe);
@@ -5557,7 +5557,7 @@ add_code_in_pred(PredEntry *pp) {
       StaticIndex *cl = ClauseCodeToStaticIndex(clcode);
       add_code_in_static_index(cl, pp);
     }
-  }	      
+  }
   clcode = pp->cs.p_code.FirstClause;
   if (clcode != NULL) {
     if (pp->PredFlags & LogUpdatePredFlag) {
@@ -5594,7 +5594,7 @@ add_code_in_pred(PredEntry *pp) {
       } while (TRUE);
     }
   }
-  UNLOCK(pp->PELock); 
+  UNLOCK(pp->PELock);
 }
 
 
@@ -5840,7 +5840,7 @@ UnifyPredInfo(PredEntry *pe, int start_arg USES_REGS) {
       tname = MkAtomTerm(NameOfFunctor(f));
     }
   }
-  
+
   return Yap_unify(XREGS[start_arg], tmod) &&
     Yap_unify(XREGS[start_arg+1],tname) &&
     Yap_unify(XREGS[start_arg+2],MkIntegerTerm(arity));
@@ -5861,12 +5861,12 @@ p_env_info( USES_REGS1 )
   CELL *env = LCL0-IntegerOfTerm(Deref(ARG1));
   yamop *env_cp;
   Term env_b, taddr;
-  
+
   if (!env)
     return FALSE;
   env_b = MkIntegerTerm((Int)(LCL0-(CELL *)env[E_CB]));
   env_cp = (yamop *)env[E_CP];
-  
+
   /* pe = PREVOP(env_cp,Osbpp)->y_u.Osbpp.p0; */
   taddr = MkIntegerTerm((Int)env);
   return Yap_unify(ARG3,MkIntegerTerm((Int)env_cp)) &&
@@ -5894,7 +5894,7 @@ p_choicepoint_info( USES_REGS1 )
   yamop *ipc = cptr->cp_ap;
   yamop *ncl = NULL;
   Term t = TermNil, taddr;
-  
+
   taddr = MkIntegerTerm((Int)cptr);
   while (go_on) {
     op_numbers opnum = Yap_op_from_opcode(ipc->opc);
@@ -6052,9 +6052,9 @@ p_choicepoint_info( USES_REGS1 )
       ncl = NULL;
       pe = ipc->y_u.lp.p;
       t = BuildActivePred(pe, cptr->cp_args);
-      break;      
+      break;
     case _Nstop:
-      { 
+      {
 	Atom at = AtomLive;
 	t = MkAtomTerm(at);
 	pe = RepPredProp(PredPropByAtom(at, CurrentModule));
@@ -6094,7 +6094,7 @@ compute_dbcl_size(arity_t arity)
     break;
   default:
     sz = arity*(UInt)NEXTOP((yamop *)NULL,xc);
-    break;    
+    break;
   }
   return (UInt)NEXTOP((yamop *)sz,p);
 }
@@ -6102,7 +6102,7 @@ compute_dbcl_size(arity_t arity)
 #define DerefAndCheck(t, V)			\
   t = Deref(V); if(IsVarTerm(t) || !(IsAtomOrIntTerm(t))) Yap_Error(TYPE_ERROR_ATOM, t0, "load_db");
 
-static int 
+static int
 store_dbcl_size(yamop *pc, arity_t arity, Term t0, PredEntry *pe)
 {
   Term t;
@@ -6184,14 +6184,14 @@ store_dbcl_size(yamop *pc, arity_t arity, Term t0, PredEntry *pe)
 	pc = NEXTOP(pc,xc);
       }
     }
-    break;    
+    break;
   }
   pc->opc = Yap_opcode(_procceed);
   pc->y_u.p.p = pe;
   return TRUE;
 }
 
-static Int 
+static Int
 p_dbload_get_space( USES_REGS1 )
 {				/* '$number_of_clauses'(Predicate,M,N) */
   Term            t = Deref(ARG1);
@@ -6269,13 +6269,13 @@ p_dbload_get_space( USES_REGS1 )
   } else {
     ap->OpcodeOfPred = INDEX_OPCODE;
   }
-  ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
+  ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
   ptr = (yamop *)((ADDR)mcl->ClCode+ncls*sz);
   ptr->opc = Yap_opcode(_Ystop);
   return Yap_unify(ARG4, MkIntegerTerm((Int)mcl));
 }
 
-static Int 
+static Int
 p_dbassert( USES_REGS1 )
 {				/* '$number_of_clauses'(Predicate,M,N) */
   Term            thandle = Deref(ARG2);
@@ -6305,7 +6305,7 @@ p_dbassert( USES_REGS1 )
 #define CL_PROP_STREAM 5
 
 /* instance(+Ref,?Term) */
-static Int 
+static Int
 p_instance_property( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
@@ -6339,14 +6339,14 @@ p_instance_property( USES_REGS1 )
 	      return FALSE;
 	  } else {
 	    Term t[2];
-	    
+
 	    if (ap->ArityOfPE == 0) {
 	      t[1] = MkAtomTerm((Atom)ap->FunctorOfPred);
 	    } else {
 	      Functor nf = ap->FunctorOfPred;
 	      arity_t arity = ArityOfFunctor(nf);
 	      Atom name = NameOfFunctor(nf);
-	    
+
 	      t[0] = MkAtomTerm(name);
 	      t[1] = MkIntegerTerm(arity);
 	      t[1] = Yap_MkApplTerm(FunctorSlash, 2, t);
@@ -6391,7 +6391,7 @@ p_instance_property( USES_REGS1 )
 	    arity_t arity = ArityOfFunctor(nf);
 	    Atom name = NameOfFunctor(nf);
 	    Term t[2];
-	    
+
 	    t[0] = MkAtomTerm(name);
 	    t[1] = MkIntegerTerm(arity);
 	    t[1] = Yap_MkApplTerm(FunctorSlash, 2, t);
@@ -6439,7 +6439,7 @@ p_instance_property( USES_REGS1 )
 	Functor nf = ap->FunctorOfPred;
 	arity_t arity = ArityOfFunctor(nf);
 	Atom name = NameOfFunctor(nf);
-	    
+
 	t[0] = MkAtomTerm(name);
 	t[1] = MkIntegerTerm(arity);
 	t[1] = Yap_MkApplTerm(FunctorSlash, 2, t);
@@ -6493,7 +6493,7 @@ p_nth_instance( USES_REGS1 )
     }
     Count = IntegerOfTerm(TCount);
     if (Count <= 0) {
-      if (Count) 
+      if (Count)
 	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, TCount, "nth_clause/3");
       else
 	Yap_Error(DOMAIN_ERROR_NOT_ZERO, TCount, "nth_clause/3");
@@ -6501,7 +6501,7 @@ p_nth_instance( USES_REGS1 )
     }
     pe = get_pred(Deref(ARG1), Deref(ARG2), "nth_clause/3");
     if (pe) {
-      PELOCK(47,pe); 
+      PELOCK(47,pe);
     }
     if (Deref(ARG2) == IDB_MODULE) {
       return Yap_db_nth_recorded( pe, Count PASS_REGS );
@@ -6528,14 +6528,14 @@ p_nth_instance( USES_REGS1 )
       }
       cl0 = Yap_NthClause(pe, Count);
       ARG4 = Yap_GetFromSlot( sl4 PASS_REGS );
-      LOCAL_CurSlot = CurSlot;  
+      LOCAL_CurSlot = CurSlot;
       if (cl0 == NULL) {
 	UNLOCK(pe->PELock);
 	return FALSE;
       }
       if (pe->PredFlags & LogUpdatePredFlag) {
 	LogUpdClause *cl = cl0;
-	
+
 #if MULTIPLE_STACKS
 	TRAIL_CLREF(cl);		/* So that fail will erase it */
 	INC_CLREF_COUNT(cl);
@@ -6594,7 +6594,7 @@ p_nth_instance( USES_REGS1 )
     }
   } else if (IsApplTerm(t4)) {
     Functor f = FunctorOfTerm(t4);
-    
+
     if (f == FunctorStaticClause) {
       StaticClause *cl = Yap_ClauseFromTerm(t4), *cl0;
       pe = (PredEntry *)IntegerOfTerm(ArgOfTerm(2, t4));
@@ -6670,12 +6670,12 @@ p_nth_instance( USES_REGS1 )
   } else {
     if (!Yap_unify(ARG2,pred_module))
       return FALSE;
-  }	
-  return TRUE;    
+  }
+  return TRUE;
 
 }
 
-void 
+void
 Yap_InitCdMgr(void)
 {
   CACHE_REGS
@@ -6761,4 +6761,3 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$predicate_live_cps", 4, p_predicate_lu_cps, 0L);
 #endif
 }
-
