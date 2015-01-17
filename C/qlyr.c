@@ -693,7 +693,7 @@ read_tag(IOSTREAM *stream)
   return ch;
 }
 
-static UInt
+static pred_flags_t
 read_predFlags(IOSTREAM *stream)
 {
   pred_flags_t v;
@@ -1005,8 +1005,9 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
 
 static void
 read_pred(IOSTREAM *stream, Term mod) {
-  UInt flags;
-  UInt nclauses, fl1;
+  pred_flags_t flags;
+  UInt nclauses;
+  pred_flags_t fl1;
   PredEntry *ap;
 
   ap = LookupPredEntry((PredEntry *)read_UInt(stream));
@@ -1019,8 +1020,8 @@ read_pred(IOSTREAM *stream, Term mod) {
   //  printf("   %s/%ld\n", NameOfFunctor(ap->FunctorOfPred)->StrOfAE, ap->ArityOfPE);
   //else if (ap->ModuleOfPred != IDB_MODULE)
   //  printf("   %s/%ld\n", ((Atom)(ap->FunctorOfPred))->StrOfAE, ap->ArityOfPE);
-  fl1 = flags & ((UInt)STATIC_PRED_FLAGS|(UInt)EXTRA_PRED_FLAGS);
-  ap->PredFlags &= ~((UInt)STATIC_PRED_FLAGS|(UInt)EXTRA_PRED_FLAGS);
+  fl1 = flags & ((pred_flags_t)STATIC_PRED_FLAGS|(pred_flags_t)EXTRA_PRED_FLAGS);
+  ap->PredFlags &= ~((pred_flags_t)STATIC_PRED_FLAGS|(pred_flags_t)EXTRA_PRED_FLAGS);
   ap->PredFlags |= fl1;
   if (flags & NumberDBPredFlag) {
     ap->src.IndxId = read_UInt(stream);
@@ -1037,7 +1038,7 @@ read_pred(IOSTREAM *stream, Term mod) {
   }
   read_clauses(stream, ap, nclauses, flags);
   if (flags & HiddenPredFlag) {  
-    Yap_HidePred(ap);
+    Yap_HidePred(ap, false);
   }
 }
 

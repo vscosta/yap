@@ -101,8 +101,13 @@ typedef enum {
   QLY_ATOM_BLOB = 17
 } qlf_tag_t;
 
-#define STATIC_PRED_FLAGS (SourcePredFlag|DynamicPredFlag|LogUpdatePredFlag|CompiledPredFlag|MultiFileFlag|TabledPredFlag|MegaClausePredFlag|CountPredFlag|ProfiledPredFlag|ThreadLocalPredFlag|AtomDBPredFlag|ModuleTransparentPredFlag|NumberDBPredFlag|MetaPredFlag|SyncPredFlag|BackCPredFlag)
+#define STATIC_PRED_FLAGS (HiddenPredFlag|AtomDBPredFlag|NumberDBPredFlag|MetaPredFlag|SyncPredFlag|SYSTEM_PRED_FLAGS|PROP_PRED_FLAGS|SWI_PRED_FLAGS|EXTRA_PRED_FLAGS)
+
 #define EXTRA_PRED_FLAGS (QuasiQuotationPredFlag|NoTracePredFlag|NoSpyPredFlag)
+
+#define PROP_PRED_FLAGS (SourcePredFlag|DynamicPredFlag|LogUpdatePredFlag|CompiledPredFlag|MultiFileFlag|TabledPredFlag|MegaClausePredFlag|ModuleTransparentPredFlag|CountPredFlag|ProfiledPredFlag|ThreadLocalPredFlag)
+
+#define SWI_PRED_FLAGS (SWIEnvPredFlag|CArgsPredFlag)
 
 #define SYSTEM_PRED_FLAGS (BackCPredFlag|UserCPredFlag|CArgsPredFlag|AsmPredFlag|CPredFlag|BinaryPredFlag)
 

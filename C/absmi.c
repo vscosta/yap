@@ -1252,7 +1252,7 @@ interrupt_dexecute( USES_REGS1 )
   if (PP) UNLOCKPE(1,PP);
   PP = P->y_u.pp.p0;
   pe = P->y_u.pp.p;
-  if ((PP->PredFlags & (NoTracePredFlag|HiddenPredFlag)) && Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
+  if ((pe->PredFlags & (NoTracePredFlag|HiddenPredFlag)) && Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
     return 2;
   }
   /* set S for next instructions */

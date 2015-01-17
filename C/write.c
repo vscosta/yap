@@ -556,7 +556,7 @@ write_quoted(wchar_t ch, wchar_t quote, wrf stream)
 	char esc[8];
 	
 	/* last backslash in ISO mode */
-	sprintf(esc, "\\%03o\\", ch);
+	snprintf(esc, 7, "\\%03o\\", (unsigned int)ch);
 	wrputs(esc, stream);
       }
     }

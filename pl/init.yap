@@ -315,10 +315,10 @@ modules defining clauses for it too.
 
 :- dynamic user:portray_message/2.
 
-/** @pred  exception(+ _Exception_, + _Context_, - _Action_) 
+/** @pred  prolog:exception(+ _Exception_, + _Context_, - _Action_) 
 
 
-Dynamic predicate, normally not defined. Called by the Prolog system on run-time exceptions that can be repaired `just-in-time`. The values for  _Exception_ are described below. See also catch/3 and throw/1.
+Dynamic predicate, originally defined in SWI-Prolog. The prolog:exception/3 dynamic predicate is Called by the Prolog system on run-time exceptions that can be repaired `just-in-time`. The values for  _Exception_ are described below. See also catch/3 and throw/1.
 If this hook predicate succeeds it must instantiate the  _Action_ argument to the atom `fail` to make the operation fail silently, `retry` to tell Prolog to retry the operation or `error` to make the system generate an exception. The action `retry` only makes sense if this hook modified the environment such that the operation can now succeed without error.
 
 + `undefined_predicate`

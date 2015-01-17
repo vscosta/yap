@@ -133,8 +133,10 @@ void	Yap_BuildMegaClause(struct pred_entry *);
 void	Yap_EraseMegaClause(yamop *,struct pred_entry *);
 void	Yap_ResetConsultStack(void);
 void	Yap_AssertzClause(struct pred_entry *, yamop *);
-void    Yap_HidePred(struct pred_entry *pe);
+void    Yap_HidePred(struct pred_entry *pe, bool offline);
 int     Yap_SetNoTrace(char *name, UInt arity, Term tmod);
+struct pred_entry* Yap_getPred(Term t,  Term tmod, char *msg);
+struct pred_entry* Yap_Pred(Term t,  Term tmod, char *msg);
 
 /* cmppreds.c */
 Int	Yap_compare_terms(Term,Term);

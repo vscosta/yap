@@ -651,39 +651,39 @@ IsValProperty (int flags)
 
 don't forget to also add in qly.h
 */
-#define  DiscontiguousPredFlag ((pred_flags_t)0x1000000000)	/* predicates whose clauses may be all-over the place.. */
-#define SysExportPredFlag ((pred_flags_t)0x800000000)
+#define  DiscontiguousPredFlag ((pred_flags_t)0x1000000000LL)	/* predicates whose clauses may be all-over the place.. */
+#define SysExportPredFlag ((pred_flags_t)0x800000000LL)
 /* reuse export list to prolog module. */
-#define NoTracePredFlag ((pred_flags_t)0x400000000)		/* cannot trace this predicate */
-#define NoSpyPredFlag  ((pred_flags_t)0x200000000)		/* cannot spy this predicate */
-#define QuasiQuotationPredFlag  ((pred_flags_t)0x100000000)		/* SWI-like quasi quotations */
-#define MegaClausePredFlag    ((pred_flags_t)0x80000000) /* predicate is implemented as a mega-clause */
-#define ThreadLocalPredFlag  ((pred_flags_t)0x40000000)	/* local to a thread */
-#define MultiFileFlag  ((pred_flags_t)0x20000000)	/* is multi-file */
-#define UserCPredFlag  ((pred_flags_t)0x10000000)	/* CPred defined by the user */
-#define LogUpdatePredFlag  ((pred_flags_t)0x08000000)	/* dynamic predicate with log. upd. sem. */
-#define InUsePredFlag  ((pred_flags_t)0x04000000)	/* count calls to pred */
-#define CountPredFlag  ((pred_flags_t)0x02000000)	/* count calls to pred */
-#define HiddenPredFlag  ((pred_flags_t)0x01000000)	/* invisible predicate */
-#define CArgsPredFlag  ((pred_flags_t)0x00800000)	/* SWI-like C-interface pred. */
-#define SourcePredFlag  ((pred_flags_t)0x00400000)	/* static predicate with source declaration */
-#define MetaPredFlag  ((pred_flags_t)0x00200000)	/* predicate subject to a meta declaration */
-#define SyncPredFlag  ((pred_flags_t)0x00100000)	/* has to synch before it can execute */
-#define NumberDBPredFlag  ((pred_flags_t)0x00080000)	/* entry for a number key */
-#define AtomDBPredFlag  ((pred_flags_t)0x00040000)	/* entry for an atom key */
-#define GoalExPredFlag  ((pred_flags_t)0x00020000)	/* predicate that is called by goal_expand */
-#define TestPredFlag  ((pred_flags_t)0x00010000)	/* is a test (optim. comit) */
-#define AsmPredFlag  ((pred_flags_t)0x00008000)	/* inline */
-#define StandardPredFlag  ((pred_flags_t)0x00004000)	/* system predicate */
-#define DynamicPredFlag  ((pred_flags_t)0x00002000)	/* dynamic predicate */
-#define CPredFlag  ((pred_flags_t)0x00001000)	/* written in C */
-#define SafePredFlag  ((pred_flags_t)0x00000800)	/* does not alter arguments */
-#define CompiledPredFlag  ((pred_flags_t)0x00000400)	/* is static */
-#define IndexedPredFlag  ((pred_flags_t)0x00000200)	/* has indexing code */
-#define SpiedPredFlag  ((pred_flags_t)0x00000100)	/* is a spy point */
-#define BinaryPredFlag  ((pred_flags_t)0x00000080)	/* test predicate */
-#define TabledPredFlag  ((pred_flags_t)0x00000040)	/* is tabled */
-#define SequentialPredFlag  ((pred_flags_t)0x00000020)	/* may not create parallel choice points! */
+#define NoTracePredFlag ((pred_flags_t)0x400000000LL)		/* cannot trace this predicate */
+#define NoSpyPredFlag  ((pred_flags_t)0x200000000LL)		/* cannot spy this predicate */
+#define QuasiQuotationPredFlag  ((pred_flags_t)0x100000000LL)		/* SWI-like quasi quotations */
+#define MegaClausePredFlag    ((pred_flags_t)0x80000000LL) /* predicate is implemented as a mega-clause */
+#define ThreadLocalPredFlag  ((pred_flags_t)0x40000000LL)	/* local to a thread */
+#define MultiFileFlag  ((pred_flags_t)0x20000000LL)	/* is multi-file */
+#define UserCPredFlag  ((pred_flags_t)0x10000000LL)	/* CPred defined by the user */
+#define LogUpdatePredFlag  ((pred_flags_t)0x08000000LL)	/* dynamic predicate with log. upd. sem. */
+#define InUsePredFlag  ((pred_flags_t)0x04000000LL)	/* count calls to pred */
+#define CountPredFlag  ((pred_flags_t)0x02000000LL)	/* count calls to pred */
+#define HiddenPredFlag  ((pred_flags_t)0x01000000LL)	/* invisible predicate */
+#define CArgsPredFlag  ((pred_flags_t)0x00800000LL)	/* SWI-like C-interface pred. */
+#define SourcePredFlag  ((pred_flags_t)0x00400000LL)	/* static predicate with source declaration */
+#define MetaPredFlag  ((pred_flags_t)0x00200000LL)	/* predicate subject to a meta declaration */
+#define SyncPredFlag  ((pred_flags_t)0x00100000LL)	/* has to synch before it can execute */
+#define NumberDBPredFlag  ((pred_flags_t)0x00080000LL)	/* entry for a number key */
+#define AtomDBPredFlag  ((pred_flags_t)0x00040000LL)	/* entry for an atom key */
+#define GoalExPredFlag  ((pred_flags_t)0x00020000LL)	/* predicate that is called by goal_expand */
+#define TestPredFlag  ((pred_flags_t)0x00010000LL)	/* is a test (optim. comit) */
+#define AsmPredFlag  ((pred_flags_t)0x00008000LL)	/* inline */
+#define StandardPredFlag  ((pred_flags_t)0x00004000LL)	/* system predicate */
+#define DynamicPredFlag  ((pred_flags_t)0x00002000LL)	/* dynamic predicate */
+#define CPredFlag  ((pred_flags_t)0x00001000LL)	/* written in C */
+#define SafePredFlag  ((pred_flags_t)0x00000800LL)	/* does not alter arguments */
+#define CompiledPredFlag  ((pred_flags_t)0x00000400LL)	/* is static */
+#define IndexedPredFlag  ((pred_flags_t)0x00000200LL)	/* has indexing code */
+#define SpiedPredFlag  ((pred_flags_t)0x00000100LL)	/* is a spy point */
+#define BinaryPredFlag  ((pred_flags_t)0x00000080LL)	/* test predicate */
+#define TabledPredFlag  ((pred_flags_t)0x00000040LL)	/* is tabled */
+#define SequentialPredFlag  ((pred_flags_t)0x00000020LL)	/* may not create parallel choice points! */
 #define ProfiledPredFlag  ((pred_flags_t)0x00000010)	/* pred is being profiled   */
 #define BackCPredFlag  ((pred_flags_t)0x00000008)    /*	Myddas Imported pred  */
 #define ModuleTransparentPredFlag ((pred_flags_t)0x00000004)	/* ModuleTransparent pred  */
@@ -1863,6 +1863,58 @@ PredPropByAtomAndMod (Atom at, Term cur_mod)
       p0 = pe->NextOfPE;
     }
   return Yap_NewPredPropByAtom (ae, cur_mod);
+}
+
+//
+// report arity, name, and module for a predicate.
+//
+INLINE_ONLY inline EXTERN 
+  UInt IndicatorOfPred(PredEntry * ap, const char **name, const char **module);
+
+INLINE_ONLY inline EXTERN 
+  UInt IndicatorOfPred(PredEntry * ap, const char **name, const char **module)
+{
+  if (module) {
+    Term tmod = ap->ModuleOfPred;
+    if (!tmod) *module = "prolog";
+    else *module = RepAtom(AtomOfTerm( tmod ))->StrOfAE;
+  }
+  if (ap->ModuleOfPred == IDB_MODULE) {
+    if (ap->PredFlags & NumberDBPredFlag ) {
+      if (name) {
+	Int id = ap->src.IndxId;
+	char *s = (char *)malloc(16);
+	snprintf(s, 15, Int_FORMAT, id);
+	*name = s;
+      }
+      return 0;
+    } else if (ap->PredFlags & AtomDBPredFlag) {
+     if (name) {
+	Atom At = (Atom)ap->FunctorOfPred;
+	*name = RepAtom(At)->StrOfAE;
+     }
+     return 0;
+    } else {
+      Functor f = ap->FunctorOfPred;
+      if (name) {
+	Atom At = NameOfFunctor(f);
+	*name = RepAtom(At)->StrOfAE;
+      }
+      return ArityOfFunctor(f);
+    }
+  } else {
+    if (name) {
+      if (ap->ArityOfPE == 0) {
+	Atom At = (Atom)ap->FunctorOfPred;
+	*name = RepAtom(At)->StrOfAE;
+      } else {
+	Functor f = ap->FunctorOfPred;
+	Atom At = NameOfFunctor(f);
+	*name = RepAtom(At)->StrOfAE;
+      }
+    }
+    return ap->ArityOfPE;
+  }
 }
 
 #if DEBUG_PELOCKING

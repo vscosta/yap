@@ -450,13 +450,13 @@ true :- true.
 			(print_message(error, E),
 	                 '$handle_toplevel_error'(Line, E))),
 	(
-	    '$pred_exists'(rl_add_history(_), user)
+	    '$pred_exists'(rl_add_history(_), prolog)
 	->
 	    format(atom(CompleteLine), '~W~W',
 		   [ Line, [partial(true)],
 		     '.', [partial(true)]
 		   ]),
-	    user:rl_add_history(CompleteLine)
+	    userprolog:rl_add_history(CompleteLine)
 	;
 	    true
 	),
@@ -1471,7 +1471,7 @@ expand_term(Term,Expanded) :-
 %
 '$expand_array_accesses_in_term'(Expanded0,ExpandedF) :-
 	'$array_refs_compiled',
-	'$arrays':'$c_arrays'(Expanded0,ExpandedF), !.
+	'$c_arrays'(Expanded0,ExpandedF), !.
 '$expand_array_accesses_in_term'(Expanded,Expanded).
 
 
