@@ -61,7 +61,7 @@ YAPSTARTUP=@SAVED_STATE_PREFIX@startup.yss
 CC=@CC@
 CXX=@CXX@
 MPI_CC=@MPI_CC@
-CPPFLAGS=@CPPFLAGS@  -I. -I$(srcdir)/include -I$(srcdir)/C -I$(srcdir)/H  -I$(srcdir)/os -I$(srcdir)/OPTYap -I$(srcdir)/BEAM -I$(srcdir)/CXX
+CPPFLAGS=@CPPFLAGS@  -I. -I$(srcdir)/include -I$(srcdir)/C -I$(srcdir)/H  -I$(srcdir)/os -I$(srcdir)/OPTYap -I$(srcdir)/BEAM -I$(srcdir)/CXX -I$(srcdir)/JIT/HPP
 EXECUTABLE_CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 CFLAGS=  @YAPLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 CXXFLAGS=  @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
@@ -77,9 +77,9 @@ CPP=@CPP@
 RC=@RC@
 RCFLAGS=@RCFLAGS@
 DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1 -DDESTDIR=\"$(DESTDIR)\"
-LIBS=@LIBS@
-DLL_LIBS=@LIBS@ @EXTRA_LIBS_FOR_DLLS@
-LDFLAGS=@LDFLAGS@
+LIBS=@LIBS@ @JITLIBS@
+DLL_LIBS=$(LIBS) @EXTRA_LIBS_FOR_DLLS@
+LDFLAGS=@LDFLAGS@ @JITLD@
 EXTRAYAPLIBS=@EXTRAYAPLIBS@
 LN_S=@LN_S@
 M4=@M4@
@@ -303,7 +303,7 @@ C_SOURCES= \
 	# library/lammpi/yap_mpi.c library/lamm1pi/hash.c library/lammpi/prologterms2c.c
 CXX_SOURCES = \
 	CXX/yapi.cpp \
-    JIT/JIT_Compiler.cpp
+	JIT/JIT_Compiler.cpp
 
 PLCONS_SOURCES = \
 	console/LGPL/pl-nt.c \
@@ -505,11 +505,11 @@ yap_random.o: library/random/yap_random.c config.h
 %.o: os/%.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -Ios  @EXTRA_INCLUDES_FOR_WIN32@  $< -o $@
 
-JIT_Compiler.o: IT/JIT_Compiler.cpp
-	$(CXX) -c $(CFLAGS) $(JITFLAGS) $< -o $@
+JIT_Compiler.o: JIT/JIT_Compiler.cpp
+	$(CXX) -c $(CFLAGS) $(JITFLAGS) -I$(srcdir)/JIT/HPP $< -o $@
 
-%.o: $JIT/%.c
-	$(CC) -c $(CFLAGS) $< -o $@
+%.o: JIT/%.c
+	$(CC) -c $(CFLAGS)  -I$(srcdir)/JIT/HPP $< -o $@
 
 pl-ntcon.o: console/LGPL/pl-ntcon.c config.h
 	$(CC) -c $(CFLAGS)   -DUNICODE -D_UNICODE -DPL_CONSOLE=1 -I$(srcdir)/include $< -o $@
@@ -598,7 +598,7 @@ all: startup.yss
 	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). qsave_program('startup.yss')." |  @PRE_INSTALL_ENV@ ./yap@EXEC_SUFFIX@ -b $(srcdir)/pl/boot.yap
 
 yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@ libYap.a
-	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap@EXEC_SUFFIX@ yap.o @YAPLIB@ $(LIBS) $(PAPILIB) $(JITLIBS) $(JITLD)
+	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap@EXEC_SUFFIX@ yap.o @YAPLIB@ $(LIBS) $(PAPILIB)
 
 yap-win: yap-win@EXEC_SUFFIX@
 
