@@ -136,8 +136,12 @@ mode and the existing spy-points, when the debugger is on.
 
 
 '$exec_spy'( M, G, Action ) :-
-    '$import_chain'( M, G, M0, S0 ),
-    '$system_predicate'(S0,M0),
+    '$follow_import_chain'( M, G, M0, G0 ),
+    '$exec_spy2'( M0, G0, Action ).
+
+
+'$exec_spy2'( M0, S0, Action ) :-
+    '$system_predicate'(S0,M0), 1,
     '$flags'(S0,M0,F,F),
     (
 	F /\ 0x118dd080 =\= 0
@@ -148,6 +152,8 @@ mode and the existing spy-points, when the debugger is on.
 	  ;
 	  true
     ),
+    '$suspy2'(Action, S0, M0 ).
+'$exec_spy2'( M0, S0, Action ) :-
     '$suspy2'(Action, S0, M0 ).
 
  '$suspy2'(spy,T,M) :-
