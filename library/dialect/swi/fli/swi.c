@@ -2529,7 +2529,6 @@ X_API void PL_register_foreign_in_module(const char *module, const char *name, i
   if (flags & PL_FA_NONDETERMINISTIC) {
     Yap_InitCPredBackCut((char *)name, arity, sizeof(struct foreign_context)/sizeof(CELL), (CPredicate)function, (CPredicate)function, (CPredicate)function, UserCPredFlag|nflags);
   } else {
-    printf(" %s %llx\n", name, nflags);
     UserCPredicate((char *)name,(CPredicate)function,arity,tmod,nflags);
   }
 }
