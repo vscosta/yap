@@ -1164,16 +1164,22 @@ predicate_erased_statistics(P,NCls,Sz,ISz) :-
 
 /** @pred  current_predicate( _A_, _P_)
 
-Defines the relation:  _P_ is a currently defined predicate whose name is the atom  _A_. 
+Defines the relation: _P_ is a currently defined predicate whose name
+is the atom _A_.  This includes all predicates defined
+within the module and all predicates explicitely imported by the
+module, but not that system predicates that are visible by default.
+
+YAP does not use autoloader by default, so autoloaded predicates are not
+included.
+
 */
 current_predicate(A,T) :-
-	'$system_module'(M),
-	'$ground_module'(T, M, T0),
-	(
-	 '$current_predicate'(A, M, T0, _)
+    strip_module(T, M, T0),
+    (
+	'$current_predicate'(A, M, T0, _)
 	;
-	 '$imported_predicate'(A, M, A/_Arity, T0, _)
-	).
+	'$imported_predicate'(A, M, A/_Arity, T0, _)
+    ).
 	 
 /** @pred  system_predicate( _A_, _P_) 
 
@@ -1202,19 +1208,30 @@ system_predicate(P) :-
   @pred  current_predicate( _F_) is iso
 
   True if _F_ is the predicate indicator for a currently defined user or
-  library predicate.The indicator  _F_ is of the form _Mod_:_Na_/_Ar_ or _Na/Ar_,
+  library predicate. The indicator  _F_ is of the form _Mod_:_Na_/_Ar_ or _Na/Ar_,
   where the atom _Mod_ is the module of the predicate,
- _Na_ is the name of the predicate, and  _Ar_ its arity.
+  _Na_ is the name of the predicate, and  _Ar_ its arity.
+
+   Notice that this built-in differs from current_predicate/2 in that it also returns all system predicates, as they are available to every module. 
 */
 current_predicate(F0) :-
-	'$ground_module'(F0, M, F),
-	(
-	 '$current_predicate'(N, M, S, _),
-	 functor( S, N, Ar),
-	 F = N/Ar
+    strip_module(F0, M, F),
+    F = A/Arity,
+    (
+	'$current_predicate'(A, M, T, _),
+	functor( T, A, Arity )
 	;
-	 '$imported_predicate'(_Name, M, F, _S, _)
-	).
+	'$imported_predicate'(A, M, A/Arity, _T0, _)
+	;
+	M \= prolog,
+	'$current_predicate'(A, prolog, T, _),
+	functor( T, A, Arity )
+	;
+	M \= system,
+	'$current_predicate'(A, system, T, _),
+	functor( T, A, Arity )
+    ).
+
 
 '$imported_predicate'(A, ImportingMod, A/Arity, G, Flags) :-
 	'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod),
