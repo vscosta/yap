@@ -88,95 +88,85 @@ mode and the existing spy-points, when the debugger is on.
  % First part : setting and reseting spy points
 
  % $suspy does most of the work
- '$suspy'(V,S,M) :- var(V) , !,
-	 '$do_error'(instantiation_error,M:spy(V,S)).
- '$suspy'((M:S),P,_) :- !,
-     '$suspy'(S,P,M).
- '$suspy'([],_,_) :- !.
- '$suspy'([F|L],S,M) :- !, ( '$suspy'(F,S,M) ; '$suspy'(L,S,M) ).
- '$suspy'(F/N,S,M) :- !,
-	 functor(T,F,N),
-	 '$do_suspy'(S, F, N, T, M).
- '$suspy'(A,S,M) :- atom(A), !,
-	 '$suspy_predicates_by_name'(A,S,M).
- '$suspy'(P,spy,M) :- !,
-	  '$do_error'(domain_error(predicate_spec,P),spy(M:P)).
- '$suspy'(P,nospy,M) :-
-	  '$do_error'(domain_error(predicate_spec,P),nospy(M:P)).
+ '$suspy'(V,S) :-
+     strip_module( V, M, Indicators ),
+     ( 
+	 ground( Indicators )
+	       ->
+	true
+     ;
+	 '$do_error'(instantiation_error,M:spy(V,S) )
+     ),
+     /* muat be ground, can be conjunction, list or single element */
+     ( lists:member( I0, Indicators ),
+       strip_module( I0, M, I ),
+      '$do_suspy'( M:I, S ),
+      fail
+     ;
+       conjunctions:conj_member( I0, Indicators ),
+       strip_module( I0, M, I ),
+      '$do_suspy'( M:I, S ),
+      fail
+     ;
+       true
+      ).
 
- '$suspy_predicates_by_name'(A,S,M) :-
-	 % just check one such predicate exists
-	 (
-	   current_predicate(A,M:_)
-	 ->
-	  M = EM,
-	  A = NA
-	 ;
-	  recorded('$import','$import'(EM,M,GA,_,A,_),_),
-	  functor(GA,NA,_)
-	 ),
-	 !,
-	 '$do_suspy_predicates_by_name'(NA,S,EM).
-'$suspy_predicates_by_name'(A,spy,M) :- !,
-	 print_message(warning,no_match(spy(M:A))).
-'$suspy_predicates_by_name'(A,nospy,M) :-
-	 print_message(warning,no_match(nospy(M:A))).
-
-'$do_suspy_predicates_by_name'(A,S,M) :-
-	 current_predicate(A,M:T),
-	 functor(T,A,N),
-	 '$do_suspy'(S, A, N, T, M).
-'$do_suspy_predicates_by_name'(A, S, M) :-
-	 recorded('$import','$import'(EM,M,_,T,A,N),_),
-	 '$do_suspy'(S, A, N, T, EM).
+ '$do_suspy'(M:A, Action) :-
+     atom( A ), !,
+     (
+	 current_predicate( M:A/N ),
+	 functor( G, A, N)
+	*->
+	'$exec_spy'( M, G, Action )
+	;
+	print_message(warning,no_match( M:A ) )
+     ).
+ '$do_suspy'(M:A/N, Action) :- !,
+     ( current_predicate( M:A/N )
+	*->
+	 functor( G, A, N),
+	'$exec_spy'( M, G, Action )
+	;
+	G =.. [ Action, M:A/N],
+	print_message(warning,no_match( G ) )
+     ).
+ '$do_suspy'( I, Action) :-
+	G =.. [ Action, I],
+	'$do_error'(domain_error(predicate_spec,I), G ).
 
 
- %
- % protect against evil arguments.
- %
- '$do_suspy'(S, F, N, T, M) :-
-	 recorded('$import','$import'(EM,M,T0,_,F,N),_), !,
-	 functor(T0, F0, N0),
-	 '$do_suspy'(S, F0, N0, T, EM).
- '$do_suspy'(S, F, N, T, M) :-
-	  '$undefined'(T,M), !,
-	  ( S = spy ->
-	      print_message(warning,no_match(spy(M:F/N)))
+'$exec_spy'( M, G, Action ) :-
+    '$import_chain'( M, G, M0, S0 ),
+    '$system_predicate'(S0,M0),
+    '$flags'(S0,M0,F,F),
+    (
+	F /\ 0x118dd080 =\= 0
+    ->
+	Call =.. [Action,M0:S0],
+	functor(S0,N0,A0),
+	'$do_error'(permission_error(access,private_procedure,M0:A0/N0),Call)
 	  ;
-	      print_message(warning,no_match(nospy(M:F/N)))
-	  ).
- '$do_suspy'(S, F, N, T, M) :-
-	  '$system_predicate'(T,M),
-	 '$flags'(T,M,F,F),
-	 F /\ 0x118dd080 =\= 0,
-	  ( S = spy ->
-	      '$do_error'(permission_error(access,private_procedure,T),spy(M:F/N))
-	  ;
-	      '$do_error'(permission_error(access,private_procedure,T),nospy(M:F/N))
-	  ).
- '$do_suspy'(S, F, N, T, M) :-
-	  '$undefined'(T,M), !,
-	  ( S = spy ->
-	      print_message(warning,no_match(spy(M:F/N)))
-	  ;
-	      print_message(warning,no_match(nospy(M:F/N)))
-	  ).
- '$do_suspy'(S,F,N,T,M) :-
-	 '$suspy2'(S,F,N,T,M).
+	  true
+    ),
+    '$suspy2'(Action, S0, M0 ).
 
- '$suspy2'(spy,F,N,T,M) :-
+ '$suspy2'(spy,T,M) :-
 	 recorded('$spy','$spy'(T,M),_), !,
+	 functor(T,F,N),
 	 print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,already)).
- '$suspy2'(spy,F,N,T,M) :- !,
+ '$suspy2'(spy,T,M) :- !,
 	 recorda('$spy','$spy'(T,M),_),
 	 '$set_spy'(T,M),
+	 functor(T,F,N),
 	 print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,ok)).
- '$suspy2'(nospy,F,N,T,M) :-
+ '$suspy2'(nospy,T,M) :-
 	 recorded('$spy','$spy'(T,M),R), !,
 	 erase(R),
 	 '$rm_spy'(T,M),
+	 functor(T,F,N),
 	 print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),remove,last)).
- '$suspy2'(nospy,F,N,_,M) :-
+ '$suspy2'(nospy,T,M) :-
+	 functor(T,F,N),
 	 print_message(informational,breakp(no,breakpoint_for,M:F/N)).
 
  '$pred_being_spied'(G, M) :-
@@ -189,33 +179,30 @@ Sets spy-points on all the predicates represented by
  _P_.  _P_ can either be a single specification or a list of
 specifications. Each one must be of the form  _Name/Arity_
 or  _Name_. In the last case all predicates with the name
- _Name_ will be spied. As in C-Prolog, system predicates and
-predicates written in C, cannot be spied.
+ _Name_ will be spied. 
 
 
 */
- spy Spec :-
+spy Spec :-
 	 '$init_debugger',
 	 prolog:debug_action_hook(spy(Spec)), !.
- spy L :-
-	 '$current_module'(M),
-	 '$suspy'(L, spy, M), fail.
- spy _ :- debug.
+spy L :-
+	 '$suspy'(L, spy), fail.
+spy _ :- debug.
 
 /** @pred nospy( + _P_ )
 
 
 Removes spy-points from all predicates specified by  _P_.
-The possible forms for  _P_ are the same as in `spy P`.
+The possible forms for  _P_ are the same as in spy/1.
 
 
 */
- nospy Spec :-
+nospy Spec :-
 	 '$init_debugger',
 	 prolog:debug_action_hook(nospy(Spec)), !.
- nospy L :-
-	 '$current_module'(M),
-	 '$suspy'(L, nospy, M), fail.
+nospy L :-
+	 '$suspy'(L, nospy), fail.
 nospy _.
 
 /** @pred nospyall
@@ -232,8 +219,11 @@ nospyall :-
 	 recorded('$spy','$spy'(T,M),_), functor(T,F,N), '$suspy'(F/N,nospy,M), fail.
 nospyall.
 
- % debug mode -> debug flag = 1
+/** debug
 
+Enters debug mode, meaning that it resets the state of the debugger and
+enables the operation of spy-points and creeping.
+*/
 debug :-
 	 '$init_debugger',
 	 ( nb_getval('$spy_gn',_) -> true ; nb_setval('$spy_gn',1) ),
@@ -887,6 +877,10 @@ be lost.
 	'$is_metapredicate'(G, M), !,
 	'$meta_expansion'(G,M,M,M,G1,[]),
 	'$spycall_expanded'(G1, M, CalledFromDebugger, InRedo).
+'$spycall'(G, M, _CalledFromDebugger, _InRedo) :-
+	'$undefined'(G, M), !,
+	'$current_module'(Mod),
+	'$undefp'([M|G], Mod).
 '$spycall'(G, M, CalledFromDebugger, InRedo) :-
 	'$spycall_expanded'(G, M, CalledFromDebugger, InRedo).
 
