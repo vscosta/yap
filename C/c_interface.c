@@ -330,6 +330,7 @@
 */
 
 
+#define Bool int
 #define flt double
 #define C_INTERFACE
 
@@ -375,20 +376,12 @@
 #define strncat(X,Y,Z) strcat(X,Y)
 #endif
 
-#ifndef X_API
-
 #if defined(_MSC_VER) && defined(YAP_EXPORTS)
 #define X_API __declspec(dllexport)
-#else
-#define X_API
 #endif
-
-#endif
-
-//!    @{   
 
 /**
-   @defgroup slotInterface Term Handles or Slots
+@defgroup slotInterface Term Handles or Slots
 @ingroup ChYInterface
 @{
 
@@ -502,25 +495,25 @@ YAP_A(int i)
   return(Deref(XREGS[i]));
 }
 
-X_API bool 
+X_API Bool 
 YAP_IsIntTerm(Term t)
 {
   return IsIntegerTerm(t);
 }
 
-X_API bool 
+X_API Bool 
 YAP_IsNumberTerm(Term t)
 {
   return IsIntegerTerm(t) || IsIntTerm(t) || IsFloatTerm(t) || IsBigIntTerm(t);
 }
 
-X_API bool 
+X_API Bool 
 YAP_IsLongIntTerm(Term t)
 {
   return IsLongIntTerm(t);
 }
 
-X_API bool 
+X_API Bool 
 YAP_IsBigNumTerm(Term t)
 {
 #if USE_GMP
@@ -536,7 +529,7 @@ YAP_IsBigNumTerm(Term t)
 #endif
 }
 
-X_API bool 
+X_API Bool 
 YAP_IsRationalTerm(Term t)
 {
 #if USE_GMP
@@ -552,49 +545,49 @@ YAP_IsRationalTerm(Term t)
 #endif
 }
 
-X_API bool 
+X_API Bool 
 YAP_IsVarTerm(Term t)
 {
   return (IsVarTerm(t));
 }
 
-X_API bool 
+X_API Bool 
 YAP_IsNonVarTerm(Term t)
 {
   return (IsNonVarTerm(t));
 }
 
-X_API bool 
+X_API Bool 
 YAP_IsFloatTerm(Term t)
 {
   return (IsFloatTerm(t));
 }
 
-X_API bool 
+X_API Bool 
 YAP_IsDbRefTerm(Term t)
 {
   return (IsDBRefTerm(t));
 }
 
-X_API bool 
+X_API Bool 
 YAP_IsAtomTerm(Term t)
 {
   return (IsAtomTerm(t));
 }
 
-X_API bool 
+X_API Bool 
 YAP_IsPairTerm(Term t)
 {
   return (IsPairTerm(t));
 }
 
-X_API bool 
+X_API Bool 
 YAP_IsApplTerm(Term t)
 {
   return (IsApplTerm(t) && !IsExtensionFunctor(FunctorOfTerm(t)));
 }
 
-X_API bool 
+X_API Bool 
 YAP_IsCompoundTerm(Term t)
 {
   return (IsApplTerm(t) && !IsExtensionFunctor(FunctorOfTerm(t))) ||
@@ -638,7 +631,7 @@ YAP_MkBigNumTerm(void *big)
 #endif /* USE_GMP */
 }
 
-X_API bool
+X_API int
 YAP_BigNumOfTerm(Term t, void *b)
 {
 #if USE_GMP
@@ -668,7 +661,7 @@ YAP_MkRationalTerm(void *big)
 #endif /* USE_GMP */
 }
 
-X_API bool
+X_API int
 YAP_RationalOfTerm(Term t, void *b)
 {
 #if USE_GMP
@@ -760,7 +753,7 @@ YAP_AtomOfTerm(Term t)
 }
 
 
-X_API bool
+X_API int
 YAP_IsWideAtom(Atom a)
 {
   return IsWideAtom(a);
@@ -1134,7 +1127,7 @@ YAP_cut_up(void)
   RECOVER_B();
 }
 
-X_API bool
+X_API int
 YAP_Unify(Term t1, Term t2)
 {
   Int out;
@@ -1584,15 +1577,12 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
   if (pe->PredFlags & SWIEnvPredFlag) {
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context ctx;
-    UInt i, arity = pe->ArityOfPE;
-    yhandle_t sl = 0;
+    UInt i;
+    Int sl = 0;
 
     ctx.engine = NULL;
-    if (arity > 0) {
-      sl = Yap_NewSlots( arity );
-      for (i= 0; i <  arity; i++ ) {
-	Yap_PutInSlot(sl+i, XREGS[i+1] PASS_REGS);
-      }
+    for (i=pe->ArityOfPE; i > 0; i--) {
+      sl = Yap_InitSlot(XREGS[i] PASS_REGS);
     }
     PP = pe;
     ret = ((codev)(sl,0,&ctx));
@@ -1635,7 +1625,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
   CACHE_REGS
   CELL ocp = LCL0-(CELL *)B;
   /* for slots to work */
-  yhandle_t CurSlot = Yap_StartSlots( PASS_REGS1 );
+  Int CurSlot = Yap_StartSlots( PASS_REGS1 );
   if (pe->PredFlags & (SWIEnvPredFlag|CArgsPredFlag|ModuleTransparentPredFlag)) {
     uintptr_t val;
     CPredicateV codev = (CPredicateV)exec_code;
@@ -1703,7 +1693,7 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
-    yhandle_t CurSlot;
+    Int CurSlot;
     CELL *args = B->cp_args;
 
     B = oB;
@@ -1736,8 +1726,7 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
       return TRUE;
     } 
   } else {
-    Int ret;
-    yhandle_t CurSlot;
+    Int ret, CurSlot;
     B = oB;
     /* for slots to work */
     CurSlot = Yap_StartSlots( PASS_REGS1 );
@@ -1763,7 +1752,7 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
 {
   CACHE_REGS
     /* for slots to work */
-  yhandle_t CurSlot = Yap_StartSlots( PASS_REGS1 );
+  Int CurSlot = Yap_StartSlots( PASS_REGS1 );
   UInt ocp = LCL0-(CELL *)B;
   if (pe->PredFlags & (SWIEnvPredFlag|CArgsPredFlag)) {
     Int val;
@@ -2289,7 +2278,7 @@ run_emulator(YAP_dogoalinfo *dgi USES_REGS)
   return out;
 }
 
-X_API bool
+X_API int
 YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
 {
   CACHE_REGS
@@ -2316,7 +2305,7 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
   return out;
 }
 
-X_API bool
+X_API int
 YAP_RetryGoal(YAP_dogoalinfo *dgi)
 {
   CACHE_REGS
@@ -2343,7 +2332,7 @@ YAP_RetryGoal(YAP_dogoalinfo *dgi)
   return out;
 }
 
-X_API bool
+X_API int
 YAP_LeaveGoal(int backtrack, YAP_dogoalinfo *dgi)
 {
   CACHE_REGS
@@ -2447,7 +2436,7 @@ YAP_AllocExternalDataInStack(size_t bytes)
   return t;
 }
 
-X_API bool
+X_API Bool
 YAP_IsExternalDataInStackTerm(Term t)
 {
   return IsExternalBlobTerm(t, EXTERNAL_BLOB);
@@ -2486,7 +2475,7 @@ Term YAP_NewOpaqueObject(YAP_opaque_tag_t tag, size_t bytes)
   return t;
 }
 
-X_API bool
+X_API Bool
 YAP_IsOpaqueObjectTerm(Term t, YAP_opaque_tag_t tag)
 {
   return IsExternalBlobTerm(t, (CELL)tag);
@@ -2504,10 +2493,9 @@ YAP_HeapStoreOpaqueTerm(Term t)
   return Yap_HeapStoreOpaqueTerm(t);
 }
 
-Int
-Yap_RunGoalOnce(Term t)
+X_API Int
+YAP_RunGoalOnce(Term t)
 {
-  return Yap_RunGoalOnce( t );
   CACHE_REGS
   Term out;
   yamop *old_CP = CP;
@@ -2559,13 +2547,7 @@ Yap_RunGoalOnce(Term t)
   return out;
 }
 
-X_API Int
-YAP_RunGoalOnce(Term t)
-{
-  return Yap_RunGoalOnce( t );
-}
-
-X_API bool
+X_API int
 YAP_RestartGoal(void)
 {
   CACHE_REGS
@@ -2588,7 +2570,7 @@ YAP_RestartGoal(void)
   return(out);
 }
 
-X_API bool
+X_API int
 YAP_ShutdownGoal(int backtrack)
 {
   CACHE_REGS
@@ -2632,7 +2614,7 @@ YAP_ShutdownGoal(int backtrack)
   return TRUE;
 }
 
-X_API bool
+X_API int
 YAP_ContinueGoal(void)
 {
   CACHE_REGS
@@ -2669,7 +2651,7 @@ YAP_PruneGoal(YAP_dogoalinfo *gi)
   RECOVER_B();
 }
 
-X_API bool
+X_API int
 YAP_GoalHasException(Term *t)
 {
   CACHE_REGS

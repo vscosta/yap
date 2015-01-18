@@ -19,65 +19,65 @@
 #include <math.h>
 
 // Enable any (passed by argument) execution mode
-static Int  p_execution_mode(void);
+static Int  p_execution_mode( USES_REGS1 );
 
 // Enable 'just interpreted' mode.
-static Int  p_interpreted_mode(void);
+static Int  p_interpreted_mode( USES_REGS1 );
 
 // Enable 'smart jit' mode.
-static Int  p_smartjit_mode(void);
+static Int  p_smartjit_mode( USES_REGS1 );
 
 // Enable 'continuous compilation' mode.
-static Int  p_continuouscompilation_mode(void);
+static Int  p_continuouscompilation_mode( USES_REGS1 );
 
 // Enable 'just compiled' mode.
-static Int  p_justcompiled_mode(void);
+static Int  p_justcompiled_mode( USES_REGS1 );
 
 // Enable one (passed by argument) of all available frequency types: counter or time. Frequency bound is default.
 // Just for 'smart jit' or 'continuous compilation' mode
-static Int  p_frequencyty1(void);
+static Int  p_frequencyty1( USES_REGS1 );
 
 // Enable one (1st argument) of all available frequency types: counter and time. Frequency bound is 2nd argument
 // Just for 'smart jit' or 'continuous compilation' mode
-static Int  p_frequencyty2(void);
+static Int  p_frequencyty2( USES_REGS1 );
 
 // Enable frequency bound
 // Just for 'smart jit' or 'continuous compilation' mode
-static Int  p_frequency_bound(void);
+static Int  p_frequency_bound( USES_REGS1 );
 
 // Enable value for starting profiling
 // Just for 'smart jit' or 'continuous compilation' mode
-static Int  p_profiling_start_point(void);
+static Int  p_profiling_start_point( USES_REGS1 );
 
 // Choose type of clause that can be main on traces
 // Just for 'smart jit' or 'continuous compilation' mode
-static Int  p_main_clause_ty(void);
+static Int  p_main_clause_ty( USES_REGS1 );
 
 // Choose amount of compilation threads
 // Just for 'smart jit' or 'continuous compilation' mode
-static Int  p_compilation_threads(void);
+static Int  p_compilation_threads( USES_REGS1 );
 
 // Enable recompilation
 // Just for 'smart jit' or 'continuous compilation' mode
-static Int  p_enable_recompilation(void);
+static Int  p_enable_recompilation( USES_REGS1 );
 
 // Disable recompilation
 // Just for 'smart jit' or 'continuous compilation' mode
-static Int  p_disable_recompilation(void);
+static Int  p_disable_recompilation( USES_REGS1 );
 
 // Just code interpretation. Don't compile
 // Just for 'smart jit' or 'continuous compilation' mode
-static Int  p_only_profiled_interpreter(void);
+static Int  p_only_profiled_interpreter( USES_REGS1 );
 
 // Disable 'p_only_profiled_interpreter'
 // Just for 'smart jit' or 'continuous compilation' mode
-static Int  p_noonly_profiled_interpreter(void);
+static Int  p_noonly_profiled_interpreter( USES_REGS1 );
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
 
 static Int
-p_execution_mode(void)
+p_execution_mode( USES_REGS1 )
 {
   enumExecModes mode;
   // valid values for ARG1 are 'integer' and 'atom'
@@ -122,7 +122,7 @@ p_execution_mode(void)
 
   // setting execution mode
   ExpEnv.config_struc.execution_mode = mode;
-  
+
   /* setting execution mode parameters */
   switch (mode) {
   case JUST_INTERPRETED:
@@ -217,7 +217,7 @@ p_execution_mode(void)
 }
 
 static Int
-p_interpreted_mode(void)
+p_interpreted_mode( USES_REGS1 )
 {
   // Same as 'execution_mode(0)' or 'execution_mode(interpreted)'
   if (Yap_ExecutionMode == INTERPRETED) {
@@ -242,7 +242,7 @@ p_interpreted_mode(void)
 }
 
 static Int
-p_smartjit_mode(void)
+p_smartjit_mode( USES_REGS1 )
 {
   // Same as 'execution_mode(1)' or 'execution_mode(smartjit)'
   if (Yap_ExecutionMode == MIXED_MODE) {
@@ -273,7 +273,7 @@ p_smartjit_mode(void)
 }
 
 static Int
-p_continuouscompilation_mode(void)
+p_continuouscompilation_mode( USES_REGS1 )
 {
   // Same as 'execution_mode(2)' or 'execution_mode(continuouscompilation)'
   if (Yap_ExecutionMode == MIXED_MODE) {
@@ -310,7 +310,7 @@ p_continuouscompilation_mode(void)
 }
 
 static Int
-p_justcompiled_mode(void)
+p_justcompiled_mode( USES_REGS1 )
 {
   // Same as 'execution_mode(3)' or 'execution_mode(justcompiled)'
   if (Yap_ExecutionMode == COMPILED) {
@@ -337,7 +337,7 @@ p_justcompiled_mode(void)
 }
 
 static Int
-p_frequencyty1(void)
+p_frequencyty1( USES_REGS1 )
 {
   // this predicate works only 'SMART_JIT' and 'CONTINUOUS_COMPILATION' modes
   if (ExpEnv.config_struc.execution_mode == SMART_JIT || ExpEnv.config_struc.execution_mode == CONTINUOUS_COMPILATION) {
@@ -384,7 +384,7 @@ p_frequencyty1(void)
 }
 
 static Int
-p_frequencyty2(void)
+p_frequencyty2( USES_REGS1 )
 {
   // this predicate works only 'SMART_JIT' and 'CONTINUOUS_COMPILATION' modes
   if (ExpEnv.config_struc.execution_mode == SMART_JIT || ExpEnv.config_struc.execution_mode == CONTINUOUS_COMPILATION) {
@@ -456,7 +456,7 @@ p_frequencyty2(void)
 }
 
 static Int
-p_frequency_bound(void)
+p_frequency_bound( USES_REGS1 )
 {
   // this predicate works only 'SMART_JIT' and 'CONTINUOUS_COMPILATION' modes
   if (ExpEnv.config_struc.execution_mode == SMART_JIT || ExpEnv.config_struc.execution_mode == CONTINUOUS_COMPILATION) {
@@ -502,7 +502,7 @@ p_frequency_bound(void)
 }
 
 static Int
-p_profiling_start_point(void)
+p_profiling_start_point( USES_REGS1 )
 {
   // this predicate works only 'SMART_JIT' and 'CONTINUOUS_COMPILATION' modes
   if (ExpEnv.config_struc.execution_mode == SMART_JIT || ExpEnv.config_struc.execution_mode == CONTINUOUS_COMPILATION) {
@@ -533,7 +533,7 @@ p_profiling_start_point(void)
 }
 
 static Int
-p_main_clause_ty(void)
+p_main_clause_ty( USES_REGS1 )
 {
   // this predicate works only 'SMART_JIT' and 'CONTINUOUS_COMPILATION' modes
   if (ExpEnv.config_struc.execution_mode == SMART_JIT || ExpEnv.config_struc.execution_mode == CONTINUOUS_COMPILATION) {
@@ -628,7 +628,7 @@ p_main_clause_ty(void)
 }
 
 static Int
-p_compilation_threads(void)
+p_compilation_threads( USES_REGS1 )
 {
   // this predicate works only 'CONTINUOUS_COMPILATION' mode
   if (ExpEnv.config_struc.execution_mode == SMART_JIT || ExpEnv.config_struc.execution_mode == CONTINUOUS_COMPILATION) {
@@ -681,28 +681,28 @@ p_compilation_threads(void)
 }
 
 static Int
-p_enable_recompilation(void)
+p_enable_recompilation( USES_REGS1 )
 {
   ExpEnv.config_struc.torecompile = 1;
   return TRUE;
 }
 
 static Int
-p_disable_recompilation(void)
+p_disable_recompilation( USES_REGS1 )
 {
   ExpEnv.config_struc.torecompile = 0;
   return TRUE;
 }
 
 static Int
-p_only_profiled_interpreter(void)
+p_only_profiled_interpreter( USES_REGS1 )
 {
   ExpEnv.config_struc.useonlypi = 1;
   return TRUE;
 }
 
 static Int
-p_noonly_profiled_interpreter(void)
+p_noonly_profiled_interpreter( USES_REGS1 )
 {
   ExpEnv.config_struc.useonlypi = 0;
   return TRUE;

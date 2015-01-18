@@ -2,13 +2,12 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <fcntl.h>
-#include <memory>
 
 using namespace std;
 
 #define FREE_ALLOCATED() \
   free(buffer); \
-  free(p->y_u.jhc.jh->cmd); \
+  free(p->u.jhc.jh->cmd); \
   free(outputfilename); \
   free(optoutputfilename); \
   free(cmd1); \
@@ -40,8 +39,8 @@ using namespace std;
 	    PI = PassRegistry::getPassRegistry()->getPassInfo(PASS->getPassID()); \
 	    Kind = PASS->getPassKind(); \
 	    ADD_PASS_ACCORDING_TO_KIND();
-		
-#include "PassPrinters.hh"
+
+#include "PassPrinters.hpp"
 
 void JIT_Compiler::analyze_module(llvm::Module* &M)
 {
@@ -50,9 +49,9 @@ void JIT_Compiler::analyze_module(llvm::Module* &M)
 
   const PassInfo *PI;
   PassKind Kind;
-  
+
   Pass.add(TLI); // First, I add on 'Pass' the Target Info of Module
-  Pass.add(new DataLayoutPass(M)); // Second, I must add Target Data on 'Pass'
+  Pass.add(new TargetData(M)); // Second, I must add Target Data on 'Pass'
   for (int i = 0; i < ExpEnv.analysis_struc.n; i++) {
     /*
      * 'ExpEnv.analysis_struc.act_an' contains sorted analysis passes *
@@ -85,9 +84,8 @@ void JIT_Compiler::analyze_module(llvm::Module* &M)
     case e_createLazyValueInfoPass:
       TREAT_CASE_FOR(createLazyValueInfoPass());
       break;
-    //CHANGED FOR LLVM 3.5
     case e_createLoopDependenceAnalysisPass:
-      TREAT_CASE_FOR(createDependenceAnalysisPass());
+      TREAT_CASE_FOR(createLoopDependenceAnalysisPass());
       break;
     case e_createLibCallAliasAnalysisPass:
       TREAT_CASE_FOR(createLibCallAliasAnalysisPass(NULL));
@@ -104,29 +102,24 @@ void JIT_Compiler::analyze_module(llvm::Module* &M)
     case e_createNoAAPass:
       TREAT_CASE_FOR(createNoAAPass());
       break;
-    //NOT IN LLVM 3.5
-    //case e_createNoPathProfileInfoPass:
-    //  TREAT_CASE_FOR(createNoPathProfileInfoPass());
-    //  break;
-    //NOT IN LLVM 3.5
-    //case e_createNoProfileInfoPass:
-    //  TREAT_CASE_FOR(createNoProfileInfoPass());
-    //  break;
+    case e_createNoPathProfileInfoPass:
+      TREAT_CASE_FOR(createNoPathProfileInfoPass());
+      break;
+    case e_createNoProfileInfoPass:
+      TREAT_CASE_FOR(createNoProfileInfoPass());
+      break;
     case e_createObjCARCAliasAnalysisPass:
       TREAT_CASE_FOR(createObjCARCAliasAnalysisPass());
       break;
-    //NOT IN LLVM 3.5
-    //case e_createProfileEstimatorPass:
-    //  TREAT_CASE_FOR(createProfileEstimatorPass());
-    //  break;
-    //CHANGED FOR LLVM 3.5
-    case e_createProfileLoaderPass:
-      TREAT_CASE_FOR(createSampleProfileLoaderPass());
+    case e_createProfileEstimatorPass:
+      TREAT_CASE_FOR(createProfileEstimatorPass());
       break;
-    //NOT IN LLVM 3.5
-    //case e_createProfileVerifierPass:
-    //  TREAT_CASE_FOR(createProfileVerifierPass());
-    //  break;
+    case e_createProfileLoaderPass:
+      TREAT_CASE_FOR(createProfileLoaderPass());
+      break;
+    case e_createProfileVerifierPass:
+      TREAT_CASE_FOR(createProfileVerifierPass());
+      break;
     case e_createRegionInfoPass:
       TREAT_CASE_FOR(createRegionInfoPass());
       break;
@@ -136,9 +129,8 @@ void JIT_Compiler::analyze_module(llvm::Module* &M)
     case e_createTypeBasedAliasAnalysisPass:
       TREAT_CASE_FOR(createTypeBasedAliasAnalysisPass());
       break;
-    //CHANGED FOR LLVM 3.5
     case e_createDbgInfoPrinterPass:
-      TREAT_CASE_FOR(createDebugInfoVerifierPass());
+      TREAT_CASE_FOR(createDbgInfoPrinterPass());
       break;
     case e_createCFGPrinterPass:
       TREAT_CASE_FOR(createCFGPrinterPass());
@@ -164,23 +156,21 @@ void JIT_Compiler::analyze_module(llvm::Module* &M)
     case e_createRegionOnlyPrinterPass:
       TREAT_CASE_FOR(createRegionOnlyPrinterPass());
       break;
-    //NOT IN LLVM 3.5
-    //case e_createPathProfileLoaderPass:
-    //  TREAT_CASE_FOR(createPathProfileLoaderPass());
-    //  break;
-    //NOT IN LLVM 3.5
-    //case e_createPathProfileVerifierPass:
-    //  TREAT_CASE_FOR(createPathProfileVerifierPass());
-    //  break;
+    case e_createPathProfileLoaderPass:
+      TREAT_CASE_FOR(createPathProfileLoaderPass());
+      break;
+    case e_createPathProfileVerifierPass:
+      TREAT_CASE_FOR(createPathProfileVerifierPass());
+      break;
     default:;
     }
   }
-   
+
   /* if 'llvm::TimePassesIsEnabled' is 'true', llvm time passes are printed on 'shutdown_llvm()' (p_halt -- stdpreds.c) */
   llvm::TimePassesIsEnabled = ExpEnv.analysis_struc.time_pass_enabled;
   /* Use 'llvm::EnableStatistics()' so that llvm stats are printed on 'shutdown_llvm()' (p_halt -- stdpreds.c) */
   if (ExpEnv.analysis_struc.stats_enabled) llvm::EnableStatistics();
-  
+
   /*
    * Here, I configure resulting analysis output -- default: stderr *
    * Use analysis_output_file/1 to change *
@@ -218,22 +208,21 @@ void JIT_Compiler::optimize_module(llvm::Module* &M)
     /* Yes, I do, so... */
 
     /* Initializes PassManager for Function */
-    std::shared_ptr<FunctionPassManager> FPM;
+    OwningPtr<FunctionPassManager> FPM;
     FPM.reset(new FunctionPassManager(M));
-    FPM->add(new DataLayoutPass(M));
+    FPM->add(new TargetData(M));
     PassManagerBuilder Builder; // aid to 'FPM' and 'MPM'
-	
+
     /* Initializes PassManager for Function */
     PassManager MPM;
     TargetLibraryInfo *TLI = new TargetLibraryInfo(Triple(M->getTargetTriple()));
     MPM.add(TLI);
-    MPM.add(new DataLayoutPass(M));
-	
+    MPM.add(new TargetData(M));
+
     /* Populates 'Builder' */
     Builder.OptLevel = ExpEnv.transform_struc.optlevel;
     Builder.DisableUnitAtATime = !ExpEnv.transform_struc.unit_at_time_enabled;
-    //NOT IN LLVM 3.5
-    //Builder.DisableSimplifyLibCalls = !ExpEnv.transform_struc.simplify_libcalls_enabled;
+    Builder.DisableSimplifyLibCalls = !ExpEnv.transform_struc.simplify_libcalls_enabled;
       /* inline and unrool only be enabled if 'ExpEnv.transform_struc.optlevel' > 0 */
       if (ExpEnv.transform_struc.optlevel) Builder.Inliner =
           createFunctionInliningPass(ExpEnv.transform_struc.opt_args.inline_threshold);
@@ -245,7 +234,7 @@ void JIT_Compiler::optimize_module(llvm::Module* &M)
     Builder.populateFunctionPassManager(*FPM);
     /* Populates 'MPM' from 'Builder' */
     Builder.populateModulePassManager(MPM);
-    
+
     /*
      * Enabling link-time optimizations -- default is no *
      * Use 'link_time_opt/1', 'link_time_opt/3', 'enable_link_time_opt/0', or 'enable_link_time_opt/2' to change *
@@ -273,7 +262,7 @@ void JIT_Compiler::optimize_module(llvm::Module* &M)
     PassManager Pass; // 'Pass' stores transform passes to be applied
     TargetLibraryInfo *TLI = new TargetLibraryInfo(Triple(M->getTargetTriple()));
     Pass.add(TLI); // First, I add on 'Pass' the Target Info of Module
-    Pass.add(new DataLayoutPass(M)); // Second, I must add Target Data on 'Pass'
+    Pass.add(new TargetData(M)); // Second, I must add Target Data on 'Pass'
     for (int i = 0; i < ExpEnv.transform_struc.n; i++) {
       /*
        * 'ExpEnv.transform_struc.act_tr' contains sorted transform passes *
@@ -295,10 +284,9 @@ void JIT_Compiler::optimize_module(llvm::Module* &M)
       case t_createBlockExtractorPass:
         Pass.add(createBlockExtractorPass());
         break;
-      //NOT IN LLVM 3.5
-      //case t_createBlockPlacementPass:
-      //  Pass.add(createBlockPlacementPass());
-      //  break;
+      case t_createBlockPlacementPass:
+        Pass.add(createBlockPlacementPass());
+        break;
       case t_createBreakCriticalEdgesPass:
         Pass.add(createBreakCriticalEdgesPass());
         break;
@@ -369,7 +357,7 @@ void JIT_Compiler::optimize_module(llvm::Module* &M)
         Pass.add(createInstructionSimplifierPass());
         break;
       case t_createInternalizePass:
-        Pass.add(createInternalizePass());
+        Pass.add(createInternalizePass(true));
         break;
       case t_createIPConstantPropagationPass:
         Pass.add(createIPConstantPropagationPass());
@@ -461,10 +449,9 @@ void JIT_Compiler::optimize_module(llvm::Module* &M)
       case t_createSCCPPass:
         Pass.add(createSCCPPass());
         break;
-      //NOT IN LLVM 3.5
-      //case t_createSimplifyLibCallsPass:
-      //  Pass.add(createSimplifyLibCallsPass());
-      //  break;
+      case t_createSimplifyLibCallsPass:
+        Pass.add(createSimplifyLibCallsPass());
+        break;
       case t_createSingleLoopExtractorPass:
         Pass.add(createSingleLoopExtractorPass());
         break;
@@ -571,25 +558,26 @@ void* JIT_Compiler::compile_all(LLVMContext* &Context, yamop* p)
     "-DYAP_JIT", "-D_NATIVE=1", "-I.", "-I./H", "-I./include", "-I./os", "-I./OPTYap", "-I./BEAM", "-I./MYDDAS", "-I./HPP", "-xc", "-c", "-", "-o", "-", "-emit-llvm", NULL
 };
 #pragma GCC diagnostic pop
-  
+
   std::string errStr;
-  error_code e;
+  llvm::error_code e;
+  OwningPtr<MemoryBuffer> bf;
 
   /* Pipe to communicate 'echo' with 'clang' */
   int pipe1[2];
   int pid_echo, pid_clang ;
-  
+
   /* 'clang' out file */
   char* outputfilename = (char*)malloc(33*sizeof(char));
   sprintf(outputfilename, "%lx.bc", (CELL)p);
   int Output = open(outputfilename, O_CREAT | O_RDWR, 0644);
-  
+
   /* Creating pipes */
   if (pipe(pipe1)<0) {
     perror("      ERROR!!\n      ERROR") ;
     exit(1);
   }
-	
+
   /* Calls echo. */
   pid_echo = fork() ;
   if (pid_echo < 0) {
@@ -599,12 +587,12 @@ void* JIT_Compiler::compile_all(LLVMContext* &Context, yamop* p)
   if (!pid_echo) {
     /* Setting echo's output to 1st pipe */
     dup2(pipe1[1], 1);
-	
+
     /* Closing pipes */
     close(pipe1[0]);
     close(pipe1[1]);
-    
-    execlp("echo", "echo", p->y_u.jhc.jh->tcc.cmd, NULL);
+
+    execlp("echo", "echo", p->u.jhc.jh->tcc.cmd, NULL);
   }
   else {
     /* Calls clang. */
@@ -619,11 +607,11 @@ void* JIT_Compiler::compile_all(LLVMContext* &Context, yamop* p)
 
       /* Setting clang's output to Output */
       dup2(Output, 1) ;
-		  
+
       /* Closing pipes */
       close(pipe1[0]);
       close(pipe1[1]);
-		  
+
       execvp(*clang_args, clang_args);
     }
   }
@@ -637,15 +625,14 @@ void* JIT_Compiler::compile_all(LLVMContext* &Context, yamop* p)
   // 2 means two processes: 'echo' and 'clang'
   for (i = 0; i < 2; i++) wait(status);
   /***/
-  
+
   /*
    * At this point, the compiled code (O0) is on 'Output' *
    * I need to read it to main memory *
    * for this, I'll use 'MemoryBuffer::getOpenFile' *
   */
   lseek(Output, 0, SEEK_SET);
-  ErrorOr<std::unique_ptr<MemoryBuffer>> em = MemoryBuffer::getOpenFile(Output, outputfilename, -1);
-  e = em.getError();
+  e = MemoryBuffer::getOpenFile(Output, outputfilename, bf);
   if (e) {
     errs() << "ERROR::Unable to MemoryBuffer from " << outputfilename << " -- " << e.message() << "\n";
     exit(1);
@@ -654,9 +641,9 @@ void* JIT_Compiler::compile_all(LLVMContext* &Context, yamop* p)
   /*
    * At this point, the compiled code (O0) is on main memory *
    * I need to read it to Module *
-   * for this, I'll use 'parseBitcodeFile' *
+   * for this, I'll use 'ParseBitcodeFile' *
   */
-  Module *Mod = *parseBitcodeFile(em->get(), *Context);
+  Module *Mod = ParseBitcodeFile(bf.get(), *Context);
 
   /*
    * verify module correctness *
@@ -683,41 +670,41 @@ void* JIT_Compiler::compile_all(LLVMContext* &Context, yamop* p)
   analyze_module(Mod);
   /* Optimize module -- transform predicates */
   optimize_module(Mod);
-  
+
   /* Computing size of optimized module */
   {
     /* Open file 'tmp.bc' which will be filled by optimized Module */
-    std::shared_ptr<tool_output_file> Out;
+    OwningPtr<tool_output_file> Out;
     std::string ErrorInfo;
-    Out.reset(new tool_output_file("tmp.bc", ErrorInfo, llvm::sys::fs::F_None));
+    Out.reset(new tool_output_file("tmp.bc", ErrorInfo, raw_fd_ostream::F_Binary));
     if (!ErrorInfo.empty()) {
       errs() << ErrorInfo << '\n';
       exit(1);
     }
     /* 'createPrintModulePass(arg)' will print Module (now optimized) to on file represented by 'arg' */
     PassManager Pass;
-    Pass.add(createPrintModulePass(Out->os()));
+    Pass.add(createPrintModulePass(&Out->os()));
     Pass.run(*Mod);
     /* 'Out->keep()' will keep printed module to file and will close file */
     Out->keep();
-	
+
     /* Open file 'tmp.bc' */
     int Outtmp = open("tmp.bc", O_CREAT | O_RDWR, 0644);
 #if YAP_STAT_PREDS
     /* for statistics... compute file size and store value on 'NativeArea->area.native_size_bytes' */
-    NativeArea->area.native_size_bytes[p->y_u.jhc.jh->caa.naddress][NativeArea->area.nrecomp[p->y_u.jhc.jh->caa.naddress]-1] = lseek(Outtmp, 0, SEEK_END);
+    NativeArea->area.native_size_bytes[p->u.jhc.jh->caa.naddress][NativeArea->area.nrecomp[p->u.jhc.jh->caa.naddress]-1] = lseek(Outtmp, 0, SEEK_END);
 #endif
     close(Outtmp);
     remove("tmp.bc");
   }
   /***/
-  
+
 #if YAP_DBG_PREDS
   /* for debug... print module after optimizing it */
   if (ExpEnv.debug_struc.pprint_llva.print_llva_after)
     errs() << "Module after optimization::\n" << *Mod;
 #endif
-	
+
   /*
    * verify module correctness *
    * predicates: *
@@ -733,11 +720,10 @@ void* JIT_Compiler::compile_all(LLVMContext* &Context, yamop* p)
     }
   }
   /***/
-  
-  // materializeAllPermanently -- Make sure all GlobalValues in this Module are fully read
-  error_code materialize_error = Mod->materializeAllPermanently();
-  if (materialize_error.value() != 0) {
-    errs() <<"Error:: bitcode didn't read correctly. -- " << materialize_error.message() << "\n";
+
+  // MaterializeAllPermanently -- Make sure all GlobalValues in this Module are fully read
+  if (Mod->MaterializeAllPermanently(&errStr)) {
+    errs() <<"Error:: bitcode didn't read correctly. -- " << errStr << "\n";
     exit(1);
   }
 
@@ -804,14 +790,12 @@ void* JIT_Compiler::compile_all(LLVMContext* &Context, yamop* p)
   {
     /* codegen predicates 'enable_framepointer_elimination/0' or 'disable_framepointer_elimination/0' */
     Options.NoFramePointerElim = (bool)ExpEnv.codegen_struc.struc_targetopt.noframepointerelim;
-	//NOT IN LLVM 3.5
-    //Options.NoFramePointerElimNonLeaf = (bool)ExpEnv.codegen_struc.struc_targetopt.noframepointerelim;
+    Options.NoFramePointerElimNonLeaf = (bool)ExpEnv.codegen_struc.struc_targetopt.noframepointerelim;
     /***/
     // codegen predicates 'less_precise_fp_mad_option/0' or 'more_precise_fp_mad_option/0'
     Options.LessPreciseFPMADOption = (bool)ExpEnv.codegen_struc.struc_targetopt.lessprecisefpmadoption;
     // codegen predicates 'no_excess_fp_precision/0' or 'excess_fp_precision/0'
-    //NOT IN LLVM 3.5
-    //Options.NoExcessFPPrecision = (bool)ExpEnv.codegen_struc.struc_targetopt.noexcessfpprecision;
+    Options.NoExcessFPPrecision = (bool)ExpEnv.codegen_struc.struc_targetopt.noexcessfpprecision;
     // codegen predicates 'unsafe_fp_math/0' or 'safe_fp_math/0'
     Options.UnsafeFPMath = (bool)ExpEnv.codegen_struc.struc_targetopt.unsafefpmath;
     // codegen predicates 'rounding_mode_dynamically_changed/0' or 'rounding_mode_not_changed/0'
@@ -820,8 +804,7 @@ void* JIT_Compiler::compile_all(LLVMContext* &Context, yamop* p)
     // codegen predicates 'no_use_soft_float/0' or 'use_soft_float/0'
     Options.UseSoftFloat = (bool)ExpEnv.codegen_struc.struc_targetopt.usesoftfloat;
     // codegen predicates 'enable_jit_exception_handling/0' or 'disable_jit_exception_handling/0'
-	//NOT IN LLVM 3.5
-    //Options.JITExceptionHandling = (bool)ExpEnv.codegen_struc.struc_targetopt.jitexceptionhandling;
+    Options.JITExceptionHandling = (bool)ExpEnv.codegen_struc.struc_targetopt.jitexceptionhandling;
     // codegen predicates 'enable_jit_emit_debug_info/0' or 'disable_jit_emit_debug_info/0'
     Options.JITEmitDebugInfo = (bool)ExpEnv.codegen_struc.struc_targetopt.jitemitdebuginfo;
     // codegen predicates 'enable_jit_emit_debug_info_to_disk/0' or 'disable_jit_emit_debug_info_to_disk/0'
@@ -868,7 +851,7 @@ void* JIT_Compiler::compile_all(LLVMContext* &Context, yamop* p)
     */
     close(Output);
     remove(outputfilename);
-    free(p->y_u.jhc.jh->tcc.cmd);
+    free(p->u.jhc.jh->tcc.cmd);
     free(outputfilename);
     return NULL;
   }
@@ -877,10 +860,10 @@ void* JIT_Compiler::compile_all(LLVMContext* &Context, yamop* p)
   // 1. execute all of the static constructors or destructors for program
   EE->runStaticConstructorsDestructors(false);
   global++;
-  
+
   close(Output);
   remove(outputfilename);
-  free(p->y_u.jhc.jh->tcc.cmd);
+  free(p->u.jhc.jh->tcc.cmd);
   free(outputfilename);
   // 2. get native pointer from 'clause' (our function within Module) and return it
   return EE->getPointerToFunction(EntryFn);

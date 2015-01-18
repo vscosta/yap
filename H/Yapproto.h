@@ -115,7 +115,7 @@ Int    YAP_Execute(struct pred_entry *, CPredicate);
 Int    YAP_ExecuteFirst(struct pred_entry *, CPredicate);
 Int    YAP_ExecuteNext(struct pred_entry *, CPredicate);
 Int    YAP_ExecuteOnCut(struct pred_entry *, CPredicate, struct cut_c_str *);
-extern Int    Yap_RunGoalOnce(Term);
+Int    YAP_RunGoalOnce(Term);
 #endif
 
 /* cdmgr.c */
@@ -133,10 +133,8 @@ void	Yap_BuildMegaClause(struct pred_entry *);
 void	Yap_EraseMegaClause(yamop *,struct pred_entry *);
 void	Yap_ResetConsultStack(void);
 void	Yap_AssertzClause(struct pred_entry *, yamop *);
-void    Yap_HidePred(struct pred_entry *pe, bool offline);
+void    Yap_HidePred(struct pred_entry *pe);
 int     Yap_SetNoTrace(char *name, UInt arity, Term tmod);
-struct pred_entry* Yap_getPred(Term t,  Term tmod, char *msg);
-struct pred_entry* Yap_Pred(Term t,  Term tmod, char *msg);
 
 /* cmppreds.c */
 Int	Yap_compare_terms(Term,Term);
@@ -169,8 +167,8 @@ Yap_PrintPredName( struct pred_entry  *ap );
 #endif
 void	Yap_RestartYap(int);
 void	Yap_exit(int);
-yamop  *Yap_Error(yap_error_number,Term, const char *msg, ...);
-yamop  *Yap_NilError(yap_error_number, const char *msg, ...);
+yamop  *Yap_Error(yap_error_number,Term,char *msg, ...);
+yamop  *Yap_NilError(yap_error_number,char *msg, ...);
 int     Yap_HandleError( const char *msg, ... );
 int     Yap_SWIHandleError( const char *, ... );
 
@@ -421,7 +419,7 @@ size_t	Yap_ExportTerm(Term, char *, size_t, UInt);
 size_t	Yap_SizeOfExportedTerm(char *);
 Term	Yap_ImportTerm(char *);
 int	Yap_IsListTerm(Term);
-int    Yap_IsListOrPartialListTerm(Term);
+bool    Yap_IsListOrPartialListTerm(Term);
 Term   Yap_CopyTermNoShare(Term);
 int    Yap_SizeGroundTerm(Term, int);
 int    Yap_IsGroundTerm(Term);
@@ -430,6 +428,7 @@ void   Yap_InitUtilCPreds(void);
 Int     Yap_TermHash(Term, Int, Int, int);
 Int     Yap_NumberVars(Term, Int, int);
 Term    Yap_TermVariables( Term t, UInt arity USES_REGS );
+int	Yap_IsListOrPartialListTerm( UInt arity USES_REGS );
 Term    Yap_UnNumberTerm(Term, int);
 Int     Yap_SkipList(Term *, Term **);
 /* yap.c */

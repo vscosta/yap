@@ -598,7 +598,6 @@ yap_flag(V,Out) :-
         ;
 	  '$swi_current_prolog_flag'(V, Current)
         ->
-	  !, 
 	  (var(Out) ->
 	      Current = Out
 	  ;

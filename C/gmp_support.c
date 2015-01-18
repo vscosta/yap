@@ -1027,32 +1027,20 @@ Yap_gmp_exp_big_big(Term t1, Term t2)
 
 
 Term
-Yap_gmp_big_from_64bits(int64_t i)
+Yap_gmp_big_from_64bits(YAP_LONG_LONG i)
 {
-  char s[65];
+  char s[64];
   MP_INT new;
 
 #ifdef _WIN32
   snprintf(s,64,"%I64d", (long long int)i);
 #elif HAVE_SNPRINTF
-  snprintf(s, 64, "%lld", (int64_t)i);
+  snprintf(s, 64, "%lld", (long long int)i);
 #else
-  sprintf(s, "%lld", (int64_t)i);
+  sprintf(s, "%lld", (long long int)i);
 #endif
   mpz_init_set_str (&new, s, 10);
   return MkBigAndClose(&new);
-}
-
-int64_t
-Yap_gmp_big_to_64bits(Term t)
-{
-  MP_INT *b = Yap_BigIntOfTerm(t);
-  int64_t rc;
-  mpz_export( &rc, NULL, 0, sizeof(int64_t), 0, 0, b);
-  if ( mpz_sgn(b) < 0 ) {
-    rc = -rc;
-  } 
-  return rc;
 }
 
 Term 
@@ -1763,7 +1751,6 @@ Yap_term_to_existing_rat(Term t, MP_RAT *b)
   }
   return FALSE;
 }
-
 
 #endif
 

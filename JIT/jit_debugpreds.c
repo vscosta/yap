@@ -17,111 +17,111 @@
 
 #include "jit_predicates.hh"
 
-static Int  p_no_print_instruction(void);
-static Int  p_no_print_basic_instruction(void);
-static Int  p_no_print_std_instruction(void);
-static Int  p_no_print_standard_instruction(void);
-static Int  p_print_instruction(void);
-static Int  p_print_basic_instruction(void);
-static Int  p_print_std_instruction(void);
-static Int  p_print_standard_instruction(void);
-static Int  p_print_instruction_msg_before(void);
-static Int  p_print_basic_instruction_msg_before(void);
-static Int  p_print_std_instruction_msg_before(void);
-static Int  p_print_standard_instruction_msg_before(void);
-static Int  p_print_instruction_msg_after(void);
-static Int  p_print_basic_instruction_msg_after(void);
-static Int  p_print_std_instruction_msg_after(void);
-static Int  p_print_standard_instruction_msg_after(void);
-static Int  p_print_instruction3(void);
-static Int  p_print_basic_instruction3(void);
-static Int  p_print_std_instruction3(void);
-static Int  p_print_standard_instruction3(void);
-static Int  p_print_profiled_instruction(void);
-static Int  p_print_traced_instruction(void);
-static Int  p_print_pfd_instruction(void);
-static Int  p_print_profiled_instruction_msg_before(void);
-static Int  p_print_traced_instruction_msg_before(void);
-static Int  p_print_pfd_instruction_msg_before(void);
-static Int  p_print_profiled_instruction_msg_after(void);
-static Int  p_print_traced_instruction_msg_after(void);
-static Int  p_print_pfd_instruction_msg_after(void);
-static Int  p_print_profiled_instruction3(void);
-static Int  p_print_traced_instruction3(void);
-static Int  p_print_pfd_instruction3(void);
-static Int  p_print_native_instruction(void);
-static Int  p_print_ntv_instruction(void);
-static Int  p_print_native_instruction_msg_before(void);
-static Int  p_print_ntv_instruction_msg_before(void);
-static Int  p_print_native_instruction_msg_after(void);
-static Int  p_print_ntv_instruction_msg_after(void);
-static Int  p_print_native_instruction3(void);
-static Int  p_print_ntv_instruction3(void);
-static Int  p_no_print_basic_block(void);
-static Int  p_no_print_basicblock(void);
-static Int  p_no_print_bb(void);
-static Int  p_print_basic_block(void);
-static Int  p_print_basicblock(void);
-static Int  p_print_bb(void);
-static Int  p_print_basic_block_msg_before(void);
-static Int  p_print_basicblock_msg_before(void);
-static Int  p_print_bb_msg_before(void);
-static Int  p_print_basic_block_msg_after(void);
-static Int  p_print_basicblock_msg_after(void);
-static Int  p_print_bb_msg_after(void);
-static Int  p_print_basic_block3(void);
-static Int  p_print_basicblock3(void);
-static Int  p_print_bb3(void);
-static Int  p_print_native_basic_block(void);
-static Int  p_print_native_basicblock(void);
-static Int  p_print_native_bb(void);
-static Int  p_print_native_basic_block_msg_before(void);
-static Int  p_print_native_basicblock_msg_before(void);
-static Int  p_print_native_bb_msg_before(void);
-static Int  p_print_native_basic_block_msg_after(void);
-static Int  p_print_native_basicblock_msg_after(void);
-static Int  p_print_native_bb_msg_after(void);
-static Int  p_print_native_basic_block3(void);
-static Int  p_print_native_basicblock3(void);
-static Int  p_print_native_bb3(void);
-static Int  p_no_print_clause(void);
-static Int  p_print_clause(void);
-static Int  p_no_print_intermediate(void);
-static Int  p_print_intermediate(void);
-static Int  p_print_intermediate_to_std(void);
-static Int  p_print_intermediate_to_std1(void);
-static Int  p_print_intermediate_to_file(void);
-static Int  p_print_intermediate_to_file1(void);
-static Int  p_no_print_llva(void);
-static Int  p_print_llva_before(void);
-static Int  p_print_llva_after(void);
-static Int  p_no_print_me(void);
-static Int  p_print_me(void);
-static Int  p_default_debug(void);
-static Int  p_print_default_predicate_msgs(void);
-static Int  p_print_all_predicate_msgs(void);
-static Int  p_print_info_predicate_msgs(void);
-static Int  p_print_success_predicate_msgs(void);
-static Int  p_print_warning_predicate_msgs(void);
-static Int  p_print_error_predicate_msgs(void);
-static Int  p_no_print_all_predicate_msgs(void);
-static Int  p_no_print_info_predicate_msgs(void);
-static Int  p_no_print_success_predicate_msgs(void);
-static Int  p_no_print_warning_predicate_msgs(void);
-static Int  p_no_print_error_predicate_msgs(void);
-static Int  p_print_predicate_msgs(void);
-static Int  p_exit_on_warning(void);
-static Int  p_disable_on_warning(void);
-static Int  p_exit_on_error(void);
-static Int  p_no_exit_on_warning(void);
-static Int  p_enable_on_warning(void);
-static Int  p_no_exit_on_error(void);
+static Int  p_no_print_instruction( USES_REGS1 );
+static Int  p_no_print_basic_instruction( USES_REGS1 );
+static Int  p_no_print_std_instruction( USES_REGS1 );
+static Int  p_no_print_standard_instruction( USES_REGS1 );
+static Int  p_print_instruction( USES_REGS1 );
+static Int  p_print_basic_instruction( USES_REGS1 );
+static Int  p_print_std_instruction( USES_REGS1 );
+static Int  p_print_standard_instruction( USES_REGS1 );
+static Int  p_print_instruction_msg_before( USES_REGS1 );
+static Int  p_print_basic_instruction_msg_before( USES_REGS1 );
+static Int  p_print_std_instruction_msg_before( USES_REGS1 );
+static Int  p_print_standard_instruction_msg_before( USES_REGS1 );
+static Int  p_print_instruction_msg_after( USES_REGS1 );
+static Int  p_print_basic_instruction_msg_after( USES_REGS1 );
+static Int  p_print_std_instruction_msg_after( USES_REGS1 );
+static Int  p_print_standard_instruction_msg_after( USES_REGS1 );
+static Int  p_print_instruction3( USES_REGS1 );
+static Int  p_print_basic_instruction3( USES_REGS1 );
+static Int  p_print_std_instruction3( USES_REGS1 );
+static Int  p_print_standard_instruction3( USES_REGS1 );
+static Int  p_print_profiled_instruction( USES_REGS1 );
+static Int  p_print_traced_instruction( USES_REGS1 );
+static Int  p_print_pfd_instruction( USES_REGS1 );
+static Int  p_print_profiled_instruction_msg_before( USES_REGS1 );
+static Int  p_print_traced_instruction_msg_before( USES_REGS1 );
+static Int  p_print_pfd_instruction_msg_before( USES_REGS1 );
+static Int  p_print_profiled_instruction_msg_after( USES_REGS1 );
+static Int  p_print_traced_instruction_msg_after( USES_REGS1 );
+static Int  p_print_pfd_instruction_msg_after( USES_REGS1 );
+static Int  p_print_profiled_instruction3( USES_REGS1 );
+static Int  p_print_traced_instruction3( USES_REGS1 );
+static Int  p_print_pfd_instruction3( USES_REGS1 );
+static Int  p_print_native_instruction( USES_REGS1 );
+static Int  p_print_ntv_instruction( USES_REGS1 );
+static Int  p_print_native_instruction_msg_before( USES_REGS1 );
+static Int  p_print_ntv_instruction_msg_before( USES_REGS1 );
+static Int  p_print_native_instruction_msg_after( USES_REGS1 );
+static Int  p_print_ntv_instruction_msg_after( USES_REGS1 );
+static Int  p_print_native_instruction3( USES_REGS1 );
+static Int  p_print_ntv_instruction3( USES_REGS1 );
+static Int  p_no_print_basic_block( USES_REGS1 );
+static Int  p_no_print_basicblock( USES_REGS1 );
+static Int  p_no_print_bb( USES_REGS1 );
+static Int  p_print_basic_block( USES_REGS1 );
+static Int  p_print_basicblock( USES_REGS1 );
+static Int  p_print_bb( USES_REGS1 );
+static Int  p_print_basic_block_msg_before( USES_REGS1 );
+static Int  p_print_basicblock_msg_before( USES_REGS1 );
+static Int  p_print_bb_msg_before( USES_REGS1 );
+static Int  p_print_basic_block_msg_after( USES_REGS1 );
+static Int  p_print_basicblock_msg_after( USES_REGS1 );
+static Int  p_print_bb_msg_after( USES_REGS1 );
+static Int  p_print_basic_block3( USES_REGS1 );
+static Int  p_print_basicblock3( USES_REGS1 );
+static Int  p_print_bb3( USES_REGS1 );
+static Int  p_print_native_basic_block( USES_REGS1 );
+static Int  p_print_native_basicblock( USES_REGS1 );
+static Int  p_print_native_bb( USES_REGS1 );
+static Int  p_print_native_basic_block_msg_before( USES_REGS1 );
+static Int  p_print_native_basicblock_msg_before( USES_REGS1 );
+static Int  p_print_native_bb_msg_before( USES_REGS1 );
+static Int  p_print_native_basic_block_msg_after( USES_REGS1 );
+static Int  p_print_native_basicblock_msg_after( USES_REGS1 );
+static Int  p_print_native_bb_msg_after( USES_REGS1 );
+static Int  p_print_native_basic_block3( USES_REGS1 );
+static Int  p_print_native_basicblock3( USES_REGS1 );
+static Int  p_print_native_bb3( USES_REGS1 );
+static Int  p_no_print_clause( USES_REGS1 );
+static Int  p_print_clause( USES_REGS1 );
+static Int  p_no_print_intermediate( USES_REGS1 );
+static Int  p_print_intermediate( USES_REGS1 );
+static Int  p_print_intermediate_to_std( USES_REGS1 );
+static Int  p_print_intermediate_to_std1( USES_REGS1 );
+static Int  p_print_intermediate_to_file( USES_REGS1 );
+static Int  p_print_intermediate_to_file1( USES_REGS1 );
+static Int  p_no_print_llva( USES_REGS1 );
+static Int  p_print_llva_before( USES_REGS1 );
+static Int  p_print_llva_after( USES_REGS1 );
+static Int  p_no_print_me( USES_REGS1 );
+static Int  p_print_me( USES_REGS1 );
+static Int  p_default_debug( USES_REGS1 );
+static Int  p_print_default_predicate_msgs( USES_REGS1 );
+static Int  p_print_all_predicate_msgs( USES_REGS1 );
+static Int  p_print_info_predicate_msgs( USES_REGS1 );
+static Int  p_print_success_predicate_msgs( USES_REGS1 );
+static Int  p_print_warning_predicate_msgs( USES_REGS1 );
+static Int  p_print_error_predicate_msgs( USES_REGS1 );
+static Int  p_no_print_all_predicate_msgs( USES_REGS1 );
+static Int  p_no_print_info_predicate_msgs( USES_REGS1 );
+static Int  p_no_print_success_predicate_msgs( USES_REGS1 );
+static Int  p_no_print_warning_predicate_msgs( USES_REGS1 );
+static Int  p_no_print_error_predicate_msgs( USES_REGS1 );
+static Int  p_print_predicate_msgs( USES_REGS1 );
+static Int  p_exit_on_warning( USES_REGS1 );
+static Int  p_disable_on_warning( USES_REGS1 );
+static Int  p_exit_on_error( USES_REGS1 );
+static Int  p_no_exit_on_warning( USES_REGS1 );
+static Int  p_enable_on_warning( USES_REGS1 );
+static Int  p_no_exit_on_error( USES_REGS1 );
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
 
 static Int
-p_no_print_instruction(void)
+p_no_print_instruction( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   if (IsPairTerm(t)) {
@@ -171,25 +171,25 @@ p_no_print_instruction(void)
 }
 
 static Int
-p_no_print_basic_instruction(void)
+p_no_print_basic_instruction( USES_REGS1 )
 {
   return p_no_print_instruction();
 }
 
 static Int
-p_no_print_std_instruction(void)
+p_no_print_std_instruction( USES_REGS1 )
 {
   return p_no_print_instruction();
 }
 
 static Int
-p_no_print_standard_instruction(void)
+p_no_print_standard_instruction( USES_REGS1 )
 {
   return p_no_print_instruction();
 }
 
 static Int
-p_print_instruction(void)
+p_print_instruction( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   if (IsPairTerm(t)) {
@@ -242,25 +242,25 @@ p_print_instruction(void)
 }
 
 static Int
-p_print_basic_instruction(void)
+p_print_basic_instruction( USES_REGS1 )
 {
   return p_print_instruction();
 }
 
 static Int
-p_print_std_instruction(void)
+p_print_std_instruction( USES_REGS1 )
 {
   return p_print_instruction();
 }
 
 static Int
-p_print_standard_instruction(void)
+p_print_standard_instruction( USES_REGS1 )
 {
   return p_print_instruction();
 }
 
 static Int
-p_print_instruction_msg_before(void)
+p_print_instruction_msg_before( USES_REGS1 )
 {
   Term t = Deref(ARG2);
   char *msgb;
@@ -272,7 +272,7 @@ p_print_instruction_msg_before(void)
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_instruction_msg_before / print_basic_instruction_msg_before / print_std_instruction_msg_before / print_standard_instruction_msg_before");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -324,25 +324,25 @@ p_print_instruction_msg_before(void)
 }
 
 static Int
-p_print_basic_instruction_msg_before(void)
+p_print_basic_instruction_msg_before( USES_REGS1 )
 {
   return p_print_instruction_msg_before();
 }
 
 static Int
-p_print_std_instruction_msg_before(void)
+p_print_std_instruction_msg_before( USES_REGS1 )
 {
   return p_print_instruction_msg_before();
 }
 
 static Int
-p_print_standard_instruction_msg_before(void)
+p_print_standard_instruction_msg_before( USES_REGS1 )
 {
   return p_print_instruction_msg_before();
 }
 
 static Int
-p_print_instruction_msg_after(void)
+p_print_instruction_msg_after( USES_REGS1 )
 {
   Term t = Deref(ARG2);
   char *msga;
@@ -354,7 +354,7 @@ p_print_instruction_msg_after(void)
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_instruction_msg_after / print_basic_instruction_msg_after / print_std_instruction_msg_after / print_standard_instruction_msg_after");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -407,25 +407,25 @@ p_print_instruction_msg_after(void)
 }
 
 static Int
-p_print_basic_instruction_msg_after(void)
+p_print_basic_instruction_msg_after( USES_REGS1 )
 {
   return p_print_instruction_msg_after();
 }
 
 static Int
-p_print_std_instruction_msg_after(void)
+p_print_std_instruction_msg_after( USES_REGS1 )
 {
   return p_print_instruction_msg_after();
 }
 
 static Int
-p_print_standard_instruction_msg_after(void)
+p_print_standard_instruction_msg_after( USES_REGS1 )
 {
   return p_print_instruction_msg_after();
 }
 
 static Int
-p_print_instruction3(void)
+p_print_instruction3( USES_REGS1 )
 {
   Term t = Deref(ARG3);
   char *msga;
@@ -437,7 +437,7 @@ p_print_instruction3(void)
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_instruction / print_basic_instruction / print_std_instruction / print_standard_instruction");
     return FALSE;
   }
-  
+
   t = Deref(ARG2);
   char *msgb;
   if (IsAtomTerm(t)) {
@@ -448,7 +448,7 @@ p_print_instruction3(void)
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_instruction / print_basic_instruction / print_std_instruction / print_standard_instruction");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -501,25 +501,25 @@ p_print_instruction3(void)
 }
 
 static Int
-p_print_basic_instruction3(void)
+p_print_basic_instruction3( USES_REGS1 )
 {
   return p_print_instruction3();
 }
 
 static Int
-p_print_std_instruction3(void)
+p_print_std_instruction3( USES_REGS1 )
 {
   return p_print_instruction3();
 }
 
 static Int
-p_print_standard_instruction3(void)
+p_print_standard_instruction3( USES_REGS1 )
 {
   return p_print_instruction3();
 }
 
 static Int
-p_print_profiled_instruction(void)
+p_print_profiled_instruction( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   if (IsPairTerm(t)) {
@@ -572,19 +572,19 @@ p_print_profiled_instruction(void)
 }
 
 static Int
-p_print_traced_instruction(void)
+p_print_traced_instruction( USES_REGS1 )
 {
   return p_print_profiled_instruction();
 }
 
 static Int
-p_print_pfd_instruction(void)
+p_print_pfd_instruction( USES_REGS1 )
 {
   return p_print_profiled_instruction();
 }
 
 static Int
-p_print_profiled_instruction_msg_before(void)
+p_print_profiled_instruction_msg_before( USES_REGS1 )
 {
   Term t = Deref(ARG2);
   char *msgb;
@@ -596,7 +596,7 @@ p_print_profiled_instruction_msg_before(void)
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_profiled_instruction_msg_before / print_traced_instruction_msg_before / print_pfd_instruction_msg_before");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -648,19 +648,19 @@ p_print_profiled_instruction_msg_before(void)
 }
 
 static Int
-p_print_traced_instruction_msg_before(void)
+p_print_traced_instruction_msg_before( USES_REGS1 )
 {
   return p_print_profiled_instruction_msg_before();
 }
 
 static Int
-p_print_pfd_instruction_msg_before(void)
+p_print_pfd_instruction_msg_before( USES_REGS1 )
 {
   return p_print_profiled_instruction_msg_before();
 }
 
 static Int
-p_print_profiled_instruction_msg_after(void)
+p_print_profiled_instruction_msg_after( USES_REGS1 )
 {
   Term t = Deref(ARG2);
   char *msga;
@@ -672,7 +672,7 @@ p_print_profiled_instruction_msg_after(void)
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_profiled_instruction_msg_after / print_traced_instruction_msg_after / print_pfd_instruction_msg_after");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -725,19 +725,19 @@ p_print_profiled_instruction_msg_after(void)
 }
 
 static Int
-p_print_traced_instruction_msg_after(void)
+p_print_traced_instruction_msg_after( USES_REGS1 )
 {
   return p_print_profiled_instruction_msg_after();
 }
 
 static Int
-p_print_pfd_instruction_msg_after(void)
+p_print_pfd_instruction_msg_after( USES_REGS1 )
 {
   return p_print_profiled_instruction_msg_after();
 }
 
 static Int
-p_print_profiled_instruction3(void)
+p_print_profiled_instruction3( USES_REGS1 )
 {
   Term t = Deref(ARG3);
   char *msga;
@@ -749,7 +749,7 @@ p_print_profiled_instruction3(void)
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_profiled_instruction/ print_traced_instruction / print_pfd_instruction");
     return FALSE;
   }
-  
+
   t = Deref(ARG2);
   char *msgb;
   if (IsAtomTerm(t)) {
@@ -760,7 +760,7 @@ p_print_profiled_instruction3(void)
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_profiled_instruction/ print_traced_instruction / print_pfd_instruction");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -813,19 +813,19 @@ p_print_profiled_instruction3(void)
 }
 
 static Int
-p_print_traced_instruction3(void)
+p_print_traced_instruction3( USES_REGS1 )
 {
   return p_print_profiled_instruction3();
 }
 
 static Int
-p_print_pfd_instruction3(void)
+p_print_pfd_instruction3( USES_REGS1 )
 {
   return p_print_profiled_instruction3();
 }
 
 static Int
-p_print_native_instruction(void)
+p_print_native_instruction( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   if (IsPairTerm(t)) {
@@ -878,13 +878,13 @@ p_print_native_instruction(void)
 }
 
 static Int
-p_print_ntv_instruction(void)
+p_print_ntv_instruction( USES_REGS1 )
 {
   return p_print_native_instruction();
 }
 
 static Int
-p_print_native_instruction_msg_before(void)
+p_print_native_instruction_msg_before( USES_REGS1 )
 {
   Term t = Deref(ARG2);
   char *msgb;
@@ -896,7 +896,7 @@ p_print_native_instruction_msg_before(void)
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_native_instruction_msg_before / print_ntv_instruction_msg_before");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -948,13 +948,13 @@ p_print_native_instruction_msg_before(void)
 }
 
 static Int
-p_print_ntv_instruction_msg_before(void)
+p_print_ntv_instruction_msg_before( USES_REGS1 )
 {
   return p_print_native_instruction_msg_before();
 }
 
 static Int
-p_print_native_instruction_msg_after(void)
+p_print_native_instruction_msg_after( USES_REGS1 )
 {
   Term t = Deref(ARG2);
   char *msga;
@@ -966,7 +966,7 @@ p_print_native_instruction_msg_after(void)
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_native_instruction_msg_after / print_ntv_instruction_msg_after");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -1019,13 +1019,13 @@ p_print_native_instruction_msg_after(void)
 }
 
 static Int
-p_print_ntv_instruction_msg_after(void)
+p_print_ntv_instruction_msg_after( USES_REGS1 )
 {
   return p_print_native_instruction_msg_after();
 }
 
 static Int
-p_print_native_instruction3(void)
+p_print_native_instruction3( USES_REGS1 )
 {
   Term t = Deref(ARG3);
   char *msga;
@@ -1037,7 +1037,7 @@ p_print_native_instruction3(void)
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_native_instruction / print_ntv_instruction");
     return FALSE;
   }
-  
+
   t = Deref(ARG2);
   char *msgb;
   if (IsAtomTerm(t)) {
@@ -1048,7 +1048,7 @@ p_print_native_instruction3(void)
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_native_instruction / print_ntv_instruction");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -1101,13 +1101,13 @@ p_print_native_instruction3(void)
 }
 
 static Int
-p_print_ntv_instruction3(void)
+p_print_ntv_instruction3( USES_REGS1 )
 {
   return p_print_native_instruction3();
 }
 
 static Int
-p_no_print_basic_block(void)
+p_no_print_basic_block( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   if (IsPairTerm(t)) {
@@ -1157,19 +1157,19 @@ p_no_print_basic_block(void)
 }
 
 static Int
-p_no_print_basicblock(void)
+p_no_print_basicblock( USES_REGS1 )
 {
   return p_no_print_basic_block();
 }
 
 static Int
-p_no_print_bb(void)
+p_no_print_bb( USES_REGS1 )
 {
   return p_no_print_basic_block();
 }
 
 static Int
-p_print_basic_block(void)
+p_print_basic_block( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   if (IsPairTerm(t)) {
@@ -1222,19 +1222,19 @@ p_print_basic_block(void)
 }
 
 static Int
-p_print_basicblock(void)
+p_print_basicblock( USES_REGS1 )
 {
   return p_print_basic_block();
 }
 
 static Int
-p_print_bb(void)
+p_print_bb( USES_REGS1 )
 {
   return p_print_basic_block();
 }
 
 static Int
-p_print_basic_block_msg_before(void)
+p_print_basic_block_msg_before( USES_REGS1 )
 {
   Term t = Deref(ARG2);
   char *msgb;
@@ -1246,7 +1246,7 @@ p_print_basic_block_msg_before(void)
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_basic_block_msg_before / print_basicblock_msg_before / print_bb_msg_before");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -1298,19 +1298,19 @@ p_print_basic_block_msg_before(void)
 }
 
 static Int
-p_print_basicblock_msg_before(void)
+p_print_basicblock_msg_before( USES_REGS1 )
 {
   return p_print_basic_block_msg_before();
 }
 
 static Int
-p_print_bb_msg_before(void)
+p_print_bb_msg_before( USES_REGS1 )
 {
   return p_print_basic_block_msg_before();
 }
 
 static Int
-p_print_basic_block_msg_after(void)
+p_print_basic_block_msg_after( USES_REGS1 )
 {
   Term t = Deref(ARG2);
   char *msga;
@@ -1322,7 +1322,7 @@ p_print_basic_block_msg_after(void)
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_basic_block_msg_after / print_basicblock_msg_after / print_bb_msg_after");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -1374,19 +1374,19 @@ p_print_basic_block_msg_after(void)
 }
 
 static Int
-p_print_basicblock_msg_after(void)
+p_print_basicblock_msg_after( USES_REGS1 )
 {
   return p_print_basic_block_msg_after();
 }
 
 static Int
-p_print_bb_msg_after(void)
+p_print_bb_msg_after( USES_REGS1 )
 {
   return p_print_basic_block_msg_after();
 }
 
 static Int
-p_print_basic_block3(void)
+p_print_basic_block3( USES_REGS1 )
 {
   Term t = Deref(ARG3);
   char *msga;
@@ -1398,7 +1398,7 @@ p_print_basic_block3(void)
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_basic_block / print_basicblock / print_bb");
     return FALSE;
   }
-  
+
   t = Deref(ARG2);
   char *msgb;
   if (IsAtomTerm(t)) {
@@ -1409,7 +1409,7 @@ p_print_basic_block3(void)
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_basic_block / print_basicblock / print_bb");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -1461,19 +1461,19 @@ p_print_basic_block3(void)
 }
 
 static Int
-p_print_basicblock3(void)
+p_print_basicblock3( USES_REGS1 )
 {
   return p_print_basic_block3();
 }
 
 static Int
-p_print_bb3(void)
+p_print_bb3( USES_REGS1 )
 {
   return p_print_basic_block3();
 }
 
 static Int
-p_print_native_basic_block(void)
+p_print_native_basic_block( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   if (IsAtomTerm(t)) {
@@ -1549,19 +1549,19 @@ p_print_native_basic_block(void)
 }
 
 static Int
-p_print_native_basicblock(void)
+p_print_native_basicblock( USES_REGS1 )
 {
   return p_print_native_basic_block();
 }
 
 static Int
-p_print_native_bb(void)
+p_print_native_bb( USES_REGS1 )
 {
   return p_print_native_basic_block();
 }
 
 static Int
-p_print_native_basic_block_msg_before(void)
+p_print_native_basic_block_msg_before( USES_REGS1 )
 {
   Term t = Deref(ARG2);
   char *msgb;
@@ -1573,7 +1573,7 @@ p_print_native_basic_block_msg_before(void)
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_native_basic_block_msg_before / print_native_basicblock_msg_before / print_native_bb_msg_before");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -1625,19 +1625,19 @@ p_print_native_basic_block_msg_before(void)
 }
 
 static Int
-p_print_native_basicblock_msg_before(void)
+p_print_native_basicblock_msg_before( USES_REGS1 )
 {
   return p_print_native_basic_block_msg_before();
 }
 
 static Int
-p_print_native_bb_msg_before(void)
+p_print_native_bb_msg_before( USES_REGS1 )
 {
   return p_print_native_basic_block_msg_before();
 }
 
 static Int
-p_print_native_basic_block_msg_after(void)
+p_print_native_basic_block_msg_after( USES_REGS1 )
 {
   Term t = Deref(ARG2);
   char *msga;
@@ -1649,7 +1649,7 @@ p_print_native_basic_block_msg_after(void)
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_native_basic_block_msg_after / print_native_basicblock_msg_after / print_native_bb_msg_after");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -1701,19 +1701,19 @@ p_print_native_basic_block_msg_after(void)
 }
 
 static Int
-p_print_native_basicblock_msg_after(void)
+p_print_native_basicblock_msg_after( USES_REGS1 )
 {
   return p_print_native_basic_block_msg_after();
 }
 
 static Int
-p_print_native_bb_msg_after(void)
+p_print_native_bb_msg_after( USES_REGS1 )
 {
   return p_print_native_basic_block_msg_after();
 }
 
 static Int
-p_print_native_basic_block3(void)
+p_print_native_basic_block3( USES_REGS1 )
 {
   Term t = Deref(ARG3);
   char *msga;
@@ -1725,7 +1725,7 @@ p_print_native_basic_block3(void)
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_native_basic_block / print_native_basicblock / print_native_bb");
     return FALSE;
   }
-  
+
   t = Deref(ARG2);
   char *msgb;
   if (IsAtomTerm(t)) {
@@ -1736,7 +1736,7 @@ p_print_native_basic_block3(void)
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_native_basic_block / print_native_basicblock / print_native_bb");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -1788,19 +1788,19 @@ p_print_native_basic_block3(void)
 }
 
 static Int
-p_print_native_basicblock3(void)
+p_print_native_basicblock3( USES_REGS1 )
 {
   return p_print_native_basic_block3();
 }
 
 static Int
-p_print_native_bb3(void)
+p_print_native_bb3( USES_REGS1 )
 {
   return p_print_native_basic_block3();
 }
 
 static Int
-p_no_print_clause(void)
+p_no_print_clause( USES_REGS1 )
 {
   if (ExpEnv.debug_struc.pmainclause_on_head.msg_before) free((char*)ExpEnv.debug_struc.pmainclause_on_head.msg_before);
   if (ExpEnv.debug_struc.pmainclause_on_head.msg_after) free((char*)ExpEnv.debug_struc.pmainclause_on_head.msg_after);
@@ -1811,7 +1811,7 @@ p_no_print_clause(void)
 }
 
 static Int
-p_print_clause(void)
+p_print_clause( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   if (IsPairTerm(t)) {
@@ -1878,7 +1878,7 @@ p_print_clause(void)
 }
 
 static Int
-p_no_print_intermediate(void)
+p_no_print_intermediate( USES_REGS1 )
 {
   if (ExpEnv.debug_struc.pprint_intermediate.std_name) free((char*)ExpEnv.debug_struc.pprint_intermediate.std_name);
   if (ExpEnv.debug_struc.pprint_intermediate.file_name) free((char*)ExpEnv.debug_struc.pprint_intermediate.file_name);
@@ -1890,7 +1890,7 @@ p_no_print_intermediate(void)
 }
 
 static Int
-p_print_intermediate(void)
+p_print_intermediate( USES_REGS1 )
 {
   ExpEnv.debug_struc.pprint_intermediate.print_to_std = 1;
   ExpEnv.debug_struc.pprint_intermediate.std_name = (CELL)malloc(7*sizeof(char));
@@ -1899,7 +1899,7 @@ p_print_intermediate(void)
 }
 
 static Int
-p_print_intermediate_to_std(void)
+p_print_intermediate_to_std( USES_REGS1 )
 {
   ExpEnv.debug_struc.pprint_intermediate.print_to_std = 1;
   ExpEnv.debug_struc.pprint_intermediate.std_name = (CELL)malloc(7*sizeof(char));
@@ -1908,7 +1908,7 @@ p_print_intermediate_to_std(void)
 }
 
 static Int
-p_print_intermediate_to_std1(void)
+p_print_intermediate_to_std1( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   if (IsAtomTerm(t)) {
@@ -1933,7 +1933,7 @@ p_print_intermediate_to_std1(void)
 }
 
 static Int
-p_print_intermediate_to_file(void)
+p_print_intermediate_to_file( USES_REGS1 )
 {
   ExpEnv.debug_struc.pprint_intermediate.print_to_file = 1;
   ExpEnv.debug_struc.pprint_intermediate.file_name = (CELL)malloc(7*sizeof(char));
@@ -1945,7 +1945,7 @@ p_print_intermediate_to_file(void)
 }
 
 static Int
-p_print_intermediate_to_file1(void)
+p_print_intermediate_to_file1( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   if (IsAtomTerm(t)) {
@@ -1963,7 +1963,7 @@ p_print_intermediate_to_file1(void)
 }
 
 static Int
-p_no_print_llva(void)
+p_no_print_llva( USES_REGS1 )
 {
   ExpEnv.debug_struc.pprint_llva.print_llva_before = 0;
   ExpEnv.debug_struc.pprint_llva.print_llva_after = 0;
@@ -1971,21 +1971,21 @@ p_no_print_llva(void)
 }
 
 static Int
-p_print_llva_before(void)
+p_print_llva_before( USES_REGS1 )
 {
   ExpEnv.debug_struc.pprint_llva.print_llva_before = 1;
   return TRUE;
 }
 
 static Int
-p_print_llva_after(void)
+p_print_llva_after( USES_REGS1 )
 {
   ExpEnv.debug_struc.pprint_llva.print_llva_after = 1;
   return TRUE;
 }
 
 static Int
-p_no_print_me(void)
+p_no_print_me( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   if (IsAtomTerm(t)) {
@@ -2037,7 +2037,7 @@ p_no_print_me(void)
 }
 
 static Int
-p_print_me(void)
+p_print_me( USES_REGS1 )
 {
   Term t = Deref(ARG2);
   char *msg;
@@ -2048,7 +2048,7 @@ p_print_me(void)
   else {
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_me");
     return FALSE;
-  }  
+  }
   t = Deref(ARG1);
   if (IsAtomTerm(t)) {
     int i = 0, j = 0;
@@ -2127,7 +2127,7 @@ p_print_me(void)
 }
 
 static Int
-p_default_debug(void)
+p_default_debug( USES_REGS1 )
 {
   #define OPCODE(OP,TYPE) \
   ExpEnv.debug_struc.pyaam_##OP.print = (Int)NO_PLACE; \
@@ -2146,15 +2146,15 @@ p_default_debug(void)
   ExpEnv.debug_struc.pmainclause_on_head.print = (Int)NO_PLACE;
   ExpEnv.debug_struc.pmainclause_on_head.msg_before = 0;
   ExpEnv.debug_struc.pmainclause_on_head.msg_after = 0;
-  
+
   ExpEnv.debug_struc.pprint_intermediate.print_to_std = 0;
   ExpEnv.debug_struc.pprint_intermediate.print_to_file = 0;
   ExpEnv.debug_struc.pprint_intermediate.std_name = 0;
   ExpEnv.debug_struc.pprint_intermediate.file_name = 0;
-  
+
   ExpEnv.debug_struc.pprint_llva.print_llva_before = 0;
   ExpEnv.debug_struc.pprint_llva.print_llva_after = 0;
-  
+
   ExpEnv.debug_struc.pprint_me.interpreted_backtrack = 0;
   ExpEnv.debug_struc.pprint_me.profiled_interpreted_backtrack = 0;
   ExpEnv.debug_struc.pprint_me.native_backtrack = 0;
@@ -2168,21 +2168,21 @@ p_default_debug(void)
   ExpEnv.debug_struc.pprint_me.nativerun_init = 0;
   ExpEnv.debug_struc.pprint_me.nativerun_exit_by_success = 0;
   ExpEnv.debug_struc.pprint_me.nativerun_exit_by_fail = 0;
-  
+
   ExpEnv.debug_struc.act_predicate_msgs.info_msgs = 0;
   ExpEnv.debug_struc.act_predicate_msgs.success_msgs = 0;
   ExpEnv.debug_struc.act_predicate_msgs.warning_msgs = 1;
   ExpEnv.debug_struc.act_predicate_msgs.error_msgs = 1;
-  
+
   ExpEnv.debug_struc.act_predicate_actions.exit_on_warning = 0;
   ExpEnv.debug_struc.act_predicate_actions.disable_on_warning = 1;
   ExpEnv.debug_struc.act_predicate_actions.exit_on_error = 1;
-  
+
   return TRUE;
 }
 
 static Int
-p_print_default_predicate_msgs(void)
+p_print_default_predicate_msgs( USES_REGS1 )
 {
   ExpEnv.debug_struc.act_predicate_msgs.info_msgs = 0;
   ExpEnv.debug_struc.act_predicate_msgs.success_msgs = 0;
@@ -2192,7 +2192,7 @@ p_print_default_predicate_msgs(void)
 }
 
 static Int
-p_print_all_predicate_msgs(void)
+p_print_all_predicate_msgs( USES_REGS1 )
 {
   ExpEnv.debug_struc.act_predicate_msgs.info_msgs = 1;
   ExpEnv.debug_struc.act_predicate_msgs.success_msgs = 1;
@@ -2202,35 +2202,35 @@ p_print_all_predicate_msgs(void)
 }
 
 static Int
-p_print_info_predicate_msgs(void)
+p_print_info_predicate_msgs( USES_REGS1 )
 {
   ExpEnv.debug_struc.act_predicate_msgs.info_msgs = 1;
   return TRUE;
 }
 
 static Int
-p_print_success_predicate_msgs(void)
+p_print_success_predicate_msgs( USES_REGS1 )
 {
   ExpEnv.debug_struc.act_predicate_msgs.success_msgs = 1;
   return TRUE;
 }
 
 static Int
-p_print_warning_predicate_msgs(void)
+p_print_warning_predicate_msgs( USES_REGS1 )
 {
   ExpEnv.debug_struc.act_predicate_msgs.warning_msgs = 1;
   return TRUE;
 }
 
 static Int
-p_print_error_predicate_msgs(void)
+p_print_error_predicate_msgs( USES_REGS1 )
 {
   ExpEnv.debug_struc.act_predicate_msgs.error_msgs = 1;
   return TRUE;
 }
 
 static Int
-p_no_print_all_predicate_msgs(void)
+p_no_print_all_predicate_msgs( USES_REGS1 )
 {
   ExpEnv.debug_struc.act_predicate_msgs.info_msgs = 0;
   ExpEnv.debug_struc.act_predicate_msgs.success_msgs = 0;
@@ -2240,35 +2240,35 @@ p_no_print_all_predicate_msgs(void)
 }
 
 static Int
-p_no_print_info_predicate_msgs(void)
+p_no_print_info_predicate_msgs( USES_REGS1 )
 {
   ExpEnv.debug_struc.act_predicate_msgs.info_msgs = 0;
   return TRUE;
 }
 
 static Int
-p_no_print_success_predicate_msgs(void)
+p_no_print_success_predicate_msgs( USES_REGS1 )
 {
   ExpEnv.debug_struc.act_predicate_msgs.success_msgs = 0;
   return TRUE;
 }
 
 static Int
-p_no_print_warning_predicate_msgs(void)
+p_no_print_warning_predicate_msgs( USES_REGS1 )
 {
   ExpEnv.debug_struc.act_predicate_msgs.warning_msgs = 0;
   return TRUE;
 }
 
 static Int
-p_no_print_error_predicate_msgs(void)
+p_no_print_error_predicate_msgs( USES_REGS1 )
 {
   ExpEnv.debug_struc.act_predicate_msgs.error_msgs = 0;
   return TRUE;
 }
 
 static Int
-p_print_predicate_msgs(void)
+p_print_predicate_msgs( USES_REGS1 )
 {
   int i = 0, j = 0;
   char *tmp;
@@ -2328,42 +2328,42 @@ p_print_predicate_msgs(void)
 }
 
 static Int
-p_exit_on_warning(void)
+p_exit_on_warning( USES_REGS1 )
 {
   ExpEnv.debug_struc.act_predicate_actions.exit_on_warning = 1;
   return TRUE;
 }
 
 static Int
-p_disable_on_warning(void)
+p_disable_on_warning( USES_REGS1 )
 {
   ExpEnv.debug_struc.act_predicate_actions.disable_on_warning = 1;
   return TRUE;
 }
 
 static Int
-p_exit_on_error(void)
+p_exit_on_error( USES_REGS1 )
 {
   ExpEnv.debug_struc.act_predicate_actions.exit_on_error = 1;
   return TRUE;
 }
 
 static Int
-p_no_exit_on_warning(void)
+p_no_exit_on_warning( USES_REGS1 )
 {
   ExpEnv.debug_struc.act_predicate_actions.exit_on_warning = 0;
   return TRUE;
 }
 
 static Int
-p_enable_on_warning(void)
+p_enable_on_warning( USES_REGS1 )
 {
   ExpEnv.debug_struc.act_predicate_actions.disable_on_warning = 0;
   return TRUE;
 }
 
 static Int
-p_no_exit_on_error(void)
+p_no_exit_on_error( USES_REGS1 )
 {
   ExpEnv.debug_struc.act_predicate_actions.exit_on_error = 0;
   return TRUE;
@@ -2372,7 +2372,7 @@ p_no_exit_on_error(void)
 #pragma GCC diagnostic pop
 
 void
-Yap_InitJitDebugPreds(void)
+Yap_InitJitDebugPreds( USES_REGS1 )
 {
   Yap_InitCPred("no_print_instruction", 1, p_no_print_instruction, SafePredFlag);
   Yap_InitCPred("no_print_basic_instruction", 1, p_no_print_basic_instruction, SafePredFlag);

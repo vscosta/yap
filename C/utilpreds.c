@@ -4559,7 +4559,7 @@ p_is_list( USES_REGS1 )
   return Yap_IsListTerm(Deref(ARG1));
 }
 
-int
+bool
 Yap_IsListOrPartialListTerm(Term t)
 {
   Term *tailp, tail;

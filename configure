@@ -10769,12 +10769,12 @@ fi
 
 
   if test "$LLVM" = "no" ;then
-        as_fn_error $? "--enable-jit was given, but test for LLVM 3.5 failed" "$LINENO" 5
+        as_fn_error $? "--enable-jit was given, but test for LLVM 3.1 failed" "$LINENO" 5
 
   else
         LLVM_VERSION="`llvm-config --version`"
-	if test "$LLVM_VERSION" != "3.5.0";then
-           as_fn_error $? "Test for LLVM 3.5 failed" "$LINENO" 5
+	if test "$LLVM_VERSION" != "3.1";then
+           as_fn_error $? "Test for LLVM 3.1 failed" "$LINENO" 5
         fi
 
   fi
@@ -10830,7 +10830,7 @@ fi
   JITCODEGENPREDS="jit_codegenpreds.o"
   JITFLAGS="`llvm-config --cxxflags`"
   JITLD="`llvm-config --ldflags`"
-  JITLIBS="`llvm-config --libs all` -pthread -lffi -lz"
+  JITLIBS="`llvm-config --libs all`"
 
 fi
 

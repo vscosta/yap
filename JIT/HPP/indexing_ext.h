@@ -1,9 +1,9 @@
 #define USER_SWITCH_INSTINIT \
       BLOCKADDRESS = (CELL)(*_PREG); \
       { \
-	yamop *new = Yap_udi_search((*_PREG)->y_u.lp.p); \
+	yamop *new = Yap_udi_search((*_PREG)->u.lp.p); \
 	if (!new) { \
-	  (*_PREG) = (*_PREG)->y_u.lp.l; \
+	  (*_PREG) = (*_PREG)->u.lp.l; \
 	  JMPNext(); \
 	} \
         else { \
@@ -34,27 +34,27 @@
           (d0) = *(CELL *)(d0); \
         } \
         if (!nonvar) { \
-          copy_jmp_address((*_PREG)->y_u.llll.l4); \
-          (*_PREG) = (*_PREG)->y_u.llll.l4; \
+          copy_jmp_address((*_PREG)->u.llll.l4); \
+          (*_PREG) = (*_PREG)->u.llll.l4; \
           JMPNext(); \
         } \
       } \
       if (nonvar) { \
         if (IsPairTerm(d0)) { \
 	  (*_SREG) = RepPair(d0); \
-	  copy_jmp_address((*_PREG)->y_u.llll.l1); \
-	  (*_PREG) = (*_PREG)->y_u.llll.l1; \
+	  copy_jmp_address((*_PREG)->u.llll.l1); \
+	  (*_PREG) = (*_PREG)->u.llll.l1; \
 	  JMPNext(); \
         } \
         else if (!IsApplTerm(d0)) { \
-	  copy_jmp_address((*_PREG)->y_u.llll.l2); \
-	  (*_PREG) = (*_PREG)->y_u.llll.l2; \
+	  copy_jmp_address((*_PREG)->u.llll.l2); \
+	  (*_PREG) = (*_PREG)->u.llll.l2; \
 	  I_R = d0; \
 	  JMPNext(); \
         } \
         else { \
-	  copy_jmp_address((*_PREG)->y_u.llll.l3); \
-	  (*_PREG) = (*_PREG)->y_u.llll.l3; \
+	  copy_jmp_address((*_PREG)->u.llll.l3); \
+	  (*_PREG) = (*_PREG)->u.llll.l3; \
 	  (*_SREG) = RepAppl(d0); \
 	  JMPNext(); \
         } \
@@ -68,7 +68,7 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
       register CELL d0; \
       register CELL *pt0; \
-      ALWAYS_LOOKAHEAD((*_PREG)->y_u.ollll.pop); \
+      ALWAYS_LOOKAHEAD((*_PREG)->u.ollll.pop); \
       d0 = CACHED_A1(); \
       Int nonvar = 0; \
       Int pair = 1; \
@@ -77,18 +77,18 @@
         do { \
           if (!IsVarTerm(d0)) { \
 	    if (d0 == TermNil) { \
-	      (*_PREG) = (*_PREG)->y_u.ollll.l2; \
+	      (*_PREG) = (*_PREG)->u.ollll.l2; \
 	      JMPNext(); \
 	    } \
 	    else { \
 	      if (IsApplTerm(d0)) { \
-	        copy_jmp_address((*_PREG)->y_u.ollll.l3); \
-	        (*_PREG) = (*_PREG)->y_u.ollll.l3; \
+	        copy_jmp_address((*_PREG)->u.ollll.l3); \
+	        (*_PREG) = (*_PREG)->u.ollll.l3; \
 	        (*_SREG) = RepAppl(d0); \
 	        JMPNext(); \
 	      } else { \
-	        copy_jmp_address((*_PREG)->y_u.ollll.l3); \
-	        (*_PREG) = (*_PREG)->y_u.ollll.l3; \
+	        copy_jmp_address((*_PREG)->u.ollll.l3); \
+	        (*_PREG) = (*_PREG)->u.ollll.l3; \
 	        I_R = d0; \
 	        JMPNext(); \
 	      } \
@@ -105,14 +105,14 @@
           } \
         } while (TRUE); \
         if (!nonvar && !pair) { \
-	  copy_jmp_address((*_PREG)->y_u.ollll.l4); \
-	  (*_PREG) = (*_PREG)->y_u.ollll.l4; \
+	  copy_jmp_address((*_PREG)->u.ollll.l4); \
+	  (*_PREG) = (*_PREG)->u.ollll.l4; \
 	  JMPNext(); \
         } \
       } \
       if (!nonvar && pair) { \
-        copy_jmp_address((*_PREG)->y_u.ollll.l1); \
-        (*_PREG) = (*_PREG)->y_u.ollll.l1; \
+        copy_jmp_address((*_PREG)->u.ollll.l1); \
+        (*_PREG) = (*_PREG)->u.ollll.l1; \
         (*_SREG) = RepPair(d0); \
         ALWAYS_GONext(); \
       }
@@ -121,7 +121,7 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
       register CELL d0; \
       register CELL *pt0; \
-      ALWAYS_LOOKAHEAD((*_PREG)->y_u.ollll.pop); \
+      ALWAYS_LOOKAHEAD((*_PREG)->u.ollll.pop); \
       d0 = CACHED_A1(); \
       Int nonvar = 0; \
       if (IsVarTerm(d0)) { \
@@ -136,31 +136,31 @@
           (d0) = *(CELL *)(d0); \
         } \
         if (!nonvar) { \
-	  copy_jmp_address((*_PREG)->y_u.ollll.l4); \
-	  (*_PREG) = (*_PREG)->y_u.ollll.l4; \
+	  copy_jmp_address((*_PREG)->u.ollll.l4); \
+	  (*_PREG) = (*_PREG)->u.ollll.l4; \
 	  JMPNext(); \
         } \
       } \
       if (nonvar) { \
         if (__builtin_expect(IsPairTerm(d0),1)) { \
-          copy_jmp_address((*_PREG)->y_u.ollll.l1); \
-	  (*_PREG) = (*_PREG)->y_u.ollll.l1; \
+          copy_jmp_address((*_PREG)->u.ollll.l1); \
+	  (*_PREG) = (*_PREG)->u.ollll.l1; \
 	  (*_SREG) = RepPair(d0); \
 	  ALWAYS_GONext(); \
         } \
         if (d0 == TermNil) { \
-          (*_PREG) = (*_PREG)->y_u.ollll.l2; \
+          (*_PREG) = (*_PREG)->u.ollll.l2; \
           JMPNext(); \
         } \
         else { \
           if (IsApplTerm(d0)) { \
-	    copy_jmp_address((*_PREG)->y_u.ollll.l3); \
-	    (*_PREG) = (*_PREG)->y_u.ollll.l3; \
+	    copy_jmp_address((*_PREG)->u.ollll.l3); \
+	    (*_PREG) = (*_PREG)->u.ollll.l3; \
 	    (*_SREG) = RepAppl(d0); \
 	    JMPNext(); \
 	  } else { \
-	    copy_jmp_address((*_PREG)->y_u.ollll.l3); \
-	    (*_PREG) = (*_PREG)->y_u.ollll.l3; \
+	    copy_jmp_address((*_PREG)->u.ollll.l3); \
+	    (*_PREG) = (*_PREG)->u.ollll.l3; \
 	    I_R = d0; \
 	    JMPNext(); \
           } \
@@ -175,7 +175,7 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
       register CELL d0; \
       register CELL *pt0; \
-      d0 = XREG((*_PREG)->y_u.xllll.x); \
+      d0 = XREG((*_PREG)->u.xllll.x); \
       Int nonvar = 1; \
       if (IsVarTerm(d0)) { \
 	    nonvar = 0; \
@@ -190,27 +190,27 @@
           (d0) = *(CELL *)(d0); \
         } \
         if (!nonvar) { \
-          copy_jmp_address((*_PREG)->y_u.xllll.l4); \
-          (*_PREG) = (*_PREG)->y_u.xllll.l4; \
+          copy_jmp_address((*_PREG)->u.xllll.l4); \
+          (*_PREG) = (*_PREG)->u.xllll.l4; \
           JMPNext(); \
         } \
       } \
       if (nonvar) { \
         if (IsPairTerm(d0)) { \
-	  copy_jmp_address((*_PREG)->y_u.xllll.l1); \
-	  (*_PREG) = (*_PREG)->y_u.xllll.l1; \
+	  copy_jmp_address((*_PREG)->u.xllll.l1); \
+	  (*_PREG) = (*_PREG)->u.xllll.l1; \
 	  (*_SREG) = RepPair(d0); \
 	  JMPNext(); \
         } \
         else if (!IsApplTerm(d0)) { \
-	  copy_jmp_address((*_PREG)->y_u.xllll.l2); \
-	  (*_PREG) = (*_PREG)->y_u.xllll.l2; \
+	  copy_jmp_address((*_PREG)->u.xllll.l2); \
+	  (*_PREG) = (*_PREG)->u.xllll.l2; \
 	  I_R = d0; \
 	  JMPNext(); \
         } \
         else { \
-	  copy_jmp_address((*_PREG)->y_u.xllll.l3); \
-	  (*_PREG) = (*_PREG)->y_u.xllll.l3; \
+	  copy_jmp_address((*_PREG)->u.xllll.l3); \
+	  (*_PREG) = (*_PREG)->u.xllll.l3; \
 	  (*_SREG) = RepAppl(d0); \
 	  JMPNext(); \
         } \
@@ -223,7 +223,7 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
       register CELL d0; \
       register CELL *pt0; \
-      d0 = (*_SREG)[(*_PREG)->y_u.sllll.s]; \
+      d0 = (*_SREG)[(*_PREG)->u.sllll.s]; \
       Int nonvar = 1; \
       if (IsVarTerm(d0)) { \
 	    nonvar = 0; \
@@ -238,27 +238,27 @@
           (d0) = *(CELL *)(d0); \
         } \
         if (!nonvar) { \
-          copy_jmp_address((*_PREG)->y_u.sllll.l4); \
-          (*_PREG) = (*_PREG)->y_u.sllll.l4; \
+          copy_jmp_address((*_PREG)->u.sllll.l4); \
+          (*_PREG) = (*_PREG)->u.sllll.l4; \
           JMPNext(); \
         } \
       } \
       if (nonvar) { \
         if (IsPairTerm(d0)) { \
-	  copy_jmp_address((*_PREG)->y_u.sllll.l1); \
-	  (*_PREG) = (*_PREG)->y_u.sllll.l1; \
+	  copy_jmp_address((*_PREG)->u.sllll.l1); \
+	  (*_PREG) = (*_PREG)->u.sllll.l1; \
 	  (*_SREG) = RepPair(d0); \
 	  JMPNext(); \
         } \
         else if (!IsApplTerm(d0)) { \
-	  copy_jmp_address((*_PREG)->y_u.sllll.l2); \
-	  (*_PREG) = (*_PREG)->y_u.sllll.l2; \
+	  copy_jmp_address((*_PREG)->u.sllll.l2); \
+	  (*_PREG) = (*_PREG)->u.sllll.l2; \
 	  I_R = d0; \
 	  JMPNext(); \
         } \
         else { \
-	  copy_jmp_address((*_PREG)->y_u.sllll.l3); \
-	  (*_PREG) = (*_PREG)->y_u.sllll.l3; \
+	  copy_jmp_address((*_PREG)->u.sllll.l3); \
+	  (*_PREG) = (*_PREG)->u.sllll.l3; \
 	  (*_SREG) = RepAppl(d0); \
 	  JMPNext(); \
         } \
@@ -286,8 +286,8 @@
           (d0) = *(CELL *)(d0); \
         } \
         if (!nonvar) { \
-          copy_jmp_address((*_PREG)->y_u.l.l); \
-          (*_PREG) = (*_PREG)->y_u.l.l; \
+          copy_jmp_address((*_PREG)->u.l.l); \
+          (*_PREG) = (*_PREG)->u.l.l; \
           JMPNext(); \
         } \
       } \
@@ -303,7 +303,7 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
       register CELL d0; \
       register CELL *pt0; \
-      d0 = XREG((*_PREG)->y_u.xll.x); \
+      d0 = XREG((*_PREG)->u.xll.x); \
       Int nonvar = 0; \
       if (IsVarTerm(d0)) { \
         (pt0) = (CELL *)(d0); \
@@ -322,8 +322,8 @@
         } \
       } \
       if (nonvar) { \
-        copy_jmp_address((*_PREG)->y_u.xll.l1); \
-        (*_PREG) = (*_PREG)->y_u.xll.l1; \
+        copy_jmp_address((*_PREG)->u.xll.l1); \
+        (*_PREG) = (*_PREG)->u.xll.l1; \
         JMPNext(); \
       }
 
@@ -349,20 +349,20 @@
           (d0) = *(CELL *)(d0); \
         } \
         if (!nonvar) { \
-          copy_jmp_address((*_PREG)->y_u.clll.l3); \
-          (*_PREG) = (*_PREG)->y_u.clll.l3; \
+          copy_jmp_address((*_PREG)->u.clll.l3); \
+          (*_PREG) = (*_PREG)->u.clll.l3; \
           JMPNext(); \
         } \
       } \
       if (nonvar) { \
-        if (d0 == (*_PREG)->y_u.clll.c) { \
-	  copy_jmp_address((*_PREG)->y_u.clll.l2); \
-	  (*_PREG) = (*_PREG)->y_u.clll.l2; \
+        if (d0 == (*_PREG)->u.clll.c) { \
+	  copy_jmp_address((*_PREG)->u.clll.l2); \
+	  (*_PREG) = (*_PREG)->u.clll.l2; \
 	  JMPNext(); \
         } \
         else { \
-	  copy_jmp_address((*_PREG)->y_u.clll.l1); \
-	  (*_PREG) = (*_PREG)->y_u.clll.l1; \
+	  copy_jmp_address((*_PREG)->u.clll.l1); \
+	  (*_PREG) = (*_PREG)->u.clll.l1; \
 	  JMPNext(); \
         } \
       }
@@ -370,7 +370,7 @@
 #define IF_NOT_THEN_END \
       BLOCK = (CELL)IF_NOT_THEN_END;
 
-#define HASH_SHIFT 6
+#define HRASH_SHIFT 6
 
 #define SWITCH_ON_FUNC_INSTINIT \
       BLOCKADDRESS = (CELL)(*_PREG); \
@@ -379,10 +379,10 @@
       d1 = *(*_SREG)++; \
       { \
 	CELL \
-	  Mask = ((*_PREG)->y_u.sssl.s - 1) << 1, \
-	  hash = d1 >> (HASH_SHIFT - 1) & Mask; \
+	  Mask = ((*_PREG)->u.sssl.s - 1) << 1, \
+	  hash = d1 >> (HRASH_SHIFT - 1) & Mask; \
 	CELL *base; \
-	base = (CELL *)(*_PREG)->y_u.sssl.l; \
+	base = (CELL *)(*_PREG)->u.sssl.l; \
 	pt0 = base + hash; \
 	d0 = pt0[0]; \
 	if (d0 == d1 || d0 == 0) { \
@@ -415,10 +415,10 @@
       d1 = I_R; \
       { \
 	CELL \
-	  Mask = ((*_PREG)->y_u.sssl.s - 1) << 1, \
-	  hash = d1 >> (HASH_SHIFT - 1) & Mask; \
+	  Mask = ((*_PREG)->u.sssl.s - 1) << 1, \
+	  hash = d1 >> (HRASH_SHIFT - 1) & Mask; \
 	CELL *base; \
-	base = (CELL *)(*_PREG)->y_u.sssl.l; \
+	base = (CELL *)(*_PREG)->u.sssl.l; \
 	pt0 = base + hash; \
 	d0 = pt0[0]; \
 	if (d0 == d1 || d0 == 0) { \
@@ -448,7 +448,7 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
       register CELL d0; \
       { \
-	CELL *pt = (CELL *)((*_PREG)->y_u.sssl.l); \
+	CELL *pt = (CELL *)((*_PREG)->u.sssl.l); \
 	d0 = *(*_SREG)++; \
 	if (d0 == pt[0]) { \
 	  copy_jmp_addressa(pt+1); \
@@ -468,7 +468,7 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
       register CELL d0; \
       { \
-	CELL *pt = (CELL *)((*_PREG)->y_u.sssl.l); \
+	CELL *pt = (CELL *)((*_PREG)->u.sssl.l); \
 	d0 = I_R; \
 	if (d0 == pt[0]) { \
 	  copy_jmp_addressa(pt+1); \
@@ -488,7 +488,7 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
       register CELL d1; \
       register CELL *pt0; \
-      pt0 = (CELL *) (*_PREG)->y_u.sssl.l; \
+      pt0 = (CELL *) (*_PREG)->u.sssl.l; \
       d1 = *(*_SREG)++; \
       while (pt0[0] != d1 && pt0[0] != (CELL)NULL ) { \
 	pt0 += 2; \
@@ -504,7 +504,7 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
       register CELL d1; \
       register CELL *pt0; \
-      pt0 = (CELL *) (*_PREG)->y_u.sssl.l; \
+      pt0 = (CELL *) (*_PREG)->u.sssl.l; \
       d1 = I_R; \
       while (pt0[0] != d1 && pt0[0] != 0L ) { \
 	pt0 += 2; \

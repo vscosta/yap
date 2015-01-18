@@ -19,23 +19,28 @@
 
 % This protects all code from further changes
 % and also makes it impossible from some predicates to be seen
-
+'$protect' :-
+	fail,
+        '$system_mod'( M ),
+        '$current_predicate'(_A, M, T0, Flags),
+        NFlags is Flags \/ 0x00004000,
+	'$flags'(M:T0, Flags, NFlags),
+	fail.
 '$protect' :-
 	current_atom(Name),
-	sub_atom(Name,0,1,_,'$'),
-	'$hide'(Name),
-	'$current_predicate'(Name, Mod, P, _Flags0),
-	'$hide_predicate'(P,Mod),
-        fail.
+	atom_codes(Name,[0'$|_]),
+%	'$hide_predicates'(Name),
+	'$hide'(Name).
 '$protect' :-
-	'$hide'(bootstrap),
-	'$hide_predicate'(bootstrap),
-	fail.
+	'$hide_predicates'(bootstrap),
+	'$hide'(bootstrap).
 '$protect'.
 
-'$notrace_predicate'(Mod:P, Flags0) :-
-	Flags is Flags0 \/ 0x400000000,
-	'$flags'(P, Mod, Flags0, Flags ).
+'$hide_predicates'(Name) :-
+	'$current_predicate'(Name, Mod, P, _),
+	'$hide_predicate'(P,Mod),
+	fail.
+'$hide_predicates'(_).
 
 % hide all atoms who start by '$'
 '$hide'('$VAR') :- !, fail.			/* not $VAR */

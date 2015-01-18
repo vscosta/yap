@@ -14,7 +14,7 @@
 #define UNIFY_X_VAR_END \
       WRITEBACK_S(S_SREG+1); \
       ALWAYS_START_PREFETCH(ox); \
-      XREG((*_PREG)->y_u.ox.x) = d0; \
+      XREG((*_PREG)->u.ox.x) = d0; \
       (*_PREG) = NEXTOP((*_PREG), ox); \
       ALWAYS_GONext(); \
       ALWAYS_END_PREFETCH(); \
@@ -24,7 +24,7 @@
       register CELL *pt0; \
       CACHE_S(); \
       READ_IN_S(); \
-      pt0 = &XREG((*_PREG)->y_u.ox.x); \
+      pt0 = &XREG((*_PREG)->u.ox.x); \
       (*_PREG) = NEXTOP((*_PREG), ox); \
       RESET_VARIABLE(S_SREG); \
       *pt0 = (CELL) S_SREG; \
@@ -37,7 +37,7 @@
 	  register CELL *pt0; \
       ALWAYS_START_PREFETCH(ox); \
       d0 = (*_SREG)[0]; \
-      pt0 = &XREG((*_PREG)->y_u.ox.x); \
+      pt0 = &XREG((*_PREG)->u.ox.x); \
       (*_PREG) = NEXTOP((*_PREG), ox);
 	  
 #ifdef YAPOR_SBA
@@ -57,7 +57,7 @@
       ALWAYS_START_PREFETCH(ox); \
       CACHE_S(); \
       READ_IN_S(); \
-      pt0 = &XREG((*_PREG)->y_u.ox.x); \
+      pt0 = &XREG((*_PREG)->u.ox.x); \
       (*_PREG) = NEXTOP((*_PREG), ox); \
       RESET_VARIABLE(S_SREG); \
       *pt0 = (CELL)S_SREG; \
@@ -71,7 +71,7 @@
       CACHE_S(); \
       ALWAYS_START_PREFETCH(oxx); \
       READ_IN_S(); \
-      pt0 = &XREG((*_PREG)->y_u.oxx.xr); \
+      pt0 = &XREG((*_PREG)->u.oxx.xr); \
       d0 = S_SREG[0]; \
       d1 = S_SREG[1];
 	  
@@ -87,7 +87,7 @@
 
 #define UNIFY_X_VAR2_END \
       WRITEBACK_S(S_SREG+2); \
-      XREG((*_PREG)->y_u.oxx.xl) = d0; \
+      XREG((*_PREG)->u.oxx.xl) = d0; \
       (*_PREG) = NEXTOP((*_PREG), oxx); \
       *pt0 = d1; \
       ALWAYS_GONext(); \
@@ -98,9 +98,9 @@
       register CELL *pt0; \
 	  CACHE_S(); \
       READ_IN_S(); \
-      pt0 = &XREG((*_PREG)->y_u.oxx.xr); \
+      pt0 = &XREG((*_PREG)->u.oxx.xr); \
       RESET_VARIABLE(S_SREG); \
-      XREG((*_PREG)->y_u.oxx.xl) = (CELL) S_SREG; \
+      XREG((*_PREG)->u.oxx.xl) = (CELL) S_SREG; \
       S_SREG++; \
       (*_PREG) = NEXTOP((*_PREG), oxx); \
       RESET_VARIABLE(S_SREG); \
@@ -115,13 +115,13 @@
       register CELL *pt0; \
       CACHE_S(); \
       READ_IN_S(); \
-      pt0 = &XREG((*_PREG)->y_u.oxx.xr); \
+      pt0 = &XREG((*_PREG)->u.oxx.xr); \
       d0 = S_SREG[0]; \
       d1 = S_SREG[1]; \
       if (d0 == 0) \
-	XREG((*_PREG)->y_u.oxx.xl) = (CELL)S_SREG; \
+	XREG((*_PREG)->u.oxx.xl) = (CELL)S_SREG; \
       else \
-	XREG((*_PREG)->y_u.oxx.xl) = d0; \
+	XREG((*_PREG)->u.oxx.xl) = d0; \
       (*_PREG) = NEXTOP((*_PREG), oxx); \
       if (d1 == 0) \
 	*pt0 = (CELL)(S_SREG+1); \
@@ -135,11 +135,11 @@
       register CELL *pt0; \
       CACHE_S(); \
       READ_IN_S(); \
-      pt0 = &XREG((*_PREG)->y_u.oxx.xr); \
+      pt0 = &XREG((*_PREG)->u.oxx.xr); \
       d0 = S_SREG[0]; \
       d1 = S_SREG[1]; \
       { \
-	XREG((*_PREG)->y_u.oxx.xl) = d0; \
+	XREG((*_PREG)->u.oxx.xl) = d0; \
 	  } \
       (*_PREG) = NEXTOP((*_PREG), oxx); \
       { \
@@ -153,8 +153,8 @@
       register CELL *pt0; \
       CACHE_S(); \
       READ_IN_S(); \
-      pt0 = &XREG((*_PREG)->y_u.oxx.xr); \
-      XREG((*_PREG)->y_u.oxx.xl) = (CELL) S_SREG; \
+      pt0 = &XREG((*_PREG)->u.oxx.xr); \
+      XREG((*_PREG)->u.oxx.xl) = (CELL) S_SREG; \
       RESET_VARIABLE(S_SREG); \
       S_SREG++; \
       *pt0 = (CELL) S_SREG; \
@@ -168,7 +168,7 @@
       register CELL d0; \
       d0 = *(*_SREG)++; \
       if (d0 == 0) { \
-	INITIALIZE_PERMVAR(YREG+(*_PREG)->y_u.oy.y,(CELL)((*_SREG)-1)); \
+	INITIALIZE_PERMVAR(YREG+(*_PREG)->u.oy.y,(CELL)((*_SREG)-1)); \
       } else \
       (*_PREG) = NEXTOP((*_PREG), oy); \
       GONext();
@@ -176,7 +176,7 @@
 #define UNIFY_Y_VAR_INSTINIT \
       register CELL d0; \
       d0 = *(*_SREG)++; \
-	INITIALIZE_PERMVAR(YREG+(*_PREG)->y_u.oy.y,d0); \
+	INITIALIZE_PERMVAR(YREG+(*_PREG)->u.oy.y,d0); \
       (*_PREG) = NEXTOP((*_PREG), oy); \
       GONext();
 #endif /* YAPOR_SBA */
@@ -184,7 +184,7 @@
 #define UNIFY_Y_VAR_WRITE_INSTINIT \
       CACHE_S(); \
       READ_IN_S(); \
-      INITIALIZE_PERMVAR(YREG+(*_PREG)->y_u.oy.y,(CELL) S_SREG); \
+      INITIALIZE_PERMVAR(YREG+(*_PREG)->u.oy.y,(CELL) S_SREG); \
       (*_PREG) = NEXTOP((*_PREG), oy); \
       RESET_VARIABLE(S_SREG); \
       WRITEBACK_S(S_SREG+1); \
@@ -196,7 +196,7 @@
       register CELL d0; \
       d0 = (*_SREG)[0]; \
       if (d0 == 0) { \
-	INITIALIZE_PERMVAR(YREG+(*_PREG)->y_u.oy.y,(CELL)(*_SREG)); \
+	INITIALIZE_PERMVAR(YREG+(*_PREG)->u.oy.y,(CELL)(*_SREG)); \
       } else \
       (*_PREG) = NEXTOP((*_PREG), oy); \
       GONext();
@@ -204,7 +204,7 @@
 #define UNIFY_L_Y_VAR_INSTINIT \
       register CELL d0; \
       d0 = (*_SREG)[0]; \
-	INITIALIZE_PERMVAR(YREG+(*_PREG)->y_u.oy.y,d0); \
+	INITIALIZE_PERMVAR(YREG+(*_PREG)->u.oy.y,d0); \
       (*_PREG) = NEXTOP((*_PREG), oy); \
       GONext();
 #endif /* YAPOR_SBA */
@@ -212,7 +212,7 @@
 #define UNIFY_L_Y_VAR_WRITE_INSTINIT \
       CACHE_S(); \
       READ_IN_S(); \
-      INITIALIZE_PERMVAR(YREG+(*_PREG)->y_u.oy.y,(CELL) S_SREG); \
+      INITIALIZE_PERMVAR(YREG+(*_PREG)->u.oy.y,(CELL) S_SREG); \
       (*_PREG) = NEXTOP((*_PREG), oy); \
       RESET_VARIABLE(S_SREG); \
       ENDCACHE_S(); \
@@ -225,7 +225,7 @@
       d0 = *pt0;
 
 #define UNIFY_X_VAL_UVALX_NONVAR \
-      d1 = XREG((*_PREG)->y_u.ox.x);
+      d1 = XREG((*_PREG)->u.ox.x);
 
 #define UNIFY_X_VAL_UVALX_NONVAR_NONVAR \
       BLOCK = (CELL)UNIFY_X_VAL_UVALX_NONVAR_NONVAR; \
@@ -240,7 +240,7 @@
       GONext();
 
 #define UNIFY_X_VAL_UVALX_UNK \
-      d1 = XREG((*_PREG)->y_u.ox.x);
+      d1 = XREG((*_PREG)->u.ox.x);
 
 #define UNIFY_X_VAL_UVALX_VAR_NONVAR \
       (*_PREG) = NEXTOP((*_PREG), ox); \
@@ -255,7 +255,7 @@
       GONext();
 
 #define UNIFY_X_VAL_WRITE_INSTINIT \
-      *(*_SREG)++ = XREG((*_PREG)->y_u.ox.x); \
+      *(*_SREG)++ = XREG((*_PREG)->u.ox.x); \
       (*_PREG) = NEXTOP((*_PREG), ox); \
       GONextW();
 
@@ -266,7 +266,7 @@
       d0 = *pt0;
 
 #define UNIFY_L_X_VAL_ULVALX_NONVAR \
-      d1 = XREG((*_PREG)->y_u.ox.x);
+      d1 = XREG((*_PREG)->u.ox.x);
 
 #define UNIFY_L_X_VAL_ULVALX_NONVAR_NONVAR \
       BLOCK = (CELL)UNIFY_L_X_VAL_ULVALX_NONVAR_NONVAR; \
@@ -279,7 +279,7 @@
       GONext();
 
 #define UNIFY_L_X_VAL_ULVALX_UNK \
-      d1 = XREG((*_PREG)->y_u.ox.x);
+      d1 = XREG((*_PREG)->u.ox.x);
 
 #define UNIFY_L_X_VAL_ULVALX_VAR_NONVAR \
       (*_PREG) = NEXTOP((*_PREG), ox); \
@@ -292,7 +292,7 @@
       GONext();
 
 #define UNIFY_L_X_VAL_WRITE_INSTINIT \
-      (*_SREG)[0] = XREG((*_PREG)->y_u.ox.x); \
+      (*_SREG)[0] = XREG((*_PREG)->u.ox.x); \
       (*_PREG) = NEXTOP((*_PREG), ox); \
       GONext();
 
@@ -303,7 +303,7 @@
       d0 = *pt0;
 	
 #define UNIFY_Y_VAL_UVALY_NONVAR \
-      pt1 = YREG+(*_PREG)->y_u.oy.y; \
+      pt1 = YREG+(*_PREG)->u.oy.y; \
       d1 = *pt1;
 
 #define UNIFY_Y_VAL_UVALY_NONVAR_NONVAR \
@@ -319,7 +319,7 @@
       GONext();
 	  
 #define UNIFY_Y_VAL_UVALY_UNK \
-      pt1 = YREG+(*_PREG)->y_u.oy.y; \
+      pt1 = YREG+(*_PREG)->u.oy.y; \
       d1 = *pt1;
 
 #define UNIFY_Y_VAL_UVALY_VAR_NONVAR \
@@ -337,9 +337,9 @@
 #ifdef YAPOR_SBA
 #define UNIFY_Y_VAL_WRITE_INSTINIT \
       register CELL d0; \
-      d0 = YREG[(*_PREG)->y_u.oy.y]; \
+      d0 = YREG[(*_PREG)->u.oy.y]; \
       if (d0 == 0) \
-	*(*_SREG)++ = (CELL)(YREG+(*_PREG)->y_u.oy.y); \
+	*(*_SREG)++ = (CELL)(YREG+(*_PREG)->u.oy.y); \
       else \
 	*(*_SREG)++ = d0; \
       (*_PREG) = NEXTOP((*_PREG), oy); \
@@ -347,7 +347,7 @@
 #else /* YAPOR_SBA */
 #define UNIFY_Y_VAL_WRITE_INSTINIT \
       register CELL d0;  \
-      d0 = YREG[(*_PREG)->y_u.oy.y]; \
+      d0 = YREG[(*_PREG)->u.oy.y]; \
 	*(*_SREG)++ = d0; \
       (*_PREG) = NEXTOP((*_PREG), oy); \
       GONextW();
@@ -360,7 +360,7 @@
       d0 = *pt0;
 
 #define UNIFY_L_Y_VAL_ULVALY_NONVAR \
-      pt1 = YREG+(*_PREG)->y_u.oy.y; \
+      pt1 = YREG+(*_PREG)->u.oy.y; \
       d1 = *pt1;
 
 #define UNIFY_L_Y_VAL_ULVALY_NONVAR_NONVAR \
@@ -374,7 +374,7 @@
       GONext();
 
 #define UNIFY_L_Y_VAL_ULVALY_UNK \
-      pt1 = YREG+(*_PREG)->y_u.oy.y; \
+      pt1 = YREG+(*_PREG)->u.oy.y; \
       d1 = *pt1;
 
 #define UNIFY_L_Y_VAL_ULVALY_VAR_NONVAR \
@@ -390,9 +390,9 @@
 #ifdef YAPOR_SBA
 #define UNIFY_L_Y_VAL_WRITE_INSTINIT \
       register CELL d0; \
-      d0 = YREG[(*_PREG)->y_u.oy.y]; \
+      d0 = YREG[(*_PREG)->u.oy.y]; \
       if (d0 == 0) \
-	(*_SREG)[0] = (CELL)(YREG+(*_PREG)->y_u.oy.y); \
+	(*_SREG)[0] = (CELL)(YREG+(*_PREG)->u.oy.y); \
       else \
 	(*_SREG)[0] = d0; \
       (*_PREG) = NEXTOP((*_PREG), oy); \
@@ -400,7 +400,7 @@
 #else /* YAPOR_SBA */
 #define UNIFY_L_Y_VAL_WRITE_INSTINIT \
       register CELL d0; \
-      d0 = YREG[(*_PREG)->y_u.oy.y]; \
+      d0 = YREG[(*_PREG)->u.oy.y]; \
 	(*_SREG)[0] = d0; \
       (*_PREG) = NEXTOP((*_PREG), oy); \
       GONext();
@@ -413,7 +413,7 @@
       d0 = *pt0;
 
 #define UNIFY_X_LOC_UVALX_LOC_NONVAR \
-      d1 = XREG((*_PREG)->y_u.ox.x);
+      d1 = XREG((*_PREG)->u.ox.x);
 
 #define UNIFY_X_LOC_UVALX_LOC_NONVAR_NONVAR \
       BLOCK = (CELL)UNIFY_X_LOC_UVALX_LOC_NONVAR_NONVAR; \
@@ -428,7 +428,7 @@
       GONext();
 
 #define UNIFY_X_LOC_UVALX_LOC_UNK \
-      d1 = XREG((*_PREG)->y_u.ox.x);
+      d1 = XREG((*_PREG)->u.ox.x);
 
 #define UNIFY_X_LOC_UVALX_LOC_VAR_NONVAR \
       (*_PREG) = NEXTOP((*_PREG), ox); \
@@ -445,7 +445,7 @@
 #define UNIFY_X_LOC_WRITE_INSTINIT \
 	  register CELL d0; \
 	  register CELL *pt0; \
-      d0 = XREG((*_PREG)->y_u.ox.x);
+      d0 = XREG((*_PREG)->u.ox.x);
 
 #define UNIFY_X_LOC_WRITE_UNIFY_X_LOC_NONVAR \
       *(*_SREG)++ = d0; \
@@ -475,7 +475,7 @@
       d0 = *pt0;
 
 #define UNIFY_L_X_LOC_ULVALX_LOC_NONVAR \
-      d1 = XREG((*_PREG)->y_u.ox.x);
+      d1 = XREG((*_PREG)->u.ox.x);
 
 #define UNIFY_L_X_LOC_ULVALX_LOC_NONVAR_NONVAR \
       BLOCK = (CELL)UNIFY_L_X_LOC_ULVALX_LOC_NONVAR_NONVAR; \
@@ -488,7 +488,7 @@
       GONext();
 
 #define UNIFY_L_X_LOC_ULVALX_LOC_UNK \
-      d1 = XREG((*_PREG)->y_u.ox.x);
+      d1 = XREG((*_PREG)->u.ox.x);
 
 #define UNIFY_L_X_LOC_ULVALX_LOC_VAR_NONVAR \
       (*_PREG) = NEXTOP((*_PREG), ox); \
@@ -503,7 +503,7 @@
 #define UNIFY_L_X_LOC_WRITE_INSTINIT \
 	  register CELL d0, d1; \
 	  register CELL *pt0, *pt1; \
-      d0 = XREG((*_PREG)->y_u.ox.x);
+      d0 = XREG((*_PREG)->u.ox.x);
 
 #define UNIFY_L_X_LOC_WRITE_ULNIFY_X_LOC_NONVAR \
       (*_SREG)[0] = d0; \
@@ -529,7 +529,7 @@
       d0 = *pt0;
 
 #define UNIFY_Y_LOC_UVALY_LOC_NONVAR \
-      pt1 =  YREG+(*_PREG)->y_u.oy.y; \
+      pt1 =  YREG+(*_PREG)->u.oy.y; \
       d1 = *pt1;
 
 #define UNIFY_Y_LOC_UVALY_LOC_NONVAR_NONVAR \
@@ -545,7 +545,7 @@
       GONext();
 
 #define UNIFY_Y_LOC_UVALY_LOC_UNK \
-      pt1 = YREG+(*_PREG)->y_u.oy.y; \
+      pt1 = YREG+(*_PREG)->u.oy.y; \
       d1 = *pt1;
 
 #define UNIFY_Y_LOC_UVALY_LOC_VAR_NONVAR \
@@ -563,7 +563,7 @@
 #define UNIFY_Y_LOC_WRITE_INSTINIT \
 	  register CELL d0; \
 	  register CELL *pt0; \
-      pt0 = YREG+(*_PREG)->y_u.oy.y; \
+      pt0 = YREG+(*_PREG)->u.oy.y; \
       d0 = *pt0;
 
 #define UNIFY_Y_LOC_WRITE_UNIFY_Y_LOC_NONVAR \
@@ -594,7 +594,7 @@
       d0 = *pt0;
 
 #define UNIFY_L_Y_LOC_ULVALY_LOC_NONVAR \
-      pt1 = YREG+(*_PREG)->y_u.oy.y; \
+      pt1 = YREG+(*_PREG)->u.oy.y; \
       d1 = *pt1;
 
 #define UNIFY_L_Y_LOC_ULVALY_LOC_NONVAR_NONVAR \
@@ -608,7 +608,7 @@
       GONext();
 
 #define UNIFY_L_Y_LOC_ULVALY_LOC_UNK \
-      pt1 = YREG+(*_PREG)->y_u.oy.y; \
+      pt1 = YREG+(*_PREG)->u.oy.y; \
       d1 = *pt1;
 
 #define UNIFY_L_Y_LOC_ULVALY_LOC_VAR_NONVAR \
@@ -624,7 +624,7 @@
 #define UNIFY_L_Y_LOC_WRITE_INSTINIT \
 	  register CELL d0; \
 	  register CELL *pt0; \
-      pt0 = YREG+(*_PREG)->y_u.oy.y; \
+      pt0 = YREG+(*_PREG)->u.oy.y; \
       d0 = *pt0;
 
 #define UNIFY_L_Y_LOC_WRITE_ULUNIFY_Y_LOC_NONVAR \
@@ -673,14 +673,14 @@
       GONext();
 
 #define UNIFY_N_VOIDS_INSTINIT \
-      (*_SREG) += (*_PREG)->y_u.os.s; \
+      (*_SREG) += (*_PREG)->u.os.s; \
       (*_PREG) = NEXTOP((*_PREG), os); \
       GONext();
 
 #define UNIFY_N_VOIDS_WRITE_INSTINIT \
       register CELL d0; \
       CACHE_S(); \
-      d0 = (*_PREG)->y_u.os.s; \
+      d0 = (*_PREG)->u.os.s; \
       READ_IN_S(); \
       (*_PREG) = NEXTOP((*_PREG), os); \
       for (; d0 > 0; d0--) { \
@@ -697,7 +697,7 @@
 
 #define UNIFY_L_N_VOIDS_WRITE_INSTINIT \
       register CELL d0; \
-      d0 = (*_PREG)->y_u.os.s; \
+      d0 = (*_PREG)->u.os.s; \
       (*_PREG) = NEXTOP((*_PREG), os); \
       CACHE_S(); \
       READ_IN_S(); \
@@ -718,7 +718,7 @@
 #define UNIFY_ATOM_UATOM_NONVAR \
       BLOCK = (CELL)UNIFY_ATOM_UATOM_NONVAR; \
       FAILED = 0; \
-      if (d0 != (*_PREG)->y_u.oc.c) { \
+      if (d0 != (*_PREG)->u.oc.c) { \
 	YAAM_FAIL; \
       } \
 	  else { \
@@ -727,13 +727,13 @@
 	  }
 
 #define UNIFY_ATOM_UATOM_UNK \
-      d0 = (*_PREG)->y_u.oc.c; \
+      d0 = (*_PREG)->u.oc.c; \
       (*_PREG) = NEXTOP((*_PREG), oc); \
       Bind_Global(pt0, d0); \
       GONext();
 
 #define UNIFY_ATOM_WRITE_INSTINIT \
-      * (*_SREG)++ = (*_PREG)->y_u.oc.c; \
+      * (*_SREG)++ = (*_PREG)->u.oc.c; \
       (*_PREG) = NEXTOP((*_PREG), oc); \
       GONextW();
 
@@ -747,7 +747,7 @@
 #define UNIFY_L_ATOM_ULATOM_NONVAR \
       BLOCK = (CELL)UNIFY_L_ATOM_ULATOM_NONVAR; \
       FAILED = 0; \
-      if (d0 != (*_PREG)->y_u.oc.c) { \
+      if (d0 != (*_PREG)->u.oc.c) { \
 	YAAM_FAIL; \
       } \
 	  else { \
@@ -756,21 +756,21 @@
 	  }
 	  
 #define UNIFY_L_ATOM_ULATOM_UNK \
-      d0 = (*_PREG)->y_u.oc.c; \
+      d0 = (*_PREG)->u.oc.c; \
       (*_PREG) = NEXTOP((*_PREG), oc); \
       Bind_Global(pt0, d0); \
       GONext();
 
 #define UNIFY_L_ATOM_WRITE_INSTINIT \
-      (*_SREG)[0] = (*_PREG)->y_u.oc.c; \
+      (*_SREG)[0] = (*_PREG)->u.oc.c; \
       (*_PREG) = NEXTOP((*_PREG), oc); \
       GONext();
 
 #define UNIFY_N_ATOMS_INSTINIT \
-	register Int i = (*_PREG)->y_u.osc.s; \
+	register Int i = (*_PREG)->u.osc.s; \
 	register CELL d0, d1;  \
 	register CELL *pt0; \
-	d1 = (*_PREG)->y_u.osc.c; \
+	d1 = (*_PREG)->u.osc.c; \
 	for (; i > 0; i--) { \
 	  pt0 = (*_SREG)++; \
 	  d0 = *pt0; \
@@ -802,8 +802,8 @@
 
 #define UNIFY_N_ATOMS_WRITE_INSTINIT \
       register CELL d0, d1; \
-      d0 = (*_PREG)->y_u.osc.s; \
-      d1 = (*_PREG)->y_u.osc.c; \
+      d0 = (*_PREG)->u.osc.s; \
+      d1 = (*_PREG)->u.osc.c; \
       CACHE_S(); \
       READ_IN_S(); \
       (*_PREG) = NEXTOP((*_PREG), osc); \
@@ -825,20 +825,20 @@
       d0 = *pt0;
 
 #define UNIFY_FLOAT_UFLOAT_NONVAR_D0ISFUNCTOR \
-      pt1 = (*_PREG)->y_u.od.d; \
+      pt1 = (*_PREG)->u.od.d; \
       (*_PREG) = NEXTOP((*_PREG), od);
 
 #define UNIFY_FLOAT_UFLOAT_NONVAR_END \
       GONext();
 
 #define UNIFY_FLOAT_UFLOAT_UNK \
-      d1 = AbsAppl((*_PREG)->y_u.od.d); \
+      d1 = AbsAppl((*_PREG)->u.od.d); \
       (*_PREG) = NEXTOP((*_PREG), od); \
       Bind_Global(pt0, d1); \
       GONext();
 
 #define UNIFY_FLOAT_WRITE_INSTINIT \
-      * (*_SREG)++ = AbsAppl((*_PREG)->y_u.od.d); \
+      * (*_SREG)++ = AbsAppl((*_PREG)->u.od.d); \
       (*_PREG) = NEXTOP((*_PREG), od); \
       GONextW();
 
@@ -854,21 +854,21 @@
       d0 = *pt0;
 
 #define UNIFY_L_FLOAT_D0ISFUNC \
-      pt1 = (*_PREG)->y_u.od.d; \
+      pt1 = (*_PREG)->u.od.d; \
       (*_PREG) = NEXTOP((*_PREG), od);
 
 #define UNIFY_L_FLOAT_EQUALS \
       GONext();
 	  
 #define UNIFY_L_FLOAT_ULFLOAT_UNK \
-      d1 = AbsAppl((*_PREG)->y_u.od.d); \
+      d1 = AbsAppl((*_PREG)->u.od.d); \
       (*_PREG) = NEXTOP((*_PREG), od); \
       Bind_Global(S_SREG, d1); \
       GONext(); \
       ENDCACHE_S();
 
 #define UNIFY_L_FLOAT_WRITE_INSTINIT \
-      (*_SREG)[0] = AbsAppl((*_PREG)->y_u.od.d); \
+      (*_SREG)[0] = AbsAppl((*_PREG)->u.od.d); \
       (*_PREG) = NEXTOP((*_PREG), od); \
       GONext();
 
@@ -883,20 +883,20 @@
       d0 = *pt0;
 
 #define UNIFY_LONGINT_D0ISFUNC \
-      pt1 = (*_PREG)->y_u.oi.i; \
+      pt1 = (*_PREG)->u.oi.i; \
       (*_PREG) = NEXTOP((*_PREG), oi);
 
 #define UNIFY_LONGINT_EQUALS \
       GONext();
 
 #define UNIFY_LONGINT_ULONGINT_UNK \
-      d1 = AbsAppl((*_PREG)->y_u.oi.i); \
+      d1 = AbsAppl((*_PREG)->u.oi.i); \
       (*_PREG) = NEXTOP((*_PREG), oi); \
       Bind_Global(pt0, d1); \
       GONext();
 
 #define UNIFY_LONGINT_WRITE_INSTINIT \
-      * (*_SREG)++ = AbsAppl((*_PREG)->y_u.oi.i); \
+      * (*_SREG)++ = AbsAppl((*_PREG)->u.oi.i); \
       (*_PREG) = NEXTOP((*_PREG), oi); \
       GONextW();
 
@@ -912,20 +912,20 @@
       d0 = *pt0;
 
 #define UNIFY_L_LONGINT_D0ISFUNC \
-      pt1 = (*_PREG)->y_u.oi.i; \
+      pt1 = (*_PREG)->u.oi.i; \
       (*_PREG) = NEXTOP((*_PREG), oi);
 
 #define UNIFY_L_LONGINT_EQUALS \
       GONext();
 
 #define UNIFY_L_LONGINT_ULLONGINT_UNK \
-      d1 = AbsAppl((*_PREG)->y_u.oi.i); \
+      d1 = AbsAppl((*_PREG)->u.oi.i); \
       (*_PREG) = NEXTOP((*_PREG), oi); \
       Bind_Global(S_SREG, d1); \
       GONext();
 
 #define UNIFY_L_LONGINT_WRITE_INSTINIT \
-      (*_SREG)[0] = AbsAppl((*_PREG)->y_u.oi.i); \
+      (*_SREG)[0] = AbsAppl((*_PREG)->u.oi.i); \
       (*_PREG) = NEXTOP((*_PREG), oi); \
       GONext();
 
@@ -945,7 +945,7 @@
       GONext();
 
 #define UNIFY_BIGINT_UBIGINT_UNK \
-      d1 = (*_PREG)->y_u.oN.b; \
+      d1 = (*_PREG)->u.oN.b; \
       (*_PREG) = NEXTOP((*_PREG), oN); \
       Bind_Global(pt0, d1); \
       GONext();
@@ -968,7 +968,7 @@
       GONext();
 
 #define UNIFY_L_BIGINT_ULBIGINT_UNK \
-      d1 = (*_PREG)->y_u.oN.b; \
+      d1 = (*_PREG)->u.oN.b; \
       (*_PREG) = NEXTOP((*_PREG), oN); \
       Bind_Global(S_SREG, d1); \
       GONext(); \
@@ -983,12 +983,12 @@
 
 #define UNIFY_DBTERM_UDBTERM_NONVAR \
       BLOCK = (CELL)UNIFY_DBTERM_UDBTERM_NONVAR; \
-      d1 = (*_PREG)->y_u.oD.D; \
+      d1 = (*_PREG)->u.oD.D; \
       (*_PREG) = NEXTOP((*_PREG), oD); \
       YAAM_UNIFYBOUND;
 	  
 #define UNIFY_DBTERM_UDBTERM_UNK \
-      d1 = (*_PREG)->y_u.oD.D; \
+      d1 = (*_PREG)->u.oD.D; \
       (*_PREG) = NEXTOP((*_PREG), oD); \
       Bind_Global(pt0, d1); \
       GONext();
@@ -1002,12 +1002,12 @@
 
 #define UNIFY_L_DBTERM_ULDBTERM_NONVAR \
       BLOCK = (CELL)UNIFY_L_DBTERM_ULDBTERM_NONVAR; \
-      d1 = (*_PREG)->y_u.oD.D; \
+      d1 = (*_PREG)->u.oD.D; \
       (*_PREG) = NEXTOP((*_PREG), oD); \
       YAAM_UNIFYBOUND;
 
 #define UNIFY_L_DBTERM_ULDBTERM_UNK \
-      d1 = (*_PREG)->y_u.oD.D; \
+      d1 = (*_PREG)->u.oD.D; \
       (*_PREG) = NEXTOP((*_PREG), oD); \
       Bind_Global(S_SREG, d1); \
       GONext(); \
@@ -1129,7 +1129,7 @@
         CACHE_S(); \
         READ_IN_S(); \
         S_SREG = RepAppl(d0); \
-        d0 = (CELL) ((*_PREG)->y_u.ofa.f); \
+        d0 = (CELL) ((*_PREG)->u.ofa.f); \
         if (*S_SREG != d0) { \
 	  YAAM_FAIL; \
         } \
@@ -1146,9 +1146,9 @@
       d1 = AbsAppl(HR); \
       Bind_Global(pt0, d1); \
       pt0 = HR; \
-      d0 = (CELL) ((*_PREG)->y_u.ofa.f); \
+      d0 = (CELL) ((*_PREG)->u.ofa.f); \
       *pt0++ = d0; \
-      HR = pt0 + (*_PREG)->y_u.ofa.a; \
+      HR = pt0 + (*_PREG)->u.ofa.a; \
       (*_PREG) = NEXTOP((*_PREG), ofa); \
       (*_SREG) = pt0; \
       GONextW(); \
@@ -1163,9 +1163,9 @@
       d0 = AbsAppl(HR); \
       S_SREG[0] = d0; \
       S_SREG = HR; \
-      d0 = (CELL) ((*_PREG)->y_u.ofa.f); \
+      d0 = (CELL) ((*_PREG)->u.ofa.f); \
       *S_SREG++ = d0; \
-      HR = S_SREG + (*_PREG)->y_u.ofa.a; \
+      HR = S_SREG + (*_PREG)->u.ofa.a; \
       (*_PREG) = NEXTOP((*_PREG), ofa); \
       WRITEBACK_S(S_SREG); \
       ENDCACHE_S(); \
@@ -1186,7 +1186,7 @@
       } \
 	  else { \
         (*_SREG) = RepAppl(d0); \
-        d0 = (CELL) ((*_PREG)->y_u.ofa.f); \
+        d0 = (CELL) ((*_PREG)->u.ofa.f); \
         if (*(*_SREG)++ != d0) { \
 	  YAAM_FAIL; \
         } \
@@ -1201,9 +1201,9 @@
       d1 = AbsAppl(HR); \
       Bind_Global(pt0, d1); \
       pt0 = HR; \
-      d0 = (CELL) ((*_PREG)->y_u.ofa.f); \
+      d0 = (CELL) ((*_PREG)->u.ofa.f); \
       *pt0++ = d0; \
-      HR = pt0 + (*_PREG)->y_u.ofa.a; \
+      HR = pt0 + (*_PREG)->u.ofa.a; \
       (*_PREG) = NEXTOP((*_PREG), ofa); \
       (*_SREG) = pt0; \
       GONextW(); \
@@ -1216,51 +1216,51 @@
       READ_IN_S(); \
       S_SREG[0] = d0; \
       S_SREG = HR; \
-      d0 = (CELL) ((*_PREG)->y_u.ofa.f); \
+      d0 = (CELL) ((*_PREG)->u.ofa.f); \
       *S_SREG++ = d0; \
-      HR = S_SREG + (*_PREG)->y_u.ofa.a; \
+      HR = S_SREG + (*_PREG)->u.ofa.a; \
       (*_PREG) = NEXTOP((*_PREG), ofa); \
       WRITEBACK_S(S_SREG); \
       ENDCACHE_S(); \
       GONextW();
 
 #define SAVE_PAIR_X_INSTINIT \
-      XREG((*_PREG)->y_u.ox.x) = AbsPair((*_SREG)); \
+      XREG((*_PREG)->u.ox.x) = AbsPair((*_SREG)); \
       (*_PREG) = NEXTOP((*_PREG), ox); \
       GONext();
 
 #define SAVE_PAIR_X_WRITE_INSTINIT \
-      XREG((*_PREG)->y_u.ox.x) = AbsPair((*_SREG)); \
+      XREG((*_PREG)->u.ox.x) = AbsPair((*_SREG)); \
       (*_PREG) = NEXTOP((*_PREG), ox); \
       GONextW();
 
 #define SAVE_PAIR_Y_INSTINIT \
-      INITIALIZE_PERMVAR(YREG+(*_PREG)->y_u.oy.y,AbsPair((*_SREG))); \
+      INITIALIZE_PERMVAR(YREG+(*_PREG)->u.oy.y,AbsPair((*_SREG))); \
       (*_PREG) = NEXTOP((*_PREG), oy); \
       GONext();
 
 #define SAVE_PAIR_Y_WRITE_INSTINIT \
-      INITIALIZE_PERMVAR(YREG+(*_PREG)->y_u.oy.y,AbsPair((*_SREG))); \
+      INITIALIZE_PERMVAR(YREG+(*_PREG)->u.oy.y,AbsPair((*_SREG))); \
       (*_PREG) = NEXTOP((*_PREG), oy); \
       GONextW();
 
 #define SAVE_APPL_X_INSTINIT \
-      XREG((*_PREG)->y_u.ox.x) = AbsAppl((*_SREG) - 1); \
+      XREG((*_PREG)->u.ox.x) = AbsAppl((*_SREG) - 1); \
       (*_PREG) = NEXTOP((*_PREG), ox); \
       GONext();
 	  
 #define SAVE_APPL_X_WRITE_INSTINIT \
-      XREG((*_PREG)->y_u.ox.x) = AbsAppl((*_SREG) - 1); \
+      XREG((*_PREG)->u.ox.x) = AbsAppl((*_SREG) - 1); \
       (*_PREG) = NEXTOP((*_PREG), ox); \
       GONextW();
 
 #define SAVE_APPL_Y_INSTINIT \
-      INITIALIZE_PERMVAR(YREG+(*_PREG)->y_u.oy.y,AbsAppl((*_SREG)-1)); \
+      INITIALIZE_PERMVAR(YREG+(*_PREG)->u.oy.y,AbsAppl((*_SREG)-1)); \
       (*_PREG) = NEXTOP((*_PREG), oy); \
       GONext();
 
 #define SAVE_APPL_Y_WRITE_INSTINIT \
-      INITIALIZE_PERMVAR(YREG+(*_PREG)->y_u.oy.y,AbsAppl((*_SREG)-1)); \
+      INITIALIZE_PERMVAR(YREG+(*_PREG)->u.oy.y,AbsAppl((*_SREG)-1)); \
       (*_PREG) = NEXTOP((*_PREG), oy); \
       GONextW();
 
