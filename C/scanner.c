@@ -837,14 +837,12 @@ get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, in
   GET_LD
   char *sp = s;
   int ch = *chp;
-  Int val = 0L;
-  int  base = ch-'0';
-  bool might_be_float = true, has_overflow = false;
+  Int val = 0L, base = ch - '0';
+  int might_be_float = TRUE, has_overflow = FALSE;
   const unsigned char *decimalpoint;
 
   *sp++ = ch;
   ch = getchr(inp_stream);
-
   /*
    * because of things like 00'2, 03'2 and even better 12'2, I need to
    * do this (have mercy) 
@@ -854,97 +852,103 @@ get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, in
     if (--max_size == 0) {
       return num_send_error_message("Number Too Long");
     }
-    base = base*10+ ch - '0';
+    base = 10 * base + ch - '0';
     ch = getchr(inp_stream);
   }
-  if (base == 0) {
-    if (ch <= '9' && ch >= '0') {
-      *sp++ = ch;
-      val = base;
-      base = 10;
-      // go scan a number
-    } else if (ch == '\'') {
-      int scan_extra;
-      wchar_t ascii;
+  if (ch == '\'') {
+    if (base > 36) {
+      return num_send_error_message("Admissible bases are 0..36");
+    }
+    might_be_float = FALSE;
+    if (--max_size == 0) {
+      return num_send_error_message("Number Too Long");
+    }
+    *sp++ = ch;
+    ch = getchr(inp_stream);
+    if (base == 0) {
+      wchar_t ascii = ch;
+      int scan_extra = TRUE;
 
-      ch = getchr(inp_stream);
       if (ch == '\\' &&
 	  Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
-	/* a quick way to represent ASCII */
 	ascii = read_quoted_char(&scan_extra, inp_stream);
-      } else {
-	ascii = ch;
       }
-      ch = getchr(inp_stream);
-      *chp = ch;
+      /* a quick way to represent ASCII */
+      if (scan_extra)
+	*chp = getchr(inp_stream);
       if (sign == -1) {
 	return MkIntegerTerm(-ascii);
       }
       return MkIntegerTerm(ascii);
-    } else {
-      switch (ch) {
-      case 'b':
-	base = 2;
+    } else if (base >= 10 && base <= 36) {
+      int upper_case = 'A' - 11 + base;
+      int lower_case = 'a' - 11 + base;
+
+      while (my_isxdigit(ch, upper_case, lower_case)) {
+	Int oval = val;
+	int chval = (chtype(ch) == NU ? ch - '0' :
+		     (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
+	if (--max_size == 0) {
+	  return num_send_error_message("Number Too Long");
+	}
+	*sp++ = ch;
+	val = oval * base + chval;
+	if (oval != (val-chval)/base) /* overflow */
+	  has_overflow = (has_overflow || TRUE);
 	ch = getchr(inp_stream);
-	break;
-      case 'o':
-	base = 8;
-	ch = getchr(inp_stream);
-	break;
-      case 'x':
-	base = 16;
-	ch = getchr(inp_stream);
-	break;
-      default:
-	/* floating point */
-	base =   10;
       }
     }
-  } else {
-    /* base > 0, must be a number */
-    if (ch == '\'') {
+  } else if (ch == 'x' && base == 0) {
+    might_be_float = FALSE;
+    if (--max_size == 0) {
+      return num_send_error_message("Number Too Long");
+    }
+    *sp++ = ch;
+    ch = getchr(inp_stream);
+    while (my_isxdigit(ch, 'F', 'f')) {
+      Int oval = val;
+      int chval = (chtype(ch) == NU ? ch - '0' :
+		   (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
       if (--max_size == 0) {
 	return num_send_error_message("Number Too Long");
-      } 
-      sp = s;
+      }
+      *sp++ = ch;
+      val = val * 16 + chval;
+      if (oval != (val-chval)/16) /* overflow */
+	has_overflow = TRUE;
       ch = getchr(inp_stream);
-    } else {
-      val = base;
-      base = 10;
     }
+    *chp = ch;
   }
-  if (base <= 10) {
-    // do this fast, it is most important */
-    while ( ch >= '0' && ch <= base+('0'- 1)) {
-      Int oval = val;
-      if (!has_overflow) {
-	val = val * base + ch - '0';
-	if (val/base != oval || val -oval*base != ch-'0') /* overflow */
-	  has_overflow = true;
-      }
-      *sp++ = ch;
-      if (--max_size == 0) {
-	return num_send_error_message("Number Too Long");
-      }
-      ch = getchr(inp_stream);
-    }
+  else if (ch == 'o' && base == 0) {
+    might_be_float = FALSE;
+    base = 8;
+    ch = getchr(inp_stream);
+  } else if (ch == 'b' && base == 0) {
+    might_be_float = FALSE;
+    base = 2;
+    ch = getchr(inp_stream);
   } else {
-    while (chtype(ch) == NU ||my_isxdigit(ch, 'a'+(base-10), 'A'+(base-10))) {
-      Int oval = val;
-      if (!has_overflow) {
-	int dig =
-	  (ch >= '0' && ch <= '9' ? ch - '0' :
-	   ch >= 'a' ? ch +10 - 'a' : ch+10-'A' );
-	val = val * base + dig;
-	if (val/base != oval || val -oval*base != dig) /* overflow */
-	  has_overflow = true;
-      }
-      *sp++ = ch;
+    val = base;
+    base = 10;
+  }
+  while (chtype(ch) == NU) {
+    Int oval = val;
+    if (!(val == 0 && ch == '0') || has_overflow) {
       if (--max_size == 0) {
 	return num_send_error_message("Number Too Long");
       }
-      ch = getchr(inp_stream);
+      *sp++ = ch;
     }
+    if (ch - '0' >= base) {
+      if (sign == -1)
+	return MkIntegerTerm(-val);
+      return MkIntegerTerm(val);
+    }
+    val = val * base + ch - '0';
+    if (val/base != oval || val -oval*base != ch-'0') /* overflow */
+      has_overflow = TRUE;
+    ch = getchr(inp_stream);
   }
   if (might_be_float && ( ch == '.'  || ch == 'e' || ch == 'E')) {
     int has_dot = ( ch == '.' );
@@ -1024,7 +1028,7 @@ get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, in
     *sp = '\0';
     /* skip base */
     *chp = ch;
-    if (s[0] == '0' && (s[1] == 'x'|| s[1] == 'X'))
+    if (s[0] == '0' && s[1] == 'x')
       return read_int_overflow(s+2,16,val,sign);
     else if (s[0] == '0' && s[1] == 'o')
       return read_int_overflow(s+2,8,val,sign);

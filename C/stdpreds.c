@@ -827,41 +827,52 @@ static Int cont_current_predicate(USES_REGS1) {
   Functor f;
 
   if (IsNonVarTerm(t1)) {
-    PropEntry *p = AddressOfTerm(EXTRA_CBACK_ARG(4, 1)), *p0 = p;
-    PropEntry *q = AddressOfTerm(EXTRA_CBACK_ARG(4, 2)), *q0 = q;
-    PredEntry *pp0;
-    if (q) pp0 = RepPredProp(q);
-    else pp0 = RepPredProp(p);
-    while (!pp  && p ) {
-      if ( p->KindOfPE == PEProp && p != p0) {
-	pp = RepPredProp(p);
-	q = NULL;
-      } else if ( p->KindOfPE == FunctorProperty ) {
-	if (q0) {
-	  q = q0->NextOfPE;
-	  q0 = NULL;
-	} else {
-	  q = RepFunctorProp(p)->PropsOfFE;
-	}
-	while (!pp && q ) {
-	  if  ( q->KindOfPE == PEProp )
-	    pp = RepPredProp(q);
-	  else
-	    q = q->NextOfPE;
-	}
-	if (!q)
-	  p = p->NextOfPE;
-      } else {
-	p = p->NextOfPE;
+    PropEntry *p = AddressOfTerm(EXTRA_CBACK_ARG(4, 1));
+    PropEntry *q = AddressOfTerm(EXTRA_CBACK_ARG(4, 2));
+    // restart inner loop
+    for (; q; q = q->NextOfPE) {
+      if (q->KindOfPE == PEProp) {
+        pp = RepPredProp(q);
+        q = q->NextOfPE;
+        if (q == NIL)
+          p = p->NextOfPE;
+        if (!p)
+          is_det = true;
+        // we are done with this loop.
+        break;
+      }
+    }
+    if (!pp && p) {
+      // try using outer loop
+      for (; p; p = p->NextOfPE) {
+        if (p->KindOfPE == PEProp) {
+          q = NULL;
+          pp = RepPredProp(p);
+          p = p->NextOfPE;
+          if (!p)
+            is_det = true;
+          break;
+        } else if (p->KindOfPE == FunctorProperty) {
+          // looping on p/n
+          for (q = RepFunctorProp(p)->PropsOfFE; q; q = q->NextOfPE) {
+            if (q->KindOfPE == PEProp) {
+              pp = RepPredProp(q);
+              q = q->NextOfPE;
+              if (!q && !p->NextOfPE)
+                is_det = true;
+              break;
+            }
+          }
+          break;
+        }
       }
     }
     if (pp == NULL) // nothing more
-      is_det = true;
+      cut_fail();
     if (!is_det) {
       EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(p);
       EXTRA_CBACK_ARG(4, 2) = MkAddressTerm(q);
     }
-    pp = pp0;
   } else if (IsNonVarTerm(t2)) {
     // operating within the same module.
     PredEntry *npp;
@@ -1003,25 +1014,12 @@ static Int init_current_predicate(USES_REGS1) {
       cut_fail();
     } else {
       PropEntry *p = RepAtom(AtomOfTerm(t1))->PropsOfAE, *q = NIL;
-      while (!pp  && p ) {
-	if ( p->KindOfPE == PEProp ) {
-	  pp = RepPredProp(p);
-	} else if ( p->KindOfPE == FunctorProperty ) {
-	  q = RepFunctorProp(p)->PropsOfFE;
-	  while (!pp && q ) {
-	    if  ( q->KindOfPE == PEProp )
-	      pp = RepPredProp(q);
-	    else
-	      q = q->NextOfPE;
-	  }
-	  if (!q)
-	    p = p->NextOfPE;
-	} else {
-	  p = p->NextOfPE;
-	}
+      while (p && p->KindOfPE == FunctorProperty &&
+             (q = RepFunctorProp(p)->PropsOfFE) == NIL) {
+        p = p->NextOfPE;
       }
-      if (!pp)
-	cut_fail();
+      if (!p)
+        cut_fail();
       EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(p);
       EXTRA_CBACK_ARG(4, 2) = MkAddressTerm(q);
     }
@@ -1197,7 +1195,7 @@ static Int p_flags(USES_REGS1) { /* $flags(+Functor,+Mod,?OldFlags,?NewFlags) */
   if (EndOfPAEntr(pe))
     return (FALSE);
   PELOCK(92, pe);
-  if (!Yap_unify_constant(ARG3, Yap_MkInt64Term(pe->PredFlags))) {
+  if (!Yap_unify_constant(ARG3, MkIntegerTerm(pe->PredFlags))) {
     UNLOCK(pe->PELock);
     return (FALSE);
   }
@@ -1205,18 +1203,18 @@ static Int p_flags(USES_REGS1) { /* $flags(+Functor,+Mod,?OldFlags,?NewFlags) */
   if (IsVarTerm(ARG4)) {
     UNLOCK(pe->PELock);
     return (TRUE);
-  } else if (!IsInt64Term(ARG4)) {
+  } else if (!IsIntegerTerm(ARG4)) {
     Term te = Yap_Eval(ARG4);
 
-    if (IsInt64Term(te)) {
-      newFl = Yap_Int64OfTerm(te);
+    if (IsIntegerTerm(te)) {
+      newFl = IntegerOfTerm(te);
     } else {
       UNLOCK(pe->PELock);
       Yap_Error(TYPE_ERROR_INTEGER, ARG4, "flags");
       return (FALSE);
     }
   } else
-    newFl = Yap_Int64OfTerm(ARG4);
+    newFl = IntegerOfTerm(ARG4);
   pe->PredFlags = newFl;
   UNLOCK(pe->PELock);
   return TRUE;
@@ -1270,7 +1268,7 @@ static Int
   if (IsVarTerm(ARG4)) {
     UNLOCK(pe->PELock);
     return (FALSE);
-  } else if (!IsInt64Term(v)) {
+  } else if (!IsIntTerm(v)) {
     Yap_Error(TYPE_ERROR_ATOM, v, "set_property/1");
     return (FALSE);
   }

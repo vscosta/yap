@@ -4,7 +4,7 @@
 #ifdef YAPOR_SBA
 #define _call_cpred_instinit \
       check_trail(TR); \
-      if (!((*_PREG)->y_u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
+      if (!((*_PREG)->u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
 	CACHE_Y_AS_ENV(YREG); \
 	check_stack_on_call; \
 	ENDCACHE_Y_AS_ENV(); \
@@ -15,13 +15,13 @@
 	if (YREG > (CELL *) top_b || YREG < HR) \
 	    ASP = (CELL *)top_b; \
 	else \
-	    ASP = (CELL *)(((char *)YREG) +  (*_PREG)->y_u.Osbpp.s); \
+	    ASP = (CELL *)(((char *)YREG) +  (*_PREG)->u.Osbpp.s); \
       } \
       if (Yap_do_low_level_trace) { \
-	low_level_trace(enter_pred,(*_PREG)->y_u.Osbpp.p,XREGS+1); \
+	low_level_trace(enter_pred,(*_PREG)->u.Osbpp.p,XREGS+1); \
       } \
       BEGD(d0); \
-      CPredicate f = (*_PREG)->y_u.Osbpp.p->cs.f_code; \
+      CPredicate f = (*_PREG)->u.Osbpp.p->cs.f_code; \
       (*_PREG) = NEXTOP((*_PREG), Osbpp); \
       saveregs(); \
       d0 = (f)(PASS_REGS1); \
@@ -36,7 +36,7 @@
 #else /* YAPOR_SBA */
 #define _call_cpred_instinit \
       check_trail(TR); \
-      if (!((*_PREG)->y_u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
+      if (!((*_PREG)->u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
 	CACHE_Y_AS_ENV(YREG); \
 	check_stack_on_call; \
 	ENDCACHE_Y_AS_ENV(); \
@@ -47,13 +47,13 @@
 	if (YREG > (CELL *) top_b) \
 	    ASP = (CELL *)top_b; \
 	else \
-	    ASP = (CELL *)(((char *)YREG) +  (*_PREG)->y_u.Osbpp.s); \
+	    ASP = (CELL *)(((char *)YREG) +  (*_PREG)->u.Osbpp.s); \
       } \
       if (Yap_do_low_level_trace) { \
-	low_level_trace(enter_pred,(*_PREG)->y_u.Osbpp.p,XREGS+1); \
+	low_level_trace(enter_pred,(*_PREG)->u.Osbpp.p,XREGS+1); \
       } \
       BEGD(d0); \
-      CPredicate f = (*_PREG)->y_u.Osbpp.p->cs.f_code; \
+      CPredicate f = (*_PREG)->u.Osbpp.p->cs.f_code; \
       (*_PREG) = NEXTOP((*_PREG), Osbpp); \
       saveregs(); \
       d0 = (f)(PASS_REGS1); \
@@ -69,17 +69,17 @@
 #else /* FROZEN_STACKS */
 #define _call_cpred_instinit \
       check_trail(TR); \
-      if (!((*_PREG)->y_u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
+      if (!((*_PREG)->u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
 	CACHE_Y_AS_ENV(YREG); \
 	check_stack_on_call; \
 	ENDCACHE_Y_AS_ENV(); \
       } \
-      SET_ASP(YREG, (*_PREG)->y_u.Osbpp.s); \
+      SET_ASP(YREG, (*_PREG)->u.Osbpp.s); \
       if (Yap_do_low_level_trace) { \
-	low_level_trace(enter_pred,(*_PREG)->y_u.Osbpp.p,XREGS+1); \
+	low_level_trace(enter_pred,(*_PREG)->u.Osbpp.p,XREGS+1); \
       } \
       BEGD(d0); \
-      CPredicate f = (*_PREG)->y_u.Osbpp.p->cs.f_code; \
+      CPredicate f = (*_PREG)->u.Osbpp.p->cs.f_code; \
       (*_PREG) = NEXTOP((*_PREG), Osbpp); \
       saveregs(); \
       d0 = (f)(PASS_REGS1); \
@@ -97,7 +97,7 @@
 #ifdef YAPOR_SBA
 #define _call_cpred_instinit \
       check_trail(TR); \
-      if (!((*_PREG)->y_u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
+      if (!((*_PREG)->u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
 	CACHE_Y_AS_ENV(YREG); \
 	check_stack_on_call; \
 	ENDCACHE_Y_AS_ENV(); \
@@ -108,10 +108,10 @@
 	if (YREG > (CELL *) top_b || YREG < HR) \
 	    ASP = (CELL *)top_b; \
 	else \
-	    ASP = (CELL *)(((char *)YREG) +  (*_PREG)->y_u.Osbpp.s); \
+	    ASP = (CELL *)(((char *)YREG) +  (*_PREG)->u.Osbpp.s); \
       } \
       BEGD(d0); \
-      CPredicate f = (*_PREG)->y_u.Osbpp.p->cs.f_code; \
+      CPredicate f = (*_PREG)->u.Osbpp.p->cs.f_code; \
       (*_PREG) = NEXTOP((*_PREG), Osbpp); \
       saveregs(); \
       d0 = (f)(PASS_REGS1); \
@@ -126,7 +126,7 @@
 #else /* YAPOR_SBA */
 #define _call_cpred_instinit \
       check_trail(TR); \
-      if (!((*_PREG)->y_u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
+      if (!((*_PREG)->u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
 	CACHE_Y_AS_ENV(YREG); \
 	check_stack_on_call; \
 	ENDCACHE_Y_AS_ENV(); \
@@ -137,10 +137,10 @@
 	if (YREG > (CELL *) top_b) \
 	    ASP = (CELL *)top_b; \
 	else \
-	    ASP = (CELL *)(((char *)YREG) +  (*_PREG)->y_u.Osbpp.s); \
+	    ASP = (CELL *)(((char *)YREG) +  (*_PREG)->u.Osbpp.s); \
       } \
       BEGD(d0); \
-      CPredicate f = (*_PREG)->y_u.Osbpp.p->cs.f_code; \
+      CPredicate f = (*_PREG)->u.Osbpp.p->cs.f_code; \
       (*_PREG) = NEXTOP((*_PREG), Osbpp); \
       saveregs(); \
       d0 = (f)(PASS_REGS1); \
@@ -156,14 +156,14 @@
 #else /* FROZEN_STACKS */
 #define _call_cpred_instinit \
       check_trail(TR); \
-      if (!((*_PREG)->y_u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
+      if (!((*_PREG)->u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
 	CACHE_Y_AS_ENV(YREG); \
 	check_stack_on_call; \
 	ENDCACHE_Y_AS_ENV(); \
       } \
-      SET_ASP(YREG, (*_PREG)->y_u.Osbpp.s); \
+      SET_ASP(YREG, (*_PREG)->u.Osbpp.s); \
       BEGD(d0); \
-      CPredicate f = (*_PREG)->y_u.Osbpp.p->cs.f_code; \
+      CPredicate f = (*_PREG)->u.Osbpp.p->cs.f_code; \
       (*_PREG) = NEXTOP((*_PREG), Osbpp); \
       saveregs(); \
       d0 = (f)(PASS_REGS1); \
@@ -183,7 +183,7 @@
 #ifdef YAPOR_SBA
 #define _call_cpred_instinit \
       check_trail(TR); \
-      if (!((*_PREG)->y_u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
+      if (!((*_PREG)->u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
 	CACHE_Y_AS_ENV(YREG); \
 	check_stack_on_call; \
 	ENDCACHE_Y_AS_ENV(); \
@@ -194,13 +194,13 @@
 	if (YREG > (CELL *) top_b || YREG < HR) \
 	    ASP = (CELL *)top_b; \
 	else \
-	    ASP = (CELL *)(((char *)YREG) +  (*_PREG)->y_u.Osbpp.s); \
+	    ASP = (CELL *)(((char *)YREG) +  (*_PREG)->u.Osbpp.s); \
       } \
       if (Yap_do_low_level_trace) { \
-	low_level_trace(enter_pred,(*_PREG)->y_u.Osbpp.p,XREGS+1); \
+	low_level_trace(enter_pred,(*_PREG)->u.Osbpp.p,XREGS+1); \
       } \
       BEGD(d0); \
-      CPredicate f = (*_PREG)->y_u.Osbpp.p->cs.f_code; \
+      CPredicate f = (*_PREG)->u.Osbpp.p->cs.f_code; \
       (*_PREG) = NEXTOP((*_PREG), Osbpp); \
       saveregs(); \
       d0 = (f)(PASS_REGS1); \
@@ -214,7 +214,7 @@
 #else /* YAPOR_SBA */
 #define _call_cpred_instinit \
       check_trail(TR); \
-      if (!((*_PREG)->y_u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
+      if (!((*_PREG)->u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
 	CACHE_Y_AS_ENV(YREG); \
 	check_stack_on_call; \
 	ENDCACHE_Y_AS_ENV(); \
@@ -225,13 +225,13 @@
 	if (YREG > (CELL *) top_b) \
 	    ASP = (CELL *)top_b; \
 	else \
-	    ASP = (CELL *)(((char *)YREG) +  (*_PREG)->y_u.Osbpp.s); \
+	    ASP = (CELL *)(((char *)YREG) +  (*_PREG)->u.Osbpp.s); \
       } \
       if (Yap_do_low_level_trace) { \
-	low_level_trace(enter_pred,(*_PREG)->y_u.Osbpp.p,XREGS+1); \
+	low_level_trace(enter_pred,(*_PREG)->u.Osbpp.p,XREGS+1); \
       } \
       BEGD(d0); \
-      CPredicate f = (*_PREG)->y_u.Osbpp.p->cs.f_code; \
+      CPredicate f = (*_PREG)->u.Osbpp.p->cs.f_code; \
       (*_PREG) = NEXTOP((*_PREG), Osbpp); \
       saveregs(); \
       d0 = (f)(PASS_REGS1); \
@@ -246,17 +246,17 @@
 #else /* FROZEN_STACKS */
 #define _call_cpred_instinit \
       check_trail(TR); \
-      if (!((*_PREG)->y_u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
+      if (!((*_PREG)->u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
 	CACHE_Y_AS_ENV(YREG); \
 	check_stack_on_call; \
 	ENDCACHE_Y_AS_ENV(); \
       } \
-      SET_ASP(YREG, (*_PREG)->y_u.Osbpp.s); \
+      SET_ASP(YREG, (*_PREG)->u.Osbpp.s); \
       if (Yap_do_low_level_trace) { \
-	low_level_trace(enter_pred,(*_PREG)->y_u.Osbpp.p,XREGS+1); \
+	low_level_trace(enter_pred,(*_PREG)->u.Osbpp.p,XREGS+1); \
       } \
       BEGD(d0); \
-      CPredicate f = (*_PREG)->y_u.Osbpp.p->cs.f_code; \
+      CPredicate f = (*_PREG)->u.Osbpp.p->cs.f_code; \
       (*_PREG) = NEXTOP((*_PREG), Osbpp); \
       saveregs(); \
       d0 = (f)(PASS_REGS1); \
@@ -273,7 +273,7 @@
 #ifdef YAPOR_SBA
 #define _call_cpred_instinit \
       check_trail(TR); \
-      if (!((*_PREG)->y_u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
+      if (!((*_PREG)->u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
 	CACHE_Y_AS_ENV(YREG); \
 	check_stack_on_call; \
 	ENDCACHE_Y_AS_ENV(); \
@@ -284,10 +284,10 @@
 	if (YREG > (CELL *) top_b || YREG < HR) \
 	    ASP = (CELL *)top_b; \
 	else \
-	    ASP = (CELL *)(((char *)YREG) +  (*_PREG)->y_u.Osbpp.s); \
+	    ASP = (CELL *)(((char *)YREG) +  (*_PREG)->u.Osbpp.s); \
       } \
       BEGD(d0); \
-      CPredicate f = (*_PREG)->y_u.Osbpp.p->cs.f_code; \
+      CPredicate f = (*_PREG)->u.Osbpp.p->cs.f_code; \
       (*_PREG) = NEXTOP((*_PREG), Osbpp); \
       saveregs(); \
       d0 = (f)(PASS_REGS1); \
@@ -301,7 +301,7 @@
 #else /* YAPOR_SBA */
 #define _call_cpred_instinit \
       check_trail(TR); \
-      if (!((*_PREG)->y_u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
+      if (!((*_PREG)->u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
 	CACHE_Y_AS_ENV(YREG); \
 	check_stack_on_call; \
 	ENDCACHE_Y_AS_ENV(); \
@@ -312,10 +312,10 @@
 	if (YREG > (CELL *) top_b) \
 	    ASP = (CELL *)top_b; \
 	else \
-	    ASP = (CELL *)(((char *)YREG) +  (*_PREG)->y_u.Osbpp.s); \
+	    ASP = (CELL *)(((char *)YREG) +  (*_PREG)->u.Osbpp.s); \
       } \
       BEGD(d0); \
-      CPredicate f = (*_PREG)->y_u.Osbpp.p->cs.f_code; \
+      CPredicate f = (*_PREG)->u.Osbpp.p->cs.f_code; \
       (*_PREG) = NEXTOP((*_PREG), Osbpp); \
       saveregs(); \
       d0 = (f)(PASS_REGS1); \
@@ -330,14 +330,14 @@
 #else /* FROZEN_STACKS */
 #define _call_cpred_instinit \
       check_trail(TR); \
-      if (!((*_PREG)->y_u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
+      if (!((*_PREG)->u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) { \
 	CACHE_Y_AS_ENV(YREG); \
 	check_stack_on_call; \
 	ENDCACHE_Y_AS_ENV(); \
       } \
-      SET_ASP(YREG, (*_PREG)->y_u.Osbpp.s); \
+      SET_ASP(YREG, (*_PREG)->u.Osbpp.s); \
       BEGD(d0); \
-      CPredicate f = (*_PREG)->y_u.Osbpp.p->cs.f_code; \
+      CPredicate f = (*_PREG)->u.Osbpp.p->cs.f_code; \
       (*_PREG) = NEXTOP((*_PREG), Osbpp); \
       saveregs(); \
       d0 = (f)(PASS_REGS1); \
@@ -373,7 +373,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -396,7 +396,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -434,7 +434,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -457,7 +457,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -488,7 +488,7 @@
 	BEGD(d0); \
 	CACHE_Y_AS_ENV(YREG); \
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -511,7 +511,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -552,7 +552,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -563,7 +563,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -600,7 +600,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -611,7 +611,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -641,7 +641,7 @@
 	BEGD(d0); \
 	CACHE_Y_AS_ENV(YREG); \
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -652,7 +652,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -694,7 +694,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -718,7 +718,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -756,7 +756,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -780,7 +780,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -811,7 +811,7 @@
 	BEGD(d0); \
 	CACHE_Y_AS_ENV(YREG); \
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -835,7 +835,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -876,7 +876,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -888,7 +888,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -925,7 +925,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -937,7 +937,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -967,7 +967,7 @@
 	BEGD(d0); \
 	CACHE_Y_AS_ENV(YREG); \
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -979,7 +979,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -1023,7 +1023,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -1046,7 +1046,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -1083,7 +1083,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -1106,7 +1106,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -1136,7 +1136,7 @@
 	BEGD(d0); \
 	CACHE_Y_AS_ENV(YREG); \
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -1159,7 +1159,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -1199,7 +1199,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -1210,7 +1210,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -1246,7 +1246,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -1257,7 +1257,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -1286,7 +1286,7 @@
 	BEGD(d0); \
 	CACHE_Y_AS_ENV(YREG); \
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -1297,7 +1297,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -1338,7 +1338,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -1362,7 +1362,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -1399,7 +1399,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -1423,7 +1423,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -1453,7 +1453,7 @@
 	BEGD(d0); \
 	CACHE_Y_AS_ENV(YREG); \
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -1477,7 +1477,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -1517,7 +1517,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -1529,7 +1529,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -1565,7 +1565,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -1577,7 +1577,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -1606,7 +1606,7 @@
 	BEGD(d0); \
 	CACHE_Y_AS_ENV(YREG); \
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	if (Yap_do_low_level_trace) { \
 	  low_level_trace(enter_pred,pt0,XREGS+1); \
 	} \
@@ -1618,7 +1618,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -1663,7 +1663,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -1683,7 +1683,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -1721,7 +1721,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -1741,7 +1741,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -1772,7 +1772,7 @@
 	BEGD(d0); \
 	CACHE_Y_AS_ENV(YREG); \
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -1792,7 +1792,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -1833,7 +1833,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -1841,7 +1841,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -1878,7 +1878,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -1886,7 +1886,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -1916,7 +1916,7 @@
 	BEGD(d0); \
 	CACHE_Y_AS_ENV(YREG); \
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -1924,7 +1924,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -1966,7 +1966,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -1987,7 +1987,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -2025,7 +2025,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -2046,7 +2046,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -2077,7 +2077,7 @@
 	BEGD(d0); \
 	CACHE_Y_AS_ENV(YREG); \
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -2098,7 +2098,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -2139,7 +2139,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -2148,7 +2148,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -2185,7 +2185,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -2194,7 +2194,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -2224,7 +2224,7 @@
 	BEGD(d0); \
 	CACHE_Y_AS_ENV(YREG); \
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -2233,7 +2233,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -2277,7 +2277,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -2297,7 +2297,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -2334,7 +2334,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -2354,7 +2354,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -2384,7 +2384,7 @@
 	BEGD(d0); \
 	CACHE_Y_AS_ENV(YREG); \
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -2404,7 +2404,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -2444,7 +2444,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -2452,7 +2452,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -2488,7 +2488,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -2496,7 +2496,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -2525,7 +2525,7 @@
 	BEGD(d0); \
 	CACHE_Y_AS_ENV(YREG); \
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -2533,7 +2533,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -2574,7 +2574,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -2595,7 +2595,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -2632,7 +2632,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -2653,7 +2653,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -2683,7 +2683,7 @@
 	BEGD(d0); \
 	CACHE_Y_AS_ENV(YREG); \
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -2704,7 +2704,7 @@
 	  DEPTH -= MkIntConstant(2); \
 	} \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -2744,7 +2744,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -2753,7 +2753,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -2789,7 +2789,7 @@
         ASP = YREG+E_CB; \
 	  } \
 	} \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -2798,7 +2798,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -2827,7 +2827,7 @@
 	BEGD(d0); \
 	CACHE_Y_AS_ENV(YREG); \
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
-	pt0 = (*_PREG)->y_u.pp.p; \
+	pt0 = (*_PREG)->u.pp.p; \
 	CACHE_A1(); \
 	BEGD(d0); \
 	d0 = (CELL)B; \
@@ -2836,7 +2836,7 @@
 	ENV_YREG[E_CB] = d0; \
 	ENDD(d0); \
 	{ \
-	  CPredicate f = (*_PREG)->y_u.pp.p->cs.f_code; \
+	  CPredicate f = (*_PREG)->u.pp.p->cs.f_code; \
 	  yamop *oldPREG = (*_PREG); \
 	  saveregs(); \
 	  d0 = (f)(PASS_REGS1); \
@@ -2870,21 +2870,21 @@
       check_stack_on_call; \
       ENDCACHE_Y_AS_ENV(); \
 	if (Yap_do_low_level_trace) { \
-	  low_level_trace(enter_pred,(*_PREG)->y_u.Osbpp.p,XREGS+1); \
+	  low_level_trace(enter_pred,(*_PREG)->u.Osbpp.p,XREGS+1); \
 	} \
       { \
 	choiceptr top_b = PROTECT_FROZEN_B(B); \
 	if (YREG > (CELL *) top_b || YREG < HR) \
 	  ASP = (CELL *) top_b; \
 	else \
-      ASP = (CELL *)(((char *)YREG) +  (*_PREG)->y_u.Osbpp.s); \
+      ASP = (CELL *)(((char *)YREG) +  (*_PREG)->u.Osbpp.s); \
       } \
       { \
 	yamop *savedP; \
 	Yap_StartSlots( PASS_REGS1 ); \
 	LOCAL_PrologMode = UserCCallMode; \
 	{ \
-	  PredEntry *p = (*_PREG)->y_u.Osbpp.p; \
+	  PredEntry *p = (*_PREG)->u.Osbpp.p; \
 	  (*_PREG) = NEXTOP((*_PREG), Osbpp); \
 	  savedP = (*_PREG); \
 	  saveregs(); \
@@ -2914,21 +2914,21 @@
       check_stack_on_call; \
       ENDCACHE_Y_AS_ENV(); \
 	if (Yap_do_low_level_trace) { \
-	  low_level_trace(enter_pred,(*_PREG)->y_u.Osbpp.p,XREGS+1); \
+	  low_level_trace(enter_pred,(*_PREG)->u.Osbpp.p,XREGS+1); \
 	} \
       { \
 	choiceptr top_b = PROTECT_FROZEN_B(B); \
 	if (YREG > (CELL *) top_b) \
       ASP = (CELL *) top_b; \
 	else \
-      ASP = (CELL *)(((char *)YREG) +  (*_PREG)->y_u.Osbpp.s); \
+      ASP = (CELL *)(((char *)YREG) +  (*_PREG)->u.Osbpp.s); \
       } \
       { \
 	yamop *savedP; \
 	Yap_StartSlots( PASS_REGS1 ); \
 	LOCAL_PrologMode = UserCCallMode; \
 	{ \
-	  PredEntry *p = (*_PREG)->y_u.Osbpp.p; \
+	  PredEntry *p = (*_PREG)->u.Osbpp.p; \
 	  (*_PREG) = NEXTOP((*_PREG), Osbpp); \
 	  savedP = (*_PREG); \
 	  saveregs(); \
@@ -2959,15 +2959,15 @@
       check_stack_on_call; \
       ENDCACHE_Y_AS_ENV(); \
 	if (Yap_do_low_level_trace) { \
-	  low_level_trace(enter_pred,(*_PREG)->y_u.Osbpp.p,XREGS+1); \
+	  low_level_trace(enter_pred,(*_PREG)->u.Osbpp.p,XREGS+1); \
 	} \
-      SET_ASP(YREG, (*_PREG)->y_u.Osbpp.s); \
+      SET_ASP(YREG, (*_PREG)->u.Osbpp.s); \
       { \
 	yamop *savedP; \
 	Yap_StartSlots( PASS_REGS1 ); \
 	LOCAL_PrologMode = UserCCallMode; \
 	{ \
-	  PredEntry *p = (*_PREG)->y_u.Osbpp.p; \
+	  PredEntry *p = (*_PREG)->u.Osbpp.p; \
 	  (*_PREG) = NEXTOP((*_PREG), Osbpp); \
 	  savedP = (*_PREG); \
 	  saveregs(); \
@@ -3004,14 +3004,14 @@
 	if (YREG > (CELL *) top_b || YREG < HR) \
 	  ASP = (CELL *) top_b; \
 	else \
-      ASP = (CELL *)(((char *)YREG) +  (*_PREG)->y_u.Osbpp.s); \
+      ASP = (CELL *)(((char *)YREG) +  (*_PREG)->u.Osbpp.s); \
       } \
       { \
 	yamop *savedP; \
 	Yap_StartSlots( PASS_REGS1 ); \
 	LOCAL_PrologMode = UserCCallMode; \
 	{ \
-	  PredEntry *p = (*_PREG)->y_u.Osbpp.p; \
+	  PredEntry *p = (*_PREG)->u.Osbpp.p; \
 	  (*_PREG) = NEXTOP((*_PREG), Osbpp); \
 	  savedP = (*_PREG); \
 	  saveregs(); \
@@ -3045,14 +3045,14 @@
 	if (YREG > (CELL *) top_b) \
       ASP = (CELL *) top_b; \
 	else \
-      ASP = (CELL *)(((char *)YREG) +  (*_PREG)->y_u.Osbpp.s); \
+      ASP = (CELL *)(((char *)YREG) +  (*_PREG)->u.Osbpp.s); \
       } \
       { \
 	yamop *savedP; \
 	Yap_StartSlots( PASS_REGS1 ); \
 	LOCAL_PrologMode = UserCCallMode; \
 	{ \
-	  PredEntry *p = (*_PREG)->y_u.Osbpp.p; \
+	  PredEntry *p = (*_PREG)->u.Osbpp.p; \
 	  (*_PREG) = NEXTOP((*_PREG), Osbpp); \
 	  savedP = (*_PREG); \
 	  saveregs(); \
@@ -3082,13 +3082,13 @@
       CACHE_Y_AS_ENV(YREG); \
       check_stack_on_call; \
       ENDCACHE_Y_AS_ENV(); \
-      SET_ASP(YREG, (*_PREG)->y_u.Osbpp.s); \
+      SET_ASP(YREG, (*_PREG)->u.Osbpp.s); \
       { \
 	yamop *savedP; \
 	Yap_StartSlots( PASS_REGS1 ); \
 	LOCAL_PrologMode = UserCCallMode; \
 	{ \
-	  PredEntry *p = (*_PREG)->y_u.Osbpp.p; \
+	  PredEntry *p = (*_PREG)->u.Osbpp.p; \
 	  (*_PREG) = NEXTOP((*_PREG), Osbpp); \
 	  savedP = (*_PREG); \
 	  saveregs(); \

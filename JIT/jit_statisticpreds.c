@@ -143,7 +143,7 @@ p_init_low_level_stats( USES_REGS1 )
     if (PAPI_add_event(ExpEnv.stats_struc.papi_eventset, PAPI_CA_SNP) == PAPI_OK)
       ExpEnv.stats_struc.papi_valid_values[4] = 1;
   }
-	
+
   else if (ExpEnv.stats_struc.papi_event_type == 2) {
     // Event type is 'conditional_store' -- contains 3 performance counters
     ExpEnv.stats_struc.papi_valid_values = (short*)malloc(3*sizeof(short));
@@ -164,7 +164,7 @@ p_init_low_level_stats( USES_REGS1 )
     if (PAPI_add_event(ExpEnv.stats_struc.papi_eventset, PAPI_CSR_TOT) == PAPI_OK)
       ExpEnv.stats_struc.papi_valid_values[2] = 1;
   }
-	
+
   else if (ExpEnv.stats_struc.papi_event_type == 3) {
     // Event type is 'floating_point_operations' -- contains 14 performance counters
     ExpEnv.stats_struc.papi_valid_values = (short*)malloc(14*sizeof(short));
@@ -542,7 +542,7 @@ p_statistics_jit( USES_REGS1 )
 	}
 
         // get address on IntermediatecodeArea which is stored on first instruction of native code (this instruction is NativeArea->area.pc[i]')
-	int taddress = ((yamop*)NativeArea->area.pc[i])->y_u.jhc.jh->caa.taddress;
+	int taddress = ((yamop*)NativeArea->area.pc[i])->u.jhc.jh->caa.taddress;
 
         if (taddress != -1) {
           fprintf(stderr, "\tProfiling time: %.3lf sec.\n", IntermediatecodeArea->area.profiling_time[taddress]);
@@ -554,7 +554,7 @@ p_statistics_jit( USES_REGS1 )
     }
     fprintf(stderr, "------------------------------\n");
   }
-  
+
   // From this point until the end we do:
   //   1. We verify if PAPI was initialized (ExpEnv.stats_struc.papi_initialized). If yes, we do:
   //   2. We verify what event type was used. Based on this, we alloc memory for 'ExpEnv.stats_struc.papi_values'
@@ -582,7 +582,7 @@ p_statistics_jit( USES_REGS1 )
 
     if (PAPI_read(ExpEnv.stats_struc.papi_eventset, ExpEnv.stats_struc.papi_values) != PAPI_OK)
       fprintf (stderr, "%s:%d\t ERROR\n", __FILE__, __LINE__);
- 
+
     int k = 0;
     if (ExpEnv.stats_struc.papi_event_type == 0) {
       if (ExpEnv.stats_struc.papi_valid_values[0])
@@ -618,7 +618,7 @@ p_statistics_jit( USES_REGS1 )
         fprintf(stderr, "\tRequests for a snoop:: %lld\n", ExpEnv.stats_struc.papi_values[k++]);
     }
 
-    else if (ExpEnv.stats_struc.papi_event_type == 2) {	
+    else if (ExpEnv.stats_struc.papi_event_type == 2) {
       if (ExpEnv.stats_struc.papi_valid_values[0])
         fprintf(stderr, "\tFailed store conditional instructions:: %lld\n", ExpEnv.stats_struc.papi_values[k++]);
       if (ExpEnv.stats_struc.papi_valid_values[1])
@@ -821,10 +821,10 @@ p_statistics_jit( USES_REGS1 )
       if (ExpEnv.stats_struc.papi_valid_values[3])
         fprintf(stderr, "\tTotal translation lookaside buffer misses:: %lld\n", ExpEnv.stats_struc.papi_values[k++]);
     }
-	  
+
     fprintf(stderr, "------------------------------\n");
   }
-  
+
   return TRUE;
 }
 

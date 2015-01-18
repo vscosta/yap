@@ -4,7 +4,7 @@
         register CELL d0; \
 	PredEntry *pt0; \
 	register CELL *ENV_YREG = (YREG); \
-	pt0 = (*_PREG)->y_u.pp.p;
+	pt0 = (*_PREG)->u.pp.p;
 	
 #ifdef LOW_LEVEL_TRACER
 #define EXECUTE_LOW_LEVEL_TRACER \
@@ -53,14 +53,14 @@
 	  
 #ifdef LOW_LEVEL_TRACER
 #define DEXECUTE_LOW_LEVEL_TRACER \
-	low_level_trace(enter_pred,(*_PREG)->y_u.pp.p,XREGS+1);
+	low_level_trace(enter_pred,(*_PREG)->u.pp.p,XREGS+1);
 #endif
 
 #define DEXECUTE_POST_LOW_LEVEL_TRACER \
      CACHE_Y_AS_ENV(YREG); \
 	PredEntry *pt0; \
 	CACHE_A1(); \
-	pt0 = (*_PREG)->y_u.pp.p;
+	pt0 = (*_PREG)->u.pp.p;
 	
 #ifdef DEPTH_LIMIT
 #define DEXECUTE_DEPTH_MINOR \
@@ -169,18 +169,18 @@
 	  
 #ifdef LOW_LEVEL_TRACER
 #define CALL_LOW_LEVEL_TRACER \
-	low_level_trace(enter_pred,(*_PREG)->y_u.Osbpp.p,XREGS+1);
+	low_level_trace(enter_pred,(*_PREG)->u.Osbpp.p,XREGS+1);
 #endif
 
 #define CALL_POST_LOW_LEVEL_TRACER \
     register CELL *ENV_YREG = (YREG); \
 	PredEntry *pt; \
-	pt = (*_PREG)->y_u.Osbpp.p; \
+	pt = (*_PREG)->u.Osbpp.p; \
 	CACHE_A1();
 	
 #define CALL_POST_NO_CHECKING \
 	ENV = ENV_YREG; \
-	ENV_YREG = (CELL *) (((char *) ENV_YREG) + (*_PREG)->y_u.Osbpp.s); \
+	ENV_YREG = (CELL *) (((char *) ENV_YREG) + (*_PREG)->u.Osbpp.s); \
 	(*_CPREG) = NEXTOP((*_PREG), Osbpp); \
 	(*_PREG) = pt->CodeOfPred; \
 	save_pc(); \

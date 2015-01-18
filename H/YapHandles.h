@@ -112,7 +112,7 @@ Yap_PutInSlot(yhandle_t slot, Term t USES_REGS)
 
 /// @brief allocate n empty new slots
 static inline yhandle_t
-Yap_NewSlots(size_t n USES_REGS)
+Yap_NewSlots(int n USES_REGS)
 {
   yhandle_t old_slots = IntOfTerm(ASP[0]), oldn = n;
   while (n > 0) {
@@ -132,7 +132,7 @@ Yap_countSlots( USES_REGS1 )
 }
 
 /// @brief create a new slot with term t
-static inline yhandle_t
+static inline Int
 Yap_InitSlot(Term t USES_REGS)
 {
   yhandle_t old_slots = IntOfTerm(ASP[0]);
@@ -143,8 +143,8 @@ Yap_InitSlot(Term t USES_REGS)
 }
 
 /// @brief Succeeds if it is to recover the space allocated for $n$ contiguos slots starting at topSlot.
-static inline bool
-Yap_RecoverSlots(size_t n, yhandle_t topSlot USES_REGS)
+static inline int
+Yap_RecoverSlots(int n, yhandle_t topSlot USES_REGS)
 {
   yhandle_t old_slots = IntOfTerm(ASP[0]),
     new_slots = old_slots-n;
@@ -152,10 +152,10 @@ Yap_RecoverSlots(size_t n, yhandle_t topSlot USES_REGS)
     return FALSE;
   }
   if (ASP+1 != LCL0+topSlot)
-	return false;
+	return FALSE;
   ASP += n;
   ASP[new_slots+1] = ASP[0] = MkIntTerm(new_slots);
-  return true;
+  return TRUE;
 }
 
 #endif

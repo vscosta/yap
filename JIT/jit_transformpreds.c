@@ -112,7 +112,7 @@ static Int  p_disable_link_time_opt( USES_REGS1 );
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
-	
+
 static Int
 p_disable_transform_pass( USES_REGS1 )
 {
@@ -1183,7 +1183,7 @@ p_disable_link_time_opt( USES_REGS1 )
 #pragma GCC diagnostic pop
 
 void
-  Yap_InitJitTransformPreds( void )
+Yap_InitJitTransformPreds( void )
 {
   Yap_InitCPred("disable_transform_pass", 1, p_disable_transform_pass, SafePredFlag);
   Yap_InitCPred("transform_pass", 1, p_transform_pass, SafePredFlag);

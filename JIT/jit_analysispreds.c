@@ -77,7 +77,7 @@ static Int  p_analysis_output_file( USES_REGS1 );
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
-	
+
 static Int
 p_disable_analysis_pass( USES_REGS1 )
 {
@@ -101,7 +101,7 @@ p_disable_analysis_pass( USES_REGS1 )
     int i = 0, j = 0;
     char *tmp;
     // gets string from atom and stores it on 'str'
-    char *str = (char*)malloc(YAP_AtomNameLength(AtomOfTerm(t))*sizeof(char));
+    char *str = (char*)malloc(YAP_AtomNameLength(AtomOfTerm(t))*sizeof(char)
     strcpy(str, AtomName(AtomOfTerm(t)));
     // Makes upper characters of 'str' (for comparison)
     UPPER_ENTRY(str);

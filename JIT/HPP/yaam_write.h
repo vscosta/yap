@@ -1,5 +1,5 @@
 #define WRITE_X_VAR_INSTINIT \
-      XREG((*_PREG)->y_u.x.x) = Unsigned((*_SREG)); \
+      XREG((*_PREG)->u.x.x) = Unsigned((*_SREG)); \
       (*_PREG) = NEXTOP((*_PREG), x); \
       RESET_VARIABLE((*_SREG)); \
       (*_SREG)++; \
@@ -13,7 +13,7 @@
 
 #define WRITE_N_VOIDS_INSTINIT \
       register CELL d0; \
-      d0 = (*_PREG)->y_u.s.s; \
+      d0 = (*_PREG)->u.s.s; \
       (*_PREG) = NEXTOP((*_PREG), s); \
       for (; d0 > 0; d0--) { \
 	RESET_VARIABLE((*_SREG)); \
@@ -22,7 +22,7 @@
       GONext();
 
 #define WRITE_Y_VAR_INSTINIT \
-      INITIALIZE_PERMVAR(YREG+(*_PREG)->y_u.y.y,Unsigned((*_SREG))); \
+      INITIALIZE_PERMVAR(YREG+(*_PREG)->u.y.y,Unsigned((*_SREG))); \
       (*_PREG) = NEXTOP((*_PREG), y); \
       RESET_VARIABLE((*_SREG)); \
       (*_SREG)++; \
@@ -30,7 +30,7 @@
 
 #define WRITE_X_VAL_INSTINIT \
       register CELL d0; \
-      d0 = XREG((*_PREG)->y_u.x.x); \
+      d0 = XREG((*_PREG)->u.x.x); \
       *(*_SREG)++ = d0; \
       (*_PREG) = NEXTOP((*_PREG), x); \
       GONext();
@@ -38,7 +38,7 @@
 #define WRITE_X_LOC_INSTINIT \
       register CELL d0; \
 	  register CELL *pt0; \
-      d0 = XREG((*_PREG)->y_u.x.x); \
+      d0 = XREG((*_PREG)->u.x.x); \
       (*_PREG) = NEXTOP((*_PREG), x);
 
 #define WRITE_X_LOC_W_X_BOUND \
@@ -104,9 +104,9 @@
 #ifdef YAPOR_SBA
 #define WRITE_Y_VAL_INSTINIT \
       register CELL d0; \
-      d0 = YREG[(*_PREG)->y_u.y.y]; \
+      d0 = YREG[(*_PREG)->u.y.y]; \
       if (d0 == 0) \
-	*(*_SREG)++ = (CELL)(YREG+(*_PREG)->y_u.y.y); \
+	*(*_SREG)++ = (CELL)(YREG+(*_PREG)->u.y.y); \
       else \
 	*(*_SREG)++ = d0; \
       (*_PREG) = NEXTOP((*_PREG), y); \
@@ -114,7 +114,7 @@
 #else /* YAPOR_SBA */
 #define WRITE_Y_VAL_INSTINIT \
       register CELL d0; \
-      d0 = YREG[(*_PREG)->y_u.y.y]; \
+      d0 = YREG[(*_PREG)->u.y.y]; \
 	*(*_SREG)++ = d0; \
       (*_PREG) = NEXTOP((*_PREG), y); \
       GONext();
@@ -123,7 +123,7 @@
 #define WRITE_Y_LOC_INSTINIT \
       register CELL d0; \
 	  register CELL *pt0; \
-      pt0 = YREG+(*_PREG)->y_u.y.y; \
+      pt0 = YREG+(*_PREG)->u.y.y; \
       d0 = *pt0;
 
 #define WRITE_Y_LOC_W_Y_BOUND \
@@ -199,43 +199,43 @@
 
 #define WRITE_ATOM_INSTINIT \
       register CELL d0; \
-      d0 = (*_PREG)->y_u.c.c; \
+      d0 = (*_PREG)->u.c.c; \
       *(*_SREG)++ = d0; \
       (*_PREG) = NEXTOP((*_PREG), c); \
       GONext();
 
 #define WRITE_BIGINT_INSTINIT \
       register CELL d0; \
-      d0 = (*_PREG)->y_u.N.b; \
+      d0 = (*_PREG)->u.N.b; \
       *(*_SREG)++ = d0; \
       (*_PREG) = NEXTOP((*_PREG), N); \
       GONext();
 
 #define WRITE_DBTERM_INSTINIT \
       register CELL d0; \
-      d0 = (*_PREG)->y_u.D.D; \
+      d0 = (*_PREG)->u.D.D; \
       *(*_SREG)++ = d0; \
       (*_PREG) = NEXTOP((*_PREG), D); \
       GONext();
 
 #define WRITE_FLOAT_INSTINIT \
       register CELL d0; \
-      d0 = AbsAppl((*_PREG)->y_u.d.d); \
+      d0 = AbsAppl((*_PREG)->u.d.d); \
       *(*_SREG)++ = d0; \
       (*_PREG) = NEXTOP((*_PREG), d); \
       GONext();
 
 #define WRITE_LONGIT_INSTINIT \
       register CELL d0; \
-      d0 = AbsAppl((*_PREG)->y_u.i.i); \
+      d0 = AbsAppl((*_PREG)->u.i.i); \
       *(*_SREG)++ = d0; \
       (*_PREG) = NEXTOP((*_PREG), i); \
       GONext();
 
 #define WRITE_N_ATOMS_INSTINIT \
       register CELL d0, d1; \
-      d0 = (*_PREG)->y_u.sc.s; \
-      d1 = (*_PREG)->y_u.sc.c; \
+      d0 = (*_PREG)->u.sc.s; \
+      d1 = (*_PREG)->u.sc.c; \
       for (; d0 > 0; d0--) { \
 	*(*_SREG)++ = d1; \
 	  } \
@@ -275,9 +275,9 @@
       SP[-1] = Unsigned((*_SREG)); \
       SP[-2] = 1; \
       SP -= 2; \
-      d0 = (CELL) ((*_PREG)->y_u.fa.f); \
-      *HR++ = d0; \
-      d0 = (*_PREG)->y_u.fa.a; \
+      d0 = (CELL) ((*_PREG)->u.fa.f); \
+      *H++ = d0; \
+      d0 = (*_PREG)->u.fa.a; \
       (*_PREG) = NEXTOP((*_PREG), fa); \
       (*_SREG) = HR; \
       HR += d0; \
@@ -287,10 +287,10 @@
       register CELL d0; \
       d0 = AbsAppl(HR); \
       *(*_SREG) = d0; \
-      d0 = (CELL) ((*_PREG)->y_u.fa.f); \
-      *HR++ = d0; \
+      d0 = (CELL) ((*_PREG)->u.fa.f); \
+      *H++ = d0; \
       (*_SREG) = HR; \
-      d0 = (*_PREG)->y_u.fa.a; \
+      d0 = (*_PREG)->u.fa.a; \
       (*_PREG) = NEXTOP((*_PREG), fa); \
       HR += d0; \
       GONext();

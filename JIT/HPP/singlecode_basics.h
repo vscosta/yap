@@ -1,6 +1,6 @@
 #if (defined(YAPOR_SBA) && defined(YAPOR)) || defined(TABLING)
 #define check_stack_on_fail \
-  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,HR))) < CreepFlag), 0)  ) return external_labels[10];
+  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,H))) < CreepFlag), 0)  ) return external_labels[10];
 #else
 #define check_stack_on_fail \
   if  (__builtin_expect(((Int)(Unsigned(ENV_YREG) - Unsigned(HR)) < CreepFlag ), 0) ) return external_labels[10];
@@ -49,6 +49,10 @@
     else { FAIL(); }                                                   \
   }                                                                    \
   else { FAIL(); }
+
+#define _native_me_instinit \
+ (*_PREG) = NEXTOP((*_PREG), aFlp); \
+ GONEXT();
  
 #ifdef COROUTINING
 #define _op_fail_instinit \

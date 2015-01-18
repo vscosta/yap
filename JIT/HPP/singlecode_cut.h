@@ -1,6 +1,6 @@
 #if (defined(YAPOR_SBA) && defined(YAPOR)) || defined(TABLING)
 #define check_stack_on_cut \
-  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,HR))) < CreepFlag), 0)  ) return external_labels[1];
+  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,H))) < CreepFlag), 0)  ) return external_labels[1];
 #else
 #define check_stack_on_cut \
   if  (__builtin_expect(((Int)(Unsigned(ENV_YREG) - Unsigned(HR)) < CreepFlag ), 0) ) return external_labels[1];
@@ -8,7 +8,7 @@
 
 #if (defined(YAPOR_SBA) && defined(YAPOR)) || defined(TABLING)
 #define check_stack_on_cutt \
-  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,HR))) < CreepFlag), 0)  ) return external_labels[3];
+  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,H))) < CreepFlag), 0)  ) return external_labels[3];
 #else
 #define check_stack_on_cutt \
   if  (__builtin_expect(((Int)(Unsigned(ENV_YREG) - Unsigned(HR)) < CreepFlag ), 0) ) return external_labels[3];
@@ -16,7 +16,7 @@
 
 #if (defined(YAPOR_SBA) && defined(YAPOR)) || defined(TABLING)
 #define check_stack_on_commitx \
-  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,HR))) < CreepFlag), 0)  ) return external_labels[11];
+  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,H))) < CreepFlag), 0)  ) return external_labels[11];
 #else
 #define check_stack_on_commitx \
   if  (__builtin_expect(((Int)(Unsigned(ENV_YREG) - Unsigned(HR)) < CreepFlag ), 0) ) return external_labels[11];
@@ -30,7 +30,7 @@
 	ENDCACHE_Y_AS_ENV(); \
       } \
     do_cut: \
-      SET_ASP(YREG, (*_PREG)->y_u.s.s); \
+      SET_ASP(YREG, (*_PREG)->u.s.s); \
       (*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), s),Osbpp),l); \
       saveregs(); \
       prune((choiceptr)YREG[E_CB]); \
@@ -38,7 +38,7 @@
       GONEXT();
 #else /* COROUTINING */
 #define _cut_instinit \
-      SET_ASP(YREG, (*_PREG)->y_u.s.s); \
+      SET_ASP(YREG, (*_PREG)->u.s.s); \
       (*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), s),Osbpp),l); \
       saveregs(); \
       prune((choiceptr)YREG[E_CB]); \
@@ -54,7 +54,7 @@
 	ENDCACHE_Y_AS_ENV(); \
       } \
     do_cut_t: \
-      SET_ASP(YREG, (*_PREG)->y_u.s.s); \
+      SET_ASP(YREG, (*_PREG)->u.s.s); \
       saveregs(); \
       prune((choiceptr)YREG[E_CB]); \
       setregs(); \
@@ -62,7 +62,7 @@
       GONEXT();
 #else /* COROUTINING */
 #define _cut_t_instinit \
-      SET_ASP(YREG, (*_PREG)->y_u.s.s); \
+      SET_ASP(YREG, (*_PREG)->u.s.s); \
       saveregs(); \
       prune((choiceptr)YREG[E_CB]); \
       setregs(); \
@@ -80,7 +80,7 @@
 #endif
 
 #define CUT_E_NOCOROUTINING \
-      SET_ASP(YREG, (*_PREG)->y_u.s.s); \
+      SET_ASP(YREG, (*_PREG)->u.s.s); \
       (*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), s),Osbpp),l); \
       saveregs(); \
       prune((choiceptr)(*_SREG)[E_CB]); \
@@ -90,7 +90,7 @@
 #if defined(YAPOR_SBA) && defined(FROZEN_STACKS)
 #define _save_b_x_instinit \
       BEGD(d0); \
-      d0 = (*_PREG)->y_u.x.x; \
+      d0 = (*_PREG)->u.x.x; \
       XREG(d0) = MkIntegerTerm((Int)B); \
       (*_PREG) = NEXTOP((*_PREG), x); \
       ENDD(d0); \
@@ -98,7 +98,7 @@
 #else /* defined(YAPOR_SBA) && defined(FROZEN_STACKS) */
 #define _save_b_x_instinit \
       BEGD(d0); \
-      d0 = (*_PREG)->y_u.x.x; \
+      d0 = (*_PREG)->u.x.x; \
       XREG(d0) = MkIntegerTerm(LCL0-(CELL *) (B)); \
       (*_PREG) = NEXTOP((*_PREG), x); \
       ENDD(d0); \
@@ -107,12 +107,12 @@
 
 #if defined(YAPOR_SBA)
 #define _save_b_y_instinit \
-      INITIALIZE_PERMVAR(YREG+(*_PREG)->y_u.y.y,MkIntegerTerm((Int)B)); \
+      INITIALIZE_PERMVAR(YREG+(*_PREG)->u.y.y,MkIntegerTerm((Int)B)); \
       (*_PREG) = NEXTOP((*_PREG), y); \
       GONEXT();
 #else /* defined(YAPOR_SBA) */
 #define _save_b_y_instinit \
-      INITIALIZE_PERMVAR(YREG+(*_PREG)->y_u.y.y,MkIntegerTerm(LCL0-(CELL *)(B))); \
+      INITIALIZE_PERMVAR(YREG+(*_PREG)->u.y.y,MkIntegerTerm(LCL0-(CELL *)(B))); \
       (*_PREG) = NEXTOP((*_PREG), y); \
       GONEXT();
 #endif /* defined(YAPOR_SBA) */
@@ -125,10 +125,10 @@
       ENDCACHE_Y_AS_ENV(); \
     do_commit_b_x: \
       BEGD(d0); \
-      d0 = XREG((*_PREG)->y_u.xps.x); \
+      d0 = XREG((*_PREG)->u.xps.x); \
       deref_head(d0, commit_b_x_unk); \
     commit_b_x_nvar: \
-      SET_ASP(YREG, (*_PREG)->y_u.xps.s); \
+      SET_ASP(YREG, (*_PREG)->u.xps.s); \
       (*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), xps),Osbpp),l); \
       { \
 	choiceptr pt0; \
@@ -151,10 +151,10 @@
       ENDCACHE_Y_AS_ENV(); \
     do_commit_b_x: \
       BEGD(d0); \
-      d0 = XREG((*_PREG)->y_u.xps.x); \
+      d0 = XREG((*_PREG)->u.xps.x); \
       deref_head(d0, commit_b_x_unk); \
     commit_b_x_nvar: \
-      SET_ASP(YREG, (*_PREG)->y_u.xps.s); \
+      SET_ASP(YREG, (*_PREG)->u.xps.s); \
       (*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), xps),Osbpp),l); \
       { \
 	choiceptr pt0; \
@@ -175,10 +175,10 @@
 #if defined(YAPOR_SBA) && defined(FROZEN_STACKS)
 #define _commit_b_x_instinit \
       BEGD(d0); \
-      d0 = XREG((*_PREG)->y_u.xps.x); \
+      d0 = XREG((*_PREG)->u.xps.x); \
       deref_head(d0, commit_b_x_unk); \
     commit_b_x_nvar: \
-      SET_ASP(YREG, (*_PREG)->y_u.xps.s); \
+      SET_ASP(YREG, (*_PREG)->u.xps.s); \
       (*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), xps),Osbpp),l); \
       { \
 	choiceptr pt0; \
@@ -197,10 +197,10 @@
 #else /* defined(YAPOR_SBA) && defined(FROZEN_STACKS) */
 #define _commit_b_x_instinit \
       BEGD(d0); \
-      d0 = XREG((*_PREG)->y_u.xps.x); \
+      d0 = XREG((*_PREG)->u.xps.x); \
       deref_head(d0, commit_b_x_unk); \
     commit_b_x_nvar: \
-      SET_ASP(YREG, (*_PREG)->y_u.xps.s); \
+      SET_ASP(YREG, (*_PREG)->u.xps.s); \
       (*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), xps),Osbpp),l); \
       { \
 	choiceptr pt0; \
@@ -224,10 +224,10 @@
       register CELL *pt1;
 
 #define COMMIT_B_Y_DO_COMMIT_B_Y \
-      d0 = YREG[(*_PREG)->y_u.yps.y];
+      d0 = YREG[(*_PREG)->u.yps.y];
 
 #define COMMIT_B_Y_COMMIT_B_Y_NVAR \
-      SET_ASP(YREG, (*_PREG)->y_u.yps.s); \
+      SET_ASP(YREG, (*_PREG)->u.yps.s); \
       (*_PREG) = NEXTOP(NEXTOP(NEXTOP((*_PREG), yps),Osbpp),l); \
 	choiceptr pt0;
 	

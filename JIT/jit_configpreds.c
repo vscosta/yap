@@ -122,7 +122,7 @@ p_execution_mode( USES_REGS1 )
 
   // setting execution mode
   ExpEnv.config_struc.execution_mode = mode;
-  
+
   /* setting execution mode parameters */
   switch (mode) {
   case JUST_INTERPRETED:

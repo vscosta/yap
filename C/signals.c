@@ -156,7 +156,7 @@ get_signal(yap_signals sig USES_REGS)
 #if THREADS
   uint64_t old;
 
-  // first, clear the Interrupted Marker, now if someone sets it it is their problem
+  // first, clear the Creep Flag, now if someone sets it it is their problem
   CalculateStackGap( PASS_REGS1 );
   // reset the flag
   if ( (old =__sync_fetch_and_and( &LOCAL_Signals, ~SIGNAL_TO_BIT(sig) ) ) !=

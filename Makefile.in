@@ -61,7 +61,7 @@ YAPSTARTUP=@SAVED_STATE_PREFIX@startup.yss
 CC=@CC@
 CXX=@CXX@
 MPI_CC=@MPI_CC@
-CPPFLAGS=@CPPFLAGS@  -I. -I$(srcdir)/include -I$(srcdir)/C -I$(srcdir)/H  -I$(srcdir)/os -I$(srcdir)/OPTYap -I$(srcdir)/BEAM -I$(srcdir)/CXX -I$(srcdir)/JIT/HPP
+CPPFLAGS=@CPPFLAGS@  -I. -I$(srcdir)/H -I$(srcdir)/include  -I$(srcdir)/os -I$(srcdir)/OPTYap -I$(srcdir)/BEAM -I$(srcdir)/CXX
 EXECUTABLE_CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 CFLAGS=  @YAPLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 CXXFLAGS=  @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
@@ -77,9 +77,9 @@ CPP=@CPP@
 RC=@RC@
 RCFLAGS=@RCFLAGS@
 DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1 -DDESTDIR=\"$(DESTDIR)\"
-LIBS=@LIBS@ @JITLIBS@
-DLL_LIBS=$(LIBS) @EXTRA_LIBS_FOR_DLLS@
-LDFLAGS=@LDFLAGS@ @JITLD@
+LIBS=@LIBS@
+DLL_LIBS=@LIBS@ @EXTRA_LIBS_FOR_DLLS@
+LDFLAGS=@LDFLAGS@
 EXTRAYAPLIBS=@EXTRAYAPLIBS@
 LN_S=@LN_S@
 M4=@M4@
@@ -159,7 +159,6 @@ IOLIB_HEADERS=os/pl-buffer.h \
 	H/pl-yap.h @WINDOWS@ os/windows/dirent.h os/windows/utf8.h os/windows/utf8.c os/windows/uxnt.h  os/windows/popen.c
 
 HEADERS = \
-	C/absmi_insts.i \
 	H/Atoms.h \
 	H/sshift.h \
 	H/Yap.h \
@@ -218,7 +217,9 @@ HEADERS = \
 	OPTYap/locks_mips_funcs.h OPTYap/locks_alpha.h \
 	OPTYap/locks_alpha_funcs.h \
 	OPTYap/locks_pthread.h \
-	library/dialect/swi/fli/swi.h
+	library/dialect/swi/fli/swi.h \
+	JIT/HPP/JIT.hh 	JIT/HPP/JIT_Compiler.hh \
+    JIT/HPP/jit_predicates.hh
 
 IOLIB_SOURCES=os/pl-buffer.c os/pl-ctype.c \
 	os/pl-codelist.c \
@@ -300,7 +301,7 @@ C_SOURCES= \
 	# library/lammpi/yap_mpi.c library/lamm1pi/hash.c library/lammpi/prologterms2c.c
 CXX_SOURCES = \
 	CXX/yapi.cpp \
-	JIT/JIT_Compiler.cpp
+    JIT/JIT_Compiler.cpp
 
 PLCONS_SOURCES = \
 	console/LGPL/pl-nt.c \
@@ -435,7 +436,7 @@ BEAM_OBJECTS = \
 STATIC_OBJECTS = \
 	@STATIC_MODE@sys.o yap_random.o regexp.o  @NO_BUILTIN_REGEXP@ regcomp.o regerror.o regfree.o regexec.o
 
-LIB_OBJECTS = $(ENGINE_OBJECTS) $(C_INTERFACE_OBJECTS) $(OR_OBJECTS) $(BEAM_OBJECTS) $(STATIC_OBJECTS) $(LIBTAI_OBJECTS)  $(JIT_OBJECTS)
+LIB_OBJECTS = $(ENGINE_OBJECTS) $(C_INTERFACE_OBJECTS) $(OR_OBJECTS) $(BEAM_OBJECTS) $(STATIC_OBJECTS) $(LIBTAI_OBJECTS)  $(JIT_OBJECTS) 
 
 OBJECTS = yap.o yapi.o $(LIB_OBJECTS)
 
@@ -502,11 +503,11 @@ yap_random.o: library/random/yap_random.c config.h
 %.o: os/%.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -Ios  @EXTRA_INCLUDES_FOR_WIN32@  $< -o $@
 
-JIT_Compiler.o: JIT/JIT_Compiler.cpp
-	$(CXX) -c $(CFLAGS) $(JITFLAGS) -I$(srcdir)/JIT/HPP $< -o $@
+JIT_Compiler.o: IT/JIT_Compiler.cpp
+	$(CXX) -c $(CFLAGS) $(JITFLAGS) $< -o $@
 
-%.o: JIT/%.c
-	$(CC) -c $(CFLAGS)  -I$(srcdir)/JIT/HPP $< -o $@
+%.o: $JIT/%.c
+	$(CC) -c $(CFLAGS) $< -o $@
 
 pl-ntcon.o: console/LGPL/pl-ntcon.c config.h
 	$(CC) -c $(CFLAGS)   -DUNICODE -D_UNICODE -DPL_CONSOLE=1 -I$(srcdir)/include $< -o $@
@@ -594,15 +595,15 @@ all: startup.yss
 	-rm -f startup.yss
 	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). qsave_program('startup.yss')." |  @PRE_INSTALL_ENV@ ./yap@EXEC_SUFFIX@ -b $(srcdir)/pl/boot.yap
 
-yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@ libYap.a
-	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap@EXEC_SUFFIX@ yap.o @YAPLIB@ $(LIBS) $(PAPILIB)
+yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@ libYap.a 
+	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap@EXEC_SUFFIX@ yap.o @YAPLIB@ $(LIBS) $(PAPILIB) $(JITLIBS) $(JITLD)
 
 yap-win: yap-win@EXEC_SUFFIX@
 
 yapwin: yap-win@EXEC_SUFFIX@
 
 yap-win@EXEC_SUFFIX@: $(PLCONS_OBJECTS) $(HEADERS) @YAPLIB@
-	$(MAKE) -C swi/console
+	$(MAKE) -C swi/console 
 	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o yap-win@EXEC_SUFFIX@ $(PLCONS_OBJECTS) plterm.dll @YAPLIB@ $(LIBS) -lgdi32 @MPILDF@
 
 libYap.a: $(LIB_OBJECTS) yapi.o
@@ -645,7 +646,7 @@ install_unix: @YAPLIB@ yap@EXEC_SUFFIX@
 	$(INSTALL_PROGRAM) -m 755 yap@EXEC_SUFFIX@ $(DESTDIR)$(BINDIR)/yap
 	$(INSTALL_DATA) -m 755 @YAPLIB@ $(DESTDIR)$(LIBDIR)
 
-install_startup: startup.yss
+install_startup: startup.yss 
 	$(INSTALL_DATA) startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss
 
 install_win32: startup.yss @WINDOWS@ yap-win@EXEC_SUFFIX@
@@ -704,7 +705,6 @@ TAGS: $(C_SOURCES) $(PL_SOURCES) $(HEADERS)
 	find . -name '*.pl' -exec etags -a {} \;
 	find . -name '*.cpp' -exec etags -a {} \;
 	find . -name '*.hh' -exec etags -a {} \;
-	find . -name '*.hpp' -exec etags -a {} \;
 	find . -name '*.java' -exec etags -a {} \;
 	find . -name '*.py' -exec etags -a {} \;
 

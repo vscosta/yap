@@ -272,7 +272,7 @@ p_print_instruction_msg_before( USES_REGS1 )
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_instruction_msg_before / print_basic_instruction_msg_before / print_std_instruction_msg_before / print_standard_instruction_msg_before");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -354,7 +354,7 @@ p_print_instruction_msg_after( USES_REGS1 )
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_instruction_msg_after / print_basic_instruction_msg_after / print_std_instruction_msg_after / print_standard_instruction_msg_after");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -437,7 +437,7 @@ p_print_instruction3( USES_REGS1 )
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_instruction / print_basic_instruction / print_std_instruction / print_standard_instruction");
     return FALSE;
   }
-  
+
   t = Deref(ARG2);
   char *msgb;
   if (IsAtomTerm(t)) {
@@ -448,7 +448,7 @@ p_print_instruction3( USES_REGS1 )
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_instruction / print_basic_instruction / print_std_instruction / print_standard_instruction");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -596,7 +596,7 @@ p_print_profiled_instruction_msg_before( USES_REGS1 )
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_profiled_instruction_msg_before / print_traced_instruction_msg_before / print_pfd_instruction_msg_before");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -672,7 +672,7 @@ p_print_profiled_instruction_msg_after( USES_REGS1 )
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_profiled_instruction_msg_after / print_traced_instruction_msg_after / print_pfd_instruction_msg_after");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -749,7 +749,7 @@ p_print_profiled_instruction3( USES_REGS1 )
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_profiled_instruction/ print_traced_instruction / print_pfd_instruction");
     return FALSE;
   }
-  
+
   t = Deref(ARG2);
   char *msgb;
   if (IsAtomTerm(t)) {
@@ -760,7 +760,7 @@ p_print_profiled_instruction3( USES_REGS1 )
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_profiled_instruction/ print_traced_instruction / print_pfd_instruction");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -896,7 +896,7 @@ p_print_native_instruction_msg_before( USES_REGS1 )
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_native_instruction_msg_before / print_ntv_instruction_msg_before");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -966,7 +966,7 @@ p_print_native_instruction_msg_after( USES_REGS1 )
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_native_instruction_msg_after / print_ntv_instruction_msg_after");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -1037,7 +1037,7 @@ p_print_native_instruction3( USES_REGS1 )
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_native_instruction / print_ntv_instruction");
     return FALSE;
   }
-  
+
   t = Deref(ARG2);
   char *msgb;
   if (IsAtomTerm(t)) {
@@ -1048,7 +1048,7 @@ p_print_native_instruction3( USES_REGS1 )
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_native_instruction / print_ntv_instruction");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -1246,7 +1246,7 @@ p_print_basic_block_msg_before( USES_REGS1 )
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_basic_block_msg_before / print_basicblock_msg_before / print_bb_msg_before");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -1322,7 +1322,7 @@ p_print_basic_block_msg_after( USES_REGS1 )
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_basic_block_msg_after / print_basicblock_msg_after / print_bb_msg_after");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -1398,7 +1398,7 @@ p_print_basic_block3( USES_REGS1 )
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_basic_block / print_basicblock / print_bb");
     return FALSE;
   }
-  
+
   t = Deref(ARG2);
   char *msgb;
   if (IsAtomTerm(t)) {
@@ -1409,7 +1409,7 @@ p_print_basic_block3( USES_REGS1 )
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_basic_block / print_basicblock / print_bb");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -1573,7 +1573,7 @@ p_print_native_basic_block_msg_before( USES_REGS1 )
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_native_basic_block_msg_before / print_native_basicblock_msg_before / print_native_bb_msg_before");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -1649,7 +1649,7 @@ p_print_native_basic_block_msg_after( USES_REGS1 )
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_native_basic_block_msg_after / print_native_basicblock_msg_after / print_native_bb_msg_after");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -1725,7 +1725,7 @@ p_print_native_basic_block3( USES_REGS1 )
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_native_basic_block / print_native_basicblock / print_native_bb");
     return FALSE;
   }
-  
+
   t = Deref(ARG2);
   char *msgb;
   if (IsAtomTerm(t)) {
@@ -1736,7 +1736,7 @@ p_print_native_basic_block3( USES_REGS1 )
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_native_basic_block / print_native_basicblock / print_native_bb");
     return FALSE;
   }
-	  
+
   t = Deref(ARG1);
   if (IsPairTerm(t)) {
     Term u = HeadOfTermCell(t);
@@ -2048,7 +2048,7 @@ p_print_me( USES_REGS1 )
   else {
     Yap_NilError(INVALID_PARAMETER_TYPE_ERROR,"print_me");
     return FALSE;
-  }  
+  }
   t = Deref(ARG1);
   if (IsAtomTerm(t)) {
     int i = 0, j = 0;
@@ -2146,15 +2146,15 @@ p_default_debug( USES_REGS1 )
   ExpEnv.debug_struc.pmainclause_on_head.print = (Int)NO_PLACE;
   ExpEnv.debug_struc.pmainclause_on_head.msg_before = 0;
   ExpEnv.debug_struc.pmainclause_on_head.msg_after = 0;
-  
+
   ExpEnv.debug_struc.pprint_intermediate.print_to_std = 0;
   ExpEnv.debug_struc.pprint_intermediate.print_to_file = 0;
   ExpEnv.debug_struc.pprint_intermediate.std_name = 0;
   ExpEnv.debug_struc.pprint_intermediate.file_name = 0;
-  
+
   ExpEnv.debug_struc.pprint_llva.print_llva_before = 0;
   ExpEnv.debug_struc.pprint_llva.print_llva_after = 0;
-  
+
   ExpEnv.debug_struc.pprint_me.interpreted_backtrack = 0;
   ExpEnv.debug_struc.pprint_me.profiled_interpreted_backtrack = 0;
   ExpEnv.debug_struc.pprint_me.native_backtrack = 0;
@@ -2168,16 +2168,16 @@ p_default_debug( USES_REGS1 )
   ExpEnv.debug_struc.pprint_me.nativerun_init = 0;
   ExpEnv.debug_struc.pprint_me.nativerun_exit_by_success = 0;
   ExpEnv.debug_struc.pprint_me.nativerun_exit_by_fail = 0;
-  
+
   ExpEnv.debug_struc.act_predicate_msgs.info_msgs = 0;
   ExpEnv.debug_struc.act_predicate_msgs.success_msgs = 0;
   ExpEnv.debug_struc.act_predicate_msgs.warning_msgs = 1;
   ExpEnv.debug_struc.act_predicate_msgs.error_msgs = 1;
-  
+
   ExpEnv.debug_struc.act_predicate_actions.exit_on_warning = 0;
   ExpEnv.debug_struc.act_predicate_actions.disable_on_warning = 1;
   ExpEnv.debug_struc.act_predicate_actions.exit_on_error = 1;
-  
+
   return TRUE;
 }
 
@@ -2372,7 +2372,7 @@ p_no_exit_on_error( USES_REGS1 )
 #pragma GCC diagnostic pop
 
 void
-Yap_InitJitDebugPreds(void)
+Yap_InitJitDebugPreds( USES_REGS1 )
 {
   Yap_InitCPred("no_print_instruction", 1, p_no_print_instruction, SafePredFlag);
   Yap_InitCPred("no_print_basic_instruction", 1, p_no_print_basic_instruction, SafePredFlag);
