@@ -1,4 +1,4 @@
-#include "JIT_Compiler.hh"
+#include "JIT_Compiler.hpp"
 #include <unistd.h>
 #include <sys/wait.h>
 #include <fcntl.h>
@@ -14,41 +14,41 @@ using namespace std;
   free(cmd1); \
   free(cmd2);
 
-#define ADD_PASS_ACCORDING_TO_KIND() \
+#define ADD_PASS_ACCORDING_TO_KIND()		\
 	switch (Kind) { \
         case PT_BasicBlock: \
 	  fprintf(stderr, "Oops -- basicblock printer\n"); \
 	  exit(1); \
         case PT_Region: \
-          Pass.add(new RegionPassPrinter(PI)); \
+          Pass.add(new RegionPassPrinter(PInfo)); \
           break; \
         case PT_Loop: \
-          Pass.add(new LoopPassPrinter(PI)); \
+          Pass.add(new LoopPassPrinter(PInfo)); \
           break; \
         case PT_Function: \
-          Pass.add(new FunctionPassPrinter(PI)); \
+          Pass.add(new FunctionPassPrinter(PInfo)); \
           break; \
         case PT_CallGraphSCC: \
-          Pass.add(new CallGraphSCCPassPrinter(PI)); \
+          Pass.add(new CallGraphSCCPassPrinter(PInfo)); \
           break; \
         default: \
-          Pass.add(new ModulePassPrinter(PI)); \
+          Pass.add(new ModulePassPrinter(PInfo)); \
           break; \
         }
 
 #define TREAT_CASE_FOR(PASS) \
-	    PI = PassRegistry::getPassRegistry()->getPassInfo(PASS->getPassID()); \
+	    PInfo = PassRegistry::getPassRegistry()->getPassInfo(PASS->getPassID()); \
 	    Kind = PASS->getPassKind(); \
 	    ADD_PASS_ACCORDING_TO_KIND();
 		
-#include "PassPrinters.hh"
+#include "PassPrinters.hpp"
 
 void JIT_Compiler::analyze_module(llvm::Module* &M)
 {
   PassManager Pass; // 'Pass' stores analysis passes to be applied
   TargetLibraryInfo *TLI = new TargetLibraryInfo(Triple(M->getTargetTriple()));
 
-  const PassInfo *PI;
+  const PassInfo *PInfo;
   PassKind Kind;
   
   Pass.add(TLI); // First, I add on 'Pass' the Target Info of Module
@@ -876,7 +876,7 @@ void* JIT_Compiler::compile_all(LLVMContext* &Context, yamop* p)
   /* Here, we know that Module was be successfully compiled, so... */
   // 1. execute all of the static constructors or destructors for program
   EE->runStaticConstructorsDestructors(false);
-  global++;
+  // global++; what is this?
   
   close(Output);
   remove(outputfilename);

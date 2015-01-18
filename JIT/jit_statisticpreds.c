@@ -18,14 +18,14 @@
 #include "jit_predicates.hh"
 #include <papi.h>
 
-static Int  p_init_low_level_stats(void);
-static Int  p_statistics_jit(void);
+static Int  p_init_low_level_stats( USES_REGS1 );
+static Int  p_statistics_jit( USES_REGS1 );
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
 
 static Int
-p_init_low_level_stats(void)
+p_init_low_level_stats( USES_REGS1 )
 {
   int i = 0, j = 0;
   char *tmp;
@@ -514,7 +514,7 @@ p_init_low_level_stats(void)
 }
 
 static Int
-p_statistics_jit(void)
+p_statistics_jit( USES_REGS1 )
 {
   if (NativeArea && NativeArea->n) { // This exp will be true only if JIT Compiler was used
     // printing...

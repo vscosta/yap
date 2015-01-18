@@ -15,231 +15,231 @@
 * Last rev:     2013-10-18                               		 *
 *************************************************************************/
 
-#include "jit_predicates.hh"
+#include "jit_predicates.hpp"
 
 /* Predicates for LLVM Target Options configuration */
-static Int  p_enable_framepointer_elimination(void);
-static Int  p_more_precise_fp_mad_option(void);
-static Int  p_excess_fp_precision(void);
-static Int  p_safe_fp_math(void);
-static Int  p_rounding_mode_not_changed(void);
-static Int  p_no_use_soft_float(void);
-static Int  p_disable_jit_exception_handling(void);
-static Int  p_disable_jit_emit_debug_info(void);
-static Int  p_disable_jit_emit_debug_info_to_disk(void);
-static Int  p_no_guaranteed_tail_call_opt(void);
-static Int  p_enable_tail_calls(void);
-static Int  p_disable_fast_isel(void);
-static Int  p_disable_framepointer_elimination(void);
-static Int  p_less_precise_fp_mad_option(void);
-static Int  p_no_excess_fp_precision(void);
-static Int  p_unsafe_fp_math(void);
-static Int  p_rounding_mode_dynamically_changed(void);
-static Int  p_use_soft_float(void);
-static Int  p_enable_jit_exception_handling(void);
-static Int  p_enable_jit_emit_debug_info(void);
-static Int  p_enable_jit_emit_debug_info_to_disk(void);
-static Int  p_guaranteed_tail_call_opt(void);
-static Int  p_disable_tail_calls(void);
-static Int  p_enable_fast_isel(void);
-static Int  p_fp_abitype(void);
-static Int  p_default_fp_abitype(void);
+static Int  p_enable_framepointer_elimination( USES_REGS1 );
+static Int  p_more_precise_fp_mad_option( USES_REGS1 );
+static Int  p_excess_fp_precision( USES_REGS1 );
+static Int  p_safe_fp_math( USES_REGS1 );
+static Int  p_rounding_mode_not_changed( USES_REGS1 );
+static Int  p_no_use_soft_float( USES_REGS1 );
+static Int  p_disable_jit_exception_handling( USES_REGS1 );
+static Int  p_disable_jit_emit_debug_info( USES_REGS1 );
+static Int  p_disable_jit_emit_debug_info_to_disk( USES_REGS1 );
+static Int  p_no_guaranteed_tail_call_opt( USES_REGS1 );
+static Int  p_enable_tail_calls( USES_REGS1 );
+static Int  p_disable_fast_isel( USES_REGS1 );
+static Int  p_disable_framepointer_elimination( USES_REGS1 );
+static Int  p_less_precise_fp_mad_option( USES_REGS1 );
+static Int  p_no_excess_fp_precision( USES_REGS1 );
+static Int  p_unsafe_fp_math( USES_REGS1 );
+static Int  p_rounding_mode_dynamically_changed( USES_REGS1 );
+static Int  p_use_soft_float( USES_REGS1 );
+static Int  p_enable_jit_exception_handling( USES_REGS1 );
+static Int  p_enable_jit_emit_debug_info( USES_REGS1 );
+static Int  p_enable_jit_emit_debug_info_to_disk( USES_REGS1 );
+static Int  p_guaranteed_tail_call_opt( USES_REGS1 );
+static Int  p_disable_tail_calls( USES_REGS1 );
+static Int  p_enable_fast_isel( USES_REGS1 );
+static Int  p_fp_abitype( USES_REGS1 );
+static Int  p_default_fp_abitype( USES_REGS1 );
 
 // LLVM Execution Engine level
-static Int  p_engine_opt_level(void);
-static Int  p_reset_engine_opt_level(void);
+static Int  p_engine_opt_level( USES_REGS1 );
+static Int  p_reset_engine_opt_level( USES_REGS1 );
 
 // LLVM Execution Engine reloc model
-static Int  p_relocmodel(void);
-static Int  p_reset_relocmodel(void);
+static Int  p_relocmodel( USES_REGS1 );
+static Int  p_reset_relocmodel( USES_REGS1 );
 
 // LLVM Execution Engine code model
-static Int  p_codemodel(void);
-static Int  p_reset_codemodel(void);
+static Int  p_codemodel( USES_REGS1 );
+static Int  p_reset_codemodel( USES_REGS1 );
 
 // Enable MC JIT (experimental)
-static Int  p_enable_mcjit(void);
+static Int  p_enable_mcjit( USES_REGS1 );
 
 // Disable MC JIT (experimental)
-static Int  p_disable_mcjit(void);
+static Int  p_disable_mcjit( USES_REGS1 );
 
 // LLVM Register Allocator (not implemented -- for some reason, LLVM crashes when I use it on 'JIT_Compiler.cpp')
-static Int  p_register_allocator(void);
-static Int  p_reset_register_allocator(void);
+static Int  p_register_allocator( USES_REGS1 );
+static Int  p_reset_register_allocator( USES_REGS1 );
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
 
 static Int
-p_enable_framepointer_elimination(void)
+p_enable_framepointer_elimination( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.noframepointerelim = FALSE;
   return TRUE;
 }
 
 static Int
-p_more_precise_fp_mad_option(void)
+p_more_precise_fp_mad_option( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.lessprecisefpmadoption = FALSE;
   return TRUE;
 }
 
 static Int
-p_excess_fp_precision(void)
+p_excess_fp_precision( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.noexcessfpprecision = FALSE;
   return TRUE;
 }
 
 static Int
-p_safe_fp_math(void)
+p_safe_fp_math( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.unsafefpmath = FALSE;
   return TRUE;
 }
 
 static Int
-p_rounding_mode_not_changed(void)
+p_rounding_mode_not_changed( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.honorsigndependentroundingfpmathoption = FALSE;
   return TRUE;
 }
 
 static Int
-p_no_use_soft_float(void)
+p_no_use_soft_float( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.usesoftfloat = FALSE;
   return TRUE;
 }
 
 static Int
-p_disable_jit_exception_handling(void)
+p_disable_jit_exception_handling( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.jitexceptionhandling = FALSE;
   return TRUE;
 }
 
 static Int
-p_disable_jit_emit_debug_info(void)
+p_disable_jit_emit_debug_info( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.jitemitdebuginfo = FALSE;
   return TRUE;
 }
 
 static Int
-p_disable_jit_emit_debug_info_to_disk(void)
+p_disable_jit_emit_debug_info_to_disk( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.jitemitdebuginfotodisk = FALSE;
   return TRUE;
 }
 
 static Int
-p_no_guaranteed_tail_call_opt(void)
+p_no_guaranteed_tail_call_opt( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.guaranteedtailcallopt = FALSE;
   return TRUE;
 }
 
 static Int
-p_enable_tail_calls(void)
+p_enable_tail_calls( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.disabletailcalls = FALSE;
   return TRUE;
 }
 
 static Int
-p_disable_fast_isel(void)
+p_disable_fast_isel( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.fastisel = FALSE;
   return TRUE;
 }
 
 static Int
-p_disable_framepointer_elimination(void)
+p_disable_framepointer_elimination( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.noframepointerelim = TRUE;
   return TRUE;
 }
 
 static Int
-p_less_precise_fp_mad_option(void)
+p_less_precise_fp_mad_option( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.lessprecisefpmadoption = TRUE;
   return TRUE;
 }
 
 static Int
-p_no_excess_fp_precision(void)
+p_no_excess_fp_precision( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.noexcessfpprecision = TRUE;
   return TRUE;
 }
 
 static Int
-p_unsafe_fp_math(void)
+p_unsafe_fp_math( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.unsafefpmath = TRUE;
   return TRUE;
 }
 
 static Int
-p_rounding_mode_dynamically_changed(void)
+p_rounding_mode_dynamically_changed( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.honorsigndependentroundingfpmathoption = TRUE;
   return TRUE;
 }
 
 static Int
-p_use_soft_float(void)
+p_use_soft_float( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.usesoftfloat = TRUE;
   return TRUE;
 }
 
 static Int
-p_enable_jit_exception_handling(void)
+p_enable_jit_exception_handling( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.jitexceptionhandling = TRUE;
   return TRUE;
 }
 
 static Int
-p_enable_jit_emit_debug_info(void)
+p_enable_jit_emit_debug_info( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.jitemitdebuginfo = TRUE;
   return TRUE;
 }
 
 static Int
-p_enable_jit_emit_debug_info_to_disk(void)
+p_enable_jit_emit_debug_info_to_disk( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.jitemitdebuginfotodisk = TRUE;
   return TRUE;
 }
 
 static Int
-p_guaranteed_tail_call_opt(void)
+p_guaranteed_tail_call_opt( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.guaranteedtailcallopt = TRUE;
   return TRUE;
 }
 
 static Int
-p_disable_tail_calls(void)
+p_disable_tail_calls( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.disabletailcalls = TRUE;
   return TRUE;
 }
 
 static Int
-p_enable_fast_isel(void)
+p_enable_fast_isel( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.fastisel = TRUE;
   return TRUE;
 }
 
 static Int
-p_fp_abitype(void)
+p_fp_abitype( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   Int v;
@@ -285,14 +285,14 @@ p_fp_abitype(void)
 }
 
 static Int
-p_default_fp_abitype(void)
+p_default_fp_abitype( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_targetopt.floatabitype = 0;
   return TRUE;
 }
 
 static Int
-p_engine_opt_level(void)
+p_engine_opt_level( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   Int v;
@@ -339,14 +339,14 @@ p_engine_opt_level(void)
 }
 
 static Int
-p_reset_engine_opt_level(void)
+p_reset_engine_opt_level( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_enginebuilder.engineoptlevel = 3;
   return TRUE;
 }
 
 static Int
-p_relocmodel(void)
+p_relocmodel( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   Int v;
@@ -393,14 +393,14 @@ p_relocmodel(void)
 }
 
 static Int
-p_reset_relocmodel(void)
+p_reset_relocmodel( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_enginebuilder.relocmodel = 0;
   return TRUE;
 }
 
 static Int
-p_codemodel(void)
+p_codemodel( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   Int v;
@@ -449,28 +449,28 @@ p_codemodel(void)
 }
 
 static Int
-p_reset_codemodel(void)
+p_reset_codemodel( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_enginebuilder.codemodel = 1;
   return TRUE;
 }
 
 static Int
-p_enable_mcjit(void)
+p_enable_mcjit( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_enginebuilder.usemcjit = 1;
   return TRUE;
 }
 
 static Int
-p_disable_mcjit(void)
+p_disable_mcjit( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_enginebuilder.usemcjit = 0;
   return TRUE;
 }
 
 static Int
-p_register_allocator(void)
+p_register_allocator( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   // valid values for ARG1 are 'integer' and 'atom'
@@ -517,7 +517,7 @@ p_register_allocator(void)
 }
 
 static Int
-p_reset_register_allocator(void)
+p_reset_register_allocator( USES_REGS1 )
 {
   ExpEnv.codegen_struc.struc_enginebuilder.regallocator = REG_ALLOC_GREEDY;
   return TRUE;
@@ -526,7 +526,7 @@ p_reset_register_allocator(void)
 #pragma GCC diagnostic pop
 
 void
-Yap_InitJitCodegenPreds(void)
+Yap_InitJitCodegenPreds( void )
 {
   Yap_InitCPred("enable_framepointer_elimination", 0, p_enable_framepointer_elimination, SafePredFlag);
   Yap_InitCPred("more_precise_fp_mad_option", 0, p_more_precise_fp_mad_option, SafePredFlag);

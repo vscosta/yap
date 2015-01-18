@@ -15,71 +15,71 @@
 * Last rev:     2013-10-18                               		 *
 *************************************************************************/
 
-#include "jit_predicates.hh"
+#include "jit_predicates.hpp"
 #include <string.h>
 
 #define N_ANALYSIS_PASSES 33
 
 // Disable one (passed by argument) LLVM analysis pass
-static Int  p_disable_analysis_pass(void);
+static Int  p_disable_analysis_pass( USES_REGS1 );
 
 // Enable one (passed by argument) LLVM analysis pass
-static Int  p_analysis_pass(void);
+static Int  p_analysis_pass( USES_REGS1 );
 
 // Enable one (passed by argument) LLVM analysis pass
-static Int  p_enable_analysis_pass(void);
+static Int  p_enable_analysis_pass( USES_REGS1 );
 
 // Enable a list (passed by argument) of LLVM analysis passes
-static Int  p_analysis_passes(void);
+static Int  p_analysis_passes( USES_REGS1 );
 
 // Enable all available LLVM analysis passes
-static Int  p_enable_all_analysis_passes(void);
+static Int  p_enable_all_analysis_passes( USES_REGS1 );
 
 // Disable all available LLVM analysis passes
-static Int  p_disable_all_analysis_passes(void);
+static Int  p_disable_all_analysis_passes( USES_REGS1 );
 
 // Enable LLVM statistics
-static Int  p_enable_stats(void);
+static Int  p_enable_stats( USES_REGS1 );
 
 // Enable elapsed time of each LLVM's task
-static Int  p_enable_time_passes(void);
+static Int  p_enable_time_passes( USES_REGS1 );
 
 // Checks generated modules are correct (before optimize it). Use only if you suspect that any module has been generated incorrectly.
-static Int  p_enable_module_correctness(void);
+static Int  p_enable_module_correctness( USES_REGS1 );
 
 // Same as 'p_enable_module_correctness', but accepts one argument, which defines when modules are checked.
 // Valid values are those defined by 'enumPointToVerifiy' on 'amidefs.h'
-static Int  p_enable_module_correctness1(void);
+static Int  p_enable_module_correctness1( USES_REGS1 );
 
 // Same as 'p_enable_module_correctness' with ARG1 = NOPOINT
-static Int  p_verify_module_nopoint(void);
+static Int  p_verify_module_nopoint( USES_REGS1 );
 
 // Same as 'p_enable_module_correctness' with ARG1 = BEFORE
-static Int  p_verify_module_before(void);
+static Int  p_verify_module_before( USES_REGS1 );
 
 // Same as 'p_enable_module_correctness' with ARG1 = AFTER
-static Int  p_verify_module_after(void);
+static Int  p_verify_module_after( USES_REGS1 );
 
 // Same as 'p_enable_module_correctness' with ARG1 = BOTH
-static Int  p_verify_module_both(void);
+static Int  p_verify_module_both( USES_REGS1 );
 
 // Disable LLVM statistics
-static Int  p_disable_stats(void);
+static Int  p_disable_stats( USES_REGS1 );
 
 // Disable elapsed time of each LLVM's task
-static Int  p_disable_time_passes(void);
+static Int  p_disable_time_passes( USES_REGS1 );
 
 // Don't check generated modules are correct
-static Int  p_disable_module_correctness(void);
+static Int  p_disable_module_correctness( USES_REGS1 );
 
 // Set output file where analysis results are emitted. 'stderr' and 'stdout' are valid values
-static Int  p_analysis_output_file(void);
+static Int  p_analysis_output_file( USES_REGS1 );
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
 	
 static Int
-p_disable_analysis_pass(void)
+p_disable_analysis_pass( USES_REGS1 )
 {
   // First: stores what analysis pass should be disabled
 
@@ -181,10 +181,10 @@ p_disable_analysis_pass(void)
 }
 
 static Int
-p_analysis_pass(void)
+p_analysis_pass( USES_REGS1 )
 {
   // First: disables analysis pass (if be active)
-  p_disable_analysis_pass();
+  p_disable_analysis_pass( PASS_REGS1 );
 
   // Second: valids argument and inserts new analysis pass
   // valid values for ARG1 are 'integer' and 'atom'
@@ -269,13 +269,13 @@ p_analysis_pass(void)
 }
 
 static Int
-p_enable_analysis_pass(void)
+p_enable_analysis_pass( USES_REGS1 )
 {
-  return p_analysis_pass();
+  return p_analysis_pass( PASS_REGS1 );
 }
 
 static Int
-p_analysis_passes(void)
+p_analysis_passes( USES_REGS1 )
 {
   int i = 0, j = 0;
   char *tmp;
@@ -415,7 +415,7 @@ p_analysis_passes(void)
 }
 
 static Int
-p_enable_all_analysis_passes(void)
+p_enable_all_analysis_passes( USES_REGS1 )
 {
   // Same as 'analysis_passes(all)'
   // First, disable all analysis passes
@@ -434,7 +434,7 @@ p_enable_all_analysis_passes(void)
 }
 
 static Int
-p_disable_all_analysis_passes(void)
+p_disable_all_analysis_passes( USES_REGS1 )
 {
   // Just empty 'ExpEnv.analysis_struc.act_an'
   if (ExpEnv.analysis_struc.act_an) free(ExpEnv.analysis_struc.act_an);
@@ -444,28 +444,28 @@ p_disable_all_analysis_passes(void)
 }
 
 static Int
-p_enable_stats(void)
+p_enable_stats( USES_REGS1 )
 {
   ExpEnv.analysis_struc.stats_enabled = 1;
   return TRUE;
 }
 
 static Int
-p_enable_time_passes(void)
+p_enable_time_passes( USES_REGS1 )
 {
   ExpEnv.analysis_struc.time_pass_enabled = 1;
   return TRUE;
 }
 
 static Int
-p_enable_module_correctness(void)
+p_enable_module_correctness( USES_REGS1 )
 {
   ExpEnv.analysis_struc.pointtoverifymodule = AFTER;
   return TRUE;
 }
 
 static Int
-p_enable_module_correctness1(void)
+p_enable_module_correctness1( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   char *tmp;
@@ -499,7 +499,7 @@ p_enable_module_correctness1(void)
 }
 
 static Int
-p_verify_module_nopoint(void)
+p_verify_module_nopoint( USES_REGS1 )
 {
   // Same as 'enable_module_correctness(nopoint)'
   ExpEnv.analysis_struc.pointtoverifymodule = NOPOINT;
@@ -507,7 +507,7 @@ p_verify_module_nopoint(void)
 }
 
 static Int
-p_verify_module_before(void)
+p_verify_module_before( USES_REGS1 )
 {
   // Same as 'enable_module_correctness(before)'
   ExpEnv.analysis_struc.pointtoverifymodule = BEFORE;
@@ -515,7 +515,7 @@ p_verify_module_before(void)
 }
 
 static Int
-p_verify_module_after(void)
+p_verify_module_after( USES_REGS1 )
 {
   // Same as 'enable_module_correctness(after)'
   ExpEnv.analysis_struc.pointtoverifymodule = AFTER;
@@ -523,7 +523,7 @@ p_verify_module_after(void)
 }
 
 static Int
-p_verify_module_both(void)
+p_verify_module_both( USES_REGS1 )
 {
   // Same as 'enable_module_correctness(both)'
   ExpEnv.analysis_struc.pointtoverifymodule = BOTH;
@@ -531,28 +531,28 @@ p_verify_module_both(void)
 }
 
 static Int
-p_disable_stats(void)
+p_disable_stats( USES_REGS1 )
 {
   ExpEnv.analysis_struc.stats_enabled = 0;
   return TRUE;
 }
 
 static Int
-p_disable_time_passes(void)
+p_disable_time_passes( USES_REGS1 )
 {
   ExpEnv.analysis_struc.time_pass_enabled = 0;
   return TRUE;
 }
 
 static Int
-p_disable_module_correctness(void)
+p_disable_module_correctness( USES_REGS1 )
 {
   ExpEnv.analysis_struc.pointtoverifymodule = NOPOINT;
   return TRUE;
 }
 
 static Int
-p_analysis_output_file(void)
+p_analysis_output_file( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   char *tmp;
