@@ -76,7 +76,7 @@ CPLINT_SEMANTICS_PROGRAMS= \
 	$(CPLINT_SRCDIR)/semlpadsld.pl \
 	$(CPLINT_SRCDIR)/semlpad.pl \
 	$(CPLINT_SRCDIR)/semcpl.pl \
-	$(CPLINT_SRCDIR)/slg.pl 
+	$(CPLINT_SRCDIR)/slg.pl
 
 CPLINT_TEST_PROGRAMS= \
 	$(CPLINT_SRCDIR)/testlpadvel.pl \
@@ -86,7 +86,7 @@ CPLINT_TEST_PROGRAMS= \
 	$(CPLINT_SRCDIR)/testcpl.pl \
 	$(CPLINT_SRCDIR)/testsemlpadsld.pl \
 	$(CPLINT_SRCDIR)/testsemlpad.pl \
-	$(CPLINT_SRCDIR)/testsemcpl.pl 
+	$(CPLINT_SRCDIR)/testsemcpl.pl
 
 CPLINT_EXAMPLES= \
 	$(CPLINT_EXDIR)/dice.cpl \
@@ -141,7 +141,7 @@ CPLINT_DOCS=\
 	$(CPLINT_DOCDIR)/manual.html \
 	$(CPLINT_DOCDIR)/manual.css \
 	$(CPLINT_DOCDIR)/manual0x.png
-	
+
 #	$(CPLINT_DOCDIR)/Makefile
 
 CPLINT_LEARNING_PROGRAMS=\
@@ -154,10 +154,10 @@ CPLINT_LEARNING_PROGRAMS=\
 
 all: $(SOBJS)
 
-cplint_yap.o: $(srcdir)/cplint_yap.c  $(srcdir)/cplint.h 
+cplint_yap.o: $(srcdir)/cplint_yap.c  $(srcdir)/cplint.h
 	$(CC) -c $(CFLAGS) $(CPLINT_CFLAGS) $(srcdir)/cplint_yap.c -o cplint_yap.o
 
-cplint_Prob.o: $(srcdir)/cplint_Prob.c  $(srcdir)/cplint.h 
+cplint_Prob.o: $(srcdir)/cplint_Prob.c  $(srcdir)/cplint.h
 	$(CC) -c $(CFLAGS) $(CPLINT_CFLAGS) $(srcdir)/cplint_Prob.c -o cplint_Prob.o
 
 bddem.o : $(srcdir)/slipcase/bddem.c
@@ -165,15 +165,17 @@ bddem.o : $(srcdir)/slipcase/bddem.c
 
 
 @DO_SECOND_LD@cplint.@SO@: cplint_yap.o cplint_Prob.o
-@DO_SECOND_LD@	@CPLINT_SHLIB_LD@ -o cplint.@SO@ $(CPLINT_LDFLAGS) cplint_yap.o cplint_Prob.o $(CPLINT_LIBS) @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@	@SHLIB_LD@ -o cplint.@SO@ $(CPLINT_LDFLAGS) cplint_yap.o cplint_Prob.o \
+	$(CPLINT_LIBS) @EXTRA_LIBS_FOR_DLLS@ @CUDD_LIBS@
 
 @DO_SECOND_LD@bddem.@SO@: bddem.o
-@DO_SECOND_LD@	@CPLINT_SHLIB_LD@ -o bddem.@SO@ $(CPLINT_LDFLAGS) bddem.o $(CPLINT_LIBS) @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@	@SHLIB_LD@ -o bddem.@SO@ $(CPLINT_LDFLAGS) bddem.o \
+	 $(CPLINT_LIBS) @EXTRA_LIBS_FOR_DLLS@ @CUDD_LIBS@
 
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
 
-install: all 
+install: all
 	mkdir -p $(DESTDIR)$(SHAREDIR)/cplint
 	mkdir -p $(DESTDIR)$(SHAREDIR)/cplint/examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)/cplint/doc
@@ -192,13 +194,12 @@ install: all
 	cp $(CPLINT_SRCDIR)/lemur/*.pl $(DESTDIR)$(SHAREDIR)/cplint/
 
 
-installcheck: 
+installcheck:
 	for h in ${CPLINT_TEST_PROGRAMS}; do echo "t. halt." | $(BINDIR)/yap -l $$h; done
 
 # use the following target to run individual tests, e.g. make testlpad
-test%:  	
+test%:
 	echo "t. halt." | yap -l $(CPLINT_SRCDIR)/$@.pl
 
 distclean: clean
 	rm -f Makefile
-

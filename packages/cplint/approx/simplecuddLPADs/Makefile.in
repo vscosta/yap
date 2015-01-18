@@ -29,10 +29,10 @@ RANLIB=@RANLIB@
 SHLIB_SUFFIX=@SO@
 CWD=$(PWD)
 srcdir=@srcdir@
-CPLINT_CPPFLAGS=@CPPFLAGS@ @CPLINT_CPPFLAGS@ -I@abs_top_builddir@ 
+CPLINT_CPPFLAGS=@CPPFLAGS@ @CPLINT_CPPFLAGS@ -I@abs_top_builddir@
 CPLINT_LDFLAGS=@CPLINT_LDFLAGS@
 CPLINT_LIBS=@CPLINT_LIBS@
-CFLAGS=@CFLAGS@  $(YAP_EXTRAS) $(DEFS) 
+CFLAGS=@CFLAGS@  $(YAP_EXTRAS) $(DEFS)
 
 #
 
@@ -42,13 +42,13 @@ default:  LPADBDD
 LPADBDD: ProblogBDD.o simplecudd.o general.o
 	@echo Making ProblogBDD...
 	@echo Copyright T. Mantadelis, A. Kimmig, B. Gutmann and Katholieke Universiteit Leuven 2008
-	$(CC) $(CPLINT_LDFLAGS) ProblogBDD.o simplecudd.o general.o  $(CPLINT_LIBS) -o LPADBDD
+	$(CC) $(CPLINT_LDFLAGS) ProblogBDD.o simplecudd.o general.o  $(CPLINT_LIBS)  @CUDD_LIBS@  -o LPADBDD
 
 %.o : $(srcdir)/%.c
 	$(CC)  $(CPLINT_CPPFLAGS)  -c $<
 
-clean: 
-	rm -f *.o LPADBDD 
+clean:
+	rm -f *.o LPADBDD
 
 install: default
 	$(INSTALL_PROGRAM) LPADBDD $(DESTDIR)
