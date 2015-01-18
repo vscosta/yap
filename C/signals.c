@@ -333,16 +333,16 @@ p_first_signal( USES_REGS1 )
       if (mask == 0)
 	return FALSE;
 #if HAVE___BUILTIN_FFSLL
-x      sig = __builtin_ffsll(mask);
+      sig = __builtin_ffsll(mask);
 #elif HAVE_FFSLL
       sig = ffsll(mask);
 #else
-      sig = Yap_msb( mask );
+      sig = Yap_msb( mask )+1;
 #endif
      if (get_signal(sig PASS_REGS)) {
 	  break;
       }
-																											  }
+  }
   loop:
   switch (sig) {
     case YAP_INT_SIGNAL:
