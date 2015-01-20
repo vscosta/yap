@@ -9,7 +9,7 @@
  *************************************************************************/
 
 
-:- system_module( '$os', [ 
+:- system_module( '$os', [
 	       cd/0,
 	       cd/1,
 	       getcwd/1,
@@ -24,10 +24,10 @@
 
 %% @{
 
-
-/** @defgroup YAPOS Access to Operating System Functionality
+/**
+@defgroup YAPOS Access to Operating System Functionality
 @ingroup builtins
-  
+
 The following built-in predicates allow access to underlying
 Operating System functionality.
 
@@ -37,38 +37,38 @@ Operating System functionality.
 
 Changes the current directory (on UNIX environments) to the user's home directory.
 
- 
+
 */
 cd :-
 	cd('~').
 
-/** @pred  cd(+ _D_) 
+/** @pred  cd(+ _D_)
 
 
 Changes the current directory (on UNIX environments).
 
- 
+
 */
 cd(F) :-
       absolute_file_name(F, Dir, [file_type(directory),file_errors(fail),access(execute),expand(true)]),
       working_directory(_, Dir).
 
-/** @pred  getcwd(- _D_) 
+/** @pred  getcwd(- _D_)
 
 
 Unify the current directory, represented as an atom, with the argument
  _D_.
 
- 
+
 */
 getcwd(Dir) :- working_directory(Dir, Dir).
 
-/** @pred  ls 
+/** @pred  ls
 
 
 Prints a list of all files in the current directory.
 
- 
+
 */
 ls :-
 	getcwd(X),
@@ -81,7 +81,7 @@ ls :-
 	fail.
 '$load_system_ls'(X,L) :-
 	operating_system_support:directory_files(X, L).
-	
+
 
 '$do_print_files'([]) :-
 	nl.
@@ -95,18 +95,18 @@ ls :-
 '$do_print_file'(F) :-
 	write(F), write('  ').
 
-/** @pred  pwd 
+/** @pred  pwd
 
 
 Prints the current directory.
 
- 
+
 */
 pwd :-
 	getcwd(X),
 	write(X), nl.
 
-/** @pred  unix(+ _S_) 
+/** @pred  unix(+ _S_)
 
 
 Access to Unix-like functionality:
@@ -138,7 +138,7 @@ atoms.
 Execute a new shell.
 
 
- 
+
 */
 unix(V) :- var(V), !,
 	'$do_error'(instantiation_error,unix(V)).
@@ -188,16 +188,16 @@ unix(putenv(X,Y)) :- '$putenv'(X,Y).
 	'$getenv'(X,Y).
 '$do_environ'(X, Y) :-
 	'$do_error'(type_error(atom,X),unix(environ(X,Y))).
-	
 
-/** @pred  putenv(+ _E_,+ _S_) 
+
+/** @pred  putenv(+ _E_,+ _S_)
 
 
 Set environment variable  _E_ to the value  _S_. If the
 environment variable  _E_ does not exist, create a new one. Both the
 environment variable and the value must be atoms.
 
- 
+
 */
 putenv(Na,Val) :-
 	'$putenv'(Na,Val).
@@ -205,7 +205,7 @@ putenv(Na,Val) :-
 getenv(Na,Val) :-
 	'$getenv'(Na,Val).
 
-/** @pred setenv(+ _Name_,+ _Value_) 
+/** @pred setenv(+ _Name_,+ _Value_)
 
 
 Set environment variable.   _Name_ and  _Value_ should be
@@ -213,7 +213,7 @@ instantiated to atoms or integers.  The environment variable will be
 passed to `shell/[0-2]` and can be requested using `getenv/2`.
 They also influence expand_file_name/2.
 
- 
+
 */
 setenv(Na,Val) :-
 	'$putenv'(Na,Val).
