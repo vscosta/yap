@@ -140,11 +140,7 @@ typedef struct worker_local {
   ADDR  TrailTop_;
   char*  ErrorMessage_;
   Term  Error_Term_;
-#ifdef THREADS
-  Term  Error_TYPE_;
-#else
   yap_error_number  Error_TYPE_;
-#endif	
   UInt  Error_Size_;
   char  ErrorSay_[MAX_ERROR_MSG_SIZE];
   jmp_buf  IOBotch_;

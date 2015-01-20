@@ -43,6 +43,18 @@
 #endif
 #include "config.h"
 
+#ifndef COROUTINING
+#define COROUTINING 1
+#endif
+
+#ifndef RATIONAL_TREES
+#define RATIONAL_TREES 1
+#endif
+
+#ifndef CUT_C
+#define CUT_C 1
+#endif
+
 #define FunAdr(X) X
 
 #include "inline-only.h"
@@ -96,26 +108,6 @@
 #if defined(COROUTINING) && !defined(TERM_EXTENSIONS)
 #define TERM_EXTENSIONS 1
 #endif /* COROUTINING && !TERM_EXTENSIONS */
-
-/* truth-values */
-#if HAVE_STDBOOL_H
-#include <stdbool.h>
-#else
-
-typedef int _Bool;
-
-#define bool _Bool;
-
-#define false 0
-#define true 1
-#endif
-
-#ifndef TRUE
-#define	 TRUE	true
-#endif
-#ifndef FALSE
-#define	 FALSE	false
-#endif
 
 /**
  * Stolen from Mozzila, this code should deal with bad implementations of stdc++.
@@ -182,6 +174,16 @@ typedef int _Bool;
 #define DUMMY_FILLER_FOR_ABS_TYPE int dummy;
 #endif /* HAVE_GCC */
 
+/*************************************************************************************************
+                              main exports in YapInterface.h
+*************************************************************************************************/
+
+/* Basic exports */
+
+#include "YapDefs.h"
+
+/* expect controls the direction of branches */
+
 #ifdef HAVE___BUILTIN_EXPECT
 #define likely(x)       __builtin_expect((x), 1)
 #define unlikely(x)     __builtin_expect((x), 0)
@@ -199,20 +201,10 @@ typedef int _Bool;
 #include <pthread.h>
 #endif /* THREADS */
 
-#ifndef ADTDEFS_C
-#define EXTERN  static
-#else
-#define EXTERN
-#endif /* ADTDEFS_C */
-
-
 /* null pointer	*/
 #define	 NIL	0
 
 /* Basic types */
-
-#include "YapTerm.h"
-
 #if HAVE_SIGPROF && (defined(__linux__)  || defined(__APPLE__))
 #define LOW_PROF 1
 #endif
@@ -349,7 +341,7 @@ typedef pthread_rwlock_t rwlock_t;
 
 
 /*************************************************************************************************
-                              use an auxiliary function for ranges	
+                              use an auxiliary function for ranges
 *************************************************************************************************/
 
 #ifdef __GNUC__
@@ -365,21 +357,13 @@ typedef pthread_rwlock_t rwlock_t;
 #endif
 
 /*************************************************************************************************
-                              main exports in YapInterface.h
-*************************************************************************************************/
-
-/* Basic exports */
-
-#include "YapDefs.h"
-
-/*************************************************************************************************
-                                             Atoms	
+                                             Atoms
 *************************************************************************************************/
 
 #include "Atoms.h"
 
 /*************************************************************************************************
-                                             Coroutining	
+                                             Coroutining
 *************************************************************************************************/
 
 
@@ -389,7 +373,7 @@ typedef pthread_rwlock_t rwlock_t;
 #endif
 
 /*************************************************************************************************
-                                      abstract machine registers	
+                                      abstract machine registers
 *************************************************************************************************/
 
 #include "amidefs.h"
@@ -406,7 +390,7 @@ typedef pthread_rwlock_t rwlock_t;
 #endif
 
 /*************************************************************************************************
-                              variables concerned with Error Handling	
+                              variables concerned with Error Handling
 *************************************************************************************************/
 
 #include <setjmp.h>
@@ -496,7 +480,7 @@ typedef enum
 #define	TermSize    sizeof(Term)
 
 /*************************************************************************************************
-                           variables related to memory allocation 
+                           variables related to memory allocation
 *************************************************************************************************/
 /* must be before TermExt.h */
 
@@ -561,7 +545,7 @@ typedef struct opcode_tab_entry
 #endif
 
 /*************************************************************************************************
-                                   Prolog may be in several modes 
+                                   Prolog may be in several modes
 *************************************************************************************************/
 
 typedef enum
@@ -679,13 +663,16 @@ typedef struct TIMED_MAVAR
 
 typedef enum
   {
-    INTERPRETED,         /* interpreted */
-    MIXED_MODE_USER,       /* mixed mode only for user predicates */
-    MIXED_MODE_ALL,        /* mixed mode for all predicates */
-    COMPILE_USER,          /* compile all user predicates*/
-    COMPILE_ALL          /* compile all predicates */
+    INTERPRETED = 0x1,         /* interpreted */
+    MIXED_MODE_USER = 0x2,       /* mixed mode only for user predicates */
+    MIXED_MODE_ALL = 0x4,        /* mixed mode for all predicates */
+    COMPILE_USER = 0x8,          /* compile all user predicates*/
+    COMPILE_ALL = 0x10         /* compile all predicates */
   } yap_exec_mode;
 
+#define MIXED_MODE ( MIXED_MODE_USER | MIXED_MODE_ALL )
+
+#define COMPILED ( COMPILE_USER | COMPILE_ALL )
 
 /************************/
   // queues are an example of collections of DB objects
@@ -855,6 +842,16 @@ extern struct worker_local Yap_local;
 
 #include "YapSignals.h"
 
+/*************************************************************************************************
+Global variables for JIT
+*************************************************************************************************/
+
+#if YAP_JIT
+#ifndef __cplusplus
+#ifndef _NATIVE
+#include "JIT.hpp"
+#endif
+#endif
+#endif
 
 #endif /* YAP_H */
-

@@ -323,7 +323,7 @@ INLINE_ONLY EXTERN inline Term MkPairTerm__(Term head, Term  tail USES_REGS );
 INLINE_ONLY EXTERN inline Term
 MkPairTerm__ (Term head, Term tail USES_REGS)
 {
-  register CELL *p = HR;
+  CELL *p = HR;
 
   HR[0] = head;
   HR[1] = tail;

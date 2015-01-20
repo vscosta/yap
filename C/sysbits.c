@@ -143,7 +143,7 @@ Yap_WinError(char *yap_error)
   char msg[256];
   /* Error, we could not read time */
      FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-		  NULL, GetLastError(), 
+		  NULL, GetLastError(),
 		  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, 256,
 		  NULL);
     Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "%s at %s", msg, yap_error);
@@ -195,13 +195,13 @@ is_directory(const char *FileName)
        s1[-1] = '\\';
    }
   if (ExpandEnvironmentStrings(s, (LPSTR)FileName, YAP_FILENAME_MAX) == 0)
-     return FALSE; 
+     return FALSE;
 
    DWORD dwAtts = GetFileAttributes( FileName );
    if (dwAtts == INVALID_FILE_ATTRIBUTES)
      return FALSE;
    return (dwAtts & FILE_ATTRIBUTE_DIRECTORY);
- #elif HAVE_LSTAT 
+ #elif HAVE_LSTAT
    struct stat buf;
 
    if (lstat(FileName, &buf) == -1) {
@@ -261,7 +261,7 @@ initSysPath(Term tlib, Term tcommons, bool dir_done, bool commons_done) {
                        MkAtomTerm(Yap_LookupAtom(dir))) )
         return FALSE;
     }
-    commons_done = true;  
+    commons_done = true;
   }
   if (dir_done && commons_done)
     return TRUE;
@@ -271,7 +271,7 @@ initSysPath(Term tlib, Term tcommons, bool dir_done, bool commons_done) {
   len = strlen(LOCAL_FileNameBuf);
   if (!dir_done) {
     strncat(LOCAL_FileNameBuf, "Yap", YAP_FILENAME_MAX);
-    if (is_directory(LOCAL_FileNameBuf)) 
+    if (is_directory(LOCAL_FileNameBuf))
       {
         if (! Yap_unify( tlib,
                          MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))) )
@@ -300,7 +300,7 @@ initSysPath(Term tlib, Term tcommons, bool dir_done, bool commons_done) {
     /* couldn't find it where it was supposed to be,
        let's try using the executable */
     if (!GetModuleFileName( NULL, LOCAL_FileNameBuf, YAP_FILENAME_MAX)) {
-      Yap_WinError( "could not find executable name" ); 
+      Yap_WinError( "could not find executable name" );
       /* do nothing */
       return FALSE;
     }
@@ -468,31 +468,31 @@ InitTime (int wid)
   REMOTE_ThreadHandle(wid).last_time_sysp = (struct timeval *)malloc(sizeof(struct timeval));
   getrusage(RUSAGE_SELF, &rusage);
   (*REMOTE_ThreadHandle(wid).last_timep).tv_sec =
-    (*REMOTE_ThreadHandle(wid).start_of_timesp).tv_sec = 
+    (*REMOTE_ThreadHandle(wid).start_of_timesp).tv_sec =
     rusage.ru_utime.tv_sec;
   (*REMOTE_ThreadHandle(wid).last_timep).tv_usec =
-    (*REMOTE_ThreadHandle(wid).start_of_timesp).tv_usec = 
+    (*REMOTE_ThreadHandle(wid).start_of_timesp).tv_usec =
     rusage.ru_utime.tv_usec;
   (*REMOTE_ThreadHandle(wid).last_time_sysp).tv_sec =
-    (*REMOTE_ThreadHandle(wid).start_of_times_sysp).tv_sec = 
+    (*REMOTE_ThreadHandle(wid).start_of_times_sysp).tv_sec =
     rusage.ru_stime.tv_sec;
   (*REMOTE_ThreadHandle(wid).last_time_sysp).tv_usec =
-    (*REMOTE_ThreadHandle(wid).start_of_times_sysp).tv_usec = 
+    (*REMOTE_ThreadHandle(wid).start_of_times_sysp).tv_usec =
     rusage.ru_stime.tv_usec;
 #else
   getrusage(RUSAGE_SELF, &rusage);
   last_time.tv_sec =
-    StartOfTimes.tv_sec = 
+    StartOfTimes.tv_sec =
     rusage.ru_utime.tv_sec;
   last_time.tv_usec =
-    StartOfTimes.tv_usec = 
+    StartOfTimes.tv_usec =
     rusage.ru_utime.tv_usec;
   last_time_sys.tv_sec =
-    StartOfTimes_sys.tv_sec = 
+    StartOfTimes_sys.tv_sec =
     rusage.ru_stime.tv_sec;
   last_time_sys.tv_usec =
-    StartOfTimes_sys.tv_usec = 
-    rusage.ru_stime.tv_usec;  
+    StartOfTimes_sys.tv_usec =
+    rusage.ru_stime.tv_usec;
 #endif
 }
 
@@ -586,51 +586,51 @@ InitTime (int wid)
     REMOTE_ThreadHandle(wid).last_timep = (struct _FILETIME *)malloc(sizeof(FILETIME));
     REMOTE_ThreadHandle(wid).start_of_times_sysp = (struct _FILETIME *)malloc(sizeof(FILETIME));
     REMOTE_ThreadHandle(wid).last_time_sysp = (struct _FILETIME *)malloc(sizeof(FILETIME));
-    (*REMOTE_ThreadHandle(wid).last_timep).dwLowDateTime = 
+    (*REMOTE_ThreadHandle(wid).last_timep).dwLowDateTime =
       UserTime.dwLowDateTime;
     (*REMOTE_ThreadHandle(wid).last_timep).dwHighDateTime =
       UserTime.dwHighDateTime;
     (*REMOTE_ThreadHandle(wid).start_of_timesp).dwLowDateTime =
       UserTime.dwLowDateTime;
-    (*REMOTE_ThreadHandle(wid).start_of_timesp).dwHighDateTime = 
+    (*REMOTE_ThreadHandle(wid).start_of_timesp).dwHighDateTime =
       UserTime.dwHighDateTime;
     (*REMOTE_ThreadHandle(wid).last_time_sysp).dwLowDateTime =
       KernelTime.dwLowDateTime;
-    (*REMOTE_ThreadHandle(wid).last_time_sysp).dwHighDateTime = 
+    (*REMOTE_ThreadHandle(wid).last_time_sysp).dwHighDateTime =
       KernelTime.dwHighDateTime;
     (*REMOTE_ThreadHandle(wid).start_of_times_sysp).dwLowDateTime =
       KernelTime.dwLowDateTime;
-    (*REMOTE_ThreadHandle(wid).start_of_times_sysp).dwHighDateTime = 
+    (*REMOTE_ThreadHandle(wid).start_of_times_sysp).dwHighDateTime =
       KernelTime.dwHighDateTime;
 #else
-    last_time.dwLowDateTime = 
+    last_time.dwLowDateTime =
       UserTime.dwLowDateTime;
     last_time.dwHighDateTime =
       UserTime.dwHighDateTime;
     StartOfTimes.dwLowDateTime =
       UserTime.dwLowDateTime;
-    StartOfTimes.dwHighDateTime = 
+    StartOfTimes.dwHighDateTime =
       UserTime.dwHighDateTime;
     last_time_sys.dwLowDateTime =
       KernelTime.dwLowDateTime;
-    last_time_sys.dwHighDateTime = 
+    last_time_sys.dwHighDateTime =
       KernelTime.dwHighDateTime;
     StartOfTimes_sys.dwLowDateTime =
       KernelTime.dwLowDateTime;
-    StartOfTimes_sys.dwHighDateTime = 
+    StartOfTimes_sys.dwHighDateTime =
       KernelTime.dwHighDateTime;
 #endif
   }
 }
 
 #ifdef __GNUC__
-static unsigned long long int 
+static unsigned long long int
 sub_utime(FILETIME t1, FILETIME t2)
 {
   ULARGE_INTEGER u[2];
   memcpy((void *)u,(void *)&t1,sizeof(FILETIME));
   memcpy((void *)(u+1),(void *)&t2,sizeof(FILETIME));
-  return 
+  return
     u[0].QuadPart - u[1].QuadPart;
 }
 #endif
@@ -951,7 +951,7 @@ real_cputime ()
 static hrtime_t StartOfWTimes;
 
 /* since last call to walltime */
-#define  LastWtime (*(hrtime_t *)ALIGN_YAPTYPE(LastWtimePtr,hrtime_t))
+#define  LastWtime (*(hrtime_t *)ALIGN_BY_TYPE(LastWtimePtr,hrtime_t))
 
 static void
 InitWTime (void)
@@ -1178,7 +1178,7 @@ p_init_random_state ( USES_REGS1 )
     current_seed  = (unsigned int) FloatOfTerm (t0);
   else
     current_seed  = (unsigned int) LongIntOfTerm (t0);
-  
+
   new = (char *) malloc(256);
   old = initstate(random(), new, 256);
   return Yap_unify(ARG2, MkIntegerTerm((Int)old)) &&
@@ -1383,7 +1383,7 @@ Yap_signal_index(const char *name)
 { struct signame *sn = signames;
   char tmp[12];
 
-  if ( strncmp(name, "SIG", 3) == 0 && strlen(name) < 12 ) 
+  if ( strncmp(name, "SIG", 3) == 0 && strlen(name) < 12 )
     { char *p = (char *)name+3, *q = tmp;
       while ((*q++ = tolower(*p++))) {};
       name = tmp;
@@ -1415,7 +1415,7 @@ SearchForTrailFault(void *ptr, int sure)
      crash again
      */
 #if  OS_HANDLES_TR_OVERFLOW && !USE_SYSTEM_MALLOC
-  if ((ptr > (void *)LOCAL_TrailTop-1024  && 
+  if ((ptr > (void *)LOCAL_TrailTop-1024  &&
        TR < (tr_fr_ptr) LOCAL_TrailTop+(64*1024))) {
     if (!Yap_growtrail(64*1024, TRUE)) {
       Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP failed to reserve %ld bytes in growtrail", K64);
@@ -1563,7 +1563,7 @@ HandleMatherr(int  sig, void *sipv, void *uapv)
 
 typedef void (*signal_handler_t)(int, void *, void *);
 
-#if HAVE_SIGACTION 
+#if HAVE_SIGACTION
 static void
 my_signal_info(int sig, void * handler)
 {
@@ -1604,7 +1604,7 @@ my_signal_info(int sig, void *handler)
 
 #endif
 
-#if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__) && !defined(LIGHT) 
+#if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__) && !defined(LIGHT)
 static RETSIGTYPE
 ReceiveSignal (int s, void *x, void *y)
 {
@@ -1702,7 +1702,7 @@ static void
 InitSignals (void)
 {
   if (GLOBAL_PrologShouldHandleInterrupts) {
-#if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__) && !defined(LIGHT) 
+#if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__) && !defined(LIGHT)
     my_signal (SIGQUIT, ReceiveSignal);
     my_signal (SIGKILL, ReceiveSignal);
     my_signal (SIGUSR1, ReceiveSignal);
@@ -1727,7 +1727,7 @@ InitSignals (void)
     my_signal_info (SIGSEGV, HandleSIGSEGV);
 #endif
 #ifdef YAPOR_COW
-    signal(SIGCHLD, SIG_IGN);  /* avoid ghosts */ 
+    signal(SIGCHLD, SIG_IGN);  /* avoid ghosts */
 #endif
   }
 }
@@ -1780,7 +1780,7 @@ TrueFileName (char *source, char *root, char *result, int in_lib, int expand_roo
 
   result[0] = '\0';
   if (strlen(source) >= YAP_FILENAME_MAX) {
-    Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "%s in true_file-name is larger than the buffer size (%d bytes)", source, strlen(source));    
+    Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "%s in true_file-name is larger than the buffer size (%d bytes)", source, strlen(source));
   }
 #if defined(__MINGW32__) || _MSC_VER
   /* step 0: replace / by \ */
@@ -1816,7 +1816,7 @@ TrueFileName (char *source, char *root, char *result, int in_lib, int expand_roo
       } else {
 #if HAVE_GETPWNAM
       struct passwd *user_passwd;
-      char *res0 = result; 
+      char *res0 = result;
 
       source++;
       while (!dir_separator((*res0 = *source)) && *res0 != '\0')
@@ -1841,7 +1841,7 @@ TrueFileName (char *source, char *root, char *result, int in_lib, int expand_roo
       while ((ch = *res0) && is_valid_env_char (ch) && ch != '}') {
 	res0++;
       }
-      *res0++ = '\0';      
+      *res0++ = '\0';
       if (ch == '}') {
 	// {...}
 	source++;
@@ -1977,7 +1977,7 @@ static Int
 p_true_file_name ( USES_REGS1 )
 {
   Term t = Deref(ARG1);
-  
+
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR,t,"argument to true_file_name unbound");
     return FALSE;
@@ -1994,7 +1994,7 @@ static Int
 p_expand_file_name ( USES_REGS1 )
 {
   Term t = Deref(ARG1);
-  
+
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR,t,"argument to true_file_name unbound");
     return FALSE;
@@ -2012,7 +2012,7 @@ p_true_file_name3 ( USES_REGS1 )
 {
   Term t = Deref(ARG1), t2 = Deref(ARG2);
   char *root = NULL;
-  
+
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR,t,"argument to true_file_name unbound");
     return FALSE;
@@ -2033,12 +2033,12 @@ p_true_file_name3 ( USES_REGS1 )
 }
 
 /* Executes $SHELL under Prolog */
-/** @pred  sh 
+/** @pred  sh
 
 
 Creates a new shell interaction.
 
- 
+
 */
 static Int
 p_sh ( USES_REGS1 )
@@ -2088,7 +2088,7 @@ p_shell ( USES_REGS1 )
 
   return FALSE;
 #else
-#if HAVE_SYSTEM 
+#if HAVE_SYSTEM
   char *shell;
   register int bourne = FALSE;
   Term t1 = Deref (ARG1);
@@ -2167,7 +2167,7 @@ p_system ( USES_REGS1 )
     si.cb = sizeof(si);
     ZeroMemory( &pi, sizeof(pi) );
 
-    // Start the child process. 
+    // Start the child process.
     if( !CreateProcess( NULL,   // No module name (use command line)
         cmd,            // Command line
         NULL,           // Process handle not inheritable
@@ -2175,10 +2175,10 @@ p_system ( USES_REGS1 )
         FALSE,          // Set handle inheritance to FALSE
         0,              // No creation flags
         NULL,           // Use parent's environment block
-        NULL,           // Use parent's starting directory 
+        NULL,           // Use parent's starting directory
         &si,            // Pointer to STARTUPINFO structure
         &pi )           // Pointer to PROCESS_INFORMATION structure
-    ) 
+    )
     {
       Yap_Error( SYSTEM_ERROR, ARG1,  "CreateProcess failed (%d).\n", GetLastError() );
         return FALSE;
@@ -2186,7 +2186,7 @@ p_system ( USES_REGS1 )
     // Wait until child process exits.
     WaitForSingleObject( pi.hProcess, INFINITE );
 
-    // Close process and thread handles. 
+    // Close process and thread handles.
     CloseHandle( pi.hProcess );
     CloseHandle( pi.hThread );
 
@@ -2243,7 +2243,7 @@ p_system ( USES_REGS1 )
 
 
 /* Rename a file */
-/** @pred  rename(+ _F_,+ _G_) 
+/** @pred  rename(+ _F_,+ _G_)
 
 Renames file  _F_ to  _G_.
 */
@@ -2454,7 +2454,7 @@ p_alarm( USES_REGS1 )
 #else
     Yap_get_signal( YAP_ALARM_SIGNAL );
 #endif
-  }    
+  }
 #if _MSC_VER || defined(__MINGW32__)
   {
     Term tout;
@@ -2462,19 +2462,19 @@ p_alarm( USES_REGS1 )
 
     time[0] = i1;
     time[1] = i2;
-    
-    if (time[0] != 0 && time[1] != 0) {
-      DWORD dwThreadId; 
-      HANDLE hThread; 
 
-      hThread = CreateThread( 
+    if (time[0] != 0 && time[1] != 0) {
+      DWORD dwThreadId;
+      HANDLE hThread;
+
+      hThread = CreateThread(
 			     NULL,     /* no security attributes */
-			     0,        /* use default stack size */ 
+			     0,        /* use default stack size */
 			     DoTimerThread, /* thread function */
 			     (LPVOID)time,  /* argument to thread function */
 			     0,        /* use default creation flags  */
 			     &dwThreadId);  /* returns the thread identifier */
- 
+
       /* Check the return value for success. */
       if (hThread == NULL) {
 	Yap_WinError("trying to use alarm");
@@ -2549,19 +2549,19 @@ p_virtual_alarm( USES_REGS1 )
 
     time[0] = IntegerOfTerm(t);
     time[1] = IntegerOfTerm(t2);
-    
-    if (time[0] != 0 && time[1] != 0) {
-      DWORD dwThreadId; 
-      HANDLE hThread; 
 
-      hThread = CreateThread( 
+    if (time[0] != 0 && time[1] != 0) {
+      DWORD dwThreadId;
+      HANDLE hThread;
+
+      hThread = CreateThread(
 			     NULL,     /* no security attributes */
-			     0,        /* use default stack size */ 
+			     0,        /* use default stack size */
 			     DoTimerThread, /* thread function */
 			     (LPVOID)time,  /* argument to thread function */
 			     0,        /* use default creation flags  */
 			     &dwThreadId);  /* returns the thread identifier */
- 
+
       /* Check the return value for success. */
       if (hThread == NULL) {
 	Yap_WinError("trying to use alarm");
@@ -2667,7 +2667,7 @@ set_fpu_exceptions(bool flag)
       /* this will probably not work in older releases of Linux */
       int v = _FPU_IEEE;
       _FPU_SETCW(v);
-#endif    
+#endif
 #ifdef HAVE_SIGFPE
       my_signal (SIGFPE, SIG_IGN);
 #endif
@@ -2709,14 +2709,14 @@ p_yap_paths( USES_REGS1 ) {
   char destdir[YAP_FILENAME_MAX+1];
 
   if (env_destdir) {
-    strncat(destdir, env_destdir, YAP_FILENAME_MAX );        
-    strncat(destdir, "/" YAP_LIBDIR, YAP_FILENAME_MAX );    
+    strncat(destdir, env_destdir, YAP_FILENAME_MAX );
+    strncat(destdir, "/" YAP_LIBDIR, YAP_FILENAME_MAX );
     out1 = MkAtomTerm(Yap_LookupAtom(destdir));
   } else {
     out1 = MkAtomTerm(Yap_LookupAtom(YAP_LIBDIR));
   }
   if (env_destdir) {
-    strncat(destdir, env_destdir, YAP_FILENAME_MAX );        
+    strncat(destdir, env_destdir, YAP_FILENAME_MAX );
     strncat(destdir, "/" YAP_SHAREDIR, YAP_FILENAME_MAX );
     out2 = MkAtomTerm(Yap_LookupAtom(destdir));
   } else {
@@ -2727,7 +2727,7 @@ p_yap_paths( USES_REGS1 ) {
 #endif
   }
   if (env_destdir) {
-    strncat(destdir, env_destdir, YAP_FILENAME_MAX );        
+    strncat(destdir, env_destdir, YAP_FILENAME_MAX );
     strncat(destdir, "/" YAP_BINDIR, YAP_FILENAME_MAX );
     out3 = MkAtomTerm(Yap_LookupAtom(destdir));
   } else {
@@ -2804,7 +2804,7 @@ void
 Yap_ReInitWallTime (void)
 {
   InitWTime();
-  if (Yap_heap_regs->last_wtime != NULL) 
+  if (Yap_heap_regs->last_wtime != NULL)
     Yap_FreeCodeSpace(Yap_heap_regs->last_wtime);
   InitLastWtime();
 }
@@ -2963,7 +2963,7 @@ WideStringFromAtom(Atom KeyAt USES_REGS)
       if (!Yap_growheap(FALSE, sz, NULL)) {
 	Yap_Error(OUT_OF_HEAP_ERROR, MkIntegerTerm(sz), "generating key in win_registry_get_value/3");
 	return FALSE;
-      }      
+      }
     }
     kptr = k;
     while ((*kptr++ = *chp++));
@@ -3098,8 +3098,8 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$yap_home", 1, p_yap_home, SafePredFlag);
   Yap_InitCPred ("$yap_paths", 3, p_yap_paths, SafePredFlag);
   Yap_InitCPred ("$dir_separator", 1, p_dir_sp, SafePredFlag);
-  Yap_InitCPred ("libraries_directory", 2, p_libraries_path, 0);    
-  Yap_InitCPred ("system_library", 1, p_library_dir, 0);    
+  Yap_InitCPred ("libraries_directory", 2, p_libraries_path, 0);
+  Yap_InitCPred ("system_library", 1, p_library_dir, 0);
   Yap_InitCPred ("commons_library", 1, p_commons_dir, 0);
   Yap_InitCPred ("$alarm", 4, p_alarm, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$getenv", 2, p_getenv, SafePredFlag);
@@ -3180,7 +3180,7 @@ int WINAPI win_yap(HANDLE, DWORD, LPVOID);
 
 int WINAPI win_yap(HANDLE hinst, DWORD reason, LPVOID reserved)
 {
-  switch (reason) 
+  switch (reason)
     {
     case DLL_PROCESS_ATTACH:
       break;

@@ -157,11 +157,7 @@ ADDR				TrailBase				void
 ADDR				TrailTop				void
 char*				ErrorMessage				void
 Term				Error_Term				void
-#ifdef THREADS
-Term				Error_TYPE				void
-#else
 yap_error_number		Error_TYPE				void
-#endif	
 UInt             		Error_Size				void
 char				ErrorSay[MAX_ERROR_MSG_SIZE]		void
 jmp_buf 			IOBotch					void

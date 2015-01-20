@@ -1557,21 +1557,6 @@ a_empty_call(clause_info *clinfo, yamop *code_p, int pass_no, struct  intermedia
 }
 
 static yamop *
-a_cnp(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
-{
-  if (pass_no) {
-    code_p->opc = emit_op(opcode);
-    code_p->y_u.aFlp.n = 0;
-    code_p->y_u.aFlp.native = NULL;
-    code_p->y_u.aFlp.native_next = 0;
-    code_p->y_u.aFlp.p = cip->CurrentPred;
-  }
-  GONEXT(aFlp);
-  return code_p;
-}	
-
-
-static yamop *
 a_pl(op_numbers opcode, PredEntry *pred, yamop *code_p, int pass_no)
 {
   if (pass_no) {
@@ -3362,9 +3347,6 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       break;
     case cut_op:
       code_p = a_cut(&clinfo, code_p, pass_no, cip);
-      break;
-    case native_op:
-      code_p = a_cnp(_native_me, code_p, pass_no, cip);
       break;
     case cutexit_op:
       cip->clause_has_cut = TRUE;

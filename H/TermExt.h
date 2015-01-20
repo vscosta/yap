@@ -365,7 +365,7 @@ INLINE_ONLY inline EXTERN Term
 __MkStringTerm (const char *s USES_REGS)
 {
   Term t = AbsAppl(HR);
-  size_t sz = ALIGN_YAPTYPE(strlen(s)+1,CELL);
+  size_t sz = ALIGN_BY_TYPE(strlen(s)+1,CELL);
   HR[0] = (CELL) FunctorString;
   HR[1] = (CELL) sz;
   strcpy((char *)(HR+2), s);

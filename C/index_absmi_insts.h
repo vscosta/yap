@@ -6,7 +6,6 @@
 #ifdef INDENT_CODE
 {
   {
-    {
 #endif /* INDENT_CODE */
 
       BOp(user_switch, lp);

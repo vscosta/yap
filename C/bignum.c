@@ -145,7 +145,7 @@ Yap_AllocExternalDataInStack(CELL tag, size_t bytes)
   MP_INT *dst = (MP_INT *)(HR+2);
   CELL *ret = HR;
 
-  nlimbs = ALIGN_YAPTYPE(bytes,CELL)/CellSize;
+  nlimbs = ALIGN_BY_TYPE(bytes,CELL)/CellSize;
   if (nlimbs > (ASP-ret)-1024) {
     return TermNil;
   }

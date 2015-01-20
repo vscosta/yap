@@ -97,7 +97,6 @@ typedef Int (*CPredicate)(CACHE_TYPE1);
 
 typedef Int (*CmpPredicate)(Term, Term);
 
-
 #define OpRegSize    sizeof(OPREG)
 
 /*
@@ -112,6 +111,7 @@ typedef OPREG  wamreg;
 typedef OPREG  yslot;
 typedef OPREG  COUNT;
 
+#include "amijit.h"
 
 /*
   This is a table with the codes for YAP instructions
@@ -223,7 +223,6 @@ typedef enum {
 #endif
 #define OpCodeSize   sizeof(OPCODE)
 
-
 /*
 
   Types of possible YAAM instructions.
@@ -237,6 +236,7 @@ typedef enum {
   d: double (functor + unaligned double)
   f: functor
   F: Function, CPredicate
+  J: JIT interface
   i: large integer (functor + long)
   I: logic upd index (struct logic_upd_index *)
   l: label, yamop *
@@ -261,6 +261,10 @@ typedef enum {
 */
 typedef struct yami {
   OPCODE opc;
+#if YAP_JIT
+  CELL next_native_r;
+  CELL next_native_w;
+#endif
   union {
     struct {
       CELL next;
@@ -361,16 +365,12 @@ typedef struct yami {
       CELL next;
     } Otapl;
     struct {
-      /* call counter */
-      COUNT                n;
-      /* native code pointer */
-      CPredicate           native;
-      /* next instruction to execute after native code if the predicate was not fully compiled */
-      struct yami *native_next;
-      /* Pointer to pred */
-      struct pred_entry   *p;
-      CELL next;              
-    } aFlp;
+    /* jit_handler */
+#if YAP_JIT
+      JitHandlContext *jh;
+#endif
+      CELL next;
+    } J;
     /* The next two instructions are twin: they both correspond to the old ldd. */
     /* The first one, aLl, handles try_logical and retry_logical, */
     /* Ill handles trust_logical. */

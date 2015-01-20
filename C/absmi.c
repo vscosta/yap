@@ -620,7 +620,7 @@ push_live_regs(yamop *pco)
 
 #if defined(ANALYST) || defined(DEBUG)
 
-char *Yap_op_names[_std_top + 1] =
+char *Yap_op_names[] =
 {
 #define OPCODE(OP,TYPE) #OP
 #include "YapOpcodes.h"
@@ -1571,7 +1571,7 @@ Yap_absmi(int inp)
   struct timeval timstart, timend;
   struct rusage rustart, ruend;
 #endif
-  static void *control_labels[] = { &&fail, &&NoStackCut, &&NoStackCommitY, &&NoStackCutT, &&NoStackEither, &&NoStackExecute, &&NoStackCall, &&NoStackDExecute, &&NoStackDeallocate, &&notrailleft, &&NoStackFail, &&NoStackCommitX, &&dospy };
+  static void *control_labels[] = { &&fail, &&NoStackCut, &&NoStackCommitY, &&NoStackCutT, &&NoStackEither, &&NoStackExecute, &&NoStackCall, &&NoStackDExecute, &&NoStackDeallocate, &&notrailleft, &&NoStackFail, &&NoStackCommitX };
   curtrace = NULL;
   curpreg = NULL;
   globalcurblock = NULL;
@@ -1799,7 +1799,14 @@ Yap_absmi(int inp)
 #include "absmi_insts.h"
 
 #if YAP_JIT
-#include "traced_absmi_insts.i"
+#include "traced_absmi_insts.h"
+#if YAPOR
+#include "traced_or.insts.h"
+#endif
+#if TABLING
+#include "traced_tab.insts.h"
+#include "traced_tab.tries.insts.h"
+#endif
 #endif
         
 #if !USE_THREADED_CODE

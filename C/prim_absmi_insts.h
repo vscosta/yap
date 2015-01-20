@@ -8,7 +8,1639 @@
     {
 #endif /* INDENT_CODE */
 
- 
+ 
+      Op(p_plus_vv, xxx);
+      BEGD(d0);
+      BEGD(d1);
+      d0 = XREG(PREG->y_u.xxx.x1);
+      /* first check pt1 */
+      deref_head(d0, plus_vv_unk);
+    plus_vv_nvar:
+      d1 = XREG(PREG->y_u.xxx.x2);
+      /* next check A2 */
+      deref_head(d1, plus_vv_nvar_unk);
+    plus_vv_nvar_nvar:
+      /* d0 and d1 are where I want them */
+      if (IsIntTerm(d0) && IsIntTerm(d1)) {
+        d0 = MkIntegerTerm(IntOfTerm(d0) + IntOfTerm(d1));
+      }
+      else {
+        saveregs();
+        d0 = p_plus(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
+        setregs();
+        if (d0 == 0L) {
+          saveregs();
+          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+          setregs();
+          FAIL();
+        }
+      }
+      XREG(PREG->y_u.xxx.x) = d0;
+      PREG = NEXTOP(PREG, xxx);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, plus_vv_unk, plus_vv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is _+B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+
+      BEGP(pt0);
+      deref_body(d1, pt0, plus_vv_nvar_unk, plus_vv_nvar_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A+B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_plus_vc, xxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.xxn.xi);
+      /* first check pt1 */
+      deref_head(d0, plus_vc_unk);
+    plus_vc_nvar:
+      {
+        Int d1 = PREG->y_u.xxn.c;
+        if (IsIntTerm(d0)) {
+          d0 = MkIntegerTerm(IntOfTerm(d0) + d1);
+        }
+        else {
+          saveregs();
+          d0 = p_plus(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+          setregs();
+          if (d0 == 0L) {
+            saveregs();
+            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+            setregs();
+            FAIL();
+          }
+        }
+      }
+      XREG(PREG->y_u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, plus_vc_unk, plus_vc_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A + " Int_FORMAT, PREG->y_u.xxn.c);
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_plus_y_vv, yxx);
+      BEGD(d0);
+      BEGD(d1);
+      d0 = XREG(PREG->y_u.yxx.x1);
+      /* first check pt1 */
+      deref_head(d0, plus_y_vv_unk);
+    plus_y_vv_nvar:
+      d1 = XREG(PREG->y_u.xxx.x2);
+      /* next check A2 */
+      deref_head(d1, plus_y_vv_nvar_unk);
+    plus_y_vv_nvar_nvar:
+      /* d0 and d1 are where I want them */
+      if (IsIntTerm(d0) && IsIntTerm(d1)) {
+        d0 = MkIntegerTerm(IntOfTerm(d0) + IntOfTerm(d1));
+      }
+      else {
+        saveregs();
+        d0 = p_plus(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
+        setregs();
+        if (d0 == 0L) {
+          saveregs();
+          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+          setregs();
+          FAIL();
+        }
+      }
+      BEGP(pt0);
+      pt0 = YREG + PREG->y_u.yxx.y;
+      PREG = NEXTOP(PREG, yxx);
+      INITIALIZE_PERMVAR(pt0,d0);
+      ENDP(pt0);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, plus_y_vv_unk, plus_y_vv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A+B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+
+      BEGP(pt0);
+      deref_body(d1, pt0, plus_y_vv_nvar_unk, plus_y_vv_nvar_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A+B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_plus_y_vc, yxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.yxn.xi);
+      /* first check pt1 */
+      deref_head(d0, plus_y_vc_unk);
+    plus_y_vc_nvar:
+      {
+        Int d1 = PREG->y_u.yxn.c;
+        if (IsIntTerm(d0)) {
+          d0 = MkIntegerTerm(IntOfTerm(d0) + d1);
+        }
+        else {
+          saveregs();
+          d0 = p_plus(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+          setregs();
+          if (d0 == 0L) {
+            saveregs();
+            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+            setregs();
+            FAIL();
+          }
+        }
+      }
+      BEGP(pt0);
+      pt0 = YREG + PREG->y_u.yxn.y;
+      PREG = NEXTOP(PREG, yxn);
+      INITIALIZE_PERMVAR(pt0,d0);
+      ENDP(pt0);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, plus_y_vc_unk, plus_y_vc_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A + " Int_FORMAT, PREG->y_u.yxn.c);
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_minus_vv, xxx);
+      BEGD(d0);
+      BEGD(d1);
+      d0 = XREG(PREG->y_u.xxx.x1);
+      /* first check pt1 */
+      deref_head(d0, minus_vv_unk);
+    minus_vv_nvar:
+      d1 = XREG(PREG->y_u.xxx.x2);
+      /* next check A2 */
+      deref_head(d1, minus_vv_nvar_unk);
+    minus_vv_nvar_nvar:
+      /* d0 and d1 are where I want them */
+      if (IsIntTerm(d0) && IsIntTerm(d1)) {
+        d0 = MkIntegerTerm(IntOfTerm(d0) - IntOfTerm(d1));
+      }
+      else {
+        saveregs();
+        d0 = p_minus(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
+        setregs();
+        if (d0 == 0L) {
+          saveregs();
+          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+          setregs();
+          FAIL();
+        }
+      }
+      XREG(PREG->y_u.xxx.x) = d0;
+      PREG = NEXTOP(PREG, xxx);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, minus_vv_unk, minus_vv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A-B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+
+      BEGP(pt0);
+      deref_body(d1, pt0, minus_vv_nvar_unk, minus_vv_nvar_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A-B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_minus_cv, xxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.xxn.xi);
+      /* first check pt1 */
+      deref_head(d0, minus_cv_unk);
+    minus_cv_nvar:
+      {
+        Int d1 = PREG->y_u.xxn.c;
+        if (IsIntTerm(d0)) {
+          d0 = MkIntegerTerm(d1 - IntOfTerm(d0));
+        }
+        else {
+          saveregs();
+          d0 = p_minus(MkIntegerTerm(d1),Yap_Eval(d0) PASS_REGS);
+          setregs();
+          if (d0 == 0L) {
+            saveregs();
+            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+            setregs();
+            FAIL();
+          }
+        }
+      }
+      XREG(PREG->y_u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, minus_cv_unk, minus_cv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "-A", PREG->y_u.xxn.c);
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_minus_y_vv, yxx);
+      BEGD(d0);
+      BEGD(d1);
+      d0 = XREG(PREG->y_u.yxx.x1);
+      /* first check pt1 */
+      deref_head(d0, minus_y_vv_unk);
+    minus_y_vv_nvar:
+      d1 = XREG(PREG->y_u.xxx.x2);
+      /* next check A2 */
+      deref_head(d1, minus_y_vv_nvar_unk);
+    minus_y_vv_nvar_nvar:
+      /* d0 and d1 are where I want them */
+      if (IsIntTerm(d0) && IsIntTerm(d1)) {
+        d0 = MkIntegerTerm(IntOfTerm(d0) - IntOfTerm(d1));
+      }
+      else {
+        saveregs();
+        d0 = p_minus(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
+        setregs();
+        if (d0 == 0L) {
+          saveregs();
+          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+          setregs();
+          FAIL();
+        }
+      }
+      BEGP(pt0);
+      pt0 = YREG + PREG->y_u.yxx.y;
+      PREG = NEXTOP(PREG, yxx);
+      INITIALIZE_PERMVAR(pt0,d0);
+      ENDP(pt0);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, minus_y_vv_unk, minus_y_vv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A-B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+
+      BEGP(pt0);
+      deref_body(d1, pt0, minus_y_vv_nvar_unk, minus_y_vv_nvar_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A-B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_minus_y_cv, yxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.yxn.xi);
+      /* first check pt1 */
+      deref_head(d0, minus_y_cv_unk);
+    minus_y_cv_nvar:
+      {
+        Int d1 = PREG->y_u.yxn.c;
+        if (IsIntTerm(d0)) {
+          d0 = MkIntegerTerm(d1 - IntOfTerm(d0));
+        }
+        else {
+          saveregs();
+          d0 = p_minus(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
+          setregs();
+          if (d0 == 0L) {
+            saveregs();
+            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+            setregs();
+            FAIL();
+          }
+        }
+      }
+      BEGP(pt0);
+      pt0 = YREG + PREG->y_u.yxn.y;
+      PREG = NEXTOP(PREG, yxn);
+      INITIALIZE_PERMVAR(pt0,d0);
+      ENDP(pt0);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, minus_y_cv_unk, minus_y_cv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "-A", PREG->y_u.yxn.c);
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_times_vv, xxx);
+      BEGD(d0);
+      BEGD(d1);
+      d0 = XREG(PREG->y_u.xxx.x1);
+      /* first check pt1 */
+      deref_head(d0, times_vv_unk);
+    times_vv_nvar:
+      d1 = XREG(PREG->y_u.xxx.x2);
+      /* next check A2 */
+      deref_head(d1, times_vv_nvar_unk);
+    times_vv_nvar_nvar:
+      /* d0 and d1 are where I want them */
+      if (IsIntTerm(d0) && IsIntTerm(d1)) {
+        d0 = times_int(IntOfTerm(d0), IntOfTerm(d1) PASS_REGS);
+      }
+      else {
+        saveregs();
+        d0 = p_times(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
+        setregs();
+        if (d0 == 0L) {
+          saveregs();
+          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+          setregs();
+          FAIL();
+        }
+      }
+      XREG(PREG->y_u.xxx.x) = d0;
+      PREG = NEXTOP(PREG, xxx);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, times_vv_unk, times_vv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A*B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+
+      BEGP(pt0);
+      deref_body(d1, pt0, times_vv_nvar_unk, times_vv_nvar_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A*B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_times_vc, xxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.xxn.xi);
+      /* first check pt1 */
+      deref_head(d0, times_vc_unk);
+    times_vc_nvar:
+      {
+        Int d1 = PREG->y_u.xxn.c;
+        if (IsIntTerm(d0)) {
+          d0 = times_int(IntOfTerm(d0), d1 PASS_REGS);
+        }
+        else {
+          saveregs();
+          d0 = p_times(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+          setregs();
+          if (d0 == 0L) {
+            saveregs();
+            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+            setregs();
+            FAIL();
+          }
+        }
+      }
+      XREG(PREG->y_u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, times_vc_unk, times_vc_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A* " Int_FORMAT, PREG->y_u.xxn.c);
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_times_y_vv, yxx);
+      BEGD(d0);
+      BEGD(d1);
+      d0 = XREG(PREG->y_u.yxx.x1);
+      /* first check pt1 */
+      deref_head(d0, times_y_vv_unk);
+    times_y_vv_nvar:
+      d1 = XREG(PREG->y_u.xxx.x2);
+      /* next check A2 */
+      deref_head(d1, times_y_vv_nvar_unk);
+    times_y_vv_nvar_nvar:
+      /* d0 and d1 are where I want them */
+      if (IsIntTerm(d0) && IsIntTerm(d1)) {
+        d0 = times_int(IntOfTerm(d0), IntOfTerm(d1) PASS_REGS);
+      }
+      else {
+        saveregs();
+        d0 = p_times(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
+        setregs();
+        if (d0 == 0L) {
+          saveregs();
+          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+          setregs();
+          FAIL();
+        }
+      }
+      BEGP(pt0);
+      pt0 = YREG + PREG->y_u.yxx.y;
+      PREG = NEXTOP(PREG, yxx);
+      INITIALIZE_PERMVAR(pt0,d0);
+      ENDP(pt0);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, times_y_vv_unk, times_y_vv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A*B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+
+      BEGP(pt0);
+      deref_body(d1, pt0, times_y_vv_nvar_unk, times_y_vv_nvar_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A*B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_times_y_vc, yxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.yxn.xi);
+      /* first check pt1 */
+      deref_head(d0, times_y_vc_unk);
+    times_y_vc_nvar:
+      {
+        Int d1 = PREG->y_u.yxn.c;
+        if (IsIntTerm(d0)) {
+          d0 = times_int(IntOfTerm(d0), d1 PASS_REGS);
+        }
+        else {
+          saveregs();
+          d0 = p_times(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+          setregs();
+          if (d0 == 0L) {
+            saveregs();
+            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+            setregs();
+            FAIL();
+          }
+        }
+      }
+      BEGP(pt0);
+      pt0 = YREG + PREG->y_u.yxn.y;
+      PREG = NEXTOP(PREG, yxn);
+      INITIALIZE_PERMVAR(pt0,d0);
+      ENDP(pt0);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, times_y_vc_unk, times_y_vc_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A* " Int_FORMAT, PREG->y_u.yxn.c);
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_div_vv, xxx);
+      BEGD(d0);
+      BEGD(d1);
+      d0 = XREG(PREG->y_u.xxx.x1);
+      /* first check pt1 */
+      deref_head(d0, div_vv_unk);
+    div_vv_nvar:
+      d1 = XREG(PREG->y_u.xxx.x2);
+      /* next check A2 */
+      deref_head(d1, div_vv_nvar_unk);
+    div_vv_nvar_nvar:
+      /* d0 and d1 are where I want them */
+      if (IsIntTerm(d0) && IsIntTerm(d1)) {
+        Int div = IntOfTerm(d1);
+        if (div == 0) {
+          saveregs();
+          Yap_NilError(EVALUATION_ERROR_ZERO_DIVISOR,"// /2");
+          setregs();
+          FAIL();
+        }
+        d0 = MkIntTerm(IntOfTerm(d0) / div);
+      }
+      else {
+        saveregs();
+        d0 = p_div(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
+        setregs();
+        if (d0 == 0L) {
+          saveregs();
+          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+          setregs();
+          FAIL();
+        }
+      }
+      XREG(PREG->y_u.xxx.x) = d0;
+      PREG = NEXTOP(PREG, xxx);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, div_vv_unk, div_vv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+
+      BEGP(pt0);
+      deref_body(d1, pt0, div_vv_nvar_unk, div_vv_nvar_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_div_vc, xxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.xxn.xi);
+      /* first check pt1 */
+      deref_head(d0, div_vc_unk);
+    div_vc_nvar:
+      {
+        Int d1 = PREG->y_u.xxn.c;
+        if (IsIntTerm(d0)) {
+          d0 = MkIntTerm(IntOfTerm(d0) / d1);
+        }
+        else {
+          saveregs();
+          d0 = p_div(Yap_Eval(d0),MkIntegerTerm(d1) PASS_REGS);
+          setregs();
+          if (d0 == 0L) {
+            saveregs();
+            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+            setregs();
+            FAIL();
+          }
+        }
+      }
+      XREG(PREG->y_u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, div_vc_unk, div_vc_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_div_cv, xxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.xxn.xi);
+      /* first check pt1 */
+      deref_head(d0, div_cv_unk);
+    div_cv_nvar:
+      {
+        Int d1 = PREG->y_u.xxn.c;
+        if (IsIntTerm(d0)) {
+          Int div = IntOfTerm(d0);
+          if (div == 0){
+            saveregs();
+            Yap_NilError(EVALUATION_ERROR_ZERO_DIVISOR,"// /2");
+            setregs();
+            FAIL();
+          }
+          d0 = MkIntegerTerm(d1 / div);
+        }
+        else {
+          saveregs();
+          d0 = p_div(MkIntegerTerm(d1),Yap_Eval(d0) PASS_REGS);
+          if (d0 == 0L) {
+            saveregs();
+            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+            setregs();
+            FAIL();
+          }
+        }
+      }
+      XREG(PREG->y_u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, div_cv_unk, div_cv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "// A", PREG->y_u.xxn.c);
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_div_y_vv, yxx);
+      BEGD(d0);
+      BEGD(d1);
+      d0 = XREG(PREG->y_u.yxx.x1);
+      /* first check pt1 */
+      deref_head(d0, div_y_vv_unk);
+    div_y_vv_nvar:
+      d1 = XREG(PREG->y_u.xxx.x2);
+      /* next check A2 */
+      deref_head(d1, div_y_vv_nvar_unk);
+    div_y_vv_nvar_nvar:
+      /* d0 and d1 are where I want them */
+      if (IsIntTerm(d0) && IsIntTerm(d1)) {
+        Int div = IntOfTerm(d1);
+        if (div == 0) {
+          saveregs();
+          Yap_NilError(EVALUATION_ERROR_ZERO_DIVISOR,"// /2");
+          setregs();
+          FAIL();
+        }
+        d0 = MkIntTerm(IntOfTerm(d0) / div);
+      }
+      else {
+        saveregs();
+        d0 = p_div(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
+        setregs();
+        if (d0 == 0L) {
+          saveregs();
+          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+          setregs();
+          FAIL();
+        }
+      }
+      BEGP(pt0);
+      pt0 = YREG + PREG->y_u.yxx.y;
+      PREG = NEXTOP(PREG, yxx);
+      INITIALIZE_PERMVAR(pt0,d0);
+      ENDP(pt0);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, div_y_vv_unk, div_y_vv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+
+      BEGP(pt0);
+      deref_body(d1, pt0, div_y_vv_nvar_unk, div_y_vv_nvar_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_div_y_vc, yxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.yxn.xi);
+      /* first check pt1 */
+      deref_head(d0, div_y_vc_unk);
+    div_y_vc_nvar:
+      {
+        Int d1 = PREG->y_u.yxn.c;
+        if (IsIntTerm(d0)) {
+          d0 = MkIntTerm(IntOfTerm(d0)/d1);
+        }
+        else {
+          saveregs();
+          d0 = p_div(Yap_Eval(d0),MkIntegerTerm(d1) PASS_REGS);
+          setregs();
+          if (d0 == 0L) {
+            saveregs();
+            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+            setregs();
+            FAIL();
+          }
+        }
+      }
+      BEGP(pt0);
+      pt0 = YREG + PREG->y_u.yxn.y;
+      PREG = NEXTOP(PREG, yxn);
+      INITIALIZE_PERMVAR(pt0,d0);
+      ENDP(pt0);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, div_y_vc_unk, div_y_vc_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_div_y_cv, yxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.yxn.xi);
+      /* first check pt1 */
+      deref_head(d0, div_y_cv_unk);
+    div_y_cv_nvar:
+      {
+        Int d1 = PREG->y_u.yxn.c;
+        if (IsIntTerm(d0)) {
+          Int div = IntOfTerm(d0);
+          if (div == 0) {
+            saveregs();
+            Yap_NilError(EVALUATION_ERROR_ZERO_DIVISOR,"// /2");
+            setregs();
+            FAIL();
+          }
+          d0 = MkIntegerTerm(d1 / div);
+        }
+        else {
+          saveregs();
+          d0 = p_div(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
+          setregs();
+          if (d0 == 0L) {
+            saveregs();
+            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+            setregs();
+            FAIL();
+          }
+        }
+      }
+      BEGP(pt0);
+      pt0 = YREG + PREG->y_u.yxn.y;
+      PREG = NEXTOP(PREG, yxn);
+      INITIALIZE_PERMVAR(pt0,d0);
+      ENDP(pt0);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, div_y_cv_unk, div_y_cv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "// A", PREG->y_u.yxn.c);
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+
+      Op(p_and_vv, xxx);
+      BEGD(d0);
+      BEGD(d1);
+      d0 = XREG(PREG->y_u.xxx.x1);
+      /* first check pt1 */
+      deref_head(d0, and_vv_unk);
+    and_vv_nvar:
+      d1 = XREG(PREG->y_u.xxx.x2);
+      /* next check A2 */
+      deref_head(d1, and_vv_nvar_unk);
+    and_vv_nvar_nvar:
+      /* d0 and d1 are where I want them */
+      if (IsIntTerm(d0) && IsIntTerm(d1)) {
+        d0 = MkIntegerTerm(IntOfTerm(d0) & IntOfTerm(d1));
+      }
+      else {
+        saveregs();
+        d0 = p_and(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
+        setregs();
+        if (d0 == 0L) {
+          saveregs();
+          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+          setregs();
+          FAIL();
+        }
+      }
+      XREG(PREG->y_u.xxx.x) = d0;
+      PREG = NEXTOP(PREG, xxx);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, and_vv_unk, and_vv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A/\\B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+
+      BEGP(pt0);
+      deref_body(d1, pt0, and_vv_nvar_unk, and_vv_nvar_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A/\\B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_and_vc, xxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.xxn.xi);
+      /* first check pt1 */
+      deref_head(d0, and_vc_unk);
+    and_vc_nvar:
+      {
+        Int d1 = PREG->y_u.xxn.c;
+        if (IsIntTerm(d0)) {
+          d0 = MkIntegerTerm(IntOfTerm(d0) & d1);
+        }
+        else {
+          saveregs();
+          d0 = p_and(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+          setregs();
+          if (d0 == 0L) {
+            saveregs();
+            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+            setregs();
+            FAIL();
+          }
+        }
+      }
+      XREG(PREG->y_u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, and_vc_unk, and_vc_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A /\\ " Int_FORMAT , PREG->y_u.xxn.c);
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_and_y_vv, yxx);
+      BEGD(d0);
+      BEGD(d1);
+      d0 = XREG(PREG->y_u.yxx.x1);
+      /* first check pt1 */
+      deref_head(d0, and_y_vv_unk);
+    and_y_vv_nvar:
+      d1 = XREG(PREG->y_u.xxx.x2);
+      /* next check A2 */
+      deref_head(d1, and_y_vv_nvar_unk);
+    and_y_vv_nvar_nvar:
+      /* d0 and d1 are where I want them */
+      if (IsIntTerm(d0) && IsIntTerm(d1)) {
+        d0 = MkIntegerTerm(IntOfTerm(d0) & IntOfTerm(d1));
+      }
+      else {
+        saveregs();
+        d0 = p_and(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
+        setregs();
+        if (d0 == 0L) {
+          saveregs();
+          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+          setregs();
+          FAIL();
+        }
+      }
+      BEGP(pt0);
+      pt0 = YREG + PREG->y_u.yxx.y;
+      PREG = NEXTOP(PREG, yxx);
+      INITIALIZE_PERMVAR(pt0,d0);
+      ENDP(pt0);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, and_y_vv_unk, and_y_vv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A/\\B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+
+      BEGP(pt0);
+      deref_body(d1, pt0, and_y_vv_nvar_unk, and_y_vv_nvar_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A/\\B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_and_y_vc, yxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.yxn.xi);
+      /* first check pt1 */
+      deref_head(d0, and_y_vc_unk);
+    and_y_vc_nvar:
+      {
+        Int d1 = PREG->y_u.yxn.c;
+        if (IsIntTerm(d0)) {
+          d0 = MkIntegerTerm(IntOfTerm(d0) & d1);
+        }
+        else {
+          saveregs();
+          d0 = p_and(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+          setregs();
+          if (d0 == 0L) {
+            saveregs();
+            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+            setregs();
+            FAIL();
+          }
+        }
+      }
+      BEGP(pt0);
+      pt0 = YREG + PREG->y_u.yxn.y;
+      PREG = NEXTOP(PREG, yxn);
+      INITIALIZE_PERMVAR(pt0,d0);
+      ENDP(pt0);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, and_y_vc_unk, and_y_vc_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A /\\ " Int_FORMAT , PREG->y_u.yxn.c);
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+
+      Op(p_or_vv, xxx);
+      BEGD(d0);
+      BEGD(d1);
+      d0 = XREG(PREG->y_u.xxx.x1);
+      /* first check pt1 */
+      deref_head(d0, or_vv_unk);
+    or_vv_nvar:
+      d1 = XREG(PREG->y_u.xxx.x2);
+      /* next check A2 */
+      deref_head(d1, or_vv_nvar_unk);
+    or_vv_nvar_nvar:
+      /* d0 and d1 are where I want them */
+      if (IsIntTerm(d0) && IsIntTerm(d1)) {
+        d0 = MkIntegerTerm(IntOfTerm(d0) | IntOfTerm(d1));
+      }
+      else {
+        saveregs();
+        d0 = p_or(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
+        setregs();
+        if (d0 == 0L) {
+          saveregs();
+          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+          setregs();
+          FAIL();
+        }
+      }
+      XREG(PREG->y_u.xxx.x) = d0;
+      PREG = NEXTOP(PREG, xxx);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, or_vv_unk, or_vv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A\\/B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+
+      BEGP(pt0);
+      deref_body(d1, pt0, or_vv_nvar_unk, or_vv_nvar_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A\\/B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_or_vc, xxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.xxn.xi);
+      /* first check pt1 */
+      deref_head(d0, or_vc_unk);
+    or_vc_nvar:
+      {
+        Int d1 = PREG->y_u.xxn.c;
+        if (IsIntTerm(d0)) {
+          d0 = MkIntegerTerm(IntOfTerm(d0) | d1);
+        }
+        else {
+          saveregs();
+          d0 = p_or(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+          if (d0 == 0L) {
+            saveregs();
+            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+            setregs();
+            FAIL();
+          }
+        }
+      }
+      XREG(PREG->y_u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, or_vc_unk, or_vc_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A \\/ " Int_FORMAT , PREG->y_u.xxn.c);
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_or_y_vv, yxx);
+      BEGD(d0);
+      BEGD(d1);
+      d0 = XREG(PREG->y_u.yxx.x1);
+      /* first check pt1 */
+      deref_head(d0, or_y_vv_unk);
+    or_y_vv_nvar:
+      d1 = XREG(PREG->y_u.xxx.x2);
+      /* next check A2 */
+      deref_head(d1, or_y_vv_nvar_unk);
+    or_y_vv_nvar_nvar:
+      /* d0 and d1 are where I want them */
+      if (IsIntTerm(d0) && IsIntTerm(d1)) {
+        d0 = MkIntegerTerm(IntOfTerm(d0) | IntOfTerm(d1));
+      }
+      else {
+        saveregs();
+        d0 = p_or(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
+        setregs();
+        if (d0 == 0L) {
+          saveregs();
+          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+          setregs();
+          FAIL();
+        }
+      }
+      BEGP(pt0);
+      pt0 = YREG + PREG->y_u.yxx.y;
+      PREG = NEXTOP(PREG, yxx);
+      INITIALIZE_PERMVAR(pt0,d0);
+      ENDP(pt0);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, or_y_vv_unk, or_y_vv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A\\/B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+
+      BEGP(pt0);
+      deref_body(d1, pt0, or_y_vv_nvar_unk, or_y_vv_nvar_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A\\/B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_or_y_vc, yxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.yxn.xi);
+      /* first check pt1 */
+      deref_head(d0, or_y_vc_unk);
+    or_y_vc_nvar:
+      {
+        Int d1 = PREG->y_u.yxn.c;
+        if (IsIntTerm(d0)) {
+          d0 = MkIntegerTerm(IntOfTerm(d0) | d1);
+        }
+        else {
+          saveregs();
+          d0 = p_or(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+          setregs();
+          if (d0 == 0L) {
+            saveregs();
+            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+            setregs();
+            FAIL();
+          }
+        }
+      }
+      BEGP(pt0);
+      pt0 = YREG + PREG->y_u.yxn.y;
+      PREG = NEXTOP(PREG, yxn);
+      INITIALIZE_PERMVAR(pt0,d0);
+      ENDP(pt0);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, or_y_vc_unk, or_y_vc_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A \\/ " Int_FORMAT , PREG->y_u.yxn.c);
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_sll_vv, xxx);
+      BEGD(d0);
+      BEGD(d1);
+      d0 = XREG(PREG->y_u.xxx.x1);
+      /* first check pt1 */
+      deref_head(d0, sll_vv_unk);
+    sll_vv_nvar:
+      d1 = XREG(PREG->y_u.xxx.x2);
+      /* next check A2 */
+      deref_head(d1, sll_vv_nvar_unk);
+    sll_vv_nvar_nvar:
+      /* d0 and d1 are where I want them */
+      if (IsIntTerm(d0) && IsIntTerm(d1)) {
+        Int i2 = IntOfTerm(d1);
+        if (i2 < 0)
+          d0 = MkIntegerTerm(SLR(IntOfTerm(d0), -i2));
+        else
+          d0 = do_sll(IntOfTerm(d0),i2 PASS_REGS);
+      }
+      else {
+        saveregs();
+        d0 = p_sll(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
+        setregs();
+      }
+      if (d0 == 0L) {
+        saveregs();
+        Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+        setregs();
+        FAIL();
+      }
+      XREG(PREG->y_u.xxx.x) = d0;
+      PREG = NEXTOP(PREG, xxx);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, sll_vv_unk, sll_vv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+
+      BEGP(pt0);
+      deref_body(d1, pt0, sll_vv_nvar_unk, sll_vv_nvar_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_sll_vc, xxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.xxn.xi);
+      /* first check pt1 */
+      deref_head(d0, sll_vc_unk);
+    sll_vc_nvar:
+      {
+        Int d1 = PREG->y_u.xxn.c;
+        if (IsIntTerm(d0)) {
+          d0 = do_sll(IntOfTerm(d0), (Int)d1 PASS_REGS);
+        }
+        else {
+          saveregs();
+          d0 = p_sll(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+          setregs();
+        }
+      }
+      if (d0 == 0L) {
+        saveregs();
+        Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+        setregs();
+        FAIL();
+      }
+      XREG(PREG->y_u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, sll_vc_unk, sll_vc_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_sll_cv, xxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.xxn.xi);
+      /* first check pt1 */
+      deref_head(d0, sll_cv_unk);
+    sll_cv_nvar:
+      {
+        Int d1 = PREG->y_u.xxn.c;
+        if (IsIntTerm(d0)) {
+          Int i2 = IntOfTerm(d0);
+          if (i2 < 0)
+            d0 = MkIntegerTerm(SLR(d1, -i2));
+          else
+            d0 = do_sll(d1,i2 PASS_REGS);
+        }
+        else {
+          saveregs();
+          d0 = p_sll(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
+          setregs();
+        }
+      }
+      if (d0 == 0L) {
+        saveregs();
+        Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+        setregs();
+        FAIL();
+      }
+      XREG(PREG->y_u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, sll_cv_unk, sll_cv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_sll_y_vv, yxx);
+      BEGD(d0);
+      BEGD(d1);
+      d0 = XREG(PREG->y_u.yxx.x1);
+      /* first check pt1 */
+      deref_head(d0, sll_y_vv_unk);
+    sll_y_vv_nvar:
+      d1 = XREG(PREG->y_u.xxx.x2);
+      /* next check A2 */
+      deref_head(d1, sll_y_vv_nvar_unk);
+    sll_y_vv_nvar_nvar:
+      /* d0 and d1 are where I want them */
+      if (IsIntTerm(d0) && IsIntTerm(d1)) {
+        Int i2 = IntOfTerm(d1);
+        if (i2 < 0)
+          d0 = MkIntegerTerm(SLR(IntOfTerm(d0), -i2));
+        else
+          d0 = do_sll(IntOfTerm(d0),i2 PASS_REGS);
+      }
+      else {
+        saveregs();
+        d0 = p_sll(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
+        setregs();
+      }
+      if (d0 == 0L) {
+        saveregs();
+        Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+        setregs();
+        FAIL();
+      }
+      BEGP(pt0);
+      pt0 = YREG + PREG->y_u.yxx.y;
+      PREG = NEXTOP(PREG, yxx);
+      INITIALIZE_PERMVAR(pt0,d0);
+      ENDP(pt0);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, sll_y_vv_unk, sll_y_vv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+
+      BEGP(pt0);
+      deref_body(d1, pt0, sll_y_vv_nvar_unk, sll_y_vv_nvar_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_sll_y_vc, yxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.yxn.xi);
+      /* first check pt1 */
+      deref_head(d0, sll_y_vc_unk);
+    sll_y_vc_nvar:
+      {
+        Int d1 = PREG->y_u.yxn.c;
+        if (IsIntTerm(d0)) {
+          d0 = do_sll(IntOfTerm(d0), Yap_Eval(d1) PASS_REGS);
+        }
+        else {
+          saveregs();
+          d0 = p_sll(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+          setregs();
+        }
+      }
+      if (d0 == 0L) {
+        saveregs();
+        Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+        setregs();
+        FAIL();
+      }
+      BEGP(pt0);
+      pt0 = YREG + PREG->y_u.yxn.y;
+      PREG = NEXTOP(PREG, yxn);
+      INITIALIZE_PERMVAR(pt0,d0);
+      ENDP(pt0);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, sll_y_vc_unk, sll_y_vc_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+
+      Op(p_sll_y_cv, yxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.yxn.xi);
+      /* first check pt1 */
+      deref_head(d0, sll_y_cv_unk);
+    sll_y_cv_nvar:
+      {
+        Int d1 = PREG->y_u.yxn.c;
+        if (IsIntTerm(d0)) {
+          Int i2 = IntOfTerm(d0);
+          if (i2 < 0)
+            d0 = MkIntegerTerm(SLR(d1, -i2));
+          else
+            d0 = do_sll(d1,i2 PASS_REGS);
+        }
+        else {
+          saveregs();
+          d0 = p_sll(MkIntegerTerm(d1), Yap_Eval(0) PASS_REGS);
+          setregs();
+        }
+      }
+      if (d0 == 0L) {
+        saveregs();
+        Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+        setregs();
+        FAIL();
+      }
+      BEGP(pt0);
+      pt0 = YREG + PREG->y_u.yxn.y;
+      PREG = NEXTOP(PREG, yxn);
+      INITIALIZE_PERMVAR(pt0,d0);
+      ENDP(pt0);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, sll_y_cv_unk, sll_y_cv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_slr_vv, xxx);
+      BEGD(d0);
+      BEGD(d1);
+      d0 = XREG(PREG->y_u.xxx.x1);
+      /* first check pt1 */
+      deref_head(d0, slr_vv_unk);
+    slr_vv_nvar:
+      d1 = XREG(PREG->y_u.xxx.x2);
+      /* next check A2 */
+      deref_head(d1, slr_vv_nvar_unk);
+    slr_vv_nvar_nvar:
+      /* d0 and d1 are where I want them */
+      if (IsIntTerm(d0) && IsIntTerm(d1)) {
+        Int i2 = IntOfTerm(d1);
+        if (i2 < 0)
+          d0 = do_sll(IntOfTerm(d0), -i2 PASS_REGS);
+        else
+          d0 = MkIntTerm(SLR(IntOfTerm(d0), i2));
+      }
+      else {
+        saveregs();
+        d0 = p_slr(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
+        setregs();
+      }
+      if (d0 == 0L) {
+        saveregs();
+        Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+        setregs();
+        FAIL();
+      }
+      XREG(PREG->y_u.xxx.x) = d0;
+      PREG = NEXTOP(PREG, xxx);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, slr_vv_unk, slr_vv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+
+      BEGP(pt0);
+      deref_body(d1, pt0, slr_vv_nvar_unk, slr_vv_nvar_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_slr_vc, xxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.xxn.xi);
+      /* first check pt1 */
+      deref_head(d0, slr_vc_unk);
+    slr_vc_nvar:
+      {
+        Int d1 = PREG->y_u.xxn.c;
+        if (IsIntTerm(d0)) {
+          d0 = MkIntTerm(SLR(IntOfTerm(d0), d1));
+        }
+        else {
+          saveregs();
+          d0 = p_slr(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+          setregs();
+          if (d0 == 0L) {
+            saveregs();
+            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+            setregs();
+            FAIL();
+          }
+        }
+      }
+      XREG(PREG->y_u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, slr_vc_unk, slr_vc_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_slr_cv, xxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.xxn.xi);
+      /* first check pt1 */
+      deref_head(d0, slr_cv_unk);
+    slr_cv_nvar:
+      {
+        Int d1 = PREG->y_u.xxn.c;
+        if (IsIntTerm(d0)) {
+          Int i2 = IntOfTerm(d0);
+          if (i2 < 0)
+            d0 = do_sll(d1, -i2 PASS_REGS);
+          else
+            d0 = MkIntegerTerm(SLR(d1, i2));
+        }
+        else {
+          saveregs();
+          d0 = p_slr(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
+          setregs();
+        }
+      }
+      if (d0 == 0L) {
+        saveregs();
+        Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+        setregs();
+        FAIL();
+      }
+      XREG(PREG->y_u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, slr_cv_unk, slr_cv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_slr_y_vv, yxx);
+      BEGD(d0);
+      BEGD(d1);
+      d0 = XREG(PREG->y_u.yxx.x1);
+      /* first check pt1 */
+      deref_head(d0, slr_y_vv_unk);
+    slr_y_vv_nvar:
+      d1 = XREG(PREG->y_u.xxx.x2);
+      /* next check A2 */
+      deref_head(d1, slr_y_vv_nvar_unk);
+    slr_y_vv_nvar_nvar:
+      /* d0 and d1 are where I want them */
+      if (IsIntTerm(d0) && IsIntTerm(d1)) {
+        Int i2 = IntOfTerm(d1);
+        if (i2 < 0)
+          d0 = do_sll(IntOfTerm(d0), -i2 PASS_REGS);
+        else
+          d0 = MkIntTerm(SLR(IntOfTerm(d0), i2));
+      }
+      else {
+        saveregs();
+        d0 = p_slr(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
+        setregs();
+      }
+      BEGP(pt0);
+      if (d0 == 0L) {
+        saveregs();
+        Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+        setregs();
+        FAIL();
+      }
+      pt0 = YREG + PREG->y_u.yxx.y;
+      PREG = NEXTOP(PREG, yxx);
+      INITIALIZE_PERMVAR(pt0,d0);
+      ENDP(pt0);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, slr_y_vv_unk, slr_y_vv_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+
+      BEGP(pt0);
+      deref_body(d1, pt0, slr_y_vv_nvar_unk, slr_y_vv_nvar_nvar);
+      saveregs();
+      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
+      setregs();
+      FAIL();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
       Op(p_slr_y_vc, yxn);
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxn.xi);
@@ -2038,7 +3670,7 @@
       func_nvar_nvar:
         /* A2 was bound */
         if (d0 != d1) {
-          vvvv      FAIL();
+          FAIL();
         }
         /* I have to this here so that I don't have a jump to a closing bracket */
         d0 = arity;

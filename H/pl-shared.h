@@ -281,8 +281,8 @@ getUnknownModule(module_t m);
 #define clearPrologFlagMask(flag) clear(&LD->prolog_flag.mask, flag)
 
 #ifndef YAP_CPP_INTERFACE
-COMMON(int)		debugmode(debug_type new, debug_type *old);
-COMMON(int)		tracemode(debug_type new, debug_type *old);
+COMMON(int)		debugmode(debug_type newp, debug_type *old);
+COMMON(int)		tracemode(debug_type newp, debug_type *old);
 #endif
 COMMON(void)		Yap_setCurrentSourceLocation( void *rd );
 

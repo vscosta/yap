@@ -36,12 +36,35 @@ Dereferencing macros
 /* For DEREFD, D has both the input and the exit argument */
 /* A is only used locally */
 
+#define profiled_deref_head_TEST(D,Label)                               \
+  if (IsVarTerm(D)) {                                                   \
+    if (!strcmp(#D, "d0")) { EMIT_CONDITIONAL_SUCCESS("IsVarTerm(d0)"); } \
+    else if (!strcmp(#D, "d1")) { EMIT_CONDITIONAL_SUCCESS("IsVarTerm(d1)"); } \
+    goto Label;                                                         \
+  }                                                                     \
+  if (!strcmp(#D, "d0")) { EMIT_CONDITIONAL_FAIL("IsVarTerm(d0)"); }    \
+  else if (!strcmp(#D, "d1")) { EMIT_CONDITIONAL_FAIL("IsVarTerm(d1)"); }
+
 #define deref_head(D,Label)  if (IsVarTerm(D)) goto Label
 
+#define profiled_deref_body(D,A,LabelUnk,LabelNonVar)   \
+  do {                                                  \
+  if(!IsVarTerm(D)) goto LabelNonVar;                   \
+LabelUnk:                                               \
+ (A) = (CELL *)(D);                                     \
+ (D) = *(CELL *)(D);                                    \
+ if (!strcmp(#D, "d0") && !strcmp(#A, "pt0")) { EMIT_SIMPLE_BLOCK_TEST(YAAM_DEREF_BODY_D0PT0); }            \
+ else if (!strcmp(#D, "d0") && !strcmp(#A, "pt1")) { EMIT_SIMPLE_BLOCK_TEST(YAAM_DEREF_BODY_D0PT1); }       \
+ else if (!strcmp(#D, "d0") && !strcmp(#A, "S_SREG")) { EMIT_SIMPLE_BLOCK_TEST(YAAM_DEREF_BODY_D0S_SREG); } \
+ else if (!strcmp(#D, "d1") && !strcmp(#A, "pt0")) { EMIT_SIMPLE_BLOCK_TEST(YAAM_DEREF_BODY_D1PT0); }       \
+ else if (!strcmp(#D, "d1") && !strcmp(#A, "pt1")) { EMIT_SIMPLE_BLOCK_TEST(YAAM_DEREF_BODY_D1PT1); }       \
+} while (Unsigned(A) != (D));
+
+
 #define deref_body(D,A,LabelUnk,LabelNonVar)                 \
-		do {                                         \
+                do {                                         \
                    if(!IsVarTerm(D)) goto LabelNonVar;       \
-		LabelUnk:                                    \
+                LabelUnk:                                    \
                    (A) = (CELL *)(D);                        \
                    (D) = *(CELL *)(D);                       \
 		   } while (Unsigned(A) != (D))
@@ -58,12 +81,26 @@ Dereferencing macros
 		} while (Unsigned(A) != (D));\
              LabelDone:
 
+#define profiled_derefa_body(D,A,LabelUnk,LabelNonVar)                  \
+  do {                                                                  \
+    (A) = (CELL *)(D);                                                  \
+    (D) = *(CELL *)(D);                                                 \
+    if (!strcmp(#D, "d0") && !strcmp(#A, "pt0")) { EMIT_SIMPLE_BLOCK_TEST(YAAM_DEREF_BODY_D0PT0); } \
+    else if (!strcmp(#D, "d0") && !strcmp(#A, "pt1")) { EMIT_SIMPLE_BLOCK_TEST(YAAM_DEREF_BODY_D0PT1); } \
+    else if (!strcmp(#D, "d0") && !strcmp(#A, "S_SREG")) { EMIT_SIMPLE_BLOCK_TEST(YAAM_DEREF_BODY_D0S_SREG); } \
+    else if (!strcmp(#D, "d1") && !strcmp(#A, "pt0")) { EMIT_SIMPLE_BLOCK_TEST(YAAM_DEREF_BODY_D1PT0); } \
+    else if (!strcmp(#D, "d1") && !strcmp(#A, "pt1")) { EMIT_SIMPLE_BLOCK_TEST(YAAM_DEREF_BODY_D1PT1); } \
+    if(!IsVarTerm(D)) goto LabelNonVar;                                 \
+  LabelUnk:      ;                                                      \
+  } while (Unsigned(A) != (D));
+
+
 #define derefa_body(D,A,LabelUnk,LabelNonVar)                \
-		do {                                         \
+                do {                                         \
                    (A) = (CELL *)(D);                        \
                    (D) = *(CELL *)(D);                       \
                    if(!IsVarTerm(D)) goto LabelNonVar;       \
-		LabelUnk:      ;                             \
+                LabelUnk:      ;                             \
 		} while (Unsigned(A) != (D))
 
 #if UNIQUE_TAG_FOR_PAIRS
@@ -103,12 +140,12 @@ A contains the address of the variable that is to be trailed
 #ifdef TABLING
 
 #define DO_TRAIL(TERM, VAL)      \
-{                                \
-  register tr_fr_ptr r;          \
-  r = TR;                        \
-  TR = r + 1;                    \
-  TrailTerm(r) = (Term) (TERM);  \
-  TrailVal(r) = (CELL) (VAL);    \
+  {				 \
+    tr_fr_ptr r;		 \
+    r = TR;			 \
+    TR = r + 1;			 \
+    TrailTerm(r) = (Term) (TERM);		\
+    TrailVal(r) = (CELL) (VAL);			\
 }
 
 #ifdef BFZ_TRAIL_SCHEME
@@ -157,7 +194,7 @@ A contains the address of the variable that is to be trailed
 
 #define DO_TRAIL(A,D)                   \
 {					\
-  register tr_fr_ptr r; 		\
+  tr_fr_ptr r; 		\
   r = TR;				\
   TR = r+1;				\
   TrailTerm(r) = (CELL)(A);		\
@@ -253,11 +290,11 @@ extern void	Yap_WakeUp(CELL *v);
 
 #define Bind_Local(A,D)	   { TRAIL_LOCAL(A,D); *(A) = (D); }
 #define Bind_Global(A,D)       { *(A) = (D); if (__builtin_expect(GlobalIsAttVar(A),0)) Yap_WakeUp(A); else TRAIL_GLOBAL(A,D);   }
-#define YapBind(A,D)              { *(A) = (D); if (A < HR) {  if (__builtin_expect(GlobalIsAttVar(A),0)) Yap_WakeUp(A); else TRAIL_GLOBAL(A,D);  } else { TRAIL_LOCAL(A,D); }	 }
+#define YapBind(A,D)              { *(A) = (D); if (A < HR) {  if (__builtin_expect(GlobalIsAttVar(A),0)) Yap_WakeUp(A); else TRAIL_GLOBAL(A,D);  } else { TRAIL_LOCAL(A,D); }   }
 #define Bind_NonAtt(A,D)       { *(A) = (D); TRAIL(A,D);	 }
 #define Bind_Global_NonAtt(A,D)       { *(A) = (D); TRAIL_GLOBAL(A,D); }
 #define Bind_and_Trail(A,D)       { *(A) = (D); DO_TRAIL(A, D); }
-
+#define Bind(A,D) YapBind(A,D)
 
 #define MaBind(VP,D)    { MATRAIL((VP),*(VP),(D)); *(VP) = (D); }
 
@@ -353,10 +390,10 @@ Int Yap_unify(Term t0, Term t1)
   }
 }
 
-EXTERN Int Yap_unify_constant(Term a, Term cons);
+INLINE_ONLY  EXTERN inline Int Yap_unify_constant(Term a, Term cons);
 
-EXTERN inline Int
-Yap_unify_constant(register Term a, register Term cons)
+INLINE_ONLY  EXTERN inline Int
+Yap_unify_constant(Term a, Term cons)
 {
   CACHE_REGS
   CELL *pt;

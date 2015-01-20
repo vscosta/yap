@@ -250,13 +250,8 @@
 #define REMOTE_ErrorMessage(wid) REMOTE(wid)->ErrorMessage_
 #define LOCAL_Error_Term LOCAL->Error_Term_
 #define REMOTE_Error_Term(wid) REMOTE(wid)->Error_Term_
-#ifdef THREADS
 #define LOCAL_Error_TYPE LOCAL->Error_TYPE_
 #define REMOTE_Error_TYPE(wid) REMOTE(wid)->Error_TYPE_
-#else
-#define LOCAL_Error_TYPE LOCAL->Error_TYPE_
-#define REMOTE_Error_TYPE(wid) REMOTE(wid)->Error_TYPE_
-#endif	
 #define LOCAL_Error_Size LOCAL->Error_Size_
 #define REMOTE_Error_Size(wid) REMOTE(wid)->Error_Size_
 #define LOCAL_ErrorSay LOCAL->ErrorSay_

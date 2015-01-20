@@ -1116,8 +1116,10 @@ move_next(ClauseDef *clause, UInt regno)
   op_numbers op = Yap_op_from_opcode(cl->opc);
 
   switch (op) {
-  case _native_me:
+#if YAP_JIT
+  case _jit_handler:
     return;
+#endif
 #if THREADS
   case _unlock_lu:
     clause->CurrentCode = NEXTOP(cl,e);

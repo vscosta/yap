@@ -38,9 +38,9 @@ Yap_MAVAR_HASH(CELL *addr USES_REGS) {
 OPT_MAVAR_STATIC struct ma_h_entry *
 Yap_ALLOC_NEW_MASPACE(USES_REGS1)
 {
-  ma_h_inner_struct *new = LOCAL_ma_h_top;
+  ma_h_inner_struct *newS = LOCAL_ma_h_top;
   LOCAL_ma_h_top++;
-  return new;
+  return newS;
 }
 
 OPT_MAVAR_STATIC int

@@ -6,14 +6,13 @@
   while (TRUE) {
     op_numbers op = Yap_op_from_opcode(cl->opc);
     switch (op) {
+#ifdef YAP_JIT
+    case _jit_handler:
+#endif
+      cl = NEXTOP(cl,J);
+      break;
     case _ensure_space:
-       cl = NEXTOP(cl,Osbpa);
-       break;
-    case _unlock_lu:
-       cl = NEXTOP(cl,e);
-       break;
-    case _native_me:
-      cl = NEXTOP(cl,aFlp);
+      cl = NEXTOP(cl,Osbpa);
       break;
     case _get_2atoms:
       if (iarg == Yap_regnotoreg(1)) {
@@ -224,7 +223,7 @@
 	    CELL *pt = RepAppl(t);
 	
 	    clause->Tag = AbsAppl((CELL *)pt[0]);
-	    if (IsExtensionFunctor(FunctorOfTerm(t))) {
+	       if (IsExtensionFunctor(FunctorOfTerm(t))) {
 	      clause->ucd.t_ptr = t;
 	    } else {
 	      clause->ucd.c_sreg = pt;
@@ -259,7 +258,7 @@
 	    CELL *pt = RepAppl(t);
 	
 	    clause->Tag = AbsAppl((CELL *)pt[0]);
-	    if (IsExtensionFunctor(FunctorOfTerm(t))) {
+	       if (IsExtensionFunctor(FunctorOfTerm(t))) {
 	      clause->ucd.t_ptr = t;
 	    } else {
 	      clause->ucd.c_sreg = pt;
@@ -275,6 +274,9 @@
         }
       }
       return;
+      cl = NEXTOP(cl,e);
+      break;
+    case _unlock_lu:
       cl = NEXTOP(cl,e);
       break;
     case _unify_l_list:
@@ -811,6 +813,12 @@
     case _table_try_single:
       cl = NEXTOP(cl,Otapl);
       break;
+#endif
+#ifdef YAP_JIT
+#ifdef YAPOR
+#endif
+#ifdef TABLING
+#endif
 #endif
 default:
 	clause->Tag = (CELL)NULL;

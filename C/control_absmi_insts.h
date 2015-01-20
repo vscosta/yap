@@ -224,9 +224,9 @@
 #ifdef DEPTH_LIMIT
         if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is prolog */
           if (pt0->ModuleOfPred) {
-            if (DEPTH == MkIntTerm(0))
+            if (DEPTH == MkIntTerm(0)) {
               FAIL();
-            else DEPTH = RESET_DEPTH();
+            } else { DEPTH = RESET_DEPTH(); }
           }
         } else if (pt0->ModuleOfPred)
           DEPTH -= MkIntConstant(2);
@@ -267,9 +267,11 @@
 #ifdef DEPTH_LIMIT
         if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
           if (pt0->ModuleOfPred) {
-            if (DEPTH == MkIntTerm(0))
+            if (DEPTH == MkIntTerm(0)) {
               FAIL();
-            else DEPTH = RESET_DEPTH();
+            } else {
+	      DEPTH = RESET_DEPTH();
+	    }
           }
         } else if (pt0->ModuleOfPred)
           DEPTH -= MkIntConstant(2);
@@ -353,9 +355,11 @@
 #ifdef DEPTH_LIMIT
         if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
           if (pt->ModuleOfPred) {
-            if (DEPTH == MkIntTerm(0))
+            if (DEPTH == MkIntTerm(0)) {
               FAIL();
-            else DEPTH = RESET_DEPTH();
+            } else {
+	      DEPTH = RESET_DEPTH();
+	    }
           }
         } else if (pt->ModuleOfPred)
           DEPTH -= MkIntConstant(2);
@@ -476,11 +480,11 @@
        **********************************************/
 
 #ifdef YAPOR
-#include "or.insts.i"
+#include "or.insts.h"
 #endif /* YAPOR */
 #ifdef TABLING
-#include "tab.insts.i"
-#include "tab.tries.insts.i"
+#include "tab.insts.h"
+#include "tab.tries.insts.h"
 #endif /* TABLING */
 
 

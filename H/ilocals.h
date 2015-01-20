@@ -140,11 +140,7 @@ static void InitWorker(int wid) {
 
 
 
-#ifdef THREADS
 
-#else
-
-#endif	
 
 
 

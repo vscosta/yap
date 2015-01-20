@@ -244,9 +244,11 @@
 #ifdef DEPTH_LIMIT
 	if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
 	  if (pen->ModuleOfPred) {
-	    if (DEPTH == MkIntTerm(0))
-	      FAIL();
-	    else DEPTH = RESET_DEPTH();
+	    if (DEPTH == MkIntTerm(0)) {
+	      FAIL(); 
+	    } else {
+	      DEPTH = RESET_DEPTH();
+	    }
 	  }
 	} else if (pen->ModuleOfPred)
 	  DEPTH -= MkIntConstant(2);

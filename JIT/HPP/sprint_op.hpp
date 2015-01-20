@@ -1,2398 +1,3179 @@
-yamop* lastop_of(yamop*);
+void sprint_op(char*, char*, op_numbers, char*);
 
-yamop*
-lastop_of(yamop* _p) {
-  op_numbers op;
-  yamop* lastp = NULL;
-  while( (op = Yap_op_from_opcode(_p->opc)) ){
-  lastp = _p;
-  switch(op){
+void
+sprint_op(char *out, char* prepend_term, op_numbers op, char* append_term) {
+	char tmp[1024];
+    switch(op){
       case _Ystop                      :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_Ystop");
         break;
+
       case _Nstop                      :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_Nstop");
         break;
+
       case _try_me                     :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_try_me");
         break;
+
       case _retry_me                   :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_retry_me");
         break;
+
       case _trust_me                   :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_trust_me");
         break;
+
       case _enter_profiling            :
-        _p = ((yamop *)(&((_p)->y_u.p.next)));
+        sprintf(tmp, "_enter_profiling");
         break;
+
       case _retry_profiled             :
-        _p = ((yamop *)(&((_p)->y_u.p.next)));
+        sprintf(tmp, "_retry_profiled");
         break;
+
       case _profiled_retry_me          :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_profiled_retry_me");
         break;
+
       case _profiled_trust_me          :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_profiled_trust_me");
         break;
+
       case _profiled_retry_logical     :
-        _p = ((yamop *)(&((_p)->y_u.OtaLl.next)));
+        sprintf(tmp, "_profiled_retry_logical");
         break;
+
       case _profiled_trust_logical     :
-        _p = ((yamop *)(&((_p)->y_u.OtILl.next)));
+        sprintf(tmp, "_profiled_trust_logical");
         break;
+
       case _count_call                 :
-        _p = ((yamop *)(&((_p)->y_u.p.next)));
+        sprintf(tmp, "_count_call");
         break;
+
       case _count_retry                :
-        _p = ((yamop *)(&((_p)->y_u.p.next)));
+        sprintf(tmp, "_count_retry");
         break;
+
       case _count_retry_me             :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_count_retry_me");
         break;
+
       case _count_trust_me             :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_count_trust_me");
         break;
+
       case _count_retry_logical        :
-        _p = ((yamop *)(&((_p)->y_u.OtaLl.next)));
+        sprintf(tmp, "_count_retry_logical");
         break;
+
       case _count_trust_logical        :
-        _p = ((yamop *)(&((_p)->y_u.OtILl.next)));
+        sprintf(tmp, "_count_trust_logical");
         break;
+
       case _lock_lu                    :
-        _p = ((yamop *)(&((_p)->y_u.p.next)));
+        sprintf(tmp, "_lock_lu");
         break;
+
       case _unlock_lu                  :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_unlock_lu");
         break;
+
       case _alloc_for_logical_pred     :
-        _p = ((yamop *)(&((_p)->y_u.L.next)));
+        sprintf(tmp, "_alloc_for_logical_pred");
         break;
+
       case _copy_idb_term              :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_copy_idb_term");
         break;
+
       case _unify_idb_term             :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_unify_idb_term");
         break;
+
       case _ensure_space               :
-        _p = ((yamop *)(&((_p)->y_u.Osbpa.next)));
+        sprintf(tmp, "_ensure_space");
         break;
+
       case _spy_or_trymark             :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_spy_or_trymark");
         break;
+
       case _try_and_mark               :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_try_and_mark");
         break;
+
       case _count_retry_and_mark       :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_count_retry_and_mark");
         break;
+
       case _profiled_retry_and_mark    :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_profiled_retry_and_mark");
         break;
+
       case _retry_and_mark             :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_retry_and_mark");
         break;
+
       case _trust_fail                 :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trust_fail");
         break;
+
       case _op_fail                    :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_op_fail");
         break;
+
       case _cut                        :
-        _p = ((yamop *)(&((_p)->y_u.s.next)));
+        sprintf(tmp, "_cut");
         break;
+
       case _cut_t                      :
-        _p = ((yamop *)(&((_p)->y_u.s.next)));
+        sprintf(tmp, "_cut_t");
         break;
+
       case _cut_e                      :
-        _p = ((yamop *)(&((_p)->y_u.s.next)));
+        sprintf(tmp, "_cut_e");
         break;
+
       case _save_b_x                   :
-        _p = ((yamop *)(&((_p)->y_u.x.next)));
+        sprintf(tmp, "_save_b_x");
         break;
+
       case _save_b_y                   :
-        _p = ((yamop *)(&((_p)->y_u.y.next)));
+        sprintf(tmp, "_save_b_y");
         break;
+
       case _commit_b_x                 :
-        _p = ((yamop *)(&((_p)->y_u.xps.next)));
+        sprintf(tmp, "_commit_b_x");
         break;
+
       case _commit_b_y                 :
-        _p = ((yamop *)(&((_p)->y_u.yps.next)));
+        sprintf(tmp, "_commit_b_y");
         break;
+
       case _execute                    :
-        _p = ((yamop *)(&((_p)->y_u.pp.next)));
+        sprintf(tmp, "_execute");
         break;
+
       case _dexecute                   :
-        _p = ((yamop *)(&((_p)->y_u.pp.next)));
+        sprintf(tmp, "_dexecute");
         break;
+
       case _fcall                      :
-        _p = ((yamop *)(&((_p)->y_u.Osbpp.next)));
+        sprintf(tmp, "_fcall");
         break;
+
       case _call                       :
-        _p = ((yamop *)(&((_p)->y_u.Osbpp.next)));
+        sprintf(tmp, "_call");
         break;
+
       case _procceed                   :
-        _p = ((yamop *)(&((_p)->y_u.p.next)));
-		l = (CELL)_p;
+        sprintf(tmp, "_procceed");
         break;
+
       case _allocate                   :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_allocate");
         break;
+
       case _deallocate                 :
-        _p = ((yamop *)(&((_p)->y_u.p.next)));
+        sprintf(tmp, "_deallocate");
         break;
+
 #ifdef BEAM
       case _retry_eam                  :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_retry_eam");
         break;
+
 #endif
 #ifdef BEAM
       case _run_eam                    :
-        _p = ((yamop *)(&((_p)->y_u.os.next)));
+        sprintf(tmp, "_run_eam");
         break;
+
 #endif
       case _get_x_var                  :
-        _p = ((yamop *)(&((_p)->y_u.xx.next)));
+        sprintf(tmp, "_get_x_var");
         break;
+
       case _get_y_var                  :
-        _p = ((yamop *)(&((_p)->y_u.yx.next)));
+        sprintf(tmp, "_get_y_var");
         break;
+
       case _get_yy_var                 :
-        _p = ((yamop *)(&((_p)->y_u.yyxx.next)));
+        sprintf(tmp, "_get_yy_var");
         break;
+
       case _get_x_val                  :
-        _p = ((yamop *)(&((_p)->y_u.xx.next)));
+        sprintf(tmp, "_get_x_val");
         break;
+
       case _get_y_val                  :
-        _p = ((yamop *)(&((_p)->y_u.yx.next)));
+        sprintf(tmp, "_get_y_val");
         break;
+
       case _get_atom                   :
-        _p = ((yamop *)(&((_p)->y_u.xc.next)));
+        sprintf(tmp, "_get_atom");
         break;
+
       case _get_2atoms                 :
-        _p = ((yamop *)(&((_p)->y_u.cc.next)));
+        sprintf(tmp, "_get_2atoms");
         break;
+
       case _get_3atoms                 :
-        _p = ((yamop *)(&((_p)->y_u.ccc.next)));
+        sprintf(tmp, "_get_3atoms");
         break;
+
       case _get_4atoms                 :
-        _p = ((yamop *)(&((_p)->y_u.cccc.next)));
+        sprintf(tmp, "_get_4atoms");
         break;
+
       case _get_5atoms                 :
-        _p = ((yamop *)(&((_p)->y_u.ccccc.next)));
+        sprintf(tmp, "_get_5atoms");
         break;
+
       case _get_6atoms                 :
-        _p = ((yamop *)(&((_p)->y_u.cccccc.next)));
+        sprintf(tmp, "_get_6atoms");
         break;
+
       case _get_list                   :
-        _p = ((yamop *)(&((_p)->y_u.x.next)));
+        sprintf(tmp, "_get_list");
         break;
+
       case _get_struct                 :
-        _p = ((yamop *)(&((_p)->y_u.xfa.next)));
+        sprintf(tmp, "_get_struct");
         break;
+
       case _get_float                  :
-        _p = ((yamop *)(&((_p)->y_u.xd.next)));
+        sprintf(tmp, "_get_float");
         break;
+
       case _get_longint                :
-        _p = ((yamop *)(&((_p)->y_u.xi.next)));
+        sprintf(tmp, "_get_longint");
         break;
+
       case _get_bigint                 :
-        _p = ((yamop *)(&((_p)->y_u.xN.next)));
+        sprintf(tmp, "_get_bigint");
         break;
+
       case _get_dbterm                 :
-        _p = ((yamop *)(&((_p)->y_u.xD.next)));
+        sprintf(tmp, "_get_dbterm");
         break;
+
       case _glist_valx                 :
-        _p = ((yamop *)(&((_p)->y_u.xx.next)));
+        sprintf(tmp, "_glist_valx");
         break;
+
       case _glist_valy                 :
-        _p = ((yamop *)(&((_p)->y_u.yx.next)));
+        sprintf(tmp, "_glist_valy");
         break;
+
       case _gl_void_varx               :
-        _p = ((yamop *)(&((_p)->y_u.xx.next)));
+        sprintf(tmp, "_gl_void_varx");
         break;
+
       case _gl_void_vary               :
-        _p = ((yamop *)(&((_p)->y_u.yx.next)));
+        sprintf(tmp, "_gl_void_vary");
         break;
+
       case _gl_void_valx               :
-        _p = ((yamop *)(&((_p)->y_u.xx.next)));
+        sprintf(tmp, "_gl_void_valx");
         break;
+
       case _gl_void_valy               :
-        _p = ((yamop *)(&((_p)->y_u.yx.next)));
+        sprintf(tmp, "_gl_void_valy");
         break;
+
       case _unify_x_var                :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_unify_x_var");
         break;
+
       case _unify_x_var_write          :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_unify_x_var_write");
         break;
+
       case _unify_l_x_var              :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_unify_l_x_var");
         break;
+
       case _unify_l_x_var_write        :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_unify_l_x_var_write");
         break;
+
       case _unify_x_var2               :
-        _p = ((yamop *)(&((_p)->y_u.oxx.next)));
+        sprintf(tmp, "_unify_x_var2");
         break;
+
       case _unify_x_var2_write         :
-        _p = ((yamop *)(&((_p)->y_u.oxx.next)));
+        sprintf(tmp, "_unify_x_var2_write");
         break;
+
       case _unify_l_x_var2             :
-        _p = ((yamop *)(&((_p)->y_u.oxx.next)));
+        sprintf(tmp, "_unify_l_x_var2");
         break;
+
       case _unify_l_x_var2_write       :
-        _p = ((yamop *)(&((_p)->y_u.oxx.next)));
+        sprintf(tmp, "_unify_l_x_var2_write");
         break;
+
       case _unify_y_var                :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_unify_y_var");
         break;
+
       case _unify_y_var_write          :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_unify_y_var_write");
         break;
+
       case _unify_l_y_var              :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_unify_l_y_var");
         break;
+
       case _unify_l_y_var_write        :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_unify_l_y_var_write");
         break;
+
       case _unify_x_val                :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_unify_x_val");
         break;
+
       case _unify_x_val_write          :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_unify_x_val_write");
         break;
+
       case _unify_l_x_val              :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_unify_l_x_val");
         break;
+
       case _unify_l_x_val_write        :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_uify_l_x_val_write");
         break;
+
       case _unify_y_val                :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_unify_y_val");
         break;
+
       case _unify_y_val_write          :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_unify_y_val_write");
         break;
+
       case _unify_l_y_val              :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_unify_l_y_val");
         break;
+
       case _unify_l_y_val_write        :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_unify_l_y_val_write");
         break;
+
       case _unify_x_loc                :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_unify_x_loc");
         break;
+
       case _unify_x_loc_write          :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_unify_x_loc_write");
         break;
+
       case _unify_l_x_loc              :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_unify_l_x_loc");
         break;
+
       case _unify_l_x_loc_write        :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_unify_l_x_loc_write");
         break;
+
       case _unify_y_loc                :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_unify_y_loc");
         break;
+
       case _unify_y_loc_write          :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_unify_y_loc_write");
         break;
+
       case _unify_l_y_loc              :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_unify_l_y_loc");
         break;
+
       case _unify_l_y_loc_write        :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_unify_l_y_loc_write");
         break;
+
       case _unify_void                 :
-        _p = ((yamop *)(&((_p)->y_u.o.next)));
+        sprintf(tmp, "_unify_void");
         break;
+
       case _unify_void_write           :
-        _p = ((yamop *)(&((_p)->y_u.o.next)));
+        sprintf(tmp, "_unify_void_write");
         break;
+
       case _unify_l_void               :
-        _p = ((yamop *)(&((_p)->y_u.o.next)));
+        sprintf(tmp, "_unify_l_void");
         break;
+
       case _unify_l_void_write         :
-        _p = ((yamop *)(&((_p)->y_u.o.next)));
+        sprintf(tmp, "_unify_l_void_write");
         break;
+
       case _unify_n_voids              :
-        _p = ((yamop *)(&((_p)->y_u.os.next)));
+        sprintf(tmp, "_unify_n_voids");
         break;
+
       case _unify_n_voids_write        :
-        _p = ((yamop *)(&((_p)->y_u.os.next)));
+        sprintf(tmp, "_unify_n_voids_write");
         break;
+
       case _unify_l_n_voids            :
-        _p = ((yamop *)(&((_p)->y_u.os.next)));
+        sprintf(tmp, "_unify_l_n_voids");
         break;
+
       case _unify_l_n_voids_write      :
-        _p = ((yamop *)(&((_p)->y_u.os.next)));
+        sprintf(tmp, "_unify_l_n_voids_write");
         break;
+
       case _unify_atom                 :
-        _p = ((yamop *)(&((_p)->y_u.oc.next)));
+        sprintf(tmp, "_unify_atom");
         break;
+
       case _unify_atom_write           :
-        _p = ((yamop *)(&((_p)->y_u.oc.next)));
+        sprintf(tmp, "_unify_atom_write");
         break;
+
       case _unify_l_atom               :
-        _p = ((yamop *)(&((_p)->y_u.oc.next)));
+        sprintf(tmp, "_unify_l_atom");
         break;
+
       case _unify_l_atom_write         :
-        _p = ((yamop *)(&((_p)->y_u.oc.next)));
+        sprintf(tmp, "_unify_l_atom_write");
         break;
+
       case _unify_n_atoms              :
-        _p = ((yamop *)(&((_p)->y_u.osc.next)));
+        sprintf(tmp, "_unify_n_atoms");
         break;
+
       case _unify_n_atoms_write        :
-        _p = ((yamop *)(&((_p)->y_u.osc.next)));
+        sprintf(tmp, "_unify_n_atoms_write");
         break;
+
       case _unify_float                :
-        _p = ((yamop *)(&((_p)->y_u.od.next)));
+        sprintf(tmp, "_unify_float");
         break;
+
       case _unify_float_write          :
-        _p = ((yamop *)(&((_p)->y_u.od.next)));
+        sprintf(tmp, "_unify_float_write");
         break;
+
       case _unify_l_float              :
-        _p = ((yamop *)(&((_p)->y_u.od.next)));
+        sprintf(tmp, "_unify_l_float");
         break;
+
       case _unify_l_float_write        :
-        _p = ((yamop *)(&((_p)->y_u.od.next)));
+        sprintf(tmp, "_unify_l_float_write");
         break;
+
       case _unify_longint              :
-        _p = ((yamop *)(&((_p)->y_u.oi.next)));
+        sprintf(tmp, "_unify_longint");
         break;
+
       case _unify_longint_write        :
-        _p = ((yamop *)(&((_p)->y_u.oi.next)));
+        sprintf(tmp, "_unify_longint_write");
         break;
+
       case _unify_l_longint            :
-        _p = ((yamop *)(&((_p)->y_u.oi.next)));
+        sprintf(tmp, "_unify_l_longint");
         break;
+
       case _unify_l_longint_write      :
-        _p = ((yamop *)(&((_p)->y_u.oi.next)));
+        sprintf(tmp, "_unify_l_longint_write");
         break;
+
       case _unify_bigint               :
-        _p = ((yamop *)(&((_p)->y_u.oN.next)));
+        sprintf(tmp, "_unify_bigint");
         break;
+
       case _unify_l_bigint             :
-        _p = ((yamop *)(&((_p)->y_u.oN.next)));
+        sprintf(tmp, "_unify_l_bigint");
         break;
+
       case _unify_dbterm               :
-        _p = ((yamop *)(&((_p)->y_u.oD.next)));
+        sprintf(tmp, "_unify_dbterm");
         break;
+
       case _unify_l_dbterm             :
-        _p = ((yamop *)(&((_p)->y_u.oD.next)));
+        sprintf(tmp, "_unify_l_dbterm");
         break;
+
       case _unify_list                 :
-        _p = ((yamop *)(&((_p)->y_u.o.next)));
+        sprintf(tmp, "_unify_list");
         break;
+
       case _unify_list_write           :
-        _p = ((yamop *)(&((_p)->y_u.o.next)));
+        sprintf(tmp, "_unify_list_write");
         break;
+
       case _unify_l_list               :
-        _p = ((yamop *)(&((_p)->y_u.o.next)));
+        sprintf(tmp, "_unify_l_list");
         break;
+
       case _unify_l_list_write         :
-        _p = ((yamop *)(&((_p)->y_u.o.next)));
+        sprintf(tmp, "_unify_l_list_write");
         break;
+
       case _unify_struct               :
-        _p = ((yamop *)(&((_p)->y_u.ofa.next)));
+        sprintf(tmp, "_unify_struct");
         break;
+
       case _unify_struct_write         :
-        _p = ((yamop *)(&((_p)->y_u.ofa.next)));
+        sprintf(tmp, "_unify_struct_write");
         break;
+
       case _unify_l_struc              :
-        _p = ((yamop *)(&((_p)->y_u.ofa.next)));
+        sprintf(tmp, "_unify_l_struc");
         break;
+
       case _unify_l_struc_write        :
-        _p = ((yamop *)(&((_p)->y_u.ofa.next)));
+        sprintf(tmp, "_unify_l_struc_write");
         break;
+
       case _put_x_var                  :
-        _p = ((yamop *)(&((_p)->y_u.xx.next)));
+        sprintf(tmp, "_put_x_var");
         break;
+
       case _put_y_var                  :
-        _p = ((yamop *)(&((_p)->y_u.yx.next)));
+        sprintf(tmp, "_put_y_var");
         break;
+
       case _put_x_val                  :
-        _p = ((yamop *)(&((_p)->y_u.xx.next)));
+        sprintf(tmp, "_put_x_val");
         break;
+
       case _put_xx_val                 :
-        _p = ((yamop *)(&((_p)->y_u.xxxx.next)));
+        sprintf(tmp, "_put_xx_val");
         break;
+
       case _put_y_val                  :
-        _p = ((yamop *)(&((_p)->y_u.yx.next)));
+        sprintf(tmp, "_put_y_val");
         break;
+
       case _put_y_vals                 :
-        _p = ((yamop *)(&((_p)->y_u.yyxx.next)));
+        sprintf(tmp, "_put_y_vals");
         break;
+
       case _put_unsafe                 :
-        _p = ((yamop *)(&((_p)->y_u.yx.next)));
+        sprintf(tmp, "_put_unsafe");
         break;
+
       case _put_atom                   :
-        _p = ((yamop *)(&((_p)->y_u.xc.next)));
+        sprintf(tmp, "_put_atom");
         break;
+
       case _put_dbterm                 :
-        _p = ((yamop *)(&((_p)->y_u.xD.next)));
+        sprintf(tmp, "_put_dbterm");
         break;
+
       case _put_bigint                 :
-        _p = ((yamop *)(&((_p)->y_u.xN.next)));
+        sprintf(tmp, "_put_bigint");
         break;
+
       case _put_float                  :
-        _p = ((yamop *)(&((_p)->y_u.xd.next)));
+        sprintf(tmp, "_put_float");
         break;
+
       case _put_longint                :
-        _p = ((yamop *)(&((_p)->y_u.xi.next)));
+        sprintf(tmp, "_put_longint");
         break;
+
       case _put_list                   :
-        _p = ((yamop *)(&((_p)->y_u.x.next)));
+        sprintf(tmp, "_put_list");
         break;
+
       case _put_struct                 :
-        _p = ((yamop *)(&((_p)->y_u.xfa.next)));
+        sprintf(tmp, "_put_struct");
         break;
+
       case _write_x_var                :
-        _p = ((yamop *)(&((_p)->y_u.x.next)));
+        sprintf(tmp, "_write_x_var");
         break;
+
       case _write_void                 :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_write_void");
         break;
+
       case _write_n_voids              :
-        _p = ((yamop *)(&((_p)->y_u.s.next)));
+        sprintf(tmp, "_write_n_voids");
         break;
+
       case _write_y_var                :
-        _p = ((yamop *)(&((_p)->y_u.y.next)));
+        sprintf(tmp, "_write_y_var");
         break;
+
       case _write_x_val                :
-        _p = ((yamop *)(&((_p)->y_u.x.next)));
+        sprintf(tmp, "_write_x_val");
         break;
+
       case _write_x_loc                :
-        _p = ((yamop *)(&((_p)->y_u.x.next)));
+        sprintf(tmp, "_write_x_loc");
         break;
+
       case _write_y_val                :
-        _p = ((yamop *)(&((_p)->y_u.y.next)));
+        sprintf(tmp, "_write_y_val");
         break;
+
       case _write_y_loc                :
-        _p = ((yamop *)(&((_p)->y_u.y.next)));
+        sprintf(tmp, "_write_y_loc");
         break;
+
       case _write_atom                 :
-        _p = ((yamop *)(&((_p)->y_u.c.next)));
+        sprintf(tmp, "_write_atom");
         break;
+
       case _write_bigint               :
-        _p = ((yamop *)(&((_p)->y_u.N.next)));
+        sprintf(tmp, "_write_bigint");
         break;
+
       case _write_dbterm               :
-        _p = ((yamop *)(&((_p)->y_u.D.next)));
+        sprintf(tmp, "_write_dbterm");
         break;
+
       case _write_float                :
-        _p = ((yamop *)(&((_p)->y_u.d.next)));
+        sprintf(tmp, "_write_float");
         break;
+
       case _write_longint              :
-        _p = ((yamop *)(&((_p)->y_u.i.next)));
+        sprintf(tmp, "_write_longint");
         break;
+
       case _write_n_atoms              :
-        _p = ((yamop *)(&((_p)->y_u.sc.next)));
+        sprintf(tmp, "_write_n_atoms");
         break;
+
       case _write_list                 :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_write_list");
         break;
+
       case _write_l_list               :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_write_l_list");
         break;
+
       case _write_struct               :
-        _p = ((yamop *)(&((_p)->y_u.fa.next)));
+        sprintf(tmp, "_write_struct");
         break;
+
       case _write_l_struc              :
-        _p = ((yamop *)(&((_p)->y_u.fa.next)));
+        sprintf(tmp, "_write_l_struc");
         break;
+
       case _save_pair_x                :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_save_pair_x");
         break;
+
       case _save_pair_x_write          :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_save_pair_x_write");
         break;
+
       case _save_pair_y                :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_save_pair_y");
         break;
+
       case _save_pair_y_write          :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_save_pair_y_write");
         break;
+
       case _save_appl_x                :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_save_appl_x");
         break;
+
       case _save_appl_x_write          :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_save_appl_x_write");
         break;
+
       case _save_appl_y                :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_save_appl_y");
         break;
+
       case _save_appl_y_write          :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_save_appl_y_write");
         break;
+
       case _jump                       :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_jump");
         break;
+
       case _move_back                  :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_move_back");
         break;
+
       case _skip                       :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_skip");
         break;
+
       case _either                     :
-        _p = ((yamop *)(&((_p)->y_u.Osblp.next)));
+        sprintf(tmp, "_either");
         break;
+
       case _or_else                    :
-        _p = ((yamop *)(&((_p)->y_u.Osblp.next)));
+        sprintf(tmp, "_or_else");
         break;
+
       case _pop_n                      :
-        _p = ((yamop *)(&((_p)->y_u.s.next)));
+        sprintf(tmp, "_pop_n");
         break;
+
       case _pop                        :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_pop");
         break;
+
       case _call_cpred                 :
-        _p = ((yamop *)(&((_p)->y_u.Osbpp.next)));
+        sprintf(tmp, "_call_cpred");
         break;
+
       case _execute_cpred              :
-        _p = ((yamop *)(&((_p)->y_u.pp.next)));
+        sprintf(tmp, "_execute_cpred");
         break;
+
       case _call_usercpred             :
-        _p = ((yamop *)(&((_p)->y_u.Osbpp.next)));
+        sprintf(tmp, "_call_usercpred");
         break;
+
       case _call_c_wfail               :
-        _p = ((yamop *)(&((_p)->y_u.slp.next)));
+        sprintf(tmp, "_call_x_wfail");
         break;
+
       case _try_c                      :
-        _p = ((yamop *)(&((_p)->y_u.OtapFs.next)));
+        sprintf(tmp, "_try_c");
         break;
+
       case _retry_c                    :
-        _p = ((yamop *)(&((_p)->y_u.OtapFs.next)));
+        sprintf(tmp, "_retry_c");
         break;
+
 #ifdef CUT_C
       case _cut_c                      :
-        _p = ((yamop *)(&((_p)->y_u.OtapFs.next)));
+        sprintf(tmp, "_cut_c");
         break;
+
 #endif
       case _try_userc                  :
-        _p = ((yamop *)(&((_p)->y_u.OtapFs.next)));
+        sprintf(tmp, "_try_userc");
         break;
+
       case _retry_userc                :
-        _p = ((yamop *)(&((_p)->y_u.OtapFs.next)));
+        sprintf(tmp, "_retry_userc");
         break;
+
 #ifdef CUT_C
       case _cut_userc                  :
-        _p = ((yamop *)(&((_p)->y_u.OtapFs.next)));
+        sprintf(tmp, "_cut_userc");
         break;
+
 #endif
       case _lock_pred                  :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_lock_pred");
         break;
+
       case _index_pred                 :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_index_pred");
         break;
+
 #ifdef THREADS
       case _thread_local               :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_thread_local");
         break;
+
 #endif
       case _expand_index               :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_expand_index");
         break;
+
       case _expand_clauses             :
-        _p = ((yamop *)(&((_p)->y_u.sssllp.next)));
+        sprintf(tmp, "_expand_clauses");
         break;
+
       case _undef_p                    :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_undef_p");
         break;
+
       case _spy_pred                   :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_spy_pred");
         break;
+
       case _try_clause                 :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_try_clause");
         break;
+
       case _try_clause2                :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_try_clause2");
         break;
+
       case _try_clause3                :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_try_clause3");
         break;
+
       case _try_clause4                :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_try_clause4");
         break;
+
       case _retry                      :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_retry");
         break;
+
       case _retry2                     :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_retry2");
         break;
+
       case _retry3                     :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_retry3");
         break;
+
       case _retry4                     :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_retry4");
         break;
+
       case _trust                      :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_trust");
         break;
+
       case _try_in                     :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_try_in");
         break;
+
       case _try_logical                :
-        _p = ((yamop *)(&((_p)->y_u.OtaLl.next)));
+        sprintf(tmp, "_try_logical");
         break;
+
       case _retry_logical              :
-        _p = ((yamop *)(&((_p)->y_u.OtaLl.next)));
+        sprintf(tmp, "_retry_logical");
         break;
+
       case _trust_logical              :
-        _p = ((yamop *)(&((_p)->y_u.OtILl.next)));
+        sprintf(tmp, "_trust_logical");
         break;
+
       case _user_switch                :
-        _p = ((yamop *)(&((_p)->y_u.lp.next)));
+        sprintf(tmp, "_user_switch");
         break;
+
       case _switch_on_type             :
-        _p = ((yamop *)(&((_p)->y_u.llll.next)));
+        sprintf(tmp, "_switch_on_type");
         break;
+
       case _switch_list_nl             :
-        _p = ((yamop *)(&((_p)->y_u.ollll.next)));
+        sprintf(tmp, "_switch_list_nl");
         break;
+
       case _switch_on_arg_type         :
-        _p = ((yamop *)(&((_p)->y_u.xllll.next)));
+        sprintf(tmp, "_switch_on_arg_type");
         break;
+
       case _switch_on_sub_arg_type     :
-        _p = ((yamop *)(&((_p)->y_u.sllll.next)));
+        sprintf(tmp, "_switch_on_sub_arg_type");
         break;
+
       case _jump_if_var                :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_jump_if_var");
         break;
+
       case _jump_if_nonvar             :
-        _p = ((yamop *)(&((_p)->y_u.xll.next)));
+        sprintf(tmp, "_jump_if_nonvar");
         break;
+
       case _if_not_then                :
-        _p = ((yamop *)(&((_p)->y_u.clll.next)));
+        sprintf(tmp, "_if_not_then");
         break;
+
       case _switch_on_func             :
-        _p = ((yamop *)(&((_p)->y_u.sssl.next)));
+        sprintf(tmp, "_switch_on_func");
         break;
+
       case _switch_on_cons             :
-        _p = ((yamop *)(&((_p)->y_u.sssl.next)));
+        sprintf(tmp, "_switch_on_cons");
         break;
+
       case _go_on_func                 :
-        _p = ((yamop *)(&((_p)->y_u.sssl.next)));
+        sprintf(tmp, "_go_on_func");
         break;
+
       case _go_on_cons                 :
-        _p = ((yamop *)(&((_p)->y_u.sssl.next)));
+        sprintf(tmp, "_go_on_cons");
         break;
+
       case _if_func                    :
-        _p = ((yamop *)(&((_p)->y_u.sssl.next)));
+        sprintf(tmp, "_if_func");
         break;
+
       case _if_cons                    :
-        _p = ((yamop *)(&((_p)->y_u.sssl.next)));
+        sprintf(tmp, "_if_cons");
         break;
+
       case _index_dbref                :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_index_dbref");
         break;
+
       case _index_blob                 :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_index_blob");
         break;
+
       case _index_long                 :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_index_long");
         break;
+
+#ifdef YAP_JIT
       case _jit_handler                  :
-        _p = ((yamop *)(&((_p)->y_u.J.next)));
+        sprintf(tmp, "_jit_handler");
         break;
+#endif /*YAP_JIT*/
+
       case _p_atom_x                   :
-        _p = ((yamop *)(&((_p)->y_u.xl.next)));
+        sprintf(tmp, "_p_atom_x");
         break;
+
       case _p_atom_y                   :
-        _p = ((yamop *)(&((_p)->y_u.yl.next)));
+        sprintf(tmp, "_p_atom_y");
         break;
+
       case _p_atomic_x                 :
-        _p = ((yamop *)(&((_p)->y_u.xl.next)));
+        sprintf(tmp, "_p_atomic_x");
         break;
+
       case _p_atomic_y                 :
-        _p = ((yamop *)(&((_p)->y_u.yl.next)));
+        sprintf(tmp, "_p_atomic_y");
         break;
+
       case _p_integer_x                :
-        _p = ((yamop *)(&((_p)->y_u.xl.next)));
+        sprintf(tmp, "_p_integer_x");
         break;
+
       case _p_integer_y                :
-        _p = ((yamop *)(&((_p)->y_u.yl.next)));
+        sprintf(tmp, "_p_integer_y");
         break;
+
       case _p_nonvar_x                 :
-        _p = ((yamop *)(&((_p)->y_u.xl.next)));
+        sprintf(tmp, "_p_nonvar_x");
         break;
+
       case _p_nonvar_y                 :
-        _p = ((yamop *)(&((_p)->y_u.yl.next)));
+        sprintf(tmp, "_p_nonvar_y");
         break;
+
       case _p_number_x                 :
-        _p = ((yamop *)(&((_p)->y_u.xl.next)));
+        sprintf(tmp, "_p_number_x");
         break;
+
       case _p_number_y                 :
-        _p = ((yamop *)(&((_p)->y_u.yl.next)));
+        sprintf(tmp, "_p_number_y");
         break;
+
       case _p_var_x                    :
-        _p = ((yamop *)(&((_p)->y_u.xl.next)));
+        sprintf(tmp, "_p_var_x");
         break;
+
       case _p_var_y                    :
-        _p = ((yamop *)(&((_p)->y_u.yl.next)));
+        sprintf(tmp, "_p_var_y");
         break;
+
       case _p_db_ref_x                 :
-        _p = ((yamop *)(&((_p)->y_u.xl.next)));
+        sprintf(tmp, "_p_db_ref_x");
         break;
+
       case _p_db_ref_y                 :
-        _p = ((yamop *)(&((_p)->y_u.yl.next)));
+        sprintf(tmp, "_p_db_ref_y");
         break;
+
       case _p_primitive_x              :
-        _p = ((yamop *)(&((_p)->y_u.xl.next)));
+        sprintf(tmp, "_p_primitive_x");
         break;
+
       case _p_primitive_y              :
-        _p = ((yamop *)(&((_p)->y_u.yl.next)));
+        sprintf(tmp, "_p_primitive_y");
         break;
+
       case _p_compound_x               :
-        _p = ((yamop *)(&((_p)->y_u.xl.next)));
+        sprintf(tmp, "_p_compound_x");
         break;
+
       case _p_compound_y               :
-        _p = ((yamop *)(&((_p)->y_u.yl.next)));
+        sprintf(tmp, "_p_compound_y");
         break;
+
       case _p_float_x                  :
-        _p = ((yamop *)(&((_p)->y_u.xl.next)));
+        sprintf(tmp, "_p_float_x");
         break;
+
       case _p_float_y                  :
-        _p = ((yamop *)(&((_p)->y_u.yl.next)));
+        sprintf(tmp, "_p_float_y");
         break;
+
       case _p_plus_vv                  :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_p_plus_vv");
         break;
+
       case _p_plus_vc                  :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_p_plus_vc");
         break;
+
       case _p_plus_y_vv                :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_p_plus_y_vv");
         break;
+
       case _p_plus_y_vc                :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_p_plus_y_vc");
         break;
+
       case _p_minus_vv                 :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_p_minus_vv");
         break;
+
       case _p_minus_cv                 :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_p_minus_cv");
         break;
+
       case _p_minus_y_vv               :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_p_minus_y_vv");
         break;
+
       case _p_minus_y_cv               :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_p_minus_y_cv");
         break;
+
       case _p_times_vv                 :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_p_times_vv");
         break;
+
       case _p_times_vc                 :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_p_times_vc");
         break;
+
       case _p_times_y_vv               :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_p_times_y_vv");
         break;
+
       case _p_times_y_vc               :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_p_times_y_vc");
         break;
+
       case _p_div_vv                   :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_p_div_vv");
         break;
+
       case _p_div_vc                   :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_p_div_vc");
         break;
+
       case _p_div_cv                   :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_p_div_cv");
         break;
+
       case _p_div_y_vv                 :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_p_div_y_vv");
         break;
+
       case _p_div_y_vc                 :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_p_div_y_vc");
         break;
+
       case _p_div_y_cv                 :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_p_div_y_cv");
         break;
+
       case _p_and_vv                   :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_p_and_vv");
         break;
+
       case _p_and_vc                   :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_p_and_vc");
         break;
+
       case _p_and_y_vv                 :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_p_and_y_vv");
         break;
+
       case _p_and_y_vc                 :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_p_and_y_vc");
         break;
+
       case _p_or_vv                    :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_p_or_vv");
         break;
+
       case _p_or_vc                    :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_p_or_vc");
         break;
+
       case _p_or_y_vv                  :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_p_or_y_vv");
         break;
+
       case _p_or_y_vc                  :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_p_or_y_vc");
         break;
+
       case _p_sll_vv                   :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_p_sll_vv");
         break;
+
       case _p_sll_vc                   :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_p_sll_vc");
         break;
+
       case _p_sll_cv                   :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_p_sll_cv");
         break;
+
       case _p_sll_y_vv                 :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_p_sll_y_vv");
         break;
+
       case _p_sll_y_vc                 :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_p_sll_y_vc");
         break;
+
       case _p_sll_y_cv                 :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_p_sll_y_cv");
         break;
+
       case _p_slr_vv                   :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_p_slr_vv");
         break;
+
       case _p_slr_vc                   :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_p_slr_vc");
         break;
+
       case _p_slr_cv                   :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_p_slr_cv");
         break;
+
       case _p_slr_y_vv                 :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_p_slr_y_vv");
         break;
+
       case _p_slr_y_vc                 :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_p_slr_y_vc");
         break;
+
       case _p_slr_y_cv                 :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_p_slr_y_cv");
         break;
+
       case _call_bfunc_xx              :
-        _p = ((yamop *)(&((_p)->y_u.plxxs.next)));
+        sprintf(tmp, "_call_bfunc_xx");
         break;
+
       case _call_bfunc_yx              :
-        _p = ((yamop *)(&((_p)->y_u.plxys.next)));
+        sprintf(tmp, "_call_bfunc_yx");
         break;
+
       case _call_bfunc_xy              :
-        _p = ((yamop *)(&((_p)->y_u.plxys.next)));
+        sprintf(tmp, "_call_bfunc_xy");
         break;
+
       case _call_bfunc_yy              :
-        _p = ((yamop *)(&((_p)->y_u.plyys.next)));
+        sprintf(tmp, "_call_bfunc_yy");
         break;
+
       case _p_equal                    :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_p_equal");
         break;
+
       case _p_dif                      :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_p_dif");
         break;
+
       case _p_eq                       :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_p_eq");
         break;
+
       case _p_arg_vv                   :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_p_arg_vv");
         break;
+
       case _p_arg_cv                   :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_p_arg_cv");
         break;
+
       case _p_arg_y_vv                 :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_p_arg_y_vv");
         break;
+
       case _p_arg_y_cv                 :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_p_arg_y_cv");
         break;
+
       case _p_func2s_vv                :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_p_func2s_vv");
         break;
+
       case _p_func2s_cv                :
-        _p = ((yamop *)(&((_p)->y_u.xxc.next)));
+        sprintf(tmp, "_p_func2s_cv");
         break;
+
       case _p_func2s_vc                :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_p_func2s_vc");
         break;
+
       case _p_func2s_y_vv              :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_p_func2s_y_vv");
         break;
+
       case _p_func2s_y_cv              :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_p_func2s_y_cv");
         break;
+
       case _p_func2s_y_vc              :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_p_func2s_y_vc");
         break;
+
       case _p_func2f_xx                :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_p_func2f_xx");
         break;
+
       case _p_func2f_xy                :
-        _p = ((yamop *)(&((_p)->y_u.xxy.next)));
+        sprintf(tmp, "_p_func2f_xy");
         break;
+
       case _p_func2f_yx                :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_p_func2f_yx");
         break;
+
       case _p_func2f_yy                :
-        _p = ((yamop *)(&((_p)->y_u.yyx.next)));
+        sprintf(tmp, "_p_func2f_yy");
         break;
+
       case _p_functor                  :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_p_functor");
         break;
+
       case _p_execute2                 :
-        _p = ((yamop *)(&((_p)->y_u.Osbpp.next)));
+        sprintf(tmp, "_p_execute2");
         break;
+
       case _p_execute                  :
-        _p = ((yamop *)(&((_p)->y_u.Osbmp.next)));
+        sprintf(tmp, "_p_execute");
         break;
+
       case _p_execute_tail             :
-        _p = ((yamop *)(&((_p)->y_u.Osbpp.next)));
+        sprintf(tmp, "_p_execute_tail");
         break;
+
 #ifdef YAPOR
       case _getwork_first_time         :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_getwork_first_time");
         break;
+
       case _getwork                    :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_getwork");
         break;
+
       case _getwork_seq                :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_getwork_seq");
         break;
+
       case _sync                       :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_sync");
         break;
+
 #endif
 #ifdef TABLING
 #ifdef TABLING_INNER_CUTS
       case _clause_with_cut            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_clause_with_cut");
         break;
+
 #endif
       case _table_load_answer          :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_table_load_answer");
         break;
+
       case _table_try_answer           :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_table_try_answer");
         break;
+
       case _table_try_single           :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_table_try_single");
         break;
+
       case _table_try_me               :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_table_try_me");
         break;
+
       case _table_try                  :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_table_try");
         break;
+
       case _table_retry_me             :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_table_retry_me");
         break;
+
       case _table_retry                :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_table_retry");
         break;
+
       case _table_trust_me             :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_table_trust_me");
         break;
+
       case _table_trust                :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_table_trust");
         break;
+
       case _table_new_answer           :
-        _p = ((yamop *)(&((_p)->y_u.s.next)));
+        sprintf(tmp, "_table_new_answer");
         break;
+
       case _table_answer_resolution    :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_table_answer_resolution");
         break;
+
       case _table_completion           :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_table_completion");
         break;
+
 #ifdef THREADS_CONSUMER_SHARING
       case _table_answer_resolution_completion:
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_table_answer_resolution_completion");
         break;
+
 #endif
       case _trie_do_var                :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_do_var");
         break;
+
       case _trie_trust_var             :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_trust_var");
         break;
+
       case _trie_try_var               :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_try_var");
         break;
+
       case _trie_retry_var             :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_retry_var");
         break;
+
       case _trie_do_var_in_pair        :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_do_var_in_pair");
         break;
+
       case _trie_trust_var_in_pair     :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_trust_var_in_pair");
         break;
+
       case _trie_try_var_in_pair       :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_try_var_in_pair");
         break;
+
       case _trie_retry_var_in_pair     :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_retry_var_in_pair");
         break;
+
       case _trie_do_val                :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_do_val");
         break;
+
       case _trie_trust_val             :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_trust_val");
         break;
+
       case _trie_try_val               :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_try_val");
         break;
+
       case _trie_retry_val             :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_retry_val");
         break;
+
       case _trie_do_val_in_pair        :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_do_val_in_pair");
         break;
+
       case _trie_trust_val_in_pair     :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_trust_val_in_pair");
         break;
+
       case _trie_try_val_in_pair       :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_try_val_in_pair");
         break;
+
       case _trie_retry_val_in_pair     :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_retry_val_in_pair");
         break;
+
       case _trie_do_atom               :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_do_atom");
         break;
+
       case _trie_trust_atom            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_trust_atom");
         break;
+
       case _trie_try_atom              :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_try_atom");
         break;
+
       case _trie_retry_atom            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_retry_atom");
         break;
+
       case _trie_do_atom_in_pair       :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_do_atom_in_pair");
         break;
+
       case _trie_trust_atom_in_pair    :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_trust_atom_in_pair");
         break;
+
       case _trie_try_atom_in_pair      :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_try_atom_in_pair");
         break;
+
       case _trie_retry_atom_in_pair    :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_retry_atom_in_pair");
         break;
+
       case _trie_do_null               :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_do_null");
         break;
+
       case _trie_trust_null            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_trust_null");
         break;
+
       case _trie_try_null              :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_try_null");
         break;
+
       case _trie_retry_null            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_retry_null");
         break;
+
       case _trie_do_null_in_pair       :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_do_null_in_pair");
         break;
+
       case _trie_trust_null_in_pair    :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_trust_null_in_pair");
         break;
+
       case _trie_try_null_in_pair      :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_tri_try_null_in_paire");
         break;
+
       case _trie_retry_null_in_pair    :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_retry_null_in_pair");
         break;
+
       case _trie_do_pair               :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_do_pair");
         break;
+
       case _trie_trust_pair            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_trust_pair");
         break;
+
       case _trie_try_pair              :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_try_pair");
         break;
+
       case _trie_retry_pair            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_retry_pair");
         break;
+
       case _trie_do_appl               :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_do_appl");
         break;
+
       case _trie_trust_appl            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_trust_appl");
         break;
+
       case _trie_try_appl              :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_try_appl");
         break;
+
       case _trie_retry_appl            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_retry_appl");
         break;
+
       case _trie_do_appl_in_pair       :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_do_appl_in_pair");
         break;
+
       case _trie_trust_appl_in_pair    :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_trust_appl_in_pair");
         break;
+
       case _trie_try_appl_in_pair      :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_trty_appkl_in_pair");
         break;
+
       case _trie_retry_appl_in_pair    :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_retry_appl_in_pair");
         break;
+
       case _trie_do_extension          :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_do_extension");
         break;
+
       case _trie_trust_extension       :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_trust_extension");
         break;
+
       case _trie_try_extension         :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_try_extension");
         break;
+
       case _trie_retry_extension       :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_retry_extension");
         break;
+
       case _trie_do_double             :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_do_double");
         break;
+
       case _trie_trust_double          :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_trust_double");
         break;
+
       case _trie_try_double            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_try_double");
         break;
+
       case _trie_retry_double          :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_retry_double");
         break;
+
       case _trie_do_longint            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_do_longint");
         break;
+
       case _trie_trust_longint         :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_trust_longint");
         break;
+
       case _trie_try_longint           :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_try_longint");
         break;
+
       case _trie_retry_longint         :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_retry_longint");
         break;
+
       case _trie_do_gterm              :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_do_gterm");
         break;
+
       case _trie_trust_gterm           :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_trust_gterm");
         break;
+
       case _trie_try_gterm             :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_try_gterm");
         break;
+
       case _trie_retry_gterm           :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_trie_retry_gterm");
         break;
+
 #endif
+  /* this instruction is hardwired */
 #ifdef YAPOR
       case _or_last                    :
-        _p = ((yamop *)(&((_p)->y_u.sblp.next)));
+        sprintf(tmp, "_or_last");
         break;
+
 #else
       case _or_last                    :
-        _p = ((yamop *)(&((_p)->y_u.p.next)));
+        sprintf(tmp, "_or_last");
         break;
+
 #endif
+
+#ifdef YAP_JIT
       case _traced_Ystop                      :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_traced_Ystop");
         break;
+
       case _traced_Nstop                      :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_Nstop");
         break;
+
       case _traced_try_me                     :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_try_me");
         break;
+
       case _traced_retry_me                   :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_retry_me");
         break;
+
       case _traced_trust_me                   :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_trust_me");
         break;
+
       case _traced_enter_profiling            :
-        _p = ((yamop *)(&((_p)->y_u.p.next)));
+        sprintf(tmp, "_traced_enter_profiling");
         break;
+
       case _traced_retry_profiled             :
-        _p = ((yamop *)(&((_p)->y_u.p.next)));
+        sprintf(tmp, "_traced_retry_profiled");
         break;
+
       case _traced_profiled_retry_me          :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_profiled_retry_me");
         break;
+
       case _traced_profiled_trust_me          :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_profiled_trust_me");
         break;
+
       case _traced_profiled_retry_logical     :
-        _p = ((yamop *)(&((_p)->y_u.OtaLl.next)));
+        sprintf(tmp, "_traced_profiled_retry_logical");
         break;
+
       case _traced_profiled_trust_logical     :
-        _p = ((yamop *)(&((_p)->y_u.OtILl.next)));
+        sprintf(tmp, "_traced_profiled_trust_logical");
         break;
+
       case _traced_count_call                 :
-        _p = ((yamop *)(&((_p)->y_u.p.next)));
+        sprintf(tmp, "_traced_count_call");
         break;
+
       case _traced_count_retry                :
-        _p = ((yamop *)(&((_p)->y_u.p.next)));
+        sprintf(tmp, "_traced_count_retry");
         break;
+
       case _traced_count_retry_me             :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_count_retry_me");
         break;
+
       case _traced_count_trust_me             :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_count_trust_me");
         break;
+
       case _traced_count_retry_logical        :
-        _p = ((yamop *)(&((_p)->y_u.OtaLl.next)));
+        sprintf(tmp, "_traced_count_retry_logical");
         break;
+
       case _traced_count_trust_logical        :
-        _p = ((yamop *)(&((_p)->y_u.OtILl.next)));
+        sprintf(tmp, "_traced_count_trust_logical");
         break;
+
       case _traced_lock_lu                    :
-        _p = ((yamop *)(&((_p)->y_u.p.next)));
+        sprintf(tmp, "_traced_lock_lu");
         break;
+
       case _traced_unlock_lu                  :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_unlock_lu");
         break;
+
       case _traced_alloc_for_logical_pred     :
-        _p = ((yamop *)(&((_p)->y_u.L.next)));
+        sprintf(tmp, "_traced_alloc_for_logical_pred");
         break;
+
       case _traced_copy_idb_term              :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_copy_idb_term");
         break;
+
       case _traced_unify_idb_term             :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_unify_idb_term");
         break;
+
       case _traced_ensure_space               :
-        _p = ((yamop *)(&((_p)->y_u.Osbpa.next)));
+        sprintf(tmp, "_traced_ensure_space");
         break;
+
       case _traced_spy_or_trymark             :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_spy_or_trymark");
         break;
+
       case _traced_try_and_mark               :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_try_and_mark");
         break;
+
       case _traced_count_retry_and_mark       :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_count_retry_and_mark");
         break;
+
       case _traced_profiled_retry_and_mark    :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_profiled_retry_and_mark");
         break;
+
       case _traced_retry_and_mark             :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_retry_and_mark");
         break;
+
       case _traced_trust_fail                 :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trust_fail");
         break;
+
       case _traced_op_fail                    :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_op_fail");
         break;
+
       case _traced_cut                        :
-        _p = ((yamop *)(&((_p)->y_u.s.next)));
+        sprintf(tmp, "_traced_cut");
         break;
+
       case _traced_cut_t                      :
-        _p = ((yamop *)(&((_p)->y_u.s.next)));
+        sprintf(tmp, "_traced_cut_t");
         break;
+
       case _traced_cut_e                      :
-        _p = ((yamop *)(&((_p)->y_u.s.next)));
+        sprintf(tmp, "_traced_cut_e");
         break;
+
       case _traced_save_b_x                   :
-        _p = ((yamop *)(&((_p)->y_u.x.next)));
+        sprintf(tmp, "_traced_save_b_x");
         break;
+
       case _traced_save_b_y                   :
-        _p = ((yamop *)(&((_p)->y_u.y.next)));
+        sprintf(tmp, "_traced_save_b_y");
         break;
+
       case _traced_commit_b_x                 :
-        _p = ((yamop *)(&((_p)->y_u.xps.next)));
+        sprintf(tmp, "_traced_commit_b_x");
         break;
+
       case _traced_commit_b_y                 :
-        _p = ((yamop *)(&((_p)->y_u.yps.next)));
+        sprintf(tmp, "_traced_commit_b_y");
         break;
+
       case _traced_execute                    :
-        _p = ((yamop *)(&((_p)->y_u.pp.next)));
+        sprintf(tmp, "_traced_execute");
         break;
+
       case _traced_dexecute                   :
-        _p = ((yamop *)(&((_p)->y_u.pp.next)));
+        sprintf(tmp, "_traced_dexecute");
         break;
+
       case _traced_fcall                      :
-        _p = ((yamop *)(&((_p)->y_u.Osbpp.next)));
+        sprintf(tmp, "_traced_fcall");
         break;
+
       case _traced_call                       :
-        _p = ((yamop *)(&((_p)->y_u.Osbpp.next)));
+        sprintf(tmp, "_traced_call");
         break;
+
       case _traced_procceed                   :
-        _p = ((yamop *)(&((_p)->y_u.p.next)));
-		l = (CELL)_p;
+        sprintf(tmp, "_traced_procceed");
         break;
+
       case _traced_allocate                   :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_allocate");
         break;
+
       case _traced_deallocate                 :
-        _p = ((yamop *)(&((_p)->y_u.p.next)));
+        sprintf(tmp, "_traced_deallocate");
         break;
+
 #ifdef BEAM
       case _traced_retry_eam                  :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_retry_eam");
         break;
+
 #endif
 #ifdef BEAM
       case _traced_run_eam                    :
-        _p = ((yamop *)(&((_p)->y_u.os.next)));
+        sprintf(tmp, "_traced_run_eam");
         break;
+
 #endif
       case _traced_get_x_var                  :
-        _p = ((yamop *)(&((_p)->y_u.xx.next)));
+        sprintf(tmp, "_traced_get_x_var");
         break;
+
       case _traced_get_y_var                  :
-        _p = ((yamop *)(&((_p)->y_u.yx.next)));
+        sprintf(tmp, "_traced_get_y_var");
         break;
+
       case _traced_get_yy_var                 :
-        _p = ((yamop *)(&((_p)->y_u.yyxx.next)));
+        sprintf(tmp, "_traced_get_yy_var");
         break;
+
       case _traced_get_x_val                  :
-        _p = ((yamop *)(&((_p)->y_u.xx.next)));
+        sprintf(tmp, "_traced_get_x_val");
         break;
+
       case _traced_get_y_val                  :
-        _p = ((yamop *)(&((_p)->y_u.yx.next)));
+        sprintf(tmp, "_traced_get_y_val");
         break;
+
       case _traced_get_atom                   :
-        _p = ((yamop *)(&((_p)->y_u.xc.next)));
+        sprintf(tmp, "_traced_get_atom");
         break;
+
       case _traced_get_2atoms                 :
-        _p = ((yamop *)(&((_p)->y_u.cc.next)));
+        sprintf(tmp, "_traced_get_2atoms");
         break;
+
       case _traced_get_3atoms                 :
-        _p = ((yamop *)(&((_p)->y_u.ccc.next)));
+        sprintf(tmp, "_traced_get_3atoms");
         break;
+
       case _traced_get_4atoms                 :
-        _p = ((yamop *)(&((_p)->y_u.cccc.next)));
+        sprintf(tmp, "_traced_get_4atoms");
         break;
+
       case _traced_get_5atoms                 :
-        _p = ((yamop *)(&((_p)->y_u.ccccc.next)));
+        sprintf(tmp, "_traced_get_5atoms");
         break;
+
       case _traced_get_6atoms                 :
-        _p = ((yamop *)(&((_p)->y_u.cccccc.next)));
+        sprintf(tmp, "_traced_get_6atoms");
         break;
+
       case _traced_get_list                   :
-        _p = ((yamop *)(&((_p)->y_u.x.next)));
+        sprintf(tmp, "_traced_get_list");
         break;
+
       case _traced_get_struct                 :
-        _p = ((yamop *)(&((_p)->y_u.xfa.next)));
+        sprintf(tmp, "_traced_get_struct");
         break;
+
       case _traced_get_float                  :
-        _p = ((yamop *)(&((_p)->y_u.xd.next)));
+        sprintf(tmp, "_traced_get_float");
         break;
+
       case _traced_get_longint                :
-        _p = ((yamop *)(&((_p)->y_u.xi.next)));
+        sprintf(tmp, "_traced_get_longint");
         break;
+
       case _traced_get_bigint                 :
-        _p = ((yamop *)(&((_p)->y_u.xN.next)));
+        sprintf(tmp, "_traced_get_bigint");
         break;
+
       case _traced_get_dbterm                 :
-        _p = ((yamop *)(&((_p)->y_u.xD.next)));
+        sprintf(tmp, "_traced_get_dbterm");
         break;
+
       case _traced_glist_valx                 :
-        _p = ((yamop *)(&((_p)->y_u.xx.next)));
+        sprintf(tmp, "_traced_glist_valx");
         break;
+
       case _traced_glist_valy                 :
-        _p = ((yamop *)(&((_p)->y_u.yx.next)));
+        sprintf(tmp, "_traced_glist_valy");
         break;
+
       case _traced_gl_void_varx               :
-        _p = ((yamop *)(&((_p)->y_u.xx.next)));
+        sprintf(tmp, "_traced_gl_void_varx");
         break;
+
       case _traced_gl_void_vary               :
-        _p = ((yamop *)(&((_p)->y_u.yx.next)));
+        sprintf(tmp, "_traced_gl_void_vary");
         break;
+
       case _traced_gl_void_valx               :
-        _p = ((yamop *)(&((_p)->y_u.xx.next)));
+        sprintf(tmp, "_traced_gl_void_valx");
         break;
+
       case _traced_gl_void_valy               :
-        _p = ((yamop *)(&((_p)->y_u.yx.next)));
+        sprintf(tmp, "_traced_gl_void_valy");
         break;
+
       case _traced_unify_x_var                :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_traced_unify_x_var");
         break;
+
       case _traced_unify_x_var_write          :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_traced_unify_x_var_write");
         break;
+
       case _traced_unify_l_x_var              :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_traced_unify_l_x_var");
         break;
+
       case _traced_unify_l_x_var_write        :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_traced_unify_l_x_var_write");
         break;
+
       case _traced_unify_x_var2               :
-        _p = ((yamop *)(&((_p)->y_u.oxx.next)));
+        sprintf(tmp, "_traced_unify_x_var2");
         break;
+
       case _traced_unify_x_var2_write         :
-        _p = ((yamop *)(&((_p)->y_u.oxx.next)));
+        sprintf(tmp, "_traced_unify_x_var2_write");
         break;
+
       case _traced_unify_l_x_var2             :
-        _p = ((yamop *)(&((_p)->y_u.oxx.next)));
+        sprintf(tmp, "_traced_unify_l_x_var2");
         break;
+
       case _traced_unify_l_x_var2_write       :
-        _p = ((yamop *)(&((_p)->y_u.oxx.next)));
+        sprintf(tmp, "_traced_unify_l_x_var2_write");
         break;
+
       case _traced_unify_y_var                :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_traced_unify_y_var");
         break;
+
       case _traced_unify_y_var_write          :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_traced_unify_y_var_write");
         break;
+
       case _traced_unify_l_y_var              :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_traced_unify_l_y_var");
         break;
+
       case _traced_unify_l_y_var_write        :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_traced_unify_l_y_var_write");
         break;
+
       case _traced_unify_x_val                :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_traced_unify_x_val");
         break;
+
       case _traced_unify_x_val_write          :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_traced_unify_x_val_write");
         break;
+
       case _traced_unify_l_x_val              :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_traced_unify_l_x_val");
         break;
+
       case _traced_unify_l_x_val_write        :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_traced_uify_l_x_val_write");
         break;
+
       case _traced_unify_y_val                :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_traced_unify_y_val");
         break;
+
       case _traced_unify_y_val_write          :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_traced_unify_y_val_write");
         break;
+
       case _traced_unify_l_y_val              :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_traced_unify_l_y_val");
         break;
+
       case _traced_unify_l_y_val_write        :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_traced_unify_l_y_val_write");
         break;
+
       case _traced_unify_x_loc                :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_traced_unify_x_loc");
         break;
+
       case _traced_unify_x_loc_write          :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_traced_unify_x_loc_write");
         break;
+
       case _traced_unify_l_x_loc              :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_traced_unify_l_x_loc");
         break;
+
       case _traced_unify_l_x_loc_write        :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_traced_unify_l_x_loc_write");
         break;
+
       case _traced_unify_y_loc                :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_traced_unify_y_loc");
         break;
+
       case _traced_unify_y_loc_write          :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_traced_unify_y_loc_write");
         break;
+
       case _traced_unify_l_y_loc              :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_traced_unify_l_y_loc");
         break;
+
       case _traced_unify_l_y_loc_write        :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_traced_unify_l_y_loc_write");
         break;
+
       case _traced_unify_void                 :
-        _p = ((yamop *)(&((_p)->y_u.o.next)));
+        sprintf(tmp, "_traced_unify_void");
         break;
+
       case _traced_unify_void_write           :
-        _p = ((yamop *)(&((_p)->y_u.o.next)));
+        sprintf(tmp, "_traced_unify_void_write");
         break;
+
       case _traced_unify_l_void               :
-        _p = ((yamop *)(&((_p)->y_u.o.next)));
+        sprintf(tmp, "_traced_unify_l_void");
         break;
+
       case _traced_unify_l_void_write         :
-        _p = ((yamop *)(&((_p)->y_u.o.next)));
+        sprintf(tmp, "_traced_unify_l_void_write");
         break;
+
       case _traced_unify_n_voids              :
-        _p = ((yamop *)(&((_p)->y_u.os.next)));
+        sprintf(tmp, "_traced_unify_n_voids");
         break;
+
       case _traced_unify_n_voids_write        :
-        _p = ((yamop *)(&((_p)->y_u.os.next)));
+        sprintf(tmp, "_traced_unify_n_voids_write");
         break;
+
       case _traced_unify_l_n_voids            :
-        _p = ((yamop *)(&((_p)->y_u.os.next)));
+        sprintf(tmp, "_traced_unify_l_n_voids");
         break;
+
       case _traced_unify_l_n_voids_write      :
-        _p = ((yamop *)(&((_p)->y_u.os.next)));
+        sprintf(tmp, "_traced_unify_l_n_voids_write");
         break;
+
       case _traced_unify_atom                 :
-        _p = ((yamop *)(&((_p)->y_u.oc.next)));
+        sprintf(tmp, "_traced_unify_atom");
         break;
+
       case _traced_unify_atom_write           :
-        _p = ((yamop *)(&((_p)->y_u.oc.next)));
+        sprintf(tmp, "_traced_unify_atom_write");
         break;
+
       case _traced_unify_l_atom               :
-        _p = ((yamop *)(&((_p)->y_u.oc.next)));
+        sprintf(tmp, "_traced_unify_l_atom");
         break;
+
       case _traced_unify_l_atom_write         :
-        _p = ((yamop *)(&((_p)->y_u.oc.next)));
+        sprintf(tmp, "_traced_unify_l_atom_write");
         break;
+
       case _traced_unify_n_atoms              :
-        _p = ((yamop *)(&((_p)->y_u.osc.next)));
+        sprintf(tmp, "_traced_unify_n_atoms");
         break;
+
       case _traced_unify_n_atoms_write        :
-        _p = ((yamop *)(&((_p)->y_u.osc.next)));
+        sprintf(tmp, "_traced_unify_n_atoms_write");
         break;
+
       case _traced_unify_float                :
-        _p = ((yamop *)(&((_p)->y_u.od.next)));
+        sprintf(tmp, "_traced_unify_float");
         break;
+
       case _traced_unify_float_write          :
-        _p = ((yamop *)(&((_p)->y_u.od.next)));
+        sprintf(tmp, "_traced_unify_float_write");
         break;
+
       case _traced_unify_l_float              :
-        _p = ((yamop *)(&((_p)->y_u.od.next)));
+        sprintf(tmp, "_traced_unify_l_float");
         break;
+
       case _traced_unify_l_float_write        :
-        _p = ((yamop *)(&((_p)->y_u.od.next)));
+        sprintf(tmp, "_traced_unify_l_float_write");
         break;
+
       case _traced_unify_longint              :
-        _p = ((yamop *)(&((_p)->y_u.oi.next)));
+        sprintf(tmp, "_traced_unify_longint");
         break;
+
       case _traced_unify_longint_write        :
-        _p = ((yamop *)(&((_p)->y_u.oi.next)));
+        sprintf(tmp, "_traced_unify_longint_write");
         break;
+
       case _traced_unify_l_longint            :
-        _p = ((yamop *)(&((_p)->y_u.oi.next)));
+        sprintf(tmp, "_traced_unify_l_longint");
         break;
+
       case _traced_unify_l_longint_write      :
-        _p = ((yamop *)(&((_p)->y_u.oi.next)));
+        sprintf(tmp, "_traced_unify_l_longint_write");
         break;
+
       case _traced_unify_bigint               :
-        _p = ((yamop *)(&((_p)->y_u.oN.next)));
+        sprintf(tmp, "_traced_unify_bigint");
         break;
+
       case _traced_unify_l_bigint             :
-        _p = ((yamop *)(&((_p)->y_u.oN.next)));
+        sprintf(tmp, "_traced_unify_l_bigint");
         break;
+
       case _traced_unify_dbterm               :
-        _p = ((yamop *)(&((_p)->y_u.oD.next)));
+        sprintf(tmp, "_traced_unify_dbterm");
         break;
+
       case _traced_unify_l_dbterm             :
-        _p = ((yamop *)(&((_p)->y_u.oD.next)));
+        sprintf(tmp, "_traced_unify_l_dbterm");
         break;
+
       case _traced_unify_list                 :
-        _p = ((yamop *)(&((_p)->y_u.o.next)));
+        sprintf(tmp, "_traced_unify_list");
         break;
+
       case _traced_unify_list_write           :
-        _p = ((yamop *)(&((_p)->y_u.o.next)));
+        sprintf(tmp, "_traced_unify_list_write");
         break;
+
       case _traced_unify_l_list               :
-        _p = ((yamop *)(&((_p)->y_u.o.next)));
+        sprintf(tmp, "_traced_unify_l_list");
         break;
+
       case _traced_unify_l_list_write         :
-        _p = ((yamop *)(&((_p)->y_u.o.next)));
+        sprintf(tmp, "_traced_unify_l_list_write");
         break;
+
       case _traced_unify_struct               :
-        _p = ((yamop *)(&((_p)->y_u.ofa.next)));
+        sprintf(tmp, "_traced_unify_struct");
         break;
+
       case _traced_unify_struct_write         :
-        _p = ((yamop *)(&((_p)->y_u.ofa.next)));
+        sprintf(tmp, "_traced_unify_struct_write");
         break;
+
       case _traced_unify_l_struc              :
-        _p = ((yamop *)(&((_p)->y_u.ofa.next)));
+        sprintf(tmp, "_traced_unify_l_struc");
         break;
+
       case _traced_unify_l_struc_write        :
-        _p = ((yamop *)(&((_p)->y_u.ofa.next)));
+        sprintf(tmp, "_traced_unify_l_struc_write");
         break;
+
       case _traced_put_x_var                  :
-        _p = ((yamop *)(&((_p)->y_u.xx.next)));
+        sprintf(tmp, "_traced_put_x_var");
         break;
+
       case _traced_put_y_var                  :
-        _p = ((yamop *)(&((_p)->y_u.yx.next)));
+        sprintf(tmp, "_traced_put_y_var");
         break;
+
       case _traced_put_x_val                  :
-        _p = ((yamop *)(&((_p)->y_u.xx.next)));
+        sprintf(tmp, "_traced_put_x_val");
         break;
+
       case _traced_put_xx_val                 :
-        _p = ((yamop *)(&((_p)->y_u.xxxx.next)));
+        sprintf(tmp, "_traced_put_xx_val");
         break;
+
       case _traced_put_y_val                  :
-        _p = ((yamop *)(&((_p)->y_u.yx.next)));
+        sprintf(tmp, "_traced_put_y_val");
         break;
+
       case _traced_put_y_vals                 :
-        _p = ((yamop *)(&((_p)->y_u.yyxx.next)));
+        sprintf(tmp, "_traced_put_y_vals");
         break;
+
       case _traced_put_unsafe                 :
-        _p = ((yamop *)(&((_p)->y_u.yx.next)));
+        sprintf(tmp, "_traced_put_unsafe");
         break;
+
       case _traced_put_atom                   :
-        _p = ((yamop *)(&((_p)->y_u.xc.next)));
+        sprintf(tmp, "_traced_put_atom");
         break;
+
       case _traced_put_dbterm                 :
-        _p = ((yamop *)(&((_p)->y_u.xD.next)));
+        sprintf(tmp, "_traced_put_dbterm");
         break;
+
       case _traced_put_bigint                 :
-        _p = ((yamop *)(&((_p)->y_u.xN.next)));
+        sprintf(tmp, "_traced_put_bigint");
         break;
+
       case _traced_put_float                  :
-        _p = ((yamop *)(&((_p)->y_u.xd.next)));
+        sprintf(tmp, "_traced_put_float");
         break;
+
       case _traced_put_longint                :
-        _p = ((yamop *)(&((_p)->y_u.xi.next)));
+        sprintf(tmp, "_traced_put_longint");
         break;
+
       case _traced_put_list                   :
-        _p = ((yamop *)(&((_p)->y_u.x.next)));
+        sprintf(tmp, "_traced_put_list");
         break;
+
       case _traced_put_struct                 :
-        _p = ((yamop *)(&((_p)->y_u.xfa.next)));
+        sprintf(tmp, "_traced_put_struct");
         break;
+
       case _traced_write_x_var                :
-        _p = ((yamop *)(&((_p)->y_u.x.next)));
+        sprintf(tmp, "_traced_write_x_var");
         break;
+
       case _traced_write_void                 :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_write_void");
         break;
+
       case _traced_write_n_voids              :
-        _p = ((yamop *)(&((_p)->y_u.s.next)));
+        sprintf(tmp, "_traced_write_n_voids");
         break;
+
       case _traced_write_y_var                :
-        _p = ((yamop *)(&((_p)->y_u.y.next)));
+        sprintf(tmp, "_traced_write_y_var");
         break;
+
       case _traced_write_x_val                :
-        _p = ((yamop *)(&((_p)->y_u.x.next)));
+        sprintf(tmp, "_traced_write_x_val");
         break;
+
       case _traced_write_x_loc                :
-        _p = ((yamop *)(&((_p)->y_u.x.next)));
+        sprintf(tmp, "_traced_write_x_loc");
         break;
+
       case _traced_write_y_val                :
-        _p = ((yamop *)(&((_p)->y_u.y.next)));
+        sprintf(tmp, "_traced_write_y_val");
         break;
+
       case _traced_write_y_loc                :
-        _p = ((yamop *)(&((_p)->y_u.y.next)));
+        sprintf(tmp, "_traced_write_y_loc");
         break;
+
       case _traced_write_atom                 :
-        _p = ((yamop *)(&((_p)->y_u.c.next)));
+        sprintf(tmp, "_traced_write_atom");
         break;
+
       case _traced_write_bigint               :
-        _p = ((yamop *)(&((_p)->y_u.N.next)));
+        sprintf(tmp, "_traced_write_bigint");
         break;
+
       case _traced_write_dbterm               :
-        _p = ((yamop *)(&((_p)->y_u.D.next)));
+        sprintf(tmp, "_traced_write_dbterm");
         break;
+
       case _traced_write_float                :
-        _p = ((yamop *)(&((_p)->y_u.d.next)));
+        sprintf(tmp, "_traced_write_float");
         break;
+
       case _traced_write_longint              :
-        _p = ((yamop *)(&((_p)->y_u.i.next)));
+        sprintf(tmp, "_traced_write_longint");
         break;
+
       case _traced_write_n_atoms              :
-        _p = ((yamop *)(&((_p)->y_u.sc.next)));
+        sprintf(tmp, "_traced_write_n_atoms");
         break;
+
       case _traced_write_list                 :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_write_list");
         break;
+
       case _traced_write_l_list               :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_write_l_list");
         break;
+
       case _traced_write_struct               :
-        _p = ((yamop *)(&((_p)->y_u.fa.next)));
+        sprintf(tmp, "_traced_write_struct");
         break;
+
       case _traced_write_l_struc              :
-        _p = ((yamop *)(&((_p)->y_u.fa.next)));
+        sprintf(tmp, "_traced_write_l_struc");
         break;
+
       case _traced_save_pair_x                :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_traced_save_pair_x");
         break;
+
       case _traced_save_pair_x_write          :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_traced_save_pair_x_write");
         break;
+
       case _traced_save_pair_y                :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_traced_save_pair_y");
         break;
+
       case _traced_save_pair_y_write          :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_traced_save_pair_y_write");
         break;
+
       case _traced_save_appl_x                :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_traced_save_appl_x");
         break;
+
       case _traced_save_appl_x_write          :
-        _p = ((yamop *)(&((_p)->y_u.ox.next)));
+        sprintf(tmp, "_traced_save_appl_x_write");
         break;
+
       case _traced_save_appl_y                :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_traced_save_appl_y");
         break;
+
       case _traced_save_appl_y_write          :
-        _p = ((yamop *)(&((_p)->y_u.oy.next)));
+        sprintf(tmp, "_traced_save_appl_y_write");
         break;
+
       case _traced_jump                       :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_traced_jump");
         break;
+
       case _traced_move_back                  :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_traced_move_back");
         break;
+
       case _traced_skip                       :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_traced_skip");
         break;
+
       case _traced_either                     :
-        _p = ((yamop *)(&((_p)->y_u.Osblp.next)));
+        sprintf(tmp, "_traced_either");
         break;
+
       case _traced_or_else                    :
-        _p = ((yamop *)(&((_p)->y_u.Osblp.next)));
+        sprintf(tmp, "_traced_or_else");
         break;
+
       case _traced_pop_n                      :
-        _p = ((yamop *)(&((_p)->y_u.s.next)));
+        sprintf(tmp, "_traced_pop_n");
         break;
+
       case _traced_pop                        :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_pop");
         break;
+
       case _traced_call_cpred                 :
-        _p = ((yamop *)(&((_p)->y_u.Osbpp.next)));
+        sprintf(tmp, "_traced_call_cpred");
         break;
+
       case _traced_execute_cpred              :
-        _p = ((yamop *)(&((_p)->y_u.pp.next)));
+        sprintf(tmp, "_traced_execute_cpred");
         break;
+
       case _traced_call_usercpred             :
-        _p = ((yamop *)(&((_p)->y_u.Osbpp.next)));
+        sprintf(tmp, "_traced_call_usercpred");
         break;
+
       case _traced_call_c_wfail               :
-        _p = ((yamop *)(&((_p)->y_u.slp.next)));
+        sprintf(tmp, "_traced_call_x_wfail");
         break;
+
       case _traced_try_c                      :
-        _p = ((yamop *)(&((_p)->y_u.OtapFs.next)));
+        sprintf(tmp, "_traced_try_c");
         break;
+
       case _traced_retry_c                    :
-        _p = ((yamop *)(&((_p)->y_u.OtapFs.next)));
+        sprintf(tmp, "_traced_retry_c");
         break;
+
 #ifdef CUT_C
       case _traced_cut_c                      :
-        _p = ((yamop *)(&((_p)->y_u.OtapFs.next)));
+        sprintf(tmp, "_traced_cut_c");
         break;
+
 #endif
       case _traced_try_userc                  :
-        _p = ((yamop *)(&((_p)->y_u.OtapFs.next)));
+        sprintf(tmp, "_traced_try_userc");
         break;
+
       case _traced_retry_userc                :
-        _p = ((yamop *)(&((_p)->y_u.OtapFs.next)));
+        sprintf(tmp, "_traced_retry_userc");
         break;
+
 #ifdef CUT_C
       case _traced_cut_userc                  :
-        _p = ((yamop *)(&((_p)->y_u.OtapFs.next)));
+        sprintf(tmp, "_traced_cut_userc");
         break;
+
 #endif
       case _traced_lock_pred                  :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_lock_pred");
         break;
+
       case _traced_index_pred                 :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_index_pred");
         break;
+
 #ifdef THREADS
       case _traced_thread_local               :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_thread_local");
         break;
+
 #endif
       case _traced_expand_index               :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_expand_index");
         break;
+
       case _traced_expand_clauses             :
-        _p = ((yamop *)(&((_p)->y_u.sssllp.next)));
+        sprintf(tmp, "_traced_expand_clauses");
         break;
+
       case _traced_undef_p                    :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_undef_p");
         break;
+
       case _traced_spy_pred                   :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_spy_pred");
         break;
+
       case _traced_try_clause                 :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_try_clause");
         break;
+
       case _traced_try_clause2                :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_traced_try_clause2");
         break;
+
       case _traced_try_clause3                :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_traced_try_clause3");
         break;
+
       case _traced_try_clause4                :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_traced_try_clause4");
         break;
+
       case _traced_retry                      :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_retry");
         break;
+
       case _traced_retry2                     :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_traced_retry2");
         break;
+
       case _traced_retry3                     :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_traced_retry3");
         break;
+
       case _traced_retry4                     :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_traced_retry4");
         break;
+
       case _traced_trust                      :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_trust");
         break;
+
       case _traced_try_in                     :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_traced_try_in");
         break;
+
       case _traced_enter_lu_pred              :
-        _p = ((yamop *)(&((_p)->y_u.Illss.next)));
+        sprintf(tmp, "_traced_enter_lu_pred");
         break;
+
       case _traced_try_logical                :
-        _p = ((yamop *)(&((_p)->y_u.OtaLl.next)));
+        sprintf(tmp, "_traced_try_logical");
         break;
+
       case _traced_retry_logical              :
-        _p = ((yamop *)(&((_p)->y_u.OtaLl.next)));
+        sprintf(tmp, "_traced_retry_logical");
         break;
+
       case _traced_trust_logical              :
-        _p = ((yamop *)(&((_p)->y_u.OtILl.next)));
+        sprintf(tmp, "_traced_trust_logical");
         break;
+
       case _traced_user_switch                :
-        _p = ((yamop *)(&((_p)->y_u.lp.next)));
+        sprintf(tmp, "_traced_user_switch");
         break;
+
       case _traced_switch_on_type             :
-        _p = ((yamop *)(&((_p)->y_u.llll.next)));
+        sprintf(tmp, "_traced_switch_on_type");
         break;
+
       case _traced_switch_list_nl             :
-        _p = ((yamop *)(&((_p)->y_u.ollll.next)));
+        sprintf(tmp, "_traced_switch_list_nl");
         break;
+
       case _traced_switch_on_arg_type         :
-        _p = ((yamop *)(&((_p)->y_u.xllll.next)));
+        sprintf(tmp, "_traced_switch_on_arg_type");
         break;
+
       case _traced_switch_on_sub_arg_type     :
-        _p = ((yamop *)(&((_p)->y_u.sllll.next)));
+        sprintf(tmp, "_traced_switch_on_sub_arg_type");
         break;
+
       case _traced_jump_if_var                :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_traced_jump_if_var");
         break;
+
       case _traced_jump_if_nonvar             :
-        _p = ((yamop *)(&((_p)->y_u.xll.next)));
+        sprintf(tmp, "_traced_jump_if_nonvar");
         break;
+
       case _traced_if_not_then                :
-        _p = ((yamop *)(&((_p)->y_u.clll.next)));
+        sprintf(tmp, "_traced_if_not_then");
         break;
+
       case _traced_switch_on_func             :
-        _p = ((yamop *)(&((_p)->y_u.sssl.next)));
+        sprintf(tmp, "_traced_switch_on_func");
         break;
+
       case _traced_switch_on_cons             :
-        _p = ((yamop *)(&((_p)->y_u.sssl.next)));
+        sprintf(tmp, "_traced_switch_on_cons");
         break;
+
       case _traced_go_on_func                 :
-        _p = ((yamop *)(&((_p)->y_u.sssl.next)));
+        sprintf(tmp, "_traced_go_on_func");
         break;
+
       case _traced_go_on_cons                 :
-        _p = ((yamop *)(&((_p)->y_u.sssl.next)));
+        sprintf(tmp, "_traced_go_on_cons");
         break;
+
       case _traced_if_func                    :
-        _p = ((yamop *)(&((_p)->y_u.sssl.next)));
+        sprintf(tmp, "_traced_if_func");
         break;
+
       case _traced_if_cons                    :
-        _p = ((yamop *)(&((_p)->y_u.sssl.next)));
+        sprintf(tmp, "_traced_if_cons");
         break;
+
       case _traced_index_dbref                :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_index_dbref");
         break;
+
       case _traced_index_blob                 :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_index_blob");
         break;
+
       case _traced_index_long                 :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_index_long");
         break;
+
       case _traced_jit_handler                  :
-        _p = ((yamop *)(&((_p)->y_u.J.next)));
+        sprintf(tmp, "_traced_jit_handler");
         break;
+
       case _traced_p_atom_x                   :
-        _p = ((yamop *)(&((_p)->y_u.xl.next)));
+        sprintf(tmp, "_traced_p_atom_x");
         break;
+
       case _traced_p_atom_y                   :
-        _p = ((yamop *)(&((_p)->y_u.yl.next)));
+        sprintf(tmp, "_traced_p_atom_y");
         break;
+
       case _traced_p_atomic_x                 :
-        _p = ((yamop *)(&((_p)->y_u.xl.next)));
+        sprintf(tmp, "_traced_p_atomic_x");
         break;
+
       case _traced_p_atomic_y                 :
-        _p = ((yamop *)(&((_p)->y_u.yl.next)));
+        sprintf(tmp, "_traced_p_atomic_y");
         break;
+
       case _traced_p_integer_x                :
-        _p = ((yamop *)(&((_p)->y_u.xl.next)));
+        sprintf(tmp, "_traced_p_integer_x");
         break;
+
       case _traced_p_integer_y                :
-        _p = ((yamop *)(&((_p)->y_u.yl.next)));
+        sprintf(tmp, "_traced_p_integer_y");
         break;
+
       case _traced_p_nonvar_x                 :
-        _p = ((yamop *)(&((_p)->y_u.xl.next)));
+        sprintf(tmp, "_traced_p_nonvar_x");
         break;
+
       case _traced_p_nonvar_y                 :
-        _p = ((yamop *)(&((_p)->y_u.yl.next)));
+        sprintf(tmp, "_traced_p_nonvar_y");
         break;
+
       case _traced_p_number_x                 :
-        _p = ((yamop *)(&((_p)->y_u.xl.next)));
+        sprintf(tmp, "_traced_p_number_x");
         break;
+
       case _traced_p_number_y                 :
-        _p = ((yamop *)(&((_p)->y_u.yl.next)));
+        sprintf(tmp, "_traced_p_number_y");
         break;
+
       case _traced_p_var_x                    :
-        _p = ((yamop *)(&((_p)->y_u.xl.next)));
+        sprintf(tmp, "_traced_p_var_x");
         break;
+
       case _traced_p_var_y                    :
-        _p = ((yamop *)(&((_p)->y_u.yl.next)));
+        sprintf(tmp, "_traced_p_var_y");
         break;
+
       case _traced_p_db_ref_x                 :
-        _p = ((yamop *)(&((_p)->y_u.xl.next)));
+        sprintf(tmp, "_traced_p_db_ref_x");
         break;
+
       case _traced_p_db_ref_y                 :
-        _p = ((yamop *)(&((_p)->y_u.yl.next)));
+        sprintf(tmp, "_traced_p_db_ref_y");
         break;
+
       case _traced_p_primitive_x              :
-        _p = ((yamop *)(&((_p)->y_u.xl.next)));
+        sprintf(tmp, "_traced_p_primitive_x");
         break;
+
       case _traced_p_primitive_y              :
-        _p = ((yamop *)(&((_p)->y_u.yl.next)));
+        sprintf(tmp, "_traced_p_primitive_y");
         break;
+
       case _traced_p_compound_x               :
-        _p = ((yamop *)(&((_p)->y_u.xl.next)));
+        sprintf(tmp, "_traced_p_compound_x");
         break;
+
       case _traced_p_compound_y               :
-        _p = ((yamop *)(&((_p)->y_u.yl.next)));
+        sprintf(tmp, "_traced_p_compound_y");
         break;
+
       case _traced_p_float_x                  :
-        _p = ((yamop *)(&((_p)->y_u.xl.next)));
+        sprintf(tmp, "_traced_p_float_x");
         break;
+
       case _traced_p_float_y                  :
-        _p = ((yamop *)(&((_p)->y_u.yl.next)));
+        sprintf(tmp, "_traced_p_float_y");
         break;
+
       case _traced_p_plus_vv                  :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_traced_p_plus_vv");
         break;
+
       case _traced_p_plus_vc                  :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_traced_p_plus_vc");
         break;
+
       case _traced_p_plus_y_vv                :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_traced_p_plus_y_vv");
         break;
+
       case _traced_p_plus_y_vc                :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_traced_p_plus_y_vc");
         break;
+
       case _traced_p_minus_vv                 :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_traced_p_minus_vv");
         break;
+
       case _traced_p_minus_cv                 :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_traced_p_minus_cv");
         break;
+
       case _traced_p_minus_y_vv               :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_traced_p_minus_y_vv");
         break;
+
       case _traced_p_minus_y_cv               :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_traced_p_minus_y_cv");
         break;
+
       case _traced_p_times_vv                 :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_traced_p_times_vv");
         break;
+
       case _traced_p_times_vc                 :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_traced_p_times_vc");
         break;
+
       case _traced_p_times_y_vv               :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_traced_p_times_y_vv");
         break;
+
       case _traced_p_times_y_vc               :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_traced_p_times_y_vc");
         break;
+
       case _traced_p_div_vv                   :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_traced_p_div_vv");
         break;
+
       case _traced_p_div_vc                   :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_traced_p_div_vc");
         break;
+
       case _traced_p_div_cv                   :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_traced_p_div_cv");
         break;
+
       case _traced_p_div_y_vv                 :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_traced_p_div_y_vv");
         break;
+
       case _traced_p_div_y_vc                 :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_traced_p_div_y_vc");
         break;
+
       case _traced_p_div_y_cv                 :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_traced_p_div_y_cv");
         break;
+
       case _traced_p_and_vv                   :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_traced_p_and_vv");
         break;
+
       case _traced_p_and_vc                   :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_traced_p_and_vc");
         break;
+
       case _traced_p_and_y_vv                 :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_traced_p_and_y_vv");
         break;
+
       case _traced_p_and_y_vc                 :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_traced_p_and_y_vc");
         break;
+
       case _traced_p_or_vv                    :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_traced_p_or_vv");
         break;
+
       case _traced_p_or_vc                    :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_traced_p_or_vc");
         break;
+
       case _traced_p_or_y_vv                  :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_traced_p_or_y_vv");
         break;
+
       case _traced_p_or_y_vc                  :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_traced_p_or_y_vc");
         break;
+
       case _traced_p_sll_vv                   :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_traced_p_sll_vv");
         break;
+
       case _traced_p_sll_vc                   :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_traced_p_sll_vc");
         break;
+
       case _traced_p_sll_cv                   :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_traced_p_sll_cv");
         break;
+
       case _traced_p_sll_y_vv                 :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_traced_p_sll_y_vv");
         break;
+
       case _traced_p_sll_y_vc                 :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_traced_p_sll_y_vc");
         break;
+
       case _traced_p_sll_y_cv                 :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_traced_p_sll_y_cv");
         break;
+
       case _traced_p_slr_vv                   :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_traced_p_slr_vv");
         break;
+
       case _traced_p_slr_vc                   :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_traced_p_slr_vc");
         break;
+
       case _traced_p_slr_cv                   :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_traced_p_slr_cv");
         break;
+
       case _traced_p_slr_y_vv                 :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_traced_p_slr_y_vv");
         break;
+
       case _traced_p_slr_y_vc                 :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_traced_p_slr_y_vc");
         break;
+
       case _traced_p_slr_y_cv                 :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_traced_p_slr_y_cv");
         break;
+
       case _traced_call_bfunc_xx              :
-        _p = ((yamop *)(&((_p)->y_u.plxxs.next)));
+        sprintf(tmp, "_traced_call_bfunc_xx");
         break;
+
       case _traced_call_bfunc_yx              :
-        _p = ((yamop *)(&((_p)->y_u.plxys.next)));
+        sprintf(tmp, "_traced_call_bfunc_yx");
         break;
+
       case _traced_call_bfunc_xy              :
-        _p = ((yamop *)(&((_p)->y_u.plxys.next)));
+        sprintf(tmp, "_traced_call_bfunc_xy");
         break;
+
       case _traced_call_bfunc_yy              :
-        _p = ((yamop *)(&((_p)->y_u.plyys.next)));
+        sprintf(tmp, "_traced_call_bfunc_yy");
         break;
+
       case _traced_p_equal                    :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_p_equal");
         break;
+
       case _traced_p_dif                      :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_traced_p_dif");
         break;
+
       case _traced_p_eq                       :
-        _p = ((yamop *)(&((_p)->y_u.l.next)));
+        sprintf(tmp, "_traced_p_eq");
         break;
+
       case _traced_p_arg_vv                   :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_traced_p_arg_vv");
         break;
+
       case _traced_p_arg_cv                   :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_traced_p_arg_cv");
         break;
+
       case _traced_p_arg_y_vv                 :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_traced_p_arg_y_vv");
         break;
+
       case _traced_p_arg_y_cv                 :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_traced_p_arg_y_cv");
         break;
+
       case _traced_p_func2s_vv                :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_traced_p_func2s_vv");
         break;
+
       case _traced_p_func2s_cv                :
-        _p = ((yamop *)(&((_p)->y_u.xxc.next)));
+        sprintf(tmp, "_traced_p_func2s_cv");
         break;
+
       case _traced_p_func2s_vc                :
-        _p = ((yamop *)(&((_p)->y_u.xxn.next)));
+        sprintf(tmp, "_traced_p_func2s_vc");
         break;
+
       case _traced_p_func2s_y_vv              :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_traced_p_func2s_y_vv");
         break;
+
       case _traced_p_func2s_y_cv              :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_traced_p_func2s_y_cv");
         break;
+
       case _traced_p_func2s_y_vc              :
-        _p = ((yamop *)(&((_p)->y_u.yxn.next)));
+        sprintf(tmp, "_traced_p_func2s_y_vc");
         break;
+
       case _traced_p_func2f_xx                :
-        _p = ((yamop *)(&((_p)->y_u.xxx.next)));
+        sprintf(tmp, "_traced_p_func2f_xx");
         break;
+
       case _traced_p_func2f_xy                :
-        _p = ((yamop *)(&((_p)->y_u.xxy.next)));
+        sprintf(tmp, "_traced_p_func2f_xy");
         break;
+
       case _traced_p_func2f_yx                :
-        _p = ((yamop *)(&((_p)->y_u.yxx.next)));
+        sprintf(tmp, "_traced_p_func2f_yx");
         break;
+
       case _traced_p_func2f_yy                :
-        _p = ((yamop *)(&((_p)->y_u.yyx.next)));
+        sprintf(tmp, "_traced_p_func2f_yy");
         break;
+
       case _traced_p_functor                  :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_p_functor");
         break;
+
       case _traced_p_execute2                 :
-        _p = ((yamop *)(&((_p)->y_u.Osbpp.next)));
+        sprintf(tmp, "_traced_p_execute2");
         break;
+
       case _traced_p_execute                  :
-        _p = ((yamop *)(&((_p)->y_u.Osbmp.next)));
+        sprintf(tmp, "_traced_p_execute");
         break;
+
       case _traced_p_execute_tail             :
-        _p = ((yamop *)(&((_p)->y_u.Osbpp.next)));
+        sprintf(tmp, "_traced_p_execute_tail");
         break;
+
 #ifdef YAPOR
       case _traced_getwork_first_time         :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_getwork_first_time");
         break;
+
       case _traced_getwork                    :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_getwork");
         break;
+
       case _traced_getwork_seq                :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_getwork_seq");
         break;
+
       case _traced_sync                       :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_sync");
         break;
+
 #endif
 #ifdef TABLING
 #ifdef TABLING_INNER_CUTS
       case _traced_clause_with_cut            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_clause_with_cut");
         break;
+
 #endif
       case _traced_table_load_answer          :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_table_load_answer");
         break;
+
       case _traced_table_try_answer           :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_table_try_answer");
         break;
+
       case _traced_table_try_single           :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_table_try_single");
         break;
+
       case _traced_table_try_me               :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_table_try_me");
         break;
+
       case _traced_table_try                  :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_table_try");
         break;
+
       case _traced_table_retry_me             :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_table_retry_me");
         break;
+
       case _traced_table_retry                :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_table_retry");
         break;
+
       case _traced_table_trust_me             :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_table_trust_me");
         break;
+
       case _traced_table_trust                :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_table_trust");
         break;
+
       case _traced_table_new_answer           :
-        _p = ((yamop *)(&((_p)->y_u.s.next)));
+        sprintf(tmp, "_traced_table_new_answer");
         break;
+
       case _traced_table_answer_resolution    :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_table_answer_resolution");
         break;
+
       case _traced_table_completion           :
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_table_completion");
         break;
+
 #ifdef THREADS_CONSUMER_SHARING
       case _traced_table_answer_resolution_completion:
-        _p = ((yamop *)(&((_p)->y_u.Otapl.next)));
+        sprintf(tmp, "_traced_table_answer_resolution_completion");
         break;
+
 #endif
       case _traced_trie_do_var                :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_do_var");
         break;
+
       case _traced_trie_trust_var             :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_trust_var");
         break;
+
       case _traced_trie_try_var               :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_try_var");
         break;
+
       case _traced_trie_retry_var             :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_retry_var");
         break;
+
       case _traced_trie_do_var_in_pair        :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_do_var_in_pair");
         break;
+
       case _traced_trie_trust_var_in_pair     :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_trust_var_in_pair");
         break;
+
       case _traced_trie_try_var_in_pair       :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_try_var_in_pair");
         break;
+
       case _traced_trie_retry_var_in_pair     :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_retry_var_in_pair");
         break;
+
       case _traced_trie_do_val                :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_do_val");
         break;
+
       case _traced_trie_trust_val             :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_trust_val");
         break;
+
       case _traced_trie_try_val               :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_try_val");
         break;
+
       case _traced_trie_retry_val             :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_retry_val");
         break;
+
       case _traced_trie_do_val_in_pair        :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_do_val_in_pair");
         break;
+
       case _traced_trie_trust_val_in_pair     :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_trust_val_in_pair");
         break;
+
       case _traced_trie_try_val_in_pair       :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_try_val_in_pair");
         break;
+
       case _traced_trie_retry_val_in_pair     :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_retry_val_in_pair");
         break;
+
       case _traced_trie_do_atom               :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_do_atom");
         break;
+
       case _traced_trie_trust_atom            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_trust_atom");
         break;
+
       case _traced_trie_try_atom              :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_try_atom");
         break;
+
       case _traced_trie_retry_atom            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_retry_atom");
         break;
+
       case _traced_trie_do_atom_in_pair       :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_do_atom_in_pair");
         break;
+
       case _traced_trie_trust_atom_in_pair    :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_trust_atom_in_pair");
         break;
+
       case _traced_trie_try_atom_in_pair      :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_try_atom_in_pair");
         break;
+
       case _traced_trie_retry_atom_in_pair    :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_retry_atom_in_pair");
         break;
+
       case _traced_trie_do_null               :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_do_null");
         break;
+
       case _traced_trie_trust_null            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_trust_null");
         break;
+
       case _traced_trie_try_null              :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_try_null");
         break;
+
       case _traced_trie_retry_null            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_retry_null");
         break;
+
       case _traced_trie_do_null_in_pair       :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_do_null_in_pair");
         break;
+
       case _traced_trie_trust_null_in_pair    :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_trust_null_in_pair");
         break;
+
       case _traced_trie_try_null_in_pair      :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_tri_try_null_in_paire");
         break;
+
       case _traced_trie_retry_null_in_pair    :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_retry_null_in_pair");
         break;
+
       case _traced_trie_do_pair               :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_do_pair");
         break;
+
       case _traced_trie_trust_pair            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_trust_pair");
         break;
+
       case _traced_trie_try_pair              :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_try_pair");
         break;
+
       case _traced_trie_retry_pair            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_retry_pair");
         break;
+
       case _traced_trie_do_appl               :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_do_appl");
         break;
+
       case _traced_trie_trust_appl            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_trust_appl");
         break;
+
       case _traced_trie_try_appl              :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_try_appl");
         break;
+
       case _traced_trie_retry_appl            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_retry_appl");
         break;
+
       case _traced_trie_do_appl_in_pair       :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_do_appl_in_pair");
         break;
+
       case _traced_trie_trust_appl_in_pair    :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_trust_appl_in_pair");
         break;
+
       case _traced_trie_try_appl_in_pair      :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_trty_appkl_in_pair");
         break;
+
       case _traced_trie_retry_appl_in_pair    :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_retry_appl_in_pair");
         break;
+
       case _traced_trie_do_extension          :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_do_extension");
         break;
+
       case _traced_trie_trust_extension       :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_trust_extension");
         break;
+
       case _traced_trie_try_extension         :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_try_extension");
         break;
+
       case _traced_trie_retry_extension       :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_retry_extension");
         break;
+
       case _traced_trie_do_double             :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_do_double");
         break;
+
       case _traced_trie_trust_double          :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_trust_double");
         break;
+
       case _traced_trie_try_double            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_try_double");
         break;
+
       case _traced_trie_retry_double          :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_retry_double");
         break;
+
       case _traced_trie_do_longint            :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_do_longint");
         break;
+
       case _traced_trie_trust_longint         :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_trust_longint");
         break;
+
       case _traced_trie_try_longint           :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_try_longint");
         break;
+
       case _traced_trie_retry_longint         :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_retry_longint");
         break;
+
       case _traced_trie_do_gterm              :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_do_gterm");
         break;
+
       case _traced_trie_trust_gterm           :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_trust_gterm");
         break;
+
       case _traced_trie_try_gterm             :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_try_gterm");
         break;
+
       case _traced_trie_retry_gterm           :
-        _p = ((yamop *)(&((_p)->y_u.e.next)));
+        sprintf(tmp, "_traced_trie_retry_gterm");
         break;
+
 #endif
+  /* this instruction is hardwired */
 #ifdef YAPOR
       case _traced_or_last                    :
-        _p = ((yamop *)(&((_p)->y_u.sblp.next)));
+        sprintf(tmp, "_traced_or_last");
         break;
+
 #else
       case _traced_or_last                    :
-        _p = ((yamop *)(&((_p)->y_u.p.next)));
+        sprintf(tmp, "_traced_or_last");
         break;
-#endif
-  default:
-    printf("Bad argument in lastop\n");
-    return NULL;
-    }
-  }
-  return lastp;
-}
 
+#endif
+    default:
+      tmp[0] = '\0';
+#endif /* YAP_JIT */
+	
+    }
+    strcpy(out, prepend_term);
+    strcat(out, tmp);
+    strcat(out, append_term);
+  }

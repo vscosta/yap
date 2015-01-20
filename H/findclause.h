@@ -9,6 +9,11 @@
     case _write_dbterm:
       cl = NEXTOP(cl,D);
       break;
+#ifdef YAP_JIT
+    case _jit_handler:
+#endif
+      cl = NEXTOP(cl,J);
+      break;
     case _alloc_for_logical_pred:
       cl = NEXTOP(cl,L);
       break;
@@ -17,9 +22,6 @@
       break;
     case _ensure_space:
       cl = NEXTOP(cl,Osbpa);
-      break;
-    case _native_me:
-      cl = NEXTOP(cl,aFlp);
       break;
     case _write_atom:
       cl = NEXTOP(cl,c);
@@ -285,6 +287,9 @@
 	clause->Tag = (CELL)NULL;
       }
       return;
+      cl = NEXTOP(cl,e);
+      break;
+    case _unlock_lu:
       cl = NEXTOP(cl,e);
       break;
     case _write_l_list:
@@ -624,9 +629,6 @@
       break;
     case _lock_lu:
       cl = NEXTOP(cl,p);
-      break;
-    case _unlock_lu:
-      cl = NEXTOP(cl,e);
       break;
     case _call_bfunc_xx:
       cl = NEXTOP(cl,plxxs);
@@ -1530,6 +1532,12 @@
     case _table_try_single:
       cl = NEXTOP(cl,Otapl);
       break;
+#endif
+#ifdef YAP_JIT
+#ifdef YAPOR
+#endif
+#ifdef TABLING
+#endif
 #endif
 default:
 	clause->Tag = (CELL)NULL;

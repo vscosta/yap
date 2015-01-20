@@ -678,14 +678,14 @@ static inline void **__get_insert_thread_bucket(void **buckets, lockvar *buckets
   /* indirect bucket */
   buckets = buckets + THREADS_DIRECT_BUCKETS + (worker_id - THREADS_DIRECT_BUCKETS) / THREADS_DIRECT_BUCKETS;
   if (*buckets)
-    return *buckets + (worker_id - THREADS_DIRECT_BUCKETS) % THREADS_DIRECT_BUCKETS;
+    return (void **)((char *)(*buckets) + (worker_id - THREADS_DIRECT_BUCKETS) % THREADS_DIRECT_BUCKETS);
 
   /* insert indirect bucket */
   LOCK(*buckets_lock);
   if (*buckets == NULL)
     ALLOC_BUCKETS(*buckets, THREADS_DIRECT_BUCKETS);
   UNLOCK(*buckets_lock);
-  return *buckets + (worker_id - THREADS_DIRECT_BUCKETS) % THREADS_DIRECT_BUCKETS;
+  return (void **)((char *)(*buckets) + (worker_id - THREADS_DIRECT_BUCKETS) % THREADS_DIRECT_BUCKETS);
 }
 
 #define get_thread_bucket(b) __get_thread_bucket((b) PASS_REGS)
@@ -699,7 +699,7 @@ static inline void **__get_thread_bucket(void **buckets USES_REGS) {
   /* indirect bucket */
   buckets = buckets + THREADS_DIRECT_BUCKETS + (worker_id - THREADS_DIRECT_BUCKETS) / THREADS_DIRECT_BUCKETS;
   if (*buckets)
-    return *buckets + (worker_id - THREADS_DIRECT_BUCKETS) % THREADS_DIRECT_BUCKETS;
+    return (void **)((char *)(buckets) + (worker_id - THREADS_DIRECT_BUCKETS) % THREADS_DIRECT_BUCKETS);
 
   /* empty indirect bucket */
   return buckets;
@@ -1236,15 +1236,15 @@ static inline void __restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr U
 #define expand_auxiliary_stack(s) __expand_auxiliary_stack((s) PASS_REGS)
 
 static inline CELL *__expand_auxiliary_stack(CELL *stack USES_REGS) {
-  void *old_top = LOCAL_TrailTop;
+  char *old_top = (char *)LOCAL_TrailTop;
   INFORMATION_MESSAGE("Expanding trail in 64 Kbytes");
   if (! Yap_growtrail(K64, TRUE)) {  /* TRUE means 'contiguous_only' */
     Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)");
     return NULL;
   } else {
-    UInt diff = (void *)LOCAL_TrailTop - old_top;
-    CELL *new_stack = (CELL *)((void *)stack + diff);
-    memmove((void *)new_stack, (void *)stack, old_top - (void *)stack);
+    UInt diff = (char *)LOCAL_TrailTop - old_top;
+    CELL *new_stack = (CELL *)((char *)stack + diff);
+    memmove((void *)new_stack, stack, old_top - (char *)stack);
     return new_stack;
   }
 }

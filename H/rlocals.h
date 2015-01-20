@@ -140,11 +140,7 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
-#ifdef THREADS
 
-#else
-
-#endif	
 
 
 

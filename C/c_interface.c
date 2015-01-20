@@ -332,7 +332,9 @@
 
 #define Bool int
 #define flt double
-#define C_INTERFACE
+#define C_INTERFACE 1
+#define _yap_c_interface_h 1
+
 
 #include <stdlib.h>
 #include "Yap.h"
@@ -2910,7 +2912,7 @@ do_bootfile (char *bootfilename)
 	}
       else if (t == term_true)
 	{
-	  YAP_Exit(0);
+	  Yap_exit(0);
 	}
       else if (t == term_end_of_file)
 	{

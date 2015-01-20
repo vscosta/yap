@@ -13,11 +13,42 @@
 * comments:	Data structures and defines used in the Interface	 *
 *									 *
 *************************************************************************/
+
 #ifndef _YAPDEFS_H
 
 #define _YAPDEFS_H 1
 
 #include <stdlib.h>
+
+/* The YAP main types */
+#include "YapTerm.h"
+
+/* truth-values */
+/* stdbool defines the booleam type, bool,
+   and the constants false and true */
+#if HAVE_STDBOOL_H
+#include <stdbool.h>
+#else
+#ifndef true
+typedef int _Bool;
+
+#define bool _Bool;
+
+#define false 0
+#define true 1
+#endif
+#endif /* HAVE_STDBOOL_H */
+
+/**
+   FALSE and TRUE are the pre-standard versions,
+   still widely used.
+*/
+#ifndef TRUE
+#define	 TRUE	true
+#endif
+#ifndef FALSE
+#define	 FALSE	false
+#endif
 
 #ifdef YAP_H
 
@@ -27,9 +58,9 @@
 
 #define YAP_Term Term
 
-typedef UInt YAP_Arity;
+#define YAP_Arity arity_t 
 
-typedef Term YAP_Module;
+#define YAP_Module Term
 
 #define YAP_Functor  Functor
 
@@ -41,9 +72,9 @@ typedef Term YAP_Module;
 
 #define YAP_Float Float
 
-typedef int YAP_Bool;
+#define YAP_Bool bool
 
-typedef yhandle_t YAP_handle_t;
+#define YAP_handle_t  yhandle_t
 
 #define YAP_PredEntryPtr struct pred_entry *
 
@@ -58,10 +89,10 @@ typedef yhandle_t YAP_handle_t;
 #if _WIN64
 typedef unsigned long long YAP_CELL;  
 #else
-typedef unsigned long YAP_CELL;  
+typedef uintptr_t YAP_CELL;  
 #endif
 
-typedef int YAP_Bool;
+typedef bool YAP_Bool;
 
 typedef YAP_CELL YAP_Term;
 

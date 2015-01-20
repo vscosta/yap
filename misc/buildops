@@ -38,15 +38,26 @@ main :-
 	header_find_clause(F),
 	header_find_clause(H),
 	header_save_clause(S),
-	file('C/absmi.c', W, C, L, F, H, S),
+	file('C/absmi_insts.h', W, C, L, F, H, S),
 	start_ifdef("YAPOR", W, C, L, F, H, S),
-	file('OPTYap/or.insts.i',W, C, L, F, H, S),
+	file('OPTYap/or.insts.h',W, C, L, F, H, S),
 	end_ifdef(W, C, L, F, H, S),
 	start_ifdef("TABLING", W, C, L, F, H, S),
-	file('OPTYap/tab.insts.i',W,C,L, F, H, S),
+	file('OPTYap/tab.insts.h',W,C,L, F, H, S),
 	retractall(op(_,_)),
-	file('OPTYap/tab.tries.insts.i', W, C, L, F, H, S),
+	file('OPTYap/tab.tries.insts.h', W, C, L, F, H, S),
 	end_ifdef(W, C, L, F, H, S),
+	start_ifdef("YAP_JIT", W, C, L, F, H, S), 
+        file('C/traced_absmi_insts.h', W, C, L, F, H, S),
+        start_ifdef("YAPOR", W, C, L, F, H, S), 
+	file('OPTYap/traced_or.insts.h',W, C, L, F, H, S),
+        end_ifdef(W, C, L, F, H, S),
+        start_ifdef("TABLING", W, C, L, F, H, S),
+        file('OPTYap/traced_tab.insts.h',W,C,L, F, H, S),
+        retractall(op(_,_)),
+        file('OPTYap/traced_tab.tries.insts.h', W, C, L, F, H, S),
+        end_ifdef(W, C, L, F, H, S),
+        end_ifdef(W, C, L, F, H, S),
 	footer(W),
 	footer_rclause(C),
 	footer_walk_clause(L),
@@ -139,14 +150,28 @@ file(I,W,C,L,F,H, S) :-
 	output_save_clause(S).
 
 grep_opcode(W, Line) :-
-%format('~s~n', [Line]),
 	split(Line," 	,();",[OP,Name,Type]),
-	Name \= "or_last",
-	check_op(OP),
+	Name \= "or_last", Name \= "traced_or_last",
+	check_op(OP), !,
 	special(Name,W),
 	assert(op(Type,Name)),
 	format(W,'  OPCODE(~s~36+,~s),~n',[Name,Type]),
 	end_special(Name,W).
+grep_opcode(W, Line) :-
+	split(Line,"# 	\"<>",["include",File]),
+	atom_codes(AFile, File),
+        atomic_concat('C/',AFile,NFile),
+	(
+	    catch( open(NFile,read,R), _, fail )
+	    ->
+	 ( sub_atom( AFile, 0, _, _, traced ) -> format(W,'#if YAP_JIT~n',[]) ; true ),
+	 process(R,grep_opcode(W)),
+         ( sub_atom( AFile, 0, _, _, traced ) -> format(W,'#endif~n',[]) ;  true),
+	 close(R)
+	    ;
+	 true
+	).
+		    
 
 check_op("Op").
 check_op("BOp").
@@ -171,8 +196,7 @@ special_op("table_answer_resolution_completion","THREADS_CONSUMER_SHARING").
 special_op("run_eam","BEAM").
 special_op("retry_eam","BEAM").
 special_op("thread_local","THREADS").
-special_op("lock_lu","THREADS").
-special_op("unlock_lu","THREADS").
+special_op("jit_handler","YAP_JIT").
 
 output_rclause(C) :-
 	setof(T,O^op(T,O),Types),
@@ -198,7 +222,7 @@ output_typeinfo(_,_).
 
 % tables require access to the table info. 
 special_formats(C,"e") :- !,
-	format(C,'      if (pp == _nstop || op == _copy_idb_term || op == _unify_idb_term) return;~n',[]).
+	format(C,'      if (op == _Nstop || op == _copy_idb_term || op == _unify_idb_term) return;~n',[]).
 special_formats(C,"l") :- !,
 	format(C,'      if (op == _Ystop) return;~n',[]).
 special_formats(C,"sssl") :- !,
@@ -252,6 +276,7 @@ get_op(0'D,"DBGroundTerm").
 get_op(0'f,"Func").
 get_op(0'F,"ExternalFunction").
 get_op(0'i,"IntegerInCode").
+get_op(0'j,"JITCode").
 get_op(0'I,"PtoLUIndex").
 get_op(0'l,"PtoOp").
 get_op(0'L,"PtoLUClause").
@@ -698,7 +723,7 @@ dump_head_action(logical, _, _, L) :-
 	    CELL *pt = RepAppl(t);
 	
 	    clause->Tag = AbsAppl((CELL *)pt[0]);
-	    if (IsExtensionFunctor(FunctorOfTerm(t))) {
+	       if (IsExtensionFunctor(FunctorOfTerm(t))) {
 	      clause->ucd.t_ptr = t;
 	    } else {
 	      clause->ucd.c_sreg = pt;
@@ -718,15 +743,31 @@ dump_head_action(logical, _, _, L) :-
 /* or_last requires special handling */
 footer(W) :-
 	format(W,'  /* this instruction is hardwired */~n',[]),
-	format(W,'#ifdef YAPOR~n',[]),
-	format(W,'  OPCODE(~s~36+,~s)~n',["or_last","sblp"]),
+        format(W,'  /* or_last must be the last instruction. */~n',[]),
+	format(W,'#ifdef YAP_JIT~n',[]),  
+        format(W,'#ifdef YAPOR~n',[]),  
+        format(W,'  OPCODE(~s~36+,~s),~n',["traced_or_last","sblp"]),
 	format(W,'#else~n',[]),
-	format(W,'  OPCODE(~s~36+,~s)~n',["or_last","p"]),
-	format(W,'#endif~n',[]).
+        format(W,'  OPCODE(~s~36+,~s),~n',["traced_or_last","p"]),
+	format(W,'#endif~n',[]),
+        format(W,'#endif~n',[]),
+	format(W,'#ifdef YAPOR~n',[]),
+        format(W,'  OPCODE(~s~36+,~s),~n',["or_last","sblp"]),
+        format(W,'#else~n',[]),
+        format(W,'  OPCODE(~s~36+,~s),~n',["or_last","p"]),
+        format(W,'#endif~n',[]).
 
 
 footer_rclause(W) :-
 	format(W,'      /* this instruction is hardwired */~n',[]),
+	format(W,'#ifdef YAP_JIT~n',[]),  
+	dump_ops(W,["traced_or_last"]),
+        format(W,'#ifdef YAPOR~n',[]),
+        output_typeinfo(W,"Osblp"),
+        format(W,'#else~n',[]),
+        output_typeinfo(W,"p"),
+        format(W,'#endif~n',[]),
+        format(W,'#endif~n',[]),
 	dump_ops(W,["or_last"]),
 	format(W,'#ifdef YAPOR~n',[]),
 	output_typeinfo(W,"Osblp"),
@@ -740,13 +781,21 @@ footer_rclause(W) :-
 
 footer_walk_clause(W) :-
 	format(W,'      /* this instruction is hardwired */~n',[]),
-	dump_ops(W,["or_last"]),
+        format(W,'#ifdef YAP_JIT~n',[]),  
+	dump_ops(W,["traced_or_last"]),
+        format(W,'#ifdef YAPOR~n',[]),
+        add_pp(W,"Osblp","p0"),
+        format(W,'#else~n',[]),
+        add_pp(W,"p","p"),
+        format(W,'#endif~n',[]),
+        format(W,'#endif~n',[]),
+        dump_ops(W,["or_last"]),
 	format(W,'#ifdef YAPOR~n',[]),
 	add_pp(W,"Osblp","p0"),
 	format(W,'#else~n',[]),
 	add_pp(W,"p","p"),
 	format(W,'#endif~n',[]),
-	format(W,'    }
+        format(W,'    }
   }
 ',[]).
 
@@ -784,7 +833,7 @@ read_field_by_field(A) :-
 	split(L," 	",Statement),
 	read_field_by_field(A,Statement).
 
-read_field_by_field(_,["}","u;"]) :- !.
+read_field_by_field(_,["}","y_u;"]) :- !.
 read_field_by_field(A,["struct","{"]) :- !,
 	read_fields(A,Fields,Type),
 	assert(tinfo(Type,Fields)),
@@ -809,6 +858,12 @@ read_fields(A,Fields,Type) :-
 	  read_fields(A,Fields,Type)
 	;
 	  Statements = ["#ifdef",If]
+	->
+	  retract(qual(_)),
+	  assert(qual(If)),
+	  read_fields(A,Fields,Type)
+	;
+	  Statements = ["#if",If]
 	->
 	  retract(qual(_)),
 	  assert(qual(If)),
@@ -1141,7 +1196,7 @@ opinfo("retry_eam",[body]).
 opinfo("alloc_for_logical_pred",[body]).
 opinfo("deallocate",[body]).
 opinfo("table_try_single",[]).
-opinfo("native_me",[]).
+opinfo("jit_handler",[]).
 
 output_save_clause(S) :-
 	setof(T,O^op(T,O),Types),
@@ -1151,7 +1206,7 @@ output_save_clause(S) :-
 output_save_clause(_).
 
 output_save_type(S, T) :-
-(T=="e" -> start_low_level_trace; true),
+%(T=="e" -> start_low_level_trace; true),
 	format(S,'      /* instructions type ~s */~n',[T]),
 	setof(Op,op(T,Op),Ops),
 	dump_ops(S,Ops),

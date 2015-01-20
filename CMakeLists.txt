@@ -149,6 +149,8 @@ set (BUILD_SHARED_LIBS ON)
 #
 add_subdirectory (os/libtai)
 
+add_subdirectory (CXX)
+
 option (WITH_TABLING "Support tabling" ON)
 if (WITH_TABLING) 
   #this depends on DEPTH_LIMIT define it after
@@ -221,9 +223,24 @@ if (WIN32)
     )
 endif (WIN32)
 
-set (ENGINE_SOURCES 
-  C/agc.c 
+set (ABSMI_SOURCES
   C/absmi.c
+  C/absmi_insts.h
+  C/fli_absmi_insts.h
+  C/or_absmi_insts.h
+  C/control_absmi_insts.h
+  C/index_absmi_insts.h
+  C/prim_absmi_insts.h
+  C/cp_absmi_insts.h
+  C/lu_absmi_insts.h
+  C/unify_absmi_insts.h
+  C/fail_absmi_insts.h
+  C/meta_absmi_insts.h
+  )
+
+set (ENGINE_SOURCES
+  ${ABSMI_SOURCES}
+  C/agc.c 
   C/adtdefs.c 
   C/alloc.c 
   C/amasm.c
@@ -319,6 +336,8 @@ SET(OPTYAP_SOURCES
   OPTYap/tab.completion.c
   )
 
+
+
 set(STATIC_SOURCES
   #NOT INCLUDED FOR NOW
   )
@@ -346,7 +365,8 @@ add_library(libYap SHARED
   ${C_INTERFACE_SOURCES} 
   ${STATIC_SOURCES}  
   ${OPTYAP_SOURCES}
-  $<TARGET_OBJECTS:libyaptai> )
+  $<TARGET_OBJECTS:libyaptai>
+  )
 
 target_link_libraries(libYap
   m resolv stdc++ )
@@ -356,7 +376,6 @@ set_target_properties(libYap
   SOVERSION ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}
   OUTPUT_NAME Yap
   )
-
 
 option (WITH_Dynamic_BDD
   "dynamic bdd library" OFF)
@@ -413,7 +432,7 @@ if (READLINE_FOUND)
 endif (READLINE_FOUND)
 
 
-macro_optional_find_package (Threads ON)
+macro_optional_find_package (Threads OFF)
 macro_log_feature (THREADS_FOUND "Threads Support" 
   "GNU Threads Library (or similar)" 
   "http://www.gnu.org/software/threads")
@@ -461,6 +480,22 @@ endif (THREADS_FOUND)
 cmake_dependent_option (WITH_PThreadLocking
   "use pthread locking primitives for internal locking" ON
   System_Threads OFF)
+
+option (Use_JIT
+  "use just-in-time compilation (experimental)" OFF)
+if (Use_JIT)
+  macro_optional_find_package (LLVM ON)
+  macro_log_feature (LLVM_FOUND "LLVM JIT generator" 
+    "The LLVM Compiler Infrastructure" 
+    "http://www.llvm.org")
+  if (LLVM_FOUND)
+    add_subdirectory (JIT)
+    include_directories (JIT/HPP)
+    add_definitions(-DYAP_JIT=1)
+  endif (LLVM_FOUND)
+endif (Use_JIT)
+
+
 
 ADD_SUBDIRECTORY(library)
 ADD_SUBDIRECTORY(swi/library)

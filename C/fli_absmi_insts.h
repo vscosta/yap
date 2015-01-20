@@ -100,9 +100,11 @@
 #ifdef DEPTH_LIMIT
         if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is prolog */
           if (pt0->ModuleOfPred) {
-            if (DEPTH == MkIntTerm(0))
+            if (DEPTH == MkIntTerm(0)) {
               FAIL();
-            else DEPTH = RESET_DEPTH();
+	    } else{
+	      DEPTH = RESET_DEPTH();
+	    }
           }
         } else if (pt0->ModuleOfPred) {
           DEPTH -= MkIntConstant(2);
@@ -351,7 +353,7 @@
 #endif
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      LOCAL_PrologMode |= UserCCallMode;
+      LOCAL_PrologMode = UserCCallMode;
       ASP = YREG;
       saveregs();
       save_machine_regs();
@@ -359,7 +361,7 @@
       EX = NULL;
       restore_machine_regs();
       setregs();
-      LOCAL_PrologMode &= ~UserCCallMode;
+      LOCAL_PrologMode &= UserMode;
       if (!SREG) {
         FAIL();
       }

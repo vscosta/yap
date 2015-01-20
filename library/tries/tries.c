@@ -32,54 +32,54 @@ typedef struct {
 /* -------------------------- */
 
 void init_tries(void);
-static int p_trie_open(void);
-static int p_trie_close(void);
-static int p_trie_close_all(void);
-static int p_trie_mode(void);
-static int p_trie_put_entry(void);
-static int p_trie_check_entry(void);
-static int p_trie_get_entry(void);
-static int p_trie_get_first_entry(void);
-static int p_trie_get_last_entry(void);
-static int p_trie_traverse_init(void);
-static int p_trie_traverse_cont(void);
-static int p_trie_remove_entry(void);
-static int p_trie_remove_subtree(void);
-static int p_trie_join(void);
-static int p_trie_intersect(void);
-static int p_trie_count_join(void);
-static int p_trie_count_intersect(void);
-static int p_trie_save(void);
-static int p_trie_load(void);
-static int p_trie_stats(void);
-static int p_trie_max_stats(void);
-static int p_trie_usage(void);
-static int p_trie_print(void);
+static YAP_Bool p_trie_open(void);
+static YAP_Bool p_trie_close(void);
+static YAP_Bool p_trie_close_all(void);
+static YAP_Bool p_trie_mode(void);
+static YAP_Bool p_trie_put_entry(void);
+static YAP_Bool p_trie_check_entry(void);
+static YAP_Bool p_trie_get_entry(void);
+static YAP_Bool p_trie_get_first_entry(void);
+static YAP_Bool p_trie_get_last_entry(void);
+static YAP_Bool p_trie_traverse_init(void);
+static YAP_Bool p_trie_traverse_cont(void);
+static YAP_Bool p_trie_remove_entry(void);
+static YAP_Bool p_trie_remove_subtree(void);
+static YAP_Bool p_trie_join(void);
+static YAP_Bool p_trie_intersect(void);
+static YAP_Bool p_trie_count_join(void);
+static YAP_Bool p_trie_count_intersect(void);
+static YAP_Bool p_trie_save(void);
+static YAP_Bool p_trie_load(void);
+static YAP_Bool p_trie_stats(void);
+static YAP_Bool p_trie_max_stats(void);
+static YAP_Bool p_trie_usage(void);
+static YAP_Bool p_trie_print(void);
 
-static int p_trie_traverse_mode(void);
-static int p_trie_disable_hash(void);
-static int p_trie_enable_hash(void);
-static int p_trie_traverse_first(void);
-static int p_trie_traverse_next(void);
+static YAP_Bool p_trie_traverse_mode(void);
+static YAP_Bool p_trie_disable_hash(void);
+static YAP_Bool p_trie_enable_hash(void);
+static YAP_Bool p_trie_traverse_first(void);
+static YAP_Bool p_trie_traverse_next(void);
 
-static int p_trie_to_list(void);
+static YAP_Bool p_trie_to_list(void);
 
 /* dbtries support */
-static int p_trie_depth_breadth(void);
-static int p_trie_get_depth_breadth_reduction_current_data(void);
-static int p_trie_get_db_opt_level_count_init(void);
-static int p_trie_get_db_opt_level_count_cont(void);
-static int p_trie_replace_nested_trie(void);
-static int p_trie_db_opt_min_prefix(void);
+static YAP_Bool p_trie_depth_breadth(void);
+static YAP_Bool p_trie_get_depth_breadth_reduction_current_data(void);
+static YAP_Bool p_trie_get_db_opt_level_count_init(void);
+static YAP_Bool p_trie_get_db_opt_level_count_cont(void);
+static YAP_Bool p_trie_replace_nested_trie(void);
+static YAP_Bool p_trie_db_opt_min_prefix(void);
 
 /* backwards compatibility */
-static int p_open_trie(void);
-static int p_close_trie(void);
-static int p_close_all_tries(void);
-static int p_put_trie_entry(void);
-static int p_get_trie_entry(void);
-static int p_remove_trie_entry(void);
-static int p_print_trie(void);
+static YAP_Bool p_open_trie(void);
+static YAP_Bool p_close_trie(void);
+static YAP_Bool p_close_all_tries(void);
+static YAP_Bool p_put_trie_entry(void);
+static YAP_Bool p_get_trie_entry(void);
+static YAP_Bool p_remove_trie_entry(void);
+static YAP_Bool p_print_trie(void);
 
 
 
@@ -146,19 +146,19 @@ void init_tries(void) {
 /* --------------------------------- */
 
 /* open_trie(-Trie) */
-static int p_open_trie(void) {
+static YAP_Bool p_open_trie(void) {
   return p_trie_open();
 }
 
 
 /* close_trie(+Trie) */
-static int p_close_trie(void) {
+static YAP_Bool p_close_trie(void) {
   return p_trie_close();
 }
 
 
 /* close_all_tries() */
-static int p_close_all_tries(void) {
+static YAP_Bool p_close_all_tries(void) {
   return p_trie_close_all();
 }
 
@@ -168,7 +168,7 @@ static int p_close_all_tries(void) {
 #define arg_trie  YAP_ARG2
 #define arg_entry YAP_ARG3
 #define arg_ref   YAP_ARG4
-static int p_put_trie_entry(void) {
+static YAP_Bool p_put_trie_entry(void) {
   TrData data;
   const char *mode_str;
   YAP_Int mode, current_mode;
@@ -201,7 +201,7 @@ static int p_put_trie_entry(void) {
 #define arg_mode  YAP_ARG1
 #define arg_ref   YAP_ARG2
 #define arg_entry YAP_ARG3
-static int p_get_trie_entry(void) {
+static YAP_Bool p_get_trie_entry(void) {
   YAP_Term entry;
   const char *mode_str;
   YAP_Int mode, current_mode;
@@ -230,13 +230,13 @@ static int p_get_trie_entry(void) {
 
 
 /* remove_trie_entry(+Ref) */
-static int p_remove_trie_entry(void) {
+static YAP_Bool p_remove_trie_entry(void) {
   return p_trie_remove_entry();
 }
 
 
 /* print_trie(+Trie) */
-static int p_print_trie(void) {
+static YAP_Bool p_print_trie(void) {
   return p_trie_print();
 }
 
@@ -248,7 +248,7 @@ static int p_print_trie(void) {
 
 /* trie_open(-Trie) */
 #define arg_trie YAP_ARG1
-static int p_trie_open(void) {
+static YAP_Bool p_trie_open(void) {
   TrEntry trie;
 
   /* check arg */
@@ -264,7 +264,7 @@ static int p_trie_open(void) {
 
 /* trie_close(+Trie) */
 #define arg_trie YAP_ARG1
-static int p_trie_close(void) {
+static YAP_Bool p_trie_close(void) {
   /* check arg */
   if (!YAP_IsIntTerm(arg_trie)) 
     return FALSE;
@@ -277,7 +277,7 @@ static int p_trie_close(void) {
 
 
 /* trie_close_all() */
-static int p_trie_close_all(void) {
+static YAP_Bool p_trie_close_all(void) {
   trie_close_all();
   return TRUE;
 }
@@ -285,7 +285,7 @@ static int p_trie_close_all(void) {
 
 /* trie_mode(?Mode) */
 #define arg_mode YAP_ARG1
-static int p_trie_mode(void) {
+static YAP_Bool p_trie_mode(void) {
   YAP_Term mode_term;
   const char *mode_str;
   YAP_Int mode;
@@ -320,7 +320,7 @@ static int p_trie_mode(void) {
 #define arg_trie  YAP_ARG1
 #define arg_entry YAP_ARG2
 #define arg_ref   YAP_ARG3
-static int p_trie_put_entry(void) {
+static YAP_Bool p_trie_put_entry(void) {
   TrData data;
 
   /* check args */
@@ -340,7 +340,7 @@ static int p_trie_put_entry(void) {
 #define arg_trie  YAP_ARG1
 #define arg_entry YAP_ARG2
 #define arg_ref   YAP_ARG3
-static int p_trie_check_entry(void) {
+static YAP_Bool p_trie_check_entry(void) {
   TrData data;
 
   /* check args */
@@ -360,7 +360,7 @@ static int p_trie_check_entry(void) {
 /* trie_get_entry(+Ref,-Entry) */
 #define arg_ref   YAP_ARG1
 #define arg_entry YAP_ARG2
-static int p_trie_get_entry(void) {
+static YAP_Bool p_trie_get_entry(void) {
   YAP_Term entry;
 
   /* check args */
@@ -378,7 +378,7 @@ static int p_trie_get_entry(void) {
 /* trie_get_first_entry(+Trie,-Ref) */
 #define arg_trie YAP_ARG1
 #define arg_ref  YAP_ARG2
-static int p_trie_get_first_entry(void) {
+static YAP_Bool p_trie_get_first_entry(void) {
   TrData data;
 
   /* check args */
@@ -397,7 +397,7 @@ static int p_trie_get_first_entry(void) {
 /* trie_get_last_entry(+Trie,-Ref) */
 #define arg_trie YAP_ARG1
 #define arg_ref  YAP_ARG2
-static int p_trie_get_last_entry(void) {
+static YAP_Bool p_trie_get_last_entry(void) {
   TrData data;
 
   /* check args */
@@ -417,7 +417,7 @@ static int p_trie_get_last_entry(void) {
 #define arg_trie     YAP_ARG1
 #define arg_init_ref YAP_ARG2
 #define arg_ref      YAP_ARG3
-static int p_trie_traverse_init(void) {
+static YAP_Bool p_trie_traverse_init(void) {
   TrData data;
 
   /* check args */
@@ -442,7 +442,7 @@ static int p_trie_traverse_init(void) {
 #define arg_trie     YAP_ARG1
 #define arg_init_ref YAP_ARG2
 #define arg_ref      YAP_ARG3
-static int p_trie_traverse_cont(void) {
+static YAP_Bool p_trie_traverse_cont(void) {
   TrData data;
 
   /* traverse trie */
@@ -459,7 +459,7 @@ static int p_trie_traverse_cont(void) {
 
 /* trie_remove_entry(+Ref) */
 #define arg_ref YAP_ARG1
-static int p_trie_remove_entry(void) {
+static YAP_Bool p_trie_remove_entry(void) {
   /* check arg */
   if (!YAP_IsIntTerm(arg_ref))
     return FALSE;
@@ -473,7 +473,7 @@ static int p_trie_remove_entry(void) {
 
 /* trie_remove_subtree(+Ref) */
 #define arg_ref YAP_ARG1
-static int p_trie_remove_subtree(void) {
+static YAP_Bool p_trie_remove_subtree(void) {
   /* check arg */
   if (!YAP_IsIntTerm(arg_ref))
     return FALSE;
@@ -488,7 +488,7 @@ static int p_trie_remove_subtree(void) {
 /* trie_join(+TrieDest,+TrieSource) */
 #define arg_trie_dest   YAP_ARG1
 #define arg_trie_source YAP_ARG2
-static int p_trie_join(void) {
+static YAP_Bool p_trie_join(void) {
   /* check args */
   if (!YAP_IsIntTerm(arg_trie_dest)) 
     return FALSE;
@@ -506,7 +506,7 @@ static int p_trie_join(void) {
 /* trie_intersect(+TrieDest,+TrieSource) */
 #define arg_trie_dest   YAP_ARG1
 #define arg_trie_source YAP_ARG2
-static int p_trie_intersect(void) {
+static YAP_Bool p_trie_intersect(void) {
   /* check args */
   if (!YAP_IsIntTerm(arg_trie_dest)) 
     return FALSE;
@@ -525,7 +525,7 @@ static int p_trie_intersect(void) {
 #define arg_trie1   YAP_ARG1
 #define arg_trie2   YAP_ARG2
 #define arg_entries YAP_ARG3
-static int p_trie_count_join(void) {
+static YAP_Bool p_trie_count_join(void) {
   YAP_Int entries;
 
   /* check args */
@@ -547,7 +547,7 @@ static int p_trie_count_join(void) {
 #define arg_trie1   YAP_ARG1
 #define arg_trie2   YAP_ARG2
 #define arg_entries YAP_ARG3
-static int p_trie_count_intersect(void) {
+static YAP_Bool p_trie_count_intersect(void) {
   YAP_Int entries;
 
   /* check args */
@@ -568,7 +568,7 @@ static int p_trie_count_intersect(void) {
 /* trie_save(+Trie,+FileName) */
 #define arg_trie YAP_ARG1
 #define arg_file YAP_ARG2
-static int p_trie_save(void) {
+static YAP_Bool p_trie_save(void) {
   const char *file_str;
   FILE *file;
 
@@ -596,7 +596,7 @@ static int p_trie_save(void) {
 /* trie_load(-Trie,+FileName) */
 #define arg_trie YAP_ARG1
 #define arg_file YAP_ARG2
-static int p_trie_load(void) {
+static YAP_Bool p_trie_load(void) {
   TrEntry data;
   const char *file_str;
   FILE *file;
@@ -628,7 +628,7 @@ static int p_trie_load(void) {
 #define arg_tries   YAP_ARG2
 #define arg_entries YAP_ARG3
 #define arg_nodes   YAP_ARG4
-static int p_trie_stats(void) {
+static YAP_Bool p_trie_stats(void) {
   YAP_Int memory, tries, entries, nodes;
 
   /* get stats */
@@ -654,7 +654,7 @@ static int p_trie_stats(void) {
 #define arg_tries   YAP_ARG2
 #define arg_entries YAP_ARG3
 #define arg_nodes   YAP_ARG4
-static int p_trie_max_stats(void) {
+static YAP_Bool p_trie_max_stats(void) {
   YAP_Int memory, tries, entries, nodes;
 
   /* get stats */
@@ -680,7 +680,7 @@ static int p_trie_max_stats(void) {
 #define arg_entries      YAP_ARG2
 #define arg_nodes        YAP_ARG3
 #define arg_virtualnodes YAP_ARG4
-static int p_trie_usage(void) {
+static YAP_Bool p_trie_usage(void) {
   YAP_Int entries, nodes, virtualnodes;
 
   /* check arg */
@@ -705,7 +705,7 @@ static int p_trie_usage(void) {
 
 /* trie_print(+Trie) */
 #define arg_trie YAP_ARG1
-static int p_trie_print(void) {
+static YAP_Bool p_trie_print(void) {
   /* check arg */
   if (!YAP_IsIntTerm(arg_trie))
     return FALSE;
@@ -719,7 +719,7 @@ static int p_trie_print(void) {
 
 /* trie_traverse_mode(?Mode) */
 #define arg_mode YAP_ARG1
-static int p_trie_traverse_mode(void) {
+static YAP_Bool p_trie_traverse_mode(void) {
   YAP_Term mode_term;
   const char *mode_str;
   YAP_Int mode;
@@ -753,7 +753,7 @@ static int p_trie_traverse_mode(void) {
 /* trie_traverse_first(+Trie, -Ref) */
 #define arg_trie   YAP_ARG1
 #define arg_ref    YAP_ARG2
-static int p_trie_traverse_first(void) {
+static YAP_Bool p_trie_traverse_first(void) {
   TrData data;
 
   /* check arg */
@@ -773,7 +773,7 @@ static int p_trie_traverse_first(void) {
 /* trie_traverse_next(+Ref, -Ref) */
 #define arg_cur    YAP_ARG1
 #define arg_next   YAP_ARG2
-static int p_trie_traverse_next(void) {
+static YAP_Bool p_trie_traverse_next(void) {
   TrData data;
 
   /* check arg */
@@ -791,14 +791,14 @@ static int p_trie_traverse_next(void) {
 
 
 /* trie_disable_hash */
-static int p_trie_disable_hash(void) {
+static YAP_Bool p_trie_disable_hash(void) {
   trie_disable_hash_table();
   return TRUE;
 }
 
 
 /* trie_enable_hash */
-static int p_trie_enable_hash(void) {
+static YAP_Bool p_trie_enable_hash(void) {
   trie_enable_hash_table();
   return TRUE;
 }
@@ -807,7 +807,7 @@ static int p_trie_enable_hash(void) {
 /* trie_to_list(+Trie, -List) */
 #define arg_trie YAP_ARG1
 #define arg_list YAP_ARG2
-static int p_trie_to_list(void) {
+static YAP_Bool p_trie_to_list(void) {
   YAP_Term list;
   
   /* check arg */
@@ -829,7 +829,7 @@ static int p_trie_to_list(void) {
 #define arg_opt_level          YAP_ARG4
 #define arg_start_counter      YAP_ARG5
 #define arg_end_counter        YAP_ARG6
-static int p_trie_depth_breadth(void) {
+static YAP_Bool p_trie_depth_breadth(void) {
   /* get depth breadth trie */
   if (!YAP_IsIntTerm(arg_opt_level))
     return FALSE;
@@ -851,7 +851,7 @@ static int p_trie_depth_breadth(void) {
 
 /* trie_get_depth_breadth_reduction_entry(-Entry) */
 #define arg_entry YAP_ARG1
-static int p_trie_get_depth_breadth_reduction_current_data(void) {
+static YAP_Bool p_trie_get_depth_breadth_reduction_current_data(void) {
   TrData data = trie_get_depth_breadth_reduction_current_data();
   if (data)
     return YAP_Unify(arg_entry, YAP_MkIntTerm((YAP_Int) data));
@@ -865,7 +865,7 @@ db_trie_opt_level *opt_level;
 /* trie_get_depth_breadth_reduction_opt_level_count(?OptLevel, -Count) */
 #define arg_opt_level YAP_ARG1
 #define arg_count YAP_ARG2
-static int p_trie_get_db_opt_level_count_init(void) {
+static YAP_Bool p_trie_get_db_opt_level_count_init(void) {
   if (YAP_IsIntTerm(arg_opt_level)) {
     if (YAP_IntOfTerm(arg_opt_level) > 0 && YAP_IntOfTerm(arg_opt_level) < 4) {
       if (YAP_Unify(arg_count, YAP_MkIntTerm(trie_get_db_opt_level_count(YAP_IntOfTerm(arg_opt_level))))) {
@@ -899,7 +899,7 @@ static int p_trie_get_db_opt_level_count_init(void) {
 /* trie_get_depth_breadth_reduction_opt_level_count(?OptLevel, -Count) */
 #define arg_opt_level YAP_ARG1
 #define arg_count YAP_ARG2
-static int p_trie_get_db_opt_level_count_cont(void) {
+static YAP_Bool p_trie_get_db_opt_level_count_cont(void) {
   YAP_PRESERVED_DATA(opt_level, db_trie_opt_level);
   opt_level->value = YAP_MkIntTerm(YAP_IntOfTerm(opt_level->value) + 1);
   if (YAP_IntOfTerm(opt_level->value) < 4) {
@@ -920,7 +920,7 @@ static int p_trie_get_db_opt_level_count_cont(void) {
 #define arg_trie YAP_ARG1
 #define arg_nested_id YAP_ARG2
 #define arg_term YAP_ARG3
-static int p_trie_replace_nested_trie(void) {
+static YAP_Bool p_trie_replace_nested_trie(void) {
   if (!YAP_IsIntTerm(arg_nested_id))
     return FALSE;
   if (!YAP_IsNonVarTerm(arg_term))
@@ -935,7 +935,7 @@ static int p_trie_replace_nested_trie(void) {
 
 /* trie_db_opt_min_prefix(?MinPrefix) */
 #define arg_min_prefix YAP_ARG1
-static int p_trie_db_opt_min_prefix(void) {
+static YAP_Bool p_trie_db_opt_min_prefix(void) {
   YAP_Int min_prefix;
 
   /* get mode */

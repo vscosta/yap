@@ -49,7 +49,7 @@ if test x"$LLVM_CONFIG" = x"no" ;then
     AC_MSG_ERROR([--enable-jit was given, but test for LLVM 3.5 failed])
 else
     LLVM_VERSION="`$LLVM_CONFIG --version`"
-    if test "$LLVM_VERSION" != "3.5.0";then
+    if test "$LLVM_VERSION" != "3.5.0" -o "$LLVM_VERSION" != "3.5.1";then
         AC_MSG_ERROR([Test for LLVM 3.5 failed])
     fi
 

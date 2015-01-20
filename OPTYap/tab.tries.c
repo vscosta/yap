@@ -168,7 +168,7 @@ static struct trie_statistics{
 ** Rational Terms Support    **
 ******************************/
 #ifdef TRIE_RATIONAL_TERMS
-#include "tab.rational.i"
+#include "tab.rational.h"
 #endif /* RATIONAL TERM SUPPORT FOR TRIES */
 
 
@@ -179,7 +179,7 @@ static struct trie_statistics{
 #define INCLUDE_SUBGOAL_TRIE_CHECK_INSERT  /* subgoal_trie_check_insert_entry */
 #define INCLUDE_ANSWER_TRIE_CHECK_INSERT   /* answer_trie_check_insert_entry */
 #define INCLUDE_GLOBAL_TRIE_CHECK_INSERT   /* global_trie_check_insert_entry */
-#include "tab.tries.i"
+#include "tab.tries.h"
 #undef INCLUDE_GLOBAL_TRIE_CHECK_INSERT
 #undef INCLUDE_ANSWER_TRIE_CHECK_INSERT
 #undef INCLUDE_SUBGOAL_TRIE_CHECK_INSERT
@@ -190,7 +190,7 @@ static struct trie_statistics{
 #ifdef GLOBAL_TRIE_FOR_SUBTERMS
 #define INCLUDE_GLOBAL_TRIE_CHECK_INSERT   /* global_trie_check_insert_gt_entry */
 #endif /* GLOBAL_TRIE_FOR_SUBTERMS */
-#include "tab.tries.i"
+#include "tab.tries.h"
 #undef INCLUDE_GLOBAL_TRIE_CHECK_INSERT
 #undef INCLUDE_ANSWER_TRIE_CHECK_INSERT
 #undef INCLUDE_SUBGOAL_TRIE_CHECK_INSERT
@@ -199,7 +199,7 @@ static struct trie_statistics{
 #define INCLUDE_SUBGOAL_SEARCH_LOOP        /* subgoal_search_loop */
 #define INCLUDE_ANSWER_SEARCH_LOOP         /* answer_search_loop */
 #define INCLUDE_LOAD_ANSWER_LOOP           /* load_answer_loop */
-#include "tab.tries.i"
+#include "tab.tries.h"
 #undef INCLUDE_LOAD_ANSWER_LOOP
 #undef INCLUDE_ANSWER_SEARCH_LOOP
 #undef INCLUDE_SUBGOAL_SEARCH_LOOP
@@ -209,10 +209,10 @@ static struct trie_statistics{
 #define INCLUDE_ANSWER_SEARCH_LOOP         /* answer_search_terms_loop */
 #ifdef TRIE_RATIONAL_TERMS
 #undef TRIE_RATIONAL_TERMS
-#include "tab.tries.i"
+#include "tab.tries.h"
 #define TRIE_RATIONAL_TERMS
 #else
-#include "tab.tries.i"
+#include "tab.tries.h"
 #endif
 #undef INCLUDE_ANSWER_SEARCH_LOOP
 #undef INCLUDE_SUBGOAL_SEARCH_LOOP
@@ -224,10 +224,10 @@ static struct trie_statistics{
 #define INCLUDE_LOAD_ANSWER_LOOP           /* load_substitution_loop */
 #ifdef TRIE_RATIONAL_TERMS
 #undef TRIE_RATIONAL_TERMS
-#include "tab.tries.i"
+#include "tab.tries.h"
 #define TRIE_RATIONAL_TERMS
 #else
-#include "tab.tries.i"
+#include "tab.tries.h"
 #endif
 #undef INCLUDE_LOAD_ANSWER_LOOP
 #undef INCLUDE_ANSWER_SEARCH_LOOP
@@ -236,7 +236,7 @@ static struct trie_statistics{
 
 #ifdef MODE_DIRECTED_TABLING
 #define INCLUDE_ANSWER_SEARCH_MODE_DIRECTED
-#include "tab.tries.i"                     /* answer_search_min_max + answer_search_sum + invalidate_answer_trie */
+#include "tab.tries.h"                     /* answer_search_min_max + answer_search_sum + invalidate_answer_trie */
 #undef INCLUDE_ANSWER_SEARCH_MODE_DIRECTED
 #endif /* MODE_DIRECTED_TABLING */
 

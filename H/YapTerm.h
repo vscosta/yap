@@ -28,7 +28,7 @@ typedef void *Atom;
 
 #endif
 
-#define ALIGN_YAPTYPE(X,TYPE) (((CELL)(X)+(sizeof(TYPE)-1)) & ~(sizeof(TYPE)-1))
+#define ALIGN_BY_TYPE(X,TYPE) (((CELL)(X)+(sizeof(TYPE)-1)) & ~(sizeof(TYPE)-1))
 
 
 #ifndef EXTERN
@@ -43,10 +43,10 @@ typedef uintptr_t UInt;
 
 #if SIZEOF_INT_P==4
 
-#if SIZEOF_INT==4
+#if SIZEOF_LONGINT==4
 
-#define Int_FORMAT "%d"
-#define UInt_FORMAT "%u"
+#define Int_FORMAT "%l"
+#define UInt_FORMAT "%ul"
 
 #elif SIZEOF_LONG_INT==4
 /*   */ typedef long int Int;
