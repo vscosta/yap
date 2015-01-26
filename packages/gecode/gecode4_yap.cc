@@ -68,13 +68,13 @@ extern "C"
   static YAP_opaque_tag_t gecode_space_tag;
   static YAP_opaque_handler_t gecode_space_handler;
 
-  static int gecode_space_fail_handler(void* p)
+  static YAP_Bool gecode_space_fail_handler(void* p)
   {
     delete *(GenericSpace**)p;
     return TRUE;
   }
 
-  static int
+  static YAP_Bool
   gecode_space_write_handler
   (void *stream_, YAP_opaque_tag_t type, void *p, int flags)
   {
@@ -93,7 +93,7 @@ extern "C"
     return term;
   }
 
-  static int gecode_new_space(void)
+  static YAP_Bool gecode_new_space(void)
   {
     YAP_Term term = gecode_term_from_space(new GenericSpace);
     return YAP_Unify(YAP_ARG1, term);
@@ -468,7 +468,7 @@ extern "C"
 
   static RestartMode gecode_RestartMode_from_term(YAP_Term t);
 
-  static int gecode_new_engine(void)
+  static YAP_Bool gecode_new_engine(void)
   {
     YAP_Term arg1 = YAP_ARG1;
     YAP_Term arg2 = YAP_ARG2;
@@ -557,13 +557,13 @@ extern "C"
     return * (GenericEngine**) YAP_OpaqueObjectFromTerm(t);
   }
 
-  static int gecode_engine_fail_handler(void* p)
+  static YAP_Bool gecode_engine_fail_handler(void* p)
   {
     delete *(GenericEngine**)p;
     return TRUE;
   }
 
-  static int
+  static YAP_Bool
   gecode_engine_write_handler
   (void *stream_, YAP_opaque_tag_t type, void *p, int flags)
   {
@@ -572,7 +572,7 @@ extern "C"
     return TRUE;
   }
 
-  static int gecode_engine_search(void)
+  static YAP_Bool gecode_engine_search(void)
   {
     GenericEngine* engine = gecode_engine_from_term(YAP_ARG1);
     GenericSpace* space = engine->next();
@@ -585,7 +585,7 @@ extern "C"
   }
 
 #ifdef DISJUNCTOR
-  static int gecode_new_disjunctor(void)
+  static  YAP_Bool gecode_new_disjunctor(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -595,7 +595,7 @@ extern "C"
     return YAP_Unify(result, term);
   }
 
-  static int
+  static YAP_Bool
   gecode_disjunctor_write_handler
   (void *stream_, YAP_opaque_tag_t type, void *p, int flags)
   {
@@ -604,7 +604,7 @@ extern "C"
     return TRUE;
   }
 
-  static int gecode_new_clause(void)
+  static YAP_Bool gecode_new_clause(void)
   {
     YAP_Term result = YAP_ARG1;
     YapDisjunctor& disj = gecode_YapDisjunctor_from_term(YAP_ARG2);
@@ -614,7 +614,7 @@ extern "C"
     return YAP_Unify(result, term);
   }
 
-  static int
+  static YAP_Bool
   gecode_clause_write_handler
   (void *stream_, YAP_opaque_tag_t type, void *p, int flags)
   {
@@ -628,7 +628,7 @@ extern "C"
   static FloatVar gecode_FloatVar_from_term(GenericSpace*,YAP_Term);
   static SetVar gecode_SetVar_from_term(GenericSpace*,YAP_Term);
 
-  static int gecode_clause_intvar_forward(void)
+  static YAP_Bool gecode_clause_intvar_forward(void)
   {
     Clause& clause = gecode_Clause_from_term(YAP_ARG1);
     GenericSpace* outer = clause.generic_parent();
@@ -639,7 +639,7 @@ extern "C"
     return TRUE;
   }
 
-  static int gecode_clause_boolvar_forward(void)
+  static YAP_Bool gecode_clause_boolvar_forward(void)
   {
     Clause& clause = gecode_Clause_from_term(YAP_ARG1);
     GenericSpace* outer = clause.generic_parent();
@@ -650,7 +650,7 @@ extern "C"
     return TRUE;
   }
 
-  static int gecode_clause_setvar_forward(void)
+  static YAP_Bool gecode_clause_setvar_forward(void)
   {
     Clause& clause = gecode_Clause_from_term(YAP_ARG1);
     GenericSpace* outer = clause.generic_parent();
@@ -662,7 +662,7 @@ extern "C"
   }
 #endif
 
-  static int gecode_new_intvar_from_bounds(void)
+  static YAP_Bool gecode_new_intvar_from_bounds(void)
   {
     YAP_Term ivar = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -673,7 +673,7 @@ extern "C"
     return YAP_Unify(ivar, y_i);
   }
 
-  static int gecode_new_floatvar_from_bounds(void)
+  static YAP_Bool gecode_new_floatvar_from_bounds(void)
   {
     YAP_Term ivar = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -713,7 +713,7 @@ extern "C"
     return IntSet(SPECARRAYDEREF(r), n);
   }
 
-  static int gecode_new_intvar_from_intset(void)
+  static YAP_Bool gecode_new_intvar_from_intset(void)
   {
     YAP_Term ivar = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -723,7 +723,7 @@ extern "C"
     return YAP_Unify(ivar, YAP_MkIntTerm(i));
   }
 
-  static int gecode_new_boolvar(void)
+  static YAP_Bool gecode_new_boolvar(void)
   {
     YAP_Term bvar = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -731,7 +731,7 @@ extern "C"
     return YAP_Unify(bvar, YAP_MkIntTerm(i));
   }
 
-  static int gecode_new_setvar_1(void)
+  static YAP_Bool gecode_new_setvar_1(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -745,7 +745,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(idx));
   }
 
-  static int gecode_new_setvar_2(void)
+  static YAP_Bool gecode_new_setvar_2(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -758,7 +758,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(idx));
   }
 
-  static int gecode_new_setvar_3(void)
+  static YAP_Bool gecode_new_setvar_3(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -770,7 +770,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(idx));
   }
 
-  static int gecode_new_setvar_4(void)
+  static YAP_Bool gecode_new_setvar_4(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -783,7 +783,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(idx));
   }
 
-  static int gecode_new_setvar_5(void)
+  static YAP_Bool gecode_new_setvar_5(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -795,7 +795,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(idx));
   }
 
-  static int gecode_new_setvar_6(void)
+  static YAP_Bool gecode_new_setvar_6(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -806,7 +806,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(idx));
   }
 
-  static int gecode_new_setvar_7(void)
+  static YAP_Bool gecode_new_setvar_7(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -819,7 +819,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(idx));
   }
 
-  static int gecode_new_setvar_8(void)
+  static YAP_Bool gecode_new_setvar_8(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -831,7 +831,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(idx));
   }
 
-  static int gecode_new_setvar_9(void)
+  static YAP_Bool gecode_new_setvar_9(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -842,7 +842,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(idx));
   }
 
-  static int gecode_new_setvar_10(void)
+  static YAP_Bool gecode_new_setvar_10(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -854,7 +854,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(idx));
   }
 
-  static int gecode_new_setvar_11(void)
+  static YAP_Bool gecode_new_setvar_11(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -865,7 +865,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(idx));
   }
 
-  static int gecode_new_setvar_12(void)
+  static YAP_Bool gecode_new_setvar_12(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -875,7 +875,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(idx));
   }
 
-  static int gecode_space_minimize(void)
+  static YAP_Bool gecode_space_minimize(void)
   {
     GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
     int i = YAP_IntOfTerm(YAP_ARG2);
@@ -883,7 +883,7 @@ extern "C"
     return TRUE;
   }
 
-  static int gecode_space_maximize(void)
+  static YAP_Bool gecode_space_maximize(void)
   {
     GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
     int i = YAP_IntOfTerm(YAP_ARG2);
@@ -891,7 +891,7 @@ extern "C"
     return TRUE;
   }
 
-  static int gecode_space_minimize_ratio(void)
+  static YAP_Bool gecode_space_minimize_ratio(void)
   {
     GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
     int i = YAP_IntOfTerm(YAP_ARG2);
@@ -900,7 +900,7 @@ extern "C"
     return TRUE;
   }
 
-  static int gecode_space_maximize_ratio(void)
+  static YAP_Bool gecode_space_maximize_ratio(void)
   {
     GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
     int i = YAP_IntOfTerm(YAP_ARG2);
@@ -1078,7 +1078,7 @@ extern "C"
     cerr << "this should never happen" << endl; exit(1);
   }
 
-  static int gecode_space_use_keep_index(void)
+  static YAP_Bool gecode_space_use_keep_index(void)
   {
     YAP_Term arg1 = YAP_ARG1;
     YAP_Term arg2 = YAP_ARG2;
@@ -1087,7 +1087,7 @@ extern "C"
 			   ?gecode_TRUE:gecode_FALSE));
   }
 
-  static int gecode_intvar_keep(void)
+  static YAP_Bool gecode_intvar_keep(void)
   {
     YAP_Term arg1 = YAP_ARG1;
     YAP_Term arg2 = YAP_ARG2;
@@ -1098,7 +1098,7 @@ extern "C"
     return YAP_Unify(arg3,YAP_MkIntTerm(kidx));
   }
 
-  static int gecode_boolvar_keep(void)
+  static YAP_Bool gecode_boolvar_keep(void)
   {
     YAP_Term arg1 = YAP_ARG1;
     YAP_Term arg2 = YAP_ARG2;
@@ -1109,7 +1109,7 @@ extern "C"
     return YAP_Unify(arg3,YAP_MkIntTerm(kidx));
   }
 
-  static int gecode_setvar_keep(void)
+  static YAP_Bool gecode_setvar_keep(void)
   {
     YAP_Term arg1 = YAP_ARG1;
     YAP_Term arg2 = YAP_ARG2;
@@ -1121,14 +1121,14 @@ extern "C"
   }
 
   // INFO ON INTVARS
-  static int gecode_intvar_assigned(void)
+  static YAP_Bool gecode_intvar_assigned(void)
   {
     GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
     IntVar x = gecode_IntVar_from_term(space, YAP_ARG2);
     return (x.assigned()) ? TRUE : FALSE;
   }
 
-  static int gecode_intvar_min(void)
+  static YAP_Bool gecode_intvar_min(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1136,7 +1136,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.min()));
   }
 
-  static int gecode_intvar_max(void)
+  static YAP_Bool gecode_intvar_max(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1144,7 +1144,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.max()));
   }
 
-  static int gecode_intvar_med(void)
+  static YAP_Bool gecode_intvar_med(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1152,7 +1152,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.med()));
   }
 
-  static int gecode_intvar_val(void)
+  static YAP_Bool gecode_intvar_val(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1160,7 +1160,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.val()));
   }
 
-  static int gecode_intvar_size(void)
+  static YAP_Bool gecode_intvar_size(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1168,7 +1168,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.size()));
   }
 
-  static int gecode_intvar_width(void)
+  static YAP_Bool gecode_intvar_width(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1176,7 +1176,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.width()));
   }
 
-  static int gecode_intvar_regret_min(void)
+  static YAP_Bool gecode_intvar_regret_min(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1184,7 +1184,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.regret_min()));
   }
 
-  static int gecode_intvar_regret_max(void)
+  static YAP_Bool gecode_intvar_regret_max(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1194,7 +1194,7 @@ extern "C"
 
   static YAP_Functor gecode_COMMA2;
 
-  static int gecode_intvar_ranges(void)
+  static YAP_Bool gecode_intvar_ranges(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1217,7 +1217,7 @@ extern "C"
     return YAP_Unify(result,lst);
   }
 
-  static int gecode_intvar_values(void)
+  static YAP_Bool gecode_intvar_values(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1235,14 +1235,14 @@ extern "C"
   }
 
   // INFO ON BOOLVARS
-  static int gecode_boolvar_assigned(void)
+  static YAP_Bool gecode_boolvar_assigned(void)
   {
     GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
     BoolVar x = gecode_BoolVar_from_term(space, YAP_ARG2);
     return (x.assigned()) ? TRUE : FALSE;
   }
 
-  static int gecode_boolvar_min(void)
+  static YAP_Bool gecode_boolvar_min(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1250,7 +1250,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.min()));
   }
 
-  static int gecode_boolvar_max(void)
+  static YAP_Bool gecode_boolvar_max(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1258,7 +1258,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.max()));
   }
 
-  static int gecode_boolvar_med(void)
+  static YAP_Bool gecode_boolvar_med(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1266,7 +1266,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.med()));
   }
 
-  static int gecode_boolvar_val(void)
+  static YAP_Bool gecode_boolvar_val(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1274,7 +1274,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.val()));
   }
 
-  static int gecode_boolvar_size(void)
+  static YAP_Bool gecode_boolvar_size(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1282,7 +1282,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.size()));
   }
 
-  static int gecode_boolvar_width(void)
+  static YAP_Bool gecode_boolvar_width(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1290,7 +1290,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.width()));
   }
 
-  static int gecode_boolvar_regret_min(void)
+  static YAP_Bool gecode_boolvar_regret_min(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1298,7 +1298,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.regret_min()));
   }
 
-  static int gecode_boolvar_regret_max(void)
+  static YAP_Bool gecode_boolvar_regret_max(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1307,14 +1307,14 @@ extern "C"
   }
 
   // INFO ON SETVARS
-  static int gecode_setvar_assigned(void)
+  static YAP_Bool gecode_setvar_assigned(void)
   {
     GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
     SetVar x = gecode_SetVar_from_term(space, YAP_ARG2);
     return (x.assigned()) ? TRUE : FALSE;
   }
 
-  static int gecode_setvar_glbSize(void)
+  static YAP_Bool gecode_setvar_glbSize(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1322,7 +1322,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.glbSize()));
   }
 
-  static int gecode_setvar_lubSize(void)
+  static YAP_Bool gecode_setvar_lubSize(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1330,7 +1330,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.lubSize()));
   }
 
-  static int gecode_setvar_unknownSize(void)
+  static YAP_Bool gecode_setvar_unknownSize(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1338,7 +1338,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.unknownSize()));
   }
 
-  static int gecode_setvar_cardMin(void)
+  static YAP_Bool gecode_setvar_cardMin(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1346,7 +1346,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.cardMin()));
   }
 
-  static int gecode_setvar_cardMax(void)
+  static YAP_Bool gecode_setvar_cardMax(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1354,7 +1354,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.cardMax()));
   }
 
-  static int gecode_setvar_lubMin(void)
+  static YAP_Bool gecode_setvar_lubMin(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1362,7 +1362,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.lubMin()));
   }
 
-  static int gecode_setvar_lubMax(void)
+  static YAP_Bool gecode_setvar_lubMax(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1370,7 +1370,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.lubMax()));
   }
 
-  static int gecode_setvar_glbMin(void)
+  static YAP_Bool gecode_setvar_glbMin(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1378,7 +1378,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.glbMin()));
   }
 
-  static int gecode_setvar_glbMax(void)
+  static YAP_Bool gecode_setvar_glbMax(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1386,7 +1386,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.glbMax()));
   }
 
-  static int gecode_setvar_glb_ranges(void)
+  static YAP_Bool gecode_setvar_glb_ranges(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1409,7 +1409,7 @@ extern "C"
     return YAP_Unify(result,lst);
   }
 
-  static int gecode_setvar_lub_ranges(void)
+  static YAP_Bool gecode_setvar_lub_ranges(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1432,7 +1432,7 @@ extern "C"
     return YAP_Unify(result,lst);
   }
 
-  static int gecode_setvar_unknown_ranges(void)
+  static YAP_Bool gecode_setvar_unknown_ranges(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1455,7 +1455,7 @@ extern "C"
     return YAP_Unify(result,lst);
   }
 
-  static int gecode_setvar_glb_values(void)
+  static YAP_Bool gecode_setvar_glb_values(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1469,7 +1469,7 @@ extern "C"
     return YAP_Unify(result,lst);
   }
 
-  static int gecode_setvar_lub_values(void)
+  static YAP_Bool gecode_setvar_lub_values(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1483,7 +1483,7 @@ extern "C"
     return YAP_Unify(result,lst);
   }
 
-  static int gecode_setvar_unknown_values(void)
+  static YAP_Bool gecode_setvar_unknown_values(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1498,14 +1498,14 @@ extern "C"
   }
 
   // INFO ON FLOATVARS
-  static int gecode_floatvar_assigned(void)
+  static YAP_Bool gecode_floatvar_assigned(void)
   {
     GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
     FloatVar x = gecode_FloatVar_from_term(space, YAP_ARG2);
     return (x.assigned()) ? TRUE : FALSE;
   }
 
-  static int gecode_floatvar_min(void)
+  static YAP_Bool gecode_floatvar_min(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1513,7 +1513,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkFloatTerm(x.min()));
   }
 
-  static int gecode_floatvar_max(void)
+  static YAP_Bool gecode_floatvar_max(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1521,7 +1521,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkFloatTerm(x.max()));
   }
 
-  static int gecode_floatvar_med(void)
+  static YAP_Bool gecode_floatvar_med(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1529,7 +1529,7 @@ extern "C"
     return YAP_Unify(result, YAP_MkFloatTerm(x.med()));
   }
 
-  static int gecode_floatvar_size(void)
+  static YAP_Bool gecode_floatvar_size(void)
   {
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
@@ -1551,7 +1551,7 @@ extern "C"
   static YAP_opaque_tag_t gecode_reify_tag;
   static YAP_opaque_handler_t gecode_reify_handler;
 
-  static int
+  static YAP_Bool
   gecode_reify_write_handler
   (void *stream_, YAP_opaque_tag_t type, void *p, int flags)
   {
@@ -1570,7 +1570,7 @@ extern "C"
     return term;
   }
 
-  static int gecode_new_reify(void)
+  static YAP_Bool gecode_new_reify(void)
   {
     GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
     BoolVar b = gecode_BoolVar_from_term(space, YAP_ARG2);
@@ -1584,12 +1584,12 @@ extern "C"
   static YAP_opaque_tag_t gecode_tupleset_tag;
   static YAP_opaque_handler_t gecode_tupleset_handler;
 
-  static int gecode_tupleset_fail_handler(void* p)
+  static YAP_Bool gecode_tupleset_fail_handler(void* p)
   {
     return TRUE;
   }
 
-  static int
+  static YAP_Bool
   gecode_tupleset_write_handler
   (void *stream_, YAP_opaque_tag_t type, void *p, int flags)
   {
@@ -1598,7 +1598,7 @@ extern "C"
     return TRUE;
   }
 
-  static int gecode_new_tupleset(void)
+  static YAP_Bool gecode_new_tupleset(void)
   {
     YAP_Term term =
       YAP_NewOpaqueObject(gecode_tupleset_tag, sizeof(TupleSet));
@@ -1633,12 +1633,12 @@ extern "C"
   static YAP_opaque_tag_t gecode_dfa_tag;
   static YAP_opaque_handler_t gecode_dfa_handler;
 
-  static int gecode_dfa_fail_handler(void* p)
+  static YAP_Bool gecode_dfa_fail_handler(void* p)
   {
     return TRUE;
   }
 
-  static int
+  static YAP_Bool
   gecode_dfa_write_handler
   (void *stream_, YAP_opaque_tag_t type, void *p, int flags)
   {
@@ -1647,7 +1647,7 @@ extern "C"
     return TRUE;
   }
 
-  static int gecode_new_dfa(void)
+  static YAP_Bool gecode_new_dfa(void)
   {
     YAP_Term term =
       YAP_NewOpaqueObject(gecode_dfa_tag, sizeof(DFA));

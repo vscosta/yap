@@ -613,7 +613,7 @@ class CCDescriptor(object):
         self.api = api
 
     def generate_impl(self):
-        print "static int gecode_constraint_%s(void)" % self.api
+        print "static YAP_Bool gecode_constraint_%s(void)" % self.api
         print "{"
         i = 1
         args = []

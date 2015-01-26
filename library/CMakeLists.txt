@@ -59,6 +59,7 @@ set (LIBRARY_PL
   )
 
 add_subdirectory(clp)
+add_subdirectory(dialect)
 add_subdirectory(lammpi)
 add_subdirectory(matlab)
 add_subdirectory(matrix)

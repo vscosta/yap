@@ -197,7 +197,7 @@ new_float_matrix(int ndims, int dims[], double data[])
   return blob;
 }
 
-static int
+static YAP_Bool
 scan_dims(int ndims, YAP_Term tl, int dims[MAX_DIMS])
 {
   int i;
@@ -229,7 +229,7 @@ scan_dims(int ndims, YAP_Term tl, int dims[MAX_DIMS])
   return TRUE;
 }
 
-static int
+static YAP_Bool
 scan_dims_args(int ndims, YAP_Term tl, int dims[MAX_DIMS])
 {
   int i;
@@ -253,7 +253,7 @@ scan_dims_args(int ndims, YAP_Term tl, int dims[MAX_DIMS])
   return TRUE;
 }
 
-static int
+static YAP_Bool
 cp_int_matrix(YAP_Term tl,YAP_Term matrix)
 {
   int *mat = (int *)YAP_BlobOfTerm(matrix);
@@ -283,7 +283,7 @@ cp_int_matrix(YAP_Term tl,YAP_Term matrix)
   return TRUE;
 }
 
-static int
+static YAP_Bool
 cp_float_matrix(YAP_Term tl,YAP_Term matrix)
 {
   int *mat = (int *)YAP_BlobOfTerm(matrix);
@@ -317,7 +317,7 @@ cp_float_matrix(YAP_Term tl,YAP_Term matrix)
 }
 
 
-static int
+static YAP_Bool
 set_int_matrix(YAP_Term matrix,long int set)
 {
   int *mat = (int *)YAP_BlobOfTerm(matrix);
@@ -330,7 +330,7 @@ set_int_matrix(YAP_Term matrix,long int set)
   return TRUE;
 }
 
-static int
+static YAP_Bool
 set_float_matrix(YAP_Term matrix,double set)
 {
   int *mat = (int *)YAP_BlobOfTerm(matrix);
@@ -343,7 +343,7 @@ set_float_matrix(YAP_Term matrix,double set)
   return TRUE;
 }
 
-static int
+static YAP_Bool
 new_ints_matrix(void)
 {
   int ndims = YAP_IntOfTerm(YAP_ARG1);
@@ -360,7 +360,7 @@ new_ints_matrix(void)
   return YAP_Unify(YAP_ARG4, out);
 }
 
-static int
+static YAP_Bool
 new_ints_matrix_set(void)
 {
   int ndims = YAP_IntOfTerm(YAP_ARG1);
@@ -380,7 +380,7 @@ new_ints_matrix_set(void)
   return YAP_Unify(YAP_ARG4, out);
 }
 
-static int
+static YAP_Bool
 new_floats_matrix(void)
 {
   int ndims = YAP_IntOfTerm(YAP_ARG1);
@@ -396,7 +396,7 @@ new_floats_matrix(void)
   return YAP_Unify(YAP_ARG4, out);
 }
 
-static int
+static YAP_Bool
 new_floats_matrix_set(void)
 {
   int ndims = YAP_IntOfTerm(YAP_ARG1);
@@ -636,7 +636,7 @@ matrix_dec2(int *mat, int *indx)
 }
 
 
-static int
+static YAP_Bool
 matrix_set(void)
 {
   int dims[MAX_DIMS], *mat;
@@ -674,7 +674,7 @@ matrix_set(void)
   return TRUE;
 }
 
-static int
+static YAP_Bool
 matrix_set2(void)
 {
   int dims[MAX_DIMS], *mat;
@@ -712,7 +712,7 @@ matrix_set2(void)
   return TRUE;
 }
 
-static int
+static YAP_Bool
 matrix_set_all(void)
 {
   int *mat;
@@ -746,7 +746,7 @@ matrix_set_all(void)
   return TRUE;
 }
 
-static int
+static YAP_Bool
 matrix_add(void)
 {
   int dims[MAX_DIMS], *mat;
@@ -784,7 +784,7 @@ matrix_add(void)
   return TRUE;
 }
 
-static int
+static YAP_Bool
 do_matrix_access(void)
 {
   int dims[MAX_DIMS], *mat;
@@ -803,7 +803,7 @@ do_matrix_access(void)
   return YAP_Unify(tf, YAP_ARG3);
 }
 
-static int
+static YAP_Bool
 do_matrix_access2(void)
 {
   int dims[MAX_DIMS], *mat;
@@ -822,7 +822,7 @@ do_matrix_access2(void)
   return YAP_Unify(tf, YAP_ARG2);
 }
 
-static int
+static YAP_Bool
 do_matrix_inc(void)
 {
   int dims[MAX_DIMS], *mat;
@@ -840,7 +840,7 @@ do_matrix_inc(void)
   return TRUE;
 }
 
-static int
+static YAP_Bool
 do_matrix_dec(void)
 {
   int dims[MAX_DIMS], *mat;
@@ -858,7 +858,7 @@ do_matrix_dec(void)
   return TRUE;
 }
 
-static int
+static YAP_Bool
 do_matrix_inc2(void)
 {
   int dims[MAX_DIMS], *mat;
@@ -876,7 +876,7 @@ do_matrix_inc2(void)
     YAP_Unify(matrix_inc2(mat, dims), YAP_ARG3);
 }
 
-static int
+static YAP_Bool
 do_matrix_dec2(void)
 {
   int dims[MAX_DIMS], *mat;
@@ -894,7 +894,7 @@ do_matrix_dec2(void)
     YAP_Unify(matrix_dec2(mat, dims), YAP_ARG3);
 }
 
-static int
+static YAP_Bool
 matrix_to_list(void)
 {
   int *mat;
@@ -912,7 +912,7 @@ matrix_to_list(void)
   return YAP_Unify(YAP_ARG2, tf);
 }
 
-static int
+static YAP_Bool
 matrix_set_base(void)
 {
   int *mat;
@@ -927,7 +927,7 @@ matrix_set_base(void)
 }
 
 
-static int
+static YAP_Bool
 matrix_dims(void)
 {
   int *mat;
@@ -942,7 +942,7 @@ matrix_dims(void)
   return YAP_Unify(YAP_ARG2, tf);
 }
 
-static int
+static YAP_Bool
 matrix_dims3(void)
 {
   int *mat;
@@ -958,7 +958,7 @@ matrix_dims3(void)
   return YAP_Unify(YAP_ARG2, tf) && YAP_Unify(YAP_ARG3, tof);
 }
 
-static int
+static YAP_Bool
 matrix_size(void)
 {
   int *mat;
@@ -971,7 +971,7 @@ matrix_size(void)
   return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(mat[MAT_SIZE]));
 }
 
-static int
+static YAP_Bool
 matrix_ndims(void)
 {
   int *mat;
@@ -984,7 +984,7 @@ matrix_ndims(void)
   return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(mat[MAT_NDIMS]));
 }
 
-static int
+static YAP_Bool
 matrix_type(void)
 {
   int *mat;
@@ -1003,7 +1003,7 @@ matrix_type(void)
   return YAP_Unify(YAP_ARG2, tf);
 }
 
-static int
+static YAP_Bool
 matrix_arg_to_offset(void)
 {
   int indx[MAX_DIMS], *mat;
@@ -1023,7 +1023,7 @@ matrix_arg_to_offset(void)
   return YAP_Unify(YAP_ARG3, YAP_MkIntTerm(off));
 }
 
-static int
+static YAP_Bool
 matrix_offset_to_arg(void)
 {
   int indx[MAX_DIMS], *mat;
@@ -1101,7 +1101,7 @@ scan_min_float(int sz, double *data)
   return off;
 }
 
-static int
+static YAP_Bool
 matrix_max(void)
 {
   int *mat;
@@ -1125,7 +1125,7 @@ matrix_max(void)
   return YAP_Unify(YAP_ARG2, tf);
 }
 
-static int
+static YAP_Bool
 matrix_maxarg(void)
 {
   int indx[MAX_DIMS], *mat;
@@ -1149,7 +1149,7 @@ matrix_maxarg(void)
   return YAP_Unify(YAP_ARG2, tf);
 }
 
-static int
+static YAP_Bool
 matrix_min(void)
 {
   int *mat;
@@ -1173,7 +1173,7 @@ matrix_min(void)
   return YAP_Unify(YAP_ARG2, tf);
 }
 
-static int
+static YAP_Bool
 matrix_log_all(void)
 {
   int *mat;
@@ -1196,7 +1196,7 @@ matrix_log_all(void)
   return TRUE;
 }
 
-static int
+static YAP_Bool
 matrix_log_all2(void)
 {
   int *mat;
@@ -1253,7 +1253,7 @@ matrix_log_all2(void)
   return TRUE;
 }
 
-static int
+static YAP_Bool
 matrix_exp_all(void)
 {
   int *mat;
@@ -1276,7 +1276,7 @@ matrix_exp_all(void)
   return TRUE;
 }
 
-static int
+static YAP_Bool
 matrix_exp2_all(void)
 {
   int *mat;
@@ -1304,7 +1304,7 @@ matrix_exp2_all(void)
   return TRUE;
 }
 
-static int
+static YAP_Bool
 matrix_exp_all2(void)
 {
   int *mat;
@@ -1361,7 +1361,7 @@ matrix_exp_all2(void)
   return TRUE;
 }
 
-static int
+static YAP_Bool
 matrix_minarg(void)
 {
   int indx[MAX_DIMS], *mat;
@@ -1385,7 +1385,7 @@ matrix_minarg(void)
   return YAP_Unify(YAP_ARG2, tf);
 }
 
-static int
+static YAP_Bool
 matrix_sum(void)
 {
   int *mat;
@@ -1448,7 +1448,7 @@ add_double_lines(int total,int nlines,double *mat0,double *matf)
   }
 }
 
-static int
+static YAP_Bool
 matrix_agg_lines(void)
 {
   int *mat;
@@ -1531,7 +1531,7 @@ add_double_cols(int total,int nlines,double *mat0,double *matf)
   }
 }
 
-static int
+static YAP_Bool
 matrix_agg_cols(void)
 {
   int *mat;
@@ -1620,7 +1620,7 @@ div_float_by_lines(int total,int nlines,double *mat1,double *mat2,double *ndata)
   }
 }
 
-static int
+static YAP_Bool
 matrix_op_to_lines(void)
 {
   int *mat1, *mat2;
@@ -1906,7 +1906,7 @@ matrix_double_zdiv_data(double *nmat, int siz, double mat1[], double mat2[])
   }
 }
 
-static int
+static YAP_Bool
 matrix_op(void)
 {
   int *mat1, *mat2;
@@ -2127,7 +2127,7 @@ add_double_by_cols(int total,int nlines,double *mat1,double *mat2,double *ndata)
   }
 }
 
-static int
+static YAP_Bool
 matrix_op_to_cols(void)
 {
   int *mat1, *mat2;
@@ -2208,7 +2208,7 @@ matrix_op_to_cols(void)
   return YAP_Unify(YAP_ARG4,tf);
 }
 
-static int
+static YAP_Bool
 matrix_op_to_all(void)
 {
   int *mat;
@@ -2387,7 +2387,7 @@ matrix_op_to_all(void)
 /* given a matrix M and a set of dims, build a new reordered matrix to follow
    the new order
 */ 
-static int
+static YAP_Bool
 matrix_transpose(void)
 {
   int ndims, i, *dims, *dimsn;
@@ -2469,7 +2469,7 @@ matrix_transpose(void)
 /* given a matrix M and a set of dims, fold one of the dimensions of the
    matrix on one of the elements
 */ 
-static int
+static YAP_Bool
 matrix_select(void)
 {
   int ndims, i, j, newdims, prdim, leftarg, *dims, indx[MAX_DIMS];
@@ -2570,7 +2570,7 @@ matrix_select(void)
 
 /* given a matrix M and a set of N-1 dims, get the first dimension
 */ 
-static int
+static YAP_Bool
 matrix_column(void)
 {
   int size, i, ndims, newdims[1];
@@ -2639,7 +2639,7 @@ matrix_column(void)
 
 /* given a matrix M and a set of dims, sum out one of the dimensions
 */ 
-static int
+static YAP_Bool
 matrix_sum_out(void)
 {
   int ndims, i, j, newdims, prdim;
@@ -2728,7 +2728,7 @@ matrix_sum_out(void)
 
 /* given a matrix M and a set of dims, sum out one of the dimensions
 */ 
-static int
+static YAP_Bool
 matrix_sum_out_several(void)
 {
   int ndims, i, *dims, newdims;
@@ -2821,7 +2821,7 @@ matrix_sum_out_several(void)
 
 /* given a matrix M and a set of dims, sum out one of the dimensions
 */ 
-static int
+static YAP_Bool
 matrix_sum_out_logs(void)
 {
   int ndims, i, j, *dims, newdims, prdim;
@@ -2910,7 +2910,7 @@ matrix_sum_out_logs(void)
 
 /* given a matrix M and a set of dims, sum out one of the dimensions
 */ 
-static int
+static YAP_Bool
 matrix_sum_out_logs_several(void)
 {
   int ndims, i, *dims, newdims;
@@ -3008,7 +3008,7 @@ matrix_sum_out_logs_several(void)
 /* given a matrix M and a set of dims, build a matrix to follow
    the new order
 */ 
-static int
+static YAP_Bool
 matrix_expand(void)
 {
   int ndims, i, *dims, newdims=0, olddims = 0;
@@ -3110,7 +3110,7 @@ matrix_expand(void)
 /* given a matrix M and a set of dims, build contract a matrix to follow
    the new order
 */ 
-static int
+static YAP_Bool
 matrix_set_all_that_disagree(void)
 {
   int ndims, i, *dims;
@@ -3189,7 +3189,7 @@ matrix_set_all_that_disagree(void)
   return YAP_Unify(YAP_ARG5, tf);
 }
 
-static int
+static YAP_Bool
 matrix_m(void)
 {
   int ndims, i, size;
@@ -3231,7 +3231,7 @@ matrix_m(void)
   return YAP_Unify(YAP_ARG2, tm);
 }
 
-static int
+static YAP_Bool
 is_matrix(void)
 {
   YAP_Term t = YAP_ARG1;

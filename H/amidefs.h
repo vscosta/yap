@@ -63,7 +63,7 @@
 
 #ifndef NULL
 #include <stdio.h>
-#endif 
+#endif
 
 #if ALIGN_LONGS
 /*   */ typedef Int DISPREG;
@@ -110,9 +110,6 @@ typedef Int (*CmpPredicate)(Term, Term);
 typedef OPREG  wamreg;
 typedef OPREG  yslot;
 typedef OPREG  COUNT;
-
-#include "amijit.h"
-
 /*
   This is a table with the codes for YAP instructions
 */
@@ -222,6 +219,10 @@ typedef enum {
 /*   */ typedef op_numbers OPCODE;
 #endif
 #define OpCodeSize   sizeof(OPCODE)
+
+
+#include "amijit.h"
+
 
 /*
 
@@ -375,7 +376,7 @@ typedef struct yami {
     /* The first one, aLl, handles try_logical and retry_logical, */
     /* Ill handles trust_logical. */
     /* They must have the same fields. */
-    
+
     struct {
 #ifdef YAPOR
       unsigned int               or_arg;
@@ -759,7 +760,7 @@ typedef struct yami {
       struct yami	       *l1;
       struct yami	       *l2;
       CELL next;
-    } xll; 
+    } xll;
     struct {
       wamreg                xl;
       wamreg                xr;
@@ -897,7 +898,7 @@ typedef Term *tr_fr_ptr;
 struct deterministic_choicept {
   yamop *cp_ap;
   struct choicept *cp_b;
-  tr_fr_ptr cp_tr;  
+  tr_fr_ptr cp_tr;
 #ifdef DEPTH_LIMIT
   CELL cp_depth;
 #endif /* DEPTH_LIMIT */
@@ -911,7 +912,7 @@ struct deterministic_choicept {
 typedef struct choicept {
   yamop *cp_ap;
   struct choicept *cp_b;
-  tr_fr_ptr cp_tr;  
+  tr_fr_ptr cp_tr;
 #ifdef DEPTH_LIMIT
   CELL cp_depth;
 #endif /* DEPTH_LIMIT */
@@ -1045,37 +1046,37 @@ CELL *ENV_Parent(CELL *env)
   return (CELL *)env[E_E];
 }
 
-static inline 
+static inline
 UInt ENV_Size(yamop *cp)
 {
   return (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->y_u.Osbpp.s);
 }
 
-static inline 
+static inline
 struct pred_entry *ENV_ToP(yamop *cp)
 {
   return (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->y_u.Osbpp.p);
 }
 
-static inline 
+static inline
 OPCODE ENV_ToOp(yamop *cp)
 {
   return (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->opc);
 }
 
-static inline 
+static inline
 UInt EnvSize(yamop *cp)
 {
   return ((-ENV_Size(cp))/(OPREG)sizeof(CELL));
 }
 
-static inline 
+static inline
 CELL *EnvBMap(yamop *p)
 {
   return (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->y_u.Osbpp.bmap);
 }
 
-static inline 
+static inline
 struct pred_entry *EnvPreg(yamop *p)
 {
   return (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->y_u.Osbpp.p0);
@@ -1098,10 +1099,8 @@ extern void **Yap_ABSMI_OPCODES;
 /*
   Make this into an even number so that the system will know
   it should ignore the depth limit
-*/   
+*/
 #define RESET_DEPTH() MkIntTerm(MAX_ABS_INT-1)
 #else
 
 #endif
-
-

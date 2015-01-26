@@ -26,6 +26,7 @@ static void InitGlobal(void) {
   GLOBAL_PL_Argv = NULL;
 
   GLOBAL_HaltHooks = NULL;
+  GLOBAL_JIT_finalizer = NULL;
 
   GLOBAL_AllowLocalExpansion = TRUE;
   GLOBAL_AllowGlobalExpansion = TRUE;

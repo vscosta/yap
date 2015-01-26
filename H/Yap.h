@@ -174,6 +174,10 @@
 #define DUMMY_FILLER_FOR_ABS_TYPE int dummy;
 #endif /* HAVE_GCC */
 
+/* funcions that return  a generic pointer */
+typedef void *  (*fptr_t)(void);
+
+
 /*************************************************************************************************
                               main exports in YapInterface.h
 *************************************************************************************************/

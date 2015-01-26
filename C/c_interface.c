@@ -329,12 +329,9 @@
 @file c_interface.c
 */
 
+#ifndef C_INTERFACE_C
 
-#define Bool int
-#define flt double
-#define C_INTERFACE 1
-#define _yap_c_interface_h 1
-
+#define C_INTERFACE_C 1
 
 #include <stdlib.h>
 #include "Yap.h"
@@ -355,7 +352,6 @@
 // we cannot consult YapInterface.h, that conflicts with what we declare, though
 // it shouldn't
 #include "YapInterface.h"
-#define _yap_c_interface_h 1
 #include "pl-shared.h"
 #include "YapText.h"
 #include "pl-read.h"
@@ -370,6 +366,9 @@
 #if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
+
+X_API int
+YAP_Reset(yap_reset_t mode);
 
 #if !HAVE_STRNCPY
 #define strncpy(X,Y,Z) strcpy(X,Y)
@@ -490,33 +489,33 @@ doexpand(UInt sz)
   return TRUE;
 }
 
-X_API Term
+X_API YAP_Term
 YAP_A(int i)
 {
   CACHE_REGS
   return(Deref(XREGS[i]));
 }
 
-X_API Bool 
-YAP_IsIntTerm(Term t)
+X_API YAP_Bool 
+YAP_IsIntTerm(YAP_Term t)
 {
   return IsIntegerTerm(t);
 }
 
-X_API Bool 
-YAP_IsNumberTerm(Term t)
+X_API YAP_Bool 
+YAP_IsNumberTerm(YAP_Term t)
 {
   return IsIntegerTerm(t) || IsIntTerm(t) || IsFloatTerm(t) || IsBigIntTerm(t);
 }
 
-X_API Bool 
-YAP_IsLongIntTerm(Term t)
+X_API YAP_Bool 
+YAP_IsLongIntTerm(YAP_Term t)
 {
-  return IsLongIntTerm(t);
+  return IsLongIntTerm( t );
 }
 
-X_API Bool 
-YAP_IsBigNumTerm(Term t)
+X_API YAP_Bool 
+YAP_IsBigNumTerm(YAP_Term t)
 {
 #if USE_GMP
   CELL *pt;
@@ -531,8 +530,8 @@ YAP_IsBigNumTerm(Term t)
 #endif
 }
 
-X_API Bool 
-YAP_IsRationalTerm(Term t)
+X_API YAP_Bool 
+YAP_IsRationalTerm(YAP_Term t)
 {
 #if USE_GMP
   CELL *pt;
@@ -547,55 +546,54 @@ YAP_IsRationalTerm(Term t)
 #endif
 }
 
-X_API Bool 
-YAP_IsVarTerm(Term t)
+X_API YAP_Bool 
+YAP_IsVarTerm(YAP_Term t)
 {
   return (IsVarTerm(t));
 }
 
-X_API Bool 
-YAP_IsNonVarTerm(Term t)
+X_API YAP_Bool 
+YAP_IsNonVarTerm(YAP_Term t)
 {
   return (IsNonVarTerm(t));
 }
 
-X_API Bool 
+X_API YAP_Bool 
 YAP_IsFloatTerm(Term t)
 {
   return (IsFloatTerm(t));
 }
 
-X_API Bool 
+X_API YAP_Bool 
 YAP_IsDbRefTerm(Term t)
 {
   return (IsDBRefTerm(t));
 }
 
-X_API Bool 
+X_API YAP_Bool 
 YAP_IsAtomTerm(Term t)
 {
   return (IsAtomTerm(t));
 }
 
-X_API Bool 
+X_API YAP_Bool 
 YAP_IsPairTerm(Term t)
 {
   return (IsPairTerm(t));
 }
 
-X_API Bool 
+X_API YAP_Bool 
 YAP_IsApplTerm(Term t)
 {
   return (IsApplTerm(t) && !IsExtensionFunctor(FunctorOfTerm(t)));
 }
 
-X_API Bool 
+X_API YAP_Bool 
 YAP_IsCompoundTerm(Term t)
 {
   return (IsApplTerm(t) && !IsExtensionFunctor(FunctorOfTerm(t))) ||
     IsPairTerm(t);
 }
-
 
 X_API Term 
 YAP_MkIntTerm(Int n)
@@ -633,7 +631,7 @@ YAP_MkBigNumTerm(void *big)
 #endif /* USE_GMP */
 }
 
-X_API int
+X_API YAP_Bool
 YAP_BigNumOfTerm(Term t, void *b)
 {
 #if USE_GMP
@@ -663,7 +661,7 @@ YAP_MkRationalTerm(void *big)
 #endif /* USE_GMP */
 }
 
-X_API int
+X_API YAP_Bool
 YAP_RationalOfTerm(Term t, void *b)
 {
 #if USE_GMP
@@ -733,8 +731,8 @@ YAP_MkFloatTerm(double n)
   return t;
 }
 
-X_API flt 
-YAP_FloatOfTerm(Term t)
+X_API YAP_Float 
+YAP_FloatOfTerm(YAP_Term t)
 {
   return (FloatOfTerm(t));
 }
@@ -755,7 +753,7 @@ YAP_AtomOfTerm(Term t)
 }
 
 
-X_API int
+X_API bool
 YAP_IsWideAtom(Atom a)
 {
   return IsWideAtom(a);
@@ -1129,7 +1127,7 @@ YAP_cut_up(void)
   RECOVER_B();
 }
 
-X_API int
+X_API bool
 YAP_Unify(Term t1, Term t2)
 {
   Int out;
@@ -2280,11 +2278,11 @@ run_emulator(YAP_dogoalinfo *dgi USES_REGS)
   return out;
 }
 
-X_API int
+X_API bool
 YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
 {
   CACHE_REGS
-  int out;
+  bool out;
 
   BACKUP_MACHINE_REGS();
   LOCAL_PrologMode = UserMode;
@@ -2307,12 +2305,12 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
   return out;
 }
 
-X_API int
+X_API bool
 YAP_RetryGoal(YAP_dogoalinfo *dgi)
 {
   CACHE_REGS
   choiceptr myB;
-  int out;
+  bool out;
 
   BACKUP_MACHINE_REGS();
   myB = (choiceptr)(LCL0-dgi->b);
@@ -2334,7 +2332,7 @@ YAP_RetryGoal(YAP_dogoalinfo *dgi)
   return out;
 }
 
-X_API int
+X_API bool
 YAP_LeaveGoal(int backtrack, YAP_dogoalinfo *dgi)
 {
   CACHE_REGS
@@ -2438,7 +2436,7 @@ YAP_AllocExternalDataInStack(size_t bytes)
   return t;
 }
 
-X_API Bool
+X_API YAP_Bool
 YAP_IsExternalDataInStackTerm(Term t)
 {
   return IsExternalBlobTerm(t, EXTERNAL_BLOB);
@@ -2477,7 +2475,7 @@ Term YAP_NewOpaqueObject(YAP_opaque_tag_t tag, size_t bytes)
   return t;
 }
 
-X_API Bool
+X_API YAP_Bool
 YAP_IsOpaqueObjectTerm(Term t, YAP_opaque_tag_t tag)
 {
   return IsExternalBlobTerm(t, (CELL)tag);
@@ -2549,11 +2547,11 @@ YAP_RunGoalOnce(Term t)
   return out;
 }
 
-X_API int
+X_API bool
 YAP_RestartGoal(void)
 {
   CACHE_REGS
-  int out;
+  bool out;
   BACKUP_MACHINE_REGS();
   if (LOCAL_AllowRestart) {
     P = (yamop *)FAILCODE;
@@ -2572,7 +2570,7 @@ YAP_RestartGoal(void)
   return(out);
 }
 
-X_API int
+X_API bool
 YAP_ShutdownGoal(int backtrack)
 {
   CACHE_REGS
@@ -2616,11 +2614,11 @@ YAP_ShutdownGoal(int backtrack)
   return TRUE;
 }
 
-X_API int
+X_API bool
 YAP_ContinueGoal(void)
 {
   CACHE_REGS
-  int out;
+  bool out;
   BACKUP_MACHINE_REGS();
 
   LOCAL_PrologMode = UserMode;
@@ -2653,7 +2651,7 @@ YAP_PruneGoal(YAP_dogoalinfo *gi)
   RECOVER_B();
 }
 
-X_API int
+X_API bool
 YAP_GoalHasException(Term *t)
 {
   CACHE_REGS
@@ -4189,7 +4187,9 @@ YAP_IntToAtom(Int i)
 {
   return SWI_Atoms[i];
 }
-
+ 
+#endif // C_INTERFACE_C
+ 
 /**
 @}
 */

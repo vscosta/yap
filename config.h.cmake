@@ -1942,6 +1942,11 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 #define YAP_YAPLIB "${YAP_YAPLIB}"
 #endif
 
+/* name of YAP JIT library */
+#ifndef YAP_YAPJITLIB
+#define YAP_YAPJITLIB "${YAP_YAPJITLIB}"
+#endif
+
 /* HP-UX old socket stuff */
 #ifndef _XOPEN_SOURCE
 #cmakedefine _XOPEN_SOURCE "${_XOPEN_SOURCE}"

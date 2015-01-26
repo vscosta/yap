@@ -532,6 +532,7 @@ Term Yap_XREGS[MaxTemps];	/* 29                                     */
 
 #include "arith2.h"
 
+
 // #include "print_preg.h"
 //#include "sprint_op.hpp"
 //#include "print_op.hpp"
@@ -540,10 +541,26 @@ Term Yap_XREGS[MaxTemps];	/* 29                                     */
 #include "IsGround.h"
 #include "yaam_macros.hpp"
 #include "fprintblock.h"
-#endif /* YAP_JIT */
+
 #if YAP_DBG_PREDS
 #include "debug_printers.h"
 #endif
+
+struct JIT_Compiler *J;
+
+NativeContext *NativeArea;
+IntermediatecodeContext *IntermediatecodeArea;
+void shutdown_llvm(void);
+
+CELL l;
+short global;
+CELL nnexec;
+yamop* HEADPREG;
+CELL BLOCK;
+CELL BLOCKADDRESS;
+CELL FAILED;
+
+#endif /* YAP_JIT */
 
 #ifdef COROUTINING
 /*

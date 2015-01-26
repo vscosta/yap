@@ -1,9 +1,8 @@
 set(LIBJIT_MAJOR_VERSION 0)
-set(LIBJIT_MINOR_VERSION 2)
-set(LIBJIT_PATCH_VERSION 1)
+set(LIBJIT_MINOR_VERSION 1)
+set(LIBJIT_PATCH_VERSION 0)
 set(LIBJIT_FULL_VERSION
   ${LIBJIT_MAJOR_VERSION}.${LIBJIT_MINOR_VERSION}.${LIBJIT_PATCH_VERSION})
-
 
 set(LIBJIT_SOURCES
   jit_analysispreds.c
@@ -13,6 +12,7 @@ set(LIBJIT_SOURCES
   jit_debugpreds.c
   jit_transformpreds.c
   JIT_Compiler.cpp
+  JIT_Init.cpp
   )
 
 # The following variables are defined:
@@ -51,12 +51,11 @@ add_library (libyapjit  SHARED
 set_target_properties(libyapjit
   PROPERTIES
   #  RPATH ${libdir} VERSION ${LIBJIT_FULL_VERSION}
-  #  SOVERSION ${LIBJIT_MAJOR_VERSION}.${LIBJIT_MINOR_VERSION}
+  SOVERSION ${LIBJIT_MAJOR_VERSION}.${LIBJIT_MINOR_VERSION}
   POSITION_INDEPENDENT_CODE TRUE
   OUTPUT_NAME YapJIT
   )
 
-target_link_libraries(libyapjit libYap ${LLVM_LIBRARIES})
+target_link_libraries(libyapjit libYap ${LLVM_LIBRARIES} )
 
-
-
+set ( YAP_YAPJITLIB $<TARGET_FILE_NAME:libyapjit> )

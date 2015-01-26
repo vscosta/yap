@@ -110,9 +110,3 @@ void	Yap_ShutdownLoadForeign(void);
 
 #define EAGER_LOADING  1
 #define GLOBAL_LOADING 2
-
-
-
-
-
-

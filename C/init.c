@@ -936,7 +936,7 @@ static void
 InitStdPreds(void)
 {
   void initIO(void);
-
+  
   Yap_InitCPreds();
   Yap_InitBackCPreds();
   BACKUP_MACHINE_REGS();
@@ -1474,4 +1474,3 @@ Yap_exit (int value)
   closeFiles(TRUE);
   exit(value);
 }
-

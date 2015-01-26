@@ -101,7 +101,7 @@ p_disable_analysis_pass( USES_REGS1 )
     int i = 0, j = 0;
     char *tmp;
     // gets string from atom and stores it on 'str'
-    char *str = (char*)malloc(YAP_AtomNameLength(AtomOfTerm(t))*sizeof(char)
+    char *str = (char*)malloc(YAP_AtomNameLength(AtomOfTerm(t))*sizeof(char));
     strcpy(str, AtomName(AtomOfTerm(t)));
     // Makes upper characters of 'str' (for comparison)
     UPPER_ENTRY(str);
@@ -590,7 +590,7 @@ p_analysis_output_file( USES_REGS1 )
 
 #pragma GCC diagnostic pop
 
-void
+ void 
 Yap_InitJitAnalysisPreds(void)
 {
   Yap_InitCPred("disable_analysis_pass", 1, p_disable_analysis_pass, SafePredFlag);

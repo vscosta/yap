@@ -15,6 +15,10 @@
  *                   *
  *************************************************************************/
 
+#ifndef ABSMI_H
+
+#define ABSMI_H 1
+
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 
@@ -2200,28 +2204,23 @@ extern char fin[1024];
 
 #if YAP_JIT
 #ifndef _NATIVE
-#ifndef __cplusplus
 
 #include <math.h>
 #include "JIT_Compiler.hpp"
 
-struct JIT_Compiler *J;
+extern struct JIT_Compiler *J;
 
-NativeContext *NativeArea;
-IntermediatecodeContext *IntermediatecodeArea;
-void* call_JIT_Compiler(struct JIT_Compiler*, yamop*);
-void shutdown_llvm(void);
 
-CELL l;
-short global;
-CELL nnexec;
-yamop* HEADPREG;
-CELL BLOCK;
-CELL BLOCKADDRESS;
-CELL FAILED;
+extern NativeContext *NativeArea;
+extern IntermediatecodeContext *IntermediatecodeArea;
 
-#endif
-#endif
+extern CELL l;
+extern short global;
+extern CELL nnexec;
+extern yamop* HEADPREG;
+extern CELL BLOCK;
+extern CELL BLOCKADDRESS;
+extern CELL FAILED;
 
 TraceContext **curtrace;
 yamop *curpreg;
@@ -2229,6 +2228,8 @@ BlocksContext **globalcurblock;
 COUNT ineedredefinedest;
 yamop* headoftrace;
 
+
+#endif /* _NATIVE */
 #endif /* YAP_JIT */
 
 #ifdef SHADOW_S
@@ -2256,3 +2257,6 @@ yamop* headoftrace;
   JMPNext();					\
   ENDD(d0);
 #endif
+
+#endif // ABSMI_H
+

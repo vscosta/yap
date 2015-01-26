@@ -63,10 +63,10 @@ set(YAP_ROOTDIR ${prefix})
 # erootdir -> rootdir
 # bindir defined above
 # libdir defined above
-set(YAP_LIBDIR "${dlls}")  
-set(YAP_SHAREDIR "${datarootdir}")  
-set(YAP_BINDIR "${bindir}")  
-set(YAP_ROOTDIR "${prefix}")  
+set(YAP_LIBDIR "${dlls}")
+set(YAP_SHAREDIR "${datarootdir}")
+set(YAP_BINDIR "${bindir}")
+set(YAP_ROOTDIR "${prefix}")
 
 set(YAP_YAPLIB libYap${CMAKE_SHARED_LIBRARY_SUFFIX})
 set(YAP_STARTUP startup.yss)
@@ -97,18 +97,18 @@ set ( DEF_STACKSPACE 0 )
 set ( DEF_HEAPSPACE 0 )
 set ( DEF_TRAILSPACE 0 )
 
-# option (WITH_RATIONAL_TREES "support infinite rational trees" ON) 
+# option (RATIONAL_TREES "support infinite rational trees" ON)
 add_definitions (-DRATIONAL_TREES=1)
 
-# option (WITH_COROUTINING 
+# option (COROUTINING
 #   "support co-routining, attributed variables and constraints" ON)
 add_definitions (-DCOROUTINING=1)
 
-# if (WITH_RATIONAL_TREES and WITH_COROUTINING)
+# if (RATIONAL_TREES and COROUTINING)
 #TODO: install (cd LGPL/clp ; $(MAKE) install)
-# endif (WITH_RATIONAL_TREES and WITH_COROUTINING)
+# endif (RATIONAL_TREES and COROUTINING)
 
-# option (WITH_DEPTH_LIMIT
+# option (DEPTH_LIMIT
 #   "support depth-bound computation" ON)
 add_definitions (-DDEPTH_LIMIT=1)
 
@@ -133,15 +133,31 @@ if ( ${C_COMPILER} MATCHES "Intel")
   set (HAVE_GCC 1)
 endif()
 
+add_definitions( -Wall  -Wstrict-prototypes -Wmissing-prototypes)
+add_definitions(-D_YAP_NOT_INSTALLED_=1 -DHAVE_CONFIG_H)
+add_definitions(-D_GNU_SOURCE=1 -D_XOPEN_SOURCE=700)
+
+message(STATUS "Original CMAKE_C_FLAGS ${CMAKE_C_FLAGS}")
+
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}  -DLOW_LEVEL_TRACER=1 -DDEBUG=1 ")
+
+# Compilation Flags
+if (CMAKE_COMPILER_IS_GNUCC)
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O3 -fomit-frame-pointer -fstrict-aliasing -freorder-blocks -fsched-interblock")
+endif()
+
+message(STATUS "Running with CMAKE_C_FLAGS ${CMAKE_C_FLAGS}")
+
 if (HAVE_GCC)
   # replace instructions codes by the address of their code
-  option (WITH_THREADED_CODE "Use threaded code" ON)
-  if (WITH_THREADED_CODE)
+  option (THREADED_CODE "threaded code" ON)
+  if (THREADED_CODE)
     set (USE_THREADED_CODE 1)
-  endif (WITH_THREADED_CODE)
+    add_definitions(-DTHREADEAD_CODE=1)
+endif (THREADED_CODE)
 endif (HAVE_GCC)
 
-# 
+#
 set (BUILD_SHARED_LIBS ON)
 
 #
@@ -149,35 +165,33 @@ set (BUILD_SHARED_LIBS ON)
 #
 add_subdirectory (os/libtai)
 
-add_subdirectory (CXX)
-
-option (WITH_TABLING "Support tabling" ON)
-if (WITH_TABLING) 
+option (TABLING "Support tabling" ON)
+if (TABLING)
   #this depends on DEPTH_LIMIT define it after
 
   #this macro should realy be in config.h or other like it
   #and it is used across several files outside OPTYap
-  add_definitions (-DTABLING=1)  
+  add_definitions (-DTABLING=1)
   include_directories (OPTYap)
   add_subdirectory (OPTYap)
-endif(WITH_TABLING)
+endif(TABLING)
 
-option (WITH_EAM "enable EAM (Extended Andorra Model)" OFF)
-if (WITH_EAM)
+option (EAM "enable EAM (Extended Andorra Model)" OFF)
+if (EAM)
   #this macro should realy be in config.h or other like it
   add_definitions (-DBEAM=1)
   include_directories (BEAM)
   add_subdirectory (BEAM)
   set (EXTRALIBS ${EXTRALIBS} beam)
-endif (WITH_EAM)
+endif (EAM)
 
 #TODO: option (or-parallelism)
 
 
-# option (WITH_WAM_Profile
+# option (WAM_Profile
 #   "support low level profiling of abstract machine" OFF)
 
-option (WITH_Low_Level_Tracer
+option (Low_Level_Tracer
   "support for procedure-call tracing" OFF)
 #TODO:
 
@@ -190,29 +204,29 @@ option (System_Threads
 #
 
 set(IOLIB_SOURCES
-  os/pl-buffer.c 
-  os/pl-codelist.c 
-  os/pl-ctype.c 
-  os/pl-dtoa.c  
-  os/pl-error.c  
-  os/pl-file.c 
-  os/pl-files.c  
-  os/pl-fmt.c  
-  os/pl-glob.c  
-  os/pl-option.c  
+  os/pl-buffer.c
+  os/pl-codelist.c
+  os/pl-ctype.c
+  os/pl-dtoa.c
+  os/pl-error.c
+  os/pl-file.c
+  os/pl-files.c
+  os/pl-fmt.c
+  os/pl-glob.c
+  os/pl-option.c
   os/pl-nt.c
-  os/pl-os.c 
-  os/pl-privitf.c 
-  os/pl-prologflag.c 
-  os/pl-read.c 
-  os/pl-rl.c  
+  os/pl-os.c
+  os/pl-privitf.c
+  os/pl-prologflag.c
+  os/pl-read.c
+  os/pl-rl.c
   os/pl-stream.c
-  os/pl-string.c 
-  os/pl-table.c 
-  os/pl-tai.c  
-  os/pl-text.c 
+  os/pl-string.c
+  os/pl-table.c
+  os/pl-tai.c
+  os/pl-text.c
   os/pl-utf8.c
-  os/pl-write.c 
+  os/pl-write.c
   C/pl-yap.c
   )
 
@@ -240,47 +254,47 @@ set (ABSMI_SOURCES
 
 set (ENGINE_SOURCES
   ${ABSMI_SOURCES}
-  C/agc.c 
-  C/adtdefs.c 
-  C/alloc.c 
+  C/agc.c
+  C/adtdefs.c
+  C/alloc.c
   C/amasm.c
-  C/analyst.c 
-  C/arrays.c   
+  C/analyst.c
+  C/arrays.c
   C/arith0.c
   C/arith1.c
   C/arith2.c
   C/atomic.c
   C/attvar.c
-  C/bignum.c 
+  C/bignum.c
   C/bb.c
   C/cdmgr.c
   C/cmppreds.c
   C/compiler.c
-  C/computils.c 
-  C/corout.c 
-  C/cut_c.c 
+  C/computils.c
+  C/corout.c
+  C/cut_c.c
   C/dbase.c
-  C/dlmalloc.c 
-  C/errors.c 
+  C/dlmalloc.c
+  C/errors.c
   C/eval.c
   C/exec.c
-  C/exo.c  
-  C/exo_udi.c  
+  C/exo.c
+  C/exo_udi.c
   C/globals.c
-  C/gmp_support.c 
+  C/gmp_support.c
   C/gprof.c
-  C/grow.c 
+  C/grow.c
   C/heapgc.c
-  C/index.c        
+  C/index.c
   C/init.c
-  C/inlines.c      
+  C/inlines.c
   C/iopreds.c
-  C/depth_bound.c 
+  C/depth_bound.c
   C/mavar.c
   C/modules.c
-  C/other.c       
-  C/parser.c 
-  C/qlyr.c 
+  C/other.c
+  C/parser.c
+  C/qlyr.c
   C/qlyw.c
   C/range.c
   C/save.c
@@ -290,48 +304,48 @@ set (ENGINE_SOURCES
   C/stdpreds.c
   C/sysbits.c
   C/text.c
-  C/threads.c 
-  C/tracer.c 
+  C/threads.c
+  C/tracer.c
   C/unify.c
-  C/userpreds.c  
+  C/userpreds.c
   C/utilpreds.c
-  C/yap-args.c 
-  C/write.c 
-  C/ypstdio.c 
-  library/dialect/swi/fli/swi.c 
+  C/yap-args.c
+  C/write.c
+  C/ypstdio.c
+  library/dialect/swi/fli/swi.c
   library/dialect/swi/fli/blobs.c
-  C/udi.c 
-  #packages/udi/rtree.c 
-  #packages/udi/rtree_udi.c 
+  C/udi.c
+  #packages/udi/rtree.c
+  #packages/udi/rtree_udi.c
 
   #  ${IOLIB_SOURCES}
   #  MPI_SOURCES
   )
 
 set(C_INTERFACE_SOURCES
-  C/load_foreign.c 
+  C/load_foreign.c
   C/load_dl.c
-  C/load_dld.c 
+  C/load_dld.c
   C/load_dyld.c
-  C/load_none.c 
+  C/load_none.c
   C/load_aout.c
   C/load_aix.c
-  C/load_dll.c 
-  C/load_shl.c 
-  C/c_interface.c 
-  C/clause_list.c 
+  C/load_dll.c
+  C/load_shl.c
+  C/c_interface.c
+  C/clause_list.c
   )
 
 SET(OPTYAP_SOURCES
   OPTYap/or.memory.c
-  OPTYap/opt.init.c 
+  OPTYap/opt.init.c
   OPTYap/opt.preds.c
-  OPTYap/or.copy_engine.c 
+  OPTYap/or.copy_engine.c
   OPTYap/or.cow_engine.c
-  OPTYap/or.sba_engine.c 
-  OPTYap/or.thread_engine.c 
+  OPTYap/or.sba_engine.c
+  OPTYap/or.thread_engine.c
   OPTYap/or.scheduler.c
-  OPTYap/or.cut.c 
+  OPTYap/or.cut.c
   OPTYap/tab.tries.c
   OPTYap/tab.completion.c
   )
@@ -342,28 +356,28 @@ set(STATIC_SOURCES
   #NOT INCLUDED FOR NOW
   )
 
-set(CONSOLE_SOURCES console/yap.c)   
+set(CONSOLE_SOURCES console/yap.c)
 
 #MPI STUFF
-# library/mpi/mpi.c library/mpi/mpe.c 
-# library/lammpi/yap_mpi.c library/lammpi/hash.c library/lammpi/prologterms2c.c  
+# library/mpi/mpi.c library/mpi/mpe.c
+# library/lammpi/yap_mpi.c library/lammpi/hash.c library/lammpi/prologterms2c.c
 # )
 
 #WIN STUFF
 # SET(PLCONS_SOURCES
-#   console/LGPL/pl-nt.c 
-#   console/LGPL/pl-ntcon.c 
-#   console/LGPL/pl-ntconsole.c 
+#   console/LGPL/pl-nt.c
+#   console/LGPL/pl-ntcon.c
+#   console/LGPL/pl-ntconsole.c
 #   console/LGPL/pl-ntmain.c
 # )
 
 ## define system
 
 add_library(libYap SHARED
-  ${ENGINE_SOURCES} 
+  ${ENGINE_SOURCES}
   ${IOLIB_SOURCES}
-  ${C_INTERFACE_SOURCES} 
-  ${STATIC_SOURCES}  
+  ${C_INTERFACE_SOURCES}
+  ${STATIC_SOURCES}
   ${OPTYAP_SOURCES}
   $<TARGET_OBJECTS:libyaptai>
   )
@@ -377,7 +391,7 @@ set_target_properties(libYap
   OUTPUT_NAME Yap
   )
 
-option (WITH_Dynamic_BDD
+option (Dynamic_BDD
   "dynamic bdd library" OFF)
 #TODO:
 
@@ -390,51 +404,51 @@ option (WITH_Dynamic_BDD
 include (Config)
 
 macro_optional_find_package (GMP ON)
-macro_log_feature (GMP_FOUND "libgmp" 
-  "GNU Multiple Precision" 
+macro_log_feature (GMP_FOUND "libgmp"
+  "GNU Multiple Precision"
   "http://gmplib.org")
 if (GMP_FOUND)
   include_directories (${GMP_INCLUDE_DIR})
-  target_link_libraries(libYap ${GMP_LIBRARIES})  
+  target_link_libraries(libYap ${GMP_LIBRARIES})
   #config.h needs this (TODO: change in code latter)
   set (USE_GMP 1)
-  set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${GMP_INCLUDE_DIR} )
-  set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${GMP_LIBRARIES} )
+#  set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${GMP_INCLUDE_DIR} )
+#  set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${GMP_LIBRARIES} )
 endif (GMP_FOUND)
 
 macro_optional_find_package (Readline ON)
-macro_log_feature (READLINE_FOUND "libreadline" 
-  "GNU Readline Library (or similar)" 
+macro_log_feature (READLINE_FOUND "libreadline"
+  "GNU Readline Library (or similar)"
   "http://www.gnu.org/software/readline")
 if (READLINE_FOUND)
   include_directories (${READLINE_INCLUDE_DIR})
-  target_link_libraries(libYap ${READLINE_LIBRARIES})  
+  target_link_libraries(libYap ${READLINE_LIBRARIES})
   set (HAVE_READLINE_READLINE_H 1)
-  set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${READLINE_INCLUDE_DIR} )
-  set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${READLINE_LIBRARIES} )
-  
+#  set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${READLINE_INCLUDE_DIR} )
+#  set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${READLINE_LIBRARIES} )
+
   check_function_exists( add_history  HAVE_ADD_HISTORY )
-  check_function_exists( rl_begin_undo_group HAVE_RL_BEGIN_UNDO_GROUP)  
+  check_function_exists( rl_begin_undo_group HAVE_RL_BEGIN_UNDO_GROUP)
   check_function_exists( rl_clear_pending_input HAVE_RL_CLEAR_PENDING_INPUT)
   check_function_exists( rl_discard_argument HAVE_RL_DISCARD_ARGUMENT)
-  check_function_exists( rl_filename_completion_function HAVE_RL_FILENAME_COMPLETION_FUNCTION)  
-  check_function_exists( rl_free_line_state HAVE_RL_FREE_LINE_STATE )  
-  check_function_exists( rl_insert_close  HAVE_RL_INSERT_CLOSE )      
+  check_function_exists( rl_filename_completion_function HAVE_RL_FILENAME_COMPLETION_FUNCTION)
+  check_function_exists( rl_free_line_state HAVE_RL_FREE_LINE_STATE )
+  check_function_exists( rl_insert_close  HAVE_RL_INSERT_CLOSE )
   check_function_exists( rl_reset_after_signal  HAVE_RL_RESET_AFTER_SIGNAL )
-  check_function_exists( rl_set_keyboard_input_timeout  HAVE_RL_SET_KEYBOARD_INPUT_TIMEOUT )      
+  check_function_exists( rl_set_keyboard_input_timeout  HAVE_RL_SET_KEYBOARD_INPUT_TIMEOUT )
   check_function_exists( rl_set_prompt  HAVE_RL_SET_PROMPT)
-  check_symbol_exists( rl_catch_signals stdio.h;readline/readline.h  HAVE_DECL_RL_CATCH_SIGNALS )  
-  check_symbol_exists( rl_completion_func_t stdio.h;readline/readline.h  HAVE_DECL_RL_COMPLETION_FUNC_T )      
+  check_symbol_exists( rl_catch_signals stdio.h;readline/readline.h  HAVE_DECL_RL_CATCH_SIGNALS )
+  check_symbol_exists( rl_completion_func_t stdio.h;readline/readline.h HAVE_DECL_RL_COMPLETION_FUNC_T )
   check_symbol_exists( rl_done stdio.h;readline/readline.h  HAVE_DECL_RL_DONE )
-  check_symbol_exists( rl_hook_func_t stdio.h;readline/readline.h  HAVE_DECL_RL_HOOK_FUNC_T )      
+  check_symbol_exists( rl_hook_func_t stdio.h;readline/readline.h  HAVE_DECL_RL_HOOK_FUNC_T )
   check_symbol_exists( rl_event_hook stdio.h;readline/readline.h HAVE_DECL_RL_EVENT_HOOK )
   check_symbol_exists( rl_readline_state stdio.h;readline/readline.h HAVE_DECL_RL_READLINE_STATE )
 endif (READLINE_FOUND)
 
 
 macro_optional_find_package (Threads OFF)
-macro_log_feature (THREADS_FOUND "Threads Support" 
-  "GNU Threads Library (or similar)" 
+macro_log_feature (THREADS_FOUND "Threads Support"
+  "GNU Threads Library (or similar)"
   "http://www.gnu.org/software/threads")
 if (THREADS_FOUND)
   #
@@ -462,14 +476,14 @@ if (THREADS_FOUND)
   # ::
   #
   set( THREADS_PREFER_PTHREAD_FLAG ON)
-  
+
   if (CMAKE_USE_PTHREADS_INIT)
-    target_link_libraries(libYap pthread)  
+    target_link_libraries(libYap pthread)
     set (HAVE_READLINE_READLINE_H 1)
     set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} )
     check_function_exists( pthread_mutexattr_setkind_np HAVE_PTHREAD_MUTEXATTR_SETKIND_NP )
     check_function_exists( pthread_mutexattr_settype HAVE_PTHREAD_MUTEXATTR_SETTYPE )
-    check_function_exists( pthread_setconcurrency HAVE_PTHREAD_SETCONCURRENCY )  
+    check_function_exists( pthread_setconcurrency HAVE_PTHREAD_SETCONCURRENCY )
   endif (CMAKE_USE_PTHREADS_INIT)
   #
   # Please note that the compiler flag can only be used with the imported
@@ -477,44 +491,44 @@ if (THREADS_FOUND)
   # recommended for new code.
 endif (THREADS_FOUND)
 
-cmake_dependent_option (WITH_PThreadLocking
+cmake_dependent_option (PThreadLocking
   "use pthread locking primitives for internal locking" ON
   System_Threads OFF)
 
-option (Use_JIT
-  "use just-in-time compilation (experimental)" OFF)
-if (Use_JIT)
-  macro_optional_find_package (LLVM ON)
-  macro_log_feature (LLVM_FOUND "LLVM JIT generator" 
-    "The LLVM Compiler Infrastructure" 
-    "http://www.llvm.org")
-  if (LLVM_FOUND)
-    add_subdirectory (JIT)
-    include_directories (JIT/HPP)
-    add_definitions(-DYAP_JIT=1)
-  endif (LLVM_FOUND)
-endif (Use_JIT)
-
-
-
+add_subdirectory (CXX)
 ADD_SUBDIRECTORY(library)
 ADD_SUBDIRECTORY(swi/library)
 # ADD_SUBDIRECTORY(os)
 # ADD_SUBDIRECTORY(packages)
-# ADD_SUBDIRECTORY(packages)
 ADD_SUBDIRECTORY(pl)
 
-macro_optional_add_subdirectory (packages/cuda)  
+option (JIT
+    "use just-in-time compilation (experimental)" ON)
+if (JIT)
+    macro_optional_find_package (LLVM ON)
+    macro_log_feature (LLVM_FOUND "LLVM JIT generator"
+            "The LLVM Compiler Infrastructure" "http://www.llvm.org")
+    if (LLVM_FOUND)
+        INCLUDE_DIRECTORIES(JIT/HPP)
+        add_definitions (-DYAP_JIT=1)
+        add_subdirectory (JIT)
+    endif (LLVM_FOUND)
+endif (JIT)
 
-macro_optional_add_subdirectory (packages/real)  
 
-macro_optional_add_subdirectory (packages/python)  
+macro_optional_add_subdirectory (packages/gecode)
 
-macro_optional_add_subdirectory (packages/raptor)  
+macro_optional_add_subdirectory (packages/cuda)
+
+macro_optional_add_subdirectory (packages/real)
+
+macro_optional_add_subdirectory (packages/python)
+
+macro_optional_add_subdirectory (packages/raptor)
 
 #macro_optional_add_subdirectory (packages/archive)
 
-#macro_optional_add_subdirectory (packages/jpl)
+macro_optional_add_subdirectory (packages/jpl)
 
 #macro_optional_add_subdirectory (packages/prosqlite)
 
@@ -536,21 +550,21 @@ macro_optional_add_subdirectory (packages/raptor)
 # option (CYGWIN
 #   "use cygwin library in WIN32" OFF)
 
-option (WITH_PRISM
+option (PRISM
   "use PRISM system in YAP" ON)
 #TODO:
 
-option (WITH_Dynamic_Loading
+option (Dynamic_Loading
   "compile YAP as a DLL" ON)
 #TODO:
 
-option (WITH_Static_compilation
+option (Static_compilation
   "compile YAP statically" OFF)
 #TODO:
 
-option (Use_MALLOC
+option (MALLOC
   "use malloc to allocate memory" ON)
-if (Use_MALLOC)
+if (MALLOC)
   # use default allocator
   set ( USE_SYSTEM_MALLOC 1 )
 endif()
@@ -563,7 +577,7 @@ option(CONDOR
 # OPTION(WIN64
 #   "compile YAP for win64" OFF)
 
-# option (WITH_APRIL
+# option (APRIL
 #   "compile Yap to support April ILP system" OFF)
 # option (DLCOMPAT
 #   "use dlcompat library for dynamic loading on Mac OS X" OFF)
@@ -572,9 +586,7 @@ option(CONDOR
 # if (R_FOUND)
 #   MESSAGE(STATUS "RFOUND ${R_LIBRARIES} ${R_DEFINITIONS} ${R_EXECUTABLE}")
 # endif (R_FOUND)
-#TODO: check REAL_TARGET ENABLE_REAL
-
-#TODO: Switch to feature detection
+#TODO: check REAL_TARGET REAL#TODO: Switch to feature detection
 # OPTION(CHR
 #   "install chr library" ON)
 # OPTION(CLPQR
@@ -583,7 +595,7 @@ option(CONDOR
 #   "enable the cplint library using the CUDD library in DIR/lib" OFF)
 # OPTION(yap_cv_clpbn_bp
 #   "enable belief propagation solver in CLPBN." OFF)
-# OPTION( 
+# OPTION(
 
 # SHARED PACKAGES with SWI
 # swi packages have both Makefile.in which we will use and
@@ -602,23 +614,6 @@ option(CONDOR
 ## after we have all functionality in
 #
 
-# Compilation Flags
-if (CMAKE_COMPILER_IS_GNUCC)
-  message(STATUS "Original CMAKE_C_FLAGS ${CMAKE_C_FLAGS}")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wstrict-prototypes -Wmissing-prototypes")
-  message(STATUS "Running with CMAKE_C_FLAGS ${CMAKE_C_FLAGS}")
-  message(STATUS "Original CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG}")
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -g ")
-  message(STATUS "Runing with CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG}")
-  message(STATUS "Original CMAKE_C_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE}")
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O3 -fomit-frame-pointer -fstrict-aliasing -freorder-blocks -fsched-interblock")
-  message(STATUS "Running with CMAKE_C_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE}")
-endif()
-add_definitions( -Wall)    
-add_definitions(-D_YAP_NOT_INSTALLED_=1 -DHAVE_CONFIG_H  -DLOW_LEVEL_TRACER=1 -DDEBUG=1)
-add_definitions(-DTHREADEAD_CODE=1)            
-add_definitions(-D_GNU_SOURCE=1 -D_XOPEN_SOURCE=700)            
-
 configure_file ("${PROJECT_SOURCE_DIR}/config.h.cmake"
   "${PROJECT_BINARY_DIR}/config.h" )
 configure_file ("${PROJECT_SOURCE_DIR}/YapTermConfig.h.cmake"
@@ -630,6 +625,26 @@ set_target_properties (yap-bin PROPERTIES OUTPUT_NAME yap)
 
 target_link_libraries(yap-bin libYap )
 
+if (JIT)
+
+endif(JIT)
+
+if (MPI_C_FOUND)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MPI_C_COMPILE_FLAGS} ")
+  include_directories(${MPI_C_INCLUDE_PATH})
+  target_link_libraries(yap-bin ${MPI_C_LIBRARIES} )
+  if(MPI_C_COMPILE_FLAGS)
+    set_target_properties(yap-bin PROPERTIES
+      COMPILE_FLAGS "${MPI_C_COMPILE_FLAGS}")
+  endif()
+
+  if(MPI_C_LINK_FLAGS)
+    set_target_properties(yap-bin PROPERTIES
+      LINK_FLAGS "${MPI_C_LINK_FLAGS}")
+  endif()
+endif (MPI_C_FOUND)
+
+
 add_custom_target (main ALL DEPENDS ${YAP_STARTUP} ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 
 install (
@@ -640,4 +655,3 @@ install (
   )
 
 macro_display_feature_log()
-

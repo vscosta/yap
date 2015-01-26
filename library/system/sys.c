@@ -162,7 +162,7 @@ WinError(void)
 #endif
 
 /* Return time in a structure */
-static int
+static YAP_Bool
 sysmktime(void)
 {
 
@@ -223,7 +223,7 @@ sysmktime(void)
 }
 
 /* Return time in a structure */
-static int
+static YAP_Bool
 datime(void)
 {
   YAP_Term tf, out[6];
@@ -268,7 +268,7 @@ datime(void)
 #define BUF_SIZE 1024
 
 /* Return a list of files for a directory */
-static int
+static YAP_Bool
 list_directory(void)
 {
   YAP_Term tf = YAP_MkAtomTerm(YAP_LookupAtom("[]"));
@@ -339,7 +339,7 @@ list_directory(void)
   return YAP_Unify(YAP_ARG2, tf);
 }
 
-static int
+static YAP_Bool
 p_unlink(void)
 {
   char *fd = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
@@ -355,7 +355,7 @@ p_unlink(void)
   return(TRUE);
 }
 
-static int
+static YAP_Bool
 p_mkdir(void)
 {
   char *fd = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
@@ -370,7 +370,7 @@ p_mkdir(void)
   return(TRUE);
 }
 
-static int
+static YAP_Bool
 p_rmdir(void)
 {
   char *fd = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
@@ -385,7 +385,7 @@ p_rmdir(void)
   return(TRUE);
 }
 
-static int
+static YAP_Bool
 rename_file(void)
 {
   char *s1 = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
@@ -399,13 +399,13 @@ rename_file(void)
   return(TRUE);
 }
 
-static int
+static YAP_Bool
 dir_separator(void)
 {
   return(YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom("/"))));
 }
 
-static int
+static YAP_Bool
 file_property(void)
 {
   const char *fd;
@@ -486,7 +486,7 @@ file_property(void)
 
 /* temporary files */
 
-static int
+static YAP_Bool
 p_mktemp(void)
 {
 #if HAVE_MKSTEMP || HAVE_MKTEMP || defined(__MINGW32__) || _MSC_VER
@@ -523,7 +523,7 @@ p_mktemp(void)
   return(TRUE); 
 }
 
-static int
+static YAP_Bool
 p_tmpnam(void)
 {
 #if HAVE_MKSTEMP
@@ -547,7 +547,7 @@ p_tmpnam(void)
 #endif
 }
 
-static int
+static YAP_Bool
 p_tmpdir(void)
 {
 #if defined(__MINGW32__) || _MSC_VER
@@ -579,7 +579,7 @@ p_tmpdir(void)
 }
 
 /* return YAP's environment */
-static int
+static YAP_Bool
 p_environ(void)
 {
 #if HAVE_ENVIRON && 0
@@ -646,7 +646,7 @@ close_handle(YAP_Term ti, HANDLE h)
 #endif
 
 /* execute a command as a detached process */
-static int
+static YAP_Bool
 execute_command(void)
 {
   YAP_Term ti = YAP_ARG2, to = YAP_ARG3, te = YAP_ARG4;
@@ -802,7 +802,7 @@ execute_command(void)
 }
 
 /* execute a command as a detached process */
-static int
+static YAP_Bool
 do_system(void)
 {
   char *command = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
@@ -821,7 +821,7 @@ do_system(void)
 
 
 /* execute a command as a detached process */
-static int
+static YAP_Bool
 do_shell(void)
 {
 #if defined(__MINGW32__) || _MSC_VER
@@ -881,7 +881,7 @@ do_shell(void)
 }
 
 /* execute a command as a detached process */
-static int
+static YAP_Bool
 p_wait(void)
 {
   long int pid = YAP_IntOfTerm(YAP_ARG1);
@@ -915,7 +915,7 @@ p_wait(void)
 #endif
 }
 
-static int
+static YAP_Bool
 p_sleep(void)
 {
   YAP_Term ts = YAP_ARG1;
@@ -986,7 +986,7 @@ p_sleep(void)
 
 /* host info */
 
-static int
+static YAP_Bool
 host_name(void)
 {
 #if defined(__MINGW32__) || _MSC_VER
@@ -1007,7 +1007,7 @@ host_name(void)
   return(YAP_Unify(YAP_ARG1, YAP_MkAtomTerm(YAP_LookupAtom(name))));
 }
 
-static int
+static YAP_Bool
 host_id(void)
 {
 #if HAVE_GETHOSTID
@@ -1017,7 +1017,7 @@ host_id(void)
 #endif
 }
 
-static int
+static YAP_Bool
 pid(void)
 {
 #if defined(__MINGW32__) || _MSC_VER
@@ -1027,7 +1027,7 @@ pid(void)
 #endif
 }
 
-static int
+static YAP_Bool
 win(void)
 {
 #if defined(__MINGW32__) || _MSC_VER
@@ -1037,7 +1037,7 @@ win(void)
 #endif
 }
 
-static int
+static YAP_Bool
 p_kill(void)
 {
 #if defined(__MINGW32__) || _MSC_VER
@@ -1061,7 +1061,7 @@ p_kill(void)
   return(TRUE); 
 }
 
-static int
+static YAP_Bool
 error_message(void)
 {
 #if HAVE_STRERROR

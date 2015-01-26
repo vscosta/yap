@@ -707,6 +707,7 @@ p_noonly_profiled_interpreter( USES_REGS1 )
   ExpEnv.config_struc.useonlypi = 0;
   return TRUE;
 }
+
 #pragma GCC diagnostic pop
 
 void
@@ -728,3 +729,4 @@ Yap_InitJitConfigPreds( void )
   Yap_InitCPred("only_profiled_interpreter", 0, p_only_profiled_interpreter, SafePredFlag);
   Yap_InitCPred("noonly_profiled_interpreter", 0, p_noonly_profiled_interpreter, SafePredFlag);
 }
+

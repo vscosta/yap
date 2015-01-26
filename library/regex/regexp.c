@@ -34,7 +34,7 @@
 
 void init_regexp( void );
 
-static int check_regexp(void) 
+static YAP_Bool check_regexp(void) 
 {
   unsigned int buflen = (unsigned int)YAP_IntOfTerm(YAP_ARG2)+1;
   unsigned int sbuflen = (unsigned int)YAP_IntOfTerm(YAP_ARG4)+1;
@@ -81,7 +81,7 @@ static int check_regexp(void)
   return(out == 0);
 }
 
-static int regexp(void) 
+static YAP_Bool regexp(void) 
 {
   unsigned int buflen = (unsigned int)YAP_IntOfTerm(YAP_ARG2)+1;
   unsigned int sbuflen = (unsigned int)YAP_IntOfTerm(YAP_ARG4)+1;

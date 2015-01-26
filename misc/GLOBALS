@@ -25,6 +25,7 @@ char**				PL_Argv					=NULL
 
 // halt hooks
 struct halt_hook*		HaltHooks				=NULL
+fptr_t 				JIT_finalizer				=NULL
 
 // stack overflow expansion/gc control
 int				AllowLocalExpansion 			=TRUE

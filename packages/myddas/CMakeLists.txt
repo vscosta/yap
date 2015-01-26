@@ -16,7 +16,7 @@ set( MYDDAS_PROLOG
   pl/myddas_top_level.ypp
   pl/myddas_errors.ypp
   pl/myddas_prolog2sql.ypp
-  pl/myddas_util_predicates.ypp 
+  pl/myddas_util_predicates.ypp
   pl/myddas_prolog2sql_optimizer.ypp )
 
 function(cpp_compile filename)
@@ -38,31 +38,46 @@ source_group(generated FILES ${GENERATED_SOURCES})
 
 macro_optional_find_package(ODBC ON)
 macro_optional_find_package(MySQL ON)
+macro_optional_find_package(Sqlite3 ON)
 
-if (ODBC_FOUND OR MYSQL_FOUND)
+if (ODBC_FOUND OR MYSQL_FOUND or SQLITE3_FOUND)
   add_library (myddas SHARED ${MYDDAS_SOURCES})
-  target_link_libraries(myddas libYap)    
+  target_link_libraries(myddas libYap)
   if (ODBC_FOUND)
-    # ODBC_INCLUDE_DIRECTORIES, where to find sql.h
-    # ODBC_LIBRARIES, the libraries to link against to use ODBC
-    # ODBC_FOUND.  If false, you cannot build anything that requires MySQL.
-    macro_log_feature (ODBC_FOUND "ODBC" 
-      "Use ODBC Data-Base Interface " 
+      # ODBC_INCLUDE_DIRECTORIES, where to find sql.h
+      # ODBC_LIBRARIES, the libraries to link against to use ODBC
+      # ODBC_FOUND.  If false, you cannot build anything that requires MySQL.
+      macro_log_feature (ODBC_FOUND "ODBC"
+          "Use ODBC Data-Base Interface "
       "http://www.unixodbc.org" FALSE)
-    add_definitions (-DMYDDAS_ODBC=1)
-    target_link_libraries(myddas ${ODBC_LIBRARIES})  
-    include_directories (${ODBC_INCLUDE_DIRECTORIES})
+      add_definitions (-DMYDDAS_ODBC=1)
+      target_link_libraries(myddas ${ODBC_LIBRARIES})
+      include_directories (${ODBC_INCLUDE_DIRECTORIES})
   endif (ODBC_FOUND)
+
+  if (SQLITE3_FOUND)
+      # SQLITE3_INCLUDE_DIR - Where to find Sqlite 3 header files (directory)
+      # SQLITE3_LIBRARIES - Sqlite 3 libraries
+      # SQLITE3_LIBRARY_RELEASE - Where the release library is
+      # SQLITE3_LIBRARY_DEBUG - Where the debug library is
+      # SQLITE3_FOUND - Set to TRUE if we found everything (library, includes and executable)
+      macro_log_feature (SQLITE3_FOUND "SQLite3"
+          "SQL Light Data-Base "
+      "http://www.sqlite3.org" FALSE)
+      add_definitions (-DMYDDAS_SQLITE3=1)
+      target_link_libraries(myddas ${SQLITE3_LIBRARIES})
+      include_directories (${SQLITE3_INCLUDE_DIR})
+  endif (SQLITE3_FOUND)
 
   if (MYSQL_FOUND)
     #  MYSQL_INCLUDE_DIR - where to find mysql.h, etc.
     #  MYSQL_LIBRARIES   - List of libraries when using MySQL.
     #  MYSQL_FOUND       - True if MySQL found.
-    macro_log_feature (MYSQL_FOUND "MySQL" 
-      "Use MYSQL Data-Base Interface " 
+    macro_log_feature (MYSQL_FOUND "MySQL"
+      "Use MYSQL Data-Base Interface "
       "http://www.mysql.org" FALSE)
     add_definitions (-DMYDDAS_MYSQL=1)
-    target_link_libraries(myddas ${MYSQL_LIBRARIES})  
+    target_link_libraries(myddas ${MYSQL_LIBRARIES})
     include_directories (${MYSQL_INCLUDE_DIR})
   endif (MYSQL_FOUND)
 
@@ -78,4 +93,3 @@ cmake_dependent_option (WITH_MYDDAS_top_level
   "enable the MYDDAS top-level support to MySQL" OFF
   'WITH_MYDDAS AND MYSQL_FOUND' OFF)
 #TODO:
-

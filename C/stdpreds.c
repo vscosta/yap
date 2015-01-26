@@ -283,6 +283,7 @@ static char SccsId[] = "%W% %G%";
 #include "eval.h"
 #include "yapio.h"
 #include "pl-shared.h"
+#include "Foreign.h"
 #ifdef TABLING
 #include "tab.macros.h"
 #endif /* TABLING */
@@ -293,7 +294,11 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
+#if YAP_JIT
+#include <JIT_Compiler.hpp>
+#endif
 #include <wchar.h>
+#include <fcntl.h>
 
 static Int p_setval(USES_REGS1);
 static Int p_value(USES_REGS1);
@@ -335,6 +340,25 @@ static Int p_walltime(USES_REGS1);
 static Int p_access_yap_flags(USES_REGS1);
 static Int p_set_yap_flags(USES_REGS1);
 static Int p_break(USES_REGS1);
+
+#if YAP_JIT
+void* (*Yap_JitCall)(struct JIT_Compiler* jc, yamop* p);
+void (* Yap_llvmShutdown)(void ) ;
+
+Environment ExpEnv;
+
+static Int p_jit(USES_REGS1) { /* '$set_value'(+Atom,+Atomic) */
+   void *jit_handle;
+  if ( (jit_handle = Yap_LoadForeignFile( YAP_YAPJITLIB, 0 ) ) ) {
+    if (!Yap_CallForeignFile(jit_handle, "init_jit") )
+      fprintf(stderr, "Could not load JIT\n" );
+    return FALSE;
+  }
+  return TRUE;
+}
+
+
+#endif /* YAP_JIT */
 
 #ifdef BEAM
 Int use_eam(USES_REGS1);
@@ -814,6 +838,38 @@ static Int
     return (FALSE);
   }
   out = IntegerOfTerm(t);
+#if YAP_JIT
+  if (ExpEnv.analysis_struc.stats_enabled || ExpEnv.analysis_struc.time_pass_enabled) {
+    if (strcmp(((char*)ExpEnv.analysis_struc.outfile), "STDERR")) {
+      int stderrcopy = dup(2);
+      if (strcmp(((char*)ExpEnv.analysis_struc.outfile), "STDOUT") == 0) {
+        dup2(1, 2);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
+        shutdown_llvm();
+#pragma GCC diagnostic pop
+        dup2(stderrcopy, 2);
+      }
+      else {
+        int Outputfile = open(((char*)ExpEnv.analysis_struc.outfile), O_CREAT | O_APPEND | O_WRONLY, 0777);
+        if (Outputfile < 0) {
+          fprintf(stderr, "Error:: I can not write analysis passes's output on %s...\n", ((char*)ExpEnv.analysis_struc.outfile));
+          fprintf(stderr, "        %s...\n", strerror(errno));
+          errno = 0;
+          exit(1);
+        }
+        dup2(Outputfile, 2);
+        shutdown_llvm();
+        close(Outputfile);
+        dup2(stderrcopy, 2);
+      }
+      close(stderrcopy);
+    }
+    else
+      shutdown_llvm();
+  }
+#endif
+  
   Yap_exit(out);
   return TRUE;
 }
@@ -1946,6 +2002,7 @@ static Int p_parallel_mode(USES_REGS1) { return FALSE; }
 static Int p_yapor_workers(USES_REGS1) { return FALSE; }
 #endif /* YAPOR */
 
+
 void Yap_InitCPreds(void) {
   /* numerical comparison */
   Yap_InitCPred("set_value", 2, p_setval, SafePredFlag | SyncPredFlag);
@@ -2027,12 +2084,18 @@ void Yap_InitCPreds(void) {
   Yap_InitCPred("$set_flag", 4, p_set_flag, SyncPredFlag);
   Yap_InitCPred("$has_yap_or", 0, p_has_yap_or, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$has_eam", 0, p_has_eam, SafePredFlag | SyncPredFlag);
-#ifndef YAPOR
+#ifdef YAPOR
   Yap_InitCPred("parallel_mode", 1, p_parallel_mode,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$c_yapor_workers", 1, p_yapor_workers,
                 SafePredFlag | SyncPredFlag);
 #endif /* YAPOR */
+#ifdef YAP_JIT
+  Yap_InitCPred("init", 1, p_parallel_mode,
+                SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$c_yapor_workers", 1, p_yapor_workers,
+                SafePredFlag | SyncPredFlag);
+#endif /* YAPOR */  
 #ifdef INES
   Yap_InitCPred("euc_dist", 3, p_euc_dist, SafePredFlag);
   Yap_InitCPred("loop", 0, p_loop, SafePredFlag);
@@ -2089,6 +2152,10 @@ void Yap_InitCPreds(void) {
 #if defined(YAPOR) || defined(TABLING)
   Yap_init_optyap_preds();
 #endif /* YAPOR || TABLING */
+#if YAP_JIT
+  Yap_InitCPred("jit", 0, p_jit,
+                SafePredFlag | SyncPredFlag);
+#endif
   Yap_InitThreadPreds();
   {
     void (*(*(p)))(void) = E_Modules;

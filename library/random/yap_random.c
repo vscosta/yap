@@ -26,7 +26,7 @@ void init_random( void );
 
 static short a1 = 27314, b1 = 9213, c1 = 17773;
 
-static int
+static YAP_Bool
 p_random(void)
 {
   double fli;
@@ -42,7 +42,7 @@ p_random(void)
   return(YAP_Unify(YAP_ARG1, YAP_MkFloatTerm(fli-(int)(fli))));
 }
 
-static int
+static YAP_Bool
 p_setrand(void)
 {
   a1 = YAP_IntOfTerm(YAP_ARG1);
@@ -51,7 +51,7 @@ p_setrand(void)
   return(TRUE);
 }
 
-static int
+static YAP_Bool
 p_getrand(void)
 {
   return(YAP_Unify(YAP_ARG1,YAP_MkIntTerm(a1)) &&

@@ -26,6 +26,7 @@
 #define GLOBAL_PL_Argv Yap_global->PL_Argv_
 
 #define GLOBAL_HaltHooks Yap_global->HaltHooks_
+#define GLOBAL_JIT_finalizer Yap_global->JIT_finalizer_
 
 #define GLOBAL_AllowLocalExpansion Yap_global->AllowLocalExpansion_
 #define GLOBAL_AllowGlobalExpansion Yap_global->AllowGlobalExpansion_

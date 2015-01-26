@@ -26,6 +26,7 @@ typedef struct global_data {
   char**  PL_Argv_;
 
   struct halt_hook*  HaltHooks_;
+  fptr_t  JIT_finalizer_;
 
   int  AllowLocalExpansion_;
   int  AllowGlobalExpansion_;

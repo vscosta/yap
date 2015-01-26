@@ -77,9 +77,7 @@ p_load_foreign( USES_REGS1 )
 
   /* get the initialization function name */
   t1 = Deref(ARG3);
-  InitProcName = RepAtom(AtomOfTerm(t1))->StrOfAE;
-
-  
+  InitProcName = RepAtom(AtomOfTerm(t1))->StrOfAE;  
   
   /* call the OS specific function for dynamic loading */
   if(Yap_LoadForeign(ofiles,libs,InitProcName,&InitProc)==LOAD_SUCCEEDED) {

@@ -24,35 +24,35 @@
 /* -------------------------- */
 
 void init_itries(void);
-static int p_itrie_open(void);
-static int p_itrie_close(void);
-static int p_itrie_close_all(void);
-static int p_itrie_mode(void);
-static int p_itrie_timestamp(void);
-static int p_itrie_put_entry(void);
-static int p_itrie_update_entry(void);
-static int p_itrie_check_entry(void);
-static int p_itrie_get_entry(void);
-static int p_itrie_get_data(void);
-static int p_itrie_traverse_init(void);
-static int p_itrie_traverse_cont(void);
-static int p_itrie_remove_entry(void);
-static int p_itrie_remove_subtree(void);
-static int p_itrie_add(void);
-static int p_itrie_subtract(void);
-static int p_itrie_join(void);
-static int p_itrie_intersect(void);
-static int p_itrie_count_join(void);
-static int p_itrie_count_intersect(void);
-static int p_itrie_save(void);
-static int p_itrie_save_as_trie(void);
-static int p_itrie_load(void);
-static int p_itrie_save2stream(void);
-static int p_itrie_loadFromStream(void);
-static int p_itrie_stats(void);
-static int p_itrie_max_stats(void);
-static int p_itrie_usage(void);
-static int p_itrie_print(void);
+static YAP_Bool p_itrie_open(void);
+static YAP_Bool p_itrie_close(void);
+static YAP_Bool p_itrie_close_all(void);
+static YAP_Bool p_itrie_mode(void);
+static YAP_Bool p_itrie_timestamp(void);
+static YAP_Bool p_itrie_put_entry(void);
+static YAP_Bool p_itrie_update_entry(void);
+static YAP_Bool p_itrie_check_entry(void);
+static YAP_Bool p_itrie_get_entry(void);
+static YAP_Bool p_itrie_get_data(void);
+static YAP_Bool p_itrie_traverse_init(void);
+static YAP_Bool p_itrie_traverse_cont(void);
+static YAP_Bool p_itrie_remove_entry(void);
+static YAP_Bool p_itrie_remove_subtree(void);
+static YAP_Bool p_itrie_add(void);
+static YAP_Bool p_itrie_subtract(void);
+static YAP_Bool p_itrie_join(void);
+static YAP_Bool p_itrie_intersect(void);
+static YAP_Bool p_itrie_count_join(void);
+static YAP_Bool p_itrie_count_intersect(void);
+static YAP_Bool p_itrie_save(void);
+static YAP_Bool p_itrie_save_as_trie(void);
+static YAP_Bool p_itrie_load(void);
+static YAP_Bool p_itrie_save2stream(void);
+static YAP_Bool p_itrie_loadFromStream(void);
+static YAP_Bool p_itrie_stats(void);
+static YAP_Bool p_itrie_max_stats(void);
+static YAP_Bool p_itrie_usage(void);
+static YAP_Bool p_itrie_print(void);
 
 
 
@@ -102,7 +102,7 @@ void init_itries(void) {
 
 /* itrie_open(-Itrie) */
 #define arg_itrie YAP_ARG1
-static int p_itrie_open(void) {
+static YAP_Bool p_itrie_open(void) {
   TrEntry itrie;
 
   /* check arg */
@@ -118,7 +118,7 @@ static int p_itrie_open(void) {
 
 /* itrie_close(+Itrie) */
 #define arg_itrie YAP_ARG1
-static int p_itrie_close(void) {
+static YAP_Bool p_itrie_close(void) {
   /* check arg */
   if (!YAP_IsIntTerm(arg_itrie)) 
     return FALSE;
@@ -131,7 +131,7 @@ static int p_itrie_close(void) {
 
 
 /* itrie_close_all() */
-static int p_itrie_close_all(void) {
+static YAP_Bool p_itrie_close_all(void) {
   itrie_close_all();
   return TRUE;
 }
@@ -140,7 +140,7 @@ static int p_itrie_close_all(void) {
 /* itrie_mode(+Itrie,?Mode) */
 #define arg_itrie YAP_ARG1
 #define arg_mode  YAP_ARG2
-static int p_itrie_mode(void) {
+static YAP_Bool p_itrie_mode(void) {
   YAP_Term mode_term;
   const char *mode_str;
   YAP_Int mode;
@@ -191,7 +191,7 @@ static int p_itrie_mode(void) {
 /* itrie_timestamp(+Itrie,?Time) */
 #define arg_itrie YAP_ARG1
 #define arg_time  YAP_ARG2
-static int p_itrie_timestamp(void) {
+static YAP_Bool p_itrie_timestamp(void) {
   YAP_Int time;
 
   /* check arg */
@@ -220,7 +220,7 @@ static int p_itrie_timestamp(void) {
 /* itrie_put_entry(+Itrie,+Entry) */
 #define arg_itrie YAP_ARG1
 #define arg_entry YAP_ARG2
-static int p_itrie_put_entry(void) {
+static YAP_Bool p_itrie_put_entry(void) {
   /* check arg */
   if (!YAP_IsIntTerm(arg_itrie)) 
     return FALSE;
@@ -236,7 +236,7 @@ static int p_itrie_put_entry(void) {
 /* itrie_update_entry(+Itrie,+Entry) */
 #define arg_itrie YAP_ARG1
 #define arg_entry YAP_ARG2
-static int p_itrie_update_entry(void) {
+static YAP_Bool p_itrie_update_entry(void) {
   /* check arg */
   if (!YAP_IsIntTerm(arg_itrie)) 
     return FALSE;
@@ -253,7 +253,7 @@ static int p_itrie_update_entry(void) {
 #define arg_itrie YAP_ARG1
 #define arg_entry YAP_ARG2
 #define arg_ref   YAP_ARG3
-static int p_itrie_check_entry(void) {
+static YAP_Bool p_itrie_check_entry(void) {
   TrData data;
 
   /* check arg */
@@ -273,7 +273,7 @@ static int p_itrie_check_entry(void) {
 /* itrie_get_entry(+Ref,-Entry) */
 #define arg_ref   YAP_ARG1
 #define arg_entry YAP_ARG2
-static int p_itrie_get_entry(void) {
+static YAP_Bool p_itrie_get_entry(void) {
   YAP_Term entry;
 
   /* check arg */
@@ -291,7 +291,7 @@ static int p_itrie_get_entry(void) {
 /* itrie_get_data(+Ref,-Data) */
 #define arg_ref  YAP_ARG1
 #define arg_data YAP_ARG2
-static int p_itrie_get_data(void) {
+static YAP_Bool p_itrie_get_data(void) {
   YAP_Term list;
   YAP_Term item;
   YAP_Functor f;
@@ -325,7 +325,7 @@ static int p_itrie_get_data(void) {
 /* itrie_traverse(+Itrie,-Ref) */
 #define arg_itrie YAP_ARG1
 #define arg_ref   YAP_ARG2
-static int p_itrie_traverse_init(void) {
+static YAP_Bool p_itrie_traverse_init(void) {
   TrData data;
 
   /* check arg */
@@ -346,7 +346,7 @@ static int p_itrie_traverse_init(void) {
 /* itrie_traverse(+Itrie,-Ref) */
 #define arg_itrie YAP_ARG1
 #define arg_ref   YAP_ARG2
-static int p_itrie_traverse_cont(void) {
+static YAP_Bool p_itrie_traverse_cont(void) {
   TrData data;
 
   /* traverse itrie */
@@ -362,7 +362,7 @@ static int p_itrie_traverse_cont(void) {
 
 /* itrie_remove_entry(+Ref) */
 #define arg_ref   YAP_ARG1
-static int p_itrie_remove_entry(void) {
+static YAP_Bool p_itrie_remove_entry(void) {
   /* check arg */
   if (!YAP_IsIntTerm(arg_ref))
     return FALSE;
@@ -376,7 +376,7 @@ static int p_itrie_remove_entry(void) {
 
 /* itrie_remove_subtree(+Ref) */
 #define arg_ref   YAP_ARG1
-static int p_itrie_remove_subtree(void) {
+static YAP_Bool p_itrie_remove_subtree(void) {
   /* check arg */
   if (!YAP_IsIntTerm(arg_ref))
     return FALSE;
@@ -391,7 +391,7 @@ static int p_itrie_remove_subtree(void) {
 /* itrie_add(+ItrieDest,+ItrieSource) */
 #define arg_itrie_dest   YAP_ARG1
 #define arg_itrie_source YAP_ARG2
-static int p_itrie_add(void) {
+static YAP_Bool p_itrie_add(void) {
   /* check args */
   if (!YAP_IsIntTerm(arg_itrie_dest)) 
     return FALSE;
@@ -409,7 +409,7 @@ static int p_itrie_add(void) {
 /* itrie_subtract(+ItrieDest,+ItrieSource) */
 #define arg_itrie_dest   YAP_ARG1
 #define arg_itrie_source YAP_ARG2
-static int p_itrie_subtract(void) {
+static YAP_Bool p_itrie_subtract(void) {
   /* check args */
   if (!YAP_IsIntTerm(arg_itrie_dest)) 
     return FALSE;
@@ -427,7 +427,7 @@ static int p_itrie_subtract(void) {
 /* itrie_join(+ItrieDest,+ItrieSource) */
 #define arg_itrie_dest   YAP_ARG1
 #define arg_itrie_source YAP_ARG2
-static int p_itrie_join(void) {
+static YAP_Bool p_itrie_join(void) {
   /* check args */
   if (!YAP_IsIntTerm(arg_itrie_dest)) 
     return FALSE;
@@ -445,7 +445,7 @@ static int p_itrie_join(void) {
 /* itrie_intersect(+ItrieDest,+ItrieSource) */
 #define arg_itrie_dest   YAP_ARG1
 #define arg_itrie_source YAP_ARG2
-static int p_itrie_intersect(void) {
+static YAP_Bool p_itrie_intersect(void) {
   /* check args */
   if (!YAP_IsIntTerm(arg_itrie_dest)) 
     return FALSE;
@@ -464,7 +464,7 @@ static int p_itrie_intersect(void) {
 #define arg_itrie1   YAP_ARG1
 #define arg_itrie2   YAP_ARG2
 #define arg_entries YAP_ARG3
-static int p_itrie_count_join(void) {
+static YAP_Bool p_itrie_count_join(void) {
   YAP_Int entries;
 
   /* check args */
@@ -486,7 +486,7 @@ static int p_itrie_count_join(void) {
 #define arg_itrie1   YAP_ARG1
 #define arg_itrie2   YAP_ARG2
 #define arg_entries YAP_ARG3
-static int p_itrie_count_intersect(void) {
+static YAP_Bool p_itrie_count_intersect(void) {
   YAP_Int entries;
 
   /* check args */
@@ -507,7 +507,7 @@ static int p_itrie_count_intersect(void) {
 /* itrie_save(+Itrie,+FileName) */
 #define arg_itrie YAP_ARG1
 #define arg_file  YAP_ARG2
-static int p_itrie_save(void) {
+static YAP_Bool p_itrie_save(void) {
   const char *file_str;
   FILE *file;
 
@@ -535,7 +535,7 @@ static int p_itrie_save(void) {
 /* itrie_save_as_trie(+Itrie,+FileName) */
 #define arg_itrie YAP_ARG1
 #define arg_file  YAP_ARG2
-static int p_itrie_save_as_trie(void) {
+static YAP_Bool p_itrie_save_as_trie(void) {
   const char *file_str;
   FILE *file;
 
@@ -563,7 +563,7 @@ static int p_itrie_save_as_trie(void) {
 /* itrie_load(-Itrie,+FileName) */
 #define arg_itrie YAP_ARG1
 #define arg_file  YAP_ARG2
-static int p_itrie_load(void) {
+static YAP_Bool p_itrie_load(void) {
   TrEntry itrie;
   const char *file_str;
   FILE *file;
@@ -593,7 +593,7 @@ static int p_itrie_load(void) {
 /* itrie_save2stream(+Itrie,+Stream) */
 #define arg_itrie  YAP_ARG1
 #define arg_stream YAP_ARG2
-static int p_itrie_save2stream(void) {
+static YAP_Bool p_itrie_save2stream(void) {
   FILE *file;
 
   /* check args */
@@ -613,7 +613,7 @@ static int p_itrie_save2stream(void) {
 /* itrie_loadFromStream(-Itrie,+Stream) */
 #define arg_itrie  YAP_ARG1
 #define arg_stream YAP_ARG2
-static int p_itrie_loadFromStream(void) {
+static YAP_Bool p_itrie_loadFromStream(void) {
   TrEntry itrie;
   FILE *file;
 
@@ -637,7 +637,7 @@ static int p_itrie_loadFromStream(void) {
 #define arg_tries   YAP_ARG2
 #define arg_entries YAP_ARG3
 #define arg_nodes   YAP_ARG4
-static int p_itrie_stats(void) {
+static YAP_Bool p_itrie_stats(void) {
   YAP_Int memory, tries, entries, nodes;
 
   /* get stats */
@@ -663,7 +663,7 @@ static int p_itrie_stats(void) {
 #define arg_tries   YAP_ARG2
 #define arg_entries YAP_ARG3
 #define arg_nodes   YAP_ARG4
-static int p_itrie_max_stats(void) {
+static YAP_Bool p_itrie_max_stats(void) {
   YAP_Int memory, tries, entries, nodes;
 
   /* get stats */
@@ -689,7 +689,7 @@ static int p_itrie_max_stats(void) {
 #define arg_entries      YAP_ARG2
 #define arg_nodes        YAP_ARG3
 #define arg_virtualnodes YAP_ARG4
-static int p_itrie_usage(void) {
+static YAP_Bool p_itrie_usage(void) {
   YAP_Int entries, nodes, virtualnodes;
 
   /* check arg */
@@ -714,7 +714,7 @@ static int p_itrie_usage(void) {
 
 /* itrie_print(+Itrie) */
 #define arg_itrie YAP_ARG1
-static int p_itrie_print(void) {
+static YAP_Bool p_itrie_print(void) {
   /* check arg */
   if (!YAP_IsIntTerm(arg_itrie))
     return FALSE;

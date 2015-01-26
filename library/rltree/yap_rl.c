@@ -44,7 +44,7 @@ unsigned long int tree_mem=0;
 /*
  */
 static
-int 
+YAP_Bool 
 p_rl_new(void) {
   YAP_Term t1=YAP_Deref(YAP_ARG1);
   YAP_Term t2=YAP_Deref(YAP_ARG2);
@@ -75,7 +75,7 @@ p_rl_new(void) {
  *
  */
 static
-int 
+YAP_Bool 
 p_rl_copy(void) {
   YAP_Term t1=YAP_Deref(YAP_ARG1); // src
   YAP_Term t2=YAP_Deref(YAP_ARG2); // dest
@@ -113,7 +113,7 @@ p_rl_copy(void) {
  *
  */
 static
-int 
+YAP_Bool 
 p_rl_size(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1),t_size;
@@ -139,7 +139,7 @@ p_rl_size(void) {
  *
  */
 static
-int 
+YAP_Bool 
 p_rl_mem_usage(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1);
@@ -153,7 +153,7 @@ p_rl_mem_usage(void) {
 /*
  */
 static
-int 
+YAP_Bool 
 p_rl_free(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1);
@@ -180,7 +180,7 @@ p_rl_free(void) {
  *
  */
 static
-int 
+YAP_Bool 
 p_rl_set_in(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1);
@@ -214,7 +214,7 @@ p_rl_set_in(void) {
  *
  */
 static
-int 
+YAP_Bool 
 p_rl_in(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1);
@@ -243,7 +243,7 @@ p_rl_in(void) {
  *
  */
 static
-int 
+YAP_Bool 
 p_rl_set_out(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1);
@@ -274,7 +274,7 @@ p_rl_set_out(void) {
  *
  */
 static
-int 
+YAP_Bool 
 p_rl_freeze(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1);
@@ -304,7 +304,7 @@ p_rl_freeze(void) {
  *
  */
 static
-int 
+YAP_Bool 
 p_rl_set_all_in(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1);
@@ -336,7 +336,7 @@ p_rl_set_all_in(void) {
  *
  */
 static
-int 
+YAP_Bool 
 p_rl_print(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1);
@@ -372,7 +372,7 @@ yap_back_data_type *back_data;
  *
  */
 static
-int 
+YAP_Bool 
 p_rl_b_in2(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1);
@@ -393,7 +393,7 @@ p_rl_b_in2(void) {
   return (FALSE); 
 }
 static
-int 
+YAP_Bool   
 p_rl_b_in1(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1);

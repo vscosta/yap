@@ -2181,6 +2181,22 @@ c_head(Term t, compiler_struct *cglobs)
      Yap_emit(native_op, 0, 0, &cglobs->cint);
   Yap_emit(ensure_space_op, Zero , Zero, &cglobs->cint);
   cglobs->space_op = cglobs->cint.cpc;
+#ifdef BEAM
+  if (EAM) {
+    Yap_emit(run_op,Zero,(UInt) cglobs->cint.CurrentPred,&cglobs->cint);
+  }
+#endif
+  if (Yap_ExecutionMode == MIXED_MODE || Yap_ExecutionMode == COMPILED)
+#if YAP_JIT
+    Yap_emit(native_op, 0, 0, &cglobs->cint);
+#else
+  {
+    if (Yap_ExecutionMode == MIXED_MODE)
+      Yap_NilError(NOJIT_ERROR, "mixed");
+    else /* Yap_ExecutionMode == COMPILED */
+      Yap_NilError(NOJIT_ERROR, "just compiled");
+  }
+#endif
   c_args(t, 0, cglobs);
 }
 

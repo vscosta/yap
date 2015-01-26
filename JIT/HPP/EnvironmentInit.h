@@ -12,24 +12,25 @@
 
 extern Environment ExpEnv;
 
+extern Environment ExpEnv;
+
 #if YAP_JIT
-Int           STD_PROTO(Get_N_Cores,(void));
-X_API Int     STD_PROTO(Init_Analysis_Struc,(void));
-X_API Int     STD_PROTO(Init_Transform_Struc,(void));
-X_API Int     STD_PROTO(Init_Codegen_Struc,(void));
-X_API Int     STD_PROTO(Init_Config_Struc,(void));
+Int           Get_N_Cores(void);
+X_API Int     Init_Analysis_Struc(void);
+X_API Int     Init_Transform_Struc(void);
+X_API Int     Init_Codegen_Struc(void);
+X_API Int     Init_Config_Struc(void);
 #if YAP_STAT_PREDS
-X_API Int     STD_PROTO(Init_Stats_Struc, (void));
+X_API Int     Init_Stats_Struc(void);
 #endif
 #endif /* YAP_JIT */
 #if YAP_DBG_PREDS
-X_API Int     STD_PROTO(Init_Debug_Struc,(void));
+X_API Int     Init_Debug_Struc(void);
 #endif
-X_API Int     STD_PROTO(YAP_Init_ExpEnv,(void));
+X_API Int     YAP_Init_ExpEnv(void);
 
 #if YAP_JIT
-Int
-Get_N_Cores() {
+IntGet_N_Cores() {
 #ifdef WIN32
     SYSTEM_INFO sysinfo;
     GetSystemInfo(&sysinfo);
@@ -39,11 +40,11 @@ Get_N_Cores() {
     size_t len = 4;
     uint32_t count;
 
-    nm[0] = CTL_HW; nm[1] = HRW_AVAILCPU;
+    nm[0] = CTL_HW; nm[1] = HW_AVAILCPU;
     sysctl(nm, 2, &count, &len, NULL, 0);
 
     if(count < 1) {
-        nm[1] = HRW_NCPU;
+        nm[1] = HW_NCPU;
         sysctl(nm, 2, &count, &len, NULL, 0);
         if(count < 1) { count = 1; }
     }
@@ -74,7 +75,7 @@ Init_Transform_Struc()
   ExpEnv.transform_struc.act_tr = NULL;
   ExpEnv.transform_struc.opt_args.arg_promotion_max_elements = 3;
   ExpEnv.transform_struc.opt_args.strip_symbols_pass_type = 0;
-  ExpEnv.transform_struc.opt_args.scalar_replace_aggregates_threshold = -1; 
+  ExpEnv.transform_struc.opt_args.scalar_replace_aggregates_threshold = -1;
   ExpEnv.transform_struc.opt_args.loop_unswitch_optimize_for_size = 0;
   ExpEnv.transform_struc.opt_args.loop_unroll_threshold = -1;
   ExpEnv.transform_struc.opt_args.inline_threshold = 225;
@@ -102,7 +103,7 @@ Init_Codegen_Struc()
   ExpEnv.codegen_struc.struc_targetopt.disabletailcalls = 0;
   ExpEnv.codegen_struc.struc_targetopt.fastisel = 0;
   ExpEnv.codegen_struc.struc_targetopt.floatabitype = 0;
-  
+
   ExpEnv.codegen_struc.struc_enginebuilder.engineoptlevel = 3;
   ExpEnv.codegen_struc.struc_enginebuilder.relocmodel = 0;
   ExpEnv.codegen_struc.struc_enginebuilder.codemodel = 1;
@@ -174,15 +175,15 @@ Init_Debug_Struc()
   ExpEnv.debug_struc.pmainclause_on_head.print = (Int)NO_PLACE;
   ExpEnv.debug_struc.pmainclause_on_head.msg_before = 0;
   ExpEnv.debug_struc.pmainclause_on_head.msg_after = 0;
-  
+
   ExpEnv.debug_struc.pprint_intermediate.print_to_std = 0;
   ExpEnv.debug_struc.pprint_intermediate.print_to_file = 0;
   ExpEnv.debug_struc.pprint_intermediate.std_name = 0;
   ExpEnv.debug_struc.pprint_intermediate.file_name = 0;
-  
+
   ExpEnv.debug_struc.pprint_llva.print_llva_before = 0;
   ExpEnv.debug_struc.pprint_llva.print_llva_after = 0;
-  
+
   ExpEnv.debug_struc.pprint_me.interpreted_backtrack = 0;
   ExpEnv.debug_struc.pprint_me.profiled_interpreted_backtrack = 0;
   ExpEnv.debug_struc.pprint_me.native_backtrack = 0;
@@ -196,16 +197,16 @@ Init_Debug_Struc()
   ExpEnv.debug_struc.pprint_me.nativerun_init = 0;
   ExpEnv.debug_struc.pprint_me.nativerun_exit_by_success = 0;
   ExpEnv.debug_struc.pprint_me.nativerun_exit_by_fail = 0;
-  
+
   ExpEnv.debug_struc.act_predicate_msgs.info_msgs = 0;
   ExpEnv.debug_struc.act_predicate_msgs.success_msgs = 0;
   ExpEnv.debug_struc.act_predicate_msgs.warning_msgs = 1;
   ExpEnv.debug_struc.act_predicate_msgs.error_msgs = 1;
-  
+
   ExpEnv.debug_struc.act_predicate_actions.exit_on_warning = 0;
   ExpEnv.debug_struc.act_predicate_actions.disable_on_warning = 1;
   ExpEnv.debug_struc.act_predicate_actions.exit_on_error = 1;
-  
+
   return TRUE;
 }
 #endif

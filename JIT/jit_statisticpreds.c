@@ -15,7 +15,10 @@
 * Last rev:     2013-10-18                               		 *
 *************************************************************************/
 
-#include "jit_predicates.hh"
+#include "jit_predicates.hpp"
+
+#if YAP_STAT_PREDS
+
 #include <papi.h>
 
 static Int  p_init_low_level_stats( USES_REGS1 );
@@ -555,6 +558,7 @@ p_statistics_jit( USES_REGS1 )
     fprintf(stderr, "------------------------------\n");
   }
 
+#if YAP_STAT_PREDS
   // From this point until the end we do:
   //   1. We verify if PAPI was initialized (ExpEnv.stats_struc.papi_initialized). If yes, we do:
   //   2. We verify what event type was used. Based on this, we alloc memory for 'ExpEnv.stats_struc.papi_values'
@@ -823,6 +827,7 @@ p_statistics_jit( USES_REGS1 )
     }
 
     fprintf(stderr, "------------------------------\n");
+#endif
   }
 
   return TRUE;
@@ -830,9 +835,13 @@ p_statistics_jit( USES_REGS1 )
 
 #pragma GCC diagnostic pop
 
+#endif
+
 void
 Yap_InitJitStatisticPreds(void)
 {
+#if YAP_STAT_PREDS
   Yap_InitCPred("init_low_level_stats", 1, p_init_low_level_stats, SafePredFlag);
   Yap_InitCPred("statistics_jit", 0, p_statistics_jit, SafePredFlag);
+#endif
 }

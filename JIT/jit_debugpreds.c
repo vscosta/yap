@@ -15,7 +15,9 @@
 * Last rev:     2013-10-18                               		 *
 *************************************************************************/
 
-#include "jit_predicates.hh"
+#include "jit_predicates.hpp"
+
+#if YAP_DBG_PREDS
 
 static Int  p_no_print_instruction( USES_REGS1 );
 static Int  p_no_print_basic_instruction( USES_REGS1 );
@@ -117,6 +119,7 @@ static Int  p_no_exit_on_warning( USES_REGS1 );
 static Int  p_enable_on_warning( USES_REGS1 );
 static Int  p_no_exit_on_error( USES_REGS1 );
 
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
 
@@ -131,7 +134,7 @@ p_no_print_instruction( USES_REGS1 )
 	  if (IsAtomTerm(u)) {
         int i = 0, j = 0;
 		char *tmp;
-        char *str = (char*)malloc(YAP_AtomNameLength(AtomOfTerm(u))*sizeof(char));
+		char *str = (char*)malloc((YAP_AtomNameLength(AtomOfTerm(u))+1)*sizeof(char));
         strcpy(str, AtomName(AtomOfTerm(u)));
 	    UPPER_ENTRY(str);
 	    char *strop = (char*)malloc(100*sizeof(char));
@@ -145,7 +148,7 @@ p_no_print_instruction( USES_REGS1 )
           ExpEnv.debug_struc.pyaam_##OP.msg_before = 0; \
           ExpEnv.debug_struc.pyaam_##OP.msg_after = 0; \
         }
-        #include "YapAppliedOpcodes.h"
+        #include "YapOpcodes.h"
         #undef OPCODE
         else {
           Yap_Error(OUT_OF_KNOWNRANGE_ERROR,u,"");
@@ -2371,9 +2374,12 @@ p_no_exit_on_error( USES_REGS1 )
 
 #pragma GCC diagnostic pop
 
+#endif
+
 void
 Yap_InitJitDebugPreds( USES_REGS1 )
 {
+#if YAP_DBG_PREDS
   Yap_InitCPred("no_print_instruction", 1, p_no_print_instruction, SafePredFlag);
   Yap_InitCPred("no_print_basic_instruction", 1, p_no_print_basic_instruction, SafePredFlag);
   Yap_InitCPred("no_print_std_instruction", 1, p_no_print_std_instruction, SafePredFlag);
@@ -2473,4 +2479,6 @@ Yap_InitJitDebugPreds( USES_REGS1 )
   Yap_InitCPred("no_exit_on_warning", 0, p_no_exit_on_warning, SafePredFlag);
   Yap_InitCPred("enable_on_warning", 0, p_enable_on_warning, SafePredFlag);
   Yap_InitCPred("no_exit_on_error", 0, p_no_exit_on_error, SafePredFlag);
+#endif
+
 }

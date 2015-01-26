@@ -72,37 +72,49 @@ extern Environment ExpEnv;
 extern NativeContext *NativeArea;
 
 class JIT_Compiler {
-  private:
-    /* main method of JIT Compiler: compiles by clang, analyzes, optimizs and generates code accordingly the user choices */
-    void*       compile_all(LLVMContext* &Context, yamop* p);
+      private:
+        /* main method of JIT Compiler: compiles by clang, analyzes, optimizs and generates code accordingly the user choices */
+        void*       compile_all(LLVMContext* &Context, yamop* p);
 
-    /* aid method to 'compile_all': adds register allocator pass to be used.
-       WARNING: don't use! For some reasons llvm crashes when I use it */
-    void        set_regalloc_pass(PassManager &PM);
+        /* aid method to 'compile_all': adds register allocator pass to be used.
+           WARNING: don't use! For some reasons llvm crashes when I use it */
+        void        set_regalloc_pass(PassManager &PM);
 
-    /* aid method to 'compile_all': optimizes module by individual transform passes or transform level */
-    void        optimize_module(llvm::Module* &M);
+        /* aid method to 'compile_all': optimizes module by individual transform passes or transform level */
+        void        optimize_module(llvm::Module* &M);
 
-    /* aid method to 'compile_all': analyzes module by individual analysis passes */
-    void        analyze_module(llvm::Module* &M);
-  public:
-    /* method invoked by wrapper 'call_JIT_Compiler' */
-    void*       compile(yamop*);
-};
-#else
+        /* aid method to 'compile_all': analyzes module by individual analysis passes */
+        void        analyze_module(llvm::Module* &M);
+      public:
+        /* method invoked by wrapper 'call_JIT_Compiler' */
+        void*       compile(yamop*);
+    };
+    #else
 
-struct JIT_Compiler{}; // Doing this, I can call class 'JIT_Compiler' from C code
+    struct JIT_Compiler{}; // Doing this, I can call class 'JIT_Compiler' from C code
 
-#endif
+    #endif
 
-#ifdef __cplusplus
-
-
-extern "C" void* call_JIT_Compiler(JIT_Compiler* jc, yamop* p);
-extern "C" void shutdown_llvm();
+    #ifdef __cplusplus
 
 extern "C" void* call_JIT_Compiler(JIT_Compiler* jc, yamop* p) { return jc->compile(p); }
+
 extern "C" void shutdown_llvm() { llvm_shutdown(); }
+
+#else
+
+INLINE_ONLY inline EXTERN void* call_JIT_Compiler(struct JIT_Compiler* jc, yamop* p);
+
+extern void* (*Yap_JitCall)(struct JIT_Compiler* jc, yamop* p);
+
+
+INLINE_ONLY inline EXTERN void* call_JIT_Compiler(struct JIT_Compiler* jc, yamop* p) {  return Yap_JitCall (jc,p); }
+
+INLINE_ONLY inline EXTERN void shutdown_llvm(void ) ;
+
+EXTERN void (* Yap_llvmShutdown)(void ) ;
+
+INLINE_ONLY inline EXTERN void shutdown_llvm(void ) {  Yap_llvmShutdown (); }
 
 #endif //#ifdef __cplusplus
 

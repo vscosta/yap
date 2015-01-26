@@ -76,13 +76,13 @@ Yap_PrintPredName( PredEntry *ap )
 int Yap_HandleError( const char *s, ... ) {
   CACHE_REGS
     yap_error_number err = LOCAL_Error_TYPE;
-  char *serr;
+  const char *serr;
 
   LOCAL_Error_TYPE = YAP_NO_ERROR;
   if (LOCAL_ErrorMessage) {
     serr = LOCAL_ErrorMessage;
   } else {
-    serr = (char *)s;
+    serr = s;
   }
   switch (err) {
   case OUT_OF_STACK_ERROR:
@@ -530,7 +530,7 @@ Yap_bug_location(yamop *pc)
 static char tmpbuf[YAP_BUF_SIZE];
 
 yamop *
-Yap_NilError(yap_error_number type, char *format,...)
+Yap_NilError(yap_error_number type, const char *format,...)
 {
   va_list ap;
   yamop *res;
@@ -544,7 +544,7 @@ Yap_NilError(yap_error_number type, char *format,...)
 }
 
 yamop *
-Yap_Error(yap_error_number type, Term where, char *format,...)
+Yap_Error(yap_error_number type, Term where, const char *format,...)
 {
   CACHE_REGS
   va_list ap;
