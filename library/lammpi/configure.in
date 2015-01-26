@@ -38,7 +38,7 @@ if test "$yap_cv_mpi" != "no" -a "$INSTALL_DLLS" != "no"; then
     if test "$yap_cv_mpi" != "yes"; then
       AC_PATH_PROG(MPI_CC,mpicc,"$CC",$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin:/usr/lib64/openmpi/bin:/usr/lib/openmpi/bin)
     else
-      AC_PATH_PROG(MPI_CC,mpicc,"$CC",$yap_cv_mpi/bin:$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin:/usr/lib/openmpi/bin:/usr/lib/openmpi/bin)
+      AC_PATH_PROG(MPI_CC,mpicc,"$CC",$yap_cv_mpi/bin:$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin:/usr/lib64/openmpi/bin:/usr/lib/openmpi/bin)
     fi
     MPILDF=`"$MPI_CC" --showme:link`
     MPICF=`"$MPI_CC" --showme:compile`

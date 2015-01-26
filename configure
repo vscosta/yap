@@ -16848,7 +16848,7 @@ else
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-as_dummy="$yap_cv_mpi/bin:$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin:/usr/lib/openmpi/bin:/usr/lib/openmpi/bin"
+as_dummy="$yap_cv_mpi/bin:$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin:/usr/lib64/openmpi/bin:/usr/lib/openmpi/bin"
 for as_dir in $as_dummy
 do
   IFS=$as_save_IFS
