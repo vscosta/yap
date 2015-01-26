@@ -218,8 +218,9 @@ HEADERS = \
 	OPTYap/locks_alpha_funcs.h \
 	OPTYap/locks_pthread.h \
 	library/dialect/swi/fli/swi.h \
-	JIT/HPP/JIT.hh 	JIT/HPP/JIT_Compiler.hh \
-    JIT/HPP/jit_predicates.hh
+	JIT/HPP/JIT.hpp \
+	JIT/HPP/JIT_Compiler.hpp \
+	JIT/HPP/jit_predicates.hpp
 
 IOLIB_SOURCES=os/pl-buffer.c os/pl-ctype.c \
 	os/pl-codelist.c \
