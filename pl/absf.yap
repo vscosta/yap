@@ -396,8 +396,11 @@ absolute_file_name(File0,File) :-
 	is_absolute_file_name(File), !.
 '$extend_path_directory'(Name, D, File, Opts, NewFile, Call) :-
 	user:file_search_path(Name, IDirs),
-        ( atom(IDirs) ->
-	  '$split_by_sep'(0, 0, IDirs, Dir)
+	(
+	 '$extend_path_directory'(IDirs, D, File, Opts, NewFile, Call)
+	;
+         atom(IDirs) ->
+	 '$split_by_sep'(0, 0, IDirs, Dir)
 	;
 	   Dir = IDirs
 	),
