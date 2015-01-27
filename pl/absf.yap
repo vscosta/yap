@@ -124,7 +124,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 /**
   @pred absolute_file_name(+Name:atom,+Path:atom) is nondet
 
-  Converts the given file specification into an absolute path, using default options. See absolute_file_name/3 for details on the options.
+11  Converts the given file specification into an absolute path, using default options. See absolute_file_name/3 for details on the options.
 */
 
 absolute_file_name(V,Out) :- var(V), !,	% absolute_file_name needs commenting.
@@ -396,6 +396,7 @@ absolute_file_name(File0,File) :-
 	is_absolute_file_name(File), !.
 '$extend_path_directory'(Name, D, File, Opts, NewFile, Call) :-
 	user:file_search_path(Name, IDirs),
+	ground(IDirs),
 	(
 	 '$extend_path_directory'(IDirs, D, File, Opts, NewFile, Call)
 	;
