@@ -262,7 +262,7 @@ term_to_cudd(DdManager *manager, YAP_Term t)
   return NULL;
 }
 
-static int
+static YAP_Bool
 p_term_to_cudd(void)
 {
   DdManager *manager;
@@ -417,7 +417,7 @@ term_to_add(DdManager *manager, YAP_Term t)
   return NULL;
 }
 
-static int
+static YAP_Bool
 p_term_to_add(void)
 {
   DdManager *manager = Cudd_Init(0,0,CUDD_UNIQUE_SLOTS,CUDD_CACHE_SLOTS,0);
@@ -431,16 +431,16 @@ p_term_to_add(void)
     YAP_Unify(YAP_ARG4, YAP_MkIntTerm((YAP_Int)t));    
 }
 
-static int complement(int i)
+static YAP_Bool complement(int i)
 {
   return i == 0 ? 1 : 0;
 }
 
-static int var(DdManager *manager, DdNode *n, YAP_Int *vals ) {
+static YAP_Bool var(DdManager *manager, DdNode *n, YAP_Int *vals ) {
   return (int)vals[Cudd_ReadPerm(manager,Cudd_NodeReadIndex(n))];
 }
 
-static int
+static YAP_Bool
 cudd_eval(DdManager *manager, DdNode *n, YAP_Int *vals )
 {
   if (Cudd_IsConstant(n)) {
@@ -461,7 +461,7 @@ cudd_eval(DdManager *manager, DdNode *n, YAP_Int *vals )
   }
 }
 
-static int
+static YAP_Bool
 cudd_eval_top(DdManager *manager, DdNode *n, YAP_Int *vals )
 {
   if (Cudd_IsComplement(n)) {
@@ -471,7 +471,7 @@ cudd_eval_top(DdManager *manager, DdNode *n, YAP_Int *vals )
   }
 }
 
-static int
+static YAP_Bool
 p_eval_cudd(void)
 {
   DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
@@ -511,7 +511,7 @@ add_eval(DdManager *manager, DdNode *n, YAP_Int *vals )
   }
 }
 
-static int
+static YAP_Bool
 p_eval_add(void)
 {
   DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
@@ -604,7 +604,7 @@ get_vars(YAP_Term t3)
   return YAP_ArityOfFunctor(YAP_FunctorOfTerm(t3));
 }
 
-static int
+static YAP_Bool
 p_cudd_to_term(void)
 {
   DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
@@ -674,7 +674,7 @@ build_prolog_add(DdManager *manager, DdNode *n, YAP_Term *ar, hash_table_entry *
   }
 }
 
-static int
+static YAP_Bool
 p_add_to_term(void)
 {
   DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
@@ -716,7 +716,7 @@ p_add_to_term(void)
   return YAP_Unify(YAP_ARG4, t);
 }
 
-static int
+static YAP_Bool
 p_cudd_size(void)
 {
   DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
@@ -784,7 +784,7 @@ build_sp_cudd(DdManager *manager, DdNode *n, double *ar, hash_table_entry_dbl *h
   }
 }
 
-static int
+static YAP_Bool
 p_cudd_to_p(void)
 {
   DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
@@ -819,7 +819,7 @@ p_cudd_to_p(void)
   return YAP_Unify(YAP_ARG4, YAP_MkFloatTerm(p));
 }
 
-static int
+static YAP_Bool
 p_cudd_print(void)
 {
   DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
@@ -836,7 +836,7 @@ p_cudd_print(void)
   return TRUE;
 }
 
-static int
+static YAP_Bool
 p_cudd_die(void)
 {
   DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
@@ -844,7 +844,7 @@ p_cudd_die(void)
   return TRUE;
 }
 
-static int
+static YAP_Bool
 p_cudd_release_node(void)
 {
   DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);

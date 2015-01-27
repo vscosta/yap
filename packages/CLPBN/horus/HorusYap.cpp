@@ -41,7 +41,7 @@ typedef std::pair<ParfactorList*, ObservedFormulas*> LiftedNetwork;
 
 
 
-int
+static YAP_Bool
 createLiftedNetwork()
 {
   Parfactors parfactors;
@@ -79,7 +79,7 @@ createLiftedNetwork()
 
 
 
-int
+static YAP_Bool
 createGroundNetwork()
 {
   std::string factorsType ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG1)));
@@ -135,7 +135,7 @@ createGroundNetwork()
 
 
 
-int
+static YAP_Bool
 runLiftedSolver()
 {
   LiftedNetwork* network = (LiftedNetwork*) YAP_IntOfTerm (YAP_ARG1);
@@ -193,7 +193,7 @@ runLiftedSolver()
 
 
 
-int
+static YAP_Bool
 runGroundSolver()
 {
   FactorGraph* fg = (FactorGraph*) YAP_IntOfTerm (YAP_ARG1);
@@ -244,7 +244,7 @@ runGroundSolver()
 
 
 
-int
+static YAP_Bool
 setParfactorsParams()
 {
   LiftedNetwork* network = (LiftedNetwork*) YAP_IntOfTerm (YAP_ARG1);
@@ -271,7 +271,7 @@ setParfactorsParams()
 
 
 
-int
+static YAP_Bool
 setFactorsParams()
 {
   FactorGraph* fg = (FactorGraph*) YAP_IntOfTerm (YAP_ARG1);
@@ -297,7 +297,7 @@ setFactorsParams()
 
 
 
-int
+static YAP_Bool
 setVarsInformation()
 {
   Var::clearVarsInfo();
@@ -327,7 +327,7 @@ setVarsInformation()
 
 
 
-int
+static YAP_Bool
 setHorusFlag()
 {
   std::string option ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG1)));
@@ -352,7 +352,7 @@ setHorusFlag()
 
 
 
-int
+static YAP_Bool
 freeGroundNetwork()
 {
   delete (FactorGraph*) YAP_IntOfTerm (YAP_ARG1);
@@ -361,7 +361,7 @@ freeGroundNetwork()
 
 
 
-int
+static YAP_Bool
 freeLiftedNetwork()
 {
   LiftedNetwork* network = (LiftedNetwork*) YAP_IntOfTerm (YAP_ARG1);
@@ -547,7 +547,7 @@ fillSolutionList (const std::vector<Params>& results)
     const Params& beliefs = results[i];
     YAP_Term queryBeliefsL = YAP_TermNil();
     for (size_t j = beliefs.size(); j-- > 0; ) {
-      YAP_Int sl       = YAP_InitSlot (list);
+      YAP_Int  sl       = YAP_InitSlot (list);
       YAP_Term belief  = YAP_MkFloatTerm (beliefs[j]);
       queryBeliefsL    = YAP_MkPairTerm (belief, queryBeliefsL);
       list             = YAP_GetFromSlot (sl);

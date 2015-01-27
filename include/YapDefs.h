@@ -20,12 +20,23 @@
 
 #include <stdlib.h>
 
+#ifdef YAP_H
+
 /* The YAP main types */
 #include "YapTerm.h"
+
+#else
+
+#include "config.h"
+
+#endif /* YAP_H */
 
 /* truth-values */
 /* stdbool defines the booleam type, bool,
    and the constants false and true */
+#if HAVE_STDINT_H
+#include <stdint.h>
+#endif
 #if HAVE_STDBOOL_H
 #include <stdbool.h>
 #else
@@ -48,6 +59,9 @@ typedef int _Bool;
 #endif
 #ifndef FALSE
 #define	 FALSE	false
+#endif
+#ifndef YAP_Bool
+typedef bool YAP_Bool;
 #endif
 
 #ifdef YAP_H
@@ -72,8 +86,6 @@ typedef int _Bool;
 
 #define YAP_Float Float
 
-#define YAP_Bool bool
-
 #define YAP_handle_t  yhandle_t
 
 #define YAP_PredEntryPtr struct pred_entry *
@@ -91,8 +103,6 @@ typedef unsigned long long YAP_CELL;
 #else
 typedef uintptr_t YAP_CELL;  
 #endif
-
-typedef bool YAP_Bool;
 
 typedef YAP_CELL YAP_Term;
 
@@ -135,7 +145,6 @@ typedef int  (*YAP_agc_hook)(void *_Atom);
 #include "YapError.h"
 
 #endif
-
 
 typedef struct YAP_thread_attr_struct {
   size_t		    ssize;

@@ -15,6 +15,8 @@
 
 #ifndef YAP_H
 #include "YapTermConfig.h"
+#include "config.h"
+
 
 #if HAVE_STDINT_H
 #include <stdint.h>

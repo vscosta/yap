@@ -46,9 +46,9 @@ NORET       quit(const char *);
 NORET       myquit(int, const char *);
 
 /* unify.c */
-int         unify(TERM, TERM);
-int         is_UNIFIABLE(TERM, TERM);
-int         is_IDENTICAL(TERM, TERM);
+int          unify(TERM, TERM);
+int          is_UNIFIABLE(TERM, TERM);
+int          is_IDENTICAL(TERM, TERM);
 
 /* prism.c */
 NORET       bp4p_quit(int);

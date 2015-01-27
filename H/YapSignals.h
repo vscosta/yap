@@ -74,7 +74,9 @@ typedef enum
 #define	Yap_has_signal(S) Yap_has_signal__(S PASS_REGS)
 #define	Yap_only_has_signal(S) Yap_only_has_signal__(S PASS_REGS)
 
-inline static uint64_t
+INLINE_ONLY inline EXTERN uint64_t SIGNAL_TO_BIT( yap_signals sig);
+
+INLINE_ONLY inline EXTERN uint64_t
 SIGNAL_TO_BIT( yap_signals sig)
 {
   return ((uint64_t)1 << (sig-1));
