@@ -16880,8 +16880,9 @@ fi
     fi
     MPILDF=`"$MPI_CC" --showme:link`
     MPICF=`"$MPI_CC" --showme:compile`
-    LIBS="$LIBS $MPILDF"
-    PKG_MPI="library/mpi"
+    MPILIBDIRS=`"$MPI_CC" --showme:libdirs`
+    LIBS+=" $MPILDF"
+    PKG_MPI="library/lammpi library/mpi"
     OLD_CC=${CC}
     CC=${MPI_CC}
     for ac_header in mpi.h
@@ -16896,6 +16897,11 @@ fi
 
 done
 
+     case "$target_os" in
+     	  *linux*)
+	      for dir in "$MPILIBDIRS"; do LIBS+=" -Wl,-rpath=$dir"; done
+    ;;
+     esac
     CC=${OLD_CC}
     if test "$yap_cv_mpe" != "no"
     then
@@ -16949,7 +16955,7 @@ fi
 
      if test "$ac_cv_lib_mpe_MPE_Init_log" = yes
      then
-	MPI_1LIBS="-lmpe"
+	LIBS="-lmpe"
 	MPI_OBJS="$MPI_OBJS mpe.o"
      fi
      for ac_header in mpe.h
@@ -16970,6 +16976,7 @@ else
   PKG_MPI=""
   MPI_CC=${CC}
 fi
+
 
 
 
