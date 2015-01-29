@@ -215,7 +215,7 @@ TrNode   replace_nested_trie(TrNode node, TrNode child, YAP_Term new_term, void 
 void     check_attach_childs(TrNode parent, TrNode search_child, TrNode existing_child, void (*construct_function)(TrNode), void (*destruct_function)(TrNode));
 TrNode   get_simplification_sibling(TrNode node);
 TrNode   check_parent_first(TrNode node);
-//TrNode   TrNode_myparent(TrNode node);
+TrNode   TrNode_myparent(TrNode node);
 
 /* -------------------------- */
 /*       Debug Procedures     */
@@ -411,6 +411,7 @@ TrNode replace_nested_trie(TrNode node, TrNode child, YAP_Term new_term, void (*
       temp = TrNode_next(temp);
     }
   }
+  DATA_DESTRUCT_FUNCTION = destruct_function;
   TrNode_child(child) = NULL;
   remove_entry(child);
   return newnode;
@@ -538,24 +539,24 @@ TrNode get_simplification_sibling(TrNode node) {
 
 TrNode check_parent_first(TrNode node) {
   TrNode simplification;
-  if (TrNode_entry(TrNode_parent(node)) != PairInitTag) {
-    simplification = check_parent_first(TrNode_parent(node));
+  if (TrNode_entry(TrNode_myparent(node)) != PairInitTag) {
+    simplification = check_parent_first(TrNode_myparent(node));
     if (simplification != NULL && TrNode_entry(simplification) == PairEndTag) return simplification;
   }
   simplification = get_simplification_sibling(node);
   return simplification;
 }
 
-/*TrNode TrNode_myparent(TrNode node) {
+TrNode TrNode_myparent(TrNode node) {
   TrNode parent = TrNode_parent(node);
   while (parent != NULL && IS_FUNCTOR_NODE(parent))
     parent = TrNode_parent(parent);
   return parent;
-}*/
+}
 
 TrNode core_simplification_reduction(TrEngine engine, TrNode node, void (*destruct_function)(TrNode)) {
   /* Try to find the greatest parent that has a sibling that is a PairEndTag: this indicates a deep simplification */
-  node = check_parent_first(TrNode_parent(node));
+  node = check_parent_first(TrNode_myparent(node));
   if (node != NULL) {
     /* do breadth reduction simplification */
     node = TrNode_parent(node);
@@ -631,6 +632,7 @@ TrNode core_depth_reduction(TrEngine engine, TrNode node, TrNode depth_node, YAP
   INCREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
   temp = TrNode_parent(leaf);
   remove_child_nodes(TrNode_child(temp));
+  TrNode_child(temp) = NULL;
   remove_entry(temp);
   return node;
 }
@@ -774,6 +776,7 @@ TrNode core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node,
     /* termination condition */
     core_set_trie_db_return_term(get_return_node_term(TrNode_child(node)));
     node = TrNode_parent(node);
+    DATA_DESTRUCT_FUNCTION = destruct_function;
     remove_child_nodes(TrNode_child(node));
     TrNode_child(node) = NULL;
     return NULL;
