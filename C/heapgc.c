@@ -44,11 +44,11 @@ static void mark_external_reference(CELL * CACHE_TYPE);
 static void mark_db_fixed(CELL *  CACHE_TYPE);
 static void mark_regs(tr_fr_ptr CACHE_TYPE);
 static void mark_trail(tr_fr_ptr, tr_fr_ptr, CELL *, choiceptr CACHE_TYPE);
-static void mark_environments(CELL *, OPREG, CELL * CACHE_TYPE);
+static void mark_environments(CELL *, size_t, CELL * CACHE_TYPE);
 static void mark_choicepoints(choiceptr, tr_fr_ptr, int CACHE_TYPE);
 static void into_relocation_chain(CELL *, CELL * CACHE_TYPE);
 static void sweep_trail(choiceptr, tr_fr_ptr CACHE_TYPE);
-static void sweep_environments(CELL *, OPREG, CELL * CACHE_TYPE);
+static void sweep_environments(CELL *, size_t, CELL * CACHE_TYPE);
 static void sweep_choicepoints(choiceptr CACHE_TYPE);
 static void compact_heap( CACHE_TYPE1 );
 static void update_relocation_chain(CELL *, CELL * CACHE_TYPE);
@@ -446,8 +446,17 @@ push_registers(Int num_regs, yamop *nextop USES_REGS)
   TrailTerm(TR+1) = LOCAL_AttsMutableList;
   TR += 2;
 #endif
+  {
+    CELL *curslot = LOCAL_SlotBase,
+      *topslot = LOCAL_SlotBase + LOCAL_CurSlot;
+    while (curslot < topslot) {
+      // printf("%p <- %p\n", TR, topslot);
+      check_pr_trail(TR PASS_REGS);    
+      TrailTerm(TR++) = *curslot++;
+    }
+  }
   for (i = 1; i <= num_regs; i++) {
-    check_pr_trail(TR PASS_REGS);
+    check_pr_trail(TR PASS_REGS);    
     TrailTerm(TR++) = (CELL) XREGS[i];
   }
   /* push any live registers we might have hanging around */
@@ -544,6 +553,16 @@ pop_registers(Int num_regs, yamop *nextop USES_REGS)
   LOCAL_AttsMutableList = TrailTerm(ptr++);
 #endif
 #endif
+
+  // copy slots back
+  {
+    CELL *curslot = LOCAL_SlotBase,
+      *topslot = LOCAL_SlotBase + LOCAL_CurSlot;
+    while (curslot < topslot) {
+      *curslot++ = TrailTerm(ptr++);
+    }
+  }
+
   for (i = 1; i <= num_regs; i++)
     XREGS[i] = TrailTerm(ptr++);
   /* pop any live registers we might have hanging around */
@@ -1553,14 +1572,14 @@ mark_regs(tr_fr_ptr old_TR USES_REGS)
 /* mark all heap objects accessible from a chain of environments */
 
 static void 
-mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap USES_REGS)
+mark_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
 {
   CELL_PTR        saved_var;
   while (gc_ENV != NULL) {	/* no more environments */
     Int bmap = 0;
     int currv = 0;
 
-    // printf("MARK %p--%p\n", gc_ENV, gc_ENV-size);
+    //fprintf(stderr,"ENV %p %ld\n", gc_ENV, size);    
 #ifdef DEBUG
     if (size <  0 || size > 512)
       fprintf(stderr,"OOPS in GC: env size for %p is " UInt_FORMAT "\n", gc_ENV, (CELL)size);
@@ -1706,7 +1725,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	RESET_VARIABLE(&TrailVal(trail_base));
 #endif
       } else if (hp < (CELL *)LOCAL_GlobalBase || hp > (CELL *)LOCAL_TrailTop) {
-	  /*  pointers from the Heap back into the trail are process in mark_regs.  */
+	/*  pointers from the Heap back into the trail are process in mark_regs.  */
 	/* do nothing !!! */
       } else if ((hp < (CELL *)gc_B && hp >= gc_H) || hp > (CELL *)LOCAL_TrailBase) {
 	/* clean the trail, avoid dangling pointers! */
@@ -1916,24 +1935,6 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #endif /* TABLING */
 
 
-static void
-mark_slots( USES_REGS1 )
-{
-  Int curslot = LOCAL_CurSlot;
-  while (curslot) {
-    CELL *ptr = LCL0-curslot;
-    Int ns = IntegerOfTerm(ptr[-1]);
-    curslot = IntegerOfTerm(ptr[0]);
-    ptr-=2;
-    while (ns > 0) {
-      mark_external_reference(ptr PASS_REGS);
-      ptr--;
-      ns--;
-    }
-  }
-}
-
-
 #ifdef TABLING
 static choiceptr
 youngest_cp(choiceptr gc_B, dep_fr_ptr *depfrp)
@@ -1980,6 +1981,10 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose 
     register OPCODE op;
     yamop *rtp = gc_B->cp_ap;
 
+    /* if (gc_B->cp_ap) */
+    /*   fprintf(stderr,"B %p->%p %s\n", gc_B, gc_B->cp_b, Yap_op_names[Yap_op_from_opcode(gc_B->cp_ap->opc)]) ; */
+    /* else */
+    /*   fprintf(stderr,"B %p->%p\n", gc_B, gc_B->cp_b); */
     mark_db_fixed((CELL *)rtp PASS_REGS);
 #ifdef DETERMINISTIC_TABLING
     if (!IS_DET_GEN_CP(gc_B))
@@ -2866,7 +2871,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS)
  */
 
 static void 
-sweep_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap USES_REGS)
+sweep_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
 {
   CELL_PTR        saved_var;
 
@@ -2925,29 +2930,6 @@ sweep_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap USES_REGS)
     pvbmap = EnvBMap((yamop *) (gc_ENV[E_CP]));
     gc_ENV = (CELL_PTR) gc_ENV[E_E];	/* link to prev
 					 * environment */
-  }
-}
-
-static void
-sweep_slots( USES_REGS1 )
-{
-  Int curslot = LOCAL_CurSlot;
-  while (curslot) {
-    CELL *ptr = LCL0-curslot;
-    Int ns = IntOfTerm(ptr[-1]);
-    curslot = IntegerOfTerm(ptr[0]);
-    ptr-=2;
-    while (ns > 0) {
-      CELL cp_cell = *ptr;
-      if (MARKED_PTR(ptr)) {
-	UNMARK(ptr);
-	if (HEAP_PTR(cp_cell)) {
-	  into_relocation_chain(ptr, GET_NEXT(cp_cell) PASS_REGS);
-	}
-      }
-      ptr--;
-      ns--;
-    }
   }
 }
 
@@ -3816,7 +3798,6 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp USES_REGS)
   LOCAL_cont_top = (cont *)LOCAL_db_vec;
   /* These two must be marked first so that our trail optimisation won't lose
      values */
-  mark_slots( PASS_REGS1 );
   mark_regs(old_TR PASS_REGS);		/* active registers & trail */
   /* active environments */
   mark_environments(current_env, EnvSize(curp), EnvBMap(curp) PASS_REGS);
@@ -3869,7 +3850,6 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp USES_REGS)
       sweep_oldgen(LOCAL_HGEN, CurrentH0 PASS_REGS);
     }
   }
-  sweep_slots( PASS_REGS1 );
   sweep_environments(current_env, EnvSize(curp), EnvBMap(curp) PASS_REGS);
   sweep_choicepoints(B PASS_REGS);
   sweep_trail(B, old_TR PASS_REGS);
@@ -4344,5 +4324,5 @@ void
 Yap_inc_mark_variable()
 {
   CACHE_REGS
-  LOCAL_total_marked++;
+    LOCAL_total_marked++;
 }

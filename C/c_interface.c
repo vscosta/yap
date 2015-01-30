@@ -1260,17 +1260,17 @@ YAP_PutInSlot(Int slot, Term t)
 
 
 typedef Int (*CPredicate0)(void);
-typedef Int (*CPredicate1)(Int);
-typedef Int (*CPredicate2)(Int,Int);
-typedef Int (*CPredicate3)(Int,Int,Int);
-typedef Int (*CPredicate4)(Int,Int,Int,Int);
-typedef Int (*CPredicate5)(Int,Int,Int,Int,Int);
-typedef Int (*CPredicate6)(Int,Int,Int,Int,Int,Int);
-typedef Int (*CPredicate7)(Int,Int,Int,Int,Int,Int,Int);
-typedef Int (*CPredicate8)(Int,Int,Int,Int,Int,Int,Int,Int);
-typedef Int (*CPredicate9)(Int,Int,Int,Int,Int,Int,Int,Int,Int);
-typedef Int (*CPredicate10)(Int,Int,Int,Int,Int,Int,Int,Int,Int,Int);
-typedef Int (*CPredicateV)(Int,Int,struct foreign_context *);
+typedef Int (*CPredicate1)(yhandle_t);
+typedef Int (*CPredicate2)(yhandle_t,yhandle_t);
+typedef Int (*CPredicate3)(yhandle_t,yhandle_t,yhandle_t);
+typedef Int (*CPredicate4)(yhandle_t,yhandle_t,yhandle_t,yhandle_t);
+typedef Int (*CPredicate5)(yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t);
+typedef Int (*CPredicate6)(yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t);
+typedef Int (*CPredicate7)(yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t);
+typedef Int (*CPredicate8)(yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t);
+typedef Int (*CPredicate9)(yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t);
+typedef Int (*CPredicate10)(yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t);
+typedef Int (*CPredicateV)(yhandle_t,yhandle_t,struct foreign_context *);
 
 static Int
 execute_cargs(PredEntry *pe, CPredicate exec_code USES_REGS)
@@ -1279,119 +1279,85 @@ execute_cargs(PredEntry *pe, CPredicate exec_code USES_REGS)
   case 0:
     {
       CPredicate0 code0 = (CPredicate0)exec_code;
-      return ((code0)());
+      return code0();
     }
   case 1:
     {
-      CPredicate1 code1 = (CPredicate1)exec_code;
-      return ((code1)(Yap_InitSlot(Deref(ARG1) PASS_REGS)));
+      CPredicate1 code1 = (CPredicate1)exec_code;      
+      yhandle_t a1 = Yap_InitSlots( 1, & ARG1);      
+      return code1( a1 );      
     }
   case 2:
     {
-      CPredicate2 code2 = (CPredicate2)exec_code;
-      return ((code2)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG2) PASS_REGS)));
+      CPredicate2 code2 = (CPredicate2)exec_code;            
+      yhandle_t a1 = Yap_InitSlots( 2, & ARG1 );                  
+      return code2(a1, a1+1);            
     }
   case 3:
     {
-      CPredicate3 code3 = (CPredicate3)exec_code;
-      return ((code3)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG3) PASS_REGS)));
+      CPredicate3 code3 = (CPredicate3)exec_code;            
+      yhandle_t a1 = Yap_InitSlots( 3, & ARG1 );            
+      return code3(a1, a1+1, a1+2);            
     }
   case 4:
     {
-      CPredicate4 code4 = (CPredicate4)exec_code;
-      return ((code4)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG4) PASS_REGS)));
+      CPredicate4 code4 = (CPredicate4)exec_code;            
+      yhandle_t a1 = Yap_InitSlots( 4, & ARG1 );            
+      return code4(a1, a1+1, a1+2, a1+3);            
     }
   case 5:
-    {
-      CPredicate5 code5 = (CPredicate5)exec_code;
-      return ((code5)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG5) PASS_REGS)));
+     {
+      CPredicate5 code5 = (CPredicate5)exec_code;            
+      yhandle_t a1 = Yap_InitSlots( 5, & ARG1 );            
+      return code5(a1, a1+1, a1+2, a1+3, a1+4);            
     }
   case 6:
     {
-      CPredicate6 code6 = (CPredicate6)exec_code;
-      return ((code6)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG5) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG6) PASS_REGS)));
+      CPredicate6 code6 = (CPredicate6)exec_code;            
+      yhandle_t a1 = Yap_InitSlots( 6, & ARG1 );            
+      return code6(a1, a1+1, a1+2, a1+3, a1+4, a1+5);            
     }
   case 7:
-    {
-      CPredicate7 code7 = (CPredicate7)exec_code;
-      return ((code7)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG5) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG6) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG7) PASS_REGS)));
+     {
+      CPredicate7 code7 = (CPredicate7)exec_code;            
+      yhandle_t a1 = Yap_InitSlots( 7, & ARG1 );            
+      return code7(a1, a1+1, a1+2, a1+3, a1+4, a1+5, a1+6);            
     }
-  case 8:
+   case 8:
     {
-      CPredicate8 code8 = (CPredicate8)exec_code;
-      return ((code8)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG5) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG6) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG7) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG8) PASS_REGS)));
+      CPredicate8 code8 = (CPredicate8)exec_code;            
+      yhandle_t a1 = Yap_InitSlots( 8, & ARG1 );            
+      return code8(a1, a1+1, a1+2, a1+3, a1+4, a1+5, a1+6, a1+7);            
     }
   case 9:
-    {
-      CPredicate9 code9 = (CPredicate9)exec_code;
-      return ((code9)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG5) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG6) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG7) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG8) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG9) PASS_REGS)));
+     {
+      CPredicate9 code9 = (CPredicate9)exec_code;            
+      yhandle_t a1 = Yap_InitSlots( 9, & ARG1 );            
+      return code9(a1, a1+1, a1+2, a1+3, a1+4, a1+5, a1+6, a1+7, a1+8);            
     }
   case 10:
     {
-      CPredicate10 code10 = (CPredicate10)exec_code;
-      return ((code10)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG5) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG6) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG7) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG8) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG9) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG10) PASS_REGS)));
+      CPredicate10 code10 = (CPredicate10)exec_code;            
+      yhandle_t a1 = Yap_InitSlots( 10, & ARG1 );            
+      return code10(a1, a1+1, a1+2, a1+3, a1+4, a1+5, a1+6, a1+7, a1+8, a1+9);            
     }
   default:
+    YAP_Error(SYSTEM_ERROR, TermNil, "YAP only supports SWI C-call with arity =< 10");
     return(FALSE);
   }
 }
 
-typedef uintptr_t (*CBPredicate)(struct foreign_context *);
-typedef uintptr_t (*CBPredicate1)(Int,struct foreign_context *);
-typedef uintptr_t (*CBPredicate2)(Int,Int,struct foreign_context *);
-typedef uintptr_t (*CBPredicate3)(Int,Int,Int,struct foreign_context *);
-typedef uintptr_t (*CBPredicate4)(Int,Int,Int,Int,struct foreign_context *);
-typedef uintptr_t (*CBPredicate5)(Int,Int,Int,Int,Int,struct foreign_context *);
-typedef uintptr_t (*CBPredicate6)(Int,Int,Int,Int,Int,Int,struct foreign_context *);
-typedef uintptr_t (*CBPredicate7)(Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
-typedef uintptr_t (*CBPredicate8)(Int,Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
-typedef uintptr_t (*CBPredicate9)(Int,Int,Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
-typedef uintptr_t (*CBPredicate10)(Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
+typedef uintptr_t (*CBPredicate0)(struct foreign_context *);
+typedef uintptr_t (*CBPredicate1)(yhandle_t,struct foreign_context *);
+typedef uintptr_t (*CBPredicate2)(yhandle_t,yhandle_t,struct foreign_context *);
+typedef uintptr_t (*CBPredicate3)(yhandle_t,yhandle_t,yhandle_t,struct foreign_context *);
+typedef uintptr_t (*CBPredicate4)(yhandle_t,yhandle_t,yhandle_t,yhandle_t,struct foreign_context *);
+typedef uintptr_t (*CBPredicate5)(yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,struct foreign_context *);
+typedef uintptr_t (*CBPredicate6)(yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,struct foreign_context *);
+typedef uintptr_t (*CBPredicate7)(yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,struct foreign_context *);
+typedef uintptr_t (*CBPredicate8)(yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,struct foreign_context *);
+typedef uintptr_t (*CBPredicate9)(yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,struct foreign_context *);
+typedef uintptr_t (*CBPredicate10)(yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,yhandle_t,struct foreign_context *);
 
 static uintptr_t
 execute_cargs_back(PredEntry *pe, CPredicate exec_code, struct foreign_context *ctx USES_REGS)
@@ -1399,116 +1365,71 @@ execute_cargs_back(PredEntry *pe, CPredicate exec_code, struct foreign_context *
   switch (pe->ArityOfPE) {
   case 0:
     {
-      CBPredicate code0 = (CBPredicate)exec_code;
-      return ((code0)(ctx));
-    }
+      CBPredicate0 code0 = (CBPredicate0)exec_code;
+      return code0(ctx);
+    } 
   case 1:
     {
-      CBPredicate1 code1 = (CBPredicate1)exec_code;
-      return ((code1)(&B->cp_a1-LCL0,
-		      ctx));
-    }
+      CBPredicate1 code1 = (CBPredicate1)exec_code;      
+      yhandle_t a1 = Yap_InitSlots( 1, & B->cp_a1);      
+      return code1( a1, ctx);      
+}
   case 2:
     {
-      CBPredicate2 code2 = (CBPredicate2)exec_code;
-      uintptr_t val = ((code2)(&B->cp_a1-LCL0,
-		      &B->cp_a2-LCL0,
-		      ctx));
-      return val;
+      CBPredicate2 code2 = (CBPredicate2)exec_code;            
+      yhandle_t a1 = Yap_InitSlots( 2, & B->cp_a1 );                  
+      return code2(a1, a1+1, ctx);            
     }
   case 3:
     {
-      CBPredicate3 code3 = (CBPredicate3)exec_code;
-      return ((code3)(&B->cp_a1-LCL0,
-		      &B->cp_a2-LCL0,
-		      &B->cp_a3-LCL0,
-		      ctx));
+      CBPredicate3 code3 = (CBPredicate3)exec_code;            
+      yhandle_t a1 = Yap_InitSlots( 3, & B->cp_a1 );            
+      return code3(a1, a1+1, a1+2, ctx);            
     }
   case 4:
     {
-      CBPredicate4 code4 = (CBPredicate4)exec_code;
-      return ((code4)(&B->cp_a1-LCL0,
-		      &B->cp_a2-LCL0,
-		      &B->cp_a3-LCL0,
-		      &B->cp_a4-LCL0,
-		      ctx));
+      CBPredicate4 code4 = (CBPredicate4)exec_code;            
+      yhandle_t a1 = Yap_InitSlots( 4, & B->cp_a1 );            
+      return code4(a1, a1+1, a1+2, a1+3, ctx);            
     }
   case 5:
-    {
-      CBPredicate5 code5 = (CBPredicate5)exec_code;
-      return ((code5)(&B->cp_a1-LCL0,
-		      &B->cp_a2-LCL0,
-		      &B->cp_a3-LCL0,
-		      &B->cp_a4-LCL0,
-		      &B->cp_a5-LCL0,
-		      ctx));
+     {
+      CBPredicate5 code5 = (CBPredicate5)exec_code;            
+      yhandle_t a1 = Yap_InitSlots( 5, & B->cp_a1 );            
+      return code5(a1, a1+1, a1+2, a1+3, a1+4, ctx);            
     }
   case 6:
     {
-      CBPredicate6 code6 = (CBPredicate6)exec_code;
-      return ((code6)(&B->cp_a1-LCL0,
-		      &B->cp_a2-LCL0,
-		      &B->cp_a3-LCL0,
-		      &B->cp_a4-LCL0,
-		      &B->cp_a5-LCL0,
-		      &B->cp_a6-LCL0,
-		      ctx));
+      CBPredicate6 code6 = (CBPredicate6)exec_code;            
+      yhandle_t a1 = Yap_InitSlots( 6, & B->cp_a1 );            
+      return code6(a1, a1+1, a1+2, a1+3, a1+4, a1+5, ctx);            
     }
   case 7:
-    {
-      CBPredicate7 code7 = (CBPredicate7)exec_code;
-      return ((code7)(&B->cp_a1-LCL0,
-		      &B->cp_a2-LCL0,
-		      &B->cp_a3-LCL0,
-		      &B->cp_a4-LCL0,
-		      &B->cp_a5-LCL0,
-		      &B->cp_a6-LCL0,
-		      &B->cp_a7-LCL0,
-		      ctx));
+     {
+      CBPredicate7 code7 = (CBPredicate7)exec_code;            
+      yhandle_t a1 = Yap_InitSlots( 7, & B->cp_a1 );            
+      return code7(a1, a1+1, a1+2, a1+3, a1+4, a1+5, a1+6, ctx);            
     }
-  case 8:
+   case 8:
     {
-      CBPredicate8 code8 = (CBPredicate8)exec_code;
-      return ((code8)(&B->cp_a1-LCL0,
-		      &B->cp_a2-LCL0,
-		      &B->cp_a3-LCL0,
-		      &B->cp_a4-LCL0,
-		      &B->cp_a5-LCL0,
-		      &B->cp_a6-LCL0,
-		      &B->cp_a7-LCL0,
-		      &B->cp_a8-LCL0,
-		      ctx));
+      CBPredicate8 code8 = (CBPredicate8)exec_code;            
+      yhandle_t a1 = Yap_InitSlots( 8, & B->cp_a1 );            
+      return code8(a1, a1+1, a1+2, a1+3, a1+4, a1+5, a1+6, a1+7, ctx);            
     }
   case 9:
-    {
-      CBPredicate9 code9 = (CBPredicate9)exec_code;
-      return ((code9)(&B->cp_a1-LCL0,
-		      &B->cp_a2-LCL0,
-		      &B->cp_a3-LCL0,
-		      &B->cp_a4-LCL0,
-		      &B->cp_a5-LCL0,
-		      &B->cp_a6-LCL0,
-		      &B->cp_a7-LCL0,
-		      &B->cp_a8-LCL0,
-		      &B->cp_a9-LCL0,
-		      ctx));
+     {
+      CBPredicate9 code9 = (CBPredicate9)exec_code;            
+      yhandle_t a1 = Yap_InitSlots( 9, & B->cp_a1 );            
+      return code9(a1, a1+1, a1+2, a1+3, a1+4, a1+5, a1+6, a1+7, a1+8, ctx);            
     }
   case 10:
     {
-      CBPredicate10 code10 = (CBPredicate10)exec_code;
-      return ((code10)(&B->cp_a1-LCL0,
-		      &B->cp_a2-LCL0,
-		      &B->cp_a3-LCL0,
-		      &B->cp_a4-LCL0,
-		      &B->cp_a5-LCL0,
-		      &B->cp_a6-LCL0,
-		      &B->cp_a7-LCL0,
-		      &B->cp_a8-LCL0,
-		      &B->cp_a9-LCL0,
-		      &B->cp_a10-LCL0,
-		      ctx));
+      CBPredicate10 code10 = (CBPredicate10)exec_code;            
+      yhandle_t a1 = Yap_InitSlots( 10, & B->cp_a1 );            
+      return code10(a1, a1+1, a1+2, a1+3, a1+4, a1+5, a1+6, a1+7, a1+8, a1+9, ctx);            
     }
   default:
+    YAP_Error(SYSTEM_ERROR, TermNil,  "YAP only supports SWI C-call with arity =< 10");
     return(FALSE);
   }
 }
@@ -1569,23 +1490,19 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
   CACHE_REGS
   Int ret;
   Int OASP = LCL0-(CELL *)B;
+  yhandle_t CurSlot = Yap_StartSlots();
   //  Term omod = CurrentModule;
   //if (pe->PredFlags & CArgsPredFlag) {
   //  CurrentModule = pe->ModuleOfPred;
   //}
-  Int CurSlot = Yap_StartSlots( PASS_REGS1 );
   if (pe->PredFlags & SWIEnvPredFlag) {
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context ctx;
-    UInt i;
-    Int sl = 0;
-
+    
     ctx.engine = NULL;
-    for (i=pe->ArityOfPE; i > 0; i--) {
-      sl = Yap_InitSlot(XREGS[i] PASS_REGS);
-    }
-    PP = pe;
-    ret = ((codev)(sl,0,&ctx));
+    yhandle_t s0 = Yap_InitSlots(pe->ArityOfPE, &ARG1);
+     PP = pe;
+    ret = codev(s0,0,&ctx);
   } else if (pe->PredFlags & CArgsPredFlag) {
     PP = pe;
     ret =  execute_cargs(pe, exec_code PASS_REGS);
@@ -1595,7 +1512,7 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
   }
   PP = NULL;
   // check for junk: open frames, etc */
-  LOCAL_CurSlot = CurSlot;
+  Yap_CloseSlots(CurSlot PASS_REGS);
   if (ret)
     complete_exit(((choiceptr)(LCL0-OASP)), FALSE, FALSE PASS_REGS);
   else
@@ -1638,9 +1555,9 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     if (pe->PredFlags & CArgsPredFlag) {
       val = execute_cargs_back(pe, exec_code, ctx PASS_REGS);
     } else {
-      val = ((codev)(B->cp_args-LCL0,0,ctx));
+      val = codev(Yap_InitSlots(pe->ArityOfPE, &ARG1),0,ctx);
     }
-    LOCAL_CurSlot = CurSlot;
+    Yap_CloseSlots(CurSlot PASS_REGS);
     PP = NULL;
     if (val == 0) {
       Term t;
@@ -1666,7 +1583,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     }
   } else {
     Int ret = (exec_code)( PASS_REGS1 );
-    LOCAL_CurSlot = CurSlot;
+    Yap_CloseSlots(CurSlot PASS_REGS);
     if (!ret) {
       Term t;
 
@@ -1686,6 +1603,7 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
 {
   CACHE_REGS
   choiceptr  oB = B;
+  yhandle_t CurSlot = Yap_StartSlots();
   /* find out where we belong */
   while (B->cp_b < (choiceptr)top)
     B = B->cp_b;
@@ -1693,21 +1611,18 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
-    Int CurSlot;
     CELL *args = B->cp_args;
 
     B = oB;
     PP = pe;
     ctx->control = FRG_CUTTED;
     ctx->engine = NULL; //(PL_local_data *)Yap_regp;
-    /* for slots to work */
-    CurSlot = Yap_StartSlots( PASS_REGS1 );
     if (pe->PredFlags & CArgsPredFlag) {
       val = execute_cargs_back(pe, exec_code, ctx PASS_REGS);
     } else {
-      val = ((codev)(args-LCL0,0,ctx));
+      val = codev(Yap_InitSlots(pe->ArityOfPE, args),0,ctx);
     }
-    LOCAL_CurSlot = CurSlot;
+    Yap_CloseSlots(CurSlot PASS_REGS);
 
     PP = NULL;
     //    B = LCL0-(CELL*)oB;
@@ -1731,7 +1646,7 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
     /* for slots to work */
     CurSlot = Yap_StartSlots( PASS_REGS1 );
     ret = (exec_code)( PASS_REGS1 );
-    LOCAL_CurSlot = CurSlot;
+    Yap_CloseSlots(CurSlot PASS_REGS);
     if (!ret) {
       Term t;
 
@@ -1752,8 +1667,9 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
 {
   CACHE_REGS
     /* for slots to work */
-  Int CurSlot = Yap_StartSlots( PASS_REGS1 );
+    Yap_StartSlots( PASS_REGS1 );
   UInt ocp = LCL0-(CELL *)B;
+  yhandle_t CurSlot = Yap_StartSlots();
   if (pe->PredFlags & (SWIEnvPredFlag|CArgsPredFlag)) {
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
@@ -1764,9 +1680,9 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
     if (pe->PredFlags & CArgsPredFlag) {
       val = execute_cargs_back(pe, exec_code, ctx PASS_REGS);
     } else {
-      val = ((codev)(B->cp_args-LCL0,0,ctx));
+      val = codev(Yap_InitSlots(pe->ArityOfPE, &ARG1),0,ctx);
     }
-    LOCAL_CurSlot = CurSlot;
+    Yap_CloseSlots(CurSlot PASS_REGS);
     /* we are below the original choice point ?? */
     /* make sure we clean up the frames left by the user */
     PP = NULL;
@@ -1795,7 +1711,7 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
     return complete_exit(((choiceptr)(LCL0-ocp)), FALSE, FALSE PASS_REGS);
   } else {
     Int ret = (exec_code)( PASS_REGS1 );
-    LOCAL_CurSlot = CurSlot;
+    Yap_CloseSlots(CurSlot PASS_REGS);
     if (!ret) {
       Term t;
 
@@ -2396,7 +2312,6 @@ YAP_RunGoal(Term t)
   CACHE_REGS
   Term out;
   yamop *old_CP = CP;
-  Int CurSlot = LOCAL_CurSlot;
   BACKUP_MACHINE_REGS();
 
   LOCAL_AllowRestart = FALSE;
@@ -2420,8 +2335,6 @@ YAP_RunGoal(Term t)
     LOCAL_AllowRestart = FALSE;
     SET_ASP(ENV, E_CB*sizeof(CELL));
     // make sure the slots are ok.
-    ASP = LCL0-(CurSlot+2+IntOfTerm(LCL0[-CurSlot-1]));
-    LOCAL_CurSlot = CurSlot;
   }
   RECOVER_MACHINE_REGS();
   return out;
@@ -2877,6 +2790,7 @@ do_bootfile (char *bootfilename)
   Term term_end_of_file = MkAtomTerm(AtomEof);
   Term term_true = YAP_MkAtomTerm(AtomTrue);
   Functor functor_query = Yap_MkFunctor(Yap_LookupAtom("?-"),1);
+  yhandle_t CurSlot = Yap_StartSlots();
 
   /* consult boot.pl */
   /* the consult mode does not matter here, really */
@@ -2893,9 +2807,9 @@ do_bootfile (char *bootfilename)
   while (!eof_found)
     {
       CACHE_REGS
-      Int CurSlot = Yap_StartSlots( PASS_REGS1 );
+      Yap_StartSlots( PASS_REGS1 );
       t = YAP_Read(bootfile);
-      LOCAL_CurSlot = CurSlot;
+      Yap_CloseSlots(CurSlot PASS_REGS);
       if (eof_found) {
 	break;
       }
@@ -3287,8 +3201,7 @@ YAP_Reset(yap_reset_t mode)
   /* always have an empty slots for people to use */
   P = CP = YESCODE;
   // ensure that we have slots where we need them
-  LOCAL_CurSlot = 0;
-  Yap_StartSlots( PASS_REGS1 );
+  Yap_CloseSlots(1 PASS_REGS);
   RECOVER_MACHINE_REGS();
   return res;
 }
@@ -3882,19 +3795,14 @@ X_API yhandle_t
 YAP_ArgsToSlots(int n)
 {
   CACHE_REGS
-  yhandle_t slot = Yap_NewSlots(n PASS_REGS);
-  CELL *ptr0 = LCL0+slot, *ptr1=&ARG1;
-  while (n--) {
-    *ptr0++ = *ptr1++;
-  }
-  return slot;
+  return Yap_NewSlots(n PASS_REGS);
 }
 
 X_API void
 YAP_SlotsToArgs(int n, yhandle_t slot)
 {
   CACHE_REGS
-  CELL *ptr0 = LCL0+slot, *ptr1=&ARG1;
+    CELL *ptr0 = Yap_AddressFromSlot(slot PASS_REGS), *ptr1=&ARG1;
   while (n--) {
     *ptr1++ = *ptr0++;
   }
@@ -3907,7 +3815,7 @@ YAP_signal(int sig)
 }
 
 X_API int
-YAP_SetYAPFlag(yap_flag_t flag, int val)
+  YAP_SetYAPFlag(yap_flag_t flag, int val)
 {
   switch (flag) {
   case YAPC_ENABLE_GC:

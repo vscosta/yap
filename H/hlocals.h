@@ -236,6 +236,8 @@ typedef struct worker_local {
   struct scan_atoms*  search_atoms_;
 
   yhandle_t  CurSlot_;
+  yhandle_t  NSlots_;
+  CELL*  SlotBase_;
 
   struct swi_mutex*  Mutexes_;
   Term  SourceModule_;

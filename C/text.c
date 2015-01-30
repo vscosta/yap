@@ -395,6 +395,7 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *leng
 {
   char *s;
   wchar_t *ws;
+  yhandle_t CurSlot = Yap_StartSlots();
 
   /* we know what the term is */
   switch (inp->type &  YAP_TYPE_MASK) {
@@ -523,7 +524,7 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *leng
     return (void *)inp->val.w;
   case YAP_STRING_LITERAL:
     { 
-      Int CurSlot = Yap_StartSlots( PASS_REGS1 );
+      Yap_StartSlots( PASS_REGS1 );
       if (buf) s = buf;
       else s = Yap_PreAllocCodeSpace();
       size_t sz = LOCAL_MAX_SIZE-1;
@@ -534,10 +535,10 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *leng
       if ( ! PL_write_term(fd, Yap_InitSlot(inp->val.t PASS_REGS), 1200, 0) ||
 	   Sputcode(EOS, fd) < 0 ||
 	   Sflush(fd) < 0 ) {
-	LOCAL_CurSlot = CurSlot;
+	Yap_CloseSlots(CurSlot PASS_REGS);
 	AUX_ERROR( inp->val.t, LOCAL_MAX_SIZE, s, char);
       } else {
-	LOCAL_CurSlot = CurSlot;
+	Yap_CloseSlots(CurSlot PASS_REGS);
       }
       *enc = YAP_UTF8;
       *lengp = strlen(s);

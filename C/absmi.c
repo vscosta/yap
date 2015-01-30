@@ -1,6 +1,6 @@
 /*************************************************************************
 *									 *
-*	 YAP Prolog 							 *
+*	 Yap Prolog 							 *
 *									 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
@@ -1231,8 +1231,9 @@ interrupt_either( USES_REGS1 )
 {
   int v;
 
-#ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d:  (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
+#ifdef DEBUGX
+  //if (trace_interrupts)
+  fprintf(stderr,"[%d] %s:%d:  (YENV=%p ENV=%p ASP=%p)\n",  worker_id, \
 	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
   if ((v = check_alarm_fail_int( 2 PASS_REGS )) >= 0) {
@@ -1250,9 +1251,12 @@ interrupt_either( USES_REGS1 )
   if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
     return v;
   }
-  if ((v = stack_overflow(RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs1,0)), YENV, NEXTOP(P, Osbpp) PASS_REGS )) >= 0) {
+  //P = NEXTOP(P, Osblp);
+   if ((v = stack_overflow(RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs1,0)), YENV, NEXTOP(P,Osblp)  PASS_REGS )) >= 0) {
+    //P = PREVOP(P, Osblp);    
     return v;
   }
+  // P = PREVOP(P, Osblp);
   return interrupt_handler_either( MkIntTerm(0), RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs1,0)) PASS_REGS );
 }
 

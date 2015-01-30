@@ -421,6 +421,10 @@
 
 #define LOCAL_CurSlot LOCAL->CurSlot_
 #define REMOTE_CurSlot(wid) REMOTE(wid)->CurSlot_
+#define LOCAL_NSlots LOCAL->NSlots_
+#define REMOTE_NSlots(wid) REMOTE(wid)->NSlots_
+#define LOCAL_SlotBase LOCAL->SlotBase_
+#define REMOTE_SlotBase(wid) REMOTE(wid)->SlotBase_
 
 #define LOCAL_Mutexes LOCAL->Mutexes_
 #define REMOTE_Mutexes(wid) REMOTE(wid)->Mutexes_

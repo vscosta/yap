@@ -519,7 +519,7 @@ getchr__(IOSTREAM *inp)
 #define getchr(inp)  getchr__(inp)
 #define getchrq(inp) Sgetcode(inp)
 
-EXTERN inline int
+static int
 GetCurInpPos (IOSTREAM *inp_stream)
 {
   return inp_stream->posbuf.lineno;

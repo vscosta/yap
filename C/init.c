@@ -1234,6 +1234,23 @@ InitScratchPad(int wid)
   REMOTE_ScratchPad(wid).msz = SCRATCH_START_SIZE;
 }
 
+CELL *
+InitHandles(int wid) {
+  size_t initial_slots = 1024;
+  CELL *handles;
+  
+  REMOTE_CurSlot(wid) = 1;
+  REMOTE_NSlots(wid)  = initial_slots;
+  handles = malloc(initial_slots * sizeof(CELL));
+  
+  if(handles == NULL) {
+    Yap_Error(SYSTEM_ERROR, 0 /* TermNil */, "No space for handles at " __FILE__ " : %d", __LINE__);
+  }
+  
+  RESET_VARIABLE(handles);
+  return handles;
+}
+
 void
 Yap_CloseScratchPad(void)
 {

@@ -270,6 +270,8 @@ struct scan_atoms*		search_atoms				void
 
 // Slots
 yhandle_t				CurSlot					=0
+yhandle_t				NSlots					=0
+CELL*				SlotBase					=InitHandles(wid)
 
 // Mutexes
 struct swi_mutex*		Mutexes					=NULL

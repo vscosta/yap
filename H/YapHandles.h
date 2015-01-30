@@ -49,17 +49,15 @@ This section lists the main internal functions for slot management. These functi
 *************************************************************************************************/
 
 /// @brief start a new set of slots, linking them to the last active slots (who may, or not, be active).
+/// Also states how many slots we had when we entered a segment of code. 
 static inline yhandle_t
+
 Yap_StartSlots( USES_REGS1 ) {
-  yhandle_t CurSlot = LOCAL_CurSlot;
-  // if (CurSlot == LCL0-(ASP+(IntOfTerm(ASP[0])+2)))
-  //  return CurSlot;
-  /* new slot */
-  *--ASP = MkIntegerTerm(CurSlot);
-  LOCAL_CurSlot =  LCL0-ASP;
-  *--ASP = MkIntTerm(0);
-  *--ASP = MkIntTerm(0);
-  return CurSlot;
+  //  fprintf( stderr, " StartSlots = %ld", LOCAL_CurSlot);    
+if (LOCAL_CurSlot < 0) {
+    Yap_Error( SYSTEM_ERROR, 0L, " StartSlots = %ld", LOCAL_CurSlot);
+  }
+  return LOCAL_CurSlot;
 }
 
 
@@ -72,90 +70,115 @@ Yap_CloseSlots( yhandle_t slot USES_REGS ) {
 /// @brief report the current position of the slots, assuming that they occupy the top of the stack.
 static inline yhandle_t
 Yap_CurrentSlot( USES_REGS1 ) {
-  return IntOfTerm(ASP[0]);
+  return LOCAL_CurSlot;
 }
 
 /// @brief read from a slot.
 static inline Term
 Yap_GetFromSlot(yhandle_t slot USES_REGS)
 {
-  return(Deref(LCL0[slot]));
+  return(Deref(LOCAL_SlotBase[slot]));
 }
 
 /// @brief read from a slot. but does not try to dereference the slot.
 static inline Term
 Yap_GetDerefedFromSlot(yhandle_t slot USES_REGS)
 {
-  return LCL0[slot];
+  return LOCAL_SlotBase[slot];
 }
 
 /// @brief read the object in a slot. but do not try to dereference the slot.
 static inline Term
 Yap_GetPtrFromSlot(yhandle_t slot USES_REGS)
 {
-  return(LCL0[slot]);
+  return LOCAL_SlotBase[slot];
 }
 
 /// @brief get the memory address of a slot
 static inline Term *
 Yap_AddressFromSlot(yhandle_t slot USES_REGS)
 {
-  return(LCL0+slot);
+  return LOCAL_SlotBase+slot;
 }
 
 /// @brief store  term in a slot
 static inline void
 Yap_PutInSlot(yhandle_t slot, Term t USES_REGS)
 {
-  LCL0[slot] = t;
+  LOCAL_SlotBase[slot] = t;
 }
 
-/// @brief allocate n empty new slots
-static inline yhandle_t
-Yap_NewSlots(int n USES_REGS)
+#define max(X,Y) ( X > Y ? X : Y )
+
+static inline void
+ensure_slots(int N)
 {
-  yhandle_t old_slots = IntOfTerm(ASP[0]), oldn = n;
-  while (n > 0) {
-    RESET_VARIABLE(ASP);
-    ASP--;
-    n--;
+  if (LOCAL_CurSlot+N >= LOCAL_NSlots) {
+    size_t inc = max(16*1024, LOCAL_NSlots/2); // measured in cells
+    LOCAL_SlotBase = (CELL *)realloc( LOCAL_SlotBase, (inc + LOCAL_NSlots )*sizeof(CELL));
+    if (!LOCAL_SlotBase) {
+      unsigned long int kneeds =  ((inc + LOCAL_NSlots )*sizeof(CELL))/1024;
+      Yap_Error(SYSTEM_ERROR, 0 /* TermNil */, "Out of memory for the term handles (term_t) aka slots, l needed", kneeds);
+    }
   }
-  ASP[old_slots+oldn+1] = ASP[0] = MkIntTerm(old_slots+oldn);
-  return((ASP+1)-LCL0);
-}
-
-/// @brief report the number of slots in the current
-static inline size_t
-Yap_countSlots( USES_REGS1 )
-{
-  return IntOfTerm(ASP[0]);;
 }
 
 /// @brief create a new slot with term t
 static inline Int
 Yap_InitSlot(Term t USES_REGS)
 {
-  yhandle_t old_slots = IntOfTerm(ASP[0]);
-  *ASP = t;
-  ASP--;
-  ASP[old_slots+2] = ASP[0] = MkIntTerm(old_slots+1);
-  return((ASP+1)-LCL0);
+  yhandle_t old_slots = LOCAL_CurSlot;
+  
+  ensure_slots( 1 );
+  LOCAL_SlotBase[old_slots] = t;
+  LOCAL_CurSlot++;
+  return old_slots;
+}
+
+/// @brief allocate n empty new slots
+static inline yhandle_t
+Yap_NewSlots(int n USES_REGS)
+{
+  yhandle_t old_slots = LOCAL_CurSlot;
+  int i;
+
+  ensure_slots(n);
+  for (i = 0; i< n; i++) {
+    RESET_VARIABLE(Yap_AddressFromSlot(old_slots+i) );
+  }
+  LOCAL_CurSlot += n;
+  return old_slots;
+}
+
+#define  Yap_InitSlots(n, ts) Yap_InitSlots__(n, ts PASS_REGS) 
+
+/// @brief create n new slots with terms ts[]
+  static inline yhandle_t
+Yap_InitSlots__(int n, Term *ts USES_REGS)
+{
+  yhandle_t old_slots = LOCAL_CurSlot;
+  int i;
+  
+  ensure_slots( n );
+  for (i=0; i< n; i++)
+    LOCAL_SlotBase[old_slots+i] = ts[i];
+  LOCAL_CurSlot += n;
+  return old_slots;
 }
 
 /// @brief Succeeds if it is to recover the space allocated for $n$ contiguos slots starting at topSlot.
-static inline int
+static inline bool
 Yap_RecoverSlots(int n, yhandle_t topSlot USES_REGS)
 {
-  yhandle_t old_slots = IntOfTerm(ASP[0]),
-    new_slots = old_slots-n;
-  if (old_slots  < n) {
-    return FALSE;
+  if (topSlot + n < LOCAL_CurSlot)
+    return false;
+  #ifdef DEBUG
+  if (topSlot + n > LOCAL_CurSlot) {
+    Yap_Error(SYSTEM_ERROR, 0 /* TermNil */, "Inconsistent slot state in Yap_RecoverSlots."); 
+    return false;
   }
-  if (ASP+1 != LCL0+topSlot)
-	return FALSE;
-  ASP += n;
-  ASP[new_slots+1] = ASP[0] = MkIntTerm(new_slots);
-  return TRUE;
+  #endif
+  return true;
 }
 
 #endif

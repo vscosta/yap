@@ -633,7 +633,8 @@ do_save(int mode USES_REGS) {
 static Int 
 p_save2( USES_REGS1 )
 {
-  Int res, CurSlot;
+  Int res;
+  yhandle_t CurSlot = Yap_StartSlots();
 
   Term t;
 #ifdef YAPOR
@@ -656,9 +657,9 @@ p_save2( USES_REGS1 )
   if (!Yap_unify(ARG2,MkIntTerm(1)))
     return FALSE;
   which_save = 2;
-  CurSlot = Yap_StartSlots( PASS_REGS1 );
+  Yap_StartSlots( PASS_REGS1 );
   res = do_save(DO_EVERYTHING PASS_REGS);
-  LOCAL_CurSlot = CurSlot;
+  Yap_CloseSlots(CurSlot PASS_REGS);
   return res;
 }
 

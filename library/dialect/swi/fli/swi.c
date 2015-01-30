@@ -2302,11 +2302,10 @@ PL_open_foreign_frame(void)
 #ifdef DEPTH_LIMIT
     cp_b->cp_depth = DEPTH;
 #endif /* DEPTH_LIMIT */
-    cp_b->cp_a1 = MkIntTerm(LOCAL_CurSlot);
+    cp_b->cp_a1 = MkIntTerm(Yap_StartSlots( PASS_REGS1 ));
     HB = HR;
     B = cp_b;
     ASP = (CELL *)B;
-    Yap_StartSlots( PASS_REGS1 );
     
     return (fid_t)(LCL0-(CELL*)cp_b);
 }
@@ -2316,7 +2315,7 @@ PL_close_foreign_frame(fid_t f)
 {
   CACHE_REGS
   choiceptr cp_b = (choiceptr)(LCL0-(UInt)f);
-  LOCAL_CurSlot = IntOfTerm(cp_b->cp_a1);
+  Yap_CloseSlots( IntOfTerm(cp_b->cp_a1) );  
   B = cp_b;
   HB = B->cp_h;
   Yap_TrimTrail();
@@ -2327,14 +2326,7 @@ PL_close_foreign_frame(fid_t f)
   DEPTH = cp_b->cp_depth;
 #endif /* DEPTH_LIMIT */
   HB = B->cp_h;
-  if (LOCAL_CurSlot) {
-  /* we can assume there was a slot before */
-    CELL *old_slot;
-    old_slot = LCL0-(LOCAL_CurSlot);
-    ASP = old_slot-(2+IntOfTerm(old_slot[-1]));
-  } else {
-    ASP = ((CELL *)(cp_b+1))+1;
-  }
+  ASP = ((CELL *)(cp_b+1))+1;
 }
 
 static void
@@ -2350,7 +2342,7 @@ X_API void
 PL_rewind_foreign_frame(fid_t f)
 {
   CACHE_REGS
-  choiceptr cp_b = (choiceptr)(LCL0-(UInt)f);
+    choiceptr cp_b = (choiceptr)(LCL0-(UInt)f);
   if (B != cp_b) {
     while (B->cp_b != cp_b)
       B = B->cp_b;
@@ -2358,8 +2350,7 @@ PL_rewind_foreign_frame(fid_t f)
   backtrack();
   // restore to original location
   ASP = (CELL *)B;
-  LOCAL_CurSlot = IntOfTerm(B->cp_a1);
-  Yap_StartSlots( PASS_REGS1 );  
+  Yap_CloseSlots( IntOfTerm(cp_b->cp_a1) );  
 }
 
 X_API void
@@ -2373,7 +2364,7 @@ PL_discard_foreign_frame(fid_t f)
       B = B->cp_b;
     backtrack();
   }
-  LOCAL_CurSlot = IntOfTerm(cp_b->cp_a1);
+  Yap_CloseSlots( IntOfTerm(cp_b->cp_a1) );  
   B = cp_b->cp_b;
   CP = cp_b->cp_cp;
   ENV = cp_b->cp_env;
@@ -2382,13 +2373,7 @@ PL_discard_foreign_frame(fid_t f)
   DEPTH = cp_b->cp_depth;
 #endif /* DEPTH_LIMIT */
   /* we can assume there was a slot before */
-  if (LOCAL_CurSlot) {
-    CELL *old_slot;
-    old_slot = LCL0-(LOCAL_CurSlot);
-    ASP = old_slot-(2+IntOfTerm(old_slot[-1]));
-  } else {
-    ASP = ((CELL *)(cp_b+1))+1;
-  }
+  ASP = ((CELL *)(cp_b+1))+1;
 }
 
 X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)

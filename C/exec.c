@@ -1844,7 +1844,7 @@ Yap_InitYaamRegs( int myworker_id )
   h0var = MkVarTerm();
   REMOTE_AttsMutableList(myworker_id) = Yap_NewTimedVar(h0var);
 #endif
-  REMOTE_CurSlot(myworker_id) = 0;
+  REMOTE_CurSlot(myworker_id) = 1; /* This function has direct access to the Handles class AKA InitSlot */
   h0var = MkVarTerm();
   REMOTE_GcGeneration(myworker_id) = Yap_NewTimedVar(h0var);
   REMOTE_GcCurrentPhase(myworker_id) = 0L;
@@ -1860,9 +1860,6 @@ Yap_InitYaamRegs( int myworker_id )
   if (REMOTE_top_dep_fr(myworker_id))
     DepFr_cons_cp(REMOTE_top_dep_fr(myworker_id)) = NORM_CP(B);
 #endif
-  // make sure we have slots in case we don go through the top-level */
-  Yap_StartSlots( PASS_REGS1 );
-
 }
 
 static Int

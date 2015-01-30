@@ -858,10 +858,11 @@ char *
 Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int flags)
 {
   CACHE_REGS
-    Int l, CurSlot;
+    Int l;
   Int myASP = LCL0-ASP;
+  yhandle_t CurSlot = Yap_StartSlots();
   
-  CurSlot = Yap_StartSlots( PASS_REGS1 );
+  Yap_StartSlots( PASS_REGS1 );
   l = Yap_InitSlot(t  PASS_REGS );
 
   { IOENC encodings[3];
@@ -900,14 +901,14 @@ Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int 
 	    if (r == buf) {
 	      char *bf = malloc(*length+1);
 	      if (!bf) {
-		LOCAL_CurSlot = CurSlot;
+		Yap_CloseSlots(CurSlot PASS_REGS);
                 ASP = LCL0-myASP;
 		return NULL;
 	      }
 	      strncpy(bf,buf,*length+1);
 	      r = bf;
 	    }
-            LOCAL_CurSlot = CurSlot;
+            Yap_CloseSlots(CurSlot PASS_REGS);
             ASP = LCL0-myASP;
   	    return r;
 	  } else
@@ -919,7 +920,7 @@ Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int 
       Sfree(r);
     }
   }
-  LOCAL_CurSlot = CurSlot;
+  Yap_CloseSlots(CurSlot PASS_REGS);
   ASP = LCL0-myASP;
   return NULL;
 }
