@@ -28,7 +28,8 @@ AC_ARG_WITH(prosqlite,
 	    PROSQLITE_DIR=/usr
 	elif test "$withval" = no; then
 	    yap_cv_prosqlite=no
-	else
+
+else
 	    PROSQLITE_DIR=$withval
 	fi,
 	[PROSQLITE_DIR=/usr ])

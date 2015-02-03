@@ -4,9 +4,10 @@
 #CHECK: GECODE
 
 macro_optional_find_package (Gecode ON)
-macro_log_feature (GECODE_FOUND "libgecode" 
-  "Use Generic Constraint Development Environment (GECODE) library" 
+macro_log_feature (GECODE_FOUND "libgecode"
+  "Use Generic Constraint Development Environment (GECODE) library"
   "http://www.gecode.org" FALSE)
+
 if (GECODE_FOUND)
   #DEFINES:
   #   GECODE_INCLUDE_DIR
@@ -17,7 +18,7 @@ if (GECODE_FOUND)
 
   string(SUBSTRING ${GECODE_VERSION} 0 1 GECODE_MAJOR )
 
-  set (GECODE_SOURCES gecode${GECODE_MAJOR}_yap.cc 
+  set (GECODE_SOURCES gecode${GECODE_MAJOR}_yap.cc
     gecode${GECODE_MAJOR}-common.icc
     ${GECODE_VERSION}/gecode_yap_cc_impl_auto_generated.icc
     ${GECODE_VERSION}/gecode_yap_cc_init_auto_generated.icc
@@ -34,7 +35,7 @@ if (GECODE_FOUND)
     VERBATIM
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
-  
+
   add_library (gecode SHARED ${GECODE_SOURCES})
 
   target_link_libraries(gecode libYap ${GECODE_LIBRARIES})
@@ -42,7 +43,7 @@ if (GECODE_FOUND)
   set_target_properties (gecode PROPERTIES PREFIX "")
 
   include_directories (${GECODE_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/${GECODE_VERSION})
-  
+
   install(TARGETS  gecode
     LIBRARY DESTINATION ${dlls}
     )

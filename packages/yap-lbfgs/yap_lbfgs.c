@@ -145,7 +145,7 @@ static int progress(
 Set the current value for `x[I]`. Only possible when the optimizer is
 initialized but not running.
 */
-static int set_x_value(void) {
+static YAP_Bool set_x_value(void) {
   YAP_Term t1=YAP_ARG1;
   YAP_Term t2=YAP_ARG2;
   int i=0;
@@ -182,7 +182,7 @@ static int set_x_value(void) {
 Get the current value for `x[I]`. Only possible when the optimizer is
 initialized or running.
 */
-static int get_x_value(void) {
+static YAP_Bool get_x_value(void) {
   YAP_Term t1=YAP_ARG1;
   YAP_Term t2=YAP_ARG2;
   int i=0;
@@ -213,7 +213,7 @@ static int get_x_value(void) {
 partial derivative of _F_ with respect to `x[I]`). Can only be called
 from the evaluate call back predicate.
 */
-static int set_g_value(void) {
+static YAP_Bool set_g_value(void) {
   YAP_Term t1=YAP_ARG1;
   YAP_Term t2=YAP_ARG2;
   int i=0;
@@ -250,7 +250,7 @@ static int set_g_value(void) {
 Get the current value for `g[I]` (the partial derivative of _F_ with respect to `x[I]`). Only possible when the optimizer is
 initialized or running.
 */
-static int get_g_value(void) {
+static YAP_Bool get_g_value(void) {
   YAP_Term t1=YAP_ARG1;
   YAP_Term t2=YAP_ARG2;
   int i=0;
@@ -314,7 +314,7 @@ terminate with an error. If _Continue_ is set to 0 (int) the
 optimization process will continue for one more iteration, any other
 value will terminate the optimization process.
 */
-static int optimizer_initialize(void) {
+static YAP_Bool optimizer_initialize(void) {
   YAP_Term t1 = YAP_ARG1;
   int temp_n=0;
   
@@ -356,7 +356,7 @@ Status (int) is the status code returned by libLBFGS. Anything except
 0 indicates an error, see the documentation of libLBFGS for the
 meaning.
 */
-static int optimizer_run(void) {
+static YAP_Bool optimizer_run(void) {
   int ret = 0;
   YAP_Term t1 = YAP_ARG1;
   YAP_Term t2 = YAP_ARG2;
@@ -394,7 +394,7 @@ static int optimizer_run(void) {
 
 
 
-static int optimizer_finalize( void ) {
+static YAP_Bool optimizer_finalize( void ) {
   if (optimizer_status == OPTIMIZER_STATUS_NONE) {
      printf("Error: Optimizer is not initialized.\n");
      return FALSE;
@@ -419,7 +419,7 @@ static int optimizer_finalize( void ) {
 Set the parameter Name to Value. Only possible while the optimizer
 is not running.
 */
-static int optimizer_set_parameter( void ) {
+static YAP_Bool optimizer_set_parameter( void ) {
   YAP_Term t1 = YAP_ARG1;
   YAP_Term t2 = YAP_ARG2;
 
@@ -579,7 +579,7 @@ static int optimizer_set_parameter( void ) {
 Get the current Value for Name
 */
 
-static int optimizer_get_parameter( void ) {
+static YAP_Bool optimizer_get_parameter( void ) {
   YAP_Term t1 = YAP_ARG1;
   YAP_Term t2 = YAP_ARG2;
 

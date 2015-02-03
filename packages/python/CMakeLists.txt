@@ -3,11 +3,12 @@
 set (PYTHON_SOURCES
   python.c)
 
-macro_optional_find_package(PythonInterp ON)
-macro_optional_find_package (PythonLibs ON)
-macro_log_feature (PYTHONLIBS_FOUND "Python"
-  "Use Python System"
-  "http://www.python.org" FALSE)
+  macro_optional_find_package(PythonInterp ON)
+  macro_optional_find_package (PythonLibs ON)
+  macro_log_feature (PYTHONLIBS_FOUND "Python"
+    "Use Python System"
+    "http://www.python.org" FALSE)
+
 if (PYTHONLIBS_FOUND)         #   PYTHONLIBS_FOUND           - have the Python libs been found
   #   PYTHON_LIBRARIES           - path to the python library
   #   PYTHON_INCLUDE_PATH        - path to where Python.h is found (deprecated)
@@ -33,7 +34,7 @@ if (PYTHONLIBS_FOUND)         #   PYTHONLIBS_FOUND           - have the Python l
   # If also calling find_package(PythonInterp), call find_package(PythonInterp)
   # first to get the currently active Python version by default with a consistent
   # version of PYTHON_LIBRARIES.
-  
+
   add_library (python SHARED ${PYTHON_SOURCES})
 
   target_link_libraries(python libYap ${PYTHON_LIBRARIES})
@@ -41,7 +42,7 @@ if (PYTHONLIBS_FOUND)         #   PYTHONLIBS_FOUND           - have the Python l
   set_target_properties (python PROPERTIES PREFIX "")
 
   include_directories (${PYTHON_INCLUDE_DIRS})
-  
+
   install(TARGETS  python
     LIBRARY DESTINATION ${dlls}
     )
@@ -50,5 +51,5 @@ if (PYTHONLIBS_FOUND)         #   PYTHONLIBS_FOUND           - have the Python l
     DESTINATION ${libpl}
     )
 
- 
+
 endif (PYTHONLIBS_FOUND)

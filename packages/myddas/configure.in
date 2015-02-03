@@ -13,6 +13,8 @@ AC_ARG_WITH(myddas,
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include "
 		ODBC_LDFLAGS="-L${yap_cv_myddas}/lib "
 		ODBC_CFLAGS="-I${yap_cv_myddas}/include "
+		SQLITE3_LDFLAGS="-L${yap_cv_myddas}/lib "
+		SQLITE3_CFLAGS="-I${yap_cv_myddas}/include "
 	fi,
 	[yap_cv_myddas=/usr])
 
@@ -87,6 +89,18 @@ then
 	  then
 	    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_TOP_LEVEL"
 	fi
+	#from SWI PROSQLITE library.
+	AC_CHECK_LIB(sqlite3, sqlite3_open,
+                       MYDDAS_LIBS+="-lsqlite3"
+                       havelib=yes)
+
+
+        AC_CHECK_HEADERS(sqlite3.h, [], [yap_cv_sqlite3="no"])
+	if test "$yap_cv_odbc" = yes 
+	then
+		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_SQLITE3"
+	fi
+
 	LIBS="$OLD_LIBS"
 else
 	ENABLE_MYDDAS=""

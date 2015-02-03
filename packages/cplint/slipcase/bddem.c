@@ -65,17 +65,17 @@ int ex,cycle;
 DdNode *** nodesToVisit;
 int * NnodesToVisit;
 double * example_prob;
-static int ret_prob(void);
+static YAP_Bool ret_prob(void);
 double Prob(DdNode *node,int comp_par);
-static int end_bdd(void);
-static int init_test(void);
-static int add_var(void);
-static int init(void);
-static int end(void);
-static int EM(void);
-static int Q(void);
+static YAP_Bool end_bdd(void);
+static YAP_Bool init_test(void);
+static YAP_Bool add_var(void);
+static YAP_Bool init(void);
+static YAP_Bool end(void);
+static YAP_Bool EM(void);
+static YAP_Bool Q(void);
 double ProbPath(DdNode *node, int comp_par, int nex);
-static int rec_deref(void);
+static YAP_Bool rec_deref(void);
 int indexMvar(DdNode *node);
 void Forward(DdNode *node, int nex);
 void GetForward(DdNode *node, double ForwProbPath);
@@ -91,7 +91,7 @@ void add_or_replace_node(tablerow *tab, DdNode *node, double value);
 void add_node(tablerow *tab, DdNode *node, double value);
 void destroy_table(tablerow *tab,int varcnt);
 
-static int init(void)
+static YAP_Bool init(void)
 {
   int j,i;
   YAP_Term arg1,arg2,list;
@@ -130,7 +130,7 @@ static int init(void)
   return 1;
 }
 
-static int init_bdd(void)  
+static YAP_Bool init_bdd(void)  
 {
   mgr_ex=(DdManager **) realloc(mgr_ex, (ex+1)* sizeof(DdManager *)); 
   mgr_ex[ex]=Cudd_Init(0,0,UNIQUE_SLOTS,CACHE_SLOTS,5120);
@@ -157,7 +157,7 @@ static int init_bdd(void)
   return 1;
 }
 
-static int end_bdd(void)
+static YAP_Bool end_bdd(void)
 {
 
   ex=ex+1;
@@ -166,7 +166,7 @@ static int end_bdd(void)
 
 
 
-static int init_test(void)
+static YAP_Bool init_test(void)
 {
   YAP_Term arg1;  
 
@@ -202,7 +202,7 @@ static int init_test(void)
 
 }
 
-static int end_test(void)
+static YAP_Bool end_test(void)
 {
   free(bVar2mVar_ex[ex]);
   free(vars_ex[ex]);
@@ -257,7 +257,7 @@ static double Expectation(DdNode **nodes_ex,int lenNodes)
   return CLL;
 }
 
-static int end(void)
+static YAP_Bool end(void)
 {
   int r,i;
 
@@ -299,7 +299,7 @@ static int end(void)
 }
 
 
-static int ret_prob(void)
+static YAP_Bool ret_prob(void)
 {
   YAP_Term arg1,arg2,out;
   DdNode * node;
@@ -376,7 +376,7 @@ so that it is not recomputed
 
 
 
-static int add_var(void)
+static YAP_Bool add_var(void)
 {
   YAP_Term arg1,arg2,arg3,arg4,out,probTerm,probTerm_temp;
   variable * v;
@@ -416,7 +416,7 @@ static int add_var(void)
   return YAP_Unify(out,arg4);
 }
 
-static int equality(void)
+static YAP_Bool equality(void)
 {
   YAP_Term arg1,arg2,arg3,out;
   int varIndex;
@@ -454,7 +454,7 @@ static int equality(void)
   return(YAP_Unify(out,arg3));
 }
 
-static int one(void)
+static YAP_Bool one(void)
 {
   YAP_Term arg,out;
   DdNode * node;
@@ -466,7 +466,7 @@ static int one(void)
   return(YAP_Unify(out,arg));
 }
 
-static int zero(void)
+static YAP_Bool zero(void)
 {
   YAP_Term arg,out;
   DdNode * node;
@@ -478,7 +478,7 @@ static int zero(void)
   return(YAP_Unify(out,arg));
 }
 
-static int bdd_not(void)
+static YAP_Bool bdd_not(void)
 {
   YAP_Term arg1,arg2,out;
   DdNode * node;
@@ -491,7 +491,7 @@ static int bdd_not(void)
   return(YAP_Unify(out,arg2));
 }
 
-static int and(void)
+static YAP_Bool and(void)
 {
   YAP_Term arg1,arg2,arg3,out;
   DdNode * node1, *node2,*nodeout;
@@ -507,7 +507,7 @@ static int and(void)
   return(YAP_Unify(out,arg3));
 }
 
-static int or(void)
+static YAP_Bool or(void)
 {
   YAP_Term arg1,arg2,arg3,out;
   DdNode * node1,*node2,*nodeout;
@@ -523,7 +523,7 @@ static int or(void)
   return(YAP_Unify(out,arg3));
 }
 
-static int garbage_collect(void)
+static YAP_Bool garbage_collect(void)
 {
   YAP_Term arg1,arg2,out;
   YAP_Int nodes,clearCache;
@@ -536,7 +536,7 @@ static int garbage_collect(void)
   return(YAP_Unify(out,arg2));
 }
 
-static int bdd_to_add(void)
+static YAP_Bool bdd_to_add(void)
 {
   YAP_Term arg1,arg2,out;
   DdNode * node1,*node2;
@@ -549,7 +549,7 @@ static int bdd_to_add(void)
   return(YAP_Unify(out,arg2));
 }
 
-static int create_dot(void)
+static YAP_Bool create_dot(void)
 {
   char * onames[]={"Out"};
   char ** inames;
@@ -600,7 +600,7 @@ static int create_dot(void)
 }
 
 
-static int rec_deref(void)
+static YAP_Bool rec_deref(void)
 {
   YAP_Term arg1;
   DdNode * node;
@@ -903,7 +903,7 @@ void Maximization(void)
   }
 }
 
-static int randomize(void)
+static YAP_Bool randomize(void)
 {
   int i,j,e,rule;
   double * theta,p0;
@@ -951,7 +951,7 @@ static int randomize(void)
   return 1;
 }
 
-static int EM(void)
+static YAP_Bool EM(void)
 {
   YAP_Term arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,
     out1,out2,out3,nodesTerm,ruleTerm,tail,pair,compoundTerm;
@@ -1049,7 +1049,7 @@ static int EM(void)
 }
 
 
-static int Q(void)
+static YAP_Bool Q(void)
 {
   YAP_Term arg1,arg2,arg3,arg4,out,out1,
     term,nodesTerm,ruleTerm,tail,pair,compoundTerm;
@@ -1116,7 +1116,7 @@ static int Q(void)
   return (YAP_Unify(out,arg3));
 }
 
-static int paths_to_non_zero(void)
+static YAP_Bool paths_to_non_zero(void)
 {
   double paths;
   YAP_Term arg1,arg2,out;
@@ -1130,7 +1130,7 @@ static int paths_to_non_zero(void)
   return(YAP_Unify(out,arg2));
 }
 
-static int paths(void)
+static YAP_Bool paths(void)
 {
   double paths;
   YAP_Term arg1,arg2,out;
@@ -1144,7 +1144,7 @@ static int paths(void)
   return(YAP_Unify(out,arg2));
 }
 
-static int dag_size(void)
+static YAP_Bool dag_size(void)
 {
   int size;
   YAP_Term arg1,arg2,out;

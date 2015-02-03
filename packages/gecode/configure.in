@@ -11,6 +11,7 @@ else
 if test -d "$use_gecode"; then
   CPPFLAGS="$CPPFLAGS -I $use_gecode/include"
   GECODE_EXTRALIBS="-L $use_gecode/lib"
+  GECODE_INCLUDES=" $use_gecode/include"
      GECODE_PATH="$use_gecode/bin"
 dnl gecode is usually in /usr/local
 elif test -d /usr/local/include/gecode -a x$SYSROOT = x; then
@@ -47,7 +48,7 @@ if test "$use_gecode" != no; then
      fi
      if test "$use_gecode" = yes; then
        GECODE_PATH=`which fzn-gecode`
-     GECODE_PATH=`dirname "$GECODE_PATH"`
+       GECODE_PATH=`dirname "$GECODE_PATH"`
      else
        GECODE_PATH="$use_gecode"
      fi
@@ -116,8 +117,6 @@ CPPFLAGS="$CPPFLAGS -I \"$GECODE_INCLUDES\""
 
 AC_CHECK_HEADER(gecode/support/config.hpp)
 
-CPPFLAGS="$saved_CPPFLAGS"
-
 AC_SUBST(GECODE_EXTRALIBS)
 AC_SUBST(GECODE_INCLUDES)
 AC_SUBST(GECODE_VERSION)
@@ -127,4 +126,6 @@ AC_SUBST(GECODE_MAJOR)
 if test "$PKG_GECODE" = "packages/gecode"; then
 AC_CONFIG_FILES([packages/gecode/Makefile])
 fi
+
+CPPFLAGS="$saved_CPPFLAGS"
 

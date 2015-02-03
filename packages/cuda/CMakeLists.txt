@@ -1,8 +1,10 @@
 #CHECK: CUDA
+
 macro_optional_find_package (CUDA ON)
-macro_log_feature (CUDA_FOUND "CUDA" 
-  "CUDA GGPU Programming " 
+macro_log_feature (CUDA_FOUND "CUDA"
+  "CUDA GGPU Programming "
   "http://www.r.org" FALSE)
+
 if (CUDA_FOUND)
   #   CUDA_VERSION_MAJOR    -- The major version of cuda as reported by nvcc.
   #   CUDA_VERSION_MINOR    -- The minor version.
@@ -51,4 +53,3 @@ if (CUDA_FOUND)
 
 
 endif (CUDA_FOUND)
-

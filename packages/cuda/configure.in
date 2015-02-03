@@ -24,7 +24,7 @@ else
     PKG_CUDA="packages/cuda"
     case "$target_os" in
      *darwin*)
-       CUDA_LDFLAGS="$LDFLAGS"
+       CUDA_LDFLAGS="$LDFLAGS $LIBS"
     CUDA_CPPFLAGS="-arch=sm_20  -Xcompiler -fPIC -O3 "
     CUDA_SHLIB_LD="$NVCC  --shared -L../.. -lYap "
      ;;

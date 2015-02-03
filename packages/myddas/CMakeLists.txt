@@ -40,17 +40,26 @@ macro_optional_find_package(ODBC ON)
 macro_optional_find_package(MySQL ON)
 macro_optional_find_package(Sqlite3 ON)
 
-if (ODBC_FOUND OR MYSQL_FOUND or SQLITE3_FOUND)
+macro_log_feature (ODBC_FOUND "ODBC"
+    "Use ODBC Data-Base Interface "
+"http://www.unixodbc.org" FALSE)
+
+macro_log_feature (MYSQL_FOUND "MySQL"
+  "Use MYSQL Data-Base Interface "
+  "http://www.mysql.org" FALSE)
+
+macro_log_feature (SQLITE3_FOUND "SQLite3"
+    "SQL Light Data-Base "
+"http://www.sqlite3.org" FALSE)
+
+if (ODBC_FOUND OR MYSQL_FOUND OR SQLITE3_FOUND)
   add_library (myddas SHARED ${MYDDAS_SOURCES})
   target_link_libraries(myddas libYap)
   if (ODBC_FOUND)
       # ODBC_INCLUDE_DIRECTORIES, where to find sql.h
       # ODBC_LIBRARIES, the libraries to link against to use ODBC
       # ODBC_FOUND.  If false, you cannot build anything that requires MySQL.
-      macro_log_feature (ODBC_FOUND "ODBC"
-          "Use ODBC Data-Base Interface "
-      "http://www.unixodbc.org" FALSE)
-      add_definitions (-DMYDDAS_ODBC=1)
+          add_definitions (-DMYDDAS_ODBC=1)
       target_link_libraries(myddas ${ODBC_LIBRARIES})
       include_directories (${ODBC_INCLUDE_DIRECTORIES})
   endif (ODBC_FOUND)
@@ -61,10 +70,7 @@ if (ODBC_FOUND OR MYSQL_FOUND or SQLITE3_FOUND)
       # SQLITE3_LIBRARY_RELEASE - Where the release library is
       # SQLITE3_LIBRARY_DEBUG - Where the debug library is
       # SQLITE3_FOUND - Set to TRUE if we found everything (library, includes and executable)
-      macro_log_feature (SQLITE3_FOUND "SQLite3"
-          "SQL Light Data-Base "
-      "http://www.sqlite3.org" FALSE)
-      add_definitions (-DMYDDAS_SQLITE3=1)
+          add_definitions (-DMYDDAS_SQLITE3=1)
       target_link_libraries(myddas ${SQLITE3_LIBRARIES})
       include_directories (${SQLITE3_INCLUDE_DIR})
   endif (SQLITE3_FOUND)
@@ -73,16 +79,13 @@ if (ODBC_FOUND OR MYSQL_FOUND or SQLITE3_FOUND)
     #  MYSQL_INCLUDE_DIR - where to find mysql.h, etc.
     #  MYSQL_LIBRARIES   - List of libraries when using MySQL.
     #  MYSQL_FOUND       - True if MySQL found.
-    macro_log_feature (MYSQL_FOUND "MySQL"
-      "Use MYSQL Data-Base Interface "
-      "http://www.mysql.org" FALSE)
-    add_definitions (-DMYDDAS_MYSQL=1)
+        add_definitions (-DMYDDAS_MYSQL=1)
     target_link_libraries(myddas ${MYSQL_LIBRARIES})
     include_directories (${MYSQL_INCLUDE_DIR})
   endif (MYSQL_FOUND)
 
   add_custom_target (plmyddas ALL DEPENDS ${GENERATED_SOURCES} ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
-endif (ODBC_FOUND OR MYSQL_FOUND)
+endif (ODBC_FOUND OR MYSQL_FOUND OR SQLITE3_FOUND)
 
 cmake_dependent_option (WITH_MYDDAS_Stats
   "enable the MYDDAS library statistics support" OFF

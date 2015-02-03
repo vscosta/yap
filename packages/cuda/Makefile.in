@@ -23,7 +23,7 @@ CC=@CC@
 NVCC=@NVCC@
 CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include  @CUDA_CPPFLAGS@
 NVCCFLAGS=@CUDA_CPPFLAGS@ -I$(srcdir) -I../.. -I$(srcdir)/../../include
-LDFLAGS=@LDFLAGS@
+CUDA_LDFLAGS=@CUDA_LDFLAGS@
 #
 #
 # You shouldn't need to change what follows.
