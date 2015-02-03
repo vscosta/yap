@@ -457,7 +457,7 @@ Int show_time(USES_REGS1) /* MORE PRECISION */
 
    Maintain a light-weight map where the key is an atom, and the value can be any constant.
 */
-   
+
 /** @pred  set_value(+ _A_,+ _C_)
 
 
@@ -869,7 +869,7 @@ static Int
       shutdown_llvm();
   }
 #endif
-  
+
   Yap_exit(out);
   return TRUE;
 }
@@ -1742,6 +1742,15 @@ static Int p_has_eam(USES_REGS1) {
 #endif
 }
 
+static Int p_has_jit(USES_REGS1) {
+#ifdef HAS_JIT
+  return (TRUE);
+#else
+  return (FALSE);
+#endif
+}
+
+
 static Int p_set_yap_flags(USES_REGS1) {
   Term tflag = Deref(ARG1);
   Term tvalue = Deref(ARG2);
@@ -1996,7 +2005,7 @@ typedef void (*Proc)(void);
 
 Proc E_Modules[] = {/* init_fc,*/ (Proc)0};
 
-#ifndef YAPOR
+#ifdef YAPOR
 static Int p_parallel_mode(USES_REGS1) { return FALSE; }
 
 static Int p_yapor_workers(USES_REGS1) { return FALSE; }
@@ -2084,18 +2093,17 @@ void Yap_InitCPreds(void) {
   Yap_InitCPred("$set_flag", 4, p_set_flag, SyncPredFlag);
   Yap_InitCPred("$has_yap_or", 0, p_has_yap_or, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$has_eam", 0, p_has_eam, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$has_jit", 0, p_has_jit, SafePredFlag | SyncPredFlag);
 #ifdef YAPOR
   Yap_InitCPred("parallel_mode", 1, p_parallel_mode,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$c_yapor_workers", 1, p_yapor_workers,
                 SafePredFlag | SyncPredFlag);
-#endif /* YAPOR */
+#endif
 #ifdef YAP_JIT
-  Yap_InitCPred("init", 1, p_parallel_mode,
+  Yap_InitCPred("$jit_init", 1, p_jit,
                 SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$c_yapor_workers", 1, p_yapor_workers,
-                SafePredFlag | SyncPredFlag);
-#endif /* YAPOR */  
+#endif /* YAPOR */
 #ifdef INES
   Yap_InitCPred("euc_dist", 3, p_euc_dist, SafePredFlag);
   Yap_InitCPred("loop", 0, p_loop, SafePredFlag);

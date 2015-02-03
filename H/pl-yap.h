@@ -40,7 +40,7 @@ extern void	Yap_WriteAtom(IOSTREAM *s, Atom atom);
 
 extern atom_t codeToAtom(int chrcode);
 
-#define valTermRef(t)    ((Word)Yap_AddressFromSlot(t PASS_REGS))
+#define valTermRef(t)    ((Word)Yap_AddressFromSlot(t))
 
 #include "pl-codelist.h"
 

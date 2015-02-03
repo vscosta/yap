@@ -24,7 +24,7 @@
 Also known as term handles, slots are offsets to entries in the local stack. YAP never compresses the local stack, so slots are respected by the garbage collector,
 hence providing a way to access terms without being exposed to stack shifts or garbage-collection.
 
- Space is released when the function terminataes. Thus, slots will be automatically released at the end
+ Space is released when the function terminates. Thus, slots will be automatically released at the end
 of a function. Hence, slots should always be used as local variables.
 
 Slots are organized as follows:
@@ -44,15 +44,16 @@ Slots are not known to the yaam. Instead, A new set of slots is created when the
    - by the YAP_RunGoal() routines and friends, when they exit successfully. Notice that all handles created by c-goals  within
      a `Goal` execution should not be used afterwards.
 
-This section lists the main internal functions for slot management. These functions are then exported through corresponding FLI C-functions
+     This section lists the main internal functions for slot management. These functions are then exported through corresponding FLI C-functions
 
 *************************************************************************************************/
 
-/// @brief start a new set of slots, linking them to the last active slots (who may, or not, be active).
-/// Also states how many slots we had when we entered a segment of code. 
-static inline yhandle_t
+/// @brief declares a new set of slots.
+/// Used to tell how many slots we had when we entered a segment of code.
+#define Yap_StartSlots() Yap_StartSlots__( PASS_REGS1 )
 
-Yap_StartSlots( USES_REGS1 ) {
+static inline yhandle_t
+Yap_StartSlots__( USES_REGS1 ) {
   //  fprintf( stderr, " StartSlots = %ld", LOCAL_CurSlot);    
 if (LOCAL_CurSlot < 0) {
     Yap_Error( SYSTEM_ERROR, 0L, " StartSlots = %ld", LOCAL_CurSlot);
@@ -62,8 +63,10 @@ if (LOCAL_CurSlot < 0) {
 
 
 /// @brief reset slots to a well-known position in the stack
+#define Yap_CloseSlots( slot ) Yap_CloseSlots__( slot PASS_REGS )
+
 static inline void
-Yap_CloseSlots( yhandle_t slot USES_REGS ) {
+Yap_CloseSlots__( yhandle_t slot USES_REGS ) {
   LOCAL_CurSlot = slot;
 }
 
@@ -94,9 +97,12 @@ Yap_GetPtrFromSlot(yhandle_t slot USES_REGS)
   return LOCAL_SlotBase[slot];
 }
 
+#define Yap_AddressFromSlot( slot ) Yap_AddressFromSlot__(slot PASS_REGS)
+
+
 /// @brief get the memory address of a slot
 static inline Term *
-Yap_AddressFromSlot(yhandle_t slot USES_REGS)
+Yap_AddressFromSlot__(yhandle_t slot USES_REGS)
 {
   return LOCAL_SlotBase+slot;
 }
@@ -111,7 +117,7 @@ Yap_PutInSlot(yhandle_t slot, Term t USES_REGS)
 #define max(X,Y) ( X > Y ? X : Y )
 
 static inline void
-ensure_slots(int N)
+ensure_slots(int N USES_REGS)
 {
   if (LOCAL_CurSlot+N >= LOCAL_NSlots) {
     size_t inc = max(16*1024, LOCAL_NSlots/2); // measured in cells
@@ -129,7 +135,7 @@ Yap_InitSlot(Term t USES_REGS)
 {
   yhandle_t old_slots = LOCAL_CurSlot;
   
-  ensure_slots( 1 );
+  ensure_slots( 1 PASS_REGS);
   LOCAL_SlotBase[old_slots] = t;
   LOCAL_CurSlot++;
   return old_slots;
@@ -142,7 +148,7 @@ Yap_NewSlots(int n USES_REGS)
   yhandle_t old_slots = LOCAL_CurSlot;
   int i;
 
-  ensure_slots(n);
+  ensure_slots(n PASS_REGS);
   for (i = 0; i< n; i++) {
     RESET_VARIABLE(Yap_AddressFromSlot(old_slots+i) );
   }
@@ -159,7 +165,7 @@ Yap_InitSlots__(int n, Term *ts USES_REGS)
   yhandle_t old_slots = LOCAL_CurSlot;
   int i;
   
-  ensure_slots( n );
+  ensure_slots( n PASS_REGS);
   for (i=0; i< n; i++)
     LOCAL_SlotBase[old_slots+i] = ts[i];
   LOCAL_CurSlot += n;

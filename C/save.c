@@ -657,9 +657,9 @@ p_save2( USES_REGS1 )
   if (!Yap_unify(ARG2,MkIntTerm(1)))
     return FALSE;
   which_save = 2;
-  Yap_StartSlots( PASS_REGS1 );
+  CurSlot = Yap_StartSlots();
   res = do_save(DO_EVERYTHING PASS_REGS);
-  Yap_CloseSlots(CurSlot PASS_REGS);
+  Yap_CloseSlots(CurSlot);
   return res;
 }
 

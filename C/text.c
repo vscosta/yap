@@ -395,7 +395,6 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *leng
 {
   char *s;
   wchar_t *ws;
-  yhandle_t CurSlot = Yap_StartSlots();
 
   /* we know what the term is */
   switch (inp->type &  YAP_TYPE_MASK) {
@@ -412,8 +411,9 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *leng
 	return 0L;     	
       }
       s = StringOfTerm( inp->val.t );
-      if ( s == NULL )
+      if ( s == NULL ) {
 	return 0L;
+      }
       // this is a term, extract the UTF8 representation
       *enc = YAP_UTF8;
       *minimal = FALSE;
@@ -426,7 +426,9 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *leng
     {
       int wide = FALSE;
       s = Yap_ListOfCodesToBuffer( buf, inp->val.t, inp, &wide, lengp PASS_REGS);
-      if (!s) return NULL;
+      if (!s) {
+	return NULL;
+      }
       *enc = ( wide ? YAP_WCHAR : YAP_CHAR );
     }
     return s;
@@ -447,7 +449,9 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *leng
     {
       int wide = FALSE;
       s = Yap_ListToBuffer( buf, inp->val.t, inp, &wide, lengp PASS_REGS);
-      if (!s) return NULL;
+      if (!s) {
+	return NULL;
+      }
       *enc = ( wide ? YAP_WCHAR : YAP_CHAR );
     }
     return s;
@@ -496,7 +500,7 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *leng
     }
     *lengp = strlen(s);
     *enc = YAP_CHAR;
-    return s;
+   return s;
 #if USE_GMP
   case YAP_STRING_BIG:
     if (buf) s = buf;
@@ -524,24 +528,23 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *leng
     return (void *)inp->val.w;
   case YAP_STRING_LITERAL:
     { 
-      Yap_StartSlots( PASS_REGS1 );
+      yhandle_t CurSlot = Yap_StartSlots( );
       if (buf) s = buf;
       else s = Yap_PreAllocCodeSpace();
       size_t sz = LOCAL_MAX_SIZE-1;
       IOSTREAM *fd;
       AUX_ERROR( inp->val.t, LOCAL_MAX_SIZE, s, char);
+      CurSlot = Yap_StartSlots();
       fd = Sopenmem(&s, &sz, "w");
       fd->encoding = ENC_UTF8;
       if ( ! PL_write_term(fd, Yap_InitSlot(inp->val.t PASS_REGS), 1200, 0) ||
 	   Sputcode(EOS, fd) < 0 ||
 	   Sflush(fd) < 0 ) {
-	Yap_CloseSlots(CurSlot PASS_REGS);
 	AUX_ERROR( inp->val.t, LOCAL_MAX_SIZE, s, char);
-      } else {
-	Yap_CloseSlots(CurSlot PASS_REGS);
       }
       *enc = YAP_UTF8;
       *lengp = strlen(s);
+      Yap_CloseSlots(CurSlot);
       return s;
     }
   default:
@@ -552,7 +555,7 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *leng
       if (IsVarTerm(t)) {
 	LOCAL_Error_TYPE = INSTANTIATION_ERROR;
 	LOCAL_Error_Term = t;
-	return NULL;
+        return NULL;
       } else if (IsStringTerm(t)) {
 	if (inp->type & (YAP_STRING_STRING)) {
 	  inp->type &= (YAP_STRING_STRING);

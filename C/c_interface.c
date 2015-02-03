@@ -1230,14 +1230,14 @@ X_API Term *
 YAP_AddressFromSlot(Int slot)
 {
   CACHE_REGS
-  return Yap_AddressFromSlot(slot PASS_REGS);
+  return Yap_AddressFromSlot(slot);
 }
 
 X_API Term *
 YAP_AddressOfTermInSlot(Int slot)
 {
   CACHE_REGS
-  Term *b = Yap_AddressFromSlot(slot PASS_REGS);
+  Term *b = Yap_AddressFromSlot(slot);
   Term a = *b;
  restart:
   if (!IsVarTerm(a)) {
@@ -1512,7 +1512,7 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
   }
   PP = NULL;
   // check for junk: open frames, etc */
-  Yap_CloseSlots(CurSlot PASS_REGS);
+  Yap_CloseSlots(CurSlot);
   if (ret)
     complete_exit(((choiceptr)(LCL0-OASP)), FALSE, FALSE PASS_REGS);
   else
@@ -1542,7 +1542,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
   CACHE_REGS
   CELL ocp = LCL0-(CELL *)B;
   /* for slots to work */
-  Int CurSlot = Yap_StartSlots( PASS_REGS1 );
+  Int CurSlot = Yap_StartSlots( );
   if (pe->PredFlags & (SWIEnvPredFlag|CArgsPredFlag|ModuleTransparentPredFlag)) {
     uintptr_t val;
     CPredicateV codev = (CPredicateV)exec_code;
@@ -1557,7 +1557,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     } else {
       val = codev(Yap_InitSlots(pe->ArityOfPE, &ARG1),0,ctx);
     }
-    Yap_CloseSlots(CurSlot PASS_REGS);
+    Yap_CloseSlots(CurSlot);
     PP = NULL;
     if (val == 0) {
       Term t;
@@ -1583,7 +1583,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     }
   } else {
     Int ret = (exec_code)( PASS_REGS1 );
-    Yap_CloseSlots(CurSlot PASS_REGS);
+    Yap_CloseSlots(CurSlot);
     if (!ret) {
       Term t;
 
@@ -1622,7 +1622,7 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
     } else {
       val = codev(Yap_InitSlots(pe->ArityOfPE, args),0,ctx);
     }
-    Yap_CloseSlots(CurSlot PASS_REGS);
+    Yap_CloseSlots(CurSlot);
 
     PP = NULL;
     //    B = LCL0-(CELL*)oB;
@@ -1644,9 +1644,9 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
     Int ret, CurSlot;
     B = oB;
     /* for slots to work */
-    CurSlot = Yap_StartSlots( PASS_REGS1 );
+    CurSlot = Yap_StartSlots( );
     ret = (exec_code)( PASS_REGS1 );
-    Yap_CloseSlots(CurSlot PASS_REGS);
+    Yap_CloseSlots(CurSlot);
     if (!ret) {
       Term t;
 
@@ -1667,7 +1667,7 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
 {
   CACHE_REGS
     /* for slots to work */
-    Yap_StartSlots( PASS_REGS1 );
+    Yap_StartSlots( );
   UInt ocp = LCL0-(CELL *)B;
   yhandle_t CurSlot = Yap_StartSlots();
   if (pe->PredFlags & (SWIEnvPredFlag|CArgsPredFlag)) {
@@ -1682,7 +1682,7 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
     } else {
       val = codev(Yap_InitSlots(pe->ArityOfPE, &ARG1),0,ctx);
     }
-    Yap_CloseSlots(CurSlot PASS_REGS);
+    Yap_CloseSlots(CurSlot);
     /* we are below the original choice point ?? */
     /* make sure we clean up the frames left by the user */
     PP = NULL;
@@ -1711,7 +1711,7 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
     return complete_exit(((choiceptr)(LCL0-ocp)), FALSE, FALSE PASS_REGS);
   } else {
     Int ret = (exec_code)( PASS_REGS1 );
-    Yap_CloseSlots(CurSlot PASS_REGS);
+    Yap_CloseSlots(CurSlot);
     if (!ret) {
       Term t;
 
@@ -2214,7 +2214,7 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
   RECOVER_MACHINE_REGS();
   if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
-    Yap_StartSlots( PASS_REGS1 );
+    Yap_StartSlots( );
   } else {
     LOCAL_CurSlot = dgi->CurSlot; // ignore any slots created within the called goal
   }
@@ -2243,7 +2243,7 @@ YAP_RetryGoal(YAP_dogoalinfo *dgi)
   RECOVER_MACHINE_REGS();
   if (out) {
     LOCAL_CurSlot = dgi->CurSlot;
-    Yap_StartSlots( PASS_REGS1 );
+    Yap_StartSlots(  );
   }
   return out;
 }
@@ -2324,7 +2324,7 @@ YAP_RunGoal(Term t)
     CP = old_CP;
     LOCAL_AllowRestart = TRUE;
     // we are back to user code again, need slots */
-    Yap_StartSlots( PASS_REGS1 );
+    Yap_StartSlots( );
   } else {
     ENV = B->cp_env;
     ENV = (CELL *)ENV[E_E];
@@ -2784,7 +2784,7 @@ static char BootFile[] = "boot.yap";
 
 /* do initial boot by consulting the file boot.yap */
 static void
-do_bootfile (char *bootfilename)
+do_bootfile (char *bootfilename USES_REGS)
 {
   Term t;
   Term term_end_of_file = MkAtomTerm(AtomEof);
@@ -2807,9 +2807,9 @@ do_bootfile (char *bootfilename)
   while (!eof_found)
     {
       CACHE_REGS
-      Yap_StartSlots( PASS_REGS1 );
+      Yap_StartSlots( );
       t = YAP_Read(bootfile);
-      Yap_CloseSlots(CurSlot PASS_REGS);
+      Yap_CloseSlots(CurSlot);
       if (eof_found) {
 	break;
       }
@@ -3076,7 +3076,7 @@ YAP_Init(YAP_init_args *yap_init)
       construct_init_file(boot_file, BootFile);
       yap_init->YapPrologBootFile = boot_file;
     }
-    do_bootfile (yap_init->YapPrologBootFile ? yap_init->YapPrologBootFile : BootFile);
+    do_bootfile (yap_init->YapPrologBootFile ? yap_init->YapPrologBootFile : BootFile PASS_REGS);
     /* initialise the top-level */
     if (!do_bootstrap) {
       char init_file[256];
@@ -3201,7 +3201,7 @@ YAP_Reset(yap_reset_t mode)
   /* always have an empty slots for people to use */
   P = CP = YESCODE;
   // ensure that we have slots where we need them
-  Yap_CloseSlots(1 PASS_REGS);
+  Yap_CloseSlots(1);
   RECOVER_MACHINE_REGS();
   return res;
 }
@@ -3802,7 +3802,7 @@ X_API void
 YAP_SlotsToArgs(int n, yhandle_t slot)
 {
   CACHE_REGS
-    CELL *ptr0 = Yap_AddressFromSlot(slot PASS_REGS), *ptr1=&ARG1;
+    CELL *ptr0 = Yap_AddressFromSlot(slot), *ptr1=&ARG1;
   while (n--) {
     *ptr1++ = *ptr0++;
   }

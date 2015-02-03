@@ -401,7 +401,11 @@ IsStringTerm (Term t)
 
 #include <stdio.h>
 
+#ifdef __cplusplus
+#include <gmpxx.h>
+#else
 #include <gmp.h>
+#endif
 
 #else
 

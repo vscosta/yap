@@ -19,7 +19,7 @@ static char     SccsId[] = "%W% %G%";
 #endif
 
 /*
- * The code from this file is used to initialize the environment for prolog 
+ * The code from this file is used to initialize the environment for prolog
  *
  */
 
@@ -108,7 +108,7 @@ int  Yap_Portray_delays = FALSE;
 @ingroup Syntax
 @{
 
- 
+
 
 The Prolog syntax caters for operators of three main kinds:
 
@@ -117,23 +117,23 @@ The Prolog syntax caters for operators of three main kinds:
   + postfix.
 
 
-Each operator has precedence in the range 1 to 1200, and this 
-precedence is used to disambiguate expressions where the structure of the 
-term denoted is not made explicit using brackets. The operator of higher 
+Each operator has precedence in the range 1 to 1200, and this
+precedence is used to disambiguate expressions where the structure of the
+term denoted is not made explicit using brackets. The operator of higher
 precedence is the main functor.
 
-If there are two operators with the highest precedence, the ambiguity 
-is solved analyzing the types of the operators. The possible infix types are: 
+If there are two operators with the highest precedence, the ambiguity
+is solved analyzing the types of the operators. The possible infix types are:
  _xfx_,  _xfy_, and  _yfx_.
 
-With an operator of type  _xfx_ both sub-expressions must have lower 
-precedence than the operator itself, unless they are bracketed (which 
-assigns to them zero precedence). With an operator type  _xfy_ only the  
-left-hand sub-expression must have lower precedence. The opposite happens 
+With an operator of type  _xfx_ both sub-expressions must have lower
+precedence than the operator itself, unless they are bracketed (which
+assigns to them zero precedence). With an operator type  _xfy_ only the
+left-hand sub-expression must have lower precedence. The opposite happens
 for  _yfx_ type.
 
-A prefix operator can be of type  _fx_ or  _fy_. 
-A postfix operator can be of type  _xf_ or  _yf_. 
+A prefix operator can be of type  _fx_ or  _fy_.
+A postfix operator can be of type  _xf_ or  _yf_.
 The meaning of the notation is analogous to the above.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -207,7 +207,7 @@ Yap_IsOpType(char *type)
   return (i <= 7);
 }
 
-static int 
+static int
 OpDec(int p, const char *type, Atom a, Term m)
 {
   int             i;
@@ -253,7 +253,7 @@ OpDec(int p, const char *type, Atom a, Term m)
   }
   if (i <= 3) {
     GET_LD
-    if (truePrologFlag(PLFLAG_ISO) && 
+    if (truePrologFlag(PLFLAG_ISO) &&
 	info->Posfix != 0) /* there is a posfix operator */ {
       /* ISO dictates */
       WRITE_UNLOCK(info->OpRWLock);
@@ -263,7 +263,7 @@ OpDec(int p, const char *type, Atom a, Term m)
     info->Infix = p;
   } else if (i <= 5) {
     GET_LD
-    if (truePrologFlag(PLFLAG_ISO) && 
+    if (truePrologFlag(PLFLAG_ISO) &&
 	info->Infix != 0) /* there is an infix operator */ {
       /* ISO dictates */
       WRITE_UNLOCK(info->OpRWLock);
@@ -278,13 +278,13 @@ OpDec(int p, const char *type, Atom a, Term m)
   return (TRUE);
 }
 
-int 
+int
 Yap_OpDec(int p, char *type, Atom a, Term m)
 {
   return(OpDec(p,type,a,m));
 }
 
-static void 
+static void
 SetOp(int p, int type, char *at, Term m)
 {
 #if DEBUG
@@ -295,7 +295,7 @@ SetOp(int p, int type, char *at, Term m)
 }
 
 /* Gets the info about an operator in a prop */
-Atom 
+Atom
 Yap_GetOp(OpEntry *pp, int *prio, int fix)
 {
   int             n;
@@ -409,7 +409,7 @@ static Opdef    Ops[] = {
   {"^", xfy, 200}
 };
 
-static void 
+static void
 InitOps(void)
 {
   unsigned int             i;
@@ -425,7 +425,7 @@ InitOps(void)
 #endif
 #endif
 
-static void 
+static void
 InitDebug(void)
 {
   Atom            At;
@@ -471,7 +471,7 @@ InitDebug(void)
   Yap_PutValue(At, MkIntTerm(15));
 }
 
-static UInt 
+static UInt
 update_flags_from_prolog(UInt flags, PredEntry *pe)
 {
   if (pe->PredFlags & MetaPredFlag)
@@ -487,7 +487,7 @@ update_flags_from_prolog(UInt flags, PredEntry *pe)
   return flags;
 }
 
-void 
+void
 Yap_InitCPred(const char *Name, UInt Arity, CPredicate code, pred_flags_t flags)
 {
   CACHE_REGS
@@ -525,7 +525,7 @@ Yap_InitCPred(const char *Name, UInt Arity, CPredicate code, pred_flags_t flags)
       Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"while initialising %s", Name);
       return;
     }
-  } 
+  }
   if (pe->PredFlags & CPredFlag) {
     /* already exists */
     flags = update_flags_from_prolog(flags, pe);
@@ -591,14 +591,14 @@ Yap_InitCPred(const char *Name, UInt Arity, CPredicate code, pred_flags_t flags)
   pe->OpcodeOfPred = pe->CodeOfPred->opc;
 }
 
-void 
+void
 Yap_InitCmpPred(const char *Name, UInt Arity, CmpPredicate cmp_code, pred_flags_t flags)
 {
   CACHE_REGS
   Atom              atom = NIL;
   PredEntry        *pe = NULL;
   yamop            *p_code = NULL;
-  StaticClause     *cl = NULL; 
+  StaticClause     *cl = NULL;
   Functor           f = NULL;
 
   while (atom == NIL) {
@@ -626,7 +626,7 @@ Yap_InitCmpPred(const char *Name, UInt Arity, CmpPredicate cmp_code, pred_flags_
       Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"while initialising %s", Name);
       return;
     }
-  } 
+  }
   if (pe->PredFlags & BinaryPredFlag) {
     flags = update_flags_from_prolog(flags, pe);
     p_code = pe->CodeOfPred;
@@ -634,7 +634,7 @@ Yap_InitCmpPred(const char *Name, UInt Arity, CmpPredicate cmp_code, pred_flags_
   } else {
     while (!cl) {
       UInt sz = sizeof(StaticClause)+(CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)NULL),plxxs),p),l);
-      cl = (StaticClause *)Yap_AllocCodeSpace(sz); 
+      cl = (StaticClause *)Yap_AllocCodeSpace(sz);
       if (!cl) {
 	if (!Yap_growheap(FALSE, sz, NULL)) {
 	  Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"while initialising %s", Name);
@@ -669,14 +669,14 @@ Yap_InitCmpPred(const char *Name, UInt Arity, CmpPredicate cmp_code, pred_flags_
   p_code->y_u.l.l = cl->ClCode;
 }
 
-void 
+void
 Yap_InitAsmPred(const char *Name,  UInt Arity, int code, CPredicate def, pred_flags_t flags)
 {
   CACHE_REGS
   Atom            atom = NIL;
   PredEntry      *pe = NULL;
   Functor           f = NULL;
-	
+
   while (atom == NIL) {
     atom = Yap_FullLookupAtom(Name);
     if (atom == NIL && !Yap_growheap(FALSE, 0L, NULL)) {
@@ -702,7 +702,7 @@ Yap_InitAsmPred(const char *Name,  UInt Arity, int code, CPredicate def, pred_fl
       Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"while initialising %s", Name);
       return;
     }
-  } 
+  }
   flags |= AsmPredFlag | StandardPredFlag | (code);
   if (pe->PredFlags & AsmPredFlag) {
     flags = update_flags_from_prolog(flags, pe);
@@ -720,7 +720,7 @@ Yap_InitAsmPred(const char *Name,  UInt Arity, int code, CPredicate def, pred_fl
 	cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),Osbpp),p),l));
       } else {
 	cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),e),Osbpp),p),p),l));
-      }	
+      }
       if (!cl) {
 	Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitAsmPred");
 	return;
@@ -761,12 +761,12 @@ Yap_InitAsmPred(const char *Name,  UInt Arity, int code, CPredicate def, pred_fl
     pe->OpcodeOfPred = pe->CodeOfPred->opc;
   } else {
     pe->OpcodeOfPred = Yap_opcode(_undef_p);
-    pe->CodeOfPred =  (yamop *)(&(pe->OpcodeOfPred)); 
+    pe->CodeOfPred =  (yamop *)(&(pe->OpcodeOfPred));
   }
 }
 
 
-static void 
+static void
 CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont, CPredicate Cut)
 {
   yamop   *code;
@@ -807,7 +807,7 @@ CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont, CPredicate Cut)
   code->y_u.OtapFs.f = Cut;
 }
 
-void 
+void
 Yap_InitCPredBack(const char *Name, UInt Arity,
 		  unsigned int Extra, CPredicate Start,
 		  CPredicate Cont, pred_flags_t flags){
@@ -856,17 +856,17 @@ Yap_InitCPredBack_(const char *Name, UInt Arity,
       Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"while initialising %s", Name);
       return;
     }
-  } 
+  }
   if (pe->cs.p_code.FirstClause != NIL)
     {
-      flags = update_flags_from_prolog(flags, pe);      
+      flags = update_flags_from_prolog(flags, pe);
       CleanBack(pe, Start, Cont, Cut);
     }
   else {
     StaticClause *cl;
     yamop      *code = ((StaticClause *)NULL)->ClCode;
     UInt sz = (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(code,OtapFs),OtapFs),OtapFs),l);
-    if (flags &  UserCPredFlag) 
+    if (flags &  UserCPredFlag)
       pe->PredFlags = UserCPredFlag | BackCPredFlag| CompiledPredFlag | StandardPredFlag | flags;
     else
       pe->PredFlags = CompiledPredFlag | StandardPredFlag | BackCPredFlag;
@@ -874,9 +874,9 @@ Yap_InitCPredBack_(const char *Name, UInt Arity,
 #ifdef YAPOR
     pe->PredFlags |= SequentialPredFlag;
 #endif /* YAPOR */
-    
+
     cl = (StaticClause *)Yap_AllocCodeSpace(sz);
-    
+
     if (cl == NULL) {
       Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCPredBack");
       return;
@@ -884,7 +884,7 @@ Yap_InitCPredBack_(const char *Name, UInt Arity,
     cl->ClFlags = StaticMask;
     cl->ClNext = NULL;
     Yap_ClauseSpace += sz;
-    cl->ClSize = 
+    cl->ClSize =
       (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(code,OtapFs),OtapFs),OtapFs),e);
     cl->usc.ClLine = Yap_source_line_no();
 
@@ -932,11 +932,11 @@ Yap_InitCPredBack_(const char *Name, UInt Arity,
 }
 
 
-static void 
+static void
 InitStdPreds(void)
 {
   void initIO(void);
-  
+
   Yap_InitCPreds();
   Yap_InitBackCPreds();
   BACKUP_MACHINE_REGS();
@@ -1016,7 +1016,7 @@ InitOtaplInst(yamop start[1], OPCODE opc, PredEntry *pe)
 #endif /* TABLING */
 }
 
-static void 
+static void
 InitDBErasedMarker(void)
 {
   Yap_heap_regs->db_erased_marker =
@@ -1029,7 +1029,7 @@ InitDBErasedMarker(void)
   Yap_heap_regs->db_erased_marker->Parent = NULL;
 }
 
-static void 
+static void
 InitLogDBErasedMarker(void)
 {
   Yap_heap_regs->logdb_erased_marker =
@@ -1047,7 +1047,7 @@ InitLogDBErasedMarker(void)
   INIT_CLREF_COUNT(Yap_heap_regs->logdb_erased_marker);
 }
 
-static void 
+static void
 InitSWIAtoms(void)
 {
   extern atom_t ATOM_;
@@ -1061,12 +1061,12 @@ InitSWIAtoms(void)
   ATOM_ = PL_new_atom("");
 }
 
-static void 
+static void
 InitEmptyWakeups(void)
 {
 }
 
-static void 
+static void
 InitAtoms(void)
 {
   int i;
@@ -1097,7 +1097,7 @@ InitAtoms(void)
 #endif
 }
 
-static void 
+static void
 InitWideAtoms(void)
 {
   int i;
@@ -1114,7 +1114,7 @@ InitWideAtoms(void)
   NOfWideAtoms = 0;
 }
 
-static void 
+static void
 InitInvisibleAtoms(void)
 {
   /* initialise invisible chain */
@@ -1155,7 +1155,7 @@ void Yap_init_yapor_workers(void) {
     son = fork();
     if (son == -1)
       Yap_Error(FATAL_ERROR, TermNil, "fork error (Yap_init_yapor_workers)");
-    if (son == 0) { 
+    if (son == 0) {
       /* new worker */
       worker_id = proc;
       Yap_remap_yapor_memory();
@@ -1180,8 +1180,8 @@ InitThreadHandle(int wid)
 #ifdef LOW_LEVEL_TRACER
   REMOTE_ThreadHandle(wid).thread_inst_count = 0LL;
 #endif
-  pthread_mutex_init(&(REMOTE_ThreadHandle(wid).tlock), NULL);  
-  pthread_mutex_init(&(REMOTE_ThreadHandle(wid).tlock_status), NULL);  
+  pthread_mutex_init(&(REMOTE_ThreadHandle(wid).tlock), NULL);
+  pthread_mutex_init(&(REMOTE_ThreadHandle(wid).tlock_status), NULL);
   REMOTE_ThreadHandle(wid).tdetach = (CELL)0;
   REMOTE_ThreadHandle(wid).cmod = (CELL)0;
   {
@@ -1234,19 +1234,19 @@ InitScratchPad(int wid)
   REMOTE_ScratchPad(wid).msz = SCRATCH_START_SIZE;
 }
 
-CELL *
+static CELL *
 InitHandles(int wid) {
   size_t initial_slots = 1024;
   CELL *handles;
-  
+
   REMOTE_CurSlot(wid) = 1;
   REMOTE_NSlots(wid)  = initial_slots;
   handles = malloc(initial_slots * sizeof(CELL));
-  
+
   if(handles == NULL) {
     Yap_Error(SYSTEM_ERROR, 0 /* TermNil */, "No space for handles at " __FILE__ " : %d", __LINE__);
   }
-  
+
   RESET_VARIABLE(handles);
   return handles;
 }
@@ -1279,7 +1279,7 @@ struct worker_local	*Yap_local;
 struct worker_local	Yap_local;
 #endif
 
-static void 
+static void
 InitCodes(void)
 {
   CACHE_REGS
@@ -1316,7 +1316,7 @@ InitCodes(void)
 }
 
 
-static void 
+static void
 InitVersion(void)
 {
   Yap_PutValue(AtomVersionNumber,
@@ -1324,7 +1324,7 @@ InitVersion(void)
 }
 
 void
-Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_size, 
+Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_size,
                   int n_workers, int sch_loop, int delay_load)
 {
   CACHE_REGS

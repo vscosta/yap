@@ -1581,7 +1581,7 @@ mark_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
 
     //fprintf(stderr,"ENV %p %ld\n", gc_ENV, size);    
 #ifdef DEBUG
-    if (size <  0 || size > 512)
+    if (/* size <  0 || */ size > 512)
       fprintf(stderr,"OOPS in GC: env size for %p is " UInt_FORMAT "\n", gc_ENV, (CELL)size);
 #endif
     mark_db_fixed((CELL *)gc_ENV[E_CP] PASS_REGS);

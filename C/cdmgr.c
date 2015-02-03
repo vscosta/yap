@@ -6516,7 +6516,7 @@ p_nth_instance( USES_REGS1 )
 	UNLOCK(pe->PELock);
 	return FALSE;
       }
-      CurSlot = Yap_StartSlots( PASS_REGS1 );
+      CurSlot = Yap_StartSlots( );
       /* I have pe and n */
       sl4 = Yap_InitSlot( ARG4 PASS_REGS );
       /* in case we have to index or to expand code */
