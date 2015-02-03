@@ -115,7 +115,7 @@
  * Use C++11 nullptr if available; otherwise use a C++ typesafe template; and
  * for C, fall back to longs.  See bugs 547964 and 626472.
  */
-#ifndef HAVE_NULLPTR
+#if !defined(nullptr) && !defined(HAVE_NULLPTR)
 #ifndef __cplusplus
 # define nullptr ((void*)0)
 #elif defined(__GNUC__)
