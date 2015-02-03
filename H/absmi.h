@@ -214,6 +214,7 @@ restore_absmi_regs(REGSTORE * old_regs)
 #else
   Yap_regp = old_regs;
 #endif
+  LOCAL_PL_local_data_p->reg_cache = old_regs;
 }
 #endif /* PUSH_REGS */
 
@@ -2143,9 +2144,8 @@ Yap_regtoregno(wamreg reg)
 #endif
 
 static inline void
-prune(choiceptr cp)
+prune(choiceptr cp USES_REGS)
 {
-  CACHE_REGS
 #ifdef YAPOR
     CUT_prune_to(cp);
 #endif /* YAPOR */
