@@ -180,8 +180,8 @@ extern BPLONG toam_signal_vec;
 
 #define unify YAP_UnifyINT
 
-extern inline YAP_UnifyINT(YAP_Term t1, YAP_Term t2);
-extern inline YAP_UnifyINT(YAP_Term t1, YAP_Term t2) { return YAP_Unify(t1,t2); }
+extern inline INLINE_ONLY YAP_UnifyINT(YAP_Term t1, YAP_Term t2);
+extern inline INLINE_ONLY YAP_UnifyINT(YAP_Term t1, YAP_Term t2) { return YAP_Unify(t1,t2); }
 
 INLINE_ONLY extern inline char *
 bp_term_2_string(TERM t)
