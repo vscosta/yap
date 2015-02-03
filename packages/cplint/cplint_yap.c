@@ -20,7 +20,7 @@ for the relative license.
 
 
 FILE *open_file (char *filename, const char *mode);
-static int compute_prob(void);
+static YAP_Bool compute_prob(void);
 
 variables  createVars(YAP_Term t,DdManager * mgr, int create_dot,  char inames[1000][20])
 /* adds the boolean variables to the BDD and returns
@@ -125,7 +125,7 @@ two integers
   return(expression);
 }
 
-static int compute_prob(void)
+static YAP_Bool compute_prob(void)
 /* this is the function that implements the compute_prob predicate used in pp.pl
 */
 {
