@@ -1908,7 +1908,7 @@ X_API int
 PL_skip_list(term_t list, term_t tail, size_t *len)
 { 
   CACHE_REGS
-  Term *l = Yap_AddressFromSlot(list PASS_REGS);
+  Term *l = Yap_AddressFromSlot(list);
   Term *t;
   intptr_t length;
 
@@ -2302,7 +2302,7 @@ PL_open_foreign_frame(void)
 #ifdef DEPTH_LIMIT
     cp_b->cp_depth = DEPTH;
 #endif /* DEPTH_LIMIT */
-    cp_b->cp_a1 = MkIntTerm(Yap_StartSlots( PASS_REGS1 ));
+    cp_b->cp_a1 = MkIntTerm(Yap_StartSlots());
     HB = HR;
     B = cp_b;
     ASP = (CELL *)B;
@@ -2381,7 +2381,7 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
   CACHE_REGS
   YAP_Term *t = NULL;
   if (t0) 
-    t = Yap_AddressFromSlot(t0 PASS_REGS);
+    t = Yap_AddressFromSlot(t0);
 
   /* ignore flags  and module for now */
   qid_t new = (qid_t)Yap_AllocCodeSpace(sizeof(struct open_query_struct));

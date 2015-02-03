@@ -5,6 +5,12 @@
 #  libraries
 
 cmake_minimum_required(VERSION 2.8)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  cmake_policy( SET CMP0042 NEW)
+  cmake_policy( NO_POLICY_SCOPE )
+endif()
+
+cmake_policy(SET CMP0043 NEW)
 
 project(YAP C CXX)
 
@@ -41,10 +47,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 set(CMAKE_TOP_BINARY_DIR ${CMAKE_BINARY_DIR})
 set(YAP_PL_SRCDIR ${CMAKE_SOURCE_DIR}/pl)
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  cmake_policy( SET CMP0042 NEW)
-endif()
-
 # Compatibility vars with autotols
 set ( prefix "${CMAKE_INSTALL_PREFIX}")
 set ( exec_prefix "${prefix}")
@@ -73,7 +75,8 @@ set(YAP_STARTUP startup.yss)
 string(TIMESTAMP YAP_TIMESTAMP)
 string( SUBSTRING ${CMAKE_SHARED_LIBRARY_SUFFIX} 1 -1 SO_EXT )
 #
-include_directories (H include os ${CMAKE_BINARY_DIR})
+include_directories (H include os)
+include_directories (BEFORE ${CMAKE_BINARY_DIR})
 
 # Optional libraries that affect compilation
 #
@@ -89,7 +92,7 @@ include (MacroLogFeature)
 include (CMakeDependentOption)
 include (CheckSymbolExists)
 
-set ( MALLOC_T void *)
+set ( YAP_MALLOC_T void *)
 set ( MIN_STACKSPACE 1024*SIZEOF_INT_P )
 set ( MIN_HEAPSPACE 2*1024*SIZEOF_INT_P )
 set ( MIN_TRAILSPACE 512*SIZEOF_INT_P )
@@ -98,19 +101,21 @@ set ( DEF_HEAPSPACE 0 )
 set ( DEF_TRAILSPACE 0 )
 
 # option (RATIONAL_TREES "support infinite rational trees" ON)
-add_definitions (-DRATIONAL_TREES=1)
+# dd_definitions (-D)
 
-# option (COROUTINING
-#   "support co-routining, attributed variables and constraints" ON)
-add_definitions (-DCOROUTINING=1)
+## don't touch these opts
+set_property( DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  DEPTH_LIMIT=1;COROUTINING=1;RATIONAL_TREES=1 )
 
-# if (RATIONAL_TREES and COROUTINING)
-#TODO: install (cd LGPL/clp ; $(MAKE) install)
-# endif (RATIONAL_TREES and COROUTINING)
+# inform we are compiling YAP
+set_property( DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  _YAP_NOT_INSTALLED_=1;HAVE_CONFIG_H )
 
-# option (DEPTH_LIMIT
-#   "support depth-bound computation" ON)
-add_definitions (-DDEPTH_LIMIT=1)
+# Compilation model
+set_property( DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  GNU_SOURCE=1;_XOPEN_SOURCE=700 )
+
+#add_definitions( -Wall  -Wstrict-prototypes -Wmissing-prototypes)
+
+# Model Specific
+set_property( DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  $<$<CONFIG:Debug>:DEBUG=1;LOW_LEVEL_TRACER=1> )
 
 #ensure cells are properly aligned in code
 set (ALIGN_LONGS 1)
@@ -133,13 +138,12 @@ if ( ${C_COMPILER} MATCHES "Intel")
   set (HAVE_GCC 1)
 endif()
 
-add_definitions( -Wall  -Wstrict-prototypes -Wmissing-prototypes)
-add_definitions(-D_YAP_NOT_INSTALLED_=1 -DHAVE_CONFIG_H)
-add_definitions(-D_GNU_SOURCE=1 -D_XOPEN_SOURCE=700)
+# Model Specific
+if (HAVE_GCC)
+  set_property( DIRECTORY APPEND_STRING PROPERTY COMPILE_OPTIONS  -Wall;-Wstrict-prototypes;-Wmissing-prototypes )
+endif()
 
 message(STATUS "Original CMAKE_C_FLAGS ${CMAKE_C_FLAGS}")
-
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}  -DLOW_LEVEL_TRACER=1 -DDEBUG=1 ")
 
 # Compilation Flags
 if (CMAKE_COMPILER_IS_GNUCC)
@@ -150,11 +154,11 @@ message(STATUS "Running with CMAKE_C_FLAGS ${CMAKE_C_FLAGS}")
 
 if (HAVE_GCC)
   # replace instructions codes by the address of their code
-  option (THREADED_CODE "threaded code" ON)
-  if (THREADED_CODE)
+  option (YAP_THREADED_CODE "threaded code" ON)
+  if (YAP_THREADED_CODE)
     set (USE_THREADED_CODE 1)
     add_definitions(-DTHREADEAD_CODE=1)
-endif (THREADED_CODE)
+endif (YAP_THREADED_CODE)
 endif (HAVE_GCC)
 
 #
@@ -165,8 +169,8 @@ set (BUILD_SHARED_LIBS ON)
 #
 add_subdirectory (os/libtai)
 
-option (TABLING "Support tabling" ON)
-if (TABLING)
+option (YAP_TABLING "Support tabling" ON)
+if (YAP_TABLING)
   #this depends on DEPTH_LIMIT define it after
 
   #this macro should realy be in config.h or other like it
@@ -174,16 +178,16 @@ if (TABLING)
   add_definitions (-DTABLING=1)
   include_directories (OPTYap)
   add_subdirectory (OPTYap)
-endif(TABLING)
+endif(YAP_TABLING)
 
-option (EAM "enable EAM (Extended Andorra Model)" OFF)
-if (EAM)
+option (YAP_EAM "enable EAM (Extended Andorra Model)" OFF)
+if (YAP_EAM)
   #this macro should realy be in config.h or other like it
   add_definitions (-DBEAM=1)
   include_directories (BEAM)
   add_subdirectory (BEAM)
   set (EXTRALIBS ${EXTRALIBS} beam)
-endif (EAM)
+endif (YAP_EAM)
 
 #TODO: option (or-parallelism)
 
@@ -191,11 +195,14 @@ endif (EAM)
 # option (WAM_Profile
 #   "support low level profiling of abstract machine" OFF)
 
-option (Low_Level_Tracer
-  "support for procedure-call tracing" OFF)
+option (YAP_CALL_TRACER
+"support for procedure-call tracing" ON)
 #TODO:
+if (YAP_CALL_TRACER)
+    set_directory_properties(PROPERTIES COMPILE_DEFINITIONS_DEBUG LOW_LEVEL_TRACER=1)
+endif (YAP_CALL_TRACER)
 
-option (System_Threads
+option (YAP_THREADS
   "support system threads" OFF)
 #TODO:
 
@@ -391,8 +398,6 @@ set_target_properties(libYap
   OUTPUT_NAME Yap
   )
 
-option (Dynamic_BDD
-  "dynamic bdd library" OFF)
 #TODO:
 
 #TODO:
@@ -412,8 +417,8 @@ if (GMP_FOUND)
   target_link_libraries(libYap ${GMP_LIBRARIES})
   #config.h needs this (TODO: change in code latter)
   set (USE_GMP 1)
-#  set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${GMP_INCLUDE_DIR} )
-#  set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${GMP_LIBRARIES} )
+  set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${GMP_INCLUDE_DIR} )
+  set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${GMP_LIBRARIES} )
 endif (GMP_FOUND)
 
 macro_optional_find_package (Readline ON)
@@ -423,10 +428,10 @@ macro_log_feature (READLINE_FOUND "libreadline"
 if (READLINE_FOUND)
   include_directories (${READLINE_INCLUDE_DIR})
   target_link_libraries(libYap ${READLINE_LIBRARIES})
-  set (HAVE_READLINE_READLINE_H 1)
-#  set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${READLINE_INCLUDE_DIR} )
-#  set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${READLINE_LIBRARIES} )
+  set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${READLINE_INCLUDE_DIR} )
+  set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${READLINE_LIBRARIES} )
 
+  check_include_file( readline/readline.h HAVE_READLINE_READLINE_H )
   check_function_exists( add_history  HAVE_ADD_HISTORY )
   check_function_exists( rl_begin_undo_group HAVE_RL_BEGIN_UNDO_GROUP)
   check_function_exists( rl_clear_pending_input HAVE_RL_CLEAR_PENDING_INPUT)
@@ -446,11 +451,12 @@ if (READLINE_FOUND)
 endif (READLINE_FOUND)
 
 
-macro_optional_find_package (Threads OFF)
+option (YAP_THREADS OFF)
+macro_optional_find_package (Threads ON)
 macro_log_feature (THREADS_FOUND "Threads Support"
   "GNU Threads Library (or similar)"
   "http://www.gnu.org/software/threads")
-if (THREADS_FOUND)
+if (YAP_THREADS AND THREADS_FOUND)
   #
   #   CMAKE_THREAD_LIBS_INIT     - the thread library
   #   CMAKE_USE_SPROC_INIT       - are we using sproc?
@@ -489,36 +495,33 @@ if (THREADS_FOUND)
   # Please note that the compiler flag can only be used with the imported
   # target. Use of both the imported target as well as this switch is highly
   # recommended for new code.
-endif (THREADS_FOUND)
+endif (YAP_THREADS AND THREADS_FOUND)
 
-cmake_dependent_option (PThreadLocking
+cmake_dependent_option (YAP_PTHREADLOCKING
   "use pthread locking primitives for internal locking" ON
-  System_Threads OFF)
+  "NOT YAP_THREADS; NOT THREADS_FOUND" OFF)
 
-add_subdirectory (CXX)
+  add_subdirectory (pl)
+  add_subdirectory (CXX)
 ADD_SUBDIRECTORY(library)
 ADD_SUBDIRECTORY(swi/library)
 # ADD_SUBDIRECTORY(os)
 # ADD_SUBDIRECTORY(packages)
-ADD_SUBDIRECTORY(pl)
 
-option (JIT
-    "use just-in-time compilation (experimental)" ON)
-if (JIT)
-    macro_optional_find_package (LLVM ON)
-    macro_log_feature (LLVM_FOUND "LLVM JIT generator"
-            "The LLVM Compiler Infrastructure" "http://www.llvm.org")
-    if (LLVM_FOUND)
-        INCLUDE_DIRECTORIES(JIT/HPP)
-        add_definitions (-DYAP_JIT=1)
-        add_subdirectory (JIT)
-    endif (LLVM_FOUND)
-endif (JIT)
+if (BUILD_JIT)
+    add_definitions (-DYAP_JIT=1)
+    INCLUDE_DIRECTORIES(JIT JIT/HPP)
+    macro_optional_add_subdirectory(JIT ON)
+                                                                                                                                            endif()
 
+macro_optional_add_subdirectory(library/mpi)
+macro_optional_add_subdirectory(library/lammpi)
 
 macro_optional_add_subdirectory (packages/gecode)
 
 macro_optional_add_subdirectory (packages/cuda)
+
+macro_optional_add_subdirectory (packages/myddas)
 
 macro_optional_add_subdirectory (packages/real)
 
@@ -526,13 +529,13 @@ macro_optional_add_subdirectory (packages/python)
 
 macro_optional_add_subdirectory (packages/raptor)
 
-#macro_optional_add_subdirectory (packages/archive)
+#add_subdirectory (packages/archive)
 
 macro_optional_add_subdirectory (packages/jpl)
 
-#macro_optional_add_subdirectory (packages/prosqlite)
+#add_subdirectory (packages/prosqlite)
 
-#macro_optional_add_subdirectory (packages/zlib)
+#add_subdirectory (packages/zlib)
 
 #todo: use cmake target builds
 # option (MAXPERFORMANCE
@@ -550,28 +553,32 @@ macro_optional_add_subdirectory (packages/jpl)
 # option (CYGWIN
 #   "use cygwin library in WIN32" OFF)
 
-option (PRISM
+option (YAP_PRISM
   "use PRISM system in YAP" ON)
 #TODO:
 
-option (Dynamic_Loading
+option (YAP_DLL
   "compile YAP as a DLL" ON)
 #TODO:
 
-option (Static_compilation
+option (YAP_STATIC
   "compile YAP statically" OFF)
 #TODO:
 
-option (MALLOC
+option (YAP_MALLOC
   "use malloc to allocate memory" ON)
-if (MALLOC)
+if (YAP_MALLOC)
   # use default allocator
   set ( USE_SYSTEM_MALLOC 1 )
 endif()
 
-option(CONDOR
+option(YAP_CONDOR
   "allow YAP to be used from condor" OFF)
-#TODO:
+  if (YAP_MALLOC)
+    # use default allocator
+    set ( YAP_STATIC ON )
+    set ( YAP_DLL OFF )
+  endif()
 
 #TODO: detect arch before allow this option
 # OPTION(WIN64
@@ -624,10 +631,6 @@ add_executable (yap-bin ${CONSOLE_SOURCES})
 set_target_properties (yap-bin PROPERTIES OUTPUT_NAME yap)
 
 target_link_libraries(yap-bin libYap )
-
-if (JIT)
-
-endif(JIT)
 
 if (MPI_C_FOUND)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MPI_C_COMPILE_FLAGS} ")

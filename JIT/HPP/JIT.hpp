@@ -12,8 +12,9 @@
 #include <time.h>
 #include <dlfcn.h>
 #include "config.h"
+extern "C" {
 #include "absmi.h"
-
+}
 using namespace std;
 
 #else

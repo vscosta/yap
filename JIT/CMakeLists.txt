@@ -15,6 +15,11 @@ set(LIBJIT_SOURCES
   JIT_Init.cpp
   )
 
+macro_optional_find_package (LLVM ON)
+macro_log_feature (LLVM_FOUND "LLVM JIT generator"
+          "The LLVM Compiler Infrastructure" "http://www.llvm.org")
+
+
 # The following variables are defined:
 #  LLVM_FOUND          - true if LLVM was found
 #  LLVM_CXXFLAGS       - C++ compiler flags for files that include LLVM headers.

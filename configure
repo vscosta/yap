@@ -10332,6 +10332,8 @@ if test "${with_myddas+set}" = set; then :
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include "
 		ODBC_LDFLAGS="-L${yap_cv_myddas}/lib "
 		ODBC_CFLAGS="-I${yap_cv_myddas}/include "
+		SQLITE3_LDFLAGS="-L${yap_cv_myddas}/lib "
+		SQLITE3_CFLAGS="-I${yap_cv_myddas}/include "
 	fi
 else
   yap_cv_myddas=/usr
@@ -10680,6 +10682,69 @@ done
 	  then
 	    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_TOP_LEVEL"
 	fi
+	#from SWI PROSQLITE library.
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for sqlite3_open in -lsqlite3" >&5
+$as_echo_n "checking for sqlite3_open in -lsqlite3... " >&6; }
+if ${ac_cv_lib_sqlite3_sqlite3_open+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lsqlite3  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char sqlite3_open ();
+int
+main ()
+{
+return sqlite3_open ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_sqlite3_sqlite3_open=yes
+else
+  ac_cv_lib_sqlite3_sqlite3_open=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_sqlite3_sqlite3_open" >&5
+$as_echo "$ac_cv_lib_sqlite3_sqlite3_open" >&6; }
+if test "x$ac_cv_lib_sqlite3_sqlite3_open" = xyes; then :
+  MYDDAS_LIBS+="-lsqlite3"
+                       havelib=yes
+fi
+
+
+
+        for ac_header in sqlite3.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "sqlite3.h" "ac_cv_header_sqlite3_h" "$ac_includes_default"
+if test "x$ac_cv_header_sqlite3_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_SQLITE3_H 1
+_ACEOF
+
+else
+  yap_cv_sqlite3="no"
+fi
+
+done
+
+	if test "$yap_cv_odbc" = yes
+	then
+		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_SQLITE3"
+	fi
+
 	LIBS="$OLD_LIBS"
 else
 	ENABLE_MYDDAS=""
@@ -14190,7 +14255,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14193 "configure" */
+/* #line 14258 "configure" */
 public class Test {
 }
 EOF
@@ -14366,7 +14431,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 14369: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 14434: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -14497,7 +14562,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14500 "configure" */
+/* #line 14565 "configure" */
 public class Test {
 }
 EOF
@@ -14532,7 +14597,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 14535 "configure" */
+/* [#]line 14600 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -17286,7 +17351,7 @@ fi
     PKG_CUDA="packages/cuda"
     case "$target_os" in
      *darwin*)
-       CUDA_LDFLAGS="$LDFLAGS"
+       CUDA_LDFLAGS="$LDFLAGS $LIBS"
     CUDA_CPPFLAGS="-arch=sm_20  -Xcompiler -fPIC -O3 "
     CUDA_SHLIB_LD="$NVCC  --shared -L../.. -lYap "
      ;;
@@ -17390,7 +17455,7 @@ if test "$use_gecode" != no; then
      fi
      if test "$use_gecode" = yes; then
        GECODE_PATH=`which fzn-gecode`
-     GECODE_PATH=`dirname "$GECODE_PATH"`
+       GECODE_PATH=`dirname "$GECODE_PATH"`
      else
        GECODE_PATH="$use_gecode"
      fi
@@ -17518,8 +17583,6 @@ fi
 
 
 
-CPPFLAGS="$saved_CPPFLAGS"
-
 
 
 
@@ -17530,6 +17593,8 @@ if test "$PKG_GECODE" = "packages/gecode"; then
 ac_config_files="$ac_config_files packages/gecode/Makefile"
 
 fi
+
+CPPFLAGS="$saved_CPPFLAGS"
 
 
 
@@ -17557,7 +17622,8 @@ if test "${with_prosqlite+set}" = set; then :
 	    PROSQLITE_DIR=/usr
 	elif test "$withval" = no; then
 	    yap_cv_prosqlite=no
-	else
+
+else
 	    PROSQLITE_DIR=$withval
 	fi
 else

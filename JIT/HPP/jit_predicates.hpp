@@ -25,21 +25,15 @@ extern int errno;
     strcpy(S, tmp); \
     free(tmp);
 
-#if YAP_JIT
 void Yap_InitJitAnalysisPreds(void);
 void Yap_InitJitCodegenPreds(void);
 void Yap_InitJitConfigPreds(void);
 void Yap_InitJitTransformPreds(void);
-#if YAP_STAT_PREDS
 void Yap_InitJitStatisticPreds(void);
-#endif
-#endif /* YAP_JIT */
-#if YAP_DBG_PREDS
 void Yap_InitJitDebugPreds(void);
-#endif
 
-Environment ExpEnv;
 #if YAP_JIT
+Environment ExpEnv;
 extern NativeContext *NativeArea;
 extern IntermediatecodeContext *IntermediatecodeArea;
 #endif

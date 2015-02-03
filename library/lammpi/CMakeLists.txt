@@ -2,12 +2,12 @@
 set (MPI_SOURCES
   hash.c prologterms2c.c yap_mpi.c)
 
-macro_optional_find_package(MPI ON)
+  macro_optional_find_package(MPI ON)
+  macro_log_feature (MPI_C_FOUND "Mpi"
+    "Use Mpi System"
+    "http://www.mpi.org" FALSE)
 
-macro_log_feature (MPI_C_FOUND "Mpi"
-  "Use Mpi System"
-  "http://www.mpi.org" FALSE)
-if (MPI_C_FOUND)         
+if (MPI_C_FOUND)
   # === Variables ===
   #
   # This module will set the following variables per language in your
@@ -69,7 +69,7 @@ if (MPI_C_FOUND)
   # program, EXECUTABLE is the MPI program, and ARGS are the arguments to
   # pass to the MPI program.
   #
-  
+
   add_library (yap_mpi SHARED ${MPI_SOURCES})
 
   target_link_libraries(yap_mpi libYap ${MPI_LIBRARIES})
@@ -77,9 +77,9 @@ if (MPI_C_FOUND)
   set_target_properties (yap_mpi PROPERTIES PREFIX "")
 
   include_directories (${MPI_INCLUDE_DIRS})
-  
+
   install(TARGETS  yap_mpi
     LIBRARY DESTINATION ${dlls}
     )
- 
+
 endif (MPI_C_FOUND)
