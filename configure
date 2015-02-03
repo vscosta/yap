@@ -10720,7 +10720,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_sqlite3_sqlite3_open" >&5
 $as_echo "$ac_cv_lib_sqlite3_sqlite3_open" >&6; }
 if test "x$ac_cv_lib_sqlite3_sqlite3_open" = xyes; then :
-  MYDDAS_LIBS+="-lsqlite3"
+  MYDDAS_LIBS="-lsqlite3 $MYDDAS_LIBS"
                        havelib=yes
 fi
 
@@ -17399,6 +17399,7 @@ else
 if test -d "$use_gecode"; then
   CPPFLAGS="$CPPFLAGS -I $use_gecode/include"
   GECODE_EXTRALIBS="-L $use_gecode/lib"
+  GECODE_INCLUDES=" $use_gecode/include"
      GECODE_PATH="$use_gecode/bin"
 elif test -d /usr/local/include/gecode -a x$SYSROOT = x; then
   CPPFLAGS="$CPPFLAGS -I/usr/local/include"
