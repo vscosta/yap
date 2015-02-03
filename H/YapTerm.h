@@ -51,8 +51,8 @@ typedef uintptr_t UInt;
 #define UInt_FORMAT "%ul"
 
 #elif SIZEOF_LONG_INT==4
-/*   */ typedef long int Int;
-/*   */ typedef unsigned long int UInt;
+/*   typedef long int Int;*/ 
+/*  typedef unsigned long int UInt;  */ 
 
 #define Int_FORMAT "%ld"
 #define UInt_FORMAT "%lu"
