@@ -24,15 +24,16 @@
 #endif
 #include <config.h>
 
+#if USE_GMP
+#include <gmpxx.h>  
+#endif
+
 extern "C" {
 
 #include <stddef.h>
 #ifdef __cplusplus
 #define old_cplusplus __cplusplus
 #undef __cplusplus
-#endif
-#if USE_GMP
-#include <gmp.h>
 #endif
 #ifdef  old_cplusplus
 #define __cplusplus old_cplusplus
