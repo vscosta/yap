@@ -112,6 +112,8 @@ typedef struct myddas_list_preds *MYDDAS_UTIL_PREDICATE;
 typedef struct myddas_stats_time_struct *MYDDAS_STATS_TIME;
 typedef struct myddas_global_stats *MYDDAS_GLOBAL_STATS;
 typedef struct myddas_stats_struct *MYDDAS_STATS_STRUCT;
+#else
+typedef void *MYDDAS_STATS_TIME;
 #endif
 
 #ifdef DEBUG                                                

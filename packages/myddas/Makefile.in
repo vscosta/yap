@@ -21,7 +21,7 @@ YAPLIBDIR=@libdir@/Yap
 #
 CC=@CC@
 YAP_EXTRAS=@YAP_EXTRAS@
-CFLAGS= $(YAP_EXTRAS) @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include -I$(srcdir)/../../H -I$(srcdir)/../../OPTYap -I$(srcdir)/../../os
+CFLAGS= $(YAP_EXTRAS) @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include -I$(srcdir)/../../H -I$(srcdir)/../../OPTYap -I$(srcdir)/../../os  @MYDDAS_CPPFLAGS@ 
 LDFLAGS=@LDFLAGS@
 #
 #
@@ -47,7 +47,8 @@ MYDDAS_HEADERS= \
 MYDDAS_SOURCES= \
 	myddas_mysql.c \
 	myddas_odbc.c \
-	myddas_util.c \
+	myddas_sqlite3.c \
+        myddas_util.c \
 	myddas_initialization.c \
 	myddas_shared.c \
 	myddas_statistics.c \
@@ -79,7 +80,7 @@ all: $(SOBJS)
 	$(CC) -c $(CFLAGS) $< -o $@
 
 @DO_SECOND_LD@%.@SO@: $(OBJS)
-@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $(OBJS) @EXTRA_LIBS_FOR_DLLS@ @MYDDAS_LIBS@ 
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $(OBJS) @EXTRA_LIBS_FOR_DLLS@ @MYDDAS_LIBS@
 
 install: all install_myddas install-examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)

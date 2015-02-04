@@ -411,7 +411,7 @@
 
 %
 % This predicate asserts facts in a Module, but if that
-% fact already exists, it dosen't assert it
+% fact already exists, it doesn't assert it
 %
 '$assert_facts'(Module,Fact):-
         Module:Fact,!.

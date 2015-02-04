@@ -71,7 +71,10 @@ db_import(Connection,RelationName,PredName) :-
         ( ConType == mysql ->
 	    c_db_my_number_of_fields(RelationName,Con,Arity)
 	;
+	  ConType == odbc ->
 	    c_db_odbc_number_of_fields(RelationName,Con,Arity)
+	;
+       	    c_sqllite3_number_of_fields(RelationName,Con,Arity)
 	),
 	db_module(Module),
 	not c_db_check_if_exists_pred(PredName,Arity,Module),
@@ -86,7 +89,10 @@ db_import(Connection,RelationName,PredName) :-
 	( ConType == mysql ->
 	    c_db_my_get_attributes_types(RelationName,Con,TypesList)
 	;
-	    c_db_odbc_get_attributes_types(RelationName,Con,TypesList)
+	 ConType == odbc ->
+	     c_db_odbc_get_attributes_types(RelationName,Con,TypesList)
+	;
+	    c_sqlite3_get_attributes_types(RelationName,Con,TypesList)
 	),
 	
 	% assert attributes facts 
@@ -107,6 +113,17 @@ db_import(Connection,RelationName,PredName) :-
 			      ','(M:'$write_or_not'(FinalSQL),
 	                      ','(M:c_db_my_query(FinalSQL,ResultSet,Con,Mode,_),
 			      ','(!,M:c_db_my_row(ResultSet,Arity,LA))))))))]
+	    
+	    ;
+	    ConType == sqlit3 ->
+
+	    Assert =..[':-',P,','(M:'$copy_term_nv'(P,[],G,_),
+		              ','(M:translate(G,G,Code),
+		              ','(M:queries_atom(Code,FinalSQL),
+			      ','(M:db_my_result_set(Mode),
+			      ','(M:'$write_or_not'(FinalSQL),
+	                      ','(M:c_sqlit3_query(FinalSQL,ResultSet,Con,Mode,_),
+			      ','(!,M:c_sqlit3_row(ResultSet,Arity,LA))))))))]
 	    
 	    ;
 	    '$make_a_list'(Arity,BindList),
