@@ -210,11 +210,11 @@ myddas_stat_end_query( MYDDAS_STATS_TIME start )
   return diff;
 }
 
-/*
+#ifdef MYDDAS_STATS
+/* measure transfer time */
 static void
 myddas_stat_transfer_query( MYDDAS_STATS_TIME diff )
 {
-#ifdef MYDDAS_STATS_DISABLED
   /* Measure time spent by the sqlite3 Server
      transferring the result of the last query
      back to the client */
@@ -226,7 +226,7 @@ myddas_stat_transfer_query( MYDDAS_STATS_TIME diff )
 
   MYDDAS_STATS_INITIALIZE_TIME_STRUCT(diff,time_copy);
   myddas_stats_subtract_time(diff,end,start);
-  diff = myddas_stats_time_copy_to_final(diff);
+  diff = MYDDAS_STATS_TIME_copy_to_final(diff);
 
   MYDDAS_FREE(end,struct myddas_stats_time_struct);
   MYDDAS_FREE(start,struct myddas_stats_time_struct);
@@ -252,7 +252,8 @@ myddas_stat_transfer_query( MYDDAS_STATS_TIME diff )
       /* This is only works if we use sqlite3_store_result */
       MyddasUInt numberRows = sqlite3_num_rows(res_set);
       MyddasUInt rows;
-
+      myddas_stat_transfer_query( diff );
+	
       MYDDAS_STATS_CON_GET_TOTAL_ROWS(node,rows);
       numberRows = numberRows + rows;
       MYDDAS_STATS_CON_SET_TOTAL_ROWS(node,numberRows);
@@ -283,8 +284,8 @@ myddas_stat_transfer_query( MYDDAS_STATS_TIME diff )
       MYDDAS_STATS_CON_GET_TOTAL_BYTES_TRANSFERING_FROM_DBSERVER_COUNT(node,count);
       MYDDAS_STATS_CON_SET_TOTAL_BYTES_TRANSFERING_FROM_DBSERVER_COUNT(node,++count);
     }
-#endif
 }
+#endif  
 
 /* db_query: SQLQuery x ResultSet x connection */
 static Int
@@ -634,14 +635,18 @@ c_sqlite3_row( USES_REGS1 ) {
   list = arg_list_args;
   arity = IntegerOfTerm(arg_arity);
   sqlite3 *db = res_set->db;
-
   if (res_set->stmt == NULL ) {
     CACHE_REGS
     Int indx = IntegerOfTerm(EXTRA_CBACK_CUT_ARG(Term,2));
     Int rc = true;
     // data needs to be copied to Prolog
     // row by row
-    while (indx/arity < res_set->nrows)
+#ifdef MYDDAS_STATS
+    MYDDAS_STATS_TIME diff;
+          
+    MYDDAS_STATS_INITIALIZE_TIME_STRUCT(diff,time_copy);
+#endif
+     while (indx/arity < res_set->nrows)
       {
 	for (i = 0; i < arity; i++)
 	  {
@@ -654,6 +659,9 @@ c_sqlite3_row( USES_REGS1 ) {
 	if (rc)
 	  return rc;
       }
+#ifdef MYDDAS_STATS
+     myddas_stat_transfer_query( diff );
+#endif
     cut_fail();
   }
   // busy-waiting
@@ -721,7 +729,6 @@ c_sqlite3_row( USES_REGS1 ) {
 #ifdef MYDDAS_STATS
     end = myddas_stats_walltime();
           
-    MYDDAS_STATS_INITIALIZE_TIME_STRUCT(diff,time_copy);
     myddas_stats_subtract_time(diff,end,start);
     diff = myddas_stats_time_copy_to_final(diff);
           

@@ -116,6 +116,14 @@ close_tstring( char *p USES_REGS ) {
 static inline seq_type_t
 mod_to_type( Term mod USES_REGS )
 {
+
+  // see pl-incl.h
+#ifndef DBLQ_CHARS
+#define DBLQ_CHARS              (0x0004) /* "ab" --> ['a', 'b'] */
+#define DBLQ_ATOM               (0x0008) /* "ab" --> 'ab' */
+#define DBLQ_STRING             (0x0010) /* "ab" --> "ab" */
+#define DBLQ_MASK               (DBLQ_CHARS|DBLQ_ATOM|DBLQ_STRING)
+#endif
   unsigned int flags = Yap_GetModuleEntry(mod)->flags;
   if (flags & DBLQ_ATOM) {
     return YAP_STRING_ATOM;

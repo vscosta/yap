@@ -280,8 +280,8 @@ AC_ARG_WITH(gmp,
 	elif test "$withval" = no; then
 		yap_cv_gmp=no
 	else
-		yap_cv_gmp="$with_gmp"
-		GMPDIR="$with_gmp"
+		yap_cv_gmp="$withval"
+		GMPDIR="$withval"
 		LDFLAGS="$LDFLAGS -L${yap_cv_gmp}/lib"
 		LIBS="$LIBS -L${yap_cv_gmp}/lib"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_gmp}/include"
@@ -1316,7 +1316,7 @@ AC_CHECK_HEADERS(sys/mman.h sys/ndir.h sys/param.h)
 AC_CHECK_HEADERS(sys/resource.h sys/select.h)
 AC_CHECK_HEADERS(sys/shm.h sys/socket.h sys/stat.h)
 AC_CHECK_HEADERS(sys/time.h sys/times.h sys/types.h)
-AC_CHECK_HEADERS(sys/ucontext.h sys/un.h sys/wait.h)
+AC_CHECK_HEADERS(sys/ucontext.h sys/uio.h sys/un.h sys/wait.h)
 AC_CHECK_HEADERS(time.h ucontext.h unistd.h utime.h)
 AC_CHECK_HEADERS(wctype.h)
 AC_CHECK_HEADERS(zlib.h zutil.h)

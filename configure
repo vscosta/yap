@@ -700,6 +700,7 @@ ARCHIVE_CPPFLAGS
 ARCHIVE_LIBS
 ARCHIVE_PLTARGETS
 ARCHIVE_TARGETS
+CLIB_FLAGS_LIBUUID
 CLIB_LIBUUID
 CLIB_CRYPTOBJ
 CLIB_CRYPTLIBS
@@ -724,6 +725,7 @@ JITLD
 JITFLAGS
 LLVM_CONFIG
 MYDDAS_LIBS
+MYDDAS_CPPFLAGS
 PKG_MYDDAS
 EXTRA_LIBS_FOR_SWIDLLS
 CLIB_PTHREADS
@@ -901,7 +903,10 @@ with_stack_space
 with_trail_space
 with_max_workers
 with_max_threads
-with_myddas
+enable_myddas
+with_mysql
+with_odbc
+with_sqlite3
 enable_myddas_stats
 enable_myddas_top_level
 enable_jit
@@ -912,7 +917,6 @@ with_rfc2045_version
 enable_mimecharset
 with_time
 with_libarchive
-with_odbc
 with_cudd
 enable_bddlib
 with_cplint
@@ -1577,6 +1581,7 @@ Optional Features:
  --enable-april             compile Yap to support April ILP system
  --enable-dlcompat          use dlcompat library for dynamic loading on Mac OS X
  --enable-horus           enable CLPBN HORUS library.
+ --enable-myddas[=DIR]      with the MYDDAS library
  --enable-myddas-stats      enable the MYDDAS library statistics support
  --enable-myddas-top-level  enable the MYDDAS top-level support to MySQL
  --enable-jit                   support just-in-time (JIT) compilation
@@ -1599,7 +1604,9 @@ Optional Packages:
  --with-trail-space=space default trail size in Kbytes
  --with-max-workers=integer maximum number of or-parallel processes
  --with-max-threads=integer maximum number of or-parallel processes
- --with-myddas[=DIR]      with the MYDDAS library
+ --with-mysql[=DIR]      with the MYSQL library
+ --with-odbc[=DIR]      with an ODBC library
+ --with-sqlite3[=DIR]      with an SQLITE3 library
 
   --without-time		  Exclude alarm library
  --with-libarchive=DIR              libarchive package
@@ -4633,8 +4640,8 @@ if test "${with_gmp+set}" = set; then :
 	elif test "$withval" = no; then
 		yap_cv_gmp=no
 	else
-		yap_cv_gmp="$with_gmp"
-		GMPDIR="$with_gmp"
+		yap_cv_gmp="$withval"
+		GMPDIR="$withval"
 		LDFLAGS="$LDFLAGS -L${yap_cv_gmp}/lib"
 		LIBS="$LIBS -L${yap_cv_gmp}/lib"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_gmp}/include"
@@ -8252,7 +8259,7 @@ fi
 
 done
 
-for ac_header in sys/ucontext.h sys/un.h sys/wait.h
+for ac_header in sys/ucontext.h sys/uio.h sys/un.h sys/wait.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -10312,31 +10319,85 @@ fi
 
 
 
-MYDDAS_VERSION=0.9.1
+MYDDAS_VERSION=0.9.2
 
 cat >>confdefs.h <<_ACEOF
 #define MYDDAS_VERSION $MYDDAS_VERSION
 _ACEOF
 
 
+OLD_LIBS="$LIBS"
+OLD_CPPFLAGS="$CPPFLAGS"
+MYDDAS_CPPFLAGS=""
 
-# Check whether --with-myddas was given.
-if test "${with_myddas+set}" = set; then :
-  withval=$with_myddas; if test "$withval" = yes; then
+# Check whether --enable-myddas was given.
+if test "${enable_myddas+set}" = set; then :
+  enableval=$enable_myddas; if test "$withval" = yes; then
 		yap_cv_myddas=/usr
 	elif test "$withval" = no; then
 		yap_cv_myddas=no
 	else
-		yap_cv_myddas=$with_myddas
+		yap_cv_myddas=$withval
 		LDFLAGS="$LDFLAGS -L${yap_cv_myddas}/lib "
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include "
-		ODBC_LDFLAGS="-L${yap_cv_myddas}/lib "
-		ODBC_CFLAGS="-I${yap_cv_myddas}/include "
-		SQLITE3_LDFLAGS="-L${yap_cv_myddas}/lib "
-		SQLITE3_CFLAGS="-I${yap_cv_myddas}/include "
-	fi
+		MYDDAS_CPPFLAGS="$MYDDAS_CPPFLAGS -I${yap_cv_myddas}/include "
+fi
 else
   yap_cv_myddas=/usr
+fi
+
+
+
+# Check whether --with-mysql was given.
+if test "${with_mysql+set}" = set; then :
+  withval=$with_mysql; if test "$withval" = yes; then
+		yap_cv_mysql=/usr
+	elif test "$withval" = no; then
+		yap_cv_mysql=no
+	else
+		yap_cv_mysql=$withval
+		LDFLAGS="$LDFLAGS -L${yap_cv_mysql}/lib "
+		CPPFLAGS="$CPPFLAGS -I${yap_cv_mysql}/include "
+		MYDDAS_CPPFLAGS="$MYDDAS_CPPFLAGS -I${yap_cv_mysql}/include "
+	fi
+else
+  yap_cv_mysql=/usr
+fi
+
+
+
+# Check whether --with-odbc was given.
+if test "${with_odbc+set}" = set; then :
+  withval=$with_odbc; if test "$withval" = yes; then
+		yap_cv_odbc=/usr
+	elif test "$withval" = no; then
+		yap_cv_odbc=no
+	else
+		yap_cv_odbc=$withval
+		LDFLAGS="$LDFLAGS -L${yap_cv_odbc}/lib "
+		CPPFLAGS="$CPPFLAGS -I${yap_cv_odbc}/include "
+		MYDDAS_CPPFLAGS="$MYDDAS_CPPFLAGS -I${yap_cv_odbc}/include "
+	fi
+else
+  yap_cv_odbc=/usr
+fi
+
+
+
+# Check whether --with-sqlite3 was given.
+if test "${with_sqlite3+set}" = set; then :
+  withval=$with_sqlite3; if test "$withval" = yes; then
+		yap_cv_sqlite3=/usr
+	elif test "$withval" = no; then
+		yap_cv_sqlite3=no
+	else
+		yap_cv_sqlite3=$withval
+		LDFLAGS="$LDFLAGS -L${yap_cv_sqlite3}/lib "
+		CPPFLAGS="$CPPFLAGS -I${yap_cv_sqlite3}/include "
+		MYDDAS_CPPFLAGS="$MYDDAS_CPPFLAGS -I${yap_cv_sqlite3}/include "
+	fi
+else
+  yap_cv_sqlite3=/usr
 fi
 
 
@@ -10367,8 +10428,7 @@ fi
 if test "$yap_cv_myddas" != "no"
 then
 	PKG_MYDDAS="packages/myddas"
-		OLD_LIBS="$LIBS"
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing mysql_init" >&5
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing mysql_init" >&5
 $as_echo_n "checking for library containing mysql_init... " >&6; }
 if ${ac_cv_search_mysql_init+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -10448,7 +10508,6 @@ done
 	        case "$target_os" in
 	  *darwin*)
 	    LIBS="$LIBS -framework CoreFoundation"
-	    MYDDAS_LIBS="$MYDDAS_LIBS -framework CoreFoundation"
 	;;
 	  **)
 	;;
@@ -10511,9 +10570,9 @@ else
   yap_cv_odbc="no"
 fi
 
-	if test "$yap_cv_odbc" = yes
+	if test "$yap_cv_odbc" != no
 	then
-	   MYDDAS_LIBS="$MYDDAS_LIBS -lodbc"
+	   LIBS="$LIBS -lodbc"
 	else
 	  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing SQLAllocHandle" >&5
 $as_echo_n "checking for library containing SQLAllocHandle... " >&6; }
@@ -10573,9 +10632,9 @@ else
   yap_cv_odbc="no"
 fi
 
-	  if test "$yap_cv_odbc" = yes
+	  if test "$yap_cv_odbc" != no
 	  then
-	     MYDDAS_LIBS="$MYDDAS_LIBS -liodbc"
+	     LIBS="$LIBS -liodbc"
   	  else
 	    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing SQLAllocHandle" >&5
 $as_echo_n "checking for library containing SQLAllocHandle... " >&6; }
@@ -10635,9 +10694,9 @@ else
   yap_cv_odbc="no"
 fi
 
-	    if test "$yap_cv_odbc" = yes
+	    if test "$yap_cv_odbc" != no
 	    then
-	     MYDDAS_LIBS="$MYDDAS_LIBS -lodbc32"
+	      LIBS="$LIBS -lodbc32"
 	    fi
 	  fi
         fi
@@ -10661,27 +10720,18 @@ if test "x$ac_cv_header_sql_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_SQL_H 1
 _ACEOF
-
+ yap_cv_odbc="yes"
 else
   yap_cv_odbc="no"
 fi
 
 done
 
-	if test "$yap_cv_odbc" = yes
+	if test "$yap_cv_odbc" != no
 	then
 		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_ODBC"
 	fi
 
-	if test "$myddasstats" = "yes"
-	  then
-	    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_STATS"
-	fi
-
-	if test "$myddastoplevel" = "yes"
-	  then
-	    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_TOP_LEVEL"
-	fi
 	#from SWI PROSQLITE library.
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for sqlite3_open in -lsqlite3" >&5
 $as_echo_n "checking for sqlite3_open in -lsqlite3... " >&6; }
@@ -10720,7 +10770,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_sqlite3_sqlite3_open" >&5
 $as_echo "$ac_cv_lib_sqlite3_sqlite3_open" >&6; }
 if test "x$ac_cv_lib_sqlite3_sqlite3_open" = xyes; then :
-  MYDDAS_LIBS="-lsqlite3 $MYDDAS_LIBS"
+  LIBS="-lsqlite3 $LIBS"
                        havelib=yes
 fi
 
@@ -10740,15 +10790,28 @@ fi
 
 done
 
-	if test "$yap_cv_odbc" = yes
+	if test "$yap_cv_sqlite3" != no
 	then
 		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_SQLITE3"
 	fi
 
+	if test "$myddasstats" = "yes"
+	  then
+	    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_STATS"
+	fi
+
+	if test "$myddastoplevel" = "yes"
+	  then
+	    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_TOP_LEVEL"
+	fi
+
+	MYDDAS_LIBS="$LIBS"
 	LIBS="$OLD_LIBS"
+	CPPFLAGS="$OLD_CPPFLAGS"
 else
 	ENABLE_MYDDAS=""
 fi
+
 
 
 
@@ -11739,6 +11802,7 @@ fi
 
 
 
+
 CLIB_TARGETS="socket.$SO cgi.$SO memfile.$SO files.$SO mime.$SO crypt.$SO time.$SO"
 
 case "$PLARCH" in
@@ -11918,7 +11982,69 @@ fi
 fi
 
 
+dl to be installed in various places.
 
+# brew in OSX
+if test -d /usr/local/opt/ossp-uuid; then
+  CPPFLAGS="$CPPFLAGS -I /usr/local/opt/ossp-uuid/include"
+  UUID_LIB_PATH="-L /usr/local/opt/ossp-uuid/lib"
+fi
+
+# /opt
+if test -d /opt/include/ossp; then
+  CPPFLAGS="$CPPFLAGS -I /opt/include"
+  UUID_LIB_PATH="-L /opt/lib"
+fi
+
+# /usr/local
+if test -d /opt/include/ossp; then
+  CPPFLAGS="$CPPFLAGS -I /opt/include"
+  UUID_LIB_PATH="-L /opt/lib"
+fi
+
+if test x"$UUID_H" = "x"; then
+  ac_fn_c_check_header_compile "$LINENO" "ossp/uuid.h" "ac_cv_header_ossp_uuid_h" "/*first*/
+"
+if test "x$ac_cv_header_ossp_uuid_h" = xyes; then :
+   UUID_H=ossp/uuid.h
+		    has_uuid=true
+fi
+
+
+fi
+if test x"$UUID_H" = "x" -a ! -d /usr/include/uuid; then
+  ac_fn_c_check_header_compile "$LINENO" "uuid/uuid.h" "ac_cv_header_uuid_uuid_h" "/*first*/
+"
+if test "x$ac_cv_header_uuid_uuid_h" = xyes; then :
+   UUID_H=uuid/uuid.h
+		    has_uuid=true
+fi
+
+
+fi
+if test x"$UUID_H" = "x"; then
+  ac_fn_c_check_header_compile "$LINENO" "uuid.h" "ac_cv_header_uuid_h" "/*first*/
+"
+if test "x$ac_cv_header_uuid_h" = xyes; then :
+   UUID_H=uuid.h
+		    has_uuid=true
+fi
+
+
+fi
+if test x"$UUID_H" = "x"; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING:  Cannot find uuid.h -- dropping uuid.pl" >&5
+$as_echo "$as_me: WARNING:  Cannot find uuid.h -- dropping uuid.pl" >&2;}
+else
+
+cat >>confdefs.h <<_ACEOF
+#define UUID_H <$UUID_H>
+_ACEOF
+
+    has_uuid=true
+fi
+
+if test x"$has_uuid" != "x"; then
 ac_fn_c_check_func "$LINENO" "uuid_create" "ac_cv_func_uuid_create"
 if test "x$ac_cv_func_uuid_create" = xyes; then :
   has_uuid=true
@@ -11962,7 +12088,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_uuid_uuid_create" >&5
 $as_echo "$ac_cv_lib_uuid_uuid_create" >&6; }
 if test "x$ac_cv_lib_uuid_uuid_create" = xyes; then :
-   CLIB_LIBUUID=-luuid
+   CLIB_LIBUUID="$UUID_LIB_PATH -luuid"
 	        has_uuid=true
 
 fi
@@ -11976,45 +12102,6 @@ $as_echo "$as_me: WARNING:  Cannot find libossp-uuid or libuuid -- dropping uuid
 
 fi
 
-if test x"$has_uuid" != "x"; then
-  if test x"$UUID_H" = "x"; then
-  ac_fn_c_check_header_compile "$LINENO" "ossp/uuid.h" "ac_cv_header_ossp_uuid_h" "/*first*/
-"
-if test "x$ac_cv_header_ossp_uuid_h" = xyes; then :
-   UUID_H=ossp/uuid.h
-fi
-
-
-  fi
-  if test x"$UUID_H" = "x" -a ! -d /usr/include/uuid; then
-  ac_fn_c_check_header_compile "$LINENO" "uuid/uuid.h" "ac_cv_header_uuid_uuid_h" "/*first*/
-"
-if test "x$ac_cv_header_uuid_uuid_h" = xyes; then :
-   UUID_H=uuid/uuid.h
-fi
-
-
-  fi
-  if test x"$UUID_H" = "x"; then
-  ac_fn_c_check_header_compile "$LINENO" "uuid.h" "ac_cv_header_uuid_h" "/*first*/
-"
-if test "x$ac_cv_header_uuid_h" = xyes; then :
-   UUID_H=uuid.h
-fi
-
-
-  fi
-  if test x"$UUID_H" = "x"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING:  Cannot find uuid.h -- dropping uuid.pl" >&5
-$as_echo "$as_me: WARNING:  Cannot find uuid.h -- dropping uuid.pl" >&2;}
-  else
-
-cat >>confdefs.h <<_ACEOF
-#define UUID_H <$UUID_H>
-_ACEOF
-
-    CLIB_TARGETS="$CLIB_TARGETS uuid.$SO"
-  fi
 fi
 
 
@@ -14255,7 +14342,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14258 "configure" */
+/* #line 14345 "configure" */
 public class Test {
 }
 EOF
@@ -14431,7 +14518,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 14434: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 14521: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -14562,7 +14649,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14565 "configure" */
+/* #line 14652 "configure" */
 public class Test {
 }
 EOF
@@ -14597,7 +14684,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 14600 "configure" */
+/* [#]line 14687 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
