@@ -1267,8 +1267,14 @@ Yap_ImportTerm(char * buf) {
     tret = MkAtomTerm(addAtom(NULL,(char *)(bc+3)));
     return tret;
   }
-  if (HR + sz > ASP)
-    return (Term)0;
+  // call the gc/stack shifter mechanism
+  // if not enough stack available
+  while (HR + sz > ASP - 4096) {
+    if (!Yap_gcl( (sz+4096)*sizeof(CELL), PP->ArityOfPE, ENV, gc_P(P,CP))) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+      return 0L;
+    }
+  }
   memcpy(HR, buf+bc[0], sizeof(CELL)*sz);
   if (IsApplTerm(tinp)) {
     tret = AbsAppl(HR);
