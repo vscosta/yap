@@ -177,7 +177,7 @@ RL_Tree* set_in_rl(RL_Tree* tree,NUM number,STATUS status) {
   if ( number >0 && number <=tree->range_max)
     set_in(number,ROOT(tree),1,ROOT_INTERVAL(tree),tree->range_max,tree,status);
 #ifdef DEBUG
-  printf("Setting: %d  size=%d\n",number,tree->size);
+  printf("Setting: %ul  size=%ul\n",number,tree->size);
 #endif
   /*if (status==IN && !in_rl(tree,number)) {
     fprintf(stderr,"Error adding %lu to tree: size=%lu max=%lu\n",number,tree->size,tree->range_max);

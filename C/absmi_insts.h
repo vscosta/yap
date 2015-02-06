@@ -55,7 +55,8 @@ BOp(Ystop, l);
             fprintf(stderr, "%s", (char*)ExpEnv.debug_struc.pprint_me.criticals);
           }
 #endif
-          goto critical_lbl;
+	  traced_absmi();
+	  
         }
 #if YAP_DBG_PREDS
         print_main_when_head(PREG, ON_INTERPRETER);

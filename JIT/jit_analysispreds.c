@@ -590,7 +590,7 @@ p_analysis_output_file( USES_REGS1 )
 
 #pragma GCC diagnostic pop
 
- void 
+void 
 Yap_InitJitAnalysisPreds(void)
 {
   Yap_InitCPred("disable_analysis_pass", 1, p_disable_analysis_pass, SafePredFlag);

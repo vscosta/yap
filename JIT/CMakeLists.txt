@@ -10,7 +10,8 @@ set(LIBJIT_SOURCES
   jit_statisticpreds.c
   jit_codegenpreds.c
   jit_debugpreds.c
-  jit_transformpreds.c
+  jit_traced.c  
+  jit_transformpreds.c  
   JIT_Compiler.cpp
   JIT_Init.cpp
   )
@@ -61,6 +62,6 @@ set_target_properties(libyapjit
   OUTPUT_NAME YapJIT
   )
 
-target_link_libraries(libyapjit libYap ${LLVM_LIBRARIES} )
+target_link_libraries(libyapjit libYap ${LLVM_LIBRARIES} z)
 
 set ( YAP_YAPJITLIB $<TARGET_FILE_NAME:libyapjit> )

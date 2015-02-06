@@ -93,6 +93,8 @@ int Yap_page_size;
 #if USE_THREADED_CODE
 /* easy access to instruction opcodes */
 void **Yap_ABSMI_OPCODES;
+void **Yap_ABSMI_ControlLabels;    
+
 #endif
 
 #if DEBUG

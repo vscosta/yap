@@ -489,6 +489,9 @@ typedef struct jit_handl_context {
     CELL torecomp;
   }jitman;
 } JitHandlContext;
+
+void **Yap_ABSMI_ControlLabels;
+
 #endif /* YAP_JIT */
 
 

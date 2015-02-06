@@ -79,9 +79,7 @@
           TOP_STACK -= size;                                            \
           memcpy(TOP_STACK, aux_stack, size * sizeof(CELL *));          \
           aux_stack = TOP_STACK;                                        \
-	}
-
-/* macros 'store_trie_node', 'restore_trie_node' and 'pop_trie_node'   **
+	}/* macros 'store_trie_node', 'restore_trie_node' and 'pop_trie_node'   **
 ** do not include 'set_cut' because trie instructions are cut safe     */
 
 #define store_trie_node(AP)                                             \

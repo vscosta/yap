@@ -11,13 +11,23 @@
 **                                                                     **
 ************************************************************************/
 
+#define TOP_STACK          YENV
 
+#define HEAP_ARITY_ENTRY   (0)
+#define VARS_ARITY_ENTRY   (1 + heap_arity)
+#define SUBS_ARITY_ENTRY   (1 + heap_arity + 1 + vars_arity)
+
+/* macros 'HEAP_ENTRY', 'VARS_ENTRY' and 'SUBS_ENTRY' **
+** assume that INDEX starts at 1 (and not at 0 !!!)   */
+#define HEAP_ENTRY(INDEX)  (HEAP_ARITY_ENTRY + (INDEX))
+#define VARS_ENTRY(INDEX)  (VARS_ARITY_ENTRY + 1 + vars_arity - (INDEX))
+#define SUBS_ENTRY(INDEX)  (SUBS_ARITY_ENTRY + 1 + subs_arity - (INDEX))
 
 /************************************************************************
 **                           clause_with_cut                           **
 ************************************************************************/
 
-Op(traced_clause_with_cut, e)
+Op(clause_with_cut, e)
   { printf("Tabling not supported by JIT!!\n"); exit(1); }
 ENDOp();
 
@@ -27,7 +37,7 @@ ENDOp();
 **                          table_load_answer                          **
 ************************************************************************/
 
-PBOp(traced_table_load_answer, Otapl)
+PBOp(table_load_answer, Otapl)
 { printf("Or-parallelism not supported by JIT!!\n"); exit(1); }
   ENDPBOp();
 
@@ -37,7 +47,7 @@ PBOp(traced_table_load_answer, Otapl)
  **                          table_try_answer                           **
 ************************************************************************/
 
-  PBOp(traced_table_try_answer, Otapl)
+  PBOp(table_try_answer, Otapl)
   { printf("Or-parallelism not supported by JIT!!\n"); exit(1); }
  ENDPBOp();
 
@@ -47,7 +57,7 @@ PBOp(traced_table_load_answer, Otapl)
  **                          table_try_single                           **
 ************************************************************************/
 
-  PBOp(traced_table_try_single, Otapl)
+  PBOp(table_try_single, Otapl)
   { printf("Or-parallelism not supported by JIT!!\n"); exit(1); }
  ENDPBOp();
 
@@ -57,7 +67,7 @@ PBOp(traced_table_load_answer, Otapl)
  **                            table_try_me                             **
 ************************************************************************/
 
-  PBOp(traced_table_try_me, Otapl)
+  PBOp(table_try_me, Otapl)
   { printf("Or-parallelism not supported by JIT!!\n"); exit(1); }
  ENDPBOp();
 
@@ -67,7 +77,7 @@ PBOp(traced_table_load_answer, Otapl)
  **                             table_try                               **
 ************************************************************************/
 
-  PBOp(traced_table_try, Otapl)
+  PBOp(table_try, Otapl)
   { printf("Or-parallelism not supported by JIT!!\n"); exit(1); }
  
   ENDPBOp();
@@ -78,7 +88,7 @@ PBOp(traced_table_load_answer, Otapl)
  **                           table_retry_me                            **
 ************************************************************************/
 
-  Op(traced_table_retry_me, Otapl)
+  Op(table_retry_me, Otapl)
   { printf("Or-parallelism not supported by JIT!!\n"); exit(1); }
   ENDOp();
 
@@ -88,7 +98,7 @@ PBOp(traced_table_load_answer, Otapl)
 **                            table_retry                              **
 ************************************************************************/
 
-  Op(traced_table_retry, Otapl)
+  Op(table_retry, Otapl)
   { printf("Or-parallelism not supported by JIT!!\n"); exit(1); }
    ENDOp();
 
@@ -98,7 +108,7 @@ PBOp(traced_table_load_answer, Otapl)
 **                           table_trust_me                            **
 ************************************************************************/
 
-  Op(traced_table_trust_me, Otapl)
+  Op(table_trust_me, Otapl)
   { printf("Or-parallelism not supported by JIT!!\n"); exit(1); }
   ENDOp();
 
@@ -108,7 +118,7 @@ PBOp(traced_table_load_answer, Otapl)
 **                            table_trust                              **
 ************************************************************************/
 
-  Op(traced_table_trust, Otapl)
+  Op(table_trust, Otapl)
   { printf("Or-parallelism not supported by JIT!!\n"); exit(1); }
    ENDOp();
 
@@ -118,7 +128,7 @@ PBOp(traced_table_load_answer, Otapl)
 **                          table_new_answer                           **
 ************************************************************************/
 
-  PBOp(traced_table_new_answer, s)
+  PBOp(table_new_answer, s)
   { printf("Or-parallelism not supported by JIT!!\n"); exit(1); }
  ENDPBOp();
 
@@ -128,7 +138,7 @@ PBOp(traced_table_load_answer, Otapl)
  **                      table_answer_resolution                        **
 ************************************************************************/
 
-  BOp(traced_table_answer_resolution, Otapl)
+  BOp(table_answer_resolution, Otapl)
   { printf("Or-parallelism not supported by JIT!!\n"); exit(1); }
  ENDBOp();
 
@@ -138,7 +148,7 @@ PBOp(traced_table_load_answer, Otapl)
  **                          table_completion                           **
 ************************************************************************/
 
-  BOp(traced_table_completion, Otapl)
+  BOp(table_completion, Otapl)
   ENDBOp();
 
 
@@ -147,7 +157,7 @@ PBOp(traced_table_load_answer, Otapl)
 **                 table_answer_resolution_completion                  **
 ************************************************************************/
 
-  BOp(traced_table_answer_resolution_completion, Otapl)
+  BOp(table_answer_resolution_completion, Otapl)
 #ifdef THREADS_CONSUMER_SHARING
   { printf("Or-parallelism not supported by JIT!!\n"); exit(1); }
 #endif /* THREADS_CONSUMER_SHARING */

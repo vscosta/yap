@@ -141,6 +141,7 @@ endif()
 # Model Specific
 if (HAVE_GCC)
   set_property( DIRECTORY APPEND_STRING PROPERTY COMPILE_OPTIONS  -Wall;-Wstrict-prototypes;-Wmissing-prototypes )
+  set_property( DIRECTORY APPEND_STRING PROPERTY COMPILE_OPTIONS  -fexceptions )
 endif()
 
 message(STATUS "Original CMAKE_C_FLAGS ${CMAKE_C_FLAGS}")

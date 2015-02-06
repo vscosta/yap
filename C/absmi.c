@@ -501,7 +501,8 @@
 We next discuss several issues on trying to make Prolog programs run
 fast in YAP. We assume two different programming styles:
 
-+ Execution of <em>deterministic</em> programs often
++ Execution of <em>deterministic</em> programs ofte
+n
 boils down to a recursive loop of the form:
 
 ~~~~~
@@ -516,10 +517,29 @@ loop(Env) :-
 #define IN_ABSMI_C 1
 #define HAS_CACHE_REGS 1
 
+
+
 #include "absmi.h"
 #include "heapgc.h"
 
 #include "cut_c.h"
+
+#if YAP_JIT
+#include "IsGround.h"
+
+NativeContext *NativeArea;
+IntermediatecodeContext *IntermediatecodeArea;
+
+CELL l;
+
+CELL nnexec;
+
+static Int traced_absmi(void)
+{
+  return Yap_traced_absmi();
+}
+
+#endif
 
 #ifdef PUSH_X
 #else
@@ -536,31 +556,6 @@ Term Yap_XREGS[MaxTemps];	/* 29                                     */
 // #include "print_preg.h"
 //#include "sprint_op.hpp"
 //#include "print_op.hpp"
-
-#if YAP_JIT
-#include "IsGround.h"
-#include "yaam_macros.hpp"
-#include "fprintblock.h"
-
-#if YAP_DBG_PREDS
-#include "debug_printers.h"
-#endif
-
-struct JIT_Compiler *J;
-
-NativeContext *NativeArea;
-IntermediatecodeContext *IntermediatecodeArea;
-void shutdown_llvm(void);
-
-CELL l;
-short global;
-CELL nnexec;
-yamop* HEADPREG;
-CELL BLOCK;
-CELL BLOCKADDRESS;
-CELL FAILED;
-
-#endif /* YAP_JIT */
 
 #ifdef COROUTINING
 /*
@@ -1588,10 +1583,6 @@ Yap_absmi(int inp)
 #define I_R (XREGS[0])
 
 #if YAP_JIT
-#if YAP_STAT_PREDS
-  struct timeval timstart, timend;
-  struct rusage rustart, ruend;
-#endif
   static void *control_labels[] = { &&fail, &&NoStackCut, &&NoStackCommitY, &&NoStackCutT, &&NoStackEither, &&NoStackExecute, &&NoStackCall, &&NoStackDExecute, &&NoStackDeallocate, &&notrailleft, &&NoStackFail, &&NoStackCommitX };
   curtrace = NULL;
   curpreg = NULL;
@@ -1638,7 +1629,8 @@ Yap_absmi(int inp)
   };
 
 #if YAP_JIT
-  ExpEnv.config_struc.TOTAL_OF_OPCODES = sizeof(OpAddress)/(2*sizeof(void*));
+  ExpEnv.config_struc.TOTAL_OF_OPCODES =
+    sizeof(OpAddress)/(2*sizeof(void*));
 #endif
   
 #endif /* USE_THREADED_CODE */
@@ -1692,7 +1684,8 @@ Yap_absmi(int inp)
 #if USE_THREADED_CODE
   /* absmadr */
   if (inp > 0) {
-    Yap_ABSMI_OPCODES = OpAddress;
+    Yap_ABSMI_OPCODES = OpAddress;    
+    Yap_ABSMI_ControlLabels = control_labels;    
 #if BP_FREE
     P1REG = PCBACKUP;
 #endif
@@ -1819,17 +1812,7 @@ Yap_absmi(int inp)
 // so that they are easier to analyse.
 #include "absmi_insts.h"
 
-#if YAP_JIT
-#include "traced_absmi_insts.h"
-#if YAPOR
-#include "traced_or.insts.h"
-#endif
-#if TABLING
-#include "traced_tab.insts.h"
-#include "traced_tab.tries.insts.h"
-#endif
-#endif
-        
+    
 #if !USE_THREADED_CODE
     default:
       saveregs();
@@ -1850,8 +1833,6 @@ Yap_absmi(int inp)
 
   return (0);
 #endif
-
-
 }
 
 /* dummy function that is needed for profiler */

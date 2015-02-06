@@ -15,14 +15,14 @@
 **      Scheduler instructions      **
 ** -------------------------------- */
 
-PBOp(traced_getwork_first_time,e)
+PBOp(getwork_first_time,e)
 { printf("Or-parallelism not supported by JIT!!\n"); exit(1); }
       ENDPBOp();
 
 
 
 
-      PBOp(traced_getwork,Otapl)
+      PBOp(getwork,Otapl)
   { printf("Or-parallelism not supported by JIT!!\n"); exit(1); }
   ENDPBOp();
 
@@ -30,12 +30,12 @@ PBOp(traced_getwork_first_time,e)
 
   /* The idea is to check whether we are the last worker in the node.
      If we are, we can go ahead, otherwise we should call the scheduler. */
-PBOp(traced_getwork_seq,Otapl)
+PBOp(getwork_seq,Otapl)
 { printf("Or-parallelism not supported by JIT!!\n"); exit(1); }
   ENDPBOp();
 
 
 
-  PBOp(traced_sync,Otapl)
+  PBOp(sync,Otapl)
   { printf("Or-parallelism not supported by JIT!!\n"); exit(1); }
   ENDPBOp();

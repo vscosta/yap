@@ -30,8 +30,8 @@ struct CallGraphSCCPassPrinter : public CallGraphSCCPass {
   const PassInfo *PassToPrint;
   std::string PassName;
 
-  CallGraphSCCPassPrinter(const PassInfo *PI) :
-    CallGraphSCCPass(ID), PassToPrint(PI) {
+  CallGraphSCCPassPrinter(const PassInfo *PassInfo) :
+    CallGraphSCCPass(ID), PassToPrint(PassInfo) {
       std::string PassToPrintName =  PassToPrint->getPassName();
       PassName = "CallGraphSCCPass Printer: " + PassToPrintName;
     }
@@ -64,8 +64,8 @@ struct ModulePassPrinter : public ModulePass {
   const PassInfo *PassToPrint;
   std::string PassName;
 
-  ModulePassPrinter(const PassInfo *PI)
-    : ModulePass(ID), PassToPrint(PI) {
+  ModulePassPrinter(const PassInfo *PassInfo)
+    : ModulePass(ID), PassToPrint(PassInfo) {
       std::string PassToPrintName =  PassToPrint->getPassName();
       PassName = "ModulePass Printer: " + PassToPrintName;
     }
@@ -93,8 +93,8 @@ struct FunctionPassPrinter : public FunctionPass {
   static char ID;
   std::string PassName;
 
-  FunctionPassPrinter(const PassInfo *PI)
-    : FunctionPass(ID), PassToPrint(PI) {
+  FunctionPassPrinter(const PassInfo *PassInfo)
+    : FunctionPass(ID), PassToPrint(PassInfo) {
       std::string PassToPrintName =  PassToPrint->getPassName();
       PassName = "FunctionPass Printer: " + PassToPrintName;
     }
@@ -124,8 +124,8 @@ struct LoopPassPrinter : public LoopPass {
   const PassInfo *PassToPrint;
   std::string PassName;
 
-  LoopPassPrinter(const PassInfo *PI) :
-    LoopPass(ID), PassToPrint(PI) {
+  LoopPassPrinter(const PassInfo *PassInfo) :
+    LoopPass(ID), PassToPrint(PassInfo) {
       std::string PassToPrintName =  PassToPrint->getPassName();
       PassName = "LoopPass Printer: " + PassToPrintName;
     }
@@ -155,8 +155,8 @@ struct RegionPassPrinter : public RegionPass {
   const PassInfo *PassToPrint;
   std::string PassName;
 
-  RegionPassPrinter(const PassInfo *PI) : RegionPass(ID),
-    PassToPrint(PI) {
+  RegionPassPrinter(const PassInfo *PassInfo) : RegionPass(ID),
+    PassToPrint(PassInfo) {
     std::string PassToPrintName =  PassToPrint->getPassName();
     PassName = "RegionPass Printer: " + PassToPrintName;
   }
