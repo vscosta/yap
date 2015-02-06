@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2004,2005,2006 (Nuno A. Fonseca) <nuno.fonseca@gmail.com>
+  Copyright (C) 2004,2005,2006 (Nuno A. Fonseca) <nuno.fonseca@gmail.com>
 
 This program is free software; you can redistribute it and/or 
 modify it under the terms of the GNU General Public License 
@@ -41,9 +41,7 @@ Comments: YAP interface to LAM/MPI
 
 #include "prologterms2c.h"
 
-#ifndef _yap_c_interface_h
 #include <YapInterface.h>
-#endif
 
 #include "hash.h"
 
@@ -976,7 +974,7 @@ mpi_gc(void) {
   RETURN(TRUE);
 }
 
-int BLOCK_SIZE=4*1024;
+size_t BLOCK_SIZE=4*1024;
 
 static int
 mpi_default_buffer_size(void)
@@ -1022,7 +1020,7 @@ init_mpi(void) {
   YAP_UserCPredicate( "mpi_wait", mpi_wait,2);                             // mpi_wait(+Handle,-Status).
   YAP_UserCPredicate( "mpi_wait_recv", mpi_wait_recv,3);                    // mpi_wait_recv(+Handle,-Status,-Data).
   YAP_UserCPredicate( "mpi_test", mpi_test,2);                             // mpi_test(+Handle,-Status).
-  YAP_UserCPredicate( "mpi_test_rcv", mpi_test_recv,3);                    // mpi_test(+Handle,-Status,-Data).
+  YAP_UserCPredicate( "mpi_test_recv", mpi_test_recv,3);                    // mpi_test(+Handle,-Status,-Data).
   YAP_UserCPredicate( "mpi_bcast", mpi_bcast,2);                           // mpi_bcast(Root,Term)
   YAP_UserCPredicate( "mpi_bcast2", mpi_bcast2,2);                         // mpi_bcast2(Root,Term)
   YAP_UserCPredicate( "mpi_bcast3", mpi_bcast3,3);                         // mpi_bcast3(Root,Term,Tag)

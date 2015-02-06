@@ -102,11 +102,7 @@ void
 change_buffer_size(const size_t newsize) {
   if ( BUFFER_SIZE>=BLOCK_SIZE && BUFFER_SIZE>=newsize)
     return;
-  if (BUFFER_PTR) {
-    free(BUFFER_PTR);
-  }
-  BUFFER_PTR = (char*)malloc(newsize);
-  if( BUFFER_PTR == NULL ) {
+  if (realloc( BUFFER_PTR, newsize) == NULL) {
     YAP_Error(0,0,"Prolog2Term: Out of memory.\n");
 #ifdef MPI
     MPI_Finalize();
