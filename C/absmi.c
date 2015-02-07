@@ -1684,8 +1684,10 @@ Yap_absmi(int inp)
 #if USE_THREADED_CODE
   /* absmadr */
   if (inp > 0) {
-    Yap_ABSMI_OPCODES = OpAddress;    
-    Yap_ABSMI_ControlLabels = control_labels;    
+    Yap_ABSMI_OPCODES = OpAddress;
+#if YAP_JIT
+    Yap_ABSMI_ControlLabels = control_labels;
+#endif
 #if BP_FREE
     P1REG = PCBACKUP;
 #endif
