@@ -2,6 +2,7 @@ PACKAGE=swig
 DOC=swig
 PKGCFLAGS=
 SWIG=@SWIG@
+LIBS=@LIBS@
 JAVAC=@JAVAC@
 JAR=@JAR@
 include ../Makefile.defs
@@ -64,7 +65,7 @@ jni/yap_wrap.cpp java/yap.java: $(srcdir)/yap.i
 
 jni/yap_wrap.o:  jni/yap_wrap.cpp
 	$(CXX) -c  @SHLIB_CXXFLAGS@ $(CXXFLAGS) @JPLCFLAGS@  $< -o $@
-	
+
 # depends on make install on top-level
 # also, should have an android device running, say
 #   emulator -avd first &
@@ -74,13 +75,13 @@ jni/yap_wrap.o:  jni/yap_wrap.cpp
 #
 #
 android:  JavaYap-debug.apk
-	
+
 JavaYap-debug.apk: android/libs/armeabi/libexample.so
 	( cd android && ant debug )
-	
+
 android/libs/armeabi/libexample.so: android/jni/Android.mk android/jni/Application.mk android/jni/yap_wrap.cpp
 	( cd android/jni && NDK_DEBUG=1 ndk-build )
-	
+
 android/jni/Application.mk: android/jni/Android.mk
 	cp $(srcdir)/android/jni/Application.mk android/jni
 
@@ -93,7 +94,7 @@ android/jni/Android.mk: android/AndroidManifest.xml
 	cp -r $(JNI_SQLITE) android/jni
 	cp -r $(JAVA_SQLITE) android/src 
 	cp Android.mk android/jni
-	
+
 android/AndroidManifest.xml: $(ANDROID_PKG)
 	android create project --target 1 --name JavaYap --path ./android --activity JavaYap --package pt.up.fc.dcc.yap
 	mkdir -p android/assets
@@ -102,7 +103,7 @@ android/AndroidManifest.xml: $(ANDROID_PKG)
 	mkdir -p android/assets/lib
 	mkdir -p android/assets/lib/Yap	
 	mkdir -p android/jni
-	
+
 android/jni/yap_wrap.cpp: $(srcdir)/yap.i $(srcdir)/../../CXX/yapi.hh $(srcdir)/../../CXX/yapi.cpp android/AndroidManifest.xml
 	$(SWIG) -c++ -java -I$(srcdir)/../../CXX -package pt.up.fc.dcc.yap -outdir android/src/pt/up/fc/dcc/yap -o android/jni/yap_wrap.cpp $<
 

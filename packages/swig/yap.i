@@ -46,9 +46,9 @@
 #define YAP_CPP_INTERFACE 1
  
  
-extern "C" {
-
 #include "yapi.hh"
+
+  extern "C" {
 
   extern Term Yap_StringToTerm(const char *s, size_t len, term_t bindings);
 
