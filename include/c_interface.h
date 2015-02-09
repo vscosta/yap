@@ -24,7 +24,7 @@
 
 #ifndef Bool
 #define Bool YAP_Bool
-#endif11
+#endif
 
 #define Int long int
 

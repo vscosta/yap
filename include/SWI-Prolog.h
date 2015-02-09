@@ -700,6 +700,9 @@ PL_EXPORT(pl_wchar_t*)  PL_atom_generator_w(const pl_wchar_t *pref,
 #define PL_MSG_IGNORED 0
 #define PL_MSG_HANDLED 1
 
+#ifdef Bind
+#undef Bind
+#endif
 #include <windows.h>
 
 PL_EXPORT(LRESULT)	PL_win_message_proc(HWND hwnd,
