@@ -114,11 +114,13 @@
 	switch ((CELL)f0) {
 	case (CELL)FunctorBigInt:
 	  { CELL *pt = RepAppl(d0);
-	    if (  pt[1] != BIG_RATIONAL || pt[1] != BIG_INT ) {
+	    if (  pt[1] != BIG_INT ) {
 	      PREG = PREG->y_u.xl.F;
 	      GONext();
 	    }
 	  }
+    PREG = NEXTOP(PREG, xl);
+    GONext();
 	  break;
 	case (CELL)FunctorLongInt:
 	  PREG = NEXTOP(PREG, xl);
@@ -159,14 +161,18 @@
 	switch ((CELL)f0) {
 	case (CELL)FunctorBigInt:
 	  { CELL *pt = RepAppl(d0);
-	    if (  pt[1] != BIG_RATIONAL || pt[1] != BIG_INT ) {
+	    if (  pt[1] != BIG_INT ) {
 	      PREG = PREG->y_u.yl.F;
 	      GONext();
 	    }
 	  }
+    PREG = NEXTOP(PREG, yl);
+    GONext();
+    break;
 	case (CELL)FunctorLongInt:
 	  PREG = NEXTOP(PREG, yl);
 	  GONext();
+    break;
 	default:
 	  PREG = PREG->y_u.yl.F;
 	  GONext();
@@ -543,4 +549,3 @@
     ENDP(pt0);
     ENDD(d0);
     ENDOp();
-

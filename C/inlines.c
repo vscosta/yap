@@ -47,14 +47,14 @@ static Int    p_arg( USES_REGS1 );
 static Int    p_functor( USES_REGS1 );
 
 
-/** @pred  atom( _T_) is iso 
+/** @pred  atom( _T_) is iso
 
 
 Succeeds if and only if  _T_ is currently instantiated to an  atom.
 
- 
+
 */
-static Int 
+static Int
 p_atom( USES_REGS1 )
 {				/* atom(?)	 */
       BEGD(d0);
@@ -75,14 +75,14 @@ p_atom( USES_REGS1 )
       ENDD(d0);
 }
 
-/** @pred  atomic(T) is iso 
+/** @pred  atomic(T) is iso
 
 
 Checks whether  _T_ is an atomic symbol (atom or number).
 
- 
+
 */
-static Int 
+static Int
 p_atomic( USES_REGS1 )
 {				/* atomic(?)	 */
       BEGD(d0);
@@ -103,14 +103,14 @@ p_atomic( USES_REGS1 )
       ENDD(d0);
 }
 
-/** @pred  integer( _T_) is iso 
+/** @pred  integer( _T_) is iso
 
 
 Succeeds if and only if  _T_ is currently instantiated to an  integer.
 
- 
+
 */
-static Int 
+static Int
 p_integer( USES_REGS1 )
 {				/* integer(?,?)	 */
       BEGD(d0);
@@ -126,9 +126,10 @@ p_integer( USES_REGS1 )
 	  switch ((CELL)f0) {
 	  case (CELL)FunctorBigInt:
 	    { CELL *pt = RepAppl(d0);
-	      if (  pt[1] != BIG_RATIONAL || pt[1] != BIG_INT ) {
+	      if ( pt[1] != BIG_INT ) {
 		return FALSE;
 	      }
+        return TRUE;
 	    }
 	  case (CELL)FunctorLongInt:
 	    return(TRUE);
@@ -148,14 +149,14 @@ p_integer( USES_REGS1 )
       ENDD(d0);
 }
 
-/** @pred  number( _T_) is iso 
+/** @pred  number( _T_) is iso
 
 
 Checks whether `T` is an integer, rational or a float.
 
- 
+
 */
-static Int 
+static Int
 p_number( USES_REGS1 )
 {				/* number(?)	 */
       BEGD(d0);
@@ -174,7 +175,8 @@ p_number( USES_REGS1 )
 	      if (  pt[1] != BIG_RATIONAL || pt[1] != BIG_INT ) {
 		return FALSE;
 	      }
-	    }
+        return(TRUE);
+    }
 	  case (CELL)FunctorLongInt:
 	  case (CELL)FunctorDouble:
 	    return(TRUE);
@@ -194,14 +196,14 @@ p_number( USES_REGS1 )
       ENDD(d0);
 }
 
-/** @pred  db_reference( _T_) 
+/** @pred  db_reference( _T_)
 
 
 Checks whether  _T_ is a database reference.
 
- 
+
 */
-static Int 
+static Int
 p_db_ref( USES_REGS1 )
 {				/* db_reference(?,?)	 */
       BEGD(d0);
@@ -222,14 +224,14 @@ p_db_ref( USES_REGS1 )
       ENDD(d0);
 }
 
-/** @pred  primitive( ?_T_) 
+/** @pred  primitive( ?_T_)
 
 
 Checks whether  _T_ is an atomic term or a database reference.
 
- 
+
 */
-static Int 
+static Int
 p_primitive( USES_REGS1 )
 {				/* primitive(?)	 */
       BEGD(d0);
@@ -250,14 +252,14 @@ p_primitive( USES_REGS1 )
       ENDD(d0);
 }
 
-/** @pred  float( _T_) is iso 
+/** @pred  float( _T_) is iso
 
 
 Checks whether  _T_ is a floating point number.
 
- 
+
 */
-static Int 
+static Int
 p_float( USES_REGS1 )
 {				/* float(?)	 */
       BEGD(d0);
@@ -278,14 +280,14 @@ p_float( USES_REGS1 )
       ENDD(d0);
 }
 
-/** @pred  compound( _T_) is iso 
+/** @pred  compound( _T_) is iso
 
 
 Checks whether  _T_ is a compound term.
 
- 
+
 */
-static Int 
+static Int
 p_compound( USES_REGS1 )
 {				/* compound(?)	 */
       BEGD(d0);
@@ -312,14 +314,14 @@ p_compound( USES_REGS1 )
       ENDD(d0);
 }
 
-/** @pred  nonvar( _T_) is iso 
+/** @pred  nonvar( _T_) is iso
 
 
 The opposite of `var( _T_)`.
 
- 
+
 */
-static Int 
+static Int
 p_nonvar( USES_REGS1 )
 {				/* nonvar(?)	 */
       BEGD(d0);
@@ -327,7 +329,7 @@ p_nonvar( USES_REGS1 )
       deref_head(d0, nonvar_unk);
     nonvar_nvar:
       return(TRUE);
-	
+
       BEGP(pt0);
       deref_body(d0, pt0, nonvar_unk, nonvar_nvar);
       return(FALSE);
@@ -335,14 +337,14 @@ p_nonvar( USES_REGS1 )
       ENDD(d0);
 }
 
-/** @pred  var( _T_) is iso 
+/** @pred  var( _T_) is iso
 
 
-Succeeds if  _T_ is currently a free variable, otherwise fails. 
+Succeeds if  _T_ is currently a free variable, otherwise fails.
 
- 
+
 */
-static Int 
+static Int
 p_var( USES_REGS1 )
 {				/* var(?)	 */
       BEGD(d0);
@@ -358,20 +360,20 @@ p_var( USES_REGS1 )
       ENDD(d0);
 }
 
-/** @pred  _X_ =  _Y_ is iso 
+/** @pred  _X_ =  _Y_ is iso
 
 
 Tries to unify terms  _X_ and  _Y_.
 
- 
+
 */
-static Int 
+static Int
 p_equal( USES_REGS1 )
 {				/* ?=? */
   return(Yap_IUnify(ARG1, ARG2));
 }
 
-static Int 
+static Int
 eq(Term t1, Term t2 USES_REGS)
 {				/* ? == ? */
       BEGD(d0);
@@ -459,7 +461,7 @@ eq(Term t1, Term t2 USES_REGS)
 
 
 
-/** @pred ?_X_ ==  ?_Y_ is iso 
+/** @pred ?_X_ ==  ?_Y_ is iso
 
 Succeeds if terms  _X_ and  _Y_ are strictly identical. The
 difference between this predicate and =/2 is that, if one of the
@@ -486,29 +488,29 @@ fails, but,
 ~~~~~
 succeeds.
 
- 
+
 */
-static Int 
+static Int
 p_eq( USES_REGS1 )
 {				/* ? == ? */
   return eq(ARG1,ARG2 PASS_REGS);
 }
 
-int 
+int
 Yap_eq(Term t1, Term t2)
 {				/* ? == ? */
   CACHE_REGS
   return eq(t1,t2 PASS_REGS);
 }
 
-/** @pred  _X_ \=  _Y_ is iso 
+/** @pred  _X_ \=  _Y_ is iso
 
 
 Succeeds if terms  _X_ and  _Y_ are not unifiable.
 
- 
+
 */
-static Int 
+static Int
 p_dif( USES_REGS1 )
 {				/* ? \= ?  */
 #if SHADOW_HB
@@ -586,7 +588,7 @@ p_dif( USES_REGS1 )
 	CELL *pt = RepAppl(d1);
 	/* AbsAppl means */
 	/* multi-assignment variable */
-	/* so the next cell is the old value */ 
+	/* so the next cell is the old value */
 #ifdef FROZEN_STACKS
 	pt[0] = TrailVal(--TR);
 #else
@@ -617,7 +619,7 @@ p_dif( USES_REGS1 )
 }
 
 
-/** @pred  arg(+ _N_,+ _T_, _A_) is iso 
+/** @pred  arg(+ _N_,+ _T_, _A_) is iso
 
 
 Succeeds if the argument  _N_ of the term  _T_ unifies with
@@ -628,9 +630,9 @@ unbound, if  _T_ is not a compound term, of if  _N_ is not a positive
 integer. Note that previous versions of YAP would fail silently
 under these errors.
 
- 
+
 */
-static Int 
+static Int
 p_arg( USES_REGS1 )
 {				/* arg(?,?,?)	 */
 #if SHADOW_HB
@@ -669,10 +671,10 @@ p_arg( USES_REGS1 )
 	if ((Int)d0 <= 0 ||
 	    (Int)d0 > ArityOfFunctor((Functor) d1) ||
 	    Yap_IUnify(pt0[d0], ARG3) == FALSE) {
-	  /* don't complain here for Prolog compatibility 
+	  /* don't complain here for Prolog compatibility
 	  if ((Int)d0 <= 0) {
 	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
-		  MkIntegerTerm(d0),"arg 1 of arg/3");	    
+		  MkIntegerTerm(d0),"arg 1 of arg/3");
 	  }
 	  */
 	  return(FALSE);
@@ -700,7 +702,7 @@ p_arg( USES_REGS1 )
 	else {
 	  if ((Int)d0 < 0)
 	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
-		  MkIntegerTerm(d0),"arg 1 of arg/3");	 
+		  MkIntegerTerm(d0),"arg 1 of arg/3");
 	  return(FALSE);
 	}
 	ENDP(pt0);
@@ -726,7 +728,7 @@ p_arg( USES_REGS1 )
 
 }
 
-/** @pred  functor( _T_, _F_, _N_) is iso 
+/** @pred  functor( _T_, _F_, _N_) is iso
 
 
 The top functor of term  _T_ is named  _F_ and has  arity  _N_.
@@ -744,7 +746,7 @@ integer. Previous versions allowed evaluable expressions, as long as the
 expression would evaluate to an integer. This feature is not available
 in the ISO Prolog standard.
 
- 
+
 */
 static Int
 p_functor( USES_REGS1 )			/* functor(?,?,?) */
@@ -790,7 +792,7 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
   /* let's go and bind them */
   {
     register CELL arity = d1;
-    
+
     d1 = ARG2;
     deref_head(d1, func_nvar_unk);
   func_nvar_nvar:
@@ -801,7 +803,7 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
     /* have to buffer ENDP and label */
     d0 = arity;
     goto func_bind_x3;
-    
+
     BEGP(pt0);
     deref_body(d1, pt0, func_nvar_unk, func_nvar_nvar);
     /* A2 is a variable, go and bind it */
@@ -901,7 +903,7 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
   } else if ((Int)d1  < 0) {
     Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
     return(FALSE);
-  } 
+  }
   /* else if arity is 0 just pass d0 through */
   /* Ding, ding, we made it */
   YapBind(pt0, d0);
@@ -995,7 +997,7 @@ p_erroneous_call( USES_REGS1 )
   return(FALSE);
 }
 
-static Int 
+static Int
 init_genarg( USES_REGS1 )
 {				/* getarg(?Atom)		 */
   Term t0 = Deref(ARG1);
@@ -1084,7 +1086,7 @@ p_save_cp( USES_REGS1 )
 }
 
 
-void 
+void
 Yap_InitInlines(void)
 {
   CACHE_REGS
