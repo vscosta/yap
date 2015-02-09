@@ -1,6 +1,6 @@
 /* MYDDAS */
 
-#if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
+#if defined MYDDAS_MYSQL || defined MYDDAS_ODCB || defined MYDDAS_SQLITE3
 
 /* myddas_initialization.c */
 MYDDAS_GLOBAL          myddas_init_initialize_myddas(void);

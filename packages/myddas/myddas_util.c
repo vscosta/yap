@@ -1,8 +1,11 @@
-#if defined MYDDAS_ODBC || defined MYDDAS_MYSQL 
+#if defined MYDDAS_ODBC || defined MYDDAS_MYSQL || defined MYDDAS_SQLITE3 
 
-#include "Yap.h"
 #include <string.h>
 #include <stdlib.h>
+#ifdef MYDDAS_SQLITE3
+#include <sqlite3.h>
+#endif /*MYDDAS_MYSQL*/
+#include "Yap.h"
 #include "cut_c.h"
 #include "myddas.h"
 #include "myddas_structs.h"

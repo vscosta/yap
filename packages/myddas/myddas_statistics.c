@@ -1,11 +1,11 @@
-#include "Yap.h"
-#include "myddas_structs.h"
-#include "myddas_statistics.h"
 #include <stdlib.h>
 #include <sys/time.h>
 
 #if defined MYDDAS_STATS
 
+#include "myddas_structs.h"
+#include "myddas_statistics.h"
+#include "Yap.h"
 
 
 /* Documentation: Time Units 
