@@ -54,9 +54,13 @@ typedef uintptr_t UInt;
 /*   typedef long int Int;*/ 
 /*  typedef unsigned long int UInt;  */ 
 
+#if _WIN32
+#define Int_FORMAT "%d"
+#define UInt_FORMAT "%u"
+#else
 #define Int_FORMAT "%ld"
 #define UInt_FORMAT "%lu"
-
+#endif
 #else
 #error Yap require integer types of the same size as a pointer
 #endif

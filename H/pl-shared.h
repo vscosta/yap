@@ -77,7 +77,9 @@ typedef	uintptr_t    term_t;
 
 #if _WIN32
 #ifndef THREADS
+#ifndef WIN_PTHREADS_H
 typedef int pthread_t;
+#endif
 #endif
 #endif
 

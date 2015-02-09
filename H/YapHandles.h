@@ -114,7 +114,9 @@ Yap_PutInSlot(yhandle_t slot, Term t USES_REGS)
   LOCAL_SlotBase[slot] = t;
 }
 
+#ifndef max
 #define max(X,Y) ( X > Y ? X : Y )
+#endif
 
 static inline void
 ensure_slots(int N USES_REGS)
