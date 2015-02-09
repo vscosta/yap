@@ -177,9 +177,9 @@ typedef struct printt_struc {
  CELL msg_after;  // If I print, what message should come after?
 } PrinttStruc;
 
+#if YAP_JIT
 /* This struct represents our experimental environment for YAP */
 typedef struct environment {
-#if YAP_JIT
   // struct for analysis predicates -- all fields are modified by analysis predicates (JIT_AnalysisPreds.c)
   struct {
     CELL outfile; // Where will analysis results be printed?
@@ -331,8 +331,8 @@ typedef struct environment {
       Int exit_on_error; // Should I exit when any error occur?
     } act_predicate_actions;
   } debug_struc;
-#endif
 } Environment;
+#endif
 
 #if YAP_JIT
 /* Enumeration for types of basic blocks -- used on trace construction */

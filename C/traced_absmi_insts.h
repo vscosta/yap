@@ -14570,20 +14570,5 @@ S_SREG = RepAppl(d0);
             BOp(try_udi                    ,p);
             goto Ystop;
             ENDBOp();
-	    /* BOp(table_answer_resolution_completion, Otapl);
-            goto Ystop;
-            ENDBOp();
-	    	    BOp(run_eam, os);
-            goto Ystop;
-            ENDBOp();
-	    BOp(retry_eam, e);
-            goto Ystop;
-            ENDBOp();
-	    BOp(thread_local, e);
-            goto Ystop;
-            ENDBOp();
-            BOp(clause_with_cut, e);
-            goto Ystop;
-            ENDBOp(); */
 
 	    

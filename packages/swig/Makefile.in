@@ -12,6 +12,14 @@ srcdir=@srcdir@
 CPPFLAGS= -I../.. -I$(srcdir)/../../H -I$(srcdir)/../../include  -I$(srcdir)/../../os -I$(srcdir)/../../OPTYap -I$(srcdir)/../../BEAM -I$(srcdir)/../../CXX
 CXXFLAGS=  $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 
+YAP_SWIG_INTERFACE= $(srcdir)/yap.i \
+	$(srcdir)/../../CXX/yapi.hh \
+	$(srcdir)/../../CXX/yapa.hh \
+	$(srcdir)/../../CXX/yapdb.hh \
+	$(srcdir)/../../CXX/yapie.hh \
+	$(srcdir)/../../CXX/yapq.hh \
+	$(srcdir)/../../CXX/yapi.cpp
+
 JNI_SQLITE="$(srcdir)/android/jni/sqlite"
 
 JAVA_SQLITE="$(srcdir)/android/src/org"
@@ -47,7 +55,7 @@ python: $(SWIG_FILES) python/_yap.so python/yap.py
 python/_yap.so: python/yap_wrap.o
 	$(CXX) -shared $(LDSOFLAGS) -o python/_yap.so python/yap_wrap.o ../../yapi.o $(LIBS) @PYTHON_LIBS@ -L ../.. -lYap -lpthread
 
-python/yap_wrap.cpp python/yap.py: $(srcdir)/yap.i
+python/yap_wrap.cpp python/yap.py: $(YAP_SWIG_INTERFACE)
 	mkdir -p python
 	$(SWIG) -c++ -python  -outdir python -o $@ $(CXXFLAGS) -Wall $<
 
@@ -55,13 +63,13 @@ python/yap_wrap.o:  python/yap_wrap.cpp
 	$(CXX) -c  @SHLIB_CXXFLAGS@ $(CXXFLAGS) @PYTHON_INCLUDES@ $< -o $@
 
 java: jni/libyap.@SO@ java/yap.java
-	cd java ; $(JAVAC) *.java; $(JAR) cvf yap.jar *.class			
+	cd java ; $(JAVAC) *.java; $(JAR) cvf yap.jar *.class
 
 jni/libyap.@SO@: jni/yap_wrap.o
 	$(CXX) -shared $(LDSOFLAGS) -o $@ ../../yapi.o  $< $(LIBS) @JPLLDFLAGS@ -L ../.. -lYap -lpthread
 
-jni/yap_wrap.cpp java/yap.java: $(srcdir)/yap.i
-	$(SWIG) -c++ -java  -package pt.up.fc.dcc.yap -outdir java -o jni/yap_wrap.cpp  $(CXXFLAGS) -Wall $<
+jni/yap_wrap.cpp java/yap.java: $(YAP_SWIG_INTERFACE)
+	$(SWIG) -c++ -java  -package pt.up.fc.dcc.yap -outdir java -o jni/yap_wrap.cpp $(CXXFLAGS) -Wall $<
 
 jni/yap_wrap.o:  jni/yap_wrap.cpp
 	$(CXX) -c  @SHLIB_CXXFLAGS@ $(CXXFLAGS) @JPLCFLAGS@  $< -o $@
@@ -104,7 +112,7 @@ android/AndroidManifest.xml: $(ANDROID_PKG)
 	mkdir -p android/assets/lib/Yap	
 	mkdir -p android/jni
 
-android/jni/yap_wrap.cpp: $(srcdir)/yap.i $(srcdir)/../../CXX/yapi.hh $(srcdir)/../../CXX/yapi.cpp android/AndroidManifest.xml
+android/jni/yap_wrap.cpp: $(YAP_SWIG_INTERF) android/AndroidManifest.xml
 	$(SWIG) -c++ -java -I$(srcdir)/../../CXX -package pt.up.fc.dcc.yap -outdir android/src/pt/up/fc/dcc/yap -o android/jni/yap_wrap.cpp $<
 
 install-android: android

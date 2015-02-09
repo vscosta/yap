@@ -192,7 +192,7 @@ HEADERS = \
 	H/inline-only.h \
 	H/iopreds.h \
 	H/iswiatoms.h \
-	H/qly.h \
+H/qly.h \
 	H/rclause.h \
 	H/rglobals.h \
 	H/rlocals.h \
@@ -206,8 +206,9 @@ HEADERS = \
 	H/YapText.h \
 	H/cut_c.h \
 	H/iatoms.h H/ratoms.h H/tatoms.h \
+	CXX/yapdb.hh \
 	CXX/yapi.hh \
-	BEAM/eam.h BEAM/eamamasm.h \
+	 BEAM/eam.h BEAM/eamamasm.h \
 	OPTYap/opt.config.h \
 	OPTYap/opt.proto.h OPTYap/opt.structs.h \
 	OPTYap/opt.macros.h OPTYap/or.macros.h \
@@ -302,7 +303,8 @@ C_SOURCES= \
 	# library/lammpi/yap_mpi.c library/lamm1pi/hash.c library/lammpi/prologterms2c.c
 CXX_SOURCES = \
 	CXX/yapi.cpp \
-    JIT/JIT_Compiler.cpp
+				CXX/yapi.cpp \
+ JIT/JIT_Compiler.cpp
 
 PLCONS_SOURCES = \
 	console/LGPL/pl-nt.c \

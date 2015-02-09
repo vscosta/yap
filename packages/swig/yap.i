@@ -68,6 +68,16 @@
  	
 %include "yapi.hh"
 
+%include "yapa.hh"
+
+%include "yapie.hh"
+
+%include "yapt.hh"
+
+%include "yapdb.hh"
+
+%include "yapq.hh"
+
 #ifdef SWIGJAVA
 %javaexception("java.text.ParseException") YAPPredicate {
   try {

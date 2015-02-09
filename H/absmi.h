@@ -2220,10 +2220,11 @@ prune(choiceptr cp USES_REGS)
 #include <sys/time.h>
 #include <sys/resource.h>
 
+#if YAP_JIT
+
 extern Environment ExpEnv;
 extern char fin[1024];
 
-#if YAP_JIT
 #ifndef _NATIVE
 
 #include <math.h>
