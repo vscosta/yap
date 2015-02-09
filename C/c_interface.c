@@ -2790,7 +2790,6 @@ do_bootfile (char *bootfilename USES_REGS)
   Term term_end_of_file = MkAtomTerm(AtomEof);
   Term term_true = YAP_MkAtomTerm(AtomTrue);
   Functor functor_query = Yap_MkFunctor(Yap_LookupAtom("?-"),1);
-  yhandle_t CurSlot = Yap_StartSlots();
 
   /* consult boot.pl */
   /* the consult mode does not matter here, really */
@@ -2807,11 +2806,11 @@ do_bootfile (char *bootfilename USES_REGS)
   while (!eof_found)
     {
       CACHE_REGS
-      Yap_StartSlots( );
+      yhandle_t CurSlot = Yap_StartSlots( );
       t = YAP_Read(bootfile);
-      Yap_CloseSlots(CurSlot);
       if (eof_found) {
-	break;
+        Yap_CloseSlots(CurSlot);      
+        break;
       }
       if (t == 0)
         {
@@ -2820,15 +2819,18 @@ do_bootfile (char *bootfilename USES_REGS)
         }
       if (YAP_IsVarTerm (t) || t == TermNil)
 	{
-	  continue;
+          Yap_CloseSlots(CurSlot);      
+          continue;
 	}
       else if (t == term_true)
 	{
-	  Yap_exit(0);
+          Yap_CloseSlots(CurSlot);      
+          Yap_exit(0);
 	}
       else if (t == term_end_of_file)
 	{
-	  break;
+          Yap_CloseSlots(CurSlot);      
+          break;
 	}
       else if (YAP_IsPairTerm (t))
         {
@@ -2845,6 +2847,7 @@ do_bootfile (char *bootfilename USES_REGS)
 	  if (ErrorMessage)
 	    fprintf(stderr, "%s", ErrorMessage);
 	}
+      Yap_CloseSlots(CurSlot);      
       /* do backtrack */
       YAP_Reset( YAP_FULL_RESET );
     }
