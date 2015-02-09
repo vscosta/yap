@@ -124,7 +124,13 @@ then
   rm -r packages/swig/android
 elif test x$1 = xenv
 then
-  return 0
+    return 0
+elif test x$1 = xdmake
+then
+    make
+elif test x$1 = xgo
+then
+    echo "In  make I believe" 
 elif test x$1 = xeclipse
 then
    startemulator
