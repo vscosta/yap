@@ -2101,14 +2101,11 @@ AC_SUBST(PKG_LIBARCHIVE)
 
 AC_SUBST(PKG_ODBC)
 
-dnl parms.h
-
-AC_DEFINE_UNQUOTED(YAP_STARTUP,  [ "$yap_startup" ], [saved state file])
-
 yap_timestamp=`date`
 yap_nversion=`expr $YAP_MAJOR_VERSION \* 10000 + $YAP_MINOR_VERSION \* 100 + $YAP_POINT_VERSION`
 yap_startup=startup.yss
 
+AC_DEFINE_UNQUOTED(YAP_STARTUP,  [ "$yap_startup" ], [saved state file])
 AC_DEFINE_UNQUOTED( C_CC, [ "$CC" ], [c-compiler used])
 AC_DEFINE_UNQUOTED( C_CFLAGS, ["$CFLAGS $YAP_EXTRAS $  -D_YAP_NOT_INSTALLED_=1 $CPPFLAGS  -I. -I$srcdir/H -I$srcdir/include  -I$srcdir/os -I$srcdir/OPTYap -I$srcdir/BEAM" ], [compilation flags])
 AC_DEFINE_UNQUOTED( C_LDFLAGS, [ "$LDFLAGS" ], [linking flags])
