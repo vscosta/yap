@@ -105,7 +105,7 @@ typedef struct regstore_t
     yamop *CP_;			/* 28 continuation program counter            */
     CELL  *ENV_;		/* 1 current environment                      */
     struct cut_c_str *CUT_C_TOP;
-#if defined MYDDAS_ODBC || defined MYDDAS_MYSQL
+#if defined MYDDAS_ODBC || defined MYDDAS_MYSQL || defined MYDDAS_SQLITE3
     struct myddas_global *MYDDAS_GLOBAL_POINTER;
 #endif
     yamop *P_;			/* 7 prolog machine program counter           */
