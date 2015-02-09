@@ -89,26 +89,21 @@ class JIT_Compiler {
         /* method invoked by wrapper 'call_JIT_Compiler' */
         void*       compile(yamop*);
     };
-    #else
 
-    struct JIT_Compiler{}; // Doing this, I can call class 'JIT_Compiler' from C code
+ extern "C" void* call_JIT_Compiler(JIT_Compiler* jc, yamop* p);
 
-    #endif
-
-    #ifdef __cplusplus
-
-extern "C" void* call_JIT_Compiler(JIT_Compiler* jc, yamop* p) { return jc->compile(p); }
-
-extern "C" void shutdown_llvm() { llvm_shutdown(); }
+ extern "C" void shutdown_llvm();
 
 #else
 
-INLINE_ONLY inline EXTERN void* call_JIT_Compiler(struct JIT_Compiler* jc, yamop* p);
+typedef struct jit_compiler JIT_Compiler;
 
-extern void* (*Yap_JitCall)(struct JIT_Compiler* jc, yamop* p);
+EXTERN void* (*Yap_JitCall)(JIT_Compiler* jc, yamop* p);
 
+INLINE_ONLY inline EXTERN void* call_JIT_Compiler(JIT_Compiler* jc, yamop* p);
 
-INLINE_ONLY inline EXTERN void* call_JIT_Compiler(struct JIT_Compiler* jc, yamop* p) {  return Yap_JitCall (jc,p); }
+INLINE_ONLY inline EXTERN void* call_JIT_Compiler(JIT_Compiler* jc, yamop* p) {
+  return Yap_JitCall (jc,p); }
 
 INLINE_ONLY inline EXTERN void shutdown_llvm(void ) ;
 
@@ -116,6 +111,6 @@ EXTERN void (* Yap_llvmShutdown)(void ) ;
 
 INLINE_ONLY inline EXTERN void shutdown_llvm(void ) {  Yap_llvmShutdown (); }
 
-#endif //#ifdef __cplusplus
+#endif
 
 #endif

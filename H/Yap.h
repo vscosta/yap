@@ -166,7 +166,7 @@
 #endif /* _WIN32 */
 #endif /* __MINGW32__ */
 
-#if HAVE_GCC
+#if HAVE_GCC && !defined(__cplusplus)
 #define MIN_ARRAY 0
 #define DUMMY_FILLER_FOR_ABS_TYPE
 #else

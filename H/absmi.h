@@ -32,6 +32,11 @@ static char SccsId[] = "%W% %G%";
 #define   Yapc_Compile(P) 0
 #endif
 
+#ifdef __cplusplus
+#define register
+#endif
+
+
 /***************************************************************
  * Macros for register manipulation                             *
  ***************************************************************/
@@ -416,7 +421,13 @@ restore_absmi_regs(REGSTORE * old_regs)
 
 ******************************************************************/
 
-#if USE_THREADED_CODE
+#if __YAP_TRACED
+
+#define DO_PREFETCH(TYPE)
+
+#define DO_PREFETCH_W(TYPE)
+
+#elif USE_THREADED_CODE
 
 #ifndef _NATIVE
 
@@ -616,7 +627,7 @@ restore_absmi_regs(REGSTORE * old_regs)
 
 #define END_PREFETCH()
 
-#define END_PREFETCH_W() 
+#define END_PREFETCH_W()
 
 #endif /* _NATIVE */
 
@@ -626,7 +637,17 @@ restore_absmi_regs(REGSTORE * old_regs)
 
 ******************************************************************/
 
-#if USE_THREADED_CODE
+#if __YAP_TRACED
+
+#define JMP(Lab) { opcode =  Yap_op_from_opcode( goto *Lab ); goto op_switch; }
+
+#define JMPNext(Lab) { opcode =  Yap_op_from_opcode( PREG->opc ) + ExpEnv.config_struc.current_displacement; goto op_switch; }
+
+#define JMPNextW(Lab) { opcode =  Yap_op_from_opcode( PREG->opcw ) + ExpEnv.config_struc.current_displacement; goto op_switch; }
+
+
+
+#elif USE_THREADED_CODE
 
 #ifndef _NATIVE
 
@@ -683,7 +704,7 @@ restore_absmi_regs(REGSTORE * old_regs)
       return ((void *) OpAddress[Yap_op_from_opcode((*_PREG)->opc) + ExpEnv.config_struc.current_displacement]); \
     return ((void *) ((*_PREG)->opc));          \
   }
-      
+
 #define BACK()                \
   {                 \
    if ((char*)ExpEnv.debug_struc.pprint_me.nativerun_exit_by_fail != 0 && (char*)ExpEnv.debug_struc.pprint_me.nativerun_exit_by_fail != (char*)0x1) { \
@@ -692,7 +713,7 @@ restore_absmi_regs(REGSTORE * old_regs)
                                          } \
    return ((void *) OpAddress[Yap_op_from_opcode((*_PREG)->opc)]);  \
    }
-    
+
 #else /* YAP_DBG_PREDS */
 
 #define SUCCESSBACK()             \
@@ -714,12 +735,12 @@ restore_absmi_regs(REGSTORE * old_regs)
      return ((void *) OpAddress[Yap_op_from_opcode((*_PREG)->opc) + ExpEnv.config_struc.current_displacement]); \
    return ((void *) ((*_PREG)->opc));         \
    }
-      
+
 #define BACK()                \
   {                 \
     return ((void *) OpAddress[Yap_op_from_opcode((*_PREG)->opc)]); \
   }
-    
+
 #endif /* YAP_DBG_PREDS */
 
 #else /* YAP_STAT_PREDS */
@@ -748,7 +769,7 @@ restore_absmi_regs(REGSTORE * old_regs)
       return ((void *) OpAddress[Yap_op_from_opcode((*_PREG)->opc) + ExpEnv.config_struc.current_displacement]); \
     return ((void *) ((*_PREG)->opc));          \
   }
-      
+
 #define BACK()                \
   {                 \
    if ((char*)ExpEnv.debug_struc.pprint_me.nativerun_exit_by_fail != 0 && (char*)ExpEnv.debug_struc.pprint_me.nativerun_exit_by_fail != (char*)0x1) { \
@@ -757,7 +778,7 @@ restore_absmi_regs(REGSTORE * old_regs)
                                          } \
    return ((void *) OpAddress[Yap_op_from_opcode((*_PREG)->opc)]);  \
    }
-    
+
 #else /* YAP_DBG_PREDS */
 
 #define SUCCESSBACK()             \
@@ -778,12 +799,12 @@ restore_absmi_regs(REGSTORE * old_regs)
      return ((void *) OpAddress[Yap_op_from_opcode((*_PREG)->opc) + ExpEnv.config_struc.current_displacement]); \
    return ((void *) ((*_PREG)->opc));         \
    }
-      
+
 #define BACK()                \
   {                 \
     return ((void *) OpAddress[Yap_op_from_opcode((*_PREG)->opc)]); \
   }
-    
+
 #endif /* YAP_DBG_PREDS */
 
 #endif /* YAP_STAT_PREDS */
@@ -877,7 +898,7 @@ restore_absmi_regs(REGSTORE * old_regs)
   Label:{      print_instruction(PREG, ON_INTERPRETER);
 
 #endif /* YAP_JIT */
-         
+
 #else /* YAP_DBG_PREDS */
 
 #define Op(Label,Type)        \
@@ -887,13 +908,13 @@ restore_absmi_regs(REGSTORE * old_regs)
   Label:{ START_PREFETCH_W(Type)
 
 #define BOp(Label,Type)       \
-  Label:{ 
+  Label:{
 
 #define PBOp(Label,Type)      \
   Label:{ INIT_PREFETCH()
 
 #define OpRW(Label,Type)			\
-  Label:{ 
+  Label:{
 
 #endif /* YAP_DBG_PREDS */
 
@@ -1113,13 +1134,13 @@ Macros to check the limits of stacks
     }                 \
     return external_labels[9];            \
   }
-      
+
 #else /* YAP_DBG_PREDS */
 
 #define check_trail(x) if (__builtin_expect((Unsigned(CurrentTrailTop) < Unsigned(x)),0)) { \
     return external_labels[9];            \
   }
-      
+
 #endif /* YAP_DBG_PREDS */
 
 #define check_trail_in_indexing(x) if (__builtin_expect((Unsigned(CurrentTrailTop) < Unsigned(x)),0)) \
@@ -1136,7 +1157,7 @@ Macros to check the limits of stacks
     }                 \
     goto notrailleft;             \
   }
-     
+
 #else /* YAP_DBG_PREDS */
 
 #define check_trail(x) if (__builtin_expect((Unsigned(CurrentTrailTop) < Unsigned(x)),0)) { \
@@ -1275,7 +1296,7 @@ Macros to check the limits of stacks
 
 #define store_yaam_regs_for_either(AP,d0) \
   COUNT_CPS();          \
-  pt1 --; /* Jump to CP_BASE */     \
+  pt1 --; /* Jump to CP_BASE */			\
   /* Save Information */      \
   HBREG = HR;          \
   pt1->cp_tr = TR;        \
@@ -1516,7 +1537,7 @@ Macros to check the limits of stacks
     }                 \
     goto traced_fail;             \
   }
-  
+
 #else /* YAP_DBG_PREDS */
 
 #define FAIL() {        \
@@ -1526,7 +1547,7 @@ Macros to check the limits of stacks
 #define TRACED_FAIL() {       \
     goto traced_fail;       \
   }
-  
+
 #endif /* YAP_DBG_PREDS */
 
 #else
@@ -1635,7 +1656,7 @@ Macros to check the limits of stacks
     else { FAIL(); }              \
   }                 \
   else { FAIL(); }
-  
+
 #define traced_UnifyBound_TEST_ATTACHED(f,d0,pt0,d1)      \
   if (IsExtensionFunctor(f)) {                                          \
             if (unify_extension(f, d0, RepAppl(d0), d1)) \
@@ -1701,7 +1722,7 @@ typedef struct v_record {
 #if defined(IN_ABSMI_C) || defined(IN_UNIFY_C)
 
 
-static int 
+static int
 IUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
 {
   CACHE_REGS
@@ -1728,7 +1749,7 @@ IUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
 
  loop:
   while (pt0 < pt0_end) {
-    register CELL *ptd0 = pt0+1; 
+    register CELL *ptd0 = pt0+1;
     register CELL d0;
 
     ++pt1;
@@ -1881,7 +1902,7 @@ IUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
   return FALSE;
 #ifdef THREADS
 #undef Yap_REGS
-#define Yap_REGS (*Yap_regp)  
+#define Yap_REGS (*Yap_regp)
 #elif defined(SHADOW_REGS)
 #if defined(B) || defined(TR)
 #undef Yap_REGS
@@ -1899,7 +1920,7 @@ IUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
 
 #if defined(IN_ABSMI_C) || defined(IN_INLINES_C)
 
-static int 
+static int
 iequ_complex(register CELL *pt0, register CELL *pt0_end,
              register CELL *pt1
              )
@@ -1928,7 +1949,7 @@ iequ_complex(register CELL *pt0, register CELL *pt0_end,
 
  loop:
   while (pt0 < pt0_end) {
-    register CELL *ptd0 = pt0+1; 
+    register CELL *ptd0 = pt0+1;
     register CELL d0;
 
     ++pt1;
@@ -2083,7 +2104,7 @@ iequ_complex(register CELL *pt0, register CELL *pt0_end,
   return FALSE;
 #ifdef THREADS
 #undef Yap_REGS
-#define Yap_REGS (*Yap_regp)  
+#define Yap_REGS (*Yap_regp)
 #elif defined(SHADOW_REGS)
 #if defined(B) || defined(TR)
 #undef Yap_REGS
@@ -2204,17 +2225,23 @@ prune(choiceptr cp USES_REGS)
 #endif
 
 
+#if YAP_JIT
+
 extern Environment ExpEnv;
 extern char fin[1024];
 
-#if YAP_JIT
 #ifndef _NATIVE
 
 #include <math.h>
+
+#ifndef __cplusplus
 #include "JIT_Compiler.hpp"
 
-extern struct JIT_Compiler *J;
-
+void* (*Yap_JitCall)(JIT_Compiler* jc, yamop* p);
+void (* Yap_llvmShutdown)(void ) ;
+Int  (* Yap_traced_absmi)(void ) ;
+extern JIT_Compiler *J;
+#endif
 
 extern NativeContext *NativeArea;
 extern IntermediatecodeContext *IntermediatecodeArea;
@@ -2264,4 +2291,3 @@ yamop* headoftrace;
 #endif
 
 #endif // ABSMI_H
-

@@ -37,16 +37,11 @@ language. Next, we discuss support to the most important ones.
 #define   AtomFreeTerm ((Atom)(&(((special_functors *)(NULL))->AtFreeTerm)))
 #define   AtomNil ((Atom)(&(((special_functors *)(NULL))->AtNil)))
 #define   AtomDot ((Atom)(&(((special_functors *)(NULL))->AtDot)))
-#elif defined(THREADS)
-#define   AtomFoundVar AbsAtom(SF_STORE->AtFoundVar)
-#define   AtomFreeTerm AbsAtom(SF_STORE->AtFreeTerm)
-#define   AtomNil AbsAtom(SF_STORE->AtNil)
-#define   AtomDot AbsAtom(SF_STORE->AtDot)
 #else
-#define   AtomFoundVar AbsAtom(&(SF_STORE->AtFoundVar))
-#define   AtomFreeTerm AbsAtom(&(SF_STORE->AtFreeTerm))
-#define   AtomNil AbsAtom(&(SF_STORE->AtNil))
-#define   AtomDot AbsAtom(&(SF_STORE->AtDot))
+#define   AtomFoundVar AbsAtom((AtomEntry *)&(SF_STORE->AtFoundVar))
+#define   AtomFreeTerm AbsAtom((AtomEntry *)&(SF_STORE->AtFreeTerm))
+#define   AtomNil AbsAtom((AtomEntry *)&(SF_STORE->AtNil))
+#define   AtomDot AbsAtom((AtomEntry *)&(SF_STORE->AtDot))
 #endif
 
 #define   TermFoundVar MkAtomTerm(AtomFoundVar)
@@ -164,32 +159,17 @@ exts;
 #endif
 
 
-#ifdef YAP_H
+#if defined(YAP_H)
 /* make sure that these data structures are the first thing to be allocated
    in the heap when we start the system */
-#ifdef THREADS
 typedef struct special_functors_struct
 {
-  AtomEntry *AtFoundVar;
-  AtomEntry *AtFreeTerm;
-  AtomEntry *AtNil;
-  AtomEntry *AtDot;
-} special_functors;
-#else
-typedef struct special_functors_struct
-{
-  AtomEntry AtFoundVar;
-  char AtFoundVarChars[8];
-  AtomEntry AtFreeTerm;
-  char AtFreeTermChars[8];
-  AtomEntry AtNil;
-  char AtNilChars[8];
-  AtomEntry AtDot;
-  char AtDotChars[8];
+  struct ExtraAtomEntryStruct AtFoundVar;
+  struct ExtraAtomEntryStruct AtFreeTerm;
+  struct ExtraAtomEntryStruct AtNil;
+  struct ExtraAtomEntryStruct AtDot;
 }
 special_functors;
-#endif
-
 #endif /* YAP_H */
 
 INLINE_ONLY inline EXTERN Float CpFloatUnaligned(CELL *ptr);

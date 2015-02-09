@@ -93,6 +93,8 @@ int Yap_page_size;
 #if USE_THREADED_CODE
 /* easy access to instruction opcodes */
 void **Yap_ABSMI_OPCODES;
+void **Yap_ABSMI_ControlLabels;    
+
 #endif
 
 #if DEBUG
@@ -591,6 +593,54 @@ Yap_InitCPred(const char *Name, UInt Arity, CPredicate code, pred_flags_t flags)
   pe->OpcodeOfPred = pe->CodeOfPred->opc;
 }
 
+bool
+Yap_AddCallToFli( PredEntry *pe, CPredicate call )
+{
+  yamop            *p_code;
+  
+  if (pe->PredFlags & BackCPredFlag) {
+    p_code = (yamop *)(pe->cs.p_code.FirstClause);
+    p_code->y_u.OtapFs.f = call;
+    return true;
+  } else if (pe->PredFlags & CPredFlag) {
+    pe->cs.f_code = call;
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool
+Yap_AddRetryToFli( PredEntry *pe, CPredicate re )
+{
+  yamop            *p_code;
+  
+  if (pe->PredFlags & BackCPredFlag) {
+    p_code = (yamop *)(pe->cs.p_code.FirstClause);
+    p_code = NEXTOP(p_code,OtapFs);
+    p_code->y_u.OtapFs.f = re;
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool
+Yap_AddCutToFli( PredEntry *pe, CPredicate CUT )
+{
+  yamop            *p_code;
+  
+  if (pe->PredFlags & BackCPredFlag) {
+    p_code = (yamop *)(pe->cs.p_code.FirstClause);
+    p_code = NEXTOP(p_code,OtapFs);
+    p_code = NEXTOP(p_code,OtapFs);
+    p_code->y_u.OtapFs.f = CUT;
+    return true;
+  } else {
+    return false;
+  }
+}
+
 void
 Yap_InitCmpPred(const char *Name, UInt Arity, CmpPredicate cmp_code, pred_flags_t flags)
 {
@@ -774,7 +824,7 @@ CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont, CPredicate Cut)
       pe->cs.p_code.TrueCodeOfPred != pe->cs.p_code.FirstClause ||
       pe->CodeOfPred != pe->cs.p_code.FirstClause) {
     Yap_Error(SYSTEM_ERROR,TermNil,
-	  "initiating a C Pred with backtracking");
+	      "initiating a C Pred with backtracking");
     return;
   }
   code = (yamop *)(pe->cs.p_code.FirstClause);
@@ -1080,21 +1130,12 @@ InitAtoms(void)
     HashChain[i].Entry = NIL;
   }
   NOfAtoms = 0;
-#if THREADS
-  SF_STORE->AtFoundVar = Yap_LookupAtom("**");
-  Yap_ReleaseAtom(AtomFoundVar);
-  SF_STORE->AtFreeTerm = Yap_LookupAtom("?");
+  Yap_LookupAtomWithAddress("**",(AtomEntry *)&(SF_STORE->AtFoundVar));
+  Yap_ReleaseAtom(AtomFoundVar); 
+  Yap_LookupAtomWithAddress("?",(AtomEntry *)&(SF_STORE->AtFreeTerm));
   Yap_ReleaseAtom(AtomFreeTerm);
-  SF_STORE->AtNil = Yap_LookupAtom("[]");
-  SF_STORE->AtDot = Yap_LookupAtom(".");
-#else
-  Yap_LookupAtomWithAddress("**",&(SF_STORE->AtFoundVar));
-  Yap_ReleaseAtom(AtomFoundVar);
-  Yap_LookupAtomWithAddress("?",&(SF_STORE->AtFreeTerm));
-  Yap_ReleaseAtom(AtomFreeTerm);
-  Yap_LookupAtomWithAddress("[]",&(SF_STORE->AtNil));
-  Yap_LookupAtomWithAddress(".",&(SF_STORE->AtDot));
-#endif
+  Yap_LookupAtomWithAddress("[]",(AtomEntry *)&(SF_STORE->AtNil));
+  Yap_LookupAtomWithAddress(".",(AtomEntry *)&(SF_STORE->AtDot));
 }
 
 static void

@@ -46,9 +46,9 @@
 #define YAP_CPP_INTERFACE 1
  
  
-extern "C" {
-
 #include "yapi.hh"
+
+  extern "C" {
 
   extern Term Yap_StringToTerm(const char *s, size_t len, term_t bindings);
 
@@ -67,6 +67,16 @@ extern "C" {
 %feature("director") YAPCallback;
  	
 %include "yapi.hh"
+
+%include "yapa.hh"
+
+%include "yapie.hh"
+
+%include "yapt.hh"
+
+%include "yapdb.hh"
+
+%include "yapq.hh"
 
 #ifdef SWIGJAVA
 %javaexception("java.text.ParseException") YAPPredicate {

@@ -5,11 +5,12 @@
 #include "SWI-Stream.h"
 
 
+
 YAPAtomTerm::YAPAtomTerm(char *s) { // build string
   BACKUP_H();
 
   CACHE_REGS
-  seq_tv_t inp, out;
+    seq_tv_t inp, out;
   inp.val.c = s;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_ATOM;
@@ -267,7 +268,7 @@ intptr_t YAPTerm::hashTerm(size_t sz, size_t depth, bool variant) {
   return out;
 }
 
-char *YAPTerm::text(void) {
+char *YAPTerm::text() {
   size_t sze = 4096, length;
   char *os;
   int enc;
@@ -281,7 +282,7 @@ char *YAPTerm::text(void) {
   return os;
 }
 
-char *YAPQuery::text(void) {
+char *YAPQuery::text() {
   size_t sze = 4096, length;
   char *os;
   int enc;
@@ -387,81 +388,18 @@ char *YAPAtom::getName(void) {
   }
 }
 
-
-YAPPredicate::YAPPredicate(const char *s, Term* &outp, YAPTerm &vnames) throw (int) {
-  CACHE_REGS
-  vnames = Yap_NewSlots(1 PASS_REGS);
-  Term t = Yap_StringToTerm(s, strlen(s)+1, Yap_GetFromSlot( vnames.t PASS_REGS));
-  if (t == 0L)
-    throw YAPError::YAP_SYNTAX_ERROR;
-  ap = getPred( t, outp );
-}
-
-YAPPredicate::YAPPredicate(YAPAtom at) {
-  CACHE_REGS
-  ap = RepPredProp(PredPropByAtom(at.a,CurrentModule));
-}
-
-YAPPredicate::YAPPredicate(YAPAtom at, arity_t arity) {
-  CACHE_REGS
-  if (arity) {
-      Functor f = Yap_MkFunctor(at.a, arity);
-      ap = RepPredProp(PredPropByFunc(f,CurrentModule));
-  } else {
-      ap = RepPredProp(PredPropByAtom(at.a,CurrentModule));
-  }
-}
-
-/// auxiliary routine to find a predicate in the current module.
-PredEntry  *YAPPredicate::getPred( Term t, Term* &outp ) {
-  CACHE_REGS
-  Term m = CurrentModule ;
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "H= %p, outp=%p", HR, outp) ; }
-  t = Yap_StripModule(t, &m);
-  if (IsVarTerm(t) || IsNumTerm(t)) {
-      ap = (PredEntry  *)NULL;
-      outp = (Term  *)NULL;
-  }
-  if (IsAtomTerm(t)) {
-      ap = RepPredProp(PredPropByAtom(AtomOfTerm(t), m));
-      if (outp) outp = (Term  *)NULL;
-  }  else if (IsPairTerm(t)) {
-      ap = RepPredProp(PredPropByFunc(FunctorCsult, PROLOG_MODULE));
-       outp = HR;
-      HR[0] = RepPair(t)[0];
-      HR[1] = m;
-      HR+=2;
-  } else {
-      Functor f = FunctorOfTerm(t);
-      if (IsExtensionFunctor(f)) {
-	  ap = (PredEntry  *)NULL;
-	  outp = (Term *)NULL;
-      } else {
-      ap = RepPredProp(PredPropByFunc(f, m));
-       outp = RepAppl(t)+1;
-      }
-  }
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "done H= %p, outp=%p", HR, outp) ; }
- return ap;
-}
-
-YAPPredicate::YAPPredicate(YAPFunctor f) {
-  CACHE_REGS
-  ap = RepPredProp(PredPropByFunc(f.f,CurrentModule));
-}
-
-
 void
 YAPQuery::initQuery( Term *ts )
 {
   CACHE_REGS
-
-  this->oq = (YAPQuery *)LOCAL_execution;
+    this->oq = (YAPQuery *)LOCAL_execution;
   LOCAL_execution = (struct open_query_struct *)this;
   this->q_open=1;
   this->q_state=0;
   this->q_flags = PL_Q_PASS_EXCEPTION;
-  this->q_g = ts;
+  this->q_g = ts;  
+  this->q_p = P;  
+  this->q_cp = CP;  
 }
 
 void
@@ -502,6 +440,7 @@ bool YAPQuery::next()
 {
   CACHE_REGS
   int result;
+  
   if (q_open != 1) return false;
   if (setjmp(((YAPQuery *)LOCAL_execution)->q_env))
     return false;
@@ -547,17 +486,6 @@ void YAPQuery::close()
   YAP_LeaveGoal(FALSE, &this->q_h);
   this->q_open = 0;
   LOCAL_execution = (struct open_query_struct *)this->oq;
-}
-
-int YAPPredicate::call(YAPTerm t[])
-{
-  YAPQuery q = YAPQuery(*this, t);
-  int ret;
-
-  ret = q.next();
-  q.cut();
-  q.close();
-  return ret;
 }
 
 static YAPEngine *curren;
@@ -644,3 +572,153 @@ YAPQuery *YAPEngine::query( char *s ) {
 }
 
 
+
+YAPPredicate::YAPPredicate(const char *s, Term* &outp, Term &vnames) throw (int) {
+  CACHE_REGS
+  yhandle_t sl  = Yap_NewSlots(1 PASS_REGS);
+  Term t = Yap_StringToTerm(s, strlen(s)+1,  sl );
+  if (t == 0L)
+    throw YAPError::YAP_SYNTAX_ERROR;
+  vnames = Yap_GetFromSlot( sl PASS_REGS );
+  ap = getPred( t, outp );
+}
+
+YAPPredicate::YAPPredicate(YAPAtom at) {
+  CACHE_REGS
+    ap = RepPredProp(PredPropByAtom(at.a,CurrentModule));
+}
+
+YAPPredicate::YAPPredicate(YAPAtom at, arity_t arity) {
+  CACHE_REGS
+    if (arity) {
+      Functor f = Yap_MkFunctor(at.a, arity);
+      ap = RepPredProp(PredPropByFunc(f,CurrentModule));
+    } else {
+      ap = RepPredProp(PredPropByAtom(at.a,CurrentModule));
+    }
+}
+
+/// auxiliary routine to find a predicate in the current module.
+PredEntry  *YAPPredicate::getPred( Term t, Term* &outp ) {
+  CACHE_REGS
+    Term m = CurrentModule ;
+  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "H= %p, outp=%p", HR, outp) ; }
+  t = Yap_StripModule(t, &m);
+  if (IsVarTerm(t) || IsNumTerm(t)) {
+    ap = (PredEntry  *)NULL;
+    outp = (Term  *)NULL;
+  }
+  if (IsAtomTerm(t)) {
+    ap = RepPredProp(PredPropByAtom(AtomOfTerm(t), m));
+    if (outp) outp = (Term  *)NULL;
+  }  else if (IsPairTerm(t)) {
+    ap = RepPredProp(PredPropByFunc(FunctorCsult, PROLOG_MODULE));
+    outp = HR;
+    HR[0] = RepPair(t)[0];
+    HR[1] = m;
+    HR+=2;
+  } else {
+    Functor f = FunctorOfTerm(t);
+    if (IsExtensionFunctor(f)) {
+      ap = (PredEntry  *)NULL;
+      outp = (Term *)NULL;
+    } else {
+      ap = RepPredProp(PredPropByFunc(f, m));
+      outp = RepAppl(t)+1;
+    }
+  }
+  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "done H= %p, outp=%p", HR, outp) ; }
+  return ap;
+}
+
+
+YAPPrologPredicate::YAPPrologPredicate(YAPAtom name,
+                                       arity_t arity,
+                                       YAPModule mod,
+                                       bool tabled,
+                                       bool logical_updates,
+                                       bool thread_local,
+                                       bool sourced,
+                                       bool discontiguous,
+                                       bool multiFile,
+                                       bool hidden,
+                                       bool untraceable,
+                                       bool unspyable,
+                                       bool meta,
+                                       bool moduleTransparent,
+                                       bool quasiQuotable,
+                                       size_t mega_clause
+                                       ) : YAPPredicate(name, arity, mod) {
+  if (!ap) return;
+  if (thread_local) {
+    if (ap->cs.p_code.NOfClauses || tabled)
+      return;
+    ap->PredFlags |= (ThreadLocalPredFlag|LogUpdatePredFlag);
+  } else if (logical_updates) {
+    if (ap->cs.p_code.NOfClauses || tabled)
+      return;
+    ap->PredFlags |= LogUpdatePredFlag;
+    ap->CodeOfPred = FAILCODE;
+    ap->OpcodeOfPred = FAILCODE->opc;
+  }
+  if (tabled) {
+    ap->PredFlags |= TabledPredFlag;
+    if (ap->cs.p_code.NOfClauses || tabled)
+      return;
+    ap->PredFlags |= TabledPredFlag;
+  }
+  if (sourced) {
+    ap->PredFlags |= SourcePredFlag;
+  }
+  if (discontiguous) {
+    ap->PredFlags |= DiscontiguousPredFlag;
+  }
+  if (multiFile) {
+    ap->PredFlags |= MultiFileFlag;
+  }
+  if (hidden) {
+    ap->PredFlags |= HiddenPredFlag;
+  }
+  if (untraceable) {
+    ap->PredFlags |= SourcePredFlag;
+  }
+  if (unspyable) {
+    ap->PredFlags |= NoSpyPredFlag;
+  }
+  if (meta) {
+    ap->PredFlags |= MetaPredFlag;
+  } else if (moduleTransparent) {
+    ap->PredFlags |= ModuleTransparentPredFlag;
+  }
+  if (quasiQuotable) {
+    ap->PredFlags |= QuasiQuotationPredFlag;
+  }
+  if (untraceable) {
+    ap->PredFlags |= SourcePredFlag;
+  }
+  if (hidden) {
+    ap->PredFlags |= SourcePredFlag;
+  }
+}
+
+void *YAPPrologPredicate::assertClause( YAPTerm clause, bool last, YAPTerm source) {
+  CACHE_REGS
+
+    Term tt = clause.gt();
+  Term sourcet  = source.gt();
+  yamop *codeaddr = Yap_cclause(tt, PP->ArityOfPE, CurrentModule, sourcet); /* vsc: give the number of arguments
+                                                                               to cclause in case there is overflow */
+  Term ntt = clause.gt();
+  if (LOCAL_ErrorMessage)
+    return 0;
+  Term *tref = &ntt;
+  if (Yap_addclause(ntt, codeaddr, (last ? 0 : 2), CurrentModule, tref))
+    return tref;
+  return 0;
+}
+void* YAPPrologPredicate::retractClause( YAPTerm skeleton, bool all) {
+  return 0;
+}
+void* YAPPrologPredicate::clause( YAPTerm skeleton, YAPTerm &body ) {
+  return 0;
+}

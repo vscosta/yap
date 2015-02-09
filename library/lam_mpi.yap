@@ -208,7 +208,8 @@ message and  _Data_ with the message itself.
 		  mpi_barrier/0,
 		  mpi_msg_buffer_size/2,
 		  mpi_msg_size/2,
-		  mpi_gc/0
+		  mpi_gc/0,
+		  mpi_default_buffer_size/2
           ]).
 
 :- load_foreign_files([yap_mpi], [], init_mpi).

@@ -814,12 +814,6 @@
       cl = NEXTOP(cl,Otapl);
       break;
 #endif
-#ifdef YAP_JIT
-#ifdef YAPOR
-#endif
-#ifdef TABLING
-#endif
-#endif
 default:
 	clause->Tag = (CELL)NULL;
 	return;

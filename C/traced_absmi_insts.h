@@ -1,12 +1,39 @@
+#define PASS_REGS
+#define undef_goal( x )
+
+if (P == NULL) goto fail;
+NoStackCut:
+if (P == NULL) goto NoStackCut;
+NoStackCommitY:
+if (P == NULL) goto NoStackCommitY;
+NoStackCutT:
+if (P== NULL) goto NoStackCutT;
+NoStackCutE:
+if (P== NULL) goto NoStackCutE;
+NoStackEither:
+if (P== NULL) goto NoStackEither;
+NoStackExecute:
+if (P== NULL) goto NoStackExecute;
+NoStackCall:
+if (P== NULL) goto NoStackCall;
+NoStackDExecute:
+if (P== NULL) goto NoStackDExecute;
+NoStackDeallocate:
+if (P== NULL) goto NoStackDeallocate;
+NoStackFail:
+if (P== NULL) goto NoStackFail;
+NoStackCommitX:
+if (P== NULL) goto NoStackCommitX;
+
 /*****************************************************************
 *                     TRACED INSTRUCTIONS                        *
 *****************************************************************/
 
-      BOp(traced_Ystop, l);
+      BOp(Ystop, l);
       goto Ystop;
       ENDBOp();
 
-      BOp(traced_Nstop, e);
+      BOp(Nstop, e);
       goto Nstop;
       ENDBOp();
 
@@ -14,7 +41,7 @@
 *        Plain try - retry - trust instructions                  *
 *****************************************************************/
       /* try_me    Label,NArgs */
-      Op(traced_try_me, Otapl);
+      Op(try_me, Otapl);
       /* check if enough space between trail and codespace */
       EMIT_ENTRY_BLOCK(PREG,TRY_ME_INSTINIT);
       check_trail(TR);
@@ -44,7 +71,7 @@ CACHE_Y(YREG);
       ENDOp();
 
       /* retry_me    Label,NArgs */
-      Op(traced_retry_me, Otapl);
+      Op(retry_me, Otapl);
       EMIT_ENTRY_BLOCK(PREG,RETRY_ME_INSTINIT);
       CACHE_Y(B);
       /* After retry, cut should be pointing at the parent
@@ -67,7 +94,7 @@ CACHE_Y(YREG);
       ENDOp();
 
       /* trust_me    UnusedLabel,NArgs */
-      Op(traced_trust_me, Otapl);
+      Op(trust_me, Otapl);
       EMIT_ENTRY_BLOCK(PREG,TRUST_ME_INSTINIT);
       CACHE_Y(B);
       EMIT_SIMPLE_BLOCK_TEST(TRUST_ME_IF);
@@ -104,7 +131,7 @@ CACHE_Y(YREG);
 *****************************************************************/
 
       /* profiled_enter_me    Pred */
-      Op(traced_enter_profiling, p);
+      Op(enter_profiling, p);
       EMIT_ENTRY_BLOCK(PREG,ENTER_PROFILING_INSTINIT);
       LOCK(PREG->y_u.p.p->StatisticsForPred.lock);
       PREG->y_u.p.p->StatisticsForPred.NOfEntries++;
@@ -114,7 +141,7 @@ CACHE_Y(YREG);
       ENDOp();
 
      /* profiled_retry    Label,NArgs */
-      Op(traced_retry_profiled, p);
+      Op(retry_profiled, p);
       EMIT_ENTRY_BLOCK(PREG,RETRY_PROFILED_INSTINIT);
       LOCK(PREG->y_u.p.p->StatisticsForPred.lock);
       PREG->y_u.p.p->StatisticsForPred.NOfRetries++;
@@ -124,7 +151,7 @@ CACHE_Y(YREG);
       ENDOp();
 
       /* profiled_retry_me    Label,NArgs */
-      Op(traced_profiled_retry_me, Otapl);
+      Op(profiled_retry_me, Otapl);
       EMIT_ENTRY_BLOCK(PREG,PROFILED_RETRY_ME_INSTINIT);
       CACHE_Y(B);
       /* After retry, cut should be pointing at the parent
@@ -150,7 +177,7 @@ CACHE_Y(YREG);
       ENDOp();
 
       /* profiled_trust_me    UnusedLabel,NArgs */
-      Op(traced_profiled_trust_me, Otapl);
+      Op(profiled_trust_me, Otapl);
       EMIT_ENTRY_BLOCK(PREG,PROFILED_TRUST_ME_INSTINIT);
       CACHE_Y(B);
       EMIT_SIMPLE_BLOCK(PROFILED_TRUST_ME_IF);
@@ -185,7 +212,7 @@ CACHE_Y(YREG);
       GONext();
       ENDOp();
 
-      BOp(traced_profiled_retry_logical, OtaLl);
+      BOp(profiled_retry_logical, OtaLl);
       EMIT_ENTRY_BLOCK(PREG,PROFILED_RETRY_LOGICAL_INSTINIT);
       check_trail(TR);
       {
@@ -224,7 +251,7 @@ CACHE_Y(YREG);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_profiled_trust_logical, OtILl);
+      BOp(profiled_trust_logical, OtILl);
       EMIT_ENTRY_BLOCK(PREG,PROFILED_TRUST_LOGICAL_INSTINIT);
 	  EMIT_SIMPLE_BLOCK(PROFILED_TRUST_LOGICAL_END);
       CACHE_Y(B);
@@ -341,7 +368,7 @@ CACHE_Y(YREG);
 *****************************************************************/
 
       /* count_enter_me    Label,NArgs */
-      Op(traced_count_call, p);
+      Op(count_call, p);
       EMIT_ENTRY_BLOCK(PREG,COUNT_CALL_INSTINIT);
       LOCK(PREG->y_u.p.p->StatisticsForPred.lock);
       PREG->y_u.p.p->StatisticsForPred.NOfEntries++;
@@ -367,7 +394,7 @@ CACHE_Y(YREG);
       ENDOp();
 
       /* count_retry    Label,NArgs */
-      Op(traced_count_retry, p);
+      Op(count_retry, p);
       EMIT_ENTRY_BLOCK(PREG,COUNT_RETRY_INSTINIT);
       LOCK(PREG->y_u.p.p->StatisticsForPred.lock);
       PREG->y_u.p.p->StatisticsForPred.NOfRetries++;
@@ -396,7 +423,7 @@ CACHE_Y(YREG);
       ENDOp();
 
       /* count_retry_me    Label,NArgs */
-      Op(traced_count_retry_me, Otapl);
+      Op(count_retry_me, Otapl);
       EMIT_ENTRY_BLOCK(PREG,COUNT_RETRY_ME_INSTINIT);
       CACHE_Y(B);
       restore_yaam_regs(PREG->y_u.Otapl.d);
@@ -435,7 +462,7 @@ CACHE_Y(YREG);
       ENDOp();
 
       /* count_trust_me    UnusedLabel,NArgs */
-      Op(traced_count_trust_me, Otapl);
+      Op(count_trust_me, Otapl);
       EMIT_ENTRY_BLOCK(PREG,COUNT_TRUST_ME_INSTINIT);
       CACHE_Y(B);
       EMIT_SIMPLE_BLOCK(COUNT_TRUST_ME_MIDDLE);
@@ -484,7 +511,7 @@ CACHE_Y(YREG);
       GONext();
       ENDOp();
 
-      BOp(traced_count_retry_logical, OtaLl);
+      BOp(count_retry_logical, OtaLl);
       EMIT_ENTRY_BLOCK(PREG,COUNT_RETRY_LOGICAL_INSTINIT);
 	  EMIT_SIMPLE_BLOCK(COUNT_RETRY_LOGICAL_END);
       check_trail(TR);
@@ -533,7 +560,7 @@ CACHE_Y(YREG);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_count_trust_logical, OtILl);
+      BOp(count_trust_logical, OtILl);
       EMIT_ENTRY_BLOCK(PREG,COUNT_TRUST_LOGICAL_INSTINIT);
 	  EMIT_SIMPLE_BLOCK(COUNT_TRUST_LOGICAL_END);
       CACHE_Y(B);
@@ -667,7 +694,7 @@ CACHE_Y(YREG);
 
       /* only meaningful with THREADS on! */
       /* lock logical updates predicate.  */
-      Op(traced_lock_lu, p);
+      Op(lock_lu, p);
       EMIT_SIMPLE_BLOCK(LOCK_LU_INSTINIT);
 	  EMIT_SIMPLE_BLOCK(LOCK_LU_END);
 #if PARALLEL_YAP
@@ -683,7 +710,7 @@ CACHE_Y(YREG);
 
       /* only meaningful with THREADS on! */
       /* lock logical updates predicate.  */
-      Op(traced_unlock_lu, e);
+      Op(unlock_lu, e);
       EMIT_SIMPLE_BLOCK(UNLOCK_LU_INSTINIT);
 #if defined(YAPOR) || defined(THREADS)
       EMIT_SIMPLE_BLOCK(UNLOCK_LU_YAPOR_THREADS);
@@ -697,7 +724,7 @@ CACHE_Y(YREG);
 
 
       /* enter logical pred               */
-      BOp(traced_alloc_for_logical_pred, L);
+      BOp(alloc_for_logical_pred, L);
       EMIT_ENTRY_BLOCK(PREG,ALLOC_FOR_LOGICAL_PRED_INSTINIT);
       EMIT_SIMPLE_BLOCK(YAAM_CHECK_TRAIL_TR);
       check_trail(TR);
@@ -735,7 +762,7 @@ CACHE_Y(YREG);
       ENDBOp();
 
       /* copy database term               */
-      BOp(traced_copy_idb_term, e);
+      BOp(copy_idb_term, e);
       EMIT_ENTRY_BLOCK(PREG,COPY_IDB_TERM_INSTINIT);
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(COPY_IDB_TERM_END);
       {
@@ -753,7 +780,7 @@ CACHE_Y(YREG);
 	      PP = NULL;
 #endif
 	      Yap_NilError(OUT_OF_ATTVARS_ERROR, LOCAL_ErrorMessage);
-	      TRACED_FAIL();
+	      FAIL();
 	    }
 	  } else {
 	    LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -763,7 +790,7 @@ CACHE_Y(YREG);
 	      PP = NULL;
 #endif
 	      Yap_NilError(OUT_OF_STACK_ERROR, LOCAL_ErrorMessage);
-	      TRACED_FAIL();
+	      FAIL();
 	    }
 	  }
 	}
@@ -773,7 +800,7 @@ CACHE_Y(YREG);
 #if defined(YAPOR) || defined(THREADS)
 	  PP = NULL;
 #endif
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	if (!Yap_IUnify(ARG3, MkDBRefTerm((DBRef)cl))) {
 	  setregs();
@@ -781,7 +808,7 @@ CACHE_Y(YREG);
 #if defined(YAPOR) || defined(THREADS)
 	  PP = NULL;
 #endif
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	setregs();
 
@@ -812,7 +839,7 @@ CACHE_Y(YREG);
 
 
       /* unify with database term               */
-      BOp(traced_unify_idb_term, e);
+      BOp(unify_idb_term, e);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_IDB_TERM_INSTINIT);
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(UNIFY_IDB_TERM_END);
       {
@@ -825,7 +852,7 @@ CACHE_Y(YREG);
 #if defined(YAPOR) || defined(THREADS)
 	  PP = NULL;
 #endif
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	if (!Yap_IUnify(ARG3, MkDBRefTerm((DBRef)cl))) {
 	  setregs();
@@ -833,7 +860,7 @@ CACHE_Y(YREG);
 #if defined(YAPOR) || defined(THREADS)
 	  PP = NULL;
 #endif
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	setregs();
 
@@ -870,7 +897,7 @@ CACHE_Y(YREG);
 *****************************************************************/
 
       /* ensure_space                   */
-      BOp(traced_ensure_space, Osbpa);
+      BOp(ensure_space, Osbpa);
       EMIT_ENTRY_BLOCK(PREG,ENSURE_SPACE_INSTINIT);
 	  EMIT_SIMPLE_BLOCK(ENSURE_SPACE_END);
       {
@@ -888,7 +915,7 @@ CACHE_Y(YREG);
 	  if (!Yap_gcl(sz, arity, YENV, PREG)) {
 	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
 	    setregs();
-	    TRACED_FAIL();
+	    FAIL();
 	  } else {
 	    setregs();
 	  }
@@ -904,16 +931,16 @@ CACHE_Y(YREG);
 *****************************************************************/
 
       /* spy_or_trymark                   */
-      BOp(traced_spy_or_trymark, Otapl);
+      BOp(spy_or_trymark, Otapl);
       EMIT_ENTRY_BLOCK(PREG,SPY_OR_TRYMARK_INSTINIT);
       PELOCK(5, ((PredEntry *)(PREG->y_u.Otapl.p)));
       PREG = (yamop *)(&(((PredEntry *)(PREG->y_u.Otapl.p))->OpcodeOfPred));
       UNLOCKPE(11,(PredEntry *)(PREG->y_u.Otapl.p));
-      goto traced_dospy;
+      goto dospy;
       ENDBOp();
 
       /* try_and_mark   Label,NArgs       */
-      BOp(traced_try_and_mark, Otapl);
+      BOp(try_and_mark, Otapl);
       EMIT_ENTRY_BLOCK(PREG,TRY_AND_MARK_INSTINIT);
       check_trail(TR);
 #if defined(YAPOR) || defined(THREADS)
@@ -981,7 +1008,7 @@ CACHE_Y(YREG);
 
       ENDBOp();
 
-      BOp(traced_count_retry_and_mark, Otapl);
+      BOp(count_retry_and_mark, Otapl);
       EMIT_ENTRY_BLOCK(PREG,COUNT_RETRY_AND_MARK_INSTINIT);
       LOCAL_RetriesCounter--;
       if (LOCAL_RetriesCounter == 0) {
@@ -1000,7 +1027,7 @@ CACHE_Y(YREG);
       /* enter a retry dynamic */
       ENDBOp();
 
-      BOp(traced_profiled_retry_and_mark, Otapl);
+      BOp(profiled_retry_and_mark, Otapl);
       EMIT_ENTRY_BLOCK(PREG,PROFILED_RETRY_AND_MARK_INSTINIT);
       LOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred.lock);
       ((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred.NOfRetries++;
@@ -1009,7 +1036,7 @@ CACHE_Y(YREG);
       ENDBOp();
 
       /* retry_and_mark   Label,NArgs     */
-      BOp(traced_retry_and_mark, Otapl);
+      BOp(retry_and_mark, Otapl);
       EMIT_ENTRY_BLOCK(PREG,RETRY_AND_MARK_INSTINIT);
 #ifdef YAPOR
       EMIT_SIMPLE_BLOCK(RETRY_AND_MARK_YAPOR);
@@ -1058,7 +1085,7 @@ CACHE_Y(YREG);
 *****************************************************************/
 
       /* trust_fail                       */
-      BOp(traced_trust_fail, e);
+      BOp(trust_fail, e);
       EMIT_ENTRY_BLOCK(PREG,TRUST_FAIL_INSTINIT);
 #ifdef CUT_C
       {
@@ -1081,19 +1108,19 @@ CACHE_Y(YREG);
       EMIT_SIMPLE_BLOCK(TRUST_FAIL_NOYAPOR);
       B = B->cp_b;
 #endif	/* YAPOR */
-      goto traced_fail;
+      goto fail;
       ENDBOp();
 
 #ifdef YAPOR
-    traced_shared_fail:
+    shared_fail:
       EMIT_SIMPLE_BLOCK(LBL_SHARED_FAIL);
       B = Get_LOCAL_top_cp();
       SET_BB(PROTECT_FROZEN_B(B));
-      goto traced_fail;
+      goto fail;
 #endif	/* YAPOR */
 
-      /* traced_fail                             */
-      PBOp(traced_op_fail, e);
+      /* fail                             */
+      PBOp(op_fail, e);
       EMIT_ENTRY_BLOCK(PREG,OP_FAIL_INSTINIT);
       if (PP) {
 	UNLOCK(PP->PELock);
@@ -1106,7 +1133,7 @@ CACHE_Y(YREG);
       ENDCACHE_Y_AS_ENV();
 #endif
 
-    traced_fail:
+    fail:
       {
       EMIT_ENTRY_BLOCK(PREG,LBL_FAIL_INSTINIT);
 	register tr_fr_ptr pt0 = TR;
@@ -1120,7 +1147,7 @@ CACHE_Y(YREG);
 	save_pc();
 	CACHE_TR(B->cp_tr);
 	PREFETCH_OP(PREG);
-      traced_failloop:
+      failloop:
 	if (pt0 == S_TR) {
 	  SP = SP0;
 #ifdef LOW_LEVEL_TRACER
@@ -1298,7 +1325,7 @@ CACHE_Y(YREG);
          /* normal variable */
 	    RESET_VARIABLE(d1);
       }
-	  goto traced_failloop;
+	  goto failloop;
 	}
 	/* pointer to code space */
 	/* or updatable variable */
@@ -1314,7 +1341,7 @@ CACHE_Y(YREG);
 	      TrailTerm(pt0) = AbsPair((CELL *)(pt0 - 1));
 	      SgFr_state(sg_fr)--;  /* complete_in_use --> complete : compiled_in_use --> compiled */
 	      insert_into_global_sg_fr_list(sg_fr);
-	      goto traced_failloop;
+	      goto failloop;
 	    }
 #endif /* LIMIT_TABLING */
 #ifdef FROZEN_STACKS  /* TRAIL */
@@ -1327,19 +1354,19 @@ CACHE_Y(YREG);
 		)
             {
 	      pt0 = (tr_fr_ptr) pt1;
-	      goto traced_failloop;
+	      goto failloop;
 	    } else
 #endif /* FROZEN_STACKS */
 	      if (IN_BETWEEN(H0,pt1,HR)) {
 		if (IsAttVar(pt1)) {
-		  goto traced_failloop;
+		  goto failloop;
 		} else if (*pt1 == (CELL)FunctorBigInt) {
 		  Yap_CleanOpaqueVariable(pt1);
 		}
 	      }
 #ifdef FROZEN_STACKS  /* TRAIL */
 	    if (pt0 < TR_FZ) {
-		  goto traced_failloop;
+		  goto failloop;
 	    }
 #endif
 	    flags = *pt1;
@@ -1436,7 +1463,7 @@ CACHE_Y(YREG);
 	      }
 	    }
 #endif
-	    goto traced_failloop;
+	    goto failloop;
 	  }
 #ifdef MULTI_ASSIGNMENT_VARIABLES
 	else /* if (IsApplTerm(d1)) */ {
@@ -1448,7 +1475,7 @@ CACHE_Y(YREG);
 	  pt[0] = TrailTerm(pt0-1);
 	  pt0 -= 2;
 #endif /* FROZEN_STACKS */
-	  goto traced_failloop;
+	  goto failloop;
 	}
 #endif
 	ENDD(d1);
@@ -1463,7 +1490,7 @@ CACHE_Y(YREG);
 \************************************************************************/
 
       /* cut                              */
-Op(traced_cut, s);
+Op(cut, s);
       EMIT_ENTRY_BLOCK(PREG,CUT_INSTINIT);
 #ifdef COROUTINING
       EMIT_SIMPLE_BLOCK_TEST(CUT_COROUTINING);
@@ -1486,7 +1513,7 @@ Op(traced_cut, s);
 
       /* cut_t                            */
       /* cut_t does the same as cut */
-      Op(traced_cut_t, s);
+      Op(cut_t, s);
       EMIT_ENTRY_BLOCK(PREG,CUT_T_INSTINIT);
 #ifdef COROUTINING
       EMIT_SIMPLE_BLOCK_TEST(CUT_T_COROUTINING);
@@ -1501,14 +1528,14 @@ Op(traced_cut, s);
       SET_ASP(YREG, PREG->y_u.s.s);
       /* assume cut is always in stack */
       saveregs();
-      prune((choiceptr)YREG[E_CB]);
+prune((choiceptr)YREG[E_CB]);
       setregs();
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       GONext();
       ENDOp();
 
       /* cut_e                            */
-      Op(traced_cut_e, s);
+      Op(cut_e, s);
       EMIT_ENTRY_BLOCK(PREG,CUT_E_INSTINIT);
 #ifdef COROUTINING
       EMIT_SIMPLE_BLOCK_TEST(CUT_E_COROUTINING);
@@ -1529,7 +1556,7 @@ Op(traced_cut, s);
       ENDOp();
 
       /* save_b_x      Xi                 */
-      Op(traced_save_b_x, x);
+      Op(save_b_x, x);
       EMIT_ENTRY_BLOCK(PREG,SAVE_B_X_INSTINIT);
       BEGD(d0);
       d0 = PREG->y_u.x.x;
@@ -1547,7 +1574,7 @@ Op(traced_cut, s);
       ENDOp();
 
       /* save_b_y      Yi                 */
-      Op(traced_save_b_y, y);
+      Op(save_b_y, y);
       EMIT_ENTRY_BLOCK(PREG,SAVE_B_Y_INSTINIT);
 #if defined(YAPOR_SBA)
       EMIT_SIMPLE_BLOCK_TEST(SAVE_B_Y_YSBA);
@@ -1562,7 +1589,7 @@ Op(traced_cut, s);
       ENDOp();
 
       /* commit_b_x    Xi                 */
-      Op(traced_commit_b_x, xps);
+      Op(commit_b_x, xps);
       EMIT_ENTRY_BLOCK(PREG,COMMIT_B_X_INSTINIT);
 #ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
@@ -1573,8 +1600,8 @@ Op(traced_cut, s);
       EMIT_SIMPLE_BLOCK_TEST(COMMIT_B_X_DO_COMMIT_B_X);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xps.x);
-      profiled_deref_head_TEST(d0, traced_commit_b_x_unk);
-    traced_commit_b_x_nvar:
+      profiled_deref_head_TEST(d0, commit_b_x_unk);
+    commit_b_x_nvar:
       /* skip a void call and a label */
       EMIT_SIMPLE_BLOCK_TEST(COMMIT_B_X_COMMIT_B_X_NVAR);
       SET_ASP(YREG, PREG->y_u.xps.s);
@@ -1596,17 +1623,17 @@ Op(traced_cut, s);
       GONext();
 
       BEGP(pt1);
-      profiled_deref_body(d0, pt1, traced_commit_b_x_unk, traced_commit_b_x_nvar);
+      profiled_deref_body(d0, pt1, commit_b_x_unk, commit_b_x_nvar);
       EMIT_SIMPLE_BLOCK_TEST(COMMIT_B_X_END);
       ENDP(pt1);
       /* never cut to a variable */
       /* Abort */
-      TRACED_FAIL();
+      FAIL();
       ENDD(d0);
       ENDOp();
 
       /* commit_b_y    Yi                 */
-      Op(traced_commit_b_y, yps);
+      Op(commit_b_y, yps);
       EMIT_ENTRY_BLOCK(PREG,COMMIT_B_Y_INSTINIT);
 #ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
@@ -1617,8 +1644,8 @@ Op(traced_cut, s);
       EMIT_SIMPLE_BLOCK_TEST(COMMIT_B_Y_DO_COMMIT_B_Y);
       BEGD(d0);
       d0 = YREG[PREG->y_u.yps.y];
-      profiled_deref_head_TEST(d0, traced_commit_b_y_unk);
-    traced_commit_b_y_nvar:
+      profiled_deref_head_TEST(d0, commit_b_y_unk);
+    commit_b_y_nvar:
       EMIT_SIMPLE_BLOCK_TEST(COMMIT_B_Y_COMMIT_B_Y_NVAR);
       SET_ASP(YREG, PREG->y_u.yps.s);
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yps),Osbpp),l);
@@ -1639,12 +1666,12 @@ Op(traced_cut, s);
       GONext();
 
       BEGP(pt1);
-      profiled_deref_body(d0, pt1, traced_commit_b_y_unk, traced_commit_b_y_nvar);
+      profiled_deref_body(d0, pt1, commit_b_y_unk, commit_b_y_nvar);
       EMIT_SIMPLE_BLOCK_TEST(COMMIT_B_Y_END);
       ENDP(pt1);
       /* never cut to a variable */
       /* Abort */
-      TRACED_FAIL();
+      FAIL();
       ENDD(d0);
       ENDOp();
 
@@ -1655,7 +1682,7 @@ Op(traced_cut, s);
 /* Macros for stack trimming                                            */
 
       /* execute     Label               */
-      BOp(traced_execute, pp);
+      BOp(execute, pp);
       {
       EMIT_ENTRY_BLOCK(PREG,EXECUTE_INSTINIT);
 	PredEntry *pt0;
@@ -1688,7 +1715,7 @@ Op(traced_cut, s);
       EMIT_SIMPLE_BLOCK_TEST(EXECUTE_DEPTH_MINOR);
 	  if (pt0->ModuleOfPred) {
 	    if (DEPTH == MkIntTerm(0)) {
-          TRACED_FAIL();
+          FAIL();
         }
 	    else {
           DEPTH = RESET_DEPTH();
@@ -1730,7 +1757,7 @@ Op(traced_cut, s);
 
       /* dexecute    Label               */
       /* joint deallocate and execute */
-      BOp(traced_dexecute, pp);
+      BOp(dexecute, pp);
       EMIT_ENTRY_BLOCK(PREG,DEXECUTE_INSTINIT);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
@@ -1756,7 +1783,7 @@ Op(traced_cut, s);
       EMIT_SIMPLE_BLOCK_TEST(DEXECUTE_DEPTH_MINOR);
 	  if (pt0->ModuleOfPred) {
 	    if (DEPTH == MkIntTerm(0)) {
-	      TRACED_FAIL();
+	      FAIL();
 		}
 	    else {
 		  DEPTH = RESET_DEPTH();
@@ -1815,7 +1842,7 @@ Op(traced_cut, s);
       ENDCACHE_Y_AS_ENV();
       ENDBOp();
 
-      BOp(traced_fcall, Osbpp);
+      BOp(fcall, Osbpp);
       CACHE_Y_AS_ENV(YREG);
       ENV_YREG[E_CP] = (CELL) CPREG;
       ENV_YREG[E_E] = (CELL) ENV;
@@ -1825,7 +1852,7 @@ Op(traced_cut, s);
       ENDCACHE_Y_AS_ENV();
       ENDBOp();
 
-      BOp(traced_call, Osbpp);
+      BOp(call, Osbpp);
       EMIT_ENTRY_BLOCK(PREG,CALL_INSTINIT);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
@@ -1858,7 +1885,7 @@ Op(traced_cut, s);
       EMIT_SIMPLE_BLOCK_TEST(CALL_DEPTH_MINOR);
 	  if (pt->ModuleOfPred) {
 	    if (DEPTH == MkIntTerm(0)){
-	        TRACED_FAIL();
+	        FAIL();
 	    } else {
 	        DEPTH = RESET_DEPTH();
 	    }
@@ -1906,7 +1933,7 @@ Op(traced_cut, s);
       ENDCACHE_Y_AS_ENV();
       ENDBOp();
 
-      BOp(traced_procceed, p);
+      BOp(procceed, p);
       EMIT_ENTRY_BLOCK(PREG,PROCCEED_INSTINIT);
       CACHE_Y_AS_ENV(YREG);
       ALWAYS_LOOKAHEAD(CPREG->opc);
@@ -1925,7 +1952,7 @@ Op(traced_cut, s);
       ENDCACHE_Y_AS_ENV();
       ENDBOp();
 
-      Op(traced_allocate, e);
+      Op(allocate, e);
       EMIT_ENTRY_BLOCK(PREG,ALLOCATE_INSTINIT);
       CACHE_Y_AS_ENV(YREG);
       PREG = NEXTOP(PREG, e);
@@ -1941,7 +1968,7 @@ Op(traced_cut, s);
       GONext();
       ENDOp();
 
-      Op(traced_deallocate, p);
+      Op(deallocate, p);
       EMIT_ENTRY_BLOCK(PREG,DEALLOCATE_INSTINIT);
       EMIT_SIMPLE_BLOCK_TEST(YAAM_CHECK_TRAIL_TR);
       check_trail(TR);
@@ -1995,12 +2022,12 @@ Op(traced_cut, s);
 
 
 
-     Op(traced_retry_eam, e);
+     Op(retry_eam, e);
      //goto retry_eam;
 { printf("EAM not supported by JIT!!\n"); exit(1); }
      ENDOp();
 
-     Op(traced_run_eam, os);
+     Op(run_eam, os);
 { printf("EAM not supported by JIT!!\n"); exit(1); }
      //goto run_eam;
      ENDOp();
@@ -2009,7 +2036,7 @@ Op(traced_cut, s);
 *    Get Instructions							*
 \************************************************************************/
 
-      Op(traced_get_x_var, xx);
+      Op(get_x_var, xx);
       EMIT_ENTRY_BLOCK(PREG,GET_X_VAR_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xx.xr);
@@ -2019,7 +2046,7 @@ Op(traced_cut, s);
       GONext();
       ENDOp();
 
-      Op(traced_get_y_var, yx);
+      Op(get_y_var, yx);
       EMIT_ENTRY_BLOCK(PREG,GET_Y_VAR_INSTINIT);
       BEGD(d0);
       BEGP(pt0);
@@ -2032,7 +2059,7 @@ Op(traced_cut, s);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_get_yy_var, yyxx);
+      Op(get_yy_var, yyxx);
       EMIT_ENTRY_BLOCK(PREG,GET_YY_VAR_INSTINIT);
       CACHE_Y(YREG);
       BEGD(d0);
@@ -2058,30 +2085,30 @@ Op(traced_cut, s);
        * lot of jumps. The convention is that in the label
        * gval_X_YREG X refers to the state of the first argument, and
        * YREG to the state of the second argument */
-      Op(traced_get_x_val, xx);
+      Op(get_x_val, xx);
       EMIT_ENTRY_BLOCK(PREG,GET_X_VAL_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xx.xl);
-      profiled_deref_head_TEST(d0, traced_gvalx_unk);
+      profiled_deref_head_TEST(d0, gvalx_unk);
 
       /* d0 will keep the first argument */
-    traced_gvalx_nonvar:
+    gvalx_nonvar:
       /* first argument is bound */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_X_VAL_GVALX_NONVAR);
       BEGD(d1);
       d1 = XREG(PREG->y_u.xx.xr);
-      profiled_deref_head_TEST(d1, traced_gvalx_nonvar_unk);
+      profiled_deref_head_TEST(d1, gvalx_nonvar_unk);
 
-    traced_gvalx_nonvar_nonvar:
+    gvalx_nonvar_nonvar:
       /* both arguments are bound */
       /* we may have to bind structures */
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(GET_X_VAL_GVALX_NONVAR_NONVAR);
       PREG = NEXTOP(PREG, xx);
-      traced_UnifyBound(d0, d1);
+      UnifyBound(d0, d1);
 
       BEGP(pt0);
       /* deref second argument */
-	  profiled_deref_body(d1, pt0, traced_gvalx_nonvar_unk, traced_gvalx_nonvar_nonvar);
+	  profiled_deref_body(d1, pt0, gvalx_nonvar_unk, gvalx_nonvar_nonvar);
       /* first argument bound, second unbound */
 	  EMIT_MULTIPLE_DESTINY_BLOCK_TEST(GET_X_VAL_GVALX_NONVAR_UNK);
       PREG = NEXTOP(PREG, xx);
@@ -2093,14 +2120,14 @@ Bind(pt0, d0);
 
       BEGP(pt0);
       /* first argument may be unbound */
-	  profiled_deref_body(d0, pt0, traced_gvalx_unk, traced_gvalx_nonvar);
+	  profiled_deref_body(d0, pt0, gvalx_unk, gvalx_nonvar);
       /* first argument is unbound and in pt0 and in d0 */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_X_VAL_GVALX_UNK);
       BEGD(d1);
       d1 = XREG(PREG->y_u.xx.xr);
-      profiled_deref_head_TEST(d1, traced_gvalx_var_unk);
+      profiled_deref_head_TEST(d1, gvalx_var_unk);
 
-    traced_gvalx_var_nonvar:
+    gvalx_var_nonvar:
       /* first unbound, second bound */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_X_VAL_GVALX_VAR_NONVAR);
       PREG = NEXTOP(PREG, xx);
@@ -2108,7 +2135,7 @@ Bind(pt0, d0);
       GONext();
 
       BEGP(pt1);
-	  profiled_deref_body(d1, pt1, traced_gvalx_var_unk, traced_gvalx_var_nonvar);
+	  profiled_deref_body(d1, pt1, gvalx_var_unk, gvalx_var_nonvar);
       /* both arguments are unbound */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_X_VAL_GVALX_VAR_UNK);
       PREG = NEXTOP(PREG, xx);
@@ -2123,7 +2150,7 @@ Bind(pt0, d0);
       /* The code for get_y_val mostly uses the code for get_x_val
        */
 
-      Op(traced_get_y_val, yx);
+      Op(get_y_val, yx);
       EMIT_ENTRY_BLOCK(PREG,GET_Y_VAL_INSTINIT);
       BEGD(d0);
       BEGD(d1);
@@ -2132,24 +2159,24 @@ Bind(pt0, d0);
       d0 = *pt0;
 
       /* From now on, it's just a copy of the code for get_x_val */
-      profiled_deref_head_TEST(d0, traced_gvaly_unk);
-    traced_gvaly_nonvar:
+      profiled_deref_head_TEST(d0, gvaly_unk);
+    gvaly_nonvar:
 
       /* first argument is bound */
       EMIT_SIMPLE_BLOCK_TEST(GET_Y_VAL_GVALY_NONVAR);
       d1 = XREG(PREG->y_u.yx.x);
-      profiled_deref_head_TEST(d1, traced_gvaly_nonvar_unk);
+      profiled_deref_head_TEST(d1, gvaly_nonvar_unk);
 
-    traced_gvaly_nonvar_nonvar:
+    gvaly_nonvar_nonvar:
       /* both arguments are bound */
       /* we may have to bind structures */
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(GET_Y_VAL_GVALY_NONVAR_NONVAR);
       PREG = NEXTOP(PREG, yx);
-      traced_UnifyBound(d0, d1);
+      UnifyBound(d0, d1);
 
       BEGP(pt1);
       /* deref second argument */
-	  profiled_deref_body(d1, pt1, traced_gvaly_nonvar_unk, traced_gvaly_nonvar_nonvar);
+	  profiled_deref_body(d1, pt1, gvaly_nonvar_unk, gvaly_nonvar_nonvar);
       /* first argument bound, second unbound */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_Y_VAL_GVALY_NONVAR_UNK);
       PREG = NEXTOP(PREG, yx);
@@ -2158,12 +2185,12 @@ Bind(pt0, d0);
       ENDP(pt1);
 
       /* first argument may be unbound */
-	  profiled_derefa_body(d0, pt0, traced_gvaly_unk, traced_gvaly_nonvar);
+	  profiled_derefa_body(d0, pt0, gvaly_unk, gvaly_nonvar);
       /* first argument is unbound */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_Y_VAL_GVALY_UNK);
       d1 = XREG(PREG->y_u.yx.x);
-      profiled_deref_head_TEST(d1, traced_gvaly_var_unk);
-    traced_gvaly_var_nonvar:
+      profiled_deref_head_TEST(d1, gvaly_var_unk);
+    gvaly_var_nonvar:
       /* first unbound, second bound */
       EMIT_SIMPLE_BLOCK_TEST(GET_Y_VAL_GVALY_VAR_NONVAR);
       PREG = NEXTOP(PREG, yx);
@@ -2171,7 +2198,7 @@ Bind(pt0, d0);
       GONext();
 
       BEGP(pt1);
-	  profiled_deref_body(d1, pt1, traced_gvaly_var_unk, traced_gvaly_var_nonvar);
+	  profiled_deref_body(d1, pt1, gvaly_var_unk, gvaly_var_nonvar);
       /* both arguments are unbound */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_Y_VAL_GVALY_VAR_UNK);
       PREG = NEXTOP(PREG, yx);
@@ -2183,7 +2210,7 @@ Bind(pt0, d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_get_atom, xc);
+      Op(get_atom, xc);
       EMIT_ENTRY_BLOCK(PREG,GET_ATOM_INSTINIT);
       BEGD(d0);
       BEGD(d1);
@@ -2192,19 +2219,19 @@ Bind(pt0, d0);
       d1 = PREG->y_u.xc.c;
 
       BEGP(pt0);
-      profiled_deref_head_TEST(d0, traced_gatom_unk);
+      profiled_deref_head_TEST(d0, gatom_unk);
       /* argument is nonvar */
-    traced_gatom_nonvar:
+    gatom_nonvar:
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(GET_ATOM_GATOM_NONVAR);
       if (d0 == d1) {
 	PREG = NEXTOP(PREG, xc);
 	GONext();
       }
       else {
-	TRACED_FAIL();
+	FAIL();
       }
 
-	  profiled_deref_body(d0, pt0, traced_gatom_unk, traced_gatom_nonvar);
+	  profiled_deref_body(d0, pt0, gatom_unk, gatom_nonvar);
       /* argument is a variable */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_ATOM_GATOM_UNK);
       PREG = NEXTOP(PREG, xc);
@@ -2215,7 +2242,7 @@ Bind(pt0, d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_get_2atoms, cc);
+      Op(get_2atoms, cc);
       EMIT_ENTRY_BLOCK(PREG,GET_2ATOMS_INSTINIT);
       BEGD(d0);
       BEGD(d1);
@@ -2223,40 +2250,40 @@ Bind(pt0, d0);
       d0 = ARG1;
 
       BEGP(pt0);
-      profiled_deref_head_TEST(d0, traced_gatom_2unk);
+      profiled_deref_head_TEST(d0, gatom_2unk);
       /* argument is nonvar */
-    traced_gatom_2nonvar:
+    gatom_2nonvar:
       if (d0 == PREG->y_u.cc.c1) {
-	goto traced_gatom_2b;
+	goto gatom_2b;
       }
       else {
-	TRACED_FAIL();
+	FAIL();
       }
 
-	  profiled_deref_body(d0, pt0, traced_gatom_2unk, traced_gatom_2nonvar);
+	  profiled_deref_body(d0, pt0, gatom_2unk, gatom_2nonvar);
 	  EMIT_SIMPLE_BLOCK_TEST(GET_2ATOMS_GATOM_2UNK);
       Bind(pt0, PREG->y_u.cc.c1);
       ENDP(pt0);
-    traced_gatom_2b:
+    gatom_2b:
       /* fetch arguments */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_2ATOMS_GATOM_2B);
       d0 = ARG2;
       d1 = PREG->y_u.cc.c2;
 
       BEGP(pt0);
-      profiled_deref_head_TEST(d0, traced_gatom_2bunk);
+      profiled_deref_head_TEST(d0, gatom_2bunk);
       /* argument is nonvar */
-    traced_gatom_2bnonvar:
+    gatom_2bnonvar:
 	  EMIT_SIMPLE_BLOCK_TEST(GET_2ATOMS_GATOM_2BNONVAR);
       if (d0 == d1) {
 	PREG = NEXTOP(PREG, cc);
 	GONext();
       }
       else {
-	TRACED_FAIL();
+	FAIL();
       }
 
-	  profiled_deref_body(d0, pt0, traced_gatom_2bunk, traced_gatom_2bnonvar);
+	  profiled_deref_body(d0, pt0, gatom_2bunk, gatom_2bnonvar);
       /* argument is a variable */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_2ATOMS_GATOM_2BUNK);
       PREG = NEXTOP(PREG, cc);
@@ -2267,7 +2294,7 @@ Bind(pt0, d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_get_3atoms, ccc);
+      Op(get_3atoms, ccc);
       EMIT_ENTRY_BLOCK(PREG,GET_3ATOMS_INSTINIT);
       BEGD(d0);
       BEGD(d1);
@@ -2275,62 +2302,62 @@ Bind(pt0, d0);
       d0 = ARG1;
 
       BEGP(pt0);
-      profiled_deref_head_TEST(d0, traced_gatom_3unk);
+      profiled_deref_head_TEST(d0, gatom_3unk);
       /* argument is nonvar */
-    traced_gatom_3nonvar:
+    gatom_3nonvar:
       if (d0 == PREG->y_u.ccc.c1) {
-	goto traced_gatom_3b;
+	goto gatom_3b;
       }
       else {
-	TRACED_FAIL();
+	FAIL();
       }
 
-	  profiled_deref_body(d0, pt0, traced_gatom_3unk, traced_gatom_3nonvar);
+	  profiled_deref_body(d0, pt0, gatom_3unk, gatom_3nonvar);
       /* argument is a variable */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_3ATOMS_GATOM_3UNK);
       Bind(pt0, PREG->y_u.ccc.c1);
       ENDP(pt0);
-    traced_gatom_3b:
+    gatom_3b:
       /* fetch arguments */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_3ATOMS_GATOM_3B);
       d0 = ARG2;
 
       BEGP(pt0);
-      profiled_deref_head_TEST(d0, traced_gatom_3bunk);
+      profiled_deref_head_TEST(d0, gatom_3bunk);
       /* argument is nonvar */
-    traced_gatom_3bnonvar:
+    gatom_3bnonvar:
       if (d0 == PREG->y_u.ccc.c2) {
-	goto traced_gatom_3c;
+	goto gatom_3c;
       }
       else {
-	TRACED_FAIL();
+	FAIL();
       }
 
-	  profiled_deref_body(d0, pt0, traced_gatom_3bunk, traced_gatom_3bnonvar);
+	  profiled_deref_body(d0, pt0, gatom_3bunk, gatom_3bnonvar);
       /* argument is a variable */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_3ATOMS_GATOM_3BUNK);
       Bind(pt0, PREG->y_u.ccc.c2);
       ENDP(pt0);
-    traced_gatom_3c:
+    gatom_3c:
       /* fetch arguments */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_3ATOMS_GATOM_3C);
       d0 = ARG3;
       d1 = PREG->y_u.ccc.c3;
 
       BEGP(pt0);
-      profiled_deref_head_TEST(d0, traced_gatom_3cunk);
+      profiled_deref_head_TEST(d0, gatom_3cunk);
       /* argument is nonvar */
-    traced_gatom_3cnonvar:
+    gatom_3cnonvar:
 	  EMIT_SIMPLE_BLOCK_TEST(GET_3ATOMS_GATOM_3CNONVAR);
       if (d0 == d1) {
 	PREG = NEXTOP(PREG, ccc);
 	GONext();
       }
       else {
-	TRACED_FAIL();
+	FAIL();
       }
 
-	  profiled_deref_body(d0, pt0, traced_gatom_3cunk, traced_gatom_3cnonvar);
+	  profiled_deref_body(d0, pt0, gatom_3cunk, gatom_3cnonvar);
       /* argument is a variable	  */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_3ATOMS_GATOM_3CUNK);
       PREG = NEXTOP(PREG, ccc);
@@ -2341,7 +2368,7 @@ Bind(pt0, d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_get_4atoms, cccc);
+      Op(get_4atoms, cccc);
       EMIT_ENTRY_BLOCK(PREG,GET_4ATOMS_INSTINIT);
       BEGD(d0);
       BEGD(d1);
@@ -2349,83 +2376,83 @@ Bind(pt0, d0);
       d0 = ARG1;
 
       BEGP(pt0);
-      profiled_deref_head_TEST(d0, traced_gatom_4unk);
+      profiled_deref_head_TEST(d0, gatom_4unk);
       /* argument is nonvar */
-    traced_gatom_4nonvar:
+    gatom_4nonvar:
       if (d0 == PREG->y_u.cccc.c1) {
-	goto traced_gatom_4b;
+	goto gatom_4b;
       }
       else {
-	TRACED_FAIL();
+	FAIL();
       }
 
-	  profiled_deref_body(d0, pt0, traced_gatom_4unk, traced_gatom_4nonvar);
+	  profiled_deref_body(d0, pt0, gatom_4unk, gatom_4nonvar);
       /* argument is a variable */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_4ATOMS_GATOM_4UNK);
       Bind(pt0, PREG->y_u.cccc.c1);
       ENDP(pt0);
-    traced_gatom_4b:
+    gatom_4b:
       /* fetch arguments */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_4ATOMS_GATOM_4B);
       d0 = ARG2;
 
       BEGP(pt0);
-	  profiled_deref_head_TEST(d0, traced_gatom_4bunk);
+	  profiled_deref_head_TEST(d0, gatom_4bunk);
       /* argument is nonvar */
-    traced_gatom_4bnonvar:
+    gatom_4bnonvar:
       if (d0 == PREG->y_u.cccc.c2) {
-	goto traced_gatom_4c;
+	goto gatom_4c;
       }
       else {
-	TRACED_FAIL();
+	FAIL();
       }
 
-      profiled_deref_body(d0, pt0, traced_gatom_4bunk, traced_gatom_4bnonvar);
+      profiled_deref_body(d0, pt0, gatom_4bunk, gatom_4bnonvar);
       /* argument is a variable */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_4ATOMS_GATOM_4BUNK);
       Bind(pt0, PREG->y_u.cccc.c2);
       ENDP(pt0);
-    traced_gatom_4c:
+    gatom_4c:
       /* fetch arguments */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_4ATOMS_GATOM_4C);
       d0 = ARG3;
 
       BEGP(pt0);
-	  profiled_deref_head_TEST(d0, traced_gatom_4cunk);
+	  profiled_deref_head_TEST(d0, gatom_4cunk);
       /* argument is nonvar */
-    traced_gatom_4cnonvar:
+    gatom_4cnonvar:
       if (d0 == PREG->y_u.cccc.c3) {
-	goto traced_gatom_4d;
+	goto gatom_4d;
       }
       else {
-	TRACED_FAIL();
+	FAIL();
       }
 
-      profiled_deref_body(d0, pt0, traced_gatom_4cunk, traced_gatom_4cnonvar);
+      profiled_deref_body(d0, pt0, gatom_4cunk, gatom_4cnonvar);
       /* argument is a variable */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_4ATOMS_GATOM_4CUNK);
       Bind(pt0, PREG->y_u.cccc.c3);
       ENDP(pt0);
-   traced_gatom_4d:
+   gatom_4d:
       /* fetch arguments */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_4ATOMS_GATOM_4D);
       d0 = ARG4;
       d1 = PREG->y_u.cccc.c4;
 
       BEGP(pt0);
-	  profiled_deref_head_TEST(d0, traced_gatom_4dunk);
+	  profiled_deref_head_TEST(d0, gatom_4dunk);
       /* argument is nonvar */
-    traced_gatom_4dnonvar:
+    gatom_4dnonvar:
 	  EMIT_SIMPLE_BLOCK_TEST(GET_4ATOMS_GATOM_4DNONVAR);
       if (d0 == d1) {
 	PREG = NEXTOP(PREG, cccc);
 	GONext();
       }
       else {
-	TRACED_FAIL();
+	FAIL();
       }
 
-      profiled_deref_body(d0, pt0, traced_gatom_4dunk, traced_gatom_4dnonvar);
+      profiled_deref_body(d0, pt0, gatom_4dunk, gatom_4dnonvar);
       /* argument is a variable */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_4ATOMS_GATOM_4DUNK);
       PREG = NEXTOP(PREG, cccc);
@@ -2436,7 +2463,7 @@ Bind(pt0, d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_get_5atoms, ccccc);
+      Op(get_5atoms, ccccc);
       EMIT_ENTRY_BLOCK(PREG,GET_5ATOMS_INSTINIT);
       BEGD(d0);
       BEGD(d1);
@@ -2444,104 +2471,104 @@ Bind(pt0, d0);
       d0 = ARG1;
 
       BEGP(pt0);
-	  profiled_deref_head_TEST(d0, traced_gatom_5unk);
+	  profiled_deref_head_TEST(d0, gatom_5unk);
       /* argument is nonvar */
-    traced_gatom_5nonvar:
+    gatom_5nonvar:
       if (d0 == PREG->y_u.ccccc.c1) {
-	goto traced_gatom_5b;
+	goto gatom_5b;
       }
       else {
-	TRACED_FAIL();
+	FAIL();
       }
 
-      profiled_deref_body(d0, pt0, traced_gatom_5unk, traced_gatom_5nonvar);
+      profiled_deref_body(d0, pt0, gatom_5unk, gatom_5nonvar);
       /* argument is a variable */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_5ATOMS_GATOM_5UNK);
       Bind(pt0, PREG->y_u.ccccc.c1);
       ENDP(pt0);
-    traced_gatom_5b:
+    gatom_5b:
       /* fetch arguments */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_5ATOMS_GATOM_5B);
       d0 = ARG2;
 
       BEGP(pt0);
-	  profiled_deref_head_TEST(d0, traced_gatom_5bunk);
+	  profiled_deref_head_TEST(d0, gatom_5bunk);
       /* argument is nonvar */
-    traced_gatom_5bnonvar:
+    gatom_5bnonvar:
       if (d0 == PREG->y_u.ccccc.c2) {
-	goto traced_gatom_5c;
+	goto gatom_5c;
       }
       else {
-	TRACED_FAIL();
+	FAIL();
       }
 
-      profiled_deref_body(d0, pt0, traced_gatom_5bunk, traced_gatom_5bnonvar);
+      profiled_deref_body(d0, pt0, gatom_5bunk, gatom_5bnonvar);
       /* argument is a variable */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_5ATOMS_GATOM_5BUNK);
       Bind(pt0, PREG->y_u.ccccc.c2);
       ENDP(pt0);
-    traced_gatom_5c:
+    gatom_5c:
       /* fetch arguments */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_5ATOMS_GATOM_5C);
       d0 = ARG3;
 
       BEGP(pt0);
-	  profiled_deref_head_TEST(d0, traced_gatom_5cunk);
+	  profiled_deref_head_TEST(d0, gatom_5cunk);
       /* argument is nonvar */
-    traced_gatom_5cnonvar:
+    gatom_5cnonvar:
       if (d0 == PREG->y_u.ccccc.c3) {
-	goto traced_gatom_5d;
+	goto gatom_5d;
       }
       else {
-	TRACED_FAIL();
+	FAIL();
       }
 
-      profiled_deref_body(d0, pt0, traced_gatom_5cunk, traced_gatom_5cnonvar);
+      profiled_deref_body(d0, pt0, gatom_5cunk, gatom_5cnonvar);
       /* argument is a variable */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_5ATOMS_GATOM_5CUNK);
       Bind(pt0, PREG->y_u.ccccc.c3);
       ENDP(pt0);
-   traced_gatom_5d:
+   gatom_5d:
       /* fetch arguments */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_5ATOMS_GATOM_5D);
       d0 = ARG4;
 
       BEGP(pt0);
-	  profiled_deref_head_TEST(d0, traced_gatom_5dunk);
+	  profiled_deref_head_TEST(d0, gatom_5dunk);
       /* argument is nonvar */
-    traced_gatom_5dnonvar:
+    gatom_5dnonvar:
       if (d0 == PREG->y_u.ccccc.c4) {
-	goto traced_gatom_5e;
+	goto gatom_5e;
       }
       else {
-	TRACED_FAIL();
+	FAIL();
       }
 
-      profiled_deref_body(d0, pt0, traced_gatom_5dunk, traced_gatom_5dnonvar);
+      profiled_deref_body(d0, pt0, gatom_5dunk, gatom_5dnonvar);
       /* argument is a variable */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_5ATOMS_GATOM_5DUNK);
       Bind(pt0, PREG->y_u.ccccc.c4);
       ENDP(pt0);
-   traced_gatom_5e:
+   gatom_5e:
       /* fetch arguments */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_5ATOMS_GATOM_5E);
       d0 = ARG5;
       d1 = PREG->y_u.ccccc.c5;
 
       BEGP(pt0);
-	  profiled_deref_head_TEST(d0, traced_gatom_5eunk);
+	  profiled_deref_head_TEST(d0, gatom_5eunk);
       /* argument is nonvar */
-    traced_gatom_5enonvar:
+    gatom_5enonvar:
 	  EMIT_SIMPLE_BLOCK_TEST(GET_5ATOMS_GATOM_5ENONVAR);
       if (d0 == d1) {
 	PREG = NEXTOP(PREG, ccccc);
 	GONext();
       }
       else {
-	TRACED_FAIL();
+	FAIL();
       }
 
-      profiled_deref_body(d0, pt0, traced_gatom_5eunk, traced_gatom_5enonvar);
+      profiled_deref_body(d0, pt0, gatom_5eunk, gatom_5enonvar);
       /* argument is a variable */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_5ATOMS_GATOM_5EUNK);
       PREG = NEXTOP(PREG, ccccc);
@@ -2552,7 +2579,7 @@ Bind(pt0, d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_get_6atoms, cccccc);
+      Op(get_6atoms, cccccc);
       EMIT_ENTRY_BLOCK(PREG,GET_6ATOMS_INSTINIT);
       BEGD(d0);
       BEGD(d1);
@@ -2560,125 +2587,125 @@ Bind(pt0, d0);
       d0 = ARG1;
 
       BEGP(pt0);
-	  profiled_deref_head_TEST(d0, traced_gatom_6unk);
+	  profiled_deref_head_TEST(d0, gatom_6unk);
       /* argument is nonvar */
-    traced_gatom_6nonvar:
+    gatom_6nonvar:
       if (d0 == PREG->y_u.cccccc.c1) {
-	goto traced_gatom_6b;
+	goto gatom_6b;
       }
       else {
-	TRACED_FAIL();
+	FAIL();
       }
 
-      profiled_deref_body(d0, pt0, traced_gatom_6unk, traced_gatom_6nonvar);
+      profiled_deref_body(d0, pt0, gatom_6unk, gatom_6nonvar);
       /* argument is a variable */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_6ATOMS_GATOM_6UNK);
       Bind(pt0, PREG->y_u.cccccc.c1);
       ENDP(pt0);
-    traced_gatom_6b:
+    gatom_6b:
       /* fetch arguments */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_6ATOMS_GATOM_6B);
       d0 = ARG2;
 
       BEGP(pt0);
-	  profiled_deref_head_TEST(d0, traced_gatom_6bunk);
+	  profiled_deref_head_TEST(d0, gatom_6bunk);
       /* argument is nonvar */
-    traced_gatom_6bnonvar:
+    gatom_6bnonvar:
       if (d0 == PREG->y_u.cccccc.c2) {
-	goto traced_gatom_6c;
+	goto gatom_6c;
       }
       else {
-	TRACED_FAIL();
+	FAIL();
       }
 
-      profiled_deref_body(d0, pt0, traced_gatom_6bunk, traced_gatom_6bnonvar);
+      profiled_deref_body(d0, pt0, gatom_6bunk, gatom_6bnonvar);
       /* argument is a variable */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_6ATOMS_GATOM_6BUNK);
       Bind(pt0, PREG->y_u.cccccc.c2);
       ENDP(pt0);
-    traced_gatom_6c:
+    gatom_6c:
       /* fetch arguments */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_6ATOMS_GATOM_6C);
       d0 = ARG3;
 
       BEGP(pt0);
-	  profiled_deref_head_TEST(d0, traced_gatom_6cunk);
+	  profiled_deref_head_TEST(d0, gatom_6cunk);
       /* argument is nonvar */
-    traced_gatom_6cnonvar:
+    gatom_6cnonvar:
       if (d0 == PREG->y_u.cccccc.c3) {
-	goto traced_gatom_6d;
+	goto gatom_6d;
       }
       else {
-	TRACED_FAIL();
+	FAIL();
       }
 
-      profiled_deref_body(d0, pt0, traced_gatom_6cunk, traced_gatom_6cnonvar);
+      profiled_deref_body(d0, pt0, gatom_6cunk, gatom_6cnonvar);
       /* argument is a variable */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_6ATOMS_GATOM_6CUNK);
       Bind(pt0, PREG->y_u.cccccc.c3);
       ENDP(pt0);
-   traced_gatom_6d:
+   gatom_6d:
       /* fetch arguments */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_6ATOMS_GATOM_6D);
       d0 = ARG4;
 
       BEGP(pt0);
-	  profiled_deref_head_TEST(d0, traced_gatom_6dunk);
+	  profiled_deref_head_TEST(d0, gatom_6dunk);
       /* argument is nonvar */
-    traced_gatom_6dnonvar:
+    gatom_6dnonvar:
       if (d0 == PREG->y_u.cccccc.c4) {
-	goto traced_gatom_6e;
+	goto gatom_6e;
       }
       else {
-	TRACED_FAIL();
+	FAIL();
       }
 
-      profiled_deref_body(d0, pt0, traced_gatom_6dunk, traced_gatom_6dnonvar);
+      profiled_deref_body(d0, pt0, gatom_6dunk, gatom_6dnonvar);
       /* argument is a variable */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_6ATOMS_GATOM_6DUNK);
       Bind(pt0, PREG->y_u.cccccc.c4);
       ENDP(pt0);
-   traced_gatom_6e:
+   gatom_6e:
       /* fetch arguments */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_6ATOMS_GATOM_6E);
       d0 = ARG5;
 
       BEGP(pt0);
-	  profiled_deref_head_TEST(d0, traced_gatom_6eunk);
+	  profiled_deref_head_TEST(d0, gatom_6eunk);
       /* argument is nonvar */
-    traced_gatom_6enonvar:
+    gatom_6enonvar:
       if (d0 == PREG->y_u.cccccc.c5) {
-	goto traced_gatom_6f;
+	goto gatom_6f;
       }
       else {
-	TRACED_FAIL();
+	FAIL();
       }
 
-      profiled_deref_body(d0, pt0, traced_gatom_6eunk, traced_gatom_6enonvar);
+      profiled_deref_body(d0, pt0, gatom_6eunk, gatom_6enonvar);
       /* argument is a variable */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_6ATOMS_GATOM_6EUNK);
       Bind(pt0, PREG->y_u.cccccc.c5);
       ENDP(pt0);
-    traced_gatom_6f:
+    gatom_6f:
       /* fetch arguments */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_6ATOMS_GATOM_6F);
       d0 = ARG6;
       d1 = PREG->y_u.cccccc.c6;
 
       BEGP(pt0);
-	  profiled_deref_head_TEST(d0, traced_gatom_6funk);
+	  profiled_deref_head_TEST(d0, gatom_6funk);
       /* argument is nonvar */
-    traced_gatom_6fnonvar:
+    gatom_6fnonvar:
 	  EMIT_SIMPLE_BLOCK_TEST(GET_6ATOMS_GATOM_6FNONVAR);
       if (d0 == d1) {
 	PREG = NEXTOP(PREG, cccccc);
 	GONext();
       }
       else {
-	TRACED_FAIL();
+	FAIL();
       }
 
-      profiled_deref_body(d0, pt0, traced_gatom_6funk, traced_gatom_6fnonvar);
+      profiled_deref_body(d0, pt0, gatom_6funk, gatom_6fnonvar);
       /* argument is a variable */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_6ATOMS_GATOM_6FUNK);
       PREG = NEXTOP(PREG, cccccc);
@@ -2692,17 +2719,17 @@ Bind(pt0, d0);
       /* The next instructions can lead to either the READ stream
        * or the write stream */
 
-      OpRW(traced_get_list, x);
+      OpRW(get_list, x);
       EMIT_ENTRY_BLOCK(PREG,GET_LIST_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.x.x);
-      profiled_deref_head_TEST(d0, traced_glist_unk);
+      profiled_deref_head_TEST(d0, glist_unk);
 
-    traced_glist_nonvar:
+    glist_nonvar:
       /* did we find a list? */
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(GET_LIST_GLIST_NONVAR);
       if (!IsPairTerm(d0)) {
-	    TRACED_FAIL();
+	    FAIL();
       }
       START_PREFETCH(x);
       PREG = NEXTOP(PREG, x);
@@ -2712,7 +2739,7 @@ Bind(pt0, d0);
       END_PREFETCH();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_glist_unk, traced_glist_nonvar);
+      profiled_deref_body(d0, pt0, glist_unk, glist_nonvar);
       /* glist var */
       /* enter write mode */
       EMIT_SIMPLE_BLOCK_TEST(GET_LIST_GLIST_UNK);
@@ -2738,16 +2765,16 @@ Bind(pt0, d0);
       ENDD(d0);
       ENDOpRW();
 
-      OpRW(traced_get_struct, xfa);
+      OpRW(get_struct, xfa);
       EMIT_ENTRY_BLOCK(PREG,GET_STRUCT_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xfa.x);
-      profiled_deref_head_TEST(d0, traced_gstruct_unk);
+      profiled_deref_head_TEST(d0, gstruct_unk);
 
-    traced_gstruct_nonvar:
+    gstruct_nonvar:
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(GET_STRUCT_GSTRUCT_NONVAR);
       if (!IsApplTerm(d0)) {
-	TRACED_FAIL();
+	FAIL();
       }
       /* we have met a compound term */
       START_PREFETCH(xfa);
@@ -2756,7 +2783,7 @@ S_SREG = RepAppl(d0);
 /* check functor */
       d0 = (CELL) (PREG->y_u.xfa.f);
       if (*S_SREG != d0) {
-	TRACED_FAIL();
+	FAIL();
       }
       WRITEBACK_S(S_SREG+1);
       ENDCACHE_S();
@@ -2766,7 +2793,7 @@ S_SREG = RepAppl(d0);
       END_PREFETCH();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_gstruct_unk, traced_gstruct_nonvar);
+      profiled_deref_body(d0, pt0, gstruct_unk, gstruct_nonvar);
       /* Enter Write mode */
       /* set d1 to be the new structure we are going to create */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_STRUCT_GSTRUCT_UNK);
@@ -2793,16 +2820,16 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOpRW();
 
-      Op(traced_get_float, xd);
+      Op(get_float, xd);
       EMIT_ENTRY_BLOCK(PREG,GET_FLOAT_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xd.x);
-	  profiled_deref_head_TEST(d0, traced_gfloat_unk);
+	  profiled_deref_head_TEST(d0, gfloat_unk);
 
-    traced_gfloat_nonvar:
+    gfloat_nonvar:
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(GET_FLOAT_GFLOAT_NONVAR);
       if (!IsApplTerm(d0)) {
-	TRACED_FAIL();
+	FAIL();
 	  }
       /* we have met a preexisting float */
       START_PREFETCH(xd);
@@ -2810,7 +2837,7 @@ S_SREG = RepAppl(d0);
       pt0 = RepAppl(d0);
       /* check functor */
       if (*pt0 != (CELL)FunctorDouble) {
-	TRACED_FAIL();
+	FAIL();
       }
       BEGP(pt1);
       pt1 = PREG->y_u.xd.d;
@@ -2821,7 +2848,7 @@ S_SREG = RepAppl(d0);
 	  || pt1[2] != pt0[2]
 #endif
 	  ) {
-	    TRACED_FAIL();
+	    FAIL();
 	    }
       ENDP(pt1);
       ENDP(pt0);
@@ -2830,7 +2857,7 @@ S_SREG = RepAppl(d0);
       END_PREFETCH();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_gfloat_unk, traced_gfloat_nonvar);
+      profiled_deref_body(d0, pt0, gfloat_unk, gfloat_nonvar);
       /* Enter Write mode */
       /* set d1 to be the new structure we are going to create */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_FLOAT_GFLOAT_UNK);
@@ -2847,16 +2874,16 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_get_longint, xi);
+      Op(get_longint, xi);
       EMIT_ENTRY_BLOCK(PREG,GET_LONGINT_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xi.x);
-	  profiled_deref_head_TEST(d0, traced_glongint_unk);
+	  profiled_deref_head_TEST(d0, glongint_unk);
 
-    traced_glongint_nonvar:
+    glongint_nonvar:
       EMIT_SIMPLE_BLOCK_TEST(GET_LONGINT_GLONGINT_NONVAR);
       if (!IsApplTerm(d0)) {
-	TRACED_FAIL();
+	FAIL();
 	  }
       /* we have met a preexisting longint */
       START_PREFETCH(xi);
@@ -2864,10 +2891,10 @@ S_SREG = RepAppl(d0);
       pt0 = RepAppl(d0);
       /* check functor */
       if (*pt0 != (CELL)FunctorLongInt) {
-	TRACED_FAIL();
+	FAIL();
       }
       if (PREG->y_u.xi.i[1] != (CELL)pt0[1]) {
-	    TRACED_FAIL();
+	    FAIL();
 	   }
       ENDP(pt0);
       PREG = NEXTOP(PREG, xi);
@@ -2876,7 +2903,7 @@ S_SREG = RepAppl(d0);
       END_PREFETCH();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_glongint_unk, traced_glongint_nonvar);
+      profiled_deref_body(d0, pt0, glongint_unk, glongint_nonvar);
       /* Enter Write mode */
       /* set d1 to be the new structure we are going to create */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_LONGINT_GLONGINT_UNK);
@@ -2893,17 +2920,17 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_get_bigint, xN);
+      Op(get_bigint, xN);
 #ifdef USE_GMP
       EMIT_ENTRY_BLOCK(PREG,GET_BIGINT_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xN.x);
-	  profiled_deref_head_TEST(d0, traced_gbigint_unk);
+	  profiled_deref_head_TEST(d0, gbigint_unk);
 
-    traced_gbigint_nonvar:
+    gbigint_nonvar:
       EMIT_SIMPLE_BLOCK_TEST(GET_BIGINT_GBIGINT_NONVAR);
       if (!IsApplTerm(d0)) {
-	TRACED_FAIL();
+	FAIL();
 	  }
       /* we have met a preexisting bigint */
       START_PREFETCH(xN);
@@ -2912,10 +2939,10 @@ S_SREG = RepAppl(d0);
       /* check functor */
       if (*pt0 != (CELL)FunctorBigInt)
 	{
-	  TRACED_FAIL();
+	  FAIL();
 	}
       if (Yap_gmp_tcmp_big_big(d0,PREG->y_u.xN.b)) {
-	TRACED_FAIL();
+	FAIL();
 	  }
       PREG = NEXTOP(PREG, xN);
       ENDP(pt0);
@@ -2924,7 +2951,7 @@ S_SREG = RepAppl(d0);
       END_PREFETCH();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_gbigint_unk, traced_gbigint_nonvar);
+      profiled_deref_body(d0, pt0, gbigint_unk, gbigint_nonvar);
       /* Enter Write mode */
       /* set d1 to be the new structure we are going to create */
       EMIT_SIMPLE_BLOCK_TEST(GET_BIGINT_GBIGINT_UNK);
@@ -2940,28 +2967,28 @@ S_SREG = RepAppl(d0);
 
       ENDD(d0);
 #else
-      TRACED_FAIL();
+      FAIL();
 #endif
       ENDOp();
 
 
-      Op(traced_get_dbterm, xD);
+      Op(get_dbterm, xD);
       EMIT_ENTRY_BLOCK(PREG,GET_DBTERM_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xD.x);
-	  profiled_deref_head_TEST(d0, traced_gdbterm_unk);
+	  profiled_deref_head_TEST(d0, gdbterm_unk);
 
-    traced_gdbterm_nonvar:
+    gdbterm_nonvar:
       BEGD(d1);
       /* we have met a preexisting dbterm */
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(GET_DBTERM_GDBTERM_NONVAR);
       d1 = PREG->y_u.xD.D;
       PREG = NEXTOP(PREG, xD);
-      traced_UnifyBound(d0,d1);
+      UnifyBound(d0,d1);
       ENDD(d1);
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_gdbterm_unk, traced_gdbterm_nonvar);
+      profiled_deref_body(d0, pt0, gdbterm_unk, gdbterm_nonvar);
       /* Enter Write mode */
       /* set d1 to be the new structure we are going to create */
 	  EMIT_SIMPLE_BLOCK_TEST(GET_DBTERM_GDBTERM_UNK);
@@ -2981,17 +3008,17 @@ S_SREG = RepAppl(d0);
 /************************************************************************\
 *    Optimised Get List Instructions					*
 \************************************************************************/
-      OpRW(traced_glist_valx, xx);
+      OpRW(glist_valx, xx);
       EMIT_ENTRY_BLOCK(PREG,GLIST_VALX_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xx.xl);
-      profiled_deref_head_TEST(d0, traced_glist_valx_write);
-    traced_glist_valx_read:
+      profiled_deref_head_TEST(d0, glist_valx_write);
+    glist_valx_read:
       BEGP(pt0);
       /* did we find a list? */
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(GLIST_VALX_GLIST_VALX_READ);
       if (!IsPairTerm(d0)) {
-      TRACED_FAIL();
+      FAIL();
       }
       /* enter read mode */
       START_PREFETCH(xx);
@@ -2999,26 +3026,26 @@ S_SREG = RepAppl(d0);
       SREG = pt0 + 1;
       /* start unification with first argument */
       d0 = *pt0;
-      profiled_deref_head_TEST(d0, traced_glist_valx_unk);
+      profiled_deref_head_TEST(d0, glist_valx_unk);
 
       /* first argument is in d0 */
-    traced_glist_valx_nonvar:
+    glist_valx_nonvar:
       /* first argument is bound */
       EMIT_SIMPLE_BLOCK_TEST(GLIST_VALX_GLIST_VALX_NONVAR);
       BEGD(d1);
       d1 = XREG(PREG->y_u.xx.xr);
-      profiled_deref_head_TEST(d1, traced_glist_valx_nonvar_unk);
+      profiled_deref_head_TEST(d1, glist_valx_nonvar_unk);
 
-    traced_glist_valx_nonvar_nonvar:
+    glist_valx_nonvar_nonvar:
       /* both arguments are bound */
       /* we may have to bind structures */
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(GLIST_VALX_GLIST_VALX_NONVAR_NONVAR);
       PREG = NEXTOP(PREG, xx);
-      traced_UnifyBound(d0, d1);
+      UnifyBound(d0, d1);
 
       BEGP(pt1);
       /* deref second argument */
-      profiled_deref_body(d1, pt1, traced_glist_valx_nonvar_unk, traced_glist_valx_nonvar_nonvar);
+      profiled_deref_body(d1, pt1, glist_valx_nonvar_unk, glist_valx_nonvar_nonvar);
       /* head bound, argument unbound */
 	  EMIT_SIMPLE_BLOCK_TEST(GLIST_VALX_GLIST_VALX_NONVAR_UNK);
       PREG = NEXTOP(PREG, xx);
@@ -3030,13 +3057,13 @@ S_SREG = RepAppl(d0);
       ENDD(d1);
 
       /* head may be unbound */
-      profiled_derefa_body(d0, pt0, traced_glist_valx_unk, traced_glist_valx_nonvar);
+      profiled_derefa_body(d0, pt0, glist_valx_unk, glist_valx_nonvar);
       /* head is unbound, pt0 has the value */
       EMIT_SIMPLE_BLOCK_TEST(GLIST_VALX_GLIST_VALX_UNK);
       d0 = XREG(PREG->y_u.xx.xr);
-      profiled_deref_head_TEST(d0, traced_glist_valx_var_unk);
+      profiled_deref_head_TEST(d0, glist_valx_var_unk);
 
-    traced_glist_valx_var_nonvar:
+    glist_valx_var_nonvar:
       /* head is unbound, second arg bound */
       EMIT_SIMPLE_BLOCK_TEST(GLIST_VALX_GLIST_VALX_VAR_NONVAR);
       PREG = NEXTOP(PREG, xx);
@@ -3044,7 +3071,7 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt1);
-      profiled_deref_body(d0, pt1, traced_glist_valx_var_unk, traced_glist_valx_var_nonvar);
+      profiled_deref_body(d0, pt1, glist_valx_var_unk, glist_valx_var_nonvar);
       /* head and second argument are unbound */
 	  EMIT_SIMPLE_BLOCK_TEST(GLIST_VALX_GLIST_VALX_VAR_UNK);
       PREG = NEXTOP(PREG, xx);
@@ -3055,7 +3082,7 @@ S_SREG = RepAppl(d0);
       END_PREFETCH();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_glist_valx_write, traced_glist_valx_read);
+      profiled_deref_body(d0, pt0, glist_valx_write, glist_valx_read);
       EMIT_SIMPLE_BLOCK_TEST(GLIST_VALX_GLIST_VALX_WRITE);
       CACHE_S();
       /* enter write mode */
@@ -3078,17 +3105,17 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOpRW();
 
-      OpRW(traced_glist_valy, yx);
+      OpRW(glist_valy, yx);
       EMIT_ENTRY_BLOCK(PREG,GLIST_VALY_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.yx.x);
-      profiled_deref_head_TEST(d0, traced_glist_valy_write);
-    traced_glist_valy_read:
+      profiled_deref_head_TEST(d0, glist_valy_write);
+    glist_valy_read:
       BEGP(pt0);
       /* did we find a list? */
       EMIT_SIMPLE_BLOCK_TEST(GLIST_VALY_GLIST_VALY_READ);
       if (!IsPairTerm(d0)) {
-	TRACED_FAIL();
+	FAIL();
 	  }
       START_PREFETCH(yx);
       /* enter read mode */
@@ -3096,9 +3123,9 @@ S_SREG = RepAppl(d0);
       SREG = pt0 + 1;
       /* start unification with first argument */
       d0 = *pt0;
-      profiled_deref_head_TEST(d0, traced_glist_valy_unk);
+      profiled_deref_head_TEST(d0, glist_valy_unk);
 
-    traced_glist_valy_nonvar:
+    glist_valy_nonvar:
       /* first argument is bound */
       EMIT_SIMPLE_BLOCK_TEST(GLIST_VALY_GLIST_VALY_NONVAR);
       BEGD(d1);
@@ -3106,17 +3133,17 @@ S_SREG = RepAppl(d0);
       pt1 = YREG + PREG->y_u.yx.y;
       d1 = *pt1;
       PREG = NEXTOP(PREG, yx);
-      profiled_deref_head_TEST(d1, traced_glist_valy_nonvar_unk);
+      profiled_deref_head_TEST(d1, glist_valy_nonvar_unk);
 
-    traced_glist_valy_nonvar_nonvar:
+    glist_valy_nonvar_nonvar:
       /* both arguments are bound */
       /* we may have to bind structures */
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(GLIST_VALY_GLIST_VALY_NONVAR_NONVAR);
       SREG = pt0 + 1;
-      traced_UnifyBound(d0, d1);
+      UnifyBound(d0, d1);
 
       /* deref second argument */
-      profiled_derefa_body(d1, pt1, traced_glist_valy_nonvar_unk, traced_glist_valy_nonvar_nonvar);
+      profiled_derefa_body(d1, pt1, glist_valy_nonvar_unk, glist_valy_nonvar_nonvar);
       /* first argument bound, second unbound */
       EMIT_SIMPLE_BLOCK_TEST(GLIST_VALY_GLIST_VALY_NONVAR_UNK);
       Bind(pt1, d0);
@@ -3124,21 +3151,21 @@ S_SREG = RepAppl(d0);
 
       ENDP(pt1);
       /* first argument may be unbound */
-      profiled_derefa_body(d0, pt0, traced_glist_valy_unk, traced_glist_valy_nonvar);
+      profiled_derefa_body(d0, pt0, glist_valy_unk, glist_valy_nonvar);
       /* first argument is unbound */
 	  EMIT_SIMPLE_BLOCK_TEST(GLIST_VALY_GLIST_VALY_UNK);
       BEGP(pt1);
       pt1 = YREG+PREG->y_u.yx.y;
       d1 = *pt1;
-      profiled_deref_head_TEST(d1, traced_glist_valy_var_unk);
-    traced_glist_valy_var_nonvar:
+      profiled_deref_head_TEST(d1, glist_valy_var_unk);
+    glist_valy_var_nonvar:
       /* first unbound, second bound */
       EMIT_SIMPLE_BLOCK_TEST(GLIST_VALY_GLIST_VALY_VAR_NONVAR);
       PREG = NEXTOP(PREG, yx);
       Bind_Global(pt0, d1);
       GONext();
 
-      profiled_derefa_body(d1, pt1, traced_glist_valy_var_unk, traced_glist_valy_var_nonvar);
+      profiled_derefa_body(d1, pt1, glist_valy_var_unk, glist_valy_var_nonvar);
       /* both arguments are unbound */
       EMIT_SIMPLE_BLOCK_TEST(GLIST_VALY_GLIST_VALY_VAR_UNK);
       PREG = NEXTOP(PREG, yx);
@@ -3151,7 +3178,7 @@ S_SREG = RepAppl(d0);
       ENDP(pt0);
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_glist_valy_write, traced_glist_valy_read);
+      profiled_deref_body(d0, pt0, glist_valy_write, glist_valy_read);
       /* enter write mode */
 	  EMIT_SIMPLE_BLOCK_TEST(GLIST_VALY_GLIST_VALY_WRITE);
       START_PREFETCH_W(yx);
@@ -3175,16 +3202,16 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOpRW();
 
-      Op(traced_gl_void_varx, xx);
+      Op(gl_void_varx, xx);
       EMIT_ENTRY_BLOCK(PREG,GL_VOID_VARX_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xx.xl);
-      profiled_deref_head_TEST(d0, traced_glist_void_varx_write);
-    traced_glist_void_varx_read:
+      profiled_deref_head_TEST(d0, glist_void_varx_write);
+    glist_void_varx_read:
       /* did we find a list? */
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(GL_VOID_VARX_GLIST_VOID_VARX_READ);
       if (!IsPairTerm(d0)) {
-	TRACED_FAIL();
+	FAIL();
 	  }
       ALWAYS_START_PREFETCH(xx);
       /* enter read mode */
@@ -3198,7 +3225,7 @@ S_SREG = RepAppl(d0);
       ALWAYS_END_PREFETCH();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_glist_void_varx_write, traced_glist_void_varx_read);
+      profiled_deref_body(d0, pt0, glist_void_varx_write, glist_void_varx_read);
       EMIT_SIMPLE_BLOCK_TEST(GL_VOID_VARX_GLIST_VOID_VAR_WRITE);
       /* enter write mode */
       BEGP(pt1);
@@ -3220,16 +3247,16 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_gl_void_vary, yx);
+      Op(gl_void_vary, yx);
       EMIT_ENTRY_BLOCK(PREG,GL_VOID_VARY_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.yx.x);
-      profiled_deref_head_TEST(d0, traced_glist_void_vary_write);
-    traced_glist_void_vary_read:
+      profiled_deref_head_TEST(d0, glist_void_vary_write);
+    glist_void_vary_read:
       /* did we find a list? */
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(GL_VOID_VARY_GLIST_VOID_VARY_READ);
       if (!IsPairTerm(d0)) {
-	TRACED_FAIL();
+	FAIL();
 	  }
       /* enter read mode */
       BEGP(pt0);
@@ -3241,7 +3268,7 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_glist_void_vary_write, traced_glist_void_vary_read);
+      profiled_deref_body(d0, pt0, glist_void_vary_write, glist_void_vary_read);
       /* enter write mode */
       EMIT_SIMPLE_BLOCK_TEST(GL_VOID_VARY_GLIST_VOID_VARY_WRITE);
       BEGP(pt1);
@@ -3261,49 +3288,49 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_gl_void_valx, xx);
+      Op(gl_void_valx, xx);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,GL_VOID_VALX_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.xx.xl);
-      deref_head(d0, traced_glist_void_valx_write);
-    traced_glist_void_valx_read:
+      deref_head(d0, glist_void_valx_write);
+    glist_void_valx_read:
       BEGP(pt0);
       /* did we find a list? */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(GL_VOID_VALX_GLIST_VOID_VALX_READ);
 ///#endif
       if (!IsPairTerm(d0)) {
-	TRACED_FAIL();
+	FAIL();
 	  }
       /* enter read mode */
       pt0 = RepPair(d0)+1;
       /* start unification with first argument */
       d0 = *pt0;
-      deref_head(d0, traced_glist_void_valx_unk);
+      deref_head(d0, glist_void_valx_unk);
 
-    traced_glist_void_valx_nonvar:
+    glist_void_valx_nonvar:
       /* first argument is bound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(GL_VOID_VALX_GLIST_VOID_VALX_NONVAR);
 //#endif
       BEGD(d1);
       d1 = XREG(PREG->y_u.xx.xr);
-      deref_head(d1, traced_glist_void_valx_nonvar_unk);
+      deref_head(d1, glist_void_valx_nonvar_unk);
 
-    traced_glist_void_valx_nonvar_nonvar:
+    glist_void_valx_nonvar_nonvar:
       /* both arguments are bound */
       /* we may have to bind structures */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(GL_VOID_VALX_GLIST_VOID_VALX_NONVAR_NONVAR);
 ///#endif
       PREG = NEXTOP(PREG, xx);
-      traced_UnifyBound(d0, d1);
+      UnifyBound(d0, d1);
 
       /* deref second argument */
       BEGP(pt1);
-      deref_body(d1, pt1, traced_glist_void_valx_nonvar_unk, traced_glist_void_valx_nonvar_nonvar);
+      deref_body(d1, pt1, glist_void_valx_nonvar_unk, glist_void_valx_nonvar_nonvar);
       /* first argument bound, second unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(GL_VOID_VALX_GLIST_VOID_VALX_NONVAR_UNK);
@@ -3315,16 +3342,16 @@ S_SREG = RepAppl(d0);
       ENDD(d1);
 
       /* first argument may be unbound */
-      derefa_body(d0, pt0, traced_glist_void_valx_unk, traced_glist_void_valx_nonvar);
+      derefa_body(d0, pt0, glist_void_valx_unk, glist_void_valx_nonvar);
       /* first argument is unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(GL_VOID_VALX_GLIST_VOID_VALX_UNK);
 ///#endif
       BEGD(d1);
       d1 = XREG(PREG->y_u.xx.xr);
-      deref_head(d1, traced_glist_void_valx_var_unk);
+      deref_head(d1, glist_void_valx_var_unk);
 
-    traced_glist_void_valx_var_nonvar:
+    glist_void_valx_var_nonvar:
       /* first unbound, second bound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(GL_VOID_VALX_GLIST_VOID_VALX_VAR_NONVAR);
@@ -3334,7 +3361,7 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt1);
-      deref_body(d1, pt1, traced_glist_void_valx_var_unk, traced_glist_void_valx_var_nonvar);
+      deref_body(d1, pt1, glist_void_valx_var_unk, glist_void_valx_var_nonvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(GL_VOID_VALX_GLIST_VOID_VALX_VAR_UNK);
 ///#endif
@@ -3347,7 +3374,7 @@ S_SREG = RepAppl(d0);
       ENDP(pt0);
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_glist_void_valx_write, traced_glist_void_valx_read);
+      deref_body(d0, pt0, glist_void_valx_write, glist_void_valx_read);
       /* enter write mode */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(GL_VOID_VALX_GLIST_VOID_VALX_WRITE);
@@ -3372,14 +3399,14 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_gl_void_valy, yx);
+      Op(gl_void_valy, yx);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,GL_VOID_VALY_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.yx.x);
-      deref_head(d0, traced_glist_void_valy_write);
-   traced_glist_void_valy_read:
+      deref_head(d0, glist_void_valy_write);
+   glist_void_valy_read:
 ///#ifdef PROFILED_ABSMI
 ///#endif
       BEGP(pt0);
@@ -3388,15 +3415,15 @@ S_SREG = RepAppl(d0);
       EMIT_SIMPLE_BLOCK(GL_VOID_VALY_GLIST_VOID_VALY_READ);
 ///#endif
       if (!IsPairTerm(d0)) {
-	TRACED_FAIL();
+	FAIL();
 	  }
       /* enter read mode */
       pt0 = RepPair(d0)+1;
       /* start unification with first argument */
       d0 = *pt0;
-      deref_head(d0, traced_glist_void_valy_unk);
+      deref_head(d0, glist_void_valy_unk);
 
-    traced_glist_void_valy_nonvar:
+    glist_void_valy_nonvar:
       /* first argument is bound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(GL_VOID_VALY_GLIST_VOID_VALY_NONVAR);
@@ -3405,19 +3432,19 @@ S_SREG = RepAppl(d0);
       BEGP(pt1);
       pt1 = YREG+PREG->y_u.yx.y;
       d1 = *pt1;
-      deref_head(d1, traced_glist_void_valy_nonvar_unk);
+      deref_head(d1, glist_void_valy_nonvar_unk);
 
-    traced_glist_void_valy_nonvar_nonvar:
+    glist_void_valy_nonvar_nonvar:
       /* both arguments are bound */
       /* we may have to bind structures */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(GL_VOID_VALY_GLIST_VOID_VALY_NONVAR_NONVAR);
 ///#endif
       PREG = NEXTOP(PREG, yx);
-      traced_UnifyBound(d0, d1);
+      UnifyBound(d0, d1);
 
       /* deref second argument */
-      derefa_body(d1, pt1, traced_glist_void_valy_nonvar_unk, traced_glist_void_valy_nonvar_nonvar);
+      derefa_body(d1, pt1, glist_void_valy_nonvar_unk, glist_void_valy_nonvar_nonvar);
       /* first argument bound, second unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(GL_VOID_VALY_GLIST_VOID_VALY_NONVAR_UNK);
@@ -3429,7 +3456,7 @@ S_SREG = RepAppl(d0);
       ENDP(pt1);
 
       /* first argument may be unbound */
-      derefa_body(d0, pt0, traced_glist_void_valy_unk, traced_glist_void_valy_nonvar);
+      derefa_body(d0, pt0, glist_void_valy_unk, glist_void_valy_nonvar);
       /* first argument is unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(GL_VOID_VALY_GLIST_VOID_VALY_UNK);
@@ -3437,9 +3464,9 @@ S_SREG = RepAppl(d0);
       BEGP(pt1);
       pt1 = YREG+PREG->y_u.yx.y;
       d1 = *pt1;
-      deref_head(d1, traced_glist_void_valy_var_unk);
+      deref_head(d1, glist_void_valy_var_unk);
 
-    traced_glist_void_valy_var_nonvar:
+    glist_void_valy_var_nonvar:
       /* first unbound, second bound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(GL_VOID_VALY_GLIST_VOID_VALY_VAR_NONVAR);
@@ -3448,7 +3475,7 @@ S_SREG = RepAppl(d0);
       Bind_Global(pt0, d1);
       GONext();
 
-      deref_body(d1, pt1, traced_glist_void_valy_var_unk, traced_glist_void_valy_var_nonvar);
+      deref_body(d1, pt1, glist_void_valy_var_unk, glist_void_valy_var_nonvar);
       /* both arguments are unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(GL_VOID_VALY_GLIST_VOID_VALY_VAR_UNK);
@@ -3461,7 +3488,7 @@ S_SREG = RepAppl(d0);
       ENDP(pt0);
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_glist_void_valy_write, traced_glist_void_valy_read);
+      deref_body(d0, pt0, glist_void_valy_write, glist_void_valy_read);
       /* enter write mode */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(GL_VOID_VALY_GLIST_VOID_VALY_WRITE);
@@ -3491,7 +3518,7 @@ S_SREG = RepAppl(d0);
 * 	Unify instructions						*
 \************************************************************************/
 
-      Op(traced_unify_x_var, ox);
+      Op(unify_x_var, ox);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_X_VAR_INSTINIT);
       CACHE_S();
       READ_IN_S();
@@ -3514,7 +3541,7 @@ S_SREG = RepAppl(d0);
       ENDCACHE_S();
       ENDOp();
 
-      OpW(traced_unify_x_var_write, ox);
+      OpW(unify_x_var_write, ox);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_X_VAR_WRITE_INSTINIT);
       CACHE_S();
       READ_IN_S();
@@ -3529,7 +3556,7 @@ S_SREG = RepAppl(d0);
       GONextW();
       ENDOpW();
 
-      BOp(traced_unify_l_x_var, ox);
+      BOp(unify_l_x_var, ox);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_X_VAR_INSTINIT);
       ALWAYS_START_PREFETCH(ox);
       BEGP(pt0);
@@ -3551,7 +3578,7 @@ S_SREG = RepAppl(d0);
       ALWAYS_END_PREFETCH();
       ENDBOp();
 
-      BOp(traced_unify_l_x_var_write, ox);
+      BOp(unify_l_x_var_write, ox);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_X_VAR_WRITE_INSTINIT);
       ALWAYS_START_PREFETCH(ox);
       CACHE_S();
@@ -3567,7 +3594,7 @@ S_SREG = RepAppl(d0);
       ENDBOp();
       ALWAYS_END_PREFETCH();
 
-      BOp(traced_unify_x_var2, oxx);
+      BOp(unify_x_var2, oxx);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_X_VAR2_INSTINIT);
       CACHE_S();
       ALWAYS_START_PREFETCH(oxx);
@@ -3600,7 +3627,7 @@ S_SREG = RepAppl(d0);
       ALWAYS_END_PREFETCH();
       ENDCACHE_S();
 
-      OpW(traced_unify_x_var2_write, oxx);
+      OpW(unify_x_var2_write, oxx);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_X_VAR2_WRITE_INSTINIT);
       CACHE_S();
       READ_IN_S();
@@ -3618,7 +3645,7 @@ S_SREG = RepAppl(d0);
       GONextW();
       ENDOpW();
 
-      BOp(traced_unify_l_x_var2, oxx);
+      BOp(unify_l_x_var2, oxx);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_X_VAR2_INSTINIT);
       ALWAYS_START_PREFETCH(oxx);
       CACHE_S();
@@ -3650,7 +3677,7 @@ S_SREG = RepAppl(d0);
       ENDBOp();
       ALWAYS_END_PREFETCH();
 
-      Op(traced_unify_l_x_var2_write, oxx);
+      Op(unify_l_x_var2_write, oxx);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_X_VAR2_WRITE_INSTINIT);
       CACHE_S();
       READ_IN_S();
@@ -3667,7 +3694,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_unify_y_var, oy);
+      Op(unify_y_var, oy);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_Y_VAR_INSTINIT);
       BEGD(d0);
       d0 = *SREG++;
@@ -3683,7 +3710,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      OpW(traced_unify_y_var_write, oy);
+      OpW(unify_y_var_write, oy);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_Y_VAR_WRITE_INSTINIT);
       CACHE_S();
       READ_IN_S();
@@ -3695,7 +3722,7 @@ S_SREG = RepAppl(d0);
       GONextW();
       ENDOpW();
 
-      Op(traced_unify_l_y_var, oy);
+      Op(unify_l_y_var, oy);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_Y_VAR_INSTINIT);
       BEGD(d0);
       d0 = SREG[0];
@@ -3711,7 +3738,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_unify_l_y_var_write, oy);
+      Op(unify_l_y_var_write, oy);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_Y_VAR_WRITE_INSTINIT);
       CACHE_S();
       READ_IN_S();
@@ -3724,7 +3751,7 @@ S_SREG = RepAppl(d0);
 
       /* We assume the value in X is pointing to an object in the
        * global stack */
-      Op(traced_unify_x_val, ox);
+      Op(unify_x_val, ox);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,UNIFY_X_VAL_INSTINIT);
 ///#endif
@@ -3733,17 +3760,17 @@ S_SREG = RepAppl(d0);
       BEGP(pt0);
       pt0 = SREG;
       d0 = *pt0;
-      deref_head(d0, traced_uvalx_unk);
+      deref_head(d0, uvalx_unk);
 
-    traced_uvalx_nonvar:
+    uvalx_nonvar:
       /* first argument is bound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(UNIFY_X_VAL_UVALX_NONVAR);
 ///#endif
       d1 = XREG(PREG->y_u.ox.x);
-      deref_head(d1, traced_uvalx_nonvar_unk);
+      deref_head(d1, uvalx_nonvar_unk);
 
-    traced_uvalx_nonvar_nonvar:
+    uvalx_nonvar_nonvar:
       /* both arguments are bound */
       /* we may have to bind structures */
 ///#ifdef PROFILED_ABSMI
@@ -3751,12 +3778,12 @@ S_SREG = RepAppl(d0);
 ///#endif
       PREG = NEXTOP(PREG, ox);
       SREG++;
-      traced_UnifyBound(d0, d1);
+      UnifyBound(d0, d1);
 
       /* deref second argument */
       /* pt0 is in the structure and pt1 the register */
       BEGP(pt1);
-      deref_body(d1, pt1, traced_uvalx_nonvar_unk, traced_uvalx_nonvar_nonvar);
+      deref_body(d1, pt1, uvalx_nonvar_unk, uvalx_nonvar_nonvar);
       /* first argument bound, second unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(UNIFY_X_VAL_UVALX_NONVAR_UNK);
@@ -3768,15 +3795,15 @@ S_SREG = RepAppl(d0);
       ENDP(pt1);
 
       /* first argument may be unbound */
-      derefa_body(d0, pt0, traced_uvalx_unk, traced_uvalx_nonvar);
+      derefa_body(d0, pt0, uvalx_unk, uvalx_nonvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(UNIFY_X_VAL_UVALX_UNK);
 ///#endif
       /* first argument is unbound */
       d1 = XREG(PREG->y_u.ox.x);
-      deref_head(d1, traced_uvalx_var_unk);
+      deref_head(d1, uvalx_var_unk);
 
-    traced_uvalx_var_nonvar:
+    uvalx_var_nonvar:
       /* first unbound, second bound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(UNIFY_X_VAL_UVALX_VAR_NONVAR);
@@ -3787,7 +3814,7 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt1);
-      deref_body(d1, pt1, traced_uvalx_var_unk, traced_uvalx_var_nonvar);
+      deref_body(d1, pt1, uvalx_var_unk, uvalx_var_nonvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(UNIFY_X_VAL_UVALX_VAR_UNK);
 ///#endif
@@ -3802,7 +3829,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      OpW(traced_unify_x_val_write, ox);
+      OpW(unify_x_val_write, ox);
       /* we are in write mode */
       EMIT_ENTRY_BLOCK(PREG,UNIFY_X_VAL_WRITE_INSTINIT);
       *SREG++ = XREG(PREG->y_u.ox.x);
@@ -3812,7 +3839,7 @@ S_SREG = RepAppl(d0);
 
       /* We assume the value in X is pointing to an object in the
        * global stack */
-      Op(traced_unify_l_x_val, ox);
+      Op(unify_l_x_val, ox);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_X_VAL_INSTINIT);
 ///#endif
@@ -3821,28 +3848,28 @@ S_SREG = RepAppl(d0);
       BEGP(pt0);
       pt0 = SREG;
       d0 = *pt0;
-      deref_head(d0, traced_ulvalx_unk);
+      deref_head(d0, ulvalx_unk);
 
-    traced_ulvalx_nonvar:
+    ulvalx_nonvar:
       /* first argument is bound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(UNIFY_L_X_VAL_ULVALX_NONVAR);
 ///#endif
       d1 = XREG(PREG->y_u.ox.x);
-      deref_head(d1, traced_ulvalx_nonvar_unk);
+      deref_head(d1, ulvalx_nonvar_unk);
 
-    traced_ulvalx_nonvar_nonvar:
+    ulvalx_nonvar_nonvar:
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(UNIFY_L_X_VAL_ULVALX_NONVAR_NONVAR);
 ///#endif
       /* both arguments are bound */
       /* we may have to bind structures */
       PREG = NEXTOP(PREG, ox);
-      traced_UnifyBound(d0, d1);
+      UnifyBound(d0, d1);
 
       BEGP(pt1);
       /* deref second argument */
-      deref_body(d1, pt1, traced_ulvalx_nonvar_unk, traced_ulvalx_nonvar_nonvar);
+      deref_body(d1, pt1, ulvalx_nonvar_unk, ulvalx_nonvar_nonvar);
       /* first argument bound, second unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(UNIFY_L_X_VAL_ULVALX_NONVAR_UNK);
@@ -3853,15 +3880,15 @@ S_SREG = RepAppl(d0);
       ENDP(pt1);
 
       /* first argument may be unbound */
-      derefa_body(d0, pt0, traced_ulvalx_unk, traced_ulvalx_nonvar);
+      derefa_body(d0, pt0, ulvalx_unk, ulvalx_nonvar);
       /* first argument is unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(UNIFY_L_X_VAL_ULVALX_UNK);
 ///#endif
       d1 = XREG(PREG->y_u.ox.x);
-      deref_head(d1, traced_ulvalx_var_unk);
+      deref_head(d1, ulvalx_var_unk);
 
-    traced_ulvalx_var_nonvar:
+    ulvalx_var_nonvar:
       /* first unbound, second bound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(UNIFY_L_X_VAL_ULVALX_VAR_NONVAR);
@@ -3871,7 +3898,7 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt1);
-      deref_body(d1, pt1, traced_ulvalx_var_unk, traced_ulvalx_var_nonvar);
+      deref_body(d1, pt1, ulvalx_var_unk, ulvalx_var_nonvar);
       /* both arguments are unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(UNIFY_L_X_VAL_ULVALX_VAR_UNK);
@@ -3885,7 +3912,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_unify_l_x_val_write, ox);
+      Op(unify_l_x_val_write, ox);
       /* we are in write mode */
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_X_VAL_WRITE_INSTINIT);
       SREG[0] = XREG(PREG->y_u.ox.x);
@@ -3895,7 +3922,7 @@ S_SREG = RepAppl(d0);
 
       /* We assume the value in X is pointing to an object in the
        * global stack */
-      Op(traced_unify_y_val, oy);
+      Op(unify_y_val, oy);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,UNIFY_Y_VAL_INSTINIT);
 ///#endif
@@ -3904,9 +3931,9 @@ S_SREG = RepAppl(d0);
       BEGP(pt0);
       pt0 = SREG;
       d0 = *pt0;
-      deref_head(d0, traced_uvaly_unk);
+      deref_head(d0, uvaly_unk);
 
-    traced_uvaly_nonvar:
+    uvaly_nonvar:
       /* first argument is bound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_Y_VAL_UVALY_NONVAR);
@@ -3914,9 +3941,9 @@ S_SREG = RepAppl(d0);
       BEGP(pt1);
       pt1 = YREG+PREG->y_u.oy.y;
       d1 = *pt1;
-      deref_head(d1, traced_uvaly_nonvar_unk);
+      deref_head(d1, uvaly_nonvar_unk);
 
-    traced_uvaly_nonvar_nonvar:
+    uvaly_nonvar_nonvar:
       /* both arguments are bound */
       /* we may have to bind structures */
 ///#ifdef PROFILED_ABSMI
@@ -3924,10 +3951,10 @@ S_SREG = RepAppl(d0);
 ///#endif
       PREG = NEXTOP(PREG, oy);
       SREG++;
-      traced_UnifyBound(d0, d1);
+      UnifyBound(d0, d1);
 
       /* deref second argument */
-      derefa_body(d1, pt1, traced_uvaly_nonvar_unk, traced_uvaly_nonvar_nonvar);
+      derefa_body(d1, pt1, uvaly_nonvar_unk, uvaly_nonvar_nonvar);
       /* first argument bound, second unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_Y_VAL_UVALY_NONVAR_UNK);
@@ -3939,7 +3966,7 @@ S_SREG = RepAppl(d0);
       ENDP(pt1);
 
       /* first argument may be unbound */
-      derefa_body(d0, pt0, traced_uvaly_unk, traced_uvaly_nonvar);
+      derefa_body(d0, pt0, uvaly_unk, uvaly_nonvar);
       /* first argument is unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_Y_VAL_UVALY_UNK);
@@ -3947,9 +3974,9 @@ S_SREG = RepAppl(d0);
       BEGP(pt1);
       pt1 = YREG+PREG->y_u.oy.y;
       d1 = *pt1;
-      deref_head(d1, traced_uvaly_var_unk);
+      deref_head(d1, uvaly_var_unk);
 
-    traced_uvaly_var_nonvar:
+    uvaly_var_nonvar:
       /* first unbound, second bound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_Y_VAL_UVALY_VAR_NONVAR);
@@ -3959,7 +3986,7 @@ S_SREG = RepAppl(d0);
       Bind_Global(pt0, d1);
       GONext();
 
-      derefa_body(d1, pt1, traced_uvaly_var_unk, traced_uvaly_var_nonvar);
+      derefa_body(d1, pt1, uvaly_var_unk, uvaly_var_nonvar);
       /* both arguments are unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_Y_VAL_UVALY_VAR_UNK);
@@ -3974,7 +4001,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      OpW(traced_unify_y_val_write, oy);
+      OpW(unify_y_val_write, oy);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_Y_VAL_WRITE_INSTINIT);
       /* we are in write mode */
       BEGD(d0);
@@ -3992,7 +4019,7 @@ S_SREG = RepAppl(d0);
 
       /* We assume the value in X is pointing to an object in the
        * global stack */
-      Op(traced_unify_l_y_val, oy);
+      Op(unify_l_y_val, oy);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_Y_VAL_INSTINIT);
 ///#endif
@@ -4001,9 +4028,9 @@ S_SREG = RepAppl(d0);
       BEGP(pt0);
       pt0 = SREG;
       d0 = *pt0;
-      deref_head(d0, traced_ulvaly_unk);
+      deref_head(d0, ulvaly_unk);
 
-    traced_ulvaly_nonvar:
+    ulvaly_nonvar:
       /* first argument is bound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_Y_VAL_ULVALY_NONVAR);
@@ -4011,19 +4038,19 @@ S_SREG = RepAppl(d0);
       BEGP(pt1);
       pt1 = YREG+PREG->y_u.oy.y;
       d1 = *pt1;
-      deref_head(d1, traced_ulvaly_nonvar_unk);
+      deref_head(d1, ulvaly_nonvar_unk);
 
-    traced_ulvaly_nonvar_nonvar:
+    ulvaly_nonvar_nonvar:
       /* both arguments are bound */
       /* we may have to bind structures */
 ///#ifdef PROFILED_ABSMI
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(UNIFY_L_Y_VAL_ULVALY_NONVAR_NONVAR);
 ///#endif
       PREG = NEXTOP(PREG, oy);
-      traced_UnifyBound(d0, d1);
+      UnifyBound(d0, d1);
 
       /* deref second argument */
-      derefa_body(d1, pt1, traced_ulvaly_nonvar_unk, traced_ulvaly_nonvar_nonvar);
+      derefa_body(d1, pt1, ulvaly_nonvar_unk, ulvaly_nonvar_nonvar);
       /* first argument bound, second unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_Y_VAL_ULVALY_NONVAR_UNK);
@@ -4034,7 +4061,7 @@ S_SREG = RepAppl(d0);
       ENDP(pt1);
 
       /* first argument may be unbound */
-      derefa_body(d0, pt0, traced_ulvaly_unk, traced_ulvaly_nonvar);
+      derefa_body(d0, pt0, ulvaly_unk, ulvaly_nonvar);
       /* first argument is unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_Y_VAL_ULVALY_UNK);
@@ -4042,9 +4069,9 @@ S_SREG = RepAppl(d0);
       BEGP(pt1);
       pt1 = YREG+PREG->y_u.oy.y;
       d1 = *pt1;
-      deref_head(d1, traced_ulvaly_var_unk);
+      deref_head(d1, ulvaly_var_unk);
 
-    traced_ulvaly_var_nonvar:
+    ulvaly_var_nonvar:
       /* first unbound, second bound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_Y_VAL_ULVALY_VAR_NONVAR);
@@ -4055,7 +4082,7 @@ S_SREG = RepAppl(d0);
 
       /* Here we are in trouble: we have a clash between pt1 and
        * SREG. We address this by storing SREG in d0 for the duration. */
-      derefa_body(d1, pt1, traced_ulvaly_var_unk, traced_ulvaly_var_nonvar);
+      derefa_body(d1, pt1, ulvaly_var_unk, ulvaly_var_nonvar);
       /* both arguments are unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_Y_VAL_ULVALY_VAR_UNK);
@@ -4069,7 +4096,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_unify_l_y_val_write, oy);
+      Op(unify_l_y_val_write, oy);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_Y_VAL_WRITE_INSTINIT);
       /* we are in write mode */
       BEGD(d0);
@@ -4087,7 +4114,7 @@ S_SREG = RepAppl(d0);
 
       /* In the next instructions, we do not know anything about
        * what is in X */
-      Op(traced_unify_x_loc, ox);
+      Op(unify_x_loc, ox);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_X_LOC_INSTINIT);
       BEGD(d0);
       BEGD(d1);
@@ -4095,24 +4122,24 @@ S_SREG = RepAppl(d0);
       pt0 = SREG;
       d0 = *pt0;
 
-      profiled_deref_head_TEST(d0, traced_uvalx_loc_unk);
-    traced_uvalx_loc_nonvar:
+      profiled_deref_head_TEST(d0, uvalx_loc_unk);
+    uvalx_loc_nonvar:
       /* first argument is bound */
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_X_LOC_UVALX_LOC_NONVAR);
       d1 = XREG(PREG->y_u.ox.x);
-      profiled_deref_head_TEST(d1, traced_uvalx_loc_nonvar_unk);
+      profiled_deref_head_TEST(d1, uvalx_loc_nonvar_unk);
 
-    traced_uvalx_loc_nonvar_nonvar:
+    uvalx_loc_nonvar_nonvar:
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(UNIFY_X_LOC_UVALX_LOC_NONVAR_NONVAR);
       /* both arguments are bound */
       /* we may have to bind structures */
       PREG = NEXTOP(PREG, ox);
       SREG++;
-      traced_UnifyBound(d0, d1);
+      UnifyBound(d0, d1);
 
       BEGP(pt1);
       /* deref second argument */
-      profiled_deref_body(d1, pt1, traced_uvalx_loc_nonvar_unk, traced_uvalx_loc_nonvar_nonvar);
+      profiled_deref_body(d1, pt1, uvalx_loc_nonvar_unk, uvalx_loc_nonvar_nonvar);
       /* first argument bound, second unbound */
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_X_LOC_UVALX_LOC_NONVAR_UNK);
       PREG = NEXTOP(PREG, ox);
@@ -4123,12 +4150,12 @@ S_SREG = RepAppl(d0);
 
 
       /* first argument may be unbound */
-      profiled_derefa_body(d0, pt0, traced_uvalx_loc_unk, traced_uvalx_loc_nonvar);
+      profiled_derefa_body(d0, pt0, uvalx_loc_unk, uvalx_loc_nonvar);
       /* first argument is unbound */
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_X_LOC_UVALX_LOC_UNK);
       d1 = XREG(PREG->y_u.ox.x);
-      profiled_deref_head_TEST(d1, traced_uvalx_loc_var_unk);
-    traced_uvalx_loc_var_nonvar:
+      profiled_deref_head_TEST(d1, uvalx_loc_var_unk);
+    uvalx_loc_var_nonvar:
       /* first unbound, second bound */
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_X_LOC_UVALX_LOC_VAR_NONVAR);
       PREG = NEXTOP(PREG, ox);
@@ -4139,7 +4166,7 @@ S_SREG = RepAppl(d0);
       /* Here we are in trouble: we have a clash between pt1 and
        * SREG. We address this by storing SREG in d0 for the duration. */
       BEGP(pt1);
-      profiled_deref_body(d1, pt1, traced_uvalx_loc_var_unk, traced_uvalx_loc_var_nonvar);
+      profiled_deref_body(d1, pt1, uvalx_loc_var_unk, uvalx_loc_var_nonvar);
       /* both arguments are unbound */
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_X_LOC_UVALX_LOC_VAR_UNK);
       PREG = NEXTOP(PREG, ox);
@@ -4152,20 +4179,20 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      OpW(traced_unify_x_loc_write, ox);
+      OpW(unify_x_loc_write, ox);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_X_LOC_WRITE_INSTINIT);
       /* we are in write mode */
       BEGD(d0);
       d0 = XREG(PREG->y_u.ox.x);
-      profiled_deref_head_TEST(d0, traced_unify_x_loc_unk);
-    traced_unify_x_loc_nonvar:
+      profiled_deref_head_TEST(d0, unify_x_loc_unk);
+    unify_x_loc_nonvar:
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_X_LOC_WRITE_UNIFY_X_LOC_NONVAR);
       *SREG++ = d0;
       PREG = NEXTOP(PREG, ox);
       GONextW();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_unify_x_loc_unk, traced_unify_x_loc_nonvar);
+      profiled_deref_body(d0, pt0, unify_x_loc_unk, unify_x_loc_nonvar);
       /* move ahead in the instructions */
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_X_LOC_WRITE_UNIFY_X_LOC_UNK);
       PREG = NEXTOP(PREG, ox);
@@ -4191,7 +4218,7 @@ S_SREG = RepAppl(d0);
 
       /* In the next instructions, we do not know anything about
        * what is in X */
-      Op(traced_unify_l_x_loc, ox);
+      Op(unify_l_x_loc, ox);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_X_LOC_INSTINIT);
 ///#endif
@@ -4200,27 +4227,27 @@ S_SREG = RepAppl(d0);
       BEGP(pt0);
       pt0 = SREG;
       d0 = *pt0;
-      deref_head(d0, traced_ulvalx_loc_unk);
+      deref_head(d0, ulvalx_loc_unk);
 
-    traced_ulvalx_loc_nonvar:
+    ulvalx_loc_nonvar:
       /* first argument is bound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_X_LOC_ULVALX_LOC_NONVAR);
 ///#endif
       d1 = XREG(PREG->y_u.ox.x);
-      deref_head(d1, traced_ulvalx_loc_nonvar_unk);
+      deref_head(d1, ulvalx_loc_nonvar_unk);
 
-    traced_ulvalx_loc_nonvar_nonvar:
+    ulvalx_loc_nonvar_nonvar:
       /* both arguments are bound */
       /* we may have to bind structures */
 ///#ifdef PROFILED_ABSMI
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(UNIFY_L_X_LOC_ULVALX_LOC_NONVAR_NONVAR);
 ///#endif
       PREG = NEXTOP(PREG, ox);
-      traced_UnifyBound(d0, d1);
+      UnifyBound(d0, d1);
 
       /* deref second argument */
-      deref_body(d1, pt0, traced_ulvalx_loc_nonvar_unk, traced_ulvalx_loc_nonvar_nonvar);
+      deref_body(d1, pt0, ulvalx_loc_nonvar_unk, ulvalx_loc_nonvar_nonvar);
       /* first argument bound, second unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_X_LOC_ULVALX_LOC_NONVAR_UNK);
@@ -4230,15 +4257,15 @@ S_SREG = RepAppl(d0);
       GONext();
 
       /* first argument may be unbound */
-      derefa_body(d0, pt0, traced_ulvalx_loc_unk, traced_ulvalx_loc_nonvar);
+      derefa_body(d0, pt0, ulvalx_loc_unk, ulvalx_loc_nonvar);
       /* first argument is unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_X_LOC_ULVALX_LOC_UNK);
 ///#endif
       d1 = XREG(PREG->y_u.ox.x);
-      deref_head(d1, traced_ulvalx_loc_var_unk);
+      deref_head(d1, ulvalx_loc_var_unk);
 
-    traced_ulvalx_loc_var_nonvar:
+    ulvalx_loc_var_nonvar:
       /* first unbound, second bound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_X_LOC_ULVALX_LOC_VAR_NONVAR);
@@ -4248,7 +4275,7 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt1);
-      deref_body(d1, pt1, traced_ulvalx_loc_var_unk, traced_ulvalx_loc_var_nonvar);
+      deref_body(d1, pt1, ulvalx_loc_var_unk, ulvalx_loc_var_nonvar);
       /* both arguments are unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_X_LOC_ULVALX_LOC_VAR_UNK);
@@ -4262,20 +4289,20 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_unify_l_x_loc_write, ox);
+      Op(unify_l_x_loc_write, ox);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_X_LOC_WRITE_INSTINIT);
       /* we are in write mode */
       BEGD(d0);
       d0 = XREG(PREG->y_u.ox.x);
-      profiled_deref_head_TEST(d0, traced_ulnify_x_loc_unk);
-    traced_ulnify_x_loc_nonvar:
+      profiled_deref_head_TEST(d0, ulnify_x_loc_unk);
+    ulnify_x_loc_nonvar:
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_X_LOC_WRITE_ULNIFY_X_LOC_NONVAR);
       SREG[0] = d0;
       PREG = NEXTOP(PREG, ox);
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_ulnify_x_loc_unk, traced_ulnify_x_loc_nonvar);
+      profiled_deref_body(d0, pt0, ulnify_x_loc_unk, ulnify_x_loc_nonvar);
       /* d0 is a variable, check whether we need to globalise it */
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_X_LOC_WRITE_ULNIFY_X_LOC_UNK);
       PREG = NEXTOP(PREG, ox);
@@ -4294,7 +4321,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOpW();
 
-      Op(traced_unify_y_loc, oy);
+      Op(unify_y_loc, oy);
       /* we are in read mode */
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,UNIFY_Y_LOC_INSTINIT);
@@ -4304,9 +4331,9 @@ S_SREG = RepAppl(d0);
       BEGP(pt0);
       pt0 = SREG;
       d0 = *pt0;
-      deref_head(d0, traced_uvaly_loc_unk);
+      deref_head(d0, uvaly_loc_unk);
 
-    traced_uvaly_loc_nonvar:
+    uvaly_loc_nonvar:
       /* structure is bound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_Y_LOC_UVALY_LOC_NONVAR);
@@ -4314,9 +4341,9 @@ S_SREG = RepAppl(d0);
       BEGP(pt1);
       pt1 =  YREG+PREG->y_u.oy.y;
       d1 = *pt1;
-      deref_head(d1, traced_uvaly_loc_nonvar_unk);
+      deref_head(d1, uvaly_loc_nonvar_unk);
 
-    traced_uvaly_loc_nonvar_nonvar:
+    uvaly_loc_nonvar_nonvar:
       /* both arguments are bound */
       /* we may have to bind structures */
 ///#ifdef PROFILED_ABSMI
@@ -4324,10 +4351,10 @@ S_SREG = RepAppl(d0);
 ///#endif
       PREG = NEXTOP(PREG, oy);
       SREG++;
-      traced_UnifyBound(d0, d1);
+      UnifyBound(d0, d1);
 
       /* deref second argument */
-      derefa_body(d1, pt1, traced_uvaly_loc_nonvar_unk, traced_uvaly_loc_nonvar_nonvar);
+      derefa_body(d1, pt1, uvaly_loc_nonvar_unk, uvaly_loc_nonvar_nonvar);
       /* first argument bound, second unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_Y_LOC_UVALY_LOC_NONVAR_UNK);
@@ -4339,7 +4366,7 @@ S_SREG = RepAppl(d0);
       ENDP(pt1);
 
       /* first argument may be unbound */
-      derefa_body(d0, pt0, traced_uvaly_loc_unk, traced_uvaly_loc_nonvar);
+      derefa_body(d0, pt0, uvaly_loc_unk, uvaly_loc_nonvar);
       /* first argument is unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_Y_LOC_UVALY_LOC_UNK);
@@ -4347,9 +4374,9 @@ S_SREG = RepAppl(d0);
       BEGP(pt1);
       pt1 = YREG+PREG->y_u.oy.y;
       d1 = *pt1;
-      deref_head(d1, traced_uvaly_loc_var_unk);
+      deref_head(d1, uvaly_loc_var_unk);
 
-    traced_uvaly_loc_var_nonvar:
+    uvaly_loc_var_nonvar:
       /* first unbound, second bound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_Y_LOC_UVALY_LOC_VAR_NONVAR);
@@ -4361,7 +4388,7 @@ S_SREG = RepAppl(d0);
 
       /* Here we are in trouble: we have a clash between pt1 and
        * SREG. We address this by storing SREG in d0 for the duration. */
-      derefa_body(d1, pt1, traced_uvaly_loc_var_unk, traced_uvaly_loc_var_nonvar);
+      derefa_body(d1, pt1, uvaly_loc_var_unk, uvaly_loc_var_nonvar);
       /* both arguments are unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_Y_LOC_UVALY_LOC_VAR_UNK);
@@ -4376,21 +4403,21 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      OpW(traced_unify_y_loc_write, oy);
+      OpW(unify_y_loc_write, oy);
       /* we are in write mode */
       EMIT_ENTRY_BLOCK(PREG,UNIFY_Y_LOC_WRITE_INSTINIT);
       BEGD(d0);
       BEGP(pt0);
       pt0 = YREG+PREG->y_u.oy.y;
       d0 = *pt0;
-      profiled_deref_head_TEST(d0, traced_unify_y_loc_unk);
-    traced_unify_y_loc_nonvar:
+      profiled_deref_head_TEST(d0, unify_y_loc_unk);
+    unify_y_loc_nonvar:
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_Y_LOC_WRITE_UNIFY_Y_LOC_NONVAR);
       *SREG++ = d0;
       PREG = NEXTOP(PREG, oy);
       GONextW();
 
-      profiled_derefa_body(d0, pt0, traced_unify_y_loc_unk, traced_unify_y_loc_nonvar);
+      profiled_derefa_body(d0, pt0, unify_y_loc_unk, unify_y_loc_nonvar);
       /* d0 is a variable, check whether we need to globalise it */
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_Y_LOC_WRITE_UNIFY_Y_LOC_UNK);
       PREG = NEXTOP(PREG, oy);
@@ -4413,7 +4440,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOpW();
 
-      Op(traced_unify_l_y_loc, oy);
+      Op(unify_l_y_loc, oy);
       /* else we are in read mode */
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_Y_LOC_INSTINIT);
@@ -4423,9 +4450,9 @@ S_SREG = RepAppl(d0);
       BEGP(pt0);
       pt0 = SREG;
       d0 = *pt0;
-      deref_head(d0, traced_ulvaly_loc_unk);
+      deref_head(d0, ulvaly_loc_unk);
 
-    traced_ulvaly_loc_nonvar:
+    ulvaly_loc_nonvar:
       /* structure is bound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_Y_LOC_ULVALY_LOC_NONVAR);
@@ -4433,19 +4460,19 @@ S_SREG = RepAppl(d0);
       BEGP(pt1);
       pt1 = YREG+PREG->y_u.oy.y;
       d1 = *pt1;
-      deref_head(d1, traced_ulvaly_loc_nonvar_unk);
+      deref_head(d1, ulvaly_loc_nonvar_unk);
 
-    traced_ulvaly_loc_nonvar_nonvar:
+    ulvaly_loc_nonvar_nonvar:
       /* both arguments are bound */
       /* we may have to bind structures */
 ///#ifdef PROFILED_ABSMI
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(UNIFY_L_Y_LOC_ULVALY_LOC_NONVAR_NONVAR);
 ///#endif
       PREG = NEXTOP(PREG, oy);
-      traced_UnifyBound(d0, d1);
+      UnifyBound(d0, d1);
 
       /* deref second argument */
-      derefa_body(d1, pt1, traced_ulvaly_loc_nonvar_unk, traced_ulvaly_loc_nonvar_nonvar);
+      derefa_body(d1, pt1, ulvaly_loc_nonvar_unk, ulvaly_loc_nonvar_nonvar);
       /* first argument bound, second unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_Y_LOC_ULVALY_LOC_NONVAR_UNK);
@@ -4456,7 +4483,7 @@ S_SREG = RepAppl(d0);
       ENDP(pt1);
 
       /* first argument may be unbound */
-      derefa_body(d0, pt0, traced_ulvaly_loc_unk, traced_ulvaly_loc_nonvar);
+      derefa_body(d0, pt0, ulvaly_loc_unk, ulvaly_loc_nonvar);
       /* first argument is unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_Y_LOC_ULVALY_LOC_UNK);
@@ -4464,9 +4491,9 @@ S_SREG = RepAppl(d0);
       BEGP(pt1);
       pt1 = YREG+PREG->y_u.oy.y;
       d1 = *pt1;
-      deref_head(d1, traced_ulvaly_loc_var_unk);
+      deref_head(d1, ulvaly_loc_var_unk);
 
-    traced_ulvaly_loc_var_nonvar:
+    ulvaly_loc_var_nonvar:
       /* first unbound, second bound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_Y_LOC_ULVALY_LOC_VAR_NONVAR);
@@ -4477,7 +4504,7 @@ S_SREG = RepAppl(d0);
 
       /* Here we are in trouble: we have a clash between pt1 and
        * SREG. We address this by storing SREG in d0 for the duration. */
-      derefa_body(d1, pt1, traced_ulvaly_loc_var_unk, traced_ulvaly_loc_var_nonvar);
+      derefa_body(d1, pt1, ulvaly_loc_var_unk, ulvaly_loc_var_nonvar);
       /* both arguments are unbound */
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_Y_LOC_ULVALY_LOC_VAR_UNK);
@@ -4491,21 +4518,21 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_unify_l_y_loc_write, oy);
+      Op(unify_l_y_loc_write, oy);
       /* we are in write mode */
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_Y_LOC_WRITE_INSTINIT);
       BEGD(d0);
       BEGP(pt0);
       pt0 = YREG+PREG->y_u.oy.y;
       d0 = *pt0;
-      profiled_deref_head_TEST(d0, traced_ulunify_y_loc_unk);
-    traced_ulunify_y_loc_nonvar:
+      profiled_deref_head_TEST(d0, ulunify_y_loc_unk);
+    ulunify_y_loc_nonvar:
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_Y_LOC_WRITE_ULUNIFY_Y_LOC_NONVAR);
       SREG[0] = d0;
       PREG = NEXTOP(PREG, oy);
       GONext();
 
-      profiled_derefa_body(d0, pt0, traced_ulunify_y_loc_unk, traced_ulunify_y_loc_nonvar);
+      profiled_derefa_body(d0, pt0, ulunify_y_loc_unk, ulunify_y_loc_nonvar);
       /* d0 is a variable, check whether we need to globalise it */
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_Y_LOC_WRITE_ULUNIFY_Y_LOC_UNK);
       PREG = NEXTOP(PREG, oy);
@@ -4527,7 +4554,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_unify_void, o);
+      Op(unify_void, o);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_VOID_INSTINIT);
       START_PREFETCH(o);
       PREG = NEXTOP(PREG, o);
@@ -4536,7 +4563,7 @@ S_SREG = RepAppl(d0);
       END_PREFETCH();
       ENDOp();
 
-      OpW(traced_unify_void_write, o);
+      OpW(unify_void_write, o);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_VOID_WRITE_INSTINIT);
       CACHE_S();
       READ_IN_S();
@@ -4547,27 +4574,27 @@ S_SREG = RepAppl(d0);
       GONextW();
       ENDOpW();
 
-      Op(traced_unify_l_void, o);
+      Op(unify_l_void, o);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_VOID_INSTINIT);
       PREG = NEXTOP(PREG, o);
       GONext();
       ENDOp();
 
-      Op(traced_unify_l_void_write, o);
+      Op(unify_l_void_write, o);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_VOID_WRITE_INSTINIT);
       PREG = NEXTOP(PREG, o);
       RESET_VARIABLE(SREG);
       GONext();
       ENDOp();
 
-      Op(traced_unify_n_voids, os);
+      Op(unify_n_voids, os);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_N_VOIDS_INSTINIT);
       SREG += PREG->y_u.os.s;
       PREG = NEXTOP(PREG, os);
       GONext();
       ENDOp();
 
-      OpW(traced_unify_n_voids_write, os);
+      OpW(unify_n_voids_write, os);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_N_VOIDS_WRITE_INSTINIT);
       BEGD(d0);
       CACHE_S();
@@ -4584,13 +4611,13 @@ S_SREG = RepAppl(d0);
       GONextW();
       ENDOpW();
 
-      Op(traced_unify_l_n_voids, os);
+      Op(unify_l_n_voids, os);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_N_VOIDS_INSTINIT);
       PREG = NEXTOP(PREG, os);
       GONext();
       ENDOp();
 
-      Op(traced_unify_l_n_voids_write, os);
+      Op(unify_l_n_voids_write, os);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_N_VOIDS_WRITE_INSTINIT);
       BEGD(d0);
       d0 = PREG->y_u.os.s;
@@ -4606,22 +4633,22 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_unify_atom, oc);
+      Op(unify_atom, oc);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_ATOM_INSTINIT);
       BEGD(d0);
       BEGP(pt0);
       pt0 = SREG++;
       d0 = *pt0;
-      profiled_deref_head_TEST(d0, traced_uatom_unk);
-    traced_uatom_nonvar:
+      profiled_deref_head_TEST(d0, uatom_unk);
+    uatom_nonvar:
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(UNIFY_ATOM_UATOM_NONVAR);
       if (d0 != PREG->y_u.oc.c) {
-	TRACED_FAIL();
+	FAIL();
       }
       PREG = NEXTOP(PREG, oc);
       GONext();
 
-      profiled_derefa_body(d0, pt0, traced_uatom_unk, traced_uatom_nonvar);
+      profiled_derefa_body(d0, pt0, uatom_unk, uatom_nonvar);
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_ATOM_UATOM_UNK);
       d0 = PREG->y_u.oc.c;
       PREG = NEXTOP(PREG, oc);
@@ -4631,29 +4658,29 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      OpW(traced_unify_atom_write, oc);
+      OpW(unify_atom_write, oc);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_ATOM_WRITE_INSTINIT);
       * SREG++ = PREG->y_u.oc.c;
       PREG = NEXTOP(PREG, oc);
       GONextW();
       ENDOpW();
 
-      Op(traced_unify_l_atom, oc);
+      Op(unify_l_atom, oc);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_ATOM_INSTINIT);
       BEGD(d0);
       BEGP(pt0);
       pt0 = SREG;
       d0 = *SREG;
-      profiled_deref_head_TEST(d0, traced_ulatom_unk);
-    traced_ulatom_nonvar:
+      profiled_deref_head_TEST(d0, ulatom_unk);
+    ulatom_nonvar:
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(UNIFY_L_ATOM_ULATOM_NONVAR);
       if (d0 != PREG->y_u.oc.c) {
-	TRACED_FAIL();
+	FAIL();
       }
       PREG = NEXTOP(PREG, oc);
       GONext();
 
-      profiled_derefa_body(d0, pt0, traced_ulatom_unk, traced_ulatom_nonvar);
+      profiled_derefa_body(d0, pt0, ulatom_unk, ulatom_nonvar);
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_ATOM_ULATOM_UNK);
       d0 = PREG->y_u.oc.c;
       PREG = NEXTOP(PREG, oc);
@@ -4663,14 +4690,14 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_unify_l_atom_write, oc);
+      Op(unify_l_atom_write, oc);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_ATOM_WRITE_INSTINIT);
       SREG[0] = PREG->y_u.oc.c;
       PREG = NEXTOP(PREG, oc);
       GONext();
       ENDOp();
 
-      Op(traced_unify_n_atoms, osc);
+      Op(unify_n_atoms, osc);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_N_ATOMS_INSTINIT);
       {
 	register Int i = PREG->y_u.osc.s;		/* not enough registers */
@@ -4682,18 +4709,18 @@ S_SREG = RepAppl(d0);
 	  BEGP(pt0);
 	  pt0 = SREG++;
 	  d0 = *pt0;
-	  deref_head(d0, traced_uatom_n_var);
-	traced_uatom_n_nonvar:
+	  deref_head(d0, uatom_n_var);
+	uatom_n_nonvar:
 	  if (d0 != d1) {
-	    TRACED_FAIL();
+	    FAIL();
 	  }
 	  continue;
 
       do {
         (pt0) = (CELL *)(d0);
         (d0) = *(CELL *)(d0);
-        if(!IsVarTerm(d0)) goto traced_uatom_n_nonvar;
-      traced_uatom_n_var:;
+        if(!IsVarTerm(d0)) goto uatom_n_nonvar;
+      uatom_n_var:;
       } while (Unsigned(pt0) != (d0));
 	  Bind_Global(pt0, d1);
 	  continue;
@@ -4706,7 +4733,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      OpW(traced_unify_n_atoms_write, osc);
+      OpW(unify_n_atoms_write, osc);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_N_ATOMS_WRITE_INSTINIT);
       BEGD(d0);
       BEGD(d1);
@@ -4726,7 +4753,7 @@ S_SREG = RepAppl(d0);
       GONextW();
       ENDOpW();
 
-      Op(traced_unify_float, od);
+      Op(unify_float, od);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,UNIFY_FLOAT_INSTINIT);
 ///#endif
@@ -4734,10 +4761,10 @@ S_SREG = RepAppl(d0);
       BEGP(pt0);
       pt0 = SREG++;
       d0 = *pt0;
-      deref_head(d0, traced_ufloat_unk);
-    traced_ufloat_nonvar:
+      deref_head(d0, ufloat_unk);
+    ufloat_nonvar:
       if (!IsApplTerm(d0)) {
-	TRACED_FAIL();
+	FAIL();
       }
       /* look inside term */
 ///#ifdef PROFILED_ABSMI
@@ -4748,7 +4775,7 @@ S_SREG = RepAppl(d0);
       BEGD(d0);
       d0 = *pt0;
       if (d0 != (CELL)FunctorDouble) {
-	TRACED_FAIL();
+	FAIL();
       }
       ENDD(d0);
 ///#ifdef PROFILED_ABSMI
@@ -4763,7 +4790,7 @@ S_SREG = RepAppl(d0);
 	  || pt1[2] != pt0[2]
 #endif
 	  ) {
-	    TRACED_FAIL();
+	    FAIL();
 	  }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_FLOAT_UFLOAT_NONVAR_END);
@@ -4772,7 +4799,7 @@ S_SREG = RepAppl(d0);
       ENDP(pt0);
       GONext();
 
-      derefa_body(d0, pt0, traced_ufloat_unk, traced_ufloat_nonvar);
+      derefa_body(d0, pt0, ufloat_unk, ufloat_nonvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_FLOAT_UFLOAT_UNK);
 ///#endif
@@ -4786,14 +4813,14 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      OpW(traced_unify_float_write, od);
+      OpW(unify_float_write, od);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_FLOAT_WRITE_INSTINIT);
       * SREG++ = AbsAppl(PREG->y_u.od.d);
       PREG = NEXTOP(PREG, od);
       GONextW();
       ENDOpW();
 
-      Op(traced_unify_l_float, od);
+      Op(unify_l_float, od);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_FLOAT_INSTINIT);
 ///#endif
@@ -4801,10 +4828,10 @@ S_SREG = RepAppl(d0);
       CACHE_S();
       READ_IN_S();
       d0 = *S_SREG;
-      deref_head(d0, traced_ulfloat_unk);
-    traced_ulfloat_nonvar:
+      deref_head(d0, ulfloat_unk);
+    ulfloat_nonvar:
       if (!IsApplTerm(d0)) {
-	TRACED_FAIL();
+	FAIL();
       }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_FLOAT_D0ISAPPL);
@@ -4814,7 +4841,7 @@ S_SREG = RepAppl(d0);
       BEGD(d0);
       d0 = *pt0;
       if (d0 != (CELL)FunctorDouble) {
-	TRACED_FAIL();
+	FAIL();
       }
       ENDD(d0);
 ///#ifdef PROFILED_ABSMI
@@ -4829,7 +4856,7 @@ S_SREG = RepAppl(d0);
 	  || pt1[2] != pt0[2]
 #endif
 	  ) {
-	   TRACED_FAIL();
+	   FAIL();
 	  }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_FLOAT_EQUALS);
@@ -4838,7 +4865,7 @@ S_SREG = RepAppl(d0);
       ENDP(pt0);
       GONext();
 
-      derefa_body(d0, S_SREG, traced_ulfloat_unk, traced_ulfloat_nonvar);
+      derefa_body(d0, S_SREG, ulfloat_unk, ulfloat_nonvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_FLOAT_ULFLOAT_UNK);
 ///#endif
@@ -4852,14 +4879,14 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_unify_l_float_write, od);
+      Op(unify_l_float_write, od);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_FLOAT_WRITE_INSTINIT);
       SREG[0] = AbsAppl(PREG->y_u.od.d);
       PREG = NEXTOP(PREG, od);
       GONext();
       ENDOp();
 
-      Op(traced_unify_longint, oi);
+      Op(unify_longint, oi);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,UNIFY_LONGINT_INSTINIT);
 ///#endif
@@ -4867,11 +4894,11 @@ S_SREG = RepAppl(d0);
       BEGP(pt0);
       pt0 = SREG++;
       d0 = *pt0;
-      deref_head(d0, traced_ulongint_unk);
-    traced_ulongint_nonvar:
+      deref_head(d0, ulongint_unk);
+    ulongint_nonvar:
       /* look inside term */
       if (!IsApplTerm(d0)) {
-	TRACED_FAIL();
+	FAIL();
       }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_LONGINT_D0ISAPPL);
@@ -4881,7 +4908,7 @@ S_SREG = RepAppl(d0);
       BEGD(d0);
       d0 = *pt0;
       if (d0 != (CELL)FunctorLongInt) {
-	TRACED_FAIL();
+	FAIL();
       }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_LONGINT_D0ISFUNC);
@@ -4891,7 +4918,7 @@ S_SREG = RepAppl(d0);
       pt1 = PREG->y_u.oi.i;
       PREG = NEXTOP(PREG, oi);
       if (pt1[1] != pt0[1]) {
-		TRACED_FAIL();
+		FAIL();
 	  }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_LONGINT_EQUALS);
@@ -4900,7 +4927,7 @@ S_SREG = RepAppl(d0);
       ENDP(pt0);
       GONext();
 
-      derefa_body(d0, pt0, traced_ulongint_unk, traced_ulongint_nonvar);
+      derefa_body(d0, pt0, ulongint_unk, ulongint_nonvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_LONGINT_ULONGINT_UNK);
 ///#endif
@@ -4914,14 +4941,14 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      OpW(traced_unify_longint_write, oi);
+      OpW(unify_longint_write, oi);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_LONGINT_WRITE_INSTINIT);
       * SREG++ = AbsAppl(PREG->y_u.oi.i);
       PREG = NEXTOP(PREG, oi);
       GONextW();
       ENDOpW();
 
-      Op(traced_unify_l_longint, oi);
+      Op(unify_l_longint, oi);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_LONGINT_INSTINIT);
 ///#endif
@@ -4929,10 +4956,10 @@ S_SREG = RepAppl(d0);
       CACHE_S();
       READ_IN_S();
       d0 = *S_SREG;
-      deref_head(d0, traced_ullongint_unk);
-    traced_ullongint_nonvar:
+      deref_head(d0, ullongint_unk);
+    ullongint_nonvar:
       if (!IsApplTerm(d0)) {
-	TRACED_FAIL();
+	FAIL();
       }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_LONGINT_D0ISAPPL);
@@ -4942,7 +4969,7 @@ S_SREG = RepAppl(d0);
       BEGD(d0);
       d0 = *pt0;
       if (d0 != (CELL)FunctorLongInt) {
-	TRACED_FAIL();
+	FAIL();
       }
       ENDD(d0);
 ///#ifdef PROFILED_ABSMI
@@ -4952,7 +4979,7 @@ S_SREG = RepAppl(d0);
       pt1 = PREG->y_u.oi.i;
       PREG = NEXTOP(PREG, oi);
       if (pt1[1] != pt0[1]) {
-      TRACED_FAIL();
+      FAIL();
 	  }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_LONGINT_EQUALS);
@@ -4961,7 +4988,7 @@ S_SREG = RepAppl(d0);
       ENDP(pt0);
       GONext();
 
-      derefa_body(d0, S_SREG, traced_ullongint_unk, traced_ullongint_nonvar);
+      derefa_body(d0, S_SREG, ullongint_unk, ullongint_nonvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_LONGINT_ULLONGINT_UNK);
 ///#endif
@@ -4975,14 +5002,14 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_unify_l_longint_write, oi);
+      Op(unify_l_longint_write, oi);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_LONGINT_WRITE_INSTINIT);
       SREG[0] = AbsAppl(PREG->y_u.oi.i);
       PREG = NEXTOP(PREG, oi);
       GONext();
       ENDOp();
 
-      Op(traced_unify_bigint, oN);
+      Op(unify_bigint, oN);
 #ifdef USE_GMP
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,UNIFY_BIGINT_INSTINIT);
@@ -4991,11 +5018,11 @@ S_SREG = RepAppl(d0);
       BEGP(pt0);
       pt0 = SREG++;
       d0 = *pt0;
-      deref_head(d0, traced_ubigint_unk);
-    traced_ubigint_nonvar:
+      deref_head(d0, ubigint_unk);
+    ubigint_nonvar:
       /* look inside term */
       if (!IsApplTerm(d0)) {
-	TRACED_FAIL();
+	FAIL();
       }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_BIGINT_D0ISAPPL);
@@ -5006,11 +5033,11 @@ S_SREG = RepAppl(d0);
       d1 = *pt0;
       if (d1 != (CELL)FunctorBigInt)
       {
-	TRACED_FAIL();
+	FAIL();
       }
       ENDD(d1);
       if (Yap_gmp_tcmp_big_big(d0,PREG->y_u.oN.b)) {
-	TRACED_FAIL();
+	FAIL();
 	  }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_BIGINT_D1ISFUNC_GMP);
@@ -5019,7 +5046,7 @@ S_SREG = RepAppl(d0);
       ENDP(pt0);
       GONext();
 
-      derefa_body(d0, pt0, traced_ubigint_unk, traced_ubigint_nonvar);
+      derefa_body(d0, pt0, ubigint_unk, ubigint_nonvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_BIGINT_UBIGINT_UNK);
 ///#endif
@@ -5032,11 +5059,11 @@ S_SREG = RepAppl(d0);
       ENDP(pt0);
       ENDD(d0);
 #else
-      TRACED_FAIL();
+      FAIL();
 #endif
       ENDOp();
 
-      Op(traced_unify_l_bigint, oN);
+      Op(unify_l_bigint, oN);
 #ifdef USE_GMP
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_BIGINT_INSTINIT);
@@ -5045,10 +5072,10 @@ S_SREG = RepAppl(d0);
       CACHE_S();
       READ_IN_S();
       d0 = *S_SREG;
-      deref_head(d0, traced_ulbigint_unk);
-    traced_ulbigint_nonvar:
+      deref_head(d0, ulbigint_unk);
+    ulbigint_nonvar:
       if (!IsApplTerm(d0)) {
-	TRACED_FAIL();
+	FAIL();
       }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_BIGINT_D0ISAPPL);
@@ -5059,11 +5086,11 @@ S_SREG = RepAppl(d0);
       d0 = *pt0;
       if (d0 != (CELL)FunctorBigInt)
       {
-	TRACED_FAIL();
+	FAIL();
       }
       ENDD(d0);
       if (Yap_gmp_tcmp_big_big(d0,PREG->y_u.oN.b)) {
-	TRACED_FAIL();
+	FAIL();
 	  }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_BIGINT_D0ISFUNC_GMP);
@@ -5072,7 +5099,7 @@ S_SREG = RepAppl(d0);
       ENDP(pt0);
       GONext();
 
-      derefa_body(d0, S_SREG, traced_ulbigint_unk, traced_ulbigint_nonvar);
+      derefa_body(d0, S_SREG, ulbigint_unk, ulbigint_nonvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_BIGINT_ULBIGINT_UNK);
 ///#endif
@@ -5085,11 +5112,11 @@ S_SREG = RepAppl(d0);
       ENDCACHE_S();
       ENDD(d0);
 #else
-      TRACED_FAIL();
+      FAIL();
 #endif
       ENDOp();
 
-      Op(traced_unify_dbterm, oD);
+      Op(unify_dbterm, oD);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,UNIFY_DBTERM_INSTINIT);
 ///#endif
@@ -5097,8 +5124,8 @@ S_SREG = RepAppl(d0);
       BEGP(pt0);
       pt0 = SREG++;
       d0 = *pt0;
-      deref_head(d0, traced_udbterm_unk);
-    traced_udbterm_nonvar:
+      deref_head(d0, udbterm_unk);
+    udbterm_nonvar:
 ///#ifdef PROFILED_ABSMI
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(UNIFY_DBTERM_UDBTERM_NONVAR);
 ///#endif
@@ -5106,10 +5133,10 @@ S_SREG = RepAppl(d0);
       /* we have met a preexisting dbterm */
       d1 = PREG->y_u.oD.D;
       PREG = NEXTOP(PREG, oD);
-      traced_UnifyBound(d0,d1);
+      UnifyBound(d0,d1);
       ENDD(d1);
 
-      derefa_body(d0, pt0, traced_udbterm_unk, traced_udbterm_nonvar);
+      derefa_body(d0, pt0, udbterm_unk, udbterm_nonvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_DBTERM_UDBTERM_UNK);
 ///#endif
@@ -5123,7 +5150,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_unify_l_dbterm, oD);
+      Op(unify_l_dbterm, oD);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_DBTERM_INSTINIT);
 ///#endif
@@ -5131,8 +5158,8 @@ S_SREG = RepAppl(d0);
       CACHE_S();
       READ_IN_S();
       d0 = *S_SREG;
-      deref_head(d0, traced_uldbterm_unk);
-    traced_uldbterm_nonvar:
+      deref_head(d0, uldbterm_unk);
+    uldbterm_nonvar:
 ///#ifdef PROFILED_ABSMI
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(UNIFY_L_DBTERM_ULDBTERM_NONVAR);
 ///#endif
@@ -5140,10 +5167,10 @@ S_SREG = RepAppl(d0);
       /* we have met a preexisting dbterm */
       d1 = PREG->y_u.oD.D;
       PREG = NEXTOP(PREG, oD);
-      traced_UnifyBound(d0,d1);
+      UnifyBound(d0,d1);
       ENDD(d1);
 
-      derefa_body(d0, S_SREG, traced_uldbterm_unk, traced_uldbterm_nonvar);
+      derefa_body(d0, S_SREG, uldbterm_unk, uldbterm_nonvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_DBTERM_ULDBTERM_UNK);
 ///#endif
@@ -5157,7 +5184,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      OpRW(traced_unify_list, o);
+      OpRW(unify_list, o);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_LIST_INSTINIT);
       *--SP = Unsigned(SREG + 1);
       *--SP = READ_MODE;
@@ -5165,11 +5192,11 @@ S_SREG = RepAppl(d0);
       BEGP(pt0);
       pt0 = SREG;
       d0 = *pt0;
-      profiled_deref_head_TEST(d0, traced_ulist_unk);
-    traced_ulist_nonvar:
+      profiled_deref_head_TEST(d0, ulist_unk);
+    ulist_nonvar:
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(UNIFY_LIST_READMODE);
       if (!IsPairTerm(d0)) {
-	TRACED_FAIL();
+	FAIL();
       }
       /* we continue in read mode */
       START_PREFETCH(o);
@@ -5178,7 +5205,7 @@ S_SREG = RepAppl(d0);
       GONext();
       END_PREFETCH();
 
-      profiled_derefa_body(d0, pt0, traced_ulist_unk, traced_ulist_nonvar);
+      profiled_derefa_body(d0, pt0, ulist_unk, ulist_nonvar);
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_LIST_WRITEMODE);
       /* we enter write mode */
       START_PREFETCH_W(o);
@@ -5199,7 +5226,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOpRW();
 
-      OpW(traced_unify_list_write, o);
+      OpW(unify_list_write, o);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_LIST_WRITE_INSTINIT);
       PREG = NEXTOP(PREG, o);
       BEGD(d0);
@@ -5218,18 +5245,18 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOpW();
 
-      OpRW(traced_unify_l_list, o);
+      OpRW(unify_l_list, o);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_LIST_INSTINIT);
       BEGD(d0);
       BEGP(pt0);
       pt0 = SREG;
       d0 = *pt0;
-      profiled_deref_head_TEST(d0, traced_ullist_unk);
-    traced_ullist_nonvar:
+      profiled_deref_head_TEST(d0, ullist_unk);
+    ullist_nonvar:
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(UNIFY_L_LIST_READMODE);
       START_PREFETCH(o);
       if (!IsPairTerm(d0)) {
-	TRACED_FAIL();
+	FAIL();
       }
       /* we continue in read mode */
       PREG = NEXTOP(PREG, o);
@@ -5237,7 +5264,7 @@ S_SREG = RepAppl(d0);
       GONext();
       END_PREFETCH();
 
-      profiled_derefa_body(d0, pt0, traced_ullist_unk, traced_ullist_nonvar);
+      profiled_derefa_body(d0, pt0, ullist_unk, ullist_nonvar);
       /* we enter write mode */
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_LIST_WRITEMODE);
       START_PREFETCH_W(o);
@@ -5257,7 +5284,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOpRW();
 
-      OpW(traced_unify_l_list_write, o);
+      OpW(unify_l_list_write, o);
       /* we continue in write mode */
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_LIST_WRITE_INSTINIT);
       BEGD(d0);
@@ -5274,7 +5301,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOpW();
 
-      OpRW(traced_unify_struct, ofa);
+      OpRW(unify_struct, ofa);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_STRUCT_INSTINIT);
       *--SP = Unsigned(SREG + 1);
       *--SP = READ_MODE;
@@ -5283,12 +5310,12 @@ S_SREG = RepAppl(d0);
       pt0 = SREG;
       d0 = *pt0;
       START_PREFETCH(ofa);
-      profiled_deref_head_TEST(d0, traced_ustruct_unk);
-    traced_ustruct_nonvar:
+      profiled_deref_head_TEST(d0, ustruct_unk);
+    ustruct_nonvar:
       /* we are in read mode */
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(UNIFY_STRUCT_READMODE);
       if (!IsApplTerm(d0)) {
-	TRACED_FAIL();
+	FAIL();
       }
       CACHE_S();
       READ_IN_S();
@@ -5297,7 +5324,7 @@ S_SREG = RepAppl(d0);
       /* just check functor */
       d0 = (CELL) (PREG->y_u.ofa.f);
       if (*S_SREG != d0) {
-	TRACED_FAIL();
+	FAIL();
       }
       PREG = NEXTOP(PREG, ofa);
       WRITEBACK_S(S_SREG+1);
@@ -5305,7 +5332,7 @@ S_SREG = RepAppl(d0);
       GONext();
       END_PREFETCH();
 
-      profiled_derefa_body(d0, pt0, traced_ustruct_unk, traced_ustruct_nonvar);
+      profiled_derefa_body(d0, pt0, ustruct_unk, ustruct_nonvar);
       /* Enter Write mode */
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_STRUCT_WRITEMODE);
       START_PREFETCH_W(ofa);
@@ -5334,7 +5361,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOpRW();
 
-      OpW(traced_unify_struct_write, ofa);
+      OpW(unify_struct_write, ofa);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_STRUCT_WRITE_INSTINIT);
       CACHE_S();
       READ_IN_S();
@@ -5355,32 +5382,32 @@ S_SREG = RepAppl(d0);
       GONextW();
       ENDOpW();
 
-      OpRW(traced_unify_l_struc, ofa);
+      OpRW(unify_l_struc, ofa);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_STRUC_INSTINIT);
       BEGD(d0);
       BEGP(pt0);
       pt0 = SREG;
       d0 = *pt0;
-      profiled_deref_head_TEST(d0, traced_ulstruct_unk);
-    traced_ulstruct_nonvar:
+      profiled_deref_head_TEST(d0, ulstruct_unk);
+    ulstruct_nonvar:
       /* we are in read mode */
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(UNIFY_L_STRUC_READMODE);
       START_PREFETCH(ofa);
       if (!IsApplTerm(d0)) {
-	TRACED_FAIL();
+	FAIL();
       }
       /* we continue in read mode */
       SREG = RepAppl(d0);
       /* just check functor */
       d0 = (CELL) (PREG->y_u.ofa.f);
       if (*SREG++ != d0) {
-	TRACED_FAIL();
+	FAIL();
       }
       PREG = NEXTOP(PREG, ofa);
       GONext();
       END_PREFETCH();
 
-      profiled_derefa_body(d0, pt0, traced_ulstruct_unk, traced_ulstruct_nonvar);
+      profiled_derefa_body(d0, pt0, ulstruct_unk, ulstruct_nonvar);
       /* Enter Write mode */
       EMIT_SIMPLE_BLOCK_TEST(UNIFY_L_STRUC_WRITEMODE);
       /* set d1 to be the new structure we are going to create */
@@ -5408,7 +5435,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOpRW();
 
-      OpW(traced_unify_l_struc_write, ofa);
+      OpW(unify_l_struc_write, ofa);
       EMIT_ENTRY_BLOCK(PREG,UNIFY_L_STRUC_WRITE_INSTINIT);
       BEGD(d0);
       d0 = AbsAppl(HR);
@@ -5431,7 +5458,7 @@ S_SREG = RepAppl(d0);
 * Put Instructions							 *
 \************************************************************************/
 
-      Op(traced_put_x_var, xx);
+      Op(put_x_var, xx);
       EMIT_ENTRY_BLOCK(PREG,PUT_X_VAR_INSTINIT);
       BEGP(pt0);
       pt0 = HR;
@@ -5444,7 +5471,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_put_y_var, yx);
+      Op(put_y_var, yx);
       EMIT_ENTRY_BLOCK(PREG,PUT_Y_VAR_INSTINIT);
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yx.y;
@@ -5462,7 +5489,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_put_x_val, xx);
+      Op(put_x_val, xx);
       EMIT_ENTRY_BLOCK(PREG,PUT_X_VAL_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xx.xl);
@@ -5472,7 +5499,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_put_xx_val, xxxx);
+      Op(put_xx_val, xxxx);
       EMIT_ENTRY_BLOCK(PREG,PUT_XX_VAL_INSTINIT);
       BEGD(d0);
       BEGD(d1);
@@ -5486,7 +5513,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_put_y_val, yx);
+      Op(put_y_val, yx);
       EMIT_ENTRY_BLOCK(PREG,PUT_Y_VAL_INSTINIT);
       BEGD(d0);
       d0 = YREG[PREG->y_u.yx.y];
@@ -5501,7 +5528,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_put_y_vals, yyxx);
+      Op(put_y_vals, yyxx);
       EMIT_ENTRY_BLOCK(PREG,PUT_Y_VALS_INSTINIT);
       ALWAYS_START_PREFETCH(yyxx);
       BEGD(d0);
@@ -5519,7 +5546,7 @@ S_SREG = RepAppl(d0);
       d1 = YREG[PREVOP(PREG,yyxx)->y_u.yyxx.y2];
 #ifdef YAPOR_SBA
       if (d1 == 0) /* new variable */
-	XREG(PREVOP(traced_PREG->y_u.yyxx,yyxx).x2) = (CELL)(YREG+PREG->y_u.yyxx.y2);
+	XREG(PREVOP(PREG->y_u.yyxx,yyxx).x2) = (CELL)(YREG+PREG->y_u.yyxx.y2);
       else
 #endif
 	XREG(PREVOP(PREG,yyxx)->y_u.yyxx.x2) = d1;
@@ -5528,20 +5555,20 @@ S_SREG = RepAppl(d0);
       ALWAYS_END_PREFETCH();
       ENDOp();
 
-      Op(traced_put_unsafe, yx);
+      Op(put_unsafe, yx);
     EMIT_ENTRY_BLOCK(PREG,PUT_UNSAFE_INSTINIT);
       BEGD(d0);
       BEGP(pt0);
       pt0 = YREG+PREG->y_u.yx.y;
       d0 = *pt0;
-      profiled_deref_head_TEST(d0, traced_punsafe_unk);
-    traced_punsafe_nonvar:
+      profiled_deref_head_TEST(d0, punsafe_unk);
+    punsafe_nonvar:
     EMIT_SIMPLE_BLOCK_TEST(PUT_UNSAFE_PUNSAFE_NONVAR);
       XREG(PREG->y_u.yx.x) = d0;
       PREG = NEXTOP(PREG, yx);
       GONext();
 
-      profiled_derefa_body(d0, pt0, traced_punsafe_unk, traced_punsafe_nonvar);
+      profiled_derefa_body(d0, pt0, punsafe_unk, punsafe_nonvar);
     EMIT_SIMPLE_BLOCK_TEST(PUT_UNSAFE_PUNSAFE_UNK);
       /* d0 is a variable, check whether we need to globalise it */
       if (pt0 <= HR || pt0 >= YREG) {
@@ -5563,7 +5590,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_put_atom, xc);
+      Op(put_atom, xc);
       EMIT_ENTRY_BLOCK(PREG,PUT_ATOM_INSTINIT);
       BEGD(d0);
       d0 = PREG->y_u.xc.c;
@@ -5573,7 +5600,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_put_dbterm, xD);
+      Op(put_dbterm, xD);
     EMIT_ENTRY_BLOCK(PREG,PUT_DBTERM_INSTINIT);
       BEGD(d0);
       d0 = PREG->y_u.xD.D;
@@ -5583,7 +5610,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_put_bigint, xN);
+      Op(put_bigint, xN);
     EMIT_ENTRY_BLOCK(PREG,PUT_BIGINT_INSTINIT);
       BEGD(d0);
       d0 = PREG->y_u.xN.b;
@@ -5593,7 +5620,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-     Op(traced_put_float, xd);
+     Op(put_float, xd);
     EMIT_ENTRY_BLOCK(PREG,PUT_FLOAT_INSTINIT);
       BEGD(d0);
       d0 = AbsAppl(PREG->y_u.xd.d);
@@ -5603,7 +5630,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_put_longint, xi);
+      Op(put_longint, xi);
     EMIT_ENTRY_BLOCK(PREG,PUT_LONGINT_INSTINIT);
       BEGD(d0);
       d0 = AbsAppl(PREG->y_u.xi.i);
@@ -5613,7 +5640,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_put_list, x);
+      Op(put_list, x);
     EMIT_ENTRY_BLOCK(PREG,PUT_LIST_INSTINIT);
       CACHE_S();
       READ_IN_S();
@@ -5629,7 +5656,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_put_struct, xfa);
+      Op(put_struct, xfa);
     EMIT_ENTRY_BLOCK(PREG,PUT_STRUCT_INSTINIT);
       BEGD(d0);
       d0 = AbsAppl(HR);
@@ -5647,7 +5674,7 @@ S_SREG = RepAppl(d0);
 * 	Write Instructions						*
 \************************************************************************/
 
-      Op(traced_write_x_var, x);
+      Op(write_x_var, x);
     EMIT_ENTRY_BLOCK(PREG,WRITE_X_VAR_INSTINIT);
       XREG(PREG->y_u.x.x) = Unsigned(SREG);
       PREG = NEXTOP(PREG, x);
@@ -5656,7 +5683,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_write_void, e);
+      Op(write_void, e);
     EMIT_ENTRY_BLOCK(PREG,WRITE_VOID_INSTINIT);
       PREG = NEXTOP(PREG, e);
       RESET_VARIABLE(SREG);
@@ -5664,7 +5691,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_write_n_voids, s);
+      Op(write_n_voids, s);
     EMIT_ENTRY_BLOCK(PREG,WRITE_N_VOIDS_INSTINIT);
       BEGD(d0);
       d0 = PREG->y_u.s.s;
@@ -5677,7 +5704,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_write_y_var, y);
+      Op(write_y_var, y);
     EMIT_ENTRY_BLOCK(PREG,WRITE_Y_VAR_INSTINIT);
       INITIALIZE_PERMVAR(YREG+PREG->y_u.y.y,Unsigned(SREG));
       PREG = NEXTOP(PREG, y);
@@ -5686,7 +5713,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_write_x_val, x);
+      Op(write_x_val, x);
     EMIT_ENTRY_BLOCK(PREG,WRITE_X_VAL_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.x.x);
@@ -5696,19 +5723,19 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_write_x_loc, x);
+      Op(write_x_loc, x);
     EMIT_ENTRY_BLOCK(PREG,WRITE_X_LOC_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.x.x);
       PREG = NEXTOP(PREG, x);
-      profiled_deref_head_TEST(d0, traced_w_x_unk);
-    traced_w_x_bound:
+      profiled_deref_head_TEST(d0, w_x_unk);
+    w_x_bound:
     EMIT_SIMPLE_BLOCK_TEST(WRITE_X_LOC_W_X_BOUND);
       *SREG++ = d0;
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_w_x_unk, traced_w_x_bound);
+      profiled_deref_body(d0, pt0, w_x_unk, w_x_bound);
     EMIT_SIMPLE_BLOCK_TEST(WRITE_X_LOC_W_X_UNK);
 #if defined(YAPOR_SBA) && defined(FROZEN_STACKS)
       if (pt0 > HR && pt0<(CELL *)B_FZ) {
@@ -5734,7 +5761,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_write_y_val, y);
+      Op(write_y_val, y);
     EMIT_ENTRY_BLOCK(PREG,WRITE_Y_VAL_INSTINIT);
       BEGD(d0);
       d0 = YREG[PREG->y_u.y.y];
@@ -5749,20 +5776,20 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_write_y_loc, y);
+      Op(write_y_loc, y);
     EMIT_ENTRY_BLOCK(PREG,WRITE_Y_LOC_INSTINIT);
       BEGD(d0);
       BEGP(pt0);
       pt0 = YREG+PREG->y_u.y.y;
       d0 = *pt0;
-      profiled_deref_head_TEST(d0, traced_w_y_unk);
-    traced_w_y_bound:
+      profiled_deref_head_TEST(d0, w_y_unk);
+    w_y_bound:
     EMIT_SIMPLE_BLOCK_TEST(WRITE_Y_LOC_W_Y_BOUND);
       PREG = NEXTOP(PREG, y);
       *SREG++ = d0;
       GONext();
 
-      profiled_derefa_body(d0, pt0, traced_w_y_unk, traced_w_y_bound);
+      profiled_derefa_body(d0, pt0, w_y_unk, w_y_bound);
     EMIT_SIMPLE_BLOCK_TEST(WRITE_Y_LOC_W_Y_UNK);
       if (pt0 > HR
 #if defined(YAPOR_SBA) && defined(FROZEN_STACKS)
@@ -5789,7 +5816,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_write_atom, c);
+      Op(write_atom, c);
     EMIT_ENTRY_BLOCK(PREG,WRITE_ATOM_INSTINIT);
       BEGD(d0);
       d0 = PREG->y_u.c.c;
@@ -5799,7 +5826,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_write_bigint, N);
+      Op(write_bigint, N);
     EMIT_ENTRY_BLOCK(PREG,WRITE_BIGINT_INSTINIT);
       BEGD(d0);
       d0 = PREG->y_u.N.b;
@@ -5809,7 +5836,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_write_dbterm, D);
+      Op(write_dbterm, D);
     EMIT_ENTRY_BLOCK(PREG,WRITE_DBTERM_INSTINIT);
       BEGD(d0);
       d0 = PREG->y_u.D.D;
@@ -5819,7 +5846,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_write_float, d);
+      Op(write_float, d);
     EMIT_ENTRY_BLOCK(PREG,WRITE_FLOAT_INSTINIT);
       BEGD(d0);
       d0 = AbsAppl(PREG->y_u.d.d);
@@ -5829,7 +5856,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_write_longint, i);
+      Op(write_longint, i);
     EMIT_ENTRY_BLOCK(PREG,WRITE_LONGIT_INSTINIT);
       BEGD(d0);
       d0 = AbsAppl(PREG->y_u.i.i);
@@ -5839,7 +5866,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_write_n_atoms, sc);
+      Op(write_n_atoms, sc);
     EMIT_ENTRY_BLOCK(PREG,WRITE_N_ATOMS_INSTINIT);
       BEGD(d0);
       BEGD(d1);
@@ -5854,7 +5881,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_write_list, e);
+      Op(write_list, e);
     EMIT_ENTRY_BLOCK(PREG,WRITE_LIST_INSTINIT);
       BEGD(d0);
       d0 = AbsPair(HR);
@@ -5870,7 +5897,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_write_l_list, e);
+      Op(write_l_list, e);
     EMIT_ENTRY_BLOCK(PREG,WRITE_L_LIST_INSTINIT);
       ALWAYS_START_PREFETCH(e);
       PREG = NEXTOP(PREG, e);
@@ -5887,7 +5914,7 @@ S_SREG = RepAppl(d0);
       ALWAYS_END_PREFETCH();
       ENDOp();
 
-      Op(traced_write_struct, fa);
+      Op(write_struct, fa);
     EMIT_ENTRY_BLOCK(PREG,WRITE_STRUCT_INSTINIT);
       BEGD(d0);
       d0 = AbsAppl(HR);
@@ -5907,7 +5934,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_write_l_struc, fa);
+      Op(write_l_struc, fa);
     EMIT_ENTRY_BLOCK(PREG,WRITE_L_STRUC_INSTINIT);
       BEGD(d0);
       d0 = AbsAppl(HR);
@@ -5932,56 +5959,56 @@ S_SREG = RepAppl(d0);
  * othe instructions.
  */
 
-      Op(traced_save_pair_x, ox);
+      Op(save_pair_x, ox);
     EMIT_ENTRY_BLOCK(PREG,SAVE_PAIR_X_INSTINIT);
       XREG(PREG->y_u.ox.x) = AbsPair(SREG);
       PREG = NEXTOP(PREG, ox);
       GONext();
       ENDOp();
 
-      OpW(traced_save_pair_x_write, ox);
+      OpW(save_pair_x_write, ox);
     EMIT_ENTRY_BLOCK(PREG,SAVE_PAIR_X_WRITE_INSTINIT);
       XREG(PREG->y_u.ox.x) = AbsPair(SREG);
       PREG = NEXTOP(PREG, ox);
       GONextW();
       ENDOpW();
 
-      Op(traced_save_pair_y, oy);
+      Op(save_pair_y, oy);
     EMIT_ENTRY_BLOCK(PREG,SAVE_PAIR_Y_INSTINIT);
       INITIALIZE_PERMVAR(YREG+PREG->y_u.oy.y,AbsPair(SREG));
       PREG = NEXTOP(PREG, oy);
       GONext();
       ENDOp();
 
-      OpW(traced_save_pair_y_write, oy);
+      OpW(save_pair_y_write, oy);
     EMIT_ENTRY_BLOCK(PREG,SAVE_PAIR_Y_WRITE_INSTINIT);
       INITIALIZE_PERMVAR(YREG+PREG->y_u.oy.y,AbsPair(SREG));
       PREG = NEXTOP(PREG, oy);
       GONextW();
       ENDOpW();
 
-      Op(traced_save_appl_x, ox);
+      Op(save_appl_x, ox);
     EMIT_ENTRY_BLOCK(PREG,SAVE_APPL_X_INSTINIT);
       XREG(PREG->y_u.ox.x) = AbsAppl(SREG - 1);
       PREG = NEXTOP(PREG, ox);
       GONext();
       ENDOp();
 
-      OpW(traced_save_appl_x_write, ox);
+      OpW(save_appl_x_write, ox);
     EMIT_ENTRY_BLOCK(PREG,SAVE_APPL_X_WRITE_INSTINIT);
       XREG(PREG->y_u.ox.x) = AbsAppl(SREG - 1);
       PREG = NEXTOP(PREG, ox);
       GONextW();
       ENDOpW();
 
-      Op(traced_save_appl_y, oy);
+      Op(save_appl_y, oy);
     EMIT_ENTRY_BLOCK(PREG,SAVE_APPL_Y_INSTINIT);
       INITIALIZE_PERMVAR(YREG+PREG->y_u.oy.y,AbsAppl(SREG-1));
       PREG = NEXTOP(PREG, oy);
       GONext();
       ENDOp();
 
-      OpW(traced_save_appl_y_write, oy);
+      OpW(save_appl_y_write, oy);
     EMIT_ENTRY_BLOCK(PREG,SAVE_APPL_Y_WRITE_INSTINIT);
       INITIALIZE_PERMVAR(YREG+PREG->y_u.oy.y,AbsAppl(SREG-1));
       PREG = NEXTOP(PREG, oy);
@@ -5993,7 +6020,7 @@ S_SREG = RepAppl(d0);
 *   Instructions for implemeting 'or;'					 *
 \************************************************************************/
 
-      BOp(traced_jump, l);
+      BOp(jump, l);
     EMIT_ENTRY_BLOCK(PREG,JUMP_INSTINIT);
       PREG = PREG->y_u.l.l;
       JMPNext();
@@ -6002,7 +6029,7 @@ S_SREG = RepAppl(d0);
       /* This instruction is called when the previous goal
 	 was interrupted when waking up goals
       */
-      BOp(traced_move_back, l);
+      BOp(move_back, l);
     EMIT_ENTRY_BLOCK(PREG,MOVE_BACK_INSTINIT);
       PREG = (yamop *)(((char *)PREG)-(Int)(NEXTOP((yamop *)NULL,Osbpp)));
       JMPNext();
@@ -6011,13 +6038,13 @@ S_SREG = RepAppl(d0);
       /* This instruction is called when the previous goal
 	 was interrupted when waking up goals
       */
-      BOp(traced_skip, l);
+      BOp(skip, l);
     EMIT_ENTRY_BLOCK(PREG,SKIP_INSTINIT);
       PREG = NEXTOP(PREG,l);
       JMPNext();
       ENDBOp();
 
-      Op(traced_either, Osblp);
+      Op(either, Osblp);
     EMIT_ENTRY_BLOCK(PREG,EITHER_INSTINIT);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
@@ -6069,7 +6096,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_or_else, Osblp);
+      Op(or_else, Osblp);
 ///#ifdef PROFILED_ABSMI
     EMIT_ENTRY_BLOCK(PREG,OR_ELSE_INSTINIT);
 ///#endif
@@ -6104,9 +6131,9 @@ S_SREG = RepAppl(d0);
       ENDOp();
 
 #ifdef YAPOR
-      Op(traced_or_last, Osblp);
+      Op(or_last, Osblp);
 #else
-      Op(traced_or_last, p);
+      Op(or_last, p);
 #endif	/* YAPOR */
     EMIT_ENTRY_BLOCK(PREG,OR_LAST_INSTINIT);
       BEGCHO(pt0);
@@ -6156,7 +6183,7 @@ S_SREG = RepAppl(d0);
 *	Pop operations							 *
 \************************************************************************/
 
-      OpRW(traced_pop_n, s);
+      OpRW(pop_n, s);
       /* write mode might have been called from read mode */
       EMIT_ENTRY_BLOCK(PREG,POP_N_INSTINIT);
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(POP_N_END);
@@ -6185,7 +6212,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOpRW();
 
-      OpRW(traced_pop, e);
+      OpRW(pop, e);
       EMIT_ENTRY_BLOCK(PREG,POP_INSTINIT);
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(POP_END);
       BEGD(d0);
@@ -6211,7 +6238,7 @@ S_SREG = RepAppl(d0);
 *	Call C predicates instructions					 *
 \************************************************************************/
 
-      BOp(traced_call_cpred, Osbpp);
+      BOp(call_cpred, Osbpp);
     EMIT_ENTRY_BLOCK(PREG,CALL_CPRED_INSTINIT);
     EMIT_SIMPLE_BLOCK_TEST(YAAM_CHECK_TRAIL_TR);
       check_trail(TR);
@@ -6262,7 +6289,7 @@ S_SREG = RepAppl(d0);
 #endif
     EMIT_MULTIPLE_DESTINY_BLOCK_TEST(CALL_CPRED_END);
       if (!d0) {
-        TRACED_FAIL();
+        FAIL();
       }
       CACHE_A1();
       ENDD(d0);
@@ -6270,7 +6297,7 @@ S_SREG = RepAppl(d0);
       ENDBOp();
 
       /* execute     Label               */
-      BOp(traced_execute_cpred, pp);
+      BOp(execute_cpred, pp);
     EMIT_ENTRY_BLOCK(PREG,EXECUTE_CPRED_INSTINIT);
     EMIT_SIMPLE_BLOCK_TEST(YAAM_CHECK_TRAIL_TR);
       check_trail(TR);
@@ -6331,7 +6358,7 @@ S_SREG = RepAppl(d0);
     EMIT_SIMPLE_BLOCK_TEST(EXECUTE_CPRED_DEPTH_MINOR);
 	  if (pt0->ModuleOfPred) {
 	    if (DEPTH == MkIntTerm(0)) {
-	      TRACED_FAIL();
+	      FAIL();
 		}
 	    else {
           DEPTH = RESET_DEPTH();
@@ -6361,7 +6388,7 @@ S_SREG = RepAppl(d0);
 	  SREG = Yap_REGS.S_;
 #endif
 	  if (!d0) {
-	    TRACED_FAIL();
+	    FAIL();
 	  }
 	  if (oldPREG == PREG) {
 	    /* we did not update PREG */
@@ -6387,7 +6414,7 @@ S_SREG = RepAppl(d0);
       /* trust the C-function we are calling and hence we must */
       /* guarantee that *all* machine registers are saved and */
       /* restored */
-      BOp(traced_call_usercpred, Osbpp);
+      BOp(call_usercpred, Osbpp);
     EMIT_ENTRY_BLOCK(PREG,CALL_USERCPRED_INSTINIT);
       CACHE_Y_AS_ENV(YREG);
 	  EMIT_SIMPLE_BLOCK_TEST(NoStackCall_Exception);
@@ -6422,7 +6449,7 @@ S_SREG = RepAppl(d0);
 	/* make sure that we can still have access to our old PREG after calling user defined goals and backtracking or failing */
 	yamop *savedP;
 
-	Yap_StartSlots( PASS_REGS1 );
+	Yap_StartSlots( );
 	LOCAL_PrologMode = UserCCallMode;
 	{
 	  PredEntry *p = PREG->y_u.Osbpp.p;
@@ -6446,7 +6473,7 @@ S_SREG = RepAppl(d0);
 	Yap_JumpToEnv(Yap_PopTermFromDB(exp));
       }
       if (!SREG) {
-	TRACED_FAIL();
+	FAIL();
       }
       /* in case we call Execute */
       YENV = ENV;
@@ -6454,7 +6481,7 @@ S_SREG = RepAppl(d0);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_call_c_wfail, slp);
+      BOp(call_c_wfail, slp);
       //printf("call_c_wfail!!\n\n");
 #ifdef LOW_LEVEL_TRACER
 	if (Yap_do_low_level_trace) {
@@ -6503,7 +6530,7 @@ S_SREG = RepAppl(d0);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_try_c, OtapFs);
+      BOp(try_c, OtapFs);
       //printf("try_c!!\n\n");
 #ifdef YAPOR
       CUT_wait_leftmost();
@@ -6523,7 +6550,7 @@ S_SREG = RepAppl(d0);
       SET_BB(B_YREG);
       ENDCACHE_Y();
 
-    traced_TRYCC:
+    TRYCC:
       ASP = (CELL *)B;
       {
 	CPredicate f = (CPredicate)(PREG->y_u.OtapFs.f);
@@ -6545,7 +6572,7 @@ S_SREG = RepAppl(d0);
 	while(POP_CHOICE_POINT(B))
 	  cut_c_pop();
 #endif
-	TRACED_FAIL();
+	FAIL();
       }
       if ((CELL *) B == YREG && ASP != (CELL *) B) {
 	/* as Luis says, the predicate that did the try C might
@@ -6560,7 +6587,7 @@ S_SREG = RepAppl(d0);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_retry_c, OtapFs);
+      BOp(retry_c, OtapFs);
       //printf("retry_c!!\n\n");
 #ifdef YAPOR
       CUT_wait_leftmost();
@@ -6575,10 +6602,10 @@ S_SREG = RepAppl(d0);
       HBREG = HR;
       restore_args(PREG->y_u.OtapFs.s);
       ENDCACHE_Y();
-      goto traced_TRYCC;
+      goto TRYCC;
       ENDBOp();
 
-      BOp(traced_cut_c, OtapFs);
+      BOp(cut_c, OtapFs);
       //printf("cut_c!!\n");
       /*This is a phantom instruction. This is not executed by the WAM*/
 #ifdef DEBUG
@@ -6588,7 +6615,7 @@ S_SREG = RepAppl(d0);
       printf ("ERROR: Should not print this message FILE: absmi.c %d\n",__LINE__);
       ENDBOp();
 
-      BOp(traced_try_userc, OtapFs);
+      BOp(try_userc, OtapFs);
       //printf("try_userc!!\n\n");
 #ifdef YAPOR
       CUT_wait_leftmost();
@@ -6610,7 +6637,7 @@ S_SREG = RepAppl(d0);
       LOCAL_PrologMode = UserCCallMode;
       ASP = YREG;
       /* for slots to work */
-      Yap_StartSlots( PASS_REGS1 );
+      Yap_StartSlots( );
       saveregs();
       save_machine_regs();
       SREG = (CELL *) YAP_ExecuteFirst(PREG->y_u.OtapFs.p, (CPredicate)(PREG->y_u.OtapFs.f));
@@ -6619,7 +6646,7 @@ S_SREG = RepAppl(d0);
       setregs();
       LOCAL_PrologMode = UserMode;
       if (!SREG) {
-	TRACED_FAIL();
+	FAIL();
       }
       if ((CELL *) B == YREG && ASP != (CELL *) B) {
 	/* as Luis says, the predicate that did the try C might
@@ -6634,7 +6661,7 @@ S_SREG = RepAppl(d0);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_retry_userc, OtapFs);
+      BOp(retry_userc, OtapFs);
       //printf("retry_userc!!\n\n");
 #ifdef YAPOR
       CUT_wait_leftmost();
@@ -6667,7 +6694,7 @@ S_SREG = RepAppl(d0);
 	while(POP_CHOICE_POINT(B))
 	  cut_c_pop();
 #endif
-	TRACED_FAIL();
+	FAIL();
       }
       if ((CELL *) B == YREG && ASP != (CELL *) B) {
 	/* as Luis says, the predicate that did the try C might
@@ -6683,7 +6710,7 @@ S_SREG = RepAppl(d0);
       ENDBOp();
 
 #ifdef CUT_C
-      BOp(traced_cut_userc, OtapFs);
+      BOp(cut_userc, OtapFs);
       //printf("cut_userc!!\n");
       /*This is a phantom instruction. This is not executed by the WAM*/
 #ifdef DEBUG
@@ -6701,7 +6728,7 @@ S_SREG = RepAppl(d0);
 *	support instructions             				 *
 \************************************************************************/
 
-      BOp(traced_lock_pred, e);
+      BOp(lock_pred, e);
       {
 ///#ifdef PROFILED_ABSMI
     EMIT_ENTRY_BLOCK(PREG,LOCK_PRED_INSTINIT);
@@ -6714,7 +6741,7 @@ S_SREG = RepAppl(d0);
     EMIT_SIMPLE_BLOCK(LOCK_PRED_FIRSTIFOK);
 ///#endif
 	  UNLOCKPE(11,ap);
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	/*
 	  we do not lock access to the predicate,
@@ -6743,7 +6770,7 @@ S_SREG = RepAppl(d0);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_index_pred, e);
+      BOp(index_pred, e);
       {
         EMIT_ENTRY_BLOCK(PREG,INDEX_PRED_INSTINIT);
 	EMIT_MULTIPLE_DESTINY_BLOCK_TEST(INDEX_PRED_END);
@@ -6788,7 +6815,7 @@ S_SREG = RepAppl(d0);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_thread_local, e);
+      BOp(thread_local, e);
       {
 #if THREADS
     EMIT_ENTRY_BLOCK(PREG,THREAD_LOCAL_INSTINIT);
@@ -6807,7 +6834,7 @@ S_SREG = RepAppl(d0);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_expand_index, e);
+      BOp(expand_index, e);
       {
 	  printf("expand index ainda não perfilado!\n");
 	  exit(1);
@@ -6881,7 +6908,7 @@ S_SREG = RepAppl(d0);
       }
       ENDBOp();
 
-      BOp(traced_expand_clauses, sssllp);
+      BOp(expand_clauses, sssllp);
       {
 ///#ifdef PROFILED_ABSMI
     EMIT_ENTRY_BLOCK(PREG,EXPAND_CLAUSES_INSTINIT);
@@ -6939,7 +6966,7 @@ S_SREG = RepAppl(d0);
       }
       ENDBOp();
 
-      BOp(traced_undef_p, e);
+      BOp(undef_p, e);
       /* save S for module name */
       EMIT_ENTRY_BLOCK(PREG,UNDEF_P_INSTINIT);
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(UNDEF_P_END);
@@ -6953,7 +6980,7 @@ S_SREG = RepAppl(d0);
 	  PP = NULL;
 #endif
 	  UNLOCKPE(19,pe);
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	d0 = pe->ArityOfPE;
 	UNLOCKPE(19,pe);
@@ -6971,8 +6998,8 @@ S_SREG = RepAppl(d0);
 	    BEGP(pt0);
 	    pt0 = pt1++;
 	    d1 = *pt0;
-	    deref_head(d1, traced_undef_unk);
-	  traced_undef_nonvar:
+	    deref_head(d1, undef_unk);
+	  undef_nonvar:
 	    /* just copy it to the heap */
 	    *HR++ = d1;
 	    continue;
@@ -6980,8 +7007,8 @@ S_SREG = RepAppl(d0);
         do {
           (pt0) = (CELL *)(d1);
           (d1) = *(CELL *)(d1);
-          if(!IsVarTerm(d1)) goto traced_undef_nonvar;
-        traced_undef_unk:;
+          if(!IsVarTerm(d1)) goto undef_nonvar;
+        undef_unk:;
         } while (Unsigned(pt0) != (d1));
 		
 	    if (pt0 <= HR) {
@@ -7017,8 +7044,8 @@ S_SREG = RepAppl(d0);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_spy_pred, e);
-    traced_dospy:
+      BOp(spy_pred, e);
+    dospy:
       {
 ///#ifdef PROFILED_ABSMI
     EMIT_ENTRY_BLOCK(PREG,SPY_PRED_INSTINIT);
@@ -7136,8 +7163,8 @@ S_SREG = RepAppl(d0);
 	    BEGP(pt0);
 	    pt0 = pt1++;
 	    d1 = *pt0;
-	    deref_head(d1, traced_dospy_unk);
-	  traced_dospy_nonvar:
+	    deref_head(d1, dospy_unk);
+	  dospy_nonvar:
 	    /* just copy it to the heap */
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(SPY_PRED_D0ISNOZERO_INSIDEFOR_DOSPY_NONVAR);
@@ -7145,7 +7172,7 @@ S_SREG = RepAppl(d0);
 	    *HR++ = d1;
 	    continue;
 
-	    derefa_body(d1, pt0, traced_dospy_unk, traced_dospy_nonvar);
+	    derefa_body(d1, pt0, dospy_unk, dospy_nonvar);
 	    if (pt0 <= HR) {
 	      /* variable is safe */
 ///#ifdef PROFILED_ABSMI
@@ -7221,7 +7248,7 @@ S_SREG = RepAppl(d0);
 * 	Try / Retry / Trust for main indexing blocks			*
 \************************************************************************/
 
-      BOp(traced_try_clause, Otapl);
+      BOp(try_clause, Otapl);
     EMIT_ENTRY_BLOCK(PREG,TRY_CLAUSE_INSTINIT);
       check_trail(TR);
       CACHE_Y(YREG);
@@ -7241,7 +7268,7 @@ S_SREG = RepAppl(d0);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_try_clause2, l);
+      BOp(try_clause2, l);
     EMIT_ENTRY_BLOCK(PREG,TRY_CLAUSE2_INSTINIT);
       check_trail(TR);
       CACHE_Y(YREG);
@@ -7267,7 +7294,7 @@ S_SREG = RepAppl(d0);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_try_clause3, l);
+      BOp(try_clause3, l);
     EMIT_ENTRY_BLOCK(PREG,TRY_CLAUSE3_INSTINIT);
       check_trail(TR);
       CACHE_Y(YREG);
@@ -7291,7 +7318,7 @@ S_SREG = RepAppl(d0);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_try_clause4, l);
+      BOp(try_clause4, l);
     EMIT_ENTRY_BLOCK(PREG,TRY_CLAUSE4_INSTINIT);
       check_trail(TR);
       CACHE_Y(YREG);
@@ -7316,7 +7343,7 @@ S_SREG = RepAppl(d0);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_retry, Otapl);
+      BOp(retry, Otapl);
     EMIT_ENTRY_BLOCK(PREG,RETRY_INSTINIT);
       CACHE_Y(B);
       restore_yaam_regs(NEXTOP(PREG, Otapl));
@@ -7336,7 +7363,7 @@ S_SREG = RepAppl(d0);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_retry2, l);
+      BOp(retry2, l);
     EMIT_ENTRY_BLOCK(PREG,RETRY2_INSTINIT);
       CACHE_Y(B);
       restore_yaam_regs(NEXTOP(PREG, l));
@@ -7357,7 +7384,7 @@ S_SREG = RepAppl(d0);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_retry3, l);
+      BOp(retry3, l);
     EMIT_ENTRY_BLOCK(PREG,RETRY3_INSTINIT);
       CACHE_Y(B);
       restore_yaam_regs(NEXTOP(PREG, l));
@@ -7379,7 +7406,7 @@ S_SREG = RepAppl(d0);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_retry4, l);
+      BOp(retry4, l);
     EMIT_ENTRY_BLOCK(PREG,RETRY4_INSTINIT);
       CACHE_Y(B);
       restore_yaam_regs(NEXTOP(PREG, l));
@@ -7402,7 +7429,7 @@ S_SREG = RepAppl(d0);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_trust, Otapl);
+      BOp(trust, Otapl);
     EMIT_ENTRY_BLOCK(PREG,TRUST_INSTINIT);
       CACHE_Y(B);
 #ifdef YAPOR
@@ -7436,7 +7463,7 @@ S_SREG = RepAppl(d0);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_try_in, l);
+      BOp(try_in, l);
     EMIT_ENTRY_BLOCK(PREG,TRY_IN_INSTINIT);
 	EMIT_MULTIPLE_DESTINY_BLOCK_TEST(TRY_IN_END);
       B->cp_ap = NEXTOP(PREG, l);
@@ -7451,7 +7478,7 @@ S_SREG = RepAppl(d0);
 \************************************************************************/
 
       /* enter logical pred               */
-      BOp(traced_enter_lu_pred, Illss);
+      BOp(enter_lu_pred, Illss);
       check_trail(TR);
       /* mark the indexing code */
       {
@@ -7487,7 +7514,7 @@ S_SREG = RepAppl(d0);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_try_logical, OtaLl);
+      BOp(try_logical, OtaLl);
       check_trail(TR);
       {
 	UInt timestamp;
@@ -7519,7 +7546,7 @@ S_SREG = RepAppl(d0);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_retry_logical, OtaLl);
+      BOp(retry_logical, OtaLl);
       check_trail(TR);
       {
 	UInt timestamp;
@@ -7556,7 +7583,7 @@ S_SREG = RepAppl(d0);
       JMPNext();
       ENDBOp();
 
-      BOp(traced_trust_logical, OtILl);
+      BOp(trust_logical, OtILl);
       CACHE_Y(B);
       {
 	LogUpdIndex *cl = PREG->y_u.OtILl.block;
@@ -7677,7 +7704,7 @@ S_SREG = RepAppl(d0);
 * 	Indexing in ARG1						*
 \************************************************************************/
 
-      BOp(traced_user_switch, lp);
+      BOp(user_switch, lp);
       {
     EMIT_ENTRY_BLOCK(PREG,USER_SWITCH_INSTINIT);
     EMIT_MULTIPLE_DESTINY_BLOCK_TEST(USER_SWITCH_END);
@@ -7691,14 +7718,14 @@ S_SREG = RepAppl(d0);
       }
       ENDBOp();
 
-      BOp(traced_switch_on_type, llll);
+      BOp(switch_on_type, llll);
     EMIT_ENTRY_BLOCK(PREG,SWITCH_ON_TYPE_INSTINIT);
     EMIT_MULTIPLE_DESTINY_BLOCK_TEST(SWITCH_ON_TYPE_END);
       BEGD(d0);
       d0 = CACHED_A1();
-      deref_head(d0, traced_swt_unk);
+      deref_head(d0, swt_unk);
       /* nonvar */
-    traced_swt_nvar:
+    swt_nvar:
       if (IsPairTerm(d0)) {
 	/* pair */
 	SREG = RepPair(d0);
@@ -7723,8 +7750,8 @@ S_SREG = RepAppl(d0);
 
       BEGP(pt0);
       do {
-        if(!IsVarTerm(d0)) goto traced_swt_nvar;
-      traced_swt_unk:
+        if(!IsVarTerm(d0)) goto swt_nvar;
+      swt_unk:
         (pt0) = (CELL *)(d0);
         (d0) = *(CELL *)(d0);
       } while (Unsigned(pt0) != (d0));
@@ -7744,20 +7771,20 @@ S_SREG = RepAppl(d0);
        * a variable;
        *
        */
-      BOp(traced_switch_list_nl, ollll);
+      BOp(switch_list_nl, ollll);
     EMIT_ENTRY_BLOCK(PREG,SWITCH_LIST_NL_INSTINIT);
     EMIT_MULTIPLE_DESTINY_BLOCK_TEST(SWITCH_LIST_NL_END);
       ALWAYS_LOOKAHEAD(PREG->y_u.ollll.pop);
       BEGD(d0);
       d0 = CACHED_A1();
 #if UNIQUE_TAG_FOR_PAIRS
-      deref_list_head(d0, traced_swlnl_unk_p);
-      traced_swlnl_list_p:
+      deref_list_head(d0, swlnl_unk_p);
+      swlnl_list_p:
       {
 #else
-	deref_head(d0, traced_swlnl_unk_p);
+	deref_head(d0, swlnl_unk_p);
 	/* non variable */
-      traced_swlnl_nvar_p:
+      swlnl_nvar_p:
 	if (__builtin_expect(IsPairTerm(d0),1)) {
 	  /* pair */
 #endif
@@ -7767,7 +7794,7 @@ S_SREG = RepAppl(d0);
 	  ALWAYS_GONext();
 	}
 #if UNIQUE_TAG_FOR_PAIRS
-      traced_swlnl_nlist_p:
+      swlnl_nlist_p:
 #endif
 	if (d0 == TermNil) {
 	  /* empty list */
@@ -7791,10 +7818,10 @@ S_SREG = RepAppl(d0);
 
 	BEGP(pt0);
 #if UNIQUE_TAG_FOR_PAIRS
-      traced_swlnl_unk_p:
-	deref_list_body(d0, pt0, traced_swlnl_list_p, traced_swlnl_nlist_p);
+      swlnl_unk_p:
+	deref_list_body(d0, pt0, swlnl_list_p, swlnl_nlist_p);
 #else
-	deref_body(d0, pt0, traced_swlnl_unk_p, traced_swlnl_nvar_p);
+	deref_body(d0, pt0, swlnl_unk_p, swlnl_nvar_p);
 #endif
 	ENDP(pt0);
 	/* variable */
@@ -7805,14 +7832,14 @@ S_SREG = RepAppl(d0);
       }
       ENDBOp();
 
-      BOp(traced_switch_on_arg_type, xllll);
+      BOp(switch_on_arg_type, xllll);
     EMIT_ENTRY_BLOCK(PREG,SWITCH_ON_ARG_TYPE_INSTINIT);
     EMIT_MULTIPLE_DESTINY_BLOCK_TEST(SWITCH_ON_ARG_TYPE_END);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xllll.x);
-      deref_head(d0, traced_arg_swt_unk);
+      deref_head(d0, arg_swt_unk);
       /* nonvar */
-    traced_arg_swt_nvar:
+    arg_swt_nvar:
       if (IsPairTerm(d0)) {
 	/* pair */
 	copy_jmp_address(PREG->y_u.xllll.l1);
@@ -7836,7 +7863,7 @@ S_SREG = RepAppl(d0);
       }
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_arg_swt_unk, traced_arg_swt_nvar);
+      deref_body(d0, pt0, arg_swt_unk, arg_swt_nvar);
       /* variable */
       copy_jmp_address(PREG->y_u.xllll.l4);
       PREG = PREG->y_u.xllll.l4;
@@ -7845,14 +7872,14 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDBOp();
 
-      BOp(traced_switch_on_sub_arg_type, sllll);
+      BOp(switch_on_sub_arg_type, sllll);
     EMIT_ENTRY_BLOCK(PREG,SWITCH_ON_SUB_ARG_TYPE_INSTINIT);
     EMIT_MULTIPLE_DESTINY_BLOCK_TEST(SWITCH_ON_SUB_ARG_TYPE_END);
       BEGD(d0);
       d0 = SREG[PREG->y_u.sllll.s];
-      deref_head(d0, traced_sub_arg_swt_unk);
+      deref_head(d0, sub_arg_swt_unk);
       /* nonvar */
-    traced_sub_arg_swt_nvar:
+    sub_arg_swt_nvar:
       if (IsPairTerm(d0)) {
 	/* pair */
 	copy_jmp_address(PREG->y_u.sllll.l1);
@@ -7877,8 +7904,8 @@ S_SREG = RepAppl(d0);
 
       BEGP(pt0);
       do {
-        if(!IsVarTerm(d0)) goto traced_sub_arg_swt_nvar;
-      traced_sub_arg_swt_unk:
+        if(!IsVarTerm(d0)) goto sub_arg_swt_nvar;
+      sub_arg_swt_unk:
         (pt0) = (CELL *)(d0);
         (d0) = *(CELL *)(d0);
       } while (Unsigned(pt0) != (d0));
@@ -7891,19 +7918,19 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDBOp();
 
-      BOp(traced_jump_if_var, l);
+      BOp(jump_if_var, l);
     EMIT_ENTRY_BLOCK(PREG,JUMP_IF_VAR_INSTINIT);
     EMIT_MULTIPLE_DESTINY_BLOCK_TEST(JUMP_IF_VAR_END);
       BEGD(d0);
       d0 = CACHED_A1();
-      deref_head(d0, traced_jump_if_unk);
+      deref_head(d0, jump_if_unk);
       /* non var */
-    traced_jump0_if_nonvar:
+    jump0_if_nonvar:
       PREG = NEXTOP(PREG, l);
       JMPNext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_jump_if_unk, traced_jump0_if_nonvar);
+      deref_body(d0, pt0, jump_if_unk, jump0_if_nonvar);
       /* variable */
       copy_jmp_address(PREG->y_u.l.l);
       PREG = PREG->y_u.l.l;
@@ -7912,22 +7939,22 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDBOp();
 
-      BOp(traced_jump_if_nonvar, xll);
+      BOp(jump_if_nonvar, xll);
     EMIT_ENTRY_BLOCK(PREG,JUMP_IF_NONVAR_INSTINIT);
     EMIT_MULTIPLE_DESTINY_BLOCK_TEST(JUMP_IF_NONVAR_END);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xll.x);
-      deref_head(d0, traced_jump2_if_unk);
+      deref_head(d0, jump2_if_unk);
       /* non var */
-    traced_jump2_if_nonvar:
+    jump2_if_nonvar:
       copy_jmp_address(PREG->y_u.xll.l1);
       PREG = PREG->y_u.xll.l1;
       JMPNext();
 
       BEGP(pt0);
       do {
-        if(!IsVarTerm(d0)) goto traced_jump2_if_nonvar;
-      traced_jump2_if_unk:
+        if(!IsVarTerm(d0)) goto jump2_if_nonvar;
+      jump2_if_unk:
         (pt0) = (CELL *)(d0);
         (d0) = *(CELL *)(d0);
       } while (Unsigned(pt0) != (d0));
@@ -7939,13 +7966,13 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDBOp();
 
-      BOp(traced_if_not_then, clll);
+      BOp(if_not_then, clll);
     EMIT_ENTRY_BLOCK(PREG,IF_NOT_THEN_INSTINIT);
     EMIT_MULTIPLE_DESTINY_BLOCK_TEST(IF_NOT_THEN_END);
       BEGD(d0);
       d0 = CACHED_A1();
-      deref_head(d0, traced_if_n_unk);
-    traced_if_n_nvar:
+      deref_head(d0, if_n_unk);
+    if_n_nvar:
       /* not variable */
       if (d0 == PREG->y_u.clll.c) {
 	/* equal to test value */
@@ -7963,8 +7990,8 @@ S_SREG = RepAppl(d0);
 
       BEGP(pt0);
       do {
-        if(!IsVarTerm(d0)) goto traced_if_n_nvar;
-      traced_if_n_unk:
+        if(!IsVarTerm(d0)) goto if_n_nvar;
+      if_n_unk:
         (pt0) = (CELL *)(d0);
         (d0) = *(CELL *)(d0);
       } while (Unsigned(pt0) != (d0));
@@ -7983,7 +8010,7 @@ S_SREG = RepAppl(d0);
 
 #define HRASH_SHIFT 6
 
-      BOp(traced_switch_on_func, sssl);
+      BOp(switch_on_func, sssl);
       EMIT_ENTRY_BLOCK(PREG,SWITCH_ON_FUNC_INSTINIT);
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(SWITCH_ON_FUNC_END);
       BEGD(d1);
@@ -8032,7 +8059,7 @@ S_SREG = RepAppl(d0);
       ENDD(d1);
       ENDBOp();
 
-      BOp(traced_switch_on_cons, sssl);
+      BOp(switch_on_cons, sssl);
       EMIT_ENTRY_BLOCK(PREG,SWITCH_ON_CONS_INSTINIT);
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(SWITCH_ON_CONS_END);
       BEGD(d1);
@@ -8081,7 +8108,7 @@ S_SREG = RepAppl(d0);
       ENDD(d1);
       ENDBOp();
 
-      BOp(traced_go_on_func, sssl);
+      BOp(go_on_func, sssl);
     EMIT_ENTRY_BLOCK(PREG,GO_ON_FUNC_INSTINIT);
     EMIT_MULTIPLE_DESTINY_BLOCK_TEST(GO_ON_FUNC_END);
       BEGD(d0);
@@ -8102,7 +8129,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDBOp();
 
-      BOp(traced_go_on_cons, sssl);
+      BOp(go_on_cons, sssl);
     EMIT_ENTRY_BLOCK(PREG,GO_ON_CONS_INSTINIT);
     EMIT_MULTIPLE_DESTINY_BLOCK_TEST(GO_ON_CONS_END);
       BEGD(d0);
@@ -8123,7 +8150,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDBOp();
 
-      BOp(traced_if_func, sssl);
+      BOp(if_func, sssl);
     EMIT_ENTRY_BLOCK(PREG,IF_FUNC_INSTINIT);
     EMIT_MULTIPLE_DESTINY_BLOCK_TEST(IF_FUNC_END);
       BEGD(d1);
@@ -8140,7 +8167,7 @@ S_SREG = RepAppl(d0);
       ENDD(d1);
       ENDBOp();
 
-      BOp(traced_if_cons, sssl);
+      BOp(if_cons, sssl);
     EMIT_ENTRY_BLOCK(PREG,IF_CONS_INSTINIT);
     EMIT_MULTIPLE_DESTINY_BLOCK_TEST(IF_CONS_END);
       BEGD(d1);
@@ -8157,7 +8184,7 @@ S_SREG = RepAppl(d0);
       ENDD(d1);
       ENDBOp();
 
-      Op(traced_index_dbref, e);
+      Op(index_dbref, e);
       EMIT_ENTRY_BLOCK(PREG,INDEX_DBREF_INSTINIT);
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(INDEX_DBREF_END);
       PREG = NEXTOP(PREG, e);
@@ -8165,7 +8192,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_index_blob, e);
+      Op(index_blob, e);
       EMIT_ENTRY_BLOCK(PREG,INDEX_BLOB_INSTINIT);
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(INDEX_BLOB_END);
       PREG = NEXTOP(PREG, e);
@@ -8173,7 +8200,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(traced_index_long, e);
+      Op(index_long, e);
       EMIT_ENTRY_BLOCK(PREG,INDEX_LONG_INSTINIT);
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(INDEX_LONG_END);
       PREG = NEXTOP(PREG, e);
@@ -8188,7 +8215,7 @@ S_SREG = RepAppl(d0);
 \************************************************************************/
 
       /* native_me  */
-      BOp(traced_jit_handler, J);
+      BOp(jit_handler, J);
 	  
 	  /* Needs to recompile */
       if (PREG->y_u.J.jh->jitman.torecomp) {
@@ -8405,12 +8432,12 @@ S_SREG = RepAppl(d0);
 *	Basic Primitive Predicates					 *
 \************************************************************************/
 
-      Op(traced_p_atom_x, xl);
+      Op(p_atom_x, xl);
     EMIT_ENTRY_BLOCK(PREG,P_ATOM_X_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xl.x);
-      profiled_deref_head_TEST(d0, traced_atom_x_unk);
-    traced_atom_x_nvar:
+      profiled_deref_head_TEST(d0, atom_x_unk);
+    atom_x_nvar:
       if (IsAtomTerm(d0) && !IsBlob(AtomOfTerm(d0))) {
         EMIT_SIMPLE_BLOCK_TEST(P_ATOM_X_ATOM);
 	PREG = NEXTOP(PREG, xl);
@@ -8423,7 +8450,7 @@ S_SREG = RepAppl(d0);
       }
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_atom_x_unk, traced_atom_x_nvar);
+      profiled_deref_body(d0, pt0, atom_x_unk, atom_x_nvar);
     EMIT_SIMPLE_BLOCK_TEST(P_ATOM_X_NOATOM);
       PREG = PREG->y_u.xl.F;
       GONext();
@@ -8431,7 +8458,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_atom_y, yl);
+      Op(p_atom_y, yl);
 ///#ifdef PROFILED_ABSMI
     EMIT_ENTRY_BLOCK(PREG,P_ATOM_Y_INSTINIT);
 ///#endif
@@ -8439,8 +8466,8 @@ S_SREG = RepAppl(d0);
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yl.y;
       d0 = *pt0;
-      deref_head(d0, traced_atom_y_unk);
-    traced_atom_y_nvar:
+      deref_head(d0, atom_y_unk);
+    atom_y_nvar:
       if (IsAtomTerm(d0) && !IsBlob(AtomOfTerm(d0))) {
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(P_ATOM_Y_IFOK);
@@ -8456,7 +8483,7 @@ S_SREG = RepAppl(d0);
 	GONext();
       }
 
-      derefa_body(d0, pt0, traced_atom_y_unk, traced_atom_y_nvar);
+      derefa_body(d0, pt0, atom_y_unk, atom_y_nvar);
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(P_ATOM_Y_END);
 //#endif
@@ -8466,14 +8493,14 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_atomic_x, xl);
+      Op(p_atomic_x, xl);
 ///#ifdef PROFILED_ABSMI
     EMIT_ENTRY_BLOCK(PREG,P_ATOMIC_X_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.xl.x);
-      deref_head(d0, traced_atomic_x_unk);
-    traced_atomic_x_nvar:
+      deref_head(d0, atomic_x_unk);
+    atomic_x_nvar:
       /* non variable */
       if (IsAtomicTerm(d0)) {
 ///#ifdef PROFILED_ABSMI
@@ -8491,7 +8518,7 @@ S_SREG = RepAppl(d0);
       }
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_atomic_x_unk, traced_atomic_x_nvar);
+      deref_body(d0, pt0, atomic_x_unk, atomic_x_nvar);
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(P_ATOMIC_X_END);
 //#endif
@@ -8501,7 +8528,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_atomic_y, yl);
+      Op(p_atomic_y, yl);
 ///#ifdef PROFILED_ABSMI
     EMIT_ENTRY_BLOCK(PREG,P_ATOMIC_Y_INSTINIT);
 ///#endif
@@ -8509,8 +8536,8 @@ S_SREG = RepAppl(d0);
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yl.y;
       d0 = *pt0;
-      deref_head(d0, traced_atomic_y_unk);
-    traced_atomic_y_nvar:
+      deref_head(d0, atomic_y_unk);
+    atomic_y_nvar:
       /* non variable */
       if (IsAtomicTerm(d0)) {
 ///#ifdef PROFILED_ABSMI
@@ -8527,7 +8554,7 @@ S_SREG = RepAppl(d0);
 	GONext();
       }
 
-      derefa_body(d0, pt0, traced_atomic_y_unk, traced_atomic_y_nvar);
+      derefa_body(d0, pt0, atomic_y_unk, atomic_y_nvar);
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(P_ATOMIC_Y_END);
 ///#endif
@@ -8537,12 +8564,12 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_integer_x, xl);
+      Op(p_integer_x, xl);
     EMIT_ENTRY_BLOCK(PREG,P_INTEGER_X_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xl.x);
-      profiled_deref_head_TEST(d0, traced_integer_x_unk);
-    traced_integer_x_nvar:
+      profiled_deref_head_TEST(d0, integer_x_unk);
+    integer_x_nvar:
       /* non variable */
       if (IsIntTerm(d0)) {
     EMIT_CONDITIONAL_SUCCESS("IsIntTerm(d0)");
@@ -8581,7 +8608,7 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_integer_x_unk, traced_integer_x_nvar);
+      profiled_deref_body(d0, pt0, integer_x_unk, integer_x_nvar);
     EMIT_SIMPLE_BLOCK_TEST(P_INTEGER_X_INTEGER_X_UNK);
       PREG = PREG->y_u.xl.F;
       GONext();
@@ -8589,14 +8616,14 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_integer_y, yl);
+      Op(p_integer_y, yl);
     EMIT_ENTRY_BLOCK(PREG,P_INTEGER_Y_INSTINIT);
       BEGD(d0);
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yl.y;
       d0 = *pt0;
-      profiled_deref_head_TEST(d0, traced_integer_y_unk);
-    traced_integer_y_nvar:
+      profiled_deref_head_TEST(d0, integer_y_unk);
+    integer_y_nvar:
       /* non variable */
       if (IsIntTerm(d0)) {
     EMIT_CONDITIONAL_SUCCESS("IsIntTerm(d0)");
@@ -8636,7 +8663,7 @@ S_SREG = RepAppl(d0);
       PREG = PREG->y_u.yl.F;
       GONext();
 
-      profiled_derefa_body(d0, pt0, traced_integer_y_unk, traced_integer_y_nvar);
+      profiled_derefa_body(d0, pt0, integer_y_unk, integer_y_nvar);
     EMIT_SIMPLE_BLOCK(P_INTEGER_Y_INTEGER_Y_UNK);
       PREG = PREG->y_u.yl.F;
       GONext();
@@ -8644,18 +8671,18 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_nonvar_x, xl);
+      Op(p_nonvar_x, xl);
     EMIT_ENTRY_BLOCK(PREG,P_NONVAR_X_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xl.x);
-      profiled_deref_head_TEST(d0, traced_nonvar_x_unk);
-    traced_nonvar_x_nvar:
+      profiled_deref_head_TEST(d0, nonvar_x_unk);
+    nonvar_x_nvar:
     EMIT_SIMPLE_BLOCK_TEST(P_NONVAR_X_NONVAR);
       PREG = NEXTOP(PREG, xl);
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_nonvar_x_unk, traced_nonvar_x_nvar);
+      profiled_deref_body(d0, pt0, nonvar_x_unk, nonvar_x_nvar);
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(P_NONVAR_X_NONONVAR);
       PREG = PREG->y_u.xl.F;
       GONext();
@@ -8663,19 +8690,19 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_nonvar_y, yl);
+      Op(p_nonvar_y, yl);
     EMIT_ENTRY_BLOCK(PREG,P_NONVAR_Y_INSTINIT);
       BEGD(d0);
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yl.y;
       d0 = *pt0;
-      profiled_deref_head_TEST(d0, traced_nonvar_y_unk);
-    traced_nonvar_y_nvar:
+      profiled_deref_head_TEST(d0, nonvar_y_unk);
+    nonvar_y_nvar:
     EMIT_SIMPLE_BLOCK_TEST(P_NONVAR_Y_NONVAR);
       PREG = NEXTOP(PREG, yl);
       GONext();
 
-      profiled_derefa_body(d0, pt0, traced_nonvar_y_unk, traced_nonvar_y_nvar);
+      profiled_derefa_body(d0, pt0, nonvar_y_unk, nonvar_y_nvar);
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(P_NONVAR_Y_NONONVAR);
       PREG = PREG->y_u.yl.F;
       GONext();
@@ -8683,14 +8710,14 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_number_x, xl);
+      Op(p_number_x, xl);
 ///#ifdef PROFILED_ABSMI
     EMIT_ENTRY_BLOCK(PREG,P_NUMBER_X_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.xl.x);
-      deref_head(d0, traced_number_x_unk);
-    traced_number_x_nvar:
+      deref_head(d0, number_x_unk);
+    number_x_nvar:
       /* non variable */
 
       if (IsIntTerm(d0)) {
@@ -8730,7 +8757,7 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_number_x_unk, traced_number_x_nvar);
+      deref_body(d0, pt0, number_x_unk, number_x_nvar);
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(P_NUMBER_X_NUMBER_X_UNK);
 ///#endif
@@ -8740,7 +8767,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_number_y, yl);
+      Op(p_number_y, yl);
 ///#ifdef PROFILED_ABSMI
     EMIT_ENTRY_BLOCK(PREG,P_NUMBER_Y_INSTINIT);
 ///#endif
@@ -8748,8 +8775,8 @@ S_SREG = RepAppl(d0);
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yl.y;
       d0 = *pt0;
-      deref_head(d0, traced_number_y_unk);
-    traced_number_y_nvar:
+      deref_head(d0, number_y_unk);
+    number_y_nvar:
       /* non variable */
       /* non variable */
       if (IsIntTerm(d0)) {
@@ -8788,7 +8815,7 @@ S_SREG = RepAppl(d0);
       PREG = PREG->y_u.xl.F;
       GONext();
 
-      derefa_body(d0, pt0, traced_number_y_unk, traced_number_y_nvar);
+      derefa_body(d0, pt0, number_y_unk, number_y_nvar);
 ///#ifdef PROFILED_ABSMI
 	EMIT_SIMPLE_BLOCK(P_NUMBER_Y_NUMBER_Y_UNK);
 ///#endif
@@ -8798,19 +8825,19 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_var_x, xl);
+      Op(p_var_x, xl);
     EMIT_ENTRY_BLOCK(PREG,P_VAR_X_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xl.x);
-      profiled_deref_head_TEST(d0, traced_var_x_unk);
-    traced_var_x_nvar:
+      profiled_deref_head_TEST(d0, var_x_unk);
+    var_x_nvar:
       /* non variable */
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(P_VAR_X_NONVAR);
       PREG = PREG->y_u.xl.F;
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_var_x_unk, traced_var_x_nvar);
+      profiled_deref_body(d0, pt0, var_x_unk, var_x_nvar);
     EMIT_SIMPLE_BLOCK_TEST(P_VAR_X_VAR);
       PREG = NEXTOP(PREG, xl);
       GONext();
@@ -8818,20 +8845,20 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_var_y, yl);
+      Op(p_var_y, yl);
     EMIT_ENTRY_BLOCK(PREG,P_VAR_Y_INSTINIT);
       BEGD(d0);
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yl.y;
       d0 = *pt0;
-      profiled_deref_head_TEST(d0, traced_var_y_unk);
-    traced_var_y_nvar:
+      profiled_deref_head_TEST(d0, var_y_unk);
+    var_y_nvar:
       /* non variable */
       EMIT_MULTIPLE_DESTINY_BLOCK_TEST(P_VAR_Y_NONVAR);
       PREG = PREG->y_u.yl.F;
       GONext();
 
-      profiled_derefa_body(d0, pt0, traced_var_y_unk, traced_var_y_nvar);
+      profiled_derefa_body(d0, pt0, var_y_unk, var_y_nvar);
     EMIT_SIMPLE_BLOCK_TEST(P_VAR_Y_VAR);
       PREG = NEXTOP(PREG, yl);
       GONext();
@@ -8839,14 +8866,14 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_db_ref_x, xl);
+      Op(p_db_ref_x, xl);
 ///#ifdef PROFILED_ABSMI
     EMIT_ENTRY_BLOCK(PREG,P_DB_REF_X_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.xl.x);
-      deref_head(d0, traced_dbref_x_unk);
-    traced_dbref_x_nvar:
+      deref_head(d0, dbref_x_unk);
+    dbref_x_nvar:
       /* non variable */
       if (IsDBRefTerm(d0)) {
 	/* only allow references to the database, not general references
@@ -8866,7 +8893,7 @@ S_SREG = RepAppl(d0);
       }
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_dbref_x_unk, traced_dbref_x_nvar);
+      deref_body(d0, pt0, dbref_x_unk, dbref_x_nvar);
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(P_DB_REF_X_DBREF_X_UNK);
 ///#endif
@@ -8876,7 +8903,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_db_ref_y, yl);
+      Op(p_db_ref_y, yl);
 ///#ifdef PROFILED_ABSMI
     EMIT_ENTRY_BLOCK(PREG,P_DB_REF_Y_INSTINIT);
 ///#endif
@@ -8884,8 +8911,8 @@ S_SREG = RepAppl(d0);
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yl.y;
       d0 = *pt0;
-      deref_head(d0, traced_dbref_y_unk);
-    traced_dbref_y_nvar:
+      deref_head(d0, dbref_y_unk);
+    dbref_y_nvar:
       /* non variable */
       if (IsDBRefTerm(d0)) {
 	/* only allow references to the database, not general references
@@ -8904,7 +8931,7 @@ S_SREG = RepAppl(d0);
 	GONext();
       }
 
-      derefa_body(d0, pt0, traced_dbref_y_unk, traced_dbref_y_nvar);
+      derefa_body(d0, pt0, dbref_y_unk, dbref_y_nvar);
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(P_DB_REF_Y_DBREF_Y_UNK);
 ///#endif
@@ -8914,14 +8941,14 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_primitive_x, xl);
+      Op(p_primitive_x, xl);
 ///#ifdef PROFILED_ABSMI
     EMIT_ENTRY_BLOCK(PREG,P_PRIMITIVE_X_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.xl.x);
-      deref_head(d0, traced_primi_x_unk);
-    traced_primi_x_nvar:
+      deref_head(d0, primi_x_unk);
+    primi_x_nvar:
       /* non variable */
       if (IsPrimitiveTerm(d0)) {
 ///#ifdef PROFILED_ABSMI
@@ -8939,7 +8966,7 @@ S_SREG = RepAppl(d0);
       }
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_primi_x_unk, traced_primi_x_nvar);
+      deref_body(d0, pt0, primi_x_unk, primi_x_nvar);
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(P_PRIMITIVE_X_PRIMI_X_UNK);
 ///#endif
@@ -8949,7 +8976,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_primitive_y, yl);
+      Op(p_primitive_y, yl);
 ///#ifdef PROFILED_ABSMI
     EMIT_ENTRY_BLOCK(PREG,P_PRIMITIVE_Y_INSTINIT);
 ///#endif
@@ -8957,8 +8984,8 @@ S_SREG = RepAppl(d0);
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yl.y;
       d0 = *pt0;
-      deref_head(d0, traced_primi_y_unk);
-    traced_primi_y_nvar:
+      deref_head(d0, primi_y_unk);
+    primi_y_nvar:
       /* non variable */
       if (IsPrimitiveTerm(d0)) {
 ///#ifdef PROFILED_ABSMI
@@ -8975,7 +9002,7 @@ S_SREG = RepAppl(d0);
 	GONext();
       }
 
-      derefa_body(d0, pt0, traced_primi_y_unk, traced_primi_y_nvar);
+      derefa_body(d0, pt0, primi_y_unk, primi_y_nvar);
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(P_PRIMITIVE_Y_PRIMI_Y_UNK);
 ///#endif
@@ -8985,14 +9012,14 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_compound_x, xl);
+      Op(p_compound_x, xl);
 ///#ifdef PROFILED_ABSMI
     EMIT_ENTRY_BLOCK(PREG,P_COMPOUND_X_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.xl.x);
-      deref_head(d0, traced_compound_x_unk);
-    traced_compound_x_nvar:
+      deref_head(d0, compound_x_unk);
+    compound_x_nvar:
       /* non variable */
       if (IsPairTerm(d0)) {
 ///#ifdef PROFILED_ABSMI
@@ -9024,7 +9051,7 @@ S_SREG = RepAppl(d0);
       }
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_compound_x_unk, traced_compound_x_nvar);
+      deref_body(d0, pt0, compound_x_unk, compound_x_nvar);
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(P_COMPOUND_X_COMPOUND_X_UNK);
 ///#endif
@@ -9034,7 +9061,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_compound_y, yl);
+      Op(p_compound_y, yl);
 ///#ifdef PROFILED_ABSMI
     EMIT_ENTRY_BLOCK(PREG,P_COMPOUND_Y_INSTINIT);
 ///#endif
@@ -9042,8 +9069,8 @@ S_SREG = RepAppl(d0);
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yl.y;
       d0 = *pt0;
-      deref_head(d0, traced_compound_y_unk);
-    traced_compound_y_nvar:
+      deref_head(d0, compound_y_unk);
+    compound_y_nvar:
       /* non variable */
       if (IsPairTerm(d0)) {
 ///#ifdef PROFILED_ABSMI
@@ -9074,7 +9101,7 @@ S_SREG = RepAppl(d0);
 	GONext();
       }
 
-      derefa_body(d0, pt0, traced_compound_y_unk, traced_compound_y_nvar);
+      derefa_body(d0, pt0, compound_y_unk, compound_y_nvar);
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(P_COMPOUND_Y_COMPOUND_Y_UNK);
 ///#endif
@@ -9084,14 +9111,14 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_float_x, xl);
+      Op(p_float_x, xl);
 ///#ifdef PROFILED_ABSMI
     EMIT_ENTRY_BLOCK(PREG,P_FLOAT_X_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.xl.x);
-      deref_head(d0, traced_float_x_unk);
-    traced_float_x_nvar:
+      deref_head(d0, float_x_unk);
+    float_x_nvar:
       /* non variable */
       if (IsFloatTerm(d0)) {
 ///#ifdef PROFILED_ABSMI
@@ -9107,7 +9134,7 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_float_x_unk, traced_float_x_nvar);
+      deref_body(d0, pt0, float_x_unk, float_x_nvar);
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(P_FLOAT_X_FLOAT_X_UNK);
 ///#endif
@@ -9117,7 +9144,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_float_y, yl);
+      Op(p_float_y, yl);
 ///#ifdef PROFILED_ABSMI
     EMIT_ENTRY_BLOCK(PREG,P_FLOAT_Y_INSTINIT);
 ///#endif
@@ -9125,8 +9152,8 @@ S_SREG = RepAppl(d0);
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yl.y;
       d0 = *pt0;
-      deref_head(d0, traced_float_y_unk);
-    traced_float_y_nvar:
+      deref_head(d0, float_y_unk);
+    float_y_nvar:
       /* non variable */
       if (IsFloatTerm(d0)) {
 ///#ifdef PROFILED_ABSMI
@@ -9141,7 +9168,7 @@ S_SREG = RepAppl(d0);
       PREG = PREG->y_u.yl.F;
       GONext();
 
-      derefa_body(d0, pt0, traced_float_y_unk, traced_float_y_nvar);
+      derefa_body(d0, pt0, float_y_unk, float_y_nvar);
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(P_FLOAT_Y_FLOAT_Y_UNK);
 ///#endif
@@ -9151,19 +9178,19 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_plus_vv, xxx);
+      Op(p_plus_vv, xxx);
     EMIT_ENTRY_BLOCK(PREG,P_PLUS_VV_INSTINIT);
       BEGD(d0);
       BEGD(d1);
       d0 = XREG(PREG->y_u.xxx.x1);
       /* first check pt1 */
-      profiled_deref_head_TEST(d0, traced_plus_vv_unk);
-    traced_plus_vv_nvar:
+      profiled_deref_head_TEST(d0, plus_vv_unk);
+    plus_vv_nvar:
     EMIT_SIMPLE_BLOCK_TEST(P_PLUS_VV_PLUS_VV_NVAR);
       d1 = XREG(PREG->y_u.xxx.x2);
       /* next check A2 */
-      profiled_deref_head_TEST(d1, traced_plus_vv_nvar_unk);
-    traced_plus_vv_nvar_nvar:
+      profiled_deref_head_TEST(d1, plus_vv_nvar_unk);
+    plus_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
     EMIT_CONDITIONAL_SUCCESS("IsIntTerm(d0) && IsIntTerm(d1)");
@@ -9180,7 +9207,7 @@ S_SREG = RepAppl(d0);
 	  saveregs();
 	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
-	  TRACED_FAIL();
+	  FAIL();
 	}
       }
       XREG(PREG->y_u.xxx.x) = d0;
@@ -9188,33 +9215,33 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_plus_vv_unk, traced_plus_vv_nvar);
+      profiled_deref_body(d0, pt0, plus_vv_unk, plus_vv_nvar);
     EMIT_SIMPLE_BLOCK_TEST(P_PLUS_VV_PLUS_VV_UNK);
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is _+B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
-      profiled_deref_body(d1, pt0, traced_plus_vv_nvar_unk, traced_plus_vv_nvar_nvar);
+      profiled_deref_body(d1, pt0, plus_vv_nvar_unk, plus_vv_nvar_nvar);
     EMIT_SIMPLE_BLOCK_TEST(P_PLUS_VV_PLUS_VV_NVAR_UNK);
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A+B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d1);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_plus_vc, xxn);
+      Op(p_plus_vc, xxn);
     EMIT_ENTRY_BLOCK(PREG,P_PLUS_VC_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
-      profiled_deref_head_TEST(d0, traced_plus_vc_unk);
-    traced_plus_vc_nvar:
+      profiled_deref_head_TEST(d0, plus_vc_unk);
+    plus_vc_nvar:
       {
 	Int d1 = PREG->y_u.xxn.c;
 	if (IsIntTerm(d0)) {
@@ -9232,7 +9259,7 @@ S_SREG = RepAppl(d0);
 	    saveregs();
 	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
-	    TRACED_FAIL();
+	    FAIL();
 	  }
 	}
       }
@@ -9241,29 +9268,29 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_plus_vc_unk, traced_plus_vc_nvar);
+      profiled_deref_body(d0, pt0, plus_vc_unk, plus_vc_nvar);
     EMIT_SIMPLE_BLOCK_TEST(P_PLUS_VC_PLUS_VC_UNK);
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A + " Int_FORMAT, PREG->y_u.xxn.c);
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_plus_y_vv, yxx);
+      Op(p_plus_y_vv, yxx);
     EMIT_ENTRY_BLOCK(PREG,P_PLUS_Y_VV_INSTINIT);
       BEGD(d0);
       BEGD(d1);
       d0 = XREG(PREG->y_u.yxx.x1);
       /* first check pt1 */
-      profiled_deref_head_TEST(d0, traced_plus_y_vv_unk);
-    traced_plus_y_vv_nvar:
+      profiled_deref_head_TEST(d0, plus_y_vv_unk);
+    plus_y_vv_nvar:
     EMIT_SIMPLE_BLOCK_TEST(P_PLUS_Y_VV_PLUS_Y_VV_NVAR);
       d1 = XREG(PREG->y_u.xxx.x2);
       /* next check A2 */
-      profiled_deref_head_TEST(d1, traced_plus_y_vv_nvar_unk);
-    traced_plus_y_vv_nvar_nvar:
+      profiled_deref_head_TEST(d1, plus_y_vv_nvar_unk);
+    plus_y_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
     EMIT_CONDITIONAL_SUCCESS("IsIntTerm(d0) && IsIntTerm(d1)");
@@ -9280,7 +9307,7 @@ S_SREG = RepAppl(d0);
 	  saveregs();
 	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
-	  TRACED_FAIL();
+	  FAIL();
 	}
       }
       BEGP(pt0);
@@ -9291,34 +9318,34 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_plus_y_vv_unk, traced_plus_y_vv_nvar);
+      profiled_deref_body(d0, pt0, plus_y_vv_unk, plus_y_vv_nvar);
     EMIT_SIMPLE_BLOCK_TEST(P_PLUS_Y_VV_PLUS_Y_VV_UNK);
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A+B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
-      profiled_deref_body(d1, pt0, traced_plus_y_vv_nvar_unk, traced_plus_y_vv_nvar_nvar);
+      profiled_deref_body(d1, pt0, plus_y_vv_nvar_unk, plus_y_vv_nvar_nvar);
     EMIT_SIMPLE_BLOCK_TEST(P_PLUS_Y_VV_PLUS_Y_VV_NVAR_UNK);
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A+B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d1);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_plus_y_vc, yxn);
+      Op(p_plus_y_vc, yxn);
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxn.xi);
       EMIT_ENTRY_BLOCK(PREG,P_PLUS_Y_VC_INSTINIT);
       /* first check pt1 */
-      profiled_deref_head_TEST(d0, traced_plus_y_vc_unk);
+      profiled_deref_head_TEST(d0, plus_y_vc_unk);
 
-    traced_plus_y_vc_nvar:
+    plus_y_vc_nvar:
       {
 	Int d1 = PREG->y_u.yxn.c;
 	if (IsIntTerm(d0)) {
@@ -9336,7 +9363,7 @@ S_SREG = RepAppl(d0);
 	    saveregs();
 	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
-	    TRACED_FAIL();
+	    FAIL();
 	  }
 	}
       }
@@ -9348,29 +9375,29 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_plus_y_vc_unk, traced_plus_y_vc_nvar);
+      profiled_deref_body(d0, pt0, plus_y_vc_unk, plus_y_vc_nvar);
       EMIT_SIMPLE_BLOCK_TEST(P_PLUS_Y_VC_PLUS_Y_VC_UNK);
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A + " Int_FORMAT, PREG->y_u.yxn.c);
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_minus_vv, xxx);
+      Op(p_minus_vv, xxx);
       EMIT_ENTRY_BLOCK(PREG,P_MINUS_VV_INSTINIT);
       BEGD(d0);
       BEGD(d1);
       d0 = XREG(PREG->y_u.xxx.x1);
       /* first check pt1 */
-      profiled_deref_head_TEST(d0, traced_minus_vv_unk);
-    traced_minus_vv_nvar:
+      profiled_deref_head_TEST(d0, minus_vv_unk);
+    minus_vv_nvar:
       EMIT_SIMPLE_BLOCK_TEST(P_MINUS_VV_MINUS_VV_NVAR);
       d1 = XREG(PREG->y_u.xxx.x2);
       /* next check A2 */
-      profiled_deref_head_TEST(d1, traced_minus_vv_nvar_unk);
-    traced_minus_vv_nvar_nvar:
+      profiled_deref_head_TEST(d1, minus_vv_nvar_unk);
+    minus_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
       EMIT_CONDITIONAL_SUCCESS("IsIntTerm(d0) && IsIntTerm(d1)");
@@ -9387,7 +9414,7 @@ S_SREG = RepAppl(d0);
 	  saveregs();
 	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
-	  TRACED_FAIL();
+	  FAIL();
 	}
       }
       XREG(PREG->y_u.xxx.x) = d0;
@@ -9395,33 +9422,33 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_minus_vv_unk, traced_minus_vv_nvar);
+      profiled_deref_body(d0, pt0, minus_vv_unk, minus_vv_nvar);
       EMIT_SIMPLE_BLOCK_TEST(P_MINUS_VV_MINUS_VV_UNK);
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A-B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
-      profiled_deref_body(d1, pt0, traced_minus_vv_nvar_unk, traced_minus_vv_nvar_nvar);
+      profiled_deref_body(d1, pt0, minus_vv_nvar_unk, minus_vv_nvar_nvar);
       EMIT_SIMPLE_BLOCK_TEST(P_MINUS_VV_MINUS_VV_NVAR_UNK);
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A-B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d1);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_minus_cv, xxn);
+      Op(p_minus_cv, xxn);
       EMIT_ENTRY_BLOCK(PREG,P_MINUS_CV_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
-      profiled_deref_head_TEST(d0, traced_minus_cv_unk);
-    traced_minus_cv_nvar:
+      profiled_deref_head_TEST(d0, minus_cv_unk);
+    minus_cv_nvar:
       {
 	Int d1 = PREG->y_u.xxn.c;
 	if (IsIntTerm(d0)) {
@@ -9437,7 +9464,7 @@ S_SREG = RepAppl(d0);
 	    saveregs();
 	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
-	    TRACED_FAIL();
+	    FAIL();
 	  }
 	}
       }
@@ -9446,17 +9473,17 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_minus_cv_unk, traced_minus_cv_nvar);
+      profiled_deref_body(d0, pt0, minus_cv_unk, minus_cv_nvar);
       EMIT_SIMPLE_BLOCK_TEST(P_MINUS_CV_MINUS_CV_UNK);
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "-A", PREG->y_u.xxn.c);
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_minus_y_vv, yxx);
+      Op(p_minus_y_vv, yxx);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_MINUS_Y_VV_INSTINIT);
 ///#endif
@@ -9464,15 +9491,15 @@ S_SREG = RepAppl(d0);
       BEGD(d1);
       d0 = XREG(PREG->y_u.yxx.x1);
       /* first check pt1 */
-      deref_head(d0, traced_minus_y_vv_unk);
-    traced_minus_y_vv_nvar:
+      deref_head(d0, minus_y_vv_unk);
+    minus_y_vv_nvar:
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_MINUS_Y_VV_MINUS_Y_VV_NVAR);
 ///#endif
       d1 = XREG(PREG->y_u.xxx.x2);
       /* next check A2 */
-      deref_head(d1, traced_minus_y_vv_nvar_unk);
-    traced_minus_y_vv_nvar_nvar:
+      deref_head(d1, minus_y_vv_nvar_unk);
+    minus_y_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
 ///#ifdef PROFILED_ABSMI
@@ -9494,7 +9521,7 @@ S_SREG = RepAppl(d0);
 	  saveregs();
 	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
-	  TRACED_FAIL();
+	  FAIL();
 	}
       }
 ///#ifdef PROFILED_ABSMI
@@ -9508,39 +9535,39 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_minus_y_vv_unk, traced_minus_y_vv_nvar);
+      deref_body(d0, pt0, minus_y_vv_unk, minus_y_vv_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_MINUS_Y_VV_MINUS_Y_VV_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A-B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
-      deref_body(d1, pt0, traced_minus_y_vv_nvar_unk, traced_minus_y_vv_nvar_nvar);
+      deref_body(d1, pt0, minus_y_vv_nvar_unk, minus_y_vv_nvar_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_MINUS_Y_VV_MINUS_Y_VV_NVAR_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A-B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d1);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_minus_y_cv, yxn);
+      Op(p_minus_y_cv, yxn);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_MINUS_Y_CV_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxn.xi);
       /* first check pt1 */
-      deref_head(d0, traced_minus_y_cv_unk);
-    traced_minus_y_cv_nvar:
+      deref_head(d0, minus_y_cv_unk);
+    minus_y_cv_nvar:
       {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_MINUS_Y_CV_MINUS_Y_CV_NVAR);
@@ -9566,7 +9593,7 @@ S_SREG = RepAppl(d0);
 	    saveregs();
 	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
-	    TRACED_FAIL();
+	    FAIL();
 	  }
 	}
       }
@@ -9581,31 +9608,31 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_minus_y_cv_unk, traced_minus_y_cv_nvar);
+      deref_body(d0, pt0, minus_y_cv_unk, minus_y_cv_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_MINUS_Y_CV_MINUS_Y_CV_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "-A", PREG->y_u.yxn.c);
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_times_vv, xxx);
+      Op(p_times_vv, xxx);
       EMIT_ENTRY_BLOCK(PREG,P_TIMES_VV_INSTINIT);
       BEGD(d0);
       BEGD(d1);
       d0 = XREG(PREG->y_u.xxx.x1);
       /* first check pt1 */
-      profiled_deref_head_TEST(d0, traced_times_vv_unk);
-    traced_times_vv_nvar:
+      profiled_deref_head_TEST(d0, times_vv_unk);
+    times_vv_nvar:
       EMIT_SIMPLE_BLOCK_TEST(P_TIMES_VV_TIMES_VV_NVAR);
       d1 = XREG(PREG->y_u.xxx.x2);
       /* next check A2 */
-      profiled_deref_head_TEST(d1, traced_times_vv_nvar_unk);
-    traced_times_vv_nvar_nvar:
+      profiled_deref_head_TEST(d1, times_vv_nvar_unk);
+    times_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
       EMIT_CONDITIONAL_SUCCESS("IsIntTerm(d0) && IsIntTerm(d1)");
@@ -9622,7 +9649,7 @@ S_SREG = RepAppl(d0);
 	  saveregs();
 	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
-	  TRACED_FAIL();
+	  FAIL();
 	}
       }
       XREG(PREG->y_u.xxx.x) = d0;
@@ -9630,33 +9657,33 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_times_vv_unk, traced_times_vv_nvar);
+      profiled_deref_body(d0, pt0, times_vv_unk, times_vv_nvar);
       EMIT_SIMPLE_BLOCK_TEST(P_TIMES_VV_TIMES_VV_UNK);
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A*B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
-      profiled_deref_body(d1, pt0, traced_times_vv_nvar_unk, traced_times_vv_nvar_nvar);
+      profiled_deref_body(d1, pt0, times_vv_nvar_unk, times_vv_nvar_nvar);
       EMIT_SIMPLE_BLOCK_TEST(P_TIMES_VV_TIMES_VV_NVAR_UNK);
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A*B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d1);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_times_vc, xxn);
+      Op(p_times_vc, xxn);
       EMIT_ENTRY_BLOCK(PREG,P_TIMES_VC_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
-      profiled_deref_head_TEST(d0, traced_times_vc_unk);
-    traced_times_vc_nvar:
+      profiled_deref_head_TEST(d0, times_vc_unk);
+    times_vc_nvar:
       {
 	Int d1 = PREG->y_u.xxn.c;
 	if (IsIntTerm(d0)) {
@@ -9674,7 +9701,7 @@ S_SREG = RepAppl(d0);
 	    saveregs();
 	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
-	    TRACED_FAIL();
+	    FAIL();
 	  }
 	}
       }
@@ -9683,17 +9710,17 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_times_vc_unk, traced_times_vc_nvar);
+      profiled_deref_body(d0, pt0, times_vc_unk, times_vc_nvar);
       EMIT_SIMPLE_BLOCK_TEST(P_TIMES_VC_TIMES_VC_UNK);
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A* " Int_FORMAT, PREG->y_u.xxn.c);
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_times_y_vv, yxx);
+      Op(p_times_y_vv, yxx);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_TIMES_Y_VV_INSTINIT);
 ///#endif
@@ -9701,15 +9728,15 @@ S_SREG = RepAppl(d0);
       BEGD(d1);
       d0 = XREG(PREG->y_u.yxx.x1);
       /* first check pt1 */
-      deref_head(d0, traced_times_y_vv_unk);
-    traced_times_y_vv_nvar:
+      deref_head(d0, times_y_vv_unk);
+    times_y_vv_nvar:
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_TIMES_Y_VV_TIMES_Y_VV_NVAR);
 ///#endif
       d1 = XREG(PREG->y_u.xxx.x2);
       /* next check A2 */
-      deref_head(d1, traced_times_y_vv_nvar_unk);
-    traced_times_y_vv_nvar_nvar:
+      deref_head(d1, times_y_vv_nvar_unk);
+    times_y_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
 ///#ifdef PROFILED_ABSMI
@@ -9731,7 +9758,7 @@ S_SREG = RepAppl(d0);
 	  saveregs();
 	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
-	  TRACED_FAIL();
+	  FAIL();
 	}
       }
 ///#ifdef PROFILED_ABSMI
@@ -9745,37 +9772,37 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_times_y_vv_unk, traced_times_y_vv_nvar);
+      deref_body(d0, pt0, times_y_vv_unk, times_y_vv_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_TIMES_Y_VV_TIMES_Y_VV_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A*B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
-      deref_body(d1, pt0, traced_times_y_vv_nvar_unk, traced_times_y_vv_nvar_nvar);
+      deref_body(d1, pt0, times_y_vv_nvar_unk, times_y_vv_nvar_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_TIMES_Y_VV_TIMES_Y_VV_NVAR_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A*B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d1);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_times_y_vc, yxn);
+      Op(p_times_y_vc, yxn);
       EMIT_ENTRY_BLOCK(PREG,P_TIMES_Y_VC_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxn.xi);
       /* first check pt1 */
-      profiled_deref_head_TEST(d0, traced_times_y_vc_unk);
-    traced_times_y_vc_nvar:
+      profiled_deref_head_TEST(d0, times_y_vc_unk);
+    times_y_vc_nvar:
       {
 	Int d1 = PREG->y_u.yxn.c;
 	if (IsIntTerm(d0)) {
@@ -9791,7 +9818,7 @@ S_SREG = RepAppl(d0);
 	    saveregs();
 	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
-	    TRACED_FAIL();
+	    FAIL();
 	  }
 	}
       }
@@ -9803,31 +9830,31 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_times_y_vc_unk, traced_times_y_vc_nvar);
+      profiled_deref_body(d0, pt0, times_y_vc_unk, times_y_vc_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK_TEST(P_TIMES_Y_VC_TIMES_Y_VC_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A* " Int_FORMAT, PREG->y_u.yxn.c);
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_div_vv, xxx);
+      Op(p_div_vv, xxx);
       EMIT_ENTRY_BLOCK(PREG,P_DIV_VV_INSTINIT);
       BEGD(d0);
       BEGD(d1);
       d0 = XREG(PREG->y_u.xxx.x1);
       /* first check pt1 */
-      profiled_deref_head_TEST(d0, traced_div_vv_unk);
-    traced_div_vv_nvar:
+      profiled_deref_head_TEST(d0, div_vv_unk);
+    div_vv_nvar:
       EMIT_SIMPLE_BLOCK_TEST(P_DIV_VV_DIV_VV_NVAR);
       d1 = XREG(PREG->y_u.xxx.x2);
       /* next check A2 */
-      profiled_deref_head_TEST(d1, traced_div_vv_nvar_unk);
-    traced_div_vv_nvar_nvar:
+      profiled_deref_head_TEST(d1, div_vv_nvar_unk);
+    div_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
       EMIT_CONDITIONAL_SUCCESS("IsIntTerm(d0) && IsIntTerm(d1)");
@@ -9837,7 +9864,7 @@ S_SREG = RepAppl(d0);
 	  saveregs();
 	  Yap_NilError(EVALUATION_ERROR_ZERO_DIVISOR,"// /2");
 	  setregs();
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	d0 = MkIntTerm(IntOfTerm(d0) / div);
       }
@@ -9851,7 +9878,7 @@ S_SREG = RepAppl(d0);
 	  saveregs();
 	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
-	  TRACED_FAIL();
+	  FAIL();
 	}
       }
       XREG(PREG->y_u.xxx.x) = d0;
@@ -9859,35 +9886,35 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_div_vv_unk, traced_div_vv_nvar);
+      profiled_deref_body(d0, pt0, div_vv_unk, div_vv_nvar);
       EMIT_SIMPLE_BLOCK_TEST(P_DIV_VV_DIV_VV_UNK);
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
-      profiled_deref_body(d1, pt0, traced_div_vv_nvar_unk, traced_div_vv_nvar_nvar);
+      profiled_deref_body(d1, pt0, div_vv_nvar_unk, div_vv_nvar_nvar);
       EMIT_SIMPLE_BLOCK_TEST(P_DIV_VV_DIV_VV_NVAR_UNK);
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d1);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_div_vc, xxn);
+      Op(p_div_vc, xxn);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_DIV_VC_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
-      deref_head(d0, traced_div_vc_unk);
-    traced_div_vc_nvar:
+      deref_head(d0, div_vc_unk);
+    div_vc_nvar:
       {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_DIV_VC_DIV_VC_NVAR);
@@ -9913,7 +9940,7 @@ S_SREG = RepAppl(d0);
 	    saveregs();
 	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
-	    TRACED_FAIL();
+	    FAIL();
 	  }
 	}
       }
@@ -9925,27 +9952,27 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_div_vc_unk, traced_div_vc_nvar);
+      deref_body(d0, pt0, div_vc_unk, div_vc_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_DIV_VC_DIV_VC_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_div_cv, xxn);
+      Op(p_div_cv, xxn);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_DIV_CV_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
-      deref_head(d0, traced_div_cv_unk);
-    traced_div_cv_nvar:
+      deref_head(d0, div_cv_unk);
+    div_cv_nvar:
       {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_DIV_CV_DIV_CV_NVAR);
@@ -9963,7 +9990,7 @@ S_SREG = RepAppl(d0);
 	    saveregs();
 	    Yap_NilError(EVALUATION_ERROR_ZERO_DIVISOR,"// /2");
 	    setregs();
-	    TRACED_FAIL();
+	    FAIL();
 	  }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_DIV_CV_INTTERM_END);
@@ -9983,7 +10010,7 @@ S_SREG = RepAppl(d0);
 	    saveregs();
 	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
-	    TRACED_FAIL();
+	    FAIL();
 	  }
 	}
       }
@@ -9995,19 +10022,19 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_div_cv_unk, traced_div_cv_nvar);
+      deref_body(d0, pt0, div_cv_unk, div_cv_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_DIV_CV_DIV_CV_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "// A", PREG->y_u.xxn.c);
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_div_y_vv, yxx);
+      Op(p_div_y_vv, yxx);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_DIV_Y_VV_INSTINIT);
 ///#endif
@@ -10015,15 +10042,15 @@ S_SREG = RepAppl(d0);
       BEGD(d1);
       d0 = XREG(PREG->y_u.yxx.x1);
       /* first check pt1 */
-      deref_head(d0, traced_div_y_vv_unk);
-    traced_div_y_vv_nvar:
+      deref_head(d0, div_y_vv_unk);
+    div_y_vv_nvar:
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_DIV_Y_VV_DIV_Y_VV_NVAR);
 ///#endif
       d1 = XREG(PREG->y_u.xxx.x2);
       /* next check A2 */
-      deref_head(d1, traced_div_y_vv_nvar_unk);
-    traced_div_y_vv_nvar_nvar:
+      deref_head(d1, div_y_vv_nvar_unk);
+    div_y_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
 ///#ifdef PROFILED_ABSMI
@@ -10037,7 +10064,7 @@ S_SREG = RepAppl(d0);
 	  saveregs();
 	  Yap_NilError(EVALUATION_ERROR_ZERO_DIVISOR,"// /2");
 	  setregs();
-	  TRACED_FAIL();
+	  FAIL();
 	}
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_DIV_Y_VV_INTTERM_END);
@@ -10058,7 +10085,7 @@ S_SREG = RepAppl(d0);
 	  saveregs();
 	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
-	  TRACED_FAIL();
+	  FAIL();
 	}
       }
 ///#ifdef PROFILED_ABSMI
@@ -10072,39 +10099,39 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_div_y_vv_unk, traced_div_y_vv_nvar);
+      deref_body(d0, pt0, div_y_vv_unk, div_y_vv_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_DIV_Y_VV_DIV_Y_VV_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
-      deref_body(d1, pt0, traced_div_y_vv_nvar_unk, traced_div_y_vv_nvar_nvar);
+      deref_body(d1, pt0, div_y_vv_nvar_unk, div_y_vv_nvar_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_DIV_Y_VV_DIV_Y_VV_NVAR_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d1);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_div_y_vc, yxn);
+      Op(p_div_y_vc, yxn);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_DIV_Y_VC_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxn.xi);
       /* first check pt1 */
-      deref_head(d0, traced_div_y_vc_unk);
-    traced_div_y_vc_nvar:
+      deref_head(d0, div_y_vc_unk);
+    div_y_vc_nvar:
       {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_DIV_Y_VC_DIV_Y_VC_NVAR);
@@ -10130,7 +10157,7 @@ S_SREG = RepAppl(d0);
 	    saveregs();
 	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
-	    TRACED_FAIL();
+	    FAIL();
 	  }
 	}
       }
@@ -10145,27 +10172,27 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_div_y_vc_unk, traced_div_y_vc_nvar);
+      deref_body(d0, pt0, div_y_vc_unk, div_y_vc_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_DIV_Y_VC_DIV_Y_VC_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_div_y_cv, yxn);
+      Op(p_div_y_cv, yxn);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_DIV_Y_CV_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxn.xi);
       /* first check pt1 */
-      deref_head(d0, traced_div_y_cv_unk);
-    traced_div_y_cv_nvar:
+      deref_head(d0, div_y_cv_unk);
+    div_y_cv_nvar:
       {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_DIV_Y_CV_DIV_Y_CV_NVAR);
@@ -10183,7 +10210,7 @@ S_SREG = RepAppl(d0);
 	    saveregs();
 	    Yap_NilError(EVALUATION_ERROR_ZERO_DIVISOR,"// /2");
 	    setregs();
-	    TRACED_FAIL();
+	    FAIL();
 	  }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_DIV_Y_CV_INTTERM_END);
@@ -10204,7 +10231,7 @@ S_SREG = RepAppl(d0);
 	    saveregs();
 	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
-	    TRACED_FAIL();
+	    FAIL();
 	  }
 	}
       }
@@ -10219,32 +10246,32 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_div_y_cv_unk, traced_div_y_cv_nvar);
+      deref_body(d0, pt0, div_y_cv_unk, div_y_cv_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_DIV_Y_CV_DIV_Y_CV_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "// A", PREG->y_u.yxn.c);
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
 
-      Op(traced_p_and_vv, xxx);
+      Op(p_and_vv, xxx);
       EMIT_ENTRY_BLOCK(PREG,P_AND_VV_INSTINIT);
       BEGD(d0);
       BEGD(d1);
       d0 = XREG(PREG->y_u.xxx.x1);
       /* first check pt1 */
-      profiled_deref_head_TEST(d0, traced_and_vv_unk);
-    traced_and_vv_nvar:
+      profiled_deref_head_TEST(d0, and_vv_unk);
+    and_vv_nvar:
       EMIT_SIMPLE_BLOCK_TEST(P_AND_VV_AND_VV_NVAR);
       d1 = XREG(PREG->y_u.xxx.x2);
       /* next check A2 */
-      profiled_deref_head_TEST(d1, traced_and_vv_nvar_unk);
-    traced_and_vv_nvar_nvar:
+      profiled_deref_head_TEST(d1, and_vv_nvar_unk);
+    and_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
       EMIT_CONDITIONAL_SUCCESS("IsIntTerm(d0) && IsIntTerm(d1)");
@@ -10261,7 +10288,7 @@ S_SREG = RepAppl(d0);
 	  saveregs();
 	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
-	  TRACED_FAIL();
+	  FAIL();
 	}
       }
       XREG(PREG->y_u.xxx.x) = d0;
@@ -10269,33 +10296,33 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_and_vv_unk, traced_and_vv_nvar);
+      profiled_deref_body(d0, pt0, and_vv_unk, and_vv_nvar);
       EMIT_SIMPLE_BLOCK_TEST(P_AND_VV_AND_VV_UNK);
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A/\\B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
-      profiled_deref_body(d1, pt0, traced_and_vv_nvar_unk, traced_and_vv_nvar_nvar);
+      profiled_deref_body(d1, pt0, and_vv_nvar_unk, and_vv_nvar_nvar);
       EMIT_SIMPLE_BLOCK_TEST(P_AND_VV_AND_VV_NVAR_UNK);
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A/\\B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d1);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_and_vc, xxn);
+      Op(p_and_vc, xxn);
       EMIT_ENTRY_BLOCK(PREG,P_AND_VC_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
-      profiled_deref_head_TEST(d0, traced_and_vc_unk);
-    traced_and_vc_nvar:
+      profiled_deref_head_TEST(d0, and_vc_unk);
+    and_vc_nvar:
       {
 	Int d1 = PREG->y_u.xxn.c;
 	if (IsIntTerm(d0)) {
@@ -10313,7 +10340,7 @@ S_SREG = RepAppl(d0);
 	    saveregs();
 	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
-	    TRACED_FAIL();
+	    FAIL();
 	  }
 	}
       }
@@ -10322,17 +10349,17 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_and_vc_unk, traced_and_vc_nvar);
+      profiled_deref_body(d0, pt0, and_vc_unk, and_vc_nvar);
       EMIT_SIMPLE_BLOCK_TEST(P_AND_VC_AND_VC_UNK);
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A /\\ " Int_FORMAT , PREG->y_u.xxn.c);
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_and_y_vv, yxx);
+      Op(p_and_y_vv, yxx);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_AND_Y_VV_INSTINIT);
 ///#endif
@@ -10340,15 +10367,15 @@ S_SREG = RepAppl(d0);
       BEGD(d1);
       d0 = XREG(PREG->y_u.yxx.x1);
       /* first check pt1 */
-      deref_head(d0, traced_and_y_vv_unk);
-    traced_and_y_vv_nvar:
+      deref_head(d0, and_y_vv_unk);
+    and_y_vv_nvar:
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_AND_Y_VV_AND_Y_VV_NVAR);
 ///#endif
       d1 = XREG(PREG->y_u.xxx.x2);
       /* next check A2 */
-      deref_head(d1, traced_and_y_vv_nvar_unk);
-    traced_and_y_vv_nvar_nvar:
+      deref_head(d1, and_y_vv_nvar_unk);
+    and_y_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
 ///#ifdef PROFILED_ABSMI
@@ -10370,7 +10397,7 @@ S_SREG = RepAppl(d0);
 	  saveregs();
 	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
-	  TRACED_FAIL();
+	  FAIL();
 	}
       }
 ///#ifdef PROFILED_ABSMI
@@ -10384,39 +10411,39 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_and_y_vv_unk, traced_and_y_vv_nvar);
+      deref_body(d0, pt0, and_y_vv_unk, and_y_vv_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_AND_Y_VV_AND_Y_VV_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A/\\B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
-      deref_body(d1, pt0, traced_and_y_vv_nvar_unk, traced_and_y_vv_nvar_nvar);
+      deref_body(d1, pt0, and_y_vv_nvar_unk, and_y_vv_nvar_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_AND_Y_VV_AND_Y_VV_NVAR_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A/\\B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d1);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_and_y_vc, yxn);
+      Op(p_and_y_vc, yxn);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_AND_Y_VC_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxn.xi);
       /* first check pt1 */
-      deref_head(d0, traced_and_y_vc_unk);
-    traced_and_y_vc_nvar:
+      deref_head(d0, and_y_vc_unk);
+    and_y_vc_nvar:
       {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_AND_Y_VC_AND_Y_VC_NVAR);
@@ -10442,7 +10469,7 @@ S_SREG = RepAppl(d0);
 	    saveregs();
 	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
-	    TRACED_FAIL();
+	    FAIL();
 	  }
 	}
       }
@@ -10457,20 +10484,20 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_and_y_vc_unk, traced_and_y_vc_nvar);
+      deref_body(d0, pt0, and_y_vc_unk, and_y_vc_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_AND_Y_VC_AND_Y_VC_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A /\\ " Int_FORMAT , PREG->y_u.yxn.c);
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
 
-      Op(traced_p_or_vv, xxx);
+      Op(p_or_vv, xxx);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_OR_VV_INSTINIT);
 ///#endif
@@ -10478,15 +10505,15 @@ S_SREG = RepAppl(d0);
       BEGD(d1);
       d0 = XREG(PREG->y_u.xxx.x1);
       /* first check pt1 */
-      deref_head(d0, traced_or_vv_unk);
-    traced_or_vv_nvar:
+      deref_head(d0, or_vv_unk);
+    or_vv_nvar:
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_OR_VV_OR_VV_NVAR);
 ///#endif
       d1 = XREG(PREG->y_u.xxx.x2);
       /* next check A2 */
-      deref_head(d1, traced_or_vv_nvar_unk);
-    traced_or_vv_nvar_nvar:
+      deref_head(d1, or_vv_nvar_unk);
+    or_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
 ///#ifdef PROFILED_ABSMI
@@ -10508,7 +10535,7 @@ S_SREG = RepAppl(d0);
 	  saveregs();
 	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
-	  TRACED_FAIL();
+	  FAIL();
 	}
       }
 ///#ifdef PROFILED_ABSMI
@@ -10519,39 +10546,39 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_or_vv_unk, traced_or_vv_nvar);
+      deref_body(d0, pt0, or_vv_unk, or_vv_nvar);
 //#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_OR_VV_OR_VV_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A\\/B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
-      deref_body(d1, pt0, traced_or_vv_nvar_unk, traced_or_vv_nvar_nvar);
+      deref_body(d1, pt0, or_vv_nvar_unk, or_vv_nvar_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_OR_VV_OR_VV_NVAR_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A\\/B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d1);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_or_vc, xxn);
+      Op(p_or_vc, xxn);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_OR_VC_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
-      deref_head(d0, traced_or_vc_unk);
-    traced_or_vc_nvar:
+      deref_head(d0, or_vc_unk);
+    or_vc_nvar:
       {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_OR_VC_OR_VC_NVAR);
@@ -10576,7 +10603,7 @@ S_SREG = RepAppl(d0);
 	    saveregs();
 	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
-	    TRACED_FAIL();
+	    FAIL();
 	  }
 	}
       }
@@ -10588,19 +10615,19 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_or_vc_unk, traced_or_vc_nvar);
+      deref_body(d0, pt0, or_vc_unk, or_vc_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_OR_VC_OR_VC_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A \\/ " Int_FORMAT , PREG->y_u.xxn.c);
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_or_y_vv, yxx);
+      Op(p_or_y_vv, yxx);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_OR_Y_VV_INSTINIT);
 ///#endif
@@ -10608,15 +10635,15 @@ S_SREG = RepAppl(d0);
       BEGD(d1);
       d0 = XREG(PREG->y_u.yxx.x1);
       /* first check pt1 */
-      deref_head(d0, traced_or_y_vv_unk);
-    traced_or_y_vv_nvar:
+      deref_head(d0, or_y_vv_unk);
+    or_y_vv_nvar:
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_OR_Y_VV_OR_Y_VV_NVAR);
 ///#endif
       d1 = XREG(PREG->y_u.xxx.x2);
       /* next check A2 */
-      deref_head(d1, traced_or_y_vv_nvar_unk);
-    traced_or_y_vv_nvar_nvar:
+      deref_head(d1, or_y_vv_nvar_unk);
+    or_y_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
 ///#ifdef PROFILED_ABSMI
@@ -10638,7 +10665,7 @@ S_SREG = RepAppl(d0);
 	  saveregs();
 	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
-	  TRACED_FAIL();
+	  FAIL();
 	}
       }
 ///#ifdef PROFILED_ABSMI
@@ -10652,39 +10679,39 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_or_y_vv_unk, traced_or_y_vv_nvar);
+      deref_body(d0, pt0, or_y_vv_unk, or_y_vv_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_OR_Y_VV_OR_Y_VV_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A\\/B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
-      deref_body(d1, pt0, traced_or_y_vv_nvar_unk, traced_or_y_vv_nvar_nvar);
+      deref_body(d1, pt0, or_y_vv_nvar_unk, or_y_vv_nvar_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_OR_Y_VV_OR_Y_VV_NVAR_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A\\/B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d1);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_or_y_vc, yxn);
+      Op(p_or_y_vc, yxn);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_OR_Y_VC_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxn.xi);
       /* first check pt1 */
-      deref_head(d0, traced_or_y_vc_unk);
-    traced_or_y_vc_nvar:
+      deref_head(d0, or_y_vc_unk);
+    or_y_vc_nvar:
       {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_OR_Y_VC_OR_Y_VC_NVAR);
@@ -10710,7 +10737,7 @@ S_SREG = RepAppl(d0);
 	    saveregs();
 	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
-	    TRACED_FAIL();
+	    FAIL();
 	  }
 	}
       }
@@ -10725,19 +10752,19 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_or_y_vc_unk, traced_or_y_vc_nvar);
+      deref_body(d0, pt0, or_y_vc_unk, or_y_vc_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_OR_Y_VC_OR_Y_VC_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A \\/ " Int_FORMAT , PREG->y_u.yxn.c);
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_sll_vv, xxx);
+      Op(p_sll_vv, xxx);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_SLL_VV_INSTINIT);
 ///#endif
@@ -10745,15 +10772,15 @@ S_SREG = RepAppl(d0);
       BEGD(d1);
       d0 = XREG(PREG->y_u.xxx.x1);
       /* first check pt1 */
-      deref_head(d0, traced_sll_vv_unk);
-    traced_sll_vv_nvar:
+      deref_head(d0, sll_vv_unk);
+    sll_vv_nvar:
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_VV_SLL_VV_NVAR);
 ///#endif
       d1 = XREG(PREG->y_u.xxx.x2);
       /* next check A2 */
-      deref_head(d1, traced_sll_vv_nvar_unk);
-    traced_sll_vv_nvar_nvar:
+      deref_head(d1, sll_vv_nvar_unk);
+    sll_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
 ///#ifdef PROFILED_ABSMI
@@ -10787,7 +10814,7 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_VV_NVAR_END);
@@ -10797,39 +10824,39 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_sll_vv_unk, traced_sll_vv_nvar);
+      deref_body(d0, pt0, sll_vv_unk, sll_vv_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_VV_SLL_VV_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
-      deref_body(d1, pt0, traced_sll_vv_nvar_unk, traced_sll_vv_nvar_nvar);
+      deref_body(d1, pt0, sll_vv_nvar_unk, sll_vv_nvar_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_VV_SLL_VV_NVAR_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d1);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_sll_vc, xxn);
+      Op(p_sll_vc, xxn);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_SLL_VC_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
-      deref_head(d0, traced_sll_vc_unk);
-    traced_sll_vc_nvar:
+      deref_head(d0, sll_vc_unk);
+    sll_vc_nvar:
       {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_VC_SLL_VC_NVAR);
@@ -10857,7 +10884,7 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_VC_NVAR_END);
@@ -10867,25 +10894,25 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_sll_vc_unk, traced_sll_vc_nvar);
+      deref_body(d0, pt0, sll_vc_unk, sll_vc_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_VC_SLL_VC_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_sll_cv, xxn);
+      Op(p_sll_cv, xxn);
       EMIT_ENTRY_BLOCK(PREG,P_SLL_CV_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
-      profiled_deref_head_TEST(d0, traced_sll_cv_unk);
-    traced_sll_cv_nvar:
+      profiled_deref_head_TEST(d0, sll_cv_unk);
+    sll_cv_nvar:
       {
 	Int d1 = PREG->y_u.xxn.c;
 	if (IsIntTerm(d0)) {
@@ -10909,24 +10936,24 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
       XREG(PREG->y_u.xxn.x) = d0;
       PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_sll_cv_unk, traced_sll_cv_nvar);
+      profiled_deref_body(d0, pt0, sll_cv_unk, sll_cv_nvar);
       EMIT_SIMPLE_BLOCK_TEST(P_SLL_CV_SLL_CV_UNK);
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_sll_y_vv, yxx);
+      Op(p_sll_y_vv, yxx);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_SLL_Y_VV_INSTINIT);
 ///#endif
@@ -10934,15 +10961,15 @@ S_SREG = RepAppl(d0);
       BEGD(d1);
       d0 = XREG(PREG->y_u.yxx.x1);
       /* first check pt1 */
-      deref_head(d0, traced_sll_y_vv_unk);
-    traced_sll_y_vv_nvar:
+      deref_head(d0, sll_y_vv_unk);
+    sll_y_vv_nvar:
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_Y_VV_SLL_Y_VV_NVAR);
 ///#endif
       d1 = XREG(PREG->y_u.xxx.x2);
       /* next check A2 */
-      deref_head(d1, traced_sll_y_vv_nvar_unk);
-    traced_sll_y_vv_nvar_nvar:
+      deref_head(d1, sll_y_vv_nvar_unk);
+    sll_y_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
 ///#ifdef PROFILED_ABSMI
@@ -10975,7 +11002,7 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_Y_VV_NVAR_END);
@@ -10988,39 +11015,39 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_sll_y_vv_unk, traced_sll_y_vv_nvar);
+      deref_body(d0, pt0, sll_y_vv_unk, sll_y_vv_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_Y_VV_SLL_Y_VV_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
-      deref_body(d1, pt0, traced_sll_y_vv_nvar_unk, traced_sll_y_vv_nvar_nvar);
+      deref_body(d1, pt0, sll_y_vv_nvar_unk, sll_y_vv_nvar_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_Y_VV_SLL_Y_VV_NVAR_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d1);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_sll_y_vc, yxn);
+      Op(p_sll_y_vc, yxn);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_SLL_Y_VC_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxn.xi);
       /* first check pt1 */
-      deref_head(d0, traced_sll_y_vc_unk);
-    traced_sll_y_vc_nvar:
+      deref_head(d0, sll_y_vc_unk);
+    sll_y_vc_nvar:
       {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_Y_VC_SLL_Y_VC_NVAR);
@@ -11048,7 +11075,7 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_Y_VC_NVAR_END);
@@ -11061,28 +11088,28 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_sll_y_vc_unk, traced_sll_y_vc_nvar);
+      deref_body(d0, pt0, sll_y_vc_unk, sll_y_vc_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_Y_VC_SLL_Y_VC_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
 
-      Op(traced_p_sll_y_cv, yxn);
+      Op(p_sll_y_cv, yxn);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_SLL_Y_CV_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxn.xi);
       /* first check pt1 */
-      deref_head(d0, traced_sll_y_cv_unk);
-    traced_sll_y_cv_nvar:
+      deref_head(d0, sll_y_cv_unk);
+    sll_y_cv_nvar:
       {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_Y_CV_SLL_Y_CV_NVAR);
@@ -11120,7 +11147,7 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_Y_CV_NVAR_END);
@@ -11133,19 +11160,19 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_sll_y_cv_unk, traced_sll_y_cv_nvar);
+      deref_body(d0, pt0, sll_y_cv_unk, sll_y_cv_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_Y_CV_SLL_Y_CV_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_slr_vv, xxx);
+      Op(p_slr_vv, xxx);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_SLR_VV_INSTINIT);
 ///#endif
@@ -11153,15 +11180,15 @@ S_SREG = RepAppl(d0);
       BEGD(d1);
       d0 = XREG(PREG->y_u.xxx.x1);
       /* first check pt1 */
-      deref_head(d0, traced_slr_vv_unk);
-    traced_slr_vv_nvar:
+      deref_head(d0, slr_vv_unk);
+    slr_vv_nvar:
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_VV_SLR_VV_NVAR);
 ///#endif
       d1 = XREG(PREG->y_u.xxx.x2);
       /* next check A2 */
-      deref_head(d1, traced_slr_vv_nvar_unk);
-    traced_slr_vv_nvar_nvar:
+      deref_head(d1, slr_vv_nvar_unk);
+    slr_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
 ///#ifdef PROFILED_ABSMI
@@ -11194,7 +11221,7 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_VV_NVAR_END);
@@ -11204,37 +11231,37 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_slr_vv_unk, traced_slr_vv_nvar);
+      deref_body(d0, pt0, slr_vv_unk, slr_vv_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_VV_SRL_VV_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
-      deref_body(d1, pt0, traced_slr_vv_nvar_unk, traced_slr_vv_nvar_nvar);
+      deref_body(d1, pt0, slr_vv_nvar_unk, slr_vv_nvar_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_VV_SRL_VV_NVAR_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d1);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_slr_vc, xxn);
+      Op(p_slr_vc, xxn);
       EMIT_ENTRY_BLOCK(PREG,P_SLR_VC_INSTINIT);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
-      profiled_deref_head_TEST(d0, traced_slr_vc_unk);
-    traced_slr_vc_nvar:
+      profiled_deref_head_TEST(d0, slr_vc_unk);
+    slr_vc_nvar:
       {
 	Int d1 = PREG->y_u.xxn.c;
 	if (IsIntTerm(d0)) {
@@ -11252,7 +11279,7 @@ S_SREG = RepAppl(d0);
 	    saveregs();
 	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
-	    TRACED_FAIL();
+	    FAIL();
 	  }
 	}
       }
@@ -11261,25 +11288,25 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_slr_vc_unk, traced_slr_vc_nvar);
+      profiled_deref_body(d0, pt0, slr_vc_unk, slr_vc_nvar);
       EMIT_SIMPLE_BLOCK_TEST(P_SLR_VC_SRL_VC_UNK);
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_slr_cv, xxn);
+      Op(p_slr_cv, xxn);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_SLR_CV_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
-      deref_head(d0, traced_slr_cv_unk);
-    traced_slr_cv_nvar:
+      deref_head(d0, slr_cv_unk);
+    slr_cv_nvar:
       {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_CV_SLR_CV_NVAR);
@@ -11317,7 +11344,7 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_CV_NVAR_END);
@@ -11327,19 +11354,19 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_slr_cv_unk, traced_slr_cv_nvar);
+      deref_body(d0, pt0, slr_cv_unk, slr_cv_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_CV_SLR_CV_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_slr_y_vv, yxx);
+      Op(p_slr_y_vv, yxx);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_SLR_Y_VV_INSTINIT);
 ///#endif
@@ -11347,15 +11374,15 @@ S_SREG = RepAppl(d0);
       BEGD(d1);
       d0 = XREG(PREG->y_u.yxx.x1);
       /* first check pt1 */
-      deref_head(d0, traced_slr_y_vv_unk);
-    traced_slr_y_vv_nvar:
+      deref_head(d0, slr_y_vv_unk);
+    slr_y_vv_nvar:
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_Y_VV_SLR_Y_VV_NVAR);
 ///#endif
       d1 = XREG(PREG->y_u.xxx.x2);
       /* next check A2 */
-      deref_head(d1, traced_slr_y_vv_nvar_unk);
-    traced_slr_y_vv_nvar_nvar:
+      deref_head(d1, slr_y_vv_nvar_unk);
+    slr_y_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
 ///#ifdef PROFILED_ABSMI
@@ -11389,7 +11416,7 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_Y_VV_NVAR_END);
@@ -11401,39 +11428,39 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_slr_y_vv_unk, traced_slr_y_vv_nvar);
+      deref_body(d0, pt0, slr_y_vv_unk, slr_y_vv_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_Y_VV_SLR_Y_VV_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
-      deref_body(d1, pt0, traced_slr_y_vv_nvar_unk, traced_slr_y_vv_nvar_nvar);
+      deref_body(d1, pt0, slr_y_vv_nvar_unk, slr_y_vv_nvar_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_Y_VV_SLR_Y_VV_NVAR_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d1);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_slr_y_vc, yxn);
+      Op(p_slr_y_vc, yxn);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_SLR_Y_VC_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxn.xi);
       /* first check pt1 */
-      deref_head(d0, traced_slr_y_vc_unk);
-    traced_slr_y_vc_nvar:
+      deref_head(d0, slr_y_vc_unk);
+    slr_y_vc_nvar:
       {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_Y_VC_SLR_Y_VC_NVAR);
@@ -11459,7 +11486,7 @@ S_SREG = RepAppl(d0);
 	    saveregs();
 	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
-	    TRACED_FAIL();
+	    FAIL();
 	  }
 	}
       }
@@ -11474,7 +11501,7 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_slr_y_vc_unk, traced_slr_y_vc_nvar);
+      deref_body(d0, pt0, slr_y_vc_unk, slr_y_vc_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_Y_VC_SLR_Y_VC_UNK);
 ///#endif
@@ -11485,15 +11512,15 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_slr_y_cv, yxn);
+      Op(p_slr_y_cv, yxn);
 ///#ifdef PROFILED_ABSMI
       EMIT_ENTRY_BLOCK(PREG,P_SLR_Y_CV_INSTINIT);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxn.xi);
       /* first check pt1 */
-      deref_head(d0, traced_slr_y_cv_unk);
-    traced_slr_y_cv_nvar:
+      deref_head(d0, slr_y_cv_unk);
+    slr_y_cv_nvar:
       {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_Y_CV_SLR_Y_CV_NVAR);
@@ -11531,7 +11558,7 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_Y_CV_NVAR_END);
@@ -11544,29 +11571,29 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_slr_y_cv_unk, traced_slr_y_cv_nvar);
+      deref_body(d0, pt0, slr_y_cv_unk, slr_y_cv_nvar);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_Y_CV_SLR_Y_CV_UNK);
 ///#endif
       saveregs();
       Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
       setregs();
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      BOp(traced_call_bfunc_xx, plxxs);
+      BOp(call_bfunc_xx, plxxs);
       EMIT_ENTRY_BLOCK(PREG,CALL_BFUNC_XX_INSTINIT);
       BEGD(d0);
       BEGD(d1);
       d0 = XREG(PREG->y_u.plxxs.x1);
-    traced_call_bfunc_xx_nvar:
+    call_bfunc_xx_nvar:
         EMIT_SIMPLE_BLOCK_TEST(CALL_BFUNC_XX_CALL_BFUNC_XX_NVAR);
       d1 = XREG(PREG->y_u.plxxs.x2);
-    traced_call_bfunc_xx2_nvar:
-      profiled_deref_head_TEST(d0, traced_call_bfunc_xx_unk);
-      profiled_deref_head_TEST(d1, traced_call_bfunc_xx2_unk);
+    call_bfunc_xx2_nvar:
+      profiled_deref_head_TEST(d0, call_bfunc_xx_unk);
+      profiled_deref_head_TEST(d1, call_bfunc_xx2_unk);
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
     EMIT_CONDITIONAL_SUCCESS("IsIntTerm(d0) && IsIntTerm(d1)");
     EMIT_MULTIPLE_DESTINY_BLOCK_TEST(CALL_BFUNC_XX_CALL_BFUNC_XX2_NVAR_INT);
@@ -11623,7 +11650,7 @@ S_SREG = RepAppl(d0);
 	  }
 	}
       }
-    traced_exec_bin_cmp_xx:
+    exec_bin_cmp_xx:
     EMIT_CONDITIONAL_FAIL("IsIntTerm(d0) && IsIntTerm(d1)");
     EMIT_MULTIPLE_DESTINY_BLOCK_TEST(CALL_BFUNC_XX_CALL_BFUNC_XX2_NVAR_NOINT);
       {
@@ -11643,22 +11670,22 @@ S_SREG = RepAppl(d0);
       JMPNext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_call_bfunc_xx_unk, traced_call_bfunc_xx_nvar);
+      profiled_deref_body(d0, pt0, call_bfunc_xx_unk, call_bfunc_xx_nvar);
         EMIT_SIMPLE_BLOCK_TEST(CALL_BFUNC_XX_CALL_BFUNC_XX_UNK);
       d1 = Deref(d1);
-      goto traced_exec_bin_cmp_xx;
+      goto exec_bin_cmp_xx;
       ENDP(pt0);
 
       BEGP(pt0);
-      profiled_deref_body(d1, pt0, traced_call_bfunc_xx2_unk, traced_call_bfunc_xx2_nvar);
-      goto traced_exec_bin_cmp_xx;
+      profiled_deref_body(d1, pt0, call_bfunc_xx2_unk, call_bfunc_xx2_nvar);
+      goto exec_bin_cmp_xx;
       ENDP(pt0);
 
       ENDD(d1);
       ENDD(d0);
       ENDBOp();
 
-      BOp(traced_call_bfunc_yx, plxys);
+      BOp(call_bfunc_yx, plxys);
         EMIT_ENTRY_BLOCK(PREG,CALL_BFUNC_YX_INSTINIT);
       BEGD(d0);
       BEGD(d1);
@@ -11667,10 +11694,10 @@ S_SREG = RepAppl(d0);
       d1 = XREG(PREG->y_u.plxys.x);
       d0 = *pt0;
       ENDP(pt0);
-      profiled_deref_head_TEST(d0, traced_call_bfunc_yx_unk);
-    traced_call_bfunc_yx_nvar:
-      profiled_deref_head_TEST(d1, traced_call_bfunc_yx2_unk);
-    traced_call_bfunc_yx2_nvar:
+      profiled_deref_head_TEST(d0, call_bfunc_yx_unk);
+    call_bfunc_yx_nvar:
+      profiled_deref_head_TEST(d1, call_bfunc_yx2_unk);
+    call_bfunc_yx2_nvar:
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
         EMIT_CONDITIONAL_SUCCESS("IsIntTerm(d0) && IsIntTerm(d1)");
         EMIT_MULTIPLE_DESTINY_BLOCK_TEST(CALL_BFUNC_YX_CALL_BFUNC_YX2_NVAR_INT);
@@ -11704,7 +11731,7 @@ S_SREG = RepAppl(d0);
 	  }
 	}
       }
-    traced_exec_bin_cmp_yx:
+    exec_bin_cmp_yx:
         EMIT_CONDITIONAL_FAIL("IsIntTerm(d0) && IsIntTerm(d1)");
         EMIT_MULTIPLE_DESTINY_BLOCK_TEST(CALL_BFUNC_YX_CALL_BFUNC_YX2_NVAR_NOINT);
       {
@@ -11723,22 +11750,22 @@ S_SREG = RepAppl(d0);
       JMPNext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_call_bfunc_yx_unk, traced_call_bfunc_yx_nvar);
+      profiled_deref_body(d0, pt0, call_bfunc_yx_unk, call_bfunc_yx_nvar);
         EMIT_SIMPLE_BLOCK_TEST(CALL_BFUNC_YX_CALL_BFUNC_YX_UNK);
       d1 = Deref(d1);
-      goto traced_exec_bin_cmp_yx;
+      goto exec_bin_cmp_yx;
       ENDP(pt0);
 
       BEGP(pt0);
-      profiled_deref_body(d1, pt0, traced_call_bfunc_yx2_unk, traced_call_bfunc_yx2_nvar);
-      goto traced_exec_bin_cmp_yx;
+      profiled_deref_body(d1, pt0, call_bfunc_yx2_unk, call_bfunc_yx2_nvar);
+      goto exec_bin_cmp_yx;
       ENDP(pt0);
 
       ENDD(d1);
       ENDD(d0);
       ENDBOp();
 
-      BOp(traced_call_bfunc_xy, plxys);
+      BOp(call_bfunc_xy, plxys);
         EMIT_ENTRY_BLOCK(PREG,CALL_BFUNC_XY_INSTINIT);
       BEGD(d0);
       BEGD(d1);
@@ -11747,10 +11774,10 @@ S_SREG = RepAppl(d0);
       d0 = XREG(PREG->y_u.plxys.x);
       d1 = *pt0;
       ENDP(pt0);
-      profiled_deref_head_TEST(d0, traced_call_bfunc_xy_unk);
-    traced_call_bfunc_xy_nvar:
-      profiled_deref_head_TEST(d1, traced_call_bfunc_xy2_unk);
-    traced_call_bfunc_xy2_nvar:
+      profiled_deref_head_TEST(d0, call_bfunc_xy_unk);
+    call_bfunc_xy_nvar:
+      profiled_deref_head_TEST(d1, call_bfunc_xy2_unk);
+    call_bfunc_xy2_nvar:
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
         EMIT_CONDITIONAL_SUCCESS("IsIntTerm(d0) && IsIntTerm(d1)");
         EMIT_MULTIPLE_DESTINY_BLOCK_TEST(CALL_BFUNC_XY_CALL_BFUNC_XY2_NVAR_INT);
@@ -11784,7 +11811,7 @@ S_SREG = RepAppl(d0);
 	  }
 	}
       }
-    traced_exec_bin_cmp_xy:
+    exec_bin_cmp_xy:
         EMIT_CONDITIONAL_FAIL("IsIntTerm(d0) && IsIntTerm(d1)");
         EMIT_MULTIPLE_DESTINY_BLOCK_TEST(CALL_BFUNC_XY_CALL_BFUNC_XY2_NVAR_NOINT);
       {
@@ -11803,22 +11830,22 @@ S_SREG = RepAppl(d0);
       JMPNext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_call_bfunc_xy_unk, traced_call_bfunc_xy_nvar);
+      profiled_deref_body(d0, pt0, call_bfunc_xy_unk, call_bfunc_xy_nvar);
         EMIT_SIMPLE_BLOCK_TEST(CALL_BFUNC_XY_CALL_BFUNC_XY_UNK);
       d1 = Deref(d1);
-      goto traced_exec_bin_cmp_xy;
+      goto exec_bin_cmp_xy;
       ENDP(pt0);
 
       BEGP(pt0);
-      profiled_deref_body(d1, pt0, traced_call_bfunc_xy2_unk, traced_call_bfunc_xy2_nvar);
-      goto traced_exec_bin_cmp_xy;
+      profiled_deref_body(d1, pt0, call_bfunc_xy2_unk, call_bfunc_xy2_nvar);
+      goto exec_bin_cmp_xy;
       ENDP(pt0);
 
       ENDD(d1);
       ENDD(d0);
       ENDBOp();
 
-      BOp(traced_call_bfunc_yy, plyys);
+      BOp(call_bfunc_yy, plyys);
         EMIT_ENTRY_BLOCK(PREG,CALL_BFUNC_YY_INSTINIT);
       BEGD(d0);
       BEGD(d1);
@@ -11830,10 +11857,10 @@ S_SREG = RepAppl(d0);
       d1 = *pt1;
       ENDP(pt1);
       ENDP(pt0);
-      profiled_deref_head_TEST(d0, traced_call_bfunc_yy_unk);
-    traced_call_bfunc_yy_nvar:
-      profiled_deref_head_TEST(d1, traced_call_bfunc_yy2_unk);
-    traced_call_bfunc_yy2_nvar:
+      profiled_deref_head_TEST(d0, call_bfunc_yy_unk);
+    call_bfunc_yy_nvar:
+      profiled_deref_head_TEST(d1, call_bfunc_yy2_unk);
+    call_bfunc_yy2_nvar:
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
         EMIT_CONDITIONAL_SUCCESS("IsIntTerm(d0) && IsIntTerm(d1)");
         EMIT_MULTIPLE_DESTINY_BLOCK_TEST(CALL_BFUNC_YY_CALL_BFUNC_YY2_NVAR_INT);
@@ -11867,7 +11894,7 @@ S_SREG = RepAppl(d0);
 	  }
 	}
       }
-    traced_exec_bin_cmp_yy:
+    exec_bin_cmp_yy:
         EMIT_CONDITIONAL_FAIL("IsIntTerm(d0) && IsIntTerm(d1)");
         EMIT_MULTIPLE_DESTINY_BLOCK_TEST(CALL_BFUNC_YY_CALL_BFUNC_YY2_NVAR_NOINT);
       {
@@ -11886,33 +11913,33 @@ S_SREG = RepAppl(d0);
       JMPNext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_call_bfunc_yy_unk, traced_call_bfunc_yy_nvar);
+      profiled_deref_body(d0, pt0, call_bfunc_yy_unk, call_bfunc_yy_nvar);
         EMIT_SIMPLE_BLOCK_TEST(CALL_BFUNC_YY_CALL_BFUNC_YY_UNK);
       d1 = Deref(d1);
-      goto traced_exec_bin_cmp_yy;
+      goto exec_bin_cmp_yy;
       ENDP(pt0);
 
       BEGP(pt0);
-      profiled_deref_body(d1, pt0, traced_call_bfunc_yy2_unk, traced_call_bfunc_yy2_nvar);
-      goto traced_exec_bin_cmp_yy;
+      profiled_deref_body(d1, pt0, call_bfunc_yy2_unk, call_bfunc_yy2_nvar);
+      goto exec_bin_cmp_yy;
       ENDP(pt0);
 
       ENDD(d1);
       ENDD(d0);
       ENDBOp();
 
-      Op(traced_p_equal, e);
+      Op(p_equal, e);
         EMIT_ENTRY_BLOCK(PREG,P_EQUAL_INSTINIT);
       save_hb();
       if (Yap_IUnify(ARG1, ARG2) == FALSE) {
-	TRACED_FAIL();
+	FAIL();
       }
         EMIT_SIMPLE_BLOCK(P_EQUAL_END);
       PREG = NEXTOP(PREG, e);
       GONext();
       ENDOp();
 
-      Op(traced_p_dif, l);
+      Op(p_dif, l);
         EMIT_ENTRY_BLOCK(PREG,P_DIF_INSTINIT);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
@@ -11924,13 +11951,13 @@ S_SREG = RepAppl(d0);
       BEGD(d0);
       BEGD(d1);
       d0 = ARG1;
-      profiled_deref_head_TEST(d0, traced_dif_unk1);
-    traced_dif_nvar1:
+      profiled_deref_head_TEST(d0, dif_unk1);
+    dif_nvar1:
       /* first argument is bound */
         EMIT_SIMPLE_BLOCK_TEST(P_DIF_DIF_NVAR1);
       d1 = ARG2;
-      profiled_deref_head_TEST(d1, traced_dif_nvar1_unk2);
-    traced_dif_nvar1_nvar2:
+      profiled_deref_head_TEST(d1, dif_nvar1_unk2);
+    dif_nvar1_nvar2:
       /* both arguments are bound */
         EMIT_MULTIPLE_DESTINY_BLOCK_TEST(P_DIF_DIF_NVAR1_NVAR2);
       if (d0 == d1) {
@@ -12026,7 +12053,7 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_dif_unk1, traced_dif_nvar1);
+      profiled_deref_body(d0, pt0, dif_unk1, dif_nvar1);
         EMIT_SIMPLE_BLOCK_TEST(P_DIF_DIF_UNK1);
       ENDP(pt0);
       /* first argument is unbound */
@@ -12034,7 +12061,7 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d1, pt0, traced_dif_nvar1_unk2, traced_dif_nvar1_nvar2);
+      profiled_deref_body(d1, pt0, dif_nvar1_unk2, dif_nvar1_nvar2);
         EMIT_SIMPLE_BLOCK_TEST(P_DIF_DIF_NVAR1_UNK2);
       ENDP(pt0);
       /* second argument is unbound */
@@ -12044,7 +12071,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_eq, l);
+      Op(p_eq, l);
         EMIT_ENTRY_BLOCK(PREG,P_EQ_INSTINIT);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
@@ -12056,13 +12083,13 @@ S_SREG = RepAppl(d0);
       BEGD(d0);
       BEGD(d1);
       d0 = ARG1;
-      profiled_deref_head_TEST(d0, traced_p_eq_unk1);
-    traced_p_eq_nvar1:
+      profiled_deref_head_TEST(d0, p_eq_unk1);
+    p_eq_nvar1:
       /* first argument is bound */
         EMIT_SIMPLE_BLOCK_TEST(P_EQ_P_EQ_NVAR1);
       d1 = ARG2;
-      profiled_deref_head_TEST(d1, traced_p_eq_nvar1_unk2);
-    traced_p_eq_nvar1_nvar2:
+      profiled_deref_head_TEST(d1, p_eq_nvar1_unk2);
+    p_eq_nvar1_nvar2:
       /* both arguments are bound */
         EMIT_MULTIPLE_DESTINY_BLOCK_TEST(P_EQ_P_EQ_NVAR1_NVAR2);
       if (d0 == d1) {
@@ -12166,7 +12193,7 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt0);
-      profiled_deref_body(d1, pt0, traced_p_eq_nvar1_unk2, traced_p_eq_nvar1_nvar2);
+      profiled_deref_body(d1, pt0, p_eq_nvar1_unk2, p_eq_nvar1_nvar2);
         EMIT_SIMPLE_BLOCK_TEST(P_EQ_P_EQ_NVAR1_UNK2);
       ENDP(pt0);
       /* first argument is bound */
@@ -12178,12 +12205,12 @@ S_SREG = RepAppl(d0);
       ENDD(d1);
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_p_eq_unk1, traced_p_eq_nvar1);
+      profiled_deref_body(d0, pt0, p_eq_unk1, p_eq_nvar1);
         EMIT_SIMPLE_BLOCK_TEST(P_EQ_P_EQ_UNK1);
       BEGD(d1);
       d1 = ARG2;
-      profiled_deref_head_TEST(d1, traced_p_eq_var1_unk2);
-    traced_p_eq_var1_nvar2:
+      profiled_deref_head_TEST(d1, p_eq_var1_unk2);
+    p_eq_var1_nvar2:
       /* I don't need to worry about co-routining because an
 	 unbound variable may never be == to a constrained variable!! */
         EMIT_SIMPLE_BLOCK_TEST(P_EQ_P_EQ_VAR1_NVAR2);
@@ -12191,7 +12218,7 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt1);
-      profiled_deref_body(d1, pt1, traced_p_eq_var1_unk2, traced_p_eq_var1_nvar2);
+      profiled_deref_body(d1, pt1, p_eq_var1_unk2, p_eq_var1_nvar2);
       /* first argument is unbound */
       /* second argument is unbound */
         EMIT_MULTIPLE_DESTINY_BLOCK_TEST(P_EQ_P_EQ_VAR1_UNK2_END);
@@ -12208,7 +12235,7 @@ S_SREG = RepAppl(d0);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_arg_vv, xxx);
+      Op(p_arg_vv, xxx);
         EMIT_ENTRY_BLOCK(PREG,P_ARG_VV_INSTINIT);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
@@ -12222,8 +12249,8 @@ S_SREG = RepAppl(d0);
         EMIT_SIMPLE_BLOCK_TEST(P_ARG_VV_TEST_D0);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxx.x1);
-      profiled_deref_head_TEST(d0, traced_arg_arg1_unk);
-    traced_arg_arg1_nvar:
+      profiled_deref_head_TEST(d0, arg_arg1_unk);
+    arg_arg1_nvar:
       /* ARG1 is ok! */
         EMIT_SIMPLE_BLOCK_TEST(P_ARG_VV_ARG_ARG1_NVAR);
       if (IsIntTerm(d0)) {
@@ -12234,15 +12261,15 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
 
       /* d0 now got the argument we want */
         EMIT_SIMPLE_BLOCK_TEST(P_ARG_VV_TEST_D1);
       BEGD(d1);
       d1 = XREG(PREG->y_u.xxx.x2);
-      profiled_deref_head_TEST(d1, traced_arg_arg2_unk);
-    traced_arg_arg2_nvar:
+      profiled_deref_head_TEST(d1, arg_arg2_unk);
+    arg_arg2_nvar:
       /* d1 now got the structure we want to fetch the argument
        * from */
         EMIT_MULTIPLE_DESTINY_BLOCK_TEST(P_ARG_VV_ARG_ARG2_NVAR);
@@ -12251,7 +12278,7 @@ S_SREG = RepAppl(d0);
 	pt0 = RepAppl(d1);
 	d1 = *pt0;
 	if (IsExtensionFunctor((Functor) d1)) {
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	if ((Int)d0 <= 0 ||
 	    (Int)d0 > ArityOfFunctor((Functor) d1)) {
@@ -12263,7 +12290,7 @@ S_SREG = RepAppl(d0);
 	    setregs();
 	  }
 	  */
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	XREG(PREG->y_u.xxx.x) = pt0[d0];
 	PREG = NEXTOP(PREG, xxx);
@@ -12280,7 +12307,7 @@ S_SREG = RepAppl(d0);
 		  MkIntegerTerm(d0),"arg 1 of arg/3");
 	    setregs();
 	  }
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	XREG(PREG->y_u.xxx.x) = pt0[d0-1];
 	PREG = NEXTOP(PREG, xxx);
@@ -12294,31 +12321,31 @@ S_SREG = RepAppl(d0);
 	  Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
 	  setregs();
 	*/
-	TRACED_FAIL();
+	FAIL();
       }
 
       BEGP(pt0);
-      profiled_deref_body(d1, pt0, traced_arg_arg2_unk, traced_arg_arg2_nvar);
+      profiled_deref_body(d1, pt0, arg_arg2_unk, arg_arg2_nvar);
         EMIT_SIMPLE_BLOCK_TEST(P_ARG_VV_ARG_ARG2_UNK);
       saveregs();
       Yap_Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
       setregs();
       ENDP(pt0);
-      TRACED_FAIL();
+      FAIL();
       ENDD(d1);
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_arg_arg1_unk, traced_arg_arg1_nvar);
+      profiled_deref_body(d0, pt0, arg_arg1_unk, arg_arg1_nvar);
         EMIT_SIMPLE_BLOCK_TEST(P_ARG_VV_ARG_ARG1_UNK);
       saveregs();
       Yap_Error(INSTANTIATION_ERROR, d0, "arg 1 of arg/3");;
       setregs();
       ENDP(pt0);
-      TRACED_FAIL();
+      FAIL();
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_arg_cv, xxn);
+      Op(p_arg_cv, xxn);
         EMIT_ENTRY_BLOCK(PREG,P_ARG_CV_INSTINIT);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
@@ -12338,8 +12365,8 @@ S_SREG = RepAppl(d0);
       /* d0 now got the argument we want */
       BEGD(d1);
       d1 = XREG(PREG->y_u.xxn.xi);
-      profiled_deref_head_TEST(d1, traced_arg_arg2_vc_unk);
-    traced_arg_arg2_vc_nvar:
+      profiled_deref_head_TEST(d1, arg_arg2_vc_unk);
+    arg_arg2_vc_nvar:
         EMIT_MULTIPLE_DESTINY_BLOCK_TEST(P_ARG_CV_ARG_ARG2_VC_NVAR);
       /* d1 now got the structure we want to fetch the argument
        * from */
@@ -12348,7 +12375,7 @@ S_SREG = RepAppl(d0);
 	pt0 = RepAppl(d1);
 	d1 = *pt0;
 	if (IsExtensionFunctor((Functor) d1)) {
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	if ((Int)d0 <= 0 ||
 	    (Int)d0 > ArityOfFunctor((Functor) d1)) {
@@ -12360,7 +12387,7 @@ S_SREG = RepAppl(d0);
 	    setregs();
 	  }
 	  */
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	XREG(PREG->y_u.xxn.x) = pt0[d0];
 	PREG = NEXTOP(PREG, xxn);
@@ -12377,7 +12404,7 @@ S_SREG = RepAppl(d0);
 		  MkIntegerTerm(d0),"arg 1 of arg/3");
 	    setregs();
 	  }
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	XREG(PREG->y_u.xxn.x) = pt0[d0-1];
 	PREG = NEXTOP(PREG, xxn);
@@ -12391,23 +12418,23 @@ S_SREG = RepAppl(d0);
 	  Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
 	  setregs();
 	*/
-	TRACED_FAIL();
+	FAIL();
       }
 
       BEGP(pt0);
-      profiled_deref_body(d1, pt0, traced_arg_arg2_vc_unk, traced_arg_arg2_vc_nvar);
+      profiled_deref_body(d1, pt0, arg_arg2_vc_unk, arg_arg2_vc_nvar);
         EMIT_SIMPLE_BLOCK_TEST(P_ARG_CV_ARG_ARG2_VC_UNK);
       saveregs();
       Yap_Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
       setregs();
       ENDP(pt0);
-      TRACED_FAIL();
+      FAIL();
       ENDD(d1);
 
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_arg_y_vv, yxx);
+      Op(p_arg_y_vv, yxx);
         EMIT_ENTRY_BLOCK(PREG,P_ARG_Y_VV_INSTINIT);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
@@ -12422,8 +12449,8 @@ S_SREG = RepAppl(d0);
         EMIT_SIMPLE_BLOCK_TEST(P_ARG_Y_VV_TEST_D0);
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxx.x1);
-      profiled_deref_head_TEST(d0, traced_arg_y_arg1_unk);
-    traced_arg_y_arg1_nvar:
+      profiled_deref_head_TEST(d0, arg_y_arg1_unk);
+    arg_y_arg1_nvar:
         EMIT_SIMPLE_BLOCK_TEST(P_ARG_Y_VV_ARG_Y_ARG1_NVAR);
       /* ARG1 is ok! */
       if (IsIntTerm(d0)) {
@@ -12434,15 +12461,15 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
 
       /* d0 now got the argument we want */
         EMIT_SIMPLE_BLOCK_TEST(P_ARG_Y_VV_TEST_D1);
       BEGD(d1);
       d1 = XREG(PREG->y_u.yxx.x2);
-      profiled_deref_head_TEST(d1, traced_arg_y_arg2_unk);
-    traced_arg_y_arg2_nvar:
+      profiled_deref_head_TEST(d1, arg_y_arg2_unk);
+    arg_y_arg2_nvar:
       /* d1 now got the structure we want to fetch the argument
        * from */
         EMIT_MULTIPLE_DESTINY_BLOCK_TEST(P_ARG_Y_VV_ARG_Y_ARG2_NVAR);
@@ -12451,7 +12478,7 @@ S_SREG = RepAppl(d0);
 	pt0 = RepAppl(d1);
 	d1 = *pt0;
 	if (IsExtensionFunctor((Functor) d1)) {
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	if ((Int)d0 <= 0 ||
 	    (Int)d0 > ArityOfFunctor((Functor) d1)) {
@@ -12463,7 +12490,7 @@ S_SREG = RepAppl(d0);
 	    saveregs();
 	  }
 	  */
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	BEGP(pt1);
 	pt1 = YREG + PREG->y_u.yxx.y;
@@ -12483,7 +12510,7 @@ S_SREG = RepAppl(d0);
 		  MkIntegerTerm(d0),"arg 1 of arg/3");
 	    setregs();
 	  }
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	BEGP(pt1);
 	pt1 = YREG + PREG->y_u.yxx.y;
@@ -12500,31 +12527,31 @@ S_SREG = RepAppl(d0);
 	  Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
 	  setregs();
 	*/
-	TRACED_FAIL();
+	FAIL();
       }
 
       BEGP(pt0);
-      profiled_deref_body(d1, pt0, traced_arg_y_arg2_unk, traced_arg_y_arg2_nvar);
+      profiled_deref_body(d1, pt0, arg_y_arg2_unk, arg_y_arg2_nvar);
         EMIT_SIMPLE_BLOCK_TEST(P_ARG_Y_VV_ARG_Y_ARG2_UNK);
       saveregs();
       Yap_Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
       setregs();
       ENDP(pt0);
-      TRACED_FAIL();
+      FAIL();
       ENDD(d1);
 
       BEGP(pt0);
-      profiled_deref_body(d0, pt0, traced_arg_y_arg1_unk, traced_arg_y_arg1_nvar);
+      profiled_deref_body(d0, pt0, arg_y_arg1_unk, arg_y_arg1_nvar);
         EMIT_SIMPLE_BLOCK_TEST(P_ARG_Y_VV_ARG_Y_ARG1_UNK);
       saveregs();
       Yap_Error(INSTANTIATION_ERROR, d0, "arg 1 of arg/3");
       setregs();
       ENDP(pt0);
-      TRACED_FAIL();
+      FAIL();
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_arg_y_cv, yxn);
+      Op(p_arg_y_cv, yxn);
 ///#ifdef PROFILED_ABSMI
         EMIT_ENTRY_BLOCK(PREG,P_ARG_Y_CV_INSTINIT);
 ///#endif
@@ -12551,8 +12578,8 @@ S_SREG = RepAppl(d0);
       /* d0 now got the argument we want */
       BEGD(d1);
       d1 = XREG(PREG->y_u.yxn.xi);
-      deref_head(d1, traced_arg_y_arg2_vc_unk);
-    traced_arg_y_arg2_vc_nvar:
+      deref_head(d1, arg_y_arg2_vc_unk);
+    arg_y_arg2_vc_nvar:
       /* d1 now got the structure we want to fetch the argument
        * from */
       if (IsApplTerm(d1)) {
@@ -12563,7 +12590,7 @@ S_SREG = RepAppl(d0);
 	pt0 = RepAppl(d1);
 	d1 = *pt0;
 	if (IsExtensionFunctor((Functor) d1)) {
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	if ((Int)d0 <= 0 ||
 	    (Int)d0 > ArityOfFunctor((Functor) d1)) {
@@ -12575,7 +12602,7 @@ S_SREG = RepAppl(d0);
 	    setregs();
 	  }
 	  */
-	  TRACED_FAIL();
+	  FAIL();
 	}
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_ARG_Y_CV_D1APPL_END);
@@ -12604,7 +12631,7 @@ S_SREG = RepAppl(d0);
 		  MkIntegerTerm(d0),"arg 1 of arg/3");
 	    setregs();
 	  }
-	  TRACED_FAIL();
+	  FAIL();
 	}
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_ARG_Y_CV_D1PAIR_END);
@@ -12624,11 +12651,11 @@ S_SREG = RepAppl(d0);
 	  Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
 	  setregs();
 	*/
-	TRACED_FAIL();
+	FAIL();
       }
 
       BEGP(pt0);
-      deref_body(d1, pt0, traced_arg_y_arg2_vc_unk, traced_arg_y_arg2_vc_nvar);
+      deref_body(d1, pt0, arg_y_arg2_vc_unk, arg_y_arg2_vc_nvar);
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_ARG_Y_CV_ARG_Y_ARG2_VC_UNK);
 ///#endif
@@ -12636,18 +12663,18 @@ S_SREG = RepAppl(d0);
       Yap_Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
       setregs();
       ENDP(pt0);
-      TRACED_FAIL();
+      FAIL();
       ENDD(d1);
 
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_func2s_vv, xxx);
+      Op(p_func2s_vv, xxx);
       /* A1 is a variable */
 ///#ifdef PROFILED_ABSMI
         EMIT_ENTRY_BLOCK(PREG,P_FUNC2S_VV_INSTINIT);
 ///#endif
-    traced_restart_func2s:
+    restart_func2s:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 ///#ifdef PROFILED_ABSMI
@@ -12665,16 +12692,16 @@ S_SREG = RepAppl(d0);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxx.x1);
-      deref_head(d0, traced_func2s_unk);
-    traced_func2s_nvar:
+      deref_head(d0, func2s_unk);
+    func2s_nvar:
       /* we do, let's get the third argument */
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2S_VV_TEST_D1);
 ///#endif
       BEGD(d1);
       d1 = XREG(PREG->y_u.xxx.x2);
-      deref_head(d1, traced_func2s_unk2);
-    traced_func2s_nvar2:
+      deref_head(d1, func2s_unk2);
+    func2s_nvar2:
       /* Uuuff, the second and third argument are bound */
       if (IsIntegerTerm(d1)) {
 ///#ifdef PROFILED_ABSMI
@@ -12701,7 +12728,7 @@ S_SREG = RepAppl(d0);
         EMIT_SIMPLE_BLOCK(P_FUNC2S_VV_D1NOTINT_END);
 ///#endif
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
       if (!IsAtomicTerm(d0)) {
 ///#ifdef PROFILED_ABSMI
@@ -12710,7 +12737,7 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
@@ -12737,11 +12764,11 @@ S_SREG = RepAppl(d0);
 	  saveregs();
 	  Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	  setregs();
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	BEGP(pt1);
 	if (!IsAtomTerm(d0)) {
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	else {
 ///#ifdef PROFILED_ABSMI
@@ -12774,7 +12801,7 @@ S_SREG = RepAppl(d0);
 ///#endif
 	    setregs();
 	  }
-	  goto traced_restart_func2s;
+	  goto restart_func2s;
 	}
 	while ((Int)d1--) {
 ///#ifdef PROFILED_ABSMI
@@ -12808,11 +12835,11 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
 
       BEGP(pt1);
-      deref_body(d1, pt1, traced_func2s_unk2, traced_func2s_nvar2);
+      deref_body(d1, pt1, func2s_unk2, func2s_nvar2);
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2S_VV_FUNC2S_UNK2);
 ///#endif
@@ -12821,11 +12848,11 @@ S_SREG = RepAppl(d0);
       setregs();
       ENDP(pt1);
       /* Oops, third argument was unbound */
-      TRACED_FAIL();
+      FAIL();
       ENDD(d1);
 
       BEGP(pt1);
-      deref_body(d0, pt1, traced_func2s_unk, traced_func2s_nvar);
+      deref_body(d0, pt1, func2s_unk, func2s_nvar);
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2S_VV_FUNC2S_UNK);
 ///#endif
@@ -12834,16 +12861,16 @@ S_SREG = RepAppl(d0);
       setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
-      TRACED_FAIL();
+      FAIL();
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_func2s_cv, xxc);
+      Op(p_func2s_cv, xxc);
       /* A1 is a variable */
 ///#ifdef PROFILED_ABSMI
         EMIT_ENTRY_BLOCK(PREG,P_FUNC2S_CV_INSTINIT);
 ///#endif
-    traced_restart_func2s_cv:
+    restart_func2s_cv:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 ///#ifdef PROFILED_ABSMI
@@ -12864,8 +12891,8 @@ S_SREG = RepAppl(d0);
       /* we do, let's get the third argument */
       BEGD(d1);
       d1 = XREG(PREG->y_u.xxc.xi);
-      deref_head(d1, traced_func2s_unk2_cv);
-    traced_func2s_nvar2_cv:
+      deref_head(d1, func2s_unk2_cv);
+    func2s_nvar2_cv:
       /* Uuuff, the second and third argument are bound */
       if (IsIntegerTerm(d1)) {
 ///#ifdef PROFILED_ABSMI
@@ -12892,7 +12919,7 @@ S_SREG = RepAppl(d0);
     EMIT_SIMPLE_BLOCK(P_FUNC2S_CV_POST_IF);
 ///#endif
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
@@ -12918,11 +12945,11 @@ S_SREG = RepAppl(d0);
 	  saveregs();
 	  Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	  setregs();
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	BEGP(pt1);
 	if (!IsAtomTerm(d0)) {
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	else {
 ///#ifdef PROFILED_ABSMI
@@ -12955,7 +12982,7 @@ S_SREG = RepAppl(d0);
 ///#endif
 	    setregs();
 	  }
-	  goto traced_restart_func2s_cv;
+	  goto restart_func2s_cv;
 	}
 	while ((Int)d1--) {
 ///#ifdef PROFILED_ABSMI
@@ -12989,11 +13016,11 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
 
       BEGP(pt1);
-      deref_body(d1, pt1, traced_func2s_unk2_cv, traced_func2s_nvar2_cv);
+      deref_body(d1, pt1, func2s_unk2_cv, func2s_nvar2_cv);
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2S_CV_END);
 ///#endif
@@ -13002,17 +13029,17 @@ S_SREG = RepAppl(d0);
       setregs();
       ENDP(pt1);
       /* Oops, third argument was unbound */
-      TRACED_FAIL();
+      FAIL();
       ENDD(d1);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_func2s_vc, xxn);
+      Op(p_func2s_vc, xxn);
       /* A1 is a variable */
 ///#ifdef PROFILED_ABSMI
         EMIT_ENTRY_BLOCK(PREG,P_FUNC2S_VC_INSTINIT);
 ///#endif
-    traced_restart_func2s_vc:
+    restart_func2s_vc:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 ///#ifdef PROFILED_ABSMI
@@ -13035,8 +13062,8 @@ S_SREG = RepAppl(d0);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxn.xi);
-      deref_head(d0, traced_func2s_unk_vc);
-    traced_func2s_nvar_vc:
+      deref_head(d0, func2s_unk_vc);
+    func2s_nvar_vc:
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2S_VC_FUNC2S_NVAR_VC);
 ///#endif
@@ -13049,7 +13076,7 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
@@ -13083,11 +13110,11 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
       BEGP(pt1);
       if (!IsAtomTerm(d0)) {
-	TRACED_FAIL();
+	FAIL();
       }
       else {
 ///#ifdef PROFILED_ABSMI
@@ -13120,7 +13147,7 @@ S_SREG = RepAppl(d0);
 ///#endif
 	  setregs();
 	}
-	goto traced_restart_func2s_vc;
+	goto restart_func2s_vc;
       }
       while ((Int)d1--) {
 ///#ifdef PROFILED_ABSMI
@@ -13143,7 +13170,7 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt1);
-      deref_body(d0, pt1, traced_func2s_unk_vc, traced_func2s_nvar_vc);
+      deref_body(d0, pt1, func2s_unk_vc, func2s_nvar_vc);
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2S_VC_END2);
 ///#endif
@@ -13152,16 +13179,16 @@ S_SREG = RepAppl(d0);
       setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
-      TRACED_FAIL();
+      FAIL();
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_func2s_y_vv, yxx);
+      Op(p_func2s_y_vv, yxx);
       /* A1 is a variable */
 ///#ifdef PROFILED_ABSMI
         EMIT_ENTRY_BLOCK(PREG,P_FUNC2S_Y_VV_INSTINIT);
 ///#endif
-    traced_restart_func2s_y:
+    restart_func2s_y:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 ///#ifdef PROFILED_ABSMI
@@ -13179,16 +13206,16 @@ S_SREG = RepAppl(d0);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxx.x1);
-      deref_head(d0, traced_func2s_y_unk);
-    traced_func2s_y_nvar:
+      deref_head(d0, func2s_y_unk);
+    func2s_y_nvar:
       /* we do, let's get the third argument */
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2S_Y_VV_TEST_D1);
 ///#endif
       BEGD(d1);
       d1 = XREG(PREG->y_u.yxx.x2);
-      deref_head(d1, traced_func2s_y_unk2);
-    traced_func2s_y_nvar2:
+      deref_head(d1, func2s_y_unk2);
+    func2s_y_nvar2:
       /* Uuuff, the second and third argument are bound */
       if (IsIntegerTerm(d1)) {
 ///#ifdef PROFILED_ABSMI
@@ -13215,7 +13242,7 @@ S_SREG = RepAppl(d0);
         EMIT_SIMPLE_BLOCK(P_FUNC2S_Y_VV_POST_IF);
 ///#endif
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
       if (!IsAtomicTerm(d0)) {
 ///#ifdef PROFILED_ABSMI
@@ -13224,7 +13251,7 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
@@ -13251,11 +13278,11 @@ S_SREG = RepAppl(d0);
 	  saveregs();
 	  Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	  setregs();
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	BEGP(pt1);
 	if (!IsAtomTerm(d0)) {
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	else {
 ///#ifdef PROFILED_ABSMI
@@ -13288,7 +13315,7 @@ S_SREG = RepAppl(d0);
 ///#endif
 	    setregs();
 	  }
-	  goto traced_restart_func2s_y;
+	  goto restart_func2s_y;
 	}
 	while ((Int)d1--) {
 ///#ifdef PROFILED_ABSMI
@@ -13328,11 +13355,11 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
 
       BEGP(pt1);
-      deref_body(d1, pt1, traced_func2s_y_unk2, traced_func2s_y_nvar2);
+      deref_body(d1, pt1, func2s_y_unk2, func2s_y_nvar2);
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2S_Y_VV_END1);
 ///#endif
@@ -13341,11 +13368,11 @@ S_SREG = RepAppl(d0);
       setregs();
       ENDP(pt1);
       /* Oops, third argument was unbound */
-      TRACED_FAIL();
+      FAIL();
       ENDD(d1);
 
       BEGP(pt1);
-      deref_body(d0, pt1, traced_func2s_y_unk, traced_func2s_y_nvar);
+      deref_body(d0, pt1, func2s_y_unk, func2s_y_nvar);
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2S_Y_VV_END2);
 ///#endif
@@ -13354,16 +13381,16 @@ S_SREG = RepAppl(d0);
       setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
-      TRACED_FAIL();
+      FAIL();
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_func2s_y_cv, yxn);
+      Op(p_func2s_y_cv, yxn);
       /* A1 is a variable */
 ///#ifdef PROFILED_ABSMI
         EMIT_ENTRY_BLOCK(PREG,P_FUNC2S_Y_CV_INSTINIT);
 ///#endif
-    traced_restart_func2s_y_cv:
+    restart_func2s_y_cv:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 ///#ifdef PROFILED_ABSMI
@@ -13384,8 +13411,8 @@ S_SREG = RepAppl(d0);
       /* we do, let's get the third argument */
       BEGD(d1);
       d1 = XREG(PREG->y_u.yxn.xi);
-      deref_head(d1, traced_func2s_y_unk_cv);
-    traced_func2s_y_nvar_cv:
+      deref_head(d1, func2s_y_unk_cv);
+    func2s_y_nvar_cv:
       /* Uuuff, the second and third argument are bound */
       if (IsIntegerTerm(d1)) {
 ///#ifdef PROFILED_ABSMI
@@ -13412,7 +13439,7 @@ S_SREG = RepAppl(d0);
         EMIT_SIMPLE_BLOCK(P_FUNC2S_Y_CV_POST_IF);
 ///#endif
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
@@ -13442,10 +13469,10 @@ S_SREG = RepAppl(d0);
 	  saveregs();
 	  Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	  setregs();
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	if (!IsAtomTerm(d0)) {
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	else {
 ///#ifdef PROFILED_ABSMI
@@ -13479,7 +13506,7 @@ S_SREG = RepAppl(d0);
 ///#endif
 	    setregs();
 	  }
-	  goto traced_restart_func2s_y_cv;
+	  goto restart_func2s_y_cv;
 	}
 	while ((Int)d1--) {
 ///#ifdef PROFILED_ABSMI
@@ -13519,11 +13546,11 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
 
       BEGP(pt1);
-      deref_body(d1, pt1, traced_func2s_y_unk_cv, traced_func2s_y_nvar_cv);
+      deref_body(d1, pt1, func2s_y_unk_cv, func2s_y_nvar_cv);
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2S_Y_CV_END);
 ///#endif
@@ -13532,17 +13559,17 @@ S_SREG = RepAppl(d0);
       setregs();
       ENDP(pt1);
       /* Oops, third argument was unbound */
-      TRACED_FAIL();
+      FAIL();
       ENDD(d1);
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_func2s_y_vc, yxn);
+      Op(p_func2s_y_vc, yxn);
       /* A1 is a variable */
 ///#ifdef PROFILED_ABSMI
         EMIT_ENTRY_BLOCK(PREG,P_FUNC2S_Y_VC_INSTINIT);
 ///#endif
-    traced_restart_func2s_y_vc:
+    restart_func2s_y_vc:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 ///#ifdef PROFILED_ABSMI
@@ -13565,8 +13592,8 @@ S_SREG = RepAppl(d0);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxn.xi);
-      deref_head(d0, traced_func2s_y_unk_vc);
-    traced_func2s_y_nvar_vc:
+      deref_head(d0, func2s_y_unk_vc);
+    func2s_y_nvar_vc:
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2S_Y_VC_FUNC2S_Y_NVAR_VC);
 ///#endif
@@ -13579,7 +13606,7 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
@@ -13618,7 +13645,7 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
       /* now let's build a compound term */
       if (!IsAtomTerm(d0)) {
@@ -13628,11 +13655,11 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
       BEGP(pt1);
       if (!IsAtomTerm(d0)) {
-	TRACED_FAIL();
+	FAIL();
       }
       else {
 ///#ifdef PROFILED_ABSMI
@@ -13665,7 +13692,7 @@ S_SREG = RepAppl(d0);
 ///#endif
 	  setregs();
 	}
-	goto traced_restart_func2s_y_vc;
+	goto restart_func2s_y_vc;
       }
       while ((Int)d1--) {
 ///#ifdef PROFILED_ABSMI
@@ -13691,7 +13718,7 @@ S_SREG = RepAppl(d0);
       GONext();
 
       BEGP(pt1);
-      deref_body(d0, pt1, traced_func2s_y_unk_vc, traced_func2s_y_nvar_vc);
+      deref_body(d0, pt1, func2s_y_unk_vc, func2s_y_nvar_vc);
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2S_Y_VC_END2);
 ///#endif
@@ -13700,11 +13727,11 @@ S_SREG = RepAppl(d0);
       setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
-      TRACED_FAIL();
+      FAIL();
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_func2f_xx, xxx);
+      Op(p_func2f_xx, xxx);
 ///#ifdef PROFILED_ABSMI
         EMIT_ENTRY_BLOCK(PREG,P_FUNC2F_XX_INSTINIT);
 ///#endif
@@ -13724,8 +13751,8 @@ S_SREG = RepAppl(d0);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxx.x);
-      deref_head(d0, traced_func2f_xx_unk);
-    traced_func2f_xx_nvar:
+      deref_head(d0, func2f_xx_unk);
+    func2f_xx_nvar:
       if (IsApplTerm(d0)) {
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2F_XX_D0APPL);
@@ -13766,7 +13793,7 @@ S_SREG = RepAppl(d0);
       }
 
       BEGP(pt1);
-      deref_body(d0, pt1, traced_func2f_xx_unk, traced_func2f_xx_nvar);
+      deref_body(d0, pt1, func2f_xx_unk, func2f_xx_nvar);
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2F_XX_END);
 ///#endif
@@ -13775,11 +13802,11 @@ S_SREG = RepAppl(d0);
       setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
-      TRACED_FAIL();
+      FAIL();
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_func2f_xy, xxy);
+      Op(p_func2f_xy, xxy);
 ///#ifdef PROFILED_ABSMI
         EMIT_ENTRY_BLOCK(PREG,P_FUNC2F_XY_INSTINIT);
 ///#endif
@@ -13799,8 +13826,8 @@ S_SREG = RepAppl(d0);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxy.x);
-      deref_head(d0, traced_func2f_xy_unk);
-    traced_func2f_xy_nvar:
+      deref_head(d0, func2f_xy_unk);
+    func2f_xy_nvar:
       if (IsApplTerm(d0)) {
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2F_XY_D0APPL);
@@ -13844,7 +13871,7 @@ S_SREG = RepAppl(d0);
       }
 
       BEGP(pt1);
-      deref_body(d0, pt1, traced_func2f_xy_unk, traced_func2f_xy_nvar);
+      deref_body(d0, pt1, func2f_xy_unk, func2f_xy_nvar);
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2F_XY_END);
 ///#endif
@@ -13853,11 +13880,11 @@ S_SREG = RepAppl(d0);
       setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
-      TRACED_FAIL();
+      FAIL();
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_func2f_yx, yxx);
+      Op(p_func2f_yx, yxx);
 ///#ifdef PROFILED_ABSMI
         EMIT_ENTRY_BLOCK(PREG,P_FUNC2F_YX_INSTINIT);
 ///#endif
@@ -13877,8 +13904,8 @@ S_SREG = RepAppl(d0);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxx.x2);
-      deref_head(d0, traced_func2f_yx_unk);
-    traced_func2f_yx_nvar:
+      deref_head(d0, func2f_yx_unk);
+    func2f_yx_nvar:
       if (IsApplTerm(d0)) {
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2F_YX_D0APPL);
@@ -13922,7 +13949,7 @@ S_SREG = RepAppl(d0);
       }
 
       BEGP(pt1);
-      deref_body(d0, pt1, traced_func2f_yx_unk, traced_func2f_yx_nvar);
+      deref_body(d0, pt1, func2f_yx_unk, func2f_yx_nvar);
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2F_YX_END);
 ///#endif
@@ -13931,11 +13958,11 @@ S_SREG = RepAppl(d0);
       setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
-      TRACED_FAIL();
+      FAIL();
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_func2f_yy, yyx);
+      Op(p_func2f_yy, yyx);
 ///#ifdef PROFILED_ABSMI
         EMIT_ENTRY_BLOCK(PREG,P_FUNC2F_YY_INSTINIT);
 ///#endif
@@ -13955,8 +13982,8 @@ S_SREG = RepAppl(d0);
 ///#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.yyx.x);
-      deref_head(d0, traced_func2f_yy_unk);
-    traced_func2f_yy_nvar:
+      deref_head(d0, func2f_yy_unk);
+    func2f_yy_nvar:
       if (IsApplTerm(d0)) {
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2F_YY_D0APPL);
@@ -14003,7 +14030,7 @@ S_SREG = RepAppl(d0);
       }
 
       BEGP(pt1);
-      deref_body(d0, pt1, traced_func2f_yy_unk, traced_func2f_yy_nvar);
+      deref_body(d0, pt1, func2f_yy_unk, func2f_yy_nvar);
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2F_YY_END);
 ///#endif
@@ -14012,22 +14039,22 @@ S_SREG = RepAppl(d0);
       setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
-      TRACED_FAIL();
+      FAIL();
       ENDD(d0);
       ENDOp();
 
-      Op(traced_p_functor, e);
+      Op(p_functor, e);
         EMIT_ENTRY_BLOCK(PREG,P_FUNCTOR_INSTINIT);
         EMIT_MULTIPLE_DESTINY_BLOCK_TEST(P_FUNCTOR_END);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
 	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
-      traced_restart_functor:
+      restart_functor:
       BEGD(d0);
       d0 = ARG1;
-      deref_head(d0, traced_func_unk);
-    traced_func_nvar:
+      deref_head(d0, func_unk);
+    func_nvar:
       /* A1 is bound */
       BEGD(d1);
       if (IsApplTerm(d0)) {
@@ -14036,7 +14063,7 @@ S_SREG = RepAppl(d0);
 	  if (d1 <= (CELL)FunctorDouble && d1 >= (CELL)FunctorLongInt ) {
 	    d1 = MkIntTerm(0);
 	  } else
-	    TRACED_FAIL();
+	    FAIL();
 	} else {
 	    d0 = MkAtomTerm(NameOfFunctor((Functor) d1));
 	    d1 = MkIntTerm(ArityOfFunctor((Functor) d1));
@@ -14055,38 +14082,38 @@ S_SREG = RepAppl(d0);
 	register CELL arity = d1;
 
 	d1 = ARG2;
-	deref_head(d1, traced_func_nvar_unk);
-      traced_func_nvar_nvar:
+	deref_head(d1, func_nvar_unk);
+      func_nvar_nvar:
 	/* A2 was bound */
 	if (d0 != d1) {
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	/* I have to this here so that I don't have a jump to a closing bracket */
 	d0 = arity;
-	goto traced_func_bind_x3;
+	goto func_bind_x3;
 
 	BEGP(pt0);
-	deref_body(d1, pt0, traced_func_nvar_unk, traced_func_nvar_nvar);
+	deref_body(d1, pt0, func_nvar_unk, func_nvar_nvar);
 	/* A2 is a variable, go and bind it */
 	Bind(pt0, d0);
 	/* I have to this here so that I don't have a jump to a closing bracket */
 	d0 = arity;
 	ENDP(pt0);
-      traced_func_bind_x3:
+      func_bind_x3:
 	/* now let's process A3 */
 	d1 = ARG3;
-	deref_head(d1, traced_func_nvar3_unk);
-      traced_func_nvar3_nvar:
+	deref_head(d1, func_nvar3_unk);
+      func_nvar3_nvar:
 	/* A3 was bound */
 	if (d0 != d1) {
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	/* Done */
 	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),Osbmp),l);
 	GONext();
 
 	BEGP(pt0);
-	deref_body(d1, pt0, traced_func_nvar3_unk, traced_func_nvar3_nvar);
+	deref_body(d1, pt0, func_nvar3_unk, func_nvar3_nvar);
 	/* A3 is a variable, go and bind it */
 	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),Osbmp),l);
 	Bind(pt0, d0);
@@ -14100,17 +14127,17 @@ S_SREG = RepAppl(d0);
       ENDD(d1);
 
       BEGP(pt0);
-      deref_body(d0, pt0, traced_func_unk, traced_func_nvar);
+      deref_body(d0, pt0, func_unk, func_nvar);
       /* A1 is a variable */
       /* We have to build the structure */
       d0 = ARG2;
-      deref_head(d0, traced_func_var_2unk);
-    traced_func_var_2nvar:
+      deref_head(d0, func_var_2unk);
+    func_var_2nvar:
       /* we do, let's get the third argument */
       BEGD(d1);
       d1 = ARG3;
-      deref_head(d1, traced_func_var_3unk);
-    traced_func_var_3nvar:
+      deref_head(d1, func_var_3unk);
+    func_var_3nvar:
       /* Uuuff, the second and third argument are bound */
       if (IsIntTerm(d1))
 	d1 = IntOfTerm(d1);
@@ -14118,13 +14145,13 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(TYPE_ERROR_INTEGER,ARG3,"functor/3");
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
       if (!IsAtomicTerm(d0)) {
 	saveregs();
 	Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }      /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
       if (d0 == TermDot && d1 == 2) {
@@ -14139,11 +14166,11 @@ S_SREG = RepAppl(d0);
 	  saveregs();
 	  Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	  setregs();
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	BEGP(pt1);
 	if (!IsAtomTerm(d0)) {
-	  TRACED_FAIL();
+	  FAIL();
 	}
 	else
 	  d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
@@ -14160,7 +14187,7 @@ S_SREG = RepAppl(d0);
 	  } else {
 	    setregs();
 	  }
-	  goto traced_restart_functor;	/*  */
+	  goto restart_functor;	/*  */
 	}
 	while ((Int)d1--) {
 	  RESET_VARIABLE(pt1);
@@ -14173,7 +14200,7 @@ S_SREG = RepAppl(d0);
 	saveregs();
 	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
 	setregs();
-	TRACED_FAIL();
+	FAIL();
       }
       /* else if arity is 0 just pass d0 through */
       /* Ding, ding, we made it */
@@ -14183,23 +14210,23 @@ S_SREG = RepAppl(d0);
 
 
       BEGP(pt1);
-      deref_body(d1, pt1, traced_func_var_3unk, traced_func_var_3nvar);
+      deref_body(d1, pt1, func_var_3unk, func_var_3nvar);
       saveregs();
       Yap_Error(INSTANTIATION_ERROR, d1, "functor/3");
       setregs();
       ENDP(pt1);
       /* Oops, third argument was unbound */
-      TRACED_FAIL();
+      FAIL();
       ENDD(d1);
 
       BEGP(pt1);
-      deref_body(d0, pt1, traced_func_var_2unk, traced_func_var_2nvar);
+      deref_body(d0, pt1, func_var_2unk, func_var_2nvar);
       saveregs();
       Yap_Error(INSTANTIATION_ERROR, d0, "functor/3");
       setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
-      TRACED_FAIL();
+      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
@@ -14215,7 +14242,7 @@ S_SREG = RepAppl(d0);
               Functor f;
 
               /* we are doing the rhs of a , */
-              BOp(traced_p_execute_tail, Osbmp);
+              BOp(p_execute_tail, Osbmp);
 
               FETCH_Y_FROM_ENV(YREG);
               /* place to cut to */
@@ -14254,26 +14281,26 @@ S_SREG = RepAppl(d0);
                    ENV = (CELL *)ENV[E_E];
                    }
                 */
-                goto traced_execute_pred_f;
+                goto execute_pred_f;
               } else
-                goto traced_execute_pred_a;
+                goto execute_pred_a;
               ENDBOp();
 
               /* fetch the module from ARG2 */
-              BOp(traced_p_execute2, Osbpp);
+              BOp(p_execute2, Osbpp);
 
               mod = ARG2;
-              deref_head(mod, traced_execute2_unk0);
-            traced_execute2_nvar0:
+              deref_head(mod, execute2_unk0);
+            execute2_nvar0:
               if (!IsAtomTerm(mod)) {
                 saveregs();
                 Yap_Error(TYPE_ERROR_ATOM, mod, "call/2");
                 setregs();
               }
-              goto start_traced_execute;
+              goto start_execute;
 
               BEGP(pt1);
-              deref_body(mod, pt1, traced_execute2_unk0, traced_execute2_nvar0);
+              deref_body(mod, pt1, execute2_unk0, execute2_nvar0);
               saveregs();
               Yap_Error(INSTANTIATION_ERROR, mod, "call/2");
               setregs();
@@ -14282,10 +14309,10 @@ S_SREG = RepAppl(d0);
               FAIL();
               ENDBOp();
 
-              BOp(traced_p_execute, Osbmp);
+              BOp(p_execute, Osbmp);
               /* fetch the module from PREG */
               mod = PREG->y_u.Osbmp.mod;
-            start_traced_execute:
+            start_execute:
               /* place to cut to */
               b_ptr = B;
               /* we have mod, and ARG1 has the goal, let us roll */
@@ -14307,18 +14334,18 @@ S_SREG = RepAppl(d0);
 #endif /* FROZEN_STACKS */
               d0 = ARG1;
               if (PRED_GOAL_EXPANSION_ALL) {
-                goto traced_execute_metacall;
+                goto execute_metacall;
               }
-            restart_traced_execute:
-              deref_head(d0, traced_execute_unk);
-            traced_execute_nvar:
+            restart_execute:
+              deref_head(d0, execute_unk);
+            execute_nvar:
               if (IsApplTerm(d0)) {
                 f = FunctorOfTerm(d0);
                 if (IsExtensionFunctor(f)) {
-                  goto traced_execute_metacall;
+                  goto execute_metacall;
                 }
                 pen = RepPredProp(PredPropByFunc(f, mod));
-              traced_execute_pred_f:
+              execute_pred_f:
                 if (pen->PredFlags & (MetaPredFlag|GoalExPredFlag)) {
                   /* just strip all of M:G */
                   if (f == FunctorModule) {
@@ -14327,9 +14354,9 @@ S_SREG = RepAppl(d0);
                     if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
                       d0 = ArgOfTerm(2,d0);
                       mod = tmod;
-                      goto traced_execute_nvar;
+                      goto execute_nvar;
                     }
-                    goto traced_execute_metacall;
+                    goto execute_metacall;
                   }
                   if (f == FunctorComma) {
                     Term nmod = mod;
@@ -14338,16 +14365,16 @@ S_SREG = RepAppl(d0);
                     SREG = RepAppl(d0);
                     BEGD(d1);
                     d1 = SREG[2];
-                    /* create an environment to traced_execute the call */
-                    deref_head(d1, traced_execute_comma_unk);
-                  traced_execute_comma_nvar:
+                    /* create an environment to execute the call */
+                    deref_head(d1, execute_comma_unk);
+                  execute_comma_nvar:
                     if (IsAtomTerm(d1)) {
                       /* atomic goal is simpler */
                       ENV_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByAtom(AtomOfTerm(d1),nmod));
                     } else if (IsApplTerm(d1)) {
                       Functor f1 = FunctorOfTerm(d1);
                       if (IsExtensionFunctor(f1)) {
-                        goto traced_execute_metacall;
+                        goto execute_metacall;
                       } else {
                         /* check for modules when looking up */
                         if (f1 == FunctorModule) {
@@ -14356,14 +14383,14 @@ S_SREG = RepAppl(d0);
                           if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
                             d1 = ArgOfTerm(2,d1);
                             nmod = tmod;
-                            goto traced_execute_comma_nvar;
+                            goto execute_comma_nvar;
                           }
-                          goto traced_execute_metacall;
+                          goto execute_metacall;
                         }
                         ENV_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByFunc(f1,nmod));
                       }
                     } else {
-                      goto traced_execute_metacall;
+                      goto execute_metacall;
                     }
                     ENV_YREG[-EnvSizeInCells-3]  = mod;
                     /* now, we can create the new environment for the meta-call */
@@ -14382,15 +14409,15 @@ S_SREG = RepAppl(d0);
                     /* for profiler */
                     save_pc();
                     d0 = SREG[1];
-                    goto restart_traced_execute;
+                    goto restart_execute;
 
                     BEGP(pt1);
-                    deref_body(d1, pt1, traced_execute_comma_unk, traced_execute_comma_nvar);
-                    goto traced_execute_metacall;
+                    deref_body(d1, pt1, execute_comma_unk, execute_comma_nvar);
+                    goto execute_metacall;
                     ENDP(pt1);
                     ENDD(d1);
                   } else if (mod != CurrentModule) {
-                    goto traced_execute_metacall;
+                    goto execute_metacall;
                   }
                 }
 
@@ -14416,7 +14443,7 @@ S_SREG = RepAppl(d0);
                 CACHE_A1();
               } else if (IsAtomTerm(d0)) {
                 pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), mod));
-              traced_execute_pred_a:
+              execute_pred_a:
                 /* handle extra pruning */
                 if (pen->FunctorOfPred == (Functor)AtomCut) {
                   if (b_ptr != B) {
@@ -14426,16 +14453,16 @@ S_SREG = RepAppl(d0);
                   }
                 }
               } else {
-                goto traced_execute_metacall;
+                goto execute_metacall;
               }
 
-              /* traced_execute, but test first for interrupts */
-            traced_execute_end:
+              /* execute, but test first for interrupts */
+            execute_end:
               /* code copied from call */
 #ifndef NO_CHECKING
               check_stack(TracedNoStackPExecute, HR);
 #endif
-            traced_execute_stack_checked:
+            execute_stack_checked:
               CPREG = NEXTOP(PREG, Osbmp);
               ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
               PREG = pen->CodeOfPred;
@@ -14469,8 +14496,8 @@ S_SREG = RepAppl(d0);
 
               /* meta-call: Prolog to the rescue */
               BEGP(pt1);
-              deref_body(d0, pt1, traced_execute_unk, traced_execute_nvar);
-            traced_execute_metacall:
+              deref_body(d0, pt1, execute_unk, execute_nvar);
+            execute_metacall:
               ARG1 = ARG3 = d0;
               pen = PredMetaCall;
               ARG2 = Yap_cp_as_integer(b_ptr);
@@ -14478,7 +14505,7 @@ S_SREG = RepAppl(d0);
                 ARG4 = mod;
               else
                 ARG4 = TermProlog;
-              goto traced_execute_end;
+              goto execute_end;
               ENDP(pt1);
 
 	      /* at this point, we have the arguments all set in the argument registers, pen says who is the current predicate. don't remove. */
@@ -14494,8 +14521,8 @@ S_SREG = RepAppl(d0);
 	      SREG = Yap_REGS.S_;
 #endif
 	      if (!d0) FAIL();
-	      if (d0 == 2) goto traced_execute_stack_checked;
-	      goto traced_execute_end;
+	      if (d0 == 2) goto execute_stack_checked;
+	      goto execute_end;
 	      ENDBOp();
 
 	      ENDD(d0);
@@ -14503,3 +14530,45 @@ S_SREG = RepAppl(d0);
 
 
 	    }
+
+	    BOp(unify_l_string             ,ou);
+            goto Ystop;
+            ENDBOp();
+            BOp(unify_string             ,ou);
+            goto Ystop;
+            ENDBOp();
+            BOp(get_string                 ,xu);
+            goto Ystop;
+            ENDBOp();
+            BOp(get_atom_exo               ,x);
+            goto Ystop;
+            ENDBOp();
+            BOp(retry_exo_udi              ,lp);
+            goto Ystop;
+            ENDBOp();
+            BOp(retry_exo                  ,lp);
+            goto Ystop;
+            ENDBOp();
+            BOp(retry_udi                  ,p);
+            goto Ystop;
+            ENDBOp();
+            BOp(retry_all_exo              ,lp);
+            goto Ystop;
+            ENDBOp();
+            BOp(enter_exo                  ,e);
+            goto Ystop;
+            ENDBOp();
+            BOp(try_exo                    ,lp);
+            goto Ystop;
+            ENDBOp();
+            BOp(try_exo_udi                ,lp);
+            goto Ystop;
+            ENDBOp();
+            BOp(try_all_exo                ,lp);
+            goto Ystop;
+            ENDBOp();
+            BOp(try_udi                    ,p);
+            goto Ystop;
+            ENDBOp();
+
+	    

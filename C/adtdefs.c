@@ -388,7 +388,8 @@ Yap_FullLookupAtom(const char *atom)
 }
 
 void
-Yap_LookupAtomWithAddress(const char *atom, AtomEntry *ae)
+Yap_LookupAtomWithAddress(const char *atom,
+			  AtomEntry *ae)
 {				/* lookup atom in atom table            */
   register CELL hash;
   register unsigned char *p;

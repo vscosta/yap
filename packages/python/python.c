@@ -1,9 +1,10 @@
+
+#include <Python.h>
 #include <SWI-Stream.h>
 #include <SWI-Prolog.h>
 #ifdef HAVE_STAT
 #undef HAVE_STAT
 #endif
-#include <Python.h>
 #include <assert.h>
 
 static atom_t ATOM_true,

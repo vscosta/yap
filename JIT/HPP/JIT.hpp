@@ -12,6 +12,9 @@
 #include <time.h>
 #include <dlfcn.h>
 #include "config.h"
+#if USE_GMP
+#include <gmpxx.h>
+#endif
 extern "C" {
 #include "absmi.h"
 }

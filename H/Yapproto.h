@@ -24,19 +24,19 @@ Term	Yap_ArrayToList(Term *,size_t);
 int	Yap_GetName(char *,UInt,Term);
 Term	Yap_GetValue(Atom);
 int     Yap_HasOp(Atom);
-struct operator_entry *Yap_GetOpPropForAModuleHavingALock(AtomEntry *, Term);
+struct operator_entry *Yap_GetOpPropForAModuleHavingALock(struct AtomEntryStruct *, Term);
 Atom	Yap_LookupAtom(const char *);
 Atom	Yap_LookupAtomWithLength(const char *, size_t);
 Atom	Yap_LookupUTF8Atom(const char *);
 Atom	Yap_LookupMaybeWideAtom(const wchar_t *);
 Atom	Yap_LookupMaybeWideAtomWithLength(const wchar_t *, size_t);
 Atom	Yap_FullLookupAtom(const char *);
-void	Yap_LookupAtomWithAddress(const char *,AtomEntry *);
+void	Yap_LookupAtomWithAddress(const char *,struct AtomEntryStruct *);
 Prop	Yap_NewPredPropByFunctor(struct FunctorEntryStruct *, Term);
 Prop	Yap_NewPredPropByAtom(struct AtomEntryStruct *, Term);
 Prop	Yap_PredPropByFunctorNonThreadLocal(struct FunctorEntryStruct *, Term);
 Prop	Yap_PredPropByAtomNonThreadLocal(struct AtomEntryStruct *, Term);
-Functor	Yap_UnlockedMkFunctor(AtomEntry *,unsigned int);
+Functor	Yap_UnlockedMkFunctor(struct AtomEntryStruct *,unsigned int);
 Functor	Yap_MkFunctor(Atom,unsigned int);
 void	Yap_MkFunctorWithAddress(Atom,unsigned int,FunctorEntry *);
 void	Yap_PutValue(Atom,Term);
@@ -57,7 +57,7 @@ Prop	Yap_GetPredPropByAtomInThisModule(Atom, Term);
 Prop	Yap_GetPredPropByFuncInThisModule(Functor, Term);
 Prop	Yap_GetPredPropHavingLock(Atom,unsigned int, Term);
 Prop	Yap_GetExpProp(Atom,unsigned int);
-Prop	Yap_GetExpPropHavingLock(AtomEntry *,unsigned int);
+Prop	Yap_GetExpPropHavingLock(struct AtomEntryStruct *,unsigned int);
 
 /* agc.c */
 void    Yap_atom_gc( CACHE_TYPE1 );
@@ -251,6 +251,9 @@ int	Yap_DebugGetc(void);
 #endif
 int	Yap_IsOpType(char *);
 void	Yap_InitWorkspace(UInt,UInt,UInt,UInt,UInt,int,int,int);
+bool    Yap_AddCallToFli( struct pred_entry *pe, CPredicate call );
+bool    Yap_AddRetryToFli( struct pred_entry *pe, CPredicate re );
+bool    Yap_AddCutToFli( struct pred_entry *pe, CPredicate cut );
 
 #ifdef YAPOR
 void    Yap_init_yapor_workers(void);
@@ -443,7 +446,7 @@ void	Yap_swi_install(void);
 void    Yap_InitSWIHash(void);
 int     Yap_get_stream_handle(Term, int, int, void *);
 Term    Yap_get_stream_position(void *);
-AtomEntry *Yap_lookupBlob(void *blob, size_t len, void *type, int *newp);
+struct AtomEntryStruct *Yap_lookupBlob(void *blob, size_t len, void *type, int *newp);
 
 /* opt.preds.c */
 void    Yap_init_optyap_preds(void);

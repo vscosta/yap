@@ -3764,7 +3764,7 @@ SinitStreams(void)
 #if HAVE_SETLINEBUF
 	    /* make sure wwe buffer on new line for ttys, eg eclipse console */
       } else if (i == 1) {
-    	  setlinebuf( stdout );
+	setlinebuf( stdout );
 #endif
       }
       if ( s > 0)

@@ -66,6 +66,23 @@ typedef struct AtomEntryStruct
 }
 AtomEntry;
 
+// compatible with C and C++;
+typedef struct ExtraAtomEntryStruct
+{
+  Atom NextOfAE;                /* used to build hash chains                    */
+  Prop PropsOfAE;               /* property list for this atom                  */
+#if defined(YAPOR) || defined(THREADS)
+  rwlock_t ARWLock;
+#endif
+
+  union {
+    char uStrOfAE[4];   /* representation of atom as a string           */
+    wchar_t uWStrOfAE[1];       /* representation of atom as a string           */
+    struct atom_blob blob[1];
+  } rep;
+}
+  ExtraAtomEntry;
+
 #define StrOfAE rep.uStrOfAE
 #define WStrOfAE rep.uWStrOfAE
 

@@ -153,7 +153,7 @@ AbsFunctorProp (FunctorEntry * p)
 #endif
 
 
-INLINE_ONLY inline EXTERN Int ArityOfFunctor (Functor);
+ INLINE_ONLY inline EXTERN Int ArityOfFunctor (Functor);
 
 INLINE_ONLY inline EXTERN Int
 ArityOfFunctor (Functor Fun)
@@ -491,7 +491,7 @@ typedef enum
 } op_type;
 
 
-OpEntry   *Yap_GetOpProp(Atom, op_type CACHE_TYPE);
+ OpEntry   *Yap_GetOpProp(Atom, op_type CACHE_TYPE);
 
 int	Yap_IsPrefixOp(Atom,int *,int *);
 int	Yap_IsOp(Atom);

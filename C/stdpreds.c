@@ -342,8 +342,9 @@ static Int p_set_yap_flags(USES_REGS1);
 static Int p_break(USES_REGS1);
 
 #if YAP_JIT
-void* (*Yap_JitCall)(struct JIT_Compiler* jc, yamop* p);
+void* (*Yap_JitCall)(JIT_Compiler* jc, yamop* p);
 void (* Yap_llvmShutdown)(void ) ;
+Int  (* Yap_traced_absmi)(void ) ;
 
 Environment ExpEnv;
 
