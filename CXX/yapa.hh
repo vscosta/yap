@@ -14,12 +14,12 @@ enum PropTag {
     FUNCTOR_TAG               = FunctorProperty, // 0xBB00,
   // SPARSE_FUNCTOR_TAG        = 0xFFDF,
   /// arithmetic function
-    ARITHMETIC_PROPERTY_TAG   = ExpProperty, // 0xFFE3,
+    ARITHMETIC_PROPERTY_TAG   = ExpProperty, // 0xFFE0,
   /// map the atom to an integer
     TRANSLATION_TAG           = TranslationProperty, // 0xFFF4,
-  /// SWI-STYLE ATOM Extension
-    BLOB_TAG                  = BlobProperty, // 0xFFF5,
-  /// named mutEX
+  /// ensure the atom may not be garbafe colected    
+    HOLD_TAG                  = HoldProperty, // 0xFFF6    
+/// named mutEX
     MUTEX_TAG                 = MutexProperty, // 0xFFF6,
   /// A typed array, may be in-db or in-stack deped
     ARRAY_TAG                 = ArrayProperty, // 0xFFF7,    
@@ -29,12 +29,12 @@ enum PropTag {
     MODULE_TAG                = ModProperty, // 0xFFFA,
   /// the original SICStus blackboard
     BLACKBOARD_TAG            = BBProperty, // 0xFFFB,
-  /// asociate an atomic value with the atom
+  /// associate an atomic value with the atom
     VALUE_TAG                 = ValProperty, // 0xFFFC,
   /// Demoen's proposal for gkobal variables
     GLOBAL_VAR_TAG            = GlobalProperty, // 0xFFFD
-  /// ensure the atom may not be garbafe colected
-    HOLD_TAG                  = HoldProperty, // 0xFFF
+  /// SWI-STYLE ATOM Extension
+    BLOB_TAG                  = BlobProperty, // 0xFFFE,
   /// Prolog operator,        
     OPERATOR_TAG              = OpProperty, // 0xFFFF,  
     };

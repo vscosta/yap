@@ -1598,7 +1598,7 @@ AbsBlobProp (BlobPropEntry * p)
 
 #endif
 
-#define BlobProperty	((PropFlags)0xfff5)
+#define BlobProperty	((PropFlags)0xfffe)
 
 
 INLINE_ONLY inline EXTERN PropFlags IsBlobProperty (int);
