@@ -4,6 +4,7 @@ typedef enum TokenKinds {
   Var_tok,
   String_tok,
   WString_tok,
+  StringTerm_tok,
   Ponctuation_tok,
   Error_tok,
   QuasiQuotes_tok,
@@ -29,4 +30,3 @@ typedef	struct VARSTRUCT {
   struct VARSTRUCT *VarLeft, *VarRight;
   char VarRep[1];
 } VarEntry;
-

@@ -10,16 +10,11 @@ set(LIBJIT_SOURCES
   jit_statisticpreds.c
   jit_codegenpreds.c
   jit_debugpreds.c
-  jit_traced.c  
-  jit_transformpreds.c  
+  jit_traced.c
+  jit_transformpreds.c
   JIT_Compiler.cpp
   JIT_Init.cpp
   )
-
-macro_optional_find_package (LLVM ON)
-macro_log_feature (LLVM_FOUND "LLVM JIT generator"
-          "The LLVM Compiler Infrastructure" "http://www.llvm.org")
-
 
 # The following variables are defined:
 #  LLVM_FOUND          - true if LLVM was found

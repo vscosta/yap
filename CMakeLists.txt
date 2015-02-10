@@ -509,13 +509,18 @@ ADD_SUBDIRECTORY(swi/library)
 # ADD_SUBDIRECTORY(os)
 # ADD_SUBDIRECTORY(packages)
 
-if (BUILD_JIT)
-    add_definitions (-DYAP_JIT=1)
-    INCLUDE_DIRECTORIES(JIT JIT/HPP)
-    macro_optional_add_subdirectory(JIT ON)
-                                                                                                                                            endif()
+macro_optional_find_package (LLVM ON)
+macro_log_feature (LLVM_FOUND "LLVM JIT generator"
+  "The LLVM Compiler Infrastructure" "http://www.llvm.org")
+
+if (LLVM_FOUND)
+  add_definitions (-DYAP_JIT=1)
+  INCLUDE_DIRECTORIES(JIT JIT/HPP)
+  macro_optional_add_subdirectory(JIT)
+endif()
 
 macro_optional_add_subdirectory(library/mpi)
+
 macro_optional_add_subdirectory(library/lammpi)
 
 macro_optional_add_subdirectory (packages/gecode)

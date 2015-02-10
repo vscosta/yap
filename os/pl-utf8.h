@@ -26,6 +26,8 @@
 #ifndef UTF8_H_INCLUDED
 #define UTF8_H_INCLUDED
 
+#include <wchar.h>
+
 #define PL_MB_LEN_MAX 16
 
 #define UTF8_MALFORMED_REPLACEMENT 0xfffd
@@ -66,6 +68,8 @@ extern size_t utf8_strlen1(const char *s);
 extern const char * utf8_skip(const char *s, int n);
 extern int    utf8_strncmp(const char *s1, const char *s2, size_t n);
 extern int    utf8_strprefix(const char *s1, const char *s2);
+/// copy a wide string to an UTF-8 version.
+extern char *utf8_wcscpy(char *sf, const wchar_t *s0);
 
 typedef enum {
   S_ASCII,

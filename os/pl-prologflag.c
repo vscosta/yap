@@ -298,7 +298,7 @@ setUnknown(term_t value, atom_t a, Module m)
       return PL_error(NULL, 0, NULL, ERR_PERMISSION,
 		      ATOM_modify, ATOM_flag, key);
     }
-    
+
     if ( !SYSTEM_MODE )
       printMessage(ATOM_warning, PL_CHARS, "unknown_in_module_user");
   }
@@ -1074,7 +1074,7 @@ pl_prolog_flag(term_t name, term_t value, control_t h)
 static void
 initPrologFlagTable(void)
 { if ( !GD->prolog_flag.table )
-  { 
+  {
 #ifndef __YAP_PROLOG__
     initPrologThreads();	/* may be called before PL_initialise() */
 #endif
@@ -1194,7 +1194,7 @@ initPrologFlags(void)
   setPrologFlag("colon_sets_calling_context", FT_BOOL|FF_READONLY, TRUE, 0);
   setPrologFlag("character_escapes", FT_BOOL, TRUE, PLFLAG_CHARESCAPE);
   setPrologFlag("char_conversion", FT_BOOL, FALSE, PLFLAG_CHARCONVERSION);
-  setPrologFlag("backquoted_string", FT_BOOL, FALSE, PLFLAG_BACKQUOTED_STRING);
+  setPrologFlag("backquoted_string", FT_BOOL, TRUE, PLFLAG_BACKQUOTED_STRING);
 #ifdef O_QUASIQUOTATIONS
   setPrologFlag("quasi_quotations", FT_BOOL, TRUE, PLFLAG_QUASI_QUOTES);
 #endif
@@ -1329,4 +1329,3 @@ BeginPredDefs(prologflag)
 EndPredDefs
 
   //! @}
-

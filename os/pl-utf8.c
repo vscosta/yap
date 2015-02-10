@@ -152,27 +152,27 @@ char *
 _PL__utf8_skip_char(const char *in)
 { 					/* 2-byte, 0x80-0x7ff */
   if ( (in[0]&0xe0) == 0xc0 && CONT(1) )
-  { 
+  {
     return (char *)in+2;
   }
 					/* 3-byte, 0x800-0xffff */
   if ( (in[0]&0xf0) == 0xe0 && CONT(1) && CONT(2) )
-  { 
+  {
     return (char *)in+3;
   }
 					/* 4-byte, 0x10000-0x1FFFFF */
   if ( (in[0]&0xf8) == 0xf0 && CONT(1) && CONT(2) && CONT(3) )
-  { 
+  {
     return (char *)in+4;
   }
 					/* 5-byte, 0x200000-0x3FFFFFF */
   if ( (in[0]&0xfc) == 0xf8 && CONT(1) && CONT(2) && CONT(3) && CONT(4) )
-  { 
+  {
     return (char *)in+5;
   }
 					/* 6-byte, 0x400000-0x7FFFFFF */
   if ( (in[0]&0xfe) == 0xfc && CONT(1) && CONT(2) && CONT(3) && CONT(4) && CONT(5) )
-  { 
+  {
     return (char *)in+4;
   }
 
@@ -197,11 +197,11 @@ utf8_strlen(const char *s, size_t len)
 
 size_t
 utf8_strlen1(const char *s)
-{ 
+{
   unsigned int l = 0;
 
   while( s [0] )
-  { 
+  {
     s = utf8_skip_char(s);
     l++;
   }
@@ -211,9 +211,9 @@ utf8_strlen1(const char *s)
 
 const char *
 utf8_skip(const char *s, int n)
-{ 
+{
   while(n--)
-  { 
+  {
     if (!s[0]) return NULL;
     s = utf8_skip_char(s);
   }
@@ -223,8 +223,8 @@ utf8_skip(const char *s, int n)
 
 int
 utf8_strncmp(const char *s1, const char *s2, size_t n)
-{ 
-  
+{
+
   while(n-- >0)
     { int chr1, chr2;
 
@@ -239,8 +239,8 @@ utf8_strncmp(const char *s1, const char *s2, size_t n)
 
 int
 utf8_strprefix(const char *s1, const char *s2)
-{ 
-  
+{
+
   while(1)
     { int chr1, chr2;
 
@@ -251,4 +251,22 @@ utf8_strprefix(const char *s1, const char *s2)
   }
 
   return 0;
+}
+
+char *
+utf8_wcscpy(char *sf, const wchar_t *s0)
+{
+  char *sf0 = sf;
+  while(1)
+  { int chr1;
+
+    chr1 = * s0++;
+    if (chr1 == '\0') {
+      *sf++ = '\0';
+      return sf0;
+    }
+    sf = utf8_put_char(sf, chr1);
+  }
+
+  return NULL;
 }
