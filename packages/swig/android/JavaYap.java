@@ -1,5 +1,30 @@
 package pt.up.fc.dcc.yap;
 
+/**** using sqlite
+      For example,the following:
+
+      import android.database.sqlite.SQLiteDatabase;
+
+      should be replaced with:
+
+      import org.sqlite.database.sqlite.SQLiteDatabase;
+
+      As well as replacing all uses of the classes in the android.database.sqlite.* namespace, the application must also be sure to use the following two:
+
+      org.sqlite.database.SQLException
+      org.sqlite.database.DatabaseErrorHandler
+
+      instead of:
+
+      android.database.SQLException
+      android.database.DatabaseErrorHandler
+
+      Aside from namespace changes, there are other differences from the stock Android interface that applications need to be aware of:
+
+      The SQLiteStatement.simpleQueryForBlobFileDescriptor() API is not available. The collation sequence "UNICODE" is not available. The collation sequence "LOCALIZED", which normally changes with the system's current locale, is always equivalent to SQLite's built in collation BINARY.
+
+****/
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
@@ -18,6 +43,7 @@ import org.sqlite.database.sqlite.SQLiteStatement;
 import org.sqlite.database.sqlite.SQLiteDatabaseCorruptException;
 import org.sqlite.database.sqlite.SQLiteOpenHelper;
 
+import org.sqlite.database.SQLException;
 import org.sqlite.database.DatabaseErrorHandler;
 class DoNotDeleteErrorHandler implements DatabaseErrorHandler {
   private static final String TAG = "DoNotDeleteErrorHandler";
@@ -49,7 +75,7 @@ public class JavaYap extends Activity
 			// text.setText("");
 			if (vs0.nil()) {
 				if (BuildConfig.DEBUG) {
-					Log.i(TAG, "q=");
+					Log.i(TAG, "q0=\n");
 				} 	
 				if (q.next()) {
 					outputText.append( "yes\n" );
@@ -59,12 +85,12 @@ public class JavaYap extends Activity
 			} else {
 				int i=1;
 				if (BuildConfig.DEBUG) {
-					Log.i(TAG, "q=");
+				  Log.i(TAG, "q1= "+vs0.text()+"\n");
 
 				} 	
 				while (rc = q.next()) {
 					if (BuildConfig.DEBUG) {
-						Log.i(TAG, "q=");
+					  Log.i(TAG, "q= "+vs0.text()+"\n");
 
 					} 	
 				YAPListTerm vs = vs0;

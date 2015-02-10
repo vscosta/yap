@@ -336,7 +336,7 @@ typedef struct environment {
 
 #if YAP_JIT
 /* Enumeration for types of basic blocks -- used on trace construction */
-typedef enum {
+typedef enum block_try {
   NONE,               // untyped
   SIMPLE_ENTRY,       // first basic block of any yaam opcode
   SIMPLE,             // any other basic block of any yaam opcode

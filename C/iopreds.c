@@ -20,7 +20,7 @@ static char SccsId[] = "%W% %G%";
 
 /*
  * This file includes the definition of a miscellania of standard predicates
- * for yap refering to: Files and Streams, Simple Input/Output, 
+ * for yap refering to: Files and Streams, Simple Input/Output,
  *
  */
 
@@ -51,7 +51,7 @@ static char SccsId[] = "%W% %G%";
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
-#if HAVE_SYS_SELECT_H && !_MSC_VER && !defined(__MINGW32__) 
+#if HAVE_SYS_SELECT_H && !_MSC_VER && !defined(__MINGW32__)
 #include <sys/select.h>
 #endif
 #ifdef HAVE_UNISTD_H
@@ -79,7 +79,7 @@ static char SccsId[] = "%W% %G%";
 #if !HAVE_STRNCPY
 #define strncpy(X,Y,Z) strcpy(X,Y)
 #endif
-#if _MSC_VER || defined(__MINGW32__) 
+#if _MSC_VER || defined(__MINGW32__)
 #include <windows.h>
 #ifndef S_ISDIR
 #define S_ISDIR(x) (((x)&_S_IFDIR)==_S_IFDIR)
@@ -132,7 +132,7 @@ static YP_File     curfile;
 
 #ifdef MACC
 
-static void 
+static void
 InTTYLine(char *line)
 {
 	char           *p = line;
@@ -149,7 +149,7 @@ InTTYLine(char *line)
 
 #endif
 
-void 
+void
 Yap_DebugSetIFile(char *fname)
 {
   if (curfile)
@@ -161,14 +161,14 @@ Yap_DebugSetIFile(char *fname)
   }
 }
 
-void 
+void
 Yap_DebugEndline()
 {
 	*lp = 0;
 
 }
 
-int 
+int
 Yap_DebugGetc()
 {
   int             ch;
@@ -191,7 +191,7 @@ Yap_DebugGetc()
   return (ch);
 }
 
-int 
+int
 Yap_DebugPutc(int sno, wchar_t ch)
 {
   if (GLOBAL_Option['l' - 96])
@@ -199,7 +199,7 @@ Yap_DebugPutc(int sno, wchar_t ch)
   return (Sputc(ch, GLOBAL_stderr));
 }
 
-static int 
+static int
 Yap_DebugPuts(int sno, const char * s)
 {
   if (GLOBAL_Option['l' - 96])
@@ -213,14 +213,14 @@ Yap_DebugPlWrite(Term t)
   Yap_plwrite(t, NULL, 15, 0, 1200);
 }
 
-void 
+void
 Yap_DebugErrorPutc(int c)
 {
   CACHE_REGS
    Yap_DebugPutc (LOCAL_c_error_stream, c);
 }
 
-void 
+void
 Yap_DebugErrorPuts(const char *s)
 {
   CACHE_REGS
@@ -350,19 +350,25 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
 	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomGVar,3),3,t);
       }
       break;
-    case String_tok:
-      {
-	Term t0 = Yap_CharsToListOfCodes((const char *)info PASS_REGS);
-	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString,1),1,&t0);
-      }
-      break;
-    case WString_tok:
-      {
-	Term t0 = Yap_WCharsToListOfCodes((const wchar_t *)info PASS_REGS);
-	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString,1),1,&t0);
-      }
-      break;
-    case Error_tok:
+      case String_tok:
+    {
+      Term t0 = Yap_CharsToListOfCodes((const char *)info PASS_REGS);
+      ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString,1),1,&t0);
+    }
+    break;
+    case StringTerm_tok:
+  {
+    Term t0 = MkStringTerm((const char *)info);
+    ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString,1),1,&t0);
+  }
+  break;
+  case WString_tok:
+  {
+    Term t0 = Yap_WCharsToListOfCodes((const wchar_t *)info PASS_REGS);
+    ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString,1),1,&t0);
+  }
+  break;
+  case Error_tok:
     case eot_tok:
       break;
     case Ponctuation_tok:
@@ -370,7 +376,7 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
 	char s[2];
 	s[1] = '\0';
 	s[0] = (char)info;
-	if (s[0] == 'l') 
+	if (s[0] == 'l')
 	  s[0] = '(';
 	ts[0] = MkAtomTerm(Yap_LookupAtom(s));
       }
@@ -587,7 +593,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
 
 	  HR = old_H;
 	  TR = (tr_fr_ptr)LOCAL_ScannerStack;
-	  
+
 	  if (!strcmp(LOCAL_ErrorMessage,"Stack Overflow"))
 	    res = Yap_growstack_in_parser(&old_TR, &tokstart, &LOCAL_VarTable);
 	  else if (!strcmp(LOCAL_ErrorMessage,"Heap Overflow"))
@@ -611,7 +617,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
 	if (LOCAL_ErrorMessage == NULL)
 	  LOCAL_ErrorMessage = "SYNTAX ERROR";
 	GenerateSyntaxError(&terror, tokstart, inp_stream, MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage)) PASS_REGS);
-	
+
 	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
 	rd->has_exception = TRUE;
 	rd->exception = Yap_InitSlot(terror PASS_REGS);
@@ -745,7 +751,7 @@ p_type_of_char ( USES_REGS1 )
 }
 
 
-static Int 
+static Int
 p_force_char_conversion( USES_REGS1 )
 {
   /* don't actually enable it until someone tries to add a conversion */
@@ -755,14 +761,14 @@ p_force_char_conversion( USES_REGS1 )
   return(TRUE);
 }
 
-static Int 
+static Int
 p_disable_char_conversion( USES_REGS1 )
 {
   CharConversionTable = NULL;
   return(TRUE);
 }
 
-static Int 
+static Int
 p_char_conversion( USES_REGS1 )
 {
   Term t0 = Deref(ARG1), t1 = Deref(ARG2);
@@ -770,29 +776,29 @@ p_char_conversion( USES_REGS1 )
 
   if (IsVarTerm(t0)) {
     Yap_Error(INSTANTIATION_ERROR, t0, "char_conversion/2");
-    return (FALSE);    
+    return (FALSE);
   }
   if (!IsAtomTerm(t0)) {
     Yap_Error(REPRESENTATION_ERROR_CHARACTER, t0, "char_conversion/2");
-    return (FALSE);    
+    return (FALSE);
   }
   s0 = RepAtom(AtomOfTerm(t0))->StrOfAE;
   if (s0[1] != '\0') {
     Yap_Error(REPRESENTATION_ERROR_CHARACTER, t0, "char_conversion/2");
-    return (FALSE);    
+    return (FALSE);
   }
   if (IsVarTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "char_conversion/2");
-    return (FALSE);    
+    return (FALSE);
   }
   if (!IsAtomTerm(t1)) {
     Yap_Error(REPRESENTATION_ERROR_CHARACTER, t1, "char_conversion/2");
-    return (FALSE);    
+    return (FALSE);
   }
   s1 = RepAtom(AtomOfTerm(t1))->StrOfAE;
   if (s1[1] != '\0') {
     Yap_Error(REPRESENTATION_ERROR_CHARACTER, t1, "char_conversion/2");
-    return (FALSE);    
+    return (FALSE);
   }
   /* check if we do have a table for converting characters */
   if (CharConversionTable2 == NULL) {
@@ -813,7 +819,7 @@ p_char_conversion( USES_REGS1 )
       if (p_force_char_conversion( PASS_REGS1 ) == FALSE)
 	return(FALSE);
     }
-    for (i = 0; i < NUMBER_OF_CHARS; i++) 
+    for (i = 0; i < NUMBER_OF_CHARS; i++)
       CharConversionTable2[i] = i;
   }
   /* just add the new entry */
@@ -822,7 +828,7 @@ p_char_conversion( USES_REGS1 )
   return(TRUE);
 }
 
-static Int 
+static Int
 p_current_char_conversion( USES_REGS1 )
 {
   Term t0, t1;
@@ -834,16 +840,16 @@ p_current_char_conversion( USES_REGS1 )
   t0 = Deref(ARG1);
   if (IsVarTerm(t0)) {
     Yap_Error(INSTANTIATION_ERROR, t0, "current_char_conversion/2");
-    return (FALSE);    
+    return (FALSE);
   }
   if (!IsAtomTerm(t0)) {
     Yap_Error(REPRESENTATION_ERROR_CHARACTER, t0, "current_char_conversion/2");
-    return (FALSE);    
+    return (FALSE);
   }
   s0 = RepAtom(AtomOfTerm(t0))->StrOfAE;
   if (s0[1] != '\0') {
     Yap_Error(REPRESENTATION_ERROR_CHARACTER, t0, "current_char_conversion/2");
-    return (FALSE);    
+    return (FALSE);
   }
   t1 = Deref(ARG2);
   if (IsVarTerm(t1)) {
@@ -855,19 +861,19 @@ p_current_char_conversion( USES_REGS1 )
   }
   if (!IsAtomTerm(t1)) {
     Yap_Error(REPRESENTATION_ERROR_CHARACTER, t1, "current_char_conversion/2");
-    return (FALSE);    
+    return (FALSE);
   }
   s1 = RepAtom(AtomOfTerm(t1))->StrOfAE;
   if (s1[1] != '\0') {
     Yap_Error(REPRESENTATION_ERROR_CHARACTER, t1, "current_char_conversion/2");
-    return (FALSE);    
+    return (FALSE);
   } else {
     return (CharConversionTable[(int)s0[0]] == '\0' &&
 	    CharConversionTable[(int)s0[0]] == s1[0] );
   }
 }
 
-static Int 
+static Int
 p_all_char_conversions( USES_REGS1 )
 {
   Term out = TermNil;
@@ -904,7 +910,7 @@ p_float_format( USES_REGS1 )
 }
 
 
-static Int 
+static Int
 p_style_checker( USES_REGS1 )
 {
   Term t = Deref( ARG1 );
@@ -940,7 +946,7 @@ p_style_checker( USES_REGS1 )
 
       if (IsVarTerm(h)) {
 	Yap_Error(INSTANTIATION_ERROR, t, "style_check/1");
-	return (FALSE);    
+	return (FALSE);
       } if (IsAtomTerm(h)) {
 	Atom at = AtomOfTerm( h );
 	if (at == AtomAtom) debugstatus.styleCheck |= LONGATOM_CHECK;
@@ -999,7 +1005,7 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$change_type_of_char", 2, p_change_type_of_char, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$type_of_char", 2, p_type_of_char, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("char_conversion", 2, p_char_conversion, SyncPredFlag);
-/** @pred char_conversion(+ _IN_,+ _OUT_) is iso 
+/** @pred char_conversion(+ _IN_,+ _OUT_) is iso
 
 
 While reading terms convert unquoted occurrences of the character
@@ -1014,7 +1020,7 @@ convert characters from the ISO-LATIN-1 character set to ASCII.
 If  _IN_ is the same character as  _OUT_, char_conversion/2
 will remove this conversion from the table.
 
- 
+
 */
   Yap_InitCPred ("$current_char_conversion", 2, p_current_char_conversion, SyncPredFlag);
   Yap_InitCPred ("$all_char_conversions", 1, p_all_char_conversions, SyncPredFlag);
@@ -1022,11 +1028,11 @@ will remove this conversion from the table.
   Yap_InitCPred ("$disable_char_conversion", 0, p_disable_char_conversion, SyncPredFlag);
 #if HAVE_SELECT
     //  Yap_InitCPred ("stream_select", 3, p_stream_select, SafePredFlag|SyncPredFlag);
-/** @pred  stream_select(+ _STREAMS_,+ _TIMEOUT_,- _READSTREAMS_) 
+/** @pred  stream_select(+ _STREAMS_,+ _TIMEOUT_,- _READSTREAMS_)
 
 
 Given a list of open  _STREAMS_ opened in read mode and a  _TIMEOUT_
-return a list of streams who are now available for reading. 
+return a list of streams who are now available for reading.
 
 If the  _TIMEOUT_ is instantiated to `off`,
 stream_select/3 will wait indefinitely for a stream to become
@@ -1037,7 +1043,7 @@ and `USECS` adds the number of micro-seconds.
 This built-in is only defined if the system call `select` is
 available in the system.
 
- 
+
 */
 #endif
   Yap_InitCPred ("$float_format", 1, p_float_format, SafePredFlag|SyncPredFlag);

@@ -95,7 +95,7 @@ pl_nl1(term_t stream)
   fail;
 }
 
-/** @pred  nl is iso 
+/** @pred  nl is iso
 
 Outputs a new line to the current output stream.
 
@@ -219,7 +219,7 @@ bind_varnames(term_t varnames ARG_LD)
 
 char *
 varName(term_t t, char *name)
-{ 
+{
   CACHE_REGS
   CELL *adr = (CELL *)Yap_GetFromSlot(t PASS_REGS);
 
@@ -240,7 +240,7 @@ writeTopTerm(term_t t, int prec, write_options *options)
   UInt yap_flag = Use_SWI_Stream_f;
   int flags = options->flags;
   Term old_module;
-  
+
   if (flags & PL_WRT_QUOTED)
     yap_flag |= Quote_illegal_f;
   if (options->flags & PL_WRT_NUMBERVARS)
@@ -486,7 +486,7 @@ pl_write_term3(term_t stream, term_t term, term_t opts)
 
   options.module = lookupModule(mname);
   if ( charescape == TRUE ||
-       (charescape == -1 
+       (charescape == -1
 #ifndef __YAP_PROLOG__
 && True(options.module, M_CHARESCAPE)
 #endif
@@ -543,7 +543,7 @@ out:
 Displays term  _T_ on the current output stream, according to the same
 options used by `write_term/3`.
 
- 
+
 */
 /// @memberof write_term/3
 word
@@ -551,7 +551,7 @@ pl_write_term(term_t term, term_t options)
 { return pl_write_term3(0, term, options);
 }
 
-/** @pred  write_term(+ _T_, + _Opts_) is iso 
+/** @pred  write_term(+ _T_, + _Opts_) is iso
 
 
 Displays term  _T_ on the current output stream, according to the
@@ -592,7 +592,7 @@ unlimited depth.
 
 + priority(+ _Piority_)
 
-    If `Priority` is a positive integer smaller than `1200`, 
+    If `Priority` is a positive integer smaller than `1200`,
 give the context priority. The default is `1200`.
 
 + cycles(+ _Bool_)
@@ -628,9 +628,9 @@ do_write2(term_t stream, term_t term, int flags)
     options.flags     = flags;
     options.out	      = s;
     options.module    = MODULE_user;
-    if ( options.module 
+    if ( options.module
 #ifndef __YAP_PROLOG__
-	 && True(options.module, M_CHARESCAPE) 
+	 && True(options.module, M_CHARESCAPE)
 #endif
 	 )
       options.flags |= PL_WRT_CHARESCAPES;
@@ -654,7 +654,7 @@ do_write2(term_t stream, term_t term, int flags)
 Writes term  _T_ to stream  _S_ instead of to the current output
 stream.
 
- 
+
 */
 /// @memberof write/2
 word
@@ -666,7 +666,7 @@ pl_write2(term_t stream, term_t term)
 
 As writeq/1, but the output is sent to the stream  _S_.
 
- 
+
 */
 /// @memberof writeq/2
 word
@@ -679,7 +679,7 @@ pl_writeq2(term_t stream, term_t term)
 Prints term  _T_ to the stream  _S_ instead of to the current output
 stream.
 
- 
+
 */
 /// @memberof print/2
 word
@@ -693,7 +693,7 @@ pl_print2(term_t stream, term_t term)
 Displays term  _T_ on the stream  _S_. Atoms are quoted when
 necessary, and operators are ignored.
 
- 
+
 */
 /// @memberof write_canonical/2
 word
@@ -711,7 +711,7 @@ pl_write_canonical2(term_t stream, term_t term)
 
   rc = ( numberVars(term, &options, 0 PASS_LD) >= 0 &&
 	 do_write2(stream, term,
-		   PL_WRT_QUOTED|PL_WRT_IGNOREOPS|PL_WRT_NUMBERVARS)
+		   PL_WRT_QUOTED|PL_WRT_IGNOREOPS|PL_WRT_NUMBERVARS|PLFLAG_BACKQUOTED_STRING)
        );
 
   END_NUMBERVARS(TRUE);
@@ -719,7 +719,7 @@ pl_write_canonical2(term_t stream, term_t term)
   return rc;
 }
 
-/** @pred  write( _T_) is iso 
+/** @pred  write( _T_) is iso
 
 
 The term  _T_ is written to the current output stream according to
@@ -732,17 +732,17 @@ pl_write(term_t term)
 }
 
 word
-/** @pred  writeq( _T_) is iso 
+/** @pred  writeq( _T_) is iso
 
 Writes the term  _T_, quoting names to make the result acceptable to
-the predicate `read` whenever necessary. 
+the predicate `read` whenever necessary.
 */
 /// @memberof writeq/1
 pl_writeq(term_t term)
 { return pl_writeq2(0, term);
 }
 
-/** @pred  print( _T_) 
+/** @pred  print( _T_)
 
 
 Prints the term  _T_ to the current output stream using write/1
@@ -750,7 +750,7 @@ unless T is bound and a call to the user-defined  predicate
 `portray/1` succeeds. To do pretty  printing of terms the user should
 define suitable clauses for `portray/1` and use print/1.
 
- 
+
 */
 /// @memberof print/1
 word
@@ -758,14 +758,14 @@ pl_print(term_t term)
 { return pl_print2(0, term);
 }
 
-/** @pred  write_canonical(+ _T_) is iso 
+/** @pred  write_canonical(+ _T_) is iso
 
 
 Displays term  _T_ on the current output stream. Atoms are quoted
 when necessary, and operators are ignored, that is, the term is written
 in standard parenthesized prefix notation.
 
- 
+
 */
 /// @memberof write_canonical/1
 word
@@ -773,13 +773,13 @@ pl_write_canonical(term_t term)
 { return pl_write_canonical2(0, term);
 }
 
-/** @pred  writeln( _T_) 
+/** @pred  writeln( _T_)
 
 
 Prints the term  _T_ to the current output stream using write/1,
 followed by a newline.
 
- 
+
 */
 /// @memberof writeln/1
 word
@@ -796,5 +796,3 @@ pl_writeln(term_t term)
 
 BeginPredDefs(write)
 EndPredDefs
-
-
