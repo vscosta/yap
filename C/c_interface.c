@@ -3204,7 +3204,7 @@ YAP_Reset(yap_reset_t mode)
   /* always have an empty slots for people to use */
   P = CP = YESCODE;
   // ensure that we have slots where we need them
-  Yap_CloseSlots(1);
+  Yap_RebootSlots( worker_id );
   RECOVER_MACHINE_REGS();
   return res;
 }
