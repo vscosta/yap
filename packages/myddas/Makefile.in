@@ -48,7 +48,7 @@ MYDDAS_SOURCES= \
 	myddas_mysql.c \
 	myddas_odbc.c \
 	myddas_sqlite3.c \
-        myddas_util.c \
+    myddas_util.c \
 	myddas_initialization.c \
 	myddas_shared.c \
 	myddas_statistics.c \
@@ -93,8 +93,8 @@ install_myddas:
 	if [ $$count -ne 0 ]; then \
 	mkdir -p $(DESTDIR)$(SHAREDIR); \
 	for p in $(MYDDAS_PROLOG); \
-	do name=`basename $$p .ypp`; echo $$name;\
-	cpp $(YAP_EXTRAS) -P -E -w $$p > $(DESTDIR)$(SHAREDIR)/$$name.yap; \
+	   do name=`basename $$p .ypp`; echo $$name;\
+	   cpp $(YAP_EXTRAS) -P -E -w $$p > $(DESTDIR)$(SHAREDIR)/$$name.yap; \
 	done; \
 	fi
 

@@ -14,8 +14,8 @@ AC_ARG_ENABLE(myddas,
 	else
 		yap_cv_myddas=$withval
 		LDFLAGS="$LDFLAGS -L${yap_cv_myddas}/lib "
-		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include "		
-		MYDDAS_CPPFLAGS="$MYDDAS_CPPFLAGS -I${yap_cv_myddas}/include "		
+		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include "
+		MYDDAS_CPPFLAGS="$MYDDAS_CPPFLAGS -I${yap_cv_myddas}/include "
 fi,
 	[yap_cv_myddas=/usr])
 
@@ -28,7 +28,7 @@ AC_ARG_WITH(mysql,
 	else
 		yap_cv_mysql=$withval
 		LDFLAGS="$LDFLAGS -L${yap_cv_mysql}/lib "
-		CPPFLAGS="$CPPFLAGS -I${yap_cv_mysql}/include "		
+		CPPFLAGS="$CPPFLAGS -I${yap_cv_mysql}/include "
 		MYDDAS_CPPFLAGS="$MYDDAS_CPPFLAGS -I${yap_cv_mysql}/include "
 	fi,
 	[yap_cv_mysql=/usr])
@@ -42,7 +42,7 @@ AC_ARG_WITH(odbc,
 	else
 		yap_cv_odbc=$withval
 		LDFLAGS="$LDFLAGS -L${yap_cv_odbc}/lib "
-		CPPFLAGS="$CPPFLAGS -I${yap_cv_odbc}/include "		
+		CPPFLAGS="$CPPFLAGS -I${yap_cv_odbc}/include "
 		MYDDAS_CPPFLAGS="$MYDDAS_CPPFLAGS -I${yap_cv_odbc}/include "
 	fi,
 	[yap_cv_odbc=/usr])
@@ -56,8 +56,8 @@ AC_ARG_WITH(sqlite3,
 	else
 		yap_cv_sqlite3=$withval
 		LDFLAGS="$LDFLAGS -L${yap_cv_sqlite3}/lib "
-		CPPFLAGS="$CPPFLAGS -I${yap_cv_sqlite3}/include "		
-		MYDDAS_CPPFLAGS="$MYDDAS_CPPFLAGS -I${yap_cv_sqlite3}/include "		
+		CPPFLAGS="$CPPFLAGS -I${yap_cv_sqlite3}/include "
+		MYDDAS_CPPFLAGS="$MYDDAS_CPPFLAGS -I${yap_cv_sqlite3}/include "
 	fi,
 	[yap_cv_sqlite3=/usr])
 
@@ -83,17 +83,18 @@ then
 	dnl check for mysql
 	AC_SEARCH_LIBS(mysql_init, [mysqlclient], [yap_cv_mysql="yes" MYDDAS_LIBS="-lmysqlclient $MYDDAS_LIBS"], [yap_cv_mysql="no"])
 	AC_CHECK_HEADERS(mysql/mysql.h, [], [yap_cv_mysql="no"])
-	if test "$yap_cv_mysql" = yes 
+	if test "$yap_cv_mysql" = yes
 	then
-                YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_MYSQL"
+ 	    use_myddas=true
+        YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_MYSQL"
 	fi
-	
+
 	dnl check for odbc
         case "$target_os" in
 	  *darwin*)
 	    LIBS="$LIBS -framework CoreFoundation"
 	;;
-	  **)		
+	  **)
 	;;
 	esac
 	AC_SEARCH_LIBS(SQLAllocHandle, [odbc], [yap_cv_odbc="yes"], [yap_cv_odbc="no"])
@@ -116,11 +117,12 @@ then
 	#from SWI ODBC library.
 	AC_CHECK_HEADERS(windef.h)
 	AC_CHECK_HEADERS(sql.h, [yap_cv_odbc="yes" ], [yap_cv_odbc="no"])
-	if test "$yap_cv_odbc" != no 
+	if test "$yap_cv_odbc" != no
 	then
+	    use_myddas=true
 		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_ODBC"
 	fi
-	
+
 	#from SWI PROSQLITE library.
 	AC_CHECK_LIB(sqlite3, sqlite3_open,
                        LIBS="-lsqlite3 $LIBS"
@@ -128,8 +130,9 @@ then
 
 
         AC_CHECK_HEADERS(sqlite3.h, [], [yap_cv_sqlite3="no"])
-	if test "$yap_cv_sqlite3" != no 
+	if test "$yap_cv_sqlite3" != no
 	then
+	    use_myddas=true
 		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_SQLITE3"
 	fi
 
@@ -143,15 +146,18 @@ then
 	    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_TOP_LEVEL"
 	fi
 
+	if test "$use_myddas" = true; then
+		YAP_EXTRAS="$YAP_EXTRAS -DUSE_MYDDAS=1"
+	fi
+
+
 	MYDDAS_LIBS="$LIBS"
-	LIBS="$OLD_LIBS"		
-	CPPFLAGS="$OLD_CPPFLAGS"		
+	LIBS="$OLD_LIBS"
+	CPPFLAGS="$OLD_CPPFLAGS"
 else
 	ENABLE_MYDDAS=""
-fi	
+fi
 
 AC_SUBST(PKG_MYDDAS)
 AC_SUBST(MYDDAS_CPPFLAGS)
 AC_SUBST(MYDDAS_LIBS)
-
-

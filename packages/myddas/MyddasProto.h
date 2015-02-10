@@ -1,6 +1,6 @@
 /* MYDDAS */
 
-#if defined MYDDAS_MYSQL || defined MYDDAS_ODCB || defined MYDDAS_SQLITE3
+#ifdef USE_MYDDAS
 
 /* myddas_initialization.c */
 MYDDAS_GLOBAL          myddas_init_initialize_myddas(void);
@@ -71,4 +71,3 @@ void    Yap_InitBackMYDDAS_SharedPreds(void);
 #if defined MYDDAS_TOP_LEVEL && defined MYDDAS_MYSQL //&& defined HAVE_LIBREADLINE
 void    Yap_InitMYDDAS_TopLevelPreds(void);
 #endif
-
