@@ -48,6 +48,17 @@ Slots are not known to the yaam. Instead, A new set of slots is created when the
 
 *************************************************************************************************/
 
+/// @brief reboot the slot system.
+/// Used when wwe start from scratch (Reset).
+#define Yap_RebootSlots( wid ) Yap_RebootSlots__( wid PASS_REGS )
+
+static inline void
+Yap_RebootSlots__( int wid USES_REGS ) {
+  //  fprintf( stderr, " StartSlots = %ld", LOCAL_CurSlot);    
+  REMOTE_CurSlot(wid) = 1; 
+}
+
+
 /// @brief declares a new set of slots.
 /// Used to tell how many slots we had when we entered a segment of code.
 #define Yap_StartSlots() Yap_StartSlots__( PASS_REGS1 )

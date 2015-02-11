@@ -1844,7 +1844,7 @@ Yap_InitYaamRegs( int myworker_id )
   h0var = MkVarTerm();
   REMOTE_AttsMutableList(myworker_id) = Yap_NewTimedVar(h0var);
 #endif
-  REMOTE_CurSlot(myworker_id) = 1; /* This function has direct access to the Handles class AKA InitSlot */
+  Yap_RebootSlots( myworker_id );
   h0var = MkVarTerm();
   REMOTE_GcGeneration(myworker_id) = Yap_NewTimedVar(h0var);
   REMOTE_GcCurrentPhase(myworker_id) = 0L;

@@ -15,7 +15,7 @@
 *									 *
 *************************************************************************/
 
-#if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
+#ifdef USE_MYDDAS
 
 #include "Yap.h"
 #include "Yatom.h"
@@ -44,7 +44,7 @@ static Int c_db_stats( USES_REGS1 );
 static Int c_db_stats_walltime( USES_REGS1 );
 static Int c_db_stats_translate( USES_REGS1 );
 static Int c_db_stats_time( USES_REGS1 );
-#endif 
+#endif
 #ifdef DEBUG
 static Int c_db_check( USES_REGS1 );
 #endif
@@ -53,7 +53,7 @@ void Yap_InitMYDDAS_SharedPreds(void)
 {
   /* c_db_initialize_myddas */
   Yap_InitCPred("c_db_initialize_myddas",0,c_db_initialize_myddas, 0);
-  
+
   /* c_db_connection_type: Connection x Type */
   Yap_InitCPred("c_db_connection_type",2,c_db_connection_type, 0);
 
@@ -62,7 +62,7 @@ void Yap_InitMYDDAS_SharedPreds(void)
 
   /* c_db_check_if_exists_pred : PredName * Arity * Connection */
   Yap_InitCPred("c_db_check_if_exists_pred",3,c_db_check_if_exists_pred, 0);
-  
+
   /* c_db_delete_pred : Module * PredName * Arity */
   Yap_InitCPred("c_db_delete_predicate",3,c_db_delete_predicate, 0);
 
@@ -92,20 +92,20 @@ void Yap_InitBackMYDDAS_SharedPreds(void)
 {
   /* Gives all the predicates associated to a given connection */
   Yap_InitCPredBack("c_db_preds_conn", 4, sizeof(Int),
-		    c_db_preds_conn_start, 
+		    c_db_preds_conn_start,
 		    c_db_preds_conn_continue,  0);
   /* Gives all the connections stored on the MYDDAS Structure*/
   Yap_InitCPredBack("c_db_connection", 1, sizeof(Int),
-		    c_db_connection_start, 
-		    c_db_connection_continue,  0); 
-  
+		    c_db_connection_start,
+		    c_db_connection_continue,  0);
+
 
 }
 
 /* Initialize all of the MYDDAS global structures */
-static Int 
+static Int
 c_db_initialize_myddas( USES_REGS1 ){
-  Yap_REGS.MYDDAS_GLOBAL_POINTER = myddas_init_initialize_myddas(); 
+  Yap_REGS.MYDDAS_GLOBAL_POINTER = myddas_init_initialize_myddas();
 #ifdef MYDDAS_STATS
   Yap_REGS.MYDDAS_GLOBAL_POINTER = myddas_stats_initialize_global_stats(Yap_REGS.MYDDAS_GLOBAL_POINTER);
 #endif /* MYDDAS_STATS */
@@ -113,40 +113,40 @@ c_db_initialize_myddas( USES_REGS1 ){
 }
 
 
-/* Gives the type of a given connection, 
-   in other words, type will be mysql or odbc 
-   
+/* Gives the type of a given connection,
+   in other words, type will be mysql or odbc
+
    NOTE: In order to use this predicate, the connection*/
 /* c_db_connection_type: +Connection * ?Type */
-static Int 
+static Int
 c_db_connection_type ( USES_REGS1 ){
   Term arg_con = Deref(ARG1);
   Term arg_type = Deref(ARG2);
-  
+
   Int *con = (Int *) IntegerOfTerm(arg_con);
   Int type = myddas_util_connection_type(con);
-  
+
   if (type == 1) /* MYSQL Connection */
     Yap_unify(arg_type, MkAtomTerm(Yap_LookupAtom("mysql")));
   else if (type ==2) /* ODBC Connection */
     Yap_unify(arg_type, MkAtomTerm(Yap_LookupAtom("odbc")));
   else /* Not a valid connection*/
     return FALSE;
-  
+
   return TRUE;
 }
 
 /* db_add_preds: PredName * Arity * Module * Connection*/
-static Int 
+static Int
 c_db_add_preds ( USES_REGS1 ){
   Term arg_nome = Deref(ARG1);
   Term arg_aridade = Deref(ARG2);
   Term arg_module = Deref(ARG3);
   Term arg_conn = Deref(ARG4);
-  
+
 /*   PredEntry *pe; */
 /*   pe = RepPredProp(PredPropByFunc(FunctorOfTerm(arg_pred),arg_module)); */
-  
+
 
   char *nome = AtomName(AtomOfTerm(arg_nome));
   char *module = AtomName(AtomOfTerm(arg_module));
@@ -160,22 +160,22 @@ c_db_add_preds ( USES_REGS1 ){
 #endif
       return FALSE;
     }
-  
+
   return TRUE;
 }
 
 
-static Int 
+static Int
 c_db_check_if_exists_pred ( USES_REGS1 ){
   Term arg_nome = Deref(ARG1);
   Term arg_aridade = Deref(ARG2);
   Term arg_module = Deref(ARG3);
-    
- 
+
+
   char *nome = AtomName(AtomOfTerm(arg_nome));
   char *module = AtomName(AtomOfTerm(arg_module));
   Int aridade = IntegerOfTerm(arg_aridade);
-  
+
   if (myddas_util_search_predicate(nome,aridade,module) == NULL)
     return FALSE;
   else
@@ -183,17 +183,17 @@ c_db_check_if_exists_pred ( USES_REGS1 ){
 }
 
 
-static Int 
+static Int
 c_db_delete_predicate( USES_REGS1 ){
   Term arg_module = Deref(ARG1);
   Term arg_name = Deref(ARG2);
   Term arg_arity = Deref(ARG3);
-  
+
   char *module = AtomName(AtomOfTerm(arg_module));
   char *name = AtomName(AtomOfTerm(arg_name));
   Int arity = IntegerOfTerm(arg_arity);
 
-  MYDDAS_UTIL_PREDICATE predicate = 
+  MYDDAS_UTIL_PREDICATE predicate =
     myddas_util_search_predicate(name,arity,module);
   if (predicate == NULL)
     return FALSE;
@@ -204,29 +204,29 @@ c_db_delete_predicate( USES_REGS1 ){
 }
 
 
-static Int 
+static Int
 c_db_multi_queries_number( USES_REGS1 ){
   Term arg_conn = Deref(ARG1);
   Term arg_number = Deref(ARG2);
 
   Int *conn = (Int *) IntegerOfTerm(arg_conn);
-  MYDDAS_UTIL_CONNECTION node = 
+  MYDDAS_UTIL_CONNECTION node =
     myddas_util_search_connection(conn);
-  
+
   if (node == NULL)
     return FALSE;
 
   if (IsVarTerm(arg_number)){
     Yap_unify(arg_number,MkIntegerTerm(((Int)myddas_util_get_total_multi_queries_number(node))+1));
-  } 
+  }
   else {
     Int number = IntegerOfTerm(arg_number);
     number--;
     myddas_util_set_total_multi_queries_number(node,number);
   }
-  
+
   return TRUE;
-  
+
 }
 
 static Int
@@ -236,17 +236,17 @@ c_db_connection_start( USES_REGS1 ){
     Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections;
 
   EXTRA_CBACK_ARG(1,1)=(CELL) MkIntegerTerm((Int)node);
-  
+
   return (c_db_connection_continue( PASS_REGS1 ));
 }
 
 static Int
 c_db_connection_continue( USES_REGS1 ){
   Term arg_conn = Deref(ARG1);
-  
+
   MYDDAS_UTIL_CONNECTION node;
   node = (MYDDAS_UTIL_CONNECTION) IntegerOfTerm(EXTRA_CBACK_ARG(1,1));
-  
+
   /* There is no connections */
   if (node == NULL)
     {
@@ -256,35 +256,35 @@ c_db_connection_continue( USES_REGS1 ){
 
   Yap_unify(arg_conn, MkIntegerTerm((Int)(node->connection)));
   EXTRA_CBACK_ARG(1,1)=(CELL) MkIntegerTerm((Int)(node->next));
-  
+
   return TRUE;
-  
+
 }
 
 /* db_preds_conn : Connection(+) * Pred_name(-) * Pred_arity */
 static Int
 c_db_preds_conn_start ( USES_REGS1 ){
   Term arg_conn = Deref(ARG1);
-   
+
   Int *conn = (Int *) IntegerOfTerm(arg_conn);
-  MYDDAS_UTIL_CONNECTION node = 
+  MYDDAS_UTIL_CONNECTION node =
     myddas_util_search_connection(conn);
-  
+
   /* Caso a ligacao já tenha sido apagada*/
   if (node == NULL)
     {
       cut_fail();
       return FALSE;
     }
-  
+
   void *pointer = myddas_util_get_list_pred(node);
   EXTRA_CBACK_ARG(4,1)=(CELL) MkIntegerTerm((Int)pointer);
-  
+
   return (c_db_preds_conn_continue( PASS_REGS1 ));
 }
 
 /* db_preds_conn : Connection(+) * Pred_name(-) * Pred_arity*/
-static Int 
+static Int
 c_db_preds_conn_continue ( USES_REGS1 ){
   Term module = Deref(ARG2);
   Term name = Deref(ARG3);
@@ -292,11 +292,11 @@ c_db_preds_conn_continue ( USES_REGS1 ){
 
   void *pointer;
   pointer = (void *) IntegerOfTerm(EXTRA_CBACK_ARG(4,1));
-    
+
   if (pointer != NULL)
     {
       EXTRA_CBACK_ARG(4,1)=(CELL) MkIntegerTerm((Int)myddas_util_get_pred_next(pointer));
-      
+
       if (!Yap_unify(module, MkAtomTerm(Yap_LookupAtom(myddas_util_get_pred_module(pointer))))){
 	return FALSE;
       }
@@ -318,7 +318,7 @@ c_db_preds_conn_continue ( USES_REGS1 ){
 
 
 #ifdef DEBUG
-static Int 
+static Int
 c_db_check( USES_REGS1 ){
   check_int();
   return TRUE;
@@ -352,7 +352,7 @@ c_db_stats_translate( USES_REGS1 ){
 
   MYDDAS_STATS_TIME start;
   MYDDAS_STATS_TIME end;
-  
+
   MYDDAS_STATS_TIME total_time,diff;
 
 #ifdef DEBUG
@@ -363,20 +363,20 @@ c_db_stats_translate( USES_REGS1 ){
     end = (MYDDAS_STATS_TIME) IntegerOfTerm(arg_end);
 
     MYDDAS_STATS_GET_TRANSLATE(total_time);
-    
+
     MYDDAS_STATS_INITIALIZE_TIME_STRUCT(diff,time_copy);
     myddas_stats_subtract_time(diff,end,start);
-    
+
     diff = myddas_stats_time_copy_to_final(diff);
     myddas_stats_add_time(total_time,diff,total_time);
     MyddasULInt count;
     MYDDAS_STATS_GET_TRANSLATE_COUNT(count);
     MYDDAS_STATS_SET_TRANSLATE_COUNT(++count);
-    
+
     MYDDAS_FREE(diff,struct myddas_stats_time_struct);
     MYDDAS_FREE(start, struct myddas_stats_time_struct);
     MYDDAS_FREE(end, struct myddas_stats_time_struct);
-    
+
     return TRUE;
 #ifdef DEBUG
   }
@@ -391,9 +391,9 @@ static Int
 c_db_stats_time( USES_REGS1 ){
   Term arg_reference = Deref(ARG1);
   Term arg_time = Deref(ARG2);
-  
+
   Term final_term;
-  
+
   MYDDAS_STATS_STRUCT struc = (MYDDAS_STATS_STRUCT)IntegerOfTerm(arg_reference);
   Functor functor_count = Yap_MkFunctor(Yap_LookupAtom("count"),1);
   Term count_number[1];
@@ -401,7 +401,7 @@ c_db_stats_time( USES_REGS1 ){
   Term number[1];
 
   switch(struc->type){
-  
+
   case integer:
     {
       Functor functor = Yap_MkFunctor(Yap_LookupAtom("myddas_integer"),2);
@@ -412,26 +412,26 @@ c_db_stats_time( USES_REGS1 ){
       integer = struc->u.integer.integer;
       number[0] = MkIntegerTerm(integer);
       integer_number[0] = Yap_MkApplTerm(unit,1,number);;
-      
+
       count_number[0] = MkIntegerTerm(struc->count);
       integer_number[1] = Yap_MkApplTerm(functor_count,1,count_number);
       final_term = Yap_MkApplTerm(functor,2,integer_number);
       break;
     }
-    
+
   case time_str:
     {
       MYDDAS_STATS_TIME time = struc->u.time_str.time_str;
-    
+
       Functor functor = Yap_MkFunctor(Yap_LookupAtom("myddas_time"),6);
       Term time_numbers[6];
       MyddasUInt time_number;
-            
+
       unit = Yap_MkFunctor(Yap_LookupAtom("hours"),1);
       time_number = MYDDAS_STATS_TIME_HOURS(time);
       number[0] = MkIntegerTerm(time_number);
       time_numbers[0] = Yap_MkApplTerm(unit,1,number);;
-      
+
       unit = Yap_MkFunctor(Yap_LookupAtom("minutes"),1);
       time_number = MYDDAS_STATS_TIME_MINUTES(time);
       number[0] = MkIntegerTerm(time_number);
@@ -441,23 +441,23 @@ c_db_stats_time( USES_REGS1 ){
       time_number = MYDDAS_STATS_TIME_SECONDS(time);
       number[0] = MkIntegerTerm(time_number);
       time_numbers[2] = Yap_MkApplTerm(unit,1,number);;
-            
+
       unit = Yap_MkFunctor(Yap_LookupAtom("miliseconds"),1);
       time_number = MYDDAS_STATS_TIME_MILISECONDS(time);
       number[0] = MkIntegerTerm(time_number);
       time_numbers[3] = Yap_MkApplTerm(unit,1,number);;
-      
+
       unit = Yap_MkFunctor(Yap_LookupAtom("microseconds"),1);
-      time_number = MYDDAS_STATS_TIME_MICROSECONDS(time); 
+      time_number = MYDDAS_STATS_TIME_MICROSECONDS(time);
       number[0] = MkIntegerTerm(time_number);
       time_numbers[4] = Yap_MkApplTerm(unit,1,number);;
-      
+
       count_number[0] = MkIntegerTerm(struc->count);
       time_numbers[5] = Yap_MkApplTerm(functor_count,1,count_number);
       final_term = Yap_MkApplTerm(functor,6,time_numbers);
       break;
     }
-  
+
     default:
 #ifdef DEBUG
     printf ("ERROR: c_db_stats_time unknow option\n");
@@ -465,7 +465,7 @@ c_db_stats_time( USES_REGS1 ){
     return FALSE;
     break;
   }
-  
+
   if (!Yap_unify(arg_time,final_term )){
     return FALSE;
   }
@@ -474,20 +474,20 @@ c_db_stats_time( USES_REGS1 ){
 }
 
 //Returns the stats of this module in a list
-static Int 
+static Int
 c_db_stats( USES_REGS1 ) {
   Term arg_conn = Deref(ARG1);
   Term arg_list = Deref(ARG2);
-  
+
   MyddasPointer *conn = (MyddasPointer *) (IntegerOfTerm(arg_conn));
-    
+
   // TODO
   if (get_myddas_top() == 0 ){ /* We want all the statistics */
     return FALSE;
   }
 
   MYDDAS_STATS_STRUCT str;
-  MYDDAS_UTIL_CONNECTION 
+  MYDDAS_UTIL_CONNECTION
    node = myddas_util_search_connection(conn);
   Term head, list;
   list = arg_list;
@@ -514,7 +514,7 @@ c_db_stats( USES_REGS1 ) {
   // processing all the  SQL Querys
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-    
+
   str = myddas_stats_get_stat(node->stats,1);
   Yap_unify(head, MkIntegerTerm((MyddasInt)str));
 #ifdef DEBUG
@@ -522,13 +522,13 @@ c_db_stats( USES_REGS1 ) {
   printf ("Reference to time Spent by the Server, on all the SQL Querys\n");
   MYDDAS_STATS_PRINT_TIME_STRUCT(time);
   printf ("\n\n");
-#endif  
+#endif
 
   //[Index 3] -> Total of Time Spent by the DB Server
   // processing a the last SQL Query
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  
+
   str = myddas_stats_get_stat(node->stats,2);
   Yap_unify(head, MkIntegerTerm((MyddasInt)str));
 #ifdef DEBUG
@@ -537,12 +537,12 @@ c_db_stats( USES_REGS1 ) {
   MYDDAS_STATS_PRINT_TIME_STRUCT(time);
   printf ("\n\n");
 #endif
-  
+
   //[Index 4] -> Total of Time Spent by the DB Server
   // transfering all the results of the  SQL Querys
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  
+
   str = myddas_stats_get_stat(node->stats,3);
   Yap_unify(head, MkIntegerTerm((MyddasInt)str));
 #ifdef DEBUG
@@ -551,12 +551,12 @@ c_db_stats( USES_REGS1 ) {
   MYDDAS_STATS_PRINT_TIME_STRUCT(time);
   printf ("\n\n");
 #endif
-  
+
   //[Index 5] -> Total of Time Spent by the DB Server
   // transfering the result of the last SQL Query
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  
+
   str = myddas_stats_get_stat(node->stats,4);
   Yap_unify(head, MkIntegerTerm((MyddasInt)str));
 #ifdef DEBUG
@@ -565,14 +565,14 @@ c_db_stats( USES_REGS1 ) {
   MYDDAS_STATS_PRINT_TIME_STRUCT(time);
   printf ("\n\n");
 #endif
-  
-  //[Index 6] -> Total of Time Spent by the 
+
+  //[Index 6] -> Total of Time Spent by the
   // db_row_function
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  
+
   str = myddas_stats_get_stat(Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_statistics->stats,1);
-  
+
   Yap_unify(head, MkIntegerTerm((MyddasInt)str));
 #ifdef DEBUG
   MYDDAS_STATS_GET_DB_ROW_FUNCTION(time);
@@ -580,8 +580,8 @@ c_db_stats( USES_REGS1 ) {
   MYDDAS_STATS_PRINT_TIME_STRUCT(time);
   printf ("\n\n");
 #endif
-  
-  //[Index 7] -> Total of Bytes Transfered by the 
+
+  //[Index 7] -> Total of Bytes Transfered by the
   // DB Server on all SQL Querys
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
@@ -593,12 +593,12 @@ c_db_stats( USES_REGS1 ) {
   printf ("Bytes Transfered by the DB Server from all querys\n");
   printf ("%llu\n\n",(MyddasULInt)number);
 #endif
-  
-  //[Index 8] -> Total of Bytes Transfered by the 
+
+  //[Index 8] -> Total of Bytes Transfered by the
   // DB Server on the last SQL Query
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  
+
   str = myddas_stats_get_stat(node->stats,7);
   Yap_unify(head, MkIntegerTerm((MyddasPointer)str));
 #ifdef DEBUG
@@ -618,7 +618,7 @@ c_db_stats( USES_REGS1 ) {
   printf ("%llu\n\n",(MyddasULInt)number);
 #endif
 
-  //[Index 10] -> Total of Time Spent by the 
+  //[Index 10] -> Total of Time Spent by the
   // translate predicate
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
@@ -640,13 +640,13 @@ c_db_stats( USES_REGS1 ) {
   printf ("Number of times malloc was called in MYDDAS: %lu \n",nr);
   MYDDAS_MEMORY_FREE_NR(nr);
   printf ("Number of times free was called in MYDDAS  : %lu \n",nr);
-  
+
   MYDDAS_MEMORY_MALLOC_SIZE(nr);
   printf ("Total memory allocated in MYDDAS: %lu \n",nr);
   MYDDAS_MEMORY_FREE_SIZE(nr);
   printf ("Total memory freed in MYDDAS    : %lu \n",nr);
 #endif
-  
+
   return TRUE;
 }
 
@@ -660,7 +660,7 @@ void Yap_MYDDAS_delete_all_myddas_structs(void)
   CACHE_REGS
 
   /* NAO ESQUECER DE FAZER ISTO TB PARA O DB_CLOSE*/
-  MYDDAS_GLOBAL global = 
+  MYDDAS_GLOBAL global =
     Yap_REGS.MYDDAS_GLOBAL_POINTER;
 
   /* In case that the MYDDAS module isn't loaded */
@@ -669,11 +669,11 @@ void Yap_MYDDAS_delete_all_myddas_structs(void)
 
   MYDDAS_UTIL_CONNECTION connections =
     global->myddas_top_connections;
-  
+
   /* Delete all connections */
   for(;connections!=NULL;connections=connections->next)
     myddas_util_delete_connection(connections->connection);
-  
+
 #ifdef MYDDAS_STATS
   myddas_stats_delete_stats_list(global->myddas_statistics->stats);
   MYDDAS_FREE(global->myddas_statistics,struct myddas_global_stats);
@@ -687,13 +687,13 @@ void Yap_MYDDAS_delete_all_myddas_structs(void)
   printf ("Number of times malloc was called in MYDDAS: " UInt_FORMAT " \n",(UInt)nr);
   MYDDAS_MEMORY_FREE_NR(nr);
   printf ("Number of times free was called in MYDDAS  : " UInt_FORMAT " \n",(UInt)nr);
-  
+
   MYDDAS_MEMORY_MALLOC_SIZE(nr);
   printf ("Total memory allocated in MYDDAS: " UInt_FORMAT " \n",(UInt)nr);
   MYDDAS_MEMORY_FREE_SIZE(nr);
   printf ("Total memory freed in MYDDAS    : " UInt_FORMAT " \n",(UInt)nr);
 #endif
-  
+
 }
 
 
@@ -731,11 +731,11 @@ init_myddas(void)
 #ifdef MYDDAS_MYSQL_INIT
   if (yap_init->myddas) {
     Yap_PutValue(AtomMyddasGoal,MkIntegerTerm(yap_init->myddas));
-    
+
     /* Mandatory Fields */
     Yap_PutValue(AtomMyddasUser,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_user)));
     Yap_PutValue(AtomMyddasDB,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_db)));
-    
+
     /* Non-Mandatory Fields */
     if (yap_init->myddas_pass != NULL)
       Yap_PutValue(AtomMyddasPass,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_pass)));
@@ -762,7 +762,7 @@ int WINAPI PROTO(win_myddas, (HANDLE, DWORD, LPVOID));
 
 int WINAPI win_myddas(HANDLE hinst, DWORD reason, LPVOID reserved)
 {
-  switch (reason) 
+  switch (reason)
     {
     case DLL_PROCESS_ATTACH:
       break;

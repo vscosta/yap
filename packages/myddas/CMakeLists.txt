@@ -53,6 +53,7 @@ macro_log_feature (SQLITE3_FOUND "SQLite3"
 "http://www.sqlite3.org" FALSE)
 
 if (ODBC_FOUND OR MYSQL_FOUND OR SQLITE3_FOUND)
+    add_definitions (-DUSE_MYDDAS=1)
   add_library (myddas SHARED ${MYDDAS_SOURCES})
   target_link_libraries(myddas libYap)
   if (ODBC_FOUND)
