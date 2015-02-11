@@ -65,8 +65,8 @@ typedef struct result_set {
   int length;
 } resultSet;
 
-void Yap_InitMYDDAS_SQLitePreds(void);
-void Yap_InitBackMYDDAS_sqlite3Preds(void);        
+void Yap_InitMYDDAS_SQLITE3Preds(void);
+void Yap_InitBackMYDDAS_SQLITE3Preds(void);        
 
 
 static Int c_sqlite3_connect( USES_REGS1 );
@@ -82,10 +82,10 @@ static Int c_sqlite3_get_next_result_set( USES_REGS1 );
 static Int c_sqlite3_get_database( USES_REGS1 );
 static Int c_sqlite3_change_database( USES_REGS1 );
 
-void Yap_InitMYDDAS_SQLitePreds(void)
+void Yap_InitMYDDAS_SQLITE3Preds(void)
 {
   /* db_dbect: Host x User x Passwd x Database x dbection x ERROR_CODE */
-  Yap_InitCPred("c_sqlite3_connect", 7, c_sqlite3_connect,  0);
+  Yap_InitCPred("c_db_sqlite3_connect", 4, c_sqlite3_connect,  0);
 
   /* db_number_of_fields: Relation x connection x NumberOfFields */
   Yap_InitCPred("c_sqlite3_number_of_fields",3, c_sqlite3_number_of_fields, 0);
@@ -116,7 +116,7 @@ void Yap_InitMYDDAS_SQLitePreds(void)
 
 }
 
-void Yap_InitBackMYDDAS_sqlite3Preds(void)
+void Yap_InitBackMYDDAS_SQLITE3Preds(void)
 {
 	/* db_row: ResultSet x Arity x ListOfArgs */
   Yap_InitCPredBackCut("c_sqlite3_row", 3, sizeof(Int),
@@ -130,7 +130,7 @@ static Int
 c_sqlite3_connect( USES_REGS1 ) {
 
   Term arg_file = Deref(ARG1);
-  Term arg_db = ARG2;
+  Term arg_db = ARG4;
 
   MYDDAS_UTIL_CONNECTION new = NULL;
   sqlite3 *db;

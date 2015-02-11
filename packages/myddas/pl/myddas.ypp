@@ -15,7 +15,7 @@
 *									 *
 *************************************************************************/
 
-#if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
+#if USE_MYDDAS
 
 :- load_foreign_files([myddas], [], init_myddas).
 
@@ -888,6 +888,12 @@ db_open(mysql,Connection,Host/Db,User,Password) :-
 db_open(odbc,Connection,ODBCEntry,User,Password) :-
 	'$error_checks'(db_open(odbc,Connection,ODBCEntry,User,Password)),
 	c_db_odbc_connect(ODBCEntry,User,Password,Con),
+	set_value(Connection,Con).
+#endif
+#ifdef MYDDAS_SQLITE3
+db_open(sqlite3,Connection,ODBCEntry,User,Password) :-
+	'$error_checks'(db_open(odbc,Connection,ODBCEntry,User,Password)),
+	c_db_sqlite3_connect(ODBCEntry,User,Password,Con),
 	set_value(Connection,Con).
 #endif
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

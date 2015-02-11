@@ -707,7 +707,10 @@ init_myddas(void)
 #if defined MYDDAS_ODBC
   Yap_InitBackMYDDAS_ODBCPreds();
 #endif
-#if defined MYDDAS_ODBC || defined MYDDAS_MYSQL
+#if defined MYDDAS_SQLITE3
+  Yap_InitBackMYDDAS_SQLITE3Preds();
+#endif
+#if defined USE_MYDDAS
   Yap_InitBackMYDDAS_SharedPreds();
 #endif
 #if defined MYDDAS_MYSQL
@@ -716,7 +719,10 @@ init_myddas(void)
 #if defined MYDDAS_ODBC
   Yap_InitMYDDAS_ODBCPreds();
 #endif
-#if defined MYDDAS_ODBC || defined MYDDAS_MYSQL
+#if defined MYDDAS_SQLITE3
+  Yap_InitMYDDAS_SQLITE3Preds();
+#endif
+#if defined USE_MYDDAS
   Yap_InitMYDDAS_SharedPreds();
 #endif
 #if defined MYDDAS_TOP_LEVEL && defined MYDDAS_MYSQL // && defined HAVE_LIBREADLINE

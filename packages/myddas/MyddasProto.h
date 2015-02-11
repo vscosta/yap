@@ -60,8 +60,14 @@ void    Yap_InitMYDDAS_ODBCPreds(void);
 void    Yap_InitBackMYDDAS_ODBCPreds(void);
 #endif
 
-/* myddas_shared.c */
-#if defined MYDDAS_ODBC || defined MYDDAS_MYSQL
+/* myddas_odbc.c */
+#if defined MYDDAS_SQLITE3
+void    Yap_InitMYDDAS_SQLITE3Preds(void);
+void    Yap_InitBackMYDDAS_SQLITE3Preds(void);
+#endif
+
+/* Myddas_shared.c */
+#if defined USE_MYDDAS
 void    Yap_MYDDAS_delete_all_myddas_structs(void);
 void    Yap_InitMYDDAS_SharedPreds(void);
 void    Yap_InitBackMYDDAS_SharedPreds(void);
