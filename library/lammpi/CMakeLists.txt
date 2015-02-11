@@ -78,6 +78,8 @@ if (MPI_C_FOUND)
 
   include_directories (${MPI_INCLUDE_DIRS})
 
+  add_definitions (-DHAVE_MPI_H=1)
+
   install(TARGETS  yap_mpi
     LIBRARY DESTINATION ${dlls}
     )
