@@ -44,14 +44,14 @@ uncachedCodeToAtom(int chrcode)
 
     tmp[0] = chrcode;
     tmp[1] = '\0';
-    return lookupAtom(tmp, 1);
+    return YAP_SWIAtomFromAtom(lookupAtom(tmp, 1));
   } else
   { pl_wchar_t tmp[2];
 
     tmp[0] = chrcode;
     tmp[1] = '\0';
 
-    return (atom_t)YAP_LookupWideAtom(tmp);
+    return YAP_SWIAtomFromAtom(Yap_LookupWideAtom(tmp));
   }
 }
 
@@ -324,46 +324,46 @@ _PL_unify_string(term_t t, word w)
   return Yap_unify(Yap_GetFromSlot(t PASS_REGS), w);
 }
 
-word lookupAtom(const char *s, size_t len)
+Atom lookupAtom(const char *s, size_t len)
 {
-  YAP_Atom at;
+  Atom at;
 
   /* dirty trick to ensure s is null terminated */
   char *st = (char *)s;
   if (st[len])
     st[len] = '\0';
   if (len >= strlen(s)) {
-    at = YAP_LookupAtom(st);
+    at = Yap_LookupAtom(st);
   } else {
     char * buf = PL_malloc(len+1);
 
     if (!buf)
       return 0;
     strncpy(buf,s,len);
-    at = YAP_LookupAtom(buf);
+    at = Yap_LookupAtom(buf);
     PL_free(buf);
-  }  
-  Yap_AtomIncreaseHold(at);  
-  return (word)at;
+  }
+  Yap_AtomIncreaseHold(at);
+  return at;
 }
 
-atom_t lookupUCSAtom(const pl_wchar_t *s, size_t len)
+Atom lookupUCSAtom(const pl_wchar_t *s, size_t len)
 {
   YAP_Atom at;
 
   if (len >= wcslen(s)) {
-    at = YAP_LookupWideAtom(s);
+    at = Yap_LookupWideAtom(s);
   } else {
     pl_wchar_t * buf = PL_malloc((len+1)*sizeof(pl_wchar_t));
 
     if (!buf)
       return 0;
     wcsncpy(buf,s,len);
-    at = YAP_LookupWideAtom(buf);
+    at = Yap_LookupWideAtom(buf);
     PL_free(buf);
   }
   Yap_AtomIncreaseHold(at);
-  return (atom_t)at;
+  return at;
 }
 
 
