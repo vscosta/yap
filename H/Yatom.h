@@ -1280,7 +1280,7 @@ IsTranslationProperty (int flags)
 
 /*** handle named mutexes */
 
-/*              translationnamed mutex property entry structure                            */
+/*              named mutex property entry structure                            */
  typedef struct mutex_entry
  {
    Prop NextOfPE;               /* used to chain properties             */
