@@ -14,6 +14,8 @@ cmake_policy(SET CMP0043 NEW)
 
 project(YAP C CXX)
 
+set(YAP_FOUND ON)
+
 set(YAP_MAJOR_VERSION 6)
 set(YAP_MINOR_VERSION 3)
 set(YAP_PATCH_VERSION 4)
