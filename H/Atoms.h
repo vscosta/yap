@@ -77,8 +77,8 @@ typedef struct ExtraAtomEntryStruct
 
   union {
     char uStrOfAE[4];   /* representation of atom as a string           */
-    wchar_t uWStrOfAE[1];       /* representation of atom as a string           */
-    struct atom_blob blob[1];
+    wchar_t uWStrOfAE[2];       /* representation of atom as a string           */
+    struct atom_blob blob[2];
   } rep;
 }
   ExtraAtomEntry;
