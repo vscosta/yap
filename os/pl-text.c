@@ -354,16 +354,18 @@ error:
 }
 
 
-atom_t
+Atom
 textToAtom(PL_chars_t *text)
 { if ( !PL_canonise_text(text) )
     return 0;
 
+  Atom w;
   if ( text->encoding == ENC_ISO_LATIN_1 )
-  { return lookupAtom(text->text.t, text->length);
+  { w = lookupAtom(text->text.t, text->length);
   } else
-  { return lookupUCSAtom(text->text.w, text->length);
+  { w = lookupUCSAtom(text->text.w, text->length);
   }
+  return  w ;
 }
 
 
@@ -383,13 +385,14 @@ textToString(PL_chars_t *text)
 int
 PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type)
 { switch(type)
-  { case PL_ATOM:
-    { atom_t a = textToAtom(text);
+    { case PL_ATOM:
+	{ Atom at = textToAtom(text);
+	  Term a = MkAtomTerm(at);
 
-      if ( a )
+	  if ( a )
       { int rval = _PL_unify_atomic(term, a);
 
-	PL_unregister_atom(a);
+	PL_unregister_atom(YAP_SWIAtomFromAtom(AtomOfTerm(a)));
 	return rval;
       }
       return FALSE;

@@ -969,7 +969,7 @@ PRED_IMPL("file_base_name", 2, file_base_name, 0)
 
   if ( !PL_get_chars(A1, &n, CVT_ALL|REP_FN|CVT_EXCEPTION) )
     return FALSE;
-
+  
   return PL_unify_chars(A2, PL_ATOM|REP_FN, -1, BaseName(n));
 }
 
@@ -981,8 +981,8 @@ PRED_IMPL("file_directory_name", 2, file_directory_name, 0)
 
   if ( !PL_get_chars(A1, &n, CVT_ALL|REP_FN|CVT_EXCEPTION) )
     return FALSE;
-
-  return PL_unify_chars(A2, PL_ATOM|REP_FN, -1, DirName(n, tmp));
+  int out = PL_unify_chars(A2, PL_ATOM|REP_FN, -1, DirName(n, tmp));
+  return out;
 }
 
 

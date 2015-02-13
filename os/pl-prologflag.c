@@ -198,7 +198,7 @@ setPrologFlag(const char *name, int flags, ...)
       text.length    = strlen(text.text.t);
       text.canonical = FALSE;
 
-      f->value.a = textToAtom(&text);	/* registered: ok */
+      f->value.a = YAP_SWIAtomFromAtom(textToAtom(&text));	/* registered: ok */
 
       PL_free_text(&text);
 

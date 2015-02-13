@@ -3232,7 +3232,7 @@ PRED_IMPL("prompt1", 1, prompt1, 0)
   if ( PL_get_atom(A1, &a) )
   { prompt1(a);
   } else if ( PL_get_text(A1, &txt,  CVT_ALL|CVT_EXCEPTION) )
-  { prompt1(textToAtom(&txt));
+    { prompt1(YAP_SWIAtomFromAtom(textToAtom(&txt)));
   } else
     return FALSE;
 
@@ -3373,7 +3373,7 @@ fn_to_atom(const char *fn)
   text.length    = strlen(fn);
   text.canonical = FALSE;
 
-  a = textToAtom(&text);
+  a =  YAP_SWIAtomFromAtom(textToAtom(&text));
   PL_free_text(&text);
 
   return a;
