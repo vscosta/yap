@@ -815,7 +815,6 @@ Atom export_atom(Atom at, char **hpp, char *buf, size_t len)
     strcpy(ptr, RepAtom(at)->StrOfAE);
     *hpp = ptr+(sz+1);
   }
-  ptr += sz;
   return (Atom)(p0-buf);
 }
 
