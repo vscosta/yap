@@ -224,7 +224,7 @@ typedef enum
 #include <pthread.h>
 #endif
 #endif
-typedef uintptr_t	PL_atomic_t;	/* same size as a word */
+  typedef Term	PL_atomic_t;	/* same size as a word */
 
 typedef struct record *		Record;	
 
@@ -700,8 +700,8 @@ extern char *expandVars(const char *pattern, char *expanded, int maxlen);
 /**** SWI stuff (emulated in pl-yap.c) ****/
 extern int writeAtomToStream(IOSTREAM *so, atom_t at);
 extern int valueExpression(term_t t, Number r ARG_LD);
-extern word lookupAtom(const char *s, size_t len);
-extern atom_t	lookupUCSAtom(const pl_wchar_t *s, size_t len);
+extern Atom lookupAtom(const char *s, size_t len);
+extern Atom lookupUCSAtom(const pl_wchar_t *s, size_t len);
 extern int toIntegerNumber(Number n, int flags);
 extern int get_atom_ptr_text(Atom a, PL_chars_t *text);
 extern int warning(const char *fm, ...);
