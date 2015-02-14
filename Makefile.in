@@ -684,6 +684,7 @@ install_common: install_startup
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $(srcdir)/$$h $(DESTDIR)$(INCLUDEDIR); done
 	for h in $(HEADERS); do $(INSTALL) $(srcdir)/$$h $(DESTDIR)$(INCLUDEDIR)/src; done
 	$(INSTALL) config.h $(DESTDIR)$(INCLUDEDIR)/src/config.h
+	$(INSTALL) config.h $(DESTDIR)$(INCLUDEDIR)/YapConfig.h
 	$(INSTALL) YapTermConfig.h $(DESTDIR)$(INCLUDEDIR)
 	for p in $(PACKAGES); do \
 	  echo " ============== INSTALLING" $$p; \

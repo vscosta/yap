@@ -700,7 +700,6 @@ ARCHIVE_CPPFLAGS
 ARCHIVE_LIBS
 ARCHIVE_PLTARGETS
 ARCHIVE_TARGETS
-CLIB_FLAGS_LIBUUID
 CLIB_LIBUUID
 CLIB_CRYPTOBJ
 CLIB_CRYPTLIBS
@@ -11808,7 +11807,6 @@ fi
 
 
 
-
 CLIB_TARGETS="socket.$SO cgi.$SO memfile.$SO files.$SO mime.$SO crypt.$SO time.$SO"
 
 case "$PLARCH" in
@@ -11988,69 +11986,7 @@ fi
 fi
 
 
-dl to be installed in various places.
 
-# brew in OSX
-if test -d /usr/local/opt/ossp-uuid; then
-  CPPFLAGS="$CPPFLAGS -I /usr/local/opt/ossp-uuid/include"
-  UUID_LIB_PATH="-L /usr/local/opt/ossp-uuid/lib"
-fi
-
-# /opt
-if test -d /opt/include/ossp; then
-  CPPFLAGS="$CPPFLAGS -I /opt/include"
-  UUID_LIB_PATH="-L /opt/lib"
-fi
-
-# /usr/local
-if test -d /opt/include/ossp; then
-  CPPFLAGS="$CPPFLAGS -I /opt/include"
-  UUID_LIB_PATH="-L /opt/lib"
-fi
-
-if test x"$UUID_H" = "x"; then
-  ac_fn_c_check_header_compile "$LINENO" "ossp/uuid.h" "ac_cv_header_ossp_uuid_h" "/*first*/
-"
-if test "x$ac_cv_header_ossp_uuid_h" = xyes; then :
-   UUID_H=ossp/uuid.h
-		    has_uuid=true
-fi
-
-
-fi
-if test x"$UUID_H" = "x" -a ! -d /usr/include/uuid; then
-  ac_fn_c_check_header_compile "$LINENO" "uuid/uuid.h" "ac_cv_header_uuid_uuid_h" "/*first*/
-"
-if test "x$ac_cv_header_uuid_uuid_h" = xyes; then :
-   UUID_H=uuid/uuid.h
-		    has_uuid=true
-fi
-
-
-fi
-if test x"$UUID_H" = "x"; then
-  ac_fn_c_check_header_compile "$LINENO" "uuid.h" "ac_cv_header_uuid_h" "/*first*/
-"
-if test "x$ac_cv_header_uuid_h" = xyes; then :
-   UUID_H=uuid.h
-		    has_uuid=true
-fi
-
-
-fi
-if test x"$UUID_H" = "x"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING:  Cannot find uuid.h -- dropping uuid.pl" >&5
-$as_echo "$as_me: WARNING:  Cannot find uuid.h -- dropping uuid.pl" >&2;}
-else
-
-cat >>confdefs.h <<_ACEOF
-#define UUID_H <$UUID_H>
-_ACEOF
-
-    has_uuid=true
-fi
-
-if test x"$has_uuid" != "x"; then
 ac_fn_c_check_func "$LINENO" "uuid_create" "ac_cv_func_uuid_create"
 if test "x$ac_cv_func_uuid_create" = xyes; then :
   has_uuid=true
@@ -12094,7 +12030,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_uuid_uuid_create" >&5
 $as_echo "$ac_cv_lib_uuid_uuid_create" >&6; }
 if test "x$ac_cv_lib_uuid_uuid_create" = xyes; then :
-   CLIB_LIBUUID="$UUID_LIB_PATH -luuid"
+   CLIB_LIBUUID=-luuid
 	        has_uuid=true
 
 fi
@@ -12108,6 +12044,45 @@ $as_echo "$as_me: WARNING:  Cannot find libossp-uuid or libuuid -- dropping uuid
 
 fi
 
+if test x"$has_uuid" != "x"; then
+  if test x"$UUID_H" = "x"; then
+  ac_fn_c_check_header_compile "$LINENO" "ossp/uuid.h" "ac_cv_header_ossp_uuid_h" "/*first*/
+"
+if test "x$ac_cv_header_ossp_uuid_h" = xyes; then :
+   UUID_H=ossp/uuid.h
+fi
+
+
+  fi
+  if test x"$UUID_H" = "x" -a ! -d /usr/include/uuid; then
+  ac_fn_c_check_header_compile "$LINENO" "uuid/uuid.h" "ac_cv_header_uuid_uuid_h" "/*first*/
+"
+if test "x$ac_cv_header_uuid_uuid_h" = xyes; then :
+   UUID_H=uuid/uuid.h
+fi
+
+
+  fi
+  if test x"$UUID_H" = "x"; then
+  ac_fn_c_check_header_compile "$LINENO" "uuid.h" "ac_cv_header_uuid_h" "/*first*/
+"
+if test "x$ac_cv_header_uuid_h" = xyes; then :
+   UUID_H=uuid.h
+fi
+
+
+  fi
+  if test x"$UUID_H" = "x"; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING:  Cannot find uuid.h -- dropping uuid.pl" >&5
+$as_echo "$as_me: WARNING:  Cannot find uuid.h -- dropping uuid.pl" >&2;}
+  else
+
+cat >>confdefs.h <<_ACEOF
+#define UUID_H <$UUID_H>
+_ACEOF
+
+    CLIB_TARGETS="$CLIB_TARGETS uuid.$SO"
+  fi
 fi
 
 
@@ -14348,7 +14323,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14351 "configure" */
+/* #line 14326 "configure" */
 public class Test {
 }
 EOF
@@ -14524,7 +14499,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 14527: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 14502: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -14655,7 +14630,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14658 "configure" */
+/* #line 14633 "configure" */
 public class Test {
 }
 EOF
@@ -14690,7 +14665,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 14693 "configure" */
+/* [#]line 14668 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -16949,7 +16924,7 @@ fi
 
 
 if test "$yap_cv_mpi" != "no" -a "$INSTALL_DLLS" != "no"; then
-    if test "$yap_cv_mpi" != "yes"; then
+    if test "$yap_cv_mpi" = "yes"; then
       # Extract the first word of "mpicc", so it can be a program name with args.
 set dummy mpicc; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -19478,3 +19453,4 @@ if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
 $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
 
+cp config.h YapConfig.h

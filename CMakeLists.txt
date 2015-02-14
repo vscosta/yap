@@ -631,6 +631,8 @@ option(YAP_CONDOR
 
 configure_file ("${PROJECT_SOURCE_DIR}/config.h.cmake"
   "${PROJECT_BINARY_DIR}/config.h" )
+configure_file ("${PROJECT_SOURCE_DIR}/config.h.cmake"
+  "${PROJECT_BINARY_DIR}/YapConfig.h" )
 configure_file ("${PROJECT_SOURCE_DIR}/YapTermConfig.h.cmake"
   "${PROJECT_BINARY_DIR}/YapTermConfig.h" )
 

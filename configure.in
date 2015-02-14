@@ -2295,3 +2295,4 @@ fi
 AC_CONFIG_FILES([packages/yap-lbfgs/Makefile])
 
 AC_OUTPUT()
+cp config.h YapConfig.h
