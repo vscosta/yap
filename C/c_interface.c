@@ -1603,18 +1603,20 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
 {
   CACHE_REGS
   choiceptr  oB = B;
+  Int val;    
+  /* for slots to work */  
   yhandle_t CurSlot = Yap_StartSlots();
   /* find out where we belong */
   while (B->cp_b < (choiceptr)top)
     B = B->cp_b;
+  PP = pe;    
   if (pe->PredFlags & (SWIEnvPredFlag|CArgsPredFlag)) {
-    Int val;
+    // SWI Emulation
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
     CELL *args = B->cp_args;
 
     B = oB;
-    PP = pe;
     ctx->control = FRG_CUTTED;
     ctx->engine = NULL; //(PL_local_data *)Yap_regp;
     if (pe->PredFlags & CArgsPredFlag) {
@@ -1622,43 +1624,29 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
     } else {
       val = codev(Yap_InitSlots(pe->ArityOfPE, args),0,ctx);
     }
-    Yap_CloseSlots(CurSlot);
-
-    PP = NULL;
-    //    B = LCL0-(CELL*)oB;
-    if (val == 0) {
-      Term t;
-
-      LOCAL_BallTerm = EX;
-      EX = NULL;
-      if ((t = Yap_GetException())) {
-	cut_c_pop();
-	Yap_JumpToEnv(t);
-	return FALSE;
-      }
-      return FALSE;
-    } else { /* TRUE */
-      return TRUE;
-    } 
   } else {
-    Int ret, CurSlot;
-    B = oB;
-    /* for slots to work */
-    CurSlot = Yap_StartSlots( );
-    ret = (exec_code)( PASS_REGS1 );
-    Yap_CloseSlots(CurSlot);
-    if (!ret) {
-      Term t;
-
-      LOCAL_BallTerm = EX;
-      EX = NULL;
-      if ((t = Yap_GetException())) {
-	  Yap_JumpToEnv(t);
-	  return FALSE;
-      }
-    }
-    return ret;
+    // YAP Native
+    val = exec_code( PASS_REGS1 );
+    B = oB;    
   }
+  Yap_CloseSlots(CurSlot);
+
+  PP = NULL;
+  //    B = LCL0-(CELL*)oB;
+  if (val == 0) {
+    Term t;
+
+    LOCAL_BallTerm = EX;
+    EX = NULL;
+    if ((t = Yap_GetException())) {
+      cut_c_pop();
+      Yap_JumpToEnv(t);
+      return FALSE;
+    }
+    return FALSE;
+  } else { /* TRUE */
+    return TRUE;
+  } 
 }
 
 
