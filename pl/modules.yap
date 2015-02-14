@@ -838,6 +838,7 @@ expand_goal(G, G).
 	'$continue_imported'(ExportingMod, ExportingModI, G0, G0I).
 % SWI builtin
 '$get_undefined_pred'(G, _ImportingMod, G, user) :-
+	nonvar(G),
 	'$pred_exists'(G, user), !.
 '$get_undefined_pred'(G, _ImportingMod, G0, ExportingMod) :-
         recorded('$dialect',Dialect,_),
