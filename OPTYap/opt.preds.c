@@ -51,10 +51,10 @@ static Int p_show_statistics_tabling( USES_REGS1 );
 static Int p_show_statistics_global_trie( USES_REGS1 );
 #endif /* TABLING */
 
+static Int p_yapor_workers( USES_REGS1 );
 #ifdef YAPOR
 static Int p_parallel_mode( USES_REGS1 );
 static Int p_yapor_start( USES_REGS1 );
-static Int p_yapor_workers( USES_REGS1 );
 static Int p_worker( USES_REGS1 );
 static Int p_parallel_new_answer( USES_REGS1 );
 static Int p_parallel_get_answers( USES_REGS1 );
@@ -199,6 +199,7 @@ struct page_statistics {
 *******************************/
 
 void Yap_init_optyap_preds(void) {
+  Yap_InitCPred("$c_yapor_workers", 1, p_yapor_workers, SafePredFlag|SyncPredFlag);    
 #ifdef TABLING
   Yap_InitCPred("freeze_choice_point", 1, p_freeze_choice_point, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("wake_choice_point", 1, p_wake_choice_point, SafePredFlag|SyncPredFlag);
@@ -227,7 +228,6 @@ predicates. The predicates remain as tabled predicates.
 #ifdef YAPOR
   Yap_InitCPred("parallel_mode", 1, p_parallel_mode, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$c_yapor_start", 0, p_yapor_start, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$c_yapor_workers", 1, p_yapor_workers, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$c_worker", 0, p_worker, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$c_parallel_new_answer", 1, p_parallel_new_answer, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$c_parallel_get_answers", 1, p_parallel_get_answers, SafePredFlag|SyncPredFlag);
@@ -841,12 +841,18 @@ static Int p_show_statistics_or( USES_REGS1 ) {
   PL_release_stream(out);
   return (TRUE);
 }
+
+#else
+
+static Int p_yapor_workers( USES_REGS1 ) {
+  return FALSE;
+}
 #endif /* YAPOR */
 
 
 
 /**********************************
-**      OPTYap C Predicates      **
+ **      OPTYap C Predicates      **
 **********************************/
 
 #if defined(YAPOR) && defined(TABLING)
