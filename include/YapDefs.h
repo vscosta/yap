@@ -27,7 +27,7 @@
 
 #else
 
-#include "config.h"
+#include "YapConfig.h"
 
 #endif /* YAP_H */
 
