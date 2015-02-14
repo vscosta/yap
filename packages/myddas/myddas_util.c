@@ -49,10 +49,11 @@ myddas_util_connection_type(void *con){
   if (con_node == NULL)
     return 0;
 
-  if (con_node->odbc_enviromment != NULL) /* ODBC */ 
-    return 2;
-  else
-    return 1;
+  return con_node->api;
+  // if (con_node->odbc_enviromment != NULL) /* ODBC */ 
+  //  return 2;
+  //else
+  //  return 1;
 }
 
 
@@ -161,7 +162,7 @@ myddas_util_search_connection(void *conn){
 }
  
 MYDDAS_UTIL_CONNECTION 
-myddas_util_add_connection(void *conn, void *enviromment){
+myddas_util_add_connection(void *conn, void *enviromment, MYDDAS_API api){
   CACHE_REGS
   MYDDAS_UTIL_CONNECTION node=NULL;
   MYDDAS_UTIL_CONNECTION temp=NULL;
@@ -171,7 +172,7 @@ myddas_util_add_connection(void *conn, void *enviromment){
       return node;
     }
   //put the new connection node on the top of the list
-  temp = myddas_init_initialize_connection(conn,enviromment,Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections);
+  temp = myddas_init_initialize_connection(conn,enviromment,api,Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections);
   if (temp == NULL)
     {
 #ifdef DEBUG
@@ -354,7 +355,7 @@ myddas_util_get_pred_name(void *pointer){
 }
 
 char *
-myddas_util_get_pred_module(void *pointer){
+vmyddas_util_get_pred_module(void *pointer){
   MYDDAS_UTIL_PREDICATE temp = (MYDDAS_UTIL_PREDICATE) pointer;
   return temp->pred_module;
 }
@@ -383,7 +384,7 @@ void check_int( void ){
       if (top->predicates != NULL)
 	{
 	  printf ("\t******\n");
-	  printf ("\t===== PREDICADOS =====\n");
+	  printf ("\t===== PREDICATES =====\n");
 	  for (pred = top->predicates ; pred != NULL ; pred = pred->next)
 	    {
 	      printf ("\t--------------\n");

@@ -22,7 +22,6 @@
 #include "cut_c.h"
 #include "myddas.h"
 #include <stdlib.h>
-#include "myddas_structs.h"
 #ifdef MYDDAS_STATS
 #include "myddas_statistics.h"
 #endif
@@ -121,19 +120,26 @@ c_db_initialize_myddas( USES_REGS1 ){
 static Int
 c_db_connection_type ( USES_REGS1 ){
   Term arg_con = Deref(ARG1);
-  Term arg_type = Deref(ARG2);
+  Term arg_type =ARG2;
 
   Int *con = (Int *) IntegerOfTerm(arg_con);
-  Int type = myddas_util_connection_type(con);
+  MYDDAS_API type = myddas_util_connection_type(con);
 
-  if (type == 1) /* MYSQL Connection */
-    Yap_unify(arg_type, MkAtomTerm(Yap_LookupAtom("mysql")));
-  else if (type ==2) /* ODBC Connection */
-    Yap_unify(arg_type, MkAtomTerm(Yap_LookupAtom("odbc")));
-  else /* Not a valid connection*/
-    return FALSE;
-
-  return TRUE;
+  switch (type) {
+  case API_MYSQL:
+    /* MYSQL Connection */    
+    return Yap_unify(arg_type, MkAtomTerm(Yap_LookupAtom("mysql")));
+  case API_ODBC:
+    /* ODBC Connection */
+    return Yap_unify(arg_type, MkAtomTerm(Yap_LookupAtom("odbc")));
+  case API_SQLITE3:
+    /* SQLITE3 Connection */
+    return Yap_unify(arg_type, MkAtomTerm(Yap_LookupAtom("sqlite3")));
+  case API_POSTGRES:
+    /* SQLITE3 Connection */
+    return Yap_unify(arg_type, MkAtomTerm(Yap_LookupAtom("postgres")));
+  }
+  return Yap_Error(SYSTEM_ERROR, TermNil, "Unverified DBMS");
 }
 
 /* db_add_preds: PredName * Arity * Module * Connection*/

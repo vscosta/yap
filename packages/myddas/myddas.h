@@ -157,6 +157,7 @@ typedef void *MYDDAS_STATS_TIME;
   NUMBER = Yap_REGS.MYDDAS_GLOBAL_POINTER->memory_freed;
 #endif
 
+#include "myddas_structs.h"
 #include "MyddasProto.h"
 
 

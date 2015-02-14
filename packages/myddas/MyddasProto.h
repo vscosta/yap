@@ -4,7 +4,7 @@
 
 /* myddas_initialization.c */
 MYDDAS_GLOBAL          myddas_init_initialize_myddas(void);
-MYDDAS_UTIL_CONNECTION myddas_init_initialize_connection(void *,void *,MYDDAS_UTIL_CONNECTION);
+MYDDAS_UTIL_CONNECTION myddas_init_initialize_connection(void *,void *,MYDDAS_API,MYDDAS_UTIL_CONNECTION);
 MYDDAS_UTIL_PREDICATE  myddas_init_initialize_predicate(char *, int, char *,MYDDAS_UTIL_PREDICATE);
 
 #ifdef MYDDAS_STATS
@@ -19,7 +19,7 @@ void                   myddas_stats_delete_stats_list(MYDDAS_STATS_STRUCT);
 void                   myddas_util_table_write(MYSQL_RES *);
 #endif
 Short                  myddas_util_connection_type(void *);
-MYDDAS_UTIL_CONNECTION myddas_util_add_connection(void *,void *);
+MYDDAS_UTIL_CONNECTION myddas_util_add_connection(void *,void *,MYDDAS_API);
 MYDDAS_UTIL_CONNECTION myddas_util_search_connection(void *);
 void                   myddas_util_delete_connection(void *);
 MYDDAS_UTIL_CONNECTION myddas_util_add_predicate(char * ,Int , char *,void *);

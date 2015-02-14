@@ -348,7 +348,7 @@ c_db_odbc_connect( USES_REGS1 ) {
     {
       /* Criar um novo no na lista de ligacoes*/
       //new = add_connection(&TOP,hdbc,henv);
-      new = myddas_util_add_connection(hdbc,henv);
+      new = myddas_util_add_connection(hdbc,henv,MYDDAS_ODBC);
       if (new == NULL){
 	fprintf(stderr,"Error: could not allocate list memory\n");
 	return FALSE;

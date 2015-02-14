@@ -36,9 +36,17 @@ struct myddas_list_preds {
   MYDDAS_UTIL_PREDICATE previous;
 };
 
+typedef enum myddas_api {
+  API_MYSQL = 0,
+  API_ODBC = 1,
+  API_SQLITE3 = 2,
+  API_POSTGRES } MYDDAS_API;
+
 struct myddas_list_connection {
   void *connection;
+  int tag;
 
+  MYDDAS_API api;
   /*If variable env is NULL, then it's a 
     MySQL connection, if not then it as the pointer 
     to the ODBC enviromment variable */

@@ -7,7 +7,6 @@
 #endif
 #include "Yap.h"
 #include "myddas.h"
-#include "myddas_structs.h"
 #ifdef MYDDAS_STATS
 #include "myddas_statistics.h"
 #endif
@@ -19,7 +18,7 @@ myddas_init_initialize_myddas(void){
   /* We cannot call MYDDAS_MALLOC were because the global
      register isn't yet initialized */
   global = (MYDDAS_GLOBAL) malloc (sizeof(struct myddas_global));
-#ifdef DEBUG
+#ifdef DEBUGX
   printf ("MALLOC %p %s %d\n",global,__FILE__,__LINE__);
 #endif
   global->myddas_top_connections = NULL;
@@ -53,6 +52,7 @@ myddas_init_initialize_myddas(void){
 /* Inserts the new node on the front of the list */
 MYDDAS_UTIL_CONNECTION
 myddas_init_initialize_connection(void *conn,void *enviromment,
+				  MYDDAS_API api,
 				  MYDDAS_UTIL_CONNECTION next){
   CACHE_REGS
   MYDDAS_UTIL_CONNECTION new = NULL;
@@ -62,6 +62,7 @@ myddas_init_initialize_connection(void *conn,void *enviromment,
     {
       return NULL;
     }
+  new->api = api;
   new->predicates=NULL;
   new->connection=conn;
   new->odbc_enviromment=enviromment;

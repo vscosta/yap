@@ -149,7 +149,7 @@ c_db_my_connect( USES_REGS1 ) {
   else
     {
       /* Criar um novo no na lista de ligacoes*/
-      new = myddas_util_add_connection(conn,NULL);
+      new = myddas_util_add_connection(conn,NULL,MYDDAS_API);
       
       if (new == NULL){
 #ifdef DEBUG
@@ -515,7 +515,7 @@ c_db_my_row( USES_REGS1 ) {
 	  
 	  for (i = 0; i < arity; i++)
 	    {
-	      /* Aqui ser�o feitas as convers�es de tipos de dados */
+	      /* Here we perform data type conversion. */
 	      field = mysql_fetch_field(res_set);
 	      head = HeadOfTerm(list);
 	      list = TailOfTerm(list);
