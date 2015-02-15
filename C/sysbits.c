@@ -245,27 +245,6 @@ initSysPath(Term tlib, Term tcommons, bool dir_done, bool commons_done) {
   CACHE_REGS
     int len;
 
-#if __WINDOWS__
-  {
-    char *dir;
-    if ((dir = Yap_RegistryGetString("library")) &&
-        is_directory(dir)) {
-      if (! Yap_unify( tlib,
-                       MkAtomTerm(Yap_LookupAtom(dir))) )
-        return FALSE;
-    }
-    dir_done = true;
-    if ((dir = Yap_RegistryGetString("prolog_commons")) &&
-        is_directory(dir)) {
-      if (! Yap_unify( tcommons,
-                       MkAtomTerm(Yap_LookupAtom(dir))) )
-        return FALSE;
-    }
-    commons_done = true;
-  }
-  if (dir_done && commons_done)
-    return TRUE;
-#endif
   strncpy(LOCAL_FileNameBuf, YAP_SHAREDIR, YAP_FILENAME_MAX);
   strncat(LOCAL_FileNameBuf,"/", YAP_FILENAME_MAX);
   len = strlen(LOCAL_FileNameBuf);
@@ -294,6 +273,25 @@ initSysPath(Term tlib, Term tcommons, bool dir_done, bool commons_done) {
     return TRUE;
 
 #if __WINDOWS__
+  {
+    char *dir;
+    if ((dir = Yap_RegistryGetString("library")) &&
+        is_directory(dir)) {
+      if (! Yap_unify( tlib,
+                       MkAtomTerm(Yap_LookupAtom(dir))) )
+        return FALSE;
+    }
+    dir_done = true;
+    if ((dir = Yap_RegistryGetString("prolog_commons")) &&
+        is_directory(dir)) {
+      if (! Yap_unify( tcommons,
+                       MkAtomTerm(Yap_LookupAtom(dir))) )
+        return FALSE;
+    }
+    commons_done = true;
+  }
+  if (dir_done && commons_done)
+    return TRUE;
   {
     size_t buflen;
     char *pt;

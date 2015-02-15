@@ -355,7 +355,7 @@ myddas_util_get_pred_name(void *pointer){
 }
 
 char *
-vmyddas_util_get_pred_module(void *pointer){
+myddas_util_get_pred_module(void *pointer){
   MYDDAS_UTIL_PREDICATE temp = (MYDDAS_UTIL_PREDICATE) pointer;
   return temp->pred_module;
 }

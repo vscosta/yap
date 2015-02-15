@@ -69,8 +69,23 @@ get_state(State):-
 
 
 store_define(Name,Value):-
-	(recorded('___ypp',def(Name,_),Ref)->erase(Ref);true),
-	recordz('___ypp',def(Name,Value),_).
+	recorded('___ypp',def(Name,_),Ref),     
+        erase(Ref),     
+        fail.
+store_define(Name,Value):-
+	system_variable( Name ),        
+	environ( Name, Value ),
+	fail.
+store_define(Name,Value):-
+	recordz('___ypp',def(Name,Value),_),
+	fail.
+store_define(_Name,_Value).
+
+system_variable( Name ).        
+system_variable( Name ).        
+system_variable( Name ).        
+system_variable( Name ).        
+
 
 del_define(Name):-
 	(recorded('___ypp',def(Name,_),Ref)->erase(Ref);true),

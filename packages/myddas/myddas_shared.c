@@ -139,7 +139,7 @@ c_db_connection_type ( USES_REGS1 ){
     /* SQLITE3 Connection */
     return Yap_unify(arg_type, MkAtomTerm(Yap_LookupAtom("postgres")));
   }
-  return Yap_Error(SYSTEM_ERROR, TermNil, "Unverified DBMS");
+  return FALSE;
 }
 
 /* db_add_preds: PredName * Arity * Module * Connection*/
@@ -699,7 +699,6 @@ void Yap_MYDDAS_delete_all_myddas_structs(void)
   MYDDAS_MEMORY_FREE_SIZE(nr);
   printf ("Total memory freed in MYDDAS    : " UInt_FORMAT " \n",(UInt)nr);
 #endif
-
 }
 
 
@@ -749,7 +748,7 @@ init_myddas(void)
       Yap_PutValue(AtomMyddasHost,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_host)));
   }
 #endif
-#if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
+#if USE_MYDDAS
 #define stringify(X) _stringify(X)
 #define _stringify(X) #X
   Yap_REGS.MYDDAS_GLOBAL_POINTER = NULL;
@@ -764,7 +763,9 @@ init_myddas(void)
 
 #ifdef _WIN32
 
-int WINAPI PROTO(win_myddas, (HANDLE, DWORD, LPVOID));
+#include <windows.h>
+
+int WINAPI win_myddas(HANDLE hinst, DWORD reason, LPVOID reserved);
 
 int WINAPI win_myddas(HANDLE hinst, DWORD reason, LPVOID reserved)
 {
@@ -785,4 +786,4 @@ int WINAPI win_myddas(HANDLE hinst, DWORD reason, LPVOID reserved)
 
 
 
-#endif /*MYDDAS_MYSQL || MYDDAS_ODBC*/
+#endif /* USE_MYDDAS*/
