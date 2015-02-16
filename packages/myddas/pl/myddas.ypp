@@ -884,6 +884,20 @@ db_open(mysql,Connection,Host/Db,User,Password) :-
 	db_open(mysql,Connection,Host/Db/0/_,User,Password).  % 0 is default port and Var to be NULL, the default socket
 #endif
 
+#ifdef MYDDAS_POSTGRES
+db_open(postgres,Connection,Host/Db/Port/Socket,User,Password) :- !,
+	'$error_checks'(db_open(postgres,Connection,Host/Db/Port/Socket,User,Password)),
+	c_db_my_connect(Host,User,Password,Db,Port,Socket,Con),
+	set_value(Connection,Con).
+db_open(postgres,Connection,Host/Db/Port,User,Password) :-
+	integer(Port),!,
+	db_open(postgres,Connection,Host/Db/Port/_,User,Password).  % Var to be NULL, the  default socket
+db_open(postgres,Connection,Host/Db/Socket,User,Password) :- !,
+	db_open(postgres,Connection,Host/Db/0/Socket,User,Password). % 0 is default port
+db_open(postgres,Connection,Host/Db,User,Password) :-
+	db_open(postgres,Connection,Host/Db/0/_,User,Password).  % 0 is default port and Var to be NULL, the default socket
+#endif
+
 #ifdef MYDDAS_ODBC
 db_open(odbc,Connection,ODBCEntry,User,Password) :-
 	'$error_checks'(db_open(odbc,Connection,ODBCEntry,User,Password)),
@@ -916,6 +930,10 @@ db_close(Connection) :-
 	c_db_connection_type(Con,ConType),
 	( ConType == mysql ->
 	    c_db_my_disconnect(Con)
+	;ConType == postgres ->
+	    c_postgres_disconnect(Con)
+	;ConType == sqlite3 ->
+	    c_sqlite3_disconnect(Con)
 	;
 	    c_db_odbc_disconnect(Con)
 	),
@@ -1016,6 +1034,12 @@ db_sql(Connection,SQL,LA):-
 	( ConType == mysql ->
 	    db_my_result_set(Mode),
 	    c_db_my_query(SQL,ResultSet,Con,Mode,Arity)
+	;ConType == postgres ->
+	    postgres_result_set(Mode),
+	    c_postgres_query(SQL,ResultSet,Con,Mode,Arity)
+	;ConType == sqlite3 ->
+	    sqlite3_result_set(Mode),
+	    c_sqlite3_query(SQL,ResultSet,Con,Mode,Arity)
 	;
 	    c_db_odbc_number_of_fields_in_query(SQL,Con,Arity)
 	),
@@ -1119,6 +1143,12 @@ db_assert(Connection,PredName):-
 	( ConType == mysql ->
 	    db_my_result_set(Mode),
 	    c_db_my_query(SQL,_,Con,Mode,_)
+	;ConType == postgres ->
+	    postgres_result_set(Mode),
+	    c_postgres_query(SQL,_,Con,Mode,_)
+	;ConType == sqlite3 ->
+	    sqlite3_result_set(Mode),
+	    c_sqlite3_query(SQL,_,Con,Mode,_)
 	;
 	    c_db_odbc_query(SQL,_,_,_,Con)
 	).
@@ -1142,6 +1172,12 @@ db_create_table(Connection,TableName,FieldsInf):-
 	( ConType == mysql ->
 	    db_my_result_set(Mode),
 	    c_db_my_query(FinalSQL,_,Con,Mode,_)
+	;ConType == posgres ->
+	    postgres_result_set(Mode),
+	    c_postsgres_query(FinalSQL,_,Con,Mode,_)
+	;ConType == sqlite3 ->
+	   sqlite3_result_set(Mode),
+	    c_sqlite3_query(FinalSQL,_,Con,Mode,_)
 	;
 	    c_db_odbc_query(FinalSQL,_,_,_,Con)
 	).
@@ -1248,6 +1284,10 @@ db_number_of_fields(Connection,RelationName,Arity) :-
 	c_db_connection_type(Con,ConType),
 	( ConType == mysql ->
 	    c_db_my_number_of_fields(RelationName,Con,Arity)
+	;ConType == postgres ->
+	    c_postgres_number_of_fields(RelationName,Con,Arity)
+	;ConType == sqlite3 ->
+	    c_sqlite3_number_of_fields(RelationName,Con,Arity)
 	;
 	    c_db_odbc_number_of_fields(RelationName,Con,Arity)
 	).

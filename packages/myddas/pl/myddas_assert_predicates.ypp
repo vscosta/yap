@@ -240,15 +240,21 @@ table_arity( Con, ConType, RelationName, Arity ) :-
 	( ConType == mysql ->
 	  c_db_my_number_of_fields(RelationName,Con,Arity)
 	;
-	  ConType == odbc ->
-	  c_db_odbc_number_of_fields(RelationName,Con,Arity)
+	  ConType == postgres ->
+	  c_postgres_number_of_fields(RelationName,Con,Arity)
 	;
+        ConType == odbc ->
+          c_db_odbc_number_of_fields(RelationName,Con,Arity)
+        ;
 	  c_sqlite3_number_of_fields(RelationName,Con,Arity))
 	.
 
 				% major attributes types.
 table_attributes( mysql, Con, RelationName, TypesList ) :-
 	c_db_my_get_attributes_types(RelationName,Con,TypesList).
+
+table_attributes( postgres, Con, RelationName, TypesList ) :-
+        c_postgres_get_attributes_types(RelationName,Con,TypesList).
 
 table_attributes( odbc, Con, RelationName, TypesList ) :-
 	c_db_odbc_get_attributes_types(RelationName,Con,TypesList).
@@ -267,6 +273,16 @@ table_access_predicate( mysql, Con, Arity, P, LA, M,
 				  c_db_my_query(FinalSQL,ResultSet,Con,Mode,_),
 				  !,
 				  c_db_my_row(ResultSet,Arity,LA) ))).
+
+table_access_predicate( postgres, Con, Arity, P, LA, M,
+                        ( P :- M:('$copy_term_nv'(P,[],G,_),
+                                  translate(G,G,Code),
+                                  queries_atom(Code,FinalSQL),
+                                  db_my_result_set(Mode),
+                                  '$write_or_not'(FinalSQL),
+                                  c_postgres_query(FinalSQL,ResultSet,Con,Mode,_),
+                                  !,
+                                  c_postgsres_row(ResultSet,Arity,LA) ))).
 
 table_access_predicate( sqlite3, Con, Arity, P, LA, M,
                         ( P :- M:('$copy_term_nv'(P,[],G,_),
@@ -299,6 +315,15 @@ table_insert( mysql, Con, RelationName, TypesList, Predicate, LA,
 		c_db_my_query(SQL,_,Con,Mode,_)))
 	    ).
 
+table_insert( postgres, Con, RelationName, TypesList, Predicate, LA,
+              ( Predicate :- myddas_assert_predicates:
+              ( '$get_values_for_insert'(TypesList,LA,ValuesList),
+                '$make_atom'(['INSERT INTO `',RelationName,'` VALUES ('|ValuesList],SQL),
+		postgres_result_set(Mode),
+                '$write_or_not'(SQL),
+                c_postgres_query(SQL,_,Con,Mode,_)))
+            ).
+
 table_insert( sqlite3, Con, RelationName, TypesList, Predicate, LA,
 	      ( Predicate :- myddas_assert_predicates:
 	      ( '$get_values_for_insert'(TypesList,LA,ValuesList),
@@ -328,6 +353,18 @@ table_view( mysql, Con, CopyView, CopyGoal, Arity, LA, M,
               c_db_my_query(FinalSQL,ResultSet,Con,Mode,_),
               !,
               c_db_my_row(ResultSet,Arity,LA) ))).
+
+table_view( postgres, Con, CopyView, CopyGoal, Arity, LA, M,
+            ( CopyView :-
+            M:( '$copy_term_nv'(CopyView,[],ProjT,Dic),
+                '$copy_term_nv'(CopyGoal,Dic,NG,_),
+                translate(ProjT,NG,Code),
+                queries_atom(Code,FinalSQL),
+                db_my_result_set(Mode),
+                '$write_or_not'(FinalSQL),
+                c_postgres_query(FinalSQL,ResultSet,Con,Mode,_),
+                !,
+                c_postgres_row(ResultSet,Arity,LA) ))).
 
 table_view( odbc, Con, CopyView, CopyGoal, Arity, LA, M,
           ( CopyView :-

@@ -313,7 +313,7 @@ c_sqlite3_query( USES_REGS1 ) {
    /* Send query to server and process it */
   if (strcmp(mode,"store_result")!=0) {
     // Leave data for extraction
-    printf(" SQL 0: %s\n", sql);    
+    printf(" SQL 0: %s\n", sql);
     CALL_SQLITE (prepare_v2(db, sql, -1, &stmt, NULL) );
     rs->stmt = stmt;
     rs->res_set = NULL;
@@ -385,7 +385,7 @@ c_sqlite3_number_of_fields( USES_REGS1 ) {
   sprintf(sql,"SELECT * FROM `%s`",relation);
 
   /* executar a query SQL */
-  printf(" SQL 1: %s\n", sql);    
+  printf(" SQL 1: %s\n", sql);
 CALL_SQLITE (prepare_v2(db, sql, -1, &stmt, NULL) );
 
   int fields = sqlite3_column_count( stmt );
@@ -415,7 +415,7 @@ c_sqlite3_get_attributes_types( USES_REGS1 ) {
   sprintf(sql,"SELECT * FROM `%s`",relation);
 
   /* executar a query SQL */
-  printf(" SQL 3: %s\n", sql);    
+  printf(" SQL 3: %s\n", sql);
   CALL_SQLITE (prepare_v2(db, sql, -1, &stmt, NULL) );
 
   int fields = sqlite3_column_count( stmt );
@@ -512,7 +512,7 @@ c_sqlite3_get_fields_properties( USES_REGS1 ) {
   sprintf(sql,"SELECT * FROM `%s`",relation);
 
   /* executar a query SQL */
-  printf(" SQL 4: %s\n", sql);    
+  printf(" SQL 4: %s\n", sql);
   CALL_SQLITE (prepare_v2(db, sql, -1, &stmt, NULL) );
 
   Functor functor = Yap_MkFunctor(Yap_LookupAtom("property"),4);
@@ -595,7 +595,7 @@ c_sqlite3_change_database( USES_REGS1 ) {
 static Int
 c_sqlite3_row_cut( USES_REGS1 ) {
   struct result_set *res_set=NULL;
-  
+
   res_set = AddressOfTerm(CBACK_CUT_ARG(1));
   sqlite3 *db = res_set->db;
     CALL_SQLITE( finalize( res_set->stmt ) );

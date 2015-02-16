@@ -21,7 +21,7 @@ YAPLIBDIR=@libdir@/Yap
 #
 CC=@CC@
 YAP_EXTRAS=@YAP_EXTRAS@
-CFLAGS= $(YAP_EXTRAS) @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include -I$(srcdir)/../../H -I$(srcdir)/../../OPTYap -I$(srcdir)/../../os  @MYDDAS_CPPFLAGS@ 
+CFLAGS= $(YAP_EXTRAS) @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include -I$(srcdir)/../../H -I$(srcdir)/../../OPTYap -I$(srcdir)/../../os  @MYDDAS_CPPFLAGS@
 LDFLAGS=@LDFLAGS@
 #
 #
@@ -47,6 +47,7 @@ MYDDAS_HEADERS= \
 MYDDAS_SOURCES= \
 	myddas_mysql.c \
 	myddas_odbc.c \
+	myddas_postgres.c \
 	myddas_sqlite3.c \
     myddas_util.c \
 	myddas_initialization.c \
@@ -59,8 +60,10 @@ MYDDAS_PROLOG= \
 	$(srcdir)/pl/myddas.ypp \
 	$(srcdir)/pl/myddas_assert_predicates.ypp \
 	$(srcdir)/pl/myddas_mysql.ypp \
-	$(srcdir)/pl/myddas_top_level.ypp \
+	$(srcdir)/pl/myddas_sqlite3.ypp \
+        $(srcdir)/pl/myddas_top_level.ypp \
 	$(srcdir)/pl/myddas_errors.ypp \
+	$(srcdir)/pl/myddas_postgres.ypp \
 	$(srcdir)/pl/myddas_prolog2sql.ypp \
 	$(srcdir)/pl/myddas_util_predicates.ypp \
 	$(srcdir)/pl/myddas_prolog2sql_optimizer.ypp
@@ -72,7 +75,7 @@ SOBJS=	myddas.@SO@
 #in some systems we just create a single object, in others we need to
 # create a libray
 
-all: $(SOBJS) 
+all: $(SOBJS)
 
 .PRECIOUS: %.o
 
@@ -103,4 +106,3 @@ clean:
 
 distclean: clean
 	rm -f Makefile
-

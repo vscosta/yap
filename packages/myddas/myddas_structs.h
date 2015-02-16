@@ -40,7 +40,8 @@ typedef enum myddas_api {
   API_MYSQL = 0,
   API_ODBC = 1,
   API_SQLITE3 = 2,
-  API_POSTGRES } MYDDAS_API;
+  API_POSTGRES =3
+} MYDDAS_API;
 
 struct myddas_list_connection {
   void *connection;
