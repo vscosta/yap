@@ -245,6 +245,27 @@ initSysPath(Term tlib, Term tcommons, bool dir_done, bool commons_done) {
   CACHE_REGS
     int len;
 
+#if __WINDOWS__
+  {
+    char *dir;
+    if ((dir = Yap_RegistryGetString("library")) &&
+        is_directory(dir)) {
+      if (! Yap_unify( tlib,
+                       MkAtomTerm(Yap_LookupAtom(dir))) )
+        return FALSE;
+    }
+    dir_done = true;
+    if ((dir = Yap_RegistryGetString("prolog_commons")) &&
+        is_directory(dir)) {
+      if (! Yap_unify( tcommons,
+                       MkAtomTerm(Yap_LookupAtom(dir))) )
+        return FALSE;
+    }
+    commons_done = true;
+  }
+  if (dir_done && commons_done)
+    return TRUE;
+#endif
   strncpy(LOCAL_FileNameBuf, YAP_SHAREDIR, YAP_FILENAME_MAX);
   strncat(LOCAL_FileNameBuf,"/", YAP_FILENAME_MAX);
   len = strlen(LOCAL_FileNameBuf);
@@ -273,25 +294,6 @@ initSysPath(Term tlib, Term tcommons, bool dir_done, bool commons_done) {
     return TRUE;
 
 #if __WINDOWS__
-  {
-    char *dir;
-    if ((dir = Yap_RegistryGetString("library")) &&
-        is_directory(dir)) {
-      if (! Yap_unify( tlib,
-                       MkAtomTerm(Yap_LookupAtom(dir))) )
-        return FALSE;
-    }
-    dir_done = true;
-    if ((dir = Yap_RegistryGetString("prolog_commons")) &&
-        is_directory(dir)) {
-      if (! Yap_unify( tcommons,
-                       MkAtomTerm(Yap_LookupAtom(dir))) )
-        return FALSE;
-    }
-    commons_done = true;
-  }
-  if (dir_done && commons_done)
-    return TRUE;
   {
     size_t buflen;
     char *pt;
@@ -2528,7 +2530,7 @@ p_virtual_alarm( USES_REGS1 )
     Yap_Error(INSTANTIATION_ERROR, t, "alarm/2");
     return(FALSE);
   }
-  if (!IsIntegerTerm(t)) {
+  if (!IsIntegerTerm(t)) { 
     Yap_Error(TYPE_ERROR_INTEGER, t, "alarm/2");
     return(FALSE);
   }
@@ -3096,7 +3098,7 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$yap_home", 1, p_yap_home, SafePredFlag);
   Yap_InitCPred ("$yap_paths", 3, p_yap_paths, SafePredFlag);
   Yap_InitCPred ("$dir_separator", 1, p_dir_sp, SafePredFlag);
-  Yap_InitCPred ("libraries_directory", 2, p_libraries_path, 0);
+  Yap_InitCPred ("libraries_directories",2, p_libraries_path, 0);
   Yap_InitCPred ("system_library", 1, p_library_dir, 0);
   Yap_InitCPred ("commons_library", 1, p_commons_dir, 0);
   Yap_InitCPred ("$alarm", 4, p_alarm, SafePredFlag|SyncPredFlag);

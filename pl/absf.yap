@@ -1,6 +1,6 @@
 /*************************************************************************
 *									 *
-*	 YAP Prolog 							 *
+  *	 YAP Prolog 							 *
 *									 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
@@ -112,10 +112,10 @@ swapped, making the call
   valid as well.
 */
 
-absolute_file_name(File,TrueFileName,Opts) :- 
+absolute_file_name(File,TrueFileName,Opts) :-
     ( var(TrueFileName) ->
 	  true ;
-      atom(TrueFileName), TrueFileName \= [] 
+      atom(TrueFileName), TrueFileName \= []
     ), !,
     absolute_file_name(File,Opts,TrueFileName).
 absolute_file_name(File,Opts,TrueFileName) :-
@@ -352,7 +352,7 @@ absolute_file_name(File0,File) :-
 	atom_concat([Path,File],PFile).
 
 '$system_library_directories'(library, Dir) :-
-	library_directory( Dir ).
+	user:library_directory( Dir ).
 %	'$split_by_sep'(0, 0, Dirs, Dir).
 '$system_library_directories'(foreign, Dir) :-
 	foreign_directory( Dir ).
@@ -360,6 +360,7 @@ absolute_file_name(File0,File) :-
 % search the current directory first.
 '$system_library_directories'(commons, Dir) :-
 	commons_directory( Dir ).
+
 
 
 '$split_by_sep'(Start, Next, Dirs, Dir) :-
@@ -499,15 +500,30 @@ remove_from_path(New) :- '$check_path'(New,Path),
   reconsult/1, use_module/1, ensure_loaded/1, and load_files/2.
 
   This directory is initialized s a rule that calls  the system predicate
-  library_directories/2.
+  system_library/1.
 */
 
 :- multifile user:library_directory/1.
 
 :- dynamic user:library_directory/1.
 
-user:library_directory( Path ):-
-    system_library( Path ).
+%% user:library_directory( ?Dir )
+                                %  Specifies the set of directories where
+                                % one can find Prolog libraries.
+                                %
+                                % 1. honor YAPSHAREDIR
+user:library_directory( Dir ) :-
+        getenv( 'YAPSHAREDIR', Dir0),
+        absolute_file_name( Dir0, [file_type(directory), expand(true)], Dir ).
+%% 2. honor user-library
+user:library_directory( Dir ) :-
+        absolute_file_name( '~/share/Yap', [file_type(directory), expand(true)], Dir ).
+%% 3. honor current directory
+user:library_directory( Dir ) :-
+        absolute_file_name( '.', [file_type(directory), expand(true)], Dir ).
+%% 4. honor default location.
+user:library_directory( Dir ) :-
+	system_library( Dir ).
 
 /**
   @pred user:commons_directory(? _Directory_:atom) is nondet, dynamic
@@ -645,4 +661,3 @@ user:file_search_path(path, C) :-
 	),
 	lists:member(C, B)
     ).
-
