@@ -439,7 +439,7 @@ BEAM_OBJECTS = \
 STATIC_OBJECTS = \
 	@STATIC_MODE@sys.o yap_random.o regexp.o  @NO_BUILTIN_REGEXP@ regcomp.o regerror.o regfree.o regexec.o
 
-LIB_OBJECTS = $(ENGINE_OBJECTS) $(C_INTERFACE_OBJECTS) $(OR_OBJECTS) $(BEAM_OBJECTS) $(STATIC_OBJECTS) $(LIBTAI_OBJECTS)  $(JIT_OBJECTS) 
+LIB_OBJECTS = $(ENGINE_OBJECTS) $(C_INTERFACE_OBJECTS) $(OR_OBJECTS) $(BEAM_OBJECTS) $(STATIC_OBJECTS) $(LIBTAI_OBJECTS)  $(JIT_OBJECTS)
 
 OBJECTS = yap.o yapi.o $(LIB_OBJECTS)
 
@@ -598,7 +598,7 @@ all: startup.yss
 	-rm -f startup.yss
 	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). qsave_program('startup.yss')." |  @PRE_INSTALL_ENV@ ./yap@EXEC_SUFFIX@ -b $(srcdir)/pl/boot.yap
 
-yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@ libYap.a 
+yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@ libYap.a
 	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap@EXEC_SUFFIX@ yap.o @YAPLIB@ $(LIBS) $(PAPILIB) $(JITLIBS) $(JITLD)
 
 yap-win: yap-win@EXEC_SUFFIX@
@@ -606,7 +606,7 @@ yap-win: yap-win@EXEC_SUFFIX@
 yapwin: yap-win@EXEC_SUFFIX@
 
 yap-win@EXEC_SUFFIX@: $(PLCONS_OBJECTS) $(HEADERS) @YAPLIB@
-	$(MAKE) -C swi/console 
+	$(MAKE) -C swi/console
 	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o yap-win@EXEC_SUFFIX@ $(PLCONS_OBJECTS) plterm.dll @YAPLIB@ $(LIBS) -lgdi32 @MPILDF@
 
 libYap.a: $(LIB_OBJECTS) yapi.o
@@ -625,18 +625,23 @@ libYap.a: $(LIB_OBJECTS) yapi.o
 	adb shell mkdir -p /data/yap
 	adb shell mkdir -p /data/yap/pl
 	adb shell mkdir -p /data/yap/swi/library
+	adb shell mkdir -p /data/yap/packages
+	adb shell mkdir -p /data/yap/packages/chr
+	adb shell mkdir -p /data/yap/packages/clib
 	adb push yap /data/yap/
 	adb push @DYNYAPLIB@ /data/yap/
 	for p in $(EXTRAYAPLIBS); do \
 	  adb shell $(LN_S) /data/yap/@DYNYAPLIB@ /data/yap/$$p; \
 	done
 	adb push $(GMPDIR)/lib/libgmp.so /data/yap
+	#adb push packages/clib/*.so /data/yap
+	#adb push library/system/*.so /data/yap
 	adb push $(srcdir)/swi/library /data/yap/swi/library
 	adb push $(srcdir)/pl /data/yap/pl/
 	adb push $(srcdir)/library /data/yap/library/
 	adb shell "echo \"bootstrap('/data/yap/pl/init.yap'). module(user). qsave_program('/data/yap/startup.yss').\" | LD_LIBRARY_PATH=/data/yap /data/yap/yap@EXEC_SUFFIX@ -b /data/yap/pl/boot.yap"
 	adb pull /data/yap/startup.yss
-	adb shell rm -rf /data/yap
+	#adb shell rm -rf /data/yap
 
 install: @INSTALL_COMMAND@ install_startup install_common
 
@@ -649,7 +654,7 @@ install_unix: @YAPLIB@ yap@EXEC_SUFFIX@
 	$(INSTALL_PROGRAM) -m 755 yap@EXEC_SUFFIX@ $(DESTDIR)$(BINDIR)/yap
 	$(INSTALL_DATA) -m 755 @YAPLIB@ $(DESTDIR)$(LIBDIR)
 
-install_startup: startup.yss 
+install_startup: startup.yss
 	$(INSTALL_DATA) startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss
 
 install_win32: startup.yss @WINDOWS@ yap-win@EXEC_SUFFIX@

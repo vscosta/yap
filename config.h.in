@@ -406,6 +406,9 @@
 /* Define to 1 if you have the `nss_files' library (-lnss_files). */
 #undef HAVE_LIBNSS_FILES
 
+/* Define to 1 if you have the <libpq-fe.h> header file. */
+#undef HAVE_LIBPQ_FE_H
+
 /* Define to 1 if you have the `psapi' library (-lpsapi). */
 #undef HAVE_LIBPSAPI
 

@@ -906,6 +906,7 @@ enable_myddas
 with_mysql
 with_odbc
 with_sqlite3
+with_postgres
 enable_myddas_stats
 enable_myddas_top_level
 enable_jit
@@ -1606,6 +1607,7 @@ Optional Packages:
  --with-mysql[=DIR]      with the MYSQL library
  --with-odbc[=DIR]      with an ODBC library
  --with-sqlite3[=DIR]      with an SQLITE3 library
+ --with-postgres[=DIR]      with an POSTGRES library
 
   --without-time		  Exclude alarm library
  --with-libarchive=DIR              libarchive package
@@ -10400,6 +10402,24 @@ else
 fi
 
 
+
+# Check whether --with-postgres was given.
+if test "${with_postgres+set}" = set; then :
+  withval=$with_postgres; if test "$withval" = yes; then
+		yap_cv_postgres=/usr
+	elif test "$withval" = no; then
+		yap_cv_postgres=no
+	else
+		yap_cv_postgres=$withval
+		LDFLAGS="$LDFLAGS -L${yap_cv_postgres}/lib "
+		CPPFLAGS="$CPPFLAGS -I${yap_cv_postgres}/include "
+		MYDDAS_CPPFLAGS="$MYDDAS_CPPFLAGS -I${yap_cv_postgres}/include "
+	fi
+else
+  yap_cv_postgres=/usr
+fi
+
+
 # Check whether --enable-myddas-stats was given.
 if test "${enable_myddas_stats+set}" = set; then :
   enableval=$enable_myddas_stats; if test "$yap_cv_myddas" = no; then
@@ -10796,6 +10816,69 @@ done
 	    use_myddas=true
 		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_SQLITE3"
 	fi
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for PQconnectdbParams in -lpq" >&5
+$as_echo_n "checking for PQconnectdbParams in -lpq... " >&6; }
+if ${ac_cv_lib_pq_PQconnectdbParams+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lpq  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char PQconnectdbParams ();
+int
+main ()
+{
+return PQconnectdbParams ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_pq_PQconnectdbParams=yes
+else
+  ac_cv_lib_pq_PQconnectdbParams=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pq_PQconnectdbParams" >&5
+$as_echo "$ac_cv_lib_pq_PQconnectdbParams" >&6; }
+if test "x$ac_cv_lib_pq_PQconnectdbParams" = xyes; then :
+  LIBS="-lpq $LIBS"
+                       havelib=yes
+fi
+
+
+        for ac_header in libpq-fe.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "libpq-fe.h" "ac_cv_header_libpq_fe_h" "$ac_includes_default"
+if test "x$ac_cv_header_libpq_fe_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBPQ_FE_H 1
+_ACEOF
+
+else
+  yap_cv_postgres="no"
+fi
+
+done
+
+	if test "$yap_cv_postgres" != no
+	then
+	    use_myddas=true
+		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_POSTGRES"
+	fi
+
 
 	if test "$myddasstats" = "yes"
 	  then
@@ -14323,7 +14406,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14326 "configure" */
+/* #line 14409 "configure" */
 public class Test {
 }
 EOF
@@ -14499,7 +14582,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 14502: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 14585: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -14630,7 +14713,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14633 "configure" */
+/* #line 14716 "configure" */
 public class Test {
 }
 EOF
@@ -14665,7 +14748,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 14668 "configure" */
+/* [#]line 14751 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);

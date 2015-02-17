@@ -26,7 +26,7 @@ JAVA_SQLITE="$(srcdir)/android/src/org"
 
 SQLITE=$(JNI_SQLITE) $(JAVA_SQLITE)
 
-PROSQLITE=$(srcdir)/../prosqlite/prolog/prosqlite.pl 
+PROSQLITE=$(srcdir)/../prosqlite/prolog/prosqlite.pl
 
 PYTHON_PROGRAMS = $(srcdir)/python/demo.py
 
@@ -100,20 +100,20 @@ android/jni/Android.mk: android/AndroidManifest.xml
 	cp -r $(YAP_EXPORT_DLLS)/*.so android/jni
 	cp -r $(YAP_EXPORT_SAVED_STATE) android/assets/lib/Yap
 	cp -r $(JNI_SQLITE) android/jni
-	cp -r $(JAVA_SQLITE) android/src 
+	cp -r $(JAVA_SQLITE) android/src
 	cp Android.mk android/jni
 
 android/AndroidManifest.xml: $(ANDROID_PKG)
-	android create project --target 1 --name JavaYap --path ./android --activity JavaYap --package pt.up.fc.dcc.yap
+	android create project --target $(ANDROID_TARGET) --name JavaYap --path ./android --activity JavaYap --package pt.up.fc.dcc.yap
 	mkdir -p android/assets
 	mkdir -p android/assets/share
 	mkdir -p android/assets/share/Yap
 	mkdir -p android/assets/lib
-	mkdir -p android/assets/lib/Yap	
+	mkdir -p android/assets/lib/Yap
 	mkdir -p android/jni
 
-android/jni/yap_wrap.cpp: $(YAP_SWIG_INTERF) android/AndroidManifest.xml
-	$(SWIG) -c++ -java -I$(srcdir)/../../CXX -package pt.up.fc.dcc.yap -outdir android/src/pt/up/fc/dcc/yap -o android/jni/yap_wrap.cpp $<
+android/jni/yap_wrap.cpp:  $(YAP_SWIG_INTERFACE) android/AndroidManifest.xml
+	$(SWIG) -c++ -java -I$(srcdir)/../../CXX -package pt.up.fc.dcc.yap -outdir android/src/pt/up/fc/dcc/yap -o $@ $<
 
 install-android: android
 	adb uninstall pt.up.fc.dcc.yap
@@ -124,7 +124,7 @@ R:
 
 yap.i: $(srcdir)/../../../../include/YapInterface.h
 
-install: 
+install:
 
 
 clean:

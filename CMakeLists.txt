@@ -67,9 +67,10 @@ set(YAP_ROOTDIR ${prefix})
 # erootdir -> rootdir
 # bindir defined above
 # libdir defined above
-set(YAP_LIBDIR "${dlls}")
-set(YAP_SHAREDIR "${datarootdir}")
-set(YAP_BINDIR "${bindir}")
+set(YAP_LIB_DIR "${dlls}")
+set(YAP_SHARE_DIR "${datarootdir}")
+set(YAP_BIN_DIR "${bindir}")
+set(YAP_INCLUDE_DIR "${includedir}")
 set(YAP_ROOTDIR "${prefix}")
 
 set(YAP_YAPLIB libYap${CMAKE_SHARED_LIBRARY_SUFFIX})
