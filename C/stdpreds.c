@@ -346,8 +346,6 @@ void* (*Yap_JitCall)(JIT_Compiler* jc, yamop* p);
 void (* Yap_llvmShutdown)(void ) ;
 Int  (* Yap_traced_absmi)(void ) ;
 
-Environment ExpEnv;
-
 static Int p_jit(USES_REGS1) { /* '$set_value'(+Atom,+Atomic) */
    void *jit_handle;
   if ( (jit_handle = Yap_LoadForeignFile( YAP_YAPJITLIB, 0 ) ) ) {
