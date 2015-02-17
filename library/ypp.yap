@@ -68,12 +68,12 @@ get_state(State):-
 	(Val==0->State=off;State=on).
 
 
-store_define(Name,Value):-
-	recorded('___ypp',def(Name,_),Ref),     
-        erase(Ref),     
+store_define(Name,_Value):-
+	recorded('___ypp',def(Name,_),Ref),
+        erase(Ref),
         fail.
 store_define(Name,Value):-
-	system_variable( Name ),        
+	system_variable( Name ),
 	environ( Name, Value ),
 	fail.
 store_define(Name,Value):-
@@ -81,10 +81,9 @@ store_define(Name,Value):-
 	fail.
 store_define(_Name,_Value).
 
-system_variable( Name ).        
-system_variable( Name ).        
-system_variable( Name ).        
-system_variable( Name ).        
+system_variable( 'YAPLIBDIR' ).
+system_variable( 'YAPSHAREDIR' ).
+system_variable( 'YAPBINDIR' ).
 
 
 del_define(Name):-
@@ -119,4 +118,3 @@ ypp_file(File,PPFile):-
 :-set_state(on),
 	ypp_extcmd('cpp -P -E -w -o ').
 %	ypp_extcmd('gpp -o').
-
