@@ -527,6 +527,12 @@ loop(Env) :-
 #if YAP_JIT
 #include "IsGround.h"
 
+TraceContext **curtrace;
+yamop *curpreg;
+BlocksContext **globalcurblock;
+COUNT ineedredefinedest;
+yamop* headoftrace;
+
 NativeContext *NativeArea;
 IntermediatecodeContext *IntermediatecodeArea;
 
@@ -534,12 +540,18 @@ CELL l;
 
 CELL nnexec;
 
+Environment *Yap_ExpEnvP, Yap_ExpEnv;
+
+void **Yap_ABSMI_ControlLabels;
+
 static Int traced_absmi(void)
 {
   return Yap_traced_absmi();
 }
 
 #endif
+
+void **Yap_ABSMI_OPCODES;
 
 #ifdef PUSH_X
 #else
@@ -1583,6 +1595,7 @@ Yap_absmi(int inp)
 #define I_R (XREGS[0])
 
 #if YAP_JIT
+  Yap_ExpEnvP = & Yap_ExpEnv;  
   static void *control_labels[] = { &&fail, &&NoStackCut, &&NoStackCommitY, &&NoStackCutT, &&NoStackEither, &&NoStackExecute, &&NoStackCall, &&NoStackDExecute, &&NoStackDeallocate, &&notrailleft, &&NoStackFail, &&NoStackCommitX };
   curtrace = NULL;
   curpreg = NULL;

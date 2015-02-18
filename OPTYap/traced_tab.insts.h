@@ -28,7 +28,7 @@
 ************************************************************************/
 
 Op(clause_with_cut, e)
-  { printf("Tabling not supported by JIT!!\n"); exit(1); }
+  { printf("clause_with_cut not supported by JIT!!\n"); exit(1); }
 ENDOp();
 
 
@@ -159,6 +159,6 @@ PBOp(table_load_answer, Otapl)
 
   BOp(table_answer_resolution_completion, Otapl)
 #ifdef THREADS_CONSUMER_SHARING
-  { printf("Or-parallelism not supported by JIT!!\n"); exit(1); }
+  { printf("table_answer_resolution_completion not supported by JIT!!\n"); exit(1); }
 #endif /* THREADS_CONSUMER_SHARING */
   ENDBOp();

@@ -1,4 +1,5 @@
 #include "Yap.h"
+#include "amijit.h"
 #include "clause.h"
 #include "eval.h"
 #if HAVE_ERRNO_H

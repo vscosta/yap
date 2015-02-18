@@ -2024,12 +2024,11 @@ prune((choiceptr)YREG[E_CB]);
 
      Op(retry_eam, e);
      //goto retry_eam;
-{ printf("EAM not supported by JIT!!\n"); exit(1); }
+{ printf("retry_eam not supported by JIT!!\n"); exit(1); }
      ENDOp();
 
      Op(run_eam, os);
-{ printf("EAM not supported by JIT!!\n"); exit(1); }
-     //goto run_eam;
+{ printf("run_eam not supported by JIT!!\n"); exit(1); }
      ENDOp();
 
 /************************************************************************\

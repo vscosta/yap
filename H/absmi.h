@@ -165,6 +165,9 @@ register struct yami* P1REG asm ("bp"); /* can't use yamop before Yap.h */
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
+#if YAP_JIT
+#include "amijit.h"
+#endif
 #ifdef YAPOR
 #include "or.macros.h"
 #endif  /* YAPOR */
@@ -2254,11 +2257,11 @@ extern CELL BLOCK;
 extern CELL BLOCKADDRESS;
 extern CELL FAILED;
 
-TraceContext **curtrace;
-yamop *curpreg;
-BlocksContext **globalcurblock;
-COUNT ineedredefinedest;
-yamop* headoftrace;
+extern TraceContext **curtrace;
+extern yamop *curpreg;
+extern BlocksContext **globalcurblock;
+extern COUNT ineedredefinedest;
+extern yamop* headoftrace;
 
 
 #endif /* _NATIVE */

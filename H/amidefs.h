@@ -220,10 +220,6 @@ typedef enum {
 #endif
 #define OpCodeSize   sizeof(OPCODE)
 
-
-#include "amijit.h"
-
-
 /*
 
   Types of possible YAAM instructions.
@@ -368,7 +364,7 @@ typedef struct yami {
     struct {
     /* jit_handler */
 #if YAP_JIT
-      JitHandlContext *jh;
+      struct jit_handl_context *jh;
 #endif
       CELL next;
     } J;

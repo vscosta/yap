@@ -278,6 +278,9 @@ static char SccsId[] = "%W% %G%";
 */
 
 #include "Yap.h"
+#if YAP_JIT
+#include "amijit.h"
+#endif
 #include "Yatom.h"
 #include "YapHeap.h"
 #include "eval.h"
@@ -347,7 +350,8 @@ void (* Yap_llvmShutdown)(void ) ;
 Int  (* Yap_traced_absmi)(void ) ;
 
 static Int p_jit(USES_REGS1) { /* '$set_value'(+Atom,+Atomic) */
-   void *jit_handle;
+  void *jit_handle;
+
   if ( (jit_handle = Yap_LoadForeignFile( YAP_YAPJITLIB, 0 ) ) ) {
     if (!Yap_CallForeignFile(jit_handle, "init_jit") )
       fprintf(stderr, "Could not load JIT\n" );

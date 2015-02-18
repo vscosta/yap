@@ -159,7 +159,6 @@ typedef enum{
 } enumRegAllocator;
 
 #include <pthread.h> // for 'CONTINUOUS_COMPILATION' mode
-#endif /* YAP_JIT */
 
 /* Enumeration for points to apply debug predicates */
 typedef enum{
@@ -177,7 +176,7 @@ typedef struct printt_struc {
  CELL msg_after;  // If I print, what message should come after?
 } PrinttStruc;
 
-#if YAP_JIT
+
 /* This struct represents our experimental environment for YAP */
 typedef struct environment {
   // struct for analysis predicates -- all fields are modified by analysis predicates (JIT_AnalysisPreds.c)
@@ -265,8 +264,7 @@ typedef struct environment {
     int papi_event_type; // Type of event that will be collected -- 'papi_event_type' involves what performance counters will be within 'papi_valid_values'
   } stats_struc;
 #endif
-#endif /* YAP_JIT */
-
+  
 #if YAP_DBG_PREDS
   // struct for debug predicates -- all fields are modified by debug predicates (JIT_DebugPreds.c)
   struct {
@@ -331,10 +329,10 @@ typedef struct environment {
       Int exit_on_error; // Should I exit when any error occur?
     } act_predicate_actions;
   } debug_struc;
-} Environment;
 #endif
 
-#if YAP_JIT
+} Environment;
+
 /* Enumeration for types of basic blocks -- used on trace construction */
 typedef enum block_try {
   NONE,               // untyped
@@ -490,10 +488,13 @@ typedef struct jit_handl_context {
   }jitman;
 } JitHandlContext;
 
-void **Yap_ABSMI_ControlLabels;
+extern void **Yap_ABSMI_ControlLabels;
+
+extern Environment *Yap_ExpEnvP;
+
+#define ExpEnv (*Yap_ExpEnvP)
 
 #endif /* YAP_JIT */
-
 
 
 

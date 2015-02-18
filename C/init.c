@@ -90,13 +90,6 @@ static char    *optypes[] =
 /* OS page size for memory allocation */
 int Yap_page_size;
 
-#if USE_THREADED_CODE
-/* easy access to instruction opcodes */
-void **Yap_ABSMI_OPCODES;
-void **Yap_ABSMI_ControlLabels;    
-
-#endif
-
 #if DEBUG
 #if COROUTINING
 int  Yap_Portray_delays = FALSE;
