@@ -246,7 +246,7 @@ static Int init_ground_module(USES_REGS1) {
   }
   t3 = Yap_YapStripModule(t1, &tmod);
   if (!t3) {
-    Yap_Error(TYPE_ERROR_CALLABLE, t1, "trying to obtain module");
+    Yap_Error(TYPE_ERROR_CALLABLE, t3, "trying to obtain module");
     return FALSE;
   }
   if (!IsVarTerm(tmod)) {
