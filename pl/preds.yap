@@ -1167,12 +1167,17 @@ predicate_erased_statistics(P,NCls,Sz,ISz) :-
 Defines the relation:  _P_ is a currently defined predicate whose name is the atom  _A_. 
 */
 current_predicate(A,T) :-
-	'$system_module'(M),
 	'$ground_module'(T, M, T0),
-	(
-	 '$current_predicate'(A, M, T0, _)
-	;
-	 '$imported_predicate'(A, M, A/_Arity, T0, _)
+	format('`0 ~w~n', [M:T0]),
+        (
+         '$current_predicate'(A, M, T0, Flags),
+	 TFlags is Flags /\ 0x00004000,
+	 % format('1 ~w ~16r~n', [M:T0,Flags, TFlags]),
+         Flags /\ 0x00004000 =:= 0x0
+	 ;
+	 '$imported_predicate'(A, M, A/_Arity, T0, Flags),
+	 % format('2 ~w ~16r~n', [M:T0,Flags]),           
+	 Flags /\ 0x00004000 =:= 0x0
 	).
 	 
 /** @pred  system_predicate( _A_, _P_) 
@@ -1187,8 +1192,7 @@ system_predicate(A,T) :-
 	 '$current_predicate'(A, M, T0, Flags)
 	;
 	 '$current_predicate'(A, prolog, T0, Flags)
-	),
-	\+ '$hidden'(A).
+	).
 
 /** @pred  system_predicate( ?_P_ )
 
@@ -1213,8 +1217,9 @@ current_predicate(F0) :-
 	 functor( S, N, Ar),
 	 F = N/Ar
 	;
-	 '$imported_predicate'(_Name, M, F, _S, _)
-	).
+	 '$imported_predicate'(_Name, M, F, S, _)
+	),
+        \+ system_predicate(_, S).
 
 '$imported_predicate'(A, ImportingMod, A/Arity, G, Flags) :-
 	'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod),

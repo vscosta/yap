@@ -20,17 +20,20 @@
 % This protects all code from further changes
 % and also makes it impossible from some predicates to be seen
 '$protect' :-
-	fail,
-        '$system_mod'( M ),
-        '$current_predicate'(_A, M, T0, Flags),
-        NFlags is Flags \/ 0x00004000,
-	'$flags'(M:T0, Flags, NFlags),
+	'$current_predicate'(_A, M, T0, Flags),
+	%format(' ~a ~n', [M]) ,
+        M \= user,
+	M \= lists,
+	'$flags'(T0, M, _Flags, NFlags), 
+	NFlags is Flags \/ 0x00004000,
+        %format('~w ~16r ~16r~n', [T0,Flags, NFlags]) ,
 	fail.
 '$protect' :-
 	current_atom(Name),
-	atom_codes(Name,[0'$|_]),
-%	'$hide_predicates'(Name),
-	'$hide'(Name).
+	atom_codes(Name,[0'$|_]), %'
+				%'$hide_predicates'(Name),
+	'$hide'(Name),
+	fail.
 '$protect' :-
 	'$hide_predicates'(bootstrap),
 	'$hide'(bootstrap).

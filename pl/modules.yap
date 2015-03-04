@@ -1166,7 +1166,7 @@ its parent goal.
 @}
 
 @{
- \defgroup YAPDynamicYAPModules Dynamic Modules
+  \defgroup YAPDynamicYAPModules Dynamic Modules
  \ingroup YAPModules
 
   YAP (in the footsteps of SWI-Prolog) allows to create modules that
@@ -1630,9 +1630,20 @@ ls_imports.
 
 '$system_module'('$swi').
 '$system_module'('$win_menu').
+'$system_module'('$arrays').
 '$system_module'('prolog').
 '$system_module'('system').
+'$system_module'('$hacks').
 '$system_module'('$attributes').
+'$system_module'('$coroutining').
+'$system_module'('$db_load').
+'$system_module'('predicate_options').
+'$system_module'('dialect').
+'$system_module'('$history').
+'$system_module'('$messages').
+'$system_module'('autoloader').
+'$system_module'('$win_menu').
+'$system_module'('ypp').
 
 unload_module(Mod) :-
     clause( '$meta_predicate'(_F,Mod,_N,_P), _, R),
