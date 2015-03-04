@@ -114,7 +114,19 @@
 	nonvar(Password),
 	atom(Connection),
 	get_value(Connection,[]).  % Nao pode ter nenhum valor atribuido
-'$error_checks'(db_open(sqlit3,Connection,File,_User,_Password)) :- !,
+'$error_checks'(db_open(postgres,Connection,_Host/_Db/_Port/_,_User,_Password)) :- !,
+	atom(Connection),
+	get_value(Connection,[]).  % Nao pode ter nenhum valor atribuido
+'$error_checks'(db_open(postgres,Connection,_Host/_Db/_Port/_,_User)) :- !,
+	atom(Connection),
+	get_value(Connection,[]).  % Nao pode ter nenhum valor atribuido
+'$error_checks'(db_open(postgres,Connection,_Host/_Db/_Port/_)) :- !,
+	atom(Connection),
+	get_value(Connection,[]).  % Nao pode ter nenhum valor atribuido
+'$error_checks'(db_open(postgres,Connection)) :- !,
+	atom(Connection),
+	get_value(Connection,[]).  % Nao pode ter nenhum valor atribuido
+'$error_checks'(db_open(sqlite3,Connection,File,_User,_Password)) :- !,
 	nonvar(File), % ==  \+var(ODBCEntry)
 	atom(Connection),
 	get_value(Connection,[]).  % Nao pode ter nenhum valor atribuido

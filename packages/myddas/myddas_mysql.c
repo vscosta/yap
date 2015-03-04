@@ -149,7 +149,7 @@ c_db_my_connect( USES_REGS1 ) {
   else
     {
       /* Criar um novo no na lista de ligacoes*/
-      new = myddas_util_add_connection(conn,NULL,MYDDAS_API);
+      new = myddas_util_add_connection(conn,NULL,MYDDAS_MYSQL);
 
       if (new == NULL){
 #ifdef DEBUG

@@ -58,7 +58,7 @@ MYDDAS_SOURCES= \
 
 MYDDAS_PROLOG= \
 	$(srcdir)/pl/myddas.ypp \
-	$(srcdir)/pl/myddas_assert_predicates.ypp \
+	 $(srcdir)/pl/myddas_assert_predicates.ypp \
 	$(srcdir)/pl/myddas_mysql.ypp \
 	$(srcdir)/pl/myddas_sqlite3.ypp \
         $(srcdir)/pl/myddas_top_level.ypp \
