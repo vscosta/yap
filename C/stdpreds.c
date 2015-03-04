@@ -962,7 +962,7 @@ static Int cont_current_predicate(USES_REGS1) {
     if (!pp)
       cut_fail();
     else
-      EXTRA_CBACK_ARG(4, 2) = MkAddressTerm(pp->NextPredOfModule);
+      EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(pp->NextPredOfModule);
   }
   if (pp->ModuleOfPred != IDB_MODULE) {
     f = pp->FunctorOfPred;

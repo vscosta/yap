@@ -366,7 +366,7 @@ do_execute_n(Term t, Term mod, unsigned int n USES_REGS)
       CalculateStackGap( PASS_REGS1 );
     }
     t = copy_execn_to_heap(f, pt, n, arity, mod PASS_REGS);
-  return CallMetaCall(t, mod PASS_REGS);
+    return CallMetaCall(t, mod PASS_REGS);
   } else if (Yap_has_a_signal()  &&
 	     !LOCAL_InterruptsDisabled) {
     return EnterCreepMode(copy_execn_to_heap(f, pt, n, arity, CurrentModule PASS_REGS), mod PASS_REGS);

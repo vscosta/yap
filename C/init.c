@@ -479,6 +479,8 @@ update_flags_from_prolog(UInt flags, PredEntry *pe)
     flags |= UDIPredFlag;
   if (pe->PredFlags & ModuleTransparentPredFlag)
     flags |= ModuleTransparentPredFlag;
+  if (pe->PredFlags & StandardPredFlag)
+    flags |= StandardPredFlag;
   return flags;
 }
 
@@ -685,7 +687,7 @@ Yap_InitCmpPred(const char *Name, UInt Arity, CmpPredicate cmp_code, pred_flags_
 	}
       } else {
 	Yap_ClauseSpace += sz;
-	cl->ClFlags = StaticMask;
+	cl->ClFlags = StaticMask|StandardPredFlag;
 	cl->ClNext = NULL;
 	cl->ClSize = sz;
 	cl->usc.ClLine = Yap_source_line_no();
@@ -910,7 +912,7 @@ Yap_InitCPredBack_(const char *Name, UInt Arity,
     yamop      *code = ((StaticClause *)NULL)->ClCode;
     UInt sz = (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(code,OtapFs),OtapFs),OtapFs),l);
     if (flags &  UserCPredFlag)
-      pe->PredFlags = UserCPredFlag | BackCPredFlag| CompiledPredFlag | StandardPredFlag | flags;
+      pe->PredFlags = UserCPredFlag | BackCPredFlag| CompiledPredFlag | flags;
     else
       pe->PredFlags = CompiledPredFlag | StandardPredFlag | BackCPredFlag;
 

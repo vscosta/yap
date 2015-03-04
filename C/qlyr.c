@@ -58,7 +58,7 @@ qlyr_error[] = { "out of temporary space",
 		"unknown YAAM opcode in saved space",
 		"unknown data-base reference in saved space",
 		"corrupted atom in saved space",
-		"formatting mismatch in saved space",
+		 "formatting mismatch in saved space",
 		"foreign predicate has different definition in saved space",
 		"bad read" };
 
@@ -1015,10 +1015,10 @@ read_pred(IOSTREAM *stream, Term mod) {
   if (ap->PredFlags & IndexedPredFlag) {
     Yap_RemoveIndexation(ap);
   }
-  //if (ap->ArityOfPE && ap->ModuleOfPred != IDB_MODULE)
-  //  printf("   %s/%ld\n", NameOfFunctor(ap->FunctorOfPred)->StrOfAE, ap->ArityOfPE);
-  //else if (ap->ModuleOfPred != IDB_MODULE)
-  //  printf("   %s/%ld\n", ((Atom)(ap->FunctorOfPred))->StrOfAE, ap->ArityOfPE);
+  /* if (ap->ArityOfPE && ap->ModuleOfPred != IDB_MODULE) */
+  /*   printf("   %s/%ld %lx\n", NameOfFunctor(ap->FunctorOfPred)->StrOfAE, ap->ArityOfPE, flags); */
+  /* else if (ap->ModuleOfPred != IDB_MODULE) */
+  /*   printf("   %s/%ld %lx\n", ((Atom)(ap->FunctorOfPred))->StrOfAE, ap->ArityOfPE, flags); */
   fl1 = flags & ((UInt)STATIC_PRED_FLAGS|(UInt)EXTRA_PRED_FLAGS);
   ap->PredFlags &= ~((UInt)STATIC_PRED_FLAGS|(UInt)EXTRA_PRED_FLAGS);
   ap->PredFlags |= fl1;
