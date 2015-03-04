@@ -15,7 +15,8 @@
 		      stack_dump/1,
 		      enable_interrupts/0,
 		      disable_interrupts/0,
-		      virtual_alarm/3
+		      virtual_alarm/3,
+		      context_variables/1
               ]).
 
 stack_dump :-
