@@ -45,6 +45,7 @@ static void InitWorker(int wid) {
   REMOTE_ConsultBase(wid) = NULL;
 
   REMOTE_ConsultLow(wid) = NULL;
+  REMOTE_VarNames(wid) = ((Term)0);
 
   REMOTE_GlobalArena(wid) = 0L;
   REMOTE_GlobalArenaOverflows(wid) = 0L;

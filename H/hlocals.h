@@ -45,6 +45,7 @@ typedef struct worker_local {
   union CONSULT_OBJ*  ConsultBase_;
 
   union CONSULT_OBJ*  ConsultLow_;
+  Term  VarNames_;
 
   Term  GlobalArena_;
   UInt  GlobalArenaOverflows_;

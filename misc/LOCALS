@@ -45,6 +45,7 @@ UInt				ConsultCapacity				void
 union CONSULT_OBJ*		ConsultBase				=NULL
 /* low-water mark for consult  */
 union CONSULT_OBJ*		ConsultLow				=NULL
+Term				VarNames				=((Term)0)
 
 //global variables
 Term				GlobalArena				=0L		TermToGlobalOrAtomAdjust

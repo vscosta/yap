@@ -78,6 +78,8 @@
 
 #define LOCAL_ConsultLow LOCAL->ConsultLow_
 #define REMOTE_ConsultLow(wid) REMOTE(wid)->ConsultLow_
+#define LOCAL_VarNames LOCAL->VarNames_
+#define REMOTE_VarNames(wid) REMOTE(wid)->VarNames_
 
 #define LOCAL_GlobalArena LOCAL->GlobalArena_
 #define REMOTE_GlobalArena(wid) REMOTE(wid)->GlobalArena_
