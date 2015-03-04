@@ -36,8 +36,9 @@ PROGRAMS= \
 	$(srcdir)/bhash.yap \
 	$(srcdir)/charsio.yap \
 	$(srcdir)/clp/clpfd.pl \
+	$(srcdir)/clauses.yap \
 	$(srcdir)/coinduction.yap \
-	$(srcdir)/dbqueues.yap \
+        $(srcdir)/dbqueues.yap \
 	$(srcdir)/dbusage.yap \
 	$(srcdir)/dgraphs.yap \
 	$(srcdir)/exo_interval.yap \
@@ -51,6 +52,7 @@ PROGRAMS= \
 	$(srcdir)/lists.yap \
 	$(srcdir)/nb.yap \
 	$(srcdir)/ordsets.yap \
+	$(srcdir)/parameters.yap \
 	$(srcdir)/mapargs.yap \
 	$(srcdir)/maplist.yap \
 	$(srcdir)/maputils.yap \
