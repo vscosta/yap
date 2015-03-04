@@ -22,6 +22,18 @@
 	   display_pc/3,
 	   code_location/3]).
 
+/** hacks:context_variables(-NamedVariables)
+  Access variable names.
+
+  Unify NamedVariables with a list of terms _Name_=_V_
+  giving the names of the variables occurring in the last term read.
+  Notice that variable names option must have been on.
+*/
+
+hacks:context_variables(NamedVariables) :-
+	'$context_variables'(NamedVariables).
+
+
 prolog:'$stack_dump' :-
 	yap_hacks:current_choicepoints(CPs),
 	yap_hacks:current_continuations([Env|Envs]),
@@ -226,5 +238,6 @@ beautify_hidden_goal('$current_predicate'(Na,M,S,_),prolog) -->
 	[current_predicate(Na,M:S)].
 beautify_hidden_goal('$list_clauses'(Stream,M,Pred),prolog) -->
 	[listing(Stream,M:Pred)].
+
 
 

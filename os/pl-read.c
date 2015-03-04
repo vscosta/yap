@@ -113,7 +113,7 @@ unicode_separator(pl_wchar_t c)
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	FALSE	return false
 	TRUE	redo
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 static int
 reportReadError(ReadData rd)
@@ -1067,6 +1067,7 @@ txt.encoding  = ENC_UTF8;
 txt.canonical = FALSE;
 
 rval = PL_unify_text(term, 0, &txt, PL_ATOM);
+ LD->read_varnames = rd.varnames;
 
 out:
 free_read_data(&rd);
@@ -1171,6 +1172,7 @@ read_clause(IOSTREAM *s, term_t term, term_t options ARG_LD)
 			(!tpos || (rval=unify_read_term_position(tpos PASS_LD))) )
 	{
 		PredEntry *ap;
+                LD->read_varnames = rd.varnames;
 
 		if (rd.singles) {
 			// warning, singletons([X=_A],f(X,Y,Z), pos).
@@ -1278,7 +1280,7 @@ fid_t fid = PL_open_foreign_frame();
 if (!fid)
 	return FALSE;
 retry:
-init_read_data(&rd, s PASS_LD);
+ init_read_data(&rd, s PASS_LD);
 
 if ( !scan_options(options, 0, ATOM_read_option, read_term_options,
 		&rd.varnames,
@@ -1343,8 +1345,9 @@ if ( Sferror(s) ) {
 	free_read_data(&rd);
 	return FALSE;
 }
+ LD->read_varnames = rd.varnames;
 #ifdef O_QUASIQUOTATIONS
-if ( rval )
+ if ( rval )
 	rval = parse_quasi_quotations(&rd PASS_LD);
 #endif
 if ( rval )
@@ -1571,6 +1574,14 @@ PRED_IMPL("term_to_atom", 2, term_to_atom, 0)
 }
 
 static
+PRED_IMPL("$context_variables", 1, context_variables, 0)
+{   CACHE_REGS
+    if ( LOCAL_VarNames == (CELL)0 )
+      return Yap_unify( TermNil, ARG1);
+    return Yap_unify( LOCAL_VarNames, ARG1);
+}
+
+static
 PRED_IMPL("$set_source", 2, set_source, 0)
 { 
   GET_LD
@@ -1593,7 +1604,7 @@ int
 PL_chars_to_term(const char *s, term_t t)
 { GET_LD
 	read_data rd;
-int rval;
+  int rval;
 IOSTREAM *stream = Sopen_string(NULL, (char *)s, -1, "r");
 source_location oldsrc = LD->read_source;
 
@@ -1601,7 +1612,8 @@ init_read_data(&rd, stream PASS_LD);
 PL_put_variable(t);
 if ( !(rval = read_term(t, &rd PASS_LD)) && rd.has_exception )
 	PL_put_term(t, rd.exception);
-free_read_data(&rd);
+ LOCAL_VarNames = rd.varnames;
+   free_read_data(&rd);
 Sclose(stream);
 LD->read_source = oldsrc;
 
@@ -1618,6 +1630,7 @@ PRED_DEF("read_term",		  2, read_term,		  PL_FA_ISO)
 PRED_DEF("read_clause",         3, read_clause,         0)
 PRED_DEF("atom_to_term", 3, atom_to_term, 0)
 PRED_DEF("term_to_atom", 2, term_to_atom, 0)
+PRED_DEF("$context_variables", 1, context_variables, 0)
 PRED_DEF("$set_source",  2, set_source, 0)
 #ifdef O_QUASIQUOTATIONS
 PRED_DEF("$qq_open",            2, qq_open,             0)
