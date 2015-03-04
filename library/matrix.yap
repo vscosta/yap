@@ -26,7 +26,7 @@ arrays. these arrays are allocated in the stack, and disppear in
 backtracking. Matrices are available by loading the library
 `library(matrix)`. They are multimensional objects of type:
 
-+ <tt>terms</tt>: Prolog terms
+  + <tt>terms</tt>: Prolog terms
 
 + <tt>ints</tt>: bounded integers, represented as an opaque term. The
 maximum integer depends on hardware, but should be obtained from the
@@ -38,24 +38,24 @@ Matrix elements can be accessed through the `matrix_get/2`
 predicate or through an <tt>R</tt>-inspired access notation (that uses the ciao
 style extension to `[]`).  Examples include:
 
- 
-+ Access the second row, third column of matrix <tt>X</tt>. Indices start from
+
+  + Access the second row, third column of matrix <tt>X</tt>. Indices start from
 `0`,
 ~~~~
  _E_ <==  _X_[2,3]
 ~~~~
- 
+
 + Access all the second row, the output is a list ofe elements.
 ~~~~
  _L_ <==  _X_[2,_]
 ~~~~
- 
+
 + Access all the second, thrd and fourth rows, the output is a list of elements.
 ~~~~
  _L_ <==  _X_[2..4,_]
 ~~~~
 
-+ Access all the fifth, sixth and eight rows, the output is a list of elements. 
++ Access all the fifth, sixth and eight rows, the output is a list of elements.
 ~~~~
  _L_ <==  _X_[2..4+3,_]
 ~~~~
@@ -64,14 +64,14 @@ The matrix library also supports a B-Prolog/ECliPSe inspired `foreach`iterator t
 elements of a matrix:
 
 + Copy a vector, element by element.
- 
+
 ~~~~
  foreach(I in 0..N1, X[I] <== Y[I])
 ~~~~
 
 + The lower-triangular matrix  _Z_ is the difference between the
 lower-triangular and upper-triangular parts of  _X_.
- 
+
 ~~~~
  foreach([I in 0..N1, J in I..N1], Z[I,J] <== X[I,J] - X[I,J])
 ~~~~
@@ -87,7 +87,7 @@ contact the YAP maintainers if you require extra functionality.
 
 
 
-+ _X_ <== array[ _Dim1_,..., _Dimn_] of  _Objects_ 
++ _X_ <== array[ _Dim1_,..., _Dimn_] of  _Objects_
     The of/2 operator can be used to create a new array of
  _Objects_. The objects supported are:
 
@@ -108,7 +108,7 @@ as  an interval ` _Base_.. _Limit_`. In the latter case,
 matrices of integers and of floating-point numbers should have the same
  _Base_ on every dimension.
 
- 
+
 */
 
 
@@ -122,7 +122,7 @@ matrices of integers and of floating-point numbers should have the same
   Type = int, float
 
   Operations:
-  
+
 typedef enum {
   MAT_SUM=0,
   MAT_SUB=1,
@@ -146,7 +146,7 @@ perform non-backtrackable assignment.
 + other unify left-hand side and right-hand size.
 
 
-The right-hand side supports the following operators: 
+The right-hand side supports the following operators:
 
 + `[]/2`
 
@@ -162,7 +162,7 @@ of matrix  _M_ at offset  _Offset_.
     create a matrix from a list. Options are:
   + dim=
     a list of dimensions
-  
+
    + type=
     integers, floating-point or terms
 
@@ -190,36 +190,36 @@ integers and floating-points
   size of a matrix
 
 + `max/1`
-  
+
     maximum element of a numeric matrix
 
 + `maxarg/1`
-  
+
     argument of maximum element of a numeric matrix
 
 + `min/1`
-  
+
     minimum element of a numeric matrix
 
 + `minarg/1`
-  
+
     argument of minimum element of a numeric matrix
 
 + `list/1`
-  
+
     represent matrix as a list
 
 + `lists/2`
-  
+
     represent matrix as list of embedded lists
 
 + `../2`
-  
+
     _I_.. _J_ generates a list with all integers from  _I_ to
  _J_, included.
 
 + `+/2`
-  
+
     add two numbers, add two matrices element-by-element, or add a number to
 all elements of a matrix or list.
 
@@ -235,24 +235,24 @@ all elements of a matrix or list
     matrix or list
 
  + `log/1`
- 
+
     natural logarithm of a number, matrix or list
 
 + `exp/1 `
 
     natural exponentiation of a number, matrix or list
- 
+
 */
-/** @pred matrix_add(+ _Matrix_,+ _Position_,+ _Operand_) 
+/** @pred matrix_add(+ _Matrix_,+ _Position_,+ _Operand_)
 
 
 
 Add  _Operand_ to the element of  _Matrix_ at position
  _Position_.
 
- 
+
 */
-/** @pred matrix_agg_cols(+ _Matrix_,+Operator,+ _Aggregate_) 
+/** @pred matrix_agg_cols(+ _Matrix_,+Operator,+ _Aggregate_)
 
 
 
@@ -260,9 +260,9 @@ If  _Matrix_ is a n-dimensional matrix, unify  _Aggregate_ with
 the one dimensional matrix where each element is obtained by adding all
 Matrix elements with same  first index. Currently, only addition is supported.
 
- 
+
 */
-/** @pred matrix_agg_lines(+ _Matrix_,+Operator,+ _Aggregate_) 
+/** @pred matrix_agg_lines(+ _Matrix_,+Operator,+ _Aggregate_)
 
 
 
@@ -270,18 +270,18 @@ If  _Matrix_ is a n-dimensional matrix, unify  _Aggregate_ with
 the n-1 dimensional matrix where each element is obtained by adding all
 _Matrix_ elements with same last n-1 index. Currently, only addition is supported.
 
- 
+
 */
-/** @pred matrix_arg_to_offset(+ _Matrix_,+ _Position_,- _Offset_) 
+/** @pred matrix_arg_to_offset(+ _Matrix_,+ _Position_,- _Offset_)
 
 
 
 Given matrix  _Matrix_ return what is the numerical  _Offset_ of
 the element at  _Position_.
 
- 
+
 */
-/** @pred matrix_column(+ _Matrix_,+ _Column_,- _NewMatrix_) 
+/** @pred matrix_column(+ _Matrix_,+ _Column_,- _NewMatrix_)
 
 
 
@@ -290,13 +290,13 @@ Select from  _Matrix_ the column matching  _Column_ as new matrix  _NewMatrix_. 
 
 
  */
-/** @pred matrix_dec(+ _Matrix_,+ _Position_) 
+/** @pred matrix_dec(+ _Matrix_,+ _Position_)
 
 
 
 Decrement the element of  _Matrix_ at position  _Position_.
 
- 
+
 */
 /** @pred matrix_dec(+ _Matrix_,+ _Position_,- _Element_)
 
@@ -304,17 +304,17 @@ Decrement the element of  _Matrix_ at position  _Position_.
 Decrement the element of  _Matrix_ at position  _Position_ and
 unify with  _Element_.
 
- 
+
 */
-/** @pred matrix_dims(+ _Matrix_,- _Dims_) 
+/** @pred matrix_dims(+ _Matrix_,- _Dims_)
 
 
 
 Unify  _Dims_ with a list of dimensions for  _Matrix_.
 
- 
+
 */
-/** @pred matrix_expand(+ _Matrix_,+ _NewDimensions_,- _New_) 
+/** @pred matrix_expand(+ _Matrix_,+ _NewDimensions_,- _New_)
 
 
 
@@ -322,31 +322,31 @@ Expand  _Matrix_ to occupy new dimensions. The elements in
  _NewDimensions_ are either 0, for an existing dimension, or a
 positive integer with the size of the new dimension.
 
- 
+
 */
-/** @pred matrix_get(+ _Matrix_,+ _Position_,- _Elem_) 
+/** @pred matrix_get(+ _Matrix_,+ _Position_,- _Elem_)
 
 
 
 Unify  _Elem_ with the element of  _Matrix_ at position
  _Position_.
 
- 
+
 */
 /** @pred matrix_get(+ _Matrix_[+ _Position_],- _Elem_)
 
 
 Unify  _Elem_ with the element  _Matrix_[ _Position_].
 
- 
+
 */
-/** @pred matrix_inc(+ _Matrix_,+ _Position_) 
+/** @pred matrix_inc(+ _Matrix_,+ _Position_)
 
 
 
 Increment the element of  _Matrix_ at position  _Position_.
 
- 
+
 */
 /** @pred matrix_inc(+ _Matrix_,+ _Position_,- _Element_)
 
@@ -354,47 +354,47 @@ Increment the element of  _Matrix_ at position  _Position_.
 Increment the element of  _Matrix_ at position  _Position_ and
 unify with  _Element_.
 
- 
+
 */
-/** @pred matrix_max(+ _Matrix_,+ _Max_) 
+/** @pred matrix_max(+ _Matrix_,+ _Max_)
 
 
 
 Unify  _Max_ with the maximum in matrix   _Matrix_.
 
- 
+
 */
-/** @pred matrix_maxarg(+ _Matrix_,+ _Maxarg_) 
+/** @pred matrix_maxarg(+ _Matrix_,+ _Maxarg_)
 
 
 
 Unify  _Max_ with the position of the maximum in matrix   _Matrix_.
 
- 
+
 */
-/** @pred matrix_min(+ _Matrix_,+ _Min_) 
+/** @pred matrix_min(+ _Matrix_,+ _Min_)
 
 
 
 Unify  _Min_ with the minimum in matrix   _Matrix_.
 
- 
+
 */
-/** @pred matrix_minarg(+ _Matrix_,+ _Minarg_) 
+/** @pred matrix_minarg(+ _Matrix_,+ _Minarg_)
 
 
 
 Unify  _Min_ with the position of the minimum in matrix   _Matrix_.
 
- 
+
 */
-/** @pred matrix_ndims(+ _Matrix_,- _Dims_) 
+/** @pred matrix_ndims(+ _Matrix_,- _Dims_)
 
 
 
 Unify  _NDims_ with the number of dimensions for  _Matrix_.
 
- 
+
 */
 /** @pred matrix_new(+ _Type_,+ _Dims_,+ _List_,- _Matrix_)
 
@@ -403,9 +403,9 @@ Create a new matrix  _Matrix_ of type  _Type_, which may be one of
 `ints` or `floats`, with dimensions  _Dims_, and
 initialised from list  _List_.
 
- 
+
 */
-/** @pred matrix_new(+ _Type_,+ _Dims_,- _Matrix_) 
+/** @pred matrix_new(+ _Type_,+ _Dims_,- _Matrix_)
 
 
 
@@ -420,36 +420,36 @@ Matrix = {..}
 ~~~~~
 Notice that currently YAP will always write a matrix of numbers as `{..}`.
 
- 
+
 */
-/** @pred matrix_new_set(? _Dims_,+ _OldMatrix_,+ _Value_,- _NewMatrix_) 
+/** @pred matrix_new_set(? _Dims_,+ _OldMatrix_,+ _Value_,- _NewMatrix_)
 
 
 
 Create a new matrix  _NewMatrix_ of type  _Type_, with dimensions
  _Dims_. The elements of  _NewMatrix_ are set to  _Value_.
 
- 
+
 */
-/** @pred matrix_offset_to_arg(+ _Matrix_,- _Offset_,+ _Position_) 
+/** @pred matrix_offset_to_arg(+ _Matrix_,- _Offset_,+ _Position_)
 
 
 
 Given a position  _Position _ for matrix  _Matrix_ return the
 corresponding numerical  _Offset_ from the beginning of the matrix.
 
- 
+
 */
-/** @pred matrix_op(+ _Matrix1_,+ _Matrix2_,+ _Op_,- _Result_) 
+/** @pred matrix_op(+ _Matrix1_,+ _Matrix2_,+ _Op_,- _Result_)
 
 
 
  _Result_ is the result of applying  _Op_ to matrix  _Matrix1_
 and  _Matrix2_. Currently, only addition (`+`) is supported.
 
- 
+
 */
-/** @pred matrix_op_to_all(+ _Matrix1_,+ _Op_,+ _Operand_,- _Result_) 
+/** @pred matrix_op_to_all(+ _Matrix1_,+ _Op_,+ _Operand_,- _Result_)
 
 
 
@@ -458,9 +458,9 @@ and  _Matrix2_. Currently, only addition (`+`) is supported.
 only addition (`+`), multiplication (`\*`), and division
 (`/`) are supported.
 
- 
+
 */
-/** @pred matrix_op_to_cols(+ _Matrix1_,+ _Cols_,+ _Op_,- _Result_) 
+/** @pred matrix_op_to_cols(+ _Matrix1_,+ _Cols_,+ _Op_,- _Result_)
 
 
 
@@ -469,9 +469,9 @@ only addition (`+`), multiplication (`\*`), and division
 second argument. Currently, only addition (`+`) is
 supported. Notice that  _Cols_ will have n-1 dimensions.
 
- 
+
 */
-/** @pred matrix_op_to_lines(+ _Matrix1_,+ _Lines_,+ _Op_,- _Result_) 
+/** @pred matrix_op_to_lines(+ _Matrix1_,+ _Lines_,+ _Op_,- _Result_)
 
 
 
@@ -479,42 +479,42 @@ supported. Notice that  _Cols_ will have n-1 dimensions.
  _Matrix1_, with the corresponding element in  _Lines_ as the
 second argument. Currently, only division (`/`) is supported.
 
- 
+
 */
-/** @pred matrix_select(+ _Matrix_,+ _Dimension_,+ _Index_,- _New_) 
+/** @pred matrix_select(+ _Matrix_,+ _Dimension_,+ _Index_,- _New_)
 
 
 
 Select from  _Matrix_ the elements who have  _Index_ at
  _Dimension_.
 
- 
+
 */
-/** @pred matrix_set(+ _Matrix_,+ _Position_,+ _Elem_) 
+/** @pred matrix_set(+ _Matrix_,+ _Position_,+ _Elem_)
 
 
 
 Set the element of  _Matrix_ at position
  _Position_ to   _Elem_.
 
- 
+
 */
 /** @pred matrix_set(+ _Matrix_[+ _Position_],+ _Elem_)
 
 
 Set the element of  _Matrix_[ _Position_] to   _Elem_.
 
- 
+
 */
-/** @pred matrix_set_all(+ _Matrix_,+ _Elem_) 
+/** @pred matrix_set_all(+ _Matrix_,+ _Elem_)
 
 
 
 Set all element of  _Matrix_ to  _Elem_.
 
- 
+
 */
-/** @pred matrix_shuffle(+ _Matrix_,+ _NewOrder_,- _Shuffle_) 
+/** @pred matrix_shuffle(+ _Matrix_,+ _NewOrder_,- _Shuffle_)
 
 
 
@@ -522,33 +522,33 @@ Shuffle the dimensions of matrix  _Matrix_ according to
  _NewOrder_. The list  _NewOrder_ must have all the dimensions of
  _Matrix_, starting from 0.
 
- 
+
 */
-/** @pred matrix_size(+ _Matrix_,- _NElems_) 
+/** @pred matrix_size(+ _Matrix_,- _NElems_)
 
 
 
 Unify  _NElems_ with the number of elements for  _Matrix_.
 
- 
+
 */
-/** @pred matrix_sum(+ _Matrix_,+ _Sum_) 
+/** @pred matrix_sum(+ _Matrix_,+ _Sum_)
 
 
 
 Unify  _Sum_ with the sum of all elements in matrix   _Matrix_.
 
- 
+
 */
-/** @pred matrix_to_list(+ _Matrix_,- _Elems_) 
+/** @pred matrix_to_list(+ _Matrix_,- _Elems_)
 
 
 
 Unify  _Elems_ with the list including all the elements in  _Matrix_.
 
- 
+
 */
-/** @pred matrix_transpose(+ _Matrix_,- _Transpose_) 
+/** @pred matrix_transpose(+ _Matrix_,- _Transpose_)
 
 
 
@@ -559,15 +559,15 @@ matrix_transpose(Matrix,Transpose) :-
         matrix_shuffle(Matrix,[1,0],Transpose).
 ~~~~~
 
- 
+
 */
-/** @pred matrix_type(+ _Matrix_,- _Type_) 
+/** @pred matrix_type(+ _Matrix_,- _Type_)
 
 
 
 Unify  _NElems_ with the type of the elements in  _Matrix_.
 
- 
+
 */
 :- module( matrix,
 	   [(<==)/2, op(800, xfx, '<=='),
@@ -809,23 +809,23 @@ index(I..J, _M, [I|O] ) :- !,
 index(I:J, _M, [I|O] ) :- !,
 	I1 is I, J1 is J,
 	once( foldl(inc, O, I1, J1) ).
-index(I+J, _M, O ) :- !,
+index(I+J, M, O ) :- !,
 	index(I, M, I1),
 	index(J, M, J1),
 	add_index(I1, J1, O).
-index(I-J, _M, O ) :- !,
+index(I-J, M, O ) :- !,
 	index(I, M, I1),
 	index(J, M, J1),
 	sub_index(I1, J1, O).
-index(I*J, _M, O ) :- !,
+index(I*J, M, O ) :- !,
 	index(I, M, I1),
 	index(J, M, J1),
 	O is I1*J1.
-index(I div J, _M, O ) :- !,
+index(I div J, M, O ) :- !,
 	index(I, M, I1),
 	index(J, M, J1),
 	O is I1 div J1.
-index(I rem J, _M, O ) :- !,
+index(I rem J, M, O ) :- !,
 	index(I, M, I1),
 	index(J, M, J1),
 	O is I1 rem J1.
@@ -995,10 +995,10 @@ matrix_get_range( Mat, Pos, Els) :-
 
 slice([], [[]]).
 slice([[H|T]|Extra], Els) :- !,
-	slice(Extra, Els0), 
+	slice(Extra, Els0),
 	foldl(add_index_prefix( Els0 ), [H|T], Els, [] ).
 slice([H|Extra], Els) :- !,
-	slice(Extra, Els0), 
+	slice(Extra, Els0),
 	add_index_prefix( Els0 , H, Els, [] ).
 
 add_index_prefix( [] , _H ) --> [].
@@ -1033,12 +1033,12 @@ matrix_base(Matrix, Bases) :-
 
 matrix_arg_to_offset(M, Index, Offset) :-
 	( opaque(M) -> matrixn_arg_to_offset( M, Index, Offset ) ;
-	    M = '$matrix'(Dims, _, Size, Bases, _) -> foldl2(indx, Index, Dims, Bases, Size, _, 0, Offset)  ).	
-	
+	    M = '$matrix'(Dims, _, Size, Bases, _) -> foldl2(indx, Index, Dims, Bases, Size, _, 0, Offset)  ).
+
 matrix_offset_to_arg(M, Offset, Index) :-
 	( opaque(M) -> matrixn_offset_to_arg( M, Offset, Index ) ;
-	    M = '$matrix'(Dims, _, Size, Bases, _) -> foldl2(offset, Index, Dims, Bases, Size, _, Offset, _)  ).	
-	
+	    M = '$matrix'(Dims, _, Size, Bases, _) -> foldl2(offset, Index, Dims, Bases, Size, _, Offset, _)  ).
+
 matrix_max(M, Max) :-
 	( opaque(M) -> matrixn_max( M, Max ) ;
 	    M = '$matrix'(_, _, _, _, C) ->
@@ -1046,7 +1046,7 @@ matrix_max(M, Max) :-
 	  M = [V0|L], foldl(max, L, V0, Max) ).
 
 max(New, Old, Max) :- ( New >= Old -> New = Max ; Old = Max ).
-	
+
 matrix_maxarg(M, MaxArg) :-
 	( opaque(M) -> matrixn_maxarg( M, MaxArg );
 	    M = '$matrix'(_, _, _, _, C) ->
@@ -1054,7 +1054,7 @@ matrix_maxarg(M, MaxArg) :-
 	  M = [V0|L], foldl(maxarg, L, V0-0-1, _Max-Off-_ ), MaxArg = [Off] ).
 
 maxarg(New, Old-OPos-I0, Max-MPos-I) :- I is I0+1, ( New > Old -> New = Max, MPos = I0 ; Old = Max, MPos = OPos ).
-	
+
 matrix_min(M, Min) :-
 	( opaque(M) -> matrixn_min( M, Min ) ;
 	    M = '$matrix'(_, _, _, _, C) ->
@@ -1159,7 +1159,7 @@ matrix_op_to_all(M1,*,Num,NM) :-
 	  M1 = '$matrix'(A,B,D,E,C),
 	  mapargs(times(Num), C, NC),
 	  NM = '$matrix'(A,B,D,E,NC)
-	).	
+	).
 matrix_op_to_all(M1,/,Num,NM) :-
 	% can only use floats.
 	FNum is float(Num),
@@ -1169,8 +1169,8 @@ matrix_op_to_all(M1,/,Num,NM) :-
 	  M1 = '$matrix'(A,B,D,E,C),
 	  mapargs(div(Num), C, NC),
 	  NM = '$matrix'(A,B,D,E,NC)
-	).	
-	  
+	).
+
 /* other operations: *, logprod */
 
 matrix_op_to_lines(M1,M2,/,NM) :-
@@ -1226,7 +1226,7 @@ new_matrix(List, Opts0, M) :-
 	foldl2(process_new_opt, Opts, Type, TypeF, [Dim|MDims], Dims, Base),
 	( var(TypeF) -> guess_type( Flat, Type ) ; true ),
 	matrix_new( Type, Dims, Flat, M),
-	( nonvar(Base) -> matrix_base(M, Base); true ).	
+	( nonvar(Base) -> matrix_base(M, Base); true ).
 new_matrix([H|List], Opts0, M) :-
 	length( [H|List], Size),
 	fix_opts(Opts0, Opts),
@@ -1259,13 +1259,13 @@ process_new_opt( Base, base=Base, Type, Type, Dim, Dim) :- !.
 process_new_opt(_Base, Opt, Type, Type, Dim, Dim) :-
 	throw(error(domain_error(opt=Opt), new_matrix)).
 
-el_list(_, V, _Els, _NEls, _I0, _I1) :- 
+el_list(_, V, _Els, _NEls, _I0, _I1) :-
 	var(V), !,
 	fail.
-el_list([N|Extra], El, Els, NEls, I0, I1) :- 
+el_list([N|Extra], El, Els, NEls, I0, I1) :-
 	foldl2(el_list(Extra), El, Els, NEls, 0, N), !,
 	I1 is I0+1.
-el_list([N], El, Els, NEls, I0, I1) :- 
+el_list([N], El, Els, NEls, I0, I1) :-
 	El = [_|_],
 	length(El, N),
 	append(El, NEls, Els),
@@ -1331,7 +1331,7 @@ iterate( V in A..B, Cont, LocalVars, Goal, Vs, Bs) :-
 	  ;
 	   iterate( [], [], LocalVars, Goal, [V|Vs], [NA|Bs] )
 	  ),
-	  iterate( V in A1..NB, Cont, LocalVars, Goal, Vs, Bs ) 
+	  iterate( V in A1..NB, Cont, LocalVars, Goal, Vs, Bs )
 	).
 
 iterate( [], [], LocalVars, Goal, Vs, Bs, Inp, Out ) :-
@@ -1339,7 +1339,7 @@ iterate( [], [], LocalVars, Goal, Vs, Bs, Inp, Out ) :-
 	Vs = Bs,
 	MG <== Goal,
 	once( call(MG, Inp, Out) ),
-	terms:reset_variables(LocalVars).	
+	terms:reset_variables(LocalVars).
 iterate( [], [H|Cont], LocalVars, Goal, Vs, Bs, Inp, Out ) :-
 	iterate(H, Cont, LocalVars, Goal, Vs, Bs, Inp, Out ).
 iterate( [H|L], [], LocalVars, Goal, Vs, Bs, Inp, Out ) :- !,
@@ -1363,17 +1363,17 @@ iterate( V in A..B, Cont, LocalVars, Goal, Vs, Bs, Inp, Out) :-
 	var(V),
 	eval(A, Vs, Bs, NA),
 	eval(B, Vs, Bs, NB),
-	( NA > NB -> Inp = Out ;
+    ( NA > NB -> Inp = Out ;
 	  A1 is NA+1,
 	  (Cont = [H|L] ->
 	   iterate( H, L, LocalVars, Goal, [V|Vs], [NA|Bs], Inp, Mid )
 	  ;
 	   iterate( [], [], LocalVars, Goal, [V|Vs], [NA|Bs], Inp, Mid )
 	  ),
-	  iterate( V in A1..NB, Cont, LocalVars, Goal, Vs, Bs, Mid, Out ) 
-	).
+      iterate( V in A1..NB, Cont, LocalVars, Goal, Vs, Bs, Mid, Out )
+    ).
 
-	 
+
 eval(I, _Vs, _Bs, I) :- integer(I), !.
 eval(I, Vs, Bs, NI) :-
 	copy_term(I+Vs, IA+Bs),
@@ -1387,4 +1387,3 @@ ints(A,B,O) :-
 	( A > B -> O = [] ; O = [A|L], A1 is A+1, ints(A1,B,L) ).
 
 zero(_, 0).
-
