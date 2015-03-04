@@ -28,8 +28,9 @@ The following predicates construct a BDD:
 	mtbdd_eval/2, 
 	bdd_tree/2,
 	bdd_size/2,
-	bdd_print/2,
-	bdd_to_probability_sum_product/2,
+		bdd_print/2,            
+                bdd_print/3,            
+		bdd_to_probability_sum_product/2,
 	bdd_to_probability_sum_product/3,
 	bdd_close/1,
 	mtbdd_close/1]).
@@ -55,7 +56,7 @@ may include:
 
 + Logical Variables:
 
-    a leaf-node can be a logical variable.
+  a leaf-node can be a logical variable.
 
 + `0` and `1`
 
@@ -358,6 +359,22 @@ bdd_print(cudd(M,Top,_Vars, _), File) :-
 	cudd_print(M, Top, File).
 bdd_print(add(M,Top,_Vars, _), File) :-
 	cudd_print(M, Top, File).
+
+bdd_print(cudd(M,Top, Vars, _), File, Names) :-
+	Vars =.. [_|LVars],
+	%trace,
+	maplist( fetch_name(Names), LVars, Ss), 
+        cudd_print(M, Top, File, Ss).
+bdd_print(add(M,Top, Vars, _), File, Names) :-
+	Vars =.. [_|LVars],             
+	maplist( fetch_name(Names), LVars, Ss),
+        cudd_print(M, Top, File, Ss).
+
+fetch_name([S=V1|_], V2, SN) :- V1 ==  V2, !,
+	( atom(S) -> SN = S ; format(atom(SN), '~w', [S]) ).
+fetch_name([_|Y], V, S) :- !,
+	fetch_name(Y, V, S).
+fetch_name([], V, V).
 
 mtbdd_close(add(M,_,_Vars,_)) :-
 	cudd_die(M).
