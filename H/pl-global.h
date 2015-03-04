@@ -299,6 +299,8 @@ typedef struct PL_local_data {
 
   source_location read_source;		/* file, line, char of last term */
 
+  term_t read_varnames;          /* varnames of last term */
+
   struct
   { int		active;			/* doing pipe I/O */
     jmp_buf	context;		/* context of longjmp() */
