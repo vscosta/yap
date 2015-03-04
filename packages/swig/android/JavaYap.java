@@ -85,12 +85,12 @@ public class JavaYap extends Activity
 			} else {
 				int i=1;
 				if (BuildConfig.DEBUG) {
-				  Log.i(TAG, "q1= "+vs0.text()+"\n");
+				  //Log.i(TAG, "q1= "+vs0.text()+"\n");
 
 				} 	
 				while (rc = q.next()) {
 					if (BuildConfig.DEBUG) {
-					  Log.i(TAG, "q= "+vs0.text()+"\n");
+					  //Log.i(TAG, "q= "+vs0.text()+"\n");
 
 					} 	
 				YAPListTerm vs = vs0;
@@ -123,7 +123,8 @@ public class JavaYap extends Activity
 			PackageInfo p = m.getPackageInfo(s, 0);
 			//s = p.applicationInfo.dataDir;
 			AssetManager mgr = getResources().getAssets();
-			load(mgr);
+			Log.i(TAG, "mgr=" +mgr + " " + s); 
+        		load(mgr);
 		} catch(NameNotFoundException e) { 
 			Log.e(TAG, "Couldn't find package  information in PackageManager", e); 
 		} 
@@ -134,10 +135,21 @@ public class JavaYap extends Activity
 		outputText.setText("Application " + s + "\nPress 'Query' to start...\n");
 		outputText.setMovementMethod(new ScrollingMovementMethod());
 		scroller = (ScrollView)findViewById(R.id.Scroller);
-		eng = new YAPEngine(   );  
-		Log.i(TAG, "engine done");
+                if (BuildConfig.DEBUG) {
+                  Log.i(TAG, "window making done");
+                }       
+		eng = new YAPEngine(  );  
+		if (BuildConfig.DEBUG) {
+		  Log.i(TAG, "engine done");            
+                }       
+                if (BuildConfig.DEBUG) {
+                  Log.i(TAG, "onClearButtonClick called");
+                }       
 		JavaCallback callback = new JavaCallback( outputText );
 		// set the Java Callback	
+                if (BuildConfig.DEBUG) {
+                  Log.i(TAG, "before setting callback");
+                }       
 		eng.setYAPCallback(callback);
 		if (BuildConfig.DEBUG) {
 			Log.i(TAG, "callback done");

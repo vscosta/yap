@@ -5917,8 +5917,10 @@ void Java_pt_up_fc_dcc_yap_JavaYap_load
   AAssetManager *mgr = AAssetManager_fromJava(env0, mgr0);
   Yap_jenv = env0;
   if (mgr == NULL) {
+    __android_log_print(ANDROID_LOG_DEBUG, "YapJava", "Need to print : we're doomed, mgr = 0; bip bip bip");
   } else {
-      GLOBAL_assetManager = mgr;
+    __android_log_print(ANDROID_LOG_DEBUG, "YapJava", "Need to print : we're winning, mgr = %p; yeah", mgr);
+    GLOBAL_assetManager = mgr;
   }
 }
 
