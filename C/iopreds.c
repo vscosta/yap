@@ -655,7 +655,8 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
 	TR = old_TR;
       }
     }
-    if (!Yap_unify(v, Yap_GetFromSlot( rd->varnames PASS_REGS))) {
+    LOCAL_VarNames = v;
+    if (!Yap_unify(v, Yap_GetFromSlot( rd->varnames PASS_REGS ))) {
       CurrentModule = OCurrentModule;
       return FALSE;
     }
@@ -682,7 +683,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
 	TR = old_TR;
       }
     }
-    if (!Yap_unify(v, Yap_GetFromSlot( rd->variables PASS_REGS))) {
+    if (!Yap_unify(v, Yap_GetFromSlot( rd->variables PASS_REGS ) )) {
       CurrentModule = OCurrentModule;
       return FALSE;
     }
@@ -802,7 +803,7 @@ p_char_conversion( USES_REGS1 )
   }
   /* check if we do have a table for converting characters */
   if (CharConversionTable2 == NULL) {
-     GET_LD
+      GET_LD
      int i;
 
     /* don't create a table if we don't need to */
