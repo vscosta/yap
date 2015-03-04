@@ -284,9 +284,9 @@ AC_ARG_WITH(gmp,
 		GMPDIR="$withval"
 		LDFLAGS="$LDFLAGS -L${yap_cv_gmp}/lib"
 		LIBS="$LIBS -L${yap_cv_gmp}/lib"
-		CPPFLAGS="$CPPFLAGS -I${yap_cv_gmp}/include"
-	    CFLAGS="$CFLAGS -I${yap_cv_gmp}/include"
-	    CXXFLAGS="$CXXFLAGS -I${yap_cv_gmp}/include"
+		CPPFLAGS+=" -I${yap_cv_gmp}/include"
+	        CFLAGS+=" -I${yap_cv_gmp}/include"
+	        CXXFLAGS+=" -I${yap_cv_gmp}/include"
 	fi,
 	[yap_cv_gmp=yes])
 

@@ -700,6 +700,7 @@ ARCHIVE_CPPFLAGS
 ARCHIVE_LIBS
 ARCHIVE_PLTARGETS
 ARCHIVE_TARGETS
+CLIB_CPPFLAGS
 CLIB_LIBUUID
 CLIB_CRYPTOBJ
 CLIB_CRYPTLIBS
@@ -4645,9 +4646,9 @@ if test "${with_gmp+set}" = set; then :
 		GMPDIR="$withval"
 		LDFLAGS="$LDFLAGS -L${yap_cv_gmp}/lib"
 		LIBS="$LIBS -L${yap_cv_gmp}/lib"
-		CPPFLAGS="$CPPFLAGS -I${yap_cv_gmp}/include"
-	    CFLAGS="$CFLAGS -I${yap_cv_gmp}/include"
-	    CXXFLAGS="$CXXFLAGS -I${yap_cv_gmp}/include"
+		CPPFLAGS+=" -I${yap_cv_gmp}/include"
+	        CFLAGS+=" -I${yap_cv_gmp}/include"
+	        CXXFLAGS+=" -I${yap_cv_gmp}/include"
 	fi
 else
   yap_cv_gmp=yes
@@ -11890,6 +11891,7 @@ fi
 
 
 
+
 CLIB_TARGETS="socket.$SO cgi.$SO memfile.$SO files.$SO mime.$SO crypt.$SO time.$SO"
 
 case "$PLARCH" in
@@ -12510,6 +12512,7 @@ if echo "$CLIB_PLTARGETS" | grep socket.pl 2>&1 >/dev/null; then
   CLIB_PLTARGETS="$CLIB_PLTARGETS streampool.pl"
 fi
 
+CLIB_CPPFLAGS="$CPPFLAGS"
 
 
 
@@ -14406,7 +14409,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14409 "configure" */
+/* #line 14412 "configure" */
 public class Test {
 }
 EOF
@@ -14582,7 +14585,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 14585: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 14588: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -14713,7 +14716,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14716 "configure" */
+/* #line 14719 "configure" */
 public class Test {
 }
 EOF
@@ -14748,7 +14751,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 14751 "configure" */
+/* [#]line 14754 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
