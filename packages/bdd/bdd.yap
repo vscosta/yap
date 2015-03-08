@@ -31,8 +31,9 @@ The following predicates construct a BDD:
 		bdd_print/2,            
                 bdd_print/3,            
 		bdd_to_probability_sum_product/2,
-	bdd_to_probability_sum_product/3,
-	bdd_close/1,
+		bdd_to_probability_sum_product/3,
+		bdd_reorder/2,
+		bdd_close/1,
 	mtbdd_close/1]).
 
 :- use_module(library(lists)).
@@ -338,6 +339,14 @@ bdd_close(cudd(M,_,_Vars, _)) :-
 bdd_close(add(M,_,_Vars, _)) :-
 	cudd_die(M).
 
+/** @pred bdd_close( _BDDHandle_) 
+
+  close the BDD and release any resources it holds.
+
+*/
+bdd_reorder(cudd(M,Top,_Vars, _), How) :-
+        cudd_reorder(M, Top,How).
+
 /** @pred bdd_size(+ _BDDHandle_, - _Size_) 
 
 Unify  _Size_ with the number of nodes in  _BDDHandle_.
@@ -356,19 +365,23 @@ Output bdd  _BDDHandle_ as a dot file to  _File_.
  
 */
 bdd_print(cudd(M,Top,_Vars, _), File) :-
-	cudd_print(M, Top, File).
+	absolute_file_name(File, AFile, []),
+	cudd_print(M, Top, AFile).
 bdd_print(add(M,Top,_Vars, _), File) :-
-	cudd_print(M, Top, File).
+	 absolute_file_name(File, AFile, []),
+	 cudd_print(M, Top, AFile).
 
 bdd_print(cudd(M,Top, Vars, _), File, Names) :-
 	Vars =.. [_|LVars],
 	%trace,
 	maplist( fetch_name(Names), LVars, Ss), 
-        cudd_print(M, Top, File, Ss).
+        absolute_file_name(File, AFile, []),
+	cudd_print(M, Top, AFile, Ss).
 bdd_print(add(M,Top, Vars, _), File, Names) :-
 	Vars =.. [_|LVars],             
 	maplist( fetch_name(Names), LVars, Ss),
-        cudd_print(M, Top, File, Ss).
+        absolute_file_name(File, AFile, []),
+	cudd_print(M, Top, AFile, Ss).
 
 fetch_name([S=V1|_], V2, SN) :- V1 ==  V2, !,
 	( atom(S) -> SN = S ; format(atom(SN), '~w', [S]) ).

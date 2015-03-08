@@ -1,21 +1,21 @@
-	/*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		myddas.yap	                                         *
-* Last rev:							         *
-* mods:									 *
-* comments:	Global predicates for the MyDDAS Interface		 *
-*									 *
-*************************************************************************/
+/*************************************************************************
+  *									 *
+  *	 YAP Prolog 							 *
+  *									 *
+  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+  *									 *
+  * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+  *									 *
+  **************************************************************************
+  *									 *
+  * File:		myddas.yap	                                         *
+  * Last rev:							         *
+  * mods:									 *
+  * comments:	Global predicates for the MyDDAS Interface		 *
+  *									 *
+  *************************************************************************/
 
-#if USE_MYDDAS
+#if 1 //USE_MYDDAS
 
 :- load_foreign_files([myddas], [], init_myddas).
 
@@ -27,181 +27,181 @@
 #endif
 
 :- module(myddas,[
-	  db_open/5,
-	  db_open/4,
-	  db_close/1,
-	  db_close/0,
+		  db_open/5,
+		  db_open/4,
+		  db_close/1,
+		  db_close/0,
 
-	  db_verbose/1,
-	  db_module/1,
-	  db_is_database_predicate/3,
-#ifdef MYDDAS_STATS
-	  db_stats/1,
-	  db_stats/2,
-	  db_stats_time/2,
-#endif
-	 db_sql/2,
-	  db_sql/3,
-	  db_sql_select/3,
-	  db_prolog_select/2,
-	  db_prolog_select/3,
-	  db_prolog_select_multi/3,
-	  db_command/2,
-	  db_assert/2,
-	  db_assert/1,
-	  db_create_table/3,
-	  db_export_view/4,
-	  db_update/2,
+		  db_verbose/1,
+		  db_module/1,
+		  db_is_database_predicate/3,
+		  #ifdef MYDDAS_STATS
+		 db_stats/1,
+		  db_stats/2,
+		  db_stats_time/2,
+		  #endif
+		 db_sql/2,
+		  db_sql/3,
+		  db_sql_select/3,
+		  db_prolog_select/2,
+		  db_prolog_select/3,
+		  db_prolog_select_multi/3,
+		  db_command/2,
+		  db_assert/2,
+		  db_assert/1,
+		  db_create_table/3,
+		  db_export_view/4,
+		  db_update/2,
 
-	  db_get_attributes_types/2,
-	  db_get_attributes_types/3,
-	  db_number_of_fields/2,
-	  db_number_of_fields/3,
+		  db_get_attributes_types/2,
+		  db_get_attributes_types/3,
+		  db_number_of_fields/2,
+		  db_number_of_fields/3,
 
-	  db_multi_queries_number/2,
+		  db_multi_queries_number/2,
 
-	  % myddas_top_level.ypp
-#ifdef MYDDAS_TOP_LEVEL
-	  db_top_level/4,
-	  db_top_level/5,
-	  db_datalog_select/3,
-#endif
-	  % myddas_assert_predicates.ypp
-	  db_import/2,
-	  db_import/3,
-	  db_view/2,
-	  db_view/3,
-	  db_insert/2,
-	  db_insert/3,
-	  db_abolish/2,
-	  db_listing/0,
-	  db_listing/1
-#ifdef MYDDAS_MYSQL
-	  % myddas_mysql.ypp
-	 ,
-	  db_my_result_set/1,
-	  db_datalog_describe/1,
-	  db_datalog_describe/2,
-	  db_describe/3,
-	  db_describe/2,
-	  db_datalog_show_tables/1,
-	  db_datalog_show_tables/0,
-	  db_show_tables/2,
-	  db_show_tables/1,
-	  db_show_database/2,
-	  db_show_databases/2,
-	  db_show_databases/1,
-	  db_change_database/2,
-	  db_call_procedure/4,
-	  db_call_procedure/3,
-	  db_my_sql_mode/1,
-	  db_my_sql_mode/2,
-	  db_sql_mode/1,
-	  db_sql_mode/2
-#endif
-	 ]).
+				% myddas_top_level.ypp
+		  #ifdef MYDDAS_TOP_LEVEL
+		 db_top_level/4,
+		  db_top_level/5,
+		  db_datalog_select/3,
+		  #endif
+				% myddas_assert_predicates.ypp
+		 db_import/2,
+		  db_import/3,
+		  db_view/2,
+		  db_view/3,
+		  db_insert/2,
+		  db_insert/3,
+		  db_abolish/2,
+		  db_listing/0,
+		  db_listing/1
+		 #ifdef MYDDAS_MYSQL
+				% myddas_mysql.ypp
+		 ,
+		  db_my_result_set/1,
+		  db_datalog_describe/1,
+		  db_datalog_describe/2,
+		  db_describe/3,
+		  db_describe/2,
+		  db_datalog_show_tables/1,
+		  db_datalog_show_tables/0,
+		  db_show_tables/2,
+		  db_show_tables/1,
+		  db_show_database/2,
+		  db_show_databases/2,
+		  db_show_databases/1,
+		  db_change_database/2,
+		  db_call_procedure/4,
+		  db_call_procedure/3,
+		  db_my_sql_mode/1,
+		  db_my_sql_mode/2,
+		  db_sql_mode/1,
+		  db_sql_mode/2
+		 #endif
+		 ]).
 
 
 /**
 
-@defgroup MYDDAS The MYDDAS Data-base interface.
-@ingroup YAPPackages
-@{
+  @defgroup MYDDAS The MYDDAS Data-base interface.
+  @ingroup YAPPackages
+  @{
 
-The MYDDAS database project was developed within a FCT project aiming at
-the development of a highly efficient deductive database system, based
-on the coupling of the MySQL relational database system with the YAP
-Prolog system. MYDDAS was later expanded to support the ODBC interface.
+  The MYDDAS database project was developed within a FCT project aiming at
+  the development of a highly efficient deductive database system, based
+  on the coupling of the MySQL relational database system with the YAP
+  Prolog system. MYDDAS was later expanded to support the ODBC interface.
 
 */
 
 /** @defgroup Requirements_and_Installation_Guide Requirements and Installation Guide
-ee
-Next, we describe how to usen of the YAP with the MYDDAS System.  The
-use of this system is entirely depend of the MySQL development libraries
-or the ODBC development libraries. At least one of the this development
-libraries must be installed on the computer system, otherwise MYDDAS
-will not compile. The MySQL development libraries from MySQL 3.23 an
-above are know to work. We recommend the usage of MySQL versus ODBC,
-but it is possible to have both options installed
+  ee
+  Next, we describe how to usen of the YAP with the MYDDAS System.  The
+  use of this system is entirely depend of the MySQL development libraries
+  or the ODBC development libraries. At least one of the this development
+  libraries must be installed on the computer system, otherwise MYDDAS
+  will not compile. The MySQL development libraries from MySQL 3.23 an
+  above are know to work. We recommend the usage of MySQL versus ODBC,
+  but it is possible to have both options installed
 
-At the same time, without any problem. The MYDDAS system automatically
-controls the two options. Currently, MYDDAS is know to compile without
-problems in Linux. The usage of this system on Windows has not been
-tested yet.  MYDDAS must be enabled at configure time. This can be done
-with the following options:
+  At the same time, without any problem. The MYDDAS system automatically
+  controls the two options. Currently, MYDDAS is know to compile without
+  problems in Linux. The usage of this system on Windows has not been
+  tested yet.  MYDDAS must be enabled at configure time. This can be done
+  with the following options:
 
-+ --enable-myddas
+  + --enable-myddas
 
-This option will detect which development libraries are installed on the computer system, MySQL, ODBC or both, and will compile the Yap system with the support for which libraries it detects;
+  This option will detect which development libraries are installed on the computer system, MySQL, ODBC or both, and will compile the Yap system with the support for which libraries it detects;
 
-+ --enable-myddas-stats
+  + --enable-myddas-stats
 
-This option is only available in MySQL. It includes code to get
-statistics from the MYDDAS system;
+  This option is only available in MySQL. It includes code to get
+  statistics from the MYDDAS system;
 
 
-+ --enable-top-level
+  + --enable-top-level
 
-This option is only available in MySQL.  It enables the option to interact with the MySQL server in
-two different ways. As if we were on the MySQL Client Shell, and as if
-we were using Datalog.
+  This option is only available in MySQL.  It enables the option to interact with the MySQL server in
+  two different ways. As if we were on the MySQL Client Shell, and as if
+  we were using Datalog.
 
 */
 
 %% @}
 
 /** @defgroup MYDDAS_Architecture MYDDAS Architecture
-@ingroup MYDDAS
-@{
+  @ingroup MYDDAS
+  @{
 
-The system includes four main blocks that are put together through the
-MYDDAS interface: the Yap Prolog compiler, the MySQL database system, an
-ODBC layer and a Prolog to SQL compiler. Current effort is put on the
-MySQL interface rather than on the ODBC interface. If you want to use
-the full power of the MYDDAS interface we recommend you to use a MySQL
-database. Other databases, such as Oracle, PostGres or Microsoft SQL
-Server, can be interfaced through the ODBC layer, but with limited
-performance and features support.
+  The system includes four main blocks that are put together through the
+  MYDDAS interface: the Yap Prolog compiler, the MySQL database system, an
+  ODBC level and a Prolog to SQL compiler. Current effort is put on the
+  MySQL interface rather than on the ODBC interface. If you want to use
+  the full power of the MYDDAS interface we recommend you to use a MySQL
+  database. Other databases, such as Oracle, PostGres or Microsoft SQL
+  Server, can be interfaced through the ODBC layer, but with limited
+  performance and features support.
 
-The main structure of the MYDDAS interface is simple. Prolog queries
-involving database goals are translated to SQL using the Prolog to SQL
-compiler; then the SQL expression is sent to the database system, which
-returns the set of tuples satisfying the query; and finally those tuples
-are made available to the Prolog engine as terms. For recursive queries
-involving database goals, the YapTab tabling engine provides the
-necessary support for an efficient evaluation of such queries.
+  The main structure of the MYDDAS interface is simple. Prolog queries
+  involving database goals are translated to SQL using the Prolog to SQL
+  compiler; then the SQL expression is sent to the database system, which
+  returns the set of tuples satisfying the query; and finally those tuples
+  are made available to the Prolog engine as terms. For recursive queries
+  involving database goals, the YapTab tabling engine provides the
+  necessary support for an efficient evaluation of such queries.
 
-An important aspect of the MYDDAS interface is that for the programmer
-the use of predicates which are defined in database relations is
-completely transparent. An example of this transparent support is the
-Prolog cut operator, which has exactly the same behaviour from
-predicates defined in the Prolog program source code, or from predicates
-defined in database as relations.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  An important aspect of the MYDDAS interface is that for the programmer
+  the use of predicates which are defined in database relations is
+  completely transparent. An example of this transparent support is the
+  Prolog cut operator, which has exactly the same behaviour from
+  predicates defined in the Prolog program source code, or from predicates
+  defined in database as relations.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Name = 'John Doe',
-Number = 123456789 ?
-yes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Backtracking can then be used to retrieve the next row
-of the relation phonebook.  Records with particular field values may be
-selected in the same way as in Prolog. (In particular, no mode
-specification for database predicates is required). For instance:
+  Name = 'John Doe',
+  Number = 123456789 ?
+  yes
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Backtracking can then be used to retrieve the next row
+  of the relation phonebook.  Records with particular field values may be
+  selected in the same way as in Prolog. (In particular, no mode
+  specification for database predicates is required). For instance:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- phonebook(Letter,'John Doe',Letter).
-Letter = 'D',
-Number = 123456789 ?
-yes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-generates the query
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- phonebook(Letter,'John Doe',Letter).
+  Letter = 'D',
+  Number = 123456789 ?
+  yes
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  generates the query
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-SELECT A.Letter , 'John Doe' , A.Number
-FROM 'phonebook' A
-WHERE A.Name = 'John Doe';
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  SELECT A.Letter , 'John Doe' , A.Number
+  FROM 'phonebook' A
+  WHERE A.Name = 'John Doe';
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 */
 
@@ -209,110 +209,110 @@ WHERE A.Name = 'John Doe';
 
 
 /** @defgroup View_Level_Interface View Level Interface
-@ingroup MYDDAS
-@{
+  @ingroup MYDDAS
+  @{
 
 */
 
 /**
-@pred db view(+,+,+).
+  @pred db view(+,+,+).
 
 
 
-@pred db view(+,+).
+  @pred db view(+,+).
 
 
-If we import a database relation, such as an edge relation representing the edges of a directed graph, through
+  If we import a database relation, such as an edge relation representing the edges of a directed graph, through
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_import('Edge',edge).
-yes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sqliand we then write a query to retrieve all the direct cycles in the
-graph, such as
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_import('Edge',edge).
+  yes
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  sqliand we then write a query to retrieve all the direct cycles in the
+  graph, such as
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- edge(A,B), edge(B,A).
-A = 10,
-B = 20 ?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-this is clearly inefficient [3], because of relation-level
-access. Relation-level access means that a separate SQL query will be
-generated for every goal in the body of the clause. For the second
-`edge/2` goal, a SQL query is generated using the variable bindings that
-result from the first `edge/2` goal execution. If the second
-`edge/2` goal
-fails, or if alternative solutions are demanded, backtracking access the
-next tuple for the first `edge/2` goal and another SQL query will be
-generated for the second `edge/2` goal. The generation of this large
-number of queries and the communication overhead with the database
-system for each of them, makes the relation-level approach inefficient.
-To solve this problem the view level interface can be used for the
-definition of rules whose bodies includes only imported database
-predicates.  One can use the view level interface through the predicates
-db_view/3 and `db_view/2`:
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- edge(A,B), edge(B,A).
+  A = 10,
+  B = 20 ?
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  this is clearly inefficient [3], because of relation-level
+  access. Relation-level access means that a separate SQL query will be
+  generated for every goal in the body of the clause. For the second
+  `edge/2` goal, a SQL query is generated using the variable bindings that
+  result from the first `edge/2` goal execution. If the second
+  `edge/2` goal
+  fails, or if alternative solutions are demanded, backtracking access the
+  next tuple for the first `edge/2` goal and another SQL query will be
+  generated for the second `edge/2` goal. The generation of this large
+  number of queries and the communication overhead with the database
+  system for each of them, makes the relation-level approach inefficient.
+  To solve this problem the view level interface can be used for the
+  definition of rules whose bodies includes only imported database
+  predicates.  One can use the view level interface through the predicates
+  db_view/3 and `db_view/2`:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_view(Conn,PredName(Arg_1,...,Arg_n),DbGoal).
-?- db_view(PredName(Arg_1,...,Arg_n),DbGoal).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-All arguments are standard Prolog terms.  _Arg1_ through  _Argn_
-define the attributes to be retrieved from the database, while
-_DbGoal_ defines the selection restrictions and join
-conditions.  _Conn_ is the connection identifier, which again can be
-dropped. Calling predicate `PredName/n` will retrieve database
-tuples using a single SQL query generated for the  _DbGoal_.  We next show
-an example of a view definition for the direct cycles discussed
-above. Assuming the declaration:
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_view(Conn,PredName(Arg_1,...,Arg_n),DbGoal).
+  ?- db_view(PredName(Arg_1,...,Arg_n),DbGoal).
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  All arguments are standard Prolog terms.  _Arg1_ through  _Argn_
+  define the attributes to be retrieved from the database, while
+  _DbGoal_ defines the selection restrictions and join
+  conditions.  _Conn_ is the connection identifier, which again can be
+  dropped. Calling predicate `PredName/n` will retrieve database
+  tuples using a single SQL query generated for the  _DbGoal_.  We next show
+  an example of a view definition for the direct cycles discussed
+  above. Assuming the declaration:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_import('Edge',edge).
-yes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-we
-write:
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_import('Edge',edge).
+  yes
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  we
+  write:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_view(direct_cycle(A,B),(edge(A,B), edge(B,A))).
-yes
-?- direct_cycle(A,B)).
-A = 10,
-B = 20 ?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This call generates the SQL
-statement:
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_view(direct_cycle(A,B),(edge(A,B), edge(B,A))).
+  yes
+  ?- direct_cycle(A,B)).
+  A = 10,
+  B = 20 ?
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  This call generates the SQL
+  statement:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-SELECT A.attr1 , A.attr2
-FROM Edge A , Edge B
-WHERE B.attr1 = A.attr2 AND B.attr2 = A.attr1;
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  SELECT A.attr1 , A.attr2
+  FROM Edge A , Edge B
+  WHERE B.attr1 = A.attr2 AND B.attr2 = A.attr1;
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Backtracking, as in relational level interface, can be used to retrieve the next row of the view.
-The view interface also supports aggregate function predicates such as
-`sum`, `avg`, `count`, `min` and `max`. For
-instance:
+  Backtracking, as in relational level interface, can be used to retrieve the next row of the view.
+  The view interface also supports aggregate function predicates such as
+  `sum`, `avg`, `count`, `min` and `max`. For
+  instance:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_view(count(X),(X is count(B, B^edge(10,B)))).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-generates the query :
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_view(count(X),(X is count(B, B^edge(10,B)))).
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  generates the query :
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-SELECT COUNT(A.attr2)
-FROM Edge A WHERE A.attr1 = 10;
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  SELECT COUNT(A.attr2)
+  FROM Edge A WHERE A.attr1 = 10;
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To know how to use db `view/3`, please refer to Draxler's Prolog to
-SQL Compiler Manual.
+  To know how to use db `view/3`, please refer to Draxler's Prolog to
+  SQL Compiler Manual.
 
 */
 
 %% @}
 
 /** @defgroup Accessing_Tables_in_Data_Sources_Using_SQL Accessing Tables in Data Sources Using SQL
-@ingroup MYDDAS
-@{
+  @ingroup MYDDAS
+  @{
 
 */
 
@@ -320,114 +320,114 @@ SQL Compiler Manual.
 
 
 
-@pred db_sql(+,?).
+  @pred db_sql(+,?).
 
 
 
-It is also possible to explicitly send a SQL query to the database server using
+  It is also possible to explicitly send a SQL query to the database server using
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_sql(Conn,SQL,List).
-?- db_sql(SQL,List).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-where  _SQL_ is an arbitrary SQL expression, and  _List_ is a list
-holding the first tuple of result set returned by the server. The result
-set can also be navigated through backtracking.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_sql(Conn,SQL,List).
+  ?- db_sql(SQL,List).
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  where  _SQL_ is an arbitrary SQL expression, and  _List_ is a list
+  holding the first tuple of result set returned by the server. The result
+  set can also be navigated through backtracking.
 
-Example:
+  Example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_sql('SELECT * FROM phonebook',LA).
-LA = ['D','John Doe',123456789] ?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_sql('SELECT * FROM phonebook',LA).
+  LA = ['D','John Doe',123456789] ?
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 */
 
 %% @}
 
 /** @defgroup Insertion_of_Rows Insertion of Rows
-@ingroup MYDDAS
-@{
+  @ingroup MYDDAS
+  @{
 
 */
 
 /** @pred db_assert(+,+).
-@pred db_assert(+).
+  @pred db_assert(+).
 
 
 
 
-Assuming you have imported the related base table using
-`db_import/2` or db_import/3, you can insert to that table
-by using db_assert/2 predicate any given fact.
+  Assuming you have imported the related base table using
+  `db_import/2` or db_import/3, you can insert to that table
+  by using db_assert/2 predicate any given fact.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_assert(Conn,Fact).
-?- db_assert(Fact).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The second argument must be declared with all of its arguments bound to
-constants. For example assuming `helloWorld` is imported through
-`db_import/2`:
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_assert(Conn,Fact).
+  ?- db_assert(Fact).
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  The second argument must be declared with all of its arguments bound to
+  constants. For example assuming `helloWorld` is imported through
+  `db_import/2`:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_import('Hello World',helloWorld).
-yes
-?- db_assert(helloWorld('A' ,'Ana',31)).
-yes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This, would generate the following query
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_import('Hello World',helloWorld).
+  yes
+  ?- db_assert(helloWorld('A' ,'Ana',31)).
+  yes
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  This, would generate the following query
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-INSERT INTO helloWorld
-VALUES ('A','Ana',3)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-which would insert into the helloWorld, the following row:
-`A,Ana,31`. If we want to insert `NULL`  values into the
-relation, we call db_assert/2 with a uninstantiated variable in
-the data base imported predicate. For example, the following query on
-the YAP-prolog system:
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  INSERT INTO helloWorld
+  VALUES ('A','Ana',3)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  which would insert into the helloWorld, the following row:
+  `A,Ana,31`. If we want to insert `NULL`  values into the
+  relation, we call db_assert/2 with a uninstantiated variable in
+  the data base imported predicate. For example, the following query on
+  the YAP-prolog system:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_assert(helloWorld('A',NULL,31)).
-yes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_assert(helloWorld('A',NULL,31)).
+  yes
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Would insert the row: `A,null value,31` into the relation
-`Hello World`, assuming that the second row allows null values.
+  Would insert the row: `A,null value,31` into the relation
+  `Hello World`, assuming that the second row allows null values.
 
 */
 
 /** @pred db insert(+,+,+).
-@pred db insert(+,+).
+  @pred db insert(+,+).
 
 
 
-This predicate would create a new database predicate, which will insert
-any given tuple into the database.
+  This predicate would create a new database predicate, which will insert
+  any given tuple into the database.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_insert(Conn,RelationName,PredName).
-?- db_insert(RelationName,PredName).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This would create a new predicate with name  _PredName_, that will
-insert tuples into the relation  _RelationName_. is the connection
-identifier. For example, if we wanted to insert the new tuple
-`('A',null,31)` into the relation `Hello World`, we do:
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_insert(Conn,RelationName,PredName).
+  ?- db_insert(RelationName,PredName).
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  This would create a new predicate with name  _PredName_, that will
+  insert tuples into the relation  _RelationName_. is the connection
+  identifier. For example, if we wanted to insert the new tuple
+  `('A',null,31)` into the relation `Hello World`, we do:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_insert('Hello World',helloWorldInsert).
-yes
-?- helloWorldInsert('A',NULL,31).
-yes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_insert('Hello World',helloWorldInsert).
+  yes
+  ?- helloWorldInsert('A',NULL,31).
+  yes
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 */
 
 %% @}
 
 /** @defgroup  Types_of_Attributes Types of AttributesL
-@ingroup MYDDAS
-@{
+  @ingroup MYDDAS
+  @{
 
 */
 
@@ -435,64 +435,64 @@ yes
 
 
 
-@pred db_get_attributes_types(+,?).
+  @pred db_get_attributes_types(+,?).
 
 
 
 
-The prototype for this predicate is the following:
+  The prototype for this predicate is the following:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_get_attributes_types(Conn,RelationName,ListOfFields).
-?- db_get_attributes_types(RelationName,ListOfFields).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_get_attributes_types(Conn,RelationName,ListOfFields).
+  ?- db_get_attributes_types(RelationName,ListOfFields).
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can use the
-predicate `db_get_attributes types/2` or db_get_attributes_types/3, to
-know what are the names and attributes types of the fields of a given
-relation. For example:
+  You can use the
+  predicate `db_get_attributes types/2` or db_get_attributes_types/3, to
+  know what are the names and attributes types of the fields of a given
+  relation. For example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_get_attributes_types(myddas,'Hello World',LA).
-LA = ['Number',integer,'Name',string,'Letter',string] ?
-yes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-where <tt>Hello World</tt> is the name of the relation and <tt>myddas</tt> is the
-connection identifier.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_get_attributes_types(myddas,'Hello World',LA).
+  LA = ['Number',integer,'Name',string,'Letter',string] ?
+  yes
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  where <tt>Hello World</tt> is the name of the relation and <tt>myddas</tt> is the
+  connection identifier.
 */
 
 %% @}
 
 
 /** @defgroup  Number_of_Fields Number of Fields
-@ingroup MYDDAS
-@{
+  @ingroup MYDDAS
+  @{
 
 */
 
 /** @pred db_number_of_fields(+,?).
-@pred db_number_of_fields(+,+,?).
+  @pred db_number_of_fields(+,+,?).
 
 
 
-The prototype for this
-predicate is the following:
+  The prototype for this
+  predicate is the following:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_number_of_fields(Conn,RelationName,Arity).
-?- db_number_of_fields(RelationName,Arity).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You can use the predicate db_number_of_fields/2 or
-`db_number_of_fields/3` to know what is the arity of a given
-relation. Example:
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_number_of_fields(Conn,RelationName,Arity).
+  ?- db_number_of_fields(RelationName,Arity).
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  You can use the predicate db_number_of_fields/2 or
+  `db_number_of_fields/3` to know what is the arity of a given
+  relation. Example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_number_of_fields(myddas,'Hello World',Arity).
-Arity = 3 ?
-yes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-where `Hello World` is the name of the
-relation and `myddas` is the connection identifier.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_number_of_fields(myddas,'Hello World',Arity).
+  Arity = 3 ?
+  yes
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  where `Hello World` is the name of the
+  relation and `myddas` is the connection identifier.
 
 
 */
@@ -501,31 +501,31 @@ relation and `myddas` is the connection identifier.
 
 
 /** @defgroup  Describing_a_Relation Describing a Relation
-@ingroup MYDDAS
-@{
+  @ingroup MYDDAS
+  @{
 
 */
 
 /** @pred db_datalog_describe(+,+).
-@pred db_datalog_describe(+).
+  @pred db_datalog_describe(+).
 
 
 
-The db `datalog_describe/2` predicate does not really returns any
-value. It simply prints to the screen the result of the MySQL describe
-command, the same way as `DESCRIBE` in the MySQL prompt would.
+  The db `datalog_describe/2` predicate does not really returns any
+  value. It simply prints to the screen the result of the MySQL describe
+  command, the same way as `DESCRIBE` in the MySQL prompt would.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_datalog_describe(myddas,'Hello World').
-+----------+----------+------+-----+---------+-------+
-|   Field  |  Type    | Null | Key | Default | Extra |
-+----------+----------+------+-----+---------+-------+
-+  Number  | int(11)  | YES  |     |   NULL  |       |
-+  Name    | char(10) | YES  |     |   NULL  |       |
-+  Letter  | char(1)  | YES  |     |   NULL  |       |
-+----------+----------+------+-----+---------+-------+
-yes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_datalog_describe(myddas,'Hello World').
+  +----------+----------+------+-----+---------+-------+
+  |   Field  |  Type    | Null | Key | Default | Extra |
+  +----------+----------+------+-----+---------+-------+
+  +  Number  | int(11)  | YES  |     |   NULL  |       |
+  +  Name    | char(10) | YES  |     |   NULL  |       |
+  +  Letter  | char(1)  | YES  |     |   NULL  |       |
+  +----------+----------+------+-----+---------+-------+
+  yes
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 */
 
@@ -533,20 +533,20 @@ yes
 
 
 
-@pred db_describe(+)
+  @pred db_describe(+)
 
-The `db_describe/3` predicate does the same action as
-db_datalog_describe/2 predicate but with one major
-difference. The results are returned by backtracking. For example, the
-last query:
+  The `db_describe/3` predicate does the same action as
+  db_datalog_describe/2 predicate but with one major
+  difference. The results are returned by backtracking. For example, the
+  last query:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_describe(myddas,'Hello World',Term).
-Term = tableInfo('Number',int(11),'YES','',null(0),'') ? ;
-Term = tableInfo('Name',char(10),'YES','',null(1),'' ? ;
-Term = tableInfo('Letter',char(1),'YES','',null(2),'') ? ;
-no
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_describe(myddas,'Hello World',Term).
+  Term = tableInfo('Number',int(11),'YES','',null(0),'') ? ;
+  Term = tableInfo('Name',char(10),'YES','',null(1),'' ? ;
+  Term = tableInfo('Letter',char(1),'YES','',null(2),'') ? ;
+  no
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 */
@@ -554,29 +554,29 @@ no
 
 
 /** @defgroup Enumerating_Relations Enumeration Relations Describing_a_Relation Describing a Relation
-@ingroup MYDDAS
-@{
+  @ingroup MYDDAS
+  @{
 
 */
 
 /** @pred db_datalog_show_tables(+).
-@pred db_datalog_show_tables
+  @pred db_datalog_show_tables
 
 
-If we need to know what relations exists in a given MySQL Schema, we can use
-the `db_datalog_show_tables/1` predicate. As <tt>db_datalog_describe/2</tt>,
-it does not returns any value, but instead prints to the screen the result of the
-`SHOW TABLES` command, the same way as it would be in the MySQL prompt.
+  If we need to know what relations exists in a given MySQL Schema, we can use
+  the `db_datalog_show_tables/1` predicate. As <tt>db_datalog_describe/2</tt>,
+  it does not returns any value, but instead prints to the screen the result of the
+  `SHOW TABLES` command, the same way as it would be in the MySQL prompt.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_datalog_show_tables(myddas).
-+-----------------+
-| Tables_in_guest |
-+-----------------+
-|   Hello World   |
-+-----------------+
-yes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_datalog_show_tables(myddas).
+  +-----------------+
+  | Tables_in_guest |
+  +-----------------+
+  |   Hello World   |
+  +-----------------+
+  yes
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 */
 
@@ -584,20 +584,20 @@ yes
 
 
 
-@pred db_show_tables(?)
+  @pred db_show_tables(?)
 
 
 
 
-The db_show_tables/2 predicate does the same action as
-`db_show_tables/1` predicate but with one major difference. The
-results are returned by backtracking. For example, given the last query:
+  The db_show_tables/2 predicate does the same action as
+  `db_show_tables/1` predicate but with one major difference. The
+  results are returned by backtracking. For example, given the last query:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_show_tables(myddas,Table).
-Table = table('Hello World') ? ;
-no
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_show_tables(myddas,Table).
+  Table = table('Hello World') ? ;
+  no
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 */
 
@@ -605,92 +605,92 @@ no
 
 
 /** @defgroup  The_MYDDAS_MySQL_Top_Level The MYDDAS MySQL Top Level
-@ingroup MYDDAS
-@{
+  @ingroup MYDDAS
+  @{
 
 */
 
 /**
-@pred db_top_level(+,+,+,+,+).
-@pred db_top_level(+,+,+,+).
+  @pred db_top_level(+,+,+,+,+).
+  @pred db_top_level(+,+,+,+).
 
 
 
 
-Through MYDDAS is also possible to access the MySQL Database Server, in
-the same wthe mysql client. In this mode, is possible to query the
-SQL server by just using the standard SQL language. This mode is exactly the same as
-different from the standard mysql client. We can use this
-mode, by invoking the db top level/5. as one of the following:
+  Through MYDDAS is also possible to access the MySQL Database Server, in
+  the same wthe mysql client. In this mode, is possible to query the
+  SQL server by just using the standard SQL language. This mode is exactly the same as
+  different from the standard mysql client. We can use this
+  mode, by invoking the db top level/5. as one of the following:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_top_level(mysql,Connection,Host/Database,User,Password).
-?- db_top_level(mysql,Connection,Host/Database/Port,User,Password).
-?- db_top_level(mysql,Connection,Host/Database/UnixSocket,User,Password).
-?- db_top_level(mysql,Connection,Host/Database/Port/UnixSocket,User,Password).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_top_level(mysql,Connection,Host/Database,User,Password).
+  ?- db_top_level(mysql,Connection,Host/Database/Port,User,Password).
+  ?- db_top_level(mysql,Connection,Host/Database/UnixSocket,User,Password).
+  ?- db_top_level(mysql,Connection,Host/Database/Port/UnixSocket,User,Password).
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Usage is similar as the one described for the db_open/5 predicate
-discussed above. If the login is successful, automatically the prompt of
-the mysql client will be used.  For example:
+  Usage is similar as the one described for the db_open/5 predicate
+  discussed above. If the login is successful, automatically the prompt of
+  the mysql client will be used.  For example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_top_level(mysql,con1,localhost/guest_db,guest,'').
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-opens a
-connection identified by the `con1` atom, to an instance of a MySQL server
-running on host `localhost`, using database guest `db` and user `guest` with
-empty password. After this is possible to use MYDDAS as the mysql
-client.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_top_level(mysql,con1,localhost/guest_db,guest,'').
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  opens a
+  connection identified by the `con1` atom, to an instance of a MySQL server
+  running on host `localhost`, using database guest `db` and user `guest` with
+  empty password. After this is possible to use MYDDAS as the mysql
+  client.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_top_level(mysql,con1,localhost/guest_db,guest,'').
-Reading table information for completion of table and column names
-You can turn off this feature to get a quicker startup with -A
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_top_level(mysql,con1,localhost/guest_db,guest,'').
+  Reading table information for completion of table and column names
+  You can turn off this feature to get a quicker startup with -A
 
-Welcome to the MySQL monitor.
-Commands end with ; or \g.
+  Welcome to the MySQL monitor.
+  Commands end with ; or \g.
 
-Your MySQL connection id is 4468 to server version: 4.0.20
-Type 'help;' or '\h' for help.
-Type '\c' to clear the buffer.
-mysql> exit
-Bye
-yes
-?-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Your MySQL connection id is 4468 to server version: 4.0.20
+  Type 'help;' or '\h' for help.
+  Type '\c' to clear the buffer.
+  mysql> exit
+  Bye
+  yes
+  ?-
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
 %%@}
 
 
 /** @defgroup   Other_MYDDAS_Properties Other MYDDAS Properties
-@ingroup MYDDAS
-@{
+  @ingroup MYDDAS
+  @{
 
 */
 
 /**
-@pred db_verbose(+).
+  @pred db_verbose(+).
 
 
-When we ask a question to YAP, using a predicate asserted by
-db_import/3, or by db_view/3, this will generate a SQL
-`QUERY`. If we want to see that query, we must to this at a given
-point in our session on YAP.
+  When we ask a question to YAP, using a predicate asserted by
+  db_import/3, or by db_view/3, this will generate a SQL
+  `QUERY`. If we want to see that query, we must to this at a given
+  point in our session on YAP.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_verbose(1).
-yes
-?-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-If we want to
-disable this feature, we must call the `db_verbose/1` predicate with the value 0.
-\
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_verbose(1).
+  yes
+  ?-
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  If we want to
+  disable this feature, we must call the `db_verbose/1` predicate with the value 0.
+  \
 */
 
 /**
-@pred db_top_level(+,+,+,+).
+  @pred db_top_level(+,+,+,+).
 
 
 */
@@ -701,62 +701,62 @@ disable this feature, we must call the `db_verbose/1` predicate with the value 0
 
 
 
-When we create a new database predicate, by using db_import/3,
-db_view/3 or db_insert/3, that predicate will be asserted
-by default on the `user` module. If we want to change this value, we can
-use the db_module/1 predicate to do so.
+  When we create a new database predicate, by using db_import/3,
+  db_view/3 or db_insert/3, that predicate will be asserted
+  by default on the `user` module. If we want to change this value, we can
+  use the db_module/1 predicate to do so.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_module(lists).
-yes
-?-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-By executing this predicate, all of the predicates asserted by the
-predicates enumerated earlier will created in the lists module.
-If we want to put back the value on default, we can manually put the
-value user. Example:
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_module(lists).
+  yes
+  ?-
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  By executing this predicate, all of the predicates asserted by the
+  predicates enumerated earlier will created in the lists module.
+  If we want to put back the value on default, we can manually put the
+  value user. Example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_module(user).
-yes
-?-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_module(user).
+  yes
+  ?-
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We can also see in what module the predicates are being asserted by doing:
+  We can also see in what module the predicates are being asserted by doing:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_module(X).
-X=user
-yes
-?-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_module(X).
+  X=user
+  yes
+  ?-
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 */
 
 /** @pred db_my_result_set(?).
 
-The MySQL C API permits two modes for transferring the data generated by
-a query to the client, in our case YAP. The first mode, and the default
-mode used by the MYDDAS-MySQL, is to store the result. This mode copies all the
-information generated to the client side.
+  The MySQL C API permits two modes for transferring the data generated by
+  a query to the client, in our case YAP. The first mode, and the default
+  mode used by the MYDDAS-MySQL, is to store the result. This mode copies all the
+  information generated to the client side.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_my_result_set(X).
-X=store_result
-yes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_my_result_set(X).
+  X=store_result
+  yes
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The other mode that we can use is use result. This one uses the result
-set created directly from the server. If we want to use this mode, he
-simply do
+  The other mode that we can use is use result. This one uses the result
+  set created directly from the server. If we want to use this mode, he
+  simply do
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?- db_my_result_set(use_result).
-yes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-After this command, all
-of the database predicates will use use result by default. We can change
-this by doing again `db_my_result_set(store_result)`.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- db_my_result_set(use_result).
+  yes
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  After this command, all
+  of the database predicates will use use result by default. We can change
+  this by doing again `db_my_result_set(store_result)`.
 
 */
 
@@ -764,21 +764,21 @@ this by doing again `db_my_result_set(store_result)`.
 
 
 
-@pred db_my_sql_mode(?SQL_Mode).
+  @pred db_my_sql_mode(?SQL_Mode).
 
 
 
 
-The MySQL server allows the user to change the SQL mode. This can be
-very useful for debugging proposes. For example, if we want MySQL server
-not to ignore the INSERT statement warnings and instead of taking
-action, report an error, we could use the following SQL mode.
+  The MySQL server allows the user to change the SQL mode. This can be
+  very useful for debugging proposes. For example, if we want MySQL server
+  not to ignore the INSERT statement warnings and instead of taking
+  action, report an error, we could use the following SQL mode.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?-db_my_sql_mode(traditional). yes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You can see the available SQL Modes at the MySQL homepage at
-<http://www.mysql.org>.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?-db_my_sql_mode(traditional). yes
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  You can see the available SQL Modes at the MySQL homepage at
+  <http://www.mysql.org>.
 
 */
 
@@ -786,275 +786,319 @@ You can see the available SQL Modes at the MySQL homepage at
 
 #ifdef MYDDAS_TOP_LEVEL
 :- use_module(myddas_top_level,[
-			db_top_level/4,
-			db_top_level/5,
-			db_datalog_select/3
-		       ]).
+				db_top_level/4,
+				db_top_level/5,
+				db_datalog_select/3
+			       ]).
 #endif
 
 :- use_module(myddas_assert_predicates,[
-				db_import/2,
-				db_import/3,
-				db_view/2,
-				db_view/3,
-				db_insert/2,
-				db_insert/3,
-				db_abolish/2,
-				db_listing/0,
-				db_listing/1
-			       ]).
+					db_import/2,
+					db_import/3,
+					db_view/2,
+					db_view/3,
+					db_insert/2,
+					db_insert/3,
+					db_abolish/2,
+					db_listing/0,
+					db_listing/1
+				       ]).
 
 #ifdef MYDDAS_MYSQL
 :- use_module(myddas_mysql,[
-		    db_my_result_set/1,
-		    db_datalog_describe/1,
-		    db_datalog_describe/2,
-		    db_describe/3,
-		    db_describe/2,
-		    db_datalog_show_tables/1,
-		    db_datalog_show_tables/0,
-		    db_show_tables/2,
-		    db_show_tables/1,
-		    db_show_database/2,
-		    db_show_databases/2,
-		    db_show_databases/1,
-		    db_change_database/2,
-		    db_call_procedure/4,
-		    db_call_procedure/3,
-		    db_my_sql_mode/1,
-		    db_my_sql_mode/2,
-		    db_sql_mode/1,
-		    db_sql_mode/2
-		   ]).
+			    db_my_result_set/1,
+			    db_datalog_describe/1,
+			    db_datalog_describe/2,
+			    db_describe/3,
+			    db_describe/2,
+			    db_datalog_show_tables/1,
+			    db_datalog_show_tables/0,
+			    db_show_tables/2,
+			    db_show_tables/1,
+			    db_show_database/2,
+			    db_show_databases/2,
+			    db_show_databases/1,
+			    db_change_database/2,
+			    db_call_procedure/4,
+			    db_call_procedure/3,
+			    db_my_sql_mode/1,
+			    db_my_sql_mode/2,
+			    db_sql_mode/1,
+			    db_sql_mode/2
+			   ]).
 #endif /* MYDDAS_MYSQL */
 
 :- use_module(myddas_util_predicates,[
-			      '$prolog2sql'/3,
-			      '$create_multi_query'/3,
-			      '$get_multi_results'/4,
-			      '$process_sql_goal'/4,
-			      '$process_fields'/3,
-			      '$get_values_for_insert'/3,
-			      '$make_atom'/2,
-			      '$write_or_not'/1,
-			      '$abolish_all'/1,
-			      '$make_a_list'/2,
-			      '$get_table_name'/2,
-			      '$get_values_for_update'/4,
-			      '$extract_args'/4,
-#ifdef MYDDAS_STATS
-			      '$make_stats_list'/2,
-#endif
-			      '$lenght'/2
-			      ]).
+				      '$prolog2sql'/3,
+				      '$create_multi_query'/3,
+				      '$get_multi_results'/4,
+				      '$process_sql_goal'/4,
+				      '$process_fields'/3,
+				      '$get_values_for_insert'/3,
+				      '$make_atom'/2,
+				      '$write_or_not'/1,
+				      '$abolish_all'/1,
+				      '$make_a_list'/2,
+				      '$get_table_name'/2,
+				      '$get_values_for_update'/4,
+				      '$extract_args'/4,
+				      #ifdef MYDDAS_STATS
+				      '$make_stats_list'/2,
+				      #endif
+				     '$lenght'/2
+				     ]).
 
 :- use_module(myddas_errors,[
-		     '$error_checks'/1
-		     ]).
+			     '$error_checks'/1
+			    ]).
 
 :- use_module(myddas_prolog2sql,[
-			 translate/3,
-			 queries_atom/2
-			]).
+				 translate/3,
+				 queries_atom/2
+				]).
 
 :- use_module(lists,[
-	     append/3
-	     ]).
+		     append/3
+		    ]).
 
 :- use_module(library(parameters)).
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_open/5
-% db_open/4
-			%
+				% db_open/5
+				% db_open/4
+				%
 
 #if MYDDAS_DECLARATIONS
 :- db_open(Protocol) extra_arguments
-db=Db,
-port=Port,
-socket=Socket,
-user=User,
-password=Password,
-			% next arguments all refer to the data access point,
-% so they are all are mutually exclusive
-data:file=File,
-data:host=Host/Db,
-data:host=Host/Db/Port,
-data:host=Host/Db/Socket,
-data:odbc=ODBC_DSN
+	connection=Connection,
+	db=Db,
+	port=Port,
+	socket=Socket,
+	user=User,
+	password=Password,
+				% next arguments all refer to the data access point,
+				% so they are all are mutually exclusive
+	data:file=File,
+	data:host=Host/Db,
+	data:host=Host/Db/Port,
+	data:host=Host/Db/Socket,
+	data:odbc=ODBC_DSN
 
-/* specify conditions */
-such_that
+	/* specify conditions */
+	such_that
 
-/** implicit, types are conditioned on start
+	/** implicit, types are conditioned on start */
 
- atom(Db),
- positive_or_zero_integer(Port),
-     atom(Socket),
-     atom(User),
-     atom(Password),
- file(File),
-     atom(ODBC_DSN),
-     internet_host(Host), */
+	/* general theory, type hierarchy
+	   atom(X) ==> nonvar(X),
+	   \+ atom(X) * nonvar(X) ==> error(atom, X),
+	   var(X)  ==> error(var, X),
 
-/* general theory, type hierarchy
-atom(X) ==> nonvar(X),
-\+ atom(X) * nonvar(X) ==> error(atom, X),
-    var(X)  ==> error(var, X),
+	   internet_host(X) ==> atom(X),
 
-internet_host(X) <=> atom(X),
+	   integer(X) ==> nonvar(X),
+	   \+ integer(X) * nonvar(X) ==> error(integer, X),
+	   var(X)  ==> error(var, X)
 
-    integer(X) ==> nonvar(X),
-    \+ integer(X) * nonvar(X) ==> error(integer, X),
-    var(X)  ==> error(var, X)
+	   positive_or_zero_integer(X) ==> integer(X),
+	   positive_or_zero_integer(X) ==> positive_or_zero(X),
 
-positive_or_zero_integer(X) ==> integer(X),
-    positive_or_zero_integer(X) ==> positive_or_zero(X)
+	   positive_or_zero(X) ==> number(X),
 
-positive_or_zero(X) ==> number(X),
+	   integer(X) ==> number(X),
 
-integer(X) ==> number(X),
+	   float(X) ==> number(X),
+	   rational(X) => number(X),
+	   number(X) ==> nonvar(X),
+	   \+ number(X) * nonvar(X) ==> error(number, X),
+	*/
 
-float(X) ==> number(X),
-    rational(X) => number(X),
-    number(X) ==> nonvar(X),
-    \+ number(X) * nonvar(X) ==> error(number, X),
-   var(X)  ==> error(var, X),
-   */
+	/************
+	  this unfolds to
+	  P == ( (Protocol = mysql) + Protocol = postgres + Protocol =  odbc + Protocol = sqlite3 ),
 
-/************
-  this unfolds to
-  P == ( (Protocol = mysql) + Protocol = powstgres + Protocol =  odbc + Protocol = sqlite3 ),
+	  Protocol = mysql ==> \+ Protocol = postgres,
+	  Protocol = mysql ==> \+ Protocol = odbc,
+	  Protocol = mysql ==> \+ Protocol = sqlite3,
+	  Protocol = postgres ==> \+ Protocol = mysql,
 
-Protocol = mysql ==> \+ Protocol = postgres,
-    Protocol = mysql ==> \+ Protocol = odbc,
-    Protocol = mysql ==> \+ Protocol = sqlite3,
-    Protocol = postgres ==> \+ Protocol = mysql,
+				% P(X,D) %
+	  P ==> atom(Protocol),
+	  atom(X) * not P ==> error(domain, X, D),
+	*/
 
-                            % P(X,D)
-    P ==> atom(Protocol),
-    atom(X) * not P ==> error(domain, X, D),
+	/* problem specific axioms */
+	top,
+	
+	%( TOP :-  mysql + postgres + odbc +  sqlite3 ),
+
+	/*	t_atom(X) =:= one_of([atom(X) , err(inst(X)) , err(type(atom,X))]),
+		t_integer(X) =:= one_of([atom(X) , err(inst(X)) , err(type(integer,X))]),
+		internet_host(X) =:= ( internet_host(X) ==> i_atom(X) ),
+		positive_or_zero_integer(X) =:= ( positive_or_zero_integer(X) ==> t_integer(X) ),
+		err(X) =:= ( err(X) ==> error ),
+	*/	
+				%//list( X ) =:= ( nil(X) + ( X = cons( A, Y ) * L ) ) ),
+
+				%//list( Protocol ) .
+
+				%level( 1, [odbc, mysql, c_postgres_my_connect, c_sqlite3_connect, error]),
+				%level( 2, c^_ )
+	/* c^c_db_odbc_connect(ODBC_DSN,User,Password,Handle) ==
+	   odbc,
+
+	   c^c_db_my_connect(Host,User,Password,Db,Port,Socket,Handle)  ==
+	   c_db_my_connect,
+
+	   c^c_c_postgres_connect_connect(Host/Db/Port/Socket,User,Password, Handle) ==
+	   c_postgres_connect,
+
+	   c^c_c_sqlite3_connect_connect(File,User,Password,Handle) ==
+	   c_sqlite3_connect,
+	*/
+
+				% Connection == i_atom( Connection ),
+
+	%c_db_odbc_connect + - c_db_odbc_connect,        
+        %c_db_my_connect + - c_db_my_connect,    
+        %c_postgres_connect + - c_postgres_connect,              
+        %c_sqlite3_connect + - c_sqlite3_connect,        
+        
+	(protocol_odbc) + - (protocol_odbc),    
+	(protocol_mysql) + - (protocol_mysql),                 
+	(protocol_postgres) + - (protocol_postgres),           
+	(protocol_sqlite3) + - (protocol_sqlite3),             
+
+	file( File ) + - file( File ),
+        atom( ODBC_DSN ) + - atom( ODBC_DSN ),  
+	i_atom( Db ) + - i_atom( Db ),
+	i_atom( User ) + - i_atom( Password ),
+	i_atom( Connection ) + - i_atom( Connection ),
+   	positive_or_zero_integer(Port) + - positive_or_zero_integer(Port),
+	internet_host(Host) + - internet_host(Host),
+        i_atom( User ) + - i_atom( User ),                      
+        i_atom( Password ) + - i_atom( Password ),      
+
+	i_atom( Db ) ,
+	
+        %c_db_my_connect + c_postgres_connect ==> positive_or_zero_integer(Port),
+
+				%c_db_my_connect + c_postgres_connect ==> internet_host( Host ) ,
+
+	(protocol_mysql) + (protocol_postgres) ==>positive_or_zero_integer(Port),       
+        
+        (protocol_mysql) + (protocol_postgres) ==> internet_host( Host ) ,
+        
+	i_atom( User ),
+
+	i_atom( Password ),
+
+	i_atom( Connection),
+	
+%	c_postgres_connect == (protocol_postgres),      
+        
+%        c_db_odbc_connect == (protocol_odbc),      
+	
+	%c_db_odbc_connect == atom( ODBC_DSN ),
+	
+	(protocol_odbc) == atom( ODBC_DSN ),
+
+	(protocol_sqlite3) == file( File ),
+	
+%        c_db_my_connect == (protocol_mysql),
+
+%        c_sqlite3_connect == (protocol_sqlite3),       
+
+        bound(Handle),
+
+	bound(Handle) ==
+        ((protocol_odbc *
+	 ( - (protocol_sqlite3)  *
+	 ( - (protocol_postgres))  *
+	 ( - (protocol_mysql))  )
+	+
+	 (( - (protocol_odbc)) ) *
+	 (protocol_sqlite3) *
+	 ( - (protocol_postgres) ) *
+	 ( - (protocol_mysql) ) )
+	+
+	( - (protocol_odbc) ) *
+	(  - (protocol_sqlite3) ) *
+	 (protocol_postgres) *
+	( - (protocol_mysql) ) )
+	+
+	(( - (protocol_odbc) ) *
+	( - (protocol_sqlite3) ) *
+	( - (protocol_postgres) ) *
+	( protocol_mysql )
+	           ). 
+
+/*	bound(Handle) ==
+	((c_db_odbc_connect *
+	- ( c_sqlite3_connect *
+	 - c_postgres_connect *
+	 - c_db_my_connect )
+	+
+	(-c_db_odbc_connect *           
+        c_sqlite3_connect *             
+        - c_postgres_connect *               
+        - c_db_my_connect )             
+	+
+	(-c_db_odbc_connect *           
+        -c_sqlite3_connect *             
+         c_postgres_connect *               
+        - c_db_my_connect )             
+	+
+	(-c_db_odbc_connect *           
+        -c_sqlite3_connect *             
+        - c_postgres_connect *               
+         c_db_my_connect )             
+	). */
+
+/*
+  c_db_c_db_odbc_connect_connect ==> c_db_odbc_connect,
+	c_db_my_connect ==> c_db_connect,
+	c_c_postgres_connect_connect ==> c_postgres_connect,
+	c_sqlite3_connect ==> sqlite3.
+*/	
+
+	%c_db_odbc_connect ==> i_atom( Password ) * i_atom( User ) * 
+
+
+
+				% Connection?=myddas,
+				% Host ?= localhost,
+				% User ?= '',
+				% Password ?= ''.
+/* one_of(
+   [c^c_db_odbc_connect(ODBC_DSN,User,Password,Handle),
+   c^c_db_(Host,User,Password,Db,Port,Socket,Handle),
+   c^c_postgres_connect(Host/Db/Port/Socket,User,Password, Handle),
+   c^c_sqlite3_connect(File,User,Password,Handle)])
 */
-
-/* problem specific axioms */
-Connection?=myddas,
-Host ?= localhost,
-User ?= '',
-Password ?= '',
-
-
-t_atom(X) =:= atom(X) \/ t_var(X) \/ type_err(atom(X)),
-t_var(X) =:= err(var(X)),
-t_integer(X) =:= integer(X) \/ t_var(X) \/ err(integer(X)),
-i_atom(X) =:= atom(X) \/ i_var(X) \/ t(atom(X)),
-i_var(X) =:= i(var(X)),
-i_integer(X) =:= integer(X) \/ i_var(X) \/ err(integer(X)),
-
-
-( list( X ) =:= ( nil(X) + ( X = cons( A, Y ) * L ) ) ),
-
-list( Protocol ) .
-
-/*
-((Protocol = odbc) :-
-c^c_db_odbc_connect(ODBCEntry,User,Password,Handle) ),
-
-((Protocol = mysql) :-
-	c^c_db_my_connect(Host,User,Password,Db,Port,Socket,Handle)),
-
-((Protocol = postgres) :-	c^c_postgres_connect(Host/Db/Port/Socket,User,Password, Handle)),
-
-((Protocol = sqlite3) :-
-	c^c_sqlite3_connect(File,User,Password,Handle),
-	t_atom(File), i_atom(User)),
-
-	Protocol in [ mysql, postgres,  odbc, sqlite3 ],
-
-(- (c^c_sqlite3_connect(File,User,Password,Handle)) :- (c ^fail) ).
-
-/*
-( c^c_db_my_connect(Host,User,Password,Db,Port,Socket,Handle) ==
--(Protocol = odbc)*
- (Protocol = mysql) *
--(Protocol = sqlite3)*
- -(Protocol = postgres) ),
-
-
-% t_internet_host(Host),
-%  i_atom(User) *
-%  i_atom(Password) *
-%  i_positive_or_zero_integer(Port) *
-%  i_atom(Db) *
-% i_atom(Socket)
-
-( c^c_db_odbc_connect(ODBCEntry,User,Password,Handle)  ==
- (Protocol = odbc)*
--(Protocol = mysql) *
- -(Protocol = sqlite3)*
--(Protocol = postgres) ),
-
-
-
-( c^c_postgres_connect(Host/Db/Port/Socket,User,Password, Handle) ==
- -(Protocol = odbc)*
--(Protocol = mysql) *
--(Protocol = sqlite3)*
- (Protocol = posgrtgres) ),
-
-% t_internet_host(Host)*
-% i_atom(User) *
-% i_atom(Password) *
-% i_positive_or_zero_integer(Port) *
-% i_atom(Db) *
-% i_atom(Socket) *
-
-% 0 is default port and Var to be NULL, the default socket
-(c^c_sqlite3_connect(File,User,Password,Handle)
-			==
--(Protocol = odbc)*
--(Protocol = mysql) *
- (Protocol = sqlite3)*
--(Protocol = postgres)).
-%(Protocol = sqlite3),
-% t_file( File ) *
-%
-% i_atom(User) *
-% i_atom(Password).
-/*
-integer(Handle) ==
-c^c_db_my_connect(Host,User,Password,Db,Port,Socket,Handle)  +
-c^c_db_odbc_connect(ODBCEntry,User,Password,Handle) +
-c^c_postgres_connect(Host/Db/Port/Socket,User,Password, Handle) +
-c^c_sqlite3_connect(File,User,Password,Handle).
-*/
-
-
 db_open(Protocol) :- true.
 
 #else
 
-db_close:-
-db_close(myddas).
-db_close(Connection):-
-'$error_checks'(db_close(Connection)),
-get_value(Connection,Con),
-    '$abolish_all'(Con).
-db_close(Connection) :-
-'$error_checks'(db_close(Connection)),
-get_value(Connection,Con),
-c_db_connection_type(Con,ConType),
-( ConType == mysql ->
-    c_db_my_disconnect(Con)
-;ConType == postgres ->
-    c_postgres_disconnect(Con)
-;ConType == sqlite3 ->
-    c_sqlite3_disconnect(Con)
-;
-    c_db_odbc_disconnect(Con)
-),
-set_value(Connection,[]). % "deletes" atom
+db_open:-
+	db_open(myddas).
+
+db_open(Protocol) :-
+	'$error_checks'(db_open(Protocol)),
+	get_value(Protocol,Con),
+	c_db_connection_type(Con,ConType),
+	( ConType == mysql ->
+	  c_db_my_disconnect(Con)
+	;ConType == postgres ->
+	  c_postgres_disconnect(Con)
+	;ConType == sqlite3 ->
+	  c_sqlite3_disconnect(Con)
+	;
+	  c_db_odbc_disconnect(Con)
+	),
+	set_value(Protocol,[]). % "deletes" atom
 
 #endif
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1062,99 +1106,99 @@ set_value(Connection,[]). % "deletes" atom
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_close/1
-% db_close/0
-%
+				% db_close/1
+				% db_close/0
+				%
 db_close:-
-db_close(myddas).
-db_close(Connection):-
-'$error_checks'(db_close(Connection)),
-get_value(Connection,Con),
-    '$abolish_all'(Con).
-db_close(Connection) :-
-'$error_checks'(db_close(Connection)),
-get_value(Connection,Con),
-c_db_connection_type(Con,ConType),
-( ConType == mysql ->
-    c_db_my_disconnect(Con)
-;ConType == postgres ->
-    c_postgres_disconnect(Con)
-;ConType == sqlite3 ->
-    c_sqlite3_disconnect(Con)
-;
-    c_db_odbc_disconnect(Con)
-),
-set_value(Connection,[]). % "deletes" atom
+	db_close(myddas).
+db_close(Protocol):-
+	'$error_checks'(db_close(Protocol)),
+	get_value(Protocol,Con),
+	'$abolish_all'(Con).
+db_close(Protocol) :-
+	'$error_checks'(db_close(Protocol)),
+	get_value(Protocol,Con),
+	c_db_connection_type(Con,ConType),
+	( ConType == mysql ->
+	  c_db_my_disconnect(Con)
+	;ConType == postgres ->
+	  c_postgres_disconnect(Con)
+	;ConType == sqlite3 ->
+	  c_sqlite3_disconnect(Con)
+	;
+	  c_db_odbc_disconnect(Con)
+	),
+	set_value(Protocol,[]). % "deletes" atom
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_verbose/1
-%
-%
+				% db_verbose/1
+				%
+				%
 db_verbose(X):-
-var(X),!,
-get_value(db_verbose,X).
+	var(X),!,
+	get_value(db_verbose,X).
 db_verbose(N):-!,
-set_value(db_verbose,N).
-%default value
+	set_value(db_verbose,N).
+				%default value
 :- set_value(db_verbose,0).
 :- set_value(db_verbose_filename,myddas_queries).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_module/1
-%
-%
+				% db_module/1
+				%
+				%
 db_module(X):-
-var(X),!,
-get_value(db_module,X).
+	var(X),!,
+	get_value(db_module,X).
 db_module(ModuleName):-
-set_value(db_module,ModuleName).
-% default value
+	set_value(db_module,ModuleName).
+				% default value
 :- db_module(user).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_is_database_predicate(+,+,+)
-%
-%
+				% db_is_database_predicate(+,+,+)
+				%
+				%
 db_is_database_predicate(Module,PredName,Arity):-
-'$error_checks'(db_is_database_predicate(PredName,Arity,Module)),
-c_db_check_if_exists_pred(PredName,Arity,Module).
+	'$error_checks'(db_is_database_predicate(PredName,Arity,Module)),
+	c_db_check_if_exists_pred(PredName,Arity,Module).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #ifdef MYDDAS_STATS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_stats(+,-)
-%
-%
+				% db_stats(+,-)
+				%
+				%
 db_stats(List):-
-db_stats(myddas,List).
+	db_stats(myddas,List).
 
-db_stats(Connection,List):-
-'$error_checks'(db_stats(Connection,List)),
-NumberOfStats = 10,
-'$make_a_list'(NumberOfStats,ListX1),
-( var(Connection) ->
-    c_db_stats(0,ListX1)
-;
-    get_value(Connection,Conn),
-    c_db_stats(Conn,ListX1)
-),
-'$make_stats_list'(ListX1,List).
+db_stats(Protocol,List):-
+	'$error_checks'(db_stats(Protocol,List)),
+	NumberOfStats = 10,
+	'$make_a_list'(NumberOfStats,ListX1),
+	( var(Protocol) ->
+	  c_db_stats(0,ListX1)
+	;
+	  get_value(Protocol,Conn),
+	  c_db_stats(Conn,ListX1)
+	),
+	'$make_stats_list'(ListX1,List).
 
 #ifdef DEBUG
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_stats_time(+,-)
-% Reference is C pointer (memory reference)
-%
+				% db_stats_time(+,-)
+				% Reference is C pointer (memory reference)
+				%
 db_stats_time(Reference,Time):-
-'$error_checks'(db_stats_time(Reference,Time)),
-c_db_stats_time(Reference,Time).
+	'$error_checks'(db_stats_time(Reference,Time)),
+	c_db_stats_time(Reference,Time).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #endif /* DEBUG */
@@ -1163,292 +1207,292 @@ c_db_stats_time(Reference,Time).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_sql(+,+,-)
-%
-%
+				% db_sql(+,+,-)
+				%
+				%
 
-%compatibility
-db_sql_select(Connection,SQL,LA):-
-db_sql(Connection,SQL,LA).
+				%compatibility
+db_sql_select(Protocol,SQL,LA):-
+	db_sql(Protocol,SQL,LA).
 
 db_sql(SQL,LA):-
-db_sql(myddas,SQL,LA).
+	db_sql(myddas,SQL,LA).
 db_sql(Connection,SQL,LA):-
-'$error_checks'(db_sql(Connection,SQL,LA)),
-get_value(Connection,Con),
-c_db_connection_type(Con,ConType),
-'$write_or_not'(SQL),
-( ConType == mysql ->
-    db_my_result_set(Mode),
-    c_db_my_query(SQL,ResultSet,Con,Mode,Arity)
-;ConType == postgres ->
-    postgres_result_set(Mode),
-    c_postgres_query(SQL,ResultSet,Con,Mode,Arity)
-;ConType == sqlite3 ->
-    sqlite3_result_set(Mode),
-    c_sqlite3_query(SQL,ResultSet,Con,Mode,Arity)
-;
-    c_db_odbc_number_of_fields_in_query(SQL,Con,Arity)
-),
-'$make_a_list'(Arity,LA),
-( ConType == mysql ->
-    !,c_db_my_row(ResultSet,Arity,LA)
-;
-    '$make_a_list'(Arity,BindList),
-    c_db_odbc_query(SQL,ResultSet,Arity,BindList,Con),!,
-    c_db_odbc_row(ResultSet,BindList,LA)
-).
+	'$error_checks'(db_sql(Connection,SQL,LA)),
+	get_value(Connection,Con),
+	c_db_connection_type(Con,ConType),
+	'$write_or_not'(SQL),
+	( ConType == mysql ->
+	  db_my_result_set(Mode),
+	  c_db_my_query(SQL,ResultSet,Con,Mode,Arity)
+	;ConType == postgres ->
+	  postgres_result_set(Mode),
+	  c_postgres_query(SQL,ResultSet,Con,Mode,Arity)
+	;ConType == sqlite3 ->
+	  sqlite3_result_set(Mode),
+	  c_sqlite3_query(SQL,ResultSet,Con,Mode,Arity)
+	;
+	  c_db_odbc_number_of_fields_in_query(SQL,Con,Arity)
+	),
+	'$make_a_list'(Arity,LA),
+	( ConType == mysql ->
+	  !,c_db_my_row(ResultSet,Arity,LA)
+	;
+	  '$make_a_list'(Arity,BindList),
+	  c_db_odbc_query(SQL,ResultSet,Arity,BindList,Con),!,
+	  c_db_odbc_row(ResultSet,BindList,LA)
+	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_prolog_select(+,+,+)
-%
-%
+				% db_prolog_select(+,+,+)
+				%
+				%
 db_prolog_select(LA,DbGoal):-
-db_prolog_select(myddas,LA,DbGoal).
+	db_prolog_select(myddas,LA,DbGoal).
 db_prolog_select(Connection,LA,DbGoal):-
 
-'$lenght'(LA,Arity),
-Name=viewname,
-functor(ViewName,Name,Arity),
-% build arg list for viewname/Arity
-ViewName=..[Name|LA],
+	'$lenght'(LA,Arity),
+	Name=viewname,
+	functor(ViewName,Name,Arity),
+				% build arg list for viewname/Arity
+	ViewName=..[Name|LA],
 
-'$prolog2sql'(ViewName,DbGoal,SQL),
+	'$prolog2sql'(ViewName,DbGoal,SQL),
 
-get_value(Connection,Con),
-c_db_connection_type(Con,ConType),
-'$write_or_not'(SQL),
-( ConType == mysql ->
-    db_my_result_set(Mode),
-    c_db_my_query(SQL,ResultSet,Con,Mode,_),
-    !,c_db_my_row(ResultSet,Arity,LA)
-;
-    true
-).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+	get_value(Connection,Con),
+	c_db_connection_type(Con,ConType),
+	'$write_or_not'(SQL),
+	( ConType == mysql ->
+	  db_my_result_set(Mode),
+	  c_db_my_query(SQL,ResultSet,Con,Mode,_),
+	  !,c_db_my_row(ResultSet,Arity,LA)
+	;
+	  true
+	).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_prolog_select_multi(+,+,-)
-% db_prolog_select_multi(guest,[(ramos(A,C),A=C),(ramos(D,B),B=10)],[[A],[D,B]]).
-%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+				% db_prolog_select_multi(+,+,-)
+				% db_prolog_select_multi(guest,[(ramos(A,C),A=C),(ramos(D,B),B=10)],[[A],[D,B]]).
+				%
 db_prolog_select_multi(Connection,DbGoalsList,ListOfResults) :-
-'$error_checks'(db_prolog_select_multi(Connection,DbGoalsList,ListOfResults)),
-'$create_multi_query'(ListOfResults,DbGoalsList,SQL),
+	'$error_checks'(db_prolog_select_multi(Connection,DbGoalsList,ListOfResults)),
+	'$create_multi_query'(ListOfResults,DbGoalsList,SQL),
 
-get_value(Connection,Con),
-c_db_connection_type(Con,ConType),
-'$write_or_not'(SQL),
-( ConType == mysql ->
-    db_my_result_set(Mode),
-    c_db_my_query(SQL,ResultSet,Con,Mode,_)
-;
-    true
-),
-'$get_multi_results'(Con,ConType,ResultSet,ListOfResults).
+	get_value(Connection,Con),
+	c_db_connection_type(Con,ConType),
+	'$write_or_not'(SQL),
+	( ConType == mysql ->
+	  db_my_result_set(Mode),
+	  c_db_my_query(SQL,ResultSet,Con,Mode,_)
+	;
+	  true
+	),
+	'$get_multi_results'(Con,ConType,ResultSet,ListOfResults).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_command/2
-%
-%
+				% db_command/2
+				%
+				%
 db_command(Connection,SQL):-
-'$error_checks'(db_command(Connection,SQL)),
-get_value(Connection,Con),
-'$write_or_not'(SQL),
-c_db_connection_type(Con,ConType),
-( ConType == mysql ->
-    db_my_result_set(Mode),
-    c_db_my_query(SQL,_,Con,Mode,_)
-;
-    true
-).
+	'$error_checks'(db_command(Connection,SQL)),
+	get_value(Connection,Con),
+	'$write_or_not'(SQL),
+	c_db_connection_type(Con,ConType),
+	( ConType == mysql ->
+	  db_my_result_set(Mode),
+	  c_db_my_query(SQL,_,Con,Mode,_)
+	;
+	  true
+	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_assert/2
-% db_assert/1
-%
+				% db_assert/2
+				% db_assert/1
+				%
 db_assert(PredName):-
-db_assert(myddas,PredName).
+	db_assert(myddas,PredName).
 
 db_assert(Connection,PredName):-
-translate(PredName,PredName,Code),
-'$error_checks'(db_insert2(Connection,PredName,Code)),
-'$get_values_for_insert'(Code,ValuesList,RelName),
-'$make_atom'(['INSERT INTO `',RelName,'` VALUES '|ValuesList],SQL),
+	translate(PredName,PredName,Code),
+	'$error_checks'(db_insert2(Connection,PredName,Code)),
+	'$get_values_for_insert'(Code,ValuesList,RelName),
+	'$make_atom'(['INSERT INTO `',RelName,'` VALUES '|ValuesList],SQL),
 
-get_value(Connection,Con),
-c_db_connection_type(Con,ConType),
-'$write_or_not'(SQL),
-( ConType == mysql ->
-    db_my_result_set(Mode),
-    c_db_my_query(SQL,_,Con,Mode,_)
-;ConType == postgres ->
-    postgres_result_set(Mode),
-    c_postgres_query(SQL,_,Con,Mode,_)
-;ConType == sqlite3 ->
-    sqlite3_result_set(Mode),
-    c_sqlite3_query(SQL,_,Con,Mode,_)
-;
-    c_db_odbc_query(SQL,_,_,_,Con)
-).
+	get_value(Connection,Con),
+	c_db_connection_type(Con,ConType),
+	'$write_or_not'(SQL),
+	( ConType == mysql ->
+	  db_my_result_set(Mode),
+	  c_db_my_query(SQL,_,Con,Mode,_)
+	;ConType == postgres ->
+	  postgres_result_set(Mode),
+	  c_postgres_query(SQL,_,Con,Mode,_)
+	;ConType == sqlite3 ->
+	  sqlite3_result_set(Mode),
+	  c_sqlite3_query(SQL,_,Con,Mode,_)
+	;
+	  c_db_odbc_query(SQL,_,_,_,Con)
+	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_create_table/3
-% FieldsList = [field(Name,Type,Null,Key,DefaultValue)]
-% Example [field(campo1,'char(12)',y,y,a),field(campo2,int,y,y,0)]
-% TODO Test with ODBC & Type Checks
+				% db_create_table/3
+				% FieldsList = [field(Name,Type,Null,Key,DefaultValue)]
+				% Example [field(campo1,'char(12)',y,y,a),field(campo2,int,y,y,0)]
+				% TODO Test with ODBC & Type Checks
 db_create_table(Connection,TableName,FieldsInf):-
-'$error_checks'(db_create_table(Connection,TableName,FieldsInf)),
-get_value(Connection,Con),
+	'$error_checks'(db_create_table(Connection,TableName,FieldsInf)),
+	get_value(Connection,Con),
 
-'$process_fields'(FieldsInf,FieldString,KeysSQL),
-'$make_atom'(['CREATE TABLE `',TableName,'` ( ',FieldString,KeysSQL,' )'],FinalSQL),
+	'$process_fields'(FieldsInf,FieldString,KeysSQL),
+	'$make_atom'(['CREATE TABLE `',TableName,'` ( ',FieldString,KeysSQL,' )'],FinalSQL),
 
-c_db_connection_type(Con,ConType),
-'$write_or_not'(FinalSQL),
-( ConType == mysql ->
-    db_my_result_set(Mode),
-    c_db_my_query(FinalSQL,_,Con,Mode,_)
-;ConType == posgres ->
-    postgres_result_set(Mode),
-    c_postsgres_query(FinalSQL,_,Con,Mode,_)
-;ConType == sqlite3 ->
-   sqlite3_result_set(Mode),
-    c_sqlite3_query(FinalSQL,_,Con,Mode,_)
-;
-    c_db_odbc_query(FinalSQL,_,_,_,Con)
-).
+	c_db_connection_type(Con,ConType),
+	'$write_or_not'(FinalSQL),
+	( ConType == mysql ->
+	  db_my_result_set(Mode),
+	  c_db_my_query(FinalSQL,_,Con,Mode,_)
+	;ConType == posgres ->
+	  postgres_result_set(Mode),
+	  c_postsgres_query(FinalSQL,_,Con,Mode,_)
+	;ConType == sqlite3 ->
+	  sqlite3_result_set(Mode),
+	  c_sqlite3_query(FinalSQL,_,Con,Mode,_)
+	;
+	  c_db_odbc_query(FinalSQL,_,_,_,Con)
+	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_export_view/4
-% TODO Test with ODBC
-%
+				% db_export_view/4
+				% TODO Test with ODBC
+				%
 db_export_view(Connection,TableViewName,SQLorDbGoal,FieldsInf):-
-'$error_checks'(db_export_view(Connection,TableViewName,SQLorDbGoal,FieldsInf)),
-get_value(Connection,Con),
-'$process_sql_goal'(TableViewName,SQLorDbGoal,TableName,SQL),
+	'$error_checks'(db_export_view(Connection,TableViewName,SQLorDbGoal,FieldsInf)),
+	get_value(Connection,Con),
+	'$process_sql_goal'(TableViewName,SQLorDbGoal,TableName,SQL),
 
-% Case there's some information about the
-% attribute fields of the relation given
-% by the user
-( FieldsInf == [] ->
-    '$make_atom'(['CREATE TABLE ',TableName,' AS ',SQL],FinalSQL)
-;
-    '$process_fields'(FieldsInf,FieldString,KeysSQL),
-    '$make_atom'(['CREATE TABLE ',TableName,' (',FieldString,KeysSQL,') AS ',SQL],FinalSQL)
-),
+				% Case there's some information about the
+				% attribute fields of the relation given
+				% by the user
+	( FieldsInf == [] ->
+	  '$make_atom'(['CREATE TABLE ',TableName,' AS ',SQL],FinalSQL)
+	;
+	  '$process_fields'(FieldsInf,FieldString,KeysSQL),
+	  '$make_atom'(['CREATE TABLE ',TableName,' (',FieldString,KeysSQL,') AS ',SQL],FinalSQL)
+	),
 
-c_db_connection_type(Con,ConType),
-'$write_or_not'(FinalSQL),
-( ConType == mysql ->
-    db_my_result_set(Mode),
-    c_db_my_query(FinalSQL,_,Con,Mode,_)
-;
-    c_db_odbc_query(FinalSQL,_,_,_,Con)
-).
+	c_db_connection_type(Con,ConType),
+	'$write_or_not'(FinalSQL),
+	( ConType == mysql ->
+	  db_my_result_set(Mode),
+	  c_db_my_query(FinalSQL,_,Con,Mode,_)
+	;
+	  c_db_odbc_query(FinalSQL,_,_,_,Con)
+	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_update/2
-% BUG: db_update dosen't work for this case, just an example
-% db_update(my1,edge(1,3)-edge(99,99)).
-% The case where the set condition is "set" to change all the fields
+				% db_update/2
+				% BUG: db_update dosen't work for this case, just an example
+				% db_update(my1,edge(1,3)-edge(99,99)).
+				% The case where the set condition is "set" to change all the fields
 db_update(Connection,WherePred-SetPred):-
-%TODO: error_checks
-get_value(Connection,Conn),
+				%TODO: error_checks
+	get_value(Connection,Conn),
 
-% Match and Values must be "unifiable"
-functor(WherePred,PredName,Arity),
-functor(SetPred,PredName,Arity),
+				% Match and Values must be "unifiable"
+	functor(WherePred,PredName,Arity),
+	functor(SetPred,PredName,Arity),
 
-functor(NewRelation,PredName,Arity),
+	functor(NewRelation,PredName,Arity),
 
-'$extract_args'(WherePred,1,Arity,WhereArgs),
-'$extract_args'(SetPred,1,Arity,SetArgs),
+	'$extract_args'(WherePred,1,Arity,WhereArgs),
+	'$extract_args'(SetPred,1,Arity,SetArgs),
 
-copy_term(WhereArgs,WhereArgsTemp),
-NewRelation=..[PredName|WhereArgsTemp],
-translate(NewRelation,NewRelation,Code),
+	copy_term(WhereArgs,WhereArgsTemp),
+	NewRelation=..[PredName|WhereArgsTemp],
+	translate(NewRelation,NewRelation,Code),
 
-'$get_values_for_update'(Code,SetArgs,SetCondition,WhereCondition),
+	'$get_values_for_update'(Code,SetArgs,SetCondition,WhereCondition),
 
-'$get_table_name'(Code,TableName),
-append(SetCondition,WhereCondition,Conditions),
-'$make_atom'(['UPDATE `',TableName,'` '|Conditions],SQL),
-'$write_or_not'(SQL),
-db_my_result_set(Mode),
-c_db_my_query(SQL,_,Conn,Mode,_).
+	'$get_table_name'(Code,TableName),
+	append(SetCondition,WhereCondition,Conditions),
+	'$make_atom'(['UPDATE `',TableName,'` '|Conditions],SQL),
+	'$write_or_not'(SQL),
+	db_my_result_set(Mode),
+	c_db_my_query(SQL,_,Conn,Mode,_).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_get_attributes_types/3
-% db_get_attributes_types/2
-%
+				% db_get_attributes_types/3
+				% db_get_attributes_types/2
+				%
 db_get_attributes_types(RelationName,TypesList) :-
-db_get_attributes_types(myddas,RelationName,TypesList).
+	db_get_attributes_types(myddas,RelationName,TypesList).
 db_get_attributes_types(Connection,RelationName,TypesList) :-
-'$error_checks'(db_get_attributes_types(Connection,RelationName,TypesList)),
-get_value(Connection,Con),
-c_db_connection_type(Con,ConType),
-( ConType == mysql ->
-    c_db_my_number_of_fields(RelationName,Con,Arity)
-;
-    c_db_odbc_number_of_fields(RelationName,Con,Arity)
-),
-Size is 2*Arity,
-'$make_a_list'(Size,TypesList),
-c_db_connection_type(Con,ConType),
-( ConType == mysql ->
-    c_db_my_get_attributes_types(RelationName,Con,TypesList)
-;
-    c_db_odbc_get_attributes_types(RelationName,Con,TypesList)
-).
+	'$error_checks'(db_get_attributes_types(Connection,RelationName,TypesList)),
+	get_value(Connection,Con),
+	c_db_connection_type(Con,ConType),
+	( ConType == mysql ->
+	  c_db_my_number_of_fields(RelationName,Con,Arity)
+	;
+	  c_db_odbc_number_of_fields(RelationName,Con,Arity)
+	),
+	Size is 2*Arity,
+	'$make_a_list'(Size,TypesList),
+	c_db_connection_type(Con,ConType),
+	( ConType == mysql ->
+	  c_db_my_get_attributes_types(RelationName,Con,TypesList)
+	;
+	  c_db_odbc_get_attributes_types(RelationName,Con,TypesList)
+	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_number_of_fields/3
-%
-%
+				% db_number_of_fields/3
+				%
+				%
 db_number_of_fields(RelationName,Arity) :-
-db_number_of_fields(myddas,RelationName,Arity).
+	db_number_of_fields(myddas,RelationName,Arity).
 db_number_of_fields(Connection,RelationName,Arity) :-
-'$error_checks'(db_number_of_fields(Connection,RelationName,Arity)),
-get_value(Connection,Con),
-c_db_connection_type(Con,ConType),
-( ConType == mysql ->
-    c_db_my_number_of_fields(RelationName,Con,Arity)
-;ConType == postgres ->
-    c_postgres_number_of_fields(RelationName,Con,Arity)
-;ConType == sqlite3 ->
-    c_sqlite3_number_of_fields(RelationName,Con,Arity)
-;
-    c_db_odbc_number_of_fields(RelationName,Con,Arity)
-).
+	'$error_checks'(db_number_of_fields(Connection,RelationName,Arity)),
+	get_value(Connection,Con),
+	c_db_connection_type(Con,ConType),
+	( ConType == mysql ->
+	  c_db_my_number_of_fields(RelationName,Con,Arity)
+	;ConType == postgres ->
+	  c_postgres_number_of_fields(RelationName,Con,Arity)
+	;ConType == sqlite3 ->
+	  c_sqlite3_number_of_fields(RelationName,Con,Arity)
+	;
+	  c_db_odbc_number_of_fields(RelationName,Con,Arity)
+	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_multi_queries_number(+,+)
-% TODO: EVERITHING
-%
+				% db_multi_queries_number(+,+)
+				% TODO: EVERITHING
+				%
 db_multi_queries_number(Connection,Number) :-
-'$error_checks'(db_multi_queries_number(Connection,Number)),
-get_value(Connection,Con),
-c_db_multi_queries_number(Con,Number).
+	'$error_checks'(db_multi_queries_number(Connection,Number)),
+	get_value(Connection,Con),
+	c_db_multi_queries_number(Con,Number).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
