@@ -1171,7 +1171,7 @@ current_predicate(A,T) :-
 	format('`0 ~w~n', [M:T0]),
         (
          '$current_predicate'(A, M, T0, Flags),
-	 TFlags is Flags /\ 0x00004000,
+	 %TFlags is Flags /\ 0x00004000,
 	 % format('1 ~w ~16r~n', [M:T0,Flags, TFlags]),
          Flags /\ 0x00004000 =:= 0x0
 	 ;

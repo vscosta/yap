@@ -931,6 +931,7 @@ static Int cont_current_predicate(USES_REGS1) {
     if (!is_det) {
       EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(p);
       EXTRA_CBACK_ARG(4, 2) = MkAddressTerm(q);
+      B->cp_h = HR;
     }
   } else if (IsNonVarTerm(t2)) {
     // operating within the same module.
@@ -943,6 +944,7 @@ static Int cont_current_predicate(USES_REGS1) {
     npp = pp->NextPredOfModule;
     if (npp) {
       EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(npp);
+      B->cp_h = HR;
     } else {
       is_det = true;
     }
@@ -957,12 +959,14 @@ static Int cont_current_predicate(USES_REGS1) {
       else {
         pp = m->PredForME;
         EXTRA_CBACK_ARG(4, 2) = MkAddressTerm(m);
+        B->cp_h = HR;
       }
     } // we found a new answer
     if (!pp)
       cut_fail();
     else
       EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(pp->NextPredOfModule);
+    B->cp_h = HR;
   }
   if (pp->ModuleOfPred != IDB_MODULE) {
     f = pp->FunctorOfPred;
@@ -1081,6 +1085,7 @@ static Int init_current_predicate(USES_REGS1) {
         cut_fail();
       EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(p);
       EXTRA_CBACK_ARG(4, 2) = MkAddressTerm(q);
+      B->cp_h = HR;
     }
   }
   // check module
@@ -1102,6 +1107,7 @@ static Int init_current_predicate(USES_REGS1) {
     }
     EXTRA_CBACK_ARG(4, 2) = MkAddressTerm(m);
     EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(pp);
+    B->cp_h = HR;
   }
   // ensure deref access to choice-point fields.
   return cont_current_predicate(PASS_REGS1);
@@ -1124,7 +1130,7 @@ int Yap_IsOpMaxPrio(Atom at) {
   CACHE_REGS
   OpEntry *op = NextOp(RepOpProp((Prop)(RepAtom(at)->PropsOfAE)) PASS_REGS);
   int max;
-
+  
   if (EndOfPAEntr(op))
     return 0;
   max = (op->Prefix & 0xfff);
@@ -1156,6 +1162,7 @@ static Int cont_current_op(USES_REGS1) {
     READ_UNLOCK(op->OpRWLock);
     if (next) {
       EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((CELL)next);
+      B->cp_h = HR;  
       return TRUE;
     } else {
       cut_succeed();
@@ -1164,6 +1171,7 @@ static Int cont_current_op(USES_REGS1) {
     READ_UNLOCK(op->OpRWLock);
     if (next) {
       EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((CELL)next);
+      B->cp_h = HR;  
       return FALSE;
     } else {
       cut_fail();
@@ -1171,21 +1179,22 @@ static Int cont_current_op(USES_REGS1) {
   }
 }
 
-static Int init_current_op(
-    USES_REGS1) { /* current_op(-Precedence,-Type,-Atom)		 */
+static Int init_current_op(USES_REGS1) { /* current_op(-Precedence,-Type,-Atom)		 */
   EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((CELL)OpList);
+  B->cp_h = HR;
   return cont_current_op(PASS_REGS1);
 }
 
 static Int cont_current_atom_op(USES_REGS1) {
   OpEntry *op = (OpEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(5, 1)), *next;
-
+  
   READ_LOCK(op->OpRWLock);
   next = NextOp(RepOpProp(op->NextOfPE) PASS_REGS);
   if (unify_op(op PASS_REGS)) {
     READ_UNLOCK(op->OpRWLock);
     if (next) {
       EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((CELL)next);
+      B->cp_h = HR;
       return TRUE;
     } else {
       cut_succeed();
@@ -1194,6 +1203,7 @@ static Int cont_current_atom_op(USES_REGS1) {
     READ_UNLOCK(op->OpRWLock);
     if (next) {
       EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((CELL)next);
+      B->cp_h = HR;
       return FALSE;
     } else {
       cut_fail();
@@ -1216,6 +1226,7 @@ static Int init_current_atom_op(
     cut_fail();
   }
   EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((Int)ope);
+  B->cp_h = HR;
   return cont_current_atom_op(PASS_REGS1);
 }
 
