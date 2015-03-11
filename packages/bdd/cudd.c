@@ -633,6 +633,13 @@ get_vars(YAP_Term t3)
 }
 
 static YAP_Bool
+p_cudd_reorder(void)
+{
+  DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
+  return Cudd_ReduceHeap( manager, CUDD_REORDER_EXACT, 1);
+}
+
+  static YAP_Bool
 p_cudd_to_term(void)
 {
   DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
@@ -870,10 +877,12 @@ p_cudd_print_with_names(void)
   DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
   DdNode *n0 = (DdNode *)YAP_IntOfTerm(YAP_ARG2);
   const char *s = YAP_AtomName(YAP_AtomOfTerm(YAP_ARG3));
-  const char **namesp;
+  char **namesp;
   YAP_Term names = YAP_ARG4;
   FILE *f;
   YAP_Int len;
+  YAP_Int  i = 0;    
+
   if (!strcmp(s, "user_output")) f = stdout;
   else if (!strcmp(s, "user_error")) f = stderr;
   else if (!strcmp(s, "user")) f = stdout;
@@ -883,18 +892,34 @@ p_cudd_print_with_names(void)
   if ((namesp = malloc(sizeof(const char *)*len)) == NULL)
     return FALSE;
   while (YAP_IsPairTerm(names)) {
-    YAP_Int  i = 0;
     YAP_Term hd = YAP_HeadOfTerm( names);
-    char * s = YAP_AtomName(YAP_AtomOfTerm(hd));
-    const char *ns = malloc(strlen(s)+1);
-    strncpy(ns, s, strlen(s)+1);
-    namesp[i++] = ns;
+    const char *f;
+    
+    if (YAP_IsAtomTerm(hd)) {
+      const char * s = YAP_AtomName(YAP_AtomOfTerm(hd));
+      char *ns = malloc(strlen(s)+1);      
+      strncpy(ns, s, strlen(s)+1);
+      f = ns;
+    } else {
+      size_t sz =256;
+      char *s = malloc(sz+256);
+      while( !YAP_WriteBuffer(hd, s, sz-1, 0) ) {
+	sz+=1024;
+	s = realloc(s, sz);
+      }
+      f = s;
+    }
     names = YAP_TailOfTerm( names);
+    namesp[i++] = f;      
   }
-  Cudd_DumpDot(manager, 1, &n0, (char **)namesp, NULL, f);
-  free( namesp );
+  Cudd_DumpDot(manager, 1, &n0, namesp, NULL, f);
   if (f != stdout && f != stderr)
     fclose(f);
+  while (i > 0) {
+    i--;
+    free(namesp[i]);
+  }
+  free( namesp );
   return TRUE;
 }
 
@@ -942,7 +967,8 @@ init_cudd(void)
   FunctorOutAdd = YAP_MkFunctor(YAP_LookupAtom("add"), 4);
   FunctorCudd = YAP_MkFunctor(YAP_LookupAtom("cudd"), 1);
   TermMinusOne = YAP_MkIntTerm(-1);
-  TermPlusOne = YAP_MkIntTerm(+1);
+  TermPlusOne = YAP_MkIntTerm(+1);  
+  TermZero = YAP_MkIntTerm(0);  
   TermFalse = YAP_MkAtomTerm(YAP_LookupAtom("false"));
   TermTrue = YAP_MkAtomTerm(YAP_LookupAtom("true"));
   YAP_UserCPredicate("term_to_cudd", p_term_to_cudd, 3);
@@ -953,7 +979,8 @@ init_cudd(void)
   YAP_UserCPredicate("add_to_term", p_add_to_term, 4);
   YAP_UserCPredicate("cudd_to_probability_sum_product", p_cudd_to_p, 4);
   YAP_UserCPredicate("cudd_size", p_cudd_size, 3);
-  YAP_UserCPredicate("cudd_die", p_cudd_die, 1);
+  YAP_UserCPredicate("cudd_die", p_cudd_die, 1);  
+  YAP_UserCPredicate("cudd_reorder", p_cudd_reorder, 2);
   YAP_UserCPredicate("cudd_release_node", p_cudd_release_node, 2);
   YAP_UserCPredicate("cudd_print", p_cudd_print, 3);
   YAP_UserCPredicate("cudd_print", p_cudd_print_with_names, 4);

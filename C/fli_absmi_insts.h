@@ -10,6 +10,18 @@
 #endif /* INDENT_CODE */
 
       BOp(call_cpred, Osbpp);
+#if __ANDROID__
+      char *s; Atom name;
+      if (PREG->y_u.Osbpp.p->ArityOfPE) {
+	Functor f = PREG->y_u.Osbpp.p->FunctorOfPred;
+	name = f->NameOfFE;      
+      } else {
+	 name = (Atom)(PREG->y_u.Osbpp.p->FunctorOfPred);
+      }
+      s = name->StrOfAE;
+      
+      __android_log_print(ANDROID_LOG_INFO, "YAP", " %s ", s);
+#endif
       check_trail(TR);
       if (!(PREG->y_u.Osbpp.p->PredFlags & (SafePredFlag|NoTracePredFlag|HiddenPredFlag))) {
         CACHE_Y_AS_ENV(YREG);

@@ -1,6 +1,8 @@
 #ifndef YAPT_HH
 #define YAPT_HH 1
 
+class YAPAtomTerm;
+
 /**
  * @brief Generic Prolog Term
  */
@@ -9,7 +11,8 @@ class YAPTerm {
   friend class YAPPrologPredicate;
   friend class YAPQuery;
   friend class YAPModule;
-  friend class YAPModuleProp;
+  friend class YAPModuleProp;  
+  friend class YAPApplTerm;  
 protected:
   yhandle_t t; /// handle to term, equivalent to term_t
   void mk(Term t0); /// internal method to convert from term to handle
@@ -37,33 +40,39 @@ public:
   bool unifiable(YAPTerm t1);  /// we can unify t and t1
   bool variant(YAPTerm t1);   /// t =@= t1, the two terms are equal up to variable renaming
   intptr_t hashTerm(size_t sz, size_t depth, bool variant); /// term hash,
-  bool isVar() { return IsVarTerm( gt() ); }   /// type check for unbound
-  bool isAtom() { return IsAtomTerm( gt() ); } ///  type check for atom
-  bool isInteger() { return IsIntegerTerm( gt() ); } /// type check for integer
-  bool isFloat() { return IsFloatTerm( gt() ); } /// type check for floating-point
-  bool isString() { return IsStringTerm( gt() ); } /// type check for a string " ... "
-  bool isCompound() { return !(IsVarTerm( gt() ) || IsNumTerm( gt() )); } /// is a primitive term
-  bool isAppl() { return IsApplTerm( gt() ); } /// is a structured term
-  bool isPair() { return IsPairTerm( gt() ); } /// is a pair term
-  bool isGround() { return Yap_IsGroundTerm( gt() ); } /// term is ground
-  bool isList() { return Yap_IsListTerm( gt() ); } /// term is a list
+  virtual bool isVar() { return IsVarTerm( gt() ); }   /// type check for unbound
+  virtual bool isAtom() { return IsAtomTerm( gt() ); } ///  type check for atom
+  virtual bool isInteger() { return IsIntegerTerm( gt() ); } /// type check for integer
+  virtual bool isFloat() { return IsFloatTerm( gt() ); } /// type check for floating-point
+  virtual bool isString() { return IsStringTerm( gt() ); } /// type check for a string " ... "
+  virtual bool isCompound() { return !(IsVarTerm( gt() ) || IsNumTerm( gt() )); } /// is a primitive term
+  virtual bool isAppl() { return IsApplTerm( gt() ); } /// is a structured term
+  virtual bool isPair() { return IsPairTerm( gt() ); } /// is a pair term
+  virtual bool isGround() { return Yap_IsGroundTerm( gt() ); } /// term is ground
+  virtual bool isList() { return Yap_IsListTerm( gt() ); } /// term is a list
 
   /// extract the argument i of the term, where i in 1...arity
   inline YAPTerm getArg(int i) {
+    BACKUP_MACHINE_REGS();
     Term t0 = gt();
+    YAPTerm tf;
     if (IsApplTerm(t0))
-      return YAPTerm(ArgOfTerm(i, t0));
+      tf = YAPTerm(ArgOfTerm(i, t0));
     else if (IsPairTerm(t0)) {
       if (i==1)
-        return YAPTerm(HeadOfTerm(t0));
-      if (i==2)
-        return YAPTerm(TailOfTerm(t0));
+        tf = YAPTerm(HeadOfTerm(t0));
+      else if (i==2)
+        tf =  YAPTerm(TailOfTerm(t0));
+    } else {
+      tf = YAPTerm((Term)0);
     }
-    return YAPTerm((Term)0);
+    RECOVER_MACHINE_REGS();
+    //{ CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "after getArg H= %p, i=%d", HR, tf.gt()) ; }
+    return tf;
   }
 
   /// return a string with a textual representation of the term
-  char *text();
+  virtual const char *text();
 };
 
 /**
@@ -78,6 +87,44 @@ public:
   CELL *getVar() { return VarOfTerm( gt() ); }
   /// is the variable bound to another one
   bool unbound() { return IsUnboundVar(VarOfTerm( gt() )); }
+  virtual bool isVar() { return true; }   /// type check for unbound
+  virtual bool isAtom() { return false; } ///  type check for atom
+  virtual bool isInteger() { return false; } /// type check for integer
+  virtual bool isFloat() { return false; } /// type check for floating-point
+  virtual bool isString() { return false; } /// type check for a string " ... "
+  virtual bool isCompound() { return false; } /// is a primitive term
+  virtual bool isAppl() { return false; } /// is a structured term
+  virtual bool isPair() { return false; } /// is a pair term
+  virtual bool isGround() { return false; } /// term is ground
+  virtual bool isList() { return false; } /// term is a list
+};
+
+/**
+ * @brief Atom Term
+ * Term Representation of an Atom
+ */
+class YAPAtomTerm: YAPTerm {
+  friend class YAPModule;
+  // Constructor: receives a C-atom;
+  YAPAtomTerm(Atom a)  { mk( MkAtomTerm(a) ); }
+  YAPAtomTerm(Term t): YAPTerm(t)  { IsAtomTerm(t); }
+  // Getter for Prolog atom
+  Term getTerm() { return t; }
+public:
+  // Constructor: receives an atom;
+  YAPAtomTerm(YAPAtom a): YAPTerm() { mk( MkAtomTerm(a.a) ); }
+  // Constructor: receives a sequence of ISO-LATIN1 codes;  
+  YAPAtomTerm(char *s) ;
+  // Constructor: receives a sequence of up to n ISO-LATIN1 codes;  
+  YAPAtomTerm(char *s, size_t len);
+  // Constructor: receives a sequence of wchar_ts, whatever they may be;  
+  YAPAtomTerm(wchar_t *s) ;
+  // Constructor: receives a sequence of n wchar_ts, whatever they may be;  
+  YAPAtomTerm(wchar_t *s, size_t len);
+  // Getter: outputs the atom;  
+  YAPAtom getAtom() { return YAPAtom(AtomOfTerm( gt() )); }
+  // Getter: outputs the name as a sequence of ISO-LATIN1 codes;  
+  const char *getName() { return AtomOfTerm( gt() )->StrOfAE; }
 };
 
 /**
@@ -123,6 +170,10 @@ public:
   /// Create a list term out of a standard term. Check if a valid operation.
   ///
   /// @param[in] the term
+  YAPListTerm() { mk(TermNil); /* else type_error */ }
+  /// Create an empty list term.
+  ///
+  /// @param[in] the term
   YAPListTerm(Term t0) { mk(t0); /* else type_error */ }
   /*  /// Create a list term out of an array of terms.
  ///
@@ -145,8 +196,9 @@ public:
     Term to = gt();
     if (IsPairTerm( to ))
       return YAPListTerm(TailOfTerm( to ));
-    else
-      return MkIntTerm(-1);
+    else if ( to == TermNil)
+      return YAPListTerm(  );
+    /* error */;
   }
 
   /// Check if the list is empty.
@@ -169,34 +221,6 @@ public:
   /// construct using length-limited wide chars
   YAPStringTerm(wchar_t *s, size_t len);
   const char *getString() { return StringOfTerm( gt() ); }
-};
-
-/**
- * @brief Atom Term
- * Term Representation of an Atom
- */
-class YAPAtomTerm: YAPTerm {
-  friend class YAPModule;
-  // Constructor: receives a C-atom;
-  YAPAtomTerm(Atom a)  { mk( MkAtomTerm(a) ); }
-  YAPAtomTerm(Term t): YAPTerm(t)  { IsAtomTerm(t); }
-  // Getter for Prolog atom
-  Term getTerm() { return t; }
-public:
-  // Constructor: receives an atom;
-  YAPAtomTerm(YAPAtom a): YAPTerm() { mk( MkAtomTerm(a.a) ); }
-  // Constructor: receives a sequence of ISO-LATIN1 codes;  
-  YAPAtomTerm(char *s) ;
-  // Constructor: receives a sequence of up to n ISO-LATIN1 codes;  
-  YAPAtomTerm(char *s, size_t len);
-  // Constructor: receives a sequence of wchar_ts, whatever they may be;  
-  YAPAtomTerm(wchar_t *s) ;
-  // Constructor: receives a sequence of n wchar_ts, whatever they may be;  
-  YAPAtomTerm(wchar_t *s, size_t len);
-  // Getter: outputs the atom;  
-  YAPAtom getAtom() { return YAPAtom(AtomOfTerm( gt() )); }
-  // Getter: outputs the name as a sequence of ISO-LATIN1 codes;  
-  const char *getName() { return AtomOfTerm( gt() )->StrOfAE; }
 };
 
 #endif /* YAPT_HH */

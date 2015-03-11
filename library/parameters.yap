@@ -72,7 +72,7 @@
 
 :- use_module( library(bdd) ).
 
-:- dynamic extension/4, init/2, frame/2.
+:- dynamic extension/4, init/2, frame/2, exclusive/0.
 
 user:term_expansion(Term,Clauses) :-
 	Term = ( Spec :- Body),
@@ -92,50 +92,61 @@ find_name( [_|UnsortedCurrentNames] , V, Name) :-
 expand( Skel, Names, GoalVars, Body, Tests, Out) :-
         Skel =.. [N|As],		%
 	%pick(Vs, As, Os),
-	trace,
 	append(As, GoalVars, Os),
-    Head =.. [N|Os],
+	Head =.. [N|Os],
 	maplist(original_name(GoalVars), Names, Ts),
 	LinkGoal =.. [access|Ts],
+	trace,
 	formula( Tests, Fs, Dic),
 	bdd_new(Fs , BDD),
 	bdd_print( BDD, '/Users/vsc/bdd.dot', Names),
-	bdd_tree(BDD, Tree),		
+	bdd_tree(BDD, Tree),
 	ptree(Tree, Names, Dic),
 %	portray_clause((Head:-GExtBody)),
 	unnumbervars((Head:- LinkGoal,Body), Out).
 
-ptree( bdd(_,L,_Vs) , 	Names, Dic) :-
-%	term_variables(L, LVs),
+swap_f(Key-V, Key=V).
+
+ptree( bdd(Root,L,_Vs) , Names, File, Dic) :-
+				%	term_variables(L, LVs),
 %	Vs =.. [_|LVs],
-%   trace,
-maplist( bindv,Names),
+	maplist( bindv,Names),
 	rb_visit(Dic, Pairs),
 	maplist( bindv,Pairs),
-	open('bdd.dot', write, S) ,
+	absolute_file_name( File, [], AbsFile ),
+	open(AbsFile, write, S) ,
 	format(S,'digraph "DD" {
               size = "7.5,10"
               center = true;~n', []),
+	format(S,' "~w" [label = "~w"];~n', [1, Root]),
 	maplist( print_node(S), L),
 	format(S, '}~n', []),
 	close(S),
 	fail.
 ptree(_, _, _).
 
-bindv( X = '$VAR'(X) ).
-bindv( X - '$VAR'(X) ).
+bindv( X = '$VAR'(X) ) :- !.
+bindv( X - '$VAR'(X) ) :- !.
+bindv(_).
 
 print_node(S,pp( Val, Name, Left, Right )) :-
+	%writeln(Name),
 	simplify(Name, N),
 	format(S,' "~w" [label = "~w"];~n', [Val, N]),
-	format(S,' "~w" -> "~w";~n', [Val, Right]),
-	format(S,' "~w" -> "~w"  [style = dashed];~n', [Val, Left]).
+	format(S,' "~w" -> "~w" [arrowType="none" color="red"] ;~n', [Val, Left]),
+	format(S,' "~w" -> "~w"  [style = dashed arrowType="none"];~n', [Val, Right]).
 print_node(S,pn( Val, Name, Left, Right )) :-
 	simplify(Name, N),
+	%writeln(Name),
         format(S,' "~w" [label = "~w"];~n', [Val, N]),
-        format(S,' "~w" -> "~w";~n', [Val, Right]),
-        format(S,' "~w" -> "~w"  [style = dashed];~n', [Val, Left]).
+        format(S,' "~w" -> "~w" [arrowType="none" color="red"];~n', [Val,Left]),
+	( Right == 1 ->
+	  format(S,' "~w" -> "0"  [dir=none style = dotted];~n', [Val])
+	;
+	  format(S,' "~w" -> "~w"  [style = dotted type="odot"];~n', [Val, Right])
+	).
 
+simplify(V,V) :- var(V),!.
 simplify('$VAR'(X),Y) :- !, simplify(X,Y).
 simplify(c^(X),Y) :- !, simplify(X,Y).
 simplify(G, X:M) :- G=.. [X,N], !, simplify(N,M).
@@ -145,7 +156,7 @@ simplify(X, X).
 /*
 pick([LastV,LastV1|More], As, OVs) :-
 	nonvar(LastV),
-	LastV = (ID:_Name=V),
+  LastV = (ID:_Name=V),
 	nonvar(LastV1),
         LastV1 = (ID: _Name1=_V1), !,
 	(
@@ -428,16 +439,16 @@ ensure((X in D)) :-
 
 formula( Axioms, FormulaE, Dic) :-
 	rb_new( Dic0 ),
-	partition( is_init, Axioms, _Inits, OGoals),
-	partition( is_frame, OGoals, _Frames, Goals),
+	partition( is_frame, Axioms, _, Goals),
 	foldl2( eq, Goals, Formula, Dic0, Dic, [], Extras),
 	append(Formula, Extras, FormulaL),
-	maplist(writeln,FormulaL),
 	list2prod( FormulaL, FormulaE).
 
-is_init( A ?= B ) :- assert(init(A, B)).
-
 is_frame( A =:= B ) :- assert( frame(A, B)).
+is_frame( level(N, [H|L]) ) :- !, maplist( assertn(level, N), [H|L] ).
+is_frame( level(N, L ) ) :- assert( level( N, L) ).
+
+assertn(level, N, L) :- assert( level( N, L) ).
 
 list2prod( [], true).
 list2prod( [F], F).
@@ -445,17 +456,20 @@ list2prod( [F1,F2|Fs], F1*NF) :-
 	list2prod( [F2|Fs], NF).
 
 %eq(G,_,_,_,_,_) :- writeln(a:G), fail.
+eq(1, 1, Dic,  Dic, I, I) :-  !.
+eq(X, VX, Dic0,  Dic, I0, I) :- var(X), !,
+	add(X, VX, Dic0, Dic, I0, I).
 eq(X == Exp, (-TA + TY)*(-TY + TA), Dic0, Dic, I0, I) :- !,
 	eq(X, TA, Dic0, Dic1, I0, I1),
 	eq(Exp, TY, Dic1, Dic, I1, I).
 
-	eq((X ==> Y), (-TX + TY), Dic0, Dic, I0, I) :- !,
-		eq( X, TX, Dic0, Dic1, I0, I1),
-		eq( Y, TY, Dic1, Dic, I1, I).
+eq((X ==> Y), (-TX + TY), Dic0, Dic, I0, I) :- !,
+	eq( X, TX, Dic0, Dic1, I0, I1),
+	eq( Y, TY, Dic1, Dic, I1, I).
 
-		eq((X :- Y), (TX + -TY), Dic0, Dic, I0, I) :- !,
-			eq( X, TX, Dic0, Dic1, I0, I1),
-			eq( Y, TY, Dic1, Dic, I1, I).
+eq((X :- Y), (TX + -TY), Dic0, Dic, I0, I) :- !,
+eq( X, TX, Dic0, Dic1, I0, I1),
+eq( Y, TY, Dic1, Dic, I1, I).
 
 eq((X + Y), (TX + TY), Dic0, Dic, I0, I) :- !,
 	eq( X, TX, Dic0, Dic1, I0, I1),
@@ -483,7 +497,29 @@ eq(one_of(D), Ds, Dic0, Dic, I0, I) :-
 	t_domain0( D, Ds, Dic0, Dic, I0, I).
 
 eq(G, NG, Dic0, Dic, I0, I) :-
-	add( G, NG, Dic0, Dic, I0, I).
+        add( G, NG, Dic0, Dic, I0, I).
+
+add_xors(L, V, I0, I) :-
+	foldl(add_xor(V), L, I0, I).
+
+add_xor(V, V0, I, I) :- V == V0, !.
+add_xor(V, V0, I, [(V-V0)|I]).
+
+xor(  VX, DV0s, DV , Disj0, Disj0+Conj) :- !,
+        foldl( add_all2(VX, DV), DV0s, 1,Conj).
+
+add_all2(VX, G, GD, C, C*(VX=G)
+	) :- G == GD, ! .
+add_all2(VX, _, G, C, C*(-(VX=G))).
+
+list2prod(X, P, X *P).
+list2sum(X, P, X +P).
+
+t_domain0( [D], DX, Dic0, Dic, I0, I) :- !,
+	eq(D , DX , Dic0, Dic, I0, I).
+t_domain0( [D1|D2s], (DX1+ (-DX1*D2Xs)), Dic0, Dic, I0, I) :-
+	eq(D1, DX1, Dic0, Dic1, I0, I1),
+        t_domain0(D2s, D2Xs, Dic1, Dic, I1, I).
 
 t_domain( [D], X, _VX, VDX, Dic0, Dic, I0, I) :- !,
 	add( X=D, VDX, Dic0, Dic, I0, I).
@@ -507,6 +543,7 @@ add( AG, V, Dic0, Dic, I0, IF) :-
 add( AG, V, Dic0, Dic, I, I) :-
 	rb_insert( Dic0, AG, V, Dic).
 
+simp_key(G , G) :- var(G), !.
 simp_key(_^_:error(_^G) , G) :- !.
 simp_key(_^_:G , G) :- !.
 simp_key('$VAR'(S):A, SAG) :-

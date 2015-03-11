@@ -57,30 +57,35 @@ MYDDAS_SOURCES= \
 	myddas_wkb2prolog.c
 
 MYDDAS_PROLOG= \
-	$(srcdir)/pl/myddas.ypp \
-	 $(srcdir)/pl/myddas_assert_predicates.ypp \
-	$(srcdir)/pl/myddas_mysql.ypp \
-	$(srcdir)/pl/myddas_sqlite3.ypp \
-        $(srcdir)/pl/myddas_top_level.ypp \
-	$(srcdir)/pl/myddas_errors.ypp \
-	$(srcdir)/pl/myddas_postgres.ypp \
-	$(srcdir)/pl/myddas_prolog2sql.ypp \
-	$(srcdir)/pl/myddas_util_predicates.ypp \
-	$(srcdir)/pl/myddas_prolog2sql_optimizer.ypp
+	myddas.ypp \
+	 myddas_assert_predicates.ypp \
+	myddas_mysql.ypp \
+	myddas_sqlite3.ypp \
+        myddas_top_level.ypp \
+	myddas_errors.ypp \
+	myddas_postgres.ypp \
+	myddas_prolog2sql.ypp \
+	myddas_util_predicates.ypp \
+	myddas_prolog2sql_optimizer.ypp
+
 
 OBJS=	$(MYDDAS_SOURCES:.c=.o)
+MYDDAS_YAP=	$(MYDDAS_PROLOG:.ypp=.yap)
 SOBJS=	myddas.@SO@
 
 
 #in some systems we just create a single object, in others we need to
 # create a libray
 
-all: $(SOBJS)
+all: $(SOBJS) $(MYDDAS_YAP)
 
-.PRECIOUS: %.o
+.PRECIOUS: %.o %.yap
 
 %.o: $(srcdir)/%.c
 	$(CC) -c $(CFLAGS) $< -o $@
+
+%.yap: $(srcdir)/pl/%.ypp
+	cpp $(YAP_EXTRAS) -P -E -w $< -o $@
 
 @DO_SECOND_LD@%.@SO@: $(OBJS)
 @DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $(OBJS) @EXTRA_LIBS_FOR_DLLS@ @MYDDAS_LIBS@
@@ -97,7 +102,7 @@ install_myddas:
 	mkdir -p $(DESTDIR)$(SHAREDIR); \
 	for p in $(MYDDAS_PROLOG); \
 	   do name=`basename $$p .ypp`; echo $$name;\
-	   cpp $(YAP_EXTRAS) -P -E -w $$p > $(DESTDIR)$(SHAREDIR)/$$name.yap; \
+	   $(INSTALL_DATA) $$name.yap $(DESTDIR)$(SHAREDIR); \
 	done; \
 	fi
 
