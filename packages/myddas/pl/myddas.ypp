@@ -870,7 +870,7 @@ You can see the available SQL Modes at the MySQL homepage at
 % db_open/4
 			%
 
-#if MYDDAS_DECLARATIONS
+#if 1 // MYDDAS_DECLARATIONS
 :- db_open(Protocol) extra_arguments
 db=Db,
 port=Port,
@@ -904,7 +904,7 @@ atom(X) ==> nonvar(X),
 \+ atom(X) * nonvar(X) ==> error(atom, X),
     var(X)  ==> error(var, X),
 
-internet_host(X) <=> atom(X),
+internet_host(X) == atom(X),
 
     integer(X) ==> nonvar(X),
     \+ integer(X) * nonvar(X) ==> error(integer, X),
@@ -976,7 +976,7 @@ c^c_db_odbc_connect(ODBCEntry,User,Password,Handle) ),
 
 /*
 ( c^c_db_my_connect(Host,User,Password,Db,Port,Socket,Handle) ==
--(Protocol = odbc)*
+Protocol = odbc
  (Protocol = mysql) *
 -(Protocol = sqlite3)*
  -(Protocol = postgres) ),

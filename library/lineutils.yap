@@ -206,7 +206,7 @@ empty. As an example, consider:
 ~~~~~{.prolog}
 ?- fields("Hello  I am  free"," *",S).
 
-S = ["Hello","","I","am","","free"] ?
+  S = ["Hello","","I","am","","free"] ?
 ~~~~~
 */
 fields(String, FieldsCodes, Strings) :-
@@ -275,6 +275,7 @@ filter(StreamInp, StreamOut, Command) :-
 	 !
 	;
 	 call(Command, Line, NewLine),
+	 ground(NewLine),
 	 format(StreamOut, '~s~n', [NewLine]),
 	 fail
 	).
