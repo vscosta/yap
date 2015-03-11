@@ -1,7 +1,7 @@
 /*************************************************************************
 *									 *
   *	 YAP Prolog 							 *
-*									 *
+  *									 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
@@ -1171,12 +1171,12 @@ current_predicate(A,T) :-
 	format('`0 ~w~n', [M:T0]),
         (
          '$current_predicate'(A, M, T0, Flags),
-	 TFlags is Flags /\ 0x00004000,
+	 %TFlags is Flags /\ 0x00004000,
 	 % format('1 ~w ~16r~n', [M:T0,Flags, TFlags]),
          Flags /\ 0x00004000 =:= 0x0
 	 ;
 	 '$imported_predicate'(A, M, A/_Arity, T0, Flags),
-	 % format('2 ~w ~16r~n', [M:T0,Flags]),           
+				% format('2 ~w ~16r~n', [M:T0,Flags]),           
 	 Flags /\ 0x00004000 =:= 0x0
 	).
 	 
