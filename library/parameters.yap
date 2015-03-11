@@ -99,7 +99,8 @@ expand( Skel, Names, GoalVars, Body, Tests, Out) :-
 	LinkGoal =.. [access|Ts],
 	formula( Tests, Fs, Dic),
 	bdd_new(Fs , BDD),
-	bdd_print( BDD, '/Users/vsc/bdd.dot', Names),	  																																																								bdd_tree(BDD, Tree),		
+	bdd_print( BDD, '/Users/vsc/bdd.dot', Names),
+	bdd_tree(BDD, Tree),		
 	ptree(Tree, Names, Dic),
 %	portray_clause((Head:-GExtBody)),
 	unnumbervars((Head:- LinkGoal,Body), Out).
@@ -471,25 +472,31 @@ eq((X xor Y), (TX xor TY), Dic0, Dic, I0, I) :- !,
 	eq( X, TX, Dic0, Dic1, I0, I1),
 	eq( Y, TY, Dic1, Dic, I1, I).
 
-eq(X in D, TAX + (-TAX * (EDX+ (-EDX + Ds )))  , Dic0, Dic, I0, I) :- !,
+eq(X in D, VX = (TAX + (-TAX * (EDX+ (-EDX * Ds ))))  , Dic0, Dic, I0, I) :- !,
 	eq( t_atom(X), TAX, Dic0, Dic1, I0, I1),
 	add( err(dom(X,D)), EDX, Dic1, Dic2, I1, I2),
-	add(X, VX, Dic2, Dic3, I2, I3)
-	t_domain( D, VX, Ds, Dic3, Dic, I3, I).
+	add(X, VX, Dic2, Dic3, I2, I3),
+	t_domain( D, X, VX, Ds, Dic3, Dic, I3, I).
+
+eq(one_of(D), Ds, Dic0, Dic, I0, I) :-
+	!,
+	t_domain0( D, Ds, Dic0, Dic, I0, I).
 
 eq(G, NG, Dic0, Dic, I0, I) :-
 	add( G, NG, Dic0, Dic, I0, I).
 
-t_domain( [D], VX, VD = VX, Dic0, Dic, I0, I) :- !,
-	add(D, VD, Dic0, Dic, I0, I).
-t_domain( [D1|D2s], (VX==VX=D)* + D2S, _, Dic0, Dic, I0, I) :-
+t_domain( [D], X, _VX, VDX, Dic0, Dic, I0, I) :- !,
+	add( X=D, VDX, Dic0, Dic, I0, I).
+t_domain( [D1|D2s], X, VX, VDX + (-VDX*D2S), Dic0, Dic, I0, I) :-
 	add( X=D1, VDX, Dic0, Dic1, I0, I1),
-	add( X, VX, Dic0, Dic1, I0, I1),
-	maplist(diff(XD1), D2s,  Dic1, Dic, I1, I),
-	t_domain(D2S, X, ).
+	t_domain(D2s, X, VX, D2S, Dic1, Dic, I1, I ).
 
-diff(XD, DO, Dic0, Dic, [-XD*VDO+ (XD * -VDO)|I0], I) :-
-	new(DO, VDO, Dic0, Dic, I0, I).
+t_domain0( [D], VDX, Dic0, Dic, I0, I) :-
+	!,
+	add( D, VDX, Dic0, Dic, I0, I).
+t_domain0( [D1|D2s], VDX + (-VDX*D2S), Dic0, Dic, I0, I) :-
+        add( D1, VDX, Dic0, Dic1, I0, I1),
+        t_domain0(D2s, D2S, Dic1, Dic, I1, I ).
 
 add(AG, V, Dic, Dic, I, I) :-
 	rb_lookup( AG, V, Dic),  !.
