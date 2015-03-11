@@ -1189,19 +1189,18 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
   }
 }
 
+struct write_globs wglb;
+struct rewind_term rwt;
+
 void Yap_plwrite(Term t, void *mywrite, int max_depth, int flags, int priority)
 /* term to be written			 */
 /* consumer				 */
 /* write options			 */
 {
-  struct write_globs wglb;
-  struct rewind_term rwt;
-
   if (!mywrite)
     wglb.stream = Serror;
   else
     wglb.stream = mywrite;
-
   wglb.lw = separator;
   wglb.last_atom_minus = FALSE;
   wglb.Quote_illegal = flags & Quote_illegal_f;

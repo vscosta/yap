@@ -116,8 +116,7 @@ android/jni/yap_wrap.cpp:  $(YAP_SWIG_INTERFACE) android/AndroidManifest.xml
 	$(SWIG) -c++ -java -I$(srcdir)/../../CXX -package pt.up.fc.dcc.yap -outdir android/src/pt/up/fc/dcc/yap -o $@ $<
 
 install-android: android
-	adb uninstall pt.up.fc.dcc.yap
-	adb install android/bin/JavaYap-debug.apk
+	adb install -r android/bin/JavaYap-debug.apk
 
 R:
 

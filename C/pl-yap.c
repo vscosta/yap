@@ -929,33 +929,39 @@ char *
 Yap_HandleToString(term_t l, size_t sz, size_t *length, int *encoding, int flags)
 {
 
-  char *r, buf[4096];
+  char *buf;
 
-	int64_t size;
-	IOSTREAM *fd;
+  size_t size = 4096, total = size;
+  IOSTREAM *fd;
 
-	  r = buf;
-	fd = Sopenmem(&r, &sz, "w");
-	fd->encoding = ENC_UTF8;
-	if ( PL_write_term(fd, l, 1200, flags) &&
-	     Sputcode(EOS, fd) >= 0 &&
-	     Sflush(fd) >= 0 )
-	  {
-	    size = Stell64(fd);
-		*length = size-1;
-		char *bf = malloc(*length+1);
-	      if (!bf)
-		return NULL;
-	      strncpy(bf,buf,*length+1);
-	      Sclose(fd);
-	      r = bf;
-	    return r;
-	  }
-    /* failed */
-    if ( r != buf ) {
-      Sfree(r);
+  total = size;
+  buf = malloc(total);
+  while ( (fd = Sopenmem(&buf, &size, "w")) == NULL ||
+	  (( fd->encoding = ENC_UTF8) &&  FALSE) ||
+	  (PL_write_term(fd, l, 1200, flags) == 0) ||
+	  Sputcode(EOS, fd) <  0 ||
+	  Sflush(fd) < 0 ) /* failure */
+    {
+#ifdef DEBUG
+      {CACHE_REGS
+	  __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "text  %p, %x buf=%s\n", fd, LOCAL_SlotBase[28], buf);}
+#endif
+      Sclose(fd);         
+      if (!fd)
+	return NULL;
+      total += size;
+      buf = realloc(buf, total);
+      if (!buf)
+	return NULL;
+      Sclose(fd);
     }
-  return NULL;
+#ifdef DEBUG
+  {CACHE_REGS
+      __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "text done %s", buf);}
+#endif
+  Sclose(fd);         
+  /* success */
+  return buf;
 }
 
 

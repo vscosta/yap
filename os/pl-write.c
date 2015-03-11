@@ -262,8 +262,20 @@ writeTopTerm(term_t t, int prec, write_options *options)
   if (flags & PL_WRT_BLOB_PORTRAY)
     yap_flag |= Blob_Portray_f;
   old_module = CurrentModule;
+  char * buf[1024];
+  size_t length;
+  int encode; Term tn;
+  
+  __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "Yap_REGS=%p\n", Yap_REGS);        
   CurrentModule = Yap_GetModuleFromEntry(options->module);
-  Yap_plwrite(Yap_GetFromSlot(t PASS_REGS), options->out, options->max_depth, yap_flag, prec);
+
+  __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "t=%d\n", t) ;
+  
+__android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "LOCAl_SlotBase[t]=%ld\n", LOCAL_SlotBase[t]);        
+  __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "LOCAl_SlotBase=%ld\n", Deref(LOCAL_SlotBase[t]));        
+  
+  
+Yap_plwrite(Yap_GetFromSlot(t PASS_REGS), options->out, options->max_depth, yap_flag, prec);
   CurrentModule = old_module;
   return TRUE;
 }
@@ -554,7 +566,7 @@ pl_write_term(term_t term, term_t options)
 /** @pred  write_term(+ _T_, + _Opts_) is iso
 
 
-Displays term  _T_ on the current output stream, according to the
+    Displays term  _T_ on the current output stream, according to the
 following options:
 
 + quoted(+ _Bool_) is iso
@@ -609,7 +621,6 @@ PL_write_term(IOSTREAM *s, term_t term, int precedence, int flags)
   options.flags	    = flags;
   options.out	    = s;
   options.module    = MODULE_user;
-
   PutOpenToken(EOF, s);			/* reset this */
   return writeTopTerm(term, precedence, &options);
 }

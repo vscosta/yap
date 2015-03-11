@@ -88,6 +88,7 @@ YAPStringTerm::YAPStringTerm(char *s, size_t len) { // build string
   BACKUP_H();
 
   CACHE_REGS
+    
   seq_tv_t inp, out;
   inp.val.c = s;
   inp.type = YAP_STRING_CHARS;
@@ -104,6 +105,7 @@ YAPStringTerm::YAPStringTerm(wchar_t *s): YAPTerm() { // build string
   BACKUP_H();
 
   CACHE_REGS
+    
   seq_tv_t inp, out;
   inp.val.w = s;
   inp.type = YAP_STRING_WCHARS;
@@ -119,6 +121,7 @@ YAPStringTerm::YAPStringTerm(wchar_t *s, size_t len) : YAPTerm() { // build stri
   BACKUP_H();
 
   CACHE_REGS
+    
   seq_tv_t inp, out;
   inp.val.w = s;
   inp.type = YAP_STRING_WCHARS;
@@ -133,17 +136,24 @@ YAPStringTerm::YAPStringTerm(wchar_t *s, size_t len) : YAPTerm() { // build stri
 
 
 YAPApplTerm::YAPApplTerm(YAPFunctor f, YAPTerm ts[]) : YAPTerm() {
+  BACKUP_MACHINE_REGS();    
   UInt arity = ArityOfFunctor(f.f);
   mk ( Yap_MkApplTerm( f.f, arity, (Term *)ts) );
+  RECOVER_MACHINE_REGS();
 }
 
 YAPApplTerm::YAPApplTerm(YAPFunctor f) : YAPTerm() {
+  BACKUP_MACHINE_REGS();    
   UInt arity = ArityOfFunctor(f.f);
   mk ( Yap_MkNewApplTerm( f.f, arity) );
+  RECOVER_MACHINE_REGS();
 }
 
 YAPTerm  YAPApplTerm::getArg(int arg) {
-  return YAPTerm( ArgOfTerm(arg, gt() ) );
+  BACKUP_MACHINE_REGS();      
+  YAPTerm to = YAPTerm( ArgOfTerm(arg, gt() ) );
+  RECOVER_MACHINE_REGS();
+  return to;
 }
 
 YAPFunctor  YAPApplTerm::getFunctor() {
@@ -152,11 +162,15 @@ YAPFunctor  YAPApplTerm::getFunctor() {
 
 YAPPairTerm::YAPPairTerm(YAPTerm th, YAPTerm tl) : YAPTerm() {
   CACHE_REGS
+    BACKUP_MACHINE_REGS();      
   mk ( MkPairTerm( th.term(), tl.term() ) );
+  RECOVER_MACHINE_REGS();
 }
 
 YAPPairTerm::YAPPairTerm() : YAPTerm() {
+  BACKUP_MACHINE_REGS();      
   t = Yap_MkNewPairTerm( );
+  RECOVER_MACHINE_REGS();
 }
 
 void YAPTerm::mk(Term t0) { CACHE_REGS t = Yap_InitSlot( t0 PASS_REGS);  }
@@ -268,16 +282,24 @@ intptr_t YAPTerm::hashTerm(size_t sz, size_t depth, bool variant) {
   return out;
 }
 
-char *YAPTerm::text() {
+const char *YAPTerm::text() {
   size_t sze = 4096, length;
   char *os;
   int enc;
 
   BACKUP_MACHINE_REGS();
+#ifdef DEBUG
+  {CACHE_REGS
+      __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "text  %d, %x \n", t, LOCAL_SlotBase[t]);}
+#endif
   if (!(os = Yap_HandleToString(t, sze, &length, &enc, 0))) {
       RECOVER_MACHINE_REGS();
       return (char *)NULL;
   }
+#ifdef DEBUG
+  {CACHE_REGS
+      __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "text  %d, %x %p\n", t, LOCAL_SlotBase[t], os);}
+#endif
   RECOVER_MACHINE_REGS();
   return os;
 }
@@ -287,21 +309,19 @@ char *YAPQuery::text() {
   char *os;
   int enc;
 
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "I LCL0+%p/t=(%d) %x", LCL0, *q_g, LCL0[-15]) ; }
+  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "I t=(%d) %lx", *q_g) ; }
   BACKUP_MACHINE_REGS();
   if (!(os = Yap_HandleToString(*q_g, sze, &length, &enc, 0))) {
-      { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "IIa  LCL0+t=(%p) %x oz=%p %s",  LCL0, LCL0[-15], os, os) ; }
-      RECOVER_MACHINE_REGS();
+    RECOVER_MACHINE_REGS();
       return (char *)NULL;
   }
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "II  LCL0+t=(%p) %x", LCL0, LCL0[-15]) ; }
+  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "II ") ; }
   RECOVER_MACHINE_REGS();
   return os;
 }
 
 bool YAPListTerm::nil() {
   CACHE_REGS
-  __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "t=%d LCL0+t=(%p)",  t, LCL0+t) ;
   return gt() == TermNil;
 }
 
@@ -327,15 +347,15 @@ YAPTerm::YAPTerm(intptr_t i) { CACHE_REGS Term tn = MkIntegerTerm( i ); mk( tn )
 
 YAPTerm YAPListTerm::car()
 {
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "t=%d LCL0+t=(%p)",  t, LCL0+t) ; }
   Term to = gt();
+  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "to=%d",  to) ; }  
   if (IsPairTerm(to))
     return YAPTerm(HeadOfTerm(to));
   else
     return MkIntTerm(-1);
 }
 
-YAPVarTerm::YAPVarTerm() { CACHE_REGS mk( MkVarTerm( ) ); }
+  YAPVarTerm::YAPVarTerm() { CACHE_REGS mk( MkVarTerm( ) ); }
 
 
 char *YAPAtom::getName(void) {
@@ -602,8 +622,8 @@ YAPPredicate::YAPPredicate(YAPAtom at, arity_t arity) {
 PredEntry  *YAPPredicate::getPred( Term t, Term* &outp ) {
   CACHE_REGS
     Term m = CurrentModule ;
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "H= %p, outp=%p", HR, outp) ; }
-  t = Yap_StripModule(t, &m);
+  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "H= %p, outp=%p", HR, outp) ; }  
+t = Yap_StripModule(t, &m);
   if (IsVarTerm(t) || IsNumTerm(t)) {
     ap = (PredEntry  *)NULL;
     outp = (Term  *)NULL;
