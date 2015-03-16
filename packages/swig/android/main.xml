@@ -9,12 +9,16 @@
 			android:lines="6" />
 		<LinearLayout android:orientation="vertical"
 			android:layout_width="wrap_content" android:layout_height="fill_parent">
-			<Button android:id="@+id/QueryButton" android:layout_width="fill_parent"
-				android:layout_height="wrap_content" android:text="Query..."
-				android:onClick="onQueryButtonClick" />
-			<Button android:id="@+id/QuerySelectionButton"
-				android:layout_width="fill_parent" android:layout_height="wrap_content"
-				android:text="Select" android:onClick="onQuerySelectionButtonClick" />
+		  <Button android:id="@+id/FirstButton"
+			 android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:text="First..."
+				android:onClick="onFirstButtonClick" />
+			<Button android:id="@+id/AllButton"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:text="All..."
+				android:onClick="onAllButtonClick" />
 			<Button android:id="@+id/ClearButton" android:layout_width="fill_parent"
 				android:layout_height="wrap_content" android:text="Reset"
 				android:onClick="onClearButtonClick" />
@@ -27,5 +31,3 @@
 		<!-- Set MaxLegth EditText -->
 	</ScrollView>
 </LinearLayout>
-
-  

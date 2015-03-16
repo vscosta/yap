@@ -32,16 +32,21 @@ language. Next, we discuss support to the most important ones.
 #define SF_STORE  ((special_functors *)HEAP_INIT_BASE)
 #endif
 
-#ifdef USE_OFFSETS
+#if defined(USE_OFFSETS)
 #define   AtomFoundVar ((Atom)(&(((special_functors *)(NULL))->AtFoundVar)))
 #define   AtomFreeTerm ((Atom)(&(((special_functors *)(NULL))->AtFreeTerm)))
 #define   AtomNil ((Atom)(&(((special_functors *)(NULL))->AtNil)))
 #define   AtomDot ((Atom)(&(((special_functors *)(NULL))->AtDot)))
-#else
+#elif OLD_STYLE_INITIAL_ATOMS
 #define   AtomFoundVar AbsAtom((AtomEntry *)&(SF_STORE->AtFoundVar))
 #define   AtomFreeTerm AbsAtom((AtomEntry *)&(SF_STORE->AtFreeTerm))
 #define   AtomNil AbsAtom((AtomEntry *)&(SF_STORE->AtNil))
 #define   AtomDot AbsAtom((AtomEntry *)&(SF_STORE->AtDot))
+#else
+#define   AtomFoundVar AbsAtom(SF_STORE->AtFoundVar)
+#define   AtomFreeTerm AbsAtom(SF_STORE->AtFreeTerm)
+#define   AtomNil AbsAtom(SF_STORE->AtNil)
+#define   AtomDot AbsAtom(SF_STORE->AtDot)
 #endif
 
 #define   TermFoundVar MkAtomTerm(AtomFoundVar)
@@ -164,10 +169,18 @@ exts;
    in the heap when we start the system */
 typedef struct special_functors_struct
 {
+
+#if 0
   struct ExtraAtomEntryStruct AtFoundVar;
   struct ExtraAtomEntryStruct AtFreeTerm;
   struct ExtraAtomEntryStruct AtNil;
   struct ExtraAtomEntryStruct AtDot;
+#else
+  struct AtomEntryStruct *AtFoundVar;
+  struct AtomEntryStruct *AtFreeTerm;
+  struct AtomEntryStruct *AtNil;
+  struct AtomEntryStruct *AtDot;
+#endif
 }
 special_functors;
 #endif /* YAP_H */

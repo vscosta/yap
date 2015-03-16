@@ -1550,7 +1550,7 @@ to be implemented directly.  What about other Unixes?
 #endif
 
 #if __ANDROID__
-    if (LOCAL_InAssetDir) {
+    if (LOCAL_InAssetDir   ) {
 	rval = strncpy(buf, LOCAL_InAssetDir, sizeof(buf));
     } else
 #endif
@@ -1676,7 +1676,7 @@ ChDir(const char *path)
 	  size_t sz = strlen(ospath)+1;
 	  AAssetDir_close(dir);
 	  LOCAL_InAssetDir = (char *)malloc(sz);
-	  strncpy(LOCAL_InAssetDir, ospath, sz-1);
+	  strncpy(LOCAL_InAssetDir, ospath, sz);
 	  succeed;
       }  else {
 	  fail;

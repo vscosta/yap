@@ -15,6 +15,7 @@
 	   copy_line/2,
 	   filter/3,
 	   file_filter/3,
+           file_select/2,
 	   file_filter_with_initialization/5,
 	   process/2
 	  ]).
@@ -297,15 +298,22 @@ process(StreamInp, Command) :-
 	 fail
 	).
 
+/** 
+  * @pred file_filter(+ _FileIn_, + _FileOut_, + _Goal_)  is meta
+  * 
+  * @param _FileIn_  File to process
+  * @param _FileOut_ Output file, often user_error
+  * @param _Goal_ to be metacalled, receives FileIn and FileOut as
+  * extra arguments
+  * 
+  * @return succeeds
 
-/** @pred file_filter(+ _FileIn_, + _FileOut_, + _Goal_)  is meta
+  For every line  _LineIn_ in file  _FileIn_, execute
+  `call(Goal,LineIn,LineOut)`, and output  _LineOut_ to file
+  _FileOut_.
 
-For every line  _LineIn_ in file  _FileIn_, execute
-`call(Goal,LineIn,LineOut)`, and output  _LineOut_ to file
- _FileOut_.
-
-  The input stream is accessible through the alias `filter_input`, and the output
-  stream is accessible through `filter_output`.
+  The input stream is accessible through the alias `filter_input`, and
+  the output stream is accessible through `filter_output`.
 */
 file_filter(Inp, Out, Command) :-
 	open(Inp, read, StreamInp, [alias(filter_input)]),
@@ -327,6 +335,37 @@ file_filter_with_initialization(Inp, Out, Command, FormatString, Parameters) :-
 	filter(StreamInp, StreamOut, Command),
 	close(StreamInp),
 	close(StreamOut).
+
+
+/** 
+  * @pred file_select(+ _FileIn_, + _Goal_)  is meta
+  * 
+  * @param _FileIn_  File to process
+  * @param _Goal_ to be metacalled, receives FileIn as
+  * extra arguments
+  * 
+  * @return  bindings to arguments of _Goal_.
+
+  For every line  _LineIn_ in file  _FileIn_, execute
+  `call(`Goal,LineIn)`.
+
+  The input stream is accessible through the alias `filter_input`, and
+  the output stream is accessible through `filter_output`.
+*/
+file_select(Inp, Command) :-
+        open(Inp, read, StreamInp, [alias(filter_input)]),
+	repeat,
+	read_line_to_codes(StreamInp, Line),
+	(
+	 Line == end_of_file
+	->
+	  close(StreamInp),
+	  !,
+	  fail
+	;
+	 call(Command, Line)
+        ).
+
 /**
 @}
 */

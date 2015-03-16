@@ -10,7 +10,7 @@
 #endif /* INDENT_CODE */
 
       BOp(call_cpred, Osbpp);
-#if __ANDROID__
+#if __ANDROID__ && STRONG_DEBUG
       char *s; Atom name;
       if (PREG->y_u.Osbpp.p->ArityOfPE) {
 	Functor f = PREG->y_u.Osbpp.p->FunctorOfPred;

@@ -196,7 +196,7 @@ YAP_tag_t  YAPTerm::tag() {
 	return YAP_TAG_ATOM;
       return YAP_TAG_INT;
   } else {
-      Functor f = FunctorOfTerm(tt);
+    Functor f = FunctorOfTerm(tt);
 
       if (IsExtensionFunctor(f)) {
 	  if (f == FunctorDBRef) {
@@ -288,18 +288,10 @@ const char *YAPTerm::text() {
   int enc;
 
   BACKUP_MACHINE_REGS();
-#ifdef DEBUG
-  {CACHE_REGS
-      __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "text  %d, %x \n", t, LOCAL_SlotBase[t]);}
-#endif
   if (!(os = Yap_HandleToString(t, sze, &length, &enc, 0))) {
       RECOVER_MACHINE_REGS();
       return (char *)NULL;
   }
-#ifdef DEBUG
-  {CACHE_REGS
-      __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "text  %d, %x %p\n", t, LOCAL_SlotBase[t], os);}
-#endif
   RECOVER_MACHINE_REGS();
   return os;
 }
@@ -315,14 +307,9 @@ char *YAPQuery::text() {
     RECOVER_MACHINE_REGS();
       return (char *)NULL;
   }
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "II ") ; }
+  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "II %s", os) ; }
   RECOVER_MACHINE_REGS();
   return os;
-}
-
-bool YAPListTerm::nil() {
-  CACHE_REGS
-  return gt() == TermNil;
 }
 
 
@@ -348,14 +335,14 @@ YAPTerm::YAPTerm(intptr_t i) { CACHE_REGS Term tn = MkIntegerTerm( i ); mk( tn )
 YAPTerm YAPListTerm::car()
 {
   Term to = gt();
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "to=%d",  to) ; }  
+  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "to=%p",  to) ; }  
   if (IsPairTerm(to))
     return YAPTerm(HeadOfTerm(to));
   else
-    return MkIntTerm(-1);
+    throw YAPError::YAP_DOMAIN_ERROR;
 }
 
-  YAPVarTerm::YAPVarTerm() { CACHE_REGS mk( MkVarTerm( ) ); }
+YAPVarTerm::YAPVarTerm() { CACHE_REGS mk( MkVarTerm( ) ); }
 
 
 char *YAPAtom::getName(void) {

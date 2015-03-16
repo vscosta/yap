@@ -2721,7 +2721,7 @@ p_yap_paths( USES_REGS1 ) {
     out2 = MkAtomTerm(Yap_LookupAtom(destdir));
   } else {
 #if __ANDROID__
-    out2 = MkAtomTerm(Yap_LookupAtom("/assets/share"));
+    out2 = MkAtomTerm(Yap_LookupAtom("/assets/share/Yap"));
 #else
     out2 = MkAtomTerm(Yap_LookupAtom(YAP_SHAREDIR));
 #endif

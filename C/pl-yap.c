@@ -931,11 +931,16 @@ Yap_HandleToString(term_t l, size_t sz, size_t *length, int *encoding, int flags
 
   char *buf;
 
+
   size_t size = 4096, total = size;
   IOSTREAM *fd;
 
   total = size;
   buf = malloc(total);
+#ifdef DEBUG
+  {CACHE_REGS
+      __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "text  %p \n", buf);}
+#endif
   while ( (fd = Sopenmem(&buf, &size, "w")) == NULL ||
 	  (( fd->encoding = ENC_UTF8) &&  FALSE) ||
 	  (PL_write_term(fd, l, 1200, flags) == 0) ||
@@ -944,7 +949,7 @@ Yap_HandleToString(term_t l, size_t sz, size_t *length, int *encoding, int flags
     {
 #ifdef DEBUG
       {CACHE_REGS
-	  __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "text  %p, %x buf=%s\n", fd, LOCAL_SlotBase[28], buf);}
+	  __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "fd  %p, %x buf=%s\n", fd, LOCAL_SlotBase[28], buf);}
 #endif
       Sclose(fd);         
       if (!fd)

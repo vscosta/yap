@@ -121,10 +121,20 @@ public:
   YAPAtomTerm(wchar_t *s) ;
   // Constructor: receives a sequence of n wchar_ts, whatever they may be;  
   YAPAtomTerm(wchar_t *s, size_t len);
+  virtual bool isVar() { return false; }   /// type check for unbound
+  virtual bool isAtom() { return true; } ///  type check for atom
+  virtual bool isInteger() { return false; } /// type check for integer
+  virtual bool isFloat() { return false; } /// type check for floating-point
+  virtual bool isString() { return false; } /// type check for a string " ... "
+  virtual bool isCompound() { return false; } /// is a primitive term
+  virtual bool isAppl() { return false; } /// is a structured term
+  virtual bool isPair() { return false; } /// is a pair term
+  virtual bool isGround() { return true; } /// term is ground
+  virtual bool isList() { return gt() == TermNil; } /// [] is a list
   // Getter: outputs the atom;  
   YAPAtom getAtom() { return YAPAtom(AtomOfTerm( gt() )); }
   // Getter: outputs the name as a sequence of ISO-LATIN1 codes;  
-  const char *getName() { return AtomOfTerm( gt() )->StrOfAE; }
+  const char *text() { return AtomOfTerm( gt() )->StrOfAE; }
 };
 
 /**
@@ -139,6 +149,16 @@ public:
   YAPApplTerm(YAPFunctor f);
   YAPFunctor getFunctor();
   YAPTerm getArg(int i);
+  virtual bool isVar() { return false; }   /// type check for unbound
+  virtual bool isAtom() { return false; } ///  type check for atom
+  virtual bool isInteger() { return false; } /// type check for integer
+  virtual bool isFloat() { return false; } /// type check for floating-point
+  virtual bool isString() { return false; } /// type check for a string " ... "
+  virtual bool isCompound() { return true; } /// is a primitive term
+  virtual bool isAppl() { return true; } /// is a structured term
+  virtual bool isPair() { return false; } /// is a pair term
+  virtual bool isGround() { return true; } /// term is ground
+  virtual bool isList() { return false; } /// [] is a list
 };
 
 /**
@@ -158,14 +178,14 @@ public:
  * @brief Integer Term
  */
 
-class YAPIntegerTerm: private YAPTerm {
+class YAPIntegerTerm:  YAPTerm {
 public:
   YAPIntegerTerm(intptr_t i);
   intptr_t getInteger() { return  IntegerOfTerm( gt() ); }
   bool isTagged() { return IsIntTerm( gt() ); }
 };
 
-class YAPListTerm: private YAPTerm {
+class YAPListTerm: public YAPTerm {
 public:
   /// Create a list term out of a standard term. Check if a valid operation.
   ///
@@ -204,7 +224,13 @@ public:
   /// Check if the list is empty.
   ///
   /// @param[in] the list
-  bool nil();
+  inline bool nil() {
+    CACHE_REGS
+      { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "II %x %x", gt(), TermNil) ; }
+    return gt() == TermNil;
+  }
+
+;
 };
 
 /**

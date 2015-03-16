@@ -625,9 +625,12 @@ libYap.a: $(LIB_OBJECTS) yapi.o
 	adb shell mkdir -p /data/yap
 	adb shell mkdir -p /data/yap/pl
 	adb shell mkdir -p /data/yap/swi/library
-	adb shell mkdir -p /data/yap/packages
 	adb shell mkdir -p /data/yap/packages/chr
 	adb shell mkdir -p /data/yap/packages/clib
+	adb shell mkdir -p /data/yap/packages/myddas
+	adb shell mkdir -p /data/yap/assets/myddas
+	adb shell mkdir -p /data/yap/assets/lib
+	adb shell mkdir -p /data/yap/assets/share
 	adb push yap /data/yap/
 	adb push @DYNYAPLIB@ /data/yap/
 	for p in $(EXTRAYAPLIBS); do \
@@ -639,6 +642,9 @@ libYap.a: $(LIB_OBJECTS) yapi.o
 	adb push $(srcdir)/swi/library /data/yap/swi/library
 	adb push $(srcdir)/pl /data/yap/pl/
 	adb push $(srcdir)/library /data/yap/library/
+	adb push $(srcdir)/packages/myddas /data/yap/packages/myddas/
+	adb push $(srcdir)/packages/chr /data/yap/packages/chr/
+	adb push $(srcdir)/packages/clib /data/yap/packages/clib/
 	adb shell "echo \"bootstrap('/data/yap/pl/init.yap'). module(user). qsave_program('/data/yap/startup.yss').\" | LD_LIBRARY_PATH=/data/yap /data/yap/yap@EXEC_SUFFIX@ -b /data/yap/pl/boot.yap"
 	adb pull /data/yap/startup.yss
 	#adb shell rm -rf /data/yap

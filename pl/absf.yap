@@ -1,6 +1,6 @@
 /*************************************************************************
 *									 *
-  *	 YAP Prolog 							 *
+*	 YAP Prolog 							 *
 *									 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
@@ -124,9 +124,8 @@ absolute_file_name(File,Opts,TrueFileName) :-
 /**
   @pred absolute_file_name(+Name:atom,+Path:atom) is nondet
 
-11  Converts the given file specification into an absolute path, using default options. See absolute_file_name/3 for details on the options.
+  Converts the given file specification into an absolute path, using default options. See absolute_file_name/3 for details on the options.
 */
-
 absolute_file_name(V,Out) :- var(V), !,	% absolute_file_name needs commenting.
 	'$do_error'(instantiation_error, absolute_file_name(V, Out)).
 absolute_file_name(user,user) :- !.
@@ -288,7 +287,7 @@ absolute_file_name(File0,File) :-
 	(
 	 '$absolute_file_name'(File,ExpFile)
 	->
-	'$swi_set_prolog_flag'(file_name_variables, OldF)
+	 '$swi_set_prolog_flag'(file_name_variables, OldF)
 	;
 	'$swi_set_prolog_flag'(file_name_variables, OldF),
 	 fail
@@ -499,7 +498,7 @@ remove_from_path(New) :- '$check_path'(New,Path),
   `library( _File_ )` are searched by the predicates consult/1,
   reconsult/1, use_module/1, ensure_loaded/1, and load_files/2.
 
-  This directory is initialized s a rule that calls  the system predicate
+  This directory is initialized by a rule that calls  the system predicate
   system_library/1.
 */
 
@@ -508,10 +507,10 @@ remove_from_path(New) :- '$check_path'(New,Path),
 :- dynamic user:library_directory/1.
 
 %% user:library_directory( ?Dir )
-                                %  Specifies the set of directories where
-                                % one can find Prolog libraries.
-                                %
-                                % 1. honor YAPSHAREDIR
+%  Specifies the set of directories where
+% one can find Prolog libraries.
+%
+% 1. honor YAPSHAREDIR
 user:library_directory( Dir ) :-
         getenv( 'YAPSHAREDIR', Dir0),
         absolute_file_name( Dir0, [file_type(directory), expand(true)], Dir ).
@@ -661,3 +660,5 @@ user:file_search_path(path, C) :-
 	),
 	lists:member(C, B)
     ).
+
+%%@}
