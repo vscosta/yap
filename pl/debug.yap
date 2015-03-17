@@ -1,6 +1,6 @@
 /*************************************************************************
 *									 *
-*	 YAP Prolog 							 *
+  *	 YAP Prolog 							 *
 *									 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
@@ -670,7 +670,29 @@ be lost.
 	'$execute_nonstop'(G,Mod).
 '$spy'([Mod|G]) :-
 	CP is '$last_choice_pt',
+	'$debugger_input',
 	'$do_spy'(G, Mod, CP, spy).
+
+/** 
+  * '$debugger_input': set the input for debugging
+  * 
+  * try to connect the debugger to an open terminal. 
+*/
+'$debugger_input' :-
+	stream_property(_,alias(debugger_stream)),
+	!.
+'$debugger_input' :-
+        stream_property(S,tty(true)),
+        stream_property(S,input),
+	!,
+	set_stream(S,alias(debugger_stream)).
+'$debugger_input' :-
+	current_prolog_flag(unix, true ), !,
+        open('/dev/tty', read, S, [alias(debugger_stream)]).
+'$debugger_input' :-
+        current_prolog_flag(windows, true ), !,
+        open('CONIN$', read, S, [alias(debugger_stream)]).
+        
 
 % last argument to do_spy says that we are at the end of a context. It
 % is required to know whether we are controlled by the debugger.
@@ -946,7 +968,7 @@ be lost.
 	  '$action'(10,P,L,G,Module,Debug),
 	  put_code(user_error, 10)
 	  ;
-	  write(user_error,' ? '), get0(user_input,C),
+	 write(user_error,' ? '), get_code(user_input,C),
 	  '$action'(C,P,L,G,Module,Debug)
 	),
 	(Debug = on
@@ -994,7 +1016,7 @@ be lost.
 	writeq(Stream, G).
 
 '$action'(13,P,CallNumber,G,Module,Zip) :- !,	% newline 	creep
-	get0(user_input,C),
+	get_code( debugger_input,C),
 	'$action'(C,P,CallNumber,G,Module,Zip).
 '$action'(10,_,_,_,_,on) :- !,			% newline 	creep
 	nb_setval('$debug_jump',false).
@@ -1206,19 +1228,19 @@ be lost.
 	fail.
 
 '$skipeol'(10) :- !.
-'$skipeol'(_) :- get0(user,C), '$skipeol'(C).
+'$skipeol'(_) :- get_code( debugger_input,C), '$skipeol'(C).
 
 '$scan_number'(_, _, Nb) :-
-	get0(user,C),
+	get_code( debugger_input,C),
 	'$scan_number2'(C, Nb), !.
 '$scan_number'(_, CallId, CallId).
 
 '$scan_number2'(10, _) :- !, fail.
 '$scan_number2'(0' , Nb) :- !, % '
-	get0(user,C),
+	get_code( debugger_input,C),
 	'$scan_number2'(C , Nb).
 '$scan_number2'(0'	, Nb) :- !, %'
-	get0(user,C),
+	get_code( debugger_input,C),
 	'$scan_number2'(C, Nb).
 '$scan_number2'(C, Nb) :-
 	'$scan_number3'(C, 0, Nb).
@@ -1227,7 +1249,7 @@ be lost.
 '$scan_number3'( C, Nb0, Nb) :-
 	C >= "0", C =< "9",
 	NbI is Nb0*10+(C-"0"),
-	get0(user, NC),
+	get_code( debugger_input, NC),
 	'$scan_number3'( NC, NbI, Nb).
 
 '$print_deb_sterm'(G) :-
@@ -1238,20 +1260,20 @@ be lost.
 '$print_deb_sterm'(_) :- '$skipeol'(94).
 
 '$get_sterm_list'(L) :-
-	get0(user_input,C),
+	get_code( debugger_input_input,C),
 	'$deb_inc_in_sterm_oldie'(C,L0,CN),
 	'$get_sterm_list'(L0,CN,0,L).
 
 '$deb_inc_in_sterm_oldie'(94,L0,CN) :- !,
-	get0(user_input,CN),
+	get_code( debugger_input_input,CN),
 	( recorded('$debug_sub_skel',L0,_) -> true ;
 	  CN = [] ).
 '$deb_inc_in_sterm_oldie'(C,[],C).
 
 '$get_sterm_list'(L0,C,N,L) :-
-	( C =:= "^", N =\= 0 -> get0(CN),
+	( C =:= "^", N =\= 0 -> get_code(CN),
 				'$get_sterm_list'([N|L0],CN,0,L) ;
-	  C >= "0", C =< "9" -> NN is 10*N+C-"0", get0(CN),
+	  C >= "0", C =< "9" -> NN is 10*N+C-"0", get_code(CN),
 				'$get_sterm_list'(L0,CN,NN,L);
 	  C =:= 10 -> (N =:= 0 -> L = L0 ; L=[N|L0]) ).
 
@@ -1261,7 +1283,7 @@ be lost.
 	arg(H,A1,A).
 
 '$new_deb_depth' :-
-	get0(user_input,C),
+	get_code( debugger_input,C),
 	'$get_deb_depth'(C,D),
 	'$set_deb_depth'(D).
 
@@ -1273,7 +1295,7 @@ be lost.
 '$get_deb_depth_char_by_char'(C,X0,XF) :-
 	C >= "0", C =< "9", !,
 	XI is X0*10+C-"0",
-	get0(user_input,NC),
+	get_code( debugger_input,NC),
 	'$get_deb_depth_char_by_char'(NC,XI,XF).
 % reset when given garbage.
 '$get_deb_depth_char_by_char'(C,_,10) :- '$skipeol'(C).
