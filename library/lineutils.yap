@@ -353,14 +353,21 @@ file_filter_with_initialization(Inp, Out, Command, FormatString, Parameters) :-
   the output stream is accessible through `filter_output`.
 */
 file_select(Inp, Command) :-
-        open(Inp, read, StreamInp, [alias(filter_input)]),
+	( retract(alias(F)) -> true ; F = '' ),
+	atom_concat(filter_input, F, Alias),
+        open(Inp, read, StreamInp, [Alias]),
+	atom_concat('_', F, NF),
+	assert( alias(NF) ),
 	repeat,
 	read_line_to_codes(StreamInp, Line),
 	(
 	 Line == end_of_file
 	->
-	  close(StreamInp),
+	 close(StreamInp),
+	 retract(alias(NF)),
+	 assert(alias(F)),
 	  !,
+          atom_concat(filter_input, F, Alias),
 	  fail
 	;
 	 call(Command, Line)
