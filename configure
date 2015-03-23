@@ -726,6 +726,7 @@ JITFLAGS
 LLVM_CONFIG
 MYDDAS_LIBS
 MYDDAS_CPPFLAGS
+INCLUDE_MYDDAS
 PKG_MYDDAS
 EXTRA_LIBS_FOR_SWIDLLS
 CLIB_PTHREADS
@@ -10755,6 +10756,7 @@ done
 	fi
 
 	#from SWI PROSQLITE library.
+	havelib=no
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for sqlite3_open in -lsqlite3" >&5
 $as_echo_n "checking for sqlite3_open in -lsqlite3... " >&6; }
 if ${ac_cv_lib_sqlite3_sqlite3_open+:} false; then :
@@ -10796,9 +10798,56 @@ if test "x$ac_cv_lib_sqlite3_sqlite3_open" = xyes; then :
                        havelib=yes
 fi
 
+	if test "$havelib" = no
+	then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for sqlite3_open in -lsqliteX" >&5
+$as_echo_n "checking for sqlite3_open in -lsqliteX... " >&6; }
+if ${ac_cv_lib_sqliteX_sqlite3_open+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lsqliteX  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
 
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char sqlite3_open ();
+int
+main ()
+{
+return sqlite3_open ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_sqliteX_sqlite3_open=yes
+else
+  ac_cv_lib_sqliteX_sqlite3_open=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_sqliteX_sqlite3_open" >&5
+$as_echo "$ac_cv_lib_sqliteX_sqlite3_open" >&6; }
+if test "x$ac_cv_lib_sqliteX_sqlite3_open" = xyes; then :
+  # android
+                       LIBS="-lsqliteX $LIBS"
+                       havelib=yes
+fi
 
-        for ac_header in sqlite3.h
+	fi
+	if test "$havelib" = no
+	then
+		yap_cv_sqlite3=no
+	else
+		for ac_header in sqlite3.h
 do :
   ac_fn_c_check_header_mongrel "$LINENO" "sqlite3.h" "ac_cv_header_sqlite3_h" "$ac_includes_default"
 if test "x$ac_cv_header_sqlite3_h" = xyes; then :
@@ -10812,12 +10861,14 @@ fi
 
 done
 
+	fi
 	if test "$yap_cv_sqlite3" != no
 	then
 	    use_myddas=true
 		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_SQLITE3"
 	fi
 
+	havelib=no
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for PQconnectdbParams in -lpq" >&5
 $as_echo_n "checking for PQconnectdbParams in -lpq... " >&6; }
 if ${ac_cv_lib_pq_PQconnectdbParams+:} false; then :
@@ -10902,6 +10953,14 @@ done
 else
 	ENABLE_MYDDAS=""
 fi
+
+INCLUDE_MYDDAS="#"
+if test x"$ENABLE_MYDDAS" = x -a x"$STARTUP_ANDROID" = x
+then
+#in Android we have to actually include myddas in the binary
+	INCLUDE_MYDDAS=""
+fi
+
 
 
 
@@ -12071,7 +12130,69 @@ fi
 fi
 
 
+dl to be installed in various places.
 
+# brew in OSX
+if test -d /usr/local/opt/ossp-uuid; then
+  CPPFLAGS="$CPPFLAGS -I /usr/local/opt/ossp-uuid/include"
+  UUID_LIB_PATH="-L /usr/local/opt/ossp-uuid/lib"
+fi
+
+# /opt
+if test -d /opt/include/ossp; then
+  CPPFLAGS="$CPPFLAGS -I /opt/include"
+  UUID_LIB_PATH="-L /opt/lib"
+fi
+
+# /usr/local
+if test -d /opt/include/ossp; then
+  CPPFLAGS="$CPPFLAGS -I /opt/include"
+  UUID_LIB_PATH="-L /opt/lib"
+fi
+
+if test x"$UUID_H" = "x"; then
+  ac_fn_c_check_header_compile "$LINENO" "ossp/uuid.h" "ac_cv_header_ossp_uuid_h" "/*first*/
+"
+if test "x$ac_cv_header_ossp_uuid_h" = xyes; then :
+   UUID_H=ossp/uuid.h
+		    has_uuid=true
+fi
+
+
+fi
+if test x"$UUID_H" = "x" -a ! -d /usr/include/uuid; then
+  ac_fn_c_check_header_compile "$LINENO" "uuid/uuid.h" "ac_cv_header_uuid_uuid_h" "/*first*/
+"
+if test "x$ac_cv_header_uuid_uuid_h" = xyes; then :
+   UUID_H=uuid/uuid.h
+		    has_uuid=true
+fi
+
+
+fi
+if test x"$UUID_H" = "x"; then
+  ac_fn_c_check_header_compile "$LINENO" "uuid.h" "ac_cv_header_uuid_h" "/*first*/
+"
+if test "x$ac_cv_header_uuid_h" = xyes; then :
+   UUID_H=uuid.h
+		    has_uuid=true
+fi
+
+
+fi
+if test x"$UUID_H" = "x"; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING:  Cannot find uuid.h -- dropping uuid.pl" >&5
+$as_echo "$as_me: WARNING:  Cannot find uuid.h -- dropping uuid.pl" >&2;}
+else
+
+cat >>confdefs.h <<_ACEOF
+#define UUID_H <$UUID_H>
+_ACEOF
+
+    has_uuid=true
+fi
+
+if test x"$has_uuid" != "x"; then
 ac_fn_c_check_func "$LINENO" "uuid_create" "ac_cv_func_uuid_create"
 if test "x$ac_cv_func_uuid_create" = xyes; then :
   has_uuid=true
@@ -12115,7 +12236,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_uuid_uuid_create" >&5
 $as_echo "$ac_cv_lib_uuid_uuid_create" >&6; }
 if test "x$ac_cv_lib_uuid_uuid_create" = xyes; then :
-   CLIB_LIBUUID=-luuid
+   CLIB_LIBUUID="$UUID_LIB_PATH -luuid"
 	        has_uuid=true
 
 fi
@@ -12129,45 +12250,6 @@ $as_echo "$as_me: WARNING:  Cannot find libossp-uuid or libuuid -- dropping uuid
 
 fi
 
-if test x"$has_uuid" != "x"; then
-  if test x"$UUID_H" = "x"; then
-  ac_fn_c_check_header_compile "$LINENO" "ossp/uuid.h" "ac_cv_header_ossp_uuid_h" "/*first*/
-"
-if test "x$ac_cv_header_ossp_uuid_h" = xyes; then :
-   UUID_H=ossp/uuid.h
-fi
-
-
-  fi
-  if test x"$UUID_H" = "x" -a ! -d /usr/include/uuid; then
-  ac_fn_c_check_header_compile "$LINENO" "uuid/uuid.h" "ac_cv_header_uuid_uuid_h" "/*first*/
-"
-if test "x$ac_cv_header_uuid_uuid_h" = xyes; then :
-   UUID_H=uuid/uuid.h
-fi
-
-
-  fi
-  if test x"$UUID_H" = "x"; then
-  ac_fn_c_check_header_compile "$LINENO" "uuid.h" "ac_cv_header_uuid_h" "/*first*/
-"
-if test "x$ac_cv_header_uuid_h" = xyes; then :
-   UUID_H=uuid.h
-fi
-
-
-  fi
-  if test x"$UUID_H" = "x"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING:  Cannot find uuid.h -- dropping uuid.pl" >&5
-$as_echo "$as_me: WARNING:  Cannot find uuid.h -- dropping uuid.pl" >&2;}
-  else
-
-cat >>confdefs.h <<_ACEOF
-#define UUID_H <$UUID_H>
-_ACEOF
-
-    CLIB_TARGETS="$CLIB_TARGETS uuid.$SO"
-  fi
 fi
 
 
@@ -14409,7 +14491,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14412 "configure" */
+/* #line 14494 "configure" */
 public class Test {
 }
 EOF
@@ -14585,7 +14667,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 14588: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 14670: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -14716,7 +14798,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14719 "configure" */
+/* #line 14801 "configure" */
 public class Test {
 }
 EOF
@@ -14751,7 +14833,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 14754 "configure" */
+/* [#]line 14836 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);

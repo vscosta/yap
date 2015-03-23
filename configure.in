@@ -89,7 +89,7 @@ dnl                    [ac_cv_xopen=true],
 dnl                    [ac_cv_xopen=false])])
 dnl if test "$ac_cv_xopen" = true; then
 dnl    AC_DEFINE(_XOPEN_SOURCE, 700, [Define if _XOPEN_SOURCE is needed])
-dnl      AC_MSG_RESULT(yes)	       
+dnl      AC_MSG_RESULT(yes)
 dnl else
 dnl     AC_MSG_RESULT(no)
 dnl fi
@@ -106,7 +106,7 @@ dnl                    [ac_cv_file_offset_bits=true],
 dnl                    [ac_cv_file_offset_bits=false])])
 dnl if test "$ac_cv_file_offset_bits" = true; then
 dnl    AC_DEFINE(_FILE_OFFSET_BITS, 64, [Define if _FILE_OFFSET_BITS is needed])
-dnl      AC_MSG_RESULT(yes)	       
+dnl      AC_MSG_RESULT(yes)
 dnl else
 dnl     AC_MSG_RESULT(no)
 dnl fi
@@ -122,7 +122,7 @@ dnl                    [ac_cv_isoc99_source=true],
 dnl                    [ac_cv_isoc99_source=false])])
 dnl if test "$ac_cv_isoc99_source" = true; then
 dnl    AC_DEFINE(_ISOC99_SOURCE, 1, [Define if _ISOC99_SOURCE is needed])
-dnl      AC_MSG_RESULT(yes)	       
+dnl      AC_MSG_RESULT(yes)
 dnl else
 dnl     AC_MSG_RESULT(no)
 dnl fi
@@ -138,7 +138,7 @@ dnl                    [ac_cv_isoc11_source=true],
 dnl                    [ac_cv_isoc11_source=false])])
 dnl if test "$ac_cv_isoc11_source" = true; then
 dnl    AC_DEFINE(_ISOC11_SOURCE, 1, [Define if _ISOC11_SOURCE is needed])
-dnl      AC_MSG_RESULT(yes)	       
+dnl      AC_MSG_RESULT(yes)
 dnl else
 dnl     AC_MSG_RESULT(no)
 dnl fi
@@ -184,8 +184,8 @@ case "$target_cpu" in
       YAP_TARGET=unknown
     ;;
  esac
- 
- 
+
+
 dnl Check for nullptr (bug 626472)
 AC_LANG_CPLUSPLUS
 AC_MSG_CHECKING(for nullptr)
@@ -200,8 +200,8 @@ if test x"$ac_cv_nullptr" = xtrue -o 0$_MSC_VER -ge 01600; then
 else
     AC_MSG_RESULT(no)
 fi
- 
-AC_LANG_C 
+
+AC_LANG_C
 
 dnl hardware/engine
 AC_DEFINE(MSHIFTOFFS, 1, [compiler should shift offsets.])
@@ -647,7 +647,7 @@ then
         fi
         if test "$target_cpu" = "x86_64"
         then
-           PRE_INSTALL_ENV="wine64"				
+           PRE_INSTALL_ENV="wine64"
           prefix="$SYSTEMDRIVE/Yap64"
         else
            PRE_INSTALL_ENV="wine"
@@ -898,7 +898,7 @@ fi
 
 	dnl now this is where things get nasty.
 	dnl trying to get the libraries
-	
+
 	case "$target_os" in
 	      *linux*)
 	        if test "$static_compilation" = "no"

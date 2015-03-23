@@ -7,6 +7,7 @@
 # SDK_ROOT: where is the SDK
 # NDK_ROOT: and the NDK
 # GMPDIR: get your copy of GMP from
+# SQLite3DIr: a pre-compiled version of sqlite3
 # BUILDDROID: where we want to compile yap
 
 
@@ -27,7 +28,7 @@ fi
 # use `android list target` to check for available targets
 export ANDROID_TARGET=3
 
-# what android to compile for, use 
+# what android to compile for, use
 ANDROID_IMAGE=first
 
 # YAP_SRC="$HOME/Yap/yap-6.3"
@@ -73,7 +74,7 @@ fi
 # This one is used to build myddas
 if test -d /scratch
 then
-  export SQLITE3DIR=/scratch/vitor/sqlite3-android
+    export SQLITE3DIR=/scratch/vitor/sqlite3-android
 else
   export SQLITE3DIR="$HOME"/Yap/sqlite3-android
 fi
@@ -155,16 +156,18 @@ else
    startemulator
   rm -rf "$BUILDDROID"/*
   cd "$BUILDDROID"
+  export HOST="$ANDROID_ARCH"-linux-androideabi
+  export CPP="$HOST"-cpp 
   "$YAP_SRC"/configure \
-  --host="$ANDROID_ARCH"-linux-androideabi \
+  --host="$HOST" \
   --prefix=`pwd` \
   --enable-low-level-tracer \
   --enable-debug-yap \
   --enable-dynamic-loading \
   --with-swig \
   --with-gmp=$GMPDIR \
-   --with-sqlite3=$SQLITE3DIR \
-   --with-chr=no #--enable-threads
+  --with-sqlite3=$SQLITE3DIR \
+  --enable-chr=yes #--enable-threads
   make depend
   make -j install
 fi

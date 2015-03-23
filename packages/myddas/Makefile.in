@@ -39,7 +39,7 @@ CWD=$(PWD)
 #
 
 MYDDAS_HEADERS= \
-	$(srcdir)/myddas.h $(srcdir)/myddas_structs.h \
+$(srcdir)/myddas.h $(srcdir)/myddas_structs.h \
 	$(srcdir)/myddas_statistics.h \
 	$(srcdir)/myddas_statistics_structs.h \
 	$(srcdir)/myddas_wkb.h $(srcdir)/myddas_wkb2prolog.h
@@ -49,7 +49,7 @@ MYDDAS_SOURCES= \
 	myddas_odbc.c \
 	myddas_postgres.c \
 	myddas_sqlite3.c \
-    myddas_util.c \
+    	myddas_util.c \
 	myddas_initialization.c \
 	myddas_shared.c \
 	myddas_statistics.c \
@@ -71,8 +71,7 @@ MYDDAS_PROLOG= \
 
 OBJS=	$(MYDDAS_SOURCES:.c=.o)
 MYDDAS_YAP=	$(MYDDAS_PROLOG:.ypp=.yap)
-SOBJS=	myddas.@SO@
-
+SOBJS=	libmyddas.@SO@
 
 #in some systems we just create a single object, in others we need to
 # create a libray
@@ -85,10 +84,10 @@ all: $(SOBJS) $(MYDDAS_YAP)
 	$(CC) -c $(CFLAGS) $< -o $@
 
 %.yap: $(srcdir)/pl/%.ypp
-	cpp $(YAP_EXTRAS) -P -E -w $< -o $@
+	$(CPP) $(YAP_EXTRAS) -P -w $< -o $@
 
 @DO_SECOND_LD@%.@SO@: $(OBJS)
-@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $(OBJS) @EXTRA_LIBS_FOR_DLLS@ @MYDDAS_LIBS@
+	@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $(OBJS) @EXTRA_LIBS_FOR_DLLS@ @MYDDAS_LIBS@
 
 install: all install_myddas install-examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)
@@ -99,11 +98,11 @@ install-examples:
 install_myddas:
 	count=`echo "$(YAP_EXTRAS)" | grep MYDDAS | wc -l`; \
 	if [ $$count -ne 0 ]; then \
-	mkdir -p $(DESTDIR)$(SHAREDIR); \
-	for p in $(MYDDAS_PROLOG); \
-	   do name=`basename $$p .ypp`; echo $$name;\
-	   $(INSTALL_DATA) $$name.yap $(DESTDIR)$(SHAREDIR); \
-	done; \
+		mkdir -p $(DESTDIR)$(SHAREDIR); \
+	    for p in $(MYDDAS_PROLOG); \
+	    do name=`basename $$p .ypp`; echo $$name;\
+	    	$(INSTALL_DATA) $$name.yap $(DESTDIR)$(SHAREDIR); \
+		done; \
 	fi
 
 clean:

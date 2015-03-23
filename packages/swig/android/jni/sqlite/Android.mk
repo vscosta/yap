@@ -7,6 +7,7 @@ include $(CLEAR_VARS)
 
 LOCAL_CFLAGS += -DHAVE_CONFIG_H -DKHTML_NO_EXCEPTIONS -DGKWQ_NO_JAVA
 LOCAL_CFLAGS += -DNO_SUPPORT_JS_BINDING -DQT_NO_WHEELEVENT -DKHTML_NO_XBL
+LOCAL_CFLAGS += -DSQLITE_ENABLE_COLUMN_METADATA
 LOCAL_CFLAGS += -U__APPLE__
 LOCAL_CFLAGS += -Wno-unused-parameter -Wno-int-to-pointer-cast
 LOCAL_CFLAGS += -Wno-maybe-uninitialized -Wno-parentheses
@@ -31,7 +32,6 @@ LOCAL_SRC_FILES += sqlite3.c
 LOCAL_C_INCLUDES += $(LOCAL_PATH) $(LOCAL_PATH)/nativehelper/
 
 LOCAL_MODULE:= libsqliteX
-LOCAL_LDLIBS += -ldl -llog 
+LOCAL_LDLIBS += -ldl -llog
 
 include $(BUILD_SHARED_LIBRARY)
-

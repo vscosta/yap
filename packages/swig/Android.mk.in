@@ -23,10 +23,10 @@ include $(CLEAR_VARS)
 NDK_TOOLCHAIN_VERSION := @GCC_VERSION@
 LOCAL_LDLIBS := -landroid -llog
 LOCAL_MODULE    := example
-LOCAL_SHARED_LIBRARIES := yap0  yap1 sqliteX
+LOCAL_SHARED_LIBRARIES := yap0  yap1 sqliteX yap2
 LOCAL_STATIC_LIBRARIES := @abs_top_builddir@/libYap.ar
 LOCAL_SRC_FILES +=  @abs_top_builddir@/packages/swig/android/jni/yap_wrap.cpp
-LOCAL_SRC_FILES += @srcdir@/../prosqlite/c/prosqlite.c 
+LOCAL_SRC_FILES += @srcdir@/../prosqlite/c/prosqlite.c
 LOCAL_C_INCLUDES :=  @abs_top_builddir@ @GMPDIR@/include @srcdir@/../../H @srcdir@/../../include  @srcdir@/../../os @srcdir@/../../OPTYap @srcdir@/../../BEAM @srcdir@/../../CXX sqlite
 LOCAL_CFLAGS := @YAP_EXTRAS@ @DEFS@ -D_YAP_NOT_INSTALLED_=1 -DDESTDIR=\"\"
 LOCAL_CPP_FEATURES := rtti

@@ -70,7 +70,7 @@ public class JavaYap extends Activity
         {
             // check if at initial query
             if (!running) {
-                q = eng.query( str );
+	      q = eng.query( str );
                 // get the uninstantiated query variables.
                 vs0 = q.namedVars();
                 running = true;
@@ -169,7 +169,7 @@ public class JavaYap extends Activity
         }
         eng.setYAPCallback(callback);
         if (BuildConfig.DEBUG) {
-            Log.i(TAG, "callback done");
+	  Log.i(TAG, "callback done");
         }
     }
 
@@ -181,8 +181,13 @@ public class JavaYap extends Activity
         // Ensure scroll to end of text
         scroller.post(new Runnable() {
             public void run() {
-                scroller.fullScroll(ScrollView.FOCUS_DOWN);
-                text.setText("");
+	      scroller.fullScroll(ScrollView.FOCUS_DOWN);
+	      if (running) {
+		q.close();
+		q = null;
+	      }
+	      running = false;
+	      text.setText("");
             }
         });
     }
@@ -214,7 +219,7 @@ public class JavaYap extends Activity
             public void run() {
                 scroller.fullScroll(ScrollView.FOCUS_DOWN);
                 str = text.getText().toString();
-                outputText.append("?- " + str+"\n\n");
+                outputText.append("?- " + str + "\n\n");
                 Log.i(TAG, "onAllButtonClick "+str + "\n");
                 runQuery(str, true);
             }

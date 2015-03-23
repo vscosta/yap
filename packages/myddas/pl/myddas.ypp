@@ -17,7 +17,7 @@
 
 #if 1 //USE_MYDDAS
 
-:- load_foreign_files([myddas], [], init_myddas).
+:- load_foreign_files([libmyddas], [], init_myddas).
 
 /* Initialize MYDDAS GLOBAL STRUCTURES */
 :- c_db_initialize_myddas.

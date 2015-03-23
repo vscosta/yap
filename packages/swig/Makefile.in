@@ -89,19 +89,20 @@ JavaYap-debug.apk: android/libs/armeabi/libexample.so
 
 android/libs/armeabi/libexample.so: android/jni/Android.mk android/jni/Application.mk android/jni/yap_wrap.cpp
 	( cd android/jni && NDK_DEBUG=1 ndk-build )
+	cp -r $(YAP_EXPORT_PLS)/* android/assets/share/Yap
+	cp -r $(YAP_EXPORT_DLLS)/*.so android/jni
+	cp -r $(YAP_EXPORT_SAVED_STATE) android/assets/lib/Yap
 
 android/jni/Application.mk: android/jni/Android.mk
 	cp $(srcdir)/android/jni/Application.mk android/jni
 
 android/jni/Android.mk: android/AndroidManifest.xml
+	cp Android.mk android/jni
 	cp $(srcdir)/android/JavaYap.java android/src/pt/up/fc/dcc/yap
 	cp $(srcdir)/android/main.xml android/res/layout
-	cp -r $(YAP_EXPORT_PLS)/* android/assets/share/Yap
-	cp -r $(YAP_EXPORT_DLLS)/*.so android/jni
-	cp -r $(YAP_EXPORT_SAVED_STATE) android/assets/lib/Yap
 	cp -r $(JNI_SQLITE) android/jni
 	cp -r $(JAVA_SQLITE) android/src
-	cp Android.mk android/jni
+
 
 android/AndroidManifest.xml: $(ANDROID_PKG)
 	android create project --target $(ANDROID_TARGET) --name JavaYap --path ./android --activity JavaYap --package pt.up.fc.dcc.yap

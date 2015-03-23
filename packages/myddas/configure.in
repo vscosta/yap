@@ -138,18 +138,29 @@ then
 	fi
 
 	#from SWI PROSQLITE library.
+	havelib=no
 	AC_CHECK_LIB(sqlite3, sqlite3_open,
                        LIBS="-lsqlite3 $LIBS"
                        havelib=yes)
-
-
-        AC_CHECK_HEADERS(sqlite3.h, [], [yap_cv_sqlite3="no"])
+	if test "$havelib" = no
+	then
+	AC_CHECK_LIB(sqliteX, sqlite3_open, # android
+                       LIBS="-lsqliteX $LIBS"
+                       havelib=yes)
+	fi
+	if test "$havelib" = no
+	then
+		yap_cv_sqlite3=no
+	else
+		AC_CHECK_HEADERS(sqlite3.h, [], [yap_cv_sqlite3="no"])
+	fi
 	if test "$yap_cv_sqlite3" != no
 	then
 	    use_myddas=true
 		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_SQLITE3"
 	fi
 
+	havelib=no
 	AC_CHECK_LIB(pq, PQconnectdbParams,
                        LIBS="-lpq $LIBS"
                        havelib=yes)
@@ -184,6 +195,14 @@ else
 	ENABLE_MYDDAS=""
 fi
 
+INCLUDE_MYDDAS="#"
+if test x"$ENABLE_MYDDAS" = x -a x"$STARTUP_ANDROID" = x
+then
+#in Android we have to actually include myddas in the binary
+	INCLUDE_MYDDAS=""
+fi
+
 AC_SUBST(PKG_MYDDAS)
+AC_SUBST(INCLUDE_MYDDAS)
 AC_SUBST(MYDDAS_CPPFLAGS)
 AC_SUBST(MYDDAS_LIBS)

@@ -77,7 +77,7 @@ CPP=@CPP@
 RC=@RC@
 RCFLAGS=@RCFLAGS@
 DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1 -DDESTDIR=\"$(DESTDIR)\"
-LIBS=@LIBS@
+LIBS=@LIBS@ @MYDDAS_LIBS@
 DLL_LIBS=@LIBS@ @EXTRA_LIBS_FOR_DLLS@
 LDFLAGS=@LDFLAGS@
 EXTRAYAPLIBS=@EXTRAYAPLIBS@
@@ -192,7 +192,7 @@ HEADERS = \
 	H/inline-only.h \
 	H/iopreds.h \
 	H/iswiatoms.h \
-H/qly.h \
+	H/qly.h \
 	H/rclause.h \
 	H/rglobals.h \
 	H/rlocals.h \
@@ -208,7 +208,7 @@ H/qly.h \
 	H/iatoms.h H/ratoms.h H/tatoms.h \
 	CXX/yapdb.hh \
 	CXX/yapi.hh \
-	 BEAM/eam.h BEAM/eamamasm.h \
+	BEAM/eam.h BEAM/eamamasm.h \
 	OPTYap/opt.config.h \
 	OPTYap/opt.proto.h OPTYap/opt.structs.h \
 	OPTYap/opt.macros.h OPTYap/or.macros.h \
@@ -301,10 +301,10 @@ C_SOURCES= \
 	library/dialect/swi/fli/blobs.c \
 	# library/mpi/mpi.c library/mpi/mpe.c \
 	# library/lammpi/yap_mpi.c library/lamm1pi/hash.c library/lammpi/prologterms2c.c
+
 CXX_SOURCES = \
 	CXX/yapi.cpp \
-				CXX/yapi.cpp \
- JIT/JIT_Compiler.cpp
+	JIT/JIT_Compiler.cpp
 
 PLCONS_SOURCES = \
 	console/LGPL/pl-nt.c \
@@ -401,16 +401,28 @@ ENGINE_OBJECTS = \
 	udi.o\
 	unify.o userpreds.o utilpreds.o \
 	yap-args.o write.o \
-	blobs.o swi.o ypstdio.o $(IOLIB_OBJECTS)
+	blobs.o swi.o ypstdio.o \
+	$(IOLIB_OBJECTS)
 
 JIT_OBJECTS = \
-        @JITCOMPILER@ \
-        @JITCONFIGPREDS@ \
-        @JITANALYSISPREDS@ \
-        @JITTRANSFORMPREDS@ \
-        @JITCODEGENPREDS@ \
-        @JITDEBUGPREDS@ \
-        @JITSTATISTICPREDS@
+    @JITCOMPILER@ \
+    @JITCONFIGPREDS@ \
+    @JITANALYSISPREDS@ \
+    @JITTRANSFORMPREDS@ \
+    @JITCODEGENPREDS@ \
+    @JITDEBUGPREDS@ \
+    @JITSTATISTICPREDS@
+
+MYDDAS_OBJECTS = \
+	@INCLUDE_MYDDAS@ myddas_initialization.o \
+	myddas_mysql.o \
+	myddas_odbc.o \
+	myddas_postgres.o \
+	myddas_shared.o \
+	myddas_sqlite3.o \
+	myddas_statistics.o \
+	myddas_util.o \
+	myddas_wkb2prolog.o
 
 LIBTAI_OBJECTS = \
 	tai_add.o tai_now.o tai_pack.o \
@@ -439,7 +451,11 @@ BEAM_OBJECTS = \
 STATIC_OBJECTS = \
 	@STATIC_MODE@sys.o yap_random.o regexp.o  @NO_BUILTIN_REGEXP@ regcomp.o regerror.o regfree.o regexec.o
 
-LIB_OBJECTS = $(ENGINE_OBJECTS) $(C_INTERFACE_OBJECTS) $(OR_OBJECTS) $(BEAM_OBJECTS) $(STATIC_OBJECTS) $(LIBTAI_OBJECTS)  $(JIT_OBJECTS)
+LIB_OBJECTS = $(ENGINE_OBJECTS) \
+	$(C_INTERFACE_OBJECTS) $(OR_OBJECTS)  \
+	$(BEAM_OBJECTS) $(STATIC_OBJECTS) \
+	$(LIBTAI_OBJECTS)  $(JIT_OBJECTS) 	\
+	$(MYDDAS_OBJECTS)
 
 OBJECTS = yap.o yapi.o $(LIB_OBJECTS)
 
@@ -481,6 +497,9 @@ save.o: C/save.c
 
 %.o: C/%.c config.h
 	$(CC) -c $(CFLAGS) $< -o $@
+
+%.o: packages/myddas/%.c config.h
+	$(CC) -c $(CFLAGS)   @MYDDAS_CPPFLAGS@ $< -o $@
 
 %.o: OPTYap/%.c config.h
 	$(CC) -c $(CFLAGS) $< -o $@
@@ -544,7 +563,7 @@ c_interface.i: C/c_interface.c include/c_interface.h
 	$(CC) -E $(C_INTERF_FLAGS) C/c_interface.c > $@
 #
 
-INSTALLED_PACKAGES= \
+lINSTALLED_PACKAGES= \
 	library/matrix \
 	library/random \
 	library/regex \
@@ -607,7 +626,7 @@ yapwin: yap-win@EXEC_SUFFIX@
 
 yap-win@EXEC_SUFFIX@: $(PLCONS_OBJECTS) $(HEADERS) @YAPLIB@
 	$(MAKE) -C swi/console
-	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o yap-win@EXEC_SUFFIX@ $(PLCONS_OBJECTS) plterm.dll @YAPLIB@ $(LIBS) -lgdi32 @MPILDF@
+	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o yap-win@EXEC_SUFFIX@ $(PLCONS_OBJECTS) plterm.dll @YAPLIB@ $(LIBS) @MYDDAS_LIBS@ -lgdi32 @MPILDF@
 
 libYap.a: $(LIB_OBJECTS) yapi.o
 	-rm -f libYap.a
@@ -637,6 +656,7 @@ libYap.a: $(LIB_OBJECTS) yapi.o
 	  adb shell $(LN_S) /data/yap/@DYNYAPLIB@ /data/yap/$$p; \
 	done
 	adb push $(GMPDIR)/lib/libgmp.so /data/yap
+	adb push $(SQLITE3DIR)/lib/libsqliteX.so /data/yap
 	#adb push packages/clib/*.so /data/yap
 	#adb push library/system/*.so /data/yap
 	adb push $(srcdir)/swi/library /data/yap/swi/library
