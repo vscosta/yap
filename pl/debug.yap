@@ -674,24 +674,26 @@ be lost.
 	'$do_spy'(G, Mod, CP, spy).
 
 /** 
-  * '$debugger_input': set the input for debugging
+  * @pred debugger_input.
+  * name of stream used for debugging,
+  * must be always connected to a tty.
   * 
-  * try to connect the debugger to an open terminal. 
+  * '$debugger_input': try to connect the debugger to an open terminal. 
 */
 '$debugger_input' :-
-	stream_property(_,alias(debugger_stream)),
+	stream_property(_,alias(debugger_input)),
 	!.
 '$debugger_input' :-
         stream_property(S,tty(true)),
         stream_property(S,input),
 	!,
-	set_stream(S,alias(debugger_stream)).
+	set_stream(S,alias(debugger_input)).
 '$debugger_input' :-
 	current_prolog_flag(unix, true ), !,
-        open('/dev/tty', read, S, [alias(debugger_stream)]).
+        open('/dev/tty', read, _S, [alias(debugger_input)]).
 '$debugger_input' :-
         current_prolog_flag(windows, true ), !,
-        open('CONIN$', read, S, [alias(debugger_stream)]).
+        open('CONIN$', read, _S, [alias(debugger_input)]).
         
 
 % last argument to do_spy says that we are at the end of a context. It
@@ -968,7 +970,7 @@ be lost.
 	  '$action'(10,P,L,G,Module,Debug),
 	  put_code(user_error, 10)
 	  ;
-	 write(user_error,' ? '), get_code(user_input,C),
+	 write(user_error,' ? '), get_code(debugger_input,C),
 	  '$action'(C,P,L,G,Module,Debug)
 	),
 	(Debug = on
@@ -1021,7 +1023,7 @@ be lost.
 '$action'(10,_,_,_,_,on) :- !,			% newline 	creep
 	nb_setval('$debug_jump',false).
 '$action'(0'!,_,_,_,_,_) :- !,			% ! 'g		execute
-	read(user,G),
+	read(debugger_input, G),
 	% don't allow yourself to be caught by creep.
 	'$swi_current_prolog_flag'(debug, OldDeb),
 	 '$swi_set_prolog_flag'(debug, false),
@@ -1265,15 +1267,15 @@ be lost.
 	'$get_sterm_list'(L0,CN,0,L).
 
 '$deb_inc_in_sterm_oldie'(94,L0,CN) :- !,
-	get_code( debugger_input_input,CN),
+	get_code( debugger_input,CN),
 	( recorded('$debug_sub_skel',L0,_) -> true ;
 	  CN = [] ).
 '$deb_inc_in_sterm_oldie'(C,[],C).
 
 '$get_sterm_list'(L0,C,N,L) :-
-	( C =:= "^", N =\= 0 -> get_code(CN),
+	( C =:= "^", N =\= 0 -> get_code(debugger_input, CN),
 				'$get_sterm_list'([N|L0],CN,0,L) ;
-	  C >= "0", C =< "9" -> NN is 10*N+C-"0", get_code(CN),
+	  C >= "0", C =< "9" -> NN is 10*N+C-"0", get_code(debugger_input, CN),
 				'$get_sterm_list'(L0,CN,NN,L);
 	  C =:= 10 -> (N =:= 0 -> L = L0 ; L=[N|L0]) ).
 
