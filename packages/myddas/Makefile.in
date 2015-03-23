@@ -49,7 +49,7 @@ MYDDAS_SOURCES= \
 	myddas_odbc.c \
 	myddas_postgres.c \
 	myddas_sqlite3.c \
-    	myddas_util.c \
+	myddas_util.c \
 	myddas_initialization.c \
 	myddas_shared.c \
 	myddas_statistics.c \
@@ -71,7 +71,7 @@ MYDDAS_PROLOG= \
 
 OBJS=	$(MYDDAS_SOURCES:.c=.o)
 MYDDAS_YAP=	$(MYDDAS_PROLOG:.ypp=.yap)
-SOBJS=	libmyddas.@SO@
+SOBJS=	myddas.@SO@
 
 #in some systems we just create a single object, in others we need to
 # create a libray

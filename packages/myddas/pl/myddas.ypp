@@ -15,9 +15,9 @@
   *									 *
   *************************************************************************/
 
-#if 1 //USE_MYDDAS
+#if USE_MYDDAS
 
-:- load_foreign_files([libmyddas], [], init_myddas).
+:- load_foreign_files([myddas], [], init_myddas).
 
 /* Initialize MYDDAS GLOBAL STRUCTURES */
 :- c_db_initialize_myddas.
@@ -870,7 +870,7 @@
 				% db_open/4
 				%
 
-#if 1 // MYDDAS_DECLARATIONS
+#if MYDDAS_DECLARATIONS
 :- db_open(Protocol) extra_arguments
 db=Db,
 port=Port,
