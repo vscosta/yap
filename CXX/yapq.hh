@@ -113,7 +113,7 @@ public:
   /// set a new callback
   void setYAPCallback(YAPCallback *cb) { delYAPCallback(); _callback = cb; }
   /// execute the callback.
-  void run() { if (_callback) _callback->run(); }
+  ////void run() { if (_callback) _callback->run(); }
   /// execute the callback with a text argument.
   void run( char *s) {  if (_callback) _callback->run(s); }
   /// execute the callback with a text argument.
