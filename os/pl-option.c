@@ -35,7 +35,7 @@ Variable argument list:
 #define MAXOPTIONS 32
 
 typedef union
-{ bool *b;				/* boolean value */
+{ int *b;				/* boolean value */
   long *l;				/* long value */
   int  *i;				/* integer value */
   uintptr_t *sz;			/* size_t value */

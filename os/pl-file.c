@@ -3413,16 +3413,16 @@ openStream(term_t file, term_t mode, term_t options)
   int    reposition     = TRUE;
   atom_t alias	        = NULL_ATOM;
   atom_t eof_action     = ATOM_eof_code;
+  int    close_on_abort = TRUE;  
   atom_t buffer         = ATOM_full;
   atom_t lock		= ATOM_none;
   int	 wait		= TRUE;
   atom_t encoding	= NULL_ATOM;
-#ifdef O_LOCALE
-  PL_locale *locale	= NULL;
-#endif
-  int    close_on_abort = TRUE;
   int	 bom		= -1;
   int	 scripting	= FALSE;
+#ifdef O_LOCALE
+  PL_locale *locale     = NULL;
+#endif
   char   how[10];
   char  *h		= how;
   char *path;
@@ -3468,13 +3468,13 @@ openStream(term_t file, term_t mode, term_t options)
       return NULL;
     }
     if ( type == ATOM_binary && enc != ENC_OCTET )
-    { bad_encoding("type(binary) implies encoding(octet)", encoding);
+      { bad_encoding("type(binary) implies encoding(octet)", encoding);
       return NULL;
     }
     switch(enc)				/* explicitely specified: do not */
     { case ENC_OCTET:			/* switch to Unicode.  For implicit */
       case ENC_ASCII:			/* and unicode types we must detect */
-      case ENC_ISO_LATIN_1:		/* and skip the BOM */
+    case ENC_ISO_LATIN_1:		/* and skip the BOM */
       case ENC_WCHAR:
 	bom = FALSE;
         break;
