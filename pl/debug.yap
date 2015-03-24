@@ -2,7 +2,7 @@
 *									 *
   *	 YAP Prolog 							 *
 *									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
@@ -77,6 +77,7 @@ mode and the existing spy-points, when the debugger is on.
 '$init_debugger' :-
         '$nb_getval'('$trace', _, fail), !.
 '$init_debugger' :-
+	'$debugger_input',
 	nb_setval('$trace',off),
 	nb_setval('$if_skip_mode',no_skip),
 	nb_setval('$spy_glist',[]),
@@ -690,10 +691,10 @@ be lost.
 	set_stream(S,alias(debugger_input)).
 '$debugger_input' :-
 	current_prolog_flag(unix, true ), !,
-        open('/dev/tty', read, _S, [alias(debugger_input)]).
+        open('/dev/tty', read, _S, [alias(debugger_input),bom(false)]).
 '$debugger_input' :-
         current_prolog_flag(windows, true ), !,
-        open('CONIN$', read, _S, [alias(debugger_input)]).
+        open('CONIN$', read, _S, [alias(debugger_input),bom(false)]).
         
 
 % last argument to do_spy says that we are at the end of a context. It
