@@ -117,7 +117,7 @@ Yap_FindExecutable(void)
   // follow through to standard method
 #endif
   return
-    findExecutable(GLOBAL_argv[0], buf);
+    NULL;
 }
 
 void *
