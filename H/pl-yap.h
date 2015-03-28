@@ -5,6 +5,8 @@
 
 #include "Yatom.h"
 
+#include <libgen.h>
+
 /* depends on tag schema, but 4 should always do */
 #define LMASK_BITS	4		/* total # mask bits */
 
@@ -88,23 +90,6 @@ get_procedure(term_t descr, predicate_t *proc, term_t he, int f) {
   return TRUE;
 }
 
-COMMON(intptr_t) 	lengthList(term_t list, int errors);
-COMMON(int)		promoteToFloatNumber(Number n);
-COMMON(char *) 		PrologPath(const char *ospath, char *plpath, size_t len);
-COMMON(char *) 		ExpandOneFile(const char *spec, char *file);
-COMMON(char *) 		AbsoluteFile(const char *spec, char *path);
-COMMON(char *) 		BaseName(const char *f);
-COMMON(bool) 		ChDir(const char *path);
-COMMON(char *) 		OsPath(const char *plpath, char *ospath);
-COMMON(bool) 		ChDir(const char *path);
-COMMON(int) 		DeleteTemporaryFile(atom_t name);
-COMMON(int) 		IsAbsolutePath(const char *spec);
-
-COMMON(bool) 		sysError(const char *fm, ...);
-
-COMMON(int)		setDoubleQuotes(atom_t a, unsigned int *flagp);
-
-COMMON(int)		getAccessLevelMask(atom_t a, access_level_t *val);
 
 /* TBD */
 

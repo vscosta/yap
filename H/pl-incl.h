@@ -601,7 +601,7 @@ extern bool toldString(void);
 void closeFiles(int);
 atom_t PrologPrompt(void);
 word pl_exists_file(term_t name);
-char *DirName(const char *f, char *dir);
+char *DirName(const char *f);
 void			outOfCore(void);
 
 word pl_noprotocol(void);
@@ -696,6 +696,34 @@ extern int Setenv(char *name, char *value);
 extern int Unsetenv(char *name);
 extern int System(char *cmd);
 extern char *expandVars(const char *pattern, char *expanded, int maxlen);
+
+PL_EXPORT(bool) ChDir(const char *X);
+  
+#if _WIN32 || defined(__MINGW32__)
+PL_EXPORT(char *) BaseName(const char *X);
+PL_EXPORT(char *) DirName(const char *f);       	
+#else
+#define BaseName basename               
+#define DirName dirname
+#endif
+
+PL_EXPORT(char *) OsPath(const char *X, char *Y);
+
+  
+		
+#define    DeleteTemporaryFile(F) RemoveFile(stringAtom(F))
+
+PL_EXPORT(intptr_t)      lengthList(term_t list, int errors);
+PL_EXPORT(int)           promoteToFloatNumber(Number n);
+PL_EXPORT(char *)        PrologPath(const char *ospath, char *plpath, size_t len);
+PL_EXPORT(char *)                ExpandOneFile(const char *spec, char *file);
+PL_EXPORT(char *)                AbsoluteFile(const char *spec, char *path);
+PL_EXPORT(int)           IsAbsolutePath(const char *p);
+ PL_EXPORT(char *)                OsPath(const char *plpath, char *ospath);
+ PL_EXPORT(int)           IsAbsolutePath(const char *spec);
+PL_EXPORT(bool)          sysError(const char *fm, ...);
+PL_EXPORT(int)           setDoubleQuotes(atom_t a, unsigned int *flagp);
+ PL_EXPORT(int)           getAccessLevelMask(atom_t a, access_level_t *val);
 
 /**** SWI stuff (emulated in pl-yap.c) ****/
 extern int writeAtomToStream(IOSTREAM *so, atom_t at);

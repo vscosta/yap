@@ -189,9 +189,9 @@ typedef struct {
   } cmdline;
 
   struct
-  { char *      CWDdir;
-    size_t      CWDlen;
-    char *      executable;             /* Running executable */
+  { //char *      CWDdir;
+    //size_t      CWDlen;
+    //char *      executable;             /* Running executable */
 #ifdef __WINDOWS__
     char *      module;                 /* argv[0] module passed */
 #endif
