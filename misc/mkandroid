@@ -166,8 +166,8 @@ else
   --enable-dynamic-loading \
   --with-swig \
   --with-gmp=$GMPDIR \
-  --with-sqlite3=$SQLITE3DIR \
-  --enable-chr=yes #--enable-threads
+  --with-sqlite3=$SQLITE3DIR #\
+  #--enable-chr=yes #--enable-threads
   make depend
   make -j install
 fi
