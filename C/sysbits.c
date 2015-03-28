@@ -35,9 +35,13 @@ static char SccsId[] = "%W% %G%";
 
 /* windows.h does not like absmi.h, this
    should fix it for now */
+#if _WIN32 || __MINGW32__
+#include <winsock2.h>
+#endif
 #include "absmi.h"
 #include "yapio.h"
 #include "alloc.h"
+#include "pl-incl.h"
 #include <math.h>
 #if STDC_HEADERS
 #include <stdlib.h>
@@ -83,6 +87,7 @@ static char SccsId[] = "%W% %G%";
 #include <direct.h>
 #endif
 #include <io.h>
+#include <shlwapi.h>
 #else
 #if HAVE_SYS_PARAM_H
 #include <sys/param.h>
@@ -92,9 +97,30 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_FENV_H && !defined(__CYGWIN__)
 #include <fenv.h>
 #endif
+#if HAVE_WORDEXP_H
+#include <wordexp.h>
+#endif
+#if HAVE_LIBGEN_H
+#include <libgen.h>
+#endif
 #if HAVE_READLINE_READLINE_H
 #include <readline/readline.h>
 #endif
+
+static void
+Yap_FileError(yap_error_number type, Term where, const char *format,...)
+{
+  GET_LD
+    if ( truePrologFlag(PLFLAG_FILEERRORS) ) {  
+      va_list ap;
+      
+      va_start (ap, format);
+      /* now build the error string */
+      Yap_Error(type, TermNil, format, ap);
+      va_end (ap);
+
+    }
+}
 
 
 static void InitTime(int);
@@ -146,7 +172,7 @@ Yap_WinError(char *yap_error)
 		  NULL, GetLastError(),
 		  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, 256,
 		  NULL);
-    Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "%s at %s", msg, yap_error);
+     Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "%s at %s", msg, yap_error);
 }
 #endif /* __WINDOWS__ */
 
@@ -155,64 +181,56 @@ Yap_WinError(char *yap_error)
 			       (C) <= 'Z') || (C) == '_' )
 
 
-static int
+/// is_directory: verifies whether an expanded file name
+/// points at a readable directory
+static bool
 is_directory(const char *FileName)
 {
 #ifdef __WINDOWS__
-  char s[YAP_FILENAME_MAX+1];
-  char *s0 = (char *)FileName;
-  char *s1 = s;
-  int ch;
-
-  // win32 syntax
-  if (s0[0] == '/' &&  s0[1] == '/' && isalpha(s0[2]) && s0[3] == '/')
-    {
-      s1[0] = s0[2];
-      s1[1] = ':';
-      s1[2] = '\\';
-      s0+=4;
-      s1+=3;
-    }
-  while ((ch = *s1++ = *s0++)) {
-    if (ch == '$') {
-      s1[-1] = '%';
-      ch = *s0;
-      // handle $(....)
-      if (ch == '{') {
-	s0++;
-	while ((ch = *s0++) != '}') {
-	  *s1++ = ch;
-	  if (ch == '\0') return FALSE;
-	}
-	*s1++ = '%';
-      } else {
-	while (((ch = *s1++ = *s0++) >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch == '-') || (ch >= '0' && ch <= '9') || (ch == '_'));
-	s1[-1] = '%';
-	*s1++ = ch;
-	if (ch == '\0') { s1--; s0--; }
-      }
-     } else if (ch == '/')
-       s1[-1] = '\\';
-   }
-  if (ExpandEnvironmentStrings(s, (LPSTR)FileName, YAP_FILENAME_MAX) == 0)
-     return FALSE;
-
-   DWORD dwAtts = GetFileAttributes( FileName );
+  DWORD dwAtts = GetFileAttributes( FileName );
    if (dwAtts == INVALID_FILE_ATTRIBUTES)
-     return FALSE;
+     return false;
    return (dwAtts & FILE_ATTRIBUTE_DIRECTORY);
- #elif HAVE_LSTAT
+#elif HAVE_LSTAT
    struct stat buf;
 
    if (lstat(FileName, &buf) == -1) {
      /* return an error number */
-     return FALSE;
+     return false;
    }
    return S_ISDIR(buf.st_mode);
  #else
-   return FALSE;
+   Yap_Error(SYSTEM_ERROR, TermNil,  
+             "stat not available in this configuration");  
+   return false;
  #endif
  }
+
+/// has_access just calls access
+/// it uses F_OK, R_OK and friend
+static bool
+has_access(const char *FileName, int mode)
+{
+#if HAS_ACCESS
+  if (access( FileName, mode ) == 0)
+    return true;
+  if (errno == EINVAL) {
+    Yap_Error(SYSTEM_ERROR, TermNil,  
+              "bad flags to access");
+  }
+  return false;
+#else
+  Yap_Error(SYSTEM_ERROR, TermNil,  
+            "access not available in this configuration");  
+  return false;
+#endif
+}
+
+static bool
+exists( const char *f)
+{
+  return has_access( f, F_OK );
+}
 
  static int
  dir_separator (int ch)
@@ -240,7 +258,327 @@ is_directory(const char *FileName)
 char *libdir = NULL;
 #endif
 
-static Int
+
+int
+IsAbsolutePath(const char *p)
+{
+#if _WIN32 || __MINGW32__
+  return !PathIsRelative(p);
+#else
+  return p[0] == '/';
+#endif
+}
+
+char *
+expandVars(const char *pattern, char *expanded, int maxlen)
+{
+#if __WIN32 || __MINGW32__
+  DWORD  retval=0;
+  // notice that the file does not need to exist1
+  retval = ExpandEnvironmentStrings(pattern,
+				    expanded,
+				    maxlen);
+    
+  if (retval == 0) 
+    {
+      Yap_WinError("Generating a full path name for a file" );
+      return NULL;
+    }
+  return expanded; 
+#elif HAVE_WORDEXP  
+wordexp_t result;
+  
+  /* Expand the string for the program to run.  */
+  switch (wordexp (pattern, &result, 0))
+    {
+    case 0:                     /* Successful.  */
+      if (result.we_wordv[1]) {
+	wordfree (&result);
+	return NULL;
+      } else {
+	char *w = result.we_wordv[0];
+	strncpy( expanded, w, maxlen );
+	wordfree (&result);
+	return expanded;
+      }
+      break;
+    case WRDE_NOSPACE:
+      /* If the error was WRDE_NOSPACE,
+         then perhaps part of the result was allocated.  */
+      wordfree (&result);
+    default:                    /* Some other error.  */
+      return NULL;
+    }
+#endif
+  return NULL;
+}
+
+#if _WIN32 || defined(__MINGW32__)
+// straightforward conversion from Unix style to WIN style
+// check cygwin path.cc for possible improvements
+static char *
+unix2win( const char *source, char *target, int max)
+{
+  char *s = target;
+  const char *s0 = source;
+  char *s1;
+  int ch;
+
+  if (s == NULL)
+    s = malloc(YAP_FILENAME_MAX+1);
+  s1 = s;
+  // win32 syntax
+  // handle drive notation, eg //a/
+  if (s0[0] == '\0') {
+    s[0] = '.';
+    s[1] = '\0';
+    return s;
+  }
+  if (s0[0] == '/' &&  s0[1] == '/' && isalpha(s0[2]) && s0[3] == '/')
+{
+      s1[0] = s0[2];
+      s1[1] = ':';
+      s1[2] = '\\';
+      s0+=4;
+      s1+=3;
+    }
+  while ((ch = *s1++ = *s0++)) {
+    if (ch == '$') {
+      s1[-1] = '%';
+      ch = *s0;
+      // handle $(....)
+      if (ch == '{') {
+        s0++;
+        while ((ch = *s0++) != '}') {
+          *s1++ = ch;
+          if (ch == '\0') return FALSE;
+        }
+        *s1++ = '%';
+      } else {
+        while (((ch = *s1++ = *s0++) >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch == '-') || (ch >= '0' && ch <= '9') || (ch == '_'));
+        s1[-1] = '%';
+        *s1++ = ch;
+        if (ch == '\0') { s1--; s0--; }
+      }
+    } else if (ch == '/')
+      s1[-1] = '\\';
+  }
+  return s;
+}
+#endif
+
+#if O_XOS
+char *
+PrologPath(const char *p, char *buf, size_t len)
+{ GET_LD
+    int flags = (truePrologFlag(PLFLAG_FILE_CASE) ? 0 : XOS_DOWNCASE);
+
+  return _xos_canonical_filename(p, buf, len, flags);
+}
+
+char *
+OsPath(const char *p, char *buf)
+{ strcpy(buf, p);
+
+  return buf;
+}
+#else
+char *
+OsPath(const char *X, char *Y) {
+  if (X!=Y && Y) strcpy(Y,X);
+  return Y;
+}
+#endif /* O_XOS */
+
+#if _WIN32
+#define HAVE_BASENAME 1
+#define HAVE_REALPATH 1
+#define HAVE_WORDEXP 1
+#endif
+
+bool ChDir(const char *path) {
+  bool rc = false;
+  char *qpath = AbsoluteFile(path, NULL);  
+
+#if _WIN32 || defined(__MINGW32__)
+  GET_LD  
+    if ((rc = (SetCurrentDirectory(qpath) != 0)) == 0)
+    {
+      Yap_WinError("SetCurrentDirectory failed" );
+    }
+#else
+  rc = (chdir(qpath) == 0);
+#endif
+  free( qpath );
+  return rc;
+}
+#if _WIN32 || defined(__MINGW32__)
+char *
+BaseName(const char *X) {
+  char *qpath = unix2win(X, NULL, YAP_FILENAME_MAX);  
+  char base[YAP_FILENAME_MAX], ext[YAP_FILENAME_MAX];
+  _splitpath(qpath, NULL, NULL, base, ext);
+  strcpy(qpath, base);
+  strcat(qpath, ext);
+  return qpath;
+}
+
+char *
+DirName(const char *X) {
+  char dir[YAP_FILENAME_MAX];    
+  char drive[YAP_FILENAME_MAX];    
+  char *o = unix2win(X, NULL, YAP_FILENAME_MAX);
+  int err;
+  if (!o)    
+    return NULL;  
+  if (( err = _splitpath_s(o, drive, YAP_FILENAME_MAX-1, dir, YAP_FILENAME_MAX-1,NULL, 0, NULL, 0) ) != 0) {
+    Yap_FileError(OPERATING_SYSTEM_ERROR, TermNil, "could not perform _splitpath %s: %s", X, strerror(errno));      
+    return NULL;      
+    
+  }
+  strncpy(o, drive, YAP_FILENAME_MAX-1);
+  strncat(o, dir, YAP_FILENAME_MAX-1);
+  return o;
+}
+#endif
+
+static char *myrealpath( const char *path, char *out)
+{
+#if _WIN32 || defined(__MINGW32__)
+  DWORD  retval=0;
+  // notice that the file does not need to exist
+  retval = GetFullPathName(path,
+			   YAP_FILENAME_MAX,
+                           out,
+                           NULL);
+    
+  if (retval == 0) 
+    {
+      Yap_WinError("Generating a full path name for a file" );
+      return NULL;
+    }
+  return out;
+#elif HAVE_REALPATH
+  {
+    char *rc = realpath(path,out);
+    char *s0;
+    
+    if (rc == NULL && (errno == ENOENT|| errno == EACCES)) {
+      char *s = basename((char *)path);
+      s0 = malloc(strlen(s)+1);
+      strcpy(s0, s);
+      if ((rc = myrealpath(dirname((char *)path), out))==NULL) {
+	Yap_FileError(OPERATING_SYSTEM_ERROR, TermNil, "could not find file %s: %s", path, strerror(errno));      
+	return NULL;      
+      }
+      if(rc[strlen(rc)-1] != '/' )
+	strcat(rc, "/");
+      strcat(rc, s0);
+      free(s0);
+    }
+    return rc;
+  }
+#else
+  return NULL;
+#endif  
+}
+
+char *
+  AbsoluteFile(const char *spec, char *tmp)
+{
+  GET_LD
+    char *rc;
+  char *qpath0;
+
+#if _WIN32 || defined(__MINGW32__)          
+  char *o = malloc(YAP_FILENAME_MAX+1);      
+  if (!o)          
+    return NULL;        
+  // first pass, remove Unix style stuff          
+  if (unix2win(spec, o, YAP_FILENAME_MAX) == NULL)          
+    return NULL;      
+  spec = (const char *)o;      
+#endif      
+  if (tmp == NULL) {
+    tmp = malloc(YAP_FILENAME_MAX+1);
+    if (tmp == NULL) {
+      return NULL;
+    }
+  }
+  if ( truePrologFlag(PLFLAG_FILEVARS) )  
+    {
+      qpath0 = malloc(YAP_FILENAME_MAX+1);      
+#if HAVE_WORDEXP                    
+      qpath0=expandVars(spec,qpath0,YAP_FILENAME_MAX);
+#endif
+#if _WIN32 || defined(__MINGW32__)                  
+      free((char *)spec);
+#endif
+      spec = qpath0;
+    }
+#if HAVE_REALPATH                          
+  rc =  myrealpath(spec, tmp);
+#endif
+  if (spec == qpath0
+#if _WIN32 || defined(__MINGW32__)
+      || true
+#endif
+      )
+    free((char *)spec);            
+  return rc;
+}
+
+ char *canoniseFileName( char *path) {
+#if HAVE_REALPATH && HAVE_BASENAME
+#if _WIN32 || defined(__MINGW32__)          
+   char *o = malloc(YAP_FILENAME_MAX+1);      
+   if (!o)          
+     return NULL;        
+   // first pass, remove Unix style stuff          
+   if (unix2win(path, o, YAP_FILENAME_MAX) == NULL)          
+     return NULL;      
+   path = o;      
+#endif      
+  char *rc, *tmp = malloc(PATH_MAX);
+  if (tmp == NULL) return NULL;
+  rc = myrealpath(path, tmp);
+  if (rc != tmp)
+    free(tmp);
+#if _WIN32 || defined(__MINGW32__)
+  free(o);
+#endif
+  return rc;
+#endif
+}
+
+atom_t TemporaryFile( const char *prefix, int *fd) {
+#if HAVE_MKSTEMP
+  char *tmp = malloc(PATH_MAX);
+  int n;
+  int f;
+  if (tmp == NULL) return (atom_t)0;
+  strncpy(tmp, prefix, PATH_MAX-1);
+  n = strlen( tmp );
+  if (n >= 6 &&
+      tmp[n-1] == 'X' &&
+      tmp[n-2] == 'X' &&
+      tmp[n-3] == 'X' &&
+      tmp[n-4] == 'X' &&
+      tmp[n-5] == 'X' &&
+      tmp[n-6] == 'X')
+    f = mkstemp(tmp);
+  else {
+    strncat(tmp, "XXXXXX", PATH_MAX-1);
+    f = mkstemp(tmp);
+  }
+  if (fd) *fd = f;
+  return  YAP_SWIAtomFromAtom(Yap_LookupAtom(tmp));
+#else
+  return ATOM_nil;
+#endif
+}
+
+static bool
 initSysPath(Term tlib, Term tcommons, bool dir_done, bool commons_done) {
   CACHE_REGS
     int len;
@@ -309,7 +647,7 @@ initSysPath(Term tlib, Term tcommons, bool dir_done, bool commons_done) {
     while (*--pt != '\\') {
       /* skip executable */
       if (pt == LOCAL_FileNameBuf) {
-        Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "could not find executable name");
+        Yap_FileError(OPERATING_SYSTEM_ERROR, TermNil, "could not find executable name");
         /* do nothing */
         return FALSE;
       }
@@ -317,7 +655,7 @@ initSysPath(Term tlib, Term tcommons, bool dir_done, bool commons_done) {
     while (*--pt != '\\') {
       /* skip parent directory "bin\\" */
       if (pt == LOCAL_FileNameBuf) {
-        Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "could not find executable name");
+        Yap_FileError(OPERATING_SYSTEM_ERROR, TermNil, "could not find executable name");
         /* do nothing */
         return FALSE;
       }
@@ -1154,8 +1492,8 @@ Yap_random (void)
 #elif HAVE_RAND
   return (((double) (rand ()) / RAND_MAX));
 #else
-  Yap_Error(SYSTEM_ERROR, TermNil,
-	"random not available in this configuration");
+  Yap_Error(SYSTEM_ERROR, TermNil,  
+            "random not available in this configuration");  
   return (0.0);
 #endif
 }
@@ -1697,6 +2035,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
 }
 #endif
 
+  
 /* SIGINT can cause problems, if caught before full initialization */
 static void
 InitSignals (void)
@@ -1762,211 +2101,87 @@ Yap_volume_header(char *file)
   return volume_header(file);
 }
 
+ char * PL_cwd(char *cwd, size_t cwdlen)
+ {
+   return Yap_getcwd( cwd, cwdlen );
+ }
 
-char * Yap_getcwd(const char *cwd, size_t cwdlen)
-{
-  return PL_cwd((char *)cwd, cwdlen);
-}
+ char * Yap_getcwd(const char *cwd, size_t cwdlen)
+ { 
+#if _WIN32 || defined(__MINGW32__)
+   if (GetCurrentDirectory(cwdlen, (char *)cwd) == 0)
+     {
+       Yap_WinError("GetCurrentDirectory failed" );
+       return NULL;
+     }
+   return (char *)cwd;
+#else
+   return getcwd(cwd, cwdlen);
+#endif
+ }
 
-/******
-      TODO: rewrite to use wordexp
- ****/
-static int
-TrueFileName (char *source, char *root, char *result, int in_lib, int expand_root)
+
+ static char *
+   expandWithPrefix(const char *source, const char *root, char *result)
+ {
+   char *work;
+   char ares1[YAP_FILENAME_MAX+1];
+   
+   work = expandVars( source, ares1, YAP_FILENAME_MAX);
+   // expand names first   
+   if (root && !IsAbsolutePath( source ) ) {  
+     char ares2[YAP_FILENAME_MAX+1];            
+     strncpy( ares2, root, YAP_FILENAME_MAX );  
+     strncat( ares2, "/", YAP_FILENAME_MAX );        
+     strncat( ares2, work, YAP_FILENAME_MAX );        
+     return AbsoluteFile( ares2, result );     
+   } else {
+     // expand path
+     return myrealpath( work, result);
+   }
+ }
+
+
+ static bool
+TrueFileName (char *isource, char *root, char *result, int in_lib, int expand_root)
 {
   CACHE_REGS
-  char *work;
-  char ares1[YAP_FILENAME_MAX+1];
-
-  result[0] = '\0';
-  if (strlen(source) >= YAP_FILENAME_MAX) {
-    Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "%s in true_file-name is larger than the buffer size (%d bytes)", source, strlen(source));
-  }
-#if defined(__MINGW32__) || _MSC_VER
-  /* step 0: replace / by \ */
-  strncpy(ares1, source, YAP_FILENAME_MAX);
-  {
-    char *p = ares1, ch = p[0];
-    while (ch != '\0') {
-      if (ch == '/') p[0] = '\\';
-      p++;
-      ch = p[0];
+    
+    char *work;
+  const char *source = isource;
+  
+  // expand names in case you have
+  // to add a prefix
+  if (!expand_root)
+    root = NULL;
+  if (exists((work = expandWithPrefix( source, root, result ))))  
+    return true; // done  
+  if (in_lib) {
+    if  (Yap_LibDir != NULL) {  
+      strncpy(LOCAL_FileNameBuf, Yap_LibDir, YAP_FILENAME_MAX);	
     }
-  }
-  source = ares1;
-#endif
-  /* step 1: eating home information */
-  if (source[0] == '~') {
-    if (dir_separator(source[1]) || source[1] == '\0')
-      {
-	char *s;
-	source++;
-#if defined(_WIN32)
-	s = getenv("HOMEDRIVE");
-	if (s != NULL)
-	  strncpy (result, getenv ("HOMEDRIVE"), YAP_FILENAME_MAX);
-	s = getenv("HOMEPATH");
-	if (s != NULL)
-	  strncpy (result, s, YAP_FILENAME_MAX);
-#else
-	s = getenv ("HOME");
-	if (s != NULL)
-	  strncpy (result, s, YAP_FILENAME_MAX);
-#endif
-      } else {
-#if HAVE_GETPWNAM
-      struct passwd *user_passwd;
-      char *res0 = result;
-
-      source++;
-      while (!dir_separator((*res0 = *source)) && *res0 != '\0')
-	res0++, source++;
-      *res0++ = '\0';
-      if ((user_passwd = getpwnam (result)) == NULL) {
-	return FALSE;
-      }
-      strncpy (result, user_passwd->pw_dir, YAP_FILENAME_MAX);
-#else
-      return FALSE;
-#endif
-    }
-    strncat (result, source, YAP_FILENAME_MAX);
-  } else if (source[0] == '$') {
-    /* follow SICStus expansion rules */
-    int ch;
-    char *s;
-    char *res0 = source+1;
-    if (*res0 == '{') {
-      res0++;
-      while ((ch = *res0) && is_valid_env_char (ch) && ch != '}') {
-	res0++;
-      }
-      *res0++ = '\0';
-      if (ch == '}') {
-	// {...}
-	source++;
-	ch = *res0;
-      }
-    } else {
-      while ((ch = *res0) && is_valid_env_char (ch)) {
-	res0++;
-      }
-    }
-    if (!(s = (char *) getenv (source+1))) {
-      return FALSE;
-    }
-    *res0 = ch;
-    strncpy (result, s, YAP_FILENAME_MAX);
-    strncat (result, res0, YAP_FILENAME_MAX);
-  } else {
-    strncpy (result, source, YAP_FILENAME_MAX);
-  }
-  /* step 3: get the full file name */
-  if (expand_root && !dir_separator(result[0]) && !volume_header(result)) {
-    if (!Yap_getcwd(ares1, YAP_FILENAME_MAX))
-      return FALSE;
-#if _MSC_VER || defined(__MINGW32__)
-    strncat (ares1, "\\", YAP_FILENAME_MAX-1);
-#else
-    strncat (ares1, "/", YAP_FILENAME_MAX-1);
-#endif
-    if (root) {
-      if (!dir_separator(root[0]) && !volume_header(root)) {
-	strncat(ares1, root, YAP_FILENAME_MAX-1);
-      } else {
-	strncpy(ares1, root, YAP_FILENAME_MAX-1);
-      }
-#if _MSC_VER || defined(__MINGW32__)
-      strncat (ares1, "\\", YAP_FILENAME_MAX-1);
-#else
-      strncat (ares1, "/", YAP_FILENAME_MAX-1);
-#endif
-    }
-    strncat (ares1, result, YAP_FILENAME_MAX-1);
-    if (in_lib) {
-      int tmpf;
-      if ((tmpf = open(ares1, O_RDONLY)) < 0) {
-	/* not in current directory, let us try the library */
-	if  (Yap_LibDir != NULL) {
-	  strncpy(LOCAL_FileNameBuf, Yap_LibDir, YAP_FILENAME_MAX);
 #if HAVE_GETENV
-	} else {
-	  char *yap_env = getenv("YAPLIBDIR");
-	  if (yap_env != NULL) {
-	    strncpy(ares1, yap_env, YAP_FILENAME_MAX);
-#endif
-	  } else {
-#if __WINDOWS__
-	    if (Yap_LibDir)
-	      strncpy(ares1, Yap_LibDir, YAP_FILENAME_MAX);
-	    else
-#endif
-	      strncpy(ares1, YAP_LIBDIR, YAP_FILENAME_MAX);
-	  }
-#if HAVE_GETENV
-	}
-#endif
-#if _MSC_VER || defined(__MINGW32__)
-	strncat(ares1,"\\", YAP_FILENAME_MAX-1);
-#else
-	strncat(ares1,"/", YAP_FILENAME_MAX-1);
-#endif
-	strncat(ares1,result, YAP_FILENAME_MAX-1);
-	if ((tmpf = open(ares1, O_RDONLY)) >= 0) {
-	  close(tmpf);
-	  strncpy (result, ares1, YAP_FILENAME_MAX);
-	}
-      } else {
-	      strncpy (result, ares1, YAP_FILENAME_MAX);
-	close(tmpf);
-      }
-    } else {
-      strncpy (result, ares1, YAP_FILENAME_MAX);
-    }
-  }
-  /* step 4: simplifying the file name */
-  work = result;
-  while (*work != '\0')
     {
-      char *new_work, *next_work;
-      if (*work++ != '.')
-	continue;
-      if (*work != '.')
-	{
-	  if (!dir_separator(*work) || !dir_separator(work[-2]))
-	    continue;
-	  next_work = work + 1;
-	  new_work = --work;
-	}
-      else
-	{
-	  if (!dir_separator(work[1]) || !dir_separator(work[-2]))
-	    continue;
-	  next_work = work + 2;
-	  work -= 2;
-	  if (work == result)
-	    return (FALSE);
-	  while (!dir_separator(*--work) && work != result);
-	  if (work == result && !dir_separator(work[0]))
-	    return (FALSE);
-	  new_work = ++work;
-	}
-      while ((*new_work++ = *next_work++)!=0);
+      char *yap_env = getenv("YAPLIBDIR");
+      if (yap_env &&
+	  exists((work = expandWithPrefix( source, yap_env, result ))))
+	return true; // done
     }
-  if (work != result && dir_separator(work[-1])) {
-    /* should only do this on result being a directory */
-    int ch0 = work[-1];
-    work--;
-    work[0] = '\0';
-    if (!is_directory(result)) {
-      /* put it back: */
-      work[0] = ch0;
-      work++;
+#endif
+#if __WINDOWS__
+    {
+      if (Yap_LibDir &&
+        exists((work = expandWithPrefix( source, Yap_LibDir, result ))))
+      return true; // done
     }
+#endif
+  if (YAP_LIBDIR &&
+      exists((work = expandWithPrefix( source, YAP_LIBDIR, result ))))
+    return true; // done
   }
-  return TRUE;
+  return false;
 }
-
+ 
 int
 Yap_TrueFileName (char *source, char *result, int in_lib)
 {
