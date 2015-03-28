@@ -873,8 +873,8 @@ Is the file accessible?
     return TRUE;
 
   if ( md == ACCESS_WRITE && !AccessFile(n, ACCESS_EXIST) )
-  { char tmp[MAXPATHLEN];
-    char *dir = DirName(n, tmp);
+    { 
+    char *dir = DirName(n);
 
     if ( dir[0] )
     { if ( !ExistsDirectory(dir) )
@@ -977,11 +977,10 @@ PRED_IMPL("file_base_name", 2, file_base_name, 0)
 static
 PRED_IMPL("file_directory_name", 2, file_directory_name, 0)
 { char *n;
-  char tmp[MAXPATHLEN];
-
+  
   if ( !PL_get_chars(A1, &n, CVT_ALL|REP_FN|CVT_EXCEPTION) )
     return FALSE;
-  int out = PL_unify_chars(A2, PL_ATOM|REP_FN, -1, DirName(n, tmp));
+  int out = PL_unify_chars(A2, PL_ATOM|REP_FN, -1, DirName(n));
   return out;
 }
 

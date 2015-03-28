@@ -108,8 +108,6 @@ static double initial_time;
 #define LOCK()   PL_LOCK(L_OS)
 #define UNLOCK() PL_UNLOCK(L_OS)
 
-static void	initExpand(void);
-static void	cleanupExpand(void);
 static void	initEnviron(void);
 
 #ifndef DEFAULT_PATH
@@ -149,11 +147,13 @@ bool
 initOs(void)
 { GET_LD
 
-  GD->statistics.start_time = WallTime();
+    GD->statistics.start_time = WallTime();
 
+#ifndef __YAP_PROLOG__
   DEBUG(1, Sdprintf("OS:initExpand() ...\n"));
   initExpand();
   DEBUG(1, Sdprintf("OS:initEnviron() ...\n"));
+#endif
   initEnviron();
 
 #ifdef __WINDOWS__
@@ -171,7 +171,10 @@ initOs(void)
 
 void
 cleanupOs(void)
-{ cleanupExpand();
+{
+#ifndef __YAP_PROLOG__
+  cleanupExpand();
+#endif
 }
 
 
@@ -279,7 +282,7 @@ CpuTime(cputime_kind which)
   { case CPU_USER:
       used = (double) t.tms_utime / MTOK_hz;
       break;
-    case CPU_SYSTEM:
+  case CPU_SYSTEM:
     default:				/* make compiler happy */
       used = (double) t.tms_stime / MTOK_hz;
   }
@@ -486,7 +489,7 @@ setRandom(unsigned int *seedp)
   } else
   {
 #ifdef __WINDOWS__
-     seed = (unsigned int)GetTickCount();
+    seed = (unsigned int)GetTickCount();
 #else
 #ifdef HAVE_GETTIMEOFDAY
      struct timeval tp;
@@ -498,7 +501,6 @@ setRandom(unsigned int *seedp)
 #endif
 #endif
   }
-
 #if HAVE_SRANDOM
   srandom(seed);
 #elif HAVE_SRAND
@@ -535,6 +537,11 @@ _PL_Random(void)
   }
 #endif
 }
+
+#ifndef __YAP_PROLOG__
+
+static void     initExpand(void);
+static void     cleanupExpand(void);
 
 		/********************************
 		*             FILES             *
@@ -800,7 +807,7 @@ OsPath(const char *p, char *buf)
 
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    char *AbsoluteFile(const char *file, char *path)
+    char *AbsoluteFile1(const char *file, char *path)
 
     Expand a file specification to a system-wide unique  description  of
     the  file  that can be passed to the file functions that take a path
@@ -1075,7 +1082,6 @@ cleanupExpand(void)
 
 #endif /*O_CANONISE_DIRS*/
 
-
 char *
 canoniseFileName(char *path)
 { char *out = path, *in = path, *start = path;
@@ -1126,7 +1132,7 @@ canoniseFileName(char *path)
     {
     again:
       if ( *in )
-      { while( in[1] == '/' )		/* delete multiple / */
+	{ while( in[1] == '/' )		/* delete multiple / */
 	  in++;
 	if ( in[1] == '.' )
 	{ if ( in[2] == '/' )		/* delete /./ */
@@ -1470,9 +1476,6 @@ IsAbsolutePath(const char *p)
 
 #endif /*O_HASDRIVES*/
 
-#define isRelativePath(p) ( p[0] == '.' )
-
-
 char *
 AbsoluteFile(const char *spec, char *path)
 { GET_LD
@@ -1594,6 +1597,10 @@ PL_cwd(char *cwd, size_t cwdlen)
 { char *rc;
 
   LOCK();
+#if __ANDROID__
+  __android_log_print(ANDROID_LOG_DEBUG, "YapJava", "CD=%s; yeah", cwd);
+#endif
+
   rc = cwd_unlocked(cwd, cwdlen);
   UNLOCK();
 
@@ -1615,7 +1622,7 @@ BaseName(const char *f)
 
 
 char *
-DirName(const char *f, char *dir)
+DirName(const char *f)
 { const char *base, *p;
 
   for(base = p = f; *p; p++)
@@ -1649,7 +1656,9 @@ bool
 ChDir(const char *path)
 { char ospath[MAXPATHLEN];
   char tmp[MAXPATHLEN];
-
+#if __ANDROID__
+  __android_log_print(ANDROID_LOG_DEBUG, "YapJava", "ChDir=%s", path);
+#endif
   OsPath(path, ospath);
 
   if ( path[0] == EOS || streq(path, ".") ||
@@ -1710,6 +1719,8 @@ ChDir(const char *path)
 
   fail;
 }
+
+#endif /* files in SWI */
 
 
 		/********************************
@@ -2527,6 +2538,10 @@ char *command;
 #endif
 
 
+
+
+#ifndef __YAP_PROLOG__
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     char *findExecutable(char *buf)
 
@@ -2624,6 +2639,8 @@ okToExec(const char *s)
 }
 #endif /*EXEC_EXTENSIONS*/
 
+#define isRelativePath(p) ( p[0] == '.' )
+
 static char *
 Which(const char *program, char *fullname)
 { char *path, *dir;
@@ -2633,10 +2650,10 @@ Which(const char *program, char *fullname)
 #if OS2 && EMX
        isDriveRelativePath(program) ||
 #endif /* OS2 */
-       isRelativePath(program) ||
+        isRelativePath(program) ||
        strchr(program, '/') )
   { if ( (e = okToExec(program)) != NULL )
-    { strcpy(fullname, e);
+    { strcpy(fullname, e);1
 
       return fullname;
     }
@@ -2682,6 +2699,8 @@ Which(const char *program, char *fullname)
 }
 
 #endif /*__WINDOWS__*/
+
+#endif
 
 /** int Pause(double time)
 

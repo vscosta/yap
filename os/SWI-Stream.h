@@ -393,6 +393,7 @@ PL_EXPORT(SOCKET)	Swinsock(IOSTREAM *s);
 #endif
 #endif
 
+ 
 PL_EXPORT(int)		ScheckBOM(IOSTREAM *s);
 PL_EXPORT(int)		SwriteBOM(IOSTREAM *s);
 PL_EXPORT(ssize_t)	Sread_user(void *handle, char *buf, size_t size);
