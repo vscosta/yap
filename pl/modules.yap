@@ -833,6 +833,8 @@ expand_goal(G, G).
 
 % This predicate should be bidirectional: both
 % a consumer and a generator.
+'$get_undefined_pred'(G, ImportingMod, call(G), ImportingMod) :-
+	var(G), !.
 '$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
 	recorded('$import','$import'(ExportingModI,ImportingMod,G0I,G,_,_),_),
 	'$continue_imported'(ExportingMod, ExportingModI, G0, G0I).
@@ -847,11 +849,14 @@ expand_goal(G, G).
         call(Dialect:index(Name,Arity,ExportingModI,_)), !,
         '$continue_imported'(ExportingMod, ExportingModI, G0, G).
 % autoload
-'$get_undefined_pred'(G, _ImportingMod, G0, ExportingMod) :-
+'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
 	yap_flag(autoload, V),
 	V = true,
-	'$autoloader_find_predicate'(G,ExportingModI),
-	'$continue_imported'(ExportingMod, ExportingModI, G0, G).
+	functor(G, N, K),      
+	functor(G0, N, K),      
+	'$autoloader_find_predicate'(G0,ExportingMod),
+	ExportingMod \= ImportingMod,
+	(recordzifnot('$import','$import'(ExportingMod,ImportingMod,G0,G0, N  ,K),_) -> true ; true ).
 % parent module mechanism
 '$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
 	prolog:'$parent_module'(ImportingMod,ExportingModI),
