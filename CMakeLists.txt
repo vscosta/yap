@@ -168,6 +168,8 @@ endif (HAVE_GCC)
 #
 set (BUILD_SHARED_LIBS ON)
 
+option (YAP_SWI_IO ON)
+
 #
 # include libtai package as an independent library
 #
@@ -194,7 +196,6 @@ if (YAP_EAM)
 endif (YAP_EAM)
 
 #TODO: option (or-parallelism)
-
 
 # option (WAM_Profile
 #   "support low level profiling of abstract machine" OFF)
@@ -425,7 +426,7 @@ if (GMP_FOUND)
   set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${GMP_LIBRARIES} )
 endif (GMP_FOUND)
 
-macro_optional_find_package (Readline ON)
+macro_optional_find_package (Readline ON) 
 macro_log_feature (READLINE_FOUND "libreadline"
   "GNU Readline Library (or similar)"
   "http://www.gnu.org/software/readline")
@@ -602,11 +603,7 @@ option(YAP_CONDOR
 # if (R_FOUND)
 #   MESSAGE(STATUS "RFOUND ${R_LIBRARIES} ${R_DEFINITIONS} ${R_EXECUTABLE}")
 # endif (R_FOUND)
-#TODO: check REAL_TARGET REAL#TODO: Switch to feature detection
-# OPTION(CHR
-#   "install chr library" ON)
-# OPTION(CLPQR
-#   "install clpqr library" ON)
+#TODO: check REAL_TARGET REAL#TODO: Switch to feature
 # OPTION(CPLINT
 #   "enable the cplint library using the CUDD library in DIR/lib" OFF)
 # OPTION(yap_cv_clpbn_bp

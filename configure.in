@@ -73,6 +73,7 @@ AC_SUBST(RC)
 AC_SUBST(RCFLAGS)
 AC_SUBST(C_INTERF_FLAGS)
 AC_SUBST(C_PARSER_FLAGS)
+AC_SUBST(ECPP)
 AC_LANG(C)
 
 AC_CANONICAL_SYSTEM
@@ -589,9 +590,28 @@ AC_PROG_LN_S
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 AC_CHECK_TOOL(AR,[ar],:)
+
+dnl ECPP: cpp calls for non-C programs.
+case "$CC" in
+  *gcc*)
+     ECPP=${s/CC/gcc/pp}
+   ;;
+   *icc*)
+      ECPP=${s/CC/icc/cpp}
+   ;;
+   *cc*)
+      ECPP=${s/CC/cc/cpp}
+   ;;
+   **)
+   ECPP=cpp
+   ;;
+   esac
+   echo $ECPP
+AC_CHECK_TOOL(ECPP,[$ECPP],[cpp])
+
 AC_PATH_PROG(INSTALL_INFO,install-info,true,$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin)
 dnl do this before windows.h
-AC_CHECK_HEADERS(winsock.h winsock2.h windows.h Shlobj.h )
+AC_CHECK_HEADERS(winsock.h winsock2.h windows.h shlobj.h )
 AC_PATH_PROG(SHELL,sh)
 AC_CHECK_TOOL([INDENT], [indent], [:])
 
@@ -619,7 +639,8 @@ then
       YAP_TARGET=amd64
       AC_CHECK_LIB(ws2_32,main)
       AC_CHECK_LIB(comdlg32,main)
-      AC_CHECK_LIB(shell32,main)
+      AC_CHECK_LIB(shell32,main)            
+      AC_CHECK_LIB(shlwapi,main)                        
       EXTRA_LIBS_FOR_DLLS="-lws2_32"
     elif test "$target_os" = "cygwin"; then
       CC="${CC}  -mno-cygwin"
@@ -627,10 +648,12 @@ then
       AC_CHECK_LIB(comdlg32,main)
       AC_CHECK_LIB(wsock32,main)
       AC_CHECK_LIB(shell32,main)
-    else
+      AC_CHECK_LIB(shlwapi,main)
+   else
       AC_CHECK_LIB(wsock32,main)
       AC_CHECK_LIB(comdlg32,main)
       AC_CHECK_LIB(shell32,main)
+      AC_CHECK_LIB(shlwapi,main)  
     fi
     AC_DEFINE(__WINDOWS__, 1, [compiling for Windows])
     EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll $EXTRA_LIBS_FOR_DLLS"
@@ -1306,7 +1329,8 @@ AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(arpa/inet.h alloca.h crtdbg.h crypt.h)
 AC_CHECK_HEADERS(ctype.h direct.h dirent.h dlfcn.h)
 AC_CHECK_HEADERS(errno.h execinfo.h fcntl.h fenv.h)
-AC_CHECK_HEADERS(float.h fpu_control.h ieeefp.h inttypes.h io.h limits.h)
+AC_CHECK_HEADERS(float.h fpu_control.h ieeefp.h inttypes.h io.h)
+AC_CHECK_HEADERS(libgen.h limits.h)
 AC_CHECK_HEADERS(malloc.h math.h memory.h)
 AC_CHECK_HEADERS(netdb.h netinet/in.h netinet/tcp.h pwd.h regex.h shlobj.h)
 AC_CHECK_HEADERS(siginfo.h signal.h stdarg.h  stdbool.h)
@@ -1318,7 +1342,7 @@ AC_CHECK_HEADERS(sys/shm.h sys/socket.h sys/stat.h)
 AC_CHECK_HEADERS(sys/time.h sys/times.h sys/types.h)
 AC_CHECK_HEADERS(sys/ucontext.h sys/uio.h sys/un.h sys/wait.h)
 AC_CHECK_HEADERS(time.h ucontext.h unistd.h utime.h)
-AC_CHECK_HEADERS(wctype.h)
+AC_CHECK_HEADERS(wctype.h wordexp.h)
 AC_CHECK_HEADERS(zlib.h zutil.h)
 AC_CHECK_HEADERS(mach-o/dyld.h LibLoaderAPI.h)
 
@@ -1728,7 +1752,7 @@ fi
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS(_NSGetEnviron _chsize_s access acosh)
-AC_CHECK_FUNCS(alloca asinh atanh chdir clock clock_gettime)
+AC_CHECK_FUNCS(alloca asinh atanh basename chdir clock clock_gettime)
 AC_CHECK_FUNCS(ctime dlopen dup2)
 AC_CHECK_FUNCS(erf feclearexcept)
 AC_CHECK_FUNCS(feenableexcept fesetexceptflag fesettrapenable fesetround ffsl ffsll __builtin_ffsll fgetpos finite)
@@ -1745,14 +1769,16 @@ AC_CHECK_FUNCS(mbscasecoll)
 AC_CHECK_FUNCS(mbsnrtowcs)
 AC_CHECK_FUNCS(memcpy memmove mkstemp mktemp)
 AC_CHECK_FUNCS(nanosleep mktime opendir)
-AC_CHECK_FUNCS(putenv rand random readlink regexec)
+AC_CHECK_FUNCS(putenv rand random)
+AC_CHECK_FUNCS(readlink realpath regexec)
 AC_CHECK_FUNCS(rename rint sbrk select setbuf setlinebuf)
 AC_CHECK_FUNCS(setitimer setsid setlinebuf sigaction)
 AC_CHECK_FUNCS(siggetmask siginterrupt)
 AC_CHECK_FUNCS(signal sigprocmask socket srand srandom stat)
 AC_CHECK_FUNCS(strchr strerror stricmp)
 AC_CHECK_FUNCS(strnlen strlwr strncat strncpy strtod)
-AC_CHECK_FUNCS(time times tmpnam usleep utime vsnprintf wcsdup wcsnlen)
+AC_CHECK_FUNCS(time times tmpnam usleep utime vsnprintf)
+AC_CHECK_FUNCS(wordexp wcsdup wcsnlen)
 
 # android does not really have locale stuff..
 case "$host" in

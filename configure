@@ -700,7 +700,6 @@ ARCHIVE_CPPFLAGS
 ARCHIVE_LIBS
 ARCHIVE_PLTARGETS
 ARCHIVE_TARGETS
-CLIB_CPPFLAGS
 CLIB_LIBUUID
 CLIB_CRYPTOBJ
 CLIB_CRYPTLIBS
@@ -814,6 +813,7 @@ build_os
 build_vendor
 build_cpu
 build
+ECPP
 C_PARSER_FLAGS
 C_INTERF_FLAGS
 RCFLAGS
@@ -4158,6 +4158,7 @@ done
 
 
 
+
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -5589,6 +5590,115 @@ else
   AR="$ac_cv_prog_AR"
 fi
 
+
+case "$CC" in
+  *gcc*)
+     ECPP=${s/CC/gcc/pp}
+   ;;
+   *icc*)
+      ECPP=${s/CC/icc/cpp}
+   ;;
+   *cc*)
+      ECPP=${s/CC/cc/cpp}
+   ;;
+   **)
+   ECPP=cpp
+   ;;
+   esac
+   echo $ECPP
+if test -n "$ac_tool_prefix"; then
+  # Extract the first word of "${ac_tool_prefix}$ECPP", so it can be a program name with args.
+set dummy ${ac_tool_prefix}$ECPP; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_ECPP+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$ECPP"; then
+  ac_cv_prog_ECPP="$ECPP" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_ECPP="${ac_tool_prefix}$ECPP"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+ECPP=$ac_cv_prog_ECPP
+if test -n "$ECPP"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ECPP" >&5
+$as_echo "$ECPP" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+fi
+if test -z "$ac_cv_prog_ECPP"; then
+  ac_ct_ECPP=$ECPP
+  # Extract the first word of "$ECPP", so it can be a program name with args.
+set dummy $ECPP; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_ac_ct_ECPP+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$ac_ct_ECPP"; then
+  ac_cv_prog_ac_ct_ECPP="$ac_ct_ECPP" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_ac_ct_ECPP="$ECPP"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+ac_ct_ECPP=$ac_cv_prog_ac_ct_ECPP
+if test -n "$ac_ct_ECPP"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_ct_ECPP" >&5
+$as_echo "$ac_ct_ECPP" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+  if test "x$ac_ct_ECPP" = x; then
+    ECPP="cpp"
+  else
+    case $cross_compiling:$ac_tool_warned in
+yes:)
+{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
+$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
+ac_tool_warned=yes ;;
+esac
+    ECPP=$ac_ct_ECPP
+  fi
+else
+  ECPP="$ac_cv_prog_ECPP"
+fi
+
+
 # Extract the first word of "install-info", so it can be a program name with args.
 set dummy install-info; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -5631,7 +5741,7 @@ $as_echo "no" >&6; }
 fi
 
 
-for ac_header in winsock.h winsock2.h windows.h Shlobj.h
+for ac_header in winsock.h winsock2.h windows.h shlobj.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -5988,6 +6098,45 @@ _ACEOF
 
 fi
 
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lshlwapi" >&5
+$as_echo_n "checking for main in -lshlwapi... " >&6; }
+if ${ac_cv_lib_shlwapi_main+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lshlwapi  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_shlwapi_main=yes
+else
+  ac_cv_lib_shlwapi_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_shlwapi_main" >&5
+$as_echo "$ac_cv_lib_shlwapi_main" >&6; }
+if test "x$ac_cv_lib_shlwapi_main" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBSHLWAPI 1
+_ACEOF
+
+  LIBS="-lshlwapi $LIBS"
+
+fi
+
       EXTRA_LIBS_FOR_DLLS="-lws2_32"
     elif test "$target_os" = "cygwin"; then
       CC="${CC}  -mno-cygwin"
@@ -6109,7 +6258,46 @@ _ACEOF
 
 fi
 
-    else
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lshlwapi" >&5
+$as_echo_n "checking for main in -lshlwapi... " >&6; }
+if ${ac_cv_lib_shlwapi_main+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lshlwapi  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_shlwapi_main=yes
+else
+  ac_cv_lib_shlwapi_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_shlwapi_main" >&5
+$as_echo "$ac_cv_lib_shlwapi_main" >&6; }
+if test "x$ac_cv_lib_shlwapi_main" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBSHLWAPI 1
+_ACEOF
+
+  LIBS="-lshlwapi $LIBS"
+
+fi
+
+   else
       { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lwsock32" >&5
 $as_echo_n "checking for main in -lwsock32... " >&6; }
 if ${ac_cv_lib_wsock32_main+:} false; then :
@@ -6224,6 +6412,45 @@ if test "x$ac_cv_lib_shell32_main" = xyes; then :
 _ACEOF
 
   LIBS="-lshell32 $LIBS"
+
+fi
+
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lshlwapi" >&5
+$as_echo_n "checking for main in -lshlwapi... " >&6; }
+if ${ac_cv_lib_shlwapi_main+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lshlwapi  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_shlwapi_main=yes
+else
+  ac_cv_lib_shlwapi_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_shlwapi_main" >&5
+$as_echo "$ac_cv_lib_shlwapi_main" >&6; }
+if test "x$ac_cv_lib_shlwapi_main" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBSHLWAPI 1
+_ACEOF
+
+  LIBS="-lshlwapi $LIBS"
 
 fi
 
@@ -8132,7 +8359,20 @@ fi
 
 done
 
-for ac_header in float.h fpu_control.h ieeefp.h inttypes.h io.h limits.h
+for ac_header in float.h fpu_control.h ieeefp.h inttypes.h io.h
+do :
+  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
+if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+
+done
+
+for ac_header in libgen.h limits.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -8288,12 +8528,13 @@ fi
 
 done
 
-for ac_header in wctype.h
+for ac_header in wctype.h wordexp.h
 do :
-  ac_fn_c_check_header_mongrel "$LINENO" "wctype.h" "ac_cv_header_wctype_h" "$ac_includes_default"
-if test "x$ac_cv_header_wctype_h" = xyes; then :
+  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
+if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
   cat >>confdefs.h <<_ACEOF
-#define HAVE_WCTYPE_H 1
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
 _ACEOF
 
 fi
@@ -9610,7 +9851,7 @@ _ACEOF
 fi
 done
 
-for ac_func in alloca asinh atanh chdir clock clock_gettime
+for ac_func in alloca asinh atanh basename chdir clock clock_gettime
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -9809,7 +10050,19 @@ _ACEOF
 fi
 done
 
-for ac_func in putenv rand random readlink regexec
+for ac_func in putenv rand random
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+for ac_func in readlink realpath regexec
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -9893,7 +10146,19 @@ _ACEOF
 fi
 done
 
-for ac_func in time times tmpnam usleep utime vsnprintf wcsdup wcsnlen
+for ac_func in time times tmpnam usleep utime vsnprintf
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+for ac_func in wordexp wcsdup wcsnlen
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -11950,7 +12215,6 @@ fi
 
 
 
-
 CLIB_TARGETS="socket.$SO cgi.$SO memfile.$SO files.$SO mime.$SO crypt.$SO time.$SO"
 
 case "$PLARCH" in
@@ -12130,69 +12394,7 @@ fi
 fi
 
 
-dl to be installed in various places.
 
-# brew in OSX
-if test -d /usr/local/opt/ossp-uuid; then
-  CPPFLAGS="$CPPFLAGS -I /usr/local/opt/ossp-uuid/include"
-  UUID_LIB_PATH="-L /usr/local/opt/ossp-uuid/lib"
-fi
-
-# /opt
-if test -d /opt/include/ossp; then
-  CPPFLAGS="$CPPFLAGS -I /opt/include"
-  UUID_LIB_PATH="-L /opt/lib"
-fi
-
-# /usr/local
-if test -d /opt/include/ossp; then
-  CPPFLAGS="$CPPFLAGS -I /opt/include"
-  UUID_LIB_PATH="-L /opt/lib"
-fi
-
-if test x"$UUID_H" = "x"; then
-  ac_fn_c_check_header_compile "$LINENO" "ossp/uuid.h" "ac_cv_header_ossp_uuid_h" "/*first*/
-"
-if test "x$ac_cv_header_ossp_uuid_h" = xyes; then :
-   UUID_H=ossp/uuid.h
-		    has_uuid=true
-fi
-
-
-fi
-if test x"$UUID_H" = "x" -a ! -d /usr/include/uuid; then
-  ac_fn_c_check_header_compile "$LINENO" "uuid/uuid.h" "ac_cv_header_uuid_uuid_h" "/*first*/
-"
-if test "x$ac_cv_header_uuid_uuid_h" = xyes; then :
-   UUID_H=uuid/uuid.h
-		    has_uuid=true
-fi
-
-
-fi
-if test x"$UUID_H" = "x"; then
-  ac_fn_c_check_header_compile "$LINENO" "uuid.h" "ac_cv_header_uuid_h" "/*first*/
-"
-if test "x$ac_cv_header_uuid_h" = xyes; then :
-   UUID_H=uuid.h
-		    has_uuid=true
-fi
-
-
-fi
-if test x"$UUID_H" = "x"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING:  Cannot find uuid.h -- dropping uuid.pl" >&5
-$as_echo "$as_me: WARNING:  Cannot find uuid.h -- dropping uuid.pl" >&2;}
-else
-
-cat >>confdefs.h <<_ACEOF
-#define UUID_H <$UUID_H>
-_ACEOF
-
-    has_uuid=true
-fi
-
-if test x"$has_uuid" != "x"; then
 ac_fn_c_check_func "$LINENO" "uuid_create" "ac_cv_func_uuid_create"
 if test "x$ac_cv_func_uuid_create" = xyes; then :
   has_uuid=true
@@ -12236,7 +12438,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_uuid_uuid_create" >&5
 $as_echo "$ac_cv_lib_uuid_uuid_create" >&6; }
 if test "x$ac_cv_lib_uuid_uuid_create" = xyes; then :
-   CLIB_LIBUUID="$UUID_LIB_PATH -luuid"
+   CLIB_LIBUUID=-luuid
 	        has_uuid=true
 
 fi
@@ -12250,6 +12452,45 @@ $as_echo "$as_me: WARNING:  Cannot find libossp-uuid or libuuid -- dropping uuid
 
 fi
 
+if test x"$has_uuid" != "x"; then
+  if test x"$UUID_H" = "x"; then
+  ac_fn_c_check_header_compile "$LINENO" "ossp/uuid.h" "ac_cv_header_ossp_uuid_h" "/*first*/
+"
+if test "x$ac_cv_header_ossp_uuid_h" = xyes; then :
+   UUID_H=ossp/uuid.h
+fi
+
+
+  fi
+  if test x"$UUID_H" = "x" -a ! -d /usr/include/uuid; then
+  ac_fn_c_check_header_compile "$LINENO" "uuid/uuid.h" "ac_cv_header_uuid_uuid_h" "/*first*/
+"
+if test "x$ac_cv_header_uuid_uuid_h" = xyes; then :
+   UUID_H=uuid/uuid.h
+fi
+
+
+  fi
+  if test x"$UUID_H" = "x"; then
+  ac_fn_c_check_header_compile "$LINENO" "uuid.h" "ac_cv_header_uuid_h" "/*first*/
+"
+if test "x$ac_cv_header_uuid_h" = xyes; then :
+   UUID_H=uuid.h
+fi
+
+
+  fi
+  if test x"$UUID_H" = "x"; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING:  Cannot find uuid.h -- dropping uuid.pl" >&5
+$as_echo "$as_me: WARNING:  Cannot find uuid.h -- dropping uuid.pl" >&2;}
+  else
+
+cat >>confdefs.h <<_ACEOF
+#define UUID_H <$UUID_H>
+_ACEOF
+
+    CLIB_TARGETS="$CLIB_TARGETS uuid.$SO"
+  fi
 fi
 
 
@@ -12594,7 +12835,6 @@ if echo "$CLIB_PLTARGETS" | grep socket.pl 2>&1 >/dev/null; then
   CLIB_PLTARGETS="$CLIB_PLTARGETS streampool.pl"
 fi
 
-CLIB_CPPFLAGS="$CPPFLAGS"
 
 
 
@@ -14491,7 +14731,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14494 "configure" */
+/* #line 14734 "configure" */
 public class Test {
 }
 EOF
@@ -14667,7 +14907,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 14670: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 14910: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -14798,7 +15038,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14801 "configure" */
+/* #line 15041 "configure" */
 public class Test {
 }
 EOF
@@ -14833,7 +15073,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 14836 "configure" */
+/* [#]line 15076 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);

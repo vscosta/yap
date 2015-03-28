@@ -205,6 +205,11 @@ function. */
 #cmakedefine HAVE_ATANH ${HAVE_ATANH}
 #endif
 
+/* Define to 1 if you have the `basename' function. */
+#ifndef HAVE_BASENAME
+#cmakedefine HAVE_BASENAME ${HAVE_BASENAME}
+#endif
+
 /* Define to 1 if you have the `chdir' function. */
 #ifndef HAVE_CHDIR
 #cmakedefine HAVE_CHDIR ${HAVE_CHDIR}
@@ -609,6 +614,12 @@ you don't. */
 #define HAVE_LIBCRYPT ${HAVE_LIBCRYPT}
 #endif
 
+/* Define to 1 if you have the `basename' function. */
+#ifndef HAVE_CRYPT
+#cmakedefine HAVE_CRYPT ${HAVE_CRYPT}
+#endif
+
+
 /* Define to 1 if you have the `gmp' library (-lgmp). */
 #ifndef HAVE_LIBGMP
 #define HAVE_LIBGMP ${HAVE_LIBGMP}
@@ -662,6 +673,66 @@ you don't. */
 /* Define to 1 if you have the `psapi' library (-lpsapi). */
 #ifndef HAVE_LIBPSAPI
 #define HAVE_LIBPSAPI ${HAVE_LIBPSAPI}
+#endif
+
+#ifndef HAVE_CRYPT
+#cmakedefine HAVE_CRYPT ${HAVE_CRYPT}
+#endif
+
+
+/* Define to 1 if you have the `gmp' library (-lgmp). */
+#ifndef HAVE_LIBGMP
+#define HAVE_LIBGMP ${HAVE_LIBGMP}
+#endif
+
+/* Define to 1 if you have the `Judy' library (-lJudy). */
+#ifndef HAVE_LIBJUDY
+#define HAVE_LIBJUDY ${HAVE_LIBJUDY}
+#endif
+
+/* Define to 1 if you have the <LibLoaderAPI.h> header file. */
+#ifndef HAVE_LIBLOADERAPI_H
+#define HAVE_LIBLOADERAPI_H ${HAVE_LIBLOADERAPI_H}
+#endif
+
+/* Define to 1 if you have the `log' library (-llog). */
+#ifndef HAVE_LIBLOG
+#define HAVE_LIBLOG ${HAVE_LIBLOG}
+#endif
+
+/* Define to 1 if you have the `m' library (-lm). */
+#ifndef HAVE_LIBM
+#define HAVE_LIBM ${HAVE_LIBM}
+#endif
+
+/* MPI Debugging off */
+#ifndef HAVE_LIBMPE
+#define HAVE_LIBMPE ${HAVE_LIBMPE}
+#endif
+
+/* Define to 1 if you have the `mscrt' library (-lmscrt). */
+#ifndef HAVE_LIBMSCRT
+#define HAVE_LIBMSCRT ${HAVE_LIBMSCRT}
+#endif
+
+/* "Define if you have the nsl library (-lnsl)." */
+#ifndef HAVE_LIBNSL
+#define HAVE_LIBNSL ${HAVE_LIBNSL}
+#endif
+
+/* Define to 1 if you have the `nss_dns' library (-lnss_dns). */
+#ifndef HAVE_LIBNSS_DNS
+#define HAVE_LIBNSS_DNS ${HAVE_LIBNSS_DNS}
+#endif
+
+/* Define to 1 if you have the `nss_files' library (-lnss_files). */
+#ifndef HAVE_LIBNSS_FILES
+#define HAVE_LIBNSS_FILES ${HAVE_LIBNSS_FILES}
+#endif
+
+/* Define to 1 if you have the `shlwapi' library (-lshlwapi). */
+#ifndef HAVE_LIBSHLWAPI
+#define HAVE_LIBSHLWAPI ${HAVE_LIBSHLWAPI}
 #endif
 
 /* Define to 1 if you have the `pthread' library (-lpthread). */
@@ -962,6 +1033,11 @@ you don't. */
 /* Define to 1 if you have the `readlink' function. */
 #ifndef HAVE_READLINK
 #cmakedefine HAVE_READLINK ${HAVE_READLINK}
+#endif
+
+/* Define to 1 if you have the `realpath' function. */
+#ifndef HAVE_REALPATH
+#cmakedefine HAVE_REALPATH ${HAVE_REALPATH}
 #endif
 
 /* Define to 1 if you have the `regexec' function. */
@@ -1563,8 +1639,8 @@ signal. */
 #endif
 
 /* Define to 1 if you have the <winsock.h> header file. */
-#ifndef HAVE_WINSOCK_H
-#cmakedefine HAVE_WINSOCK_H ${HAVE_WINSOCK_H}
+#ifndef HAVE_WORDEXP_H
+#cmakedefine HAVE_WORDEXP_H ${HAVE_WORDEXP_H}
 #endif
 
 /* Define to 1 if you have <zlib.h>. */
@@ -1767,7 +1843,7 @@ signal. */
 #define SIZEOF_SQLWCHAR ${SIZEOF_SQLWCHAR}
 #endif
 
-/* The size of `void*', as computed by sizeof. */
+/* The Size Of` `void*', as computed by sizeof. */
 #ifndef SIZEOF_VOIDP
 #define SIZEOF_VOIDP ${SIZEOF_VOIDP}
 #endif

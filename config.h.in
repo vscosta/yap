@@ -132,6 +132,9 @@
 /* Define to 1 if you have the `atanh' function. */
 #undef HAVE_ATANH
 
+/* Define to 1 if you have the `basename' function. */
+#undef HAVE_BASENAME
+
 /* Define to 1 if you have the `chdir' function. */
 #undef HAVE_CHDIR
 
@@ -376,6 +379,9 @@
 /* Define to 1 if you have the `crypt' library (-lcrypt). */
 #undef HAVE_LIBCRYPT
 
+/* Define to 1 if you have the <libgen.h> header file. */
+#undef HAVE_LIBGEN_H
+
 /* Define to 1 if you have the `gmp' library (-lgmp). */
 #undef HAVE_LIBGMP
 
@@ -429,6 +435,9 @@
 
 /* Define to 1 if you have the `shell32' library (-lshell32). */
 #undef HAVE_LIBSHELL32
+
+/* Define to 1 if you have the `shlwapi' library (-lshlwapi). */
+#undef HAVE_LIBSHLWAPI
 
 /* "Define if you have the socket library (-lsocket)." */
 #undef HAVE_LIBSOCKET
@@ -591,6 +600,9 @@
 
 /* Define to 1 if you have the `readlink' function. */
 #undef HAVE_READLINK
+
+/* Define to 1 if you have the `realpath' function. */
+#undef HAVE_REALPATH
 
 /* Define to 1 if you have the `regexec' function. */
 #undef HAVE_REGEXEC
@@ -940,6 +952,12 @@
 
 /* Define to 1 if you have the <winsock.h> header file. */
 #undef HAVE_WINSOCK_H
+
+/* Define to 1 if you have the `wordexp' function. */
+#undef HAVE_WORDEXP
+
+/* Define to 1 if you have the <wordexp.h> header file. */
+#undef HAVE_WORDEXP_H
 
 /* Define to 1 if you have <zlib.h>. */
 #undef HAVE_ZLIB_H
