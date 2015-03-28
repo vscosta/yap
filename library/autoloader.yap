@@ -102,7 +102,7 @@ publish_exports([op(_,_,_)|Exports], W, Path, Module) :-
 	publish_exports(Exports, W, Path, Module).
 
 publish_export(F, A, _, _, Module) :-
-	exported(F, A, M), !,
+	exported(F, A, M), M \= Module, !,
 	format(user_error,'[ warning: clash between ~a and ~a over ~a/~d ]~n',[Module,M,F,A]).
 publish_export(F, A, W, Path, Module) :-
 	assert(exported(F, A, Module)), !,
