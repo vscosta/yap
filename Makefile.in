@@ -563,7 +563,7 @@ c_interface.i: C/c_interface.c include/c_interface.h
 	$(CC) -E $(C_INTERF_FLAGS) C/c_interface.c > $@
 #
 
-lINSTALLED_PACKAGES= \
+INSTALLED_PACKAGES= \
 	library/matrix \
 	library/random \
 	library/regex \
@@ -626,7 +626,7 @@ yapwin: yap-win@EXEC_SUFFIX@
 
 yap-win@EXEC_SUFFIX@: $(PLCONS_OBJECTS) $(HEADERS) @YAPLIB@
 	$(MAKE) -C swi/console
-	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o yap-win@EXEC_SUFFIX@ $(PLCONS_OBJECTS) plterm.dll @YAPLIB@ $(LIBS) @MYDDAS_LIBS@ -lgdi32 @MPILDF@
+	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o yap-win@EXEC_SUFFIX@ $(PLCONS_OBJECTS) plterm.dll @YAPLIB@ $(LIBS) @MYDDAS_LIBS@ -lgdi32 @MPILDF@ -lshlwapi
 
 libYap.a: $(LIB_OBJECTS) yapi.o
 	-rm -f libYap.a
