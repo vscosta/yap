@@ -415,6 +415,13 @@ Yap_FoundArithError__(USES_REGS1)
   return YAP_NO_ERROR;
 }
 
+static inline Term takeName(Term t) {
+	if (IsAtomTerm(t)) return t;
+	MkAtomTerm(NameOfFunctor(FunctorOfTerm(t)));
+	if (IsPairTerm(t)) return TermNil;
+	return t;
+}
+
 Atom Yap_NameOfUnaryOp(int i);
 Atom Yap_NameOfBinaryOp(int i);
 

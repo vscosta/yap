@@ -106,14 +106,6 @@ Eval(Term t USES_REGS)
     Atom name  = AtomOfTerm(t);
 
     if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, 0)))) {
-      /* error */
-      Term ti[2];
-
-      /* error */
-      ti[0] = t;
-      ti[1] = MkIntTerm(0);
-      t = Yap_MkApplTerm(FunctorSlash, 2, ti);
-
       return Yap_ArithError(TYPE_ERROR_EVALUABLE, t,
 			    "atom %s in arithmetic expression",
 			    RepAtom(name)->StrOfAE);
@@ -137,13 +129,7 @@ Eval(Term t USES_REGS)
       Term t1, t2;
       
       if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, n)))) {
-	Term ti[2];
-
-	/* error */
-	ti[0] = t;
-	ti[1] = MkIntegerTerm(n);
-	t = Yap_MkApplTerm(FunctorSlash, 2, ti);
-	return Yap_ArithError(TYPE_ERROR_EVALUABLE, t,
+		  return Yap_ArithError(TYPE_ERROR_EVALUABLE, takeName(t),
 			      "functor %s/%d for arithmetic expression",
 			      RepAtom(name)->StrOfAE,n);
       }
