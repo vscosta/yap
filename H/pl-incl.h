@@ -141,7 +141,7 @@ typedef int			Char;		/* char that can pass EOF */
 
 typedef enum
 { V_INTEGER,				/* integer (64-bit) value */
-#ifdef O_GMP    
+#ifdef O_GMP
   V_MPZ,				/* mpz_t */
   V_MPQ,				/* mpq_t */
 #endif
@@ -226,7 +226,7 @@ typedef enum
 #endif
   typedef Term	PL_atomic_t;	/* same size as a word */
 
-typedef struct record *		Record;	
+typedef struct record *		Record;
 
 #define MAXSIGNAL	64
 
@@ -242,7 +242,7 @@ users foreign language code.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #define NOTRACE PL_FA_NOTRACE
-#define META    PL_FA_TRANSPARENT
+#define METAP    PL_FA_TRANSPARENT
 #define NDET	PL_FA_NONDETERMINISTIC
 #define VA	PL_FA_VARARGS
 #define CREF	PL_FA_CREF
@@ -491,7 +491,7 @@ typedef struct wakeup_state
 
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Defining built-in predicates using the new interface 
+Defining built-in predicates using the new interface
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #define ESC			((char) 27)
@@ -698,19 +698,19 @@ extern int System(char *cmd);
 extern char *expandVars(const char *pattern, char *expanded, int maxlen);
 
 PL_EXPORT(bool) ChDir(const char *X);
-  
+
 #if _WIN32 || defined(__MINGW32__)
 PL_EXPORT(char *) BaseName(const char *X);
-PL_EXPORT(char *) DirName(const char *f);       	
+PL_EXPORT(char *) DirName(const char *f);
 #else
-#define BaseName basename               
+#define BaseName basename
 #define DirName dirname
 #endif
 
 PL_EXPORT(char *) OsPath(const char *X, char *Y);
 
-  
-		
+
+
 #define    DeleteTemporaryFile(F) RemoveFile(stringAtom(F))
 
 PL_EXPORT(intptr_t)      lengthList(term_t list, int errors);

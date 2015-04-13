@@ -1,4 +1,4 @@
-/*************************************************************************
+  /*************************************************************************
 *									 *
 *	 YAP Prolog 	%W% %G% 					 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
@@ -505,16 +505,19 @@ extern int Yap_output_msg;
 
 
 #if __ANDROID__
+#include <jni.h>
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 #include <android/log.h>
-#else
-static inline char * __android_log_print(int i,const char *loc,const char *msg,...) {
-  return NULL;
-}
-#define ANDROID_LOG_INFO 0
-#define ANDROID_LOG_ERROR 0
-#define ANDROID_LOG_DEBUG 0
+
+extern AAssetManager * Yap_assetManager;
+
+extern void *Yap_openAssetFile( const char *path ) ;
+extern bool Yap_isAsset( const char *path );
+extern bool Yap_AccessAsset( const char *name , int mode);
+extern bool Yap_AssetIsFile( const char *name );
+extern bool Yap_AssetIsDir( const char *name );
+extern int64_t Yap_AssetSize( const char *name );
 #endif
 
 
@@ -857,5 +860,35 @@ Global variables for JIT
 #endif
 #endif
 #endif
+
+#if DEBUGX
+inline static void
+LOG0(const char *f, int l, const char *fmt, ...)
+{
+  va_list ap;
+  va_start(ap, fmt);
+#if __ANDROID__
+  __android_log_print(ANDROID_LOG_INFO, "YAP ", fmt, ap);
+#else __WINDOWS__
+  FILE * fd;
+   fd = fopen("c:\\cygwin\\Log.txt", "a");
+   vfprintf(fd, fmt, ap);
+   fclose(fd);
+#endif
+   vfprintf(stderr, fmt, ap);
+   va_end(ap);
+}
+#else
+#define LOG0( ... ) 
+#endif
+
+#ifndef __ANDROID__
+#define __android_log_print( ... )   
+#endif
+
+#define LOG( ... ) LOG0( __FILE__, __LINE__,   __VA_ARGS__ )
+
+#define REGS_LOG( ... ) CACHE_REGS LOG0( __FILE__, __LINE__, __VA_ARGS__ )
+
 
 #endif /* YAP_H */

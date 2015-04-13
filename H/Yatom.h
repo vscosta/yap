@@ -188,7 +188,7 @@ IsFunctorProperty (int flags)
 
 	00 00	predicate entry
 	80 00	db property
-	bb 00	functor entry 
+	bb 00	functor entry
 	ff df	sparse functor
 	ff ex	arithmetic property
 	ff f4   translation
@@ -404,7 +404,7 @@ AbsModProp (ModEntry * p)
 }
 
 #define ModToTerm(m) (m == PROLOG_MODULE ? TermProlog : m )
- 
+
 #endif
 
 #define ModProperty	((PropFlags)0xfffa)
@@ -638,8 +638,8 @@ IsValProperty (int flags)
   return (PropFlags) ((flags == ValProperty));
 }
 
- typedef uint64_t pred_flags_t; 
- 
+ typedef uint64_t pred_flags_t;
+
 
 /*	    predicate property entry structure				*/
 /*  AsmPreds are things like var, nonvar, atom ...which are implemented
@@ -749,12 +749,12 @@ typedef enum {
 #endif
   Term ModuleOfPred;		/* module for this definition           */
   UInt TimeStampOfPred;
-  timestamp_type LastCallOfPred; 
+  timestamp_type LastCallOfPred;
   /* This must be at an odd number of cells, otherwise it
      will not be aligned on RISC machines */
   profile_data StatisticsForPred;	/* enable profiling for predicate  */
   struct pred_entry *NextPredOfModule;	/* next pred for same module   */
-} PredEntry;
+          } PredEntry;
 #define PEProp   ((PropFlags)(0x0000))
 
 #if USE_OFFSETS_IN_PROPS
@@ -1269,7 +1269,7 @@ Yap_GetTranslationProp(Atom at)
   if (p0 == NIL) return (TranslationEntry *)NULL;
   return p;
 }
- 
+
 INLINE_ONLY inline EXTERN PropFlags IsTranslationProperty (int);
 
 INLINE_ONLY inline EXTERN PropFlags
@@ -1361,7 +1361,7 @@ IsTranslationProperty (int flags)
  }
 
  /* end of code for named mutexes */
- 
+
 typedef enum {
   STATIC_ARRAY = 1,
   DYNAMIC_ARRAY = 2,
@@ -1708,7 +1708,7 @@ GetPredPropByFuncHavingLock (FunctorEntry *fe, Term cur_mod)
     UInt hash = PRED_HASH(fe,cur_mod,PredHashTableSize);
     READ_LOCK(PredHashRWLock);
     p = PredHash[hash];
-    
+
     while (p) {
       if (p->FunctorOfPred == fe &&
 	  p->ModuleOfPred == cur_mod)
@@ -1766,7 +1766,7 @@ GetPredPropByFuncAndModHavingLock (FunctorEntry *fe, Term cur_mod)
     UInt hash = PRED_HASH(fe,cur_mod,PredHashTableSize);
     READ_LOCK(PredHashRWLock);
     p = PredHash[hash];
-    
+
     while (p) {
       if (p->FunctorOfPred == fe &&
 	  p->ModuleOfPred == cur_mod)
@@ -1883,11 +1883,11 @@ INLINE_ONLY EXTERN inline void AddPropToAtom(AtomEntry *, PropEntry *p);
 INLINE_ONLY EXTERN inline void
 AddPropToAtom(AtomEntry *ae, PropEntry *p)
 {
-  /* old properties should be always last, and wide atom properties 
+  /* old properties should be always last, and wide atom properties
      should always be first */
   if (ae->PropsOfAE != NIL &&
       RepProp(ae->PropsOfAE)->KindOfPE == WideAtomProperty) {
-    PropEntry *pp = RepProp(ae->PropsOfAE);    
+    PropEntry *pp = RepProp(ae->PropsOfAE);
     p->NextOfPE = pp->NextOfPE;
     pp->NextOfPE = AbsProp(p);
   } else {
@@ -1898,4 +1898,3 @@ AddPropToAtom(AtomEntry *ae, PropEntry *p)
 
 
 #endif
-

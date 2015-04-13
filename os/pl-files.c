@@ -122,25 +122,12 @@ LastModifiedFile(const char *name, double *tp)
   char tmp[MAXPATHLEN];
   statstruct buf;
 #ifdef __ANDROID__
-  if (strstr(name,"/assets")) {
-      AAssetManager* mgr = GLOBAL_assetManager;
-      *tp = (double)0;
-      if (!strcmp(name,"/assets"))
-	 return TRUE;
-      const char *bufp=name+strlen("/assets/");
-      // check if file is a directory.
-      AAssetDir *assetDir = AAssetManager_openDir(mgr, bufp);
-      if (assetDir) {
-	  const char *ptr = AAssetDir_getNextFileName(assetDir)	;
-	  AAssetDir_close(assetDir);
-	  if (ptr)
-	    return TRUE;
-      }
-      AAsset *asset = AAssetManager_open(mgr, bufp, AASSET_MODE_UNKNOWN);
-      if (!asset)
-	return FALSE;
-      AAsset_close(asset);
-      return TRUE;
+  if (Yap_isAsset(name)) {
+  if ( statfunc(OsPath("/", tmp), &buf) < 0 )
+    return FALSE;
+
+  *tp = (double)buf.st_mtime;
+      return Yap_AccessAsset(name, R_OK);
    }
 
 #endif
@@ -202,31 +189,19 @@ LastModifiedFile64(const char *name, int64_t *tp)
   char tmp[MAXPATHLEN];
   statstruct buf;
 #ifdef __ANDROID__
-  if (strstr(name,"/assets")) {
-      AAssetManager* mgr = GLOBAL_assetManager;
-      *tp = (int64_t)0;
-      if (!strcmp(name,"/assets"))
-	 return TRUE;
-      const char *bufp=name+strlen("/assets/");
-      // check if file is a directory.
-      AAssetDir *assetDir = AAssetManager_openDir(mgr, bufp);
-      if (assetDir) {
-	  const char *ptr = AAssetDir_getNextFileName(assetDir)	;
-	  AAssetDir_close(assetDir);
-	  if (ptr)
-	    return TRUE;
-      }
-      AAsset *asset = AAssetManager_open(mgr, bufp, AASSET_MODE_UNKNOWN);
-      if (!asset)
-	return FALSE;
-      AAsset_close(asset);
-      return TRUE;
-   }
+  if (Yap_isAsset(name)) {
+    if ( statfunc(OsPath("/", tmp), &buf) < 0 ) {
+            return FALSE;
+    }
+      *tp = (int64_t)buf.st_mtime;
+      return Yap_AccessAsset(name, R_OK);
+     }
 
 #endif
 
-  if ( statfunc(OsPath(name, tmp), &buf) < 0 )
-    return FALSE;
+  if ( statfunc(OsPath(name, tmp), &buf) < 0 ){
+      return FALSE;
+    }
 
   *tp = (int64_t)buf.st_mtime;
   return TRUE;
@@ -246,26 +221,9 @@ SizeFile(const char *path)
   statstruct buf;
 
 #ifdef __ANDROID__
-  if (strstr(path,"/assets")) {
-      AAssetManager* mgr = GLOBAL_assetManager;
-      if (!strcmp(path,"/assets"))
-	 return 0;
-      const char *bufp=path+strlen("/assets/");
-      // check if file is a directory.
-      AAssetDir *assetDir = AAssetManager_openDir(mgr, bufp);
-      if (assetDir) {
-	  const char *ptr = AAssetDir_getNextFileName(assetDir)	;
-	  AAssetDir_close(assetDir);
-	  if (ptr)
-	    return 0;
-      }
-      AAsset *asset = AAssetManager_open(mgr, bufp, AASSET_MODE_UNKNOWN);
-      if (!asset)
-	return -1;
-      AAsset_close(asset);
-      return 0;
-   }
-
+  if (Yap_isAsset(path)) {
+    return Yap_AssetSize( path );
+  }
 #endif
   if ( statfunc(OsPath(path, tmp), &buf) < 0 )
     return -1;
@@ -288,36 +246,6 @@ ACCESS_WRITE and ACCESS_EXECUTE.
 int
 AccessFile(const char *path, int mode)
 { char tmp[MAXPATHLEN];
-#ifdef __ANDROID__
-  if (strstr(path,"/assets")) {
-      AAssetManager* mgr = GLOBAL_assetManager;
-      if (!strcmp(path,"/assets"))
-	 return !(mode & ACCESS_WRITE );
-      const char *bufp=path+strlen("/assets/");
-      // check if file is a directory.
-      AAssetDir *assetDir = AAssetManager_openDir(mgr, bufp);
-      if (assetDir) {
-	  const char *ptr = AAssetDir_getNextFileName(assetDir)	;
-	  AAssetDir_close(assetDir);
-	  if (ptr)
-	  return !(mode & ACCESS_WRITE );
-      }
-      AAsset *asset = AAssetManager_open(mgr, bufp, AASSET_MODE_UNKNOWN);
-      if (!asset)
-	return FALSE;
-      AAsset_close(asset);
-      if ( mode == ACCESS_EXIST )
-        return TRUE;
-      else
-      {
-        if ( mode & ACCESS_WRITE   ) return FALSE;
-    #ifdef X_OK
-        if ( mode & ACCESS_EXECUTE ) return FALSE;
-    #endif
-        return TRUE;
-      }
-  }
-#endif
 #ifdef HAVE_ACCESS
   int m = 0;
 
@@ -331,6 +259,11 @@ AccessFile(const char *path, int mode)
 #endif
   }
 
+#ifdef __ANDROID__
+  if (Yap_isAsset(path)) {
+    return  !(mode & ACCESS_WRITE ) && Yap_AccessAsset(path, m);
+  }
+#endif
   return access(OsPath(path, tmp), m) == 0 ? TRUE : FALSE;
 #else
 # error "No implementation for AccessFile()"
@@ -348,25 +281,9 @@ ExistsFile(const char *path)
   statstruct buf;
 
 #ifdef __ANDROID__
-  if (strstr(path,"/assets")) {
-      AAssetManager* mgr = GLOBAL_assetManager;
-      if (!strcmp(path,"/assets"))
-	 return TRUE;
-      const char *bufp=path+strlen("/assets/");
-      // check if file is a directory.
-      AAssetDir *assetDir = AAssetManager_openDir(mgr, bufp);
-      if (assetDir) {
-	  const char *ptr = AAssetDir_getNextFileName(assetDir)	;
-	  AAssetDir_close(assetDir);
-	  if (ptr)
-	    return TRUE;
-      }
-      AAsset *asset = AAssetManager_open(mgr, bufp, AASSET_MODE_UNKNOWN);
-      if (!asset)
-	return FALSE;
-      AAsset_close(asset);
-      return TRUE;
-   }
+  if (Yap_isAsset(path)) {
+    return  Yap_AssetIsFile(path);
+  }
 #endif
   if ( statfunc(OsPath(path, tmp), &buf) == -1 || !S_ISREG(buf.st_mode) )
   { DEBUG(2, perror(tmp));
@@ -388,22 +305,9 @@ ExistsDirectory(const char *path)
   statstruct buf;
 
 #ifdef __ANDROID__
-  if (strstr(ospath,"/assets")) {
-      AAssetManager* mgr = GLOBAL_assetManager;
-      const char *ptr = NULL;
-
-      if (!strcmp(path,"/assets"))
-	 return TRUE;
-      const char *bufp=path+strlen("/assets/");
-      // check if file is a directory.
-      AAssetDir *assetDir = AAssetManager_openDir(mgr, bufp);
-      if (assetDir)
-	ptr = AAssetDir_getNextFileName(assetDir);
-     if (assetDir) {
-	  AAssetDir_close(assetDir);
-      }
-      return ptr != NULL;
-   }
+  if (Yap_isAsset(ospath)) {
+    return   Yap_AssetIsDir(ospath);
+  }
 #endif
   if ( statfunc(ospath, &buf) < 0 )
     return FALSE;
@@ -688,12 +592,10 @@ get_file_name(term_t n, char **namep, char *tmp, int flags)
   if ( len+1 >= MAXPATHLEN )
     return PL_error(NULL, 0, NULL, ERR_REPRESENTATION,
 		    ATOM_max_path_length);
-
   if ( truePrologFlag(PLFLAG_FILEVARS) )
   { if ( !(name = expandVars(name, tmp, MAXPATHLEN)) )
       return FALSE;
   }
-
   if ( !(flags & PL_FILE_NOERRORS) )
   { atom_t op = 0;
 
@@ -732,10 +634,9 @@ PL_get_file_name(term_t n, char **namep, int flags)
 
   if ( (rc=get_file_name(n, &name, buf, flags)) )
   { if ( (flags & PL_FILE_OSPATH) )
-    { if ( !(name = OsPath(name, ospath)) )
+    {  if ( !(name = OsPath(name, ospath)) )
 	return FALSE;
     }
-
     *namep = buffer_string(name, BUF_RING);
   }
 
@@ -836,11 +737,11 @@ PRED_IMPL("size_file", 2, size_file, 0)
 
 static
 PRED_IMPL("access_file", 2, access_file, 0)
-/** @pred  access_file(+ _F_,+ _M_) 
+/** @pred  access_file(+ _F_,+ _M_)
 
 Is the file accessible?
 
- 
+
 */
 { PRED_LD
   char *n;
@@ -873,7 +774,7 @@ Is the file accessible?
     return TRUE;
 
   if ( md == ACCESS_WRITE && !AccessFile(n, ACCESS_EXIST) )
-    { 
+    {
     char *dir = DirName(n);
 
     if ( dir[0] )
@@ -956,12 +857,12 @@ PRED_IMPL("same_file", 2, same_file, 0)
 }
 
 
-/** @pred  file_base_name(+ _Name_,- _FileName_) 
+/** @pred  file_base_name(+ _Name_,- _FileName_)
 
 
 Give the path a full path  _FullPath_ extract the  _FileName_.
 
- 
+
 */
 static
 PRED_IMPL("file_base_name", 2, file_base_name, 0)
@@ -969,7 +870,7 @@ PRED_IMPL("file_base_name", 2, file_base_name, 0)
 
   if ( !PL_get_chars(A1, &n, CVT_ALL|REP_FN|CVT_EXCEPTION) )
     return FALSE;
-  
+
   return PL_unify_chars(A2, PL_ATOM|REP_FN, -1, BaseName(n));
 }
 
@@ -977,7 +878,7 @@ PRED_IMPL("file_base_name", 2, file_base_name, 0)
 static
 PRED_IMPL("file_directory_name", 2, file_directory_name, 0)
 { char *n;
-  
+
   if ( !PL_get_chars(A1, &n, CVT_ALL|REP_FN|CVT_EXCEPTION) )
     return FALSE;
   int out = PL_unify_chars(A2, PL_ATOM|REP_FN, -1, DirName(n));
@@ -1138,7 +1039,6 @@ PRED_IMPL("$absolute_file_name", 2, absolute_file_name, 0)
 
   term_t name = A1;
   term_t expanded = A2;
-
   if ( PL_get_file_name(name, &n, 0) &&
        (n = AbsoluteFile(n, tmp)) )
     return PL_unify_chars(expanded, PL_ATOM|REP_FN, -1, n);
@@ -1212,7 +1112,7 @@ name_too_long(void)
 }
 
 
-/** @pred  file_name_extension(? _Base_,? _Extension_, ? _Name_) 
+/** @pred  file_name_extension(? _Base_,? _Extension_, ? _Name_)
 
 
 
@@ -1224,7 +1124,7 @@ case-insensitive too.  _Extension_ may be specified with or
 without a leading dot (.). If an  _Extension_ is generated, it
 will not have a leading dot.
 
- 
+
 */
 static
 PRED_IMPL("file_name_extension", 3, file_name_extension, 0)

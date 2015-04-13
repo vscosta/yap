@@ -690,16 +690,12 @@ CPLINT_LIBS
 CUDD_CPPFLAGS
 CUDD_LIBS
 PKG_BDDLIB
-ODBC_LIBS
-ODBC_LDFLAGS
-ODBC_CFLAGS
-ODBC_PLTARGETS
-ODBC_TARGETS
 ARCHIVE_LDFLAGS
 ARCHIVE_CPPFLAGS
 ARCHIVE_LIBS
 ARCHIVE_PLTARGETS
 ARCHIVE_TARGETS
+CLIB_CPPFLAGS
 CLIB_LIBUUID
 CLIB_CRYPTOBJ
 CLIB_CRYPTLIBS
@@ -725,7 +721,7 @@ JITFLAGS
 LLVM_CONFIG
 MYDDAS_LIBS
 MYDDAS_CPPFLAGS
-INCLUDE_MYDDAS
+OBJECTS_MYDDAS
 PKG_MYDDAS
 EXTRA_LIBS_FOR_SWIDLLS
 CLIB_PTHREADS
@@ -1613,7 +1609,6 @@ Optional Packages:
 
   --without-time		  Exclude alarm library
  --with-libarchive=DIR              libarchive package
-  --with-odbc=<dir>	  Location of ODBC include/lib
  --with-cudd=DIR           use CUDD package in DIR
  --with-cplint=DIR      with the cplint library using the CUDD library in DIR/lib
  --with-zlib=DIR              zlib compression library
@@ -7259,13 +7254,6 @@ else
   PKG_LIBARCHIVE=""
 fi
 
-if test -e "$srcdir"/packages/odbc/Makefile.in
-then
-  PKG_ODBC="packages/odbc"
-else
-  PKG_ODBC=""
-fi
-
 if test "$use_chr" = no
 then
   PKG_CHR=""
@@ -11219,11 +11207,11 @@ else
 	ENABLE_MYDDAS=""
 fi
 
-INCLUDE_MYDDAS="#"
+OBJECTS_MYDDAS="#"
 if test x"$ENABLE_MYDDAS" = x -a x"$STARTUP_ANDROID" = x
 then
 #in Android we have to actually include myddas in the binary
-	INCLUDE_MYDDAS=""
+	OBJECTS_MYDDAS="$(ALL_MYDDAS_OBJECTS)"
 fi
 
 
@@ -12215,6 +12203,7 @@ fi
 
 
 
+
 CLIB_TARGETS="socket.$SO cgi.$SO memfile.$SO files.$SO mime.$SO crypt.$SO time.$SO"
 
 case "$PLARCH" in
@@ -12394,7 +12383,69 @@ fi
 fi
 
 
+dl to be installed in various places.
 
+# brew in OSX
+if test -d /usr/local/opt/ossp-uuid; then
+  CPPFLAGS="$CPPFLAGS -I /usr/local/opt/ossp-uuid/include"
+  UUID_LIB_PATH="-L /usr/local/opt/ossp-uuid/lib"
+fi
+
+# /opt
+if test -d /opt/include/ossp; then
+  CPPFLAGS="$CPPFLAGS -I /opt/include"
+  UUID_LIB_PATH="-L /opt/lib"
+fi
+
+# /usr/local
+if test -d /opt/include/ossp; then
+  CPPFLAGS="$CPPFLAGS -I /opt/include"
+  UUID_LIB_PATH="-L /opt/lib"
+fi
+
+if test x"$UUID_H" = "x"; then
+  ac_fn_c_check_header_compile "$LINENO" "ossp/uuid.h" "ac_cv_header_ossp_uuid_h" "/*first*/
+"
+if test "x$ac_cv_header_ossp_uuid_h" = xyes; then :
+   UUID_H=ossp/uuid.h
+		    has_uuid=true
+fi
+
+
+fi
+if test x"$UUID_H" = "x" -a ! -d /usr/include/uuid; then
+  ac_fn_c_check_header_compile "$LINENO" "uuid/uuid.h" "ac_cv_header_uuid_uuid_h" "/*first*/
+"
+if test "x$ac_cv_header_uuid_uuid_h" = xyes; then :
+   UUID_H=uuid/uuid.h
+		    has_uuid=true
+fi
+
+
+fi
+if test x"$UUID_H" = "x"; then
+  ac_fn_c_check_header_compile "$LINENO" "uuid.h" "ac_cv_header_uuid_h" "/*first*/
+"
+if test "x$ac_cv_header_uuid_h" = xyes; then :
+   UUID_H=uuid.h
+		    has_uuid=true
+fi
+
+
+fi
+if test x"$UUID_H" = "x"; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING:  Cannot find uuid.h -- dropping uuid.pl" >&5
+$as_echo "$as_me: WARNING:  Cannot find uuid.h -- dropping uuid.pl" >&2;}
+else
+
+cat >>confdefs.h <<_ACEOF
+#define UUID_H <$UUID_H>
+_ACEOF
+
+    has_uuid=true
+fi
+
+if test x"$has_uuid" != "x"; then
 ac_fn_c_check_func "$LINENO" "uuid_create" "ac_cv_func_uuid_create"
 if test "x$ac_cv_func_uuid_create" = xyes; then :
   has_uuid=true
@@ -12438,7 +12489,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_uuid_uuid_create" >&5
 $as_echo "$ac_cv_lib_uuid_uuid_create" >&6; }
 if test "x$ac_cv_lib_uuid_uuid_create" = xyes; then :
-   CLIB_LIBUUID=-luuid
+   CLIB_LIBUUID="$UUID_LIB_PATH -luuid"
 	        has_uuid=true
 
 fi
@@ -12452,45 +12503,6 @@ $as_echo "$as_me: WARNING:  Cannot find libossp-uuid or libuuid -- dropping uuid
 
 fi
 
-if test x"$has_uuid" != "x"; then
-  if test x"$UUID_H" = "x"; then
-  ac_fn_c_check_header_compile "$LINENO" "ossp/uuid.h" "ac_cv_header_ossp_uuid_h" "/*first*/
-"
-if test "x$ac_cv_header_ossp_uuid_h" = xyes; then :
-   UUID_H=ossp/uuid.h
-fi
-
-
-  fi
-  if test x"$UUID_H" = "x" -a ! -d /usr/include/uuid; then
-  ac_fn_c_check_header_compile "$LINENO" "uuid/uuid.h" "ac_cv_header_uuid_uuid_h" "/*first*/
-"
-if test "x$ac_cv_header_uuid_uuid_h" = xyes; then :
-   UUID_H=uuid/uuid.h
-fi
-
-
-  fi
-  if test x"$UUID_H" = "x"; then
-  ac_fn_c_check_header_compile "$LINENO" "uuid.h" "ac_cv_header_uuid_h" "/*first*/
-"
-if test "x$ac_cv_header_uuid_h" = xyes; then :
-   UUID_H=uuid.h
-fi
-
-
-  fi
-  if test x"$UUID_H" = "x"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING:  Cannot find uuid.h -- dropping uuid.pl" >&5
-$as_echo "$as_me: WARNING:  Cannot find uuid.h -- dropping uuid.pl" >&2;}
-  else
-
-cat >>confdefs.h <<_ACEOF
-#define UUID_H <$UUID_H>
-_ACEOF
-
-    CLIB_TARGETS="$CLIB_TARGETS uuid.$SO"
-  fi
 fi
 
 
@@ -12835,6 +12847,7 @@ if echo "$CLIB_PLTARGETS" | grep socket.pl 2>&1 >/dev/null; then
   CLIB_PLTARGETS="$CLIB_PLTARGETS streampool.pl"
 fi
 
+CLIB_CPPFLAGS="$CPPFLAGS"
 
 
 
@@ -13023,608 +13036,6 @@ then
 fi
 
 fi
-
-if test "$PKG_ODBC" != ""; then
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Check whether --with-odbc was given.
-if test "${with_odbc+set}" = set; then :
-  withval=$with_odbc; case $withval in
-		no|yes)	echo 'Specify dir for ODBC please';
-			exit 1 ;;
-		*)	ODBC_DIR=${withval}
-	esac
-fi
-
-
-if test ! -z "$ODBC_DIR"; then
-  ODBC_CFLAGS="-I${ODBC_DIR}/include"
-  ODBC_LDFLAGS="-L${ODBC_DIR}/lib"
-  CFLAGS="-I${ODBC_DIR}/include ${CFLAGS}"
-  CPPFLAGS="-I${ODBC_DIR}/include ${CPPFLAGS}"
-  CIFLAGS="-I${ODBC_DIR}/include ${CIFLAGS}"
-  LDFLAGS="-L${ODBC_DIR}/lib ${LDFLAGS}"
-fi
-
-havelib=no
-case "$PLARCH" in
-    *-win32|*-win64)
-        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lodbc32" >&5
-$as_echo_n "checking for main in -lodbc32... " >&6; }
-if ${ac_cv_lib_odbc32_main+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lodbc32  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-int
-main ()
-{
-return main ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_odbc32_main=yes
-else
-  ac_cv_lib_odbc32_main=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_odbc32_main" >&5
-$as_echo "$ac_cv_lib_odbc32_main" >&6; }
-if test "x$ac_cv_lib_odbc32_main" = xyes; then :
-  ODBC_LIBS="-lodbc32 $LIBS"
-                     havelib=yes
-fi
-
-        ;;
-    *)
-        if test $havelib = no; then
-          { $as_echo "$as_me:${as_lineno-$LINENO}: checking for SQLAllocEnv in -lodbc" >&5
-$as_echo_n "checking for SQLAllocEnv in -lodbc... " >&6; }
-if ${ac_cv_lib_odbc_SQLAllocEnv+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lodbc  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char SQLAllocEnv ();
-int
-main ()
-{
-return SQLAllocEnv ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_odbc_SQLAllocEnv=yes
-else
-  ac_cv_lib_odbc_SQLAllocEnv=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_odbc_SQLAllocEnv" >&5
-$as_echo "$ac_cv_lib_odbc_SQLAllocEnv" >&6; }
-if test "x$ac_cv_lib_odbc_SQLAllocEnv" = xyes; then :
-  ODBC_LIBS="-lodbc $LIBS"
-                       havelib=yes
-fi
-
-          if test $havelib = no; then
-            { $as_echo "$as_me:${as_lineno-$LINENO}: checking for SQLAllocEnv in -liodbc" >&5
-$as_echo_n "checking for SQLAllocEnv in -liodbc... " >&6; }
-if ${ac_cv_lib_iodbc_SQLAllocEnv+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-liodbc  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char SQLAllocEnv ();
-int
-main ()
-{
-return SQLAllocEnv ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_iodbc_SQLAllocEnv=yes
-else
-  ac_cv_lib_iodbc_SQLAllocEnv=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_iodbc_SQLAllocEnv" >&5
-$as_echo "$ac_cv_lib_iodbc_SQLAllocEnv" >&6; }
-if test "x$ac_cv_lib_iodbc_SQLAllocEnv" = xyes; then :
-  ODBC_LIBS="-liodbc $LIBS"
-                         havelib=yes
-fi
-
-          fi
-        fi
-esac
-
- { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether byte ordering is bigendian" >&5
-$as_echo_n "checking whether byte ordering is bigendian... " >&6; }
-if ${ac_cv_c_bigendian+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_cv_c_bigendian=unknown
-    # See if we're dealing with a universal compiler.
-    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#ifndef __APPLE_CC__
-	       not a universal capable compiler
-	     #endif
-	     typedef int dummy;
-
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-
-	# Check for potential -arch flags.  It is not universal unless
-	# there are at least two -arch flags with different values.
-	ac_arch=
-	ac_prev=
-	for ac_word in $CC $CFLAGS $CPPFLAGS $LDFLAGS; do
-	 if test -n "$ac_prev"; then
-	   case $ac_word in
-	     i?86 | x86_64 | ppc | ppc64)
-	       if test -z "$ac_arch" || test "$ac_arch" = "$ac_word"; then
-		 ac_arch=$ac_word
-	       else
-		 ac_cv_c_bigendian=universal
-		 break
-	       fi
-	       ;;
-	   esac
-	   ac_prev=
-	 elif test "x$ac_word" = "x-arch"; then
-	   ac_prev=arch
-	 fi
-       done
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-    if test $ac_cv_c_bigendian = unknown; then
-      # See if sys/param.h defines the BYTE_ORDER macro.
-      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <sys/types.h>
-	     #include <sys/param.h>
-
-int
-main ()
-{
-#if ! (defined BYTE_ORDER && defined BIG_ENDIAN \
-		     && defined LITTLE_ENDIAN && BYTE_ORDER && BIG_ENDIAN \
-		     && LITTLE_ENDIAN)
-	      bogus endian macros
-	     #endif
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  # It does; now see whether it defined to BIG_ENDIAN or not.
-	 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <sys/types.h>
-		#include <sys/param.h>
-
-int
-main ()
-{
-#if BYTE_ORDER != BIG_ENDIAN
-		 not big endian
-		#endif
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  ac_cv_c_bigendian=yes
-else
-  ac_cv_c_bigendian=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-    fi
-    if test $ac_cv_c_bigendian = unknown; then
-      # See if <limits.h> defines _LITTLE_ENDIAN or _BIG_ENDIAN (e.g., Solaris).
-      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <limits.h>
-
-int
-main ()
-{
-#if ! (defined _LITTLE_ENDIAN || defined _BIG_ENDIAN)
-	      bogus endian macros
-	     #endif
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  # It does; now see whether it defined to _BIG_ENDIAN or not.
-	 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <limits.h>
-
-int
-main ()
-{
-#ifndef _BIG_ENDIAN
-		 not big endian
-		#endif
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  ac_cv_c_bigendian=yes
-else
-  ac_cv_c_bigendian=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-    fi
-    if test $ac_cv_c_bigendian = unknown; then
-      # Compile a test program.
-      if test "$cross_compiling" = yes; then :
-  # Try to guess by grepping values from an object file.
-	 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-short int ascii_mm[] =
-		  { 0x4249, 0x4765, 0x6E44, 0x6961, 0x6E53, 0x7953, 0 };
-		short int ascii_ii[] =
-		  { 0x694C, 0x5454, 0x656C, 0x6E45, 0x6944, 0x6E61, 0 };
-		int use_ascii (int i) {
-		  return ascii_mm[i] + ascii_ii[i];
-		}
-		short int ebcdic_ii[] =
-		  { 0x89D3, 0xE3E3, 0x8593, 0x95C5, 0x89C4, 0x9581, 0 };
-		short int ebcdic_mm[] =
-		  { 0xC2C9, 0xC785, 0x95C4, 0x8981, 0x95E2, 0xA8E2, 0 };
-		int use_ebcdic (int i) {
-		  return ebcdic_mm[i] + ebcdic_ii[i];
-		}
-		extern int foo;
-
-int
-main ()
-{
-return use_ascii (foo) == use_ebcdic (foo);
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  if grep BIGenDianSyS conftest.$ac_objext >/dev/null; then
-	      ac_cv_c_bigendian=yes
-	    fi
-	    if grep LiTTleEnDian conftest.$ac_objext >/dev/null ; then
-	      if test "$ac_cv_c_bigendian" = unknown; then
-		ac_cv_c_bigendian=no
-	      else
-		# finding both strings is unlikely to happen, but who knows?
-		ac_cv_c_bigendian=unknown
-	      fi
-	    fi
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$ac_includes_default
-int
-main ()
-{
-
-	     /* Are we little or big endian?  From Harbison&Steele.  */
-	     union
-	     {
-	       long int l;
-	       char c[sizeof (long int)];
-	     } u;
-	     u.l = 1;
-	     return u.c[sizeof (long int) - 1] == 1;
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_run "$LINENO"; then :
-  ac_cv_c_bigendian=no
-else
-  ac_cv_c_bigendian=yes
-fi
-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
-  conftest.$ac_objext conftest.beam conftest.$ac_ext
-fi
-
-    fi
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_c_bigendian" >&5
-$as_echo "$ac_cv_c_bigendian" >&6; }
- case $ac_cv_c_bigendian in #(
-   yes)
-     $as_echo "#define WORDS_BIGENDIAN 1" >>confdefs.h
-;; #(
-   no)
-      ;; #(
-   universal)
-
-$as_echo "#define AC_APPLE_UNIVERSAL_BUILD 1" >>confdefs.h
-
-     ;; #(
-   *)
-     as_fn_error $? "unknown endianness
- presetting ac_cv_c_bigendian=no (or yes) will help" "$LINENO" 5 ;;
- esac
-
-
-for ac_header in malloc.h time.h
-do :
-  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
-ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
-if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-
-done
-
-for ac_header in sql.h
-do :
-  ac_fn_c_check_header_compile "$LINENO" "sql.h" "ac_cv_header_sql_h" "
-#ifdef __WINDOWS__
-#include <windef.h>
-#endif
-
-"
-if test "x$ac_cv_header_sql_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_SQL_H 1
-_ACEOF
-
-fi
-
-done
-
-for ac_func in localtime mktime gmtime timegm
-do :
-  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
-ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
-if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-done
-
-ac_fn_c_check_type "$LINENO" "long long" "ac_cv_type_long_long" "$ac_includes_default"
-if test "x$ac_cv_type_long_long" = xyes; then :
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_LONG_LONG 1
-_ACEOF
-
-
-fi
-
-# The cast to long int works around a bug in the HP C Compiler
-# version HP92453-01 B.11.11.23709.GP, which incorrectly rejects
-# declarations like `int a3[[(sizeof (unsigned char)) >= 0]];'.
-# This bug is HP SR number 8606223364.
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking size of long" >&5
-$as_echo_n "checking size of long... " >&6; }
-if ${ac_cv_sizeof_long+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if ac_fn_c_compute_int "$LINENO" "(long int) (sizeof (long))" "ac_cv_sizeof_long"        "$ac_includes_default"; then :
-
-else
-  if test "$ac_cv_type_long" = yes; then
-     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error 77 "cannot compute sizeof (long)
-See \`config.log' for more details" "$LINENO" 5; }
-   else
-     ac_cv_sizeof_long=0
-   fi
-fi
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sizeof_long" >&5
-$as_echo "$ac_cv_sizeof_long" >&6; }
-
-
-
-cat >>confdefs.h <<_ACEOF
-#define SIZEOF_LONG $ac_cv_sizeof_long
-_ACEOF
-
-
-# The cast to long int works around a bug in the HP C Compiler
-# version HP92453-01 B.11.11.23709.GP, which incorrectly rejects
-# declarations like `int a3[[(sizeof (unsigned char)) >= 0]];'.
-# This bug is HP SR number 8606223364.
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking size of SQLWCHAR" >&5
-$as_echo_n "checking size of SQLWCHAR... " >&6; }
-if ${ac_cv_sizeof_SQLWCHAR+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if ac_fn_c_compute_int "$LINENO" "(long int) (sizeof (SQLWCHAR))" "ac_cv_sizeof_SQLWCHAR"        "
-#ifdef __WINDOWS__
-#include <windef.h>
-#endif
-#include <sql.h>
-
-"; then :
-
-else
-  if test "$ac_cv_type_SQLWCHAR" = yes; then
-     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error 77 "cannot compute sizeof (SQLWCHAR)
-See \`config.log' for more details" "$LINENO" 5; }
-   else
-     ac_cv_sizeof_SQLWCHAR=0
-   fi
-fi
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sizeof_SQLWCHAR" >&5
-$as_echo "$ac_cv_sizeof_SQLWCHAR" >&6; }
-
-
-
-cat >>confdefs.h <<_ACEOF
-#define SIZEOF_SQLWCHAR $ac_cv_sizeof_SQLWCHAR
-_ACEOF
-
-
-# The cast to long int works around a bug in the HP C Compiler
-# version HP92453-01 B.11.11.23709.GP, which incorrectly rejects
-# declarations like `int a3[[(sizeof (unsigned char)) >= 0]];'.
-# This bug is HP SR number 8606223364.
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking size of wchar_t" >&5
-$as_echo_n "checking size of wchar_t... " >&6; }
-if ${ac_cv_sizeof_wchar_t+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if ac_fn_c_compute_int "$LINENO" "(long int) (sizeof (wchar_t))" "ac_cv_sizeof_wchar_t"        "$ac_includes_default"; then :
-
-else
-  if test "$ac_cv_type_wchar_t" = yes; then
-     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error 77 "cannot compute sizeof (wchar_t)
-See \`config.log' for more details" "$LINENO" 5; }
-   else
-     ac_cv_sizeof_wchar_t=0
-   fi
-fi
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sizeof_wchar_t" >&5
-$as_echo "$ac_cv_sizeof_wchar_t" >&6; }
-
-
-
-cat >>confdefs.h <<_ACEOF
-#define SIZEOF_WCHAR_T $ac_cv_sizeof_wchar_t
-_ACEOF
-
-
-ac_fn_c_check_type "$LINENO" "SQLLEN" "ac_cv_type_SQLLEN" "
-#ifdef __WINDOWS__
-#include <windef.h>
-#endif
-#include <sql.h>
-
-"
-if test "x$ac_cv_type_SQLLEN" = xyes; then :
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_SQLLEN 1
-_ACEOF
-
-
-fi
-ac_fn_c_check_type "$LINENO" "SQLULEN" "ac_cv_type_SQLULEN" "
-#ifdef __WINDOWS__
-#include <windef.h>
-#endif
-#include <sql.h>
-
-"
-if test "x$ac_cv_type_SQLULEN" = xyes; then :
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_SQLULEN 1
-_ACEOF
-
-
-fi
-
-
-if test "$havelib" = yes &&
-   test "$ac_cv_header_sql_h" = yes; then
-  ODBC_TARGETS="odbc4pl.$SO"
-else
-  echo "ERROR:   Cannot find odbc library or the header sql.h"
-  echo "WARNING: ODBC interface will not be built"
-  ODBC_TARGETS=""
-fi
-
-ODBC_PLTARGETS=`echo $ODBC_TARGETS | sed "s/4pl\.$SO/.pl/g"`
-
-
-
-
-
-
-if test "$ODBC_TARGETS" = "nolib"
-then
-  PKG_ODBC=""
-fi
-
-else
-	   ODBC_TARGETS=nolib
-	   ODBC_PLTARGETS=odbc.pl
-fi
-
 
 
 
@@ -14731,7 +14142,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14734 "configure" */
+/* #line 14145 "configure" */
 public class Test {
 }
 EOF
@@ -14907,7 +14318,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 14910: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 14321: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -15038,7 +14449,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 15041 "configure" */
+/* #line 14452 "configure" */
 public class Test {
 }
 EOF
@@ -15073,7 +14484,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 15076 "configure" */
+/* [#]line 14487 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -16051,7 +15462,6 @@ done
 LIBOBJS=$ac_libobjs
 
 LTLIBOBJS=$ac_ltlibobjs
-
 
 
 
@@ -17741,10 +17151,11 @@ fi
 
 if test "$PKG_SWIG" != ""; then
 
+mkdir -p packages/swig/android
+mkdir -p packages/swig/android/usr
 mkdir -p packages/swig/python
 mkdir -p packages/swig/R
 mkdir -p packages/swig/java
-mkdir -p packages/swig/fli
 mkdir -p packages/swig/jni
 
 
@@ -18208,6 +17619,10 @@ yap_timestamp=`date`
 yap_nversion=`expr $YAP_MAJOR_VERSION \* 10000 + $YAP_MINOR_VERSION \* 100 + $YAP_POINT_VERSION`
 yap_startup=startup.yss
 
+BINDIR=$bindir
+DATAROOTDIR="$prefix"/share
+BINDIR="$bindir"
+
 
 cat >>confdefs.h <<_ACEOF
 #define YAP_STARTUP  "$yap_startup"
@@ -18255,7 +17670,7 @@ _ACEOF
 
 
 cat >>confdefs.h <<_ACEOF
-#define YAP_BINDIR  "$prefix/bin"
+#define YAP_BINDIR  "$BINDIR"
 _ACEOF
 
 
@@ -18265,7 +17680,7 @@ _ACEOF
 
 
 cat >>confdefs.h <<_ACEOF
-#define YAP_LIBDIR  "$prefix/lib/Yap"
+#define YAP_LIBDIR  "$LIBDIR/Yap"
 _ACEOF
 
 
@@ -18275,17 +17690,17 @@ _ACEOF
 
 
 cat >>confdefs.h <<_ACEOF
-#define YAP_PL_SRCDIR  "$prefix/share/Yap/pl"
-_ACEOF
-
-
-cat >>confdefs.h <<_ACEOF
 #define YAP_ROOTDIR  "$prefix"
 _ACEOF
 
 
 cat >>confdefs.h <<_ACEOF
-#define YAP_SHAREDIR  "$prefix/share"
+#define YAP_SHAREDIR  "$DATAROOTDIR"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define YAP_PL_SRCDIR  "$DATAROOTDIR/Yap/pl"
 _ACEOF
 
 
@@ -18347,7 +17762,6 @@ mkdir -p  packages/prism/src/c/up
 mkdir -p  packages/prism/src/prolog
 mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
-mkdir -p  packages/prosqlite
 mkdir -p  packages/R
 mkdir -p  packages/RDF
 mkdir -p  packages/real
@@ -18468,12 +17882,6 @@ ac_config_files="$ac_config_files packages/archive/Makefile"
 
 fi
 
-if test "$PKG_ODBC" != ""; then
-ac_config_files="$ac_config_files packages/odbc/Makefile"
-
-fi
-
-
 if test "$PKG_MINISAT" != ""; then
 ac_config_files="$ac_config_files packages/swi-minisat2/Makefile"
 
@@ -18504,11 +17912,6 @@ if test "$PKG_PRISM" != ""; then
 ac_config_files="$ac_config_files packages/prism/src/c/Makefile"
 
 ac_config_files="$ac_config_files packages/prism/src/prolog/Makefile"
-
-fi
-
-if test "$PKG_PROSQLITE" != ""; then
-   ac_config_files="$ac_config_files packages/prosqlite/Makefile"
 
 fi
 
@@ -18627,7 +18030,6 @@ done
 LIBOBJS=$ac_libobjs
 
 LTLIBOBJS=$ac_ltlibobjs
-
 
 
 
@@ -19262,7 +18664,6 @@ do
     "packages/sgml/Makefile") CONFIG_FILES="$CONFIG_FILES packages/sgml/Makefile" ;;
     "packages/zlib/Makefile") CONFIG_FILES="$CONFIG_FILES packages/zlib/Makefile" ;;
     "packages/archive/Makefile") CONFIG_FILES="$CONFIG_FILES packages/archive/Makefile" ;;
-    "packages/odbc/Makefile") CONFIG_FILES="$CONFIG_FILES packages/odbc/Makefile" ;;
     "packages/swi-minisat2/Makefile") CONFIG_FILES="$CONFIG_FILES packages/swi-minisat2/Makefile" ;;
     "packages/swi-minisat2/C/Makefile") CONFIG_FILES="$CONFIG_FILES packages/swi-minisat2/C/Makefile" ;;
     "packages/real/Makefile") CONFIG_FILES="$CONFIG_FILES packages/real/Makefile" ;;
@@ -19272,7 +18673,6 @@ do
     "packages/CLPBN/horus/Makefile") CONFIG_FILES="$CONFIG_FILES packages/CLPBN/horus/Makefile" ;;
     "packages/prism/src/c/Makefile") CONFIG_FILES="$CONFIG_FILES packages/prism/src/c/Makefile" ;;
     "packages/prism/src/prolog/Makefile") CONFIG_FILES="$CONFIG_FILES packages/prism/src/prolog/Makefile" ;;
-    "packages/prosqlite/Makefile") CONFIG_FILES="$CONFIG_FILES packages/prosqlite/Makefile" ;;
     "swi/console/Makefile") CONFIG_FILES="$CONFIG_FILES swi/console/Makefile" ;;
     "packages/yap-lbfgs/Makefile") CONFIG_FILES="$CONFIG_FILES packages/yap-lbfgs/Makefile" ;;
 

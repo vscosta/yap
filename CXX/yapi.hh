@@ -25,13 +25,13 @@
 #include <config.h>
 
 #if USE_GMP
-#include <gmpxx.h>  
+#include <gmpxx.h>
 #endif
 
 extern "C" {
 
 #include <stddef.h>
-  
+
 #include "Yap.h"
 
 #include "Yatom.h"
@@ -67,7 +67,6 @@ extern "C" {
 #if _MSC_VER || defined(__MINGW32__)
 #include <windows.h>
 #endif
-
 
 // taken from yap_structs.h
 #include "iopreds.h"

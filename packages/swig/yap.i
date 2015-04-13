@@ -2,7 +2,7 @@
  %module(directors="1") yap
 
 // Language independent exception handler
-%include exception.i       
+%include exception.i
 
  class YAPPredicate;
  class YAPEngine;
@@ -21,7 +21,7 @@
 %exception query {
     try {
         $action
-    } 
+    }
     catch (YAPError YAP_SYMTAX_ERROR) {
         SWIG_exception(SWIG_SyntaxError,"Syntax Error exception");
     }
@@ -33,7 +33,7 @@
 %exception next {
     try {
         $action
-    } 
+    }
     catch (...) {
         SWIG_exception(SWIG_RuntimeError,"Unknown exception");
     }
@@ -42,15 +42,13 @@
 
  %{
  /* Put header files here or function declarations like below */
- 
+
 #define YAP_CPP_INTERFACE 1
- 
- 
+
+
 #include "yapi.hh"
 
   extern "C" {
-
-  extern Term Yap_StringToTerm(const char *s, size_t len, term_t bindings);
 
 #if THREADS
 #define Yap_regp regcache
@@ -61,11 +59,11 @@
 }
 
  %}
- 
- 
+
+
 /* turn on director wrapping Callback */
 %feature("director") YAPCallback;
- 	
+
 %include "yapi.hh"
 
 %include "yapa.hh"
@@ -89,4 +87,3 @@
    }
 }
 #endif
-

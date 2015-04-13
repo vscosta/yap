@@ -81,7 +81,7 @@ INLINE_ONLY inline EXTERN void save_B(void);
 #define CACHE_REGS
 #define REFRESH_CACHE_REGS
 #define INIT_REGS
-#define PASS_REGS1 
+#define PASS_REGS1
 #define PASS_REGS
 #define USES_REGS1 void
 #define USES_REGS
@@ -223,7 +223,7 @@ extern REGSTORE Yap_REGS;
 
 #define YENV2MEM
 #define YENV_ADDRESS (&(YENV))
-#define MEM2YENV  
+#define MEM2YENV
 
 #if defined(__GNUC__) && defined(__alpha)
 
@@ -391,7 +391,7 @@ INLINE_ONLY EXTERN inline void restore_B(void) {
 
 #define RECOVER_B()  save_B(); B = BK_B
 
-#define restore_TR() 
+#define restore_TR()
 
 #elif defined(__GNUC__) && defined(hppa)
 
@@ -478,7 +478,7 @@ INLINE_ONLY EXTERN inline void restore_TR(void) {
 
 #elif defined(__GNUC__) && (defined(_POWER)  || defined(__POWERPC__))
 
-/* 
+/*
 
    Because of a bug in GCC, we should always start from the first available
    general register. According to rs6000.h, this is r13 everywhere
@@ -490,7 +490,7 @@ INLINE_ONLY EXTERN inline void restore_TR(void) {
 
  */
 #define CreepFlag Yap_REGS.CreepFlag_
-/* 
+/*
    vsc: this MUST start from register 13, otherwise GCC will break down in flames and
    use the registers for evil purposes. :-(
  */
@@ -509,7 +509,7 @@ register CELL *YENV asm ("r19");
 
 #undef YENV2MEM
 #undef YENV_ADDRESS (&(YENV))
-#undef MEM2YENV  
+#undef MEM2YENV
 
 #define YENV2MEM     { CELL *YENV_MEM = YENV
 #define YENV_ADDRESS   (&YENV_MEM)
@@ -628,7 +628,7 @@ INLINE_ONLY EXTERN inline void restore_B(void) {
 
 #define RECOVER_B()
 
-#define restore_TR() 
+#define restore_TR()
 
 #endif
 
@@ -745,8 +745,8 @@ StackGap( USES_REGS1 )
 {
   UInt gmin = (LCL0-H0)>>2;
 
-  if (gmin < MinStackGap) gmin = MinStackGap; 
-  //  if (gmin > 1024*1024) return 1024*1024; 
+  if (gmin < MinStackGap) gmin = MinStackGap;
+  //  if (gmin > 1024*1024) return 1024*1024;
   return gmin;
 }
 

@@ -369,9 +369,6 @@ PL_EXPORT(int)		StryLock(IOSTREAM *s);
 PL_EXPORT(int)		Sunlock(IOSTREAM *s);
 PL_EXPORT(IOSTREAM *)	Snew(void *handle, int flags, IOFUNCTIONS *functions);
 PL_EXPORT(IOSTREAM *)	Sopen_file(const char *path, const char *how);
-#ifdef ANDROID_ASSET_MANAGER_H
-PL_EXPORT(IOSTREAM *)	Sopen_asset(char *bufp, const char *how, AAssetManager* mgr);
-#endif
 PL_EXPORT(IOSTREAM *)	Sfdopen(int fd, const char *type);
 PL_EXPORT(int)	   	Sfileno(IOSTREAM *s);
 PL_EXPORT(IOSTREAM *)	Sopen_pipe(const char *command, const char *type);
@@ -393,7 +390,7 @@ PL_EXPORT(SOCKET)	Swinsock(IOSTREAM *s);
 #endif
 #endif
 
- 
+
 PL_EXPORT(int)		ScheckBOM(IOSTREAM *s);
 PL_EXPORT(int)		SwriteBOM(IOSTREAM *s);
 PL_EXPORT(ssize_t)	Sread_user(void *handle, char *buf, size_t size);

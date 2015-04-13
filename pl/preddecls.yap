@@ -31,7 +31,7 @@
 
 The YAP Compiler allows the programmer to include declarations with
 important pproprties of predicates, such as where they can be modified
-during execution time, whether they are meta-predicates, or whether they can be 
+during execution time, whether they are meta-predicates, or whether they can be
 defined  across multiple files. We next join some of these declarations.
 
 */
@@ -50,7 +50,7 @@ as a dynamic predicate.  _P_ must be written as a predicate indicator, that is i
 :- dynamic god/1.
 ~~~~~
 
- 
+
 a more convenient form can be used:
 
 ~~~~~
@@ -65,10 +65,10 @@ or, equivalently,
 
 Note:
 
-a predicate is assumed to be dynamic when 
+a predicate is assumed to be dynamic when
 asserted before being defined.
 
- 
+
 */
 dynamic(X) :- '$access_yap_flags'(8, 0), !,
         '$current_module'(M),
@@ -102,7 +102,7 @@ dynamic(X) :-
 	    F /\ 0x00000400 =:= 0x00000400, '$undefined'(T,Mod) -> F1 is F /\ \(0x400), N1F is F1 \/ 0x00002000, NF is N1F /\ \(0x00400000), '$flags'(T,Mod,F,NF), '$mk_d'(T,Mod);
 	    '$do_error'(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N))
 	).
-'$dynamic2'(X,Mod) :- 
+'$dynamic2'(X,Mod) :-
 	'$do_pi_error'(type_error(callable,X),dynamic(Mod:X)).
 
 '$logical_updatable'(A//N,Mod) :- integer(N), !,
@@ -117,7 +117,7 @@ dynamic(X) :-
 	    F /\ 0x00000400 =:= 0x00000400 , '$undefined'(T,Mod) -> N1F is F \/ 0x08000000, NF is N1F /\ \(0x00400000), '$flags'(T,Mod,F,NF), '$mk_d'(T,Mod);
 	    '$do_error'(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N))
 	).
-'$logical_updatable'(X,Mod) :- 
+'$logical_updatable'(X,Mod) :-
 	'$do_error'(type_error(callable,X),dynamic(Mod:X)).
 
 /** @pred public(  _P_ ) is iso
@@ -144,7 +144,7 @@ defines all new or redefined predicates to be public.
 '$public'(A/N, Mod) :- integer(N), atom(A), !,
 	functor(T,A,N),
 	'$do_make_public'(T, Mod).
-'$public'(X, Mod) :- 
+'$public'(X, Mod) :-
 	'$do_pi_error'(type_error(callable,X),dynamic(Mod:X)).
 
 '$do_make_public'(T, Mod) :-
@@ -250,5 +250,4 @@ discontiguous(F) :-
 	write(user_error,' (line '),
 	'$start_line'(LN), write(user_error,LN),
 	write(user_error,')'),
-	nl(user_error).	
-
+	nl(user_error).

@@ -639,8 +639,8 @@ then
       YAP_TARGET=amd64
       AC_CHECK_LIB(ws2_32,main)
       AC_CHECK_LIB(comdlg32,main)
-      AC_CHECK_LIB(shell32,main)            
-      AC_CHECK_LIB(shlwapi,main)                        
+      AC_CHECK_LIB(shell32,main)
+      AC_CHECK_LIB(shlwapi,main)
       EXTRA_LIBS_FOR_DLLS="-lws2_32"
     elif test "$target_os" = "cygwin"; then
       CC="${CC}  -mno-cygwin"
@@ -653,7 +653,7 @@ then
       AC_CHECK_LIB(wsock32,main)
       AC_CHECK_LIB(comdlg32,main)
       AC_CHECK_LIB(shell32,main)
-      AC_CHECK_LIB(shlwapi,main)  
+      AC_CHECK_LIB(shlwapi,main)
     fi
     AC_DEFINE(__WINDOWS__, 1, [compiling for Windows])
     EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll $EXTRA_LIBS_FOR_DLLS"
@@ -791,13 +791,6 @@ if test -e "$srcdir"/packages/archive/Makefile.in
   PKG_LIBARCHIVE="packages/archive"
 else
   PKG_LIBARCHIVE=""
-fi
-
-if test -e "$srcdir"/packages/odbc/Makefile.in
-then
-  PKG_ODBC="packages/odbc"
-else
-  PKG_ODBC=""
 fi
 
 if test "$use_chr" = no
@@ -2038,21 +2031,6 @@ fi
 
 fi
 
-if test "$PKG_ODBC" != ""; then
-
-m4_include([packages/odbc/configure.in])
-
-if test "$ODBC_TARGETS" = "nolib"
-then
-  PKG_ODBC=""
-fi
-
-else
-	   ODBC_TARGETS=nolib
-	   ODBC_PLTARGETS=odbc.pl
-fi
-
-
 m4_include([packages/bdd/configure.in])
 
 m4_include([packages/cplint/configure.in])
@@ -2131,6 +2109,10 @@ yap_timestamp=`date`
 yap_nversion=`expr $YAP_MAJOR_VERSION \* 10000 + $YAP_MINOR_VERSION \* 100 + $YAP_POINT_VERSION`
 yap_startup=startup.yss
 
+BINDIR=$bindir
+DATAROOTDIR="$prefix"/share
+BINDIR="$bindir"
+
 AC_DEFINE_UNQUOTED(YAP_STARTUP,  [ "$yap_startup" ], [saved state file])
 AC_DEFINE_UNQUOTED( C_CC, [ "$CC" ], [c-compiler used])
 AC_DEFINE_UNQUOTED( C_CFLAGS, ["$CFLAGS $YAP_EXTRAS $  -D_YAP_NOT_INSTALLED_=1 $CPPFLAGS  -I. -I$srcdir/H -I$srcdir/include  -I$srcdir/os -I$srcdir/OPTYap -I$srcdir/BEAM" ], [compilation flags])
@@ -2140,13 +2122,13 @@ AC_DEFINE_UNQUOTED( C_LIBPLSO, [ "$LIBS $EXTRA_LIBS_FOR_DLLS" ], [libs for linki
 AC_DEFINE_UNQUOTED( SO_EXT, [ "$SO" ], [relocable objects])
 AC_DEFINE_UNQUOTED( SO_PATH, [ "$SOPATH" ], [library search variable])
 AC_DEFINE_UNQUOTED( YAP_ARCH, [ "$ARCH" ], [architecture])
-AC_DEFINE_UNQUOTED( YAP_BINDIR, [ "$prefix/bin" ], [where the yap executable lives])
+AC_DEFINE_UNQUOTED( YAP_BINDIR, [ "$BINDIR" ], [where the yap executable lives])
 AC_DEFINE_UNQUOTED( YAP_FULL_VERSION, [ "YAP $YAP_VERSION ($ARCH): $yap_timestamp" ], [YAP version string])
-AC_DEFINE_UNQUOTED( YAP_LIBDIR, [ "$prefix/lib/Yap" ], [where to look for shared libraries])
+AC_DEFINE_UNQUOTED( YAP_LIBDIR, [ "$LIBDIR/Yap" ], [where to look for shared libraries])
 AC_DEFINE_UNQUOTED( YAP_NUMERIC_VERSION, [ $yap_nversion ], [numerical version])
-AC_DEFINE_UNQUOTED( YAP_PL_SRCDIR, [ "$prefix/share/Yap/pl" ], [where to look for Prolog sources])
 AC_DEFINE_UNQUOTED( YAP_ROOTDIR, [ "$prefix" ], [where YAP lives])
-AC_DEFINE_UNQUOTED( YAP_SHAREDIR, [ "$prefix/share" ], [where to look for the Prolog library])
+AC_DEFINE_UNQUOTED( YAP_SHAREDIR, [ "$DATAROOTDIR" ], [where YAP lives])
+AC_DEFINE_UNQUOTED( YAP_PL_SRCDIR, [ "$DATAROOTDIR/Yap/pl" ], [where YAP lives])
 AC_DEFINE_UNQUOTED( YAP_TIMESTAMP, [ "$yap_timestamp" ], [date of compilation])
 AC_DEFINE_UNQUOTED( YAP_VERSION, [ "$YAP_VERSION" ], [yap version])
 AC_DEFINE_UNQUOTED( YAP_YAPLIB, [ "$YAPLIB" ], [name of YAP library])
@@ -2194,7 +2176,6 @@ mkdir -p  packages/prism/src/c/up
 mkdir -p  packages/prism/src/prolog
 mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
-mkdir -p  packages/prosqlite
 mkdir -p  packages/R
 mkdir -p  packages/RDF
 mkdir -p  packages/real
@@ -2281,11 +2262,6 @@ if test "$PKG_LIBARCHIVE" != ""; then
 AC_CONFIG_FILES([packages/archive/Makefile])
 fi
 
-if test "$PKG_ODBC" != ""; then
-AC_CONFIG_FILES([packages/odbc/Makefile])
-fi
-
-
 if test "$PKG_MINISAT" != ""; then
 AC_CONFIG_FILES([packages/swi-minisat2/Makefile])
 AC_CONFIG_FILES([packages/swi-minisat2/C/Makefile])
@@ -2308,10 +2284,6 @@ fi
 if test "$PKG_PRISM" != ""; then
 AC_CONFIG_FILES([packages/prism/src/c/Makefile])
 AC_CONFIG_FILES([packages/prism/src/prolog/Makefile])
-fi
-
-if test "$PKG_PROSQLITE" != ""; then
-   AC_CONFIG_FILES([packages/prosqlite/Makefile])
 fi
 
 if test "$PKG_WINCONSOLE" != ""; then

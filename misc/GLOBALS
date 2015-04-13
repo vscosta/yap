@@ -39,7 +39,8 @@ Agc_hook			AGCHook					=NULL
 
 #if __ANDROID__
 // no need to perform initialization, it is done before we start the Prolog engine.
-struct AAssetManager* assetManager				=GLOBAL_assetManager
+struct AAssetManager*		assetManager				=NULL
+char*				AssetsWD				=NULL
 #endif
 
 /* multi-thread support */

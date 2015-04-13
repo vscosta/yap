@@ -126,7 +126,7 @@ typedef struct PropEntryStruct
 
 typedef CELL arity_t;
 
-#define FunctorProperty   ((PropFlags)(0xbb00))
+    #define FunctorProperty   ((PropFlags)(0xbb00))
 
 /* functor property */
 typedef struct FunctorEntryStruct

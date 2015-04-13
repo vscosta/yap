@@ -31,7 +31,7 @@ post-process the result of the query in several different ways:
 
 
 
- 
+
 */
 
 :- system_module( '$_setof', [(^)/2,
@@ -61,7 +61,7 @@ _^Goal :-
 %   existential quantifier on every variable.
 
 
-/** @pred  findall( _T_,+ _G_,- _L_) is iso 
+/** @pred  findall( _T_,+ _G_,- _L_) is iso
 
 
 Unifies  _L_ with a list that contains all the instantiations of the
@@ -88,7 +88,7 @@ L = [2,1,2];
 no
 ~~~~~
 
- 
+
 */
 
 findall(Template, Generator, Answers) :-
@@ -105,7 +105,7 @@ findall(Template, Generator, Answers) :-
 
 Similar to findall/3, but appends all answers to list  _L0_.
 
- 
+
 */
 findall(Template, Generator, Answers, SoFar) :-
 	'$findall'(Template, Generator, SoFar, Answers).
@@ -142,9 +142,9 @@ findall(Template, Generator, Answers, SoFar) :-
 '$collect_with_common_vars'([Key-_|Answers], VarList) :-
 	'$variables_in_term'(Key, _, VarList),
 	'$collect_with_common_vars'(Answers, VarList).
-	
+
 % This is the setof predicate
-/** @pred  setof( _X_,+ _P_,- _B_) is iso 
+/** @pred  setof( _X_,+ _P_,- _B_) is iso
 
 
 Similar to `bagof( _T_, _G_, _L_)` but sorts list
@@ -185,7 +185,7 @@ setof(Template, Generator, Set) :-
 % and we need to find the solutions for each instantiation
 % of these variables
 
-/** @pred  bagof( _T_,+ _G_,- _L_) is iso 
+/** @pred  bagof( _T_,+ _G_,- _L_) is iso
 
 
 For each set of possible instances of the free variables occurring in
@@ -206,7 +206,7 @@ L = [2];
 no
 ~~~~~
 
- 
+
 */
 bagof(Template, Generator, Bag) :-
 	( '$is_list_or_partial_list'(Bag) ->
@@ -254,8 +254,8 @@ bagof(Template, Generator, Bag) :-
 
 % as an alternative to setof you can use the predicate all(Term,Goal,Solutions)
 % But this version of all does not allow for repeated answers
-% if you want them use findall	
-/** @pred  all( _T_,+ _G_,- _L_) 
+% if you want them use findall
+/** @pred  all( _T_,+ _G_,- _L_)
 
 
 Similar to `findall( _T_, _G_, _L_)` but eliminate
@@ -276,10 +276,10 @@ no
 
 Note that all/3 will fail if no answers are found.
 
- 
+
 */
 all(T, G same X,S) :- !, all(T same X,G,Sx), '$$produce'(Sx,S,X).
-all(T,G,S) :- 
+all(T,G,S) :-
 	'$init_db_queue'(Ref),
 	( '$catch'(Error,'$clean_findall'(Ref,Error),_),
 	  '$execute'(G),
@@ -290,7 +290,7 @@ all(T,G,S) :-
         ).
 
 % $$set does its best to preserve space
-'$$set'(S,R) :- 
+'$$set'(S,R) :-
        '$$build'(S0,_,R),
         S0 = [_|_],
 	S = S0.
@@ -306,7 +306,7 @@ all(T,G,S) :-
 	'$$build'(Ns,Hash,R).
 
 '$$new'(V,El) :- var(V), !, V = n(_,El,_).
-'$$new'(n(R,El0,L),El) :- 
+'$$new'(n(R,El0,L),El) :-
 	compare(C,El0,El),
 	'$$new'(C,R,L,El).
 
@@ -327,4 +327,3 @@ all(T,G,S) :-
 /**
 @}
 */
-

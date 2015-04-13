@@ -38,6 +38,7 @@ typedef struct global_data {
 #if __ANDROID__
 
   struct AAssetManager*  assetManager_;
+  char*  AssetsWD_;
 #endif
 
 #if THREADS

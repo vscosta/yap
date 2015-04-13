@@ -193,7 +193,7 @@ static int
 bind_varnames(term_t varnames ARG_LD)
 {
   CACHE_REGS
-  Term t = Yap_GetFromSlot(varnames PASS_REGS);
+  Term t = Yap_GetFromSlot(varnames);
   while(!IsVarTerm(t) && IsPairTerm(t)) {
     Term tl = HeadOfTerm(t);
     Functor f;
@@ -221,7 +221,7 @@ char *
 varName(term_t t, char *name)
 {
   CACHE_REGS
-  CELL *adr = (CELL *)Yap_GetFromSlot(t PASS_REGS);
+  CELL *adr = (CELL *)Yap_GetFromSlot(t);
 
   if (IsAttVar(adr)) {
     Ssprintf(name, "_D%ld", (CELL)adr - (CELL)H0);
@@ -262,20 +262,10 @@ writeTopTerm(term_t t, int prec, write_options *options)
   if (flags & PL_WRT_BLOB_PORTRAY)
     yap_flag |= Blob_Portray_f;
   old_module = CurrentModule;
-  char * buf[1024];
-  size_t length;
-  int encode; Term tn;
-  
-  __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "Yap_REGS=%p\n", Yap_REGS);        
+
   CurrentModule = Yap_GetModuleFromEntry(options->module);
 
-  __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "t=%d\n", t) ;
-  
-__android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "LOCAl_SlotBase[t]=%ld\n", LOCAL_SlotBase[t]);        
-  __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "LOCAl_SlotBase=%ld\n", Deref(LOCAL_SlotBase[t]));        
-  
-  
-Yap_plwrite(Yap_GetFromSlot(t PASS_REGS), options->out, options->max_depth, yap_flag, prec);
+Yap_plwrite(Yap_GetFromSlot(t), options->out, options->max_depth, yap_flag, prec);
   CurrentModule = old_module;
   return TRUE;
 }

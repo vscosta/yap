@@ -371,7 +371,13 @@ int	Yap_signal_index(const char *);
 #ifdef MAC
 void	Yap_SetTextFile(char *);
 #endif
-char   *Yap_getcwd(const char *, size_t);
+#if __ANDROIDD__
+extern AAssetManager * Yap_assetManager;
+
+extern void *Yap_openAssetFile( const char *path ) ;
+extern bool Yap_isAsset( const char *path );
+#endif
+const char   *Yap_getcwd(const char *, size_t);
 void    Yap_cputime_interval(Int *,Int *);
 void    Yap_systime_interval(Int *,Int *);
 void    Yap_walltime_interval(Int *,Int *);
@@ -452,7 +458,7 @@ struct AtomEntryStruct *Yap_lookupBlob(void *blob, size_t len, void *type, int *
 void    Yap_init_optyap_preds(void);
 
 /* pl-file.c */
-struct PL_local_data *Yap_InitThreadIO(int wid); 
+struct PL_local_data *Yap_InitThreadIO(int wid);
 void Yap_flush(void);
 
 /* pl-yap.c */
@@ -465,5 +471,3 @@ gc_P(yamop *p, yamop *cp)
 {
   return (p->opc == Yap_opcode(_execute_cpred) ? cp : p);
 }
-
-

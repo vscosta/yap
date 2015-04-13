@@ -14,13 +14,13 @@
       char *s; Atom name;
       if (PREG->y_u.Osbpp.p->ArityOfPE) {
 	Functor f = PREG->y_u.Osbpp.p->FunctorOfPred;
-	name = f->NameOfFE;      
+	name = f->NameOfFE;
       } else {
 	 name = (Atom)(PREG->y_u.Osbpp.p->FunctorOfPred);
       }
       s = name->StrOfAE;
-      
-      __android_log_print(ANDROID_LOG_INFO, "YAP", " %s ", s);
+
+      LOG( " %s ", s);
 #endif
       check_trail(TR);
       if (!(PREG->y_u.Osbpp.p->PredFlags & (SafePredFlag|NoTracePredFlag|HiddenPredFlag))) {

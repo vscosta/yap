@@ -188,6 +188,7 @@ typedef struct {
     int		optimise;		/* -O: optimised compilation */
   } cmdline;
 
+#if 0
   struct
   { //char *      CWDdir;
     //size_t      CWDlen;
@@ -196,6 +197,7 @@ typedef struct {
     char *      module;                 /* argv[0] module passed */
 #endif
   } paths;
+#endif
 
   struct
   { ExtensionCell _ext_head;		/* head of registered extensions */
@@ -251,7 +253,7 @@ typedef struct {
 /*     Procedure   dc_call_prolog0;	/\* $c_call_prolog/0 *\/ */
 /* #ifdef O_ATTVAR */
 /*     Procedure	dwakeup1;		/\* system:$wakeup/1 *\/ */
-    predicate_t	portray_attvar1;	/* $attvar:portray_attvar/1 */ 
+    predicate_t	portray_attvar1;	/* $attvar:portray_attvar/1 */
 /* #endif */
 /* #ifdef O_CALL_RESIDUE */
 /*     Procedure	call_residue_vars2;	/\* $attvar:call_residue_vars/2 *\/ */
@@ -390,7 +392,7 @@ typedef struct PL_local_data {
 
 #ifdef O_GMP
   struct
-  { 
+  {
     int		persistent;		/* do persistent operations */
   } gmp;
 #endif
@@ -411,4 +413,3 @@ typedef struct PL_local_data {
 extern PL_local_data_t lds;
 
 #endif
-

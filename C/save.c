@@ -249,19 +249,6 @@ open_file(char *my_file, int flag)
   char flags[6];
   int i=0;
 
-#if __ANDROID__
-  if (strstr(my_file, "/assets/") == my_file) {
-      if (flag == O_RDONLY) {
-	  my_file += strlen("/assets/");
-	  AAsset* asset = AAssetManager_open(GLOBAL_assetManager, my_file, AASSET_MODE_UNKNOWN);
-	  if (!asset)
-	    return NULL;
-	  AAsset_close( asset );
-	  return NULL; // usually the file will be compressed, so there is no point in actually trying to open it.
-      }
-      return NULL;
-  }
-#endif
   if (flag & O_RDONLY) {
     flags[i++] = 'r';
   }

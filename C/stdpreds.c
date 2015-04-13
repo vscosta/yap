@@ -877,61 +877,69 @@ static Int
   return TRUE;
 }
 
+static PropEntry *
+fetchPredFromListOfProps (PropEntry *p)
+{
+  while (p) {
+    if (p->KindOfPE == PEProp) {
+      // found our baby..
+      return p;
+    } else if (p->KindOfPE == FunctorProperty) {
+      // go to list of properties in functor..
+      PropEntry *q;
+      FunctorEntry *f = RepFunctorProp(p);
+      if ((q = fetchPredFromListOfProps( f->PropsOfFE ))) {
+        return q;
+      }
+    }
+    p = p->NextOfPE;
+  }
+  return NIL;
+}
+
+static PropEntry *
+nextPredForAtom (PropEntry *p)
+{
+  PredEntry *pe;
+  if (p == NIL)
+    return NIL;
+  pe = RepPredProp(p);
+  if (pe->ArityOfPE == 0) {
+    // if atom prop, search atom list
+    return fetchPredFromListOfProps(p->NextOfPE);
+  } else {
+    FunctorEntry *f = pe->FunctorOfPred;
+    // first search remainder of functor list
+    if ((p = fetchPredFromListOfProps(p->NextOfPE))) {
+      return p;
+    }
+    // if that fails, follow the functor
+    return fetchPredFromListOfProps( f->NextOfPE );
+  }
+}
+
 static Int cont_current_predicate(USES_REGS1) {
   PredEntry *pp = NULL;
+  PropEntry *n;
   UInt Arity;
   Term name;
   Term t1 = Deref(ARG1), t2 = Deref(ARG2), t3;
-  bool is_det = false, rc;
+  bool  rc;
   Functor f;
 
   if (IsNonVarTerm(t1)) {
+    // current_pred(A, M, P)
     PropEntry *p = AddressOfTerm(EXTRA_CBACK_ARG(4, 1));
-    PropEntry *q = AddressOfTerm(EXTRA_CBACK_ARG(4, 2));
     // restart inner loop
-    for (; q; q = q->NextOfPE) {
-      if (q->KindOfPE == PEProp) {
-        pp = RepPredProp(q);
-        q = q->NextOfPE;
-        if (q == NIL)
-          p = p->NextOfPE;
-        if (!p)
-          is_det = true;
-        // we are done with this loop.
-        break;
-      }
-    }
-    if (!pp && p) {
-      // try using outer loop
-      for (; p; p = p->NextOfPE) {
-        if (p->KindOfPE == PEProp) {
-          q = NULL;
-          pp = RepPredProp(p);
-          p = p->NextOfPE;
-          if (!p)
-            is_det = true;
-          break;
-        } else if (p->KindOfPE == FunctorProperty) {
-          // looping on p/n
-          for (q = RepFunctorProp(p)->PropsOfFE; q; q = q->NextOfPE) {
-            if (q->KindOfPE == PEProp) {
-              pp = RepPredProp(q);
-              q = q->NextOfPE;
-              if (!q && !p->NextOfPE)
-                is_det = true;
-              break;
-            }
-          }
-          break;
-        }
-      }
-    }
-    if (pp == NULL) // nothing more
-      cut_fail();
-    if (!is_det) {
-      EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(p);
-      EXTRA_CBACK_ARG(4, 2) = MkAddressTerm(q);
+    pp = RepPredProp(p);
+    n = nextPredForAtom (p);
+    if (n == NIL) {
+      YAP_cut_up();
+    } else {
+      EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(n);
+
       B->cp_h = HR;
+
     }
   } else if (IsNonVarTerm(t2)) {
     // operating within the same module.
@@ -945,8 +953,8 @@ static Int cont_current_predicate(USES_REGS1) {
     if (npp) {
       EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(npp);
       B->cp_h = HR;
-    } else {
-      is_det = true;
+  } else {
+      YAP_cut_up();
     }
   } else {
     pp = AddressOfTerm(EXTRA_CBACK_ARG(4, 1));
@@ -964,10 +972,12 @@ static Int cont_current_predicate(USES_REGS1) {
     } // we found a new answer
     if (!pp)
       cut_fail();
-    else
+    else {
       EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(pp->NextPredOfModule);
-    B->cp_h = HR;
+      B->cp_h = HR;
+    }
   }
+
   if (pp->ModuleOfPred != IDB_MODULE) {
     f = pp->FunctorOfPred;
     Arity = pp->ArityOfPE;
@@ -996,15 +1006,11 @@ static Int cont_current_predicate(USES_REGS1) {
     t3 = name;
   }
   rc = (!(pp->PredFlags & HiddenPredFlag)) &&
-       Yap_unify(ARG2, ModToTerm(pp->ModuleOfPred)) && Yap_unify(ARG1, name) &&
-       Yap_unify(ARG3, t3) && Yap_unify(ARG4, MkIntegerTerm(pp->PredFlags));
-  if (is_det) {
-    if (rc)
-      cut_succeed();
-    else
-      cut_fail();
-  }
-  return rc;
+       Yap_unify(ARG2, ModToTerm(pp->ModuleOfPred)) &&
+        Yap_unify(ARG1, name) &&
+       Yap_unify(ARG3, t3) &&
+        Yap_unify(ARG4, MkIntegerTerm(pp->PredFlags));
+    return rc;
 }
 
 static Int init_current_predicate(USES_REGS1) {
@@ -1014,6 +1020,9 @@ static Int init_current_predicate(USES_REGS1) {
   Atom at;
   PredEntry *pp = NULL;
   ModEntry *m = NULL;
+
+  t1 = Yap_StripModule(t1, &t2);
+  t3 = Yap_StripModule(t3, &t2);
 
   // check term
   if (!IsVarTerm(t3)) {
@@ -1076,15 +1085,10 @@ static Int init_current_predicate(USES_REGS1) {
       Yap_Error(TYPE_ERROR_ATOM, t1, "current_predicate/2");
       cut_fail();
     } else {
-      PropEntry *p = RepAtom(AtomOfTerm(t1))->PropsOfAE, *q = NIL;
-      while (p && p->KindOfPE == FunctorProperty &&
-             (q = RepFunctorProp(p)->PropsOfFE) == NIL) {
-        p = p->NextOfPE;
-      }
+      PropEntry *p = fetchPredFromListOfProps(RepAtom(AtomOfTerm(t1))->PropsOfAE);
       if (!p)
         cut_fail();
       EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(p);
-      EXTRA_CBACK_ARG(4, 2) = MkAddressTerm(q);
       B->cp_h = HR;
     }
   }
@@ -1130,7 +1134,7 @@ int Yap_IsOpMaxPrio(Atom at) {
   CACHE_REGS
   OpEntry *op = NextOp(RepOpProp((Prop)(RepAtom(at)->PropsOfAE)) PASS_REGS);
   int max;
-  
+
   if (EndOfPAEntr(op))
     return 0;
   max = (op->Prefix & 0xfff);
@@ -1162,7 +1166,7 @@ static Int cont_current_op(USES_REGS1) {
     READ_UNLOCK(op->OpRWLock);
     if (next) {
       EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((CELL)next);
-      B->cp_h = HR;  
+      B->cp_h = HR;
       return TRUE;
     } else {
       cut_succeed();
@@ -1171,7 +1175,7 @@ static Int cont_current_op(USES_REGS1) {
     READ_UNLOCK(op->OpRWLock);
     if (next) {
       EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((CELL)next);
-      B->cp_h = HR;  
+      B->cp_h = HR;
       return FALSE;
     } else {
       cut_fail();
@@ -1187,7 +1191,7 @@ static Int init_current_op(USES_REGS1) { /* current_op(-Precedence,-Type,-Atom)	
 
 static Int cont_current_atom_op(USES_REGS1) {
   OpEntry *op = (OpEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(5, 1)), *next;
-  
+
   READ_LOCK(op->OpRWLock);
   next = NextOp(RepOpProp(op->NextOfPE) PASS_REGS);
   if (unify_op(op PASS_REGS)) {

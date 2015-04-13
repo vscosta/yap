@@ -130,50 +130,57 @@ startemulator () {
   fi
  }
 
+androidize () {
+  cd  packages/swig
+  mkdir -p "$ANDROID_NDK_ROOT"/build/core/lib
+  make install-android
+  cd ../..
+}
 
 cd $BUILDDROID
 
-if test x$1 = xmake
-then
-  ./config.status
-  make -j install
-  rm -r packages/swig/android
-elif test x$1 = xenv
+export HOST="$ANDROID_ARCH"-linux-androideabi
+export CPP="$HOST"-cpp
+export DESTDIR=`pwd`/packages/swig/android    
+export PATH="$PATH":/usr/local/bin
+
+if test x$1 = xenv
 then
     return 0
 elif test x$1 = xdmake
 then
     make
-elif test x$1 = xgo
+elif test x$1 = xmake
 then
-    echo "In  make I believe"
+    pushd packages/swig
+    make clean
+    popd
+    ./config.status
+    CFLAGS="-g" make -j install
 elif test x$1 = xeclipse
 then
    startemulator
    "$ECLIPSE" &
    return 0
 else
-   startemulator
+  startemulator
   rm -rf "$BUILDDROID"/*
   cd "$BUILDDROID"
-  export HOST="$ANDROID_ARCH"-linux-androideabi
-  export CPP="$HOST"-cpp 
   "$YAP_SRC"/configure \
   --host="$HOST" \
-  --prefix=`pwd` \
   --enable-low-level-tracer \
   --enable-debug-yap \
   --enable-dynamic-loading \
+  --bindir=/usr/bin \
+  --prefix=/assets \
+  --enable-dynamic-loading \
   --with-swig \
-  --with-gmp=$GMPDIR \
-  --with-sqlite3=$SQLITE3DIR #\
+  --with-gmp="$GMPDIR" \
+  --with-sqlite3="$SQLITE3DIR" 
+
+  #\
   #--enable-chr=yes #--enable-threads
   make depend
-  make -j install
+  CFLAGS="-g" make -j install
 fi
-cd packages/swig
-mkdir -p "$ANDROID_NDK_ROOT"/build/core/lib
-make android
-make install-android
-adb uninstall pt.up.fc.dcc.yap
-adb install android/bin/JavaYap-debug.apk
+androidize

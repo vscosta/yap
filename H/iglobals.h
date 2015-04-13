@@ -37,7 +37,8 @@ static void InitGlobal(void) {
   GLOBAL_AGCHook = NULL;
 #if __ANDROID__
 
-  GLOBAL_assetManager = GLOBAL_assetManager;
+  GLOBAL_assetManager = NULL;
+  GLOBAL_AssetsWD = NULL;
 #endif
 
 #if THREADS

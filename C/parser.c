@@ -848,7 +848,7 @@ case Var_tok:
     tn = Yap_MkNewApplTerm(SWIFunctorToFunctor(FUNCTOR_quasi_quotation4), 4);
     tnp = RepAppl(tn) + 1;
     tnp[0] = MkAtomTerm(at);
-    if (!get_quasi_quotation(Yap_InitSlot(ArgOfTerm(2, tn) PASS_REGS),
+    if (!get_quasi_quotation(Yap_InitSlot(ArgOfTerm(2, tn)),
                              &qq->text,
                              qq->text + strlen((const char *)qq->text), rd))
       FAIL;
@@ -857,7 +857,7 @@ case Var_tok:
       intptr_t qqend = qq->end.charno;
 
       // set_range_position(positions, -1, qqend PASS_LD);
-      if (!PL_unify_term(Yap_InitSlot(ArgOfTerm(2, t) PASS_REGS), PL_FUNCTOR,
+      if (!PL_unify_term(Yap_InitSlot(ArgOfTerm(2, t) ), PL_FUNCTOR,
                          FUNCTOR_minus2, PL_INTPTR,
                          qq->mid.charno + 2,    /* end of | token */
                          PL_INTPTR, qqend - 2)) /* end minus "|}" */
@@ -865,12 +865,12 @@ case Var_tok:
     }
 
     tnp[2] =
-        Yap_GetFromSlot(rd->varnames PASS_REGS); /* Arg 3: the var dictionary */
+        Yap_GetFromSlot(rd->varnames); /* Arg 3: the var dictionary */
     /* Arg 4: the result */
     t = ArgOfTerm(4, tn);
     if (!(to = PL_new_term_ref()) ||
         !PL_unify_list(rd->qq_tail, to, rd->qq_tail) ||
-        !PL_unify(to, Yap_InitSlot(tn PASS_REGS)))
+        !PL_unify(to, Yap_InitSlot(tn )))
       FAIL;
   }
     NextToken;

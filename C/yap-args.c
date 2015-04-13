@@ -167,11 +167,7 @@ int
 YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 {
   char *p;
-#ifdef USE_SYSTEM_MALLOC
-  int BootMode = YAP_FULL_BOOT_FROM_PROLOG;
-#else
   int BootMode = YAP_BOOT_FROM_SAVED_CODE;
-#endif
   unsigned long int *ssize;
 
   iap->SavedState = NULL;
@@ -554,5 +550,6 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
     }
   GD->cmdline.appl_argc = argc;
   GD->cmdline.appl_argv = argv;
+//___androidlog_print(ANDROID_LOG_INFO, "YAP ", "boot mode %d", BootMode);
   return BootMode;
 }

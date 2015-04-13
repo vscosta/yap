@@ -17,10 +17,10 @@
 %%   @defgroup builtins  YAP  Built-Ins
 
 /*
-  
+
   @addtogroup YAPControl
 
-    @{    
+    @{
 */
 
 :- system_module( '$_init', [!/0,
@@ -51,21 +51,21 @@
 
 % These are pseudo declarations
 % so that the user will get a redefining system predicate
-/** @pred  fail is iso 
+/** @pred  fail is iso
 
 
 Always fails.
 
- 
+
 */
 fail :- fail.
 
-/** @pred  false is iso 
+/** @pred  false is iso
 
 
 The same as fail.
 
- 
+
 */
 false :- fail.
 
@@ -127,7 +127,7 @@ otherwise.
 	 'arith.yap',
 	 'flags.yap'
    ].
-
+    
 :- [	 'preds.yap',
 	 'modules.yap'
    ].
@@ -232,7 +232,7 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- module(user).
 
-/** @pred  _CurrentModule_:goal_expansion(+ _G_,+ _M_,- _NG_), user:goal_expansion(+ _G_,+ _M_,- _NG_) 
+/** @pred  _CurrentModule_:goal_expansion(+ _G_,+ _M_,- _NG_), user:goal_expansion(+ _G_,+ _M_,- _NG_)
 
 
 YAP now supports goal_expansion/3. This is an user-defined
@@ -244,7 +244,7 @@ sub-goal  _NG_ will replace  _G_ and will be processed in the same
 way. If goal_expansion/3 fails the system will use the default
 rules.
 
- 
+
 */
 :- multifile goal_expansion/3.
 
@@ -263,25 +263,25 @@ rules.
 :- dynamic goal_expansion/2.
 
 
-/** @pred  _CurrentModule_:term_expansion( _T_,- _X_),  user:term_expansion( _T_,- _X_) 
+/** @pred  _CurrentModule_:term_expansion( _T_,- _X_),  user:term_expansion( _T_,- _X_)
 
 
 This user-defined predicate is called by `expand_term/3` to
 preprocess all terms read when consulting a file. If it succeeds:
 
-+ 
++
 If  _X_ is of the form `:- G` or `?- G`, it is processed as
 a directive.
-+ 
++
 If  _X_ is of the form `$source_location`( _File_, _Line_): _Clause_` it is processed as if from `File` and line `Line`.
 
-+ 
++
 If  _X_ is a list, all terms of the list are asserted or processed
 as directives.
 + The term  _X_ is asserted instead of  _T_.
 
 
- 
+
 */
 
 :- multifile term_expansion/2.
@@ -294,7 +294,7 @@ as directives.
 
 :- multifile swi:swi_predicate_table/4.
 
-/** @pred  user:message_hook(+ _Term_, + _Kind_, + _Lines_) 
+/** @pred  user:message_hook(+ _Term_, + _Kind_, + _Lines_)
 
 
 Hook predicate that may be define in the module `user` to intercept
@@ -305,7 +305,7 @@ format statements as described with print_message_lines/3.
 This predicate should be defined dynamic and multifile to allow other
 modules defining clauses for it too.
 
- 
+
 */
 :- multifile user:message_hook/3.
 
@@ -315,7 +315,7 @@ modules defining clauses for it too.
 
 :- dynamic user:portray_message/2.
 
-/** @pred  exception(+ _Exception_, + _Context_, - _Action_) 
+/** @pred  exception(+ _Exception_, + _Context_, - _Action_)
 
 
 Dynamic predicate, normally not defined. Called by the Prolog system on run-time exceptions that can be repaired `just-in-time`. The values for  _Exception_ are described below. See also catch/3 and throw/1.
@@ -337,7 +337,7 @@ If this hook predicate succeeds it must instantiate the  _Action_ argument to th
 
 :- dynamic user:exception/3.
 
-:- yap_flag(unknown,error). 
+:- yap_flag(unknown,error).
 
 :- stream_property(user_input, tty(true)) -> set_prolog_flag(readline, true) ; true.
 

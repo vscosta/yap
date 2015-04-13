@@ -144,6 +144,20 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   Int arity;
   /*  extern int gc_calls; */
   vsc_count++;
+#if __ANDROID__
+  PredEntry *ap = pred;
+  if (pred && port == enter_pred) {
+  UInt flags = ap->PredFlags;
+  if (ap->ArityOfPE && ap->ModuleOfPred != IDB_MODULE)
+      __android_log_print(ANDROID_LOG_INFO, "YAP ", "   %s/%ld %lx\n", NameOfFunctor(ap->FunctorOfPred)->StrOfAE, ap->ArityOfPE, flags);
+  /*   printf("   %s/%ld %lx\n", NameOfFunctor(ap->FunctorOfPred)->StrOfAE, ap->ArityOfPE, flags); */
+  else if (ap->ModuleOfPred != IDB_MODULE)
+      __android_log_print(ANDROID_LOG_INFO, "YAP ","   %s/%ld %lx\n", ((Atom)(ap->FunctorOfPred))->StrOfAE, ap->ArityOfPE, flags);
+  /*   printf("   %s/%ld %lx\n", ((Atom)(ap->FunctorOfPred))->StrOfAE, ap->ArityOfPE, flags); */
+  __android_log_print(ANDROID_LOG_INFO, "YAP "," %x  ", ap->src.OwnerFile);
+}
+  return;
+#endif
 
   // if (!worker_id) return;
   LOCK(Yap_heap_regs->low_level_trace_lock);

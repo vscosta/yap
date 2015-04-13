@@ -72,7 +72,7 @@ codeToAtom(int chrcode)
 
     if ( !(pv=GD->atoms.for_code[page]) )
     { pv = PL_malloc(256*sizeof(atom_t));
-      
+
       memset(pv, 0, 256*sizeof(atom_t));
       GD->atoms.for_code[page] = pv;
     }
@@ -83,7 +83,7 @@ codeToAtom(int chrcode)
   } else
   { a = uncachedCodeToAtom(chrcode);
   }
-  
+
   return a;
 }
 
@@ -142,9 +142,9 @@ callProlog(module_t module, term_t goal, int flags, term_t *ex )
 
     fail;
   }
-  
+
   proc = PL_pred(fd, module);
-  
+
   { int arity = arityFunctor(fd);
     term_t args = PL_new_term_refs(arity);
     qid_t qid;
@@ -196,7 +196,7 @@ PL_qualify(term_t raw, term_t qualified)
   if ( !(mname = PL_new_term_ref()) ||
        !PL_strip_module(raw, &m, qualified) )
     return FALSE;
-  
+
   /* modules are terms in YAP */
   Yap_PutInSlot(mname, (Term)m PASS_REGS);
 
@@ -208,7 +208,7 @@ int
 valueExpression(term_t t, Number r ARG_LD)
 {
   REGS_FROM_LD
-  YAP_Term t0 = Yap_Eval(Yap_GetFromSlot(t PASS_REGS) PASS_REGS);
+  YAP_Term t0 = Yap_Eval(Yap_GetFromSlot(t ) PASS_REGS);
   if (YAP_IsIntTerm(t0)) {
     r->type = V_INTEGER;
     r->value.i = YAP_IntOfTerm(t0);
@@ -263,7 +263,7 @@ double_in_int64_range(double x)
 
 int
 toIntegerNumber(Number n, int flags)
-{ 
+{
 switch(n->type)
   { case V_INTEGER:
       succeed;
@@ -283,12 +283,12 @@ switch(n->type)
       if ( (flags & TOINT_CONVERT_FLOAT) )
       { if ( double_in_int64_range(n->value.f) )
 	{ int64_t l = (int64_t)n->value.f;
-	  
+
 	  if ( (flags & TOINT_TRUNCATE) ||
 	       (double)l == n->value.f )
 	  { n->value.i = l;
 	    n->type = V_INTEGER;
-	    
+
 	    return TRUE;
 	  }
 	  return FALSE;
@@ -296,7 +296,7 @@ switch(n->type)
 	} else
 	{ mpz_init_set_d(n->value.mpz, n->value.f);
 	  n->type = V_MPZ;
-	  
+
 	  return TRUE;
 #endif
 	}
@@ -305,7 +305,7 @@ switch(n->type)
   }
   assert(0);
   fail;
-} 
+}
 
 
 int
@@ -313,15 +313,15 @@ _PL_unify_atomic(term_t t, PL_atomic_t a)
 {
   GET_LD
     if (IsApplTerm(a) || IsAtomTerm(a))
-  return Yap_unify(Yap_GetFromSlot(t PASS_REGS), a);
+  return Yap_unify(Yap_GetFromSlot(t ), a);
   return PL_unify_atom(t, a);
 }
 
 int
 _PL_unify_string(term_t t, word w)
 {
-  CACHE_REGS  
-  return Yap_unify(Yap_GetFromSlot(t PASS_REGS), w);
+  CACHE_REGS
+  return Yap_unify(Yap_GetFromSlot(t ), w);
 }
 
 Atom lookupAtom(const char *s, size_t len)
@@ -395,7 +395,7 @@ typedef union
 
 int
 get_atom_ptr_text(Atom a, PL_chars_t *text)
-{ 
+{
   if (IsWideAtom(a)) {
     pl_wchar_t *name = (pl_wchar_t *)a->WStrOfAE;
     text->text.w   = name;
@@ -467,7 +467,7 @@ patch used localeconv() to find the  decimal   point,  but  this is both
 complicated and not thread-safe.
 
 Finally, with help of Richard we decided  to replace the first character
-that is not a digit nor [eE], as this must be the decimal point. 
+that is not a digit nor [eE], as this must be the decimal point.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #define isDigit(c)	((c) >= '0' && (c) <= '9')
@@ -582,7 +582,7 @@ int
 priorityOperator(Module m, atom_t atom)
 {
   YAP_Term mod = (YAP_Term)m;
-  if (!m) 
+  if (!m)
     mod = YAP_CurrentModule();
   return YAP_MaxOpPriority(YAP_AtomFromSWIAtom(atom), mod);
 }
@@ -593,7 +593,7 @@ currentOperator(Module m, atom_t name, int kind, int *type, int *priority)
   YAP_Term mod = (YAP_Term)m;
   int opkind, yap_type;
 
-  if (!m) 
+  if (!m)
     mod = YAP_CurrentModule();
   switch (kind) {
   case OP_PREFIX:
@@ -630,7 +630,7 @@ currentOperator(Module m, atom_t name, int kind, int *type, int *priority)
     break;
   case 7:
     *type = OP_FX;
-    break;    
+    break;
   default:
     *type = OP_FY;
     break;
@@ -861,9 +861,9 @@ Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int 
     Int l;
   Int myASP = LCL0-ASP;
   yhandle_t CurSlot = Yap_StartSlots();
-  
+
   Yap_StartSlots( );
-  l = Yap_InitSlot(t  PASS_REGS );
+  l = Yap_InitSlot(t );
 
   { IOENC encodings[3];
     IOENC *enc;
@@ -874,7 +874,7 @@ Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int 
     encodings[2] = ENC_UNKNOWN;
 
     for(enc = encodings; *enc != ENC_UNKNOWN; enc++)
-      { 
+      {
 	int64_t size;
 	IOSTREAM *fd;
 
@@ -891,10 +891,10 @@ Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int 
 	  { *encoding = *enc;
 	    size = Stell64(fd);
 	    if ( *enc == ENC_ISO_LATIN_1 )
-	      { 
+	      {
 		*length = size-1;
 	      } else
-	      { 
+	      {
 		*length = (size/sizeof(pl_wchar_t))-1;
 	      }
 	    /* found, just check if using local space */
@@ -935,23 +935,16 @@ Yap_HandleToString(term_t l, size_t sz, size_t *length, int *encoding, int flags
   size_t size = 4096, total = size;
   IOSTREAM *fd;
 
-  total = size;
+  total = size+1;
   buf = malloc(total);
-#ifdef DEBUG
-  {CACHE_REGS
-      __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "text  %p \n", buf);}
-#endif
+  buf[0]='\0';
   while ( (fd = Sopenmem(&buf, &size, "w")) == NULL ||
 	  (( fd->encoding = ENC_UTF8) &&  FALSE) ||
 	  (PL_write_term(fd, l, 1200, flags) == 0) ||
 	  Sputcode(EOS, fd) <  0 ||
 	  Sflush(fd) < 0 ) /* failure */
     {
-#ifdef DEBUG
-      {CACHE_REGS
-	  __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "fd  %p, %x buf=%s\n", fd, LOCAL_SlotBase[28], buf);}
-#endif
-      Sclose(fd);         
+      Sclose(fd);
       if (!fd)
 	return NULL;
       total += size;
@@ -960,11 +953,7 @@ Yap_HandleToString(term_t l, size_t sz, size_t *length, int *encoding, int flags
 	return NULL;
       Sclose(fd);
     }
-#ifdef DEBUG
-  {CACHE_REGS
-      __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "text done %s", buf);}
-#endif
-  Sclose(fd);         
+  Sclose(fd);
   /* success */
   return buf;
 }
@@ -988,9 +977,9 @@ char *
 PL_prompt_string(int fd)
 { if ( fd == 0 )
   { atom_t a = PrologPrompt();          /* TBD: deal with UTF-8 */
-    
+
     if ( a )
-    {     
+    {
       Atom at = YAP_AtomFromSWIAtom(a);
       if (!IsWideAtom(at)  && !IsBlob(at)) {
 	return RepAtom(at)->StrOfAE;
@@ -1082,7 +1071,7 @@ PL_dispatch(int fd, int wait)
 X_API int _PL_get_arg__LD(int index, term_t ts, term_t a ARG_LD)
 {
   REGS_FROM_LD
-  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
+  YAP_Term t = Yap_GetFromSlot(ts);
   if ( !YAP_IsApplTerm(t) ) {
     if (YAP_IsPairTerm(t)) {
       if (index == 1){
@@ -1098,13 +1087,13 @@ X_API int _PL_get_arg__LD(int index, term_t ts, term_t a ARG_LD)
   Yap_PutInSlot(a,ArgOfTerm(index, t) PASS_REGS);
   return 1;
 }
-   
+
 /* SWI: int PL_get_atom(term_t t, YAP_Atom *a)
    YAP: YAP_Atom YAP_AtomOfTerm(Term) */
 int PL_get_atom__LD(term_t ts, atom_t *a ARG_LD)
 {
   REGS_FROM_LD
-  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
+  YAP_Term t = Yap_GetFromSlot(ts);
   if ( !IsAtomTerm(t))
     return 0;
   *a = YAP_SWIAtomFromAtom(AtomOfTerm(t));
@@ -1121,61 +1110,61 @@ X_API int PL_put_atom__LD(term_t t, atom_t a ARG_LD)
 int PL_put_term__LD(term_t d, term_t s ARG_LD)
 {
   REGS_FROM_LD
-  Yap_PutInSlot(d,Yap_GetFromSlot(s PASS_REGS) PASS_REGS);
+  Yap_PutInSlot(d,Yap_GetFromSlot(s) PASS_REGS);
   return 1;
 }
 
 term_t PL_new_term_ref__LD(ARG1_LD)
 {
   REGS_FROM_LD
-  term_t to = Yap_NewSlots(1 PASS_REGS);
+  term_t to = Yap_NewSlots(1);
   return to;
 }
 
 int PL_is_atom__LD(term_t ts ARG_LD)
 {
   REGS_FROM_LD
-  Term t = Yap_GetFromSlot(ts PASS_REGS);
+  Term t = Yap_GetFromSlot(ts);
   return !IsVarTerm(t) && IsAtomTerm(t);
 }
 
 int PL_is_variable__LD(term_t ts ARG_LD)
 {
   REGS_FROM_LD
-  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
+  YAP_Term t = Yap_GetFromSlot(ts);
   return IsVarTerm(t);
 }
 
 X_API int PL_unify__LD(term_t t1, term_t t2 ARG_LD)
 {
   REGS_FROM_LD
-  return Yap_unify(Yap_GetFromSlot(t1 PASS_REGS),Yap_GetFromSlot(t2 PASS_REGS));
+  return Yap_unify(Yap_GetFromSlot(t1),Yap_GetFromSlot(t2));
 }
 
 int PL_unify_atom__LD(term_t t, atom_t at ARG_LD)
 {
   REGS_FROM_LD
   YAP_Term cterm = MkAtomTerm(YAP_AtomFromSWIAtom(at));
-  return YAP_Unify(Yap_GetFromSlot(t PASS_REGS),cterm);
+  return YAP_Unify(Yap_GetFromSlot(t),cterm);
 }
 
 /* SWI: int PL_unify_integer(term_t ?t, long n)
    YAP long int  unify(YAP_Term* a, Term* b) */
 int PL_unify_integer__LD(term_t t, intptr_t i ARG_LD)
-{	
+{
   REGS_FROM_LD
   Term iterm = MkIntegerTerm(i);
-  return Yap_unify(Yap_GetFromSlot(t PASS_REGS),iterm);
+  return Yap_unify(Yap_GetFromSlot(t),iterm);
 }
 
 /* SWI: int PL_unify_integer(term_t ?t, long n)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_int64__LD(term_t t, int64_t n ARG_LD)
-{	
+{
   REGS_FROM_LD
 #if SIZEOF_INT_P==8
   Term iterm = MkIntegerTerm(n);
-  return Yap_unify(Yap_GetFromSlot(t PASS_REGS),iterm);
+  return Yap_unify(Yap_GetFromSlot(t),iterm);
 #elif USE_GMP
   YAP_Term iterm;
   char s[64];
@@ -1190,7 +1179,7 @@ X_API int PL_unify_int64__LD(term_t t, int64_t n ARG_LD)
 #endif
   mpz_init_set_str (&rop, s, 10);
   iterm = YAP_MkBigNumTerm((void *)&rop);
-  return YAP_Unify(Yap_GetFromSlot(t PASS_REGS),iterm);
+  return YAP_Unify(Yap_GetFromSlot(t),iterm);
 #else
   if ((long)n == n)
     return PL_unify_integer(t, n);
@@ -1238,12 +1227,12 @@ PL_w32thread_raise(DWORD id, int sig)
   if ( sig < 0 || sig > MAXSIGNAL )
     return FALSE;			/* illegal signal */
 
-  PL_LOCK(L_PLFLAG);	
+  PL_LOCK(L_PLFLAG);
   for(i = 0; i <= thread_highest_id; i++)
     { PL_thread_info_t *info = GD->thread.threads[i];
-      
+
       if ( info && info->w32id == id && info->thread_data )
-	{ 
+	{
 	  Sfprintf(GLOBAL_stderr, "post %d %d\n\n\n",i, sig);
 	  Yap_external_signal(i, sig); //raiseSignal(info->thread_data, sig);
 	  if ( info->w32id )
@@ -1254,7 +1243,7 @@ PL_w32thread_raise(DWORD id, int sig)
 	}
     }
   PL_UNLOCK(L_PLFLAG);
-  
+
   return FALSE;				/* can't find thread */
 }
 

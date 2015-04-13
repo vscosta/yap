@@ -2703,7 +2703,7 @@ PRED_IMPL("put_byte", 2, put_byte2, 0)
 }
 
 
-/** @pred  put_byte(+ _N_) is iso 
+/** @pred  put_byte(+ _N_) is iso
 
 
 Outputs to the current output stream the character whose code is
@@ -2737,7 +2737,7 @@ put_code(term_t stream, term_t chr ARG_LD)
 
 As `put_code(N)`, but to text stream  _S_.
 
- 
+
 */
 /** @pred  put_char(+ _S_,+ _A_) is iso
 
@@ -2762,7 +2762,7 @@ text stream.
 
 
 */
-/** @pred  put_code(+ _N_) is iso 
+/** @pred  put_code(+ _N_) is iso
 
 
 Outputs to the current output stream the character whose ASCII code is
@@ -2770,7 +2770,7 @@ Outputs to the current output stream the character whose ASCII code is
  _N_ must be a legal ASCII character code, an expression yielding such
 a code, or a list in which case only the first element is used.
 
- 
+
 */
 static
 PRED_IMPL("put_code", 1, put_code1, 0)
@@ -2784,7 +2784,7 @@ PRED_IMPL("put_code", 1, put_code1, 0)
 
 As `put(N)`, but to stream  _S_.
 
- 
+
 */
 static
 PRED_IMPL("put", 2, put2, 0)
@@ -2794,7 +2794,7 @@ PRED_IMPL("put", 2, put2, 0)
 }
 
 
-/** @pred  put(+ _N_) 
+/** @pred  put(+ _N_)
 
 
 Outputs to the current output stream the character whose ASCII code is
@@ -2802,7 +2802,7 @@ Outputs to the current output stream the character whose ASCII code is
 expression yielding such a code, or a list in which case only the first
 element is used.
 
- 
+
 */
 static
 PRED_IMPL("put", 1, put1, 0)
@@ -2838,7 +2838,7 @@ get_nonblank(term_t in, term_t chr ARG_LD)
 }
 
 
-/** @pred  get(- _C_) 
+/** @pred  get(- _C_)
 
 
 The next non-blank character from the current input stream is unified
@@ -2847,7 +2847,7 @@ greater than 32. If there are no more non-blank characters in the
 stream,  _C_ is unified with -1. If `end_of_stream` has already
 been reached in the previous reading, this call will give an error message.
 
- 
+
 */
 static
 PRED_IMPL("get", 1, get1, 0)
@@ -2861,7 +2861,7 @@ PRED_IMPL("get", 1, get1, 0)
 
 The same as `get(C)`, but from stream  _S_.
 
- 
+
 */
 static
 PRED_IMPL("get", 2, get2, 0)
@@ -2889,14 +2889,14 @@ skip(term_t in, term_t chr ARG_LD)
 }
 
 
-/** @pred  skip(+ _N_) 
+/** @pred  skip(+ _N_)
 
 
 Skips input characters until the next occurrence of the character with
 ASCII code  _N_. The argument to this predicate can take the same forms
 as those for `put` (see 6.11).
 
- 
+
 */
 static
 PRED_IMPL("skip", 1, skip1, 0)
@@ -2911,7 +2911,7 @@ PRED_IMPL("skip", 1, skip1, 0)
 Like skip/1, but using stream  _S_ instead of the current
 input stream.
 
- 
+
 */
 static
 PRED_IMPL("skip", 2, skip2, 0)
@@ -2979,7 +2979,7 @@ If  _C_ is unbound, or is a character code, and the stream  _S_ is a
 binary stream, read the next byte from that stream and unify its
 code with  _C_.
 
- 
+
 */
 static
 PRED_IMPL("get_byte", 2, get_byte2, 0)
@@ -2989,14 +2989,14 @@ PRED_IMPL("get_byte", 2, get_byte2, 0)
 }
 
 
-/** @pred  get_byte(- _C_) is iso 
+/** @pred  get_byte(- _C_) is iso
 
 
 If  _C_ is unbound, or is a character code, and the current stream is a
 binary stream, read the next byte from the current stream and unify its
 code with  _C_.
 
- 
+
 */
 static
 PRED_IMPL("get_byte", 1, get_byte1, 0)
@@ -3038,7 +3038,7 @@ If  _C_ is unbound, or is a character code, and the stream  _S_ is a
 text stream, read the next character from that stream and unify its
 code with  _C_.
 
- 
+
 */
 static
 PRED_IMPL("get_code", 2, get_code2, 0)
@@ -3047,14 +3047,14 @@ PRED_IMPL("get_code", 2, get_code2, 0)
 }
 
 
-/** @pred  get_code(- _C_) is iso 
+/** @pred  get_code(- _C_) is iso
 
 
 If  _C_ is unbound, or is the code for a character, and
 the current stream is a text stream, read the next character from the
 current stream and unify its code with  _C_.
 
- 
+
 */
 static
 PRED_IMPL("get_code", 1, get_code1, 0)
@@ -3090,7 +3090,7 @@ If  _C_ is unbound, or is an atom representation of a character, and
 the stream  _S_ is a text stream, read the next character from that
 stream and unify its representation as an atom with  _C_.
 
- 
+
 */
 static
 PRED_IMPL("get_char", 2, get_char2, 0)
@@ -3099,14 +3099,14 @@ PRED_IMPL("get_char", 2, get_char2, 0)
 }
 
 
-/** @pred  get_char(- _C_) is iso 
+/** @pred  get_char(- _C_) is iso
 
 
 If  _C_ is unbound, or is an atom representation of a character, and
 the current stream is a text stream, read the next character from the
 current stream and unify its atom representation with  _C_.
 
- 
+
 */
 static
 PRED_IMPL("get_char", 1, get_char1, 0)
@@ -3181,7 +3181,7 @@ PRED_IMPL("protocolling", 1, protocolling, 0)
 }
 
 
-/** @pred prompt(- _A_,+ _B_) 
+/** @pred prompt(- _A_,+ _B_)
 
 Changes YAP input prompt from  _A_ to  _B_.
 */
@@ -3280,7 +3280,7 @@ tab(term_t out, term_t spaces ARG_LD)
 
 The same as tab/1, but using stream  _S_.
 
- 
+
 */
 static
 PRED_IMPL("tab", 2, tab2, 0)
@@ -3289,12 +3289,12 @@ PRED_IMPL("tab", 2, tab2, 0)
   return tab(A1, A2 PASS_LD);
 }
 
-/** @pred  tab(+ _N_) 
+/** @pred  tab(+ _N_)
 
 
 Outputs  _N_ spaces to the current output stream.
 
- 
+
 */
 static
 PRED_IMPL("tab", 1, tab1, 0)
@@ -3413,7 +3413,7 @@ openStream(term_t file, term_t mode, term_t options)
   int    reposition     = TRUE;
   atom_t alias	        = NULL_ATOM;
   atom_t eof_action     = ATOM_eof_code;
-  int    close_on_abort = TRUE;  
+  int    close_on_abort = TRUE;
   atom_t buffer         = ATOM_full;
   atom_t lock		= ATOM_none;
   int	 wait		= TRUE;
@@ -3533,15 +3533,6 @@ openStream(term_t file, term_t mode, term_t options)
 #endif /*HAVE_POPEN*/
   if ( PL_get_file_name(file, &path, 0) )
   {
-#if __ANDROID__
-      if (strstr(path,"/assets/")) {
-	  if (!(s=Sopen_asset(path+8, "r", GLOBAL_assetManager)))
-	    { PL_error(NULL, 0, OsError(), ERR_FILE_OPERATION,
-	    	       ATOM_open, ATOM_source_sink, file);
-	      return NULL;
-	    }
-      } else
-#endif
     if ( !(s = Sopen_file(path, how)) )
     { PL_error(NULL, 0, OsError(), ERR_FILE_OPERATION,
 	       ATOM_open, ATOM_source_sink, file);
@@ -3697,7 +3688,7 @@ open_expands_filename.
 
 
 
- 
+
 */
 static
 PRED_IMPL("open", 4, open4, PL_FA_ISO)
@@ -3710,7 +3701,7 @@ PRED_IMPL("open", 4, open4, PL_FA_ISO)
 }
 
 
-/** @pred  open(+ _F_,+ _M_,- _S_) is iso 
+/** @pred  open(+ _F_,+ _M_,- _S_) is iso
 
 
 Opens the file with name  _F_ in mode  _M_ (`read`, `write` or
@@ -3828,7 +3819,7 @@ pl_seen(void)
   return symbol_no_stream(ATOM_current_input);
 }
 
-/** @pred  see(+ _S_) 
+/** @pred  see(+ _S_)
 
 
 If  _S_ is a currently opened input stream then it is assumed to be
@@ -3844,7 +3835,7 @@ When  _S_ is a stream not currently opened for input, an error may be
 reported, depending on the state of the `file_errors` flag. If
  _S_ is neither a stream nor an atom the predicates just fails.
 
- 
+
 */
 static
 PRED_IMPL("see", 1, see, 0)
@@ -3852,7 +3843,7 @@ PRED_IMPL("see", 1, see, 0)
 }
 
 
-/** @pred  seen 
+/** @pred  seen
 
 
 Closes the current input stream (see 6.7.).
@@ -3864,12 +3855,12 @@ PRED_IMPL("seen", 0, seen, 0)
 }
 
 
-/** @pred  seeing(- _S_) 
+/** @pred  seeing(- _S_)
 
 
 The current input stream is unified with  _S_.
 
- 
+
 */
 static
 PRED_IMPL("seeing", 1, seeing, 0)
@@ -3925,7 +3916,7 @@ ok:
   return TRUE;
 }
 
-/** @pred  tell(+ _S_) 
+/** @pred  tell(+ _S_)
 
 
 If  _S_ is a currently opened stream for output, it becomes the
@@ -3941,7 +3932,7 @@ Whenever  _S_ is a stream not currently opened for output, an error
 may be reported, depending on the state of the file_errors flag. The
 predicate just fails, if  _S_ is neither a stream nor an atom.
 
- 
+
 */
 static
 PRED_IMPL("tell", 1, tell, 0)
@@ -3953,12 +3944,12 @@ PRED_IMPL("append", 1, append, 0)
 { return do_tell(A1, ATOM_append);
 }
 
-/** @pred  telling(- _S_) 
+/** @pred  telling(- _S_)
 
 
 The current output stream is unified with  _S_.
 
- 
+
 */
 static
 PRED_IMPL("telling", 1, telling, 0)
@@ -3970,7 +3961,7 @@ PRED_IMPL("telling", 1, telling, 0)
   return PL_unify_stream(A1, Scurout);
 }
 
-/** @pred  told 
+/** @pred  told
 
 
 Closes the current output stream, and the user's terminal becomes again
@@ -3978,7 +3969,7 @@ the current output stream. It is important to remember to close streams
 after having finished using them, as the maximum number of
 simultaneously opened streams is 17.
 
- 
+
 */
 static
 PRED_IMPL("told", 0, told, 0)
@@ -4128,14 +4119,14 @@ pl_close(term_t stream, int force ARG_LD)
 }
 
 
-/** @pred  close(+ _S_) is iso 
+/** @pred  close(+ _S_) is iso
 
 
 Closes the stream  _S_. If  _S_ does not stand for a stream
 currently opened an error is reported. The streams user_input,
 user_output, and user_error can never be closed.
 
- 
+
 */
 static
 PRED_IMPL("close", 1, close, PL_FA_ISO)
@@ -4153,12 +4144,12 @@ static const opt_spec close2_options[] =
 
 /** @pred  close(+ _S_,+ _O_) is iso
 
-Closes the stream  _S_, following options  _O_. 
+Closes the stream  _S_, following options  _O_.
 
 The only valid options are `force(true)` and `force(false)`.
 YAP currently ignores these options.
 
- 
+
 */
 static
 PRED_IMPL("close", 2, close2, PL_FA_ISO)
@@ -4560,7 +4551,7 @@ typedef struct
 } prop_enum;
 
 
-/** @pred  stream_property(? _Stream_,? _Prop_) is iso 
+/** @pred  stream_property(? _Stream_,? _Prop_) is iso
 
 
 
@@ -4633,12 +4624,12 @@ The initial mode is `prolog` for the user streams and
 
 
 
-+ current_line_number(- _LineNumber_) 
++ current_line_number(- _LineNumber_)
 
 
 Unify  _LineNumber_ with the line number for the current stream.
 
- 
+
 */
 static
 PRED_IMPL("stream_property", 2, stream_property,
@@ -4848,7 +4839,7 @@ PRED_IMPL("stream_property", 2, stream_property,
 }
 
 
-/** @pred  is_stream( _S_) 
+/** @pred  is_stream( _S_)
 
 
 Succeeds if  _S_ is a currently open stream.
@@ -4891,12 +4882,12 @@ flush_output(term_t out ARG_LD)
   return FALSE;
 }
 
-/** @pred  flush_output is iso 
+/** @pred  flush_output is iso
 
 
 Send out all data in the output buffer of the current output stream.
 
- 
+
 */
 static
 PRED_IMPL("flush_output", 0, flush_output, PL_FA_ISO)
@@ -4909,7 +4900,7 @@ PRED_IMPL("flush_output", 0, flush_output, PL_FA_ISO)
 
 Send all data in the output buffer for stream  _S_.
 
- 
+
 */
 static
 PRED_IMPL("flush_output", 1, flush_output1, PL_FA_ISO)
@@ -4973,13 +4964,13 @@ getRepositionableStream(term_t stream, IOSTREAM **sp)
 }
 
 
-/** @pred  set_stream_position(+ _S_, + _POS_) is iso 
+/** @pred  set_stream_position(+ _S_, + _POS_) is iso
 
 
 Given a stream position  _POS_ for a stream  _S_, set the current
 stream position for  _S_ to be  _POS_.
 
- 
+
 */
 static
 PRED_IMPL("set_stream_position", 2, set_stream_position, PL_FA_ISO)
@@ -5079,13 +5070,13 @@ PRED_IMPL("seek", 4, seek, 0)
 }
 
 
-/** @pred  set_input(+ _S_) is iso 
+/** @pred  set_input(+ _S_) is iso
 
 
 Set stream  _S_ as the current input stream. Predicates like read/1
 and get/1 will start using stream  _S_.
 
- 
+
 */
 static
 PRED_IMPL("set_input", 1, set_input, PL_FA_ISO)
@@ -5108,7 +5099,7 @@ PRED_IMPL("set_input", 1, set_input, PL_FA_ISO)
 Set stream  _S_ as the current output stream. Predicates like
 write/1 and put/1 will start using stream  _S_.
 
- 
+
 */
 static
 PRED_IMPL("set_output", 1, set_output, PL_FA_ISO)
@@ -5125,12 +5116,12 @@ PRED_IMPL("set_output", 1, set_output, PL_FA_ISO)
 }
 
 
-/** @pred  current_input(- _S_) is iso 
+/** @pred  current_input(- _S_) is iso
 
 
 Unify  _S_ with the current input stream.
 
- 
+
 */
 static
 PRED_IMPL("current_input", 1, current_input, PL_FA_ISO)
@@ -5139,12 +5130,12 @@ PRED_IMPL("current_input", 1, current_input, PL_FA_ISO)
 }
 
 
-/** @pred  current_output(- _S_) is iso 
+/** @pred  current_output(- _S_) is iso
 
 
 Unify  _S_ with the current output stream.
 
- 
+
 */
 static
 PRED_IMPL("current_output", 1, current_output, PL_FA_ISO)
@@ -5177,13 +5168,13 @@ PRED_IMPL("byte_count", 2, byte_count, 0)
 }
 
 
-/** @pred  character_count(+ _Stream_,- _CharacterCount_) 
+/** @pred  character_count(+ _Stream_,- _CharacterCount_)
 
 
 Unify  _CharacterCount_ with the number of characters written to or
 read from  _Stream_.
 
- 
+
 */
 static
 PRED_IMPL("character_count", 2, character_count, 0)
@@ -5201,12 +5192,12 @@ PRED_IMPL("character_count", 2, character_count, 0)
 }
 
 
-/** @pred  line_count(+ _Stream_,- _LineNumber_) 
+/** @pred  line_count(+ _Stream_,- _LineNumber_)
 
 
 Unify  _LineNumber_ with the line number for the  _Stream_.
 
- 
+
 */
 static
 PRED_IMPL("line_count", 2, line_count, 0)
@@ -5224,13 +5215,13 @@ PRED_IMPL("line_count", 2, line_count, 0)
 }
 
 
-/** @pred  line_position(+ _Stream_,- _LinePosition_) 
+/** @pred  line_position(+ _Stream_,- _LinePosition_)
 
 
 Unify  _LinePosition_ with the position on current text stream
  _Stream_.
 
- 
+
 */
 static
 PRED_IMPL("line_position", 2, line_position, 0)
@@ -5289,7 +5280,7 @@ at_end_of_stream(term_t stream ARG_LD)
 Succeed if the stream  _S_ has stream position end-of-stream or
 past-end-of-stream. Note that  _S_ must be a readable stream.
 
- 
+
 */
 static
 PRED_IMPL("at_end_of_stream", 1, at_end_of_stream, PL_FA_ISO)
@@ -5297,13 +5288,13 @@ PRED_IMPL("at_end_of_stream", 1, at_end_of_stream, PL_FA_ISO)
   return at_end_of_stream(A1 PASS_LD);
 }
 
-/** @pred  at_end_of_stream is iso 
+/** @pred  at_end_of_stream is iso
 
 
 Succeed if the current stream has stream position end-of-stream or
 past-end-of-stream.
 
- 
+
 */
 static
 PRED_IMPL("at_end_of_stream", 0, at_end_of_stream0, PL_FA_ISO)
@@ -5327,13 +5318,13 @@ peek(term_t stream, term_t chr, int how ARG_LD)
 
   if ( how == PL_BYTE )
   { IOPOS pos = s->posbuf;
-
     c = Sgetc(s);
-    if ( c != EOF )
-      Sungetc(c, s);
+    if ( c != EOF ){
+       Sungetc(c, s);
+        }
     s->posbuf = pos;
-  } else
-  { c = Speekcode(s);
+  } else {
+c = Speekcode(s);
   }
   if ( Sferror(s) )
     return streamStatus(s);
@@ -5359,7 +5350,7 @@ If  _C_ is unbound, or is a character code, and  _S_ is a binary
 stream, read the next byte from the current stream and unify its code
 with  _C_, while leaving the current stream position unaltered.
 
- 
+
 */
 static
 PRED_IMPL("peek_byte", 2, peek_byte2, 0)
@@ -5368,14 +5359,14 @@ PRED_IMPL("peek_byte", 2, peek_byte2, 0)
 }
 
 
-/** @pred  peek_byte(- _C_) is iso 
+/** @pred  peek_byte(- _C_) is iso
 
 
 If  _C_ is unbound, or is a character code, and the current stream is a
 binary stream, read the next byte from the current stream and unify its
 code with  _C_, while leaving the current stream position unaltered.
 
- 
+
 */
 static
 PRED_IMPL("peek_byte", 1, peek_byte1, 0)
@@ -5391,7 +5382,7 @@ the stream  _S_ is a text stream, read the next character from that
 stream and unify its representation as an atom with  _C_, while leaving
 the current stream position unaltered.
 
- 
+
 */
 static
 PRED_IMPL("peek_code", 2, peek_code2, 0)
@@ -5407,7 +5398,7 @@ the stream  _S_ is a text stream, read the next character from that
 stream and unify its representation as an atom with  _C_, while leaving
 the current stream position unaltered.
 
- 
+
 */
 static
 PRED_IMPL("peek_code", 1, peek_code1, 0)
@@ -5423,7 +5414,7 @@ the stream  _S_ is a text stream, read the next character from that
 stream and unify its representation as an atom with  _C_, while leaving
 the current stream position unaltered.
 
- 
+
 */
 static
 PRED_IMPL("peek_char", 2, peek_char2, 0)
@@ -5431,7 +5422,7 @@ PRED_IMPL("peek_char", 2, peek_char2, 0)
   return peek(A1, A2, PL_CHAR PASS_LD);
 }
 
-/** @pred  peek_char(- _C_) is iso 
+/** @pred  peek_char(- _C_) is iso
 
 
 If  _C_ is unbound, or is an atom representation of a character, and
@@ -5439,7 +5430,7 @@ the current stream is a text stream, read the next character from the
 current stream and unify its atom representation with  _C_, while
 leaving the current stream position unaltered.
 
- 
+
 */
 static
 PRED_IMPL("peek_char", 1, peek_char1, 0)
@@ -5755,7 +5746,7 @@ BeginPredDefs(file)
   PRED_DEF("get0", 1, get_code1, 0)
   PRED_DEF("ttyflush", 0, ttyflush, 0)
   PRED_DEF("prompt", 2, prompt, 0)
-  PRED_DEF("tab", 2, tab2, 0)
+PRED_DEF("tab", 2, tab2, 0)
   PRED_DEF("tab", 1, tab1, 0)
 					/* Quintus IO */
   PRED_DEF("byte_count", 2, byte_count, 0)
@@ -5883,20 +5874,20 @@ static const PL_extension foreigns[] = {
   FRG("print",			1, pl_print,			0),
   FRG("writeln",		1, pl_writeln,			0),
   FRG("nl",			1, pl_nl1,		      ISO),
-  FRG("format",			2, pl_format,		     META),
+  FRG("format",			2, pl_format,		     METAP),
 
   FRG("write",			2, pl_write2,		      ISO),
   FRG("writeq",			2, pl_writeq2,		      ISO),
   FRG("print",			2, pl_print2,			0),
   FRG("write_canonical",	2, pl_write_canonical2,	      ISO),
-  FRG("format",			3, pl_format3,		     META),
+  FRG("format",			3, pl_format3,		     METAP),
   FRG("sleep",			1, pl_sleep,			0),
   FRG("get_time",		1, pl_get_time,			0),
 
   // vsc
-  FRG("format_predicate",	2, pl_format_predicate,	     META),
+  FRG("format_predicate",	2, pl_format_predicate,	     METAP),
   FRG("current_format_predicate", 2, pl_current_format_predicate,
-						        META|NDET),
+						        METAP|NDET),
   FRG("$raw_read",		1, pl_raw_read,			0),
   FRG("$raw_read",		2, pl_raw_read2,		0),
 
@@ -5906,37 +5897,11 @@ static const PL_extension foreigns[] = {
   LFRG((char *)NULL,		0, NULL,			0)
 };
 
-#if __ANDROID__
-JNIEnv *Yap_jenv;
-
-void Java_pt_up_fc_dcc_yap_JavaYap_load(JNIEnv *env0, jobject obj, jobject mgr);
-
-void Java_pt_up_fc_dcc_yap_JavaYap_load
-     (JNIEnv *env0, jobject obj, jobject mgr0)
-{
-  AAssetManager *mgr = AAssetManager_fromJava(env0, mgr0);
-  Yap_jenv = env0;
-  if (mgr == NULL) {
-    __android_log_print(ANDROID_LOG_DEBUG, "YapJava", "Need to print : we're doomed, mgr = 0; bip bip bip");
-  } else {
-    __android_log_print(ANDROID_LOG_DEBUG, "YapJava", "Need to print : we're winning, mgr = %p; yeah", mgr);
-    GLOBAL_assetManager = mgr;
-  }
-}
-
-AAssetManager *Yap_assetManager( void );
-
-AAssetManager *Yap_assetManager( void )
-{
-  return GLOBAL_assetManager;
-}
-#endif
-
 
 struct PL_local_data *Yap_InitThreadIO(int wid)
 {
   struct PL_local_data *p;
-  if (wid) 
+  if (wid)
     p = (struct PL_local_data *)malloc(sizeof(struct PL_local_data));
   else
     return &lds;
@@ -6046,4 +6011,3 @@ init_yap(void)
 /**
 @}
 */
-

@@ -44,11 +44,16 @@
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 #include <android/log.h>
+
+int Yap_isAsset( const char *path );
+
+#define LOG(...) __android_log_print(ANDROID_LOG_DEBUG,"YAP Stream", __VA_ARGS__)
 #else
 #define __android_log_print(i,loc,msg,...)
 #define ANDROID_LOG_INFO 0
 #define ANDROID_LOG_ERROR 0
 #define ANDROID_LOG_DEBUG 0
+#define LOG(...)
 #endif
 
 
@@ -768,7 +773,8 @@ unget_byte(int c, IOSTREAM *s)
 
 int
 Sungetc(int c, IOSTREAM *s)
-{ if ( s->bufp > s->unbuffer )
+{
+  if ( s->bufp > s->unbuffer )
   { unget_byte(c, s);
 
     return c;
@@ -1153,7 +1159,6 @@ Speekcode(IOSTREAM *s)
 { int c;
   char *start;
   size_t safe = (size_t)-1;
-
   if ( !s->buffer )
   { if ( (s->flags & SIO_NBUF) )
     { errno = EINVAL;
@@ -1786,6 +1791,11 @@ object, which in turn calls the  ->unlink   which  may wish to close the
 associated stream.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
+#if __ANDROID__
+static int
+Sclose_asset(void *handle);
+#endif
+
 int
 Sclose(IOSTREAM *s)
 { int rval = 0;
@@ -1825,12 +1835,19 @@ Sclose(IOSTREAM *s)
     rval = -1;
   }
 
+#if __ANDROID__
+
+  if (s->functions->close == Sclose_asset) {
+#endif
   while(s->locks > 0)			/* remove buffer-locks */
   { int rc = Sunlock(s);
 
     if ( rval == 0 )
       rval = rc;
   }
+#if __ANDROID__
+  }
+#endif
   if ( rval < 0 )
     reportStreamError(s);
   run_close_hooks(s);			/* deletes Prolog registration */
@@ -2916,11 +2933,41 @@ Sopen_file(const char *path, const char *how)
 #endif
 
 #if __ANDROID__
-    if (strstr(path, "/assets/") == path) {
-	AAssetManager *Yap_assetManager( void );
-	char * p = (char *)path + strlen("/assets/");
-	return Sopen_asset( p, how-1, Yap_assetManager());
-    }
+  if (Yap_isAsset(path)) {
+      extern IOFUNCTIONS Sassetfunctions;
+      extern void *Yap_openAssetFile(const char *);
+
+      if (op != 'r')
+          return NULL;
+      for( ; *how; how++)
+      { switch(*how)
+          {
+              case 'b':				/* binary */
+              flags &= ~SIO_TEXT;
+              enc = ENC_OCTET;
+              break;
+              case 'r':				/* no record */
+              flags &= ~SIO_RECORDPOS;
+              break;
+              default:
+              errno = EINVAL;
+              return NULL;
+          }
+      }
+#if O_LARGEFILES && defined(O_LARGEFILE)
+  oflags |= O_LARGEFILE;
+#endif
+
+      lfd = (intptr_t)Yap_openAssetFile( path );
+      if (!lfd) {
+          errno = EINVAL;
+          return NULL;
+      }
+      Sfilefunctions = Sassetfunctions;
+      lock = 0;
+      flags |= SIO_INPUT;
+      goto build_stream;
+  }
 #endif
 
   for( ; *how; how++)
@@ -3037,6 +3084,9 @@ Sopen_file(const char *path, const char *how)
   }
 
   lfd = (intptr_t)fd;
+#if __ANDROID__
+ build_stream:
+#endif
   s = Snew((void *)lfd, flags, &Sfilefunctions);
   if ( enc != ENC_UNKNOWN )
     s->encoding = enc;
@@ -3331,66 +3381,6 @@ IOFUNCTIONS Sassetfunctions =
 Sopen_asset(char **buffer, size_t *sizep, const char* mode)
     Open an Android asset, essentially a read-only 	part of a ZIP archive.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-IOSTREAM *
-Sopen_asset(char *bufp, const char *how, AAssetManager* mgr)
-{
-  AAsset* asset;
-  int flags = SIO_FILE|SIO_TEXT|SIO_RECORDPOS|SIO_FBUF;
-  int op = *how++;
-  IOSTREAM *s;
-  IOENC enc = ENC_UNKNOWN;
-
-  for( ; *how; how++)
-  { switch(*how)
-    { case 'b':				/* binary */
-	flags &= ~SIO_TEXT;
-	enc = ENC_OCTET;
-        break;
-       case 'r':				/* no record */
-	flags &= ~SIO_RECORDPOS;
-        break;
-      case 'L':				/* lock r: read, w: write */
-      case 'l':				/* lock r: read, w: write */
-	// read-only, nothing changes.
-	break;
-      default:
-	errno = EINVAL;
-        return NULL;
-    }
-  }
-
-#if O_LARGEFILES && defined(O_LARGEFILE)
-  oflags |= O_LARGEFILE;
-#endif
-
-  switch(op)
-  { case 'w':
-      return NULL;
-    case 'a':
-      return NULL;
-    case 'u':
-      return NULL;
-    case 'r':
-      //const char *utf8 = (*env)->GetStringUTFChars(env, bufp, NULL);
-       asset = AAssetManager_open(mgr, bufp, AASSET_MODE_UNKNOWN);
-      flags |= SIO_INPUT;
-      break;
-    default:
-      errno = EINVAL;
-      return NULL;
-  }
-
-  if ( !asset )
-    return NULL;
-
-
-  s = Snew((void *)asset, flags, &Sassetfunctions);
-  if ( enc != ENC_UNKNOWN )
-    s->encoding = enc;
-
-  return s;
-}
 
 #endif /* __ANDROID__ */
 

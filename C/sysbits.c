@@ -107,13 +107,14 @@ static char SccsId[] = "%W% %G%";
 #include <readline/readline.h>
 #endif
 
+/// File Error Handler
 static void
 Yap_FileError(yap_error_number type, Term where, const char *format,...)
 {
   GET_LD
-    if ( truePrologFlag(PLFLAG_FILEERRORS) ) {  
+    if ( truePrologFlag(PLFLAG_FILEERRORS) ) {
       va_list ap;
-      
+
       va_start (ap, format);
       /* now build the error string */
       Yap_Error(type, TermNil, format, ap);
@@ -121,6 +122,7 @@ Yap_FileError(yap_error_number type, Term where, const char *format,...)
 
     }
 }
+
 
 
 static void InitTime(int);
@@ -141,24 +143,6 @@ static int chdir(char *);
 /* #define signal	skel_signal */
 #endif /* MACYAP */
 
-#if DEBUG
-
-void
-LOG(const char *fmt, ...);
-
-void
-LOG(const char *fmt, ...)
-{
-  FILE * fd;
-  va_list ap;
-
-  fd = fopen("c:\\cygwin\\Log.txt", "a");
-  va_start(ap, fmt);
-   vfprintf(fd, fmt, ap);
-  va_end(ap);
-  fclose( fd );
-}
-#endif
 
 void exit(int);
 
@@ -180,12 +164,118 @@ Yap_WinError(char *yap_error)
 #define is_valid_env_char(C) ( ((C) >= 'a' && (C) <= 'z') || ((C) >= 'A' && \
 			       (C) <= 'Z') || (C) == '_' )
 
+#if __ANDROID__
+
+AAssetManager * Yap_assetManager;
+
+
+void *
+Yap_openAssetFile( const char *path ) {
+ AAssetDir *d;
+   LOG("openA %s %p", path, path);
+
+  const char * p = path+8;
+  AAsset* asset = AAssetManager_open(Yap_assetManager, p, AASSET_MODE_UNKNOWN);
+  return asset;
+}
+
+bool
+Yap_isAsset( const char *path )
+{
+  return path[0] == '/'&&
+  path[1] == 'a'&&
+  path[2] == 's'&&
+  path[3] == 's'&&
+  path[4] == 'e'&&
+  path[5] == 't'&&
+  path[6] == 's'&&
+  (path[7] == '/' || path[7] == '\0');
+}
+
+bool
+Yap_AccessAsset( const char *name, int mode )
+{
+    AAssetManager* mgr = Yap_assetManager;
+    const char *bufp=name+7;
+    if (bufp[0] == '/')
+    bufp++;
+    if ((mode & W_OK) == W_OK) {
+      return false;
+    }
+    // check if file is a directory.
+    AAssetDir *assetDir = AAssetManager_openDir(mgr, bufp);
+    if (assetDir) {
+      AAssetDir_close(assetDir);
+      return true;
+    }
+   return false;
+}
+
+bool
+Yap_AssetIsFile( const char *name )
+{
+   AAssetManager* mgr = Yap_assetManager;
+    const char *bufp=name+7;
+    if (bufp[0] == '/')
+    bufp++;
+    // check if file is a directory.
+   AAsset *asset = AAssetManager_open(mgr, bufp, AASSET_MODE_UNKNOWN);
+    if (!asset)
+      return false;
+    AAsset_close(asset);
+ return true;
+}
+
+bool
+Yap_AssetIsDir( const char *name )
+{
+   AAssetManager* mgr = Yap_assetManager;
+    const char *bufp=name+7;
+    if (bufp[0] == '/')
+    bufp++;
+    // check if file is a directory.
+    AAssetDir *assetDir = AAssetManager_openDir(mgr, bufp);
+    if (!assetDir) {
+      return false;
+    }
+    AAssetDir_close(assetDir);
+    AAsset *asset = AAssetManager_open(mgr, bufp, AASSET_MODE_UNKNOWN);
+    if (!asset)
+      return true;
+    AAsset_close(asset);
+ return false;
+}
+
+int64_t
+Yap_AssetSize( const char *name )
+{
+   AAssetManager* mgr = Yap_assetManager;
+    const char *bufp=name+7;
+    if (bufp[0] == '/')
+    bufp++;
+    AAsset *asset = AAssetManager_open(mgr, bufp, AASSET_MODE_UNKNOWN);
+    if (!asset)
+    return -1;
+  off64_t len = AAsset_getLength64(asset);
+      AAsset_close(asset);
+  return len;
+}
+#endif
+
+
 
 /// is_directory: verifies whether an expanded file name
 /// points at a readable directory
 static bool
 is_directory(const char *FileName)
 {
+#ifdef __ANDROID__
+  if (Yap_isAsset(FileName)) {
+      return Yap_AssetIsDir(FileName);
+   }
+
+#endif
+
 #ifdef __WINDOWS__
   DWORD dwAtts = GetFileAttributes( FileName );
    if (dwAtts == INVALID_FILE_ATTRIBUTES)
@@ -200,8 +290,8 @@ is_directory(const char *FileName)
    }
    return S_ISDIR(buf.st_mode);
  #else
-   Yap_Error(SYSTEM_ERROR, TermNil,  
-             "stat not available in this configuration");  
+   Yap_Error(SYSTEM_ERROR, TermNil,
+             "stat not available in this configuration");
    return false;
  #endif
  }
@@ -211,17 +301,22 @@ is_directory(const char *FileName)
 static bool
 has_access(const char *FileName, int mode)
 {
-#if HAS_ACCESS
+#ifdef __ANDROID__
+  if (Yap_isAsset(FileName)) {
+      return Yap_AccessAsset(FileName, mode);
+   }
+#endif
+#if HAVE_ACCESS
   if (access( FileName, mode ) == 0)
     return true;
   if (errno == EINVAL) {
-    Yap_Error(SYSTEM_ERROR, TermNil,  
+    Yap_Error(SYSTEM_ERROR, TermNil,
               "bad flags to access");
   }
   return false;
 #else
-  Yap_Error(SYSTEM_ERROR, TermNil,  
-            "access not available in this configuration");  
+  Yap_Error(SYSTEM_ERROR, TermNil,
+            "access not available in this configuration");
   return false;
 #endif
 }
@@ -269,25 +364,125 @@ IsAbsolutePath(const char *p)
 #endif
 }
 
+#define isValidEnvChar(C) ( ((C) >= 'a' && (C) <= 'z') || ((C) >= 'A' && \
+			       (C) <= 'Z') || (C) == '_' )
+
+// this is necessary because
+// support for ~expansion at the beginning
+// systems like Android do not do this.
+static char *
+yapExpandVars (const char *source, char *result)
+{
+  const char *src = source;
+  char *res = result;
+
+
+  if (strlen(source) >= YAP_FILENAME_MAX) {
+    Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "%s in true_file-name is larger than the buffer size (%d bytes)", source, strlen(source));
+  }
+  /* step 1: eating home information */
+  if (source[0] == '~') {
+    if (dir_separator(source[1]) || source[1] == '\0')
+      {
+	char *s;
+	src++;
+#if defined(_WIN32)
+	s = getenv("HOMEDRIVE");
+	if (s != NULL)
+	  strncpy (result, getenv ("HOMEDRIVE"), YAP_FILENAME_MAX);
+	s = getenv("HOMEPATH");
+	if (s != NULL)
+	  strncpy (result, s, YAP_FILENAME_MAX);
+#else
+	s = getenv ("HOME");
+	if (s != NULL)
+	  strncpy (result, s, YAP_FILENAME_MAX);
+#endif
+      } else {
+#if HAVE_GETPWNAM
+      struct passwd *user_passwd;
+
+      src++;
+      while (!dir_separator((*res = *src)) && *res != '\0')
+	     res++, src++;
+       res[0] = '\0';
+      if ((user_passwd = getpwnam (result)) == NULL) {
+        Yap_FileError(OPERATING_SYSTEM_ERROR, MkAtomTerm(Yap_LookupAtom(source)),"User %s does not exist in %s", result, source);
+	return NULL;
+      }
+      strncpy (result, user_passwd->pw_dir, YAP_FILENAME_MAX);
+#else
+      Yap_FileError(OPERATING_SYSTEM_ERROR, MkAtomTerm(Yap_LookupAtom(source)),"User %s cannot be found in %s, missing getpwnam", result, source);
+      return NULL;
+#endif
+    }
+    strncat (result, src, YAP_FILENAME_MAX);
+    return result;
+  }
+#if !HAVE_WORDEXP
+  // do VARIABLE expansion
+  else if (source[0] == '$') {
+    /* follow SICStus expansion rules */
+    int ch;
+    char *s;
+    src = source+1;
+    if (src[0] == '{') {
+      src++;
+      while ((*res++ = (ch = *src++)) && isValidEnvChar (ch) && ch != '}') {
+	       res++;
+      }
+      if (ch == '}') {
+	       // {...}
+         // done
+      }
+    } else {
+      while ((*res++ = (ch = *src++)) && isValidEnvChar (ch) && ch != '}') {
+	       res++;
+      }
+      src--;
+    }
+    res[0] = '\0';
+  if ((s = (char *) getenv (result))) {
+      strncpy (result, s, YAP_FILENAME_MAX);
+    } else {
+      result[0] = '\0';
+    }
+    strncat (result, src, YAP_FILENAME_MAX);
+  }
+#endif
+  else {
+    strncpy (result, source, YAP_FILENAME_MAX);
+  }
+  return result;
+}
+
 char *
 expandVars(const char *pattern, char *expanded, int maxlen)
 {
+
+  char tmp[YAP_FILENAME_MAX+1];
+  if ((pattern = yapExpandVars(pattern, tmp)) == NULL) {
+    return NULL;
+  }
 #if __WIN32 || __MINGW32__
   DWORD  retval=0;
   // notice that the file does not need to exist1
+  if (ini == NULL) {
+    ini = malloc(strlen(w)+1);
+  }
   retval = ExpandEnvironmentStrings(pattern,
 				    expanded,
 				    maxlen);
-    
-  if (retval == 0) 
+
+  if (retval == 0)
     {
       Yap_WinError("Generating a full path name for a file" );
       return NULL;
     }
-  return expanded; 
-#elif HAVE_WORDEXP  
-wordexp_t result;
-  
+  return expanded;
+#elif HAVE_WORDEXP
+  wordexp_t result;
+
   /* Expand the string for the program to run.  */
   switch (wordexp (pattern, &result, 0))
     {
@@ -297,6 +492,9 @@ wordexp_t result;
 	return NULL;
       } else {
 	char *w = result.we_wordv[0];
+  if (expanded == NULL) {
+    expanded = malloc(strlen(w)+1);
+  }
 	strncpy( expanded, w, maxlen );
 	wordfree (&result);
 	return expanded;
@@ -309,8 +507,15 @@ wordexp_t result;
     default:                    /* Some other error.  */
       return NULL;
     }
+#else
+  // just use basic
+  if (expanded == NULL) {
+    expanded = malloc(strlen(pattern)+1);
+  }
+  strcpy(expanded, pattern);
+
 #endif
-  return NULL;
+  return expanded;
 }
 
 #if _WIN32 || defined(__MINGW32__)
@@ -378,15 +583,17 @@ PrologPath(const char *p, char *buf, size_t len)
 
 char *
 OsPath(const char *p, char *buf)
-{ strcpy(buf, p);
+{
+  if()z
+  trcpy(buf, p);
 
   return buf;
 }
 #else
 char *
 OsPath(const char *X, char *Y) {
-  if (X!=Y && Y) strcpy(Y,X);
-  return Y;
+  //if (X!=Y && Y) strcpy(Y,X);
+  return (char *)X  ;
 }
 #endif /* O_XOS */
 
@@ -398,10 +605,33 @@ OsPath(const char *X, char *Y) {
 
 bool ChDir(const char *path) {
   bool rc = false;
-  char *qpath = AbsoluteFile(path, NULL);  
+  char *qpath = AbsoluteFile(path, NULL);
 
+#ifdef __ANDROID__
+  if (GLOBAL_AssetsWD) {
+    free( GLOBAL_AssetsWD );
+    GLOBAL_AssetsWD = NULL;
+  }
+  if (Yap_isAsset(qpath) ) {
+    AAssetManager* mgr = Yap_assetManager;
+    const char *ptr = qpath+8;
+    AAssetDir* d;
+    if (ptr[0] == '/')
+      ptr++;
+    d = AAssetManager_openDir(mgr, ptr);
+    if (d) {
+      GLOBAL_AssetsWD = malloc( strlen(qpath) + 1 );
+      strcpy( GLOBAL_AssetsWD, qpath );
+      AAssetDir_close( d );
+      return true;
+    }
+    return false;
+  } else {
+    GLOBAL_AssetsWD = NULL;
+  }
+#endif
 #if _WIN32 || defined(__MINGW32__)
-  GET_LD  
+  GET_LD
     if ((rc = (SetCurrentDirectory(qpath) != 0)) == 0)
     {
       Yap_WinError("SetCurrentDirectory failed" );
@@ -415,7 +645,7 @@ bool ChDir(const char *path) {
 #if _WIN32 || defined(__MINGW32__)
 char *
 BaseName(const char *X) {
-  char *qpath = unix2win(X, NULL, YAP_FILENAME_MAX);  
+  char *qpath = unix2win(X, NULL, YAP_FILENAME_MAX);
   char base[YAP_FILENAME_MAX], ext[YAP_FILENAME_MAX];
   _splitpath(qpath, NULL, NULL, base, ext);
   strcpy(qpath, base);
@@ -425,16 +655,16 @@ BaseName(const char *X) {
 
 char *
 DirName(const char *X) {
-  char dir[YAP_FILENAME_MAX];    
-  char drive[YAP_FILENAME_MAX];    
+  char dir[YAP_FILENAME_MAX];
+  char drive[YAP_FILENAME_MAX];
   char *o = unix2win(X, NULL, YAP_FILENAME_MAX);
   int err;
-  if (!o)    
-    return NULL;  
+  if (!o)
+    return NULL;
   if (( err = _splitpath_s(o, drive, YAP_FILENAME_MAX-1, dir, YAP_FILENAME_MAX-1,NULL, 0, NULL, 0) ) != 0) {
-    Yap_FileError(OPERATING_SYSTEM_ERROR, TermNil, "could not perform _splitpath %s: %s", X, strerror(errno));      
-    return NULL;      
-    
+    Yap_FileError(OPERATING_SYSTEM_ERROR, TermNil, "could not perform _splitpath %s: %s", X, strerror(errno));
+    return NULL;
+
   }
   strncpy(o, drive, YAP_FILENAME_MAX-1);
   strncat(o, dir, YAP_FILENAME_MAX-1);
@@ -451,8 +681,8 @@ static char *myrealpath( const char *path, char *out)
 			   YAP_FILENAME_MAX,
                            out,
                            NULL);
-    
-  if (retval == 0) 
+
+  if (retval == 0)
     {
       Yap_WinError("Generating a full path name for a file" );
       return NULL;
@@ -462,25 +692,25 @@ static char *myrealpath( const char *path, char *out)
   {
     char *rc = realpath(path,out);
     char *s0;
-    
+
     if (rc == NULL && (errno == ENOENT|| errno == EACCES)) {
       char *s = basename((char *)path);
       s0 = malloc(strlen(s)+1);
       strcpy(s0, s);
       if ((rc = myrealpath(dirname((char *)path), out))==NULL) {
-	Yap_FileError(OPERATING_SYSTEM_ERROR, TermNil, "could not find file %s: %s", path, strerror(errno));      
-	return NULL;      
+	Yap_FileError(OPERATING_SYSTEM_ERROR, TermNil, "could not find file %s: %s", path, strerror(errno));
+	return NULL;
       }
       if(rc[strlen(rc)-1] != '/' )
 	strcat(rc, "/");
       strcat(rc, s0);
       free(s0);
     }
-    return rc;
+                                                                                                                                                                       return rc;
   }
 #else
   return NULL;
-#endif  
+#endif
 }
 
 char *
@@ -488,57 +718,44 @@ char *
 {
   GET_LD
     char *rc;
-  char *qpath0;
-
-#if _WIN32 || defined(__MINGW32__)          
-  char *o = malloc(YAP_FILENAME_MAX+1);      
-  if (!o)          
-    return NULL;        
-  // first pass, remove Unix style stuff          
-  if (unix2win(spec, o, YAP_FILENAME_MAX) == NULL)          
-    return NULL;      
-  spec = (const char *)o;      
-#endif      
+#if HAVE_WORDEXP
+  char o[YAP_FILENAME_MAX+1];
+#elif _WIN32 || defined(__MINGW32__)
+  char u[YAP_FILENAME_MAX+1];
+  // first pass, remove Unix style stuff
+  if (unix2win(spec, u, YAP_FILENAME_MAX) == NULL)
+    return NULL;
+  spec = (const char *)u;
+#endif
   if (tmp == NULL) {
     tmp = malloc(YAP_FILENAME_MAX+1);
     if (tmp == NULL) {
       return NULL;
     }
   }
-  if ( truePrologFlag(PLFLAG_FILEVARS) )  
+  if ( truePrologFlag(PLFLAG_FILEVARS) )
     {
-      qpath0 = malloc(YAP_FILENAME_MAX+1);      
-#if HAVE_WORDEXP                    
-      qpath0=expandVars(spec,qpath0,YAP_FILENAME_MAX);
+#if HAVE_WORDEXP
+      spec=expandVars(spec,o,YAP_FILENAME_MAX);
 #endif
-#if _WIN32 || defined(__MINGW32__)                  
-      free((char *)spec);
-#endif
-      spec = qpath0;
     }
-#if HAVE_REALPATH                          
+#if HAVE_REALPATH
   rc =  myrealpath(spec, tmp);
 #endif
-  if (spec == qpath0
-#if _WIN32 || defined(__MINGW32__)
-      || true
-#endif
-      )
-    free((char *)spec);            
   return rc;
 }
 
  char *canoniseFileName( char *path) {
 #if HAVE_REALPATH && HAVE_BASENAME
-#if _WIN32 || defined(__MINGW32__)          
-   char *o = malloc(YAP_FILENAME_MAX+1);      
-   if (!o)          
-     return NULL;        
-   // first pass, remove Unix style stuff          
-   if (unix2win(path, o, YAP_FILENAME_MAX) == NULL)          
-     return NULL;      
-   path = o;      
-#endif      
+#if _WIN32 || defined(__MINGW32__)
+   char *o = malloc(YAP_FILENAME_MAX+1);
+   if (!o)
+     return NULL;
+   // first pass, remove Unix style stuff
+   if (unix2win(path, o, YAP_FILENAME_MAX) == NULL)
+     return NULL;
+   path = o;
+#endif
   char *rc, *tmp = malloc(PATH_MAX);
   if (tmp == NULL) return NULL;
   rc = myrealpath(path, tmp);
@@ -882,7 +1099,7 @@ void Yap_systime_interval(Int *now,Int *interval)
    The problem is that mingw32 does not seem to have acces to div */
 #ifndef do_div
 #define do_div(n,base) ({ \
-	unsigned long __upper, __low, __high, __mod; \
+  unsigned long __upper, __low, __high, __mod; \
 	asm("":"=a" (__low), "=d" (__high):"A" (n)); \
 	__upper = __high; \
 	if (__high) { \
@@ -1492,8 +1709,8 @@ Yap_random (void)
 #elif HAVE_RAND
   return (((double) (rand ()) / RAND_MAX));
 #else
-  Yap_Error(SYSTEM_ERROR, TermNil,  
-            "random not available in this configuration");  
+  Yap_Error(SYSTEM_ERROR, TermNil,
+            "random not available in this configuration");
   return (0.0);
 #endif
 }
@@ -2035,7 +2252,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
 }
 #endif
 
-  
+
 /* SIGINT can cause problems, if caught before full initialization */
 static void
 InitSignals (void)
@@ -2103,11 +2320,11 @@ Yap_volume_header(char *file)
 
  char * PL_cwd(char *cwd, size_t cwdlen)
  {
-   return Yap_getcwd( cwd, cwdlen );
+   return (char *)Yap_getcwd( (const char *)cwd, cwdlen );
  }
 
- char * Yap_getcwd(const char *cwd, size_t cwdlen)
- { 
+ const char * Yap_getcwd(const char *cwd, size_t cwdlen)
+ {
 #if _WIN32 || defined(__MINGW32__)
    if (GetCurrentDirectory(cwdlen, (char *)cwd) == 0)
      {
@@ -2116,7 +2333,13 @@ Yap_volume_header(char *file)
      }
    return (char *)cwd;
 #else
-   return getcwd(cwd, cwdlen);
+#if __ANDROID__
+  if (GLOBAL_AssetsWD) {
+    return strncpy( (char *)cwd, (const char *)GLOBAL_AssetsWD, cwdlen);
+  }
+
+#endif
+   return getcwd((char *)cwd, cwdlen);
 #endif
  }
 
@@ -2126,15 +2349,16 @@ Yap_volume_header(char *file)
  {
    char *work;
    char ares1[YAP_FILENAME_MAX+1];
-   
-   work = expandVars( source, ares1, YAP_FILENAME_MAX);
-   // expand names first   
-   if (root && !IsAbsolutePath( source ) ) {  
-     char ares2[YAP_FILENAME_MAX+1];            
-     strncpy( ares2, root, YAP_FILENAME_MAX );  
-     strncat( ares2, "/", YAP_FILENAME_MAX );        
-     strncat( ares2, work, YAP_FILENAME_MAX );        
-     return AbsoluteFile( ares2, result );     
+
+
+ work = expandVars( source, ares1, YAP_FILENAME_MAX);
+   // expand names first
+   if (root && !IsAbsolutePath( source ) ) {
+     char ares2[YAP_FILENAME_MAX+1];
+     strncpy( ares2, root, YAP_FILENAME_MAX );
+     strncat( ares2, "/", YAP_FILENAME_MAX );
+     strncat( ares2, work, YAP_FILENAME_MAX );
+     return AbsoluteFile( ares2, result );
    } else {
      // expand path
      return myrealpath( work, result);
@@ -2146,25 +2370,24 @@ Yap_volume_header(char *file)
 TrueFileName (char *isource, char *root, char *result, int in_lib, int expand_root)
 {
   CACHE_REGS
-    
+
     char *work;
   const char *source = isource;
-  
+
   // expand names in case you have
   // to add a prefix
   if (!expand_root)
     root = NULL;
-  if (exists((work = expandWithPrefix( source, root, result ))))  
-    return true; // done  
+  if (exists((work = expandWithPrefix( source, root, result ))))
+    return true; // done
   if (in_lib) {
-    if  (Yap_LibDir != NULL) {  
-      strncpy(LOCAL_FileNameBuf, Yap_LibDir, YAP_FILENAME_MAX);	
+    if  (Yap_LibDir != NULL) {
+      strncpy(LOCAL_FileNameBuf, Yap_LibDir, YAP_FILENAME_MAX);
     }
 #if HAVE_GETENV
     {
       char *yap_env = getenv("YAPLIBDIR");
-      if (yap_env &&
-	  exists((work = expandWithPrefix( source, yap_env, result ))))
+      if (yap_env && exists((work = expandWithPrefix( source, yap_env, result ))))
 	return true; // done
     }
 #endif
@@ -2181,7 +2404,7 @@ TrueFileName (char *isource, char *root, char *result, int in_lib, int expand_ro
   }
   return false;
 }
- 
+
 int
 Yap_TrueFileName (char *source, char *result, int in_lib)
 {
@@ -2287,14 +2510,14 @@ p_sh ( USES_REGS1 )
 
 /** shell(+Command:text, -Status:integer) is det.
 
-Run an external command and wait for its completion.
+    Run an external command and wait for its completion.
 */
 static Int
 p_shell ( USES_REGS1 )
 {				/* '$shell'(+SystCommand)			 */
 #if _MSC_VER || defined(__MINGW32__)
   char *cmd;
-  term_t A1 = Yap_InitSlot(ARG1 PASS_REGS);
+  term_t A1 = Yap_InitSlot(ARG1);
   if ( PL_get_chars(A1, &cmd, CVT_ALL|REP_FN|CVT_EXCEPTION) )
   { int rval = System(cmd);
 
@@ -2373,7 +2596,7 @@ p_system ( USES_REGS1 )
 {				/* '$system'(+SystCommand)	       */
 #if _MSC_VER || defined(__MINGW32__)
   char *cmd;
-  term_t A1 = Yap_InitSlot(ARG1 PASS_REGS);
+  term_t A1 = Yap_InitSlot(ARG1);
   if ( PL_get_chars(A1, &cmd, CVT_ALL|REP_FN|CVT_EXCEPTION) )
     { STARTUPINFO si;
     PROCESS_INFORMATION pi;
@@ -2745,7 +2968,7 @@ p_virtual_alarm( USES_REGS1 )
     Yap_Error(INSTANTIATION_ERROR, t, "alarm/2");
     return(FALSE);
   }
-  if (!IsIntegerTerm(t)) { 
+  if (!IsIntegerTerm(t)) {
     Yap_Error(TYPE_ERROR_INTEGER, t, "alarm/2");
     return(FALSE);
   }
@@ -2935,11 +3158,7 @@ p_yap_paths( USES_REGS1 ) {
     strncat(destdir, "/" YAP_SHAREDIR, YAP_FILENAME_MAX );
     out2 = MkAtomTerm(Yap_LookupAtom(destdir));
   } else {
-#if __ANDROID__
-    out2 = MkAtomTerm(Yap_LookupAtom("/assets/share/Yap"));
-#else
     out2 = MkAtomTerm(Yap_LookupAtom(YAP_SHAREDIR));
-#endif
   }
   if (env_destdir) {
     strncat(destdir, env_destdir, YAP_FILENAME_MAX );
@@ -2973,9 +3192,7 @@ p_log_event( USES_REGS1 ) {
 #endif
   if (IsWideAtom(at) || IsBlob(at))
     return FALSE;
-#if __ANDROID__
-  __android_log_print(ANDROID_LOG_INFO, "YAP", " %s ",RepAtom(at)->StrOfAE);
-#endif
+  LOG(  " %s ",RepAtom(at)->StrOfAE);
   return TRUE;
 
 }

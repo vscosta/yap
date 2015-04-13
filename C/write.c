@@ -694,8 +694,8 @@ static Term from_pointer(CELL *ptr0, struct rewind_term *rwt,
   if (wglb->Keep_terms) {
     struct rewind_term *x = rwt->parent;
 
-    rwt->u_sd.s.old = Yap_InitSlot(t PASS_REGS);
-    rwt->u_sd.s.ptr = Yap_InitSlot((CELL)ptr0 PASS_REGS);
+    rwt->u_sd.s.old = Yap_InitSlot(t);
+    rwt->u_sd.s.ptr = Yap_InitSlot((CELL)ptr0);
 
     if (!IsAtomicTerm(t) && !IsVarTerm(t)) {
       while (x) {
@@ -785,7 +785,7 @@ static Term check_infinite_loop(Term t, struct rewind_term *x,
   CACHE_REGS
   if (wglb->Keep_terms) {
     while (x) {
-      if (Yap_GetFromSlot(x->u_sd.s.old PASS_REGS) == t)
+      if (Yap_GetFromSlot(x->u_sd.s.old) == t)
         return TermFoundVar;
       x = x->parent;
     }

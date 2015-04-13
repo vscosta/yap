@@ -77,14 +77,15 @@ Yap_AlwaysAllocCodeSpace(UInt size)
 static void
 QLYR_ERROR(qlfr_err_t my_err)
 {
-  Yap_Error(SAVED_STATE_ERROR,TermNil,"error %s in saved state %s",GLOBAL_RestoreFile, qlyr_error[my_err]); 
+  // __android_log_print(ANDROID_LOG_INFO, "YAP ", "error %s in saved state %s",GLOBAL_RestoreFile, qlyr_error[my_err]);
+    Yap_Error(SAVED_STATE_ERROR,TermNil,"error %s in saved state %s",GLOBAL_RestoreFile, qlyr_error[my_err]);
   Yap_exit(1);
 }
 
 static Atom
 LookupAtom(Atom oat)
 {
- CACHE_REGS 
+ CACHE_REGS
  CELL hash = (CELL)(oat) % LOCAL_ImportAtomHashTableSize;
  import_atom_hash_entry_t *a;
 
@@ -95,6 +96,7 @@ LookupAtom(Atom oat)
     }
     a = a->next;
   }
+  //  __android_log_print(ANDROID_LOG_INFO, "YAP ", "error %p in saved state ", oat);
   QLYR_ERROR(UNKNOWN_ATOM);
   return NIL;
 }
@@ -459,12 +461,12 @@ TermToGlobalOrAtomAdjust(Term t)
 
 #define CharP(X) ((char *)(X))
 
-#define REINIT_LOCK(P) 
-#define REINIT_RWLOCK(P) 
+#define REINIT_LOCK(P)
+#define REINIT_RWLOCK(P)
 #define BlobTypeAdjust(P) (P)
 #define NoAGCAtomAdjust(P) (P)
-#define OrArgAdjust(P) 
-#define TabEntryAdjust(P) 
+#define OrArgAdjust(P)
+#define TabEntryAdjust(P)
 #define IntegerAdjust(D)  (D)
 #define AddrAdjust(P) (P)
 #define MFileAdjust(P) (P)
@@ -480,8 +482,8 @@ CodeVarAdjust__ (Term var USES_REGS)
 
 #define ConstantAdjust(P) (P)
 #define ArityAdjust(P) (P)
-#define DoubleInCodeAdjust(P) 
-#define IntegerInCodeAdjust(Pxb) 
+#define DoubleInCodeAdjust(P)
+#define IntegerInCodeAdjust(Pxb)
 
 static inline PredEntry *
 PtoPredAdjust(PredEntry *p)
@@ -706,7 +708,7 @@ checkChars(IOSTREAM *stream, char s[])
 {
   int ch, c;
   char *p = s;
-  
+
   while ((ch = *p++)) {
     if ((c  = read_byte(stream)) != ch ) {
       return false;
@@ -773,7 +775,7 @@ ReadHash(IOSTREAM *stream)
     Atom oat = (Atom)read_UInt(stream);
     Atom at;
     qlf_tag_t tg = read_tag(stream);
-      
+
     if (tg == QLY_ATOM_WIDE) {
       wchar_t *rep = (wchar_t *)AllocTempSpace();
       UInt len;
@@ -833,7 +835,7 @@ ReadHash(IOSTREAM *stream)
     UInt arity = read_UInt(stream);
     Atom omod = (Atom)read_UInt(stream);
     Term mod;
-    
+
     if (omod) {
       mod = MkAtomTerm(AtomAdjust(omod));
       if (mod == TermProlog) mod = 0;
@@ -889,7 +891,7 @@ ReadHash(IOSTREAM *stream)
     UInt nrefs = read_UInt(stream);
     LogUpdClause *ncl = (LogUpdClause *)Yap_AlwaysAllocCodeSpace(sz);
     if (!ncl) {
-      QLYR_ERROR(OUT_OF_CODE_SPACE);	
+      QLYR_ERROR(OUT_OF_CODE_SPACE);
     }
     ncl->Id = FunctorDBRef;
     ncl->ClRefCount = nrefs;
@@ -900,9 +902,9 @@ ReadHash(IOSTREAM *stream)
 }
 
 static void
-read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
+read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, pred_flags_t flags) {
   CACHE_REGS
-  if (pp->PredFlags & LogUpdatePredFlag) {
+  if (flags & LogUpdatePredFlag) {
     /* first, clean up whatever was there */
     if (pp->cs.p_code.NOfClauses) {
       LogUpdClause *cl;
@@ -934,7 +936,7 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
       RestoreLUClause(cl, pp PASS_REGS);
       Yap_AssertzClause(pp, cl->ClCode);
     }
-  } else if (pp->PredFlags & MegaClausePredFlag) {
+  } else if (flags & MegaClausePredFlag) {
     CACHE_REGS
     char *base = (void *)read_UInt(stream);
     UInt mask = read_UInt(stream);
@@ -952,26 +954,26 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
       cl->ClCode;
     pp->PredFlags |= MegaClausePredFlag;
     /* enter index mode */
-    if (mask & ExoMask) { 
-      struct index_t **icl = (struct index_t **)(cl->ClCode); 
+    if (mask & ExoMask) {
+      struct index_t **icl = (struct index_t **)(cl->ClCode);
       pp->OpcodeOfPred = Yap_opcode(_enter_exo);
       icl[0] = NULL;
       icl[1] = NULL;
     } else {
       pp->OpcodeOfPred = INDEX_OPCODE;
     }
-    pp->CodeOfPred = pp->cs.p_code.TrueCodeOfPred = (yamop *)(&(pp->OpcodeOfPred)); 
+    pp->CodeOfPred = pp->cs.p_code.TrueCodeOfPred = (yamop *)(&(pp->OpcodeOfPred));
     /* This must be set for restoremegaclause */
     pp->cs.p_code.NOfClauses = nclauses;
     RestoreMegaClause(cl PASS_REGS);
-  } else if (pp->PredFlags & DynamicPredFlag) {
+  } else if (flags & DynamicPredFlag) {
     UInt i;
 
     for (i = 0; i < nclauses; i++) {
       char *base = (void *)read_UInt(stream);
       UInt size = read_UInt(stream);
       DynamicClause *cl = (DynamicClause *)Yap_AlwaysAllocCodeSpace(size);
-    
+
       LOCAL_HDiff = (char *)cl-base;
       read_bytes(stream, cl, size);
       INIT_LOCK(cl->ClLock);
@@ -983,9 +985,9 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
     UInt i;
 
 
-    if (pp->PredFlags & SYSTEM_PRED_FLAGS) {
+    if (flags & SYSTEM_PRED_FLAGS) {
       if (nclauses) {
-	QLYR_ERROR(INCONSISTENT_CPRED);	
+	QLYR_ERROR(INCONSISTENT_CPRED);
       }
       return;
     }
@@ -1005,8 +1007,8 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
 
 static void
 read_pred(IOSTREAM *stream, Term mod) {
-  UInt flags;
-  UInt nclauses, fl1;
+  pred_flags_t flags, fl1;
+  UInt nclauses;
   PredEntry *ap;
 
   ap = LookupPredEntry((PredEntry *)read_UInt(stream));
@@ -1015,17 +1017,24 @@ read_pred(IOSTREAM *stream, Term mod) {
   if (ap->PredFlags & IndexedPredFlag) {
     Yap_RemoveIndexation(ap);
   }
-  /* if (ap->ArityOfPE && ap->ModuleOfPred != IDB_MODULE) */
+#if 0
+  if (ap->ArityOfPE && ap->ModuleOfPred != IDB_MODULE)
+      __android_log_print(ANDROID_LOG_INFO, "YAP ", "   %s/%ld %lx\n", NameOfFunctor(ap->FunctorOfPred)->StrOfAE, ap->ArityOfPE, flags);
   /*   printf("   %s/%ld %lx\n", NameOfFunctor(ap->FunctorOfPred)->StrOfAE, ap->ArityOfPE, flags); */
-  /* else if (ap->ModuleOfPred != IDB_MODULE) */
+  else if (ap->ModuleOfPred != IDB_MODULE)
+  __android_log_print(ANDROID_LOG_INFO, "YAP ","   %s/%ld %lx\n", ((Atom)(ap->FunctorOfPred))->StrOfAE, ap->ArityOfPE, flags);
   /*   printf("   %s/%ld %lx\n", ((Atom)(ap->FunctorOfPred))->StrOfAE, ap->ArityOfPE, flags); */
-  fl1 = flags & ((UInt)STATIC_PRED_FLAGS|(UInt)EXTRA_PRED_FLAGS);
+  else
+      __android_log_print(ANDROID_LOG_INFO, "YAP ","   number\n");
+#endif
+  fl1 = flags & ((pred_flags_t)STATIC_PRED_FLAGS|(UInt)EXTRA_PRED_FLAGS);
   ap->PredFlags &= ~((UInt)STATIC_PRED_FLAGS|(UInt)EXTRA_PRED_FLAGS);
   ap->PredFlags |= fl1;
   if (flags & NumberDBPredFlag) {
     ap->src.IndxId = read_UInt(stream);
   } else {
     ap->src.OwnerFile = (Atom)read_UInt(stream);
+
     if (ap->src.OwnerFile) {
       ap->src.OwnerFile = AtomAdjust(ap->src.OwnerFile);
     }
@@ -1035,8 +1044,10 @@ read_pred(IOSTREAM *stream, Term mod) {
   if (flags & MultiFileFlag && ap->ModuleOfPred == PROLOG_MODULE) {
     ap->ModuleOfPred = TermProlog;
   }
-  read_clauses(stream, ap, nclauses, flags);
-  if (flags & HiddenPredFlag) {  
+  if (nclauses)
+    read_clauses(stream, ap, nclauses, flags);
+
+  if (flags & HiddenPredFlag) {
     Yap_HidePred(ap);
   }
 }
@@ -1134,11 +1145,11 @@ p_read_program( USES_REGS1 )
   return TRUE;
 }
 
-int 
+int
 Yap_Restore(char *s, char *lib_dir)
 {
   IOSTREAM *stream  = Yap_OpenRestore(s, lib_dir);
-  if (!stream) 
+  if (!stream)
     return -1;
   GLOBAL_RestoreFile = s;
   if (get_header( stream ) == NIL)
@@ -1146,6 +1157,7 @@ Yap_Restore(char *s, char *lib_dir)
   read_module(stream);
   Sclose( stream );
   GLOBAL_RestoreFile = NULL;
+  CurrentModule = USER_MODULE;
   return DO_ONLY_CODE;
 }
 
@@ -1160,4 +1172,3 @@ void Yap_InitQLYR(void)
     restore_codes();
   }
 }
-

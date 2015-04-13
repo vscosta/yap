@@ -1,4 +1,4 @@
-/*************************************************************************
+    /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -25,4 +25,3 @@ typedef struct array_access_struct {
   Term  indx;				/* index in array, for now
 				   keep it as an integer! */
 } array_access;
-

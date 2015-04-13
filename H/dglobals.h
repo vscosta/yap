@@ -38,6 +38,7 @@
 #if __ANDROID__
 
 #define GLOBAL_assetManager Yap_global->assetManager_
+#define GLOBAL_AssetsWD Yap_global->AssetsWD_
 #endif
 
 #if THREADS

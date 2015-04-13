@@ -26,21 +26,21 @@ EXTEND_SEQ_CHARS(Word ptr, int c) {
   return ptr+2;
 }
 
-static inline int 
+static inline int
 CLOSE_SEQ_STRING(Word p, Word p0, term_t tail, term_t term, term_t l) {
   CACHE_REGS
   Yap_PutInSlot(l, AbsPair(p0) PASS_REGS);
   p--;
   if (tail) {
     RESET_VARIABLE(p);
-    if (Yap_unify(Yap_GetFromSlot(l PASS_REGS), Yap_GetFromSlot(term PASS_REGS)))  {
+    if (Yap_unify(Yap_GetFromSlot(l), Yap_GetFromSlot(term)))  {
       Yap_PutInSlot(tail, (CELL)(p) PASS_REGS);
       return TRUE;
     }
     return FALSE;
   } else {
     p[0] = TermNil;
-    return Yap_unify(Yap_GetFromSlot(l PASS_REGS), Yap_GetFromSlot(term PASS_REGS));
+    return Yap_unify(Yap_GetFromSlot(l), Yap_GetFromSlot(term ));
   }
 }
 

@@ -5,25 +5,22 @@
    Queries and engines
 */
 
+  static const char *s0;
+
 /**
  * @brief Queries
  *
  * interface to a YAP Query;
  * uses an SWI-like status info internally.
  */
-class YAPQuery: public YAPPredicate {
-  int q_open;
-  int q_state;
-  Term *q_g;
-  yamop *q_p, *q_cp;
-  jmp_buf q_env;
-  int q_flags;
-  Term vs;
-  YAP_dogoalinfo q_h;
-  YAPQuery *oq;
-  YAPTerm vnames;
-  void initQuery( Term ts[] );
-  void initQuery( YAPTerm t[], arity_t arity  );
+class YAPQuery: public YAPPredicate, open_query_struct {
+  yhandle_t vnames;
+  YAPTerm goal;
+  Term t;
+
+  void  initOpenQ();
+  void initQuery( Term t );
+  void initQuery( YAPTerm ts[], arity_t arity  );
 public:
   /// main constructor, uses a predicate and an array of terms
   ///
@@ -43,13 +40,12 @@ public:
   /// string constructor without varnames
   ///
   /// It is given a string, calls the parser and obtains a Prolog term that should be a callable
-  /// goal. It does not ask for a list of variables.
-  inline YAPQuery(const char *s): YAPPredicate(s, q_g, vs)
+  /// goal.
+  inline YAPQuery(const char *s): YAPPredicate(s, t, vnames)
   {
-    vnames = YAPTerm( vs );
-    initQuery( q_g );
-  }
- 
+    initQuery( t );
+  };
+
   /// set flags for query execution, currently only for exception handling
   void setFlag(int flag) {q_flags |= flag; }
   /// reset flags for query execution, currently only for exception handling
@@ -62,7 +58,7 @@ public:
   /// same call for every solution
   bool next();
   /// represent the top-goal
-  char *text();
+  const char *text();
   /// remove alternatives in the current search space, and finish the current query
   void cut();
   /// finish the current query: undo all bindings.
@@ -77,8 +73,8 @@ public:
 /// class that actually implements the callback.
 class YAPCallback {
 public:
-  virtual ~YAPCallback() { printf("~YAPCallback\n"); }
-  virtual void run() { __android_log_print(ANDROID_LOG_INFO, __FUNCTION__, "callback");  }
+  virtual ~YAPCallback() { }
+  virtual void run() { LOG("callback");  }
   virtual void run(char *s) {  }
 };
 
@@ -119,7 +115,10 @@ public:
   /// execute the callback with a text argument.
   YAPError hasError( ) {  return yerror; }
   /// build a query on the engine
-  YAPQuery *query( char *s );
+  YAPQuery *query( const char *s ) {
+    s0=s;
+  return new YAPQuery( s );
+  };
   /// current module for the engine
   YAPModule currentModule( ) { return YAPModule( ) ; }
 };

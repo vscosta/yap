@@ -55,11 +55,11 @@ public:
 class YAPModuleProp: public YAPProp {
   friend class YAPPredicate;
   ModEntry *m;
-  
-  YAPModuleProp(ModEntry *mod)   {m = mod;};  
-  YAPModuleProp(Term tmod)  { m = Yap_GetModuleEntry(tmod); };  
-public:  
-  YAPModuleProp()  { m = Yap_GetModuleEntry(Yap_CurrentModule()); }; 
+
+  YAPModuleProp(ModEntry *mod)   {m = mod;};
+  YAPModuleProp(Term tmod)  { m = Yap_GetModuleEntry(tmod); };
+public:
+  YAPModuleProp()  { m = Yap_GetModuleEntry(Yap_CurrentModule()); };
   YAPModuleProp(YAPModule tmod) ;
   virtual YAPModule module() { return YAPModule(m->AtomOfME); };
 };
@@ -103,7 +103,7 @@ public:
       arity_t arity(void) {
 	return ArityOfFunctor( f );
       }
-      
+
   };
 
 /**
@@ -118,14 +118,34 @@ protected:
   PredEntry *ap;
 
   /// auxiliary routine to find a predicate in the current module.
-  PredEntry  *getPred( Term t, Term* &outp ) ;
+  PredEntry  *getPred( Term &t, Term* &outp ) ;
 
   /// String constructor for predicates
   ///
   /// It also communicates the array of arguments t[]
   /// and the array of variables
   /// back to yapquery
-  YAPPredicate(const char *s, Term* &out, Term& vnames ) throw (int);
+  YAPPredicate(const char *s, Term &out, yhandle_t &vnames ) {
+    CACHE_REGS
+    BACKUP_MACHINE_REGS();
+    Term *outp;
+      char ns[strlen(s)+1];
+      memcpy(ns, s, strlen(s)+1);
+      LOG("iPP=%d %d %d", strlen(s),  s[0], s[1]);
+      LOG("iPP=%s", s);
+    vnames  = Yap_NewSlots(1);
+    out = Yap_StringToTerm(ns, strlen(s)+1,  vnames ) ;
+      LOG("iP2=%s", s);
+    //extern char *s0;
+    //fprintf(stderr,"ap=%p arity=%d text=%s", ap, ap->ArityOfPE, s);
+  //  Yap_DebugPlWrite(out);
+      //  delete [] ns;
+if (out == 0L)
+      throw YAPError::YAP_SYNTAX_ERROR;
+    ap = getPred( out, outp);
+    RECOVER_MACHINE_REGS();
+  }
+
 
   /// Term constructor for predicates
   ///
@@ -184,30 +204,6 @@ public:
   ///
   YAPPredicate(YAPAtom at, arity_t arity);
 
-
-  /// String constructor for predicates.
-  ///
-  /// String is a Prolog term, we extract the main functor after considering the module qualifiers.
-  inline YAPPredicate(const char *s) throw (int) {
-    Term t, tp;
-    t = YAP_ReadBuffer(s,&tp);
-    if (t == 0L)
-      throw YAPError::YAP_SYNTAX_ERROR;
-    CELL *  v;
-    ap = getPred( t, v);
-  }
-
-
-  /// String constructor for predicates, also keeps arguments in tp[]
-  ///
-  /// String is a Prolog term, we extract the main functor after considering the module qualifiers.
-  inline YAPPredicate(const char *s, Term* outp) throw (int) {
-    Term t, tp;
-    t = YAP_ReadBuffer(s,&tp);
-    if (t == 0L)
-      throw YAPError::YAP_SYNTAX_ERROR;
-    ap = getPred( t, outp );
-  }
 
   /// module of a predicate
   ///
@@ -290,7 +286,7 @@ public:
                             call, arity);
       }
     }
-      
+
   };
   YAPFLIP(const char *name,
 	  arity_t arity,
@@ -313,6 +309,5 @@ public:
   bool addCut(CPredicate call) {
     return Yap_AddCutToFli( ap, call );
   }
-  
-};
 
+};

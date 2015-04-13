@@ -144,16 +144,16 @@ unifyList(term_t term, list_ctx *ctx)
   CACHE_REGS
   if (!CloseList(ctx->gstore, TermNil))
     return FALSE;
-  return Yap_unify(Yap_GetFromSlot(term PASS_REGS), ctx->start);
+  return Yap_unify(Yap_GetFromSlot(term), ctx->start);
 }
 
 int
 unifyDiffList(term_t head, term_t tail, list_ctx *ctx)
 {
   CACHE_REGS
-  if (!CloseList(ctx->gstore, Yap_GetFromSlot(tail PASS_REGS)))
+  if (!CloseList(ctx->gstore, Yap_GetFromSlot(tail)))
     return FALSE;
-  return Yap_unify(Yap_GetFromSlot(head PASS_REGS), ctx->start);
+  return Yap_unify(Yap_GetFromSlot(head), ctx->start);
 }
 
 #else

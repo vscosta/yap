@@ -823,7 +823,10 @@ expand_goal(G, G).
 % be careful here not to generate an undefined exception.
 '$imported_pred'(G, ImportingMod, G0, ExportingMod) :-
 	'$enter_undefp',
-	'$undefined'(G, ImportingMod),
+	( var(G) -> true ;
+      var(ImportingMod) -> true ;
+      '$undefined'(G, ImportingMod)
+    ),
 	'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod),
 	ExportingMod \= ImportingMod, !,
 	'$exit_undefp'.
@@ -833,8 +836,8 @@ expand_goal(G, G).
 
 % This predicate should be bidirectional: both
 % a consumer and a generator.
-'$get_undefined_pred'(G, ImportingMod, call(G), ImportingMod) :-
-	var(G), !.
+%'$get_undefined_pred'(G, ImportingMod, call(G), ImportingMod) :-
+%	var(G), !.
 '$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
 	recorded('$import','$import'(ExportingModI,ImportingMod,G0I,G,_,_),_),
 	'$continue_imported'(ExportingMod, ExportingModI, G0, G0I).
@@ -852,8 +855,8 @@ expand_goal(G, G).
 '$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
 	yap_flag(autoload, V),
 	V = true,
-	functor(G, N, K),      
-	functor(G0, N, K),      
+	functor(G, N, K),
+	functor(G0, N, K),
 	'$autoloader_find_predicate'(G0,ExportingMod),
 	ExportingMod \= ImportingMod,
 	(recordzifnot('$import','$import'(ExportingMod,ImportingMod,G0,G0, N  ,K),_) -> true ; true ).
@@ -1404,10 +1407,14 @@ export_list(Module, List) :-
 	G0=..[_N0|Args],
 	G1=..[N1|Args],
 	( '$check_import'(M0,ContextMod,N1,K) ->
-	  ( ContextMod = user ->
-	    ( recordzifnot('$import','$import'(M0,user,G0,G1,N1,K),_) -> true ; true)
+	  ( ContextMod == prolog ->
+	    recordzifnot('$import','$import'(M0,user,G0,G1,N1,K),_),
+        fail
 	  ;
-	    ( recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_) -> true ; true )
+	    recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_),
+        fail
+        ;
+        true
 	  )
 	;
 	  true

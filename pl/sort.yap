@@ -39,7 +39,7 @@
 
 %   length of a list.
 
-/** @pred  length(? _L_,? _S_) 
+/** @pred  length(? _L_,? _S_)
 
 
 Unify the well-defined list  _L_ with its length. The procedure can
@@ -78,13 +78,13 @@ length(L, M) :-
 	( N =:= O -> NL = [];
           M is N + 1, NL  = [_|L], '$$_length2'(L, O, M) ).
 
-/** @pred  sort(+ _L_,- _S_) is iso 
+/** @pred  sort(+ _L_,- _S_) is iso
 
 
 Unifies  _S_ with the list obtained by sorting  _L_ and  merging
 identical (in the sense of `==`) elements.
 
- 
+
 */
 sort(L,O) :-
 	'$skip_list'(NL,L,RL),
@@ -113,7 +113,7 @@ sort(L,O) :-
 msort(L,O) :-
 	'$msort'(L,O).
 
-/** @pred  keysort(+ _L_, _S_) is iso 
+/** @pred  keysort(+ _L_, _S_) is iso
 
 
 Assuming L is a list of the form ` _Key_- _Value_`,
@@ -130,7 +130,7 @@ would return:
 S = [1-b,1-a,1-b,2-c,3-a]
 ~~~~~
 
- 
+
 */
 keysort(L,O) :-
 	'$skip_list'(NL,L,RL),
@@ -159,7 +159,7 @@ keysort(L,O) :-
 %	 Delta with one of <, > or =. If built-in predicate compare/3 is
 %	 used, the result is the same as sort/2. See also keysort/2.
 
-/** @pred  predsort(+ _Pred_, + _List_, - _Sorted_) 
+/** @pred  predsort(+ _Pred_, + _List_, - _Sorted_)
 
 
 Sorts similar to sort/2, but determines the order of two terms by
@@ -168,23 +168,23 @@ unify  _Delta_ with one of `<`, `>` or `=`. If
 built-in predicate compare/3 is used, the result is the same as
 sort/2.
 
- 
+
 */
 predsort(P, L, R) :-
-	length(L, N), 
-	predsort(P, N, L, _, R1), !, 
+	length(L, N),
+	predsort(P, N, L, _, R1), !,
 	R = R1.
 
-predsort(P, 2, [X1, X2|L], L, R) :- !, 
+predsort(P, 2, [X1, X2|L], L, R) :- !,
 	call(P, Delta, X1, X2),
 	sort2(Delta, X1, X2, R).
 predsort(_, 1, [X|L], L, [X]) :- !.
 predsort(_, 0, L, L, []) :- !.
 predsort(P, N, L1, L3, R) :-
-	N1 is N // 2, 
-	plus(N1, N2, N), 
-	predsort(P, N1, L1, L2, R1), 
-	predsort(P, N2, L2, L3, R2), 
+	N1 is N // 2,
+	plus(N1, N2, N),
+	predsort(P, N1, L1, L2, R1),
+	predsort(P, N2, L2, L3, R2),
 	predmerge(P, R1, R2, R).
 
 sort2(<, X1, X2, [X1, X2]).
@@ -205,4 +205,3 @@ predmerge(<, P, H1, H2, T1, T2, [H1|R]) :-
 	predmerge(P, T1, [H2|T2], R).
 
 %%! @}
-

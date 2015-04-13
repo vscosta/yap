@@ -1,8 +1,5 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
-/* Define if building universal (internal helper macro) */
-#undef AC_APPLE_UNIVERSAL_BUILD
-
 /* longs should be in addresses that are multiple of four. */
 #undef ALIGN_LONGS
 
@@ -331,9 +328,6 @@
 /* Define to 1 if you have the <gmp.h> header file. */
 #undef HAVE_GMP_H
 
-/* Define to 1 if you have the `gmtime' function. */
-#undef HAVE_GMTIME
-
 /* Define of h_errno is provided */
 #undef HAVE_H_ERRNO
 
@@ -474,9 +468,6 @@
 
 /* Define to 1 if you have the `localtime' function. */
 #undef HAVE_LOCALTIME
-
-/* Define to 1 if the system has the type `long long'. */
-#undef HAVE_LONG_LONG
 
 /* Define to 1 if you have the `lstat' function. */
 #undef HAVE_LSTAT
@@ -743,12 +734,6 @@
 /* Define to 1 if you have the <sqlite3.h> header file. */
 #undef HAVE_SQLITE3_H
 
-/* Define to 1 if the system has the type `SQLLEN'. */
-#undef HAVE_SQLLEN
-
-/* Define to 1 if the system has the type `SQLULEN'. */
-#undef HAVE_SQLULEN
-
 /* Define to 1 if you have the <sql.h> header file. */
 #undef HAVE_SQL_H
 
@@ -883,9 +868,6 @@
 
 /* Define to 1 if you have the `time' function. */
 #undef HAVE_TIME
-
-/* Define to 1 if you have the `timegm' function. */
-#undef HAVE_TIMEGM
 
 /* Define to 1 if you have the `times' function. */
 #undef HAVE_TIMES
@@ -1067,9 +1049,6 @@
 /* The size of `short int', as computed by sizeof. */
 #undef SIZEOF_SHORT_INT
 
-/* The size of `SQLWCHAR', as computed by sizeof. */
-#undef SIZEOF_SQLWCHAR
-
 /* The size of `void*', as computed by sizeof. */
 #undef SIZEOF_VOIDP
 
@@ -1130,18 +1109,6 @@
 /* Define to name of the UUID header file. */
 #undef UUID_H
 
-/* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
-   significant byte first (like Motorola and SPARC, unlike Intel). */
-#if defined AC_APPLE_UNIVERSAL_BUILD
-# if defined __BIG_ENDIAN__
-#  define WORDS_BIGENDIAN 1
-# endif
-#else
-# ifndef WORDS_BIGENDIAN
-#  undef WORDS_BIGENDIAN
-# endif
-#endif
-
 /* architecture */
 #undef YAP_ARCH
 
@@ -1157,13 +1124,13 @@
 /* numerical version */
 #undef YAP_NUMERIC_VERSION
 
-/* where to look for Prolog sources */
+/* where YAP lives */
 #undef YAP_PL_SRCDIR
 
 /* where YAP lives */
 #undef YAP_ROOTDIR
 
-/* where to look for the Prolog library */
+/* where YAP lives */
 #undef YAP_SHAREDIR
 
 /* saved state file */

@@ -60,9 +60,10 @@ public class JavaYap extends Activity
     String str;
     String buf;
     YAPQuery q;
-    Boolean running = false;
+    Boolean running = false, compute = true;
     int i=1;
     YAPListTerm vs0;
+    private AssetManager mgr;
 
     void runQuery(String str, Boolean more)
     {
@@ -70,13 +71,18 @@ public class JavaYap extends Activity
         {
             // check if at initial query
             if (!running) {
+
+                            if (BuildConfig.DEBUG) {
+                                Log.i(TAG, "query "+str);
+                            }
+
 	      q = eng.query( str );
                 // get the uninstantiated query variables.
                 vs0 = q.namedVars();
                 running = true;
             }
             // start computing
-            Boolean compute = true;
+            compute = true;
 
             if (BuildConfig.DEBUG) {
                 Log.i(TAG, "onQueryButtonClick called");
@@ -89,7 +95,7 @@ public class JavaYap extends Activity
                 if (BuildConfig.DEBUG) {
                     Log.i(TAG, "q0=\n");
                 }
-                if (compute && q.next()) {
+                if (compute && (rc = q.next())) {
                     outputText.append( "yes\n" );
                     running = compute = more;
                 } else {
@@ -102,7 +108,7 @@ public class JavaYap extends Activity
                     Log.i(TAG, "q1= "+vs0.text()+"\n");
                 }
                 while (compute && (rc = q.next()) ) {
-                    YAPListTerm vs = vs0;
+                    YAPListTerm vs = q.namedVars();
                     while(!vs.nil()){
                         if (BuildConfig.DEBUG) {
                             Log.i(TAG, "q= "+vs0.text()+"\n");
@@ -118,11 +124,14 @@ public class JavaYap extends Activity
             }
             if ( !rc) {
                 q.close();
-                running = compute = false;
+                compute = true;
+                running = false;
             }
         } catch(Exception e){
             outputText.append("Exception thrown  :" + e);
-            return;
+            q.close();
+            compute = true;
+            running = false;
         }
     }
 
@@ -139,8 +148,8 @@ public class JavaYap extends Activity
             s = getPackageName();
             PackageInfo p = m.getPackageInfo(s, 0);
             //s = p.applicationInfo.dataDir;
-            AssetManager mgr = getResources().getAssets();
-            Log.i(TAG, "mgr=" +mgr + " " + s);
+            mgr = getResources().getAssets();
+            Log.i(TAG, "mgr0=" +mgr + " " + s);
             load(mgr);
         } catch(NameNotFoundException e) {
             Log.e(TAG, "Couldn't find package  information in PackageManager", e);
@@ -239,8 +248,6 @@ public class JavaYap extends Activity
 
     private static native void load(AssetManager mgr);
 
-    private AssetManager mgr;
-
     private static final String TAG = "JavaYap";
 
 }
@@ -254,13 +261,6 @@ class JavaCallback extends YAPCallback
         super();
         output =  outputText;
         Log.i(TAG, "java callback init");
-    }
-
-
-    public void run()
-    {
-        Log.i(TAG, "java callback ");
-        System.out.println("JavaCallback.run() ");
     }
 
     public void run(String s)

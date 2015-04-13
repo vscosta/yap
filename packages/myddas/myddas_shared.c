@@ -127,7 +127,7 @@ c_db_connection_type ( USES_REGS1 ){
 
   switch (type) {
   case API_MYSQL:
-    /* MYSQL Connection */    
+    /* MYSQL Connection */
     return Yap_unify(arg_type, MkAtomTerm(Yap_LookupAtom("mysql")));
   case API_ODBC:
     /* ODBC Connection */

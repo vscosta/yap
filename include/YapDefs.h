@@ -19,6 +19,7 @@
 #define _YAPDEFS_H 1
 
 #include <stdlib.h>
+#include <setjmp.h>
 
 #ifdef YAP_H
 
@@ -72,7 +73,7 @@ typedef bool YAP_Bool;
 
 #define YAP_Term Term
 
-#define YAP_Arity arity_t 
+#define YAP_Arity arity_t
 
 #define YAP_Module Term
 
@@ -99,9 +100,9 @@ typedef bool YAP_Bool;
 /* Type definitions */
 
 #if _WIN64
-typedef unsigned long long YAP_CELL;  
+typedef unsigned long long YAP_CELL;
 #else
-typedef uintptr_t YAP_CELL;  
+typedef uintptr_t YAP_CELL;
 #endif
 
 typedef YAP_CELL YAP_Term;
@@ -115,7 +116,7 @@ typedef struct FunctorEntry *YAP_Functor;
 typedef struct AtomEntry *YAP_Atom;
 
 #if _WIN64
-typedef long long int YAP_Int;  
+typedef long long int YAP_Int;
 
 typedef unsigned long long int  YAP_UInt;
 
@@ -282,15 +283,29 @@ typedef struct yap_boot_params {
 Int Yap_InitDefaults( YAP_init_args *init_args, char saved_state[] );
 #endif
 
-/* this should be opaque to the user */ 
+/* this should be opaque to the user */
 typedef struct {
   unsigned long  b;  //> choice-point at entry
-  YAP_Int CurSlot;   //> variables at entry
-  YAP_Int EndSlot;   //> variables at successful execution
+  YAP_handle_t CurSlot;   //> variables at entry
+  YAP_handle_t EndSlot;   //> variables at successful execution
   struct yami *p;    //> Program Counter at entry
   struct yami  *cp;  //> Continuation PC at entry
 } YAP_dogoalinfo;
 
+
+// query manipulation support
+
+typedef struct open_query_struct {
+  int q_open;
+  int q_state;
+  YAP_handle_t q_g;
+  struct pred_entry *q_pe;
+  struct yami  *q_p, *q_cp;
+  jmp_buf q_env;
+  int q_flags;
+  YAP_dogoalinfo q_h;
+  struct open_query_struct *oq;
+} YAP_openQuery;
 
 typedef void  (*YAP_halt_hook)(int exit_code, void *closure);
 

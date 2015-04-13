@@ -11,14 +11,14 @@ class YAPTerm {
   friend class YAPPrologPredicate;
   friend class YAPQuery;
   friend class YAPModule;
-  friend class YAPModuleProp;  
-  friend class YAPApplTerm;  
+  friend class YAPModuleProp;
+  friend class YAPApplTerm;
 protected:
   yhandle_t t; /// handle to term, equivalent to term_t
   void mk(Term t0); /// internal method to convert from term to handle
   Term gt(); /// get handle and obtain term
 public:
-  ~YAPTerm() {};
+  virtual ~YAPTerm() {};
   YAPTerm(Term tn) {  mk( tn ); } /// private method to convert from Term (internal YAP representation) to YAPTerm
   // do nothing constructor
   YAPTerm() { mk(TermNil); }
@@ -32,7 +32,7 @@ public:
   YAP_tag_t  tag();
   /// copy the term ( term copy )
   YAPTerm  deepCopy();
-  inline Term term() { return gt(); } /// private method to convert from YAPTerm to Term (internal YAP representation)
+  inline Term term() { return gt(); } /// from YAPTerm to Term (internal YAP representation)
   //const YAPTerm *vars();
   /// this term is == to t1
   bool exactlyEqual(YAPTerm t1);
@@ -67,7 +67,7 @@ public:
       tf = YAPTerm((Term)0);
     }
     RECOVER_MACHINE_REGS();
-    //{ CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "after getArg H= %p, i=%d", HR, tf.gt()) ; }
+    REGS_LOG( "after getArg H= %p, i=%d", HR, tf.gt()) ;
     return tf;
   }
 
@@ -78,7 +78,7 @@ public:
 /**
  * @brief Variable Term
  */
-class YAPVarTerm: private YAPTerm {
+class YAPVarTerm: public YAPTerm {
   YAPVarTerm(Term t) { if (IsVarTerm(t)) mk( t ); }
 public:
   /// constructor
@@ -103,7 +103,7 @@ public:
  * @brief Atom Term
  * Term Representation of an Atom
  */
-class YAPAtomTerm: YAPTerm {
+class YAPAtomTerm: public YAPTerm {
   friend class YAPModule;
   // Constructor: receives a C-atom;
   YAPAtomTerm(Atom a)  { mk( MkAtomTerm(a) ); }
@@ -113,13 +113,13 @@ class YAPAtomTerm: YAPTerm {
 public:
   // Constructor: receives an atom;
   YAPAtomTerm(YAPAtom a): YAPTerm() { mk( MkAtomTerm(a.a) ); }
-  // Constructor: receives a sequence of ISO-LATIN1 codes;  
+  // Constructor: receives a sequence of ISO-LATIN1 codes;
   YAPAtomTerm(char *s) ;
-  // Constructor: receives a sequence of up to n ISO-LATIN1 codes;  
+  // Constructor: receives a sequence of up to n ISO-LATIN1 codes;
   YAPAtomTerm(char *s, size_t len);
-  // Constructor: receives a sequence of wchar_ts, whatever they may be;  
+  // Constructor: receives a sequence of wchar_ts, whatever they may be;
   YAPAtomTerm(wchar_t *s) ;
-  // Constructor: receives a sequence of n wchar_ts, whatever they may be;  
+  // Constructor: receives a sequence of n wchar_ts, whatever they may be;
   YAPAtomTerm(wchar_t *s, size_t len);
   virtual bool isVar() { return false; }   /// type check for unbound
   virtual bool isAtom() { return true; } ///  type check for atom
@@ -131,16 +131,16 @@ public:
   virtual bool isPair() { return false; } /// is a pair term
   virtual bool isGround() { return true; } /// term is ground
   virtual bool isList() { return gt() == TermNil; } /// [] is a list
-  // Getter: outputs the atom;  
+  // Getter: outputs the atom;
   YAPAtom getAtom() { return YAPAtom(AtomOfTerm( gt() )); }
-  // Getter: outputs the name as a sequence of ISO-LATIN1 codes;  
+  // Getter: outputs the name as a sequence of ISO-LATIN1 codes;
   const char *text() { return AtomOfTerm( gt() )->StrOfAE; }
 };
 
 /**
  * @brief Compound Term
  */
-class YAPApplTerm: YAPTerm {
+class YAPApplTerm: public YAPTerm {
   friend class YAPTerm;
   YAPApplTerm(Term t0) { mk(t0); }
 public:
@@ -164,7 +164,7 @@ public:
 /**
  * @brief List Constructor Term
  */
-class YAPPairTerm: YAPTerm {
+class YAPPairTerm: public YAPTerm {
   friend class YAPTerm;
   YAPPairTerm(Term t0) { if (IsPairTerm(t0)) mk( t0 );  else mk(0); }
 public:
@@ -175,14 +175,23 @@ public:
 };
 
 /**
+ * @brief Number Term
+ */
+
+class YAPNumberTerm: public YAPTerm {
+public:
+  YAPNumberTerm() {};
+  bool isTagged() { return IsIntTerm( gt() ); }
+};
+
+/**
  * @brief Integer Term
  */
 
-class YAPIntegerTerm:  YAPTerm {
+class YAPIntegerTerm: public YAPNumberTerm {
 public:
   YAPIntegerTerm(intptr_t i);
   intptr_t getInteger() { return  IntegerOfTerm( gt() ); }
-  bool isTagged() { return IsIntTerm( gt() ); }
 };
 
 class YAPListTerm: public YAPTerm {
@@ -218,15 +227,15 @@ public:
       return YAPListTerm(TailOfTerm( to ));
     else if ( to == TermNil)
       return YAPListTerm(  );
-    /* error */;
+    /* error */
+    throw YAPError::YAP_TYPE_ERROR;
   }
 
   /// Check if the list is empty.
   ///
   /// @param[in] the list
   inline bool nil() {
-    CACHE_REGS
-      { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "II %x %x", gt(), TermNil) ; }
+      { LOG(  "II %x %x", gt(), TermNil) ; }
     return gt() == TermNil;
   }
 
@@ -236,7 +245,7 @@ public:
 /**
  * @brief String Term
  */
-class YAPStringTerm: private YAPTerm {
+class YAPStringTerm: public YAPTerm {
 public:
   /// your standard constructor
   YAPStringTerm(char *s) ;

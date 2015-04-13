@@ -737,5 +737,3 @@ bind_actions()
     }
   }
 }
-
-

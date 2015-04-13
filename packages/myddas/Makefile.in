@@ -62,7 +62,7 @@ MYDDAS_PROLOG= \
 	myddas_assert_predicates.ypp \
 	myddas_mysql.ypp \
 	myddas_sqlite3.ypp \
-        myddas_top_level.ypp \
+    myddas_top_level.ypp \
 	myddas_errors.ypp \
 	myddas_postgres.ypp \
 	myddas_prolog2sql.ypp \
@@ -85,7 +85,7 @@ all: $(SOBJS) $(MYDDAS_YAP)
 	$(CC) -c $(CFLAGS) $< -o $@
 
 %.yap: $(srcdir)/pl/%.ypp
-	$(ECPP) $(YAP_EXTRAS) -P -w $< -o $@
+	$(ECPP) $(YAP_EXTRAS) -P -w $< > $@
 
 @DO_SECOND_LD@%.@SO@: $(OBJS)
 	@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $(OBJS) @EXTRA_LIBS_FOR_DLLS@ @MYDDAS_LIBS@

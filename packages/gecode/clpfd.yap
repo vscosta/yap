@@ -29,7 +29,7 @@ Constraints supported are:
 
 
 :- module(gecode_clpfd, [
-		  op(100, yf, []),            
+		  op(100, yf, []),
                   op(760, yfx, #<==>),
                   op(750, xfy, #==>),
                   op(750, yfx, #<==),
@@ -116,7 +116,7 @@ Constraints supported are:
                  ]).
 
 /** @pred _X_ #<  _B_  is det
-reified implication 
+reified implication
 
 As an example. consider finding out the people who wanted to sit
 next to a friend and that are are actually sitting together:
@@ -127,7 +127,7 @@ preference_satisfied(X-Y, B) :-
 ~~~~~
 Note that not all constraints may be reifiable.
 
- 
+
 */
 /** @pred _X_ #<  _Y_ is semidet
 smaller or equal
@@ -137,7 +137,7 @@ Arguments to this constraint may be an arithmetic expression with <tt>+</tt>,
 <tt>count</tt>, and
 <tt>abs</tt>. Boolean variables support conjunction (/\), disjunction (\/),
 implication (=>), equivalence (<=>), and xor. The <tt>sum</tt> constraint allows  a two argument version using the
-`where` conditional, in Zinc style. 
+`where` conditional, in Zinc style.
 
 The send more money equation may be written as:
 
@@ -157,35 +157,35 @@ OutFlow[I] #= sum(J in 1..N where D[J,I]<M, X[J,I])
 The <tt>count</tt> constraint counts the number of elements that match a
 certain constant or variable (integer sets are not available).
 
- 
+
 */
 /** @pred _X_ #<==>  _B_  is det
 reified equivalence
- 
+
 */
 /** @pred _X_ #=  _Y_ is semidet
 equality
- 
+
 */
 /** @pred _X_ #=<  _Y_ is semidet
 smaller
- 
+
 */
 /** @pred _X_ #==>  _B_  is det
 Reified implication
- 
+
 */
 /** @pred _X_ #>  _Y_ is semidet
 larger
- 
+
 */
 /** @pred _X_ #>=  _Y_ is semidet
 larger or equal
- 
+
 */
 /** @pred _X_ #\=  _Y_ is semidet
 disequality
- 
+
 */
 /** @pred labeling( _Opts_,  _Xs_)
 performs labeling, several variable and value selection options are
@@ -217,14 +217,14 @@ median
 all value starting from the minimum.
 
 
- 
+
 */
 /** @pred scalar_product(+ _Cs_, + _Vs_, + _Rel_, ? _V_    )
 
 The product of constant  _Cs_ by  _Vs_ must be in relation
  _Rel_ with  _V_ .
 
- 
+
 */
 
 :- use_module(library(gecode)).
@@ -341,7 +341,7 @@ process_constraints(B, B, _Env).
 	post( rel(NA,  (#=)), Env, _).
 /** @pred _X_ #= is det
 all elements of  _X_  must take the same value
- 
+
 */
 ( A #\= ) :-
 	get_home(Env),
@@ -350,7 +350,7 @@ all elements of  _X_  must take the same value
 /** @pred _X_ #<  is det
 elements of  _X_  must be decreasing or equal
 
- 
+
 */
 ( A #< ) :-
 	get_home(Env),
@@ -358,7 +358,7 @@ elements of  _X_  must be decreasing or equal
 	post( rel(NA,  (#<)), Env, _).
 /** @pred _X_ #>  is det
 elements of  _X_  must be increasing
- 
+
 */
 ( A #> ) :-
 	get_home(Env),
@@ -366,7 +366,7 @@ elements of  _X_  must be increasing
 	post( rel(NA,  (#>)), Env, _).
 /** @pred _X_ #=<  is det
 elements of  _X_  must be decreasing
- 
+
 */
 ( A #=< ) :-
 	get_home(Env),
@@ -374,7 +374,7 @@ elements of  _X_  must be decreasing
 	post( rel(NA,  (#=<) ), Env, _).
 /** @pred _X_ #>=  is det
 elements of  _X_  must be increasinga or equal
- 
+
 */
 ( A #>= ) :-
 	get_home(Env),
@@ -537,7 +537,7 @@ clause( or, Ps, Ns, V ) :-
 
 labeling(Opts, Xs) :-
 	get_home(Space-Map),
-	foldl2( processs_lab_opt, Opts, 'INT_VAR_SIZE_MIN', BranchVar, 'INT_VAL_MIN', BranchVal), 
+	foldl2( processs_lab_opt, Opts, 'INT_VAR_SIZE_MIN', BranchVar, 'INT_VAL_MIN', BranchVal),
 	term_variables(Xs, Vs),
 	check( Vs, X1s ),
 	( X1s == [] -> true ;
@@ -602,7 +602,7 @@ post( rel( A, Op), Space-Map, Reify):-
 	(var(Reify) ->	Space += rel(IA, GOP) ;
 	    Space += rel(IA, GOP, Reify) ).
 
-% X #< Y 
+% X #< Y
 % X #< 2
 post( rel( A, Op, B), Space-Map, Reify):-
 	var(A),
@@ -672,12 +672,12 @@ post( rel(A1+A2, Op, B), Space-Map, Reify):-
 	(var(Reify) ->
 	    ( checklist(is_one, CAs) ->
 		Space += linear(As, GOP, B0);
-		Space += linear(CAs, As, GOP, B0) 
+		Space += linear(CAs, As, GOP, B0)
 	    )
 	    ;
 	    ( checklist(is_one, CAs) ->
 		Space += linear(As, GOP, B0, Reify);
-		Space += linear(CAs, As, GOP, B0, Reify) 
+		Space += linear(CAs, As, GOP, B0, Reify)
 	    )
 	).
 
@@ -689,18 +689,18 @@ post( rel(A1-A2, Op, B), Space-Map, Reify):-
 	(var(Reify) ->
 	    ( checklist(is_one, CAs) ->
 		Space += linear(As, GOP, B0);
-		Space += linear(CAs, As, GOP, B0) 
+		Space += linear(CAs, As, GOP, B0)
 	    )
 	    ;
 	    ( checklist(is_one, CAs) ->
 		Space += linear(As, GOP, B0, Reify);
-		Space += linear(CAs, As, GOP, B0, Reify) 
+		Space += linear(CAs, As, GOP, B0, Reify)
 	    )
 	).
 
 post( rel(A, Op, B), Space-Map, Reify):-
 	arith(A, Name),
-	A =.. [_Op,A1], 
+	A =.. [_Op,A1],
 	is_list(A1), !,
 	( _Op = min -> true ; _Op = max  ),
 	maplist(equality_l( Space-Map),  A1, NA1),
@@ -710,7 +710,7 @@ post( rel(A, Op, B), Space-Map, Reify):-
 
 post( rel(A, Op, B), Space-Map, Reify):-
 	arith(A, Name),
-	A =.. [_Op,A1], !, 
+	A =.. [_Op,A1], !,
 	equality(A1, NA1,  Space-Map),
 	in_c(NA1, VA1,  Space-Map), !,
 	equality(B, B1,  Space-Map),
@@ -718,7 +718,7 @@ post( rel(A, Op, B), Space-Map, Reify):-
 
 post( rel(A, Op, B), Space-Map, Reify):-
 	arith(A, Name),
-	A =.. [_Op,A1,A2], !, 
+	A =.. [_Op,A1,A2], !,
 	equality(A1, NA1,  Space-Map),
 	in_c(NA1, VA1,  Space-Map),
 	equality(A2, NA2,  Space-Map),
@@ -828,7 +828,7 @@ reverse_arith_op( (#>=) ,  (#=<) ).
 reverse_arith_op( (#<)  ,  (#>) ).
 reverse_arith_op( (#=<) ,  (#>=) ).
 
-linearize(V, C, [A|As], As, [C|CAs], CAs, I, I, _-Map) :- 
+linearize(V, C, [A|As], As, [C|CAs], CAs, I, I, _-Map) :-
 	var(V), !,
 	l(V, A, Map).
 linearize(A+B, C, As, Bs, CAs, CBs, I, IF, Env) :-
@@ -953,7 +953,7 @@ out_c(Name, A1, B,  Op, Space-Map, Reify) :-
 	new_arith( Name, A1, NB, Space-Map),
 	gecode_arith_op( Op, BOP ),
 	l(NB, IB, Map),
-	( var(Reify) -> 
+	( var(Reify) ->
 	    Space += rel(IB, BOP, B)
 	;
 	    Space += rel(IB, BOP, B, Reify)
@@ -988,7 +988,7 @@ out_c(Name, A1, A2, B, Op, Space-Map, Reify) :-
 	new_arith( Name, A1, A2, NB, Space-Map),
 	l(NB, IB, Map),
 	gecode_arith_op( Op, BOP ),
-	( var(Reify) -> 
+	( var(Reify) ->
 	    Space += rel(IB, BOP, B)
 	;
 	    Space += rel(IB, BOP, B, Reify)
@@ -1198,7 +1198,7 @@ sum_l(Map, V, Min0, Min, Max0, Max) :-
 in_c(A, A,  _y) :-
 	var(A), !.
 in_c(C, A, Space-Map) :-
-	integer(C), 
+	integer(C),
 	Min is C-1,
 	NX := intvar(Space, Min, C),
 	m(A, NX, Min, C, Map),
@@ -1221,7 +1221,7 @@ init_gecode(Space-Map, new) :-
 	b_setval(gecode_space, Space-Map).
 
 close_gecode(_Space, _Vs, old) :- !.
-close_gecode(Space-Map, Vs0, new) :- 
+close_gecode(Space-Map, Vs0, new) :-
 	term_variables(Vs0, Vs),
 	selectlist(intvar(Map), Vs, CVs),
 	maplist(ll(Map), CVs, IVs),
@@ -1294,7 +1294,7 @@ l(NV, OV, [v(V, OV, _A, _B)|_Vs]) :-
 l(NV, OV, [_|Vs]) :-
 	l(NV, OV, Vs).
 */
-  
+
 ll(Map, X, Y) :-
 	l(X, Y, Map).
 

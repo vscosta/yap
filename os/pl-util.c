@@ -7,7 +7,7 @@ int
 stricmp(const char *s1, const char *s2)
 { while(*s1 && makeLower(*s1) == makeLower(*s2))
     s1++, s2++;
-  
+
   return makeLower(*s1) - makeLower(*s2);
 }
 #endif
@@ -67,6 +67,3 @@ out:
   return rc;
 }
 #endif
-
-
-

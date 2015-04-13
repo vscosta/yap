@@ -16,7 +16,7 @@
 *************************************************************************/
 :- system_module( '$_consult', [compile/1,
         consult/1,
-        db_files/1,-
+        db_files/1,
         ensure_loaded/1,
         exists_source/1,
         exo_files/1,
@@ -879,6 +879,7 @@ db_files(Fs) :-
 '$do_startup_reconsult'(_).
 
 '$skip_unix_header'(Stream) :-
+  writeln(Stream),
 	peek_code(Stream, 0'#), !, % 35 is ASCII for '#
 	skip(Stream, 10),
 	'$skip_unix_header'(Stream).

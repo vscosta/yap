@@ -47,7 +47,7 @@
 @defgroup c-interface  YAP original C-interface
 @ingroup ChYInterface
 
-Before describing in full detail how to interface to C code, we will examine 
+Before describing in full detail how to interface to C code, we will examine
 a brief example.
 
 Assume the user requires a predicate `my_process_id(Id)` which succeeds
@@ -59,7 +59,7 @@ C-code described below.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.c}
 #include "YAP/YapInterface.h"
 
-static int my_process_id(void) 
+static int my_process_id(void)
 {
      YAP_Term pid = YAP_MkIntTerm(getpid());
      YAP_Term out = YAP_ARG1;
@@ -205,17 +205,17 @@ follows
 
 The primitive
 
-YAP_Bool YAP_IsVarTerm(YAP_Term  _t_) 
+YAP_Bool YAP_IsVarTerm(YAP_Term  _t_)
 
 returns true iff its argument is an uninstantiated variable. Conversely the
 primitive
 <ul>
- <li>YAP_Bool YAP_NonVarTerm(YAP_Term  _t_) 
+ <li>YAP_Bool YAP_NonVarTerm(YAP_Term  _t_)
 
 returns true iff its argument is not a variable.
 </li>
 </ul>
- 
+
 
 The user can create a new uninstantiated variable using the primitive
 
@@ -228,25 +228,25 @@ The following primitives can be used to discriminate among the different types
 of non-variable terms:
 
 <ul>
- <li>YAP_Bool YAP_IsIntTerm(YAP_Term  _t_) 
+ <li>YAP_Bool YAP_IsIntTerm(YAP_Term  _t_)
 
 </li>
- <li>YAP_Bool YAP_IsFloatTerm(YAP_Term  _t_) 
+ <li>YAP_Bool YAP_IsFloatTerm(YAP_Term  _t_)
 
 </li>
- <li>YAP_Bool YAP_IsDbRefTerm(YAP_Term  _t_) 
+ <li>YAP_Bool YAP_IsDbRefTerm(YAP_Term  _t_)
 
 </li>
- <li>YAP_Bool YAP_IsAtomTerm(YAP_Term  _t_) 
+ <li>YAP_Bool YAP_IsAtomTerm(YAP_Term  _t_)
 
 </li>
- <li>YAP_Bool YAP_IsPairTerm(YAP_Term  _t_) 
+ <li>YAP_Bool YAP_IsPairTerm(YAP_Term  _t_)
 
 </li>
- <li>YAP_Bool YAP_IsApplTerm(YAP_Term  _t_) 
+ <li>YAP_Bool YAP_IsApplTerm(YAP_Term  _t_)
 
 </li>
- <li>YAP_Bool YAP_IsCompoundTerm(YAP_Term  _t_) 
+ <li>YAP_Bool YAP_IsCompoundTerm(YAP_Term  _t_)
 
 </li>
 </ul>
@@ -294,10 +294,10 @@ The following primitives are provided for creating an integer term from an
 integer and to access the value of an integer term.
 
 <ul>
- <li>YAP_Term YAP_MkIntTerm(YAP_Int   _i_) 
+ <li>YAP_Term YAP_MkIntTerm(YAP_Int   _i_)
 
 </li>
- <li>YAP_Int  YAP_IntOfTerm(YAP_Term  _t_) 
+ <li>YAP_Int  YAP_IntOfTerm(YAP_Term  _t_)
 
 </li>
 </ul>
@@ -310,11 +310,11 @@ on 64 bit machines.
 The two following primitives play a similar role for floating-point terms
 
 <ul>
- <li>YAP_Term YAP_MkFloatTerm(YAP_flt  _double_) 
+ <li>YAP_Term YAP_MkFloatTerm(YAP_flt  _double_)
 
 
 </li>
- <li>YAP_flt  YAP_FloatOfTerm(YAP_Term  _t_) 
+ <li>YAP_flt  YAP_FloatOfTerm(YAP_Term  _t_)
 
 </li>
 </ul>
@@ -326,13 +326,13 @@ a big int, creating a term from a big integer and to access the value
 of a big int from a term.
 
 <ul>
- <li>YAP_Bool YAP_IsBigNumTerm(YAP_Term  _t_) 
+ <li>YAP_Bool YAP_IsBigNumTerm(YAP_Term  _t_)
 
 </li>
- <li>YAP_Term YAP_MkBigNumTerm(void  \* _b_) 
+ <li>YAP_Term YAP_MkBigNumTerm(void  \* _b_)
 
 </li>
- <li>void \*YAP_BigNumOfTerm(YAP_Term  _t_, void \* _b_) 
+ <li>void \*YAP_BigNumOfTerm(YAP_Term  _t_, void \* _b_)
 
 </li>
 </ul>
@@ -359,7 +359,7 @@ p_print_bignum(void)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Currently, no primitives are supplied to users for manipulating data base
-references. 
+references.
 
 A special typedef `YAP_Atom` is provided to describe Prolog
 \a atoms (symbolic constants). The two following primitives can be used
@@ -367,24 +367,24 @@ to manipulate atom terms
 
 
 <ul>
- <li>YAP_Term YAP_MkAtomTerm(YAP_Atom at) 
+ <li>YAP_Term YAP_MkAtomTerm(YAP_Atom at)
 
 </li>
- <li>YAP_Atom YAP_AtomOfTerm(YAP_Term  _t_) 
+ <li>YAP_Atom YAP_AtomOfTerm(YAP_Term  _t_)
 
 </li>
 </ul>
 The following primitives are available for associating atoms with their
-names 
+names
 
 <ul>
- <li>YAP_Atom  YAP_LookupAtom(char \*  _s_) 
+ <li>YAP_Atom  YAP_LookupAtom(char \*  _s_)
 
 </li>
- <li>YAP_Atom  YAP_FullLookupAtom(char \*  _s_) 
+ <li>YAP_Atom  YAP_FullLookupAtom(char \*  _s_)
 
 </li>
- <li>char     \*YAP_AtomName(YAP_Atom  _t_) 
+ <li>char     \*YAP_AtomName(YAP_Atom  _t_)
 
 </li>
 </ul>
@@ -398,10 +398,10 @@ The following primitives handle constructing atoms from strings with
 wide characters, and vice-versa:
 
 <ul>
- <li>YAP_Atom  YAP_LookupWideAtom(wchar_t \*  _s_) 
+ <li>YAP_Atom  YAP_LookupWideAtom(wchar_t \*  _s_)
 
 </li>
- <li>wchar_t  \*YAP_WideAtomName(YAP_Atom  _t_) 
+ <li>wchar_t  \*YAP_WideAtomName(YAP_Atom  _t_)
 
 </li>
 </ul>
@@ -410,16 +410,16 @@ The following primitive tells whether an atom needs wide atoms in its
 representation:
 
 <ul>
- <li>int  YAP_IsWideAtom(YAP_Atom  _t_) 
+ <li>int  YAP_IsWideAtom(YAP_Atom  _t_)
 
 </li>
 </ul>
 
 The following primitive can be used to obtain the size of an atom in a
-representation-independent way: 
+representation-independent way:
 
 <ul>
- <li>int      YAP_AtomNameLength(YAP_Atom  _t_) 
+ <li>int      YAP_AtomNameLength(YAP_Atom  _t_)
 
 </li>
 </ul>
@@ -431,13 +431,13 @@ externally to the Prolog engine, allow it to be collected, and call a
 hook on garbage collection:
 
 <ul>
- <li>int  YAP_AtomGetHold(YAP_Atom  _at_) 
+ <li>int  YAP_AtomGetHold(YAP_Atom  _at_)
 
 </li>
- <li>int  YAP_AtomReleaseHold(YAP_Atom  _at_) 
+ <li>int  YAP_AtomReleaseHold(YAP_Atom  _at_)
 
 </li>
- <li>int  YAP_AGCRegisterHook(YAP_AGC_hook  _f_) 
+ <li>int  YAP_AGCRegisterHook(YAP_AGC_hook  _f_)
 
 </li>
 </ul>
@@ -448,19 +448,19 @@ most often used to build <em>lists</em>. The following primitives can be
 used to manipulate pairs:
 
 <ul>
- <li>YAP_Term  YAP_MkPairTerm(YAP_Term  _Head_, YAP_Term  _Tail_) 
+ <li>YAP_Term  YAP_MkPairTerm(YAP_Term  _Head_, YAP_Term  _Tail_)
 
 </li>
- <li>YAP_Term  YAP_MkNewPairTerm(void) 
+ <li>YAP_Term  YAP_MkNewPairTerm(void)
 
 </li>
- <li>YAP_Term  YAP_HeadOfTerm(YAP_Term  _t_) 
+ <li>YAP_Term  YAP_HeadOfTerm(YAP_Term  _t_)
 
 </li>
- <li>YAP_Term  YAP_TailOfTerm(YAP_Term  _t_) 
+ <li>YAP_Term  YAP_TailOfTerm(YAP_Term  _t_)
 
 </li>
- <li>YAP_Term  YAP_MkListFromTerms(YAP_Term \* _pt_, YAP_Int \* _sz_) 
+ <li>YAP_Term  YAP_MkListFromTerms(YAP_Term \* _pt_, YAP_Int \* _sz_)
 
 </li>
 </ul>
@@ -472,28 +472,28 @@ The last function supports the common operation of constructing a list from an
 array of terms of size  _sz_ in a simple sweep.
 
 Notice that the list constructors can call the garbage collector if
-there is not enough space in the global stack. 
+there is not enough space in the global stack.
 
 A \a compound term consists of a \a functor and a sequence of terms with
 length equal to the \a arity of the functor. A functor, described in C by
 the typedef `Functor`, consists of an atom and of an integer.
-The following primitives were designed to manipulate compound terms and 
+The following primitives were designed to manipulate compound terms and
 functors
 
 <ul>
- <li>YAP_Term     YAP_MkApplTerm(YAP_Functor  _f_, unsigned long int  _n_, YAP_Term[]  _args_) 
+ <li>YAP_Term     YAP_MkApplTerm(YAP_Functor  _f_, unsigned long int  _n_, YAP_Term[]  _args_)
 
 </li>
- <li>YAP_Term     YAP_MkNewApplTerm(YAP_Functor  _f_, int  _n_) 
+ <li>YAP_Term     YAP_MkNewApplTerm(YAP_Functor  _f_, int  _n_)
 
 </li>
- <li>YAP_Term     YAP_ArgOfTerm(int argno,YAP_Term  _ts_) 
+ <li>YAP_Term     YAP_ArgOfTerm(int argno,YAP_Term  _ts_)
 
 </li>
- <li>YAP_Term    \*YAP_ArgsOfTerm(YAP_Term  _ts_) 
+ <li>YAP_Term    \*YAP_ArgsOfTerm(YAP_Term  _ts_)
 
 </li>
- <li>YAP_Functor  YAP_FunctorOfTerm(YAP_Term  _ts_) 
+ <li>YAP_Functor  YAP_FunctorOfTerm(YAP_Term  _ts_)
 
 </li>
 </ul>
@@ -512,7 +512,7 @@ collector if there is not enough space in the global stack.
 YAP allows one to manipulate the functors of compound term. The function
 [YAP_FunctorOfTerm](@ref YAP_FunctorOfTerm) allows one to obtain a variable of type
 `YAP_Functor` with the functor to a term. The following functions
-then allow one to construct functors, and to obtain their name and arity. 
+then allow one to construct functors, and to obtain their name and arity.
 
 <ul>
  <li>YAP_Functor  YAP_MkFunctor(YAP_Atom  _a_,unsigned long int  _arity_)
@@ -529,7 +529,7 @@ arity.
 Constructing terms in the stack may lead to overflow. The routine
 
 <ul>
- <li>int          YAP_RequiresExtraStack(size_t  _min_) 
+ <li>int          YAP_RequiresExtraStack(size_t  _min_)
 
 </li>
 </ul>
@@ -550,7 +550,7 @@ YAP provides a single routine to attempt the unification of two Prolog
 terms. The routine may succeed or fail:
 
 <ul>
- <li>Int      YAP_Unify(YAP_Term  _a_, YAP_Term  _b_) 
+ <li>Int      YAP_Unify(YAP_Term  _a_, YAP_Term  _b_)
 
 </li>
 </ul>
@@ -564,7 +564,7 @@ The YAP C-interface now includes an utility routine to copy a string
 represented as a list of a character codes to a previously allocated buffer
 
 <ul>
- <li>int YAP_StringToBuffer(YAP_Term  _String_, char \* _buf_, unsigned int  _bufsize_) 
+ <li>int YAP_StringToBuffer(YAP_Term  _String_, char \* _buf_, unsigned int  _bufsize_)
 
 </li>
 </ul>
@@ -595,7 +595,7 @@ strings of wide characters:
 </li>
  <li>YAP_Term YAP_WideBufferToAtomList(wchar_t \* _buf_)
 </li>
- <li>YAP_Term YAP_NWideBufferToAtomList(wchar_t \* _buf_, size_t  _len_) 
+ <li>YAP_Term YAP_NWideBufferToAtomList(wchar_t \* _buf_, size_t  _len_)
 
 </li>
 </ul>
@@ -606,7 +606,7 @@ The C-interface function calls the parser on a sequence of characters
 stored at  _buf_ and returns the resulting term.
 
 <ul>
- <li>YAP_Term YAP_ReadBuffer(char \* _buf_,YAP_Term \* _error_) 
+ <li>YAP_Term YAP_ReadBuffer(char \* _buf_,YAP_Term \* _error_)
 
 </li>
 </ul>
@@ -619,7 +619,7 @@ These C-interface functions are useful when converting chunks of data to Prolog:
 <ul>
  <li>YAP_Term YAP_FloatsToList(double \* _buf_,size_t  _sz_)
 </li>
- <li>YAP_Term YAP_IntsToList(YAP_Int \* _buf_,size_t  _sz_) 
+ <li>YAP_Term YAP_IntsToList(YAP_Int \* _buf_,size_t  _sz_)
 
 </li>
 </ul>
@@ -631,7 +631,7 @@ These C-interface functions are useful when converting Prolog lists to arrays:
 <ul>
  <li>YAP_Int YAP_IntsToList(YAP_Term t, YAP_Int \* _buf_,size_t  _sz_)
 </li>
- <li>YAP_Int YAP_FloatsToList(YAP_Term t, double \* _buf_,size_t  _sz_) 
+ <li>YAP_Int YAP_FloatsToList(YAP_Term t, double \* _buf_,size_t  _sz_)
 
 </li>
 </ul>
@@ -643,7 +643,7 @@ and <tt>-1</tt> on error.
 The next routine can be used to ask space from the Prolog data-base:
 
 <ul>
- <li>void      \*YAP_AllocSpaceFromYAP(int  _size_) 
+ <li>void      \*YAP_AllocSpaceFromYAP(int  _size_)
 
 </li>
 </ul>
@@ -654,7 +654,7 @@ The space allocated with [YAP_AllocSpaceFromYAP](@ref YAP_AllocSpaceFromYAP) can
 back to YAP by using:
 
 <ul>
- <li>void      YAP_FreeSpaceFromYAP(void \* _buf_) 
+ <li>void      YAP_FreeSpaceFromYAP(void \* _buf_)
 
 </li>
 </ul>
@@ -669,7 +669,7 @@ control over the YAP Input/Output system. The first routine allows one
 to find a file number given a current stream:
 
 <ul>
- <li>int      YAP_StreamToFileNo(YAP_Term  _stream_) 
+ <li>int      YAP_StreamToFileNo(YAP_Term  _stream_)
 
 </li>
 </ul>
@@ -683,7 +683,7 @@ stale.
 A second routine that is sometimes useful is:
 
 <ul>
- <li>void      YAP_CloseAllOpenStreams(void) 
+ <li>void      YAP_CloseAllOpenStreams(void)
 
 </li>
 </ul>
@@ -694,7 +694,7 @@ streams. It is most useful if you are doing `fork()`.
 Last, one may sometimes need to flush all streams:
 
 <ul>
- <li>void      YAP_CloseAllOpenStreams(void) 
+ <li>void      YAP_CloseAllOpenStreams(void)
 
 </li>
 </ul>
@@ -706,7 +706,7 @@ routine receives as arguments a file descriptor, the true file name as a
 string, an atom with the user name, and a set of flags:
 
 <ul>
- <li>void      YAP_OpenStream(void \* _FD_, char \* _name_, YAP_Term  _t_, int  _flags_) 
+ <li>void      YAP_OpenStream(void \* _FD_, char \* _name_, YAP_Term  _t_, int  _flags_)
 
 </li>
 </ul>
@@ -725,7 +725,7 @@ functions that are useful.
 The first provides a way to insert a term into the data-base
 
 <ul>
- <li>void      \*YAP_Record(YAP_Term  _t_) 
+ <li>void      \*YAP_Record(YAP_Term  _t_)
 
 </li>
 </ul>
@@ -735,7 +735,7 @@ This function returns a pointer to a copy of the term in the database
 The next functions provides a way to recover the term from the data-base:
 
 <ul>
- <li>YAP_Term      YAP_Recorded(void \* _handle_) 
+ <li>YAP_Term      YAP_Recorded(void \* _handle_)
 
 </li>
 </ul>
@@ -746,7 +746,7 @@ variables. The function returns <tt>0L</tt> if it cannot create a new term.
 Last, the next function allows one to recover space:
 
 <ul>
- <li>int      YAP_Erase(void \* _handle_) 
+ <li>int      YAP_Erase(void \* _handle_)
 
 </li>
 </ul>
@@ -803,13 +803,13 @@ The second function computes a hash function for a term, as in
 `term_hash/4`.
 
 <ul>
- <li>YAP_Int    YAP_TermHash(YAP_Term t, YAP_Int range, YAP_Int depth, int  ignore_variables)); 
+ <li>YAP_Int    YAP_TermHash(YAP_Term t, YAP_Int range, YAP_Int depth, int  ignore_variables));
 
 </li>
 </ul>
 The first three arguments follow `term_has/4`. The last argument
 indicates what to do if we find a variable: if `0` fail, otherwise
-ignore the variable. 
+ignore the variable.
 
 @section Calling_YAP_From_C From `C` back to Prolog
 
@@ -823,7 +823,7 @@ has been initialised before:
 </ul>
 Execute query  _Goal_ and return 1 if the query succeeds, and 0
 otherwise. The predicate returns 0 if failure, otherwise it will return
-an  _YAP_Term_. 
+an  _YAP_Term_.
 
 Quite often, one wants to run a query once. In this case you should use
  _Goal_:
@@ -862,7 +862,7 @@ Look for the next solution to the current query by forcing YAP to
 backtrack to the latest goal. Notice that slots allocated since the last
 YAP_RunGoal() will become invalid.
 
-<li> `int` YAP_Reset(`yap_reset_t mode`) 
+<li> `int` YAP_Reset(`yap_reset_t mode`)
 
 Reset execution environment
 (similar to the abort/0 built-in). This is useful when
@@ -913,12 +913,12 @@ YAP_FunctorToPredInModule(`YAP_Functor`  _f_, `YAP_Module`  _m_),
 Return the predicate in module  _m_ whose main functor is  _f_.
 
 </li>
- <li>`YAP_PredEntryPtr` YAP_AtomToPred(`YAP_Atom`  _at_, `YAP_Module`  _m_), 
+ <li>`YAP_PredEntryPtr` YAP_AtomToPred(`YAP_Atom`  _at_, `YAP_Module`  _m_),
 
 Return the arity 0 predicate in module  _m_ whose name is  _at_.
 
 </li>
- <li>`YAP_Bool` YAP_EnterGoal(`YAP_PredEntryPtr`  _pe_), 
+ <li>`YAP_Bool` YAP_EnterGoal(`YAP_PredEntryPtr`  _pe_),
 
 `YAP_Term \*`  _array_, `YAP_dogoalinfo \*`  _infop_)
 Execute a  query for predicate  _pe_. The query is given as an
@@ -979,7 +979,7 @@ finding the first solution to the goal, but you can call
 [findall/3](@ref findall) or friends if you need all the solutions.
 
 Notice that during execution, garbage collection or stack shifting may
-have moved the terms 
+have moved the terms
 
 @section Module_Manipulation_in_C Module Manipulation in C
 
@@ -1167,7 +1167,7 @@ static int start_n100(void);
 static int continue_n100(void);
 
 typedef struct {
-    YAP_Term next_solution; 
+    YAP_Term next_solution;
    } n100_data_type;
 
 n100_data_type *n100_data;
@@ -1204,7 +1204,7 @@ terms, as in the example. It is also correct to store pointers to
 objects external to YAP stacks, as the garbage collector will ignore
 such references.
 
-If the argument of the predicate is a variable, the routine initializes the 
+If the argument of the predicate is a variable, the routine initializes the
 structure to be preserved across backtracking with the information
 required to provide the next solution, and exits by calling
 `continue_n100` to provide that solution.
@@ -1423,13 +1423,13 @@ The following C-functions are available from YAP:
 Compile the Prolog term  _Clause_ and assert it as the last clause
 for the corresponding procedure.
 
-    + YAP_MkExo(`YAP_PredEntryPtr` _pred_, `size_t` _sz_, `void *` _uid_) 
+    + YAP_MkExo(`YAP_PredEntryPtr` _pred_, `size_t` _sz_, `void *` _uid_)
 Predicate _pred_ is an exo-predicate that needs _sz_ bytes of
-contiguous storage. If _uid_ is non-null associate user-defined 
+contiguous storage. If _uid_ is non-null associate user-defined
 code with _pred_.
 
     + YAP_AssertTuples(`YAP_PredEntryPtr` pred, `const YAP_Term *`  _Facts_, `size_t` nb)
-Add the array of _nb_ Prolog term `Facts` to the table 
+Add the array of _nb_ Prolog term `Facts` to the table
 `Predicate`.
 
     + `int` YAP_ContinueGoal(`void`)
@@ -1489,7 +1489,7 @@ call YAP.
 
 If booting failed you may consult `ErrorNo` and `ErrorCause`
 for the cause of the error, or call
-`YAP_Error(ErrorNo,0L,ErrorCause)` to do default processing. 
+`YAP_Error(ErrorNo,0L,ErrorCause)` to do default processing.
 
     + `void` YAP_PutValue(`Atom`  _at_, `YAP_Term`  _value_)
 Associate the term  _value_ with the atom  _at_. The term
@@ -1848,7 +1848,7 @@ extern X_API YAP_PredEntryPtr YAP_FunctorToPredInModule(YAP_Functor, YAP_Module)
 extern X_API YAP_PredEntryPtr YAP_AtomToPredInModule(YAP_Atom, YAP_Module);
 
 /*  int YAP_EnterGoal(void) */
-extern X_API YAP_Bool YAP_EnterGoal(YAP_PredEntryPtr, YAP_Term *, YAP_dogoalinfo *);
+extern X_API YAP_Bool YAP_EnterGoal(YAP_PredEntryPtr, YAP_handle_t, YAP_dogoalinfo *);
 
 /*  int YAP_RetryGoal(void) */
 extern X_API YAP_Bool YAP_RetryGoal(YAP_dogoalinfo *);

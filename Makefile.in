@@ -18,19 +18,21 @@ YAPLIBDIR=@libdir@/Yap
 #
 # where YAP should look for architecture-independent Prolog libraries
 #
-SHAREDIR=$(ROOTDIR)/share
+DATAROOTDIR=@datarootdir@
+#
+SHAREDIR=$(DATAROOTDIR)
 #
 # where the includes should be stored
 #
-INCLUDEDIR=$(ROOTDIR)/include/Yap
+INCLUDEDIR=@includedir@/Yap
 #
 # where to store info files
 #
-INFODIR=$(SHAREDIR)/info
+INFODIR=$(DATAROOTDIR)/info
 #
 # where to store documentation files
 #
-DOCSDIR=$(SHAREDIR)/doc/Yap
+DOCSDIR=$(SHAREDIR)/doc/yap
 
 #
 # Add this flag to YAP_EXTRAS if you need the extension:
@@ -413,8 +415,8 @@ JIT_OBJECTS = \
     @JITDEBUGPREDS@ \
     @JITSTATISTICPREDS@
 
-MYDDAS_OBJECTS = \
-	@INCLUDE_MYDDAS@ myddas_initialization.o \
+MYDDAS_ALL_OBJECTS = \
+	myddas_initialization.o \
 	myddas_mysql.o \
 	myddas_odbc.o \
 	myddas_postgres.o \
@@ -423,6 +425,8 @@ MYDDAS_OBJECTS = \
 	myddas_statistics.o \
 	myddas_util.o \
 	myddas_wkb2prolog.o
+
+MYDDAS_OBJECTS = @OBJECTS_MYDDAS@
 
 LIBTAI_OBJECTS = \
 	tai_add.o tai_now.o tai_pack.o \
@@ -465,7 +469,15 @@ PLCONS_OBJECTS = \
 	pl-ntmain.o \
 	yapres.o
 
-all: startup.yss @WINDOWS@ yap-win@EXEC_SUFFIX@
+all: "$(STARTUP_ANDROID)android-setup startup.yss windowsi 
+
+xandroid-setup:
+	( cd packages/swig && make android/jni/Android.mk )
+
+android-setup:
+
+windowsi: 
+	@WINDOWS@ yap-win@EXEC_SUFFIX@
 
 Makefile: Makefile.in
 
@@ -507,7 +519,7 @@ save.o: C/save.c
 %.o: BEAM/%.c config.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
-yapi.o: CXX/yapi.cpp CXX/yapi.hh config.h
+yapi.o: CXX/yapi.cpp CXX/yapi.hh CXX/yapq.hh CXX/yapt.hh CXX/yapdb.hh CXX/yapie.hh CXX/yapa.hh config.h
 	$(CXX) -c $(CXXFLAGS)  $< -o $@
 
 sys.o: library/system/sys.c config.h
@@ -640,34 +652,27 @@ libYap.a: $(LIB_OBJECTS) yapi.o
 	done
 
 @STARTUP_ANDROID@startup.yss: 	yap@EXEC_SUFFIX@ @DYNYAPLIB@ $(PL_SOURCES) $(SWI_LIB_SOURCES)
-	adb shell rm -rf /data/yap
-	adb shell mkdir -p /data/yap
-	adb shell mkdir -p /data/yap/pl
-	adb shell mkdir -p /data/yap/swi/library
-	adb shell mkdir -p /data/yap/packages/chr
-	adb shell mkdir -p /data/yap/packages/clib
-	adb shell mkdir -p /data/yap/packages/myddas
-	adb shell mkdir -p /data/yap/assets/myddas
-	adb shell mkdir -p /data/yap/assets/lib
-	adb shell mkdir -p /data/yap/assets/share
-	adb push yap /data/yap/
-	adb push @DYNYAPLIB@ /data/yap/
+	\rm -rf data/yap
+	mkdir -p data/yap/packages
+	mkdir -p data/yap/swi
+	cp -a yap data/yap
+	cp -a @DYNYAPLIB@ data/yap
 	for p in $(EXTRAYAPLIBS); do \
-	  adb shell $(LN_S) /data/yap/@DYNYAPLIB@ /data/yap/$$p; \
+	  (cd data/yap && $(LN_S) @DYNYAPLIB@ $$p ); \
 	done
-	adb push $(GMPDIR)/lib/libgmp.so /data/yap
-	adb push $(SQLITE3DIR)/lib/libsqliteX.so /data/yap
-	#adb push packages/clib/*.so /data/yap
-	#adb push library/system/*.so /data/yap
-	adb push $(srcdir)/swi/library /data/yap/swi/library
-	adb push $(srcdir)/pl /data/yap/pl/
-	adb push $(srcdir)/library /data/yap/library/
-	adb push $(srcdir)/packages/myddas /data/yap/packages/myddas/
-	adb push $(srcdir)/packages/chr /data/yap/packages/chr/
-	adb push $(srcdir)/packages/clib /data/yap/packages/clib/
+	cp -a ../../gmp-android/lib/libgmp.so data/yap
+	cp -a ../../sqlite3-android/lib/libsqliteX.so data/yap
+	cp -a $(srcdir)/pl data/yap
+	cp -a $(srcdir)/library data/yap
+	cp -a $(srcdir)/swi/library data/yap/swi
+	cp -a $(srcdir)/packages/clib data/yap/packages
+	cp -a $(srcdir)/packages/chr data/yap/packages
+	cp -a $(srcdir)/packages/myddas data/yap/packages
+	\rm -rf data/yap/packages/*/.git
+	adb push data/yap /data/yap >/dev/null 2>&1
 	adb shell "echo \"bootstrap('/data/yap/pl/init.yap'). module(user). qsave_program('/data/yap/startup.yss').\" | LD_LIBRARY_PATH=/data/yap /data/yap/yap@EXEC_SUFFIX@ -b /data/yap/pl/boot.yap"
 	adb pull /data/yap/startup.yss
-	#adb shell rm -rf /data/yap
+
 
 install: @INSTALL_COMMAND@ install_startup install_common
 

@@ -1089,8 +1089,6 @@ extern void **Yap_ABSMI_OPCODES;
 #endif
 
 
-
-
 #if DEPTH_LIMIT
 /*
   Make this into an even number so that the system will know

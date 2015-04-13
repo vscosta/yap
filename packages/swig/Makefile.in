@@ -26,11 +26,9 @@ JAVA_SQLITE="$(srcdir)/android/src/org"
 
 SQLITE=$(JNI_SQLITE) $(JAVA_SQLITE)
 
-PROSQLITE=$(srcdir)/../prosqlite/prolog/prosqlite.pl
-
 PYTHON_PROGRAMS = $(srcdir)/python/demo.py
 
-ANDROID_PROGRAMS=$(srcdir)/android/JavaYap.java $(PROSQLITE) $(SQLITE)
+ANDROID_PROGRAMS=$(srcdir)/android/JavaYap.java  $(SQLITE)
 
 PROGRAMS= $(PYTHON_PROGRAMS) $(JAVA_PROGRAMS) $(ANDROID_PROGRAMS)
 
@@ -42,7 +40,7 @@ YAP_EXPORT_SAVED_STATE="../../startup.yss"
 
 PYTHON_PROGRAMS = $(srcdir)/python/demo.py
 
-ANDROID_PROGRAMS=$(srcdir)/android/JavaYap.java $(PROSQLITE) $(SQLITE)
+ANDROID_PROGRAMS=$(srcdir)/android/JavaYap.java  $(SQLITE)
 
 SWIG_FILES= \
 	$(srcdir)/yap.i
@@ -89,9 +87,6 @@ JavaYap-debug.apk: android/libs/armeabi/libexample.so
 
 android/libs/armeabi/libexample.so: android/jni/Android.mk android/jni/Application.mk android/jni/yap_wrap.cpp
 	( cd android/jni && NDK_DEBUG=1 ndk-build )
-	cp -r $(YAP_EXPORT_PLS)/* android/assets/share/Yap
-	cp -r $(YAP_EXPORT_DLLS)/*.so android/jni
-	cp -r $(YAP_EXPORT_SAVED_STATE) android/assets/lib/Yap
 
 android/jni/Application.mk: android/jni/Android.mk
 	cp $(srcdir)/android/jni/Application.mk android/jni
@@ -124,11 +119,13 @@ R:
 
 yap.i: $(srcdir)/../../../../include/YapInterface.h
 
-install:
+install: all
 
 
 clean:
-	rm -fr android/* jni/* java/* python/*
+	rm -fr android/libs/armeabi/libexample.so JavaYap-debug.apk android/jni/Application.mk \
+	android/jni/Android.mk android/jni/yap_wrap.cpp python/_yap.so jni/yap_wrap.o \
+	python/yap_wrap.cpp python/yap.py jni/yap_wrap.cpp java/yap.java
 
 distclean: clean
 	rm -f *def Makefile

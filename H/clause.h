@@ -201,7 +201,7 @@ INLINE_ONLY EXTERN inline  CELL *EXO_OFFSET_TO_ADDRESS(struct index_t *it, BITS3
 INLINE_ONLY EXTERN inline   CELL *
 EXO_OFFSET_TO_ADDRESS(struct index_t *it, BITS32  off)
 {
-  if (off == 0L) 
+  if (off == 0L)
     return (CELL *)NULL;
   return (it->cls)+(off-1)*it->arity;
 }
@@ -258,8 +258,8 @@ typedef struct dbterm_list {
 #define        CL_IN_USE(X) ((X)->ClRefCount)
 #else
 #define INIT_CLREF_COUNT(X)
-#define  INC_CLREF_COUNT(X) 
-#define  DEC_CLREF_COUNT(X) 
+#define  INC_CLREF_COUNT(X)
+#define  DEC_CLREF_COUNT(X)
 #define        CL_IN_USE(X) ((X)->ClFlags & InUseMask || (X)->ClRefCount)
 #endif
 
@@ -301,6 +301,7 @@ LogUpdClause  *Yap_FollowIndexingCode(PredEntry *,yamop *, Term *, yamop *,yamop
 yamop    *Yap_ExoLookup(PredEntry *ap USES_REGS);
 CELL    Yap_NextExo(choiceptr cpt, struct index_t *it);
 
+#
 #if USE_THREADED_CODE
 
 #define OP_HASH_SIZE 2048
@@ -359,7 +360,7 @@ same_lu_block(yamop **paddr, yamop *p)
 
 #define Yap_MkStaticRefTerm(cp, ap) __Yap_MkStaticRefTerm((cp), (ap) PASS_REGS)
 
-static inline Term 
+static inline Term
 __Yap_MkStaticRefTerm(StaticClause *cp, PredEntry *ap USES_REGS)
 {
   Term t[2];
@@ -376,7 +377,7 @@ Yap_ClauseFromTerm(Term t)
 
 #define Yap_MkMegaRefTerm(ap, ipc) __Yap_MkMegaRefTerm((ap), (ipc) PASS_REGS)
 
-static inline Term 
+static inline Term
 __Yap_MkMegaRefTerm(PredEntry *ap,yamop *ipc USES_REGS)
 {
   Term t[2];
@@ -385,13 +386,13 @@ __Yap_MkMegaRefTerm(PredEntry *ap,yamop *ipc USES_REGS)
   return Yap_MkApplTerm(FunctorMegaClause,2,t);
 }
 
-static inline yamop * 
+static inline yamop *
 Yap_MegaClauseFromTerm(Term t)
 {
   return (yamop *)IntegerOfTerm(ArgOfTerm(2,t));
 }
 
-static inline PredEntry * 
+static inline PredEntry *
 Yap_MegaClausePredicateFromTerm(Term t)
 {
   return (PredEntry *)IntegerOfTerm(ArgOfTerm(1,t));
@@ -399,7 +400,7 @@ Yap_MegaClausePredicateFromTerm(Term t)
 
 #define Yap_MkExoRefTerm(ap, i) __Yap_MkExoRefTerm((ap), (i) PASS_REGS)
 
-static inline Term 
+static inline Term
 __Yap_MkExoRefTerm(PredEntry *ap,Int i USES_REGS)
 {
   Term t[2];
@@ -408,13 +409,13 @@ __Yap_MkExoRefTerm(PredEntry *ap,Int i USES_REGS)
   return Yap_MkApplTerm(FunctorExoClause,2,t);
 }
 
-static inline Int 
+static inline Int
 Yap_ExoClauseFromTerm(Term t)
 {
   return IntegerOfTerm(ArgOfTerm(2,t));
 }
 
-static inline PredEntry * 
+static inline PredEntry *
 Yap_ExoClausePredicateFromTerm(Term t)
 {
   return (PredEntry *)IntegerOfTerm(ArgOfTerm(1,t));

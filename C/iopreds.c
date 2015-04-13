@@ -574,7 +574,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
 	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
 	rd->varnames = 0;
 	rd->singles = 0;
-	return Yap_unify_constant( Yap_GetFromSlot( t0 PASS_REGS), MkAtomTerm (AtomEof));
+	return Yap_unify_constant( Yap_GetFromSlot( t0), MkAtomTerm (AtomEof));
       }
     }
   repeat_cycle:
@@ -620,7 +620,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
 
 	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
 	rd->has_exception = TRUE;
-	rd->exception = Yap_InitSlot(terror PASS_REGS);
+	rd->exception = Yap_InitSlot(terror);
 	CurrentModule = OCurrentModule;
 	return FALSE;
       }
@@ -630,9 +630,9 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
       break;
     }
   }
-  if (!Yap_unify(t, Yap_GetFromSlot( t0 PASS_REGS)))
+  if (!Yap_unify(t, Yap_GetFromSlot( t0)))
     return FALSE;
-  if (store_comments && !Yap_unify(LOCAL_Comments, Yap_GetFromSlot( rd->comments PASS_REGS)))
+  if (store_comments && !Yap_unify(LOCAL_Comments, Yap_GetFromSlot( rd->comments )))
     return FALSE;
   if (rd->varnames) {
       Term v;
@@ -656,7 +656,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
       }
     }
     LOCAL_VarNames = v;
-    if (!Yap_unify(v, Yap_GetFromSlot( rd->varnames PASS_REGS ))) {
+    if (!Yap_unify(v, Yap_GetFromSlot( rd->varnames  ))) {
       CurrentModule = OCurrentModule;
       return FALSE;
     }
@@ -683,7 +683,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
 	TR = old_TR;
       }
     }
-    if (!Yap_unify(v, Yap_GetFromSlot( rd->variables PASS_REGS ) )) {
+    if (!Yap_unify(v, Yap_GetFromSlot( rd->variables  ) )) {
       CurrentModule = OCurrentModule;
       return FALSE;
     }
@@ -711,11 +711,11 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
     }
     if (rd->singles == 1) {
       if (IsPairTerm(v))
-	rd->singles = Yap_InitSlot( v PASS_REGS);
+	rd->singles = Yap_InitSlot( v );
       else
 	rd->singles = FALSE;
     } else if (rd->singles) {
-      if (!Yap_unify( v, Yap_GetFromSlot( rd->singles PASS_REGS ))) {
+      if (!Yap_unify( v, Yap_GetFromSlot( rd->singles ))) {
 	CurrentModule = OCurrentModule;
 	return FALSE;
       }

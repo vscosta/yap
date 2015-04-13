@@ -16,7 +16,7 @@
 *************************************************************************/
 /**
  *
- * @{ 
+ * @{
 *   @file blobs.c
  *
  *   @addtogroup swi-c-interface
@@ -47,7 +47,7 @@ PL_EXPORT(int)
 PL_is_blob(term_t t, PL_blob_t **type)
 {
   CACHE_REGS
-  Term yt = Yap_GetFromSlot(t PASS_REGS);
+  Term yt = Yap_GetFromSlot(t);
   Atom a;
   BlobPropEntry *b;
 
@@ -129,7 +129,7 @@ Yap_lookupBlob(void *blob, size_t len, void *type0, int *new)
   return ae;
 }
 
-PL_EXPORT(int)		
+PL_EXPORT(int)
 PL_unify_blob(term_t t, void *blob, size_t len, PL_blob_t *type)
 {
   CACHE_REGS
@@ -144,10 +144,10 @@ PL_unify_blob(term_t t, void *blob, size_t len, PL_blob_t *type)
   if (type->acquire) {
     type->acquire(AtomToSWIAtom(AbsAtom(ae)));
   }
-  return Yap_unify(Yap_GetFromSlot(t PASS_REGS), MkAtomTerm(AbsAtom(ae)));
+  return Yap_unify(Yap_GetFromSlot(t), MkAtomTerm(AbsAtom(ae)));
 }
 
-PL_EXPORT(int)	
+PL_EXPORT(int)
 PL_put_blob(term_t t, void *blob, size_t len, PL_blob_t *type)
 {
   CACHE_REGS
@@ -167,7 +167,7 @@ PL_put_blob(term_t t, void *blob, size_t len, PL_blob_t *type)
   return ret;
 }
 
-PL_EXPORT(int)	
+PL_EXPORT(int)
 PL_get_blob(term_t t, void **blob, size_t *len, PL_blob_t **type)
 {
   CACHE_REGS
@@ -175,7 +175,7 @@ PL_get_blob(term_t t, void **blob, size_t *len, PL_blob_t **type)
   Term tt;
   AtomEntry *ae;
 
-  tt = Yap_GetFromSlot(t PASS_REGS);
+  tt = Yap_GetFromSlot(t);
   if (IsVarTerm(tt))
     return FALSE;
   if (!IsAtomTerm(tt))
@@ -193,7 +193,7 @@ PL_get_blob(term_t t, void **blob, size_t *len, PL_blob_t **type)
   return TRUE;
 }
 
-PL_EXPORT(void*)	
+PL_EXPORT(void*)
 PL_blob_data(atom_t a, size_t *len, struct PL_blob_t **type)
 {
   Atom x = SWIAtomToAtom(a);
@@ -227,7 +227,7 @@ PL_register_blob_type(PL_blob_t *type)
   SWI_BlobTypes = type;
 }
 
-PL_EXPORT(PL_blob_t*)	
+PL_EXPORT(PL_blob_t*)
 PL_find_blob_type(const char* name)
 {
   Atom at = Yap_LookupAtom((char *)name);
@@ -235,7 +235,7 @@ PL_find_blob_type(const char* name)
   return YAP_find_blob_type((YAP_Atom)at);
 }
 
-PL_EXPORT(PL_blob_t*)	
+PL_EXPORT(PL_blob_t*)
 YAP_find_blob_type(YAP_Atom at)
 {
   AtomEntry *a = RepAtom((Atom)at);
@@ -245,7 +245,7 @@ YAP_find_blob_type(YAP_Atom at)
   return RepBlobProp(a->PropsOfAE)->blob_t;
 }
 
-PL_EXPORT(int)		
+PL_EXPORT(int)
 PL_unregister_blob_type(PL_blob_t *type)
 {
   fprintf(stderr,"PL_unregister_blob_type not implemented yet\n");

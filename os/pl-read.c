@@ -40,10 +40,10 @@ _PL_rd->backquoted_string = truePrologFlag(PLFLAG_BACKQUOTED_STRING);
 
 void
 free_read_data(ReadData _PL_rd)
-{ 
+{
 }
 
-static int 
+static int
 read_term(term_t t, ReadData _PL_rd ARG_LD)
 {
 	return Yap_read_term(t, rb.stream, _PL_rd);
@@ -1182,7 +1182,7 @@ read_clause(IOSTREAM *s, term_t term, term_t options ARG_LD)
 					PL_TERM, term,
 					PL_TERM, tpos );
 		}
-		ap = Yap_PredFromClause( Yap_GetFromSlot(term PASS_REGS)  PASS_REGS);
+		ap = Yap_PredFromClause( Yap_GetFromSlot(term)  PASS_REGS);
 		if (rd.styleCheck & (DISCONTIGUOUS_STYLE|MULTIPLE_CHECK) && ap != NULL ) {
 			if ( rd.styleCheck & (DISCONTIGUOUS_STYLE) && Yap_discontiguous( ap  PASS_REGS) ) {
 				printMessage(ATOM_warning,
@@ -1377,7 +1377,7 @@ return rval;
 Reads term  _T_ from stream  _Stream_ with execution controlled by the
 same options as read_term/2.
 
- 
+
 */
 static
 PRED_IMPL("read_term", 3, read_term, PL_FA_ISO)
@@ -1400,18 +1400,18 @@ return FALSE;
  */
 
 
-/** @pred read_term(- _T_,+ _Options_) is iso 
+/** @pred read_term(- _T_,+ _Options_) is iso
 
 
 Reads term  _T_ from the current input stream with execution
 controlled by the following options:
 
-+ comments(- _Comments_) 
++ comments(- _Comments_)
 
     Unify _Comments_ with a list of string terms including comments before
 and within the term.
 
-+ module( + _Module_) 
++ module( + _Module_)
 
     Read term using _Module_ as source module.
 
@@ -1419,13 +1419,13 @@ and within the term.
 
     Unify _List_ with the quasi-quotations present in the term.
 
-+ term_position(- _Position_) 
++ term_position(- _Position_)
 
     Unify  _Position_ with a term describing the position of the stream
 at the start of parse. Use stream_position_data/3 to obtain extra
 information.
 
-+ singletons(- _Names_) 
++ singletons(- _Names_)
 
     Unify  _Names_ with a list of the form  _Name=Var_, where
  _Name_ is the name of a non-anonymous singleton variable in the
@@ -1433,12 +1433,12 @@ original term, and `Var` is the variable's representation in
 YAP.
 The variables occur in left-to-right traversal order.
 
-+ syntax_errors(+ _Val_) 
++ syntax_errors(+ _Val_)
 
     Control action to be taken after syntax errors. See yap_flag/2
 for detailed information.
 
-+ variables(- _Names_) 
++ variables(- _Names_)
 
      Unify  _Names_ with a list of the form  _Name=Var_, where  _Name_ is
 the name of a non-anonymous variable in the original term, and  _Var_
@@ -1541,7 +1541,7 @@ Yap_StringToTerm(const char *s, size_t len, term_t bindings)
 
 init_read_data(&rd, stream PASS_LD);
 rd.varnames = bindings;
-term_t tt = Yap_NewSlots(1 PASS_REGS);
+term_t tt = Yap_NewSlots(1);
 
 if ( !(rval = read_term(tt, &rd PASS_LD)) && rd.has_exception ) {
   rval = PL_raise_exception(rd.exception);
@@ -1552,15 +1552,15 @@ Sclose(stream);
 LD->read_source = oldsrc;
 
 //   getchar();
-return Yap_GetFromSlot( tt PASS_REGS);
+return Yap_GetFromSlot( tt);
 }
 
-/** @pred atom_to_term(+ _Atom_, - _Term_, - _Bindings_) 
+/** @pred atom_to_term(+ _Atom_, - _Term_, - _Bindings_)
 
 
 Use  _Atom_ as input to read_term/2 using the option `variable_names` and return the read term in  _Term_ and the variable bindings in  _Bindings_.  _Bindings_ is a list of `Name = Var` couples, thus providing access to the actual variable names. See also read_term/2. If Atom has no valid syntax, a syntax_error exception is raised.
 
- 
+
 */
 static
 PRED_IMPL("atom_to_term", 3, atom_to_term, 0)
@@ -1583,7 +1583,7 @@ PRED_IMPL("$context_variables", 1, context_variables, 0)
 
 static
 PRED_IMPL("$set_source", 2, set_source, 0)
-{ 
+{
   GET_LD
   atom_t at;
   term_t a = PL_new_term_ref();
@@ -1638,4 +1638,3 @@ PRED_DEF("$qq_open",            2, qq_open,             0)
 EndPredDefs
 
 //! @}
-

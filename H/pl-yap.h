@@ -75,16 +75,16 @@ COMMON(word) 		pl_writeq(term_t term);
 static inline int
 get_procedure(term_t descr, predicate_t *proc, term_t he, int f) {
   CACHE_REGS
-  Term t = Yap_GetFromSlot(descr PASS_REGS);
+  Term t = Yap_GetFromSlot(descr );
 
   if (IsVarTerm(t)) return FALSE;
-  if (IsAtomTerm(t)) 
+  if (IsAtomTerm(t))
     *proc = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t),CurrentModule));
   else if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
     if (IsExtensionFunctor(f)) {
       return FALSE;
-    } 
+    }
     *proc = RepPredProp(Yap_GetPredPropByFunc(f, CurrentModule));
   }
   return TRUE;
@@ -125,7 +125,7 @@ void PL_license(const char *license, const char *module);
 inline static char *
 atomName(Atom atom)
 {
-  if (IsWideAtom(atom)) 
+  if (IsWideAtom(atom))
     return (char *)(atom->WStrOfAE);
   return atom->StrOfAE;
 }
@@ -143,7 +143,7 @@ atomName(Atom atom)
 Procedure resolveProcedure(functor_t f, Module module);
 
 #define charEscapeWriteOption(A) FALSE  // VSC: to implement
-#define wordToTermRef(A) Yap_InitSlot(*(A) PASS_REGS)
+#define wordToTermRef(A) Yap_InitSlot(*(A))
 #define isTaggedInt(A) IsIntegerTerm(A)
 #define valInt(A) IntegerOfTerm(A)
 
@@ -161,7 +161,7 @@ int isWideAtom(atom_t atom);
 inline static int
 charCode(Term w)
 { if ( IsAtomTerm(w) )
-    { 
+    {
       Atom a = atomValue(w);
 
       if (IsWideAtom(a)) {
@@ -203,7 +203,7 @@ stripostfix(const char *s, const char *e)
     return strcasecmp(&s[ls-le], e) == 0;
 
   return FALSE;
-} 
+}
 #endif
 
 #if HAVE_SIGPROCMASK

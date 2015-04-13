@@ -30,10 +30,10 @@ of a function. Hence, slots should always be used as local variables.
 Slots are organized as follows:
 ---- Offset of next pointer in chain (tagged as an handle_t)
 ---- Number of entries (tagged as handle_t), in the example TAG(INT,4)
-Entry 
-Entry 
-Entry 
-Entry 
+Entry
+Entry
+Entry
+Entry
 ---- Number of entries (tagged as handle_t), in the example TAG(INT,4)
 
 Slots are not known to the yaam. Instead, A new set of slots is created when the emulator calls user C-code.
@@ -54,8 +54,8 @@ Slots are not known to the yaam. Instead, A new set of slots is created when the
 
 static inline void
 Yap_RebootSlots__( int wid USES_REGS ) {
-  //  fprintf( stderr, " StartSlots = %ld", LOCAL_CurSlot);    
-  REMOTE_CurSlot(wid) = 1; 
+  //  fprintf( stderr, " StartSlots = %ld", LOCAL_CurSlot);
+  REMOTE_CurSlot(wid) = 1;
 }
 
 
@@ -65,7 +65,7 @@ Yap_RebootSlots__( int wid USES_REGS ) {
 
 static inline yhandle_t
 Yap_StartSlots__( USES_REGS1 ) {
-  //  fprintf( stderr, " StartSlots = %ld", LOCAL_CurSlot);    
+  //  fprintf( stderr, " StartSlots = %ld", LOCAL_CurSlot);
 if (LOCAL_CurSlot < 0) {
     Yap_Error( SYSTEM_ERROR, 0L, " StartSlots = %ld", LOCAL_CurSlot);
   }
@@ -87,9 +87,10 @@ Yap_CurrentSlot( USES_REGS1 ) {
   return LOCAL_CurSlot;
 }
 
+#define Yap_GetFromSlot(slot) Yap_GetFromSlot__(slot PASS_REGS)
 /// @brief read from a slot.
 static inline Term
-Yap_GetFromSlot(yhandle_t slot USES_REGS)
+Yap_GetFromSlot__(yhandle_t slot USES_REGS)
 {
   return(Deref(LOCAL_SlotBase[slot]));
 }
@@ -142,21 +143,25 @@ ensure_slots(int N USES_REGS)
   }
 }
 
+#define Yap_InitSlot( t ) Yap_InitSlot__( t PASS_REGS )
+
 /// @brief create a new slot with term t
-static inline Int
-Yap_InitSlot(Term t USES_REGS)
+static inline yhandle_t
+Yap_InitSlot__(Term t USES_REGS)
 {
   yhandle_t old_slots = LOCAL_CurSlot;
-  
+
   ensure_slots( 1 PASS_REGS);
   LOCAL_SlotBase[old_slots] = t;
   LOCAL_CurSlot++;
   return old_slots;
 }
 
+#define Yap_NewSlots( n ) Yap_NewSlots__( n PASS_REGS )
+
 /// @brief allocate n empty new slots
 static inline yhandle_t
-Yap_NewSlots(int n USES_REGS)
+Yap_NewSlots__(int n USES_REGS)
 {
   yhandle_t old_slots = LOCAL_CurSlot;
   int i;
@@ -169,7 +174,7 @@ Yap_NewSlots(int n USES_REGS)
   return old_slots;
 }
 
-#define  Yap_InitSlots(n, ts) Yap_InitSlots__(n, ts PASS_REGS) 
+#define  Yap_InitSlots(n, ts) Yap_InitSlots__(n, ts PASS_REGS)
 
 /// @brief create n new slots with terms ts[]
   static inline yhandle_t
@@ -177,7 +182,7 @@ Yap_InitSlots__(int n, Term *ts USES_REGS)
 {
   yhandle_t old_slots = LOCAL_CurSlot;
   int i;
-  
+
   ensure_slots( n PASS_REGS);
   for (i=0; i< n; i++)
     LOCAL_SlotBase[old_slots+i] = ts[i];
@@ -193,7 +198,7 @@ Yap_RecoverSlots(int n, yhandle_t topSlot USES_REGS)
     return false;
   #ifdef DEBUG
   if (topSlot + n > LOCAL_CurSlot) {
-    Yap_Error(SYSTEM_ERROR, 0 /* TermNil */, "Inconsistent slot state in Yap_RecoverSlots."); 
+    Yap_Error(SYSTEM_ERROR, 0 /* TermNil */, "Inconsistent slot state in Yap_RecoverSlots.");
     return false;
   }
   #endif
