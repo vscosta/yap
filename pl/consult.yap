@@ -30,7 +30,7 @@
         source_file/1,
         source_file/2,
         source_file_property/2,
-        use_module/3], 
+        use_module/3],
 	['$add_multifile'/3,
         '$csult'/2,
         '$do_startup_reconsult'/1,
@@ -65,7 +65,7 @@
 
 :- use_system_module( '$_preds', ['$current_predicate'/4]).
 
-%% @{  
+%% @{
 
 /**
   @defgroup YAPConsulting Loading files into YAP
@@ -83,7 +83,7 @@ files and to set-up the Prolog environment. We discuss
 @defgroup YAPReadFiles The Predicates that Read Source Files
   @ingroup  YAPConsulting
 
-  
+
  */
 
 
@@ -97,7 +97,7 @@ following flags:
 + consult(+ _Mode_)
 
     This extension controls the type of file to load. If  _Mode_ is:
-    
+
   `consult`, clauses are added to the data-base, unless from the same file;
   `reconsult`, clauses are recompiled,
   `db`, these are facts that need to be added to the data-base,
@@ -132,7 +132,7 @@ following flags:
     Character encoding used in consulting files. Please (see
     [Encoding](@ref Encoding)) for supported encodings.
 
-+ expand(+ _Bool_) 
++ expand(+ _Bool_)
 
     If `true`, run the filenames through expand_file_name/2 and load
     the returned files. Default is false, except for consult/1 which
@@ -147,26 +147,26 @@ following flags:
     before.
 
 + imports(+ _ListOrAll_)
-  
+
     If `all` and the file is a module file, import all public
     predicates. Otherwise import only the named predicates. Each
     predicate is referred to as `\<name\>/\<arity\>`. This option has
     no effect if the file is not a module file.
 
 + must_be_module(+ _Bool_)
-  
+
     If true, raise an error if the file is not a module file. Used by
     ` use_module/1 and use_module/2.
 
 + qcompile(+ _Value_)
-  
+
     SWI-Prolog flag that controls whether loaded files should be also
     compiled into `qly` files. The default value is obtained from the flag
     `qcompile`:
 
    `never`, no `qly` file is generated unless the user calls
  qsave_file/1 and friends, or sets the qcompile option in
- load_files/2; 
+ load_files/2;
 
   `auto`, all files are qcompiled.
 
@@ -176,7 +176,7 @@ following flags:
 
 
 + autoload(+ _Autoload_)
-  
+
     SWI-compatible option where if _Autoload_ is `true` undefined
     predicates are loaded on first call.
 
@@ -313,7 +313,7 @@ load_files(Files,Opts) :-
 	Opt =.. [Op, Val],
 	ground(Val),
 	'$lf_opt'(Op, TOpt, Val),
-	'$process_lf_opt'(Op, Val,Call), !, 
+	'$process_lf_opt'(Op, Val,Call), !,
 	'$process_lf_opts'(Opts, TOpt, Files, Call).
 '$process_lf_opts'([Opt|_],_,_,Call) :-
 	'$do_error'(domain_error(unimplemented_option,Opt),Call).
@@ -394,7 +394,7 @@ load_files(Files,Opts) :-
 	'$lf_default_opts'(I1, LastOpt, TOpts).
 
 
-	  
+
 '$check_use_module'(use_module(_), use_module(_)) :- !.
 '$check_use_module'(use_module(_,_), use_module(_)) :- !.
 '$check_use_module'(use_module(M,_,_), use_module(M)) :- !.
@@ -440,7 +440,7 @@ load_files(Files,Opts) :-
     ( var(If) -> If = true ; true ),
     '$lf_opt'(imports, TOpts, Imports),
     '$start_lf'(If, Mod, Stream, TOpts, File, Reexport, Imports),
-    close(Stream). 
+    close(Stream).
 '$lf'(X, _, Call, _) :-
     '$do_error'(permission_error(input,stream,X),Call).
 
@@ -464,7 +464,7 @@ load_files(Files,Opts) :-
     ( '$q_header'( Stream, Type ),
        Type == file
     ->
-       time_file64(F, T0F), 
+       time_file64(F, T0F),
        stream_property(PlStream, file_name(FilePl)),
        time_file64(FilePl, T0Fl),
        T0F >= T0Fl,
@@ -605,7 +605,7 @@ exo_files(Fs) :-
 
 
 Load a database of ground facts. All facts must take up the same amount of storage, so that
- a fact $I$ can be accessed at position _P[I-1]_. This representation thus stores the facts as a huge continuous array, the so-called mega clause. 
+ a fact $I$ can be accessed at position _P[I-1]_. This representation thus stores the facts as a huge continuous array, the so-called mega clause.
 
 See \cite for a motivation for this technique. YAP implements this
 optimization by default whenever it loads a large number of facts (see
@@ -616,8 +616,8 @@ often new atoms will be stored in the Symbol Table, see
 LookupAtom(const char *atom). The main advantage of load_db/1 is
 that it allocates the necessary memory only once. Just doing this
  may halve total memory usage in large in-memory database-oriented applications.
- 
-@note Implementation 
+
+@note Implementation
 
 YAP implements load_db/1 as a two-step non-optimised process. First,
    it counts the nmuber of facts and checks their size. Second, it
@@ -625,7 +625,7 @@ YAP implements load_db/1 as a two-step non-optimised process. First,
    implemented by dbload_get_space(), and the second by
    dbload_add_facts().
 
-   db_files/1 itself is just a call to load_files/2. 
+   db_files/1 itself is just a call to load_files/2.
 */
 db_files(Fs) :-
 	'$load_files'(Fs, [consult(db), if(not_loaded)], exo_files(Fs)).
@@ -666,7 +666,7 @@ db_files(Fs) :-
 	'$set_current_loop_stream'(OldStream, Stream),
 	'$swi_current_prolog_flag'(generate_debug_info, GenerateDebug),
 	'$lf_opt'(compilation_mode, TOpts, CompMode),
-	'$comp_mode'(OldCompMode, CompMode), 
+	'$comp_mode'(OldCompMode, CompMode),
 	recorda('$initialisation','$',_),
 	( Reconsult \== consult ->
 	    '$start_reconsulting'(File),
@@ -696,7 +696,7 @@ db_files(Fs) :-
 	print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
 	'$end_consult',
 	'$q_do_save_file'(File, UserFile, TOpts ),
-	( 
+	(
 	    Reconsult = reconsult ->
 		'$clear_reconsulting'
 	    ;
@@ -720,7 +720,7 @@ db_files(Fs) :-
 	!.
 
 '$q_do_save_file'(File, UserF, TOpts ) :-
-    '$lf_opt'(qcompile, TOpts, QComp), 
+    '$lf_opt'(qcompile, TOpts, QComp),
     '$lf_opt'('$source_pos', TOpts, Pos),
     ( QComp ==  auto ; QComp == large, Pos > 100*1024),
     '$absolute_file_name'(UserF,[file_type(qly),solutions(first),expand(true)],F,load_files(File)),
@@ -785,7 +785,7 @@ db_files(Fs) :-
 	recorded('$blocking_code',_,R),
 	erase(R),
 	fail.
-% system goals must be performed first 
+% system goals must be performed first
 '$exec_initialisation_goals' :-
 	recorded('$system_initialisation',G,R),
 	erase(R),
@@ -839,7 +839,7 @@ db_files(Fs) :-
 	source_location(F, L),
 	'$current_module'(Mod),
 	( open(Y, read, Stream) 	->
-	  true ; 
+	  true ;
 	  '$do_error'(permission_error(input,stream,Y),include(X))
 	),
 	'$set_current_loop_stream'(OldStream, Stream),
@@ -879,7 +879,6 @@ db_files(Fs) :-
 '$do_startup_reconsult'(_).
 
 '$skip_unix_header'(Stream) :-
-  writeln(Stream),
 	peek_code(Stream, 0'#), !, % 35 is ASCII for '#
 	skip(Stream, 10),
 	'$skip_unix_header'(Stream).
@@ -903,7 +902,7 @@ source_file(Mod:Pred, FileName) :-
 '$owned_by'(T, Mod, FileName) :-
 	'$owner_file'(T, Mod, FileName).
 
-/** @pred prolog_load_context(? _Key_, ? _Value_) 
+/** @pred prolog_load_context(? _Key_, ? _Value_)
 
   Obtain information on what is going on in the compilation process. The
   following keys are available:
@@ -959,15 +958,15 @@ source_file(Mod:Pred, FileName) :-
 
 Library files reside in the library_directory path (set by the
 `LIBDIR` variable in the Makefile for YAP). Currently,
-most files in the library are from the Edinburgh Prolog library. 
+most files in the library are from the Edinburgh Prolog library.
 
 */
-prolog_load_context(directory, DirName) :- 
+prolog_load_context(directory, DirName) :-
         ( source_location(F, _)
         -> file_directory_name(F, DirName) ;
           working_directory( DirName, DirName )
         ).
-prolog_load_context(file, FileName) :- 
+prolog_load_context(file, FileName) :-
         ( source_location(FileName, _)
         ->
           true
@@ -986,10 +985,10 @@ prolog_load_context(source, F0) :-
         ;
           F0 = user_input
         ).
-prolog_load_context(stream, Stream) :- 
+prolog_load_context(stream, Stream) :-
         '$nb_getval'('$consulting_file', _, fail),
         '$current_loop_stream'(Stream).
-prolog_load_context(term_position, Position) :- 
+prolog_load_context(term_position, Position) :-
         '$current_loop_stream'(Stream),
         stream_property(Stream, position(Position) ).
 
@@ -998,7 +997,7 @@ prolog_load_context(term_position, Position) :-
 % be imported from any module.
 '$file_loaded'(Stream, M, Imports, TOpts) :-
 	'$file_name'(Stream, F0),
-	( 
+	(
 	    atom_concat(Prefix, '.qly', F0 )
 	->
             '$absolute_file_name'(Prefix,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],F,load_files(Prefix))
@@ -1017,7 +1016,7 @@ prolog_load_context(term_position, Position) :-
 	% loaded from the same module, but does not define a module.
 	recorded('$lf_loaded','$lf_loaded'(F1, _, M),_),
 	same_file(F1,F), !.
-	
+
 
 % if the file exports a module, then we can
 % be imported from any module.
@@ -1046,33 +1045,33 @@ prolog_load_context(term_position, Position) :-
 % inform the file has been loaded and is now available.
 '$loaded'(Stream, UserFile, M, OldF, Line, Reconsult0, Reconsult, F, Dir, Opts) :-
 	'$file_name'(Stream, F0),
-	( F0 == user_input, nonvar(UserFile) -> UserFile = F 
+	( F0 == user_input, nonvar(UserFile) -> UserFile = F
 	  ; F = F0 ),
 	( F == user_input -> working_directory(Dir,Dir) ; file_directory_name(F, Dir) ),
 	nb_setval('$consulting_file', F ),
-	( 
+	(
 	    Reconsult0 \== consult,
-	    Reconsult0 \== not_loaded, 
-	    Reconsult \== changed, 
-	    recorded('$lf_loaded','$lf_loaded'(F, _,_),R), 
-	    erase(R), 
-	    fail 
-	    ; 
+	    Reconsult0 \== not_loaded,
+	    Reconsult \== changed,
+	    recorded('$lf_loaded','$lf_loaded'(F, _,_),R),
+	    erase(R),
+	    fail
+	    ;
 	    var(Reconsult0)
-	    -> 
-	    Reconsult = consult 
+	    ->
+	    Reconsult = consult
 	    ;
 	    Reconsult = Reconsult0
 	),
-	( 
-	    Reconsult \== consult, 
+	(
+	    Reconsult \== consult,
 	    recorded('$lf_loaded','$lf_loaded'(F, _, _, _, _, _, _),R),
-	    erase(R), 
-	    fail 
-	    ; 
+	    erase(R),
+	    fail
+	    ;
 	    var(Reconsult)
 	    ->
-		Reconsult = consult 
+		Reconsult = consult
 	    ;
 	    Reconsult = Reconsult0
 	),
@@ -1133,7 +1132,7 @@ make_library_index(_Directory).
 	;
 	    nb_setval('$loop_stream',Stream)
 	).
-	    
+
 '$current_loop_stream'(Stream) :-
 	'$nb_getval'('$loop_stream',Stream, fail).
 
@@ -1218,7 +1217,7 @@ unload_file( F0 ) :-
 '$unload_file'( FileName, _F0 ) :-
     recorded('$module','$module'( FileName, Mod, _SourceF, _, _), R),
     erase( R ),
-    unload_module(Mod),	
+    unload_module(Mod),
     fail.
 '$unload_file'( FileName, _F0 ) :-
     recorded('$directive','$d'( FileName, _M:_G, _Mode,  _VL, _Pos ), R),
@@ -1257,11 +1256,11 @@ module(Mod, Decls) :-
 If module _M_ is instantiated, import the procedures in _L_ to the
 current module. Otherwise, operate as use_module/2, and load the files
 specified by _F_, importing the predicates specified in the list _L_.
-*/ 
+*/
 
 use_module(M,F,Is) :- '$use_module'(M,F,Is).
 
-'$use_module'(M,F,Is) :-  
+'$use_module'(M,F,Is) :-
 	var(Is), !,
 	'$use_module'(M,F,all).
 '$use_module'(M,F,Is) :-
@@ -1303,7 +1302,7 @@ may be a predicate indicator or of the form `` _PI_ `as`
  _NewName_'', meaning that the predicate with indicator  _PI_ is
 to be exported under name  _NewName_.
 
-    `except`( _List_) 
+    `except`( _List_)
 In this case, all predicates not in  _List_ are exported. Moreover,
 if ` _PI_ `as`  _NewName_` is found, the predicate with
 indicator  _PI_ is to be exported under name  _NewName_ as
@@ -1314,19 +1313,19 @@ Re-exporting predicates must be used with some care. Please, take into
 account the following observations:
 
 <ul>
-    
+
   <li> The `reexport` declarations must be the first declarations to
   follow the `module` declaration.  </li>
-    
+
   <li> It is possible to use both `reexport` and `use_module`, but all
   predicates reexported are automatically available for use in the
   current module.  </li>
-    
+
   <li> In order to obtain efficient execution, YAP compiles
   dependencies between re-exported predicates. In practice, this means
   that changing a `reexport` declaration and then *just* recompiling
   the file may result in incorrect execution.  </li>
-  
+
 </ul>
 */
 '$reexport'( TOpts, File, Reexport, Imports, OldF ) :-
@@ -1341,7 +1340,7 @@ account the following observations:
 @}
 **/
 
-%%   @{  
+%%   @{
 
 /** @defgroup  YAPCompilerSettings Directing and Configuring the Compiler
     @ingroup  YAPProgramming
@@ -1353,12 +1352,12 @@ account the following observations:
   waraanings about possible issues with the code in the program, sich
   as the occurrence .
 
-This section presents a set of built-ins predicates designed to set the 
+This section presents a set of built-ins predicates designed to set the
 environment for the compiler.
 
 */
 
-  
+
 /** @pred prolog_to_os_filename(+ _PrologPath_,- _OsPath_)
 
 This is an SWI-Prolog built-in. Converts between the internal Prolog
@@ -1404,7 +1403,7 @@ last one, onto underscores.
 The compiler will execute goals  _G_ after consulting the current
 file.
 
-Notice that the goal will execute in the calling context, not within the file context, 
+Notice that the goal will execute in the calling context, not within the file context,
 In other words, the source module and execution directory will be the ones of the parent
 environment. Use initialization/2 for more flexible behavior.
 
@@ -1433,20 +1432,20 @@ Similar to initialization/1, but allows for specifying when
 
 
     + now
-      Execute  _Goal_ immediately. 
+      Execute  _Goal_ immediately.
 
     + after_load
-      Execute  _Goal_ after loading program-text. This is the same as initialization/1. 
+      Execute  _Goal_ after loading program-text. This is the same as initialization/1.
 
     + restore
-      Do not execute  _Goal_ while loading the program, but only when restoring a state (not implemented yet). 
+      Do not execute  _Goal_ while loading the program, but only when restoring a state (not implemented yet).
 
 */
 initialization(G,OPT) :-
 	'$initialization'(G,OPT).
 
 '$initialization'(G,OPT) :-
-	( 
+	(
 	   var(G)
 	->
 	  '$do_error'(instantiation_error,initialization(G,OPT))
@@ -1484,7 +1483,7 @@ initialization(G,OPT) :-
 	  '$do_error'(type_error(OPT),initialization(G,OPT))
 	).
 '$initialization'(G,now) :-
-	( call(G) -> true ; 
+	( call(G) -> true ;
 	  format(user_error,':- ~w failed.~n',[G]) ).
 '$initialization'(G,after_load) :-
 	'$initialization'(G).
@@ -1496,7 +1495,7 @@ initialization(G,OPT) :-
 @}
 */
 
-%%   @{  
+%%   @{
 
 
 
@@ -1538,10 +1537,10 @@ section_3.
 section_else.
   :- endif.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  
+
 */
 
-/** @pred    if( : _Goal_) 
+/** @pred    if( : _Goal_)
 
 Compile subsequent code only if  _Goal_ succeeds.  For enhanced
 portability,  _Goal_ is processed by `expand_goal/2` before execution.
@@ -1564,7 +1563,7 @@ If an error occurs, the error is printed and processing proceeds as if
 % we are in skip mode, ignore....
 '$if'(_Goal,_) :-
 	'$nb_getval'('$endif',elif(Level, OldEndif, skip), fail), !,
-	nb_setval('$endif',endif(Level, OldEndif, skip)).	
+	nb_setval('$endif',endif(Level, OldEndif, skip)).
 % we are in non skip mode, check....
 '$if'(Goal,_) :-
 	('$if_call'(Goal)
@@ -1578,7 +1577,7 @@ If an error occurs, the error is printed and processing proceeds as if
 	 nb_setval('$if_skip_mode',skip)
 	).
 
-/** 
+/**
 @pred    else
 Start `else' branch.
 
@@ -1688,4 +1687,3 @@ consult_depth(LV) :- '$show_consult_level'(LV).
 
   @}
 */
-
