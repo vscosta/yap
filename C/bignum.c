@@ -124,7 +124,7 @@ Yap_BigRatOfTerm(Term t)
   return new;
 }
 
-Term 
+Term
 Yap_RatTermToApplTerm(Term t)
 {
   Term ts[2];
@@ -194,7 +194,7 @@ Yap_blob_write_handler_from_slot(Int slot)
 {
   CACHE_REGS
   CELL blob_info, blob_tag;
-  Term t = Yap_GetFromSlot(slot PASS_REGS);
+  Term t = Yap_GetFromSlot(slot );
   CELL *pt = RepAppl(t);
 
 #ifdef DEBUG
@@ -269,7 +269,7 @@ Yap_blob_gc_relocate_handler(Term t)
 extern Int Yap_blob_tag_from_slot(Int slot)
 {
   CACHE_REGS
-  Term t = Yap_GetFromSlot(slot PASS_REGS);
+  Term t = Yap_GetFromSlot(slot);
   CELL *pt = RepAppl(t);
 
 #ifdef DEBUG
@@ -287,7 +287,7 @@ Yap_blob_info_from_slot(Int slot)
 {
   CACHE_REGS
   MP_INT *blobp;
-  Term t = Yap_GetFromSlot(slot PASS_REGS);
+  Term t = Yap_GetFromSlot(slot);
   CELL *pt = RepAppl(t);
 
 #ifdef DEBUG
@@ -315,7 +315,7 @@ Yap_MkULLIntTerm(YAP_ULONG_LONG n)
     snprintf(tmp,256,"%I64u",n);
 #elif HAVE_SNPRINTF
     snprintf(tmp,256,"%llu",n);
-#else    
+#else
     sprintf(tmp,"%llu",n);
 #endif
     /* try to scan it as a bignum */
@@ -357,7 +357,7 @@ Yap_HeapStoreOpaqueTerm(Term t)
     }
     memmove(new, ptr, sz);
   }
-  return new; 
+  return new;
 }
 
 
@@ -391,12 +391,12 @@ Yap_OpaqueTermToString(Term t, char *str, size_t max)
       char *s = mpq_get_str(&str[str_index], 10, big);
       str_index += strlen(&s[str_index]);
 #endif
-    } 
+    }
     /*
       else if (big_tag >= USER_BLOB_START && big_tag < USER_BLOB_END) {
       Opaque_CallOnWrite f;
       CELL blob_info;
-      
+
       blob_info = big_tag - USER_BLOB_START;
       if (GLOBAL_OpaqueHandlers &&
       (f= GLOBAL_OpaqueHandlers[blob_info].write_handler)) {
@@ -409,14 +409,14 @@ Yap_OpaqueTermToString(Term t, char *str, size_t max)
   return str_index;
 }
 
-static Int 
+static Int
 p_is_bignum( USES_REGS1 )
 {
 #ifdef USE_GMP
   Term t = Deref(ARG1);
   return(
-	 IsNonVarTerm(t) && 
-	 IsApplTerm(t) && 
+	 IsNonVarTerm(t) &&
+	 IsApplTerm(t) &&
 	 FunctorOfTerm(t) == FunctorBigInt &&
 	 RepAppl(t)[1] == BIG_INT
 	 );
@@ -425,18 +425,18 @@ p_is_bignum( USES_REGS1 )
 #endif
 }
 
-static Int 
+static Int
 p_is_string( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   return(
-	 IsNonVarTerm(t) && 
-	 IsApplTerm(t) && 
+	 IsNonVarTerm(t) &&
+	 IsApplTerm(t) &&
 	 FunctorOfTerm(t) == FunctorString
 	 );
 }
 
-static Int 
+static Int
 p_nb_set_bit( USES_REGS1 )
 {
 #ifdef USE_GMP
@@ -445,8 +445,8 @@ p_nb_set_bit( USES_REGS1 )
   Int i;
 
   if (!(
-	 IsNonVarTerm(t) && 
-	 IsApplTerm(t) && 
+	 IsNonVarTerm(t) &&
+	 IsApplTerm(t) &&
 	 FunctorOfTerm(t) == FunctorBigInt &&
 	 RepAppl(t)[1] == BIG_INT
 	))
@@ -468,7 +468,7 @@ p_nb_set_bit( USES_REGS1 )
 #endif
 }
 
-static Int 
+static Int
 p_has_bignums( USES_REGS1 )
 {
 #ifdef USE_GMP
@@ -478,7 +478,7 @@ p_has_bignums( USES_REGS1 )
 #endif
 }
 
-static Int 
+static Int
 p_is_opaque( USES_REGS1 )
 {
   Term t = Deref(ARG1);
@@ -496,7 +496,7 @@ p_is_opaque( USES_REGS1 )
   return FALSE;
 }
 
-static Int 
+static Int
 p_is_rational( USES_REGS1 )
 {
   Term t = Deref(ARG1);
@@ -518,7 +518,7 @@ p_is_rational( USES_REGS1 )
   return FALSE;
 }
 
-static Int 
+static Int
 p_rational( USES_REGS1 )
 {
 #ifdef USE_GMP
@@ -549,7 +549,7 @@ p_rational( USES_REGS1 )
       return FALSE;
     }
   }
-  return 
+  return
     Yap_unify(ARG2, t1) &&
     Yap_unify(ARG3, t2);
 #else
@@ -564,12 +564,12 @@ Yap_InitBigNums(void)
   Yap_InitCPred("$bignum", 1, p_is_bignum, SafePredFlag);
   Yap_InitCPred("rational", 3, p_rational, 0);
   Yap_InitCPred("rational", 1, p_is_rational, SafePredFlag);
-/** @pred  rational( _T_) 
+/** @pred  rational( _T_)
 
 
 Checks whether `T` is a rational number.
 
- 
+
 */
   Yap_InitCPred("string", 1, p_is_string, SafePredFlag);
   Yap_InitCPred("opaque", 1, p_is_opaque, SafePredFlag);
