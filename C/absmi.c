@@ -1260,7 +1260,7 @@ interrupt_either( USES_REGS1 )
   }
   //P = NEXTOP(P, Osblp);
    if ((v = stack_overflow(RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs1,0)), YENV, NEXTOP(P,Osblp)  PASS_REGS )) >= 0) {
-    //P = PREVOP(P, Osblp);    
+    //P = PREVOP(P, Osblp);
     return v;
   }
   // P = PREVOP(P, Osblp);
@@ -1595,7 +1595,7 @@ Yap_absmi(int inp)
 #define I_R (XREGS[0])
 
 #if YAP_JIT
-  Yap_ExpEnvP = & Yap_ExpEnv;  
+  Yap_ExpEnvP = & Yap_ExpEnv;
   static void *control_labels[] = { &&fail, &&NoStackCut, &&NoStackCommitY, &&NoStackCutT, &&NoStackEither, &&NoStackExecute, &&NoStackCall, &&NoStackDExecute, &&NoStackDeallocate, &&notrailleft, &&NoStackFail, &&NoStackCommitX };
   curtrace = NULL;
   curpreg = NULL;
@@ -1627,7 +1627,7 @@ Yap_absmi(int inp)
   nnexec = 0;
   l = 0;
 #endif /* YAP_JIT */
-  
+
 #if USE_THREADED_CODE
 /************************************************************************/
 /*     Abstract Machine Instruction Address Table                       */
@@ -1645,15 +1645,15 @@ Yap_absmi(int inp)
   ExpEnv.config_struc.TOTAL_OF_OPCODES =
     sizeof(OpAddress)/(2*sizeof(void*));
 #endif
-  
+
 #endif /* USE_THREADED_CODE */
 
   /*static void* (*nat_glist_valx)(yamop**,yamop**,CELL**,void**,int*);
-    
+
     if (nat_glist_valx == NULL) {
     nat_glist_valx = (void*(*)(yamop**,yamop**,CELL**,void**,int*))call_JIT_Compiler(J, _glist_valx);
     }*/
-  
+
 #ifdef SHADOW_REGS
 
   /* work with a local pointer to the registers */
@@ -1749,6 +1749,8 @@ Yap_absmi(int inp)
   SP = SP0;
 
 #if USE_THREADED_CODE
+//___androidlog_print(ANDROID_LOG_INFO, "YAP ", "%s", Yap_op_names[Yap_op_from_opcode(PREG->opc)]);
+
   JMPNext();			/* go execute instruction at P          */
 
 #else
@@ -1827,7 +1829,7 @@ Yap_absmi(int inp)
 // so that they are easier to analyse.
 #include "absmi_insts.h"
 
-    
+
 #if !USE_THREADED_CODE
     default:
       saveregs();
