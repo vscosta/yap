@@ -3057,7 +3057,6 @@ YAP_Init(YAP_init_args *yap_init)
       Term t_goal = MkAtomTerm(AtomInitProlog);
       YAP_RunGoalOnce(t_goal);
       Yap_InitYaamRegs( 0 );
-      CurrentModule = LOCAL_SourceModule = USER_MODULE;
       return YAP_BOOT_FROM_SAVED_CODE;
     } else {
       CurrentModule = LOCAL_SourceModule = USER_MODULE;
