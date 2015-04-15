@@ -645,8 +645,6 @@ PredEntry  *YAPPredicate::getPred( Term &t, Term* &outp ) {
     ts[0] = t;
     ts[1] = m;
     t = Yap_MkApplTerm(FunctorCsult, 2, ts);
-    Yap_DebugPlWrite(m);
-    Yap_DebugPlWrite(t);
   }
   Functor f = FunctorOfTerm(t);
   if (IsExtensionFunctor(f)) {
