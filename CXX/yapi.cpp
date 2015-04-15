@@ -401,14 +401,10 @@ YAPQuery::initQuery( Term t )
 {
     CACHE_REGS
   BACKUP_MACHINE_REGS();
-  size_t arity = ap->ArityOfPE;
-    LOG("iQ=%d", arity);
+  arity_t arity = ap->ArityOfPE;
   goal = YAPTerm( t );
   if (arity) {
-    q_g = Yap_NewSlots( arity );
-    for (size_t i=0; i < arity; i++) {
-      Yap_PutInSlot(q_g+i, ArgOfTerm(i+1, t) PASS_REGS);
-    }
+    q_g = Yap_InitSlots( arity, RepAppl(t) + 1);
   } else {
     q_g = 0;
   }
@@ -424,7 +420,7 @@ YAPQuery::initQuery( YAPTerm ts[], arity_t arity )
   BACKUP_MACHINE_REGS();
   if (arity) {
     q_g = Yap_NewSlots( arity );
-    for (size_t i=0; i < arity; i++) {
+    for (arity_t i=0; i < arity; i++) {
       Yap_PutInSlot(q_g+i, ts[i].term() PASS_REGS);
     }
     Term t = Yap_MkApplTerm(ap->FunctorOfPred, ap->ArityOfPE, Yap_AddressFromSlot(q_g));
@@ -612,48 +608,49 @@ YAPEngine::YAPEngine( char *savedState,
   delYAPCallback();
   if (cb) setYAPCallback(cb);
   curren = this;
-  YAP_Init( &init_args );
+  if (YAP_Init( &init_args ) == YAP_BOOT_ERROR)
+    throw(YAPError::YAP_OTHER_ERROR);
 }
 
 
 YAPPredicate::YAPPredicate(YAPAtom at) {
   CACHE_REGS
-    ap = RepPredProp(PredPropByAtom(at.a,CurrentModule));
+    ap = RepPredProp(PredPropByAtom(at.a,Yap_CurrentModule()));
 }
 
 YAPPredicate::YAPPredicate(YAPAtom at, arity_t arity) {
   CACHE_REGS
     if (arity) {
       Functor f = Yap_MkFunctor(at.a, arity);
-      ap = RepPredProp(PredPropByFunc(f,CurrentModule));
+      ap = RepPredProp(PredPropByFunc(f,Yap_CurrentModule()));
     } else {
-      ap = RepPredProp(PredPropByAtom(at.a,CurrentModule));
+      ap = RepPredProp(PredPropByAtom(at.a,Yap_CurrentModule()));
     }
 }
 
 /// auxiliary routine to find a predicate in the current module.
 PredEntry  *YAPPredicate::getPred( Term &t, Term* &outp ) {
   CACHE_REGS
-    Term m = CurrentModule ;
+    Term m = Yap_CurrentModule() ;
   t = Yap_StripModule(t, &m);
   if (IsVarTerm(t) || IsNumTerm(t)) {
-    ap = (PredEntry  *)NULL;
-    outp = (Term  *)NULL;
-    return ap;
+    throw YAPError::YAP_TYPE_ERROR;
   }
   if (IsAtomTerm(t)) {
     ap = RepPredProp(PredPropByAtom(AtomOfTerm(t), m));
     outp = (Term  *)NULL;
     return ap;
   }  else if (IsPairTerm(t)) {
-    Term ts[1];
+    Term ts[2];
     ts[0] = t;
-    t = Yap_MkApplTerm(FunctorCsult, 1, ts);
+    ts[1] = m;
+    t = Yap_MkApplTerm(FunctorCsult, 2, ts);
+    Yap_DebugPlWrite(m);
+    Yap_DebugPlWrite(t);
   }
   Functor f = FunctorOfTerm(t);
   if (IsExtensionFunctor(f)) {
-      ap = (PredEntry  *)NULL;
-      outp = (Term *)NULL;
+    throw YAPError::YAP_TYPE_ERROR;
   } else {
       ap = RepPredProp(PredPropByFunc(f, m));
       outp = RepAppl(t)+1;
@@ -737,7 +734,7 @@ void *YAPPrologPredicate::assertClause( YAPTerm clause, bool last, YAPTerm sourc
   RECOVER_MACHINE_REGS();
     Term tt = clause.gt();
   Term sourcet  = source.gt();
-  yamop *codeaddr = Yap_cclause(tt, PP->ArityOfPE, CurrentModule, sourcet); /* vsc: give the number of arguments
+  yamop *codeaddr = Yap_cclause(tt, PP->ArityOfPE, Yap_CurrentModule(), sourcet); /* vsc: give the number of arguments
                                                                                to cclause in case there is overflow */
   Term ntt = clause.gt();
   if (LOCAL_ErrorMessage) {
@@ -745,7 +742,7 @@ void *YAPPrologPredicate::assertClause( YAPTerm clause, bool last, YAPTerm sourc
       return 0;
   }
   Term *tref = &ntt;
-  if (Yap_addclause(ntt, codeaddr, (last ? 0 : 2), CurrentModule, tref)) {
+  if (Yap_addclause(ntt, codeaddr, (last ? 0 : 2), Yap_CurrentModule(), tref)) {
     RECOVER_MACHINE_REGS();
   }
     return tref;

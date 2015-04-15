@@ -250,10 +250,12 @@ load_files(Files,Opts) :-
 '$load_files'(Files, Opts, Call) :-
 	( '$nb_getval'('$lf_status', OldTOpts, fail), nonvar(OldTOpts) ->
 	  '$lf_opt'(silent, OldTOpts, OldVerbosity),
-	  '$lf_opt'(autoload, OldTOpts, OldAutoload),
-	  '$lf_opt'('$context_module', OldTOpts, user)
+	  '$lf_opt'(autoload, OldTOpts, OldAutoload)
 	;
-	  true ),
+	   '$lf_option'(last_opt, LastOpt),
+	    functor( OldTOpts, opt, LastOpt ),
+       '$lf_opt'('$context_module', OldTOpts, user)
+     ),
 	'$check_files'(Files,load_files(Files,Opts)),
 	'$lf_option'(last_opt, LastOpt),
 	functor( TOpts, opt, LastOpt ),

@@ -621,14 +621,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='PKG_ODBC
-PKG_LIBARCHIVE
-PROSQLITE_LIBS
-PROSQLITE_LDFLAGS
-PROSQLITE_CPPFLAGS
-PROSQLITE_PLTARGETS
-PROSQLITE_TARGETS
-PKG_PROSQLITE
+ac_subst_vars='PKG_LIBARCHIVE
 GECODE_MAJOR
 GECODE_VERSION
 GECODE_INCLUDES
@@ -929,7 +922,6 @@ with_python
 with_swig
 with_cuda
 with_gecode
-with_prosqlite
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1622,7 +1614,6 @@ Optional Packages:
  --with-swig=DIR              swig interface generator
  --with-cuda           use minisat interface
  --with-gecode            install gecode library
- --with-prosqlite(=location)              interface to sqlite
 
 Some influential environment variables:
   CC          C compiler command
@@ -10038,7 +10029,7 @@ _ACEOF
 fi
 done
 
-for ac_func in putenv rand random
+for ac_func in putenv rand random drand48
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -10098,7 +10089,7 @@ _ACEOF
 fi
 done
 
-for ac_func in signal sigprocmask socket srand srandom stat
+for ac_func in signal sigprocmask socket srand srand48 srandom stat
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -11211,7 +11202,7 @@ OBJECTS_MYDDAS="#"
 if test x"$ENABLE_MYDDAS" = x -a x"$STARTUP_ANDROID" = x
 then
 #in Android we have to actually include myddas in the binary
-	OBJECTS_MYDDAS="$(ALL_MYDDAS_OBJECTS)"
+	OBJECTS_MYDDAS="$ALL_MYDDAS_OBJECTS"
 fi
 
 
@@ -12383,7 +12374,6 @@ fi
 fi
 
 
-dl to be installed in various places.
 
 # brew in OSX
 if test -d /usr/local/opt/ossp-uuid; then
@@ -14142,7 +14132,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14145 "configure" */
+/* #line 14135 "configure" */
 public class Test {
 }
 EOF
@@ -14318,7 +14308,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 14321: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 14311: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -14449,7 +14439,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14452 "configure" */
+/* #line 14442 "configure" */
 public class Test {
 }
 EOF
@@ -14484,7 +14474,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 14487 "configure" */
+/* [#]line 14477 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -17151,8 +17141,6 @@ fi
 
 if test "$PKG_SWIG" != ""; then
 
-mkdir -p packages/swig/android
-mkdir -p packages/swig/android/usr
 mkdir -p packages/swig/python
 mkdir -p packages/swig/R
 mkdir -p packages/swig/java
@@ -17488,133 +17476,6 @@ CPPFLAGS="$saved_CPPFLAGS"
 
 
 
-
-PKG_PROSQLITE="packages/prosqlite"
-
-
-
-
-
-
-
-
-
-
-yap_cv_prosqlite=yes
-
-
-# Check whether --with-prosqlite was given.
-if test "${with_prosqlite+set}" = set; then :
-  withval=$with_prosqlite; if test "$withval" = yes; then
-	    PROSQLITE_DIR=/usr
-	elif test "$withval" = no; then
-	    yap_cv_prosqlite=no
-	else
-	    PROSQLITE_DIR="$withval"
-	fi
-else
-  PROSQLITE_DIR=/usr
-fi
-
-
-havelib=no
-
-if test $yap_cv_prosqlite = yes; then
-    OCPPFLAGS="${CPPFLAGS}"
-    OCPPFLAGS="${CPPFLAGS}"
-    OCIFLAGS="${CIFLAGS}"
-    OLDFLAGS="${LDFLAGS}"
-
-  if test ! -z "$PROSQLITE_DIR"; then
-    PROSQLITE_CPPFLAGS="-I${PROSQLITE_DIR}/include"
-    PROSQLITE_LDFLAGS="-L${PROSQLITE_DIR}/lib"
-    CPPFLAGS="-I${PROSQLITE_DIR}/include ${CPPFLAGS}"
-    CIFLAGS="-I${PROSQLITE_DIR}/include ${CIFLAGS}"
-    LDFLAGS="-L${PROSQLITE_DIR}/lib ${LDFLAGS}"
-  fi
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for sqlite3_open in -lsqlite3" >&5
-$as_echo_n "checking for sqlite3_open in -lsqlite3... " >&6; }
-if ${ac_cv_lib_sqlite3_sqlite3_open+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lsqlite3  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char sqlite3_open ();
-int
-main ()
-{
-return sqlite3_open ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_sqlite3_sqlite3_open=yes
-else
-  ac_cv_lib_sqlite3_sqlite3_open=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_sqlite3_sqlite3_open" >&5
-$as_echo "$ac_cv_lib_sqlite3_sqlite3_open" >&6; }
-if test "x$ac_cv_lib_sqlite3_sqlite3_open" = xyes; then :
-  PROSQLITE_LIBS="-lsqlite3 $LIBS"
-                       havelib=yes
-fi
-
-
-  for ac_header in sqlite3.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "sqlite3.h" "ac_cv_header_sqlite3_h" "$ac_includes_default"
-if test "x$ac_cv_header_sqlite3_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_SQLITE3_H 1
-_ACEOF
-
-fi
-
-done
-
-
-    CPPFLAGS="${OCPPFLAGS}"
-    CPPFLAGS="${OCPPFLAGS}"
-    CIFLAGS="${OCIFLAGS}"
-    LDFLAGS="${OLDFLAGS}"
-
-fi
-
-if test "$yap_cv_prosqlite" != no &&
-   test	"$havelib" = yes &&
-   test	"$ac_cv_header_sqlite3_h" = yes; then
-  PROSQLITE_TARGETS="prosqlite.$SO"
-  PROSQLITE_PLTARGETS="prolog/prosqlite.pl"
-else
-  echo "ERROR:   Cannot find sqlite3 library and/or the header sqlite3.h"
-  echo "WARNING: PROSQLITE interface will not be built"
-  PROSQLITE_TARGETS=""
-fi
-
-
-
-
-
-
-
-
-
-
 yap_timestamp=`date`
 yap_nversion=`expr $YAP_MAJOR_VERSION \* 10000 + $YAP_MINOR_VERSION \* 100 + $YAP_POINT_VERSION`
 yap_startup=startup.yss
@@ -17622,11 +17483,6 @@ yap_startup=startup.yss
 BINDIR=$bindir
 DATAROOTDIR="$prefix"/share
 BINDIR="$bindir"
-
-
-cat >>confdefs.h <<_ACEOF
-#define YAP_STARTUP  "$yap_startup"
-_ACEOF
 
 
 cat >>confdefs.h <<_ACEOF
@@ -17680,7 +17536,12 @@ _ACEOF
 
 
 cat >>confdefs.h <<_ACEOF
-#define YAP_LIBDIR  "$LIBDIR/Yap"
+#define YAP_LIBDIR  "$prefix/lib/Yap"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define YAP_STARTUP  "$yap_startup"
 _ACEOF
 
 

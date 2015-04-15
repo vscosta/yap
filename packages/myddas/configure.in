@@ -199,7 +199,7 @@ OBJECTS_MYDDAS="#"
 if test x"$ENABLE_MYDDAS" = x -a x"$STARTUP_ANDROID" = x
 then
 #in Android we have to actually include myddas in the binary
-	OBJECTS_MYDDAS="$(ALL_MYDDAS_OBJECTS)"
+	OBJECTS_MYDDAS="$ALL_MYDDAS_OBJECTS"
 fi
 
 AC_SUBST(PKG_MYDDAS)

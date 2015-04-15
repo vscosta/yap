@@ -306,14 +306,18 @@ CELL    Yap_NextExo(choiceptr cpt, struct index_t *it);
 
 #define OP_HASH_SIZE 2048
 
-static inline int
+INLINE_ONLY inline EXTERN int rtable_hash_op(OPCODE opc, int hash_mask);
+
+INLINE_ONLY inline EXTERN int
 rtable_hash_op(OPCODE opc, int hash_mask) {
   return((((CELL)opc) >> 3) & hash_mask);
 }
 
+INLINE_ONLY inline EXTERN op_numbers Yap_op_from_opcode(OPCODE opc);
+
 /* given an opcode find the corresponding opnumber. This should make
    switches on ops a much easier operation */
-static inline op_numbers
+INLINE_ONLY inline EXTERN op_numbers
 Yap_op_from_opcode(OPCODE opc)
 {
   int j = rtable_hash_op(opc,OP_HASH_SIZE-1);

@@ -107,6 +107,7 @@ android/AndroidManifest.xml: $(ANDROID_PKG)
 	mkdir -p android/assets/lib
 	mkdir -p android/assets/lib/Yap
 	mkdir -p android/jni
+	mkdir -p android/usr
 
 android/jni/yap_wrap.cpp:  $(YAP_SWIG_INTERFACE) android/AndroidManifest.xml
 	$(SWIG) -c++ -java -I$(srcdir)/../../CXX -package pt.up.fc.dcc.yap -outdir android/src/pt/up/fc/dcc/yap -o $@ $<

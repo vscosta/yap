@@ -144,7 +144,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   Int arity;
   /*  extern int gc_calls; */
   vsc_count++;
-#if __ANDROID__
+#if __ANDROID__ && 0
   PredEntry *ap = pred;
   if (pred && port == enter_pred) {
   UInt flags = ap->PredFlags;

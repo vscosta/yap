@@ -54,7 +54,7 @@ typedef uintptr_t UInt;
 /*   typedef long int Int;*/ 
 /*  typedef unsigned long int UInt;  */ 
 
-#if _WIN32
+#if _WIN32 || __ANDROID__
 #define Int_FORMAT "%d"
 #define UInt_FORMAT "%u"
 #else

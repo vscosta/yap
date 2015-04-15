@@ -1762,12 +1762,12 @@ AC_CHECK_FUNCS(mbscasecoll)
 AC_CHECK_FUNCS(mbsnrtowcs)
 AC_CHECK_FUNCS(memcpy memmove mkstemp mktemp)
 AC_CHECK_FUNCS(nanosleep mktime opendir)
-AC_CHECK_FUNCS(putenv rand random)
+AC_CHECK_FUNCS(putenv rand random drand48)
 AC_CHECK_FUNCS(readlink realpath regexec)
 AC_CHECK_FUNCS(rename rint sbrk select setbuf setlinebuf)
 AC_CHECK_FUNCS(setitimer setsid setlinebuf sigaction)
 AC_CHECK_FUNCS(siggetmask siginterrupt)
-AC_CHECK_FUNCS(signal sigprocmask socket srand srandom stat)
+AC_CHECK_FUNCS(signal sigprocmask socket srand srand48 srandom stat)
 AC_CHECK_FUNCS(strchr strerror stricmp)
 AC_CHECK_FUNCS(strnlen strlwr strncat strncpy strtod)
 AC_CHECK_FUNCS(time times tmpnam usleep utime vsnprintf)
@@ -2099,11 +2099,7 @@ m4_include([packages/cuda/configure.in])
 
 m4_include([packages/gecode/configure.in])
 
-m4_include([packages/prosqlite/configure.in])
-
 AC_SUBST(PKG_LIBARCHIVE)
-
-AC_SUBST(PKG_ODBC)
 
 yap_timestamp=`date`
 yap_nversion=`expr $YAP_MAJOR_VERSION \* 10000 + $YAP_MINOR_VERSION \* 100 + $YAP_POINT_VERSION`
@@ -2113,7 +2109,6 @@ BINDIR=$bindir
 DATAROOTDIR="$prefix"/share
 BINDIR="$bindir"
 
-AC_DEFINE_UNQUOTED(YAP_STARTUP,  [ "$yap_startup" ], [saved state file])
 AC_DEFINE_UNQUOTED( C_CC, [ "$CC" ], [c-compiler used])
 AC_DEFINE_UNQUOTED( C_CFLAGS, ["$CFLAGS $YAP_EXTRAS $  -D_YAP_NOT_INSTALLED_=1 $CPPFLAGS  -I. -I$srcdir/H -I$srcdir/include  -I$srcdir/os -I$srcdir/OPTYap -I$srcdir/BEAM" ], [compilation flags])
 AC_DEFINE_UNQUOTED( C_LDFLAGS, [ "$LDFLAGS" ], [linking flags])
@@ -2124,7 +2119,8 @@ AC_DEFINE_UNQUOTED( SO_PATH, [ "$SOPATH" ], [library search variable])
 AC_DEFINE_UNQUOTED( YAP_ARCH, [ "$ARCH" ], [architecture])
 AC_DEFINE_UNQUOTED( YAP_BINDIR, [ "$BINDIR" ], [where the yap executable lives])
 AC_DEFINE_UNQUOTED( YAP_FULL_VERSION, [ "YAP $YAP_VERSION ($ARCH): $yap_timestamp" ], [YAP version string])
-AC_DEFINE_UNQUOTED( YAP_LIBDIR, [ "$LIBDIR/Yap" ], [where to look for shared libraries])
+AC_DEFINE_UNQUOTED( YAP_LIBDIR, [ "$prefix/lib/Yap" ], [where to look for shared libraries])
+AC_DEFINE_UNQUOTED(YAP_STARTUP,  [ "$yap_startup" ], [saved state file])
 AC_DEFINE_UNQUOTED( YAP_NUMERIC_VERSION, [ $yap_nversion ], [numerical version])
 AC_DEFINE_UNQUOTED( YAP_ROOTDIR, [ "$prefix" ], [where YAP lives])
 AC_DEFINE_UNQUOTED( YAP_SHAREDIR, [ "$DATAROOTDIR" ], [where YAP lives])

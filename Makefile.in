@@ -469,14 +469,9 @@ PLCONS_OBJECTS = \
 	pl-ntmain.o \
 	yapres.o
 
-all: "$(STARTUP_ANDROID)android-setup startup.yss windowsi 
+all: startup.yss windowsi
 
-xandroid-setup:
-	( cd packages/swig && make android/jni/Android.mk )
-
-android-setup:
-
-windowsi: 
+windowsi:
 	@WINDOWS@ yap-win@EXEC_SUFFIX@
 
 Makefile: Makefile.in
@@ -596,14 +591,12 @@ INSTALLED_PACKAGES= \
 	@PKG_MPI@ \
 	@PKG_MYDDAS@ \
 	@PKG_PRISM@ \
-	@PKG_PROSQLITE@ \
 	@PKG_PYTHON@ \
 	@PKG_RAPTOR@ \
 	@PKG_CLIB@ \
 	@PKG_CHR@ \
 	@PKG_JPL@ \
 	@PKG_LIBARCHIVE@ \
-	@PKG_ODBC@ \
 	@PKG_PLUNIT@ \
 	@PKG_REAL@ \
 	@PKG_RDF@ \
@@ -652,6 +645,7 @@ libYap.a: $(LIB_OBJECTS) yapi.o
 	done
 
 @STARTUP_ANDROID@startup.yss: 	yap@EXEC_SUFFIX@ @DYNYAPLIB@ $(PL_SOURCES) $(SWI_LIB_SOURCES)
+	( cd packages/myddas && make myddas-yap )
 	\rm -rf data/yap
 	mkdir -p data/yap/packages
 	mkdir -p data/yap/swi
@@ -665,16 +659,26 @@ libYap.a: $(LIB_OBJECTS) yapi.o
 	cp -a $(srcdir)/pl data/yap
 	cp -a $(srcdir)/library data/yap
 	cp -a $(srcdir)/swi/library data/yap/swi
-	cp -a $(srcdir)/packages/clib data/yap/packages
-	cp -a $(srcdir)/packages/chr data/yap/packages
-	cp -a $(srcdir)/packages/myddas data/yap/packages
-	\rm -rf data/yap/packages/*/.git
+	mkdir -p data/yap/packages/chr
+	mkdir -p data/yap/packages/clib
+	mkdir -p data/yap/packages/myddas
+	for i in $(srcdir)/packages/clib/*;  do cp -a $$i data/yap/packages/chr; done
+	for i in $(srcdir)/packages/chr/*;  do cp -a $$i data/yap/packages/chr; done
+	for i in packages/chr/*;  do cp -a $$i data/yap/packages/chr; done
+	cp -a $(srcdir)/packages/myddas/pl/parameters.yap data/yap/packages/myddas
+	cp -a $(srcdir)/library/lists.yap data/yap/packages/myddas/
+	cp -a $(srcdir)/swi/library/error.pl data/yap/packages/myddas/
 	adb push data/yap /data/yap >/dev/null 2>&1
-	adb shell "echo \"bootstrap('/data/yap/pl/init.yap'). module(user). qsave_program('/data/yap/startup.yss').\" | LD_LIBRARY_PATH=/data/yap /data/yap/yap@EXEC_SUFFIX@ -b /data/yap/pl/boot.yap"
+	adb shell "echo \"bootstrap('/data/yap/pl/init.yap'). module(user). ensure_loaded('/data/yap/packages/myddas/myddas'), qsave_program('/data/yap/startup.yss').\" | LD_LIBRARY_PATH=/data/yap /data/yap/yap@EXEC_SUFFIX@ -b /data/yap/pl/boot.yap"
 	adb pull /data/yap/startup.yss
 
 
-install: @INSTALL_COMMAND@ install_startup install_common
+install: @STARTUP_DEFAULT@@INSTALL_COMMAND@ install_startup install_common
+
+xinstall_unix:  android/jni/Android.mk install_unix
+
+android/jni/Android.mk:
+	( cd packages/swig && make android/jni/Android.mk )
 
 install_unix: @YAPLIB@ yap@EXEC_SUFFIX@
 	mkdir -p $(DESTDIR)$(BINDIR)

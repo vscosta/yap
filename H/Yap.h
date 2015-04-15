@@ -878,17 +878,22 @@ LOG0(const char *f, int l, const char *fmt, ...)
    vfprintf(stderr, fmt, ap);
    va_end(ap);
 }
-#else
-#define LOG0( ... ) 
-#endif
-
-#ifndef __ANDROID__
-#define __android_log_print( ... )   
-#endif
 
 #define LOG( ... ) LOG0( __FILE__, __LINE__,   __VA_ARGS__ )
 
 #define REGS_LOG( ... ) CACHE_REGS LOG0( __FILE__, __LINE__, __VA_ARGS__ )
+
+#else
+#define LOG( ... )
+
+#define REGS_LOG( ... )
+#endif
+
+#ifndef __ANDROID__
+#define __android_log_print( ... )
+#endif
+
+
 
 
 #endif /* YAP_H */

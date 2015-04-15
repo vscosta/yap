@@ -171,9 +171,6 @@ AAssetManager * Yap_assetManager;
 
 void *
 Yap_openAssetFile( const char *path ) {
- AAssetDir *d;
-   LOG("openA %s %p", path, path);
-
   const char * p = path+8;
   AAsset* asset = AAssetManager_open(Yap_assetManager, p, AASSET_MODE_UNKNOWN);
   return asset;
@@ -182,6 +179,8 @@ Yap_openAssetFile( const char *path ) {
 bool
 Yap_isAsset( const char *path )
 {
+  if (Yap_assetManager == NULL)
+    return false;
   return path[0] == '/'&&
   path[1] == 'a'&&
   path[2] == 's'&&
@@ -197,12 +196,13 @@ Yap_AccessAsset( const char *name, int mode )
 {
     AAssetManager* mgr = Yap_assetManager;
     const char *bufp=name+7;
+    
     if (bufp[0] == '/')
-    bufp++;
+      bufp++;
     if ((mode & W_OK) == W_OK) {
       return false;
     }
-    // check if file is a directory.
+    // directory works if file exists
     AAssetDir *assetDir = AAssetManager_openDir(mgr, bufp);
     if (assetDir) {
       AAssetDir_close(assetDir);
@@ -327,7 +327,7 @@ exists( const char *f)
   return has_access( f, F_OK );
 }
 
- static int
+static int
  dir_separator (int ch)
  {
  #ifdef MAC
@@ -1690,9 +1690,11 @@ static void
 InitRandom (void)
 {
   current_seed = (unsigned int) time (NULL);
-#if HAVE_RANDOM
+#if HAVE_SRAND48
+  srand48 (current_seed);
+#elif HAVE_SRANDOM
   srandom (current_seed);
-#elif HAVE_RAND
+#elif HAVE_SRAND
   srand (current_seed);
 #endif
 }
@@ -1703,8 +1705,10 @@ extern int rand(void);
 double
 Yap_random (void)
 {
-#if HAVE_RANDOM
-/*  extern long random (); */
+#if HAVE_DRAND48
+  return drand48();
+#elif HAVE_RANDOM
+  /*  extern long random (); */
   return (((double) random ()) / 0x7fffffffL /* 2**31-1 */);
 #elif HAVE_RAND
   return (((double) (rand ()) / RAND_MAX));
@@ -1790,9 +1794,11 @@ p_srandom ( USES_REGS1 )
     current_seed  = (unsigned int) FloatOfTerm (t0);
   else
     current_seed  = (unsigned int) LongIntOfTerm (t0);
-#if HAVE_RANDOM
-  srandom(current_seed);
-#elif HAVE_RAND
+#if HAVE_SRAND48  
+  srand48(current_seed);  
+#elif HAVE_SRANDOM  
+  srandom(current_seed);  
+#elif HAVE_SRAND
   srand(current_seed);
 
 #endif
@@ -2365,51 +2371,143 @@ Yap_volume_header(char *file)
    }
  }
 
-
- static bool
-TrueFileName (char *isource, char *root, char *result, int in_lib, int expand_root)
+ /** Yap_trueFileName: tries to generate the true name of  file
+  * 
+  * 
+  * @param isource the proper file
+  * @param idef the default name fo rthe file, ie, startup.yss
+  * @param root the prefix
+  * @param result the output
+  * @param access verify whether the file has access permission
+  * @param ftype saved state, object, saved file, prolog file
+  * @param expand_root expand $ ~, etc
+  * @param in_lib library file
+  * 
+  * @return 
+  */
+ bool
+   Yap_trueFileName (const char *isource, const char * idef,  const char *iroot, char *result, bool access, file_type_t ftype, bool expand_root, bool in_lib)
 {
-  CACHE_REGS
+  
+  char save_buffer[YAP_FILENAME_MAX+1];    
+    const char *root, *source = isource;
+  int rc = FAIL_RESTORE;
+  int try       = 0;
 
-    char *work;
-  const char *source = isource;
-
-  // expand names in case you have
-  // to add a prefix
-  if (!expand_root)
-    root = NULL;
-  if (exists((work = expandWithPrefix( source, root, result ))))
-    return true; // done
-  if (in_lib) {
-    if  (Yap_LibDir != NULL) {
-      strncpy(LOCAL_FileNameBuf, Yap_LibDir, YAP_FILENAME_MAX);
-    }
+  while ( rc == FAIL_RESTORE) {
+    bool done = false;
+    // { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "try=%d %s %s", try, isource, iroot) ; }        
+    switch (try++) {
+    case 0:  // path or file name is given;
+      root = iroot;      
+      if (iroot || isource) {    
+	source = ( isource ? isource : idef ) ;	  
+      } else {
+	done = true;
+      }
+      break;
+    case 1: // library directory is given in command line
+      if ( in_lib && ftype == YAP_SAVED_STATE) {
+	root = iroot;
+        source = ( isource ? isource : idef ) ;     
+    } else
+	done = true;
+      break;
+    case 2: // use environment variable YAPLIBDIR
 #if HAVE_GETENV
-    {
-      char *yap_env = getenv("YAPLIBDIR");
-      if (yap_env && exists((work = expandWithPrefix( source, yap_env, result ))))
-	return true; // done
-    }
+      if ( in_lib) {
+	if (ftype == YAP_SAVED_STATE || ftype == YAP_OBJ) {
+	  root = getenv("YAPLIBDIR");     
+	} else {
+	  root = getenv("YAPSHAREDIR");
+	}
+        source = ( isource ? isource : idef ) ;     
+    } else
+        done = true;
+      break;
+#else
+      done = true;
 #endif
+      break;
+    case 3: // use compilation variable YAPLIBDIR
+      if ( in_lib) {
+	source = ( isource ? isource : idef ) ;           
+       if (ftype == YAP_PL || ftype == YAP_QLY) {
+          root = YAP_SHAREDIR;
+       } else {
+         root = YAP_LIBDIR;
+        }
+      } else
+        done = true;
+      break;
+
+    case 4: // WIN stuff: registry
 #if __WINDOWS__
-    {
-      if (Yap_LibDir &&
-        exists((work = expandWithPrefix( source, Yap_LibDir, result ))))
-      return true; // done
-    }
+      if ( in_lib) {      
+        source = ( ftype == YAP_PL || ftype == YAP_QLY ? "library" : "startup" ) ;
+	source = Yap_RegistryGetString( source );
+	root = NULL;
+      } else
 #endif
-  if (YAP_LIBDIR &&
-      exists((work = expandWithPrefix( source, YAP_LIBDIR, result ))))
-    return true; // done
+	done = true;
+      break;
+
+    case 5: // search from the binary
+      {
+#ifndef __ANDROID__
+	done = true;
+	break;
+#endif
+        const char *pt = Yap_FindExecutable();
+
+        if (pt) {
+	  source = ( ftype == YAP_SAVED_STATE || ftype == YAP_OBJ ? "../../lib/Yap" : "../../share/Yap" ) ;
+          if (Yap_trueFileName(source, NULL, pt, save_buffer, access, ftype, expand_root, in_lib) )
+	    root = save_buffer;
+	  else 
+            done = true;
+        } else {
+          done = true;
+        }
+        source = ( isource ? isource : idef ) ;
+      }
+      break;
+    case 6: // default, try current directory
+      if (!isource && ftype == YAP_SAVED_STATE)
+	source = idef;
+      root = NULL;
+      break;
+    default:
+      return false;
+    }
+      
+    if (done)
+      continue;
+    if (expand_root && root) {
+      root = expandWithPrefix( root, NULL, save_buffer );
+    }
+    //    { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "root= %s %s ", root, source) ; }
+    char *work = expandWithPrefix( source, root, result );
+  
+    // expand names in case you have
+    // to add a prefix
+    if ( !access || exists( work ) )
+      return true; // done
   }
   return false;
 }
 
 int
-Yap_TrueFileName (char *source, char *result, int in_lib)
+Yap_TrueFileName (const char *source, char *result, int in_lib)
 {
-  return TrueFileName (source, NULL, result, in_lib, TRUE);
+  return Yap_trueFileName (source, NULL, NULL, result, true, YAP_PL, true, in_lib);  
 }
+
+ int
+   Yap_TruePrefixedFileName (const char *source, const char *root, char *result, int in_lib)
+ {
+   return Yap_trueFileName (source, NULL, root, result, true, YAP_PL, true, in_lib);  
+ }
 
 static Int
 p_true_file_name ( USES_REGS1 )
@@ -2424,7 +2522,8 @@ p_true_file_name ( USES_REGS1 )
     Yap_Error(TYPE_ERROR_ATOM,t,"argument to true_file_name");
     return FALSE;
   }
-  TrueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, NULL, LOCAL_FileNameBuf, FALSE, TRUE);
+  if (!Yap_trueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, NULL, NULL, LOCAL_FileNameBuf, true, YAP_PL, false, false))  
+    return FALSE;
   return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
 }
 
@@ -2441,7 +2540,8 @@ p_expand_file_name ( USES_REGS1 )
     Yap_Error(TYPE_ERROR_ATOM,t,"argument to true_file_name");
     return FALSE;
   }
-  TrueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, NULL, LOCAL_FileNameBuf, FALSE, FALSE);
+  if (!Yap_trueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, NULL, NULL, LOCAL_FileNameBuf, true, YAP_PL, true, false))  
+    return false;
   return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
 }
 
@@ -2466,7 +2566,8 @@ p_true_file_name3 ( USES_REGS1 )
     }
     root = RepAtom(AtomOfTerm(t2))->StrOfAE;
   }
-  TrueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, root, LOCAL_FileNameBuf, FALSE, FALSE);
+  if (!Yap_trueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, NULL, root, LOCAL_FileNameBuf, true, YAP_PL, false, false))  
+    return FALSE;
   return Yap_unify(ARG3, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
 }
 
@@ -2683,7 +2784,7 @@ p_system ( USES_REGS1 )
 /* Rename a file */
 /** @pred  rename(+ _F_,+ _G_)
 
-Renames file  _F_ to  _G_.
+    Renames file  _F_ to  _G_.
 */
 static Int
 p_mv ( USES_REGS1 )
@@ -2703,8 +2804,10 @@ p_mv ( USES_REGS1 )
   } else if (!IsAtomTerm(t2)) {
     Yap_Error(TYPE_ERROR_ATOM, t2, "second argument to rename/2 not atom");
   }
-  TrueFileName (RepAtom(AtomOfTerm(t1))->StrOfAE, NULL, oldname, FALSE, TRUE);
-  TrueFileName (RepAtom(AtomOfTerm(t2))->StrOfAE, NULL, newname, FALSE, TRUE);
+  if (!Yap_trueFileName (RepAtom(AtomOfTerm(t1))->StrOfAE, NULL, NULL, oldname, true, YAP_STD, true, false))    
+    return FALSE;
+  if (!Yap_trueFileName (RepAtom(AtomOfTerm(t2))->StrOfAE, NULL, NULL, oldname, true, YAP_STD, true, false))  
+    return FALSE;
   if ((r = link (oldname, newname)) == 0 && (r = unlink (oldname)) != 0)
     unlink (newname);
   if (r != 0) {

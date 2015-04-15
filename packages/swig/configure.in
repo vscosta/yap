@@ -21,8 +21,6 @@ fi
 
 if test "$PKG_SWIG" != ""; then
 
-mkdir -p packages/swig/android
-mkdir -p packages/swig/android/usr
 mkdir -p packages/swig/python
 mkdir -p packages/swig/R
 mkdir -p packages/swig/java

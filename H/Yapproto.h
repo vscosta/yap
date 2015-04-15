@@ -384,12 +384,24 @@ void    Yap_walltime_interval(Int *,Int *);
 void	Yap_InitSysbits(void);
 void	Yap_InitSysPreds(void);
 void	Yap_InitTime(int);
-int     Yap_TrueFileName(char *, char *, int);
+int     Yap_TrueFileName(const char *,  char *, int);
+int     Yap_TruePrefixedFileName(const char *,const  char *, char *,  int);
 double  Yap_random(void);
 #ifdef _WIN32
 char	*Yap_RegistryGetString(char *);
 void	Yap_WinError(char *);
 #endif
+
+typedef enum {
+  YAP_STD,
+  YAP_SAVED_STATE,
+  YAP_OBJ,
+  YAP_PL,
+  YAP_QLY
+} file_type_t;
+
+bool
+Yap_trueFileName (const char *isource, const char * idef,  const char *root, char *result, bool access, file_type_t ftype, bool expand_root, bool in_lib);
 
 /* threads.c */
 void   Yap_InitThreadPreds(void);

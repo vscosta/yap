@@ -154,7 +154,7 @@ typedef struct thandle {
 //typedef int   (*Agc_hook)(Atom);
 
 /*******************
-  this is the data base: everything here should be possible to restore 
+  this is the data base: everything here should be possible to restore
 ********************/
 typedef struct various_codes {
   /* memory allocation and management */
@@ -182,7 +182,7 @@ extern struct worker_local *Yap_local[MAX_THREADS];
 #elif defined(YAPOR)
 extern struct worker_local *Yap_local;
 #define REMOTE(wid)        (Yap_local + wid)
-#else 
+#else
 extern struct worker_local Yap_local;
 #define REMOTE(wid)        (&Yap_local)
 #endif
@@ -197,6 +197,24 @@ extern struct various_codes *Yap_heap_regs;
 #include "dhstruct.h"
 //#include "dglobals.h"
 //#include "dlocals.h"
+
+/**
+  Yap_CurrentModule: access the current module for looking
+  up predicates
+  */
+
+#define Yap_CurrentModule() Yap_CurrentModule__ (PASS_REGS1)
+
+INLINE_ONLY inline EXTERN Term Yap_CurrentModule__ (USES_REGS1) ;
+
+INLINE_ONLY inline EXTERN Term
+Yap_CurrentModule__ (USES_REGS1)
+{
+  if (CurrentModule) return CurrentModule;
+  return TermProlog;
+}
+
+
 
 /*******************
   these are the global variables: they need not be restored...
@@ -227,7 +245,7 @@ INLINE_ONLY EXTERN inline ADDR
 Yap_PreAllocCodeSpace(void);
 
 INLINE_ONLY EXTERN inline ADDR
-Yap_PreAllocCodeSpace(void) 
+Yap_PreAllocCodeSpace(void)
 {
   CACHE_REGS
   return AuxBase;

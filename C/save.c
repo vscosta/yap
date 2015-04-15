@@ -1,19 +1,19 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		save.c							 *
-* Last rev:								 *
-* mods:									 *
-* comments:	saving and restoring a Prolog computation		 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		save.c							 *
+ * Last rev:								 *
+ * mods:									 *
+ * comments:	saving and restoring a Prolog computation		 *
+ *									 *
+ *************************************************************************/
 #ifdef SCCS
 static char     SccsId[] = "@(#)save.c	1.3 3/15/90";
 #endif
@@ -61,8 +61,6 @@ static char     SccsId[] = "@(#)save.c	1.3 3/15/90";
 
 /*********  hack for accesing several kinds of terms. Should be cleaned **/
 
-static char StartUpFile[] = "startup.yss";
-
 static char end_msg[256] ="*** End of YAP saved state *****";
 
 /* SWI IO, must be restarted after restore */
@@ -71,7 +69,7 @@ void initIO(void);
 #ifdef DEBUG
 
 /*
- * 
+ *
  #FOR DEBUGGING define DEBUG_RESTORE0 to check the file stuff,
  #define DEBUG_RESTORE1 to see if it is able to prepare the chain,
  #define DEBUG_RESTORE2 to see how things are going,
@@ -80,11 +78,11 @@ void initIO(void);
  * particular file,
  * define DEBUG_RESTORE5 if you want to see how the stacks are being
  * cleaned up,
- * define DEBUG_RESTORE6 if you want to follow the execution in 
+ * define DEBUG_RESTORE6 if you want to follow the execution in
  *
- * Also a file is defined where you can write things, by default stderr 
+ * Also a file is defined where you can write things, by default stderr
  *
- * Good Luck 
+ * Good Luck
  */
 
 #endif
@@ -152,12 +150,12 @@ extern int      DefVol;
 #include <unix.h>
 #include <strings.h>
 
-void 
+void
 LightBug(char *);
 
-static void 
+static void
 LightBug(s)
-	char           *s;
+     char           *s;
 {
 }
 
@@ -169,15 +167,15 @@ do_system_error(yap_error_number etype, const char *msg)
   CACHE_REGS
 #if HAVE_SNPRINTF
 #if HAVE_STRERROR
-  snprintf(LOCAL_ErrorSay,MAX_ERROR_MSG_SIZE,"%s (%s when reading %s)", msg, strerror(errno), LOCAL_FileNameBuf);
+    snprintf(LOCAL_ErrorSay,MAX_ERROR_MSG_SIZE,"%s (%s when reading %s)", msg, strerror(errno), LOCAL_FileNameBuf);
 #else
-  snprintf(LOCAL_ErrorSay,MAX_ERROR_MSG_SIZE,"%s, (system error %d when reading %s)",msg,errno,LOCAL_FileNameBuf);  
+  snprintf(LOCAL_ErrorSay,MAX_ERROR_MSG_SIZE,"%s, (system error %d when reading %s)",msg,errno,LOCAL_FileNameBuf);
 #endif
 #else
 #if HAVE_STRERROR
   sprintf(LOCAL_ErrorSay,"%s, (%s when reading %s)",msg,strerror(errno),LOCAL_FileNameBuf);
 #else
-  sprintf(LOCAL_ErrorSay,"%s, (system error %d when reading %s)",msg,errno,LOCAL_FileNameBuf);  
+  sprintf(LOCAL_ErrorSay,"%s, (system error %d when reading %s)",msg,errno,LOCAL_FileNameBuf);
 #endif
 #endif
   LOCAL_ErrorMessage = LOCAL_ErrorSay;
@@ -274,7 +272,7 @@ open_file(char *my_file, int flag)
   return splfild;
 }
 
-static int 
+static int
 close_file(void)
 {
   if (splfild == 0)
@@ -286,21 +284,21 @@ close_file(void)
 }
 
 /* stores a cell in a file */
-static Int 
+static Int
 putout(CELL l)
 {
   return mywrite(splfild, (char *) &l, sizeof(CELL));
 }
 
 /* stores a pointer to a cell in a file */
-static Int 
+static Int
 putcellptr(CELL *l)
 {
   return mywrite(splfild, (char *) &l, sizeof(CELLPOINTER));
 }
 
 /* gets a cell from a file */
-static CELL 
+static CELL
 get_cell(void)
 {
   CELL            l;
@@ -309,7 +307,7 @@ get_cell(void)
 }
 
 /* gets a cell from a file */
-static CELL 
+static CELL
 get_header_cell(void)
 {
   CELL l;
@@ -338,9 +336,9 @@ get_cellptr(void)
 
 /*
  * writes the header (at the moment YAPV*), info about what kind of saved
- * set, the work size, and the space ocuppied 
+ * set, the work size, and the space ocuppied
  */
-static int 
+static int
 put_info(int info, int mode USES_REGS)
 {
   char     msg[256];
@@ -383,7 +381,7 @@ save_regs(int mode USES_REGS)
 {
   /* save all registers */
   if (putout((CELL)compile_arrays) < 0)
-    return -1;    
+    return -1;
   if (mode == DO_EVERYTHING) {
     if (putcellptr((CELL *)CP) < 0)
       return -1;
@@ -527,7 +525,7 @@ static int
 save_stacks(int mode USES_REGS)
 {
   int j;
-  
+
   switch (mode) {
   case DO_EVERYTHING:
     /* Now, go and save the state */
@@ -546,7 +544,7 @@ save_stacks(int mode USES_REGS)
     break;
   case DO_ONLY_CODE:
     {
-      tr_fr_ptr tr_ptr = TR; 
+      tr_fr_ptr tr_ptr = TR;
       while (tr_ptr != (tr_fr_ptr)LOCAL_TrailBase) {
 	CELL val = TrailTerm(tr_ptr-1);
 	if (IsVarTerm(val)) {
@@ -560,7 +558,7 @@ save_stacks(int mode USES_REGS)
 	  if (d1 < (CELL *)HeapTop) {
 	    if (putout(val) < 0)
 	      return -1;
-	  }
+          }
 	}
 	tr_ptr--;
       }
@@ -597,7 +595,7 @@ do_save(int mode USES_REGS) {
   Yap_CloseStreams(TRUE);
   if ((splfild = open_file(LOCAL_FileNameBuf, O_WRONLY | O_CREAT)) < 0) {
     Yap_Error(SYSTEM_ERROR,MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)),
-	  "restore/1, open(%s)", strerror(errno));
+	      "restore/1, open(%s)", strerror(errno));
     return(FALSE);
   }
   if (put_info(FullSaved, mode PASS_REGS) < 0)
@@ -617,7 +615,7 @@ do_save(int mode USES_REGS) {
 }
 
 /* Saves a complete prolog environment */
-static Int 
+static Int
 p_save2( USES_REGS1 )
 {
   Int res;
@@ -627,14 +625,14 @@ p_save2( USES_REGS1 )
 #ifdef YAPOR
   if (GLOBAL_number_workers != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,
-	       "cannot perform save: more than a worker/thread running");
+	      "cannot perform save: more than a worker/thread running");
     return(FALSE);
   }
 #endif /* YAPOR */
 #ifdef THREADS
   if (GLOBAL_NOfThreads != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,
-	       "cannot perform save: more than a worker/thread running");
+	      "cannot perform save: more than a worker/thread running");
     return(FALSE);
   }
 #endif /* THREADS */
@@ -651,7 +649,7 @@ p_save2( USES_REGS1 )
 }
 
 /* Just save the program, not the stacks */
-static Int 
+static Int
 p_save_program( USES_REGS1 )
 {
   which_save = 0;
@@ -661,7 +659,7 @@ p_save_program( USES_REGS1 )
 /* Now, to restore the saved code */
 
 /* First check out if we are dealing with a valid file */
-static int 
+static int
 check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap USES_REGS)
 {
   char pp[256];
@@ -702,32 +700,32 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap USES_REGS)
   /* ignore info on saved state */
   *info = get_header_cell();
   if (LOCAL_ErrorMessage)
-     return FAIL_RESTORE;
+    return FAIL_RESTORE;
   /* check the restore mode */
   mode = get_header_cell();
   if (LOCAL_ErrorMessage)
-     return FAIL_RESTORE;
+    return FAIL_RESTORE;
   if (mode != DO_EVERYTHING && mode != DO_ONLY_CODE) {
     return FAIL_RESTORE;
   }
   /* ignore info on stacks size */
   *AHeap = get_header_cell();
   if (LOCAL_ErrorMessage) {
-     return FAIL_RESTORE;
+    return FAIL_RESTORE;
   }
   *AStack = get_header_cell();
   if (LOCAL_ErrorMessage) {
-     return FAIL_RESTORE;
+    return FAIL_RESTORE;
   }
   *ATrail = get_header_cell();
   if (LOCAL_ErrorMessage) {
-     return FAIL_RESTORE;
+    return FAIL_RESTORE;
   }
   /* now, check whether we got enough enough space to load the
      saved space */
   hp_size = get_cell();
   if (LOCAL_ErrorMessage)
-     return FAIL_RESTORE;
+    return FAIL_RESTORE;
   while (Yap_HeapBase != NULL &&
 	 hp_size > Unsigned(HeapLim) - Unsigned(Yap_HeapBase)) {
     if(!Yap_growheap(FALSE, hp_size, NULL)) {
@@ -767,40 +765,40 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap USES_REGS)
 }
 
 /* Gets the state of the heap, and evaluates the related variables */
-static int 
+static int
 get_heap_info(USES_REGS1)
 {
   LOCAL_OldHeapBase = (ADDR) get_cellptr();
   if (LOCAL_ErrorMessage)
-      return -1;
+    return -1;
   LOCAL_OldHeapTop = (ADDR) get_cellptr();
 
   if (LOCAL_ErrorMessage)
-      return -1;
+    return -1;
   OldHeapUsed = (Int) get_cell();
   if (LOCAL_ErrorMessage)
-      return -1;
+    return -1;
   FreeBlocks = (BlockHeader *) get_cellptr();
   if (LOCAL_ErrorMessage)
-      return -1;
+    return -1;
   AuxBase = (ADDR)get_cellptr();
   if (LOCAL_ErrorMessage)
-      return -1;
+    return -1;
   AuxSp = get_cellptr();
   if (LOCAL_ErrorMessage)
-      return -1;
+    return -1;
   AuxTop = (ADDR)get_cellptr();
   if (LOCAL_ErrorMessage)
-      return -1;
+    return -1;
   LOCAL_ScratchPad.ptr = (ADDR)get_cellptr();
   if (LOCAL_ErrorMessage)
-      return -1;
+    return -1;
   LOCAL_ScratchPad.sz = get_cell();
   if (LOCAL_ErrorMessage)
-      return -1;
+    return -1;
   LOCAL_ScratchPad.msz = get_cell();
   if (LOCAL_ErrorMessage)
-      return -1;
+    return -1;
   LOCAL_HDiff = Unsigned(Yap_HeapBase) - Unsigned(LOCAL_OldHeapBase);
   return 1;
 }
@@ -808,7 +806,7 @@ get_heap_info(USES_REGS1)
 /* Gets the register array */
 /* Saves the old bases for the work areas */
 /* and evaluates the difference from the old areas to the new ones */
-static int 
+static int
 get_regs(int flag USES_REGS)
 {
   CELL           *NewGlobalBase = (CELL *)LOCAL_GlobalBase;
@@ -818,7 +816,7 @@ get_regs(int flag USES_REGS)
   /* Get regs */
   compile_arrays = (int)get_cell();
   if (LOCAL_ErrorMessage)
-      return -1;
+    return -1;
   if (flag == DO_EVERYTHING) {
     CP = (yamop *)get_cellptr();
     if (LOCAL_ErrorMessage)
@@ -879,8 +877,8 @@ get_regs(int flag USES_REGS)
 #endif /* YAPOR_SBA || TABLING */
   }
   CurrentModule = get_cell();
-    if (LOCAL_ErrorMessage)
-      return -1;
+  if (LOCAL_ErrorMessage)
+    return -1;
   if (flag == DO_EVERYTHING) {
 #ifdef COROUTINING
     LOCAL_WokenGoals = get_cell();
@@ -944,21 +942,21 @@ get_regs(int flag USES_REGS)
 }
 
 /* Get the old opcodes and place them in a hash table */
-static int 
+static int
 get_insts(OPCODE old_ops[])
 {
   return myread(splfild, (char *)old_ops, sizeof(OPCODE)*(_std_top+1));
 }
 
 /* Get the old atoms hash table */
-static int 
+static int
 get_hash(void)
 {
   return myread(splfild, Yap_chtype , NUMBER_OF_CHARS);
 }
 
 /* Copy all of the old code to the new Heap */
-static int 
+static int
 CopyCode( USES_REGS1 )
 {
   if (myread(splfild, (char *) Yap_HeapBase, (Unsigned(LOCAL_OldHeapTop) - Unsigned(LOCAL_OldHeapBase))) < 0) {
@@ -969,7 +967,7 @@ CopyCode( USES_REGS1 )
 
 /* Copy the local and global stack and also the trail to their new home */
 /* In REGS we still have nonadjusted values !! */
-static int 
+static int
 CopyStacks( USES_REGS1 )
 {
   Int             j;
@@ -1005,11 +1003,11 @@ CopyTrailEntries( USES_REGS1 )
 }
 
 /* get things which are saved in the file */
-static int 
+static int
 get_coded(int flag, OPCODE old_ops[] USES_REGS)
 {
   char my_end_msg[256];
-  
+
   if (get_regs(flag PASS_REGS) < 0)
     return -1;
   if (get_insts(old_ops) < 0)
@@ -1039,7 +1037,7 @@ get_coded(int flag, OPCODE old_ops[] USES_REGS)
 }
 
 /* restore some heap registers */
-static void 
+static void
 restore_heap_regs( USES_REGS1 )
 {
   if (HeapTop) {
@@ -1051,7 +1049,7 @@ restore_heap_regs( USES_REGS1 )
 }
 
 /* adjust abstract machine registers */
-static void 
+static void
 restore_regs(int flag USES_REGS)
 {
   restore_heap_regs( PASS_REGS1 );
@@ -1099,7 +1097,7 @@ recompute_mask(DBRef dbr)
       tp = (CELL *)(tbase + (CELL) RepPair(dbr->DBT.Entry));
     } else {
       Functor f;
-    
+
       tp = (CELL *)(tbase + (CELL) RepAppl(dbr->DBT.Entry));
       f = (Functor)(*tp++);
       out = AbsAppl(x);
@@ -1136,9 +1134,9 @@ recompute_mask(DBRef dbr)
  * This is used to make an hash table correct, after displacing its elements,
  * HCEnd should point to an area of free space, usually in the heap. The
  * routine is very dependent on the hash function used, and it destroys the
- * previous "hit" order 
+ * previous "hit" order
  */
-static void 
+static void
 rehash(CELL *oldcode, int NOfE, int KindOfEntries USES_REGS)
 {
   register CELL  *savep, *basep;
@@ -1150,14 +1148,14 @@ rehash(CELL *oldcode, int NOfE, int KindOfEntries USES_REGS)
   CELL           *Base = oldcode;
 
   if (LOCAL_HDiff == 0)
-      return;
+    return;
   basep = HR;
   if (HR + (NOfE*2) > ASP) {
     basep = (CELL *)TR;
     if (basep + (NOfE*2) > (CELL *)LOCAL_TrailTop) {
       if (!Yap_growtrail((ADDR)(basep + (NOfE*2))-LOCAL_TrailTop, TRUE)) {
 	Yap_Error(OUT_OF_TRAIL_ERROR, TermNil,
-	      "not enough space to restore hash tables for indexing");
+		  "not enough space to restore hash tables for indexing");
 	Yap_exit(1);
       }
     }
@@ -1215,13 +1213,13 @@ RestoreSWIHash(void)
 #include "rheap.h"
 
 /* restore the atom entries which are invisible for the user */
-static void 
+static void
 RestoreIOStructures(void)
 {
   Yap_InitStdStreams();
 }
 
-static void 
+static void
 RestoreFreeSpace( USES_REGS1 )
 {
 #if USE_DL_MALLOC
@@ -1254,11 +1252,11 @@ RestoreFreeSpace( USES_REGS1 )
     if (bpt->b_next != NULL) {
       bsz = bpt->b_next = BlockAdjust(bpt->b_next);
       while (bsz != NULL) {
-	if (bsz->b_next_size != NULL)
+        if (bsz->b_next_size != NULL)
 	  bsz->b_next_size = BlockAdjust(bsz->b_next_size);
-	if (bsz->b_next != NULL)
+        if (bsz->b_next != NULL)
 	  bsz->b_next = BlockAdjust(bsz->b_next);
-	bsz = bsz->b_next;
+        bsz = bsz->b_next;
       }
     }
     if (bpt->b_next_size != NULL)
@@ -1296,9 +1294,9 @@ RestoreHashPreds( USES_REGS1 )
   np = (PredEntry **) Yap_AllocAtomSpace(sizeof(PredEntry *)*size);
   if (!np) {
     if (!(np = (PredEntry **) malloc(sizeof(PredEntry *)*size))) {
-	Yap_Error(FATAL_ERROR,TermNil,"Could not allocate space for pred table");
-	return;
-      }
+      Yap_Error(FATAL_ERROR,TermNil,"Could not allocate space for pred table");
+      return;
+    }
     malloced = TRUE;
   }
   for (i = 0; i < size; i++) {
@@ -1312,7 +1310,7 @@ RestoreHashPreds( USES_REGS1 )
     while (p) {
       Prop nextp;
       UInt hsh;
-      
+
       if (p->NextOfPE)
 	p->NextOfPE = PropAdjust(p->NextOfPE);
       nextp = p->NextOfPE;
@@ -1333,9 +1331,9 @@ RestoreHashPreds( USES_REGS1 )
 }
 
 /*
- * This is the really tough part, to restore the whole of the heap 
+ * This is the really tough part, to restore the whole of the heap
  */
-static void 
+static void
 restore_heap(void)
 {
   restore_codes();
@@ -1344,9 +1342,9 @@ restore_heap(void)
 
 
 #ifdef DEBUG_RESTORE3
-static void 
+static void
 ShowEntries(pp)
-	PropEntry      *pp;
+     PropEntry      *pp;
 {
   while (!EndOfPAEntr(pp)) {
     fprintf(GLOBAL_stderr,"Estou a ver a prop %x em %x\n", pp->KindOfPE, pp);
@@ -1354,7 +1352,7 @@ ShowEntries(pp)
   }
 }
 
-static void 
+static void
 ShowAtoms()
 {
   AtomHashEntry  *HashPtr = HashChain;
@@ -1390,8 +1388,8 @@ ShowAtoms()
 
 static int
 commit_to_saved_state(char *s, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap) {
-  CACHE_REGS
-  int mode;
+  CACHE_REGS  
+    int mode;
 
   if ((mode = check_header(Astate,ATrail,AStack,AHeap PASS_REGS)) == FAIL_RESTORE)
     return(FAIL_RESTORE);
@@ -1407,26 +1405,14 @@ commit_to_saved_state(char *s, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *A
   }
 #ifdef DEBUG_RESTORE4
   /*
-   * This should be another file, like the log file 
+   * This should be another file, like the log file
    */
   errout = GLOBAL_stderr;
 #endif
   return mode;
 }
 
-static void
-cat_file_name(char *s, const char *prefix, char *name, unsigned int max_length)
-{
-  strncpy(s, prefix, max_length);
-#if _MSC_VER || defined(__MINGW32__)
-  strncat(s,"\\", max_length);
-#else
-  strncat(s,"/", max_length);
-#endif
-  strncat(s, name, max_length-1);
-}
-
-static int try_open(char *inpf, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap, char *buf, IOSTREAM **streamp) {
+static int try_open(char *inpf, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap, IOSTREAM **streamp) {
   int mode;
 
   if (streamp) {
@@ -1438,153 +1424,40 @@ static int try_open(char *inpf, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *
   if ((splfild = open_file(inpf, O_RDONLY)) < 0) {
     return FAIL_RESTORE;
   }
-  if (buf[0] == '\0')
-    strncpy(buf, inpf, YAP_FILENAME_MAX);
   if ((mode = commit_to_saved_state(inpf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE) {
     CACHE_REGS
-    LOCAL_ErrorMessage = NULL;
+      LOCAL_ErrorMessage = NULL;
     return mode;
   }
   return mode;
 }
 
-static int 
+static int
 OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap, IOSTREAM **streamp)
 {
   CACHE_REGS
-  int mode = FAIL_RESTORE;
-  char save_buffer[YAP_FILENAME_MAX+1];
-
-#if __ANDROID__
-  if (!inpf)
-    inpf = YAPSTARTUP;
-#endif
-  save_buffer[0] = '\0';
-  //  LOCAL_ErrorMessage = NULL;
-  if (inpf == NULL) {
-      inpf = StartUpFile;
+    
+  int mode;
+  char fname[PATH_MAX+1];
+  
+  if (!Yap_trueFileName( inpf, YAP_STARTUP, YapLibDir, fname, true, YAP_SAVED_STATE, true, true))
+    return false;
+  if (fname != NULL &&
+      (mode = try_open(fname,Astate,ATrail,AStack,AHeap,streamp)) != FAIL_RESTORE) {
+    return mode;
   }
-  /* careful it starts from the root */
-  if (inpf[0] != '/') {
-#if __simplescalar__
-    /* does not implement getcwd */
-    strncpy(LOCAL_FileNameBuf,GLOBAL_pwd,YAP_FILENAME_MAX);
-#elif HAVE_GETCWD
-    if (getcwd (LOCAL_FileNameBuf, YAP_FILENAME_MAX) == NULL)
-      LOCAL_FileNameBuf[0] = '\0';
-#else
-    if (getwd (LOCAL_FileNameBuf) == NULL)
-      LOCAL_FileNameBuf[0] = '\0';
-#endif
-    strncat(LOCAL_FileNameBuf, "/", YAP_FILENAME_MAX-1);
-    strncat(LOCAL_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
-  } else {
-    strncpy(LOCAL_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
-  }
-  if (inpf != NULL  &&
-      !((splfild = open_file(inpf, O_RDONLY)) < 0))
-   {
-    if ((mode = try_open(inpf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {
-      return mode;
-    }
-  }
-  if (!Yap_dir_separator(inpf[0]) && !Yap_volume_header(inpf)) {
-    /*
-      we have a relative path for the file, try to do somewhat better 
-      using YAPLIBDIR or friends.
-    */
-    if (YapLibDir != NULL) {
-      cat_file_name(LOCAL_FileNameBuf, Yap_LibDir, inpf, YAP_FILENAME_MAX);
-      if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {
-	return mode;
-      }
-    } else {
-      if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {
-	return mode;
-      }
-    }
-#if HAVE_GETENV
-    {
-      const char *yap_env = getenv("YAPLIBDIR");
-      if (yap_env != NULL) {
-	cat_file_name(LOCAL_FileNameBuf, yap_env, inpf, YAP_FILENAME_MAX);
-	if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {
-	  return mode;
-	}
-      }
-    }
-#endif
-    if (YAP_LIBDIR != NULL) {
-      cat_file_name(LOCAL_FileNameBuf, YAP_LIBDIR, inpf, YAP_FILENAME_MAX);
-      if (!((splfild = open_file(LOCAL_FileNameBuf, O_RDONLY)) < 0)) {
-	if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {
-	  return mode;
-	}
-      }
-    }
-  }
-#if __WINDOWS__
-  if ((inpf = Yap_RegistryGetString("startup"))) {
-    if (!((splfild = Sopen_file(inpf, "r")) < 0)) {
-      if ((mode = try_open(inpf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {
-	return mode;
-      }
-    }
-  }
-  {
-    DWORD fatts;
-    int buflen;
-    char *pt;
-
-    /* try to get it from current executable */
-    if ((fatts = GetFileAttributes(LOCAL_FileNameBuf)) == 0xFFFFFFFFL ||
-	!(fatts & FILE_ATTRIBUTE_DIRECTORY)) {
-      /* couldn't find it where it was supposed to be,
-	 let's try using the executable */
-      if (!GetModuleFileName( NULL, LOCAL_FileNameBuf, YAP_FILENAME_MAX)) {
-	/* do nothing */
-	goto end;
-      }
-      buflen = strlen(LOCAL_FileNameBuf);
-      pt = LOCAL_FileNameBuf+buflen;
-      while (*--pt != '\\') {
-	/* skip executable */
-	if (pt == LOCAL_FileNameBuf) {
-	  /* do nothing */
-	  goto end;
-	}
-      }
-      while (*--pt != '\\') {
-	/* skip parent directory "bin\\" */
-	if (pt == LOCAL_FileNameBuf) {
-	  goto end;
-	}
-      }
-      /* now, this is a possible location for the ROOT_DIR, let's look for a share directory here */
-      pt[1] = '\0';
-      strncat(LOCAL_FileNameBuf,"lib/Yap/startup.yss",YAP_FILENAME_MAX);
-    }
-    if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {
-      return mode;
-    }
-  }
- end:
-#endif
   /* try to open from current directory */
   /* could not open file */
   if (LOCAL_ErrorMessage == NULL) {
-    if (save_buffer[0]) {
-      strncpy(LOCAL_FileNameBuf, save_buffer, YAP_FILENAME_MAX-1);
-      do_system_error(PERMISSION_ERROR_OPEN_SOURCE_SINK,"incorrect saved state");
-    } else {
-      strncpy(LOCAL_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
-      do_system_error(PERMISSION_ERROR_OPEN_SOURCE_SINK,"could not open saved state");
-    }
+    do_system_error(PERMISSION_ERROR_OPEN_SOURCE_SINK,"incorrect saved state");
+  } else {
+    strncpy(LOCAL_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
+    do_system_error(PERMISSION_ERROR_OPEN_SOURCE_SINK,"could not open saved state");
   }
   return FAIL_RESTORE;
 }
 
-IOSTREAM * 
+IOSTREAM *
 Yap_OpenRestore(char *inpf, char *YapLibDir)
 {
   IOSTREAM *stream = NULL;
@@ -1593,19 +1466,19 @@ Yap_OpenRestore(char *inpf, char *YapLibDir)
   return stream;
 }
 
-static void 
+static void
 CloseRestore(void)
 {
- CACHE_REGS
+  CACHE_REGS
 #ifdef DEBUG_RESTORE3
-  ShowAtoms();
+    ShowAtoms();
 #endif
   close_file();
   LOCAL_PrologMode = UserMode;
 }
 
 #if !defined(_WIN32)
-static int 
+static int
 check_opcodes(OPCODE old_ops[])
 {
 #if USE_THREADED_CODE
@@ -1625,17 +1498,17 @@ check_opcodes(OPCODE old_ops[])
 }
 #endif
 
-static void 
+static void
 RestoreHeap(OPCODE old_ops[] USES_REGS)
 {
   bool heap_moved = (LOCAL_OldHeapBase != Yap_HeapBase ||
-		    LOCAL_XDiff), opcodes_moved;
+		     LOCAL_XDiff), opcodes_moved;
   Term mod = CurrentModule;
 
   CurrentModule = PROLOG_MODULE;
 #if defined(_WIN32)
   /* It seems that under WIN32 opcodes may not have moved but the
-     remaining code may have bmoved */ 
+     remaining code may have bmoved */
   opcodes_moved = TRUE;
 #else
   opcodes_moved = check_opcodes(old_ops);
@@ -1667,9 +1540,9 @@ RestoreHeap(OPCODE old_ops[] USES_REGS)
 
 /*
  * This function is called to know about the parameters of the last saved
- * state 
+ * state
  */
-int 
+int
 Yap_SavedInfo(char *FileName, char *YapLibDir, CELL *ATrail, CELL *AStack, CELL *AHeap)
 {
   return DO_ONLY_CODE;
@@ -1758,9 +1631,9 @@ FreeRecords(void) {
 
 /*
  * This function is called when wanting only to restore the heap and
- * associated registers 
+ * associated registers
  */
-static int 
+static int
 Restore(char *s, char *lib_dir USES_REGS)
 {
   int restore_mode;
@@ -1773,7 +1646,7 @@ Restore(char *s, char *lib_dir USES_REGS)
   Yap_ShutdownLoadForeign();
   in_limbo = TRUE;
   if (get_coded(restore_mode, old_ops PASS_REGS) < 0)
-     return FAIL_RESTORE;  
+    return FAIL_RESTORE;
   restore_regs(restore_mode PASS_REGS);
   in_limbo = FALSE;
   /*#endif*/
@@ -1820,14 +1693,14 @@ Restore(char *s, char *lib_dir USES_REGS)
   return restore_mode;
 }
 
-int 
+int
 Yap_SavedStateRestore(char *s, char *lib_dir)
 {
   CACHE_REGS
-  return Restore(s, lib_dir PASS_REGS);
+    return Restore(s, lib_dir PASS_REGS);
 }
 
-static Int 
+static Int
 p_restore( USES_REGS1 )
 {
   int mode;
@@ -1856,7 +1729,7 @@ p_restore( USES_REGS1 )
   return(mode != FAIL_RESTORE);
 }
 
-void 
+void
 Yap_InitSavePreds(void)
 {
   Yap_InitCPred("$save", 2, p_save2, SyncPredFlag);

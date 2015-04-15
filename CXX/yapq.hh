@@ -5,8 +5,6 @@
    Queries and engines
 */
 
-  static const char *s0;
-
 /**
  * @brief Queries
  *
@@ -116,8 +114,7 @@ public:
   YAPError hasError( ) {  return yerror; }
   /// build a query on the engine
   YAPQuery *query( const char *s ) {
-    s0=s;
-  return new YAPQuery( s );
+    return new YAPQuery( s );
   };
   /// current module for the engine
   YAPModule currentModule( ) { return YAPModule( ) ; }

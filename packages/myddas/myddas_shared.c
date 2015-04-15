@@ -759,6 +759,7 @@ init_myddas(void)
 #undef _stringify
   Yap_MYDDAS_delete_all_myddas_structs();
 #endif
+c_db_initialize_myddas( PASS_REGS1 );   
 }
 
 #ifdef _WIN32

@@ -2196,8 +2196,7 @@ YAP_EnterGoal(PredEntry *pe, yhandle_t ptr, YAP_dogoalinfo *dgi)
 
   Yap_PrepGoal(pe->ArityOfPE, Yap_AddressFromSlot( ptr ), B PASS_REGS);
   P = pe->CodeOfPred;
-  __android_log_print(ANDROID_LOG_INFO, "YAP ", "ap=%p %d %x %x args=%x,%x slot=%d",
-   pe, pe->CodeOfPred->opc, FAILCODE, Deref(ARG1), Deref(ARG2), LOCAL_CurSlot);
+  // __android_log_print(ANDROID_LOG_INFO, "YAP ", "ap=%p %d %x %x args=%x,%x slot=%d", pe, pe->CodeOfPred->opc, FAILCODE, Deref(ARG1), Deref(ARG2), LOCAL_CurSlot);
   dgi->b = LCL0-(CELL*)B;
   out = run_emulator(PASS_REGS1);
   RECOVER_MACHINE_REGS();
@@ -2869,11 +2868,7 @@ construct_init_file(char *boot_file, char *BootFile)
 /* this routine is supposed to be called from an external program
    that wants to control Yap */
 
-#if defined(USE_SYSTEM_MALLOC) && FALSE
-#define  BOOT_FROM_SAVED_STATE FALSE
-#else
 #define  BOOT_FROM_SAVED_STATE TRUE
-#endif
 
 X_API Int
 YAP_Init(YAP_init_args *yap_init)
@@ -2898,14 +2893,19 @@ YAP_Init(YAP_init_args *yap_init)
   Yap_InitSysbits();  /* init signal handling and time, required by later functions */
   GLOBAL_argv = yap_init->Argv;
   GLOBAL_argc = yap_init->Argc;
-#if !BOOT_FROM_SAVED_STATE
+#if BOOT_FROM_SAVED_STATE
+  if (!yap_init->SavedState) {
+    yap_init->SavedState = YAP_STARTUP;
+  }
+
+#else
   if (yap_init->SavedState) {
     fprintf(stderr,"[ WARNING: threaded YAP will ignore saved state %s ]\n",yap_init->SavedState);
     yap_init->SavedState = NULL;
   }
 #endif
-  if (FALSE && BOOT_FROM_SAVED_STATE && !do_bootstrap) {
-    if (Yap_SavedInfo (yap_init->SavedState, yap_init->YapLibDir, &Trail, &Stack, &Heap)) {
+  if (BOOT_FROM_SAVED_STATE && !do_bootstrap) {
+    if (!Yap_SavedInfo (yap_init->SavedState, yap_init->YapLibDir, &Trail, &Stack, &Heap)) {
       yap_init->ErrorNo = LOCAL_Error_TYPE;
       yap_init->ErrorCause = LOCAL_ErrorMessage;
       return YAP_BOOT_ERROR;
@@ -3055,10 +3055,12 @@ YAP_Init(YAP_init_args *yap_init)
     if (restore_result == DO_ONLY_CODE) {
       /* first, initialise the saved state */
       Term t_goal = MkAtomTerm(AtomInitProlog);
-     YAP_RunGoalOnce(t_goal);
+      YAP_RunGoalOnce(t_goal);
       Yap_InitYaamRegs( 0 );
+      CurrentModule = LOCAL_SourceModule = USER_MODULE;
       return YAP_BOOT_FROM_SAVED_CODE;
     } else {
+      CurrentModule = LOCAL_SourceModule = USER_MODULE;
       return YAP_BOOT_FROM_SAVED_STACKS;
     }
   } else {

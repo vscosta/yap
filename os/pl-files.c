@@ -734,15 +734,14 @@ PRED_IMPL("size_file", 2, size_file, 0)
   return FALSE;
 }
 
-
-static
-PRED_IMPL("access_file", 2, access_file, 0)
 /** @pred  access_file(+ _F_,+ _M_)
 
-Is the file accessible?
+    Is the file accessible?
 
 
 */
+static
+PRED_IMPL("access_file", 2, access_file, 0)
 { PRED_LD
   char *n;
   int md;

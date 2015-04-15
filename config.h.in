@@ -202,6 +202,9 @@
 /* Define to 1 if you have the `dlopen' function. */
 #undef HAVE_DLOPEN
 
+/* Define to 1 if you have the `drand48' function. */
+#undef HAVE_DRAND48
+
 /* Define to 1 if you have the `dup2' function. */
 #undef HAVE_DUP2
 
@@ -739,6 +742,9 @@
 
 /* Define to 1 if you have the `srand' function. */
 #undef HAVE_SRAND
+
+/* Define to 1 if you have the `srand48' function. */
+#undef HAVE_SRAND48
 
 /* Define to 1 if you have the `srandom' function. */
 #undef HAVE_SRANDOM

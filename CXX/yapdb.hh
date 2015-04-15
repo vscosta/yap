@@ -21,15 +21,6 @@ class YAPError;
 
 class YAPModule;
 
-extern "C" {
-  static inline Term
-  Yap_CurrentModule( void )
-  {
-    CACHE_REGS
-      return CurrentModule;
-  }
-}
-
 /**
  * @brief YAPModule
  * A YAPModule describes a bare module, which in YAP is just a name.
@@ -41,9 +32,10 @@ class YAPModule : protected YAPAtomTerm {
   friend class YAPPredicate;
   YAPModule( Term t ): YAPAtomTerm( t ) {};
   Term t() { return gt(); }
+  Term curModule() {CACHE_REGS return Yap_CurrentModule(); }
 public:
   ~YAPModule( ) {};
-  YAPModule( ): YAPAtomTerm( Yap_CurrentModule() ) {};
+  YAPModule( ): YAPAtomTerm( curModule() ) {};
   YAPModule( YAPAtom t ): YAPAtomTerm( t ) {};
 };
 
@@ -59,7 +51,7 @@ class YAPModuleProp: public YAPProp {
   YAPModuleProp(ModEntry *mod)   {m = mod;};
   YAPModuleProp(Term tmod)  { m = Yap_GetModuleEntry(tmod); };
 public:
-  YAPModuleProp()  { m = Yap_GetModuleEntry(Yap_CurrentModule()); };
+  YAPModuleProp()  { CACHE_REGS m = Yap_GetModuleEntry(Yap_CurrentModule()); };
   YAPModuleProp(YAPModule tmod) ;
   virtual YAPModule module() { return YAPModule(m->AtomOfME); };
 };
@@ -129,13 +121,9 @@ protected:
     CACHE_REGS
     BACKUP_MACHINE_REGS();
     Term *outp;
-      char ns[strlen(s)+1];
-      memcpy(ns, s, strlen(s)+1);
-      LOG("iPP=%d %d %d", strlen(s),  s[0], s[1]);
-      LOG("iPP=%s", s);
-    vnames  = Yap_NewSlots(1);
-    out = Yap_StringToTerm(ns, strlen(s)+1,  vnames ) ;
-      LOG("iP2=%s", s);
+
+      vnames  = Yap_NewSlots(1);
+    out = Yap_StringToTerm(s, strlen(s)+1,  vnames ) ;
     //extern char *s0;
     //fprintf(stderr,"ap=%p arity=%d text=%s", ap, ap->ArityOfPE, s);
   //  Yap_DebugPlWrite(out);
@@ -169,6 +157,7 @@ public:
   ///
   /// Asssumes that we use the current module.
   YAPPredicate(YAPFunctor f)  {
+    CACHE_REGS
     ap = RepPredProp(PredPropByFunc(f.f,Yap_CurrentModule()));
   };
 
