@@ -97,7 +97,7 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_FENV_H && !defined(__CYGWIN__)
 #include <fenv.h>
 #endif
-#if HAVE_WORDEXP_H
+#if defined(ENABLE_SYSTEM_EXPANSION) && HAVE_WORDEXP_H
 #include <wordexp.h>
 #endif
 #if HAVE_LIBGEN_H
@@ -419,7 +419,7 @@ yapExpandVars (const char *source, char *result)
     strncat (result, src, YAP_FILENAME_MAX);
     return result;
   }
-#if !HAVE_WORDEXP
+#if !HAVE_WORDEXP ||  !defined(ENABLE_SYSTEM_EXPANSION)
   // do VARIABLE expansion
   else if (source[0] == '$') {
     /* follow SICStus expansion rules */
@@ -464,7 +464,7 @@ expandVars(const char *pattern, char *expanded, int maxlen)
   if ((pattern = yapExpandVars(pattern, tmp)) == NULL) {
     return NULL;
   }
-#if __WIN32 || __MINGW32__
+#if ( __WIN32 || __MINGW32__ ) && defined(ENABLE_SYSTEM_EXPANSION)
   DWORD  retval=0;
   // notice that the file does not need to exist1
   if (ini == NULL) {
@@ -480,7 +480,7 @@ expandVars(const char *pattern, char *expanded, int maxlen)
       return NULL;
     }
   return expanded;
-#elif HAVE_WORDEXP
+#elif HAVE_WORDEXP && defined(ENABLE_SYSTEM_EXPANSION)
   wordexp_t result;
 
   /* Expand the string for the program to run.  */
