@@ -779,11 +779,11 @@ ExpandPredHash(void)
     PredEntry *p = PredHash[i];
 
     while (p) {
-      Prop nextp = p->NextOfPE;
+      PredEntry *nextp = p->NextPredOfHash;
       UInt hsh = PRED_HASH(p->FunctorOfPred, p->ModuleOfPred, new_size);
-      p->NextOfPE = AbsPredProp(np[hsh]);
+      p->NextPredOfHash = np[hsh];
       np[hsh] = p;
-      p = RepPredProp(nextp);
+      p = nextp;
     }
   }
   PredHashTableSize = new_size;
@@ -869,16 +869,17 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
 
       hsh = PRED_HASH(fe, pe->ModuleOfPred, PredHashTableSize);
       /* should be the first one */
-      pe->NextOfPE = AbsPredProp(PredHash[hsh]);
+      pe->NextPredOfHash = PredHash[hsh];
       PredHash[hsh] = pe;
       fe->PropsOfFE = AbsPredProp(p);
+      p->NextOfPE = AbsPredProp(pe);
     } else {
-      p->NextOfPE = AbsPredProp(PredHash[hsh]);
+      p->NextPredOfHash = PredHash[hsh];
       PredHash[hsh] = p;
+      p->NextOfPE = fe->PropsOfFE->NextOfPE;
+      fe->PropsOfFE->NextOfPE = AbsPredProp(p);
     }
     WRITE_UNLOCK(PredHashRWLock);
-    /* make sure that we have something here: note that this is not a valid pointer!! */
-    RepPredProp(fe->PropsOfFE)->NextOfPE = fe->PropsOfFE;
   } else {
     fe->PropsOfFE = AbsPredProp(p);
     p->NextOfPE = NIL;
@@ -1048,7 +1049,7 @@ Yap_PredPropByFunctorNonThreadLocal(Functor f, Term cur_mod)
 	  FUNC_WRITE_UNLOCK(f);
 	  return AbsPredProp(p);
 	}
-      p = RepPredProp(p->NextOfPE);
+      p = p->NextPredOfHash;
     }
     READ_UNLOCK(PredHashRWLock);
   }

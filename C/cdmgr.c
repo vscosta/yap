@@ -2182,20 +2182,17 @@ static void
 mark_preds_with_this_func(Functor f, Prop p0)
 {
   PredEntry *pe = RepPredProp(p0);
-  UInt i;
 
   pe->PredFlags |= GoalExPredFlag;
-  for (i = 0; i < PredHashTableSize; i++) {
-    PredEntry *p = PredHash[i];
+    Prop p = f->PropsOfFE;
 
-    /* search the whole pred table, kind of inneficient */
     while (p) {
       Prop nextp = p->NextOfPE;
-      if (p->FunctorOfPred == f)
-	p->PredFlags |= GoalExPredFlag;
-      p = RepPredProp(nextp);
+      pe = RepPredProp(p);
+
+	pe->PredFlags |= GoalExPredFlag;
+      p = nextp;
     }
-  }
 }
 
 static void

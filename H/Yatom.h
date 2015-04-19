@@ -1,4 +1,4 @@
-/*************************************************************************
+                                                                                                      /*************************************************************************
 *									 *
 *	 YAP Prolog   %W% %G%
 *									 *
@@ -753,7 +753,8 @@ typedef enum {
   /* This must be at an odd number of cells, otherwise it
      will not be aligned on RISC machines */
   profile_data StatisticsForPred;	/* enable profiling for predicate  */
-  struct pred_entry *NextPredOfModule;	/* next pred for same module   */
+  struct pred_entry *NextPredOfModule;  /* next pred for same module   */
+  struct pred_entry *NextPredOfHash ;  /* next pred for same module   */
           } PredEntry;
 #define PEProp   ((PropFlags)(0x0000))
 
@@ -1723,7 +1724,7 @@ GetPredPropByFuncHavingLock (FunctorEntry *fe, Term cur_mod)
 	  READ_UNLOCK(PredHashRWLock);
 	  return AbsPredProp(p);
 	}
-      p = RepPredProp(p->NextOfPE);
+      p = p->NextPredOfHash;
     }
     READ_UNLOCK(PredHashRWLock);
   }
@@ -1781,7 +1782,7 @@ GetPredPropByFuncAndModHavingLock (FunctorEntry *fe, Term cur_mod)
 	  READ_UNLOCK(PredHashRWLock);
 	  return AbsPredProp(p);
 	}
-      p = RepPredProp(p->NextOfPE);
+      p = p->NextPredOfHash;
     }
     READ_UNLOCK(PredHashRWLock);
   }
