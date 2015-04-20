@@ -103,7 +103,7 @@ if (ODBC_FOUND OR MYSQL_FOUND OR SQLITE3_FOUND OR PostgreSQL_FOUND)
 endif (PostgreSQL_FOUND)
 
   add_custom_target (plmyddas ALL DEPENDS ${GENERATED_SOURCES} ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
-endif (ODBC_FOUND OR MYSQL_FOUND OR SQLITE3_FOUND)
+endif (ODBC_FOUND OR MYSQL_FOUND OR SQLITE3_FOUND OR PostgreSQL_FOUND)
 
 cmake_dependent_option (WITH_MYDDAS_Stats
   "enable the MYDDAS library statistics support" OFF

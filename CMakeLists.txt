@@ -10,6 +10,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   cmake_policy( NO_POLICY_SCOPE )
 endif()
 
+set(configurations Debug)
+
 cmake_policy(SET CMP0043 NEW)
 
 project(YAP C CXX)
@@ -542,6 +544,10 @@ macro_optional_add_subdirectory (packages/raptor)
 #add_subdirectory (packages/archive)
 
 macro_optional_add_subdirectory (packages/jpl)
+
+macro_optional_add_subdirectory (packages/swig)
+
+macro_optional_add_subdirectory (packages/bdd)
 
 #add_subdirectory (packages/prosqlite)
 
