@@ -828,10 +828,7 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
   else
     p->ModuleOfPred = cur_mod;
   Yap_NewModulePred(cur_mod, p);
-  INIT_LOCK(p->StatisticsForPred.lock);
-  p->StatisticsForPred.NOfEntries = 0;
-  p->StatisticsForPred.NOfHeadSuccesses = 0;
-  p->StatisticsForPred.NOfRetries = 0;
+  
 #ifdef TABLING
   p->TableOfPred = NULL;
 #endif /* TABLING */
@@ -920,10 +917,6 @@ Yap_NewThreadPred(PredEntry *ap USES_REGS)
   p->NextPredOfModule = NULL;
   p->TimeStampOfPred = 0L; 
   p->LastCallOfPred = LUCALL_ASSERT; 
-  INIT_LOCK(p->StatisticsForPred.lock);
-  p->StatisticsForPred.NOfEntries = 0;
-  p->StatisticsForPred.NOfHeadSuccesses = 0;
-  p->StatisticsForPred.NOfRetries = 0;
 #ifdef TABLING
   p->TableOfPred = NULL;
 #endif /* TABLING */
@@ -972,10 +965,6 @@ Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
   else
     p->ModuleOfPred = cur_mod;
   Yap_NewModulePred(cur_mod, p);
-  INIT_LOCK(p->StatisticsForPred.lock);
-  p->StatisticsForPred.NOfEntries = 0;
-  p->StatisticsForPred.NOfHeadSuccesses = 0;
-  p->StatisticsForPred.NOfRetries = 0;
   p->TimeStampOfPred = 0L; 
   p->LastCallOfPred = LUCALL_ASSERT; 
 #ifdef TABLING

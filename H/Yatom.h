@@ -752,7 +752,7 @@ typedef enum {
   timestamp_type LastCallOfPred;
   /* This must be at an odd number of cells, otherwise it
      will not be aligned on RISC machines */
-  profile_data StatisticsForPred;	/* enable profiling for predicate  */
+  profile_data *StatisticsForPred;	/* enable profiling for predicate  */
   struct pred_entry *NextPredOfModule;  /* next pred for same module   */
   struct pred_entry *NextPredOfHash ;  /* next pred for same module   */
           } PredEntry;
@@ -1868,9 +1868,9 @@ PredPropByAtomAndMod (Atom at, Term cur_mod)
 
 #if DEBUG_PELOCKING
 #define PELOCK(I,Z)						\
-  { LOCK((Z)->PELock); (Z)->StatisticsForPred.NOfEntries=(I);(Z)->StatisticsForPred.NOfHeadSuccesses=pthread_self(); }
+  { LOCK((Z)->PELock); (Z)->StatisticsForPred->NOfEntries=(I);(Z)->StatisticsForPred->NOfHeadSuccesses=pthread_self(); }
 #define UNLOCKPE(I,Z)						\
-  ( (Z)->StatisticsForPred.NOfRetries=(I),  UNLOCK((Z)->PELock) )
+  ( (Z)->StatisticsForPred->NOfRetries=(I),  UNLOCK((Z)->PELock) )
 #elif YAPOR || THREADS
 #define PELOCK(I,Z) (LOCK((Z)->PELock))
 #define UNLOCKPE(I,Z)	(UNLOCK((Z)->PELock))

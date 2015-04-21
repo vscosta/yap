@@ -445,18 +445,18 @@
 
       /* profiled_enter_me    Pred */
       Op(enter_profiling, p);
-      LOCK(PREG->y_u.p.p->StatisticsForPred.lock);
-      PREG->y_u.p.p->StatisticsForPred.NOfEntries++;
-      UNLOCK(PREG->y_u.p.p->StatisticsForPred.lock);
+      LOCK(PREG->y_u.p.p->StatisticsForPred->lock);
+      PREG->y_u.p.p->StatisticsForPred->NOfEntries++;
+      UNLOCK(PREG->y_u.p.p->StatisticsForPred->lock);
       PREG = NEXTOP(PREG, p);
       GONext();
       ENDOp();
 
       /* profiled_retry    Label,NArgs */
       Op(retry_profiled, p);
-      LOCK(PREG->y_u.p.p->StatisticsForPred.lock);
-      PREG->y_u.p.p->StatisticsForPred.NOfRetries++;
-      UNLOCK(PREG->y_u.p.p->StatisticsForPred.lock);
+      LOCK(PREG->y_u.p.p->StatisticsForPred->lock);
+      PREG->y_u.p.p->StatisticsForPred->NOfRetries++;
+      UNLOCK(PREG->y_u.p.p->StatisticsForPred->lock);
       PREG = NEXTOP(PREG, p);
       GONext();
       ENDOp();
@@ -466,9 +466,9 @@
       CACHE_Y(B);
       /* After retry, cut should be pointing at the parent
        * choicepoint for the current B */
-      LOCK(PREG->y_u.Otapl.p->StatisticsForPred.lock);
-      PREG->y_u.Otapl.p->StatisticsForPred.NOfRetries++;
-      UNLOCK(PREG->y_u.Otapl.p->StatisticsForPred.lock);
+      LOCK(PREG->y_u.Otapl.p->StatisticsForPred->lock);
+      PREG->y_u.Otapl.p->StatisticsForPred->NOfRetries++;
+      UNLOCK(PREG->y_u.Otapl.p->StatisticsForPred->lock);
       restore_yaam_regs(PREG->y_u.Otapl.d);
       restore_args(PREG->y_u.Otapl.s);
 #ifdef FROZEN_STACKS
@@ -509,9 +509,9 @@
 	}
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      LOCK(PREG->y_u.Otapl.p->StatisticsForPred.lock);
-      PREG->y_u.Otapl.p->StatisticsForPred.NOfRetries++;
-      UNLOCK(PREG->y_u.Otapl.p->StatisticsForPred.lock);
+      LOCK(PREG->y_u.Otapl.p->StatisticsForPred->lock);
+      PREG->y_u.Otapl.p->StatisticsForPred->NOfRetries++;
+      UNLOCK(PREG->y_u.Otapl.p->StatisticsForPred->lock);
       PREG = NEXTOP(PREG, Otapl);
       GONext();
       ENDOp();
@@ -522,9 +522,9 @@
 
       /* count_enter_me    Label,NArgs */
       Op(count_call, p);
-      LOCK(PREG->y_u.p.p->StatisticsForPred.lock);
-      PREG->y_u.p.p->StatisticsForPred.NOfEntries++;
-      UNLOCK(PREG->y_u.p.p->StatisticsForPred.lock);
+      LOCK(PREG->y_u.p.p->StatisticsForPred->lock);
+      PREG->y_u.p.p->StatisticsForPred->NOfEntries++;
+      UNLOCK(PREG->y_u.p.p->StatisticsForPred->lock);
       LOCAL_ReductionsCounter--;
       if (LOCAL_ReductionsCounter == 0 && LOCAL_ReductionsCounterOn) {
 	saveregs();
@@ -545,9 +545,9 @@
 
       /* count_retry    Label,NArgs */
       Op(count_retry, p);
-      LOCK(PREG->y_u.p.p->StatisticsForPred.lock);
-      PREG->y_u.p.p->StatisticsForPred.NOfRetries++;
-      UNLOCK(PREG->y_u.p.p->StatisticsForPred.lock);
+      LOCK(PREG->y_u.p.p->StatisticsForPred->lock);
+      PREG->y_u.p.p->StatisticsForPred->NOfRetries++;
+      UNLOCK(PREG->y_u.p.p->StatisticsForPred->lock);
       LOCAL_RetriesCounter--;
       if (LOCAL_RetriesCounter == 0 && LOCAL_RetriesCounterOn) {
 	/* act as if we had backtracked */
@@ -584,9 +584,9 @@
 #endif /* FROZEN_STACKS */
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      LOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred.lock);
-      ((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred.NOfRetries++;
-      UNLOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred.lock);
+      LOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred->lock);
+      ((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred->NOfRetries++;
+      UNLOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred->lock);
       LOCAL_RetriesCounter--;
       if (LOCAL_RetriesCounter == 0 && LOCAL_RetriesCounterOn) {
 	saveregs();
@@ -645,9 +645,9 @@
 	setregs();
 	JMPNext();
       }
-      LOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred.lock);
-      ((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred.NOfRetries++;
-      UNLOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred.lock);
+      LOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred->lock);
+      ((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred->NOfRetries++;
+      UNLOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred->lock);
       PREG = NEXTOP(PREG, Otapl);
       GONext();
       ENDOp();
@@ -779,9 +779,9 @@
       ENDBOp();
 
       BOp(profiled_retry_and_mark, Otapl);
-      LOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred.lock);
-      ((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred.NOfRetries++;
-      UNLOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred.lock);
+      LOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred->lock);
+      ((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred->NOfRetries++;
+      UNLOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred->lock);
       /* enter a retry dynamic */
       ENDBOp();
 

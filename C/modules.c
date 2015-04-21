@@ -26,9 +26,8 @@ static char SccsId[] = "%W% %G%";
 static Int p_current_module(USES_REGS1);
 static Int p_current_module1(USES_REGS1);
 static ModEntry *LookupModule(Term a);
-static Term Yap_YapStripModule(Term t, Term *modp);
 
-inline static ModEntry *FetchModuleEntry(Atom at)
+ static ModEntry *FetchModuleEntry(Atom at)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;
@@ -46,9 +45,7 @@ inline static ModEntry *FetchModuleEntry(Atom at)
   }
   READ_UNLOCK(ae->ARWLock);
   return NULL;
-}
-
-inline static ModEntry *GetModuleEntry(Atom at)
+}inline static ModEntry *GetModuleEntry(Atom at)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;
@@ -57,11 +54,10 @@ inline static ModEntry *GetModuleEntry(Atom at)
 
   p0 = ae->PropsOfAE;
   while (p0) {
-    ModEntry *me = RepModProp(p0);
-    if (me->KindOfPE == ModProperty) {
-      return me;
+    if (p0->KindOfPE == ModProperty) {
+      return RepModProp(p0);
     }
-    p0 = me->NextOfPE;
+    p0 = p0->NextOfPE;
   }
   {
     CACHE_REGS
@@ -284,7 +280,7 @@ static Int p_strip_module(USES_REGS1) {
   return Yap_unify(ARG3, t1) && Yap_unify(ARG2, tmod);
 }
 
-static Term Yap_YapStripModule(Term t, Term *modp) {
+Term Yap_YapStripModule(Term t, Term *modp) {
   CACHE_REGS
   Term tmod;
 

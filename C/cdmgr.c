@@ -1620,9 +1620,6 @@ retract_all(PredEntry *p, int in_use)
     p->OpcodeOfPred = UNDEF_OPCODE;
   }
   p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
-  p->StatisticsForPred.NOfEntries = 0;
-  p->StatisticsForPred.NOfHeadSuccesses = 0;
-  p->StatisticsForPred.NOfRetries = 0;
   if (PROFILING) {
     p->PredFlags |= ProfiledPredFlag;
   } else
@@ -1680,9 +1677,6 @@ add_first_static(PredEntry *p, yamop *cp, int spy_flag)
 #endif
     p->CodeOfPred = pt;
   p->cs.p_code.NOfClauses = 1;
-  p->StatisticsForPred.NOfEntries = 0;
-  p->StatisticsForPred.NOfHeadSuccesses = 0;
-  p->StatisticsForPred.NOfRetries = 0;
   if (PROFILING) {
     p->PredFlags |= ProfiledPredFlag;
     spy_flag = TRUE;
@@ -1719,9 +1713,6 @@ add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag)
     PRED_GOAL_EXPANSION_ON = TRUE;
     Yap_InitComma();
   }
-  p->StatisticsForPred.NOfEntries = 0;
-  p->StatisticsForPred.NOfHeadSuccesses = 0;
-  p->StatisticsForPred.NOfRetries = 0;
   if (PROFILING) {
     p->PredFlags |= ProfiledPredFlag;
     spy_flag = TRUE;
@@ -4430,15 +4421,15 @@ p_profile_info( USES_REGS1 )
   }
   if (EndOfPAEntr(pe))
     return(FALSE);
-  LOCK(pe->StatisticsForPred.lock);
-  if (!(pe->StatisticsForPred.NOfEntries)) {
-    UNLOCK(pe->StatisticsForPred.lock);
+  LOCK(pe->StatisticsForPred->lock);
+  if (!(pe->StatisticsForPred->NOfEntries)) {
+    UNLOCK(pe->StatisticsForPred->lock);
     return(FALSE);
   }
-  p[0] = Yap_MkULLIntTerm(pe->StatisticsForPred.NOfEntries);
-  p[1] = Yap_MkULLIntTerm(pe->StatisticsForPred.NOfHeadSuccesses);
-  p[2] = Yap_MkULLIntTerm(pe->StatisticsForPred.NOfRetries);
-  UNLOCK(pe->StatisticsForPred.lock);
+  p[0] = Yap_MkULLIntTerm(pe->StatisticsForPred->NOfEntries);
+  p[1] = Yap_MkULLIntTerm(pe->StatisticsForPred->NOfHeadSuccesses);
+  p[2] = Yap_MkULLIntTerm(pe->StatisticsForPred->NOfRetries);
+  UNLOCK(pe->StatisticsForPred->lock);
   out = Yap_MkApplTerm(Yap_MkFunctor(AtomProfile,3),3,p);
   return(Yap_unify(ARG3,out));
 }
@@ -4467,11 +4458,11 @@ p_profile_reset( USES_REGS1 )
   }
   if (EndOfPAEntr(pe))
     return(FALSE);
-  LOCK(pe->StatisticsForPred.lock);
-  pe->StatisticsForPred.NOfEntries = 0;
-  pe->StatisticsForPred.NOfHeadSuccesses = 0;
-  pe->StatisticsForPred.NOfRetries = 0;
-  UNLOCK(pe->StatisticsForPred.lock);
+  LOCK(pe->StatisticsForPred->lock);
+  pe->StatisticsForPred->NOfEntries = 0;
+  pe->StatisticsForPred->NOfHeadSuccesses = 0;
+  pe->StatisticsForPred->NOfRetries = 0;
+  UNLOCK(pe->StatisticsForPred->lock);
   return(TRUE);
 }
 

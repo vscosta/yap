@@ -133,9 +133,9 @@ CACHE_Y(YREG);
       /* profiled_enter_me    Pred */
       Op(enter_profiling, p);
       EMIT_ENTRY_BLOCK(PREG,ENTER_PROFILING_INSTINIT);
-      LOCK(PREG->y_u.p.p->StatisticsForPred.lock);
-      PREG->y_u.p.p->StatisticsForPred.NOfEntries++;
-      UNLOCK(PREG->y_u.p.p->StatisticsForPred.lock);
+      LOCK(PREG->y_u.p.p->StatisticsForPred->lock);
+      PREG->y_u.p.p->StatisticsForPred->NOfEntries++;
+      UNLOCK(PREG->y_u.p.p->StatisticsForPred->lock);
       PREG = NEXTOP(PREG, p);
       GONext();
       ENDOp();
@@ -143,9 +143,9 @@ CACHE_Y(YREG);
      /* profiled_retry    Label,NArgs */
       Op(retry_profiled, p);
       EMIT_ENTRY_BLOCK(PREG,RETRY_PROFILED_INSTINIT);
-      LOCK(PREG->y_u.p.p->StatisticsForPred.lock);
-      PREG->y_u.p.p->StatisticsForPred.NOfRetries++;
-      UNLOCK(PREG->y_u.p.p->StatisticsForPred.lock);
+      LOCK(PREG->y_u.p.p->StatisticsForPred->lock);
+      PREG->y_u.p.p->StatisticsForPred->NOfRetries++;
+      UNLOCK(PREG->y_u.p.p->StatisticsForPred->lock);
       PREG = NEXTOP(PREG, p);
       GONext();
       ENDOp();
@@ -156,9 +156,9 @@ CACHE_Y(YREG);
       CACHE_Y(B);
       /* After retry, cut should be pointing at the parent
        * choicepoint for the current B */
-      LOCK(PREG->y_u.Otapl.p->StatisticsForPred.lock);
-      PREG->y_u.Otapl.p->StatisticsForPred.NOfRetries++;
-      UNLOCK(PREG->y_u.Otapl.p->StatisticsForPred.lock);
+      LOCK(PREG->y_u.Otapl.p->StatisticsForPred->lock);
+      PREG->y_u.Otapl.p->StatisticsForPred->NOfRetries++;
+      UNLOCK(PREG->y_u.Otapl.p->StatisticsForPred->lock);
       restore_yaam_regs(PREG->y_u.Otapl.d);
       restore_args(PREG->y_u.Otapl.s);
 #ifdef FROZEN_STACKS
@@ -205,9 +205,9 @@ CACHE_Y(YREG);
       EMIT_SIMPLE_BLOCK(PROFILED_TRUST_ME_END);
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      LOCK(PREG->y_u.Otapl.p->StatisticsForPred.lock);
-      PREG->y_u.Otapl.p->StatisticsForPred.NOfRetries++;
-      UNLOCK(PREG->y_u.Otapl.p->StatisticsForPred.lock);
+      LOCK(PREG->y_u.Otapl.p->StatisticsForPred->lock);
+      PREG->y_u.Otapl.p->StatisticsForPred->NOfRetries++;
+      UNLOCK(PREG->y_u.Otapl.p->StatisticsForPred->lock);
       PREG = NEXTOP(PREG, Otapl);
       GONext();
       ENDOp();
@@ -227,9 +227,9 @@ CACHE_Y(YREG);
 	}
 	restore_yaam_regs(PREG->y_u.OtaLl.n);
 	restore_args(PREG->y_u.OtaLl.s);
-	LOCK(PREG->y_u.OtaLl.d->ClPred->StatisticsForPred.lock);
-	PREG->y_u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++;
-	UNLOCK(PREG->y_u.OtaLl.d->ClPred->StatisticsForPred.lock);
+	LOCK(PREG->y_u.OtaLl.d->ClPred->StatisticsForPred->lock);
+	PREG->y_u.OtaLl.d->ClPred->StatisticsForPred->NOfRetries++;
+	UNLOCK(PREG->y_u.OtaLl.d->ClPred->StatisticsForPred->lock);
 #ifdef THREADS
       EMIT_SIMPLE_BLOCK(PROFILED_RETRY_LOGICAL_THREADS);
 	PP = PREG->y_u.OtaLl.d->ClPred;
@@ -265,9 +265,9 @@ CACHE_Y(YREG);
 	  /* jump to next alternative */
 	  PREG = FAILCODE;
 	} else {
-	  LOCK(ap->StatisticsForPred.lock);
-	  ap->StatisticsForPred.NOfRetries++;
-	  UNLOCK(ap->StatisticsForPred.lock);
+	  LOCK(ap->StatisticsForPred->lock);
+	  ap->StatisticsForPred->NOfRetries++;
+	  UNLOCK(ap->StatisticsForPred->lock);
 	  PREG = lcl->ClCode;
 	}
 	/* HREY, leave indexing block alone!! */
@@ -370,9 +370,9 @@ CACHE_Y(YREG);
       /* count_enter_me    Label,NArgs */
       Op(count_call, p);
       EMIT_ENTRY_BLOCK(PREG,COUNT_CALL_INSTINIT);
-      LOCK(PREG->y_u.p.p->StatisticsForPred.lock);
-      PREG->y_u.p.p->StatisticsForPred.NOfEntries++;
-      UNLOCK(PREG->y_u.p.p->StatisticsForPred.lock);
+      LOCK(PREG->y_u.p.p->StatisticsForPred->lock);
+      PREG->y_u.p.p->StatisticsForPred->NOfEntries++;
+      UNLOCK(PREG->y_u.p.p->StatisticsForPred->lock);
       LOCAL_ReductionsCounter--;
       EMIT_SIMPLE_BLOCK(COUNT_CALL_MIDDLE);
       if (LOCAL_ReductionsCounter == 0 && LOCAL_ReductionsCounterOn) {
@@ -396,9 +396,9 @@ CACHE_Y(YREG);
       /* count_retry    Label,NArgs */
       Op(count_retry, p);
       EMIT_ENTRY_BLOCK(PREG,COUNT_RETRY_INSTINIT);
-      LOCK(PREG->y_u.p.p->StatisticsForPred.lock);
-      PREG->y_u.p.p->StatisticsForPred.NOfRetries++;
-      UNLOCK(PREG->y_u.p.p->StatisticsForPred.lock);
+      LOCK(PREG->y_u.p.p->StatisticsForPred->lock);
+      PREG->y_u.p.p->StatisticsForPred->NOfRetries++;
+      UNLOCK(PREG->y_u.p.p->StatisticsForPred->lock);
       LOCAL_RetriesCounter--;
       EMIT_SIMPLE_BLOCK(COUNT_RETRY_MIDDLE);
       if (LOCAL_RetriesCounter == 0 && LOCAL_RetriesCounterOn) {
@@ -439,9 +439,9 @@ CACHE_Y(YREG);
 #endif /* FROZEN_STACKS */
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      LOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred.lock);
-      ((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred.NOfRetries++;
-      UNLOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred.lock);
+      LOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred->lock);
+      ((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred->NOfRetries++;
+      UNLOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred->lock);
       LOCAL_RetriesCounter--;
       if (LOCAL_RetriesCounter == 0 && LOCAL_RetriesCounterOn) {
 	saveregs();
@@ -504,9 +504,9 @@ CACHE_Y(YREG);
 	JMPNext();
       }
       EMIT_SIMPLE_BLOCK(COUNT_TRUST_ME_END);
-      LOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred.lock);
-      ((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred.NOfRetries++;
-      UNLOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred.lock);
+      LOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred->lock);
+      ((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred->NOfRetries++;
+      UNLOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred->lock);
       PREG = NEXTOP(PREG, Otapl);
       GONext();
       ENDOp();
@@ -541,9 +541,9 @@ CACHE_Y(YREG);
 	  setregs();
 	  JMPNext();
 	}
-	LOCK(PREG->y_u.OtaLl.d->ClPred->StatisticsForPred.lock);
-	PREG->y_u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++;
-	UNLOCK(PREG->y_u.OtaLl.d->ClPred->StatisticsForPred.lock);
+	LOCK(PREG->y_u.OtaLl.d->ClPred->StatisticsForPred->lock);
+	PREG->y_u.OtaLl.d->ClPred->StatisticsForPred->NOfRetries++;
+	UNLOCK(PREG->y_u.OtaLl.d->ClPred->StatisticsForPred->lock);
 #ifdef THREADS
 	PP = PREG->y_u.OtaLl.d->ClPred;
 #endif
@@ -588,9 +588,9 @@ CACHE_Y(YREG);
 	    setregs();
 	    JMPNext();
 	  }
-	  LOCK(ap->StatisticsForPred.lock);
-	  ap->StatisticsForPred.NOfRetries++;
-	  UNLOCK(ap->StatisticsForPred.lock);
+	  LOCK(ap->StatisticsForPred->lock);
+	  ap->StatisticsForPred->NOfRetries++;
+	  UNLOCK(ap->StatisticsForPred->lock);
 	  PREG = lcl->ClCode;
 	}
 	/* HREY, leave indexing block alone!! */
@@ -1029,9 +1029,9 @@ CACHE_Y(YREG);
 
       BOp(profiled_retry_and_mark, Otapl);
       EMIT_ENTRY_BLOCK(PREG,PROFILED_RETRY_AND_MARK_INSTINIT);
-      LOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred.lock);
-      ((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred.NOfRetries++;
-      UNLOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred.lock);
+      LOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred->lock);
+      ((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred->NOfRetries++;
+      UNLOCK(((PredEntry *)(PREG->y_u.Otapl.p))->StatisticsForPred->lock);
       /* enter a retry dynamic */
       ENDBOp();
 
@@ -7069,9 +7069,9 @@ S_SREG = RepAppl(d0);
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(SPY_PRED_SECONDIFOK_INIT);
 ///#endif
-	  LOCK(pe->StatisticsForPred.lock);
-	  pe->StatisticsForPred.NOfEntries++;
-	  UNLOCK(pe->StatisticsForPred.lock);
+	  LOCK(pe->StatisticsForPred->lock);
+	  pe->StatisticsForPred->NOfEntries++;
+	  UNLOCK(pe->StatisticsForPred->lock);
 	  LOCAL_ReductionsCounter--;
 	  if (LOCAL_ReductionsCounter == 0 && LOCAL_ReductionsCounterOn) {
 ///#ifdef PROFILED_ABSMI
@@ -7112,9 +7112,9 @@ S_SREG = RepAppl(d0);
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(SPY_PRED_THIRDIFOK_INIT);
 ///#endif
-	  LOCK(pe->StatisticsForPred.lock);
-	  pe->StatisticsForPred.NOfEntries++;
-	  UNLOCK(pe->StatisticsForPred.lock);
+	  LOCK(pe->StatisticsForPred->lock);
+	  pe->StatisticsForPred->NOfEntries++;
+	  UNLOCK(pe->StatisticsForPred->lock);
 	  if (!(pe->PredFlags & SpiedPredFlag)) {
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(SPY_PRED_THIRDIFOK_FIRSTIFOK);

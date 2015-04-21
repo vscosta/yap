@@ -303,6 +303,7 @@ Term    Yap_Module_Name(struct pred_entry *);
 struct pred_entry *Yap_ModulePred(Term);
 void    Yap_NewModulePred(Term, struct pred_entry *);
 Term    Yap_StripModule(Term, Term *);
+Term    Yap_YapStripModule(Term, Term *);
 void    Yap_InitModules(void);
 void    Yap_InitModulesC(void);
 struct mod_entry *Yap_GetModuleEntry(Term tmod);

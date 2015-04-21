@@ -3445,9 +3445,9 @@ lu_recorded(PredEntry *pe USES_REGS) {
 #endif
   }
   if (pe->PredFlags & ProfiledPredFlag) {
-    LOCK(pe->StatisticsForPred.lock);
-    pe->StatisticsForPred.NOfEntries++;
-    UNLOCK(pe->StatisticsForPred.lock);
+    LOCK(pe->StatisticsForPred->lock);
+    pe->StatisticsForPred->NOfEntries++;
+    UNLOCK(pe->StatisticsForPred->lock);
   }
   return TRUE;
 }

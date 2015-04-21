@@ -70,9 +70,9 @@
         }
         restore_yaam_regs(PREG->y_u.OtaLl.n);
         restore_args(PREG->y_u.OtaLl.s);
-        LOCK(PREG->y_u.OtaLl.d->ClPred->StatisticsForPred.lock);
-        PREG->y_u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++;
-        UNLOCK(PREG->y_u.OtaLl.d->ClPred->StatisticsForPred.lock);
+        LOCK(PREG->y_u.OtaLl.d->ClPred->StatisticsForPred->lock);
+        PREG->y_u.OtaLl.d->ClPred->StatisticsForPred->NOfRetries++;
+        UNLOCK(PREG->y_u.OtaLl.d->ClPred->StatisticsForPred->lock);
 #ifdef THREADS
         PP = PREG->y_u.OtaLl.d->ClPred;
 #endif
@@ -108,9 +108,9 @@
           /* jump to next alternative */
           PREG = FAILCODE;
         } else {
-          LOCK(ap->StatisticsForPred.lock);
-          ap->StatisticsForPred.NOfRetries++;
-          UNLOCK(ap->StatisticsForPred.lock);
+          LOCK(ap->StatisticsForPred->lock);
+          ap->StatisticsForPred->NOfRetries++;
+          UNLOCK(ap->StatisticsForPred->lock);
           PREG = lcl->ClCode;
         }
         /* HEY, leave indexing block alone!! */
@@ -272,9 +272,9 @@
       setregs();
       JMPNext();
     }
-    LOCK(PREG->y_u.OtaLl.d->ClPred->StatisticsForPred.lock);
-    PREG->y_u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++;
-    UNLOCK(PREG->y_u.OtaLl.d->ClPred->StatisticsForPred.lock);
+    LOCK(PREG->y_u.OtaLl.d->ClPred->StatisticsForPred->lock);
+    PREG->y_u.OtaLl.d->ClPred->StatisticsForPred->NOfRetries++;
+    UNLOCK(PREG->y_u.OtaLl.d->ClPred->StatisticsForPred->lock);
 #ifdef THREADS
     PP = PREG->y_u.OtaLl.d->ClPred;
 #endif
@@ -324,9 +324,9 @@
         setregs();
         JMPNext();
       }
-      LOCK(ap->StatisticsForPred.lock);
-      ap->StatisticsForPred.NOfRetries++;
-      UNLOCK(ap->StatisticsForPred.lock);
+      LOCK(ap->StatisticsForPred->lock);
+      ap->StatisticsForPred->NOfRetries++;
+      UNLOCK(ap->StatisticsForPred->lock);
       PREG = lcl->ClCode;
     }
     /* HEY, leave indexing block alone!! */

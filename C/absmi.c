@@ -1431,9 +1431,9 @@ spy_goal( USES_REGS1 )
   }
   /* first check if we need to increase the counter */
   if ((pe->PredFlags & CountPredFlag)) {
-    LOCK(pe->StatisticsForPred.lock);
-    pe->StatisticsForPred.NOfEntries++;
-    UNLOCK(pe->StatisticsForPred.lock);
+    LOCK(pe->StatisticsForPred->lock);
+    pe->StatisticsForPred->NOfEntries++;
+    UNLOCK(pe->StatisticsForPred->lock);
     LOCAL_ReductionsCounter--;
     if (LOCAL_ReductionsCounter == 0 && LOCAL_ReductionsCounterOn) {
 #if defined(YAPOR) || defined(THREADS)
@@ -1470,9 +1470,9 @@ spy_goal( USES_REGS1 )
   }
   /* standard profiler */
   if ((pe->PredFlags & ProfiledPredFlag)) {
-    LOCK(pe->StatisticsForPred.lock);
-    pe->StatisticsForPred.NOfEntries++;
-    UNLOCK(pe->StatisticsForPred.lock);
+    LOCK(pe->StatisticsForPred->lock);
+    pe->StatisticsForPred->NOfEntries++;
+    UNLOCK(pe->StatisticsForPred->lock);
     if (!(pe->PredFlags & SpiedPredFlag)) {
       P = pe->cs.p_code.TrueCodeOfPred;
 #if defined(YAPOR) || defined(THREADS)
