@@ -877,19 +877,45 @@ static Int
   return TRUE;
 }
 
+static bool
+valid_prop(Prop p)
+{
+  if ( (RepPredProp(p)->PredFlags & HiddenPredFlag) )
+    return false;
+  if  (RepPredProp(p)->OpcodeOfPred == UNDEF_OPCODE)
+    return false;
+  return true;
+}
+
 static PropEntry *
-fetchPredFromListOfProps (PropEntry *p)
+followLinkedListOfProps (PropEntry *p)
 {
   while (p) {
-    if (p->KindOfPE == PEProp) {
+    if (p->KindOfPE == PEProp &&
+        valid_prop(p) ) {
       // found our baby..
       return p;
+    } 
+    p = p->NextOfPE;
+  }
+  return NIL;
+}
+
+static PropEntry *
+getPredProp (PropEntry *p)
+{
+  PredEntry *pe;
+  if (p == NIL)
+    return NIL;
+  pe = RepPredProp(p);
+  while (p != NIL) {
+    if (p->KindOfPE == PEProp && valid_prop(p)) {
+      return p;
     } else if (p->KindOfPE == FunctorProperty) {
-      // go to list of properties in functor..
-      PropEntry *q;
-      FunctorEntry *f = RepFunctorProp(p);
-      if ((q = fetchPredFromListOfProps( f->PropsOfFE ))) {
-        return q;
+      // first search remainder of functor list
+      Prop pf;
+      if ((pf = followLinkedListOfProps(RepFunctorProp(p)->PropsOfFE))) {
+	return pf;
       }
     }
     p = p->NextOfPE;
@@ -906,74 +932,205 @@ nextPredForAtom (PropEntry *p)
   pe = RepPredProp(p);
   if (pe->ArityOfPE == 0) {
     // if atom prop, search atom list
-    return fetchPredFromListOfProps(p->NextOfPE);
+    return followLinkedListOfProps(p->NextOfPE);
   } else {
     FunctorEntry *f = pe->FunctorOfPred;
     // first search remainder of functor list
-    if ((p = fetchPredFromListOfProps(p->NextOfPE))) {
-      return p;
+    PropEntry *pf;
+    if ((pf = followLinkedListOfProps(p->NextOfPE))) {
+      return pf;
     }
+    
     // if that fails, follow the functor
-    return fetchPredFromListOfProps( f->NextOfPE );
+    return getPredProp( f->NextOfPE );
   }
 }
 
+
+static Prop
+initFunctorSearch(Term t3, Term t2)
+{
+  if (IsAtomTerm(t3)) {
+    Atom at = AtomOfTerm(t3);
+    // access the entry at key address.
+    return ( followLinkedListOfProps( RepAtom( at )->PropsOfAE ) );
+  } else if (IsIntTerm(t3)) {
+    if (IsNonVarTerm(t2) && t2 != IDB_MODULE) {
+      Yap_Error(TYPE_ERROR_CALLABLE, t3, "current_predicate/2");
+      return NULL;
+    } else {
+      // access the entry at key address.
+      // a single property (this will be deterministic
+      return AbsPredProp( Yap_FindLUIntKey( IntOfTerm( t3 ) ) );
+    }
+    Yap_Error(TYPE_ERROR_CALLABLE, t3, "current_predicate/2");
+    return NULL;
+  } else {
+    Functor f;
+    if (IsPairTerm(t3)) {
+      f = FunctorDot;
+    } else {
+      f = FunctorOfTerm(t3);
+      if (IsExtensionFunctor(f)) {
+	Yap_Error(TYPE_ERROR_CALLABLE, t3, "current_predicate/2");
+	return NULL;
+      }
+    }
+    return ( followLinkedListOfProps(  f->PropsOfFE ) );
+  }
+}
+
+static PredEntry *
+firstModulePred( PredEntry * npp)
+{
+  if (!npp)
+    return NULL;
+  do {
+    npp = npp->NextPredOfModule;  
+  } while (npp && 
+	   !valid_prop(AbsPredProp(npp)) );
+  return npp;
+}
+
+static PredEntry *
+firstModulesPred( PredEntry *npp )
+{
+  ModEntry *m;
+  if (npp) {
+    m = Yap_GetModuleEntry( npp-> ModuleOfPred );    
+    npp = npp->NextPredOfModule;
+  } else {
+    m = CurrentModules;
+    npp = m->PredForME;
+  }
+  do {
+    while (npp && !valid_prop(AbsPredProp(npp) ) )
+      npp = npp->NextPredOfModule;
+    if (npp)
+      return npp;
+    m = m->NextME;
+    if (m) {
+      npp = m->PredForME;           
+    }
+  } while (npp || m);
+  return npp;
+}
+
+
 static Int cont_current_predicate(USES_REGS1) {
-  PredEntry *pp = NULL;
-  PropEntry *n;
   UInt Arity;
   Term name;
-  Term t1 = Deref(ARG1), t2 = Deref(ARG2), t3;
-  bool  rc;
+  Term t1 = ARG1, t2 = ARG2, t3 = ARG3;
+  bool  rc, will_cut = false;
   Functor f;
+  PredEntry *pp;
+  t1 = Yap_YapStripModule(t1, &t2);
+  t3 = Yap_YapStripModule(t3, &t2);
+  
+  pp = AddressOfTerm(EXTRA_CBACK_ARG(4, 1));
+  if (IsNonVarTerm(t3))  {
+    PropEntry *np, *p;
 
-  if (IsNonVarTerm(t1)) {
-    // current_pred(A, M, P)
-    PropEntry *p = AddressOfTerm(EXTRA_CBACK_ARG(4, 1));
-    // restart inner loop
-    pp = RepPredProp(p);
-    n = nextPredForAtom (p);
-    if (n == NIL) {
-      YAP_cut_up();
-    } else {
-      EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(n);
-
+    // t3 is a functor, or compound term,
+    // just follow the functor chain
+    p = AbsPredProp( pp );    
+    if (!p) {
+      // initial search, tracks down what is the first call with
+      // that name, functor..
+      p = initFunctorSearch( t3, t2 );
+        // now, we can do lookahead.
+        pp = RepPredProp(p);      
+	if (!IsVarTerm(t2)) {      
+	  do {
+	    if (t2 == TermProlog)
+	      t2 = PROLOG_MODULE;
+	    if (pp->ModuleOfPred == t2) {
+	      will_cut = true;
+	      break;
+	    } else {
+	      pp = RepPredProp(p = followLinkedListOfProps( p->NextOfPE ));
+	    }
+	  } while (!will_cut && p);
+	}
+	if (!p)
+	cut_fail();
+      }
+      do {
+	np = followLinkedListOfProps( p->NextOfPE );
+	if (!np) {
+	  will_cut = true;        
+	} else {
+	  EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(RepPredProp(np));
+	  B->cp_h = HR;
+	}
+      } while (p == NULL);
+  } else if (IsNonVarTerm(t1)) {
+    PropEntry *np, *p;
+    // run over the same atomany predicate defined for that atom
+    // may be fair bait, depends on whether we know the module.
+    p = AbsPredProp( pp );    
+    if (!p) {
+      // initialization time
+      if (IsIntTerm( t1 )) {
+	// or this or nothing....
+        p = AbsPredProp( Yap_FindLUIntKey( IntOfTerm( t3 ) ) );        
+      } else if (IsAtomTerm( t1 )) {
+	// should be the usual situation.
+	Atom at = AtomOfTerm(t1);
+	p = getPredProp( RepAtom(at)->PropsOfAE );      
+      } else {
+        Yap_Error(TYPE_ERROR_CALLABLE, t1, "current_predicate/2");
+      }
+      if (!p)
+        cut_fail();
+      pp = RepPredProp(p);
+    }
+    // now, we can do lookahead.
+    np = nextPredForAtom(p);
+    if (!np)
+      will_cut = true;
+    else {
+      EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(RepPredProp(np));
       B->cp_h = HR;
-
     }
   } else if (IsNonVarTerm(t2)) {
     // operating within the same module.
     PredEntry *npp;
-    pp = AddressOfTerm(EXTRA_CBACK_ARG(4, 1));
+    
+    if (!pp) {
+      if (!IsAtomTerm( t2 )) {
+	Yap_Error(TYPE_ERROR_ATOM, t2, "current_predicate/2");
+      } 
+      ModEntry *m = Yap_GetModuleEntry(t2);
+      pp = firstModulePred( m->PredForME );
+      if (!pp)
+        cut_fail();
+    }
+    npp = firstModulePred( pp );
 
-    if (!pp)
-      cut_fail();
-    // just try next one
-    npp = pp->NextPredOfModule;
-    if (npp) {
+    if (!npp)
+      will_cut = true;
+      // just try next one
+    else {
       EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(npp);
       B->cp_h = HR;
-  } else {
-      YAP_cut_up();
     }
   } else {
-    pp = AddressOfTerm(EXTRA_CBACK_ARG(4, 1));
-
-    while (!pp) {
-      ModEntry *m = AddressOfTerm(EXTRA_CBACK_ARG(4, 2));
-      m = m->NextME;
-      if (!m)
+    // operating across all modules.
+    PredEntry *npp;
+    
+    if (!pp) {
+      pp = firstModulesPred( CurrentModules->PredForME );
+      if (!pp)
         cut_fail();
-      else {
-        pp = m->PredForME;
-        EXTRA_CBACK_ARG(4, 2) = MkAddressTerm(m);
-        B->cp_h = HR;
-      }
-    } // we found a new answer
-    if (!pp)
-      cut_fail();
+    }
+    npp = firstModulesPred( pp );
+
+    if (!npp)
+      will_cut = true;
+    // just try next one
     else {
-      EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(pp->NextPredOfModule);
+      EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(npp);
       B->cp_h = HR;
     }
   }
@@ -995,124 +1152,32 @@ static Int cont_current_predicate(USES_REGS1) {
       Arity = 0;
     } else {
       f = pp->FunctorOfPred;
-      f = pp->FunctorOfPred;
       name = MkAtomTerm(NameOfFunctor(f));
       Arity = ArityOfFunctor(pp->FunctorOfPred);
     }
   }
   if (Arity) {
-    t3 = Yap_MkNewApplTerm(f, Arity);
+    rc =  Yap_unify(t3,Yap_MkNewApplTerm(f, Arity));
   } else {
-    t3 = name;
+    rc =  Yap_unify(t3,name);
   }
-  rc = (!(pp->PredFlags & HiddenPredFlag)) &&
-       Yap_unify(ARG2, ModToTerm(pp->ModuleOfPred)) &&
-        Yap_unify(ARG1, name) &&
-       Yap_unify(ARG3, t3) &&
-        Yap_unify(ARG4, MkIntegerTerm(pp->PredFlags));
-    return rc;
+  rc = (rc &&
+	Yap_unify(t2, ModToTerm(pp->ModuleOfPred)) &&
+        Yap_unify(t1, name) &&
+        Yap_unify(ARG4, MkIntegerTerm(pp->PredFlags)) );
+  if (will_cut) {
+    if (rc) cut_succeed();
+    cut_fail();
+  }
+  return rc;
 }
 
 static Int init_current_predicate(USES_REGS1) {
   Term t1 = Deref(ARG1), t2 = Deref(ARG2), t3 = Deref(ARG3);
-  unsigned int arity;
-  Functor f = NIL;
-  Atom at;
-  PredEntry *pp = NULL;
-  ModEntry *m = NULL;
 
-  t1 = Yap_StripModule(t1, &t2);
-  t3 = Yap_StripModule(t3, &t2);
-
-  // check term
-  if (!IsVarTerm(t3)) {
-    t3 = Yap_StripModule(t3, &t2);
-    if (IsAtomTerm(t3)) {
-      at = AtomOfTerm(t3);
-      arity = 0;
-    } else if (IsIntTerm(t3)) {
-      if (IsNonVarTerm(t2) && t2 != IDB_MODULE) {
-        Yap_Error(TYPE_ERROR_CALLABLE, t3, "current_predicate/2");
-        cut_fail();
-      } else if (IsVarTerm(t2)) {
-        Yap_unify(t2, IDB_MODULE); // should always succeed
-        if (Yap_unify(ARG1, t3))
-          cut_succeed();
-        else
-          cut_fail();
-      }
-      return FALSE;
-    } else if (IsPairTerm(t3)) {
-      f = FunctorDot;
-      at = AtomDot;
-      arity = 2;
-    } else {
-      f = FunctorOfTerm(t3);
-      if (IsExtensionFunctor(f)) {
-        Yap_Error(TYPE_ERROR_CALLABLE, t3, "current_predicate/2");
-        cut_fail();
-	return FALSE;
-      }
-      at = NameOfFunctor(f);
-      arity = ArityOfFunctor(f);
-    }
-    if (IsAtomTerm(t2)) { // we know the module and the main predicate
-    // so that we are deterministic
-      if (arity == 0) {
-        if (Yap_GetPredPropByAtom(at, t2) != NIL &&
-            Yap_unify(ARG1, MkAtomTerm(at))) {
-          cut_succeed();
-	}
-      } else {
-        if (Yap_GetPredPropByFunc(f, t2) != NIL &&
-            Yap_unify(ARG1, MkAtomTerm(at))) {
-          cut_succeed();
-	}
-      }
-      cut_fail();
-    }
-  }
-  // check name
-  if (IsNonVarTerm(t1)) {
-    if (IsIntTerm(t1) && (IsVarTerm(t2) || t2 == IDB_MODULE)) {
-      // idb allows numeric keys.
-      if (Yap_FindLUIntKey(IntOfTerm(t2))) {
-        if (Yap_unify(ARG2, IDB_MODULE))
-          cut_succeed();
-        cut_fail();
-      }
-    } else if (!IsAtomTerm(t1)) {
-      Yap_Error(TYPE_ERROR_ATOM, t1, "current_predicate/2");
-      cut_fail();
-    } else {
-      PropEntry *p = fetchPredFromListOfProps(RepAtom(AtomOfTerm(t1))->PropsOfAE);
-      if (!p)
-        cut_fail();
-      EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(p);
-      B->cp_h = HR;
-    }
-  }
-  // check module
-  else {
-    if (IsNonVarTerm(t2)) {
-      if (!IsAtomTerm(t2)) {
-        Yap_Error(TYPE_ERROR_ATOM, t2, "current_predicate/2");
-        cut_fail();
-      }
-      m = Yap_GetModuleEntry(t2);
-    } else {
-      m = CurrentModules;
-    }
-    if (!m)
-      cut_fail();
-    pp = m->PredForME;
-    if (IsNonVarTerm(t2) && !pp) {
-      cut_fail();
-    }
-    EXTRA_CBACK_ARG(4, 2) = MkAddressTerm(m);
-    EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(pp);
-    B->cp_h = HR;
-  }
+  t1 = Yap_YapStripModule(t1, &t2);
+  t3 = Yap_YapStripModule(t3, &t2);
+  EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(NULL);
   // ensure deref access to choice-point fields.
   return cont_current_predicate(PASS_REGS1);
 }
@@ -2003,7 +2068,7 @@ static Int p_break(USES_REGS1) {
 }
 
 void Yap_InitBackCPreds(void) {
-  Yap_InitCPredBack("$current_predicate", 4, 2, init_current_predicate,
+  Yap_InitCPredBack("$current_predicate", 4, 1, init_current_predicate,
                     cont_current_predicate, SafePredFlag | SyncPredFlag);
   Yap_InitCPredBack("$current_op", 5, 1, init_current_op, cont_current_op,
                     SafePredFlag | SyncPredFlag);
