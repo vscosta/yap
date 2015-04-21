@@ -159,21 +159,6 @@
 /* Define to 1 if you have the <ctype.h> header file. */
 #undef HAVE_CTYPE_H
 
-/* Define to 1 if you have the <cuddInt.h> header file. */
-#undef HAVE_CUDDINT_H
-
-/* Define to 1 if you have the <cudd/cuddInt.h> header file. */
-#undef HAVE_CUDD_CUDDINT_H
-
-/* Define to 1 if you have the <cudd/cudd.h> header file. */
-#undef HAVE_CUDD_CUDD_H
-
-/* Define to 1 if you have the <cudd.h> header file. */
-#undef HAVE_CUDD_H
-
-/* Define to 1 if you have the <cudd/util.h> header file. */
-#undef HAVE_CUDD_UTIL_H
-
 /* Define to 1 if you have the declaration of `rl_catch_signals ', and to 0 if
    you don't. */
 #undef HAVE_DECL_RL_CATCH_SIGNALS_
@@ -895,9 +880,6 @@
 
 /* Define to 1 if you have the `usleep' function. */
 #undef HAVE_USLEEP
-
-/* Define to 1 if you have the <util.h> header file. */
-#undef HAVE_UTIL_H
 
 /* Define to 1 if you have the `utime' function. */
 #undef HAVE_UTIME

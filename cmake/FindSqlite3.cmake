@@ -33,27 +33,40 @@ else (SQLITE3_LIBRARIES AND SQLITE3_INCLUDE_DIRS)
     NAMES
     sqlite3.h
     PATHS
+    #! brew is better than default
+    /usr/local/opt/sqlite/include    
     ${_SQLITE3_INCLUDEDIR}
-    /usr/local/opt/sqlite/include
     /usr/include
     /usr/local/include
     /opt/local/include
     /sw/include
+    NO_DEFAULT_PATH
+    )
+
+  find_path(SQLITE3_INCLUDE_DIR
+    NAMES
+    sqlite3.h
     )
 
   find_library(SQLITE3_LIBRARY
     NAMES
     sqlite3
     PATHS
+    /usr/local/opt/sqlite/lib    
     ${_SQLITE3_LIBDIR}
-    /usr/local/opt/sqlite
     /usr/lib
     /usr/local/lib
     /opt/local/lib
     /sw/lib
-    )
+    NO_DEFAULT_PATH
+   )
 
-  if (SQLITE3_LIBRARY)
+ find_library(SQLITE3_LIBRARY
+   NAMES
+   sqlite3
+   )
+
+ if (SQLITE3_LIBRARY)
     set(SQLITE3_FOUND TRUE)
   endif (SQLITE3_LIBRARY)
 

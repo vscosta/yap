@@ -255,31 +255,6 @@ function. */
 #cmakedefine HAVE_CTYPE_H ${HAVE_CTYPE_H}
 #endif
 
-/* Define to 1 if you have the <cuddInt.h> header file. */
-#ifndef HAVE_CUDDINT_H
-#cmakedefine HAVE_CUDDINT_H ${HAVE_CUDDINT_H}
-#endif
-
-/* Define to 1 if you have the <cudd/cuddInt.h> header file. */
-#ifndef HAVE_CUDD_CUDDINT_H
-#cmakedefine HAVE_CUDD_CUDDINT_H ${HAVE_CUDD_CUDDINT_H}
-#endif
-
-/* Define to 1 if you have the <cudd/cudd.h> header file. */
-#ifndef HAVE_CUDD_CUDD_H
-#cmakedefine HAVE_CUDD_CUDD_H ${HAVE_CUDD_CUDD_H}
-#endif
-
-/* Define to 1 if you have the <cudd.h> header file. */
-#ifndef HAVE_CUDD_H
-#cmakedefine HAVE_CUDD_H ${HAVE_CUDD_H}
-#endif
-
-/* Define to 1 if you have the <cudd/util.h> header file. */
-#ifndef HAVE_CUDD_UTIL_H
-#cmakedefine HAVE_CUDD_UTIL_H ${HAVE_CUDD_UTIL_H}
-#endif
-
 /* Define to 1 if you have the declaration of `rl_catch_signals ', and to 0 if
 you don't. */
 #ifndef HAVE_DECL_RL_CATCH_SIGNALS_
@@ -1566,11 +1541,6 @@ signal. */
 /* Define to 1 if you have the `usleep' function. */
 #ifndef HAVE_USLEEP
 #cmakedefine HAVE_USLEEP ${HAVE_USLEEP}
-#endif
-
-/* Define to 1 if you have the <util.h> header file. */
-#ifndef HAVE_UTIL_H
-#cmakedefine HAVE_UTIL_H ${HAVE_UTIL_H}
 #endif
 
 /* Define to 1 if you have the `utime' function. */

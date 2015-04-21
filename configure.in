@@ -2172,6 +2172,7 @@ mkdir -p  packages/prism/src/c/up
 mkdir -p  packages/prism/src/prolog
 mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
+mkdir -p  packages/ProbLog/simplecudd_lfi
 mkdir -p  packages/R
 mkdir -p  packages/RDF
 mkdir -p  packages/real
@@ -2201,6 +2202,8 @@ AC_CONFIG_FILES([packages/Dialect.defs])
 AC_CONFIG_FILES([packages/meld/Makefile])
 AC_CONFIG_FILES([packages/xml/Makefile])
 AC_CONFIG_FILES([packages/ProbLog/Makefile ])
+AC_CONFIG_FILES([packages/ProbLog/simplecudd/Makefile ])
+AC_CONFIG_FILES([packages/ProbLog/simplecudd_lfi/Makefile ])
 AC_CONFIG_FILES([swi/library/Makefile])
 AC_CONFIG_FILES([swi/library/clp/Makefile])
 

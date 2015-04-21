@@ -296,7 +296,6 @@ instead.
 	   sum_list/3,
 	   sumlist/2
 	  ]).
-
 :- use_module(library(error),
 		 [must_be/2]).
 
