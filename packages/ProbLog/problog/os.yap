@@ -1,9 +1,9 @@
-<%%% -*- Mode: Prolog; -*-
+%%% -*- Mode: Prolog; -*-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2011-11-28 14:41:26 +0100 (Mon, 28 Nov 2011) $
-%  $Revision: 6764 $
+				%  $Date: 2011-11-28 14:41:26 +0100 (Mon, 28 Nov 2011) $
+				%  $Revision: 6764 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -35,7 +35,7 @@
 % license directly with the Copyright Holder of a given Package. If the
 % terms of this license do not permit the full use that you propose to
 % make of the Package, you should contact the Copyright Holder and seek
-% a different licensing arrangement.  Definitions
+				% a different licensing arrangement.  Definitions
 %
 % "Copyright Holder" means the individual(s) or organization(s) named in
 % the copyright notice for the entire Package.
@@ -236,9 +236,26 @@
 %=
 %========================================================================
 
+set_problog_path(File_Name, Path):-
+	retractall(problog_path(_)),    
+	getenv('PATH',Dirs),
+	path_separator( PathSep ),
+	set_problog_paths( Dirs, PathSep, Path ),
+	assertz(problog_path(Path)),
+	fail.
+
+
 set_problog_path(Path):-
-	retractall(problog_path(_)),
 	assertz(problog_path(Path)).
+
+
+set_problog_paths( Dirs, PathSep, Path ) :-
+	atomic_list_concat( [Path,LPaths], PathSep, Dirs),  
+	(
+	 true
+	;
+	 set_problog_paths( LPaths, PathSep, Path )
+	).
 
 %========================================================================
 %=
@@ -264,20 +281,10 @@ convert_filename_to_problog_path(File_Name, Path):-
 concat_path_with_filename(Path, File_Name, Result):-
 	nonvar(File_Name),
 	nonvar(Path),
-  
-				% make sure, that there is no path delimiter at the end
+	% make sure, that there is no path delimiter at the end
 	prolog_file_name(Path,Path_Absolute),
-
-	path_seperator(Path_Seperator),
-	atomic_concat([Path_Absolute, Path_Seperator, File_Name], Result).
-
-concat_path_with_filename2(Path, File_Name, Result):-
-	nonvar(File_Name),
-	nonvar(Path),
-	path_seperator(Path_Seperator),
-	(atomic_concat(Path_Absolute, Path_Seperator, Path) ; Path_Absolute = Path),
-	atomic_concat([Path_Absolute, Path_Seperator, File_Name], Result).
-
+	path_separator(Path_Seperator),
+	atomic_list_concat([Path_Absolute, Path_Seperator, File_Name], Result).
 
 %========================================================================
 %= Calculate the MD5 checksum of +Filename by calling md5sum
@@ -300,7 +307,6 @@ calc_md5_intern(Filename,Command,MD5) :-
 	( file_exists(Filename) -> true ; throw(md5_file(Filename)) ),
 
 	atomic_concat([Command,' "',Filename,'"'],Call),
-
 	% execute the md5 command
 	exec(Call,[null,pipe(S),null],PID),
 	bb_put(calc_md5_temp,End-End),  % use difference list
@@ -340,32 +346,6 @@ calc_md5_intern(Filename,Command,MD5) :-
 
 
 %========================================================================
-%=
-%=
-%=
-%========================================================================
-
-path_seperator('\\'):-
-   yap_flag(windows, true), !.
-path_seperator('/').
-
-
-%========================================================================
-%= 
-%= 
-%= 
-%========================================================================
-
-split_path_file(PathFile, Path, File):-
-	path_seperator(PathSeperator),
-	name(PathSeperator, [PathSeperatorName]),
-
-	atomic_concat(Path, File, PathFile),
-	name(File, FileName),
-	\+ memberchk(PathSeperatorName, FileName),
-	!.
-
-%========================================================================
 %= 
 %= 
 %= 
@@ -379,3 +359,6 @@ check_existance(FileName):-
 	problog_path(PD),
 	write(user_error, 'WARNING: Can not find file: '), write(user_error, FileName),
 	write(user_error, ', please place file in problog path: '), write(user_error, PD), nl(user_error).
+
+path_separator(PathSep) :-
+	( current_prolog_flag( windows, true ) -> PathSep = ';' ; PathSep = ':' ).
