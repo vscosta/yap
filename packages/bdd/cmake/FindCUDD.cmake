@@ -42,7 +42,12 @@ if ( NOT( CUDD_INCLUDE_DIR AND CUDD_LIBRARIES ) OR NOT CUDD_FOUND )
     /opt/csw/include   # Blastwave
     /opt/include
     /usr/freeware/include
+    NO_DEFAULT_PATHS
     
+    )
+
+  find_path(CUDD_INCLUDE_DIR
+    NAMES cudd.h
     )
 
   find_library(CUDD_INTERFACE_LIBRARY

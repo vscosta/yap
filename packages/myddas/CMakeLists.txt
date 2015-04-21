@@ -1,3 +1,5 @@
+SET( CMAKE_FIND_FRAMEWORK LAST)
+SET( CMAKE_FIND_APPBUNDLE LAST)
 
 set( MYDDAS_SOURCES
   myddas_mysql.c
@@ -79,9 +81,12 @@ if (ODBC_FOUND OR MYSQL_FOUND OR SQLITE3_FOUND OR PostgreSQL_FOUND)
     #  SQLITE3_INCLUDE_DIRS - the Sqlite3 include directory
     #  SQLITE3_LIBRARIES - Link these to use Sqlite3
     #  SQLITE3_DEFINITIONS - Compiler switches required for using Sqlite3
-    add_definitions (-DMYDDAS_SQLITE3=1)
-    target_link_libraries(myddas ${SQLITE3_LIBRARIES})
-    include_directories (${SQLITE3_INCLUDE_DIRS})
+    check_function_exists( sqlite3_table_column_metadata HAVE_SQLITE3_TABLE_COLUMN_METADATA )
+    if (HAVE_SQLITE3_TABLE_COLUMN_METADATA:INTERNAL=1)
+      add_definitions (-DMYDDAS_SQLITE3=1)
+      target_link_libraries(myddas ${SQLITE3_LIBRARIES})
+      include_directories (${SQLITE3_INCLUDE_DIRS})
+    endif()
   endif (SQLITE3_FOUND)
 
   if (MYSQL_FOUND)

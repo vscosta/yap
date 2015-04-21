@@ -6,6 +6,8 @@ SET ( YAP_BDD_VERSION 0.1)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
+SET( CMAKE_FIND_FRAMEWORK LAST)
+SET( CMAKE_FIND_APPBUNDLE LAST)
 
 if (NOT YAP_FOUND)
   FIND_PACKAGE(YAP REQUIRED)
@@ -29,6 +31,16 @@ IF (CUDD_FOUND)
     ${CMAKE_CURRENT_BINARY_DIR}
     .
     )
+
+  check_include_file( util.h HAVE_UTIL_H )  
+  check_include_file( cudd/util.h HAVE_CUDD_UTIL_H )  
+  check_include_file( cudd.h HAVE_CUDD_H )  
+  check_include_file( cudd/cudd.h HAVE_CUDD_CUDD_H )  
+  check_include_file( cuddInt.h HAVE_CUDDINT_H )  
+  check_include_file( cudd/cuddInt.h HAVE_CUDD_CUDDINT_H )  
+
+  configure_file ("${PROJECT_SOURCE_DIR}/cudd_config.h.cmake"
+    "${PROJECT_BINARY_DIR}/cudd_config.h" )
 
   SET ( BDD_SOURCES
     cudd.c 

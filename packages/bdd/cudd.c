@@ -38,6 +38,7 @@ CUDD will generate better/faster code.
 #include <stdio.h>
 
 #include "config.h"
+#include "cudd_config.h"
 #include "YapInterface.h"
 
 #if HAVE_UTIL_H
