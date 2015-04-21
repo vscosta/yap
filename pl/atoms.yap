@@ -114,38 +114,25 @@ L = [gnu, gnat]
 */
 atomic_list_concat(L, El, At) :-
 	var(El), !,
-	'$do_error'(instantiation_error,atom_list_concat(L,El,At)).
+	'$do_error'(instantiation_error,atomic_list_concat(L,El,At)).
 atomic_list_concat(L, El, At) :-
-	nonvar(L), !,
+	ground(L), !,
 	'$add_els'(L,El,LEl),
 	atomic_concat(LEl, At).
 atomic_list_concat(L, El, At) :-
 	nonvar(At), !,
-	atom_codes(At, S),
-	atom_codes(El, [ElS]),
-	'$split_elements'(S, ElS, SubS),
-	'$atomify_list'(SubS, L).
+	'$atomic_list_concat_all'( At, El, L).
+
+'$atomic_list_concat_all'( At, El, [A|L]) :-
+	sub_atom(At, Pos, 1, Left, El), !,
+        sub_atom(At, 0, Pos, _, A),
+        sub_atom(At, _, Left, 0, At1),
+	'$atomic_list_concat_all'( At1, El, L).
+'$atomic_list_concat_all'( At, _El, [At]).
 
 '$add_els'([A,B|L],El,[A,El|NL]) :- !,
 	'$add_els'([B|L],El,NL).
 '$add_els'(L,_,L).
-	
-'$split_elements'(E.S, E, SubS) :- !,
-	'$split_elements'(S, E, SubS).
-'$split_elements'(E1.S, E, [E1|L].SubS) :- !,
-	'$split_elements'(S, E, L, SubS).
-'$split_elements'([], _, []).
-
-'$split_elements'([], _, [], []).
-'$split_elements'(E.S, E, [], SubS) :- !,
-	'$split_elements'(S, E, SubS).
-'$split_elements'(E1.S, E, E1.L, SubS) :-
-	'$split_elements'(S, E, L, SubS).
-
-'$atomify_list'([], []).
-'$atomify_list'(S.SubS, A.L) :-
-	atom_codes(A, S),
-	'$atomify_list'(SubS, L).
 	
 
 %
