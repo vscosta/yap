@@ -328,8 +328,8 @@ prefix_bdd_file_with_header(BDD_File_Name,VarCount,IntermediateSteps,TmpFile) :-
 
 	(
 	 repeat,
-	 get_byte(H2,C),
-	 put_byte(H,C),
+	 get_code(H2,C),
+	 put_code(H,C),
 	 at_end_of_stream(H2),
 	 !
 	),

@@ -293,6 +293,21 @@ create_bdd_output_file_name(QueryID,ClusterID,Iteration,Absolute_File_Name) :-
 	concat_path_with_filename(Path,File_Name,Absolute_File_Name).
 create_bdd_output_file_name(_,_,_,_) :-
 	throw(error(problog_flag_does_not_exist(output_directory))).
+
+
+%========================================================================
+%= 
+                                %= 
+                                %========================================================================
+
+create_bdd_file_name(QueryID,ClusterID,Absolute_File_Name) :-
+        problog_flag(output_directory,Path),
+        !,
+
+        atomic_concat([',_query_',QueryID,'_cluster_',ClusterID],File_Name),
+        concat_path_with_filename(Path,File_Name,Absolute_File_Name).
+create_bdd_output_file_name(_,_,_) :-
+        throw(error(problog_flag_does_not_exist(output_directory))).
 %========================================================================
 %= 
 %= 
