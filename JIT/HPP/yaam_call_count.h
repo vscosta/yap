@@ -1,7 +1,7 @@
 #define COUNT_CALL_INSTINIT \
-      LOCK((*_PREG)->u.p.p->StatisticsForPred.lock); \
-      (*_PREG)->u.p.p->StatisticsForPred.NOfEntries++; \
-      UNLOCK((*_PREG)->u.p.p->StatisticsForPred.lock); \
+      LOCK((*_PREG)->u.p.p->StatisticsForPred->lock); \
+      (*_PREG)->u.p.p->StatisticsForPred->NOfEntries++; \
+      UNLOCK((*_PREG)->u.p.p->StatisticsForPred->lock); \
       LOCAL_ReductionsCounter--;
 
 #define COUNT_CALL_MIDDLE \
@@ -26,9 +26,9 @@
       GONext();
 
 #define COUNT_RETRY_INSTINIT \
-      LOCK((*_PREG)->u.p.p->StatisticsForPred.lock); \
-      (*_PREG)->u.p.p->StatisticsForPred.NOfRetries++; \
-      UNLOCK((*_PREG)->u.p.p->StatisticsForPred.lock); \
+      LOCK((*_PREG)->u.p.p->StatisticsForPred->lock); \
+      (*_PREG)->u.p.p->StatisticsForPred->NOfRetries++; \
+      UNLOCK((*_PREG)->u.p.p->StatisticsForPred->lock); \
       LOCAL_RetriesCounter--;
 
 #define COUNT_RETRY_MIDDLE \
@@ -65,9 +65,9 @@
       set_cut(S_YREG, B->cp_b); \
       SET_BB(B_YREG); \
       ENDCACHE_Y(); \
-      LOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred.lock); \
-      ((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred.NOfRetries++; \
-      UNLOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred.lock); \
+      LOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred->lock); \
+      ((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred->NOfRetries++; \
+      UNLOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred->lock); \
       LOCAL_RetriesCounter--; \
       if (LOCAL_RetriesCounter == 0 && LOCAL_RetriesCounterOn) { \
 	saveregs(); \
@@ -87,9 +87,9 @@
       set_cut(S_YREG, B_YREG->cp_b); \
       SET_BB(B_YREG); \
       ENDCACHE_Y(); \
-      LOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred.lock); \
-      ((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred.NOfRetries++; \
-      UNLOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred.lock); \
+      LOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred->lock); \
+      ((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred->NOfRetries++; \
+      UNLOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred->lock); \
       LOCAL_RetriesCounter--; \
       if (LOCAL_RetriesCounter == 0 && LOCAL_RetriesCounterOn) { \
 	saveregs(); \
@@ -227,9 +227,9 @@
 #endif /* YAPOR */
 
 #define COUNT_TRUST_ME_END \
-      LOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred.lock); \
-      ((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred.NOfRetries++; \
-      UNLOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred.lock); \
+      LOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred->lock); \
+      ((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred->NOfRetries++; \
+      UNLOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred->lock); \
       (*_PREG) = NEXTOP((*_PREG), Otapl); \
       GONext();
 
@@ -262,9 +262,9 @@
 	  setregs(); \
 	  JMPNext(); \
 	} \
-	LOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.lock); \
-	(*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++; \
-	UNLOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.lock); \
+	LOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred->lock); \
+	(*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred->NOfRetries++; \
+	UNLOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred->lock); \
 	PP = (*_PREG)->u.OtaLl.d->ClPred; \
 	(*_PREG) = (*_PREG)->u.OtaLl.d->ClCode; \
 	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG); \
@@ -301,9 +301,9 @@
 	  setregs(); \
 	  JMPNext(); \
 	} \
-	LOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.lock); \
-	(*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++; \
-	UNLOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.lock); \
+	LOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred->lock); \
+	(*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred->NOfRetries++; \
+	UNLOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred->lock); \
 	PP = (*_PREG)->u.OtaLl.d->ClPred; \
 	(*_PREG) = (*_PREG)->u.OtaLl.d->ClCode; \
 	set_cut(S_YREG, B_YREG->cp_b); \
@@ -341,9 +341,9 @@
 	  setregs(); \
 	  JMPNext(); \
 	} \
-	LOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.lock); \
-	(*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++; \
-	UNLOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.lock); \
+	LOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred->lock); \
+	(*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred->NOfRetries++; \
+	UNLOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred->lock); \
 	(*_PREG) = (*_PREG)->u.OtaLl.d->ClCode; \
 	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG); \
 	set_cut(S_YREG, B->cp_b); \
@@ -379,9 +379,9 @@
 	  setregs(); \
 	  JMPNext(); \
 	} \
-	LOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.lock); \
-	(*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++; \
-	UNLOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.lock); \
+	LOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred->lock); \
+	(*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred->NOfRetries++; \
+	UNLOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred->lock); \
 	(*_PREG) = (*_PREG)->u.OtaLl.d->ClCode; \
 	set_cut(S_YREG, B_YREG->cp_b); \
 	SET_BB(B_YREG); \
@@ -422,9 +422,9 @@
 	    setregs(); \
 	    JMPNext(); \
 	  } \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	PELOCK(2, ap); \
@@ -493,9 +493,9 @@
 	    setregs(); \
 	    JMPNext(); \
 	  } \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	PELOCK(2, ap); \
@@ -565,9 +565,9 @@
 	    setregs(); \
 	    JMPNext(); \
 	  } \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	PELOCK(2, ap); \
@@ -630,9 +630,9 @@
 	    setregs(); \
 	    JMPNext(); \
 	  } \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	PELOCK(2, ap); \
@@ -699,9 +699,9 @@
 	    setregs(); \
 	    JMPNext(); \
 	  } \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) && \
@@ -773,9 +773,9 @@
 	    setregs(); \
 	    JMPNext(); \
 	  } \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) && \
@@ -848,9 +848,9 @@
 	    setregs(); \
 	    JMPNext(); \
 	  } \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) && \
@@ -916,9 +916,9 @@
 	    setregs(); \
 	    JMPNext(); \
 	  } \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) && \
@@ -987,9 +987,9 @@
 	    setregs(); \
 	    JMPNext(); \
 	  } \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) && \
@@ -1060,9 +1060,9 @@
 	    setregs(); \
 	    JMPNext(); \
 	  } \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) && \
@@ -1134,9 +1134,9 @@
 	    setregs(); \
 	    JMPNext(); \
 	  } \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) && \
@@ -1201,9 +1201,9 @@
 	    setregs(); \
 	    JMPNext(); \
 	  } \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) && \

@@ -1156,9 +1156,9 @@
 	  setregs();
 
 #define SPY_PRED_SECONDIFOK_INIT \
-	  LOCK(pe->StatisticsForPred.lock); \
-	  pe->StatisticsForPred.NOfEntries++; \
-	  UNLOCK(pe->StatisticsForPred.lock); \
+	  LOCK(pe->StatisticsForPred->lock); \
+	  pe->StatisticsForPred->NOfEntries++; \
+	  UNLOCK(pe->StatisticsForPred->lock); \
 	  LOCAL_ReductionsCounter--;
 
 #define SPY_PRED_SECONDIFOK_FIRSTIFOK \
@@ -1184,9 +1184,9 @@
 	    JMPNext();
 
 #define SPY_PRED_THIRDIFOK_INIT \
-	  LOCK(pe->StatisticsForPred.lock); \
-	  pe->StatisticsForPred.NOfEntries++; \
-	  UNLOCK(pe->StatisticsForPred.lock);
+	  LOCK(pe->StatisticsForPred->lock); \
+	  pe->StatisticsForPred->NOfEntries++; \
+	  UNLOCK(pe->StatisticsForPred->lock);
 	  
 #define SPY_PRED_THIRDIFOK_FIRSTIFOK \
 	    (*_PREG) = pe->cs.p_code.TrueCodeOfPred; \

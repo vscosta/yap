@@ -102,26 +102,26 @@
 
 #define ENTER_PROFILING_INSTINIT \
       print_instruction((*_PREG), ON_NATIVE); \
-      LOCK((*_PREG)->u.p.p->StatisticsForPred.lock); \
-      (*_PREG)->u.p.p->StatisticsForPred.NOfEntries++; \
-      UNLOCK((*_PREG)->u.p.p->StatisticsForPred.lock); \
+      LOCK((*_PREG)->u.p.p->StatisticsForPred->lock); \
+      (*_PREG)->u.p.p->StatisticsForPred->NOfEntries++; \
+      UNLOCK((*_PREG)->u.p.p->StatisticsForPred->lock); \
       (*_PREG) = NEXTOP((*_PREG), p); \
       GONext();
 
 #define RETRY_PROFILED_INSTINIT \
       print_instruction((*_PREG), ON_NATIVE); \
-      LOCK((*_PREG)->u.p.p->StatisticsForPred.lock); \
-      (*_PREG)->u.p.p->StatisticsForPred.NOfRetries++; \
-      UNLOCK((*_PREG)->u.p.p->StatisticsForPred.lock); \
+      LOCK((*_PREG)->u.p.p->StatisticsForPred->lock); \
+      (*_PREG)->u.p.p->StatisticsForPred->NOfRetries++; \
+      UNLOCK((*_PREG)->u.p.p->StatisticsForPred->lock); \
       (*_PREG) = NEXTOP((*_PREG), p); \
       GONext();
 
 #define PROFILED_RETRY_ME_INSTINIT \
       print_instruction((*_PREG), ON_NATIVE); \
       CACHE_Y(B); \
-      LOCK((*_PREG)->u.Otapl.p->StatisticsForPred.lock); \
-      (*_PREG)->u.Otapl.p->StatisticsForPred.NOfRetries++; \
-      UNLOCK((*_PREG)->u.Otapl.p->StatisticsForPred.lock); \
+      LOCK((*_PREG)->u.Otapl.p->StatisticsForPred->lock); \
+      (*_PREG)->u.Otapl.p->StatisticsForPred->NOfRetries++; \
+      UNLOCK((*_PREG)->u.Otapl.p->StatisticsForPred->lock); \
       restore_yaam_regs((*_PREG)->u.Otapl.d); \
       restore_args((*_PREG)->u.Otapl.s);
 	  
@@ -196,9 +196,9 @@
 #define PROFILED_TRUST_ME_END \
       SET_BB(B_YREG); \
       ENDCACHE_Y(); \
-      LOCK((*_PREG)->u.Otapl.p->StatisticsForPred.lock); \
-      (*_PREG)->u.Otapl.p->StatisticsForPred.NOfRetries++; \
-      UNLOCK((*_PREG)->u.Otapl.p->StatisticsForPred.lock); \
+      LOCK((*_PREG)->u.Otapl.p->StatisticsForPred->lock); \
+      (*_PREG)->u.Otapl.p->StatisticsForPred->NOfRetries++; \
+      UNLOCK((*_PREG)->u.Otapl.p->StatisticsForPred->lock); \
       (*_PREG) = NEXTOP((*_PREG), Otapl); \
       GONext();
 
@@ -216,9 +216,9 @@
 	else { \
 	  restore_yaam_regs((*_PREG)->u.OtaLl.n); \
 	  restore_args((*_PREG)->u.OtaLl.s); \
-	  LOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.lock); \
-	  (*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++; \
-	  UNLOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred.lock); \
+	  LOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred->lock); \
+	  (*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred->NOfRetries++; \
+	  UNLOCK((*_PREG)->u.OtaLl.d->ClPred->StatisticsForPred->lock); \
 	}
 	
 #ifdef THREADS
@@ -261,9 +261,9 @@
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
 	} else { \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	PELOCK(1, ap); \
@@ -319,9 +319,9 @@
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
 	} else { \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	PELOCK(1, ap); \
@@ -378,9 +378,9 @@
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
 	} else { \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	PELOCK(1, ap); \
@@ -430,9 +430,9 @@
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
 	} else { \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	PELOCK(1, ap); \
@@ -487,9 +487,9 @@
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
 	} else { \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) && \
@@ -549,9 +549,9 @@
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
 	} else { \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) && \
@@ -612,9 +612,9 @@
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
 	} else { \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) && \
@@ -669,9 +669,9 @@
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
 	} else { \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) && \
@@ -728,9 +728,9 @@
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
 	} else { \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) && \
@@ -789,9 +789,9 @@
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
 	} else { \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) && \
@@ -851,9 +851,9 @@
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
 	} else { \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) && \
@@ -906,9 +906,9 @@
 	if (!VALID_TIMESTAMP(timestamp, lcl)) { \
 	  (*_PREG) = FAILCODE; \
 	} else { \
-	  LOCK(ap->StatisticsForPred.lock); \
-	  ap->StatisticsForPred.NOfRetries++; \
-	  UNLOCK(ap->StatisticsForPred.lock); \
+	  LOCK(ap->StatisticsForPred->lock); \
+	  ap->StatisticsForPred->NOfRetries++; \
+	  UNLOCK(ap->StatisticsForPred->lock); \
 	  (*_PREG) = lcl->ClCode; \
 	} \
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) && \
@@ -1298,9 +1298,9 @@
 
 #define PROFILED_RETRY_AND_MARK_INSTINIT \
       print_instruction((*_PREG), ON_NATIVE); \
-      LOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred.lock); \
-      ((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred.NOfRetries++; \
-      UNLOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred.lock); \
+      LOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred->lock); \
+      ((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred->NOfRetries++; \
+      UNLOCK(((PredEntry *)((*_PREG)->u.Otapl.p))->StatisticsForPred->lock); \
 
 #define RETRY_AND_MARK_INSTINIT
 	  
