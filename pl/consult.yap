@@ -177,7 +177,7 @@ following flags:
 
 + autoload(+ _Autoload_)
 
-    SWI-compatible option where if _Autoload_ is `true` undefined
+  SWI-compatible option where if _Autoload_ is `true` undefined
     predicates are loaded on first call.
 
 + derived_from(+ _File_)
@@ -422,10 +422,10 @@ load_files(Files,Opts) :-
 	).
 '$lf'(user, Mod, _, TOpts) :- !,
 	b_setval('$source_file', user_input),
-	'$do_lf'(Mod, user_input, user_input, TOpts).
+	'$do_lf'(Mod, user_input, user_input, user_input, TOpts).
 '$lf'(user_input, Mod, _, TOpts) :- !,
 	b_setval('$source_file', user_input),
-	'$do_lf'(Mod, user_input, user_input, TOpts).
+	'$do_lf'(Mod, user_input, user_input, user_input, TOpts).
 '$lf'(File, Mod, Call, TOpts) :-
     '$lf_opt'(stream, TOpts, Stream),
     b_setval('$source_file', File),
@@ -442,26 +442,26 @@ load_files(Files,Opts) :-
     '$lf_opt'(if, TOpts, If),
     ( var(If) -> If = true ; true ),
     '$lf_opt'(imports, TOpts, Imports),
-    '$start_lf'(If, Mod, Stream, TOpts, File, Reexport, Imports),
+    '$start_lf'(If, Mod, Stream, TOpts, File, Y, Reexport, Imports),
     close(Stream).
 '$lf'(X, _, Call, _) :-
     '$do_error'(permission_error(input,stream,X),Call).
 
-'$start_lf'(not_loaded, Mod, Stream, TOpts, UserFile, Reexport,Imports) :-
-    '$file_loaded'(Stream, Mod, Imports, TOpts), !,
+'$start_lf'(not_loaded, Mod, _Stream, TOpts, UserFile, File, Reexport,Imports) :-
+	'$file_loaded'(File, Mod, Imports, TOpts), !,
+	'$lf_opt'('$options', TOpts, Opts),
+	'$lf_opt'('$location', TOpts, ParentF:Line),
+	'$loaded'(File, UserFile, Mod, ParentF, Line, not_loaded, _, _Dir, Opts),
+        '$reexport'( TOpts, ParentF, Reexport, Imports, File ).
+'$start_lf'(changed, Mod, _Stream, TOpts, UserFile, File, Reexport, Imports) :-
+    '$file_unchanged'(File, Mod, Imports, TOpts), !,
     '$lf_opt'('$options', TOpts, Opts),
     '$lf_opt'('$location', TOpts, ParentF:Line),
-    '$loaded'(Stream, UserFile, Mod, ParentF, Line, not_loaded, _, _File, _Dir, Opts),
-    '$reexport'( TOpts, ParentF, Reexport, Imports, _File ).
-'$start_lf'(changed, Mod, Stream, TOpts, UserFile, Reexport, Imports) :-
-    '$file_unchanged'(Stream, Mod, Imports, TOpts), !,
-    '$lf_opt'('$options', TOpts, Opts),
-    '$lf_opt'('$location', TOpts, ParentF:Line),
-    '$loaded'(Stream, UserFile, Mod, ParentF, Line, changed, _, File, _Dir, Opts),
+    '$loaded'(File, UserFile, Mod, ParentF, Line, changed, _, _Dir, Opts),
     '$reexport'( TOpts, ParentF, Reexport, Imports, File ).
-'$start_lf'(_, Mod, PlStream, TOpts, File, Reexport, ImportList) :-
+'$start_lf'(_, Mod, PlStream, TOpts, _UserFile, File, Reexport, ImportList) :-
     % check if there is a qly file
-    '$absolute_file_name'(File,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)],F,qload_file(File)),
+	'$absolute_file_name'(File,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)],F,qload_file(File)),
     open( F, read, Stream , [type(binary)] ),
      H0 is heapused, '$cputime'(T0,_),
     ( '$q_header'( Stream, Type ),
@@ -488,18 +488,18 @@ load_files(Files,Opts) :-
        close( Stream),
        fail
     ).
-'$start_lf'(_, Mod, Stream, TOpts, File, _Reexport, _Imports) :-
-	'$do_lf'(Mod, Stream, File, TOpts).
+'$start_lf'(_, Mod, Stream, TOpts, UserFile, File, _Reexport, _Imports) :-
+	'$do_lf'(Mod, Stream, UserFile, File, TOpts).
 
 
 /**
 
-@pred ensure_loaded(+ _F_) is iso
+  @pred ensure_loaded(+ _F_) is iso
 
 When the files specified by  _F_ are module files,
 ensure_loaded/1 loads them if they have note been previously
 loaded, otherwise advertises the user about the existing name clashes
-and prompts about importing or not those predicates. Predicates which
+  and prompts about importing or not those predicates. Predicates which
 are not public remain invisible.
 
 When the files are not module files, ensure_loaded/1 loads them
@@ -554,7 +554,7 @@ consult(Fs) :-
 
 @pred [ - _F_ ]
 @pred reconsult(+ _F_ )
-@pred compile(+ _F_ )
+  @pred compile(+ _F_ )
 
 Updates the program by replacing the
 previous definitions for the predicates defined in  _F_. It differs from consult/1
@@ -569,7 +569,7 @@ Example:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ?- [file1, -file2, -file3, file4].
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-will consult `file1` `file4` and reconsult `file2` and
+  will consult `file1` `file4` and reconsult `file2` and
 `file3`. That is, it could be written as:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -604,7 +604,7 @@ exo_files(Fs) :-
 
 /**
 
-@pred load_db(+ _Files_)
+  @pred load_db(+ _Files_)
 
 
 Load a database of ground facts. All facts must take up the same amount of storage, so that
@@ -645,7 +645,7 @@ db_files(Fs) :-
 	'$extract_minus'(Fs, MFs).
 
 
-'$do_lf'(ContextModule, Stream, UserFile, TOpts) :-
+'$do_lf'(ContextModule, Stream, UserFile, File,  TOpts) :-
 	'$lf_opt'('$context_module', TOpts, ContextModule),
 	'$lf_opt'(reexport, TOpts, Reexport),
 	'$msg_level'( TOpts, Verbosity),
@@ -663,8 +663,8 @@ db_files(Fs) :-
 	'$lf_opt'(consult, TOpts, Reconsult0),
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$loaded'(Stream, UserFile, SourceModule, ParentF, Line, Reconsult0, Reconsult, File, Dir, Opts),
-	working_directory(OldD, Dir),
+	'$loaded'(File, UserFile, SourceModule, ParentF, Line, Reconsult0, Reconsult, Dir, Opts),
+        working_directory(OldD, Dir),
 	H0 is heapused, '$cputime'(T0,_),
 	'$set_current_loop_stream'(OldStream, Stream),
 	'$swi_current_prolog_flag'(generate_debug_info, GenerateDebug),
@@ -839,7 +839,7 @@ db_files(Fs) :-
 	'$msg_level'( TOpts, Verbosity),
 	'$full_filename'(X, Y , ( :- include(X)) ),
 	'$lf_opt'(stream, TOpts, OldStream),
-	source_location(F, L),
+	source_location(Y, L),
 	'$current_module'(Mod),
 	( open(Y, read, Stream) 	->
 	  true ;
@@ -847,7 +847,8 @@ db_files(Fs) :-
 	),
 	'$set_current_loop_stream'(OldStream, Stream),
 	H0 is heapused, '$cputime'(T0,_),
-	'$loaded'(Stream, X, Mod, F, L, include, _, Y, _Dir, []),
+	'$full_filename'(X, Y,include(X) ),
+	'$loaded'(Y, X,  Mod, L, include, _, Y, _Dir, []),
 	( '$nb_getval'('$included_file', OY, fail ) -> true ; OY = [] ),
 	'$lf_opt'(encoding, TOpts, Encoding),
 	'$set_encoding'(Stream, Encoding),
@@ -889,7 +890,7 @@ db_files(Fs) :-
 
 
 source_file(FileName) :-
-	recorded('$lf_loaded','$lf_loaded'(FileName, _, _),_).
+	recorded('$source_file','$source_file'(FileName, _, _),_).
 
 source_file(Mod:Pred, FileName) :-
 	current_module(Mod),
@@ -998,66 +999,59 @@ prolog_load_context(term_position, Position) :-
 
 % if the file exports a module, then we can
 % be imported from any module.
-'$file_loaded'(Stream, M, Imports, TOpts) :-
-	'$file_name'(Stream, F0),
+'$file_loaded'(F0, M, Imports, TOpts) :-
+				%format( 'L=~w~n', [(F0)] ),
 	(
-	    atom_concat(Prefix, '.qly', F0 )
-	->
-            '$absolute_file_name'(Prefix,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],F,load_files(Prefix))
+	    atom_concat(Prefix, '.qly', F0 ),
+	 '$absolute_file_name'(Prefix,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],F,load_files(Prefix))
         ;
            F0 = F
-        ),
-	'$ensure_file_loaded'(F, M, F1),
-%	format( 'IL=~w~n', [(F1:Imports->M)] ),
-	'$import_to_current_module'(F1, M, Imports, _, TOpts).
+				   ),
+	'$ensure_file_loaded'(F, M),
+	!,
+	'$import_to_current_module'(F, M, Imports, _, TOpts).
 
 '$ensure_file_loaded'(F, _M, F1) :-
+	recorded('$source_file','$source_file'(F1, _, _),_),    
 	recorded('$module','$module'(F1,_NM,_Source,_P,_),_),
-	recorded('$lf_loaded','$lf_loaded'(F1, _, _),_),
 	same_file(F1, F), !.
-'$ensure_file_loaded'(F, M, F1) :-
-	% loaded from the same module, but does not define a module.
-	recorded('$lf_loaded','$lf_loaded'(F1, _, M),_),
-	same_file(F1,F), !.
 
+'$ensure_file_loaded'(F, M) :-
+				% loaded from the same module, but does not define a module.
+	recorded('$source_file','$source_file'(F, _Age, NM), _R),
+				% make sure: it either defines a new module or it was loaded in the same context
+	( M == NM -> true ; recorded('$module','$module'(F,NM,_Source,_P,_),_) ), !.
 
-% if the file exports a module, then we can
+				% if the file exports a module, then we can
 % be imported from any module.
-'$file_unchanged'(Stream, M, Imports, TOpts) :-
-	'$file_name'(Stream, F),
-	'$ensure_file_unchanged'(F, M, F1),
+'$file_unchanged'(F, M, Imports, TOpts) :-
+	'$ensure_file_unchanged'(F, M),
 %	format( 'IU=~w~n', [(F1:Imports->M)] ),
-	'$import_to_current_module'(F1, M, Imports, _, TOpts).
+	'$import_to_current_module'(F, M, Imports, _, TOpts).
 
 % module can be reexported.
-'$ensure_file_unchanged'(F, _M, F1) :-
-	recorded('$module','$module'(F1,_NM,_,_P,_),_),
-	recorded('$lf_loaded','$lf_loaded'(F1,Age,_),R),
-	same_file(F1,F), !,
-	'$file_is_unchanged'(F, R, Age).
-'$ensure_file_unchanged'(F, M, F1) :-
-	recorded('$lf_loaded','$lf_loaded'(F1, Age, M),R),
-	same_file(F1,F), !,
-	'$file_is_unchanged'(F, R, Age).
+'$ensure_file_unchanged'(F, M) :-
+                                % loaded from the same module, but does not define a module.
+	recorded('$source_file','$source_file'(F, Age, NM), R), writeln(M:NM),
+				% make sure: it either defines a new module or it was loaded in the same context
+	'$file_is_unchanged'(F, R, Age),
+        ( M == NM -> true ; recorded('$module','$module'(F,NM,_Source,_P,_),_) ), !.
 
 '$file_is_unchanged'(F, R, Age) :-
         time_file64(F,CurrentAge),
         ( (Age == CurrentAge ; Age = -1)  -> true; erase(R), fail).
 
 
-% inform the file has been loaded and is now available.
-'$loaded'(Stream, UserFile, M, OldF, Line, Reconsult0, Reconsult, F, Dir, Opts) :-
-	'$file_name'(Stream, F0),
-	( F0 == user_input, nonvar(UserFile) -> UserFile = F
-	  ; F = F0 ),
+				% inform the file has been loaded and is now available.
+'$loaded'(F, UserFile, M, OldF, Line, Reconsult0, Reconsult, Dir, Opts) :-
 	( F == user_input -> working_directory(Dir,Dir) ; file_directory_name(F, Dir) ),
 	nb_setval('$consulting_file', F ),
 	(
 	    Reconsult0 \== consult,
 	    Reconsult0 \== not_loaded,
 	    Reconsult \== changed,
-	    recorded('$lf_loaded','$lf_loaded'(F, _,_),R),
-	    erase(R),
+	 recorded('$source_file','$source_file'(F, _,_),R),
+	 erase(R),
 	    fail
 	    ;
 	    var(Reconsult0)
@@ -1079,7 +1073,10 @@ prolog_load_context(term_position, Position) :-
 	    Reconsult = Reconsult0
 	),
 	( F == user_input -> Age = 0 ; time_file64(F, Age) ),
-	( recordaifnot('$lf_loaded','$lf_loaded'( F, Age, M), _) -> true ; true ),
+	% modules are logically loaded only once
+	( recorded('$module','$module'(F,_DonorM,_SourceF, _AllExports, _Line),_) -> true  ;
+		  recordaifnot('$source_file','$source_file'( F, Age, M), _) -> true ;
+		  true ),
 	recorda('$lf_loaded','$lf_loaded'( F, M, Reconsult, UserFile, OldF, Line, Opts), _).
 
 '$set_encoding'(Encoding) :-
@@ -1174,13 +1171,13 @@ source_file_property( File0, Prop) :-
 
 '$source_file_property'( OldF, includes(F, Age)) :-
 	recorded('$lf_loaded','$lf_loaded'( F, _M, include, _File, OldF, _Line, _), _),
-	recorded('$lf_loaded','$lf_loaded'( F, Age, _), _).
+	recorded('$source_file','$source_file'( F, Age, _), _).
 '$source_file_property'( F, included_in(OldF, Line)) :-
 	recorded('$lf_loaded','$lf_loaded'( F, _M, include, _File, OldF, Line, _), _).
 '$source_file_property'( F, load_context(OldF, Line, Options)) :-
 	recorded('$lf_loaded','$lf_loaded'( F, _M, V, _File, OldF, Line, Options), _), V \== include.
 '$source_file_property'( F, modified(Age)) :-
-	recorded('$lf_loaded','$lf_loaded'( F, Age, _), _).
+	recorded('$source_file','$source_file'( F, Age, _), _).
 '$source_file_property'( F, module(M)) :-
 	recorded('$module','$module'(F,M,_,_,_),_).
 
@@ -1200,7 +1197,7 @@ unload_file( F0 ) :-
 	fail.
 %next multi-file.
 '$unload_file'( FileName, _F0 ) :-
-    recorded('$lf_loaded','$lf_loaded'( FileName, _Age, _), R),
+    recorded('$source_file','$source_file'( FileName, _Age, _), R),
     erase(R),
     fail.
 '$unload_file'( FileName, _F0 ) :-

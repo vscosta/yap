@@ -212,6 +212,7 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 % cleanup ensure loaded and recover some data-base space.
 %
 :- ( recorded('$lf_loaded',_,R), erase(R), fail ; true ).
+:- ( recorded('$lf_loaded',_,R), erase(R), fail ; true ).
 :- ( recorded('$module',_,R), erase(R), fail ; true ).
 
 :- set_value('$user_module',user), '$protect'.

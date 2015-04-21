@@ -742,18 +742,18 @@ qload_file( F0 ) :-
     '$exec_initialisation_goals'.
 
 '$qload_file'(_S, SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
-    recorded('$lf_loaded','$lf_loaded'( FilePl, _Age, SourceModule), _),
+    recorded('$source_file','$source_file'( FilePl, _Age, SourceModule), _),
    !.
 '$qload_file'(_S, SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
     ( FilePl == user_input -> Age = 0 ; time_file64(FilePl, Age) ),
-    recorda('$lf_loaded','$lf_loaded'( FilePl, Age, SourceModule), _),
+    recordaifnot('$source_file','$source_file'( FilePl, Age, SourceModule), _),
     fail.
 '$qload_file'(S, _SourceModule, _File, _FilePl, _F0, _ImportList, _TOpts) :-
     '$qload_file_preds'(S),
     fail.
 '$qload_file'(_S, SourceModule, F, _FilePl, _F0, _ImportList, _TOpts) :-
     user:'$file_property'( '$lf_loaded'( F, Age, _ ) ),
-    recordaifnot('$lf_loaded','$lf_loaded'( F, Age, SourceModule), _),
+    recordaifnot('$source_file','$source_file'( F, Age, SourceModule), _),
     fail.
 '$qload_file'(_S, _SourceModule, _File, FilePl, F0, _ImportList, _TOpts) :-
     b_setval('$source_file', F0 ),

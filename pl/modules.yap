@@ -502,7 +502,9 @@ of predicates.
     '$add_to_imports'(TranslationTab, DonorM, DonorM), % insert ops, at least for now
     % last, export everything to the host: if the loading crashed you didn't actually do
     % no evil.
-    recorda('$module','$module'(DonorF,DonorM,SourceF, AllExports, Line),_).
+    recorda('$module','$module'(DonorF,DonorM,SourceF, AllExports, Line),_),
+    ( recorded('$source_file','$source_file'( DonorF, Time, _), R), erase(R),
+      recorda('$source_file','$source_file'( DonorF, Time, DonorM), _) ).
 
 '$extend_exports'(HostF, Exports, DonorF ) :-
    ( recorded('$module','$module'( DonorF, DonorM, _,DonorExports, _),_) -> true ; DonorF = user_input ),
