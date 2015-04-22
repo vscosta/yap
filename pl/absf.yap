@@ -133,7 +133,7 @@ absolute_file_name(File0,File) :-
 	'$absolute_file_name'(File0,[access(none),file_type(txt),file_errors(fail),solutions(first)],File,absolute_file_name(File0,File)).
 
 '$full_filename'(F0, F, G) :-
-    '$absolute_file_name'(F0,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],F,G).
+	'$absolute_file_name'(F0,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],F,G).
 
 '$absolute_file_name'(File, _Opts, _TrueFileName, G) :- var(File), !,
 	'$do_error'(instantiation_error, G).

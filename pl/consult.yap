@@ -839,7 +839,7 @@ db_files(Fs) :-
 	'$msg_level'( TOpts, Verbosity),
 	'$full_filename'(X, Y , ( :- include(X)) ),
 	'$lf_opt'(stream, TOpts, OldStream),
-	source_location(Y, L),
+	source_location(OldY, L),
 	'$current_module'(Mod),
 	( open(Y, read, Stream) 	->
 	  true ;
@@ -847,9 +847,9 @@ db_files(Fs) :-
 	),
 	'$set_current_loop_stream'(OldStream, Stream),
 	H0 is heapused, '$cputime'(T0,_),
-	'$full_filename'(X, Y,include(X) ),
-	'$loaded'(Y, X,  Mod, L, include, _, Y, _Dir, []),
-	( '$nb_getval'('$included_file', OY, fail ) -> true ; OY = [] ),
+	working_directory(Dir, Dir),
+	'$loaded'(Y, X,  Mod, OldY, L, include, _, Dir, []),
+        ( '$nb_getval'('$included_file', OY, fail ) -> true ; OY = [] ),
 	'$lf_opt'(encoding, TOpts, Encoding),
 	'$set_encoding'(Stream, Encoding),
 	nb_setval('$included_file', Y),
@@ -867,7 +867,7 @@ db_files(Fs) :-
 % reconsult at startup...
 %
 '$do_startup_reconsult'(_X) :-
-    '$init_win_graphics',
+	'$init_win_graphics',
     fail.
 '$do_startup_reconsult'(X) :-
 	( '$access_yap_flags'(15, 0) ->
@@ -1011,14 +1011,9 @@ prolog_load_context(term_position, Position) :-
 	!,
 	'$import_to_current_module'(F, M, Imports, _, TOpts).
 
-'$ensure_file_loaded'(F, _M, F1) :-
-	recorded('$source_file','$source_file'(F1, _, _),_),    
-	recorded('$module','$module'(F1,_NM,_Source,_P,_),_),
-	same_file(F1, F), !.
-
 '$ensure_file_loaded'(F, M) :-
 				% loaded from the same module, but does not define a module.
-	recorded('$source_file','$source_file'(F, _Age, NM), _R),
+	 recorded('$source_file','$source_file'(F, _Age, NM), _R),
 				% make sure: it either defines a new module or it was loaded in the same context
 	( M == NM -> true ; recorded('$module','$module'(F,NM,_Source,_P,_),_) ), !.
 
@@ -1032,7 +1027,7 @@ prolog_load_context(term_position, Position) :-
 % module can be reexported.
 '$ensure_file_unchanged'(F, M) :-
                                 % loaded from the same module, but does not define a module.
-	recorded('$source_file','$source_file'(F, Age, NM), R), writeln(M:NM),
+	recorded('$source_file','$source_file'(F, Age, NM), R),
 				% make sure: it either defines a new module or it was loaded in the same context
 	'$file_is_unchanged'(F, R, Age),
         ( M == NM -> true ; recorded('$module','$module'(F,NM,_Source,_P,_),_) ), !.
@@ -1073,7 +1068,8 @@ prolog_load_context(term_position, Position) :-
 	    Reconsult = Reconsult0
 	),
 	( F == user_input -> Age = 0 ; time_file64(F, Age) ),
-	% modules are logically loaded only once
+				% modules are logically loaded only once
+	
 	( recorded('$module','$module'(F,_DonorM,_SourceF, _AllExports, _Line),_) -> true  ;
 		  recordaifnot('$source_file','$source_file'( F, Age, M), _) -> true ;
 		  true ),
@@ -1442,7 +1438,8 @@ Similar to initialization/1, but allows for specifying when
 
 */
 initialization(G,OPT) :-
-	'$initialization'(G,OPT).
+	( '$initialization'(G,OPT) -> fail ).
+initialization(_G,_OPT).
 
 '$initialization'(G,OPT) :-
 	(
@@ -1458,29 +1455,27 @@ initialization(G,OPT) :-
 	->
 	  '$do_error'(type_error(callable,G),initialization(G,OPT))
 	;
-	   var(OPT)
+	 OPT == now
 	->
-	  '$do_error'(instantiation_error,initialization(G,OPT))
+	 fail
 	;
-	  atom(OPT)
+	 OPT == after_load
 	->
-	  (
-	   OPT == now
-	  ->
-	   fail
-	  ;
-	   OPT == after_load
-	  ->
-	   fail
-	  ;
-	   OPT == restore
-	  ->
-	   fail
-	  ;
-	   '$do_error'(domain_error(initialization,OPT),initialization(OPT))
-	  )
+	 fail
 	;
-	  '$do_error'(type_error(OPT),initialization(G,OPT))
+	 OPT == restore
+	->
+	 fail
+	;
+	 var(OPT)
+        ->
+         '$do_error'(instantiation_error,initialization(G,OPT))
+        ;
+	 atom(OPT)
+        ->
+	 '$do_error'(domain_error(initialization,OPT),initialization(OPT))
+	;
+	 '$do_error'(type_error(atom,OPT),initialization(OPT))
 	).
 '$initialization'(G,now) :-
 	( call(G) -> true ;
@@ -1514,7 +1509,7 @@ compilation is to simplify writing portable code.
 
 
 Note that these directives can only be appear as separate terms in the
-input.  Typical usage scenarios include:
+  input.  Typical usage scenarios include:
 
 
     Load different libraries on different dialects
@@ -1542,7 +1537,7 @@ section_else.
 
 /** @pred    if( : _Goal_)
 
-Compile subsequent code only if  _Goal_ succeeds.  For enhanced
+  Compile subsequent code only if  _Goal_ succeeds.  For enhanced
 portability,  _Goal_ is processed by `expand_goal/2` before execution.
 If an error occurs, the error is printed and processing proceeds as if
  _Goal_ has failed.
