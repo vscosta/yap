@@ -716,10 +716,13 @@ execute_command(void)
   } else {
     int sd;
     if (YAP_IsIntTerm(ti))
-      sd = 0;
+      sd = YAP_IntOfTerm(ti);
     else
       sd = YAP_StreamToFileNo(ti);
-    inpf = dup(sd);
+    if (sd == 0)
+      inpf = 0;
+    else
+      inpf = dup(sd);
   }
   if (inpf < 0) {
     /* return an error number */
@@ -731,14 +734,17 @@ execute_command(void)
   } else {
     int sd;
     if (YAP_IsIntTerm(to))
-      sd = 1;
+      sd = YAP_IntOfTerm(to);
     else
       sd = YAP_StreamToFileNo(to);
-    outf = dup(sd);
+    if (sd == 1)
+      outf = 1;
+    else
+      outf = dup(sd);
   }
   if (outf < 0) {
     /* return an error number */
-    close(inpf);
+    if (inpf != 0) close(inpf);
     return(YAP_Unify(YAP_ARG6, YAP_MkIntTerm(errno)));
   }
   /* then error stream */
@@ -747,24 +753,27 @@ execute_command(void)
   } else {
     int sd;
     if (YAP_IsIntTerm(te))
-      sd = 2;
+      sd = YAP_IntOfTerm(te);
     else
       sd = YAP_StreamToFileNo(te);
-    errf = dup(sd);
+    if (sd == 2)
+      errf = 2;
+    else
+      errf = dup(sd);
   }
   if (errf < 0) {
     /* return an error number */
-    close(inpf);
-    close(outf);
+    if (inpf != 0) close(inpf);
+    if (outf != 1) close(outf);
     return(YAP_Unify(YAP_ARG6, YAP_MkIntTerm(errno)));
   }
   YAP_FlushAllStreams();
   /* we are now ready to fork */
   if ((res = fork()) < 0) {
     /* close streams we don't need */
-    close(inpf);
-    close(outf);
-    close(errf);
+    if (inpf != 0) close(inpf);
+    if (outf != 1) close(outf);
+    if (errf != 2) close(errf);
     /* return an error number */
     return(YAP_Unify(YAP_ARG6, YAP_MkIntTerm(errno)));
   } else if (res == 0) {
@@ -773,18 +782,24 @@ execute_command(void)
     /* child */
     /* close current streams, but not std streams */
     YAP_CloseAllOpenStreams();
-    close(0);
-    if (dup(inpf) != 0)
+    if (inpf != 0) {
+      close(0);
+      if (dup(inpf) != 0)
+	exit(1);
+      close(inpf);
+    }
+    if (outf != 1) {
+      close(1);      
+      if (dup(outf) != 1)
       exit(1);
-    close(inpf);
-    close(1);
-    if (dup(outf) != 1)
-      exit(1);
-    close(outf);
-    close(2);
-    if (dup(errf) != 2)
-      exit(2);
-    close(errf);
+      close(outf);
+    }
+    if (errf != 2) {
+      close(2);
+      if (dup(errf) != 2)
+	exit(2);
+      close(errf);
+    }
     argv[0] = "sh";
     argv[1] = "-c";
     argv[2] = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
@@ -793,9 +808,9 @@ execute_command(void)
     exit(127);
     /* we have the streams where we want them, just want to execute now */
   } else {
-    close(inpf);
-    close(outf);
-    close(errf);
+    if (inpf != 0) close(inpf);
+    if (outf != 1) close(outf);
+    if (errf != 2) close(errf);
     return(YAP_Unify(YAP_ARG5,YAP_MkIntTerm(res)));
   }
 #endif /* UNIX code */
@@ -870,19 +885,17 @@ do_shell(void)
     return t;
   } else {
     t = wait(&sys);
-    fprintf(stderr,"after wait %x:%x\n",t,sys);
     if (t < 0) {
       return YAP_Unify(YAP_ARG5,YAP_MkIntTerm(errno));
     }
   }
-  fprintf(stderr,"after wait %x\n", sys);
   return YAP_Unify(YAP_ARG4, YAP_MkIntTerm(sys));
 #endif
 }
 
 /* execute a command as a detached process */
 static YAP_Bool
-p_wait(void)
+plwait(void)
 {
   long int pid = YAP_IntOfTerm(YAP_ARG1);
 #if defined(__MINGW32__) || _MSC_VER
@@ -895,7 +908,7 @@ p_wait(void)
     return(YAP_Unify(YAP_ARG3, WinError()));
   }
   if (GetExitCodeProcess(proc, &ExitCode) == 0) {
-    return(YAP_Unify(YAP_ARG3, WinError()));
+    return(YAP_Unify(YAP_ARG4, WinError()));
   }
   CloseHandle(proc);
   return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(ExitCode)));
@@ -905,11 +918,21 @@ p_wait(void)
 
     /* check for interruptions */
     if (waitpid(pid, &status, 0) == -1) {
-      if (errno != EINTR)
-	return -1;
-      return(YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
-    } else {
-      return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(status)));
+      if (errno) {
+	if (errno == EINTR) {
+	  continue;
+	}
+	return YAP_Unify( YAP_ARG3, YAP_MkIntTerm(errno));
+      }
+    }
+    if (WIFEXITED( status ) ) {
+      return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(WEXITSTATUS(status)) );
+    } else if (WIFSIGNALED( status )) {
+      return YAP_Unify(YAP_ARG3, YAP_MkAtomTerm(YAP_LookupAtom("signal")) ) &&
+	YAP_Unify(YAP_ARG4, YAP_MkIntTerm( WTERMSIG(status)) );
+    } else /* WIFSTOPPED(status) */ {
+      return YAP_Unify(YAP_ARG3, YAP_MkAtomTerm(YAP_LookupAtom("stopped")) ) &&
+	YAP_Unify(YAP_ARG4, YAP_MkIntTerm( WSTOPSIG(status) ) );
     }
   } while(TRUE);
 #endif
@@ -1061,6 +1084,33 @@ p_kill(void)
   return(TRUE); 
 }
 
+#if HAVE_OPENSSL_RIPEMD_H
+ #include <openssl/ripemd.h>
+#endif
+
+/** md5( +Text, -Key, -Remaining keyq
+ * encode text using OpenSSL 
+ *
+ * arg Text as List of codes
+ * arg2 and 3: difference list with character codes.
+ * 
+ * @return whether ARG1's md5 unifies with the difference liat.
+ */
+ static YAP_Bool
+   md5(void)
+ {
+#if HAVE_OPENSSL_RIPEMD_H
+   char buf[21];
+
+   char *s = (char *) YAP_AllocSpaceFromYap(YAP_ListLength(YAP_ARG1)+1);
+   YAP_StringToBuffer( YAP_ARG1 , s, 20 ) ;
+   RIPEMD160((const unsigned char *)s, strlen(s), (unsigned char *)buf);
+   YAP_FreeSpaceFromYap(s);
+   return YAP_Unify( YAP_ARG2, YAP_BufferToDiffList( buf , YAP_ARG3 ) );
+#endif /* defined(__MINGW32__) || _MSC_VER */
+   return FALSE; 
+ }
+
 static YAP_Bool
 error_message(void)
 {
@@ -1070,8 +1120,7 @@ error_message(void)
   return YAP_Unify(YAP_ARG2,YAP_ARG1);
 #endif
 }
-
-void
+ void
 init_sys(void)
 {
 #if HAVE_MKTIME
@@ -1089,7 +1138,7 @@ init_sys(void)
   YAP_UserCPredicate("exec_command", execute_command, 6);
   YAP_UserCPredicate("do_shell", do_shell, 5);
   YAP_UserCPredicate("do_system", do_system, 3);
-  YAP_UserCPredicate("wait", p_wait, 3);
+  YAP_UserCPredicate("plwait", plwait, 4);
   YAP_UserCPredicate("host_name", host_name, 2);
   YAP_UserCPredicate("host_id", host_id, 2);
   YAP_UserCPredicate("pid", pid, 2);
@@ -1101,6 +1150,7 @@ init_sys(void)
   YAP_UserCPredicate("sleep", p_sleep, 2);
   YAP_UserCPredicate("error_message", error_message, 2);
   YAP_UserCPredicate("win", win, 0);
+  YAP_UserCPredicate("md5", md5, 3);  
 }
 
 #ifdef _WIN32

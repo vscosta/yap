@@ -2,9 +2,9 @@
 *									 *
 *	 YAP Prolog 							 *
 *									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+  * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
 **************************************************************************
 *									 *
@@ -386,6 +386,7 @@ also `absolute_file_name/2` and chdir/1.
 	host_id/1,
 				     host_name/1,
 				     kill/1,
+				     md5/3,
 	pid/1,
 				     mktemp/2,
 	make_directory/1,
@@ -523,6 +524,14 @@ handle_system_error(Error, off, G) :- atom(Error), !,
 handle_system_error(Error, off, G) :-
 	error_message(Error, Message),
 	throw(error(system_error(Message),G)).
+
+handle_system_error(Error, _Id, _Ignore, _G) :- var(Error), !.
+handle_system_error(Error, SIG, off, G) :- integer(Error), !,
+	error_message(Error, Message).
+handle_system_error(signal, SIG, off, G) :- atom(Error), !,
+        throw(error(system_error(child_signal(SIG)),G)).
+handle_system_error(stopped, SIG, off, G) :-
+        throw(error(system_error(child_stopped(SIG)),G)).
 
 file_property(IFile, type(Type)) :-
 	true_file_name(IFile, File),
@@ -693,8 +702,8 @@ shell :-
 	get_shell0(FullCommand),
 	exec_command(FullCommand, 0, 1, 2, PID, Error),
 	handle_system_error(Error, off, G),
-	wait(PID, _Status, Error),
-	handle_system_error(Error, off, G).
+	wait(PID, _Status, Error, Id),
+	handle_system_error(Error, Id, off, G).
 
 shell(Command) :-
 	G = shell(Command),
@@ -749,7 +758,7 @@ system(Command, Status) :-
 wait(PID,STATUS) :- var(PID), !,
  	throw(error(instantiation_error,wait(PID,STATUS))).
 wait(PID,STATUS) :- integer(PID), !,
- 	wait(PID, STATUS, Error),
+ 	plwait(PID, STATUS, Error, _Detail),
  	handle_system_error(Error, off, wait(PID,STATUS)).
 wait(PID,STATUS) :-
  	throw(error(type_error(integer,PID),wait(PID,STATUS))).
