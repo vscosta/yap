@@ -589,7 +589,7 @@ strings of wide characters:
 </li>
  <li>YAP_Term YAP_NWideBufferToString(wchar_t \* _buf_, size_t  _len_)
 </li>
- <li>YAP_Term YAP_BufferToAtomList(char \* _buf_)
+<li>YAP_Term YAP_BufferToAtomList(char \* _buf_)
 </li>
  <li>YAP_Term YAP_NBufferToAtomList(char \* _buf_, size_t  _len_)
 </li>
@@ -787,7 +787,7 @@ The next one returns the length of a well-formed list  _t_, or
 `-1` otherwise:
 
 <ul>
- <li>Int      YAP_ListLength(YAP_Term t)
+<li>Int      YAP_ListLength(YAP_Term t)
 </li>
 </ul>
 

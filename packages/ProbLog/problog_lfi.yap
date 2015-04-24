@@ -470,6 +470,7 @@ init_learning :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% build BDD script for every example
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	
 	once(init_queries),
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -659,7 +660,7 @@ init_queries :-
 %= 
 %========================================================================
 
-init_one_query(QueryID,_Query_Type) :-
+init_one_query(QueryID,_Query_Type) :- trace,
 	create_known_values_file_name(QueryID,File_Name),
 	file_exists(File_Name),
 	!,
@@ -888,19 +889,16 @@ update_query(QueryID,ClusterID ,Method,Command,PID,Output_File_Name) :-
 	create_bdd_output_file_name(QueryID,ClusterID,Iteration,Output_File_Name),
 	create_bdd_file_name(QueryID,ClusterID,BDD_File_Name),
 
-	problog_dir(PD),
-	concat_path_with_filename(PD,'problogbdd_lfi',Absolute_Name),
+	convert_filename_to_problog_path('problogbdd_lfi',Absolute_Name),
 	
 	atomic_concat([Absolute_Name,
 		       ' -i "', Input_File_Name, '"',
 		       ' -l "', BDD_File_Name, '"',
-		       ' -m ',Method, 
-		       ' -id ', QueryID,
-		       ' > "',
-		       Output_File_Name,
-		       '"'],Command),
-
-	exec(Command,[std,std,std],PID).
+		       ' -m ', Method, 
+		       ' -id ', QueryID],Command),
+	open( Output_File_Name, write, Stream ),
+	exec(Command,[std, Stream ,std],PID),
+	close( Stream ).
 
 update_query_wait(QueryID,_ClusterID,Count,Symbol,Command,PID,OutputFilename,BDD_Probability) :-
 	wait(PID,Error),
@@ -983,7 +981,7 @@ my_reset_static_array(Name) :-
 	(
 	    Type==int
 	->
-	    forall(between(0,LastPos,Pos), update_array(Name,Pos,0))
+	 forall(between(0,LastPos,Pos), update_array(Name,Pos,0))
 	;
 	    Type==float
 	->

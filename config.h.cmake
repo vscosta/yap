@@ -935,6 +935,9 @@ you don't. */
 #cmakedefine HAVE_OPENDIR ${HAVE_OPENDIR}
 #endif
 
+/* Define to 1 if you have the <openssl/ripemd.h> header file. */
+#cmakedefine HAVE_OPENSSL_RIPEMD_H ${HAVE_OPENSSL_RIPEMD_H}
+
 /* Define to 1 if you have the `pipe2' function. */
 #ifndef HAVE_PIPE2
 #cmakedefine HAVE_PIPE2 ${HAVE_PIPE2}

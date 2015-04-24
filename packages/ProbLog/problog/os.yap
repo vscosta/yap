@@ -219,7 +219,7 @@
 
 
 % load library modules
-:- use_module(library(system), [exec/3, file_exists/1,wait/2]).
+:- use_module(library(system), [exec/3, file_exists/1,wait/2,  md5/3]).
 :- use_module(library(lists), [memberchk/2]).
 :- yap_flag(arithmetic_exceptions, false).
 
@@ -292,57 +292,27 @@ concat_path_with_filename(Path, File_Name, Result):-
 %========================================================================
 
 calc_md5(Filename,MD5):-
-	catch(calc_md5_intern(Filename,'md5sum',MD5),_,fail),
-	!.
-calc_md5(Filename,MD5):-
-	catch(calc_md5_intern(Filename,'md5 -r',MD5),_,fail),
-	% used in Mac OS
-	% the -r makes the output conform with md5sum
+	catch(calc_md5_intern(Filename,MD5),_,fail),
 	!.
 calc_md5(Filename,MD5):-
 	throw(md5error(calc_md5(Filename,MD5))).
 
-calc_md5_intern(Filename,Command,MD5) :-
+calc_md5_intern(Filename,MD5) :-
 	( file_exists(Filename) -> true ; throw(md5_file(Filename)) ),
+	file_to_codes(Filename, S, []),
+	md5( S, MD5, [] ),
+	format('~s => ~s~n', [S,MD5]).
 
-	atomic_concat([Command,' "',Filename,'"'],Call),
-	% execute the md5 command
-	exec(Call,[null,pipe(S),null],PID),
-	bb_put(calc_md5_temp,End-End),  % use difference list
-	bb_put(calc_md5_temp2,0),
+file_to_codes( F, Codes, LF ) :-
+	open(F, read, S),
+	get_codes( S, Codes, LF).
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	(	% read 32 Bytes from stdout of process
-		repeat,
-		get_byte(S,C),
-
-		(
-		 C== -1
-		->
-		 (
-		  close(S),
-		  wait(PID,_Status),
-		  throw(md5error('premature end of output stream, please check os.yap calc_md5/2'))
-		 );
-		 true
-		),
-
-		bb_get(calc_md5_temp,List-[C|NewEnd]),
-		bb_put(calc_md5_temp,List-NewEnd),
-		bb_get(calc_md5_temp2,OldLength),
-		NewLength is OldLength+1,
-		bb_put(calc_md5_temp2,NewLength),
-		NewLength=32
-	),
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+get_codes(S, [C|L], LF) :-
+	get_code(S, C),
+	C \= -1,
 	!,
-	
-	close(S),
-	wait(PID,_Status),
-	bb_delete(calc_md5_temp, FinalList-[]),
-	bb_delete(calc_md5_temp2,_),
-	atom_codes(MD5,FinalList).
-
+	get_codes(S, L, LF).
+get_codes(_, LF, LF).
 
 %========================================================================
 %= 
@@ -364,5 +334,5 @@ path_grouping(PathSep) :-
 
 path_separator('\\') :-
         current_prolog_flag( windows, true ).
-path_separator('/').
-
+	path_separator('/').
+	

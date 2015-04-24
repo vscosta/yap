@@ -526,9 +526,10 @@ handle_system_error(Error, off, G) :-
 	throw(error(system_error(Message),G)).
 
 handle_system_error(Error, _Id, _Ignore, _G) :- var(Error), !.
-handle_system_error(Error, SIG, off, G) :- integer(Error), !,
-	error_message(Error, Message).
-handle_system_error(signal, SIG, off, G) :- atom(Error), !,
+handle_system_error(Error, _SIG, off, G) :- integer(Error), !,
+	error_message(Error, Message),
+	throw(error(system_error(Message),G)).
+handle_system_error(signal, SIG, off, G) :- !,
         throw(error(system_error(child_signal(SIG)),G)).
 handle_system_error(stopped, SIG, off, G) :-
         throw(error(system_error(child_stopped(SIG)),G)).

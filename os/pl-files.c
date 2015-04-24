@@ -543,7 +543,7 @@ get_file_name(term_t n, char **namep, char *tmp, int flags)
   { fid_t fid;
 
     if ( (fid = PL_open_foreign_frame()) )
-    { predicate_t pred = PL_predicate("absolute_file_name", 3, "system");
+    { predicate_t pred = PL_predicate("absolute_file_name", 3, "prolog");
       term_t av = PL_new_term_refs(3);
       term_t options = PL_copy_term_ref(av+2);
       int rc = TRUE;
@@ -634,12 +634,11 @@ PL_get_file_name(term_t n, char **namep, int flags)
 
   if ( (rc=get_file_name(n, &name, buf, flags)) )
   { if ( (flags & PL_FILE_OSPATH) )
-    {  if ( !(name = OsPath(name, ospath)) )
+    {   if ( !(name = OsPath(name, ospath)) )
 	return FALSE;
     }
     *namep = buffer_string(name, BUF_RING);
   }
-
   return rc;
 }
 

@@ -8377,7 +8377,7 @@ fi
 
 done
 
-for ac_header in netdb.h netinet/in.h netinet/tcp.h pwd.h regex.h shlobj.h
+for ac_header in netdb.h netinet/in.h netinet/tcp.h openssl/ripemd.h pwd.h regex.h shlobj.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -13451,6 +13451,8 @@ mkdir -p  packages/bdd
 if test "$PKG_BDDLIB" != ""; then
 ac_config_files="$ac_config_files packages/bdd/Makefile"
 
+ac_config_files="$ac_config_files packages/bdd/cudd_config.h"
+
 ac_config_files="$ac_config_files packages/ProbLog/simplecudd/Makefile"
 
 ac_config_files="$ac_config_files packages/ProbLog/simplecudd_lfi/Makefile"
@@ -14132,7 +14134,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14135 "configure" */
+/* #line 14137 "configure" */
 public class Test {
 }
 EOF
@@ -14308,7 +14310,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 14311: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 14313: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -14439,7 +14441,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14442 "configure" */
+/* #line 14444 "configure" */
 public class Test {
 }
 EOF
@@ -14474,7 +14476,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 14477 "configure" */
+/* [#]line 14479 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -16039,6 +16041,7 @@ do
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
     "YapTermConfig.h") CONFIG_HEADERS="$CONFIG_HEADERS YapTermConfig.h" ;;
     "packages/bdd/Makefile") CONFIG_FILES="$CONFIG_FILES packages/bdd/Makefile" ;;
+    "packages/bdd/cudd_config.h") CONFIG_FILES="$CONFIG_FILES packages/bdd/cudd_config.h" ;;
     "packages/ProbLog/simplecudd/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/simplecudd/Makefile" ;;
     "packages/ProbLog/simplecudd_lfi/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/simplecudd_lfi/Makefile" ;;
     "packages/cplint/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/Makefile" ;;
@@ -17623,6 +17626,7 @@ mkdir -p  packages/prism/src/c/up
 mkdir -p  packages/prism/src/prolog
 mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
+mkdir -p  packages/ProbLog/simplecudd_lfi
 mkdir -p  packages/R
 mkdir -p  packages/RDF
 mkdir -p  packages/real
@@ -18478,6 +18482,7 @@ do
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
     "YapTermConfig.h") CONFIG_HEADERS="$CONFIG_HEADERS YapTermConfig.h" ;;
     "packages/bdd/Makefile") CONFIG_FILES="$CONFIG_FILES packages/bdd/Makefile" ;;
+    "packages/bdd/cudd_config.h") CONFIG_FILES="$CONFIG_FILES packages/bdd/cudd_config.h" ;;
     "packages/ProbLog/simplecudd/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/simplecudd/Makefile" ;;
     "packages/ProbLog/simplecudd_lfi/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/simplecudd_lfi/Makefile" ;;
     "packages/cplint/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/Makefile" ;;

@@ -113,7 +113,7 @@ mkdir -p  packages/bdd
 
 if test "$PKG_BDDLIB" != ""; then
 AC_CONFIG_FILES([packages/bdd/Makefile])
-AC_CONFIG_FILES([packages/bdd/Makefile/config.h])
+AC_CONFIG_FILES([packages/bdd/cudd_config.h])
 AC_CONFIG_FILES([packages/ProbLog/simplecudd/Makefile])
 AC_CONFIG_FILES([packages/ProbLog/simplecudd_lfi/Makefile])
 fi

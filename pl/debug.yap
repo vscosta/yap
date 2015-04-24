@@ -697,7 +697,7 @@ be lost.
         open('CONIN$', read, _S, [alias(debugger_input),bom(false)]).
         
 
-% last argument to do_spy says that we are at the end of a context. It
+				% last argument to do_spy says that we are at the end of a context. It
 % is required to know whether we are controlled by the debugger.
 %'$do_spy'(V, M, CP, Flag) :-
 %	writeln('$do_spy'(V, M, CP, Flag)), fail.
@@ -889,7 +889,8 @@ be lost.
 '$spycall'(G, M, _, _) :-
 	nb_getval('$debug_jump',true),
 	!,
-	'$execute_nonstop'(G,M).
+	( '$is_metapredicate'(G, M) -> '$meta_expansion'(G,M,M,M,G1,[]) ; G = G1 ),
+	'$execute_nonstop'(G1,M).
 '$spycall'(G, M, _, _) :-
         (
 	 '$system_predicate'(G,M)

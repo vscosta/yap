@@ -2,7 +2,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2011-11-28 14:41:26 +0100 (Mon, 28 Nov 2011) $
+				%  $Date: 2011-11-28 14:41:26 +0100 (Mon, 28 Nov 2011) $
 %  $Revision: 6764 $
 %
 %  This file is part of ProbLog
@@ -412,24 +412,17 @@ logger_start_timer(Name) :-
 	    (
 		statistics(walltime,[StartTime,_]),
 		bb_put(Key,StartTime)
-	    );(
-	        bb_get(Key,_)
+	    )
+	;
+	    (
+	     bb_get(Key,_)
 	    ->
-	       (
-		   write('logger_start_timer, timer '),
-		   write(Name),
-		   write(' is already started'),
-		   nl,
-		   fail
-	       );(
-	           write('logger_start_timer, timer '),
-		   write(Name),
-		   write(' is not defined'),
-		   nl,
-		   fail
-	         )
-	      )
-	  ),!.
+	     format(user_error, 'logger_start_timer, timer ~a  is already started~n', [Name])
+	    ;
+	     format(user_error, 'logger_start_timer, timer ~a  is not defined~n', [Name])
+	    )
+	),
+	!.
 	
 
 logger_stop_timer(Name) :-

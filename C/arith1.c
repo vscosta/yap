@@ -1010,9 +1010,6 @@ p_unary_is( USES_REGS1 )
     }
     out= eval1(p->FOfEE, top PASS_REGS);
     if ((err=Yap_FoundArithError())) {
-      Functor f = Yap_MkFunctor( name, 1 );
-      Term t = Yap_MkApplTerm( f, 1, &top );
-      Yap_EvalError(err, t ,"error in %s/1", RepAtom(name)->StrOfAE);
       return FALSE;
     }
     return Yap_unify_constant(ARG1,out);

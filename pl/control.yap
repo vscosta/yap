@@ -90,7 +90,10 @@ once/1.
 
  
 */
-once(G) :- '$execute'(G), !.
+once(G) :-
+	strip_module(G, M, C),
+	'$meta_call'(C, M),
+	!.
 
 /** @pred  forall(: _Cond_,: _Action_) 
 
