@@ -459,7 +459,7 @@ eval1(Int fi, Term t USES_REGS) {
       if (dbl >= 0) {
 	RFLOAT(log10(dbl));
       } else {
-	return Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "log(%f)", dbl);
+	return Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "log10(%f)", dbl);
       }
     }
   case op_sqrt:
@@ -468,7 +468,7 @@ eval1(Int fi, Term t USES_REGS) {
       out = sqrt(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "acos(%f)", dbl);
+	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "sqrt(%f)", dbl);
       }
 #endif
       RFLOAT(out);
@@ -543,7 +543,7 @@ eval1(Int fi, Term t USES_REGS) {
       out = atan(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "atanh(%f)", dbl);
+	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "atan(%f)", dbl);
       }
 #endif
       RFLOAT(out);
@@ -556,7 +556,7 @@ eval1(Int fi, Term t USES_REGS) {
       out = asinh(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "atanh(%f)", dbl);
+	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "asinh(%f)", dbl);
       }
 #endif
       RFLOAT(out);
@@ -569,7 +569,7 @@ eval1(Int fi, Term t USES_REGS) {
       out = acosh(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "atanh(%f)", dbl);
+	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "acosh(%f)", dbl);
       }
 #endif
       RFLOAT(out);
