@@ -2103,7 +2103,8 @@ extern X_API YAP_Int    YAP_TermHash(YAP_Term, YAP_Int, YAP_Int, int);
 extern X_API void       YAP_signal(int);
 
 /*  stack expansion control */
-extern X_API int        YAP_SetYAPFlag(yap_flag_t,int);
+extern X_API YAP_Term   YAP_GetYAPFlag(YAP_Term flag);
+extern X_API int        YAP_SetYAPFlag(YAP_Term flag, YAP_Term set);
 
 /*    void  *YAP_GlobalBase(Term)  */
 extern X_API YAP_Int YAP_VarSlotToNumber(YAP_Int);
