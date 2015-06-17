@@ -1,0 +1,10 @@
+--exclude=*ggtags*
+--exclude=*TAGS*
+--exclude=HPP
+--exclude=tags
+--exclude=osx*
+--exclude=build
+--exclude=cscope*
+--exclude=bin
+--exclude=lib
+--exclude=share
