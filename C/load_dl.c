@@ -30,8 +30,10 @@ findExecutable(const char *av0, char *buffer);
 #include <string.h>
 #include <stdio.h>
 #if defined(__APPLE__)
-#include <mach-o/dyld.h> 
-#endif 
+#include <mach-o/dyld.h>
+#include <dlfcn.h>
+#endif
+
  
 
 typedef void (*prismf)(void);
