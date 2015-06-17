@@ -12,7 +12,7 @@
  * uses an SWI-like status info internally.
  */
 class YAPQuery: public YAPPredicate, open_query_struct {
-  yhandle_t vnames;
+  Term vnames;
   YAPTerm goal;
   Term t;
 
@@ -48,7 +48,7 @@ public:
   void setFlag(int flag) {q_flags |= flag; }
   /// reset flags for query execution, currently only for exception handling
   void resetFlag(int flag) {q_flags &= ~flag; }
-  ///  first query
+  ///`b  first query
   ///
   /// actually implemented by calling the next();
   inline bool first() { return next(); }

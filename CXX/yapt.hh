@@ -3,6 +3,8 @@
 
 class YAPAtomTerm;
 
+extern "C" Term YAP_ReadBuffer(const char *s, Term *tp);
+
 /**
  * @brief Generic Prolog Term
  */

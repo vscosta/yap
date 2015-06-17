@@ -1,7 +1,7 @@
 
 add_library (Yap++ SHARED yapi.cpp)
 
-include_directories (H include os ${CMAKE_BINARY_DIR} ${GMP_INCLUDE_DIR})
+include_directories (H include ${CMAKE_BINARY_DIR} ${GMP_INCLUDE_DIR})
 
 target_link_libraries(Yap++ libYap)
 

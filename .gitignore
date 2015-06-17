@@ -55,5 +55,10 @@ autom4te.cache
 #*
 #*#
 config.h
-
 *.html
+packages/gecode/dev
+JIT/HPP/bkp
+cmake_install.cmake
+cmake_clean.cmake
+*.build
+Makefile

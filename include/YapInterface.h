@@ -1973,8 +1973,6 @@ extern X_API void YAP_CloseAllOpenStreams(void);
 
 extern X_API void YAP_FlushAllStreams(void);
 
-#define YAP_INPUT_STREAM	0x01
-#define YAP_OUTPUT_STREAM	0x02
 #define YAP_APPEND_STREAM	0x04
 #define YAP_PIPE_STREAM 	0x08
 #define YAP_TTY_STREAM	 	0x10

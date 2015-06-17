@@ -2,8 +2,18 @@
 #define YAP_CPP_INTERFACE 1
 
 #include "yapi.hh"
-#include "SWI-Stream.h"
 
+extern  "C" {
+    
+#include "YapInterface.h"
+#include "blobs.h"
+    
+    char   *Yap_TermToString(Term t, char *s, size_t sz, size_t *length, encoding_t encoding, int flags);
+    
+    void YAP_UserCPredicate(const char *, YAP_UserCPred, YAP_Arity arity);
+    void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, YAP_Arity, YAP_Term);
+    void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred, YAP_Arity, unsigned int);
+}
 
 
 YAPAtomTerm::YAPAtomTerm(char *s) { // build string
@@ -283,13 +293,13 @@ intptr_t YAPTerm::hashTerm(size_t sz, size_t depth, bool variant) {
 }
 
 const char *YAPTerm::text() {
+    CACHE_REGS
   size_t sze = 4096, length;
-  char *os;
-  int enc;
+  char *os = new char[4097];
+  encoding_t enc = LOCAL_encoding;
 
   BACKUP_MACHINE_REGS();
-  if (!(os = Yap_HandleToString(t, sze, &length, &enc, 0))) {
-      RECOVER_MACHINE_REGS();
+  if (!(os = Yap_TermToString(t, os, sze, &length, enc, 0))) {      RECOVER_MACHINE_REGS();
       return (char *)NULL;
   }
   RECOVER_MACHINE_REGS();
@@ -351,34 +361,9 @@ char *YAPAtom::getName(void) {
       delete[] s;
       return os;
   } else if (IsBlob(a)) {
-      PL_blob_t *type = RepBlobProp(a->PropsOfAE)->blob_t;
-      size_t sz = 512;
-
-      if (type->write) {
-	  char *s = new char[sz];
-	  IOSTREAM *stream = Sopenmem(&s, &sz, "w");
-	  stream->encoding = ENC_UTF8;
-	  atom_t at = YAP_SWIAtomFromAtom(AbsAtom(a));
-	  type->write(stream, at, 0);
-	  Sclose(stream);
-	  popOutputContext();
-	  sz = strlen(s)+1;
-	  char *os = new char[sz];
-	  memcpy(os, s, sz);
-	  delete s;
-	  return os;
-      } else {
-	  char *s = new char[sz];
-#if defined(__linux__) || defined(__APPLE__)
-	  snprintf(s, sz, "'%s'(%p)", AtomSWIStream->StrOfAE, a);
-#else
-	  snprintf(s, sz, "'%s'(0x%p)", AtomSWIStream->StrOfAE, a);
-#endif
-	  char *os = new char[sz];
-	  memcpy(os, s, sz);
-	  delete[] s;
-	  return os;
-      }
+      size_t sz = 1024;
+      char *s = new char [sz+1];
+      return Yap_blob_to_string( RepAtom(a) , s, sz);
   } else {
       return a->StrOfAE;
   }
@@ -390,7 +375,7 @@ void YAPQuery::initOpenQ() {
     LOCAL_execution = this;
     q_open=1;
     q_state=0;
-    q_flags = PL_Q_PASS_EXCEPTION;
+    q_flags = true ; //PL_Q_PASS_EXCEPTION;
 
     q_p = P;
     q_cp = CP;
@@ -499,7 +484,7 @@ void YAPQuery::close()
   CACHE_REGS
 
   RECOVER_MACHINE_REGS();
-  if (EX && !(q_flags & (PL_Q_CATCH_EXCEPTION))) {
+  if (EX /* && !(q_flags & (true PL_Q_CATCH_EXCEPTION)) */) {
       EX = (struct DB_TERM *)NULL;
   }
   /* need to implement backtracking here */
