@@ -3872,7 +3872,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     cip->code_addr = (yamop *)cl;
   } else if (mode == ASSEMBLING_CLAUSE && 
       (ap->PredFlags & SourcePredFlag ||
-       yap_flags[SOURCE_MODE_FLAG]) &&
+       trueGlobalPrologFlag(SOURCE_FLAG ) ) &&
       !is_fact) {
     DBTerm *x;
     StaticClause *cl;
