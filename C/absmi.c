@@ -1719,7 +1719,7 @@ Yap_absmi(int inp)
   pthread_setspecific(Yap_yaamregs_key, (const void *)&absmi_regs);
   LOCAL_ThreadHandle.current_yaam_regs = &absmi_regs;
   regcache = &absmi_regs;
-  LOCAL_PL_local_data_p->reg_cache = regcache;
+  // LOCAL_PL_local_data_p->reg_cache = regcache;
 #else
   Yap_regp = &absmi_regs;
 #endif
