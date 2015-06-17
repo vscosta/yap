@@ -26,11 +26,9 @@ static char     SccsId[] = "%W% %G%";
 #include <stdlib.h>
 #include "Yap.h"
 #include "clause.h"
-#include "pl-shared.h"
 #include "yapio.h"
 #include "alloc.h"
 #include "Foreign.h"
-#include "SWI-Prolog.h"
 
 #ifdef LOW_LEVEL_TRACER
 #include "tracer.h"
