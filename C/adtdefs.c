@@ -28,7 +28,6 @@ static char SccsId[] = "%W% %G%";
 #include "Yap.h"
 #include "Yatom.h"
 #include "yapio.h"
-#include "pl-shared.h"
 #include <stdio.h>
 #include <wchar.h>
 #if HAVE_STRING_H
@@ -795,8 +794,8 @@ ExpandPredHash(void)
 /* fe is supposed to be locked */
 Prop
 Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
-{ GET_LD
-  PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
+{
+    PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
   if (p == NULL) {
     WRITE_UNLOCK(fe->FRWLock);
@@ -842,7 +841,7 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
       p->PredFlags |= GoalExPredFlag;
     }
   }
-  if (LOCAL_PL_local_data_p== NULL || !truePrologFlag(PLFLAG_DEBUGINFO)) {
+  if ( !trueGlobalPrologFlag(DEBUG_INFO_FLAG)) {
     p->PredFlags |= NoTracePredFlag;
   }
   p->FunctorOfPred = fe;
@@ -928,7 +927,7 @@ Yap_NewThreadPred(PredEntry *ap USES_REGS)
   LOCAL_ThreadHandle.local_preds = p;
   p->FunctorOfPred = ap->FunctorOfPred;
   Yap_inform_profiler_of_clause(&(p->OpcodeOfPred), &(p->OpcodeOfPred)+1, p, GPROF_NEW_PRED_THREAD);
-  if (LOCAL_PL_local_data_p== NULL || !truePrologFlag(PLFLAG_DEBUGINFO)) {
+  if (falseGlobalPrologFlag(DEBUG_INFO_FLAG)) {
     p->PredFlags |= (NoSpyPredFlag|NoTracePredFlag);
   }
   if (!(p->PredFlags & (CPredFlag|AsmPredFlag))) {
