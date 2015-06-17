@@ -195,23 +195,6 @@ AtomAdjust(Atom a)
 static void
 RestoreHashPreds( USES_REGS1 )
 {
-  UInt i;
-
-  for (i = 0; i < PredHashTableSize; i++) {
-    PredEntry *p = PredHash[i];
-
-    if (p)
-      p = PredEntryAdjust(p);
-    while (p) {
-      Prop nextp;
-      
-      if (p->NextOfPE)
-	p->NextOfPE = PropAdjust(p->NextOfPE);
-      nextp = p->NextOfPE;
-      CleanCode(p PASS_REGS);
-      p = RepPredProp(nextp);
-    }
-  }
 }
 
 
