@@ -3,10 +3,98 @@
 
 #define PL_SHARED_H
 
-/* we are in YAP */
-#ifndef __YAP_PROLOG__
-#define __YAP_PROLOG__ 1
+#include "pl-types.h"
+
+#ifndef __WINDOWS__
+#if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MSYS__)
+#define __WINDOWS__ 1
 #endif
+#endif
+
+#if !defined(O_PLMT) && !defined(YAPOR)
+
+#define LOCAL_LD (GLOBAL_LD)
+#define LD (GLOBAL_LD)
+#define ARG1_LD   void
+#define ARG_LD
+#define GET_LD
+#define PRED_LD
+#define PASS_LD
+#define PASS_LD1 
+#define IGNORE_LD
+
+#define REGS_FROM_LD
+#define LD_FROM_REGS
+
+#else
+
+#define LOCAL_LD (__PL_ld)
+#define LD    LOCAL_LD
+
+#define GET_LD    CACHE_REGS struct PL_local_data *__PL_ld = GLOBAL_LD;
+#define ARG1_LD   struct PL_local_data *__PL_ld
+
+#define ARG_LD    , ARG1_LD
+#define PASS_LD1  LD
+#define PASS_LD   , LD
+#define PRED_LD   GET_LD
+#define IGNORE_LD (void)__PL_ld;
+
+#define REGS_FROM_LD  struct regstore_t *regcache = __PL_ld->reg_cache;
+#define LD_FROM_REGS struct PL_local_data *__PL_ld = LOCAL_PL_local_data_p;
+
+#endif
+
+Atom                  YAP_AtomFromSWIAtom(atom_t at);
+atom_t                YAP_SWIAtomFromAtom(Atom at);
+
+
+static inline Term
+OpenList(int n USES_REGS)
+{
+  Term t;
+  BACKUP_H();
+
+  while (HR+2*n > ASP-1024) {
+    if (!Yap_dogc( 0, (Term *)NULL PASS_REGS )) {
+      RECOVER_H();
+      return FALSE;
+    }
+  }
+  t = AbsPair(HR);
+  HR += 2*n;
+
+  RECOVER_H();
+  return t;
+}
+
+static inline Term
+ExtendList(Term t0, Term inp)
+{
+  Term t;
+  CELL *ptr = RepPair(t0);
+  BACKUP_H();
+
+  ptr[0] = inp;
+  ptr[1] = AbsPair(ptr+2);
+  t = AbsPair(ptr+2);
+
+  RECOVER_H();
+  return t;
+}
+
+static inline int
+CloseList(Term t0, Term tail)
+{
+  CELL *ptr = RepPair(t0);
+
+  RESET_VARIABLE(ptr-1);
+  if (!Yap_unify((Term)(ptr-1), tail))
+    return FALSE;
+  return TRUE;
+}
+
+#ifndef __YAP_PROLOG__
 
 #include <assert.h>
 
@@ -20,12 +108,6 @@
 
 #ifndef PL_CONSOLE
 #define PL_KERNEL 1
-#endif
-
-#ifndef __WINDOWS__
-#if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MSYS__)
-#define __WINDOWS__ 1
-#endif
 #endif
 
 
@@ -59,7 +141,7 @@
 #endif
 #endif
 
-#include <SWI-Stream.h>
+//#include <SWI-Stream.h>
 #include <SWI-Prolog.h>
 
 #define COMMON(X) extern X
@@ -90,39 +172,6 @@ typedef uintptr_t		word;		/* Anonymous 4 byte object */
 #define GLOBAL_LD (LOCAL_PL_local_data_p)
 
 
-#if !defined(O_PLMT) && !defined(YAPOR)
-
-#define LOCAL_LD (GLOBAL_LD)
-#define LD (GLOBAL_LD)
-#define ARG1_LD   void
-#define ARG_LD
-#define GET_LD
-#define PRED_LD
-#define PASS_LD
-#define PASS_LD1 
-#define IGNORE_LD
-
-#define REGS_FROM_LD
-#define LD_FROM_REGS
-
-#else
-
-#define LOCAL_LD (__PL_ld)
-#define LD	  LOCAL_LD
-
-#define GET_LD	  CACHE_REGS struct PL_local_data *__PL_ld = GLOBAL_LD;
-#define ARG1_LD   struct PL_local_data *__PL_ld
-
-#define ARG_LD    , ARG1_LD
-#define PASS_LD1  LD
-#define PASS_LD   , LD
-#define PRED_LD   GET_LD
-#define IGNORE_LD (void)__PL_ld;
-
-#define REGS_FROM_LD  struct regstore_t *regcache = __PL_ld->reg_cache;
-#define LD_FROM_REGS struct PL_local_data *__PL_ld = LOCAL_PL_local_data_p;
-
-#endif
 
 		 /*******************************
 		 *	    STREAM I/O		*
@@ -247,7 +296,7 @@ typedef struct initialise_handle * InitialiseHandle;
 /* Flags on module.  Most of these flags are copied to the read context
    in pl-read.c.
 */
-
+#ifndef M_SYSTEM
 #define M_SYSTEM		(0x0001) /* system module */
 #define M_CHARESCAPE		(0x0002) /* module */
 #define DBLQ_CHARS		(0x0004) /* "ab" --> ['a', 'b'] */
@@ -258,7 +307,7 @@ typedef struct initialise_handle * InitialiseHandle;
 #define UNKNOWN_WARNING		(0x0040) /* module */
 #define UNKNOWN_ERROR		(0x0080) /* module */
 #define UNKNOWN_MASK		(UNKNOWN_ERROR|UNKNOWN_WARNING|UNKNOWN_FAIL)
-
+#endif
 extern unsigned int
 getUnknownModule(module_t m);
 
@@ -303,85 +352,7 @@ COMMON(void)		Yap_setCurrentSourceLocation( void *rd );
 
 extern int raiseSignal(PL_local_data_t *ld, int sig);
 
-#ifdef YATOM_H
 
-static inline atom_t
-AtomToSWIAtom(Atom at)
-{
-  TranslationEntry *p;
-
-  if ((p = Yap_GetTranslationProp(at)) != NULL)
-    return (atom_t)(p->Translation*2+1);
-  return (atom_t)at;
-}
-
-#endif
-
-static inline Atom
-SWIAtomToAtom(atom_t at)
-{
-  if ((CELL)at & 1)
-    return SWI_Atoms[at/2];
-  return (Atom)at;
-}
-
-Atom                  YAP_AtomFromSWIAtom(atom_t at);
-atom_t                YAP_SWIAtomFromAtom(Atom at);
-
-
-/* This is silly, but let's keep it like that for now */
-static inline Functor
-SWIFunctorToFunctor(functor_t f)
-{
-  if (((CELL)(f) & 2) && ((CELL)f) < N_SWI_FUNCTORS*4+2)
-    return SWI_Functors[((CELL)f)/4];
-  return (Functor)f;
-}
-
-static inline Term
-OpenList(int n USES_REGS)
-{
-  Term t;
-  BACKUP_H();
-
-  while (HR+2*n > ASP-1024) {
-    if (!Yap_dogc( 0, (Term *)NULL PASS_REGS )) {
-      RECOVER_H();
-      return FALSE;
-    }
-  }
-  t = AbsPair(HR);
-  HR += 2*n;
-
-  RECOVER_H();
-  return t;
-}
-
-static inline Term
-ExtendList(Term t0, Term inp)
-{
-  Term t;
-  CELL *ptr = RepPair(t0);
-  BACKUP_H();
-
-  ptr[0] = inp;
-  ptr[1] = AbsPair(ptr+2);
-  t = AbsPair(ptr+2);
-
-  RECOVER_H();
-  return t;
-}
-
-static inline int
-CloseList(Term t0, Term tail)
-{
-  CELL *ptr = RepPair(t0);
-
-  RESET_VARIABLE(ptr-1);
-  if (!Yap_unify((Term)(ptr-1), tail))
-    return FALSE;
-  return TRUE;
-}
-
+#endif /* YAP codee */
 
 #endif /* PL_SHARED_INCLUDE */

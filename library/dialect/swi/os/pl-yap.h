@@ -34,8 +34,6 @@ typedef Term		(*Func)(term_t);	/* foreign functions */
 extern const char *Yap_GetCurrentPredName(void);
 extern Int     Yap_GetCurrentPredArity(void);
 extern term_t Yap_fetch_module_for_format(term_t args, Term *modp);
-extern IOENC Yap_DefaultEncoding(void);
-extern void Yap_SetDefaultEncoding(IOENC);
 extern void Yap_setCurrentSourceLocation( void *rd );
 extern void   *Yap_GetStreamHandle(Atom at);
 extern void	Yap_WriteAtom(IOSTREAM *s, Atom atom);
@@ -233,9 +231,9 @@ unblockSignal(int sig)
 atom_t ATOM_;
 
 #if THREADS
-intptr_t system_thread_id(PL_thread_info_t *info);
+intptr_t system_thread_id(void);
 #endif
 
-extern Term Yap_StringToTerm(const char *s, size_t len, term_t bindings);
+extern Term Yap_StringToTerm(const char *s, size_t len, encoding_t enc, int prio,Term *bindingsp);
 
 #endif /* PL_YAP_H */

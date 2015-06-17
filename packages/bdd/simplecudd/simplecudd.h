@@ -193,6 +193,7 @@
 #include <math.h>
 #include <time.h>
 #include "config.h"
+#include "../cudd_config.h"
 #if HAVE_UTIL_H
 #include <util.h>
 #endif

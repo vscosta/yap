@@ -1,4 +1,5 @@
 
+
 #ifndef PL_INCL_H
 
 #define PL_INCL_H 1
@@ -46,6 +47,8 @@ typedef word *			Word;
 /* SWI internal name for a predicate */
 typedef struct pred_entry *      Procedure;      /* predicate */
 
+#ifndef SWI_H
+
 /* try not to pollute the SWI space */
 #ifdef P
 #undef P
@@ -58,6 +61,8 @@ typedef struct pred_entry *      Procedure;      /* predicate */
 #endif
 #ifdef H
 #undef H
+#endif
+
 #endif
 
 /* swi code called from pl-incl.h */
@@ -270,7 +275,7 @@ users foreign language code.
 
 		/********************************
 		*       Error		         *
-		*********************************/
+v		*********************************/
 
 #define isDefinedProcedure(pred) TRUE // TBD
 #include "pl-error.h"
@@ -438,6 +443,9 @@ it mean anything?
 #define DBLQ_CHARS              (0x0004) /* "ab" --> ['a', 'b'] */
 #define DBLQ_ATOM               (0x0008) /* "ab" --> 'ab' */
 #define DBLQ_STRING             (0x0010) /* "ab" --> "ab" */
+#ifdef DBLQ_MASK
+#undef DBLQ_MASK
+#endif
 #define DBLQ_MASK               (DBLQ_CHARS|DBLQ_ATOM|DBLQ_STRING)
 #define UNKNOWN_FAIL            (0x0020) /* module */
 #define UNKNOWN_WARNING         (0x0040) /* module */

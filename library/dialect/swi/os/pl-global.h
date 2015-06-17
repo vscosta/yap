@@ -78,7 +78,7 @@ typedef struct _PL_thread_info_t
 } PL_thread_info_t;
 
 PL_thread_info_t *SWI_thread_info(int tid, PL_thread_info_t *info);
-intptr_t system_thread_id(PL_thread_info_t *info);
+intptr_t system_thread_id(void);
 
 #endif
 

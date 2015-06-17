@@ -41,7 +41,6 @@ static char SccsId[] = "%W% %G%";
 #include "absmi.h"
 #include "yapio.h"
 #include "alloc.h"
-#include "pl-incl.h"
 #include <math.h>
 #if STDC_HEADERS
 #include <stdlib.h>
@@ -111,8 +110,8 @@ static char SccsId[] = "%W% %G%";
 static void
 Yap_FileError(yap_error_number type, Term where, const char *format,...)
 {
-  GET_LD
-    if ( truePrologFlag(PLFLAG_FILEERRORS) ) {
+  
+    if ( trueLocalPrologFlag(FILEERRORS_FLAG) ) {
       va_list ap;
 
       va_start (ap, format);
@@ -133,11 +132,11 @@ static Int p_system( USES_REGS1 );
 static Int p_mv( USES_REGS1 );
 static Int p_dir_sp( USES_REGS1 );
 static void InitRandom(void);
-static Int p_srandom( USES_REGS1 );
 static Int p_alarm( USES_REGS1 );
 static Int p_getenv( USES_REGS1 );
 static Int p_putenv( USES_REGS1 );
 static bool set_fpu_exceptions(bool);
+static char *expandVars(const char *pattern, char *expanded, int maxlen);
 #ifdef MACYAP
 static int chdir(char *);
 /* #define signal	skel_signal */
@@ -354,9 +353,12 @@ char *libdir = NULL;
 #endif
 
 
-int
-IsAbsolutePath(const char *p)
+bool
+Yap_IsAbsolutePath(const char *p0)
 {
+  // verify first if expansion is needed: ~/ or $HOME/
+  char c[MAXPATHLEN+1];
+  char *p = expandVars( p0, c, MAXPATHLEN );
 #if _WIN32 || __MINGW32__
   return !PathIsRelative(p);
 #else
@@ -375,6 +377,7 @@ yapExpandVars (const char *source, char *result)
 {
   const char *src = source;
   char *res = result;
+
   if(result == NULL)
     result = malloc( YAP_FILENAME_MAX+1);
 
@@ -458,14 +461,14 @@ yapExpandVars (const char *source, char *result)
   return result;
 }
 
-char *
+static char *
 expandVars(const char *pattern, char *expanded, int maxlen)
 {
 
   return yapExpandVars(pattern, expanded);
 #if ( __WIN32 || __MINGW32__ ) && defined(ENABLE_SYSTEM_EXPANSION)
   DWORD  retval=0;
-  // notice that the file does not need to exist1
+  // notice that the file does not need to exist
   if (ini == NULL) {
     ini = malloc(strlen(w)+1);
   }
@@ -574,13 +577,13 @@ unix2win( const char *source, char *target, int max)
 #if O_XOS
 char *
 PrologPath(const char *p, char *buf, size_t len)
-{ GET_LD
-    int flags = (truePrologFlag(PLFLAG_FILE_CASE) ? 0 : XOS_DOWNCASE);
+{ 
+  int flags = (trueGlobalPrologFlag(PLFLAG_FILE_CASE) ? 0 : XOS_DOWNCASE);
 
   return _xos_canonical_filename(p, buf, len, flags);
 }
 
-char *
+static char *
 OsPath(const char *p, char *buf)
 {
   if()z
@@ -589,7 +592,7 @@ OsPath(const char *p, char *buf)
   return buf;
 }
 #else
-char *
+static char *
 OsPath(const char *X, char *Y) {
   if (X!=Y && Y) strcpy(Y,X);
   return (char *)Y  ;
@@ -602,9 +605,9 @@ OsPath(const char *X, char *Y) {
 #define HAVE_WORDEXP 1
 #endif
 
-bool ChDir(const char *path) {
+static bool ChDir(const char *path) {
   bool rc = false;
-  char *qpath = AbsoluteFile(path, NULL);
+  char *qpath = Yap_AbsoluteFile(path, NULL);
 
 #ifdef __ANDROID__
   if (GLOBAL_AssetsWD) {
@@ -630,7 +633,7 @@ bool ChDir(const char *path) {
   }
 #endif
 #if _WIN32 || defined(__MINGW32__)
-  GET_LD
+  
     if ((rc = (SetCurrentDirectory(qpath) != 0)) == 0)
       {
 	Yap_WinError("SetCurrentDirectory failed" );
@@ -675,6 +678,7 @@ static char *myrealpath( const char *path, char *out)
 {
 #if _WIN32 || defined(__MINGW32__)
   DWORD  retval=0;
+
   // notice that the file does not need to exist
   retval = GetFullPathName(path,
 			   YAP_FILENAME_MAX,
@@ -713,9 +717,9 @@ static char *myrealpath( const char *path, char *out)
 }
 
 char *
-AbsoluteFile(const char *spec, char *tmp)
+Yap_AbsoluteFile(const char *spec, char *tmp)
 {
-  GET_LD
+  
     char *rc;
   char o[YAP_FILENAME_MAX+1];
 #if _WIN32 || defined(__MINGW32__)
@@ -731,7 +735,7 @@ AbsoluteFile(const char *spec, char *tmp)
       return NULL;
     }
   }
-  if ( 1 || truePrologFlag(PLFLAG_FILEVARS) )
+  if ( 1 || trueGlobalPrologFlag(FILE_NAME_VARIABLES_FLAG) )
     {
       spec=expandVars(spec,o,YAP_FILENAME_MAX);
     }
@@ -741,7 +745,8 @@ AbsoluteFile(const char *spec, char *tmp)
   return rc;
 }
 
-char *canoniseFileName( char *path) {
+/*
+static char *canoniseFileName( char *path) {
 #if HAVE_REALPATH && HAVE_BASENAME
 #if _WIN32 || defined(__MINGW32__)
   char *o = malloc(YAP_FILENAME_MAX+1);
@@ -763,13 +768,56 @@ char *canoniseFileName( char *path) {
   return rc;
 #endif
 }
+*/
 
-atom_t TemporaryFile( const char *prefix, int *fd) {
+static Int
+absolute_file_name( USES_REGS1 )
+{
+  Term t = Deref(ARG1);
+  const char *fp;
+  bool rc;
+  char s[MAXPATHLEN+1];
+  
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR, t, "absolute_file_name");
+    return false;
+  } else if (!IsAtomTerm(t)) {
+    Yap_Error(TYPE_ERROR_ATOM, t, "absolute_file_name");
+    return false;
+  }
+  if (!(fp = Yap_AbsoluteFile( RepAtom(AtomOfTerm(t))->StrOfAE, s)))
+    return false;
+  rc = Yap_unify(MkAtomTerm(Yap_LookupAtom(fp)), ARG2);
+  if (fp != s)
+    free( (void *)fp );
+  return rc;
+}
+
+static Int
+prolog_to_os_filename( USES_REGS1 )
+{
+  Term t = Deref(ARG1);
+  const char *fp;
+  char out[MAXPATHLEN+1];
+  
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR, t, "absolute_file_name");
+    return false;
+  } else if (!IsAtomTerm(t)) {
+    Yap_Error(TYPE_ERROR_ATOM, t, "absolute_file_name");
+    return false;
+  }
+  if (!(fp = OsPath( RepAtom(AtomOfTerm(t))->StrOfAE, out)))
+    return false;
+  return Yap_unify(MkAtomTerm(Yap_LookupAtom(fp)), ARG2);
+}
+
+Atom Yap_TemporaryFile( const char *prefix, int *fd) {
 #if HAVE_MKSTEMP
   char *tmp = malloc(PATH_MAX);
   int n;
   int f;
-  if (tmp == NULL) return (atom_t)0;
+  if (tmp == NULL) return NIL;
   strncpy(tmp, prefix, PATH_MAX-1);
   n = strlen( tmp );
   if (n >= 6 &&
@@ -785,9 +833,9 @@ atom_t TemporaryFile( const char *prefix, int *fd) {
     f = mkstemp(tmp);
   }
   if (fd) *fd = f;
-  return  YAP_SWIAtomFromAtom(Yap_LookupAtom(tmp));
+  return  Yap_LookupAtom(tmp);
 #else
-  return ATOM_nil;
+  return AtomNil;
 #endif
 }
 
@@ -827,9 +875,8 @@ initSysPath(Term tlib, Term tcommons, bool dir_done, bool commons_done) {
         if (! Yap_unify( tlib,
                          MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))) )
           return FALSE;
+	dir_done = true;
       }
-    dir_done = true;
-
   }
   if (!commons_done) {
     LOCAL_FileNameBuf[len] = '\0';
@@ -905,20 +952,20 @@ initSysPath(Term tlib, Term tcommons, bool dir_done, bool commons_done) {
 
 
 static Int
-p_libraries_path( USES_REGS1 )
+libraries_directories( USES_REGS1 )
 {
   return initSysPath( ARG1, ARG2 , false, false );
 }
 
 
 static Int
-p_library_dir( USES_REGS1 )
+system_library( USES_REGS1 )
 {
   return initSysPath( ARG1, MkVarTerm(), false, true );
 }
 
 static Int
-p_commons_dir( USES_REGS1 )
+commons_library( USES_REGS1 )
 {
   return initSysPath( MkVarTerm(), ARG1, true, false );
 }
@@ -1502,7 +1549,7 @@ real_cputime ()
 static hrtime_t StartOfWTimes;
 
 /* since last call to walltime */
-#define  LastWtime (*(hrtime_t *)ALIGN_BY_TYPE(LastWtimePtr,hrtime_t))
+#define  LastWtime (*(hrtime_t *)ALIGN_BY_TYPE(GLOBAL_LastWtimePtr,hrtime_t))
 
 static void
 InitWTime (void)
@@ -1513,7 +1560,7 @@ InitWTime (void)
 static void
 InitLastWtime(void) {
   /* ask for twice the space in order to guarantee alignment */
-  LastWtimePtr = (void *)Yap_AllocCodeSpace(2*sizeof(hrtime_t));
+  GLOBAL_LastWtimePtr = (void *)Yap_AllocCodeSpace(2*sizeof(hrtime_t));
   LastWtime = StartOfWTimes;
 }
 
@@ -1542,7 +1589,7 @@ void Yap_walltime_interval(Int *now,Int *interval)
 static struct timeval StartOfWTimes;
 
 /* since last call to walltime */
-#define LastWtime (*(struct timeval *)LastWtimePtr)
+#define LastWtime (*(struct timeval *)GLOBAL_LastWtimePtr)
 
 /* store user time in this variable */
 static void
@@ -1553,7 +1600,7 @@ InitWTime (void)
 
 static void
 InitLastWtime(void) {
-  LastWtimePtr = (void *)Yap_AllocCodeSpace(sizeof(struct timeval));
+  GLOBAL_LastWtimePtr = (void *)Yap_AllocCodeSpace(sizeof(struct timeval));
   LastWtime.tv_usec = StartOfWTimes.tv_usec;
   LastWtime.tv_sec = StartOfWTimes.tv_sec;
 }
@@ -1595,7 +1642,7 @@ void Yap_walltime_interval(Int *now,Int *interval)
 static struct _timeb StartOfWTimes;
 
 /* since last call to walltime */
-#define LastWtime (*(struct timeb *)LastWtimePtr)
+#define LastWtime (*(struct timeb *)GLOBAL_LastWtimePtr)
 
 /* store user time in this variable */
 static void
@@ -1606,7 +1653,7 @@ InitWTime (void)
 
 static void
 InitLastWtime(void) {
-  LastWtimePtr = (void *)Yap_AllocCodeSpace(sizeof(struct timeb));
+  GLOBAL_LastWtimePtr = (void *)Yap_AllocCodeSpace(sizeof(struct timeb));
   LastWtime.time = StartOfWTimes.time;
   LastWtime.millitm = StartOfWTimes.millitm;
 }
@@ -1643,7 +1690,7 @@ void Yap_walltime_interval(Int *now,Int *interval)
 
 static clock_t StartOfWTimes;
 
-#define LastWtime (*(clock_t *)LastWtimePtr)
+#define LastWtime (*(clock_t *)GLOBAL_LastWtimePtr)
 
 /* store user time in this variable */
 static void
@@ -1654,7 +1701,7 @@ InitWTime (void)
 
 static void
 InitLastWtime(void) {
-  LastWtimePtr = (void *)Yap_AllocCodeSpace(sizeof(clock_t));
+  GLOBAL_LastWtimePtr = (void *)Yap_AllocCodeSpace(sizeof(clock_t));
   LastWtime = StartOfWTimes;
 }
 
@@ -1671,7 +1718,7 @@ void Yap_walltime_interval(Int *now,Int *interval)
   clock_t t;
   t = times(NULL);
   *now = ((t - StartOfWTimes)*1000) / TicksPerSec;
-  *interval = (t - LastWtime) * 1000 / TicksPerSec;
+  *interval = (t - GLOBAL_LastWtime) * 1000 / TicksPerSec;
 }
 
 #endif /* HAVE_TIMES */
@@ -1776,7 +1823,7 @@ p_release_random_state ( USES_REGS1 )
 #endif
 
 static Int
-p_srandom ( USES_REGS1 )
+Srandom ( USES_REGS1 )
 {
   register Term t0 = Deref (ARG1);
   if (IsVarTerm (t0)) {
@@ -2320,11 +2367,6 @@ MSCHandleSignal(DWORD dwCtrlType) {
     return volume_header(file);
   }
 
-  char * PL_cwd(char *cwd, size_t cwdlen)
-  {
-    return (char *)Yap_getcwd( (const char *)cwd, cwdlen );
-  }
-
   const char * Yap_getcwd(const char *cwd, size_t cwdlen)
   {
 #if _WIN32 || defined(__MINGW32__)
@@ -2334,17 +2376,35 @@ MSCHandleSignal(DWORD dwCtrlType) {
 	return NULL;
       }
     return (char *)cwd;
-#else
-#if __ANDROID__
+#elif __ANDROID__
     if (GLOBAL_AssetsWD) {
       return strncpy( (char *)cwd, (const char *)GLOBAL_AssetsWD, cwdlen);
     }
 
 #endif
     return getcwd((char *)cwd, cwdlen);
-#endif
   }
 
+  static Int
+  working_directory(USES_REGS1)
+  {
+    char dir[YAP_FILENAME_MAX+1];
+    Term t1 = Deref(ARG1), t2;
+    if ( !IsVarTerm( t1 ) && !IsAtomTerm(t1) ) {
+      Yap_Error(TYPE_ERROR_ATOM, t1, "working_directory");
+    }
+    if (!Yap_unify( t1, MkAtomTerm(Yap_LookupAtom(Yap_getcwd(dir,YAP_FILENAME_MAX )))) )
+      return false;
+    t2 = Deref(ARG2);
+    if ( IsVarTerm( t2 ) ) {
+      Yap_Error(INSTANTIATION_ERROR, t2, "working_directory");
+    }    
+   if ( !IsAtomTerm(t2) ) {
+      Yap_Error(TYPE_ERROR_ATOM, t2, "working_directory");
+    }
+   ChDir(RepAtom(AtomOfTerm(t2))->StrOfAE);
+   return true;
+  }
 
   static char *
     expandWithPrefix(const char *source, const char *root, char *result)
@@ -2355,12 +2415,12 @@ MSCHandleSignal(DWORD dwCtrlType) {
 
     work = expandVars( source, ares1, YAP_FILENAME_MAX);
     // expand names first
-    if (root && !IsAbsolutePath( source ) ) {
+    if (root && !Yap_IsAbsolutePath( source ) ) {
       char ares2[YAP_FILENAME_MAX+1];
       strncpy( ares2, root, YAP_FILENAME_MAX );
       strncat( ares2, "/", YAP_FILENAME_MAX );
       strncat( ares2, work, YAP_FILENAME_MAX );
-      return AbsoluteFile( ares2, result );
+      return Yap_AbsoluteFile( ares2, result );
     } else {
       // expand path
       return myrealpath( work, result);
@@ -3335,8 +3395,8 @@ MSCHandleSignal(DWORD dwCtrlType) {
     Yap_ReInitWallTime (void)
   {
     InitWTime();
-    if (Yap_heap_regs->last_wtime != NULL)
-      Yap_FreeCodeSpace(Yap_heap_regs->last_wtime);
+    if (Yap_global->LastWtimePtr_ != NULL)
+      Yap_FreeCodeSpace(Yap_global->LastWtimePtr_);
     InitLastWtime();
   }
 
@@ -3615,23 +3675,24 @@ MSCHandleSignal(DWORD dwCtrlType) {
 
     /* can only do after heap is initialised */
     InitLastWtime();
-    Yap_InitCPred ("srandom", 1, p_srandom, SafePredFlag);
+    Yap_InitCPred ("srandom", 1, Srandom, SafePredFlag);
 #if HAVE_RANDOM
     Yap_InitCPred ("init_random_state", 3, p_init_random_state, SafePredFlag);
     Yap_InitCPred ("set_random_state", 2, p_set_random_state, SafePredFlag);
     Yap_InitCPred ("release_random_state", 1, p_release_random_state, SafePredFlag);
 #endif
+    Yap_InitCPred ("$absolute_file_name", 2, absolute_file_name, SafePredFlag|SyncPredFlag);
     Yap_InitCPred ("log_event", 1, p_log_event, SafePredFlag|SyncPredFlag);
     Yap_InitCPred ("sh", 0, p_sh, SafePredFlag|SyncPredFlag);
-    Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag|UserCPredFlag);
+    Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag);
     Yap_InitCPred ("system", 1, p_system, SafePredFlag|SyncPredFlag|UserCPredFlag);
     Yap_InitCPred ("rename", 2, p_mv, SafePredFlag|SyncPredFlag);
     Yap_InitCPred ("$yap_home", 1, p_yap_home, SafePredFlag);
     Yap_InitCPred ("$yap_paths", 3, p_yap_paths, SafePredFlag);
     Yap_InitCPred ("$dir_separator", 1, p_dir_sp, SafePredFlag);
-    Yap_InitCPred ("libraries_directories",2, p_libraries_path, 0);
-    Yap_InitCPred ("system_library", 1, p_library_dir, 0);
-    Yap_InitCPred ("commons_library", 1, p_commons_dir, 0);
+    Yap_InitCPred ("libraries_directories",2, libraries_directories, 0);
+    Yap_InitCPred ("system_library", 1, system_library, 0);
+    Yap_InitCPred ("commons_library", 1, commons_library, 0);
     Yap_InitCPred ("$alarm", 4, p_alarm, SafePredFlag|SyncPredFlag);
     Yap_InitCPred ("$getenv", 2, p_getenv, SafePredFlag);
     Yap_InitCPred ("$putenv", 2, p_putenv, SafePredFlag|SyncPredFlag);
@@ -3643,6 +3704,8 @@ MSCHandleSignal(DWORD dwCtrlType) {
     Yap_InitCPred ("$ld_path", 1, p_ld_path, SafePredFlag);
     Yap_InitCPred ("$address_bits", 1, p_address_bits, SafePredFlag);
     Yap_InitCPred ("$expand_file_name", 2, p_expand_file_name, SyncPredFlag);
+    Yap_InitCPred ("working_directory", 2,working_directory, SyncPredFlag);
+    Yap_InitCPred ("prolog_to_os_filename", 2, prolog_to_os_filename, SyncPredFlag);
     Yap_InitCPred ("$fpe_error", 0, p_fpe_error, 0);
 #ifdef _WIN32
     Yap_InitCPred ("win_registry_get_value", 3, p_win_registry_get_value,0);
