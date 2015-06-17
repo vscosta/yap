@@ -139,7 +139,7 @@ eval0(Int fi) {
       P = (yamop *)FAILCODE;
       RERROR();
 #else
-      if (yap_flags[LANGUAGE_MODE_FLAG] == 1) {/* iso */
+      if (isoLanguageFlag()) {/* iso */
 	Yap_ArithError(TYPE_ERROR_EVALUABLE, TermNil, "evaluating infinity");
 	P = (yamop *)FAILCODE;
 	RERROR();
@@ -154,7 +154,7 @@ eval0(Int fi) {
       Yap_ArithError(TYPE_ERROR_EVALUABLE, TermNil, "evaluating infinity");
       RERROR();
 #else
-      if (yap_flags[LANGUAGE_MODE_FLAG] == 1) {/* iso */
+      if (isoLanguageFlag()) {/* iso */
 	Yap_ArithError(TYPE_ERROR_EVALUABLE, TermNil, "evaluating not-a-number");
 	RERROR();
       } else {

@@ -841,7 +841,7 @@ eval1(Int fi, Term t USES_REGS) {
   case op_ffracp:
     switch (ETypeOfTerm(t)) {
     case long_int_e:
-      if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
+      if (isoLanguageFlag()) { /* iso */
 	return Yap_ArithError(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(%f)", IntegerOfTerm(t));
       } else {
 	RFLOAT(0.0);
