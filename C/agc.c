@@ -459,7 +459,7 @@ clean_atoms(void)
   clean_atom_list(&INVISIBLECHAIN);
   {
     AtomHashEntry list;
-    list.Entry = SWI_Blobs;
+    list.Entry =                                                                                                                                                                                                                                                                                                                                                                                                                                                            Blobs;
     clean_atom_list(&list);
   }
 }
