@@ -140,7 +140,7 @@ int showTime(void);
 struct AND_BOX *choose_leftmost(void);
 extern Cell BEAM_is(void);
 extern void do_eam_indexing(struct Predicates *);
-extern void Yap_plwrite(Term, void *, int, int);
+extern void Yap_plwrite(Term, struct stream_desc *, int, int);
 
 #if Debug_Dump_State
    void dump_eam_state(void);
