@@ -1391,7 +1391,7 @@ undef_goal( USES_REGS1 )
   ENDD(d0);
   HR[0] = Yap_Module_Name(pe);
   ARG1 = (Term) AbsPair(HR);
-  ARG2 = MkIntTerm(getUnknownModule(Yap_GetModuleEntry(HR[0])));
+  ARG2 = Yap_getUnknownModule(Yap_GetModuleEntry(HR[0]));
   HR += 2;
 #ifdef LOW_LEVEL_TRACER
   if (Yap_do_low_level_trace)
