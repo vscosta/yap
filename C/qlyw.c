@@ -520,48 +520,48 @@ RestoreAtomList(Atom atm USES_REGS)
 {
 }
 
-static size_t save_bytes(IOSTREAM *stream, void *ptr, size_t sz)
+static size_t save_bytes(FILE *stream, void *ptr, size_t sz)
 {
-  return Sfwrite(ptr, sz, 1, stream);
+  return fwrite(ptr, sz, 1, stream);
 }
 
-static size_t save_byte(IOSTREAM *stream, int byte)
+static size_t save_byte(FILE *stream, int byte)
 {
-  Sputc(byte, stream);
+  fputc(byte, stream);
   return 1;
 }
 
-static size_t save_bits16(IOSTREAM *stream, BITS16 val)
+static size_t save_bits16(FILE *stream, BITS16 val)
 {
   BITS16 v = val;
   return save_bytes(stream, &v, sizeof(BITS16));
 }
 
-static size_t save_UInt(IOSTREAM *stream, UInt val)
+static size_t save_UInt(FILE *stream, UInt val)
 {
   UInt v = val;
   return save_bytes(stream, &v, sizeof(UInt));
 }
 
-static size_t save_Int(IOSTREAM *stream, Int val)
+static size_t save_Int(FILE *stream, Int val)
 {
   Int v = val;
   return save_bytes(stream, &v, sizeof(Int));
 }
 
-static size_t save_tag(IOSTREAM *stream, qlf_tag_t tag)
+static size_t save_tag(FILE *stream, qlf_tag_t tag)
 {
   return save_byte(stream, tag);
 }
 
-static size_t save_predFlags(IOSTREAM *stream, pred_flags_t predFlags)
+static size_t save_predFlags(FILE *stream, pred_flags_t predFlags)
 {
   pred_flags_t v = predFlags;
   return save_bytes(stream, &v, sizeof(pred_flags_t));
 }
 
 static int
-SaveHash(IOSTREAM *stream)
+SaveHash(FILE *stream)
 {
   CACHE_REGS
   UInt i;
@@ -628,7 +628,7 @@ SaveHash(IOSTREAM *stream)
 }
 
 static size_t
-save_clauses(IOSTREAM *stream, PredEntry *pp) {
+save_clauses(FILE *stream, PredEntry *pp) {
   yamop        *FirstC, *LastC;
 
   FirstC = pp->cs.p_code.FirstClause;
@@ -691,7 +691,7 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
 }
 
 static size_t
-save_pred(IOSTREAM *stream, PredEntry *ap) {
+save_pred(FILE *stream, PredEntry *ap) {
   CHECK(save_UInt(stream, (UInt)ap));
   CHECK(save_predFlags(stream, ap->PredFlags));
   CHECK(save_UInt(stream, ap->cs.p_code.NOfClauses));
@@ -717,9 +717,6 @@ static size_t
 mark_pred(PredEntry *ap)
 {
   CACHE_REGS
-#if DEBUG_RESTORE2
-    Yap_PrintPredName( ap );
-#endif
   if (ap->ModuleOfPred != IDB_MODULE) {
     if (ap->ArityOfPE) {
       FuncAdjust(ap->FunctorOfPred);
@@ -742,7 +739,7 @@ mark_pred(PredEntry *ap)
 }
 
 static size_t
-mark_ops(IOSTREAM *stream, Term mod) {
+mark_ops(FILE *stream, Term mod) {
   OpEntry *op = OpList;
   while (op) {
     if (!mod || op->OpModule == mod) {
@@ -756,7 +753,7 @@ mark_ops(IOSTREAM *stream, Term mod) {
 }
 
 static size_t
-save_ops(IOSTREAM *stream, Term mod) {
+save_ops(FILE *stream, Term mod) {
   OpEntry *op = OpList;
   while (op) {
     if (!mod || op->OpModule == mod) {
@@ -774,7 +771,7 @@ save_ops(IOSTREAM *stream, Term mod) {
 }
 
 static int
-save_header(IOSTREAM *stream, char type[])
+save_header(FILE *stream, char type[])
 {
   char     msg[256];
 
@@ -783,7 +780,7 @@ save_header(IOSTREAM *stream, char type[])
 }
 
 static size_t
-save_module(IOSTREAM *stream, Term mod) {
+save_module(FILE *stream, Term mod) {
   PredEntry *ap = Yap_ModulePred(mod);
   save_header( stream, "saved module," );
   InitHash();
@@ -812,7 +809,7 @@ save_module(IOSTREAM *stream, Term mod) {
 }
 
 static size_t
-save_program(IOSTREAM *stream) {
+save_program(FILE *stream) {
   ModEntry *me = CurrentModules;
 
   InitHash();
@@ -823,6 +820,9 @@ save_program(IOSTREAM *stream) {
     pp = me->PredForME;
     AtomAdjust(me->AtomOfME);
     while (pp != NULL) {
+#if DEBUG
+      //    Yap_PrintPredName( pp );
+#endif
       pp = PredEntryAdjust(pp);
       CHECK(mark_pred(pp));
       pp = pp->NextPredOfModule;
@@ -854,7 +854,7 @@ save_program(IOSTREAM *stream) {
 }
 
 static size_t
-save_file(IOSTREAM *stream, Atom FileName) {
+save_file(FILE *stream, Atom FileName) {
   ModEntry *me = CurrentModules;
 
   InitHash();
@@ -905,9 +905,9 @@ save_file(IOSTREAM *stream, Atom FileName) {
 }
 
 static Int
-p_save_module_preds( USES_REGS1 )
+qsave_module_preds( USES_REGS1 )
 {
-  IOSTREAM *stream;
+  FILE *stream;
   Term tmod = Deref(ARG2);
   Term t1 = Deref(ARG1);
 
@@ -919,7 +919,7 @@ p_save_module_preds( USES_REGS1 )
     Yap_Error(TYPE_ERROR_ATOM,t1,"save_module/3");
     return(FALSE);
   }
-  if (!(stream = Yap_GetOutputStream(AtomOfTerm(t1))) ) {
+  if (!(stream = Yap_GetOutputStream(t1, "save_module") )){
     return FALSE;
   }
   if (IsVarTerm(tmod)) {
@@ -934,44 +934,25 @@ p_save_module_preds( USES_REGS1 )
 }
 
 static Int
-p_save_program( USES_REGS1 )
+qsave_program( USES_REGS1 )
 {
-  IOSTREAM *stream;
+  FILE *stream;
   Term t1 = Deref(ARG1);
 
-  if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR,t1,"save_program/3");
-    return FALSE;
-  }
-  if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM,t1,"save_program/3");
-    return(FALSE);
-  }
-  if (!(stream = Yap_GetOutputStream(AtomOfTerm(t1))) ) {
-    return FALSE;
-  }
-  if (!(stream = Yap_GetOutputStream(AtomOfTerm(t1))) ) {
+  if (!(stream = Yap_GetOutputStream(t1,"save_program")) ) {
     return FALSE;
   }
   return save_program(stream) != 0;
 }
 
 static Int
-p_save_file( USES_REGS1 )
+qsave_file( USES_REGS1 )
 {
-  IOSTREAM *stream;
+  FILE *stream;
   Term t1 = Deref(ARG1);
   Term tfile = Deref(ARG2);
 
-  if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR,t1,"save_file/3");
-    return FALSE;
-  }
-  if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM,t1,"save_file/3");
-    return(FALSE);
-  }
-  if (!(stream = Yap_GetOutputStream(AtomOfTerm(t1))) ) {
+  if (!(stream = Yap_GetOutputStream(t1, "save_file/2") ) ) {
     return FALSE;
   }
   if (IsVarTerm(tfile)) {
