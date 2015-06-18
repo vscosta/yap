@@ -1645,7 +1645,7 @@ static Int p_break(USES_REGS1) {
     return TRUE;
   }
   if (at == AtomFalse) {
-    LOCAL_PL_local_data_p->break_level--;
+    LOCAL_BreakLevel--;
     return TRUE;
   }
   return FALSE;
