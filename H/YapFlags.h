@@ -266,12 +266,10 @@ static inline bool strictISOFlag(void){
 }
 
 static inline bool silentMode(void) {
-    CACHE_REGS
   return GLOBAL_Flags[VERBOSE_FLAG].at == TermSilent;
 }
 
 static inline void setVerbosity(Term val) {
-    CACHE_REGS
    GLOBAL_Flags[VERBOSE_FLAG].at = val;
 }
 
@@ -293,28 +291,23 @@ static inline bool setBackQuotesFlag(Term val) {
     return false;
   if (val == TermSymbolChar)
     val = TermString;
-    CACHE_REGS
   GLOBAL_Flags[BACKQUOTED_STRING_FLAG].at = val;
    return true;
 }
 
 static inline Term getBackQuotesFlag(void) {
-    CACHE_REGS
    return GLOBAL_Flags[BACKQUOTED_STRING_FLAG].at;
 }
 
 static inline int  indexingMode(void) {
-    CACHE_REGS
   return GLOBAL_Flags[INDEX_FLAG].at;
 }
 
 static inline const char  *floatFormat(void) {
-    CACHE_REGS
   return RepAtom(AtomOfTerm(GLOBAL_Flags[FLOAT_FORMAT_FLAG].at))->StrOfAE;
 }
 
 static inline size_t  indexingDepth(void) {
-    CACHE_REGS
   return IntOfTerm(GLOBAL_Flags[INDEX_SUB_TERM_SEARCH_DEPTH_FLAG].at);
 }
 
