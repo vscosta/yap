@@ -1622,216 +1622,6 @@ static Int p_executable(USES_REGS1) {
   return Yap_unify(MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)), ARG1);
 }
 
-static Int p_access_yap_flags(USES_REGS1) {
-  Term tflag = Deref(ARG1);
-  Int flag;
-  Term tout = 0;
-
-  if (IsVarTerm(tflag)) {
-    Yap_Error(INSTANTIATION_ERROR, tflag, "access_yap_flags/2");
-    return (FALSE);
-  }
-  if (!IsIntTerm(tflag)) {
-    Yap_Error(TYPE_ERROR_INTEGER, tflag, "access_yap_flags/2");
-    return (FALSE);
-  }
-  flag = IntOfTerm(tflag);
-  if (flag < 0 || flag >= NUMBER_OF_YAP_FLAGS) {
-    return (FALSE);
-  }
-  if (flag == TABLING_MODE_FLAG) {
-#ifdef TABLING
-    tout = TermNil;
-    if (IsMode_LocalTrie(yap_flags[flag]))
-      tout = MkPairTerm(MkAtomTerm(AtomLocalTrie), tout);
-    else if (IsMode_GlobalTrie(yap_flags[flag]))
-      tout = MkPairTerm(MkAtomTerm(AtomGlobalTrie), tout);
-    if (IsMode_LoadAnswers(yap_flags[flag]))
-      tout = MkPairTerm(MkAtomTerm(AtomLoadAnswers), tout);
-    else if (IsMode_ExecAnswers(yap_flags[flag]))
-      tout = MkPairTerm(MkAtomTerm(AtomExecAnswers), tout);
-    if (IsMode_Local(yap_flags[flag]))
-      tout = MkPairTerm(MkAtomTerm(AtomLocal), tout);
-    else if (IsMode_Batched(yap_flags[flag]))
-      tout = MkPairTerm(MkAtomTerm(AtomBatched), tout);
-    else if (IsMode_CoInductive(yap_flags[flag]))
-      tout = MkPairTerm(MkAtomTerm(AtomCoInductive), tout);
-#else
-    tout = MkAtomTerm(AtomFalse);
-#endif /* TABLING */
-  } else
-    tout = MkIntegerTerm(yap_flags[flag]);
-  return (Yap_unify(ARG2, tout));
-}
-
-static Int p_has_yap_or(USES_REGS1) {
-#ifdef YAPOR
-  return (TRUE);
-#else
-  return (FALSE);
-#endif
-}
-
-static Int p_has_eam(USES_REGS1) {
-#ifdef BEAM
-  return (TRUE);
-#else
-  return (FALSE);
-#endif
-}
-
-static Int p_has_jit(USES_REGS1) {
-#ifdef HAS_JIT
-  return (TRUE);
-#else
-  return (FALSE);
-#endif
-}
-
-
-static Int p_set_yap_flags(USES_REGS1) {
-  Term tflag = Deref(ARG1);
-  Term tvalue = Deref(ARG2);
-  Int flag, value;
-
-  if (IsVarTerm(tflag)) {
-    Yap_Error(INSTANTIATION_ERROR, tflag, "set_yap_flags/2");
-    return (FALSE);
-  }
-  if (!IsIntTerm(tflag)) {
-    Yap_Error(TYPE_ERROR_INTEGER, tflag, "set_yap_flags/2");
-    return (FALSE);
-  }
-  flag = IntOfTerm(tflag);
-  if (IsVarTerm(tvalue)) {
-    Yap_Error(INSTANTIATION_ERROR, tvalue, "set_yap_flags/2");
-    return (FALSE);
-  }
-  if (!IsIntTerm(tvalue)) {
-    Yap_Error(TYPE_ERROR_INTEGER, tvalue, "set_yap_flags/2");
-    return (FALSE);
-  }
-  value = IntOfTerm(tvalue);
-  /* checking should have been performed */
-  switch (flag) {
-  case LANGUAGE_MODE_FLAG:
-    if (value < 0 || value > 2)
-      return (FALSE);
-    if (value == 1) {
-      Yap_heap_regs->pred_meta_call =
-          RepPredProp(PredPropByFunc(FunctorMetaCall, 0));
-    } else {
-      Yap_heap_regs->pred_meta_call =
-          RepPredProp(PredPropByFunc(FunctorMetaCall, 0));
-    }
-    yap_flags[LANGUAGE_MODE_FLAG] = value;
-    break;
-  case SOURCE_MODE_FLAG:
-    if (value != 0 && value != 1)
-      return (FALSE);
-    yap_flags[SOURCE_MODE_FLAG] = value;
-    break;
-  case FLOATING_POINT_EXCEPTION_MODE_FLAG:
-    if (value != 0 && value != 1)
-      return (FALSE);
-    yap_flags[FLOATING_POINT_EXCEPTION_MODE_FLAG] = value;
-    break;
-  case WRITE_QUOTED_STRING_FLAG:
-    if (value != 0 && value != 1)
-      return (FALSE);
-    yap_flags[WRITE_QUOTED_STRING_FLAG] = value;
-    break;
-  case ALLOW_ASSERTING_STATIC_FLAG:
-    if (value != 0 && value != 1)
-      return (FALSE);
-    yap_flags[ALLOW_ASSERTING_STATIC_FLAG] = value;
-    break;
-  case STACK_DUMP_ON_ERROR_FLAG:
-    if (value != 0 && value != 1)
-      return (FALSE);
-    yap_flags[STACK_DUMP_ON_ERROR_FLAG] = value;
-    break;
-  case INDEXING_MODE_FLAG:
-    if (value < INDEX_MODE_OFF || value > INDEX_MODE_MAX)
-      return (FALSE);
-    yap_flags[INDEXING_MODE_FLAG] = value;
-    break;
-#ifdef TABLING
-  case TABLING_MODE_FLAG:
-    if (value == 0) { /* default */
-      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
-      while (tab_ent) {
-        TabEnt_mode(tab_ent) = TabEnt_flags(tab_ent);
-        tab_ent = TabEnt_next(tab_ent);
-      }
-      yap_flags[TABLING_MODE_FLAG] = 0;
-    } else if (value == 1) { /* batched */
-      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
-      while (tab_ent) {
-        SetMode_Batched(TabEnt_mode(tab_ent));
-        tab_ent = TabEnt_next(tab_ent);
-      }
-      SetMode_Batched(yap_flags[TABLING_MODE_FLAG]);
-    } else if (value == 2) { /* local */
-      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
-      while (tab_ent) {
-        SetMode_Local(TabEnt_mode(tab_ent));
-        tab_ent = TabEnt_next(tab_ent);
-      }
-      SetMode_Local(yap_flags[TABLING_MODE_FLAG]);
-    } else if (value == 3) { /* exec_answers */
-      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
-      while (tab_ent) {
-        SetMode_ExecAnswers(TabEnt_mode(tab_ent));
-        tab_ent = TabEnt_next(tab_ent);
-      }
-      SetMode_ExecAnswers(yap_flags[TABLING_MODE_FLAG]);
-    } else if (value == 4) { /* load_answers */
-      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
-      while (tab_ent) {
-        SetMode_LoadAnswers(TabEnt_mode(tab_ent));
-        tab_ent = TabEnt_next(tab_ent);
-      }
-      SetMode_LoadAnswers(yap_flags[TABLING_MODE_FLAG]);
-    } else if (value == 5) { /* local_trie */
-      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
-      while (tab_ent) {
-        SetMode_LocalTrie(TabEnt_mode(tab_ent));
-        tab_ent = TabEnt_next(tab_ent);
-      }
-      SetMode_LocalTrie(yap_flags[TABLING_MODE_FLAG]);
-    } else if (value == 6) { /* global_trie */
-      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
-      while (tab_ent) {
-        SetMode_GlobalTrie(TabEnt_mode(tab_ent));
-        tab_ent = TabEnt_next(tab_ent);
-      }
-      SetMode_GlobalTrie(yap_flags[TABLING_MODE_FLAG]);
-    } else if (value == 7) { /* CoInductive */
-      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
-      while (tab_ent) {
-        SetMode_CoInductive(TabEnt_mode(tab_ent));
-        tab_ent = TabEnt_next(tab_ent);
-      }
-      SetMode_CoInductive(yap_flags[TABLING_MODE_FLAG]);
-    }
-    break;
-#endif /* TABLING */
-  case VARS_CAN_HAVE_QUOTE_FLAG:
-    if (value != 0 && value != 1)
-      return (FALSE);
-    yap_flags[VARS_CAN_HAVE_QUOTE_FLAG] = value;
-    break;
-  case QUIET_MODE_FLAG:
-    if (value != 0 && value != 1)
-      return FALSE;
-    yap_flags[QUIET_MODE_FLAG] = value;
-    break;
-  default:
-    return (FALSE);
-  }
-  return (TRUE);
-}
 
 static Int p_system_mode(USES_REGS1) {
   Term t1 = Deref(ARG1);
@@ -1912,7 +1702,7 @@ static Int p_loop(USES_REGS1) {
 static Int p_break(USES_REGS1) {
   Atom at = AtomOfTerm(Deref(ARG1));
   if (at == AtomTrue) {
-    LOCAL_PL_local_data_p->break_level++;
+    LOCAL_BreakLevel++;
     return TRUE;
   }
   if (at == AtomFalse) {
@@ -1996,9 +1786,6 @@ void Yap_InitCPreds(void) {
   Yap_InitCPred("$cputime", 2, p_cputime, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$systime", 2, p_systime, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$walltime", 2, p_walltime, SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$access_yap_flags", 2, p_access_yap_flags, SafePredFlag);
-  Yap_InitCPred("$set_yap_flags", 2, p_set_yap_flags,
-                SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$system_mode", 1, p_system_mode, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("abort", 0, p_abort, SyncPredFlag);
   /** @pred  abort
@@ -2026,18 +1813,7 @@ void Yap_InitCPreds(void) {
   Yap_InitCPred("$unlock_system", 0, p_unlock_system, SafePredFlag);
   Yap_InitCPred("$enter_undefp", 0, p_enterundefp, SafePredFlag);
   Yap_InitCPred("$exit_undefp", 0, p_exitundefp, SafePredFlag);
-  /* Accessing and changing the flags for a predicate */
-  Yap_InitCPred("$flags", 4, p_flags, SyncPredFlag);
-  Yap_InitCPred("$set_flag", 4, p_set_flag, SyncPredFlag);
-  Yap_InitCPred("$has_yap_or", 0, p_has_yap_or, SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$has_eam", 0, p_has_eam, SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$has_jit", 0, p_has_jit, SafePredFlag | SyncPredFlag);
-#ifdef YAPOR
-  Yap_InitCPred("parallel_mode", 1, p_parallel_mode,
-                SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$c_yapor_workers", 1, p_yapor_workers,
-                SafePredFlag | SyncPredFlag);
-#endif
+
 #ifdef YAP_JIT
   Yap_InitCPred("$jit_init", 1, p_jit,
                 SafePredFlag | SyncPredFlag);
