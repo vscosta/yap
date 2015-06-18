@@ -102,6 +102,7 @@ The following predicates manipulate arrays:
 
 
 #include "Yap.h"
+#include "Yatom.h"
 #include "clause.h"
 #include "eval.h"
 #include "heapgc.h"
@@ -129,7 +130,7 @@ static Int  p_sync_mmapped_arrays( USES_REGS1 );
  * 
  * This file works together with pl/arrays.yap and arrays.h.
  * 
- * YAP now supports a very simple notion of arrays. Arrays may be
+ * YAP supports a very simple notion of arrays. Arrays may be
  * allocated dynamically or statically:
  * 
  * o anonymous arrays are created during execution and allocated
@@ -363,12 +364,13 @@ GetNBTerm(live_term *ar, Int indx USES_REGS)
   }
 }
 
-static Term
-AccessNamedArray(Atom a, Int indx USES_REGS)
+static ArrayEntry *
+GetArrayEntry( Atom at, int owner )
 {
-  AtomEntry *ae = RepAtom(a);
-  ArrayEntry *pp; 
-
+   CACHE_REGS
+  ArrayEntry *pp;
+  AtomEntry *ae = RepAtom(at);
+  
   READ_LOCK(ae->ARWLock);
   pp = RepArrayProp(ae->PropsOfAE);
   while (!EndOfPAEntr(pp) &&
@@ -379,6 +381,17 @@ AccessNamedArray(Atom a, Int indx USES_REGS)
 	 )
     pp = RepArrayProp(pp->NextOfPE);
   READ_UNLOCK(ae->ARWLock);
+  return pp;
+}
+
+
+static Term
+AccessNamedArray(Atom a, Int indx USES_REGS)
+{
+ ArrayEntry *pp;
+ AtomEntry *ae = RepAtom(a);
+
+  pp = GetArrayEntry( ae , worker_id );
 
   if (!EndOfPAEntr(pp)) {
     if (ArrayIsDynamic(pp)) {
@@ -782,6 +795,23 @@ CreateStaticArray(AtomEntry *ae, size_t dim, static_array_types type, CODEADDR s
   return p;
 }
 
+/* ae and p are assumed to be locked, if they exist */
+StaticArrayEntry *
+Yap_StaticArray(Atom na, size_t dim, static_array_types type, CODEADDR start_addr, StaticArrayEntry *p)
+{
+    CACHE_REGS
+  StaticArrayEntry *e;
+  ArrayEntry *e0 = GetArrayEntry( RepAtom(na), worker_id );
+  if (e0 && ArrayIsDynamic( e0 )) {
+    e = NULL;
+  } else {
+    // initial version for e
+    e = RepStaticArrayProp( AbsArrayProp( e0 ) );
+  }
+  e = CreateStaticArray( RepAtom(na), dim, type, NULL, e PASS_REGS);
+  return e;
+}
+
 static void
 ResizeStaticArray(StaticArrayEntry *pp, size_t dim USES_REGS)
 {
@@ -1156,6 +1186,27 @@ p_create_static_array( USES_REGS1 )
   return FALSE;
 }
 
+/// create a new vectir in a given name Name. If one exists, destroy prrexisting onr
+StaticArrayEntry *
+Yap_StaticVector( Atom Name, size_t size,  static_array_types props )
+{
+    CACHE_REGS
+  AtomEntry *ae = RepAtom( Name );
+  
+  WRITE_LOCK(ae->ARWLock);
+  StaticArrayEntry *pp = RepStaticArrayProp( AbsArrayProp(GetArrayEntry( ae, worker_id ) ) );
+  if (EndOfPAEntr(pp) || pp->ValueOfVE.ints == NULL) {
+    pp = CreateStaticArray(ae, size, props, NULL, pp PASS_REGS);
+    if (pp == NULL || pp->ValueOfVE.ints == NULL) {
+      WRITE_UNLOCK(ae->ARWLock);
+      return FALSE;
+    }
+    WRITE_UNLOCK(ae->ARWLock);
+    return pp;
+  }
+  return NULL;
+}
+  
 /* has a static array associated (+Name) */
 static Int 
 p_static_array_properties( USES_REGS1 )
@@ -2496,25 +2547,27 @@ p_static_array_to_term( USES_REGS1 )
 	  CELL *sptr = HR;
 	  HR += dim;
 	  for (indx=0; indx < dim; indx++) {
-	    *sptr++ = MkIntegerTerm((Int)(pp->ValueOfVE.ptrs[indx]));
+	    *sptr++ = MkAddressTerm(pp->ValueOfVE.ptrs[indx]);
 	  }
 	}
 	break;
       case array_of_chars:
 	{
+	  CACHE_REGS
 	  CELL *sptr = HR;
 	  HR += dim;
 	  for (indx=0; indx < dim; indx++) {
-	    *sptr++ = MkIntegerTerm((Int)(pp->ValueOfVE.chars[indx]));
+	    *sptr++ = MkIntTerm(pp->ValueOfVE.chars[indx]);
 	  }
 	}
 	break;
       case array_of_uchars:
 	{
+	  CACHE_REGS
 	  CELL *sptr = HR;
 	  HR += dim;
 	  for (indx=0; indx < dim; indx++) {
-	    *sptr++ = MkIntegerTerm((Int)(pp->ValueOfVE.uchars[indx]));
+	    *sptr++ = MkIntTerm(pp->ValueOfVE.uchars[indx]);
 	  }
 	}
 	break;
@@ -2600,7 +2653,7 @@ p_static_array_location( USES_REGS1 )
       ptr =  pp->ValueOfVE.ints;
       READ_UNLOCK(ae->ARWLock);
     }
-    return Yap_unify(ARG2,MkIntegerTerm((Int)ptr));
+    return Yap_unify(ARG2,MkAddressTerm(ptr));
   }
   return FALSE;
 }
