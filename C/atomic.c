@@ -18,7 +18,7 @@
 static char     SccsId[] = "%W% %G%";
 #endif
 
-/** @addgroup Predicates_on_Atoms Predicates on Atoms
+/** @addgroup Predicates_on_Atoms Predicates on Atoms and Strings
     @ingroup YAPChars
 @{
 
