@@ -3164,7 +3164,7 @@ install_clauses(ClauseDef *cls, PredEntry *ap, istack_entry *stack, yamop *beg, 
       if (!sp->pos && (sp[-1].val == 0L || cls->Tag == sp[-1].val)) {
 	cls++;
       }
-      if (cl->ClCode == end || cl->ClCode == NULL) {
+      if (cl->ClCode == end) {
 	return cls-1;
       }
       cl = cl->ClNext;
