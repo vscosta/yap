@@ -245,8 +245,7 @@ OpDec(int p, const char *type, Atom a, Term m)
     WRITE_UNLOCK(ae->ARWLock);
   }
   if (i <= 3) {
-    GET_LD
-    if (truePrologFlag(PLFLAG_ISO) &&
+    if (trueGlobalPrologFlag(ISO_FLAG) &&
 	info->Posfix != 0) /* there is a posfix operator */ {
       /* ISO dictates */
       WRITE_UNLOCK(info->OpRWLock);
@@ -255,8 +254,8 @@ OpDec(int p, const char *type, Atom a, Term m)
     }
     info->Infix = p;
   } else if (i <= 5) {
-    GET_LD
-    if (truePrologFlag(PLFLAG_ISO) &&
+
+    if (trueGlobalPrologFlag(ISO_FLAG) &&
 	info->Infix != 0) /* there is an infix operator */ {
       /* ISO dictates */
       WRITE_UNLOCK(info->OpRWLock);
@@ -1076,7 +1075,7 @@ InitLogDBErasedMarker(void)
 static void
 InitSWIAtoms(void)
 {
-  extern atom_t ATOM_;
+  /*  extern atom_t ATOM_;
 
   int j=0;
   MaxAtomTranslations = 2*N_SWI_ATOMS ;

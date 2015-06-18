@@ -20,7 +20,6 @@
 #include "YapHeap.h"
 #include "eval.h"
 #include "yapio.h"
-#include "pl-shared.h"
 #include "YapText.h"
 
 #include <string.h>

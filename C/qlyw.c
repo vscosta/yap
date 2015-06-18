@@ -17,7 +17,6 @@
 *************************************************************************/
 
 #include "absmi.h"
-#include <SWI-Stream.h>
 #include "Foreign.h"
 #include "alloc.h"
 #include "yapio.h"

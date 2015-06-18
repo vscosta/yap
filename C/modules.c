@@ -21,7 +21,6 @@ static char SccsId[] = "%W% %G%";
 #include "Yap.h"
 #include "Yatom.h"
 #include "YapHeap.h"
-#include "pl-shared.h"
 
 static Int p_current_module(USES_REGS1);
 static Int p_current_module1(USES_REGS1);

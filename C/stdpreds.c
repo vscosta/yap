@@ -285,7 +285,6 @@ static char SccsId[] = "%W% %G%";
 #include "YapHeap.h"
 #include "eval.h"
 #include "yapio.h"
-#include "pl-shared.h"
 #include "Foreign.h"
 #ifdef TABLING
 #include "tab.macros.h"

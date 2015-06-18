@@ -142,10 +142,7 @@ dot with single quotes.
 #include "yapio.h"
 #include "eval.h"
 /* stuff we want to use in standard YAP code */
-#include "pl-shared.h"
-#include "YapText.h"
-#include "pl-read.h"
-#include "pl-text.h"
+#include "iopreds.h"
 #if HAVE_STRING_H
 #include <string.h>
 #endif

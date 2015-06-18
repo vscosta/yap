@@ -338,7 +338,9 @@
 #include "yapio.h"
 #include "Foreign.h"
 #include "attvar.h"
-#include "SWI-Stream.h"
+#if HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 #if HAVE_STDARG_H

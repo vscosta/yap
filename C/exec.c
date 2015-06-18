@@ -19,7 +19,6 @@ static char     SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #endif
 
 #include "absmi.h"
-#include "pl-shared.h"
 #include "yapio.h"
 #include "attvar.h"
 #include "cut_c.h"

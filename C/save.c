@@ -27,7 +27,6 @@ static char     SccsId[] = "@(#)save.c	1.3 3/15/90";
 #include <psapi.h>
 #endif
 #include "absmi.h"
-#include "SWI-Stream.h"
 #include "alloc.h"
 #if USE_DL_MALLOC
 #include "dlmalloc.h"

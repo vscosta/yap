@@ -406,7 +406,6 @@ writing, writing a BOM can be requested using the option
 #include "Yap.h"
 #include "Yatom.h"
 #include "YapHeap.h"
-#include "SWI-Stream.h"
 #include "yapio.h"
 #include "alloc.h"
 #include "eval.h"
