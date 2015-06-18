@@ -1552,67 +1552,6 @@ static Int p_statistics_lu_db_size(USES_REGS1) {
          Yap_unify(tis, ARG4) && Yap_unify(tix, ARG5);
 }
 
-static Term mk_argc_list(USES_REGS1) {
-  int i = 0;
-  Term t = TermNil;
-  while (i < GLOBAL_argc) {
-    char *arg = GLOBAL_argv[i];
-    /* check for -L -- */
-    if (arg[0] == '-' && arg[1] == 'L') {
-      arg += 2;
-      while (*arg != '\0' && (*arg == ' ' || *arg == '\t'))
-        arg++;
-      if (*arg == '-' && arg[1] == '-' && arg[2] == '\0') {
-        /* we found the separator */
-        int j;
-        for (j = GLOBAL_argc - 1; j > i + 1; --j) {
-          t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(GLOBAL_argv[j])), t);
-        }
-        return t;
-      } else if (GLOBAL_argv[i + 1] && GLOBAL_argv[i + 1][0] == '-' &&
-                 GLOBAL_argv[i + 1][1] == '-' &&
-                 GLOBAL_argv[i + 1][2] == '\0') {
-        /* we found the separator */
-        int j;
-        for (j = GLOBAL_argc - 1; j > i + 2; --j) {
-          t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(GLOBAL_argv[j])), t);
-        }
-        return t;
-      }
-    }
-    if (arg[0] == '-' && arg[1] == '-' && arg[2] == '\0') {
-      /* we found the separator */
-      int j;
-      for (j = GLOBAL_argc - 1; j > i; --j) {
-        t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(GLOBAL_argv[j])), t);
-      }
-      return (t);
-    }
-    i++;
-  }
-  return (t);
-}
-
-static Term mk_os_argc_list(USES_REGS1) {
-  int i = 0;
-  Term t = TermNil;
-  for (i = 0; i < GLOBAL_argc; i++) {
-    char *arg = GLOBAL_argv[i];
-    t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(arg)), t);
-  }
-  return (t);
-}
-
-static Int p_argv(USES_REGS1) {
-  Term t = mk_argc_list(PASS_REGS1);
-  return Yap_unify(t, ARG1);
-}
-
-static Int p_os_argv(USES_REGS1) {
-  Term t = mk_os_argc_list(PASS_REGS1);
-  return Yap_unify(t, ARG1);
-}
-
 static Int p_executable(USES_REGS1) {
   if (GLOBAL_argv && GLOBAL_argv[0])
     Yap_TrueFileName(GLOBAL_argv[0], LOCAL_FileNameBuf, FALSE);
@@ -1779,8 +1718,6 @@ void Yap_InitCPreds(void) {
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$statistics_lu_db_size", 5, p_statistics_lu_db_size,
                 SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$argv", 1, p_argv, SafePredFlag);
-  Yap_InitCPred("$os_argv", 1, p_os_argv, SafePredFlag);
   Yap_InitCPred("$executable", 1, p_executable, SafePredFlag);
   Yap_InitCPred("$runtime", 2, p_runtime, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$cputime", 2, p_cputime, SafePredFlag | SyncPredFlag);
