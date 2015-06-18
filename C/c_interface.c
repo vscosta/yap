@@ -3808,26 +3808,9 @@ YAP_signal(int sig)
 }
 
 X_API int
-  YAP_SetYAPFlag(yap_flag_t flag, int val)
+  YAP_SetYAPFlag(Term flag, Term  val)
 {
-  switch (flag) {
-  case YAPC_ENABLE_GC:
-    if (val) {
-      Yap_PutValue(AtomGc, MkAtomTerm(AtomTrue));
-    } else {
-      Yap_PutValue(AtomGc, TermNil);
-    }
-    return TRUE;
-  case YAPC_ENABLE_AGC:
-    if (val) {
-      GLOBAL_AGcThreshold = 10000;
-    } else {
-      GLOBAL_AGcThreshold = 0;
-    }
-    return TRUE;
-  default:
-    return FALSE;
-  }
+  return setYapFlag( flag, val );
 }
 
 
