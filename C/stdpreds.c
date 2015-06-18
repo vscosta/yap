@@ -1842,11 +1842,4 @@ void Yap_InitCPreds(void) {
   //  init_tries();
   init_regexp();
 #endif
-  {
-    CACHE_REGS
-    Term cm = CurrentModule;
-    CurrentModule = SWI_MODULE;
-    Yap_swi_install();
-    CurrentModule = cm;
-  }
 }
