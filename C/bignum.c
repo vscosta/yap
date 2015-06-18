@@ -192,7 +192,6 @@ int Yap_CleanOpaqueVariable(CELL *pt)
 Opaque_CallOnWrite
 Yap_blob_write_handler(Term t)
 {
-  CACHE_REGS
   CELL blob_info, blob_tag;
   CELL *pt = RepAppl(t);
 
@@ -267,7 +266,6 @@ Yap_blob_gc_relocate_handler(Term t)
 
 extern Int Yap_blob_tag(Term t)
 {
-  CACHE_REGS
   CELL *pt = RepAppl(t);
 
 #ifdef DEBUG
@@ -283,7 +281,6 @@ extern Int Yap_blob_tag(Term t)
 void *
 Yap_blob_info(Term t)
 {
-  CACHE_REGS
   MP_INT *blobp;
   CELL *pt = RepAppl(t);
 
