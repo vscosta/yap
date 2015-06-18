@@ -54,20 +54,20 @@ The following predicates are used to manipulate atoms:
 #endif
 #include <wchar.h>
 
-static Int p_name( USES_REGS1 );
-static Int p_atom_chars( USES_REGS1 );
-static Int p_atom_codes( USES_REGS1 );
-static Int p_atom_length( USES_REGS1 );
-static Int p_string_length( USES_REGS1 );
-static Int p_atom_split( USES_REGS1 );
-static Int p_number_chars( USES_REGS1 );
-static Int p_number_codes( USES_REGS1 );
-static Int init_current_atom( USES_REGS1 );
+static Int name( USES_REGS1 );
+static Int atom_chars( USES_REGS1 );
+static Int atom_codes( USES_REGS1 );
+static Int atom_length( USES_REGS1 );
+static Int string_length( USES_REGS1 );
+static Int atom_split( USES_REGS1 );
+static Int number_chars( USES_REGS1 );
+static Int number_codes( USES_REGS1 );
+static Int current_atom( USES_REGS1 );
 static Int cont_current_atom( USES_REGS1 );
 static int AlreadyHidden(char *);
-static Int p_hide( USES_REGS1 );
-static Int p_hidden( USES_REGS1 );
-static Int p_unhide( USES_REGS1 );
+static Int hide( USES_REGS1 );
+static Int hidden( USES_REGS1 );
+static Int unhide( USES_REGS1 );
 
 
 
@@ -94,7 +94,7 @@ AlreadyHidden(char *name)
 
  **/
 static Int 
-p_hide( USES_REGS1 )
+hide( USES_REGS1 )
 {				/* hide(+Atom)		 */
   Atom            atomToInclude;
   Term t1 = Deref(ARG1);
@@ -128,7 +128,7 @@ p_hide( USES_REGS1 )
 
  **/
 static Int 
-p_hidden( USES_REGS1 )
+hidden( USES_REGS1 )
 {				/* '$hidden'(+F)		 */
   Atom            at;
   AtomEntry      *chain;
@@ -160,7 +160,7 @@ p_hidden( USES_REGS1 )
 
  **/
 static Int 
-p_unhide( USES_REGS1 )
+unhide( USES_REGS1 )
 {				/* unhide(+Atom)		 */
   AtomEntry      *atom, *old, *chain;
   Term t1 = Deref(ARG1);
@@ -199,7 +199,7 @@ p_unhide( USES_REGS1 )
 }
 
 static Int 
-p_char_code( USES_REGS1 )
+char_code( USES_REGS1 )
 {
   Int t0 = Deref(ARG1);
   if (IsVarTerm(t0)) {
@@ -270,7 +270,7 @@ p_char_code( USES_REGS1 )
 }
 
 static Int 
-p_name( USES_REGS1 )
+name( USES_REGS1 )
 {				/* name(?Atomic,?String)		 */
   Term            t = Deref(ARG2), NewT, AtomNameT = Deref(ARG1);
   LOCAL_MAX_SIZE = 1024;
@@ -300,7 +300,7 @@ p_name( USES_REGS1 )
 }
 
 static Int 
-p_string_to_atomic( USES_REGS1 )
+string_to_atomic( USES_REGS1 )
 {				/* string_to_atom(?String,?Atom)		 */
   Term            t2 = Deref(ARG2), t1 = Deref(ARG1);
   LOCAL_MAX_SIZE = 1024;
@@ -326,7 +326,7 @@ p_string_to_atomic( USES_REGS1 )
 }
 
 static Int 
-p_string_to_atom( USES_REGS1 )
+string_to_atom( USES_REGS1 )
 {				/* string_to_atom(?String,?Atom)		 */
   Term            t2 = Deref(ARG2), t1 = Deref(ARG1);
   LOCAL_MAX_SIZE = 1024;
@@ -352,7 +352,7 @@ p_string_to_atom( USES_REGS1 )
 }
 
 static Int 
-p_string_to_list( USES_REGS1 )
+string_to_list( USES_REGS1 )
 {				
   Term            list = Deref(ARG2), string = Deref(ARG1);
   LOCAL_MAX_SIZE = 1024;
@@ -375,17 +375,17 @@ p_string_to_list( USES_REGS1 )
 }
 
 static Int 
-p_atom_string( USES_REGS1 )
+atom_string( USES_REGS1 )
 {
   // swap arguments
   Term t1 = ARG2;
   ARG2 = ARG1;
   ARG1 = t1;
-  return p_string_to_atom( PASS_REGS1 );
+  return string_to_atom( PASS_REGS1 );
 }
 
 static Int 
-p_atom_chars( USES_REGS1 )
+atom_chars( USES_REGS1 )
 {
   Term t1;
   LOCAL_MAX_SIZE = 1024;
@@ -411,7 +411,7 @@ p_atom_chars( USES_REGS1 )
 }
 
 static Int 
-p_atom_codes( USES_REGS1 )
+atom_codes( USES_REGS1 )
 {
   Term t1;
  restart_aux:
@@ -436,7 +436,7 @@ p_atom_codes( USES_REGS1 )
 }
 
 static Int 
-p_string_codes( USES_REGS1 )
+string_codes( USES_REGS1 )
 {
   Term t1;
  restart_aux:
@@ -461,7 +461,7 @@ p_string_codes( USES_REGS1 )
 }
 
 static Int 
-p_string_chars( USES_REGS1 )
+string_chars( USES_REGS1 )
 {
   Term t1;
  restart_aux:
@@ -486,7 +486,7 @@ p_string_chars( USES_REGS1 )
 }
 
 static Int 
-p_number_chars( USES_REGS1 )
+number_chars( USES_REGS1 )
 {
   Term t1;
  restart_aux:
@@ -511,7 +511,7 @@ p_number_chars( USES_REGS1 )
 }
 
 static Int 
-p_number_atom( USES_REGS1 )
+number_atom( USES_REGS1 )
 {
   Term t1;
  restart_aux:
@@ -536,7 +536,7 @@ p_number_atom( USES_REGS1 )
 }
 
 static Int 
-p_number_string( USES_REGS1 )
+number_string( USES_REGS1 )
 {
   Term t1;
  restart_aux:
@@ -561,7 +561,7 @@ p_number_string( USES_REGS1 )
 }
 
 static Int 
-p_number_codes( USES_REGS1 )
+number_codes( USES_REGS1 )
 {
   Term t1;
  restart_aux:
@@ -618,7 +618,7 @@ cont_atom_concat3( USES_REGS1 )
 
 
 static Int 
-init_atom_concat3( USES_REGS1 )
+atom_concat3( USES_REGS1 )
 {
   Term t1;
   Term t2, t3, ot;
@@ -715,7 +715,7 @@ cont_atomic_concat3( USES_REGS1 )
 }
 
 static Int
-init_atomic_concat3( USES_REGS1 )
+atomic_concat3( USES_REGS1 )
 {
   Term t1;
   Term t2, t3, ot;
@@ -790,7 +790,7 @@ cont_string_concat3( USES_REGS1 )
 
 
 static Int
-init_string_concat3( USES_REGS1 )
+string_concat3( USES_REGS1 )
 {
   Term t1;
   Term t2, t3, ot;
@@ -868,7 +868,7 @@ cont_string_code3( USES_REGS1 )
 
 
 static Int 
-init_string_code3( USES_REGS1 )
+string_code3( USES_REGS1 )
 {
   Term t1;
   Term t2;
@@ -926,7 +926,7 @@ init_string_code3( USES_REGS1 )
 
 
 static Int 
-p_get_string_code3( USES_REGS1 )
+get_string_code3( USES_REGS1 )
 {
   Term t1;
   Term t2;
@@ -985,7 +985,7 @@ p_get_string_code3( USES_REGS1 )
 }
 
 static Int 
-p_atom_concat2( USES_REGS1 )
+atom_concat2( USES_REGS1 )
 {
   Term t1;
   Term *tailp;
@@ -1034,7 +1034,7 @@ p_atom_concat2( USES_REGS1 )
 }
 
 static Int 
-p_string_concat2( USES_REGS1 )
+string_concat2( USES_REGS1 )
 {
   Term t1;
   Term *tailp;
@@ -1082,7 +1082,7 @@ p_string_concat2( USES_REGS1 )
 
 
 static Int 
-p_atomic_concat2( USES_REGS1 )
+atomic_concat2( USES_REGS1 )
 {
   Term t1;
   Term *tailp;
@@ -1127,7 +1127,7 @@ p_atomic_concat2( USES_REGS1 )
 }
 
 static Int 
-p_atomics_to_string2( USES_REGS1 )
+atomics_to_string2( USES_REGS1 )
 {
   Term t1;
   Term *tailp;
@@ -1172,7 +1172,7 @@ p_atomics_to_string2( USES_REGS1 )
 }
 
 static Int 
-p_atomics_to_string3( USES_REGS1 )
+atomics_to_string3( USES_REGS1 )
 {
   Term t1, t2;
   Term *tailp;
@@ -1221,7 +1221,7 @@ p_atomics_to_string3( USES_REGS1 )
 }
 
 static Int 
-p_atom_length( USES_REGS1 )
+atom_length( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);;
   Term t2 = Deref(ARG2);
@@ -1257,7 +1257,7 @@ restart_aux:
 }
 
 static Int
-p_atomic_length( USES_REGS1 )
+atomic_length( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
@@ -1294,7 +1294,7 @@ restart_aux:
 }
 
 static Int
-p_string_length( USES_REGS1 )
+string_length( USES_REGS1 )
 {
   Term t1;
   Term t2 = Deref(ARG2);
@@ -1338,7 +1338,7 @@ is_wide(wchar_t *s)
 
 /* split an atom into two sub-atoms */
 static Int 
-p_atom_split( USES_REGS1 )
+atom_split( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
@@ -1429,7 +1429,7 @@ p_atom_split( USES_REGS1 )
 }
 
 static Int 
-p_atom_number( USES_REGS1 )
+atom_number( USES_REGS1 )
 {
   Term t1;
  restart_aux:
@@ -1455,7 +1455,7 @@ p_atom_number( USES_REGS1 )
 
 
 static Int 
-p_string_number( USES_REGS1 )
+string_number( USES_REGS1 )
 {
   Term t1;
  restart_aux:
@@ -1820,7 +1820,7 @@ cont_sub_atomic( USES_REGS1 )
 }
 
 static Int
-init_sub_atomic( int sub_atom USES_REGS )
+sub_atomic( int sub_atom USES_REGS )
 {
   Term tat1, tbef, tsize, tafter, tout;
   int mask = 0;
@@ -2013,16 +2013,44 @@ init_sub_atomic( int sub_atom USES_REGS )
   return cont_sub_atomic( PASS_REGS1 );
 }
 
+/** @pred  sub_atom(+ _A_,? _Bef_, ? _Size_, ? _After_, ? _At_out_) is iso 
+
+
+True when  _A_ and  _At_out_ are atoms such that the name of
+ _At_out_ has size  _Size_ and is a sub-string of the name of
+ _A_, such that  _Bef_ is the number of characters before and
+ _After_ the number of characters afterwards.
+
+Note that  _A_ must always be known, but  _At_out_ can be unbound when
+calling this built-in. If all the arguments for sub_atom/5 but  _A_
+are unbound, the built-in will backtrack through all possible
+sub-strings of  _A_.
+ 
+ */
 static Int
-init_sub_atom(  USES_REGS1 )
+sub_atom(  USES_REGS1 )
 {
-  return init_sub_atomic( TRUE PASS_REGS );
+  return sub_atomic( TRUE PASS_REGS );
 }
 
+/** @pred  sub_string(+ _S_,? _Bef_, ? _Size_, ? _After_, ? _S_out_) is iso 
+
+
+True when  _S_ and  _S_out_ are strings such that the 
+ _S_out_ has size  _Size_ and is a sub-string of
+ _S_,   _Bef_ is the number of characters before, and
+ _After_ the number of characters afterwards.
+
+Note that  _S_ must always be known, but  _S_out_ can be unbound when
+calling this built-in. If all the arguments for sub_string/5 but  _S_
+are unbound, the built-in will generate all possible
+sub-strings of  _S_.
+ 
+ */
 static Int
-init_sub_string(  USES_REGS1 )
+sub_string(  USES_REGS1 )
 {
-  return init_sub_atomic( FALSE PASS_REGS );
+  return sub_atomic( FALSE PASS_REGS );
 }
 
 static Int 
@@ -2085,7 +2113,7 @@ cont_current_atom( USES_REGS1 )
 }
 
 static Int 
-init_current_atom( USES_REGS1 )
+current_atom( USES_REGS1 )
 {				/* current_atom(?Atom)		 */
   Term t1 = Deref(ARG1);
   if (!IsVarTerm(t1)) {
@@ -2166,7 +2194,7 @@ cont_current_wide_atom( USES_REGS1 )
 }
 
 static Int 
-init_current_wide_atom( USES_REGS1 )
+current_wide_atom( USES_REGS1 )
 {				/* current_atom(?Atom)		 */
   Term t1 = Deref(ARG1);
   if (!IsVarTerm(t1)) {
@@ -2189,38 +2217,21 @@ init_current_wide_atom( USES_REGS1 )
 void
 Yap_InitBackAtoms(void)
 {
-  Yap_InitCPredBack("$current_atom", 1, 2, init_current_atom, cont_current_atom,SafePredFlag|SyncPredFlag);
-  Yap_InitCPredBack("$current_wide_atom", 1, 2, init_current_wide_atom,cont_current_wide_atom,SafePredFlag|SyncPredFlag);
-  Yap_InitCPredBack("atom_concat", 3, 2, init_atom_concat3, cont_atom_concat3, 0);
-  Yap_InitCPredBack("atomic_concat", 3, 2, init_atomic_concat3, cont_atomic_concat3, 0);
-  Yap_InitCPredBack("string_concat", 3, 2, init_string_concat3, cont_string_concat3, 0);
-  Yap_InitCPredBack("sub_atom", 5, 5, init_sub_atom, cont_sub_atomic, 0);
-/** @pred  sub_atom(+ _A_,? _Bef_, ? _Size_, ? _After_, ? _At_out_) is iso 
-
-
-True when  _A_ and  _At_out_ are atoms such that the name of
- _At_out_ has size  _Size_ and is a sub-string of the name of
- _A_, such that  _Bef_ is the number of characters before and
- _After_ the number of characters afterwards.
-
-Note that  _A_ must always be known, but  _At_out_ can be unbound when
-calling this built-in. If all the arguments for sub_atom/5 but  _A_
-are unbound, the built-in will backtrack through all possible
-sub-strings of  _A_.
-
-
-
-
- */
-  Yap_InitCPredBack("sub_string", 5, 5, init_sub_string, cont_sub_atomic, 0);
-  Yap_InitCPredBack("string_code", 3, 1, init_string_code3, cont_string_code3, 0);
+  Yap_InitCPredBack("$current_atom", 1, 2, current_atom, cont_current_atom,SafePredFlag|SyncPredFlag);
+  Yap_InitCPredBack("$current_wide_atom", 1, 2, current_wide_atom,cont_current_wide_atom,SafePredFlag|SyncPredFlag);
+  Yap_InitCPredBack("atom_concat", 3, 2, atom_concat3, cont_atom_concat3, 0);
+  Yap_InitCPredBack("atomic_concat", 3, 2, atomic_concat3, cont_atomic_concat3, 0);
+  Yap_InitCPredBack("string_concat", 3, 2, string_concat3, cont_string_concat3, 0);
+  Yap_InitCPredBack("sub_atom", 5, 5, sub_atom, cont_sub_atomic, 0);
+  Yap_InitCPredBack("sub_string", 5, 5, sub_string, cont_sub_atomic, 0);
+  Yap_InitCPredBack("string_code", 3, 1, string_code3, cont_string_code3, 0);
 
 }
 
 void
 Yap_InitAtomPreds(void)
 {
-  Yap_InitCPred("name", 2, p_name, 0);
+  Yap_InitCPred("name", 2, name, 0);
 /** @pred  name( _A_, _L_) 
 
 
@@ -2250,11 +2261,11 @@ will return:
 
  
 */
-  Yap_InitCPred("string_to_atom", 2, p_string_to_atom, 0);
-  Yap_InitCPred("atom_string", 2, p_atom_string, 0);
-  Yap_InitCPred("string_to_atomic", 2, p_string_to_atomic, 0);
-  Yap_InitCPred("string_to_list", 2, p_string_to_list, 0);
-  Yap_InitCPred("char_code", 2, p_char_code, SafePredFlag);
+  Yap_InitCPred("string_to_atom", 2, string_to_atom, 0);
+  Yap_InitCPred("atom_string", 2, atom_string, 0);
+  Yap_InitCPred("string_to_atomic", 2, string_to_atomic, 0);
+  Yap_InitCPred("string_to_list", 2, string_to_list, 0);
+  Yap_InitCPred("char_code", 2, char_code, SafePredFlag);
 /** @pred  char_code(? _A_,? _I_) is iso 
 
 
@@ -2265,7 +2276,7 @@ the call.
 
  
 */
-  Yap_InitCPred("atom_chars", 2, p_atom_chars, 0);
+  Yap_InitCPred("atom_chars", 2, atom_chars, 0);
 /** @pred  atom_chars(? _A_,? _L_) is iso 
 
 
@@ -2276,10 +2287,10 @@ characters of  _A_.
 
  
 */
-  Yap_InitCPred("atom_codes", 2, p_atom_codes, 0);
-  Yap_InitCPred("string_codes", 2, p_string_codes, 0);
-  Yap_InitCPred("string_chars", 2, p_string_chars, 0);
-  Yap_InitCPred("atom_length", 2, p_atom_length, SafePredFlag);
+  Yap_InitCPred("atom_codes", 2, atom_codes, 0);
+  Yap_InitCPred("string_codes", 2, string_codes, 0);
+  Yap_InitCPred("string_chars", 2, string_chars, 0);
+  Yap_InitCPred("atom_length", 2, atom_length, SafePredFlag);
 /** @pred  atom_length(+ _A_,? _I_) is iso 
 
 
@@ -2288,10 +2299,10 @@ unifies with the number of characters forming that atom.
 
  
 */
-  Yap_InitCPred("atomic_length", 2, p_atomic_length, SafePredFlag);
-  Yap_InitCPred("string_length", 2, p_string_length, SafePredFlag);
-  Yap_InitCPred("$atom_split", 4, p_atom_split, SafePredFlag);
-  Yap_InitCPred("number_chars", 2, p_number_chars, 0);
+  Yap_InitCPred("atomic_length", 2, atomic_length, SafePredFlag);
+  Yap_InitCPred("string_length", 2, string_length, SafePredFlag);
+  Yap_InitCPred("$atom_split", 4, atom_split, SafePredFlag);
+  Yap_InitCPred("number_chars", 2, number_chars, 0);
 /** @pred  number_chars(? _I_,? _L_) is iso 
 
 The predicate holds when at least one of the arguments is ground
@@ -2301,7 +2312,7 @@ characters of the external representation of  _I_.
 
  
 */
-  Yap_InitCPred("number_atom", 2, p_number_atom, 0);
+  Yap_InitCPred("number_atom", 2, number_atom, 0);
 /** @pred  number_atom(? _I_,? _L_) 
 
 
@@ -2313,9 +2324,9 @@ with an atom representing the number.
 
  
 */
-  Yap_InitCPred("number_string", 2, p_number_string, 0);
-  Yap_InitCPred("number_codes", 2, p_number_codes, 0);
-  Yap_InitCPred("atom_number", 2, p_atom_number, 0);
+  Yap_InitCPred("number_string", 2, number_string, 0);
+  Yap_InitCPred("number_codes", 2, number_codes, 0);
+  Yap_InitCPred("atom_number", 2, atom_number, 0);
 /** @pred  atom_number(? _Atom_,? _Number_) 
 
 
@@ -2327,10 +2338,10 @@ to the characters in  _Atom_, otherwise the characters in
 
  
 */
-  Yap_InitCPred("string_number", 2, p_string_number, 0);
-  Yap_InitCPred("$atom_concat", 2, p_atom_concat2, 0);
-  Yap_InitCPred("$string_concat", 2, p_string_concat2, 0);
-  Yap_InitCPred("atomic_concat", 2, p_atomic_concat2, 0);
+  Yap_InitCPred("string_number", 2, string_number, 0);
+  Yap_InitCPred("$atom_concat", 2, atom_concat2, 0);
+  Yap_InitCPred("$string_concat", 2, string_concat2, 0);
+  Yap_InitCPred("atomic_concat", 2, atomic_concat2, 0);
 /** @pred  atomic_concat(+ _As_,? _A_) 
 
 
@@ -2341,13 +2352,13 @@ atoms or numbers.
 
  
 */
-  Yap_InitCPred("atomics_to_string", 2, p_atomics_to_string2, 0);
-  Yap_InitCPred("atomics_to_string", 3, p_atomics_to_string3, 0);
-  Yap_InitCPred("get_string_code", 3, p_get_string_code3, 0);
+  Yap_InitCPred("atomics_to_string", 2, atomics_to_string2, 0);
+  Yap_InitCPred("atomics_to_string", 3, atomics_to_string3, 0);
+  Yap_InitCPred("get_string_code", 3, get_string_code3, 0);
   /* hiding and unhiding some predicates */
-  Yap_InitCPred("hide", 1, p_hide, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("unhide", 1, p_unhide, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$hidden", 1, p_hidden, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("hide", 1, hide, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("unhide", 1, unhide, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$hidden", 1, hidden, HiddenPredFlag|SafePredFlag|SyncPredFlag);
 }
 
 /**
