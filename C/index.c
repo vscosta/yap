@@ -2558,8 +2558,8 @@ do_index(ClauseDef *min, ClauseDef* max, struct intermediates *cint, UInt argno,
     /* base case, just commit to the current code */
     return emit_single_switch_case(min, cint, first, clleft, fail_l);
   }
-  if ((argno > 1 && yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE && ap->PredFlags & LogUpdatePredFlag) ||
-      yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_OFF ||
+  if ((argno > 1 && indexingMode() == TermSingle && ap->PredFlags & LogUpdatePredFlag) ||
+      indexingMode() == TermOff ||
       ap->ArityOfPE < argno) {
     return do_var_clauses(min, max, FALSE, cint, first, clleft, fail_l, ap->ArityOfPE+1);
   }
@@ -2582,7 +2582,7 @@ do_index(ClauseDef *min, ClauseDef* max, struct intermediates *cint, UInt argno,
 	Yap_emit(jump_nv_op, susp_lab, argno, cint);
       }
       if (argno == ap->ArityOfPE ||
-	  (yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE &&
+	  (indexingMode() == TermSingle &&
 	   ap->PredFlags & LogUpdatePredFlag)) {
 	do_var_clauses(min, max, FALSE, cint, first, clleft, fail_l, argno0);
 	cint->expand_block = eblk;
@@ -2725,8 +2725,8 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, struct intermedi
     /* base case, just commit to the current code */
     return emit_single_switch_case(min0, cint, first, clleft, fail_l);
   }
-  if ((yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE && ap->PredFlags & LogUpdatePredFlag) ||
-      (yap_flags[INDEXING_TERM_DEPTH_FLAG] && cint->term_depth - cint->last_index_new_depth > yap_flags[INDEXING_TERM_DEPTH_FLAG])) {
+  if ((indexingMode() == TermSingle && ap->PredFlags & LogUpdatePredFlag) ||
+      (indexingDepth() && cint->term_depth - cint->last_index_new_depth > indexingDepth())) {
     *newlabp = 
       do_var_clauses(min0, max0, FALSE, cint, first, clleft, fail_l, ap->ArityOfPE+1);
    return ret_lab;
