@@ -353,9 +353,7 @@
 // we cannot consult YapInterface.h, that conflicts with what we declare, though
 // it shouldn't
 #include "YapInterface.h"
-#include "pl-shared.h"
 #include "YapText.h"
-#include "pl-read.h"
 #ifdef TABLING
 #include "tab.macros.h"
 #endif /* TABLING */
