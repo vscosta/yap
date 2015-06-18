@@ -366,6 +366,19 @@
 #include <malloc.h>
 #endif
 
+typedef enum
+{ FRG_FIRST_CALL = 0,		/* Initial call */
+  FRG_CUTTED     = 1,		/* Context was cutted */
+  FRG_REDO	 = 2		/* Normal redo */
+} frg_code;
+
+struct foreign_context
+{ uintptr_t		context;	/* context value */
+  frg_code		control;	/* FRG_* action */
+  struct PL_local_data *engine;		/* invoking engine */
+};
+
+
 X_API int
 YAP_Reset(yap_reset_t mode);
 
@@ -1730,7 +1743,7 @@ YAP_CallProlog(Term t)
     mod = tmod;
     t = ArgOfTerm(2,t);
   }
-  out = Yap_execute_goal(t, 0, mod);
+  out = Yap_execute_goal(t, 0, mod, true);
   RECOVER_MACHINE_REGS();
   return(out);
 }
@@ -1878,12 +1891,11 @@ X_API Term
 YAP_ReadBuffer(const char *s, Term *tp)
 {
   CACHE_REGS
-  Int sl;
+    Term t;
   BACKUP_H();
 
-  sl = Yap_NewSlots(1);
   LOCAL_ErrorMessage=NULL;
-  while (!PL_chars_to_term(s,sl)) {
+  while (!(t = Yap_StringToTerm(s, strlen(s)+1, LOCAL_encoding, 1200, tp))) {
     if (LOCAL_ErrorMessage) {
       if (!strcmp(LOCAL_ErrorMessage,"Stack Overflow")) {
 	if (!Yap_dogc( 0, NULL PASS_REGS )) {
@@ -1907,8 +1919,6 @@ YAP_ReadBuffer(const char *s, Term *tp)
 	  return 0L;
 	}
       } else {
-	// get from slot has an exception
-	*tp = Yap_GetFromSlot(sl);
 	RECOVER_H();
 	return 0L;
       }
@@ -1919,7 +1929,7 @@ YAP_ReadBuffer(const char *s, Term *tp)
     }
   }
   RECOVER_H();
-  return Yap_GetFromSlot(sl);
+  return t;
 }
 
 /* copy a string to a buffer */
@@ -2306,6 +2316,14 @@ YAP_RunGoal(Term t)
   LOCAL_PrologMode = UserMode;
   out = Yap_RunTopGoal(t);
   LOCAL_PrologMode = UserCCallMode;
+  // should we catch the exception or pass it through?
+  // We'll pass it through
+  if (EX) {
+     Term ball = Yap_PopTermFromDB( EX );
+     EX = NULL;
+     Yap_JumpToEnv( ball );
+     return FALSE;
+  }
   if (out) {
     P = (yamop *)ENV[E_CP];
     ENV = (CELL *)ENV[E_E];
@@ -2404,6 +2422,7 @@ YAP_RunGoalOnce(Term t)
 
   BACKUP_MACHINE_REGS();
   LOCAL_PrologMode = UserMode;
+  //  Yap_heap_regs->yap_do_low_level_trace=true;
   out = Yap_RunTopGoal(t);
   LOCAL_PrologMode = oldPrologMode;
   if (!(oldPrologMode & UserCCallMode)) {
@@ -2411,6 +2430,14 @@ YAP_RunGoalOnce(Term t)
     LOCAL_AllowRestart = FALSE;
     RECOVER_MACHINE_REGS();
     return out;
+  }
+  // should we catch the exception or pass it through?
+  // We'll pass it through
+  if (EX) {
+     Term ball = Yap_PopTermFromDB( EX );
+     EX = NULL;
+     Yap_JumpToEnv( ball );
+     return FALSE;
   }
   if (out) {
     choiceptr cut_pt, ob;
@@ -2600,30 +2627,32 @@ YAP_ClearExceptions(void)
   LOCAL_UncaughtThrow = FALSE;
 }
 
-X_API IOSTREAM *
+X_API int
 YAP_InitConsult(int mode, const char *filename)
 {
-  IOSTREAM *st;
+  FILE *f;
+  int sno;
   BACKUP_MACHINE_REGS();
 
-  if (mode == YAP_CONSULT_MODE)
-    Yap_init_consult(FALSE, filename);
-  else
-    Yap_init_consult(TRUE, filename);
-  st = Sopen_file(filename, "r");
+  bool consulted = (mode == YAP_CONSULT_MODE);
+  Yap_init_consult(consulted, filename);
+  f = fopen(filename, "r");
+  if (!f)
+    return -1;
+  sno = Yap_OpenStream(f, NULL, TermNil, Input_Stream_f );
   RECOVER_MACHINE_REGS();
-  return st;
+  return sno;
 }
 
-X_API IOSTREAM *
+X_API FILE  *
 YAP_TermToStream(Term t)
 {
-  IOSTREAM *s;
+  FILE *s;
   BACKUP_MACHINE_REGS();
 
   if (IsVarTerm(t) || !IsAtomTerm(t))
     return NULL;
-  if ( (s=Yap_GetStreamHandle(AtomOfTerm(t))) ) {
+  if ( (s=Yap_GetStreamHandle(t)->file) ) {
     RECOVER_MACHINE_REGS();
     return s;
   }
@@ -2632,57 +2661,49 @@ YAP_TermToStream(Term t)
 }
 
 X_API void
-YAP_EndConsult(IOSTREAM *s)
+YAP_EndConsult(int sno)
 {
   BACKUP_MACHINE_REGS();
-
+  Yap_CloseStream(sno);
   Yap_end_consult();
-  Sclose(s);
 
   RECOVER_MACHINE_REGS();
 }
 
 X_API Term
-YAP_Read(IOSTREAM *inp)
+YAP_Read(FILE *f)
 {
-  GET_LD
-  Term t, tpos = TermNil;
-  TokEntry *tokstart;
-  read_data rd;
-
-  init_read_data(&rd, inp PASS_LD);
+    Term o;
+  int sno  =
+    Yap_OpenStream(f, NULL, TermNil, Input_Stream_f );
 
   BACKUP_MACHINE_REGS();
-
-
-  tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(inp, FALSE, &tpos, &rd);
-  if (LOCAL_ErrorMessage)
-    {
-      Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
-      free_read_data(&rd);
-      RECOVER_MACHINE_REGS();
-      return 0;
-    }
-  if (inp->flags & (SIO_FEOF|SIO_FEOF2)) {
-      Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
-      RECOVER_MACHINE_REGS();
-      free_read_data(&rd);
-      return MkAtomTerm (AtomEof);
-  }
-  t = Yap_Parse( &rd );
-  Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
-
-  free_read_data(&rd);
+  o = Yap_read_term( sno,  TermNil, 1);
+  Yap_ReleaseStream(sno);
   RECOVER_MACHINE_REGS();
-  return t;
+  return o;
+}
+
+X_API Term
+YAP_ReadFromStream(int sno)
+{
+    Term o;
+
+  BACKUP_MACHINE_REGS();
+  o = Yap_read_term( sno,  TermNil, 1);
+  RECOVER_MACHINE_REGS();
+  return o;
 }
 
 X_API void
-YAP_Write(Term t, IOSTREAM *stream, int flags)
+YAP_Write(Term t, FILE *f, int flags)
 {
   BACKUP_MACHINE_REGS();
+ int sno =
+    Yap_OpenStream(f, NULL, TermNil, Output_Stream_f );
 
-  Yap_plwrite (t, stream, 0, flags, 1200);
+  Yap_plwrite (t, GLOBAL_Stream+sno, 0, flags, 1200);
+  Yap_ReleaseStream(sno);
 
   RECOVER_MACHINE_REGS();
 }
@@ -2704,12 +2725,12 @@ YAP_CopyTerm(Term t)
 X_API int
 YAP_WriteBuffer(Term t, char *buf, size_t sze, int flags)
 {
-  int enc;
-  size_t length;
+  CACHE_REGS
+ size_t length;
   char *b;
 
   BACKUP_MACHINE_REGS();
-  if ((b = Yap_TermToString(t, buf, sze, &length, &enc, flags)) != buf) {
+  if ((b = Yap_TermToString(t, buf, sze, &length,LOCAL_encoding, flags)) != buf) {
     if (b) free(b);
     RECOVER_MACHINE_REGS();
     return FALSE;
@@ -2724,7 +2745,7 @@ YAP_WriteDynamicBuffer(Term t, char *buf, size_t sze, size_t *lengthp, int *encp
   char *b;
 
   BACKUP_MACHINE_REGS();
-  b = Yap_TermToString(t, buf, sze, lengthp, encp, flags);
+  b = Yap_TermToString(t, buf, sze, lengthp, *encp, flags);
   RECOVER_MACHINE_REGS();
   return b;
 }
@@ -2762,10 +2783,8 @@ YAP_CompileClause(Term t)
   return(LOCAL_ErrorMessage);
 }
 
-static int eof_found = FALSE;
 static int yap_lineno = 0;
 
-static IOSTREAM *bootfile;
 
 static char InitFile[] = "init.yap";
 static char BootFile[] = "boot.yap";
@@ -2775,9 +2794,9 @@ static void
 do_bootfile (char *bootfilename USES_REGS)
 {
   Term t;
-  Term term_end_of_file = MkAtomTerm(AtomEof);
-  Term term_true = YAP_MkAtomTerm(AtomTrue);
+  int bootfile;
   Functor functor_query = Yap_MkFunctor(Yap_LookupAtom("?-"),1);
+  Functor functor_command1 = Yap_MkFunctor(Yap_LookupAtom(":-"),1);
 
   /* consult boot.pl */
   /* the consult mode does not matter here, really */
@@ -2786,59 +2805,45 @@ do_bootfile (char *bootfilename USES_REGS)
     it's here for the future. It also makes what we want to do clearer.
   */
   bootfile = YAP_InitConsult(YAP_CONSULT_MODE,bootfilename);
-  if (bootfile == NULL)
+  if (bootfile <0)
     {
       fprintf(stderr, "[ FATAL ERROR: could not open bootfile %s ]\n", bootfilename);
       exit(1);
     }
-  while (!eof_found)
-    {
+    do {
       CACHE_REGS
-      yhandle_t CurSlot = Yap_StartSlots( );
-      t = YAP_Read(bootfile);
-      if (eof_found) {
-        Yap_CloseSlots(CurSlot);
-        break;
-      }
+      YAP_Reset( YAP_FULL_RESET );
+      Yap_StartSlots( );
+      t = YAP_ReadFromStream(bootfile);
+      // Yap_DebugPlWrite(t);fprintf(stderr, "\n");
       if (t == 0)
         {
 	  fprintf(stderr, "[ SYNTAX ERROR: while parsing bootfile %s at line %d ]\n", bootfilename, yap_lineno);
-	  exit(1);
         }
-      if (YAP_IsVarTerm (t) || t == TermNil)
+      else if (YAP_IsVarTerm (t) || t == TermNil)
 	{
-          Yap_CloseSlots(CurSlot);
-          continue;
-	}
-      else if (t == term_true)
-	{
-          Yap_CloseSlots(CurSlot);
-          Yap_exit(0);
-	}
-      else if (t == term_end_of_file)
-	{
-          Yap_CloseSlots(CurSlot);
-          break;
+	  fprintf(stderr, "[ line %d: term cannot be compiled ]", yap_lineno);
 	}
       else if (YAP_IsPairTerm (t))
         {
 	  fprintf(stderr, "[ SYSTEM ERROR: consult not allowed in boot file ]\n");
-	  fprintf(stderr, "error found at line %d and pos %d", yap_lineno, Sseek(bootfile,0L,SEEK_CUR));
+	  fprintf(stderr, "error found at line %d and pos %d", yap_lineno, fseek(GLOBAL_Stream[bootfile].file,0L,SEEK_CUR));
 	}
-      else if (YAP_IsApplTerm (t) && FunctorOfTerm (t) == functor_query)
+      else if (IsApplTerm (t) &&
+	       (FunctorOfTerm (t) == functor_query ||
+		FunctorOfTerm (t) == functor_command1))
 	{
 	  YAP_RunGoalOnce(ArgOfTerm (1, t));
         }
       else
 	{
 	  char *ErrorMessage = YAP_CompileClause(t);
-	  if (ErrorMessage)
+	  if (ErrorMessage) {
 	    fprintf(stderr, "%s", ErrorMessage);
+	  }
 	}
-      Yap_CloseSlots(CurSlot);
-      /* do backtrack */
-      YAP_Reset( YAP_FULL_RESET );
-    }
+      }  while (t != TermEof );
+
   YAP_EndConsult(bootfile);
 #if DEBUG
   if (Yap_output_msg)
@@ -2949,7 +2954,7 @@ YAP_Init(YAP_init_args *yap_init)
 	      yap_init->DelayedReleaseLoad
 	      );
   if (yap_init->QuietMode) {
-    yap_flags[QUIET_MODE_FLAG] = TRUE;
+    setVerbosity( TermSilent );
   }
 
   { if (yap_init->YapPrologRCFile != NULL) {
@@ -2957,7 +2962,7 @@ YAP_Init(YAP_init_args *yap_init)
 	This must be done before restore, otherwise
 	restore will print out messages ....
       */
-      yap_flags[HALT_AFTER_CONSULT_FLAG] = yap_init->HaltAfterConsult;
+      setBooleanGlobalPrologFlag(HALT_AFTER_CONSULT_FLAG, yap_init->HaltAfterConsult );
     }
     /* tell the system who should cope with interruptions */
     Yap_ExecutionMode = yap_init->ExecutionMode;
@@ -2974,7 +2979,7 @@ YAP_Init(YAP_init_args *yap_init)
     } else {
       restore_result = YAP_BOOT_FROM_PROLOG;
     }
-    yap_flags[FAST_BOOT_FLAG] = yap_init->FastBoot;
+    GLOBAL_FAST_BOOT_FLAG = yap_init->FastBoot;
 #if defined(YAPOR) || defined(TABLING)
     Yap_init_root_frames();
 #endif /* YAPOR || TABLING */
@@ -3026,7 +3031,7 @@ YAP_Init(YAP_init_args *yap_init)
       This must be done again after restore, as yap_flags
       has been overwritten ....
     */
-    yap_flags[HALT_AFTER_CONSULT_FLAG] = yap_init->HaltAfterConsult;
+    setBooleanGlobalPrologFlag(HALT_AFTER_CONSULT_FLAG, yap_init->HaltAfterConsult);
   }
   if (yap_init->YapPrologTopLevelGoal) {
     Yap_PutValue(AtomTopLevelGoal, MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologTopLevelGoal)));
@@ -3038,7 +3043,7 @@ YAP_Init(YAP_init_args *yap_init)
     Yap_PutValue(AtomExtendFileSearchPath, MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologAddPath)));
   }
   if (yap_init->QuietMode) {
-    yap_flags[QUIET_MODE_FLAG] = TRUE;
+    setVerbosity( TermSilent );
   }
   if (BOOT_FROM_SAVED_STATE && !do_bootstrap) {
     if (restore_result == FAIL_RESTORE) {
@@ -3173,28 +3178,9 @@ YAP_CompareTerms(Term t1, Term t2)
 X_API int
 YAP_Reset(yap_reset_t mode)
 {
-  CACHE_REGS
   int res = TRUE;
   BACKUP_MACHINE_REGS();
-
-  YAP_ClearExceptions();
-  /* first, backtrack to the root */
-  while (B->cp_b) {
-    B = B->cp_b;
-  }
-  // B shoul lead to CP with _ystop0,,
-  P = FAILCODE;
-  res = Yap_exec_absmi( true, mode );
-  /* reinitialise the engine */
-  //  Yap_InitYaamRegs( worker_id );
-  GLOBAL_Initialised = TRUE;
-  ENV = LCL0;
-  ASP = (CELL *)B;
-  /* the first real choice-point will also have AP=FAIL */
-  /* always have an empty slots for people to use */
-  P = CP = YESCODE;
-  // ensure that we have slots where we need them
-  Yap_RebootSlots( worker_id );
+  res = Yap_Reset( mode );
   RECOVER_MACHINE_REGS();
   return res;
 }
