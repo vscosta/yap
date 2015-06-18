@@ -580,10 +580,10 @@ sort_expand(GlobInfo info)
 }
 
 /**
-	
-	@addgroup 
 
-	\pred expand_file_name(+ _WildCard_,- _List_)  
+	@addgroup
+
+	\pred expand_file_name(+ _WildCard_,- _List_)
 
 
 	This is an SWI-Prolog built-in that unifies  _List_ with a sorted list of

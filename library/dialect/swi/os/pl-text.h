@@ -84,7 +84,7 @@ COMMON(int)		get_string_text(atom_t atom, PL_chars_t *text ARG_LD);
 static inline int
 text_get_char(const PL_chars_t *t, size_t i)
 { assert(t->canonical);
-  return t->encoding == ENC_ISO_LATIN_1 ? t->text.t[i]&0xff
+  return t->encoding == ENC_ISO_LATIN1 ? t->text.t[i]&0xff
 					: t->text.w[i];
 }
 

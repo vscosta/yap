@@ -22,7 +22,7 @@
 
 /** @defgroup SetLocale Localization Support
   * @ingroup InputOutput
-  * @{ 
+  * @{
   *
   * This code includes support for localization, that is, the ability to support
   * different languages and representation formats.
@@ -62,7 +62,7 @@ static struct lconv defl =
 
 struct lconv *
 localeconv(void)
-{ 
+{
   return &defl;
 }
 #endif

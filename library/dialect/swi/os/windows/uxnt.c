@@ -271,7 +271,7 @@ _xos_os_filenameW(const char *cname, wchar_t *osname, size_t len)
 
 #if __MINGW32__
   if ( q == cname && q[0] == '/' )	/* deal with /host/share in mingw32 */
-  { 
+  {
     UINT is_drive;
 
     q++;
@@ -527,7 +527,7 @@ _xos_absolute_filename(const char *local, char *absolute, size_t len)
 
 int
 _xos_same_file(const char *p1, const char *p2)
-{  
+{
   TCHAR buf1[PATH_MAX];
   TCHAR buf2[PATH_MAX];
   int rc = FALSE, found = FALSE;
@@ -538,13 +538,13 @@ _xos_same_file(const char *p1, const char *p2)
 
   HANDLE hFile1 = CreateFile(buf1, 0, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
   HANDLE hFile2 = CreateFile(buf2, 0, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-		 
+
   if (hFile1 != INVALID_HANDLE_VALUE &&
       hFile2 != INVALID_HANDLE_VALUE) {
     BY_HANDLE_FILE_INFORMATION f1, f2;
     if (GetFileInformationByHandle(hFile1, &f1) &&
 	GetFileInformationByHandle(hFile2, &f2) ) {
-      rc =  
+      rc =
 	f1.dwVolumeSerialNumber == f2.dwVolumeSerialNumber &&
 	f1.nFileIndexLow == f2.nFileIndexLow &&
 	f1.nFileIndexLow == f2.nFileIndexLow;

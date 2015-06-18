@@ -22,6 +22,9 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#ifndef PL_ERROR_H
+#define PL_ERROR_H 1
+
 #ifndef COMMON
 #define COMMON(type) extern type
 #endif
@@ -88,3 +91,4 @@ COMMON(int)		PL_get_module_ex(term_t name, module_t *m);
 COMMON(int)		PL_get_arg_ex(int n, term_t term, term_t arg);
 COMMON(int)             check_float(double f);
 
+#endif

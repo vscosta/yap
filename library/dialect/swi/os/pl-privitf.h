@@ -59,7 +59,7 @@ avoid using term-references to address the list.
 #if __YAP_PROLOG__
 
 typedef struct list_ctx
-{ 
+{
   Term gstore;
   Term start;
 } list_ctx;

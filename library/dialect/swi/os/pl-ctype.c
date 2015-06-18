@@ -445,7 +445,7 @@ error:
 
 
 
-/** @pred  char_type(? _Char_, ? _Type_) 
+/** @pred  char_type(? _Char_, ? _Type_)
 
 
 Like code_type/2, tests or generates alternative _Types_ or
@@ -461,7 +461,7 @@ PRED_IMPL("char_type", 2, char_type, PL_FA_NONDETERMINISTIC)
 }
 
 
-/** @pred  code_type(? _Char_, ? _Type_) 
+/** @pred  code_type(? _Char_, ? _Type_)
 
 
 Tests or generates alternative  _Types_ or  _Chars_. The
@@ -488,7 +488,7 @@ character-types are inspired by the standard `C`
 
 + `cntrl`
     _Char_ is an ASCII control-character (0..31).
- 
+
 + `digit`
     _Char_ is a digit.
 
@@ -541,7 +541,7 @@ character-types are inspired by the standard `C`
  _Char_ is a quote-character.
 
 + `paren(Close)`
- _Char_ is an open-parenthesis and Close is the corresponding close-parenthesis. 
+ _Char_ is an open-parenthesis and Close is the corresponding close-parenthesis.
 
 
 + `code_type(? _Code_, ? _Type_)`
@@ -552,7 +552,7 @@ one-character atoms. Please note that both predicates are as
 flexible as possible. They handle either representation if the
 argument is instantiated and only will instantiate with an integer
 code or one-character atom depending of the version used. See also
-the prolog-flag double_quotes and the built-in predicates 
+the prolog-flag double_quotes and the built-in predicates
 atom_chars/2 and atom_codes/2.
 
 
@@ -718,7 +718,7 @@ modify_case_atom(term_t in, term_t out, int down)
 }
 
 
-/** @pred  downcase_atom(+ _Word_, - _LowerCaseWord_) 
+/** @pred  downcase_atom(+ _Word_, - _LowerCaseWord_)
 
 If the first argument is bound to an atom _Word_, the
 second argument shoud unify with an atom such that all alphabetic cdes
@@ -733,7 +733,7 @@ PRED_IMPL("downcase_atom", 2, downcase_atom, 0)
 { return modify_case_atom(A1, A2, TRUE);
 }
 
-/** @pred  upcase_atom(+ _Word_, - _UpCaseWord_) 
+/** @pred  upcase_atom(+ _Word_, - _UpCaseWord_)
 
 If the first argument is bound to an atom _Word_, the
 second argument shoud unify with an atom such that all alphabetic cdes
@@ -787,7 +787,7 @@ write_normalize_space(IOSTREAM *out, term_t in)
 }
 
 
-/** @pred  normalize_space(- _Out_, + _In_) 
+/** @pred  normalize_space(- _Out_, + _In_)
 
 Remove white space at the beginning an end of the word _In_, and replace
 sequences of white space in the middle of _In_ by a single white
@@ -881,7 +881,7 @@ static lccat lccats[] =
 
 /// @}
 
-/** @pred  setlocale( + _In_, - _Old_, -_New_) 
+/** @pred  setlocale( + _In_, - _Old_, -_New_)
 
  */
 

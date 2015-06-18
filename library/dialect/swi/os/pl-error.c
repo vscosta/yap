@@ -158,7 +158,7 @@ PL_unify_list_ex(term_t l, term_t h, term_t t)
 
   if ( PL_get_nil(l) )
     fail;
-  
+
   return PL_error(NULL, 0, NULL, ERR_TYPE, ATOM_list, l);
 }
 
@@ -182,7 +182,7 @@ PL_get_list_ex(term_t l, term_t h, term_t t)
 
   if ( PL_get_nil(l) )
     fail;
-  
+
   return PL_error(NULL, 0, NULL, ERR_TYPE, ATOM_list, l);
 }
 
@@ -405,7 +405,7 @@ int PL_error(const char *pred, int arity, const char *msg, PL_error_code id, ...
   case ERR_TYPE:			/* ERR_INSTANTIATION if var(actual) */
     { atom_t expected = va_arg(args, atom_t);
       term_t actual   = va_arg(args, term_t);
-      
+
       if ( PL_is_variable(actual) && expected != ATOM_variable )
 	goto err_instantiation;
 

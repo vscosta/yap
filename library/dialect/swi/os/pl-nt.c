@@ -874,7 +874,7 @@ static folderid *folderids;
 
 // do nothing the first step
 static void
-in(REFKNOWNFOLDERID idp, char *name, int i) 
+in(REFKNOWNFOLDERID idp, char *name, int i)
 {
   if (folderids) {
     folderids[i].csidl = (KNOWNFOLDERID *)idp;
@@ -885,7 +885,7 @@ in(REFKNOWNFOLDERID idp, char *name, int i)
 // initialize twice: first, just count, second
 // incrementing i to point to the next free entry
 static int
-j(int i) 
+j(int i)
 {
   in( &FOLDERID_AccountPictures, "AccountPictures" , i++);
   in( &FOLDERID_AddNewPrograms, "AddNewPrograms" , i++);
@@ -1083,10 +1083,10 @@ static int
 unify_csidl_path(term_t t, int csidl)
 { wchar_t buf[MAX_PATH];
 
-  if ( SUCCEEDED(SHGetFolderPathW(NULL, 
-                             CSIDL_PERSONAL|CSIDL_FLAG_CREATE, 
-                             NULL, 
-                             0, 
+  if ( SUCCEEDED(SHGetFolderPathW(NULL,
+                             CSIDL_PERSONAL|CSIDL_FLAG_CREATE,
+                             NULL,
+                             0,
                              buf)) )
   { wchar_t *p;
 
@@ -1105,11 +1105,11 @@ unify_csidl_path(term_t t, int csidl)
 
 /** @pred win_folder(?_KnowFolder_, -_Path_)
  *
- * This SWI Windows Built-in relates a Windows `known folder` with its 
+ * This SWI Windows Built-in relates a Windows `known folder` with its
  *  corresponding file system _Path_. It can also be used to enumerate folderids/
  *
- * It is an interface to [SHGetKnownFolderPath](http://msdn.microsoft.com/en-us/library/windows/desktop/bb762204(v=vs.85).aspx). 
- * Note that in order to follow Microsoft  
+ * It is an interface to [SHGetKnownFolderPath](http://msdn.microsoft.com/en-us/library/windows/desktop/bb762204(v=vs.85).aspx).
+ * Note that in order to follow Microsoft
  * documentation, YAP supports `Known Folderids` instead of special folderids,
  * as used in SWI-Prolog. Also, names in YAP are obtained by removing
  * the prefix `FOLDERID_`: no further processing is made to convert to lower caps.
@@ -1290,7 +1290,7 @@ PRED_IMPL("win_registry_get_value", 3, win_registry_get_value, 0)
  * This non-deterministic Windows Built-in consults the Windows registry for all
  *  subkeys _Name_ of attribute _Key_. It can be used to enumerate and rebuild
  * the registry.
- * 
+ *
  * This built-in is an interface to [RegEnumKeyEx](http://msdn.microsoft.com/en-us/library/windows/desktop/ms724862(v=vs.85).aspx)
 */
 static
