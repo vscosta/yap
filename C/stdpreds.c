@@ -289,6 +289,9 @@ static char SccsId[] = "%W% %G%";
 #ifdef TABLING
 #include "tab.macros.h"
 #endif /* TABLING */
+#if HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 #include <stdio.h>
 #if HAVE_STRING_H
 #include <string.h>
