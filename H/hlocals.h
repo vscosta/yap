@@ -5,9 +5,28 @@
 
 typedef struct worker_local {
 
+  struct AliasDescS*  FileAliases_;
+  int  NOfFileAliases_;
+  int  SzOfFileAliases_;
   int  c_input_stream_;
   int  c_output_stream_;
   int  c_error_stream_;
+  bool  sockets_io_;
+
+
+
+
+  bool  newline_;
+  struct format_status*  FormatInfo_;
+  Atom  AtPrompt_;
+  char  Prompt_[MAX_PROMPT+1];
+  encoding_t  encoding_;
+  bool  quasi_quotations_;
+  UInt  default_priority_;
+  bool  eot_before_eof_;
+  UInt  max_depth_;
+  UInt  max_list_;
+  UInt  max_write_args_;
 
   CELL*  OldASP_;
   CELL*  OldLCL0_;
@@ -46,6 +65,8 @@ typedef struct worker_local {
 
   union CONSULT_OBJ*  ConsultLow_;
   Term  VarNames_;
+  Atom  SourceFileName_;
+  UInt  SourceFileLineno_;
 
   Term  GlobalArena_;
   UInt  GlobalArenaOverflows_;
@@ -121,12 +142,13 @@ typedef struct worker_local {
   Int*  LabelFirstArray_;
   UInt  LabelFirstArraySz_;
 
-  struct PL_local_data*  PL_local_data_p_;
+
 #ifdef THREADS
   struct thandle  ThreadHandle_;
 #endif /* THREADS */
 #if defined(YAPOR) || defined(TABLING)
   struct local_optyap_data  optyap_data_;
+  UInt  TabMode_;
 #endif /* YAPOR || TABLING */
   int  InterruptsDisabled_;
   struct open_query_struct*  execution_;
@@ -159,8 +181,12 @@ typedef struct worker_local {
   char  FileNameBuf_[YAP_FILENAME_MAX];
   char  FileNameBuf2_[YAP_FILENAME_MAX];
 
+  UInt  BreakLevel_;
   Int  PrologMode_;
   int  CritLocks_;
+
+  union flagTerm*  Flags_;
+  UInt  flagCount_;
 
 
 #ifdef ANALYST

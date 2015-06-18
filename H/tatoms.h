@@ -66,12 +66,14 @@
 #define AtomBatched Yap_heap_regs->AtomBatched_
   Atom AtomBetween_;
 #define AtomBetween Yap_heap_regs->AtomBetween_
-  Atom AtomHugeInt_;
-#define AtomHugeInt Yap_heap_regs->AtomHugeInt_
+  Atom AtomBinary_;
+#define AtomBinary Yap_heap_regs->AtomBinary_
   Atom AtomBigNum_;
 #define AtomBigNum Yap_heap_regs->AtomBigNum_
   Atom AtomBinaryStream_;
 #define AtomBinaryStream Yap_heap_regs->AtomBinaryStream_
+  Atom AtomBoolean_;
+#define AtomBoolean Yap_heap_regs->AtomBoolean_
   Atom AtomBraces_;
 #define AtomBraces Yap_heap_regs->AtomBraces_
   Atom AtomBreak_;
@@ -100,6 +102,8 @@
 #define AtomCharacter Yap_heap_regs->AtomCharacter_
   Atom AtomCharacterCode_;
 #define AtomCharacterCode Yap_heap_regs->AtomCharacterCode_
+  Atom AtomChars_;
+#define AtomChars Yap_heap_regs->AtomChars_
   Atom AtomCharset_;
 #define AtomCharset Yap_heap_regs->AtomCharset_
   Atom AtomCleanCall_;
@@ -116,6 +120,8 @@
 #define AtomComma Yap_heap_regs->AtomComma_
   Atom AtomCommentHook_;
 #define AtomCommentHook Yap_heap_regs->AtomCommentHook_
+  Atom AtomCompact_;
+#define AtomCompact Yap_heap_regs->AtomCompact_
   Atom AtomCompound_;
 #define AtomCompound Yap_heap_regs->AtomCompound_
   Atom AtomConsistencyError_;
@@ -154,8 +160,8 @@
 #define AtomDBref Yap_heap_regs->AtomDBref_
   Atom AtomDInteger_;
 #define AtomDInteger Yap_heap_regs->AtomDInteger_
-  Atom AtomDOUBLE_;
-#define AtomDOUBLE Yap_heap_regs->AtomDOUBLE_
+  Atom AtomDebuggerInput_;
+#define AtomDebuggerInput Yap_heap_regs->AtomDebuggerInput_
   Atom AtomDec10_;
 #define AtomDec10 Yap_heap_regs->AtomDec10_
   Atom AtomDefault_;
@@ -166,6 +172,8 @@
 #define AtomDiff Yap_heap_regs->AtomDiff_
   Atom AtomDiscontiguous_;
 #define AtomDiscontiguous Yap_heap_regs->AtomDiscontiguous_
+  Atom AtomDiscontiguousWarnings_;
+#define AtomDiscontiguousWarnings Yap_heap_regs->AtomDiscontiguousWarnings_
   Atom AtomDollar_;
 #define AtomDollar Yap_heap_regs->AtomDollar_
   Atom AtomDoLogUpdClause_;
@@ -174,14 +182,18 @@
 #define AtomDoLogUpdClause0 Yap_heap_regs->AtomDoLogUpdClause0_
   Atom AtomDoLogUpdClauseErase_;
 #define AtomDoLogUpdClauseErase Yap_heap_regs->AtomDoLogUpdClauseErase_
-  Atom AtomDoStaticClause_;
-#define AtomDoStaticClause Yap_heap_regs->AtomDoStaticClause_
   Atom AtomDollarU_;
 #define AtomDollarU Yap_heap_regs->AtomDollarU_
   Atom AtomDollarUndef_;
 #define AtomDollarUndef Yap_heap_regs->AtomDollarUndef_
   Atom AtomDomainError_;
 #define AtomDomainError Yap_heap_regs->AtomDomainError_
+  Atom AtomDoStaticClause_;
+#define AtomDoStaticClause Yap_heap_regs->AtomDoStaticClause_
+  Atom AtomDots_;
+#define AtomDots Yap_heap_regs->AtomDots_
+  Atom AtomDOUBLE_;
+#define AtomDOUBLE Yap_heap_regs->AtomDOUBLE_
   Atom AtomE_;
 #define AtomE Yap_heap_regs->AtomE_
   Atom AtomEOFBeforeEOT_;
@@ -196,10 +208,14 @@
 #define AtomEndOfStream Yap_heap_regs->AtomEndOfStream_
   Atom AtomEof_;
 #define AtomEof Yap_heap_regs->AtomEof_
+  Atom AtomEOfCode_;
+#define AtomEOfCode Yap_heap_regs->AtomEOfCode_
   Atom AtomEq_;
 #define AtomEq Yap_heap_regs->AtomEq_
   Atom AtomError_;
 #define AtomError Yap_heap_regs->AtomError_
+  Atom AtomException_;
+#define AtomException Yap_heap_regs->AtomException_
   Atom AtomEvaluable_;
 #define AtomEvaluable Yap_heap_regs->AtomEvaluable_
   Atom AtomEvaluationError_;
@@ -246,6 +262,8 @@
 #define AtomFormat Yap_heap_regs->AtomFormat_
   Atom AtomFormatAt_;
 #define AtomFormatAt Yap_heap_regs->AtomFormatAt_
+  Atom AtomFull_;
+#define AtomFull Yap_heap_regs->AtomFull_
   Atom AtomFunctor_;
 #define AtomFunctor Yap_heap_regs->AtomFunctor_
   Atom AtomGT_;
@@ -268,6 +286,8 @@
 #define AtomGetwork Yap_heap_regs->AtomGetwork_
   Atom AtomGetworkSeq_;
 #define AtomGetworkSeq Yap_heap_regs->AtomGetworkSeq_
+  Atom AtomGlobal_;
+#define AtomGlobal Yap_heap_regs->AtomGlobal_
   Atom AtomGlobalSp_;
 #define AtomGlobalSp Yap_heap_regs->AtomGlobalSp_
   Atom AtomGlobalTrie_;
@@ -284,12 +304,16 @@
 #define AtomHeap Yap_heap_regs->AtomHeap_
   Atom AtomHeapUsed_;
 #define AtomHeapUsed Yap_heap_regs->AtomHeapUsed_
+  Atom AtomHugeInt_;
+#define AtomHugeInt Yap_heap_regs->AtomHugeInt_
   Atom AtomIDB_;
 #define AtomIDB Yap_heap_regs->AtomIDB_
   Atom AtomIOMode_;
 #define AtomIOMode Yap_heap_regs->AtomIOMode_
   Atom AtomId_;
 #define AtomId Yap_heap_regs->AtomId_
+  Atom AtomIgnore_;
+#define AtomIgnore Yap_heap_regs->AtomIgnore_
   Atom AtomInf_;
 #define AtomInf Yap_heap_regs->AtomInf_
   Atom AtomInfinity_;
@@ -322,6 +346,8 @@
 #define AtomLONGINT Yap_heap_regs->AtomLONGINT_
   Atom AtomLOOP_;
 #define AtomLOOP Yap_heap_regs->AtomLOOP_
+  Atom AtomLoopStream_;
+#define AtomLoopStream Yap_heap_regs->AtomLoopStream_
   Atom AtomLT_;
 #define AtomLT Yap_heap_regs->AtomLT_
   Atom AtomLastExecuteWithin_;
@@ -334,6 +360,8 @@
 #define AtomLength Yap_heap_regs->AtomLength_
   Atom AtomList_;
 #define AtomList Yap_heap_regs->AtomList_
+  Atom AtomLine_;
+#define AtomLine Yap_heap_regs->AtomLine_
   Atom AtomLive_;
 #define AtomLive Yap_heap_regs->AtomLive_
   Atom AtomLoadAnswers_;
@@ -366,8 +394,12 @@
 #define AtomMinus Yap_heap_regs->AtomMinus_
   Atom AtomModify_;
 #define AtomModify Yap_heap_regs->AtomModify_
+  Atom AtomModule_;
+#define AtomModule Yap_heap_regs->AtomModule_
   Atom AtomMost_;
 #define AtomMost Yap_heap_regs->AtomMost_
+  Atom AtomMulti_;
+#define AtomMulti Yap_heap_regs->AtomMulti_
   Atom AtomMultiFile_;
 #define AtomMultiFile Yap_heap_regs->AtomMultiFile_
   Atom AtomMultiple_;
@@ -454,8 +486,12 @@
 #define AtomOutOfTrailError Yap_heap_regs->AtomOutOfTrailError_
   Atom AtomOutput_;
 #define AtomOutput Yap_heap_regs->AtomOutput_
+  Atom AtomParameter_;
+#define AtomParameter Yap_heap_regs->AtomParameter_
   Atom AtomPrologCommonsDir_;
 #define AtomPrologCommonsDir Yap_heap_regs->AtomPrologCommonsDir_
+  Atom AtomPast_;
+#define AtomPast Yap_heap_regs->AtomPast_
   Atom AtomPastEndOfStream_;
 #define AtomPastEndOfStream Yap_heap_regs->AtomPastEndOfStream_
   Atom AtomPermissionError_;
@@ -498,14 +534,22 @@
 #define AtomRandom Yap_heap_regs->AtomRandom_
   Atom AtomRange_;
 #define AtomRange Yap_heap_regs->AtomRange_
+  Atom AtomRDiv_;
+#define AtomRDiv Yap_heap_regs->AtomRDiv_
   Atom AtomRead_;
 #define AtomRead Yap_heap_regs->AtomRead_
+  Atom AtomReadOnly_;
+#define AtomReadOnly Yap_heap_regs->AtomReadOnly_
+  Atom AtomReadWrite_;
+#define AtomReadWrite Yap_heap_regs->AtomReadWrite_
   Atom AtomReadutil_;
 #define AtomReadutil Yap_heap_regs->AtomReadutil_
   Atom AtomRecordedP_;
 #define AtomRecordedP Yap_heap_regs->AtomRecordedP_
   Atom AtomRecordedWithKey_;
 #define AtomRecordedWithKey Yap_heap_regs->AtomRecordedWithKey_
+  Atom AtomRedefineWarnings_;
+#define AtomRedefineWarnings Yap_heap_regs->AtomRedefineWarnings_
   Atom AtomRedoFreeze_;
 #define AtomRedoFreeze Yap_heap_regs->AtomRedoFreeze_
   Atom AtomRefoundVar_;
@@ -518,8 +562,8 @@
 #define AtomReposition Yap_heap_regs->AtomReposition_
   Atom AtomRepresentationError_;
 #define AtomRepresentationError Yap_heap_regs->AtomRepresentationError_
-  Atom AtomRDiv_;
-#define AtomRDiv Yap_heap_regs->AtomRDiv_
+  Atom AtomReset_;
+#define AtomReset Yap_heap_regs->AtomReset_
   Atom AtomResize_;
 #define AtomResize Yap_heap_regs->AtomResize_
   Atom AtomResourceError_;
@@ -576,12 +620,20 @@
 #define AtomSigVTAlarm Yap_heap_regs->AtomSigVTAlarm_
   Atom AtomSigWakeUp_;
 #define AtomSigWakeUp Yap_heap_regs->AtomSigWakeUp_
+  Atom AtomSilent_;
+#define AtomSilent Yap_heap_regs->AtomSilent_
+  Atom AtomSingle_;
+#define AtomSingle Yap_heap_regs->AtomSingle_
+  Atom AtomSingleVarWarnings_;
+#define AtomSingleVarWarnings Yap_heap_regs->AtomSingleVarWarnings_
   Atom AtomSingleton_;
 #define AtomSingleton Yap_heap_regs->AtomSingleton_
   Atom AtomSlash_;
 #define AtomSlash Yap_heap_regs->AtomSlash_
   Atom AtomSocket_;
 #define AtomSocket Yap_heap_regs->AtomSocket_
+  Atom AtomSource_;
+#define AtomSource Yap_heap_regs->AtomSource_
   Atom AtomSourceSink_;
 #define AtomSourceSink Yap_heap_regs->AtomSourceSink_
   Atom AtomSpy_;
@@ -616,6 +668,8 @@
 #define AtomSTRING Yap_heap_regs->AtomSTRING_
   Atom AtomSwi_;
 #define AtomSwi Yap_heap_regs->AtomSwi_
+  Atom AtomSymbolChar_;
+#define AtomSymbolChar Yap_heap_regs->AtomSymbolChar_
   Atom AtomSyntaxError_;
 #define AtomSyntaxError Yap_heap_regs->AtomSyntaxError_
   Atom AtomSyntaxErrorHandler_;
@@ -636,6 +690,8 @@
 #define AtomText Yap_heap_regs->AtomText_
   Atom AtomTextStream_;
 #define AtomTextStream Yap_heap_regs->AtomTextStream_
+  Atom AtomThread_;
+#define AtomThread Yap_heap_regs->AtomThread_
   Atom AtomThreads_;
 #define AtomThreads Yap_heap_regs->AtomThreads_
   Atom AtomThrow_;
@@ -686,6 +742,8 @@
 #define AtomVar Yap_heap_regs->AtomVar_
   Atom AtomVarBranches_;
 #define AtomVarBranches Yap_heap_regs->AtomVarBranches_
+  Atom AtomVariableNames_;
+#define AtomVariableNames Yap_heap_regs->AtomVariableNames_
   Atom AtomHiddenVar_;
 #define AtomHiddenVar Yap_heap_regs->AtomHiddenVar_
   Atom AtomVariable_;
@@ -694,10 +752,14 @@
 #define AtomVersionNumber Yap_heap_regs->AtomVersionNumber_
   Atom AtomWakeUpGoal_;
 #define AtomWakeUpGoal Yap_heap_regs->AtomWakeUpGoal_
+  Atom AtomWarning_;
+#define AtomWarning Yap_heap_regs->AtomWarning_
   Atom AtomWhen_;
 #define AtomWhen Yap_heap_regs->AtomWhen_
   Atom AtomWrite_;
 #define AtomWrite Yap_heap_regs->AtomWrite_
+  Atom AtomXml_;
+#define AtomXml Yap_heap_regs->AtomXml_
   Atom AtomYapHacks_;
 #define AtomYapHacks Yap_heap_regs->AtomYapHacks_
   Atom AtomZeroDivisor_;
@@ -738,12 +800,18 @@
 #define FunctorCatch Yap_heap_regs->FunctorCatch_
   Functor FunctorChangeModule_;
 #define FunctorChangeModule Yap_heap_regs->FunctorChangeModule_
+  Functor FunctorChars_;
+#define FunctorChars Yap_heap_regs->FunctorChars_
+  Functor FunctorChars1_;
+#define FunctorChars1 Yap_heap_regs->FunctorChars1_
   Functor FunctorCleanCall_;
 #define FunctorCleanCall Yap_heap_regs->FunctorCleanCall_
   Functor FunctorClist_;
 #define FunctorClist Yap_heap_regs->FunctorClist_
   Functor FunctorCodes_;
 #define FunctorCodes Yap_heap_regs->FunctorCodes_
+  Functor FunctorCodes1_;
+#define FunctorCodes1 Yap_heap_regs->FunctorCodes1_
   Functor FunctorComma_;
 #define FunctorComma Yap_heap_regs->FunctorComma_
   Functor FunctorCommentHook_;
@@ -922,6 +990,8 @@
 #define FunctorStreamEOS Yap_heap_regs->FunctorStreamEOS_
   Functor FunctorStreamPos_;
 #define FunctorStreamPos Yap_heap_regs->FunctorStreamPos_
+  Functor FunctorString1_;
+#define FunctorString1 Yap_heap_regs->FunctorString1_
   Functor FunctorSyntaxError_;
 #define FunctorSyntaxError Yap_heap_regs->FunctorSyntaxError_
   Functor FunctorShortSyntaxError_;

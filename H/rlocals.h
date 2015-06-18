@@ -47,6 +47,27 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   REMOTE_GlobalArena(wid) = TermToGlobalOrAtomAdjust(REMOTE_GlobalArena(wid));
 
 
@@ -127,12 +148,17 @@ static void RestoreWorker(int wid USES_REGS) {
 #endif /* THREADS */
 #if defined(YAPOR) || defined(TABLING)
 
+
 #endif /* YAPOR || TABLING */
 
 
 #if LOW_LEVEL_TRACER
 
 #endif
+
+
+
+
 
 
 

@@ -24,6 +24,7 @@ static void InitGlobal(void) {
   GLOBAL_InitialisedFromPL = FALSE;
   GLOBAL_PL_Argc = 0;
   GLOBAL_PL_Argv = NULL;
+  GLOBAL_FAST_BOOT_FLAG = false;
 
   GLOBAL_HaltHooks = NULL;
   GLOBAL_JIT_finalizer = NULL;
@@ -69,8 +70,10 @@ static void InitGlobal(void) {
 
 #endif /* THREADS */
 
-  GLOBAL_stdout = Soutput;
-  GLOBAL_stderr = Serror;
+
+
+
+
 
 
 
@@ -133,4 +136,9 @@ static void InitGlobal(void) {
   INIT_LOCK(GLOBAL_MUT_ACCESS);
 #endif
   GLOBAL_Home = NULL;
+
+  GLOBAL_CharConversionTable = NULL;
+  GLOBAL_CharConversionTable2 = NULL;
+
+  GLOBAL_LastWtimePtr = NULL;
 }

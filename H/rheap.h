@@ -716,6 +716,7 @@ CleanSIndex(StaticIndex *idx, int recurse USES_REGS)
   }
 }
 
+
 static void 
 RestoreSWIAtoms__( USES_REGS1 )
 {
@@ -729,16 +730,20 @@ RestoreSWIAtoms__( USES_REGS1 )
   RestoreSWIHash();
 }
 
-static void 
-RestoreSWIBlobTypes__( USES_REGS1 )
+#define RestoreBlobTypes() RestoreBlobTypes__( PASS_REGS1 )
+#define RestoreBlobs() RestoreBlobs__( PASS_REGS1);
+
+
+static void
+RestoreBlobTypes__( USES_REGS1 )
 {
 }
 
 static void 
-RestoreSWIBlobs__( USES_REGS1 )
+RestoreBlobs__( USES_REGS1 )
 {
-  SWI_Blobs = AtomAdjust(SWI_Blobs);
-  RestoreAtomList(SWI_Blobs PASS_REGS);
+  Blobs = AtomAdjust(Blobs);
+  RestoreAtomList(Blobs PASS_REGS);
 }
 
 static void
@@ -1609,8 +1614,8 @@ RestoreEntries(PropEntry *pp, int int_key USES_REGS)
 	PropAdjust(pp->NextOfPE);
       {
 	BlobPropEntry *bpe = (BlobPropEntry *)pp;
-	bpe->blob_t =
-	  BlobTypeAdjust(bpe->blob_t);
+	bpe->blob_type =
+	  BlobTypeAdjust(bpe->blob_type);
       }
       break;
     default:

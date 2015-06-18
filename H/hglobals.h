@@ -24,6 +24,7 @@ typedef struct global_data {
   int  InitialisedFromPL_;
   int  PL_Argc_;
   char**  PL_Argv_;
+  bool  FAST_BOOT_FLAG_;
 
   struct halt_hook*  HaltHooks_;
   fptr_t  JIT_finalizer_;
@@ -69,11 +70,13 @@ typedef struct global_data {
   struct swi_mutex*  WithMutex_;
 #endif /* THREADS */
 
-  struct io_stream*  stdout_;
-  struct io_stream*  stderr_;
+  struct stream_desc*  Stream_;
 
   char**  argv_;
   int  argc_;
+
+  union flagTerm*  Flags_;
+  UInt  flagCount_;
 
 #ifdef COROUTINING
 
@@ -133,4 +136,9 @@ typedef struct global_data {
   lockvar  MUT_ACCESS_;
 #endif
   char*  Home_;
+
+  char*  CharConversionTable_;
+  char*  CharConversionTable2_;
+
+  void*  LastWtimePtr_;
 } w_shared;

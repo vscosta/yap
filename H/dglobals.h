@@ -24,6 +24,7 @@
 #define GLOBAL_InitialisedFromPL Yap_global->InitialisedFromPL_
 #define GLOBAL_PL_Argc Yap_global->PL_Argc_
 #define GLOBAL_PL_Argv Yap_global->PL_Argv_
+#define GLOBAL_FAST_BOOT_FLAG Yap_global->FAST_BOOT_FLAG_
 
 #define GLOBAL_HaltHooks Yap_global->HaltHooks_
 #define GLOBAL_JIT_finalizer Yap_global->JIT_finalizer_
@@ -69,11 +70,13 @@
 #define GLOBAL_WithMutex Yap_global->WithMutex_
 #endif /* THREADS */
 
-#define GLOBAL_stdout Yap_global->stdout_
-#define GLOBAL_stderr Yap_global->stderr_
+#define GLOBAL_Stream Yap_global->Stream_
 
 #define GLOBAL_argv Yap_global->argv_
 #define GLOBAL_argc Yap_global->argc_
+
+#define GLOBAL_Flags Yap_global->Flags_
+#define GLOBAL_flagCount Yap_global->flagCount_
 
 #ifdef COROUTINING
 
@@ -133,4 +136,9 @@
 #define GLOBAL_MUT_ACCESS Yap_global->MUT_ACCESS_
 #endif
 #define GLOBAL_Home Yap_global->Home_
+
+#define GLOBAL_CharConversionTable Yap_global->CharConversionTable_
+#define GLOBAL_CharConversionTable2 Yap_global->CharConversionTable2_
+
+#define GLOBAL_LastWtimePtr Yap_global->LastWtimePtr_
 

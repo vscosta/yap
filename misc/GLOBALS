@@ -22,6 +22,7 @@ int				Initialised				=FALSE
 int				InitialisedFromPL			=FALSE
 int				PL_Argc					=0
 char**				PL_Argv					=NULL
+bool				FAST_BOOT_FLAG				=false
 
 // halt hooks
 struct halt_hook*		HaltHooks				=NULL
@@ -71,19 +72,22 @@ int             		PrologShouldHandleInterrupts		void
 /* This is the guy who actually started the system, and who has the correct registers */
 #if defined(THREADS)
 pthread_t 			master_thread				void
-struct thread_mbox* named_mboxes                =NULL
-lockvar				mboxq_lock					MkLock
-UInt				mbox_count					=0
-struct swi_mutex*    WithMutex                   void
+struct thread_mbox*		named_mboxes		                =NULL
+lockvar				mboxq_lock				MkLock
+UInt				mbox_count				=0
+struct swi_mutex*		WithMutex		                void
 #endif /* THREADS */
 
 // streams 
-struct io_stream*		stdout					=Soutput
-struct io_stream*		stderr					=Serror
+struct stream_desc*		Stream					void
 
 // access to yap initial arguments 
 char**				argv					void
 int           		 	argc					void
+
+// Prolog execution and state flags
+union flagTerm*		       Flags					void
+UInt   			       flagCount				void
 
 // extensions to Terms
 #ifdef COROUTINING
@@ -156,6 +160,15 @@ lockvar				MUT_ACCESS				MkLock
 #endif
 
 char*				Home					=NULL
+
+/* ISO char conversion: I will make no comments */
+char*				CharConversionTable			=NULL
+char*				CharConversionTable2			=NULL
+
+
+/* time */
+void*				LastWtimePtr				=NULL
+
 
 
 END_GLOBAL_DATA

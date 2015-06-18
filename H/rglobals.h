@@ -35,6 +35,7 @@ static void RestoreGlobal(void) {
 
 
 
+
 #if __ANDROID__
 
 
@@ -68,6 +69,8 @@ static void RestoreGlobal(void) {
 
 
 #endif /* THREADS */
+
+
 
 
 
@@ -132,5 +135,10 @@ static void RestoreGlobal(void) {
 
   REINIT_LOCK(GLOBAL_MUT_ACCESS);
 #endif
+
+
+
+
+
 
 }

@@ -35,12 +35,12 @@ typedef struct read_data_t
   unsigned char *base;			/* base of clause */
   unsigned char *end;			/* end of the clause */
   unsigned char *token_start;		/* start of most recent read token */
- 
+
   int		magic;			/* RD_MAGIC */
   IOPOS         position;               /* Line, line pos, char and byte */
   unsigned char *posp;			/* position pointer */
   size_t	posi;			/* position number */
-  
+
   term_t	subtpos;		/* Report Subterm positions */
   bool		cycles;			/* Re-establish cycles */
   source_location start_of_term;        /* Position of start of term */
@@ -57,7 +57,7 @@ typedef struct read_data_t
   term_t	exception;		/* raised exception */
   term_t	variables;		/* report variables */
   term_t	singles;		/* Report singleton variables */
-  term_t	varnames;		/* Report variables+names */  
+  term_t	varnames;		/* Report variables+names */
   int		strictness;		/* Strictness level */
 
 #ifdef O_QUASIQUOTATIONS

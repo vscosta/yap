@@ -5,9 +5,28 @@
 
 static void InitWorker(int wid) {
 
+  REMOTE_FileAliases(wid) = Yap_InitStandardAliases();
+
+
   REMOTE_c_input_stream(wid) = 0;
   REMOTE_c_output_stream(wid) = 1;
   REMOTE_c_error_stream(wid) = 2;
+  REMOTE_sockets_io(wid) = false;
+
+
+
+
+  REMOTE_newline(wid) = true;
+  REMOTE_FormatInfo(wid) = NULL;
+  REMOTE_AtPrompt(wid) = AtomNil;
+
+  REMOTE_encoding(wid) = Yap_InitialEncoding();
+  REMOTE_quasi_quotations(wid) = false;
+  REMOTE_default_priority(wid) = 1200;
+  REMOTE_eot_before_eof(wid) = false;
+  REMOTE_max_depth(wid) = 0;
+  REMOTE_max_list(wid) = 0;
+  REMOTE_max_write_args(wid) = 0;
 
   REMOTE_OldASP(wid) = NULL;
   REMOTE_OldLCL0(wid) = NULL;
@@ -46,6 +65,8 @@ static void InitWorker(int wid) {
 
   REMOTE_ConsultLow(wid) = NULL;
   REMOTE_VarNames(wid) = ((Term)0);
+  REMOTE_SourceFileName(wid) = NULL;
+  REMOTE_SourceFileLineno(wid) = 0;
 
   REMOTE_GlobalArena(wid) = 0L;
   REMOTE_GlobalArenaOverflows(wid) = 0L;
@@ -121,12 +142,13 @@ static void InitWorker(int wid) {
   REMOTE_LabelFirstArray(wid) = NULL;
   REMOTE_LabelFirstArraySz(wid) = 0L;
 
-  REMOTE_PL_local_data_p(wid) = Yap_InitThreadIO(wid);
+
 #ifdef THREADS
   InitThreadHandle(wid);
 #endif /* THREADS */
 #if defined(YAPOR) || defined(TABLING)
   Yap_init_local_optyap_data(wid);
+  REMOTE_TabMode(wid) = 0L;
 #endif /* YAPOR || TABLING */
   REMOTE_InterruptsDisabled(wid) = FALSE;
   REMOTE_execution(wid) = NULL;
@@ -159,8 +181,12 @@ static void InitWorker(int wid) {
 
 
 
+  REMOTE_BreakLevel(wid) = 0;
   REMOTE_PrologMode(wid) = BootMode;
   REMOTE_CritLocks(wid) = 0;
+
+
+
 
 
 #ifdef ANALYST

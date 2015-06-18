@@ -2,9 +2,36 @@
 START_WORKER_LOCAL
 
 // Streams
+struct AliasDescS*		FileAliases				=Yap_InitStandardAliases()
+int				NOfFileAliases				void	
+int				SzOfFileAliases				void
+
 int				c_input_stream				=0
 int				c_output_stream				=1
 int				c_error_stream				=2
+
+bool				sockets_io				=false
+
+//
+// Used by the prompts to check if they are after a newline, and then a
+// prompt should be output, or if we are in the middle of a line.
+//
+bool				newline					=true
+
+struct format_status*		FormatInfo				=NULL
+
+Atom				AtPrompt				=AtomNil
+char				Prompt[MAX_PROMPT+1]			void
+
+encoding_t			encoding				=Yap_InitialEncoding()
+bool				quasi_quotations			=false
+UInt				default_priority			=1200
+
+bool				eot_before_eof				=false
+UInt				max_depth				=0
+UInt				max_list				=0
+UInt				max_write_args				=0
+
 
 // Restore info
 CELL*				OldASP					=NULL
@@ -46,6 +73,8 @@ union CONSULT_OBJ*		ConsultBase				=NULL
 /* low-water mark for consult  */
 union CONSULT_OBJ*		ConsultLow				=NULL
 Term				VarNames				=((Term)0)
+Atom				SourceFileName				=NULL
+UInt				SourceFileLineno			=0
 
 //global variables
 Term				GlobalArena				=0L		TermToGlobalOrAtomAdjust
@@ -60,7 +89,7 @@ char*				ScannerStack				=NULL
 struct scanner_extra_alloc*	 ScannerExtraBlocks			=NULL
 struct DB_TERM*			BallTerm				=NULL 		RestoreBallTerm(wid)
 UInt				MaxActiveSignals			=64L
-uint64_t			Signals				=0L
+uint64_t			Signals					=0L
 UInt				IPredArity				=0L
 yamop*				ProfEnd					=NULL
 int				UncaughtThrow				=FALSE
@@ -131,7 +160,7 @@ Int*				LabelFirstArray				=NULL
 UInt				LabelFirstArraySz			=0L
 
 // Thread Local Area for SWI-Prolog emulation routines.
-struct PL_local_data*		PL_local_data_p				=Yap_InitThreadIO(wid)
+// struct PL_local_data*		PL_local_data_p				=Yap_InitThreadIO(wid)
 
 #ifdef THREADS
 struct thandle			ThreadHandle				InitThreadHandle(wid)
@@ -139,6 +168,7 @@ struct thandle			ThreadHandle				InitThreadHandle(wid)
 
 #if defined(YAPOR) || defined(TABLING)
 struct local_optyap_data	optyap_data   				Yap_init_local_optyap_data(wid)
+UInt				TabMode					=0L
 #endif /* YAPOR || TABLING */
 
 int				InterruptsDisabled			=FALSE
@@ -177,9 +207,13 @@ char     			FileNameBuf[YAP_FILENAME_MAX]		void
 char        			FileNameBuf2[YAP_FILENAME_MAX]		void
 
 // Prolog State
-
+UInt				BreakLevel				=0
 Int      			PrologMode 				=BootMode
 int      			CritLocks 				=0
+
+// Prolog execution and state flags
+union flagTerm*		       Flags					void
+UInt   			       flagCount				void
 
 //analyst.c
 /* used to find out how many instructions of each kind are executed */

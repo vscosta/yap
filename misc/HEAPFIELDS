@@ -87,8 +87,52 @@ ATOMS
 #ifdef EUROTRA
 Term		term_dollar_u		TermDollarU		MkAT AtomDollarU
 #endif
+Term		term_append		TermAppend		MkAT AtomAppend
+Term		term_atomd		TermAtom		MkAT AtomAtom
+Term		term_binary		TermBinary		MkAT AtomBinary
+Term		term_boolean		TermBoolean		MkAT AtomBoolean
+Term		term_chars		TermChars		MkAT AtomChars
+Term		term_codes		TermCodes		MkAT AtomCodes
+Term		term_compact		TermCompact		MkAT AtomCompact
+Term		term_dec10		TermDec10		MkAT AtomDec10
+Term		term_dots		TermDots		MkAT AtomDots
+Term		term_eof		TermEof			MkAT AtomEof
+Term		term_eof_code		TermEOfCode		MkAT AtomEOfCode
+Term		term_error		TermError		MkAT AtomError
+Term		term_exception		TermException		MkAT AtomException
+Term		term_fail		TermFail		MkAT AtomFail
+Term		term_false		TermFalse		MkAT AtomFalse
+Term		term_float		TermFloat		MkAT AtomFloat
+Term		term_global		TermGlobal		MkAT AtomGlobal
+Term		term_ignore		TermIgnore		MkAT AtomIgnore
+Term		term_integer		TermInteger		MkAT AtomInteger
+Term		term_max		TermMax			MkAT AtomMax
+Term		term_module		TermModule		MkAT AtomModule
+Term		term_multi		TermMulti		MkAT AtomMulti
+Term		term_off		TermOff			MkAT AtomOff
+Term		term_on			TermOn			MkAT AtomOn
+Term		term_portray		TermPortray		MkAT AtomPortray
 Term		term_prolog		TermProlog		MkAT AtomProlog
+Term		term_quiet		TermQuiet		MkAT AtomQuiet
+Term		term_read		TermRead		MkAT AtomRead
+Term		term_read_only		TermReadOnly		MkAT AtomReadOnly
+Term		term_read_write		TermReadWrite		MkAT AtomReadWrite
 Term		term_refound_var	TermReFoundVar		MkAT AtomRefoundVar
+Term		term_reset		TermReset		MkAT AtomReset
+Term		term_silent		TermSilent		MkAT AtomSilent
+Term		term_single		TermSingle		MkAT AtomSingle
+Term		term_source		TermSource		MkAT AtomSource
+Term		term_string		TermString		MkAT AtomString
+Term		term_symbolchar		TermSymbolChar		MkAT AtomSymbolChar
+Term		term_term		TermTerm		MkAT AtomTerm
+Term		term_text		TermText		MkAT AtomText
+Term		term_thread		TermThread		MkAT AtomThread
+Term		term_true		TermTrue		MkAT AtomTrue
+Term		term_warning		TermWarning		MkAT AtomWarning
+Term		term_write		TermWrite		MkAT AtomWrite
+Term		term_xml		TermXml			MkAT AtomXml
+
+//modules	
 Term		user_module		USER_MODULE		MkAT AtomUser
 Term		idb_module		IDB_MODULE		MkAT AtomIDB
 Term		attributes_module	ATTRIBUTES_MODULE	MkAT AtomAttributes
@@ -114,6 +158,14 @@ struct mod_entry *current_modules	CurrentModules		=NULL	ModEntryPtrAdjust
 // make sure we have the modules set at this point.
 // don't actually want to define a field
 void		void			void			Yap_InitModules()  void
+
+// make sure we have the streams  set at this point.
+// don't actually want to define a field
+void		void			void			Yap_InitPlIO()  void
+
+// make sure we have the flags  set at this point.
+// don't actually want to define a field
+void		void			void			Yap_InitFlags(true)  void
 
 /* Anderson's JIT */
 yap_exec_mode	execution_mode		Yap_ExecutionMode	=INTERPRETED void
@@ -295,27 +347,8 @@ int		num_of_atts		NUM_OF_ATTS		=1	void
 UInt		atts_size		Yap_AttsSize		void void
 #endif
 
-/* YAP control flags */
-Int		yap_flags_field[NUMBER_OF_YAP_FLAGS] yap_flags InitFlags() void
-
 /* Operators */
 struct operator_entry	*op_list	OpList			=NULL OpListAdjust
-
-/* ISO char conversion: I will make no comments */
-char		*char_conversion_table	CharConversionTable	=NULL CodeCharPAdjust
-char		*char_conversion_table2	CharConversionTable2	=NULL CodeCharPAdjust
-
-/* what to do when the parser gives an error: should be thread bound?  */
-int		parser_error_style	ParserErrorStyle	=EXCEPTION_ON_PARSER_ERROR void
-
-/* library location.  */
-const char	*yap_lib_dir		Yap_LibDir		=NULL CodeConstCharPAdjust
-const char	*yap_foreign_dir	Yap_ForeignDir		=NULL CodeConstCharPAdjust
-const char	*yap_commons_dir	Yap_CommonsDir		=NULL CodeConstCharPAdjust
-const char	*yap_bin_dir		Yap_BinDir		=NULL CodeConstCharPAdjust
-
-/* time */
-void		*last_wtime		LastWtimePtr		=NULL CodeVoidPAdjust
 
 /* foreign code loaded */
 struct ForeignLoadItem 	*foreign_code_loaded	ForeignCodeLoaded	=NULL RestoreForeignCode()
@@ -340,10 +373,10 @@ Atom		empty_wakeups[MAX_EMPTY_WAKEUPS]	EmptyWakeups		InitEmptyWakeups() RestoreE
 int		max_empty_wakeups	MaxEmptyWakeups		=0
 
 /* SWI blobs */
-struct PL_blob_t	*swi_blob_types	SWI_BlobTypes		=NULL		RestoreSWIBlobTypes()
-struct AtomEntryStruct	*swi_blobs	SWI_Blobs		=NULL		RestoreSWIBlobs()
+struct YAP_blob_t		*swi_blob_types		BlobTypes		=NULL		RestoreBlobTypes()
+struct AtomEntryStruct	*swi_blobs	Blobs		=NULL		RestoreBlobs()
 UInt   			nofblobs	NOfBlobs		=0
 UInt   			nofblobsmax	NOfBlobsMax		=256
 #if defined(YAPOR) || defined(THREADS)
-lockvar         swi_blobs_lock		SWI_Blobs_Lock		MkLock
+lockvar         blobs_lock		Blobs_Lock		MkLock
 #endif

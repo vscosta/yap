@@ -85,8 +85,51 @@
 #ifdef EUROTRA
 #define TermDollarU Yap_heap_regs->term_dollar_u
 #endif
+#define TermAppend Yap_heap_regs->term_append
+#define TermAtom Yap_heap_regs->term_atomd
+#define TermBinary Yap_heap_regs->term_binary
+#define TermBoolean Yap_heap_regs->term_boolean
+#define TermChars Yap_heap_regs->term_chars
+#define TermCodes Yap_heap_regs->term_codes
+#define TermCompact Yap_heap_regs->term_compact
+#define TermDec10 Yap_heap_regs->term_dec10
+#define TermDots Yap_heap_regs->term_dots
+#define TermEof Yap_heap_regs->term_eof
+#define TermEOfCode Yap_heap_regs->term_eof_code
+#define TermError Yap_heap_regs->term_error
+#define TermException Yap_heap_regs->term_exception
+#define TermFail Yap_heap_regs->term_fail
+#define TermFalse Yap_heap_regs->term_false
+#define TermFloat Yap_heap_regs->term_float
+#define TermGlobal Yap_heap_regs->term_global
+#define TermIgnore Yap_heap_regs->term_ignore
+#define TermInteger Yap_heap_regs->term_integer
+#define TermMax Yap_heap_regs->term_max
+#define TermModule Yap_heap_regs->term_module
+#define TermMulti Yap_heap_regs->term_multi
+#define TermOff Yap_heap_regs->term_off
+#define TermOn Yap_heap_regs->term_on
+#define TermPortray Yap_heap_regs->term_portray
 #define TermProlog Yap_heap_regs->term_prolog
+#define TermQuiet Yap_heap_regs->term_quiet
+#define TermRead Yap_heap_regs->term_read
+#define TermReadOnly Yap_heap_regs->term_read_only
+#define TermReadWrite Yap_heap_regs->term_read_write
 #define TermReFoundVar Yap_heap_regs->term_refound_var
+#define TermReset Yap_heap_regs->term_reset
+#define TermSilent Yap_heap_regs->term_silent
+#define TermSingle Yap_heap_regs->term_single
+#define TermSource Yap_heap_regs->term_source
+#define TermString Yap_heap_regs->term_string
+#define TermSymbolChar Yap_heap_regs->term_symbolchar
+#define TermTerm Yap_heap_regs->term_term
+#define TermText Yap_heap_regs->term_text
+#define TermThread Yap_heap_regs->term_thread
+#define TermTrue Yap_heap_regs->term_true
+#define TermWarning Yap_heap_regs->term_warning
+#define TermWrite Yap_heap_regs->term_write
+#define TermXml Yap_heap_regs->term_xml
+
 #define USER_MODULE Yap_heap_regs->user_module
 #define IDB_MODULE Yap_heap_regs->idb_module
 #define ATTRIBUTES_MODULE Yap_heap_regs->attributes_module
@@ -107,6 +150,12 @@
 
 
 #define CurrentModules Yap_heap_regs->current_modules
+
+
+
+
+
+
 
 
 
@@ -267,21 +316,7 @@
 #define Yap_AttsSize Yap_heap_regs->atts_size
 #endif
 
-#define yap_flags Yap_heap_regs->yap_flags_field
-
 #define OpList Yap_heap_regs->op_list
-
-#define CharConversionTable Yap_heap_regs->char_conversion_table
-#define CharConversionTable2 Yap_heap_regs->char_conversion_table2
-
-#define ParserErrorStyle Yap_heap_regs->parser_error_style
-
-#define Yap_LibDir Yap_heap_regs->yap_lib_dir
-#define Yap_ForeignDir Yap_heap_regs->yap_foreign_dir
-#define Yap_CommonsDir Yap_heap_regs->yap_commons_dir
-#define Yap_BinDir Yap_heap_regs->yap_bin_dir
-
-#define LastWtimePtr Yap_heap_regs->last_wtime
 
 #define ForeignCodeLoaded Yap_heap_regs->foreign_code_loaded
 #define ForeignCodeBase Yap_heap_regs->foreign_code_base
@@ -299,10 +334,10 @@
 #define EmptyWakeups Yap_heap_regs->empty_wakeups
 #define MaxEmptyWakeups Yap_heap_regs->max_empty_wakeups
 
-#define SWI_BlobTypes Yap_heap_regs->swi_blob_types
-#define SWI_Blobs Yap_heap_regs->swi_blobs
+#define BlobTypes Yap_heap_regs->swi_blob_types
+#define Blobs Yap_heap_regs->swi_blobs
 #define NOfBlobs Yap_heap_regs->nofblobs
 #define NOfBlobsMax Yap_heap_regs->nofblobsmax
 #if defined(YAPOR) || defined(THREADS)
-#define SWI_Blobs_Lock Yap_heap_regs->swi_blobs_lock
+#define Blobs_Lock Yap_heap_regs->blobs_lock
 #endif

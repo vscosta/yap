@@ -5,12 +5,46 @@
 
 
 
+#define LOCAL_FileAliases LOCAL->FileAliases_
+#define REMOTE_FileAliases(wid) REMOTE(wid)->FileAliases_
+#define LOCAL_NOfFileAliases LOCAL->NOfFileAliases_
+#define REMOTE_NOfFileAliases(wid) REMOTE(wid)->NOfFileAliases_
+#define LOCAL_SzOfFileAliases LOCAL->SzOfFileAliases_
+#define REMOTE_SzOfFileAliases(wid) REMOTE(wid)->SzOfFileAliases_
 #define LOCAL_c_input_stream LOCAL->c_input_stream_
 #define REMOTE_c_input_stream(wid) REMOTE(wid)->c_input_stream_
 #define LOCAL_c_output_stream LOCAL->c_output_stream_
 #define REMOTE_c_output_stream(wid) REMOTE(wid)->c_output_stream_
 #define LOCAL_c_error_stream LOCAL->c_error_stream_
 #define REMOTE_c_error_stream(wid) REMOTE(wid)->c_error_stream_
+#define LOCAL_sockets_io LOCAL->sockets_io_
+#define REMOTE_sockets_io(wid) REMOTE(wid)->sockets_io_
+
+
+
+
+#define LOCAL_newline LOCAL->newline_
+#define REMOTE_newline(wid) REMOTE(wid)->newline_
+#define LOCAL_FormatInfo LOCAL->FormatInfo_
+#define REMOTE_FormatInfo(wid) REMOTE(wid)->FormatInfo_
+#define LOCAL_AtPrompt LOCAL->AtPrompt_
+#define REMOTE_AtPrompt(wid) REMOTE(wid)->AtPrompt_
+#define LOCAL_Prompt LOCAL->Prompt_
+#define REMOTE_Prompt(wid) REMOTE(wid)->Prompt_
+#define LOCAL_encoding LOCAL->encoding_
+#define REMOTE_encoding(wid) REMOTE(wid)->encoding_
+#define LOCAL_quasi_quotations LOCAL->quasi_quotations_
+#define REMOTE_quasi_quotations(wid) REMOTE(wid)->quasi_quotations_
+#define LOCAL_default_priority LOCAL->default_priority_
+#define REMOTE_default_priority(wid) REMOTE(wid)->default_priority_
+#define LOCAL_eot_before_eof LOCAL->eot_before_eof_
+#define REMOTE_eot_before_eof(wid) REMOTE(wid)->eot_before_eof_
+#define LOCAL_max_depth LOCAL->max_depth_
+#define REMOTE_max_depth(wid) REMOTE(wid)->max_depth_
+#define LOCAL_max_list LOCAL->max_list_
+#define REMOTE_max_list(wid) REMOTE(wid)->max_list_
+#define LOCAL_max_write_args LOCAL->max_write_args_
+#define REMOTE_max_write_args(wid) REMOTE(wid)->max_write_args_
 
 #define LOCAL_OldASP LOCAL->OldASP_
 #define REMOTE_OldASP(wid) REMOTE(wid)->OldASP_
@@ -80,6 +114,10 @@
 #define REMOTE_ConsultLow(wid) REMOTE(wid)->ConsultLow_
 #define LOCAL_VarNames LOCAL->VarNames_
 #define REMOTE_VarNames(wid) REMOTE(wid)->VarNames_
+#define LOCAL_SourceFileName LOCAL->SourceFileName_
+#define REMOTE_SourceFileName(wid) REMOTE(wid)->SourceFileName_
+#define LOCAL_SourceFileLineno LOCAL->SourceFileLineno_
+#define REMOTE_SourceFileLineno(wid) REMOTE(wid)->SourceFileLineno_
 
 #define LOCAL_GlobalArena LOCAL->GlobalArena_
 #define REMOTE_GlobalArena(wid) REMOTE(wid)->GlobalArena_
@@ -219,8 +257,7 @@
 #define LOCAL_LabelFirstArraySz LOCAL->LabelFirstArraySz_
 #define REMOTE_LabelFirstArraySz(wid) REMOTE(wid)->LabelFirstArraySz_
 
-#define LOCAL_PL_local_data_p LOCAL->PL_local_data_p_
-#define REMOTE_PL_local_data_p(wid) REMOTE(wid)->PL_local_data_p_
+
 #ifdef THREADS
 #define LOCAL_ThreadHandle LOCAL->ThreadHandle_
 #define REMOTE_ThreadHandle(wid) REMOTE(wid)->ThreadHandle_
@@ -228,6 +265,8 @@
 #if defined(YAPOR) || defined(TABLING)
 #define LOCAL_optyap_data LOCAL->optyap_data_
 #define REMOTE_optyap_data(wid) REMOTE(wid)->optyap_data_
+#define LOCAL_TabMode LOCAL->TabMode_
+#define REMOTE_TabMode(wid) REMOTE(wid)->TabMode_
 #endif /* YAPOR || TABLING */
 #define LOCAL_InterruptsDisabled LOCAL->InterruptsDisabled_
 #define REMOTE_InterruptsDisabled(wid) REMOTE(wid)->InterruptsDisabled_
@@ -287,10 +326,17 @@
 #define LOCAL_FileNameBuf2 LOCAL->FileNameBuf2_
 #define REMOTE_FileNameBuf2(wid) REMOTE(wid)->FileNameBuf2_
 
+#define LOCAL_BreakLevel LOCAL->BreakLevel_
+#define REMOTE_BreakLevel(wid) REMOTE(wid)->BreakLevel_
 #define LOCAL_PrologMode LOCAL->PrologMode_
 #define REMOTE_PrologMode(wid) REMOTE(wid)->PrologMode_
 #define LOCAL_CritLocks LOCAL->CritLocks_
 #define REMOTE_CritLocks(wid) REMOTE(wid)->CritLocks_
+
+#define LOCAL_Flags LOCAL->Flags_
+#define REMOTE_Flags(wid) REMOTE(wid)->Flags_
+#define LOCAL_flagCount LOCAL->flagCount_
+#define REMOTE_flagCount(wid) REMOTE(wid)->flagCount_
 
 
 #ifdef ANALYST
