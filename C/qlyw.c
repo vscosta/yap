@@ -968,9 +968,9 @@ qsave_file( USES_REGS1 )
 
 void Yap_InitQLY(void)
 {
-  Yap_InitCPred("$qsave_module_preds", 2, p_save_module_preds, SyncPredFlag|UserCPredFlag);
-  Yap_InitCPred("$qsave_program", 1, p_save_program, SyncPredFlag|UserCPredFlag);
-  Yap_InitCPred("$qsave_file_preds", 2, p_save_file, SyncPredFlag|UserCPredFlag);
+  Yap_InitCPred("$qsave_module_preds", 2, qsave_module_preds, SyncPredFlag|UserCPredFlag);
+  Yap_InitCPred("$qsave_program", 1, qsave_program, SyncPredFlag|UserCPredFlag);
+  Yap_InitCPred("$qsave_file_preds", 2, qsave_file, SyncPredFlag|UserCPredFlag);
   if (FALSE) {
     restore_codes();
   }
