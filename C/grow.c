@@ -435,24 +435,10 @@ AdjustTrail(bool adjusting_heap, bool thread_copying USES_REGS)
 }
 
 static void
-AdjustLocal(bool thread_copying USES_REGS)
+fixPointerCells(CELL *pt, CELL *pt_bot, bool thread_copying USES_REGS)
 {
-  register CELL   reg, *pt, *pt_bot;
-
-  /* Adjusting the local */
-#if defined(YAPOR_THREADS)
-  if (thread_copying == STACK_INCREMENTAL_COPYING) {
-    pt =  (CELL *) (LOCAL_end_local_copy);
-    pt_bot =  (CELL *) (LOCAL_start_local_copy);
-  } else {
-#endif
-    pt = LCL0;
-    pt_bot = ASP;
-#if defined(YAPOR_THREADS)
-  }
-#endif
   while (pt > pt_bot) {
-    reg = *--pt;
+    CELL reg = *--pt;
     if (IsVarTerm(reg)) {
       if (IsOldLocal(reg))
 	*pt = LocalAdjust(reg);
@@ -468,7 +454,36 @@ AdjustLocal(bool thread_copying USES_REGS)
       *pt = AdjustPair(reg PASS_REGS);
     }
   }
+}
 
+
+static void
+AdjustSlots(bool thread_copying USES_REGS)
+{
+  CELL *pt = LOCAL_SlotBase+LOCAL_CurSlot;
+  CELL *pt_bot = LOCAL_SlotBase+1;
+  fixPointerCells( pt_bot, pt, thread_copying PASS_REGS);
+}
+
+static void
+AdjustLocal(bool thread_copying USES_REGS)
+{
+  register CELL    *pt, *pt_bot;
+
+  /* Adjusting the local */
+#if defined(YAPOR_THREADS)
+  if (thread_copying == STACK_INCREMENTAL_COPYING) {
+    pt =  (CELL *) (LOCAL_end_local_copy);
+    pt_bot =  (CELL *) (LOCAL_start_local_copy);
+  } else {
+#endif
+    pt = LCL0;
+    pt_bot = ASP;
+#if defined(YAPOR_THREADS)
+  }
+#endif
+  fixPointerCells( pt_bot, pt, thread_copying PASS_REGS);
+  AdjustSlots( thread_copying PASS_REGS);
 }
 
 static Term
