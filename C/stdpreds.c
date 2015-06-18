@@ -323,7 +323,6 @@ static Int init_current_op(USES_REGS1);
 static Int cont_current_op(USES_REGS1);
 static Int init_current_atom_op(USES_REGS1);
 static Int cont_current_atom_op(USES_REGS1);
-static Int p_flags(USES_REGS1);
 static Int TrailMax(void);
 static Int GlobalMax(void);
 static Int LocalMax(void);
@@ -333,14 +332,10 @@ static Int p_statistics_local_max(USES_REGS1);
 static Int p_statistics_heap_info(USES_REGS1);
 static Int p_statistics_stacks_info(USES_REGS1);
 static Int p_statistics_trail_info(USES_REGS1);
-static Term mk_argc_list(USES_REGS1);
-static Int p_argv(USES_REGS1);
 static Int p_cputime(USES_REGS1);
 static Int p_systime(USES_REGS1);
 static Int p_runtime(USES_REGS1);
 static Int p_walltime(USES_REGS1);
-static Int p_access_yap_flags(USES_REGS1);
-static Int p_set_yap_flags(USES_REGS1);
 static Int p_break(USES_REGS1);
 
 #if YAP_JIT
@@ -1296,145 +1291,6 @@ static Int init_current_atom_op(
   EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((Int)ope);
   B->cp_h = HR;
   return cont_current_atom_op(PASS_REGS1);
-}
-
-static Int p_flags(USES_REGS1) { /* $flags(+Functor,+Mod,?OldFlags,?NewFlags) */
-  PredEntry *pe;
-  pred_flags_t newFl;
-  Term t1 = Deref(ARG1);
-  Term mod = Deref(ARG2);
-
-  if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
-    return (FALSE);
-  }
-  if (IsVarTerm(t1))
-    return (FALSE);
-  if (IsAtomTerm(t1)) {
-    while ((pe = RepPredProp(PredPropByAtom(AtomOfTerm(t1), mod))) == NULL) {
-      if (!Yap_growheap(FALSE, 0, NULL)) {
-        Yap_Error(OUT_OF_HEAP_ERROR, ARG1, "while generating new predicate");
-        return FALSE;
-      }
-      t1 = Deref(ARG1);
-      mod = Deref(ARG2);
-    }
-  } else if (IsApplTerm(t1)) {
-    Functor funt = FunctorOfTerm(t1);
-    while ((pe = RepPredProp(PredPropByFunc(funt, mod))) == NULL) {
-      if (!Yap_growheap(FALSE, 0, NULL)) {
-        Yap_Error(OUT_OF_HEAP_ERROR, ARG1, "while generating new predicate");
-        return FALSE;
-      }
-      t1 = Deref(ARG1);
-      mod = Deref(ARG2);
-    }
-  } else
-    return (FALSE);
-  if (EndOfPAEntr(pe))
-    return (FALSE);
-  PELOCK(92, pe);
-  if (!Yap_unify_constant(ARG3, MkIntegerTerm(pe->PredFlags))) {
-    UNLOCK(pe->PELock);
-    return (FALSE);
-  }
-  ARG4 = Deref(ARG4);
-  if (IsVarTerm(ARG4)) {
-    UNLOCK(pe->PELock);
-    return (TRUE);
-  } else if (!IsIntegerTerm(ARG4)) {
-    Term te = Yap_Eval(ARG4);
-
-    if (IsIntegerTerm(te)) {
-      newFl = IntegerOfTerm(te);
-    } else {
-      UNLOCK(pe->PELock);
-      Yap_Error(TYPE_ERROR_INTEGER, ARG4, "flags");
-      return (FALSE);
-    }
-  } else
-    newFl = IntegerOfTerm(ARG4);
-  pe->PredFlags = newFl;
-  UNLOCK(pe->PELock);
-  return TRUE;
-}
-
-static Int
-    p_set_flag(USES_REGS1) { /* $flags(+Functor,+Mod,?OldFlags,?NewFlags) */
-  PredEntry *pe;
-  Term t1 = Deref(ARG1);
-  Term mod = Deref(ARG2);
-  Term v = Deref(ARG4);
-  char *s;
-
-  if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
-    return (FALSE);
-  }
-  if (IsVarTerm(t1))
-    return (FALSE);
-  if (IsAtomTerm(t1)) {
-    while ((pe = RepPredProp(PredPropByAtom(AtomOfTerm(t1), mod))) == NULL) {
-      if (!Yap_growheap(FALSE, 0, NULL)) {
-        Yap_Error(OUT_OF_HEAP_ERROR, ARG1, "while generating new predicate");
-        return FALSE;
-      }
-      t1 = Deref(ARG1);
-      mod = Deref(ARG2);
-    }
-  } else if (IsApplTerm(t1)) {
-    Functor funt = FunctorOfTerm(t1);
-    while ((pe = RepPredProp(PredPropByFunc(funt, mod))) == NULL) {
-      if (!Yap_growheap(FALSE, 0, NULL)) {
-        Yap_Error(OUT_OF_HEAP_ERROR, ARG1, "while generating new predicate");
-        return FALSE;
-      }
-      t1 = Deref(ARG1);
-      mod = Deref(ARG2);
-    }
-  } else
-    return (FALSE);
-  if (EndOfPAEntr(pe))
-    return (FALSE);
-  ARG3 = Deref(ARG3);
-  if (IsVarTerm(ARG3)) {
-    UNLOCK(pe->PELock);
-    return (FALSE);
-  } else if (!IsAtomTerm(ARG3)) {
-    Yap_Error(TYPE_ERROR_ATOM, ARG3, "set_property/1");
-    return (FALSE);
-  }
-  v = Deref(ARG4);
-  if (IsVarTerm(ARG4)) {
-    UNLOCK(pe->PELock);
-    return (FALSE);
-  } else if (!IsIntTerm(v)) {
-    Yap_Error(TYPE_ERROR_ATOM, v, "set_property/1");
-    return (FALSE);
-  }
-  s = RepAtom(AtomOfTerm(ARG3))->StrOfAE;
-  if (v == MkIntTerm(1)) {
-    if (!strcmp(s, "quasi_quotation_syntax")) {
-      pe->PredFlags |= QuasiQuotationPredFlag;
-    } else if (!strcmp(s, "trace")) {
-      // proc->ExtraPredFlags |= QuasiQuotationPredFlag;
-    } else {
-      fprintf(stderr, "not implemented");
-      UNLOCK(pe->PELock);
-      return FALSE;
-    }
-  } else if (v == MkIntTerm(0)) {
-    if (!strcmp(s, "quasi_quotation_syntax")) {
-      pe->PredFlags &= ~QuasiQuotationPredFlag;
-    } else if (!strcmp(s, "trace")) {
-      // proc->PredFlags |= QuasiQuotationPredFlag;
-    } else {
-      fprintf(stderr, "not implemented");
-      UNLOCK(pe->PELock);
-      return FALSE;
-    }
-  }
-
-  UNLOCK(pe->PELock);
-  return TRUE;
 }
 
 void Yap_show_statistics(void) {
