@@ -1,4 +1,4 @@
-                                                                                                      /*************************************************************************
+/*************************************************************************
 *									 *
 *	 YAP Prolog   %W% %G%
 *									 *
@@ -200,6 +200,7 @@ IsFunctorProperty (int flags)
 	ff fb   blackboard property
 	ff fc	value property
 	ff fd	global property
+	ff fe	flag property
 	ff ff	op property
 */
 
@@ -418,6 +419,24 @@ IsModProperty (int flags)
   return (PropFlags) ((flags == ModProperty));
 }
 
+/* Flags on module.  Most of these flags are copied to the read context
+   in pl-read.c.
+*/
+#define M_SYSTEM                (0x0001) /* system module */
+#define M_CHARESCAPE            (0x0002) /* module */
+#define DBLQ_CHARS              (0x0004) /* "ab" --> ['a', 'b'] */
+#define DBLQ_ATOM               (0x0008) /* "ab" --> 'ab' */
+#define DBLQ_STRING             (0x0010) /* "ab" --> "ab" */
+#define DBLQ_MASK               (DBLQ_CHARS|DBLQ_ATOM|DBLQ_STRING|DBLQ_CODES)
+#define UNKNOWN_FAIL            (0x0020) /* module */
+#define UNKNOWN_WARNING         (0x0040) /* module */
+#define UNKNOWN_ERROR           (0x0080) /* module */
+#define UNKNOWN_MASK            (UNKNOWN_ERROR|UNKNOWN_WARNING|UNKNOWN_FAIL)
+#define DBLQ_CODES              (0x0008) /* "ab" --> [0'a, 0'b] */
+
+Term  Yap_getUnknownModule(ModEntry *m);
+ void  Yap_setModuleFlags(ModEntry *n, ModEntry *o);
+   
 /*	    operator property entry structure				*/
 typedef struct operator_entry
 {
@@ -630,16 +649,6 @@ AbsValProp (ValEntry * p)
 #define	ValProperty ((PropFlags)0xfffc)
 
 
-INLINE_ONLY inline EXTERN PropFlags IsValProperty (int);
-
-INLINE_ONLY inline EXTERN PropFlags
-IsValProperty (int flags)
-{
-  return (PropFlags) ((flags == ValProperty));
-}
-
- typedef uint64_t pred_flags_t;
-
 
 /*	    predicate property entry structure				*/
 /*  AsmPreds are things like var, nonvar, atom ...which are implemented
@@ -651,6 +660,9 @@ IsValProperty (int flags)
 
 don't forget to also add in qly.h
 */
+ typedef uint64_t pred_flags_t;
+
+
 #define  DiscontiguousPredFlag ((pred_flags_t)0x1000000000)	/* predicates whose clauses may be all-over the place.. */
 #define SysExportPredFlag ((pred_flags_t)0x800000000)
 /* reuse export list to prolog module. */
@@ -786,6 +798,7 @@ INLINE_ONLY inline EXTERN PredEntry *RepPredProp (Prop p);
 INLINE_ONLY inline EXTERN PredEntry *
 RepPredProp (Prop p)
 {
+
   return (PredEntry *) (p);
 }
 
@@ -796,6 +809,7 @@ INLINE_ONLY inline EXTERN Prop AbsPredProp (PredEntry * p);
 INLINE_ONLY inline EXTERN Prop
 AbsPredProp (PredEntry * p)
 {
+
   return (Prop) (p);
 }
 
@@ -1391,20 +1405,6 @@ typedef struct array_entry
 
 /* second case is for static arrays */
 
-/* first, the valid types */
-typedef enum
-{
-  array_of_ints,
-  array_of_chars,
-  array_of_uchars,
-  array_of_doubles,
-  array_of_ptrs,
-  array_of_atoms,
-  array_of_dbrefs,
-  array_of_nb_terms,
-  array_of_terms
-} static_array_types;
-
 typedef  struct {
   Term tlive;
   Term tstore;
@@ -1552,7 +1552,7 @@ typedef struct blob_atom_entry
 {
   Prop NextOfPE;		/* used to chain properties             */
   PropFlags KindOfPE;		/* kind of property                     */
-  struct PL_blob_t *blob_t;     /* type of blob */
+  struct YAP_blob_t *blob_type;     /* type of blob */
 } BlobPropEntry;
 
 #if USE_OFFSETS_IN_PROPS
@@ -1619,6 +1619,84 @@ IsBlob (Atom at)
     IsBlobProperty(RepBlobProp(RepAtom(at)->PropsOfAE)->KindOfPE);
 }
 
+INLINE_ONLY inline EXTERN PropFlags IsValProperty (int);
+
+INLINE_ONLY inline EXTERN PropFlags
+IsValProperty (int flags)
+{
+  return (PropFlags) ((flags == ValProperty));
+}
+
+
+/*		flag property entry structure				*/
+
+typedef bool (*flag_func)(Term);
+
+ typedef struct
+{
+  Prop NextOfPE;		/* used to chain properties             */
+  PropFlags KindOfPE;		/* kind of property                     */
+#if defined(YAPOR) || defined(THREADS)
+  rwlock_t VRWLock;		/* a read-write lock to protect the entry */
+#endif
+  int FlagOfVE;		/* (atomic) value associated with the atom */
+  bool global, atomic, rw;
+  flag_func type, helper;
+} FlagEntry;
+#if USE_OFFSETS_IN_PROPS
+
+INLINE_ONLY inline EXTERN FlagEntry *RepFlagProp (Prop p);
+
+INLINE_ONLY inline EXTERN FlagEntry *
+RepFlagProp (Prop p)
+{
+  return (FlagEntry *) (AtomBase + Unsigned (p));
+}
+
+
+
+INLINE_ONLY inline EXTERN Prop AbsFlagProp (FlagEntry * p);
+
+INLINE_ONLY inline EXTERN Prop
+AbsValProp (FlagEntry * p)
+{
+  return (Prop) (Addr (p) - AtomBase);
+}
+
+
+#else
+
+INLINE_ONLY inline EXTERN FlagEntry *RepFlagProp (Prop p);
+
+INLINE_ONLY inline EXTERN FlagEntry *
+RepFlagProp (Prop p)
+{
+  return (FlagEntry *) (p);
+}
+
+
+
+INLINE_ONLY inline EXTERN Prop AbsFlagProp (FlagEntry * p);
+
+INLINE_ONLY inline EXTERN Prop
+AbsFlagProp (FlagEntry * p)
+{
+  return (Prop) (p);
+}
+
+
+#endif
+#define	FlagProperty ((PropFlags)0xfffc)
+
+
+INLINE_ONLY inline EXTERN PropFlags IsFlagProperty (int);
+
+INLINE_ONLY inline EXTERN PropFlags
+IsFlagProperty (int flags)
+{
+  return (PropFlags) ((flags == FlagProperty));
+}
+
 
 /* Proto types */
 
@@ -1649,6 +1727,11 @@ Prop Yap_GetAPropHavingLock(AtomEntry *, PropFlags);
 #define  PredHashInitialSize      ((UInt)1039)
 #define  PredHashIncrement        ((UInt)7919)
 
+/*************************************************************************************************
+                                       flag support
+*************************************************************************************************/
+
+#include "YapFlags.h"
 INLINE_ONLY EXTERN inline UInt PRED_HASH(FunctorEntry *, Term, UInt);
 
 INLINE_ONLY EXTERN inline UInt
@@ -1895,6 +1978,42 @@ AddPropToAtom(AtomEntry *ae, PropEntry *p)
     p->NextOfPE = ae->PropsOfAE;
     ae->PropsOfAE = AbsProp(p);
   }
+}
+
+// auxiliary functions
+
+ 
+INLINE_ONLY inline EXTERN const char *AtomName (Atom at);
+
+/** 
+ * AtomName: get a string with the name of an Atom. Assumes 8 bit representation.
+ * 
+ * @param at the atom
+ * 
+ * @return a ponter to an immutable sequence of characters. 
+ */
+INLINE_ONLY inline EXTERN const char *
+AtomName (Atom at)
+{
+  return RepAtom(at) -> StrOfAE;
+}
+
+
+INLINE_ONLY inline EXTERN const char *AtomTermName (Term t);
+
+/** 
+ * AtomTermName: get a string with the name of a term storing an Atom. Assumes 8 bit representation.
+ * 
+ * @param t the atom term
+ * 
+ * @return a ponter to an immutable sequence of characters.
+ * 
+ * @note: this routine does not support wide chars.
+ */
+INLINE_ONLY inline EXTERN  const char*
+AtomTermName (Term t)
+{
+  return RepAtom(AtomOfTerm(t)) -> StrOfAE;
 }
 
 
