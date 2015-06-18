@@ -121,7 +121,7 @@ Int    YAP_RunGoalOnce(Term);
 /* cdmgr.c */
 Term	Yap_all_calls(void);
 Atom  Yap_ConsultingFile( USES_REGS1 );
-struct pred_entry *Yap_PredForChoicePt(choiceptr);
+struct pred_entry *Yap_PredForChoicePt(choiceptr bptr, op_numbers *op);
 void	Yap_InitCdMgr(void);
 struct pred_entry * Yap_PredFromClause( Term t USES_REGS );
 int	Yap_discontiguous(struct pred_entry  *ap USES_REGS );
@@ -167,6 +167,7 @@ Yap_PrintPredName( struct pred_entry  *ap );
 #endif
 void	Yap_RestartYap(int);
 void	Yap_exit(int);
+bool    Yap_Warning( const char *s, ... );
 yamop  *Yap_Error(yap_error_number,Term,const char *msg, ...);
 yamop  *Yap_NilError(yap_error_number,const char *msg, ...);
 int     Yap_HandleError( const char *msg, ... );
@@ -182,17 +183,18 @@ void	Yap_InitExecFs(void);
 Int	Yap_JumpToEnv(Term);
 Term	Yap_RunTopGoal(Term);
 void	Yap_ResetExceptionTerm(int);
-Int	Yap_execute_goal(Term, int, Term);
+Int	Yap_execute_goal(Term, int, Term, bool);
 Int	Yap_exec_absmi( bool, yap_reset_t );
 void	Yap_trust_last(void);
 Term	Yap_GetException(void);
 void	Yap_PrepGoal(UInt, CELL *, choiceptr USES_REGS);
-int     Yap_execute_pred(struct pred_entry  *ppe, CELL *pt USES_REGS);
+int     Yap_execute_pred(struct pred_entry  *ppe, CELL *pt, bool pass_exception USES_REGS);
 int     Yap_dogc( int extra_args, Term *tp USES_REGS );
 Term    Yap_PredicateIndicator(Term t, Term mod);
 /* exo.c */
 void	Yap_InitExoPreds(void);
 void    Yap_udi_Interval_init(void);
+bool    Yap_Reset( yap_reset_t mode );
 
 /* foreign.c */
 char   *Yap_FindExecutable(void);
@@ -244,7 +246,8 @@ int  Yap_locked_gcl(UInt, Int, CELL *, yamop *);
 
 /* init.c */
 #ifdef DEBUG
-int	Yap_DebugPutc(int,wchar_t);
+int	Yap_DebugPutc(FILE *,wchar_t);
+int	Yap_DebugPuts(FILE *,const char *);
 void	Yap_DebugSetIFile(char *);
 void	Yap_DebugEndline(void);
 int	Yap_DebugGetc(void);
@@ -273,11 +276,9 @@ void    Yap_InitInlines(void);
 int      Yap_eq(Term, Term);
 
 /* iopreds.c */
+void    Yap_InitPlIO (void);
 void	Yap_InitBackIO(void);
 void	Yap_InitIOPreds(void);
-void   *Yap_GetStreamHandle(Atom at);
-void   *Yap_GetInputStream(Atom at);
-void   *Yap_GetOutputStream(Atom at);
 #ifdef DEBUG
 extern void Yap_DebugPlWrite (Term t);
 extern void Yap_DebugErrorPutc (int n);
@@ -286,7 +287,8 @@ extern void Yap_DebugErrorPuts (const char *s);
 void    Yap_PlWriteToStream(Term, int, int);
 /* depth_lim.c */
 void	Yap_InitItDeepenPreds(void);
-
+struct AliasDescS * Yap_InitStandardAliases(void);
+  
 /* load_foreign.c */
 void	Yap_InitLoadForeign(void);
 
@@ -308,7 +310,7 @@ void    Yap_InitModules(void);
 void    Yap_InitModulesC(void);
 struct mod_entry *Yap_GetModuleEntry(Term tmod);
 Term Yap_GetModuleFromEntry(struct mod_entry *me);
-
+bool Yap_CharacterEscapes(Term mt);
 
 #if HAVE_MPI
 /* mpi.c */
@@ -342,7 +344,7 @@ void Yap_InitRange(void);
 /* save.c */
 int	Yap_SavedInfo(char *,char *,CELL *,CELL *,CELL *);
 int 	Yap_SavedStateRestore(char *, char *);
-struct io_stream *Yap_OpenRestore(char *, char *);
+FILE   *Yap_OpenRestore(char *, char *);
 void	Yap_InitSavePreds(void);
 
 /* scanner.c */
@@ -350,6 +352,8 @@ void	Yap_InitSavePreds(void);
 /* signals.c */
 void	Yap_InitSignalCPreds(void);
 void   *Yap_InitSignals(int wid);
+
+void  Yap_InitSockets (void);
 
 /* sort.c */
 void    Yap_InitSortPreds(void);
@@ -412,7 +416,7 @@ int    Yap_NOfThreads( void );
 #if THREADS
 int    Yap_InitThread(int);
 #endif
-
+intptr_t system_thread_id(void);
 /* tracer.c */
 #ifdef LOW_LEVEL_TRACER
 void	Yap_InitLowLevelTrace(void);
@@ -456,9 +460,6 @@ Int     Yap_SkipList(Term *, Term **);
 
 
 /* write.c */
-void	Yap_plwrite(Term, void *, int, int, int);
-int     Yap_FormatFloat( Float f, const char *s, size_t sz );
-void    Yap_WriteAtom(struct io_stream *s, Atom atom);
 
 /* yap2swi.c */
 void	Yap_swi_install(void);
@@ -471,7 +472,7 @@ struct AtomEntryStruct *Yap_lookupBlob(void *blob, size_t len, void *type, int *
 void    Yap_init_optyap_preds(void);
 
 /* pl-file.c */
-struct PL_local_data *Yap_InitThreadIO(int wid);
+// struct PL_local_data *Yap_InitThreadIO(int wid);
 void Yap_flush(void);
 
 /* pl-yap.c */
@@ -484,3 +485,8 @@ gc_P(yamop *p, yamop *cp)
 {
   return (p->opc == Yap_opcode(_execute_cpred) ? cp : p);
 }
+
+void
+Yap_install_blobs(void);
+
+
