@@ -1827,7 +1827,7 @@ static void InitSignals(void);
 #define SIG_ATOM_GC	  (SIG_PROLOG_OFFSET+1)
 #endif
 #define SIG_GC		  (SIG_PROLOG_OFFSET+2)
-#ifdef O_PLMT
+#ifdef THREADS
 #define SIG_THREAD_SIGNAL (SIG_PROLOG_OFFSET+3)
 #endif
 #define SIG_FREECLAUSES	  (SIG_PROLOG_OFFSET+4)

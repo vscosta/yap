@@ -649,7 +649,7 @@ static Term  getYapFlagInModule( Term tflag, Term mod )
   return 0L;
 }
 
-static Int cont_yap_flag(USES_REGS1) {
+static Int cont_yap_flag( USES_REGS1) {
   int i = IntOfTerm (EXTRA_CBACK_ARG (2, 1));
   int gmax = GLOBAL_flagCount;
   int lmax = LOCAL_flagCount;
@@ -704,7 +704,7 @@ static Int yap_flag(USES_REGS1) {
     tflag = Yap_StripModule( tflag, &modt );
     if (IsVarTerm(tflag)) {
      EXTRA_CBACK_ARG (2, 1) = MkIntTerm (0);
-     return cont_yap_flag();
+     return cont_yap_flag( PASS_REGS1 );
     }
     do_cut( 0 );
 
@@ -787,7 +787,7 @@ yap_flag/2 with the second argument unbound, and unifying the
 returned second argument with  _Value_.
 
 */
-static Int current_prolog_flag( PASS_REGS1 ) {
+static Int current_prolog_flag( USES_REGS1 ) {
   Term tflag = Deref(ARG1);
   Term tout = 0;
   FlagEntry *fv;
@@ -854,6 +854,7 @@ bool setYapFlag( Term tflag, Term t2 )
   if (!fv) {
     Term fl = GLOBAL_Flags[USER_FLAGS_FLAG].at;
     if (fl == TermSilent) {
+        CACHE_REGS
         Term t2 = Deref(ARG2);
      newFlag( tflag, t2);
     } else if (fl == TermWarning) {
@@ -976,7 +977,7 @@ according to  _N_.
 
 */
 static Int
-source_mode( USE_ARGS1 )
+source_mode( USES_REGS1 )
 {
   Term targ;
   bool current = trueGlobalPrologFlag(SOURCE_FLAG);
@@ -1071,6 +1072,7 @@ setInitialValue( bool bootstrap, flag_func f, const char *s,flag_term *tarr )
   } else {
     Term t0;
     if (bootstrap) { return false; }
+    CACHE_REGS
     t0 = Yap_StringToTerm(s, strlen(s)+1, LOCAL_encoding, 1200, NULL);
     if (!t0)
       return false;
@@ -1137,27 +1139,27 @@ do_prolog_flag_property (Term tflag, Term opts USES_REGS)
       case PROLOG_FLAG_PROPERTY_ACCESS:
 	if (fv->rw)
 	  rc = rc &&
-	    Yap_unify(TermReadWrite, args[PROLOG_FLAG_PROPERTY_ACCESS].tvalue PASS_REGS);
+	    Yap_unify(TermReadWrite, args[PROLOG_FLAG_PROPERTY_ACCESS].tvalue);
 	else
 	  rc = rc &&
-	    Yap_unify(TermReadOnly, args[PROLOG_FLAG_PROPERTY_ACCESS].tvalue PASS_REGS);
+	    Yap_unify(TermReadOnly, args[PROLOG_FLAG_PROPERTY_ACCESS].tvalue);
 	break;
       case PROLOG_FLAG_PROPERTY_TYPE:
 	if (fv->type == boolean)
 	  rc = rc &&
-	    Yap_unify(TermBoolean, args[PROLOG_FLAG_PROPERTY_TYPE].tvalue PASS_REGS);
+	    Yap_unify(TermBoolean, args[PROLOG_FLAG_PROPERTY_TYPE].tvalue);
 	else if  (fv->type == isatom)
 	  rc = rc &&
-	    Yap_unify(TermAtom, args[PROLOG_FLAG_PROPERTY_TYPE].tvalue PASS_REGS);
+	    Yap_unify(TermAtom, args[PROLOG_FLAG_PROPERTY_TYPE].tvalue);
 	else if  (fv->type == nat)
 	  rc = rc &&
-	    Yap_unify(TermInteger, args[PROLOG_FLAG_PROPERTY_TYPE].tvalue PASS_REGS);
+	    Yap_unify(TermInteger, args[PROLOG_FLAG_PROPERTY_TYPE].tvalue);
 	else if  (fv->type == isfloat)
 	  rc = rc &&
-	    Yap_unify(TermFloat, args[PROLOG_FLAG_PROPERTY_TYPE].tvalue PASS_REGS);
+	    Yap_unify(TermFloat, args[PROLOG_FLAG_PROPERTY_TYPE].tvalue);
 	else
 	  rc = rc &&
-	    Yap_unify(TermTerm, args[PROLOG_FLAG_PROPERTY_TYPE].tvalue PASS_REGS);
+	    Yap_unify(TermTerm, args[PROLOG_FLAG_PROPERTY_TYPE].tvalue);
 	break;
      case PROLOG_FLAG_PROPERTY_KEEP:
        rc = rc && false;
@@ -1167,12 +1169,12 @@ do_prolog_flag_property (Term tflag, Term opts USES_REGS)
 	 if (fv->FlagOfVE == UNKNOWN_FLAG ||
 	     fv->FlagOfVE == CHARACTER_ESCAPES_FLAG ||
 	     fv->FlagOfVE ==  BACKQUOTED_STRING_FLAG)
-	   Yap_unify(TermModule, args[PROLOG_FLAG_PROPERTY_SCOPE].tvalue PASS_REGS);
+	   Yap_unify(TermModule, args[PROLOG_FLAG_PROPERTY_SCOPE].tvalue);
 	  rc = rc &&
-	    Yap_unify(TermGlobal, args[PROLOG_FLAG_PROPERTY_SCOPE].tvalue PASS_REGS);
+	    Yap_unify(TermGlobal, args[PROLOG_FLAG_PROPERTY_SCOPE].tvalue);
        } else
 	  rc = rc &&
-	    Yap_unify(TermThread, args[PROLOG_FLAG_PROPERTY_SCOPE].tvalue PASS_REGS);
+	    Yap_unify(TermThread, args[PROLOG_FLAG_PROPERTY_SCOPE].tvalue);
        break;
       case PROLOG_FLAG_PROPERTY_END:
 	/* break; */
@@ -1180,7 +1182,7 @@ do_prolog_flag_property (Term tflag, Term opts USES_REGS)
       }
     }
   }
-  UNLOCK(GLOBAL_Prolog_Flag[sno].prolog_flaglock);
+  // UNLOCK(GLOBAL_Prolog_Flag[sno].prolog_flaglock);
   return rc;
 }
 
@@ -1329,7 +1331,7 @@ do_create_prolog_flag( USES_REGS1 )
       }
     }
   }
-  UNLOCK(GLOBAL_Prolog_Flag[sno].prolog_flaglock);
+  //UNLOCK(GLOBAL_Prolog_Flag[sno].prolog_flaglock);
   return true;
 
 }

@@ -795,6 +795,7 @@ ExpandPredHash(void)
 Prop
 Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
 {
+    CACHE_REGS
     PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
   if (p == NULL) {

@@ -331,3 +331,6 @@ check_function_exists( wordexp HAVE_WORDEXP )
 check_function_exists( _bool HAVE__BOOL )
 check_function_exists( _chsize_s HAVE__CHSIZE_S )
 check_function_exists( _NSGetEnviron HAVE__NSGETENVIRON )
+
+check_symbol_exists( __NR_gettid "sys/syscall.h;unistd.h" HAVE_GETTID_SYSCALL )
+check_symbol_exists( gettid "sys/syscall.h;unistd.h" HAVE_GETTID_MACRO )
