@@ -1,4 +1,4 @@
-  /*************************************************************************
+/*************************************************************************
 *									 *
 *	 YAP Prolog 	%W% %G% 					 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
@@ -14,10 +14,11 @@
 *************************************************************************/
 
 #ifndef YAP_H
+
 #define YAP_H 1
 
 #if defined(YAPOR)
-#error Do not explicitly define YAPOR
+// #error Do not explicitly define YAPOR
 #endif /* YAPOR */
 
 #if (defined(YAPOR_COPY) && (defined(YAPOR_COW) || defined(YAPOR_SBA) || defined(YAPOR_THREADS))) || (defined(YAPOR_COW) && (defined(YAPOR_SBA) || defined(YAPOR_THREADS))) || (defined(YAPOR_SBA) && defined(YAPOR_THREADS))
@@ -305,16 +306,18 @@ typedef unsigned char *CODEADDR;
 
 #if !defined(YAPOR) && !defined(THREADS)
 #include <nolocks.h>
-#elif USE_PTHREAD_LOCKING || defined(__CYGWIN__)
+#else
 
 #ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 600
 #endif
 
+
 #include <locks_pthread.h>
 typedef pthread_mutex_t lockvar;
 typedef pthread_rwlock_t rwlock_t;
-
+#endif
+/*
 #elif defined(i386)|| defined(__x86_64__)
 typedef volatile int lockvar;
 #include <locks_x86.h>
@@ -332,11 +335,7 @@ typedef volatile int lockvar;
 #ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 600
 #endif
-
-typedef pthread_mutex_t lockvar;
-typedef pthread_rwlock_t rwlock_t;
-#include <locks_pthread.h>
-#endif
+ */
 
 #define FUNC_READ_LOCK(X) READ_LOCK((X)->FRWLock)
 #define FUNC_READ_UNLOCK(X) READ_UNLOCK((X)->FRWLock)
@@ -383,15 +382,6 @@ typedef pthread_rwlock_t rwlock_t;
 #include "amidefs.h"
 
 #include "Regs.h"
-
-#if defined(YAPOR) ||defined(THREADS)
-#ifdef mips
-#include <locks_mips_funcs.h>
-#endif
-#ifdef __alpha
-#include <locks_alpha_funcs.h>
-#endif
-#endif
 
 /*************************************************************************************************
                               variables concerned with Error Handling
@@ -784,6 +774,8 @@ extern struct worker_local Yap_local;
 #define REMOTE(wid)        (&Yap_local)
 #endif
 
+#include "encoding.h"
+
 #include <stdio.h>
 #define YP_FILE		FILE
 #include "hglobals.h"
@@ -859,7 +851,7 @@ LOG0(const char *f, int l, const char *fmt, ...)
 #define __android_log_print( ... )
 #endif
 
-
+#include "GitSHA1.h"
 
 
 #endif /* YAP_H */
