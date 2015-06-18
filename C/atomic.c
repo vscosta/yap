@@ -41,8 +41,6 @@ The following predicates are used to manipulate atoms:
 #include "YapHeap.h"
 #include "eval.h"
 #include "yapio.h"
-#include "pl-shared.h"
-#include "pl-utf8.h"
 #include "YapText.h"
 #ifdef TABLING
 #include "tab.macros.h"
