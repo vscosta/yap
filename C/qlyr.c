@@ -652,19 +652,19 @@ RestoreAtomList(Atom atm USES_REGS)
 }
 
 static size_t
-read_bytes(IOSTREAM *stream, void *ptr, size_t sz)
+read_bytes(FILE *stream, void *ptr, size_t sz)
 {
-  return Sfread(ptr, sz, 1, stream);
+  return fread(ptr, sz, 1, stream);
 }
 
 static unsigned char
-read_byte(IOSTREAM *stream)
+read_byte(FILE *stream)
 {
-  return  Sgetc(stream);
+  return  getc(stream);
 }
 
 static BITS16
-read_bits16(IOSTREAM *stream)
+read_bits16(FILE *stream)
 {
   BITS16 v;
   read_bytes(stream, &v, sizeof(BITS16));
@@ -672,7 +672,7 @@ read_bits16(IOSTREAM *stream)
 }
 
 static UInt
-read_UInt(IOSTREAM *stream)
+read_UInt(FILE *stream)
 {
   UInt v;
   read_bytes(stream, &v, sizeof(UInt));
@@ -680,7 +680,7 @@ read_UInt(IOSTREAM *stream)
 }
 
 static Int
-read_Int(IOSTREAM *stream)
+read_Int(FILE *stream)
 {
   Int v;
   read_bytes(stream, &v, sizeof(Int));
@@ -688,14 +688,14 @@ read_Int(IOSTREAM *stream)
 }
 
 static qlf_tag_t
-read_tag(IOSTREAM *stream)
+read_tag(FILE *stream)
 {
   int ch = read_byte(stream);
   return ch;
 }
 
 static UInt
-read_predFlags(IOSTREAM *stream)
+read_predFlags(FILE *stream)
 {
   pred_flags_t v;
   read_bytes(stream, &v, sizeof(pred_flags_t));
@@ -703,7 +703,7 @@ read_predFlags(IOSTREAM *stream)
 }
 
 static bool
-checkChars(IOSTREAM *stream, char s[])
+checkChars(FILE *stream, char s[])
 {
   int ch, c;
   char *p = s;
@@ -717,7 +717,7 @@ checkChars(IOSTREAM *stream, char s[])
 }
 
 static Atom
-get_header(IOSTREAM *stream)
+get_header(FILE *stream)
 {
   char s[256], *p = s, ch;
   Atom at;
@@ -738,7 +738,7 @@ get_header(IOSTREAM *stream)
 static Int
 p_get_header( USES_REGS1 )
 {
-  IOSTREAM *stream;
+  FILE *stream;
   Term t1 = Deref(ARG1);
   Atom at;
 
@@ -746,7 +746,7 @@ p_get_header( USES_REGS1 )
     Yap_Error(INSTANTIATION_ERROR,t1,"read_program/3");
     return FALSE;
   }
-  if (!(stream = Yap_GetInputStream(AtomOfTerm(t1))) ) {
+  if (!(stream = Yap_GetInputStream(t1, "header scanning in qload")) ) {
     return FALSE;
   }
   if ((at = get_header( stream )) == NIL)
@@ -755,7 +755,7 @@ p_get_header( USES_REGS1 )
 }
 
 static void
-ReadHash(IOSTREAM *stream)
+ReadHash(FILE *stream)
 {
   CACHE_REGS
   UInt i;
@@ -901,7 +901,7 @@ ReadHash(IOSTREAM *stream)
 }
 
 static void
-read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, pred_flags_t flags) {
+read_clauses(FILE *stream, PredEntry *pp, UInt nclauses, pred_flags_t flags) {
   CACHE_REGS
   if (flags & LogUpdatePredFlag) {
     /* first, clean up whatever was there */
@@ -1005,7 +1005,7 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, pred_flags_t flags)
 }
 
 static void
-read_pred(IOSTREAM *stream, Term mod) {
+read_pred(FILE *stream, Term mod) {
   pred_flags_t flags, fl1;
   UInt nclauses;
   PredEntry *ap;
@@ -1045,6 +1045,9 @@ read_pred(IOSTREAM *stream, Term mod) {
   }
   if (nclauses)
     read_clauses(stream, ap, nclauses, flags);
+#if DEBUG
+  //Yap_PrintPredName( ap );
+#endif
 
   if (flags & HiddenPredFlag) {
     Yap_HidePred(ap);
@@ -1052,7 +1055,7 @@ read_pred(IOSTREAM *stream, Term mod) {
 }
 
 static void
-read_ops(IOSTREAM *stream)  {
+read_ops(FILE *stream)  {
   Int x;
   while ((x = read_tag(stream)) != QLY_END_OPS) {
     Atom at = (Atom)read_UInt(stream);
@@ -1072,7 +1075,7 @@ read_ops(IOSTREAM *stream)  {
 
 
 static void
-read_module(IOSTREAM *stream) {
+read_module(FILE *stream) {
   qlf_tag_t x;
 
   InitHash();
@@ -1094,7 +1097,7 @@ read_module(IOSTREAM *stream) {
 static Int
 p_read_module_preds( USES_REGS1 )
 {
-  IOSTREAM *stream;
+  FILE *stream;
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1)) {
@@ -1105,7 +1108,7 @@ p_read_module_preds( USES_REGS1 )
     Yap_Error(TYPE_ERROR_ATOM,t1,"read_qly/3");
     return(FALSE);
   }
-  if (!(stream = Yap_GetInputStream(AtomOfTerm(t1))) ) {
+  if (!(stream = Yap_GetInputStream(t1, "scanning preducate modules")) ) {
     return FALSE;
   }
   read_module(stream);
@@ -1122,26 +1125,26 @@ ReInitProlog(void)
 
 
 static Int
-p_read_program( USES_REGS1 )
+qload_program( USES_REGS1 )
 {
-  IOSTREAM *stream;
+  FILE *stream;
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR,t1,"read_program/3");
     return FALSE;
   }
-  if ((stream = Yap_GetInputStream(AtomOfTerm(t1))) ) {
+  if ((stream = Yap_GetInputStream(t1, "from read_program")) ) {
     return FALSE;
   }
-  YAP_Reset( YAP_RESET_FROM_RESTORE );
+  Yap_Reset( YAP_RESET_FROM_RESTORE );
   if (get_header( stream ) == NIL)
     return FALSE;
   read_module(stream);
-  Sclose( stream );
+  fclose( stream );
   /* back to the top level we go */
   ReInitProlog();
-  return TRUE;
+  return true;
 }
 
 int
@@ -1149,14 +1152,14 @@ Yap_Restore(char *s, char *lib_dir)
 {
   CACHE_REGS
   
-  IOSTREAM *stream  = Yap_OpenRestore(s, lib_dir);
+  FILE *stream  = Yap_OpenRestore(s, lib_dir);
   if (!stream)
     return -1;
   GLOBAL_RestoreFile = s;
   if (get_header( stream ) == NIL)
     return FALSE;
   read_module(stream);
-  Sclose( stream );
+  fclose( stream );
   GLOBAL_RestoreFile = NULL;
   CurrentModule = USER_MODULE;
   return DO_ONLY_CODE;
@@ -1165,10 +1168,10 @@ Yap_Restore(char *s, char *lib_dir)
 
 void Yap_InitQLYR(void)
 {
-  Yap_InitCPred("$qload_module_preds", 1, p_read_module_preds, SyncPredFlag|UserCPredFlag);
-  Yap_InitCPred("$qload_file_preds", 1, p_read_module_preds, SyncPredFlag|UserCPredFlag);
-  Yap_InitCPred("$qload_program", 1, p_read_program, SyncPredFlag|UserCPredFlag);
-  Yap_InitCPred("$q_header", 2, p_get_header, SyncPredFlag|UserCPredFlag);
+  Yap_InitCPred("$qload_module_preds", 1, p_read_module_preds, SyncPredFlag|UserCPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$qload_file_preds", 1, p_read_module_preds, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$qload_program", 1, qload_program, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$q_header", 2, p_get_header, SyncPredFlag|HiddenPredFlag);
   if (FALSE) {
     restore_codes();
   }
