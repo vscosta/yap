@@ -214,8 +214,8 @@ load_files(Files,Opts) :-
 '$lf_option'(silent, 8, _).
 '$lf_option'(skip_unix_header, 9, true).
 '$lf_option'(compilation_mode, 10, Flag) :-
-    '$access_yap_flags'(11,YF),
-    ( YF == 0 -> Flag = compact ; Flag = source ).
+	current_prolog_flag(source, YFlag),
+	( YFlag == false -> Flag = compact ; Flag = source ).
 '$lf_option'(consult, 11, reconsult).
 '$lf_option'(stream, 12, _).
 '$lf_option'(register, 13, true).
@@ -227,7 +227,8 @@ load_files(Files,Opts) :-
 '$lf_option'('$location', 19, _).
 '$lf_option'(dialect, 20, yap).
 '$lf_option'(format, 21, source).
-'$lf_option'(redefine_module, 22, false).
+'$lf_option'(redefine_module, 22, Warn) :-
+	( var(Warn) ->	current_prolog_flag( redefine_warnings, Redefine ), Redefine = Warn ; true )).
 '$lf_option'(reexport, 23, false).
 '$lf_option'(sandboxed, 24, false).
 '$lf_option'(scope_settings, 25, false).
@@ -436,13 +437,15 @@ load_files(Files,Opts) :-
         ;
 	stream_property(Stream, file_name(Y))
     ), !,
-    ( '$size_stream'(Stream, Pos) -> true ; Pos = 0),
+ %   start_low_level_trace,
+    ( file_size(Stream, Pos) -> true ; Pos = 0),
     '$set_lf_opt'('$source_pos', TOpts, Pos),
     '$lf_opt'(reexport, TOpts, Reexport),
     '$lf_opt'(if, TOpts, If),
     ( var(If) -> If = true ; true ),
     '$lf_opt'(imports, TOpts, Imports),
     '$start_lf'(If, Mod, Stream, TOpts, File, Y, Reexport, Imports),
+%	stop_low_level_trace,
     close(Stream).
 '$lf'(X, _, Call, _) :-
     '$do_error'(permission_error(input,stream,X),Call).
@@ -461,6 +464,7 @@ load_files(Files,Opts) :-
     '$reexport'( TOpts, ParentF, Reexport, Imports, File ).
 '$start_lf'(_, Mod, PlStream, TOpts, _UserFile, File, Reexport, ImportList) :-
     % check if there is a qly file
+%	start_low_level_trace,
 	'$absolute_file_name'(File,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)],F,qload_file(File)),
     open( F, read, Stream , [type(binary)] ),
      H0 is heapused, '$cputime'(T0,_),
@@ -483,6 +487,7 @@ load_files(Files,Opts) :-
        '$lf_opt'('$location', TOpts, ParentF:_Line),
        '$reexport'( TOpts, ParentF, Reexport, ImportList, File ),
        print_message(Verbosity, loaded( loaded, F, M, T, H)),
+%	stop_low_level_trace,
        '$exec_initialisation_goals'
     ;
        close( Stream),
@@ -503,7 +508,7 @@ loaded, otherwise advertises the user about the existing name clashes
 are not public remain invisible.
 
 When the files are not module files, ensure_loaded/1 loads them
-if they have not been loaded before, and naes nothing otherwise.
+if they have not been loaded before, and does nothing otherwise.
 
  _F_ must be a list containing the names of the files to load.
 */
@@ -543,7 +548,7 @@ consult(Fs) :-
 	'$consult'(Fs, M0).
 
 '$consult'(Fs,Module) :-
-	'$access_yap_flags'(8, 2), % SICStus Prolog compatibility
+	current_prolog_flag(language_mode, iso), % SICStus Prolog compatibility
 	!,
 	'$load_files'(Module:Fs,[],consult(Fs)).
 '$consult'(Fs, Module) :-
@@ -646,6 +651,9 @@ db_files(Fs) :-
 
 
 '$do_lf'(ContextModule, Stream, UserFile, File,  TOpts) :-
+	stream_property(OldStream, alias(loop_stream) ),
+	'$lf_opt'(encoding, TOpts, Encoding),
+	set_stream( Stream, [alias(loop_stream), encoding(Encoding)] ),
 	'$lf_opt'('$context_module', TOpts, ContextModule),
 	'$lf_opt'(reexport, TOpts, Reexport),
 	'$msg_level'( TOpts, Verbosity),
@@ -653,8 +661,6 @@ db_files(Fs) :-
 	'$nb_getval'('$qcompile', ContextQCompiling, ContextQCompiling = never),
 	nb_setval('$qcompile', QCompiling),
 %	format( 'I=~w~n', [Verbosity=UserFile] ),
-	'$lf_opt'(encoding, TOpts, Encoding),
-	'$set_encoding'(Stream, Encoding),
 	% export to process
 	b_setval('$lf_status', TOpts),
 	'$reset_if'(OldIfLevel),
@@ -666,8 +672,7 @@ db_files(Fs) :-
 	'$loaded'(File, UserFile, SourceModule, ParentF, Line, Reconsult0, Reconsult, Dir, Opts),
         working_directory(OldD, Dir),
 	H0 is heapused, '$cputime'(T0,_),
-	'$set_current_loop_stream'(OldStream, Stream),
-	'$swi_current_prolog_flag'(generate_debug_info, GenerateDebug),
+	current_prolog_flag(generate_debug_info, GenerateDebug),
 	'$lf_opt'(compilation_mode, TOpts, CompMode),
 	'$comp_mode'(OldCompMode, CompMode),
 	recorda('$initialisation','$',_),
@@ -705,8 +710,8 @@ db_files(Fs) :-
 	    ;
 	    true
 	),
-	'$set_current_loop_stream'(Stream, OldStream),
-	'$swi_set_prolog_flag'(generate_debug_info, GenerateDebug),
+	set_stream( OldStream, alias(loop_stream) ),
+	set_prolog_flag(generate_debug_info, GenerateDebug),
 	'$comp_mode'(_CompMode, OldCompMode),
 	working_directory(_,OldD),
 	% surely, we were in run mode or we would not have included the file!
@@ -735,13 +740,13 @@ db_files(Fs) :-
 '$msg_level'( TOpts, Verbosity) :-
 	'$lf_opt'(autoload, TOpts, AutoLoad),
 	AutoLoad == true,
-	'$swi_current_prolog_flag'(verbose_autoload, false), !,
+	current_prolog_flag(verbose_autoload, false), !,
 	Verbosity = silent.
 '$msg_level'( _TOpts, Verbosity) :-
-	'$swi_current_prolog_flag'(verbose_load, false), !,
+	current_prolog_flag(verbose_load, false), !,
 	Verbosity = silent.
 '$msg_level'( _TOpts, Verbosity) :-
-	'$swi_current_prolog_flag'(verbose, silent), !,
+	current_prolog_flag(verbose, silent), !,
 	Verbosity = silent.
 '$msg_level'( TOpts, Verbosity) :-
 	'$lf_opt'(silent, TOpts, Silent),
@@ -845,17 +850,16 @@ db_files(Fs) :-
 	  true ;
 	  '$do_error'(permission_error(input,stream,Y),include(X))
 	),
-	'$set_current_loop_stream'(OldStream, Stream),
 	H0 is heapused, '$cputime'(T0,_),
 	working_directory(Dir, Dir),
+	'$lf_opt'(encoding, TOpts, Encoding),
+	set_stream(Stream, [encoding(Encoding),alias(loop_stream)] ),
 	'$loaded'(Y, X,  Mod, OldY, L, include, _, Dir, []),
         ( '$nb_getval'('$included_file', OY, fail ) -> true ; OY = [] ),
-	'$lf_opt'(encoding, TOpts, Encoding),
-	'$set_encoding'(Stream, Encoding),
 	nb_setval('$included_file', Y),
 	print_message(Verbosity, loading(including, Y)),
 	'$loop'(Stream,Status),
-	'$set_current_loop_stream'(Stream, OldStream),
+	set_stream(OldStream, alias(loop_stream) ),
 	close(Stream),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	print_message(Verbosity, loaded(included, Y, Mod, T, H)),
@@ -870,16 +874,16 @@ db_files(Fs) :-
 	'$init_win_graphics',
     fail.
 '$do_startup_reconsult'(X) :-
-	( '$access_yap_flags'(15, 0) ->
+	( current_prolog_flag(language_mode, yap) ->
 	  '$system_catch'(load_files(X, [silent(true)]), Module, Error, '$Error'(Error))
 	;
-	  '$swi_set_prolog_flag'(verbose, silent),
+	  set_prolog_flag(verbose, silent),
 	  '$system_catch'(load_files(X, [silent(true),skip_unix_header(true)]),Module,_,fail)
 	;
 	  true
 	),
 	!,
-	( '$access_yap_flags'(15, 0) -> true ; halt).
+	( current_prolog_flag(language_mode, yap) -> true ; halt).
 '$do_startup_reconsult'(_).
 
 '$skip_unix_header'(Stream) :-
@@ -993,8 +997,7 @@ prolog_load_context(stream, Stream) :-
         '$nb_getval'('$consulting_file', _, fail),
         '$current_loop_stream'(Stream).
 prolog_load_context(term_position, Position) :-
-        '$current_loop_stream'(Stream),
-        stream_property(Stream, position(Position) ).
+	stream_property( Stream, [alias(loop_stream),position(Position)] ).
 
 
 % if the file exports a module, then we can
@@ -1075,13 +1078,6 @@ prolog_load_context(term_position, Position) :-
 		  true ),
 	recorda('$lf_loaded','$lf_loaded'( F, M, Reconsult, UserFile, OldF, Line, Opts), _).
 
-'$set_encoding'(Encoding) :-
-	'$current_loop_stream'(Stream),
-	'$set_encoding'(Stream, Encoding).
-
-'$set_encoding'(Stream, Encoding) :-
-	( Encoding == default -> true ; set_stream(Stream, encoding(Encoding)) ).
-
 /** @pred make is det
 
 SWI-Prolog originally included this built-in as a Prolog version of the Unix `make`
@@ -1099,14 +1095,6 @@ make.
 
 make_library_index(_Directory).
 
-'$file_name'(Stream,F) :-
-	stream_property(Stream, file_name(F)), !.
-'$file_name'(user_input,user_input) :- !.
-'$file_name'(user_output,user_ouput) :- !.
-'$file_name'(user_error,user_error) :- !.
-'$file_name'(_,[]).
-
-
 '$fetch_stream_alias'(OldStream,Alias) :-
 	stream_property(OldStream, alias(Alias)), !.
 
@@ -1115,22 +1103,6 @@ make_library_index(_Directory).
 '$store_clause'('$source_location'(File, _Line):Clause, File) :-
 	assert_static(Clause).
 
-
-'$set_current_loop_stream'(OldStream, Stream) :-
-	'$current_loop_stream'(OldStream), !,
-	'$new_loop_stream'(Stream).
-'$set_current_loop_stream'(_OldStream, Stream) :-
-	'$new_loop_stream'(Stream).
-
-'$new_loop_stream'(Stream) :-
-	(var(Stream) ->
-	    nb_delete('$loop_stream')
-	;
-	    nb_setval('$loop_stream',Stream)
-	).
-
-'$current_loop_stream'(Stream) :-
-	'$nb_getval'('$loop_stream',Stream, fail).
 
 exists_source(File) :-
 	'$full_filename'(File, _AbsFile, exists_source(File)).
@@ -1664,15 +1636,15 @@ End of conditional compilation.
 	nb_setval('$assert_all',on).
 '$comp_mode'(OldCompMode, source) :-
 	'$fetch_comp_status'(OldCompMode),
-	'$set_yap_flags'(11,1).
+	set_prolog_flag(source, true).
 '$comp_mode'(OldCompMode, compact) :-
 	'$fetch_comp_status'(OldCompMode),
-	'$set_yap_flags'(11,0).
+	set_prolog_flag(source, false).
 
 '$fetch_comp_status'(assert_all) :-
 	'$nb_getval'('$assert_all',on, fail), !.
 '$fetch_comp_status'(source) :-
-	 '$access_yap_flags'(11,1), !.
+	 current_prolog_flag(source, true), !.
 '$fetch_comp_status'(compact).
 
 consult_depth(LV) :- '$show_consult_level'(LV).

@@ -117,7 +117,7 @@ listing(Stream, [MV|MVs]) :- !,
    ).
 
 %
-% at this point we are ground and wew know who we want to list.
+% at this point we are ground and we know who we want to list.
 %
 '$listing'(Name, Arity, M, Stream) :-
 	% skip by default predicates starting with $
@@ -131,7 +131,7 @@ listing(Stream, [MV|MVs]) :- !,
 	'$do_error'(domain_error(predicate_spec,Name),listing(Name)).
 
 '$list_clauses'(Stream, M, Pred) :-
-	'$flags'(Pred,M,Flags,Flags),
+	'$predicate_flags'(Pred,M,Flags,Flags),
 	(Flags /\ 0x48602000 =\= 0
 	->
 	  nl(Stream),
@@ -192,7 +192,7 @@ listing(Stream, [MV|MVs]) :- !,
         nl( Stream ),
         fail.
 '$list_clauses'(Stream, M, Pred) :-
-    '$flags'(Pred,M,Flags,Flags),
+    '$predicate_flags'(Pred,M,Flags,Flags),
 	% has to be dynamic, source, or log update.
 	Flags /\ 0x08402000 =\= 0,
 	'$clause'(Pred, M, Body, _),

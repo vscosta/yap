@@ -324,7 +324,7 @@ do_continuation(Continuation, Module1) :-
 execute_continuation(Continuation, Module1) :-
 	'$undefined'(Continuation, Module1), !,
 	'$current_module'( M ),
-	'$swi_current_prolog_flag'( M:unknown, Default ),
+	current_prolog_flag( M:unknown, Default ),
         '$undefp'([Module1|Continuation] , Default ).
 execute_continuation(Continuation, Mod) :-
          % do not do meta-expansion nor any fancy stuff.

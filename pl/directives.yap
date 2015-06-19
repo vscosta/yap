@@ -115,8 +115,8 @@
     '$exec_directive'(G, Mode, M, VL, Pos).
 
 '$save_directive'(G, Mode, M, VL, Pos) :-
-    prolog_load_context(file, FileName), !,
-    recordz('$directive', directive(FileName,M:G, Mode, VL, Pos),_).
+	prolog_load_context(file, FileName), !,
+	recordz('$directive', directive(FileName,M:G, Mode, VL, Pos),_).
 
 '$exec_directive'(multifile(D), _, M, _, _) :-
 	'$system_catch'('$multifile'(D, M), M,

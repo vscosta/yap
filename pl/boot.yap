@@ -308,14 +308,14 @@ true :- true.
     '$init_system'.
 
 '$do_live' :-
-    repeat,
-    '$current_module'(Module),
-    ( Module==user ->
-      '$compile_mode'(_,0)
-    ;
-      format(user_error,'[~w]~n', [Module])
-    ),
-    '$system_catch'('$enter_top_level',Module,Error,user:'$Error'(Error)).
+	repeat,
+	'$current_module'(Module),
+	( Module==user ->
+	  '$compile_mode'(_,0)
+	;
+	  format(user_error,'[~w]~n', [Module])
+	),
+	'$system_catch'('$enter_top_level',Module,Error,user:'$Error'(Error)).
 
 
 '$init_system' :-
@@ -324,19 +324,13 @@ true :- true.
     set_value('$yap_inited', true),
     % do catch as early as possible
     (
-     '$access_yap_flags'(15, 0),
-     '$access_yap_flags'(22, 0),
-     \+ '$uncaught_throw'
+     current_prolog_flag(halt_after_consult, false),
+     current_prolog_flag(verbose, normal),
+      \+ '$uncaught_throw'
     ->
      '$version'
     ;
      true
-    ),
-    (
-     '$access_yap_flags'(22, 0) ->
-	'$swi_set_prolog_flag'(verbose,  normal)
-    ;
-	'$swi_set_prolog_flag'(verbose,  silent)
     ),
 %	'$init_preds', % needs to be done before library_directory
 %	(
@@ -347,17 +341,16 @@ true :- true.
 %	;
 %	 true
 %	),
-    '$swi_current_prolog_flag'(file_name_variables, OldF),
-    '$swi_set_prolog_flag'(file_name_variables, true),
+    current_prolog_flag(file_name_variables, OldF),
+    set_prolog_flag(file_name_variables, true),
     '$init_consult',
-    '$swi_set_prolog_flag'(file_name_variables, OldF),
-    '$init_win_graphics',
+    set_prolog_flag(file_name_variables, OldF),
     '$init_globals',
-    '$swi_set_prolog_flag'(fileerrors, true),
+    set_prolog_flag(fileerrors, true),
     set_value('$gc',on),
     ('$exit_undefp' -> true ; true),
     prompt1(' ?- '),
-    '$swi_set_prolog_flag'(debug, false),
+    set_prolog_flag(debug, false),
 	% simple trick to find out if this is we are booting from Prolog.
 	% boot from a saved state
 	(
@@ -369,7 +362,7 @@ true :- true.
 	 ->
 	  bootstrap(X),
 	  module( user ),
-	  qsave_program( "startup.yss")
+	  qsave_program( 'startup.yss')
 	 ;
 	  true
 	 )
@@ -385,7 +378,7 @@ true :- true.
 	'$run_at_thread_start'.
 
 '$init_globals' :-
-	% '$swi_set_prolog_flag'(break_level, 0),
+	% set_prolog_flag(break_level, 0),
 	% '$set_read_error_handler'(error), let the user do that
 	nb_setval('$chr_toplevel_show_store',false).
 
@@ -433,8 +426,9 @@ true :- true.
 
 /* main execution loop							*/
 '$read_toplevel'(Goal, Bindings) :-
+	fail,
 	'$pred_exists'(read_history(_,_,_,_,_,_), user),
-	'$swi_current_prolog_flag'(readline, true), !,
+	current_prolog_flag(readline, true), !,
 	read_history(h, '!h',
                          [trace, end_of_file],
                          Prompt, Goal, Bindings), !,
@@ -446,33 +440,23 @@ true :- true.
 '$read_toplevel'(Goal, Bindings) :-
 	prompt1('?- '),
 	prompt(_,'|: '),
-			(print_message(error, E),
-	                 '$handle_toplevel_error'(Line, E))),
-	(
-	    '$pred_exists'(rl_add_history(_), user)
-	->
-	    format(atom(CompleteLine), '~W~W',
-		   [ Line, [partial(true)],
-		     '.', [partial(true)]
-		   ]),
-	    user:rl_add_history(CompleteLine)
-	;
-	    true
-	),
-	'$system_catch'(
-			atom_to_term(Line, Goal, Bindings), prolog, E,
-			(   print_message(error, E),
-			    fail
-			)
-		       ), !.
+	'$system_catch'(read_term(user_input,
+				  Goal,
+				  [variable_names(Bindings)]),
+			prolog, E, '$handle_toplevel_error'( E) ).
 
-'$handle_toplevel_error'(_, syntax_error(_)) :-
+'$handle_toplevel_error'( syntax_error(_)) :-
 	!,
 	fail.
-'$handle_toplevel_error'(end_of_file, error(io_error(read,user_input),_)) :-
+'$handle_toplevel_error'( error(io_error(read,user_input),_)) :-
 	!.
 '$handle_toplevel_error'(_, E) :-
 	throw(E).
+
+
+/** @pred  stream_property( _Stream_, _Prop_) 
+
+*/
 
 % reset alarms when entering top-level.
 '$enter_top_level' :-
@@ -482,8 +466,8 @@ true :- true.
 	'$clean_up_dead_clauses',
 	fail.
 '$enter_top_level' :-
-	'$swi_current_prolog_flag'(break_level, BreakLevel),
-        '$swi_current_prolog_flag'(debug, DBON),
+	current_prolog_flag(break_level, BreakLevel),
+        current_prolog_flag(debug, DBON),
 	(
 	 '$nb_getval'('$trace', on, fail)
 	->
@@ -501,7 +485,7 @@ true :- true.
 	get_value('$top_level_goal',GA), GA \= [], !,
 	set_value('$top_level_goal',[]),
 	'$run_atom_goal'(GA),
-	'$swi_current_prolog_flag'(break_level, BreakLevel),
+	current_prolog_flag(break_level, BreakLevel),
 	(
 	 Breaklevel \= 0
 	->
@@ -523,7 +507,7 @@ true :- true.
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off),
 	'$command'(Command,Varnames,_Pos,top),
-	'$swi_current_prolog_flag'(break_level, BreakLevel),
+	current_prolog_flag(break_level, BreakLevel),
 	(
 	 BreakLevel \= 0
 	->
@@ -545,17 +529,13 @@ true :- true.
  '$erase_sets'.
 
 '$version' :-
-	get_value('$version_name',VersionName),
-	 print_message(help, version(VersionName)),
-	 get_value('$myddas_version_name',MYDDASVersionName),
-	 MYDDASVersionName \== [],
-	 print_message(help, myddas_version(MYDDASVersionName)),
-	 fail.
- '$version' :-
-	 recorded('$version',VersionName,_),
-	 print_message(help, VersionName),
-	 fail.
- '$version'.
+	current_prolog_flag(version_git,VersionGit),
+	current_prolog_flag(compiled_at,AT),
+	current_prolog_flag(version_data, yap(Mj, Mi,  Patch, _) ),
+	sub_atom( VersionGit, 0, 8, _, VERSIONGIT ),
+	format(user_error, '% YAP ~d.~d.~d-~a (compiled  ~a)~n', [Mj,Mi, Patch, VERSIONGIT,  AT]),
+	fail.
+'$version'.
 
 /** @pred  repeat is iso
 Succeeds repeatedly.
@@ -604,7 +584,7 @@ number of steps.
 	recorda('$result',going,_).
 
 '$command'(C,VL,Pos,Con) :-
-	'$access_yap_flags'(9,1), !,
+	current_prolog_flag(strict_iso, true), !,      /* strict_iso on */
 	 '$execute_command'(C,VL,Pos,Con,C).
 '$command'(C,VL,Pos,Con) :-
 	( (Con = top ; var(C) ; C = [_|_])  ->
@@ -675,7 +655,7 @@ number of steps.
  % YAP accepts everything everywhere
  %
  '$process_directive'(G, top, M, VL, Pos) :-
-	 '$access_yap_flags'(8, 0), !, % YAP mode, go in and do it,
+	 current_prolog_flag(language_mode, yap), !,      /* strict_iso on */
 	 '$process_directive'(G, consult, M, VL, Pos).
  '$process_directive'(G, top, _, _, _) :- !,
 	 '$do_error'(context_error((:- G),clause),query).
@@ -694,8 +674,8 @@ number of steps.
  %
  % ISO does not allow goals (use initialization).
  %
- '$process_directive'(D, _, M, VL, Pos) :-
-	 '$access_yap_flags'(8, 1), !, % ISO Prolog mode, go in and do it,
+'$process_directive'(D, _, M, VL, Pos) :-
+	current_prolog_flag(language_mode, iso), !, % ISO Prolog mode, go in and do it,
 	 '$do_error'(context_error((:- M:D),query),directive).
  %
  % but YAP and SICStus does.
@@ -718,7 +698,7 @@ number of steps.
 	 '$go_compile_clause'(G,V,Pos,5,Source),
 	 fail.
 '$continue_with_command'(consult,V,Pos,G,Source) :-
-     '$go_compile_clause'(G,V,Pos,13,Source),
+	'$go_compile_clause'(G,V,Pos,13,Source),
 	 fail.
 '$continue_with_command'(top,V,_,G,_) :-
 	 '$query'(G,V).
@@ -754,18 +734,16 @@ number of steps.
  % process an input clause
  '$$compile'(G, G0, L, Mod) :-
 	 '$head_and_body'(G,H,_),
-	 '$flags'(H, Mod, Fl, Fl),
-	 is(NFl, /\, Fl, 0x00002000),
 	 (
-	  NFl \= 0
+	  '$is_dynamic'(H, Mod)
 	 ->
-	  '$assertz_dynamic'(L,G,G0,Mod)
+	  '$assertz_dynamic'(L, G, G0, Mod)
 	 ;
 	  '$nb_getval'('$assert_all',on,fail)
 	 ->
 	  functor(H,N,A),
 	  '$dynamic'(N/A,Mod),
-	  '$assertz_dynamic'(L,G,G0,Mod)
+	  '$assertz_dynamic'(L, G, G0, Mod)
 	 ;
 	  '$not_imported'(H, Mod),
 	  '$compile'(G, L, G0, Mod)
@@ -897,7 +875,7 @@ number of steps.
         flush_output,
 	fail.
 '$present_answer'((?-), Answ) :-
-	'$swi_current_prolog_flag'(break_level, BL ),
+	current_prolog_flag(break_level, BL ),
 	( BL \= 0 -> 	format(user_error, '[~p] ',[BL]) ;
 			true ),
         ( recorded('$print_options','$toplevel'(Opts),_) ->
@@ -1139,7 +1117,7 @@ incore(G) :- '$execute'(G).
     ).
 
 '$enable_debugging' :-
-	'$swi_current_prolog_flag'(debug, false), !.
+	current_prolog_flag(debug, false), !.
 '$enable_debugging' :-
 	'$nb_getval'('$trace', on, fail), !,
 	'$creep'.
@@ -1334,12 +1312,12 @@ bootstrap(F) :-
 %	'$open'(F, '$csult', Stream, 0, 0, F),
 %	'$file_name'(Stream,File),
 	open(F, read, Stream),
-	stream_property(Stream, file_name(File)),
+	stream_property(Stream, [file_name(File)]),
 	'$start_consult'(consult, File, LC),
 	file_directory_name(File, Dir),
 	working_directory(OldD, Dir),
 	(
-	  '$swi_current_prolog_flag'(verbose_load, silent)
+	  current_prolog_flag(verbose_load, silent)
 	->
 	  true
 	;
@@ -1351,7 +1329,7 @@ bootstrap(F) :-
 	'$current_module'(_, prolog),
 	'$end_consult',
 	(
-	  '$swi_current_prolog_flag'(verbose_load, silent)
+	  current_prolog_flag(verbose_load, silent)
 	->
 	  true
 	;
@@ -1388,7 +1366,7 @@ bootstrap(F) :-
 	!.
 
 '$enter_command'(Stream,Mod,Status) :-
-	read_clause(Stream, Command, [variable_names(Vars), term_position(Pos), syntax_errors(dec10) ]),
+	read_term(Stream, Command, [variable_names(Vars), term_position(Pos), syntax_errors(dec10) ]),
 	'$command'(Command,Vars,Pos,Status).
 
 '$abort_loop'(Stream) :-
@@ -1426,7 +1404,7 @@ bootstrap(F) :-
 	'$module_expansion'(Term, Expanded0, ExpandedI, HeadMod, BodyMod, SourceMod), !,
 %format('      -> ~w~n',[Expanded0]),
 	(
-	 '$access_yap_flags'(9,1)      /* strict_iso on */
+	 current_prolog_flag(strict_iso, true)      /* strict_iso on */
         ->
 	 Expanded = ExpandedI,
 	 '$check_iso_strict_clause'(Expanded0)
@@ -1571,7 +1549,7 @@ catch_ball(Ball, V) :-
 catch_ball(C, C).
 
 '$run_toplevel_hooks' :-
-	'$swi_current_prolog_flag'(break_level, 0 ),
+	current_prolog_flag(break_level, 0 ),
 	recorded('$toplevel_hooks',H,_),
 	H \= fail, !,
 	( call(user:H1) -> true ; true).

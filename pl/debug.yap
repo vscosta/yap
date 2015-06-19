@@ -148,8 +148,8 @@ mode and the existing spy-points, when the debugger is on.
 	  ).
  '$do_suspy'(S, F, N, T, M) :-
 	  '$system_predicate'(T,M),
-	 '$flags'(T,M,F,F),
-	 F /\ 0x118dd080 =\= 0,
+	  '$predicate_flags'(T,M,F,F),
+	  F /\ 0x118dd080 =\= 0,
 	  ( S = spy ->
 	      '$do_error'(permission_error(access,private_procedure,T),spy(M:F/N))
 	  ;
@@ -243,16 +243,16 @@ debug :-
 
  '$start_debugging'(Mode) :-
 	 (Mode == on ->
-	  '$swi_set_prolog_flag'(debug, true)
+	  set_prolog_flag(debug, true)
 	 ;
-	  '$swi_set_prolog_flag'(debug, false)
+	  set_prolog_flag(debug, false)
 	 ),
 	 nb_setval('$debug_run',off),
 	 nb_setval('$debug_jump',false).
 
  nodebug :-
 	 '$init_debugger',
-	 '$swi_set_prolog_flag'(debug, false),
+	 set_prolog_flag(debug, false),
 	 nb_setval('$trace',off),
 	 print_message(informational,debug(off)).
 
@@ -402,7 +402,7 @@ debugging :-
 	'$init_debugger',
 	prolog:debug_action_hook(nospyall), !.
 debugging :-
-	( '$swi_current_prolog_flag'(debug, true) ->
+	( current_prolog_flag(debug, true) ->
 	    print_message(help,debug(debug))
 	    ;
 	    print_message(help,debug(off))
@@ -572,7 +572,7 @@ top-level. YAP disactivates debug mode, but spypoints are not removed.
 + `n` - nodebug
 
     stop debugging and continue execution. The command will not clear active
-spy-points.
+§spy-points.
 
 + `e` - exit
 
@@ -667,7 +667,7 @@ be lost.
 %
 % $spy may be called from user code, so be careful.
 '$spy'([Mod|G]) :-
-	'$swi_current_prolog_flag'(debug, false), !,
+	current_prolog_flag(debug, false), !,
 	'$execute_nonstop'(G,Mod).
 '$spy'([Mod|G]) :-
 	CP is '$last_choice_pt',
@@ -917,7 +917,7 @@ be lost.
 	'$spycall_expanded'(G, M, CalledFromDebugger, InRedo).
 
 '$spycall_expanded'(G, M, _CalledFromDebugger, InRedo) :-
-	'$flags'(G,M,F,F),
+	'$predicate_flags'(G,M,F,F),
 	F /\ 0x08402000 =\= 0, !, % dynamic procedure, logical semantics, or source
 	% use the interpreter
 	CP is '$last_choice_pt',
@@ -955,7 +955,7 @@ be lost.
 	).
 
 '$tabled_predicate'(G,M) :-
-	'$flags'(G,M,F,F),
+	'$predicate_flags'(G,M,F,F),
 	F /\ 0x00000040 =\= 0.
 
 %'$trace'(P,G,Module,L,Deterministic) :-
@@ -964,7 +964,7 @@ be lost.
 	% at this point we are done with leap or skip
 	nb_setval('$debug_run',off),
 	% make sure we run this code outside debugging mode.
-	'$swi_set_prolog_flag'(debug, false),
+	set_prolog_flag(debug, false),
 	repeat,
 	'$trace_msg'(P,G,Module,L,Deterministic),
 	(
@@ -977,13 +977,13 @@ be lost.
 	),
 	(Debug = on
 	->
-	 '$swi_set_prolog_flag'(debug, true)
+	 set_prolog_flag(debug, true)
 	;
 	 Debug = zip
 	->
-	 '$swi_set_prolog_flag'(debug, true)
+	 set_prolog_flag(debug, true)
 	;
-	 '$swi_set_prolog_flag'(debug, false)
+	 set_prolog_flag(debug, false)
 	),
 	!.
 
@@ -1027,10 +1027,10 @@ be lost.
 '$action'(0'!,_,_,_,_,_) :- !,			% ! 'g		execute
 	read(debugger_input, G),
 	% don't allow yourself to be caught by creep.
-	'$swi_current_prolog_flag'(debug, OldDeb),
-	 '$swi_set_prolog_flag'(debug, false),
+	current_prolog_flag(debug, OldDeb),
+	 set_prolog_flag(debug, false),
 	( '$execute'(G) -> true ; true),
-	'$swi_set_prolog_flag'(debug, OldDeb),
+	set_prolog_flag(debug, OldDeb),
 %	'$skipeol'(0'!),                        % '
 	fail.
 '$action'(0'<,_,_,_,_,_) :- !,			% <'Depth
@@ -1109,7 +1109,7 @@ be lost.
 	nodebug.
 '$action'(0'r,_,CallId,_,_,_) :- !,		        % 'r		retry
         '$scan_number'(0'r,CallId,ScanNumber),		% '
-	'$swi_set_prolog_flag'(debug, true),
+	set_prolog_flag(debug, true),
 	throw(error('$retry_spy'(ScanNumber),[])).
 '$action'(0's,P,CallNumber,_,_,on) :- !,		% 's		skip
 	'$skipeol'(0's),				% '

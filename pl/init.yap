@@ -22,7 +22,6 @@
 
     @{
 */
-
 :- system_module( '$_init', [!/0,
         (:-)/1,
         (?-)/1,
@@ -109,17 +108,20 @@ otherwise.
 
 :- '$handle_throw'(_,_,_), !.
 
+:- $all_current_modules(M), yap_flag(M:unknown, error) ; true.
+
 :- bootstrap('errors.yap').
 :- bootstrap('lists.yap').
 :- bootstrap('consult.yap').
 :- bootstrap('preddecls.yap').
+:- bootstrap('preddyns.yap').
 
 
 :- bootstrap('atoms.yap').
 :- bootstrap('os.yap').
 :- bootstrap('absf.yap').
 
-:-'$swi_set_prolog_flag'(verbose,  normal).
+:-set_prolog_flag(verbose,  normal).
 
 :- [	 'directives.yap',
 	 'utils.yap',
@@ -127,7 +129,7 @@ otherwise.
 	 'arith.yap',
 	 'flags.yap'
    ].
-    
+
 :- [	 'preds.yap',
 	 'modules.yap'
    ].
@@ -185,6 +187,41 @@ version(yap,[6,3]).
 
 :- 	['undefined.yap'].
 
+:- multifile user:portray_message/2.
+
+:- dynamic user:portray_message/2.
+
+/** @pred  _CurrentModule_:goal_expansion(+ _G_,+ _M_,- _NG_), user:goal_expansion(+ _G_,+ _M_,- _NG_)
+
+
+YAP now supports goal_expansion/3. This is an user-defined
+procedure that is called after term expansion when compiling or
+asserting goals for each sub-goal in a clause. The first argument is
+bound to the goal and the second to the module under which the goal
+ _G_ will execute. If goal_expansion/3 succeeds the new
+sub-goal  _NG_ will replace  _G_ and will be processed in the same
+way. If goal_expansion/3 fails the system will use the default
+rules.
+
+
+*/
+:- multifile user:goal_expansion/3.
+
+:- dynamic user:goal_expansion/3.
+
+:- multifile user:goal_expansion/2.
+
+:- dynamic user:goal_expansion/2.
+
+:- multifile system:goal_expansion/2.
+
+:- dynamic system:goal_expansion/2.
+
+:- multifile goal_expansion/2.
+
+:- dynamic goal_expansion/2.
+
+
 :- use_module('messages.yap').
 :- use_module('hacks.yap').
 :- use_module('attributes.yap').
@@ -197,13 +234,11 @@ version(yap,[6,3]).
 :- use_module('../swi/library/menu.pl').
 :- use_module('../library/ypp.yap').
 
-
-
 yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- '$change_type_of_char'(36,7). % Make $ a symbol character
 
-:-	'$swi_set_prolog_flag'(generate_debug_info,true).
+:-	set_prolog_flag(generate_debug_info,true).
 
 
 :- recorda('$dialect',yap,_).
@@ -232,36 +267,6 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 :- source.
 
 :- module(user).
-
-/** @pred  _CurrentModule_:goal_expansion(+ _G_,+ _M_,- _NG_), user:goal_expansion(+ _G_,+ _M_,- _NG_)
-
-
-YAP now supports goal_expansion/3. This is an user-defined
-procedure that is called after term expansion when compiling or
-asserting goals for each sub-goal in a clause. The first argument is
-bound to the goal and the second to the module under which the goal
- _G_ will execute. If goal_expansion/3 succeeds the new
-sub-goal  _NG_ will replace  _G_ and will be processed in the same
-way. If goal_expansion/3 fails the system will use the default
-rules.
-
-
-*/
-:- multifile goal_expansion/3.
-
-:- dynamic goal_expansion/3.
-
-:- multifile goal_expansion/2.
-
-:- dynamic goal_expansion/2.
-
-:- multifile system:goal_expansion/2.
-
-:- dynamic system:goal_expansion/2.
-
-:- multifile goal_expansion/2.
-
-:- dynamic goal_expansion/2.
 
 
 /** @pred  _CurrentModule_:term_expansion( _T_,- _X_),  user:term_expansion( _T_,- _X_)
@@ -312,10 +317,6 @@ modules defining clauses for it too.
 
 :- dynamic user:message_hook/3.
 
-:- multifile user:portray_message/2.
-
-:- dynamic user:portray_message/2.
-
 /** @pred  exception(+ _Exception_, + _Context_, - _Action_)
 
 
@@ -338,11 +339,9 @@ If this hook predicate succeeds it must instantiate the  _Action_ argument to th
 
 :- dynamic user:exception/3.
 
-:- yap_flag(unknown,error).
+:- yap_flag(user:unknown,error).
 
 :- stream_property(user_input, tty(true)) -> set_prolog_flag(readline, true) ; true.
-
-
 
 /**
 @}
