@@ -27,15 +27,14 @@ if ( NOT( CUDD_INCLUDE_DIR AND CUDD_LIBRARIES ) OR NOT CUDD_FOUND )
 
   
   find_path(CUDD_INCLUDE_DIR
-    NAMES cudd.h
-    PATHS $ENV{CUDD_DIR}/include/cudd
+    NAMES cudd.h cudd.cudd.h
     $ENV{CUDD_DIR}/include
     $ENV{CUDD_DIR}
+    /usr/local/yap/include
+    /usr/local/Yap/include
     ~/Library/Frameworks
     /Library/Frameworks
-    /usr/local/include/cudd
     /usr/local/include
-    /usr/include/cudd
     /usr/include/
     /sw/include        # Fink
     /opt/local/include # MacPorts
@@ -58,6 +57,8 @@ if ( NOT( CUDD_INCLUDE_DIR AND CUDD_LIBRARIES ) OR NOT CUDD_FOUND )
     $ENV{CUDD_DIR}/lib-dbg
     $ENV{CUDD_DIR}
     $ENV{CUDD_DIR}/cudd
+    /usr/local/yap/lib
+    /usr/local/Yap/lib
     ~/Library/Frameworks
     /Library/Frameworks
     /usr/local/lib
@@ -84,7 +85,9 @@ if ( NOT( CUDD_INCLUDE_DIR AND CUDD_LIBRARIES ) OR NOT CUDD_FOUND )
     $ENV{CUDD_DIR}/lib-dbg
     $ENV{CUDD_DIR}
     $ENV{CUDD_DIR}/util
-    ~/Library/Frameworks
+     /usr/local/yap/lib
+    /usr/local/Yap/lib
+   ~/Library/Frameworks
     /Library/Frameworks
     /usr/local/lib
     /usr/local/lib64
@@ -109,7 +112,9 @@ if ( NOT( CUDD_INCLUDE_DIR AND CUDD_LIBRARIES ) OR NOT CUDD_FOUND )
     $ENV{CUDD_DIR}/lib-dbg
     $ENV{CUDD_DIR}
     $ENV{CUDD_DIR}/st
-    ~/Library/Frameworks
+     /usr/local/yap/lib
+    /usr/local/Yap/lib
+   ~/Library/Frameworks
     /Library/Frameworks
     /usr/local/lib
     /usr/local/lib64
@@ -132,6 +137,8 @@ if ( NOT( CUDD_INCLUDE_DIR AND CUDD_LIBRARIES ) OR NOT CUDD_FOUND )
     $ENV{CUDD_DIR}/lib-dbg
     $ENV{CUDD_DIR}
     $ENV{CUDD_DIR}/epd
+    /usr/local/yap/lib
+    /usr/local/Yap/lib
     ~/Library/Frameworks
     /Library/Frameworks
     /usr/local/lib
@@ -155,7 +162,9 @@ if ( NOT( CUDD_INCLUDE_DIR AND CUDD_LIBRARIES ) OR NOT CUDD_FOUND )
     $ENV{CUDD_DIR}/lib-dbg
     $ENV{CUDD_DIR}
     $ENV{CUDD_DIR}/mtr
-    ~/Library/Frameworks
+     /usr/local/yap/lib
+    /usr/local/Yap/lib
+   ~/Library/Frameworks
     /Library/Frameworks
     /usr/local/lib
     /usr/local/lib64

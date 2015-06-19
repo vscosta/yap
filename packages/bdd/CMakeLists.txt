@@ -19,56 +19,58 @@ ENDIF (NOT YAP_FOUND)
 macro_optional_find_package (CUDD ON)
 macro_log_feature (CUDD_FOUND "CUDD"
   "Use CUDD Library"
-  "http://www.r.org" FALSE)
+  "http://vlsi.colorado.edu/~fabio/CUDD/" FALSE)
 IF (CUDD_FOUND)
   #  CUDD_FOUND       - system has Cudd
   #  CUDD_LIBRARIES   - Link these to use Cudd
   #  CUDD_INCLUDE_DIR - Include directory for using Cudd
-  
-  INCLUDE_DIRECTORIES(
-    ${YAP_INCLUDE_DIR}
-    ${CUDD_INCLUDE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
-    .
-    )
 
-  check_include_file( util.h HAVE_UTIL_H )  
-  check_include_file( cudd/util.h HAVE_CUDD_UTIL_H )  
-  check_include_file( cudd.h HAVE_CUDD_H )  
-  check_include_file( cudd/cudd.h HAVE_CUDD_CUDD_H )  
-  check_include_file( cuddInt.h HAVE_CUDDINT_H )  
-  check_include_file( cudd/cuddInt.h HAVE_CUDD_CUDDINT_H )  
-
-  configure_file ("${PROJECT_SOURCE_DIR}/cudd_config.h.cmake"
-    "${PROJECT_BINARY_DIR}/cudd_config.h" )
-
-  SET ( BDD_SOURCES
-    cudd.c 
+ SET ( BDD_SOURCES
+    cudd.c
     )
 
   ADD_LIBRARY(cudd SHARED ${BDD_SOURCES} )
 
-  if(DEFINED YAP_MAJOR_VERSION)
+  INCLUDE_DIRECTORIES(
+    ${CUDD_INCLUDE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
+    )
+
+  check_include_files( util.h HAVE_UTIL_H )
+  check_include_files( cudd/util.h HAVE_CUDD_UTIL_H )
+  check_include_files( cudd.h HAVE_CUDD_H )
+  check_include_files( "stdio.h;cudd/cudd.h" HAVE_CUDD_CUDD_H )
+  check_include_files( cuddInt.h HAVE_CUDDINT_H )  
+  check_include_files( "stdio.h;cudd/cudd.h;cudd/cuddInt.h" HAVE_CUDD_CUDDINT_H )
+
+  configure_file ("${PROJECT_SOURCE_DIR}/cudd_config.h.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/cudd_config.h" )
+
+
+   if(DEFINED YAP_MAJOR_VERSION)
     TARGET_LINK_LIBRARIES(cudd
-      ${CUDD_LIBRARIES}    
-      libYap    
+      ${CUDD_LIBRARIES}
+      libYap
       )
   else()
     TARGET_LINK_LIBRARIES(cudd
-      ${CUDD_LIBRARIES}    
-      ${YAP_LIBRARY}    
+      ${CUDD_LIBRARIES}
+      ${YAP_LIBRARY}
       )
   endif()
-  
+
   set_target_properties (cudd PROPERTIES PREFIX "")
-  
+
+  add_subdirectory(simplecudd)
+  add_subdirectory(simplecudd_lfi)
+
   install(TARGETS  cudd
     LIBRARY DESTINATION ${dlls}
     )
 
   INSTALL(FILES bdd.yap DESTINATION ${libpl})
-  INSTALL(FILES ddnnf.yap DESTINATION ${libpl})  
-  INSTALL(FILES simpbool.yap DESTINATION ${libpl})  
-  INSTALL(FILES trie_sp.yap DESTINATION ${libpl})  
+  INSTALL(FILES ddnnf.yap DESTINATION ${libpl})
+  INSTALL(FILES simpbool.yap DESTINATION ${libpl})
+  INSTALL(FILES trie_sp.yap DESTINATION ${libpl})
 
 ENDIF (CUDD_FOUND)
