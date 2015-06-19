@@ -21,6 +21,9 @@ static char     SccsId[] = "%W% %G%";
 #define HAS_CACHE_REGS 1
 
 #include "Yap.h"
+#if HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 #if _WIN32
 #include <stdio.h>
 #include <io.h>
@@ -57,7 +60,7 @@ static yap_signals
 InteractSIGINT(int ch) {
 #ifdef HAVE_SETBUF
   /* make sure we are not waiting for the end of line */
-  YP_setbuf (stdin, NULL);
+  setbuf (stdin, NULL);
 #endif
   switch (ch) {
     case 'a':
@@ -337,7 +340,7 @@ p_first_signal( USES_REGS1 )
 #elif HAVE_FFSLL
       sig = ffsll(mask);
 #else
-      sig = Yap_msb( mask )+1;
+      sig = Yap_msb( mask PASS_REGS)+1;
 #endif
      if (get_signal(sig PASS_REGS)) {
 	  break;

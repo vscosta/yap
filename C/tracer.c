@@ -25,41 +25,39 @@
 #include "yapio.h"
 #include "clause.h"
 #include "tracer.h"
-#include "SWI-Stream.h"
 
-static void  send_tracer_message(char *, char *, Int, char *, CELL *);
 
 static void
 send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
 {
   if (name == NULL) {
 #ifdef  YAPOR
-    Sfprintf(GLOBAL_stderr, "(%d)%s", worker_id, start);
+    fprintf(stderr, "(%d)%s", worker_id, start);
 #else
-    Sfprintf(GLOBAL_stderr, "%s", start);
+    fprintf(stderr, "%s", start);
 #endif
   } else {
     int i;
 
     if (arity) {
       if (args)
-	Sfprintf(GLOBAL_stderr, "%s %s:%s(", start, mname, name);
+	fprintf(stderr, "%s %s:%s(", start, mname, name);
       else
-	Sfprintf(GLOBAL_stderr, "%s %s:%s/%lu", start, mname, name, (unsigned long int)arity);
+	fprintf(stderr, "%s %s:%s/%lu", start, mname, name, (unsigned long int)arity);
     } else {
-      Sfprintf(GLOBAL_stderr, "%s %s:%s", start, mname, name);
+      fprintf(stderr, "%s %s:%s", start, mname, name);
     }
     if (args) {
       for (i= 0; i < arity; i++) {
-	if (i > 0) Sfprintf(GLOBAL_stderr, ",");
-	Yap_plwrite(args[i], GLOBAL_stderr, 15, Handle_vars_f|AttVar_Portray_f, 1200);
+	if (i > 0) fprintf(stderr, ",");
+	Yap_plwrite(args[i], NULL, 15, Handle_vars_f|AttVar_Portray_f, 1200);
       }
       if (arity) {
-	Sfprintf(GLOBAL_stderr, ")");
+	fprintf(stderr, ")");
       }
     }
   }
-  Sfprintf(GLOBAL_stderr, "\n");
+  fprintf(stderr, "\n");
 }
 
 #if defined(__GNUC__)
@@ -121,7 +119,7 @@ check_area(void)
 	first = i;
 	found = TRUE;
       }
-      Sfprintf(stderr,"%lld changed %d\n",vsc_count,i);
+      fprintf(stderr,"%lld changed %d\n",vsc_count,i);
     }
     array[i] = ((CELL *)0x187a800)[i];
   }
@@ -163,12 +161,12 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   LOCK(Yap_heap_regs->low_level_trace_lock);
   sc = Yap_heap_regs;
   //if (vsc_count == 161862) jmp_deb(1);
-  //  Sfprintf(stderr,"B=%p ", B);
+  //  fprintf(stderr,"B=%p ", B);
 #ifdef THREADS
   LOCAL_ThreadHandle.thread_inst_count++;
 #endif  
 #ifdef COMMENTED
-  Sfprintf(stderr,"in %p\n");
+  fprintf(stderr,"in %p\n");
   CELL * gc_ENV = ENV;
   while (gc_ENV != NULL) {	/* no more environments */
     fprintf(stderr,"%ld\n", LCL0-gc_ENV);
@@ -197,7 +195,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     if (vsc_count % 1LL == 0) {
       UInt sz = Yap_regp->H0_[17];
       UInt end = sizeof(MP_INT)/sizeof(CELL)+sz+1;
-      Sfprintf(GLOBAL_stderr,"VAL %lld %d %x/%x\n",vsc_count,sz,H0[16],H0[16+end]);
+      fprintf(stderr,"VAL %lld %d %x/%x\n",vsc_count,sz,H0[16],H0[16+end]);
     }
    } else
   return;
@@ -309,9 +307,9 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
       printf("\n");
  }
 #endif
-  Sfprintf(GLOBAL_stderr,"%lld ",vsc_count);
+  fprintf(stderr,"%lld ",vsc_count);
 #if defined(THREADS) || defined(YAPOR)
-  Sfprintf(GLOBAL_stderr,"(%d)", worker_id);
+  fprintf(stderr,"(%d)", worker_id);
 #endif
   /* check_trail_consistency(); */
   if (pred == NULL) {
@@ -394,7 +392,6 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     }
     break;
   }
-  Sflush(GLOBAL_stderr);
   fflush(NULL);
   UNLOCK(Yap_heap_regs->low_level_trace_lock);
 }
@@ -405,32 +402,31 @@ toggle_low_level_trace(void)
   Yap_do_low_level_trace = !Yap_do_low_level_trace;
 }
 
-static Int p_start_low_level_trace( USES_REGS1 )
+static Int start_low_level_trace( USES_REGS1 )
 {
-  GLOBAL_stderr = Serror; //Sopen_file("TRACER_LOG", "w");
   Yap_do_low_level_trace = TRUE;
   return(TRUE);
 }
 
-static Int p_total_choicepoints( USES_REGS1 )
+static Int total_choicepoints( USES_REGS1 )
 {
   return Yap_unify(MkIntegerTerm(LOCAL_total_choicepoints),ARG1);
 }
 
-static Int p_reset_total_choicepoints( USES_REGS1 )
+static Int reset_total_choicepoints( USES_REGS1 )
 {
   LOCAL_total_choicepoints = 0;
   return TRUE;
 }
 
-static Int p_show_low_level_trace( USES_REGS1 )
+static Int show_low_level_trace( USES_REGS1 )
 {
-  Sfprintf(GLOBAL_stderr,"Call counter=%lld\n",vsc_count);
+  fprintf(stderr,"Call counter=%lld\n",vsc_count);
   return(TRUE);
 }
 
 #ifdef THREADS
-static Int p_start_low_level_trace2( USES_REGS1 )
+static Int start_low_level_trace2( USES_REGS1 )
 {
   thread_trace = IntegerOfTerm(Deref(ARG1))+1;
   Yap_do_low_level_trace = TRUE;
@@ -440,7 +436,15 @@ static Int p_start_low_level_trace2( USES_REGS1 )
 
 #include <stdio.h>
 
-static Int p_stop_low_level_trace( USES_REGS1 )
+/** @pred stop_low_level_trace
+
+Stop displaying messages at procedure entry and retry.
+
+Note that using this compile-time option will slow down execution, even if messages  are 
+not being output.
+
+ */
+static Int stop_low_level_trace( USES_REGS1 )
 {
   Yap_do_low_level_trace = FALSE;
   LOCAL_do_trace_primitives = TRUE;
@@ -450,19 +454,24 @@ static Int p_stop_low_level_trace( USES_REGS1 )
   return(TRUE);
 }
 
-volatile int vsc_wait;
+volatile int v_wait;
 
-static Int p_vsc_wait( USES_REGS1 )
+static Int vsc_wait( USES_REGS1 )
 {
-  while (!vsc_wait);
-  vsc_wait=1;
-  return(TRUE);
+  while (!v_wait);
+  return true;
+}
+
+static Int vsc_go( USES_REGS1 )
+{
+  v_wait=1;
+  return true;
 }
 
 void
 Yap_InitLowLevelTrace(void)
 {
-  Yap_InitCPred("start_low_level_trace", 0, p_start_low_level_trace, SafePredFlag);
+  Yap_InitCPred("start_low_level_trace", 0, start_low_level_trace, SafePredFlag);
 /** @pred start_low_level_trace 
 
 
@@ -471,23 +480,14 @@ Begin display of messages at procedure entry and retry.
  
 */
 #if THREADS
-  Yap_InitCPred("start_low_level_trace", 1, p_start_low_level_trace2, SafePredFlag);
+  Yap_InitCPred("start_low_level_trace", 1, start_low_level_trace2, SafePredFlag);
 #endif
-  Yap_InitCPred("stop_low_level_trace", 0, p_stop_low_level_trace, SafePredFlag);
-/** @pred stop_low_level_trace 
-
-
-Stop display of messages at procedure entry and retry.
-
-
-Note that this compile-time option will slow down execution.
-
-
- */
-  Yap_InitCPred("show_low_level_trace", 0, p_show_low_level_trace, SafePredFlag);
-  Yap_InitCPred("total_choicepoints", 1, p_total_choicepoints, SafePredFlag);
-  Yap_InitCPred("reset_total_choicepoints", 0, p_reset_total_choicepoints, SafePredFlag);
-  Yap_InitCPred("vsc_wait", 0, p_vsc_wait, SafePredFlag);
+  Yap_InitCPred("stop_low_level_trace", 0, stop_low_level_trace, SafePredFlag);
+  Yap_InitCPred("show_low_level_trace", 0, show_low_level_trace, SafePredFlag);
+  Yap_InitCPred("total_choicepoints", 1, total_choicepoints, SafePredFlag);
+  Yap_InitCPred("reset_total_choicepoints", 0, reset_total_choicepoints, SafePredFlag);
+  Yap_InitCPred("vsc_wait", 0, vsc_wait, SafePredFlag);
+  Yap_InitCPred("vsc_go", 0, vsc_go, SafePredFlag);
 }
 
 #endif

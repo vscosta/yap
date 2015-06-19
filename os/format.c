@@ -791,7 +791,7 @@ doformat(volatile Term otail, volatile Term oargs, int sno USES_REGS)
 	    }
 	    repeats -= GLOBAL_Stream[sno].linepos;
 	    repeats = (repeats < 0 ? 0 : repeats);
-	    fill_pads( sno, repeats, &finfo);
+	    fill_pads( sno, repeats, &finfo PASS_REGS);
 	    break;
 	  case '+':
 	    if (osno) {
@@ -800,7 +800,7 @@ doformat(volatile Term otail, volatile Term oargs, int sno USES_REGS)
 	      osno = 0;
 	    }
 	    repeats = (repeats < 0 ? 0 : repeats);
-	    fill_pads( sno, repeats, &finfo);
+	    fill_pads( sno, repeats, &finfo PASS_REGS);
 	  break;
 	case 't':
 	  {
@@ -914,7 +914,7 @@ format2(Term tin, Term tf, Term tas USES_REGS)
       (f == FunctorAtom || f == FunctorString ||
        f == FunctorCodes1 || f == FunctorCodes ||
        f == FunctorChars1 || f == FunctorChars) ) {
-    output_stream = Yap_OpenBufWriteStream();
+    output_stream = Yap_OpenBufWriteStream( PASS_REGS1);
     mem_stream = true;
   } else {
     /* needs to change LOCAL_c_output_stream for write */

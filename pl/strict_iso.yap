@@ -22,13 +22,13 @@
 	'$iso_check_a_goal'(G2,(G1->G2),G0).
 '$iso_check_goal'(!,_) :- !.
 '$iso_check_goal'((G1|G2),G0) :-
-	'$access_yap_flags'(9,1), !,
+	current_prolog_flag(language, iso), !, 
 	'$do_error'(domain_error(builtin_procedure,(G1|G2)), call(G0)).
 '$iso_check_goal'((G1|G2),G0) :- !,
 	'$iso_check_a_goal'(G1,(G1|G2),G0),
 	'$iso_check_a_goal'(G2,(G1|G2),G0).
 '$iso_check_goal'(G,G0) :- 
-	'$access_yap_flags'(9,1),
+	current_prolog_flag(language, iso),
 	'$system_predicate'(G,0),
 	(
             '$iso_builtin'(G)
@@ -58,11 +58,11 @@
         '$iso_check_a_goal'(G2,E,G0).
 '$iso_check_a_goal'(!,_,_) :- !.
 '$iso_check_a_goal'((_|_),E,G0) :-
-	'$access_yap_flags'(9,1), !,
+	current_prolog_flag(language, iso), !,
 	'$do_error'(domain_error(builtin_procedure,E), call(G0)).
 '$iso_check_a_goal'((_|_),_,_) :- !.
 '$iso_check_a_goal'(G,_,G0) :- 
-	'$access_yap_flags'(9,1),
+	current_prolog_flag(language, iso),
 	'$system_predicate'(G,0),
 	(
             '$iso_builtin'(G)

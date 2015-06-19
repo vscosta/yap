@@ -1878,7 +1878,7 @@ extern X_API char *YAP_CompileClause(YAP_Term);
 
 extern X_API int YAP_NewExo( YAP_PredEntryPtr ap, size_t data, void *user_di);
 
-extern X_API int YAP_AssertTuples( YAP_PredEntryPtr pred, const YAP_Term *ts, size_t sz);
+extern X_API int YAP_AssertTuples( YAP_PredEntryPtr pred, const YAP_Term *ts, size_t offset, size_t sz);
 
 /*  int YAP_Init(YAP_init_args *) */
 extern X_API YAP_Int YAP_Init(YAP_init_args *);
@@ -1891,15 +1891,17 @@ extern X_API YAP_Int YAP_FastInit(char saved_state[]);
 #define IOSTREAM void
 #endif /* FPL_STREAM_H */
 
-extern X_API YAP_Term YAP_Read(IOSTREAM *s);
+extern X_API YAP_Term YAP_Read(FILE *s);
 
-extern X_API void YAP_Write(YAP_Term t,IOSTREAM *s,int);
+extern X_API YAP_Term YAP_ReadFromStream(int s);
 
-extern X_API  IOSTREAM * YAP_TermToStream(YAP_Term t);
+extern X_API void YAP_Write(YAP_Term t,FILE *s,int);
 
-extern X_API  IOSTREAM * YAP_InitConsult(int mode, const char *filename);
+extern X_API  FILE * YAP_TermToStream(YAP_Term t);
 
-extern X_API void YAP_EndConsult(IOSTREAM *s);
+extern X_API int YAP_InitConsult(int mode, const char *filename);
+
+extern X_API void YAP_EndConsult(int s);
 
 #ifndef _PL_STREAM_H
 // if we don't know what a stream is, just don't assume nothing about the pointer
@@ -1972,13 +1974,6 @@ extern X_API int YAP_StreamToFileNo(YAP_Term);
 extern X_API void YAP_CloseAllOpenStreams(void);
 
 extern X_API void YAP_FlushAllStreams(void);
-
-#define YAP_APPEND_STREAM	0x04
-#define YAP_PIPE_STREAM 	0x08
-#define YAP_TTY_STREAM	 	0x10
-#define YAP_POPEN_STREAM	0x20
-#define YAP_BINARY_STREAM	0x40
-#define YAP_SEEKABLE_STREAM	0x80
 
 /*  YAP_Term  *YAP_NewSlots()  */
 extern X_API YAP_handle_t YAP_NewSlots(int);

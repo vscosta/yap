@@ -28,7 +28,7 @@ static char SccsId[] = "%W% %G%";
 #if COROUTINING
 #include "attvar.h"
 #endif
-#include "pl-shared.h"
+#include "iopreds.h"
 #include "pl-utf8.h"
 
 #if HAVE_STRING_H
@@ -43,12 +43,13 @@ static char SccsId[] = "%W% %G%";
 
 /* describe the type of the previous term to have been written */
 typedef enum {
+  start,     /* initialization */
   separator, /* the previous term was a separator like ',', ')', ... */
   alphanum,  /* the previous term was an atom or number */
   symbol     /* the previous term was a symbol like +, -, *, .... */
 } wtype;
 
-typedef void *wrf;
+typedef StreamDesc  *wrf;
 
 typedef struct union_slots {
   Int old;
@@ -69,7 +70,7 @@ typedef struct rewind_term {
 } rwts;
 
 typedef struct write_globs {
-  IOSTREAM *stream;
+  StreamDesc *stream;
   int Quote_illegal, Ignore_ops, Handle_vars, Use_portray, Portray_delays;
   int Keep_terms;
   int Write_Loops;
@@ -89,7 +90,7 @@ static bool callPortray(Term t, struct DB_TERM **old_EXp USES_REGS) {
   EX = NULL;
   if ((pe = RepPredProp(Yap_GetPredPropByFunc(FunctorPortray, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
-      Yap_execute_pred(pe, &t PASS_REGS)) {
+      Yap_execute_pred(pe, &t, true PASS_REGS)) {
     choiceptr B0 = (choiceptr)(LCL0 - b0);
     if (EX && !*old_EXp)
       *old_EXp = EX;
@@ -112,14 +113,14 @@ static void putAtom(Atom, int, struct write_globs *);
 static void writeTerm(Term, int, int, int, struct write_globs *,
                       struct rewind_term *);
 
-#define wrputc(X, WF) Sputcode(X, WF) /* writes a character */
+#define wrputc(WF, X) (X)->stream_wputc(X-GLOBAL_Stream, WF) /* writes a character */
 
 /*
   protect bracket from merging with previoous character.
   avoid stuff like not (2,3) -> not(2,3) or
 */
 static void wropen_bracket(struct write_globs *wglb, int protect) {
-  wrf stream = wglb->stream;
+  StreamDesc *stream = wglb->stream;
 
   if (lastw != separator && protect)
     wrputc(' ', stream);
@@ -176,7 +177,11 @@ static void wrputn(Int n,
   protect_close_number(wglb, ob);
 }
 
-#define wrputs(s, stream) Sfputs(s, stream)
+inline static void
+wrputs(char *s, StreamDesc *stream) {
+  int c;
+  while ((c = *s++)) wrputc(c, stream);
+}
 
 static void wrputws(wchar_t *s, wrf stream) /* writes a string	 */
 {
@@ -274,7 +279,7 @@ static void writebig(Term t, int p, int depth, int rinfixarg,
     blob_info = big_tag - USER_BLOB_START;
     if (GLOBAL_OpaqueHandlers &&
         (f = GLOBAL_OpaqueHandlers[blob_info].write_handler)) {
-      (f)(wglb->stream, big_tag, ExternalBlobFromTerm(t), 0);
+      (f)(wglb->stream->file, big_tag, ExternalBlobFromTerm(t), 0);
       return;
     }
   }
@@ -284,8 +289,10 @@ static void writebig(Term t, int p, int depth, int rinfixarg,
 static void wrputf(Float f, struct write_globs *wglb) /* writes a float	 */
 
 {
-  char s[256];
-  wrf stream = wglb->stream;
+#if THREADS
+    char s[256];
+#endif
+ wrf stream = wglb->stream;
   int sgn;
   int ob;
 
@@ -358,30 +365,28 @@ static void wrputf(Float f, struct write_globs *wglb) /* writes a float	 */
     wrputs(".0", stream);
   }
 #else
-  char *format_float(double f, char *buf);
-  char *buf;
+  char buf[256];
 
   if (lastw == symbol || lastw == alphanum) {
     wrputc(' ', stream);
   }
   /* use SWI's format_float */
-  buf = format_float(f, s);
-  if (!buf)
-    return;
+  sprintf(buf, floatFormat(),f);
+
   wrputs(buf, stream);
 #endif
   protect_close_number(wglb, ob);
 }
 
 int Yap_FormatFloat(Float f, const char *s, size_t sz) {
+    CACHE_REGS
   struct write_globs wglb;
-  char *ws = (char *)s;
-  IOSTREAM *smem = Sopenmem(&ws, &sz, "w");
-  wglb.stream = smem;
-  wglb.lw = separator;
-  wglb.last_atom_minus = FALSE;
-  wrputf(f, &wglb);
-  Sclose(smem);
+    int sno;
+    sno = Yap_open_buf_read_stream(s, strlen(s)+1, LOCAL_encoding, MEM_BUF_USER);
+   if (sno < 0)
+    return FALSE;
+   wrputf(f, &wglb);
+  GLOBAL_Stream[sno].status = Free_Stream_f;
   return TRUE;
 }
 
@@ -404,22 +409,13 @@ static void wrputref(CODEADDR ref, int Quote_illegal,
 /* writes a blob (default) */
 static int wrputblob(AtomEntry *ref, int Quote_illegal,
                      struct write_globs *wglb) {
-  char s[256];
   wrf stream = wglb->stream;
-  PL_blob_t *type = RepBlobProp(ref->PropsOfAE)->blob_t;
-
-  if (type->write) {
-    atom_t at = YAP_SWIAtomFromAtom(AbsAtom(ref));
-    return type->write(stream, at, 0);
-  } else {
-    putAtom(AtomSWIStream, Quote_illegal, wglb);
-#if defined(__linux__) || defined(__APPLE__)
-    sprintf(s, "(%p)", ref);
-#else
-    sprintf(s, "(0x%p)", ref);
-#endif
-    wrputs(s, stream);
-  }
+  int rc;
+  int Yap_write_blob(AtomEntry *ref,  StreamDesc *stream);
+  
+  if ((rc = Yap_write_blob(ref,  stream))) {
+      return rc;
+  } 
   lastw = alphanum;
   return 1;
 }
@@ -550,7 +546,7 @@ static void write_quoted(wchar_t ch, wchar_t quote, wrf stream) {
 static void write_string(const char *s,
                          struct write_globs *wglb) /* writes an integer	 */
 {
-  IOSTREAM *stream = wglb->stream;
+  StreamDesc *stream = wglb->stream;
   int chr, qt;
   char *ptr = (char *)s;
 
@@ -622,7 +618,7 @@ static void putAtom(Atom atom, int Quote_illegal, struct write_globs *wglb) {
   }
 }
 
-void Yap_WriteAtom(IOSTREAM *s, Atom atom) {
+void Yap_WriteAtom(StreamDesc *s, Atom atom) {
   struct write_globs wglb;
   wglb.stream = s;
   wglb.Quote_illegal = FALSE;
@@ -727,8 +723,8 @@ static CELL *restore_from_write(struct rewind_term *rwt,
 
   if (wglb->Keep_terms) {
     ptr = (CELL *)Yap_GetPtrFromSlot(rwt->u_sd.s.ptr PASS_REGS);
-    if (!Yap_RecoverSlots(2, rwt->u_sd.s.ptr PASS_REGS))
-      return NULL;
+    Yap_RecoverSlots(2, rwt->u_sd.s.old PASS_REGS);
+    //      printf("leak=%d %d\n", LOCALCurSlot,rwt->u_sd.s.old) ;
   } else {
     ptr = rwt->u_sd.d.ptr;
   }
@@ -875,13 +871,13 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
   struct rewind_term nrwt;
   nrwt.parent = rwt;
   nrwt.u_sd.s.ptr = 0;
-
+  
   if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
     putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
     return;
   }
-  if (EX)
-    return;
+  DBTerm *oEX = EX;
+  EX = NULL;
   t = Deref(t);
   if (IsVarTerm(t)) {
     write_var((CELL *)t, wglb, &nrwt);
@@ -903,12 +899,15 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
                 FALSE, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
       wrclose_bracket(wglb, TRUE);
+      EX = oEX;
       return;
     }
-    if (wglb->Use_portray)
-      if (callPortray(t, &EX PASS_REGS))
-        return;
-    if (yap_flags[WRITE_QUOTED_STRING_FLAG] && IsCodesTerm(t)) {
+    if (wglb->Use_portray) 
+      if (callPortray(t, &EX PASS_REGS)) {
+	EX = oEX;
+	return;
+      }
+    if (trueGlobalPrologFlag(WRITE_STRINGS_FLAG) && IsCodesTerm(t)) {
       putString(t, wglb);
     } else {
       wrputc('[', wglb->stream);
@@ -978,8 +977,10 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
     }
 #endif
     if (wglb->Use_portray) {
-      if (callPortray(t, &EX PASS_REGS))
+      if (callPortray(t, &EX PASS_REGS)) {
+	EX = oEX;
         return;
+      }
     }
     if (!wglb->Ignore_ops && Arity == 1 && Yap_IsPrefixOp(atom, &op, &rp)) {
       Term tright = ArgOfTerm(1, t);
@@ -1187,21 +1188,23 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       wrclose_bracket(wglb, TRUE);
     }
   }
+  EX = oEX;
 }
 
-struct write_globs wglb;
-struct rewind_term rwt;
-
-void Yap_plwrite(Term t, void *mywrite, int max_depth, int flags, int priority)
+void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags, int priority)
 /* term to be written			 */
 /* consumer				 */
 /* write options			 */
 {
-  if (!mywrite)
-    wglb.stream = Serror;
-  else
+  struct write_globs wglb;
+  struct rewind_term rwt;
+
+  if (!mywrite) {
+      CACHE_REGS
+    wglb.stream = GLOBAL_Stream+LOCAL_c_error_stream;
+  } else
     wglb.stream = mywrite;
-  wglb.lw = separator;
+  wglb.lw = start;
   wglb.last_atom_minus = FALSE;
   wglb.Quote_illegal = flags & Quote_illegal_f;
   wglb.Handle_vars = flags & Handle_vars_f;
@@ -1218,5 +1221,20 @@ void Yap_plwrite(Term t, void *mywrite, int max_depth, int flags, int priority)
   wglb.Write_strings = flags & BackQuote_String_f;
   /* protect slots for portray */
   writeTerm(from_pointer(&t, &rwt, &wglb), priority, 1, FALSE, &wglb, &rwt);
+  if (flags & New_Line_f) {
+    if (flags & Fullstop_f) {
+      wrputc('.', wglb.stream);
+      wrputc('\n', wglb.stream);
+    } else {
+      wrputc('\n', wglb.stream);
+    }
+  } else {
+    if (flags & Fullstop_f) {
+      wrputc('.', wglb.stream);
+      wrputc(' ', wglb.stream);
+    } else {
+      wrputc(' ', wglb.stream);
+    }
+  }
   restore_from_write(&rwt, &wglb);
 }

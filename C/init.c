@@ -69,7 +69,6 @@ static void  InitOps(void);
 static void  InitDebug(void);
 static void  CleanBack(PredEntry *, CPredicate, CPredicate, CPredicate);
 static void  InitStdPreds(void);
-static void  InitFlags(void);
 static void  InitCodes(void);
 static void  InitVersion(void);
 void  exit(int);
@@ -86,7 +85,7 @@ static char    *optypes[] =
 {"", "xfx", "xfy", "yfx", "xf", "yf", "fx", "fy"};
 
 /* OS page size for memory allocation */
-int Yap_page_size;
+size_t Yap_page_size;
 
 #if DEBUG
 #if COROUTINING
@@ -439,7 +438,7 @@ InitDebug(void)
     fprintf(stderr,"a getch\t\tb token\t\tc Lookup\td LookupVar\ti Index\n");
     fprintf(stderr,"e SetOp\t\tf compile\tg icode\t\th boot\t\tl log\n");
     fprintf(stderr,"m Machine\t p parser\n");
-    while ((ch = YP_putchar(YP_getchar())) != '\n')
+    while ((ch = putchar(getchar())) != '\n')
       if (ch >= 'a' && ch <= 'z')
 	GLOBAL_Option[ch - 'a' + 1] = 1;
     if (GLOBAL_Option['l' - 96]) {
@@ -977,17 +976,15 @@ Yap_InitCPredBack_(const char *Name, UInt Arity,
 static void
 InitStdPreds(void)
 {
-  void initIO(void);
-
   Yap_InitCPreds();
   Yap_InitBackCPreds();
   BACKUP_MACHINE_REGS();
   Yap_InitYaamRegs( 0 );
-
+    Yap_InitPlIO();
+  Yap_InitFlags(false);
 #if HAVE_MPE
   Yap_InitMPE ();
 #endif
-  initIO();
 }
 
 
@@ -1084,6 +1081,7 @@ InitSWIAtoms(void)
 #include "iswiatoms.h"
   Yap_InitSWIHash();
   ATOM_ = PL_new_atom("");
+  */
 }
 
 static void
@@ -1326,6 +1324,9 @@ InitCodes(void)
   /* make sure no one else can use these two atoms */
   LOCAL_SourceModule = CurrentModule = 0;
   Yap_ReleaseAtom(AtomOfTerm(TermReFoundVar));
+  /* flags require atom table done, but must be done as soon as possible,
+     definitely before any predicate initialization */
+  // Yap_InitFlags(); moved to HEAPFIELDS
   /* make sure we have undefp defined */
   /* predicates can only be defined after this point */
   {
@@ -1353,7 +1354,6 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
                   int n_workers, int sch_loop, int delay_load)
 {
   CACHE_REGS
-  int             i;
 
   /* initialise system stuff */
 #if PUSH_REGS
@@ -1425,9 +1425,6 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   Yap_InitTime( 0 );
   /* InitAbsmi must be done before InitCodes */
   /* This must be done before initialising predicates */
-  for (i = 0; i < NUMBER_OF_YAP_FLAGS; i++) {
-    yap_flags[i] = 0;
-  }
 #ifdef MPW
   Yap_InitAbsmi(REGS, FunctorList);
 #else
@@ -1440,7 +1437,6 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
 #if THREADS
   /* make sure we use the correct value of regcache */
   regcache =  ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
-  LOCAL_PL_local_data_p->reg_cache = regcache;
 #endif
 #if USE_SYSTEM_MALLOC
   if (Trail < MinTrailSpace)
@@ -1513,6 +1509,6 @@ Yap_exit (int value)
     run_halt_hooks(value);
     Yap_ShutdownLoadForeign();
   }
-  closeFiles(TRUE);
+  Yap_CloseStreams (false);
   exit(value);
 }

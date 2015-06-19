@@ -712,6 +712,7 @@ JITLIBS
 JITLD
 JITFLAGS
 LLVM_CONFIG
+MYDDAS_LDFLAGS
 MYDDAS_LIBS
 MYDDAS_CPPFLAGS
 OBJECTS_MYDDAS
@@ -4626,7 +4627,8 @@ fi
 if test "${with_gmp+set}" = set; then :
   withval=$with_gmp; if test "$withval" = yes; then
 		yap_cv_gmp=yes
-		GMPDIR=/usr
+    gmp_in_usr=`echo /usr/lib/gmp*`
+GMPDIR=/usr:/usr/lo
 	elif test "$withval" = no; then
 		yap_cv_gmp=no
 	else
@@ -7776,7 +7778,7 @@ fi
 $as_echo "$ac_cv_lib_dl_dlopen" >&6; }
 if test "x$ac_cv_lib_dl_dlopen" = xyes; then :
   have_dl=yes
-
+1
 else
   have_dl=no
 fi
@@ -7814,7 +7816,13 @@ fi
 	   fi
 	   INSTALL_DLLS="yes"
         fi
-        CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall"
+	if test "$CLANG" = "yes"
+	then
+#          CC="$CC -fstrict-aliasing -fno-diagnostics-fixit-info -fno-color-diagnostics -fno-caret-diagnostics -fno-show-column -fsched-interblock -Wall"
+          CC="$CC -fstrict-aliasing -fsched-interblock -Wall"
+	else
+          CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall"
+	fi
         DYNYAPLIB=libYap."$YAP_VERSION.$SO"
 	    SONAMEFLAG="-Wl,-install_name,$prefix/lib/libYap.$YAP_MAJOR_VERSION.$SO -Wl,-compatibility_version,$YAP_MAJOR_VERSION.$YAP_MINOR_VERSION -Wl,-current_version,$YAP_VERSION"
         YAPLIB_LD="$CC -dynamiclib"
@@ -10576,6 +10584,7 @@ _ACEOF
 OLD_LIBS="$LIBS"
 OLD_CPPFLAGS="$CPPFLAGS"
 MYDDAS_CPPFLAGS=""
+MYDDAS_LDFLAGS=""
 
 # Check whether --enable-myddas was given.
 if test "${enable_myddas+set}" = set; then :
@@ -10585,7 +10594,8 @@ if test "${enable_myddas+set}" = set; then :
 		yap_cv_myddas=no
 	else
 		yap_cv_myddas=$withval
-		LDFLAGS="$LDFLAGS -L${yap_cv_myddas}/lib "
+    LDFLAGS="$LDFLAGS -L${yap_cv_myddas}/lib "
+    MYDDAS_LDFLAGS+=" -L${yap_cv_myddas}/lib "
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include "
 		MYDDAS_CPPFLAGS="$MYDDAS_CPPFLAGS -I${yap_cv_myddas}/include "
 fi
@@ -10604,6 +10614,7 @@ if test "${with_mysql+set}" = set; then :
 	else
 		yap_cv_mysql=$withval
 		LDFLAGS="$LDFLAGS -L${yap_cv_mysql}/lib "
+    MYDDAS_LDFLAGS+=" -L${yap_cv_mysql}/lib "
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_mysql}/include "
 		MYDDAS_CPPFLAGS="$MYDDAS_CPPFLAGS -I${yap_cv_mysql}/include "
 	fi
@@ -10622,6 +10633,7 @@ if test "${with_odbc+set}" = set; then :
 	else
 		yap_cv_odbc=$withval
 		LDFLAGS="$LDFLAGS -L${yap_cv_odbc}/lib "
+    MYDDAS_LDFLAGS+=" -L${yap_cv_odbc}/lib "
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_odbc}/include "
 		MYDDAS_CPPFLAGS="$MYDDAS_CPPFLAGS -I${yap_cv_odbc}/include "
 	fi
@@ -10640,6 +10652,7 @@ if test "${with_sqlite3+set}" = set; then :
 	else
 		yap_cv_sqlite3=$withval
 		LDFLAGS="$LDFLAGS -L${yap_cv_sqlite3}/lib "
+    MYDDAS_LDFLAGS+=" -L${yap_cv_sqlite3}/lib "
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_sqlite3}/include "
 		MYDDAS_CPPFLAGS="$MYDDAS_CPPFLAGS -I${yap_cv_sqlite3}/include "
 	fi
@@ -10658,6 +10671,7 @@ if test "${with_postgres+set}" = set; then :
 	else
 		yap_cv_postgres=$withval
 		LDFLAGS="$LDFLAGS -L${yap_cv_postgres}/lib "
+    MYDDAS_LDFLAGS+=" -L${yap_cv_postgres}/lib "
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_postgres}/include "
 		MYDDAS_CPPFLAGS="$MYDDAS_CPPFLAGS -I${yap_cv_postgres}/include "
 	fi
@@ -11191,7 +11205,9 @@ done
 	fi
 
 
-	MYDDAS_LIBS="$LIBS"
+MYDDAS_LDFLAGS="$LDFLAGS"
+MYDDAS_LIBS="$LIBS"
+MYDDAS_LIBS="$LIBS"
 	LIBS="$OLD_LIBS"
 	CPPFLAGS="$OLD_CPPFLAGS"
 else
@@ -11204,6 +11220,7 @@ then
 #in Android we have to actually include myddas in the binary
 	OBJECTS_MYDDAS="$ALL_MYDDAS_OBJECTS"
 fi
+
 
 
 
@@ -14134,7 +14151,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14137 "configure" */
+/* #line 14154 "configure" */
 public class Test {
 }
 EOF
@@ -14310,7 +14327,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 14313: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 14330: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -14441,7 +14458,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 14444 "configure" */
+/* #line 14461 "configure" */
 public class Test {
 }
 EOF
@@ -14476,7 +14493,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 14479 "configure" */
+/* [#]line 14496 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);

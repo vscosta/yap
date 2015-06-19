@@ -1,4 +1,9 @@
+#ifndef THREADS
 #define PASS_REGS
+#else
+#define PASS_REGS , regcache
+#endif
+
 #define undef_goal( x )
 
 if (P == NULL) goto fail;
@@ -1506,7 +1511,7 @@ Op(cut, s);
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       /* assume cut is always in stack */
       saveregs();
-      prune((choiceptr)YREG[E_CB]);
+      prune((choiceptr)YREG[E_CB] PASS_REGS);
       setregs();
       GONext();
       ENDOp();
@@ -1528,7 +1533,7 @@ Op(cut, s);
       SET_ASP(YREG, PREG->y_u.s.s);
       /* assume cut is always in stack */
       saveregs();
-prune((choiceptr)YREG[E_CB]);
+    prune((choiceptr)YREG[E_CB] PASS_REGS);
       setregs();
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       GONext();
@@ -1550,7 +1555,7 @@ prune((choiceptr)YREG[E_CB]);
       SET_ASP(YREG, PREG->y_u.s.s);
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       saveregs();
-      prune((choiceptr)SREG[E_CB]);
+      prune((choiceptr)SREG[E_CB] PASS_REGS);
       setregs();
       GONext();
       ENDOp();
@@ -1617,7 +1622,7 @@ prune((choiceptr)YREG[E_CB]);
 #endif /* YAPOR_SBA && FROZEN_STACKS */
       EMIT_SIMPLE_BLOCK_TEST(COMMIT_B_X_POST_YSBA_FROZEN);
 	saveregs();
-	prune(pt0);
+	prune(pt0 PASS_REGS);
 	setregs();
       }
       GONext();
@@ -1660,7 +1665,7 @@ prune((choiceptr)YREG[E_CB]);
 #endif
       EMIT_SIMPLE_BLOCK_TEST(COMMIT_B_Y_POST_YSBA_FROZEN);
 	saveregs();
-	prune(pt0);
+	prune(pt0 PASS_REGS);
 	setregs();
       }
       GONext();
@@ -2016,11 +2021,11 @@ prune((choiceptr)YREG[E_CB]);
       GONext();
       ENDOp();
 
-/**********************************************
-*        OPTYap instructions                  *
-**********************************************/
-
 
+#if EAM
+/**********************************************
+*        EAM instructions                     *
+**********************************************/
 
      Op(retry_eam, e);
      //goto retry_eam;
@@ -2031,6 +2036,9 @@ prune((choiceptr)YREG[E_CB]);
 { printf("run_eam not supported by JIT!!\n"); exit(1); }
      ENDOp();
 
+#endif
+
+
 /************************************************************************\
 *    Get Instructions							*
 \************************************************************************/
@@ -6814,24 +6822,18 @@ S_SREG = RepAppl(d0);
       JMPNext();
       ENDBOp();
 
+#if THREADS
       BOp(thread_local, e);
       {
-#if THREADS
-    EMIT_ENTRY_BLOCK(PREG,THREAD_LOCAL_INSTINIT);
+	EMIT_ENTRY_BLOCK(PREG,THREAD_LOCAL_INSTINIT);
 	PredEntry *ap = PredFromDefCode(PREG);
 	ap = Yap_GetThreadPred(ap PASS_REGS);
 	PREG = ap->CodeOfPred;
-#else
-	saveregs();
-      	undef_goal( PASS_REGS1 );
-      	setregs();
-      	/* for profiler */
-#endif
 	CACHE_A1();
-     }
-
+      }
       JMPNext();
       ENDBOp();
+#endif
 
       BOp(expand_index, e);
       {
@@ -9200,7 +9202,7 @@ S_SREG = RepAppl(d0);
     EMIT_CONDITIONAL_FAIL("IsIntTerm(d0) && IsIntTerm(d1)");
     EMIT_SIMPLE_BLOCK_TEST(P_PLUS_VV_PLUS_VV_NVAR_NVAR_NOINT);
 	saveregs();
-	d0 = p_plus(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_plus(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
@@ -9252,7 +9254,7 @@ S_SREG = RepAppl(d0);
     EMIT_CONDITIONAL_FAIL("IsIntTerm(d0)");
     EMIT_SIMPLE_BLOCK_TEST(P_PLUS_VC_PLUS_VC_NVAR_NOINT);
 	  saveregs();
-	  d0 = p_plus(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_plus(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
@@ -9300,7 +9302,7 @@ S_SREG = RepAppl(d0);
     EMIT_CONDITIONAL_FAIL("IsIntTerm(d0) && IsIntTerm(d1)");
     EMIT_SIMPLE_BLOCK_TEST(P_PLUS_Y_VV_PLUS_Y_VV_NVAR_NVAR_NOINT);
 	saveregs();
-	d0 = p_plus(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_plus(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
@@ -9356,7 +9358,7 @@ S_SREG = RepAppl(d0);
       EMIT_CONDITIONAL_FAIL("IsIntTerm(d0)");
       EMIT_SIMPLE_BLOCK_TEST(P_PLUS_Y_VC_PLUS_Y_VC_NVAR_NOINT);
 	  saveregs();
-	  d0 = p_plus(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_plus(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
@@ -9407,7 +9409,7 @@ S_SREG = RepAppl(d0);
       EMIT_CONDITIONAL_FAIL("IsIntTerm(d0) && IsIntTerm(d1)");
       EMIT_SIMPLE_BLOCK_TEST(P_MINUS_VV_MINUS_VV_NVAR_NVAR_NOINT);
 	saveregs();
-	d0 = p_minus(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_minus(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
@@ -9457,7 +9459,7 @@ S_SREG = RepAppl(d0);
 	else {
       EMIT_SIMPLE_BLOCK_TEST(P_MINUS_CV_MINUS_CV_NVAR_NOINT);
 	  saveregs();
-	  d0 = p_minus(MkIntegerTerm(d1),Yap_Eval(d0));
+	  d0 = p_minus(MkIntegerTerm(d1),Yap_Eval(d0) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
@@ -9511,7 +9513,7 @@ S_SREG = RepAppl(d0);
       EMIT_SIMPLE_BLOCK(P_MINUS_Y_VV_NOINTTERM);
 ///#endif
 	saveregs();
-	d0 = p_minus(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_minus(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 ///#ifdef PROFILED_ABSMI
@@ -9583,7 +9585,7 @@ S_SREG = RepAppl(d0);
       EMIT_SIMPLE_BLOCK(P_MINUS_Y_CV_NOINTTERM);
 ///#endif
 	  saveregs();
-	  d0 = p_minus(MkIntegerTerm(d1), Yap_Eval(d0));
+	  d0 = p_minus(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 ///#ifdef PROFILED_ABSMI
@@ -9636,13 +9638,13 @@ S_SREG = RepAppl(d0);
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
       EMIT_CONDITIONAL_SUCCESS("IsIntTerm(d0) && IsIntTerm(d1)");
       EMIT_SIMPLE_BLOCK_TEST(P_TIMES_VV_TIMES_VV_NVAR_NVAR_INT);
-	d0 = times_int(IntOfTerm(d0), IntOfTerm(d1));
+	d0 = times_int(IntOfTerm(d0), IntOfTerm(d1) PASS_REGS);
       }
       else {
       EMIT_CONDITIONAL_FAIL("IsIntTerm(d0) && IsIntTerm(d1)");
       EMIT_SIMPLE_BLOCK_TEST(P_TIMES_VV_TIMES_VV_NVAR_NVAR_NOINT);
 	saveregs();
-	d0 = p_times(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_times(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
@@ -9688,13 +9690,13 @@ S_SREG = RepAppl(d0);
 	if (IsIntTerm(d0)) {
       EMIT_CONDITIONAL_SUCCESS("IsIntTerm(d0)");
       EMIT_SIMPLE_BLOCK_TEST(P_TIMES_VC_TIMES_VC_NVAR_INT);
-	  d0 = times_int(IntOfTerm(d0), d1);
+	  d0 = times_int(IntOfTerm(d0), d1 PASS_REGS);
 	}
 	else {
       EMIT_CONDITIONAL_FAIL("IsIntTerm(d0)");
       EMIT_SIMPLE_BLOCK_TEST(P_TIMES_VC_TIMES_VC_NVAR_NOINT);
 	  saveregs();
-	  d0 = p_times(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_times(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
@@ -9741,14 +9743,14 @@ S_SREG = RepAppl(d0);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_TIMES_Y_VV_INTTERM);
 ///#endif
-	d0 = times_int(IntOfTerm(d0), IntOfTerm(d1));
+	d0 = times_int(IntOfTerm(d0), IntOfTerm(d1) PASS_REGS);
       }
       else {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_TIMES_Y_VV_NOINTTERM);
 ///#endif
 	saveregs();
-	d0 = p_times(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_times(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 ///#ifdef PROFILED_ABSMI
@@ -9806,12 +9808,12 @@ S_SREG = RepAppl(d0);
 	Int d1 = PREG->y_u.yxn.c;
 	if (IsIntTerm(d0)) {
       EMIT_SIMPLE_BLOCK_TEST(P_TIMES_Y_VC_TIMES_Y_VC_NVAR_INT);
-	  d0 = times_int(IntOfTerm(d0), d1);
+	  d0 = times_int(IntOfTerm(d0), d1 PASS_REGS);
 	}
 	else {
       EMIT_SIMPLE_BLOCK_TEST(P_TIMES_Y_VC_TIMES_Y_VC_NVAR_NOINT);
 	  saveregs();
-	  d0 = p_times(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_times(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
@@ -9870,8 +9872,8 @@ S_SREG = RepAppl(d0);
       else {
       EMIT_CONDITIONAL_FAIL("IsIntTerm(d0) && IsIntTerm(d1)");
       EMIT_SIMPLE_BLOCK_TEST(P_DIV_VV_DIV_VV_NVAR_NVAR_NOINT);
-	saveregs();
-	d0 = p_div(Yap_Eval(d0), Yap_Eval(d1));
+          saveregs();
+	d0 = p_div(Yap_Eval(d0), Yap_Eval(d1)  PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
@@ -9930,7 +9932,7 @@ S_SREG = RepAppl(d0);
       EMIT_SIMPLE_BLOCK(P_DIV_VC_NOINTTERM);
 ///#endif
 	  saveregs();
-	  d0 = p_div(Yap_Eval(d0),MkIntegerTerm(d1));
+	  d0 = p_div(Yap_Eval(d0),MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 ///#ifdef PROFILED_ABSMI
@@ -10001,7 +10003,7 @@ S_SREG = RepAppl(d0);
       EMIT_SIMPLE_BLOCK(P_DIV_CV_NOINTTERM);
 ///#endif
 	  saveregs();
-	  d0 = p_div(MkIntegerTerm(d1),Yap_Eval(d0));
+	  d0 = p_div(MkIntegerTerm(d1),Yap_Eval(d0) PASS_REGS);
 	  if (d0 == 0L) {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_DIV_CV_D0EQUALS0L);
@@ -10075,7 +10077,7 @@ S_SREG = RepAppl(d0);
       EMIT_SIMPLE_BLOCK(P_DIV_Y_VV_NOINTTERM);
 ///#endif
 	saveregs();
-	d0 = p_div(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_div(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 ///#ifdef PROFILED_ABSMI
@@ -10147,7 +10149,7 @@ S_SREG = RepAppl(d0);
       EMIT_SIMPLE_BLOCK(P_DIV_Y_VC_NOINTTERM);
 ///#endif
 	  saveregs();
-	  d0 = p_div(Yap_Eval(d0),MkIntegerTerm(d1));
+	  d0 = p_div(Yap_Eval(d0),MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 ///#ifdef PROFILED_ABSMI
@@ -10221,7 +10223,7 @@ S_SREG = RepAppl(d0);
       EMIT_SIMPLE_BLOCK(P_DIV_Y_CV_NOINTTERM);
 ///#endif
 	  saveregs();
-	  d0 = p_div(MkIntegerTerm(d1), Yap_Eval(d0));
+	  d0 = p_div(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 ///#ifdef PROFILED_ABSMI
@@ -10281,7 +10283,7 @@ S_SREG = RepAppl(d0);
       EMIT_CONDITIONAL_FAIL("IsIntTerm(d0) && IsIntTerm(d1)");
       EMIT_SIMPLE_BLOCK_TEST(P_AND_VV_AND_VV_NVAR_NVAR_NOINT);
 	saveregs();
-	d0 = p_and(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_and(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
@@ -10333,7 +10335,7 @@ S_SREG = RepAppl(d0);
       EMIT_CONDITIONAL_FAIL("IsIntTerm(d0)");
       EMIT_SIMPLE_BLOCK_TEST(P_AND_VC_AND_VC_NVAR_NOINT);
 	  saveregs();
-	  d0 = p_and(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_and(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
@@ -10387,7 +10389,7 @@ S_SREG = RepAppl(d0);
       EMIT_SIMPLE_BLOCK(P_AND_Y_VV_NOINTTERM);
 ///#endif
 	saveregs();
-	d0 = p_and(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_and(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 ///#ifdef PROFILED_ABSMI
@@ -10459,7 +10461,7 @@ S_SREG = RepAppl(d0);
       EMIT_SIMPLE_BLOCK(P_AND_Y_VC_NOINTTERM);
 ///#endif
 	  saveregs();
-	  d0 = p_and(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_and(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 ///#ifdef PROFILED_ABSMI
@@ -10525,7 +10527,7 @@ S_SREG = RepAppl(d0);
       EMIT_SIMPLE_BLOCK(P_OR_VV_NOINTTERM);
 ///#endif
 	saveregs();
-	d0 = p_or(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_or(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 ///#ifdef PROFILED_ABSMI
@@ -10594,7 +10596,7 @@ S_SREG = RepAppl(d0);
       EMIT_SIMPLE_BLOCK(P_OR_VC_NOINTTERM);
 ///#endif
 	  saveregs();
-	  d0 = p_or(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_or(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  if (d0 == 0L) {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_OR_VC_D0EQUALS0L);
@@ -10655,7 +10657,7 @@ S_SREG = RepAppl(d0);
       EMIT_SIMPLE_BLOCK(P_OR_Y_VV_NOINTTERM);
 ///#endif
 	saveregs();
-	d0 = p_or(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_or(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 ///#ifdef PROFILED_ABSMI
@@ -10727,7 +10729,7 @@ S_SREG = RepAppl(d0);
       EMIT_SIMPLE_BLOCK(P_OR_Y_VC_NOINTTERM);
 ///#endif
 	  saveregs();
-	  d0 = p_or(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_or(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 ///#ifdef PROFILED_ABSMI
@@ -10795,7 +10797,7 @@ S_SREG = RepAppl(d0);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_VV_INTTERM_GREATER);
 ///#endif
-	  d0 = do_sll(IntOfTerm(d0),i2);
+	  d0 = do_sll(IntOfTerm(d0),i2 PASS_REGS);
       }
 	}
       else {
@@ -10803,7 +10805,7 @@ S_SREG = RepAppl(d0);
       EMIT_SIMPLE_BLOCK(P_SLL_VV_NOINTTERM);
 ///#endif
 	saveregs();
-	d0 = p_sll(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_sll(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
       }
       if (d0 == 0L) {
@@ -10865,14 +10867,14 @@ S_SREG = RepAppl(d0);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_VC_INTTERM);
 ///#endif
-	  d0 = do_sll(IntOfTerm(d0), (Int)d1);
+	  d0 = do_sll(IntOfTerm(d0), (Int)d1 PASS_REGS);
 	}
 	else {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_VC_NOINTTERM);
 ///#endif
 	  saveregs();
-	  d0 = p_sll(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_sll(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	}
       }
@@ -10921,13 +10923,13 @@ S_SREG = RepAppl(d0);
 	  if (i2 < 0) {
 	    d0 = MkIntegerTerm(SLR(d1, -i2));
 	  } else {
-	    d0 = do_sll(d1,i2);
+	    d0 = do_sll(d1,i2 PASS_REGS);
 	}
 	} else {
       EMIT_CONDITIONAL_FAIL("IsIntTerm(d0)");
       EMIT_SIMPLE_BLOCK_TEST(P_SLL_CV_SLL_CV_NVAR_NOINT);
 	  saveregs();
-	  d0 = p_sll(MkIntegerTerm(d1), Yap_Eval(d0));
+	  d0 = p_sll(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
 	  setregs();
 	}
       }
@@ -10984,14 +10986,14 @@ S_SREG = RepAppl(d0);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_Y_VV_INTTERM_GREATER);
 ///#endif
-	  d0 = do_sll(IntOfTerm(d0),i2);
+	  d0 = do_sll(IntOfTerm(d0),i2 PASS_REGS);
       }
       } else {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_Y_VV_NOINTTERM);
 ///#endif
 	saveregs();
-	d0 = p_sll(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_sll(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
       }
       if (d0 == 0L) {
@@ -11056,14 +11058,14 @@ S_SREG = RepAppl(d0);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_Y_VC_INTTERM);
 ///#endif
-	  d0 = do_sll(IntOfTerm(d0), Yap_Eval(d1));
+	  d0 = do_sll(IntOfTerm(d0), Yap_Eval(d1)  PASS_REGS);
 	}
 	else {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_Y_VC_NOINTTERM);
 ///#endif
 	  saveregs();
-	  d0 = p_sll(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_sll(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	}
       }
@@ -11128,14 +11130,14 @@ S_SREG = RepAppl(d0);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_Y_CV_INTTERM_GREATER);
 ///#endif
-	    d0 = do_sll(d1,i2);
+	    d0 = do_sll(d1,i2 PASS_REGS);
 	}
 	} else {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLL_Y_CV_NOINTTERM);
 ///#endif
 	  saveregs();
-	  d0 = p_sll(MkIntegerTerm(d1), Yap_Eval(0));
+	  d0 = p_sll(MkIntegerTerm(d1), Yap_Eval(0) PASS_REGS);
 	  setregs();
 	}
       }
@@ -11198,7 +11200,7 @@ S_SREG = RepAppl(d0);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_VV_INTTERM_LESS);
 ///#endif
-	  d0 = do_sll(IntOfTerm(d0), -i2);
+	  d0 = do_sll(IntOfTerm(d0), -i2 PASS_REGS);
 	} else {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_VV_INTTERM_GREATER);
@@ -11210,7 +11212,7 @@ S_SREG = RepAppl(d0);
       EMIT_SIMPLE_BLOCK(P_SLR_VV_NOINTTERM);
 ///#endif
 	saveregs();
-	d0 = p_slr(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_slr(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
       }
       if (d0 == 0L) {
@@ -11272,7 +11274,7 @@ S_SREG = RepAppl(d0);
       EMIT_CONDITIONAL_FAIL("IsIntTerm(d0)");
       EMIT_SIMPLE_BLOCK_TEST(P_SLR_VC_SLR_VC_NVAR_NOINT);
 	  saveregs();
-	  d0 = p_slr(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_slr(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
@@ -11320,7 +11322,7 @@ S_SREG = RepAppl(d0);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_CV_INTTERM_LESS);
 ///#endif
-	   d0 = do_sll(d1, -i2);
+	   d0 = do_sll(d1, -i2 PASS_REGS);
 	 } else {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_CV_INTTERM_GREATER);
@@ -11332,7 +11334,7 @@ S_SREG = RepAppl(d0);
       EMIT_SIMPLE_BLOCK(P_SLR_CV_NOINTTERM);
 ///#endif
 	  saveregs();
-	  d0 = p_slr(MkIntegerTerm(d1), Yap_Eval(d0));
+	  d0 = p_slr(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
 	  setregs();
 	}
       }
@@ -11392,7 +11394,7 @@ S_SREG = RepAppl(d0);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_Y_VV_INTTERM_LESS);
 ///#endif
-	   d0 = do_sll(IntOfTerm(d0), -i2);
+	   d0 = do_sll(IntOfTerm(d0), -i2 PASS_REGS);
 	 } else {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_Y_VV_INTTERM_GREATER);
@@ -11404,7 +11406,7 @@ S_SREG = RepAppl(d0);
       EMIT_SIMPLE_BLOCK(P_SLR_Y_VV_NOINTTERM);
 ///#endif
 	saveregs();
-	d0 = p_slr(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_slr(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
       }
       BEGP(pt0);
@@ -11476,7 +11478,7 @@ S_SREG = RepAppl(d0);
       EMIT_SIMPLE_BLOCK(P_SLR_Y_VC_NOINTTERM);
 ///#endif
 	  saveregs();
-	  d0 = p_slr(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_slr(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 ///#ifdef PROFILED_ABSMI
@@ -11534,7 +11536,7 @@ S_SREG = RepAppl(d0);
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_Y_CV_INTTERM_LESS);
 ///#endif
-	   d0 = do_sll(d1, -i2);
+	   d0 = do_sll(d1, -i2 PASS_REGS);
 	 } else {
 ///#ifdef PROFILED_ABSMI
       EMIT_SIMPLE_BLOCK(P_SLR_Y_CV_INTTERM_GREATER);
@@ -11546,7 +11548,7 @@ S_SREG = RepAppl(d0);
       EMIT_SIMPLE_BLOCK(P_SLR_Y_CV_NOINTTERM);
 ///#endif
 	  saveregs();
-	  d0 = p_slr(MkIntegerTerm(d1), Yap_Eval(d0));
+	  d0 = p_slr(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
 	  setregs();
 	}
       }

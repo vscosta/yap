@@ -32,6 +32,7 @@
 #ifdef TABLING
 #include "tab.macros.h"
 #endif /* TABLING */
+#include "iopreds.h"
 
 #ifdef TABLING
 static Int p_freeze_choice_point( USES_REGS1 );
@@ -70,32 +71,32 @@ static inline realtime current_time(void);
 #endif /* YAPOR */
 
 #ifdef TABLING
-static inline struct page_statistics show_statistics_table_entries(IOSTREAM *out);
+static inline struct page_statistics show_statistics_table_entries(FILE *out);
 #if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
-static inline struct page_statistics show_statistics_subgoal_entries(IOSTREAM *out);
+static inline struct page_statistics show_statistics_subgoal_entries(FILE *out);
 #endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
-static inline struct page_statistics show_statistics_subgoal_frames(IOSTREAM *out);
-static inline struct page_statistics show_statistics_dependency_frames(IOSTREAM *out);
-static inline struct page_statistics show_statistics_subgoal_trie_nodes(IOSTREAM *out);
-static inline struct page_statistics show_statistics_subgoal_trie_hashes(IOSTREAM *out);
-static inline struct page_statistics show_statistics_answer_trie_nodes(IOSTREAM *out);
-static inline struct page_statistics show_statistics_answer_trie_hashes(IOSTREAM *out);
+static inline struct page_statistics show_statistics_subgoal_frames(FILE *out);
+static inline struct page_statistics show_statistics_dependency_frames(FILE *out);
+static inline struct page_statistics show_statistics_subgoal_trie_nodes(FILE *out);
+static inline struct page_statistics show_statistics_subgoal_trie_hashes(FILE *out);
+static inline struct page_statistics show_statistics_answer_trie_nodes(FILE *out);
+static inline struct page_statistics show_statistics_answer_trie_hashes(FILE *out);
 #if defined(THREADS_FULL_SHARING)
-static inline struct page_statistics show_statistics_answer_ref_nodes(IOSTREAM *out);
+static inline struct page_statistics show_statistics_answer_ref_nodes(FILE *out);
 #endif /* THREADS_FULL_SHARING */
-static inline struct page_statistics show_statistics_global_trie_nodes(IOSTREAM *out);
-static inline struct page_statistics show_statistics_global_trie_hashes(IOSTREAM *out);
+static inline struct page_statistics show_statistics_global_trie_nodes(FILE *out);
+static inline struct page_statistics show_statistics_global_trie_hashes(FILE *out);
 #endif /* TABLING */
 #ifdef YAPOR
-static inline struct page_statistics show_statistics_or_frames(IOSTREAM *out);
-static inline struct page_statistics show_statistics_query_goal_solution_frames(IOSTREAM *out);
-static inline struct page_statistics show_statistics_query_goal_answer_frames(IOSTREAM *out);
+static inline struct page_statistics show_statistics_or_frames(FILE *out);
+static inline struct page_statistics show_statistics_query_goal_solution_frames(FILE *out);
+static inline struct page_statistics show_statistics_query_goal_answer_frames(FILE *out);
 #endif /* YAPOR */
 #if defined(YAPOR) && defined(TABLING)
-static inline struct page_statistics show_statistics_suspension_frames(IOSTREAM *out);
+static inline struct page_statistics show_statistics_suspension_frames(FILE *out);
 #ifdef TABLING_INNER_CUTS
-static inline struct page_statistics show_statistics_table_subgoal_solution_frames(IOSTREAM *out);
-static inline struct page_statistics show_statistics_table_subgoal_answer_frames(IOSTREAM *out);
+static inline struct page_statistics show_statistics_table_subgoal_solution_frames(FILE *out);
+static inline struct page_statistics show_statistics_table_subgoal_answer_frames(FILE *out);
 #endif /* TABLING_INNER_CUTS */
 #endif /* YAPOR && TABLING */
 
@@ -188,7 +189,7 @@ struct page_statistics {
 #define SHOW_PAGE_STATS(OUT_STREAM, STR_TYPE, _PAGES, STR_NAME)                                               \
         { struct page_statistics stats;                                                                \
           GET_PAGE_STATS(stats, STR_TYPE, _PAGES);                                                       \
-          Sfprintf(OUT_STREAM, SHOW_PAGE_STATS_MSG(STR_NAME), SHOW_PAGE_STATS_ARGS(stats, STR_TYPE));  \
+          fprintf(OUT_STREAM, SHOW_PAGE_STATS_MSG(STR_NAME), SHOW_PAGE_STATS_ARGS(stats, STR_TYPE));  \
           return stats;                                                                                \
         }
 
@@ -434,37 +435,37 @@ static Int p_tabling_mode( USES_REGS1 ) {
     Int value = IntOfTerm(tvalue);
     if (value == 1) {  /* batched */
       SetMode_Batched(TabEnt_flags(tab_ent));
-      if (! IsMode_Local(yap_flags[TABLING_MODE_FLAG])) {
+      if (! IsMode_Local(LOCAL_TabMode)) {
         SetMode_Batched(TabEnt_mode(tab_ent));
         return(TRUE);
       }
     } else if (value == 2) {  /* local */
       SetMode_Local(TabEnt_flags(tab_ent));
-      if (! IsMode_Batched(yap_flags[TABLING_MODE_FLAG])) {
+      if (! IsMode_Batched(LOCAL_TabMode)) {
         SetMode_Local(TabEnt_mode(tab_ent));
         return(TRUE);
       }
     } else if (value == 3) {  /* exec_answers */
       SetMode_ExecAnswers(TabEnt_flags(tab_ent));
-      if (! IsMode_LoadAnswers(yap_flags[TABLING_MODE_FLAG])) {
+      if (! IsMode_LoadAnswers(LOCAL_TabMode)) {
         SetMode_ExecAnswers(TabEnt_mode(tab_ent));
         return(TRUE);
       }
     } else if (value == 4) {  /* load_answers */
       SetMode_LoadAnswers(TabEnt_flags(tab_ent));
-      if (! IsMode_ExecAnswers(yap_flags[TABLING_MODE_FLAG])) {
+      if (! IsMode_ExecAnswers(LOCAL_TabMode)) {
         SetMode_LoadAnswers(TabEnt_mode(tab_ent));
         return(TRUE);
       }
     } else if (value == 5) {  /* local_trie */
       SetMode_LocalTrie(TabEnt_flags(tab_ent));
-      if (! IsMode_GlobalTrie(yap_flags[TABLING_MODE_FLAG])) {
+      if (! IsMode_GlobalTrie(LOCAL_TabMode)) {
         SetMode_LocalTrie(TabEnt_mode(tab_ent));
         return(TRUE);
       }
     } else if (value == 6) {  /* global_trie */
       SetMode_GlobalTrie(TabEnt_flags(tab_ent));
-      if (! IsMode_LocalTrie(yap_flags[TABLING_MODE_FLAG])) {
+      if (! IsMode_LocalTrie(LOCAL_TabMode)) {
         SetMode_GlobalTrie(TabEnt_mode(tab_ent));
         return(TRUE);
       }
@@ -507,36 +508,36 @@ static Int p_abolish_all_tables( USES_REGS1 ) {
 
 
 static Int p_show_tabled_predicates( USES_REGS1 ) {
-  IOSTREAM *out;
+  FILE *out;
   tab_ent_ptr tab_ent;
   Term t = Deref(ARG1);
 
-  if (IsVarTerm(t) || !IsAtomTerm(t))
+  if (!IsStreamTerm(t))
     return FALSE;
-  if (!(out = Yap_GetStreamHandle(AtomOfTerm(t))))
+  if (!(out = Yap_GetStreamHandle(t)->file))
     return FALSE;
   tab_ent = GLOBAL_root_tab_ent;
-  Sfprintf(out, "Tabled predicates\n");
+  fprintf(out, "Tabled predicates\n");
   if (tab_ent == NULL)
-    Sfprintf(out, "  NONE\n");
+    fprintf(out, "  NONE\n");
   else while(tab_ent) {
-    Sfprintf(out, "  %s/%d\n", AtomName(TabEnt_atom(tab_ent)), TabEnt_arity(tab_ent));
+    fprintf(out, "  %s/%d\n", AtomName(TabEnt_atom(tab_ent)), TabEnt_arity(tab_ent));
     tab_ent = TabEnt_next(tab_ent);
   }
-  PL_release_stream(out);
+  //PL_release_stream(out);
   return (TRUE);
 }
 
 
 static Int p_show_table( USES_REGS1 ) {
-  IOSTREAM *out;
   Term mod, t;
   tab_ent_ptr tab_ent;
   Term t1 = Deref(ARG1);
+  FILE *out;
 
-  if (IsVarTerm(t1) || !IsAtomTerm(t1))
+  if (!IsStreamTerm(t1))
     return FALSE;
-  if (!(out = Yap_GetStreamHandle(AtomOfTerm(t1))))
+  if (!(out = Yap_GetStreamHandle(t1)->file))
     return FALSE;
   mod = Deref(ARG2);
   t = Deref(ARG3);
@@ -545,70 +546,65 @@ static Int p_show_table( USES_REGS1 ) {
   else if (IsApplTerm(t))
     tab_ent = RepPredProp(PredPropByFunc(FunctorOfTerm(t), mod))->TableOfPred;
   else {
-    PL_release_stream(out);
     return (FALSE);
   }
-  show_table(tab_ent, SHOW_MODE_STRUCTURE, out);
-  PL_release_stream(out);
+  showTable(tab_ent, SHOW_MODE_STRUCTURE, out);
   return (TRUE);
 }
 
 
 static Int p_show_all_tables( USES_REGS1 ) {
-  IOSTREAM *out;
   tab_ent_ptr tab_ent;
   Term t = Deref(ARG1);
+  FILE *out;
 
-  if (IsVarTerm(t) || !IsAtomTerm(t))
+  if (!IsStreamTerm(t))
     return FALSE;
-  if (!(out = Yap_GetStreamHandle(AtomOfTerm(t))))
+  if (!(out = Yap_GetStreamHandle(t)->file))
     return FALSE;
   tab_ent = GLOBAL_root_tab_ent;
   while(tab_ent) {
-    show_table(tab_ent, SHOW_MODE_STRUCTURE, out);
+    showTable(tab_ent, SHOW_MODE_STRUCTURE, out);
     tab_ent = TabEnt_next(tab_ent);
   }
-  PL_release_stream(out);
   return (TRUE);
 }
 
 
 static Int p_show_global_trie( USES_REGS1 ) {
-  IOSTREAM *out;
   Term t = Deref(ARG1);
+  FILE *out;
 
-  if (IsVarTerm(t) || !IsAtomTerm(t))
+ if (!IsStreamTerm(t))
     return FALSE;
-  if (!(out = Yap_GetStreamHandle(AtomOfTerm(t))))
+  if (!(out = Yap_GetStreamHandle(t)->file))
     return FALSE;
-  show_global_trie(SHOW_MODE_STRUCTURE, out);
-  PL_release_stream(out);
+  showGlobalTrie(SHOW_MODE_STRUCTURE, out);
   return (TRUE);
 }
 
 
 static Int p_show_statistics_table( USES_REGS1 ) {
-  IOSTREAM *out;
   Term mod, t;
   tab_ent_ptr tab_ent;
   Term t1 = Deref(ARG1);
+  FILE *out;
 
-  if (IsVarTerm(t1) || !IsAtomTerm(t1))
+ if (!IsStreamTerm(t1))
     return FALSE;
-  if (!(out = Yap_GetStreamHandle(AtomOfTerm(t1))))
+  if (!(out = Yap_GetStreamHandle(t1)->file))
     return FALSE;
-  mod = Deref(ARG2);
+   mod = Deref(ARG2);
   t = Deref(ARG3);
   if (IsAtomTerm(t))
     tab_ent = RepPredProp(PredPropByAtom(AtomOfTerm(t), mod))->TableOfPred;
   else if (IsApplTerm(t))
     tab_ent = RepPredProp(PredPropByFunc(FunctorOfTerm(t), mod))->TableOfPred;
   else {
-    PL_release_stream(out);
+    //PL_release_stream(out);
     return (FALSE);
   }
-  show_table(tab_ent, SHOW_MODE_STATISTICS, out);
-  PL_release_stream(out);
+  showTable(tab_ent, SHOW_MODE_STATISTICS, out);
   return (TRUE);
 }
 
@@ -619,15 +615,15 @@ static Int p_show_statistics_tabling( USES_REGS1 ) {
 #ifdef USE_PAGES_MALLOC
   long total_pages = 0;
 #endif /* USE_PAGES_MALLOC */
-  IOSTREAM *out;
+  FILE *out;
   Term t = Deref(ARG1);
 
-  if (IsVarTerm(t) || !IsAtomTerm(t))
+  if (!IsStreamTerm(t))
     return FALSE;
-  if (!(out = Yap_GetStreamHandle(AtomOfTerm(t))))
+  if (!(out = Yap_GetStreamHandle(t)->file))
     return FALSE;
   bytes = 0;
-  Sfprintf(out, "Execution data structures\n");
+  fprintf(out, "Execution data structures\n");
   stats = show_statistics_table_entries(out);
   INCREMENT_AUX_STATS(stats, bytes, total_pages);
 #if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
@@ -638,10 +634,10 @@ static Int p_show_statistics_tabling( USES_REGS1 ) {
   INCREMENT_AUX_STATS(stats, bytes, total_pages);
   stats = show_statistics_dependency_frames(out);
   INCREMENT_AUX_STATS(stats, bytes, total_pages);
-  Sfprintf(out, "  Memory in use (I):               %10ld bytes\n\n", bytes);
+  fprintf(out, "  Memory in use (I):               %10ld bytes\n\n", bytes);
   total_bytes += bytes;
   bytes = 0;
-  Sfprintf(out, "Local trie data structures\n");
+  fprintf(out, "Local trie data structures\n");
   stats = show_statistics_subgoal_trie_nodes(out);
   INCREMENT_AUX_STATS(stats, bytes, total_pages);
   stats = show_statistics_answer_trie_nodes(out);
@@ -654,39 +650,38 @@ static Int p_show_statistics_tabling( USES_REGS1 ) {
   stats = show_statistics_answer_ref_nodes(out);
   INCREMENT_AUX_STATS(stats, bytes, total_pages);
 #endif /* THREADS_FULL_SHARING */
-  Sfprintf(out, "  Memory in use (II):              %10ld bytes\n\n", bytes);
+  fprintf(out, "  Memory in use (II):              %10ld bytes\n\n", bytes);
   total_bytes += bytes;
   bytes = 0;
-  Sfprintf(out, "Global trie data structures\n");
+  fprintf(out, "Global trie data structures\n");
   stats = show_statistics_global_trie_nodes(out);
   INCREMENT_AUX_STATS(stats, bytes, total_pages);
   stats = show_statistics_global_trie_hashes(out);
   INCREMENT_AUX_STATS(stats, bytes, total_pages);
-  Sfprintf(out, "  Memory in use (III):             %10ld bytes\n\n", bytes);
+  fprintf(out, "  Memory in use (III):             %10ld bytes\n\n", bytes);
   total_bytes += bytes;
 #ifdef USE_PAGES_MALLOC
-  Sfprintf(out, "Total memory in use (I+II+III):    %10ld bytes (%ld pages in use)\n",
+  fprintf(out, "Total memory in use (I+II+III):    %10ld bytes (%ld pages in use)\n",
           total_bytes, total_pages);
-  Sfprintf(out, "Total memory allocated:            %10ld bytes (%ld pages in total)\n",
+  fprintf(out, "Total memory allocated:            %10ld bytes (%ld pages in total)\n",
           PgEnt_pages_in_use(GLOBAL_pages_alloc) * Yap_page_size, PgEnt_pages_in_use(GLOBAL_pages_alloc));
 #else 
-  Sfprintf(out, "Total memory in use (I+II+III):    %10ld bytes\n", total_bytes);
+  fprintf(out, "Total memory in use (I+II+III):    %10ld bytes\n", total_bytes);
 #endif /* USE_PAGES_MALLOC */
-  PL_release_stream(out);
+  //PL_release_stream(out);
   return (TRUE);
 }
 
 
 static Int p_show_statistics_global_trie( USES_REGS1 ) {
-  IOSTREAM *out;
   Term t = Deref(ARG1);
+  FILE *out;
 
-  if (IsVarTerm(t) || !IsAtomTerm(t))
+  if (!IsStreamTerm(t))
     return FALSE;
-  if (!(out = Yap_GetStreamHandle(AtomOfTerm(t))))
+  if (!(out = Yap_GetStreamHandle(t)->file))
     return FALSE;
-  show_global_trie(SHOW_MODE_STATISTICS, out);
-  PL_release_stream(out);
+  showGlobalTrie(SHOW_MODE_STATISTICS, out);
   return (TRUE);
 }
 #endif /* TABLING */
@@ -809,34 +804,31 @@ static Int p_show_statistics_or( USES_REGS1 ) {
 #ifdef USE_PAGES_MALLOC
   long total_pages = 0;
 #endif /* USE_PAGES_MALLOC */
-  IOSTREAM *out;
   Term t = Deref(ARG1);
 
-  if (IsVarTerm(t) || !IsAtomTerm(t))
+  if (!IsStreamTerm(t))
     return FALSE;
-  if (!(out = Yap_GetStreamHandle(AtomOfTerm(t))))
-    return FALSE;
-  bytes = 0;
-  Sfprintf(out, "Execution data structures\n");
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\  bytes = 0;
+  fprintf(out, "Execution data structures\n");
   stats = show_statistics_or_frames(out);
   INCREMENT_AUX_STATS(stats, bytes, total_pages);
-  Sfprintf(out, "  Memory in use (I):               %10ld bytes\n\n", bytes);
+  fprintf(out, "  Memory in use (I):               %10ld bytes\n\n", bytes);
   total_bytes += bytes;
   bytes = 0;
-  Sfprintf(out, "Cut support data structures\n");
+  fprintf(out, "Cut support data structures\n");
   stats = show_statistics_query_goal_solution_frames(out);
   INCREMENT_AUX_STATS(stats, bytes, total_pages);
   stats = show_statistics_query_goal_answer_frames(out);
   INCREMENT_AUX_STATS(stats, bytes, total_pages);
-  Sfprintf(out, "  Memory in use (II):              %10ld bytes\n\n", bytes);
+  fprintf(out, "  Memory in use (II):              %10ld bytes\n\n", bytes);
   total_bytes += bytes;
 #ifdef USE_PAGES_MALLOC
-  Sfprintf(out, "Total memory in use (I+II):        %10ld bytes (%ld pages in use)\n",
+  fprintf(out, "Total memory in use (I+II):        %10ld bytes (%ld pages in use)\n",
           total_bytes, total_pages);
-  Sfprintf(out, "Total memory allocated:            %10ld bytes (%ld pages in total)\n",
+  fprintf(out, "Total memory allocated:            %10ld bytes (%ld pages in total)\n",
           PgEnt_pages_in_use(GLOBAL_pages_alloc) * Yap_page_size, PgEnt_pages_in_use(GLOBAL_pages_alloc));
 #else 
-  Sfprintf(out, "Total memory in use (I+II):        %10ld bytes\n", total_bytes);
+  fprintf(out, "Total memory in use (I+II):        %10ld bytes\n", total_bytes);
 #endif /* USE_PAGES_MALLOC */
   PL_release_stream(out);
   return (TRUE);
@@ -862,7 +854,7 @@ static Int p_show_statistics_opt( USES_REGS1 ) {
 #ifdef USE_PAGES_MALLOC
   long total_pages = 0;
 #endif /* USE_PAGES_MALLOC */
-  IOSTREAM *out;
+  FILE *out;
   Term t = Deref(ARG1);
 
   if (IsVarTerm(t) || !IsAtomTerm(t))
@@ -870,7 +862,7 @@ static Int p_show_statistics_opt( USES_REGS1 ) {
   if (!(out = Yap_GetStreamHandle(AtomOfTerm(t))))
     return FALSE;
   bytes = 0;
-  Sfprintf(out, "Execution data structures\n");
+  fprintf(out, "Execution data structures\n");
   stats = show_statistics_table_entries(out);
   INCREMENT_AUX_STATS(stats, bytes, total_pages);
 #if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
@@ -885,10 +877,10 @@ static Int p_show_statistics_opt( USES_REGS1 ) {
   INCREMENT_AUX_STATS(stats, bytes, total_pages);
   stats = show_statistics_suspension_frames(out);
   INCREMENT_AUX_STATS(stats, bytes, total_pages);
-  Sfprintf(out, "  Memory in use (I):               %10ld bytes\n\n", bytes);
+  fprintf(out, "  Memory in use (I):               %10ld bytes\n\n", bytes);
   total_bytes += bytes;
   bytes = 0;
-  Sfprintf(out, "Local trie data structures\n");
+  fprintf(out, "Local trie data structures\n");
   stats = show_statistics_subgoal_trie_nodes(out);
   INCREMENT_AUX_STATS(stats, bytes, total_pages);
   stats = show_statistics_answer_trie_nodes(out);
@@ -901,18 +893,18 @@ static Int p_show_statistics_opt( USES_REGS1 ) {
   stats = show_statistics_answer_ref_nodes(out);
   INCREMENT_AUX_STATS(stats, bytes, total_pages);
 #endif /* THREADS_FULL_SHARING */
-  Sfprintf(out, "  Memory in use (II):              %10ld bytes\n\n", bytes);
+  fprintf(out, "  Memory in use (II):              %10ld bytes\n\n", bytes);
   total_bytes += bytes;
   bytes = 0;
-  Sfprintf(out, "Global trie data structures\n");
+  fprintf(out, "Global trie data structures\n");
   stats = show_statistics_global_trie_nodes(out);
   INCREMENT_AUX_STATS(stats, bytes, total_pages);
   stats = show_statistics_global_trie_hashes(out);
   INCREMENT_AUX_STATS(stats, bytes, total_pages);
-  Sfprintf(out, "  Memory in use (III):             %10ld bytes\n\n", bytes);
+  fprintf(out, "  Memory in use (III):             %10ld bytes\n\n", bytes);
   total_bytes += bytes;
   bytes = 0;
-  Sfprintf(out, "Cut support data structures\n");
+  fprintf(out, "Cut support data structures\n");
   stats = show_statistics_query_goal_solution_frames(out);
   INCREMENT_AUX_STATS(stats, bytes, total_pages);
   stats = show_statistics_query_goal_answer_frames(out);
@@ -923,15 +915,15 @@ static Int p_show_statistics_opt( USES_REGS1 ) {
   stats = show_statistics_table_subgoal_answer_frames(out);
   INCREMENT_AUX_STATS(stats, bytes, total_pages);
 #endif /* TABLING_INNER_CUTS */
-  Sfprintf(out, "  Memory in use (IV):              %10ld bytes\n\n", bytes);
+  fprintf(out, "  Memory in use (IV):              %10ld bytes\n\n", bytes);
   total_bytes += bytes;
 #ifdef USE_PAGES_MALLOC
-  Sfprintf(out, "Total memory in use (I+II+III+IV): %10ld bytes (%ld pages in use)\n",
+  fprintf(out, "Total memory in use (I+II+III+IV): %10ld bytes (%ld pages in use)\n",
           total_bytes, total_pages);
-  Sfprintf(out, "Total memory allocated:            %10ld bytes (%ld pages in total)\n",
+  fprintf(out, "Total memory allocated:            %10ld bytes (%ld pages in total)\n",
           PgEnt_pages_in_use(GLOBAL_pages_alloc) * Yap_page_size, PgEnt_pages_in_use(GLOBAL_pages_alloc));
 #else 
-  Sfprintf(out, "Total memory in use (I+II+III+IV): %10ld bytes\n", total_bytes);
+  fprintf(out, "Total memory in use (I+II+III+IV): %10ld bytes\n", total_bytes);
 #endif /* USE_PAGES_MALLOC */
   PL_release_stream(out);
   return (TRUE);
@@ -1088,96 +1080,96 @@ static inline realtime current_time(void) {
 
 
 #ifdef TABLING
-static inline struct page_statistics show_statistics_table_entries(IOSTREAM *out) {
+static inline struct page_statistics show_statistics_table_entries(FILE *out) {
   SHOW_PAGE_STATS(out, struct table_entry, _pages_tab_ent, "Table entries:                ");
 }
 
 
 #if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
-static inline struct page_statistics show_statistics_subgoal_entries(IOSTREAM *out) {
+static inline struct page_statistics show_statistics_subgoal_entries(FILE *out) {
   SHOW_PAGE_STATS(out, struct subgoal_entry, _pages_sg_ent, "Subgoal entries:              ");
 }
 #endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
 
 
-static inline struct page_statistics show_statistics_subgoal_frames(IOSTREAM *out) {
+static inline struct page_statistics show_statistics_subgoal_frames(FILE *out) {
   SHOW_PAGE_STATS(out, struct subgoal_frame, _pages_sg_fr, "Subgoal frames:               ");
 }
 
 
-static inline struct page_statistics show_statistics_dependency_frames(IOSTREAM *out) {
+static inline struct page_statistics show_statistics_dependency_frames(FILE *out) {
   SHOW_PAGE_STATS(out, struct dependency_frame, _pages_dep_fr, "Dependency frames:            ");
 }
 
 
-static inline struct page_statistics show_statistics_subgoal_trie_nodes(IOSTREAM *out) {
+static inline struct page_statistics show_statistics_subgoal_trie_nodes(FILE *out) {
   SHOW_PAGE_STATS(out, struct subgoal_trie_node, _pages_sg_node, "Subgoal trie nodes:           ");
 }
 
 
-static inline struct page_statistics show_statistics_subgoal_trie_hashes(IOSTREAM *out) {
+static inline struct page_statistics show_statistics_subgoal_trie_hashes(FILE *out) {
   SHOW_PAGE_STATS(out, struct subgoal_trie_hash, _pages_sg_hash, "Subgoal trie hashes:          ");
 }
 
 
-static inline struct page_statistics show_statistics_answer_trie_nodes(IOSTREAM *out) {
+static inline struct page_statistics show_statistics_answer_trie_nodes(FILE *out) {
   SHOW_PAGE_STATS(out, struct answer_trie_node, _pages_ans_node, "Answer trie nodes:            ");
 }
 
 
-static inline struct page_statistics show_statistics_answer_trie_hashes(IOSTREAM *out) {
+static inline struct page_statistics show_statistics_answer_trie_hashes(FILE *out) {
   SHOW_PAGE_STATS(out, struct answer_trie_hash, _pages_ans_hash, "Answer trie hashes:           ");
 }
 
 
 #if defined(THREADS_FULL_SHARING)
-static inline struct page_statistics show_statistics_answer_ref_nodes(IOSTREAM *out) {
+static inline struct page_statistics show_statistics_answer_ref_nodes(FILE *out) {
   SHOW_PAGE_STATS(out, struct answer_ref_node, _pages_ans_ref_node, "Answer ref nodes:             ");
 }
 #endif /* THREADS_FULL_SHARING */
 
 
-static inline struct page_statistics show_statistics_global_trie_nodes(IOSTREAM *out) {
+static inline struct page_statistics show_statistics_global_trie_nodes(FILE *out) {
   SHOW_PAGE_STATS(out, struct global_trie_node, _pages_gt_node, "Global trie nodes:            ");
 }
 
 
-static inline struct page_statistics show_statistics_global_trie_hashes(IOSTREAM *out) {
+static inline struct page_statistics show_statistics_global_trie_hashes(FILE *out) {
   SHOW_PAGE_STATS(out, struct global_trie_hash, _pages_gt_hash, "Global trie hashes:           ");
 }
 #endif /* TABLING */
 
 
 #ifdef YAPOR
-static inline struct page_statistics show_statistics_or_frames(IOSTREAM *out) {
+static inline struct page_statistics show_statistics_or_frames(FILE *out) {
   SHOW_PAGE_STATS(out, struct or_frame, _pages_or_fr, "Or-frames:                    ");
 }
 
 
-static inline struct page_statistics show_statistics_query_goal_solution_frames(IOSTREAM *out) {
+static inline struct page_statistics show_statistics_query_goal_solution_frames(FILE *out) {
   SHOW_PAGE_STATS(out, struct query_goal_solution_frame, _pages_qg_sol_fr, "Query goal solution frames:   ");
 }
 
 
-static inline struct page_statistics show_statistics_query_goal_answer_frames(IOSTREAM *out) {
+static inline struct page_statistics show_statistics_query_goal_answer_frames(FILE *out) {
   SHOW_PAGE_STATS(out, struct query_goal_answer_frame, _pages_qg_ans_fr, "Query goal answer frames:     ");
 }
 #endif /* YAPOR */
 
 
 #if defined(YAPOR) && defined(TABLING)
-static inline struct page_statistics show_statistics_suspension_frames(IOSTREAM *out) {
+static inline struct page_statistics show_statistics_suspension_frames(FILE *out) {
   SHOW_PAGE_STATS(out, struct suspension_frame, _pages_susp_fr, "Suspension frames:            ");
 }
 
 
 #ifdef TABLING_INNER_CUTS
-static inline struct page_statistics show_statistics_table_subgoal_solution_frames(IOSTREAM *out) {
+static inline struct page_statistics show_statistics_table_subgoal_solution_frames(FILE *out) {
   SHOW_PAGE_STATS(out, struct table_subgoal_solution_frame, _pages_tg_sol_fr, "Table subgoal solution frames:");
 }
 
 
-static inline struct page_statistics show_statistics_table_subgoal_answer_frames(IOSTREAM *out) {
+static inline struct page_statistics show_statistics_table_subgoal_answer_frames(FILE *out) {
   SHOW_PAGE_STATS(out, struct table_subgoal_answer_frame, _pages_tg_ans_fr, "Table subgoal answer frames:  ");
 }
 #endif /* TABLING_INNER_CUTS */

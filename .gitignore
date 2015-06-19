@@ -62,3 +62,5 @@ cmake_install.cmake
 cmake_clean.cmake
 *.build
 Makefile
+
+C/myabsmi.c

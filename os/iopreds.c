@@ -144,6 +144,10 @@ unix_upd_stream_info (StreamDesc * s)
 #else 
   {
     int filedes; /* visualc */
+      if (!s->file)  {
+          s->name = AtomNil;
+          return;
+      }
     filedes = fileno (s->file);
     if (isatty (filedes)) {
 #if HAVE_TTYNAME      
@@ -1612,8 +1616,9 @@ binary_file(char *file_name)
   }
 
   int
-    Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
-  {
+Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
+{
+    CACHE_REGS
     int sno;
     Atom at;
 
@@ -1628,7 +1633,6 @@ binary_file(char *file_name)
     } else
       at = AtomRead;
     initStream(sno, fd, name, file_name, LOCAL_encoding, flags, at );
-     UNLOCK(st->streamlock);
      return sno;
   }
 
@@ -1794,8 +1798,6 @@ binary_file(char *file_name)
   void
     Yap_InitPlIO (void)
   {
-    CACHE_REGS
-
       Int i;
 
     Yap_stdin = stdin;

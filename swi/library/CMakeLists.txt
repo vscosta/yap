@@ -23,7 +23,6 @@ set (LIBRARY_PL
   pure_input.pl
   quasi_quotations.pl
   quintus.pl
-  readutil.pl
   record.pl
   settings.pl
   shlib.pl

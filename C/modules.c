@@ -44,7 +44,9 @@ static ModEntry *LookupModule(Term a);
   }
   READ_UNLOCK(ae->ARWLock);
   return NULL;
-}inline static ModEntry *GetModuleEntry(Atom at)
+}
+
+inline static ModEntry *GetModuleEntry(Atom at)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;
@@ -60,6 +62,7 @@ static ModEntry *LookupModule(Term a);
   }
   {
     CACHE_REGS
+      ModEntry *old;
     new = (ModEntry *)Yap_AllocAtomSpace(sizeof(*new));
     INIT_RWLOCK(new->ModRWLock);
     new->KindOfPE = ModProperty;
@@ -67,23 +70,33 @@ static ModEntry *LookupModule(Term a);
     new->NextME = CurrentModules;
     CurrentModules = new;
     new->AtomOfME = ae;
-    if (at == AtomProlog)
-      new->flags = UNKNOWN_FAIL | M_SYSTEM | M_CHARESCAPE;
-    else
-      new->flags = LookupModule(LOCAL_SourceModule)->flags;
+    if (CurrentModule == PROLOG_MODULE || AtomOfTerm(CurrentModule) == at) {
+      old = NULL;
+    } else
+      old = GetModuleEntry(AtomOfTerm(CurrentModule));
+    Yap_setModuleFlags(new, old);
     AddPropToAtom(ae, (PropEntry *)new);
   }
   return new;
 }
 
-unsigned int getUnknownModule(ModEntry *m) {
-  if (m && m->flags & UNKNOWN_MASK)
-    return m->flags & UNKNOWN_MASK;
-  else {
-    return GetModuleEntry(AtomUser)->flags & UNKNOWN_MASK;
+Term Yap_getUnknownModule(ModEntry *m) {
+  if (m && m->flags & UNKNOWN_ERROR) {
+    return TermError;
+  } else if (m && m->flags & UNKNOWN_WARNING) {
+    return TermWarning;
+  } else {
+    return TermFail;
   }
 }
 
+
+ bool Yap_CharacterEscapes(Term mt) {
+   if (mt == PROLOG_MODULE) mt = TermProlog;
+  return GetModuleEntry(AtomOfTerm(mt))->flags & M_CHARESCAPE;
+}
+
+ 
 #define ByteAdr(X) ((char *)&(X))
 Term Yap_Module_Name(PredEntry *ap) {
   CACHE_REGS
@@ -395,8 +408,6 @@ void Yap_InitModulesC(void) {
   Yap_InitCPred("$yap_strip_module", 3, p_yap_strip_module,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("context_module", 1, p_context_module, 0);
-  Yap_InitCPredBack("$all_current_modules", 1, 1, init_current_module,
-                    cont_current_module, SafePredFlag | SyncPredFlag);
   Yap_InitCPredBack("$all_current_modules", 1, 1, init_current_module,
                     cont_current_module, SafePredFlag | SyncPredFlag);
   Yap_InitCPredBack("$ground_module", 3, 1, init_ground_module,

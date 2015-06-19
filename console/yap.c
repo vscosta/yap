@@ -131,7 +131,7 @@ exec_top_level(int BootMode, YAP_init_args *iap)
   YAP_Exit(EXIT_SUCCESS);
 }
 
-FILE *debugf;
+//FILE *debugf;
 
 #ifdef LIGHT
 int

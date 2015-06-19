@@ -1,4 +1,3 @@
-
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -80,7 +79,7 @@ qsave_program(File) :-
 	'$save_program_status'([], qsave_program(File)),
 	open(File, write, S, [type(binary)]),
 	'$qsave_program'(S),
-	close(S).	
+	close(S).
 
 /** @pred qsave_program(+ _F_, Opts)
 
@@ -105,7 +104,7 @@ qsave_program(File, Opts) :-
 	open(File, write, S, [type(binary)]),
 	'$qsave_program'(S),
 	% make sure we're not going to bootstrap from this file.
-	close(S).	
+	close(S).
 
 /** @pred save_program(+ _F_, : _G_)
 
@@ -114,7 +113,7 @@ Saves an image of the current state of the YAP database in file
 trying goal  _G_.
 **/
 save_program(_File, Goal) :-
-	recorda('$restore_goal', Goal ,_R),	
+	recorda('$restore_goal', Goal ,_R),
 	fail.
 save_program(File, _Goal) :-
         qsave_program(File).
@@ -130,7 +129,7 @@ qend_program :-
 	halt(0).
 
 '$save_program_status'(Flags, G) :-
-    findall(F:V,'$x_yap_flag'(F,V),L),
+    findall(F-V, '$x_yap_flag'(F,V),L),
     recordz('$program_state',L,_),
     '$cvt_qsave_flags'(Flags, G),
     fail.
@@ -156,7 +155,7 @@ qend_program :-
     var(Flag), !,
     '$do_error'(instantiation_error,G).
 '$cvt_qsave_flag'(local(B), G, _) :- !,
-    ( number(B) -> 
+    ( number(B) ->
       (
        B > 0 -> recordz('$restore_flag',local(B),_) ;
        B =:= 0 -> true ;
@@ -165,7 +164,7 @@ qend_program :-
       '$do_error'(type_error(integer,B),G)
       ).
 '$cvt_qsave_flag'(global(B), G, _) :- !,
-    ( number(B) -> 
+    ( number(B) ->
       (
        B > 0 -> recordz('$restore_flag',global(B),_) ;
        B =:= 0 -> true ;
@@ -174,7 +173,7 @@ qend_program :-
       '$do_error'(type_error(integer,B),G)
     ).
 '$cvt_qsave_flag'(stack(B), G, _) :- !,
-    ( number(B) -> 
+    ( number(B) ->
       (
        B > 0 -> recordz('$restore_flag',stack(B),_) ;
        B =:= 0 -> true ;
@@ -183,7 +182,7 @@ qend_program :-
       '$do_error'(type_error(integer,B),G)
     ).
 '$cvt_qsave_flag'(trail(B), G, _) :- !,
-    ( number(B) -> 
+    ( number(B) ->
       (
        B > 0 -> recordz('$restore_flag',trail(B),_) ;
        B =:= 0 -> true ;
@@ -192,7 +191,7 @@ qend_program :-
       '$do_error'(type_error(integer,B),G)
     ).
 '$cvt_qsave_flag'(goal(B), G, M) :- !,
-    ( callable(B) -> 
+    ( callable(B) ->
       strip_module(M:B, M1, G1),
       recordz('$restore_flag',goal(M1:G1),_)
     ;
@@ -200,7 +199,7 @@ qend_program :-
      '$do_error'(type_error(callable,G1),G)
     ).
 '$cvt_qsave_flag'(toplevel(B), G, M) :- !,
-    ( callable(B) -> 
+    ( callable(B) ->
       strip_module(M:B, M1, G1),
       recordz('$restore_flag',toplevel(M1:G1),_)
     ;
@@ -208,7 +207,7 @@ qend_program :-
      '$do_error'(type_error(callable,G1),G)
     ).
 '$cvt_qsave_flag'(init_file(B), G, M) :- !,
-    ( atom(B) -> 
+    ( atom(B) ->
       recordz('$restore_flag', init_file(M:B), _)
     ;
       '$do_error'(type_error(atom,B),G)
@@ -222,31 +221,23 @@ qend_program :-
     '$do_error'(domain_error(qsave_program,Opt), G).
 
 % there is some ordering between flags.
-'$x_yap_flag'(goal, _Goal).
-'$x_yap_flag'(language, _V).
-'$x_yap_flag'(M:unknown, V) :-
+'$x_yap_flag'(language, V) :-
+	yap_flag(language, V).
+'$x_yap_flag'(M:P, V) :-
 	current_module(M),
-	yap_flag(M:unknown, V).
+	yap_flag(M:P, V).
 '$x_yap_flag'(X, V) :-
+	prolog_flag_property(X, [access(read_write)]),
+	atom(X),
 	yap_flag(X, V),
 	X \= gc_margin, % different machines will have different needs,
 	X \= argv,
 	X \= os_argv,
 	X \= language,
-	X \= max_threads,
-	X \= max_workers,
-	X \= readline,
-	X \= timezone,
-	X \= tty_control,
-	X \= undefined,
-	X \= user_input,
-	X \= user_output,
-	X \= user_error,
-	X \= version,
-	X \= version_data.
+    X \= encoding.
 
 '$init_state' :-
-	recorded('$program_state', _, _), !,
+	recorded('$program_state', P, _), !,
 	'$do_init_state'.
 '$init_state'.
 
@@ -257,7 +248,7 @@ qend_program :-
 '$do_init_state' :-
 	recorded('$program_state',L,R),
 	erase(R),
-	lists:member(F:V,L),
+	lists:member(F-V,L),
 	catch(yap_flag(F,V),_,fail),
 	fail.
 '$do_init_state' :-
@@ -294,7 +285,7 @@ qend_program :-
 	fail.
 % this should be done before -l kicks in.
 '$init_from_saved_state_and_args' :-
-	  '$access_yap_flags'(16,0),
+	current_prolog_flag(fast_boot, false),
 	  ( exists('~/.yaprc') -> load_files('~/.yaprc', []) ; true ),
 	  ( exists('~/.prologrc') -> load_files('~/.prologrc', []) ; true ),
 	  ( exists('~/prolog.ini') -> load_files('~/prolog.ini', []) ; true ),
@@ -332,7 +323,7 @@ qend_program :-
 	set_value('$extend_file_search_path',[]),
 	'$extend_file_search_path'(P).
 '$init_path_extensions'.
- 
+
 % then we can execute the programs.
 '$startup_goals' :-
 	recorded('$startup_goal',G,_),
@@ -391,30 +382,30 @@ qsave_file(F0) :-
     ensure_loaded(  F0 ),
     absolute_file_name( F0, File, [expand(true),file_type(prolog),access(read),file_errors(fail),solutions(first)]),
     absolute_file_name( F0, State, [expand(true),file_type(qly)]),
-    '$qsave_file_'(File, State). 
+    '$qsave_file_'(File, State).
 
 /** @pred qsave_file(+ _File_, +_State_)
 
-Saves an image of all the information compiled by the system from file _F_ to _State_. 
+Saves an image of all the information compiled by the system from file _F_ to _State_.
 This includes modules and predicates eventually including multi-predicates.
 **/
 qsave_file(F0, State) :-
     ensure_loaded(  F0 ),
     absolute_file_name( F0, File, [expand(true),file_type(prolog),access(read),file_errors(fail),solutions(first)]),
-    '$qsave_file_'(File, State).  
+    '$qsave_file_'(File, State).
 
-'$qsave_file_'(File, UserF, _State) :- 
+'$qsave_file_'(File, UserF, _State) :-
     ( File == user_input -> Age = 0 ; time_file64(File, Age) ),
     '$current_module'(M),
     assert(user:'$file_property'( '$lf_loaded'( UserF, Age, M) ) ),
     '$set_owner_file'( '$file_property'( _ ), user, File ),
     fail.
-'$qsave_file_'(File, UserF, _State) :- 
+'$qsave_file_'(File, UserF, _State) :-
     recorded('$lf_loaded','$lf_loaded'( File, M, Reconsult, UserFile, OldF, Line, Opts), _),
     assert(user:'$file_property'( '$lf_loaded'( UserF, M, Reconsult, UserFile, OldF, Line, Opts) ) ),
     '$set_owner_file'( '$file_property'( _ ), user, File ),
     fail.
-'$qsave_file_'(File, _UserF, _State) :-  
+'$qsave_file_'(File, _UserF, _State) :-
     recorded('$directive',directive( File, M:G, Mode,  VL, Pos ), _),
     assert(user:'$file_property'( directive( M:G, Mode,  VL, Pos ) ) ),
     '$set_owner_file'('$file_property'( _ ), user, File ),
@@ -433,7 +424,7 @@ qsave_file(F0, State) :-
 	open(State, write, S, [type(binary)]),
         '$qsave_file_preds'(S, File),
         close(S)
-    ), 
+    ),
     abolish(user:'$file_property'/1).
 
 '$fetch_multi_files_file'(File, Multi_Files) :-
@@ -441,16 +432,16 @@ qsave_file(F0, State) :-
 
 '$fetch_multi_file_file'(FileName, (M:G :- Body)) :-
 	recorded('$multifile_defs','$defined'(FileName,Name,Arity,M), _),
-	functor(G, Name, Arity ), 
+	functor(G, Name, Arity ),
         clause(M:G, Body, ClauseRef),
 	clause_property(ClauseRef, file(FileName) ).
 
 
 /** @pred qsave_module(+ _Module_, +_State_)
-Saves an image of all the information compiled by the systemm on module _F_ to _State_. 
+Saves an image of all the information compiled by the systemm on module _F_ to _State_.
 **/
 
-qsave_module(Mod, OF) :- 
+qsave_module(Mod, OF) :-
 	recorded('$module', '$module'(_F,Mod,Source,Exps,L), _),
 	'$fetch_parents_module'(Mod, Parents),
 	'$fetch_imports_module'(Mod, Imps),
@@ -501,7 +492,7 @@ available it tries reconsulting the source file.
 
 */
 qload_module(Mod) :-
-    ( '$swi_current_prolog_flag'(verbose_load, false)
+    ( current_prolog_flag(verbose_load, false)
       ->
 	Verbosity = silent
 	;
@@ -529,7 +520,7 @@ qload_module(Mod) :-
 	  '$qload_module'(S , Mod, File, SourceModule)
     ;
       Type == file ->
-	  '$qload_file'(S, File)	  
+	  '$qload_file'(S, File)
     ).
 '$qload_module'(Mod, File, SourceModule) :-
     open(File, read, S, [type(binary)]),
@@ -538,7 +529,7 @@ qload_module(Mod) :-
 	  '$qload_module'(S , Mod, File, SourceModule)
     ;
       Type == file ->
-	  '$qload_file'(S, File)	  
+	  '$qload_file'(S, File)
     ),
     close(S).
 
@@ -685,7 +676,7 @@ qload_module(Mod) :-
 '$do_foreign'('$swi_foreign'(_,_), _More).
 
 '$init_foreigns'([], _Handle, _NewHandle).
-'$init_foreigns'(['$swi_foreign'( Handle, Function )|More], Handle, NewHandle) :- 
+'$init_foreigns'(['$swi_foreign'( Handle, Function )|More], Handle, NewHandle) :-
     !,
     call_shared_object_function( NewHandle, Function),
     '$init_foreigns'(More, Handle, NewHandle).
@@ -699,7 +690,7 @@ Restores a previously saved state of YAP contaianing a qly file  _F_.
 
 */
 qload_file( F0 ) :-
-    ( '$swi_current_prolog_flag'(verbose_load, false)
+    ( current_prolog_flag(verbose_load, false)
       ->
 	Verbosity = silent
 	;
@@ -708,9 +699,9 @@ qload_file( F0 ) :-
     StartMsg = loading_module,
     EndMsg = module_loaded,
     '$current_module'( SourceModule ),
-    H0 is heapused, 
+    H0 is heapused,
     '$cputime'(T0,_),
-    ( is_stream( F0 ) 
+    ( is_stream( F0 )
       ->
       stream_property(F0, file_name(File) ),
       File = FilePl,
@@ -732,7 +723,7 @@ qload_file( F0 ) :-
 	'$lf_option'(last_opt, LastOpt),
 	functor( TOpts, opt, LastOpt ),
 	'$lf_default_opts'(1, LastOpt, TOpts),
-	  '$qload_file'(S, SourceModule, File, FilePl, F0, all, TOpts)	  
+	  '$qload_file'(S, SourceModule, File, FilePl, F0, all, TOpts)
     ),
     close(S),
     working_directory( _, OldD),
@@ -779,5 +770,3 @@ qload_file( F0 ) :-
     fail.
 '$process_directives'( _FilePl ) :-
     abolish(user:'$file_property'/1).
-
-

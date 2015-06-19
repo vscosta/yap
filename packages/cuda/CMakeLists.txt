@@ -3,7 +3,7 @@
 macro_optional_find_package (CUDA ON)
 macro_log_feature (CUDA_FOUND "CUDA"
   "CUDA GGPU Programming "
-  "http://www.r.org" FALSE)
+  "http://www.nvidia.com/object/cuda_home_new.html" FALSE)
 
 if (CUDA_FOUND)
   #   CUDA_VERSION_MAJOR    -- The major version of cuda as reported by nvcc.
@@ -50,6 +50,51 @@ if (CUDA_FOUND)
   #   CUDA_nvcuvid_LIBRARY  -- CUDA Video Decoder library.
   #                            Only available for CUDA version 3.2+.
   #                            Windows only.
+  #
+  macro_optional_find_package (FindThrust ON)
+
+  set (CUDA_SOURCES
+    lista.cu
+    memory.cu
+    cuda.c
+    )
+
+  set (PL_SOURCES
+    cuda.yap
+    )
+
+  cuda_add_library (libcuda SHARED  ${CUDA_SOURCES})
+
+  target_link_libraries(libcuda libYap
+ ${CUDA_LIBRARIES} ${CUDA_npp_LIBRARY} ${CUDA_nppc_LIBRARY}
+stdc++  )
+
+if( THRUST_INCLUDE_DIR )
+    list( REMOVE_DUPLICATES THRUST_INCLUDE_DIR )
+    include_directories( ${THRUST_INCLUDE_DIR} )
+endif( THRUST_INCLUDE_DIR )
+
+  set(CUDA_ATTACH_VS_BUILD_RULE_TO_CUDA_FILE ON)
+
+  #set(BUILD_SHARED_LIBS OFF)
+
+  set(CUDA_SEPARABLE_COMPILATION ON)
+
+  #list(APPEND CUDA_NVCC_FLAGS -arch=sm_20)
+
+  set_target_properties (libcuda PROPERTIES PREFIX "")
+
+  include_directories (${CUDA_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+
+  install(TARGETS  libcuda
+    LIBRARY DESTINATION ${dlls}
+    )
+
+  install(FILES ${PL_SOURCES}
+    DESTINATION ${libpl}
+    )
 
 
 endif (CUDA_FOUND)

@@ -53,21 +53,21 @@ set(PL_SOURCES
 	yio.yap
   )
 
-add_custom_target (${YAP_STARTUP} ALL DEPENDS ${PL_SOURCES} ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
+add_custom_target (${YAP_STARTUP} ALL SOURCES ${PL_SOURCES} ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 
 # create a startup.yss on the top directory.
 add_custom_command (TARGET ${YAP_STARTUP}
   COMMAND yap-bin -b ${CMAKE_SOURCE_DIR}/pl/boot.yap -L ${CMAKE_SOURCE_DIR}/pl/init.yap -z qend_program
   VERBATIM
   WORKING_DIRECTORY ${CMAKE_TOP_BINARY_DIR}
-  DEPENDS yap-bin
+  DEPENDS yap-bin  ${PL_SOURCES}
+  USES_TERMINAL
   )
 
 install (FILES ${PL_SOURCES}
   DESTINATION ${libpl}/boot
   )
-  
+
 install (FILES ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
   DESTINATION ${dlls}
   )
-

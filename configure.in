@@ -277,7 +277,8 @@ AC_ARG_WITH(gmp,
 	[ --with-gmp[=DIR]           use GNU Multiple Precision in DIR],
 	if test "$withval" = yes; then
 		yap_cv_gmp=yes
-		GMPDIR=/usr
+    gmp_in_usr=`echo /usr/lib/gmp*`
+GMPDIR=/usr:/usr/lo
 	elif test "$withval" = no; then
 		yap_cv_gmp=no
 	else
@@ -1080,7 +1081,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 	then
 	  AC_CHECK_LIB(dl,dlopen,
 	     have_dl=yes
-	   ,
+1	   ,
 	     have_dl=no)
 	  if test ${have_dl} = yes
 	  then
@@ -1115,7 +1116,13 @@ dnl Linux has both elf and a.out, in this case we found elf
 	   fi
 	   INSTALL_DLLS="yes"
         fi
-        CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall"
+	if test "$CLANG" = "yes"
+	then
+#          CC="$CC -fstrict-aliasing -fno-diagnostics-fixit-info -fno-color-diagnostics -fno-caret-diagnostics -fno-show-column -fsched-interblock -Wall"
+          CC="$CC -fstrict-aliasing -fsched-interblock -Wall"
+	else
+          CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall"
+	fi
         DYNYAPLIB=libYap."$YAP_VERSION.$SO"
 	    SONAMEFLAG="-Wl,-install_name,$prefix/lib/libYap.$YAP_MAJOR_VERSION.$SO -Wl,-compatibility_version,$YAP_MAJOR_VERSION.$YAP_MINOR_VERSION -Wl,-current_version,$YAP_VERSION"
         YAPLIB_LD="$CC -dynamiclib"

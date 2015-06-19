@@ -94,7 +94,7 @@ typedef	struct FREEB {
 #define BlockTrailer(b)		((YAP_SEG_SIZE *)b)[((BlockHeader *) b)->b_size]
 
 /* Operating system and architecture dependent page size */
-extern int Yap_page_size;
+extern size_t Yap_page_size;
 
 void   Yap_InitHeap(void *);
 UInt   Yap_ExtendWorkSpaceThroughHole(UInt);

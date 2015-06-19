@@ -86,9 +86,9 @@ void initIO(void);
 
 #endif
 
-static int   myread(IOSTREAM *, char *, Int);
-static Int   mywrite(IOSTREAM *, char *, Int);
-static IOSTREAM *open_file(char *, int);
+static int   myread(FILE *, char *, Int);
+static Int   mywrite(FILE *, char *, Int);
+static FILE *open_file(char *, int);
 static int   close_file(void);
 static Int   putout(CELL);
 static Int   putcellptr(CELL *);
@@ -124,7 +124,7 @@ static void  restore_heap(void);
 static void  ShowAtoms(void);
 static void  ShowEntries(PropEntry *);
 #endif
-static int   OpenRestore(char *, char *, CELL *, CELL *, CELL *, CELL *, IOSTREAM **);
+static int   OpenRestore(char *, char *, CELL *, CELL *, CELL *, CELL *, FILE **);
 static void  CloseRestore(void);
 #ifndef _WIN32
 static int  check_opcodes(OPCODE []);
@@ -184,11 +184,11 @@ do_system_error(yap_error_number etype, const char *msg)
 
 
 inline static
-int myread(IOSTREAM *fd, char *buffer, Int len) {
+int myread(FILE *fd, char *buffer, Int len) {
   ssize_t nread;
 
   while (len > 0) {
-    nread = Sfread(buffer, 1,  (int)len, fd);
+    nread = fread(buffer, 1,  (int)len, fd);
     if (nread < 1) {
       return do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"bad read on saved state");
     }
@@ -200,11 +200,11 @@ int myread(IOSTREAM *fd, char *buffer, Int len) {
 
 inline static
 Int
-mywrite(IOSTREAM *fd, char *buff, Int len) {
+mywrite(FILE *fd, char *buff, Int len) {
   ssize_t nwritten;
-
+  
   while (len > 0) {
-    nwritten = Sfwrite(buff, 1, (size_t)len, fd);
+    nwritten = fwrite(buff, 1, (size_t)len, fd);
     if (nwritten < 0) {
       return do_system_error(SYSTEM_ERROR,"bad write on saved state");
     }
@@ -222,7 +222,7 @@ mywrite(IOSTREAM *fd, char *buff, Int len) {
 
 typedef CELL   *CELLPOINTER;
 
-static IOSTREAM *splfild = NULL;
+static FILE *splfild = NULL;
 
 #ifdef DEBUG
 
@@ -239,10 +239,10 @@ static Int      OldHeapUsed;
 static CELL     which_save;
 
 /* Open a file to read or to write */
-static IOSTREAM *
+static FILE *
 open_file(char *my_file, int flag)
 {
-  IOSTREAM *splfild;
+  FILE *splfild;
   char flags[6];
   int i=0;
 
@@ -264,7 +264,7 @@ open_file(char *my_file, int flag)
   }
 #endif
   flags[i] = '\0';
-  splfild = Sopen_file( my_file, flags);
+  splfild = fopen( my_file, flags);
 #ifdef undf0
   fprintf(errout, "Opened file %s\n", my_file);
 #endif
@@ -276,7 +276,7 @@ close_file(void)
 {
   if (splfild == 0)
     return 0;
-  if (Sclose(splfild) < 0)
+  if (fclose(splfild) < 0)
     return do_system_error(SYSTEM_ERROR,"bad close on saved state");
   splfild = 0;
   return 1;
@@ -313,7 +313,7 @@ get_header_cell(void)
   size_t count = 0;
   int n;
   while (count < sizeof(CELL)) {
-    if ((n = Sfread(&l, 1, sizeof(CELL)-count, splfild)) < 0) {
+    if ((n = fread(&l, 1, sizeof(CELL)-count, splfild)) < 0) {
       do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"failed to read saved state header");
       return 0L;
     }
@@ -578,7 +578,6 @@ save_crc(void)
 
 static Int
 do_save(int mode USES_REGS) {
-  extern void Scleanup(void);
   Term t1 = Deref(ARG1);
 
   if (Yap_HoleSize) {
@@ -590,7 +589,6 @@ do_save(int mode USES_REGS) {
     Yap_Error(TYPE_ERROR_LIST,t1,"save/1");
     return FALSE;
   }
-  Scleanup();
   Yap_CloseStreams(TRUE);
   if ((splfild = open_file(LOCAL_FileNameBuf, O_WRONLY | O_CREAT)) < 0) {
     Yap_Error(SYSTEM_ERROR,MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)),
@@ -670,7 +668,7 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap USES_REGS)
   /* skip the first line */
   pp[0] = '\0';
   do {
-    if ((n = Sfread(pp, 1, 1, splfild)) <= 0) {
+    if ((n = fread(pp, 1, 1, splfild)) <= 0) {
       do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"failed to scan first line from saved state");
       return FAIL_RESTORE;
     }
@@ -680,7 +678,7 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap USES_REGS)
   {
     int count = 0, n, to_read = Unsigned(strlen(msg) + 1);
     while (count < to_read) {
-      if ((n = Sfread(pp, 1, to_read-count, splfild)) <= 0) {
+      if ((n = fread(pp, 1, to_read-count, splfild)) <= 0) {
 	do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"failed to scan version info from saved state");
 	return FAIL_RESTORE;
       }
@@ -1205,7 +1203,7 @@ rehash(CELL *oldcode, int NOfE, int KindOfEntries USES_REGS)
 static void
 RestoreSWIHash(void)
 {
-  Yap_InitSWIHash();
+  // Yap_InitSWIHash();
 }
 
 
@@ -1394,12 +1392,10 @@ commit_to_saved_state(char *s, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *A
     return(FAIL_RESTORE);
   LOCAL_PrologMode = BootMode;
   if (Yap_HeapBase) {
-    extern void Scleanup(void);
-    if (!yap_flags[HALT_AFTER_CONSULT_FLAG] && !yap_flags[QUIET_MODE_FLAG]) {
+    if (falseGlobalPrologFlag( HALT_AFTER_CONSULT_FLAG ) && !silentMode( )) {
       Yap_TrueFileName(s,LOCAL_FileNameBuf2, YAP_FILENAME_MAX);
       fprintf(stderr, "%% Restoring file %s\n", LOCAL_FileNameBuf2);
     }
-    Scleanup();
     Yap_CloseStreams(TRUE);
   }
 #ifdef DEBUG_RESTORE4
@@ -1411,11 +1407,11 @@ commit_to_saved_state(char *s, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *A
   return mode;
 }
 
-static int try_open(char *inpf, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap, IOSTREAM **streamp) {
+static int try_open(char *inpf, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap, FILE **streamp) {
   int mode;
 
   if (streamp) {
-    if ((*streamp = Sopen_file(inpf, "rb"))) {
+    if ((*streamp = fopen(inpf, "rb"))) {
       return DO_ONLY_CODE;
     }
     return FAIL_RESTORE;
@@ -1432,7 +1428,7 @@ static int try_open(char *inpf, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *
 }
 
 static int
-OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap, IOSTREAM **streamp)
+OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap, FILE **streamp)
 {
   CACHE_REGS
     
@@ -1441,7 +1437,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   
   if (!Yap_trueFileName( inpf, YAP_STARTUP, YapLibDir, fname, true, YAP_SAVED_STATE, true, true))
     return false;
-  if (fname != NULL &&
+  if (fname[0] &&
       (mode = try_open(fname,Astate,ATrail,AStack,AHeap,streamp)) != FAIL_RESTORE) {
     return mode;
   }
@@ -1456,10 +1452,10 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   return FAIL_RESTORE;
 }
 
-IOSTREAM *
+FILE *
 Yap_OpenRestore(char *inpf, char *YapLibDir)
 {
-  IOSTREAM *stream = NULL;
+  FILE *stream = NULL;
 
   OpenRestore(inpf, YapLibDir, NULL, NULL, NULL, NULL, &stream);
   return stream;
@@ -1677,7 +1673,7 @@ Restore(char *s, char *lib_dir USES_REGS)
   Yap_ReOpenLoadForeign();
   FreeRecords();
   /* restart IO */
-  initIO();
+  //  initIO();
   /* reset time */
   Yap_ReInitWallTime();
 #if USE_DL_MALLOC || USE_SYSTEM_MALLOC

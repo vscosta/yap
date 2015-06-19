@@ -105,16 +105,16 @@ followed by the failure of that call.
 */
 :- multifile user:unknown_predicate_handler/3.
 
-'$handle_error'(0x0080,Goal,Mod) :-
+'$handle_error'(error,Goal,Mod) :-
     functor(Goal,Name,Arity),
     '$program_continuation'(PMod,PName,PAr),
     '$do_error'(existence_error(procedure,Name/Arity),context(Mod:Goal,PMod:PName/PAr)).
-'$handle_error'(0x0040,Goal,Mod) :-
+'$handle_error'(warning,Goal,Mod) :-
     functor(Goal,Name,Arity),
     '$program_continuation'(PMod,PName,PAr),
     print_message(warning,error(existence_error(procedure,Name/Arity), context(Mod:Goal,PMod:PName/PAr))),
     fail.
-'$handle_error'(0x0020,_Goal,_Mod) :-
+'$handle_error'(fail,_Goal,_Mod) :-
     fail.
 
 '$complete_goal'(M, G, CurG, CurMod, NG) :-

@@ -252,7 +252,6 @@ Yap_open_buf_write_stream(char **nbufp, size_t *ncharsp)
     }
     nbuf = malloc( nchars );
     if(!nbuf) {
-      UNLOCK(st->streamlock);
       return -1;
     }
   } 

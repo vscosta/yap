@@ -18,6 +18,7 @@
 
 #define _YAPDEFS_H 1
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <setjmp.h>
 
@@ -43,7 +44,7 @@
 #else
 #ifndef true
 typedef int _Bool;
-
+v
 #define bool _Bool;
 
 #define false 0
@@ -312,7 +313,7 @@ typedef void  (*YAP_halt_hook)(int exit_code, void *closure);
 typedef YAP_Int YAP_opaque_tag_t;
 
 typedef YAP_Bool (*YAP_Opaque_CallOnFail)(void *);
-typedef YAP_Bool (*YAP_Opaque_CallOnWrite)(void *, YAP_opaque_tag_t, void *, int);
+typedef YAP_Bool (*YAP_Opaque_CallOnWrite)(FILE *, YAP_opaque_tag_t, void *, int);
 typedef YAP_Int (*YAP_Opaque_CallOnGCMark)(YAP_opaque_tag_t, void *, YAP_Term *, YAP_Int);
 typedef YAP_Bool (*YAP_Opaque_CallOnGCRelocate)(YAP_opaque_tag_t, void *, YAP_Term *, YAP_Int);
 
@@ -333,6 +334,38 @@ typedef enum
     YAPC_COMPILE_USER,          /* compile all user predicates*/
     YAPC_COMPILE_ALL          /* compile all predicates */
   } yapc_exec_mode;
+
+/** Stream Modes: */
+typedef enum stream_f {
+  Free_Stream_f =		0x000001, /**< Free YAP Stream */
+  Input_Stream_f	=	0x000002, /**< Input Stream */
+  Output_Stream_f	=	0x000004, /**< Output Stream in Truncate Mode */
+  Append_Stream_f	=	0x000008, /**< Output Stream in Append Mod */
+  Eof_Stream_f		=	0x000010, /**< Stream found an EOF */
+  Null_Stream_f		=	0x000020, /**< Stream is /dev/null, or equivant */
+  Tty_Stream_f		=	0x000040, /**< Stream is a terminal */
+  Socket_Stream_f	=	0x000080, /**< Socket Stream */
+  Binary_Stream_f	=	0x000100, /**< Stream is not eof */
+  Eof_Error_Stream_f	=	0x000200, /**< Stream should generate error on trying to read after EOF */
+  Reset_Eof_Stream_f	=	0x000400, /**< Stream should be reset on findind an EO (C-D and console.*/
+  Past_Eof_Stream_f	=	0x000800, /**< Read EOF from stream */
+  Push_Eof_Stream_f	=	0x001000, /**< keep on sennding EOFs */
+  Seekable_Stream_f	=	0x002000, /**< we can jump around the stream (std regular files) */
+  Promptable_Stream_f	=	0x004000, /**< Interactive line-by-line stream */
+  Client_Socket_Stream_f=	0x008000, /**< socket in client mode */
+  Server_Socket_Stream_f=	0x010000, /**< socket in server mode */
+  InMemory_Stream_f	=	0x020000, /**< buffer */
+  Pipe_Stream_f		=	0x040000, /**< FIFO buffer */
+  Popen_Stream_f	=	0x080000, /**< popen open, pipes mosylyn */
+  User_Stream_f		=	0x100000, /**< usually user_ipiy  */
+  HAS_BOM_f		=	0x200000, /**< media for streamhas a BOM mar. */
+  RepError_Prolog_f	=	0x400000, /**< handle representation error as Prolog terms */
+  RepError_Xml_f	=	0x800000,  /**< handle representation error as XML objects */
+  DoNotCloseOnAbort_Stream_f=  0x1000000  /**< do not close the stream after an abort event */
+} estream_f;
+
+typedef uint64_t stream_flags_t;
+
 
 /********* encoding ***********************/
 
@@ -355,7 +388,7 @@ typedef enum
   {
     YAPC_ENABLE_GC,                 /* enable or disable garbage collection */
     YAPC_ENABLE_AGC                 /* enable or disable atom garbage collection */
-  } yap_flag_t;
+  } yap_flag_gc_t;
 
 typedef enum yap_enum_reset_t {
   YAP_EXEC_ABSMI = 0,

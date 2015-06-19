@@ -19,12 +19,14 @@
 #include "config.h"
 #include "Yap.h"
 #include "YapHeap.h"
+#if HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 #if HAVE_STDINT_H
 #include <stdint.h>
 #endif
 #include <stdlib.h>
 #include <stddef.h>
-#include "pl-shared.h"
 #ifdef _MSC_VER /* Microsoft's Visual C++ Compiler */
 #ifdef  HAVE_UNISTD_H
 #undef  HAVE_UNISTD_H
@@ -150,7 +152,7 @@ dump_runtime_variables(void)
   fprintf(stdout,"YAP_ROOTDIR=\"%s\"\n",YAP_ROOTDIR);
   fprintf(stdout,"YAP_LIBS=\"%s\"\n",C_LIBS);
   fprintf(stdout,"YAP_SHLIB_SUFFIX=\"%s\"\n",SO_EXT);
-  fprintf(stdout,"YAP_VERSION=%d\n",YAP_NUMERIC_VERSION);
+  fprintf(stdout,"YAP_VERSION=%s\n",YAP_NUMERIC_VERSION);
   exit(0);
   return 1;
 }
@@ -202,8 +204,6 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
   iap->ErrorCause = NULL;
   iap->QuietMode = FALSE;
 
-  GD->cmdline.os_argc = argc;
-  GD->cmdline.os_argv = argv;
   while (--argc > 0)
     {
       p = *++argv;
@@ -548,8 +548,6 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	iap->SavedState = p;
       }
     }
-  GD->cmdline.appl_argc = argc;
-  GD->cmdline.appl_argv = argv;
 //___androidlog_print(ANDROID_LOG_INFO, "YAP ", "boot mode %d", BootMode);
   return BootMode;
 }

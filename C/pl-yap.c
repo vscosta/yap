@@ -31,8 +31,6 @@
 //#define LOCK()   PL_LOCK(L_PLFLAG)
 //#define UNLOCK() PL_UNLOCK(L_PLFLAG)
 
-int fileerrors;
-
 PL_local_data_t lds;
 
 gds_t gds;
@@ -173,19 +171,6 @@ Yap_Eval(YAP_Term t USES_REGS)
   return Yap_InnerEval__(t PASS_REGS);
 }
 
-IOENC
-Yap_DefaultEncoding(void)
-{
-  GET_LD
-  return LD->encoding;
-}
-
-void
-Yap_SetDefaultEncoding(IOENC new_encoding)
-{
-  GET_LD
-  LD->encoding = new_encoding;
-}
 
 int
 PL_qualify(term_t raw, term_t qualified)
@@ -926,7 +911,7 @@ Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int 
 }
 
 char *
-Yap_HandleToString(term_t l, size_t sz, size_t *length, int *encoding, int flags)
+Yap_HandleToString(yhandle_t l, size_t sz, size_t *length, int *encoding, int flags)
 {
 
   char *buf;
@@ -1357,7 +1342,7 @@ setAccessLevel(access_level_t accept)
 }
 
 static bool
-vsysError(const char *fm, va_list args)
+sysError(const char *fm, va_list args)
 { static int active = 0;
 
   switch ( active++ )
@@ -1404,18 +1389,6 @@ sysError(const char *fm, ...)
   va_end(args);
 
   PL_fail;
-}
-
-Int
-Yap_source_line_no( void )
-{ GET_LD
-  return source_line_no;
-}
-
-Atom
-Yap_source_file_name( void )
-{ GET_LD
-  return YAP_AtomFromSWIAtom(source_file_name);
 }
 
 atom_t

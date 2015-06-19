@@ -410,8 +410,6 @@ writing, writing a BOM can be requested using the option
 #include "alloc.h"
 #include "eval.h"
 /* stuff we want to use in standard YAP code */
-#include "pl-shared.h"
-#include "pl-read.h"
 #include "YapText.h"
 #if _MSC_VER || defined(__MINGW32__)
 #if HAVE_FINITE == 1
@@ -437,7 +435,25 @@ writing, writing a BOM can be requested using the option
 #define my_islower(C) (C >= 'a' && C <= 'z')
 
 static Term float_send(char *, int);
-static Term get_num(int *, int *, IOSTREAM *, char *, UInt, int);
+static Term get_num(int *, int *, struct stream_desc *, char *, UInt, int);
+
+static void
+Yap_setCurrentSourceLocation( struct stream_desc *s )
+{
+ CACHE_REGS
+ #if HAVE_SOCKET
+  if (s->status & Socket_Stream_f)
+    LOCAL_SourceFileName  = AtomSocket;
+  else
+#endif
+  if (s->status & Pipe_Stream_f)
+    LOCAL_SourceFileName  =AtomPipe;
+  else if (s->status & InMemory_Stream_f)
+    LOCAL_SourceFileName  = AtomCharsio;
+  else
+   LOCAL_SourceFileName  = s->name;
+   LOCAL_SourceFileLineno  = s->linecount;
+ }
 
 /* token table with some help from Richard O'Keefe's PD scanner */
 static char chtype0[NUMBER_OF_CHARS + 1] = {
@@ -538,21 +554,16 @@ int Yap_wide_chtype(Int ch) {
   return BS;
 }
 
-static inline int getchr__(IOSTREAM *inp) {
-  int c = Sgetcode(inp);
-
-  if (!CharConversionTable || c < 0 || c >= 256)
+static inline int getchr__(struct stream_desc* inp) {
+  int c = inp->stream_wgetc_for_read(inp-GLOBAL_Stream);
+  if (!GLOBAL_CharConversionTable || c < 0 || c >= 256)
     return c;
 
-  return CharConversionTable[c];
+  return GLOBAL_CharConversionTable[c];
 }
 
 #define getchr(inp) getchr__(inp)
-#define getchrq(inp) Sgetcode(inp)
-
-static int GetCurInpPos(IOSTREAM *inp_stream) {
-  return inp_stream->posbuf.lineno;
-}
+#define getchrq(inp) inp->stream_wgetc(inp-GLOBAL_Stream)
 
 /* in case there is an overflow */
 typedef struct scanner_extra_alloc {
@@ -617,24 +628,27 @@ char *Yap_AllocScannerMemory(unsigned int size) {
 extern double atof(const char *);
 
 static Term float_send(char *s, int sign) {
-  GET_LD
   Float f = (Float)(sign * atof(s));
 #if HAVE_ISFINITE || defined(isfinite)
-  if (truePrologFlag(PLFLAG_ISO)) { /* iso */
+  if (trueGlobalPrologFlag(ISO_FLAG)) { /* iso */
     if (!isfinite(f)) {
+        CACHE_REGS
       LOCAL_ErrorMessage = "Float overflow while scanning";
       return (MkEvalFl(f));
     }
   }
 #elif HAVE_FINITE
-  if (truePrologFlag(PLFLAG_ISO)) { /* iso */
+  if (trueGlobalPrologFlag(ISO_FLAG)) { /* iso */
     if (!finite(f)) {
       LOCAL_ErrorMessage = "Float overflow while scanning";
       return (MkEvalFl(f));
     }
   }
 #endif
-  return (MkEvalFl(f));
+    {
+        CACHE_REGS
+        return (MkEvalFl(f));
+    }
 }
 
 /* we have an overflow at s */
@@ -663,9 +677,8 @@ static int send_error_message(char s[]) {
   return 0;
 }
 
-static wchar_t read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream) {
-  GET_LD
-  int ch;
+static wchar_t read_quoted_char(int *scan_nextp, struct stream_desc* inp_stream) {
+    int ch;
 
 /* escape sequence */
 do_switch:
@@ -749,7 +762,7 @@ do_switch:
   case '`':
     return '`';
   case '^':
-    if (truePrologFlag(PLFLAG_ISO)) {
+    if (trueGlobalPrologFlag(ISO_FLAG)) {
       return send_error_message("invalid escape sequence");
     } else {
       ch = getchrq(inp_stream);
@@ -846,9 +859,8 @@ static int num_send_error_message(char s[]) {
 
 /* reads a number, either integer or float */
 
-static Term get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s,
+static Term get_num(int *chp, int *chbuffp, StreamDesc *inp_stream, char *s,
                     UInt max_size, int sign) {
-  GET_LD
   char *sp = s;
   int ch = *chp;
   Int val = 0L, base = ch - '0';
@@ -880,6 +892,7 @@ static Term get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s,
     *sp++ = ch;
     ch = getchr(inp_stream);
     if (base == 0) {
+        CACHE_REGS
       wchar_t ascii = ch;
       int scan_extra = TRUE;
 
@@ -956,6 +969,7 @@ static Term get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s,
       *sp++ = ch;
     }
     if (ch - '0' >= base) {
+        CACHE_REGS
       if (sign == -1)
         return MkIntegerTerm(-val);
       return MkIntegerTerm(val);
@@ -973,10 +987,11 @@ static Term get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s,
 
       if (chtype(ch = getchr(inp_stream)) != NU) {
         if (ch == 'e' || ch == 'E') {
-          if (truePrologFlag(PLFLAG_ISO))
+          if (trueGlobalPrologFlag(ISO_FLAG))
             return num_send_error_message(
                 "Float format not allowed in ISO mode");
         } else { /* followed by a letter, end of term? */
+            CACHE_REGS
           sp[0] = '\0';
           *chbuffp = '.';
           *chp = ch;
@@ -1026,6 +1041,7 @@ static Term get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s,
         ch = getchr(inp_stream);
       }
       if (chtype(ch) != NU) {
+          CACHE_REGS
         if (has_dot)
           return float_send(s, sign);
         return MkIntegerTerm(sign * val);
@@ -1056,6 +1072,7 @@ static Term get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s,
       return read_int_overflow(s + 3, base, val, sign);
     return read_int_overflow(s, base, val, sign);
   } else {
+        CACHE_REGS
     *chp = ch;
     return MkIntegerTerm(val * sign);
   }
@@ -1063,7 +1080,7 @@ static Term get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s,
 
 /* given a function getchr scan until we  either find the number
    or end of file */
-Term Yap_scan_num(IOSTREAM *inp) {
+Term Yap_scan_num(StreamDesc *inp) {
   CACHE_REGS
   Term out;
   int sign = 1;
@@ -1089,7 +1106,7 @@ Term Yap_scan_num(IOSTREAM *inp) {
     ch = getchr(inp);
   }
   if (chtype(ch) != NU) {
-    Yap_clean_tokenizer(NULL, NULL, NULL, 0L);
+    Yap_clean_tokenizer(NULL, NULL, NULL);
     return TermNil;
   }
   cherr = '\0';
@@ -1097,7 +1114,7 @@ Term Yap_scan_num(IOSTREAM *inp) {
     return TermNil;
   out = get_num(&ch, &cherr, inp, ptr, 4096, sign); /*  */
   PopScannerMemory(ptr, 4096);
-  Yap_clean_tokenizer(NULL, NULL, NULL, 0L);
+  Yap_clean_tokenizer(NULL, NULL, NULL);
   if (LOCAL_ErrorMessage != NULL || ch != -1 || cherr)
     return TermNil;
   return out;
@@ -1109,12 +1126,12 @@ Term Yap_scan_num(IOSTREAM *inp) {
     LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;                                     \
     LOCAL_Error_Size = 0L;                                                     \
     if (p)                                                                     \
-      p->Tok = Ord(kind = eot_tok);                                            \
+      p->Tok = Ord(kind = eot_tok);                                          \
     /* serious error now */                                                    \
     return l;                                                                  \
   }
 
-static void open_comment(int ch, IOSTREAM *inp_stream USES_REGS) {
+static void open_comment(int ch, StreamDesc *inp_stream USES_REGS) {
   CELL *h0 = HR;
   HR += 5;
   h0[0] = AbsAppl(h0 + 2);
@@ -1129,7 +1146,8 @@ static void open_comment(int ch, IOSTREAM *inp_stream USES_REGS) {
   LOCAL_CommentsTail = h0 + 1;
   h0 += 2;
   h0[0] = (CELL)FunctorMinus;
-  h0[1] = Yap_StreamPosition(inp_stream);
+  h0[1] = Yap_StreamPosition(inp_stream-GLOBAL_Stream
+			     );
   h0[2] = TermNil;
   LOCAL_CommentsNextChar = h0 + 2;
   LOCAL_CommentsBuff = (wchar_t *)malloc(1024 * sizeof(wchar_t));
@@ -1203,16 +1221,16 @@ static wchar_t *ch_to_wide(char *base, char *charp) {
     }                                                                          \
   }
 
-TokEntry *Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp,
-                        void *rd0) {
-  GET_LD
+TokEntry *Yap_tokenizer( struct stream_desc *inp_stream,
+			 bool store_comments, Term *tposp) {
+    
+    CACHE_REGS
   TokEntry *t, *l, *p;
   enum TokenKinds kind;
   int solo_flag = TRUE;
   int ch;
   wchar_t *wcharp;
   struct qq_struct_t *cur_qq = NULL;
-  struct read_data_t *rd = rd0;
 
   LOCAL_ErrorMessage = NULL;
   LOCAL_Error_Size = 0;
@@ -1226,9 +1244,9 @@ TokEntry *Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp,
   while (chtype(ch) == BS) {
     ch = getchr(inp_stream);
   }
-  *tposp = Yap_StreamPosition(inp_stream);
-  Yap_setCurrentSourceLocation(rd);
-  LOCAL_StartLine = inp_stream->posbuf.lineno;
+  *tposp = Yap_StreamPosition(inp_stream-GLOBAL_Stream);
+  Yap_setCurrentSourceLocation(inp_stream);
+  LOCAL_StartLine = inp_stream->linecount;
   do {
     wchar_t och;
     int quote, isvar;
@@ -1290,8 +1308,8 @@ TokEntry *Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp,
             ch = getchr(inp_stream);
           }
           CHECK_SPACE();
-          *tposp = Yap_StreamPosition(inp_stream);
-          Yap_setCurrentSourceLocation(rd);
+          *tposp = Yap_StreamPosition(inp_stream-GLOBAL_Stream);
+          Yap_setCurrentSourceLocation(inp_stream);
         }
         goto restart;
       } else {
@@ -1324,7 +1342,7 @@ TokEntry *Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp,
         }
         add_ch_to_buff(ch);
       }
-      while (ch == '\'' && isvar && yap_flags[VARS_CAN_HAVE_QUOTE_FLAG]) {
+      while (ch == '\'' && isvar &&trueGlobalPrologFlag(VARIABLE_NAMES_MAY_END_WITH_QUOTES_FLAG)) {
         if (charp == (char *)AuxSp - 1024) {
           goto huge_var_error;
         }
@@ -1492,7 +1510,7 @@ TokEntry *Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp,
               "Heap Overflow While Scanning: please increase code space (-h)";
           break;
         }
-        if (ch == 10 && truePrologFlag(PLFLAG_ISO)) {
+        if (ch == 10 && trueGlobalPrologFlag(ISO_FLAG)) {
           /* in ISO a new line terminates a string */
           LOCAL_ErrorMessage = "layout character \n inside quotes";
           break;
@@ -1605,7 +1623,7 @@ TokEntry *Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp,
       break;
 
     case SY:
-      if (ch == '`' && truePrologFlag(PLFLAG_BACKQUOTED_STRING))
+      if (ch == '`' && trueGlobalPrologFlag(BACKQUOTED_STRING_FLAG))
         goto quoted_string;
       och = ch;
       ch = getchr(inp_stream);
@@ -1641,8 +1659,8 @@ TokEntry *Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp,
               ch = getchr(inp_stream);
             }
             CHECK_SPACE();
-            *tposp = Yap_StreamPosition(inp_stream);
-            Yap_setCurrentSourceLocation(rd);
+            *tposp = Yap_StreamPosition(inp_stream-GLOBAL_Stream);
+            Yap_setCurrentSourceLocation(inp_stream);
           }
         }
         goto restart;
@@ -1757,11 +1775,15 @@ TokEntry *Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp,
             cur_qq = qq;
           }
           t->TokInfo = (CELL)qq;
-          qq->start.byteno = inp_stream->position->byteno;
-          qq->start.lineno = inp_stream->position->lineno;
-          qq->start.linepos = inp_stream->position->linepos - 1;
-          qq->start.charno = inp_stream->position->charno - 1;
-          t->Tok = Ord(kind = QuasiQuotes_tok);
+ 	if (inp_stream->status & Seekable_Stream_f ) {
+	  qq->start.byteno = fseek (inp_stream->file, 0, 0);
+	}else {
+	  qq->start.byteno = inp_stream->charcount - 1;
+	}
+        qq->start.lineno = inp_stream->linecount;
+        qq->start.linepos = inp_stream->linepos - 1;
+        qq->start.charno = inp_stream->charcount - 1;
+         t->Tok = Ord(kind = QuasiQuotes_tok);
           ch = getchr(inp_stream);
           solo_flag = FALSE;
           break;
@@ -1788,10 +1810,14 @@ TokEntry *Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp,
         }
         cur_qq = NULL;
         t->TokInfo = (CELL)qq;
-        qq->mid.byteno = inp_stream->position->byteno;
-        qq->mid.lineno = inp_stream->position->lineno;
-        qq->mid.linepos = inp_stream->position->linepos - 1;
-        qq->mid.charno = inp_stream->position->charno - 1;
+ 	if (inp_stream->status & Seekable_Stream_f ) {
+	  qq->mid.byteno = fseek (inp_stream->file, 0, 0);
+	}else {
+	  qq->mid.byteno = inp_stream->charcount - 1;
+	}
+        qq->mid.lineno = inp_stream->linecount;
+        qq->mid.linepos = inp_stream->linepos - 1;
+        qq->mid.charno = inp_stream->charcount - 1;
         t->Tok = Ord(kind = QuasiQuotes_tok);
         ch = getchr(inp_stream);
 
@@ -1849,10 +1875,14 @@ TokEntry *Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp,
         strncpy(mp, TokImage, len + 1);
         qq->text = (unsigned char *)mp;
         Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
-        qq->end.byteno = inp_stream->position->byteno;
-        qq->end.lineno = inp_stream->position->lineno;
-        qq->end.linepos = inp_stream->position->linepos - 1;
-        qq->end.charno = inp_stream->position->charno - 1;
+	if (inp_stream->status & Seekable_Stream_f ) {
+	  qq->end.byteno = fseek (inp_stream->file, 0, 0);
+	}else {
+	  qq->end.byteno = inp_stream->charcount - 1;
+	}
+        qq->end.lineno = inp_stream->linecount;
+        qq->end.linepos = inp_stream->linepos - 1;
+        qq->end.charno = inp_stream->charcount - 1;
         if (!(t->TokInfo)) {
           LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;
           LOCAL_ErrorMessage = "Code Space Overflow";
@@ -1905,8 +1935,9 @@ TokEntry *Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp,
   return (l);
 }
 
-void Yap_clean_tokenizer(TokEntry *tokstart, VarEntry *vartable,
-                         VarEntry *anonvartable, Term commentable) {
+void Yap_clean_tokenizer(TokEntry *tokstart,
+			 VarEntry *vartable,
+                         VarEntry *anonvartable) {
   CACHE_REGS
   struct scanner_extra_alloc *ptr = LOCAL_ScannerExtraBlocks;
   while (ptr) {

@@ -145,20 +145,10 @@ INTERFACE_HEADERS = \
 	os/pl-thread.h \
 	os/SWI-Stream.h
 
-IOLIB_HEADERS=os/pl-buffer.h \
-	os/pl-ctype.h  \
-	H/pl-codelist.h \
-	os/pl-dtoa.h \
-	os/dtoa.c  \
-	H/pl-incl.h \
-	H/pl-global.h \
-	os/pl-option.h  \
-	os/pl-os.h \
-	os/pl-privitf.h \
-	os/pl-table.h \
-	os/pl-text.h \
-	os/pl-utf8.h \
-	H/pl-yap.h @WINDOWS@ os/windows/dirent.h os/windows/utf8.h os/windows/utf8.c os/windows/uxnt.h  os/windows/popen.c
+IOLIB_HEADERS= \
+    os/iopreds.h \
+    os/fmemopen.c\
+    os/yapio.h
 
 HEADERS = \
 	H/Atoms.h \
@@ -175,6 +165,7 @@ HEADERS = \
 	H/arrays.h \
 	H/arith2.h \
 	H/attvar.h \
+    H/blobs.h \
 	H/clause.h \
 	H/compile.h \
 	H/corout.h \
@@ -192,7 +183,6 @@ HEADERS = \
 	H/ilocals.h \
 	H/index.h \
 	H/inline-only.h \
-	H/iopreds.h \
 	H/iswiatoms.h \
 	H/qly.h \
 	H/rclause.h \
@@ -203,7 +193,6 @@ HEADERS = \
 	H/threads.h \
 	H/tracer.h \
 	H/trim_trail.h \
-	H/yapio.h \
 	H/YapSignals.h \
 	H/YapText.h \
 	H/cut_c.h \
@@ -225,37 +214,35 @@ HEADERS = \
 	JIT/HPP/JIT_Compiler.hpp \
 	JIT/HPP/jit_predicates.hpp
 
-IOLIB_SOURCES=os/pl-buffer.c os/pl-ctype.c \
-	os/pl-codelist.c \
-	os/pl-dtoa.c  \
-	os/pl-error.c  \
-	os/pl-file.c \
-	os/pl-files.c  \
-	os/pl-fmt.c  \
-	os/pl-locale.h \
-	os/pl-glob.c  \
-	os/pl-option.c  \
-	os/pl-os.c \
-	os/pl-prologflag.c \
-	os/pl-privitf.c \
-	os/pl-read.c \
-	os/pl-rl.c  \
-	os/pl-stream.c os/pl-string.c \
-	os/pl-table.c \
-	os/pl-tai.c  \
-	os/pl-text.c \
-	os/pl-version.c \
-	os/pl-write.c \
-	C/pl-yap.c @WINDOWS@os/windows/uxnt.c
+IOLIB_SOURCES=  os/charsio.c \
+	os/chartypes.c\
+	os/console.c\
+	os/files.c\
+	os/fmemopen.c\
+	os/format.c\
+	os/iopreds.c\
+	os/mem.c\
+	os/pipes.c\
+	os/readline.c\
+	os/readterm.c\
+	os/readutil.c\
+	os/sockets.c\
+	os/streams.c\
+	os/sysbits.c\
+	os/writeterm.c\
+	os/ypsocks.c\
+	os/ypstdio.c
+
 
 C_SOURCES= \
-	$(IOLIB_SOURCES) \
+	#$(IOLIB_SOURCES) \
 	C/absmi.c C/adtdefs.c \
 	C/agc.c C/alloc.c \
+	C/args.c \
 	C/amasm.c C/analyst.c \
 	C/arith0.c C/arith1.c C/arith2.c \
 	C/atomic.c \
-	C/arrays.c \
+	C/arrays.c \C/blobs.c \
 	C/attvar.c C/bb.c \
 	C/bignum.c \
 	C/c_interface.c C/cdmgr.c C/cmppreds.c \
@@ -266,6 +253,7 @@ C_SOURCES= \
 	C/eval.c C/exec.c \
 	C/exo.c \
 	C/exo_udi.c \
+	C/flags.c \
 	C/globals.c C/gmp_support.c \
 	C/gprof.c C/grow.c \
 	C/heapgc.c C/index.c	   \
@@ -286,6 +274,7 @@ C_SOURCES= \
 	C/threads.c \
 	C/tracer.c C/unify.c C/userpreds.c  \
 	C/udi.c \
+	C/utf8.c\
 	C/utilpreds.c C/write.c console/yap.c \
 	C/yap-args.c \
 	C/ypstdio.c \
@@ -300,7 +289,7 @@ C_SOURCES= \
 	OPTYap/tab.tries.c OPTYap/tab.completion.c \
 	C/cut_c.c \
 	library/dialect/swi/fli/swi.c \
-	library/dialect/swi/fli/blobs.c \
+	C/blobs.c \
 	# library/mpi/mpi.c library/mpi/mpe.c \
 	# library/lammpi/yap_mpi.c library/lamm1pi/hash.c library/lammpi/prologterms2c.c
 
@@ -374,26 +363,35 @@ SWI_LIB_SOURCES= \
 YAPDOCS=docs/yap.tex docs/chr.tex \
 	docs/clpr.tex docs/swi.tex
 
-IOLIB_OBJECTS=pl-buffer.o pl-codelist.o pl-ctype.o pl-dtoa.o pl-error.o  \
-	pl-file.o pl-files.o pl-fmt.o \
-	pl-glob.o pl-locale.o pl-option.o \
-	pl-nt.o \
-	pl-os.o pl-privitf.o \
-	pl-prologflag.o \
-	pl-read.o \
-	pl-rl.o \
-	pl-stream.o pl-string.o pl-table.o \
-	pl-tai.o pl-text.o pl-utf8.o \
-	pl-version.o pl-write.o \
-	pl-yap.o @WINDOWS@ uxnt.o
+IOLIB_OBJECTS=\
+	os/charsio.o \
+	os/chartypes.o\
+	os/console.o\
+	os/files.o\
+	os/fmemopen.o\
+	os/format.o\
+	os/iopreds.o\
+	os/mem.o\
+	os/pipes.o\
+	os/readline.o\
+	os/readterm.o\
+	os/readutil.o\
+	os/sockets.o\
+	os/streams.o\
+	os/sysbits.o\
+	os/writeterm.o\
+	os/ypsocks.o\
+	os/ypstdio.o
 
 ENGINE_OBJECTS = \
 	agc.o absmi.o adtdefs.o alloc.o amasm.o analyst.o arrays.o \
+	args.o \
 	arith0.o arith1.o arith2.o atomic.o attvar.o \
 	bignum.o bb.o \
 	cdmgr.o cmppreds.o compiler.o computils.o \
 	corout.o cut_c.o dbase.o dlmalloc.o errors.o eval.o \
-	exec.o exo.o exo_udi.o globals.o gmp_support.o gprof.o grow.o \
+	exec.o exo.o exo_udi.o flags.o \
+	globals.o gmp_support.o gprof.o grow.o \
 	heapgc.o index.o init.o  inlines.o \
 	iopreds.o depth_bound.o mavar.o \
 	modules.o other.o   \
@@ -401,9 +399,10 @@ ENGINE_OBJECTS = \
 	save.o scanner.o signals.o text.o sort.o stdpreds.o \
 	sysbits.o threads.o tracer.o \
 	udi.o\
+	utf8.o\
 	unify.o userpreds.o utilpreds.o \
 	yap-args.o write.o \
-	blobs.o swi.o ypstdio.o \
+	blobs.o library/dialect/swi/fli/swi.o library/dialect/swi/fli/blobs.o ypstdio.o \
 	$(IOLIB_OBJECTS)
 
 JIT_OBJECTS = \
@@ -428,6 +427,7 @@ MYDDAS_ALL_OBJECTS = \
 
 MYDDAS_OBJECTS = @OBJECTS_MYDDAS@
 
+# not being compiled.
 LIBTAI_OBJECTS = \
 	tai_add.o tai_now.o tai_pack.o \
         tai_sub.o tai_unpack.o taia_add.o taia_approx.o \
@@ -458,7 +458,7 @@ STATIC_OBJECTS = \
 LIB_OBJECTS = $(ENGINE_OBJECTS) \
 	$(C_INTERFACE_OBJECTS) $(OR_OBJECTS)  \
 	$(BEAM_OBJECTS) $(STATIC_OBJECTS) \
-	$(LIBTAI_OBJECTS)  $(JIT_OBJECTS) 	\
+	$(JIT_OBJECTS) \
 	$(MYDDAS_OBJECTS)
 
 OBJECTS = yap.o yapi.o $(LIB_OBJECTS)
@@ -474,7 +474,7 @@ all: startup.yss windowsi
 windowsi:
 	@WINDOWS@ yap-win@EXEC_SUFFIX@
 
-Makefile: Makefile.in
+Makefile: $(srcdir)/Makefile.in
 
 H/Yap.h: config.h YapTermConfig.h \
 		H/YapTags.h \
@@ -502,6 +502,9 @@ udi.o: C/udi.c config.h
 save.o: C/save.c
 	$(CC) -c $(C_INTERF_FLAGS) -DYAPSTARTUP=\"$(YAPSTARTUP)\" $< -o $@
 
+library/dialect/swi/fli/%.o: library/dialect/swi/fli/%.c  library/dialect/swi/fli/swi.h include/SWI-Prolog.h library/dialect/swi/os/SWI-Stream.h config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)/library/dialect/swi/fli -I$(srcdir)/library/dialect/swi/os  $<  -o $@
+
 %.o: C/%.c config.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
@@ -525,9 +528,6 @@ yap_random.o: library/random/yap_random.c config.h
 
 %.o: library/regex/%.c  @NO_BUILTIN_REGEXP@ library/regex/regex2.h  library/regex/engine.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include -Ilibrary/regex $< -o $@
-
-%.o: library/dialect/swi/fli/%.c  library/dialect/swi/fli/swi.h include/SWI-Prolog.h os/SWI-Stream.h config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -Ilibrary/dialect/swi/fli  $<  -o $@
 
 %.o: os/%.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -Ios  @EXTRA_INCLUDES_FOR_WIN32@  $< -o $@

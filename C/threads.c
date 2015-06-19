@@ -28,9 +28,8 @@ static char     SccsId[] = "%W% %G%";
 #include "YapHeap.h"
 #include "eval.h"
 #include "yapio.h"
-#include "pl-shared.h"
+#include "blobs.h"
 #include <stdio.h>
-#include <SWI-Prolog.h>
 #if HAVE_STRING_H
 #include <string.h>
 #endif
@@ -39,8 +38,8 @@ static char     SccsId[] = "%W% %G%";
 #endif /* TABLING */
 
 
-PL_blob_t PL_Message_Queue = {
-  PL_BLOB_MAGIC,
+blob_type_t PL_Message_Queue = {
+  YAP_BLOB_MAGIC_B,
   PL_BLOB_UNIQUE | PL_BLOB_NOCOPY,
   "message_queue",
   0, // release
@@ -64,32 +63,6 @@ static Int p_nodebug_locks( USES_REGS1 ) { debug_locks = 0; debug_pe_locks = 0; 
 #include "threads.h"
 
 
-/*
- * This file includes the definition of threads in Yap. Threads
- * are supposed to be compatible with the SWI-Prolog thread package.
- *
- */
-
-static void
-set_system_thread_id(int wid, PL_thread_info_t *info)
-{
-  if (!info)
-    info = (PL_thread_info_t *)malloc(sizeof(PL_thread_info_t));
-  info = SWI_thread_info(wid, info);
-  info->tid = pthread_self();
-  info->has_tid = TRUE;
-#ifdef HAVE_GETTID_SYSCALL
-  info->pid = syscall(__NR_gettid);
-#else
-#ifdef HAVE_GETTID_MACRO
-  info->pid = gettid();
-#else
-#ifdef __WINDOWS__
-  info->w32id = GetCurrentThreadId();
-#endif
-#endif
-#endif
-}
 
 int
 Yap_ThreadID( void )
@@ -358,7 +331,6 @@ kill_thread_engine (int wid, int always_die)
     free(REMOTE_ScratchPad(wid).ptr);
 //  if (REMOTE_TmpPred(wid).ptr)
 //    free(REMOTE_TmpPred(wid).ptr);
-  REMOTE_PL_local_data_p(wid)->reg_cache =
     REMOTE_ThreadHandle(wid).current_yaam_regs = NULL;
   if (REMOTE_ThreadHandle(wid).start_of_timesp)
     free(REMOTE_ThreadHandle(wid).start_of_timesp);
@@ -394,7 +366,6 @@ setup_engine(int myworker_id, int init_thread)
   CACHE_REGS
     REGSTORE *standard_regs;
   
-  set_system_thread_id( myworker_id, NULL );
   standard_regs = (REGSTORE *)calloc(1,sizeof(REGSTORE));
   if (!standard_regs)
     return FALSE;
@@ -402,7 +373,6 @@ setup_engine(int myworker_id, int init_thread)
   /* create the YAAM descriptor */
   REMOTE_ThreadHandle(myworker_id).default_yaam_regs = standard_regs;
   REMOTE_ThreadHandle(myworker_id).current_yaam_regs = standard_regs;
-  REMOTE_PL_local_data_p(myworker_id)->reg_cache = standard_regs;
   Yap_InitExStacks(myworker_id, REMOTE_ThreadHandle(myworker_id).tsize, REMOTE_ThreadHandle(myworker_id).ssize);
   REMOTE_SourceModule(myworker_id) = CurrentModule = REMOTE_ThreadHandle(myworker_id).cmod;
   // create a mbox
@@ -711,12 +681,10 @@ Yap_thread_attach_engine(int wid)
   if (REMOTE_ThreadHandle(wid).ref_count ) {
     REMOTE_ThreadHandle(wid).ref_count++;
     REMOTE_ThreadHandle(wid).pthread_handle = pthread_self();
-    set_system_thread_id(wid, SWI_thread_info(wid, NULL));
     MUTEX_UNLOCK(&(REMOTE_ThreadHandle(wid).tlock));
     return TRUE;
   }
   REMOTE_ThreadHandle(wid).pthread_handle = pthread_self();
-  set_system_thread_id(wid, SWI_thread_info(wid, NULL));
   REMOTE_ThreadHandle(wid).ref_count++;
   pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(wid).current_yaam_regs);
   MUTEX_UNLOCK(&(REMOTE_ThreadHandle(wid).tlock));
@@ -1196,7 +1164,7 @@ p_with_mutex( USES_REGS1 )
   }
   if (
       pe->OpcodeOfPred != FAIL_OPCODE &&
-      Yap_execute_pred(pe, NULL PASS_REGS) ) {
+      Yap_execute_pred(pe, NULL, true PASS_REGS) ) {
     rc = TRUE;
   }
  end:
@@ -1592,37 +1560,28 @@ p_thread_unlock( USES_REGS1 )
 }
 
 intptr_t
-system_thread_id(PL_thread_info_t *info)
-{ if ( !info )
-    { CACHE_REGS
-	if ( LOCAL )
-	  info = SWI_thread_info(worker_id, NULL);
-	else
-	  return -1;
-    }
-#ifdef __linux__
-  return info->pid;
-#else
-#ifdef __WINDOWS__
-  return info->w32id;
-#else
-  return (intptr_t)info->tid;
-#endif
+system_thread_id(void)
+{
+#ifdef HAVE_GETTID_SYSCALL
+    return syscall(__NR_gettid);
+#elif defined( HAVE_GETTID_MACRO )
+    return gettid();
+#elif  defined(__WINDOWS__)
+    return GetCurrentThreadId();
 #endif
 }
+
+
 
 void 
 Yap_InitFirstWorkerThreadHandle(void)
 {
   CACHE_REGS
-    set_system_thread_id(0, NULL);
   LOCAL_ThreadHandle.id = 0;
   LOCAL_ThreadHandle.in_use = TRUE;
   LOCAL_ThreadHandle.default_yaam_regs = 
     &Yap_standard_regs;
   LOCAL_ThreadHandle.current_yaam_regs = 
-    &Yap_standard_regs;
-  LOCAL_PL_local_data_p->reg_cache =
     &Yap_standard_regs;
   LOCAL_ThreadHandle.pthread_handle = pthread_self();
   pthread_mutex_init(&REMOTE_ThreadHandle(0).tlock, NULL);
@@ -1840,7 +1799,7 @@ p_new_mutex(void)
   }
   if (
       pe->OpcodeOfPred != FAIL_OPCODE &&
-      Yap_execute_pred(pe, NULL PASS_REGS) ) {
+      Yap_execute_pred(pe, NULL, false PASS_REGS) ) {
     rc = TRUE;
   }
  end:

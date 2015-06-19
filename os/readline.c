@@ -68,16 +68,10 @@ typedef struct scan_atoms {
 static char *
 atom_enumerate(const char *prefix, int state)
 {
+    CACHE_REGS
   struct scan_atoms *index;
   Atom            catom;
   Int            i;
-
-#ifdef THREADS
-  if ( !atomgen_key ) {
-    pthread_key_create(&atomgen_key, NULL);
-    state = FALSE;
-  }
-#endif
 
   if ( !state )
     { index = (struct scan_atoms *)malloc(sizeof(struct scan_atoms));
@@ -85,11 +79,8 @@ atom_enumerate(const char *prefix, int state)
       catom = NIL;
   } else
   {
-#ifdef O_PLMT
-    index = (struct scan_atoms *)pthread_getspecific(atomgen_key);
-#else
-    index = LOCAL_search_atoms;
-#endif
+      CACHE_REGS
+      index = LOCAL_search_atoms;
     catom = index->atom;
     i = index->pos;
   }
@@ -111,11 +102,7 @@ atom_enumerate(const char *prefix, int state)
       if ( strstr( ap->StrOfAE, prefix) == ap->StrOfAE) {
 	index->pos = i;
 	index->atom = ap->NextOfAE;
-#ifdef O_PLMT
-	pthread_setspecific(atomgen_key,index);
-#else
 	LOCAL_search_atoms = index;
-#endif
 	READ_UNLOCK(ap->ARWLock);
 	return ap->StrOfAE;
       }
@@ -123,11 +110,7 @@ atom_enumerate(const char *prefix, int state)
       READ_UNLOCK(ap->ARWLock);
     }
   }
-#ifdef THREADS
-  pthread_setspecific(atomgen_key,NULL);
-#else
   LOCAL_search_atoms = NULL;
-#endif
   free(index);
   return NULL;
 }
@@ -255,6 +238,7 @@ InitReadline(void) {
 static bool
 getLine( int inp, int out )
 {
+    CACHE_REGS
   rl_instream = GLOBAL_Stream[inp].file;
   rl_outstream = GLOBAL_Stream[out].file;
   const char *myrl_line;
@@ -324,7 +308,6 @@ ReadlinePutc (int sno, int ch)
 static int
 ReadlineGetc(int sno)
 {
-    CACHE_REGS
   StreamDesc *s = &GLOBAL_Stream[sno];
   int ch;
   bool fetch = (s->u.irl.buf == NULL);

@@ -180,7 +180,7 @@ register struct yami* P1REG asm ("bp"); /* can't use yamop before Yap.h */
 #ifdef LOW_LEVEL_TRACER
 #include "tracer.h"
 #endif
-#include "pl-shared.h"
+
 #ifdef DEBUG
 /**********************************************************************
  *                                                                    *
@@ -222,7 +222,8 @@ restore_absmi_regs(REGSTORE * old_regs)
 #else
   Yap_regp = old_regs;
 #endif
-  LOCAL_PL_local_data_p->reg_cache = old_regs;
+  // not neeeded any more
+  // LOCAL_PL_local_data_p->reg_cache = old_regs;
 }
 #endif /* PUSH_REGS */
 

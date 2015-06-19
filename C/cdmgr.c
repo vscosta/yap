@@ -527,12 +527,14 @@ static StaticIndex *find_owner_static_index(StaticIndex *, yamop *);
 			      (CODEADDR)(P) < (CODEADDR)(B)+(SZ))
 
 static PredEntry *
-PredForChoicePt(yamop *p_code) {
+PredForChoicePt(yamop *p_code, op_numbers *opn) {
   while (TRUE) {
     op_numbers opnum;
     if (!p_code)
       return NULL;
     opnum = Yap_op_from_opcode(p_code->opc);
+    if (opn)
+        *opn = opnum;
     switch(opnum) {
     case _Nstop:
       return NULL;
@@ -626,10 +628,10 @@ PredForChoicePt(yamop *p_code) {
 }
 
 PredEntry *
-Yap_PredForChoicePt(choiceptr cp) {
+Yap_PredForChoicePt(choiceptr cp, op_numbers *op) {
   if (cp == NULL)
     return NULL;
-  return PredForChoicePt(cp->cp_ap);
+  return PredForChoicePt(cp->cp_ap, op);
 }
 
 static void
@@ -974,9 +976,9 @@ IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
     Term tmod = ap->ModuleOfPred;
     if (!tmod)
       tmod = TermProlog;
-    Yap_DebugPutc(LOCAL_c_error_stream,'\t');
+    Yap_DebugPutc(stderr,'\t');
     Yap_DebugPlWrite(tmod);
-    Yap_DebugPutc(LOCAL_c_error_stream,':');
+    Yap_DebugPutc(stderr,':');
     if (ap->ModuleOfPred == IDB_MODULE) {
       Term t = Deref(ARG1);
       if (IsAtomTerm(t)) {
@@ -987,7 +989,7 @@ IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
 	Functor f = FunctorOfTerm(t);
 	Atom At = NameOfFunctor(f);
 	Yap_DebugPlWrite(MkAtomTerm(At));
-	Yap_DebugPutc(LOCAL_c_error_stream,'/');
+	Yap_DebugPutc(stderr,'/');
 	Yap_DebugPlWrite(MkIntTerm(ArityOfFunctor(f)));
       }
     } else {
@@ -998,11 +1000,11 @@ IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
 	Functor f = ap->FunctorOfPred;
 	Atom At = NameOfFunctor(f);
 	Yap_DebugPlWrite(MkAtomTerm(At));
-	Yap_DebugPutc(LOCAL_c_error_stream,'/');
+	Yap_DebugPutc(stderr,'/');
 	Yap_DebugPlWrite(MkIntTerm(ArityOfFunctor(f)));
       }
     }
-    Yap_DebugPutc(LOCAL_c_error_stream,'\n');
+    Yap_DebugPutc(stderr,'\n');
   }
 #endif
   /* Do not try to index a dynamic predicate  or one whithout args */
@@ -1030,7 +1032,7 @@ IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
   }
 #ifdef DEBUG
   if (GLOBAL_Option['i' - 'a' + 1])
-    Yap_DebugPutc(LOCAL_c_error_stream,'\n');
+    Yap_DebugPutc(stderr,'\n');
 #endif
 }
 
@@ -1638,7 +1640,7 @@ source_pred(PredEntry *p, yamop *q)
     return FALSE;
   if (p->PredFlags & MultiFileFlag)
     return TRUE;
-  if (yap_flags[SOURCE_MODE_FLAG]) {
+  if (trueGlobalPrologFlag(SOURCE_FLAG)) {
     return TRUE;
   }
   return FALSE;
@@ -2289,6 +2291,21 @@ goal_expansion_support(PredEntry *p, Term tf)
     }
   }
 }
+
+Int
+Yap_source_line_no( void )
+{
+    CACHE_REGS
+  return LOCAL_SourceFileLineno;
+}
+
+Atom
+Yap_source_file_name( void )
+{ 
+    CACHE_REGS
+  return LOCAL_SourceFileName;
+}
+
 
 static int
 addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
@@ -3605,7 +3622,7 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
     /* now mark the choicepoint */
 
     if (b_ptr)
-      pe = PredForChoicePt(b_ptr->cp_ap);
+      pe = PredForChoicePt(b_ptr->cp_ap, NULL);
     else
       return FALSE;
     if (pe == p) {
@@ -3671,6 +3688,7 @@ do_toggle_static_predicates_in_use(int mask)
 
   do {
     PredEntry *pe;
+    
     /* check first environments that are younger than our latest choicepoint */
     while (b_ptr > (choiceptr)env_ptr) {
       PredEntry *pe = EnvPreg((yamop *)env_ptr[E_CP]);
@@ -3680,7 +3698,7 @@ do_toggle_static_predicates_in_use(int mask)
     }
     /* now mark the choicepoint */
     if ((b_ptr)) {
-      if ((pe = PredForChoicePt(b_ptr->cp_ap))) {
+      if ((pe = PredForChoicePt(b_ptr->cp_ap, NULL))) {
 	mark_pred(mask, pe);
       }
     }
@@ -3814,7 +3832,7 @@ all_calls( USES_REGS1 )
 
   ts[0] = MkIntegerTerm((Int)P);
   ts[1] = MkIntegerTerm((Int)CP);
-  if (yap_flags[STACK_DUMP_ON_ERROR_FLAG]) {
+  if (trueLocalPrologFlag(STACK_DUMP_ON_ERROR_FLAG)) {
     ts[2] = all_envs(ENV PASS_REGS);
     ts[3] = all_cps(B PASS_REGS);
     if (ts[2] == 0L ||
@@ -4128,7 +4146,7 @@ Yap_PredForCode(yamop *codeptr, find_pred_type where_from, Atom *pat, arity_t *p
   PredEntry *p;
 
   if (where_from == FIND_PRED_FROM_CP) {
-    p = PredForChoicePt(codeptr);
+    p = PredForChoicePt(codeptr, NULL);
   } else if (where_from == FIND_PRED_FROM_ENV) {
     p = EnvPreg(codeptr);
     if (p) {
@@ -4320,7 +4338,7 @@ PredEntry *
 Yap_PredEntryForCode(yamop *codeptr, find_pred_type where_from, CODEADDR *startp, CODEADDR *endp) {
   CACHE_REGS
   if (where_from == FIND_PRED_FROM_CP) {
-    PredEntry *pp = PredForChoicePt(codeptr);
+    PredEntry *pp = PredForChoicePt(codeptr, NULL);
     if (cl_code_in_pred(pp, codeptr, startp, endp)) {
       return pp;
     }
@@ -6663,6 +6681,68 @@ p_nth_instance( USES_REGS1 )
 
 }
 
+static Int predicate_flags(USES_REGS1) { /* $predicate_flags(+Functor,+Mod,?OldFlags,?NewFlags) */
+  PredEntry *pe;
+  pred_flags_t newFl;
+  Term t1 = Deref(ARG1);
+  Term mod = Deref(ARG2);
+
+  if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
+    return (FALSE);
+  }
+  if (IsVarTerm(t1))
+    return (FALSE);
+  if (IsAtomTerm(t1)) {
+    while ((pe = RepPredProp(PredPropByAtom(AtomOfTerm(t1), mod))) == NULL) {
+      if (!Yap_growheap(FALSE, 0, NULL)) {
+        Yap_Error(OUT_OF_HEAP_ERROR, ARG1, "while generating new predicate");
+        return FALSE;
+      }
+      t1 = Deref(ARG1);
+      mod = Deref(ARG2);
+    }
+  } else if (IsApplTerm(t1)) {
+    Functor funt = FunctorOfTerm(t1);
+    while ((pe = RepPredProp(PredPropByFunc(funt, mod))) == NULL) {
+      if (!Yap_growheap(FALSE, 0, NULL)) {
+        Yap_Error(OUT_OF_HEAP_ERROR, ARG1, "while generating new predicate");
+        return FALSE;
+      }
+      t1 = Deref(ARG1);
+      mod = Deref(ARG2);
+    }
+  } else
+    return (FALSE);
+  if (EndOfPAEntr(pe))
+    return (FALSE);
+  PELOCK(92, pe);
+  if (!Yap_unify_constant(ARG3, MkIntegerTerm(pe->PredFlags))) {
+    UNLOCK(pe->PELock);
+    return (FALSE);
+  }
+  ARG4 = Deref(ARG4);
+  if (IsVarTerm(ARG4)) {
+    UNLOCK(pe->PELock);
+    return (TRUE);
+  } else if (!IsIntegerTerm(ARG4)) {
+    Term te = Yap_Eval(ARG4);
+
+    if (IsIntegerTerm(te)) {
+      newFl = IntegerOfTerm(te);
+    } else {
+      UNLOCK(pe->PELock);
+      Yap_Error(TYPE_ERROR_INTEGER, ARG4, "flags");
+      return (FALSE);
+    }
+  } else
+    newFl = IntegerOfTerm(ARG4);
+  pe->PredFlags = newFl;
+  UNLOCK(pe->PELock);
+  return TRUE;
+}
+
+
+
 void
 Yap_InitCdMgr(void)
 {
@@ -6677,6 +6757,7 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$rm_spy", 2, p_rmspy, SafePredFlag|SyncPredFlag);
   /* gc() may happen during compilation, hence these predicates are
 	now unsafe */
+  Yap_InitCPred("$predicate_flags", 4, predicate_flags, SyncPredFlag);
   Yap_InitCPred("$compile", 4, p_compile, SyncPredFlag);
   Yap_InitCPred("$compile_dynamic", 5, p_compile_dynamic, SyncPredFlag);
   Yap_InitCPred("$purge_clauses", 2, p_purge_clauses, SafePredFlag|SyncPredFlag);

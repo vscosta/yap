@@ -21,7 +21,6 @@ static char     SccsId[] = "%W% %G%.2";
 #include "Yatom.h"
 #include "YapHeap.h"
 #include "yapio.h"
-#include "pl-shared.h"
 #include "YapText.h"
 #include <stdlib.h>
 #if HAVE_STRING_H
@@ -51,6 +50,9 @@ p_load_foreign( USES_REGS1 )
   yhandle_t CurSlot = Yap_StartSlots();
 
   strcpy(LOCAL_ErrorSay,"Invalid arguments");
+  Yap_DebugPlWrite(ARG1);  printf("%s\n", " \n");
+  Yap_DebugPlWrite(ARG2);  printf("%s\n", " \n");
+  Yap_DebugPlWrite(ARG3);  printf("%s\n", " \n");
 
   /* collect the list of object files */
   t = Deref(ARG1);

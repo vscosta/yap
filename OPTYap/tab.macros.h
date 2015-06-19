@@ -478,7 +478,6 @@ typedef enum {
 #endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
 
 
-
 #define new_table_entry(TAB_ENT, PRED_ENTRY, ATOM, ARITY, MODE_ARRAY)  \
         ALLOC_TABLE_ENTRY(TAB_ENT);                                    \
         INIT_LOCK_TAB_ENT(TAB_ENT);                                    \
@@ -490,11 +489,11 @@ typedef enum {
         SetMode_ExecAnswers(TabEnt_flags(TAB_ENT));                    \
         SetMode_LocalTrie(TabEnt_flags(TAB_ENT));                      \
         TabEnt_mode(TAB_ENT) = TabEnt_flags(TAB_ENT);                  \
-        if (IsMode_Local(yap_flags[TABLING_MODE_FLAG]))                \
+        if (IsMode_Local(LOCAL_TabMode))                \
           SetMode_Local(TabEnt_mode(TAB_ENT));                         \
-        if (IsMode_LoadAnswers(yap_flags[TABLING_MODE_FLAG]))          \
+        if (IsMode_LoadAnswers(LOCAL_TabMode))				       \
           SetMode_LoadAnswers(TabEnt_mode(TAB_ENT));                   \
-        if (IsMode_GlobalTrie(yap_flags[TABLING_MODE_FLAG]))           \
+        if (IsMode_GlobalTrie(LOCAL_TabMode))				       \
           SetMode_GlobalTrie(TabEnt_mode(TAB_ENT));                    \
         TabEnt_init_mode_directed_field(TAB_ENT, MODE_ARRAY);          \
         TabEnt_init_subgoal_trie_field(TAB_ENT);                       \
@@ -1237,7 +1236,7 @@ static inline void __restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr U
 
 static inline CELL *__expand_auxiliary_stack(CELL *stack USES_REGS) {
   char *old_top = (char *)LOCAL_TrailTop;
-  INFORMATION_MESSAGE("Expanding trail in 64 Kbytes");
+  INFORMATION_MESSAGE("Expanding trail in " UInt_FORMAT " bytes", K64);
   if (! Yap_growtrail(K64, TRUE)) {  /* TRUE means 'contiguous_only' */
     Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)");
     return NULL;

@@ -19,6 +19,11 @@
 #define ALIGN_LONGS 1
 #endif
 
+/* size in bits of words. */
+#ifndef BITNESS
+#define BITNESS "${bitness}"
+#endif
+
 /* if fflush(NULL) clobbers input pipes1 */
 #ifndef BROKEN_FFLUSH_NULL
 #cmakedefine BROKEN_FFLUSH_NULL "${BROKEN_FFLUSH_NULL}"
@@ -36,17 +41,17 @@
 
 /* compilation flags */
 #ifndef C_CFLAGS
-#define C_CFLAGS "${CMAKE_C_CFLAGS}"
+#define C_CFLAGS "${CFLAGS_EXPORT} ${CMAKE_C_FLAGS} ${FLAGS} ${LANGUAGE_COMPILE_FLAGS}"
 #endif
 
 /* linking flags */
 #ifndef C_LDFLAGS
-#define C_LDFLAGS "${CMAKE_SHARED_LINKER_FLAGS}"
+#define C_LDFLAGS "${LINK_FLAGS} ${LINK_LIBRARIES}"
 #endif
 
 /* libs for linking with DLLs */
 #ifndef C_LIBPLSO
-#define C_LIBPLSO "${CMAKE_SHARED_LINKER_FLAGS} -lYap"
+#define C_LIBPLSO "${CMAKE_SHARED_LINKER_FLAGS} ${LINK_FLAGS} ${LINK_LIBRARIES}"
 #endif
 
 /* main libs for YAP */
@@ -255,30 +260,6 @@ function. */
 #cmakedefine HAVE_CTYPE_H ${HAVE_CTYPE_H}
 #endif
 
-/* Define to 1 if you have the declaration of `rl_catch_signals ', and to 0 if
-you don't. */
-#ifndef HAVE_DECL_RL_CATCH_SIGNALS_
-#cmakedefine HAVE_DECL_RL_CATCH_SIGNALS ${HAVE_DECL_RL_CATCH_SIGNALS}
-#endif
-
-/* Define to 1 if you have the declaration of `rl_done ', and to 0 if you
-don't. */
-#ifndef HAVE_DECL_RL_DONE_
-#cmakedefine HAVE_DECL_RL_DONE_ ${HAVE_DECL_RL_DONE_}
-#endif
-
-/* Define to 1 if you have the declaration of `rl_event_hook', and to 0 if you
-don't. */
-#ifndef HAVE_DECL_RL_EVENT_HOOK
-#cmakedefine HAVE_DECL_RL_EVENT_HOOK ${HAVE_DECL_RL_EVENT_HOOK}
-#endif
-
-/* Define to 1 if you have the declaration of `rl_readline_state', and to 0 if
-you don't. */
-#ifndef HAVE_DECL_RL_READLINE_STATE
-#cmakedefine HAVE_DECL_RL_READLINE_STATE ${HAVE_DECL_RL_READLINE_STATE}
-#endif
-
 /* Define to 1 if you have the <direct.h> header file. */
 #ifndef HAVE_DIRECT_H
 #cmakedefine HAVE_DIRECT_H ${HAVE_DIRECT_H}
@@ -404,6 +385,11 @@ you don't. */
 #cmakedefine HAVE_FLSLL ${HAVE_FLSLL}
 #endif
 
+/* Define to 1 if you have the `fmemopen' function. */
+#ifndef HAVE_FMEMOPEN
+#cmakedefine HAVE_FMEMOPEN ${HAVE_FMEMOPEN}
+#endif
+
 /* Define to 1 if you have the `fpclass' function. */
 #ifndef HAVE_FPCLASS
 #cmakedefine HAVE_FPCLASS ${HAVE_FPCLASS}
@@ -422,6 +408,11 @@ you don't. */
 /* Define to 1 if you have the `ftruncate' function. */
 #ifndef HAVE_FTRUNCATE
 #cmakedefine HAVE_FTRUNCATE ${HAVE_FTRUNCATE}
+#endif
+
+/* Define to 1 if you have the `funopen' function. */
+#ifndef HAVE_FUNOPEN
+#cmakedefine HAVE_FUNOPEN ${HAVE_FUNOPEN}
 #endif
 
 /* Old m4 auto-heder generation, not really useful now */
@@ -594,6 +585,11 @@ you don't. */
 #cmakedefine HAVE_CRYPT ${HAVE_CRYPT}
 #endif
 
+/* Define to 1 if you have the <memory.h> header file. */
+#ifndef HAVE_LIBGEN_H
+#cmakedefine HAVE_LIBGEN_H ${HAVE_LIBGEN_H}
+#endif
+
 
 /* Define to 1 if you have the `gmp' library (-lgmp). */
 #ifndef HAVE_LIBGMP
@@ -725,10 +721,6 @@ you don't. */
 #define HAVE_LIBRAPTOR2 ${HAVE_LIBRAPTOR2}
 #endif
 
-/* Define if you have libreadline */
-#ifndef HAVE_LIBREADLINE
-#define HAVE_LIBREADLINE ${READLINE_FOUND}
-#endif
 
 /* Define to 1 if you have the `resolv' library (-lresolv). */
 #ifndef HAVE_LIBRESOLV
@@ -930,10 +922,16 @@ you don't. */
 #cmakedefine HAVE_NULLPTR ${HAVE_NULLPTR}
 #endif
 
+/* Define to 1 if you have the `open_memstream' function. */
+#ifndef HAVE_OPEN_MEMSTREAM
+#cmakedefine HAVE_OPEN_MEMSTREAM ${HAVE_OPEN_MEMSTREAM}
+#endif
+
 /* Define to 1 if you have the `opendir' function. */
 #ifndef HAVE_OPENDIR
 #cmakedefine HAVE_OPENDIR ${HAVE_OPENDIR}
 #endif
+
 
 /* Define to 1 if you have the <openssl/ripemd.h> header file. */
 #cmakedefine HAVE_OPENSSL_RIPEMD_H ${HAVE_OPENSSL_RIPEMD_H}
@@ -998,15 +996,6 @@ you don't. */
 #cmakedefine HAVE_RAPTOR_H ${HAVE_RAPTOR_H}
 #endif
 
-/* Define to 1 if you have the <readline/history.h> header file. */
-#ifndef HAVE_READLINE_HISTORY_H
-#cmakedefine HAVE_READLINE_HISTORY_H ${HAVE_READLINE_HISTORY_H}
-#endif
-
-/* Define to 1 if you have the <readline/readline.h> header file. */
-#ifndef HAVE_READLINE_READLINE_H
-#cmakedefine HAVE_READLINE_READLINE_H ${HAVE_READLINE_READLINE_H}
-#endif
 
 /* Define to 1 if you have the `readlink' function. */
 #ifndef HAVE_READLINK
@@ -1052,76 +1041,6 @@ signal. */
 /* Define to 1 if you have the <Rinterface.h> header file. */
 #ifndef HAVE_RINTERFACE_H
 #cmakedefine HAVE_RINTERFACE_H ${HAVE_RINTERFACE_H}
-#endif
-
-/* Define to 1 if you have the `rl_begin_undo_group' function. */
-#ifndef HAVE_RL_BEGIN_UNDO_GROUP
-#cmakedefine HAVE_RL_BEGIN_UNDO_GROUP ${HAVE_RL_BEGIN_UNDO_GROUP}
-#endif
-
-/* Define to 1 if you have the `rl_clear_pending_input' function. */
-#ifndef HAVE_RL_CLEAR_PENDING_INPUT
-#cmakedefine HAVE_RL_CLEAR_PENDING_INPUT ${HAVE_RL_CLEAR_PENDING_INPUT}
-#endif
-
-/* Define to 1 if the system has the type `rl_completion_func_t'). */
-#ifndef HAVE_RL_COMPLETION_FUNC_T
-#cmakedefine HAVE_RL_COMPLETION_FUNC_T ${HAVE_RL_COMPLETION_FUNC_T}
-#endif
-
-/* Define to 1 if the system has the type `rl_completion_func_t'. */
-#ifndef HAVE_RL_COMPLETION_FUNC_T
-#cmakedefine HAVE_RL_COMPLETION_FUNC_T ${HAVE_RL_COMPLETION_FUNC_T}
-#endif
-
-/* Define to 1 if you have the `rl_completion_matches' function. */
-#ifndef HAVE_RL_COMPLETION_MATCHES
-#cmakedefine HAVE_RL_COMPLETION_MATCHES ${HAVE_RL_COMPLETION_MATCHES}
-#endif
-
-/* Define to 1 if you have the `rl_discard_argument' function. */
-#ifndef HAVE_RL_DISCARD_ARGUMENT
-#cmakedefine HAVE_RL_DISCARD_ARGUMENT ${HAVE_RL_DISCARD_ARGUMENT}
-#endif
-
-/* Define to 1 if you have the `rl_done' variable. */
-#ifndef HAVE_RL_DONE
-#define HAVE_RL_DONE ${HAVE_RL_DONE}
-#endif
-
-/* Define to 1 if you have the `rl_filename_completion_function' function. */
-#ifndef HAVE_RL_FILENAME_COMPLETION_FUNCTION
-#define HAVE_RL_FILENAME_COMPLETION_FUNCTION ${HAVE_RL_FILENAME_COMPLETION_FUNCTION}
-#endif
-
-/* Define to 1 if you have the `rl_free_line_state' function. */
-#ifndef HAVE_RL_FREE_LINE_STATE
-#cmakedefine HAVE_RL_FREE_LINE_STATE ${HAVE_RL_FREE_LINE_STATE}
-#endif
-
-/* Define to 1 if the system has the type `rl_hook_func_t'. */
-#ifndef HAVE_RL_HOOK_FUNC_T
-#cmakedefine HAVE_RL_HOOK_FUNC_T ${HAVE_RL_HOOK_FUNC_T}
-#endif
-
-/* Define to 1 if you have the `rl_insert_close' function. */
-#ifndef HAVE_RL_INSERT_CLOSE
-#cmakedefine HAVE_RL_INSERT_CLOSE ${HAVE_RL_INSERT_CLOSE}
-#endif
-
-/* Define to 1 if you have the `rl_reset_after_signal' function. */
-#ifndef HAVE_RL_RESET_AFTER_SIGNAL
-#cmakedefine HAVE_RL_RESET_AFTER_SIGNAL ${HAVE_RL_RESET_AFTER_SIGNAL}
-#endif
-
-/* Define to 1 if you have the `rl_set_keyboard_input_timeout' function. */
-#ifndef HAVE_RL_SET_KEYBOARD_INPUT_TIMEOUT
-#cmakedefine HAVE_RL_SET_KEYBOARD_INPUT_TIMEOUT ${HAVE_RL_SET_KEYBOARD_INPUT_TIMEOUT}
-#endif
-
-/* Define to 1 if you have the `rl_set_prompt' function. */
-#ifndef HAVE_RL_SET_PROMPT
-#cmakedefine HAVE_RL_SET_PROMPT ${HAVE_RL_SET_PROMPT}
 #endif
 
 /* Define to 1 if you have the <R.h> header file. */
@@ -1747,8 +1666,18 @@ signal. */
 #endif
 
 /* Define to the version of this package. */
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "${YAP_VERSION}"
+#ifndef YAP_FULL_VERSION
+#define YAP_FULL_VERSION "[ YAP ${YAP_FULL_GIT_VERSION} (${CMAKE_SYSTEM}-${YAP_ARCH}): ${YAP_TIMESTAMP}@${YAP_SITE} ]\n"
+#endif
+
+/* Define to the version of this package. */
+#ifndef YAP_GIT_HEAD
+#define YAP_GIT_HEAD g_GIT_SHA1
+#endif
+
+/* Define to the version of this package. */
+#ifndef YAP_NUMERIC_VERSION
+#define YAP_NUMERIC_VERSION "${YAP_NUMERIC_VERSION}"
 #endif
 
 /* Define as the return type of signal handlers (`int' or `void'). */
@@ -1838,7 +1767,7 @@ signal. */
 
 /* library search variable */
 #ifndef SO_PATH
-#cmakedefine SO_PATH "${SO_PATH}"
+#define SO_PATH "${dlls}"
 #endif
 
 /* enable condor distributed execution, static compilation */
@@ -1928,42 +1857,15 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 
 /* architecture */
 #ifndef YAP_ARCH
-#define YAP_ARCH "${YAP_ARCH}"
+#define YAP_ARCH     "${YAP_ARCH}"
 #endif
 
-/* where the yap executable lives */
-#ifndef YAP_BINDIR
-#define YAP_BINDIR "${YAP_BINDIR}"
-#endif
-
-/* YAP version string */
-#ifndef YAP_FULL_VERSION
-#define YAP_FULL_VERSION "YAP ${YAP_FULL_VERSION}: ${YAP_ARCH}-${CMAKE_SYSTEM}, @${YAP_SITE}, ${YAP_TIMESTAMP}"
-#endif
-
-/* where to look for shared libraries */
-#ifndef YAP_LIBDIR
-#define YAP_LIBDIR "${YAP_LIBDIR}"
-#endif
-
-/* numerical version */
-#ifndef YAP_NUMERIC_VERSION
-#define YAP_NUMERIC_VERSION ${YAP_NUMERIC_VERSION}
-#endif
-
-/* where to look for Prolog sources */
 #ifndef YAP_PL_SRCDIR
-#define YAP_PL_SRCDIR "${YAP_PL_SRCDIR}"
+#define YAP_PL_SRCDIR "${PROJECT_SOURCE_DIR}/pl}"
 #endif
 
-/* where YAP lives */
-#ifndef YAP_ROOTDIR
-#define YAP_ROOTDIR "${YAP_ROOTDIR}"
-#endif
-
-/* where to look for the Prolog library */
 #ifndef YAP_SHAREDIR
-#define YAP_SHAREDIR "${YAP_SHAREDIR}"
+#define YAP_SHAREDIR  "${YAP_SHAREDIR}"
 #endif
 
 /* saved state file */
@@ -1973,22 +1875,42 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 
 /* date of compilation */
 #ifndef YAP_TIMESTAMP
-#define YAP_TIMESTAMP "${YAP_TIMESTAMP}"
+#define YAP_TIMESTAMP ${YAP_TIMESTAMP}
+#endif
+
+/* yap version as a term */
+#ifndef YAP_TVERSION
+#define YAP_TVERSION "yap(${YAP_MAJOR_VERSION},${YAP_MINOR_VERSION},${YAP_PATCH_VERSION},0)"
 #endif
 
 /* what timezone we are in */
 #ifndef YAP_VAR_TIMEZONE
-#define YAP_VAR_TIMEZONE "${YAP_VAR_TIMEZONE}"
+#define YAP_VAR_TIMEZONE ${YAP_VAR_TIMEZONE}
 #endif
 
-/* yap version */
-#ifndef YAP_VERSION
-#define YAP_VERSION "${YAP_VERSION}"
+/* yap compiled at */
+#ifndef YAP_COMPILED_AT
+#define YAP_COMPILED_AT "${YAP_TIMESTAMP}@${YAP_SITE}"
 #endif
 
 /* name of YAP library */
 #ifndef YAP_YAPLIB
 #define YAP_YAPLIB "${YAP_YAPLIB}"
+#endif
+
+/* name of YAP library */
+#ifndef YAP_BINDIR
+#define YAP_BINDIR "${bindir}"
+#endif
+
+/* name of YAP library */
+#ifndef YAP_ROOTDIR
+#define YAP_ROOTDIR "${YAP_ROOTDIR}"
+#endif
+
+/* name of YAP library */
+#ifndef YAP_LIBDIR
+#define YAP_LIBDIR "${YAP_LIBDIR}"
 #endif
 
 /* name of YAP JIT library */
@@ -2006,10 +1928,6 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 #cmakedefine _XOPEN_SOURCE_EXTENDED "${_XOPEN_SOURCE_EXTENDED}"
 #endif
 
-/* compiling for Windows */
-#ifndef __WINDOWS__
-#cmakedefine __WINDOWS__ "${__WINDOWS__}"
-#endif
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #ifndef const
@@ -2032,6 +1950,14 @@ calls it, or to nothing if 'inline' is not supported under any name.  */
 /* Define to `int' if <sys/types.h> does not define. */
 #ifndef pid_t
 #cmakedefine pid_t "${pid_t}"
+#endif
+
+#ifndef MAXPATHLEN
+#ifdef PATH_MAX
+#define MAXPATHLEN PATH_MAX
+#else
+#define MAXPATHLEN 1024
+#endif
 #endif
 
 #endif

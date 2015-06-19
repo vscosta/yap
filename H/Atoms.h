@@ -94,8 +94,6 @@ typedef struct ExtraAtomEntryStruct
 #	define EndOfPAEntr(P)	( Addr(P) == NIL )
 #endif
 
-#define AtomName(at)	RepAtom(at)->StrOfAE
-
 
 /* ********************** Properties  **********************************/
 
@@ -142,5 +140,6 @@ typedef struct FunctorEntryStruct
 } FunctorEntry;
 
 typedef FunctorEntry *Functor;
+
 
 #endif /* ATOMS_H */

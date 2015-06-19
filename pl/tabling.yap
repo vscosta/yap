@@ -291,10 +291,10 @@ table(Pred) :-
    '$undefined'(PredFunctor,Mod), !,
    '$c_table'(Mod,PredFunctor,PredModeList).
 '$set_table'(Mod,PredFunctor,_PredModeList) :-
-   '$flags'(PredFunctor,Mod,Flags,Flags),
+   '$predicate_flags'(PredFunctor,Mod,Flags,Flags),
    Flags /\ 0x00000040 =:= 0x00000040, !.
 '$set_table'(Mod,PredFunctor,PredModeList) :-
-   '$flags'(PredFunctor,Mod,Flags,Flags),
+   '$predicate_flags'(PredFunctor,Mod,Flags,Flags),
    Flags /\ 0x1991F8C0 =:= 0,
    '$c_table'(Mod,PredFunctor,PredModeList), !.
 '$set_table'(Mod,PredFunctor,_PredModeList) :-
@@ -346,7 +346,7 @@ is_tabled(Pred) :-
    atom(PredName), 
    integer(PredArity),
    functor(PredFunctor,PredName,PredArity),
-   '$flags'(PredFunctor,Mod,Flags,Flags), !,
+   '$predicate_flags'(PredFunctor,Mod,Flags,Flags), !,
    Flags /\ 0x000040 =\= 0.
 '$do_is_tabled'(Mod,Pred) :- 
    '$do_pi_error'(type_error(callable,Pred),is_tabled(Mod:Pred)).
@@ -377,7 +377,7 @@ tabling_mode(Pred,Options) :-
    atom(PredName), 
    integer(PredArity),
    functor(PredFunctor,PredName,PredArity),
-   '$flags'(PredFunctor,Mod,Flags,Flags), !,
+   '$predicate_flags'(PredFunctor,Mod,Flags,Flags), !,
    (
        Flags /\ 0x000040 =\= 0, !, '$set_tabling_mode'(Mod,PredFunctor,Options)
    ;
@@ -438,7 +438,7 @@ abolish_table(Pred) :-
    atom(PredName), 
    integer(PredArity),
    functor(PredFunctor,PredName,PredArity),
-   '$flags'(PredFunctor,Mod,Flags,Flags), !,
+   '$predicate_flags'(PredFunctor,Mod,Flags,Flags), !,
    (
        Flags /\ 0x000040 =\= 0, !, '$c_abolish_table'(Mod,PredFunctor)
    ;
@@ -478,7 +478,7 @@ show_table(Stream,Pred) :-
    atom(PredName), 
    integer(PredArity),
    functor(PredFunctor,PredName,PredArity),
-   '$flags'(PredFunctor,Mod,Flags,Flags), !,
+   '$predicate_flags'(PredFunctor,Mod,Flags,Flags), !,
    (
        Flags /\ 0x000040 =\= 0, !, '$c_show_table'(Stream,Mod,PredFunctor)
    ;
@@ -518,7 +518,7 @@ table_statistics(Stream,Pred) :-
    atom(PredName), 
    integer(PredArity),
    functor(PredFunctor,PredName,PredArity),
-   '$flags'(PredFunctor,Mod,Flags,Flags), !,
+   '$predicate_flags'(PredFunctor,Mod,Flags,Flags), !,
    (
        Flags /\ 0x000040 =\= 0, !, '$c_table_statistics'(Stream,Mod,PredFunctor)
    ;

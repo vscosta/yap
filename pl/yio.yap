@@ -67,67 +67,6 @@ setting and clearing this flag are given under 7.7.
 
 /* stream predicates							*/
 
-/* check whether a list of options is valid */
-'$check_io_opts'(V,G) :- var(V), !,
-	'$do_error'(instantiation_error,G).
-'$check_io_opts'([],_) :- !.
-'$check_io_opts'([H|_],G) :- var(H), !,
-	'$do_error'(instantiation_error,G).
-'$check_io_opts'([Opt|T],G) :- !,
-	'$check_opt'(G,Opt,G),
-	'$check_io_opts'(T,G).
-'$check_io_opts'(T,G) :-
-	'$do_error'(type_error(list,T),G).
-
-'$check_opt'(read_term(_,_),Opt,G) :-
-	'$check_opt_read'(Opt, G).
-'$check_opt'(stream_property(_,_),Opt,G) :-
-	'$check_opt_sp'(Opt, G).
-
-'$check_opt_read'(variables(_), _) :- !.
-'$check_opt_read'(variable_names(_), _) :- !.
-'$check_opt_read'(singletons(_), _) :- !.
-'$check_opt_read'(syntax_errors(T), G) :- !,
-	'$check_read_syntax_errors_arg'(T, G).
-'$check_opt_read'(term_position(_), _) :- !.
-'$check_opt_read'(term_position(_), _) :- !.
-'$check_opt_read'(comments(_), _) :- !.
-'$check_opt_read'(module(_), _) :- !.
-'$check_opt_read'(A, G) :-
-	'$do_error'(domain_error(read_option,A),G).
-
-'$check_opt_sp'(file_name(_), _) :- !.
-'$check_opt_sp'(mode(_), _) :- !.
-'$check_opt_sp'(input, _) :- !.
-'$check_opt_sp'(output, _) :- !.
-'$check_opt_sp'(alias(_), _) :- !.
-'$check_opt_sp'(position(_), _) :- !.
-'$check_opt_sp'(end_of_stream(_), _) :- !.
-'$check_opt_sp'(eof_action(_), _) :- !.
-'$check_opt_sp'(reposition(_), _) :- !.
-'$check_opt_sp'(type(_), _) :- !.
-'$check_opt_sp'(bom(_), _) :- !.
-'$check_opt_sp'(encoding(_), _) :- !.
-'$check_opt_sp'(representation_errors(_), _) :- !.
-'$check_opt_sp'(A, G) :-
-	'$do_error'(domain_error(stream_property,A),G).
-
-'$check_read_syntax_errors_arg'(X, G) :- var(X), !,
-	'$do_error'(instantiation_error,G).
-'$check_read_syntax_errors_arg'(dec10,_) :- !.
-'$check_read_syntax_errors_arg'(fail,_) :- !.
-'$check_read_syntax_errors_arg'(error,_) :- !.
-'$check_read_syntax_errors_arg'(quiet,_) :- !.
-'$check_read_syntax_errors_arg'(X,G) :-
-	'$do_error'(domain_error(read_option,syntax_errors(X)),G).
-
-'$check_boolean'(X, _, _, G) :- var(X), !,
-	'$do_error'(instantiation_error,G).
-'$check_boolean'(true,_,_,_) :- !.
-'$check_boolean'(false,_,_,_) :- !.
-'$check_boolean'(_X, B, T, G) :-
-	'$do_error'(domain_error(B,T),G).
-
 /** @defgroup IO_Sockets YAP Old Style Socket and Pipe Interface
     @ingroup InputOutput
     @{
@@ -143,15 +82,6 @@ Call socket/4 with  _TYPE_ bound to `SOCK_STREAM'` and
 
  
 */
-socket(Domain, Sock) :-
-	(
-	 '$undefined'(ip_socket(_,_),yap_sockets)
-	->
-	 load_files(library(sockets), [silent(true),if(not_loaded)])
-	;
-	 true
-	),
-	yap_sockets:ip_socket(Domain, Sock).
 
 /** @pred  socket(+ _DOMAIN_,+ _TYPE_,+ _PROTOCOL_,- _SOCKET_) 
 
@@ -170,16 +100,6 @@ supported: `SOCK_STREAM'` and `SOCK_DGRAM'` (untested in 6.3).
 
  
 */
-socket(Domain, Type, Protocol, Sock) :-
-	(
-	 '$undefined'(ip_socket(_,_),yap_sockets)
-	->
-	 load_files(library(sockets), [silent(true),if(not_loaded)])
-	;
-	 true
-	),
-	yap_sockets:ip_socket(Domain, Type, Protocol, Sock).
-
 /** @pred  socket_connect(+ _SOCKET_, + _PORT_, - _STREAM_) 
 
 
@@ -196,58 +116,18 @@ connect to socket at file  _FILENAME_.
 
 + 'AF_INET'(+ _HOST_,+ _PORT_)
 Connect to socket at host  _HOST_ and port  _PORT_.
-
+*/
 
  
-*/
-socket_connect(Sock, Host, Read) :-
-	(
-	 '$undefined'(ip_socket(_,_),yap_sockets)
-	->
-	 load_files(library(sockets), [silent(true),if(not_loaded)])
-	;
-	 true
-	),
-	yap_sockets:tcp_connect(Sock, Host:Read).
-
 /** @pred open_pipe_streams(Read, Write)
 
   Autoload old pipe access interface
 
 */
-open_pipe_streams(Read, Write) :-
-	(
-	 '$undefined'(pipe(_,_),unix)
-	->
-	 load_files(library(unix), [silent(true),if(not_loaded)])
-	;
-	 true
-	),
-	unix:pipe(Read, Write),
-	yap_flag(encoding, X),
-	set_stream(Read, encoding(X) ),
-	set_stream(Write, encoding(X) ).
-
 %! @}
 
 
-/**  @pred fileerrors 
 
-Switches on the file_errors flag so that in certain error conditions
-Input/Output predicates will produce an appropriated message and abort.
-
- */
-fileerrors :- 	'$swi_set_prolog_flag'(fileerrors, true).
-
-/** @pred  nofileerrors 
-
-Switches off the file_errors flag, so that the predicates see/1,
-tell/1, open/3 and close/1 just fail, instead of producing
-an error message and aborting whenever the specified file cannot be
-opened or closed.
-
-*/
-nofileerrors :- '$swi_set_prolog_flag'(fileerrors, false).
 
 /** @pred  exists(+ _F_) 
 
@@ -262,28 +142,6 @@ exists(F) :-
 
 /* Term IO	*/
 
-/** @pred  read(- _T_) is iso 
-
-Reads the next term from the current input stream, and unifies it with
- _T_. The term must be followed by a dot (`.`) and any blank-character
-as previously defined. The syntax of the term must match the current
-declarations for operators (see op). If the end-of-stream is reached, 
- _T_ is unified with the atom `end_of_file`. Further reads from of 
-the same stream may cause an error failure (see open/3).
-
-*/
-read(T) :-
-	read_term(T, []).
-
-/** @pred  read(+ _S_,- _T_) is iso
-
-Reads term  _T_ from the stream  _S_ instead of from the current input
-stream.
-
- 
-*/
-read(Stream,T) :-
-	read_term(Stream, T, []).
 
 %! @}
 
@@ -475,6 +333,7 @@ current_char_conversion(X,Y) :-
 	'$fetch_char_conversion'(List,X,Y).
 
 
+
 /** @pred  current_stream( _F_, _M_, _S_) 
 
 
@@ -489,6 +348,7 @@ with  _S_.
  
 */
 current_stream(File, Mode, Stream) :-
+	
     stream_property(Stream, mode(Mode)),
     '$stream_name'(Stream, File).
 
@@ -560,16 +420,7 @@ stream_position_data(Prop, Term, Value) :-
 '$stream_position_field'(byte_count,    4).
 
 
-'$default_expand'(Expand) :-
-	get_value('$open_expands_filename',Expand).
-
-'$set_default_expand'(true) :- !,
-	set_value('$open_expands_filename',true).
-'$set_default_expand'(false) :- !,
-	set_value('$open_expands_filename',false).
-'$set_default_expand'(V) :- !,
-	'$do_error'(domain_error(flag_value,V),yap_flag(open_expands_file_name,V)).
-
+ 
 %! @}
 
 

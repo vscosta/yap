@@ -15,7 +15,7 @@
 **                          Memory management                          **
 ************************************************************************/
 
-extern int Yap_page_size;
+extern size_t Yap_page_size;
 
 #ifdef USE_PAGES_MALLOC
 #include <sys/shm.h>
@@ -513,8 +513,8 @@ extern int Yap_page_size;
 **                            Debug macros                             **
 ************************************************************************/
 
-#define INFORMATION_MESSAGE(MESSAGE,ARGS...)                            \
-        Sfprintf(Serror, "[ " MESSAGE " ]\n", ##ARGS)
+#define INFORMATION_MESSAGE(MESSAGE, ...)		\
+  fprintf( stderr, "[ " MESSAGE " ]\n", __VA_ARGS__)
 
 #ifdef YAPOR
 #define ERROR_MESSAGE(MESSAGE)                                          \
@@ -551,6 +551,6 @@ extern int Yap_page_size;
 #define INFO_THREADS_MAIN_THREAD(MESSAGE, ARGS...)                      \
         Sfprintf(Serror, "[ " MESSAGE " ]\n", ##ARGS)
 #else
-#define INFO_THREADS(MESG, ARGS...)
-#define INFO_THREADS_MAIN_THREAD(MESSAGE, ARGS...)
+#define INFO_THREADS(MESG, ...)
+#define INFO_THREADS_MAIN_THREAD(MESSAGE, ...)
 #endif /* OUTPUT_THREADS_TABLING */

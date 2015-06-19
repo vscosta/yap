@@ -78,7 +78,7 @@ static inline void traverse_update_arity(char *, int *, int *);
 *******************************/
 
 static struct trie_statistics{
-  IOSTREAM *out;
+  FILE *out;
   int show;
   long subgoals;
   long subgoals_incomplete;
@@ -144,7 +144,7 @@ static struct trie_statistics{
 #define SHOW_TABLE_ARITY_ARRAY_SIZE 10000
 #define SHOW_TABLE_STRUCTURE(MESG, ARGS...)      \
         if (TrStat_show == SHOW_MODE_STRUCTURE)  \
-          Sfprintf(TrStat_out, MESG, ##ARGS)
+          fprintf(TrStat_out, MESG, ##ARGS)
 
 #define CHECK_DECREMENT_GLOBAL_TRIE_REFERENCE(REF,MODE)		                                            \
         if (MODE == TRAVERSE_MODE_NORMAL && IsVarTerm(REF) && REF > VarIndexOfTableTerm(MAX_TABLE_VARS)) {  \
@@ -1637,7 +1637,7 @@ void abolish_table(tab_ent_ptr tab_ent) {
 }
 
 
-void show_table(tab_ent_ptr tab_ent, int show_mode, IOSTREAM *out) {
+void showTable(tab_ent_ptr tab_ent, int show_mode, FILE *out) {
   CACHE_REGS
   sg_node_ptr sg_node;
 
@@ -1655,40 +1655,40 @@ void show_table(tab_ent_ptr tab_ent, int show_mode, IOSTREAM *out) {
   TrStat_ans_nodes = 0;
   TrStat_gt_refs = 0;
   if (show_mode == SHOW_MODE_STATISTICS)
-    Sfprintf(TrStat_out, "Table statistics for predicate '%s", AtomName(TabEnt_atom(tab_ent)));
+    fprintf(TrStat_out, "Table statistics for predicate '%s", AtomName(TabEnt_atom(tab_ent)));
   else  /* SHOW_MODE_STRUCTURE */
-    Sfprintf(TrStat_out, "Table structure for predicate '%s", AtomName(TabEnt_atom(tab_ent)));
+    fprintf(TrStat_out, "Table structure for predicate '%s", AtomName(TabEnt_atom(tab_ent)));
 #ifdef MODE_DIRECTED_TABLING
   if (TabEnt_mode_directed(tab_ent)) {
     int i, *mode_directed = TabEnt_mode_directed(tab_ent);
-    Sfprintf(TrStat_out, "(");
+    fprintf(TrStat_out, "(");
     for (i = 0; i < TabEnt_arity(tab_ent); i++) {
       int mode = MODE_DIRECTED_GET_MODE(mode_directed[i]);
       if (mode == MODE_DIRECTED_INDEX) {
-	Sfprintf(TrStat_out, "index");
+	fprintf(TrStat_out, "index");
       } else if (mode == MODE_DIRECTED_MIN) {
-	Sfprintf(TrStat_out, "min");
+	fprintf(TrStat_out, "min");
       } else if (mode == MODE_DIRECTED_MAX) {
-	Sfprintf(TrStat_out, "max");
+	fprintf(TrStat_out, "max");
       } else if (mode == MODE_DIRECTED_ALL) {
-	Sfprintf(TrStat_out, "all");
+	fprintf(TrStat_out, "all");
       } else if (mode == MODE_DIRECTED_SUM) {
-	Sfprintf(TrStat_out, "sum");
+	fprintf(TrStat_out, "sum");
       } else if (mode == MODE_DIRECTED_LAST) {
-	Sfprintf(TrStat_out, "last");
+	fprintf(TrStat_out, "last");
       } else if (mode == MODE_DIRECTED_FIRST) {
-	Sfprintf(TrStat_out, "first");
+	fprintf(TrStat_out, "first");
       } else
 	Yap_Error(INTERNAL_ERROR, TermNil, "show_table: unknown mode");
       if (i != MODE_DIRECTED_GET_ARG(mode_directed[i]))
-	Sfprintf(TrStat_out, "(ARG%d)", MODE_DIRECTED_GET_ARG(mode_directed[i]) + 1);
+	fprintf(TrStat_out, "(ARG%d)", MODE_DIRECTED_GET_ARG(mode_directed[i]) + 1);
       if (i + 1 != TabEnt_arity(tab_ent))
-	Sfprintf(TrStat_out, ",");
+	fprintf(TrStat_out, ",");
     }
-    Sfprintf(TrStat_out, ")'\n");
+    fprintf(TrStat_out, ")'\n");
   } else
 #endif /* MODE_DIRECTED_TABLING */
-    Sfprintf(TrStat_out, "/%d'\n", TabEnt_arity(tab_ent));
+    fprintf(TrStat_out, "/%d'\n", TabEnt_arity(tab_ent));
   sg_node = get_subgoal_trie(tab_ent);
   if (sg_node) {
     if (TrNode_child(sg_node)) {
@@ -1726,25 +1726,25 @@ void show_table(tab_ent_ptr tab_ent, int show_mode, IOSTREAM *out) {
   if (TrStat_subgoals == 0)
     SHOW_TABLE_STRUCTURE("  EMPTY\n");
   if (show_mode == SHOW_MODE_STATISTICS) {
-    Sfprintf(TrStat_out, "  Subgoal trie structure\n");
-    Sfprintf(TrStat_out, "    Subgoals: %ld (%ld incomplete)\n", TrStat_subgoals, TrStat_sg_incomplete);
-    Sfprintf(TrStat_out, "    Subgoal trie nodes: %ld\n", TrStat_sg_nodes);
-    Sfprintf(TrStat_out, "  Answer trie structure(s)\n");
+    fprintf(TrStat_out, "  Subgoal trie structure\n");
+    fprintf(TrStat_out, "    Subgoals: %ld (%ld incomplete)\n", TrStat_subgoals, TrStat_sg_incomplete);
+    fprintf(TrStat_out, "    Subgoal trie nodes: %ld\n", TrStat_sg_nodes);
+    fprintf(TrStat_out, "  Answer trie structure(s)\n");
 #ifdef TABLING_INNER_CUTS
-    Sfprintf(TrStat_out, "    Answers: %ld (%ld pruned)\n", TrStat_answers, TrStat_answers_pruned);
+    fprintf(TrStat_out, "    Answers: %ld (%ld pruned)\n", TrStat_answers, TrStat_answers_pruned);
 #else
-    Sfprintf(TrStat_out, "    Answers: %ld\n", TrStat_answers);
+    fprintf(TrStat_out, "    Answers: %ld\n", TrStat_answers);
 #endif /* TABLING_INNER_CUTS */
-    Sfprintf(TrStat_out, "    Answers 'TRUE': %ld\n", TrStat_answers_true);
-    Sfprintf(TrStat_out, "    Answers 'NO': %ld\n", TrStat_answers_no);
-    Sfprintf(TrStat_out, "    Answer trie nodes: %ld\n", TrStat_ans_nodes);
-    Sfprintf(TrStat_out, "  Global trie references: %ld\n", TrStat_gt_refs);
+    fprintf(TrStat_out, "    Answers 'TRUE': %ld\n", TrStat_answers_true);
+    fprintf(TrStat_out, "    Answers 'NO': %ld\n", TrStat_answers_no);
+    fprintf(TrStat_out, "    Answer trie nodes: %ld\n", TrStat_ans_nodes);
+    fprintf(TrStat_out, "  Global trie references: %ld\n", TrStat_gt_refs);
   }
   return;
 }
 
 
-void show_global_trie(int show_mode, IOSTREAM *out) {
+void showGlobalTrie(int show_mode, FILE *out) {
   CACHE_REGS
 
   TrStat_out = out;
@@ -1753,9 +1753,9 @@ void show_global_trie(int show_mode, IOSTREAM *out) {
   TrStat_gt_nodes = 1;
   TrStat_gt_refs = 0;
   if (show_mode == SHOW_MODE_STATISTICS)
-    Sfprintf(TrStat_out, "Global trie statistics\n");
+    fprintf(TrStat_out, "Global trie statistics\n");
   else  /* SHOW_MODE_STRUCTURE */
-    Sfprintf(TrStat_out, "Global trie structure\n");
+    fprintf(TrStat_out, "Global trie structure\n");
   if (TrNode_child(GLOBAL_root_gt)) {
     char *str = (char *) malloc(sizeof(char) * SHOW_TABLE_STR_ARRAY_SIZE);
     int *arity = (int *) malloc(sizeof(int) * SHOW_TABLE_ARITY_ARRAY_SIZE);
@@ -1766,9 +1766,9 @@ void show_global_trie(int show_mode, IOSTREAM *out) {
   } else
     SHOW_TABLE_STRUCTURE("  EMPTY\n");
   if (show_mode == SHOW_MODE_STATISTICS) {
-    Sfprintf(TrStat_out, "  Terms: %ld\n", TrStat_gt_terms);
-    Sfprintf(TrStat_out, "  Global trie nodes: %ld\n", TrStat_gt_nodes);
-    Sfprintf(TrStat_out, "  Global trie auto references: %ld\n", TrStat_gt_refs);
+    fprintf(TrStat_out, "  Terms: %ld\n", TrStat_gt_terms);
+    fprintf(TrStat_out, "  Global trie nodes: %ld\n", TrStat_gt_nodes);
+    fprintf(TrStat_out, "  Global trie auto references: %ld\n", TrStat_gt_refs);
   }
   return;
 }

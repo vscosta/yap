@@ -875,8 +875,7 @@ static Int nofileerrors( USES_REGS1 )
 static Int style_checker( USES_REGS1 )
 {
   Term t = Deref( ARG1 );
-  CACHE_REGS
-        
+    
     if (IsVarTerm(t)) {
       Term t = TermNil;
       if ( getYapFlag( MkAtomTerm(AtomSingleVarWarnings)) == TermTrue) {
@@ -922,10 +921,10 @@ static Int style_checker( USES_REGS1 )
 Term
 Yap_StringToTerm(const char *s, size_t len, encoding_t enc, int prio, Term *bindings)
 {
+    CACHE_REGS
   Term bvar = MkVarTerm(), ctl;
   yhandle_t sl;
         
-  CACHE_REGS
     if (bindings) {
       ctl = Yap_MkApplTerm( Yap_MkFunctor(AtomVariableNames,1),1,&bvar);
       sl = Yap_InitSlot( bvar ); 
@@ -941,7 +940,7 @@ Yap_StringToTerm(const char *s, size_t len, encoding_t enc, int prio, Term *bind
   Yap_CloseStream(stream);
   if (bindings) {
     *bindings = Yap_GetFromSlot( sl );
-    Yap_RecoverSlots( sl, 1 );
+    Yap_RecoverSlots( sl, 1 PASS_REGS);
   }
   return rval;
 }
@@ -951,7 +950,6 @@ Yap_ReadFromAtom(Atom a, Term opts)
 {
   Term rval;
   int sno;
-  CACHE_REGS
     if (IsWideAtom( a )) {
       wchar_t *ws = a->WStrOfAE;
       size_t len = wcslen(ws);
@@ -972,7 +970,6 @@ readFromBuffer(const char *s, Term opts)
 {
   Term rval;
   int sno;
-  CACHE_REGS
     sno = Yap_open_buf_read_stream((char *)s, utf8_strlen1(s), ENC_ISO_UTF8, MEM_BUF_USER);
         
   rval = Yap_read_term(sno, opts, 3);

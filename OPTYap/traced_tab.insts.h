@@ -23,6 +23,7 @@
 #define VARS_ENTRY(INDEX)  (VARS_ARITY_ENTRY + 1 + vars_arity - (INDEX))
 #define SUBS_ENTRY(INDEX)  (SUBS_ARITY_ENTRY + 1 + subs_arity - (INDEX))
 
+#if 0
 /************************************************************************
 **                           clause_with_cut                           **
 ************************************************************************/
@@ -31,7 +32,7 @@ Op(clause_with_cut, e)
   { printf("clause_with_cut not supported by JIT!!\n"); exit(1); }
 ENDOp();
 
-
+#endif
 
 /************************************************************************
 **                          table_load_answer                          **
@@ -157,8 +158,8 @@ PBOp(table_load_answer, Otapl)
 **                 table_answer_resolution_completion                  **
 ************************************************************************/
 
-  BOp(table_answer_resolution_completion, Otapl)
 #ifdef THREADS_CONSUMER_SHARING
+  BOp(table_answer_resolution_completion, Otapl)
   { printf("table_answer_resolution_completion not supported by JIT!!\n"); exit(1); }
-#endif /* THREADS_CONSUMER_SHARING */
   ENDBOp();
+#endif /* THREADS_CONSUMER_SHARING */

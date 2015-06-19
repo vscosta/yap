@@ -451,6 +451,7 @@ SetBuffering ( int sno, Atom at )
     if (setvbuf( GLOBAL_Stream[sno].file, NULL, _IONBF, 0) < 0)
       return PlIOError( SYSTEM_ERROR, Yap_MkStream( sno ), "could not set disable buffering");
   } else {
+      CACHE_REGS
     LOCAL_Error_TYPE = DOMAIN_ERROR_OUT_OF_RANGE;
     LOCAL_ErrorMessage = "in set_stream/2:buffer";
     return false;
@@ -725,7 +726,7 @@ do_set_stream (int sno, Term opts USES_REGS)
 	break;
       case SET_STREAM_CLOSE_ON_ABORT:
 	rc = rc &&  
-	  SetCloseOnAbort ( sno, (args[SET_STREAM_CLOSE_ON_ABORT].tvalue == TermTrue) PASS_REGS);
+	  SetCloseOnAbort ( sno, (args[SET_STREAM_CLOSE_ON_ABORT].tvalue == TermTrue));
 	break;
       case SET_STREAM_ENCODING:
 	GLOBAL_Stream[sno]. encoding = enc_id(AtomOfTerm(args[SET_STREAM_ENCODING].tvalue)->StrOfAE);

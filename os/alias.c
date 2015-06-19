@@ -8,7 +8,7 @@
 *									 *
 **************************************************************************
 *									 *
-* File:		iopreds.c						 *
+* File:		alias.c						 *
 * Last rev:	5/2/88							 *
 * mods:									 *
 * comments:	Input/Output C implemented predicates			 *
@@ -402,6 +402,7 @@ Yap_AddAlias (Atom arg, int sno)
 struct AliasDescS *
 Yap_InitStandardAliases(void)
 {
+    CACHE_REGS
   /* init standard aliases */
 
     /* alloca alias array */

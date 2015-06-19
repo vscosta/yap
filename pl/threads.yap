@@ -1368,7 +1368,7 @@ thread_local(X) :-
 
 '$thread_local2'(A/N, Mod) :- integer(N), atom(A), !,
 	functor(T,A,N),
-	(Mod \= idb -> '$flags'(T,Mod,F,F) ; true),
+	(Mod \= idb -> '$predicate_flags'(T,Mod,F,F) ; true),
 	( '$install_thread_local'(T,Mod) -> true ;
 	   F /\ 0x08002000 =\= 0 -> '$do_error'(permission_error(modify,dynamic_procedure,A/N),thread_local(Mod:A/N)) ;
 	   '$do_error'(permission_error(modify,static_procedure,A/N),thread_local(Mod:A/N))

@@ -262,7 +262,7 @@ void    Yap_ConsolePipeOps( StreamDesc *st );
 void	Yap_SocketOps( StreamDesc *st );
 void    Yap_ConsoleSocketOps( StreamDesc *st );
 bool    Yap_ReadlineOps( StreamDesc *st );
-int	Yap_OpenBufWriteStream(void);
+int	Yap_OpenBufWriteStream( USES_REGS1);
 void    Yap_ConsoleOps( StreamDesc *s );
 
 void Yap_init_socks(char *host, long interface_port);

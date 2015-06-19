@@ -69,7 +69,6 @@ typedef int _Bool;
 #define __WINDOWS__ 1
 #endif
 #endif
-
 #ifndef X_API
 #if (defined(_MSC_VER) || defined(__MINGW32__)) && defined(PL_KERNEL)
 #define X_API __declspec(dllexport)
@@ -79,6 +78,11 @@ typedef int _Bool;
 #endif
 
 
+#include "pl-types.h"
+
+
+
+  
 		 /*******************************
 		 *	       EXPORT		*
 		 *******************************/
@@ -129,47 +133,7 @@ stuff.
 #endif
 
 
-                 /*******************************
-                 *             TYPES            *
-                 *******************************/
-
-
-#ifdef __WINDOWS__
-#ifndef INT64_T_DEFINED
-#define INT64_T_DEFINED 1
-typedef __int64 int64_t;
-typedef unsigned __int64 uint64_t;
-#if (_MSC_VER < 1300) && !defined(__MINGW32__)
-typedef long intptr_t;
-typedef unsigned long uintptr_t;
-#endif
-#endif
-#else
-#include <inttypes.h>			/* more portable than stdint.h */
-#endif
-
-#ifndef PL_HAVE_TERM_T
-#define PL_HAVE_TERM_T
-typedef	intptr_t    term_t;
-#endif
-typedef	struct mod_entry *module_t;
-typedef struct DB_STRUCT *record_t;
-typedef uintptr_t	atom_t;
-typedef	struct pred_entry    *predicate_t;
-typedef struct  open_query_struct *qid_t;
-typedef uintptr_t    functor_t;
-typedef int     (*PL_agc_hook_t)(atom_t);
-typedef uintptr_t	foreign_t;	/* return type of foreign functions */
-typedef wchar_t pl_wchar_t;             /* wide character support */
-#include <inttypes.h>			/* more portable than stdint.h */
-#if  !defined(_MSC_VER) 
-typedef uintptr_t	PL_fid_t;	/* opaque foreign context handle */
-#endif
-typedef int  (*PL_dispatch_hook_t)(int fd);
-typedef void *pl_function_t;
-
-#define fid_t PL_fid_t			/* avoid AIX name-clash */
-
+#include "pl-types.h"
 typedef struct _PL_extension
 { const char 		*predicate_name;	/* Name of the predicate */
   short		arity;			/* Arity of the predicate */
@@ -775,7 +739,7 @@ PL_EXPORT(int)		PL_set_prolog_flag(const char *name, int type, ...);
 		 /*******************************
 		 *	       BLOBS		*
 		 *******************************/
-
+#ifndef BLOBS_H
 #define PL_BLOB_MAGIC_B	0x75293a00	/* Magic to validate a blob-type */
 #define PL_BLOB_VERSION 1		/* Current version */
 #define PL_BLOB_MAGIC	(PL_BLOB_MAGIC_B|PL_BLOB_VERSION)
@@ -830,7 +794,7 @@ PL_EXPORT(PL_blob_t*)	YAP_find_blob_type(YAP_Atom at);
 PL_EXPORT(int)		PL_unregister_blob_type(PL_blob_t *type);
 PL_EXPORT(int)		PL_raise(int sig);
 
-
+#endif
 #if USE_GMP
 
 PL_EXPORT(int)		PL_get_mpz(term_t t, mpz_t mpz);

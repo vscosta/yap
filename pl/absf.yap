@@ -21,7 +21,6 @@
   variables and registry information to search for files.
 
   **/
-
 :- system_module( absolute_file_name, [absolute_file_name/2,
         absolute_file_name/3,
         add_to_path/1,
@@ -138,16 +137,23 @@ absolute_file_name(File0,File) :-
 '$absolute_file_name'(File, _Opts, _TrueFileName, G) :- var(File), !,
 	'$do_error'(instantiation_error, G).
 '$absolute_file_name'(File,Opts,TrueFileName, G) :-
+	current_prolog_flag( fileerrors, PreviousFileErrors ),
 	'$process_fn_opts'(Opts,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,G),
+	(  FErrors = fail ->
+	  set_prolog_flag( fileerrors, false )
+	;
+	  set_prolog_flag( fileerrors, true )
+	),
 	/* our own local findall */
 	nb:nb_queue(Ref),
 	(
-	    '$find_in_path'(File,opts(Extensions,RelTo,Type,Access,FErrors,Expand,Debug),TrueFileName,G),
+	    '$find_in_path'(File,opts(Extensions,RelTo,Type,Access,Errors,Expand,Debug),TrueFileName,G),
 	    nb:nb_queue_enqueue(Ref, TrueFileName),
 	    fail
 	;
 	    nb:nb_queue_close(Ref, FileNames, [])
-	 ),
+	),
+	set_prolog_flag( fileerrors, PreviousFileErrors ),
 	'$absolute_file_names'(Solutions, FileNames, FErrors, TrueFileName, File, G).
 
 '$absolute_file_names'(_Solutions, [], error, _, File, G) :- !,
@@ -159,7 +165,13 @@ absolute_file_name(File0,File) :-
 
 '$process_fn_opts'(V,_,_,_,_,_,_,_,_,G) :- var(V), !,
 	'$do_error'(instantiation_error, G).
-'$process_fn_opts'([],[],_,txt,none,error,first,false,false,_) :- !.
+'$process_fn_opts'([],[],_,txt,none,OnError,first,false,false,_) :- !,
+	current_prolog_flag(fileerrors, Flag),
+	( OnError == error ;
+	  OnError == fail ;
+	  Flag == true, OnError = error ; 
+	  Flag == false, OnError = fail ;
+	  OnError = error ), !.
 '$process_fn_opts'([Opt|Opts],Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,G) :- !,
 	'$process_fn_opt'(Opt,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions0,RelTo0,Type0,Access0,FErrors0,Solutions0,Expand0,Debug0,G),
 	'$process_fn_opts'(Opts,Extensions0,RelTo0,Type0,Access0,FErrors0,Solutions0,Expand0,Debug0,G).
@@ -282,14 +294,14 @@ absolute_file_name(File0,File) :-
 	'$to_list_of_atoms'(Bs, L2, LF).
 
 '$get_abs_file'(File,opts(_,RelTo,_,_,_,Expand,_),AbsFile) :-
-	'$swi_current_prolog_flag'(file_name_variables, OldF),
-	'$swi_set_prolog_flag'(file_name_variables, Expand),
+	current_prolog_flag(file_name_variables, OldF),
+	set_prolog_flag(file_name_variables, Expand),
 	(
 	 '$absolute_file_name'(File,ExpFile)
 	->
-	 '$swi_set_prolog_flag'(file_name_variables, OldF)
+	 set_prolog_flag(file_name_variables, OldF)
 	;
-	'$swi_set_prolog_flag'(file_name_variables, OldF),
+	 set_prolog_flag(file_name_variables, OldF),
 	 fail
 	),
 	(
@@ -314,14 +326,14 @@ absolute_file_name(File0,File) :-
 	'$add_type_extensions'(Type, File, F0),
 	'$check_file'(F0, Type, Access, F).
 
+% always verify if a directory
+'$check_file'(F, directory, _, F) :-
+	!,
+	exists_directory(F).
 '$check_file'(F, _Type, none, F) :- !.
-'$check_file'(F0, Type, Access, F0) :-
+'$check_file'(F0, _Type, Access, F0) :-
 	access_file(F0, Access),
-	(Type == directory ->
-	 exists_directory(F0)
-	;
-	\+ exists_directory(F0) % if it has a type cannot be a directory.
-	).
+	\+ exists_directory(F0). % if it has a type cannot be a directory..
 
 '$add_extensions'([Ext|_],File,F) :-
 	'$mk_sure_true_ext'(Ext,NExt),
@@ -363,7 +375,7 @@ absolute_file_name(File0,File) :-
 
 
 '$split_by_sep'(Start, Next, Dirs, Dir) :-
-    '$swi_current_prolog_flag'(windows, true),
+    current_prolog_flag(windows, true),
     '$split_by_sep'(Start, Next, Dirs, ';', Dir), !.
 '$split_by_sep'(Start, Next, Dirs, Dir) :-
     '$split_by_sep'(Start, Next, Dirs, ':', Dir).
@@ -501,9 +513,7 @@ remove_from_path(New) :- '$check_path'(New,Path),
   This directory is initialized by a rule that calls  the system predicate
   system_library/1.
 */
-
 :- multifile user:library_directory/1.
-
 :- dynamic user:library_directory/1.
 
 %% user:library_directory( ?Dir )
@@ -513,13 +523,13 @@ remove_from_path(New) :- '$check_path'(New,Path),
 % 1. honor YAPSHAREDIR
 user:library_directory( Dir ) :-
         getenv( 'YAPSHAREDIR', Dir0),
-        absolute_file_name( Dir0, [file_type(directory), expand(true)], Dir ).
+        absolute_file_name( Dir0, [file_type(directory), expand(true),file_errors(fail)], Dir ).
 %% 2. honor user-library
 user:library_directory( Dir ) :-
-        absolute_file_name( '~/share/Yap', [file_type(directory), expand(true)], Dir ).
+        absolute_file_name( '~/share/Yap', [file_type(directory), expand(true),file_errors(fail)], Dir ).
 %% 3. honor current directory
 user:library_directory( Dir ) :-
-        absolute_file_name( '.', [file_type(directory), expand(true)], Dir ).
+        absolute_file_name( '.', [file_type(directory), expand(true),file_errors(fail)], Dir ).
 %% 4. honor default location.
 user:library_directory( Dir ) :-
 	system_library( Dir ).
@@ -536,6 +546,7 @@ user:library_directory( Dir ) :-
 :- multifile user:commons_directory/1.
 
 :- dynamic user:commons_directory/1.
+
 
 user:commons_directory( Path ):-
     system_commons( Path ).
@@ -638,7 +649,6 @@ file_search_path(path, C) :-
 :- multifile user:file_search_path/2.
 
 :- dynamic user:file_search_path/2.
-
 user:file_search_path(library, Dir) :-
 	user:library_directory(Dir).
 user:file_search_path(commons, Dir) :-
@@ -662,3 +672,4 @@ user:file_search_path(path, C) :-
     ).
 
 %%@}
+

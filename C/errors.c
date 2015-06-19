@@ -38,12 +38,12 @@ Yap_PrintPredName( PredEntry *ap )
     if (!tmod) tmod = TermProlog;
 #if THREADS
     Yap_DebugPlWrite(MkIntegerTerm(worker_id));
-    Yap_DebugPutc(LOCAL_c_error_stream,' ');
+    Yap_DebugPutc(stderr,' ');
 #endif
-    Yap_DebugPutc(LOCAL_c_error_stream,'>');
-    Yap_DebugPutc(LOCAL_c_error_stream,'\t');
+    Yap_DebugPutc(stderr,'>');
+    Yap_DebugPutc(stderr,'\t');
     Yap_DebugPlWrite(tmod);
-    Yap_DebugPutc(LOCAL_c_error_stream,':');
+    Yap_DebugPutc(stderr,':');
     if (ap->ModuleOfPred == IDB_MODULE) {
       Term t = Deref(ARG1);
       if (IsAtomTerm(t)) {
@@ -54,7 +54,7 @@ Yap_PrintPredName( PredEntry *ap )
 	Functor f = FunctorOfTerm(t);
 	Atom At = NameOfFunctor(f);
 	Yap_DebugPlWrite(MkAtomTerm(At));
-	Yap_DebugPutc(LOCAL_c_error_stream,'/');
+	Yap_DebugPutc(stderr,'/');
 	Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
       }
     } else {
@@ -65,13 +65,39 @@ Yap_PrintPredName( PredEntry *ap )
 	Functor f = ap->FunctorOfPred;
 	Atom At = NameOfFunctor(f);
 	Yap_DebugPlWrite(MkAtomTerm(At));
-	Yap_DebugPutc(LOCAL_c_error_stream,'/');
+	Yap_DebugPutc(stderr,'/');
 	Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
       }
     }
-    Yap_DebugPutc(LOCAL_c_error_stream,'\n');
+    char s[1024];
+    if (ap->PredFlags & StandardPredFlag)
+      fprintf(stderr,"S");
+    if (ap->PredFlags & CPredFlag)
+      fprintf(stderr,"C");
+    if (ap->PredFlags & UserCPredFlag)
+      fprintf(stderr,"U");
+    if (ap->PredFlags & SyncPredFlag)
+      fprintf(stderr,"Y");
+    if (ap->PredFlags & LogUpdatePredFlag)
+      fprintf(stderr,"Y");
+    if (ap->PredFlags & HiddenPredFlag)
+      fprintf(stderr,"H");
+    sprintf(s,"   %llx\n",ap->PredFlags);
+    Yap_DebugPuts(stderr,s);
 }
 #endif
+
+bool
+Yap_Warning( const char *s, ... )
+{
+  va_list args;
+
+  va_start(args, s);
+  fprintf(stderr,"warning: %s\n", s);
+  va_end(args);
+
+  return true;
+}
 
 int Yap_HandleError( const char *s, ... ) {
   CACHE_REGS
@@ -208,17 +234,10 @@ legal_env (CELL *ep USES_REGS)
 }
 
 static int 
-YapPutc(int sno, wchar_t ch)
+YapPutc(FILE *f, wchar_t ch)
 {
-  return (putc(ch, stderr));
+  return (putc(ch, f));
 }
-
-static void
-YapPlWrite(Term t)
-{
-  Yap_plwrite(t, NULL, 15, 0, 1200);
-}
-
 
 void
 DumpActiveGoals ( USES_REGS1 )
@@ -261,16 +280,16 @@ DumpActiveGoals ( USES_REGS1 )
 	  if (first++ == 1)
 	    fprintf(stderr,"Active ancestors:\n");
 	  if (pe->ModuleOfPred) mod = pe->ModuleOfPred;
-	  YapPlWrite (mod);
-	  YapPutc (LOCAL_c_error_stream,':');
+	  Yap_DebugPlWrite (mod);
+	  YapPutc (stderr,':');
 	  if (pe->ArityOfPE == 0) {
-	    YapPlWrite (MkAtomTerm ((Atom)f));
+	    Yap_DebugPlWrite (MkAtomTerm ((Atom)f));
 	  } else {
-	    YapPlWrite (MkAtomTerm (NameOfFunctor (f)));
-	    YapPutc (LOCAL_c_error_stream,'/');
-	    YapPlWrite (MkIntTerm (ArityOfFunctor (f)));
+	    Yap_DebugPlWrite (MkAtomTerm (NameOfFunctor (f)));
+	    YapPutc (stderr,'/');
+	    Yap_DebugPlWrite (MkIntTerm (ArityOfFunctor (f)));
 	  }
-	  YapPutc (LOCAL_c_error_stream,'\n');
+	  YapPutc (stderr,'\n');
 	} else {
 	  UNLOCK(pe->PELock);
 	}
@@ -282,13 +301,14 @@ DumpActiveGoals ( USES_REGS1 )
   while (TRUE)
     {
       PredEntry *pe;
-      
+      op_numbers opnum;
       if (!ONLOCAL (b_ptr) || b_ptr->cp_b == NULL)
 	break;
-      pe = Yap_PredForChoicePt(b_ptr);
-      if (!pe)
-	break;
-      {
+      fprintf(stderr,"%p ", b_ptr);
+      pe = Yap_PredForChoicePt(b_ptr, &opnum);
+      if (opnum == _Nstop) {
+	fprintf(stderr, "  ********** C-Code Interface Boundary ***********\n");
+      } else {
 	Functor f;
 	Term mod = PROLOG_MODULE;
 
@@ -298,23 +318,58 @@ DumpActiveGoals ( USES_REGS1 )
 	else mod = TermProlog;
 	if (mod != TermProlog && 
 	    mod != MkAtomTerm(AtomUser) ) {
-	  YapPlWrite (mod);
-	  YapPutc (LOCAL_c_error_stream,':');
+	  Yap_DebugPlWrite (mod);
+	  YapPutc (stderr,':');
 	}
-	if (pe->ArityOfPE == 0) {
-	  YapPlWrite (MkAtomTerm ((Atom)f));
+	if (mod == IDB_MODULE) {
+	  if (pe->PredFlags & NumberDBPredFlag) {
+	    Int id = pe->src.IndxId;
+	    Yap_DebugPlWrite(MkIntegerTerm(id));
+	  } else if (pe->PredFlags & AtomDBPredFlag) {
+	    Atom At = (Atom)pe->FunctorOfPred;
+	    Yap_DebugPlWrite(MkAtomTerm(At));
+	  } else {
+	    Functor f = pe->FunctorOfPred;
+	    Atom At = NameOfFunctor(f);
+	    arity_t arity = ArityOfFunctor(f);
+	    int i;
+	    
+	    Yap_DebugPlWrite(MkAtomTerm(At));
+	    YapPutc (stderr,'(');
+	    for (i= 0; i < arity; i++) {
+	      if (i > 0) YapPutc (stderr,',');
+	      YapPutc (stderr,'_');
+	    }
+	    YapPutc (stderr,')');
+	  }
+	  YapPutc (stderr,'(');
+	  Yap_DebugPlWrite(b_ptr->cp_a2);
+	  YapPutc (stderr,')');
+	} else if (pe->ArityOfPE == 0) {
+	  Yap_DebugPlWrite (MkAtomTerm ((Atom)f));
 	} else {
 	  Int i = 0, arity = pe->ArityOfPE;
-	  Term *args = &(b_ptr->cp_a1);
-	  YapPlWrite (MkAtomTerm (NameOfFunctor (f)));
-	  YapPutc (LOCAL_c_error_stream,'(');
-	  for (i= 0; i < arity; i++) {
-	    if (i > 0) YapPutc (LOCAL_c_error_stream,',');
-	    YapPlWrite(args[i]);
+	  if (opnum == _or_last||
+	      opnum == _or_else) {
+	    Yap_DebugPlWrite (MkAtomTerm (NameOfFunctor (f)));
+	    YapPutc (stderr,'(');
+	    for (i= 0; i < arity; i++) {
+	      if (i > 0) YapPutc (stderr,',');
+	      YapPutc(stderr, '_');
+	    }
+	    Yap_DebugErrorPuts (") :- ... ( _  ; _ ");
+	  } else {
+	    Term *args = &(b_ptr->cp_a1);
+	    Yap_DebugPlWrite (MkAtomTerm (NameOfFunctor (f)));
+	    YapPutc (stderr,'(');
+	    for (i= 0; i < arity; i++) {
+	      if (i > 0) YapPutc (stderr,',');
+	      Yap_DebugPlWrite(args[i]);
+	    }
 	  }
-	  YapPutc (LOCAL_c_error_stream,')');
+	  YapPutc (stderr,')');
 	}
-	YapPutc (LOCAL_c_error_stream,'\n');
+	YapPutc (stderr,'\n');
       }
       b_ptr = b_ptr->cp_b;
     }
@@ -559,7 +614,7 @@ Yap_Error(yap_error_number type, Term where, const char *format,...)
     where = TermNil;
 #if DEBUG_STRICT
   if (Yap_heap_regs && !(LOCAL_PrologMode & BootMode)) 
-    fprintf(stderr,"***** Processing Error %d (%lx,%x) %s***\n", type, (unsigned long int)LOCAL_ActiveSignals,LOCAL_PrologMode,format);
+    fprintf(stderr,"***** Processing Error %d (%lx,%x) %s***\n", type, (unsigned long int)LOCAL_Signals,LOCAL_PrologMode,format);
   else
     fprintf(stderr,"***** Processing Error %d (%x) %s***\n", type,LOCAL_PrologMode,format);
 #endif
@@ -620,7 +675,6 @@ Yap_Error(yap_error_number type, Term where, const char *format,...)
     fprintf (stderr,"%%\n%% PC: %s\n",(char *)HR); 
     detect_bug_location(CP, FIND_PRED_FROM_ANYWHERE, (char *)HR, 256);
     fprintf (stderr,"%%   Continuation: %s\n",(char *)HR); 
-    DumpActiveGoals( PASS_REGS1 );
     error_exit_yap (1);
   }
   if (P == (yamop *)(FAILCODE))
@@ -669,8 +723,8 @@ Yap_Error(yap_error_number type, Term where, const char *format,...)
     fprintf(stderr,"%% YAP Fatal Error: %s exiting....\n",tmpbuf);
     error_exit_yap (1);
   }
-#ifdef DEBUGX
-  DumpActiveGoals( USES_REGS1 );
+#ifdef DEBUG
+  // DumpActiveGoals( USES_REGS1 );
 #endif /* DEBUG */
   switch (type) {
   case INTERNAL_ERROR:
@@ -1876,6 +1930,20 @@ Yap_Error(yap_error_number type, Term where, const char *format,...)
 
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(AtomNumber);
+      ti[1] = where;
+      nt[0] = Yap_MkApplTerm(FunctorTypeError, 2, ti);
+      psize -= i;
+      fun = FunctorError;
+      serious = TRUE;
+    }
+    break;
+   case TYPE_ERROR_PARAMETER:
+    {
+      int i;
+      Term ti[2];
+
+      i = strlen(tmpbuf);
+      ti[0] = MkAtomTerm(AtomParameter);
       ti[1] = where;
       nt[0] = Yap_MkApplTerm(FunctorTypeError, 2, ti);
       psize -= i;
