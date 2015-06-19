@@ -191,12 +191,13 @@ CACHE_A1();
     op_numbers opcode = _Ystop;
     goto critical_lbl;
 
-  nextop_write:
+    //nextop_write:
 
      opcode = Yap_op_from_opcode( PREG->y_u.o.opcw );
     goto op_switch;
 
-  nextop:
+    
+    //  nextop:
 
     opcode = Yap_op_from_opcode( PREG->opc );
 

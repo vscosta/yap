@@ -2377,7 +2377,7 @@ p_no_exit_on_error( USES_REGS1 )
 #endif
 
 void
-Yap_InitJitDebugPreds( USES_REGS1 )
+Yap_InitJitDebugPreds( void )
 {
 #if YAP_DBG_PREDS
   Yap_InitCPred("no_print_instruction", 1, p_no_print_instruction, SafePredFlag);

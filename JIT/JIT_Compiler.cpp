@@ -2,7 +2,19 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <fcntl.h>
-using namespace std;
+//using namespace std;
+//using namespace llvm;
+
+#include <llvm/Pass.h>
+#include <llvm/PassAnalysisSupport.h>
+#include <llvm/PassInfo.h>
+#include <llvm/PassManager.h>
+#include <llvm/PassRegistry.h>
+#include <llvm/PassSupport.h>
+#include <llvm/Analysis/CallGraphSCCPass.h>
+#include <llvm/CodeGen/Passes.h>
+
+#include "PassPrinters.hh"
 
 #define FREE_ALLOCATED() \
   free(buffer); \
@@ -18,7 +30,7 @@ using namespace std;
 	  fprintf(stderr, "Oops -- basicblock printer\n"); \
 	  exit(1); \
         case PT_Region: \
-          Pass.add(new RegionPassPrinter(PInfo)); \
+	  Pass.add(new RegionPassPrinter(PInfo));	\
           break; \
         case PT_Loop: \
           Pass.add(new LoopPassPrinter(PInfo)); \
@@ -30,7 +42,7 @@ using namespace std;
           Pass.add(new CallGraphSCCPassPrinter(PInfo)); \
           break; \
         default: \
-          Pass.add(new ModulePassPrinter(PInfo)); \
+	  Pass.add(new ModulePassPrinter(PInfo));	\
           break; \
         }
 
@@ -39,8 +51,6 @@ using namespace std;
 	    Kind = PASS->getPassKind(); \
 	    ADD_PASS_ACCORDING_TO_KIND();
 
-#include "PassPrinters.hh"
-
 void JIT_Compiler::analyze_module(llvm::Module* &M)
 {
   PassManager Pass; // 'Pass' stores analysis passes to be applied
@@ -48,9 +58,9 @@ void JIT_Compiler::analyze_module(llvm::Module* &M)
 
   const PassInfo *PInfo;
   PassKind Kind;
-  
+
   Pass.add(TLI); // First, I add on 'Pass' the Target Info of Module
-  Pass.add(new DataLayoutPass(M)); // Second, I must add Target Data on 'Pass'
+  Pass.add(new DataLayoutPass()); // Second, I must add Target Data on 'Pass'
   for (int i = 0; i < ExpEnv.analysis_struc.n; i++) {
     /*
      * 'ExpEnv.analysis_struc.act_an' contains sorted analysis passes *
@@ -217,15 +227,15 @@ void JIT_Compiler::optimize_module(llvm::Module* &M)
 
     /* Initializes PassManager for Function */
     std::shared_ptr<FunctionPassManager> FPM;
-    FPM.reset(new FunctionPassManager(M));
-    FPM->add(new DataLayoutPass(M));
+    FPM.reset(new legacy::FunctionPassManager(M));
+    FPM->add(new DataLayoutPass());
     PassManagerBuilder Builder; // aid to 'FPM' and 'MPM'
 	
     /* Initializes PassManager for Function */
     PassManager MPM;
     TargetLibraryInfo *TLI = new TargetLibraryInfo(Triple(M->getTargetTriple()));
     MPM.add(TLI);
-    MPM.add(new DataLayoutPass(M));
+    MPM.add(new DataLayoutPass());
 	
     /* Populates 'Builder' */
     Builder.OptLevel = ExpEnv.transform_struc.optlevel;
@@ -249,9 +259,10 @@ void JIT_Compiler::optimize_module(llvm::Module* &M)
      * Use 'link_time_opt/1', 'link_time_opt/3', 'enable_link_time_opt/0', or 'enable_link_time_opt/2' to change *
     */
     if (ExpEnv.transform_struc.link_time_opt.enabled)
-      Builder.populateLTOPassManager(MPM,
+      Builder.populateLTOPassManager(MPM /*,
                                      (bool)ExpEnv.transform_struc.link_time_opt.internalize,
-                                     (bool)ExpEnv.transform_struc.link_time_opt.runinliner);
+                                     (bool)ExpEnv.transform_struc.link_time_opt.runinliner
+					 */);
     /***/
 
     //set_regalloc_pass(MPM);
@@ -271,7 +282,7 @@ void JIT_Compiler::optimize_module(llvm::Module* &M)
     PassManager Pass; // 'Pass' stores transform passes to be applied
     TargetLibraryInfo *TLI = new TargetLibraryInfo(Triple(M->getTargetTriple()));
     Pass.add(TLI); // First, I add on 'Pass' the Target Info of Module
-    Pass.add(new DataLayoutPass(M)); // Second, I must add Target Data on 'Pass'
+    Pass.add(new DataLayoutPass()); // Second, I must add Target Data on 'Pass'
     for (int i = 0; i < ExpEnv.transform_struc.n; i++) {
       /*
        * 'ExpEnv.transform_struc.act_tr' contains sorted transform passes *
@@ -654,8 +665,15 @@ void* JIT_Compiler::compile_all(LLVMContext* &Context, yamop* p)
    * I need to read it to Module *
    * for this, I'll use 'parseBitcodeFile' *
   */
-  Module *Mod = *parseBitcodeFile(em->get(), *Context);
+  ErrorOr<Module *> ModuleOrErr =
+    parseBitcodeFile(em.get()->getMemBufferRef(), *Context);
 
+  std::unique_ptr<Module> M;
+  
+  if (std::error_code ec = ModuleOrErr.getError()) 
+    errs() <<  ec.message();
+  /* at last, get M */
+  M.reset(ModuleOrErr.get());
   /*
    * verify module correctness *
    * predicates: *
@@ -664,7 +682,7 @@ void* JIT_Compiler::compile_all(LLVMContext* &Context, yamop* p)
    *   verify_module_both/0 *
   */
   if (ExpEnv.analysis_struc.pointtoverifymodule == BEFORE || ExpEnv.analysis_struc.pointtoverifymodule == BOTH) {
-    if (verifyModule(*Mod)) {
+    if (verifyModule(*M)) {
       errs() << "ERROR:: Module not built correctly!\n";
       exit(1);
     }
@@ -677,6 +695,7 @@ void* JIT_Compiler::compile_all(LLVMContext* &Context, yamop* p)
     errs() << "Module before optimization::\n" << *Mod;
 #endif
 
+  llvm::Module *Mod = M.get();
   /* Analyze module -- analysis predicates */
   analyze_module(Mod);
   /* Optimize module -- transform predicates */
@@ -684,18 +703,18 @@ void* JIT_Compiler::compile_all(LLVMContext* &Context, yamop* p)
   
   /* Computing size of optimized module */
   {
+    std::error_code  ErrorInfo;
     /* Open file 'tmp.bc' which will be filled by optimized Module */
-    std::shared_ptr<tool_output_file> Out;
-    std::string ErrorInfo;
+    std::unique_ptr<tool_output_file> Out;
     Out.reset(new tool_output_file("tmp.bc", ErrorInfo, llvm::sys::fs::F_None));
-    if (!ErrorInfo.empty()) {
-      errs() << ErrorInfo << '\n';
+    if (ErrorInfo) {
+      errs() << ErrorInfo.message() << '\n';
       exit(1);
     }
     /* 'createPrintModulePass(arg)' will print Module (now optimized) to on file represented by 'arg' */
     PassManager Pass;
     Pass.add(createPrintModulePass(Out->os()));
-    Pass.run(*Mod);
+    Pass.run(*M);
     /* 'Out->keep()' will keep printed module to file and will close file */
     Out->keep();
 	
@@ -708,7 +727,7 @@ void* JIT_Compiler::compile_all(LLVMContext* &Context, yamop* p)
     close(Outtmp);
     remove("tmp.bc");
   }
-  /***/
+  /***/\
   
 #if YAP_DBG_PREDS
   /* for debug... print module after optimizing it */
@@ -741,63 +760,63 @@ void* JIT_Compiler::compile_all(LLVMContext* &Context, yamop* p)
 
   /* Creating EngineBuilder -- called 'builder' */
   Function *EntryFn;
-  EngineBuilder builder(Mod);
-  builder.setErrorStr(&errStr);
-  builder.setJITMemoryManager(JITMemoryManager::CreateDefaultMemManager());
-  builder.setEngineKind(EngineKind::JIT);
-  // codegen predicate 'engine_opt_level/1'
+   
+  llvm::CodeGenOpt::Level level;
   switch(ExpEnv.codegen_struc.struc_enginebuilder.engineoptlevel) {
     case 0:
-      builder.setOptLevel(CodeGenOpt::None);
+      level = CodeGenOpt::None;
       break;
     case 1:
-      builder.setOptLevel(CodeGenOpt::Less);
+      level = CodeGenOpt::Less;
       break;
     case 2:
-      builder.setOptLevel(CodeGenOpt::Default);
+      level = CodeGenOpt::Default;
       break;
     case 3:
-      builder.setOptLevel(CodeGenOpt::Aggressive);
+      level = CodeGenOpt::Aggressive;
       break;
   }
   // codegen predicate 'relocmodel/1'
+  llvm::Reloc::Model relocmodel;
   switch(ExpEnv.codegen_struc.struc_enginebuilder.relocmodel) {
     case 0:
-      builder.setRelocationModel(Reloc::Default);
+      relocmodel = Reloc::Default;
       break;
     case 1:
-      builder.setRelocationModel(Reloc::Static);
+      relocmodel = Reloc::Static;
       break;
     case 2:
-      builder.setRelocationModel(Reloc::PIC_);
+      relocmodel = Reloc::PIC_;
       break;
     case 3:
-      builder.setRelocationModel(Reloc::DynamicNoPIC);
+      relocmodel = Reloc::DynamicNoPIC;
       break;
   }
   // codegen predicate 'codemodel/1'
+  llvm::CodeModel::Model codemodel;
   switch(ExpEnv.codegen_struc.struc_enginebuilder.codemodel) {
     case 0:
-      builder.setCodeModel(CodeModel::Default);
+      codemodel = CodeModel::Default;
       break;
     case 1:
-      builder.setCodeModel(CodeModel::JITDefault);
+      codemodel = CodeModel::JITDefault;
       break;
     case 2:
-      builder.setCodeModel(CodeModel::Small);
+      codemodel = CodeModel::Small;
       break;
     case 3:
-      builder.setCodeModel(CodeModel::Kernel);
+      codemodel = CodeModel::Kernel;
       break;
     case 4:
-      builder.setCodeModel(CodeModel::Medium);
+      codemodel = CodeModel::Medium;
       break;
     case 5:
-      builder.setCodeModel(CodeModel::Large);
+      codemodel = CodeModel::Large;
       break;
   }
+  // MCJIT is default from 3.6
   // codegen predicates 'enable_mcjit/0' or 'disable_mcjit/0'
-  builder.setUseMCJIT((bool)ExpEnv.codegen_struc.struc_enginebuilder.usemcjit);
+  //  builder.setUseMCJIT((bool)ExpEnv.codegen_struc.struc_enginebuilder.usemcjit);
   llvm::TargetOptions Options;
   {
     /* codegen predicates 'enable_framepointer_elimination/0' or 'disable_framepointer_elimination/0' */
@@ -843,11 +862,23 @@ void* JIT_Compiler::compile_all(LLVMContext* &Context, yamop* p)
       Options.FloatABIType = FloatABI::Hard;
       break;
   }
-  builder.setTargetOptions(Options);
-  /***/
+   
+  // codegen predicate 'engine_opt_level/1'
 
   /* Creating ExecutionEngine from EngineBuilder (builder) */
-  ExecutionEngine *EE = builder.create();
+  ExecutionEngine *EE =
+    EngineBuilder(std::move(M))
+    .setErrorStr(&errStr)
+    .setOptLevel( level )
+    .setRelocationModel( relocmodel )
+    .setCodeModel( codemodel )
+    .setEngineKind(EngineKind::JIT)
+       .setTargetOptions(Options)
+       // check class in Kaleidoscope example.
+       //    .setMCJITMemoryManager(std::unique_ptr<HelpingMemoryManager>(
+       //								 new HelpingMemoryManager(this)))
+    .setMCJITMemoryManager(std::unique_ptr<SectionMemoryManager>(new SectionMemoryManager()))
+    .create();
   if (!EE) {
     if (!errStr.empty())
       errs() << "Error creating Execution Engine: " << errStr << "\n";

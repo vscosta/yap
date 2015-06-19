@@ -14,6 +14,9 @@ set(LIBJIT_SOURCES
   jit_transformpreds.c
   JIT_Compiler.cpp
   JIT_Init.cpp
+  HPP/JIT.hpp
+  HPP/JIT_Compiler.hpp
+  HPP/jit_predicates.hpp
   )
 
 # The following variables are defined:
