@@ -446,7 +446,6 @@ true :- true.
 '$read_toplevel'(Goal, Bindings) :-
 	prompt1('?- '),
 	prompt(_,'|: '),
-	'$system_catch'('$raw_read'(user_input, Line), prolog, E,
 			(print_message(error, E),
 	                 '$handle_toplevel_error'(Line, E))),
 	(
