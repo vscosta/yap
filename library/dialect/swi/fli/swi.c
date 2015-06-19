@@ -1,22 +1,22 @@
-/* yap2swi.c  */
+/* xsswi.c  */
 /*
- * Project: jpl for Yap Prolog
- * Author: Steve Moyle and Vitor Santos Costa
- * Email:  steve.moyle@comlab.ox.ac.uk
- * Date:   21 January 2002
+* Project: jpl for Yap Prolog
+* Author: Steve Moyle and Vitor Santos Costa
+* Email:  steve.moyle@comlab.ox.ac.uk
+* Date:   21 January 2002
 
- * Copyright (c) 2002-2014 Vitor Santos Costa from an original version by Steve Moyle.  All rights reserved.
+* Copyright (c) 2002-2014 Vitor Santos Costa from an original version by Steve Moyle.  All rights reserved.
 
 */
 
 /**
- *
- *   @file swi.c
- *
- *   @addtogroup swi-c-interface
- *
- * @{
- */
+*
+*   @file swi.c
+*
+*   @addtogroup swi-c-interface
+*
+* @{
+*/
 
 #define PL_KERNEL 1
 
@@ -27,12 +27,16 @@
 #include	<wchar.h>
 #include	<assert.h>
 
-
 #include	<Yap.h>
 #include	<Yatom.h>
-#include	<YapHeap.h>
 #include	<eval.h>
 
+#include	<YapHeap.h>
+#include	<yapio.h>
+#include	<YapText.h>
+#include	<pl-utf8.h>
+
+#include "swi.h"
 #if HAVE_MATH_H
 #include	<math.h>
 #endif
@@ -49,10 +53,6 @@
 
 #define PL_KERNEL 1
 
-#include	<pl-shared.h>
-
-#include	<yapio.h>
-#include	<YapText.h>
 
 #ifdef USE_GMP
 #include <gmp.h>
@@ -63,9 +63,7 @@
 #include <fcntl.h>
 #endif
 
-#include "swi.h"
-
-#include "pl-error.h"
+//#include "pl-error.h"
 
 extern int		PL_unify_termv(term_t l, va_list args);
 
@@ -109,9 +107,9 @@ extern X_API Int YAP_PLArityOfSWIFunctor(functor_t at);
 X_API Int
 YAP_PLArityOfSWIFunctor(functor_t f) {
   if (((CELL)(f) & 2) && ((CELL)f) < N_SWI_FUNCTORS*4+2)
-    return ArityOfFunctor(SWI_Functors[(CELL)f/4]);
+  return ArityOfFunctor(SWI_Functors[(CELL)f/4]);
   if (IsAtomTerm(f))
-    return 0;
+  return 0;
   return ArityOfFunctor((Functor)f);
 }
 
@@ -143,34 +141,285 @@ UserCPredicate(char *a, CPredicate def, unsigned long int arity, Term mod, int f
 //!  @{
 
 /** @defgroup swi-ATOMS Atom Construction
- *  @ingroup swi-c-interface
- *  */
+*  @ingroup swi-c-interface
+*  */
 
 
-/* SWI: void PL_agc_hook(void) */
+/*  void PL_agc_hook(void) */
 /** @brief Atom garbage collection hook
- *
- */
+*
+*/
 X_API PL_agc_hook_t
 PL_agc_hook(PL_agc_hook_t entry)
 {
   return (PL_agc_hook_t)YAP_AGCRegisterHook((YAP_agc_hook)entry);
 }
 
+/*  void PL_get_nchars(term_t ref, size_t *length, char **output, unsigned flags) */
+/** @brief extract a text representing the term _ref_. A pointer to a string with the text will
+* be output to *_s_, and the size of the string will be written to *_length_,
+* if _length_ is not null.
+*
+* The following flags are recognised (as in the SWI manual )
+*   *CVT_ATOM* Convert if term is an atom.
+*   *CVT_STRING* Convert if term is a string.
+*   *CVT_LIST* Convert if term is a list of of character codes.
+*   *CVT_INTEGER* Convert if term is an integer.
+*   *CVT_FLOAT* Convert if term is a float. The characters returned are the same as write/1 would write for the floating point number.
+*   *CVT_NUMBER* Convert if term is an integer or float.
+*   *CVT_ATOMIC* Convert if term is atomic.
+*   *CVT_VARIABLE* Convert variable to print-name
+*   *CVT_WRITE* Convert any term that is not converted by any of the other flags using write/1. * If no BUF_* is provided, BUF_RING is implied.
+*   *CVT_WRITE_CANONICAL* As CVT_WRITE, but using write_canonical/2.
+*   *CVT_WRITEQ* As CVT_WRITE, but using writeq/2.
+*   *CVT_ALL* Convert if term is any of the above, except for CVT_VARIABLE and CVT_WRITE*.
+*
+*   *CVT_EXCEPTION* If conversion fails due to a type error, raise a Prolog type error exception in addition to failure
+*   *BUF_DISCARDABLE* Data must copied immediately
+*   *BUF_RING* Data is stored in a ring of buffers, currenty implemented as BUF_DISCARDABLE
+*   *BUF_MALLOC* Data is copied to a new buffer returned by PL_malloc(3). When no longer needed the user must call PL_free() on the data.
+*
+*   *REP_ISO_LATIN_1
+Text is in ISO Latin-1 encoding and the call fails if text cannot be represented. This flag has the value 0 and is thus the default.
+*   *REP_UTF8* Convert the text to a UTF-8 string. This works for all text.
+*   *REP_MB* Convert the text using the current locale
+*/
+X_API int
+PL_get_nchars(term_t l, size_t *lengthp, char **s, unsigned flags)
+{ CACHE_REGS
+  seq_tv_t inp;
+  size_t leng;
+  encoding_t enc;
+  int minimal;
+  void *buf;
+  char b[1024];
+
+  buf = b;
+  inp.val.t = Yap_GetFromSlot( l );
+  inp.type = 0;
+  if (flags & CVT_ATOM) {
+    inp.type |= YAP_STRING_ATOM;
+  }
+  if (flags & CVT_ATOM) {
+    inp.type |= YAP_STRING_STRING;
+  }
+  if (flags & CVT_LIST) {
+    inp.type |= YAP_STRING_CODES;
+  }
+  if (flags & CVT_INTEGER) {
+    inp.type |= YAP_STRING_INT|YAP_STRING_BIG;
+  }
+  if (flags & CVT_FLOAT) {
+    inp.type |= YAP_STRING_FLOAT;
+  }
+  if (flags & CVT_VARIABLE) {
+    inp.type |= YAP_STRING_TERM;
+  }
+  if (flags & CVT_WRITE) {
+    inp.type |= YAP_STRING_TERM;
+  }
+  if (flags & CVT_WRITEQ) {
+    inp.type |= YAP_STRING_TERM|YAP_STRING_WQ;
+  }
+  if (flags & CVT_WRITE_CANONICAL) {
+    inp.type |= YAP_STRING_TERM|YAP_STRING_WC;
+  }
+  if (flags & (BUF_DISCARDABLE|BUF_RING)) {
+    inp.val.c = LOCAL_FileNameBuf;
+    leng = YAP_FILENAME_MAX-1;
+  }
+  if (flags & BUF_MALLOC) {
+    inp.val.c = PL_malloc(1024);
+    leng = 1023;
+  }
+  if (!Yap_readText( buf , &inp, & enc, &minimal, & leng PASS_REGS) )
+  return false;
+
+  if (enc == ENC_ISO_UTF8) {
+    if (flags & REP_UTF8) {
+      *s = buf;
+      *lengthp = leng;
+      return true;
+    } else if  (flags & REP_ISO_LATIN_1) {
+      char *nptr = buf;
+      const char *optr = buf;
+      int chr;
+      while ((optr = _PL__utf8_get_char(optr, &chr))) {
+        if (chr > 255) {
+          if (flags & BUF_MALLOC) {
+            return false;
+          }
+        }
+        *nptr++ = chr;
+      }
+      *nptr = '\0';
+      *s = buf;
+      *lengthp = leng;
+    } else /* wide */ {
+      size_t sz = utf8_strlen1(buf)+1;
+      const char *optr = buf;
+      wchar_t *nptr, *n = buf;
+      int chr;
+      if (sz <= 1024)
+      n = nptr = (wchar_t *)malloc(sz);
+      while ((optr = _PL__utf8_get_char(optr, &chr))) {
+        *nptr++ = chr;
+      }
+      *nptr = '\0';
+      *s = buf;
+      *lengthp = leng;
+
+      // handle encodings ltaer
+    }
+  }
+  return false;
+}
+
+
+int
+PL_get_chars(term_t t, char **s, unsigned flags)
+{ return PL_get_nchars(t, NULL, s, flags);
+}
+
+int PL_get_wchars(term_t l, size_t *lengthp, wchar_t **s, unsigned flags)
+{
+  CACHE_REGS
+  seq_tv_t inp;
+  size_t leng;
+  encoding_t enc;
+  int minimal;
+  void *buf;
+  char b[1024];
+
+  buf = b;
+  inp.val.t = Yap_GetFromSlot( l );
+  inp.type = 0;
+  if (flags & CVT_ATOM) {
+    inp.type |= YAP_STRING_ATOM;
+  }
+  if (flags & CVT_ATOM) {
+    inp.type |= YAP_STRING_STRING;
+  }
+  if (flags & CVT_LIST) {
+    inp.type |= YAP_STRING_CODES;
+  }
+  if (flags & CVT_INTEGER) {
+    inp.type |= YAP_STRING_INT|YAP_STRING_BIG;
+  }
+  if (flags & CVT_FLOAT) {
+    inp.type |= YAP_STRING_FLOAT;
+  }
+  if (flags & CVT_VARIABLE) {
+    inp.type |= YAP_STRING_TERM;
+  }
+  if (flags & CVT_WRITE) {
+    inp.type |= YAP_STRING_TERM;
+  }
+  if (flags & CVT_WRITEQ) {
+    inp.type |= YAP_STRING_TERM|YAP_STRING_WQ;
+  }
+  if (flags & CVT_WRITE_CANONICAL) {
+    inp.type |= YAP_STRING_TERM|YAP_STRING_WC;
+  }
+  if (flags & (BUF_DISCARDABLE|BUF_RING)) {
+    inp.val.c = LOCAL_FileNameBuf;
+    leng = YAP_FILENAME_MAX-1;
+  }
+  if (flags & BUF_MALLOC) {
+    inp.val.w = PL_malloc(1024*SIZEOF_WCHAR_T);
+    leng = 1023;
+  }
+  if (!Yap_readText( buf , &inp, & enc, &minimal, & leng PASS_REGS) )
+  return false;
+
+  if (enc == ENC_ISO_UTF8) {
+    if (flags & REP_UTF8) {
+      *s = buf;
+      *lengthp = leng;
+      return true;
+    } else if  (flags & REP_ISO_LATIN_1) {
+      char *nptr = buf;
+      const char *optr = buf;
+      int chr;
+      while ((optr = _PL__utf8_get_char(optr, &chr))) {
+        if (chr > 255) {
+          if (flags & BUF_MALLOC) {
+            return false;
+          }
+        }
+        *nptr++ = chr;
+      }
+      *nptr = '\0';
+      *s = buf;
+      *lengthp = leng;
+    } else /* wide */ {
+      size_t sz = utf8_strlen1(buf)+1;
+      const char *optr = buf;
+      wchar_t *nptr, *n = buf;
+      int chr;
+      if (sz <= 1024)
+      n = nptr = (wchar_t *)malloc(sz*SIZEOF_WCHAR_T);
+      while ((optr = _PL__utf8_get_char(optr, &chr))) {
+        *nptr++ = chr;
+      }
+      *nptr = '\0';
+      *s = buf;
+      *lengthp = leng;
+
+      // handle encodings later
+    }
+  }
+  return false;
+}
+
+X_API int
+PL_unify_chars(term_t l, int flags, size_t length, const char *s)
+{ CACHE_REGS
+  seq_tv_t inp, out;
+
+  if (flags & REP_UTF8) {
+    inp.val.c = s;
+    if (length != (size_t)-1) {
+      inp.sz = length;
+      inp.type = YAP_STRING_CHARS|YAP_STRING_NCHARS;
+    } else {
+      inp.type = YAP_STRING_CHARS;
+    }
+  }
+  if (flags & PL_ATOM) {
+    out.type = YAP_STRING_ATOM;
+  } else if (flags & PL_STRING) {
+    out.type  = YAP_STRING_STRING;
+  } else if (flags & PL_CODE_LIST) {
+    out.type  = YAP_STRING_CODES;
+  } else if (flags & PL_CHAR_LIST) {
+    out.type  = YAP_STRING_ATOMS;
+  }
+  if (length != (size_t)-1) {
+    out.max = length;
+  }
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+  return 0L;
+  return out.val.t;
+}
+
+
+
+
 /** @brief extract the text representation from atom
- *
- */
+*
+*/
 X_API char* PL_atom_chars(atom_t a)	 /* SAM check type */
 {
   Atom at = SWIAtomToAtom(a);
   if (IsWideAtom(at))
-    return NULL;
+  return NULL;
   return RepAtom(at)->StrOfAE;
 }
 
 /** @brief extract the text representation from atom, including its length
- *
- */
+*
+*/
 X_API char* PL_atom_nchars(atom_t a, size_t *len)	 /* SAM check type */
 {
   char *s = RepAtom(SWIAtomToAtom(a))->StrOfAE;
@@ -181,35 +430,36 @@ X_API char* PL_atom_nchars(atom_t a, size_t *len)	 /* SAM check type */
 //!  @}
 
 /** @{
- *
- * @defgroup swi-term_references Term References
- *  @ingroup swi-c-interface
- *  */
+*
+* @defgroup swi-term_references Term References
+*  @ingroup swi-c-interface
+*  */
+
+/** @brief create a clean term reference
+*
+*/
+X_API term_t PL_new_term_ref(void)
+{
+  CACHE_REGS
+  term_t to = Yap_NewSlots(1);
+  return to;
+}
+
 
 /** @brief duplicate a term reference
- *
- */
+*
+*/
 X_API term_t PL_copy_term_ref(term_t from)
 {
   CACHE_REGS
   return Yap_InitSlot(Yap_GetFromSlot(from));
 }
 
-/** @brief create a new term reference
- *
- */
-X_API term_t PL_new_term_ref(void)
-{
-
-  CACHE_REGS
-  term_t to = Yap_NewSlots(1);
-  return to;
-}
 
 /** @brief create several new term references
- *
- * @par n is the number of references
- */
+*
+* @par n is the number of references
+*/
 X_API term_t PL_new_term_refs(int n)
 {
   CACHE_REGS
@@ -218,8 +468,8 @@ X_API term_t PL_new_term_refs(int n)
 }
 
 /** @brief dispose of all term references created since after
- *
- */
+*
+*/
 X_API void PL_reset_term_refs(term_t after)
 {
   CACHE_REGS
@@ -228,22 +478,22 @@ X_API void PL_reset_term_refs(term_t after)
 }
 
 /** @}
- */
+*/
 
 //!  @{
 
 /**  @defgroup swi-term_manipulation Term Manipulation
- *  @ingroup swi-c-interface
- *  */
+*  @ingroup swi-c-interface
+*  */
 
 /**
- *  @defgroup swi-get-operations Reading Terms
- *  @ingroup swi-term_manipulation
- *  */
+*  @defgroup swi-get-operations Reading Terms
+*  @ingroup swi-term_manipulation
+*  */
 
 /** @brief *name is assigned the name and *arity the arity if term ts, or the operaton fails.
- *
- */
+*
+*/
 X_API int PL_get_name_arity(term_t ts, atom_t *name, int *arity)
 {
   CACHE_REGS
@@ -272,14 +522,14 @@ X_API int PL_get_name_arity(term_t ts, atom_t *name, int *arity)
 
 
 /** @brief a is assigned the argument index from term  ts
- *
- */
+*
+*/
 X_API int PL_get_arg(int index, term_t ts, term_t a)
 {
   CACHE_REGS
-    YAP_Term t = Yap_GetFromSlot(ts );
+  YAP_Term t = Yap_GetFromSlot(ts );
   if (IsVarTerm( t ))
-    return 0;
+  return 0;
   if ( !IsApplTerm(t) ) {
     if (IsPairTerm(t)) {
       if (index == 1){
@@ -294,17 +544,17 @@ X_API int PL_get_arg(int index, term_t ts, term_t a)
   } else {
     Functor f = FunctorOfTerm(t);
     if (IsExtensionFunctor(f))
-      return 0;
+    return 0;
     if (index < 1 || index > ArityOfFunctor(f))
-      return 0;
+    return 0;
     Yap_PutInSlot(a,ArgOfTerm(index, t) PASS_REGS);
     return 1;
   }
 }
 
 /** @brief *ap is assigned the name and *ip the arity from term  ts
- *
- */
+*
+*/
 X_API int PL_get_compound_name_arity(term_t ts, atom_t *ap, int *ip)
 {
   CACHE_REGS
@@ -312,9 +562,9 @@ X_API int PL_get_compound_name_arity(term_t ts, atom_t *ap, int *ip)
   if ( !YAP_IsApplTerm(t) ) {
     if (YAP_IsPairTerm(t)) {
       if (ip)
-	*ip = 2;
+      *ip = 2;
       if (ap)
-	*ap = ATOM_nil;
+      *ap = ATOM_nil;
       return 1;
     }
     return 0;
@@ -322,9 +572,9 @@ X_API int PL_get_compound_name_arity(term_t ts, atom_t *ap, int *ip)
     Functor f = FunctorOfTerm( t );
     if (IsExtensionFunctor(f)) return FALSE;
     if (ip)
-      *ip = ArityOfFunctor( f );
+    *ip = ArityOfFunctor( f );
     if (ap)
-      *ap = AtomToSWIAtom( NameOfFunctor( f ));
+    *ap = AtomToSWIAtom( NameOfFunctor( f ));
     return 1;
   }
 }
@@ -332,36 +582,36 @@ X_API int PL_get_compound_name_arity(term_t ts, atom_t *ap, int *ip)
 
 
 /** @brief *a is assigned the atom in term  ts, or the operation fails
- *
- */
+*
+*/
 X_API int PL_get_atom(term_t ts, atom_t *a)
 {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts);
   if ( !IsAtomTerm(t))
-    return 0;
+  return 0;
   *a = AtomToSWIAtom(AtomOfTerm(t));
   return 1;
 }
 
 /** @brief *i is assigned the int in term  ts, or the operation fails
- *
- */
-/* SWI: int PL_get_integer(term_t t, int *i)
-   YAP: long int  YAP_IntOfTerm(Term) */
+*
+*/
+/*  int PL_get_integer(term_t t, int *i)
+YAP: long int  YAP_IntOfTerm(Term) */
 X_API int PL_get_integer(term_t ts, int *i)
 {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts );
   if (IsVarTerm(t) || !IsIntegerTerm(t) )
-    return 0;
+  return 0;
   *i = (int)IntegerOfTerm(t);
   return 1;
 }
 
 /** @brief *i is assigned the boolean atom `true` or `false` in term  ts, or the operation fails
- *
- */
+*
+*/
 X_API int PL_get_long(term_t ts, long *i)
 {
   CACHE_REGS
@@ -370,8 +620,8 @@ X_API int PL_get_long(term_t ts, long *i)
     if (YAP_IsFloatTerm(t)) {
       double dbl = YAP_FloatOfTerm(t);
       if (dbl - (long)dbl == 0.0) {
-	*i = (long)dbl;
-	return 1;
+        *i = (long)dbl;
+        return 1;
       }
     }
     return 0;
@@ -380,8 +630,8 @@ X_API int PL_get_long(term_t ts, long *i)
   return 1;
 }
 
-/* SWI: int PL_get_bool(term_t t, int *i)
-   YAP: long int  YAP_AtomOfTerm(Term) */
+/*  int PL_get_bool(term_t t, int *i)
+YAP: long int  YAP_AtomOfTerm(Term) */
 X_API int PL_get_bool(term_t ts, int *i)
 {
   CACHE_REGS
@@ -389,7 +639,7 @@ X_API int PL_get_bool(term_t ts, int *i)
   Atom at;
 
   if (!IsAtomTerm(t) )
-    return 0;
+  return 0;
   at = AtomOfTerm(t);
   if (at == AtomTrue) {
     *i = TRUE;
@@ -403,8 +653,8 @@ X_API int PL_get_bool(term_t ts, int *i)
 }
 
 /** @brief *a is assigned the int64 in term  ts, or the operation fails
- *
- */
+*
+*/
 X_API int PL_get_int64(term_t ts, int64_t *i)
 {
   CACHE_REGS
@@ -413,74 +663,79 @@ X_API int PL_get_int64(term_t ts, int64_t *i)
     if (YAP_IsFloatTerm(t)) {
       double dbl = YAP_FloatOfTerm(t);
       if (dbl - (int64_t)dbl == 0.0) {
-    	  *i = (int64_t)dbl;
-    	  return	 1;
+        *i = (int64_t)dbl;
+        return	 1;
       }
-#if SIZEOF_INT_P==4 && !USE_GMP
+      #if SIZEOF_INT_P==4 && !USE_GMP
       {
-      	union {
-      		double d;
-      		int64_t i;
-      	} udbi_;
-      	udbi_.d = YAP_FloatOfTerm(t);
-      	*i = udbi_.i;
-      	return 1;
+        union {
+          double d;
+          int64_t i;
+        } udbi_;
+        udbi_.d = YAP_FloatOfTerm(t);
+        *i = udbi_.i;
+        return 1;
       }
-#endif
+      #endif
       return 0;
     }
-#if USE_GMP
+    #if USE_GMP
     else if (YAP_IsBigNumTerm(t)) {
       MP_INT g;
       char s[64];
       YAP_BigNumOfTerm(t, (void *)&g);
       if (mpz_sizeinbase(&g,2) > 64) {
-	    return 0;
+        return 0;
       }
       mpz_get_str (s, 10, &g);
-#ifdef _WIN32
+      #ifdef _WIN32
       sscanf(s, "%I64d", (long long int *)i);
-#else
+      #else
       sscanf(s, "%lld", (long long int *)i);
-#endif
+      #endif
       return 1;
     }
-#endif
+    #endif
     return 0;
   }
   *i = YAP_IntOfTerm(t);
   return 1;
 }
 
+X_API int PL_get_int64_ex(term_t ts, int64_t *i)
+{
+  return PL_get_int64( ts,i);
+}
+
 /** @brief *a is assigned the intptr_t in term  ts, or the operation fails
- *
- */
+*
+*/
 X_API int PL_get_intptr(term_t ts, intptr_t *a)
 {
   CACHE_REGS
   Term t = Yap_GetFromSlot(ts);
   if ( !IsIntegerTerm(t) )
-    return 0;
+  return 0;
   *a = (intptr_t)(IntegerOfTerm(t));
   return 1;
 }
 
 /** @brief *a is assigned the uintptr_t in term  ts, or the operation fails
- *
- */
+*
+*/
 X_API int PL_get_uintptr(term_t ts, uintptr_t *a)
 {
   CACHE_REGS
   Term t = Yap_GetFromSlot(ts);
   if ( !IsIntegerTerm(t) )
-    return 0;
+  return 0;
   *a = (uintptr_t)(IntegerOfTerm(t));
   return 1;
 }
-
+#ifdef do_not_ld
 /** @brief a is assigned the argument index from term  ts
- *
- */
+*
+*/
 X_API int _PL_get_arg(int index, term_t ts, term_t a)
 {
   CACHE_REGS
@@ -488,11 +743,11 @@ X_API int _PL_get_arg(int index, term_t ts, term_t a)
   if ( !YAP_IsApplTerm(t) ) {
     if (YAP_IsPairTerm(t)) {
       if (index == 1){
-	Yap_PutInSlot(a,HeadOfTerm(t) PASS_REGS);
-	return 1;
+        Yap_PutInSlot(a,HeadOfTerm(t) PASS_REGS);
+        return 1;
       } else if (index == 2) {
-	Yap_PutInSlot(a,TailOfTerm(t) PASS_REGS);
-	return 1;
+        Yap_PutInSlot(a,TailOfTerm(t) PASS_REGS);
+        return 1;
       }
     }
     return 0;
@@ -500,67 +755,67 @@ X_API int _PL_get_arg(int index, term_t ts, term_t a)
   Yap_PutInSlot(a,ArgOfTerm(index, t) PASS_REGS);
   return 1;
 }
-
+#endif
 
 /** @brief *a is assigned the string representation of the atom in term  ts, or the operation fails
- *
- */
+*
+*/
 X_API int PL_get_atom_chars(term_t ts, char **a)  /* SAM check type */
 {
   CACHE_REGS
   Term t = Yap_GetFromSlot(ts);
   if (!IsAtomTerm(t) || IsWideAtom(AtomOfTerm(t)))
-    return 0;
+  return 0;
   *a = RepAtom(AtomOfTerm(t))->StrOfAE;
   return 1;
 }
 
 /** @brief *a is assigned the string representation of the atom in term  ts, and *len its size, or the operation fails
- *
- */
+*
+*/
 X_API int PL_get_atom_nchars(term_t ts, size_t *len, char **s)  /* SAM check type */
 {
   CACHE_REGS
   Term t = Yap_GetFromSlot(ts);
   if (!IsAtomTerm(t))
-    return 0;
+  return 0;
   *s = RepAtom(AtomOfTerm(t))->StrOfAE;
   *len = strlen(*s);
   return 1;
 }
 
 /** PL_get_chars converts a term t to a string.
- *
- * From the SWI manual:
- *
- * int PL_get_chars(term_t +t, char **s, unsigned flags) Convert the
- * argument term t to a 0-terminated C-string. flags is a bitwise
- * disjunction from two groups of constants. The first specifies which
- * term-types should converted and the second how the argument is
- * stored. Below is a specification of these constants. BUF_RING
- * implies, if the data is not static (as from an atom), the data is
- * copied to the next buffer from a ring of sixteen (16) buffers. This is a
- * convenient way of converting multiple arguments passed to a foreign
- * predicate to C-strings. If BUF_MALLOC is used, the data must be
- * freed using free() when not needed any longer.
+*
+* From the SWI manual:
+*
+* int PL_get_chars(term_t +t, char **s, unsigned flags) Convert the
+* argument term t to a 0-terminated C-string. flags is a bitwise
+* disjunction from two groups of constants. The first specifies which
+* term-types should converted and the second how the argument is
+* stored. Below is a specification of these constants. BUF_RING
+* implies, if the data is not static (as from an atom), the data is
+* copied to the next buffer from a ring of sixteen (16) buffers. This is a
+* convenient way of converting multiple arguments passed to a foreign
+* predicate to C-strings. If BUF_MALLOC is used, the data must be
+* freed using free() when not needed any longer.
 
-   - CVT_ATOM Convert if term is an atom
-   - CVT_STRING Convert if term is a string
-   - CVT_LIST Convert if term is a list of integers between 1 and 255
-   - CVT_INTEGER Convert if term is an integer (using %d)
-   - CVT_FLOAT Convert if term is a float (using %f)
-   - CVT_NUMBER Convert if term is a integer or float
-   - CVT_ATOMIC Convert if term is atomic
-   - CVT_VARIABLE Convert variable to print-name
-   - CVT_ALL Convert if term is any of the above, except for variables
-   - BUF_DISCARDABLE Data must copied immediately
-   - BUF_RING Data is stored in a ring of buffers
-   - BUF_MALLOC Data is copied to a new buffer returned by malloc(3)
+- CVT_ATOM Convert if term is an atom
+- CVT_STRING Convert if term is a string
+- CVT_LIST Convert if term is a list of integers between 1 and 255
+- CVT_INTEGER Convert if term is an integer (using %d)
+- CVT_FLOAT Convert if term is a float (using %f)
+- CVT_NUMBER Convert if term is a integer or float
+- CVT_ATOMIC Convert if term is atomic
+- CVT_VARIABLE Convert variable to print-name
+- CVT_ALL Convert if term is any of the above, except for variables
+- BUF_DISCARDABLE Data must copied immediately
+- BUF_RING Data is stored in a ring of buffers
+- BUF_MALLOC Data is copied to a new buffer returned by malloc(3)
 */
 
 /** @brief *f is assigned the functor of term  ts, or the operation fails
- *
- */
+*
+*/
 X_API int PL_get_functor(term_t ts, functor_t *f)
 {
   CACHE_REGS
@@ -574,8 +829,8 @@ X_API int PL_get_functor(term_t ts, functor_t *f)
 }
 
 /** @brief *f is assigned the floating  point number of term  ts, or the operation fails
- *
- */
+*
+*/
 X_API int PL_get_float(term_t ts, double *f) /* SAM type check*/
 {
   CACHE_REGS
@@ -584,10 +839,10 @@ X_API int PL_get_float(term_t ts, double *f) /* SAM type check*/
     *f = FloatOfTerm(t);
   } else if ( IsIntegerTerm(t)) {
     *f = IntegerOfTerm(t);
-#if USE_GMP
+    #if USE_GMP
   } else if (IsBigIntTerm(t)) {
     *f = Yap_gmp_to_float( t );
-#endif
+    #endif
   } else {
     return 0;
   }
@@ -595,8 +850,8 @@ X_API int PL_get_float(term_t ts, double *f) /* SAM type check*/
 }
 
 /** @brief *s is assigned the string representation of the string in term  ts, and *len its size, or the operation fails
- *
- */
+*
+*/
 X_API int PL_get_string_chars(term_t t, char **s, size_t *len)
 {
   CACHE_REGS
@@ -610,8 +865,8 @@ X_API int PL_get_string_chars(term_t t, char **s, size_t *len)
 }
 
 /** @brief h is assigned the head of the pair term  ts, and tl its tail, or the operation fails
- *
- */
+*
+*/
 
 X_API int PL_get_list(term_t ts, term_t h, term_t tl)
 {
@@ -627,8 +882,8 @@ X_API int PL_get_list(term_t ts, term_t h, term_t tl)
 
 
 /** @brief h is assigned the head of the pair term  ts, or the operation fails
- *
- */
+*
+*/
 X_API int PL_get_head(term_t ts, term_t h)
 {
   CACHE_REGS
@@ -641,28 +896,28 @@ X_API int PL_get_head(term_t ts, term_t h)
 }
 
 /** @brief *s is assigned the string representation of the term  ts, and *len its size, or the operation fails
- *
- */
+*
+*/
 X_API int PL_get_string(term_t t, char **s, size_t *len)
 {
   return PL_get_string_chars(t, s, len);
 }
 
 /**
- *  @}
- *  */
+*  @}
+*  */
 
 //!  @{
 /**
- *  @defgroup swi-unify-operations Unifying Terms
- *  @ingroup swi-term_manipulation
+*  @defgroup swi-unify-operations Unifying Terms
+*  @ingroup swi-term_manipulation
 
- *  */
+*  */
 
 
 /** @brief t unifies with the true/false value in a.
- *
- */
+*
+*/
 X_API int PL_unify_bool(term_t t, int a)
 {
   CACHE_REGS
@@ -673,9 +928,9 @@ X_API int PL_unify_bool(term_t t, int a)
 
 #if USE_GMP
 
-		 /*******************************
-		 *	       GMP		*
-		 *******************************/
+/*******************************
+*	       GMP		*
+*******************************/
 
 X_API int PL_get_mpz(term_t t, mpz_t mpz)
 {
@@ -709,18 +964,18 @@ X_API int PL_unify_mpq(term_t t, mpq_t mpq)
 
 #endif
 
-/* SWI: int PL_get_module(term_t t, module_t *m) */
+/*  int PL_get_module(term_t t, module_t *m) */
 X_API int PL_get_module(term_t ts, module_t *m)
 {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts);
   if (!IsAtomTerm(t) )
-    return FALSE;
+  return FALSE;
   *m = Yap_GetModuleEntry(t);
   return TRUE;
 }
 
-/* SWI: int PL_new_module(term_t t, module_t *m) */
+/*  int PL_new_module(term_t t, module_t *m) */
 X_API module_t PL_new_module(atom_t swiat)
 {
   Atom at = SWIAtomToAtom(swiat);
@@ -732,8 +987,8 @@ X_API module_t PL_new_module(atom_t swiat)
   return Yap_GetModuleEntry(t);
 }
 
-/* SWI: int PL_get_atom(term_t t, YAP_Atom *a)
-   YAP: YAP_Atom YAP_AtomOfTerm(Term) */
+/*  int PL_get_atom(term_t t, YAP_Atom *a)
+YAP: YAP_Atom YAP_AtomOfTerm(Term) */
 X_API int PL_get_nil(term_t ts)
 {
   CACHE_REGS
@@ -741,15 +996,15 @@ X_API int PL_get_nil(term_t ts)
   return ( t == TermNil );
 }
 
-/* SWI: int PL_get_pointer(term_t t, int *i)
-   YAP: NO EQUIVALENT */
+/*  int PL_get_pointer(term_t t, int *i)
+YAP: NO EQUIVALENT */
 /* SAM TO DO */
 X_API int PL_get_pointer(term_t ts, void **i)
 {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts);
   if (IsVarTerm(t) || !IsIntegerTerm(t) )
-    return 0;
+  return 0;
   *i = (void *)IntegerOfTerm(t);
   return 1;
 }
@@ -769,11 +1024,11 @@ X_API int PL_get_tail(term_t ts, term_t tl)
 
 /* begin PL_new_* functions =============================*/
 
-/* SWI: atom_t PL_new_atom(const char *)
-   YAP: YAP_Atom LookupAtom(char *) */
+/*  atom_t PL_new_atom(const char *)
+YAP: YAP_Atom LookupAtom(char *) */
 /*  SAM should the following be used instead?
-      YAP_Atom  FullLookupAtom(char *)
-      */
+YAP_Atom  FullLookupAtom(char *)
+*/
 X_API atom_t PL_new_atom(const char *c)
 {
   CACHE_REGS
@@ -782,7 +1037,7 @@ X_API atom_t PL_new_atom(const char *c)
 
   while((at = Yap_CharsToAtom(c PASS_REGS)) == 0L) {
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_new_atom" ))
-      return FALSE;
+    return FALSE;
   }
   Yap_AtomIncreaseHold(at);
   sat = AtomToSWIAtom(at);
@@ -797,7 +1052,7 @@ X_API atom_t PL_new_atom_nchars(size_t len, const char *c)
 
   while((at = Yap_NCharsToAtom(c, len PASS_REGS)) == 0L) {
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_new_atom_nchars" ))
-      return FALSE;
+    return FALSE;
   }
   Yap_AtomIncreaseHold(at);
   sat = AtomToSWIAtom(at);
@@ -812,7 +1067,7 @@ X_API atom_t PL_new_atom_wchars(size_t len, const wchar_t *c)
 
   while((at = Yap_NWCharsToAtom(c, len PASS_REGS)) == 0L) {
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_new_atom_wchars" ))
-      return FALSE;
+    return FALSE;
   }
   Yap_AtomIncreaseHold(at);
   sat = AtomToSWIAtom(at);
@@ -823,7 +1078,7 @@ X_API wchar_t *PL_atom_wchars(atom_t name, size_t *sp)
 {
   Atom at = SWIAtomToAtom(name);
   if (!IsWideAtom(at))
-    return NULL;
+  return NULL;
   *sp = wcslen(RepAtom(at)->WStrOfAE);
   return RepAtom(at)->WStrOfAE;
 }
@@ -954,7 +1209,7 @@ X_API int PL_put_atom_chars(term_t t, const char *s)
   Atom at;
   while((at = Yap_CharsToAtom(s PASS_REGS)) == 0L) {
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_atom_nchars" ))
-      return FALSE;
+    return FALSE;
   }
   Yap_AtomIncreaseHold(at);
   Yap_PutInSlot(t,MkAtomTerm(at) PASS_REGS);
@@ -967,7 +1222,7 @@ X_API int PL_put_atom_nchars(term_t t, size_t len, const char *s)
   Atom at;
   while((at = Yap_NCharsToAtom(s, len PASS_REGS)) == 0L) {
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_atom_nchars" ))
-      return FALSE;
+    return FALSE;
   }
   Yap_AtomIncreaseHold(at);
   Yap_PutInSlot(t,MkAtomTerm(at) PASS_REGS);
@@ -993,13 +1248,13 @@ X_API int PL_put_functor(term_t t, functor_t f)
     arity = ArityOfFunctor(ff);
     if (Unsigned(HR)+arity > Unsigned(ASP)-CreepFlag) {
       if (!do_gc(arity*sizeof(CELL))) {
-	return FALSE;
+        return FALSE;
       }
     }
     if (arity == 2 && ff == FunctorDot)
-      Yap_PutInSlot(t,YAP_MkNewPairTerm() PASS_REGS);
+    Yap_PutInSlot(t,YAP_MkNewPairTerm() PASS_REGS);
     else
-      Yap_PutInSlot(t,YAP_MkNewApplTerm((YAP_Functor)ff,arity) PASS_REGS);
+    Yap_PutInSlot(t,YAP_MkNewApplTerm((YAP_Functor)ff,arity) PASS_REGS);
   }
   return TRUE;
 }
@@ -1014,37 +1269,37 @@ X_API int PL_put_integer(term_t t, long n)
 X_API int PL_put_int64(term_t t, int64_t n)
 {
   CACHE_REGS
-#if SIZEOF_INT_P==8
+  #if SIZEOF_INT_P==8
   Yap_PutInSlot(t,MkIntegerTerm(n) PASS_REGS);
   return TRUE;
-#elif USE_GMP
+  #elif USE_GMP
   char s[64];
   MP_INT rop;
 
-#ifdef _WIN32
+  #ifdef _WIN32
   snprintf(s, 64, "%I64d", (long long int)n);
-#elif HAVE_SNPRINTF
+  #elif HAVE_SNPRINTF
   snprintf(s, 64, "%lld", (long long int)n);
-#else
+  #else
   sprintf(s, "%lld", (long long int)n);
-#endif
+  #endif
   mpz_init_set_str (&rop, s, 10);
   Yap_PutInSlot(t,YAP_MkBigNumTerm((void *)&rop) PASS_REGS);
   return TRUE;
-#else
-	// use a double, but will mess up writing.
-    Int x = n;
-    if (x == n)
-    	return PL_put_integer(t, x);
-    else {
-    	union {
-    		int64_t i;
-    		double d;
-    	} udi_;
-    	udi_.i = n;
-    	return PL_put_float(t, udi_.d);
-    }
-#endif
+  #else
+  // use a double, but will mess up writing.
+  Int x = n;
+  if (x == n)
+  return PL_put_integer(t, x);
+  else {
+    union {
+      int64_t i;
+      double d;
+    } udi_;
+    udi_.i = n;
+    return PL_put_float(t, udi_.d);
+  }
+  #endif
 }
 
 X_API int PL_put_list(term_t t)
@@ -1065,7 +1320,7 @@ X_API int PL_put_list_chars(term_t t, const char *s)
   Term nt;
   while((nt = Yap_CharsToListOfAtoms(s PASS_REGS)) == 0L) {
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_put_string_nchars" ))
-      return FALSE;
+    return FALSE;
   }
   Yap_PutInSlot(t, nt PASS_REGS);
   return TRUE;
@@ -1077,8 +1332,8 @@ X_API void PL_put_nil(term_t t)
   Yap_PutInSlot(t,TermNil PASS_REGS);
 }
 
-/* SWI: void PL_put_pointer(term_t -t, void *ptr)
-   YAP: NO EQUIVALENT */
+/*  void PL_put_pointer(term_t -t, void *ptr)
+YAP: NO EQUIVALENT */
 /* SAM TO DO */
 X_API int PL_put_pointer(term_t t, void *ptr)
 {
@@ -1094,7 +1349,7 @@ X_API int PL_put_string_nchars(term_t t, size_t len, const char *chars)
   Term nt;
   while((nt = Yap_NCharsToString(chars, len PASS_REGS)) == 0L) {
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_put_string_nchars" ))
-      return FALSE;
+    return FALSE;
   }
   Yap_PutInSlot(t, nt PASS_REGS);
   return TRUE;
@@ -1116,8 +1371,8 @@ X_API int PL_put_variable(term_t t)
 
 /* end PL_put_* functions =============================*/
 
-/* SWI: int PL_raise_exception(term_t exception)
-   YAP: NO EQUIVALENT */
+/*  int PL_raise_exception(term_t exception)
+YAP: NO EQUIVALENT */
 /* SAM TO DO */
 
 X_API int PL_raise_exception(term_t exception)
@@ -1132,7 +1387,7 @@ X_API int PL_throw(term_t exception)
   CACHE_REGS
   YAP_Throw(Yap_GetFromSlot(exception));
   if (LOCAL_execution)
-    longjmp(LOCAL_execution->q_env, 0);
+  longjmp(LOCAL_execution->q_env, 0);
   return 0;
 }
 
@@ -1161,8 +1416,8 @@ X_API int PL_unify(term_t t1, term_t t2)
   return Yap_unify(Yap_GetFromSlot(t1 ),Yap_GetFromSlot(t2 ));
 }
 
-/* SWI: int PL_unify_atom(term_t ?t, atom  *at)
-   YAP long int  unify(YAP_Term* a, Term* b) */
+/*  int PL_unify_atom(term_t ?t, atom  *at)
+YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_atom(term_t t, atom_t at)
 {
   CACHE_REGS
@@ -1170,36 +1425,36 @@ X_API int PL_unify_atom(term_t t, atom_t at)
   return YAP_Unify(Yap_GetFromSlot(t),cterm);
 }
 
-/* SWI: int PL_unify_atom_chars(term_t ?t, const char *chars)
-   YAP long int  unify(YAP_Term* a, Term* b) */
+/*  int PL_unify_atom_chars(term_t ?t, const char *chars)
+YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_atom_chars(term_t t, const char *s)
 {
   CACHE_REGS
   Atom at;
   while((at = Yap_CharsToAtom(s PASS_REGS)) == 0L) {
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_atom_nchars" ))
-      return FALSE;
+    return FALSE;
   }
   Yap_AtomIncreaseHold(at);
   return Yap_unify(Yap_GetFromSlot(t), MkAtomTerm(at));
 }
 
-/* SWI: int PL_unify_atom_chars(term_t ?t, const char *chars)
-   YAP long int  unify(YAP_Term* a, Term* b) */
+/*  int PL_unify_atom_chars(term_t ?t, const char *chars)
+YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_atom_nchars(term_t t, size_t len, const char *s)
 {
   CACHE_REGS
   Atom at;
   while((at = Yap_NCharsToAtom(s, len PASS_REGS)) == 0L) {
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_atom_nchars" ))
-      return FALSE;
+    return FALSE;
   }
   Yap_AtomIncreaseHold(at);
   return Yap_unify(Yap_GetFromSlot(t), MkAtomTerm(at));
 }
 
-/* SWI: int PL_unify_float(term_t ?t, double f)
-   YAP long int  unify(YAP_Term* a, Term* b) */
+/*  int PL_unify_float(term_t ?t, double f)
+YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_float(term_t t, double f)
 {
   CACHE_REGS
@@ -1207,8 +1462,8 @@ X_API int PL_unify_float(term_t t, double f)
   return Yap_unify(Yap_GetFromSlot(t),fterm);
 }
 
-/* SWI: int PL_unify_integer(term_t ?t, long n)
-   YAP long int  unify(YAP_Term* a, Term* b) */
+/*  int PL_unify_integer(term_t ?t, long n)
+YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_integer(term_t t, long n)
 {
   CACHE_REGS
@@ -1230,8 +1485,8 @@ X_API int PL_unify_uintptr(term_t t, uintptr_t n)
   return Yap_unify(Yap_GetFromSlot(t),iterm);
 }
 
-/* SWI: int PL_unify_integer(term_t ?t, long n)
-   YAP long int  unify(YAP_Term* a, Term* b) */
+/*  int PL_unify_integer(term_t ?t, long n)
+YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_functor(term_t t, functor_t f)
 {
   CACHE_REGS
@@ -1240,59 +1495,59 @@ X_API int PL_unify_functor(term_t t, functor_t f)
   if (IsVarTerm(tt)) {
     if (Unsigned(HR)+ArityOfFunctor(ff) > Unsigned(ASP)-CreepFlag) {
       if (!do_gc(0)) {
-	return FALSE;
+        return FALSE;
       }
     }
     return Yap_unify(tt, Yap_MkNewApplTerm(ff,ArityOfFunctor(ff)));
   }
   if (IsPairTerm(tt))
-    return ff == FunctorDot;
+  return ff == FunctorDot;
   if (!IsApplTerm(tt))
-    return FALSE;
+  return FALSE;
   return ff == FunctorOfTerm(tt);
 }
 
-/* SWI: int PL_unify_integer(term_t ?t, long n)
-   YAP long int  unify(YAP_Term* a, Term* b) */
+/*  int PL_unify_integer(term_t ?t, long n)
+YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_int64(term_t t, int64_t n)
 {
   CACHE_REGS
-#if SIZEOF_INT_P==8
+  #if SIZEOF_INT_P==8
   Term iterm = MkIntegerTerm(n);
   return Yap_unify(Yap_GetFromSlot(t),iterm);
-#elif USE_GMP
+  #elif USE_GMP
   YAP_Term iterm;
   char s[64];
   MP_INT rop;
 
-#ifdef _WIN32
+  #ifdef _WIN32
   snprintf(s, 64, "%I64d", (long long int)n);
-#elif HAVE_SNPRINTF
+  #elif HAVE_SNPRINTF
   snprintf(s, 64, "%lld", (long long int)n);
-#else
+  #else
   sprintf(s, "%lld", (long long int)n);
-#endif
+  #endif
   mpz_init_set_str (&rop, s, 10);
   iterm = YAP_MkBigNumTerm((void *)&rop);
   return YAP_Unify(Yap_GetFromSlot(t ),iterm);
-#else
+  #else
   if ((long)n == n)
-    return PL_unify_integer(t, n);
-	// use a double, but will mess up writing.
+  return PL_unify_integer(t, n);
+  // use a double, but will mess up writing.
   else {
-  	union {
-  		int64_t i;
-  		double d;
-  	} udi_;
-  	udi_.i = n;
-  	return PL_unify_float(t, udi_.d);
+    union {
+      int64_t i;
+      double d;
+    } udi_;
+    udi_.i = n;
+    return PL_unify_float(t, udi_.d);
   }
-#endif
+  #endif
 
 }
 
-/* SWI: int PL_unify_list(term_t ?t, term_t +h, term_t -t)
-   YAP long int  unify(YAP_Term* a, Term* b) */
+/*  int PL_unify_list(term_t ?t, term_t +h, term_t -t)
+YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_list(term_t tt, term_t h, term_t tail)
 {
   CACHE_REGS
@@ -1316,56 +1571,56 @@ X_API int PL_unify_list(term_t tt, term_t h, term_t tail)
   return TRUE;
 }
 
-/* SWI: int PL_unify_list(term_t ?t, term_t +h, term_t -t)
-   YAP long int  unify(YAP_Term* a, Term* b) */
+/*  int PL_unify_list(term_t ?t, term_t +h, term_t -t)
+YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_arg(int index, term_t tt, term_t arg)
 {
   CACHE_REGS
   Term t = Deref(Yap_GetFromSlot(tt )), to;
   if (index < 0)
-    return FALSE;
+  return FALSE;
   if (IsVarTerm(t) || IsAtomOrIntTerm(t)) {
     return FALSE;
   } else if (IsPairTerm(t)) {
     if (index == 1)
-      to = HeadOfTerm(t);
+    to = HeadOfTerm(t);
     else if (index == 2)
-      to = TailOfTerm(t);
+    to = TailOfTerm(t);
     else
-      return FALSE;
+    return FALSE;
   } else {
     Functor f = FunctorOfTerm(t);
     if (IsExtensionFunctor(f))
-      return FALSE;
+    return FALSE;
     if (index > ArityOfFunctor(f))
-      return FALSE;
+    return FALSE;
     to = ArgOfTerm(index, t);
   }
   return Yap_unify(Yap_GetFromSlot(arg),to);
 }
 
-/* SWI: int PL_unify_list(term_t ?t, term_t +h, term_t -t)
-   YAP long int  unify(YAP_Term* a, Term* b) */
+/*  int PL_unify_list(term_t ?t, term_t +h, term_t -t)
+YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_list_chars(term_t t, const char *chars)
 {
   CACHE_REGS
   Term chterm;
   while((chterm = Yap_CharsToListOfAtoms(chars PASS_REGS)) == 0L) {
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_list_chars" ))
-      return FALSE;
+    return FALSE;
   }
   return Yap_unify(Yap_GetFromSlot(t), chterm);
 }
 
-/* SWI: int PL_unify_list(term_t ?t, term_t +h, term_t -t)
-   YAP long int  unify(YAP_Term* a, Term* b) */
+/*  int PL_unify_list(term_t ?t, term_t +h, term_t -t)
+YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_list_ncodes(term_t t, size_t len, const char *chars)
 {
   CACHE_REGS
   Term chterm;
   while((chterm = Yap_NCharsToListOfCodes(chars, len PASS_REGS)) == 0L) {
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_list_ncodes" ))
-      return FALSE;
+    return FALSE;
   }
   return Yap_unify(Yap_GetFromSlot(t), chterm);
 }
@@ -1377,21 +1632,21 @@ PL_unify_list_codes(term_t t, const char *chars)
   Term chterm;
   while((chterm = Yap_CharsToListOfCodes(chars PASS_REGS)) == 0L) {
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_list_codes" ))
-      return FALSE;
+    return FALSE;
   }
   return Yap_unify(Yap_GetFromSlot(t), chterm);
 }
 
-/* SWI: int PL_unify_nil(term_t ?l)
-   YAP long int  unify(YAP_Term* a, Term* b) */
+/*  int PL_unify_nil(term_t ?l)
+YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_nil(term_t t)
 {
   CACHE_REGS
   return Yap_unify(Yap_GetFromSlot(t), TermNil);
 }
 
-/* SWI: int PL_unify_pointer(term_t ?t, void *ptr)
-   YAP: NO EQUIVALENT */
+/*  int PL_unify_pointer(term_t ?t, void *ptr)
+YAP: NO EQUIVALENT */
 /* SAM TO DO */
 X_API int PL_unify_pointer(term_t t, void *ptr)
 {
@@ -1400,15 +1655,15 @@ X_API int PL_unify_pointer(term_t t, void *ptr)
   return YAP_Unify(Yap_GetFromSlot(t ), ptrterm);
 }
 
-/* SWI: int PL_unify_list(term_t ?t, term_t +h, term_t -t)
-   YAP long int  unify(YAP_Term* a, Term* b) */
+/*  int PL_unify_list(term_t ?t, term_t +h, term_t -t)
+YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_string_chars(term_t t, const char *chars)
 {
   CACHE_REGS
   Term chterm;
   while((chterm = Yap_CharsToString(chars PASS_REGS)) == 0L) {
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_list_ncodes" ))
-      return FALSE;
+    return FALSE;
   }
   return Yap_unify(Yap_GetFromSlot(t), chterm);
 }
@@ -1419,13 +1674,13 @@ X_API int PL_unify_string_nchars(term_t t, size_t len, const char *chars)
   Term chterm;
   while((chterm = Yap_NCharsToString(chars, len PASS_REGS)) == 0L) {
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_list_ncodes" ))
-      return FALSE;
+    return FALSE;
   }
   return Yap_unify(Yap_GetFromSlot(t), chterm);
 }
 
-/* SWI: int PL_unify_wchars(term_t ?t, int type, size_t len,, const pl_wchar_t *s)
- */
+/*  int PL_unify_wchars(term_t ?t, int type, size_t len,, const pl_wchar_t *s)
+*/
 X_API int PL_unify_wchars(term_t t, int type, size_t len, const pl_wchar_t *chars)
 {
   CACHE_REGS
@@ -1433,39 +1688,39 @@ X_API int PL_unify_wchars(term_t t, int type, size_t len, const pl_wchar_t *char
 
   while (TRUE) {
     switch (type) {
-    case PL_ATOM:
-    {
-      Atom at;
-      at = Yap_NWCharsToAtom(chars, len PASS_REGS);
-      if (at) {
-	Yap_AtomIncreaseHold(at);
-	chterm = MkAtomTerm(at);
-	return Yap_unify(Yap_GetFromSlot(t), chterm);
+      case PL_ATOM:
+      {
+        Atom at;
+        at = Yap_NWCharsToAtom(chars, len PASS_REGS);
+        if (at) {
+          Yap_AtomIncreaseHold(at);
+          chterm = MkAtomTerm(at);
+          return Yap_unify(Yap_GetFromSlot(t), chterm);
+        }
       }
-    }
-    break;
-    case PL_UTF8_STRING:
-    case PL_STRING:
+      break;
+      case PL_UTF8_STRING:
+      case PL_STRING:
       if ((chterm = Yap_NWCharsToString(chars, len PASS_REGS)) != 0) {
-	return YAP_Unify(Yap_GetFromSlot(t ), chterm);
+        return YAP_Unify(Yap_GetFromSlot(t ), chterm);
       }
       break;
-    case PL_CODE_LIST:
+      case PL_CODE_LIST:
       if ((chterm = Yap_NWCharsToListOfCodes(chars, len PASS_REGS)) != 0) {
-	return YAP_Unify(Yap_GetFromSlot(t), chterm);
+        return YAP_Unify(Yap_GetFromSlot(t), chterm);
       }
       break;
-    case PL_CHAR_LIST:
+      case PL_CHAR_LIST:
       if ((chterm = Yap_NWCharsToListOfAtoms(chars, len PASS_REGS)) != 0) {
-	return YAP_Unify(Yap_GetFromSlot(t), chterm);
+        return YAP_Unify(Yap_GetFromSlot(t), chterm);
       }
       break;
-    default:
+      default:
       /* should give error?? */
       return FALSE;
     }
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_wchars" ))
-      return FALSE;
+    return FALSE;
   }
   return FALSE;
 }
@@ -1498,9 +1753,9 @@ static YAP_Term
 MkBoolTerm(int b)
 {
   if (b)
-    return MkAtomTerm(AtomTrue);
+  return MkAtomTerm(AtomTrue);
   else
-    return MkAtomTerm(AtomFalse);
+  return MkAtomTerm(AtomFalse);
 }
 
 #define MAX_DEPTH 64
@@ -1510,8 +1765,8 @@ typedef struct {
   CELL *ptr;
 } stack_el;
 
-/* SWI: int PL_unify_term(term_t ?t1, term_t ?t2)
-   YAP long int  YAP_Unify(YAP_Term* a, Term* b) */
+/*  int PL_unify_term(term_t ?t1, term_t ?t2)
+YAP long int  YAP_Unify(YAP_Term* a, Term* b) */
 int PL_unify_termv(term_t l, va_list ap)
 {
   CACHE_REGS
@@ -1534,218 +1789,218 @@ int PL_unify_termv(term_t l, va_list ap)
       type = va_arg(ap, int);
       nels--;
       switch(type) {
-      case PL_VARIABLE:
-	*pt++ = MkVarTerm();
-	break;
-      case PL_BOOL:
-	*pt++ = MkBoolTerm(va_arg(ap, int));
-	break;
-      case PL_ATOM:
-	*pt++ = MkAtomTerm(SWIAtomToAtom(va_arg(ap, atom_t)));
-	break;
-      case PL_INTEGER:
-	*pt++ = MkIntegerTerm(va_arg(ap, long));
-	break;
-      case PL_SHORT:
-	*pt++ = MkIntegerTerm(va_arg(ap, int));
-	break;
-      case PL_LONG:
-	*pt++ = MkIntegerTerm(va_arg(ap, long));
-	break;
-      case PL_INT:
-	*pt++ = MkIntegerTerm(va_arg(ap, int));
-	break;
-      case PL_FLOAT:
-	*pt++ = MkFloatTerm(va_arg(ap, double));
-	break;
-      case PL_STRING:
-	{
-	  Term chterm;
-	  const char *chars = va_arg(ap, char *);
-	  while((chterm = Yap_CharsToString(chars PASS_REGS)) == 0L) {
-	    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_term" ))
-	      return FALSE;
-	  }
-	  *pt++ = chterm;
-	}
-	break;
-      case PL_CHARS:
-	{
-	  Atom at;
-	  const char *chars = va_arg(ap, char *);
-	  while((at = Yap_CharsToAtom(chars PASS_REGS)) == 0L) {
-	    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_term" ))
-	      return FALSE;
-	  }
-	  *pt++ = MkAtomTerm(at);
-	  Yap_AtomIncreaseHold(at);
-	}
-	break;
-      case PL_NCHARS:
-	{
-	  Atom at;
-	  size_t sz = va_arg(ap, size_t);
-	  const char *chars = va_arg(ap, char *);
-	  while((at = Yap_NCharsToAtom(chars, sz PASS_REGS)) == 0L) {
-	    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_term" ))
-	      return FALSE;
-	  }
-	  *pt++ = MkAtomTerm(at);
-	  Yap_AtomIncreaseHold(at);
-	}
-	break;
-      case PL_NWCHARS:
-	{
-	  Atom at;
-	  size_t sz = va_arg(ap, size_t);
-	  const wchar_t *chars = va_arg(ap, wchar_t *);
-	  while((at = Yap_NWCharsToAtom(chars, sz PASS_REGS)) == 0L) {
-	    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_term" ))
-	      return FALSE;
-	  }
-	  *pt++ = MkAtomTerm(at);
-	  Yap_AtomIncreaseHold(at);
-	}
-	break;
-      case PL_TERM:
-	{
-	  Term t = Yap_GetFromSlot(va_arg(ap, size_t));
-	  if (IsVarTerm(t) && VarOfTerm(t) >= ASP && VarOfTerm(t) < LCL0) {
-	    Yap_unify(*pt++, t);
-	  }
-	  else {
-	    *pt++ = t;
-	  }
-	}
-	break;
-      case PL_POINTER:
-	*pt++ = MkIntegerTerm((Int)va_arg(ap, void *));
-	break;
-      case PL_INTPTR:
-	*pt++ = MkIntegerTerm((Int)va_arg(ap, intptr_t));
-	break;
-      case PL_INT64:
-#if SIZEOF_INT_P==8
-	*pt++ = MkIntegerTerm((Int)va_arg(ap, long int));
-#elif USE_GMP
-	{
-	  char s[64];
-	  MP_INT rop;
+        case PL_VARIABLE:
+        *pt++ = MkVarTerm();
+        break;
+        case PL_BOOL:
+        *pt++ = MkBoolTerm(va_arg(ap, int));
+        break;
+        case PL_ATOM:
+        *pt++ = MkAtomTerm(SWIAtomToAtom(va_arg(ap, atom_t)));
+        break;
+        case PL_INTEGER:
+        *pt++ = MkIntegerTerm(va_arg(ap, long));
+        break;
+        case PL_SHORT:
+        *pt++ = MkIntegerTerm(va_arg(ap, int));
+        break;
+        case PL_LONG:
+        *pt++ = MkIntegerTerm(va_arg(ap, long));
+        break;
+        case PL_INT:
+        *pt++ = MkIntegerTerm(va_arg(ap, int));
+        break;
+        case PL_FLOAT:
+        *pt++ = MkFloatTerm(va_arg(ap, double));
+        break;
+        case PL_STRING:
+        {
+          Term chterm;
+          const char *chars = va_arg(ap, char *);
+          while((chterm = Yap_CharsToString(chars PASS_REGS)) == 0L) {
+            if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_term" ))
+            return FALSE;
+          }
+          *pt++ = chterm;
+        }
+        break;
+        case PL_CHARS:
+        {
+          Atom at;
+          const char *chars = va_arg(ap, char *);
+          while((at = Yap_CharsToAtom(chars PASS_REGS)) == 0L) {
+            if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_term" ))
+            return FALSE;
+          }
+          *pt++ = MkAtomTerm(at);
+          Yap_AtomIncreaseHold(at);
+        }
+        break;
+        case PL_NCHARS:
+        {
+          Atom at;
+          size_t sz = va_arg(ap, size_t);
+          const char *chars = va_arg(ap, char *);
+          while((at = Yap_NCharsToAtom(chars, sz PASS_REGS)) == 0L) {
+            if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_term" ))
+            return FALSE;
+          }
+          *pt++ = MkAtomTerm(at);
+          Yap_AtomIncreaseHold(at);
+        }
+        break;
+        case PL_NWCHARS:
+        {
+          Atom at;
+          size_t sz = va_arg(ap, size_t);
+          const wchar_t *chars = va_arg(ap, wchar_t *);
+          while((at = Yap_NWCharsToAtom(chars, sz PASS_REGS)) == 0L) {
+            if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_term" ))
+            return FALSE;
+          }
+          *pt++ = MkAtomTerm(at);
+          Yap_AtomIncreaseHold(at);
+        }
+        break;
+        case PL_TERM:
+        {
+          Term t = Yap_GetFromSlot(va_arg(ap, size_t));
+          if (IsVarTerm(t) && VarOfTerm(t) >= ASP && VarOfTerm(t) < LCL0) {
+            Yap_unify(*pt++, t);
+          }
+          else {
+            *pt++ = t;
+          }
+        }
+        break;
+        case PL_POINTER:
+        *pt++ = MkIntegerTerm((Int)va_arg(ap, void *));
+        break;
+        case PL_INTPTR:
+        *pt++ = MkIntegerTerm((Int)va_arg(ap, intptr_t));
+        break;
+        case PL_INT64:
+        #if SIZEOF_INT_P==8
+        *pt++ = MkIntegerTerm((Int)va_arg(ap, long int));
+        #elif USE_GMP
+        {
+          char s[64];
+          MP_INT rop;
 
-#ifdef _WIN32
-	  snprintf(s, 64, "%I64d", va_arg(ap, long long int));
-#elif HAVE_SNPRINTF
-	  snprintf(s, 64, "%lld", va_arg(ap, long long int));
-#else
-	  sprintf(s, "%lld", va_arg(ap, long long int));
-#endif
-	  mpz_init_set_str (&rop, s, 10);
-	  *pt++ = YAP_MkBigNumTerm((void *)&rop);
-	}
-#else
-	{
-		int64_t i = (Int)va_arg(ap, int64_t);
-		intptr_t x = i;
-		if (x == i)
-			*pt++ = MkIntegerTerm( x );
-		else {
-			// use a double, but will mess up writing.
-			union {
-				int64_t i;
-				double d;
-	  	    } udi_;
-	  	    udi_.i = i;
-	  	    *pt++ = MkFloatTerm(udi_.d);
-		}
-	}
-#endif
-	break;
-      case PL_FUNCTOR:
-	{
-	  functor_t f = va_arg(ap, functor_t);
-	  Functor ff = SWIFunctorToFunctor(f);
-	  UInt arity = ArityOfFunctor(ff);
+          #ifdef _WIN32
+          snprintf(s, 64, "%I64d", va_arg(ap, long long int));
+          #elif HAVE_SNPRINTF
+          snprintf(s, 64, "%lld", va_arg(ap, long long int));
+          #else
+          sprintf(s, "%lld", va_arg(ap, long long int));
+          #endif
+          mpz_init_set_str (&rop, s, 10);
+          *pt++ = YAP_MkBigNumTerm((void *)&rop);
+        }
+        #else
+        {
+          int64_t i = (Int)va_arg(ap, int64_t);
+          intptr_t x = i;
+          if (x == i)
+          *pt++ = MkIntegerTerm( x );
+          else {
+            // use a double, but will mess up writing.
+            union {
+              int64_t i;
+              double d;
+            } udi_;
+            udi_.i = i;
+            *pt++ = MkFloatTerm(udi_.d);
+          }
+        }
+        #endif
+        break;
+        case PL_FUNCTOR:
+        {
+          functor_t f = va_arg(ap, functor_t);
+          Functor ff = SWIFunctorToFunctor(f);
+          UInt arity = ArityOfFunctor(ff);
 
-	  if (!arity) {
-	    *pt++ = MkAtomTerm((Atom)f);
-	  } else {
-	    Term t = Yap_MkNewApplTerm(ff, arity);
-	    if (nels) {
-	      if (depth == MAX_DEPTH) {
-		fprintf(stderr,"ERROR: very deep term in PL_unify_term, change MAX_DEPTH from %d\n", MAX_DEPTH);
-		return FALSE;
-	      }
-	      stack[depth-1].nels = nels;
-	      stack[depth-1].ptr = pt+1;
-	      depth++;
-	    }
-	    *pt = t;
-	    if (ff == FunctorDot)
-	      pt = RepPair(t);
-	    else
-	      pt = RepAppl(t)+1;
-	    nels = arity;
-	  }
-	}
-	break;
-      case PL_FUNCTOR_CHARS:
-	{
-	  char *fname = va_arg(ap, char *);
-	  size_t arity = va_arg(ap, size_t);
-	  Atom at;
+          if (!arity) {
+            *pt++ = MkAtomTerm((Atom)f);
+          } else {
+            Term t = Yap_MkNewApplTerm(ff, arity);
+            if (nels) {
+              if (depth == MAX_DEPTH) {
+                fprintf(stderr,"ERROR: very deep term in PL_unify_term, change MAX_DEPTH from %d\n", MAX_DEPTH);
+                return FALSE;
+              }
+              stack[depth-1].nels = nels;
+              stack[depth-1].ptr = pt+1;
+              depth++;
+            }
+            *pt = t;
+            if (ff == FunctorDot)
+            pt = RepPair(t);
+            else
+            pt = RepAppl(t)+1;
+            nels = arity;
+          }
+        }
+        break;
+        case PL_FUNCTOR_CHARS:
+        {
+          char *fname = va_arg(ap, char *);
+          size_t arity = va_arg(ap, size_t);
+          Atom at;
 
-	  while((at = Yap_CharsToAtom(fname PASS_REGS)) == 0L) {
-	    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_term" ))
-	      return FALSE;
-	  }
-	  Yap_AtomIncreaseHold(at);
-	  if (!arity) {
-	    *pt++ = MkAtomTerm(at);
-	  } else {
-	    Functor ff;
-	    Term t;
+          while((at = Yap_CharsToAtom(fname PASS_REGS)) == 0L) {
+            if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_term" ))
+            return FALSE;
+          }
+          Yap_AtomIncreaseHold(at);
+          if (!arity) {
+            *pt++ = MkAtomTerm(at);
+          } else {
+            Functor ff;
+            Term t;
 
-	    ff = Yap_MkFunctor(at,arity);
-	    t = Yap_MkNewApplTerm(ff, arity);
-	    if (nels) {
-	      if (depth == MAX_DEPTH) {
-		fprintf(stderr,"very deep term in PL_unify_term\n");
-		return FALSE;
-	      }
-	      stack[depth-1].nels = nels;
-	      stack[depth-1].ptr = pt+1;
-	      depth++;
-	    }
-	    *pt = t;
-	    if (ff == FunctorDot)
-	      pt = RepPair(t);
-	    else
-	      pt = RepAppl(t)+1;
-	    nels = arity;
-	  }
-	}
-	break;
-      case PL_LIST:
-	{
-	  Term t = Yap_MkNewPairTerm();
+            ff = Yap_MkFunctor(at,arity);
+            t = Yap_MkNewApplTerm(ff, arity);
+            if (nels) {
+              if (depth == MAX_DEPTH) {
+                fprintf(stderr,"very deep term in PL_unify_term\n");
+                return FALSE;
+              }
+              stack[depth-1].nels = nels;
+              stack[depth-1].ptr = pt+1;
+              depth++;
+            }
+            *pt = t;
+            if (ff == FunctorDot)
+            pt = RepPair(t);
+            else
+            pt = RepAppl(t)+1;
+            nels = arity;
+          }
+        }
+        break;
+        case PL_LIST:
+        {
+          Term t = Yap_MkNewPairTerm();
 
-	  if (nels) {
-	    if (depth == MAX_DEPTH) {
-	      fprintf(stderr,"very deep term in PL_unify_term\n");
-	      return FALSE;
-	    }
-	    stack[depth-1].nels = nels;
-	    stack[depth].ptr = pt+1;
-	    depth++;
-	  }
-	  *pt = t;
-	  pt = RepPair(t);
-	  nels = 2;
-	}
-	break;
-      default:
-	fprintf(stderr, "PL_unify_term: %d not supported\n", type);
-	exit(1);
+          if (nels) {
+            if (depth == MAX_DEPTH) {
+              fprintf(stderr,"very deep term in PL_unify_term\n");
+              return FALSE;
+            }
+            stack[depth-1].nels = nels;
+            stack[depth].ptr = pt+1;
+            depth++;
+          }
+          *pt = t;
+          pt = RepPair(t);
+          nels = 2;
+        }
+        break;
+        default:
+        fprintf(stderr, "PL_unify_term: %d not supported\n", type);
+        exit(1);
       }
     }
     depth--;
@@ -1775,13 +2030,13 @@ PL_unify_term(term_t t, ...)
 
 /* end PL_unify_* functions =============================*/
 
-/* SWI: void PL_register_atom(atom_t atom) */
+/*  void PL_register_atom(atom_t atom) */
 X_API void PL_register_atom(atom_t atom)
 {
   Yap_AtomIncreaseHold(SWIAtomToAtom(atom));
 }
 
-/* SWI: void PL_unregister_atom(atom_t atom) */
+/*  void PL_unregister_atom(atom_t atom) */
 X_API void PL_unregister_atom(atom_t atom)
 {
   Yap_AtomDecreaseHold(SWIAtomToAtom(atom));
@@ -1830,11 +2085,11 @@ X_API int PL_is_callable(term_t t)
   CACHE_REGS
   YAP_Term t1 = Yap_GetFromSlot(t);
   if (IsVarTerm(t1))
-    return FALSE;
+  return FALSE;
   if (IsAtomTerm(t1) || IsPairTerm(t1))
-    return TRUE;
+  return TRUE;
   if (IsApplTerm(t1) && !IsExtensionFunctor(FunctorOfTerm(t1)))
-      return TRUE;
+  return TRUE;
   return FALSE;
 }
 
@@ -1862,7 +2117,7 @@ X_API int PL_is_functor(term_t ts, functor_t f)
   } else if (YAP_IsPairTerm(t)) {
     return ff == FunctorDot;
   } else
-    return 0;
+  return 0;
 }
 
 X_API int PL_is_float(term_t ts)
@@ -1881,7 +2136,7 @@ X_API int PL_is_integer(term_t ts)
   if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
     if (f == FunctorLongInt)
-      return TRUE;
+    return TRUE;
     if (f == FunctorBigInt) {
       CELL mask = RepAppl(t)[1];
       return ( mask == BIG_INT );
@@ -1914,7 +2169,7 @@ PL_skip_list(term_t list, term_t tail, size_t *len)
 
   length = Yap_SkipList(l, &t);
   if ( len )
-    *len = length;
+  *len = length;
   if ( tail )
   { Term t2 = Yap_GetFromSlot(tail);
 
@@ -1922,13 +2177,13 @@ PL_skip_list(term_t list, term_t tail, size_t *len)
   }
 
   if ( *t == TermNil )
-    return PL_LIST;
+  return PL_LIST;
   else if ( IsVarTerm(*t) )
-    return PL_PARTIAL_LIST;
+  return PL_PARTIAL_LIST;
   else if ( IsPairTerm(*t) )
-    return PL_CYCLIC_TERM;
+  return PL_CYCLIC_TERM;
   else
-    return PL_NOT_A_LIST;
+  return PL_NOT_A_LIST;
 }
 
 
@@ -1972,33 +2227,33 @@ PL_record_external
 
   while(TRUE) {
     if (!(s = Yap_AllocCodeSpace(len)))
-      return NULL;
+    return NULL;
     if ((nsz = Yap_ExportTerm(t, s, len, 0))) {
       *sz = nsz;
       return (char *)s;
     } else {
       if (len < 16*1024)
-	len = len *2;
+      len = len *2;
       else
-	len += 16*1024;
+      len += 16*1024;
     }
   }
   return NULL;
 }
 
 /*
-   partial implementation of recorded_external, does not guarantee endianness nor portability, and does not
-   support constraints.
- */
+partial implementation of recorded_external, does not guarantee endianness nor portability, and does not
+support constraints.
+*/
 
 X_API int
 PL_recorded_external
 (const char *tp, term_t ts)
 {
   CACHE_REGS
-    Term t = Yap_ImportTerm((void *)tp);
+  Term t = Yap_ImportTerm((void *)tp);
   if (t == 0)
-    return FALSE;
+  return FALSE;
   Yap_PutInSlot(ts, t PASS_REGS);
   return TRUE;
 }
@@ -2025,7 +2280,7 @@ PL_recorded(record_t db, term_t ts)
   CACHE_REGS
   Term t = YAP_Recorded((void *)db);
   if (t == ((CELL)0))
-    return FALSE;
+  return FALSE;
   Yap_PutInSlot(ts,t PASS_REGS);
   return TRUE;
 }
@@ -2035,7 +2290,7 @@ PL_duplicate_record(record_t db)
 {
   Term t = YAP_Recorded((void *)db);
   if (t == ((CELL)0))
-    return FALSE;
+  return FALSE;
   return (record_t)YAP_Record(t);
 }
 
@@ -2047,7 +2302,7 @@ PL_erase(record_t db)
 
 X_API void PL_halt(int e)
 {
-   YAP_Halt(e);
+  YAP_Halt(e);
 }
 
 X_API int PL_action(int action,...)
@@ -2056,39 +2311,39 @@ X_API int PL_action(int action,...)
 
   va_start (ap, action);
   switch (action) {
-  case PL_ACTION_TRACE:
+    case PL_ACTION_TRACE:
     fprintf(stderr, "PL_ACTION_TRACE not supported\n");
     break;
-  case PL_ACTION_DEBUG:
+    case PL_ACTION_DEBUG:
     fprintf(stderr, "PL_ACTION_DEBUG not supported\n");
     break;
-  case PL_ACTION_BACKTRACE:
+    case PL_ACTION_BACKTRACE:
     fprintf(stderr, "PL_ACTION_BACKTRACE not supported\n");
     break;
-  case PL_ACTION_HALT:
+    case PL_ACTION_HALT:
     {
       int halt_arg = va_arg(ap, int);
       YAP_Halt(halt_arg);
     }
     break;
-  case PL_ACTION_ABORT:
+    case PL_ACTION_ABORT:
     {
       YAP_Throw(MkAtomTerm(Yap_LookupAtom("abort")));
     }
     break;
-  case PL_ACTION_BREAK:
+    case PL_ACTION_BREAK:
     fprintf(stderr, "PL_ACTION_BREAK not supported\n");
     break;
-  case PL_ACTION_GUIAPP:
+    case PL_ACTION_GUIAPP:
     fprintf(stderr, "PL_ACTION_GUIAPP not supported\n");
     break;
-  case PL_ACTION_WRITE:
+    case PL_ACTION_WRITE:
     fprintf(stderr, "PL_ACTION_WRITE not supported\n");
     break;
-  case PL_ACTION_FLUSH:
+    case PL_ACTION_FLUSH:
     fprintf(stderr, "PL_ACTION_WRITE not supported\n");
     break;
-  case PL_ACTION_ATTACH_CONSOLE:
+    case PL_ACTION_ATTACH_CONSOLE:
     fprintf(stderr, "PL_ACTION_WRITE not supported\n");
     break;
   }
@@ -2125,11 +2380,11 @@ PL_initialise(int myargc, char **myargv)
   memset((void *)&init_args,0,sizeof(init_args));
   init_args.Argv = myargv;
   init_args.Argc = myargc;
-#if BOOT_FROM_SAVED_STATE
+  #if BOOT_FROM_SAVED_STATE
   init_args.SavedState = "startup.yss";
-#else
+  #else
   init_args.SavedState = NULL;
-#endif
+  #endif
   init_args.YapLibDir = NULL;
   init_args.YapPrologBootFile = NULL;
   init_args.HaltAfterConsult = FALSE;
@@ -2153,9 +2408,9 @@ PL_is_initialised(int *argcp, char ***argvp)
 {
   if (GLOBAL_InitialisedFromPL) {
     if (argcp)
-      *argcp = GLOBAL_PL_Argc;
+    *argcp = GLOBAL_PL_Argc;
     if (argvp)
-      *argvp = GLOBAL_PL_Argv;
+    *argvp = GLOBAL_PL_Argv;
   }
   return GLOBAL_InitialisedFromPL;
 }
@@ -2174,14 +2429,14 @@ PL_strip_module(term_t raw, module_t *m, term_t plain)
   Term m0, t;
   if (m) {
     if (*m)
-      m0 = MkAtomTerm((*m)->AtomOfME);
+    m0 = MkAtomTerm((*m)->AtomOfME);
     else
-      m0 = MkAtomTerm(AtomProlog);
+    m0 = MkAtomTerm(AtomProlog);
   } else
-    m0 = USER_MODULE;
+  m0 = USER_MODULE;
   t =  Yap_StripModule(Yap_GetFromSlot(raw), &m0);
   if (!t)
-    return FALSE;
+  return FALSE;
   *m = Yap_GetModuleEntry(m0);
   Yap_PutInSlot(plain, t PASS_REGS);
   return TRUE;
@@ -2217,8 +2472,8 @@ X_API predicate_t PL_predicate(const char *name, int arity, const char *m)
     Atom at;
     while (!(at = Yap_LookupAtom((char *)m))) {
       if (!Yap_growheap(FALSE, 0L, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
-	return NULL;
+        Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+        return NULL;
       }
     }
     mod = MkAtomTerm(at);
@@ -2269,19 +2524,19 @@ X_API void PL_predicate_info(predicate_t p,atom_t *name, int *arity, module_t *m
 
   if (pd->ArityOfPE) {
     if (arity)
-      *arity = pd->ArityOfPE;
+    *arity = pd->ArityOfPE;
     aname = NameOfFunctor(pd->FunctorOfPred);
   } else {
     if (arity)
-      *arity = 0;
+    *arity = 0;
     aname = (Atom)(pd->FunctorOfPred);
   }
   if (pd->ModuleOfPred && m)
-    *m = Yap_GetModuleEntry(pd->ModuleOfPred);
+  *m = Yap_GetModuleEntry(pd->ModuleOfPred);
   else if (m)
-    *m = Yap_GetModuleEntry(TermProlog);
+  *m = Yap_GetModuleEntry(TermProlog);
   if (name)
-    *name = AtomToSWIAtom(aname);
+  *name = AtomToSWIAtom(aname);
 }
 
 #undef S_YREG
@@ -2292,22 +2547,22 @@ PL_open_foreign_frame(void)
 {
   CACHE_REGS
   /* initialise a new marker choicepoint */
-    choiceptr cp_b = ((choiceptr)(ASP-1))-1;
-    cp_b->cp_tr = TR;
-    cp_b->cp_h = HR;
-    cp_b->cp_b = B;
-    cp_b->cp_cp = CP;
-    cp_b->cp_env = ENV;
-    cp_b->cp_ap = NOCODE;
-#ifdef DEPTH_LIMIT
-    cp_b->cp_depth = DEPTH;
-#endif /* DEPTH_LIMIT */
-    cp_b->cp_a1 = MkIntTerm(Yap_StartSlots());
-    HB = HR;
-    B = cp_b;
-    ASP = (CELL *)B;
+  choiceptr cp_b = ((choiceptr)(ASP-1))-1;
+  cp_b->cp_tr = TR;
+  cp_b->cp_h = HR;
+  cp_b->cp_b = B;
+  cp_b->cp_cp = CP;
+  cp_b->cp_env = ENV;
+  cp_b->cp_ap = NOCODE;
+  #ifdef DEPTH_LIMIT
+  cp_b->cp_depth = DEPTH;
+  #endif /* DEPTH_LIMIT */
+  cp_b->cp_a1 = MkIntTerm(Yap_StartSlots());
+  HB = HR;
+  B = cp_b;
+  ASP = (CELL *)B;
 
-    return (fid_t)(LCL0-(CELL*)cp_b);
+  return (fid_t)(LCL0-(CELL*)cp_b);
 }
 
 X_API void
@@ -2322,9 +2577,9 @@ PL_close_foreign_frame(fid_t f)
   B = cp_b->cp_b;
   CP = cp_b->cp_cp;
   ENV = cp_b->cp_env;
-#ifdef DEPTH_LIMIT
+  #ifdef DEPTH_LIMIT
   DEPTH = cp_b->cp_depth;
-#endif /* DEPTH_LIMIT */
+  #endif /* DEPTH_LIMIT */
   HB = B->cp_h;
   ASP = ((CELL *)(cp_b+1))+1;
 }
@@ -2342,10 +2597,10 @@ X_API void
 PL_rewind_foreign_frame(fid_t f)
 {
   CACHE_REGS
-    choiceptr cp_b = (choiceptr)(LCL0-(UInt)f);
+  choiceptr cp_b = (choiceptr)(LCL0-(UInt)f);
   if (B != cp_b) {
     while (B->cp_b != cp_b)
-      B = B->cp_b;
+    B = B->cp_b;
   }
   backtrack();
   // restore to original location
@@ -2361,7 +2616,7 @@ PL_discard_foreign_frame(fid_t f)
 
   if (B != cp_b) {
     while (B->cp_b != cp_b)
-      B = B->cp_b;
+    B = B->cp_b;
     backtrack();
   }
   Yap_CloseSlots( IntOfTerm(cp_b->cp_a1) );
@@ -2369,9 +2624,9 @@ PL_discard_foreign_frame(fid_t f)
   CP = cp_b->cp_cp;
   ENV = cp_b->cp_env;
   HB = B->cp_h;
-#ifdef DEPTH_LIMIT
+  #ifdef DEPTH_LIMIT
   DEPTH = cp_b->cp_depth;
-#endif /* DEPTH_LIMIT */
+  #endif /* DEPTH_LIMIT */
   /* we can assume there was a slot before */
   ASP = ((CELL *)(cp_b+1))+1;
 }
@@ -2398,7 +2653,7 @@ X_API int PL_next_solution(qid_t qi)
   int result;
   if (qi->q_open != 1) return 0;
   if (setjmp(LOCAL_execution->q_env))
-    return 0;
+  return 0;
   // don't forget, on success these guys must create slots
   if (qi->q_state == 0) {
     result = YAP_EnterGoal((YAP_PredEntryPtr)qi->q_pe, qi->q_g, &qi->q_h);
@@ -2487,11 +2742,11 @@ X_API void PL_register_foreign_in_module(const char *module, const char *name, i
   Term tmod;
   Int nflags = 0;
 
-#ifdef DEBUG
+  #ifdef DEBUG
   if (flags & (PL_FA_CREF)) {
     fprintf(stderr,"PL_register_foreign_in_module called with non-implemented flag %x when creating predicate %s:%s/%d\n", flags, module, name, arity);
   }
-#endif
+  #endif
   if (module == NULL) {
     tmod = CurrentModule;
   } else {
@@ -2554,29 +2809,29 @@ X_API  int PL_is_inf(term_t st)
   Term t = Deref(Yap_GetFromSlot(st));
   if (IsVarTerm(t)) return FALSE;
   if (!IsFloatTerm(t)) return FALSE;
-#if HAVE_ISINF
+  #if HAVE_ISINF
   Float fl;
- fl = FloatOfTerm(t);
+  fl = FloatOfTerm(t);
   return isinf(fl);
-#elif HAVE_FPCLASS
+  #elif HAVE_FPCLASS
   Float fl;
   fl = FloatOfTerm(t);
   return (fpclass(fl) == FP_NINF || fpclass(fl) == FP_PINF);
-#else
+  #else
   return FALSE;
-#endif
+  #endif
 }
 
 X_API int PL_thread_self(void)
 {
   CACHE_REGS
-#if THREADS
+  #if THREADS
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
-    return -1;
+  return -1;
   return (worker_id+1)<<3;
-#else
+  #else
   return -2;
-#endif
+  #endif
 }
 
 #if THREADS
@@ -2584,35 +2839,33 @@ X_API int PL_thread_self(void)
 static int
 alertThread(int tid)
 {
-#if _WIN32
+  #if _WIN32
   return pthread_kill(REMOTE_ThreadHandle(tid).pthread_handle, YAP_WINTIMER_SIGNAL) == 0;
-#else
+  #else
   return pthread_kill(REMOTE_ThreadHandle(tid).pthread_handle, YAP_ALARM_SIGNAL) == 0;
-#endif
+  #endif
 }
 
+#endif
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PL_thread_raise() is used  for  re-routing   interrupts  in  the Windows
 version, where the signal handler is running  from a different thread as
 Prolog.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
+#if 0
 int
 PL_thread_raise(int tid, int sig)
 {
   PL_LOCK(L_THREAD);
   if ( tid < 1  )
-    { error:
-      PL_UNLOCK(L_THREAD);
-      return FALSE;
-    }
+  { error:
+    PL_UNLOCK(L_THREAD);
+    return FALSE;
+  }
   if ( !REMOTE_ThreadHandle(tid).in_use )
-    goto error;
+  goto error;
 
-
-  if ( !raiseSignal(REMOTE_PL_local_data_p(tid), sig) ||
-       !alertThread(tid) )
-    goto error;
 
   PL_UNLOCK(L_THREAD);
 
@@ -2623,8 +2876,10 @@ PL_thread_raise(int tid, int sig)
 int
 PL_thread_raise(int tid, int sig)
 {
+  #if 0
   if ( !raiseSignal(NULL, sig) )
-    return FALSE;
+  #endif
+  return FALSE;
 
   return TRUE;
 }
@@ -2643,13 +2898,13 @@ static int
 pl_thread_self(void)
 {
   CACHE_REGS
-#if THREADS
+  #if THREADS
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
-    return -1;
+  return -1;
   return worker_id;
-#else
+  #else
   return -2;
-#endif
+  #endif
 }
 
 X_API int PL_thread_attach_engine(const PL_thread_attr_t *attr)
@@ -2670,7 +2925,7 @@ X_API int PL_thread_attach_engine(const PL_thread_attr_t *attr)
       wid = YAP_ThreadCreateEngine(NULL);
     }
     if (wid < 0)
-      return -1;
+    return -1;
     if (YAP_ThreadAttachEngine(wid)) {
       return wid;
     }
@@ -2705,7 +2960,7 @@ PL_thread_at_exit(void (*function)(void *), void *closure, int global)
 X_API PL_engine_t
 PL_create_engine(const PL_thread_attr_t *attr)
 {
-#if THREADS
+  #if THREADS
   int eng;
   if (attr) {
     YAP_thread_attr yapt;
@@ -2720,8 +2975,8 @@ PL_create_engine(const PL_thread_attr_t *attr)
     eng = YAP_ThreadCreateEngine(NULL);
   }
   if (eng >= 0)
-    return  Yap_local[eng];
-#endif
+  return  Yap_local[eng];
+  #endif
   return NULL;
 }
 
@@ -2729,25 +2984,25 @@ PL_create_engine(const PL_thread_attr_t *attr)
 X_API int
 PL_destroy_engine(PL_engine_t e)
 {
-#if THREADS
+  #if THREADS
   return YAP_ThreadDestroyEngine(((struct worker_local *)e)->ThreadHandle_.current_yaam_regs->worker_id_);
-#else
+  #else
   return FALSE;
-#endif
+  #endif
 }
 
 X_API int
 PL_set_engine(PL_engine_t engine, PL_engine_t *old)
 {
   CACHE_REGS
-#if THREADS
+  #if THREADS
   int cwid = pl_thread_self(), nwid;
   if (cwid >= 0) {
     if (old) *old = (PL_engine_t)(Yap_local[cwid]);
   }
   if (!engine) {
     if (cwid < 0)
-      return PL_ENGINE_INVAL;
+    return PL_ENGINE_INVAL;
     if (!YAP_ThreadDetachEngine(worker_id)) {
       return PL_ENGINE_INVAL;
     }
@@ -2777,10 +3032,10 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
     return PL_ENGINE_INVAL;
   }
   return PL_ENGINE_SET;
-#else
+  #else
   if (old) *old = (PL_engine_t)&Yap_local;
   return FALSE;
-#endif
+  #endif
 }
 
 
@@ -2788,7 +3043,7 @@ X_API void *
 PL_malloc(size_t sz)
 {
   if ( sz == 0 )
-    return NULL;
+  return NULL;
   return (void *)malloc((long unsigned int)sz);
 }
 
@@ -2811,7 +3066,7 @@ X_API void
 PL_free(void *obj)
 {
   if (obj)
-    free(obj);
+  free(obj);
 }
 
 X_API int
@@ -2825,25 +3080,25 @@ PL_eval_expression_to_int64_ex(term_t t, int64_t *val)
   if (IsIntegerTerm(res)) {
     *val = IntegerOfTerm(res);
     return TRUE;
-#if  SIZEOF_INT_P==4 && USE_GMP
+    #if  SIZEOF_INT_P==4 && USE_GMP
   } else if (YAP_IsBigNumTerm(res)) {
     MP_INT g;
     char s[64];
 
     YAP_BigNumOfTerm(t, (void *)&g);
     if (mpz_sizeinbase(&g,2) > 64) {
-      return PL_error(NULL,0,NULL, ERR_EVALUATION, AtomToSWIAtom(Yap_LookupAtom("int_overflow")));
+      Yap_Error(EVALUATION_ERROR_INT_OVERFLOW, Yap_GetFromSlot(t), "integer_overflow");
     }
     mpz_get_str (s, 10, &g);
-#ifdef _WIN32
+    #ifdef _WIN32
     sscanf(s, "%I64d", (long long int *)val);
-#else
+    #else
     sscanf(s, "%lld", (long long int *)val);
-#endif
+    #endif
     return 1;
-#endif
+    #endif
   }
-  PL_error(NULL,0,NULL, ERR_TYPE, AtomToSWIAtom(Yap_LookupAtom("integer_expression")));
+  Yap_Error(TYPE_ERROR_ATOM, Yap_GetFromSlot(t), "integer_expression");
   return FALSE;
 }
 
@@ -2864,11 +3119,11 @@ X_API int
 PL_foreign_control(control_t ctx)
 {
   switch (ctx->control) {
-  case FRG_REDO:
+    case FRG_REDO:
     return PL_REDO;
-  case FRG_FIRST_CALL:
+    case FRG_FIRST_CALL:
     return PL_FIRST_CALL;
-  default:
+    default:
     return PL_CUTTED;
   }
 }
@@ -2877,9 +3132,9 @@ X_API intptr_t
 PL_foreign_context(control_t ctx)
 {
   switch (ctx->control) {
-  case FRG_FIRST_CALL:
+    case FRG_FIRST_CALL:
     return 0L;
-  default:
+    default:
     return (intptr_t)(ctx->context);
   }
 }
@@ -2889,9 +3144,9 @@ X_API void *
 PL_foreign_context_address(control_t ctx)
 {
   switch (ctx->control) {
-  case FRG_FIRST_CALL:
+    case FRG_FIRST_CALL:
     return NULL;
-  default:
+    default:
     return (void *)(ctx->context);
   }
 }
@@ -2899,23 +3154,27 @@ PL_foreign_context_address(control_t ctx)
 X_API int
 PL_get_signum_ex(term_t sig, int *n)
 {
+  CACHE_REGS
   char *s;
   int i = -1;
 
   if ( PL_get_integer(sig, &i) )
   {
-  } else if ( PL_get_chars(sig, &s, CVT_ATOM) )
-  { i = Yap_signal_index(s);
-  } else
-  { return PL_error(NULL, 0, NULL, ERR_TYPE, ATOM_signal, sig);
+  } else if ( IsAtomTerm(Yap_GetFromSlot(sig) ) )
+  { s = RepAtom(AtomOfTerm(Yap_GetFromSlot(sig)))->StrOfAE;
+    i = Yap_signal_index(s);
   }
+  else
+  { Yap_Error(TYPE_ERROR_ATOM, Yap_GetFromSlot(sig), "signal handling");
+  return FALSE;
+}
 
-  if ( i > 0 && i < 32 )		/* where to get these? */
-  { *n = i;
-    return TRUE;
-  }
-
-  return PL_error(NULL, 0, NULL, ERR_DOMAIN, ATOM_signal, sig);
+if ( i > 0 && i < 32 )		/* where to get these? */
+{ *n = i;
+  return TRUE;
+}
+Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, Yap_GetFromSlot(sig) , "signal handling");
+return FALSE;
 }
 
 typedef struct blob {
@@ -2931,15 +3190,15 @@ X_API intptr_t
 PL_query(int query)
 {
   switch(query) {
-  case PL_QUERY_ARGC:
+    case PL_QUERY_ARGC:
     return (intptr_t)GLOBAL_argc;
-  case PL_QUERY_ARGV:
+    case PL_QUERY_ARGV:
     return (intptr_t)GLOBAL_argv;
-  case PL_QUERY_USER_CPU:
+    case PL_QUERY_USER_CPU:
     return (intptr_t)Yap_cputime();
-  case PL_QUERY_VERSION:
+    case PL_QUERY_VERSION:
     return (intptr_t)60300;
-  default:
+    default:
     fprintf(stderr,"Unimplemented PL_query %d\n",query);
     return (intptr_t)0;
   }
@@ -2985,35 +3244,25 @@ str_prefix(const char *p0, char *s)
 static int
 atom_generator(const char *prefix, char **hit, int state)
 {
+    CACHE_REGS
   struct scan_atoms *index;
   Atom            catom;
   Int            i;
 
-#ifdef O_PLMT
-  if ( !atomgen_key ) {
-    pthread_key_create(&atomgen_key, NULL);
-    state = FALSE;
-  }
-#endif
-
   if ( !state )
-    { index = (struct scan_atoms *)malloc(sizeof(struct scan_atoms));
-      i = 0;
-      catom = NIL;
+  { index = (struct scan_atoms *)malloc(sizeof(struct scan_atoms));
+    i = 0;
+    catom = NIL;
   } else
   {
-#ifdef O_PLMT
-    index = (struct scan_atoms *)pthread_getspecific(atomgen_key);
-#else
     index = LOCAL_search_atoms;
-#endif
     catom = index->atom;
     i = index->pos;
   }
 
   while (catom != NIL || i < AtomHashTableSize) {
     //    if ( is_signalled() )		/* Notably allow windows version */
-      //      PL_handle_signals();		/* to break out on ^C */
+    //      PL_handle_signals();		/* to break out on ^C */
     AtomEntry *ap;
 
     if (catom == NIL) {
@@ -3026,26 +3275,19 @@ atom_generator(const char *prefix, char **hit, int state)
       ap = RepAtom(catom);
       READ_LOCK(ap->ARWLock);
       if ( str_prefix(prefix, ap->StrOfAE) ) {
-	index->pos = i;
-	index->atom = ap->NextOfAE;
-#ifdef O_PLMT
-	pthread_setspecific(atomgen_key,index);
-#else
-	LOCAL_search_atoms = index;
-#endif
-	*hit = ap->StrOfAE;
-	READ_UNLOCK(ap->ARWLock);
-	return TRUE;
+          CACHE_REGS
+        index->pos = i;
+        index->atom = ap->NextOfAE;
+        LOCAL_search_atoms = index;
+        *hit = ap->StrOfAE;
+        READ_UNLOCK(ap->ARWLock);
+        return TRUE;
       }
       catom = ap->NextOfAE;
       READ_UNLOCK(ap->ARWLock);
     }
   }
-#ifdef O_PLMT
-  pthread_setspecific(atomgen_key,NULL);
-#else
   LOCAL_search_atoms = NULL;
-#endif
   free(index);
   return FALSE;
 }
@@ -3075,9 +3317,9 @@ Yap_GetCurrentPredName(void)
 {
   CACHE_REGS
   if (!PP)
-    return NULL;
+  return NULL;
   if (PP->ArityOfPE)
-    return NameOfFunctor(PP->FunctorOfPred)->StrOfAE;
+  return NameOfFunctor(PP->FunctorOfPred)->StrOfAE;
   return   RepAtom((Atom)(PP->FunctorOfPred))->StrOfAE;
 }
 
@@ -3086,7 +3328,7 @@ Yap_GetCurrentPredArity(void)
 {
   CACHE_REGS
   if (!PP)
-    return (Int)0;
+  return (Int)0;
   return PP->ArityOfPE;
 }
 
@@ -3097,81 +3339,39 @@ Yap_swi_install(void)
 }
 
 
-extern atom_t 		fileNameStream(IOSTREAM *s);
-extern Atom 		Yap_FileName(IOSTREAM *s);
-
-Atom
-Yap_FileName(IOSTREAM *s)
-{
-  atom_t a = fileNameStream(s);
-  if (!a) {
-    return AtomEmptyAtom;
-  }
-  return SWIAtomToAtom(a);
-}
-
-extern void closeFiles(int);
-
-void
-Yap_CloseStreams(int loud)
-{
-  closeFiles(FALSE);
-}
-
-Int Yap_StreamToFileNo(Term t) {
-  CACHE_REGS
-  IOSTREAM *s;
-  int rc;
-
-  if ( (rc=PL_get_stream_handle(Yap_InitSlot(t), &s)) ) {
-    return Sfileno(s);
-  }
-  return -1;
-}
-
-FILE *Yap_FileDescriptorFromStream(Term t)
-{
-  CACHE_REGS
-  IOSTREAM *s;
-  int rc;
-
-  if ( (rc=PL_get_stream_handle(Yap_InitSlot(t), &s)) ) {
-    fprintf(stderr,"Unimplemented\n");
-    //    return Sfileno(s);
-  }
-  return NULL;
-}
-
 X_API int
 PL_raise(int sig)
 {
   Yap_signal(YAP_INT_SIGNAL);
-   return 1;
+  return 1;
 }
 
 int
-raiseSignal(PL_local_data_t *ld, int sig)
+raiseSignal(void *ld, int sig);
+
+int
+raiseSignal(void *ld, int sig)
 {
-#if THREADS
+  #if THREADSX
   if (sig == SIG_THREAD_SIGNAL) {
     Yap_signal(YAP_ITI_SIGNAL);
     return TRUE;
   }
-#endif
+  #endif
   fprintf(stderr, "Unsupported signal %d\n", sig);
   return FALSE;
 }
 
 
 #if THREADS
-void Yap_LockStream(IOSTREAM *s)
+void Yap_LockStream(void *s)
 {
-  if ( s->mutex ) recursiveMutexLock(s->mutex);
+  //  if ( s->mutex ) recursiveMutexLock(s->mutex);
 }
 
-void Yap_UnLockStream(IOSTREAM *s)
+void Yap_UnLockStream(void *s)
 {
-  if ( s->mutex ) recursiveMutexUnlock(s->mutex);
+  //  if ( s->mutex ) recursiveMutexUnlock(s->mutex);
 }
 #endif
 
@@ -3189,44 +3389,49 @@ term_t Yap_CvtTerm(term_t ts)
     Functor f = FunctorOfTerm(t);
     if (IsExtensionFunctor(f)) {
       if (f == FunctorBigInt) {
-	big_blob_type flag = RepAppl(t)[1];
-	switch (flag) {
-	case BIG_INT:
-	  return ts;
-	case BIG_RATIONAL:
-#if USE_GMP
-	  {
-	    MP_RAT *b = Yap_BigRatOfTerm(t);
-	    Term ta[2];
-	    ta[0] = Yap_MkBigIntTerm(mpq_numref(b));
-	    if (ta[0] == TermNil)
-	      return ts;
-	    ta[1] = Yap_MkBigIntTerm(mpq_denref(b));
-	    if (ta[1] == TermNil)
-	      return ts;
-	    return Yap_InitSlot(Yap_MkApplTerm(FunctorRDiv, 2, ta));
-	  }
-#endif
-	case EMPTY_ARENA:
-	case ARRAY_INT:
-	case ARRAY_FLOAT:
-	case CLAUSE_LIST:
-	case EXTERNAL_BLOB:
-	  return Yap_InitSlot(MkIntTerm(0));
-	default:
-	  return ts;
-	}
+        big_blob_type flag = RepAppl(t)[1];
+        switch (flag) {
+          case BIG_INT:
+          return ts;
+          case BIG_RATIONAL:
+          #if USE_GMP
+          {
+            MP_RAT *b = Yap_BigRatOfTerm(t);
+            Term ta[2];
+            ta[0] = Yap_MkBigIntTerm(mpq_numref(b));
+            if (ta[0] == TermNil)
+            return ts;
+            ta[1] = Yap_MkBigIntTerm(mpq_denref(b));
+            if (ta[1] == TermNil)
+            return ts;
+            return Yap_InitSlot(Yap_MkApplTerm(FunctorRDiv, 2, ta));
+          }
+          #endif
+          case EMPTY_ARENA:
+          case ARRAY_INT:
+          case ARRAY_FLOAT:
+          case CLAUSE_LIST:
+          case EXTERNAL_BLOB:
+          return Yap_InitSlot(MkIntTerm(0));
+          default:
+          return ts;
+        }
       } else if (f == FunctorDBRef) {
-	Term ta[0];
-	ta[0] = MkIntegerTerm((Int)DBRefOfTerm(t));
-	return Yap_InitSlot(Yap_MkApplTerm(FunctorDBREF, 1, ta));
+        Term ta[0];
+        ta[0] = MkIntegerTerm((Int)DBRefOfTerm(t));
+        return Yap_InitSlot(Yap_MkApplTerm(FunctorDBREF, 1, ta));
       }
     }
   }
   return ts;
 }
 
+char * PL_cwd(char *cwd, size_t cwdlen)
+{
+  return (char *)Yap_getcwd( (const char *)cwd, cwdlen );
+}
+
 /**
- * @}
- * @}
- */
+* @}
+* @}
+*/

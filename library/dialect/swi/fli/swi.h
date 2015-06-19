@@ -34,6 +34,12 @@
  *  from the C programmer.
 
  */
+
+#ifndef SWI_H
+#define SWI_H 1
+
+#include "SWI-Prolog.h"
+
 void Yap_swi_install(void);
 void Yap_install_blobs(void);
 
@@ -75,6 +81,39 @@ SWIModuleToModule(module_t m)
   return USER_MODULE;
 }
 
+
+#ifdef YATOM_H
+
+static inline atom_t
+AtomToSWIAtom(Atom at)
+{
+  TranslationEntry *p;
+
+  if ((p = Yap_GetTranslationProp(at)) != NULL)
+    return (atom_t)(p->Translation*2+1);
+  return (atom_t)at;
+}
+
+#endif
+
+static inline Atom
+SWIAtomToAtom(atom_t at)
+{
+  if ((CELL)at & 1)
+    return SWI_Atoms[at/2];
+  return (Atom)at;
+}
+
+
+/* This is silly, but let's keep it like that for now */
+static inline Functor
+SWIFunctorToFunctor(functor_t f)
+{
+  if (((CELL)(f) & 2) && ((CELL)f) < N_SWI_FUNCTORS*4+2)
+    return SWI_Functors[((CELL)f)/4];
+  return (Functor)f;
+}
+
 static inline functor_t
 FunctorToSWIFunctor(Functor at)
 {
@@ -85,6 +124,9 @@ FunctorToSWIFunctor(Functor at)
 }
 
 #define isDefinedProcedure(pred) TRUE // TBD
+
+int Yap_write_blob(AtomEntry *ref,  FILE *stream);
+#endif
 
 /**
   @}

@@ -23,8 +23,10 @@
  *
  */
 
+#include	<stdio.h>
 #include	<Yap.h>
 #include	<Yatom.h>
+#include	<iopreds.h>
 
 #include <string.h>
 
@@ -32,7 +34,9 @@
 #define _WITH_DPRINTF
 #include <stdio.h>
 
-#include	<pl-shared.h>
+//#include	<SWI-Stream.h>
+//#include	<pl-shared.h>
+
 
 #include "swi.h"
 
@@ -42,8 +46,7 @@ static PL_blob_t unregistered_blob_atom =
   "unregistered"
 };
 
-
-PL_EXPORT(int)
+int
 PL_is_blob(term_t t, PL_blob_t **type)
 {
   CACHE_REGS
@@ -59,75 +62,11 @@ PL_is_blob(term_t t, PL_blob_t **type)
   if (!IsBlob(a))
     return FALSE;
   b = RepBlobProp(a->PropsOfAE);
-  *type = b->blob_t;
+  *type = (struct PL_blob_t *)b->blob_type;
   return TRUE;
 }
 
-
 /* void check_chain(void); */
-
-/* void check_chain(void) { */
-/*   AtomEntry *ae, *old; */
-/*     ae = SWI_Blobs; */
-/*     old = NULL; */
-/*     while (ae) { */
-/*       old = ae; */
-/*       ae = RepAtom(ae->NextOfAE); */
-/*     } */
-/* } */
-
-AtomEntry *
-Yap_lookupBlob(void *blob, size_t len, void *type0, int *new)
-{
-  BlobPropEntry *b;
-  AtomEntry *ae;
-  PL_blob_t *type = type0;
-  if (new)
-    *new = FALSE;
-
-  LOCK(SWI_Blobs_Lock);
-  if (type->flags & PL_BLOB_UNIQUE) {
-    /* just keep a linked chain for now */
-    ae = SWI_Blobs;
-    while (ae) {
-      if (ae->PropsOfAE &&
-	  RepBlobProp(ae->PropsOfAE)->blob_t == type &&
-	  ae->rep.blob->length == len &&
-	  !memcmp(ae->rep.blob->data, blob, len)) {
-	UNLOCK(SWI_Blobs_Lock);
-	return ae;
-      }
-      ae = RepAtom(ae->NextOfAE);
-    }
-  }
-  if (new)
-    *new = TRUE;
-  b = (BlobPropEntry *)Yap_AllocCodeSpace(sizeof(BlobPropEntry));
-  if (!b) {
-    UNLOCK(SWI_Blobs_Lock);
-    return NULL;
-  }
-  b->NextOfPE = NIL;
-  b->KindOfPE = BlobProperty;
-  b->blob_t = type;
-  ae = (AtomEntry *)Yap_AllocCodeSpace(sizeof(AtomEntry)+len+sizeof(size_t));
-  if (!ae) {
-    UNLOCK(SWI_Blobs_Lock);
-    return NULL;
-  }
-  NOfBlobs++;
-  INIT_RWLOCK(ae->ARWLock);
-  ae->PropsOfAE = AbsBlobProp(b);
-  ae->NextOfAE = AbsAtom(SWI_Blobs);
-  ae->rep.blob->length = len;
-  memcpy(ae->rep.blob->data, blob, len);
-  SWI_Blobs = ae;
-  if (NOfBlobs > NOfBlobsMax) {
-    Yap_signal(YAP_CDOVF_SIGNAL);
-  }
-  UNLOCK(SWI_Blobs_Lock);
-  return ae;
-}
 
 PL_EXPORT(int)
 PL_unify_blob(term_t t, void *blob, size_t len, PL_blob_t *type)
@@ -185,7 +124,7 @@ PL_get_blob(term_t t, void **blob, size_t *len, PL_blob_t **type)
     return FALSE;
   ae = RepAtom(a);
   if (type)
-    *type = RepBlobProp(ae->PropsOfAE)->blob_t;
+    *type = (struct PL_blob_t *)RepBlobProp(ae->PropsOfAE)->blob_type;
   if (len)
     *len = ae->rep.blob[0].length;
   if (blob)
@@ -215,7 +154,7 @@ PL_blob_data(atom_t a, size_t *len, struct PL_blob_t **type)
   if ( len )
     *len = x->rep.blob[0].length;
   if ( type )
-    *type = RepBlobProp(x->PropsOfAE)->blob_t;
+    *type = (struct PL_blob_t *)RepBlobProp(x->PropsOfAE)->blob_type;
 
   return x->rep.blob[0].data;
 }
@@ -223,8 +162,8 @@ PL_blob_data(atom_t a, size_t *len, struct PL_blob_t **type)
 PL_EXPORT(void)
 PL_register_blob_type(PL_blob_t *type)
 {
-  type->next = SWI_BlobTypes;
-  SWI_BlobTypes = type;
+  type->next = (PL_blob_t *)BlobTypes;
+  BlobTypes = (struct YAP_blob_t *)type;
 }
 
 PL_EXPORT(PL_blob_t*)
@@ -235,16 +174,6 @@ PL_find_blob_type(const char* name)
   return YAP_find_blob_type((YAP_Atom)at);
 }
 
-PL_EXPORT(PL_blob_t*)
-YAP_find_blob_type(YAP_Atom at)
-{
-  AtomEntry *a = RepAtom((Atom)at);
-  if (!IsBlob(a)) {
-    return &unregistered_blob_atom;
-  }
-  return RepBlobProp(a->PropsOfAE)->blob_t;
-}
-
 PL_EXPORT(int)
 PL_unregister_blob_type(PL_blob_t *type)
 {
@@ -252,11 +181,6 @@ PL_unregister_blob_type(PL_blob_t *type)
   return FALSE;
 }
 
-void
-Yap_install_blobs(void)
-{
-
-}
 
 /**
  * @}
