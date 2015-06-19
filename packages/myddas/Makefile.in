@@ -22,7 +22,7 @@ YAPLIBDIR=@libdir@/Yap
 CC=@CC@
 YAP_EXTRAS=@YAP_EXTRAS@
 CFLAGS= $(YAP_EXTRAS) @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include -I$(srcdir)/../../H -I$(srcdir)/../../OPTYap -I$(srcdir)/../../os  @MYDDAS_CPPFLAGS@
-LDFLAGS=@LDFLAGS@
+LDFLAGS=@LDFLAGS@ @MYDDAS_LDFLAGS@
 ECPP=@ECPP@
 #
 #

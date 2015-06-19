@@ -4,6 +4,7 @@ AC_DEFINE_UNQUOTED(MYDDAS_VERSION, $MYDDAS_VERSION, [myddas release])
 OLD_LIBS="$LIBS"
 OLD_CPPFLAGS="$CPPFLAGS"
 MYDDAS_CPPFLAGS=""
+MYDDAS_LDFLAGS=""
 
 AC_ARG_ENABLE(myddas,
 	[ --enable-myddas[[=DIR]]      with the MYDDAS library],
@@ -13,7 +14,8 @@ AC_ARG_ENABLE(myddas,
 		yap_cv_myddas=no
 	else
 		yap_cv_myddas=$withval
-		LDFLAGS="$LDFLAGS -L${yap_cv_myddas}/lib "
+    LDFLAGS="$LDFLAGS -L${yap_cv_myddas}/lib "
+    MYDDAS_LDFLAGS+=" -L${yap_cv_myddas}/lib "
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include "
 		MYDDAS_CPPFLAGS="$MYDDAS_CPPFLAGS -I${yap_cv_myddas}/include "
 fi,
@@ -28,6 +30,7 @@ AC_ARG_WITH(mysql,
 	else
 		yap_cv_mysql=$withval
 		LDFLAGS="$LDFLAGS -L${yap_cv_mysql}/lib "
+    MYDDAS_LDFLAGS+=" -L${yap_cv_mysql}/lib "
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_mysql}/include "
 		MYDDAS_CPPFLAGS="$MYDDAS_CPPFLAGS -I${yap_cv_mysql}/include "
 	fi,
@@ -42,6 +45,7 @@ AC_ARG_WITH(odbc,
 	else
 		yap_cv_odbc=$withval
 		LDFLAGS="$LDFLAGS -L${yap_cv_odbc}/lib "
+    MYDDAS_LDFLAGS+=" -L${yap_cv_odbc}/lib "
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_odbc}/include "
 		MYDDAS_CPPFLAGS="$MYDDAS_CPPFLAGS -I${yap_cv_odbc}/include "
 	fi,
@@ -56,6 +60,7 @@ AC_ARG_WITH(sqlite3,
 	else
 		yap_cv_sqlite3=$withval
 		LDFLAGS="$LDFLAGS -L${yap_cv_sqlite3}/lib "
+    MYDDAS_LDFLAGS+=" -L${yap_cv_sqlite3}/lib "
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_sqlite3}/include "
 		MYDDAS_CPPFLAGS="$MYDDAS_CPPFLAGS -I${yap_cv_sqlite3}/include "
 	fi,
@@ -70,6 +75,7 @@ AC_ARG_WITH(postgres,
 	else
 		yap_cv_postgres=$withval
 		LDFLAGS="$LDFLAGS -L${yap_cv_postgres}/lib "
+    MYDDAS_LDFLAGS+=" -L${yap_cv_postgres}/lib "
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_postgres}/include "
 		MYDDAS_CPPFLAGS="$MYDDAS_CPPFLAGS -I${yap_cv_postgres}/include "
 	fi,
@@ -188,7 +194,9 @@ then
 	fi
 
 
-	MYDDAS_LIBS="$LIBS"
+MYDDAS_LDFLAGS="$LDFLAGS"
+MYDDAS_LIBS="$LIBS"
+MYDDAS_LIBS="$LIBS"
 	LIBS="$OLD_LIBS"
 	CPPFLAGS="$OLD_CPPFLAGS"
 else
@@ -206,3 +214,4 @@ AC_SUBST(PKG_MYDDAS)
 AC_SUBST(OBJECTS_MYDDAS)
 AC_SUBST(MYDDAS_CPPFLAGS)
 AC_SUBST(MYDDAS_LIBS)
+AC_SUBST(MYDDAS_LDFLAGS)

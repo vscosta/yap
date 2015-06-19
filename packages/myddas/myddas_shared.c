@@ -154,8 +154,8 @@ c_db_add_preds ( USES_REGS1 ){
 /*   pe = RepPredProp(PredPropByFunc(FunctorOfTerm(arg_pred),arg_module)); */
 
 
-  char *nome = AtomName(AtomOfTerm(arg_nome));
-  char *module = AtomName(AtomOfTerm(arg_module));
+  const char *nome = AtomName(AtomOfTerm(arg_nome));
+  const char *module = AtomName(AtomOfTerm(arg_module));
   Int aridade = IntegerOfTerm(arg_aridade);
   Int *conn = (Int *) IntegerOfTerm(arg_conn);
 
@@ -178,8 +178,8 @@ c_db_check_if_exists_pred ( USES_REGS1 ){
   Term arg_module = Deref(ARG3);
 
 
-  char *nome = AtomName(AtomOfTerm(arg_nome));
-  char *module = AtomName(AtomOfTerm(arg_module));
+  const char *nome = AtomName(AtomOfTerm(arg_nome));
+  const char *module = AtomName(AtomOfTerm(arg_module));
   Int aridade = IntegerOfTerm(arg_aridade);
 
   if (myddas_util_search_predicate(nome,aridade,module) == NULL)
@@ -195,8 +195,8 @@ c_db_delete_predicate( USES_REGS1 ){
   Term arg_name = Deref(ARG2);
   Term arg_arity = Deref(ARG3);
 
-  char *module = AtomName(AtomOfTerm(arg_module));
-  char *name = AtomName(AtomOfTerm(arg_name));
+  const char *module = AtomName(AtomOfTerm(arg_module));
+  const char *name = AtomName(AtomOfTerm(arg_name));
   Int arity = IntegerOfTerm(arg_arity);
 
   MYDDAS_UTIL_PREDICATE predicate =

@@ -23,7 +23,7 @@
 
 /* Search for the predicate in the given predicate list*/
 static MYDDAS_UTIL_PREDICATE
-myddas_util_find_predicate(char *, Int , char *, MYDDAS_UTIL_PREDICATE);
+myddas_util_find_predicate(const char *, Int , const char *, MYDDAS_UTIL_PREDICATE);
 /* Deletes a predicate list */
 static void 
 myddas_util_delete_predicate_list(MYDDAS_UTIL_PREDICATE);
@@ -58,8 +58,8 @@ myddas_util_connection_type(void *con){
 
 
 MYDDAS_UTIL_PREDICATE
-myddas_util_search_predicate(char *pred_name, Int pred_arity, 
-			     char *pred_module){
+myddas_util_search_predicate(const char *pred_name, Int pred_arity,
+			     const char *pred_module){
   CACHE_REGS
   MYDDAS_UTIL_PREDICATE pred=NULL;
   MYDDAS_UTIL_CONNECTION top = Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections;
@@ -75,8 +75,8 @@ myddas_util_search_predicate(char *pred_name, Int pred_arity,
 /* When using this function, we must guarante that this predicate
  it's unique */
 MYDDAS_UTIL_CONNECTION 
-myddas_util_add_predicate(char *pred_name, Int pred_arity, 
-			   char *pred_module, void *con){
+myddas_util_add_predicate(const char *pred_name, Int pred_arity,
+			   const char *pred_module, void *con){
   
   MYDDAS_UTIL_CONNECTION node_con = 
     myddas_util_search_connection(con);
@@ -231,8 +231,8 @@ void myddas_util_error_message(char *message ,Int line,char *file){
 }
 
 static MYDDAS_UTIL_PREDICATE
-myddas_util_find_predicate(char *pred_name, Int pred_arity, 
-			   char *pred_module, MYDDAS_UTIL_PREDICATE list){
+myddas_util_find_predicate(const char *pred_name, Int pred_arity,
+			   const char *pred_module, MYDDAS_UTIL_PREDICATE list){
 
   for(;list != NULL ; list = list->next)
     if (pred_arity == list->pred_arity && 
@@ -348,13 +348,13 @@ myddas_util_get_pred_arity(void *pointer){
   return temp->pred_arity;
 }
 
-char *
+const char *
 myddas_util_get_pred_name(void *pointer){
   MYDDAS_UTIL_PREDICATE temp = (MYDDAS_UTIL_PREDICATE) pointer;
   return temp->pred_name;
 }
 
-char *
+const char *
 myddas_util_get_pred_module(void *pointer){
   MYDDAS_UTIL_PREDICATE temp = (MYDDAS_UTIL_PREDICATE) pointer;
   return temp->pred_module;

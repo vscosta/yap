@@ -428,8 +428,8 @@ c_postgres_query( USES_REGS1 ) {
   Term arg_mode = Deref(ARG4);
   Term arg_arity = ARG5;
 
-  char *sql = AtomName(AtomOfTerm(arg_sql_query));
-  char *mode = AtomName(AtomOfTerm(arg_mode));
+  const char *sql = AtomName(AtomOfTerm(arg_sql_query));
+  const char *mode = AtomName(AtomOfTerm(arg_mode));
   PGresult   *res;
   PGconn *db = AddressOfTerm(arg_db);
 
@@ -507,7 +507,7 @@ c_postgres_number_of_fields( USES_REGS1 ) {
   Term arg_db = Deref(ARG2);
   Term arg_fields = ARG3;
 
-  char *relation = AtomName(AtomOfTerm(arg_relation));
+  const char *relation = AtomName(AtomOfTerm(arg_relation));
   PGconn *db = AddressOfTerm(arg_db);
   const char *stmt;
   PGresult   *res;
@@ -537,16 +537,18 @@ c_postgres_get_attributes_types( USES_REGS1 ) {
   Term arg_types_list = Deref(ARG3);
   Term list, head;
 
-  char *relation = AtomName(AtomOfTerm(arg_relation));
+  const char *relation = AtomName(AtomOfTerm(arg_relation));
   PGconn *db = AddressOfTerm(arg_db);
   char sql[256];
-  int row;
+  //int row;
   PGresult   *res;
 
   const char *stmt;
   Int rc = TRUE;
 
   sprintf(sql,"SELECT * FROM TABLE `%s`",relation);
+    // Leave data for extraction
+    stmt = AtomName(Yap_LookupAtom(sql));
   // Leave data for extraction
   GET_POSTGRES (prepare(db, stmt, sql, 0, NULL), res );
 
@@ -642,7 +644,7 @@ c_postgres_get_fields_properties( USES_REGS1 ) {
   Term head, list;
   PGresult   *res;
 
-  char *relation = AtomName(AtomOfTerm(nome_relacao));
+  const char *relation = AtomName(AtomOfTerm(nome_relacao));
   char sql[256];
   Int num_fields,i;
   PGconn *db = AddressOfTerm(arg_db);
@@ -821,7 +823,7 @@ c_postgres_row( USES_REGS1 ) {
   PGresult *res;
   while((res = PQgetResult(res_set->db)) != NULL);
   int i;
-  if (i == res_set->nrows) {
+  if ((i = res_set->nrows) == 0) {
     // no more data
     PQfinish( res_set->db );
     free(res_set);

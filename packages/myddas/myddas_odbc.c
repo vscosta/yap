@@ -317,9 +317,9 @@ c_db_odbc_connect( USES_REGS1 ) {
 
   MYDDAS_UTIL_CONNECTION new = NULL;
 
-  char *driver = AtomName(AtomOfTerm(arg_driver));
-  char *user = AtomName(AtomOfTerm(arg_user));
-  char *passwd = AtomName(AtomOfTerm(arg_passwd));
+  const char *driver = AtomName(AtomOfTerm(arg_driver));
+  const char *user = AtomName(AtomOfTerm(arg_user));
+  const char *passwd = AtomName(AtomOfTerm(arg_passwd));
     
   SQLHENV     henv;
   SQLHDBC     hdbc;
@@ -447,7 +447,7 @@ c_db_odbc_number_of_fields( USES_REGS1 ) {
   Term arg_fields = Deref(ARG3);
 
 
-  char *relation = AtomName(AtomOfTerm(arg_relation));
+  const char *relation = AtomName(AtomOfTerm(arg_relation));
 
   SQLHDBC     hdbc =(SQLHDBC) (IntegerOfTerm(arg_conn));
   SQLHSTMT hstmt;
@@ -487,7 +487,7 @@ c_db_odbc_get_attributes_types( USES_REGS1 ) {
   Term arg_conn = Deref(ARG2);
   Term arg_types_list = Deref(ARG3);
 
-  char *relation = AtomName(AtomOfTerm(arg_relation));
+  const char *relation = AtomName(AtomOfTerm(arg_relation));
   SQLHDBC     hdbc =(SQLHDBC) (IntegerOfTerm(arg_conn));
   SQLHSTMT hstmt;
   
@@ -690,7 +690,7 @@ c_db_odbc_number_of_fields_in_query( USES_REGS1 ) {
   Term arg_conn = Deref(ARG2);
   Term arg_fields = Deref(ARG3);
 
-  char *sql = AtomName(AtomOfTerm(arg_query));
+  const char *sql = AtomName(AtomOfTerm(arg_query));
   
   SQLHDBC hdbc =(SQLHDBC) (IntegerOfTerm(arg_conn));
   SQLHSTMT hstmt;

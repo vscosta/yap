@@ -28,8 +28,8 @@ struct myddas_global {
 };
 
 struct myddas_list_preds {
-  char *pred_module;
-  char *pred_name;
+  const char *pred_module;
+  const char *pred_name;
   short pred_arity;
   //void *pe;
   MYDDAS_UTIL_PREDICATE next;

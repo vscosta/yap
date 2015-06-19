@@ -88,8 +88,8 @@ myddas_init_initialize_connection(void *conn,void *enviromment,
 }
 
 MYDDAS_UTIL_PREDICATE
-myddas_init_initialize_predicate(char *pred_name, int pred_arity,
-				 char *pred_module, MYDDAS_UTIL_PREDICATE next){
+myddas_init_initialize_predicate(const char *pred_name, int pred_arity,
+				 const char *pred_module, MYDDAS_UTIL_PREDICATE next){
   CACHE_REGS
   MYDDAS_UTIL_PREDICATE new = NULL;
   MYDDAS_MALLOC(new,struct myddas_list_preds);

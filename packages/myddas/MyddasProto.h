@@ -5,7 +5,7 @@
 /* myddas_initialization.c */
 MYDDAS_GLOBAL          myddas_init_initialize_myddas(void);
 MYDDAS_UTIL_CONNECTION myddas_init_initialize_connection(void *,void *,MYDDAS_API,MYDDAS_UTIL_CONNECTION);
-MYDDAS_UTIL_PREDICATE  myddas_init_initialize_predicate(char *, int, char *,MYDDAS_UTIL_PREDICATE);
+MYDDAS_UTIL_PREDICATE  myddas_init_initialize_predicate(const char *, int, const char *,MYDDAS_UTIL_PREDICATE);
 
 #ifdef MYDDAS_STATS
 /* myddas_statistics.c */
@@ -22,8 +22,8 @@ Short                  myddas_util_connection_type(void *);
 MYDDAS_UTIL_CONNECTION myddas_util_add_connection(void *,void *,MYDDAS_API);
 MYDDAS_UTIL_CONNECTION myddas_util_search_connection(void *);
 void                   myddas_util_delete_connection(void *);
-MYDDAS_UTIL_CONNECTION myddas_util_add_predicate(char * ,Int , char *,void *);
-MYDDAS_UTIL_PREDICATE  myddas_util_search_predicate(char * ,Int , char *);
+MYDDAS_UTIL_CONNECTION myddas_util_add_predicate(const char * ,Int , const char *,void *);
+MYDDAS_UTIL_PREDICATE  myddas_util_search_predicate(const char * ,Int , const char *);
 void                   myddas_util_delete_predicate(MYDDAS_UTIL_PREDICATE);
 
 /* Get's the number of queries to save */
@@ -36,8 +36,8 @@ SQLHENV                myddas_util_get_odbc_enviromment(SQLHDBC);
 
 void *                 myddas_util_get_list_pred(MYDDAS_UTIL_CONNECTION);
 void *                 myddas_util_get_pred_next(void *);
-char *                 myddas_util_get_pred_module(void *);
-char *                 myddas_util_get_pred_name(void *);
+const char *           myddas_util_get_pred_module(void *);
+const char *           myddas_util_get_pred_name(void *);
 MyddasInt              myddas_util_get_pred_arity(void *);
 //DELETE THIS WHEN DB_STATS  IS COMPLETED
 MyddasInt              get_myddas_top(void);
