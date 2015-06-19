@@ -24,6 +24,8 @@ using namespace Gecode;
 
 extern "C"
 {
+void gecode_init(void);
+    
 #include "config.h"
 }
 
@@ -62,7 +64,6 @@ namespace generic_gecode
 
 extern "C"
 {
-#include "SWI-Stream.h"
 #include "YapInterface.h"
 
   static YAP_opaque_tag_t gecode_space_tag;
@@ -76,10 +77,9 @@ extern "C"
 
   static YAP_Bool
   gecode_space_write_handler
-  (void *stream_, YAP_opaque_tag_t type, void *p, int flags)
+  (FILE  *stream, YAP_opaque_tag_t type, void *p, int flags)
   {
-    IOSTREAM* stream = (IOSTREAM*) stream_;
-    Sfprintf(stream,"<space %p>", p);
+    fprintf(stream,"<space %p>", p);
     return TRUE;
   }
 
@@ -565,10 +565,9 @@ extern "C"
 
   static YAP_Bool
   gecode_engine_write_handler
-  (void *stream_, YAP_opaque_tag_t type, void *p, int flags)
+  (FILE *stream, YAP_opaque_tag_t type, void *p, int flags)
   {
-    IOSTREAM* stream = (IOSTREAM*) stream_;
-    Sfprintf(stream,"<engine %p>", p);
+    fprintf(stream,"<engine %p>", p);
     return TRUE;
   }
 
@@ -597,10 +596,9 @@ extern "C"
 
   static YAP_Bool
   gecode_disjunctor_write_handler
-  (void *stream_, YAP_opaque_tag_t type, void *p, int flags)
+  (FILE *stream, YAP_opaque_tag_t type, void *p, int flags)
   {
-    IOSTREAM* stream = (IOSTREAM*) stream_;
-    Sfprintf(stream,"<disjunctor %p>", p);
+    fprintf(stream,"<disjunctor %p>", p);
     return TRUE;
   }
 
@@ -616,10 +614,9 @@ extern "C"
 
   static YAP_Bool
   gecode_clause_write_handler
-  (void *stream_, YAP_opaque_tag_t type, void *p, int flags)
+  (FILE *stream_, YAP_opaque_tag_t type, void *p, int flags)
   {
-    IOSTREAM* stream = (IOSTREAM*) stream_;
-    Sfprintf(stream,"<clause %p>", p);
+    fprintf(stream,"<clause %p>", p);
     return TRUE;
   }
 
@@ -1553,10 +1550,9 @@ extern "C"
 
   static YAP_Bool
   gecode_reify_write_handler
-  (void *stream_, YAP_opaque_tag_t type, void *p, int flags)
+  (FILE *stream, YAP_opaque_tag_t type, void *p, int flags)
   {
-    IOSTREAM* stream = (IOSTREAM*) stream_;
-    Sfprintf(stream,"<reify %p>", p);
+    fprintf(stream,"<reify %p>", p);
     return TRUE;
   }
 
@@ -1591,10 +1587,9 @@ extern "C"
 
   static YAP_Bool
   gecode_tupleset_write_handler
-  (void *stream_, YAP_opaque_tag_t type, void *p, int flags)
+  (FILE *stream, YAP_opaque_tag_t type, void *p, int flags)
   {
-    IOSTREAM* stream = (IOSTREAM*) stream_;
-    Sfprintf(stream,"<tupleset %p>", p);
+    fprintf(stream,"<tupleset %p>", p);
     return TRUE;
   }
 
@@ -1640,10 +1635,9 @@ extern "C"
 
   static YAP_Bool
   gecode_dfa_write_handler
-  (void *stream_, YAP_opaque_tag_t type, void *p, int flags)
+  (FILE *stream, YAP_opaque_tag_t type, void *p, int flags)
   {
-    IOSTREAM* stream = (IOSTREAM*) stream_;
-    Sfprintf(stream,"<dfa %p>", p);
+    fprintf(stream,"<dfa %p>", p);
     return TRUE;
   }
 

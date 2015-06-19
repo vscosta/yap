@@ -76,10 +76,9 @@ extern "C"
 
   static int
   gecode_space_write_handler
-  (void *stream_, YAP_opaque_tag_t type, void *p, int flags)
+  (FILE *stream, YAP_opaque_tag_t type, void *p, int flags)
   {
-    IOSTREAM* stream = (IOSTREAM*) stream_;
-    Sfprintf(stream,"<space %p>", p);
+    fprintf(stream,"<space %p>", p);
     return TRUE;
   }
 
