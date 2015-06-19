@@ -282,7 +282,7 @@ density_integral parse_density_integral_string(char *input, char *variablename) 
     exit(EXIT_FAILURE);
   }
 
-  
+
   if (result.low>result.high) {
     fprintf(stderr, "Error ar parsing the string %s in the function parse_density_integral_string\n",input);
     fprintf(stderr, "The value for low has to be larger than then value for high.\n");

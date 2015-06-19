@@ -693,10 +693,10 @@ int LoadVariableData(namedvars varmap, char *filename) {
           switch(idat) {
             case 0:
 	      // http://www.cplusplus.com/reference/clibrary/cstdlib/strtod/
-	     
+
 	      errno=0;  // reset global error indicator
 	      dvalue = strtod(dataread, &unparsed_string);
-	      
+
 	      // check for errors
 	      if (errno == ERANGE || unparsed_string == dataread) {
                 fprintf(stderr, "Error at file: %s. Variable: %s does not have a valid real value: %s.\n", filename, varname, dataread);
@@ -792,7 +792,7 @@ void ReInitHistory(hisqueue *HisQueue, int varcnt) {
 }
 
 int my_index_calc(int varstart, DdNode *node){
-  if(Cudd_IsConstant(node)){   
+  if(Cudd_IsConstant(node)){
     return Cudd_V(node);
   }else{
     int index = GetIndex(node) - varstart+2;
@@ -818,7 +818,7 @@ hisnode* GetNode(hisqueue *HisQueue, int varstart, DdNode *node) {
   index=my_index_calc(varstart,node);
   //  fprintf(stderr,"----- node retuned: %p <-> %i <-> %i \n",node,GetIndex(node),index);
     //TODO: this must be check think not initialzied. Null check fails?
-  //  if (Cudd_IsConstant(node) ){ 
+  //  if (Cudd_IsConstant(node) ){
     //    fprintf(stderr,"----- node retuned: %p <-> %i \n",node,GetIndex(node));
     //    fprintf(stderr,"returning %p  ,,,,, %e\n", &(HisQueue[index].thenode[index]));
     //    return  &(HisQueue[index].thenode[0]);}

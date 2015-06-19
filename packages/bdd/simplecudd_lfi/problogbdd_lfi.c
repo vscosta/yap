@@ -295,7 +295,7 @@ int main(int argc, char **arg) {
     alarm(params.timeout);
   }
 #endif
-  
+
   if (params.online) {
     MyManager.manager = simpleBDDinit(0);
     MyManager.t = HIGH(MyManager.manager);
@@ -502,7 +502,7 @@ int argtype(const char *arg) {
   if (strcmp(arg, "-bs") == 0 || strcmp(arg, "--bufsize") == 0) return 12;
   if (strcmp(arg, "-pid") == 0 || strcmp(arg, "--pid") == 0) return 13;
   if (strcmp(arg, "-ord") == 0 || strcmp(arg, "--order") == 0) return 14;
-  
+
   return -1;
 }
 
@@ -762,10 +762,10 @@ double CalcProbability(extmanager MyManager, DdNode *Current) {
 double CalcExpectedCounts(extmanager * MyManager, DdNode *Current, char *query_id, int calcdown_needed) {
 
   // fprintf(stderr,"%%calcing up\n");
-  double ret = CalcExpectedCountsUp(MyManager, Current, query_id);  
+  double ret = CalcExpectedCountsUp(MyManager, Current, query_id);
   //   fprintf(stderr,"%%result is %e\n",ret);
   // fprintf(stderr,"%%calcing down\n");
-  
+
   if (calcdown_needed != 0) {
     // double retd=CalcExpectedCountsDown(MyManager,Current, query_id);
   }
@@ -818,7 +818,7 @@ void PrintNodeQueue(Queue q , extmanager MyManager){
 
     QueueIterator qiter = QueueIteratorNew(q, 1);
     fprintf(stderr,"Queue %p is [", q);
-    
+
     while (qiter->currentItem != NULL) {
       DdNode* val = (DdNode*) qiter->currentItem->element;
       QueueIteratorAdvance(qiter);
@@ -846,7 +846,7 @@ int comparator(void *av, void *bv){
     if (temp < 0)
       ret= 1;
     else if (temp > 0)
-      ret= -1;    
+      ret= -1;
     //    else //never return zero otherwise one is pruned away, or(?)
     //      return 0;
     if(LOG_EXPECTED){
@@ -980,7 +980,7 @@ double CalcExpectedCountsDown(extmanager * MyManager, DdNode *Current, char *que
     hfound = GetNode(MyManager->his, MyManager->varmap.varstart, h) ;
     curh = GetNodeVarNameDisp(MyManager->manager, MyManager->varmap, h);
     curl = GetNodeVarNameDisp(MyManager->manager, MyManager->varmap, l);
-    
+
       if(LOG_EXPECTED){fprintf(stderr, "%s (%i)-->  %s %s\n", curnode,(*node).index,curh,curl);}
       /** low node */
       if((*lfound).dvalue2<-0.1){ //only if not seen before == dvalue2=0 (almost) otherwise requing does not harm
@@ -1000,12 +1000,12 @@ double CalcExpectedCountsDown(extmanager * MyManager, DdNode *Current, char *que
 	  PrintNodeQueue(q,*MyManager);
 	  fprintf(stderr,"-> %p\n",h);
 	}
-	QueuePutOnPriority(q, h, NODE_VALUE,fun);	
+	QueuePutOnPriority(q, h, NODE_VALUE,fun);
 	(*hfound).dvalue2=0;
       }
       (*hfound).dvalue2=(*hfound).dvalue2+(ivalue==0? dprob : (dprob*(tvalue)));
       if(LOG_EXPECTED){fprintf(stderr, "h(%s)=%s %e %e %e\n", curnode,curh,(*hfound).dvalue2,tvalue,dprob);}
-      /** output expected counts current node */     
+      /** output expected counts current node */
       if(ivalue==1){
 	(*pcnt)[GetIndex(node) - MyManager->varmap.varstart]+=dprob * tvalue * (*hfound).dvalue;
 	//fprintf(stdout,"oec(%s,%s,%e). %% 1_1\n",query_id,dynvalue,dprob * tvalue * (*hfound).dvalue);
@@ -1067,7 +1067,7 @@ double CalcExpectedCountsUp(extmanager * MyManager, DdNode *Current, char *query
     AddNode(MyManager->his, MyManager->varmap.varstart, MyManager->t, 1, 0, NULL);//}//needed in down
     return 1.0;
   }
-  if (Current == MyManager->f){ 
+  if (Current == MyManager->f){
     //    fprintf(stderr,"adding false \n");
     //    if ((Found = GetNode(MyManager->his, MyManager->varmap.varstart, Current)) == NULL) {
     AddNode(MyManager->his, MyManager->varmap.varstart, MyManager->f, 0, 0, NULL);//}//needed in down

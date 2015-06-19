@@ -11,7 +11,7 @@ int compare_int (const int *a, const int *b)
   fprintf(stderr,"comparing %i %i \n",*a,*b);
   int temp = *a - *b;
   //  return (a<b) ? 1 : -1;
-  
+
   //  return -1;
   if (temp < 0)
     return 1;

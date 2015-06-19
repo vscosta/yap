@@ -180,7 +180,7 @@ Queue q;
 ** QueueDispose
 **
 */
-PUBLIC 
+PUBLIC
 #ifdef __ANSI_C__
 void QueueDispose(Queue q, DisposeFunction f)
 #else
@@ -577,20 +577,20 @@ ComparisonFunction f;
   QueueItem item;
   item = QueueNewItem(element,type);
   //fprintf(stderr,"searching for location using %p.\n",f);
-  if (f == NULL){ 
+  if (f == NULL){
     //fprintf(stderr,"comparing function is null %f \n",f);
     exit(1);
     QueuePutItem(q,item);
-      
+
   }else {
     if (q->head == NULL) QueuePutItem(q,item);
     else {
       QueueItem p, lastp = NULL;
       for (p = q->head; p != NULL; p = p->next) {
 	int cval =(*f)(element,p->element);
-        if (cval<0){ 
-	  // 	  fprintf(stderr,"%i <=> %i == %i\n",*((int *) element),*((int *)(p->element)), 
-	  // 		  cval); 
+        if (cval<0){
+	  // 	  fprintf(stderr,"%i <=> %i == %i\n",*((int *) element),*((int *)(p->element)),
+	  // 		  cval);
 	  break;
 	}
         lastp = p;

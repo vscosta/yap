@@ -15,7 +15,7 @@
 
 /* ----------- Headers */
 
-#include "apt.h" 
+#include "apt.h"
 
 /* ----------- Exported Function Prototypes */
 
