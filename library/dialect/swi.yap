@@ -169,13 +169,6 @@ goal_expansion(arg(A,B,C),genarg(A,B,C)).
 :- dynamic
    user:file_search_path/2.
 
-user:file_search_path(swi, Home) :-
-        current_prolog_flag(home, Home).
-user:file_search_path(foreign, swi(ArchLib)) :-
-        current_prolog_flag(arch, Arch),
-        atom_concat('lib/', Arch, ArchLib).
-user:file_search_path(foreign, swi(lib)).
-
 /** @pred concat_atom(? _List_,+ _Separator_,? _Atom_)
 
 
@@ -224,9 +217,6 @@ add_separator_to_list([H|T], Separator, [H,Separator|NT]) :-
 concat_atom(List, New) :-
 	atomic_concat(List, New).
 
-
-read_clause(X,Y) :-
-	read_term(X,Y,[singetons(warning)]).
 
 bindings_message(V) -->
        { cvt_bindings(V, Bindings) },

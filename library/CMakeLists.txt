@@ -35,6 +35,7 @@ set (LIBRARY_PL
   range.yap
   rbtrees.yap
   regexp.yap
+  readutil.yap
   rltree.yap
   sockets.yap
   splay.yap
@@ -67,6 +68,9 @@ add_subdirectory(regex)
 add_subdirectory(rltree)
 add_subdirectory(system)
 add_subdirectory(tries)
+
+add_custom_target (library SOURCES ${LIBRARY_PL} ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
+
 
 install(FILES ${LIBRARY_PL}
   DESTINATION ${libpl}
