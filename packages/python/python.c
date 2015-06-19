@@ -3,7 +3,6 @@
 #undef _XOPEN_SOURCE // python does its own thing
 #endif
 #include <Python.h>
-#include <SWI-Stream.h>
 #include <SWI-Prolog.h>
 #ifdef HAVE_STAT
 #undef HAVE_STAT

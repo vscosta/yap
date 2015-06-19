@@ -35,15 +35,16 @@ if (PYTHONLIBS_FOUND)         #   PYTHONLIBS_FOUND           - have the Python l
   # first to get the currently active Python version by default with a consistent
   # version of PYTHON_LIBRARIES.
 
-  add_library (python SHARED ${PYTHON_SOURCES})
+  add_library (libpython SHARED ${PYTHON_SOURCES})
 
-  target_link_libraries(python libYap ${PYTHON_LIBRARIES})
+  target_link_libraries(libpython libYap ${PYTHON_LIBRARIES})
+  
 
-  set_target_properties (python PROPERTIES PREFIX "")
+  set_target_properties (libpython PROPERTIES PREFIX "")
 
   include_directories (${PYTHON_INCLUDE_DIRS})
 
-  install(TARGETS  python
+  install(TARGETS  libpython
     LIBRARY DESTINATION ${dlls}
     )
 
