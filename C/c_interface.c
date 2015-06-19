@@ -2641,6 +2641,7 @@ YAP_InitConsult(int mode, const char *filename)
     return -1;
   sno = Yap_OpenStream(f, NULL, TermNil, Input_Stream_f );
   RECOVER_MACHINE_REGS();
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
   return sno;
 }
 
@@ -2964,7 +2965,7 @@ YAP_Init(YAP_init_args *yap_init)
       */
       setBooleanGlobalPrologFlag(HALT_AFTER_CONSULT_FLAG, yap_init->HaltAfterConsult );
     }
-    /* tell the system who should cope with interruptions */
+    /* tell the system who should cope with interrupts */
     Yap_ExecutionMode = yap_init->ExecutionMode;
     if (do_bootstrap) {
       restore_result = YAP_BOOT_FROM_PROLOG;

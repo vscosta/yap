@@ -97,10 +97,19 @@ check_trail_consistency(void) {
 
 CELL old_value = 0L, old_value2 = 0L;
 
-void jmp_deb(int);
+void jmp_deb(int), jmp_deb2(void);
 
 void
-jmp_deb(int i) {if (i) printf("Here we go\n"); else jmp_deb(0);}
+jmp_deb2( void )
+{
+    fprintf(stderr,"Here\n");
+}
+
+void
+jmp_deb(int i) {
+    if (i) printf("Here we go %ld\n", old_value++);
+    if (old_value == 716) jmp_deb2();
+    }
 
 struct various_codes *sc;
 

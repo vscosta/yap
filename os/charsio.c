@@ -808,11 +808,12 @@ peek_code ( USES_REGS1 )
     return FALSE;
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek_code/2");
+    PlIOError(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek_code/2");
     return FALSE;
   }
   if ((ch =  dopeek( sno )) < 0)
     return false;
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
   return(Yap_unify_constant(ARG2,MkIntTerm(ch)));
 }
 
@@ -841,6 +842,7 @@ peek_code_1 ( USES_REGS1 )
   }
   if ((ch =  dopeek( sno )) < 0)
     return false;
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
   return(Yap_unify_constant(ARG2,MkIntTerm(ch)));
 }
 
@@ -857,7 +859,7 @@ peek_byte ( USES_REGS1 )
 {				/* at_end_of_stream */
   /* the next character is a EOF */ 
   int sno = Yap_CheckStream (ARG1, Input_Stream_f, "peek/2");
-  Int ch;
+    Int ch;
 
   if (sno < 0)
     return(FALSE);
@@ -868,6 +870,7 @@ peek_byte ( USES_REGS1 )
   }
   if ((ch =  dopeek( sno )) < 0)
     return false;
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
   return(Yap_unify_constant(ARG2,MkIntTerm(ch)));
 }
 

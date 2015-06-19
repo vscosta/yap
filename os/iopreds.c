@@ -1650,7 +1650,7 @@ Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
       if (sname == AtomUser) {
 	if (kind & Input_Stream_f) {
 	  if (kind & (Output_Stream_f|Append_Stream_f)) {
-	    Yap_Error(PERMISSION_ERROR_INPUT_STREAM, arg,
+	    PlIOError(PERMISSION_ERROR_INPUT_STREAM, arg,
 		      "ambiguous use of 'user' as a stream");
 	    return (-1);	    
 	  }
@@ -1690,6 +1690,7 @@ Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
 	  Yap_Error(PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
 	return (-1);
       }
+      jmp_deb(1);
     return (sno);
   }
 

@@ -52,7 +52,7 @@ blob_type_t PL_Message_Queue = {
 #if DEBUG_LOCKS||DEBUG_PE_LOCKS
 
 int debug_locks = FALSE, debug_pe_locks = FALSE;
-static Int p_debug_locks( USES_REGS1 ) { debugf=stdout; debug_pe_locks = 1; return TRUE; }
+static Int p_debug_locks( USES_REGS1 ) { debug_pe_locks = 1; return TRUE; }
 
 static Int p_nodebug_locks( USES_REGS1 ) { debug_locks = 0; debug_pe_locks = 0; return TRUE; }
 
@@ -1589,8 +1589,6 @@ Yap_InitFirstWorkerThreadHandle(void)
   LOCAL_ThreadHandle.tdetach = MkAtomTerm(AtomFalse);
   LOCAL_ThreadHandle.ref_count = 1;
 }
-
-FILE *debugf;
 
 void Yap_InitThreadPreds(void)
 {

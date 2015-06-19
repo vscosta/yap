@@ -824,8 +824,8 @@ read2 ( USES_REGS1 )
   if (inp_stream == -1) {
     return(FALSE);
   }
-  UNLOCK(GLOBAL_Stream[inp_stream].streamlock);
   out = Yap_read_term(inp_stream, TermNil, 1);
+    UNLOCK(GLOBAL_Stream[inp_stream].streamlock);
   return out && Yap_unify(ARG2, out);
 }
     
@@ -938,7 +938,8 @@ Yap_StringToTerm(const char *s, size_t len, encoding_t enc, int prio, Term *bind
         
   rval = Yap_read_term(stream, ctl, 3);
   Yap_CloseStream(stream);
-  if (bindings) {
+    UNLOCK(GLOBAL_Stream[stream].streamlock);
+  if (rval && bindings) {
     *bindings = Yap_GetFromSlot( sl );
     Yap_RecoverSlots( sl, 1 PASS_REGS);
   }

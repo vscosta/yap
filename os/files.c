@@ -347,13 +347,15 @@ file_size(USES_REGS1)
 	// there
 	struct stat file_stat;
 	if (fstat(fileno(GLOBAL_Stream[sno].file), &file_stat) < 0) {
+        UNLOCK(GLOBAL_Stream[sno].streamlock);
 	  PlIOError( PERMISSION_ERROR_INPUT_STREAM, ARG1, "%s in file_size/2", strerror(errno));
 	  return false;
 	}
 	// and back again
-
+      UNLOCK(GLOBAL_Stream[sno].streamlock);
 	return Yap_unify_constant( ARG2, MkIntegerTerm( file_stat.st_size) );
   }
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
   return false;
 }
 

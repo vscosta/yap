@@ -102,29 +102,35 @@ static void CloseStream(int sno);
 FILE  *Yap_GetInputStream(Term t, const char *msg)
 { 
   int sno = Yap_CheckStream (t, Input_Stream_f, msg);
+    FILE *rc;
 
   if(!(GLOBAL_Stream[sno].status & (Tty_Stream_f|Socket_Stream_f|Pipe_Stream_f)))
-    return GLOBAL_Stream[sno].file;
-  return NULL;
+    rc = GLOBAL_Stream[sno].file;
+    else
+      rc = NULL;
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
+    return rc;
 }
 
 FILE  *Yap_GetOutputStream(Term t, const char *msg)
 { 
    int sno = Yap_CheckStream (t, Output_Stream_f, msg);
+    FILE *rc;
 
    if(!(GLOBAL_Stream[sno].status  & (Tty_Stream_f|Socket_Stream_f)))
-      return GLOBAL_Stream[sno].file;
-
-   return NULL;
+       rc = GLOBAL_Stream[sno].file;
+   else
+       rc = NULL;
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
+    return rc;
 }
 
 int
 GetFreeStreamD(void)
 {
     CACHE_REGS
-  int sno;
-
-  for (sno = 0; sno < MaxStreams; ++sno) {
+    int sno;
+    for (sno = 0; sno < MaxStreams; ++sno) {
     LOCK(GLOBAL_Stream[sno].streamlock);
     if (GLOBAL_Stream[sno].status & Free_Stream_f) {
       break;
@@ -208,7 +214,6 @@ static Int
 is_input ( int sno USES_REGS )
 {				/* '$set_output'(+Stream,-ErrorMessage)  */
   bool rc = GLOBAL_Stream[sno].status & Input_Stream_f;
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return rc;
 }
 
@@ -216,14 +221,12 @@ static Int
 is_output ( int sno USES_REGS )
 {				/* '$set_output'(+Stream,-ErrorMessage)  */
   bool rc = GLOBAL_Stream[sno].status & (Output_Stream_f|Append_Stream_f);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return rc;
 }
 
 static Int
 has_bom ( int sno, Term t2 USES_REGS )
 {				/* '$set_output'(+Stream,-ErrorMessage)  */
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   bool rc = GLOBAL_Stream[sno].status & Seekable_Stream_f;
   if (!IsVarTerm(t2) && !boolean(t2)) {
     return FALSE;
@@ -234,11 +237,11 @@ has_bom ( int sno, Term t2 USES_REGS )
     return Yap_unify_constant(t2, TermFalse);
   }
 }
+
 static Int
 has_reposition ( int sno, Term t2 USES_REGS )
 {				/* '$set_output'(+Stream,-ErrorMessage)  */
   bool rc = GLOBAL_Stream[sno].status & Seekable_Stream_f;
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   if (!IsVarTerm(t2) && !boolean(t2)) {
     return FALSE;
   }
@@ -284,7 +287,6 @@ representation_error ( int sno, Term t2 USES_REGS )
 {
   stream_flags_t flags = GLOBAL_Stream[sno].status & (RepError_Xml_f|RepError_Prolog_f);
   /* '$representation_error'(+Stream,-ErrorMessage)  */
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   if (!IsVarTerm(t2) && isatom(t2)) {
     return false;    
   }
@@ -308,7 +310,6 @@ file_name ( int sno, Term t2 USES_REGS )
     rc = MkAtomTerm(Yap_LookupAtom(name));
   else
     return false;
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   if (!IsVarTerm(t2) && !isatom(t2)) {
     return FALSE;
   }
@@ -320,7 +321,6 @@ file_no ( int sno, Term t2 USES_REGS )
 {
   int f = Yap_GetStreamFd(sno);
   Term rc = MkIntTerm(f) ;
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   if (!IsVarTerm(t2) && !IsIntTerm(t2)) {
     return false;
   }
@@ -355,7 +355,6 @@ has_close_on_abort ( int sno, Term t2 USES_REGS )
 static bool
 has_encoding ( int sno, Term t2 USES_REGS )
 {				/* '$set_output'(+Stream,-ErrorMessage)  */
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   if (!IsVarTerm(t2) && !(isatom(t2))) {
     return FALSE;
   }
@@ -375,7 +374,6 @@ static bool
 found_eof ( int sno, Term t2 USES_REGS )
 {				/* '$set_output'(+Stream,-ErrorMessage)  */
   stream_flags_t flags = GLOBAL_Stream[sno].status & (Past_Eof_Stream_f|Eof_Stream_f);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   if (!IsVarTerm(t2) && !(isatom(t2))) {
     return FALSE;
   }
@@ -391,7 +389,6 @@ static bool
 stream_mode ( int sno, Term t2 USES_REGS )
 {				/* '$set_output'(+Stream,-ErrorMessage)  */
   stream_flags_t flags = GLOBAL_Stream[sno].status & (Input_Stream_f|Output_Stream_f|Append_Stream_f);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   if (!IsVarTerm(t2) && !(isatom(t2))) {
     return FALSE;
   }
@@ -408,7 +405,6 @@ static bool
 stream_tty ( int sno, Term t2 USES_REGS )
 {				/* '$set_output'(+Stream,-ErrorMessage)  */
   stream_flags_t flags = GLOBAL_Stream[sno].status & (Tty_Stream_f);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   if (!IsVarTerm(t2) && !(isatom(t2))) {
     return FALSE;
   }
@@ -421,7 +417,6 @@ static bool
 stream_type ( int sno, Term t2 USES_REGS )
 {				/* '$set_output'(+Stream,-ErrorMessage)  */
   stream_flags_t flags = GLOBAL_Stream[sno].status & (Binary_Stream_f);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   if (!IsVarTerm(t2) && !(isatom(t2))) {
     return FALSE;
   }
@@ -434,7 +429,6 @@ static bool
 stream_position ( int sno, Term t2 USES_REGS )
 {				/* '$set_output'(+Stream,-ErrorMessage)  */
   Term tout = StreamPosition(sno);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return Yap_unify (t2, tout);
 }
 
@@ -474,7 +468,6 @@ static bool
 eof_action ( int sno, Term t2 USES_REGS )
 {				/* '$set_output'(+Stream,-ErrorMessage)  */
   stream_flags_t flags = GLOBAL_Stream[sno].status & (Eof_Error_Stream_f|Reset_Eof_Stream_f|Push_Eof_Stream_f);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   if (!IsVarTerm(t2) && !(isatom(t2))) {
     return FALSE;
   }
@@ -706,6 +699,7 @@ do_set_stream (int sno, Term opts USES_REGS)
 
   args = Yap_ArgListToVector ( opts, set_stream_defs, SET_STREAM_END  );
   if (args == NULL) {
+      UNLOCK(GLOBAL_Stream[sno].streamlock);
     return false;
   }
   for (i=0; i < SET_STREAM_END; i ++) {
@@ -747,7 +741,7 @@ do_set_stream (int sno, Term opts USES_REGS)
 	 } else {
 	   LOCAL_Error_TYPE = DOMAIN_ERROR_OUT_OF_RANGE;
 	   LOCAL_ErrorMessage = "in set_stream/2:eof_action";
-	   return false;
+	   rc = false;
 	 }
 	 break;
       case SET_STREAM_FILE_NAME:
@@ -780,7 +774,7 @@ do_set_stream (int sno, Term opts USES_REGS)
 	 } else {
 	   LOCAL_Error_TYPE = DOMAIN_ERROR_OUT_OF_RANGE;
 	   LOCAL_ErrorMessage = "in set_stream/2:eof_action";
-	   return false;
+	   rc = false;
 	 }
        }
        break;
@@ -1265,13 +1259,13 @@ set_stream_position ( USES_REGS1 )
     }
     if (!(GLOBAL_Stream[sno].status & Seekable_Stream_f) ) {
       UNLOCK(GLOBAL_Stream[sno].streamlock);
-      Yap_Error(PERMISSION_ERROR_REPOSITION_STREAM, ARG1,"set_stream_position/2");
+      PlIOError(PERMISSION_ERROR_REPOSITION_STREAM, ARG1,"set_stream_position/2");
       return(FALSE);
     }
     if (fseek (GLOBAL_Stream[sno].file, 0L, SEEK_END) == -1) {
-      UNLOCK(GLOBAL_Stream[sno].streamlock);
-      Yap_Error(SYSTEM_ERROR, tp, 
-	    "fseek failed for set_stream_position/2");
+        UNLOCK(GLOBAL_Stream[sno].streamlock);
+      PlIOError(SYSTEM_ERROR, tp,
+	    "fseek failed for set_stream_position/2: %s", strerror(errno));
       return(FALSE);
     }
     GLOBAL_Stream[sno].stream_getc = PlGetc;
@@ -1431,7 +1425,7 @@ Yap_StreamToFileNo(Term t)
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return(GLOBAL_Stream[sno].u.socket.fd);
 #endif
-  } else if (GLOBAL_Stream[sno].status & (Null_Stream_f|InMemory_Stream_f)) {
+  } else if (GLOBAL_Stream[sno].status & (Null_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return(-1);
   } else {
@@ -1458,15 +1452,17 @@ FILE *
 Yap_FileDescriptorFromStream(Term t)
 {
   int sno = Yap_CheckStream (t, Input_Stream_f|Output_Stream_f, "FileDescriptorFromStream");
+    FILE *rc;
   if (sno < 0)
     return NULL;
   if (GLOBAL_Stream[sno].status & (Null_Stream_f|
-		InMemory_Stream_f|
 		Socket_Stream_f|
 		Pipe_Stream_f|
 		Free_Stream_f))
-    return NULL;
-  return GLOBAL_Stream[sno].file;
+    rc = NULL;
+  else rc = GLOBAL_Stream[sno].file;
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
+    return rc;
 }
 
 void

@@ -741,6 +741,7 @@ p_get_header( USES_REGS1 )
   FILE *stream;
   Term t1 = Deref(ARG1);
   Atom at;
+    Int rc;
 
   if (IsVarTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR,t1,"read_program/3");
@@ -750,8 +751,9 @@ p_get_header( USES_REGS1 )
     return FALSE;
   }
   if ((at = get_header( stream )) == NIL)
-    return FALSE;
-  return Yap_unify( ARG2, MkAtomTerm( at ) );
+    rc = FALSE;
+  else rc = Yap_unify( ARG2, MkAtomTerm( at ) );
+    return rc;
 }
 
 static void
