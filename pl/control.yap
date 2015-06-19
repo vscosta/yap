@@ -641,7 +641,7 @@ b_getval(GlobalVariable, Val) :-
 	nb_getval('$trace',Trace),
 	nb_getval('$debug_jump',Jump),
 	nb_getval('$debug_run',Run),
-	'$swi_current_prolog_flag'(debug, Debug),
+	current_prolog_flag(debug, Debug),
 	nb_getval('$spy_gn',SPY_GN),
 	b_getval('$spy_glist',GList).
 
@@ -649,14 +649,14 @@ b_getval(GlobalVariable, Val) :-
 '$debug_stop'( State ) :-
         '$debug_state'( State ),
 	b_setval('$trace',off),
-	'$swi_set_prolog_flag'(debug, false),
+	set_prolog_flag(debug, false),
 	b_setval('$spy_glist',[]),
 	'$disable_debugging'.
 
 '$debug_restart'(state(Trace, Debug, Jump, Run, SPY_GN, GList)) :- 
 	b_setval('$spy_glist',GList),
 	b_setval('$spy_gn',SPY_GN),
-	'$swi_set_prolog_flag'(debug, Debug),
+	set_prolog_flag(debug, Debug),
 	b_setval('$debug_jump',Jump),
 	b_setval('$debug_run',Run),
 	b_setval('$trace',Trace),
@@ -684,14 +684,14 @@ break :-
 	nb_setval('$trace',off),
 	nb_getval('$debug_jump',Jump),
 	nb_getval('$debug_run',Run),
-	'$swi_current_prolog_flag'(debug, Debug),
-	'$swi_set_prolog_flag'(debug, false),
+	current_prolog_flag(debug, Debug),
+	set_prolog_flag(debug, false),
 	'$break'( true ),
 	nb_getval('$spy_gn',SPY_GN),
 	b_getval('$spy_glist',GList),
 	b_setval('$spy_glist',[]),
 	current_output(OutStream), current_input(InpStream),
-	'$swi_current_prolog_flag'(break_level, NBL ),
+	current_prolog_flag(break_level, NBL ),
 	format(user_error, '% Break (level ~w)~n', [NBL]),
 	'$do_live',
 	!,
@@ -700,7 +700,7 @@ break :-
 	nb_setval('$spy_gn',SPY_GN),
 	set_input(InpStream), 
 	set_output(OutStream),
-	'$swi_set_prolog_flag'(debug, Debug),
+	set_prolog_flag(debug, Debug),
 	nb_setval('$debug_jump',Jump),
 	nb_setval('$debug_run',Run),
 	nb_setval('$trace',Trace),

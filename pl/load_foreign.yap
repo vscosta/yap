@@ -110,10 +110,10 @@ load_foreign_files(Objs,Libs,Entry) :-
 	'$do_error'(type_error(atom,Lib),G).
 
 '$process_obj_suffix'(Obj,Obj) :-
-	'$swi_current_prolog_flag'(shared_object_extension, ObjSuffix),
+	current_prolog_flag(shared_object_extension, ObjSuffix),
 	sub_atom(Obj, _, _, 0, ObjSuffix), !.
 '$process_obj_suffix'(Obj,NewObj) :-
-	'$swi_current_prolog_flag'(shared_object_extension, ObjSuffix),
+	current_prolog_flag(shared_object_extension, ObjSuffix),
 	atom_concat([Obj,'.',ObjSuffix],NewObj).
 
 '$checklib_prefix'(F,F) :- is_absolute_file_name(F), !.

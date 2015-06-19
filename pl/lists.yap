@@ -1,7 +1,7 @@
 
 :- system_module( '$_lists', [], []).
 
-:- '$set_yap_flags'(11,1). % source.
+:- set_prolog_flag(source, true). % source.
 
 %   memberchk(+Element, +Set)
 %   means the same thing, but may only be used to test whether a known
@@ -52,7 +52,7 @@ lists:append([H|T], L, [H|R]) :-
 	lists:append(T, L, R).
 
 
-:- '$set_yap_flags'(11,0). % :- no_source.
+:- set_prolog_flag(source, false)). % :- no_source.
 
 %   lists:delete(List, Elem, Residue)
 %   is true when List is a list, in which Elem may or may not occur, and
@@ -60,12 +60,12 @@ lists:append([H|T], L, [H|R]) :-
 
 /** @pred delete(+ _List_, ? _Element_, ? _Residue_) 
 
-
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 True when  _List_ is a list, in which  _Element_ may or may not
 occur, and  _Residue_ is a copy of  _List_ with all elements
 identical to  _Element_ deleted.
 
- 
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee 
 */
 lists:delete([], _, []).
 lists:delete([Head|List], Elem, Residue) :-
@@ -74,5 +74,5 @@ lists:delete([Head|List], Elem, Residue) :-
 lists:delete([Head|List], Elem, [Head|Residue]) :-
 	lists:delete(List, Elem, Residue).
 
-:- '$set_yap_flags'(11,0). % disable source.
+:- set_prolog_flag(source, false). % disable source.
 

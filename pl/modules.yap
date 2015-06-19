@@ -947,9 +947,9 @@ meta_predicate declaration
 	( M1 = prolog -> M = _  ; M1 = M),
 	( retractall(prolog:'$meta_predicate'(F,M,N,_)), fail ; true),
 	asserta(prolog:'$meta_predicate'(F,M,N,P)),
-	'$flags'(P, M1, Fl, Fl),
+	'$predicate_flags'(P, M1, Fl, Fl),
 	NFlags is Fl \/ 0x200000,
-	'$flags'(P, M1, Fl, NFlags).
+	'$predicate_flags'(P, M1, Fl, NFlags).
 
 % return list of vars in expanded positions on the head of a clause.
 %
@@ -1057,9 +1057,9 @@ its parent goal.
 '$module_transparent'(F/N, M) :-
 	functor(P,F,N),
 	asserta(prolog:'$module_transparent'(F,M,N,P)),
-	'$flags'(P, M, Fl, Fl),
+	'$predicate_flags'(P, M, Fl, Fl),
 	NFlags is Fl \/ 0x200004,
-	'$flags'(P, M, Fl, NFlags).
+	'$predicate_flags'(P, M, Fl, NFlags).
 
 %% handle module transparent predicates by defining a
 %% new context module.
@@ -1397,6 +1397,7 @@ export_list(Module, List) :-
 '$do_import'(op(Prio,Assoc,Name), _Mod, ContextMod) :-
 	op(Prio,Assoc,ContextMod:Name).
 '$do_import'(N0/K0-N0/K0, Mod, Mod) :- !.
+'$do_import'(N0/K0-N0/K0, Mod, prolog) :- !.
 '$do_import'(_N/K-N1/K, _Mod, ContextMod) :-
        recorded('$module','$module'(_F, ContextMod, _SourceF, MyExports,_),_),
        once(lists:member(N1/K, MyExports)),

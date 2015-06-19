@@ -608,7 +608,7 @@ prolog:print_message_lines(S, P, Lines) :-
 print_message_line(S, [flush], []) :- !,
 	flush_output(S).
 print_message_line(S, [], []) :- !,
-	nl(S).
+	format(S, '~N', []).
 print_message_line(S, [nl|T], T) :- !,
 	nl(S).
 print_message_line(S, [begin(_,_)|T0], T) :- !,
@@ -625,7 +625,7 @@ print_message_line(S, [Fmt|T0], T) :-
 
 prefix(help,	      '',          user_error) --> [].
 prefix(query,	      '',          user_error) --> [].
-prefix(debug,	      '',          user_output) --> [].
+prefix(debug,	      '',          user_error) --> [].
 prefix(warning,	      '',      user_error) -->
 	{ thread_self(Id) },
 	(   { Id == main }
@@ -683,3 +683,7 @@ pred_arity(H,Name,Arity) :-
   @}
   @}
 */
+
+
+
+ 

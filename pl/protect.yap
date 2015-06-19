@@ -24,7 +24,7 @@
 	%format(' ~a ~n', [M]) ,
         M \= user,
 	M \= lists,
-	'$flags'(T0, M, _Flags, NFlags), 
+	'$predicate_flags'(T0, M, _Flags, NFlags), 
 	NFlags is Flags \/ 0x00004000,
         %format('~w ~16r ~16r~n', [T0,Flags, NFlags]) ,
 	fail.
@@ -32,11 +32,11 @@
 	current_atom(Name),
 	atom_codes(Name,[0'$|_]), %'
 				%'$hide_predicates'(Name),
-	'$hide'(Name),
+	hide(Name),
 	fail.
 '$protect' :-
 	'$hide_predicates'(bootstrap),
-	'$hide'(bootstrap).
+	hide(bootstrap).
 '$protect'.
 
 '$hide_predicates'(Name) :-

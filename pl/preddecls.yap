@@ -70,7 +70,8 @@ asserted before being defined.
 
 
 */
-dynamic(X) :- '$access_yap_flags'(8, 0), !,
+dynamic(X) :-
+	current_prolog_flag(language, yap), !,
         '$current_module'(M),
 	'$dynamic'(X, M).
 dynamic(X) :-
@@ -94,12 +95,12 @@ dynamic(X) :-
 	'$dynamic2'(A/N, Mod).
 '$dynamic2'(A/N, Mod) :-
 	integer(N), atom(A), !,
-	functor(T,A,N), '$flags'(T,Mod,F,F),
+	functor(T,A,N), '$predicate_flags'(T,Mod,F,F),
 	% LogUpd,BinaryTest,Safe,C,Dynamic,Compiled,Standard,Asm,
-	( F/\ 0x19D1FA80 =:= 0, '$undefined'(T,Mod) -> NF is F \/ 0x00002000, '$flags'(T, Mod, F, NF), '$mk_d'(T,Mod);
+	( F/\ 0x19D1FA80 =:= 0, '$undefined'(T,Mod) -> NF is F \/ 0x00002000, '$predicate_flags'(T, Mod, F, NF), '$mk_d'(T,Mod);
 	    F /\ 0x00002000 =:= 0x00002000 -> '$mk_d'(T,Mod);                     % dynamic
 	    F /\ 0x08000000 =:= 0x08000000 -> '$mk_d'(T,Mod) ;      % LU
-	    F /\ 0x00000400 =:= 0x00000400, '$undefined'(T,Mod) -> F1 is F /\ \(0x400), N1F is F1 \/ 0x00002000, NF is N1F /\ \(0x00400000), '$flags'(T,Mod,F,NF), '$mk_d'(T,Mod);
+	    F /\ 0x00000400 =:= 0x00000400, '$undefined'(T,Mod) -> F1 is F /\ \(0x400), N1F is F1 \/ 0x00002000, NF is N1F /\ \(0x00400000), '$predicate_flags'(T,Mod,F,NF), '$mk_d'(T,Mod);
 	    '$do_error'(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N))
 	).
 '$dynamic2'(X,Mod) :-
@@ -109,12 +110,12 @@ dynamic(X) :-
 	N1 is N+2,
 	'$logical_updatable'(A/N1,Mod).
 '$logical_updatable'(A/N,Mod) :- integer(N), atom(A), !,
-	functor(T,A,N), '$flags'(T,Mod,F,F),
+	functor(T,A,N), '$predicate_flags'(T,Mod,F,F),
 	(
-	    F/\ 0x19D1FA80 =:= 0, '$undefined'(T,Mod) -> NF is F \/ 0x08000400, '$flags'(T,Mod,F,NF), '$mk_d'(T,Mod);
+	    F/\ 0x19D1FA80 =:= 0, '$undefined'(T,Mod) -> NF is F \/ 0x08000400, '$predicate_flags'(T,Mod,F,NF), '$mk_d'(T,Mod);
 	    F /\ 0x08000000 =:= 0x08000000 -> '$mk_d'(T,Mod) ;      % LU
 	    F /\ 0x00002000 =:= 0x00002000 -> '$mk_d'(T,Mod);      % dynamic
-	    F /\ 0x00000400 =:= 0x00000400 , '$undefined'(T,Mod) -> N1F is F \/ 0x08000000, NF is N1F /\ \(0x00400000), '$flags'(T,Mod,F,NF), '$mk_d'(T,Mod);
+	    F /\ 0x00000400 =:= 0x00000400 , '$undefined'(T,Mod) -> N1F is F \/ 0x08000000, NF is N1F /\ \(0x00400000), '$predicate_flags'(T,Mod,F,NF), '$mk_d'(T,Mod);
 	    '$do_error'(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N))
 	).
 '$logical_updatable'(X,Mod) :-
@@ -150,9 +151,9 @@ defines all new or redefined predicates to be public.
 '$do_make_public'(T, Mod) :-
 	'$is_dynamic'(T, Mod), !.  % all dynamic predicates are public.
 '$do_make_public'(T, Mod) :-
-	'$flags'(T,Mod,F,F),
+	'$predicate_flags'(T,Mod,F,F),
 	NF is F\/0x00400000,
-	'$flags'(T,Mod,F,NF).
+	'$predicate_flags'(T,Mod,F,NF).
 
 
 /** @pred     multifile( _P_ ) is iso
@@ -241,7 +242,7 @@ discontiguous(F) :-
 	% so this is not a multi-file predicate any longer.
 	functor(Hd,Na,Ar),
 	NFl is \(0x20000000) /\ Fl,
-	'$flags'(Hd,M,Fl,NFl),
+	'$predicate_flags'(Hd,M,Fl,NFl),
 	'$warn_mfile'(Na,Ar).
 
 '$warn_mfile'(F,A) :-
@@ -251,3 +252,10 @@ discontiguous(F) :-
 	'$start_line'(LN), write(user_error,LN),
 	write(user_error,')'),
 	nl(user_error).
+
+'$is_public'(T, Mod) :-
+	'$is_dynamic'(T, Mod), !.  % all dynamic predicates are public.
+'$is_public'(T, Mod) :-
+	'$predicate_flags'(T,Mod,F,F),
+	F\/0x00400000 =\= 0.
+

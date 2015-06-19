@@ -88,7 +88,7 @@
 	    '$safe_builtin'(A, M).
 
 '$safe_builtin'(G, Mod) :-
-	'$flags'(G, Mod, Fl, Fl),
+	'$predicate_flags'(G, Mod, Fl, Fl),
 	Fl /\ 0x00008880 =\= 0.
 
 '$vmember'(V,[V1|_]) :- V == V1, !.
