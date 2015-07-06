@@ -99,6 +99,31 @@ Yap_Warning( const char *s, ... )
   return true;
 }
 
+bool
+Yap_PrintWarning( Term twarning )
+{
+  CACHE_REGS
+ PredEntry * pred = RepPredProp(PredPropByFunc(FunctorPrintMessage,PROLOG_MODULE)); //PROCEDURE_print_message2;
+  bool rc;
+  Term ts[2];
+  
+  if (LOCAL_within_print_message)
+    return false;
+  LOCAL_within_print_message = true;
+  if (pred->OpcodeOfPred == UNDEF_OPCODE) {
+    fprintf(stderr, "warning message:\n");
+    Yap_DebugPlWrite( twarning );
+    fprintf(stderr, "\n");
+    LOCAL_within_print_message = false;
+    return true;
+  }
+  ts[0] = MkAtomTerm( AtomWarning );
+  ts[1] = twarning;
+  rc = Yap_execute_pred( pred, ts , true PASS_REGS);
+  LOCAL_within_print_message = false;
+  return rc;
+}
+
 int Yap_HandleError( const char *s, ... ) {
   CACHE_REGS
     yap_error_number err = LOCAL_Error_TYPE;
@@ -597,6 +622,7 @@ Yap_NilError(yap_error_number type, const char *format,...)
 
   return res;
 }
+
 
 yamop *
 Yap_Error(yap_error_number type, Term where, const char *format,...)
