@@ -27,7 +27,7 @@
 * fix try_logical and friends to handle case where predicate has arity 0.
 *
 * Revision 1.118  2008/06/04 14:47:18  vsc
-* make sure we do trim_trail whenever we mess with B!
+* make sure we do trim_trail whenever we mess with B!cfc
 *
 * Revision 1.117  2008/06/04 13:58:36  vsc
 * more fixes to C-interface
@@ -2634,6 +2634,9 @@ YAP_InitConsult(int mode, const char *filename)
   int sno;
   BACKUP_MACHINE_REGS();
 
+  if (mode == YAP_BOOT_MODE) {
+    mode = YAP_CONSULT_MODE;
+  }
   bool consulted = (mode == YAP_CONSULT_MODE);
   Yap_init_consult(consulted, filename);
   f = fopen(filename, "r");
@@ -2805,7 +2808,7 @@ do_bootfile (char *bootfilename USES_REGS)
     To be honest, YAP_InitConsult does not really do much,
     it's here for the future. It also makes what we want to do clearer.
   */
-  bootfile = YAP_InitConsult(YAP_CONSULT_MODE,bootfilename);
+  bootfile = YAP_InitConsult(YAP_BOOT_MODE,bootfilename);
   if (bootfile <0)
     {
       fprintf(stderr, "[ FATAL ERROR: could not open bootfile %s ]\n", bootfilename);
@@ -2879,7 +2882,6 @@ construct_init_file(char *boot_file, char *BootFile)
 X_API Int
 YAP_Init(YAP_init_args *yap_init)
 {
-  CACHE_REGS
   int restore_result;
   int do_bootstrap = (yap_init->YapPrologBootFile != NULL);
   CELL Trail = 0, Stack = 0, Heap = 0, Atts = 0;
@@ -2910,13 +2912,6 @@ YAP_Init(YAP_init_args *yap_init)
     yap_init->SavedState = NULL;
   }
 #endif
-  if (BOOT_FROM_SAVED_STATE && !do_bootstrap) {
-    if (!Yap_SavedInfo (yap_init->SavedState, yap_init->YapLibDir, &Trail, &Stack, &Heap)) {
-      yap_init->ErrorNo = LOCAL_Error_TYPE;
-      yap_init->ErrorCause = LOCAL_ErrorMessage;
-      return YAP_BOOT_ERROR;
-    }
-  }
   if (yap_init->TrailSize == 0) {
     if (yap_init->MaxTrailSize) {
       Trail = yap_init->MaxTrailSize;
@@ -2954,10 +2949,13 @@ YAP_Init(YAP_init_args *yap_init)
 	      yap_init->SchedulerLoop,
 	      yap_init->DelayedReleaseLoad
 	      );
+  //
+
+  
+CACHE_REGS
   if (yap_init->QuietMode) {
     setVerbosity( TermSilent );
   }
-
   { if (yap_init->YapPrologRCFile != NULL) {
       /*
 	This must be done before restore, otherwise
@@ -2979,6 +2977,13 @@ YAP_Init(YAP_init_args *yap_init)
       }
     } else {
       restore_result = YAP_BOOT_FROM_PROLOG;
+    }
+    if (BOOT_FROM_SAVED_STATE && !do_bootstrap) {
+      if (!Yap_SavedInfo (yap_init->SavedState, yap_init->YapLibDir, &Trail, &Stack, &Heap)) {
+        yap_init->ErrorNo = LOCAL_Error_TYPE;
+        yap_init->ErrorCause = LOCAL_ErrorMessage;
+        return YAP_BOOT_ERROR;
+      }
     }
     GLOBAL_FAST_BOOT_FLAG = yap_init->FastBoot;
 #if defined(YAPOR) || defined(TABLING)
@@ -3056,13 +3061,10 @@ YAP_Init(YAP_init_args *yap_init)
       Yap_AttsSize = Atts*1024;
     else
       Yap_AttsSize = 2048*sizeof(CELL);
-      /* reset stacks */
-    //    Yap_StartSlots( PASS_REGS1 );
     if (restore_result == DO_ONLY_CODE) {
       /* first, initialise the saved state */
       Term t_goal = MkAtomTerm(AtomInitProlog);
       YAP_RunGoalOnce(t_goal);
-      Yap_InitYaamRegs( 0 );
       return YAP_BOOT_FROM_SAVED_CODE;
     } else {
       CurrentModule = LOCAL_SourceModule = USER_MODULE;
@@ -3095,8 +3097,6 @@ YAP_Init(YAP_init_args *yap_init)
       fgoal = Yap_MkFunctor(Yap_LookupAtom("module"), 1);
       goal = Yap_MkApplTerm(fgoal, 1, as);
       YAP_RunGoalOnce(goal);
-      /* reset stacks */
-      Yap_InitYaamRegs( 0 );
     }
     Yap_PutValue(Yap_FullLookupAtom("$live"), MkAtomTerm (Yap_FullLookupAtom("$true")));
   }
