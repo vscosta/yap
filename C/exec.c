@@ -26,9 +26,9 @@ static char     SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 static Int  CallPredicate(PredEntry *, choiceptr, yamop * CACHE_TYPE);
 // must hold thread worker comm lock at call.
 static Int  EnterCreepMode(Term, Term CACHE_TYPE);
-static Int  p_save_cp( USES_REGS1 );
-static Int  p_execute( USES_REGS1 );
-static Int  p_execute0( USES_REGS1 );
+static Int  current_choice_point( USES_REGS1 );
+static Int  execute( USES_REGS1 );
+static Int  execute0( USES_REGS1 );
 
 static Term
 cp_as_integer(choiceptr cp USES_REGS)
@@ -81,7 +81,7 @@ CallPredicate(PredEntry *pen, choiceptr cut_pt, yamop *code USES_REGS) {
 inline static Int
 CallMetaCall(Term t, Term mod USES_REGS) {
     ARG1 = t;
-    ARG2 = cp_as_integer(B PASS_REGS); /* p_save_cp */
+    ARG2 = cp_as_integer(B PASS_REGS); /* p_current_choice_point */
     ARG3 = t;
     if (mod) {
         ARG4 = mod;
@@ -96,7 +96,7 @@ Yap_ExecuteCallMetaCall(Term mod) {
     CACHE_REGS
     Term ts[4];
     ts[0] = ARG1;
-    ts[1] = cp_as_integer(B PASS_REGS); /* p_save_cp */
+    ts[1] = cp_as_integer(B PASS_REGS); /* p_current_choice_point */
     ts[2] = ARG1;
     ts[3] = mod;
     return Yap_MkApplTerm(PredMetaCall->FunctorOfPred,4,ts);
@@ -142,8 +142,14 @@ CallError(yap_error_number err, Term t, Term mod USES_REGS)
     }
 }
 
+/** @pred current_choice_point( -_CP_ )
+ *
+ * unify the logic variable _CP_ with a number that gives the offset of the
+ * current choice-point. This number is only valid as long as we do not backtrack by or cut
+ * _CP_, and is safe in the presence of stack shifting and/or garbage collection.
+ */
 static Int
-p_save_cp( USES_REGS1 )
+current_choice_point( USES_REGS1 )
 {
     Term t = Deref(ARG1);
     Term td;
@@ -157,7 +163,7 @@ p_save_cp( USES_REGS1 )
 }
 
 static Int
-p_save_env_b( USES_REGS1 )
+save_env_b( USES_REGS1 )
 {
     Term t = Deref(ARG1);
     Term td;
@@ -171,7 +177,7 @@ p_save_env_b( USES_REGS1 )
 }
 
 static Int
-p_trail_suspension_marker( USES_REGS1 )
+trail_suspension_marker( USES_REGS1 )
 {
     Term t = Deref(ARG1);
     
@@ -432,10 +438,17 @@ EnterCreepMode(Term t, Term mod USES_REGS) {
 }
 
 static Int
-p_execute( USES_REGS1 )
+execute( USES_REGS1 )
 {				/* '$execute'(Goal)	 */
-    Term            t = Deref(ARG1);
-    return do_execute(t, CurrentModule PASS_REGS);
+  Term            t = Deref(ARG1);
+  return do_execute(t, CurrentModule PASS_REGS);
+}
+
+bool
+
+Yap_Execute( Term t USES_REGS )
+{				/* '$execute'(Goal)	 */
+  return do_execute(t, CurrentModule PASS_REGS);
 }
 
 static void
@@ -455,7 +468,7 @@ heap_store(Term t USES_REGS)
 }
 
 static Int
-p_execute2( USES_REGS1 )
+execute2( USES_REGS1 )
 {				/* '$execute'(Goal)	 */
     Term       t = Deref(ARG1);
     heap_store(Deref(ARG2) PASS_REGS);
@@ -463,7 +476,7 @@ p_execute2( USES_REGS1 )
 }
 
 static Int
-p_execute3( USES_REGS1 )
+execute3( USES_REGS1 )
 {				/* '$execute'(Goal)	 */
     Term            t = Deref(ARG1);
     heap_store(Deref(ARG2) PASS_REGS);
@@ -472,7 +485,7 @@ p_execute3( USES_REGS1 )
 }
 
 static Int
-p_execute4( USES_REGS1 )
+execute4( USES_REGS1 )
 {				/* '$execute'(Goal)	 */
     Term            t = Deref(ARG1);
     heap_store(Deref(ARG2) PASS_REGS);
@@ -482,7 +495,7 @@ p_execute4( USES_REGS1 )
 }
 
 static Int
-p_execute5( USES_REGS1 )
+execute5( USES_REGS1 )
 {				/* '$execute'(Goal)	 */
     Term            t = Deref(ARG1);
     heap_store(Deref(ARG2) PASS_REGS);
@@ -493,7 +506,7 @@ p_execute5( USES_REGS1 )
 }
 
 static Int
-p_execute6( USES_REGS1 )
+execute6( USES_REGS1 )
 {				/* '$execute'(Goal)	 */
     Term            t = Deref(ARG1);
     heap_store(Deref(ARG2) PASS_REGS);
@@ -505,7 +518,7 @@ p_execute6( USES_REGS1 )
 }
 
 static Int
-p_execute7( USES_REGS1 )
+execute7( USES_REGS1 )
 {				/* '$execute'(Goal)	 */
     Term            t = Deref(ARG1);
     heap_store(Deref(ARG2) PASS_REGS);
@@ -518,7 +531,7 @@ p_execute7( USES_REGS1 )
 }
 
 static Int
-p_execute8( USES_REGS1 )
+execute8( USES_REGS1 )
 {				/* '$execute'(Goal)	 */
     Term            t = Deref(ARG1);
     heap_store(Deref(ARG2) PASS_REGS);
@@ -532,7 +545,7 @@ p_execute8( USES_REGS1 )
 }
 
 static Int
-p_execute9( USES_REGS1 )
+execute9( USES_REGS1 )
 {				/* '$execute'(Goal)	 */
     Term            t = Deref(ARG1);
     heap_store(Deref(ARG2) PASS_REGS);
@@ -547,7 +560,7 @@ p_execute9( USES_REGS1 )
 }
 
 static Int
-p_execute10( USES_REGS1 )
+execute10( USES_REGS1 )
 {				/* '$execute'(Goal)	 */
     Term            t = Deref(ARG1);
     heap_store(Deref(ARG2) PASS_REGS);
@@ -563,7 +576,7 @@ p_execute10( USES_REGS1 )
 }
 
 static Int
-p_execute11( USES_REGS1 )
+execute11( USES_REGS1 )
 {				/* '$execute'(Goal)	 */
     Term            t = Deref(ARG1);
     heap_store(Deref(ARG2) PASS_REGS);
@@ -580,7 +593,7 @@ p_execute11( USES_REGS1 )
 }
 
 static Int
-p_execute12( USES_REGS1 )
+execute12( USES_REGS1 )
 {				/* '$execute'(Goal)	 */
     Term            t = Deref(ARG1);
     heap_store(Deref(ARG2) PASS_REGS);
@@ -598,7 +611,7 @@ p_execute12( USES_REGS1 )
 }
 
 static Int
-p_execute_clause( USES_REGS1 )
+execute_clause( USES_REGS1 )
 {				/* '$execute_clause'(Goal)	 */
     Term            t = Deref(ARG1);
     Term            mod = Deref(ARG2);
@@ -667,13 +680,13 @@ restart_exec:
 }
 
 static Int
-p_execute_in_mod( USES_REGS1 )
+execute_in_mod( USES_REGS1 )
 {				/* '$execute'(Goal)	 */
     return(do_execute(Deref(ARG1), Deref(ARG2) PASS_REGS));
 }
 
 static Int
-p_do_goal_expansion( USES_REGS1 )
+do_goal_expansion( USES_REGS1 )
 {
     Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
     Int out = FALSE;
@@ -686,7 +699,7 @@ p_do_goal_expansion( USES_REGS1 )
     if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, cmod) ) ) &&
         pe->OpcodeOfPred != FAIL_OPCODE &&
         pe->OpcodeOfPred != UNDEF_OPCODE &&
-        Yap_execute_pred(pe, NULL PASS_REGS, false) ) {
+        Yap_execute_pred(pe, NULL, false PASS_REGS) ) {
         out = TRUE;
         ARG3 = ARG2;
         goto complete;
@@ -728,7 +741,7 @@ complete:
 }
 
 static Int
-p_do_term_expansion( USES_REGS1 )
+do_term_expansion( USES_REGS1 )
 {
     Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
     Int out = FALSE;
@@ -767,7 +780,7 @@ complete:
 }
 
 static Int
-p_execute0( USES_REGS1 )
+execute0( USES_REGS1 )
 {				/* '$execute0'(Goal,Mod)	 */
     Term            t = Deref(ARG1), t0 = t;
     Term            mod = Deref(ARG2);
@@ -837,7 +850,7 @@ restart_exec:
 }
 
 static Int
-p_execute_nonstop( USES_REGS1 )
+execute_nonstop( USES_REGS1 )
 {				/* '$execute_nonstop'(Goal,Mod)	 */
     Term            t = Deref(ARG1), t0 = t;
     Term            mod = Deref(ARG2);
@@ -959,7 +972,7 @@ slice_module_for_call_with_args(Term tin, Term *modp, int arity)
 }
 
 static Int
-p_execute_0( USES_REGS1 )
+execute_0( USES_REGS1 )
 {				/* '$execute_0'(Goal)	 */
     Term mod = CurrentModule;
     Term t = slice_module_for_call_with_args(Deref(ARG1),&mod,0);
@@ -984,68 +997,68 @@ call_with_args(int i USES_REGS)
 
 
 static Int
-p_execute_1( USES_REGS1 )
+execute_1( USES_REGS1 )
 {				/* '$execute_0'(Goal)	 */
     return call_with_args(1 PASS_REGS);
 }
 
 static Int
-p_execute_2( USES_REGS1 )
+execute_2( USES_REGS1 )
 {				/* '$execute_2'(Goal)	 */
     return call_with_args(2 PASS_REGS);
 }
 
 static Int
-p_execute_3( USES_REGS1 )
+execute_3( USES_REGS1 )
 {				/* '$execute_3'(Goal)	 */
     return call_with_args(3 PASS_REGS);
 }
 
 static Int
-p_execute_4( USES_REGS1 )
+execute_4( USES_REGS1 )
 {				/* '$execute_4'(Goal)	 */
     return call_with_args(4 PASS_REGS);
 }
 
 static Int
-p_execute_5( USES_REGS1 )
+execute_5( USES_REGS1 )
 {				/* '$execute_5'(Goal)	 */
     return call_with_args(5 PASS_REGS);
 }
 
 static Int
-p_execute_6( USES_REGS1 )
+execute_6( USES_REGS1 )
 {				/* '$execute_6'(Goal)	 */
     return call_with_args(6 PASS_REGS);
 }
 
 static Int
-p_execute_7( USES_REGS1 )
+execute_7( USES_REGS1 )
 {				/* '$execute_7'(Goal)	 */
     return call_with_args(7 PASS_REGS);
 }
 
 static Int
-p_execute_8( USES_REGS1 )
+execute_8( USES_REGS1 )
 {				/* '$execute_8'(Goal)	 */
     return call_with_args(8 PASS_REGS);
 }
 
 static Int
-p_execute_9( USES_REGS1 )
+execute_9( USES_REGS1 )
 {				/* '$execute_9'(Goal)	 */
     return call_with_args(9 PASS_REGS);
 }
 
 static Int
-p_execute_10( USES_REGS1 )
+execute_10( USES_REGS1 )
 {				/* '$execute_10'(Goal)	 */
     return call_with_args(10 PASS_REGS);
 }
 
 #ifdef DEPTH_LIMIT
 static Int
-p_execute_depth_limit( USES_REGS1 ) {
+execute_depth_limit( USES_REGS1 ) {
     Term d = Deref(ARG2);
     if (IsVarTerm(d)) {
         Yap_Error(INSTANTIATION_ERROR,d,"depth_bound_call/2");
@@ -1060,12 +1073,12 @@ p_execute_depth_limit( USES_REGS1 ) {
     } else {
         DEPTH = MkIntTerm(IntegerOfTerm(d)*2);
     }
-    return p_execute( PASS_REGS1 );
+    return execute( PASS_REGS1 );
 }
 #endif
 
 static Int
-p_pred_goal_expansion_on( USES_REGS1 ) {
+pred_goal_expansion_on( USES_REGS1 ) {
     /* a goal needs expansion if we have goal_expansion defined or
      if the goal is a meta-call */
     return PRED_GOAL_EXPANSION_ON;
@@ -1476,7 +1489,7 @@ restart_runtopgoal:
 }
 
 static void
-restore_regs(Term t, int restore_all USES_REGS)
+do_restore_regs(Term t, int restore_all USES_REGS)
 {
     if (IsApplTerm(t)) {
         Int i;
@@ -1497,7 +1510,7 @@ restore_regs(Term t, int restore_all USES_REGS)
 
 /* low level voodoo to restore temporary registers after a call */
 static Int
-p_restore_regs( USES_REGS1 )
+restore_regs( USES_REGS1 )
 {
     Term t = Deref(ARG1);
     if (IsVarTerm(t)) {
@@ -1505,13 +1518,13 @@ p_restore_regs( USES_REGS1 )
         return(FALSE);
     }
     if (IsAtomTerm(t)) return(TRUE);
-    restore_regs(t, FALSE PASS_REGS);
+    do_restore_regs(t, FALSE PASS_REGS);
     return(TRUE);
 }
 
 /* low level voodoo to cut and then restore temporary registers after a call */
 static Int
-p_restore_regs2( USES_REGS1 )
+restore_regs2( USES_REGS1 )
 {
     
     Term t = Deref(ARG1), d0;
@@ -1524,7 +1537,7 @@ p_restore_regs2( USES_REGS1 )
     }
     d0 = Deref(ARG2);
     if (!IsAtomTerm(t)) {
-        restore_regs(t, TRUE PASS_REGS);
+        do_restore_regs(t, TRUE PASS_REGS);
     }
     if (IsVarTerm(d0)) {
         Yap_Error(INSTANTIATION_ERROR,d0,"support for coroutining");
@@ -1565,7 +1578,7 @@ p_restore_regs2( USES_REGS1 )
 }
 
 static Int
-p_clean_ifcp( USES_REGS1 ) {
+clean_ifcp( USES_REGS1 ) {
     Term t = Deref(ARG1);
     choiceptr pt0;
     
@@ -1608,7 +1621,7 @@ static int disj_marker(yamop *apc) {
 
 
 static Int
-p_cut_up_to_next_disjunction( USES_REGS1 ) {
+cut_up_to_next_disjunction( USES_REGS1 ) {
     choiceptr pt0 = B;
     CELL *qenv = (CELL *)ENV[E_E];
     
@@ -1790,13 +1803,13 @@ Yap_JumpToEnv(Term t) {
 
 /* This does very nasty stuff!!!!! */
 static Int
-p_jump_env( USES_REGS1 ) {
+jump_env( USES_REGS1 ) {
     return(JumpToEnv(Deref(ARG1) PASS_REGS));
 }
 
 /* set up a meta-call based on . context info */
 static Int
-p_generate_pred_info( USES_REGS1 ) {
+generate_pred_info( USES_REGS1 ) {
     ARG1 = ARG3 = ENV[-EnvSizeInCells-1];
     ARG4 = ENV[-EnvSizeInCells-3];
     ARG2 = cp_as_integer((choiceptr)ENV[E_CB] PASS_REGS);
@@ -1812,18 +1825,17 @@ Yap_InitYaamRegs( int myworker_id )
     /* Guarantee that after a longjmp we go back to the original abstract
      machine registers */
 #ifdef THREADS
-    CACHE_REGS
     if (myworker_id) {
         REGSTORE *rs = REMOTE_ThreadHandle(myworker_id).default_yaam_regs;
         pthread_setspecific(Yap_yaamregs_key,  (const void *)rs);
         REMOTE_ThreadHandle(myworker_id).current_yaam_regs = rs;
-        REFRESH_CACHE_REGS
     }
     /* may be run by worker_id on behalf on myworker_id */
 #else
     Yap_regp = &Yap_standard_regs;
 #endif
 #endif /* PUSH_REGS */
+    CACHE_REGS
     Yap_ResetExceptionTerm ( myworker_id );
     Yap_PutValue (AtomBreak, MkIntTerm (0));
     TR = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);
@@ -1831,7 +1843,7 @@ Yap_InitYaamRegs( int myworker_id )
     LCL0 = ASP = (CELL *) REMOTE_LocalBase(myworker_id);
     CurrentTrailTop = (tr_fr_ptr)(REMOTE_TrailTop(myworker_id)-MinTrailGap);
     /* notice that an initial choice-point and environment
-     *must* be created since for the garbage collector to work */
+     *must* be created  for the garbage collector to work */
     B = NULL;
     ENV = NULL;
     P = CP = YESCODE;
@@ -1886,7 +1898,7 @@ Yap_InitYaamRegs( int myworker_id )
 }
 
 static Int
-p_uncaught_throw( USES_REGS1 )
+uncaught_throw( USES_REGS1 )
 {
     Int out = LOCAL_UncaughtThrow;
     LOCAL_UncaughtThrow = FALSE; /* just caught it */
@@ -1923,7 +1935,7 @@ Yap_GetException(void)
 }
 
 static Int
-p_reset_exception( USES_REGS1 )
+reset_exception( USES_REGS1 )
 {
     Term t;
     EX = NULL;
@@ -1941,7 +1953,7 @@ Yap_ResetExceptionTerm(int wid)
 }
 
 static Int
-p_get_exception( USES_REGS1 )
+get_exception( USES_REGS1 )
 {
     Term t = Yap_GetException();
     if (!t) 
@@ -1983,58 +1995,58 @@ Yap_InitExecFs(void)
     CACHE_REGS
     Term cm = CurrentModule;
     Yap_InitComma();
-    Yap_InitCPred("$execute", 1, p_execute, 0);
-    Yap_InitCPred("$execute", 2, p_execute2, 0);
-    Yap_InitCPred("$execute", 3, p_execute3, 0);
-    Yap_InitCPred("$execute", 4, p_execute4, 0);
-    Yap_InitCPred("$execute", 5, p_execute5, 0);
-    Yap_InitCPred("$execute", 6, p_execute6, 0);
-    Yap_InitCPred("$execute", 7, p_execute7, 0);
-    Yap_InitCPred("$execute", 8, p_execute8, 0);
-    Yap_InitCPred("$execute", 9, p_execute9, 0);
-    Yap_InitCPred("$execute", 10, p_execute10, 0);
-    Yap_InitCPred("$execute", 11, p_execute11, 0);
-    Yap_InitCPred("$execute", 12, p_execute12, 0);
-    Yap_InitCPred("$execute_in_mod", 2, p_execute_in_mod, 0);
-    Yap_InitCPred("$execute_wo_mod", 2, p_execute_in_mod, 0);
-    Yap_InitCPred("call_with_args", 1, p_execute_0, 0);
-    Yap_InitCPred("call_with_args", 2, p_execute_1, 0);
-    Yap_InitCPred("call_with_args", 3, p_execute_2, 0);
-    Yap_InitCPred("call_with_args", 4, p_execute_3, 0);
-    Yap_InitCPred("call_with_args", 5, p_execute_4, 0);
-    Yap_InitCPred("call_with_args", 6, p_execute_5, 0);
-    Yap_InitCPred("call_with_args", 7, p_execute_6, 0);
-    Yap_InitCPred("call_with_args", 8, p_execute_7, 0);
-    Yap_InitCPred("call_with_args", 9, p_execute_8, 0);
-    Yap_InitCPred("call_with_args", 10, p_execute_9, 0);
-    Yap_InitCPred("call_with_args", 11, p_execute_10, 0);
+    Yap_InitCPred("$execute", 1, execute, 0);
+    Yap_InitCPred("$execute", 2, execute2, 0);
+    Yap_InitCPred("$execute", 3, execute3, 0);
+    Yap_InitCPred("$execute", 4, execute4, 0);
+    Yap_InitCPred("$execute", 5, execute5, 0);
+    Yap_InitCPred("$execute", 6, execute6, 0);
+    Yap_InitCPred("$execute", 7, execute7, 0);
+    Yap_InitCPred("$execute", 8, execute8, 0);
+    Yap_InitCPred("$execute", 9, execute9, 0);
+    Yap_InitCPred("$execute", 10, execute10, 0);
+    Yap_InitCPred("$execute", 11, execute11, 0);
+    Yap_InitCPred("$execute", 12, execute12, 0);
+    Yap_InitCPred("$execute_in_mod", 2, execute_in_mod, 0);
+    Yap_InitCPred("$execute_wo_mod", 2, execute_in_mod, 0);
+    Yap_InitCPred("call_with_args", 1, execute_0, 0);
+    Yap_InitCPred("call_with_args", 2, execute_1, 0);
+    Yap_InitCPred("call_with_args", 3, execute_2, 0);
+    Yap_InitCPred("call_with_args", 4, execute_3, 0);
+    Yap_InitCPred("call_with_args", 5, execute_4, 0);
+    Yap_InitCPred("call_with_args", 6, execute_5, 0);
+    Yap_InitCPred("call_with_args", 7, execute_6, 0);
+    Yap_InitCPred("call_with_args", 8, execute_7, 0);
+    Yap_InitCPred("call_with_args", 9, execute_8, 0);
+    Yap_InitCPred("call_with_args", 10, execute_9, 0);
+    Yap_InitCPred("call_with_args", 11, execute_10, 0);
 #ifdef DEPTH_LIMIT
-    Yap_InitCPred("$execute_under_depth_limit", 2, p_execute_depth_limit, 0);
+    Yap_InitCPred("$execute_under_depth_limit", 2, execute_depth_limit, 0);
 #endif
-    Yap_InitCPred("$execute0", 2, p_execute0, NoTracePredFlag);
-    Yap_InitCPred("$execute_nonstop", 2, p_execute_nonstop,NoTracePredFlag  );
-    Yap_InitCPred("$execute_clause", 4, p_execute_clause, 0);
-    Yap_InitCPred("$current_choice_point", 1, p_save_cp, 0);
-    Yap_InitCPred("$current_choicepoint", 1, p_save_cp, 0);
+    Yap_InitCPred("$execute0", 2, execute0, NoTracePredFlag);
+    Yap_InitCPred("$execute_nonstop", 2, execute_nonstop,NoTracePredFlag  );
+    Yap_InitCPred("$execute_clause", 4, execute_clause, NoTracePredFlag);
+    Yap_InitCPred("$current_choice_point", 1, current_choice_point, 0);
+    Yap_InitCPred("$current_choicepoint", 1, current_choice_point, 0);
     CurrentModule = HACKS_MODULE;
-    Yap_InitCPred("current_choice_point", 1, p_save_cp, 0);
-    Yap_InitCPred("current_choicepoint", 1, p_save_cp, 0);
-    Yap_InitCPred("env_choice_point", 1, p_save_env_b, 0);
-    Yap_InitCPred("trail_suspension_marker", 1, p_trail_suspension_marker, 0);
-    Yap_InitCPred("cut_at", 1, p_clean_ifcp, SafePredFlag);
+    Yap_InitCPred("current_choice_point", 1, current_choice_point, 0);
+    Yap_InitCPred("current_choicepoint", 1, current_choice_point, 0);
+    Yap_InitCPred("env_choice_point", 1, save_env_b, 0);
+    Yap_InitCPred("trail_suspension_marker", 1, trail_suspension_marker, 0);
+    Yap_InitCPred("cut_at", 1, clean_ifcp, SafePredFlag);
     CurrentModule = cm;
-    Yap_InitCPred("$pred_goal_expansion_on", 0, p_pred_goal_expansion_on, SafePredFlag);
-    Yap_InitCPred("$restore_regs", 1, p_restore_regs, NoTracePredFlag|SafePredFlag);
-    Yap_InitCPred("$restore_regs", 2, p_restore_regs2, NoTracePredFlag|SafePredFlag);
-    Yap_InitCPred("$clean_ifcp", 1, p_clean_ifcp, SafePredFlag);
-    Yap_InitCPred("qpack_clean_up_to_disjunction", 0, p_cut_up_to_next_disjunction, SafePredFlag);
-    Yap_InitCPred("$jump_env_and_store_ball", 1, p_jump_env, 0);
-    Yap_InitCPred("$generate_pred_info", 4, p_generate_pred_info, 0);
-    Yap_InitCPred("$uncaught_throw", 0, p_uncaught_throw, 0);
-    Yap_InitCPred("$reset_exception", 1, p_reset_exception, 0);
-    Yap_InitCPred("$do_goal_expansion", 3, p_do_goal_expansion, 0);
-    Yap_InitCPred("$do_term_expansion", 2, p_do_term_expansion, 0);
-    Yap_InitCPred("$get_exception", 1, p_get_exception, 0);
+    Yap_InitCPred("$pred_goal_expansion_on", 0, pred_goal_expansion_on, SafePredFlag);
+    Yap_InitCPred("$restore_regs", 1, restore_regs, NoTracePredFlag|SafePredFlag);
+    Yap_InitCPred("$restore_regs", 2, restore_regs2, NoTracePredFlag|SafePredFlag);
+    Yap_InitCPred("$clean_ifcp", 1, clean_ifcp, SafePredFlag);
+    Yap_InitCPred("qpack_clean_up_to_disjunction", 0, cut_up_to_next_disjunction, SafePredFlag);
+    Yap_InitCPred("$jump_env_and_store_ball", 1, jump_env, 0);
+    Yap_InitCPred("$generate_pred_info", 4, generate_pred_info, 0);
+    Yap_InitCPred("$uncaught_throw", 0, uncaught_throw, 0);
+    Yap_InitCPred("$reset_exception", 1, reset_exception, 0);
+    Yap_InitCPred("$do_goal_expansion", 3, do_goal_expansion, 0);
+    Yap_InitCPred("$do_term_expansion", 2, do_term_expansion, 0);
+    Yap_InitCPred("$get_exception", 1, get_exception, 0);
 }
 
 
