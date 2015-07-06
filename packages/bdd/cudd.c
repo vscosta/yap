@@ -309,7 +309,7 @@ add_implies(DdManager *manager, DdNode *x1, DdNode *x2)
 {
   DdNode *tmp;
 
-  tmp = Cudd_addApply(manager,Cudd_addLeq,x1,x2);
+  tmp = Cudd_addConst(manager,Cudd_addLeq(manager,x1,x2));
   Cudd_Ref(tmp);
   return tmp;
 }
@@ -878,7 +878,7 @@ p_cudd_print_with_names(void)
   DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
   DdNode *n0 = (DdNode *)YAP_IntOfTerm(YAP_ARG2);
   const char *s = YAP_AtomName(YAP_AtomOfTerm(YAP_ARG3));
-  char **namesp;
+  const char **namesp;
   YAP_Term names = YAP_ARG4;
   FILE *f;
   YAP_Int len;
@@ -918,7 +918,7 @@ p_cudd_print_with_names(void)
     fclose(f);
   while (i > 0) {
     i--;
-    free(namesp[i]);
+    free((void *)namesp[i]);
   }
   free( namesp );
   return TRUE;

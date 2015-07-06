@@ -356,21 +356,6 @@ p_unlink(void)
 }
 
 static YAP_Bool
-p_mkdir(void)
-{
-  char *fd = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
-#if defined(__MINGW32__) || _MSC_VER
-  if (_mkdir(fd) == -1) {
-#else
-  if (mkdir(fd, 0777) == -1) {
-#endif
-    /* return an error number */
-    return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(errno)));
-  }
-  return(TRUE);
-}
-
-static YAP_Bool
 p_rmdir(void)
 {
   char *fd = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
@@ -1131,7 +1116,6 @@ init_sys(void)
   YAP_UserCPredicate("list_directory", list_directory, 3);
   YAP_UserCPredicate("file_property", file_property, 7);
   YAP_UserCPredicate("unlink", p_unlink, 2);
-  YAP_UserCPredicate("mkdir", p_mkdir, 2);
   YAP_UserCPredicate("rmdir", p_rmdir, 2);
   YAP_UserCPredicate("dir_separator", dir_separator, 1);
   YAP_UserCPredicate("p_environ", p_environ, 2);

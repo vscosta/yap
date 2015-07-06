@@ -574,7 +574,7 @@ predicate_property(Pred,Prop) :-
 	'$pred_exists'(Pred,Mod), !,
 	'$predicate_property'(Pred,Mod,Mod,Prop).
 '$predicate_property2'(Pred,Prop,Mod) :-
-	'$imported_pred'(Pred, Mod, NPred, M),
+	'$imported_predicate'(Pred, Mod, NPred, M),
 	(
 	 Prop = imported_from(M)
 	;
@@ -679,7 +679,7 @@ current_predicate(A,T) :-
     % format('1 ~w ~16r~n', [M:T0,Flags, TFlags]),
     \+ '$system_predicate'(T0, M)
     ;
-    '$imported_pred'(T0, M, SourceT, SourceMod),
+    '$imported_predicate'(T0, M, SourceT, SourceMod),
     functor(T0, A, _),
     % format('2 ~w ~16r~n', [M:T0,Flags]),
     \+ '$system_predicate'(SourceT, SourceMod)

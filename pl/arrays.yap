@@ -20,12 +20,12 @@
 /**
 @addtogroup YAPArrays
 */
-% 
+%
 % These are the array built-in predicates. They will only work if
-% YAP_ARRAYS is defined in Yap.h.m4.
+% YAP_ARRAYS is defined in Yap.h
 %
 
-/** @pred  array(+ _Name_, + _Size_) 
+/** @pred  array(+ _Name_, + _Size_)
 
 
 Creates a new dynamic array. The  _Size_ must evaluate to an
@@ -35,7 +35,7 @@ unbound variable (anonymous array).
 Dynamic arrays work as standard compound terms, hence space for the
 array is recovered automatically on backtracking.
 
- 
+
 */
 array(Obj, Size) :-
 	'$create_array'(Obj, Size).
@@ -82,17 +82,17 @@ array(Obj, Size) :-
 	'$add_array_entries'(Tail, G, NG).
 
 
-/** @pred  static_array_properties(? _Name_, ? _Size_, ? _Type_) 
+/** @pred  static_array_properties(? _Name_, ? _Size_, ? _Type_)
 
 
 Show the properties size and type of a static array with name
  _Name_. Can also be used to enumerate all current
-static arrays. 
+static arrays.
 
 This built-in will silently fail if the there is no static array with
 that name.
 
- 
+
 */
 static_array_properties(Name, Size, Type) :-
 	atom(Name), !,

@@ -649,7 +649,6 @@ db_files(Fs) :-
 '$extract_minus'([-F|Fs], [F|MFs]) :-
 	'$extract_minus'(Fs, MFs).
 
-
 '$do_lf'(ContextModule, Stream, UserFile, File,  TOpts) :-
 	stream_property(OldStream, alias(loop_stream) ),
 	'$lf_opt'(encoding, TOpts, Encoding),
@@ -843,27 +842,29 @@ db_files(Fs) :-
 	b_getval('$lf_status', TOpts),
 	'$msg_level'( TOpts, Verbosity),
 	'$full_filename'(X, Y , ( :- include(X)) ),
+        writeln((X:Y)),
 	'$lf_opt'(stream, TOpts, OldStream),
-	source_location(OldY, L),
 	'$current_module'(Mod),
 	( open(Y, read, Stream) 	->
 	  true ;
 	  '$do_error'(permission_error(input,stream,Y),include(X))
 	),
-	H0 is heapused, '$cputime'(T0,_),
-	working_directory(Dir, Dir),
+	file_directory_name(Y, Dir),
+  H0 is heapused, '$cputime'(T0,_),
+	working_directory(Dir0, Dir),
 	'$lf_opt'(encoding, TOpts, Encoding),
 	set_stream(Stream, [encoding(Encoding),alias(loop_stream)] ),
-	'$loaded'(Y, X,  Mod, OldY, L, include, _, Dir, []),
+        '$loaded'(Y, X,  Mod, _OldY, _L, include, _, Dir, []),
         ( '$nb_getval'('$included_file', OY, fail ) -> true ; OY = [] ),
 	nb_setval('$included_file', Y),
 	print_message(Verbosity, loading(including, Y)),
 	'$loop'(Stream,Status),
 	set_stream(OldStream, alias(loop_stream) ),
-	close(Stream),
+        close(Stream),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	print_message(Verbosity, loaded(included, Y, Mod, T, H)),
-	nb_setval('$included_file',OY).
+	working_directory(_Dir, Dir0),
+        nb_setval('$included_file',OY).
 
 
 
@@ -970,6 +971,7 @@ most files in the library are from the Edinburgh Prolog library.
 
 */
 prolog_load_context(directory, DirName) :-
+strat_low_level_trace,
         ( source_location(F, _)
         -> file_directory_name(F, DirName) ;
           working_directory( DirName, DirName )
@@ -997,7 +999,8 @@ prolog_load_context(stream, Stream) :-
         '$nb_getval'('$consulting_file', _, fail),
         '$current_loop_stream'(Stream).
 prolog_load_context(term_position, Position) :-
-	stream_property( Stream, [alias(loop_stream),position(Position)] ).
+        '$current_loop_stream'(Stream)
+	    stream_property( Stream, [alias(loop_stream),position(Position)] ).
 
 
 % if the file exports a module, then we can
@@ -1072,7 +1075,7 @@ prolog_load_context(term_position, Position) :-
 	),
 	( F == user_input -> Age = 0 ; time_file64(F, Age) ),
 				% modules are logically loaded only once
-	
+
 	( recorded('$module','$module'(F,_DonorM,_SourceF, _AllExports, _Line),_) -> true  ;
 		  recordaifnot('$source_file','$source_file'( F, Age, M), _) -> true ;
 		  true ),

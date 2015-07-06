@@ -196,6 +196,7 @@ typedef enum {
 
 #define YAP_CONSULT_MODE           0
 #define YAP_RECONSULT_MODE         1
+#define YAP_BOOT_MODE              2
 
 typedef struct yap_boot_params {
   /* if NON-NULL, path where we can find the saved state */

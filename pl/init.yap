@@ -221,7 +221,6 @@ rules.
 
 :- dynamic goal_expansion/2.
 
-
 :- use_module('messages.yap').
 :- use_module('hacks.yap').
 :- use_module('attributes.yap').
@@ -328,12 +327,7 @@ If this hook predicate succeeds it must instantiate the  _Action_ argument to th
 + `undefined_global_variable`
  _Context_ is instantiated to the name of the missing global variable. The hook must call nb_setval/2 or b_setval/2 before returning with the action retry.
 
-
-
-
-
- */
-
+*/
 
 :- multifile user:exception/3.
 

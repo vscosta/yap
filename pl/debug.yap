@@ -848,6 +848,7 @@ be lost.
 	     fail			/* to backtrack to spycalls	*/
 	     )
 	  ;
+         '$stop_creeping',
 	    '$show_trace'(fail,G,Module,GoalNumber,_), /* inform at fail port		*/
 	    '$continue_debugging'(fail, CalledFromDebugger),
 	    /* fail port */

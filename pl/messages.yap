@@ -76,14 +76,6 @@ file_position(user_input,LN) -->
 file_position(FileName,LN) -->
 	[ '~a:~d:0: ' - [FileName,LN] ].
 
-translate_message(Term) -->
-	generate_message(Term), !.
-translate_message(Term) -->
-	{ Term = error(_, _) },
-	[ 'Unknown exception: ~p'-[Term] ].
-translate_message(Term) -->
-	[ 'Unknown message: ~p'-[Term] ].
-
 generate_message(Term, Lines, []) :-
 	user:generate_message_hook(Term, [], Lines), !.
 generate_message(Term) -->
@@ -679,11 +671,15 @@ pred_arity(H,Name,Arity) :-
     functor(H,Name,Arity).
 
 
+	translate_message(Term) -->
+		generate_message(Term), !.
+	translate_message(Term) -->
+		{ Term = error(_, _) },
+		[ 'Unknown exception: ~p'-[Term] ].
+	translate_message(Term) -->
+		[ 'Unknown message: ~p'-[Term] ].
+
 /**
   @}
   @}
 */
-
-
-
- 

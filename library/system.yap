@@ -212,13 +212,6 @@ Unify  _Name_ with a name for the current host. YAP uses the
 
  
 */
-/** @pred make_directory(+ _Dir_) 
-
-
-Create a directory  _Dir_. The name of the directory must be an atom.
-
- 
-*/
 /** @pred mktemp( _Spec_,- _File_) 
 
 

@@ -147,7 +147,7 @@ absolute_file_name(File0,File) :-
 	/* our own local findall */
 	nb:nb_queue(Ref),
 	(
-	    '$find_in_path'(File,opts(Extensions,RelTo,Type,Access,Errors,Expand,Debug),TrueFileName,G),
+	    '$find_in_path'(File,opts(Extensions,RelTo,Type,Access,FErrors,Expand,Debug),TrueFileName,G),
 	    nb:nb_queue_enqueue(Ref, TrueFileName),
 	    fail
 	;
@@ -169,7 +169,7 @@ absolute_file_name(File0,File) :-
 	current_prolog_flag(fileerrors, Flag),
 	( OnError == error ;
 	  OnError == fail ;
-	  Flag == true, OnError = error ; 
+	  Flag == true, OnError = error ;
 	  Flag == false, OnError = fail ;
 	  OnError = error ), !.
 '$process_fn_opts'([Opt|Opts],Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,G) :- !,
@@ -672,4 +672,3 @@ user:file_search_path(path, C) :-
     ).
 
 %%@}
-

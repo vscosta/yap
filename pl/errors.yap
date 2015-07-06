@@ -202,7 +202,7 @@ The error handler is called when there is an execution error or a
 warning needs to be displayed. The handlers include a number of hooks
 to allow user-control.
 
-*/	
+*/
 
 :- system_module( '$_errors', [message_to_string/2,
         print_message/2], ['$Error'/1,
@@ -246,7 +246,7 @@ to allow user-control.
 	print_message(informational,abort(user)).
 '$process_error'(abort, _) :- !,
 	throw(abort).
-'$process_error'(error(thread_cancel(Id), G),top) :- !.
+'$process_error'(error(thread_cancel(_Id), _G),top) :- !.
 '$process_error'(error(thread_cancel(Id), G), _) :- !,
 	throw(error(thread_cancel(Id), G)).
 '$process_error'(error(permission_error(module,redefined,A),B), Level) :-
@@ -258,7 +258,7 @@ to allow user-control.
 '$process_error'(Throw, _) :-
 	print_message(error,error(unhandled_exception,Throw)).
 
-/** @pred  message_to_string(+ _Term_, - _String_) 
+/** @pred  message_to_string(+ _Term_, - _String_)
 
 
 Translates a message-term into a string object. Primarily intended for SWI-Prolog emulation.
@@ -269,7 +269,7 @@ Translates a message-term into a string object. Primarily intended for SWI-Prolo
 message_to_string(Event, Message) :-
 	'$messages':generate_message(Event, Message, []).
 
-/** @pred print_message(+ _Kind_,  _Term_) 
+/** @pred print_message(+ _Kind_,  _Term_)
 
 The predicate print_message/2 is used to print messages, notably from
 exceptions in a human-readable format.  _Kind_ is one of
@@ -293,10 +293,10 @@ invent new ones, you can define corresponding error messages by
 asserting clauses for `prolog:message/2`. You will need to declare
 the predicate as multifile.
 
- 
+
 */
 print_message(_, _) :-
-    '$nb_getval'('$if_skip_mode',skip,fail), 
+    '$nb_getval'('$if_skip_mode',skip,fail),
     !.
 print_message(force(_Severity), Msg) :- !,
 	print(user_error,Msg).
@@ -352,5 +352,3 @@ print_message(_, Term) :-
 	flush_output(user_error),
 	'$messages':prefix(Level, LinePrefix, Stream, LinesF, Lines), !,
 	print_message_lines(Stream, LinePrefix, LinesF).
-
-

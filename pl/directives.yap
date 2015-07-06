@@ -106,7 +106,7 @@
 '$directive'(use_module(_,_,_)).
 '$directive'(wait(_)).
 
-'$exec_directives'((G1,G2), Mode, M, VL, Pos) :- 
+'$exec_directives'((G1,G2), Mode, M, VL, Pos) :-
     !,
     '$exec_directives'(G1, Mode, M, VL, Pos),
     '$exec_directives'(G2, Mode, M, VL, Pos).
@@ -130,7 +130,7 @@
 Execute the goals defined by initialization/1. Only the first answer is
 considered.
 
- 
+
 */
 '$exec_directive'(initialization(D), _, M, _, _) :-
 	'$initialization'(M:D).
@@ -139,7 +139,7 @@ considered.
 '$exec_directive'(thread_initialization(D), _, M, _, _) :-
 	'$thread_initialization'(M:D).
 '$exec_directive'(expects_dialect(D), _, _, _, _) :-
-	'$expects_dialect'(D).
+    expects_dialect(D).
 '$exec_directive'(encoding(Enc), _, _, _, _) :-
         '$set_encoding'(Enc).
 '$exec_directive'(include(F), Status, _, _, _) :-
@@ -216,17 +216,17 @@ considered.
 	'$command'(Clause, VL, Pos, Context),
 	'$assert_list'(Clauses, Context, Module, VL, Pos).
 
-%                                                                                  
-% allow users to define their own directives.                                      
-%                                                                                  
+%
+% allow users to define their own directives.
+%
 user_defined_directive(Dir,_) :-
         '$directive'(Dir), !.
 user_defined_directive(Dir,Action) :-
         functor(Dir,Na,Ar),
         functor(NDir,Na,Ar),
         '$current_module'(M, prolog),
-	assert_static('$directive'(NDir)),
-	assert_static(('$exec_directive'(Dir, _, _, _, _) :- Action)),
+	assert_static(prolog:'$directive'(NDir)),
+	assert_static(prolog:('$exec_directive'(Dir, _, _, _, _) :- Action)),
         '$current_module'(_, M).
 
 '$thread_initialization'(M:D) :-
@@ -235,5 +235,3 @@ user_defined_directive(Dir,Action) :-
 	fail.
 '$thread_initialization'(M:D) :-
 	'$initialization'(M:D).
-
-

@@ -237,7 +237,7 @@ qend_program :-
     X \= encoding.
 
 '$init_state' :-
-	recorded('$program_state', P, _), !,
+	recorded('$program_state', _P, _), !,
 	'$do_init_state'.
 '$init_state'.
 
@@ -325,6 +325,9 @@ qend_program :-
 '$init_path_extensions'.
 
 % then we can execute the programs.
+'$startup_goals' :-
+    module(user),
+    fail.
 '$startup_goals' :-
 	recorded('$startup_goal',G,_),
 	'$current_module'(Module),

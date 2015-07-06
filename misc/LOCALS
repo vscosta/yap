@@ -3,7 +3,7 @@ START_WORKER_LOCAL
 
 // Streams
 struct AliasDescS*		FileAliases				=Yap_InitStandardAliases()
-int				NOfFileAliases				void	
+int				NOfFileAliases				void
 int				SzOfFileAliases				void
 
 int				c_input_stream				=0
@@ -11,6 +11,8 @@ int				c_output_stream				=1
 int				c_error_stream				=2
 
 bool				sockets_io				=false
+
+bool				within_print_message	=false
 
 //
 // Used by the prompts to check if they are after a newline, and then a
@@ -94,7 +96,9 @@ UInt				IPredArity				=0L
 yamop*				ProfEnd					=NULL
 int				UncaughtThrow				=FALSE
 int				DoingUndefp				=FALSE
-Int				StartLine				=0L
+Int				StartCharCount				=0L
+Int				StartLineCount				=0L
+Int				StartLinePos			=0L
 scratch_block			ScratchPad						InitScratchPad(wid)
 #ifdef  COROUTINING
 Term				WokenGoals				=0L 		TermToGlobalAdjust
@@ -147,7 +151,7 @@ struct array_entry*		DynamicArrays				=NULL 		PtoArrayEAdjust
 struct static_array_entry*	StaticArrays				=NULL 		PtoArraySAdjust
 struct global_entry*		GlobalVariables				=NULL 		PtoGlobalEAdjust
 int				AllowRestart				=FALSE
-	
+
 // Thread Local Area for Fast Storage of Intermediate Compiled Code
 struct mem_blk*			CMemFirstBlock				=NULL
 UInt				CMemFirstBlockSz			=0L
@@ -221,7 +225,7 @@ UInt   			       flagCount				void
 YAP_ULONG_LONG 			opcount[_std_top+1]			void
 YAP_ULONG_LONG 			2opcount[_std_top+1][_std_top+1] 	void
 #endif /* ANALYST */
-		
+
 //dbase.c
 struct db_globs*		s_dbg					void
 
@@ -236,7 +240,7 @@ int 				heap_overflows 				=0
 Int 				total_heap_overflow_time		=0
 int 				stack_overflows 			=0
 Int 				total_stack_overflow_time 		=0
-int 				delay_overflows 			=0	
+int 				delay_overflows 			=0
 Int 				total_delay_overflow_time 		=0
 int 				trail_overflows 			=0
 Int 				total_trail_overflow_time 		=0

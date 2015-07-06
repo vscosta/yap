@@ -19,7 +19,7 @@
 
 /**
   @file attributes.yap
-  
+
   @defgroup Attributed_Variables Attributed Variables
   @ingroup extensions
 
@@ -30,11 +30,11 @@ updated during forward execution. Moreover, the unification algorithm is
 aware of attributed variables and will call user defined handlers when
   trying to unify these variables.
 
-  
+
 Attributed variables provide an elegant abstraction over which one can
 extend Prolog systems. Their main application so far has been in
 implementing constraint handlers, such as Holzbaur's CLPQR, Fruewirth
-and Holzbaur's CHR, and CLP(BN). 
+and Holzbaur's CHR, and CLP(BN).
 
 Different Prolog systems implement attributed variables in different
 ways. Originally, YAP  used the interface designed by SICStus
@@ -48,9 +48,9 @@ variables, such as CHR, CLP(FD), and CLP(QR), rely on the SWI-Prolog
 interface.
 
   + Old_Style_Attribute_Declarations
-  
+
   + New_Style_Attribute_Declarations
-  
+
  */
 
 
@@ -83,10 +83,10 @@ interface.
 
 
 /**
-  @{  
+  @{
   @defgroup New_Style_Attribute_Declarations hProlog and SWI-Prolog style Attribute Declarations
   @ingroup Attributed_Variables
-  
+
   The following documentation is taken from the SWI-Prolog manual.
 
   Binding an attributed variable schedules a goal to be executed at the
@@ -157,7 +157,7 @@ interface.
 
 :- dynamic attributes:attributed_module/3, attributes:modules_with_attributes/1.
 
-/** @pred get_attr(+ _Var_,+ _Module_,- _Value_) 
+/** @pred get_attr(+ _Var_,+ _Module_,- _Value_)
 
 
 
@@ -166,7 +166,7 @@ Request the current  _value_ for the attribute named  _Module_.  If
 associated to  _Var_ this predicate fails silently.  If  _Module_
 is not an atom, a type error is raised.
 
- 
+
 */
 prolog:get_attr(Var, Mod, Att) :-
 	functor(AttTerm, Mod, 2),
@@ -174,7 +174,7 @@ prolog:get_attr(Var, Mod, Att) :-
 	attributes:get_module_atts(Var, AttTerm).
 
 /**
- @pred put_attr(+ _Var_,+ _Module_,+ _Value_) 
+ @pred put_attr(+ _Var_,+ _Module_,+ _Value_)
 
 
 
@@ -185,14 +185,14 @@ Backtracking will restore the old value (i.e., an attribute is a mutable
 term. See also `setarg/3`). This predicate raises a representation error if
  _Var_ is not a variable and a type error if  _Module_ is not an atom.
 
- 
+
 */
 prolog:put_attr(Var, Mod, Att) :-
 	functor(AttTerm, Mod, 2),
 	arg(2, AttTerm, Att),
 	attributes:put_module_atts(Var, AttTerm).
 
-/** @pred del_attr(+ _Var_,+ _Module_) 
+/** @pred del_attr(+ _Var_,+ _Module_)
 
 
 
@@ -202,20 +202,20 @@ is not an atom, a type error is raised. In all other cases this
 predicate succeeds regardless whether or not the named attribute is
 present.
 
- 
+
 */
 prolog:del_attr(Var, Mod) :-
 	functor(AttTerm, Mod, 2),
 	attributes:del_all_module_atts(Var, AttTerm).
 
-/** @pred del_attrs(+ _Var_) 
+/** @pred del_attrs(+ _Var_)
 
 
 If  _Var_ is an attributed variable, delete <em>all</em> its
 attributes.  In all other cases, this predicate succeeds without
 side-effects.
 
- 
+
 */
 prolog:del_attrs(Var) :-
 	attributes:del_all_atts(Var).
@@ -223,13 +223,13 @@ prolog:del_attrs(Var) :-
 prolog:get_attrs(AttVar, SWIAtts) :-
 	attributes:get_all_swi_atts(AttVar,SWIAtts).
 
-/** @pred put_attrs(+ _Var_,+ _Attributes_) 
+/** @pred put_attrs(+ _Var_,+ _Attributes_)
 
 
 Set all attributes of  _Var_.  See get_attrs/2 for a description of
  _Attributes_.
 
- 
+
 */
 prolog:put_attrs(_, []).
 prolog:put_attrs(V, Atts) :-
@@ -241,7 +241,7 @@ cvt_to_swi_atts(att(Mod,Attribute,Atts), ModAttribute) :-
 	ModAttribute =.. [Mod, YapAtts, Attribute],
 	cvt_to_swi_atts(Atts, YapAtts).
 
-/** @pred copy_term(? _TI_,- _TF_,- _Goals_) 
+/** @pred copy_term(? _TI_,- _TF_,- _Goals_)
 
 Term  _TF_ is a variant of the original term  _TI_, such that for
 each variable  _V_ in the term  _TI_ there is a new variable  _V'_
@@ -255,7 +255,7 @@ Before the actual copying, `copy_term/3` calls
 `attribute_goals/1` in the module where the attribute is
 defined.
 
- 
+
 */
 prolog:copy_term(Term, Copy, Gs) :-
 	term_attvars(Term, Vs),
@@ -306,7 +306,7 @@ prolog:'$wake_up_goal'([Module1|Continuation], LG) :-
 % in the first two cases restore register  immediately and proceed
 % to continuation. In the last case take care with modules, but do
 % not act as if a meta-call.
-% 
+%
 %
 do_continuation('$cut_by'(X), _) :- !,
 	'$$cut_by'(X).
@@ -385,7 +385,7 @@ lcall2([Goal|Goals], Mod) :-
 
 
 
-/** @pred call_residue_vars(: _G_, _L_) 
+/** @pred call_residue_vars(: _G_, _L_)
 
 
 
@@ -477,7 +477,7 @@ delete_attributes_([V|Vs]) :-
 
 
 
-/** @pred call_residue(: _G_, _L_) 
+/** @pred call_residue(: _G_, _L_)
 
 
 
@@ -502,9 +502,9 @@ dif(X,f(Z)) ? ;
 no
 ~~~~~
 The system only reports one invocation of dif/2 as having
-suspended. 
+suspended.
 
- 
+
 */
 prolog:call_residue(Goal,Residue) :-
 	var(Goal), !,
@@ -556,7 +556,7 @@ att_vars([_|LGs], AttVars) :-
 
 % make sure we set the suspended goal list to its previous state!
 % make sure we have installed a SICStus like constraint solver.
-/** @pred _Module_:project_attributes( _+QueryVars_,  _+AttrVars_) 
+/** @pred _Module_:project_attributes( _+QueryVars_,  _+AttrVars_)
 
 
 Given a list of variables  _QueryVars_ and list of attributed

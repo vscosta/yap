@@ -64,7 +64,8 @@
 /* turn on director wrapping Callback */
 %feature("director") YAPCallback;
 
-%include "yapi.hh"
+
+// %include "yapi.hh"
 
 %include "yapa.hh"
 

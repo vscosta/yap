@@ -15,8 +15,9 @@
 	   copy_line/2,
 	   filter/3,
 	   file_filter/3,
-           file_select/2,
-	   file_filter_with_initialization/5,
+       file_select/2,
+		file_filter_with_initialization/5,
+		file_filter_with_initialization/5 as file_filter_with_init,
 	   process/2
 	  ]).
 
@@ -26,7 +27,7 @@
 
 This package provides a set of useful predicates to manipulate
 sequences of characters codes, usually first read in as a line. It is
-available by loading the 
+available by loading the
 ~~~~
 :- use_module(library(lineutils)).
 ~~~~
@@ -47,7 +48,7 @@ available by loading the
 	      [read_line_to_codes/2]).
 
 /**
- @pred search_for(+ _Char_,+ _Line_) 
+ @pred search_for(+ _Char_,+ _Line_)
   Search for a character  _Char_ in the list of codes  _Line_.
 */
 search_for(C,L) :-
@@ -57,11 +58,11 @@ search_for(C) --> [C], !.
 search_for(C) --> [_],
 	search_for(C).
 
-/** @pred scan_integer(? _Int_,+ _Line_,+ _RestOfLine_) 
+/** @pred scan_integer(? _Int_,+ _Line_,+ _RestOfLine_)
 
 Scan the list of codes  _Line_ for an integer  _Nat_, either a
 positive, zero, or negative integer, and unify  _RestOfLine_ with
-the remainder of the line. 
+the remainder of the line.
 */
 scan_integer(N) -->
 	"-", !,
@@ -70,11 +71,11 @@ scan_integer(N) -->
 scan_integer(N) -->
 	scan_natural(0, N).
 
-/** @pred integer(? _Int_,+ _Line_,+ _RestOfLine_) 
+/** @pred integer(? _Int_,+ _Line_,+ _RestOfLine_)
 
 Scan the list of codes  _Line_ for an integer  _Nat_, either a
 positive, zero, or negative integer, and unify  _RestOfLine_ with
-the remainder of the line. 
+the remainder of the line.
 */
 integer(N) -->
 	"-", !,
@@ -83,7 +84,7 @@ integer(N) -->
 integer(N) -->
 	natural(0, N).
 
-/** @pred scan_natural(? _Nat_,+ _Line_,+ _RestOfLine_) 
+/** @pred scan_natural(? _Nat_,+ _Line_,+ _RestOfLine_)
 
 Scan the list of codes  _Line_ for a natural number  _Nat_, zero
 or a positive integer, and unify  _RestOfLine_ with the remainder
@@ -99,7 +100,7 @@ scan_natural(N0,N) -->
 	get_natural(N1,N).
 scan_natural(N,N) --> [].
 
-/** @pred natural(? _Nat_,+ _Line_,+ _RestOfLine_) 
+/** @pred natural(? _Nat_,+ _Line_,+ _RestOfLine_)
 
 Scan the list of codes  _Line_ for a natural number  _Nat_, zero
 or a positive integer, and unify  _RestOfLine_ with the remainder
@@ -115,7 +116,7 @@ natural(N0,N) -->
 	get_natural(N1,N).
 natural(N,N) --> [].
 
-/** @pred skip_whitespace(+ _Line_,+ _RestOfLine_) 
+/** @pred skip_whitespace(+ _Line_,+ _RestOfLine_)
 
 Scan the list of codes  _Line_ for white space,  namely for tabbing and space characters.
 */
@@ -128,7 +129,7 @@ skip_whitespace([0'	|Blanks]) -->
 skip_whitespace( [] ) -->
 	!.
 
-/** @pred blank(+ _Line_,+ _RestOfLine_) 
+/** @pred blank(+ _Line_,+ _RestOfLine_)
 
  The list of codes  _Line_ is formed by white space,  namely by tabbing and space characters.
 */
@@ -145,12 +146,12 @@ blank( [] ) -->
 /** @pred split(+ _Line_,- _Split_)
 
 Unify  _Words_ with a set of strings obtained from  _Line_ by
-using the blank characters  as separators. 
+using the blank characters  as separators.
 */
 split(String, Strings) :-
 	split_at_blank(" 	", Strings, String, []).
 
-/** @pred split(+ _Line_,+ _Separators_,- _Split_) 
+/** @pred split(+ _Line_,+ _Separators_,- _Split_)
 
 
 
@@ -165,7 +166,7 @@ S = ["Hello","I","am","free"] ?
 
 no
 ~~~~~
- 
+
 */
 split(String, SplitCodes, Strings) :-
 	split_at_blank(SplitCodes, Strings, String, []).
@@ -197,7 +198,7 @@ using the blank characters  as field separators.
 fields(String, Strings) :-
 	fields(" 	", Strings, String, []).
 
-/** @pred fields(+ _Line_,+ _Separators_,- _Split_) 
+/** @pred fields(+ _Line_,+ _Separators_,- _Split_)
 
 Unify  _Words_ with a set of strings obtained from  _Line_ by
 using the character codes in  _Separators_ as separators for
@@ -229,7 +230,7 @@ dofields(FieldsCodes, [C|New], Set) -->
 	dofields(FieldsCodes, New, Set).
 dofields(_, [], []) --> [].
 
-/** @pred glue(+ _Words_,+ _Separator_,- _Line_) 
+/** @pred glue(+ _Words_,+ _Separator_,- _Line_)
 
 Unify  _Line_ with  string obtained by glueing  _Words_ with
 the character code  _Separator_.
@@ -240,7 +241,7 @@ glue([H|T], [B|_], Merged) :-
 	append(H, [B|Rest], Merged),
 	glue(T, [B], Rest).
 
-/** @pred copy_line(+ _StreamInput_,+ _StreamOutput_) 
+/** @pred copy_line(+ _StreamInput_,+ _StreamOutput_)
 
 Copy a line from  _StreamInput_ to  _StreamOutput_.
 */
@@ -249,16 +250,16 @@ copy_line(StreamInp, StreamOut) :-
 	format(StreamOut, '~s~n', [Line]).
 
 
-/** @pred filter(+ _StreamInp_, + _StreamOut_, + _Goal_) 
+/** @pred filter(+ _StreamInp_, + _StreamOut_, + _Goal_)
 
 For every line  _LineIn_ in stream  _StreamInp_, execute
 `call(Goal,LineIn,LineOut)`, and output  _LineOut_ to
-stream  _StreamOut_. If `call(Goal,LineIn,LineOut)` fails, 
+stream  _StreamOut_. If `call(Goal,LineIn,LineOut)` fails,
 nothing will be output but execution continues with the next
 line. As an example, consider a procedure to select the second and
 fifth field of a CSV table :
 ~~~~~{.prolog}
-select(Sep, In, Out) :- 
+select(Sep, In, Out) :-
 	fields(In, Sep, [_,F2,_,_,F5|_]),
         fields(Out,Sep, [F2,F5]).
 
@@ -284,7 +285,7 @@ filter(StreamInp, StreamOut, Command) :-
 /** @pred process(+ _StreamInp_, + _Goal_) is meta
 
 For every line  _LineIn_ in stream  _StreamInp_, call
-`call(Goal,LineIn)`. 
+`call(Goal,LineIn)`.
 */
 process(StreamInp, Command) :-
 	repeat,
@@ -298,14 +299,14 @@ process(StreamInp, Command) :-
 	 fail
 	).
 
-/** 
+/**
   * @pred file_filter(+ _FileIn_, + _FileOut_, + _Goal_)  is meta
-  * 
+  *
   * @param _FileIn_  File to process
   * @param _FileOut_ Output file, often user_error
   * @param _Goal_ to be metacalled, receives FileIn and FileOut as
   * extra arguments
-  * 
+  *
   * @return succeeds
 
   For every line  _LineIn_ in file  _FileIn_, execute
@@ -337,13 +338,13 @@ file_filter_with_initialization(Inp, Out, Command, FormatString, Parameters) :-
 	close(StreamOut).
 
 
-/** 
+/**
   * @pred file_select(+ _FileIn_, + _Goal_)  is meta
-  * 
+  *
   * @param _FileIn_  File to process
   * @param _Goal_ to be metacalled, receives FileIn as
   * extra arguments
-  * 
+  *
   * @return  bindings to arguments of _Goal_.
 
   For every line  _LineIn_ in file  _FileIn_, execute

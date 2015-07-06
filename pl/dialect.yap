@@ -6,18 +6,25 @@
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
-prolog:'$expects_dialect'(yap) :- !,
+%	@pred expects_dialect(+Dialect)
+%
+%	True if YAP can enable support for a different Prolog dialect.
+%   Currently there is support for bprolog, hprolog and swi-prolog.
+%   Notice that this support may be incomplete.
+%
+%   The
+prolog:expects_dialect(yap) :- !,
 	eraseall('$dialect'),
 	recorda('$dialect',yap,_).
-prolog:'$expects_dialect'(Dialect) :-
-	check_dialect(Dialect), 
+prolog:expects_dialect(Dialect) :-
+	check_dialect(Dialect),
 	eraseall('$dialect'),
 	load_files(library(dialect/Dialect),[silent(true),if(not_loaded)]),
 	(   current_predicate(Dialect:setup_dialect/0)
 	->  Dialect:setup_dialect
 	;   true
 	),
-	recorda('$dialect',Dialect,_).		
+	recorda('$dialect',Dialect,_).
 
 check_dialect(Dialect) :-
 	var(Dialect),!,
@@ -84,4 +91,3 @@ open_source(File, In) :-
 exports(In, Exports) :-
 	read(In, Term),
 	Term = (:- module(_Name, Exports)).
-

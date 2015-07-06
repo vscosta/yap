@@ -62,4 +62,3 @@ gen_decl(Inp,Out) :-
 %gen_decl(Inp,Out) :-
 %	split(Inp," 	",["F",Name,Arity]), !,
 %	append(["  Functor_",Name,Arity," = Yap_MkFunctor(Atom_",Name,",",Arity,");"],Out).
-

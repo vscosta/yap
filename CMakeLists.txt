@@ -9,6 +9,7 @@ cmake_minimum_required(VERSION 3.0)
 # set path to additional CMake modules
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
+set(CMAKE_PREFIX_PATH ~/Qt/5.4/clang_64/ ${CMAKE_PREFIX_PATH})
 
 set(configurations Debug)
 
@@ -53,7 +54,7 @@ message(STATUS "Building YAP version ${YAP_VERSION}")
 #
 include(CheckIncludeFile)
 include(CheckIncludeFileCXX)
-INCLUDE (CheckIncludeFiles)
+include (CheckIncludeFiles)
 include(CheckLibraryExists)
 include(CheckSymbolExists)
 include(CheckFunctionExists)
@@ -72,7 +73,7 @@ include(GetGitRevisionDescription)
 # Test signal handler return type (mimics AC_TYPE_SIGNAL)
 include(TestSignalType) #check if this is really needed as c89 defines this as void
 
-# Test standard headers (mimics AC_HEADER_STDC)
+#                                   Test standard headers (mimics AC_HEADER_STDC)
 include(TestSTDC)
 
 set(bitness 32)
@@ -528,6 +529,7 @@ configure_file ("${PROJECT_SOURCE_DIR}/YapTermConfig.h.cmake"
   "${PROJECT_BINARY_DIR}/YapTermConfig.h" )
  configure_file("${PROJECT_SOURCE_DIR}/GitSHA1.c.in" "${PROJECT_BINARY_DIR}/GitSHA1.c" @ONLY)
 
+ ADD_SUBDIRECTORY(console/terminal)
 
 
 install (

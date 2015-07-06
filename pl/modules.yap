@@ -1,3 +1,4 @@
+
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -158,7 +159,7 @@ not at all defined.
         '$do_import'/3,
         '$extend_exports'/3,
         '$get_undefined_pred'/4,
-        '$imported_pred'/4,
+        '$imported_predicate'/4,
         '$meta_expansion'/6,
         '$meta_predicate'/2,
         '$meta_predicate'/4,
@@ -666,7 +667,15 @@ source_module(Mod) :-
 '$expand_modules'((A;B),(A1;B1),(AO;BO),HM,BM,SM,HVars) :- var(A), !,
 	'$expand_modules'(A,A1,AO,HM,BM,SM,HVars),
 	'$expand_modules'(B,B1,BO,HM,BM,SM,HVars).
-'$expand_modules'((A*->B;C),(A1*->B1;C1),(yap_hacks:current_choicepoint(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),HM,BM,SM,HVars) :- !,
+'$expand_modules'((A*->B;C),(A1*->B1;C1),
+        (
+          yap_hacks:current_choicepoint(DCP),
+          AO,
+          yap_hacks:cut_at(DCP),BO
+          ;
+          CO
+        ),
+        HM,BM,SM,HVars) :- !,
 	'$expand_modules'(A,A1,AOO,HM,BM,SM,HVars),
 	'$clean_cuts'(AOO, AO),
 	'$expand_modules'(B,B1,BO,HM,BM,SM,HVars),
@@ -724,18 +733,29 @@ source_module(Mod) :-
 '$expand_modules'(false,false,false,_,_,_,_) :- !.
 % if I don't know what the module is, I cannot do anything to the goal,
 % so I just put a call for later on.
-'$expand_modules'(M:G,call(M:G),'$execute_wo_mod'(G,M),_,_,_,_) :- var(M), !.
+'$expand_modules'(M:G,call(M:G),
+            '$execute_wo_mod'(G,M),_,_,_,_) :- var(M), !.
 '$expand_modules'(M:G,G1,GO,HM,_M,_SM,HVars) :- !,
 	'$expand_modules'(G,G1,GO,HM,M,M,HVars).
 '$expand_modules'(G, G1, GO, HM, BM, SM, HVars) :-
+    '$expand_goal_modules'(G, G1, GO, HM, BM, SM, HVars).
 	% is this imported from some other module M1?
-	'$imported_pred'(G, BM, GG, M1),
+
+'$expand_goal_modules'(G, G1, GO, HM, BM, SM, HVars) :-
+    '$pred_exists'(G, BM), !,
+    '$expand_goal_meta'(G, G1, GO, HM, BM, SM, HVars).
+'$expand_goal_modules'(G, G1, GO, HM, BM, SM, HVars) :-
+	'$imported_predicate'(G, BM, GG, M1),
 	!,
-	'$expand_modules'(GG, G1, GO, HM, M1, SM, HVars).
-'$expand_modules'(G, G1, GO, HM, BM, SM, HVars) :-
+	'$expand_goal_meta'(GG, G1, GO, HM, M1, SM, HVars).
+% we assume that if it is not defined here, it must be elsewhere.
+'$expand_goal_modules'(G, G1, GO, HM, BM, SM, HVars) :-
+    '$expand_goal_meta'(G, G1, GO, HM, BM, SM, HVars).
+
+'$expand_goal_meta'(G, G1, GO, HM, BM, SM, HVars) :-
 	'$meta_expansion'(G, HM, BM, SM, GI, HVars), !,
 	'$complete_goal_expansion'(GI, HM, BM, SM, G1, GO, HVars).
-'$expand_modules'(G, G1, GO, HM, BM, SM, HVars) :-
+'$expand_goal_meta'(G, G1, GO, HM, BM, SM, HVars) :-
 	'$complete_goal_expansion'(G, HM, BM, SM, G1, GO, HVars).
 
 expand_goal(G, G) :-
@@ -823,7 +843,7 @@ expand_goal(G, G).
 
 
 % be careful here not to generate an undefined exception.
-'$imported_pred'(G, ImportingMod, G0, ExportingMod) :-
+'$imported_predicate'(G, ImportingMod, G0, ExportingMod) :-
 	'$enter_undefp',
 	( var(G) -> true ;
       var(ImportingMod) -> true ;
@@ -832,7 +852,7 @@ expand_goal(G, G).
 	'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod),
 	ExportingMod \= ImportingMod, !,
 	'$exit_undefp'.
-'$imported_pred'(_G, _ImportingMod, _, _) :-
+'$imported_predicate'(_G, _ImportingMod, _, _) :-
 	'$exit_undefp',
 	fail.
 
@@ -847,25 +867,27 @@ expand_goal(G, G).
 '$get_undefined_pred'(G, _ImportingMod, G, user) :-
 	nonvar(G),
 	'$pred_exists'(G, user), !.
-'$get_undefined_pred'(G, _ImportingMod, G0, ExportingMod) :-
-        recorded('$dialect',Dialect,_),
-        Dialect \= yap,
-        functor(G, Name, Arity),
-        call(Dialect:index(Name,Arity,ExportingModI,_)), !,
-        '$continue_imported'(ExportingMod, ExportingModI, G0, G).
-% autoload
 '$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
-	yap_flag(autoload, V),
-	V = true,
-	functor(G, N, K),
-	functor(G0, N, K),
-	'$autoloader_find_predicate'(G0,ExportingMod),
-	ExportingMod \= ImportingMod,
-	(recordzifnot('$import','$import'(ExportingMod,ImportingMod,G0,G0, N  ,K),_) -> true ; true ).
+    recorded('$dialect',swi,_),
+    get_prolog_flag(autoload, true),
+    '$autoload'(G, ImportingMod, ExportingModI, swi),
+    '$continue_imported'(ExportingMod, ExportingModI, G0, G).
+% autoload
+
 % parent module mechanism
 '$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
 	prolog:'$parent_module'(ImportingMod,ExportingModI),
 	'$continue_imported'(ExportingMod, ExportingModI, G0, G).
+
+'$autoload'(G, _ImportingMod, ExportingMod, Dialect) :-
+    functor(G, Name, Arity),
+    call(Dialect:index(Name,Arity,ExportingMod,_)), !.
+'$autoload'(G, ImportingMod, ExportingMod, _Dialect) :-
+    functor(G, N, K),
+	functor(G0, N, K),
+	'$autoloader_find_predicate'(G0,ExportingMod),
+	ExportingMod \= ImportingMod,
+    (recordzifnot('$import','$import'(ExportingMod,ImportingMod,G0,G0, N  ,K),_) -> true ; true ).
 
 
 '$autoloader_find_predicate'(G,ExportingModI) :-
@@ -1397,7 +1419,7 @@ export_list(Module, List) :-
 '$do_import'(op(Prio,Assoc,Name), _Mod, ContextMod) :-
 	op(Prio,Assoc,ContextMod:Name).
 '$do_import'(N0/K0-N0/K0, Mod, Mod) :- !.
-'$do_import'(N0/K0-N0/K0, Mod, prolog) :- !.
+'$do_import'(N0/K0-N0/K0, _Mod, prolog) :- !.
 '$do_import'(_N/K-N1/K, _Mod, ContextMod) :-
        recorded('$module','$module'(_F, ContextMod, _SourceF, MyExports,_),_),
        once(lists:member(N1/K, MyExports)),

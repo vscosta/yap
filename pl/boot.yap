@@ -15,13 +15,13 @@
 *									 *
 *************************************************************************/
 
-%% @{  
+%% @{
 
 /**
 
 @defgroup YAPControl Control Predicates
 @ingroup builtins
-  
+
 */
 
 
@@ -351,7 +351,7 @@ true :- true.
     ('$exit_undefp' -> true ; true),
     prompt1(' ?- '),
     set_prolog_flag(debug, false),
-	% simple trick to find out if this is we are booting from Prolog.
+% simple trick to find out if this is we are booting from Prolog.
 	% boot from a saved state
 	(
 	  '$undefined'('$init_preds',prolog)
@@ -442,7 +442,7 @@ true :- true.
 	prompt(_,'|: '),
 	'$system_catch'(read_term(user_input,
 				  Goal,
-				  [variable_names(Bindings)]),
+				  [variable_names(Bindings), syntax_errors(dec10)]),
 			prolog, E, '$handle_toplevel_error'( E) ).
 
 '$handle_toplevel_error'( syntax_error(_)) :-
@@ -454,7 +454,7 @@ true :- true.
 	throw(E).
 
 
-/** @pred  stream_property( _Stream_, _Prop_) 
+/** @pred  stream_property( _Stream_, _Prop_)
 
 */
 
@@ -1123,10 +1123,6 @@ incore(G) :- '$execute'(G).
 	'$creep'.
 '$enable_debugging'.
 
-'$disable_debugging' :-
-	'$stop_creeping'.
-
-
 /** @pred   :_P_ , :_Q_   is iso, meta
 Conjunction of goals (and).
 
@@ -1365,9 +1361,13 @@ bootstrap(F) :-
 			 user:'$LoopError'(Error, Status)),
 	!.
 
-'$enter_command'(Stream,Mod,Status) :-
-	read_term(Stream, Command, [variable_names(Vars), term_position(Pos), syntax_errors(dec10) ]),
-	'$command'(Command,Vars,Pos,Status).
+    '$enter_command'(Stream,Mod,top) :- !,
+    writeln(top),
+    	read_term(Stream, Command, [module(Mod), syntax_errors(dec10),variable_names(Vars), term_position(Pos)]),
+    	'$command'(Command,Vars,Pos,Status).
+        '$enter_command'(Stream,Mod,Status) :-
+        	read_clause(Stream, Command, [variable_names(Vars), term_position(Pos)]),
+        	'$command'(Command,Vars,Pos,Status).
 
 '$abort_loop'(Stream) :-
 	'$do_error'(permission_error(input,closed_stream,Stream), loop).
@@ -1421,8 +1421,7 @@ bootstrap(F) :-
 This predicate is used by YAP for preprocessing each top level
 term read when consulting a file and before asserting or executing it.
 It rewrites a term  _T_ to a term  _X_ according to the following
-rules: first try term_expansion/2  in the current module, and then try to use the user defined predicate
-`user:term_expansion/2`. If this call fails then the translating process
+rules: first try term_expansion/2  in the current module, and then try to use the user defined predicate user:term_expansion/2`. If this call fails then the translating process
 for DCG rules is applied, together with the arithmetic optimizer
 whenever the compilation of arithmetic expressions is in progress.
 
@@ -1568,4 +1567,3 @@ log_event( String, Args ) :-
 /**
   @}
 */
-
