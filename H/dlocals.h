@@ -19,6 +19,8 @@
 #define REMOTE_c_error_stream(wid) REMOTE(wid)->c_error_stream_
 #define LOCAL_sockets_io LOCAL->sockets_io_
 #define REMOTE_sockets_io(wid) REMOTE(wid)->sockets_io_
+#define LOCAL_within_print_message LOCAL->within_print_message_
+#define REMOTE_within_print_message(wid) REMOTE(wid)->within_print_message_
 
 
 

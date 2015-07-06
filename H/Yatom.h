@@ -427,12 +427,17 @@ IsModProperty (int flags)
 #define DBLQ_CHARS              (0x0004) /* "ab" --> ['a', 'b'] */
 #define DBLQ_ATOM               (0x0008) /* "ab" --> 'ab' */
 #define DBLQ_STRING             (0x0010) /* "ab" --> "ab" */
+#define DBLQ_CODES              (0x0020) /* "ab" --> [0'a, 0'b] */
 #define DBLQ_MASK               (DBLQ_CHARS|DBLQ_ATOM|DBLQ_STRING|DBLQ_CODES)
-#define UNKNOWN_FAIL            (0x0020) /* module */
-#define UNKNOWN_WARNING         (0x0040) /* module */
-#define UNKNOWN_ERROR           (0x0080) /* module */
+#define BCKQ_CHARS              (0x0040) /* `ab` --> ['a', 'b'] */
+#define BCKQ_ATOM               (0x0080) /* `ab` --> 'ab' */
+#define BCKQ_STRING             (0x0100) /* `ab` --> "ab" */
+#define BCKQ_CODES              (0x0200) /* `ab` --> [0'a, 0'b] */
+#define BCKQ_MASK               (BCKQ_CHARS|BCKQ_ATOM|BCKQ_STRING|BCKQ_CODES)
+#define UNKNOWN_FAIL            (0x0400) /* module */
+#define UNKNOWN_WARNING         (0x0800) /* module */
+#define UNKNOWN_ERROR           (0x1000) /* module */
 #define UNKNOWN_MASK            (UNKNOWN_ERROR|UNKNOWN_WARNING|UNKNOWN_FAIL)
-#define DBLQ_CODES              (0x0008) /* "ab" --> [0'a, 0'b] */
 
 Term  Yap_getUnknownModule(ModEntry *m);
  void  Yap_setModuleFlags(ModEntry *n, ModEntry *o);

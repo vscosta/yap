@@ -672,6 +672,8 @@
 #define AtomSymbolChar Yap_heap_regs->AtomSymbolChar_
   Atom AtomSyntaxError_;
 #define AtomSyntaxError Yap_heap_regs->AtomSyntaxError_
+  Atom AtomSyntaxErrors_;
+#define AtomSyntaxErrors Yap_heap_regs->AtomSyntaxErrors_
   Atom AtomSyntaxErrorHandler_;
 #define AtomSyntaxErrorHandler Yap_heap_regs->AtomSyntaxErrorHandler_
   Atom AtomSystem_;

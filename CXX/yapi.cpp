@@ -327,9 +327,15 @@ YAPTerm *YAPTerm::vars()
 }
  */
 
-YAPTerm::YAPTerm(void *ptr) { CACHE_REGS mk( MkIntegerTerm( (Int)ptr )  );}
+YAPTerm::YAPTerm(void *ptr) {
+  CACHE_REGS
+      mk( MkIntegerTerm( (Int)ptr )  );
+}
 
-YAPTerm::YAPTerm(intptr_t i) { CACHE_REGS Term tn = MkIntegerTerm( i ); mk( tn ); }
+YAPTerm::YAPTerm(intptr_t i) {
+  CACHE_REGS Term tn = MkIntegerTerm( i );
+  mk( tn );
+}
 
 YAPTerm YAPListTerm::car()
 {
@@ -338,10 +344,13 @@ YAPTerm YAPListTerm::car()
   if (IsPairTerm(to))
     return YAPTerm(HeadOfTerm(to));
   else
-    throw YAPError::YAP_DOMAIN_ERROR;
+    throw YAPError(TYPE_ERROR_LIST);
 }
 
-YAPVarTerm::YAPVarTerm() { CACHE_REGS mk( MkVarTerm( ) ); }
+YAPVarTerm::YAPVarTerm() {
+  CACHE_REGS
+      mk( MkVarTerm( ) );
+}
 
 
 char *YAPAtom::getName(void) {
@@ -380,6 +389,19 @@ void YAPQuery::initOpenQ() {
     q_p = P;
     q_cp = CP;
 }
+
+int
+YAPError::get( )
+{
+  return errNo;
+}
+
+const char *
+YAPError::text()
+{
+    return "YAP Error";
+}
+
 
 void
 YAPQuery::initQuery( Term t )
@@ -590,11 +612,12 @@ YAPEngine::YAPEngine( char *savedState,
   init_args.YapPrologTopLevelGoal = topLevel;
   init_args.HaltAfterConsult = script;
   init_args.FastBoot = fastBoot;
+  yerror = YAPError();
   delYAPCallback();
   if (cb) setYAPCallback(cb);
   curren = this;
   if (YAP_Init( &init_args ) == YAP_BOOT_ERROR)
-    throw(YAPError::YAP_OTHER_ERROR);
+    throw(YAPError(INTERNAL_ERROR));
 }
 
 
@@ -619,7 +642,7 @@ PredEntry  *YAPPredicate::getPred( Term &t, Term* &outp ) {
     Term m = Yap_CurrentModule() ;
   t = Yap_StripModule(t, &m);
   if (IsVarTerm(t) || IsNumTerm(t)) {
-    throw YAPError::YAP_TYPE_ERROR;
+    throw YAPError(TYPE_ERROR_NUMBER);
   }
   if (IsAtomTerm(t)) {
     ap = RepPredProp(PredPropByAtom(AtomOfTerm(t), m));
@@ -633,7 +656,7 @@ PredEntry  *YAPPredicate::getPred( Term &t, Term* &outp ) {
   }
   Functor f = FunctorOfTerm(t);
   if (IsExtensionFunctor(f)) {
-    throw YAPError::YAP_TYPE_ERROR;
+    throw YAPError(TYPE_ERROR_NUMBER);
   } else {
       ap = RepPredProp(PredPropByFunc(f, m));
       outp = RepAppl(t)+1;

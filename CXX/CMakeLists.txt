@@ -1,5 +1,13 @@
 
-add_library (Yap++ SHARED yapi.cpp)
+add_library (Yap++ SHARED
+    yapa.hh
+    yapdb.hh
+    yapi.cpp
+    yapi.hh
+    yapie.hh
+    yapq.hh
+    yapt.hh
+    )
 
 include_directories (H include ${CMAKE_BINARY_DIR} ${GMP_INCLUDE_DIR})
 

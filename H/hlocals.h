@@ -12,6 +12,7 @@ typedef struct worker_local {
   int  c_output_stream_;
   int  c_error_stream_;
   bool  sockets_io_;
+  bool  within_print_message_;
 
 
 

@@ -230,7 +230,7 @@ public:
     else if ( to == TermNil)
       return YAPListTerm(  );
     /* error */
-    throw YAPError::YAP_TYPE_ERROR;
+    throw YAPError(TYPE_ERROR_LIST);
   }
 
   /// Check if the list is empty.

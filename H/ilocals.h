@@ -12,6 +12,7 @@ static void InitWorker(int wid) {
   REMOTE_c_output_stream(wid) = 1;
   REMOTE_c_error_stream(wid) = 2;
   REMOTE_sockets_io(wid) = false;
+  REMOTE_within_print_message(wid) = false;
 
 
 

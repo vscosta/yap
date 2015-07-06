@@ -337,6 +337,7 @@
   AtomSwi = AtomAdjust(AtomSwi);
   AtomSymbolChar = AtomAdjust(AtomSymbolChar);
   AtomSyntaxError = AtomAdjust(AtomSyntaxError);
+  AtomSyntaxErrors = AtomAdjust(AtomSyntaxErrors);
   AtomSyntaxErrorHandler = AtomAdjust(AtomSyntaxErrorHandler);
   AtomSystem = AtomAdjust(AtomSystem);
   AtomSystemError = AtomAdjust(AtomSystemError);

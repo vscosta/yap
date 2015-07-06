@@ -337,6 +337,7 @@
   AtomSwi = Yap_LookupAtom("swi");
   AtomSymbolChar = Yap_LookupAtom("symbol_char");
   AtomSyntaxError = Yap_LookupAtom("syntax_error");
+  AtomSyntaxErrors = Yap_LookupAtom("syntax_errors");
   AtomSyntaxErrorHandler = Yap_LookupAtom("syntax_error_handler");
   AtomSystem = Yap_LookupAtom("system");
   AtomSystemError = Yap_LookupAtom("system_error");

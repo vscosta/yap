@@ -66,16 +66,16 @@ extern "C" {
 
 // taken from yap_structs.h
 #include "iopreds.h"
-    
+
     extern void YAP_UserCPredicate(const char *, YAP_UserCPred, YAP_Arity arity);
-    
+
     /*  void UserCPredicateWithArgs(const char *name, int *fn(), unsigned int arity) */
     extern void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, YAP_Arity, YAP_Term);
-    
+
     /*  void UserBackCPredicate(const char *name, int *init(), int *cont(), int
      arity, int extra) */
     extern void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred, YAP_Arity, unsigned int);
-    
+
     extern Term Yap_StringToTerm(const char *s, size_t len, encoding_t enc, int prio, Term *bindings_p);
 
 

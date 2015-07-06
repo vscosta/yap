@@ -168,6 +168,7 @@ Yap_PrintPredName( struct pred_entry  *ap );
 void	Yap_RestartYap(int);
 void	Yap_exit(int);
 bool    Yap_Warning( const char *s, ... );
+bool    Yap_PrintWarning( Term t );
 yamop  *Yap_Error(yap_error_number,Term,const char *msg, ...);
 yamop  *Yap_NilError(yap_error_number,const char *msg, ...);
 int     Yap_HandleError( const char *msg, ... );
@@ -191,6 +192,8 @@ void	Yap_PrepGoal(UInt, CELL *, choiceptr USES_REGS);
 int     Yap_execute_pred(struct pred_entry  *ppe, CELL *pt, bool pass_exception USES_REGS);
 int     Yap_dogc( int extra_args, Term *tp USES_REGS );
 Term    Yap_PredicateIndicator(Term t, Term mod);
+bool    Yap_Execute(Term t USES_REGS);
+
 /* exo.c */
 void	Yap_InitExoPreds(void);
 void    Yap_udi_Interval_init(void);

@@ -14,6 +14,9 @@
 
 #define NO_DYN 1
 
+#ifndef FOREIGN_H
+#define FOREIGN_H
+
 /* Currently load_foreign_files works for the following machines:
 
    AIX: should work for 3.2 and 4.1 at least, using ECOFF;
@@ -110,3 +113,5 @@ void	Yap_ShutdownLoadForeign(void);
 
 #define EAGER_LOADING  1
 #define GLOBAL_LOADING 2
+
+#endif

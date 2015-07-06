@@ -100,7 +100,7 @@ public:
             bool script = FALSE,
             bool fastBoot = FALSE,
             YAPCallback *callback=(YAPCallback *)NULL);  /// construct a new engine, including aaccess to callbacks
-  /// kill engine
+      /// kill engine
   ~YAPEngine() { delYAPCallback(); }
   /// remove current callback
   void delYAPCallback() { _callback = 0; }
@@ -111,7 +111,7 @@ public:
   /// execute the callback with a text argument.
   void run( char *s) {  if (_callback) _callback->run(s); }
   /// execute the callback with a text argument.
-  YAPError hasError( ) {  return yerror; }
+  YAPError hasError( ) {  return yerror.get(); }
   /// build a query on the engine
   YAPQuery *query( const char *s ) {
     return new YAPQuery( s );

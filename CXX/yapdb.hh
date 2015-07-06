@@ -128,7 +128,7 @@ protected:
   //  Yap_DebugPlWrite(out);
       //  delete [] ns;
 if (out == 0L)
-      throw YAPError::YAP_SYNTAX_ERROR;
+      throw YAPError(SYNTAX_ERROR);
     ap = getPred( out, outp);
     RECOVER_MACHINE_REGS();
   }

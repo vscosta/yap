@@ -15,6 +15,9 @@
 *									 *
 *************************************************************************/
 
+#ifndef CLAUSE_H
+#define CLAUSE_H 1
+
 #include "Yatom.h"
 #include "YapHeap.h"
 
@@ -452,4 +455,6 @@ void	Yap_InformOfRemoval(void *);
 void	Yap_dump_code_area_for_profiler(void);
 #else
 #define	Yap_InformOfRemoval(X)
+#endif
+
 #endif

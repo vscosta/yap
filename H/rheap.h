@@ -1628,6 +1628,7 @@ RestoreEntries(PropEntry *pp, int int_key USES_REGS)
   }
 }
 
+
 static void
 RestoreAtom(AtomEntry *at USES_REGS)
 {
