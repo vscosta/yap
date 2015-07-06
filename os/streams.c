@@ -581,7 +581,7 @@ do_stream_property (int sno, Term opts USES_REGS)
 	break;
       case STREAM_PROPERTY_POSITION:
 	rc = rc && 
-	  stream_position  ( sno, args[STREAM_PROPERTY_MODE].tvalue   PASS_REGS);
+	  stream_position  ( sno, args[STREAM_PROPERTY_POSITION].tvalue   PASS_REGS);
 	break;
       case STREAM_PROPERTY_REPOSITION:
 	rc = rc && 
@@ -628,8 +628,10 @@ cont_stream_property (USES_REGS1)
     EXTRA_CBACK_ARG (2, 1) = MkIntTerm (i);
     if (i == MaxStreams)
       do_cut( true );
-    Yap_unify(ARG1, Yap_MkStream(i-1));
-    return do_stream_property(i-1, Deref(ARG2) PASS_REGS);
+    if ( do_stream_property(i-1, Deref(ARG2) PASS_REGS) ) {
+      Yap_unify(ARG1, Yap_MkStream(i-1));
+      return true;
+    }
   }
   UNLOCK(GLOBAL_Stream[i0].streamlock);
   cut_fail();
@@ -1018,17 +1020,7 @@ p_user_file_name ( USES_REGS1 )
   int sno = Yap_CheckStream (ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f,"user_file_name/2");
   if (sno < 0)
     return (FALSE);
-#if HAVE_SOCKET
-  if (GLOBAL_Stream[sno].status & Socket_Stream_f)
-    tout = MkAtomTerm(AtomSocket);
-  else
-#endif
-  if (GLOBAL_Stream[sno].status & Pipe_Stream_f)
-    tout = MkAtomTerm(AtomPipe);
-  else if (GLOBAL_Stream[sno].status & InMemory_Stream_f)
-    tout = MkAtomTerm(AtomCharsio);
-  else
-    tout = GLOBAL_Stream[sno].user_name;
+  tout = Yap_StreamUserName(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (Yap_unify_constant (ARG2, tout));
 }

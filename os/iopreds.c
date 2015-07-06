@@ -258,6 +258,17 @@ InitStdStream (int sno, SMALLUNSGN flags, FILE * file)
 
 }
 
+Term Yap_StreamUserName(int sno)
+{
+      Term atname;
+    StreamDesc *s = &GLOBAL_Stream[sno];
+    if (s->user_name != 0L) {
+      return (s->user_name);
+    }
+    if ((atname = StreamName(sno)))
+    return atname;
+    return 0;
+}
 
 static void
 InitStdStreams (void)
@@ -287,7 +298,7 @@ Yap_InitStdStreams (void)
 }
 
 Int
-PlIOError (yap_error_number type, Term culprit, char *who, ...)
+PlIOError (yap_error_number type, Term culprit, const char *who, ...)
 {
   if (trueLocalPrologFlag(FILEERRORS_FLAG) == MkIntTerm(1) ||
       type == RESOURCE_ERROR_MAX_STREAMS /* do not catch resource errors */) {
@@ -521,8 +532,7 @@ int
 console_post_process_eof(StreamDesc *s)
 {
   CACHE_REGS
-    s->status |= Eof_Stream_f;
-  s->stream_getc = EOFGetc;
+   s->stream_getc = EOFGetc;
   s->stream_wgetc = get_wchar;
   if (GLOBAL_CharConversionTable != NULL)
     s->stream_wgetc_for_read = ISOWGetc;
@@ -1366,9 +1376,8 @@ binary_file(char *file_name)
 
   
   static Int
-    open4 (  USES_REGS1 )
+    do_open (  Term file_name, Term t2, Term tlist USES_REGS )
   {				/* '$open'(+File,+Mode,?Stream,-ReturnCode)      */
-    Term file_name,  t2, tenc;
     Atom open_mode;
     int sno;
     SMALLUNSGN s;
@@ -1377,11 +1386,10 @@ binary_file(char *file_name)
     bool  avoid_bom = false, needs_bom = true, bin = false;
     char *fname;
     stream_flags_t flags;
-    Term tlist;
     FILE *fd;
     encoding_t encoding;
+    Term tenc;
 
-    file_name = Deref(ARG1);
     // original file name
     if (IsVarTerm (file_name)) {
       Yap_Error(INSTANTIATION_ERROR,file_name, "open/3");
@@ -1398,7 +1406,6 @@ binary_file(char *file_name)
       fname =    RepAtom (AtomOfTerm (file_name))->StrOfAE;
     }
     // open mode
-    t2 = Deref (ARG2);
     if (IsVarTerm (t2)) {
       Yap_Error(INSTANTIATION_ERROR,t2, "open/3");
       return FALSE;
@@ -1428,7 +1435,7 @@ binary_file(char *file_name)
       return(FALSE);   
     }
     /* get options */
-    xarg *args = Yap_ArgListToVector ( (tlist = Deref(ARG4) ), open_defs, OPEN_END  );
+    xarg *args = Yap_ArgListToVector ( tlist, open_defs, OPEN_END  );
     if (args == NULL)
       return FALSE;
     /* done */
@@ -1559,12 +1566,17 @@ binary_file(char *file_name)
     }
   }
 
-  static Int
-    open3 (  USES_REGS1 )
-  {				/* '$open'(+File,+Mode,?Stream,-ReturnCode)      */
-    ARG4 = TermNil;
-    return open4( PASS_REGS1 );
-  }
+static Int
+open3 (  USES_REGS1 )
+{				/* '$open'(+File,+Mode,?Stream,-ReturnCode)      */
+  return do_open(Deref(ARG1), Deref(ARG2), TermNil  PASS_REGS );
+}
+
+static Int
+open4 (  USES_REGS1 )
+{				/* '$open'(+File,+Mode,?Stream,-ReturnCode)      */
+  return do_open(Deref(ARG1), Deref(ARG2), Deref( ARG4 ) PASS_REGS );
+}
 
   static Int
     p_file_expansion (USES_REGS1)
@@ -1666,7 +1678,7 @@ Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
     } else if (IsApplTerm (arg) && FunctorOfTerm (arg) == FunctorStream) {
       arg = ArgOfTerm (1, arg);
       if (!IsVarTerm (arg) && IsIntegerTerm (arg)) {
-	sno = IntegerOfTerm(arg);
+        sno = IntegerOfTerm(arg);
       }
     }
     if (sno < 0)
@@ -1678,19 +1690,18 @@ Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
     if (GLOBAL_Stream[sno].status & Free_Stream_f)
       {
 	UNLOCK(GLOBAL_Stream[sno].streamlock);
-	Yap_Error(EXISTENCE_ERROR_STREAM, arg, msg);
+	PlIOError(EXISTENCE_ERROR_STREAM, arg, msg);
 	return (-1);
       }
     if ((GLOBAL_Stream[sno].status & kind) == 0)
       {
 	UNLOCK(GLOBAL_Stream[sno].streamlock);
 	if (kind & Input_Stream_f)
-	  Yap_Error(PERMISSION_ERROR_INPUT_STREAM, arg, msg);
+	  PlIOError(PERMISSION_ERROR_INPUT_STREAM, arg, msg);
 	else
-	  Yap_Error(PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
+	  PlIOError(PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
 	return (-1);
       }
-      jmp_deb(1);
     return (sno);
   }
 
@@ -1819,8 +1830,8 @@ Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
     Yap_InitCPred ("always_prompt_user", 0, always_prompt_user, SafePredFlag|SyncPredFlag);
     Yap_InitCPred ("close", 1, close1, SafePredFlag|SyncPredFlag);
     Yap_InitCPred ("close", 2, close2, SafePredFlag|SyncPredFlag);
-    Yap_InitCPred ("open", 4, open4, SafePredFlag|SyncPredFlag);
-    Yap_InitCPred ("open", 3, open3, SafePredFlag|SyncPredFlag);
+    Yap_InitCPred ("open", 4, open4, SyncPredFlag);
+    Yap_InitCPred ("open", 3, open3, SyncPredFlag);
     Yap_InitCPred ("$file_expansion", 2, p_file_expansion, SafePredFlag|SyncPredFlag|HiddenPredFlag);
     Yap_InitCPred ("$open_null_stream", 1, p_open_null_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag);
     Yap_InitIOStreams();

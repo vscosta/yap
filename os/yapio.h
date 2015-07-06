@@ -157,7 +157,7 @@ typedef enum mem_buf_source {
 } memBufSource;
 
 struct mem_desc *Yap_MemExportStreamPtrs( int sno );
-  
+
 extern Term Yap_StringToTerm(const char *s, size_t len, encoding_t enc, int prio, Term *bindings_p);
 extern Term  Yap_StringToNumberTerm(char *s, encoding_t encp);
 int Yap_FormatFloat(Float f, const char *s, size_t sz);
@@ -214,4 +214,3 @@ WideHashFunction(wchar_t *CHP)
 }
 
 #endif
-

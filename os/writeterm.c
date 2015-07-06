@@ -290,6 +290,7 @@ write_term ( int output_stream, Term t, xarg *args USES_REGS )
     prio = 1200;
   }
   Yap_plwrite( t, GLOBAL_Stream+output_stream, depth, flags, prio);
+  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   rc = true;
 
   end:
@@ -313,7 +314,9 @@ write_term2 ( USES_REGS1 )
     return false;
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1) output_stream = 1;
+  LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term( output_stream, ARG2, args PASS_REGS);
+  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
   if (EX != 0L) {
     Term ball = Yap_PopTermFromDB(EX);
@@ -333,10 +336,11 @@ write_term3 ( USES_REGS1 )
      we cannot make recursive Prolog calls */
   yhandle_t mySlots = Yap_StartSlots();
   xarg *args = Yap_ArgListToVector ( ARG3, write_defs, WRITE_END  );
-  int output_stream = Yap_CheckStream (ARG1, Output_Stream_f, "write/2");
   if (args == NULL)
     return false;
+  int output_stream = Yap_CheckStream (ARG1, Output_Stream_f, "write/2");
   write_term( output_stream, ARG2, args PASS_REGS);
+  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
   if (EX != 0L) {
     Term ball = Yap_PopTermFromDB(EX);
@@ -357,10 +361,11 @@ write2 ( USES_REGS1 )
   yhandle_t mySlots = Yap_StartSlots();
  
   xarg *args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
-  int output_stream = Yap_CheckStream (ARG1, Output_Stream_f, "write/2");
   if (args == NULL)
     return false;
+  int output_stream = Yap_CheckStream (ARG1, Output_Stream_f, "write/2");
   write_term( output_stream, ARG2, args PASS_REGS);
+  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
   if (EX != 0L) {
     Term ball = Yap_PopTermFromDB(EX);
@@ -383,7 +388,9 @@ write1 ( USES_REGS1 )
   xarg * args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
   if (args == NULL)
     return false;
+  LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term( output_stream, ARG1, args PASS_REGS);
+  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
   if (EX != 0L) {
     Term ball = Yap_PopTermFromDB(EX);
@@ -410,7 +417,9 @@ write_canonical1 ( USES_REGS1 )
   args[WRITE_IGNORE_OPS].tvalue = TermTrue;
   args[WRITE_QUOTED].used = true;
   args[WRITE_QUOTED].tvalue = TermTrue;
+  LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term( output_stream, ARG1, args PASS_REGS);
+  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
   if (EX != 0L) {
     Term ball = Yap_PopTermFromDB(EX);
@@ -429,14 +438,15 @@ write_canonical ( USES_REGS1 )
      we cannot make recursive Prolog calls */
   yhandle_t mySlots = Yap_StartSlots();
   xarg * args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
-   int output_stream = Yap_CheckStream (ARG1, Output_Stream_f, "write/2");
- if (args == NULL)
+  if (args == NULL)
     return false;
+   int output_stream = Yap_CheckStream (ARG1, Output_Stream_f, "write/2");
   args[WRITE_IGNORE_OPS].used = true;
   args[WRITE_IGNORE_OPS].tvalue = TermTrue;
   args[WRITE_QUOTED].used = true;
   args[WRITE_QUOTED].tvalue = TermTrue;
   write_term( output_stream, ARG1, args PASS_REGS);
+  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
   if (EX != 0L) {
     Term ball = Yap_PopTermFromDB(EX);
@@ -462,7 +472,9 @@ writeq1 ( USES_REGS1 )
   args[WRITE_QUOTED].used = true;
   args[WRITE_QUOTED].tvalue = TermTrue;
   write_term( output_stream, ARG1, args PASS_REGS);
-  Yap_CloseSlots( mySlots );
+  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
+
+Yap_CloseSlots( mySlots );
   if (EX != 0L) {
     Term ball = Yap_PopTermFromDB(EX);
     EX = NULL;
@@ -481,14 +493,15 @@ writeq ( USES_REGS1 )
      we cannot make recursive Prolog calls */
   yhandle_t mySlots = Yap_StartSlots();
   xarg *args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
-  int output_stream = Yap_CheckStream (ARG1, Output_Stream_f, "write/2");
   if (args == NULL)
     return false;
+  int output_stream = Yap_CheckStream (ARG1, Output_Stream_f, "write/2");
    args[WRITE_NUMBERVARS].used = true;
    args[WRITE_NUMBERVARS].tvalue = TermTrue;
    args[WRITE_QUOTED].used = true;
    args[WRITE_QUOTED].tvalue = TermTrue;
   write_term( output_stream,  ARG2, args PASS_REGS);
+  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
   if (EX != 0L) {
     Term ball = Yap_PopTermFromDB(EX);
@@ -516,8 +529,10 @@ print1 ( USES_REGS1 )
    args[WRITE_PORTRAY].tvalue = TermTrue;
    args[WRITE_NUMBERVARS].used = true;
    args[WRITE_NUMBERVARS].tvalue = TermTrue;
+  LOCK(GLOBAL_Stream[output_stream].streamlock);
    write_term( output_stream,  ARG2, args PASS_REGS);
-  Yap_CloseSlots( mySlots );
+  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
+ Yap_CloseSlots( mySlots );
   if (EX != 0L) {
     Term ball = Yap_PopTermFromDB(EX);
     EX = NULL;
@@ -536,14 +551,15 @@ print ( USES_REGS1 )
      we cannot make recursive Prolog calls */
   yhandle_t mySlots = Yap_StartSlots();
   xarg *args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
-  int output_stream = Yap_CheckStream (ARG1, Output_Stream_f, "write/2");
   if (args == NULL)
     return false;
+  int output_stream = Yap_CheckStream (ARG1, Output_Stream_f, "write/2");
     args[WRITE_PORTRAY].used = true;
    args[WRITE_PORTRAY].tvalue = TermTrue;
   args[WRITE_NUMBERVARS].used = true;
    args[WRITE_NUMBERVARS].tvalue = TermTrue;
    write_term( output_stream, ARG2, args PASS_REGS);
+  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
   if (EX != 0L) {
     Term ball = Yap_PopTermFromDB(EX);
@@ -568,7 +584,9 @@ writeln1 ( USES_REGS1 )
     return false;
    args[WRITE_NL].used = true;
   args[WRITE_NL].tvalue = TermTrue;
-  write_term( output_stream, ARG1, args PASS_REGS);
+  LOCK(GLOBAL_Stream[output_stream].streamlock);
+ write_term( output_stream, ARG1, args PASS_REGS);
+  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
   if (EX != 0L) {
     Term ball = Yap_PopTermFromDB(EX);
@@ -588,12 +606,15 @@ writeln ( USES_REGS1 )
      we cannot make recursive Prolog calls */
   yhandle_t mySlots = Yap_StartSlots();
   xarg *args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
+  if (args == NULL )
+    return false;
   int output_stream = Yap_CheckStream (ARG1, Output_Stream_f, "writeln/2");
-  if (args == NULL || output_stream < 0)
+  if (output_stream < 0)
     return false;
   args[WRITE_NL].used = true;
   args[WRITE_NL].tvalue = TermTrue;
   write_term( output_stream, ARG1, args PASS_REGS);
+  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
   if (EX != 0L) {
     Term ball = Yap_PopTermFromDB(EX);

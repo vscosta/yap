@@ -7,6 +7,7 @@
  * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
  *									 *
  **************************************************************************
+ *				PrologPathProkoh
  *									 *
  * File:		sysbits.c						 *
  * Last rev:	4/03/88							 *
@@ -110,7 +111,7 @@ static char SccsId[] = "%W% %G%";
 static void
 Yap_FileError(yap_error_number type, Term where, const char *format,...)
 {
-  
+
     if ( trueLocalPrologFlag(FILEERRORS_FLAG) ) {
       va_list ap;
 
@@ -195,7 +196,7 @@ Yap_AccessAsset( const char *name, int mode )
 {
   AAssetManager* mgr = Yap_assetManager;
   const char *bufp=name+7;
-    
+
   if (bufp[0] == '/')
     bufp++;
   if ((mode & W_OK) == W_OK) {
@@ -574,30 +575,18 @@ unix2win( const char *source, char *target, int max)
 }
 #endif
 
-#if O_XOS
-char *
-PrologPath(const char *p, char *buf, size_t len)
-{ 
-  int flags = (trueGlobalPrologFlag(PLFLAG_FILE_CASE) ? 0 : XOS_DOWNCASE);
-
-  return _xos_canonical_filename(p, buf, len, flags);
-}
 
 static char *
 OsPath(const char *p, char *buf)
 {
-  if()z
-	trcpy(buf, p);
-
-  return buf;
+  return (char *)p;
 }
-#else
+
 static char *
-OsPath(const char *X, char *Y) {
-  if (X!=Y && Y) strcpy(Y,X);
+PrologPath(const char *Y, char *X) {
   return (char *)Y  ;
 }
-#endif /* O_XOS */
+
 
 #if _WIN32
 #define HAVE_BASENAME 1
@@ -633,7 +622,7 @@ static bool ChDir(const char *path) {
   }
 #endif
 #if _WIN32 || defined(__MINGW32__)
-  
+
     if ((rc = (SetCurrentDirectory(qpath) != 0)) == 0)
       {
 	Yap_WinError("SetCurrentDirectory failed" );
@@ -719,7 +708,7 @@ static char *myrealpath( const char *path, char *out)
 char *
 Yap_AbsoluteFile(const char *spec, char *tmp)
 {
-  
+
     char *rc;
   char o[YAP_FILENAME_MAX+1];
 #if _WIN32 || defined(__MINGW32__)
@@ -777,7 +766,7 @@ absolute_file_name( USES_REGS1 )
   const char *fp;
   bool rc;
   char s[MAXPATHLEN+1];
-  
+
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "absolute_file_name");
     return false;
@@ -796,18 +785,29 @@ absolute_file_name( USES_REGS1 )
 static Int
 prolog_to_os_filename( USES_REGS1 )
 {
-  Term t = Deref(ARG1);
-  const char *fp;
+  Term t = Deref(ARG1), t2 = Deref(ARG2);
+ char *fp;
   char out[MAXPATHLEN+1];
-  
-  if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "absolute_file_name");
-    return false;
+
+    if (IsVarTerm(t)) {
+
+     if (IsVarTerm(t2)) {
+       Yap_Error(INSTANTIATION_ERROR, t, "prolog_to_os_filename");
+       return false;
+     } else if ( IsAtomTerm(t2) ) {
+         if (!(fp =   PrologPath( RepAtom(AtomOfTerm(t2))->StrOfAE, out)))
+         return false;
+       return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom( fp )));
+     } else {
+       Yap_Error(TYPE_ERROR_ATOM, t2, "prolog_to_os_filename");
+       return false;
+     }
   } else if (!IsAtomTerm(t)) {
-    Yap_Error(TYPE_ERROR_ATOM, t, "absolute_file_name");
+    Yap_Error(TYPE_ERROR_ATOM, t, "prolog_to_os_filename");
     return false;
   }
-  if (!(fp = OsPath( RepAtom(AtomOfTerm(t))->StrOfAE, out)))
+
+  if (!(fp =   OsPath( RepAtom(AtomOfTerm(t))->StrOfAE, out)))
     return false;
   return Yap_unify(MkAtomTerm(Yap_LookupAtom(fp)), ARG2);
 }
@@ -837,6 +837,42 @@ Atom Yap_TemporaryFile( const char *prefix, int *fd) {
 #else
   return AtomNil;
 #endif
+}
+
+/** @pred make_directory(+ _Dir_)
+
+Create a directory  _Dir_. The name of the directory must be an atom.
+
+*/
+static Int
+make_directory( USES_REGS1 )
+{
+  const char *fd = AtomName(AtomOfTerm(ARG1));
+#if defined(__MINGW32__) || _MSC_VER
+  if (_mkdir(fd) == -1) {
+#else
+  if (mkdir(fd, 0777) == -1) {
+#endif
+    /* return an error number */
+    return false; // errno?
+  }
+  return true;
+}
+
+
+static Int
+p_rmdir( USES_REGS1 )
+{
+  const char *fd = AtomName(AtomOfTerm(ARG1));
+#if defined(__MINGW32__) || _MSC_VER
+  if (_rmdir(fd) == -1) {
+#else
+  if (rmdir(fd) == -1) {
+#endif
+    /* return an error number */
+    return(Yap_unify(ARG2, MkIntTerm(errno)));
+  }
+  return true;
 }
 
 static bool
@@ -1837,10 +1873,10 @@ Srandom ( USES_REGS1 )
     current_seed  = (unsigned int) FloatOfTerm (t0);
   else
     current_seed  = (unsigned int) LongIntOfTerm (t0);
-#if HAVE_SRAND48  
-  srand48(current_seed);  
-#elif HAVE_SRANDOM  
-  srandom(current_seed);  
+#if HAVE_SRAND48
+  srand48(current_seed);
+#elif HAVE_SRANDOM
+  srandom(current_seed);
 #elif HAVE_SRAND
   srand(current_seed);
 
@@ -2398,7 +2434,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
     t2 = Deref(ARG2);
     if ( IsVarTerm( t2 ) ) {
       Yap_Error(INSTANTIATION_ERROR, t2, "working_directory");
-    }    
+    }
    if ( !IsAtomTerm(t2) ) {
       Yap_Error(TYPE_ERROR_ATOM, t2, "working_directory");
     }
@@ -2428,8 +2464,8 @@ MSCHandleSignal(DWORD dwCtrlType) {
   }
 
   /** Yap_trueFileName: tries to generate the true name of  file
-   * 
-   * 
+   *
+   *
    * @param isource the proper file
    * @param idef the default name fo rthe file, ie, startup.yss
    * @param root the prefix
@@ -2438,26 +2474,26 @@ MSCHandleSignal(DWORD dwCtrlType) {
    * @param ftype saved state, object, saved file, prolog file
    * @param expand_root expand $ ~, etc
    * @param in_lib library file
-   * 
-   * @return 
+   *
+   * @return
    */
   bool
     Yap_trueFileName (const char *isource, const char * idef,  const char *iroot, char *result, bool access, file_type_t ftype, bool expand_root, bool in_lib)
   {
-  
-    char save_buffer[YAP_FILENAME_MAX+1];    
+
+    char save_buffer[YAP_FILENAME_MAX+1];
     const char *root, *source = isource;
     int rc = FAIL_RESTORE;
     int try       = 0;
 
     while ( rc == FAIL_RESTORE) {
       bool done = false;
-      // { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "try=%d %s %s", try, isource, iroot) ; }        
+      // { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "try=%d %s %s", try, isource, iroot) ; }
       switch (try++) {
       case 0:  // path or file name is given;
-	root = iroot;      
-	if (iroot || isource) {    
-	  source = ( isource ? isource : idef ) ;	  
+	root = iroot;
+	if (iroot || isource) {
+	  source = ( isource ? isource : idef ) ;
 	} else {
 	  done = true;
 	}
@@ -2465,7 +2501,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
       case 1: // library directory is given in command line
 	if ( in_lib && ftype == YAP_SAVED_STATE) {
 	  root = iroot;
-	  source = ( isource ? isource : idef ) ;     
+	  source = ( isource ? isource : idef ) ;
 	} else
 	  done = true;
 	break;
@@ -2473,11 +2509,11 @@ MSCHandleSignal(DWORD dwCtrlType) {
 #if HAVE_GETENV
 	if ( in_lib) {
 	  if (ftype == YAP_SAVED_STATE || ftype == YAP_OBJ) {
-	    root = getenv("YAPLIBDIR");     
+	    root = getenv("YAPLIBDIR");
 	  } else {
 	    root = getenv("YAPSHAREDIR");
 	  }
-	  source = ( isource ? isource : idef ) ;     
+	  source = ( isource ? isource : idef ) ;
 	} else
 	  done = true;
 	break;
@@ -2487,7 +2523,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
 	break;
       case 3: // use compilation variable YAPLIBDIR
 	if ( in_lib) {
-	  source = ( isource ? isource : idef ) ;           
+	  source = ( isource ? isource : idef ) ;
 	  if (ftype == YAP_PL || ftype == YAP_QLY) {
 	    root = YAP_SHAREDIR;
 	  } else {
@@ -2499,7 +2535,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
 
       case 4: // WIN stuff: registry
 #if __WINDOWS__
-	if ( in_lib) {      
+	if ( in_lib) {
 	  source = ( ftype == YAP_PL || ftype == YAP_QLY ? "library" : "startup" ) ;
 	  source = Yap_RegistryGetString( source );
 	  root = NULL;
@@ -2520,7 +2556,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
 	    source = ( ftype == YAP_SAVED_STATE || ftype == YAP_OBJ ? "../../lib/Yap" : "../../share/Yap" ) ;
 	    if (Yap_trueFileName(source, NULL, pt, save_buffer, access, ftype, expand_root, in_lib) )
 	      root = save_buffer;
-	    else 
+	    else
 	      done = true;
 	  } else {
 	    done = true;
@@ -2536,7 +2572,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
       default:
 	return false;
       }
-      
+
       if (done)
 	continue;
       if (expand_root && root) {
@@ -2544,7 +2580,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
       }
       //    { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "root= %s %s ", root, source) ; }
       char *work = expandWithPrefix( source, root, result );
-  
+
       // expand names in case you have
       // to add a prefix
       if ( !access || exists( work ) )
@@ -2556,13 +2592,13 @@ MSCHandleSignal(DWORD dwCtrlType) {
   int
     Yap_TrueFileName (const char *source, char *result, int in_lib)
   {
-    return Yap_trueFileName (source, NULL, NULL, result, true, YAP_PL, true, in_lib);  
+    return Yap_trueFileName (source, NULL, NULL, result, true, YAP_PL, true, in_lib);
   }
 
   int
     Yap_TruePrefixedFileName (const char *source, const char *root, char *result, int in_lib)
   {
-    return Yap_trueFileName (source, NULL, root, result, true, YAP_PL, true, in_lib);  
+    return Yap_trueFileName (source, NULL, root, result, true, YAP_PL, true, in_lib);
   }
 
   static Int
@@ -2578,7 +2614,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
       Yap_Error(TYPE_ERROR_ATOM,t,"argument to true_file_name");
       return FALSE;
     }
-    if (!Yap_trueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, NULL, NULL, LOCAL_FileNameBuf, true, YAP_PL, false, false))  
+    if (!Yap_trueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, NULL, NULL, LOCAL_FileNameBuf, true, YAP_PL, false, false))
       return FALSE;
     return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
   }
@@ -2596,7 +2632,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
       Yap_Error(TYPE_ERROR_ATOM,t,"argument to true_file_name");
       return FALSE;
     }
-    if (!Yap_trueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, NULL, NULL, LOCAL_FileNameBuf, true, YAP_PL, true, false))  
+    if (!Yap_trueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, NULL, NULL, LOCAL_FileNameBuf, true, YAP_PL, true, false))
       return false;
     return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
   }
@@ -2622,7 +2658,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
       }
       root = RepAtom(AtomOfTerm(t2))->StrOfAE;
     }
-    if (!Yap_trueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, NULL, root, LOCAL_FileNameBuf, true, YAP_PL, false, false))  
+    if (!Yap_trueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, NULL, root, LOCAL_FileNameBuf, true, YAP_PL, false, false))
       return FALSE;
     return Yap_unify(ARG3, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
   }
@@ -2860,9 +2896,9 @@ MSCHandleSignal(DWORD dwCtrlType) {
     } else if (!IsAtomTerm(t2)) {
       Yap_Error(TYPE_ERROR_ATOM, t2, "second argument to rename/2 not atom");
     }
-    if (!Yap_trueFileName (RepAtom(AtomOfTerm(t1))->StrOfAE, NULL, NULL, oldname, true, YAP_STD, true, false))    
+    if (!Yap_trueFileName (RepAtom(AtomOfTerm(t1))->StrOfAE, NULL, NULL, oldname, true, YAP_STD, true, false))
       return FALSE;
-    if (!Yap_trueFileName (RepAtom(AtomOfTerm(t2))->StrOfAE, NULL, NULL, oldname, true, YAP_STD, true, false))  
+    if (!Yap_trueFileName (RepAtom(AtomOfTerm(t2))->StrOfAE, NULL, NULL, oldname, true, YAP_STD, true, false))
       return FALSE;
     if ((r = link (oldname, newname)) == 0 && (r = unlink (oldname)) != 0)
       unlink (newname);
@@ -3717,7 +3753,9 @@ MSCHandleSignal(DWORD dwCtrlType) {
     CurrentModule = OPERATING_SYSTEM_MODULE;
     Yap_InitCPred ("true_file_name", 2, p_true_file_name, SyncPredFlag);
     Yap_InitCPred ("true_file_name", 3, p_true_file_name3, SyncPredFlag);
+    Yap_InitCPred ("rmdir", 2, p_rmdir, SyncPredFlag);
     CurrentModule = cm;
+    Yap_InitCPred ("make_directory", 1, make_directory, SyncPredFlag);
   }
 
 

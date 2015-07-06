@@ -208,8 +208,8 @@ prolog_complete(int ignore, int key)
 static void
 InitReadline(void) {
   // don't call readline within emacs
-  if (getenv("ËMACS"))
-    return;
+  //if (getenv("ËMACS"))
+  //  return;
   GLOBAL_Stream[StdInStream].u.irl.buf = NULL;
   GLOBAL_Stream[StdInStream].u.irl.ptr = NULL;
 #if _MSC_VER || defined(__MINGW32__)
@@ -251,6 +251,7 @@ getLine( int inp, int out )
   LOCAL_PrologMode |= ConsoleGetcMode;
 
   if (GLOBAL_Stream[out].linepos == 0) { // no output so far
+    fflush(NULL);
     myrl_line = readline (LOCAL_Prompt);
   } else {
     LOCAL_PrologMode |= ConsoleGetcMode;

@@ -40,7 +40,7 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_IO_H
 /* Windows */
 #include <io.h>
-#endif 
+#endif
 #if HAVE_SOCKET
 #include <winsock2.h>
 #endif
@@ -220,7 +220,7 @@ format_copy_args(Term args, Term *targs, Int tsz)
     n++;
   }
   return n;
-  
+
 }
 
 static void
@@ -251,7 +251,7 @@ fetch_index_from_args(Term t)
 static wchar_t
 base_dig(Int dig, Int ch)
 {
-  if (dig < 10) 
+  if (dig < 10)
     return dig+'0';
   else if (ch == 'r')
     return (dig-10)+'a';
@@ -335,7 +335,7 @@ doformat(volatile Term otail, volatile Term oargs, int sno USES_REGS)
   if (IsVarTerm(args)) {
     Yap_Error(INSTANTIATION_ERROR, args, "format/2");
     return FALSE;
-  } 
+  }
   while (IsApplTerm(args) && FunctorOfTerm(args) == FunctorModule) {
     fmod = ArgOfTerm(1,args);
     args = ArgOfTerm(2,args);
@@ -351,7 +351,7 @@ doformat(volatile Term otail, volatile Term oargs, int sno USES_REGS)
       Yap_Error(INSTANTIATION_ERROR, args, "format/2");
       return FALSE;
     }
-  } 
+  }
   if (IsPairTerm(args)) {
     Int tsz = 8;
 
@@ -422,6 +422,7 @@ doformat(volatile Term otail, volatile Term oargs, int sno USES_REGS)
 	if (!IsAtomTerm(t))
 	  goto do_type_atom_error;
 	yhandle_t sl = Yap_StartSlots();
+          // stream is already locked.
 	Yap_plwrite (t, GLOBAL_Stream+sno, 0, Handle_vars_f|To_heap_f, 1200);
 	Yap_CloseSlots(sl);
 	LOCAL_FormatInfo = &finfo;
@@ -550,7 +551,7 @@ doformat(volatile Term otail, volatile Term oargs, int sno USES_REGS)
 	    } else {
 	      goto do_type_int_error;
 	    }
-	      
+
 	    if (tmpbase[0] == '-') {
 	      f_putc(sno, (int) '-');
 	      ptr++;
@@ -678,7 +679,7 @@ doformat(volatile Term otail, volatile Term oargs, int sno USES_REGS)
 	    break;
 	  case '@':
 	    t = targs[targ++];
-	    { 
+	    {
 	      yhandle_t sl0 = Yap_StartSlots();
 	      Int sl = Yap_InitSlot(args);
 	      Int sl2;
@@ -708,7 +709,7 @@ doformat(volatile Term otail, volatile Term oargs, int sno USES_REGS)
 	    if (targ > tnum-1 || has_repeats)
 	      goto do_consistency_error;
 	    t = targs[targ++];
-	    { 
+	    {
 	      Int sl = Yap_InitSlot(args);
 	      Yap_plwrite(t, GLOBAL_Stream+sno, 0, Handle_vars_f|Use_portray_f|To_heap_f, 1200);
 	      LOCAL_FormatInfo = &finfo;
@@ -805,8 +806,8 @@ doformat(volatile Term otail, volatile Term oargs, int sno USES_REGS)
 	case 't':
 	  {
 	    int nsno;
-	    
-	    finfo.pad_entries[finfo.padders].len = sz; 
+
+	    finfo.pad_entries[finfo.padders].len = sz;
 	    finfo.pad_entries[finfo.padders].pad = bufp;
 	    bufp = NULL;
 	    sz = 0;
@@ -897,6 +898,71 @@ doformat(volatile Term otail, volatile Term oargs, int sno USES_REGS)
   return (TRUE);
 }
 
+/*
+ * @pred with_output_to( + _Stream_ , 0:_Goal )
+ *
+ * Evaluate goal _Goal, such that the output will be sent to _Stream_.
+ *
+ * As in format/3, we shall have the special streams `chars`/1, `codes/`  and symbtw
+ *
+ */
+static Int
+with_output_to( USES_REGS1 )
+{
+  int old_out = LOCAL_c_output_stream;
+  int output_stream;
+  Term tin = Deref(ARG1);
+  Functor f;
+  bool out;
+  bool mem_stream = false;
+if (IsVarTerm(tin)) {
+  Yap_Error(INSTANTIATION_ERROR,tin,"with_output_to/3");
+  return false;
+}
+  if (IsApplTerm(tin) &&
+      (f = FunctorOfTerm(tin)) &&
+      (f == FunctorAtom || f == FunctorString ||
+       f == FunctorCodes1 || f == FunctorCodes ||
+       f == FunctorChars1 || f == FunctorChars) )
+  {
+    output_stream = Yap_OpenBufWriteStream( PASS_REGS1);
+  } else {
+    /* needs to change LOCAL_c_output_stream for write */
+    output_stream = Yap_CheckStream (ARG1, Output_Stream_f, "format/3");
+  }
+  if (output_stream == -1) {
+    return false;
+  }
+  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
+  out = Yap_Execute( Deref(ARG2) PASS_REGS);
+  LOCAL_c_output_stream = old_out;
+  if (mem_stream) {
+    Term tat;
+    Term inp = Deref(ARG1);
+    if (out) {
+      char *s = GLOBAL_Stream[output_stream].u.mem_string.buf;
+      s[GLOBAL_Stream[output_stream].u.mem_string.pos] = '\0';
+      if (f == FunctorAtom) {
+        tat =  MkAtomTerm(Yap_LookupAtom(s));
+      } else if (f == FunctorCodes) {
+        tat = Yap_CharsToDiffListOfCodes(s, ArgOfTerm(2,inp) PASS_REGS);
+      } else if (f == FunctorCodes1) {
+        tat = Yap_CharsToListOfCodes(s PASS_REGS);
+      } else if (f == FunctorChars) {
+        tat = Yap_CharsToDiffListOfAtoms(s, ArgOfTerm(2,inp) PASS_REGS);
+      } else if (f == FunctorChars1) {
+        tat = Yap_CharsToListOfAtoms(s PASS_REGS);
+      } else if (f == FunctorString1) {
+        tat = MkStringTerm(s);
+      } else {
+        return false;
+      }
+      out = Yap_unify(tat,ArgOfTerm(1,inp));
+    }
+  }
+  return out;
+}
+
 static Int
 format2(Term tin, Term tf, Term tas USES_REGS)
 {
@@ -909,7 +975,7 @@ format2(Term tin, Term tf, Term tas USES_REGS)
     Yap_Error(INSTANTIATION_ERROR,tin,"format/3");
     return false;
   }
-  if (IsApplTerm(tin) && 
+  if (IsApplTerm(tin) &&
       (f = FunctorOfTerm(tin)) &&
       (f == FunctorAtom || f == FunctorString ||
        f == FunctorCodes1 || f == FunctorCodes ||
@@ -923,8 +989,8 @@ format2(Term tin, Term tf, Term tas USES_REGS)
   if (output_stream == -1) {
     return false;
   }
-  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   out = doformat(tf,tas,output_stream PASS_REGS);
+  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   if (mem_stream) {
     Term tat;
     Term inp = Deref(ARG1);
@@ -975,4 +1041,5 @@ Yap_InitFormat(void)
 {
   Yap_InitCPred ("format", 2, format, SyncPredFlag);
   Yap_InitCPred ("format", 3, format3, SyncPredFlag);
+  Yap_InitCPred ("with_output_to", 2, with_output_to, SyncPredFlag);
 }

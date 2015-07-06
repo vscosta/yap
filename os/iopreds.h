@@ -162,11 +162,9 @@ typedef struct stream_desc
   FILE* file;
   union {
     struct {
-#if defined(__MINGW32__) || defined(_MSC_VER)
 #define PLGETC_BUF_SIZE 4096
       char *buf, *ptr;
       int left;
-#endif
     } file;
     memHandle mem_string;
     struct {
@@ -244,10 +242,15 @@ GetCurInpPos (StreamDesc * inp_stream)
   return (inp_stream->linecount);
 }
 
-Int PlIOError( yap_error_number, Term, char *, ...);
+Int PlIOError( yap_error_number, Term, const char *, ...);
 int GetFreeStreamD(void);
 Term Yap_MkStream (int n);
 
+bool Yap_PrintWarning( Term twarning );
+
+
+Int
+PlIOError (yap_error_number type, Term culprit, const char *who, ...);
 
 void	Yap_plwrite(Term, struct stream_desc *, int, int, int);
 int     Yap_FormatFloat( Float f, const char *s, size_t sz );
@@ -318,6 +321,8 @@ bool  Yap_FindStreamForAlias (Atom al);
 bool Yap_FetchStreamAlias (int sno, Term t2 USES_REGS);
 
 INLINE_ONLY inline EXTERN void count_output_char(int ch, StreamDesc *s);
+
+Term Yap_StreamUserName(int sno);
 
 INLINE_ONLY inline EXTERN void 
 count_output_char(int ch, StreamDesc *s)
