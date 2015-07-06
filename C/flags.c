@@ -592,25 +592,40 @@ static bool setYapFlagInModule( Term tflag, Term t2, Term mod )
     }
     Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "bad option for %s:character_escapes flag", RepAtom(AtomOfTerm(tflag))->StrOfAE);
     return false;
-  } else if (fv->FlagOfVE == BACKQUOTED_STRING_FLAG) {
-    new->flags &= ~(DBLQ_CHARS|DBLQ_CODES|DBLQ_ATOM|DBLQ_STRING);
-    if (t2 == TermString) {
-      new->flags |=  DBLQ_STRING;
-      return true;
-    } else if (t2 == TermAtom) {
-      new->flags |=  DBLQ_ATOM;
-      return true;
-    } else if (t2 == TermCodes) {
-      new->flags |=  DBLQ_CODES;
-      return true;
-    } else if (t2 == TermChars) {
-      new->flags |=  DBLQ_CHARS;
-      return true;
-    }
+    } else if (fv->FlagOfVE == BACKQUOTED_STRING_FLAG) {
+      new->flags &= ~(BCKQ_CHARS|BCKQ_CODES|BCKQ_ATOM|BCKQ_STRING);
+      if (t2 == TermString) {
+        new->flags |=  BCKQ_STRING;
+        return true;
+      } else if (t2 == TermAtom) {
+        new->flags |=  BCKQ_ATOM;
+        return true;
+      } else if (t2 == TermCodes) {
+        new->flags |=  BCKQ_CODES;
+        return true;
+      } else if (t2 == TermChars) {
+        new->flags |=  BCKQ_CHARS;
+        return true;
+      }
+    } else if (fv->FlagOfVE == DOUBLE_QUOTES_FLAG) {
+          new->flags &= ~(DBLQ_CHARS|DBLQ_CODES|DBLQ_ATOM|DBLQ_STRING);
+          if (t2 == TermString) {
+            new->flags |=  DBLQ_STRING;
+            return true;
+          } else if (t2 == TermAtom) {
+            new->flags |=  DBLQ_ATOM;
+            return true;
+          } else if (t2 == TermCodes) {
+            new->flags |=  DBLQ_CODES;
+            return true;
+          } else if (t2 == TermChars) {
+            new->flags |=  DBLQ_CHARS;
+            return true;
+          }
     Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "bad option for %s:backquoted_string flag", RepAtom(AtomOfTerm(tflag))->StrOfAE);
     return false;
   }
-  Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "flag  %s is not module-scoped", RepAtom(AtomOfTerm(tflag))->StrOfAE);
+Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "flag  %s is not module-scoped", RepAtom(AtomOfTerm(tflag))->StrOfAE);
   return FALSE;
 }
 
@@ -637,15 +652,23 @@ static Term  getYapFlagInModule( Term tflag, Term mod )
     if (new->flags & M_CHARESCAPE)
       return TermTrue;
   } else if (fv->FlagOfVE == BACKQUOTED_STRING_FLAG) {
-    if (new->flags & DBLQ_CHARS)
-      return TermChars;
-    if (new->flags & DBLQ_CODES)
-      return TermCodes;
-    if (new->flags & DBLQ_ATOM)
-      return TermAtom;
-    return TermString;
-  }
-  Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, tflag, "flag  %s is not module-scoped", RepAtom(AtomOfTerm(tflag))->StrOfAE);
+      if (new->flags & BCKQ_CHARS)
+        return TermChars;
+      if (new->flags & BCKQ_CODES)
+        return TermCodes;
+      if (new->flags & BCKQ_ATOM)
+        return TermAtom;
+      return TermString;
+    } else if (fv->FlagOfVE == DOUBLE_QUOTES_FLAG) {
+      if (new->flags & DBLQ_CHARS)
+        return TermChars;
+      if (new->flags & DBLQ_CODES)
+        return TermCodes;
+      if (new->flags & DBLQ_ATOM)
+        return TermAtom;
+      return TermString;
+    }
+     Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, tflag, "flag  %s is not module-scoped", RepAtom(AtomOfTerm(tflag))->StrOfAE);
   return 0L;
 }
 
@@ -822,10 +845,10 @@ void Yap_setModuleFlags(ModEntry *new, ModEntry *cme)
   Atom at = new->AtomOfME;
   new->flags = 0;
   if (at == AtomProlog ) {
-    new->flags = UNKNOWN_FAIL | M_SYSTEM | M_CHARESCAPE;
+    new->flags = UNKNOWN_FAIL | M_SYSTEM | M_CHARESCAPE | DBLQ_CODES | BCKQ_STRING;
     return;
   } else if (cme == NULL) {
-    new->flags = UNKNOWN_ERROR | M_SYSTEM | M_CHARESCAPE;
+    new->flags = UNKNOWN_ERROR | M_SYSTEM | M_CHARESCAPE| DBLQ_CODES | BCKQ_STRING;
     return;
   } else 
     new->flags = cme->flags;
@@ -912,7 +935,8 @@ Term getYapFlag( Term tflag )
     } else if (fl == TermWarning) {
       Yap_Warning("Flag ~s does not exist", RepAtom(AtomOfTerm(fl))->StrOfAE);
     } else {
-      Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, fl, "trying to read unknown flag");
+      Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, fl, "trying to read unknown flag %s",
+		RepAtom(AtomOfTerm(fl))->StrOfAE);
     }
     return FALSE;
   }
@@ -1348,7 +1372,8 @@ do_create_prolog_flag( USES_REGS1 )
 void
 Yap_InitFlags( bool bootstrap) {
     CACHE_REGS
-  flag_info *f =
+      tr_fr_ptr tr0 = TR;
+      flag_info *f =
     global_flags_setup;
   GLOBAL_flagCount = 0;
   if (bootstrap) {
@@ -1379,6 +1404,7 @@ Yap_InitFlags( bool bootstrap) {
   }
   if (!bootstrap) {
     Yap_InitCPredBack("current_prolog_flag", 2, 1, current_prolog_flag, cont_yap_flag, 0);
+    TR = tr0;
     /** @pred prolog_flag(? _Flag_,- _Value__)
 
 	Obtain the value for a YAP Prolog flag, same as current_prolog_flag/2_.

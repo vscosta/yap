@@ -73,7 +73,13 @@ running on an Apple machine.
 YAP_FLAG(  ARCH_FLAG, "arch", false, isatom, YAP_ARCH , NULL ),
 YAP_FLAG(  ARGV_FLAG, "argv", false, isatom, "[]"  , argv ),
 YAP_FLAG(  ARITHMETIC_EXCEPTIONS_FLAG, "arithmetic_exceptions", true, boolean, "true" , NULL ),
-YAP_FLAG(  BACKQUOTED_STRING_FLAG, "backquoted_string", true, isatom, "string" ,  ),
+YAP_FLAG(  BACKQUOTED_STRING_FLAG, "backquoted_string", true, isatom, "string" ,  ), /**>
+If  _Value_ is unbound, tell whether a double quoted list of characters
+token is converted to a list of atoms, `chars`, to a list of integers,
+`codes`, or to a single atom, `atom`. If  _Value_ is bound, set to
+the corresponding behavior. The default value is `string`
+*/
+                                                                          
 YAP_FLAG(  BOUNDED_FLAG, "bounded", false, boolean, "false" , NULL ), /**< `bounded` is iso
 
     Read-only flag telling whether integers are bounded. The value depends
@@ -114,7 +120,7 @@ it is bound to `false` disable debugging.
 debugger uses to write terms. If unbound, show the current options.
  */
   YAP_FLAG(  DEBUGGER_SHOW_CONTEXT_FLAG, "debugger_show_context", true, boolean, "false" , NULL ),
-YAP_FLAG(  DIALECT_FLAG, "dialect", true, ro, "yap" , NULL ), /**< `dialect `
+YAP_FLAG(  DIALECT_FLAG, "dialect", false, ro, "yap" , NULL ), /**< `dialect `
                                                                    
                                                                    Read-only flag that always returns `yap`.
                                                                    */
@@ -164,7 +170,7 @@ YAP_FLAG(  GC_MARGIN_FLAG, "gc_margin", true, nat, "0" , gc_margin ), /**< `gc_m
 collection. The default depends on total stack size.
 
  */
-YAP_FLAG(  GC_TRACE_FLAG, "gc_trace", true, boolean, "off" , NULL ), /**< `gc_trace `
+YAP_FLAG(  GC_TRACE_FLAG, "gc_trace", true, isatom, "off" , NULL ), /**< `gc_trace `
 
     If `off` (default) do not show information on garbage collection
 and stack shifts, if `on` inform when a garbage collection or stack
@@ -340,7 +346,7 @@ YAP_FLAG(  UNIX_FLAG, "unix", false, ro, "true" , NULL ), /**< `unix`
 running on an Unix system.  Defined if the C-compiler used to compile
 this version of YAP either defines `__unix__` or `unix`.
  */
-YAP_FLAG(  UPDATE_SEMANTICS_FLAG, "update_semantics", false, ro, "logical" , NULL ), /**<  `update_semantics `
+YAP_FLAG(  UPDATE_SEMANTICS_FLAG, "update_semantics", true, isatom, "logical" , NULL ), /**<  `update_semantics `
 
     Define whether YAP should follow `immediate` update
 semantics, as in C-Prolog (default), `logical` update semantics,

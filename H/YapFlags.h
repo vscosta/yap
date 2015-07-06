@@ -68,6 +68,16 @@ INLINE_ONLY inline EXTERN bool ro( Term inp ) {
   return false;
 }
 
+
+INLINE_ONLY inline EXTERN bool aro( Term inp ) {
+  if (IsVarTerm(inp)) {
+    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag in 0...");
+    return false;
+  }
+  Yap_Error( PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag.");
+  return false;
+}
+
 //INLINE_ONLY inline EXTERN bool boolean( Term inp );
 
 static inline bool boolean( Term inp ) {

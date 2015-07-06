@@ -24,10 +24,14 @@ YAP_FLAG(  AUTOLOAD_FLAG, "autoload", true, boolean, "false" , NULL ),
 YAP_FLAG(  BREAK_LEVEL_FLAG, "break_level", true, nat, "0" , NULL ),
 YAP_FLAG(  ENCODING_FLAG, "encoding", true, isatom, "text" , getenc ),
 YAP_FLAG(  FILEERRORS_FLAG, "fileerrors", true, boolean, "true" , NULL ), /**< `fileerrors`
-
-    If `on` `fileerrors` is `on`, if `off` (default)
-`fileerrors` is disabled.
- */
+                                                                           
+                                                                           If `on` `fileerrors` is `on`, if `off` (default)
+                                                                           `fileerrors` is disabled.
+                                                                           */
+YAP_FLAG(  LANGUAGE_MODE_FLAG, "language_mode", true, isatom, "yap" , NULL ), /**< `lamguage_mode`
+                                                                           
+                                                                           wweter native mode or trying to emulate a different Prolog.
+                                                                           */
 YAP_FLAG(  REDEFINE_WARNINGS_FLAG, "redefine_warnings", true, boolean, "true" , NULL ), /**< `redefine_warnings `
 
     If  _Value_ is unbound, tell whether warnings for procedures defined
@@ -53,9 +57,9 @@ YAP_FLAG(  SYNTAX_ERRORS_FLAG, "syntax_errors", true, isatom, "error" , synerr )
   + `dec10`
 Report the syntax error and retry reading the term.
   + `fail`
-Report the syntax error and fail (default).
+Report the syntax error and fail.
   + `error`
-Report the syntax error and generate an error.
+Report the syntax error and generate an error (default).
   + `quiet`
 Just fail
  */
