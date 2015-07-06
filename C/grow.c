@@ -751,9 +751,10 @@ AdjustScannerStacks(TokEntry **tksp, VarEntry **vep USES_REGS)
       }
       break;
     case Var_tok:
-    case String_tok:
-    case WString_tok:
-    case StringTerm_tok:
+      case String_tok:
+      case WString_tok:
+      case BQString_tok:
+      case WBQString_tok:
     if (IsOldTrail(tks->TokInfo))
 	       tks->TokInfo = TrailAdjust(tks->TokInfo);
       break;

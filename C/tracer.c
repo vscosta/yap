@@ -94,6 +94,7 @@ check_trail_consistency(void) {
 }
 */
 
+volatile int v;
 
 CELL old_value = 0L, old_value2 = 0L;
 
@@ -151,6 +152,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   Int arity;
   /*  extern int gc_calls; */
   vsc_count++;
+  if (vsc_count == 12534) jmp_deb( 2 );
 #if __ANDROID__ && 0
   PredEntry *ap = pred;
   if (pred && port == enter_pred) {
@@ -170,7 +172,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   LOCK(Yap_heap_regs->low_level_trace_lock);
   sc = Yap_heap_regs;
   //if (vsc_count == 161862) jmp_deb(1);
-  //  fprintf(stderr,"B=%p ", B);
+  fprintf(stderr,"B=%ld ", LCL0-(CELL*)B);
 #ifdef THREADS
   LOCAL_ThreadHandle.thread_inst_count++;
 #endif  

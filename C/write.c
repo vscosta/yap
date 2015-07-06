@@ -83,11 +83,12 @@ typedef struct write_globs {
 #define lastw wglb->lw
 #define last_minus wglb->last_atom_minus
 
-static bool callPortray(Term t, struct DB_TERM **old_EXp USES_REGS) {
+static bool callPortray(Term t, struct DB_TERM **old_EXp, int sno USES_REGS) {
   PredEntry *pe;
   Int b0 = LCL0 - (CELL *)B;
 
   EX = NULL;
+  UNLOCK(GLOBAL_Stream[sno].streamlock);
   if ((pe = RepPredProp(Yap_GetPredPropByFunc(FunctorPortray, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, &t, true PASS_REGS)) {
@@ -95,8 +96,10 @@ static bool callPortray(Term t, struct DB_TERM **old_EXp USES_REGS) {
     if (EX && !*old_EXp)
       *old_EXp = EX;
     Yap_fail_all(B0 PASS_REGS);
+    LOCK(GLOBAL_Stream[sno].streamlock);
     return true;
   }
+  LOCK(GLOBAL_Stream[sno].streamlock);
   if (EX && !*old_EXp)
     *old_EXp = EX;
   return false;
@@ -903,7 +906,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       return;
     }
     if (wglb->Use_portray) 
-      if (callPortray(t, &EX PASS_REGS)) {
+      if (callPortray(t, &EX, wglb->stream-GLOBAL_Stream PASS_REGS)) {
 	EX = oEX;
 	return;
       }
@@ -977,7 +980,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
     }
 #endif
     if (wglb->Use_portray) {
-      if (callPortray(t, &EX PASS_REGS)) {
+      if (callPortray(t, &EX, wglb->stream-GLOBAL_Stream PASS_REGS)) {
 	EX = oEX;
         return;
       }

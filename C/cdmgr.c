@@ -2301,7 +2301,7 @@ Yap_source_line_no( void )
 
 Atom
 Yap_source_file_name( void )
-{ 
+{
     CACHE_REGS
   return LOCAL_SourceFileName;
 }
@@ -3688,7 +3688,7 @@ do_toggle_static_predicates_in_use(int mask)
 
   do {
     PredEntry *pe;
-    
+
     /* check first environments that are younger than our latest choicepoint */
     while (b_ptr > (choiceptr)env_ptr) {
       PredEntry *pe = EnvPreg((yamop *)env_ptr[E_CP]);
@@ -4094,8 +4094,7 @@ cl_code_in_pred(PredEntry *pp, yamop *codeptr, CODEADDR *startp, CODEADDR *endp)
 static Int
 code_in_pred(PredEntry *pp, Atom *pat, arity_t *parity, yamop *codeptr) {
   Int out;
-
-  // PELOCK(40,pp); this is deadlocking...
+  PELOCK(40,pp);
   /* check if the codeptr comes from the indexing code */
   if (pp->PredFlags & IndexedPredFlag) {
     if (pp->PredFlags & LogUpdatePredFlag) {

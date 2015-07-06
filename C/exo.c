@@ -732,7 +732,7 @@ bool
 YAP_AssertTuples( PredEntry *pe, const Term *ts, size_t offset, size_t m)
 {
   MegaClause *mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
-  size_t           i, n = pe->cs.p_code.NOfClauses;
+  size_t           i;
   ADDR   base = (ADDR)mcl->ClCode+2*sizeof(struct index_t *);
   for (i=0; i<m; i++) {
     yamop *ptr = (yamop *)(base+offset*(mcl->ClItemSize));

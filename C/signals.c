@@ -236,8 +236,7 @@ p_creep_fail( USES_REGS1 )
   return FALSE;
 }
 
-static Int 
-p_stop_creeping( USES_REGS1 )
+static Int stop_creeping( USES_REGS1 )
 {
   get_signal( YAP_CREEP_SIGNAL PASS_REGS );
   return TRUE;
@@ -452,7 +451,8 @@ Yap_InitSignalCPreds(void)
   /* Basic predicates for the debugger */
   Yap_InitCPred("$creep", 0, p_creep, SafePredFlag);
   Yap_InitCPred("$creep_fail", 0, p_creep_fail, SafePredFlag);
-  Yap_InitCPred("$stop_creeping", 0, p_stop_creeping, SafePredFlag);
+  Yap_InitCPred("$stop_creeping", 0, stop_creeping, NoTracePredFlag|HiddenPredFlag|SafePredFlag);
+  Yap_InitCPred("$disable_debugging", 0, stop_creeping, NoTracePredFlag|HiddenPredFlag|SafePredFlag);
   Yap_InitCPred ("$first_signal", 1, p_first_signal, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$continue_signals", 0, p_continue_signals, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$creep_allowed", 0, p_creep_allowed, 0);

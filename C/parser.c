@@ -718,36 +718,46 @@ static Term ParseTerm( int prio, JMPBUFF *FailBuff USES_REGS) {
     NextToken;
     break;
 
-  case String_tok: /* build list on the heap */
-  {
-    Volatile char *p = (char *)LOCAL_tokptr->TokInfo;
-    t = Yap_CharsToTDQ(p, CurrentModule PASS_REGS);
-    if (!t) {
-      FAIL;
-    }
-    NextToken;
-  } break;
-
-  case WString_tok: /* build list on the heap */
-  {
-    Volatile wchar_t *p = (wchar_t *)LOCAL_tokptr->TokInfo;
-    t = Yap_WCharsToTDQ(p, CurrentModule PASS_REGS);
-    if (!t) {
-      FAIL;
-    }
-    NextToken;
-  } break;
-
-	case StringTerm_tok: /* build list on the heap */
-{
-	Volatile char *p = (char *)LOCAL_tokptr->TokInfo;
-	t = Yap_CharsToString(p PASS_REGS);
-	if (!t) {
-		FAIL;
-	}
-	NextToken;
-} break;
-
+    case String_tok: /* build list on the heap */
+    {
+      Volatile char *p = (char *)LOCAL_tokptr->TokInfo;
+      t = Yap_CharsToTDQ(p, CurrentModule PASS_REGS);
+      if (!t) {
+        FAIL;
+      }
+      NextToken;
+    } break;
+      
+    case WString_tok: /* build list on the heap */
+    {
+      Volatile wchar_t *p = (wchar_t *)LOCAL_tokptr->TokInfo;
+      t = Yap_WCharsToTDQ(p, CurrentModule PASS_REGS);
+      if (!t) {
+        FAIL;
+      }
+      NextToken;
+    } break;
+      
+    case BQString_tok: /* build list on the heap */
+    {
+      Volatile char *p = (char *)LOCAL_tokptr->TokInfo;
+      t = Yap_CharsToTBQ(p, CurrentModule PASS_REGS);
+      if (!t) {
+        FAIL;
+      }
+      NextToken;
+    } break;
+      
+    case WBQString_tok: /* build list on the heap */
+    {
+      Volatile wchar_t *p = (wchar_t *)LOCAL_tokptr->TokInfo;
+      t = Yap_WCharsToTBQ(p, CurrentModule PASS_REGS);
+      if (!t) {
+        FAIL;
+      }
+      NextToken;
+    } break;
+      
 case Var_tok:
     varinfo = (VarEntry *)(LOCAL_tokptr->TokInfo);
     if ((t = varinfo->VarAdr) == TermNil) {

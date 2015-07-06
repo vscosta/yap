@@ -979,7 +979,6 @@ InitStdPreds(void)
   Yap_InitCPreds();
   Yap_InitBackCPreds();
   BACKUP_MACHINE_REGS();
-  Yap_InitYaamRegs( 0 );
     Yap_InitPlIO();
   Yap_InitFlags(false);
 #if HAVE_MPE
@@ -1335,7 +1334,7 @@ InitCodes(void)
     modp->PredFlags |= MetaPredFlag;
   }
 #ifdef YAPOR
-  Yap_heap_regs->getwork_code->y_u.Otapl.p = RepPredProp(PredPropByAtom(AtomGetwork, PROLOG_MODULE));
+v  Yap_heap_regs->getwork_code->y_u.Otapl.p = RepPredProp(PredPropByAtom(AtomGetwork, PROLOG_MODULE));
   Yap_heap_regs->getwork_seq_code->y_u.Otapl.p = RepPredProp(PredPropByAtom(AtomGetworkSeq, PROLOG_MODULE));
 #endif /* YAPOR */
 
@@ -1458,6 +1457,7 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   GLOBAL_AllowLocalExpansion = TRUE;
   GLOBAL_AllowTrailExpansion = TRUE;
   Yap_InitExStacks (0, Trail, Stack);
+  Yap_InitYaamRegs( 0 );
   InitStdPreds();
   /* make sure tmp area is available */
   {
