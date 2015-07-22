@@ -989,7 +989,7 @@ interrupt_execute( USES_REGS1 )
   }
   if (PP) UNLOCKPE(1,PP);
   PP  = P->y_u.pp.p0;
-  if ((PP->PredFlags & (NoTracePredFlag|HiddenPredFlag)) && Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
+  if ((P->y_u.pp.p->PredFlags & (NoTracePredFlag|HiddenPredFlag)) && Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
     return 2;
   }
   SET_ASP(YENV, E_CB*sizeof(CELL));
@@ -1017,7 +1017,7 @@ interrupt_call( USES_REGS1 )
   if (PP) UNLOCKPE(1,PP);
   PP = P->y_u.Osbpp.p0;
   if (Yap_only_has_signal(YAP_CREEP_SIGNAL) &&
-      (PP->PredFlags & (NoTracePredFlag|HiddenPredFlag)) ) {
+      (P->y_u.Osbpp.p->PredFlags & (NoTracePredFlag|HiddenPredFlag)) ) {
     return 2;
   }
   SET_ASP(YENV, P->y_u.Osbpp.s);
