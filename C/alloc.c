@@ -438,8 +438,8 @@ int
 Yap_ExtendWorkSpace(Int s)
 {
   CACHE_REGS
-  void *basebp = (void *)LOCAL_GlobalBase, *nbp;
-  UInt s0 = (char *)LOCAL_TrailTop-(char *)LOCAL_GlobalBase;
+  void *basebp = LOCAL_GlobalBase, *nbp;
+  UInt s0 = LOCAL_TrailTop- LOCAL_GlobalBase;
   nbp = realloc(basebp, s+s0);
   if (nbp == NULL) 
     return FALSE;
