@@ -123,7 +123,7 @@ SearchInInvisible(const char *atom)
 }
 
 static inline Atom
-SearchAtom(unsigned char *p, Atom a) {
+SearchAtom(const char *p, Atom a) {
   AtomEntry *ae;
 
   /* search atom in chain */
@@ -156,19 +156,19 @@ static Atom
 LookupAtom(const char *atom)
 {				/* lookup atom in atom table            */
   UInt hash;
-  unsigned char *p;
+  const char *p;
   Atom a, na;
   AtomEntry *ae;
   
   /* compute hash */
-  p = (unsigned char *)atom;
+  p = atom;
   hash = HashFunction(p) % AtomHashTableSize;
 
   /* we'll start by holding a read lock in order to avoid contention */
   READ_LOCK(HashChain[hash].AERWLock);
   a = HashChain[hash].Entry;
   /* search atom in chain */
-  na = SearchAtom((unsigned char *)atom, a);
+  na = SearchAtom(atom, a);
   if (na != NIL) {
     READ_UNLOCK(HashChain[hash].AERWLock);
     return(na);
@@ -180,7 +180,7 @@ LookupAtom(const char *atom)
 #if defined(YAPOR) || defined(THREADS)
   if (a != HashChain[hash].Entry) {
     a = HashChain[hash].Entry;
-    na = SearchAtom((unsigned char *)atom, a);
+    na = SearchAtom(atom, a);
     if (na != NIL) {
       WRITE_UNLOCK(HashChain[hash].AERWLock);
       return(na);
@@ -391,11 +391,11 @@ Yap_LookupAtomWithAddress(const char *atom,
 			  AtomEntry *ae)
 {				/* lookup atom in atom table            */
   register CELL hash;
-  register unsigned char *p;
+  register const char *p;
   Atom a;
 
   /* compute hash */
-  p = (unsigned char *)atom;
+  p = atom;
   hash = HashFunction(p) % AtomHashTableSize;
   /* ask for a WRITE lock because it is highly unlikely we shall find anything */
   WRITE_LOCK(HashChain[hash].AERWLock);
@@ -420,13 +420,13 @@ void
 Yap_ReleaseAtom(Atom atom)
 {				/* Releases an atom from the hash chain */
   register Int hash;
-  register unsigned char *p;
+  register const char *p;
   AtomEntry *inChain;
   AtomEntry *ap = RepAtom(atom);
   char *name = ap->StrOfAE;
 
   /* compute hash */
-  p = (unsigned char *)name;
+  p = name;
   hash = HashFunction(p) % AtomHashTableSize;
   WRITE_LOCK(HashChain[hash].AERWLock);
   if (HashChain[hash].Entry == atom) {
