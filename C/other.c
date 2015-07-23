@@ -61,7 +61,7 @@ Yap_MkNewPairTerm(void)
 }
 
 Term
-Yap_MkApplTerm(Functor f, unsigned int n, register Term *a)	
+Yap_MkApplTerm(Functor f, arity_t n,  const Term *a)
      /* build compound term with functor f and n
       * args a */
 {
@@ -74,12 +74,13 @@ Yap_MkApplTerm(Functor f, unsigned int n, register Term *a)
     return MkPairTerm(a[0], a[1]);
   *HR++ = (CELL) f;
   while (n--)
-    *HR++ = (CELL) * a++;
+    *HR++ =  * a++;
   return (AbsAppl(t));
 }
 
 Term 
-Yap_MkNewApplTerm(Functor f, unsigned int n)	
+
+Yap_MkNewApplTerm(Functor f, arity_t n)
      /* build compound term with functor f and n
       * args a */
 {

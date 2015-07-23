@@ -388,6 +388,15 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 #ifdef DEBUG
 	  case 'P':
 	    YAP_SetOutputMessage();
+	    if (p[1] != '\0') {
+		while (p[1] != '\0') {
+		    int ch = p[1];
+		    if (ch >= 'A' && ch <= 'Z')
+		      ch += ('a'-'A');
+		    if (ch >= 'a' && ch <= 'z')
+			GLOBAL_Option[ch - 96] = 1;
+		  }
+	      }
 	    break;
 #endif
 	  case 'L':

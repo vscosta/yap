@@ -152,7 +152,8 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   Int arity;
   /*  extern int gc_calls; */
   vsc_count++;
-  if (vsc_count == 12534) jmp_deb( 2 );
+  //if (HR < ASP ) return;
+  //fif (vsc_count == 12534) jmp_deb( 2 );
 #if __ANDROID__ && 0
   PredEntry *ap = pred;
   if (pred && port == enter_pred) {

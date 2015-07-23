@@ -50,9 +50,9 @@ p_load_foreign( USES_REGS1 )
   yhandle_t CurSlot = Yap_StartSlots();
 
   strcpy(LOCAL_ErrorSay,"Invalid arguments");
-  Yap_DebugPlWrite(ARG1);  printf("%s\n", " \n");
-  Yap_DebugPlWrite(ARG2);  printf("%s\n", " \n");
-  Yap_DebugPlWrite(ARG3);  printf("%s\n", " \n");
+  //  Yap_DebugPlWrite(ARG1);  printf("%s\n", " \n");
+  //Yap_DebugPlWrite(ARG2);  printf("%s\n", " \n");
+  //ap_DebugPlWrite(ARG3);  printf("%s\n", " \n");
 
   /* collect the list of object files */
   t = Deref(ARG1);

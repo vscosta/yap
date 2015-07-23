@@ -205,7 +205,7 @@ static Term ParseTerm( int, JMPBUFF *CACHE_TYPE);
 
 #define FAIL siglongjmp(FailBuff->JmpBuff, 1)
 
-VarEntry *Yap_LookupVar(char *var) /* lookup variable in variables table   */
+VarEntry *Yap_LookupVar(const char *var) /* lookup variable in variables table   */
 {
   CACHE_REGS
   VarEntry *p;
@@ -216,11 +216,10 @@ VarEntry *Yap_LookupVar(char *var) /* lookup variable in variables table   */
 #endif
   if (var[0] != '_' || var[1] != '\0') {
     VarEntry **op = &LOCAL_VarTable;
-    unsigned char *vp = (unsigned char *)var;
     UInt hv;
 
     p = LOCAL_VarTable;
-    hv = HashFunction(vp) % AtomHashTableSize;
+    hv = HashFunction(var) % AtomHashTableSize;
     while (p != NULL) {
       CELL hpv = p->hv;
       if (hv == hpv) {
