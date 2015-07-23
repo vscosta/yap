@@ -935,6 +935,7 @@ if (IsVarTerm(tin)) {
   }
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   out = Yap_Execute( Deref(ARG2) PASS_REGS);
+  LOCK(GLOBAL_Stream[output_stream].streamlock);
   LOCAL_c_output_stream = old_out;
   if (mem_stream) {
     Term tat;

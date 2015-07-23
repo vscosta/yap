@@ -59,9 +59,6 @@ include_directories(../../CXX)
 
     qt5_use_modules(qtyap Widgets)
 
-    qt5_use_modules(qtyap Core SerialPort)
-    #target_link_libraries(qtyap QtSerialPort)
-
 
   install(TARGETS  qtyap
      RUNTIME DESTINATION ${bindir}

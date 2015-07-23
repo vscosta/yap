@@ -218,6 +218,7 @@ CELL   *Yap_GetFromArena(Term *,UInt,UInt);
 void	Yap_InitGlobals(void);
 Term	Yap_SaveTerm(Term);
 Term	Yap_SetGlobalVal(Atom, Term);
+Term	Yap_GetGlobal(Atom);
 Int	Yap_DeleteGlobal(Atom);
 void	Yap_AllocateDefaultArena(Int, Int, int);
 
@@ -327,8 +328,8 @@ void    Yap_InitMPE(void);
 
 
 /* other.c */
-Term	Yap_MkApplTerm(Functor,unsigned int,Term *);
-Term	Yap_MkNewApplTerm(Functor,unsigned int);
+Term	Yap_MkApplTerm(Functor,arity_t,const Term *);
+Term	Yap_MkNewApplTerm(Functor,arity_t);
 Term	Yap_MkNewPairTerm(void);
 Term	Yap_Globalise(Term);
 

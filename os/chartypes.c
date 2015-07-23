@@ -105,12 +105,12 @@ char *
 
   if (sno < 0)
     return NULL;
+  LOCK(GLOBAL_Stream[sno].streamlock);
   LOCAL_c_output_stream = sno;
   if (encp)
     GLOBAL_Stream[sno].encoding = encp;
   Yap_plwrite (t, GLOBAL_Stream+sno, 0, flags, 1200);
   s[GLOBAL_Stream[sno].u.mem_string.pos] = '\0';
-  LOCK(GLOBAL_Stream[sno].streamlock);
   GLOBAL_Stream[sno].status = Free_Stream_f;
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   LOCAL_c_output_stream = old_output_stream;

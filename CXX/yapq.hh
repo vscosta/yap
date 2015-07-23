@@ -118,6 +118,12 @@ public:
   };
   /// current module for the engine
   YAPModule currentModule( ) { return YAPModule( ) ; }
+  /// current directory for the engine
+  const char *currentDir( ) {
+      char dir[1024];
+      std::string s = Yap_getcwd(dir, 1024-1);
+      return s.c_str();
+  }
 };
 
 #endif /* YAPQ_HH */

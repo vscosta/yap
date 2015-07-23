@@ -80,6 +80,9 @@ struct swi_mutex*		WithMutex		                void
 
 // streams 
 struct stream_desc*		Stream					void
+#if defined(THREADS)
+lockvar				StreamDescLock                MkLock
+#endif
 
 // access to yap initial arguments 
 char**				argv					void

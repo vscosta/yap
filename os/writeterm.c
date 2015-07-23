@@ -445,7 +445,7 @@ write_canonical ( USES_REGS1 )
   args[WRITE_IGNORE_OPS].tvalue = TermTrue;
   args[WRITE_QUOTED].used = true;
   args[WRITE_QUOTED].tvalue = TermTrue;
-  write_term( output_stream, ARG1, args PASS_REGS);
+  write_term( output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
   if (EX != 0L) {

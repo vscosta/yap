@@ -81,7 +81,7 @@ chtype(Int ch)
 #define ParserAuxSp LOCAL_ScannerStack
 
 /* routines in parser.c */
-VarEntry *Yap_LookupVar(char *);
+VarEntry *Yap_LookupVar(const char *);
 Term Yap_VarNames(VarEntry *,Term);
 Term Yap_Variables(VarEntry *,Term);
 Term Yap_Singletons(VarEntry *,Term);
@@ -178,17 +178,17 @@ void Yap_init_socks(char *host, long interface_port);
 extern int errno;
 #endif
 
-INLINE_ONLY EXTERN UInt inline HashFunction(unsigned char *);
+INLINE_ONLY EXTERN UInt inline HashFunction(const char *);
 INLINE_ONLY EXTERN UInt inline WideHashFunction(wchar_t *);
 
 INLINE_ONLY EXTERN inline UInt
-HashFunction(unsigned char *CHP)
+HashFunction(const char *CHP)
 {
   /* djb2 */
   UInt hash = 5381;
   UInt c;
 
-  while ((c = *CHP++) != '\0') {
+  while ((c = (UInt)(*CHP++)) != '\0') {
     /* hash = ((hash << 5) + hash) + c; hash * 33 + c */
     hash = hash * 33 ^ c;
   }

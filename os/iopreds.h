@@ -160,6 +160,9 @@ typedef struct stream_desc
   Atom name;
   Term user_name;
   FILE* file;
+  // useful in memory streams
+  char *nbuf;
+  size_t nsize;
   union {
     struct {
 #define PLGETC_BUF_SIZE 4096
@@ -405,8 +408,8 @@ CACHE_REGS
     cpos--;
   }
   sargs[0] = MkIntegerTerm (cpos);
-  sargs[1] = MkIntegerTerm (LOCAL_StartLine = GLOBAL_Stream[sno].linecount);
-  sargs[2] = MkIntegerTerm (GLOBAL_Stream[sno].linepos);
+  sargs[1] = MkIntegerTerm (LOCAL_StartLineCount = GLOBAL_Stream[sno].linecount);
+  sargs[2] = MkIntegerTerm (LOCAL_StartLinePos = GLOBAL_Stream[sno].linepos);
   sargs[3] = sargs[4] = MkIntTerm (0);
   return Yap_MkApplTerm (FunctorStreamPos, 5, sargs);
 }

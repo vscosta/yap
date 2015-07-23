@@ -1,6 +1,6 @@
 
 :- use_module(library(lineutils),
-	[file_filter_with_initialization/5,
+	[file_filter_with_init/5,
 	 split/3,
 	 glue/3]).
 
@@ -15,6 +15,9 @@
 :- yap_flag(write_strings,on).
 
 :- style_check(all).
+
+file_filter_with_initialization(A,B,C,D,E) :-
+     file_filter_with_init(A,B,C,D,E).
 
 main :-
 	warning(Warning),

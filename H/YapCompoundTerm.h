@@ -59,6 +59,7 @@ INLINE_ONLY inline EXTERN Term ArgOfTerm (int i, Term t);
 
 INLINE_ONLY inline EXTERN Term
 ArgOfTerm (int i, Term t)
+
 {
   return (Term) (Derefa (RepAppl (t) + (i)));
 }

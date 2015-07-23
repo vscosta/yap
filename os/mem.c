@@ -265,7 +265,7 @@ Yap_open_buf_write_stream(char **nbufp, size_t *ncharsp)
   st->linecount = 1;
   Yap_DefaultStreamOps( st );
 #if MAY_WRITE
-  st->file = open_memstream(&nbuf, &nchars);
+  st->file = open_memstream(&st->nbuf, &st->nsize);
   st->status = Output_Stream_f | InMemory_Stream_f|Seekable_Stream_f;
 #else
   st->u.mem_string.pos = 0;
@@ -319,7 +319,15 @@ open_mem_write_stream (USES_REGS1)   /* $open_mem_write_stream(-Stream) */
 memHandle *
 Yap_MemExportStreamPtrs( int sno )
 {
- return &GLOBAL_Stream[sno].u.mem_string;
+#if MAY_WRITE
+  if (fflush(GLOBAL_Stream[sno].file) == 0) {
+      GLOBAL_Stream[sno].nbuf[GLOBAL_Stream[sno].nsize]  = '\0';
+      return (memHandle *)GLOBAL_Stream[sno].nbuf;
+    }
+  return NULL;
+#else
+  return &GLOBAL_Stream[sno].u.mem_string;
+#endif
 }
 
 
@@ -327,17 +335,28 @@ static Int
 peek_mem_write_stream ( USES_REGS1 )
 {				/* '$peek_mem_write_stream'(+GLOBAL_Stream,?S0,?S) */
   Int sno = Yap_CheckStream (ARG1, (Output_Stream_f | InMemory_Stream_f), "close/2");
-  Int i = GLOBAL_Stream[sno].u.mem_string.pos;
+  Int i;
   Term tf = ARG2;
   CELL *HI;
+  const char *ptr;
 
   if (sno < 0)
     return (FALSE);
  restart:
   HI = HR;
+#if MAY_WRITE
+  if (fflush(GLOBAL_Stream[sno].file) == 0) {
+      ptr = GLOBAL_Stream[sno].nbuf;
+      i = GLOBAL_Stream[sno].nsize;
+    }
+#else
+  size_t pos;
+    ptr = GLOBAL_Stream[sno].u.mem_string.buf;
+    i = GLOBAL_Stream[sno].u.mem_string.pos;
+#endif
   while (i > 0) {
     --i;
-    tf = MkPairTerm(MkIntTerm(GLOBAL_Stream[sno].u.mem_string.buf[i]),tf);
+    tf = MkPairTerm(MkIntTerm(ptr[i]),tf);
     if (HR + 1024 >= ASP) {
       UNLOCK(GLOBAL_Stream[sno].streamlock);
       HR = HI;

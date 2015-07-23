@@ -100,18 +100,19 @@ void SettingsDialog::apply()
 
 void SettingsDialog::checkCustomBaudRatePolicy(int idx)
 {
-    bool isCustomBaudRate = !ui->baudRateBox->itemData(idx).isValid();
+/*    bool isCustomBaudRate = !ui->baudRateBox->itemData(idx).isValid();
     ui->baudRateBox->setEditable(isCustomBaudRate);
     if (isCustomBaudRate) {
         ui->baudRateBox->clearEditText();
         QLineEdit *edit = ui->baudRateBox->lineEdit();
         edit->setValidator(intValidator);
     }
+    */
 }
 
 void SettingsDialog::checkCustomDevicePathPolicy(int idx)
 {
-    bool isCustomPath = !ui->serialPortInfoListBox->itemData(idx).isValid();
+  bool isCustomPath = !ui->serialPortInfoListBox->itemData(idx).isValid();
     ui->serialPortInfoListBox->setEditable(isCustomPath);
     if (isCustomPath)
         ui->serialPortInfoListBox->clearEditText();
@@ -119,7 +120,7 @@ void SettingsDialog::checkCustomDevicePathPolicy(int idx)
 
 void SettingsDialog::fillPortsParameters()
 {
-    ui->baudRateBox->addItem(QStringLiteral("9600"), QSerialPort::Baud9600);
+   /* ui->baudRateBox->addItem(QStringLiteral("9600"), QSerialPort::Baud9600);
     ui->baudRateBox->addItem(QStringLiteral("19200"), QSerialPort::Baud19200);
     ui->baudRateBox->addItem(QStringLiteral("38400"), QSerialPort::Baud38400);
     ui->baudRateBox->addItem(QStringLiteral("115200"), QSerialPort::Baud115200);
@@ -146,11 +147,12 @@ void SettingsDialog::fillPortsParameters()
     ui->flowControlBox->addItem(tr("None"), QSerialPort::NoFlowControl);
     ui->flowControlBox->addItem(tr("RTS/CTS"), QSerialPort::HardwareControl);
     ui->flowControlBox->addItem(tr("XON/XOFF"), QSerialPort::SoftwareControl);
+    */
 }
 
 void SettingsDialog::fillPortsInfo()
 {
-    ui->serialPortInfoListBox->clear();
+   /* ui->serialPortInfoListBox->clear();
     QString description;
     QString manufacturer;
     QString serialNumber;
@@ -171,12 +173,13 @@ void SettingsDialog::fillPortsInfo()
     }
 
     ui->serialPortInfoListBox->addItem(tr("Custom"));
+    */
 }
 
 void SettingsDialog::updateSettings()
 {
     currentSettings.name = ui->serialPortInfoListBox->currentText();
-
+/*
     if (ui->baudRateBox->currentIndex() == 4) {
         currentSettings.baudRate = ui->baudRateBox->currentText().toInt();
     } else {
@@ -201,5 +204,5 @@ void SettingsDialog::updateSettings()
                 ui->flowControlBox->itemData(ui->flowControlBox->currentIndex()).toInt());
     currentSettings.stringFlowControl = ui->flowControlBox->currentText();
 
-    currentSettings.localEchoEnabled = ui->localEchoCheckBox->isChecked();
+    currentSettings.localEchoEnabled = ui->localEchoCheckBox->isChecked();*/
 }

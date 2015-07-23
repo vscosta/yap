@@ -266,8 +266,8 @@ Term Yap_StreamUserName(int sno)
       return (s->user_name);
     }
     if ((atname = StreamName(sno)))
-    return atname;
-    return 0;
+      return atname;
+    return TermNil;
 }
 
 static void
@@ -409,7 +409,7 @@ void
 Yap_DebugPlWrite(Term t)
 {
   if (t != 0)
-    Yap_plwrite(t, NULL, 0, 0, 1200);
+    Yap_plwrite(t,GLOBAL_Stream+2, 0, 0, 1200);
 }
 
 void 
@@ -1671,7 +1671,9 @@ Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
 	  sname = AtomUserOut;
 	}
       }
+      LOCK(GLOBAL_StreamDescLock);
       if ((sno = Yap_CheckAlias(sname)) == -1) {
+        UNLOCK(GLOBAL_StreamDescLock);
 	Yap_Error(EXISTENCE_ERROR_STREAM, arg, msg);
 	return -1;
       }
@@ -1684,18 +1686,20 @@ Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
     if (sno < 0)
       {
 	Yap_Error(DOMAIN_ERROR_STREAM_OR_ALIAS, arg, msg);
+        UNLOCK(GLOBAL_StreamDescLock);
+	return (-1);
+      }
+    if (GLOBAL_Stream[sno].status & Free_Stream_f)
+      {
+        PlIOError(EXISTENCE_ERROR_STREAM, arg, msg);
+        UNLOCK(GLOBAL_StreamDescLock);
 	return (-1);
       }
     LOCK(GLOBAL_Stream[sno].streamlock);
-    if (GLOBAL_Stream[sno].status & Free_Stream_f)
-      {
-	UNLOCK(GLOBAL_Stream[sno].streamlock);
-	PlIOError(EXISTENCE_ERROR_STREAM, arg, msg);
-	return (-1);
-      }
+    UNLOCK(GLOBAL_StreamDescLock);
     if ((GLOBAL_Stream[sno].status & kind) == 0)
       {
-	UNLOCK(GLOBAL_Stream[sno].streamlock);
+        UNLOCK(GLOBAL_Stream[sno].streamlock);
 	if (kind & Input_Stream_f)
 	  PlIOError(PERMISSION_ERROR_INPUT_STREAM, arg, msg);
 	else

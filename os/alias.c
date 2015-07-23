@@ -267,8 +267,9 @@ Yap_DeleteAliases (int sno)
 	  break; /* just put something here */
 	}
 	new_aliasp++;
-      } else {
+     } else {
 	LOCAL_NOfFileAliases--;
+	//       printf("RM %p at %d/%d %d\n", new_aliasp->name, new_aliasp-LOCAL_FileAliases, new_aliasp->alias_stream, sno);
       }
     } else {
       /* avoid holes in alias array */
@@ -279,7 +280,7 @@ Yap_DeleteAliases (int sno)
       new_aliasp++;
     }
     aliasp++;
-  }
+  }/////
 }
 
 /* check if name is an alias */
@@ -365,10 +366,11 @@ Yap_RemoveAlias (Atom arg, int sno)
     }
     aliasp++;
   }
+  //printf("RM %p at %d\n", arg, aliasp-LOCAL_FileAliases);
   /* we have not found an alias neither a hole */
   if (aliasp == LOCAL_FileAliases+LOCAL_SzOfFileAliases)
     ExtendAliasArray();
-  LOCAL_NOfFileAliases++;
+  LOCAL_NOfFileAliases--;
   aliasp->name = arg;
   aliasp->alias_stream = sno;
   return(TRUE);
@@ -393,6 +395,7 @@ Yap_AddAlias (Atom arg, int sno)
   if (aliasp == LOCAL_FileAliases+LOCAL_SzOfFileAliases)
     ExtendAliasArray();
   LOCAL_NOfFileAliases++;
+  //  printf("ADD %p at %d\n", arg, aliasp-LOCAL_FileAliases);
   aliasp->name = arg;
   aliasp->alias_stream = sno;
   return true;

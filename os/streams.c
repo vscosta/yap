@@ -125,6 +125,7 @@ FILE  *Yap_GetOutputStream(Term t, const char *msg)
     return rc;
 }
 
+
 int
 GetFreeStreamD(void)
 {
@@ -521,24 +522,19 @@ eof_action ( int sno, Term t2 USES_REGS )
 
   
 static bool
-do_stream_property (int sno, Term opts USES_REGS)
+do_stream_property (int sno, xarg *args USES_REGS)
 {				/* Init current_stream */
-  xarg *args;
   stream_property_choices_t i;
   bool rc = true;
   
 
-  args = Yap_ArgListToVector ( opts, stream_property_defs, STREAM_PROPERTY_END  );
-  if (args == NULL) {
-    return false;
-  }
   for (i=0; i < STREAM_PROPERTY_END; i ++) {
     if (args[i].used) {
       switch (i) {
       case STREAM_PROPERTY_ALIAS:
-	rc = rc &&
-	  Yap_FetchStreamAlias ( sno, args[STREAM_PROPERTY_ALIAS].tvalue PASS_REGS);
-	break;
+          rc = rc &
+            Yap_FetchStreamAlias ( sno, args[STREAM_PROPERTY_ALIAS].tvalue PASS_REGS);
+          break;
       case STREAM_PROPERTY_BOM:
 	rc = rc && 
 	  has_bom ( sno, args[STREAM_PROPERTY_BOM].tvalue PASS_REGS);
@@ -605,53 +601,89 @@ do_stream_property (int sno, Term opts USES_REGS)
       }
     }      
   }
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return rc;
 }
 
 static Int
 cont_stream_property (USES_REGS1)
 {				/* current_stream */
-  int i = IntOfTerm (EXTRA_CBACK_ARG (2, 1)), i0;
-  LOCK(GLOBAL_Stream[i].streamlock);
-  i0=i;
-  while (i < MaxStreams) {
-    if (GLOBAL_Stream[i].status & Free_Stream_f) {
-      ++i;
-      continue;
-    }
-    if (i != i0) {
-	LOCK(GLOBAL_Stream[i].streamlock);
-	UNLOCK(GLOBAL_Stream[i0].streamlock);
-      }
-    ++i;
-    EXTRA_CBACK_ARG (2, 1) = MkIntTerm (i);
-    if (i == MaxStreams)
-      do_cut( true );
-    if ( do_stream_property(i-1, Deref(ARG2) PASS_REGS) ) {
-      Yap_unify(ARG1, Yap_MkStream(i-1));
-      return true;
-    }
+  bool det;
+  xarg *args;
+  int i = IntOfTerm (EXTRA_CBACK_ARG (2, 1));
+  bool rc;
+
+  args = Yap_ArgListToVector ( Deref(ARG2), stream_property_defs, STREAM_PROPERTY_END  );
+  if (args == NULL) {
+    cut_fail();
   }
-  UNLOCK(GLOBAL_Stream[i0].streamlock);
-  cut_fail();
+  LOCK(GLOBAL_StreamDescLock);
+  if (args[STREAM_PROPERTY_ALIAS].tvalue &&
+      IsAtomTerm(args[STREAM_PROPERTY_ALIAS].tvalue)) {
+    // one solution only
+    det = true;
+    i = Yap_CheckAlias(AtomOfTerm(args[STREAM_PROPERTY_ALIAS].tvalue));
+    UNLOCK(GLOBAL_StreamDescLock);
+    if (i < 0) {
+      cut_fail();
+    }
+    rc = true;
+  } else {
+    while (GLOBAL_Stream[i].status & Free_Stream_f) {
+      ++i;
+      if (i == MaxStreams)
+        cut_fail();
+      else
+        EXTRA_CBACK_ARG (2, 1) = MkIntTerm (i+1);
+    }
+    LOCK(GLOBAL_Stream[i].streamlock);
+    UNLOCK(GLOBAL_StreamDescLock);
+    rc = do_stream_property(i, args PASS_REGS);
+    UNLOCK(GLOBAL_Stream[i].streamlock);
+  }
+  if (rc)
+      rc = Yap_unify(ARG1, Yap_MkStream(i));
+  if (rc) {
+        if (det)
+          cut_succeed();
+        else
+          return true;
+      } else if (det)
+        cut_fail();
+      else
+        return false;
 }
 
 static Int
 stream_property (USES_REGS1)
 {				/* Init current_stream */
   Term t1 = Deref(ARG1);
+  //Yap_DebugPlWrite(ARG1);fprintf(stderr,", ");
+  // Yap_DebugPlWrite(ARG2);fprintf(stderr,"\n");
+
   /* make valgrind happy by always filling in memory */
   EXTRA_CBACK_ARG (2, 1) = MkIntTerm (0);
   if (!IsVarTerm(t1)) {
     Int i;
+    xarg *args;
+    
     i = Yap_CheckStream (t1, Input_Stream_f|Output_Stream_f|Append_Stream_f, "current_stream/3");
-    do_cut(0);
-    if (i < 0)
-      return false;
-    return do_stream_property( i, Deref(ARG2) PASS_REGS);
+    if (i < 0) {
+      cut_fail();
+    }
+    args = Yap_ArgListToVector ( Deref(ARG2), stream_property_defs, STREAM_PROPERTY_END  );
+    if (args == NULL) {
+       UNLOCK(GLOBAL_Stream[i].streamlock);
+    cut_fail();
+    }
+    if (  do_stream_property( i, args PASS_REGS) ) {
+     UNLOCK(GLOBAL_Stream[i].streamlock);
+     cut_succeed();
+    } else {
+      UNLOCK(GLOBAL_Stream[i].streamlock);
+      cut_fail();
+    }
   } else {
-    return (cont_stream_property (PASS_REGS1));
+    return cont_stream_property( PASS_REGS1);
   }
 }
 

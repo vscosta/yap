@@ -190,6 +190,7 @@ struct pred_entry  *wake_up_code	WakeUpCode		MkPred AtomWakeUpGoal 2 PROLOG_MODU
 #endif
 struct pred_entry *pred_goal_expansion	PredGoalExpansion	MkPred FunctorGoalExpansion USER_MODULE
 struct pred_entry *pred_meta_call	PredMetaCall		MkPred FunctorMetaCall PROLOG_MODULE
+struct pred_entry *pred_trace_meta_call	PredTraceMetaCall	MkPred FunctorTraceMetaCall PROLOG_MODULE
 struct pred_entry *pred_dollar_catch	PredDollarCatch         MkPred FunctorCatch PROLOG_MODULE
 struct pred_entry *pred_recorded_with_key PredRecordedWithKey	MkPred FunctorRecordedWithKey PROLOG_MODULE
 struct pred_entry *pred_log_upd_clause	PredLogUpdClause	MkPred FunctorDoLogUpdClause PROLOG_MODULE
