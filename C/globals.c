@@ -1398,6 +1398,30 @@ p_nb_getval( USES_REGS1 )
 }
 
 
+Term
+Yap_GetGlobal( Atom at )
+{
+  CACHE_REGS
+  GlobalEntry *ge;
+  Term to;
+    
+  ge = FindGlobalEntry(at PASS_REGS);
+  if (!ge) 
+    return 0L;
+  READ_LOCK(ge->GRWLock);
+  to = ge->global;
+  if (IsVarTerm(to) && IsUnboundVar(VarOfTerm(to))) {
+    Term t = MkVarTerm();
+    YapBind(VarOfTerm(to), t);
+    to = t;
+  }
+  READ_UNLOCK(ge->GRWLock);
+  if (to == TermFoundVar) {
+    return 0;
+  }
+  return to;
+}
+
 static Int 
 nbdelete(Atom at USES_REGS)
 {
