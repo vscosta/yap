@@ -86,6 +86,7 @@ A	DBReference		N	"db_reference"
 A	DBTerm			N	"db_term"
 A	DBref			F	"$dbref"
 A	DInteger		F	"$integer"
+A	DebugMeta		F	"$debug_meta"
 A	DebuggerInput		N	"debugger_input"
 A	Dec10			N	"dec10"
 A	Default			N	"default"
@@ -359,6 +360,7 @@ A	TimeOutSpec		N	"time_out_spec"
 A	TimeoutError		N	"timeout_error"
 A	TopLevelGoal		F	"$top_level_goal"
 A	TopThreadGoal		F	"$top_thread_goal"
+A	TraceMetaCall		F	"$trace_meta_call"
 A	Trail			N	"trail"
 A	True			N	"true"
 A	Tty			N	"tty"
@@ -509,6 +511,7 @@ F	TermExpansion		TermExpansion	2
 F	ThreadRun		TopThreadGoal	2
 F	Throw			Throw		1
 F	TimeoutError		TimeoutError	2
+F	TraceMetaCall		TraceMetaCall	3
 F	TypeError		TypeError	2
 F	UMinus			Minus		1
 F	UPlus			Plus		1
