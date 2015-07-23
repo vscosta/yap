@@ -1,3 +1,4 @@
+
 /*************************************************************************
 *									 *
 *	 Yap Prolog 							 *
@@ -28,6 +29,8 @@
 #include <string.h>
 #endif
 #include "Foreign.h"
+
+static bool handled_exception( USES_REGS1 );
 
 #if DEBUG
 void
@@ -107,13 +110,18 @@ Yap_PrintWarning( Term twarning )
   bool rc;
   Term ts[2];
   
-  if (LOCAL_within_print_message)
-    return false;
+  if (LOCAL_within_print_message) {
+    /* error within error */
+    fprintf(stderr,"%% WARNING WITHIN WARNING\n");
+    Yap_RestartYap( 1 );
+  }
+  LOCAL_DoingUndefp = true;
   LOCAL_within_print_message = true;
   if (pred->OpcodeOfPred == UNDEF_OPCODE) {
     fprintf(stderr, "warning message:\n");
     Yap_DebugPlWrite( twarning );
     fprintf(stderr, "\n");
+    LOCAL_DoingUndefp = false;
     LOCAL_within_print_message = false;
     return true;
   }
@@ -121,6 +129,7 @@ Yap_PrintWarning( Term twarning )
   ts[1] = twarning;
   rc = Yap_execute_pred( pred, ts , true PASS_REGS);
   LOCAL_within_print_message = false;
+  LOCAL_DoingUndefp = false;
   return rc;
 }
 
@@ -452,11 +461,11 @@ detect_bug_location(yamop *yap_pc, find_pred_type where_from, char *tp, int psiz
   }
 }
 
-static int
+static bool
 handled_exception( USES_REGS1 )
 {
   yamop *pos = NEXTOP(PredDollarCatch->cs.p_code.TrueCodeOfPred,l);
-  int found_handler = FALSE;
+  bool found_handler = false;
   choiceptr gc_b;
 
   gc_b = B;
@@ -464,11 +473,11 @@ handled_exception( USES_REGS1 )
     yamop *ap = gc_b->cp_ap;
     if (ap == NOCODE) {
       /* C-code: let they deal with that */
-      return FALSE;
+      return false;
     } else if (ap == pos) {
       if (found_handler)
 	return TRUE; /* we have two handlers */
-      found_handler = TRUE;
+      found_handler = true;
     }
     gc_b = gc_b->cp_b;
   }
@@ -636,7 +645,7 @@ Yap_Error(yap_error_number type, Term where, const char *format,...)
 
   LOCAL_Error_TYPE = YAP_NO_ERROR;
   Yap_ClearExs();
- if (where == 0L)
+  if (where == 0L)
     where = TermNil;
 #if DEBUG_STRICT
   if (Yap_heap_regs && !(LOCAL_PrologMode & BootMode)) 
@@ -665,7 +674,24 @@ Yap_Error(yap_error_number type, Term where, const char *format,...)
     }
     va_end (ap);
     fprintf(stderr,"%% ERROR WITHIN ERROR %d: %s\n", LOCAL_CurrentError, tmpbuf);
-    exit(1);
+    Yap_RestartYap( 1 );
+  }
+  if (LOCAL_within_print_message) {
+    /* error within error */
+    va_start (ap, format);
+    /* now build the error string */
+    if (format != NULL) {
+#if   HAVE_VSNPRINTF
+      (void) vsnprintf(tmpbuf, YAP_BUF_SIZE, format, ap);
+#else
+      (void) vsprintf(tmpbuf, format, ap);
+#endif
+    } else {
+      tmpbuf[0] = '\0';
+    }
+    va_end (ap);
+    fprintf(stderr,"%% ERROR WITHIN WARNING %d: %s\n", LOCAL_CurrentError, tmpbuf);
+    Yap_RestartYap( 1 );
   }
   /* must do this here */
   if (type == FATAL_ERROR
