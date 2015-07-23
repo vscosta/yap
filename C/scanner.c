@@ -469,7 +469,7 @@ static char chtype0[NUMBER_OF_CHARS + 1] = {
   BS, BS, BS, BS, BS, BS, BS,
 
   /* sp   !   "   #   $   %   &   '   (   )   *   +   ,   -   .   / */
-  BS, SL, DC, SY, LC, CC, SY, QT, BK,
+  BS, SL, DC, SY, SY, CC, SY, QT, BK,
   BK, SY, SY, BK, SY, SY, SY,
 
   /* 0   1   2   3   4   5   6   7   8   9   :   ;   <   =   >   ? */
@@ -1254,7 +1254,8 @@ TokEntry *Yap_tokenizer( struct stream_desc *inp_stream,
     }
   *tposp = Yap_StreamPosition(inp_stream-GLOBAL_Stream);
   Yap_setCurrentSourceLocation(inp_stream);
-  LOCAL_StartLine = inp_stream->linecount;
+  LOCAL_StartLineCount = inp_stream->linecount;
+  LOCAL_StartLinePos = inp_stream->linepos;
   do {
       wchar_t och;
       int quote, isvar;
