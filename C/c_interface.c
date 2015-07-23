@@ -2421,6 +2421,8 @@ YAP_RunGoalOnce(Term t)
   Int oldPrologMode = LOCAL_PrologMode;
 
   BACKUP_MACHINE_REGS();
+  Yap_InitYaamRegs( 0 );
+  
   LOCAL_PrologMode = UserMode;
   //  Yap_heap_regs->yap_do_low_level_trace=true;
   out = Yap_RunTopGoal(t);
