@@ -29,7 +29,7 @@
 
 :- use_system_module( '$_threads', ['$thread_gfetch'/1]).
 
-/** @pred  alarm(+ _Seconds_,+ _Callable_,+ _OldAlarm_) 
+/** @pred  alarm(+ _Seconds_,+ _Callable_,+ _OldAlarm_)
 
 
 Arranges for YAP to be interrupted in  _Seconds_ seconds, or in
@@ -99,9 +99,9 @@ if the alarm is sent. It uses catch/3 to handle the case the
 `alarm` is sent. Then it starts the alarm, calls the goal
  _Goal_, and disables the alarm on success or failure.
 
- 
+
 */
-/** @pred  on_signal(+ _Signal_,? _OldAction_,+ _Callable_) 
+/** @pred  on_signal(+ _Signal_,? _OldAction_,+ _Callable_)
 
 
 Set the interrupt handler for soft interrupt  _Signal_ to be
@@ -223,8 +223,7 @@ order of dispatch.
 	'$is_no_trace'(G, M), !,
 	(
 	'$$save_by'(CP),
-	 '$enable_debugging',
-	 '$execute_nonstop'(G, M),
+	 '$no_creep_call'(G,M),
 	 '$$save_by'(CP2),
 	 '$disable_debugging',
 	 (CP == CP2 -> ! ; ( true ; '$enable_debugging', fail ) ),
@@ -232,10 +231,22 @@ order of dispatch.
 	;
 	'$disable_debugging',
 	fail
-	).	
+	).
 '$start_creep'([Mod|G], WhereFrom) :-
-	CP is '$last_choice_pt',	
+	CP is '$last_choice_pt',
 	'$do_spy'(G, Mod, CP, WhereFrom).
+
+'$no_creep_call'('$execute_clause'(G,Mod,Ref,CP),_) :- !,
+        '$enable_debugging',
+	'$execute_clause'(G,Mod,Ref,CP).
+'$no_creep_call'('$execute_nonstop'(G, M),_) :- !,
+	 '$enable_debugging',
+	'$execute_nonstop'(G, M).
+'$no_creep_call'(G, M) :-
+	 '$enable_debugging',
+	'$execute_nonstop'(G, M).
+
+
 
 '$execute_goal'(G, Mod) :-
 	(
@@ -262,7 +273,7 @@ order of dispatch.
 '$signal_def'(sig_pipe, throw(error(signal(pipe,[]),true))).
 '$signal_def'(sig_fpe, throw(error(signal(fpe,[]),true))).
 % ignore sig_alarm by default
-'$signal_def'(sig_alarm, true). 
+'$signal_def'(sig_alarm, true).
 
 
 '$signal'(sig_hup).
@@ -316,8 +327,7 @@ alarm(Interval, Goal, Left) :-
 	Left = Left0.
 alarm(Interval, Goal, Left) :-
 	integer(Interval), !,
-	on_signal(sig_alarm, _, Goal),
-	'$alarm'(Interval, 0, Left, _).
+	on_signal(sig_alarm, _, Goal),	'$alarm'(Interval, 0, Left, _).
 alarm(Number, Goal, Left) :-
 	float(Number), !,
 	Secs is integer(Number),
@@ -344,7 +354,7 @@ read_sig.
 :- '$set_no_trace'(true, prolog).
 :- '$set_no_trace'('$call'(_,_,_,_), prolog).
 :- '$set_no_trace'('$execute_nonstop'(_,_), prolog).
+:- '$set_no_trace'('$execute_clause'(_,_,_,_), prolog).
 :- '$set_no_trace'('$restore_regs'(_,_), prolog).
 
 %%! @}
-

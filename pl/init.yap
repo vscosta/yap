@@ -108,7 +108,7 @@ otherwise.
 
 :- '$handle_throw'(_,_,_), !.
 
-:- $all_current_modules(M), yap_flag(M:unknown, error) ; true.
+:- '$all_current_modules'(M), yap_flag(M:unknown, error) ; true.
 
 :- bootstrap('errors.yap').
 :- bootstrap('lists.yap').
@@ -145,7 +145,7 @@ otherwise.
 	 'grammar.yap',
 	 'ground.yap',
 	 'listing.yap',
-         'arithpreds.yap',
+     'arithpreds.yap',
 	 % modules must be after preds, otherwise we will have trouble
 	 % with meta-predicate expansion being invoked
 	 % must follow grammar
@@ -164,8 +164,8 @@ otherwise.
 	 'eam.yap',
 	 'chtypes.yap',
 	 'yapor.yap',
-         'qly.yap',
-         'udi.yap'].
+     'qly.yap',
+     'udi.yap'].
 
 :- meta_predicate(log_event(+,:)).
 
@@ -288,7 +288,6 @@ as directives.
 
 
 */
-
 :- multifile term_expansion/2.
 
 :- dynamic term_expansion/2.

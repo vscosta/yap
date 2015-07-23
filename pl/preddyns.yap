@@ -18,11 +18,9 @@ Adds clause  _C_ to the beginning of the program. If the predicate is
 undefined, it is declared  dynamic (see dynamic/1).
 
 */
-asserta(Mod:C) :- !,
-	'$assert'(C,Mod,first,_,asserta(Mod:C)).
 asserta(C) :-
-	'$current_module'(Mod),
-	'$assert'(C,Mod,first,_,asserta(C)).
+	strip_module(C, Mod, NC),
+	'$assert'(NC,Mod,first,_,asserta(C)).
 
 /** @pred  assertz(+ _C_) is iso
 
@@ -34,11 +32,9 @@ Most Prolog systems only allow asserting clauses for dynamic
 predicates. This is also as specified in the ISO standard. YAP also allows
 asserting clauses for static predicates, under the restriction that the static predicate may not be live in the stacks.
 */
-assertz(Mod:C) :- !,
-	'$assert'(C,Mod,last,_,assertz(Mod:C)).
 assertz(C) :-
-	'$current_module'(Mod),
-	'$assert'(C,Mod,last,_,assertz(C)).
+	strip_module(C,Mod,C1),
+	'$assert'(C1,Mod,last,_,assertz(C)).
 
 /** @pred  assert(+ _C_)
 
@@ -53,11 +49,9 @@ deprecated, if you want to assert clauses for static procedures you
 should use assert_static/1.
 
 */
-assert(Mod:C) :- !,
-	'$assert'(C,Mod,last,_,assert(Mod:C)).
 assert(C) :-
-	'$current_module'(Mod),
-	'$assert'(C,Mod,last,_,assert(C)).
+	strip_module(C,Mod,C1),
+	'$assert'(C1,Mod,last,_,assert(C)).
 
 '$assert'(V,Mod,_,_,_) :- var(V), !,
 	'$do_error'(instantiation_error,assert(Mod:V)).
@@ -66,45 +60,42 @@ assert(C) :-
 '$assert'(I,Mod,_,_,_) :- number(I), !,
 	'$do_error'(type_error(callable,I),assert(Mod:I)).
 '$assert'(M:C,_,Where,R,P) :- !,
-	'$assert'(C,M,Where,R,P).
-'$assert'((H:-G),M1,Where,R,P) :- !,
-	'$assert_clause'(H, G, M1, Where, R, P).
-'$assert'(H,M1,Where,R,_) :-
-	strip_module(M1:H, HM, H1),
-	'$assert_fact'(H1, HM, Where, R).
-
-'$assert_clause'(H, _, _, _, _, P) :-
-	var(H), !, '$do_error'(instantiation_error,P).
-'$assert_clause'(M1:C, G, M1, Where, R, P) :- !,
-	'$assert_clause2'(C, G, M1, Where, R, P).
-'$assert_clause'(H, G, M1, Where, R, P) :- !,
-	'$assert_clause2'(H, G, M1, Where, R, P).
+	strip_module(M:C, M1, C1),
+	'$assert'(C1,M1,Where,R,P).
+'$assert'((H:-G),M,Where,R,P) :- !,
+	'$assert_clause'(H, G, M, Where, R, P).
+'$assert'(H,M,Where,R,_) :-
+	'$assert_fact'(H, M, Where, R).
 
 '$assert_fact'(H,Mod,Where,R) :-
+	functor(H, Na, Ar),
+	( '$undefined'(H,Mod) ->
+	    '$dynamic'(Na/Ar, Mod)
+		;
+		true
+	),
 	( '$is_log_updatable'(H, Mod) ->
 	    '$compile_dynamic'(H, Where, H, Mod, R)
-        ;
-	 '$is_dynamic'(H, Mod) ->
+    ;
+	 	'$is_dynamic'(H, Mod) ->
 	    '$assertat_d'(Where, H, true, H, Mod, R)
 	;
-	  '$undefined'(H,Mod) ->
-	    functor(H, Na, Ar),
-	    '$dynamic'(Na/Ar, Mod),
-	    '$assert_fact'(H,Mod,Where,R)
+	% try asserting as static, see what happens
+		Where = last ->
+		assert_static(Mod:H)
 	;
-            current_prolog_flag(language, yap)) -> % I can assert over static facts in YAP mode
-	    '$assert1'(Where,H,H,Mod,H)
-        ;
-	    functor(H, Na, Ar),
-            '$do_error'(permission_error(modify,static_procedure,Na/Ar),Mod:assert(H))
+		asserta_static(Mod:H)
 	).
 
-
-'$assert_clause2'(HI,BI,Mod,Where,R,P) :-
-	'$expand_clause'((HI :- BI),C0,C,Mod,HM),
-	'$assert_clause3'(C0,C,HM,Where,R,P).
-
-'$assert_clause3'(C0,C,Mod,Where,R,P) :-
+'$assert_clause'(H, _, _, _, _, P) :-
+		var(H), !,
+		'$do_error'(instantiation_error,P).
+'$assert_clause'(M:C, G, MG, Where, R, P) :-
+		!,
+		strip_module(M:C, M1, C1),
+		'$assert_clause2'(C1, MG:G, M1, Where, R, P).
+'$assert_clause'(H1, B1, Mod, Where, R, P) :-
+	'$expand_clause'((H1 :- B1),C0,C,Mod,Mod),
 	'$check_head_and_body'(C,H,B,P),
 	( '$is_log_updatable'(H, Mod) ->
             '$compile_dynamic'((H :- B), Where, C0, Mod, R)
@@ -112,44 +103,11 @@ assert(C) :-
           '$is_dynamic'(H, Mod) ->
 	    '$assertat_d'(Where, H, B, C0, Mod, R)
 	;
-	  '$undefined'(H,Mod) ->
-	    functor(H, Na, Ar),
-	    '$dynamic'(Na/Ar, Mod),
-	    '$assert_clause3'(C0,C,Mod,Where,R,P)
+		Where = last
+		->
+		assert_static(Mod:(H :- B))
 	;
-            current_prolog_flag(language, sicstus)) -> % I can assert over static facts in YAP mode
-	'$assert1'(Where,C,C0,Mod,H)
-        ;
-	    functor(H, Na, Ar),
-            '$do_error'(permission_error(modify,static_procedure,Na/Ar),P)
-	).
-
-
-'$assert_dynamic'(V,Mod,_,_,_) :- var(V), !,
-	'$do_error'(instantiation_error,assert(Mod:V)).
-'$assert_dynamic'(M:C,_,Where,R,P) :- !,
-	'$assert_dynamic'(C,M,Where,R,P).
-'$assert_dynamic'((H:-_G),_M1,_Where,_R,P) :-
-        var(H), !, '$do_error'(instantiation_error,P).
-'$assert_dynamic'(CI,Mod,Where,R,P) :-
-	'$expand_clause'(CI,C0,C,Mod,HM),
-	'$assert_dynamic2'(C0,C,HM,Where,R,P).
-
-'$assert_dynamic2'(C0,C,Mod,Where,R,P) :-
-	'$check_head_and_body'(C,H,B,P),
-	( '$is_log_updatable'(H, Mod) ->
-	    '$compile_dynamic'(C, Where, C0, Mod, R)
-	;
-	  '$is_dynamic'(H, Mod) ->
-	    '$assertat_d'(Where,H,B,C0,Mod,R)
-	;
-	  '$undefined'(H, Mod) ->
-	    functor(H, Na, Ar),
-	    '$dynamic'(Na/Ar, Mod),
-	    '$assert_dynamic2'(C0,C,Mod,Where,R,P)
-	;
-	    functor(H,Na,Ar),
-	    '$do_error'(permission_error(modify,static_procedure,Na/Ar),P)
+		asserta_static(Mod:(H :- B))
 	).
 
 /** @pred  asserta(+ _C_,- _R_)
@@ -161,11 +119,9 @@ predicates. If the predicate is undefined, it will automatically be
 declared dynamic.
 
 */
-asserta(M:C,R) :- !,
-	'$assert_dynamic'(C,M,first,R,asserta(M:C,R)).
 asserta(C,R) :-
-	'$current_module'(M),
-	'$assert_dynamic'(C,M,first,R,asserta(C,R)).
+	strip_module(C, M, C1),
+	'$assert'(C1,M,first,R,asserta(C,R)).
 
 /** @pred  assertz(+ _C_,- _R_)
 
@@ -473,4 +429,3 @@ dynamic_predicate(P,Sem) :-
         ).
 '$expand_clause'(H,H1,H1,Mod,HM) :-
 	strip_module(Mod:H, HM, H1).
-

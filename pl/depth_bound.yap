@@ -31,3 +31,5 @@ system_module( '$_depth_bound', [depth_bound_call/2], []).
 %write(depth_bound_call(A,D)), nl, fail.
 depth_bound_call(A,D) :-
 	'$execute_under_depth_limit'(A,D).
+
+

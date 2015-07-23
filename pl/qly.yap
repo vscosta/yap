@@ -539,7 +539,8 @@ qload_module(Mod) :-
 '$qload_module'(_S, Mod, _File, _SourceModule) :-
     unload_module( Mod ), fail.
 '$qload_module'(S, _Mod, _File, _SourceModule) :-
-    '$qload_module_preds'(S), fail.
+	'$qload_module_preds'(S), fail.
+%:- start_low_level_trace.
 '$qload_module'(_S, Mod, File, SourceModule) :-
     Mod:'@mod_info'(F, Exps, MFs, Line,Parents, Imps, Metas, ModTransps, Foreigns, TEs),
     abolish(Mod:'@mod_info'/10),
@@ -555,12 +556,12 @@ qload_module(Mod) :-
     % no evil.
     '$convert_for_export'(all, Exps, Mod, SourceModule, TranslationTab, _AllExports0, qload_module),
     '$add_to_imports'(TranslationTab, Mod, SourceModule). % insert ops, at least for now
-
+%:- stop_low_level_trace.
 '$fetch_imports_module'(Mod, Imports) :-
 	findall(Info, '$fetch_import_module'(Mod, Info), Imports).
 
 % detect an import that is local to the module.
-'$fetch_import_module'(Mod, '$import'(Mod0,Mod,G0,G,N,K) - S) :-
+'$fetch_import_module'(Mod, '$impcort'(Mod0,Mod,G0,G,N,K) - S) :-
 	recorded('$import', '$import'(Mod0,Mod,G0,G,N,K), _),
 	( recorded('$module','$module'(_, Mod0, S, _, _), _) -> true ; S = user_input ).
 

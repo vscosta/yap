@@ -107,27 +107,22 @@ undefined results.
 
 
 */
-assert_static(Mod:C) :- !,
-	'$assert_static'(C,Mod,last,_,assert_static(Mod:C)).
 assert_static(C) :-
-	'$current_module'(Mod),
-	'$assert_static'(C,Mod,last,_,assert_static(C)).
+	strip_module(C, Mod, C1),
+	'$assert_static'(C1, Mod,last,_,assert_static(C)).
 
 /** @pred  asserta_static(: _C_)
 
 
-Adds clause  _C_ to the beginning of a static procedure.
+Adds clause  _C_ as the first clause for a static procedure.
 
 
 */
-asserta_static(Mod:C) :- !,
-	'$assert_static'(C,Mod,first,_,asserta_static(Mod:C)).
 asserta_static(C) :-
-	'$current_module'(Mod),
-	'$assert_static'(C,Mod,first,_,asserta_static(C)).
+	strip_module(C, Mod, C1),
+	'$assert_static'(C1,Mod,first,_,asserta_static(C)).
 
-asserta_static(Mod:C) :- !,
-	'$assert_static'(C,Mod,last,_,assertz_static(Mod:C)).
+
 /** @pred  assertz_static(: _C_)
 
 
@@ -145,13 +140,11 @@ static predicates, if source mode was on when they were compiled:
 
 */
 assertz_static(C) :-
-	'$current_module'(Mod),
-	'$assert_static'(C,Mod,last,_,assertz_static(C)).
+	strip_module(C, Mod, C1),
+	'$assert_static'(C1,Mod,last,_,assertz_static(C)).
 
 '$assert_static'(V,M,_,_,_) :- var(V), !,
 	'$do_error'(instantiation_error,assert(M:V)).
-'$assert_static'(M:C,_,Where,R,P) :- !,
-	'$assert_static'(C,M,Where,R,P).
 '$assert_static'((H:-_G),_M1,_Where,_R,P) :-
 	var(H), !, '$do_error'(instantiation_error,P).
 '$assert_static'(CI,Mod,Where,R,P) :-
@@ -183,10 +176,8 @@ This predicate is applicable to static procedures compiled with
 
 
 */
-clause(M:P,Q) :- !,
-	'$clause'(P,M,Q,_).
-clause(V,Q) :-
-	'$current_module'(M),
+clause(V0,Q) :-
+	strip_module(V0, M, V),
 	'$clause'(V,M,Q,_).
 
 /** @pred  clause(+ _H_, _B_,- _R_)
@@ -199,10 +190,8 @@ erase/1 on the reference on static procedures.
 clause(P,Q,R) :- var(P), !,
 	'$current_module'(M),
 	'$clause'(P,M,Q,R).
-clause(M:P,Q,R) :- !,
-	'$clause'(P,M,Q,R).
-clause(V,Q,R) :-
-	'$current_module'(M),
+clause(V0,Q,R) :-
+	strip_module(V0, M, V),
 	'$clause'(V,M,Q,R).
 
 '$clause'(P,M,Q,R) :-
@@ -272,8 +261,7 @@ and  _I_ is bound to its position.
 
 */
 nth_clause(V,I,R) :-
-	'$current_module'(M),
-	strip_module(M:V, M1, P), !,
+	strip_module(V, M1, P), !,
 	'$nth_clause'(P, M1, I, R).
 
 
@@ -291,10 +279,8 @@ remove both static and dynamic predicates. All state on the predicate,
 including whether it is dynamic or static, multifile, or
 meta-predicate, will be lost.
 */
-abolish(Mod:N,A) :- !,
-	'$abolish'(N,A,Mod).
-abolish(N,A) :-
-	'$current_module'(Mod),
+abolish(N0,A) :-
+	strip_module(N0, Mod, N), !,
 	'$abolish'(N,A,Mod).
 
 '$abolish'(N,A,M) :- var(N), !,
@@ -312,7 +298,7 @@ abolish(N,A) :-
 
 
 Deletes the predicate given by  _PredSpec_ from the database. If
- _PredSpec_ is an unbound variable, delete all predicates for the
+§§ _PredSpec_ is an unbound variable, delete all predicates for the
 current module. The
 specification must include the name and arity, and it may include module
 information. Under <tt>iso</tt> language mode this built-in will only abolish
@@ -320,14 +306,8 @@ dynamic procedures. Under other modes it will abolish any procedures.
 
 
 */
-abolish(V) :- var(V), !,
-	'$do_error'(instantiation_error,abolish(V)).
-abolish(Mod:V) :- var(V), !,
-	'$do_error'(instantiation_error,abolish(Mod:V)).
-abolish(M:X) :- !,
-	'$abolish'(X,M).
-abolish(X) :-
-	'$current_module'(M),
+abolish(X0) :-
+	strip_module(X0,M,X),
 	'$abolish'(X,M).
 
 '$abolish'(X,M) :-
@@ -340,8 +320,6 @@ abolish(X) :-
 	'$abolish_all'(M).
 '$new_abolish'(A,M) :- atom(A), !,
 	'$abolish_all_atoms'(A,M).
-'$new_abolish'(M:PS,_) :- !,
-	'$new_abolish'(PS,M).
 '$new_abolish'(Na//Ar1, M) :-
 	integer(Ar1),
 	!,
@@ -424,8 +402,6 @@ abolish(X) :-
 	;
 	    '$abolish_all_atoms_old'(A,M)
 	).
-'$old_abolish'(M:N,_) :- !,
-	'$old_abolish'(N,M).
 '$old_abolish'([], _) :- !.
 '$old_abolish'([H|T], M) :- !,  '$old_abolish'(H, M), '$old_abolish'(T, M).
 '$old_abolish'(T, M) :-
@@ -473,12 +449,8 @@ Make predicate  _Pred_ invisible to new code, and to `current_predicate/2`,
 `listing`, and friends. New predicates with the same name and
 functor can be declared.
  **/
-stash_predicate(V) :- var(V), !,
-	'$do_error'(instantiation_error,stash_predicate(V)).
-stash_predicate(M:P) :- !,
-	'$stash_predicate2'(P, M).
-stash_predicate(P) :-
-	'$current_module'(M),
+stash_predicate(P0) :-
+	strip_module(P0, M, P),
 	'$stash_predicate2'(P, M).
 
 '$stash_predicate2'(V, M) :- var(V), !,
@@ -496,10 +468,8 @@ Make predicate  _Pred_ invisible to `current_predicate/2`,
  **/
 hide_predicate(V) :- var(V), !,
 	'$do_error'(instantiation_error,hide_predicate(V)).
-hide_predicate(M:P) :- !,
-	'$hide_predicate2'(P, M).
-hide_predicate(P) :-
-	'$current_module'(M),
+hide_predicate(P0) :-
+	strip_module(P0, M, P),
 	'$hide_predicate2'(P, M).
 
 '$hide_predicate2'(V, M) :- var(V), !,
@@ -583,7 +553,7 @@ predicate_property(Pred,Prop) :-
 	).
 
 '$generate_all_preds_from_mod'(Pred, M, M) :-
-	'$current_predicate'(_Na,M,Pred,_).
+	'$current_predicate'(_Na,M,Pred,user).
 '$generate_all_preds_from_mod'(Pred, SourceMod, Mod) :-
 	recorded('$import','$import'(SourceMod, Mod, Orig, Pred,_,_),_),
 	'$pred_exists'(Orig, SourceMod).
@@ -630,10 +600,8 @@ indices to those clauses (in bytes).
 */
 predicate_statistics(V,NCls,Sz,ISz) :- var(V), !,
 	'$do_error'(instantiation_error,predicate_statistics(V,NCls,Sz,ISz)).
-predicate_statistics(M:P,NCls,Sz,ISz) :- !,
-	'$predicate_statistics'(P,M,NCls,Sz,ISz).
-predicate_statistics(P,NCls,Sz,ISz) :-
-	'$current_module'(M),
+predicate_statistics(P0,NCls,Sz,ISz) :-
+	strip_module(P0, M, P),
 	'$predicate_statistics'(P,M,NCls,Sz,ISz).
 
 '$predicate_statistics'(M:P,_,NCls,Sz,ISz) :- !,
@@ -661,29 +629,23 @@ predicate_erased_statistics(P,NCls,Sz,ISz) :-
         var(P), !,
 	current_predicate(_,P),
 	predicate_erased_statistics(P,NCls,Sz,ISz).
-predicate_erased_statistics(M:P,NCls,Sz,ISz) :- !,
-	'$predicate_erased_statistics'(M:P,NCls,Sz,_,ISz).
-predicate_erased_statistics(P,NCls,Sz,ISz) :-
-	'$current_module'(M),
+predicate_erased_statistics(P0,NCls,Sz,ISz) :-
+	strip_module(P0,M,P),
 	'$predicate_erased_statistics'(M:P,NCls,Sz,_,ISz).
 
 /** @pred  current_predicate( _A_, _P_)
 
 Defines the relation:  _P_ is a currently defined predicate whose name is the atom  _A_.
 */
-current_predicate(A,T) :-
-    '$ground_module'(T, M, T0),
-    (
-    '$current_predicate'(A, M, T0, _),
-    %TFlags is Flags /\ 0x00004000,
-    % format('1 ~w ~16r~n', [M:T0,Flags, TFlags]),
-    \+ '$system_predicate'(T0, M)
-    ;
-    '$imported_predicate'(T0, M, SourceT, SourceMod),
-    functor(T0, A, _),
-    % format('2 ~w ~16r~n', [M:T0,Flags]),
-    \+ '$system_predicate'(SourceT, SourceMod)
-    ).
+current_predicate(A,T0) :-
+	strip_module(T0, M, T),
+	(
+	 '$current_predicate'(A, M, T0, user)
+	 ;
+	 '$imported_predicate'(T, M, SourceT, SourceMod),
+	 functor(T, A, _),
+	 \+ '$system_predicate'(SourceT, SourceMod)
+	).
 
 /** @pred  system_predicate( _A_, _P_)
 
@@ -691,12 +653,18 @@ current_predicate(A,T) :-
 is the atom  _A_.
 
 */
-system_predicate(A,T) :-
-	'$ground_module'(T, M, T0),
+system_predicate(A,T1) :-
+	strip_module( T1, M, T),
 	(
-	 '$current_predicate'(A, M, T0, Flags)
+	 M \= prolog,
+	 '$current_predicate'(A, M, T0, system)
+	 ;
+	 '$imported_predicate'(T, M, SourceT, SourceMod),
+	 M \= prolog,
+	 functor(T, A, _),
+	 '$system_predicate'(SourceT, SourceMod)
 	;
-	 '$current_predicate'(A, prolog, T0, Flags)
+	 '$current_predicate'(A, prolog, T0, system)
 	).
 
 /** @pred  system_predicate( ?_P_ )
@@ -704,7 +672,8 @@ system_predicate(A,T) :-
 Defines the relation:  _P_ is a currently defined system predicate.
 */
 system_predicate(P) :-
-	system_predicate(_, P).
+	strip_module(M, P),
+	system_predicate(_, M:P).
 
 
 /**
@@ -716,17 +685,18 @@ system_predicate(P) :-
  _Na_ is the name of the predicate, and  _Ar_ its arity.
 */
 current_predicate(F0) :-
-	strip_module(F0, M, F),
-	(
-      var(F)
-      ->
-	 current_predicate(M:A, S),
-	 functor( S, A, Ar)
-    ;
-	 F = A/Ar,
-	 current_predicate(M:A, S),
-	 functor( S, A, Ar)
-    ).
+	strip_module(F0, M, AN),
+	( AN = A/N
+	->
+	  current_predicate(A, M:S),
+	  functor( S, A, Ar)
+	;
+	  AN == A//N
+	->
+	  current_predicate(A, M:S),
+	  Ar2 is Ar+2,
+	  functor( S, A, Ar2)
+	).
 
 '$imported_predicate'(A, ImportingMod, A/Arity, G, Flags) :-
 	'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod),
@@ -742,7 +712,7 @@ name is the atom  _A_. It can be used to generate all the keys for
   the internal data-base.
 */
 current_key(A,K) :-
-	'$current_predicate'(A,idb,K,_).
+	'$current_predicate'(A,idb,K,user).
 
 % do nothing for now.
 '$noprofile'(_, _).

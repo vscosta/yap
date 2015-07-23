@@ -54,6 +54,9 @@ with SICStus Prolog.
 	    '$exit_undefp',
 	    call(M0:NG)
 	;
+	'$messages' = M0,
+	fail
+	;
 	'$exit_undefp',
 	'$handle_error'(Default,G0,M0)
     ).

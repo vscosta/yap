@@ -120,10 +120,8 @@ generate_message(error(Error,Context)) -->
 	{ Error = existence_error(procedure,_) }, !,
 	system_message(error(Error,Context)),
 	stack_dump(error(Error,Context)).
-generate_message(error(Error,context(Cause,Extra))) -->
-	system_message(error(Error,Cause)),
-	stack_dump(error(Error,context(Cause,Extra))).
 generate_message(M) -->
+	file_location,
 	system_message(M),
 	stack_dump(M).
 
@@ -353,7 +351,7 @@ system_message(error(syntax_error(_), [syntax_error(G,_,Msg,[],_,0,File)|_])) --
 % SWI like I/O error message.
 system_message(error(syntax_error(end_of_clause), [stream(Stream, Line, _, _)|_])) -->
 	[ 'SYNTAX ERROR ~a, stream ~w, near line ~d.' - ['Unexpected end of clause',Stream,Line] ].
-system_message(error(syntax_error(_), [syntax_error(read(_),_,_,Term,Pos,Start,File)|_])) -->
+system_message(error(syntax_error(read(_R),between(_L0,_LM,_LF),_Dot,Term,Pos,Start,File))) -->
 	{ Term = [_|_] },
 	['SYNTAX ERROR' - []],
 	syntax_error_line(File, Start, Pos),
@@ -571,30 +569,31 @@ the  _Prefix_ is printed too.
 
 
 */
+
 prolog:print_message_lines(_S, _, []) :- !.
 prolog:print_message_lines(_S, P, [at_same_line|Lines]) :- !,
-	print_message_line(S, Lines, Rest),
+	'$messages':print_message_line(S, Lines, Rest),
 	prolog:print_message_lines(S, P, Rest).
 prolog:print_message_lines(S, kind(Kind), Lines) :- !,
-	prefix(Kind, Prefix, _),
+	'$messages':prefix(Kind, Prefix, _),
 	lists:append([ begin(Kind, Ctx)
 		  | Lines
 		  ],
 		  [ end(Ctx)
 		  ],
 		  AllLines),
-	print_message_lines(S, Prefix, AllLines).
+	prolog:print_message_lines(S, Prefix, AllLines).
 prolog:print_message_lines(S, P-Opts, Lines) :-
 	atom(P), !,
 	atom_concat('~N', P, Prefix),
 	format(S, Prefix, Opts),
-	print_message_line(S, Lines, Rest),
+	'$messages':print_message_line(S, Lines, Rest),
 	prolog:print_message_lines(S, P-Opts, Rest).
 prolog:print_message_lines(S, P, Lines) :-
 	atom(P), !,
 	atom_concat('~N', P, Prefix),
 	format(S, Prefix, []),
-	print_message_line(S, Lines, Rest),
+	'$messages':print_message_line(S, Lines, Rest),
 	prolog:print_message_lines(S, P, Rest).
 
 print_message_line(S, [flush], []) :- !,
@@ -671,13 +670,13 @@ pred_arity(H,Name,Arity) :-
     functor(H,Name,Arity).
 
 
-	translate_message(Term) -->
-		generate_message(Term), !.
-	translate_message(Term) -->
-		{ Term = error(_, _) },
-		[ 'Unknown exception: ~p'-[Term] ].
-	translate_message(Term) -->
-		[ 'Unknown message: ~p'-[Term] ].
+translate_message(Term) -->
+	generate_message(Term), !.
+translate_message(Term) -->
+	{ Term = error(_, _) },
+	[ 'Unknown exception: ~p'-[Term] ].
+translate_message(Term) -->
+	[ 'Unknown message: ~p'-[Term] ].
 
 /**
   @}

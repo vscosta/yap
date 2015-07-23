@@ -221,10 +221,7 @@ nospy _.
 
 /** @pred nospyall
 
-
 Removes all existing spy-points.
-
-
 */
 nospyall :-
 	 '$init_debugger',
@@ -241,7 +238,7 @@ debug :-
 	 '$start_debugging'(on),
 	 print_message(informational,debug(debug)).
 
- '$start_debugging'(Mode) :-
+'$start_debugging'(Mode) :-
 	 (Mode == on ->
 	  set_prolog_flag(debug, true)
 	 ;
@@ -250,15 +247,15 @@ debug :-
 	 nb_setval('$debug_run',off),
 	 nb_setval('$debug_jump',false).
 
- nodebug :-
+nodebug :-
 	 '$init_debugger',
 	 set_prolog_flag(debug, false),
 	 nb_setval('$trace',off),
 	 print_message(informational,debug(off)).
 
-  %
-  % remove any debugging info after an abort.
-  %
+%
+% remove any debugging info after an abort.
+%
 
 
 /** @pred trace
@@ -282,10 +279,6 @@ trace :-
 
 Ends tracing and exits the debugger. This is the same as
 nodebug/0.
-
-
-
-
  */
 notrace :-
 	'$init_debugger',
@@ -395,8 +388,6 @@ leash(X) :-
 				debugging
 
 -----------------------------------------------------------------------------*/
-
-
 
 debugging :-
 	'$init_debugger',
@@ -674,12 +665,12 @@ be lost.
 	'$debugger_input',
 	'$do_spy'(G, Mod, CP, spy).
 
-/** 
+/**
   * @pred debugger_input.
   * name of stream used for debugging,
   * must be always connected to a tty.
-  * 
-  * '$debugger_input': try to connect the debugger to an open terminal. 
+  *
+  * '$debugger_input': try to connect the debugger to an open terminal.
 */
 '$debugger_input' :-
 	stream_property(_,alias(debugger_input)),
@@ -695,9 +686,12 @@ be lost.
 '$debugger_input' :-
         current_prolog_flag(windows, true ), !,
         open('CONIN$', read, _S, [alias(debugger_input),bom(false)]).
-        
 
-				% last argument to do_spy says that we are at the end of a context. It
+
+'$trace_meta_call'( G, M, CP ) :-
+	'$do_spy'(G, M, CP, spy ).
+	
+% last argument to do_spy says that we are at the end of a context. It
 % is required to know whether we are controlled by the debugger.
 %'$do_spy'(V, M, CP, Flag) :-
 %	writeln('$do_spy'(V, M, CP, Flag)), fail.
@@ -735,9 +729,9 @@ be lost.
 	).
 '$do_spy'((A|B), M, CP, CalledFromDebugger) :- !,
 	(
-	  '$do_spy'(A, M, CP, CalledFromDebugger)
+	  '$do_spy'(A, M, CP, CalledFromDebugger )
 	;
-	  '$do_spy'(B, M, CP, CalledFromDebugger)
+	  '$do_spy'(B, M, CP, CalledFromDebugger )
 	).
 '$do_spy'((\+G), M, CP, CalledFromDebugger) :- !,
 	\+ '$do_spy'(G, M, CP, CalledFromDebugger).
@@ -748,7 +742,8 @@ be lost.
 	L1 is L+1,			/* bump it			*/
 	nb_setval('$spy_gn',L1),	/* and save it globaly		*/
         b_getval('$spy_glist',History),	/* get goal list		*/
-	b_setval('$spy_glist',[info(L,Module,G,_Retry,_Det,_HasFoundAnswers)|History]),	/* and update it		*/
+	b_setval('$spy_glist',[info(L,Module,G,_Retry,_Det,_HasFoundAnswers)|History]),
+	/* and update it		*/
 	'$loop_spy'(L, G, Module, CalledFromDebugger).
 
 % we are skipping, so we can just call the goal,
@@ -807,6 +802,7 @@ be lost.
 	    /* call port */
 	    '$enter_goal'(GoalNumber, G, Module),
 	    '$spycall'(G, Module, CalledFromDebugger, Retry),
+         '$stop_creeping',
 	    % make sure we are in system mode when running the debugger.
 	    (
 	      '$debugger_deterministic_goal'(G) ->
@@ -839,6 +835,7 @@ be lost.
 	      (
 	         arg(6, Info, true)
 	      ->
+	       '$stop_creeping',
 	        '$show_trace'(redo,G,Module,GoalNumber,_), /* inform user_error		*/
 	        nb_setarg(6, Info, false)
 	       ;
@@ -890,7 +887,12 @@ be lost.
 '$spycall'(G, M, _, _) :-
 	nb_getval('$debug_jump',true),
 	!,
-	( '$is_metapredicate'(G, M) -> '$meta_expansion'(G,M,M,M,G1,[]) ; G = G1 ),
+	( '$is_metapredicate'(G, M)
+	->
+	  '$meta_expansion'(G,M,M,M,G1,[])
+	;
+	  G = G1
+	),
 	'$execute_nonstop'(G1,M).
 '$spycall'(G, M, _, _) :-
         (
@@ -901,13 +903,14 @@ be lost.
 	!,
 	( '$is_metapredicate'(G, M)
 	   ->
-	  '$meta_expansion'(G,M,M,M,G1,[]),
-	  '$creep'(G1, M)
+	  '$meta_expansion'(G,M,M,M,G10,[]),
+	  '$debugger_process_meta_arguments'(G10, M, G1),
+	  '$execute'(M:G1)
 	;
 	  '$execute'(M:G)
 	).
 '$spycall'(G, M, _, _) :-
-    '$tabled_predicate'(G,M),
+	'$tabled_predicate'(G,M),
 	 !,
 	'$continue_debugging_goal'(no, '$execute_nonstop'(G,M)).
 '$spycall'(G, M, CalledFromDebugger, InRedo) :-
@@ -933,6 +936,7 @@ be lost.
 	% I lost control here.
 	CP is '$last_choice_pt',
 	'$static_clause'(G,M,_,R),
+	'$stop_creeping',
 	% I may backtrack to here from far away
 	(
 	 '$continue_debugging_goal'(no, '$execute_clause'(G, M, R, CP))
@@ -941,13 +945,35 @@ be lost.
 	).
 
 %
-% execute a built-in in creep mode
 %
+'$creep'('$execute_clause'(G,Mod,Ref,CP),_M) :-
+	(
+	 '$$save_by'(CP1),
+	 '$creep',
+	 '$execute_clause'(G,Mod,Ref,CP),
+	 '$$save_by'(CP2),
+	 (CP1 == CP2 -> ! ; ( true ; '$creep', fail ) ),
+	  '$stop_creeping'
+	;
+	 fail
+	).
 '$creep'(G,M) :-
 	(
 	 '$$save_by'(CP1),
 	 '$creep',
 	 '$execute_nonstop'(G,M),
+	 '$$save_by'(CP2),
+	 (CP1 == CP2 -> ! ; ( true ; '$creep', fail ) ),
+	  '$stop_creeping'
+	;
+	  fail
+	).
+
+'$trace'(G,M) :-
+	(
+	 '$$save_by'(CP1),
+	 '$creep',
+	 '$execute0'( G, M ),
 	 '$$save_by'(CP2),
 	 (CP1 == CP2 -> ! ; ( true ; '$creep', fail ) ),
 	  '$stop_creeping'
@@ -964,6 +990,8 @@ be lost.
 '$trace'(P,G,Module,L,Deterministic) :-
 	% at this point we are done with leap or skip
 	nb_setval('$debug_run',off),
+	% but creep is default
+	nb_setval('$trace',on),
 	% make sure we run this code outside debugging mode.
 	set_prolog_flag(debug, false),
 	repeat,
@@ -1031,6 +1059,10 @@ be lost.
 	current_prolog_flag(debug, OldDeb),
 	 set_prolog_flag(debug, false),
 	( '$execute'(G) -> true ; true),
+	% at this point we are done with leap or skip
+	nb_setval('$debug_run',off),
+	% but creep is default
+	nb_setval('$trace',on),
 	set_prolog_flag(debug, OldDeb),
 %	'$skipeol'(0'!),                        % '
 	fail.
@@ -1350,3 +1382,19 @@ be lost.
 	yap_hacks:choicepoint(CP,_,prolog,'$loop_spy2',5,(_;_),_), !,
 	'$debugger_skip_loop_spy2'(CPs,CPs1).
 '$debugger_skip_loop_spy2'(CPs,CPs).
+
+'$debugger_process_meta_arguments'(G, M, G1) :-
+	functor(G,F,N),
+	'$meta_predicate'(F,M,N,D), !, % we're in an argument
+	D =.. [F|BMs],
+	G =.. [F|BGs],
+	'$ldebugger_process_meta_args'(BGs, M, BMs, BG1s),
+	G1 =.. [F|BG1s].
+
+'$ldebugger_process_meta_args'([], _, [], []).
+'$ldebugger_process_meta_args'([G|BGs], M, [0|BMs], ['$trace'(G1,M1)|BG1s]) :-
+	!,
+	strip_module( M:G, M1, G1 ),
+	'$ldebugger_process_meta_args'(BGs, M, BMs, BG1s).
+'$ldebugger_process_meta_args'([G|BGs], M, [_|BMs], [G|BG1s]) :-
+	'$ldebugger_process_meta_args'(BGs, M, BMs, BG1s).

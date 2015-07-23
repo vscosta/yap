@@ -79,6 +79,8 @@ dynamic(X) :-
 
 '$dynamic'(X,M) :- var(X), !,
 	'$do_error'(instantiation_error,dynamic(M:X)).
+'$dynamic'(X,M) :- var(M), !,
+	'$do_error'(instantiation_error,dynamic(M:X)).
 '$dynamic'(Mod:Spec,_) :- !,
 	'$dynamic'(Spec,Mod).
 '$dynamic'([], _) :- !.

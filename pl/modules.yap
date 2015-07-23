@@ -945,7 +945,6 @@ meta_predicate declaration
 
 */
 
-
 % directive now meta_predicate Ps :- $meta_predicate(Ps).
 
 :- dynamic('$meta_predicate'/4).
@@ -1006,7 +1005,8 @@ meta_predicate declaration
 
 '$meta_expansion'(G, HM, BM, SM, G1,HVars) :-
 	functor(G,F,N),
-	'$meta_predicate'(F,BM,N,D), !, % we're in an argument
+	'$meta_predicate'(F,BM,N,D),
+    !, % we're in an argument
 %	format(user_error,'[ ~w (~a, ~a, ~a)',[G, HM, BM, SM]),
 	functor(G1,F,N),
 	'$meta_expansion_loop'(N, D, G, G1, HVars, HM, BM, SM).

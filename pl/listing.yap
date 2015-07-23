@@ -62,10 +62,9 @@ listing :-
     Mod \= prolog,
     Mod \= system,
     \+ '$hidden'( Mod ),
-    '$current_predicate'(_,Mod,Pred, _),
+    '$current_predicate'(_,Mod,Pred, user),
     '$undefined'(Pred, prolog), % skip predicates exported from prolog.
     functor(Pred,Name,Arity),
-    \+ atom_concat('$', _, Name),
     '$listing'(Name,Arity,Mod,Stream),
     fail.
 listing.
@@ -109,7 +108,6 @@ listing(Stream, [MV|MVs]) :- !,
 
 '$do_listing'(Stream, M, Name/Arity) :-
     ( current_predicate(M:Name/Arity),
-      \+ atom_concat('$', _, Name),
       '$listing'(Name,Arity,M,Stream),
       fail
    ;

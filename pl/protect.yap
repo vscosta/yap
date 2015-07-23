@@ -20,12 +20,13 @@
 % This protects all code from further changes
 % and also makes it impossible from some predicates to be seen
 '$protect' :-
-	'$current_predicate'(_A, M, T0, Flags),
+	'$current_predicate'(_A, M, T0, all),
 	%format(' ~a ~n', [M]) ,
         M \= user,
 	M \= lists,
-	'$predicate_flags'(T0, M, _Flags, NFlags), 
+	'$predicate_flags'(T0, M, Flags, Flags), 
 	NFlags is Flags \/ 0x00004000,
+	'$predicate_flags'(T0, M, _Flags, NFlags), 
         %format('~w ~16r ~16r~n', [T0,Flags, NFlags]) ,
 	fail.
 '$protect' :-
@@ -40,7 +41,7 @@
 '$protect'.
 
 '$hide_predicates'(Name) :-
-	'$current_predicate'(Name, Mod, P, _),
+	'$current_predicate'(Name, Mod, P, all),
 	'$hide_predicate'(P,Mod),
 	fail.
 '$hide_predicates'(_).

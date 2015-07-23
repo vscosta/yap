@@ -237,7 +237,8 @@ private(_).
         '$cut_by'/1,
         '$disable_debugging'/0,
         '$do_live'/0,
-        '$enable_debugging'/0,
+        '$
+		'/0,
         '$find_goal_definition'/4,
         '$handle_throw'/3,
         '$head_and_body'/3,
@@ -469,7 +470,7 @@ true :- true.
 	current_prolog_flag(break_level, BreakLevel),
         current_prolog_flag(debug, DBON),
 	(
-	 '$nb_getval'('$trace', on, fail)
+	 '$trace_on'
 	->
 	 TraceDebug = trace
 	;
@@ -878,7 +879,7 @@ number of steps.
 	current_prolog_flag(break_level, BL ),
 	( BL \= 0 -> 	format(user_error, '[~p] ',[BL]) ;
 			true ),
-        ( recorded('$print_options','$toplevel'(Opts),_) ->
+        ( current_prolog_flag(toplevel_print_options, Opts) ->
 	   write_term(user_error,Answ,Opts) ;
 	   format(user_error,'~w',[Answ])
         ),
@@ -1105,23 +1106,40 @@ incore(G) :- '$execute'(G).
 	'$call'(G, CP, G, M).
 
 '$user_call'(G, M) :-
-	 ( '$$save_by'(CP),
+	(
+	 '$$save_by'(CP),
 	 '$enable_debugging',
 	 '$call'(G, CP, M:G, M),
 	 '$$save_by'(CP2),
-	 (CP == CP2 -> ! ; ( true ; '$enable_debugging', fail ) ),
+	 (
+	  CP == CP2
+	 ->
+	  !
+	 ;
+	  ( true ; '$enable_debugging', fail )
+	 ),
 	 '$disable_debugging'
-     ;
-	'$disable_debugging',
-	fail
-    ).
+	;
+	 '$disable_debugging',
+	 fail
+	).
 
-'$enable_debugging' :-
+
+
+% enable creeping
+'$enable_debugging':-
 	current_prolog_flag(debug, false), !.
 '$enable_debugging' :-
-	'$nb_getval'('$trace', on, fail), !,
+	'$trace_on', !,
 	'$creep'.
 '$enable_debugging'.
+
+'$trace_on' :-
+	'$nb_getval'('$trace', on, fail).
+
+'$trace_off' :-
+	'$nb_getval'('$trace', off, fail).
+
 
 /** @pred   :_P_ , :_Q_   is iso, meta
 Conjunction of goals (and).
@@ -1361,13 +1379,12 @@ bootstrap(F) :-
 			 user:'$LoopError'(Error, Status)),
 	!.
 
-    '$enter_command'(Stream,Mod,top) :- !,
-    writeln(top),
+'$enter_command'(Stream,Mod,top) :- !,
     	read_term(Stream, Command, [module(Mod), syntax_errors(dec10),variable_names(Vars), term_position(Pos)]),
-    	'$command'(Command,Vars,Pos,Status).
-        '$enter_command'(Stream,Mod,Status) :-
-        	read_clause(Stream, Command, [variable_names(Vars), term_position(Pos)]),
-        	'$command'(Command,Vars,Pos,Status).
+		'$command'(Command,Vars,Pos,Status).
+'$enter_command'(Stream,Mod,Status) :-
+	        	read_clause(Stream, Command, [variable_names(Vars), term_position(Pos)]),
+        	'$command'(Command,Vars,Pos,Status).1
 
 '$abort_loop'(Stream) :-
 	'$do_error'(permission_error(input,closed_stream,Stream), loop).

@@ -86,7 +86,6 @@ files and to set-up the Prolog environment. We discuss
 
  */
 
-
 /**
 
  @pred load_files(+ _Files_, + _Options_)
@@ -842,7 +841,6 @@ db_files(Fs) :-
 	b_getval('$lf_status', TOpts),
 	'$msg_level'( TOpts, Verbosity),
 	'$full_filename'(X, Y , ( :- include(X)) ),
-        writeln((X:Y)),
 	'$lf_opt'(stream, TOpts, OldStream),
 	'$current_module'(Mod),
 	( open(Y, read, Stream) 	->
@@ -900,7 +898,7 @@ source_file(FileName) :-
 source_file(Mod:Pred, FileName) :-
 	current_module(Mod),
 	Mod \= prolog,
-	'$current_predicate'(_,Mod,Pred,_),
+	'$current_predicate'(_,Mod,Pred,all),
 	'$owned_by'(Pred, Mod, FileName).
 
 '$owned_by'(T, Mod, FileName) :-
@@ -971,7 +969,6 @@ most files in the library are from the Edinburgh Prolog library.
 
 */
 prolog_load_context(directory, DirName) :-
-strat_low_level_trace,
         ( source_location(F, _)
         -> file_directory_name(F, DirName) ;
           working_directory( DirName, DirName )
@@ -998,9 +995,6 @@ prolog_load_context(source, F0) :-
 prolog_load_context(stream, Stream) :-
         '$nb_getval'('$consulting_file', _, fail),
         '$current_loop_stream'(Stream).
-prolog_load_context(term_position, Position) :-
-        '$current_loop_stream'(Stream)
-	    stream_property( Stream, [alias(loop_stream),position(Position)] ).
 
 
 % if the file exports a module, then we can
@@ -1160,7 +1154,7 @@ unload_file( F0 ) :-
 % get rid of file-only predicataes.
 '$unload_file'( FileName, _F0 ) :-
 	current_module(Mod),
-	'$current_predicate'(_A,Mod,P,_),
+	'$current_predicate'(_A,Mod,P,all),
 	'$owner_file'(P,Mod,FileName),
 	\+ '$is_multifile'(P,Mod),
 	functor( P, Na, Ar),
