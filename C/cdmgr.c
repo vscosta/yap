@@ -2620,16 +2620,9 @@ p_compile( USES_REGS1 )
     addclause(t, codeadr, (int) (IntOfTerm(t1) & 3), mod, &tn);
   YAPLeaveCriticalSection();
   if (LOCAL_ErrorMessage) {
-    if (LOCAL_Error_TYPE == TYPE_ERROR_CALLABLE) {
-      Yap_Error(LOCAL_Error_TYPE, t, LOCAL_ErrorMessage);
-    }
-    if (IntOfTerm(t1) & 4) {
-      Yap_Error(TYPE_ERROR_CALLABLE, LOCAL_Error_Term,
-	    "in line %d, %s", Yap_FirstLineInParse(), LOCAL_ErrorMessage);
-    } else {
       Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-    }
-    return FALSE;
+
+      return FALSE;
   }
   return TRUE;
 }
