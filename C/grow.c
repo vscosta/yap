@@ -109,10 +109,7 @@ SetHeapRegs(bool copying_threads USES_REGS)
   LOCAL_TrailBase = TrailAddrAdjust(LOCAL_TrailBase);
   LOCAL_TrailTop = TrailAddrAdjust(LOCAL_TrailTop);
   CurrentTrailTop = (tr_fr_ptr)(LOCAL_TrailTop-MinTrailGap);
-  if (LOCAL_GDiff) {
-    /* make sure we are not just expanding the delay stack */
-    LOCAL_GlobalBase = BaseAddrAdjust(LOCAL_GlobalBase);
-  }
+  LOCAL_GlobalBase = BaseAddrAdjust(LOCAL_GlobalBase);
   LOCAL_LocalBase = LocalAddrAdjust(LOCAL_LocalBase);
 #if !USE_SYSTEM_MALLOC && !USE_DL_MALLOC
   AuxSp = PtoBaseAdjust(AuxSp);
@@ -482,7 +479,7 @@ AdjustLocal(bool thread_copying USES_REGS)
 #if defined(YAPOR_THREADS)
   }
 #endif
-  fixPointerCells( pt_bot, pt, thread_copying PASS_REGS);
+  fixPointerCells( pt, pt_bot, thread_copying PASS_REGS);
   AdjustSlots( thread_copying PASS_REGS);
 }
 
@@ -1373,7 +1370,7 @@ cp_atom_table(AtomHashEntry *ntb, UInt nsize)
       Atom natom;
       CELL hash;
 
-      hash = HashFunction((unsigned char *)ap->StrOfAE) % nsize;
+      hash = HashFunction(ap->StrOfAE) % nsize;
       natom = ap->NextOfAE;
       ap->NextOfAE = ntb[hash].Entry;
       ntb[hash].Entry = catom;
@@ -1613,12 +1610,8 @@ execute_growstack(size_t esize0, bool from_trail, bool in_parser, tr_fr_ptr *old
     LOCAL_GDiff = LOCAL_DelayDiff = LOCAL_BaseDiff = size-size0;
   } else {
     YAPEnterCriticalSection();
-    if (LOCAL_GlobalBase != old_LOCAL_GlobalBase) {
-      LOCAL_GDiff = LOCAL_BaseDiff = LOCAL_DelayDiff = LOCAL_GlobalBase-old_LOCAL_GlobalBase;
-      LOCAL_GlobalBase=old_LOCAL_GlobalBase;
-    } else {
-      LOCAL_GDiff = LOCAL_BaseDiff = LOCAL_DelayDiff = 0;
-    }
+    LOCAL_GDiff = LOCAL_BaseDiff = LOCAL_DelayDiff = LOCAL_GlobalBase-old_LOCAL_GlobalBase;
+    LOCAL_GlobalBase=old_LOCAL_GlobalBase;
   }
   LOCAL_XDiff = LOCAL_HDiff = 0;
   LOCAL_GDiff0=LOCAL_GDiff;
