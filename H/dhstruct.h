@@ -1,6 +1,6 @@
-
-  /* This file, dhstruct.h, was generated automatically by "yap -L misc/buildheap"
-     please do not update, update misc/HEAPFIELDS instead */
+﻿
+  /* This file, dhstruct.h , was generated automatically by "yap -L misc/buildheap"
+     please do not update, update misc/HEAPFIELDS  instead */
 
 
 
@@ -179,6 +179,7 @@
 #endif
 #define PredGoalExpansion Yap_heap_regs->pred_goal_expansion
 #define PredMetaCall Yap_heap_regs->pred_meta_call
+#define PredTraceMetaCall Yap_heap_regs->pred_trace_meta_call
 #define PredDollarCatch Yap_heap_regs->pred_dollar_catch
 #define PredRecordedWithKey Yap_heap_regs->pred_recorded_with_key
 #define PredLogUpdClause Yap_heap_regs->pred_log_upd_clause

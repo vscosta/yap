@@ -1,5 +1,5 @@
-
-  /* This file, iatoms.h, was generated automatically by "yap -L misc/buildatoms"
+﻿
+  /* This file, iatoms.h , was generated automatically by "yap -L misc/buildatoms"
      please do not update, update misc/ATOMS instead */
 
   Atom3Dots = Yap_LookupAtom("...");
@@ -81,6 +81,7 @@
   AtomDBTerm = Yap_LookupAtom("db_term");
   AtomDBref = Yap_FullLookupAtom("$dbref");
   AtomDInteger = Yap_FullLookupAtom("$integer");
+  AtomDebugMeta = Yap_FullLookupAtom("$debug_meta");
   AtomDebuggerInput = Yap_LookupAtom("debugger_input");
   AtomDec10 = Yap_LookupAtom("dec10");
   AtomDefault = Yap_LookupAtom("default");
@@ -354,6 +355,7 @@
   AtomTimeoutError = Yap_LookupAtom("timeout_error");
   AtomTopLevelGoal = Yap_FullLookupAtom("$top_level_goal");
   AtomTopThreadGoal = Yap_FullLookupAtom("$top_thread_goal");
+  AtomTraceMetaCall = Yap_FullLookupAtom("$trace_meta_call");
   AtomTrail = Yap_LookupAtom("trail");
   AtomTrue = Yap_LookupAtom("true");
   AtomTty = Yap_LookupAtom("tty");
@@ -504,6 +506,7 @@
   FunctorThreadRun = Yap_MkFunctor(AtomTopThreadGoal,2);
   FunctorThrow = Yap_MkFunctor(AtomThrow,1);
   FunctorTimeoutError = Yap_MkFunctor(AtomTimeoutError,2);
+  FunctorTraceMetaCall = Yap_MkFunctor(AtomTraceMetaCall,3);
   FunctorTypeError = Yap_MkFunctor(AtomTypeError,2);
   FunctorUMinus = Yap_MkFunctor(AtomMinus,1);
   FunctorUPlus = Yap_MkFunctor(AtomPlus,1);

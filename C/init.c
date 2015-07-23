@@ -1071,16 +1071,19 @@ InitLogDBErasedMarker(void)
 static void
 InitSWIAtoms(void)
 {
-  /*  extern atom_t ATOM_;
+  /*  extern atom_t ATOM_;FUNV
 
   int j=0;
   MaxAtomTranslations = 2*N_SWI_ATOMS ;
   SWI_Atoms = (Atom *)malloc(sizeof(Atom)*MaxAtomTranslations);
   SWI_Functors = (Functor *)malloc(sizeof(Functor)*2*N_SWI_ATOMS);
-#include "iswiatoms.h"
+#include "i
+   
+   
+   atoms.h"
   Yap_InitSWIHash();
   ATOM_ = PL_new_atom("");
-  */
+   */
 }
 
 static void
@@ -1263,7 +1266,7 @@ InitHandles(int wid) {
 
   REMOTE_CurSlot(wid) = 1;
   REMOTE_NSlots(wid)  = initial_slots;
-  handles = malloc(initial_slots * sizeof(CELL));
+  handles = calloc(initial_slots , sizeof(CELL));
 
   if(handles == NULL) {
     Yap_Error(SYSTEM_ERROR, 0 /* TermNil */, "No space for handles at " __FILE__ " : %d", __LINE__);

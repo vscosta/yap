@@ -1,5 +1,5 @@
-
-  /* This file, tatoms.h, was generated automatically by "yap -L misc/buildatoms"
+﻿
+  /* This file, tatoms.h , was generated automatically by "yap -L misc/buildatoms"
      please do not update, update misc/ATOMS instead */
 
   Atom Atom3Dots_;
@@ -160,6 +160,8 @@
 #define AtomDBref Yap_heap_regs->AtomDBref_
   Atom AtomDInteger_;
 #define AtomDInteger Yap_heap_regs->AtomDInteger_
+  Atom AtomDebugMeta_;
+#define AtomDebugMeta Yap_heap_regs->AtomDebugMeta_
   Atom AtomDebuggerInput_;
 #define AtomDebuggerInput Yap_heap_regs->AtomDebuggerInput_
   Atom AtomDec10_;
@@ -706,6 +708,8 @@
 #define AtomTopLevelGoal Yap_heap_regs->AtomTopLevelGoal_
   Atom AtomTopThreadGoal_;
 #define AtomTopThreadGoal Yap_heap_regs->AtomTopThreadGoal_
+  Atom AtomTraceMetaCall_;
+#define AtomTraceMetaCall Yap_heap_regs->AtomTraceMetaCall_
   Atom AtomTrail_;
 #define AtomTrail Yap_heap_regs->AtomTrail_
   Atom AtomTrue_;
@@ -1006,6 +1010,8 @@
 #define FunctorThrow Yap_heap_regs->FunctorThrow_
   Functor FunctorTimeoutError_;
 #define FunctorTimeoutError Yap_heap_regs->FunctorTimeoutError_
+  Functor FunctorTraceMetaCall_;
+#define FunctorTraceMetaCall Yap_heap_regs->FunctorTraceMetaCall_
   Functor FunctorTypeError_;
 #define FunctorTypeError Yap_heap_regs->FunctorTypeError_
   Functor FunctorUMinus_;

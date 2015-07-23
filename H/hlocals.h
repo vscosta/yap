@@ -85,7 +85,9 @@ typedef struct worker_local {
   yamop*  ProfEnd_;
   int  UncaughtThrow_;
   int  DoingUndefp_;
-  Int  StartLine_;
+  Int  StartCharCount_;
+  Int  StartLineCount_;
+  Int  StartLinePos_;
   scratch_block  ScratchPad_;
 #ifdef  COROUTINING
   Term  WokenGoals_;

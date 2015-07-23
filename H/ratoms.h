@@ -1,5 +1,5 @@
-
-  /* This file, ratoms.h, was generated automatically by "yap -L misc/buildatoms"
+﻿
+  /* This file, ratoms.h , was generated automatically by "yap -L misc/buildatoms"
      please do not update, update misc/ATOMS instead */
 
   Atom3Dots = AtomAdjust(Atom3Dots);
@@ -81,6 +81,7 @@
   AtomDBTerm = AtomAdjust(AtomDBTerm);
   AtomDBref = AtomAdjust(AtomDBref);
   AtomDInteger = AtomAdjust(AtomDInteger);
+  AtomDebugMeta = AtomAdjust(AtomDebugMeta);
   AtomDebuggerInput = AtomAdjust(AtomDebuggerInput);
   AtomDec10 = AtomAdjust(AtomDec10);
   AtomDefault = AtomAdjust(AtomDefault);
@@ -354,6 +355,7 @@
   AtomTimeoutError = AtomAdjust(AtomTimeoutError);
   AtomTopLevelGoal = AtomAdjust(AtomTopLevelGoal);
   AtomTopThreadGoal = AtomAdjust(AtomTopThreadGoal);
+  AtomTraceMetaCall = AtomAdjust(AtomTraceMetaCall);
   AtomTrail = AtomAdjust(AtomTrail);
   AtomTrue = AtomAdjust(AtomTrue);
   AtomTty = AtomAdjust(AtomTty);
@@ -504,6 +506,7 @@
   FunctorThreadRun = FuncAdjust(FunctorThreadRun);
   FunctorThrow = FuncAdjust(FunctorThrow);
   FunctorTimeoutError = FuncAdjust(FunctorTimeoutError);
+  FunctorTraceMetaCall = FuncAdjust(FunctorTraceMetaCall);
   FunctorTypeError = FuncAdjust(FunctorTypeError);
   FunctorUMinus = FuncAdjust(FunctorUMinus);
   FunctorUPlus = FuncAdjust(FunctorUPlus);

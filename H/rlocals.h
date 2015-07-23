@@ -87,6 +87,8 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
+
+
 #ifdef  COROUTINING
   REMOTE_WokenGoals(wid) = TermToGlobalAdjust(REMOTE_WokenGoals(wid));
   REMOTE_AttsMutableList(wid) = TermToGlobalAdjust(REMOTE_AttsMutableList(wid));

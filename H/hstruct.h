@@ -1,6 +1,6 @@
-
-  /* This file, hstruct.h, was generated automatically by "yap -L misc/buildheap"
-     please do not update, update misc/HEAPFIELDS instead */
+﻿
+  /* This file, hstruct.h , was generated automatically by "yap -L misc/buildheap"
+     please do not update, update misc/HEAPFIELDS  instead */
 
 
 
@@ -179,6 +179,7 @@
 #endif
   struct pred_entry  *pred_goal_expansion;
   struct pred_entry  *pred_meta_call;
+  struct pred_entry  *pred_trace_meta_call;
   struct pred_entry  *pred_dollar_catch;
   struct pred_entry  *pred_recorded_with_key;
   struct pred_entry  *pred_log_upd_clause;

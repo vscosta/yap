@@ -153,8 +153,12 @@
 #define REMOTE_UncaughtThrow(wid) REMOTE(wid)->UncaughtThrow_
 #define LOCAL_DoingUndefp LOCAL->DoingUndefp_
 #define REMOTE_DoingUndefp(wid) REMOTE(wid)->DoingUndefp_
-#define LOCAL_StartLine LOCAL->StartLine_
-#define REMOTE_StartLine(wid) REMOTE(wid)->StartLine_
+#define LOCAL_StartCharCount LOCAL->StartCharCount_
+#define REMOTE_StartCharCount(wid) REMOTE(wid)->StartCharCount_
+#define LOCAL_StartLineCount LOCAL->StartLineCount_
+#define REMOTE_StartLineCount(wid) REMOTE(wid)->StartLineCount_
+#define LOCAL_StartLinePos LOCAL->StartLinePos_
+#define REMOTE_StartLinePos(wid) REMOTE(wid)->StartLinePos_
 #define LOCAL_ScratchPad LOCAL->ScratchPad_
 #define REMOTE_ScratchPad(wid) REMOTE(wid)->ScratchPad_
 #ifdef  COROUTINING

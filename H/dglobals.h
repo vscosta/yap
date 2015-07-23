@@ -71,6 +71,9 @@
 #endif /* THREADS */
 
 #define GLOBAL_Stream Yap_global->Stream_
+#if defined(THREADS)
+#define GLOBAL_StreamDescLock Yap_global->StreamDescLock_
+#endif
 
 #define GLOBAL_argv Yap_global->argv_
 #define GLOBAL_argc Yap_global->argc_

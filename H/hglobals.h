@@ -71,6 +71,9 @@ typedef struct global_data {
 #endif /* THREADS */
 
   struct stream_desc*  Stream_;
+#if defined(THREADS)
+  lockvar  StreamDescLock_;
+#endif
 
   char**  argv_;
   int  argc_;

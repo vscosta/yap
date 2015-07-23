@@ -1,6 +1,6 @@
-
-  /* This file, rhstruct.h, was generated automatically by "yap -L misc/buildheap"
-     please do not update, update misc/HEAPFIELDS instead */
+﻿
+  /* This file, rhstruct.h , was generated automatically by "yap -L misc/buildheap"
+     please do not update, update misc/HEAPFIELDS  instead */
 
 
 
@@ -179,6 +179,7 @@
 #endif
   PredGoalExpansion = PtoPredAdjust(PredGoalExpansion);
   PredMetaCall = PtoPredAdjust(PredMetaCall);
+  PredTraceMetaCall = PtoPredAdjust(PredTraceMetaCall);
   PredDollarCatch = PtoPredAdjust(PredDollarCatch);
   PredRecordedWithKey = PtoPredAdjust(PredRecordedWithKey);
   PredLogUpdClause = PtoPredAdjust(PredLogUpdClause);

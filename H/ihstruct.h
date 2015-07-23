@@ -1,6 +1,6 @@
-
-  /* This file, ihstruct.h, was generated automatically by "yap -L misc/buildheap"
-     please do not update, update misc/HEAPFIELDS instead */
+﻿
+  /* This file, ihstruct.h , was generated automatically by "yap -L misc/buildheap"
+     please do not update, update misc/HEAPFIELDS  instead */
 
 
 
@@ -179,6 +179,7 @@
 #endif
   PredGoalExpansion = RepPredProp(PredPropByFunc(FunctorGoalExpansion,USER_MODULE));
   PredMetaCall = RepPredProp(PredPropByFunc(FunctorMetaCall,PROLOG_MODULE));
+  PredTraceMetaCall = RepPredProp(PredPropByFunc(FunctorTraceMetaCall,PROLOG_MODULE));
   PredDollarCatch = RepPredProp(PredPropByFunc(FunctorCatch,PROLOG_MODULE));
   PredRecordedWithKey = RepPredProp(PredPropByFunc(FunctorRecordedWithKey,PROLOG_MODULE));
   PredLogUpdClause = RepPredProp(PredPropByFunc(FunctorDoLogUpdClause,PROLOG_MODULE));

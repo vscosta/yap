@@ -71,6 +71,9 @@ static void InitGlobal(void) {
 #endif /* THREADS */
 
 
+#if defined(THREADS)
+  INIT_LOCK(GLOBAL_StreamDescLock);
+#endif
 
 
 

@@ -71,6 +71,9 @@ static void RestoreGlobal(void) {
 #endif /* THREADS */
 
 
+#if defined(THREADS)
+  REINIT_LOCK(GLOBAL_StreamDescLock);
+#endif
 
 
 
