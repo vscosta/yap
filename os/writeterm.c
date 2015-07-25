@@ -222,7 +222,8 @@ write_term ( int output_stream, Term t, xarg *args USES_REGS )
     flags |= Handle_vars_f;
   }
   if (args[WRITE_NUMBERVARS].used) {
-    flags |= Handle_vars_f;
+    if (args[WRITE_NUMBERVARS].tvalue == TermTrue)
+      flags |= Handle_vars_f;
   }
   if (args[WRITE_ATTRIBUTES].used) {
     Term ctl = args[WRITE_ATTRIBUTES].tvalue;
@@ -364,7 +365,9 @@ write2 ( USES_REGS1 )
   if (args == NULL)
     return false;
   int output_stream = Yap_CheckStream (ARG1, Output_Stream_f, "write/2");
-  write_term( output_stream, ARG2, args PASS_REGS);
+  args[WRITE_NUMBERVARS].used = true;
+  args[WRITE_NUMBERVARS].tvalue = TermTrue;
+write_term( output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
   if (EX != 0L) {
@@ -386,6 +389,8 @@ write1 ( USES_REGS1 )
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1) output_stream = 1;
   xarg * args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
+  args[WRITE_NUMBERVARS].used = true;
+  args[WRITE_NUMBERVARS].tvalue = TermTrue;
   if (args == NULL)
     return false;
   LOCK(GLOBAL_Stream[output_stream].streamlock);
@@ -582,10 +587,12 @@ writeln1 ( USES_REGS1 )
   xarg *args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
    if (args == NULL)
     return false;
-   args[WRITE_NL].used = true;
+  args[WRITE_NL].used = true;
   args[WRITE_NL].tvalue = TermTrue;
+  args[WRITE_NUMBERVARS].used = true;
+  args[WRITE_NUMBERVARS].tvalue = TermTrue;
   LOCK(GLOBAL_Stream[output_stream].streamlock);
- write_term( output_stream, ARG1, args PASS_REGS);
+  write_term( output_stream, ARG1, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
   if (EX != 0L) {
@@ -613,7 +620,9 @@ writeln ( USES_REGS1 )
     return false;
   args[WRITE_NL].used = true;
   args[WRITE_NL].tvalue = TermTrue;
-  write_term( output_stream, ARG1, args PASS_REGS);
+  args[WRITE_NUMBERVARS].used = true;
+  args[WRITE_NUMBERVARS].tvalue = TermTrue;
+write_term( output_stream, ARG1, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
   if (EX != 0L) {
