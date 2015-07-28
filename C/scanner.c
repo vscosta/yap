@@ -469,8 +469,7 @@ static char chtype0[NUMBER_OF_CHARS + 1] = {
   BS, BS, BS, BS, BS, BS, BS,
 
   /* sp   !   "   #   $   %   &   '   (   )   *   +   ,   -   .   / */
-  BS, SL, DC, SY, SY, CC, SY, QT, BK,
-  BK, SY, SY, BK, SY, SY, SY,
+     BS, SL, DC, SY, SY, CC, SY, QT, BK, BK, SY, SY, BK, SY, SY, SY,
 
   /* 0   1   2   3   4   5   6   7   8   9   :   ;   <   =   >   ? */
   NU, NU, NU, NU, NU, NU, NU, NU, NU,
@@ -893,7 +892,7 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *inp_stream, char *s,
       ch = getchr(inp_stream);
       if (base == 0) {
           CACHE_REGS
-              wchar_t ascii = ch;
+          wchar_t ascii = ch;
           int scan_extra = TRUE;
 
           if (ch == '\\' &&
@@ -925,7 +924,7 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *inp_stream, char *s,
                 has_overflow = (has_overflow || TRUE);
               ch = getchr(inp_stream);
             }
-        }
+      }
     } else if (ch == 'x' && base == 0) {
       might_be_float = FALSE;
       if (--max_size == 0) {

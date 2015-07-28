@@ -31,21 +31,6 @@
 
 #ifndef _PL_WRITE_
 
-/* Character types for tokenizer and write.c */
-
-#define UC      1       /* Upper case */
-#define UL      2       /* Underline */
-#define LC      3       /* Lower case */
-#define NU      4       /* digit */
-#define	QT	5	/* single quote */
-#define	DC	6	/* double quote */
-#define SY      7       /* Symbol character */
-#define SL      8       /* Solo character */
-#define BK      9       /* Brackets & friends */
-#define BS      10      /* Blank */
-#define EF	11	/* End of File marker */
-#define CC	12	/* comment char %	*/
-
 #define EOFCHAR EOF
 
 #endif

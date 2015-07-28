@@ -500,7 +500,7 @@
   FunctorStreamEOS = Yap_MkFunctor(AtomEndOfStream,1);
   FunctorStreamPos = Yap_MkFunctor(AtomStreamPos,4);
   FunctorString1 = Yap_MkFunctor(AtomString,1);
-  FunctorSyntaxError = Yap_MkFunctor(AtomSyntaxError,7);
+  FunctorSyntaxError = Yap_MkFunctor(AtomSyntaxError,5);
   FunctorShortSyntaxError = Yap_MkFunctor(AtomSyntaxError,1);
   FunctorTermExpansion = Yap_MkFunctor(AtomTermExpansion,2);
   FunctorThreadRun = Yap_MkFunctor(AtomTopThreadGoal,2);

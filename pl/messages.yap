@@ -67,14 +67,13 @@ handling in YAP:
 
 :- multifile user:generate_message_hook/3.
 
-file_location -->
-	{ source_location(FileName, LN) },
-	file_position(FileName,LN).
-
-file_position(user_input,LN) -->
-	[ 'user_input:~d:0: ' - [LN] ].
-file_position(FileName,LN) -->
-	[ '~a:~d:0: ' - [FileName,LN] ].
+file_location(syntax_error(_,between(_,LN,_),_,FileName,_)) -->
+	[ '~a:~d:0: ' - [FileName,LN] ],
+	{ source_location(FileName, LN) }.
+file_location(_) -->
+	[ '~a:~d:0: ' - [FileName,LN] ],
+	{ source_location(FileName, LN) }.
+	
 
 generate_message(Term, Lines, []) :-
 	user:generate_message_hook(Term, [], Lines), !.
@@ -121,7 +120,7 @@ generate_message(error(Error,Context)) -->
 	system_message(error(Error,Context)),
 	stack_dump(error(Error,Context)).
 generate_message(M) -->
-	file_location,
+	file_location(M),
 	system_message(M),
 	stack_dump(M).
 
@@ -133,10 +132,10 @@ stack_dump(error(_,_)) -->
 	'$hacks':display_stack_info(CPs, Envs, 20, CP).
 stack_dump(_) --> [].
 
-prolog_message(X,Y,Z) :-
-	system_message(X,Y,Z).
+prolog_message(X) -->
+	system_message(X).
 
-				%message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
+%message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
 system_message(query(_QueryResult,_)) --> [].
 system_message(format(Msg, Args)) -->
 	[Msg - Args].
@@ -212,6 +211,11 @@ system_message(myddas_version(Version)) -->
 	[ 'MYDDAS version ~a' - [Version] ].
 system_message(yes) -->
 	[  'yes'  ].
+system_message( syntax_error(read(_R),between(L0,LM,LF),Msg,_,Term) ) -->
+	  !,
+	  ['SYNTAX ERROR: ~s' - [Msg]],
+	  [nl],
+	  syntax_error_term( between(L0,LM,LF), Term ).
 system_message(error(Msg,Info)) -->
 	( { var(Msg) } ; { var(Info)} ), !,
 	['bad error ~w' - [error(Msg,Info)]].
@@ -346,34 +350,9 @@ system_message(error(resource_error(trail), Where)) -->
 	[ 'RESOURCE ERROR- not enough trail space' - [Where] ].
 system_message(error(signal(SIG,_), _)) -->
 	[ 'UNEXPECTED SIGNAL: ~a' - [SIG] ].
-system_message(error(syntax_error(_), [syntax_error(G,_,Msg,[],_,0,File)|_])) -->
-	[ 'SYNTAX ERROR at "~a", goal ~q: ~a' - [File,G,Msg] ].
 % SWI like I/O error message.
 system_message(error(syntax_error(end_of_clause), [stream(Stream, Line, _, _)|_])) -->
 	[ 'SYNTAX ERROR ~a, stream ~w, near line ~d.' - ['Unexpected end of clause',Stream,Line] ].
-system_message(error(syntax_error(read(_R),between(_L0,_LM,_LF),_Dot,Term,Pos,Start,File))) -->
-	{ Term = [_|_] },
-	['SYNTAX ERROR' - []],
-	syntax_error_line(File, Start, Pos),
-	syntax_error_term(10, Pos, Term),
-	[ '.' ].
-system_message(error(system_error, Where)) -->
-	[ 'SYSTEM ERROR- ~w' - [Where] ].
-system_message(error(internal_compiler_error, Where)) -->
-	[ 'INTERNAL COMPILER ERROR- ~w' - [Where] ].
-system_message(error(system_error(Message), Where)) -->
-	[ 'SYSTEM ERROR- ~w at ~w]' - [Message,Where] ].
-system_message(error(timeout_error(T,Obj), _Where)) -->
-	[ 'TIMEOUT ERROR- operation ~w on object ~w' - [T,Obj] ].
-system_message(error(type_error(T,_,Err,M), _Where)) -->
-	[ 'TYPE ERROR- ~w: expected ~w, got ~w' - [T,Err,M] ].
-system_message(error(type_error(TE,W), Where)) -->
-	{ object_name(TE, M) }, !,
-	[ 'TYPE ERROR- ~w: expected ~a, got ~w' - [Where,M,W] ].
-system_message(error(type_error(TE,W), Where)) -->
-	[ 'TYPE ERROR- ~w: expected ~q, got ~w' - [Where,TE,W] ].
-system_message(error(unknown, Where)) -->
-	[ 'EXISTENCE ERROR- procedure ~w undefined' - [Where] ].
 system_message(error(unhandled_exception,Throw)) -->
 	[ 'UNHANDLED EXCEPTION - message ~w unknown' - [Throw] ].
 system_message(error(uninstantiation_error(TE), _Where)) -->
@@ -500,43 +479,46 @@ list_of_preds([P|L]) -->
 	['~q' - [P]],
 	list_of_preds(L).
 
+syntax_error_term(between(I,I,I),L) -->
+	!,
+	syntax_error_tokens(L).
+syntax_error_term(between(I,_J,L),LTaL) -->
+	[' term from line ~d to line ~d' - [I,L] ],
+	syntax_error_tokens(LTaL).
 
-syntax_error_line('', _,_) --> !,
-	[':~n' ].
-syntax_error_line(File, Position,_) -->
-	[' at ~a, near line ~d:~n' - [File,Position]].
-
-syntax_error_term(0,J,L) -->
-	['~n' ],
-	syntax_error_term(10,J,L).
-syntax_error_term(_,0,L) --> !,
-	[ '~n<==== HERE ====>~n' ],
-	syntax_error_term(10,-1,L).
-syntax_error_term(_,_,[]) --> !.
-syntax_error_term(I,J,[T-_P|R]) -->
+syntax_error_tokens([]) --> [].
+syntax_error_tokens([T|L]) -->
 	syntax_error_token(T),
-	{
-	 I1 is I-1,
-	 J1 is J-1
-	},
-	syntax_error_term(I1,J1,R).
+	syntax_error_tokens(L).
 
 syntax_error_token(atom(A)) --> !,
-	[ ' ~a' - [A] ].
+	[ '~a' - [A] ].
 syntax_error_token(number(N)) --> !,
-	[ ' ~w' - [N] ].
+	[ '~w' - [N] ].
 syntax_error_token(var(_,S,_))  --> !,
-	[ ' ~s'  - [S] ].
+	[ '~s'  - [S] ].
 syntax_error_token(string(S)) --> !,
-	[ ' ""~s"' - [S] ].
+	[ '\"~s\"' - [S] ].
+syntax_error_token(error) --> !,
+	[ '~n<==== HERE ====>~n' ].
+syntax_error_token('[]') --> !,
+	[ nl  ].
 syntax_error_token('(') --> !,
 	[ '('  ].
+syntax_error_token('(') --> !,
+	[ '{'  ].
+syntax_error_token('(') --> !,
+	[ '['  ].
 syntax_error_token(')') --> !,
 	[ ' )'  ].
+syntax_error_token(')') --> !,
+	[ ']'  ].
+syntax_error_token(')') --> !,
+	[ '}'  ].
 syntax_error_token(',') --> !,
-	[ ' ,' ].
+	[ ',' ].
 syntax_error_token(A) --> !,
-	[ ' ~a' - [A] ].
+	[ '~a' - [A] ].
 
 
 %	print_message_lines(+Stream, +Prefix, +Lines)
@@ -571,7 +553,7 @@ the  _Prefix_ is printed too.
 */
 
 prolog:print_message_lines(_S, _, []) :- !.
-prolog:print_message_lines(_S, P, [at_same_line|Lines]) :- !,
+prolog:print_message_lines(S, P, [at_same_line|Lines]) :- !,
 	'$messages':print_message_line(S, Lines, Rest),
 	prolog:print_message_lines(S, P, Rest).
 prolog:print_message_lines(S, kind(Kind), Lines) :- !,

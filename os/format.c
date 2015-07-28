@@ -658,7 +658,17 @@ doformat(volatile Term otail, volatile Term oargs, int sno USES_REGS)
 	    if (targ > tnum-1)
 	      goto do_consistency_error;
 	    t = targs[targ++];
-	    if (!format_print_str (sno, repeats, has_repeats, t, f_putc)) {
+	    if (IsVarTerm(t))
+	      goto do_instantiation_error;
+	    if (IsStringTerm(t)) {
+	      if (has_repeats)
+		goto do_consistency_error;
+	      yhandle_t sl = Yap_StartSlots();
+	      // stream is already locked.
+	      Yap_plwrite (t, GLOBAL_Stream+sno, 0, Handle_vars_f|To_heap_f, 1200);
+	      Yap_CloseSlots(sl);
+	      LOCAL_FormatInfo = &finfo;
+	    } else if (!format_print_str (sno, repeats, has_repeats, t, f_putc)) {
 	      goto do_default_error;
 	    }
 	    break;

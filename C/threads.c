@@ -51,7 +51,7 @@ blob_type_t PL_Message_Queue = {
 
 #if DEBUG_LOCKS||DEBUG_PE_LOCKS
 
-int debug_locks = FALSE, debug_pe_locks = FALSE;
+bool debug_locks = true, debug_pe_locks = true;
 static Int p_debug_locks( USES_REGS1 ) { debug_pe_locks = 1; return TRUE; }
 
 static Int p_nodebug_locks( USES_REGS1 ) { debug_locks = 0; debug_pe_locks = 0; return TRUE; }

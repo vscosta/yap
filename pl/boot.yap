@@ -237,8 +237,7 @@ private(_).
         '$cut_by'/1,
         '$disable_debugging'/0,
         '$do_live'/0,
-        '$
-		'/0,
+        '$'/0,
         '$find_goal_definition'/4,
         '$handle_throw'/3,
         '$head_and_body'/3,

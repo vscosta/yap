@@ -32,7 +32,7 @@ int Yap_ThreadID( void );
 #define DESTROY_LOCK(LOCK_VAR) pthread_mutex_destroy(&(LOCK_VAR))
 #define TRY_LOCK(LOCK_VAR)     pthread_mutex_trylock(&(LOCK_VAR))
 #if DEBUG_LOCKS
-extern int debug_locks;
+extern bool debug_locks;
 
 #define LOCK(LOCK_VAR)         (void)(fprintf(debugf, "[%d] %s:%d: LOCK(%p)\n",  Yap_ThreadID(),__BASE_FILE__, __LINE__,&(LOCK_VAR))  && pthread_mutex_lock(&(LOCK_VAR)) )
 #define UNLOCK(LOCK_VAR)       (void)(fprintf(debugf, "[%d] %s:%d: UNLOCK(%p)\n",  Yap_ThreadID(),__BASE_FILE__, __LINE__,&(LOCK_VAR))  && pthread_mutex_unlock(&(LOCK_VAR)) )
@@ -41,21 +41,21 @@ extern int debug_locks;
 #define UNLOCK(LOCK_VAR)       pthread_mutex_unlock(&(LOCK_VAR))
 #endif
 
-static inline int
+static inline bool
 xIS_LOCKED(pthread_mutex_t *LOCK_VAR) {
   if (pthread_mutex_trylock(LOCK_VAR) == 0) {
     pthread_mutex_unlock(LOCK_VAR);
-    return TRUE;
+    return true;
   }
-  return FALSE;
+  return false;
 }
-static inline int
+static inline bool
 xIS_UNLOCKED(pthread_mutex_t *LOCK_VAR) {
   if (pthread_mutex_trylock(LOCK_VAR) == 0) {
     pthread_mutex_unlock(LOCK_VAR);
-    return FALSE;
+    return false;
   }
-  return TRUE;
+  return true;
 }
 
 #define IS_LOCKED(LOCK_VAR)    xIS_LOCKED(&(LOCK_VAR))
@@ -65,7 +65,7 @@ xIS_UNLOCKED(pthread_mutex_t *LOCK_VAR) {
 #define INIT_RWLOCK(X)         pthread_rwlock_init(&(X), NULL)
 #define DESTROY_RWLOCK(X)      pthread_rwlock_destroy(&(X))
 #if DEBUG_PE_LOCKS
-extern int debug_pe_locks;
+extern bool debug_pe_locks;
 
 #define READ_LOCK(X) ((debug_pe_locks ?					\
 		      fprintf(debugf, "[%d] %s:%d: RLOCK(%p)\n",  \

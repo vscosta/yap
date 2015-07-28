@@ -38,7 +38,7 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_IO_H
 /* Windows */
 #include <io.h>
-#endif 
+#endif
 #if HAVE_SOCKET
 #include <winsock2.h>
 #endif
@@ -60,12 +60,12 @@ static Int flush_all_streams( USES_REGS1);
 
 INLINE_ONLY inline EXTERN Term  MkCharTerm (Int c);
 
-/** 
+/**
  * MkCharTerm: convert a character into a single atom.
- * 
+ *
  * @param c the character code
- * 
- * @return the term. 
+ *
+ * @return the term.
  */
 INLINE_ONLY inline EXTERN Term
 MkCharTerm (Int c)
@@ -77,12 +77,12 @@ MkCharTerm (Int c)
 }
 
 
-/** 
+/**
  * CharOfAtom: convert an atom  into a single character.
- * 
+ *
  * @param at the atom
- * 
- * @return the char . 
+ *
+ * @return the char .
  */
 INLINE_ONLY inline EXTERN Int
 CharOfAtom (Atom at)
@@ -99,7 +99,7 @@ CharOfAtom (Atom at)
 static Int
 at_end_of_stream ( USES_REGS1 )
 {				/* at_end_of_stream */
-  /* the next character is a EOF */ 
+  /* the next character is a EOF */
   int sno = Yap_CheckStream (ARG1, Input_Stream_f, "past_eof/1");
   Int out;
 
@@ -117,7 +117,7 @@ at_end_of_stream ( USES_REGS1 )
 static Int
 at_end_of_stream_0 ( USES_REGS1 )
 {				/* at_end_of_stream */
-  /* the next character is a EOF */ 
+  /* the next character is a EOF */
   int sno = LOCAL_c_input_stream;
   Int out;
 
@@ -137,7 +137,7 @@ yap_fflush(  sno)
 {
   Yap_ReadlineFlush( sno );
   if ( (GLOBAL_Stream[sno].status & Output_Stream_f) &&
-       ! (GLOBAL_Stream[sno].status & 
+       ! (GLOBAL_Stream[sno].status &
          (Null_Stream_f|
 	  InMemory_Stream_f|
 	  Socket_Stream_f|
@@ -295,7 +295,7 @@ get0_line_codes ( USES_REGS1 )
   }
   out = read_line(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);
-  if (rewind) 
+  if (rewind)
     return Yap_unify(MkPairTerm(MkIntegerTerm(ch),out), ARG2);
   else
     return Yap_unify(out,ARG2);
@@ -347,7 +347,7 @@ put_code_1 ( USES_REGS1 )
 {				/* '$put'(,N)                      */
   int sno = LOCAL_c_output_stream, ch;
   Term t2;
-  
+
   if (IsVarTerm(t2 = Deref(ARG1))) {
     Yap_Error(INSTANTIATION_ERROR, t2, "put_code/1");
     return FALSE;
@@ -367,7 +367,7 @@ put_code_1 ( USES_REGS1 )
   GLOBAL_Stream[sno].stream_wputc (sno, (int) IntegerOfTerm (Deref (ARG2)));
   /*
    * if (!(GLOBAL_Stream[sno].status & Null_Stream_f))
-   * yap_fflush(GLOBAL_Stream[sno].file); 
+   * yap_fflush(GLOBAL_Stream[sno].file);
    */
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
@@ -379,7 +379,7 @@ put_code ( USES_REGS1 )
   int ch;
   Term t2;
   int sno;
-  
+
   if (IsVarTerm(t2 = Deref(ARG2))) {
     Yap_Error(INSTANTIATION_ERROR, t2, "put_code/1");
     return FALSE;
@@ -398,11 +398,11 @@ put_code ( USES_REGS1 )
     Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "put/2");
     return(FALSE);
   }
-  
+
   GLOBAL_Stream[sno].stream_wputc (sno, ch);
   /*
    * if (!(GLOBAL_Stream[sno].status & Null_Stream_f))
-   * yap_fflush(GLOBAL_Stream[sno].file); 
+   * yap_fflush(GLOBAL_Stream[sno].file);
    */
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
@@ -414,7 +414,7 @@ put_char_1 ( USES_REGS1 )
   int sno = LOCAL_c_output_stream;
   Term t2;
   int ch;
-  
+
   if (IsVarTerm(t2 = Deref(ARG1))) {
     Yap_Error(INSTANTIATION_ERROR, t2, "put_char/1");
     return FALSE;
@@ -434,7 +434,7 @@ put_char_1 ( USES_REGS1 )
   GLOBAL_Stream[sno].stream_wputc (sno, ch);
   /*
    * if (!(GLOBAL_Stream[sno].status & Null_Stream_f))
-   * yap_fflush(GLOBAL_Stream[sno].file); 
+   * yap_fflush(GLOBAL_Stream[sno].file);
    */
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
@@ -446,7 +446,7 @@ put_char ( USES_REGS1 )
   Term t2;
   int ch;
   int sno;
-  
+
   if (IsVarTerm(t2 = Deref(ARG1))) {
     Yap_Error(INSTANTIATION_ERROR, t2, "put_char/1");
     return FALSE;
@@ -468,7 +468,7 @@ put_char ( USES_REGS1 )
   GLOBAL_Stream[sno].stream_wputc (sno, (int) IntegerOfTerm (Deref (ARG2)));
   /*
    * if (!(GLOBAL_Stream[sno].status & Null_Stream_f))
-   * yap_fflush(GLOBAL_Stream[sno].file); 
+   * yap_fflush(GLOBAL_Stream[sno].file);
    */
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
@@ -490,7 +490,7 @@ tab_1 ( USES_REGS1 )
     Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "tab/1");
     return FALSE;
   }
-  
+
   LOCK(GLOBAL_Stream[sno].streamlock);
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
@@ -502,7 +502,7 @@ tab_1 ( USES_REGS1 )
     GLOBAL_Stream[sno].stream_wputc (sno, ' ');
   /*
    * if (!(GLOBAL_Stream[sno].status & Null_Stream_f))
-   * yap_fflush(GLOBAL_Stream[sno].file); 
+   * yap_fflush(GLOBAL_Stream[sno].file);
    */
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
@@ -527,7 +527,7 @@ tab ( USES_REGS1 )
   sno = Yap_CheckStream (ARG1, Output_Stream_f, "nl/1");
   if (sno < 0)
     return (FALSE);
-  
+
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "nl/0");
@@ -538,7 +538,7 @@ tab ( USES_REGS1 )
     GLOBAL_Stream[sno].stream_wputc (sno, ' ');
   /*
    * if (!(GLOBAL_Stream[sno].status & Null_Stream_f))
-   * yap_fflush(GLOBAL_Stream[sno].file); 
+   * yap_fflush(GLOBAL_Stream[sno].file);
    */
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
@@ -557,7 +557,7 @@ nl_1 ( USES_REGS1 )
   GLOBAL_Stream[sno].stream_wputc (sno, 10);
   /*
    * if (!(GLOBAL_Stream[sno].status & Null_Stream_f))
-   * yap_fflush(GLOBAL_Stream[sno].file); 
+   * yap_fflush(GLOBAL_Stream[sno].file);
    */
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
@@ -577,7 +577,7 @@ nl ( USES_REGS1 )
   GLOBAL_Stream[sno].stream_wputc (sno, 10);
   /*
    * if (!(GLOBAL_Stream[sno].status & Null_Stream_f))
-   * yap_fflush(GLOBAL_Stream[sno].file); 
+   * yap_fflush(GLOBAL_Stream[sno].file);
    */
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
@@ -610,7 +610,7 @@ put_byte ( USES_REGS1 )
   GLOBAL_Stream[sno].stream_putc(sno, ch);
   /*
    * if (!(GLOBAL_Stream[sno].status & Null_Stream_f))
-   * yap_fflush(GLOBAL_Stream[sno].file); 
+   * yap_fflush(GLOBAL_Stream[sno].file);
    */
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
@@ -652,7 +652,7 @@ skip_1 ( USES_REGS1 )
   Term t2;
   int sno;
   int ch;
-  
+
   if (IsVarTerm(t2 = Deref(ARG1))) {
     Yap_Error(INSTANTIATION_ERROR, t2, "skip/2");
     return FALSE;
@@ -679,7 +679,7 @@ skip ( USES_REGS1 )
   Term t2;
   int sno;
   int ch;
-  
+
   if (IsVarTerm(t2 = Deref(ARG2))) {
     Yap_Error(INSTANTIATION_ERROR, t2, "skip/2");
     return FALSE;
@@ -698,14 +698,14 @@ skip ( USES_REGS1 )
   return (TRUE);
 }
 
-/** 
+/**
  * @pred flush_output(+Stream)
  *
  * Flush the stream _Stream_, that is, make sure all pending output is committed
  * before any further execution.
- * 
- * @param +_Stream_ 
- * 
+ *
+ * @param +_Stream_
+ *
  */
 static Int
 flush_output ( USES_REGS1 )
@@ -718,13 +718,13 @@ flush_output ( USES_REGS1 )
  return (TRUE);
 }
 
-/** 
+/**
  * @pred flush_output
  *
  * Flush the current output stream, that is, make sure all pending output is committed
  * before any further execution. By default this is user_output, but it may be
  * changed by current_output/1.
- * 
+ *
  */
 static Int
 flush_output0 ( USES_REGS1 )
@@ -746,7 +746,7 @@ flush_all_streams ( USES_REGS1 )
 #else
   fflush (NULL);
 #endif
-  
+
   return TRUE;
 }
 
@@ -755,7 +755,7 @@ static Int dopeek( int sno )
    Int ocharcount, olinecount, olinepos;
    StreamDesc *s;
    Int ch;
-   
+
   s = GLOBAL_Stream+sno;
   ocharcount = s->charcount;
   olinecount = s->linecount;
@@ -784,7 +784,7 @@ static Int dopeek( int sno )
 If  _C_ is unbound, or is the code for a character, and
 the  stream _S_ is a text stream, read the next character from the
 current stream and unify its code with  _C_, while
-leaving the current stream position unaltered. 
+leaving the current stream position unaltered.
 
 */
 
@@ -794,13 +794,13 @@ leaving the current stream position unaltered.
 If  _C_ is unbound, or is the code for a character, and
 the  stream _S_ is a text stream, read the next character from the
 current stream and unify its code with  _C_, while
-leaving the current stream position unaltered. 
+leaving the current stream position unaltered.
 
 */
 static Int
 peek_code ( USES_REGS1 )
 {				/* at_end_of_stream */
-  /* the next character is a EOF */ 
+  /* the next character is a EOF */
   int sno = Yap_CheckStream (ARG1, Input_Stream_f, "peek/2");
   Int ch;
 
@@ -824,13 +824,13 @@ peek_code ( USES_REGS1 )
 If  _C_ is unbound, or is the code for a character, and
 the  current input stream is a text stream, read the next character from the
 current stream and unify its code with  _C_, while
-leaving the current stream position unaltered. 
+leaving the current stream position unaltered.
 
 */
 static Int
 peek_code_1 ( USES_REGS1 )
 {				/* at_end_of_stream */
-  /* the next character is a EOF */ 
+  /* the next character is a EOF */
   int sno = LOCAL_c_input_stream;
   Int ch;
 
@@ -857,7 +857,7 @@ code with  _C_, while leaving the current stream position unaltered.
 static Int
 peek_byte ( USES_REGS1 )
 {				/* at_end_of_stream */
-  /* the next character is a EOF */ 
+  /* the next character is a EOF */
   int sno = Yap_CheckStream (ARG1, Input_Stream_f, "peek/2");
     Int ch;
 
@@ -885,7 +885,7 @@ code with  _C_, while leaving the current stream position unaltered.
 static Int
 peek_byte_1 ( USES_REGS1 )
 {				/* at_end_of_stream */
-  /* the next character is a EOF */ 
+  /* the next character is a EOF */
   int sno = LOCAL_c_input_stream;
   Int ch;
 
@@ -915,8 +915,8 @@ atom with  _C_, while leaving the  stream position unaltered.
 */
 static Int
 peek_char ( USES_REGS1 )
-{				
-  /* the next character is a EOF */ 
+{
+  /* the next character is a EOF */
   int sno = Yap_CheckStream (ARG1, Input_Stream_f, "peek/2");
   wchar_t wsinp[2];
   Int ch;
@@ -947,12 +947,12 @@ atom with  _C_, while leaving the  stream position unaltered.
 */
 static Int
 peek_char_1 ( USES_REGS1 )
-{				
-  /* the next character is a EOF */ 
+{
+  /* the next character is a EOF */
   int sno = LOCAL_c_input_stream;
   wchar_t wsinp[2];
   Int ch;
-  
+
   LOCK(GLOBAL_Stream[sno].streamlock);
   if ((ch =  dopeek( sno )) < 0) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
@@ -971,7 +971,7 @@ peek_char_1 ( USES_REGS1 )
 If  _C_ is unbound, or is the code for a character, and
 the  stream _S_ is a text stream, read the next character from the
 current stream and unify its code with  _C_, while
-leaving the current stream position unaltered. 
+leaving the current stream position unaltered.
 
 Please use the ISO built-in peek_code/2.
 */
@@ -982,7 +982,7 @@ Please use the ISO built-in peek_code/2.
 If  _C_ is unbound, or is the code for a character, and
 the  currrent input stream  is a text stream, read the next character from the
 current stream and unify its code with  _C_, while
-leaving the current stream position unaltered. 
+leaving the current stream position unaltered.
 
 */
 
@@ -1012,8 +1012,8 @@ Yap_InitCharsio( void )
   Yap_InitCPred ("get_char", 1, getchar_1, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("get0", 1, getcode_1, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$get0_line_codes", 2, get0_line_codes, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("get_byte", 2, get_byte, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("get_byte", 1, get_byte_1, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("get_byte", 2, get_byte, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("get_byte", 1, get_byte_1, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("put", 1, put_code_1, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("put", 2, put_code, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("put_code", 1, put_code_1, SafePredFlag|SyncPredFlag);
@@ -1049,5 +1049,5 @@ Yap_InitCharsio( void )
   Yap_InitCPred ("tab", 2, tab, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("tab1", 1, tab_1, SafePredFlag|SyncPredFlag);
 
- 
+
 }

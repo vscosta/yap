@@ -13,8 +13,12 @@ static char SccsId[] = "%W% %G%";
 #ifndef IOPREDS_H
 #define IOPREDS_H 1
 
+#include <stdlib.h>
+#include "Yap.h"
+#include "Atoms.h"
+
 /*
- * This file defines main data-structure for stream management, 
+ * This file defines main data-structure for stream management,
  *
  */
 
@@ -95,18 +99,18 @@ typedef struct read_data_t
   unsigned char *base;			/* base of clause */
   unsigned char *end;			/* end of the clause */
   unsigned char *token_start;		/* start of most recent read token */
- 
+
   int		magic;			/* RD_MAGIC */
   struct stream_desc           *stream;
   FILE	       *f;		        /* file. of known */
   Term         position;                /* Line, line pos, char and byte */
   void          *posp;			/* position pointer */
   size_t	posi;			/* position number */
-  
+
   Term		subtpos;		/* Report Subterm positions */
   bool		cycles;			/* Re-establish cycles */
   yapSourceLocation start_of_term;        /* Position of start of term */
-  ModEntry*	module;			/* Current source module */
+  struct mod_entry*	module;			/* Current source module */
   unsigned int	flags;			/* Module syntax flags */
   int		styleCheck;		/* style-checking mask */
   bool		backquoted_string;	/* Read `hello` as string */
@@ -119,7 +123,7 @@ typedef struct read_data_t
   Term		exception;		/* raised exception */
   Term		variables;		/* report variables */
   Term		singles;		/* Report singleton variables */
-  Term		varnames;		/* Report variables+names */  
+  Term		varnames;		/* Report variables+names */
   int		strictness;		/* Strictness level */
 
 #ifdef O_QUASIQUOTATIONS
@@ -327,7 +331,7 @@ INLINE_ONLY inline EXTERN void count_output_char(int ch, StreamDesc *s);
 
 Term Yap_StreamUserName(int sno);
 
-INLINE_ONLY inline EXTERN void 
+INLINE_ONLY inline EXTERN void
 count_output_char(int ch, StreamDesc *s)
 {
   if (ch == '\n')

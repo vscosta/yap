@@ -147,6 +147,9 @@ dot with single quotes.
 #if HAVE_STRING_H
 #include <string.h>
 #endif
+#if HAVE_STDARG_H
+#include <stdarg.h>
+#endif
 
 #ifdef __STDC__XXX
 #define Volatile volatile
@@ -163,6 +166,21 @@ static void checkfor(wchar_t, JMPBUFF *CACHE_TYPE);
 static Term ParseArgs( Atom, wchar_t, JMPBUFF *, Term CACHE_TYPE);
 static Term ParseList( JMPBUFF *CACHE_TYPE);
 static Term ParseTerm( int, JMPBUFF *CACHE_TYPE);
+
+static void
+syntax_msg( const char *msg, ...)
+{
+  CACHE_REGS
+  va_list ap;
+
+  if (LOCAL_toktide == LOCAL_tokptr) {
+    va_start(ap, msg);
+    vsnprintf( LOCAL_FileNameBuf2, YAP_FILENAME_MAX-1, msg, ap );
+    LOCAL_ErrorMessage = LOCAL_FileNameBuf2;
+    LOCAL_Error_TYPE = SYNTAX_ERROR;
+    va_end(ap);
+  }
+}
 
 #define TRY(S, P)                                                              \
   {                                                                            \
@@ -204,6 +222,54 @@ static Term ParseTerm( int, JMPBUFF *CACHE_TYPE);
   }
 
 #define FAIL siglongjmp(FailBuff->JmpBuff, 1)
+
+static const char *tokRep(TokEntry *tokptr)
+{
+  CACHE_REGS
+  Term info = tokptr->TokInfo;
+  char *b, *buf = LOCAL_FileNameBuf2;
+  size_t length, sze = YAP_FILENAME_MAX-1;
+  UInt flags = 0;
+  
+  switch (tokptr->Tok) {
+  case Name_tok:
+    return RepAtom((Atom)info)->StrOfAE;
+  case Number_tok:
+    if ((b = Yap_TermToString(info, buf, sze, &length,LOCAL_encoding, flags)) != buf) {
+      if (b) free(b);
+      return NULL;
+    }
+    return buf;
+  case Var_tok:
+    {
+      VarEntry *varinfo = (VarEntry *)info;
+      return varinfo->VarRep;
+    }
+  case String_tok:
+  case BQString_tok:
+    return (char *)info;
+  case WString_tok:
+  case WBQString_tok:
+    return utf8_wcscpy(buf, (wchar_t *)info);
+  case Error_tok:
+    return "<ERR>";
+  case eot_tok:
+    return "<EOT>";
+  case Ponctuation_tok:
+    {
+      buf[1] = '\0';
+      if ((info) == 'l') {
+	buf[0] = '(';
+      } else  {
+	buf[0] = (char)info;
+      }
+    }
+    return buf;
+  case QuasiQuotes_tok:
+  case WQuasiQuotes_tok:
+    return "<QQ>";
+  }
+}
 
 VarEntry *Yap_LookupVar(const char *var) /* lookup variable in variables table   */
 {
@@ -430,16 +496,18 @@ int Yap_IsPosfixOp(Atom op, int *pptr, int *lpptr) {
 inline static void GNextToken(USES_REGS1) {
   if (LOCAL_tokptr->Tok == Ord(eot_tok))
     return;
-  if (LOCAL_tokptr == LOCAL_toktide)
+  if (LOCAL_tokptr == LOCAL_toktide) {
     LOCAL_toktide = LOCAL_tokptr = LOCAL_tokptr->TokNext;
-  else
+  } else
     LOCAL_tokptr = LOCAL_tokptr->TokNext;
 }
 
 inline static void checkfor(wchar_t c, JMPBUFF *FailBuff USES_REGS) {
   if (LOCAL_tokptr->Tok != Ord(Ponctuation_tok) ||
-      LOCAL_tokptr->TokInfo != (Term)c)
+      LOCAL_tokptr->TokInfo != (Term)c) {
+    syntax_msg("expected to find \'%c\', found %s", tokRep(LOCAL_tokptr));
     FAIL;
+  }
   NextToken;
 }
 
@@ -517,12 +585,12 @@ static Term ParseArgs( Atom a, wchar_t close, JMPBUFF *FailBuff,
 
       func = Yap_MkFunctor(a, 1);
       if (func == NULL) {
-        LOCAL_ErrorMessage = "Heap Overflow";
+	syntax_msg("Heap Overflow");
         FAIL;
       }
       t = Yap_MkApplTerm(func, nargs, p);
       if (HR > ASP - 4096) {
-        LOCAL_ErrorMessage = "Stack Overflow";
+	syntax_msg("Stack Overflow");
         return TermNil;
       }
       NextToken;
@@ -532,7 +600,7 @@ static Term ParseArgs( Atom a, wchar_t close, JMPBUFF *FailBuff,
   while (1) {
     Term *tp = (Term *)ParserAuxSp;
     if (ParserAuxSp + 1 > LOCAL_TrailTop) {
-      LOCAL_ErrorMessage = "Trail Overflow";
+      syntax_msg("Trail Overflow");
       FAIL;
     }
     *tp++ = Unsigned(ParseTerm( 999, FailBuff PASS_REGS));
@@ -550,12 +618,12 @@ static Term ParseArgs( Atom a, wchar_t close, JMPBUFF *FailBuff,
    * order
    */
   if (HR > ASP - (nargs + 1)) {
-    LOCAL_ErrorMessage = "Stack Overflow";
+     syntax_msg("Stack Overflow");
     FAIL;
   }
   func = Yap_MkFunctor(a, nargs);
   if (func == NULL) {
-    LOCAL_ErrorMessage = "Heap Overflow";
+    syntax_msg("Heap Overflow");
     FAIL;
   }
 #ifdef SFUNC
@@ -570,7 +638,7 @@ static Term ParseArgs( Atom a, wchar_t close, JMPBUFF *FailBuff,
     t = Yap_MkApplTerm(func, nargs, p);
 #endif
   if (HR > ASP - 4096) {
-    LOCAL_ErrorMessage = "Stack Overflow";
+       syntax_msg("Stack Overflow");
     return TermNil;
   }
   /* check for possible overflow against local stack */
@@ -609,7 +677,7 @@ loop:
         /* check for possible overflow against local stack */
         if (HR > ASP - 4096) {
           to_store[1] = TermNil;
-          LOCAL_ErrorMessage = "Stack Overflow";
+	  syntax_msg("Stack Overflow");
           FAIL;
         } else {
           to_store[1] = AbsPair(HR);
@@ -622,8 +690,10 @@ loop:
     } else {
       to_store[1] = MkAtomTerm(AtomNil);
     }
-  } else
-    FAIL;
+  } else {
+     syntax_msg("looking for symbol ',','|' got symbol '%s'", tokRep(LOCAL_tokptr) );
+      FAIL;
+  }
   return (o);
 }
 
@@ -693,13 +763,13 @@ static Term ParseTerm( int prio, JMPBUFF *FailBuff USES_REGS) {
             /* build appl on the heap */
             func = Yap_MkFunctor((Atom)t, 1);
             if (func == NULL) {
-              LOCAL_ErrorMessage = "Heap Overflow";
+              syntax_msg( "Heap Overflow" );
               FAIL;
             } t = ParseTerm( oprprio, FailBuff PASS_REGS);
             t = Yap_MkApplTerm(func, 1, &t);
             /* check for possible overflow against local stack */
             if (HR > ASP - 4096) {
-              LOCAL_ErrorMessage = "Stack Overflow";
+              syntax_msg( "Stack Overflow" );
               FAIL;
             } curprio = opprio;
             , break;)
@@ -722,7 +792,8 @@ static Term ParseTerm( int prio, JMPBUFF *FailBuff USES_REGS) {
       Volatile char *p = (char *)LOCAL_tokptr->TokInfo;
       t = Yap_CharsToTDQ(p, CurrentModule PASS_REGS);
       if (!t) {
-        FAIL;
+        syntax_msg( "could not convert \'%s\'", (char *)LOCAL_tokptr->TokInfo );
+	FAIL;
       }
       NextToken;
     } break;
@@ -732,7 +803,8 @@ static Term ParseTerm( int prio, JMPBUFF *FailBuff USES_REGS) {
       Volatile wchar_t *p = (wchar_t *)LOCAL_tokptr->TokInfo;
       t = Yap_WCharsToTDQ(p, CurrentModule PASS_REGS);
       if (!t) {
-        FAIL;
+	syntax_msg( "could not convert \'%S\'", (wchar_t *)LOCAL_tokptr->TokInfo );
+	FAIL;
       }
       NextToken;
     } break;
@@ -742,6 +814,7 @@ static Term ParseTerm( int prio, JMPBUFF *FailBuff USES_REGS) {
       Volatile char *p = (char *)LOCAL_tokptr->TokInfo;
       t = Yap_CharsToTBQ(p, CurrentModule PASS_REGS);
       if (!t) {
+        syntax_msg( "could not convert \'%s\"", (char *)LOCAL_tokptr->TokInfo );
         FAIL;
       }
       NextToken;
@@ -752,6 +825,7 @@ static Term ParseTerm( int prio, JMPBUFF *FailBuff USES_REGS) {
       Volatile wchar_t *p = (wchar_t *)LOCAL_tokptr->TokInfo;
       t = Yap_WCharsToTBQ(p, CurrentModule PASS_REGS);
       if (!t) {
+        syntax_msg( "could not convert \"%S\"", (wchar_t *)LOCAL_tokptr->TokInfo );
         FAIL;
       }
       NextToken;
@@ -766,6 +840,7 @@ case Var_tok:
     break;
 
   case Error_tok:
+    syntax_msg( "found ill-formed \"%s\"", tokRep(LOCAL_tokptr) );
     FAIL;
 
   case Ponctuation_tok:
@@ -799,12 +874,13 @@ case Var_tok:
       t = Yap_MkApplTerm(FunctorBraces, 1, &t);
       /* check for possible overflow against local stack */
       if (HR > ASP - 4096) {
-        LOCAL_ErrorMessage = "Stack Overflow";
+	syntax_msg("Stack Overflow");
         FAIL;
       }
       checkfor('}', FailBuff PASS_REGS);
       break;
     default:
+      syntax_msg("unexpected ponctuation signal %s", tokRep(LOCAL_tokptr));
       FAIL;
     }
     break;
@@ -848,19 +924,23 @@ case Var_tok:
     NextToken;
     t = ParseTerm( 1200, FailBuff PASS_REGS);
     if (LOCAL_tokptr->Tok != QuasiQuotes_tok) {
+      syntax_msg( "expected to find quasi quotes, got \"%s\"", , tokRep(LOCAL_tokptr) );
       FAIL;
     }
-    if (!(is_quasi_quotation_syntax(t, &at)))
+    if (!(is_quasi_quotation_syntax(t, &at))) {
+      syntax_msg( "bad quasi quotation syntax, at \"%s\"", tokRep(LOCAL_tokptr) );
       FAIL;
+    }
     /* Arg 2: the content */
     tn = Yap_MkNewApplTerm(SWIFunctorToFunctor(FUNCTOR_quasi_quotation4), 4);
     tnp = RepAppl(tn) + 1;
     tnp[0] = MkAtomTerm(at);
     if (!get_quasi_quotation(Yap_InitSlot(ArgOfTerm(2, tn)),
                              &qq->text,
-                             qq->text + strlen((const char *)qq->text)))
-      FAIL;
-
+                             qq->text + strlen((const char *)qq->text))) {
+       syntax_msg( "could not get quasi quotation, at \"%s\"", tokRep(LOCAL_tokptr) );
+       FAIL;
+    }
     if (positions) {
       intptr_t qqend = qq->end.charno;
 
@@ -869,6 +949,7 @@ case Var_tok:
                          FUNCTOR_minus2, PL_INTPTR,
                          qq->mid.charno + 2,    /* end of | token */
                          PL_INTPTR, qqend - 2)) /* end minus "|}" */
+	syntax_msg( "failed to unify quasi quotation, at \"%s\"", tokRep(LOCAL_tokptr) );
         FAIL;
     }
 
@@ -878,14 +959,16 @@ case Var_tok:
     t = ArgOfTerm(4, tn);
     if (!(to = PL_new_term_ref()) ||
         !PL_unify_list(LOCAL_qq_tail, to, LOCAL_qq_tail) ||
-        !PL_unify(to, Yap_InitSlot(tn )))
+        !PL_unify(to, Yap_InitSlot(tn ))) {
+      syntax_msg( "failed to unify quasi quotation, at \"%s\"", tokRep(LOCAL_tokptr) );
       FAIL;
+    }
   }
 #endif
     NextToken;
     break;
   default:
-
+    syntax_msg( "expected operator, got \'%s\'", tokRep(LOCAL_tokptr) );
     FAIL;
   }
 
@@ -900,7 +983,7 @@ case Var_tok:
         Volatile int oldprio = curprio;
         TRY3(func = Yap_MkFunctor((Atom)LOCAL_tokptr->TokInfo, 2);
              if (func == NULL) {
-               LOCAL_ErrorMessage = "Heap Overflow";
+	       syntax_msg("Heap Overflow");
                FAIL;
              } NextToken;
              {
@@ -910,7 +993,7 @@ case Var_tok:
                t = Yap_MkApplTerm(func, 2, args);
                /* check for possible overflow against local stack */
                if (HR > ASP - 4096) {
-                 LOCAL_ErrorMessage = "Stack Overflow";
+		 syntax_msg("Stack Overflow");
                  FAIL;
                }
              },
@@ -923,13 +1006,13 @@ case Var_tok:
         /* parse as posfix operator */
         Functor func = Yap_MkFunctor((Atom)LOCAL_tokptr->TokInfo, 1);
         if (func == NULL) {
-          LOCAL_ErrorMessage = "Heap Overflow";
+	  syntax_msg("Heap Overflow");
           FAIL;
         }
         t = Yap_MkApplTerm(func, 1, &t);
         /* check for possible overflow against local stack */
         if (HR > ASP - 4096) {
-          LOCAL_ErrorMessage = "Stack Overflow";
+	  syntax_msg("Stack Overflow");
           FAIL;
         }
         curprio = opprio;
@@ -948,7 +1031,7 @@ case Var_tok:
         t = Yap_MkApplTerm(FunctorComma, 2, args);
         /* check for possible overflow against local stack */
         if (HR > ASP - 4096) {
-          LOCAL_ErrorMessage = "Stack Overflow";
+	  syntax_msg("Stack Overflow");
           FAIL;
         }
         curprio = 1000;
@@ -963,7 +1046,7 @@ case Var_tok:
         t = Yap_MkApplTerm(FunctorVBar, 2, args);
         /* check for possible overflow against local stack */
         if (HR > ASP - 4096) {
-          LOCAL_ErrorMessage = "Stack Overflow";
+	  syntax_msg("Stack Overflow");
           FAIL;
         }
         curprio = opprio;
@@ -992,8 +1075,10 @@ case Var_tok:
         continue;
       }
     }
-    if (LOCAL_tokptr->Tok <= Ord(WString_tok))
+    if (LOCAL_tokptr->Tok <= Ord(WString_tok)) {
+      syntax_msg( "expected operator, got \'%s\'", tokRep(LOCAL_tokptr) );
       FAIL;
+    }
     break;
   }
 #if DEBUG
@@ -1014,6 +1099,10 @@ Term Yap_Parse(UInt prio) {
 
   if (!sigsetjmp(FailBuff.JmpBuff, 0)) {
     t = ParseTerm(prio, &FailBuff PASS_REGS);
+    if (LOCAL_Error_TYPE == SYNTAX_ERROR) {
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
+      LOCAL_ErrorMessage = NULL;
+    }
     //    if (LOCAL_tokptr->Tok != Ord(eot_tok))
     //  return (0L);
     return (t);

@@ -230,25 +230,32 @@ static const param_t read_defs[] =
 *    +
 */
 Term
-Yap_syntax_error (TokEntry * tokptr, int sno)
+Yap_syntax_error (TokEntry * errtok, int sno)
 {
   CACHE_REGS
-      Term info;
-  Term out = MkIntTerm(0);
+    Term info;
   Term startline, errline, endline;
-  Term tf[7];
-  Term *error = tf+3;
+  Term tf[5];
+  Term *tailp = tf+4;
   CELL *Hi = HR;
   UInt count = 0;
-
-  startline = MkIntegerTerm(tokptr->TokPos);
+  Term tcount = MkIntegerTerm(count);
+  TokEntry * tok = LOCAL_tokptr;
+  Int cline = tok->TokPos;
+  
+  *tailp = TermNil;
+  startline = MkIntegerTerm(cline);
   clean_vars(LOCAL_VarTable);
   clean_vars(LOCAL_AnonVarTable);
-  while (1) {
+     if (errtok != LOCAL_toktide) {
+       errtok = LOCAL_toktide;
+     }
+     errline = MkIntegerTerm( errtok->TokPos );
+     while (tok) {
       Term ts[2];
 
       if (HR > ASP-1024) {
-          tf[3] = TermNil;
+          tf[4] = TermNil;
           errline = MkIntegerTerm(0);
           endline = MkIntegerTerm( 0 );
           count = 0;
@@ -256,12 +263,16 @@ Yap_syntax_error (TokEntry * tokptr, int sno)
           HR = Hi;
           break;
         }
-      if (tokptr == LOCAL_toktide) {
-          errline = MkIntegerTerm( tokptr->TokPos );
-          out = MkIntegerTerm(count);
-        }
-      info = tokptr->TokInfo;
-      switch (tokptr->Tok) {
+      if (tok->TokPos != cline) {
+	*tailp = MkPairTerm(MkAtomTerm(AtomNil),TermNil);
+	tailp = RepPair(*tailp)+1;
+      }
+      if (tok == errtok && tok->Tok != Error_tok) {
+	*tailp = MkPairTerm(MkAtomTerm(AtomError),TermNil);
+	tailp = RepPair(*tailp)+1;
+      }
+      info = tok->TokInfo;
+      switch (tok->Tok) {
         case Name_tok:
           {
             Term t0[1];
@@ -270,7 +281,7 @@ Yap_syntax_error (TokEntry * tokptr, int sno)
           }
           break;
         case Number_tok:
-          ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomNumber,1),1,&(tokptr->TokInfo));
+          ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomNumber,1),1,&(tok->TokInfo));
           break;
         case Var_tok:
           {
@@ -312,10 +323,17 @@ Yap_syntax_error (TokEntry * tokptr, int sno)
         }
           break;
         case Error_tok:
-        case eot_tok:
-          break;
+	  {
+	    ts[0] = MkAtomTerm(AtomError);
+	  }
+	  break;
+      case eot_tok:
+          endline = MkIntegerTerm(tok->TokPos);
+            ts[0] = MkAtomTerm(AtomDot);
+	  
+	break;
         case Ponctuation_tok:
-          {
+	  {
             char s[2];
             s[1] = '\0';
             if ((info) == 'l') {
@@ -325,21 +343,14 @@ Yap_syntax_error (TokEntry * tokptr, int sno)
               }
             ts[0] = MkAtomTerm(Yap_LookupAtom(s));
           }
-        }
-      if (tokptr->Tok == Ord (eot_tok)) {
-          *error = TermNil;
-          endline = MkIntegerTerm(tokptr->TokPos);
-          break;
-        } else if (tokptr->Tok != Ord (Error_tok)) {
-          ts[1] = MkIntegerTerm(tokptr->TokPos);
-          *error = MkPairTerm(Yap_MkApplTerm(FunctorMinus,2,ts),TermNil);
-          error = RepPair(*error)+1;
-          count++;
-        }
-      tokptr = tokptr->TokNext;
-    }
+      }
+      tok = tok->TokNext;
+      if (!tok)
+	break;
+      *tailp = MkPairTerm(ts[0], TermNil);
+      tailp = RepPair(*tailp)+1;
+  }
   {
-    Term tcount = MkIntegerTerm(count);
     Term t[3];
     tf[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomRead,1),1,&tcount);
 
@@ -348,11 +359,17 @@ Yap_syntax_error (TokEntry * tokptr, int sno)
     t[2] = endline;
     tf[1] = Yap_MkApplTerm(Yap_MkFunctor(AtomBetween,3),3,t);
   }
-  tf[2] = tf[3] = TermDot;
-  tf[4] = MkIntegerTerm(count);
-  tf[5] = out;
-  tf[6] = Yap_StreamUserName(sno);
-  return(Yap_MkApplTerm(FunctorSyntaxError,7,tf));
+  /* 0: id */
+  /* 1: strat, error, end line */
+  /*2 msg */
+  if (LOCAL_ErrorMessage)
+    tf[2] = MkStringTerm(LOCAL_ErrorMessage);
+  else
+    tf[2] =  MkStringTerm("");
+  /* file */
+  tf[3] = Yap_StreamUserName(sno);
+  /* tf[4] = ; */
+  return(Yap_MkApplTerm(FunctorSyntaxError,5,tf));
 }
 
 typedef struct FEnv  {
@@ -360,6 +377,7 @@ typedef struct FEnv  {
   Term tpos;                /// initial position of the term to be read.
   Term t;                   /// the output term
   TokEntry *tokstart;       /// the token list
+  TokEntry *toklast;        /// the last token
   CELL *old_H;              /// initial H, will be reset on stack overflow.
   tr_fr_ptr old_TR;         /// initial TR
   xarg *args;               /// input args
@@ -712,8 +730,6 @@ parseError(REnv *re, FEnv  *fe, int inp_stream)
 {
   CACHE_REGS
       fe->t = 0;
-  TokEntry * tokstart =
-      LOCAL_tokptr;
   if (LOCAL_Error_TYPE == OUT_OF_TRAIL_ERROR ||
       LOCAL_Error_TYPE == OUT_OF_AUXSPACE_ERROR ||
       LOCAL_Error_TYPE == OUT_OF_HEAP_ERROR ||
@@ -725,7 +741,7 @@ parseError(REnv *re, FEnv  *fe, int inp_stream)
       /* just fail */
       return YAP_PARSING_FINISHED;
     } else {
-      Term terr = Yap_syntax_error(tokstart, inp_stream);
+      Term terr = Yap_syntax_error(fe->toklast, inp_stream);
       if (ParserErrorStyle ==TermError) {
           LOCAL_ErrorMessage =  "SYNTAX ERROR";
           Yap_Error(SYNTAX_ERROR,terr,LOCAL_ErrorMessage);
@@ -747,6 +763,8 @@ parse(REnv *re, FEnv  *fe, int inp_stream)
       LOCAL_tokptr;
 
   fe->t = Yap_Parse(re->prio);
+  fe->toklast = LOCAL_tokptr;
+  LOCAL_tokptr = tokstart;
   if (fe->t == 0 || LOCAL_ErrorMessage)
     return YAP_PARSING_ERROR;
   TR = (tr_fr_ptr)LOCAL_ScannerStack;
@@ -760,7 +778,6 @@ parse(REnv *re, FEnv  *fe, int inp_stream)
   first_char = tokstart->TokPos;
 #endif /* EMACS */
   Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
-  LOCAL_tokptr = NULL;
   return YAP_PARSING_FINISHED;
 }
 
@@ -775,7 +792,7 @@ parse(REnv *re, FEnv  *fe, int inp_stream)
  *
  * @return the term or 0 in case of error.
  *
- * Implemenfayubluses a state machine: default is init, scan, parse, complete.
+ * Implementation uses a state machine: default is init, scan, parse, complete.
  *
  *
  */

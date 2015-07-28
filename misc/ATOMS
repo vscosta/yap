@@ -505,7 +505,7 @@ F	Stream			Stream		1
 F	StreamEOS		EndOfStream	1
 F	StreamPos		StreamPos	4
 F	String1			String		1
-F	SyntaxError		SyntaxError	7
+F	SyntaxError		SyntaxError	5
 F	ShortSyntaxError	SyntaxError	1
 F	TermExpansion		TermExpansion	2
 F	ThreadRun		TopThreadGoal	2

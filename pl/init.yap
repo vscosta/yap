@@ -240,7 +240,7 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 :-	set_prolog_flag(generate_debug_info,true).
 
 
-:- recorda('$dialect',yap,_).
+grep:- recorda('$dialect',yap,_).
 
 %
 % cleanup ensure loaded and recover some data-base space.
