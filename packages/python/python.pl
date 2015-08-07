@@ -13,19 +13,29 @@
 
 %%%
 
-:- module(python, [
-     init_python/0,
-     end_python/0,
-     python_command/1,
-     python_assign/3,
-     python_import/1,
-     python/2,
-     op(100,fy,$),
-     op(950,fy,:=),
-     op(950,yfx,:=),
-     (:=)/2,
-     (:=)/1
-		  ]).
+:- module(python,
+	  [
+	   init_python/0,
+	   end_python/0,
+	   python_command/1,
+	   python_assign/3,
+	   python_import/1,
+	   python/2,
+	   (:=)/2,
+	   (:=)/1,
+	   (<-)/2,
+	   (<-)/1,
+	   op(100,fy,$),
+	   op(950,fy,:=),
+	   op(950,yfx,:=),
+	   op(950,fx,<-),
+	   op(950,yfx,<-),
+	   op(50, yf, []),
+	   op(50, yf, '()'),
+	   op(100, xfy, '.'),
+	   op(100, fy, '.')
+	  ]).
+
 
 /** <module> python
 
@@ -34,6 +44,22 @@
   @author               Vitor Santos Costa
   @version      0:0:5, 2012/10/8
   @license      Perl Artistic License
+
+This is an interface to allow calling Python from Prolog. Please look
+at the SWIG package if you want to embedd Prolog with Python.
+
+The interface should be activated by consulting the python lybrary. It
+immediately boots a Python image.
+
+To best define the interface, one has to address two opposite goals:
+    - make it as similar to python as possible
+    - make all embedded language interfaces (python, R, Java) as
+similar as possible.
+
+   Currently, YAP supports the following translation:
+
+   - numbers -> identical
+   ->
 
 */
 
@@ -45,12 +71,12 @@ Python interface
 
 Data types are
 
-     Python		Prolog
-     string             atoms
-     numbers		numbers
-     lists		lists
-     tuples             t(...)
-     generic objs	__pointer__(Address)
+     Python                Prolog
+     string                atoms
+     numbers		       numbers
+     lists		           lists
+     tuples                t(...)
+     generic objs	        __pointer__(Address)
 
      $var refers to the attribute __main__.var
 
@@ -62,10 +88,18 @@ Data types are
 :- use_module(library(charsio)).
 :- dynamic python_mref_cache/2, python_obj_cache/2.
 
+:- multifile user:(<-)/2.
+
 := F :- python(F,_).
 
 V := F :- var(V), !, python(F,V).
 A := F :- python(F, F1), python_assign(A, F1).
+
+user:( V <- F ) :-
+    V := F.
+
+user:((<- F)) :-
+    <- F.
 
 python_import(Module) :-
 	python_do_import(Module, _).
@@ -73,7 +107,7 @@ python_import(Module) :-
 python_do_import(Module, MRef) :-
 	python_mref_cache(Module, MRef), !.
 python_do_import(Module, MRef) :-
-        python_import(Module, MRef),
+    python_import(Module, MRef),
 	assert( python_mref_cache(Module, MRef) ).
 
 fetch_module(M:E, M1, E1, MRef) :-
@@ -89,12 +123,18 @@ module_extend(M0, M:E, MF, EF, _MRef0, MRef) :-
 	atom_concat([M0,'.',M], MM),
 	python_import(MM, MRef1), !,
 	module_extend(MM, E, MF, EF, MRef1, MRef).
+module_extend(M0, M.E, MF, EF, _MRef0, MRef) :-
+    MM = M0.M,
+	python_import(MM, MRef1), !,
+	module_extend(MM, E, MF, EF, MRef1, MRef).
 module_extend(M, E, M, E, MRef, MRef).
 
 object_prefix('__obj__'(_)).
 object_prefix('$'(_)).
 object_prefix('__obj__'(_):_).
 object_prefix('$'(_):_).
+object_prefix('__obj__'(_)._).
+object_prefix('$'(_)._).
 
 % from an exp take an object, and its corresponding Prolog representation
 descend_exp(V, _Obj, _F, _S) :-
@@ -108,9 +148,13 @@ descend_exp(Exp, Obj, F, S) :-
 	python_mref_cache(_, MObj),
 	python_field(MObj:Exp, Obj, F, S), !.
 descend_exp(Mod:Exp, Obj, F, S) :-
-	atom(Mod), 
+	atom(Mod),
 	python_import(Mod, MObj),
-	python_field(MObj:Exp, Obj, F, S), !.
+    python_field(MObj:Exp, Obj, F, S), !.
+descend_exp(Mod.Exp, Obj, F, S) :-
+    	atom(Mod),
+    	python_import(Mod, MObj),
+        python_field(MObj:Exp, Obj, F, S), !.
 
 python_class(Obj) :-
 	python_obj_cache(inspect:isclass(_), F),
@@ -129,21 +173,22 @@ python_eval_term(Obj, Obj) :-
 python_eval_term('__obj__'(Obj), '__obj__'(Obj)) :- !.
 python_eval_term($Name, Obj) :- !,
 	python_is($Name, Obj).
-python_eval_term([H|T], [NH|NT]) :- !,
-	python_eval_term(H, NH),
-	python_eval_term(T, NT).
+python_eval_term([H|T], NL) :-
+	is_list(T), !,
+	maplist( python_eval_term, [H|T], NL).
 python_eval_term(N, N) :- atomic(N), !.
+python_eval_term(N, N) :- string(N), !.
 python_eval_term(Exp, O) :-
 	descend_exp(Exp, Obj, _Old, S), !,
-	(functor(S, _, 0) -> 
+	(functor(S, _, 0) ->
 	   O = Obj
-        ; 
+        ;
 	   python_check_args(S, NS, Dict),
 	   python_apply(Obj, NS, Dict, O)
-        ).
+    ).
 python_eval_term(S, O) :-
 	python_check_args(S, NS, {}),
-	python_is(NS, O).	
+	python_is(NS, O).
 
 python_check_args(Exp, t, {}) :-
 	Exp =.. [_,V], var(V), !.
@@ -217,14 +262,13 @@ add_cwd_to_python :-
 	atom_concat(['sys.path.append(\"',Dir,'\")'], Command),
 	python_command(Command),
 	python_command("sys.argv = [\"yap\"]").
-	% done	
+	% done
 
 python_assign(Name, Exp, '$'(Name)) :-
 	python_assign(Name, Exp).
 
-:- initialization( use_foreign_library(foreign(python)), now ).
+:- initialization( use_foreign_library(foreign(libpython)), now ).
 
 :- initialization(start_python, now).
 
 :- initialization(add_cwd_to_python).
-

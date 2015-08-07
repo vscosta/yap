@@ -185,7 +185,7 @@ get_wide_from_list( Term t, seq_tv_t *inp, wchar_t *s, int atoms USES_REGS)
 
 
 static Int
-SkipListCodes(Term *l, Term **tailp, Int *atoms, int *wide)
+SkipListCodes(Term *l, Term **tailp, Int *atoms, bool *wide)
 {
   Int length = 0;
   Term *s; /* slow */
@@ -193,6 +193,7 @@ SkipListCodes(Term *l, Term **tailp, Int *atoms, int *wide)
 
   do_derefa(v,l,derefa_unk,derefa_nonvar);
   s = l;
+  *wide = false;
 
 
   if (*l == TermNil) {
@@ -248,13 +249,13 @@ SkipListCodes(Term *l, Term **tailp, Int *atoms, int *wide)
 
 
 static void *
-Yap_ListOfAtomsToBuffer(void *buf, Term t, seq_tv_t *inp, int *widep, size_t *lenp USES_REGS)
+Yap_ListOfAtomsToBuffer(void *buf, Term t, seq_tv_t *inp, bool *widep, size_t *lenp USES_REGS)
 {
   Int atoms = 0;
   CELL *r = NULL;
   Int n;
 
-  *widep = FALSE;
+  *widep = false;
   n = SkipListCodes(&t, &r, &atoms, widep);
   if (n < 0) {
     LOCAL_Error_TYPE = -n;
@@ -294,13 +295,13 @@ Yap_ListOfAtomsToBuffer(void *buf, Term t, seq_tv_t *inp, int *widep, size_t *le
 }
 
 static void *
-Yap_ListOfCodesToBuffer(void *buf, Term t, seq_tv_t *inp, int *widep, size_t *lenp USES_REGS)
+Yap_ListOfCodesToBuffer(void *buf, Term t, seq_tv_t *inp, bool *widep, size_t *lenp USES_REGS)
 {
   Int atoms = 0;
   CELL *r = NULL;
   Int n;
 
-  *widep = FALSE;
+  *widep = false;
   n = SkipListCodes(&t, &r, &atoms, widep);
   if (n < 0) {
     LOCAL_Error_TYPE = -n;
@@ -335,46 +336,6 @@ Yap_ListOfCodesToBuffer(void *buf, Term t, seq_tv_t *inp, int *widep, size_t *le
   }
 }
 
-static void *
-Yap_ListToBuffer(void *buf, Term t, seq_tv_t *inp, int *widep, size_t *lenp USES_REGS)
-{
-  Int atoms = 0;
-  CELL *r = NULL;
-  Int n;
-
-  *widep = FALSE;
-  n = SkipListCodes(&t, &r, &atoms, widep);
-  if (n < 0) {
-    LOCAL_Error_TYPE = -n;
-    LOCAL_Error_Term = *r;
-    return NULL;
-  }
-  if (*r != TermNil) {
-    if (IsVarTerm(*r))
-      LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-    else
-      LOCAL_Error_TYPE = TYPE_ERROR_LIST;
-    LOCAL_Error_Term = *r;
-    return NULL;
-  }
-  *lenp = n;
-  if (*widep) {
-    wchar_t *s;
-    if (buf) s = buf;
-    else s = ((AtomEntry *)Yap_PreAllocCodeSpace())->WStrOfAE;
-    AUX_ERROR( t, 2*(n+1), s, wchar_t);
-    s = get_wide_from_list( t, inp, s, atoms  PASS_REGS);
-    return s;
-  } else {
-    char *s;
-    if (buf) s = buf;
-    else s = ((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE;
-    AUX_ERROR( t, 2*(n+1), s, char);
-    s = get_string_from_list( t, inp, s, atoms  PASS_REGS);
-    return s;
-  }
-}
-
 static yap_error_number
 gen_type_error(int flags) {
   if ((flags & (YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_ATOMS_CODES|YAP_STRING_BIG)) ==
@@ -400,138 +361,88 @@ Yap_readText( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *l
 {
   char *s;
   wchar_t *ws;
+  bool wide;
 
   /* we know what the term is */
-  switch (inp->type &  YAP_TYPE_MASK) {
-  case YAP_STRING_STRING:
-    { const char *s;
-      if (IsVarTerm(inp->val.t)) {
-	LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-	LOCAL_Error_Term = inp->val.t;
-	return 0L;
-      }
-      if (!IsStringTerm(inp->val.t)) {
-	LOCAL_Error_TYPE = TYPE_ERROR_STRING;
-	LOCAL_Error_Term = inp->val.t;
-	return 0L;
-      }
-      s = StringOfTerm( inp->val.t );
-      if ( s == NULL ) {
-	return 0L;
-      }
-      // this is a term, extract the UTF8 representation
-      *enc = ENC_ISO_UTF8;
-      *minimal = FALSE;
-      *lengp = strlen(s);
-      return (void *)s;
+  if (inp->type & YAP_STRING_STRING && !IsVarTerm(inp->val.t) && IsStringTerm(inp->val.t)) { const char *s;
+    s = StringOfTerm( inp->val.t );
+    if ( s == NULL ) {
+      return 0L;
     }
-  case YAP_STRING_CODES:
+    // this is a term, extract the UTF8 representation
+    *enc = ENC_ISO_UTF8;
+    *minimal = FALSE;
+    if (lengp)
+      *lengp = strlen(s);
+    return (void *)s;
+  }
+  if (inp->type & YAP_STRING_ATOM  && !IsVarTerm(inp->val.t) && IsAtomTerm(inp->val.t)) {
+    // this is a term, extract to a buffer, and representation is wide
+    *minimal = TRUE;
+    Atom at = AtomOfTerm(inp->val.t);
+    if (IsWideAtom(at)) {
+      ws = at->WStrOfAE;
+      *lengp = wcslen(ws);
+      *enc = ENC_WCHAR;
+      return ws;
+    } else {
+      s = at->StrOfAE;
+      *lengp = strlen(s);
+      *enc = ENC_ISO_LATIN1;
+      return s;
+    }
+  }
+  if (inp->type & YAP_STRING_CODES  && !IsVarTerm(inp->val.t) && (s = Yap_ListOfCodesToBuffer( buf, inp->val.t, inp, &wide, lengp PASS_REGS))) {
     // this is a term, extract to a sfer, and representation is wide
     *minimal = TRUE;
-    {
-      int wide = FALSE;
-      s = Yap_ListOfCodesToBuffer( buf, inp->val.t, inp, &wide, lengp PASS_REGS);
-      if (!s) {
-	return NULL;
-      }
-      *enc = ( wide ? ENC_WCHAR : ENC_ISO_LATIN1 );
-    }
+    int wide = FALSE;
+    *enc = ( wide ? ENC_WCHAR : ENC_ISO_LATIN1 );
     return s;
-  case YAP_STRING_ATOMS:
+  }
+  if (inp->type & YAP_STRING_ATOMS  && !IsVarTerm(inp->val.t) && (s = Yap_ListOfAtomsToBuffer( buf, inp->val.t, inp, &wide, lengp PASS_REGS))) {
     // this is a term, extract to a buffer, and representation is wide
     *minimal = TRUE;
-    {
-      int wide = FALSE;
-      s = Yap_ListOfAtomsToBuffer( buf, inp->val.t, inp, &wide, lengp PASS_REGS);
-      if (!s) return NULL;
-      if (wide) { *enc = ENC_WCHAR; }
-      else { *enc = ENC_ISO_LATIN1; }
-    }
+    s = Yap_ListOfAtomsToBuffer( buf, inp->val.t, inp, &wide, lengp PASS_REGS);
+    if (!s) return NULL;
+    if (wide) { *enc = ENC_WCHAR; }
+    else { *enc = ENC_ISO_LATIN1; }
     return s;
-  case YAP_STRING_ATOMS_CODES:
-    // this is a term, extract to a buffer, and representation is wide
-    *minimal = TRUE;
-    {
-      int wide = FALSE;
-      s = Yap_ListToBuffer( buf, inp->val.t, inp, &wide, lengp PASS_REGS);
-      if (!s) {
-	return NULL;
+  }
+  if (inp->type & YAP_STRING_INT && IsIntegerTerm(inp->val.t)) {
+      if (buf) s = buf;
+      else s = Yap_PreAllocCodeSpace();
+      AUX_ERROR( inp->val.t, LOCAL_MAX_SIZE, s, char);
+      if (snprintf(s, LOCAL_MAX_SIZE-1, Int_FORMAT, IntegerOfTerm(inp->val.t)) < 0) {
+	AUX_ERROR( inp->val.t, 2*LOCAL_MAX_SIZE, s, char);
       }
-      *enc = ( wide ? ENC_WCHAR : ENC_ISO_LATIN1 );
+      *enc = ENC_ISO_LATIN1;
+      *lengp = strlen(s);
+      return s;
     }
-    return s;
-  case YAP_STRING_ATOM:
-    // this is a term, extract to a buffer, and representation is wide
-    *minimal = TRUE;
-    if (IsVarTerm(inp->val.t)) {
-      LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-      LOCAL_Error_Term = inp->val.t;
-      return 0L;
-    } else if (!IsAtomTerm(inp->val.t)) {
-      LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
-      LOCAL_Error_Term = inp->val.t;
-      return NULL;
-    } else {
-      Atom at = AtomOfTerm(inp->val.t);
-      if (IsWideAtom(at)) {
-	ws = at->WStrOfAE;
-	*lengp = wcslen(ws);
-	*enc = ENC_WCHAR;
-	return ws;
-      } else {
-	s = at->StrOfAE;
-	*lengp = strlen(s);
-	*enc = ENC_ISO_LATIN1;
-	return s;
+  if (inp->type & YAP_STRING_FLOAT && IsFloatTerm(inp->val.t)) {
+      if (buf) s = buf;
+      else s = Yap_PreAllocCodeSpace();
+      AUX_ERROR( inp->val.t, LOCAL_MAX_SIZE, s, char);
+      if ( !Yap_FormatFloat( FloatOfTerm(inp->val.t), &s, LOCAL_MAX_SIZE-1 ) ) {
+	AUX_ERROR( inp->val.t, 2*LOCAL_MAX_SIZE, s, char);
       }
+      *lengp = strlen(s);
+      *enc = ENC_ISO_LATIN1;
+      return s;
     }
-    break;
-  case YAP_STRING_INT:
-    if (buf) s = buf;
-    else s = Yap_PreAllocCodeSpace();
-    AUX_ERROR( MkIntTerm(inp->val.i), LOCAL_MAX_SIZE, s, char);
-    if (snprintf(s, LOCAL_MAX_SIZE-1, Int_FORMAT, inp->val.i) < 0) {
-      AUX_ERROR( MkIntTerm(inp->val.i), 2*LOCAL_MAX_SIZE, s, char);
-    }
-    *enc = ENC_ISO_LATIN1;
-    *lengp = strlen(s);
-    return s;
-  case YAP_STRING_FLOAT:
-    if (buf) s = buf;
-    else s = Yap_PreAllocCodeSpace();
-    AUX_ERROR( MkFloatTerm(inp->val.f), LOCAL_MAX_SIZE, s, char);
-    if ( !Yap_FormatFloat( inp->val.f, s, LOCAL_MAX_SIZE-1 ) ) {
-      AUX_ERROR( MkFloatTerm(inp->val.f), 2*LOCAL_MAX_SIZE, s, char);
-    }
-    *lengp = strlen(s);
-    *enc = ENC_ISO_LATIN1;
-   return s;
 #if USE_GMP
-  case YAP_STRING_BIG:
-    if (buf) s = buf;
-    else s = Yap_PreAllocCodeSpace();
-    if ( !Yap_mpz_to_string( inp->val.b, s, LOCAL_MAX_SIZE-1 , 10 ) ) {
-      AUX_ERROR( MkIntTerm(0), LOCAL_MAX_SIZE, s, char);
+  if (inp->type & YAP_STRING_BIG && IsBigIntTerm(inp->val.t)) {
+      if (buf) s = buf;
+      else s = Yap_PreAllocCodeSpace();
+      if ( !Yap_mpz_to_string( Yap_BigIntOfTerm(inp->val.t), s, LOCAL_MAX_SIZE-1 , 10 ) ) {
+	AUX_ERROR( inp->val.t, LOCAL_MAX_SIZE, s, char);
+      }
+      *enc = ENC_ISO_LATIN1;
+      *lengp = strlen(s);
+      return s;
     }
-    *enc = ENC_ISO_LATIN1;
-    *lengp = strlen(s);
-    return s;
 #endif
-  case YAP_STRING_CHARS:
-    *enc = ENC_ISO_LATIN1;
-    if (inp->type & YAP_STRING_NCHARS)
-      *lengp = inp->sz;
-    else
-      *lengp = strlen(inp->val.c);
-    return (void *)inp->val.c;
-  case YAP_STRING_WCHARS:
-    *enc = ENC_WCHAR;
-    if (inp->type & YAP_STRING_NCHARS)
-      *lengp = inp->sz;
-    else
-      *lengp = wcslen(inp->val.w);
-    return (void *)inp->val.w;
-  case YAP_STRING_LITERAL:
+   if (inp->type & YAP_STRING_TERM)
     {
       char *s, *o;
       if (buf) s = buf;
@@ -540,82 +451,23 @@ Yap_readText( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *l
       o = Yap_TermToString(inp->val.t, s, sz, lengp, ENC_ISO_UTF8, 0);
       return s;
     }
-  default:
-    if (!(inp->type & YAP_STRING_TERM)) {
-      return NULL;
-    } else {
-      Term t = inp->val.t;
-      if (IsVarTerm(t)) {
-	LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-	LOCAL_Error_Term = t;
-        return NULL;
-      } else if (IsStringTerm(t)) {
-	if (inp->type & (YAP_STRING_STRING)) {
-	  inp->type &= (YAP_STRING_STRING);
-	  return Yap_readText( buf, inp, enc, minimal, lengp PASS_REGS);
-	} else {
-	  LOCAL_Error_TYPE = gen_type_error( inp->type );
-	  LOCAL_Error_Term = t;
-	}
-      } else if (IsPairTerm(t) ) {
-	if (inp->type & (YAP_STRING_CODES|YAP_STRING_ATOMS)) {
-	  inp->type &= (YAP_STRING_CODES|YAP_STRING_ATOMS);
-	  return Yap_readText( buf, inp, enc, minimal, lengp PASS_REGS);
-	} else {
-	  LOCAL_Error_TYPE = gen_type_error( inp->type );
-	  LOCAL_Error_Term = t;
-	}
-      } else if (IsAtomTerm(t)) {
-	if (t == TermNil && inp->type & (YAP_STRING_CODES|YAP_STRING_ATOMS)) {
-	  inp->type &= (YAP_STRING_CODES|YAP_STRING_ATOMS);
-	  return Yap_readText( buf, inp, enc, minimal, lengp PASS_REGS);
-	} else if (inp->type & (YAP_STRING_ATOM)) {
-	  inp->type &= (YAP_STRING_ATOM);
-	  inp->val.t = t;
-	  return Yap_readText( buf, inp, enc, minimal, lengp PASS_REGS);
-	  // [] is special...
-	} else {
-	  LOCAL_Error_TYPE = gen_type_error( inp->type );
-	  LOCAL_Error_Term = t;
-	}
-      } else if (IsIntegerTerm(t)) {
-	if (inp->type & (YAP_STRING_INT)) {
-	  inp->type &= (YAP_STRING_INT);
-	  inp->val.i = IntegerOfTerm(t);
-	  return Yap_readText( buf, inp, enc, minimal, lengp PASS_REGS);
-	} else {
-	  LOCAL_Error_TYPE = gen_type_error( inp->type );
-	  LOCAL_Error_Term = t;
-	}
-      } else if (IsFloatTerm(t)) {
-	if (inp->type & (YAP_STRING_FLOAT)) {
-	  inp->type &= (YAP_STRING_FLOAT);
-	  inp->val.f = FloatOfTerm(t);
-	  return Yap_readText( buf, inp, enc, minimal, lengp PASS_REGS);
-	} else {
-	  LOCAL_Error_TYPE = gen_type_error( inp->type );
-	  LOCAL_Error_Term = t;
-	}
-#if USE_GMP
-      } else if (IsBigIntTerm(t)) {
-	if (inp->type & (YAP_STRING_BIG)) {
-	  inp->type &= (YAP_STRING_BIG);
-	  inp->val.b = Yap_BigIntOfTerm(t);
-	  return Yap_readText( buf, inp, enc, minimal, lengp PASS_REGS);
-	} else {
-	  LOCAL_Error_TYPE = gen_type_error( inp->type );
-	  LOCAL_Error_Term = t;
-	}
-#endif
-      } else {
-	if (!Yap_IsGroundTerm(t)) {
-	  LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-	  LOCAL_Error_Term = t;
-	}
-      }
-      return NULL;
+   if (inp->type & YAP_STRING_CHARS) {
+      *enc = ENC_ISO_LATIN1;
+      if (inp->type & YAP_STRING_NCHARS)
+	*lengp = inp->sz;
+      else
+	*lengp = strlen(inp->val.c);
+      return (void *)inp->val.c;
     }
-  }
+    if (inp->type & YAP_STRING_WCHARS) {
+      *enc = ENC_WCHAR;
+      if (inp->type & YAP_STRING_NCHARS)
+	*lengp = inp->sz;
+      else
+	*lengp = wcslen(inp->val.w);
+      return (void *)inp->val.w;
+    }
+    return NULL;
 }
 
 static Term
@@ -915,10 +767,246 @@ write_atom( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng US
       return at;
     }
    default:
-    Yap_Error(SYSTEM_ERROR, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
+     Yap_Error(SYSTEM_ERROR, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc));
   }
   return NULL;
 }
+
+
+static size_t
+write_wbuffer( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng USES_REGS)
+{
+  size_t min = 0, max = leng, sz_end, sz;
+  out->enc = ENC_WCHAR;
+  if (out->type & (YAP_STRING_NCHARS|YAP_STRING_TRUNC)) {
+    if (out->type & YAP_STRING_NCHARS) min = out->sz;
+    if (out->type & YAP_STRING_TRUNC && out->max < max) max = out->max;
+  }
+  if (out->enc != enc || out->type & (YAP_STRING_WITH_BUFFER|YAP_STRING_MALLOC)) {
+    if (enc != ENC_WCHAR) {
+      sz = strlen((char *)s0);
+    } else {
+      sz = wcslen((wchar_t *)s0);
+    }
+    if (sz < min) sz = min;
+    sz *= sizeof(wchar_t);
+    if (out->type & (YAP_STRING_MALLOC)) {
+      out->val.w = malloc(sz);
+    } else if (!(out->type & (YAP_STRING_WITH_BUFFER))) {
+      if (ASP-(sz/sizeof(CELL)+1) > HR+1024) {
+	out->val.w = (wchar_t *)(ASP-((sz*sizeof(wchar_t *)/sizeof(CELL)+1)));
+      } else
+	return -1;
+    }
+  } else {
+    out->val.w = s0;
+    sz_end = (wcslen( s0 )+1)*sizeof(wchar_t);
+  }
+  if (out->enc == ENC_WCHAR) {
+    switch (enc) {
+    case ENC_WCHAR:
+	if (out->type & (YAP_STRING_WITH_BUFFER|YAP_STRING_MALLOC) ) {
+	 wchar_t *s = s0;
+	 size_t n = wcslen( s );
+	 if (n < min) n = min;
+	 memcpy( out->val.c, s0, n*sizeof(wchar_t));
+   	 out->val.w[n] = '\0';
+	 sz_end = n+1;
+	}
+     case ENC_ISO_UTF8:
+      {
+	char *s = s0, *lim = s + (max = strnlen(s, max));
+	char *cp = s;
+	wchar_t *buf0, *buf;
+      
+	buf = buf0 = out->val.w;
+	if (!buf)
+	  return -1;
+	while (*cp && cp < lim) {
+	  int chr;
+	  cp = utf8_get_char(cp, &chr);
+	  *buf++ = chr;
+	}
+	if (max >= min) *buf++ = '\0';
+	else while (max < min) {
+	  int chr;
+	  max++;
+	  cp = utf8_get_char(cp, &chr);
+	  *buf++ = chr;
+	}
+	*buf = '\0';
+	sz_end = (buf-buf0)+1;
+     }
+      break;
+   case ENC_ISO_LATIN1:
+      {
+	 char *s = s0;
+	 size_t n = strlen( s ), i;
+	 if (n < min) n = min;
+	 for (i = 0; i < n; i++)
+	   out->val.w[i] = s[i];
+	 out->val.w[n] = '\0';
+         sz_end = n+1;
+      }
+      break;
+   default:
+        sz_end = -1;
+    Yap_Error(SYSTEM_ERROR, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
+    }
+  }
+  sz_end *= sizeof( wchar_t );
+   if (out->type & (YAP_STRING_MALLOC)) {
+     out->val.c = realloc(out->val.c,sz_end);
+   }
+   out->sz = sz_end;
+  return sz_end;
+ }
+
+
+static size_t
+write_buffer( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng USES_REGS)
+{
+  size_t min = 0, max = leng, sz_end;
+  if (out->type & (YAP_STRING_NCHARS|YAP_STRING_TRUNC)) {
+    if (out->type & YAP_STRING_NCHARS) min = out->sz;
+    if (out->type & YAP_STRING_TRUNC && out->max < max) max = out->max;
+  }
+  if (out->enc != enc || out->type & (YAP_STRING_WITH_BUFFER|YAP_STRING_MALLOC)) {
+    size_t sz;
+    if (enc != ENC_WCHAR)
+      sz = strlen((char *)s0);
+    else
+      sz = wcslen((wchar_t *)s0);
+    if (sz < min) sz = min;
+    if (!minimal) sz *=  4;
+    if (out->type & (YAP_STRING_MALLOC)) {
+      out->val.c = malloc(sz);
+    } else if (!(out->type & (YAP_STRING_WITH_BUFFER))) {
+      if (ASP-(sz/sizeof(CELL)+1) > HR+1024) {
+	out->val.c = (char *)(ASP-(sz/sizeof(CELL)+1));
+      }
+    }
+  } else {
+    out->val.c = s0;
+  }
+  if (out->enc == ENC_ISO_UTF8) {
+    switch (enc) {
+      case ENC_ISO_UTF8:
+	if (out->type & (YAP_STRING_WITH_BUFFER|YAP_STRING_MALLOC) ) {
+	 char *s = s0;
+	 size_t n = strlen( s );
+	 memcpy( out->val.c, s0, n*sizeof(wchar_t));
+   	 out->val.c[n] = '\0';
+	 sz_end = n+1;
+	} else {
+	  sz_end = strlen(out->val.c)+1;
+	}
+	break;
+   case ENC_ISO_LATIN1:
+      {
+	char *s = s0, *lim = s + (max = strnlen(s, max));
+	char *cp = s, *buf0, *buf;
+
+	buf = buf0 = out->val.c;
+	if (!buf)
+	  return -1;
+	while (*cp && cp < lim) {
+	  int chr;
+	  chr = *cp++;
+	  buf = utf8_put_char(buf, chr);
+	}
+	if (max >= min) *buf++ = '\0';
+	else while (max < min) {
+	    max++;
+	    int chr;
+	    chr = *cp++;
+	    buf = utf8_put_char(buf, chr);
+	  }
+        buf[0] = '\0';
+	sz_end = (buf+1)-buf0;
+      } 
+      break;
+    case ENC_WCHAR:
+      {
+	wchar_t *s = s0;
+	char *buf =  out->val.c;
+	size_t n = wcslen( s ), i;
+	if (n < min) n = min;
+	for (i = 0; i < n; i++) {
+	  int chr = s[i];
+	  buf = utf8_put_char(buf, chr);
+	}
+	*buf++ = '\0';
+	sz_end = (buf+1)-out->val.c;
+      }
+      break;
+   default:
+        sz_end = -1;
+    Yap_Error(SYSTEM_ERROR, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
+   }
+  }else if (out->enc ==  ENC_ISO_LATIN1) {
+   switch (enc) {
+     case ENC_ISO_LATIN1:
+       if (out->type & YAP_STRING_WITH_BUFFER) {
+	 char *s = s0;
+	 size_t n = strlen( s ), i;
+	 if (n < min) n = min;
+	 memcpy( out->val.c, s0, n);
+	 for (i = 0; i < n; i++)
+	   out->val.w[i] = s[i];
+	 out->val.w[n] = '\0';
+	 sz_end = (n+1)*sizeof(wchar_t);
+       } else {
+	 sz_end = strlen( out->val.c ) + 1;
+       }
+       break;
+    case ENC_ISO_UTF8:
+      {
+	char *s = s0, *lim = s + (max = strnlen(s, max));
+	char *cp = s;
+	char *buf0, *buf;
+      
+	buf = buf0 = out->val.c;
+	if (!buf)
+	  return -1;
+	while (*cp && cp < lim) {
+	  int chr;
+	  cp = utf8_get_char(cp, &chr);
+	  *buf++ = chr;
+	}
+	if (max >= min) *buf++ = '\0';
+	else while (max < min) {
+	  int chr;
+	  max++;
+	  cp = utf8_get_char(cp, &chr);
+	  *buf++ = chr;
+	}
+ 	sz_end = buf-out->val.c;
+     }
+      break;
+   case ENC_WCHAR:
+      {
+	 wchar_t *s = s0;
+	 size_t n = wcslen( s ), i;
+	 if (n < min) n = min;
+	 for (i = 0; i < n; i++)
+	   out->val.c[i] = s[i];
+	 out->val.c[n] = '\0';
+         sz_end = n+1;
+      }
+      break;
+   default:
+       sz_end = -1;
+       Yap_Error(SYSTEM_ERROR, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
+      }
+   }
+   if (out->type & (YAP_STRING_MALLOC)) {
+     out->val.c = realloc(out->val.c,sz_end);
+   }
+   out->sz = sz_end;
+  return sz_end;
+}
+
 
 
 static ssize_t
@@ -998,14 +1086,16 @@ write_Text( void *inp, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
       write_number( inp, out, enc, minimal, leng PASS_REGS);
     return out->val.t != 0;
   case YAP_STRING_CHARS:
-    out->val.c = inp;
-    return 1;
+    {
+      size_t sz = write_buffer( inp, out, enc, minimal, leng PASS_REGS);
+      return((Int)sz > 0);
+    }
   case YAP_STRING_WCHARS:
-    out->val.w = inp;
-    return MkIntTerm(0);
-  case YAP_STRING_LITERAL:
-    return 0;
-  default:
+    {
+      size_t sz = write_wbuffer( inp, out, enc, minimal, leng PASS_REGS);
+      return((Int)sz > 0);
+    }
+   default:
     if (!(out->type & YAP_STRING_TERM))
       return 0;
     if (out->type & (YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG))
@@ -1019,12 +1109,11 @@ write_Text( void *inp, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
 	  out->val.t = MkAtomTerm(at);
 	return at != NIL;
       }
-    if (out->type & (YAP_STRING_LITERAL))
       if ((out->val.t =
 	   string_to_term( inp, out, enc, minimal, leng PASS_REGS)) != 0L)
 	return out->val.t != 0;
-    return FALSE;
-  }
+    }
+  return FALSE;
 }
 
  int
@@ -1208,7 +1297,6 @@ concat( int n, seq_tv_t *out, void *sv[], encoding_t encv[], size_t lengv[] USES
       /* wide atom */
       wchar_t *buf = (wchar_t *)HR;
       Atom at;
-      Term t = ARG1;
       LOCAL_ERROR( sz+3 );
       for (i = 0; i < n ; i ++) {
 	if (encv[i] == ENC_WCHAR) {
@@ -1232,7 +1320,6 @@ concat( int n, seq_tv_t *out, void *sv[], encoding_t encv[], size_t lengv[] USES
       /* atom */
       char *buf = (char *)HR;
       Atom at;
-      Term t = ARG1;
 
       LOCAL_TERM_ERROR( sz/sizeof(CELL)+3 );
       for (i = 0; i < n ; i ++) {
@@ -1279,7 +1366,6 @@ slice( size_t min, size_t max, void *buf, seq_tv_t *out, encoding_t enc USES_REG
     if (enc == ENC_WCHAR) {
       /* wide atom */
       wchar_t *nbuf = (wchar_t *)HR;
-      Term t = TermNil;
       wchar_t *ptr = (wchar_t *)buf + min;
       if (max>min) {
 	LOCAL_ERROR( (max-min)*sizeof(wchar_t) );
@@ -1292,7 +1378,6 @@ slice( size_t min, size_t max, void *buf, seq_tv_t *out, encoding_t enc USES_REG
       char *nbuf = (char *)HR;
 
       if (max>min) {
-	Term t = TermNil;
 	char *ptr = (char *)buf + min;
 	LOCAL_ERROR( max-min );
 	memcpy( nbuf, ptr, (max - min));
@@ -1302,7 +1387,6 @@ slice( size_t min, size_t max, void *buf, seq_tv_t *out, encoding_t enc USES_REG
     } else {
       /*  atom */
       wchar_t *nbuf = (wchar_t *)HR;
-      Term t = ARG1;
       const char *ptr = utf8_skip ( (const char *)buf, min );
       int chr;
 

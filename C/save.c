@@ -1207,6 +1207,10 @@ RestoreSWIHash(void)
 }
 
 
+static void RestoreFlags( UInt NFlags )
+{
+}
+
 #include "rheap.h"
 
 /* restore the atom entries which are invisible for the user */

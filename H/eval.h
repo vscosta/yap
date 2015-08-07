@@ -415,11 +415,16 @@ Yap_FoundArithError__(USES_REGS1)
   return YAP_NO_ERROR;
 }
 
-static inline Term takeName(Term t) {
-	if (IsAtomTerm(t)) return t;
-	MkAtomTerm(NameOfFunctor(FunctorOfTerm(t)));
-	if (IsPairTerm(t)) return TermNil;
-	return t;
+static inline Term takeIndicator(Term t) {
+  Term ts[2];
+  if (IsAtomTerm(t)) { ts[0] = t; ts[1] = MkIntTerm(0); }
+  else if (IsPairTerm(t)) { ts[0] = TermNil; ts[1] = MkIntTerm(2); }
+  else {
+    CACHE_REGS
+    ts[0] = MkAtomTerm(NameOfFunctor(FunctorOfTerm(t)));
+    ts[1] = MkIntegerTerm(ArityOfFunctor(FunctorOfTerm(t)));
+  }
+  return Yap_MkApplTerm( FunctorSlash, 2, ts );
 }
 
 Atom Yap_NameOfUnaryOp(int i);

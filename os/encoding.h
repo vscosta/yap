@@ -29,8 +29,8 @@ typedef enum {
   ENC_ISO_ASCII  = 2,  /// US only
   ENC_ISO_ANSI   = 4,  /// Who cares
   ENC_ISO_UTF8   = 8,  /// Most everyone nowadays
-  ENC_UNICODE_BE = 16, /// People who made a mistake
-  ENC_UNICODE_LE = 32, /// People who made the same mistake
+  ENC_UTF16_BE = 16, /// People who made a mistake
+  ENC_UTF16_LE = 32, /// People who made the same mistake
   ENC_ISO_UTF32_BE = 64,  /// nobody
   ENC_ISO_UTF32_LE = 128, /// yes, nobody
 } encoding_t;
@@ -49,8 +49,8 @@ static inline const char *enc_name(encoding_t enc)
     case ENC_ISO_ASCII: return "ascii";
     case ENC_ISO_ANSI: return "octet";
     case ENC_ISO_UTF8: return "utf8";
-    case ENC_UNICODE_BE: return "utf16_be";
-    case ENC_UNICODE_LE: return "utf16_le";
+    case ENC_UTF16_BE: return "utf16_be";
+    case ENC_UTF16_LE: return "utf16_le";
     case ENC_ISO_UTF32_BE: return "utf32_be";
     case  ENC_ISO_UTF32_LE: return "utf32_le";
     }
@@ -65,8 +65,8 @@ encoding_t enc_id(char *s)
         if (!strcmp(s,  "iso_ascii")) return ENC_ISO_ASCII;
         if (!strcmp(s,  "iso_ansi")) return ENC_ISO_ANSI;
         if (!strcmp(s,  "iso_utf8")) return ENC_ISO_UTF8;
-        if (!strcmp(s,  "utf16_be")) return ENC_UNICODE_BE;
-        if (!strcmp(s,  "utf16_le")) return ENC_UNICODE_LE;
+        if (!strcmp(s,  "utf16_be")) return ENC_UTF16_BE;
+        if (!strcmp(s,  "utf16_le")) return ENC_UTF16_LE;
         if (!strcmp(s,  "utf32_be")) return ENC_ISO_UTF32_BE;
         if (!strcmp(s,  "utf32_le")) return ENC_ISO_UTF32_LE;
         if (!strcmp(s,  "default")) return Yap_DefaultEncoding();

@@ -72,6 +72,7 @@
 #define ORLAST_OPCODE Yap_heap_regs->orlast_op
 #define UNDEF_OPCODE Yap_heap_regs->undef_op
 #define RETRY_USERC_OPCODE Yap_heap_regs->retry_userc_op
+#define EXECUTE_CPRED_OPCODE Yap_heap_regs->execute_cpred_op
 
 #define NOfAtoms Yap_heap_regs->n_of_atoms
 #define AtomHashTableSize Yap_heap_regs->atom_hash_table_size
@@ -156,9 +157,8 @@
 
 
 
-
-
-
+#define GLOBAL_Flags Yap_heap_regs->GLOBAL_Flags_
+#define GLOBAL_flagCount Yap_heap_regs->GLOBAL_flagCount_
 
 #define Yap_ExecutionMode Yap_heap_regs->execution_mode
 
@@ -332,6 +332,9 @@
 
 #define AtomTranslations Yap_heap_regs->atom_translations
 #define MaxAtomTranslations Yap_heap_regs->max_atom_translations
+
+#define FunctorTranslations Yap_heap_regs->functor_translations
+#define MaxFunctorTranslations Yap_heap_regs->max_functor_translations
 #define EmptyWakeups Yap_heap_regs->empty_wakeups
 #define MaxEmptyWakeups Yap_heap_regs->max_empty_wakeups
 

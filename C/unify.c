@@ -54,10 +54,6 @@ int   Yap_rational_tree_loop(CELL *, CELL *, CELL **, CELL **);
 static int    OCUnify_complex(CELL *, CELL *, CELL *);
 static int    OCUnify(register CELL, register CELL);
 static Int   p_ocunify( USES_REGS1 );
-#ifdef THREADED_CODE
-static int    rtable_hash_op(OPCODE);
-static void   InitReverseLookupOpcode(void);
-#endif
 
 /* support for rational trees and unification with occur checking */
 

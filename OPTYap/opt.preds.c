@@ -379,9 +379,11 @@ static Int p_table( USES_REGS1 ) {
     return (TRUE);  /* predicate already tabled */
   if (pe->cs.p_code.FirstClause)
     return (FALSE);  /* predicate already compiled */
-  pe->PredFlags |= TabledPredFlag;
-  new_table_entry(tab_ent, pe, at, arity, mode_directed);
-  pe->TableOfPred = tab_ent;
+  if (!(pe->PredFlags & TabledPredFlag)) {
+      pe->PredFlags |= TabledPredFlag;
+      new_table_entry(tab_ent, pe, at, arity, mode_directed);
+      pe->TableOfPred = tab_ent;
+    }
   return (TRUE);
 }
 

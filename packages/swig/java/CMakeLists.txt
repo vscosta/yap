@@ -1,47 +1,70 @@
 
-include ( UseJava  )
 
-set (SOURCES
-${CMAKE_CURRENT_BINARY_DIR}/SWIGTYPE_p_CELL.java
-${CMAKE_CURRENT_BINARY_DIR}/SWIGTYPE_p_CPredicate.java
-${CMAKE_CURRENT_BINARY_DIR}/SWIGTYPE_p_Prop.java
-${CMAKE_CURRENT_BINARY_DIR}/SWIGTYPE_p_Term.java
-${CMAKE_CURRENT_BINARY_DIR}/SWIGTYPE_p_YAP_tag_t.java
-${CMAKE_CURRENT_BINARY_DIR}/SWIGTYPE_p_arity_t.java
-${CMAKE_CURRENT_BINARY_DIR}/SWIGTYPE_p_encoding_t.java
-${CMAKE_CURRENT_BINARY_DIR}/SWIGTYPE_p_intptr_t.java
-${CMAKE_CURRENT_BINARY_DIR}/SWIGTYPE_p_void.java
-${CMAKE_CURRENT_BINARY_DIR}/SWIGTYPE_p_wchar_t.java
-${CMAKE_CURRENT_BINARY_DIR}/YAPApplTerm.java
-${CMAKE_CURRENT_BINARY_DIR}/YAPAtom.java
-${CMAKE_CURRENT_BINARY_DIR}/YAPAtomTerm.java
-${CMAKE_CURRENT_BINARY_DIR}/YAPCallback.java
-${CMAKE_CURRENT_BINARY_DIR}/YAPEngine.java
-${CMAKE_CURRENT_BINARY_DIR}/YAPError.java
-${CMAKE_CURRENT_BINARY_DIR}/YAPFLIP.java
-${CMAKE_CURRENT_BINARY_DIR}/YAPFunctor.java
-${CMAKE_CURRENT_BINARY_DIR}/YAPIntegerTerm.java
-${CMAKE_CURRENT_BINARY_DIR}/YAPListTerm.java
-${CMAKE_CURRENT_BINARY_DIR}/YAPModule.java
-${CMAKE_CURRENT_BINARY_DIR}/YAPModuleProp.java
-${CMAKE_CURRENT_BINARY_DIR}/YAPNumberTerm.java
-${CMAKE_CURRENT_BINARY_DIR}/YAPPairTerm.java
-${CMAKE_CURRENT_BINARY_DIR}/YAPPredicate.java
-${CMAKE_CURRENT_BINARY_DIR}/YAPPrologPredicate.java
-${CMAKE_CURRENT_BINARY_DIR}/YAPProp.java
-${CMAKE_CURRENT_BINARY_DIR}/YAPQuery.java
-${CMAKE_CURRENT_BINARY_DIR}/YAPStringTerm.java
-${CMAKE_CURRENT_BINARY_DIR}/YAPTerm.java
-${CMAKE_CURRENT_BINARY_DIR}/YAPVarTerm.java
-${CMAKE_CURRENT_BINARY_DIR}/yap.java
-${CMAKE_CURRENT_BINARY_DIR}/yapConstants.java
-${CMAKE_CURRENT_BINARY_DIR}/yapJNI.java
-)
+macro_optional_find_package(Java ON)
+
+ find_package(Java COMPONENTS Development)
+ #find_package(Java COMPONENTS Runtime)
+ 
+macro_log_feature (Java_Development_FOUND "Java"
+    "Use Java System"
+    "http://www.java.org" FALSE)
+macro_optional_find_package(JNI ON)
+    macro_log_feature (JNI_FOUND "JNI"
+    "Use Java Native Interface"
+    "http://www.java.org" FALSE)
 
 
-    add_jar(jYAP
-      ${SOURCES}
+if (Java_Development_FOUND)
+
+    include ( UseJava  )
+
+    
+  #  SET(CMAKE_SWIG_FLAGS -package YAP)
+
+    SET(SWIG_SOURCES 
+      ../yap.i
       )
 
-    install_jar( jYAP ${libpl})
-#   install_jni_symlink(YAPjar .)
+    set( CMAKE_CXX_FAGS "${CMAKE_CXX_FLAGS} -Wno-missing-declarations")
+
+   include_directories (
+ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ       ${CMAKE_CURRENT_SOURCE_DIR}
+      ${JAVA_INCLUDE_DIRS}
+      ${JNI_INCLUDE_DIRS}
+      )
+    set (CMAKE_SWIG_OUTDIR  ${CMAKE_CURRENT_BINARY_DIR} )
+
+    #set (CMAKE_JAVA_CLASS_OUTPUT_PATH java)
+
+    SET_SOURCE_FILES_PROPERTIES(${SWIG_SOURCES} PROPERTIES CPLUSPLUS ON)
+    
+  #  SWIG_ADD_MODULE(jSWIG java  ${SWIG_SOURCES} )
+
+  #  SWIG_LINK_LIBRARIES(jSWIG ${JAVA_LIBRARIES} ${JNI_LIBRARIES} Yap++)
+
+    set_source_files_properties(../yap.i PROPERTY CPLUSPLUS ON)
+
+   add_jar(JavaYAP
+     SOURCES JavaYAP.java
+     ENTRY_POINT JavaYAP
+     )
+   install_jar(JavaYAP ${libpl}/JavaYAP)
+
+   set(CMAKE_JNI_TARGET TRUE)
+   ADD_CUSTOM_COMMAND(TARGET JavaYAP
+     POST_BUILD
+     COMMAND cmake -E echo "Compiling Java files..."
+     COMMAND ${Java_JAVAC_EXECUTABLE} *.java
+     COMMAND cmake -E echo "Creating jar file..."
+     COMMAND ${Java_JAR_EXECUTABLE} uvf JavaYAP.jar *.class
+     )
+#    install_jni_symlink(shibboleet ${JAVA_LIB_INSTALL_DIR})
+
+#      SET_TARGET_PROPERTIES(jSWIG PROPERTIES OUTPUT_NAME "JavaYAP")
+  
+
+#   add_dependencies(jSWIG JavaYAP)
+
+ Endif (Java_Development_FOUND)
+
+  

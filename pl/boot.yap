@@ -1053,7 +1053,7 @@ number of steps.
 
 '$write_output_vars'([]).
 '$write_output_vars'([V|VL]) :-
-	format(user_error,' = ~s',[V]),
+	format(user_error,' = ~a',[V]),
 	'$write_output_vars'(VL).
 
 

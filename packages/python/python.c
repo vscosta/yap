@@ -659,29 +659,40 @@ term_to_python(term_t t)
   case PL_VARIABLE:
     return NULL;
   case PL_ATOM:
-  case PL_STRING:
     {
-      char *s;
       atom_t at;
 
       if (PL_get_atom(t, &at)) {
 	if (at == ATOM_true) return Py_True;
 	if (at == ATOM_false) return Py_False;
       }
-      if (!PL_get_chars(t, &s, REP_UTF8|CVT_ATOM|CVT_STRING|BUF_DISCARDABLE) ) {
-	return NULL;
+      {
+	char *s;
+	if (!PL_get_atom_chars(t, &s))
+	  return NULL;
+	/* return __main__,s */
+	return PyObject_GetAttrString(py_Main, s);
       }
-#if PY_MAJOR_VERSION < 3
-      if (proper_ascii_string(s)) {
-	return PyString_FromStringAndSize(s, strlen(s) );
-      } else
-#endif
-	{
-	  PyObject *pobj = PyUnicode_DecodeUTF8(s, strlen(s), NULL);
-	  //fprintf(stderr, "%s\n", s);
-	  return pobj;
-	}
     }
+      break;
+    case PL_STRING:
+      {
+	char *s;
+	if (!PL_get_chars(t, &s, REP_UTF8|CVT_ATOM|CVT_STRING|BUF_DISCARDABLE) ) {
+	  return NULL;
+	}
+#if PY_MAJOR_VERSION < 3
+	if (proper_ascii_string(s)) {
+	  return PyString_FromStringAndSize(s, strlen(s) );
+	} else
+#endif
+	  {
+	    PyObject *pobj = PyUnicode_DecodeUTF8(s, strlen(s), NULL);
+	    //fprintf(stderr, "%s\n", s);
+	    return pobj;
+	  }
+      }
+      break;
   case PL_INTEGER:
     {
       int64_t j;
@@ -1046,6 +1057,35 @@ assign_python(PyObject *root, term_t t, PyObject *e)
   case PL_ATOM:
     {
       char *s;
+      if (!PL_get_atom_chars(t, &s)) {
+	  wchar_t *w;
+	  atom_t at;
+	  size_t len;
+	  PyObject *attr;
+
+	  if (!PL_get_atom(t, &at)) {
+	    return -1;
+	  }
+	  if (!(w = PL_atom_wchars(at, &len)))
+	    return -1;
+	  attr = PyUnicode_FromWideChar(w, wcslen(w) );
+	  if (!attr)
+	    return -1;
+	  return PyObject_SetAttr(py_Main, attr, e);
+	}
+	if (proper_ascii_string(s)) {
+	  return PyObject_SetAttrString(py_Main, s, e);
+	} else {
+	  PyObject *attr=  PyUnicode_DecodeLatin1(s, strlen(s), NULL);
+	  if (!attr)
+	    return -1;
+	  return PyObject_SetAttr(py_Main, attr, e);
+	}
+    }
+    break;
+  case PL_STRING:
+    {
+      char *s;
 
       if (!PL_get_atom_chars(t, &s)) {
 	wchar_t *w;
@@ -1067,8 +1107,8 @@ assign_python(PyObject *root, term_t t, PyObject *e)
         return PyObject_SetAttr(root, wo, e);
       }
     }
+    break;
   case PL_INTEGER:
-  case PL_STRING:
   case PL_FLOAT:
     return -1;
   case PL_TERM:
@@ -1278,6 +1318,8 @@ python_import(term_t mname, term_t mod)
   pModule = PyImport_Import(pName);
   Py_DECREF(pName);
   if (pModule == NULL) {
+    if (PyErr_Occurred())
+      PyErr_Print();
     PyErr_Clear();
     return FALSE;
   }
@@ -1387,8 +1429,28 @@ python_apply(term_t tin, term_t targs, term_t keywds, term_t tf)
   foreign_t out;
   term_t targ = PL_new_term_ref();
 
-  pF = term_to_python(tin);
+  pF = term_t
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    'o_python(tin);
   if ( pF == NULL ) {
+    PYError()
     return FALSE;
   }
   if (PL_is_atom(keywds) )
@@ -1623,10 +1685,10 @@ end_python(void)
   return TRUE;
 }
 
-install_t install_python(void);
+install_t install_libpython(void);
 
 install_t
-install_python(void)
+install_libpython(void)
 { // FUNCTOR_dot2 = PL_new_functor(PL_new_atom("."), 2);
   // FUNCTOR_equal2 = PL_new_functor(PL_new_atom("="), 2);
   // FUNCTOR_boolop1 = PL_new_functor(PL_new_atom("@"), 1);
@@ -1653,7 +1715,7 @@ install_python(void)
   FUNCTOR_range2 = PL_new_functor(PL_new_atom("range"), 2);
   FUNCTOR_range3 = PL_new_functor(PL_new_atom("range"), 3);
   FUNCTOR_sum1 = PL_new_functor(PL_new_atom("sum"), 1);
-  FUNCTOR_complex2 = PL_new_functor(PL_new_atom("complex"), 2);
+  FUNCTOR_complex2 = PL_new_functor(PL_new_atom("i"), 2);
   FUNCTOR_plus2 = PL_new_functor(PL_new_atom("+"), 2);
   FUNCTOR_sub2 = PL_new_functor(PL_new_atom("-"), 2);
   FUNCTOR_mul2 = PL_new_functor(PL_new_atom("*"), 2);

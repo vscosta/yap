@@ -233,50 +233,45 @@ open_mem_read_stream (USES_REGS1)   /* $open_mem_read_stream(+List,-Stream) */
 }
 
 int
-Yap_open_buf_write_stream(char **nbufp, size_t *ncharsp)
+Yap_open_buf_write_stream(char *buf, size_t nchars, encoding_t enc,  memBufSource sr)
 {
     int sno;
     StreamDesc *st;
-    char *nbuf = NULL;
-    size_t nchars = 0;
-  
-  if (nbufp)
-    nbuf = *nbufp;
-  if (ncharsp)
-    nchars = *ncharsp;
-  if (!nchars)
-    nchars = 256;
-  if (!nbuf) {
-    if (!nchars) {
-      nchars = Yap_page_size;
+
+    
+    sno = GetFreeStreamD();
+    if (sno < 0)
+      return -1;
+    if (!buf) {
+      if (!nchars) {
+	nchars = Yap_page_size;
+      }
+      buf = malloc( nchars );
     }
-    nbuf = malloc( nchars );
-    if(!nbuf) {
+    st = GLOBAL_Stream+sno;
+    st->nbuf = buf;
+    if(!st->nbuf) {
       return -1;
     }
-  } 
-  sno = GetFreeStreamD();
-  if (sno < 0)
-    return -1;
-  st = &GLOBAL_Stream[sno];
-  /* currently these streams are not seekable */
-  st->linepos = 0;
-  st->charcount = 0;
-  st->linecount = 1;
-  Yap_DefaultStreamOps( st );
+    st->nsize = nchars;
+    /* currently these streams are not seekable */
+    st->linepos = 0;
+    st->charcount = 0;
+    st->linecount = 1;
+    st->encoding = enc;
+    Yap_DefaultStreamOps( st );
 #if MAY_WRITE
-  st->file = open_memstream(&st->nbuf, &st->nsize);
-  st->status = Output_Stream_f | InMemory_Stream_f|Seekable_Stream_f;
+    st->file = open_memstream(&st->nbuf, &st->nsize);
+    st->status = Output_Stream_f | InMemory_Stream_f|Seekable_Stream_f;
 #else
-  st->u.mem_string.pos = 0;
-  st->u.mem_string.buf = nbuf;
-  st->u.mem_string.max_size = nchars;
-  st->status = Output_Stream_f | InMemory_Stream_f;
+    st->u.mem_string.pos = 0;
+    st->u.mem_string.buf = nbuf;
+    st->u.mem_string.max_size = nchars;
+    st->status = Output_Stream_f | InMemory_Stream_f;
  #endif
-  Yap_MemOps( st );
-  UNLOCK(st->streamlock);
-  *nbufp = nbuf;
-  return sno;
+    Yap_MemOps( st );
+    UNLOCK(st->streamlock);
+    return sno;
 }
 
 int
@@ -292,7 +287,7 @@ Yap_OpenBufWriteStream( USES_REGS1 )
       return -1;
     }
   }
-  return Yap_open_buf_write_stream(&nbuf, &sz);
+  return Yap_open_buf_write_stream(nbuf, sz, GLOBAL_Stream[LOCAL_c_output_stream].encoding, 0);
 }
 
 static Int
@@ -316,14 +311,16 @@ open_mem_write_stream (USES_REGS1)   /* $open_mem_write_stream(-Stream) */
  * @return temporary buffer, discarded by close and may be moved away
  * by other writes..
  */
-memHandle *
-Yap_MemExportStreamPtrs( int sno )
+char *
+Yap_MemExportStreamPtr( int sno )
 {
+  char *s;
 #if MAY_WRITE
-  if (fflush(GLOBAL_Stream[sno].file) == 0) {
-      GLOBAL_Stream[sno].nbuf[GLOBAL_Stream[sno].nsize]  = '\0';
-      return (memHandle *)GLOBAL_Stream[sno].nbuf;
-    }
+  if (fflush(GLOBAL_Stream[sno].file) == 0 &&
+      (s =  GLOBAL_Stream[sno].nbuf)) {
+    s[ftell(GLOBAL_Stream[sno].file)]  = '\0';
+    return s;
+  }
   return NULL;
 #else
   return &GLOBAL_Stream[sno].u.mem_string;
@@ -360,7 +357,7 @@ peek_mem_write_stream ( USES_REGS1 )
     if (HR + 1024 >= ASP) {
       UNLOCK(GLOBAL_Stream[sno].streamlock);
       HR = HI;
-      if (!Yap_gcl((ASP-HI)*sizeof(CELL), 3, ENV, gc_P(P,CP))) {
+      if (!Yap_gcl((ASP-HI)*sizeof(CELL), 3, ENV, Yap_gcP()) ) {
 	UNLOCK(GLOBAL_Stream[sno].streamlock);
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	return(FALSE);

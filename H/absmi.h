@@ -853,72 +853,73 @@ restore_absmi_regs(REGSTORE * old_regs)
 
 #if YAP_JIT
 
+
 #define Op(Label,Type)          \
-  Label:{ (ExpEnv.config_struc.current_displacement) ?  \
+  _##Label:{ (ExpEnv.config_struc.current_displacement) ?  \
   print_instruction(PREG, ON_PROFILED_INTERPRETER) :  \
   print_instruction(PREG, ON_INTERPRETER);    \
   START_PREFETCH(Type)
 
 #define OpW(Label,Type)         \
-  Label:{ (ExpEnv.config_struc.current_displacement) ?  \
+  _##Label:{ (ExpEnv.config_struc.current_displacement) ?  \
   print_instruction(PREG, ON_PROFILED_INTERPRETER) :  \
   print_instruction(PREG, ON_INTERPRETER);    \
   START_PREFETCH_W(Type)
 
 #define BOp(Label,Type)         \
-  Label:{ (ExpEnv.config_struc.current_displacement) ?  \
+  _##Label:{ (ExpEnv.config_struc.current_displacement) ?  \
   print_instruction(PREG, ON_PROFILED_INTERPRETER) :  \
   print_instruction(PREG, ON_INTERPRETER);
 
 #define PBOp(Label,Type)        \
-  Label:{ (ExpEnv.config_struc.current_displacement) ?  \
+  _##Label:{ (ExpEnv.config_struc.current_displacement) ?  \
   print_instruction(PREG, ON_PROFILED_INTERPRETER) :  \
   print_instruction(PREG, ON_INTERPRETER);    \
   INIT_PREFETCH()
 
 #define OpRW(Label,Type)        \
-  Label:{ (ExpEnv.config_struc.current_displacement) ?  \
+  _##Label:{ (ExpEnv.config_struc.current_displacement) ?  \
   print_instruction(PREG, ON_PROFILED_INTERPRETER) :  \
   print_instruction(PREG, ON_INTERPRETER);
 
 #else /* YAP_JIT */
 
 #define Op(Label,Type)          \
-  Label:{      print_instruction(PREG, ON_INTERPRETER); \
+  _##Label:{      print_instruction(PREG, ON_INTERPRETER); \
   START_PREFETCH(Type)
 
 #define OpW(Label,Type)         \
-  Label:{      print_instruction(PREG, ON_INTERPRETER); \
+  _##Label:{      print_instruction(PREG, ON_INTERPRETER); \
   START_PREFETCH_W(Type)
 
 #define BOp(Label,Type)         \
-  Label:{      print_instruction(PREG, ON_INTERPRETER);
+  _##Label:{      print_instruction(PREG, ON_INTERPRETER);
 
 #define PBOp(Label,Type)        \
-  Label:{      print_instruction(PREG, ON_INTERPRETER); \
+  _##Label:{      print_instruction(PREG, ON_INTERPRETER); \
   INIT_PREFETCH()
 
 #define OpRW(Label,Type)        \
-  Label:{      print_instruction(PREG, ON_INTERPRETER);
+  _##Label:{      print_instruction(PREG, ON_INTERPRETER);
 
 #endif /* YAP_JIT */
 
 #else /* YAP_DBG_PREDS */
 
 #define Op(Label,Type)        \
-  Label:{ START_PREFETCH(Type)
+  _##Label:{ START_PREFETCH(Type)
 
 #define OpW(Label,Type)       \
-  Label:{ START_PREFETCH_W(Type)
+  _##Label:{ START_PREFETCH_W(Type)
 
 #define BOp(Label,Type)       \
-  Label:{
+  _##Label:{
 
 #define PBOp(Label,Type)      \
-  Label:{ INIT_PREFETCH()
+  _##Label:{ INIT_PREFETCH()
 
 #define OpRW(Label,Type)			\
-  Label:{
+  _##Label:{
 
 #endif /* YAP_DBG_PREDS */
 
@@ -1723,7 +1724,7 @@ typedef struct v_record {
   Term old;
 } v_record;
 
-#if defined(IN_ABSMI_C) || defined(IN_UNIFY_C)
+#if defined(IN_ABSMI_C) || defined(IN_UNIFY_C)|| defined(IN_TRACED_ABSMI_C)
 
 
 static int
@@ -1922,7 +1923,7 @@ IUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
 #endif
 
 
-#if defined(IN_ABSMI_C) || defined(IN_INLINES_C)
+#if defined(IN_ABSMI_C) || defined(IN_INLINES_C) || defined(IN_TRACED_ABSMI_C)
 
 static int
 iequ_complex(register CELL *pt0, register CELL *pt0_end,

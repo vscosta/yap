@@ -88,10 +88,6 @@ lockvar				StreamDescLock                MkLock
 char**				argv					void
 int           		 	argc					void
 
-// Prolog execution and state flags
-union flagTerm*		       Flags					void
-UInt   			       flagCount				void
-
 // extensions to Terms
 #ifdef COROUTINING
 /* array with the ops for your favourite extensions */

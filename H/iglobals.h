@@ -1,6 +1,6 @@
-
-  /* This file, iglobals.h, was generated automatically by "yap -L misc/buildlocalglobal"
-     please do not update, update misc/GLOBALS instead */
+﻿
+  /* This file, iglobals.h , was generated automatically by "yap -L misc/buildlocalglobal"
+     please do not update, update misc/GLOBALS  instead */
 
 
 
@@ -74,9 +74,6 @@ static void InitGlobal(void) {
 #if defined(THREADS)
   INIT_LOCK(GLOBAL_StreamDescLock);
 #endif
-
-
-
 
 
 

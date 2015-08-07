@@ -316,7 +316,7 @@ GetTermFromArray(DBTerm *ref USES_REGS)
 	}
       } else {
 	LOCAL_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_gcl(LOCAL_Error_Size, 3, ENV, gc_P(P,CP))) {
+	if (!Yap_gcl(LOCAL_Error_Size, 3, ENV, Yap_gcP())) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return TermNil;
 	}
@@ -997,7 +997,7 @@ p_create_array( USES_REGS1 )
 
     farray = Yap_MkFunctor(AtomArray, size);
     if (HR+1+size > ASP-1024) {
-      if (!Yap_gcl((1+size)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
+      if (!Yap_gcl((1+size)*sizeof(CELL), 2, ENV, Yap_gcP())) {
 	Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
 	return(FALSE);
       } else {
@@ -1849,7 +1849,8 @@ p_assign_static( USES_REGS1 )
 	  Yap_Error(TYPE_ERROR_INTEGER,t3,"assign_static");
 	  return (FALSE);
 	}
-	ptr->ValueOfVE.ints[indx]= i;
+	ptr->
+	  ValueOfVE.ints[indx]= i;
       }
       break;
 

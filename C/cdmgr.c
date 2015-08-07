@@ -471,6 +471,7 @@ static char     SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #if HAVE_STRING_H
 #include <string.h>
 #endif
+#include <heapgc.h>
 
 
 static void retract_all(PredEntry *, int);
@@ -4868,9 +4869,6 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
   th = Terms[0];
   tb = Terms[1];
   tr = Terms[2];
-  /* don't do this!! I might have stored a choice-point and changed ASP
-     Yap_RecoverSlots(3);
-  */
   if (cl == NULL) {
     UNLOCK(pe->PELock);
     return FALSE;

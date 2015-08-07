@@ -447,7 +447,7 @@ put_char ( USES_REGS1 )
   int ch;
   int sno;
 
-  if (IsVarTerm(t2 = Deref(ARG1))) {
+  if (IsVarTerm(t2 = Deref(ARG2))) {
     Yap_Error(INSTANTIATION_ERROR, t2, "put_char/1");
     return FALSE;
   } else if (!IsAtomTerm (t2)) {
@@ -480,7 +480,7 @@ tab_1 ( USES_REGS1 )
   int sno = LOCAL_c_output_stream;
   Term t2;
   Int tabs, i;
-  if (IsVarTerm(t2 = Deref(ARG1))) {
+  if (IsVarTerm(t2 = Deref(ARG2))) {
     Yap_Error(INSTANTIATION_ERROR, t2, "put_char/1");
     return FALSE;
   } else if (!IsIntegerTerm (t2)) {
@@ -514,7 +514,7 @@ tab ( USES_REGS1 )
   int sno = LOCAL_c_output_stream;
   Term t2;
   Int tabs, i;
-  if (IsVarTerm(t2 = Deref(ARG1))) {
+  if (IsVarTerm(t2 = Deref(ARG2))) {
     Yap_Error(INSTANTIATION_ERROR, t2, "put_char/1");
     return FALSE;
   } else if (!IsIntegerTerm (t2)) {
@@ -588,7 +588,7 @@ put_byte ( USES_REGS1 )
 {				/* '$put_byte'(Stream,N)                 */
   Term t2;
   Int ch;
-  if (IsVarTerm(t2 = Deref(ARG1))) {
+  if (IsVarTerm(t2 = Deref(ARG2))) {
     Yap_Error(INSTANTIATION_ERROR, t2, "put_code/1");
     return FALSE;
   } else if (!IsIntegerTerm (t2)) {
@@ -653,7 +653,7 @@ skip_1 ( USES_REGS1 )
   int sno;
   int ch;
 
-  if (IsVarTerm(t2 = Deref(ARG1))) {
+  if (IsVarTerm(t2 = Deref(ARG2))) {
     Yap_Error(INSTANTIATION_ERROR, t2, "skip/2");
     return FALSE;
   } else if (!IsIntegerTerm (t2)) {
@@ -843,7 +843,7 @@ peek_code_1 ( USES_REGS1 )
   if ((ch =  dopeek( sno )) < 0)
     return false;
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-  return(Yap_unify_constant(ARG2,MkIntTerm(ch)));
+  return(Yap_unify_constant(ARG1,MkIntTerm(ch)));
 }
 
 

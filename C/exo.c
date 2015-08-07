@@ -720,11 +720,11 @@ store_exo(yamop *pc, UInt arity, Term t0)
   for (i = 0; i< arity; i++) {
     DerefAndCheck(t, tp[0]);
     *cpc = t;
-    Yap_DebugPlWrite(t); fprintf(stderr,"\n");
+    //    Yap_DebugPlWrite(t); fprintf(stderr,"\n");
     tp++;
     cpc++;
   }
-  fprintf(stderr,"\n");
+  //fprintf(stderr,"\n");
   return TRUE;
 }
 

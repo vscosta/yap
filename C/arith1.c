@@ -1003,7 +1003,7 @@ p_unary_is( USES_REGS1 )
     Term out;
 
     if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, 1)))) {
-      Yap_EvalError(TYPE_ERROR_EVALUABLE, takeName(t),
+      Yap_EvalError(TYPE_ERROR_EVALUABLE, takeIndicator(t),
 		"functor %s/1 for arithmetic expression",
 		RepAtom(name)->StrOfAE);
       return FALSE;

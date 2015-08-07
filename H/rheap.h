@@ -724,7 +724,7 @@ RestoreSWIAtoms__( USES_REGS1 )
   for (i=0; i < AtomTranslations; i++) {
     SWI_Atoms[i] = AtomAdjust(SWI_Atoms[i]);
   }
-  for (j=0; j < N_SWI_FUNCTORS; j++) {
+  for (j=0; j < FunctorTranslations; j++) {
     SWI_Functors[j] = FuncAdjust(SWI_Functors[j]);
   }
   RestoreSWIHash();
@@ -1462,9 +1462,23 @@ RestoreEntries(PropEntry *pp, int int_key USES_REGS)
 	  PropAdjust(he->NextOfPE);
       }
       break;
+   case MutexProperty:
+      {
+	HoldEntry *he = (HoldEntry *)pp;
+	he->NextOfPE =
+	  PropAdjust(he->NextOfPE);
+      }
+      break;
     case TranslationProperty:
       {
 	TranslationEntry *he = (TranslationEntry *)pp;
+	he->NextOfPE =
+	  PropAdjust(he->NextOfPE);
+      }
+      break;
+    case FlagProperty:
+      {
+	FlagEntry *he = (FlagEntry *)pp;
 	he->NextOfPE =
 	  PropAdjust(he->NextOfPE);
       }

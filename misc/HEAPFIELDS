@@ -57,7 +57,7 @@ UInt		MaxStack_		MaxStack		=0 void
 UInt		MaxTrail_		MaxTrail		=0 void
 
 /* execution info */
-/* OPCODE TABLE, needed to recover op tables */
+/* OPCODE REVERSE TABLE, needed to recover op tables */
 #if USE_THREADED_CODE
 op_entry	*op_rtable		OP_RTABLE		void	OpRTableAdjust
 #endif
@@ -71,6 +71,7 @@ OPCODE		lockpred_op		LOCKPRED_OPCODE		MkOp _lock_pred
 OPCODE		orlast_op		ORLAST_OPCODE		MkOp _or_last
 OPCODE		undef_op		UNDEF_OPCODE		MkOp _undef_p
 OPCODE		retry_userc_op		RETRY_USERC_OPCODE	MkOp _retry_userc
+OPCODE		execute_cpred_op	EXECUTE_CPRED_OPCODE	MkOp _execute_cpred
 
 /* atom tables */
 UInt		n_of_atoms		NOfAtoms		void void
@@ -163,9 +164,8 @@ void		void			void			Yap_InitModules()  void
 // don't actually want to define a field
 void		void			void			Yap_InitPlIO()  void
 
-// make sure we have the flags  set at this point.
-// don't actually want to define a field
-void		void			void			Yap_InitFlags(true)  void
+union flagTerm*	GLOBAL_Flags_		GLOBAL_Flags		=0 void
+UInt	  	GLOBAL_flagCount_	GLOBAL_flagCount	Yap_InitFlags(true)  RestoreFlags(GLOBAL_flagCount)
 
 /* Anderson's JIT */
 yap_exec_mode	execution_mode		Yap_ExecutionMode	=INTERPRETED void
@@ -369,6 +369,10 @@ struct swi_reverse_hash	swi_reverse_hash[N_SWI_HASH] SWI_ReverseHash	void void
 /* integer access to atoms */
 Int            atom_translations	AtomTranslations	void  void
 Int            max_atom_translations	MaxAtomTranslations	void  void
+
+/* integer access to functors */
+Int            functor_translations	FunctorTranslations	void  void
+Int            max_functor_translations	MaxFunctorTranslations	void  void
 
 Atom		empty_wakeups[MAX_EMPTY_WAKEUPS]	EmptyWakeups		InitEmptyWakeups() RestoreEmptyWakeups()
 int		max_empty_wakeups	MaxEmptyWakeups		=0

@@ -60,11 +60,16 @@ Yap_MkNewPairTerm(void)
   return (AbsPair(p));
 }
 
+/**  compound term constructor, builds a compound term with functor f and n
+ * args.
+ *
+ *
+ * Room for the new term is allocated from the heap: the functor and arguments are copied there.
+ *
+*/
 Term
 Yap_MkApplTerm(Functor f, arity_t n,  const Term *a)
-     /* build compound term with functor f and n
-      * args a */
-{
+ {
   CACHE_REGS
   CELL           *t = HR;
 

@@ -14,6 +14,36 @@
 #cmakedefine AC_APPLE_UNIVERSAL_BUILD "${AC_APPLE_UNIVERSAL_BUILD}"
 #endif
 
+/* Are we compiling with support for depth limitT? */
+#ifndef DEPTH_LIMIT
+#define DEPTH_LIMIT 1
+#endif
+
+/* Are we compiling with inlined emulator instructionsT? */
+#ifndef USE_THREADED_CODE
+#define USE_THREADED_CODE 1
+#endif
+
+/* Are we compiling with support for TABLINGtT? */
+#ifndef TABLING
+#define TABLING 1
+#endif
+
+/* Are we compiling with support for WAM level tracing? */
+#ifndef LOW_LEVEL_TRACER
+#define LOW_LEVEL_TRACER 1
+#endif
+
+/* Are we compiling with support for threads? */
+#ifndef THREADS
+#cmakedefine THREADS  "$YAP_THREADS"
+#endif
+
+/* Are we compiling with support for clause just-in-time compilationT? */
+#ifndef YAP_JIT
+#cmakedefine YAP_JIT  "$YAP_JIT"
+#endif
+
 /* longs should be in addresses that are multiple of four. */
 #ifndef ALIGN_LONGS
 #define ALIGN_LONGS 1
@@ -1581,7 +1611,7 @@ signal. */
 #endif
 
 /* max number of threads, default 1 or 1024 */
-#ifndef MAX_THREADS
+#ifndef MAX_THRADS
 #cmakedefine MAX_THREADS ${MAX_THREADS}
 #endif
 
@@ -1813,11 +1843,6 @@ signal. */
 /* use shm in or-parallel allocation */
 #ifndef USE_SYSTEM_SHM
 #cmakedefine USE_SYSTEM_SHM ${USE_SYSTEM_SHM}
-#endif
-
-/* threaded emulator */
-#ifndef USE_THREADED_CODE
-#cmakedefine USE_THREADED_CODE ${USE_THREADED_CODE}
 #endif
 
 /* Whether daylight savings time offset is set via the altzone variable */

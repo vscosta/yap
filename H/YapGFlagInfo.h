@@ -71,7 +71,7 @@ running on an Apple machine.
  */
 #endif
 YAP_FLAG(  ARCH_FLAG, "arch", false, isatom, YAP_ARCH , NULL ),
-YAP_FLAG(  ARGV_FLAG, "argv", false, isatom, "[]"  , argv ),
+YAP_FLAG(  ARGV_FLAG, "argv", false, argv, "?-"  , NULL ),
 YAP_FLAG(  ARITHMETIC_EXCEPTIONS_FLAG, "arithmetic_exceptions", true, boolean, "true" , NULL ),
 YAP_FLAG(  BACKQUOTED_STRING_FLAG, "backquoted_string", true, isatom, "string" ,  ), /**>
 If  _Value_ is unbound, tell whether a double quoted list of characters
@@ -133,7 +133,7 @@ YAP_FLAG(  DOLLAR_AS_LOWER_CASE_FLAG, "dollar_as_lower_case", true, boolean, "fa
     If `off` (default)  consider the character `$` a control character, if
 `on` consider `$` a lower case character.
  */
-  YAP_FLAG(  DOUBLE_QUOTES_FLAG, "double_quotes", true, isatom, "codes" , NULL ), /**< `double_quotes is iso `
+  YAP_FLAG(  DOUBLE_QUOTES_FLAG, "double_quotes", true, isatom, "codes" , dqf ), /**< `double_quotes is iso `
 
     If  _Value_ is unbound, tell whether a double quoted list of characters
 token is converted to a list of atoms, `chars`, to a list of integers,
@@ -148,10 +148,10 @@ original program path.
 YAP_FLAG(  FAST_FLAG, "fast", true, boolean, "false" , NULL ), /**< `fast `
 
     If `on` allow fast machine code, if `off` (default) disable it. Only
-available in experimental implementations.
+available in experimental implemexbntations.
  */
 YAP_FLAG(  FILE_NAME_VARIABLES_FLAG, "file_name_variables", true, boolean, "true" , NULL ),
-YAP_FLAG(  FLOAT_FORMAT_FLAG, "float_format", true, isatom, "%.15g" , NULL ), /**< + `float_format `
+YAP_FLAG(  FLOAT_FORMAT_FLAG, "float_format", true, isatom, "%15e" , NULL ), /**< + `float_format `
 
     C-library `printf()` format specification used by write/1 and
 friends to determine how floating point numbers are printed. The
@@ -254,7 +254,7 @@ providing access to shared libraries (`.so` files) or to dynamic link
 libraries (`.DLL` files).
  */
 YAP_FLAG(  OPTIMISE_FLAG, "optimise", true, boolean, "false" , NULL ),
-YAP_FLAG(  OS_ARGV_FLAG, "os_argv", false, ro, "[]" , os_argv ),
+YAP_FLAG(  OS_ARGV_FLAG, "os_argv", false, os_argv, "?-" , NULL ),
 YAP_FLAG(  PID_FLAG, "pid", false, ro, "0" , NULL ),
 YAP_FLAG(  PIPE_FLAG, "pipe", true, boolean, "true" , NULL ),
 YAP_FLAG(  PROFILING_FLAG, "profiling", true, boolean, "false" , NULL ), /**< `profiling `

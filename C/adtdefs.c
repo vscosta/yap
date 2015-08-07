@@ -1227,7 +1227,7 @@ Yap_PutValue(Atom a, Term v)
 }
 
 bool
-Yap_PutAtomTranslation(Atom a, Int i)
+Yap_PutAtomTranslation(Atom a, arity_t arity, Int i)
 {
   AtomEntry *ae = RepAtom(a);
   Prop p0;
@@ -1243,7 +1243,34 @@ Yap_PutAtomTranslation(Atom a, Int i)
     }
     p->KindOfPE = TranslationProperty;
     p->Translation = i;
+    p->arity = arity;
     AddPropToAtom(RepAtom(a), (PropEntry *)p);
+  }
+  /* take care that the lock for the property will be inited even
+     if someone else searches for the property */
+  WRITE_UNLOCK(ae->ARWLock);
+  return true;
+}
+
+bool
+Yap_PutFunctorTranslation(Atom a, arity_t arity, Int i)
+{
+  AtomEntry *ae = RepAtom(a);
+  Prop p0;
+  TranslationEntry *p;
+
+  WRITE_LOCK(ae->ARWLock);
+  p0 = GetAPropHavingLock(ae, TranslationProperty);
+  if (p0 == NIL) {
+    p = (TranslationEntry *) Yap_AllocAtomSpace(sizeof(TranslationEntry));
+    if (p == NULL) {
+      WRITE_UNLOCK(ae->ARWLock);
+      return false;
+    }
+    p->KindOfPE = TranslationProperty;
+    p->Translation = i;
+    p->arity = arity;
+   AddPropToAtom(RepAtom(a), (PropEntry *)p);
   }
   /* take care that the lock for the property will be inited even
      if someone else searches for the property */

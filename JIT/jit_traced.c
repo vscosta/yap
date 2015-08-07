@@ -10,7 +10,7 @@
 *									 *
 * File:		jit_traced.c						 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2008-08-13 01:16:26 $,$Author: vsc $		 *
+* Last:     $Date: 2008-08-13 01:16:26 $,$Author: vsc $		 *
 *									 *
 *************************************************************************/
 
@@ -33,16 +33,19 @@ boils down to a recursive loop of the form:
 loop(Env) :-
         do_something(Env,NewEnv),
         loop(NewEnv).
-~~~~~
+~~~~
  */
-
-
-
+ 
 #if YAP_JIT
 
-#define YAP_TRACED 1
-#define IN_ABSMI_C 1
+//#define __YAP_TRACED 1
+
+#define IN_TRACED_ABSMI_C 1
+
+// #ifndef _NATIVE
+
 #define HAS_CACHE_REGS 1
+
 
 #include "absmi.h"
 #include "heapgc.h"
@@ -51,9 +54,7 @@ loop(Env) :-
 
 Int traced_absmi(void);
 
-#ifdef PUSH_X
-#else
-
+#ifndef PUSH_X
 /* keep X as a global variable */
 
 Term Yap_XREGS[MaxTemps];	/* 29                                     */
@@ -130,7 +131,7 @@ traced_absmi(void)
 
     static void *OpAddress[] =
     {
-#define OPCODE(OP,TYPE) && OP
+#define OPCODE(OP,TYPE) && _##OP
 #include "YapOpcodes.h"
 #undef  OPCODE
 };
@@ -159,7 +160,7 @@ NativeArea->area.compilation_time = NULL;
 NativeArea->area.native_size_bytes = NULL;
 NativeArea->area.trace_size_bytes = NULL;
 NativeArea->success = NULL;
-NativeArea->runs = NULL;
+->runs = NULL;
 NativeArea->t_runs = NULL;
 #endif
 NativeArea->n = 0;
@@ -191,21 +192,22 @@ CACHE_A1();
     op_numbers opcode = _Ystop;
     goto critical_lbl;
 
-    //nextop_write:
+    nextop_write:
 
      opcode = Yap_op_from_opcode( PREG->y_u.o.opcw );
     goto op_switch;
 
     
-    //  nextop:
+    nextop:
 
     opcode = Yap_op_from_opcode( PREG->opc );
 
   op_switch:
 
-
+#if !USE_THREADED_CODE
     switch (opcode) {
-
+#endif
+        
 #if !OS_HANDLES_TR_OVERFLOW
     notrailleft:
       /* if we are within indexing code, the system may have to
@@ -236,12 +238,10 @@ CACHE_A1();
         }
       }
       goto reset_absmi;
-
-#endif /* OS_HANDLES_TR_OVERFLOW */
-
+#endif
+        
       // move instructions to separate file
       // so that they are easier to analyse.
-#if YAP_JIT
 #include "../C/traced_absmi_insts.h"
 #if YAPOR
 #include "../OPTYap/traced_or.insts.h"
@@ -250,14 +250,16 @@ CACHE_A1();
 #include "../OPTYap/traced_tab.insts.h"
 #include "../OPTYap/traced_tab.tries.insts.h"
 #endif
-#endif
+    
         
-    default:
+#if _NATIVE
+      default:
       saveregs();
       Yap_Error(SYSTEM_ERROR, MkIntegerTerm(opcode), "trying to execute invalid YAAM instruction %d", opcode);
       setregs();
       FAIL();
     }
+#endif
   }
 
   return (0);

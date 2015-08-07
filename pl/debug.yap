@@ -1043,7 +1043,7 @@ be lost.
 '$unleashed'(exception(_)) :- get_value('$leash',L), L /\ 2'0001 =:= 0.  %'
 
 '$debugger_write'(Stream, G) :-
-	recorded('$print_options','$debugger'(OUT),_), !,
+	current_prolog_flag( debugger_print_options, OUT ), !,
 	write_term(Stream, G, OUT).
 '$debugger_write'(Stream, G) :-
 	writeq(Stream, G).

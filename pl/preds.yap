@@ -638,9 +638,9 @@ predicate_erased_statistics(P0,NCls,Sz,ISz) :-
 Defines the relation:  _P_ is a currently defined predicate whose name is the atom  _A_.
 */
 current_predicate(A,T0) :-
-	strip_module(T0, M, T),
+	'$yap_strip_module'(T0, M, T),
 	(
-	 '$current_predicate'(A, M, T0, user)
+	 '$current_predicate'(A, M, T, user)
 	 ;
 	 '$imported_predicate'(T, M, SourceT, SourceMod),
 	 functor(T, A, _),
@@ -654,7 +654,7 @@ is the atom  _A_.
 
 */
 system_predicate(A,T1) :-
-	strip_module( T1, M, T),
+	'$yap_strip_module'( T1, M, T),
 	(
 	 M \= prolog,
 	 '$current_predicate'(A, M, T0, system)
@@ -685,16 +685,16 @@ system_predicate(P) :-
  _Na_ is the name of the predicate, and  _Ar_ its arity.
 */
 current_predicate(F0) :-
-	strip_module(F0, M, AN),
+	'$yap_strip_module'(F0, M, AN),
 	( AN = A/N
 	->
 	  current_predicate(A, M:S),
-	  functor( S, A, Ar)
+	  functor( S, A, N)
 	;
 	  AN == A//N
 	->
 	  current_predicate(A, M:S),
-	  Ar2 is Ar+2,
+	  Ar2 is N+2,
 	  functor( S, A, Ar2)
 	).
 

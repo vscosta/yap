@@ -51,7 +51,7 @@ if (CUDA_FOUND)
   #                            Only available for CUDA version 3.2+.
   #                            Windows only.
   #
-  macro_optional_find_package (FindThrust ON)
+  macro_optional_find_package (Thrust ON)
 
   set (CUDA_SOURCES
     lista.cu
@@ -65,9 +65,9 @@ if (CUDA_FOUND)
 
   cuda_add_library (libcuda SHARED  ${CUDA_SOURCES})
 
-  target_link_libraries(libcuda libYap
- ${CUDA_LIBRARIES} ${CUDA_npp_LIBRARY} ${CUDA_nppc_LIBRARY}
-stdc++  )
+  target_link_libraries(libcuda  libYap
+    ${CUDA_LIBRARIES} ${CUDA_npp_LIBRARY} # ${CUDA_nppc_LIBRARY}
+  )
 
 if( THRUST_INCLUDE_DIR )
     list( REMOVE_DUPLICATES THRUST_INCLUDE_DIR )

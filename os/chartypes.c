@@ -60,7 +60,7 @@ Term
   int sno;
   Term t;
 
-  sno = Yap_open_buf_read_stream(s, strlen(s)+1, enc, MEM_BUF_USER);
+  sno = Yap_open_buf_read_stream(s, strlen(s), enc, MEM_BUF_USER);
    if (sno < 0)
     return FALSE;
   GLOBAL_Stream[sno].encoding = enc;
@@ -100,7 +100,7 @@ char *
   Yap_TermToString(Term t, char *s,  size_t sz, size_t *length, encoding_t encp, int flags)
 {
   CACHE_REGS
-    int sno = Yap_open_buf_write_stream(&s, &sz);
+    int sno = Yap_open_buf_write_stream(s, sz, encp, flags);
   int old_output_stream = LOCAL_c_output_stream;
 
   if (sno < 0)
@@ -118,28 +118,59 @@ char *
   return NULL;
 }
 
-static encoding_t
+const char *encvs[] =  { "LANG","LC_ALL","LC_CTYPE", NULL };
+
+// wher we can fins an encoding
+typedef  struct enc_map {
+   const char *s;
+    encoding_t e;
+  }  enc_map_t;
+
+static enc_map_t ematches[] =
+{ { "UTF-8", ENC_ISO_UTF8 },
+  { "UTF-16", ENC_UTF16_LE }, // ok, this is a very bad name
+  { "UCS-2", ENC_UTF16_LE }, // ok, this is probably gone by now
+  { "ISO-LATIN1", ENC_ISO_LATIN1 },
+  { "ISO-8859-1", ENC_ISO_LATIN1 },
+  { "Windows-1252", ENC_ISO_LATIN1 }, // almost, but not quite
+  { "CP-1252", ENC_ISO_LATIN1 },
+  { "C", ENC_ISO_ASCII },
+  { NULL, ENC_OCTET }
+  };
+
+  static encoding_t
 DefaultEncoding(void)
 {
-  char *s = getenv("LANG");
-  size_t sz;
-
-  /* if we don't have a LANG then just use ISO_LATIN1 */
-  if (s == NULL)
-    s = getenv("LC_CTYPE");
-  if (s == NULL)
-    return ENC_ISO_LATIN1;
-  sz = strlen(s);
-  if (sz >= 5) {
-    if (s[sz-5] == 'U' &&
-	s[sz-4] == 'T' &&
-	s[sz-3] == 'F' &&
-	s[sz-2] == '-' &&
-	s[sz-1] == '8') {
-      return ENC_ISO_UTF8;
+  CACHE_REGS
+  int i = 0, j;
+  char *enc;
+  while (encvs[i]) {
+    char *v = getenv(encvs[i]);
+    if (v) {
+      enc = strrchr(v, '.');
+      /* that's how it is supposed to be, except in OSX */
+      if (!enc) enc = v;
+      // now that we have one name, try to match it
+      j= 0;
+      while (ematches[j].s != NULL) {
+        if (!strcmp(ematches[j].s, enc)) {
+          return LOCAL_encoding = ematches[j].e;
+        } else {
+          j++;
+        }
+      }
+      Yap_Warning("System uses unknown default encoding %s (taken from %s)", enc, v );
+    } else {
+      i++;
     }
   }
-  return ENC_ISO_ANSI;
+  // by default, return UTF-8
+  // except in _WIN32
+#ifdef _WIN32
+  return ENC_UTF16_BE;
+#else
+  return ENC_ISO_UTF8;
+#endif
 }
 
 encoding_t

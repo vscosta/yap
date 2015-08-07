@@ -1,6 +1,6 @@
-
-  /* This file, hglobals.h, was generated automatically by "yap -L misc/buildlocalglobal"
-     please do not update, update misc/GLOBALS instead */
+﻿
+  /* This file, hglobals.h , was generated automatically by "yap -L misc/buildlocalglobal"
+     please do not update, update misc/GLOBALS  instead */
 
 
 
@@ -77,9 +77,6 @@ typedef struct global_data {
 
   char**  argv_;
   int  argc_;
-
-  union flagTerm*  Flags_;
-  UInt  flagCount_;
 
 #ifdef COROUTINING
 

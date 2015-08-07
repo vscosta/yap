@@ -31,6 +31,8 @@ extern "C" void shutdown_llvm() { llvm_shutdown(); }
 
 extern "C" Int traced_absmi();
 
+#define JIT_CODE 1
+
 static void
 initJit(void)
 {

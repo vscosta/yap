@@ -643,6 +643,8 @@ atom_concat3( USES_REGS1 )
   } else {
     LOCAL_Error_TYPE = INSTANTIATION_ERROR;
     LOCAL_Error_Term = t1;
+    Yap_Error( INSTANTIATION_ERROR, IsVarTerm(t1) ? t1 : t2, "got atom_concat(X,atom,Z) or atom_concat(,atom,Y,Z)" );
+    return false;
   }
   if (at) {
     if (Yap_unify(ot, MkAtomTerm(at))) cut_succeed();

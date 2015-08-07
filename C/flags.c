@@ -45,6 +45,7 @@ static bool synerr(Term inp);
 static bool indexer(Term inp);
 static bool getenc(Term inp);
 static bool typein( Term inp );
+static bool dqf( Term t2 );
 
 static void newFlag( Term fl, Term val );
 static Int current_prolog_flag(USES_REGS1);
@@ -83,6 +84,27 @@ static bool indexer( Term inp ) {
     return false;
   }
   Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag in {dec10,error,fail,quiet}");
+  return false;
+}
+
+static bool dqf( Term t2 ) {
+  CACHE_REGS
+  ModEntry *new = Yap_GetModuleEntry(CurrentModule);
+  new->flags &= ~(DBLQ_CHARS|DBLQ_CODES|DBLQ_ATOM|DBLQ_STRING);
+  if (t2 == TermString) {
+    new->flags |=  DBLQ_STRING;
+    return true;
+  } else if (t2 == TermAtom) {
+    new->flags |=  DBLQ_ATOM;
+    return true;
+  } else if (t2 == TermCodes) {
+    new->flags |=  DBLQ_CODES;
+    return true;
+  } else if (t2 == TermChars) {
+    new->flags |=  DBLQ_CHARS;
+    return true;
+  }
+  Yap_Error(TYPE_ERROR_ATOM, t2, "set_prolog_flag(double_quotes, {string,atom,codes,chars}");
   return false;
 }
 
@@ -418,7 +440,7 @@ static bool gc_margin( Term t ) {
 }
 
 static Term mk_argc_list(USES_REGS1) {
-  int i = 0;
+  int i = 1;
   Term t = TermNil;
   while (i < GLOBAL_argc) {
     char *arg = GLOBAL_argv[i];
@@ -470,14 +492,24 @@ static Term mk_os_argc_list(USES_REGS1) {
 
 static bool argv(Term inp) {
   CACHE_REGS
-  Term t = mk_argc_list(PASS_REGS1);
-  return Yap_unify(t, inp);
+    Term t = mk_argc_list(PASS_REGS1);
+    if (IsAtomOrIntTerm(t))
+	 GLOBAL_Flags[ARGV_FLAG].at = t;
+       else {
+	 GLOBAL_Flags[ARGV_FLAG].DBT = Yap_StoreTermInDB(t, 2);
+       }
+  return false;
 }
 
 static bool os_argv(Term inp) {
   CACHE_REGS
-  Term t = mk_os_argc_list(PASS_REGS1);
-  return Yap_unify(t, inp);
+     Term t = mk_os_argc_list(PASS_REGS1);
+   if (IsAtomOrIntTerm(t))
+      GLOBAL_Flags[OS_ARGV_FLAG].at = t;
+    else {
+      GLOBAL_Flags[OS_ARGV_FLAG].DBT = Yap_StoreTermInDB(t, 2);
+    }
+  return false;
 }
 
 
@@ -559,7 +591,7 @@ static bool setYapFlagInModule( Term tflag, Term t2, Term mod )
     return false;
   fv = GetFlagProp( AtomOfTerm( tflag ) );
   if (!fv && !fv->global) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, tflag, "trying to set unknown flag");
+    Yap_Error(DOMAIN_ERROR_PROLOG_FLAG, tflag, "trying to set unknown module flag");
     return FALSE;
   }
   if (mod == USER_MODULE && !setYapFlag( tflag, t2) )
@@ -792,12 +824,11 @@ static Int prolog_flag(USES_REGS1) {
       return cont_prolog_flag( PASS_REGS1 );
     }
   do_cut( 0 );
-  {
+  if (IsVarTerm( Deref(ARG2) ) ) {
     Term flag = getYapFlag( Deref(ARG1) );
     if (flag == 0)
       return false;
-    if (Yap_unify( flag, ARG2 ) )
-      return false;
+    return Yap_unify( flag, ARG2 ) ;
   }
   return setYapFlag( Deref(ARG1), Deref(ARG3) );
 }
@@ -883,7 +914,7 @@ bool setYapFlag( Term tflag, Term t2 )
     } else if (fl == TermWarning) {
       Yap_Warning("Flag %s does not exist", RepAtom(AtomOfTerm(fl))->StrOfAE);
     } else {
-      Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, fl, "trying to set unknown flag ~s", AtomName(AtomOfTerm(fl)));
+      Yap_Error(DOMAIN_ERROR_PROLOG_FLAG, fl, "trying to set unknown flag ~s", AtomName(AtomOfTerm(fl)));
     }
       return FALSE;
   }
@@ -935,7 +966,7 @@ Term getYapFlag( Term tflag )
     } else if (fl == TermWarning) {
       Yap_Warning("Flag ~s does not exist", RepAtom(AtomOfTerm(fl))->StrOfAE);
     } else {
-      Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, fl, "trying to read unknown flag %s",
+      Yap_Error(DOMAIN_ERROR_PROLOG_FLAG, fl, "trying to read unknown flag %s",
 		RepAtom(AtomOfTerm(fl))->StrOfAE);
     }
     return FALSE;
@@ -1101,7 +1132,12 @@ setInitialValue( bool bootstrap, flag_func f, const char *s,flag_term *tarr )
     if (!t0)
       return false;
     if (IsAtomTerm(t0) || IsIntTerm(t0)) {
-      tarr->at =  t0;
+      // do yourself flags
+      if (t0 == MkAtomTerm(AtomQuery)) {
+	f(TermNil);
+      } else {
+	tarr->at =  t0;
+      }
     } else {
       tarr->DBT = Yap_StoreTermInDB(t0, 2);
     }
@@ -1202,7 +1238,7 @@ do_prolog_flag_property (Term tflag, Term opts USES_REGS)
        break;
       case PROLOG_FLAG_PROPERTY_END:
 	/* break; */
-	Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, opts, "Flag not supported by YAP");
+	Yap_Error(DOMAIN_ERROR_PROLOG_FLAG, opts, "Flag not supported by YAP");
       }
     }
   }

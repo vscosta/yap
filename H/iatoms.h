@@ -1,5 +1,5 @@
-﻿
-  /* This file, iatoms.h , was generated automatically by "yap -L misc/buildatoms"
+
+  /* This file, iatoms.h, was generated automatically by "yap -L misc/buildatoms"
      please do not update, update misc/ATOMS instead */
 
   Atom3Dots = Yap_LookupAtom("...");

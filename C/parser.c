@@ -505,7 +505,7 @@ inline static void GNextToken(USES_REGS1) {
 inline static void checkfor(wchar_t c, JMPBUFF *FailBuff USES_REGS) {
   if (LOCAL_tokptr->Tok != Ord(Ponctuation_tok) ||
       LOCAL_tokptr->TokInfo != (Term)c) {
-    syntax_msg("expected to find \'%c\', found %s", tokRep(LOCAL_tokptr));
+    syntax_msg("expected to find \'%c\', found %s", c, tokRep(LOCAL_tokptr));
     FAIL;
   }
   NextToken;
@@ -844,6 +844,7 @@ case Var_tok:
     FAIL;
 
   case Ponctuation_tok:
+
     switch ((int)LOCAL_tokptr->TokInfo) {
     case '(':
     case 'l': /* non solo ( */
@@ -1097,6 +1098,7 @@ Term Yap_Parse(UInt prio) {
   Volatile Term t;
   JMPBUFF FailBuff;
 
+  yhandle_t sls  = Yap_CurrentSlot(PASS_REGS1);
   if (!sigsetjmp(FailBuff.JmpBuff, 0)) {
     t = ParseTerm(prio, &FailBuff PASS_REGS);
     if (LOCAL_Error_TYPE == SYNTAX_ERROR) {
@@ -1105,8 +1107,10 @@ Term Yap_Parse(UInt prio) {
     }
     //    if (LOCAL_tokptr->Tok != Ord(eot_tok))
     //  return (0L);
+    Yap_CloseSlots( sls );
     return (t);
   } else
+    Yap_CloseSlots( sls );
     return (0);
 }
 

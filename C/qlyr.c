@@ -638,6 +638,10 @@ XAdjust__ (wamreg reg USES_REGS)
 
 #define Yap_op_from_opcode(OP) OpcodeID(OP)
 
+static void RestoreFlags( UInt NFlags )
+{
+}
+
 #include "rheap.h"
 
 static void

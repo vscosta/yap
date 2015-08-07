@@ -1,5 +1,5 @@
-﻿
-  /* This file, tatoms.h , was generated automatically by "yap -L misc/buildatoms"
+
+  /* This file, tatoms.h, was generated automatically by "yap -L misc/buildatoms"
      please do not update, update misc/ATOMS instead */
 
   Atom Atom3Dots_;

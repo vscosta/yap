@@ -72,6 +72,7 @@
   OPCODE  orlast_op;
   OPCODE  undef_op;
   OPCODE  retry_userc_op;
+  OPCODE  execute_cpred_op;
 
   UInt  n_of_atoms;
   UInt  atom_hash_table_size;
@@ -156,9 +157,8 @@
 
 
 
-
-
-
+  union flagTerm*  GLOBAL_Flags_;
+  UInt  GLOBAL_flagCount_;
 
   yap_exec_mode  execution_mode;
 
@@ -332,6 +332,9 @@
 
   Int  atom_translations;
   Int  max_atom_translations;
+
+  Int  functor_translations;
+  Int  max_functor_translations;
   Atom  empty_wakeups[MAX_EMPTY_WAKEUPS];
   int  max_empty_wakeups;
 

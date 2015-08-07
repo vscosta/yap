@@ -1199,7 +1199,7 @@ p_binary_is( USES_REGS1 )
     Term out;
 
     if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, 2)))) {
-      Yap_EvalError(TYPE_ERROR_EVALUABLE, takeName(t),
+      Yap_EvalError(TYPE_ERROR_EVALUABLE, takeIndicator(t),
 		"functor %s/2 for arithmetic expression",
 		RepAtom(name)->StrOfAE);
       P = FAILCODE;

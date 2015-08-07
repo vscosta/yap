@@ -211,6 +211,7 @@ typedef struct stream_desc
 }
   StreamDesc;
 
+
 static inline bool
 IsStreamTerm(Term t)
 {
@@ -255,12 +256,12 @@ Term Yap_MkStream (int n);
 
 bool Yap_PrintWarning( Term twarning );
 
+char *Yap_MemExportStreamPtr( int sno );
 
 Int
 PlIOError (yap_error_number type, Term culprit, const char *who, ...);
 
 void	Yap_plwrite(Term, struct stream_desc *, int, int, int);
-int     Yap_FormatFloat( Float f, const char *s, size_t sz );
 void    Yap_WriteAtom(struct stream_desc *s, Atom atom);
 
 Term     Yap_scan_num(struct stream_desc *);

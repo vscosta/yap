@@ -507,6 +507,10 @@ DBRefAdjust__ (DBRef dbt USES_REGS)
 
 #define RestoreSWIHash()
 
+static void RestoreFlags( UInt NFlags )
+{
+}
+
 #include "rheap.h"
 
 static void

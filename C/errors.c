@@ -999,6 +999,20 @@ Yap_Error(yap_error_number type, Term where, const char *format,...)
       serious = TRUE;
     }
     break;
+  case DOMAIN_ERROR_PROLOG_FLAG:
+    {
+      int i;
+      Term ti[2];
+
+      i = strlen(tmpbuf);
+      ti[0] = MkAtomTerm(Yap_LookupAtom("prolog_flag"));
+      ti[1] = where;
+      nt[0] = Yap_MkApplTerm(FunctorDomainError, 2, ti);
+      psize -= i;
+      fun = FunctorError;
+      serious = TRUE;
+    }
+    break;
   case DOMAIN_ERROR_RADIX:
     {
       int i;

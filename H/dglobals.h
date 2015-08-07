@@ -1,6 +1,6 @@
-
-  /* This file, dglobals.h, was generated automatically by "yap -L misc/buildlocalglobal"
-     please do not update, update misc/GLOBALS instead */
+﻿
+  /* This file, dglobals.h , was generated automatically by "yap -L misc/buildlocalglobal"
+     please do not update, update misc/GLOBALS  instead */
 
 
 
@@ -77,9 +77,6 @@
 
 #define GLOBAL_argv Yap_global->argv_
 #define GLOBAL_argc Yap_global->argc_
-
-#define GLOBAL_Flags Yap_global->Flags_
-#define GLOBAL_flagCount Yap_global->flagCount_
 
 #ifdef COROUTINING
 

@@ -1088,6 +1088,7 @@ extern void **Yap_ABSMI_OPCODES;
 #define absmadr(i) ((OPCODE)(i))
 #endif
 
+  bool  is_cleanup_cp(choiceptr cp_b);
 
 #if DEPTH_LIMIT
 /*

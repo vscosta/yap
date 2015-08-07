@@ -1811,7 +1811,7 @@ YAP_BufferToString(const char *s)
 
   CACHE_REGS
   seq_tv_t inp, out;
-  inp.val.c = s;
+  inp.val.c0 = s;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_CODES;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -1831,7 +1831,7 @@ YAP_NBufferToString(const char *s, size_t len)
 
   CACHE_REGS
   seq_tv_t inp, out;
-  inp.val.c = s;
+  inp.val.c0 = s;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_CODES|YAP_STRING_NCHARS|YAP_STRING_TRUNC;
   out.sz = len;
@@ -1853,7 +1853,7 @@ YAP_WideBufferToString(const wchar_t *s)
 
   CACHE_REGS
   seq_tv_t inp, out;
-  inp.val.w = s;
+  inp.val.w0= s;
   inp.type = YAP_STRING_WCHARS;
   out.type = YAP_STRING_CODES;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -1873,7 +1873,7 @@ YAP_NWideBufferToString(const wchar_t *s, size_t len)
 
   CACHE_REGS
   seq_tv_t inp, out;
-  inp.val.w = s;
+  inp.val.w0 = s;
   inp.type = YAP_STRING_WCHARS;
   out.type = YAP_STRING_CODES|YAP_STRING_NCHARS|YAP_STRING_TRUNC;
   out.sz = len;
@@ -1941,7 +1941,7 @@ YAP_BufferToAtomList(const char *s)
 
   CACHE_REGS
   seq_tv_t inp, out;
-  inp.val.c = s;
+  inp.val.c0 = s;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_ATOMS;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -1961,7 +1961,7 @@ YAP_NBufferToAtomList(const char *s, size_t len)
 
   CACHE_REGS
   seq_tv_t inp, out;
-  inp.val.c = s;
+  inp.val.c0 = s;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_ATOMS|YAP_STRING_NCHARS|YAP_STRING_TRUNC;
   out.sz = len;
@@ -1983,7 +1983,7 @@ YAP_WideBufferToAtomList(const wchar_t *s)
 
   CACHE_REGS
   seq_tv_t inp, out;
-  inp.val.w = s;
+  inp.val.w0 = s;
   inp.type = YAP_STRING_WCHARS;
   out.type = YAP_STRING_ATOMS;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -2003,7 +2003,7 @@ YAP_NWideBufferToAtomList(const wchar_t *s, size_t len)
 
   CACHE_REGS
   seq_tv_t inp, out;
-  inp.val.w = s;
+  inp.val.w0 = s;
   inp.type = YAP_STRING_WCHARS;
   out.type = YAP_STRING_ATOMS|YAP_STRING_NCHARS|YAP_STRING_TRUNC;
   out.sz = len;
@@ -2025,7 +2025,7 @@ YAP_NWideBufferToAtomDiffList(const wchar_t *s, Term t0, size_t len)
 
   CACHE_REGS
   seq_tv_t inp, out;
-  inp.val.w = s;
+  inp.val.w0 = s;
   inp.type = YAP_STRING_WCHARS;
   out.type = YAP_STRING_ATOMS|YAP_STRING_NCHARS|YAP_STRING_TRUNC|YAP_STRING_DIFF;
   out.sz = len;
@@ -2048,7 +2048,7 @@ YAP_BufferToDiffList(const char *s, Term t0)
 
   CACHE_REGS
   seq_tv_t inp, out;
-  inp.val.c = s;
+  inp.val.c0 = s;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_CODES|YAP_STRING_DIFF;
   out.dif = t0;
@@ -2069,7 +2069,7 @@ YAP_NBufferToDiffList(const char *s, Term t0, size_t len)
 
   CACHE_REGS
   seq_tv_t inp, out;
-  inp.val.c = s;
+  inp.val.c0 = s;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_CODES|YAP_STRING_NCHARS|YAP_STRING_TRUNC|YAP_STRING_DIFF;
   out.sz = len;
@@ -2092,7 +2092,7 @@ YAP_WideBufferToDiffList(const wchar_t *s, Term t0)
 
   CACHE_REGS
   seq_tv_t inp, out;
-  inp.val.w = s;
+  inp.val.w0 = s;
   inp.type = YAP_STRING_WCHARS;
   out.type = YAP_STRING_CODES|YAP_STRING_DIFF;
   out.dif = t0;
@@ -2113,7 +2113,7 @@ YAP_NWideBufferToDiffList(const wchar_t *s, Term t0, size_t len)
 
   CACHE_REGS
   seq_tv_t inp, out;
-  inp.val.w = s;
+  inp.val.w0 = s;
   inp.type = YAP_STRING_WCHARS;
   out.type = YAP_STRING_CODES|YAP_STRING_NCHARS|YAP_STRING_TRUNC|YAP_STRING_DIFF;
   out.sz = len;
@@ -4036,10 +4036,10 @@ YAP_RequiresExtraStack(size_t sz) {
 X_API Int
 YAP_AtomToInt(Atom At)
 {
-  TranslationEntry *te = Yap_GetTranslationProp(At);
+  TranslationEntry *te = Yap_GetTranslationProp(At,0);
   if (te != NIL) return te->Translation;
   SWI_Atoms[AtomTranslations] = At;
-  Yap_PutAtomTranslation(At, AtomTranslations);
+  Yap_PutAtomTranslation(At,0, AtomTranslations);
   AtomTranslations++;
   if (AtomTranslations == MaxAtomTranslations) {
     Atom * nt = (Atom *)malloc(sizeof(Atom)*2*MaxAtomTranslations), *ot = SWI_Atoms;
@@ -4059,6 +4059,36 @@ X_API Atom
 YAP_IntToAtom(Int i)
 {
   return SWI_Atoms[i];
+}
+
+X_API Int
+YAP_FunctorToInt(Functor f)
+{
+  Atom At = NameOfFunctor( f );
+  arity_t arity = ArityOfFunctor( f );
+  TranslationEntry *te = Yap_GetTranslationProp(At, arity);
+  if (te != NIL) return te->Translation;
+  SWI_Functors[FunctorTranslations] = f;
+  Yap_PutAtomTranslation(At, arity, FunctorTranslations);
+  FunctorTranslations++;
+  if (FunctorTranslations == MaxFunctorTranslations) {
+    Functor * nt = (Functor *)malloc(sizeof(Functor)*2*MaxFunctorTranslations), *ot = SWI_Functors;
+    if (nt == NULL) {
+      Yap_Error(SYSTEM_ERROR,MkAtomTerm(At),"No more room for translations");
+      return -1;
+    }
+    memcpy(nt, ot, sizeof(Functor)*MaxFunctorTranslations);
+    SWI_Functors = nt;
+    free( ot );
+    MaxFunctorTranslations *= 2;
+  }
+  return FunctorTranslations-1;
+}
+
+X_API Functor
+YAP_IntToFunctor(Int i)
+{
+  return SWI_Functors[i];
 }
 
 #endif // C_INTERFACE_C

@@ -141,14 +141,14 @@ typedef enum mem_buf_source {
   MEM_BUF_USER=4
 } memBufSource;
 
-struct mem_desc *Yap_MemExportStreamPtrs( int sno );
+char * Yap_MemStreamBuf( int sno );
 
 extern Term Yap_StringToTerm(const char *s, size_t len, encoding_t enc, int prio, Term *bindings_p);
 extern Term  Yap_StringToNumberTerm(char *s, encoding_t encp);
-int Yap_FormatFloat(Float f, const char *s, size_t sz);
+int Yap_FormatFloat(Float f,  char **s, size_t sz);
 int Yap_open_buf_read_stream(const char *nbuf, size_t nchars, encoding_t enc,  memBufSource src);
+int Yap_open_buf_write_stream( char *nbuf, size_t nchars, encoding_t enc,  memBufSource src);
 Term Yap_ReadFromAtom(Atom a, Term opts);
-int Yap_open_buf_write_stream(char **nbufp, size_t * szp);
 FILE   *Yap_GetInputStream(Term t, const char *m);
 FILE   *Yap_GetOutputStream(Term t,const  char *m);
 char *  Yap_guessFileName(int f, int sno, char *nameb, size_t max);

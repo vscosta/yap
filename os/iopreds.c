@@ -219,7 +219,7 @@ InitStdStream (int sno, SMALLUNSGN flags, FILE * file)
   s->status = flags;
   s->linepos = 0;
   s->linecount = 1;
-  s->charcount = 0;
+  s->charcount = 0.;
   s->encoding = LOCAL_encoding;
   INIT_LOCK(s->streamlock);
   unix_upd_stream_info(s);
@@ -877,14 +877,14 @@ get_wchar(int sno)
 	}
       }
       break;
-    case ENC_UNICODE_BE:
+    case ENC_UTF16_BE:
       if (how_many) {
 	return wch+ch;
       }
       how_many=1;
       wch = ch << 8;
       break;
-    case ENC_UNICODE_LE:
+    case ENC_UTF16_LE:
       if (how_many) {
 	return wch+(ch<<8);
       }
@@ -1012,10 +1012,10 @@ put_wchar(int sno, wchar_t ch)
 	return -1;
       }
       break;
-    case ENC_UNICODE_BE:
+    case ENC_UTF16_BE:
       GLOBAL_Stream[sno].stream_putc(sno, (ch>>8));
       return GLOBAL_Stream[sno].stream_putc(sno, (ch&0xff));
-    case ENC_UNICODE_LE:
+    case ENC_UTF16_LE:
       GLOBAL_Stream[sno].stream_putc(sno, (ch&0xff));
       return GLOBAL_Stream[sno].stream_putc(sno, (ch>>8));
     case ENC_ISO_UTF32_BE:
@@ -1128,14 +1128,14 @@ binary_file(char *file_name)
 	return FALSE;
       st->status  |= HAS_BOM_f;
       return TRUE;
-    case ENC_UNICODE_BE:
+    case ENC_UTF16_BE:
       if (st->stream_putc(sno,0xFE)<0)
 	return FALSE;
       if (st->stream_putc(sno,0xFF)<0)
 	return FALSE;
       st->status  |= HAS_BOM_f;
       return TRUE;
-    case ENC_UNICODE_LE:
+    case ENC_UTF16_LE:
       if (st->stream_putc(sno,0xFF)<0)
 	return FALSE;
       if (st->stream_putc(sno,0xFE)<0)
@@ -1223,7 +1223,7 @@ binary_file(char *file_name)
 	  return;
 	} else {
 	  st->status  |= HAS_BOM_f;
-	  st->encoding = ENC_UNICODE_BE;
+	  st->encoding = ENC_UTF16_BE;
 	  return;
 	}
       }
@@ -1257,7 +1257,7 @@ binary_file(char *file_name)
 	    }
 	  }
 	  st->status  |= HAS_BOM_f;
-	  st->encoding  = ENC_UNICODE_LE;
+	  st->encoding  = ENC_UTF16_LE;
 	  return;
 	}
       }

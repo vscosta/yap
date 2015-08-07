@@ -381,15 +381,20 @@ static void wrputf(Float f, struct write_globs *wglb) /* writes a float	 */
   protect_close_number(wglb, ob);
 }
 
-int Yap_FormatFloat(Float f, const char *s, size_t sz) {
+int Yap_FormatFloat(Float f,  char **s, size_t sz) {
     CACHE_REGS
   struct write_globs wglb;
     int sno;
-    sno = Yap_open_buf_read_stream(s, strlen(s)+1, LOCAL_encoding, MEM_BUF_USER);
+    char *so;
+    
+    sno = Yap_open_buf_write_stream(*s, sz,  GLOBAL_Stream[LOCAL_c_output_stream].encoding, 0);
    if (sno < 0)
     return FALSE;
+   wglb.stream = GLOBAL_Stream+sno;
    wrputf(f, &wglb);
-  GLOBAL_Stream[sno].status = Free_Stream_f;
+   so = Yap_MemExportStreamPtr(sno);
+   Yap_CloseStream(sno);
+   *s = so;
   return TRUE;
 }
 
@@ -1199,8 +1204,10 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags, int prio
 /* consumer				 */
 /* write options			 */
 {
+  CACHE_REGS
   struct write_globs wglb;
   struct rewind_term rwt;
+  yhandle_t sls  = Yap_CurrentSlot(PASS_REGS1);
 
   if (!mywrite) {
       CACHE_REGS
@@ -1235,9 +1242,8 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags, int prio
     if (flags & Fullstop_f) {
       wrputc('.', wglb.stream);
       wrputc(' ', wglb.stream);
-    } else {
-      wrputc(' ', wglb.stream);
     }
   }
   restore_from_write(&rwt, &wglb);
+  Yap_CloseSlots( sls );
 }

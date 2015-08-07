@@ -514,9 +514,11 @@ loop(Env) :-
 
 
 
-#define IN_ABSMI_C 1
-#define HAS_CACHE_REGS 1
 
+
+#define IN_ABSMI_C 1
+#define _INATIVE 1
+#define HAS_CACHE_REGS 1
 
 
 #include "absmi.h"
@@ -677,12 +679,12 @@ check_alarm_fail_int(int CONT USES_REGS)
 }
 
 static int
-stack_overflow( PredEntry *pe, CELL *env, yamop *cp USES_REGS )
+stack_overflow( PredEntry *pe, CELL *env, yamop *cp USES_REGS, arity_t nargs )
 {
   if ((Int)(Unsigned(YREG) - Unsigned(HR)) < StackGap( PASS_REGS1 ) ||
       Yap_get_signal( YAP_STOVF_SIGNAL )) {
     S = (CELL *)pe;
-    if (!Yap_locked_gc(pe->ArityOfPE, env, cp)) {
+    if (!Yap_locked_gc(nargs, env, cp)) {
       Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
       return 0;
     }
@@ -996,7 +998,7 @@ interrupt_execute( USES_REGS1 )
   if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
     return v;
   }
-  if ((v = stack_overflow(P->y_u.pp.p, ENV, CP PASS_REGS )) >= 0) {
+  if ((v = stack_overflow(P->y_u.pp.p, ENV, CP, P->y_u.pp.p->ArityOfPE PASS_REGS )) >= 0) {
     return v;
   }
   return interrupt_handler( P->y_u.pp.p PASS_REGS );
@@ -1024,7 +1026,7 @@ interrupt_call( USES_REGS1 )
   if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
     return v;
   }
-  if ((v = stack_overflow( P->y_u.Osbpp.p, YENV, NEXTOP(P, Osbpp) PASS_REGS )) >= 0) {
+  if ((v = stack_overflow( P->y_u.Osbpp.p, YENV, NEXTOP(P, Osbpp), P->y_u.Osbpp.p->ArityOfPE PASS_REGS )) >= 0) {
     return v;
   }
   return interrupt_handlerc( P->y_u.Osbpp.p PASS_REGS );
@@ -1053,7 +1055,7 @@ interrupt_pexecute( PredEntry *pen USES_REGS )
   if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
     return v;
   }
-  if ((v = stack_overflow( pen, ENV, NEXTOP(P, Osbmp) PASS_REGS )) >= 0) {
+  if ((v = stack_overflow( pen, ENV, NEXTOP(P, Osbmp), pen->ArityOfPE PASS_REGS )) >= 0) {
 	return v;
   }
   CP = NEXTOP(P, Osbmp);
@@ -1259,7 +1261,7 @@ interrupt_either( USES_REGS1 )
     return v;
   }
   //P = NEXTOP(P, Osblp);
-   if ((v = stack_overflow(RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs1,0)), YENV, NEXTOP(P,Osblp)  PASS_REGS )) >= 0) {
+   if ((v = stack_overflow(RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs1,0)), YENV, NEXTOP(P,Osblp), 0  PASS_REGS )) >= 0) {
     //P = PREVOP(P, Osblp);
     return v;
   }
@@ -1290,7 +1292,7 @@ interrupt_dexecute( USES_REGS1 )
   if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
     return v;
   }
-  if ((v = stack_overflow( P->y_u.pp.p, (CELL *)YENV[E_E], (yamop *)YENV[E_CP] PASS_REGS )) >= 0) {
+  if ((v = stack_overflow( P->y_u.pp.p, (CELL *)YENV[E_E], (yamop *)YENV[E_CP], P->y_u.pp.p->ArityOfPE PASS_REGS )) >= 0) {
       return v;
   }
 /* first, deallocate */
@@ -1636,7 +1638,7 @@ Yap_absmi(int inp)
 /************************************************************************/
   static void *OpAddress[] =
   {
-#define OPCODE(OP,TYPE) && OP
+#define OPCODE(OP,TYPE) && _##OP
 #include "YapOpcodes.h"
 #undef  OPCODE
   };

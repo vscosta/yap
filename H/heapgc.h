@@ -145,7 +145,6 @@ RMARKED__(CELL* ptr USES_REGS)
   return mcell(ptr) & RMARK_BIT;
 }
 
-
 /* is the object pointed to by ptr marked as in a relocation chain? */
 
 #if LONG_ADDRESSES
@@ -169,6 +168,5 @@ typedef CELL   *CELL_PTR;
 void  Yap_mark_variable(CELL *);
 void  Yap_mark_external_reference(CELL *);
 void  Yap_inc_mark_variable(void);
-
 
 

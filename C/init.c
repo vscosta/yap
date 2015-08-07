@@ -1071,19 +1071,10 @@ InitLogDBErasedMarker(void)
 static void
 InitSWIAtoms(void)
 {
-  /*  extern atom_t ATOM_;FUNV
-
-  int j=0;
-  MaxAtomTranslations = 2*N_SWI_ATOMS ;
+  MaxAtomTranslations = N_SWI_ATOMS ;
+  MaxFunctorTranslations = N_SWI_FUNCTORS ;
   SWI_Atoms = (Atom *)malloc(sizeof(Atom)*MaxAtomTranslations);
   SWI_Functors = (Functor *)malloc(sizeof(Functor)*2*N_SWI_ATOMS);
-#include "i
-   
-   
-   atoms.h"
-  Yap_InitSWIHash();
-  ATOM_ = PL_new_atom("");
-   */
 }
 
 static void
@@ -1337,7 +1328,7 @@ InitCodes(void)
     modp->PredFlags |= MetaPredFlag;
   }
 #ifdef YAPOR
-v  Yap_heap_regs->getwork_code->y_u.Otapl.p = RepPredProp(PredPropByAtom(AtomGetwork, PROLOG_MODULE));
+  Yap_heap_regs->getwork_code->y_u.Otapl.p = RepPredProp(PredPropByAtom(AtomGetwork, PROLOG_MODULE));
   Yap_heap_regs->getwork_seq_code->y_u.Otapl.p = RepPredProp(PredPropByAtom(AtomGetworkSeq, PROLOG_MODULE));
 #endif /* YAPOR */
 

@@ -42,6 +42,13 @@ BOp(Ystop, l);
 \************************************************************************/
 
 #if YAP_JIT
+      static void *OpAddress[] =
+      {
+#define OPCODE(OP,TYPE) && _##OP
+#include "YapOpcodes.h"
+#undef  OPCODE
+      };
+      
         /* native_me  */
         BOp(jit_handler, J);
         if (!PREG->y_u.J.jh->fi.bcst.c) PREG->y_u.J.jh->mf.isground = IsGround(PREG);

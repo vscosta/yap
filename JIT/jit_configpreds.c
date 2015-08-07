@@ -15,6 +15,8 @@
 * Last rev:     2013-10-18                               		 *
 *************************************************************************/
 
+#define JIT_CODE 1
+
 #include "jit_predicates.hpp"
 #include <math.h>
 

@@ -113,19 +113,6 @@ YAP_PLArityOfSWIFunctor(functor_t f) {
   return ArityOfFunctor((Functor)f);
 }
 
-void
-Yap_InitSWIHash(void)
-{
-  int i, j;
-  for (i=0; i < N_SWI_ATOMS; i++) {
-    Yap_PutAtomTranslation( SWI_Atoms[i], i );
-  }
-  AtomTranslations = N_SWI_ATOMS;
-  for (j=0; j < N_SWI_FUNCTORS; j++) {
-    add_to_hash(j, (ADDR)SWI_Functors[j]);
-  }
-}
-
 static void
 UserCPredicate(char *a, CPredicate def, unsigned long int arity, Term mod, int flags)
 {
@@ -143,6 +130,41 @@ UserCPredicate(char *a, CPredicate def, unsigned long int arity, Term mod, int f
 /** @defgroup swi-ATOMS Atom Construction
 *  @ingroup swi-c-interface
 *  */
+
+
+static UInt
+cvtFlags( unsigned flags )
+{
+  UInt inptype = 0;
+  if (flags & CVT_ATOM) {
+    inptype |= YAP_STRING_ATOM;
+  }
+  if (flags & CVT_STRING) {
+    inptype |= YAP_STRING_STRING;
+  }
+  if (flags & CVT_LIST) {
+    inptype |= (YAP_STRING_CODES|YAP_STRING_ATOMS);
+  }
+  if (flags & CVT_INTEGER) {
+    inptype |= YAP_STRING_INT|YAP_STRING_BIG;
+  }
+  if (flags & CVT_FLOAT) {
+    inptype |= YAP_STRING_FLOAT;
+  }
+  if (flags & CVT_VARIABLE) {
+    inptype |= YAP_STRING_TERM;
+  }
+  if (flags & CVT_WRITE) {
+    inptype |= YAP_STRING_TERM;
+  }
+  if (flags & CVT_WRITEQ) {
+    inptype |= YAP_STRING_TERM|YAP_STRING_WQ;
+  }
+  if (flags & CVT_WRITE_CANONICAL) {
+    inptype |= YAP_STRING_TERM|YAP_STRING_WC;
+  }
+  return inptype;
+}
 
 
 /*  void PL_agc_hook(void) */
@@ -187,92 +209,33 @@ Text is in ISO Latin-1 encoding and the call fails if text cannot be represented
 X_API int
 PL_get_nchars(term_t l, size_t *lengthp, char **s, unsigned flags)
 { CACHE_REGS
-  seq_tv_t inp;
+    seq_tv_t inp, out;
   size_t leng;
   encoding_t enc;
   int minimal;
-  void *buf;
-  char b[1024];
-
-  buf = b;
+  void *buf = NULL;
   inp.val.t = Yap_GetFromSlot( l );
-  inp.type = 0;
-  if (flags & CVT_ATOM) {
-    inp.type |= YAP_STRING_ATOM;
-  }
-  if (flags & CVT_ATOM) {
-    inp.type |= YAP_STRING_STRING;
-  }
-  if (flags & CVT_LIST) {
-    inp.type |= YAP_STRING_CODES;
-  }
-  if (flags & CVT_INTEGER) {
-    inp.type |= YAP_STRING_INT|YAP_STRING_BIG;
-  }
-  if (flags & CVT_FLOAT) {
-    inp.type |= YAP_STRING_FLOAT;
-  }
-  if (flags & CVT_VARIABLE) {
-    inp.type |= YAP_STRING_TERM;
-  }
-  if (flags & CVT_WRITE) {
-    inp.type |= YAP_STRING_TERM;
-  }
-  if (flags & CVT_WRITEQ) {
-    inp.type |= YAP_STRING_TERM|YAP_STRING_WQ;
-  }
-  if (flags & CVT_WRITE_CANONICAL) {
-    inp.type |= YAP_STRING_TERM|YAP_STRING_WC;
-  }
+  inp.type = cvtFlags( flags );
   if (flags & (BUF_DISCARDABLE|BUF_RING)) {
-    inp.val.c = LOCAL_FileNameBuf;
+    buf = LOCAL_FileNameBuf;
     leng = YAP_FILENAME_MAX-1;
+  } else {
+    buf = NULL;
   }
-  if (flags & BUF_MALLOC) {
-    inp.val.c = PL_malloc(1024);
-    leng = 1023;
+  out.type = YAP_STRING_CHARS;
+  if (flags & (REP_UTF8|REP_MB)) {
+    out.enc = ENC_ISO_UTF8;
+  } else {
+    out.enc = ENC_ISO_LATIN1;
   }
-  if (!Yap_readText( buf , &inp, & enc, &minimal, & leng PASS_REGS) )
-  return false;
-
-  if (enc == ENC_ISO_UTF8) {
-    if (flags & REP_UTF8) {
-      *s = buf;
-      *lengthp = leng;
-      return true;
-    } else if  (flags & REP_ISO_LATIN_1) {
-      char *nptr = buf;
-      const char *optr = buf;
-      int chr;
-      while ((optr = _PL__utf8_get_char(optr, &chr))) {
-        if (chr > 255) {
-          if (flags & BUF_MALLOC) {
-            return false;
-          }
-        }
-        *nptr++ = chr;
-      }
-      *nptr = '\0';
-      *s = buf;
-      *lengthp = leng;
-    } else /* wide */ {
-      size_t sz = utf8_strlen1(buf)+1;
-      const char *optr = buf;
-      wchar_t *nptr, *n = buf;
-      int chr;
-      if (sz <= 1024)
-      n = nptr = (wchar_t *)malloc(sz);
-      while ((optr = _PL__utf8_get_char(optr, &chr))) {
-        *nptr++ = chr;
-      }
-      *nptr = '\0';
-      *s = buf;
-      *lengthp = leng;
-
-      // handle encodings ltaer
-    }
-  }
-  return false;
+  if (flags & BUF_MALLOC)
+    out.type |= YAP_STRING_MALLOC;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return false;
+  *s = out.val.c;
+  if (lengthp)
+    *lengthp = out.sz;
+  return true;
 }
 
 
@@ -284,92 +247,28 @@ PL_get_chars(term_t t, char **s, unsigned flags)
 int PL_get_wchars(term_t l, size_t *lengthp, wchar_t **s, unsigned flags)
 {
   CACHE_REGS
-  seq_tv_t inp;
+    seq_tv_t inp, out;
   size_t leng;
   encoding_t enc;
   int minimal;
-  void *buf;
-  char b[1024];
-
-  buf = b;
+  void *buf = NULL;
   inp.val.t = Yap_GetFromSlot( l );
-  inp.type = 0;
-  if (flags & CVT_ATOM) {
-    inp.type |= YAP_STRING_ATOM;
-  }
-  if (flags & CVT_ATOM) {
-    inp.type |= YAP_STRING_STRING;
-  }
-  if (flags & CVT_LIST) {
-    inp.type |= YAP_STRING_CODES;
-  }
-  if (flags & CVT_INTEGER) {
-    inp.type |= YAP_STRING_INT|YAP_STRING_BIG;
-  }
-  if (flags & CVT_FLOAT) {
-    inp.type |= YAP_STRING_FLOAT;
-  }
-  if (flags & CVT_VARIABLE) {
-    inp.type |= YAP_STRING_TERM;
-  }
-  if (flags & CVT_WRITE) {
-    inp.type |= YAP_STRING_TERM;
-  }
-  if (flags & CVT_WRITEQ) {
-    inp.type |= YAP_STRING_TERM|YAP_STRING_WQ;
-  }
-  if (flags & CVT_WRITE_CANONICAL) {
-    inp.type |= YAP_STRING_TERM|YAP_STRING_WC;
-  }
+  inp.type = cvtFlags( flags );
   if (flags & (BUF_DISCARDABLE|BUF_RING)) {
-    inp.val.c = LOCAL_FileNameBuf;
+    buf = LOCAL_FileNameBuf;
     leng = YAP_FILENAME_MAX-1;
+  } else {
+    buf = NULL;
   }
-  if (flags & BUF_MALLOC) {
-    inp.val.w = PL_malloc(1024*SIZEOF_WCHAR_T);
-    leng = 1023;
-  }
-  if (!Yap_readText( buf , &inp, & enc, &minimal, & leng PASS_REGS) )
-  return false;
-
-  if (enc == ENC_ISO_UTF8) {
-    if (flags & REP_UTF8) {
-      *s = buf;
-      *lengthp = leng;
-      return true;
-    } else if  (flags & REP_ISO_LATIN_1) {
-      char *nptr = buf;
-      const char *optr = buf;
-      int chr;
-      while ((optr = _PL__utf8_get_char(optr, &chr))) {
-        if (chr > 255) {
-          if (flags & BUF_MALLOC) {
-            return false;
-          }
-        }
-        *nptr++ = chr;
-      }
-      *nptr = '\0';
-      *s = buf;
-      *lengthp = leng;
-    } else /* wide */ {
-      size_t sz = utf8_strlen1(buf)+1;
-      const char *optr = buf;
-      wchar_t *nptr, *n = buf;
-      int chr;
-      if (sz <= 1024)
-      n = nptr = (wchar_t *)malloc(sz*SIZEOF_WCHAR_T);
-      while ((optr = _PL__utf8_get_char(optr, &chr))) {
-        *nptr++ = chr;
-      }
-      *nptr = '\0';
-      *s = buf;
-      *lengthp = leng;
-
-      // handle encodings later
-    }
-  }
-  return false;
+  out.type = YAP_STRING_WCHARS;
+   if (flags & BUF_MALLOC)
+    out.type |= YAP_STRING_MALLOC;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return false;
+  *s = out.val.w;
+  if (lengthp)
+    *lengthp = out.sz;
+  return true;
 }
 
 X_API int
@@ -378,7 +277,7 @@ PL_unify_chars(term_t l, int flags, size_t length, const char *s)
   seq_tv_t inp, out;
 
   if (flags & REP_UTF8) {
-    inp.val.c = s;
+    inp.val.c0 = s;
     if (length != (size_t)-1) {
       inp.sz = length;
       inp.type = YAP_STRING_CHARS|YAP_STRING_NCHARS;
@@ -399,8 +298,8 @@ PL_unify_chars(term_t l, int flags, size_t length, const char *s)
     out.max = length;
   }
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-  return 0L;
-  return out.val.t;
+    return 0L;
+  return Yap_unify( Yap_GetFromSlot(l), out.val.t );
 }
 
 

@@ -722,7 +722,6 @@ INLINE_ONLY EXTERN inline void restore_B(void) {
 #endif /* FROZEN_STACKS */
 
 
-
 #if !defined(THREADS)
 /* use actual addresses for regs */
 #define PRECOMPUTE_REGADDRESS 1

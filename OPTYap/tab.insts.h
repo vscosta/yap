@@ -472,7 +472,9 @@
     check_trail(TR);
     tab_ent = PREG->y_u.Otapl.te;
     YENV2MEM;
-    sg_fr = subgoal_search(PREG, YENV_ADDRESS);
+    saveregs();
+   sg_fr = subgoal_search(PREG, YENV_ADDRESS);
+    setregs();
     MEM2YENV;
 #if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
     if (SgFr_state(sg_fr) <= ready) {
@@ -640,7 +642,9 @@
     check_trail(TR);
     tab_ent = PREG->y_u.Otapl.te;
     YENV2MEM;
+    saveregs();
     sg_fr = subgoal_search(PREG, YENV_ADDRESS);
+    setregs();
     MEM2YENV;
 #if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
     if (SgFr_state(sg_fr) <= ready) {

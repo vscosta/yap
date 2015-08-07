@@ -127,7 +127,7 @@ p_stream_to_codes(USES_REGS1)
       RESET_VARIABLE(h0);
       ARG4 = AbsPair(HBASE);
       ARG5 = (CELL)h0;
-      if (!Yap_gcl((ASP-HBASE)*sizeof(CELL), 5, ENV, gc_P(P,CP))) {
+      if (!Yap_gcl((ASP-HBASE)*sizeof(CELL), 5, ENV, Yap_gcP())) {
 	Yap_Error(OUT_OF_STACK_ERROR, ARG1, "read_stream_to_codes/3");
 	return FALSE;
       }

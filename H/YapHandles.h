@@ -48,13 +48,15 @@ Slots are not known to the yaam. Instead, A new set of slots is created when the
 
 *************************************************************************************************/
 
+#include <stdio.h>
+
 /// @brief reboot the slot system.
 /// Used when wwe start from scratch (Reset).
 #define Yap_RebootSlots( wid ) Yap_RebootSlots__( wid PASS_REGS )
 
 static inline void
 Yap_RebootSlots__( int wid USES_REGS ) {
-  //  fprintf( stderr, " StartSlots = %ld", LOCAL_CurSlot);
+  //  // fprintf(stderr,  " StartSlots = %ld", LOCAL_CurSlot);
   REMOTE_CurSlot(wid) = 1;
 }
 
@@ -65,7 +67,8 @@ Yap_RebootSlots__( int wid USES_REGS ) {
 
 static inline yhandle_t
 Yap_StartSlots__( USES_REGS1 ) {
-  //  fprintf( stderr, " StartSlots = %ld", LOCAL_CurSlot);
+  //  // fprintf(stderr,  " StartSlots = %ld", LOCAL_CurSlot);
+    // fprintf(stderr,"SS %s:%d\n", __FUNCTION__, __LINE__);;
 if (LOCAL_CurSlot < 0) {
     Yap_Error( SYSTEM_ERROR, 0L, " StartSlots = %ld", LOCAL_CurSlot);
   }
@@ -78,6 +81,7 @@ if (LOCAL_CurSlot < 0) {
 
 static inline void
 Yap_CloseSlots__( yhandle_t slot USES_REGS ) {
+    // fprintf(stderr,"CS %s:%d\n", __FUNCTION__, __LINE__);;
   LOCAL_CurSlot = slot;
 }
 
@@ -92,6 +96,7 @@ Yap_CurrentSlot( USES_REGS1 ) {
 static inline Term
 Yap_GetFromSlot__(yhandle_t slot USES_REGS)
 {
+    // fprintf(stderr,"GS %s:%d\n", __FUNCTION__, __LINE__);;
   return(Deref(LOCAL_SlotBase[slot]));
 }
 
@@ -99,6 +104,7 @@ Yap_GetFromSlot__(yhandle_t slot USES_REGS)
 static inline Term
 Yap_GetDerefedFromSlot(yhandle_t slot USES_REGS)
 {
+    // fprintf(stderr,"GDS %s:%d\n", __FUNCTION__, __LINE__);
   return LOCAL_SlotBase[slot];
 }
 
@@ -106,6 +112,7 @@ Yap_GetDerefedFromSlot(yhandle_t slot USES_REGS)
 static inline Term
 Yap_GetPtrFromSlot(yhandle_t slot USES_REGS)
 {
+    // fprintf(stderr,"GPS %s:%d\n", __FUNCTION__, __LINE__);
   return LOCAL_SlotBase[slot];
 }
 
@@ -123,6 +130,7 @@ Yap_AddressFromSlot__(yhandle_t slot USES_REGS)
 static inline void
 Yap_PutInSlot(yhandle_t slot, Term t USES_REGS)
 {
+    // fprintf(stderr,"PS %s:%d\n", __FUNCTION__, __LINE__);
   LOCAL_SlotBase[slot] = t;
 }
 
@@ -135,7 +143,9 @@ ensure_slots(int N USES_REGS)
 {
   if (LOCAL_CurSlot+N >= LOCAL_NSlots) {
     size_t inc = max(16*1024, LOCAL_NSlots/2); // measured in cells
+    inc = max(inc, N+16); // measured in cells
     LOCAL_SlotBase = (CELL *)realloc( LOCAL_SlotBase, (inc + LOCAL_NSlots )*sizeof(CELL));
+    LOCAL_NSlots += inc;
     if (!LOCAL_SlotBase) {
       unsigned long int kneeds =  ((inc + LOCAL_NSlots )*sizeof(CELL))/1024;
       Yap_Error(SYSTEM_ERROR, 0 /* TermNil */, "Out of memory for the term handles (term_t) aka slots, l needed", kneeds);
@@ -150,6 +160,7 @@ static inline yhandle_t
 Yap_InitSlot__(Term t USES_REGS)
 {
   yhandle_t old_slots = LOCAL_CurSlot;
+  // fprintf(stderr,"IS %s:%d\n", __FUNCTION__, __LINE__);
 
   ensure_slots( 1 PASS_REGS);
   LOCAL_SlotBase[old_slots] = t;
@@ -165,10 +176,11 @@ Yap_NewSlots__(int n USES_REGS)
 {
   yhandle_t old_slots = LOCAL_CurSlot;
   int i;
+  // fprintf(stderr,"NS %s:%d\n", __FUNCTION__, __LINE__);
 
   ensure_slots(n PASS_REGS);
   for (i = 0; i< n; i++) {
-    RESET_VARIABLE(Yap_AddressFromSlot(old_slots+i) );
+    LOCAL_SlotBase[old_slots+i] = MkVarTerm();
   }
   LOCAL_CurSlot += n;
   return old_slots;
@@ -182,6 +194,7 @@ Yap_InitSlots__(int n, Term *ts USES_REGS)
 {
   yhandle_t old_slots = LOCAL_CurSlot;
   int i;
+  // fprintf(stderr,"1S %s:%d\n", __FUNCTION__, __LINE__);
 
   ensure_slots( n PASS_REGS);
   for (i=0; i< n; i++)
@@ -196,6 +209,7 @@ Yap_RecoverSlots(int n, yhandle_t topSlot USES_REGS)
 {
   if (topSlot + n < LOCAL_CurSlot)
     return false;
+  // fprintf(stderr,"RS %s:%d\n", __FUNCTION__, __LINE__);
   #ifdef DEBUG
   if (topSlot + n > LOCAL_CurSlot) {
     Yap_Error(SYSTEM_ERROR, 0 /* TermNil */, "Inconsistent slot state in Yap_RecoverSlots.");

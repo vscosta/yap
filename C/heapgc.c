@@ -104,6 +104,13 @@ typedef struct RB_red_blk_node {
 
 /* support for hybrid garbage collection scheme */
 
+yamop * Yap_gcP(void) {
+  CACHE_REGS
+  return gc_P(P,CP);
+}
+
+/* support for hybrid garbage collection scheme */
+
 static void
 gc_growtrail(int committed, tr_fr_ptr begsTR, cont *old_cont_top0 USES_REGS)
 {
@@ -382,32 +389,36 @@ GC_NEW_MAHASH(gc_ma_hash_entry *top USES_REGS) {
 
 /* find all accessible objects on the heap and squeeze out all the rest */
 
-static void
-check_pr_trail(tr_fr_ptr trp USES_REGS)
+static tr_fr_ptr
+check_pr_trail( tr_fr_ptr rc USES_REGS)
 {
   if ((tr_fr_ptr)LOCAL_TrailTop-TR < 1024) {
+      size_t n = TR- rc;
     if (!Yap_locked_growtrail(0, TRUE) || TRUE) {
       /* could not find more trail */
       save_machine_regs();
       siglongjmp(LOCAL_gc_restore, 2);
     }
+    rc = TR-n;
   }
+  return rc;
 }
 
 /* push the active registers onto the trail for inclusion during gc */
 
-static void 
+static tr_fr_ptr
 push_registers(Int num_regs, yamop *nextop USES_REGS)
 {
   int             i;
   StaticArrayEntry *sal = LOCAL_StaticArrays;
+  tr_fr_ptr ret = TR;
 
   /* push array entries first */
   ArrayEntry *al = LOCAL_DynamicArrays;
   GlobalEntry *gl = LOCAL_GlobalVariables;
   TrailTerm(TR++) = LOCAL_GlobalArena;
   while (al) {
-    check_pr_trail(TR PASS_REGS);
+    ret = check_pr_trail(ret PASS_REGS);
     TrailTerm(TR++) = al->ValueOfVE;
     al = al->NextAE;
   }
@@ -417,7 +428,7 @@ push_registers(Int num_regs, yamop *nextop USES_REGS)
 	!IsAtomTerm(t) &&
 	!IsIntTerm(t)
 	) {
-      check_pr_trail(TR PASS_REGS);
+      ret = check_pr_trail(ret PASS_REGS);
       //fprintf(stderr,"in=%s %p\n", gl->AtomOfGE->StrOfAE, gl->global);
       TrailTerm(TR++) = t;
     }
@@ -429,14 +440,14 @@ push_registers(Int num_regs, yamop *nextop USES_REGS)
       for (i=0; i < arity; i++) {
 	Term tlive  = sal->ValueOfVE.lterms[i].tlive;
 	if (!IsVarTerm(tlive) || !IsUnboundVar(&sal->ValueOfVE.lterms[i].tlive)) {
-	  check_pr_trail(TR PASS_REGS);
+	  ret = check_pr_trail(ret PASS_REGS);
 	  TrailTerm(TR++) = tlive;
 	}
       }
     }
     sal = sal->NextAE;
   }
-  check_pr_trail(TR PASS_REGS);
+  ret = check_pr_trail(ret PASS_REGS);
   TrailTerm(TR) = LOCAL_GcGeneration;
   TR++;
   TrailTerm(TR) = LOCAL_GcPhase;
@@ -451,12 +462,12 @@ push_registers(Int num_regs, yamop *nextop USES_REGS)
       *topslot = LOCAL_SlotBase + LOCAL_CurSlot;
     while (curslot < topslot) {
       // printf("%p <- %p\n", TR, topslot);
-      check_pr_trail(TR PASS_REGS);    
+      ret = check_pr_trail(ret PASS_REGS);
       TrailTerm(TR++) = *curslot++;
     }
   }
   for (i = 1; i <= num_regs; i++) {
-    check_pr_trail(TR PASS_REGS);    
+    ret = check_pr_trail(ret PASS_REGS);
     TrailTerm(TR++) = (CELL) XREGS[i];
   }
   /* push any live registers we might have hanging around */
@@ -474,13 +485,14 @@ push_registers(Int num_regs, yamop *nextop USES_REGS)
 	  lab++;
 	}
 	if (curr & 1) {
-	  check_pr_trail(TR PASS_REGS);
+	    ret = check_pr_trail( ret PASS_REGS);
 	  TrailTerm(TR++) = XREGS[i];
 	}
 	curr >>= 1;
       }
     }
   }
+  return ret;
 }
 
 
@@ -1290,7 +1302,8 @@ mark_variable(CELL_PTR current USES_REGS)
       goto begin;
 #ifdef DEBUG
     } else if (next < (CELL *)LOCAL_GlobalBase || next > (CELL *)LOCAL_TrailTop) {
-      fprintf(stderr, "OOPS in GC: marking, current=%p, *current=" UInt_FORMAT " next=%p\n", current, ccur, next);
+      fprintf(stderr,
+              "OOPS in GC: marking, TR=%p, current=%p, *current=" UInt_FORMAT " next=%p\n", TR, current, ccur, next);
 #endif
     } else {
 #ifdef COROUTING
@@ -1559,14 +1572,16 @@ Yap_mark_external_reference(CELL *ptr) {
 static void 
 mark_regs(tr_fr_ptr old_TR USES_REGS)
 {
-  tr_fr_ptr        trail_ptr;
+  tr_fr_ptr        trail_ptr, tr = TR;
 
 	
   /* first, whatever we dumped on the trail. Easier just to do
      the registers separately?  */
-  for (trail_ptr = old_TR; trail_ptr < TR; trail_ptr++) {
+  for (trail_ptr = old_TR; trail_ptr < tr; trail_ptr++) {
     mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
   }
+  printf("       %p TR=%p\n",trail_ptr,TR);
+
 }
 
 /* mark all heap objects accessible from a chain of environments */
@@ -4048,8 +4063,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
     LOCAL_HGEN = H0;
   }
   /*  fprintf(stderr,"LOCAL_HGEN is %ld, %p, %p/%p\n", IntegerOfTerm(Yap_ReadTimedVar(LOCAL_GcGeneration)), LOCAL_HGEN, H,H0);*/
-  LOCAL_OldTR = (tr_fr_ptr)(old_TR = TR);
-  push_registers(predarity, nextop PASS_REGS);
+  LOCAL_OldTR = old_TR = push_registers(predarity, nextop PASS_REGS);
   /* make sure we clean bits after a reset */
   marking_phase(old_TR, current_env, nextop PASS_REGS);
   if (LOCAL_total_oldies > ((LOCAL_HGEN-H0)*8)/10) {

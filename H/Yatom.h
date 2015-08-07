@@ -1223,6 +1223,7 @@ typedef struct translation_entry
 {
   Prop NextOfPE;		/* used to chain properties             */
   PropFlags KindOfPE;		/* kind of property                     */
+  arity_t arity;		/* refers to atom (0) or functor(N > 0) */
   Int  Translation;		/* used to hash the atom as an integer; */
 }  TranslationEntry;
 
@@ -1271,11 +1272,11 @@ AbsTranslationProp (TranslationEntry * p)
 #endif
 #define	TranslationProperty  0xfff4
 
-bool Yap_PutAtomTranslation(Atom a, Int i);
+ bool Yap_PutAtomTranslation(Atom a, arity_t arity, Int i);
 
 /* get translation prop for atom;               */
 static inline TranslationEntry *
-Yap_GetTranslationProp(Atom at)
+  Yap_GetTranslationProp(Atom at, arity_t arity)
 {
   Prop p0;
   AtomEntry *ae = RepAtom(at);
@@ -1283,10 +1284,12 @@ Yap_GetTranslationProp(Atom at)
 
   READ_LOCK(ae->ARWLock);
   p = RepTranslationProp(p0 = ae->PropsOfAE);
-  while (p0 && p->KindOfPE != TranslationProperty)
+  while (p0 && (p->KindOfPE != TranslationProperty ||
+		p->arity != arity))
     p = RepTranslationProp(p0 = p->NextOfPE);
   READ_UNLOCK(ae->ARWLock);
   if (p0 == NIL) return (TranslationEntry *)NULL;
+  p->arity = arity;
   return p;
 }
 
@@ -1691,7 +1694,7 @@ AbsFlagProp (FlagEntry * p)
 
 
 #endif
-#define	FlagProperty ((PropFlags)0xfffc)
+#define	FlagProperty ((PropFlags)0xfff9)
 
 
 INLINE_ONLY inline EXTERN PropFlags IsFlagProperty (int);

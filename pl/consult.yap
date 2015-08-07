@@ -90,7 +90,7 @@ files and to set-up the Prolog environment. We discuss
 
  @pred load_files(+ _Files_, + _Options_)
 
-General implementation of the consult/1 family. Execution is controlled by the
+Implementation of the consult/1 family. Execution is controlled by the
 following flags:
 
 + consult(+ _Mode_)
@@ -873,7 +873,7 @@ db_files(Fs) :-
 	'$init_win_graphics',
     fail.
 '$do_startup_reconsult'(X) :-
-	( current_prolog_flag(language_mode, yap) ->
+	( current_prolog_flag(halt_after_consult, false) ->
 	  '$system_catch'(load_files(X, [silent(true)]), Module, Error, '$Error'(Error))
 	;
 	  set_prolog_flag(verbose, silent),
@@ -882,7 +882,7 @@ db_files(Fs) :-
 	  true
 	),
 	!,
-	( current_prolog_flag(language_mode, yap) -> true ; halt).
+	( current_prolog_flag(halt_after_consult, false) -> true ; halt).
 '$do_startup_reconsult'(_).
 
 '$skip_unix_header'(Stream) :-
@@ -1026,10 +1026,13 @@ prolog_load_context(stream, Stream) :-
 
 % module can be reexported.
 '$ensure_file_unchanged'(F, M) :-
-                                % loaded from the same module, but does not define a module.
+        % loaded from the same module, but does not define a module.
 	recorded('$source_file','$source_file'(F, Age, NM), R),
-				% make sure: it either defines a new module or it was loaded in the same context
+	% make sure: it either defines a new module or it was loaded in the same context
 	'$file_is_unchanged'(F, R, Age),
+	!,
+%	( F = '/usr/local/share/Yap/rbtrees.yap' ->start_low_level_trace ; true),
+	recorded('$module','$module'(F,NM,_ASource,_P,_),_)
         ( M == NM -> true ; recorded('$module','$module'(F,NM,_Source,_P,_),_) ), !.
 
 '$file_is_unchanged'(F, R, Age) :-
@@ -1042,18 +1045,19 @@ prolog_load_context(stream, Stream) :-
 	( F == user_input -> working_directory(Dir,Dir) ; file_directory_name(F, Dir) ),
 	nb_setval('$consulting_file', F ),
 	(
-	    Reconsult0 \== consult,
-	    Reconsult0 \== not_loaded,
-	    Reconsult \== changed,
+	 % if we are reconsulting, always start from scratch
+	 Reconsult0 \== consult,
+	 Reconsult0 \== not_loaded,
+	 Reconsult0 \== changed,
 	 recorded('$source_file','$source_file'(F, _,_),R),
 	 erase(R),
-	    fail
-	    ;
-	    var(Reconsult0)
-	    ->
-	    Reconsult = consult
-	    ;
-	    Reconsult = Reconsult0
+	 fail
+	;
+	 var(Reconsult0)
+	->
+	 Reconsult = consult
+	;
+	 Reconsult = Reconsult0
 	),
 	(
 	    Reconsult \== consult,

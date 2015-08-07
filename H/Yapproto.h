@@ -483,14 +483,8 @@ void Yap_flush(void);
 Int Yap_source_line_no( void );
 Atom Yap_source_file_name( void );
 
-static inline
-yamop *
-gc_P(yamop *p, yamop *cp)
-{
-  return (p->opc == Yap_opcode(_execute_cpred) ? cp : p);
-}
 
 void
 Yap_install_blobs(void);
 
-
+yamop * Yap_gcP(void);

@@ -78,6 +78,8 @@ static Int  p_analysis_output_file( USES_REGS1 );
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
 
+#define JIT_CODE 1
+
 static Int
 p_disable_analysis_pass( USES_REGS1 )
 {

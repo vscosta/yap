@@ -34,7 +34,7 @@ set (ENGINE_SOURCES
   C/attvar.c
   C/bignum.c
   C/bb.c
-C/blobs.c
+  C/blobs.c
   C/cdmgr.c
   C/cmppreds.c
   C/compiler.c
@@ -114,6 +114,9 @@ set(C_INTERFACE_SOURCES
   	H/Regs.h
   	H/Yapproto.h
   	H/absmi.h
+  	H/absmi-switch.h
+  	H/absmi-threaded.h
+  	H/absmi-traced.h
   	H/alloc.h
   	H/amidefs.h
   	H/amiops.h

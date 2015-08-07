@@ -199,6 +199,18 @@ extern struct various_codes *Yap_heap_regs;
 //#include "dlocals.h"
 
 /**
+ * gc-P: how to start-up the grbage collector in C-code
+ */
+
+static inline
+yamop *
+gc_P(yamop *p, yamop *cp)
+{
+  return (p->opc == EXECUTE_CPRED_OPCODE ? cp : p);
+}
+
+
+/**
   Yap_CurrentModule: access the current module for looking
   up predicates
   */

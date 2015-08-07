@@ -39,6 +39,7 @@ typedef enum
   DOMAIN_ERROR_OUT_OF_RANGE,
   DOMAIN_ERROR_OPERATOR_PRIORITY,
   DOMAIN_ERROR_OPERATOR_SPECIFIER,
+  DOMAIN_ERROR_PROLOG_FLAG,
   DOMAIN_ERROR_RADIX,
   DOMAIN_ERROR_SHIFT_COUNT_OVERFLOW,
   DOMAIN_ERROR_SOURCE_SINK,
@@ -137,7 +138,7 @@ typedef enum
 #define JMP_LOCAL_ERROR(v, LAB)   \
   if (H + 2*(v) > ASP-1024) { \
     LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;\
-    LOCAL_Error_Term = t;\
+    LOCAL_Error_Term = TermNilnnnnnnnnnnnnnnnnnnnnnnnnnn;\
     LOCAL_Error_Size = 2*(v)*sizeof(CELL);\
     goto LAB;				  \
   }
@@ -145,15 +146,14 @@ typedef enum
 #define LOCAL_ERROR(v)   \
   if (HR + (v) > ASP-1024) { \
     LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;\
-    LOCAL_Error_Term = t;\
+    LOCAL_Error_Term = TermNil;\
     LOCAL_Error_Size = 2*(v)*sizeof(CELL);\
     return NULL; \
   }
 
 #define LOCAL_TERM_ERROR(v)   \
   if (HR + (v) > ASP-1024) { \
-    LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;\
-    LOCAL_Error_Term = t;\
+    ;\
     LOCAL_Error_Size = 2*(v)*sizeof(CELL);\
     return 0L; \
   }

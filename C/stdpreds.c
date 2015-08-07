@@ -319,7 +319,7 @@ Int p_halt(USES_REGS1);
 #else
 static Int p_halt(USES_REGS1);
 #endif
-static Int init_current_predicate(USES_REGS1);
+static Int current_predicate(USES_REGS1);
 static Int cont_current_predicate(USES_REGS1);
 static OpEntry *NextOp(OpEntry *CACHE_TYPE);
 static Int init_current_op(USES_REGS1);

@@ -4,20 +4,27 @@ set(LIBJIT_PATCH_VERSION 0)
 set(LIBJIT_FULL_VERSION
   ${LIBJIT_MAJOR_VERSION}.${LIBJIT_MINOR_VERSION}.${LIBJIT_PATCH_VERSION})
 
-set(LIBJIT_SOURCES
-  jit_analysispreds.c
-  jit_configpreds.c
-  jit_statisticpreds.c
-  jit_codegenpreds.c
-  jit_debugpreds.c
-  jit_traced.c
-  jit_transformpreds.c
-  JIT_Compiler.cpp
-  JIT_Init.cpp
-  HPP/JIT.hpp
-  HPP/JIT_Compiler.hpp
-  HPP/jit_predicates.hpp
+  set(LIBJIT_SOURCES
+    jit_analysispreds.c
+    jit_configpreds.c
+    jit_statisticpreds.c
+    jit_codegenpreds.c
+    jit_debugpreds.c
+    jit_traced.c
+    jit_transformpreds.c
+    JIT_Compiler.cpp
+    JIT_Init.cpp
   )
+
+    set(LIBJIT_HEADERS
+      HPP/JIT.hpp
+      HPP/JIT_Compiler.hpp
+      HPP/jit_predicates.hpp
+      ../OPTYap/traced_or.insts.h
+      ../OPTYap/traced_tab.insts.h
+      ../OPTYap/traced_tab.tries.insts.h
+      ../C/traced_absmi_insts.h
+    )
 
 # The following variables are defined:
 #  LLVM_FOUND          - true if LLVM was found
@@ -43,14 +50,20 @@ set(LIBJIT_SOURCES
 # system default locations such as /usr/local/bin. Executing find_program()
 # multiples times is the approach recommended in the docs.
 
+macro_optional_find_package (LLVM OFF)
+macro_log_feature (LLVM_FOUND "LLVM JIT generator"
+"The LLVM Compiler Infrastructure" "http://www.llvm.org")
 
-# ugh
+set (YAP_JIT  ${LLVM_FOUND} SCOPE GLOBAL)
+
 set (POSITION_INDEPENDENT_CODE TRUE)
 
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${LLVM_CXXFLAGS})
 
 add_library (libyapjit  SHARED
-  ${LIBJIT_SOURCES})
+    ${LIBJIT_SOURCES}
+    ${LIBJIT_HEADERS}
+)
 
 set_target_properties(libyapjit
   PROPERTIES

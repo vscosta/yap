@@ -28,33 +28,36 @@
  * mirroring
  */
 
+#include "Yap.h"
 #include "pl-utf8.h"
 
 // standard strings
 
 typedef enum {
-  YAP_STRING_STRING = 0x1,
-  YAP_STRING_CODES = 0x2,
-  YAP_STRING_ATOMS = 0x4,
-  YAP_STRING_ATOMS_CODES = 0x6,
-  YAP_STRING_CHARS = 0x8,
-  YAP_STRING_WCHARS = 0x10,
-  YAP_STRING_ATOM = 0x20,
-  YAP_STRING_INT = 0x40,
-  YAP_STRING_FLOAT = 0x80,
-  YAP_STRING_BIG = 0x100,
-  YAP_STRING_LITERAL = 0x200,
-  YAP_STRING_LENGTH = 0x400,
-  YAP_STRING_NTH = 0x800,
+  YAP_STRING_STRING = 0x1, /// target is a string term
+  YAP_STRING_CODES = 0x2, /// target is a list of integer codes
+  YAP_STRING_ATOMS = 0x4, /// target is a list of kength-1 atom
+  YAP_STRING_ATOMS_CODES = 0x6, /// targt is list of atoms or codes
+  YAP_STRING_CHARS = 0x8,  /// target is a buffer, with byte-sized units
+  YAP_STRING_WCHARS = 0x10, /// target is a buffer of wide chars
+  YAP_STRING_ATOM = 0x20,   /// tarfet is an ayom
+  YAP_STRING_INT = 0x40,  /// target is an integer term 
+  YAP_STRING_FLOAT = 0x80,  /// target is a floar term
+  YAP_STRING_BIG = 0x100,  /// target is an big num term
+  YAP_STRING_DATUM = 0x200,   /// associated with previous 3, use actual object if type, not tern
+  YAP_STRING_LENGTH = 0x400,  /// input: length is fixed; output: return integer with length
+  YAP_STRING_NTH = 0x800,   ///  input: ignored; output: nth char
+  YAP_STRING_TERM = 0x1000, // Generic term, if nothing else given
+  YAP_STRING_DIFF = 0x2000,  // difference list
+  YAP_STRING_NCHARS = 0x4000,  // size of input/result
+  YAP_STRING_TRUNC = 0x8000,  // truncate on maximum size of input/result
+  YAP_STRING_WQ =  0x10000,  // output with write_quote
+  YAP_STRING_WC = 0x20000,  // output with write_canonical
+  YAP_STRING_WITH_BUFFER = 0x40000,  // output on existing buffer
+  YAP_STRING_MALLOC = 0x80000  // output on malloced buffer
 } enum_seq_type_t;
 
 
-#define  YAP_STRING_TERM 0x1000 // joint with other flags that define possible values
-#define  YAP_STRING_DIFF  0x2000  // difference list
-#define  YAP_STRING_NCHARS 0x4000  // size of input/result
-#define  YAP_STRING_TRUNC 0x8000  // truncate on maximum size of input/result
-#define  YAP_STRING_WQ    0x10000  // output with write_quote
-#define  YAP_STRING_WC 0x20000  // output with write_canonical
 
 typedef UInt seq_type_t;
 
@@ -64,8 +67,10 @@ typedef union {
   Float  f;
   Int  i;
   MP_INT *b;
-  const char *c;
-  const wchar_t *w;
+  const char *c0;
+  const wchar_t *w0;
+  char *c;
+  wchar_t *w;
   Atom   a;
   size_t l;
   int d;
@@ -80,6 +85,7 @@ typedef struct text_cvt {
   size_t     sz; // fixed sz, or -1
   Term      dif; // diff-list, usually TermNil
   size_t    max; // max_size
+  encoding_t enc;
 } seq_tv_t;
 
 // string construction
@@ -341,7 +347,7 @@ Yap_CharsToAtom( const char *s USES_REGS )
 {
   seq_tv_t inp, out;
 
-  inp.val.c = s;
+  inp.val.c0 = s;
   inp.sz = 0;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_ATOM;
@@ -355,7 +361,7 @@ Yap_CharsToListOfAtoms( const char *s USES_REGS )
 {
   seq_tv_t inp, out;
 
-  inp.val.c = s;
+  inp.val.c0 = s;
   inp.sz = 0;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_ATOMS;
@@ -369,7 +375,7 @@ Yap_CharsToListOfCodes( const char *s USES_REGS )
 {
   seq_tv_t inp, out;
 
-  inp.val.c = s;
+  inp.val.c0 = s;
   inp.sz = 0;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_CODES;
@@ -383,7 +389,7 @@ Yap_CharsToDiffListOfCodes( const char *s, Term tail USES_REGS )
 {
   seq_tv_t inp, out;
 
-  inp.val.c = s;
+  inp.val.c0 = s;
   inp.sz = 0;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_DIFF|YAP_STRING_CODES;
@@ -398,7 +404,7 @@ Yap_CharsToString( const char *s USES_REGS )
 {
   seq_tv_t inp, out;
 
-  inp.val.c = s;
+  inp.val.c0 = s;
   inp.sz = 0;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_STRING;
@@ -407,12 +413,33 @@ Yap_CharsToString( const char *s USES_REGS )
   return out.val.t;
 }
 
+static inline char *
+Yap_AtomToUTF8Text( Atom at, const char *s USES_REGS )
+{
+  seq_tv_t inp, out;
+
+  inp.val.a = at;
+  inp.sz = 0;
+  inp.type = YAP_STRING_ATOM;
+  out.type = YAP_STRING_CHARS;
+  out.enc = ENC_ISO_UTF8;
+  if (s) {
+    out.val.c0 = s;
+    out.type |= YAP_STRING_WITH_BUFFER;
+  } else {
+    out.val.c = NULL;
+  }
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.c;
+}
+
 static inline Term
 Yap_CharsToTDQ( const char *s, Term mod USES_REGS )
 {
   seq_tv_t inp, out;
   
-  inp.val.c = s;
+  inp.val.c0 = s;
   inp.sz = 0;
   inp.type = YAP_STRING_CHARS;
   inp.mod = mod;
@@ -429,7 +456,7 @@ Yap_CharsToTBQ( const char *s, Term mod USES_REGS )
 {
   seq_tv_t inp, out;
   
-  inp.val.c = s;
+  inp.val.c0 = s;
   inp.sz = 0;
   inp.type = YAP_STRING_CHARS;
   inp.mod = mod;
@@ -621,7 +648,7 @@ Yap_NCharsToAtom( const char *s, size_t len USES_REGS )
 {
   seq_tv_t inp, out;
 
-  inp.val.c = s;
+  inp.val.c0 = s;
   inp.sz = len;
   inp.type = YAP_STRING_CHARS|YAP_STRING_NCHARS;
   out.type = YAP_STRING_ATOM;
@@ -636,7 +663,7 @@ Yap_CharsToDiffListOfAtoms( const char *s, Term tail USES_REGS )
 {
   seq_tv_t inp, out;
 
-  inp.val.c = s;
+  inp.val.c0 = s;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_ATOMS|YAP_STRING_DIFF;
   out.dif = tail;
@@ -651,7 +678,7 @@ Yap_NCharsToListOfCodes( const char *s, size_t len USES_REGS )
 {
   seq_tv_t inp, out;
 
-  inp.val.c = s;
+  inp.val.c0 = s;
   inp.sz = len;
   inp.type = YAP_STRING_CHARS|YAP_STRING_NCHARS;
   out.type = YAP_STRING_CODES;
@@ -666,7 +693,7 @@ Yap_NCharsToString( const char *s, size_t len USES_REGS )
 {
   seq_tv_t inp, out;
 
-  inp.val.c = s;
+  inp.val.c0 = s;
   inp.sz = len;
   inp.type = YAP_STRING_CHARS|YAP_STRING_NCHARS;
   out.type = YAP_STRING_STRING;
@@ -681,7 +708,7 @@ Yap_NCharsToTDQ( const char *s, size_t len, Term mod USES_REGS )
 {
   seq_tv_t inp, out;
   
-  inp.val.c = s;
+  inp.val.c0 = s;
   inp.type = YAP_STRING_CHARS|YAP_STRING_NCHARS;
   inp.sz = len;
   inp.mod = mod;
@@ -699,7 +726,7 @@ Yap_NCharsToTBQ( const char *s, size_t len, Term mod USES_REGS )
 {
   seq_tv_t inp, out;
   
-  inp.val.c = s;
+  inp.val.c0 = s;
   inp.type = YAP_STRING_CHARS|YAP_STRING_NCHARS;
   inp.sz = len;
   inp.mod = mod;
@@ -765,7 +792,7 @@ Yap_NWCharsToAtom( const wchar_t *s, size_t len USES_REGS )
 {
     seq_tv_t inp, out;
 
-    inp.val.w = s;
+    inp.val.w0 = s;
     inp.sz = len;
     inp.type = YAP_STRING_WCHARS|YAP_STRING_NCHARS;
     out.type = YAP_STRING_ATOM;
@@ -780,7 +807,7 @@ Yap_NWCharsToListOfAtoms( const wchar_t *s, size_t len USES_REGS )
 {
   seq_tv_t inp, out;
 
-  inp.val.w = s;
+  inp.val.w0 = s;
   inp.sz = len;
   inp.type = YAP_STRING_WCHARS|YAP_STRING_NCHARS;
   out.type = YAP_STRING_ATOMS;
@@ -795,7 +822,7 @@ Yap_NWCharsToListOfCodes( const wchar_t *s, size_t len USES_REGS )
 {
   seq_tv_t inp, out;
 
-  inp.val.w = s;
+  inp.val.w0 = s;
   inp.sz = len;
   inp.type = YAP_STRING_WCHARS|YAP_STRING_NCHARS;
   out.type = YAP_STRING_CODES;
@@ -810,7 +837,7 @@ Yap_NWCharsToString( const wchar_t *s, size_t len USES_REGS )
 {
   seq_tv_t inp, out;
 
-  inp.val.w = s;
+  inp.val.w0 = s;
   inp.sz = len;
   inp.type = YAP_STRING_WCHARS|YAP_STRING_NCHARS;
   out.type = YAP_STRING_STRING;
@@ -940,7 +967,7 @@ static inline Term
 Yap_WCharsToListOfCodes(const wchar_t *s USES_REGS)
 {
   seq_tv_t inp, out;
-  inp.val.w = s;
+  inp.val.w0 = s;
   inp.sz = 0;
   inp.type = YAP_STRING_WCHARS;
   out.type = YAP_STRING_CODES;
@@ -954,7 +981,7 @@ Yap_WCharsToTDQ( wchar_t *s, Term mod USES_REGS )
 {
   seq_tv_t inp, out;
   
-  inp.val.w = s;
+  inp.val.w0 = s;
   inp.type = YAP_STRING_WCHARS;
   inp.sz = 0;
   inp.mod = mod;
@@ -987,7 +1014,7 @@ static inline Term
 Yap_WCharsToString(const wchar_t *s USES_REGS)
 {
   seq_tv_t inp, out;
-  inp.val.w = s;
+  inp.val.w0 = s;
   inp.sz = 0;
   inp.type = YAP_STRING_WCHARS;
   out.type = YAP_STRING_STRING;

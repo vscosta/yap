@@ -632,8 +632,6 @@ cont_stream_property (USES_REGS1)
       ++i;
       if (i == MaxStreams)
         cut_fail();
-      else
-        EXTRA_CBACK_ARG (2, 1) = MkIntTerm (i+1);
     }
     LOCK(GLOBAL_Stream[i].streamlock);
     UNLOCK(GLOBAL_StreamDescLock);
@@ -645,12 +643,16 @@ cont_stream_property (USES_REGS1)
   if (rc) {
         if (det)
           cut_succeed();
-        else
-          return true;
+        else {
+          EXTRA_CBACK_ARG (2, 1) = MkIntTerm (i+1);
+        return true;
+        }
       } else if (det)
         cut_fail();
-      else
+      else {
+        EXTRA_CBACK_ARG (2, 1) = MkIntTerm (i+1);
         return false;
+      }
 }
 
 static Int

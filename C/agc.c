@@ -34,6 +34,7 @@ static char     SccsId[] = "@(#)agc.c	1.3 3/15/90";
 
 static void  RestoreEntries(PropEntry *, int USES_REGS);
 static void  CleanCode(PredEntry * USES_REGS);
+static void  RestoreDBTerm(DBTerm *dbr, int attachments USES_REGS);
 
 #define AtomMarkedBit 1
 
@@ -190,6 +191,32 @@ AtomAdjust(Atom a)
 
 #define RestoreSWIHash()
 
+static void
+AdjustTermFlag(flag_term *tarr, UInt i)
+{
+  CACHE_REGS
+  if (IsVarTerm(tarr[i].at)) {
+    RestoreDBTerm( tarr[i].DBT, 0 PASS_REGS );
+  } else if (IsAtomTerm( tarr[i].at )  )
+    tarr[i].at = AtomTermAdjust(tarr[i].at);
+}
+
+static void RestoreFlags( UInt NFlags )
+{
+  CACHE_REGS
+  size_t i;
+  flag_term *tarr = GLOBAL_Flags;
+
+  if (worker_id == 0)
+    for (i=0; i<GLOBAL_flagCount; i++) {
+      AdjustTermFlag( tarr, i);
+    }
+  tarr = LOCAL_Flags;
+  for (i=0; i<LOCAL_flagCount; i++) {
+    AdjustTermFlag( tarr, i);
+  }
+}
+
 #include "rheap.h"
 
 static void
@@ -227,8 +254,6 @@ RestoreAtomList(Atom atm USES_REGS)
     at = RepAtom(atm);
   } while (!EndOfPAEntr(at));
 }
-
-
 
 static void
 mark_trail(USES_REGS1)

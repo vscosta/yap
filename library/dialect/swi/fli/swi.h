@@ -57,18 +57,6 @@ add_to_hash(Int i, ADDR key)
   SWI_ReverseHash[h].pos = i;
 }
 
-static atom_t
-in_hash(ADDR key)
-{
-  UInt h = addr_hash(key);
-  while (SWI_ReverseHash[h].key) {
-    if (SWI_ReverseHash[h].key == key)
-      return SWI_ReverseHash[h].pos;
-    h = (h+1)%N_SWI_HASH;
-  }
-  return 0;
-}
-
 
 static inline Term
 SWIModuleToModule(module_t m)
@@ -89,7 +77,7 @@ AtomToSWIAtom(Atom at)
 {
   TranslationEntry *p;
 
-  if ((p = Yap_GetTranslationProp(at)) != NULL)
+  if ((p = Yap_GetTranslationProp(at,0)) != NULL)
     return (atom_t)(p->Translation*2+1);
   return (atom_t)at;
 }
@@ -104,23 +92,23 @@ SWIAtomToAtom(atom_t at)
   return (Atom)at;
 }
 
+static inline functor_t
+FunctorToSWIFunctor(Functor f)
+{
+  TranslationEntry *p;
+  Atom at = NameOfFunctor(f);
+  arity_t ar = ArityOfFunctor(f);
+  if ((p = Yap_GetTranslationProp(at,ar)) != NULL)
+    return (functor_t)(p->Translation*2+1);
+  return (functor_t)f;
+}
 
-/* This is silly, but let's keep it like that for now */
 static inline Functor
 SWIFunctorToFunctor(functor_t f)
 {
-  if (((CELL)(f) & 2) && ((CELL)f) < N_SWI_FUNCTORS*4+2)
-    return SWI_Functors[((CELL)f)/4];
+  if ((CELL)f & 1)
+    return SWI_Functors[f/2];
   return (Functor)f;
-}
-
-static inline functor_t
-FunctorToSWIFunctor(Functor at)
-{
-  atom_t ats;
-  if ((ats = in_hash((ADDR)at)))
-    return (functor_t)((CELL)ats*4+2);
-  return (functor_t)at;
 }
 
 #define isDefinedProcedure(pred) TRUE // TBD

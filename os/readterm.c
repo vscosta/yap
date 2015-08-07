@@ -739,6 +739,7 @@ parseError(REnv *re, FEnv  *fe, int inp_stream)
   Term ParserErrorStyle =  re->sy;
   if (ParserErrorStyle == TermQuiet) {
       /* just fail */
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
       return YAP_PARSING_FINISHED;
     } else {
       Term terr = Yap_syntax_error(fe->toklast, inp_stream);
@@ -748,10 +749,12 @@ parseError(REnv *re, FEnv  *fe, int inp_stream)
           return YAP_PARSING_FINISHED;
         } else {
           Yap_PrintWarning(terr);
-          if (ParserErrorStyle == TermDec10);
-          return YAP_SCANNING;
+          LOCAL_Error_TYPE = YAP_NO_ERROR;
+          if (ParserErrorStyle == TermDec10)
+            return YAP_SCANNING;
         }
     }
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
   return YAP_PARSING_FINISHED;
 }
 

@@ -1687,7 +1687,7 @@ Yap_Reset(yap_reset_t mode)
     return res;
 }
 
-static bool
+bool
 is_cleanup_cp(choiceptr cp_b)
 {
     PredEntry *pe;

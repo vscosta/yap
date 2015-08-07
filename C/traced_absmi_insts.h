@@ -35,11 +35,11 @@ if (P== NULL) goto NoStackCommitX;
 *****************************************************************/
 
       BOp(Ystop, l);
-      goto Ystop;
+      goto _Ystop;
       ENDBOp();
 
       BOp(Nstop, e);
-      goto Nstop;
+      goto _Nstop;
       ENDBOp();
 
 /*****************************************************************
@@ -76,7 +76,7 @@ CACHE_Y(YREG);
       ENDOp();
 
       /* retry_me    Label,NArgs */
-      Op(retry_me, Otapl);
+      Op(retry_me, OBtapl);
       EMIT_ENTRY_BLOCK(PREG,RETRY_ME_INSTINIT);
       CACHE_Y(B);
       /* After retry, cut should be pointing at the parent
@@ -14533,43 +14533,43 @@ S_SREG = RepAppl(d0);
 	    }
 
 	    BOp(unify_l_string             ,ou);
-            goto Ystop;
+            goto _Ystop;
             ENDBOp();
             BOp(unify_string             ,ou);
-            goto Ystop;
+            goto _Ystop;
             ENDBOp();
             BOp(get_string                 ,xu);
-            goto Ystop;
+            goto _Ystop;
             ENDBOp();
             BOp(get_atom_exo               ,x);
-            goto Ystop;
+            goto _Ystop;
             ENDBOp();
             BOp(retry_exo_udi              ,lp);
-            goto Ystop;
+            goto _Ystop;
             ENDBOp();
             BOp(retry_exo                  ,lp);
-            goto Ystop;
+            goto _Ystop;
             ENDBOp();
             BOp(retry_udi                  ,p);
-            goto Ystop;
+            goto _Ystop;
             ENDBOp();
             BOp(retry_all_exo              ,lp);
-            goto Ystop;
+            goto _Ystop;
             ENDBOp();
             BOp(enter_exo                  ,e);
-            goto Ystop;
+            goto _Ystop;
             ENDBOp();
             BOp(try_exo                    ,lp);
-            goto Ystop;
+            goto _Ystop;
             ENDBOp();
             BOp(try_exo_udi                ,lp);
-            goto Ystop;
+            goto _Ystop;
             ENDBOp();
             BOp(try_all_exo                ,lp);
-            goto Ystop;
+            goto _Ystop;
             ENDBOp();
             BOp(try_udi                    ,p);
-            goto Ystop;
+            goto _Ystop;
             ENDBOp();
 
 	    

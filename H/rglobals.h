@@ -1,6 +1,6 @@
-
-  /* This file, rglobals.h, was generated automatically by "yap -L misc/buildlocalglobal"
-     please do not update, update misc/GLOBALS instead */
+﻿
+  /* This file, rglobals.h , was generated automatically by "yap -L misc/buildlocalglobal"
+     please do not update, update misc/GLOBALS  instead */
 
 
 
@@ -74,9 +74,6 @@ static void RestoreGlobal(void) {
 #if defined(THREADS)
   REINIT_LOCK(GLOBAL_StreamDescLock);
 #endif
-
-
-
 
 
 

@@ -2151,6 +2151,10 @@ extern X_API YAP_Int      YAP_AtomToInt(YAP_Atom At);
 
 extern X_API YAP_Atom     YAP_IntToAtom(YAP_Int i);
 
+extern X_API YAP_Int      YAP_FunctorToInt(YAP_Functor At);
+
+extern X_API YAP_Functor     YAP_IntToFunctor(YAP_Int i);
+
 #define YAP_InitCPred(N,A,F)  YAP_UserCPredicate(N,F,A)
 
 __END_DECLS

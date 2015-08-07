@@ -1,6 +1,6 @@
-
-  /* This file, hlocals.h, was generated automatically by "yap -L misc/buildlocalglobal"
-     please do not update, update misc/LOCALS instead */
+﻿
+  /* This file, hlocals.h , was generated automatically by "yap -L misc/buildlocalglobal"
+     please do not update, update misc/LOCALS  instead */
 
 
 typedef struct worker_local {

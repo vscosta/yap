@@ -72,6 +72,7 @@
   ORLAST_OPCODE = Yap_opcode(_or_last);
   UNDEF_OPCODE = Yap_opcode(_undef_p);
   RETRY_USERC_OPCODE = Yap_opcode(_retry_userc);
+  EXECUTE_CPRED_OPCODE = Yap_opcode(_execute_cpred);
 
 
 
@@ -156,8 +157,7 @@
 
 
   Yap_InitPlIO();
-
-
+  GLOBAL_Flags = 0;
   Yap_InitFlags(true);
 
   Yap_ExecutionMode = INTERPRETED;
@@ -327,6 +327,9 @@
   Yap_Records = NULL;
 
   InitSWIAtoms();
+
+
+
 
 
 
