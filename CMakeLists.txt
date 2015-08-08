@@ -4,6 +4,8 @@
 #  system core
 #  libraries
 
+project(YAP)
+
 cmake_minimum_required(VERSION 3.0)
 # where we have most scripts
 # set path to additional CMake modules
