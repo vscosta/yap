@@ -1130,6 +1130,56 @@ Term Yap_scan_num(StreamDesc *inp) {
   return l;                                                                  \
   }
 
+const char *
+Yap_tokRep(TokEntry *tokptr)
+{
+  CACHE_REGS
+  Term info = tokptr->TokInfo;
+  char *b, *buf = LOCAL_FileNameBuf2;
+  size_t length, sze = YAP_FILENAME_MAX-1;
+  UInt flags = 0;
+  
+  switch (tokptr->Tok) {
+    case Name_tok:
+      return RepAtom((Atom)info)->StrOfAE;
+    case Number_tok:
+      if ((b = Yap_TermToString(info, buf, sze, &length,LOCAL_encoding, flags)) != buf) {
+        if (b) free(b);
+        return NULL;
+      }
+      return buf;
+    case Var_tok:
+    {
+      VarEntry *varinfo = (VarEntry *)info;
+      return varinfo->VarRep;
+    }
+    case String_tok:
+    case BQString_tok:
+      return (char *)info;
+    case WString_tok:
+    case WBQString_tok:
+      return utf8_wcscpy(buf, (wchar_t *)info);
+    case Error_tok:
+      return "<ERR>";
+    case eot_tok:
+      return "<EOT>";
+    case Ponctuation_tok:
+    {
+      buf[1] = '\0';
+      if ((info) == 'l') {
+        buf[0] = '(';
+      } else  {
+        buf[0] = (char)info;
+      }
+    }
+      return buf;
+    case QuasiQuotes_tok:
+    case WQuasiQuotes_tok:
+      return "<QQ>";
+  }
+}
+
+
 static void open_comment(int ch, StreamDesc *inp_stream USES_REGS) {
   CELL *h0 = HR;
   HR += 5;
@@ -1636,6 +1686,13 @@ quoted_string:
             }
           break;
 
+        case BS:
+	  if (ch == '\0') {
+	    t->Tok = Ord(kind = eot_tok);
+	    return l;
+	  } else
+	    ch = getchr(inp_stream);
+	  break;
         case SY:
           if (ch == '`')
             goto quoted_string;
@@ -1679,24 +1736,22 @@ quoted_string:
                     }
                 }
               goto restart;
-            }
+	  }
 enter_symbol:
           if (och == '.' &&
-              (chtype(ch) == BS || chtype(ch) == EF || chtype(ch) == CC)) {
-              if (chtype(ch) == CC)
-                while ((ch = getchr(inp_stream)) != 10 && chtype(ch) != EF)
-                  ;
-              t->Tok = Ord(kind = eot_tok);
-              if (chtype(chtype(ch)) == EF)
-                mark_eof(inp_stream);
-            break;
-            } else {
-              Atom ae;
-              TokImage = ((AtomEntry *)(Yap_PreAllocCodeSpace()))->StrOfAE;
-              charp = TokImage;
-              wcharp = NULL;
-              add_ch_to_buff(och);
-              for (; chtype(ch) == SY; ch = getchr(inp_stream)) {
+              (chtype(ch) == BS || chtype(ch) == EF || ch == '%')) {
+	    t->Tok = Ord(kind = eot_tok);
+	    if (chtype(ch) == EF)
+	      mark_eof(inp_stream);
+	    return l;
+	  } else {
+	    Atom ae;
+
+	    TokImage = ((AtomEntry *)(Yap_PreAllocCodeSpace()))->StrOfAE;
+	    charp = TokImage;
+	    wcharp = NULL;
+	    add_ch_to_buff(och);
+	    for (; chtype(ch) == SY; ch = getchr(inp_stream)) {
                   if (charp == (char *)AuxSp - 1024) {
                       goto huge_var_error;
                     }
@@ -1920,7 +1975,8 @@ enter_symbol:
         case EF:
           mark_eof(inp_stream);
           t->Tok = Ord(kind = eot_tok);
-          break;
+	  return l;
+
 
         default:
 #if DEBUG
@@ -1930,8 +1986,8 @@ enter_symbol:
         }
 #if DEBUG
       if (GLOBAL_Option[2])
-        fprintf(stderr, "[Token %d %ld]", Ord(kind),
-                (unsigned long int)t->TokInfo);
+        fprintf(stderr, "[Token %d %s]", Ord(kind),
+                Yap_tokRep( t ));
 #endif
       if (LOCAL_ErrorMessage) {
           /* insert an error token to inform the system of what happened */
@@ -1952,6 +2008,7 @@ enter_symbol:
           p = e;
         }
     } while (kind != eot_tok);
+ 
   return (l);
 }
 
@@ -1965,6 +2022,7 @@ void Yap_clean_tokenizer(TokEntry *tokstart,
           free(ptr);
           ptr = next;
         }
+      TR = (tr_fr_ptr)tokstart;
       LOCAL_Comments = TermNil;
       LOCAL_CommentsNextChar = LOCAL_CommentsTail = NULL;
       if (LOCAL_CommentsBuff) {
