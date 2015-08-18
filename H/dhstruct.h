@@ -1,6 +1,6 @@
 ﻿
-  /* This file, dhstruct.h , was generated automatically by "yap -L misc/buildheap"
-     please do not update, update misc/HEAPFIELDS  instead */
+  /* This file, dhstruct.h, was generated automatically by "yap -L misc/buildheap"
+     please do not update, update misc/HEAPFIELDS instead */
 
 
 
@@ -86,50 +86,6 @@
 #ifdef EUROTRA
 #define TermDollarU Yap_heap_regs->term_dollar_u
 #endif
-#define TermAppend Yap_heap_regs->term_append
-#define TermAtom Yap_heap_regs->term_atomd
-#define TermBinary Yap_heap_regs->term_binary
-#define TermBoolean Yap_heap_regs->term_boolean
-#define TermChars Yap_heap_regs->term_chars
-#define TermCodes Yap_heap_regs->term_codes
-#define TermCompact Yap_heap_regs->term_compact
-#define TermDec10 Yap_heap_regs->term_dec10
-#define TermDots Yap_heap_regs->term_dots
-#define TermEof Yap_heap_regs->term_eof
-#define TermEOfCode Yap_heap_regs->term_eof_code
-#define TermError Yap_heap_regs->term_error
-#define TermException Yap_heap_regs->term_exception
-#define TermFail Yap_heap_regs->term_fail
-#define TermFalse Yap_heap_regs->term_false
-#define TermFloat Yap_heap_regs->term_float
-#define TermGlobal Yap_heap_regs->term_global
-#define TermIgnore Yap_heap_regs->term_ignore
-#define TermInteger Yap_heap_regs->term_integer
-#define TermMax Yap_heap_regs->term_max
-#define TermModule Yap_heap_regs->term_module
-#define TermMulti Yap_heap_regs->term_multi
-#define TermOff Yap_heap_regs->term_off
-#define TermOn Yap_heap_regs->term_on
-#define TermPortray Yap_heap_regs->term_portray
-#define TermProlog Yap_heap_regs->term_prolog
-#define TermQuiet Yap_heap_regs->term_quiet
-#define TermRead Yap_heap_regs->term_read
-#define TermReadOnly Yap_heap_regs->term_read_only
-#define TermReadWrite Yap_heap_regs->term_read_write
-#define TermReFoundVar Yap_heap_regs->term_refound_var
-#define TermReset Yap_heap_regs->term_reset
-#define TermSilent Yap_heap_regs->term_silent
-#define TermSingle Yap_heap_regs->term_single
-#define TermSource Yap_heap_regs->term_source
-#define TermString Yap_heap_regs->term_string
-#define TermSymbolChar Yap_heap_regs->term_symbolchar
-#define TermTerm Yap_heap_regs->term_term
-#define TermText Yap_heap_regs->term_text
-#define TermThread Yap_heap_regs->term_thread
-#define TermTrue Yap_heap_regs->term_true
-#define TermWarning Yap_heap_regs->term_warning
-#define TermWrite Yap_heap_regs->term_write
-#define TermXml Yap_heap_regs->term_xml
 
 #define USER_MODULE Yap_heap_regs->user_module
 #define IDB_MODULE Yap_heap_regs->idb_module

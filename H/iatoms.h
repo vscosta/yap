@@ -1,4 +1,4 @@
-
+﻿
   /* This file, iatoms.h, was generated automatically by "yap -L misc/buildatoms"
      please do not update, update misc/ATOMS instead */
 
@@ -217,6 +217,8 @@
   AtomNb = Yap_LookupAtom("nb");
   AtomNbTerm = Yap_LookupAtom("nb_term");
   AtomNew = Yap_LookupAtom("new");
+  AtomNewLine = Yap_LookupAtom("nl");
+  AtomNl = Yap_LookupAtom("nl");
   AtomNoEffect = Yap_LookupAtom("no_effect");
   AtomNoMemory = Yap_LookupAtom("no_memory");
   AtomNone = Yap_LookupAtom("none");
@@ -262,7 +264,6 @@
   AtomProcedure = Yap_LookupAtom("procedure");
   AtomProfile = Yap_FullLookupAtom("$profile");
   AtomProlog = Yap_LookupAtom("prolog");
-  AtomPtr = Yap_LookupAtom("ptr");
   AtomQuery = Yap_LookupAtom("?-");
   AtomQueue = Yap_LookupAtom("queue");
   AtomQuiet = Yap_LookupAtom("quiet");
@@ -500,7 +501,7 @@
   FunctorStreamEOS = Yap_MkFunctor(AtomEndOfStream,1);
   FunctorStreamPos = Yap_MkFunctor(AtomStreamPos,4);
   FunctorString1 = Yap_MkFunctor(AtomString,1);
-  FunctorSyntaxError = Yap_MkFunctor(AtomSyntaxError,5);
+  FunctorSyntaxError = Yap_MkFunctor(AtomSyntaxError,4);
   FunctorShortSyntaxError = Yap_MkFunctor(AtomSyntaxError,1);
   FunctorTermExpansion = Yap_MkFunctor(AtomTermExpansion,2);
   FunctorThreadRun = Yap_MkFunctor(AtomTopThreadGoal,2);

@@ -222,6 +222,8 @@ A	Nan			N	"nan"
 A	Nb			N	"nb"
 A	NbTerm			N	"nb_term"
 A	New			N	"new"
+A	NewLine			N	"nl"
+A	Nl			N	"nl"
 A	NoEffect		N	"no_effect"
 A	NoMemory		N	"no_memory"
 A	None			N	"none"
@@ -267,7 +269,6 @@ A	PrivateProcedure	N	"private_procedure"
 A	Procedure		N	"procedure"
 A	Profile			F	"$profile"
 A	Prolog			N	"prolog"
-A	Ptr			N	"ptr"
 A	Query			N	"?-"
 A	Queue			N	"queue"
 A	Quiet			N	"quiet"
@@ -505,7 +506,7 @@ F	Stream			Stream		1
 F	StreamEOS		EndOfStream	1
 F	StreamPos		StreamPos	4
 F	String1			String		1
-F	SyntaxError		SyntaxError	5
+F	SyntaxError		SyntaxError	4
 F	ShortSyntaxError	SyntaxError	1
 F	TermExpansion		TermExpansion	2
 F	ThreadRun		TopThreadGoal	2

@@ -1,6 +1,6 @@
 ﻿
-  /* This file, hstruct.h , was generated automatically by "yap -L misc/buildheap"
-     please do not update, update misc/HEAPFIELDS  instead */
+  /* This file, hstruct.h, was generated automatically by "yap -L misc/buildheap"
+     please do not update, update misc/HEAPFIELDS instead */
 
 
 
@@ -86,50 +86,6 @@
 #ifdef EUROTRA
   Term  term_dollar_u;
 #endif
-  Term  term_append;
-  Term  term_atomd;
-  Term  term_binary;
-  Term  term_boolean;
-  Term  term_chars;
-  Term  term_codes;
-  Term  term_compact;
-  Term  term_dec10;
-  Term  term_dots;
-  Term  term_eof;
-  Term  term_eof_code;
-  Term  term_error;
-  Term  term_exception;
-  Term  term_fail;
-  Term  term_false;
-  Term  term_float;
-  Term  term_global;
-  Term  term_ignore;
-  Term  term_integer;
-  Term  term_max;
-  Term  term_module;
-  Term  term_multi;
-  Term  term_off;
-  Term  term_on;
-  Term  term_portray;
-  Term  term_prolog;
-  Term  term_quiet;
-  Term  term_read;
-  Term  term_read_only;
-  Term  term_read_write;
-  Term  term_refound_var;
-  Term  term_reset;
-  Term  term_silent;
-  Term  term_single;
-  Term  term_source;
-  Term  term_string;
-  Term  term_symbolchar;
-  Term  term_term;
-  Term  term_text;
-  Term  term_thread;
-  Term  term_true;
-  Term  term_warning;
-  Term  term_write;
-  Term  term_xml;
 
   Term  user_module;
   Term  idb_module;

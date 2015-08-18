@@ -20,7 +20,8 @@ warning('~n  /* This file, ~a, was generated automatically by \"yap -L misc/buil
 
 gen_fields(Inp,Out) :-
 	split(Inp,"	",["A",Atom,_,_]), !,
-	append(["  Atom Atom",Atom,"_;\n#define Atom",Atom," Yap_heap_regs->Atom",Atom,"_"],Out).
+	append(["  Atom Atom",Atom,"_;\n#define Atom",Atom," Yap_heap_regs->Atom",Atom,"_\n",
+	"#define Term",Atom," MkAtomTerm( Yap_heap_regs->Atom",Atom,"_ )"],Out).
 %gen_fields(Inp,Out) :-
 %	split(Inp," 	",["A",Atom,_]), !,
 %	append(["  Atom Atom_",Atom,"_;\n#define Atom_",Atom," Yap_heap_regs->Atom_",Atom,"_"],Out).
