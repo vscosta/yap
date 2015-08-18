@@ -82,3 +82,5 @@ C/new_iop.c
 *.orig
 
 JIT/HPP/#JIT_In#
+
+*.text
