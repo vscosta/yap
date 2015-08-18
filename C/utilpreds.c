@@ -2748,7 +2748,7 @@ static Term non_singletons_in_complex_term(register CELL *pt0, register CELL *pt
 	HR[1] = AbsPair(HR+2);
 	HR += 2;
 	HR[-2] = (CELL)pt2;
-	*pt2 = TermReFoundVar;
+	*pt2 = TermRefoundVar;
       }
       continue;
     }
