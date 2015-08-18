@@ -691,7 +691,7 @@ Yap_Error(yap_error_number type, Term where, const char *format,...)
     }
     va_end (ap);
     fprintf(stderr,"%% ERROR WITHIN WARNING %d: %s\n", LOCAL_CurrentError, tmpbuf);
-    Yap_RestartYap( 1 );
+    Yap_exit( 1 );
   }
   /* must do this here */
   if (type == FATAL_ERROR
@@ -1728,8 +1728,7 @@ Yap_Error(yap_error_number type, Term where, const char *format,...)
 
       i = strlen(tmpbuf);
       psize -= i;
-      fun = FunctorError;
-      serious = TRUE;
+      fun = FunctorSyntaxError;
     }
     break;
   case SAVED_STATE_ERROR:
