@@ -1,6 +1,16 @@
 /* Define if you have libreadline */
 #ifndef HAVE_LIBREADLINE
-#define HAVE_LIBREADLINE YES
+#define HAVE_LIBREADLINE 1
+#endif
+
+/* Define to 1 if you have the <readline/history.h> header file. */
+#ifndef HAVE_READLINE_HISTORY_H
+#define HAVE_READLINE_HISTORY_H 1
+#endif
+
+/* Define to 1 if you have the <readline/readline.h> header file. */
+#ifndef HAVE_READLINE_READLINE_H
+#define HAVE_READLINE_READLINE_H 1
 #endif
 
 /* Define to 1 if you have the declaration of `rl_catch_signals ', and to 0 if
@@ -96,4 +106,3 @@ you don't. */
 #ifndef HAVE_RL_SET_PROMPT
 #define HAVE_RL_SET_PROMPT 1
 #endif
-

@@ -2,7 +2,7 @@
 *									 *
 *	 YAP Prolog 							 *
 *									 *
-  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-2014	 *
 *									 *
@@ -251,7 +251,9 @@ private(_).
         '$run_at_thread_start'/0,
         '$system_catch'/4,
         '$undefp'/1,
-		   '$version'/0]).
+		  '$version'/0]).
+
+'$undefp'(G, _) :- writeln(G), fail.
 
 :- use_system_module( '$_absf', ['$system_library_directories'/2]).
 
@@ -433,7 +435,7 @@ true :- true.
                          [trace, end_of_file],
                          Prompt, Goal, Bindings), !,
 	(nonvar(Err) ->
-	 print_message(error,Err), fail
+	 '$early_print'(error,Err), fail
 	;
 	 true
 	).
@@ -479,7 +481,7 @@ true :- true.
 	;
 	 true
 	),
-	print_message(informational,prompt(BreakLevel,TraceDebug)),
+	'$early_print'(informational,prompt(BreakLevel,TraceDebug)),
 	fail.
 '$enter_top_level' :-
 	get_value('$top_level_goal',GA), GA \= [], !,
@@ -757,7 +759,7 @@ number of steps.
 	recorded('$import','$import'(NM,Mod,NH,H,_,_),R),
 	NM \= Mod,
 	functor(NH,N,Ar),
-	print_message(warning,redefine_imported(Mod,NM,N/Ar)),
+	'$early_print'(warning,redefine_imported(Mod,NM,N/Ar)),
 	erase(R),
 	fail.
 '$not_imported'(_, _).
@@ -848,12 +850,9 @@ number of steps.
         ).
 
 '$out_neg_answer' :-
-	 ( '$undefined'(print_message(_,_),prolog) ->
-	    '$present_answer'(user_error,'false.~n')
-	 ;
-	    print_message(help,false)
-	 ),
+	'$early_print'( help, false),
 	 fail.
+
 
 '$do_yes_no'([X|L], M) :-
 	!,
@@ -895,10 +894,10 @@ number of steps.
 	    fail
 	;
 	    C== 10 -> '$add_nl_outside_console',
-		( '$undefined'(print_message(_,_),prolog) ->
+		( '$undefined'('$early_print'(_,_),prolog) ->
 			format(user_error,'yes~n', [])
 	        ;
-		   print_message(help,yes)
+		   '$early_print'(help,yes)
 		)
 	;
 	    C== 13 ->
@@ -1380,10 +1379,10 @@ bootstrap(F) :-
 
 '$enter_command'(Stream,Mod,top) :- !,
     	read_term(Stream, Command, [module(Mod), syntax_errors(dec10),variable_names(Vars), term_position(Pos)]),
-		'$command'(Command,Vars,Pos,Status).
+	'$command'(Command,Vars,Pos,Status).
 '$enter_command'(Stream,Mod,Status) :-
-	        	read_clause(Stream, Command, [variable_names(Vars), term_position(Pos)]),
-        	'$command'(Command,Vars,Pos,Status).1
+	read_clause(Stream, Command, [variable_names(Vars), term_position(Pos)]),
+	'$command'(Command,Vars,Pos,Status).
 
 '$abort_loop'(Stream) :-
 	'$do_error'(permission_error(input,closed_stream,Stream), loop).
@@ -1579,6 +1578,19 @@ catch_ball(C, C).
 log_event( String, Args ) :-
 	format( atom( M ), String, Args),
 	log_event( M ).
+
+'$early_print'( Lev, Msg ) :-
+	 ( '$undefined'(print_message(_,_),prolog) ->
+	    '$show'(Lev, Msg)
+	 ;
+	    print_message(Lev, Msg)
+	 ).
+
+'$show'(_,Msg) :-
+	format(user_error, '~w~n', [Msg]).
+
+
+
 
 /**
   @}

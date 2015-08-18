@@ -63,7 +63,7 @@ Yap_ArgListToVector (Term listl, const param_t *def, int n)
       arity_t arity = ArityOfFunctor( f );
       if (arity != 1) {
 	LOCAL_Error_TYPE = DOMAIN_ERROR_OUT_OF_RANGE;
-      LOCAL_Error_Term = hd;
+	LOCAL_Error_Term = hd;
 	free( a );
 	return NULL;
       }

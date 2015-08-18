@@ -201,7 +201,7 @@ set_property( DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  _YAP_NOT_INSTALLED_
 #add_definitions( -Wall  -Wstrict-prototypes -Wmissing-prototypes)
 
 # Model Specific
-#set_property( DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  $<$<CONFIG:Debug>:DEBUG=1;LOW_LEVEL_TRACER=1> )
+set_property( DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  $<$<CONFIG:Debug>:DEBUG=1;LOW_LEVEL_TRACER=1> )
 set_property( DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  DEBUG=1;LOW_LEVEL_TRACER=1 )
 
 #ensure cells are properly aligned in code

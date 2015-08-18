@@ -2,7 +2,7 @@
 *									 *
 *	 YAP Prolog 							 *
 *									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+**	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
@@ -123,11 +123,14 @@ otherwise.
 
 :-set_prolog_flag(verbose,  normal).
 
-:- [	 'directives.yap',
-	 'utils.yap',
-	 'control.yap',
-	 'arith.yap',
-	 'flags.yap'
+:-set_prolog_flag(gc_trace, verbose).
+
+:- [
+    'arith.yap',
+    'directives.yap',
+    'utils.yap',
+    'control.yap',
+    'flags.yap'
    ].
 
 :- [	 'preds.yap',
@@ -332,9 +335,38 @@ If this hook predicate succeeds it must instantiate the  _Action_ argument to th
 
 :- dynamic user:exception/3.
 
+/*
+   Add some tests
+*/
 :- yap_flag(user:unknown,error).
 
 :- stream_property(user_input, tty(true)) -> set_prolog_flag(readline, true) ; true.
+
+aa b.
+
+p(X,Y) :- Y is X*X.
+
+prefix(information,   '% ', S,	   user_error) --> [].
+
+:- format('~d~n', [a]).
+
+:- format('~d~n', []).
+
+:- p(X,Y).
+
+a(1).
+
+a.
+
+a(2).
+a(2).
+
+lists:member(1,[1]).
+
+clause_to_indicator(T, M:Name/Arity) :- ,
+	strip_module(T, M, T1),
+	pred_arity( T1, Name, Arity ).
+*/
 
 /**
 @}

@@ -491,8 +491,9 @@ doformat(volatile Term otail, volatile Term oargs, int sno USES_REGS)
 	  ptr[1] = '\0';
 	  {
 	    char *tmp2;
-	    if (!(tmp2 = Yap_AllocCodeSpace(repeats+10)))
+	    if (!(tmp2 = Yap_AllocCodeSpace(repeats+10))) {
 	      goto do_type_int_error;
+	    }
 #if HAVE_SNPRINTF
 	    snprintf (tmp2, repeats+10, tmp1, fl);
 #else
@@ -545,6 +546,7 @@ doformat(volatile Term otail, volatile Term oargs, int sno USES_REGS)
 		  tmpbase = NULL;
 		} else {
 		  tmpbase = res;
+		  
 		  goto do_type_int_error;
 		}
 	      }

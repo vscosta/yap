@@ -52,7 +52,7 @@ lists:append([H|T], L, [H|R]) :-
 	lists:append(T, L, R).
 
 
-:- set_prolog_flag(source, false)). % :- no_source.
+:- set_prolog_flag(source, false). % :- no_source.
 
 %   lists:delete(List, Elem, Residue)
 %   is true when List is a list, in which Elem may or may not occur, and

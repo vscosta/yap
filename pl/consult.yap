@@ -227,7 +227,7 @@ load_files(Files,Opts) :-
 '$lf_option'(dialect, 20, yap).
 '$lf_option'(format, 21, source).
 '$lf_option'(redefine_module, 22, Warn) :-
-	( var(Warn) ->	current_prolog_flag( redefine_warnings, Redefine ), Redefine = Warn ; true )).
+	( var(Warn) ->	current_prolog_flag( redefine_warnings, Redefine ), Redefine = Warn ; true ).
 '$lf_option'(reexport, 23, false).
 '$lf_option'(sandboxed, 24, false).
 '$lf_option'(scope_settings, 25, false).
@@ -465,11 +465,11 @@ load_files(Files,Opts) :-
     % check if there is a qly file
 %	start_low_level_trace,
 	'$absolute_file_name'(File,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)],F,qload_file(File)),
-    open( F, read, Stream , [type(binary)] ),
-     H0 is heapused, '$cputime'(T0,_),
-    ( '$q_header'( Stream, Type ),
-       Type == file
+	open( F, read, Stream , [type(binary)] ),
+	'$q_header'( Stream, Type ),
+    (  Type == file
     ->
+      H0 is heapused, '$cputime'(T0,_),
        time_file64(F, T0F),
        stream_property(PlStream, file_name(FilePl)),
        time_file64(FilePl, T0Fl),
@@ -485,7 +485,7 @@ load_files(Files,Opts) :-
        working_directory( _, OldD),
        '$lf_opt'('$location', TOpts, ParentF:_Line),
        '$reexport'( TOpts, ParentF, Reexport, ImportList, File ),
-       print_message(Verbosity, loaded( loaded, F, M, T, H)),
+       '$early_print'(Verbosity, loaded( loaded, F, M, T, H)),
 %	stop_low_level_trace,
        '$exec_initialisation_goals'
     ;
@@ -686,7 +686,7 @@ db_files(Fs) :-
 	    StartMsg = consulting,
 	    EndMsg = consulted
 	),
-	print_message(Verbosity, loading(StartMsg, UserFile)),
+	'$early_print'(Verbosity, loading(StartMsg, UserFile)),
 	'$lf_opt'(skip_unix_header , TOpts, SkipUnixHeader),
 	( SkipUnixHeader == true
 	    ->
@@ -699,7 +699,7 @@ db_files(Fs) :-
 	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
 	'$current_module'(Mod, SourceModule),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-	print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
+	'$early_print'(Verbosity, loaded(EndMsg, File, Mod, T, H)),
 	'$end_consult',
 	'$q_do_save_file'(File, UserFile, TOpts ),
 	(
@@ -855,12 +855,12 @@ db_files(Fs) :-
         '$loaded'(Y, X,  Mod, _OldY, _L, include, _, Dir, []),
         ( '$nb_getval'('$included_file', OY, fail ) -> true ; OY = [] ),
 	nb_setval('$included_file', Y),
-	print_message(Verbosity, loading(including, Y)),
+	'$early_print'(Verbosity, loading(including, Y)),
 	'$loop'(Stream,Status),
 	set_stream(OldStream, alias(loop_stream) ),
         close(Stream),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-	print_message(Verbosity, loaded(included, Y, Mod, T, H)),
+	'$early_print'(Verbosity, loaded(included, Y, Mod, T, H)),
 	working_directory(_Dir, Dir0),
         nb_setval('$included_file',OY).
 
@@ -993,8 +993,7 @@ prolog_load_context(source, F0) :-
           F0 = user_input
         ).
 prolog_load_context(stream, Stream) :-
-        '$nb_getval'('$consulting_file', _, fail),
-        '$current_loop_stream'(Stream).
+	stream_property(Stream, alias(loop_stream) ).
 
 
 % if the file exports a module, then we can
@@ -1032,7 +1031,7 @@ prolog_load_context(stream, Stream) :-
 	'$file_is_unchanged'(F, R, Age),
 	!,
 %	( F = '/usr/local/share/Yap/rbtrees.yap' ->start_low_level_trace ; true),
-	recorded('$module','$module'(F,NM,_ASource,_P,_),_)
+	recorded('$module','$module'(F,NM,_ASource,_P,_),_),
         ( M == NM -> true ; recorded('$module','$module'(F,NM,_Source,_P,_),_) ), !.
 
 '$file_is_unchanged'(F, R, Age) :-
@@ -1345,7 +1344,7 @@ last one, onto underscores.
 
 '$add_multifile'(File,Name,Arity,Module) :-
 	recorded('$multifile_defs','$defined'(File,Name,Arity,Module), _), !.
-%	print_message(warning,declaration((multifile Module:Name/Arity),ignored)).
+%	'$early_print'(warning,declaration((multifile Module:Name/Arity),ignored)).
 '$add_multifile'(File,Name,Arity,Module) :-
 	recordz('$multifile_defs','$defined'(File,Name,Arity,Module),_), !,
 	fail.
@@ -1617,7 +1616,7 @@ End of conditional compilation.
 
 
 '$if_call'(G) :-
-	catch('$eval_if'(G), E, (print_message(error, E), fail)).
+	catch('$eval_if'(G), E, ('$early_print'(error, E), fail)).
 
 '$eval_if'(Goal) :-
 	expand_term(Goal,TrueGoal),

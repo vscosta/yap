@@ -249,8 +249,6 @@ int PL_get_wchars(term_t l, size_t *lengthp, wchar_t **s, unsigned flags)
   CACHE_REGS
     seq_tv_t inp, out;
   size_t leng;
-  encoding_t enc;
-  int minimal;
   void *buf = NULL;
   inp.val.t = Yap_GetFromSlot( l );
   inp.type = cvtFlags( flags );
@@ -721,6 +719,8 @@ X_API int PL_get_functor(term_t ts, functor_t *f)
   Term t = Yap_GetFromSlot(ts);
   if ( IsAtomTerm(t)) {
     *f = t;
+  } else if ( IsPairTerm(t)) {
+    *f = FunctorToSWIFunctor(FunctorDot);
   } else {
     *f = FunctorToSWIFunctor(FunctorOfTerm(t));
   }

@@ -527,13 +527,15 @@ qload_module(Mod) :-
     ).
 '$qload_module'(Mod, File, SourceModule) :-
     open(File, read, S, [type(binary)]),
-    '$q_header'( S, Type ),
+    %check verifies if a saved state;
+    '$q_header'( S, Type ), !,
     ( Type == module ->
 	  '$qload_module'(S , Mod, File, SourceModule)
     ;
       Type == file ->
 	  '$qload_file'(S, File)
     ),
+    !, 
     close(S).
 
 '$qload_module'(_S, Mod, _File, _SourceModule) :-

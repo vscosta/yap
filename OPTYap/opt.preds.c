@@ -19,7 +19,6 @@
 #if defined(YAPOR) || defined(TABLING)
 #include "Yatom.h"
 #include "YapHeap.h"
-#include "SWI-Prolog.h"
 #ifdef YAPOR
 #if HAVE_STRING_H
 #include <string.h>
