@@ -1316,7 +1316,7 @@ InitCodes(void)
   Yap_InitFirstWorkerThreadHandle();
   /* make sure no one else can use these two atoms */
   LOCAL_SourceModule = CurrentModule = 0;
-  Yap_ReleaseAtom(AtomOfTerm(TermReFoundVar));
+  Yap_ReleaseAtom(AtomOfTerm(TermRefoundVar));
   /* flags require atom table done, but must be done as soon as possible,
      definitely before any predicate initialization */
   // Yap_InitFlags(); moved to HEAPFIELDS
