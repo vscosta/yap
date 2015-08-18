@@ -80,3 +80,5 @@ C/new_iop.c
 *.log
 
 *.orig
+
+JIT/HPP/#JIT_In#
