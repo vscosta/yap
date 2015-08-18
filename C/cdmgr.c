@@ -2010,7 +2010,6 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
 
   if (p == LOCAL_LastAssertedPred)
     return FALSE;
-  LOCAL_LastAssertedPred = p;
   if (!LOCAL_ConsultSp) {
     InitConsultStack();
   }
@@ -2022,7 +2021,8 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
     fp = LOCAL_ConsultBase;
   }
   if (fp != LOCAL_ConsultBase) {
-    return FALSE;
+   LOCAL_LastAssertedPred = p;
+   return false;		/* careful */
   } else if (mode) { // consulting again a predicate in the original file.
     if ((p->cs.p_code.NOfClauses &&
 	 p->src.OwnerFile == Yap_ConsultingFile( PASS_REGS1 ) &&
@@ -2032,9 +2032,7 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
       //if (p->ArityOfPE)
       //	printf("+ %s %s %d\n",NameOfFunctor(p->FunctorOfPred)->StrOfAE,p->src.OwnerFile->StrOfAE, p->cs.p_code.NOfClauses);
       retract_all(p, static_in_use(p,TRUE));
-      return TRUE;
-    }
-    // else  if (p->ArityOfPE && p->cs.p_code.NOfClauses)
+     }
     //	printf("- %s %s\n",NameOfFunctor(p->FunctorOfPred)->StrOfAE,p->src.OwnerFile->StrOfAE);
   }
   if (mode) {
@@ -2049,6 +2047,7 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
     }
     p->src.OwnerFile = Yap_ConsultingFile( PASS_REGS1 );
   }
+  LOCAL_LastAssertedPred = p;
   return TRUE;		/* careful */
 }
 
@@ -2122,36 +2121,41 @@ PredEntry * Yap_PredFromClause( Term t USES_REGS )
       RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), cmod));
   }
   // ints, lists
+
   return NULL;
 }
 
-int
+bool
 Yap_discontiguous( PredEntry *ap USES_REGS )
 {
   register consult_obj  *fp;
 
   if (ap->PredFlags & (DiscontiguousPredFlag|MultiFileFlag))
-    return FALSE;
+    return false;
   if (!LOCAL_ConsultSp) {
-    return FALSE;
+    return false;
   }
   if (ap == LOCAL_LastAssertedPred)
     return FALSE;
   if (ap->cs.p_code.NOfClauses) {
     for (fp = LOCAL_ConsultSp; fp < LOCAL_ConsultBase; ++fp)
       if (fp->p == AbsPredProp(ap))
-	return TRUE;
+	return true;
   }
-  return FALSE;
+  return false;
 }
 
-int
+bool
 Yap_multiple( PredEntry *ap USES_REGS )
 {
+  register consult_obj  *fp;
+
   if (ap->PredFlags & MultiFileFlag)
     return FALSE;
-  if (ap == LOCAL_LastAssertedPred)
-    return FALSE;
+  for (fp = LOCAL_ConsultSp; fp < LOCAL_ConsultBase; ++fp)
+    if (fp->p == AbsPredProp(ap)) {
+      return false;
+    }
   return
     ap->cs.p_code.NOfClauses > 0 &&
     Yap_ConsultingFile( PASS_REGS1 ) != ap->src.OwnerFile;
@@ -2370,6 +2374,20 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   if (pflags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag))
     spy_flag = TRUE;
   goal_expansion_support(p, tf);
+  if (Yap_discontiguous( p ) ) {
+    Term disc[2];
+    disc[0] = MkIntegerTerm( Yap_source_line_no() );
+    disc[1] = t;
+    Yap_PrintWarning(
+		     Yap_MkApplTerm(Yap_MkFunctor(AtomDiscontiguous, 2), 2, disc));
+  } else if (Yap_multiple( p PASS_REGS ) ) {
+       Term redef[3];
+       redef[0] = MkIntegerTerm( Yap_source_line_no() );
+       redef[1] = t;
+       redef[2] = MkAtomTerm(p->src.OwnerFile);
+       Yap_PrintWarning(
+			Yap_MkApplTerm(Yap_MkFunctor(AtomMultiple, 3), 3, redef));
+  }
   if (mode == consult)
     not_was_reconsulted(p, t, TRUE);
   /* always check if we have a valid error first */
@@ -6365,9 +6383,10 @@ p_instance_property( USES_REGS1 )
 	if (op == CL_PROP_LINE) {
 	  if (cl->ClFlags & FactMask) {
 	    return Yap_unify(ARG3, MkIntTerm(cl->usc.ClLine));
-	  } else {
+	  } else if (cl->ClFlags & SrcMask) {
 	    return Yap_unify(ARG3, MkIntTerm(cl->usc.ClSource->ag.line_number));
-	  }
+	  } else
+        return MkIntTerm(0);
 	}
     } else if (FunctorOfTerm(t1) == FunctorMegaClause) {
       PredEntry *ap = (PredEntry *)IntegerOfTerm(ArgOfTerm(1, t1));
@@ -6457,9 +6476,10 @@ p_instance_property( USES_REGS1 )
     if (op == CL_PROP_LINE) {
       if (cl->ClFlags & FactMask) {
 	return Yap_unify(ARG3, MkIntTerm(cl->lusl.ClLine));
-      } else {
+      } else  if (cl->ClFlags & SrcMask){
 	return Yap_unify(ARG3, MkIntTerm(cl->lusl.ClSource->ag.line_number));
-      }
+      } else
+        return MkIntTerm(0);
     }
   }
   return FALSE;

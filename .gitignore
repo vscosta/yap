@@ -64,3 +64,7 @@ cmake_clean.cmake
 Makefile
 
 C/myabsmi.c
+
+*.ctags#
+
+*.hs
