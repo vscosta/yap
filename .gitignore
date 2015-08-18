@@ -68,3 +68,11 @@ C/myabsmi.c
 *.ctags#
 
 *.hs
+
+packages/bdd/CMakeFiles/CMakeDirectoryInformation.cmake
+
+*.make
+
+C/new_iop.c
+
+*.pdf

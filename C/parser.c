@@ -223,54 +223,6 @@ syntax_msg( const char *msg, ...)
 
 #define FAIL siglongjmp(FailBuff->JmpBuff, 1)
 
-static const char *tokRep(TokEntry *tokptr)
-{
-  CACHE_REGS
-  Term info = tokptr->TokInfo;
-  char *b, *buf = LOCAL_FileNameBuf2;
-  size_t length, sze = YAP_FILENAME_MAX-1;
-  UInt flags = 0;
-  
-  switch (tokptr->Tok) {
-  case Name_tok:
-    return RepAtom((Atom)info)->StrOfAE;
-  case Number_tok:
-    if ((b = Yap_TermToString(info, buf, sze, &length,LOCAL_encoding, flags)) != buf) {
-      if (b) free(b);
-      return NULL;
-    }
-    return buf;
-  case Var_tok:
-    {
-      VarEntry *varinfo = (VarEntry *)info;
-      return varinfo->VarRep;
-    }
-  case String_tok:
-  case BQString_tok:
-    return (char *)info;
-  case WString_tok:
-  case WBQString_tok:
-    return utf8_wcscpy(buf, (wchar_t *)info);
-  case Error_tok:
-    return "<ERR>";
-  case eot_tok:
-    return "<EOT>";
-  case Ponctuation_tok:
-    {
-      buf[1] = '\0';
-      if ((info) == 'l') {
-	buf[0] = '(';
-      } else  {
-	buf[0] = (char)info;
-      }
-    }
-    return buf;
-  case QuasiQuotes_tok:
-  case WQuasiQuotes_tok:
-    return "<QQ>";
-  }
-}
-
 VarEntry *Yap_LookupVar(const char *var) /* lookup variable in variables table   */
 {
   CACHE_REGS
@@ -336,6 +288,8 @@ static Term VarNames(VarEntry *p, Term l USES_REGS) {
       Term o;
 
       t[0] = MkAtomTerm(Yap_LookupAtom(p->VarRep));
+      if (!IsVarTerm(p->VarAdr))
+	p->VarAdr = MkVarTerm();
       t[1] = p->VarAdr;
       o = Yap_MkApplTerm(FunctorEq, 2, t);
       o = MkPairTerm(o, VarNames(p->VarRight,
@@ -505,7 +459,7 @@ inline static void GNextToken(USES_REGS1) {
 inline static void checkfor(wchar_t c, JMPBUFF *FailBuff USES_REGS) {
   if (LOCAL_tokptr->Tok != Ord(Ponctuation_tok) ||
       LOCAL_tokptr->TokInfo != (Term)c) {
-    syntax_msg("expected to find \'%c\', found %s", c, tokRep(LOCAL_tokptr));
+    syntax_msg("expected to find \'%c\', found %s", c, Yap_tokRep(LOCAL_tokptr));
     FAIL;
   }
   NextToken;
@@ -691,7 +645,7 @@ loop:
       to_store[1] = MkAtomTerm(AtomNil);
     }
   } else {
-     syntax_msg("looking for symbol ',','|' got symbol '%s'", tokRep(LOCAL_tokptr) );
+     syntax_msg("looking for symbol ',','|' got symbol '%s'", Yap_tokRep(LOCAL_tokptr) );
       FAIL;
   }
   return (o);
@@ -840,7 +794,7 @@ case Var_tok:
     break;
 
   case Error_tok:
-    syntax_msg( "found ill-formed \"%s\"", tokRep(LOCAL_tokptr) );
+    syntax_msg( "found ill-formed \"%s\"", Yap_tokRep(LOCAL_tokptr) );
     FAIL;
 
   case Ponctuation_tok:
@@ -881,7 +835,7 @@ case Var_tok:
       checkfor('}', FailBuff PASS_REGS);
       break;
     default:
-      syntax_msg("unexpected ponctuation signal %s", tokRep(LOCAL_tokptr));
+      syntax_msg("unexpected ponctuation signal %s", Yap_tokRep(LOCAL_tokptr));
       FAIL;
     }
     break;
@@ -925,11 +879,11 @@ case Var_tok:
     NextToken;
     t = ParseTerm( 1200, FailBuff PASS_REGS);
     if (LOCAL_tokptr->Tok != QuasiQuotes_tok) {
-      syntax_msg( "expected to find quasi quotes, got \"%s\"", , tokRep(LOCAL_tokptr) );
+      syntax_msg( "expected to find quasi quotes, got \"%s\"", , Yap_tokRep(LOCAL_tokptr) );
       FAIL;
     }
     if (!(is_quasi_quotation_syntax(t, &at))) {
-      syntax_msg( "bad quasi quotation syntax, at \"%s\"", tokRep(LOCAL_tokptr) );
+      syntax_msg( "bad quasi quotation syntax, at \"%s\"", Yap_tokRep(LOCAL_tokptr) );
       FAIL;
     }
     /* Arg 2: the content */
@@ -939,7 +893,7 @@ case Var_tok:
     if (!get_quasi_quotation(Yap_InitSlot(ArgOfTerm(2, tn)),
                              &qq->text,
                              qq->text + strlen((const char *)qq->text))) {
-       syntax_msg( "could not get quasi quotation, at \"%s\"", tokRep(LOCAL_tokptr) );
+       syntax_msg( "could not get quasi quotation, at \"%s\"", Yap_tokRep(LOCAL_tokptr) );
        FAIL;
     }
     if (positions) {
@@ -950,7 +904,7 @@ case Var_tok:
                          FUNCTOR_minus2, PL_INTPTR,
                          qq->mid.charno + 2,    /* end of | token */
                          PL_INTPTR, qqend - 2)) /* end minus "|}" */
-	syntax_msg( "failed to unify quasi quotation, at \"%s\"", tokRep(LOCAL_tokptr) );
+	syntax_msg( "failed to unify quasi quotation, at \"%s\"", Yap_tokRep(LOCAL_tokptr) );
         FAIL;
     }
 
@@ -961,7 +915,7 @@ case Var_tok:
     if (!(to = PL_new_term_ref()) ||
         !PL_unify_list(LOCAL_qq_tail, to, LOCAL_qq_tail) ||
         !PL_unify(to, Yap_InitSlot(tn ))) {
-      syntax_msg( "failed to unify quasi quotation, at \"%s\"", tokRep(LOCAL_tokptr) );
+      syntax_msg( "failed to unify quasi quotation, at \"%s\"", Yap_tokRep(LOCAL_tokptr) );
       FAIL;
     }
   }
@@ -969,12 +923,12 @@ case Var_tok:
     NextToken;
     break;
   default:
-    syntax_msg( "expected operator, got \'%s\'", tokRep(LOCAL_tokptr) );
+    syntax_msg( "expected operator, got \'%s\'", Yap_tokRep(LOCAL_tokptr) );
     FAIL;
   }
 
   /* main loop to parse infix and posfix operators starts here */
-  while (TRUE) {
+  while (true) {
     if (LOCAL_tokptr->Tok == Ord(Name_tok) &&
         Yap_HasOp((Atom)(LOCAL_tokptr->TokInfo))) {
       Atom save_opinfo = opinfo = (Atom)(LOCAL_tokptr->TokInfo);
@@ -1077,19 +1031,11 @@ case Var_tok:
       }
     }
     if (LOCAL_tokptr->Tok <= Ord(WString_tok)) {
-      syntax_msg( "expected operator, got \'%s\'", tokRep(LOCAL_tokptr) );
+      syntax_msg( "expected operator, got \'%s\'", Yap_tokRep(LOCAL_tokptr) );
       FAIL;
     }
     break;
   }
-#if DEBUG
-  if (GLOBAL_Option['p' - 'a' + 1]) {
-    Yap_DebugPutc(stderr, '[');
-    Yap_DebugPlWrite(t);
-    Yap_DebugPutc(stderr, ']');
-    Yap_DebugPutc(stderr, '\n');
-  }
-#endif
   return t;
 }
 
@@ -1097,21 +1043,38 @@ Term Yap_Parse(UInt prio) {
   CACHE_REGS
   Volatile Term t;
   JMPBUFF FailBuff;
-
+  static int cnt;
   yhandle_t sls  = Yap_CurrentSlot(PASS_REGS1);
   if (!sigsetjmp(FailBuff.JmpBuff, 0)) {
+
     t = ParseTerm(prio, &FailBuff PASS_REGS);
-    if (LOCAL_Error_TYPE == SYNTAX_ERROR) {
+#if DEBUG
+  if (GLOBAL_Option['p' - 'a' + 1]) {
+    Yap_DebugPutc(stderr, '[');
+    if (t==0) Yap_DebugPlWrite(MkIntTerm(0));
+    else Yap_DebugPlWrite(t);
+    Yap_DebugPutc(stderr, ']');
+    Yap_DebugPutc(stderr, '\n');
+  }
+#endif
+    Yap_CloseSlots( sls );
+    if (LOCAL_tokptr != NULL &&
+	LOCAL_tokptr->Tok != Ord(eot_tok)
+	) {
+      t = 0;
+    }
+    if (t != 0 &&
+	LOCAL_Error_TYPE == SYNTAX_ERROR) {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       LOCAL_ErrorMessage = NULL;
     }
     //    if (LOCAL_tokptr->Tok != Ord(eot_tok))
     //  return (0L);
-    Yap_CloseSlots( sls );
-    return (t);
-  } else
-    Yap_CloseSlots( sls );
-    return (0);
+    return t;
+  }
+  Yap_CloseSlots( sls );
+
+  return (0);
 }
 
 //! @}
