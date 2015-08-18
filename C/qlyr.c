@@ -721,7 +721,7 @@ checkChars(FILE *stream, char s[])
 }
 
 static Atom
-get_header(FILE *stream)
+do_header(FILE *stream)
 {
   char s[256], *p = s, ch;
   Atom at;
@@ -740,7 +740,7 @@ get_header(FILE *stream)
 }
 
 static Int
-p_get_header( USES_REGS1 )
+get_header( USES_REGS1 )
 {
   FILE *stream;
   Term t1 = Deref(ARG1);
@@ -754,7 +754,7 @@ p_get_header( USES_REGS1 )
   if (!(stream = Yap_GetInputStream(t1, "header scanning in qload")) ) {
     return FALSE;
   }
-  if ((at = get_header( stream )) == NIL)
+  if ((at = do_header( stream )) == NIL)
     rc = FALSE;
   else rc = Yap_unify( ARG2, MkAtomTerm( at ) );
     return rc;
@@ -1144,7 +1144,7 @@ qload_program( USES_REGS1 )
     return FALSE;
   }
   Yap_Reset( YAP_RESET_FROM_RESTORE );
-  if (get_header( stream ) == NIL)
+  if (do_header( stream ) == NIL)
     return FALSE;
   read_module(stream);
   fclose( stream );
@@ -1162,7 +1162,7 @@ Yap_Restore(char *s, char *lib_dir)
   if (!stream)
     return -1;
   GLOBAL_RestoreFile = s;
-  if (get_header( stream ) == NIL)
+  if (do_header( stream ) == NIL)
     return FALSE;
   read_module(stream);
   fclose( stream );
@@ -1177,7 +1177,7 @@ void Yap_InitQLYR(void)
   Yap_InitCPred("$qload_module_preds", 1, p_read_module_preds, SyncPredFlag|UserCPredFlag|HiddenPredFlag);
   Yap_InitCPred("$qload_file_preds", 1, p_read_module_preds, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$qload_program", 1, qload_program, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$q_header", 2, p_get_header, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$q_header", 2, get_header, SyncPredFlag|HiddenPredFlag);
   if (FALSE) {
     restore_codes();
   }
