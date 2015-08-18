@@ -1,4 +1,4 @@
-
+﻿
   /* This file, ratoms.h, was generated automatically by "yap -L misc/buildatoms"
      please do not update, update misc/ATOMS instead */
 
@@ -217,6 +217,8 @@
   AtomNb = AtomAdjust(AtomNb);
   AtomNbTerm = AtomAdjust(AtomNbTerm);
   AtomNew = AtomAdjust(AtomNew);
+  AtomNewLine = AtomAdjust(AtomNewLine);
+  AtomNl = AtomAdjust(AtomNl);
   AtomNoEffect = AtomAdjust(AtomNoEffect);
   AtomNoMemory = AtomAdjust(AtomNoMemory);
   AtomNone = AtomAdjust(AtomNone);
@@ -262,7 +264,6 @@
   AtomProcedure = AtomAdjust(AtomProcedure);
   AtomProfile = AtomAdjust(AtomProfile);
   AtomProlog = AtomAdjust(AtomProlog);
-  AtomPtr = AtomAdjust(AtomPtr);
   AtomQuery = AtomAdjust(AtomQuery);
   AtomQueue = AtomAdjust(AtomQueue);
   AtomQuiet = AtomAdjust(AtomQuiet);

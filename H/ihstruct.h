@@ -1,6 +1,6 @@
 ﻿
-  /* This file, ihstruct.h , was generated automatically by "yap -L misc/buildheap"
-     please do not update, update misc/HEAPFIELDS  instead */
+  /* This file, ihstruct.h, was generated automatically by "yap -L misc/buildheap"
+     please do not update, update misc/HEAPFIELDS instead */
 
 
 
@@ -86,50 +86,6 @@
 #ifdef EUROTRA
   TermDollarU = MkAtomTerm(AtomDollarU);
 #endif
-  TermAppend = MkAtomTerm(AtomAppend);
-  TermAtom = MkAtomTerm(AtomAtom);
-  TermBinary = MkAtomTerm(AtomBinary);
-  TermBoolean = MkAtomTerm(AtomBoolean);
-  TermChars = MkAtomTerm(AtomChars);
-  TermCodes = MkAtomTerm(AtomCodes);
-  TermCompact = MkAtomTerm(AtomCompact);
-  TermDec10 = MkAtomTerm(AtomDec10);
-  TermDots = MkAtomTerm(AtomDots);
-  TermEof = MkAtomTerm(AtomEof);
-  TermEOfCode = MkAtomTerm(AtomEOfCode);
-  TermError = MkAtomTerm(AtomError);
-  TermException = MkAtomTerm(AtomException);
-  TermFail = MkAtomTerm(AtomFail);
-  TermFalse = MkAtomTerm(AtomFalse);
-  TermFloat = MkAtomTerm(AtomFloat);
-  TermGlobal = MkAtomTerm(AtomGlobal);
-  TermIgnore = MkAtomTerm(AtomIgnore);
-  TermInteger = MkAtomTerm(AtomInteger);
-  TermMax = MkAtomTerm(AtomMax);
-  TermModule = MkAtomTerm(AtomModule);
-  TermMulti = MkAtomTerm(AtomMulti);
-  TermOff = MkAtomTerm(AtomOff);
-  TermOn = MkAtomTerm(AtomOn);
-  TermPortray = MkAtomTerm(AtomPortray);
-  TermProlog = MkAtomTerm(AtomProlog);
-  TermQuiet = MkAtomTerm(AtomQuiet);
-  TermRead = MkAtomTerm(AtomRead);
-  TermReadOnly = MkAtomTerm(AtomReadOnly);
-  TermReadWrite = MkAtomTerm(AtomReadWrite);
-  TermReFoundVar = MkAtomTerm(AtomRefoundVar);
-  TermReset = MkAtomTerm(AtomReset);
-  TermSilent = MkAtomTerm(AtomSilent);
-  TermSingle = MkAtomTerm(AtomSingle);
-  TermSource = MkAtomTerm(AtomSource);
-  TermString = MkAtomTerm(AtomString);
-  TermSymbolChar = MkAtomTerm(AtomSymbolChar);
-  TermTerm = MkAtomTerm(AtomTerm);
-  TermText = MkAtomTerm(AtomText);
-  TermThread = MkAtomTerm(AtomThread);
-  TermTrue = MkAtomTerm(AtomTrue);
-  TermWarning = MkAtomTerm(AtomWarning);
-  TermWrite = MkAtomTerm(AtomWrite);
-  TermXml = MkAtomTerm(AtomXml);
 
   USER_MODULE = MkAtomTerm(AtomUser);
   IDB_MODULE = MkAtomTerm(AtomIDB);

@@ -76,3 +76,7 @@ packages/bdd/CMakeFiles/CMakeDirectoryInformation.cmake
 C/new_iop.c
 
 *.pdf
+
+*.log
+
+*.orig

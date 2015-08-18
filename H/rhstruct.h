@@ -1,6 +1,6 @@
 ﻿
-  /* This file, rhstruct.h , was generated automatically by "yap -L misc/buildheap"
-     please do not update, update misc/HEAPFIELDS  instead */
+  /* This file, rhstruct.h, was generated automatically by "yap -L misc/buildheap"
+     please do not update, update misc/HEAPFIELDS instead */
 
 
 
@@ -86,50 +86,6 @@
 #ifdef EUROTRA
   TermDollarU = AtomTermAdjust(TermDollarU);
 #endif
-  TermAppend = AtomTermAdjust(TermAppend);
-  TermAtom = AtomTermAdjust(TermAtom);
-  TermBinary = AtomTermAdjust(TermBinary);
-  TermBoolean = AtomTermAdjust(TermBoolean);
-  TermChars = AtomTermAdjust(TermChars);
-  TermCodes = AtomTermAdjust(TermCodes);
-  TermCompact = AtomTermAdjust(TermCompact);
-  TermDec10 = AtomTermAdjust(TermDec10);
-  TermDots = AtomTermAdjust(TermDots);
-  TermEof = AtomTermAdjust(TermEof);
-  TermEOfCode = AtomTermAdjust(TermEOfCode);
-  TermError = AtomTermAdjust(TermError);
-  TermException = AtomTermAdjust(TermException);
-  TermFail = AtomTermAdjust(TermFail);
-  TermFalse = AtomTermAdjust(TermFalse);
-  TermFloat = AtomTermAdjust(TermFloat);
-  TermGlobal = AtomTermAdjust(TermGlobal);
-  TermIgnore = AtomTermAdjust(TermIgnore);
-  TermInteger = AtomTermAdjust(TermInteger);
-  TermMax = AtomTermAdjust(TermMax);
-  TermModule = AtomTermAdjust(TermModule);
-  TermMulti = AtomTermAdjust(TermMulti);
-  TermOff = AtomTermAdjust(TermOff);
-  TermOn = AtomTermAdjust(TermOn);
-  TermPortray = AtomTermAdjust(TermPortray);
-  TermProlog = AtomTermAdjust(TermProlog);
-  TermQuiet = AtomTermAdjust(TermQuiet);
-  TermRead = AtomTermAdjust(TermRead);
-  TermReadOnly = AtomTermAdjust(TermReadOnly);
-  TermReadWrite = AtomTermAdjust(TermReadWrite);
-  TermReFoundVar = AtomTermAdjust(TermReFoundVar);
-  TermReset = AtomTermAdjust(TermReset);
-  TermSilent = AtomTermAdjust(TermSilent);
-  TermSingle = AtomTermAdjust(TermSingle);
-  TermSource = AtomTermAdjust(TermSource);
-  TermString = AtomTermAdjust(TermString);
-  TermSymbolChar = AtomTermAdjust(TermSymbolChar);
-  TermTerm = AtomTermAdjust(TermTerm);
-  TermText = AtomTermAdjust(TermText);
-  TermThread = AtomTermAdjust(TermThread);
-  TermTrue = AtomTermAdjust(TermTrue);
-  TermWarning = AtomTermAdjust(TermWarning);
-  TermWrite = AtomTermAdjust(TermWrite);
-  TermXml = AtomTermAdjust(TermXml);
 
   USER_MODULE = AtomTermAdjust(USER_MODULE);
   IDB_MODULE = AtomTermAdjust(IDB_MODULE);
