@@ -19,7 +19,7 @@
 :- module('$hacks',
 	  [display_stack_info/4,
 	   display_stack_info/6,
-	   display_pc/3,
+	   display_pc/4,
 	   code_location/3]).
 
 /** hacks:context_variables(-NamedVariables)
@@ -78,16 +78,26 @@ construct_code(Cl,Name,Arity,Mod,Where,Location) :-
 	'$construct_code'(Clause,Name,Arity,Mod,Info,Location).
 '$prepare_loc'(Info,_,Info).
 
-display_pc(PC) -->
+display_pc(PC, Source) -->
 	{ integer(PC) },
 	{ '$pred_for_code'(PC,Name,Arity,Mod,Clause) },
-	pc_code(Clause,Name,Arity,Mod).
+	pc_code(Clause,Name,Arity,Mod, Source).
 
-pc_code(-1,Name,Arity,Mod) --> !,
-	[ ' indexing code of ~a:~q/~d' - [Mod,Name,Arity] ].
-pc_code(Cl,Name,Arity,Mod) -->
+pc_code(0,_Name,_Arity,_Mod, 'top level' - []) --> !,
+	{fail}.
+pc_code(-1,Name,Arity,Mod, '~a:~q/~d' - [Mod,Name,Arity]) --> !,
+	{ functor(S, Name,Arity),
+	nth_clause(Mod:S,1,Ref),
+	clause_property(Ref, file(File)),
+	clause_property(Ref, line_count(Line)) },		       
+	[ '~a:~d:0, ' - [File,Line] ].
+pc_code(Cl,Name,Arity,Mod, 'clause ~d for ~a:~q/~d'-[Cl,Mod,Name,Arity]) -->
 	{ Cl > 0 },
-	[ ' clause ~d of ~a:~q/~d' - [Cl,Mod,Name,Arity] ].
+	{ functor(S, Name,Arity),
+	nth_clause(Mod:S,Cl,Ref),
+	clause_property(Ref, file(File)),
+	clause_property(Ref, line_count(Line)) },		       
+	[ '~a:~d:0, ' - [File,Line] ].
 
 
 display_stack_info(_,_,0,_) --> !.
