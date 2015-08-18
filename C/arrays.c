@@ -1243,7 +1243,7 @@ p_static_array_properties( USES_REGS1 )
       case array_of_doubles:
 	return(Yap_unify(ARG3,MkAtomTerm(AtomFloat)));
       case array_of_ptrs:
-	return(Yap_unify(ARG3,MkAtomTerm(AtomPtr)));
+	return(Yap_unify(ARG3,TermPointer));
       case array_of_chars:
 	return(Yap_unify(ARG3,MkAtomTerm(AtomChar)));
       case array_of_uchars:
