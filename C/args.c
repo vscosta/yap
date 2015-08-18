@@ -68,6 +68,8 @@ Yap_ArgListToVector (Term listl, const param_t *def, int n)
 	return NULL;
       }
       xarg *na = matchKey( NameOfFunctor( f ), a, n, def);
+      if (!na)
+	return NULL;
       na->used = 1;
       na->tvalue = ArgOfTerm(1, hd);      
     } else {
