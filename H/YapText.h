@@ -31,6 +31,8 @@
 #include "Yap.h"
 #include "pl-utf8.h"
 
+const char *Yap_tokRep(TokEntry *tokptr);
+
 // standard strings
 
 typedef enum {
