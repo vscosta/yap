@@ -1,6 +1,6 @@
-﻿
-  /* This file, ilocals.h , was generated automatically by "yap -L misc/buildlocalglobal"
-     please do not update, update misc/LOCALS  instead */
+
+  /* This file, ilocals.h, was generated automatically by "yap -L misc/buildlocalglobal"
+     please do not update, update misc/LOCALS instead */
 
 
 static void InitWorker(int wid) {
@@ -271,5 +271,6 @@ static void InitWorker(int wid) {
 
   REMOTE_Mutexes(wid) = NULL;
   REMOTE_SourceModule(wid) = 0;
+  REMOTE_Including(wid) = TermNil;
   REMOTE_MAX_SIZE(wid) = 1024L;
 }

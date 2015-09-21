@@ -793,7 +793,7 @@ YAP_LookupAtom(const char *c)
   Atom a;
 
   while (TRUE) {
-    a = Yap_LookupAtom((char *)c);
+    a = Yap_LookupAtom(c);
     if (a == NIL || Yap_get_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_locked_growheap(FALSE, 0, NULL)) {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
@@ -831,7 +831,7 @@ YAP_FullLookupAtom(const char *c)
   Atom at;
 
   while (TRUE) {
-    at = Yap_FullLookupAtom((char *)c);
+    at = Yap_FullLookupAtom(c);
     if (at == NIL || Yap_get_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_locked_growheap(FALSE, 0, NULL)) {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
@@ -854,9 +854,9 @@ YAP_AtomNameLength(Atom at)
 
     return wcslen(c);
   } else {
-    char *c = RepAtom(at)->StrOfAE;
+    unsigned char *c = RepAtom(at)->UStrOfAE;
 
-    return strlen(c);
+    return strlen((char *)c);
   }
 }
 

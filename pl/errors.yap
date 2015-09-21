@@ -202,6 +202,8 @@ The error handler is called when there is an execution error or a
 warning needs to be displayed. The handlers include a number of hooks
 to allow user-control.
 
+
+
 */
 
 :- system_module( '$_errors', [message_to_string/2,
@@ -213,11 +215,22 @@ to allow user-control.
         translate_message/3]).
 
 
+
+
 '$do_error'(Type,Message) :-
-%        format('~w~n', [Type]),
-	'$current_stack'(local_sp(_,CP,Envs,CPs)),
-%	'$stack_dump',
-	throw(error(Type,[Message|local_sp(Message,CP,Envs,CPs)])).
+        format('~w~n', [Type]),
+%	stop_low_level_trace,
+	current_stack(local_sp(Location,
+			       P,CP,PP,Envs,CPs)),
+				%	'$stack_dump',
+	'$compose_context'(Message, Location, CMessage),
+	throw(error(Type,[context(CMessage)
+			 ,local_sp(Location,P,CP,PP,Envs,CPs)])).
+
+'$compose_context'(context(Culprit), Caller, context(Culprit, Caller) ) :-
+		  !.
+'$compose_context'(Culprit, _Caller, context(Culprit) ).
+
 
 '$do_pi_error'(type_error(callable,Name/0),Message) :- !,
 	'$do_error'(type_error(callable,Name),Message).

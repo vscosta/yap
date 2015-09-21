@@ -412,7 +412,7 @@ eq(Term t1, Term t2 USES_REGS)
 	  case (CELL)FunctorLongInt:
 	    return(LongIntOfTerm(d0) == LongIntOfTerm(d1));
 	  case (CELL)FunctorString:
-	    return(strcmp(StringOfTerm(d0), StringOfTerm(d1)) == 0);
+	    return(strcmp((char *)StringOfTerm(d0), (char *)StringOfTerm(d1)) == 0);
 #ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
 	    return (Yap_gmp_tcmp_big_big(d0, d1) == 0);

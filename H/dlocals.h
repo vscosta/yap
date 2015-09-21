@@ -1,6 +1,6 @@
-﻿
-  /* This file, dlocals.h , was generated automatically by "yap -L misc/buildlocalglobal"
-     please do not update, update misc/LOCALS  instead */
+
+  /* This file, dlocals.h, was generated automatically by "yap -L misc/buildlocalglobal"
+     please do not update, update misc/LOCALS instead */
 
 
 
@@ -484,6 +484,8 @@
 #define REMOTE_Mutexes(wid) REMOTE(wid)->Mutexes_
 #define LOCAL_SourceModule LOCAL->SourceModule_
 #define REMOTE_SourceModule(wid) REMOTE(wid)->SourceModule_
+#define LOCAL_Including LOCAL->Including_
+#define REMOTE_Including(wid) REMOTE(wid)->Including_
 #define LOCAL_MAX_SIZE LOCAL->MAX_SIZE_
 #define REMOTE_MAX_SIZE(wid) REMOTE(wid)->MAX_SIZE_
 

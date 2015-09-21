@@ -767,14 +767,10 @@ static Int dopeek( int sno )
   /* buffer the character */
   s->och = ch;
   /* mark a special function to recover this character */
+  Yap_DefaultStreamOps( s );
   s->stream_getc = PlUnGetc;
-  s->stream_wgetc = get_wchar;
-  s->stream_gets = DefaultGets;
-  if (GLOBAL_CharConversionTable != NULL)
-    s->stream_wgetc_for_read = ISOWGetc;
-  else
-    s->stream_wgetc_for_read = s->stream_wgetc;
 
+  
   return ch;
 }
 

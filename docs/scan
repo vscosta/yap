@@ -1,0 +1,99 @@
+
+:- yap_flag( double_quotes, string ).
+
+:- yap_flag( write_strings, on ).
+
+:- style_check( all ).
+
+:- use_module(library(lists)).
+:- use_module(library(readutil)).
+:- use_module(library(system)).
+:- use_module(library(maplist)).
+
+:- initialization(main).
+
+:- dynamic owner/5.
+
+main :-
+	unix( argv( [] ) ), !,
+	maplist( owner, ['.'] ),
+	open( 'exports.yap', write, Es ),
+	dump( Es ),
+	close( Es ).
+main :-
+	unix( argv(Args) ),
+	maplist( owner, Args ),
+	open( 'exports.yap', write, Es ),
+	dump( Es ),
+	close( Es ).
+
+owner( D ) :-
+	file_property( D, type( P ) ),
+	owner( D, P ).
+
+owner( P, directory ) :-
+	directory_files( P , L),
+	member( F, L ),
+	F \= '.',
+	F \= '..',
+	F \= '.git',
+	F \= 'pltotex.pl',
+	atom_concat( [P, '/', F], FF),
+	owner( FF ),
+	fail.
+owner( File, regular ) :-
+	scan( File ),
+	fail.
+owner( _, _).
+
+
+scan( OF ) :-
+	file_base_name( OF, B ),
+	( sub_atom( B, Len, _, 0, '.yap' )
+	->
+	  true
+	;
+	  sub_atom( B, Len, _, 0, '.pl' )
+	->
+	  true
+	;
+	  sub_atom( B, Len, _, 0, '.P' )
+	->
+	  true
+	;
+	  sub_atom( B, Len, _, 0, '.prolog' )
+	->
+	  true
+	;
+	  sub_atom( B, Len, _, 0,  '.bp' )
+	->
+	  true
+	),
+	sub_atom( B, 0, Len, _,  Base ),
+	open( OF, read, Fs ),
+	repeat,
+	(
+	   catch( read( Fs, ( :- Cmd ) ), _, fail )
+	->
+	   Cmd = module( Mod, Exports ),
+	   maplist( declare(Mod, Base, OF), Exports)
+	;
+	   !, close( Fs ), fail
+	).
+
+declare(Mod,  Base, File, N/A) :-
+	absolute_file_name( File, OF, []),
+	( owner( OOF, Base, Mod, N, _A), OOF \= OF 
+	->
+	  format( user_error, 'conflict: ~a in ~a and ~a~n',[N, OF, OOF])
+	;
+	  true
+	),
+	assert( owner( OF, Base, Mod, N, A) ).
+declare(_Mod, _B,  _File, op(_,_,_)).
+
+dump( S ) :-
+	owner( OF, Base, Mod, N, A),
+	format( S , ':- file( ~q, ~q, ~q, ~a, ~d ).~n',[ OF, Base, Mod, N, A ]),
+	fail.
+dump( _ ).

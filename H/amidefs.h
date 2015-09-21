@@ -1063,7 +1063,8 @@ OPCODE ENV_ToOp(yamop *cp)
 static inline
 size_t EnvSize(yamop *cp)
 {
-  return ((-ENV_Size(cp))/(OPREG)sizeof(CELL));
+  return ((-ENV_Size(cp
+                     ))/(OPREG)sizeof(CELL));
 }
 
 static inline

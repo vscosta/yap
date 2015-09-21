@@ -110,6 +110,7 @@ Yap_ConsoleOps( StreamDesc *s )
     /* else just PlGet plus checking for prompt */
     s->stream_getc = ConsoleGetc;
   }
+  Yap_DefaultStreamOps( s );
 }
 
 /* static */
@@ -150,7 +151,7 @@ ConsoleGetc(int sno)
 	GLOBAL_Stream[StdErrStream].stream_putc(StdErrStream, ch);
       }
     }
-    strncpy (LOCAL_Prompt, RepAtom (LOCAL_AtPrompt)->StrOfAE, MAX_PROMPT);
+    strncpy (LOCAL_Prompt, (char *)RepAtom (LOCAL_AtPrompt)->StrOfAE, MAX_PROMPT);
     LOCAL_newline = FALSE;
   }
 #if HAVE_SIGINTERRUPT
@@ -188,11 +189,11 @@ prompt1 ( USES_REGS1 )
   if (IsVarTerm (t) || !IsAtomTerm (t))
     return (FALSE);
   LOCAL_AtPrompt = a = AtomOfTerm (t);
-  if (strlen (RepAtom (a)->StrOfAE) > MAX_PROMPT) {
+  if (strlen ((char *)RepAtom (a)->StrOfAE) > MAX_PROMPT) {
     Yap_Error(SYSTEM_ERROR,t,"prompt %s is too long", RepAtom (a)->StrOfAE);
     return(FALSE);
   }
-  strncpy(LOCAL_Prompt, RepAtom (a)->StrOfAE, MAX_PROMPT);
+  strncpy(LOCAL_Prompt, (char *)RepAtom (a)->StrOfAE, MAX_PROMPT);
   return (TRUE);
 }
 
@@ -207,11 +208,11 @@ prompt ( USES_REGS1 )
   if (IsVarTerm (t) || !IsAtomTerm (t))
     return (FALSE);
   a = AtomOfTerm (t);
-  if (strlen (RepAtom (a)->StrOfAE) > MAX_PROMPT) {
+  if (strlen(RepAtom (a)->StrOfAE) > MAX_PROMPT) {
     Yap_Error(SYSTEM_ERROR,t,"prompt %s is too long", RepAtom (a)->StrOfAE);
     return(FALSE);
   }
-  strncpy(LOCAL_Prompt, RepAtom (LOCAL_AtPrompt)->StrOfAE, MAX_PROMPT);
+  strncpy(LOCAL_Prompt, (char *)RepAtom (LOCAL_AtPrompt)->StrOfAE, MAX_PROMPT);
   LOCAL_AtPrompt = a;
   return (TRUE);
 }

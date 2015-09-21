@@ -136,7 +136,7 @@ public:
   // Getter: outputs the atom;
   YAPAtom getAtom() { return YAPAtom(AtomOfTerm( gt() )); }
   // Getter: outputs the name as a sequence of ISO-LATIN1 codes;
-  const char *text() { return AtomOfTerm( gt() )->StrOfAE; }
+  const char *text() { return (const char *)AtomOfTerm( gt() )->StrOfAE; }
 };
 
 /**

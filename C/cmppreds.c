@@ -112,7 +112,7 @@ cmp_atoms(Atom a1, Atom a2)
     }
     return *s1-*s2;
   } else {
-    return strcmp(RepAtom(a1)->StrOfAE,RepAtom(a2)->StrOfAE);
+    return strcmp((char *)RepAtom(a1)->StrOfAE,(char *)RepAtom(a2)->StrOfAE);
   }
 }
 
@@ -181,7 +181,7 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
 	  goto done;
       } else if (IsStringTerm(d0)) {
 	if (IsStringTerm(d1)){
-	  out = strcmp(StringOfTerm(d0) , StringOfTerm(d1));
+	  out = strcmp((char *)StringOfTerm(d0) , (char *)StringOfTerm(d1));
 	} else if (IsIntTerm(d1))
 	  out = 1;
 	else if (IsFloatTerm(d1)) {
@@ -242,7 +242,7 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
 	    if (IsExtensionFunctor(f))
 	      out = 1;
 	    else if (!(out = 2-ArityOfFunctor(f)))
-	       out = strcmp(".",RepAtom(NameOfFunctor(f))->StrOfAE);
+	       out = strcmp(".",(char *)RepAtom(NameOfFunctor(f))->StrOfAE);
 	  } else out = 1;
 	  goto done;
 	}
@@ -411,7 +411,7 @@ compare(Term t1, Term t2) /* compare terms t1 and t2	 */
       else {
 	int out;
 	if (!(out = 2-ArityOfFunctor(f)))
-	  out = strcmp(".",RepAtom(NameOfFunctor(f))->StrOfAE);
+	  out = strcmp(".",(char *)RepAtom(NameOfFunctor(f))->StrOfAE);
 	return(out);
       }
     }
@@ -488,7 +488,7 @@ compare(Term t1, Term t2) /* compare terms t1 and t2	 */
 	    case db_ref_e:
 	      return 1;
 	    case string_e:
-	      return strcmp(StringOfTerm(t1), StringOfTerm(t2));
+	      return strcmp((char *)StringOfTerm(t1), (char *)StringOfTerm(t2));
 	    }
 	    return -1;
 	  }
@@ -507,7 +507,7 @@ compare(Term t1, Term t2) /* compare terms t1 and t2	 */
 	Functor f = FunctorOfTerm(t1);
 
 	if (!(out = ArityOfFunctor(f))-2)
-	  out = strcmp(RepAtom(NameOfFunctor(f))->StrOfAE,".");
+	  out = strcmp((char *)RepAtom(NameOfFunctor(f))->StrOfAE,".");
 	return out;
       }
       return 1;

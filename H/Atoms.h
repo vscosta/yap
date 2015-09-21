@@ -59,7 +59,8 @@ typedef struct AtomEntryStruct
 #endif
 
   union {
-    char uStrOfAE[MIN_ARRAY];	/* representation of atom as a string           */
+    unsigned char uUStrOfAE[MIN_ARRAY];	/* representation of atom as a string           */
+     char uStrOfAE[MIN_ARRAY];	/* representation of atom as a string           */
     wchar_t uWStrOfAE[MIN_ARRAY];	/* representation of atom as a string           */
     struct atom_blob blob[MIN_ARRAY];
   } rep;
@@ -76,13 +77,15 @@ typedef struct ExtraAtomEntryStruct
 #endif
 
   union {
-    char uStrOfAE[4];   /* representation of atom as a string           */
+    unsigned char uUStrOfAE[4];   /* representation of atom as a string           */
+     char uStrOfAE[4];   /* representation of atom as a string           */
     wchar_t uWStrOfAE[2];       /* representation of atom as a string           */
     struct atom_blob blob[2];
   } rep;
 }
   ExtraAtomEntry;
 
+#define UStrOfAE rep.uUStrOfAE
 #define StrOfAE rep.uStrOfAE
 #define WStrOfAE rep.uWStrOfAE
 

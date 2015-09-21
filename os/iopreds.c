@@ -92,6 +92,66 @@ FILE *Yap_stdin;
 FILE *Yap_stdout;
 FILE *Yap_stderr;
 
+static bool issolutions( Term t)
+{
+    if (t == TermFirst ||
+      t == TermAll )
+    return true;
+
+  if (IsVarTerm(t)) { 
+    Yap_Error(INSTANTIATION_ERROR, t, "solutions in {first, all}.");
+    return false;
+  }
+  if (IsAtomTerm(t)) {
+    Yap_Error(DOMAIN_ERROR_SOLUTIONS, t, "solutions in {first, all}");
+    return false;
+  }
+  Yap_Error(TYPE_ERROR_ATOM, t, "solutions in {first, all}}");
+  return false;
+
+}
+
+static bool is_file_type( Term t)
+{
+    if (t == TermTxt ||
+      t == TermProlog ||
+      t == TermSource||
+      t == TermExecutable||
+      t == TermQly||
+      t == TermDirectory )
+    return true;
+
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR, t, "file_type in {txt,prolog,exe,directory...}");
+    return false;
+  }
+  if (IsAtomTerm(t)) {
+    Yap_Error(DOMAIN_ERROR_FILE_TYPE, t, "file_type in {txt,prolog,exe,directory...}");
+    return false;
+  }
+  Yap_Error(TYPE_ERROR_ATOM, t, "file_type in {txt,prolog,exe,directory...}");
+  return false;
+
+}
+
+static bool is_file_errors( Term t)
+{
+    if (t == TermFail ||
+      t == TermError )
+    return true;
+
+  if (IsVarTerm(t)) {
+  Yap_Error(INSTANTIATION_ERROR, t, "file_error in {fail,error}.");
+  return false;
+  }
+  if (IsAtomTerm(t)) {
+    Yap_Error(DOMAIN_ERROR_FILE_ERRORS, t, "file_error in {fail,error}.");
+    return false;
+  }
+  Yap_Error(TYPE_ERROR_ATOM, t, "file_error in {fail,error}.");
+  return false;
+
+}
 
 void
 Yap_DefaultStreamOps( StreamDesc * st)
@@ -103,6 +163,10 @@ Yap_DefaultStreamOps( StreamDesc * st)
     st->stream_wgetc_for_read = ISOWGetc;
   else
     st->stream_wgetc_for_read = st->stream_wgetc; 
+  if (st->encoding  == ENC_ISO_UTF8)
+    st->stream_getc_for_utf8 = st->stream_getc;
+  else
+    st->stream_getc_for_utf8 = GetUTF8;
 }
 
 static void
@@ -220,7 +284,7 @@ InitStdStream (int sno, SMALLUNSGN flags, FILE * file)
   s->linepos = 0;
   s->linecount = 1;
   s->charcount = 0.;
-  s->encoding = LOCAL_encoding;
+  s->encoding = ENC_ISO_UTF8;
   INIT_LOCK(s->streamlock);
   unix_upd_stream_info(s);
   /* Getting streams to prompt is a mess because we need for cooperation
@@ -239,10 +303,7 @@ InitStdStream (int sno, SMALLUNSGN flags, FILE * file)
     break;
   }
   s->user_name = MkAtomTerm (s->name);
-  if (GLOBAL_CharConversionTable != NULL)
-    s->stream_wgetc_for_read = ISOWGetc;
-  else
-    s->stream_wgetc_for_read = s->stream_wgetc;
+  Yap_DefaultStreamOps( s );
 #if LIGHT
   s->status |= Tty_Stream_f|Promptable_Stream_f;
 #endif
@@ -492,15 +553,10 @@ ResetEOF(StreamDesc *s) {
 	Yap_ConsoleOps(  s );
       } else {
 	s->stream_getc = PlGetc;
+	Yap_DefaultStreamOps( s );
 	s->stream_gets = PlGetsFunc();
       }
-    s->stream_wgetc = get_wchar;
-    s->stream_wputc = put_wchar;
-    if (GLOBAL_CharConversionTable != NULL)
-      s->stream_wgetc_for_read = ISOWGetc;
-    else
-      s->stream_wgetc_for_read = s->stream_wgetc;
-    /* next, reset our own error indicator */
+   /* next, reset our own error indicator */
     s->status &= ~Eof_Stream_f;
     /* try reading again */
     return TRUE;
@@ -533,11 +589,7 @@ console_post_process_eof(StreamDesc *s)
 {
   CACHE_REGS
    s->stream_getc = EOFGetc;
-  s->stream_wgetc = get_wchar;
-  if (GLOBAL_CharConversionTable != NULL)
-    s->stream_wgetc_for_read = ISOWGetc;
-  else
-    s->stream_wgetc_for_read = s->stream_wgetc;
+  Yap_DefaultStreamOps( s );
   LOCAL_newline = FALSE;
   return EOFCHAR;
 }
@@ -564,12 +616,8 @@ post_process_eof(StreamDesc *s)
 {
   s->status |= Eof_Stream_f;
   s->stream_getc = EOFGetc;
-  s->stream_wgetc = get_wchar;
-  if (GLOBAL_CharConversionTable != NULL)
-    s->stream_wgetc_for_read = ISOWGetc;
-  else
-    s->stream_wgetc_for_read = s->stream_wgetc;
-  return EOFCHAR;
+  Yap_DefaultStreamOps( s );
+ return EOFCHAR;
 }
 
 /* standard routine, it should read from anything pointed by a FILE *.
@@ -589,16 +637,16 @@ PlGetc (int sno)
 }
 
 /* standard routine, it should read from anything pointed by a FILE *.
-   It could be made more efficient by doing our own buffering and avoiding
-   post_process_read_char, something to think about */
+ It could be made more efficient by doing our own buffering and avoiding
+ post_process_read_char, something to think about. It assumes codification in 8 bits. */
 int
 PlGets (int sno, UInt size, char *buf)
 {
   register StreamDesc *s = &GLOBAL_Stream[sno];
   UInt len;
-
+  
   if (fgets (buf, size, s->file) == NULL) {
-    return post_process_eof(s);    
+    return post_process_eof(s);
   }
   len = strlen(buf);
   s->charcount += len-1;
@@ -624,6 +672,26 @@ DefaultGets (int sno, UInt size, char *buf)
   *buf++ = '\0';
   return (buf-pt)-1;
 }
+
+int
+GetUTF8 (int sno)
+{
+  StreamDesc *s = &GLOBAL_Stream[sno];
+  uint64_t bufi = s->utf8_buf;
+  unsigned char *buf = (unsigned char *)&bufi;
+ 
+  if (!bufi) {
+   int32_t ch = get_wchar(sno);
+   if (ch < 128) return ch;
+   put_utf8((unsigned char *)&bufi, ch);
+  } else {
+    while (*buf++ == '\0');
+  }
+  unsigned char c = *buf;
+  buf[0] = '\0';
+  return c;
+}
+
 
 /* reads a character from a buffer and does the rest  */
 int
@@ -1300,7 +1368,13 @@ binary_file(char *file_name)
 
     st->charcount = 0;
     st->linecount = 1;
-    if (name == NULL) {
+      if (flags & Binary_Stream_f) {
+    st->encoding = ENC_OCTET;
+  } else {
+    st->encoding = encoding;
+  }
+
+      if (name == NULL) {
       char buf[YAP_FILENAME_MAX+1];
       name = Yap_guessFileName(fileno(fd), sno, buf, YAP_FILENAME_MAX);
       st->name = Yap_LookupAtom(name);
@@ -1308,30 +1382,20 @@ binary_file(char *file_name)
     st->user_name = file_name;
     st->file  = fd;
     st->linepos = 0;
-    st->stream_gets = PlGetsFunc();
     if (flags & Pipe_Stream_f) {
       Yap_PipeOps( st );
+       Yap_DefaultStreamOps(  st);
     } else if (flags & Tty_Stream_f) {
       Yap_ConsoleOps( st );
+      Yap_DefaultStreamOps(  st);
     } else {
       st->stream_putc = FilePutc;
       st->stream_getc = PlGetc;
       unix_upd_stream_info (st);
+      Yap_DefaultStreamOps(  st);
     }
-    st->stream_wgetc = get_wchar;
-    st->stream_wputc = put_wchar;
-  if (flags & Binary_Stream_f) {
-    st->encoding = ENC_OCTET;
-  } else {
-    st->encoding = encoding;
-  }
-    if (GLOBAL_CharConversionTable != NULL)
-      st->stream_wgetc_for_read = ISOWGetc;
-    else
-      st->stream_wgetc_for_read = st->stream_wgetc; 
-    if (GLOBAL_CharConversionTable != NULL)
-      st->stream_wgetc_for_read = ISOWGetc;
-    return true;
+    st->stream_gets = PlGetsFunc();
+  return true;
 }
 
 
@@ -1357,7 +1421,6 @@ binary_file(char *file_name)
     PAR( NULL, ok, OPEN_END )
 
 #define PAR(x,y,z) z
- 
   typedef enum open_enum_choices 
   {
     OPEN_DEFS()
@@ -1621,6 +1684,10 @@ open4 (  USES_REGS1 )
     st->stream_gets = PlGetsFunc();
     st->stream_wgetc = get_wchar;
     st->stream_wgetc_for_read = get_wchar;
+  if (st->encoding  == ENC_ISO_UTF8)
+    st->stream_getc_for_utf8 = st->stream_getc;
+  else
+    st->stream_getc_for_utf8 = GetUTF8;
     st->user_name = MkAtomTerm (st->name = AtomDevNull);
     UNLOCK(st->streamlock);
     t = Yap_MkStream (sno);
@@ -1811,6 +1878,106 @@ Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
 
 
 
+#define   ABSOLUTE_FILE_NAME_DEFS()					\
+  PAR( "extensions", ok, ABSOLUTE_FILE_NAME_EXTENSIONS),		\
+    PAR( "relative_to", isatom, ABSOLUTE_FILE_NAME_RELATIVE_TO ),	\
+    PAR( "access", isatom, ABSOLUTE_FILE_NAME_ACCESS ),			\
+    PAR( "file_type", is_file_type, ABSOLUTE_FILE_NAME_FILE_TYPE  ),		\
+    PAR( "file_errors", is_file_errors, ABSOLUTE_FILE_NAME_FILE_ERRORS ),	\
+    PAR( "solutions", issolutions,  ABSOLUTE_FILE_NAME_SOLUTIONS ),		\
+    PAR( "expand", boolean, ABSOLUTE_FILE_NAME_EXPAND ),			\
+    PAR( "verbose_file_search", boolean, ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH),		\
+    PAR( NULL, ok, ABSOLUTE_FILE_NAME_END )
+
+#define PAR(x,y,z) z
+ 
+  typedef enum ABSOLUTE_FILE_NAME_enum_           
+  {
+    ABSOLUTE_FILE_NAME_DEFS()
+  } absolute_file_name_choices_t;
+
+#undef PAR
+
+#define PAR(x,y,z) { x , y, z }
+ 
+ static const param_t absolute_file_name_search_defs[] =
+    {
+      ABSOLUTE_FILE_NAME_DEFS()
+    };
+#undef PAR
+
+
+static Int   abs_file_parameters (   USES_REGS1 )
+  {
+    Term t[ABSOLUTE_FILE_NAME_END];
+    Term tlist = Deref(ARG1), tf;
+    /* get options */
+    xarg *args = Yap_ArgListToVector ( tlist,absolute_file_name_search_defs, ABSOLUTE_FILE_NAME_END  );
+    if (args == NULL)
+      return FALSE;
+    /* done */
+    if (args[ABSOLUTE_FILE_NAME_EXTENSIONS].used)
+      t[ABSOLUTE_FILE_NAME_EXTENSIONS] = args[ABSOLUTE_FILE_NAME_EXTENSIONS].tvalue;
+    else
+      t[ABSOLUTE_FILE_NAME_EXTENSIONS] = TermNil;
+    if (args[ABSOLUTE_FILE_NAME_RELATIVE_TO].used)
+      t[ABSOLUTE_FILE_NAME_RELATIVE_TO] = args[ABSOLUTE_FILE_NAME_RELATIVE_TO].tvalue;
+    else
+      t[ABSOLUTE_FILE_NAME_RELATIVE_TO] = TermDot;
+    if (args[ABSOLUTE_FILE_NAME_FILE_TYPE].used)
+      t[ABSOLUTE_FILE_NAME_FILE_TYPE] = args[ABSOLUTE_FILE_NAME_FILE_TYPE].tvalue;
+    else
+      t[ABSOLUTE_FILE_NAME_FILE_TYPE] = TermTxt;
+    if (args[ABSOLUTE_FILE_NAME_ACCESS].used)
+      t[ABSOLUTE_FILE_NAME_ACCESS] = args[ABSOLUTE_FILE_NAME_ACCESS].tvalue;
+    else
+      t[ABSOLUTE_FILE_NAME_ACCESS] = TermNone;
+    if (args[ABSOLUTE_FILE_NAME_FILE_ERRORS].used)
+      t[ABSOLUTE_FILE_NAME_FILE_ERRORS] = args[ABSOLUTE_FILE_NAME_FILE_ERRORS].tvalue;
+    else
+      t[ABSOLUTE_FILE_NAME_FILE_ERRORS] = TermError;
+    if (args[ABSOLUTE_FILE_NAME_SOLUTIONS].used)
+      t[ABSOLUTE_FILE_NAME_SOLUTIONS] = args[ABSOLUTE_FILE_NAME_SOLUTIONS].tvalue;
+    else
+      t[ABSOLUTE_FILE_NAME_SOLUTIONS] = TermFirst;
+    if (args[ABSOLUTE_FILE_NAME_EXPAND].used)
+      t[ABSOLUTE_FILE_NAME_EXPAND] = args[ABSOLUTE_FILE_NAME_EXPAND].tvalue;
+    else
+      t[ABSOLUTE_FILE_NAME_EXPAND] = TermFalse;
+    if (args[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH].used)
+      t[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH] = args[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH].tvalue;
+    else
+      t[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH] = getYapFlag( TermVerboseFileSearch );
+    tf = Yap_MkApplTerm(Yap_MkFunctor(AtomOpt,ABSOLUTE_FILE_NAME_END), ABSOLUTE_FILE_NAME_END, t);
+    return (Yap_unify (ARG2, tf));
+
+}
+
+static Int   get_abs_file_parameter (   USES_REGS1 )
+  {
+    Term t = Deref(ARG1), topts = ARG2;
+    /* get options */
+    /* done */
+    if (t == TermExtensions)
+      return Yap_unify( ARG3, ArgOfTerm( ABSOLUTE_FILE_NAME_EXTENSIONS +1, topts ) );
+    if (t == TermRelativeTo)
+      return Yap_unify( ARG3, ArgOfTerm( ABSOLUTE_FILE_NAME_RELATIVE_TO +1, topts ) );
+    if (t == TermFileType)
+      return Yap_unify( ARG3, ArgOfTerm( ABSOLUTE_FILE_NAME_FILE_TYPE +1, topts ) );
+    if (t == TermAccess)
+      return Yap_unify( ARG3, ArgOfTerm( ABSOLUTE_FILE_NAME_ACCESS +1, topts ) );
+    if (t == TermFileErrors)
+      return Yap_unify( ARG3, ArgOfTerm( ABSOLUTE_FILE_NAME_FILE_ERRORS +1, topts ) );
+    if (t == TermSolutions)
+      return Yap_unify( ARG3, ArgOfTerm( ABSOLUTE_FILE_NAME_SOLUTIONS +1, topts ) );
+    if (t == TermExpand)
+      return Yap_unify( ARG3, ArgOfTerm( ABSOLUTE_FILE_NAME_EXPAND +1, topts ) );
+    if (t == TermVerboseFileSearch)
+      return Yap_unify( ARG3, ArgOfTerm( ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH +1, topts ) );
+    return false;
+
+}
+
   void
     Yap_InitPlIO (void)
   {
@@ -1836,6 +2003,8 @@ Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
     Yap_InitCPred ("close", 2, close2, SafePredFlag|SyncPredFlag);
     Yap_InitCPred ("open", 4, open4, SyncPredFlag);
     Yap_InitCPred ("open", 3, open3, SyncPredFlag);
+    Yap_InitCPred ("abs_file_parameters", 2, abs_file_parameters, SyncPredFlag|HiddenPredFlag);
+    Yap_InitCPred ("get_abs_file_parameter", 3, get_abs_file_parameter, SafePredFlag|SyncPredFlag|HiddenPredFlag);
     Yap_InitCPred ("$file_expansion", 2, p_file_expansion, SafePredFlag|SyncPredFlag|HiddenPredFlag);
     Yap_InitCPred ("$open_null_stream", 1, p_open_null_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag);
     Yap_InitIOStreams();

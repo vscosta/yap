@@ -440,7 +440,7 @@ IsModProperty (int flags)
 #define UNKNOWN_MASK            (UNKNOWN_ERROR|UNKNOWN_WARNING|UNKNOWN_FAIL)
 
 Term  Yap_getUnknownModule(ModEntry *m);
- void  Yap_setModuleFlags(ModEntry *n, ModEntry *o);
+void  Yap_setModuleFlags(ModEntry *n, ModEntry *o);
    
 /*	    operator property entry structure				*/
 typedef struct operator_entry
@@ -860,12 +860,12 @@ typedef enum
 } dbentry_flags;
 
 /* predicate initialization */
- void   Yap_InitCPred(const char *, UInt, CPredicate, pred_flags_t);
- void   Yap_InitAsmPred(const char *, UInt, int, CPredicate, pred_flags_t);
- void   Yap_InitCmpPred(const char *, UInt, CmpPredicate, pred_flags_t);
- void   Yap_InitCPredBack(const char *, UInt, unsigned int, CPredicate,CPredicate,pred_flags_t);
- void   Yap_InitCPredBackCut(const char *, UInt, unsigned int, CPredicate,CPredicate,CPredicate,pred_flags_t);
- void    Yap_InitCPredBack_(const char *, UInt, unsigned int, CPredicate,CPredicate,CPredicate,pred_flags_t);
+ void   Yap_InitCPred(const  char *, UInt, CPredicate, pred_flags_t);
+ void   Yap_InitAsmPred(const  char *, UInt, int, CPredicate, pred_flags_t);
+ void   Yap_InitCmpPred(const  char *, UInt, CmpPredicate, pred_flags_t);
+ void   Yap_InitCPredBack(const  char *, UInt, unsigned int, CPredicate,CPredicate,pred_flags_t);
+ void   Yap_InitCPredBackCut(const  char *, UInt, unsigned int, CPredicate,CPredicate,CPredicate,pred_flags_t);
+ void    Yap_InitCPredBack_(const  char *, UInt, unsigned int, CPredicate,CPredicate,CPredicate,pred_flags_t);
 
 /* *********************** DBrefs **************************************/
 
@@ -889,9 +889,9 @@ INLINE_ONLY inline EXTERN DBTerm *TermToDBTerm(Term);
 INLINE_ONLY inline EXTERN DBTerm *TermToDBTerm(Term X)
 {
   if (IsPairTerm(X)) {
-    return(DBTerm *)((char *)RepPair(X) - (CELL) &(((DBTerm *) NULL)->Contents));
+    return(DBTerm *)((unsigned char *)RepPair(X) - (CELL) &(((DBTerm *) NULL)->Contents));
   } else {
-    return(DBTerm *)((char *)RepAppl(X) - (CELL) &(((DBTerm *) NULL)->Contents));
+    return(DBTerm *)((unsigned char *)RepAppl(X) - (CELL) &(((DBTerm *) NULL)->Contents));
   }
 }
 
@@ -921,7 +921,7 @@ typedef struct DB_STRUCT
   DBTerm DBT;
 } DBStruct;
 
-#define DBStructFlagsToDBStruct(X) ((DBRef)((char *)(X) - (CELL) &(((DBRef) NULL)->Flags)))
+#define DBStructFlagsToDBStruct(X) ((DBRef)((unsigned char *)(X) - (CELL) &(((DBRef) NULL)->Flags)))
 
 #if MULTIPLE_STACKS
 #define INIT_DBREF_COUNT(X) (X)->ref_count = 0
@@ -1957,6 +1957,7 @@ PredPropByAtomAndMod (Atom at, Term cur_mod)
   return Yap_NewPredPropByAtom (ae, cur_mod);
 }
 
+ 
 #if DEBUG_PELOCKING
 #define PELOCK(I,Z)						\
   { LOCK((Z)->PELock); (Z)->StatisticsForPred->NOfEntries=(I);(Z)->StatisticsForPred->NOfHeadSuccesses=pthread_self(); }
@@ -1991,7 +1992,7 @@ AddPropToAtom(AtomEntry *ae, PropEntry *p)
 // auxiliary functions
 
  
-INLINE_ONLY inline EXTERN const char *AtomName (Atom at);
+INLINE_ONLY inline EXTERN const  char *AtomName (Atom at);
 
 /** 
  * AtomName: get a string with the name of an Atom. Assumes 8 bit representation.
@@ -2003,7 +2004,7 @@ INLINE_ONLY inline EXTERN const char *AtomName (Atom at);
 INLINE_ONLY inline EXTERN const char *
 AtomName (Atom at)
 {
-  return RepAtom(at) -> StrOfAE;
+  return RepAtom(at) -> rep.uStrOfAE;
 }
 
 
@@ -2021,7 +2022,7 @@ INLINE_ONLY inline EXTERN const char *AtomTermName (Term t);
 INLINE_ONLY inline EXTERN  const char*
 AtomTermName (Term t)
 {
-  return RepAtom(AtomOfTerm(t)) -> StrOfAE;
+  return RepAtom(AtomOfTerm(t)) -> rep.uStrOfAE;
 }
 
 

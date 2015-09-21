@@ -18,7 +18,7 @@ matchKey(Atom key, xarg *e0, int n, const param_t *def)
 {
   int i;
   for (i=0; i< n; i++) {
-    if (!strcmp(def->name, RepAtom(key)->StrOfAE)) {
+    if (!strcmp((char *)def->name, (char *)RepAtom(key)->StrOfAE)) {
       return e0;
     }
     def++;
@@ -31,7 +31,9 @@ xarg *
 Yap_ArgListToVector (Term listl, const param_t *def, int n)
 {
     CACHE_REGS
-  if (!IsPairTerm(listl) && listl != TermNil) {
+      if (IsApplTerm(listl) && FunctorOfTerm(listl) == FunctorModule)
+	listl = ArgOfTerm(2,listl);
+      if (!IsPairTerm(listl) && listl != TermNil) {
     listl = MkPairTerm( listl, TermNil );
   }
   xarg *a = calloc(  n , sizeof(xarg) );
@@ -86,7 +88,7 @@ matchKey2(Atom key, xarg *e0, int n, const param2_t *def)
 {
   int i;
   for (i=0; i< n; i++) {
-    if (!strcmp(def->name, RepAtom(key)->StrOfAE)) {
+    if (!strcmp((char*)def->name, (char*)RepAtom(key)->StrOfAE)) {
       return e0;
     }
     def++;

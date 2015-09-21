@@ -260,7 +260,7 @@ static yamop *a_either(op_numbers, CELL, CELL, yamop *,  int, struct intermediat
 #endif	/* YAPOR */
 static yamop *a_gl(op_numbers, yamop *, int, struct PSEUDO *, struct intermediates * CACHE_TYPE);
 static 
-COUNT compile_cmp_flags(char *);
+COUNT compile_cmp_flags(unsigned char *);
 static yamop *a_igl(CELL, op_numbers, yamop *, int, struct intermediates *);
 static yamop *a_xigl(op_numbers, yamop *, int, struct PSEUDO *);
 static yamop *a_ucons(int *, compiler_vm_op, yamop *, int, struct intermediates *);
@@ -1587,8 +1587,10 @@ a_pl(op_numbers opcode, PredEntry *pred, yamop *code_p, int pass_no)
 }
 
 static COUNT
-compile_cmp_flags(char *s)
+
+compile_cmp_flags(unsigned char *s0)
 {
+  char *s = (char *)s0;
   if (strcmp(s,"=<") == 0)
     return EQ_OK_IN_CMP|LT_OK_IN_CMP;
   if (strcmp(s,"is") == 0)
@@ -1621,7 +1623,7 @@ COUNT
 Yap_compile_cmp_flags(PredEntry *pred)
 {
   return
-    compile_cmp_flags(RepAtom(NameOfFunctor(pred->FunctorOfPred))->StrOfAE);
+    compile_cmp_flags(RepAtom(NameOfFunctor(pred->FunctorOfPred))->UStrOfAE);
 }
 
 static yamop *
@@ -1644,7 +1646,7 @@ a_bfunc(CELL a1, CELL a2, PredEntry *pred, clause_info *clinfo, yamop *code_p, i
 	code_p->y_u.plyys.f = emit_fail(cip);
 	code_p->y_u.plyys.y1 = v1;
 	code_p->y_u.plyys.y2 = emit_yreg(var_offset2);
-	code_p->y_u.plyys.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
+	code_p->y_u.plyys.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->UStrOfAE);
       }
       GONEXT(plyys);
     } else {
@@ -1654,7 +1656,7 @@ a_bfunc(CELL a1, CELL a2, PredEntry *pred, clause_info *clinfo, yamop *code_p, i
 	code_p->y_u.plxys.f = emit_fail(cip);
 	code_p->y_u.plxys.x = emit_xreg(var_offset2);
 	code_p->y_u.plxys.y = v1;
- 	code_p->y_u.plxys.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
+ 	code_p->y_u.plxys.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->UStrOfAE);
       }
       GONEXT(plxys);
     }
@@ -1671,7 +1673,7 @@ a_bfunc(CELL a1, CELL a2, PredEntry *pred, clause_info *clinfo, yamop *code_p, i
 	code_p->y_u.plxys.f = emit_fail(cip);
 	code_p->y_u.plxys.x = x1;
 	code_p->y_u.plxys.y = emit_yreg(var_offset2);
-	code_p->y_u.plxys.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
+	code_p->y_u.plxys.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->UStrOfAE);
       }
       GONEXT(plxys);
     } else {
@@ -1682,7 +1684,7 @@ a_bfunc(CELL a1, CELL a2, PredEntry *pred, clause_info *clinfo, yamop *code_p, i
 	code_p->y_u.plxxs.f = emit_fail(cip);
 	code_p->y_u.plxxs.x1 = x1;
 	code_p->y_u.plxxs.x2 = emit_xreg(var_offset2);
-	code_p->y_u.plxxs.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
+	code_p->y_u.plxxs.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->UStrOfAE);
       }
       GONEXT(plxxs);
     }

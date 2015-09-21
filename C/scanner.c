@@ -536,6 +536,18 @@ static char chtype0[NUMBER_OF_CHARS + 1] = {
   #endif
 };
 
+typedef struct scanner_internals {
+  StreamDesc *t;
+  TokEntry *ctok;
+  char *_ScannerStack; // = (char *)TR;
+  char *ScannerExtraBlocks;
+  CELL *CommentsTail;
+  CELL *Comments;
+  CELL *CommentsNextChar;
+  wchar_t *CommentsBuff;
+  size_t CommentsBuffLim;
+} scanner_internals;
+
 char *Yap_chtype = chtype0 + 1;
 
 int Yap_wide_chtype(Int ch) {
@@ -553,16 +565,15 @@ int Yap_wide_chtype(Int ch) {
   return BS;
 }
 
-static inline int getchr__(struct stream_desc* inp) {
-  int c = inp->stream_wgetc_for_read(inp-GLOBAL_Stream);
-  if (!GLOBAL_CharConversionTable || c < 0 || c >= 256)
-    return c;
-
-  return GLOBAL_CharConversionTable[c];
-}
-
-#define getchr(inp) getchr__(inp)
+// standard get char, uses conversion table
+// and converts to wide
+#define getchr(inp) inp->stream_wgetc_for_read(inp-GLOBAL_Stream)
+// get char for quoted data, eg, quoted atoms and so on
+// converts to wide
 #define getchrq(inp) inp->stream_wgetc(inp-GLOBAL_Stream)
+// get char for UTF-8 quoted data, eg, quoted strings
+// reads bytes
+#define getchru(inp) inp->stream_getc_utf8(inp-GLOBAL_Stream)
 
 /* in case there is an overflow */
 typedef struct scanner_extra_alloc {
@@ -1141,7 +1152,7 @@ Yap_tokRep(TokEntry *tokptr)
   
   switch (tokptr->Tok) {
     case Name_tok:
-      return RepAtom((Atom)info)->StrOfAE;
+      return (char *)RepAtom((Atom)info)->StrOfAE;
     case Number_tok:
       if ((b = Yap_TermToString(info, buf, sze, &length,LOCAL_encoding, flags)) != buf) {
         if (b) free(b);
@@ -1158,7 +1169,15 @@ Yap_tokRep(TokEntry *tokptr)
       return (char *)info;
     case WString_tok:
     case WBQString_tok:
-      return utf8_wcscpy(buf, (wchar_t *)info);
+    { wchar_t *op = (wchar_t *)info;
+      wchar_t c;
+      unsigned char *bp = (unsigned char *)buf;
+      while ((c=*op++) ){
+        bp += put_utf8(bp, c);
+      }
+      bp[0]='\0';
+      return buf;
+    }           
     case Error_tok:
       return "<ERR>";
     case eot_tok:
@@ -1274,7 +1293,7 @@ static wchar_t *ch_to_wide(char *base, char *charp) {
   if ((ch & 0xff) == ch) {                                                   \
   *charp++ = ch;                                                           \
   } else {                                                                   \
-  charp = _PL__utf8_put_char(charp, ch);                                   \
+  charp = _PL__put_utf8(charp, chr);                                   \
   }                                                                          \
   }
 
@@ -1382,7 +1401,7 @@ continue_comment:
           och = ch;
           ch = getchr(inp_stream);
 scan_name:
-          TokImage = ((AtomEntry *)(Yap_PreAllocCodeSpace()))->StrOfAE;
+          TokImage = (char *)((AtomEntry *)(Yap_PreAllocCodeSpace()))->StrOfAE;
           charp = TokImage;
           wcharp = NULL;
           isvar = (chtype(och) != LC);
@@ -1555,7 +1574,7 @@ huge_var_error:
         case QT:
         case DC:
 quoted_string:
-          TokImage = ((AtomEntry *)(Yap_PreAllocCodeSpace()))->StrOfAE;
+          TokImage = (char *)((AtomEntry *)(Yap_PreAllocCodeSpace()))->StrOfAE;
           charp = TokImage;
           quote = ch;
           len = 0;
@@ -1615,7 +1634,7 @@ quoted_string:
             } else {
               *charp = '\0';
             }
-          if (quote == '"') {
+          if (quote == '"'||quote == '`') {
               if (wcharp) {
                   mp = AllocScannerMemory(sizeof(wchar_t) * (len + 1));
                 } else {
@@ -1635,37 +1654,21 @@ quoted_string:
                 }
               t->TokInfo = Unsigned(mp);
               Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+            if (quote == '"') {
               if (wcharp) {
                   t->Tok = Ord(kind = WString_tok);
                 } else {
                   t->Tok = Ord(kind = String_tok);
                 }
-            } else if (quote == '`') {
-              if (wcharp) {
-                  mp = AllocScannerMemory( utf8_strlen1(TokImage) + 1 );
-                } else {
-                  mp = AllocScannerMemory(len + 1);
-                }
-              if (mp == NULL) {
-                  LOCAL_ErrorMessage =
-                      "not enough heap space to read in string or quoted atom";
-                  Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
-                  t->Tok = Ord(kind = eot_tok);
-                  return l;
-                }
-              if (wcharp) {
-                  wcscpy((wchar_t *)mp, (wchar_t *)TokImage);
-                } else {
-                  strcpy(mp, TokImage);
-                }
-              t->TokInfo = Unsigned(mp);
-              Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
-              if (wcharp) {
-                  t->Tok = Ord(kind = WBQString_tok);
-                } else {
-                  t->Tok = Ord(kind = BQString_tok);
-                }
             } else {
+              if (wcharp) {
+                t->Tok = Ord(kind = WBQString_tok);
+              } else {
+                t->Tok = Ord(kind = BQString_tok);
+              }
+              
+            }
+             } else {
               if (wcharp) {
                   t->TokInfo = Unsigned(Yap_LookupWideAtom((wchar_t *)TokImage));
                 } else {
@@ -1747,7 +1750,7 @@ enter_symbol:
 	  } else {
 	    Atom ae;
 
-	    TokImage = ((AtomEntry *)(Yap_PreAllocCodeSpace()))->StrOfAE;
+	    TokImage = (char *)((AtomEntry *)(Yap_PreAllocCodeSpace()))->StrOfAE;
 	    charp = TokImage;
 	    wcharp = NULL;
 	    add_ch_to_buff(och);
@@ -1913,8 +1916,8 @@ enter_symbol:
                       ch = getchrq(inp_stream);
                       if (ch != '}') {
                         } else {
-                          add_ch_to_utf8_buff(och);
-                          add_ch_to_utf8_buff(ch);
+                          charp = ( char *)put_utf8((unsigned char *)charp, och);
+                          charp = ( char *)put_utf8((unsigned char *)charp, ch);
                           /* we're done */
                           break;
                         }
@@ -1924,7 +1927,7 @@ enter_symbol:
                       t->Tok = Ord(kind = eot_tok);
                       break;
                     } else {
-                      add_ch_to_utf8_buff(ch);
+                      charp = ( char *)put_utf8((unsigned char *)charp, ch);
                       ch = getchrq(inp_stream);
                     }
                   if (charp > (char *)AuxSp - 1024) {

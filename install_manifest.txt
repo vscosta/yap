@@ -1,0 +1,1 @@
+/Users/vsc/.emacs.d/irony/bin/irony-server

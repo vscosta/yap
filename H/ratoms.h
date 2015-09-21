@@ -10,6 +10,7 @@
   AtomAfUnix = AtomAdjust(AtomAfUnix);
   AtomAlarm = AtomAdjust(AtomAlarm);
   AtomAlias = AtomAdjust(AtomAlias);
+  AtomAll = AtomAdjust(AtomAll);
   AtomAltNot = AtomAdjust(AtomAltNot);
   AtomAny = AtomAdjust(AtomAny);
   AtomAppend = AtomAdjust(AtomAppend);
@@ -87,6 +88,7 @@
   AtomDefault = AtomAdjust(AtomDefault);
   AtomDevNull = AtomAdjust(AtomDevNull);
   AtomDiff = AtomAdjust(AtomDiff);
+  AtomDirectory = AtomAdjust(AtomDirectory);
   AtomDiscontiguous = AtomAdjust(AtomDiscontiguous);
   AtomDiscontiguousWarnings = AtomAdjust(AtomDiscontiguousWarnings);
   AtomDollar = AtomAdjust(AtomDollar);
@@ -110,8 +112,10 @@
   AtomEq = AtomAdjust(AtomEq);
   AtomError = AtomAdjust(AtomError);
   AtomException = AtomAdjust(AtomException);
+  AtomExtensions = AtomAdjust(AtomExtensions);
   AtomEvaluable = AtomAdjust(AtomEvaluable);
   AtomEvaluationError = AtomAdjust(AtomEvaluationError);
+  AtomExecutable = AtomAdjust(AtomExecutable);
   AtomExecute = AtomAdjust(AtomExecute);
   AtomExecAnswers = AtomAdjust(AtomExecAnswers);
   AtomExecuteInMod = AtomAdjust(AtomExecuteInMod);
@@ -121,12 +125,17 @@
   AtomExistenceError = AtomAdjust(AtomExistenceError);
   AtomExoClause = AtomAdjust(AtomExoClause);
   AtomExpectedNumber = AtomAdjust(AtomExpectedNumber);
+  AtomExpand = AtomAdjust(AtomExpand);
   AtomExtendFileSearchPath = AtomAdjust(AtomExtendFileSearchPath);
+  AtomExtendsions = AtomAdjust(AtomExtendsions);
   AtomFB = AtomAdjust(AtomFB);
   AtomFail = AtomAdjust(AtomFail);
   AtomFalse = AtomAdjust(AtomFalse);
   AtomFast = AtomAdjust(AtomFast);
+  AtomFileErrors = AtomAdjust(AtomFileErrors);
   AtomFileerrors = AtomAdjust(AtomFileerrors);
+  AtomFileType = AtomAdjust(AtomFileType);
+  AtomFirst = AtomAdjust(AtomFirst);
   AtomFloat = AtomAdjust(AtomFloat);
   AtomFloatFormat = AtomAdjust(AtomFloatFormat);
   AtomFloatOverflow = AtomAdjust(AtomFloatOverflow);
@@ -239,6 +248,7 @@
   AtomOperator = AtomAdjust(AtomOperator);
   AtomOperatorPriority = AtomAdjust(AtomOperatorPriority);
   AtomOperatorSpecifier = AtomAdjust(AtomOperatorSpecifier);
+  AtomOpt = AtomAdjust(AtomOpt);
   AtomOtherwise = AtomAdjust(AtomOtherwise);
   AtomOutOfAttvarsError = AtomAdjust(AtomOutOfAttvarsError);
   AtomOutOfAuxspaceError = AtomAdjust(AtomOutOfAuxspaceError);
@@ -264,6 +274,7 @@
   AtomProcedure = AtomAdjust(AtomProcedure);
   AtomProfile = AtomAdjust(AtomProfile);
   AtomProlog = AtomAdjust(AtomProlog);
+  AtomQly = AtomAdjust(AtomQly);
   AtomQuery = AtomAdjust(AtomQuery);
   AtomQueue = AtomAdjust(AtomQueue);
   AtomQuiet = AtomAdjust(AtomQuiet);
@@ -280,6 +291,7 @@
   AtomRedefineWarnings = AtomAdjust(AtomRedefineWarnings);
   AtomRedoFreeze = AtomAdjust(AtomRedoFreeze);
   AtomRefoundVar = AtomAdjust(AtomRefoundVar);
+  AtomRelativeTo = AtomAdjust(AtomRelativeTo);
   AtomRepeat = AtomAdjust(AtomRepeat);
   AtomRepeatSpace = AtomAdjust(AtomRepeatSpace);
   AtomReposition = AtomAdjust(AtomReposition);
@@ -319,6 +331,7 @@
   AtomSingleton = AtomAdjust(AtomSingleton);
   AtomSlash = AtomAdjust(AtomSlash);
   AtomSocket = AtomAdjust(AtomSocket);
+  AtomSolutions = AtomAdjust(AtomSolutions);
   AtomSource = AtomAdjust(AtomSource);
   AtomSourceSink = AtomAdjust(AtomSourceSink);
   AtomSpy = AtomAdjust(AtomSpy);
@@ -335,6 +348,7 @@
   AtomStreamPos = AtomAdjust(AtomStreamPos);
   AtomStreamPosition = AtomAdjust(AtomStreamPosition);
   AtomString = AtomAdjust(AtomString);
+  AtomStyleCheck = AtomAdjust(AtomStyleCheck);
   AtomSTRING = AtomAdjust(AtomSTRING);
   AtomSwi = AtomAdjust(AtomSwi);
   AtomSymbolChar = AtomAdjust(AtomSymbolChar);
@@ -361,6 +375,7 @@
   AtomTrue = AtomAdjust(AtomTrue);
   AtomTty = AtomAdjust(AtomTty);
   AtomTtys = AtomAdjust(AtomTtys);
+  AtomTxt = AtomAdjust(AtomTxt);
   AtomTypeError = AtomAdjust(AtomTypeError);
   AtomUndefined = AtomAdjust(AtomUndefined);
   AtomUndefp = AtomAdjust(AtomUndefp);
@@ -379,6 +394,7 @@
   AtomVariableNames = AtomAdjust(AtomVariableNames);
   AtomHiddenVar = AtomAdjust(AtomHiddenVar);
   AtomVariable = AtomAdjust(AtomVariable);
+  AtomVerboseFileSearch = AtomAdjust(AtomVerboseFileSearch);
   AtomVersionNumber = AtomAdjust(AtomVersionNumber);
   AtomWakeUpGoal = AtomAdjust(AtomWakeUpGoal);
   AtomWarning = AtomAdjust(AtomWarning);
@@ -501,6 +517,7 @@
   FunctorStreamEOS = FuncAdjust(FunctorStreamEOS);
   FunctorStreamPos = FuncAdjust(FunctorStreamPos);
   FunctorString1 = FuncAdjust(FunctorString1);
+  FunctorStyleCheck = FuncAdjust(FunctorStyleCheck);
   FunctorSyntaxError = FuncAdjust(FunctorSyntaxError);
   FunctorShortSyntaxError = FuncAdjust(FunctorShortSyntaxError);
   FunctorTermExpansion = FuncAdjust(FunctorTermExpansion);

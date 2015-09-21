@@ -1,0 +1,25 @@
+
+sqlite3 side:
+create table test (id integer, x integer, y integer);
+.separator ","
+.import /home/vsc/Yap/ILP/HH/DaysInHospital_Y3.csv test
+
+myddas side:
+use_module(library(myddas)).
+db_open(sqlite3,con,'../hh',x,x).
+db_close(con).
+
+test 2:
+
+use_module(library(myddas)).
+assert((
+t2 :- 
+db_open(sqlite3,con,'../hh',x,x),
+db_import(con,test,test),
+test(A,B,C),
+writeln(test(A,B,C)),
+fail
+)).
+trace.
+t2.
+

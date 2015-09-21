@@ -42,7 +42,7 @@ BOp(Ystop, l);
 \************************************************************************/
 
 #if YAP_JIT
-      static void *OpAddress[] =
+      static void *OpAddress_JIT[] =
       {
 #define OPCODE(OP,TYPE) && _##OP
 #include "YapOpcodes.h"

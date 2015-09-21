@@ -745,7 +745,7 @@ c_postgres_row_cut( USES_REGS1 ) {
 
 static Term
 cvt__(const char *s USES_REGS) {
-  return Yap_CharsToTDQ( s, CurrentModule PASS_REGS);
+  return Yap_CharsToTDQ( s, CurrentModule, ENC_ISO_LATIN1 PASS_REGS);
 }
 
 /* db_row: ResultSet x Arity_ListOfArgs x ListOfArgs -> */

@@ -1,4 +1,5 @@
-/*************************************************************************
+/****************
+*********************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -27,7 +28,7 @@
 	     expand_expr/3,
 	     expand_expr/5,
 	     expand_expr/6] ).
-		   
+
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
 :- use_system_module( '$_modules', ['$clean_cuts'/2]).
@@ -59,7 +60,7 @@
 
 %% @{
 
-/** @pred expand_exprs(- _O_,+ _N_) 
+/** @pred expand_exprs(- _O_,+ _N_)
 	Control term expansion during compilation.
 
 Enables low-level optimizations. It reports the current state by
@@ -68,7 +69,7 @@ unifying _O_ with the previous state.  It then puts YAP in state _N_
 is equivalent to do_not_compile_expressions/0.
 
 This predicate is useful when debugging, to ensure execution close to the original source.
-	
+
 */
 expand_exprs(Old,New) :-
 	(get_value('$c_arith',true) ->
@@ -123,7 +124,7 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 
 do_c_built_in(G, M, OUT) :- var(G), !,
 	do_c_built_metacall(G, M, OUT).
-do_c_built_in(Mod:G, _, OUT) :- 
+do_c_built_in(Mod:G, _, OUT) :-
 	'$yap_strip_module'(Mod:G, M1, G1),
 	var(G1), !,
 	do_c_built_metacall(G1, M1, OUT).
@@ -151,7 +152,7 @@ do_c_built_in(phrase(NT,Xs0,Xs), Mod, NewGoal) :-
     callable(NT),
     catch('$translate_rule'((pseudo_nt --> NT), Rule),
 	  error(Pat,ImplDep),
-	  ( \+ '$harmless_dcgexception'(Pat), 
+	  ( \+ '$harmless_dcgexception'(Pat),
 	    throw(error(Pat,ImplDep))
 	  )
 	 ),
@@ -178,9 +179,9 @@ do_c_built_in(Comp0, _, R) :-		% now, do it for comparisons
 	'$do_and'(R0, Comp, R).
 do_c_built_in(P, _M, P).
 
-do_c_built_metacall(G1, Mod, '$execute_wo_mod'(G1,Mod)) :- 
+do_c_built_metacall(G1, Mod, '$execute_wo_mod'(G1,Mod)) :-
     var(Mod), !.
-do_c_built_metacall(G1, Mod, '$execute_in_mod'(G1,Mod)) :- 
+do_c_built_metacall(G1, Mod, '$execute_in_mod'(G1,Mod)) :-
     atom(Mod), !.
 do_c_built_metacall(G1, Mod, call(Mod:G1)).
 
@@ -191,7 +192,7 @@ do_c_built_metacall(G1, Mod, call(Mod:G1)).
 % V is the result of the simplification,
 % X the result of the initial expression
 % and the last argument is how we are writing this result
-'$drop_is'(V, V1, P0, G) :- 
+'$drop_is'(V, V1, P0, G) :-
     var(V),
     !,		% usual case
     V = V1,
@@ -221,7 +222,7 @@ do_c_built_metacall(G1, Mod, call(Mod:G1)).
 	'$composed_built_in'(G).
 '$composed_built_in'(not(G)) :-
 	'$composed_built_in'(G).
-	
+
 % expanding an expression:
 % first argument is the expression not expanded,
 % second argument the expanded expression
@@ -367,6 +368,6 @@ expand_expr(Op, X, Y, O, Q, P) :-
 
 
 
-/**	
-  @} 
+/**
+  @}
 */

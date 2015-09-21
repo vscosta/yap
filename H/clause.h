@@ -24,7 +24,7 @@
 /* consulting files */
 
 typedef union CONSULT_OBJ {
-  const char *filename;
+  const unsigned char *filename;
   int mode;
   Prop  p;
   UInt c;
@@ -428,8 +428,35 @@ Yap_ExoClausePredicateFromTerm(Term t)
   return (PredEntry *)IntegerOfTerm(ArgOfTerm(1,t));
 }
 
-#define DEAD_REF(ref) FALSE
+/******************************************************************
 
+			EXECUTING PROLOG CLAUSES
+
+******************************************************************/
+
+bool
+Yap_search_for_static_predicate_in_use(PredEntry *p, bool check_everything);
+
+static inline bool
+Yap_static_in_use(PredEntry *p, bool check_everything)
+{
+#if defined(YAPOR) || defined(THREADS)
+  return TRUE;
+#else
+  pred_flags_t pflags = p->PredFlags;
+  if (pflags & (DynamicPredFlag|LogUpdatePredFlag)) {
+    return FALSE;
+  }
+  if (STATIC_PREDICATES_MARKED) {
+    return (p->PredFlags & InUsePredFlag);
+  } else {
+    /* This code does not work for YAPOR or THREADS!!!!!!!! */
+    return Yap_search_for_static_predicate_in_use(p, check_everything);
+  }
+#endif
+
+#define DEAD_REF(ref) FALSE
+}
 
 typedef enum {
   FIND_PRED_FROM_ANYWHERE,

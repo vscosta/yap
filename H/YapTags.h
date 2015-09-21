@@ -256,9 +256,9 @@ AtomOfTerm (Term t)
 INLINE_ONLY inline EXTERN Term MkAtomTerm (Atom);
 
 INLINE_ONLY inline EXTERN Term
-MkAtomTerm (Atom a)
+MkAtomTerm (Atom at)
 {
-  return (Term) (TAGGEDA ((CELL)AtomTag, (CELL) (a)));
+  return (Term) (TAGGEDA ((CELL)AtomTag, (CELL) (at)));
 }
 
 

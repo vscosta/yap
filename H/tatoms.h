@@ -26,6 +26,9 @@
   Atom AtomAlias_;
 #define AtomAlias Yap_heap_regs->AtomAlias_
 #define TermAlias MkAtomTerm( Yap_heap_regs->AtomAlias_ )
+  Atom AtomAll_;
+#define AtomAll Yap_heap_regs->AtomAll_
+#define TermAll MkAtomTerm( Yap_heap_regs->AtomAll_ )
   Atom AtomAltNot_;
 #define AtomAltNot Yap_heap_regs->AtomAltNot_
 #define TermAltNot MkAtomTerm( Yap_heap_regs->AtomAltNot_ )
@@ -257,6 +260,9 @@
   Atom AtomDiff_;
 #define AtomDiff Yap_heap_regs->AtomDiff_
 #define TermDiff MkAtomTerm( Yap_heap_regs->AtomDiff_ )
+  Atom AtomDirectory_;
+#define AtomDirectory Yap_heap_regs->AtomDirectory_
+#define TermDirectory MkAtomTerm( Yap_heap_regs->AtomDirectory_ )
   Atom AtomDiscontiguous_;
 #define AtomDiscontiguous Yap_heap_regs->AtomDiscontiguous_
 #define TermDiscontiguous MkAtomTerm( Yap_heap_regs->AtomDiscontiguous_ )
@@ -326,12 +332,18 @@
   Atom AtomException_;
 #define AtomException Yap_heap_regs->AtomException_
 #define TermException MkAtomTerm( Yap_heap_regs->AtomException_ )
+  Atom AtomExtensions_;
+#define AtomExtensions Yap_heap_regs->AtomExtensions_
+#define TermExtensions MkAtomTerm( Yap_heap_regs->AtomExtensions_ )
   Atom AtomEvaluable_;
 #define AtomEvaluable Yap_heap_regs->AtomEvaluable_
 #define TermEvaluable MkAtomTerm( Yap_heap_regs->AtomEvaluable_ )
   Atom AtomEvaluationError_;
 #define AtomEvaluationError Yap_heap_regs->AtomEvaluationError_
 #define TermEvaluationError MkAtomTerm( Yap_heap_regs->AtomEvaluationError_ )
+  Atom AtomExecutable_;
+#define AtomExecutable Yap_heap_regs->AtomExecutable_
+#define TermExecutable MkAtomTerm( Yap_heap_regs->AtomExecutable_ )
   Atom AtomExecute_;
 #define AtomExecute Yap_heap_regs->AtomExecute_
 #define TermExecute MkAtomTerm( Yap_heap_regs->AtomExecute_ )
@@ -359,9 +371,15 @@
   Atom AtomExpectedNumber_;
 #define AtomExpectedNumber Yap_heap_regs->AtomExpectedNumber_
 #define TermExpectedNumber MkAtomTerm( Yap_heap_regs->AtomExpectedNumber_ )
+  Atom AtomExpand_;
+#define AtomExpand Yap_heap_regs->AtomExpand_
+#define TermExpand MkAtomTerm( Yap_heap_regs->AtomExpand_ )
   Atom AtomExtendFileSearchPath_;
 #define AtomExtendFileSearchPath Yap_heap_regs->AtomExtendFileSearchPath_
 #define TermExtendFileSearchPath MkAtomTerm( Yap_heap_regs->AtomExtendFileSearchPath_ )
+  Atom AtomExtendsions_;
+#define AtomExtendsions Yap_heap_regs->AtomExtendsions_
+#define TermExtendsions MkAtomTerm( Yap_heap_regs->AtomExtendsions_ )
   Atom AtomFB_;
 #define AtomFB Yap_heap_regs->AtomFB_
 #define TermFB MkAtomTerm( Yap_heap_regs->AtomFB_ )
@@ -374,9 +392,18 @@
   Atom AtomFast_;
 #define AtomFast Yap_heap_regs->AtomFast_
 #define TermFast MkAtomTerm( Yap_heap_regs->AtomFast_ )
+  Atom AtomFileErrors_;
+#define AtomFileErrors Yap_heap_regs->AtomFileErrors_
+#define TermFileErrors MkAtomTerm( Yap_heap_regs->AtomFileErrors_ )
   Atom AtomFileerrors_;
 #define AtomFileerrors Yap_heap_regs->AtomFileerrors_
 #define TermFileerrors MkAtomTerm( Yap_heap_regs->AtomFileerrors_ )
+  Atom AtomFileType_;
+#define AtomFileType Yap_heap_regs->AtomFileType_
+#define TermFileType MkAtomTerm( Yap_heap_regs->AtomFileType_ )
+  Atom AtomFirst_;
+#define AtomFirst Yap_heap_regs->AtomFirst_
+#define TermFirst MkAtomTerm( Yap_heap_regs->AtomFirst_ )
   Atom AtomFloat_;
 #define AtomFloat Yap_heap_regs->AtomFloat_
 #define TermFloat MkAtomTerm( Yap_heap_regs->AtomFloat_ )
@@ -713,6 +740,9 @@
   Atom AtomOperatorSpecifier_;
 #define AtomOperatorSpecifier Yap_heap_regs->AtomOperatorSpecifier_
 #define TermOperatorSpecifier MkAtomTerm( Yap_heap_regs->AtomOperatorSpecifier_ )
+  Atom AtomOpt_;
+#define AtomOpt Yap_heap_regs->AtomOpt_
+#define TermOpt MkAtomTerm( Yap_heap_regs->AtomOpt_ )
   Atom AtomOtherwise_;
 #define AtomOtherwise Yap_heap_regs->AtomOtherwise_
 #define TermOtherwise MkAtomTerm( Yap_heap_regs->AtomOtherwise_ )
@@ -788,6 +818,9 @@
   Atom AtomProlog_;
 #define AtomProlog Yap_heap_regs->AtomProlog_
 #define TermProlog MkAtomTerm( Yap_heap_regs->AtomProlog_ )
+  Atom AtomQly_;
+#define AtomQly Yap_heap_regs->AtomQly_
+#define TermQly MkAtomTerm( Yap_heap_regs->AtomQly_ )
   Atom AtomQuery_;
 #define AtomQuery Yap_heap_regs->AtomQuery_
 #define TermQuery MkAtomTerm( Yap_heap_regs->AtomQuery_ )
@@ -836,6 +869,9 @@
   Atom AtomRefoundVar_;
 #define AtomRefoundVar Yap_heap_regs->AtomRefoundVar_
 #define TermRefoundVar MkAtomTerm( Yap_heap_regs->AtomRefoundVar_ )
+  Atom AtomRelativeTo_;
+#define AtomRelativeTo Yap_heap_regs->AtomRelativeTo_
+#define TermRelativeTo MkAtomTerm( Yap_heap_regs->AtomRelativeTo_ )
   Atom AtomRepeat_;
 #define AtomRepeat Yap_heap_regs->AtomRepeat_
 #define TermRepeat MkAtomTerm( Yap_heap_regs->AtomRepeat_ )
@@ -953,6 +989,9 @@
   Atom AtomSocket_;
 #define AtomSocket Yap_heap_regs->AtomSocket_
 #define TermSocket MkAtomTerm( Yap_heap_regs->AtomSocket_ )
+  Atom AtomSolutions_;
+#define AtomSolutions Yap_heap_regs->AtomSolutions_
+#define TermSolutions MkAtomTerm( Yap_heap_regs->AtomSolutions_ )
   Atom AtomSource_;
 #define AtomSource Yap_heap_regs->AtomSource_
 #define TermSource MkAtomTerm( Yap_heap_regs->AtomSource_ )
@@ -1001,6 +1040,9 @@
   Atom AtomString_;
 #define AtomString Yap_heap_regs->AtomString_
 #define TermString MkAtomTerm( Yap_heap_regs->AtomString_ )
+  Atom AtomStyleCheck_;
+#define AtomStyleCheck Yap_heap_regs->AtomStyleCheck_
+#define TermStyleCheck MkAtomTerm( Yap_heap_regs->AtomStyleCheck_ )
   Atom AtomSTRING_;
 #define AtomSTRING Yap_heap_regs->AtomSTRING_
 #define TermSTRING MkAtomTerm( Yap_heap_regs->AtomSTRING_ )
@@ -1079,6 +1121,9 @@
   Atom AtomTtys_;
 #define AtomTtys Yap_heap_regs->AtomTtys_
 #define TermTtys MkAtomTerm( Yap_heap_regs->AtomTtys_ )
+  Atom AtomTxt_;
+#define AtomTxt Yap_heap_regs->AtomTxt_
+#define TermTxt MkAtomTerm( Yap_heap_regs->AtomTxt_ )
   Atom AtomTypeError_;
 #define AtomTypeError Yap_heap_regs->AtomTypeError_
 #define TermTypeError MkAtomTerm( Yap_heap_regs->AtomTypeError_ )
@@ -1133,6 +1178,9 @@
   Atom AtomVariable_;
 #define AtomVariable Yap_heap_regs->AtomVariable_
 #define TermVariable MkAtomTerm( Yap_heap_regs->AtomVariable_ )
+  Atom AtomVerboseFileSearch_;
+#define AtomVerboseFileSearch Yap_heap_regs->AtomVerboseFileSearch_
+#define TermVerboseFileSearch MkAtomTerm( Yap_heap_regs->AtomVerboseFileSearch_ )
   Atom AtomVersionNumber_;
 #define AtomVersionNumber Yap_heap_regs->AtomVersionNumber_
 #define TermVersionNumber MkAtomTerm( Yap_heap_regs->AtomVersionNumber_ )
@@ -1385,6 +1433,8 @@
 #define FunctorStreamPos Yap_heap_regs->FunctorStreamPos_
   Functor FunctorString1_;
 #define FunctorString1 Yap_heap_regs->FunctorString1_
+  Functor FunctorStyleCheck_;
+#define FunctorStyleCheck Yap_heap_regs->FunctorStyleCheck_
   Functor FunctorSyntaxError_;
 #define FunctorSyntaxError Yap_heap_regs->FunctorSyntaxError_
   Functor FunctorShortSyntaxError_;

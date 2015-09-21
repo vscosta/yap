@@ -1257,3 +1257,4 @@ goal_expansion(sumnodes(Meta, Term, AccIn, AccOut), Mod:Goal) :-
 /**
 @}
 */
+

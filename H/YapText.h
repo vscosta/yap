@@ -29,7 +29,100 @@
  */
 
 #include "Yap.h"
-#include "pl-utf8.h"
+#include "utf8proc.h"
+
+inline static utf8proc_ssize_t get_utf8(utf8proc_uint8_t * ptr, utf8proc_int32_t *valp) { return utf8proc_iterate( ptr, -1, valp ); }
+
+inline static utf8proc_ssize_t put_utf8(utf8proc_uint8_t * ptr, utf8proc_int32_t val) { return utf8proc_encode_char( val, ptr ); }
+
+inline static  utf8proc_uint8_t *skip_utf8( utf8proc_uint8_t * pt, utf8proc_ssize_t n) {
+  utf8proc_ssize_t i;
+  utf8proc_int32_t b;
+  for (i=0;i< n; i++) {
+    utf8proc_ssize_t l = utf8proc_iterate( pt, -1, &b );
+    if (b==0) return pt;
+    pt += l;
+  }
+  return pt;
+}
+
+inline static utf8proc_ssize_t strlen_utf8(const utf8proc_uint8_t * pt) {
+  utf8proc_ssize_t rc =0;
+  utf8proc_int32_t b;
+  while (true) {
+    utf8proc_ssize_t l = utf8proc_iterate( pt, -1, &b );
+    if (b==0) return rc;
+    pt += l;
+    rc += l;
+  }
+  return rc;
+}
+
+inline static utf8proc_ssize_t strlen_latin_utf8(const unsigned char * pt) {
+  utf8proc_ssize_t rc =0;
+  utf8proc_uint8_t b;
+  while (true) {
+    utf8proc_ssize_t l = utf8proc_encode_char( *pt, &b );
+    if (b==0) return rc;
+    pt++;
+    rc += l;
+  }
+  return rc;
+}
+
+inline static utf8proc_ssize_t strnlen_latin_utf8(const unsigned char * pt, size_t max) {
+  utf8proc_ssize_t rc =0;
+  utf8proc_uint8_t b;
+  while (true) {
+    utf8proc_ssize_t l = utf8proc_encode_char( *pt, &b );
+    if (b==0) return rc;
+    pt++;
+    rc += l;
+    if (--max == 0) return rc; 
+  }
+  return rc;
+}
+
+inline static utf8proc_ssize_t strlen_ucs2_utf8(const wchar_t * pt) {
+  utf8proc_ssize_t rc =0;
+  utf8proc_uint8_t b;
+  while (true) {
+    utf8proc_ssize_t l =  utf8proc_encode_char( *pt, &b );
+    if (b==0) return rc;
+    pt ++;
+    rc += l;
+  }
+  return rc;
+}
+
+inline static utf8proc_ssize_t strnlen_ucs2_utf8(const wchar_t * pt, size_t max) {
+  utf8proc_ssize_t rc =0;
+  utf8proc_uint8_t b;
+  while (true) {
+    utf8proc_ssize_t l =  utf8proc_encode_char( *pt, &b );
+    if (b==0) return rc;
+    pt ++;
+    rc += l;
+    if (--max == 0) return rc; 
+  }
+  return rc;
+}
+
+inline static int cmpn_utf8(const utf8proc_uint8_t * pt1, const utf8proc_uint8_t * pt2, utf8proc_ssize_t n) {
+  utf8proc_ssize_t i;
+  utf8proc_int32_t b;
+  for (i=0;i< n; i++) {
+    if (pt1[0] != pt2[0]) return pt1[0]- pt2[0];
+    utf8proc_ssize_t l = utf8proc_iterate( pt1, -1, &b );
+    if (l == 2) { if (pt1[1] != pt2[1]) return pt1[1]- pt2[1]; }
+    else if (l == 3) { if (pt1[2] != pt2[2]) return pt1[2]- pt2[2]; }
+    else if (l == 4) { if (pt1[3] != pt2[3]) return pt1[3]- pt2[3]; }
+    pt1 += l;
+    pt2 += l;
+                                         
+  }
+  return 0;
+}
 
 const char *Yap_tokRep(TokEntry *tokptr);
 
@@ -72,6 +165,7 @@ typedef union {
   const char *c0;
   const wchar_t *w0;
   char *c;
+  unsigned char *uc;
   wchar_t *w;
   Atom   a;
   size_t l;
@@ -100,14 +194,14 @@ init_tstring( USES_REGS1 ) {
   return t;
 }
 
-static inline char *
+static inline unsigned char *
 buf_from_tstring( CELL *p ) {
-  char *out = (char *)(p + 2);
+  unsigned char *out = (unsigned char *)(p + 2);
   return out;
 }
 
 static inline void
-close_tstring( char *p USES_REGS ) {
+close_tstring( unsigned char *p USES_REGS ) {
   CELL *szp = HR+1;
   HR = (CELL *)ALIGN_BY_TYPE( p ,CELL);
   *szp = (HR - szp)-1;
@@ -345,12 +439,13 @@ Yap_AtomicToTBQ(Term t0, Term mod USES_REGS)
 }
 
 static inline Atom
-Yap_CharsToAtom( const char *s USES_REGS )
+Yap_CharsToAtom( const char *s, encoding_t enc  USES_REGS )
 {
   seq_tv_t inp, out;
 
   inp.val.c0 = s;
   inp.sz = 0;
+  inp.enc = enc;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_ATOM;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -359,12 +454,13 @@ Yap_CharsToAtom( const char *s USES_REGS )
 }
 
 static inline Term
-Yap_CharsToListOfAtoms( const char *s USES_REGS )
+Yap_CharsToListOfAtoms( const char *s, encoding_t enc USES_REGS )
 {
   seq_tv_t inp, out;
 
   inp.val.c0 = s;
   inp.sz = 0;
+  inp.enc = enc;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_ATOMS;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -373,12 +469,13 @@ Yap_CharsToListOfAtoms( const char *s USES_REGS )
 }
 
 static inline Term
-Yap_CharsToListOfCodes( const char *s USES_REGS )
+Yap_CharsToListOfCodes( const char *s, encoding_t enc USES_REGS )
 {
   seq_tv_t inp, out;
 
   inp.val.c0 = s;
   inp.sz = 0;
+  inp.enc = enc;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_CODES;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -387,12 +484,28 @@ Yap_CharsToListOfCodes( const char *s USES_REGS )
 }
 
 static inline Term
-Yap_CharsToDiffListOfCodes( const char *s, Term tail USES_REGS )
+Yap_UTF8ToListOfCodes( const char *s USES_REGS )
 {
   seq_tv_t inp, out;
 
   inp.val.c0 = s;
   inp.sz = 0;
+  inp.type = YAP_STRING_CHARS;
+  inp.enc = ENC_ISO_UTF8;
+  out.type = YAP_STRING_CODES;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.t;
+}
+
+static inline Term
+Yap_CharsToDiffListOfCodes( const char *s, Term tail, encoding_t enc USES_REGS )
+{
+  seq_tv_t inp, out;
+
+  inp.val.c0 = s;
+  inp.sz = 0;
+  inp.enc = enc;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_DIFF|YAP_STRING_CODES;
   out.dif = tail;
@@ -402,12 +515,44 @@ Yap_CharsToDiffListOfCodes( const char *s, Term tail USES_REGS )
 }
 
 static inline Term
-Yap_CharsToString( const char *s USES_REGS )
+Yap_UTF8ToDiffListOfCodes( const char *s, Term tail USES_REGS )
+{
+  seq_tv_t inp, out;
+  
+  inp.val.c0 = s;
+  inp.sz = 0;
+  inp.type = YAP_STRING_CHARS;
+  inp.enc = ENC_ISO_UTF8;
+  out.type = YAP_STRING_DIFF|YAP_STRING_CODES;
+  out.dif = tail;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.t;
+}
+
+static inline Term
+Yap_WCharsToDiffListOfCodes( const wchar_t *s, Term tail USES_REGS )
+{
+  seq_tv_t inp, out;
+  
+  inp.val.w0 = s;
+  inp.sz = 0;
+  inp.type = YAP_STRING_WCHARS;
+  out.type = YAP_STRING_DIFF|YAP_STRING_CODES;
+  out.dif = tail;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.t;
+}
+
+static inline Term
+Yap_CharsToString( const char *s, encoding_t enc USES_REGS )
 {
   seq_tv_t inp, out;
 
   inp.val.c0 = s;
   inp.sz = 0;
+  inp.enc = enc;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_STRING;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -437,7 +582,7 @@ Yap_AtomToUTF8Text( Atom at, const char *s USES_REGS )
 }
 
 static inline Term
-Yap_CharsToTDQ( const char *s, Term mod USES_REGS )
+Yap_CharsToTDQ( const char *s, Term mod, encoding_t enc USES_REGS )
 {
   seq_tv_t inp, out;
   
@@ -445,6 +590,7 @@ Yap_CharsToTDQ( const char *s, Term mod USES_REGS )
   inp.sz = 0;
   inp.type = YAP_STRING_CHARS;
   inp.mod = mod;
+  inp.enc = enc;
   out.type = mod_to_type(mod PASS_REGS);
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -454,7 +600,7 @@ Yap_CharsToTDQ( const char *s, Term mod USES_REGS )
 }
 
 static inline Term
-Yap_CharsToTBQ( const char *s, Term mod USES_REGS )
+Yap_CharsToTBQ( const char *s, Term mod, encoding_t enc USES_REGS )
 {
   seq_tv_t inp, out;
   
@@ -462,6 +608,7 @@ Yap_CharsToTBQ( const char *s, Term mod USES_REGS )
   inp.sz = 0;
   inp.type = YAP_STRING_CHARS;
   inp.mod = mod;
+  inp.enc = enc;
   out.type = mod_to_bqtype(mod PASS_REGS);
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -646,13 +793,14 @@ YapListToTBQ(Term t0, Term mod USES_REGS)
 }
 
 static inline Atom
-Yap_NCharsToAtom( const char *s, size_t len USES_REGS )
+Yap_NCharsToAtom( const char *s, size_t len, encoding_t enc USES_REGS )
 {
   seq_tv_t inp, out;
 
   inp.val.c0 = s;
   inp.sz = len;
   inp.type = YAP_STRING_CHARS|YAP_STRING_NCHARS;
+  inp.enc = enc;
   out.type = YAP_STRING_ATOM;
   out.max = len;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -661,12 +809,13 @@ Yap_NCharsToAtom( const char *s, size_t len USES_REGS )
 }
 
 static inline Term
-Yap_CharsToDiffListOfAtoms( const char *s, Term tail USES_REGS )
+Yap_CharsToDiffListOfAtoms( const char *s, encoding_t enc, Term tail USES_REGS )
 {
   seq_tv_t inp, out;
 
   inp.val.c0 = s;
   inp.type = YAP_STRING_CHARS;
+  inp.enc = enc;
   out.type = YAP_STRING_ATOMS|YAP_STRING_DIFF;
   out.dif = tail;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -676,13 +825,14 @@ Yap_CharsToDiffListOfAtoms( const char *s, Term tail USES_REGS )
 
 
 static inline Term
-Yap_NCharsToListOfCodes( const char *s, size_t len USES_REGS )
+Yap_NCharsToListOfCodes( const char *s, size_t len, encoding_t enc USES_REGS )
 {
   seq_tv_t inp, out;
 
   inp.val.c0 = s;
   inp.sz = len;
   inp.type = YAP_STRING_CHARS|YAP_STRING_NCHARS;
+  inp.enc = enc;
   out.type = YAP_STRING_CODES;
   out.max = len;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -691,12 +841,13 @@ Yap_NCharsToListOfCodes( const char *s, size_t len USES_REGS )
 }
 
 static inline Term
-Yap_NCharsToString( const char *s, size_t len USES_REGS )
+Yap_NCharsToString( const char *s, size_t len, encoding_t enc USES_REGS )
 {
   seq_tv_t inp, out;
 
   inp.val.c0 = s;
   inp.sz = len;
+  inp.enc = enc;
   inp.type = YAP_STRING_CHARS|YAP_STRING_NCHARS;
   out.type = YAP_STRING_STRING;
   out.max = len;
@@ -706,13 +857,14 @@ Yap_NCharsToString( const char *s, size_t len USES_REGS )
 }
 
 static inline Term
-Yap_NCharsToTDQ( const char *s, size_t len, Term mod USES_REGS )
+Yap_NCharsToTDQ( const char *s, size_t len, encoding_t enc, Term mod USES_REGS )
 {
   seq_tv_t inp, out;
   
   inp.val.c0 = s;
   inp.type = YAP_STRING_CHARS|YAP_STRING_NCHARS;
   inp.sz = len;
+  inp.enc = enc;
   inp.mod = mod;
   out.type = mod_to_type(mod PASS_REGS);
   out.max = len;
@@ -724,13 +876,14 @@ Yap_NCharsToTDQ( const char *s, size_t len, Term mod USES_REGS )
 }
 
 static inline Term
-Yap_NCharsToTBQ( const char *s, size_t len, Term mod USES_REGS )
+Yap_NCharsToTBQ( const char *s, size_t len, encoding_t enc,  Term mod USES_REGS )
 {
   seq_tv_t inp, out;
   
   inp.val.c0 = s;
   inp.type = YAP_STRING_CHARS|YAP_STRING_NCHARS;
   inp.sz = len;
+  inp.enc = enc;
   inp.mod = mod;
   out.type = mod_to_bqtype(mod PASS_REGS);
   out.max = len;

@@ -114,7 +114,7 @@ Eval(Term t USES_REGS)
   } else if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);
     if (fun == FunctorString) {
-      const char *s = StringOfTerm(t);
+      const char *s = (const  char*)StringOfTerm(t);
       if (s[1] == '\0')
 	return MkIntegerTerm(s[0]);
       return Yap_ArithError(TYPE_ERROR_EVALUABLE, t,

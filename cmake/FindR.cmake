@@ -64,6 +64,7 @@ if(R_COMMAND)
             DOC "Rlapack library (example libRlapack.a, libRlapack.dylib, etc.).")
 
   find_library(R_LIBRARY_READLINE readline
+            HINTS ${R_ROOT_DIR}/lib
             DOC "(Optional) system readline library. Only required if the R libraries were built with readline support.")
 
 else()

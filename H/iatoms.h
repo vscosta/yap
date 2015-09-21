@@ -10,6 +10,7 @@
   AtomAfUnix = Yap_LookupAtom("AF_UNIX");
   AtomAlarm = Yap_FullLookupAtom("$alarm");
   AtomAlias = Yap_LookupAtom("alias");
+  AtomAll = Yap_LookupAtom("all");
   AtomAltNot = Yap_LookupAtom("not");
   AtomAny = Yap_LookupAtom("any");
   AtomAppend = Yap_LookupAtom("append");
@@ -87,6 +88,7 @@
   AtomDefault = Yap_LookupAtom("default");
   AtomDevNull = Yap_LookupAtom("/dev/null");
   AtomDiff = Yap_LookupAtom("\\=");
+  AtomDirectory = Yap_LookupAtom("disrectorys");
   AtomDiscontiguous = Yap_LookupAtom("discontiguous");
   AtomDiscontiguousWarnings = Yap_LookupAtom("discontiguous_warnings");
   AtomDollar = Yap_FullLookupAtom("$");
@@ -110,8 +112,10 @@
   AtomEq = Yap_LookupAtom("=");
   AtomError = Yap_LookupAtom("error");
   AtomException = Yap_LookupAtom("exception");
+  AtomExtensions = Yap_LookupAtom("extensions");
   AtomEvaluable = Yap_LookupAtom("evaluable");
   AtomEvaluationError = Yap_LookupAtom("evaluation_error");
+  AtomExecutable = Yap_LookupAtom("executable");
   AtomExecute = Yap_LookupAtom("execute");
   AtomExecAnswers = Yap_LookupAtom("exec_answers");
   AtomExecuteInMod = Yap_FullLookupAtom("$execute_in_mod");
@@ -121,12 +125,17 @@
   AtomExistenceError = Yap_LookupAtom("existence_error");
   AtomExoClause = Yap_FullLookupAtom("$exo_clause");
   AtomExpectedNumber = Yap_LookupAtom("expected_number_syntax");
+  AtomExpand = Yap_LookupAtom("expand");
   AtomExtendFileSearchPath = Yap_FullLookupAtom("$extend_file_search_path");
+  AtomExtendsions = Yap_LookupAtom("extensionh");
   AtomFB = Yap_LookupAtom("fb");
   AtomFail = Yap_LookupAtom("fail");
   AtomFalse = Yap_LookupAtom("false");
   AtomFast = Yap_FullLookupAtom("$fast");
+  AtomFileErrors = Yap_LookupAtom("file_errors");
   AtomFileerrors = Yap_LookupAtom("fileerrors");
+  AtomFileType = Yap_LookupAtom("file_type");
+  AtomFirst = Yap_LookupAtom("first");
   AtomFloat = Yap_LookupAtom("float");
   AtomFloatFormat = Yap_LookupAtom("\%.15g");
   AtomFloatOverflow = Yap_LookupAtom("float_overflow");
@@ -239,6 +248,7 @@
   AtomOperator = Yap_LookupAtom("operator");
   AtomOperatorPriority = Yap_LookupAtom("operator_priority");
   AtomOperatorSpecifier = Yap_LookupAtom("operator_specifier");
+  AtomOpt = Yap_LookupAtom("opt");
   AtomOtherwise = Yap_LookupAtom("otherwise");
   AtomOutOfAttvarsError = Yap_LookupAtom("out_of_attvars_error");
   AtomOutOfAuxspaceError = Yap_LookupAtom("out_of_auxspace_error");
@@ -264,6 +274,7 @@
   AtomProcedure = Yap_LookupAtom("procedure");
   AtomProfile = Yap_FullLookupAtom("$profile");
   AtomProlog = Yap_LookupAtom("prolog");
+  AtomQly = Yap_LookupAtom("qly");
   AtomQuery = Yap_LookupAtom("?-");
   AtomQueue = Yap_LookupAtom("queue");
   AtomQuiet = Yap_LookupAtom("quiet");
@@ -280,6 +291,7 @@
   AtomRedefineWarnings = Yap_LookupAtom("redefine_warnings");
   AtomRedoFreeze = Yap_FullLookupAtom("$redo_freeze");
   AtomRefoundVar = Yap_FullLookupAtom("$I_FOUND_THE_VARIABLE_AGAIN");
+  AtomRelativeTo = Yap_FullLookupAtom("relative_to");
   AtomRepeat = Yap_LookupAtom("repeat");
   AtomRepeatSpace = Yap_LookupAtom("repeat ");
   AtomReposition = Yap_LookupAtom("reposition");
@@ -319,6 +331,7 @@
   AtomSingleton = Yap_LookupAtom("singleton");
   AtomSlash = Yap_LookupAtom("/");
   AtomSocket = Yap_LookupAtom("socket");
+  AtomSolutions = Yap_LookupAtom("solutions");
   AtomSource = Yap_LookupAtom("source");
   AtomSourceSink = Yap_LookupAtom("source_sink");
   AtomSpy = Yap_FullLookupAtom("$spy");
@@ -335,6 +348,7 @@
   AtomStreamPos = Yap_FullLookupAtom("$stream_position");
   AtomStreamPosition = Yap_LookupAtom("stream_position");
   AtomString = Yap_LookupAtom("string");
+  AtomStyleCheck = Yap_LookupAtom("style_check");
   AtomSTRING = Yap_FullLookupAtom("String");
   AtomSwi = Yap_LookupAtom("swi");
   AtomSymbolChar = Yap_LookupAtom("symbol_char");
@@ -361,6 +375,7 @@
   AtomTrue = Yap_LookupAtom("true");
   AtomTty = Yap_LookupAtom("tty");
   AtomTtys = Yap_LookupAtom("ttys");
+  AtomTxt = Yap_LookupAtom("txt");
   AtomTypeError = Yap_LookupAtom("type_error");
   AtomUndefined = Yap_LookupAtom("undefined");
   AtomUndefp = Yap_FullLookupAtom("$undefp");
@@ -379,6 +394,7 @@
   AtomVariableNames = Yap_LookupAtom("variable_names");
   AtomHiddenVar = Yap_FullLookupAtom("$V");
   AtomVariable = Yap_LookupAtom("variable");
+  AtomVerboseFileSearch = Yap_LookupAtom("verbose_file_search");
   AtomVersionNumber = Yap_FullLookupAtom("$version_name");
   AtomWakeUpGoal = Yap_FullLookupAtom("$wake_up_goal");
   AtomWarning = Yap_LookupAtom("warning");
@@ -501,6 +517,7 @@
   FunctorStreamEOS = Yap_MkFunctor(AtomEndOfStream,1);
   FunctorStreamPos = Yap_MkFunctor(AtomStreamPos,4);
   FunctorString1 = Yap_MkFunctor(AtomString,1);
+  FunctorStyleCheck = Yap_MkFunctor(AtomStyleCheck,4);
   FunctorSyntaxError = Yap_MkFunctor(AtomSyntaxError,4);
   FunctorShortSyntaxError = Yap_MkFunctor(AtomSyntaxError,1);
   FunctorTermExpansion = Yap_MkFunctor(AtomTermExpansion,2);

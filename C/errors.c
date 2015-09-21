@@ -743,7 +743,7 @@ Yap_Error(yap_error_number type, Term where, const char *format,...)
       Yap_signal(YAP_FAIL_SIGNAL);
     P = FAILCODE;
   } else {
-    if (IsVarTerm(where)) {
+    if (IsVarTerm(where)) {     
       /* we must be careful someone gave us a copy to a local variable */
       Term t = MkVarTerm();
       Yap_unify(t, where);
@@ -754,7 +754,7 @@ Yap_Error(yap_error_number type, Term where, const char *format,...)
     LOCAL_CurrentError = type;
     LOCAL_PrologMode |= InErrorMode;
     if (!(where = Yap_CopyTerm(where))) {
-      where = TermNil;
+       where = TermNil;
     }
   }
   va_start (ap, format);
@@ -859,13 +859,27 @@ Yap_Error(yap_error_number type, Term where, const char *format,...)
       serious = TRUE;
     }
     break;
-  case DOMAIN_ERROR_ARRAY_TYPE:
+  case DOMAIN_ERROR_FILE_ERRORS:
     {
       int i;
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(AtomArrayType);
+      ti[0] = TermArrayType;
+      ti[1] = where;
+      nt[0] = Yap_MkApplTerm(FunctorDomainError, 2, ti);
+      psize -= i;
+      fun = FunctorError;
+      serious = TRUE;
+    }
+    break;
+  case DOMAIN_ERROR_FILE_TYPE:
+    {
+      int i;
+      Term ti[2];
+
+      i = strlen(tmpbuf);
+      ti[0] = TermFileType;
       ti[1] = where;
       nt[0] = Yap_MkApplTerm(FunctorDomainError, 2, ti);
       psize -= i;
@@ -879,7 +893,7 @@ Yap_Error(yap_error_number type, Term where, const char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(AtomIOMode);
+      ti[0] = TermIOMode;
       ti[1] = where;
       nt[0] = Yap_MkApplTerm(FunctorDomainError, 2, ti);
       psize -= i;
@@ -1034,6 +1048,20 @@ Yap_Error(yap_error_number type, Term where, const char *format,...)
 
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(AtomShiftCountOverflow);
+      ti[1] = where;
+      nt[0] = Yap_MkApplTerm(FunctorDomainError, 2, ti);
+      psize -= i;
+      fun = FunctorError;
+      serious = TRUE;
+    }
+    break;
+    case DOMAIN_ERROR_SOLUTIONS:
+    {
+      int i;
+      Term ti[2];
+
+      i = strlen(tmpbuf);
+      ti[0] = TermSolutions;
       ti[1] = where;
       nt[0] = Yap_MkApplTerm(FunctorDomainError, 2, ti);
       psize -= i;
@@ -1729,6 +1757,7 @@ Yap_Error(yap_error_number type, Term where, const char *format,...)
       i = strlen(tmpbuf);
       psize -= i;
       fun = FunctorSyntaxError;
+      serious = false;
     }
     break;
   case SAVED_STATE_ERROR:
@@ -2142,11 +2171,11 @@ Yap_Error(yap_error_number type, Term where, const char *format,...)
   if (type != PURE_ABORT) {
     /* This is used by some complex procedures to detect there was an error */
     if (IsAtomTerm(nt[0])) {
-      strncpy(LOCAL_ErrorSay, RepAtom(AtomOfTerm(nt[0]))->StrOfAE, MAX_ERROR_MSG_SIZ\
+      strncpy(LOCAL_ErrorSay, (char *)RepAtom(AtomOfTerm(nt[0]))->StrOfAE, MAX_ERROR_MSG_SIZ\
 E);
       LOCAL_ErrorMessage = LOCAL_ErrorSay;
     } else {
-      strncpy(LOCAL_ErrorSay, RepAtom(NameOfFunctor(FunctorOfTerm(nt[0])))->StrOfAE,\
+      strncpy(LOCAL_ErrorSay, (char *)RepAtom(NameOfFunctor(FunctorOfTerm(nt[0])))->StrOfAE,\
  MAX_ERROR_MSG_SIZE);
       LOCAL_ErrorMessage = LOCAL_ErrorSay;
     }
@@ -2165,7 +2194,8 @@ E);
 	stack_dump = TermNil;
 	LOCAL_Error_Size = 0L;
       }
-      nt[1] = MkPairTerm(MkAtomTerm(Yap_LookupAtom(tmpbuf)), stack_dump);
+      nt[1] = MkPairTerm(MkAtomTerm(Yap_LookupAtom(tmpbuf)),
+      MkPairTerm(stack_dump, TermNil));
       if (type == SYNTAX_ERROR) {
 	nt[1] = MkPairTerm(where, nt[1]);
       }

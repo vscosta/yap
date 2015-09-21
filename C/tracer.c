@@ -334,12 +334,12 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   }
   switch (port) {
   case enter_pred:
-    mname = RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
+    mname = (char *)RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
     arity = pred->ArityOfPE;
     if (arity == 0)
-      s = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
+      s = (char *)RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
     else
-      s = RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
+      s = (char *)RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
     /*    if ((pred->ModuleOfPred == 0) && (s[0] == '$'))
 	  return;       */
     send_tracer_message("CALL: ", s, arity, mname, args);
@@ -353,23 +353,23 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     break;
   case retry_table_generator:
     send_tracer_message("FAIL ", NULL, 0, NULL, args);
-    mname = RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
+    mname = (char *)RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
     arity = pred->ArityOfPE;
     if (arity == 0)
-      s = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
+      s = (char *)RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
     else
-      s = RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
+      s = (char *)RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
     send_tracer_message("RETRY GENERATOR: ", s, arity, mname, args);
     break;
   case retry_table_consumer:
     send_tracer_message("FAIL ", NULL, 0, NULL, args);
-    mname = RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
+    mname = (char *)RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
     arity = pred->ArityOfPE;
     if (arity == 0) { 
-      s = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
+      s = (char *)RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
       send_tracer_message("RETRY CONSUMER: ", s, 0, mname, NULL);
     } else {
-      s = RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
+      s = (char *)RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
       send_tracer_message("RETRY CONSUMER: ", s, pred->ArityOfPE, mname, NULL);
     }
     break;
@@ -378,27 +378,27 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     if (pred == UndefCode) {
       send_tracer_message("RETRY LOADER ", NULL, 0, NULL, NULL);
     } else {
-      mname = RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
+      mname = (char *)RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
       arity = pred->ArityOfPE;
       if (arity == 0)
-	s = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
+	s = (char *)RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
       else
-	s = RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
+	s = (char *)RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
       send_tracer_message("RETRY LOADER: ", s, 0, mname, NULL);
     }
     break;
   case retry_pred:
     send_tracer_message("FAIL ", NULL, 0, NULL, args);
     if (pred != NULL) {
-      mname = RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
+      mname = (char *)RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
       arity = pred->ArityOfPE;
       if (pred->ModuleOfPred == IDB_MODULE) {
 	s = "recorded";
 	arity = 3;
       } else if (arity == 0) {
-	s = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
+	s = (char *)RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
       } else {
-	s = RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
+	s = (char *)RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
       }
       send_tracer_message("RETRY: ", s, arity, mname, args);
     }

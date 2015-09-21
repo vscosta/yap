@@ -596,7 +596,7 @@ int simpleBDDtoDot(DdManager *manager, DdNode *bdd, char *filename) {
   return ret;
 }
 
-int simpleNamedBDDtoDot(DdManager *manager, namedvars varmap, DdNode *bdd, char *filename) {
+int simpleNamedBDDtoDot(DdManager *manager, const namedvars varmap, DdNode *bdd, char *filename) {
   DdNode *f[1];
   int ret;
   FILE *fd;
@@ -1664,7 +1664,8 @@ DdNode* OnlineGenerateBDD(DdManager *manager, namedvars *varmap) {
             }
           } else if (curinter > -1) {
             if (curinter >= iinters) {
-              inter = (DdNode **) realloc(inter, sizeof(DdNode *) * (curinter + 1));
+              inter =
+                  (DdNode **)realloc(inter, sizeof(DdNode *) * (curinter + 1));
               for (i = iinters; i < curinter + 1; i++) inter[i] = NULL;
               iinters = curinter + 1;
             }
@@ -1908,7 +1909,7 @@ int GetParam(char *inputline, int iParam) {
 
 void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, DdNode *bdd) {
   char buf, *inputline;
-  int icur, maxlinesize, iline, index, iloop, iQsize, i, iRoot; //ivalue,inQ, 
+  int icur, maxlinesize, iline, index, iloop, iQsize, i, iRoot; //ivalue,inQ,
 //  double dvalue;
   DdNode **Q, **Q2, *h_node, *l_node, *curnode;
   hisqueue *his;

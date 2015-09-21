@@ -160,7 +160,7 @@ A contains the address of the variable that is to be trailed
           DO_TRAIL(TERM, VAL)
 
 #else /* BBREG_TRAIL_SCHEME */
-
+      	 		    
 #define TRAIL(TERM, VAL)                                  \
         if (OUTSIDE(HBREG,TERM,BBREG))                    \
           DO_TRAIL(TERM, VAL)

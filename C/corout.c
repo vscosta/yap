@@ -153,7 +153,7 @@ static int can_unify_complex(register CELL *pt0,
 	      if (FloatOfTerm(d0) == FloatOfTerm(d1)) continue;
 	      goto comparison_failed;
 	    case (CELL)FunctorString:
-	      if (strcmp(StringOfTerm(d0), StringOfTerm(d1)) == 0) continue;
+	      if (strcmp((char *)StringOfTerm(d0), (char *)StringOfTerm(d1)) == 0) continue;
 	      goto comparison_failed;
 #ifdef USE_GMP
 	    case (CELL)FunctorBigInt:
@@ -292,7 +292,7 @@ can_unify(Term t1, Term t2, Term *Vars USES_REGS)
 	if (RepAppl(t1)[1] == RepAppl(t2)[1]) return(TRUE);
 	return FALSE;
       case (CELL)FunctorString:
-	if (strcmp(StringOfTerm(t1), StringOfTerm(t2)) == 0) return(TRUE);
+	if (strcmp((char *)StringOfTerm(t1), (char *)StringOfTerm(t2)) == 0) return(TRUE);
 	return FALSE;
       case (CELL)FunctorDouble:
 	if (FloatOfTerm(t1) == FloatOfTerm(t2)) return(TRUE);

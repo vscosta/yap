@@ -1,0 +1,17 @@
+
+Avaliação de ICBAS
+
+ - BioEdit, Catarina e Inês
+ 
+   Tecnicamente pouco interessante,
+   Apresentação de um algoritmo de co-variação, mat de identidade, entropia
+   Alinhamento de sequências, explica afim.
+   Inclui 2 vídeos
+   
+   * neoMEGA
+   
+ - Miguel, Francisco, Análise de ¨arrays
+ 
+   Boa discussão
+   
+ 

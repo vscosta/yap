@@ -1,0 +1,96 @@
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QAsciiDict: Cannot insert null item
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key
+QGDict::hashAsciiKey: Invalid null key

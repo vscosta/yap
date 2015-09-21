@@ -26,8 +26,9 @@ Term	Yap_GetValue(Atom);
 int     Yap_HasOp(Atom);
 struct operator_entry *Yap_GetOpPropForAModuleHavingALock(struct AtomEntryStruct *, Term);
 Atom	Yap_LookupAtom(const char *);
+Atom	Yap_ULookupAtom(const unsigned char *);
 Atom	Yap_LookupAtomWithLength(const char *, size_t);
-Atom	Yap_LookupUTF8Atom(const char *);
+Atom	Yap_LookupUTF8Atom(const unsigned char *);
 Atom	Yap_LookupMaybeWideAtom(const wchar_t *);
 Atom	Yap_LookupMaybeWideAtomWithLength(const wchar_t *, size_t);
 Atom	Yap_FullLookupAtom(const char *);
@@ -64,13 +65,13 @@ void    Yap_atom_gc( CACHE_TYPE1 );
 void    Yap_init_agc( void );
 
 /* alloc.c */
-void	Yap_FreeCodeSpace(char *);
-char   *Yap_AllocAtomSpace(size_t);
-char   *Yap_AllocCodeSpace(size_t);
-char   *Yap_ReallocCodeSpace(char *,size_t);
+void	Yap_FreeCodeSpace(void *);
+void   *Yap_AllocAtomSpace(size_t);
+void   *Yap_AllocCodeSpace(size_t);
+void   *Yap_ReallocCodeSpace(void *,size_t);
 ADDR	Yap_AllocFromForeignArea(Int);
 int     Yap_ExtendWorkSpace(Int);
-void	Yap_FreeAtomSpace(char *);
+void	Yap_FreeAtomSpace(void *);
 int     Yap_FreeWorkSpace(void);
 void	Yap_InitMemory(UInt,UInt,UInt);
 void	Yap_InitExStacks(int,int,int);
@@ -125,7 +126,7 @@ struct pred_entry *Yap_PredForChoicePt(choiceptr bptr, op_numbers *op);
 void	Yap_InitCdMgr(void);
 struct pred_entry * Yap_PredFromClause( Term t USES_REGS );
 bool	Yap_discontiguous(struct pred_entry  *ap USES_REGS );
-bool	Yap_multiple(struct pred_entry  *ap USES_REGS );
+bool	Yap_multiple(struct pred_entry  *ap, int mode USES_REGS );
 void	Yap_init_consult(int, const char *);
 void	Yap_end_consult(void);
 void	Yap_Abolish(struct pred_entry *);
@@ -362,6 +363,11 @@ void  Yap_InitSockets (void);
 /* sort.c */
 void    Yap_InitSortPreds(void);
 
+/* stack.c */
+void    Yap_InitStInfo(void);
+#if !defined(YAPOR) && !defined(THREADS)
+bool  Yap_search_for_static_predicate_in_use(struct pred_entry *, bool);
+#endif
 
 /* stdpreds.c */
 void	Yap_InitBackCPreds(void);

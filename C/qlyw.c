@@ -48,11 +48,11 @@ GrowAtomTable(void) {
     Atom a = p->val;
     export_atom_hash_entry_t *newp;
     CELL hash;
-    const char *apt;
+    const unsigned char *apt;
     
 
     if (!a) continue;
-    apt = RepAtom(a)->StrOfAE;
+    apt = RepAtom(a)->UStrOfAE;
     hash = HashFunction(apt)/(2*sizeof(CELL)) % new_size;
     newp = newt+hash;
     while (newp->val) {
@@ -71,7 +71,7 @@ static void
 LookupAtom(Atom at)
 {
   CACHE_REGS
-  const char *p = RepAtom(at)->StrOfAE;
+  const unsigned char *p = RepAtom(at)->UStrOfAE;
   CELL hash = HashFunction(p) % LOCAL_ExportAtomHashTableSize;
   export_atom_hash_entry_t *a;
 
@@ -590,8 +590,8 @@ SaveHash(FILE *stream)
 	CHECK(save_bytes(stream, at->WStrOfAE, (wcslen(at->WStrOfAE)+1)*sizeof(wchar_t)));
       } else {
 	CHECK(save_tag(stream, QLY_ATOM));
-	CHECK(save_UInt(stream, strlen(RepAtom(at)->StrOfAE)));
-	CHECK(save_bytes(stream, at->StrOfAE, (strlen(at->StrOfAE)+1)*sizeof(char)));
+	CHECK(save_UInt(stream, strlen((char *)RepAtom(at)->StrOfAE)));
+	CHECK(save_bytes(stream, (char *)at->StrOfAE, (strlen((char *)at->StrOfAE)+1)*sizeof(char)));
       }
     }
   }

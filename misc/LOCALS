@@ -316,6 +316,7 @@ CELL*				SlotBase					=InitHandles(wid)
 struct swi_mutex*		Mutexes					=NULL
 
 Term				SourceModule				=0
+Term				Including				=TermNil
 
 size_t				MAX_SIZE				=1024L
 

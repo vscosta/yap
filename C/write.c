@@ -23,13 +23,13 @@ static char SccsId[] = "%W% %G%";
 #include "Yap.h"
 #include "Yatom.h"
 #include "YapHeap.h"
+#include "YapText.h"
 #include "yapio.h"
 #include "clause.h"
 #if COROUTINING
 #include "attvar.h"
 #endif
 #include "iopreds.h"
-#include "pl-utf8.h"
 
 #if HAVE_STRING_H
 #include <string.h>
@@ -374,7 +374,7 @@ static void wrputf(Float f, struct write_globs *wglb) /* writes a float	 */
     wrputc(' ', stream);
   }
   /* use SWI's format_float */
-  sprintf(buf, floatFormat(),f);
+  sprintf(buf, (char *)floatFormat(),f);
 
   wrputs(buf, stream);
 #endif
@@ -551,12 +551,12 @@ static void write_quoted(wchar_t ch, wchar_t quote, wrf stream) {
   }
 }
 
-static void write_string(const char *s,
+static void write_string(const unsigned char *s,
                          struct write_globs *wglb) /* writes an integer	 */
 {
   StreamDesc *stream = wglb->stream;
-  int chr, qt;
-  char *ptr = (char *)s;
+  utf8proc_int32_t chr, qt;
+   unsigned char *ptr = (unsigned char *)                                                                                                                                                          s;
 
   if (wglb->Write_strings)
     qt = '`';
@@ -564,7 +564,7 @@ static void write_string(const char *s,
     qt = '"';
   wrputc(qt, stream);
   do {
-    ptr = utf8_get_char(ptr, &chr);
+    ptr +=  get_utf8(ptr, &chr);
     if (chr == '\0')
       break;
     write_quoted(chr, qt, stream);
@@ -937,7 +937,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         wrputf(FloatOfTerm(t), wglb);
         return;
       case (CELL) FunctorString:
-        write_string(StringOfTerm(t), wglb);
+        write_string(UStringOfTerm(t), wglb);
         return;
       case (CELL) FunctorAttVar:
         write_var(RepAppl(t) + 1, wglb, &nrwt);
@@ -1093,10 +1093,10 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         wrclose_bracket(wglb, TRUE);
       }
       /* avoid quoting commas and bars */
-      if (!strcmp(RepAtom(atom)->StrOfAE, ",")) {
+      if (!strcmp((char *)RepAtom(atom)->StrOfAE, ",")) {
         wrputc(',', wglb->stream);
         lastw = separator;
-      } else if (!strcmp(RepAtom(atom)->StrOfAE, "|")) {
+      } else if (!strcmp((char *)RepAtom(atom)->StrOfAE, "|")) {
         wrputc('|', wglb->stream);
         lastw = separator;
       } else
@@ -1247,3 +1247,28 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags, int prio
   restore_from_write(&rwt, &wglb);
   Yap_CloseSlots( sls );
 }
+
+
+char *
+Yap_TermToString(Term t, char *s,  size_t sz, size_t *length, encoding_t encp, int flags)
+{
+  CACHE_REGS
+  int sno = Yap_open_buf_write_stream(s, sz, encp, flags);
+  int old_output_stream = LOCAL_c_output_stream;
+  
+  if (sno < 0)
+  return NULL;
+  LOCK(GLOBAL_Stream[sno].streamlock);
+  LOCAL_c_output_stream = sno;
+  if (encp)
+  GLOBAL_Stream[sno].encoding = encp;
+  Yap_plwrite (t, GLOBAL_Stream+sno, 0, flags, 1200);
+  s[GLOBAL_Stream[sno].u.mem_string.pos] = '\0';
+  GLOBAL_Stream[sno].status = Free_Stream_f;
+  UNLOCK(GLOBAL_Stream[sno].streamlock);
+  LOCAL_c_output_stream = old_output_stream;
+  if ( EX == 0 ) return s;
+  return NULL;
+}
+
+

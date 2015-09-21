@@ -151,7 +151,7 @@ call_malloc(size_t size)
   return out;
 }
 
-char *
+void *
 Yap_AllocCodeSpace(size_t size)
 {
   size = AdjustSize(size);
@@ -186,15 +186,15 @@ call_realloc(char *p, size_t size)
   return out;
 }
 
-char *
-Yap_ReallocCodeSpace(char *p, size_t size)
+void *
+Yap_ReallocCodeSpace(void *p, size_t size)
 {
   size = AdjustSize(size);
   return  call_realloc(p, size);
 }
 
 void
-Yap_FreeCodeSpace(char *p)
+Yap_FreeCodeSpace(void *p)
 {
   CACHE_REGS
 #if USE_DL_MALLOC
@@ -213,7 +213,7 @@ Yap_FreeCodeSpace(char *p)
 #endif
 }
 
-char *
+void *
 Yap_AllocAtomSpace(size_t size)
 {
   size = AdjustSize(size);
@@ -221,7 +221,7 @@ Yap_AllocAtomSpace(size_t size)
 }
 
 void
-Yap_FreeAtomSpace(char *p)
+Yap_FreeAtomSpace(void *p)
 {
   CACHE_REGS
 #if USE_DL_MALLOC

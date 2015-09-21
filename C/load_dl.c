@@ -182,9 +182,9 @@ LoadForeign(StringList ofiles, StringList libs,
   CACHE_REGS
 
   while (libs) {
-    if (!Yap_TrueFileName(AtomName(libs->name), LOCAL_FileNameBuf, TRUE)) {
+    if (!Yap_TrueFileName((char *)AtomName(libs->name), LOCAL_FileNameBuf, TRUE)) {
       /* use LD_LIBRARY_PATH */
-      strncpy(LOCAL_FileNameBuf, AtomName(libs->name), YAP_FILENAME_MAX);
+      strncpy(LOCAL_FileNameBuf, (char *)AtomName(libs->name), YAP_FILENAME_MAX);
     }
 
 #ifdef __osf__
@@ -206,7 +206,7 @@ LoadForeign(StringList ofiles, StringList libs,
      other routines */
 
     /* dlopen wants to follow the LD_CONFIG_PATH */
-    if (!Yap_TrueFileName(AtomName(ofiles->name), LOCAL_FileNameBuf, TRUE)) {
+    if (!Yap_TrueFileName((char *)AtomName(ofiles->name), LOCAL_FileNameBuf, TRUE)) {
       strcpy(LOCAL_ErrorSay, "%% Trying to open unexisting file in LoadForeign");
       return LOAD_FAILLED;
     }

@@ -605,7 +605,6 @@ ShowOp (compiler_vm_op ic, const char *f, struct PSEUDO *cpc)
 
 	  case 'a':
 	  case 'n':
-	  case 'S':
 	    Yap_DebugPlWrite ((Term) arg);
 	    break;
 	  case 'b':
@@ -672,6 +671,10 @@ ShowOp (compiler_vm_op ic, const char *f, struct PSEUDO *cpc)
 	    break;
 	  case 'r':
 	    Yap_DebugErrorPutc ('A');
+	    Yap_DebugPlWrite (MkIntTerm (rn));
+	    break;
+	  case 'S':
+	    Yap_DebugErrorPutc ('S');
 	    Yap_DebugPlWrite (MkIntTerm (rn));
 	    break;
 	  case 'h':

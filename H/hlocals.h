@@ -1,6 +1,6 @@
-﻿
-  /* This file, hlocals.h , was generated automatically by "yap -L misc/buildlocalglobal"
-     please do not update, update misc/LOCALS  instead */
+
+  /* This file, hlocals.h, was generated automatically by "yap -L misc/buildlocalglobal"
+     please do not update, update misc/LOCALS instead */
 
 
 typedef struct worker_local {
@@ -271,5 +271,6 @@ typedef struct worker_local {
 
   struct swi_mutex*  Mutexes_;
   Term  SourceModule_;
+  Term  Including_;
   size_t  MAX_SIZE_;
 } w_local;

@@ -1,0 +1,264 @@
+alias.c:271:	LOCAL_NOfFileAliases--;
+alias.c:373:  LOCAL_NOfFileAliases--;
+charsio.c:760:  ocharcount = s->charcount;
+charsio.c:761:  olinecount = s->linecount;
+charsio.c:762:  olinepos = s->linepos;
+charsio.c:764:  s->charcount = ocharcount;
+charsio.c:765:  s->linecount = olinecount;
+charsio.c:766:  s->linepos = olinepos;
+charsio.c:768:  s->och = ch;
+charsio.c:770:  s->stream_getc = PlUnGetc;
+charsio.c:771:  s->stream_wgetc = get_wchar;
+charsio.c:772:  s->stream_gets = DefaultGets;
+charsio.c:774:    s->stream_wgetc_for_read = ISOWGetc;
+charsio.c:776:    s->stream_wgetc_for_read = s->stream_wgetc;
+charsio.c:777:  if (s->encoding  == ENC_ISO_UTF8)
+charsio.c:778:    s->stream_getc_for_utf8 = s->stream_getc;
+charsio.c:780:    s->stream_getc_for_utf8 = GetUTF8;
+chartypes.c:113:  { "Windows-1252", ENC_ISO_LATIN1 }, // almost, but not quite
+console.c:66:    ++s->linecount;
+console.c:67:    ++s->charcount;
+console.c:68:    s->linepos = 0;
+console.c:72:    ++s->charcount;
+console.c:73:    ++s->linepos;
+console.c:107:  s->stream_putc = ConsolePutc;
+console.c:111:    s->stream_getc = ConsoleGetc;
+console.c:123:      putc ('\n', s->file);
+console.c:127:    putc (ch, s->file);
+console.c:160:  ch = fgetc(s->file);
+format.c:106:  while (fg->padders--) {
+format.c:601:                repeats--;
+format.c:605:                repeats--;
+format.c:782:            while (repeats--) {
+iopreds.c:175:  if (s->status & InMemory_Stream_f) {
+iopreds.c:176:    s->status |= Seekable_Stream_f;
+iopreds.c:183:	_isatty(_fileno(s->u.file.file))
+iopreds.c:185:      s->status |= Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f;
+iopreds.c:187:      setvbuf(s->u.file.file, NULL, _IONBF, 0);
+iopreds.c:192:    else if (StdErrStream == s-Stream) {
+iopreds.c:193:      setvbuf(s->u.file.file, NULL, _IONBF, 0);      
+iopreds.c:196:    s->status |= Seekable_Stream_f;
+iopreds.c:204:  if (s-Stream < 3) {
+iopreds.c:205:    s->name = AtomTty;
+iopreds.c:206:    s->status |= Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f;
+iopreds.c:211:      if (!s->file)  {
+iopreds.c:212:          s->name = AtomNil;
+iopreds.c:215:    filedes = fileno (s->file);
+iopreds.c:220:	s->name = AtomTty;
+iopreds.c:222:	s->name = AtomTtys;
+iopreds.c:224:      s->name = AtomTty;
+iopreds.c:226:      s->status |= Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f;
+iopreds.c:233:  s->status |= Seekable_Stream_f;
+iopreds.c:248:  s->stream_gets = PlGetsFunc();
+iopreds.c:249:  if (s->status & Socket_Stream_f) {
+iopreds.c:252:    s->stream_wputc = put_wchar;
+iopreds.c:253:  } else  if (s->status & Pipe_Stream_f) {
+iopreds.c:256:    s->stream_wputc = put_wchar;
+iopreds.c:257:  } else if (s->status & InMemory_Stream_f) {
+iopreds.c:259:    s->stream_wputc = put_wchar;
+iopreds.c:262:    if (s->status & (Promptable_Stream_f)) {
+iopreds.c:266:      s->stream_putc = FilePutc;
+iopreds.c:267:      s->stream_wputc = put_wchar;
+iopreds.c:268:      s->stream_getc = PlGetc;
+iopreds.c:269:      s->stream_gets = PlGetsFunc();
+iopreds.c:272:  s->stream_wputc = put_wchar;
+iopreds.c:273:  s->stream_wgetc = get_wchar;
+iopreds.c:282:  s->file = file; 
+iopreds.c:283:  s->status = flags;
+iopreds.c:284:  s->linepos = 0;
+iopreds.c:285:  s->linecount = 1;
+iopreds.c:286:  s->charcount = 0.;
+iopreds.c:287:  s->encoding = ENC_ISO_UTF8;
+iopreds.c:288:  INIT_LOCK(s->streamlock);
+iopreds.c:296:    s->name=AtomUserIn;
+iopreds.c:299:    s->name=AtomUserOut;
+iopreds.c:302:    s->name=AtomUserErr;
+iopreds.c:305:  s->user_name = MkAtomTerm (s->name);
+iopreds.c:307:    s->stream_wgetc_for_read = ISOWGetc;
+iopreds.c:309:    s->stream_wgetc_for_read = s->stream_wgetc;
+iopreds.c:310:  if (s->encoding  == ENC_ISO_UTF8)
+iopreds.c:311:    s->stream_getc_for_utf8 = s->stream_getc;
+iopreds.c:313:    s->stream_getc_for_utf8 = GetUTF8;
+iopreds.c:315:  s->status |= Tty_Stream_f|Promptable_Stream_f;
+iopreds.c:318:  if (s->status & Tty_Stream_f &&
+iopreds.c:333:    if (s->user_name != 0L) {
+iopreds.c:334:      return (s->user_name);
+iopreds.c:507:  putc(ch, s->file);
+iopreds.c:511:      fflush(s->file);
+iopreds.c:534:  if (s->status & Eof_Error_Stream_f) {
+iopreds.c:535:    Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,MkAtomTerm(s->name),
+iopreds.c:538:  } else if (s->status & Reset_Eof_Stream_f) {
+iopreds.c:540:    if (feof (s->file))
+iopreds.c:541:      clearerr (s->file);
+iopreds.c:544:    if (s->status & Socket_Stream_f) {
+iopreds.c:545:      if (s->status & Promptable_Stream_f)
+iopreds.c:549:      s->stream_wputc = put_wchar;
+iopreds.c:552:      if (s->status & Pipe_Stream_f) {
+iopreds.c:553:	if (s->status & Promptable_Stream_f)
+iopreds.c:557:      } else if (s->status & InMemory_Stream_f) {
+iopreds.c:559:      } else if (s->status & Promptable_Stream_f) {
+iopreds.c:562:	s->stream_getc = PlGetc;
+iopreds.c:563:	s->stream_gets = PlGetsFunc();
+iopreds.c:565:    s->stream_wgetc = get_wchar;
+iopreds.c:566:    s->stream_wputc = put_wchar;
+iopreds.c:568:      s->stream_wgetc_for_read = ISOWGetc;
+iopreds.c:570:      s->stream_wgetc_for_read = s->stream_wgetc;
+iopreds.c:571:  if (s->encoding  == ENC_ISO_UTF8)
+iopreds.c:572:    s->stream_getc_for_utf8 = s->stream_getc;
+iopreds.c:574:    s->stream_getc_for_utf8 = GetUTF8;
+iopreds.c:576:    s->status &= ~Eof_Stream_f;
+iopreds.c:580:    s->status |= Past_Eof_Stream_f;
+iopreds.c:591:  if (s->status & Push_Eof_Stream_f) {
+iopreds.c:593:    s->status &= ~Push_Eof_Stream_f;
+iopreds.c:597:    return(s->stream_getc(sno));
+iopreds.c:607:   s->stream_getc = EOFGetc;
+iopreds.c:608:  s->stream_wgetc = get_wchar;
+iopreds.c:610:    s->stream_wgetc_for_read = ISOWGetc;
+iopreds.c:612:    s->stream_wgetc_for_read = s->stream_wgetc;
+iopreds.c:613:  if (s->encoding  == ENC_ISO_UTF8)
+iopreds.c:614:    s->stream_getc_for_utf8 = s->stream_getc;
+iopreds.c:616:    s->stream_getc_for_utf8 = GetUTF8;
+iopreds.c:625:  ++s->charcount;
+iopreds.c:626:  ++s->linepos;
+iopreds.c:628:    ++s->linecount;
+iopreds.c:629:    s->linepos = 0;
+iopreds.c:631:    if (!(s->status & Binary_Stream_f))
+iopreds.c:641:  s->status |= Eof_Stream_f;
+iopreds.c:642:  s->stream_getc = EOFGetc;
+iopreds.c:643:  s->stream_wgetc = get_wchar;
+iopreds.c:645:    s->stream_wgetc_for_read = ISOWGetc;
+iopreds.c:647:    s->stream_wgetc_for_read = s->stream_wgetc;
+iopreds.c:648:  if (s->encoding  == ENC_ISO_UTF8)
+iopreds.c:649:    s->stream_getc_for_utf8 = s->stream_getc;
+iopreds.c:651:    s->stream_getc_for_utf8 = GetUTF8;
+iopreds.c:664:  ch = getc (s->file);
+iopreds.c:680:  if (fgets (buf, size, s->file) == NULL) {
+iopreds.c:684:  s->charcount += len-1;
+iopreds.c:702:  while((ch = *buf++ = s->stream_getc(sno)) != 
+iopreds.c:712:  uint64_t bufi = s->utf8_buf;
+iopreds.c:735:  if (s->stream_getc != PlUnGetc)
+iopreds.c:736:    return(s->stream_getc(sno));
+iopreds.c:737:  ch = s->och;
+iopreds.c:738:  if (s->status & InMemory_Stream_f) {
+iopreds.c:740:    s->stream_wputc = put_wchar;
+iopreds.c:741:  } else if (s->status & Socket_Stream_f) {
+iopreds.c:743:    s->stream_wputc = put_wchar;
+iopreds.c:744:  } else if (s->status & Promptable_Stream_f) {
+iopreds.c:746:    s->stream_wputc = put_wchar;
+iopreds.c:748:    s->stream_getc = PlGetc;
+iopreds.c:749:    s->stream_gets = PlGetsFunc();
+iopreds.c:761:  if (s->stream_getc != PlUnGetc376)
+iopreds.c:762:    return(s->stream_getc(sno));
+iopreds.c:763:  s->stream_getc = PlUnGetc;
+iopreds.c:764:  ch = s->och;
+iopreds.c:765:  s->och = 0xFE;
+iopreds.c:776:  if (s->stream_getc != PlUnGetc00)
+iopreds.c:777:    return(s->stream_getc(sno));
+iopreds.c:778:  s->stream_getc = PlUnGetc;
+iopreds.c:779:  ch = s->och;
+iopreds.c:780:  s->och = 0x00;
+iopreds.c:791:  if (s->stream_getc != PlUnGetc377)
+iopreds.c:792:    return(s->stream_getc(sno));
+iopreds.c:793:  s->stream_getc = PlUnGetc;
+iopreds.c:794:  ch = s->och;
+iopreds.c:795:  s->och = 0xFF;
+iopreds.c:806:  if (s->stream_getc != PlUnGetc357)
+iopreds.c:807:    return(s->stream_getc(sno));
+iopreds.c:808:  s->stream_getc = PlUnGetc;
+iopreds.c:809:  ch = s->och;
+iopreds.c:810:  s->och = 0xEF;
+iopreds.c:821:  if (s->stream_getc != PlUnGetc357273)
+iopreds.c:822:    return(s->stream_getc(sno));
+iopreds.c:823:  s->stream_getc = PlUnGetc357;
+iopreds.c:824:  ch = s->och;
+iopreds.c:825:  s->och = 0xBB;
+iopreds.c:836:  if (s->stream_getc != PlUnGetc0000)
+iopreds.c:837:    return(s->stream_getc(sno));
+iopreds.c:838:  s->stream_getc = PlUnGetc00;
+iopreds.c:839:  ch = s->och;
+iopreds.c:840:  s->och = 0x00;
+iopreds.c:851:  if (s->stream_getc != PlUnGetc0000fe)
+iopreds.c:852:    return(s->stream_getc(sno));
+iopreds.c:853:  s->stream_getc = PlUnGetc0000;
+iopreds.c:854:  ch = s->och;
+iopreds.c:855:  s->och = 0xfe;
+iopreds.c:866:  if (s->stream_getc != PlUnGetc377376)
+iopreds.c:867:    return(s->stream_getc(sno));
+iopreds.c:868:  s->stream_getc = PlUnGetc377;
+iopreds.c:869:  ch = s->och;
+iopreds.c:870:  s->och = 0xFE;
+iopreds.c:881:  if (s->stream_getc != PlUnGetc37737600)
+iopreds.c:882:    return(s->stream_getc(sno));
+iopreds.c:883:  s->stream_getc = PlUnGetc377376;
+iopreds.c:884:  ch = s->och;
+iopreds.c:885:  s->och = 0x00;
+iopreds.c:1830:    s->status |= Promptable_Stream_f;
+iopreds.c:1832:    if (s->status & Socket_Stream_f) {
+iopreds.c:1836:      if (s->status & Pipe_Stream_f) {
+mem.c:78:  spos = s->u.mem_string.pos;
+mem.c:79:  if (spos == s->u.mem_string.max_size) {
+mem.c:82:    ch = s->u.mem_string.buf[spos];
+mem.c:83:    s->u.mem_string.pos = ++spos;
+mem.c:103:  s->u.mem_string.buf[s->u.mem_string.pos++] = ch;
+mem.c:104:  if (s->u.mem_string.pos >= s->u.mem_string.max_size -8) {
+mem.c:105:    int old_src = s->u.mem_string.src, new_src;
+mem.c:108:    Int new_max_size = s->u.mem_string.max_size + Yap_page_size;
+mem.c:115:    memmove((void *)newbuf, (void *)s->u.mem_string.buf, (size_t)((s->u.mem_string.pos)*sizeof(char)));
+mem.c:118:      Int n = s->u.mem_string.pos;
+mem.c:120:      char *from = s->u.mem_string.buf;
+mem.c:126:      Yap_FreeAtomSpace(s->u.mem_string.buf);
+mem.c:128:    } else if ((newbuf = (ADDR)realloc(s->u.mem_string.buf, new_max_size*sizeof(char))) != NULL)  {
+mem.c:144:    s->u.mem_string.buf = newbuf;
+mem.c:145:    s->u.mem_string.max_size = new_max_size;
+mem.c:146:    s->u.mem_string.src = new_src;
+pipes.c:72:    if (WriteFile(s->u.pipe.hdl, &c, sizeof(c), &written, NULL) == FALSE) {
+pipes.c:81:      out = write(s->u.pipe.fd,  &c, sizeof(c));
+pipes.c:110:    if (WriteFile(s->u.pipe.hdl, &c, sizeof(c), &written, NULL) == FALSE) {
+pipes.c:119:      out = write(s->u.pipe.fd,  &c, sizeof(c));
+pipes.c:163:  if (ReadFile(s->u.pipe.hdl, &c, sizeof(c), &count, NULL) == FALSE) {
+pipes.c:172:  count = read(s->u.pipe.fd, &c, sizeof(char));
+pipes.c:197:  if (ReadFile(s->u.pipe.hdl, &c, sizeof(c), &count, NULL) == FALSE) {
+pipes.c:203:  count = read(s->u.pipe.fd, &c, sizeof(char));
+readline.c:163:  if (s->status & Tty_Stream_f) {
+readline.c:164:    s->stream_getc = ReadlineGetc;
+readline.c:166:	s->name == GLOBAL_Stream[0].name)
+readline.c:167:      s->stream_putc = ReadlinePutc;
+readline.c:176:  if (s->status & Tty_Stream_f) {
+readline.c:178:	is_same_tty(s->file,GLOBAL_Stream[0].file))
+readline.c:179:      s->stream_putc = ReadlinePutc;
+readline.c:180:    s->stream_getc = ReadlineGetc;
+readline.c:247:  if (!(s->status & Tty_Stream_f))
+readline.c:280:    s->u.irl.ptr = s->u.irl.buf = myrl_line;
+readline.c:291:      putc ('\n', s->file);
+readline.c:295:    putc (ch, s->file);
+readline.c:314:  bool fetch = (s->u.irl.buf == NULL);
+readline.c:317:    const char *ttyptr = s->u.irl.ptr++, *myrl_line =  s->u.irl.buf;
+readline.c:322:      s->u.irl.ptr =  s->u.irl.buf = NULL;
+readline.c:336:  const char *myrl_line =  s->u.irl.buf;
+sockets.c:77:      s->file == NULL)
+sockets.c:79:      s->status |= Socket_Stream_f;
+sockets.c:80:      s->u.socket.domain = af_inet;
+sockets.c:81:      s->u.socket.flags = client_socket;
+sockets.c:82:      s->u.socket.fd = 0;
+sockets.c:100:  count = recv(s->u.socket.fd, &c, sizeof(char), 0);
+sockets.c:102:  count = read(s->u.socket.fd, &c, sizeof(char));
+sockets.c:105:    s->u.socket.flags = closed_socket;
+sockets.c:148:  count = recv(s->u.socket.fd, (void *)&c, sizeof(char), 0);
+sockets.c:150:  count = read(s->u.socket.fd, &c, sizeof(char));
+sockets.c:177:  send(s->u.socket.fd,  &c, sizeof(c), 0);
+sockets.c:179:  if (write(s->u.socket.fd,  &c, sizeof(c)) < 0) {
+sockets.c:203:  send(s->u.socket.fd,  &c, sizeof(c), 0);
+sockets.c:208:      out = write(s->u.socket.fd,  &c, sizeof(c));
+streams.c:164:  s->status |= User_Stream_f|Input_Stream_f;
+streams.c:165:  s->charcount = 0;
+streams.c:166:  s->linecount = 1;
+streams.c:167:  s->linepos = 0;
+streams.c:168:  s->stream_wgetc = get_wchar;
+streams.c:169:  s->stream_wputc = put_wchar;
+streams.c:170:  s->encoding = LOCAL_encoding;
+streams.c:172:    s->stream_wgetc_for_read = ISOWGetc;
+streams.c:174:    s->stream_wgetc_for_read = s->stream_wgetc;
+streams.c:175:  if (s->encoding  == ENC_ISO_UTF8)
+streams.c:176:    s->stream_getc_for_utf8 = s->stream_getc;
+streams.c:178:    s->stream_getc_for_utf8 = GetUTF8;
+streams.c:179:  UNLOCK(s->streamlock);

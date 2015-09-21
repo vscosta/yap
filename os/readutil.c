@@ -24,6 +24,8 @@ static char SccsId[] = "%W% %G%";
 #include "yapio.h"
 #include "iopreds.h"
 #include "YapText.h"
+#include "encoding.h"
+
 
 static Int
 rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS)
@@ -79,7 +81,11 @@ rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS)
 	end = TermNil;
       else
 	end = Deref(XREGS[arity]);
-      return Yap_unify(ARG2, Yap_CharsToDiffListOfCodes((const char *)TR, end PASS_REGS)) ;
+      if (GLOBAL_Stream[sno].encoding == ENC_ISO_UTF8)
+	return Yap_unify(ARG2, Yap_UTF8ToDiffListOfCodes((const char *)TR, end PASS_REGS)) ;
+      else if (GLOBAL_Stream[sno].encoding == PL_ENC_WCHAR)
+	return Yap_unify(ARG2, Yap_WCharsToDiffListOfCodes((const wchar_t *)TR, end PASS_REGS)) ;
+      return Yap_unify(ARG2, Yap_CharsToDiffListOfCodes((const char *)TR, end, ENC_ISO_LATIN1 PASS_REGS)) ;
     }
     buf += (buf_sz-1);
     max_inp -= (buf_sz-1);
@@ -92,19 +98,19 @@ rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS)
 }
 
 static Int
-p_rl_to_codes(USES_REGS1)
+read_line_to_codes(USES_REGS1)
 {
   return rl_to_codes(TermNil, FALSE, 2 PASS_REGS);
 }
 
 static Int
-p_rl_to_codes2(USES_REGS1)
+read_line_to_codes2(USES_REGS1)
 {
   return rl_to_codes(TermNil, TRUE, 3 PASS_REGS);
 }
 
 static Int
-p_stream_to_codes(USES_REGS1)
+read_stream_to_codes(USES_REGS1)
 {
   int sno = Yap_CheckStream (ARG1, Input_Stream_f, "reaMkAtomTerm (AtomEofd_line_to_codes/2");
   CELL *HBASE = HR;
@@ -146,7 +152,7 @@ p_stream_to_codes(USES_REGS1)
 }
 
 static Int
-p_stream_to_terms(USES_REGS1)
+read_stream_to_terms(USES_REGS1)
 {
   int sno = Yap_CheckStream (ARG1, Input_Stream_f, "read_line_to_codes/2");
   Term t, hd;
@@ -192,10 +198,10 @@ Yap_InitReadUtil(void)
 
   Term cm = CurrentModule;
   CurrentModule = READUTIL_MODULE;
-  Yap_InitCPred("read_line_to_codes", 2, p_rl_to_codes, SyncPredFlag);
-  Yap_InitCPred("read_line_to_codes", 3, p_rl_to_codes2, SyncPredFlag);
-  Yap_InitCPred("read_stream_to_codes", 3, p_stream_to_codes, SyncPredFlag);
-  Yap_InitCPred("read_stream_to_terms", 3, p_stream_to_terms, SyncPredFlag);
+  Yap_InitCPred("read_line_to_codes", 2, read_line_to_codes, SyncPredFlag);
+  Yap_InitCPred("read_line_to_codes", 3, read_line_to_codes2, SyncPredFlag);
+  Yap_InitCPred("read_stream_to_codes", 3, read_stream_to_codes, SyncPredFlag);
+  Yap_InitCPred("read_stream_to_terms", 3, read_stream_to_terms, SyncPredFlag);
   CurrentModule = cm;
 }
 

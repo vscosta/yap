@@ -57,7 +57,7 @@ display_stack_info(CPs,Envs,Lim,PC) :-
 
 code_location(Info,Where,Location) :-
 	integer(Where) , !,
-	'$pred_for_code'(Where,Name,Arity,Mod,Clause),
+	pred_for_code(Where,Name,Arity,Mod,Clause),
 	construct_code(Clause,Name,Arity,Mod,Info,Location).
 code_location(Info,_,Info).
 
@@ -74,18 +74,17 @@ construct_code(Cl,Name,Arity,Mod,Where,Location) :-
 	atom_concat([Where,' at ',Mod,':',Name,'/',ArityAtom,' (clause ',ClAtom,')'],Location).
 
 '$prepare_loc'(Info,Where,Location) :- integer(Where), !,
-	'$pred_for_code'(Where,Name,Arity,Mod,Clause),
+	pred_for_code(Where,Name,Arity,Mod,Clause),
 	'$construct_code'(Clause,Name,Arity,Mod,Info,Location).
 '$prepare_loc'(Info,_,Info).
 
-display_pc(PC, Source) -->
+display_pc(PC, PP, Source) -->
 	{ integer(PC) },
-	{ '$pred_for_code'(PC,Name,Arity,Mod,Clause) },
-	pc_code(Clause,Name,Arity,Mod, Source).
+	{ pred_for_code(PC,Name,Arity,Mod,Clause) },
+	pc_code(Clause, PP, Name, Arity, Mod, Source).
 
-pc_code(0,_Name,_Arity,_Mod, 'top level' - []) --> !,
-	{fail}.
-pc_code(-1,Name,Arity,Mod, '~a:~q/~d' - [Mod,Name,Arity]) --> !,
+pc_code(0,_PP,_Name,_Arity,_Mod, 'top level or system code' - []) --> !.
+pc_code(-1,_PP,Name,Arity,Mod, '~a:~q/~d' - [Mod,Name,Arity]) --> !,
 	{ functor(S, Name,Arity),
 	nth_clause(Mod:S,1,Ref),
 	clause_property(Ref, file(File)),
@@ -98,7 +97,6 @@ pc_code(Cl,Name,Arity,Mod, 'clause ~d for ~a:~q/~d'-[Cl,Mod,Name,Arity]) -->
 	clause_property(Ref, file(File)),
 	clause_property(Ref, line_count(Line)) },		       
 	[ '~a:~d:0, ' - [File,Line] ].
-
 
 display_stack_info(_,_,0,_) --> !.
 display_stack_info([],[],_,_) --> [].

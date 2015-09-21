@@ -408,7 +408,7 @@ stream_position_data(Prop, Term, Value) :-
         nonvar(Prop), !,
         (   '$stream_position_field'(Prop, Pos)
         ->  arg(Pos, Term, Value)
-        ;   throw(error(domain_error(stream_position_data, Prop)))
+        ;   '$do_error'(domain_error(stream_position_data), Prop)
         ).
 stream_position_data(Prop, Term, Value) :-
         '$stream_position_field'(Prop, Pos),

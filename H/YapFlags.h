@@ -172,7 +172,7 @@ typedef struct struct_param2 {
 } param2_t;
 
 typedef struct {
-  const char *name;
+   char *name;
   bool writable;
   flag_func def;
   const char *init;
@@ -180,8 +180,8 @@ typedef struct {
 } flag_info;
 
 
-typedef struct {
-  const char *name;
+typedef  struct {
+  char *name;
   flag_func def;
   const char *init;
 } arg_info;
@@ -314,7 +314,7 @@ static inline int  indexingMode(void) {
 }
 
 static inline const char  *floatFormat(void) {
-  return RepAtom(AtomOfTerm(GLOBAL_Flags[FLOAT_FORMAT_FLAG].at))->StrOfAE;
+  return RepAtom(AtomOfTerm(GLOBAL_Flags[FLOAT_FORMAT_FLAG].at))->rep.uStrOfAE;
 }
 
 static inline size_t  indexingDepth(void) {

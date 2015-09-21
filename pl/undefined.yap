@@ -39,10 +39,10 @@ with SICStus Prolog.
 
 '$undefp'([M0|G0], Default) :-
     % make sure we do not loop on undefined predicates
-    % for undefined_predicates.
-    '$enter_undefp',
-    (
-	'$get_undefined_pred'(G0, M0, Goal, NM)
+				% for undefined_predicates.
+	'$disable_debugging',
+	'$enter_undefp',
+	(  '$get_undefined_pred'(G0, M0, Goal, NM)
 	->
 	    '$exit_undefp',
 	    Goal \= fail,
@@ -52,12 +52,15 @@ with SICStus Prolog.
 	user:unknown_predicate_handler(G0,M0,NG)
 	->
 	    '$exit_undefp',
+	    '$enable_debugging',
 	    call(M0:NG)
 	;
 	'$messages' = M0,
+	'$enable_debugging',
 	fail
 	;
 	'$exit_undefp',
+	'$enable_debugging',
 	'$handle_error'(Default,G0,M0)
     ).
 
@@ -110,23 +113,23 @@ followed by the failure of that call.
 
 '$handle_error'(error,Goal,Mod) :-
     functor(Goal,Name,Arity),
-    '$program_continuation'(PMod,PName,PAr),
+    'program_continuation'(PMod,PName,PAr),
     '$do_error'(existence_error(procedure,Name/Arity),context(Mod:Goal,PMod:PName/PAr)).
 '$handle_error'(warning,Goal,Mod) :-
     functor(Goal,Name,Arity),
-    '$program_continuation'(PMod,PName,PAr),
+    'program_continuation'(PMod,PName,PAr),
     print_message(warning,error(existence_error(procedure,Name/Arity), context(Mod:Goal,PMod:PName/PAr))),
     fail.
 '$handle_error'(fail,_Goal,_Mod) :-
     fail.
 
-'$complete_goal'(M, G, CurG, CurMod, NG) :-
+'$complete_goal'(M, _G, CurG, CurMod, NG) :-
 	  (
 	   '$is_metapredicate'(CurG,CurMod)
 	  ->
-	   '$meta_expansion'(G, M, CurMod, M, NG, [])
+	   '$meta_expansion'(CurG, M, CurMod, M, NG, [])
 	  ;
-	   NG = G
+	   NG = CurG
 	  ).
 
 /**

@@ -99,7 +99,7 @@ atom_enumerate(const char *prefix, int state)
     } else {
       ap = RepAtom(catom);
       READ_LOCK(ap->ARWLock);
-      if ( strstr( ap->StrOfAE, prefix) == ap->StrOfAE) {
+      if ( strstr( (char *)ap->StrOfAE, prefix) == ( char *)ap->StrOfAE) {
 	index->pos = i;
 	index->atom = ap->NextOfAE;
 	LOCAL_search_atoms = index;

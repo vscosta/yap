@@ -253,8 +253,6 @@ private(_).
         '$undefp'/1,
 		  '$version'/0]).
 
-'$undefp'(G, _) :- writeln(G), fail.
-
 :- use_system_module( '$_absf', ['$system_library_directories'/2]).
 
 :- use_system_module( '$_checker', ['$check_term'/5,
@@ -353,9 +351,9 @@ true :- true.
     ('$exit_undefp' -> true ; true),
     prompt1(' ?- '),
     set_prolog_flag(debug, false),
-% simple trick to find out if this is we are booting from Prolog.
-	% boot from a saved state
-	(
+    % simple trick to find out if this is we are booting from Prolog.
+    % boot from a saved state
+    (
 	  '$undefined'('$init_preds',prolog)
 	->
 	 get_value('$consult_on_boot',X),
@@ -1519,6 +1517,80 @@ catch(G, C, A) :-
 
 The goal `throw( _Ball_)` throws an exception. Execution is
 stopped, and the exception is sent to the ancestor goals until reaching
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 a matching catch/3, or until reaching top-level.
 
 */

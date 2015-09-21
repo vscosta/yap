@@ -87,9 +87,7 @@ static bool indexer( Term inp ) {
   return false;
 }
 
-static bool dqf( Term t2 ) {
-  CACHE_REGS
-  ModEntry *new = Yap_GetModuleEntry(CurrentModule);
+static bool dqf1( ModEntry *new, Term t2 USES_REGS ) {
   new->flags &= ~(DBLQ_CHARS|DBLQ_CODES|DBLQ_ATOM|DBLQ_STRING);
   if (t2 == TermString) {
     new->flags |=  DBLQ_STRING;
@@ -106,6 +104,12 @@ static bool dqf( Term t2 ) {
   }
   Yap_Error(TYPE_ERROR_ATOM, t2, "set_prolog_flag(double_quotes, {string,atom,codes,chars}");
   return false;
+}
+
+static bool dqf( Term t2 ) {
+  CACHE_REGS
+  ModEntry *new = Yap_GetModuleEntry(CurrentModule);
+  return dqf1( new, t2 PASS_REGS);
 }
 
 
@@ -151,7 +155,7 @@ static bool mkprompt( Term inp ) {
     Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
     return false;
   }
-  strncpy( LOCAL_Prompt, RepAtom( AtomOfTerm( inp ) )->StrOfAE, MAX_PROMPT );
+  strncpy( LOCAL_Prompt, (const char *)RepAtom( AtomOfTerm( inp ) )->StrOfAE, MAX_PROMPT );
   return true;
 }
 
@@ -164,7 +168,7 @@ static bool getenc( Term inp ) {
     Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
     return false;
   }
-  enc_id( RepAtom( AtomOfTerm( inp ) )->StrOfAE );
+  enc_id( ( char *)RepAtom( AtomOfTerm( inp ) )->StrOfAE );
   return true;
 }
 
@@ -587,12 +591,12 @@ static bool setYapFlagInModule( Term tflag, Term t2, Term mod )
 {
   FlagEntry *fv;
   ModEntry *new = Yap_GetModuleEntry(mod);
-  if (!mod)
+  if (!new)
     return false;
   fv = GetFlagProp( AtomOfTerm( tflag ) );
   if (!fv && !fv->global) {
     Yap_Error(DOMAIN_ERROR_PROLOG_FLAG, tflag, "trying to set unknown module flag");
-    return FALSE;
+    return false;
   }
   if (mod == USER_MODULE && !setYapFlag( tflag, t2) )
       return false;
@@ -639,25 +643,10 @@ static bool setYapFlagInModule( Term tflag, Term t2, Term mod )
         new->flags |=  BCKQ_CHARS;
         return true;
       }
-    } else if (fv->FlagOfVE == DOUBLE_QUOTES_FLAG) {
-          new->flags &= ~(DBLQ_CHARS|DBLQ_CODES|DBLQ_ATOM|DBLQ_STRING);
-          if (t2 == TermString) {
-            new->flags |=  DBLQ_STRING;
-            return true;
-          } else if (t2 == TermAtom) {
-            new->flags |=  DBLQ_ATOM;
-            return true;
-          } else if (t2 == TermCodes) {
-            new->flags |=  DBLQ_CODES;
-            return true;
-          } else if (t2 == TermChars) {
-            new->flags |=  DBLQ_CHARS;
-            return true;
-          }
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "bad option for %s:backquoted_string flag", RepAtom(AtomOfTerm(tflag))->StrOfAE);
-    return false;
+  } if (fv->FlagOfVE == DOUBLE_QUOTES_FLAG) {
+	return dqf1(new, t2 PASS_REGS );
   }
-Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "flag  %s is not module-scoped", RepAtom(AtomOfTerm(tflag))->StrOfAE);
+  Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "flag  %s is not module-scoped", RepAtom(AtomOfTerm(tflag))->StrOfAE);
   return FALSE;
 }
 
@@ -874,16 +863,19 @@ static Int current_prolog_flag( USES_REGS1 ) {
 void Yap_setModuleFlags(ModEntry *new, ModEntry *cme)
 {
   Atom at = new->AtomOfME;
-  new->flags = 0;
-  if (at == AtomProlog ) {
-    new->flags = UNKNOWN_FAIL | M_SYSTEM | M_CHARESCAPE | DBLQ_CODES | BCKQ_STRING;
-    return;
-  } else if (cme == NULL) {
-    new->flags = UNKNOWN_ERROR | M_SYSTEM | M_CHARESCAPE| DBLQ_CODES | BCKQ_STRING;
-    return;
-  } else 
+  if (at == AtomProlog || CurrentModule == PROLOG_MODULE) {
+      new->flags = M_SYSTEM | UNKNOWN_ERROR  |M_CHARESCAPE | DBLQ_CODES | BCKQ_STRING;
+      if (at == AtomUser)
+	new->flags =  UNKNOWN_ERROR  |M_CHARESCAPE | DBLQ_CODES | BCKQ_STRING;
+ } else if (cme &&
+	    cme->flags &&	    cme != new) {
     new->flags = cme->flags;
- }
+  } else {
+    new->flags = ( UNKNOWN_ERROR  | M_CHARESCAPE | DBLQ_CODES | BCKQ_STRING
+		   );
+  }
+  //printf("cme=%s new=%s flags=%x\n",cme,at->StrOfAE,new->flags);
+}
 
 bool setYapFlag( Term tflag, Term t2 )
 {
@@ -1213,6 +1205,7 @@ do_prolog_flag_property (Term tflag, Term opts USES_REGS)
 	    Yap_unify(TermAtom, args[PROLOG_FLAG_PROPERTY_TYPE].tvalue);
 	else if  (fv->type == nat)
 	  rc = rc &&
+	    
 	    Yap_unify(TermInteger, args[PROLOG_FLAG_PROPERTY_TYPE].tvalue);
 	else if  (fv->type == isfloat)
 	  rc = rc &&
@@ -1327,7 +1320,7 @@ newFlag( Term fl, Term val )
     int i =     GLOBAL_flagCount;
 
   GLOBAL_flagCount ++;
-  f.name = RepAtom(AtomOfTerm(fl))->StrOfAE;
+  f.name = (char *)RepAtom(AtomOfTerm(fl))->StrOfAE;
   f.writable = true;
   f.helper = 0;
   f.def = ok;

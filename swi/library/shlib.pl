@@ -105,6 +105,10 @@ predicate defined in C.
 	use_foreign_library(:),
 	use_foreign_library(:, +).
 
+:- multifile
+	foreign_predicate/2,		% Lib, Pred
+	current_library/5.
+
 :- dynamic
 	loading/1,			% Lib
 	error/2,			% File, Error

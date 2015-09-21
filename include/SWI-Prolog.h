@@ -466,6 +466,7 @@ extern X_API int PL_cons_list(term_t, term_t, term_t);
 extern X_API int PL_put_atom(term_t, atom_t);
 extern X_API int PL_put_atom_chars(term_t, const char *);
 extern X_API int PL_put_atom_nchars(term_t, size_t ,const char *);
+extern X_API int PL_put_boolean(term_t, uintptr_t);
 extern X_API int PL_put_float(term_t, double);
 extern X_API int PL_put_functor(term_t, functor_t t);
 extern X_API int PL_put_int64(term_t, int64_t);
@@ -478,6 +479,8 @@ extern X_API int PL_put_string_chars(term_t, const char *);
 extern X_API int PL_put_string_nchars(term_t, size_t, const char *);
 extern X_API int PL_put_term(term_t, term_t);
 extern X_API int PL_put_variable(term_t);
+extern X_API int PL_put_intptr(term_t t, intptr_t n);
+extern X_API int PL_put_uintptr(term_t t, uintptr_t n);
 extern X_API  int PL_compare(term_t, term_t);
 /* end PL_put_* functions =============================*/
 /* begin PL_unify_* functions =============================*/

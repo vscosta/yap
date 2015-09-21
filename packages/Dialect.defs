@@ -1,0 +1,75 @@
+################################################################
+# Shared makefile for packages.
+################################################################
+
+# This file must provide the following macros:
+#
+#   * PLLIBDIR
+#   Base directory holding the Prolog library.  Some packages
+#   may create subdirectories.
+#   * SOLIBDIR
+#   Directory holding shared objects/DLLs for the target architecture.
+#   * PKGDOCDIR
+#   Directory for storing the documentation.  Packages typically
+#   create subdirectories
+#   * PKGEXDIR
+#   Directory where a package stores example code.  Packages typically
+#   create subdirectories
+#   * SO
+#   Extension used for shared objects.  E.g., .so, .dylib, .dll, ...
+
+PLBASE=/usr/local
+PLARCH=x86_64-darwin14.0.0
+PLINCL=$(PLBASE)/include
+PLLIBDIR=$(PLBASE)/share/Yap
+SOLIBDIR=${exec_prefix}/lib/Yap
+PKGDOCDIR=$(PLBASE)/share/doc/Yap/packages
+PKGEXDIR=$(PLBASE)/share/doc/Yap/packages/examples
+XPCEBASE=$(PLBASE)/xpce
+
+#
+# YAP internal stuff
+#
+ROOTDIR = $(prefix)
+EROOTDIR = ${prefix}
+BINDIR = $(EROOTDIR)/bin
+LIBDIR=${exec_prefix}/lib
+YAPLIBDIR=${exec_prefix}/lib/Yap
+SHAREDIR=$(ROOTDIR)/share/Yap
+abs_top_builddir=/Users/vsc/git/yap-6.3
+abs_top_srcdir=/Users/vsc/git/yap-6.3
+PL=YAPLIBDIR=$(abs_top_builddir):$(abs_top_builddir)/library/system:$(abs_top_builddir)/packages/clib DYLD_LIBRARY_PATH=$(abs_top_builddir):$(abs_top_builddir)/library/system:     YAPSHAREDIR=$(abs_top_srcdir)/library:$(abs_top_srcdir)/swi/library:$(abs_top_srcdir)/packages/clib $(abs_top_builddir)/yap $(abs_top_builddir)/startup.yss
+
+CC=gcc -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall
+LD=gcc  -dynamiclib -Wl,-undefined,dynamic_lookup
+SO=dylib
+COFLAGS=$(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../.. -I$(srcdir)/../../include -I$(srcdir)/../../os $(CPPFLAGS)
+CWFLAGS=
+CMFLAGS=-fPIC -O3 -fomit-frame-pointer -Wall -Wstrict-prototypes -Wmissing-prototypes -g -O2 
+CIFLAGS=
+CFLAGS=$(COFLAGS) $(CWFLAGS) $(CMFLAGS) $(CIFLAGS) $(PKGCFLAGS) -DHAVE_CONFIG_H
+CXXFLAGS= $(COFLAGS) $(CWFLAGS) -fPIC -O3 -fomit-frame-pointer -Wall -g -O2 $(CIFLAGS) $(PKGCFLAGS) -DHAVE_CONFIG_H
+
+LDSOFLAGS= -L/usr/local/lib $(PKGLDFLAGS)
+LDFLAGS=$(PKGLDFLAGS)
+
+LIBPLEMBED=   -Wl,-install_name,$(YAPLIBDIR)/$@ -lpthread
+LIBPLSO=   -Wl,-install_name,$(YAPLIBDIR)/$@ -lpthread
+
+MKINDEX=(cd $(srcdir) ; $(PL) -f none -g make -t halt)
+
+.txt.tex:
+	$(PUBLICPL)  -L $(SHAREDIR)/doc_latex -g "doc_latex('$*.txt','$*.tex',[stand_alone(false)]),halt" -t "halt(1)"
+
+
+PUBLICPL=$(PL)
+PLTOTEX=$(PUBLICPL) -q -l $(srcdir)/pltotex -g pltotex --
+
+#
+# find out how to generate .o files from $(scrdir)
+#
+%.o: $(srcdir)/%.c
+		$(CC) -c $(CFLAGS) $< -o $@
+
+
+install-examples::

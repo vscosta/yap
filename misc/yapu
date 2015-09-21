@@ -1,0 +1,122 @@
+#! /usr/local/bin/yap -L -- $*
+# .
+% -*- Mode: Prolog -*-
+
+/**
+  * @defgroup YAPU YAPU: A Compact Unit Testing Script
+  * @ingroup YAPLibrary
+  *
+  * Unit tests are useful in testing a procedure or a function. Therefore, several
+  * Prolog implementations extend the language with support for unit testing. Examples
+  * include SWI Prolog's pl-unit, and the Logtalk unit checker. These packages
+  * include sophisticated machinery.
+  *
+  * YAPU is a simple script designed to enable large scale generation of unit tests
+  * as text files. It uses on a tab separated format, as follows:
+  *
+  * Name	Arity
+  * Arg1	Arg2	ArgN	Answer
+  * ....
+  *
+  * 
+*/
+
+:- use_module( library( lineutils ) ).
+:- use_module( library( lists ) ).
+
+:- yap_flag(write_strings, on).
+
+:- initialization( main ).
+
+:- dynamic test/5, exists/2.
+
+main :-
+	unix(argv([Inp])),
+	file_filter(Inp, user_output, test ).
+
+test(Inp, "") :-
+	Inp == [0'%|_], %0'
+	!, fail.
+
+test(Inp, "+") :-
+	\+ test(_A,_Name,_N,_AN,_G),
+	split(Inp, "	", [Name, Arity|_]), !,
+	atom_codes(A, Name),
+	number_codes(N, Arity),
+	functor(G, A, N),
+	assert(test(A,Name,N,A/N,G)).
+test(Inp, "~n") :-
+	split(Inp, "	", ["end"|_]), !,
+	retract(test(A,_Name,N,A/N,_G)).
+test(Inp, ".") :-
+trace,
+	test( _, Name, Ar, _, _),
+	fields(Inp, "	", [_|L]), !,
+	args(L, Ar, Sol, Text, []),
+	append([" query( ", Name, "( ( ", Text, " ) ), ( "|Sol], P1),
+	append(P1, " ) ). ", Codes ),
+	atom_to_term( Codes, Go, Bindings ),
+	cmd( Go, Bindings).
+
+args(Args, 0, Args) -->
+	!.
+args([A|L], Ar, Args) -->
+	add_arg(A, Ar),
+	{ Ar1 is Ar-1 },
+	( { Ar1 =:= 0 } -> [] ; " ) , ( " ),
+	args(L, Ar1, Args).
+
+add_arg(A, Ar) -->
+	blank(A), !,
+	{ exists(Ar, S) },
+	S.
+add_arg(A, Ar) -->
+	A,
+	{ retract(exists(Ar,_)), fail ; assert(exists(Ar, A)) }.
+
+cmd( query( Q, Sol ), Bs ) :-
+	findall( X, catch( run(X, Q, Sol, Bs), T, X = throw( T ) ), Ls),
+	match( Ls, Sol ).
+
+run(Bs, Q, Sol, Bs) :-
+	T = t( Sol ),
+	call(Q),
+	count_solutions( T ).
+
+count_solutions(T) :-
+	arg(1, T, [_|L]),
+	( var( L ) -> true ; nb_setarg(1, T, L ) ).
+
+% matches to a variable
+% should always be the first rule.
+match( [_|_], Any) :- var(Any), !.
+match( [], fail) :- !.
+match( [throw( Error0 )], ErrorF) :-
+	Error0 = error(ISO0, _),
+	ErrorF = error(ISOF, _),
+	ISO0 =@= ISOF,
+	!.
+match( Bs, BFs) :-
+	length( Bs, Sz),
+	length( BFs, Sz), !,
+	maplist( match_bs, Bs, BFs ).
+match_bs( B0, B1 ) :-
+	msort(B0, K0),
+	msort(B1, K1),
+	intersect(K0, K1, I0, I1),
+	I0 =@= I1.
+match_bs( Bs, BFs) :-
+	line_count( filter_input, Line ),
+	format(user_error, 'line ~d failed: ~    nExpected ~w.~n        Got ~w.~n',
+	       [Line, BFs, Bs] ).
+
+intersect([], [_|_], [], []).
+intersect([_|_], [], [], []).
+intersect([B=V1|B1s], [B=V2|B2s], [V1|V1s], [V2|V2s]) :- !,
+	intersect(B1s, B2s, V1s, V2s).
+intersect([_B1=V1|B1s], [B2=V2|B2s], V1s, V2s) :-
+	V1 @< V2, !,
+	intersect(B1s, [B2=V2|B2s], V1s, V2s).
+intersect([_B1=_V1|B1s], [B2=V2|B2s], V1s, V2s) :-
+	intersect(B1s, [B2=V2|B2s], V1s, V2s).
+

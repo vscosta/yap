@@ -841,6 +841,7 @@ db_files(Fs) :-
 	b_getval('$lf_status', TOpts),
 	'$msg_level'( TOpts, Verbosity),
 	'$full_filename'(X, Y , ( :- include(X)) ),
+	'$including'(Old, Y),
 	'$lf_opt'(stream, TOpts, OldStream),
 	'$current_module'(Mod),
 	( open(Y, read, Stream) 	->
@@ -848,7 +849,7 @@ db_files(Fs) :-
 	  '$do_error'(permission_error(input,stream,Y),include(X))
 	),
 	file_directory_name(Y, Dir),
-  H0 is heapused, '$cputime'(T0,_),
+	H0 is heapused, '$cputime'(T0,_),
 	working_directory(Dir0, Dir),
 	'$lf_opt'(encoding, TOpts, Encoding),
 	set_stream(Stream, [encoding(Encoding),alias(loop_stream)] ),
@@ -862,6 +863,7 @@ db_files(Fs) :-
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	'$early_print'(Verbosity, loaded(included, Y, Mod, T, H)),
 	working_directory(_Dir, Dir0),
+	'$including'(Y, Old),
         nb_setval('$included_file',OY).
 
 

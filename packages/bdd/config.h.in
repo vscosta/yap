@@ -1,0 +1,19 @@
+/* Define to 1 if you have the <cuddInt.h> header file. */
+#undef HAVE_CUDDINT_H
+
+/* Define to 1 if you have the <cudd/cuddInt.h> header file. */
+#undef HAVE_CUDD_CUDDINT_H
+
+/* Define to 1 if you have the <cudd/cudd.h> header file. */
+#undef HAVE_CUDD_CUDD_H
+
+/* Define to 1 if you have the <cudd/cudd/utils.h> header file. */
+#undef HAVE_CUDD_UTILS_H
+
+/* Define to 1 if you have the <cudd.h> header file. */
+#undef HAVE_CUDD_H
+
+/* Define to 1 if you have the <utils.h> header file. */
+#undef HAVE_CUDD_UTILS_H
+
+

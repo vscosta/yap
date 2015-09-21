@@ -106,13 +106,13 @@ Yap_MkFunctorWithAddress(Atom ap, unsigned int arity, FunctorEntry *p)
 }
 
 inline static Atom
-SearchInInvisible(const char *atom)
+SearchInInvisible(const unsigned char *atom)
 {
   AtomEntry *chain;
 
   READ_LOCK(INVISIBLECHAIN.AERWLock);
   chain = RepAtom(INVISIBLECHAIN.Entry);
-  while (!EndOfPAEntr(chain) && strcmp(chain->StrOfAE, atom)) {
+  while (!EndOfPAEntr(chain) && strcmp((char *)chain->StrOfAE, (char *)atom)) {
     chain = RepAtom(chain->NextOfAE);
   }
   READ_UNLOCK(INVISIBLECHAIN.AERWLock);
@@ -123,13 +123,13 @@ SearchInInvisible(const char *atom)
 }
 
 static inline Atom
-SearchAtom(const char *p, Atom a) {
+SearchAtom(const unsigned char *p, Atom a) {
   AtomEntry *ae;
 
   /* search atom in chain */
   while (a != NIL) {
     ae = RepAtom(a);
-    if (strcmp(ae->StrOfAE, (const char *)p) == 0) {
+    if (strcmp((char *)ae->StrOfAE, (const char *)p) == 0) {
       return(a);
     }
     a = ae->NextOfAE;
@@ -153,10 +153,10 @@ SearchWideAtom(const wchar_t *p, Atom a) {
 }
 
 static Atom
-LookupAtom(const char *atom)
+LookupAtom(const unsigned char *atom)
 {				/* lookup atom in atom table            */
   UInt hash;
-  const char *p;
+  const unsigned char *p;
   Atom a, na;
   AtomEntry *ae;
   
@@ -188,7 +188,7 @@ LookupAtom(const char *atom)
   }
 #endif  
   /* add new atom to start of chain */
-  ae = (AtomEntry *) Yap_AllocAtomSpace((sizeof *ae) + strlen(atom) + 1);
+  ae = (AtomEntry *) Yap_AllocAtomSpace((sizeof *ae) + strlen((const char *)atom) + 1);
   if (ae == NULL) {
     WRITE_UNLOCK(HashChain[hash].AERWLock);
     return NIL;
@@ -196,8 +196,8 @@ LookupAtom(const char *atom)
   NOfAtoms++;
   na = AbsAtom(ae);
   ae->PropsOfAE = NIL;
-  if (ae->StrOfAE != atom)
-    strcpy(ae->StrOfAE, atom);
+  if (ae->UStrOfAE != atom)
+    strcpy((char *)ae->StrOfAE, (const char *)atom);
   ae->NextOfAE = a;
   HashChain[hash].Entry = na;
   INIT_RWLOCK(ae->ARWLock);
@@ -282,7 +282,7 @@ Yap_LookupMaybeWideAtom(const wchar_t *atom)
 {				/* lookup atom in atom table            */
   wchar_t *p = (wchar_t *)atom, c;
   size_t len = 0;
-  char *ptr, *ptr0;
+  unsigned char *ptr, *ptr0;
   Atom at;
 
   while ((c = *p++)) { 
@@ -332,9 +332,9 @@ Yap_LookupMaybeWideAtomWithLength(const wchar_t *atom, size_t len0)
     Yap_FreeCodeSpace((char *)ptr0);
     return at;
   } else {
-    char *ptr0;
+    unsigned char *ptr0;
 
-    ptr0 = (char *)Yap_AllocCodeSpace((len0+1));
+    ptr0 = Yap_AllocCodeSpace((len0+1));
     if (!ptr0)
       return NIL;
     for (i=0;i<len0;i++)
@@ -347,10 +347,10 @@ Yap_LookupMaybeWideAtomWithLength(const wchar_t *atom, size_t len0)
 }
 
 Atom
-Yap_LookupAtomWithLength(const char *atom, size_t len0)
+Yap_LookupAtomWithLength(const  char *atom, size_t len0)
 {				/* lookup atom in atom table            */
   Atom at;
-  char *ptr;
+  unsigned char *ptr;
 
   /* not really a wide atom */
   ptr = Yap_AllocCodeSpace(len0+1);
@@ -364,7 +364,13 @@ Yap_LookupAtomWithLength(const char *atom, size_t len0)
 }
 
 Atom
-Yap_LookupAtom(const char *atom)
+Yap_LookupAtom(const  char *atom)
+{				/* lookup atom in atom table            */
+  return LookupAtom((const unsigned char *)atom);
+}
+
+Atom
+Yap_ULookupAtom(const unsigned char *atom)
 {				/* lookup atom in atom table            */
   return LookupAtom(atom);
 }
@@ -380,10 +386,10 @@ Yap_FullLookupAtom(const char *atom)
 {				/* lookup atom in atom table            */
   Atom t;
 
-  if ((t = SearchInInvisible(atom)) != NIL) {
+  if ((t = SearchInInvisible((const unsigned char *)atom)) != NIL) {
     return (t);
   }
-  return(LookupAtom(atom));
+  return(LookupAtom((const unsigned char *)atom));
 }
 
 void
@@ -391,11 +397,11 @@ Yap_LookupAtomWithAddress(const char *atom,
 			  AtomEntry *ae)
 {				/* lookup atom in atom table            */
   register CELL hash;
-  register const char *p;
+  register const unsigned char *p;
   Atom a;
 
   /* compute hash */
-  p = atom;
+  p = (const unsigned char *)atom;
   hash = HashFunction(p) % AtomHashTableSize;
   /* ask for a WRITE lock because it is highly unlikely we shall find anything */
   WRITE_LOCK(HashChain[hash].AERWLock);
@@ -411,7 +417,7 @@ Yap_LookupAtomWithAddress(const char *atom,
   ae->NextOfAE = a;
   HashChain[hash].Entry = AbsAtom(ae);
   ae->PropsOfAE = NIL;
-  strcpy(ae->StrOfAE, atom);
+  strcpy((char *)ae->StrOfAE, (char *)atom);
   INIT_RWLOCK(ae->ARWLock);
   WRITE_UNLOCK(HashChain[hash].AERWLock);
 }
@@ -420,10 +426,10 @@ void
 Yap_ReleaseAtom(Atom atom)
 {				/* Releases an atom from the hash chain */
   register Int hash;
-  register const char *p;
+  register const unsigned char *p;
   AtomEntry *inChain;
   AtomEntry *ap = RepAtom(atom);
-  char *name = ap->StrOfAE;
+  char unsigned *name = ap->UStrOfAE;
 
   /* compute hash */
   p = name;

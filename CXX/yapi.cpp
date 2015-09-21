@@ -7,7 +7,7 @@ extern  "C" {
     
 #include "YapInterface.h"
 #include "blobs.h"
-    
+
     char   *Yap_TermToString(Term t, char *s, size_t sz, size_t *length, encoding_t encoding, int flags);
     
     void YAP_UserCPredicate(const char *, YAP_UserCPred, YAP_Arity arity);
@@ -358,11 +358,11 @@ char *YAPAtom::getName(void) {
       // return an UTF-8 version
       size_t sz = 512;
       wchar_t * ptr =  a->WStrOfAE;
-      int ch = -1;
-      char *s = new char[sz], *op = s;
+      utf8proc_int32_t ch = -1;
+       char *s = new char[sz], *op = s;
       while (ch) {
 	  ch = *ptr++;
-	  utf8_put_char( op, ch );
+	  op += put_utf8( (unsigned char *)op, ch);
       }
       sz = strlen(s)+1;
       char *os = new char[sz];
@@ -374,7 +374,7 @@ char *YAPAtom::getName(void) {
       char *s = new char [sz+1];
       return Yap_blob_to_string( RepAtom(a) , s, sz);
   } else {
-      return a->StrOfAE;
+      return (char *)a->StrOfAE;
   }
 }
 

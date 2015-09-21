@@ -2722,6 +2722,7 @@ void Yap_InitGlobals(void)
   Yap_InitCPred("$allocate_arena", 2, p_allocate_arena, 0);
   Yap_InitCPred("arena_size", 1, p_default_arena_size, 0);
   Yap_InitCPred("b_setval", 2, p_b_setval, SafePredFlag);
+  Yap_InitCPred("__B_setval__", 2, p_b_setval, HiddenPredFlag|SafePredFlag);
 /** @pred  b_setval(+ _Name_, + _Value_)  
 
 
@@ -2745,6 +2746,7 @@ assignment is reversed.
  
 */
   Yap_InitCPred("nb_setval", 2, p_nb_setval, 0L);
+  Yap_InitCPred("__NB_setval__", 2, p_nb_setval, HiddenPredFlag);
 /** @pred  nb_setval(+ _Name_, + _Value_)  
 
 
@@ -2816,6 +2818,8 @@ demo_nb_linkval :-
  
 */
   Yap_InitCPred("$nb_getval", 3, p_nb_getval, SafePredFlag);
+  Yap_InitCPred("__NB_getval__", 3, p_nb_getval, HiddenPredFlag);
+  Yap_InitCPred("__B_getval__", 3, p_nb_getval, HiddenPredFlag);
   Yap_InitCPred("nb_setarg", 3, p_nb_setarg, 0L);
 /** @pred  nb_setarg(+{Arg], + _Term_, + _Value_) 
 

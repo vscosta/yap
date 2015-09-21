@@ -80,7 +80,7 @@ p_load_foreign( USES_REGS1 )
 
   /* get the initialization function name */
   t1 = Deref(ARG3);
-  InitProcName = RepAtom(AtomOfTerm(t1))->StrOfAE;  
+  InitProcName = (char *)RepAtom(AtomOfTerm(t1))->StrOfAE;
   
   /* call the OS specific function for dynamic loading */
   if(Yap_LoadForeign(ofiles,libs,InitProcName,&InitProc)==LOAD_SUCCEEDED) {
@@ -139,7 +139,7 @@ p_open_shared_object( USES_REGS1 ) {
     return FALSE;
   }
   
-  s = RepAtom(AtomOfTerm(t))->StrOfAE;
+  s = (char *)RepAtom(AtomOfTerm(t))->StrOfAE;
   if ((handle = Yap_LoadForeignFile(s, IntegerOfTerm(tflags)))==NULL) {
     Yap_Error(EXISTENCE_ERROR_SOURCE_SINK,t,"open_shared_object_failed for %s with %s\n", s, LOCAL_ErrorSay);
     return FALSE;
@@ -209,14 +209,14 @@ p_call_shared_object_function( USES_REGS1 ) {
     return FALSE;
   }
   CurrentModule = tmod;
-  res = Yap_CallForeignFile(handle, RepAtom(AtomOfTerm(tfunc))->StrOfAE);
+  res = Yap_CallForeignFile(handle, (char *)RepAtom(AtomOfTerm(tfunc))->StrOfAE);
   CurrentModule = OldCurrentModule;
   return res;
 }
 
 static Int
 p_obj_suffix( USES_REGS1 ) {
-  return Yap_unify(Yap_CharsToListOfCodes(SO_EXT PASS_REGS),ARG1);
+  return Yap_unify(Yap_CharsToListOfCodes(SO_EXT, ENC_ISO_LATIN1 PASS_REGS),ARG1);
 }
 
 static Int
@@ -256,7 +256,7 @@ Yap_ReOpenLoadForeign(void)
     YapInitProc InitProc = NULL;
 
     CurrentModule = f_code->module;
-    if(Yap_ReLoadForeign(f_code->objs,f_code->libs,RepAtom(f_code->f)->StrOfAE,&InitProc)==LOAD_SUCCEEDED) {
+    if(Yap_ReLoadForeign(f_code->objs,f_code->libs,(char *)RepAtom(f_code->f)->StrOfAE,&InitProc)==LOAD_SUCCEEDED) {
       if (InitProc)
 	(*InitProc)();
     }

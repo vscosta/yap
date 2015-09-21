@@ -205,7 +205,9 @@ typedef struct stream_desc
      character conversion is on */
   int (* stream_wgetc_for_read)(int);
   int (* stream_wgetc)(int);
+  int (* stream_getc_for_utf8)(int);
   int (* stream_wputc)(int,wchar_t);
+  uint64_t utf8_buf; /* used to translate to utf-8 */
   encoding_t encoding;
   mbstate_t mbstate;
 }
@@ -306,6 +308,7 @@ int post_process_eof( StreamDesc *);
 bool is_same_tty(FILE *f1, FILE *f2);
 
 int ISOWGetc (int sno);
+int GetUTF8 (int sno);
 Term read_line(int sno);
 int PlUnGetc( int);
 int PlGets (int sno, UInt size, char *buf);

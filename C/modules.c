@@ -47,11 +47,11 @@ static ModEntry *LookupModule(Term a);
 }
 
 inline static ModEntry *GetModuleEntry(Atom at)
-/* get predicate entry for ap/arity; create it if neccessary.              */
+/* Get predicate entry for ap/arity; create it if necessary.              */
 {
   Prop p0;
   AtomEntry *ae = RepAtom(at);
-  ModEntry *new;
+  ModEntry *new, *oat;
 
   p0 = ae->PropsOfAE;
   while (p0) {
@@ -62,7 +62,6 @@ inline static ModEntry *GetModuleEntry(Atom at)
   }
   {
     CACHE_REGS
-      ModEntry *old;
     new = (ModEntry *)Yap_AllocAtomSpace(sizeof(*new));
     INIT_RWLOCK(new->ModRWLock);
     new->KindOfPE = ModProperty;
@@ -70,12 +69,12 @@ inline static ModEntry *GetModuleEntry(Atom at)
     new->NextME = CurrentModules;
     CurrentModules = new;
     new->AtomOfME = ae;
-    if (CurrentModule == PROLOG_MODULE || AtomOfTerm(CurrentModule) == at) {
-      old = NULL;
-    } else
-      old = GetModuleEntry(AtomOfTerm(CurrentModule));
-    Yap_setModuleFlags(new, old);
     AddPropToAtom(ae, (PropEntry *)new);
+    if (CurrentModule == 0L || (oat = GetModuleEntry(AtomOfTerm(CurrentModule))) == new) {
+      Yap_setModuleFlags(new, NULL);
+    } else {
+      Yap_setModuleFlags(new, oat);
+    }
   }
   return new;
 }
@@ -116,6 +115,7 @@ Term Yap_Module_Name(PredEntry *ap) {
   if (mod)
     return mod;
   return TermProlog;
+
 }
 
 static ModEntry *LookupModule(Term a) {
@@ -183,8 +183,9 @@ static Int
   if (t == TermProlog) {
     CurrentModule = PROLOG_MODULE;
   } else {
+    // make it very clear that t inherits from cm.
+    LookupModule(t);
     CurrentModule = t;
-    LookupModule(CurrentModule);
   }
   LOCAL_SourceModule = CurrentModule;
   return TRUE;

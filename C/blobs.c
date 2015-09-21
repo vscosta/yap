@@ -46,7 +46,7 @@ char * Yap_blob_to_string(AtomEntry *ref, const char *s0, size_t sz)
         fclose(f);    // return the final result.
     return s;
     } else {
-        size_t sz0 = strlcpy( s, RepAtom( AtomSWIStream )->StrOfAE, sz);
+        size_t sz0 = strlcpy( s, (char *)RepAtom( AtomSWIStream )->StrOfAE, sz);
         s = s+sz0;
         sz -= sz0;
 #if defined(__linux__) || defined(__APPLE__)
@@ -222,7 +222,7 @@ YAP_blob_data(Atom x, size_t *len, blob_type_t **type)
             return x->WStrOfAE;
         }
         if ( len )
-            *len = strlen(x->StrOfAE);
+            *len = strlen((char *)x->StrOfAE);
         if ( type )
             *type = &unregistered_blob_atom;
         return x->StrOfAE;

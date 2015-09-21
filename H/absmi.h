@@ -19,11 +19,6 @@
 
 #define ABSMI_H 1
 
-#ifdef SCCS
-static char SccsId[] = "%W% %G%";
-
-#endif /* SCCS */
-
 #if NATIVE_EXECUTION
 /* just a stub */
 #else
@@ -222,8 +217,6 @@ restore_absmi_regs(REGSTORE * old_regs)
 #else
   Yap_regp = old_regs;
 #endif
-  // not neeeded any more
-  // LOCAL_PL_local_data_p->reg_cache = old_regs;
 }
 #endif /* PUSH_REGS */
 

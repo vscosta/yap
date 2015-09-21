@@ -163,11 +163,11 @@ void Yap_init_socks(char *host, long interface_port);
 extern int errno;
 #endif
 
-INLINE_ONLY EXTERN UInt inline HashFunction(const char *);
+INLINE_ONLY EXTERN UInt inline HashFunction(const unsigned char *);
 INLINE_ONLY EXTERN UInt inline WideHashFunction(wchar_t *);
 
 INLINE_ONLY EXTERN inline UInt
-HashFunction(const char *CHP)
+HashFunction(const unsigned char *CHP)
 {
   /* djb2 */
   UInt hash = 5381;

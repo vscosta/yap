@@ -96,28 +96,6 @@ Term
   return t;
 }
 
-char *
-  Yap_TermToString(Term t, char *s,  size_t sz, size_t *length, encoding_t encp, int flags)
-{
-  CACHE_REGS
-    int sno = Yap_open_buf_write_stream(s, sz, encp, flags);
-  int old_output_stream = LOCAL_c_output_stream;
-
-  if (sno < 0)
-    return NULL;
-  LOCK(GLOBAL_Stream[sno].streamlock);
-  LOCAL_c_output_stream = sno;
-  if (encp)
-    GLOBAL_Stream[sno].encoding = encp;
-  Yap_plwrite (t, GLOBAL_Stream+sno, 0, flags, 1200);
-  s[GLOBAL_Stream[sno].u.mem_string.pos] = '\0';
-  GLOBAL_Stream[sno].status = Free_Stream_f;
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
-  LOCAL_c_output_stream = old_output_stream;
-  if ( EX == 0 ) return s;
-  return NULL;
-}
-
 const char *encvs[] =  { "LANG","LC_ALL","LC_CTYPE", NULL };
 
 // wher we can fins an encoding
@@ -189,7 +167,7 @@ Yap_SetDefaultEncoding(encoding_t new_encoding)
 
 encoding_t
 Yap_InitialEncoding(void)
-{
+{return ENC_ISO_UTF8;
   char *s = getenv("LANG");
   size_t sz;
 
@@ -197,7 +175,7 @@ Yap_InitialEncoding(void)
   if (s == NULL)
     s = getenv("LC_CTYPE");
   if (s == NULL)
-    return ENC_ISO_LATIN1;
+    return ENC_ISO_UTF8;
   sz = strlen(s);
   if (sz >= 5) {
     if (s[sz-5] == 'U' &&
@@ -208,7 +186,7 @@ Yap_InitialEncoding(void)
       return ENC_ISO_UTF8;
     }
   }
-  return ENC_ISO_ANSI;
+  return ENC_ISO_UTF8;
 }
 
 static Int
@@ -291,7 +269,6 @@ p_type_of_char ( USES_REGS1 )
   return Yap_unify(t,ARG2);
 }
 
-/* I dispise this code!!!!! */
 int
 ISOWGetc (int sno)
 {
@@ -341,7 +318,7 @@ static Int
 char_conversion( USES_REGS1 )
 {
   Term t0 = Deref(ARG1), t1 = Deref(ARG2);
-  char *s0, *s1;
+  unsigned char *s0, *s1;
 
   if (IsVarTerm(t0)) {
     Yap_Error(INSTANTIATION_ERROR, t0, "char_conversion/2");
@@ -351,7 +328,7 @@ char_conversion( USES_REGS1 )
     Yap_Error(REPRESENTATION_ERROR_CHARACTER, t0, "char_conversion/2");
     return (FALSE);    
   }
-  s0 = RepAtom(AtomOfTerm(t0))->StrOfAE;
+  s0 = RepAtom(AtomOfTerm(t0))->UStrOfAE;
   if (s0[1] != '\0') {
     Yap_Error(REPRESENTATION_ERROR_CHARACTER, t0, "char_conversion/2");
     return (FALSE);    
@@ -364,7 +341,7 @@ char_conversion( USES_REGS1 )
     Yap_Error(REPRESENTATION_ERROR_CHARACTER, t1, "char_conversion/2");
     return (FALSE);    
   }
-  s1 = RepAtom(AtomOfTerm(t1))->StrOfAE;
+  s1 = RepAtom(AtomOfTerm(t1))->UStrOfAE;
   if (s1[1] != '\0') {
     Yap_Error(REPRESENTATION_ERROR_CHARACTER, t1, "char_conversion/2");
     return (FALSE);    
@@ -401,7 +378,7 @@ static Int
 p_current_char_conversion( USES_REGS1 )
 {
   Term t0, t1;
-  char *s0, *s1;
+  unsigned char *s0, *s1;
 
   if (GLOBAL_CharConversionTable == NULL) {
     return(FALSE);
@@ -415,7 +392,7 @@ p_current_char_conversion( USES_REGS1 )
     Yap_Error(REPRESENTATION_ERROR_CHARACTER, t0, "current_char_conversion/2");
     return (FALSE);    
   }
-  s0 = RepAtom(AtomOfTerm(t0))->StrOfAE;
+  s0 = RepAtom(AtomOfTerm(t0))->UStrOfAE;
   if (s0[1] != '\0') {
     Yap_Error(REPRESENTATION_ERROR_CHARACTER, t0, "current_char_conversion/2");
     return (FALSE);    
@@ -432,7 +409,7 @@ p_current_char_conversion( USES_REGS1 )
     Yap_Error(REPRESENTATION_ERROR_CHARACTER, t1, "current_char_conversion/2");
     return (FALSE);    
   }
-  s1 = RepAtom(AtomOfTerm(t1))->StrOfAE;
+  s1 = RepAtom(AtomOfTerm(t1))->UStrOfAE;
   if (s1[1] != '\0') {
     Yap_Error(REPRESENTATION_ERROR_CHARACTER, t1, "current_char_conversion/2");
     return (FALSE);    

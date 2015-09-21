@@ -62,7 +62,6 @@ set (ENGINE_SOURCES
   C/modules.c
   C/other.c
   C/parser.c
-  C/utf8.c
   C/qlyr.c
   C/qlyw.c
   C/range.c
@@ -71,6 +70,7 @@ set (ENGINE_SOURCES
   C/signals.c
   C/sort.c
   C/stdpreds.c
+  C/stack.c
   C/text.c
   C/threads.c
   C/tracer.c

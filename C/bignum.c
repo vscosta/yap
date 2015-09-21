@@ -26,7 +26,7 @@ static char     SccsId[] = "%W% %G%";
 #endif
 
 #include "YapHeap.h"
-#include "pl-utf8.h"
+#include "YapText.h"
 
 #ifdef USE_GMP
 
@@ -363,13 +363,13 @@ Yap_OpaqueTermToString(Term t, char *str, size_t max)
   if (li[0] == (CELL)FunctorString) {
     str_index += sprintf(& str[str_index], "\"");
     do {
-      int chr;
-      char *ptr = (char *)StringOfTerm(AbsAppl(li));
-      ptr = utf8_get_char(ptr, &chr);
+      utf8proc_int32_t chr;
+      unsigned char *ptr = (unsigned char *)StringOfTerm(AbsAppl(li));
+      ptr +=  get_utf8(ptr,  &chr);
       if (chr == '\0') break;
-      str_index += sprintf(& str[str_index], "%C", chr);
+      str_index += sprintf(str+str_index, "%C", chr);
     } while (TRUE);
-    str_index += sprintf(& str[str_index], "\"");
+    str_index += sprintf(str+str_index, "\"");
   } else {
     CELL big_tag = li[1];
 

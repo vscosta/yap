@@ -57,7 +57,10 @@ programs:
 
     Switches the debugger on.
 
-+ debugging
++ debuggi=
+r
+
+g
 
 
     Outputs status information about the debugger which includes the leash
@@ -75,15 +78,15 @@ mode and the existing spy-points, when the debugger is on.
 :- op(900,fx,[spy,nospy]).
 
 '$init_debugger' :-
-        '$nb_getval'('$trace', _, fail), !.
+        '__NB_getval__'('$trace', _, fail), !.
 '$init_debugger' :-
 	'$debugger_input',
-	nb_setval('$trace',off),
-	nb_setval('$if_skip_mode',no_skip),
-	nb_setval('$spy_glist',[]),
-	nb_setval('$spy_gn',1),
-	nb_setval('$debug_run',off),
-	nb_setval('$debug_jump',false).
+	'__NB_setval__'('$trace',off),
+	'__NB_setval__'('$if_skip_mode',no_skip),
+	'__NB_setval__'('$spy_glist',[]),
+	'__NB_setval__'('$spy_gn',1),
+	'__NB_setval__'('$debug_run',off),
+	'__NB_setval__'('$debug_jump',false).
 
 
  % First part : setting and reseting spy points
@@ -234,7 +237,7 @@ nospyall.
 
 debug :-
 	 '$init_debugger',
-	 ( nb_getval('$spy_gn',_) -> true ; nb_setval('$spy_gn',1) ),
+	 ( '__NB_getval__'('$spy_gn',_, fail) -> true ; '__NB_setval__'('$spy_gn',1) ),
 	 '$start_debugging'(on),
 	 print_message(informational,debug(debug)).
 
@@ -244,13 +247,13 @@ debug :-
 	 ;
 	  set_prolog_flag(debug, false)
 	 ),
-	 nb_setval('$debug_run',off),
-	 nb_setval('$debug_jump',false).
+	 '__NB_setval__'('$debug_run',off),
+	 '__NB_setval__'('$debug_jump',false).
 
 nodebug :-
 	 '$init_debugger',
 	 set_prolog_flag(debug, false),
-	 nb_setval('$trace',off),
+	 '__NB_setval__'('$trace',off),
 	 print_message(informational,debug(off)).
 
 %
@@ -267,9 +270,9 @@ Switches on the debugger and enters tracing mode.
 */
 trace :-
 	 '$init_debugger',
-	'$nb_getval'('$trace', on, fail), !.
+	'__NB_getval__'('$trace', on, fail), !.
 trace :-
-	nb_setval('$trace',on),
+	'__NB_setval__'('$trace',on),
 	'$start_debugging'(on),
 	print_message(informational,debug(trace)),
 	'$creep'.
@@ -715,7 +718,10 @@ be lost.
 	  '$do_spy'(B, M, CP, CalledFromDebugger)
 	).
 '$do_spy'((T->A|B), M, CP, CalledFromDebugger) :- !,
-	( '$do_spy'(T, M, CP, debugger) -> 	'$do_spy'(A, M, CP, CalledFromDebugger)
+	(
+	 '$do_spy'(T, M, CP, debugger)
+	->
+	  '$do_spy'(A, M, CP, CalledFromDebugger)
 	;
 	  '$do_spy'(B, M, CP, CalledFromDebugger)
 	).
@@ -738,11 +744,11 @@ be lost.
 '$do_spy'((not(G)), M, CP, CalledFromDebugger) :- !,
 	\+ '$do_spy'(G, M, CP, CalledFromDebugger).
 '$do_spy'(G, Module, _, CalledFromDebugger) :-
-        nb_getval('$spy_gn',L),		/* get goal no.			*/
+        '__NB_getval__'('$spy_gn',L,fail),		/* get goal no.			*/
 	L1 is L+1,			/* bump it			*/
-	nb_setval('$spy_gn',L1),	/* and save it globaly		*/
-        b_getval('$spy_glist',History),	/* get goal list		*/
-	b_setval('$spy_glist',[info(L,Module,G,_Retry,_Det,_HasFoundAnswers)|History]),
+	'__NB_setval__'('$spy_gn',L1),	/* and save it globaly		*/
+        '__NB_getval__'('$spy_glist',History,true),	/* get goal list		*/
+	'__B_setval__'('$spy_glist',[info(L,Module,G,_Retry,_Det,_HasFoundAnswers)|History]),
 	/* and update it		*/
 	'$loop_spy'(L, G, Module, CalledFromDebugger).
 
@@ -796,13 +802,13 @@ be lost.
 % if we are in
 '$loop_spy2'(GoalNumber, G, Module, CalledFromDebugger, CP) :-
 /* the following choice point is where the predicate is  called */
-	   b_getval('$spy_glist',[Info|_]),	/* get goal list		*/
+	   '__NB_getval__'('$spy_glist',[Info|_],true),	/* get goal list		*/
 	   Info = info(_,_,_,Retry,Det,false),
 	   (
 	    /* call port */
 	    '$enter_goal'(GoalNumber, G, Module),
 	    '$spycall'(G, Module, CalledFromDebugger, Retry),
-         '$stop_creeping',
+	    '$stop_creeping',
 	    % make sure we are in system mode when running the debugger.
 	    (
 	      '$debugger_deterministic_goal'(G) ->
@@ -866,7 +872,7 @@ be lost.
 % skip a goal or a port
 %
 '$zip'(GoalNumber, G, Module) :-
-    nb_getval('$debug_run',StopPoint),
+    '__NB_getval__'('$debug_run',StopPoint,fail),
     % zip mode off, we cannot zip
     StopPoint \= off,
     (
@@ -885,7 +891,7 @@ be lost.
 
 %
 '$spycall'(G, M, _, _) :-
-	nb_getval('$debug_jump',true),
+	'__NB_getval__'('$debug_jump',true, fail),
 	!,
 	( '$is_metapredicate'(G, M)
 	->
@@ -986,12 +992,12 @@ be lost.
 	F /\ 0x00000040 =\= 0.
 
 %'$trace'(P,G,Module,L,Deterministic) :-
-%	'$nb_getval'('$system_mode',On,fail), writeln(On), fail.
+%	'__NB_getval__'('$system_mode',On,fail), writeln(On), fail.
 '$trace'(P,G,Module,L,Deterministic) :-
 	% at this point we are done with leap or skip
-	nb_setval('$debug_run',off),
+	'__NB_setval__'('$debug_run',off),
 	% but creep is default
-	nb_setval('$trace',on),
+	'__NB_setval__'('$trace',on),
 	% make sure we run this code outside debugging mode.
 	set_prolog_flag(debug, false),
 	repeat,
@@ -1052,7 +1058,7 @@ be lost.
 	get_code( debugger_input,C),
 	'$action'(C,P,CallNumber,G,Module,Zip).
 '$action'(10,_,_,_,_,on) :- !,			% newline 	creep
-	nb_setval('$debug_jump',false).
+	'__NB_setval__'('$debug_jump',false).
 '$action'(0'!,_,_,_,_,_) :- !,			% ! 'g		execute
 	read(debugger_input, G),
 	% don't allow yourself to be caught by creep.
@@ -1060,9 +1066,9 @@ be lost.
 	 set_prolog_flag(debug, false),
 	( '$execute'(G) -> true ; true),
 	% at this point we are done with leap or skip
-	nb_setval('$debug_run',off),
+	'__NB_setval__'('$debug_run',off),
 	% but creep is default
-	nb_setval('$trace',on),
+	'__NB_setval__'('$trace',on),
 	set_prolog_flag(debug, OldDeb),
 %	'$skipeol'(0'!),                        % '
 	fail.
@@ -1087,7 +1093,7 @@ be lost.
 	fail.
 '$action'(0'c,_,_,_,_,on) :- !,			% 'c		creep
 	'$skipeol'(0'c),
-	nb_setval('$debug_jump',false).
+	'__NB_setval__'('$debug_jump',false).
 '$action'(0'e,_,_,_,_,_) :- !,			% 'e		exit
 	'$skipeol'(0'e),
 	halt.
@@ -1120,25 +1126,25 @@ be lost.
 	fail.
 '$action'(0'l,_,_,_,_,on) :- !,			% 'l		leap
 	'$skipeol'(0'l),
-	nb_setval('$debug_run',spy),
-	nb_setval('$debug_jump',false).
+	'__NB_setval__'('$debug_run',spy),
+	'__NB_setval__'('$debug_jump',false).
 '$action'(0'z,_,_,_,_,zip) :- !,		% 'z		zip, fast leap
 	'$skipeol'(0'z),			% 'z
-	nb_setval('$debug_run',spy),
-	nb_setval('$debug_jump',true).
+	'__NB_setval__'('$debug_run',spy),
+	'__NB_setval__'('$debug_jump',true).
 	% skip first call (for current goal),
 	% stop next time.
 '$action'(0'k,_,_,_,_,zip) :- !,		% 'k		zip, fast leap
 	'$skipeol'(0'k),			% '
-	nb_setval('$debug_run',spy),
-	nb_setval('$debug_jump',true).
+	'__NB_setval__'('$debug_run',spy),
+	'__NB_setval__'('$debug_jump',true).
 	% skip first call (for current goal),
 	% stop next time.
 '$action'(0'n,_,_,_,_,off) :- !,			% 'n		nodebug
 	'$skipeol'(0'n),				% '
 	% tell debugger never to stop.
-        nb_setval('$debug_run', -1),
-	nb_setval('$debug_jump',true),
+        '__NB_setval__'('$debug_run', -1),
+	'__NB_setval__'('$debug_jump',true),
 	nodebug.
 '$action'(0'r,_,CallId,_,_,_) :- !,		        % 'r		retry
         '$scan_number'(0'r,CallId,ScanNumber),		% '
@@ -1147,16 +1153,16 @@ be lost.
 '$action'(0's,P,CallNumber,_,_,on) :- !,		% 's		skip
 	'$skipeol'(0's),				% '
 	( (P=call; P=redo) ->
-	  nb_setval('$debug_run',CallNumber),
-	  nb_setval('$debug_jump',false)
+	  '__NB_setval__'('$debug_run',CallNumber),
+	  '__NB_setval__'('$debug_jump',false)
 	;
 	    '$ilgl'(0's)				% '
 	).
 '$action'(0't,P,CallNumber,_,_,zip) :- !,		% 't		fast skip
 	'$skipeol'(0't),				% '
 	( (P=call; P=redo) ->
-	  nb_setval('$debug_run',CallNumber),
-	  nb_setval('$debug_jump',true)
+	  '__NB_setval__'('$debug_run',CallNumber),
+	  '__NB_setval__'('$debug_jump',true)
 	;
 	    '$ilgl'(0't)				% '
 	).
@@ -1196,7 +1202,7 @@ be lost.
 	'$execute_dgoal'(G).
 % do not need to debug!
 '$continue_debugging_goal'(_,G) :-
-	'nb_getval'('$debug_run',Zip),
+	'__NB_getval__'('$debug_run',Zip, fail),
         (Zip == nodebug ;  number(Zip) ; Zip == spy ), !,
 	'$execute_dgoal'(G).
 '$continue_debugging_goal'(_,G) :-
@@ -1215,7 +1221,7 @@ be lost.
 	'$execute_clause'(G, M, R, CP).
 
 '$show_ancestors'(HowMany) :-
-	b_getval('$spy_glist',[_|History]),
+	'__NB_getval__'('$spy_glist',[_|History]),
 	(
 	  History == []
 	->

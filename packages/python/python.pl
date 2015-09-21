@@ -18,8 +18,14 @@
 	   init_python/0,
 	   end_python/0,
 	   python_command/1,
+	   python_run_file/1,
+	   python_run_command/1,
+	   python_run_script/2,
 	   python_assign/3,
 	   python_import/1,
+	   array_to_python_list/4,
+	   array_to_python_tuple/4,
+	   array_to_python_view/5,
 	   python/2,
 	   (:=)/2,
 	   (:=)/1,
@@ -82,6 +88,7 @@ similar as possible.
 
 /************************************************************************************************************
 
+
 Python interface
 
 Data types are
@@ -103,24 +110,39 @@ Data types are
 :- use_module(library(charsio)).
 :- dynamic python_mref_cache/2, python_obj_cache/2.
 
-:- multifile user:(<-)/2.
-
 := F :- python(F,_).
 
-V := F :- var(V), !, python(F,V).
+V := F :- var(V), !, python(F,V0),
+	python_exports(V0,V).
 A := F :-
-	python(F, F1),
-	python_lhs(A, A1),
-	python_assign(A1, F1, _).
+	python_eval_term(F, EF),
+	assign(A, EF, _).
 
-user:( V <- F ) :-
+( V <- F ) :-
 	var(V), !,
-    V0 := F,
-	python_export(V0,V).
-user:( V <- F ) :-
+	V0 := F,
+	python_exports(V0,V).
+( V <- F ) :-
+	ground(V), !,
 	V := F.
+( V <- F ) :-
+	copy_term(V, V0),
+	V0 := F,
+	python_exports(V0,V).
 
-user:((<- F)) :-
+python_exports(V0, V0) :-
+	var(V0), !. 
+python_exports(V0, V0) :-
+	atomic(V0), !. 
+python_exports('__obj__'(T0), T) :-
+	!,
+	python_export('__obj__'(T0), T). 
+python_exports(V0, VF) :-
+	V0 =.. [F|L],
+	maplist(python_exports, L, LF),
+	VF =.. [F|LF].
+
+((<- F)) :-
     python( F, _).
 
 python_import(Module) :-
@@ -149,10 +171,6 @@ descend_exp(C1.C2.E, Obj) :- !,
 	python_eval_term(C1, O1),
 	python_field(O1, C2, Obj0 ),
 	descend_exp(Obj0.E, Obj).
-descend_exp(Exp, Obj) :-
-	fail,
-	python_mref_cache(_, MObj),
-	python_field(MObj, Exp, Obj), !.
 descend_exp(C1.E, Obj) :-
 	!,
 	python_eval_term(C1, O1),
@@ -170,8 +188,8 @@ process_obj(Obj, _, S, Obj, NS, Dict) :-
 	python_callable(Obj), !,
 	python_check_args(S, NS, Dict).
 process_obj(Obj, _, S, FObj, NS, Dict) :-
-	descend_object(Obj:'__init__', FObj, _, _),
-	descend_object(Obj:'__init__', FObj, _, _),
+	descend_object(Obj.'__init__', FObj, _, _),
+	descend_object(Obj.'__init__', FObj, _, _),
 	python_check_args(S, NS, Dict).
 
 %% @pred python_eval_term( + Obj, -Obj) is semi-det
@@ -204,25 +222,43 @@ python_eval_term([H|T], NL) :-
 	maplist( python_eval_term, [H|T], NL).
 	%% array access, Python understands numeric
 	% indices and slices.
-
 python_eval_term(Exp[Min:Max:Step], NEl) :- !,
-	python_eval_term(slice(Min,Max,Step), Slice),	python_eval_term(Exp.getitem(Slice), NEl).
+	python_eval_term(slice(Min,Max,Step), Slice),
+	python_slice(Exp,Slice, NEl).
 python_eval_term(Exp[Min:Max], NEl) :- !,
 	python_eval_term(slice(Min,Max), Slice),
-	python_eval_term(Exp.getitem(Slice), NEl).
+	python_slide(Exp,Min,Max, NEl).
 python_eval_term(Exp[Index], O) :- !,
-	python_eval_term(Exp.getitem(Index),O	).
-python_eval_term(Tuple, O) :-
-	Tuple =.. [t|TupleL], !,
-	maplist(python_eval_term, TupleL, OL),
-	O =.. [t|OL].
+	python_item(Exp,Index,O).
 % function or method call of the form
 % a.b.f(...)
 python_eval_term(Inp.Exp, Obj) :- !,
 	%flatten_exp(Exp, Exp1, []),
 	descend_exp(Inp.Exp, Obj).
+python_eval_term((A,B), Obj) :- !,
+	flatten_conj((A,B),Cs,[]),
+	maplist( python_eval_term, Cs, NCs),
+	Tuple =.. [t|NCs],
+	python_is(Tuple, Obj).
+% tuples and varyadic functions.
+python_eval_term(Tuple, Obj) :-
+	Tuple =.. [Name|TupleL],
+	maplist( python_eval_term, TupleL, NewTupleL),
+	(
+	 Name == t
+	->
+	 !,
+	 NewTuple =.. [t|NewTupleL],
+	 python_is(NewTuple, Obj)
+	;
+	 Name == open	->
+	 !,
+	 % calls the file constructor
+	 NewTuple =.. [open|NewTupleL],
+	 python_builtin_eval( NewTuple, [], Obj )
+	).
 python_eval_term(Exp, Obj) :-
-		p_is(Exp, Obj).
+	python_is(Exp, Obj).
 
 flatten_exp( V , V, V0) :-
 	V0 == [],
@@ -243,20 +279,26 @@ flatten_exp( V1, V1, V0 ) :- V0 == [], !.
 flatten_exp( V1 ) -->
 	[V1].
 
+flatten_conj( V1 ) -->
+	{ var( V1 ) },
+	!,
+	[V1].
+flatten_conj( (V1,V2) ) -->
+	!,
+	flatten_conj( V1 ),   % propagte the RHS first.
+	flatten_conj( V2 ).
+flatten_conj( V1 ) -->
+	[V1].
+
 python_check_args(_Exp(), t, {}) :-
 	!.
 python_check_args(Exp, t, {}) :-
 	Exp =.. [_,V], var(V), !.
 python_check_args(Exp, NExp, Dict) :-
-	functor(Exp, _, Arity),
-	arg(Arity, Exp, A), nonvar(A), A = (_=_), !,
-	Exp =.. [_F|LArgs],
+	Exp =.. [_F|LArgs], !,
 	match_args(LArgs, NLArgs, Dict),
 	NExp =.. [t|NLArgs].
-python_check_args(Exp, NExp, {}) :-
-	Exp =.. [F|L],
-	maplist(python_eval_term, L, LF),
-	NExp =.. [F|LF].
+python_check_args(Exp, Exp, {}).
 
 python_build_tuple(V) -->
 	{var(V) }, !,
@@ -272,15 +314,15 @@ splice_class(_FRef, _Ref, [_|ArgNames], ArgNames).
 
 match_args([], [], {}).
 match_args([V=A|LArgs], [], Dict) :- !,
-	match_named_args([V=A|LArgs], Map),
+	python_eval_term(A, EvA),
+	match_named_args([V=EvA|LArgs], Map),
 	map_to_dict(Map, Dict).
 match_args([A|LArgs], [VA|NLArgs], Dict) :-
 	python_eval_term(A, VA),
 	match_args(LArgs, NLArgs, Dict).
 
 match_named_args([], []).
-match_named_args([K=A|LArgs], [K=VA|Map]) :-
-	python_eval_term(A, VA),
+match_named_args([K=A|LArgs], [K=A|Map]) :-
 	match_named_args(LArgs, Map).
 
 
@@ -314,7 +356,7 @@ python_lhs(Name,Name) :-
 python_lhs(N, N) :-
 	number(N), !,
 	throw(error(type(evaluable, N)), "in left-hand-side of s").
-python_lhs(N) :-
+python_lhs(N,N) :-
 	string(N), !,
 	throw(error(type(evaluable, N)), "in left-hand-side of s").
 python_lhs('__obj__'(Obj), '__obj__'(Obj)) :- !.
@@ -349,12 +391,40 @@ add_cwd_to_python :-
 	python_command("sys.argv = [\"yap\"]").
 	% done
 
-python_assign(Name, Exp, N) :-
-	Name =.. [N,A|As],
-	Exp =.. [N,E|Es], !,
-	maplist( python_assign,[A|As], [E|Es]).
-python_assign(Name, Exp, Name) :-
+assign( V, E, O ) :-
+	var(V),
+	!,
+	E = V,
+	O = V.
+assign( EName, E, EName ) :-
+	\+ atomic(EName),
+	python_assign_tuple(EName, E),
+	!.
+assign(Name, Exp, Name) :-
 	python_assign(Name, Exp).
+
+% from an exp take an object, and its corresponding Prolog representation
+python_assign_field(V, _Obj) :-
+	var(V), !,
+	throw(error(instantiation_error,_)).
+python_assign_field(Mod.Exp, Obj) :-
+	atom(Mod),
+	python_import(Mod, MObj),
+	!,
+	python_assign_field(MObj.Exp, Obj).
+python_assign_field(C1.C2.E, Obj) :- !,
+	python_eval_term(C1, O1),
+	python_field(O1, C2, Obj0 ),
+	python_assign_field(Obj0.E, Obj).
+python_assign_field(Exp, Obj) :-
+	fail,
+	python_mref_cache(_, MObj),
+	python_field(MObj, Exp, Obj), !.
+python_assign_field(C1.E, Obj) :-
+	atom(E),
+	!,
+	python_eval_term(C1, O1),
+	python_assign_field(O1, E, Obj ).	
 
 :- initialization( use_foreign_library(foreign(libpython)), now ).
 

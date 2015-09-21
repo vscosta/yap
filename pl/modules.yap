@@ -306,10 +306,8 @@ The state of  the module system after this error is undefined.
 
 
 **/
-
 use_module(F) :- '$load_files'(F,
 			       [if(not_loaded),must_be_module(true)], use_module(F)).
-
 
 
 /**
@@ -846,9 +844,9 @@ expand_goal(G, G).
 '$imported_predicate'(G, ImportingMod, G0, ExportingMod) :-
 	'$enter_undefp',
 	( var(G) -> true ;
-      var(ImportingMod) -> true ;
-      '$undefined'(G, ImportingMod)
-    ),
+	  var(ImportingMod) -> true ;
+	  '$undefined'(G, ImportingMod)
+	),
 	'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod),
 	ExportingMod \= ImportingMod, !,
 	'$exit_undefp'.
@@ -1727,3 +1725,11 @@ unload_module(Mod) :-
 @}
 
 **/
+
+/*  debug */
+module_state :-
+	recorded('$module','$module'(HostF,HostM,SourceF, Everything, Line),_),
+	format('HostF ~a, HostM ~a, SourceF ~w, Everything ~w, Line ~d.~n', [HostF,HostM,SourceF, Everything, Line]),
+	fail.
+module_state.
+

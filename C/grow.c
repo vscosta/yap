@@ -1370,7 +1370,7 @@ cp_atom_table(AtomHashEntry *ntb, UInt nsize)
       Atom natom;
       CELL hash;
 
-      hash = HashFunction(ap->StrOfAE) % nsize;
+      hash = HashFunction(ap->UStrOfAE) % nsize;
       natom = ap->NextOfAE;
       ap->NextOfAE = ntb[hash].Entry;
       ntb[hash].Entry = catom;

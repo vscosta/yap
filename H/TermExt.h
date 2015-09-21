@@ -352,28 +352,51 @@ IsLongIntTerm (Term t)
 
 #define MkStringTerm(i) __MkStringTerm((i) PASS_REGS)
 
-INLINE_ONLY inline EXTERN Term __MkStringTerm (const char *s USES_REGS);
+INLINE_ONLY inline EXTERN Term __MkStringTerm (const  char *s USES_REGS);
 
 INLINE_ONLY inline EXTERN Term
-__MkStringTerm (const char *s USES_REGS)
+__MkStringTerm (const  char *s USES_REGS)
 {
   Term t = AbsAppl(HR);
-  size_t sz = ALIGN_BY_TYPE(strlen(s)+1,CELL);
+  size_t sz = ALIGN_BY_TYPE(strlen((char *)s)+1,CELL);
   HR[0] = (CELL) FunctorString;
   HR[1] = (CELL) sz;
-  strcpy((char *)(HR+2), s);
+  strcpy((char *)(HR+2), (const char *)s);
+  HR[2+sz] =  EndSpecials;
+  HR += 3+sz;
+  return t;
+}
+
+INLINE_ONLY inline EXTERN Term __MkUStringTerm (const unsigned char *s USES_REGS);
+
+INLINE_ONLY inline EXTERN Term
+__MkUStringTerm (const unsigned char *s USES_REGS)
+{
+  Term t = AbsAppl(HR);
+  size_t sz = ALIGN_BY_TYPE(strlen((char *)s)+1,CELL);
+  HR[0] = (CELL) FunctorString;
+  HR[1] = (CELL) sz;
+  strcpy((char *)(HR+2), (const char *)s);
   HR[2+sz] =  EndSpecials;
   HR += 3+sz;
   return t;
 }
 
 
-INLINE_ONLY inline EXTERN const char *StringOfTerm (Term t);
+INLINE_ONLY inline EXTERN const unsigned char *UStringOfTerm (Term t);
 
-INLINE_ONLY inline EXTERN const char *
+INLINE_ONLY inline EXTERN const unsigned char *
+UStringOfTerm (Term t)
+{
+  return (const unsigned char *) (RepAppl (t)+2);
+}
+
+INLINE_ONLY inline EXTERN const  char *StringOfTerm (Term t);
+
+INLINE_ONLY inline EXTERN const  char *
 StringOfTerm (Term t)
 {
-  return (const char *) (RepAppl (t)+2);
+  return (const  char *) (RepAppl (t)+2);
 }
 
 

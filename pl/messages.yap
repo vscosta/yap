@@ -94,6 +94,10 @@ compose_message( Term, _Level ) -->
 	prolog:message(Term), !.
 compose_message( query(_QueryResult,_), _Level) -->
 	[].
+compose_message( absolute_file_path(Msg, Args), _Level) -->
+	[ ' absolute_file_path: ' - [],
+	  Msg - Args,
+	  nl ].
 compose_message( ancestors([]), _Level) -->
 	[ 'There are no ancestors.' ].
 compose_message( breakp(bp(debugger,_,_,M:F/N,_),add,already), _Level) -->
@@ -112,11 +116,11 @@ compose_message( breakpoints(L), _Level) -->
 compose_message( clauses_not_together(P), _Level) -->
 	[ 'Discontiguous definition of ~q.' - [P] ].
 compose_message( debug(debug), _Level) -->
-	[ 'Debug mode on.' ].
+	[ 'Debug mode on.' - [] ].
 compose_message( debug(off), _Level) -->
-	[ 'Debug mode off.' ].
+	[ 'Debug mode off.'- [] ].
 compose_message( debug(trace), _Level) -->
-	[ 'Trace mode on.' ].
+	[ 'Trace mode on.'- [] ].
 compose_message( declaration(Args,Action), _Level) -->
 	[ 'declaration ~w ~w.' - [Args,Action] ].
 compose_message( defined_elsewhere(P,F), _Level) -->
@@ -126,7 +130,8 @@ compose_message( functionality(Library), _Level) -->
 compose_message( import(Pred,To,From,private), _Level) -->
 	[ 'Importing private predicate ~w:~w to ~w.' - [From,Pred,To] ].
 compose_message( redefine_imported(M,M0,PI), _Level) -->
-	[ 'Module ~w redefines imported predicate ~w:~w.' - [M,M0,PI] ].
+	{ source_location(ParentF, Line) },
+	[ '~w:~w: Module ~w redefines imported predicate ~w:~w.' - [ParentF, Line, M,M0,PI] ].
 compose_message( leash([]), _Level) -->
 	[ 'No leashing.' ].
 compose_message( leash([A|B]), _Level) -->
@@ -166,9 +171,9 @@ compose_message( prompt(Break_Level,TraceDebug), _Level) --> !,
 	;
 	    (
 	     var(TraceDebug) ->
-	     O = '~d' - [Break_Level] 
+	     O = '~d' - [Break_Level]
 	    ;
-	     O =  '~d ~a' - [Break_Level, TraceDebug] 
+	     O =  '~d ~a' - [Break_Level, TraceDebug]
 	    )
 	  },
 	  [ O ]
@@ -188,7 +193,7 @@ compose_message(version(Version), _Leve) -->
 compose_message(myddas_version(Version), _Leve) -->
 	[ 'MYDDAS version ~a' - [Version] ].
 compose_message(yes, _Leve) --> !,
-	[  'yes'  ].
+	[  'yes'- []  ].
 compose_message(Term, Level) -->
 	{ Level == error -> true ; Level == warning },
 	file_location(Term, Cause),
@@ -197,66 +202,71 @@ compose_message(Term, Level) -->
 	extra_info( Term ),
 	[nl],
 	!.
-compose_message(Term, _Level) -->
-	{ format(user_error,'warning/~w ~n',[Term]) }.
+compose_message(A-L, _Level) -->
+	{ format(user_error,A,L) }.
 
 
 file_location(error(_,syntax_error(_,between(_,LN,_),FileName,_) ), _ ) -->
-	[ '~a:~d:0: ' - [FileName,LN] ],
-	{ source_location(FileName, LN) }.
-file_location(error(_,L), Pred) --> !,
-	{L =[_|local_sp(P,_,_,_)] },
-	'$hacks':display_pc(P, Pred).
-file_location(singleton(_,Pos, P),I) -->
-	{clause_to_indicator(P, I),
+	[ '~a:~d:0: ' - [FileName,LN] ] .
+file_location(warning(_,syntax_error(_,between(_,LN,_),FileName,_) ), _ ) -->
+	[ '~a:~d:0: ' - [FileName,LN] ] .
+file_location(style_check(_,LN,FileName,_ ), _ ) -->
+				%	  { stream_position_data( line_count, LN) },
+	!,
+	[ '~a:~d:0: ' - [FileName,LN] ] .
+file_location(error(_,L), Goal )-->
+	{
+	 lists:memberchk(context(G),L),
+	 clause_to_indicator(G, Goal)
+	->
+	 true
+	;
+	 lists:memberchk(context(G,_P), L),
+	 clause_to_indicator(G, Goal)
+	->
+	 true
+	;
+	 true
+	 },
+	{
+	 lists:memberchk(local_sp(LN:FileName:Mod:Ind,_P,_CP,_PP,_,_),L)
+	->
+	 ( var(Goal) -> Goal = Mod:Ind ;  true )
+	;
+	 lists:memberchk(local_sp(LN:FileName:[],_P,_CP,_PP,_,_),L)
+	->
+	 true
+	;
 	 prolog_load_context(file, FileName),
-	  stream_position_data( line_count, Pos, L )},
-	[ '~a:~d:0: ' - [FileName,L] ].
-file_location(multiple(L, P, _),I) -->
-	{clause_to_indicator(P, I),
-	 prolog_load_context(file, FileName)},
-	[ '~a:~d:0: ' - [FileName,L] ].
-file_location(discontiguous(L, P),I) -->
-	{clause_to_indicator(P, I),
-	 prolog_load_context(file, FileName)},
-	[ '~a:~d:0: ' - [FileName,L] ].
-file_location(_,directive) -->
-	 {prolog_load_context(file, FileName),
-	  stream_property(Stream, alias(loop_stream) ),
-	  stream_property( S, line_count( L ) )},
-	[ '~a:~d:0: ' - [FileName,L] ].
-file_location(_,query) -->
-	 {user_input = FileName,
+	 stream_property( Stream, alias(loop_stream) ),
+	 stream_property( Stream, line_count( LN ) )
+	->
+	 true
+	;
 	  user_input = S,
-	  stream_property( S, line_count( L ) )},
-	[ '~a:~d:0: ' - [FileName,L] ].
+	  stream_property( S, line_count( LN ) ),
+	 stream_property( S, file_name( FileName ) )
+	},
+	{
+	 nonvar(Goal)
+	->
+	 true
+	;
+	 Ind = 'system:0'
+	},
+	 [ '~d:0: ' - [FileName,LN] ].
+%file_location(Info,query) -->
+%        { format( user_error, 'information available is: ~n~q.~n~n ' , [Info])} .
 
 
 
 /*print_message(error, error(Msg,[Info|local_sp(P,CP,Envs,CPs)])) :- !,
-	recorda(sp_info,local_sp(P,CP,Envs,CPs),R),
+	recorda(sp_info,local_sp(Msg, P,CP,PP,Envs,CPs),R),
 	print_message(error, error(Msg, Info)),
 	erase(R).
 */
 
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
-main_message(singleton(SVs,_W,_P), I) -->
-	[  'singleton variable~*c ~s in ~q.' - [ NVs, 0's, SVsL, I] ], % '
-	{ svs(SVs,SVsL,[]),
-	  ( SVs = [_] -> NVs = 0 ; NVs = 1 )
-	}.
-main_message(multiple(_,_,File), I) -->
-	[  'clause redefines ~q from  ~a.' - [I,File] ].
-main_message(discontiguous(_P,_W), I) -->
-	[  'discontiguous definition for ~p.' - [I] ].
-main_message(error(Msg,Info), _) --> {var(Info)}, !,
-	{ format( '~nincomplete message ~w~n, Info is not given.' , [Msg] ) }.
-main_message(error(consistency_error(Who), [Where|_]), Source) -->
-	[ 'consistency error - arguments not compatible with format,' - [], nl,
-	 '     ~q in ~q.' - [Who, Where], Source ].
-main_message(error(instantiation_error, [Where|_]), Source) -->
-	[ 'instantiation error' - [], nl,
-	 '     ~w unbound in ' - [Where], Source ].
 main_message( error(syntax_error,syntax_error(Msg,between(L0,LM,LF),_Stream,Term)), _ ) -->
 	!,
 	  ['syntax error: ~s' - [Msg]],
@@ -268,15 +278,41 @@ main_message( error(syntax_error,syntax_error(Msg,between(L0,LM,LF),_Stream,Term
 	    ['failed_processing ~w' - [Term],
 	     nl]
 	  ).
-main_message(error(type_error(Type,Who), [What|_]), Source) -->
-	[ 'type  error - ~q is not ~a' - [Who,Type], nl ],
-	  { writeln(here)},
-	 [ '    ~q' - [What], Source ].
+main_message(style_check(singleton(SVs),_S,_W,P), I) -->
+	{ clause_to_indicator(P, I) },
+	[  'singleton variable~*c ~s in ~q.' - [ NVs, 0's, SVsL, I] ], % '
+	{ svs(SVs,SVsL,[]),
+	  ( SVs = [_] -> NVs = 0 ; NVs = 1 )
+	}.
+main_message(style_check(multiple(N,A,Mod,I0),_L,File,_),_I) -->
+	[  '~a redefines ~q from  ~a.' - [File, Mod:N/A, I0] ].
+main_message(style_check(discontiguous(N,A,Mod),_P,_T,_M), _) -->
+	[  'discontiguous definition for ~p.' - [Mod:N/A] ].
+main_message(error(Msg,Info), _) --> {var(Info)}, !,
+	[ nl, '~internal YAP problem, incomplete message ~w~n.' - [Msg], nl ].
+main_message(error(consistency_error(Who), [Where|_]), _Source) -->
+	[ 'argument ~a not consistent with ~q.'-[Who,Where] ].
+main_message(error(domain_error(Who , Type), _Where), _Source) -->
+	[ 'value ~a should be in ~q,' - [Who,Type], nl ].
+main_message(error(evaluation_error(What), _Where), _Source) -->
+	[ ' ~a during evaluation of arithmetic expressions,' - [What], nl ].
+main_message(error(existence_error(Who , Type), _Where), _Source) -->
+	[  '~a ~q could not be found,' - [Who, Type], nl ].
+main_message(error(permission_error(Op, Type, Id), _Where), _Source) -->
+	[ ' ~q not allowed in ~a ~q,' - [Id, Type, Op], nl ].
+main_message(error(instantiation_error), _Source) -->
+	[ 'unbound variable' - [], nl ].
+main_message(error(representation_error), _Source) -->
+	[ 'unbound variable' - [], nl ].
+main_message(error(type_error(Type,Who), _What), _Source) -->
+	[ ' ~q should be of type ~a' - [Who,Type], nl ].
+main_message(error(uninstantiation_error(T),_), _Source) -->
+	[ 'found ~q, expected unbound variable ' - [T], nl ].
 
-stack_dump(_) --> [].
+stack_dump(_) --> !.
 stack_dump(error(_,_)) -->
 	{ fail },
-	{ recorded(sp_info,local_sp(_P,CP,Envs,CPs),_) },
+	{ recorded(sp_info,local_sp(_Msg,_P,CP,_PP,Envs,CPs),_) },
 	{ Envs = [_|_] ; CPs = [_|_] }, !,
 	[nl],
 	'$hacks':display_stack_info(CPs, Envs, 20, CP).
@@ -554,33 +590,43 @@ syntax_error_tokens([T|L]) -->
 	syntax_error_tokens(L).
 
 syntax_error_token(atom(A)) --> !,
-	[ '~a' - [A] ].
+	[ '~q' - [A] ].
 syntax_error_token(number(N)) --> !,
 	[ '~w' - [N] ].
 syntax_error_token(var(_,S,_))  --> !,
 	[ '~s'  - [S] ].
 syntax_error_token(string(S)) --> !,
-	[ '\"~s\"' - [S] ].
+	[ '`~s`' - [S] ].
 syntax_error_token(error) --> !,
 	[ ' <==== HERE ====> ' ].
 syntax_error_token('EOT') --> !,
 	[ '.' - [], nl  ].
 syntax_error_token('(') --> !,
 	[ '( '- []  ].
-syntax_error_token('(') --> !,
+syntax_error_token('{') --> !,
 	[ '{ '- []  ].
-syntax_error_token('(') --> !,
+syntax_error_token('[') --> !,
 	[ '[' - [] ].
 syntax_error_token(')') --> !,
 	[ ' )'- []  ].
-syntax_error_token(')') --> !,
+syntax_error_token(']') --> !,
 	[ ']'- []  ].
-syntax_error_token(')') --> !,
+syntax_error_token('}') --> !,
 	[ ' }' - [] ].
 syntax_error_token(',') --> !,
 	[ ', ' - [] ].
+syntax_error_token('.') --> !,
+	[ '.' - [] ].
+syntax_error_token(';') --> !,
+	[ '; ' - [] ].
+syntax_error_token(':') --> !,
+	[ ':' - [] ].
+syntax_error_token('|') --> !,
+	[ '|' - [] ].
 syntax_error_token(nl) --> !,
 	[  prefix('     '), nl ].
+syntax_error_token(B) --> !,
+	[ nl, 'bad_token: ~q' - [B], nl ].
 
 
 %	print_message_lines(+Stream, +Prefix, +Lines)
@@ -617,7 +663,7 @@ the  _Prefix_ is printed too.
 
 prolog:print_message_lines(_S, _, []) :- !.
 prolog:print_message_lines(S, Prefix, [Line|Rest]) :-
-	print_message_line(S, Prefix, Line, Rest, Left0), !,
+	print_message_line(Line, Rest, S, Prefix, Left0), !,
 	(Left0 = [prefix(NPrefix)|Left]
 	->
 	 true
@@ -627,24 +673,25 @@ prolog:print_message_lines(S, Prefix, [Line|Rest]) :-
 	),
 	prolog:print_message_lines(S, NPrefix, Left).
 
-print_message_line(_S, _, at_same_line, [end(_)|Rest], Rest) :- !.
-print_message_line(_S, _, at_same_line, [nl|Rest], Rest) :- !.
-print_message_line(_S, _, at_same_line, Rest, Rest) :- !.
-print_message_line(_S, _, end(_),  Rest, Rest):- !.
-print_message_line(S, _, flush, Rest, Rest):- !,
+print_message_line( at_same_line, [end(_)|Rest], _S, _,Rest) :- !.
+print_message_line( at_same_line, [nl|Rest], S, _, Rest) :- !,
+ 	nl(S).
+print_message_line(at_same_line, Rest, _S, _, Rest) :- !.
+print_message_line(end(_),  Rest, _S, _, Rest):- !.
+print_message_line(flush, Rest, S, _, Rest):- !,
 	flush_output(S).
-print_message_line(S, _Prefix, nl, [prefix(MyPrefix), Rest], [prefix(MyPrefix)|Rest]) :- !,
+print_message_line(nl, [prefix(MyPrefix), Rest], S, _Prefix, [prefix(MyPrefix)|Rest]) :- !,
 	nl(S).
-print_message_line(S, Prefix, nl, Rest, [Prefix|Rest]) :- !,
+print_message_line(nl, Rest, S, Prefix, [Prefix|Rest]) :- !,
 	nl(S).
-print_message_line(_S, _Prefix, begin(_,_), L, L).
-print_message_line(_S, _, end(_), L, L).
-print_message_line(S, _, Fmt-Args, T, T) :- !,
+print_message_line(begin(_,_), L, _S, _Prefix, L).
+print_message_line(end(_), L, _S, _, L).
+print_message_line(Fmt-Args, T, S, _,  T) :- !,
 	format(S, Fmt, Args).
-print_message_line(S, _, format(Fmt,As), T, T) :-
+print_message_line(format(Fmt,As), T, S, _, T) :-
 	format(S, Fmt, As).
 % deprecated....
-print_message_line(S, _, Fmt, L, L) :-
+print_message_line(Fmt, L, S, _, L) :-
 	atom(Fmt),
 	format(S, Fmt, []).
 
@@ -692,12 +739,22 @@ clause_to_indicator(T, M:NameArity) :-
 	pred_arity( T1, NameArity ).
 
 pred_arity(V,call/1) :- var(V), !.
-pred_arity((:-_),command) :- !.
+pred_arity((:-Path)
+	  , (:- Ind)) :-!,
+pred_arity(Path,Ind).
 pred_arity((H:-_),Name/Arity) :-
     nonvar(H),
     !,
     functor(H,Name,Arity).
-pred_arity((H-->_),Name//Arity) :- !,
+pred_arity((H-->_),Name//Arity) :-
+    nonvar(H),
+    !,
+    functor(H,Name,Arity).
+pred_arity(Name/Arity,Name/Arity) :-
+    !.
+pred_arity(Name//Arity,Name//Arity) :-
+    !.
+pred_arity((H-->_),Name//Arity) :-
     nonvar(H),
     !,
     functor(H,Name,Arity).
@@ -762,7 +819,7 @@ prolog:print_message(force(_Severity), [Msg]) :- !,
 % This predicate has more hooks than a pirate ship!
 prolog:print_message(Severity, Term) :-
 	% first step at hook processing
-	compose_message( Term, Severity, Lines0, [nl,end(Id)]),
+	compose_message( Term, Severity, Lines0, ['~N'-[], end(Id)]),
 	prefix( Severity, Prefix, Stream, Lines1, Lines0),
 	Lines = [begin(Severity, Id)| Lines1],
 	(
@@ -779,4 +836,3 @@ prolog:print_message(_Severity, _Term).
   @}
   @}
 */
-

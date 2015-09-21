@@ -59,7 +59,6 @@ if (READLINE_FOUND)
      endif()
 endif (READLINE_FOUND)
 
-
 set (POSITION_INDEPENDENT_CODE TRUE)
 
 add_library (libYAPOs  OBJECT
@@ -72,8 +71,6 @@ set_target_properties(libYAPOs
   POSITION_INDEPENDENT_CODE TRUE
   OUTPUT_NAME YAPOs
   )
-
-#   target_link_libraries(libYAPOs   ${YAP_LIBRARY} m)
 
 configure_file ("${PROJECT_SOURCE_DIR}/os/YapIOConfig.h.cmake"
   "${PROJECT_BINARY_DIR}/os/YapIOConfig.h" )

@@ -437,6 +437,7 @@ clean_atom_list(AtomHashEntry *HashPtr)
 	fprintf(stderr, "Purged %p:%s patm=%p %p\n", at, at->StrOfAE, patm, at->NextOfAE);
 #endif
 	GLOBAL_agc_collected += sizeof(AtomEntry)+strlen(at->StrOfAE);
+	GLOBAL_agc_collected += sizeof(AtomEntry)+strlen((const char *)at->StrOfAE);
       }
       *patm = atm = at->NextOfAE;
       Yap_FreeCodeSpace((char *)at);

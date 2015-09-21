@@ -374,7 +374,13 @@ YAP is booted with the `-q` or `-L` flag.
 
  */
 YAP_FLAG(  VERBOSE_AUTOLOAD_FLAG, "verbose_autoload", true, boolean, "false" , NULL ),
-YAP_FLAG(  VERBOSE_FILE_SEARCH_FLAG, "verbose_file_search", true, boolean, "false" , NULL ),
+YAP_FLAG(  VERBOSE_FILE_SEARCH_FLAG, "verbose_file_search", true, boolean, "false" , NULL ), /**< `verbose_file_search `
+
+    If `true` allow printing of informational messages when
+searching for file names. If `false` disable printing these messages. It
+is `false` by default except if YAP is booted with the `-L`
+flag.
+ */
 YAP_FLAG(  VERBOSE_LOAD_FLAG, "verbose_load", true, isatom, "normal" , NULL ), /**< `verbose_load `
 
     If `true` allow printing of informational messages when

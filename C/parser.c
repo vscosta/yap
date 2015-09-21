@@ -167,6 +167,8 @@ static Term ParseArgs( Atom, wchar_t, JMPBUFF *, Term CACHE_TYPE);
 static Term ParseList( JMPBUFF *CACHE_TYPE);
 static Term ParseTerm( int, JMPBUFF *CACHE_TYPE);
 
+const char *Yap_tokRep(TokEntry *tokptr);
+
 static void
 syntax_msg( const char *msg, ...)
 {
@@ -237,7 +239,7 @@ VarEntry *Yap_LookupVar(const char *var) /* lookup variable in variables table  
     UInt hv;
 
     p = LOCAL_VarTable;
-    hv = HashFunction(var) % AtomHashTableSize;
+    hv = HashFunction((unsigned char *)var) % AtomHashTableSize;
     while (p != NULL) {
       CELL hpv = p->hv;
       if (hv == hpv) {
@@ -459,7 +461,9 @@ inline static void GNextToken(USES_REGS1) {
 inline static void checkfor(wchar_t c, JMPBUFF *FailBuff USES_REGS) {
   if (LOCAL_tokptr->Tok != Ord(Ponctuation_tok) ||
       LOCAL_tokptr->TokInfo != (Term)c) {
-    syntax_msg("expected to find \'%c\', found %s", c, Yap_tokRep(LOCAL_tokptr));
+    char s[1024];
+    strncpy(s, Yap_tokRep(LOCAL_tokptr), 1023 );
+    syntax_msg("expected to find \'%c\', found %s", c, s);
     FAIL;
   }
   NextToken;
@@ -624,7 +628,7 @@ loop:
     if (((int)LOCAL_tokptr->TokInfo) == ',') {
       NextToken;
       if (LOCAL_tokptr->Tok == Ord(Name_tok) &&
-          strcmp(RepAtom((Atom)(LOCAL_tokptr->TokInfo))->StrOfAE, "..") == 0) {
+          strcmp((char *)RepAtom((Atom)(LOCAL_tokptr->TokInfo))->StrOfAE, "..") == 0) {
         NextToken;
         to_store[1] = ParseTerm( 999, FailBuff PASS_REGS);
       } else {
@@ -744,7 +748,7 @@ static Term ParseTerm( int prio, JMPBUFF *FailBuff USES_REGS) {
     case String_tok: /* build list on the heap */
     {
       Volatile char *p = (char *)LOCAL_tokptr->TokInfo;
-      t = Yap_CharsToTDQ(p, CurrentModule PASS_REGS);
+      t = Yap_CharsToTDQ(p, CurrentModule, ENC_ISO_LATIN1 PASS_REGS);
       if (!t) {
         syntax_msg( "could not convert \'%s\'", (char *)LOCAL_tokptr->TokInfo );
 	FAIL;
@@ -766,7 +770,8 @@ static Term ParseTerm( int prio, JMPBUFF *FailBuff USES_REGS) {
     case BQString_tok: /* build list on the heap */
     {
       Volatile char *p = (char *)LOCAL_tokptr->TokInfo;
-      t = Yap_CharsToTBQ(p, CurrentModule PASS_REGS);
+      printf("%s\n", p);
+      t = Yap_CharsToTBQ(p, CurrentModule, ENC_ISO_LATIN1 PASS_REGS);
       if (!t) {
         syntax_msg( "could not convert \'%s\"", (char *)LOCAL_tokptr->TokInfo );
         FAIL;
@@ -1043,8 +1048,8 @@ Term Yap_Parse(UInt prio) {
   CACHE_REGS
   Volatile Term t;
   JMPBUFF FailBuff;
-  static int cnt;
   yhandle_t sls  = Yap_CurrentSlot(PASS_REGS1);
+
   if (!sigsetjmp(FailBuff.JmpBuff, 0)) {
 
     t = ParseTerm(prio, &FailBuff PASS_REGS);

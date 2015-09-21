@@ -1,0 +1,81 @@
+#
+# default base directory for YAP installation
+# (EROOT for architecture-dependent files)
+#
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+ROOTDIR = $(prefix)
+EROOTDIR = @exec_prefix@
+abs_top_builddir = @abs_top_builddir@
+#
+# where the binary should be
+#
+BINDIR = $(EROOTDIR)/bin
+#
+# where YAP should look for libraries
+#
+LIBDIR=@libdir@
+YAPLIBDIR=@libdir@/Yap
+#
+#
+CC=@CC@
+CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include
+LDFLAGS=@LDFLAGS@
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+SHELL=/bin/sh
+RANLIB=@RANLIB@
+srcdir=@srcdir@
+SHLIB_CFLAGS=@SHLIB_CFLAGS@
+SO=@SO@
+#4.1VPATH=@srcdir@:@srcdir@/OPTYap
+CWD=$(PWD)
+#
+
+OBJS=core_tries.o base_tries.o base_dbtries.o tries.o base_itries.o itries.o
+SOBJS=tries.@SO@ itries.@SO@
+
+#in some systems we just create a single object, in others we need to
+# create a libray
+
+all: $(SOBJS)
+
+core_tries.o: $(srcdir)/core_tries.h $(srcdir)/core_tries.c $(srcdir)/core_dbtries.h $(srcdir)/core_dbtries.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/core_tries.c -o core_tries.o
+
+base_tries.o: $(srcdir)/core_tries.h $(srcdir)/base_tries.h $(srcdir)/base_tries.c $(srcdir)/core_dbtries.h $(srcdir)/base_dbtries.h $(srcdir)/base_dbtries.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/base_tries.c -o base_tries.o
+
+tries.o: $(srcdir)/core_tries.h $(srcdir)/base_tries.h $(srcdir)/tries.c $(srcdir)/core_dbtries.h $(srcdir)/base_dbtries.h
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/tries.c -o tries.o
+
+base_itries.o: $(srcdir)/core_tries.h $(srcdir)/base_itries.h $(srcdir)/base_itries.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/base_itries.c -o base_itries.o
+
+itries.o: $(srcdir)/core_tries.h $(srcdir)/base_itries.h $(srcdir)/itries.c
+$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/itries.c -o itries.o
+
+@DO_SECOND_LD@%.@SO@: %.o
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $< @EXTRA_LIBS_FOR_DLLS@
+
+@DO_SECOND_LD@tries.@SO@: core_tries.o base_tries.o tries.o
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o tries.@SO@ core_tries.o base_tries.o tries.o @EXTRA_LIBS_FOR_DLLS@
+
+@DO_SECOND_LD@itries.@SO@: core_tries.o base_itries.o itries.o
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o itries.@SO@ core_tries.o base_itries.o itries.o @EXTRA_LIBS_FOR_DLLS@
+
+install: all install-examples
+	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
+
+clean:
+	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
+
+install-examples:
+
+distclean: clean
+	rm -f Makefile

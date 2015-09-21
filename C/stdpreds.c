@@ -538,7 +538,7 @@ static Int p_opdec(USES_REGS1) { /* '$opdec'(p,type,atom)		 */
   if (tmod == TermProlog) {
     tmod = PROLOG_MODULE;
   }
-  return Yap_OpDec((int)IntOfTerm(p), RepAtom(AtomOfTerm(t))->StrOfAE,
+  return Yap_OpDec((int)IntOfTerm(p), (char *)RepAtom(AtomOfTerm(t))->StrOfAE,
                    AtomOfTerm(at), tmod);
 }
 
@@ -1501,7 +1501,7 @@ static Int p_statistics_atom_info(USES_REGS1) {
     while (catom != NIL) {
       Atom ncatom;
       count++;
-      spaceused += sizeof(AtomEntry) + strlen(RepAtom(catom)->StrOfAE) + 1;
+      spaceused += sizeof(AtomEntry) + strlen((char *)RepAtom(catom)->StrOfAE) + 1;
       ncatom = RepAtom(catom)->NextOfAE;
       if (ncatom != NIL) {
         READ_LOCK(RepAtom(ncatom)->ARWLock);
@@ -1795,6 +1795,7 @@ void Yap_InitCPreds(void) {
   Yap_InitUnify();
   Yap_InitQLY();
   Yap_InitQLYR();
+  Yap_InitStInfo();
   Yap_udi_init();
   Yap_udi_Interval_init();
   Yap_InitSignalCPreds();

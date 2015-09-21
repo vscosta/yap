@@ -110,6 +110,15 @@ otherwise.
 
 :- '$all_current_modules'(M), yap_flag(M:unknown, error) ; true.
 
+print_message(_, absolute_file_path(X, Y)) :- !,
+	format(user_error, X, Y), nl(user_error).
+print_message(_, loading( C, F)) :- !,
+	    format(user_error, '% ~a ~a...~n', [C,F]).
+print_message(_, loaded(F,C,_M,T,H)) :- !,
+	    format(user_error, '% ~a ~a ~d bytes in ~d seconds...~n', [F ,C, H, T]).
+print_message(_, Msg) :-
+	format(user_error, '~w ~n', [Msg]).
+
 :- bootstrap('errors.yap').
 :- bootstrap('lists.yap').
 :- bootstrap('consult.yap').
@@ -120,10 +129,11 @@ otherwise.
 :- bootstrap('atoms.yap').
 :- bootstrap('os.yap').
 :- bootstrap('absf.yap').
-
+xs%:- start_low_level_trace.
 :-set_prolog_flag(verbose,  normal).
 
 :-set_prolog_flag(gc_trace, verbose).
+%:- set_prolog_flag( verbose_file_search, true ).
 
 :- [
     'arith.yap',
@@ -132,6 +142,7 @@ otherwise.
     'control.yap',
     'flags.yap'
    ].
+%:- stop_low_level_trace.
 
 :- [	 'preds.yap',
 	 'modules.yap'
@@ -225,7 +236,10 @@ rules.
 :- dynamic goal_expansion/2.
 
 :- use_module('messages.yap').
+
 :- use_module('hacks.yap').
+
+
 :- use_module('attributes.yap').
 :- use_module('corout.yap').
 :- use_module('dialect.yap').
@@ -243,7 +257,7 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 :-	set_prolog_flag(generate_debug_info,true).
 
 
-grep:- recorda('$dialect',yap,_).
+% grep:- recorda('$dialect',yap,_).
 
 %
 % cleanup ensure loaded and recover some data-base space.
@@ -338,9 +352,13 @@ If this hook predicate succeeds it must instantiate the  _Action_ argument to th
 /*
    Add some tests
 */
+
 :- yap_flag(user:unknown,error).
 
 :- stream_property(user_input, tty(true)) -> set_prolog_flag(readline, true) ; true.
+
+/*
+:- if(predicate_property(run_tests, static)).
 
 aa b.
 
@@ -366,6 +384,7 @@ lists:member(1,[1]).
 clause_to_indicator(T, M:Name/Arity) :- ,
 	strip_module(T, M, T1),
 	pred_arity( T1, Name, Arity ).
+:- endif.
 */
 
 /**

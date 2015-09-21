@@ -7,14 +7,18 @@
 # READLINE_readline_LIBRARY, where to find the READLINE library.
 # READLINE_ncurses_LIBRARY, where to find the ncurses library [might not be defined]
 
+
 # Apple readline does not support readline hooks
 # So we look for another one by default
+#
+# # try to extract R from readline to avoid collision
 IF(APPLE)
   FIND_PATH(READLINE_INCLUDE_DIR NAMES readline/readline.h PATHS
+    ${R_INCLUDE_DIR}
     /sw/include
     /opt/local/include
     /opt/include
-    /usr/local/opt/readline/include #brew    
+    /usr/local/opt/readline/include #brew
     /usr/local/include
     /usr/include/
     NO_DEFAULT_PATH
@@ -26,10 +30,10 @@ FIND_PATH(READLINE_INCLUDE_DIR NAMES readline/readline.h)
 # Apple readline does not support readline hooks
 # So we look for another one by default
 IF(APPLE)
-  FIND_LIBRARY(READLINE_readline_LIBRARY NAMES readline PATHS
+ FIND_LIBRARY(READLINE_readline_LIBRARY NAMES readline PATHS
     /sw/lib
     /opt/local/lib
-    /usr/local/opt/readline/lib #brew    
+    /usr/local/opt/readline/lib #brew
     /opt/lib
     /usr/local/lib
     /usr/lib

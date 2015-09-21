@@ -1106,7 +1106,7 @@ p_create_static_array( USES_REGS1 )
     Yap_Error(INSTANTIATION_ERROR,tprops,"create static array");
     return (FALSE);
   } else if (IsAtomTerm(tprops)) {
-    char *atname = RepAtom(AtomOfTerm(tprops))->StrOfAE;
+    char *atname = (char *)RepAtom(AtomOfTerm(tprops))->StrOfAE;
     if (!strcmp(atname, "int"))
       props = array_of_ints;
     else if (!strcmp(atname, "dbref"))
