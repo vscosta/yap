@@ -614,22 +614,22 @@ resetScanner( struct renv *old_renv, int inp_stream, int why,  TokEntry *tokstar
   setBackQuotesFlag( old_renv->bq );
 
   // running out of memory
-  if (LOCAL_Error_TYPE == OUT_OF_TRAIL_ERROR) {
+  if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL) {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
         if (!Yap_growtrail (sizeof(CELL) * K16, FALSE)) {
           return false;
         }
-      } else if (LOCAL_Error_TYPE == OUT_OF_AUXSPACE_ERROR) {
+      } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK) {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
         if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
           return false;
         }
-      } else if (LOCAL_Error_TYPE == OUT_OF_HEAP_ERROR) {
+      } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_HEAP) {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
         if (!Yap_growheap(FALSE, 0, NULL)) {
           return false;
         }
-      } else if (LOCAL_Error_TYPE == OUT_OF_STACK_ERROR) {
+      } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
         if (!Yap_gcl(LOCAL_Error_Size, nargs, ENV, CP)) {
           return false;

@@ -424,7 +424,7 @@ EnterCreepMode(Term t, Term mod USES_REGS) {
     if (Yap_get_signal( YAP_CDOVF_SIGNAL ) ) {
         ARG1 = t;
         if (!Yap_locked_growheap(FALSE, 0, NULL)) {
-            Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap at meta-call");
+            Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "YAP failed to grow heap at meta-call");
         }
         if (!Yap_has_a_signal()) {
             return do_execute(ARG1, mod PASS_REGS);
@@ -1361,7 +1361,7 @@ Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
 	}
 	return(FALSE);
     } else {
-        Yap_Error(SYSTEM_ERROR,TermNil,"emulator crashed");
+        Yap_Error(SYSTEM_ERROR_INTERNAL,TermNil,"emulator crashed");
         return(FALSE);
     }
 }
@@ -1489,7 +1489,7 @@ restart_runtopgoal:
 #if !USE_SYSTEM_MALLOC
     if (LOCAL_TrailTop - HeapTop < 2048) {
         LOCAL_PrologMode = BootMode;
-        Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,
+        Yap_Error(RESOURCE_ERROR_TRAIL,TermNil,
                   "unable to boot because of too little Trail space");
     }
 #endif
@@ -1922,16 +1922,16 @@ Yap_GetException(void)
         do {
             t = Yap_PopTermFromDB(LOCAL_BallTerm);
             if (t == 0) {
-                if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+                if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
                     LOCAL_Error_TYPE = YAP_NO_ERROR;
                     if (!Yap_growglobal(NULL)) {
-                        Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
+                        Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil, LOCAL_ErrorMessage);
                         return FALSE;
                     }
                 } else {
                     LOCAL_Error_TYPE = YAP_NO_ERROR;
                     if (!Yap_growstack(LOCAL_BallTerm->NOfCells*CellSize)) {
-                        Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+                        Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
                         return FALSE;
                     }
                 }

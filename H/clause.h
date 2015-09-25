@@ -473,9 +473,7 @@ Term        Yap_LUInstance(LogUpdClause *, UInt);
 int          Yap_new_udi_clause(PredEntry *, yamop *, Term);
 yamop       *Yap_udi_search(PredEntry *);
 
-#ifdef DEBUG
-void    Yap_bug_location(yamop *);
-#endif
+Term    Yap_bug_location(yamop *codeptr, choiceptr b_ptr, CELL *env);
 
 #if  LOW_PROF
 void	Yap_InformOfRemoval(void *);

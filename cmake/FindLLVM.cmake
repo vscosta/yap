@@ -62,7 +62,7 @@ if ((WIN32 AND NOT(MINGW OR CYGWIN)) OR NOT LLVM_CONFIG)
     if (WIN32)
         # A bit of a sanity check:
         if( NOT EXISTS ${LLVM_ROOT_DIR}/include/llvm )
-            message(FATAL_ERROR "LLVM_ROOT_DIR (${LLVM_ROOT_DIR}) is not a valid LLVM install")
+            message(SYSTEM_ERROR_FATAL "LLVM_ROOT_DIR (${LLVM_ROOT_DIR}) is not a valid LLVM install")
         endif()
         # We incorporate the CMake features provided by LLVM:
         set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${LLVM_ROOT_DIR}/share/llvm/cmake")

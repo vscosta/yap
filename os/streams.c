@@ -422,14 +422,14 @@ static bool
 SetBuffering(int sno, Atom at) { /* '$set_bufferingt'(+Stream,-ErrorMessage)  */
   if (at == AtomFull) {
     if (setvbuf(GLOBAL_Stream[sno].file, NULL, _IOFBF, 0) < 0)
-      return PlIOError(SYSTEM_ERROR, Yap_MkStream(sno), "could not set buffer");
+      return PlIOError(SYSTEM_ERROR_INTERNAL, Yap_MkStream(sno), "could not set buffer");
   } else if (at == AtomLine) {
     if (setvbuf(GLOBAL_Stream[sno].file, NULL, _IOLBF, 0) < 0)
-      return PlIOError(SYSTEM_ERROR, Yap_MkStream(sno),
+      return PlIOError(SYSTEM_ERROR_INTERNAL, Yap_MkStream(sno),
                        "could not set line buffering");
   } else if (at == AtomFalse) {
     if (setvbuf(GLOBAL_Stream[sno].file, NULL, _IONBF, 0) < 0)
-      return PlIOError(SYSTEM_ERROR, Yap_MkStream(sno),
+      return PlIOError(SYSTEM_ERROR_INTERNAL, Yap_MkStream(sno),
                        "could not set disable buffering");
   } else {
     CACHE_REGS
@@ -443,7 +443,7 @@ SetBuffering(int sno, Atom at) { /* '$set_bufferingt'(+Stream,-ErrorMessage)  */
 static bool SetBuffer(int sno,
                       Int sz) { /* '$set_bufferingt'(+Stream,-ErrorMessage)  */
   if (setvbuf(GLOBAL_Stream[sno].file, NULL, _IOFBF, sz) < 0) {
-    return PlIOError(SYSTEM_ERROR, Yap_MkStream(sno), "could not set buffer");
+    return PlIOError(SYSTEM_ERROR_INTERNAL, Yap_MkStream(sno), "could not set buffer");
   }
   return true;
 }
@@ -1190,7 +1190,7 @@ static Int
     GLOBAL_Stream[sno].linepos = IntOfTerm(tp);
     if (fseek(GLOBAL_Stream[sno].file, (long)(char_pos), 0) == -1) {
       UNLOCK(GLOBAL_Stream[sno].streamlock);
-      Yap_Error(SYSTEM_ERROR, tp, "fseek failed for set_stream_position/2");
+      Yap_Error(SYSTEM_ERROR_INTERNAL, tp, "fseek failed for set_stream_position/2");
       return (FALSE);
     }
     GLOBAL_Stream[sno].stream_getc = PlGetc;
@@ -1213,7 +1213,7 @@ static Int
     }
     if (fseek(GLOBAL_Stream[sno].file, 0L, SEEK_END) == -1) {
       UNLOCK(GLOBAL_Stream[sno].streamlock);
-      PlIOError(SYSTEM_ERROR, tp, "fseek failed for set_stream_position/2: %s",
+      PlIOError(SYSTEM_ERROR_INTERNAL, tp, "fseek failed for set_stream_position/2: %s",
                 strerror(errno));
       return (FALSE);
     }
@@ -1326,10 +1326,10 @@ static Int p_stream_select(USES_REGS1) {
   /* do the real work */
   if (select(fdmax + 1, &readfds, &writefds, &exceptfds, ptime) < 0) {
 #if HAVE_STRERROR
-    Yap_Error(SYSTEM_ERROR, TermNil, "stream_select/3 (select: %s)",
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "stream_select/3 (select: %s)",
               strerror(errno));
 #else
-    Yap_Error(SYSTEM_ERROR, TermNil, "stream_select/3 (select)");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "stream_select/3 (select)");
 #endif
   }
   while (t1 != TermNil) {

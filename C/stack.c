@@ -228,7 +228,7 @@ static yamop *cur_clause(PredEntry *pe, yamop *codeptr)
       break;
     cl = cl->ClNext;
   } while (TRUE);
-  Yap_Error(SYSTEM_ERROR,TermNil,"could not find clause for indexing code");
+  Yap_Error(SYSTEM_ERROR_INTERNAL,TermNil,"could not find clause for indexing code");
   return(NULL);
 }
 
@@ -242,7 +242,7 @@ static yamop *cur_log_upd_clause(PredEntry *pe, yamop *codeptr)
     }
     cl = cl->ClNext;
   } while (cl != NULL);
-  Yap_Error(SYSTEM_ERROR,TermNil,"could not find clause for indexing code");
+  Yap_Error(SYSTEM_ERROR_INTERNAL,TermNil,"could not find clause for indexing code");
   return(NULL);
 }
 
@@ -532,9 +532,9 @@ clause_loc(void *clcode, PredEntry *pp) {
       cl = ClauseCodeToLogUpdClause(clcode);
 	
       if (cl->ClFlags & FactMask) {
-	return  MkIntTerm(cl->lusl.ClLine);
+	return  MkIntegerTerm(cl->lusl.ClLine);
       } else {
-	return MkIntTerm(cl->lusl.ClSource->ag.line_number);
+	return MkIntegerTerm(cl->lusl.ClSource->ag.line_number);
       }
   } else if (pp->PredFlags & DynamicPredFlag) {
 	DynamicClause *cl;
@@ -1041,7 +1041,7 @@ p_all_choicepoints( USES_REGS1 )
   Term t;
   while ((t = all_cps(B PASS_REGS)) == 0L) {
     if (!Yap_gcl(LOCAL_Error_Size, 1, ENV, gc_P(P,CP))) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, "while dumping choicepoints");
+      Yap_Error(RESOURCE_ERROR_STACK, TermNil, "while dumping choicepoints");
       return FALSE;
     }
   }
@@ -1054,7 +1054,7 @@ p_all_envs( USES_REGS1 )
   Term t;
   while ((t = all_envs(ENV PASS_REGS)) == 0L) {
     if (!Yap_gcl(LOCAL_Error_Size, 1, ENV, gc_P(P,CP))) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, "while dumping environments");
+      Yap_Error(RESOURCE_ERROR_STACK, TermNil, "while dumping environments");
       return FALSE;
     }
   }
@@ -1164,7 +1164,7 @@ current_stack( USES_REGS1 )
   Term t;
   while ((t = all_calls( false PASS_REGS1 )) == 0L) {
     if (!Yap_gcl(LOCAL_Error_Size, 1, ENV, gc_P(P,CP))) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, "while dumping stack");
+      Yap_Error(RESOURCE_ERROR_STACK, TermNil, "while dumping stack");
       return FALSE;
     }
   }
@@ -1624,6 +1624,428 @@ parent_pred( USES_REGS1 )
 	 Yap_unify(ARG2, MkAtomTerm(at)) &&
 	 Yap_unify(ARG3, MkIntTerm(arity));
 }
+
+void Yap_dump_stack( void );
+void DumpActiveGoals( CACHE_TYPE1 );
+static int hidden(Atom);
+static int legal_env(CELL * CACHE_TYPE);
+
+#define ONLOCAL(ptr) (CellPtr(ptr) > CellPtr(HR)  && CellPtr(ptr) < CellPtr(LOCAL_LocalBase))
+
+static int
+hidden (Atom at)
+{
+  AtomEntry *chain;
+
+  READ_LOCK(INVISIBLECHAIN.AERWLock);
+  chain = RepAtom(INVISIBLECHAIN.Entry);
+  while (!EndOfPAEntr (chain) && AbsAtom (chain) != at)
+    chain = RepAtom(chain->NextOfAE);
+  READ_UNLOCK(INVISIBLECHAIN.AERWLock);
+  if (EndOfPAEntr (chain))
+    return (FALSE);
+  return (TRUE);
+}
+
+static int
+legal_env (CELL *ep USES_REGS)
+{
+  CELL cp, ps;
+  PredEntry *pe;
+  if (!ONLOCAL (ep) || Unsigned (ep) & 3)
+    return (FALSE);
+  cp = ep[E_CP];
+  if (!ONHEAP (cp))
+    return (FALSE);
+  ps = *((CELL *) (Addr (cp) - CellSize));
+  pe = (PredEntry *) (ps - sizeof (OPREG) - sizeof (Prop));
+  PELOCK(70,pe);
+  if (!ONHEAP (pe) || Unsigned (pe) & 3 || pe->KindOfPE & 0xff00) {
+    UNLOCK(pe->PELock);
+    return (FALSE);
+  }
+  UNLOCK(pe->PELock);
+  return (TRUE);
+}
+
+static bool
+handled_exception( USES_REGS1 )
+{
+ yamop *pos = NEXTOP(PredDollarCatch->cs.p_code.TrueCodeOfPred,l);
+ bool found_handler = false;
+ choiceptr gc_b;
+
+ gc_b = B;
+ while (gc_b) {
+   yamop *ap = gc_b->cp_ap;
+   if (ap == NOCODE) {
+     /* C-code: let they deal with that */
+     return false;
+   } else if (ap == pos) {
+     if (found_handler)
+       return TRUE; /* we have two handlers */
+     found_handler = true;
+   }
+   gc_b = gc_b->cp_b;
+ }
+ /* handled by Top c-code? */
+ return !found_handler;
+}
+
+
+
+void
+Yap_dump_stack( void )
+{
+  CACHE_REGS
+  choiceptr b_ptr = B;
+  CELL *env_ptr = ENV;
+  char tp[256];
+  yamop *ipc = CP;
+  int max_count = 200;
+
+  /* check if handled */
+  if (handled_exception( PASS_REGS1 ))
+    return;
+#if DEBUG
+  fprintf(stderr,"%% YAP regs: P=%p, CP=%p, ASP=%p, H=%p, TR=%p, HeapTop=%p\n",P,CP,ASP,HR,TR,HeapTop);
+  fprintf(stderr,"%% YAP mode: %ux\n",(unsigned int)LOCAL_PrologMode);
+  if (LOCAL_ErrorMessage)
+    fprintf(stderr,"%% LOCAL_ErrorMessage: %s\n",LOCAL_ErrorMessage);
+#endif
+  if (HR > ASP || HR > LCL0) {
+    fprintf(stderr,"%% YAP ERROR: Global Collided against Local (%p--%p)\n",HR,ASP);
+  } else   if (HeapTop > (ADDR)LOCAL_GlobalBase) {
+    fprintf(stderr,"%% YAP ERROR: Code Space Collided against Global (%p--%p)\n", HeapTop, LOCAL_GlobalBase);
+  } else {
+#if !USE_SYSTEM_MALLOC
+    fprintf (stderr,"%ldKB of Code Space (%p--%p)\n",(long int)((CELL)HeapTop-(CELL)Yap_HeapBase)/1024,Yap_HeapBase,HeapTop);
+#if USE_DL_MALLOC
+    if (Yap_NOfMemoryHoles) {
+      UInt i;
+
+      for (i=0; i < Yap_NOfMemoryHoles; i++)
+        fprintf(stderr,"  Current hole: %p--%p\n",
+                Yap_MemoryHoles[i].start,
+                Yap_MemoryHoles[i].end);
+    }
+#endif
+#endif
+    Yap_detect_bug_location(P, FIND_PRED_FROM_ANYWHERE, (char *)HR, 256);
+    fprintf (stderr,"%%\n%% PC: %s\n",(char *)HR);
+    Yap_detect_bug_location(CP, FIND_PRED_FROM_ANYWHERE, (char *)HR, 256);
+    fprintf (stderr,"%%   Continuation: %s\n",(char *)HR);
+    fprintf (stderr,"%%    %luKB of Global Stack (%p--%p)\n",(unsigned long int)(sizeof(CELL)*(HR-H0))/1024,H0,HR);
+    fprintf (stderr,"%%    %luKB of Local Stack (%p--%p)\n",(unsigned long int)(sizeof(CELL)*(LCL0-ASP))/1024,ASP,LCL0);
+    fprintf (stderr,"%%    %luKB of Trail (%p--%p)\n",(unsigned long int)((ADDR)TR-LOCAL_TrailBase)/1024,LOCAL_TrailBase,TR);
+    fprintf (stderr,"%%    Performed %ld garbage collections\n", (unsigned long int)LOCAL_GcCalls);
+#if LOW_LEVEL_TRACER
+    {
+      extern long long vsc_count;
+
+      if (vsc_count) {
+#if _WIN32
+        fprintf(stderr,"Trace Counter at %I64d\n",vsc_count);
+#else
+        fprintf(stderr,"Trace Counter at %lld\n",vsc_count);
+#endif
+      }
+    }
+#endif
+    fprintf (stderr,"%% All Active Calls and\n");
+    fprintf (stderr,"%%         Goals With Alternatives Open  (Global In Use--Local In Use)\n%%\n");
+    while (b_ptr != NULL) {
+      while (env_ptr && env_ptr <= (CELL *)b_ptr) {
+        Yap_detect_bug_location(ipc, FIND_PRED_FROM_ENV, tp, 256);
+        if (env_ptr == (CELL *)b_ptr &&
+            (choiceptr)env_ptr[E_CB] > b_ptr) {
+          b_ptr = b_ptr->cp_b;
+          fprintf(stderr,"%%  %s\n", tp);
+        } else {
+          fprintf(stderr,"%%  %s\n", tp);
+        }
+        if (!max_count--) {
+          fprintf(stderr,"%%  .....\n");
+          return;
+        }
+        ipc = (yamop *)(env_ptr[E_CP]);
+        env_ptr = (CELL *)(env_ptr[E_E]);
+      }
+      if (b_ptr) {
+        if (!max_count--) {
+          fprintf(stderr,"%%  .....\n");
+          return;
+        }
+        if (b_ptr->cp_ap && /* tabling */
+            b_ptr->cp_ap->opc != Yap_opcode(_or_else) &&
+            b_ptr->cp_ap->opc != Yap_opcode(_or_last) &&
+            b_ptr->cp_ap->opc != Yap_opcode(_Nstop)) {
+          /* we can safely ignore ; because there is always an upper env */
+          Yap_detect_bug_location(b_ptr->cp_ap, FIND_PRED_FROM_CP, tp, 256);
+          fprintf(stderr,"%%         %s (%luKB--%luKB)\n", tp,
+                  (unsigned long int)((b_ptr->cp_h-H0)*sizeof(CELL)/1024),
+                  (unsigned long int)((ADDR)LCL0-(ADDR)b_ptr)/1024);
+        }
+        b_ptr = b_ptr->cp_b;
+      }
+    }
+  }
+}
+
+void
+DumpActiveGoals ( USES_REGS1 )
+{
+  /* try to dump active goals */
+  CELL *ep = YENV;		/* and current environment		  */
+  choiceptr b_ptr = B;
+  CELL cp;
+  PredEntry *pe;
+  int first = 1;
+
+  if (legal_env (YENV PASS_REGS) && YENV < ENV)
+    ep = YENV;
+  else if (legal_env (ENV PASS_REGS))
+    ep = ENV;
+  while (TRUE)
+    {
+      if (!ONLOCAL (ep) || (Unsigned (ep) & (sizeof(CELL)-1)))
+        break;
+      cp = ep[E_CP];
+      if (!ONHEAP (cp) || (Unsigned (cp) & (sizeof(CELL)-1)))
+        break;
+      pe = EnvPreg((yamop *)cp);
+      if (!ONHEAP (pe) || Unsigned (pe) & (sizeof(CELL)-1))
+        break;
+      PELOCK(71,pe);
+      if (pe->KindOfPE & 0xff00) {
+        UNLOCK(pe->PELock);
+        break;
+      }
+      if (pe->PredFlags & (CompiledPredFlag | DynamicPredFlag))
+        {
+          Functor f;
+
+	  UNLOCK(pe->PELock);
+	  f = pe->FunctorOfPred;
+	  if (pe->KindOfPE && hidden (NameOfFunctor (f)))
+	    goto next;
+	  if (first++ == 1)
+	    fprintf(stderr,"Active ancestors:\n");
+	  Yap_DebugWriteIndicator(pe);
+	  Yap_DebugPutc (stderr,'\n');
+	} else {
+	  UNLOCK(pe->PELock);
+	}
+    next:
+      ep = (CELL *) ep[E_E];
+    }
+  first = 1;
+  fprintf(stderr,"Active Choice-Points:\n");
+  while (TRUE)
+    {
+      PredEntry *pe;
+      op_numbers opnum;
+      if (!ONLOCAL (b_ptr) || b_ptr->cp_b == NULL)
+        break;
+      fprintf(stderr,"%p ", b_ptr);
+      pe = Yap_PredForChoicePt(b_ptr, &opnum);
+      if (opnum == _Nstop) {
+        fprintf(stderr, "  ********** C-Code Interface Boundary ***********\n");
+      } else {
+        Functor f;
+        Term mod = PROLOG_MODULE;
+
+	f = pe->FunctorOfPred;
+	if (pe->ModuleOfPred)
+	  mod = pe->ModuleOfPred;
+	else mod = TermProlog;
+	if (mod != TermProlog &&
+	    mod != MkAtomTerm(AtomUser) ) {
+	  Yap_DebugPlWrite (mod);
+	  Yap_DebugPutc (stderr,':');
+	}
+	if (mod == IDB_MODULE) {
+	  if (pe->PredFlags & NumberDBPredFlag) {
+	    Int id = pe->src.IndxId;
+	    Yap_DebugPlWrite(MkIntegerTerm(id));
+	  } else if (pe->PredFlags & AtomDBPredFlag) {
+	    Atom At = (Atom)pe->FunctorOfPred;
+	    Yap_DebugPlWrite(MkAtomTerm(At));
+	  } else {
+	    Functor f = pe->FunctorOfPred;
+	    Atom At = NameOfFunctor(f);
+	    arity_t arity = ArityOfFunctor(f);
+	    int i;
+
+	    Yap_DebugPlWrite(MkAtomTerm(At));
+	    Yap_DebugPutc (stderr,'(');
+	    for (i= 0; i < arity; i++) {
+	      if (i > 0) Yap_DebugPutc (stderr,',');
+	      Yap_DebugPutc (stderr,'_');
+	    }
+	    Yap_DebugPutc (stderr,')');
+	  }
+	  Yap_DebugPutc (stderr,'(');
+	  Yap_DebugPlWrite(b_ptr->cp_a2);
+	  Yap_DebugPutc (stderr,')');
+	} else if (pe->ArityOfPE == 0) {
+	  Yap_DebugPlWrite (MkAtomTerm ((Atom)f));
+	} else {
+	  Int i = 0, arity = pe->ArityOfPE;
+	  if (opnum == _or_last||
+	      opnum == _or_else) {
+	    Yap_DebugPlWrite (MkAtomTerm (NameOfFunctor (f)));
+	    Yap_DebugPutc (stderr,'(');
+	    for (i= 0; i < arity; i++) {
+	      if (i > 0) Yap_DebugPutc (stderr,',');
+	      Yap_DebugPutc(stderr, '_');
+	    }
+	    Yap_DebugErrorPuts (") :- ... ( _  ; _ ");
+	  } else {
+	    Term *args = &(b_ptr->cp_a1);
+	    Yap_DebugPlWrite (MkAtomTerm (NameOfFunctor (f)));
+	    Yap_DebugPutc (stderr,'(');
+	    for (i= 0; i < arity; i++) {
+	      if (i > 0) Yap_DebugPutc (stderr,',');
+	      Yap_DebugPlWrite(args[i]);
+	    }
+	  }
+	  Yap_DebugPutc (stderr,')');
+	}
+	Yap_DebugPutc (stderr,'\n');
+      }
+      b_ptr = b_ptr->cp_b;
+    }
+}
+
+
+void
+Yap_detect_bug_location(yamop *yap_pc, int where_from, char *tp, int psize)
+{
+ Atom pred_name;
+  UInt pred_arity;
+  Term pred_module;
+  Int cl;
+
+  tp[0] = '\0';
+  if ((cl = Yap_PredForCode(yap_pc, where_from, &pred_name, &pred_arity, &pred_module))
+      == 0) {
+    /* system predicate */
+#if   HAVE_SNPRINTF
+    snprintf(tp, psize, "%s",
+             "meta-call");
+#else
+    sprintf(tp, "%s",
+            "meta-call");
+#endif
+  } else if (pred_module == 0) {
+    /* don't give info on system predicates */
+#if   HAVE_SNPRINTF
+    snprintf(tp, psize, "prolog:%s/%lu",
+             RepAtom(pred_name)->StrOfAE, (unsigned long int)pred_arity);
+#else
+    sprintf(tp, "in prolog:%s/%lu",
+            RepAtom(pred_name)->StrOfAE, (unsigned long int)pred_arity);
+#endif
+  } else if (cl < 0) {
+#if   HAVE_SNPRINTF
+    snprintf(tp, psize, "%s:%s/%lu",
+             RepAtom(AtomOfTerm(pred_module))->StrOfAE,
+             RepAtom(pred_name)->StrOfAE, (unsigned long int)pred_arity);
+#else
+    sprintf(tp, "%s:%s/%lu",
+            RepAtom(AtomOfTerm(pred_module))->StrOfAE,
+            RepAtom(pred_name)->StrOfAE, (unsigned long int)pred_arity);
+#endif
+  } else {
+#if   HAVE_SNPRINTF
+    snprintf(tp, psize, "%s:%s/%lu at clause %lu ",
+             RepAtom(AtomOfTerm(pred_module))->StrOfAE,
+             RepAtom(pred_name)->StrOfAE, (unsigned long int)pred_arity, (unsigned long int)cl);
+#else
+    sprintf(tp, "%s:%s/%lu at clause %lu",
+            RepAtom(AtomOfTerm(pred_module))->StrOfAE,
+            RepAtom(pred_name)->StrOfAE, (unsigned long int)pred_arity, (unsigned long int)cl);
+#endif
+  }
+}
+
+Term
+Yap_bug_location(yamop *codeptr, choiceptr b_ptr, CELL *env)
+{
+  CACHE_REGS
+    Term p[5];
+    while ( true ) {
+      PredEntry *pe= EnvPreg(codeptr);
+      if (pe &&
+	pe->ModuleOfPred != PROLOG_MODULE
+	&& !(pe->PredFlags & HiddenPredFlag)) {
+      if (pe->ModuleOfPred == PROLOG_MODULE)
+	p[0] = TermProlog;
+      else
+	p[0] = pe->ModuleOfPred;
+      if (pe->ArityOfPE)
+	p[1] = MkAtomTerm(NameOfFunctor(pe->FunctorOfPred));
+      else
+	p[1] = MkAtomTerm((Atom)pe->FunctorOfPred);
+      p[2] = MkIntegerTerm( pe->ArityOfPE );
+      if (pe->src.OwnerFile) {
+	p[3] = MkAtomTerm(pe->src.OwnerFile);
+	if (pe->PredFlags & MegaClausePredFlag) {
+	  MegaClause *mcl;
+	  mcl =
+	    ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
+	  p[4] = MkIntegerTerm( mcl->ClLine );
+	} else {
+	  CODEADDR clcode;
+	  if ( find_code_in_clause( pe, codeptr, &clcode, NULL) > 0 ) {
+	    if (pe->PredFlags & LogUpdatePredFlag) {
+	      LogUpdClause *cl = ClauseCodeToLogUpdClause(clcode);
+	    	
+	      if (cl->ClFlags & FactMask) {
+		p[4] =  MkIntegerTerm(cl->lusl.ClLine);
+	      } else {
+		p[4] = MkIntegerTerm(cl->lusl.ClSource->ag.line_number);
+	      }
+	    } else if (pe->PredFlags & DynamicPredFlag) {
+	      DynamicClause *cl;
+	      cl = ClauseCodeToDynamicClause(clcode);
+	
+	      p[4] = MkIntTerm(0);
+	    } else {
+	      StaticClause *cl;
+	      cl = ClauseCodeToStaticClause(clcode);
+	      
+	      if (cl->ClFlags & FactMask) {
+		p[4] =  MkIntTerm(cl->usc.ClLine);
+	      } else if (cl->ClFlags & SrcMask) {
+		p[4] =  MkIntTerm(cl->usc.ClSource->ag.line_number);
+	      } else
+		p[4] = MkIntTerm(0);
+	    }
+	  }
+	} 
+      } else if (pe->OpcodeOfPred == UNDEF_OPCODE) {
+	RESET_VARIABLE(p+3);
+	RESET_VARIABLE(p+4);
+      } else {
+	// by default, user_input
+	p[3] = MkAtomTerm(AtomUserIn);
+	p[4] = MkIntTerm(0);
+      }
+      return Yap_MkApplTerm( Yap_MkFunctor(Yap_LookupAtom("p"), 5), 5, p);
+      } else {
+	if (b_ptr && (CELL*)b_ptr < env) {
+	  env = b_ptr->cp_env;
+	  b_ptr = b_ptr->cp_b;
+	} else {
+	  env = ENV_Parent(env);
+	}
+      }
+    }
+}
+
+
 
 
 void

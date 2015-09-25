@@ -180,7 +180,7 @@ void
 Yap_add_memory_hole(ADDR start, ADDR end)
 {
   if (Yap_NOfMemoryHoles == MAX_DLMALLOC_HOLES) {
-    Yap_Error(OPERATING_SYSTEM_ERROR, 0L, "Unexpected Too Much Memory Fragmentation: please contact YAP maintainers");
+    Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, 0L, "Unexpected Too Much Memory Fragmentation: please contact YAP maintainers");
     return;
   }
   Yap_MemoryHoles[Yap_NOfMemoryHoles].start = start;

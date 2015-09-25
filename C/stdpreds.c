@@ -223,7 +223,7 @@
 * replace heap_base by Yap_heap_base, according to Yap's convention for globals.
 *
 * Revision 1.74  2004/11/19 22:08:43  vsc
-* replace SYSTEM_ERROR by out OUT_OF_WHATEVER_ERROR whenever appropriate.
+* replace SYSTEM_ERROR_INTERNAL by out OUT_OF_WHATEVER_ERROR whenever appropriate.
 *
 * Revision 1.73  2004/11/19 17:14:14  vsc
 * a few fixes for 64 bit compiling.
@@ -713,7 +713,7 @@ static Int p_univ(USES_REGS1) { /* A =.. L			 */
         /* restore space */
         HR = Ar;
         if (!Yap_gcl((ASP - HR) * sizeof(CELL), 2, ENV, gc_P(P, CP))) {
-          Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
         twork = TailOfTerm(Deref(ARG2));
@@ -781,7 +781,7 @@ static Int p_univ(USES_REGS1) { /* A =.. L			 */
       twork = Yap_ArrayToList(CellPtr(TR), argno - 1);
       while (IsIntTerm(twork)) {
         if (!Yap_gc(2, ENV, gc_P(P, CP))) {
-          Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return (FALSE);
         }
         twork = Yap_ArrayToList(CellPtr(TR), argno - 1);
@@ -791,7 +791,7 @@ static Int p_univ(USES_REGS1) { /* A =.. L			 */
     {
       while (HR + arity * 2 > ASP - 1024) {
         if (!Yap_gcl((arity * 2) * sizeof(CELL), 2, ENV, gc_P(P, CP))) {
-          Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return (FALSE);
         }
         tin = Deref(ARG1);
@@ -809,7 +809,7 @@ static Int p_univ(USES_REGS1) { /* A =.. L			 */
 
 static Int p_abort(USES_REGS1) { /* abort			 */
   /* make sure we won't go creeping around */
-  Yap_Error(PURE_ABORT, TermNil, "");
+  Yap_Error(ABORT_EVENT, TermNil, "");
   return (FALSE);
 }
 

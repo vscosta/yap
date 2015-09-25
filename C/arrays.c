@@ -239,19 +239,19 @@ CloseMmappedArray(StaticArrayEntry *pp, void *area USES_REGS)
   }
   if (ptr == NULL) {
 #if !defined(USE_SYSTEM_MALLOC)
-    Yap_Error(SYSTEM_ERROR,ARG1,"close_mmapped_array (array chain incoherent)", strerror(errno));
+    Yap_Error(SYSTEM_ERROR_INTERNAL,ARG1,"close_mmapped_array (array chain incoherent)", strerror(errno));
 #endif
     return FALSE;
   }
   if (munmap(ptr->start, ptr->size) == -1) {
-      Yap_Error(SYSTEM_ERROR,ARG1,"close_mmapped_array (munmap: %s)", strerror(errno));
+      Yap_Error(SYSTEM_ERROR_INTERNAL,ARG1,"close_mmapped_array (munmap: %s)", strerror(errno));
       return(FALSE);
   }
   optr->next = ptr->next;
   pp->ValueOfVE.ints = NULL;
   pp->ArrayEArity = 0;
   if (close(ptr->fd) < 0) {
-    Yap_Error(SYSTEM_ERROR,ARG1,"close_mmapped_array (close: %s)", strerror(errno));
+    Yap_Error(SYSTEM_ERROR_INTERNAL,ARG1,"close_mmapped_array (close: %s)", strerror(errno));
     return(FALSE);
   }
   Yap_FreeAtomSpace((char *)ptr);
@@ -274,24 +274,24 @@ ResizeMmappedArray(StaticArrayEntry *pp, Int dim, void *area USES_REGS)
      and last we initialise again
   */
   if (munmap(ptr->start, ptr->size) == -1) {
-      Yap_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (munmap: %s)", strerror(errno));
+      Yap_Error(SYSTEM_ERROR_INTERNAL,ARG1,"resize_mmapped_array (munmap: %s)", strerror(errno));
       return;
   }
   total_size = (ptr->size / ptr->items)*dim;
   if (ftruncate(ptr->fd, total_size) < 0) {
-    Yap_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (ftruncate: %s)", strerror(errno));
+    Yap_Error(SYSTEM_ERROR_INTERNAL,ARG1,"resize_mmapped_array (ftruncate: %s)", strerror(errno));
     return;
   }
   if (lseek(ptr->fd, total_size-1, SEEK_SET) < 0) {
-    Yap_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (lseek: %s)", strerror(errno));
+    Yap_Error(SYSTEM_ERROR_INTERNAL,ARG1,"resize_mmapped_array (lseek: %s)", strerror(errno));
     return;
   }
   if (write(ptr->fd, "", 1) < 0) {
-    Yap_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (write: %s)", strerror(errno));
+    Yap_Error(SYSTEM_ERROR_INTERNAL,ARG1,"resize_mmapped_array (write: %s)", strerror(errno));
     return;
   }
   if ((ptr->start = (void *)mmap(0, (size_t) total_size, PROT_READ | PROT_WRITE, MAP_SHARED, ptr->fd, 0)) == (void *) - 1) {
-    Yap_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (mmap: %s)", strerror(errno));
+    Yap_Error(SYSTEM_ERROR_INTERNAL,ARG1,"resize_mmapped_array (mmap: %s)", strerror(errno));
     return;
   }
   ptr->size = total_size;
@@ -308,16 +308,16 @@ GetTermFromArray(DBTerm *ref USES_REGS)
     Term TRef;
 
     while ((TRef = Yap_FetchTermFromDB(ref)) == 0L) {
-      if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+      if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
 	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growglobal(NULL)) {
-	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
+	  Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil, LOCAL_ErrorMessage);
 	  return TermNil;
 	}
       } else {
 	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_gcl(LOCAL_Error_Size, 3, ENV, Yap_gcP())) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  return TermNil;
 	}
       }
@@ -703,7 +703,7 @@ AllocateStaticArraySpace(StaticArrayEntry *p, static_array_types atype, void *ol
     while ((p->ValueOfVE.floats = (Float *) Yap_AllocCodeSpace(asize) ) == NULL) {
       YAPLeaveCriticalSection();
       if (!Yap_growheap(FALSE, asize, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+	Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
 	return;
       }
       YAPEnterCriticalSection();
@@ -712,7 +712,7 @@ AllocateStaticArraySpace(StaticArrayEntry *p, static_array_types atype, void *ol
     while ((p->ValueOfVE.floats = (Float *) Yap_ReallocCodeSpace(old, asize) ) == NULL) {
       YAPLeaveCriticalSection();
       if (!Yap_growheap(FALSE, asize, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+	Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
 	return;
       }
       YAPEnterCriticalSection();
@@ -727,7 +727,7 @@ CreateStaticArray(AtomEntry *ae, size_t dim, static_array_types type, CODEADDR s
   if (EndOfPAEntr(p)) {
     while ((p = (StaticArrayEntry *) Yap_AllocCodeSpace(sizeof(*p))) == NULL) {
       if (!Yap_growheap(FALSE, sizeof(*p), NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+	Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
 	return NULL;
       }
     }
@@ -998,12 +998,12 @@ p_create_array( USES_REGS1 )
     farray = Yap_MkFunctor(AtomArray, size);
     if (HR+1+size > ASP-1024) {
       if (!Yap_gcl((1+size)*sizeof(CELL), 2, ENV, Yap_gcP())) {
-	Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
+	Yap_Error(RESOURCE_ERROR_STACK,TermNil,LOCAL_ErrorMessage);
 	return(FALSE);
       } else {
 	if (HR+1+size > ASP-1024) {
 	  if (!Yap_growstack( sizeof(CELL) * (size+1-(HR-ASP-1024)))) {
-	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+	    Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
 	    return FALSE;
 	  }
 	}
@@ -1036,7 +1036,7 @@ p_create_array( USES_REGS1 )
       if (HR+1+size > ASP-1024) {
 	WRITE_UNLOCK(ae->ARWLock);
 	if (!Yap_gcl((1+size)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
+	  Yap_Error(RESOURCE_ERROR_STACK,TermNil,LOCAL_ErrorMessage);
 	  return(FALSE);
 	} else
 	  goto restart;
@@ -1057,7 +1057,7 @@ p_create_array( USES_REGS1 )
       } else {
 	if (HR+1+size > ASP-1024) {
 	  if (!Yap_gcl((1+size)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
-	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
+	    Yap_Error(RESOURCE_ERROR_STACK,TermNil,LOCAL_ErrorMessage);
 	    return(FALSE);
 	  } else
 	    goto restart;
@@ -1490,19 +1490,19 @@ p_create_mmapped_array( USES_REGS1 )
 
     fd = open(filename, O_RDWR|O_CREAT, S_IRUSR|S_IWUSR);
     if (fd == -1) {
-      Yap_Error(SYSTEM_ERROR,ARG1,"create_mmapped_array (open: %s)", strerror(errno));
+      Yap_Error(SYSTEM_ERROR_INTERNAL,ARG1,"create_mmapped_array (open: %s)", strerror(errno));
       return(FALSE);
     }
     if (lseek(fd, total_size-1, SEEK_SET) < 0)
-      Yap_Error(SYSTEM_ERROR,tfile,"create_mmapped_array (lseek: %s)", strerror(errno));
+      Yap_Error(SYSTEM_ERROR_INTERNAL,tfile,"create_mmapped_array (lseek: %s)", strerror(errno));
     if (write(fd, "", 1) < 0)
-      Yap_Error(SYSTEM_ERROR,tfile,"create_mmapped_array (write: %s)", strerror(errno));
+      Yap_Error(SYSTEM_ERROR_INTERNAL,tfile,"create_mmapped_array (write: %s)", strerror(errno));
     /*
       if (ftruncate(fd, total_size) < 0)
-      Yap_Error(SYSTEM_ERROR,tfile,"create_mmapped_array");
+      Yap_Error(SYSTEM_ERROR_INTERNAL,tfile,"create_mmapped_array");
     */
     if ((array_addr = (CODEADDR)mmap(0, (size_t) total_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0)) == (CODEADDR) - 1)
-      Yap_Error(SYSTEM_ERROR,tfile,"create_mmapped_array (mmap: %s)", strerror(errno));
+      Yap_Error(SYSTEM_ERROR_INTERNAL,tfile,"create_mmapped_array (mmap: %s)", strerror(errno));
   } else {
     Yap_Error(TYPE_ERROR_ATOM,tfile,"create_mmapped_array");
     return (FALSE);
@@ -1552,7 +1552,7 @@ p_create_mmapped_array( USES_REGS1 )
     return FALSE;
   }
 #else
-  Yap_Error(SYSTEM_ERROR,ARG1,"create_mmapped_array (mmap)");
+  Yap_Error(SYSTEM_ERROR_INTERNAL,ARG1,"create_mmapped_array (mmap)");
   return (FALSE);
 #endif
 }
@@ -1777,7 +1777,7 @@ p_assign_static( USES_REGS1 )
       MaBind(ptr, t3);
       return(TRUE);
 #else
-      Yap_Error(SYSTEM_ERROR,t2,"update_array");
+      Yap_Error(SYSTEM_ERROR_INTERNAL,t2,"update_array");
       return(FALSE);
 #endif
     } else {
@@ -1817,7 +1817,7 @@ p_assign_static( USES_REGS1 )
       MaBind(pt, t3);
       return TRUE;
 #else
-      Yap_Error(SYSTEM_ERROR,t2,"update_array");
+      Yap_Error(SYSTEM_ERROR_INTERNAL,t2,"update_array");
       return FALSE;
 #endif
     }
@@ -2109,7 +2109,7 @@ p_assign_dynamic( USES_REGS1 )
       MaBind(ptr, t3);
       return(TRUE);
 #else
-      Yap_Error(SYSTEM_ERROR,t2,"update_array");
+      Yap_Error(SYSTEM_ERROR_INTERNAL,t2,"update_array");
       return(FALSE);
 #endif
     } else {
@@ -2148,7 +2148,7 @@ p_assign_dynamic( USES_REGS1 )
     MaBind(pt, t3);
     return TRUE;
 #else
-    Yap_Error(SYSTEM_ERROR,t2,"update_array");
+    Yap_Error(SYSTEM_ERROR_INTERNAL,t2,"update_array");
     return FALSE;
 #endif
   }
@@ -2195,7 +2195,7 @@ p_assign_dynamic( USES_REGS1 )
     return TRUE;
 #else
     WRITE_UNLOCK(ptr->ArRWLock);
-    Yap_Error(SYSTEM_ERROR,t2,"update_array");
+    Yap_Error(SYSTEM_ERROR_INTERNAL,t2,"update_array");
     return FALSE;
 #endif
 
@@ -2301,7 +2301,7 @@ p_add_to_array_element( USES_REGS1 )
       MaBind(ptr, ta);
       return(Yap_unify(ARG4,ta));
 #else
-      Yap_Error(SYSTEM_ERROR,t2,"add_to_array_element");
+      Yap_Error(SYSTEM_ERROR_INTERNAL,t2,"add_to_array_element");
       return(FALSE);
 #endif
     } else {
@@ -2369,7 +2369,7 @@ p_add_to_array_element( USES_REGS1 )
     WRITE_UNLOCK(pp->ArRWLock);
     return Yap_unify(ARG4,t3);
 #else
-    Yap_Error(SYSTEM_ERROR,t2,"add_to_array_element");
+    Yap_Error(SYSTEM_ERROR_INTERNAL,t2,"add_to_array_element");
     WRITE_UNLOCK(pp->ArRWLock);
     return FALSE;
 #endif
@@ -2485,12 +2485,12 @@ p_static_array_to_term( USES_REGS1 )
 
       while (HR+1+dim > ASP-1024) {
 	if (!Yap_gcl((1+dim)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
+	  Yap_Error(RESOURCE_ERROR_STACK,TermNil,LOCAL_ErrorMessage);
 	  return(FALSE);
 	} else {
 	  if (HR+1+dim > ASP-1024) {
 	    if (!Yap_growstack( sizeof(CELL) * (dim+1-(HR-ASP-1024)))) {
-	      Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	      Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	      return FALSE;
 	    }
 	  }

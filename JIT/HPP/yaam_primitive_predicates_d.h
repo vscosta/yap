@@ -2457,7 +2457,7 @@
 	  saveregs();
 
 #define P_FUNC2S_VV_SECONDIFOK_FIRSTIFOK_IFOK \
-	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage); \
+	    Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage); \
 	    setregs(); \
 	    JMPNext();
 
@@ -2557,7 +2557,7 @@
 	  saveregs();
 
 #define P_FUNC2S_CV_D1GREATER_IFOK_IFOK \
-	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage); \
+	    Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage); \
 	    setregs(); \
 	    JMPNext();
 
@@ -2652,7 +2652,7 @@
 	saveregs();
 
 #define P_FUNC2S_VC_IFOK_IFOK \
-	  Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage); \
+	  Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage); \
 	  setregs(); \
 	  JMPNext();
 
@@ -2744,7 +2744,7 @@
 	  saveregs();
 
 #define P_FUNC2S_Y_VV_D1GREATER_IFOK_IFOK \
-	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage); \
+	    Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage); \
 	    setregs(); \
 	    JMPNext();
 
@@ -2847,7 +2847,7 @@
 	  saveregs();
 
 #define P_FUNC2S_Y_CV_D1GREATER_IFOK_IFOK \
-	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage); \
+	    Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage); \
 	    setregs(); \
 	    JMPNext();
 
@@ -2952,7 +2952,7 @@
 	saveregs();
 
 #define P_FUNC2S_Y_VC_IFOK_IFOK \
-	  Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage); \
+	  Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage); \
 	  setregs(); \
 	  JMPNext();
 

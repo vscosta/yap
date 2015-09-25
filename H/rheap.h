@@ -409,7 +409,7 @@ AdjustSwitchTable__(op_numbers op, yamop *table, COUNT i USES_REGS)
     }
     break;
   default:
-    Yap_Error(INTERNAL_ERROR,0L,"Opcode Not Implemented in AdjustSwitchTable");
+    Yap_Error(SYSTEM_ERROR_INTERNAL,0L,"Opcode Not Implemented in AdjustSwitchTable");
   }
 }
 
@@ -759,7 +759,7 @@ RestorePredHash__( USES_REGS1 )
 {
   PredHash = PtoPtoPredAdjust(PredHash);
   if (PredHash == NULL) {
-    Yap_Error(FATAL_ERROR,MkIntTerm(0),"restore should find predicate hash table");
+    Yap_Error(SYSTEM_ERROR_FATAL,MkIntTerm(0),"restore should find predicate hash table");
   }
   REINIT_RWLOCK(PredHashRWLock);
   RestoreHashPreds( PASS_REGS1 ); /* does most of the work */
@@ -1634,7 +1634,7 @@ RestoreEntries(PropEntry *pp, int int_key USES_REGS)
       break;
     default:
       /* OOPS */
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "Invalid Atom Property %d at %p", pp->KindOfPE, pp);
       return;
     }

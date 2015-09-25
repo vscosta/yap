@@ -617,7 +617,7 @@ YAPEngine::YAPEngine( char *savedState,
   if (cb) setYAPCallback(cb);
   curren = this;
   if (YAP_Init( &init_args ) == YAP_BOOT_ERROR)
-    throw(YAPError(INTERNAL_ERROR));
+    throw(YAPError(SYSTEM_ERROR_INTERNAL));
 }
 
 

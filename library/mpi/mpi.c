@@ -85,7 +85,7 @@ expand_buffer( int space )
 
   tmp = malloc( bufsize + space );
   if( tmp == NULL ) {
-    Yap_Error(SYSTEM_ERROR, TermNil, "out of memory" );
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "out of memory" );
     Yap_exit( EXIT_FAILURE );
   }
   memcpy( tmp, buf, bufsize );
@@ -94,7 +94,7 @@ expand_buffer( int space )
 #else /* use realloc */
   buf = realloc( buf, bufsize + space );
   if( buf == NULL ) {
-    Yap_Error(SYSTEM_ERROR, TermNil, "out of memory");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "out of memory");
     Yap_exit( EXIT_FAILURE );
   }
 #endif
@@ -147,7 +147,7 @@ Yap exit(FAILURE), whereas in Yap/LAM mpi_open/3 simply fails.
     Term t;
 
     t = MkIntegerTerm(retv);
-    Yap_Error( SYSTEM_ERROR, t, "MPI_Init() returned non-zero" );
+    Yap_Error( SYSTEM_ERROR_INTERNAL, t, "MPI_Init() returned non-zero" );
     return FALSE;
   }
   MPI_Comm_size( MPI_COMM_WORLD, &numprocs );

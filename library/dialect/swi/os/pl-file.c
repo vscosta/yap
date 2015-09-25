@@ -5842,7 +5842,7 @@ struct PL_local_data *Yap_InitThreadIO(int wid)
   else
     return &lds;
   if (!p) {
-    Yap_Error(OUT_OF_HEAP_ERROR, 0L, "Creating thread %d\n", wid);
+    Yap_Error(RESOURCE_ERROR_HEAP, 0L, "Creating thread %d\n", wid);
     return p;
   }
 #if THREADS

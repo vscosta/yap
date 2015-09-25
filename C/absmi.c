@@ -368,7 +368,7 @@
 * Handle overflows when allocating big clauses properly.
 *
 * Revision 1.153  2004/11/19 22:08:35  vsc
-* replace SYSTEM_ERROR by out OUT_OF_WHATEVER_ERROR whenever appropriate.
+* replace SYSTEM_ERROR_INTERNAL by out OUT_OF_WHATEVER_ERROR whenever appropriate.
 *
 * Revision 1.152  2004/11/19 17:14:12  vsc
 * a few fixes for 64 bit compiling.
@@ -685,7 +685,7 @@ stack_overflow( PredEntry *pe, CELL *env, yamop *cp USES_REGS, arity_t nargs )
       Yap_get_signal( YAP_STOVF_SIGNAL )) {
     S = (CELL *)pe;
     if (!Yap_locked_gc(nargs, env, cp)) {
-      Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+      Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
       return 0;
     }
     return 1;
@@ -701,7 +701,7 @@ code_overflow( CELL *yenv USES_REGS )
 
     /* do a garbage collection first to check if we can recover memory */
     if (!Yap_locked_growheap(false, 0, NULL)) {
-      Yap_NilError(OUT_OF_HEAP_ERROR, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
+      Yap_NilError(RESOURCE_ERROR_HEAP, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
       return 0;
     }
     CACHE_A1();
@@ -1110,7 +1110,7 @@ interrupt_deallocate( USES_REGS1 )
       return interrupt_handler( pe PASS_REGS );
     }
     if (!Yap_locked_gc(0, ENV, CP)) {
-      Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+      Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
     }
     S = ASP;
     S[E_CB] = (CELL)(LCL0-cut_b);
@@ -1444,7 +1444,7 @@ spy_goal( USES_REGS1 )
 	PP = NULL;
       }
 #endif
-      Yap_NilError(CALL_COUNTER_UNDERFLOW,"");
+      Yap_NilError(CALL_COUNTER_UNDERFLOW_EVENT,"");
       return;
     }
     LOCAL_PredEntriesCounter--;
@@ -1455,7 +1455,7 @@ spy_goal( USES_REGS1 )
 	PP = NULL;
       }
 #endif
-      Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
+      Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,"");
       return;
     }
     if ((pe->PredFlags & (CountPredFlag|ProfiledPredFlag|SpiedPredFlag)) ==
@@ -1811,7 +1811,7 @@ Yap_absmi(int inp)
 	cut_b = LCL0-(CELL *)(ASP[E_CB]);
 	saveregs();
 	if(!Yap_growtrail (0, false)) {
-	  Yap_NilError(OUT_OF_TRAIL_ERROR,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * K16);
+	  Yap_NilError(RESOURCE_ERROR_TRAIL,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * K16);
 	  setregs();
 	  FAIL();
 	}
@@ -1835,7 +1835,7 @@ Yap_absmi(int inp)
 #if !USE_THREADED_CODE
     default:
       saveregs();
-      Yap_Error(SYSTEM_ERROR, MkIntegerTerm(opcode), "trying to execute invalid YAAM instruction %d", opcode);
+      Yap_Error(SYSTEM_ERROR_INTERNAL, MkIntegerTerm(opcode), "trying to execute invalid YAAM instruction %d", opcode);
       setregs();
       FAIL();
     }

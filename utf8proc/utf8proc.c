@@ -187,6 +187,10 @@ UTF8PROC_DLLEXPORT utf8proc_ssize_t utf8proc_encode_char(utf8proc_int32_t uc, ut
   } else return 0;
 }
 
+
+
+
+
 /* internal "unsafe" version that does not check whether uc is in range */
 utf8proc_ssize_t unsafe_encode_char(utf8proc_int32_t uc, utf8proc_uint8_t *dst) {
    if (uc < 0x00) {

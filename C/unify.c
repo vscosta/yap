@@ -607,7 +607,7 @@ InitReverseLookupOpcode(void)
   while (OP_RTABLE == NULL) {
     if ((OP_RTABLE = (op_entry *)Yap_AllocCodeSpace(sz)) == NULL) {
       if (!Yap_growheap(FALSE, sz, NULL)) {
-	Yap_Error(INTERNAL_ERROR, TermNil,
+	Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 		  "Couldn't obtain space for the reverse translation opcode table");
       }
     }

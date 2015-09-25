@@ -256,7 +256,7 @@
 * fix expand_index on tabled code.
 *
 * Revision 1.129  2005/05/31 02:15:53  vsc
-* fix SYSTEM_ERROR messages
+* fix SYSTEM_ERROR_INTERNAL messages
 *
 * Revision 1.128  2005/05/30 05:26:49  vsc
 * fix tabling
@@ -338,7 +338,7 @@
 * Handle overflows when allocating big clauses properly.
 *
 * Revision 1.108  2004/11/19 22:08:42  vsc
-* replace SYSTEM_ERROR by out OUT_OF_WHATEVER_ERROR whenever appropriate.
+* replace SYSTEM_ERROR_INTERNAL by out OUT_OF_WHATEVER_ERROR whenever appropriate.
 *
 * Revision 1.107  2004/11/19 17:14:14  vsc
 * a few fixes for 64 bit compiling.
@@ -2973,7 +2973,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
     recover_from_failed_susp_on_cls(&cint, 0);
     if (!Yap_gcl(LOCAL_Error_Size, ap->ArityOfPE+NSlots, ENV, next_pc)) {
       CleanCls(&cint);
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return FAILCODE;
     }
   } else if (setjres == 2) {
@@ -2981,7 +2981,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
     LOCAL_Error_Size = recover_from_failed_susp_on_cls(&cint, LOCAL_Error_Size);
     if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
       CleanCls(&cint);
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
       return FAILCODE;
     }
   } else if (setjres == 4) {
@@ -2989,14 +2989,14 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
     recover_from_failed_susp_on_cls(&cint, 0);
     if (!Yap_growtrail(LOCAL_Error_Size, FALSE)) {
       CleanCls(&cint);
-      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_TRAIL, TermNil, LOCAL_ErrorMessage);
       return FAILCODE;
     }
   } else if (setjres != 0) {
     restore_machine_regs();
     recover_from_failed_susp_on_cls(&cint, 0);
     if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
       CleanCls(&cint);
       return FAILCODE;
     }
@@ -3025,7 +3025,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
       if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
 	Yap_ReleaseCMem(&cint);
 	CleanCls(&cint);
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+	Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
 	return NULL;
       }
       goto restart_index;
@@ -3619,7 +3619,7 @@ expand_index(struct intermediates *cint) {
       break;
     case _trust:
       /* we should never be here */
-      Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "found trust in expand_index");
+      Yap_Error(SYSTEM_ERROR_COMPILER, TermNil, "found trust in expand_index");
       labp =  NULL;
       ipc = NULL;
       break;
@@ -3889,7 +3889,7 @@ expand_index(struct intermediates *cint) {
       break;
     default:
       if (alt == NULL) {
-	Yap_Error(INTERNAL_COMPILER_ERROR,t,"unexpected instruction %d at expand_index ", op);
+	Yap_Error(SYSTEM_ERROR_COMPILER,t,"unexpected instruction %d at expand_index ", op);
 	labp = NULL;
 	ipc = NULL;
       } else {
@@ -4130,7 +4130,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop USES_REGS) {
 #if defined(YAPOR) || defined(THREADS)
       }
 #endif
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
       CleanCls(&cint);
       return FAILCODE;
     }
@@ -4163,47 +4163,8 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop USES_REGS) {
   }
 #if DEBUG
   if (GLOBAL_Option['i' - 'a' + 1]) {
-    Term tmod = ap->ModuleOfPred;
-    if (!tmod) tmod = TermProlog;
-#if THREADS
-    Yap_DebugPlWrite(MkIntegerTerm(worker_id));
-    Yap_DebugPutc(stderr,' ');
-#endif
-    Yap_DebugPutc(stderr,'>');
-    Yap_DebugPutc(stderr,'\t');
-    Yap_DebugPlWrite(tmod);
-    Yap_DebugPutc(stderr,':');
-    if (ap->ModuleOfPred == IDB_MODULE) {
-      Term t = Deref(ARG1);
-      if (IsAtomTerm(t)) {
-	Yap_DebugPlWrite(t);
-      } else if (IsIntegerTerm(t)) {
-	Yap_DebugPlWrite(t);
-      } else {
-	Functor f = FunctorOfTerm(t);
-	Atom At = NameOfFunctor(f);
-	Yap_DebugPlWrite(MkAtomTerm(At));
-	Yap_DebugPutc(stderr,'/');
-	Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
-      }
-    } else {
-      if (ap->ArityOfPE == 0) {
-	Atom At = (Atom)ap->FunctorOfPred;
-	Yap_DebugPlWrite(MkAtomTerm(At));
-      } else {
-	Functor f = ap->FunctorOfPred;
-	Atom At = NameOfFunctor(f);
-	Yap_DebugPlWrite(MkAtomTerm(At));
-	Yap_DebugPutc(stderr,'/');
-	Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
-      }
+      Yap_DebugWriteIndicator( ap );
     }
-    Yap_DebugPutc(stderr,'\n');
-#if THREADS
-    Yap_DebugPlWrite(MkIntegerTerm(worker_id));
-    Yap_DebugPutc(stderr,' ');
-#endif
-  }
 #endif
   if ((labp = expand_index(&cint)) == NULL) {
     if (expand_clauses) {
@@ -4233,7 +4194,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop USES_REGS) {
   if (cint.CodeStart) {
     if ((indx_out = Yap_assemble(ASSEMBLING_EINDEX, TermNil, ap, FALSE, &cint, cint.i_labelno+1)) == NULL) {
       if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+	Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
 	Yap_ReleaseCMem(&cint);
 	CleanCls(&cint);
 	return FAILCODE;
@@ -4816,7 +4777,7 @@ kill_clause(yamop *ipc, yamop *bg, yamop *lt, path_stack_entry *sp0, PredEntry *
   /* weird case ????? */
   if (!start->y_u.Illss.s){
     /* ERROR */
-    Yap_Error(INTERNAL_ERROR, TermNil, "Illss.s == 0 %p", ipc);
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Illss.s == 0 %p", ipc);
     return sp;
   }
   if (start->y_u.Illss.s == 1) {
@@ -5648,39 +5609,9 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
   LOCAL_ErrorMessage = NULL;
 #if DEBUG
   if (GLOBAL_Option['i' - 'a' + 1]) {
-    Term tmod = ap->ModuleOfPred;
-    if (!tmod) tmod = TermProlog;
-    Yap_DebugPutc(stderr,'+');
-    Yap_DebugPutc(stderr,'\t');
-    Yap_DebugPlWrite(tmod);
-    Yap_DebugPutc(stderr,':');
-    if (ap->ModuleOfPred == IDB_MODULE) {
-      Term t = Deref(ARG1);
-      if (IsAtomTerm(t)) {
-	Yap_DebugPlWrite(t);
-      } else if (IsIntegerTerm(t)) {
-	Yap_DebugPlWrite(t);
-      } else {
-	Functor f = FunctorOfTerm(t);
-	Atom At = NameOfFunctor(f);
-	Yap_DebugPlWrite(MkAtomTerm(At));
-	Yap_DebugPutc(stderr,'/');
-	Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
-      }
-    } else {
-      if (ap->ArityOfPE == 0) {
-	Atom At = (Atom)ap->FunctorOfPred;
-	Yap_DebugPlWrite(MkAtomTerm(At));
-      } else {
-	Functor f = ap->FunctorOfPred;
-	Atom At = NameOfFunctor(f);
-	Yap_DebugPlWrite(MkAtomTerm(At));
-	Yap_DebugPutc(stderr,'/');
-	Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
-      }
-    }
-    Yap_DebugPutc(stderr,'\n');
-  }
+      Yap_DebugPutc(stderr,'+');
+      Yap_DebugWriteIndicator( ap );
+   }
 #endif
   stack = (path_stack_entry *)TR;
   cl.Code =  cl.CurrentCode = beg;

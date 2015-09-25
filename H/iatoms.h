@@ -243,7 +243,7 @@
   AtomOn = Yap_LookupAtom("on");
   AtomOnline = Yap_LookupAtom("online");
   AtomOpen = Yap_LookupAtom("open");
-  AtomOperatingSystemError = Yap_LookupAtom("operating_system_error");
+  AtomOperatingSystemError = Yap_LookupAtom("operating_SYSTEM_ERROR_INTERNAL");
   AtomOperatingSystemSupport = Yap_LookupAtom("operating_system_support");
   AtomOperator = Yap_LookupAtom("operator");
   AtomOperatorPriority = Yap_LookupAtom("operator_priority");
@@ -356,7 +356,7 @@
   AtomSyntaxErrors = Yap_LookupAtom("syntax_errors");
   AtomSyntaxErrorHandler = Yap_LookupAtom("syntax_error_handler");
   AtomSystem = Yap_LookupAtom("system");
-  AtomSystemError = Yap_LookupAtom("system_error");
+  AtomSystemError = Yap_LookupAtom("SYSTEM_ERROR_INTERNAL");
   AtomSystemLibraryDir = Yap_LookupAtom("system_library_directory");
   AtomTerm = Yap_LookupAtom("term");
   AtomTerms = Yap_LookupAtom("terms");

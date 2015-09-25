@@ -92,7 +92,7 @@ Yap_FindExecutable(void)
   if (oktox(GLOBAL_Executable))
     return GLOBAL_Executable;
   else
-    Yap_Error(SYSTEM_ERROR,MkAtomTerm(Yap_LookupAtom(GLOBAL_Executable)),
+    Yap_Error(SYSTEM_ERROR_INTERNAL,MkAtomTerm(Yap_LookupAtom(GLOBAL_Executable)),
 	  "cannot find file being executed");
   return NULL;
 }

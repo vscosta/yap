@@ -363,7 +363,7 @@ p_first_signal( USES_REGS1 )
 	  LOCAL_PrologMode |= AbortMode;
 	  return -1;
       } else {
-	  Yap_Error(PURE_ABORT, TermNil, "abort from console");
+          Yap_Error(ABORT_EVENT, TermNil, "abort from console");
       }
       Yap_RestartYap( 1 );
       return FALSE;

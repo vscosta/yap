@@ -617,7 +617,7 @@
 #define ATOM_syntax_error ((atom_t)(610*2+1))
 #define ATOM_syntax_errors ((atom_t)(611*2+1))
 #define ATOM_system ((atom_t)(612*2+1))
-#define ATOM_system_error ((atom_t)(613*2+1))
+#define ATOM_SYSTEM_ERROR_INTERNAL ((atom_t)(613*2+1))
 #define ATOM_system_init_file ((atom_t)(614*2+1))
 #define ATOM_system_thread_id ((atom_t)(615*2+1))
 #define ATOM_system_time ((atom_t)(616*2+1))

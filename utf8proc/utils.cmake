@@ -2,7 +2,7 @@
 function (disallow_intree_builds)
   # Adapted from LLVM's toplevel CMakeLists.txt file
   if( CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR AND NOT MSVC_IDE )
-    message(FATAL_ERROR "
+    message(SYSTEM_ERROR_FATAL "
       In-source builds are not allowed. CMake would overwrite the
       makefiles distributed with utf8proc. Please create a directory
       and run cmake from there. Building in a subdirectory is

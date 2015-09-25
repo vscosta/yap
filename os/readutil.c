@@ -91,7 +91,7 @@ rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS)
     max_inp -= (buf_sz-1);
     if (max_inp <= 0) {
       UNLOCK(GLOBAL_Stream[sno].streamlock);
-      Yap_Error(OUT_OF_STACK_ERROR, ARG1, "read_line_to_codes/%d", arity);
+      Yap_Error(RESOURCE_ERROR_STACK, ARG1, "read_line_to_codes/%d", arity);
       return FALSE;      
     }
   }
@@ -134,7 +134,7 @@ read_stream_to_codes(USES_REGS1)
       ARG4 = AbsPair(HBASE);
       ARG5 = (CELL)h0;
       if (!Yap_gcl((ASP-HBASE)*sizeof(CELL), 5, ENV, Yap_gcP())) {
-	Yap_Error(OUT_OF_STACK_ERROR, ARG1, "read_stream_to_codes/3");
+	Yap_Error(RESOURCE_ERROR_STACK, ARG1, "read_stream_to_codes/3");
 	return FALSE;
       }
       /* build a legal term again */

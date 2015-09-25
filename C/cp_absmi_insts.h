@@ -528,14 +528,14 @@
       LOCAL_ReductionsCounter--;
       if (LOCAL_ReductionsCounter == 0 && LOCAL_ReductionsCounterOn) {
 	saveregs();
-	Yap_NilError(CALL_COUNTER_UNDERFLOW,"");
+	Yap_NilError(CALL_COUNTER_UNDERFLOW_EVENT,"");
 	setregs();
 	JMPNext();
       }
       LOCAL_PredEntriesCounter--;
       if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) {
 	saveregs();
-	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
+	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,"");
 	setregs();
 	JMPNext();
       }
@@ -553,7 +553,7 @@
 	/* act as if we had backtracked */
 	ENV = B->cp_env;
 	saveregs();
-	Yap_NilError(RETRY_COUNTER_UNDERFLOW,"");
+	Yap_NilError(RETRY_COUNTER_UNDERFLOW_EVENT,"");
 	setregs();
 	JMPNext();
       }
@@ -561,7 +561,7 @@
       if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) {
 	ENV = B->cp_env;
 	saveregs();
-	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
+	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,"");
 	setregs();
 	JMPNext();
       }
@@ -590,14 +590,14 @@
       LOCAL_RetriesCounter--;
       if (LOCAL_RetriesCounter == 0 && LOCAL_RetriesCounterOn) {
 	saveregs();
-	Yap_NilError(RETRY_COUNTER_UNDERFLOW,"");
+	Yap_NilError(RETRY_COUNTER_UNDERFLOW_EVENT,"");
 	setregs();
 	JMPNext();
       }
       LOCAL_PredEntriesCounter--;
       if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) {
 	saveregs();
-	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
+	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,"");
 	setregs();
 	JMPNext();
       }
@@ -634,14 +634,14 @@
       LOCAL_RetriesCounter--;
       if (LOCAL_RetriesCounter == 0) {
 	saveregs();
-	Yap_NilError(RETRY_COUNTER_UNDERFLOW,"");
+	Yap_NilError(RETRY_COUNTER_UNDERFLOW_EVENT,"");
 	setregs();
 	JMPNext();
       }
       LOCAL_PredEntriesCounter--;
       if (LOCAL_PredEntriesCounter == 0) {
 	saveregs();
-	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
+	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,"");
 	setregs();
 	JMPNext();
       }
@@ -672,7 +672,7 @@
 	  PREG = NEXTOP(PREG,Osbpa);
 	  saveregs();
 	  if (!Yap_gcl(sz, arity, YENV, PREG)) {
-	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+	    Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  } else {
@@ -764,14 +764,14 @@
       LOCAL_RetriesCounter--;
       if (LOCAL_RetriesCounter == 0) {
 	saveregs();
-	Yap_NilError(RETRY_COUNTER_UNDERFLOW,"");
+	Yap_NilError(RETRY_COUNTER_UNDERFLOW_EVENT,"");
 	setregs();
 	JMPNext();
       }
       LOCAL_PredEntriesCounter--;
       if (LOCAL_PredEntriesCounter == 0) {
 	saveregs();
-	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
+	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,"");
 	setregs();
 	JMPNext();
       }

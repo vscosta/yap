@@ -1213,7 +1213,7 @@
 #define SPY_PRED_SECONDIFOK_SECONDIFOK \
 	    UNLOCKPE(21,pe); \
 	    saveregs(); \
-	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	    setregs(); \
 	    JMPNext();
 

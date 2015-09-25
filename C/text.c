@@ -486,7 +486,7 @@ write_strings( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng
       Term t = init_tstring( PASS_REGS1  );
       unsigned char *cp = s, *buf;
 
-      LOCAL_TERM_ERROR( 2*(lim-s) );
+      LOCAL_TERM_ERROR( t, 2*(lim-s) );
       buf = buf_from_tstring(HR);
       while (*cp && cp < lim) {
 	utf8proc_int32_t chr;
@@ -510,7 +510,7 @@ write_strings( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng
       unsigned char *buf;
       utf8proc_int32_t chr;
 
-      LOCAL_TERM_ERROR( 2*(lim-s) );
+      LOCAL_TERM_ERROR( t, 2*(lim-s) );
       buf = buf_from_tstring(HR);
       while (cp < lim) {
 	cp = get_char(cp, &chr);
@@ -531,7 +531,7 @@ write_strings( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng
       wchar_t *wp = s;
       unsigned char *buf;
 
-      LOCAL_TERM_ERROR( 2*(lim-s) );
+      LOCAL_TERM_ERROR( t, 2*(lim-s) );
       buf = buf_from_tstring(HR);
       while (wp < lim) {
 	utf8proc_int32_t chr;
@@ -548,7 +548,7 @@ write_strings( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng
     }
     break;
   default:
-    Yap_Error(SYSTEM_ERROR, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
   }
 
   return out->val.t;
@@ -574,7 +574,7 @@ write_atoms( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
       unsigned char *cp = s;
       wchar_t w[2];
       w[1] = '\0';
-      LOCAL_TERM_ERROR( 2*(lim-s) );
+     LOCAL_TERM_ERROR( t, 2*(lim-s) );
       while (cp < lim && *cp) {
 	utf8proc_int32_t chr;
 	CELL *cl;
@@ -596,7 +596,7 @@ write_atoms( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
       char w[2];
       w[1] = '\0';
 
-      LOCAL_TERM_ERROR( 2*(lim-s) );
+      LOCAL_TERM_ERROR( t, 2*(lim-s) );
       while (cp < lim) {
 	utf8proc_int32_t chr;
 	cp = get_char(cp, &chr);
@@ -616,7 +616,7 @@ write_atoms( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
       wchar_t w[2];
       w[1] = '\0';
 
-      LOCAL_TERM_ERROR( 2*(lim-s) );
+      LOCAL_TERM_ERROR( t, 2*(lim-s) );
       while (*cp && cp < lim) {
 	utf8proc_int32_t chr;
 	cp = get_wchar(cp, &chr);
@@ -631,7 +631,7 @@ write_atoms( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
       break;
     }
   default:
-    Yap_Error(SYSTEM_ERROR, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
   }
   if (out->type & YAP_STRING_DIFF) {
     if (sz == 0) t = out->dif;
@@ -660,7 +660,7 @@ write_codes( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
   case ENC_ISO_UTF8:
     { unsigned char *s = s0, *lim = s + strnlen(s0, max);
       unsigned char *cp = s;
-      LOCAL_TERM_ERROR( 2*(lim-s) );
+      LOCAL_TERM_ERROR( t, 2*(lim-s) );
       while (*cp && cp < lim) {
 	utf8proc_int32_t chr;
 	cp +=  get_utf8(cp, &chr);
@@ -676,7 +676,7 @@ write_codes( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
     { unsigned char *s = s0, *lim = s + strnlen(s0, max);
       unsigned char *cp = s;
 
-      LOCAL_TERM_ERROR( 2*(lim-s) );
+      LOCAL_TERM_ERROR( t, 2*(lim-s) );
       while (cp < lim) {
 	utf8proc_int32_t chr;
 	cp = get_char(cp, &chr);
@@ -692,7 +692,7 @@ write_codes( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
     { wchar_t *s = s0, *lim = s + wcsnlen(s, max);
       wchar_t *cp = s;
 
-      LOCAL_TERM_ERROR( 2*(lim-s) );
+      LOCAL_TERM_ERROR( t, 2*(lim-s) );
       while (cp < lim) {
 	utf8proc_int32_t chr;
 	cp = get_wchar(cp, &chr);
@@ -705,7 +705,7 @@ write_codes( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
       break;
     }
   default:
-    Yap_Error(SYSTEM_ERROR, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
   }
   while (sz < min) {
     HR[0] = MkIntTerm(MkIntTerm(0));
@@ -768,7 +768,7 @@ write_atom( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng US
       return at;
     }
    default:
-     Yap_Error(SYSTEM_ERROR, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc));
+     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc));
   }
   return NULL;
 }
@@ -852,7 +852,7 @@ write_wbuffer( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng
       break;
    default:
      sz_end = -1;
-     Yap_Error(SYSTEM_ERROR, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
+     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
     }
   }
   sz_end *= sizeof( wchar_t );
@@ -944,7 +944,7 @@ write_buffer( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng 
       break;
    default:
         sz_end = -1;
-    Yap_Error(SYSTEM_ERROR, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
    }
   }else if (out->enc ==  ENC_ISO_LATIN1) {
    switch (enc) {
@@ -999,7 +999,7 @@ write_buffer( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng 
       break;
    default:
        sz_end = -1;
-       Yap_Error(SYSTEM_ERROR, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
+       Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
       }
   } else {
     // no other encodings are supported.
@@ -1041,7 +1041,7 @@ write_length( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng 
       return wcsnlen(s, max);
     }
   default:
-    Yap_Error(SYSTEM_ERROR, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
   }
   return (size_t)-1;
 }
@@ -1151,7 +1151,7 @@ compute_end( void *s0, encoding_t enc )
       return s + (1+wcslen(s));
     }
  default:
-    Yap_Error(SYSTEM_ERROR, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
   }
   return NULL;
 }
@@ -1167,7 +1167,7 @@ advance_Text( void *s, int l, encoding_t enc )
   case ENC_WCHAR:
     return ((wchar_t *)s)+l;
   default:
-    Yap_Error(SYSTEM_ERROR, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc), __FUNCTION__);
   }
   return s;
 }
@@ -1198,7 +1198,7 @@ cmp_Text( void *s1, void *s2, int l, encoding_t enc1, encoding_t enc2 )
 	}
 	return 0;
       default:
-	Yap_Error(SYSTEM_ERROR, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc2), __FUNCTION__);
+	Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc2), __FUNCTION__);
       }
      }
   case ENC_ISO_UTF8:
@@ -1227,7 +1227,7 @@ cmp_Text( void *s1, void *s2, int l, encoding_t enc1, encoding_t enc2 )
 	}
 	return 0;
       default:
-	Yap_Error(SYSTEM_ERROR, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc2), __FUNCTION__);
+	Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc2), __FUNCTION__);
      }
     }
   case ENC_WCHAR:
@@ -1251,11 +1251,11 @@ cmp_Text( void *s1, void *s2, int l, encoding_t enc1, encoding_t enc2 )
     case ENC_WCHAR:
 	return wcsncmp(s1, s2, l);
       default:
-	Yap_Error(SYSTEM_ERROR, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc2), __FUNCTION__);
+	Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc2), __FUNCTION__);
       }
     }
     default:
-      Yap_Error(SYSTEM_ERROR, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc1), __FUNCTION__);
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Unsupported Encoding ~s in %s", enc_name(enc1), __FUNCTION__);
   }
   return 0;
 }
@@ -1302,7 +1302,7 @@ concat( int n, seq_tv_t *out, void *sv[], encoding_t encv[], size_t lengv[] USES
       /* wide atom */
       wchar_t *buf = (wchar_t *)HR;
       Atom at;
-      LOCAL_ERROR( sz+3 );
+      LOCAL_ERROR( MkAtomTerm(Yap_LookupWideAtom(buf)), sz+3 );
       for (i = 0; i < n ; i ++) {
 	if (encv[i] == ENC_WCHAR) {
 	  wchar_t *ptr = sv[i];
@@ -1326,7 +1326,7 @@ concat( int n, seq_tv_t *out, void *sv[], encoding_t encv[], size_t lengv[] USES
       char *buf = (char *)HR;
       Atom at;
 
-      LOCAL_TERM_ERROR( sz/sizeof(CELL)+3 );
+      LOCAL_ERROR( MkAtomTerm(Yap_LookupAtom(buf)), sz/sizeof(CELL)+3 );
       for (i = 0; i < n ; i ++) {
 	char *ptr = sv[i];
 	utf8proc_int32_t chr;
@@ -1373,7 +1373,7 @@ slice( size_t min, size_t max, void *buf, seq_tv_t *out, encoding_t enc USES_REG
       wchar_t *nbuf = (wchar_t *)HR;
       wchar_t *ptr = (wchar_t *)buf + min;
       if (max>min) {
-	LOCAL_ERROR( (max-min)*sizeof(wchar_t) );
+	LOCAL_ERROR( MkAtomTerm(Yap_LookupWideAtom(buf)), (max-min)*sizeof(wchar_t) );
 	memcpy( nbuf, ptr, (max - min)*sizeof(wchar_t));
       }
       nbuf[max-min] = '\0';
@@ -1384,7 +1384,7 @@ slice( size_t min, size_t max, void *buf, seq_tv_t *out, encoding_t enc USES_REG
 
       if (max>min) {
 	char *ptr = (char *)buf + min;
-	LOCAL_ERROR( max-min );
+	LOCAL_ERROR( MkAtomTerm(Yap_LookupAtom(buf)), max-min );
 	memcpy( nbuf, ptr, (max - min));
       }
       nbuf[max-min] = '\0';
@@ -1395,7 +1395,7 @@ slice( size_t min, size_t max, void *buf, seq_tv_t *out, encoding_t enc USES_REG
        unsigned char *ptr = skip_utf8 ( ( unsigned char *)buf, min );
       utf8proc_int32_t chr;
 
-      LOCAL_ERROR( max-min );
+      LOCAL_ERROR( MkAtomTerm(Yap_LookupAtom(buf)), max-min );
       while ( min++ < max ) { ptr +=  get_utf8(ptr, & chr); *nbuf++ = chr; }
       nbuf[0] = '\0';
       at = Yap_LookupMaybeWideAtom( (wchar_t*)HR );

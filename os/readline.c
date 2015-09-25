@@ -262,7 +262,7 @@ getLine( int inp, int out )
     Yap_external_signal( 0, YAP_INT_SIGNAL );
     LOCAL_PrologMode &= ~ConsoleGetcMode;
     if (LOCAL_PrologMode & AbortMode) {
-      Yap_Error(PURE_ABORT, TermNil, "");
+      Yap_Error(ABORT_EVENT, TermNil, "");
       LOCAL_ErrorMessage = "Abort";
       return console_post_process_eof(s);
     }

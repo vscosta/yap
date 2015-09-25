@@ -1257,7 +1257,7 @@
       LOCAL_PredEntriesCounter--; \
       if (LOCAL_PredEntriesCounter == 0) { \
 	    saveregs(); \
-	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	    setregs(); \
 	    JMPNext(); \
       } \

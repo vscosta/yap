@@ -149,7 +149,7 @@ MACRO(MACRO_DISPLAY_FEATURE_LOG)
 
 
      IF(_haveMissingReq)
-       MESSAGE(FATAL_ERROR "Exiting: Missing Requirements")
+       MESSAGE(SYSTEM_ERROR_FATAL "Exiting: Missing Requirements")
      ENDIF(_haveMissingReq)
 
    ENDIF(_printSummary)

@@ -32,11 +32,11 @@ void term_array_init(term_array *array, int capacity) {
   if (array->terms != NULL) {
     array->capacity = capacity;
   } else
-    Yap_Error(RESOURCE_ERROR_MEMORY, TermNil, "Out of memory."); // Handle out-of-memory
+    Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "Out of memory."); // Handle out-of-memory
   array->capacity = capacity;
   array->nodes = malloc(capacity * sizeof(void*));
   if (array->nodes == NULL)
-    Yap_Error(RESOURCE_ERROR_MEMORY, TermNil, "Out of memory."); // Handle out-of-memory
+    Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "Out of memory."); // Handle out-of-memory
 }
 
 void term_array_free(term_array *array) {
@@ -55,12 +55,12 @@ void term_array_push(term_array *array, void* t, void* n) {
     if (new_terms != NULL) {
       array->terms = new_terms;
     } else
-      Yap_Error(RESOURCE_ERROR_MEMORY, TermNil, "Out of memory."); // Handle out-of-memory
+      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "Out of memory."); // Handle out-of-memory
     void *new_nodes = realloc(array->nodes, new_capacity * sizeof(void *));
     if (new_nodes != NULL) {
       array->nodes = new_nodes;
     } else
-      Yap_Error(RESOURCE_ERROR_MEMORY, TermNil, "Out of memory."); // Handle out-of-memory
+      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "Out of memory."); // Handle out-of-memory
     array->capacity = new_capacity;
   }
   array->terms[array->length] = t;

@@ -205,7 +205,7 @@ showprofres(A) :-
 '$get_ppreds'([gprof(0,_,0)|Cls],Ps) :- !,
 	'$get_ppreds'(Cls,Ps).
 '$get_ppreds'([gprof(0,_,Count)|_],_) :- !,
-	'$do_error'(system_error,showprofres(gprof(0,_,Count))).
+	'$do_error'(SYSTEM_ERROR_INTERNAL,showprofres(gprof(0,_,Count))).
 '$get_ppreds'([gprof(PProfInfo,_,Count0)|Cls],[Sum-(Mod:Name/Arity)|Ps]) :-
 	'$get_more_ppreds'(Cls,PProfInfo,Count0,NCls,Sum),
 	'$get_pred_pinfo'(PProfInfo,Mod,Name,Arity),

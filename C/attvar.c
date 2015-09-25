@@ -140,7 +140,7 @@ void
 Yap_MkEmptyWakeUp(Atom mod)
 {
   if (MaxEmptyWakeups == MAX_EMPTY_WAKEUPS)
-    Yap_Error(SYSTEM_ERROR, TermNil, "too many modules that do not wake up");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "too many modules that do not wake up");
   EmptyWakeups[MaxEmptyWakeups++] = mod;
 }
 
@@ -422,7 +422,7 @@ BindAttVar(attvar_record *attv USES_REGS) {
 	    Bind_Global_NonAtt(&(attv2->Done), AbsAttVar(attv));
 	  }
 	} else {
-	  Yap_Error(SYSTEM_ERROR,(CELL)&(attv->Done),"attvar was bound when unset");
+	  Yap_Error(SYSTEM_ERROR_INTERNAL,(CELL)&(attv->Done),"attvar was bound when unset");
 	  return(FALSE);
 	}
       } else {
@@ -431,7 +431,7 @@ BindAttVar(attvar_record *attv USES_REGS) {
     }
     return(TRUE);
   } else {
-    Yap_Error(SYSTEM_ERROR,(CELL)&(attv->Done),"attvar was bound when set");
+    Yap_Error(SYSTEM_ERROR_INTERNAL,(CELL)&(attv->Done),"attvar was bound when set");
     return(FALSE);
   }
 }
@@ -467,7 +467,7 @@ p_put_att( USES_REGS1 ) {
       while (!(attv = BuildNewAttVar( PASS_REGS1 ))) {
 	LOCAL_Error_Size = sizeof(attvar_record);
 	if (!Yap_gcl(LOCAL_Error_Size, 5, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}    
 	inp = Deref(ARG1);
@@ -478,7 +478,7 @@ p_put_att( USES_REGS1 ) {
     if (IsVarTerm(tatts = SearchAttsForModule(attv->Atts,mfun))) {
       while (!(tatts = BuildAttTerm(mfun,ar PASS_REGS))) {
 	if (!Yap_gcl(LOCAL_Error_Size, 5, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}    
       }
@@ -512,7 +512,7 @@ p_put_att_term( USES_REGS1 ) {
       while (!(attv = BuildNewAttVar( PASS_REGS1 ))) {
 	LOCAL_Error_Size = sizeof(attvar_record);
 	if (!Yap_gcl(LOCAL_Error_Size, 5, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}    
 	inp = Deref(ARG1);
@@ -546,7 +546,7 @@ p_rm_att( USES_REGS1 ) {
       while (!(attv = BuildNewAttVar( PASS_REGS1 ))) {
 	LOCAL_Error_Size = sizeof(attvar_record);
 	if (!Yap_gcl(LOCAL_Error_Size, 5, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}    
 	inp = Deref(ARG1);
@@ -558,7 +558,7 @@ p_rm_att( USES_REGS1 ) {
     if (IsVarTerm(tatts = SearchAttsForModule(attv->Atts,mfun))) {
       while (!(tatts = BuildAttTerm(mfun, ar PASS_REGS))) {
 	if (!Yap_gcl(LOCAL_Error_Size, 4, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}    
       }
@@ -593,7 +593,7 @@ p_put_atts( USES_REGS1 ) {
       while (!(attv = BuildNewAttVar( PASS_REGS1 ))) {
 	LOCAL_Error_Size = sizeof(attvar_record);
 	if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}    
 	tatts = Deref(ARG2);
@@ -992,7 +992,7 @@ p_all_attvars( USES_REGS1 )
 
     if (!(out = AllAttVars( PASS_REGS1 ))) {
       if (!Yap_gcl(LOCAL_Error_Size, 1, ENV, gc_P(P,CP))) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	return FALSE;
       }    
     } else {

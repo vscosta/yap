@@ -187,7 +187,7 @@ static yamop *cur_clause(PredEntry *pe, yamop *codeptr)
       break;
     cl = cl->ClNext;
   } while (TRUE);
-  Yap_Error(SYSTEM_ERROR,TermNil,"could not find clause for indexing code");
+  Yap_Error(SYSTEM_ERROR_INTERNAL,TermNil,"could not find clause for indexing code");
   return(NULL);
 }
 
@@ -201,7 +201,7 @@ static yamop *cur_log_upd_clause(PredEntry *pe, yamop *codeptr)
     }
     cl = cl->ClNext;
   } while (cl != NULL);
-  Yap_Error(SYSTEM_ERROR,TermNil,"could not find clause for indexing code");
+  Yap_Error(SYSTEM_ERROR_INTERNAL,TermNil,"could not find clause for indexing code");
   return(NULL);
 }
 

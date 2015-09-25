@@ -225,7 +225,7 @@ CACHE_A1();
         cut_b = LCL0-(CELL *)(ASP[E_CB]);
         saveregs();
         if(!Yap_growtrail (0, false)) {
-          Yap_NilError(OUT_OF_TRAIL_ERROR,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * K16);
+          Yap_NilError(RESOURCE_ERROR_TRAIL,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * K16);
           setregs();
           FAIL();
         }
@@ -255,7 +255,7 @@ CACHE_A1();
 #if _NATIVE
       default:
       saveregs();
-      Yap_Error(SYSTEM_ERROR, MkIntegerTerm(opcode), "trying to execute invalid YAAM instruction %d", opcode);
+      Yap_Error(SYSTEM_ERROR_INTERNAL, MkIntegerTerm(opcode), "trying to execute invalid YAAM instruction %d", opcode);
       setregs();
       FAIL();
     }

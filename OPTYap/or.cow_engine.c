@@ -197,7 +197,7 @@ void share_private_nodes(int worker_q) {
   }
   /* update depth */
   if (depth >= MAX_BRANCH_DEPTH)
-    Yap_Error(INTERNAL_ERROR, TermNil, "maximum depth exceded (share_private_nodes)");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "maximum depth exceded (share_private_nodes)");
   or_frame = B->cp_or_fr;
   while (or_frame != LOCAL_top_or_fr) {
     unsigned int branch;

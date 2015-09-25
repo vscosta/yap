@@ -77,7 +77,7 @@ static void
 QLYR_ERROR(qlfr_err_t my_err)
 {
   // __android_log_print(ANDROID_LOG_INFO, "YAP ", "error %s in saved state %s",GLOBAL_RestoreFile, qlyr_error[my_err]);
-    Yap_Error(SAVED_STATE_ERROR,TermNil,"error %s in saved state %s",GLOBAL_RestoreFile, qlyr_error[my_err]);
+    Yap_Error(SYSTEM_ERROR_SAVED_STATE,TermNil,"error %s in saved state %s",GLOBAL_RestoreFile, qlyr_error[my_err]);
   Yap_exit(1);
 }
 

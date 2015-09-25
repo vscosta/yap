@@ -256,7 +256,7 @@
 * missing ;
 *
 * Revision 1.58  2004/11/19 22:08:41  vsc
-* replace SYSTEM_ERROR by out OUT_OF_WHATEVER_ERROR whenever appropriate.
+* replace SYSTEM_ERROR_INTERNAL by out OUT_OF_WHATEVER_ERROR whenever appropriate.
 *
 * Revision 1.57  2004/11/18 22:32:31  vsc
 * fix situation where we might assume nonextsing double initialisation of C predicates (use
@@ -699,7 +699,7 @@ YAP_MkBlobTerm(unsigned int sz)
 
   while (HR+(sz+sizeof(MP_INT)/sizeof(CELL)+2) > ASP-1024) {
     if (!doexpand((sz+sizeof(MP_INT)/sizeof(CELL)+2)*sizeof(CELL))) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, "YAP failed to grow the stack while constructing a blob: %s", LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_STACK, TermNil, "YAP failed to grow the stack while constructing a blob: %s", LOCAL_ErrorMessage);
       return TermNil;
     }
   }
@@ -796,7 +796,7 @@ YAP_LookupAtom(const char *c)
     a = Yap_LookupAtom(c);
     if (a == NIL || Yap_get_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_locked_growheap(FALSE, 0, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
+	Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
       }
     } else {
       return a;
@@ -815,7 +815,7 @@ YAP_LookupWideAtom(const wchar_t *c)
     a = Yap_LookupWideAtom((wchar_t *)c);
     if (a == NIL || Yap_get_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_locked_growheap(FALSE, 0, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
+	Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
       }
     } else {
       return a;
@@ -834,7 +834,7 @@ YAP_FullLookupAtom(const char *c)
     at = Yap_FullLookupAtom(c);
     if (at == NIL || Yap_get_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_locked_growheap(FALSE, 0, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
+	Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
       }
     } else {
       return at;
@@ -1354,7 +1354,7 @@ execute_cargs(PredEntry *pe, CPredicate exec_code USES_REGS)
       return code10(a1, a1+1, a1+2, a1+3, a1+4, a1+5, a1+6, a1+7, a1+8, a1+9);
     }
   default:
-    YAP_Error(SYSTEM_ERROR, TermNil, "YAP only supports SWI C-call with arity =< 10");
+    YAP_Error(SYSTEM_ERROR_INTERNAL, TermNil, "YAP only supports SWI C-call with arity =< 10");
     return(FALSE);
   }
 }
@@ -1441,7 +1441,7 @@ execute_cargs_back(PredEntry *pe, CPredicate exec_code, struct foreign_context *
       return code10(a1, a1+1, a1+2, a1+3, a1+4, a1+5, a1+6, a1+7, a1+8, a1+9, ctx);
     }
   default:
-    YAP_Error(SYSTEM_ERROR, TermNil,  "YAP only supports SWI C-call with arity =< 10");
+    YAP_Error(SYSTEM_ERROR_INTERNAL, TermNil,  "YAP only supports SWI C-call with arity =< 10");
     return(FALSE);
   }
 }
@@ -1755,7 +1755,7 @@ YAP_ReallocSpaceFromYap(void *ptr,size_t size) {
   BACKUP_MACHINE_REGS();
   while ((new_ptr = Yap_ReallocCodeSpace(ptr,size)) == NULL) {
     if (!Yap_growheap(FALSE, size, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
       return NULL;
     }
   }
@@ -1771,7 +1771,7 @@ YAP_AllocSpaceFromYap(size_t size)
 
   while ((ptr = Yap_AllocCodeSpace(size)) == NULL) {
     if (!Yap_growheap(FALSE, size, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
       return NULL;
     }
   }
@@ -2136,7 +2136,7 @@ YAP_Error(int myerrno, Term t, const char *buf,...)
   char tmpbuf[YAP_BUF_SIZE];
 
   if (!myerrno)
-    myerrno = SYSTEM_ERROR;
+    myerrno = SYSTEM_ERROR_INTERNAL;
   if (t == 0L)
     t = TermNil;
   if (buf != NULL) {
@@ -2594,17 +2594,17 @@ YAP_GoalHasException(Term *t)
       if (LOCAL_Error_TYPE == YAP_NO_ERROR) {
 	RECOVER_MACHINE_REGS();
 	return TRUE;
-      } else if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+      } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
 	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growglobal(NULL)) {
-	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
+	  Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil, LOCAL_ErrorMessage);
 	  RECOVER_MACHINE_REGS();
 	  return FALSE;
 	}
       } else {
 	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growstack(EX->NOfCells*CellSize)) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  RECOVER_MACHINE_REGS();
 	  return FALSE;
 	}
@@ -2782,7 +2782,7 @@ YAP_CompileClause(Term t)
 
   if (Yap_get_signal( YAP_CDOVF_SIGNAL ) ) {
     if (!Yap_locked_growheap(FALSE, 0, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
     }
   }
   RECOVER_MACHINE_REGS();
@@ -3012,7 +3012,7 @@ CACHE_REGS
       CurrentModule = USER_MODULE;
       P = GETWORK_FIRST_TIME;
       Yap_exec_absmi(FALSE,  YAP_EXEC_ABSMI);
-      Yap_Error(INTERNAL_ERROR, TermNil, "abstract machine unexpected exit (YAP_Init)");
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "abstract machine unexpected exit (YAP_Init)");
     }
 #endif /* YAPOR */
     RECOVER_MACHINE_REGS();
@@ -3709,7 +3709,7 @@ YAP_Record(Term t)
     if (!Yap_growheap(FALSE, sizeof(struct record_list), NULL)) {
       /* be a good neighbor */
       Yap_FreeCodeSpace((void *)dbterm);
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "using YAP_Record");
+      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "using YAP_Record");
       return NULL;
     }
   }
@@ -3737,17 +3737,17 @@ YAP_Recorded(void *handle)
     if (LOCAL_Error_TYPE == YAP_NO_ERROR) {
       RECOVER_MACHINE_REGS();
       return t;
-    } else if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+    } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       if (!Yap_growglobal(NULL)) {
-	Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
+	Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil, LOCAL_ErrorMessage);
 	RECOVER_MACHINE_REGS();
 	return FALSE;
       }
     } else {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       if (!Yap_growstack(dbterm->NOfCells*CellSize)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	RECOVER_MACHINE_REGS();
 	return FALSE;
       }
@@ -4044,7 +4044,7 @@ YAP_AtomToInt(Atom At)
   if (AtomTranslations == MaxAtomTranslations) {
     Atom * nt = (Atom *)malloc(sizeof(Atom)*2*MaxAtomTranslations), *ot = SWI_Atoms;
     if (nt == NULL) {
-      Yap_Error(SYSTEM_ERROR,MkAtomTerm(At),"No more room for translations");
+      Yap_Error(SYSTEM_ERROR_INTERNAL,MkAtomTerm(At),"No more room for translations");
       return -1;
     }
     memcpy(nt, ot, sizeof(Atom)*MaxAtomTranslations);
@@ -4074,7 +4074,7 @@ YAP_FunctorToInt(Functor f)
   if (FunctorTranslations == MaxFunctorTranslations) {
     Functor * nt = (Functor *)malloc(sizeof(Functor)*2*MaxFunctorTranslations), *ot = SWI_Functors;
     if (nt == NULL) {
-      Yap_Error(SYSTEM_ERROR,MkAtomTerm(At),"No more room for translations");
+      Yap_Error(SYSTEM_ERROR_INTERNAL,MkAtomTerm(At),"No more room for translations");
       return -1;
     }
     memcpy(nt, ot, sizeof(Functor)*MaxFunctorTranslations);

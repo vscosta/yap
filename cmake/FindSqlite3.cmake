@@ -91,7 +91,7 @@ else (SQLITE3_LIBRARIES AND SQLITE3_INCLUDE_DIRS)
     endif (NOT Sqlite3_FIND_QUIETLY)
   else (SQLITE3_FOUND)
     if (Sqlite3_FIND_REQUIRED)
-      message(FATAL_ERROR "Could not find Sqlite3")
+      message(SYSTEM_ERROR_FATAL "Could not find Sqlite3")
     endif (Sqlite3_FIND_REQUIRED)
   endif (SQLITE3_FOUND)
 

@@ -777,14 +777,14 @@ CACHE_Y(YREG);
 	SET_ASP(YREG, E_CB*sizeof(CELL));
 	saveregs();
 	while ((t = Yap_FetchTermFromDB(cl->lusl.ClSource)) == 0L) {
-	  if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	  if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
 	    LOCAL_Error_TYPE = YAP_NO_ERROR;
 	    if (!Yap_growglobal(NULL)) {
 	      UNLOCKPE(3,PP);
 #if defined(YAPOR) || defined(THREADS)
 	      PP = NULL;
 #endif
-	      Yap_NilError(OUT_OF_ATTVARS_ERROR, LOCAL_ErrorMessage);
+	      Yap_NilError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, LOCAL_ErrorMessage);
 	      FAIL();
 	    }
 	  } else {
@@ -794,7 +794,7 @@ CACHE_Y(YREG);
 #if defined(YAPOR) || defined(THREADS)
 	      PP = NULL;
 #endif
-	      Yap_NilError(OUT_OF_STACK_ERROR, LOCAL_ErrorMessage);
+	      Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage);
 	      FAIL();
 	    }
 	  }
@@ -918,7 +918,7 @@ CACHE_Y(YREG);
 	  PREG = NEXTOP(PREG,Osbpa);
 	  saveregs();
 	  if (!Yap_gcl(sz, arity, YENV, PREG)) {
-	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+	    Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  } else {
@@ -12793,7 +12793,7 @@ S_SREG = RepAppl(d0);
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2S_VV_SECONDIFOK_FIRSTIFOK_IFOK);
 ///#endif
-	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+	    Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -12974,7 +12974,7 @@ S_SREG = RepAppl(d0);
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2S_CV_D1GREATER_IFOK_IFOK);
 ///#endif
-	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+	    Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -13139,7 +13139,7 @@ S_SREG = RepAppl(d0);
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2S_VC_IFOK_IFOK);
 ///#endif
-	  Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+	  Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
 	  setregs();
 	  JMPNext();
 	} else {
@@ -13307,7 +13307,7 @@ S_SREG = RepAppl(d0);
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2S_Y_VV_D1GREATER_IFOK_IFOK);
 ///#endif
-	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+	    Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -13498,7 +13498,7 @@ S_SREG = RepAppl(d0);
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2S_Y_CV_D1GREATER_IFOK_IFOK);
 ///#endif
-	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+	    Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -13684,7 +13684,7 @@ S_SREG = RepAppl(d0);
 ///#ifdef PROFILED_ABSMI
         EMIT_SIMPLE_BLOCK(P_FUNC2S_Y_VC_IFOK_IFOK);
 ///#endif
-	  Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+	  Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
 	  setregs();
 	  JMPNext();
 	} else {
@@ -14182,7 +14182,7 @@ S_SREG = RepAppl(d0);
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
 	  if (!Yap_gcl((1+d1)*sizeof(CELL), 3, YREG, NEXTOP(NEXTOP(PREG,e),Osbmp))) {
-	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+	    Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {

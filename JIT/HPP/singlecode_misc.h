@@ -71,12 +71,12 @@
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
 	saveregs(); \
 	while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) { \
-	  if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) { \
+	  if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) { \
 	    LOCAL_Error_TYPE = YAP_NO_ERROR; \
 	    if (!Yap_growglobal(NULL)) { \
 	      UNLOCKPE(3,PP); \
 	      PP = NULL; \
-	      Yap_NilError(OUT_OF_ATTVARS_ERROR, LOCAL_ErrorMessage); \
+	      Yap_NilError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, LOCAL_ErrorMessage); \
 		  YAAM_FAIL; \
 		  break; \
 	    } \
@@ -85,7 +85,7 @@
 	    if (!Yap_gc(3, ENV, CP)) { \
 	      UNLOCKPE(4,PP); \
 	      PP = NULL; \
-	      Yap_NilError(OUT_OF_STACK_ERROR, LOCAL_ErrorMessage); \
+	      Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage); \
 		  YAAM_FAIL; \
 	      break; \
 	    } \
@@ -125,12 +125,12 @@
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
 	saveregs(); \
 	while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) { \
-	  if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) { \
+	  if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) { \
 	    LOCAL_Error_TYPE = YAP_NO_ERROR; \
 	    if (!Yap_growglobal(NULL)) { \
 	      UNLOCKPE(3,PP); \
 	      PP = NULL; \
-	      Yap_NilError(OUT_OF_ATTVARS_ERROR, LOCAL_ErrorMessage); \
+	      Yap_NilError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, LOCAL_ErrorMessage); \
 		  YAAM_FAIL; \
 		  break; \
 	    } \
@@ -139,7 +139,7 @@
 	    if (!Yap_gc(3, ENV, CP)) { \
 	      UNLOCKPE(4,PP); \
 	      PP = NULL; \
-	      Yap_NilError(OUT_OF_STACK_ERROR, LOCAL_ErrorMessage); \
+	      Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage); \
 		  YAAM_FAIL; 		  tofail = 1; \
 	      break; \
 	    } \
@@ -180,12 +180,12 @@
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
 	saveregs(); \
 	while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) { \
-	  if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) { \
+	  if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) { \
 	    LOCAL_Error_TYPE = YAP_NO_ERROR; \
 	    if (!Yap_growglobal(NULL)) { \
 	      UNLOCKPE(3,PP); \
 	      PP = NULL; \
-	      Yap_NilError(OUT_OF_ATTVARS_ERROR, LOCAL_ErrorMessage); \
+	      Yap_NilError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, LOCAL_ErrorMessage); \
 		  YAAM_FAIL; \
 		  break; \
 	    } \
@@ -194,7 +194,7 @@
 	    if (!Yap_gc(3, ENV, CP)) { \
 	      UNLOCKPE(4,PP); \
 	      PP = NULL; \
-	      Yap_NilError(OUT_OF_STACK_ERROR, LOCAL_ErrorMessage); \
+	      Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage); \
 		  YAAM_FAIL; \
 	      break; \
 	    } \
@@ -234,12 +234,12 @@
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
 	saveregs(); \
 	while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) { \
-	  if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) { \
+	  if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) { \
 	    LOCAL_Error_TYPE = YAP_NO_ERROR; \
 	    if (!Yap_growglobal(NULL)) { \
 	      UNLOCKPE(3,PP); \
 	      PP = NULL; \
-	      Yap_NilError(OUT_OF_ATTVARS_ERROR, LOCAL_ErrorMessage); \
+	      Yap_NilError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, LOCAL_ErrorMessage); \
 		  YAAM_FAIL; \
 		  break; \
 	    } \
@@ -248,7 +248,7 @@
 	    if (!Yap_gc(3, ENV, CP)) { \
 	      UNLOCKPE(4,PP); \
 	      PP = NULL; \
-	      Yap_NilError(OUT_OF_STACK_ERROR, LOCAL_ErrorMessage); \
+	      Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage); \
 		  YAAM_FAIL; \
 	      break; \
 	    } \
@@ -291,11 +291,11 @@
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
 	saveregs(); \
 	while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) { \
-	  if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) { \
+	  if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) { \
 	    LOCAL_Error_TYPE = YAP_NO_ERROR; \
 	    if (!Yap_growglobal(NULL)) { \
 	      UNLOCKPE(3,PP); \
-	      Yap_NilError(OUT_OF_ATTVARS_ERROR, LOCAL_ErrorMessage); \
+	      Yap_NilError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, LOCAL_ErrorMessage); \
 		  YAAM_FAIL; \
 		  break; \
 	    } \
@@ -303,7 +303,7 @@
 	    LOCAL_Error_TYPE = YAP_NO_ERROR; \
 	    if (!Yap_gc(3, ENV, CP)) { \
 	      UNLOCKPE(4,PP); \
-	      Yap_NilError(OUT_OF_STACK_ERROR, LOCAL_ErrorMessage); \
+	      Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage); \
 		  YAAM_FAIL; \
 	      break; \
 	    } \
@@ -341,11 +341,11 @@
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
 	saveregs(); \
 	while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) { \
-	  if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) { \
+	  if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) { \
 	    LOCAL_Error_TYPE = YAP_NO_ERROR; \
 	    if (!Yap_growglobal(NULL)) { \
 	      UNLOCKPE(3,PP); \
-	      Yap_NilError(OUT_OF_ATTVARS_ERROR, LOCAL_ErrorMessage); \
+	      Yap_NilError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, LOCAL_ErrorMessage); \
 		  YAAM_FAIL; \
 		  break; \
 	    } \
@@ -353,7 +353,7 @@
 	    LOCAL_Error_TYPE = YAP_NO_ERROR; \
 	    if (!Yap_gc(3, ENV, CP)) { \
 	      UNLOCKPE(4,PP); \
-	      Yap_NilError(OUT_OF_STACK_ERROR, LOCAL_ErrorMessage); \
+	      Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage); \
 		  YAAM_FAIL; \
 	      break; \
 	    } \
@@ -392,11 +392,11 @@
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
 	saveregs(); \
 	while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) { \
-	  if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) { \
+	  if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) { \
 	    LOCAL_Error_TYPE = YAP_NO_ERROR; \
 	    if (!Yap_growglobal(NULL)) { \
 	      UNLOCKPE(3,PP); \
-	      Yap_NilError(OUT_OF_ATTVARS_ERROR, LOCAL_ErrorMessage); \
+	      Yap_NilError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, LOCAL_ErrorMessage); \
 		  YAAM_FAIL; \
 		  break; \
 	    } \
@@ -404,7 +404,7 @@
 	    LOCAL_Error_TYPE = YAP_NO_ERROR; \
 	    if (!Yap_gc(3, ENV, CP)) { \
 	      UNLOCKPE(4,PP); \
-	      Yap_NilError(OUT_OF_STACK_ERROR, LOCAL_ErrorMessage); \
+	      Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage); \
 		  YAAM_FAIL; \
 	      break; \
 	    } \
@@ -442,11 +442,11 @@
 	SET_ASP(YREG, E_CB*sizeof(CELL)); \
 	saveregs(); \
 	while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) { \
-	  if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) { \
+	  if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) { \
 	    LOCAL_Error_TYPE = YAP_NO_ERROR; \
 	    if (!Yap_growglobal(NULL)) { \
 	      UNLOCKPE(3,PP); \
-	      Yap_NilError(OUT_OF_ATTVARS_ERROR, LOCAL_ErrorMessage); \
+	      Yap_NilError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, LOCAL_ErrorMessage); \
 		  YAAM_FAIL; \
 		  break; \
 	    } \
@@ -454,7 +454,7 @@
 	    LOCAL_Error_TYPE = YAP_NO_ERROR; \
 	    if (!Yap_gc(3, ENV, CP)) { \
 	      UNLOCKPE(4,PP); \
-	      Yap_NilError(OUT_OF_STACK_ERROR, LOCAL_ErrorMessage); \
+	      Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage); \
 		  YAAM_FAIL; \
 	      break; \
 	    } \
@@ -557,7 +557,7 @@
 	  saveregs();
 
 #define ENSURE_SPACE_SECONDIFOK \
-	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage); \
+	    Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage); \
 	    setregs(); \
 	    FAIL();
 

@@ -805,7 +805,7 @@ InitProfTree(void)
     reset_tree();
   while (!(GLOBAL_ProfilerRoot = RBTreeCreate())) {
     if (!Yap_growheap(FALSE, 0, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "while initialisating profiler");
+      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "while initialisating profiler");
       return FALSE;
     }    
   }

@@ -1263,7 +1263,7 @@ ans_node_ptr mode_directed_answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 	} else if (mode == MODE_DIRECTED_FIRST) {
 	  current_ans_node = NULL;
 	} else
-	  Yap_Error(INTERNAL_ERROR, TermNil, "mode_directed_answer_search: unknown mode");
+	  Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "mode_directed_answer_search: unknown mode");
 	UNLOCK_ANSWER_NODE(current_ans_node);
       }
       n_subs--;
@@ -1679,7 +1679,7 @@ void showTable(tab_ent_ptr tab_ent, int show_mode, FILE *out) {
       } else if (mode == MODE_DIRECTED_FIRST) {
 	fprintf(TrStat_out, "first");
       } else
-	Yap_Error(INTERNAL_ERROR, TermNil, "show_table: unknown mode");
+	Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "show_table: unknown mode");
       if (i != MODE_DIRECTED_GET_ARG(mode_directed[i]))
 	fprintf(TrStat_out, "(ARG%d)", MODE_DIRECTED_GET_ARG(mode_directed[i]) + 1);
       if (i + 1 != TabEnt_arity(tab_ent))

@@ -546,7 +546,7 @@ initFlag(flag_info *f, int fnum, bool global)
     fprop = (FlagEntry *) Yap_AllocAtomSpace(sizeof(FlagEntry));
     if (fprop == NULL) {
       WRITE_UNLOCK(ae->ARWLock);
-      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"not enough space for new Flag %s", ae->StrOfAE);          return;
+      Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"not enough space for new Flag %s", ae->StrOfAE);          return;
     }
     fprop->KindOfPE = FlagProperty;
     fprop->FlagOfVE = fnum;

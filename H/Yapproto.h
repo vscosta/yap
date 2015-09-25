@@ -170,8 +170,6 @@ void	Yap_RestartYap(int);
 void	Yap_exit(int);
 bool    Yap_Warning( const char *s, ... );
 bool    Yap_PrintWarning( Term t );
-yamop  *Yap_Error(yap_error_number,Term,const char *msg, ...);
-yamop  *Yap_NilError(yap_error_number,const char *msg, ...);
 int     Yap_HandleError( const char *msg, ... );
 int     Yap_SWIHandleError( const char *, ... );
 
@@ -288,6 +286,7 @@ void	Yap_InitIOPreds(void);
 extern void Yap_DebugPlWrite (Term t);
 extern void Yap_DebugErrorPutc (int n);
 extern void Yap_DebugErrorPuts (const char *s);
+extern void Yap_DebugWriteIndicator( struct pred_entry *ap );
 #endif
 void    Yap_PlWriteToStream(Term, int, int);
 /* depth_lim.c */
@@ -364,7 +363,10 @@ void  Yap_InitSockets (void);
 void    Yap_InitSortPreds(void);
 
 /* stack.c */
-void    Yap_InitStInfo(void);
+void   Yap_InitStInfo(void);
+void   Yap_dump_stack( void );
+void   Yap_detect_bug_location(yamop *yap_pc, int where_from, char *tp, int psize);
+
 #if !defined(YAPOR) && !defined(THREADS)
 bool  Yap_search_for_static_predicate_in_use(struct pred_entry *, bool);
 #endif

@@ -580,7 +580,7 @@ source_module(Mod) :-
 	'$is_mt'(HM, H, SM, B, IB, NSM),
 	'$module_u_vars'(H,UVars,HM),	 % collect head variables in
 					 % expanded positions
-	'$expand_modules'(IB, B1, BO, HM, BM, NSM, UVars),
+	'$expand_modules'(IB, B1, BO, HM, BM, NSM, UVars-H),
 	('$full_clause_optimisation'(H, NSM, BO, BOO) ->
 	  true
 	  ;
@@ -644,7 +644,7 @@ source_module(Mod) :-
 %
 %
 %'$expand_modules'(V,NG,NG,_,_,SM,HVars):-l writeln(V), fail.
-'$expand_modules'(V,NG,NG,_,_,SM,HVars) :-
+'$expand_modules'(V,NG,NG,_,_,SM,HVars-_) :-
 	var(V), !,
 	( '$not_in_vars'(V,HVars)
 	->
@@ -759,10 +759,10 @@ source_module(Mod) :-
 expand_goal(G, G) :-
 	var(G), !.
 expand_goal(M:G, M:NG) :-
-	'$do_expand'(G, M, prolog, [], NG), !.
+	'$do_expand'(G, M, prolog, []-G, NG), !.
 expand_goal(G, NG) :-
 	'$current_module'(Mod),
-	'$do_expand'(G, Mod, prolog, [],  NG), !.
+	'$do_expand'(G, Mod, prolog, []-G,  NG), !.
 expand_goal(G, G).
 
 '$do_expand'(G, _HM, _BM, _SM, _, G) :- var(G), !.
@@ -818,11 +818,11 @@ expand_goal(G, G).
 	'$do_expand'(G, HM, BM, SM, HVars, GI),
 	GI \== G, !,
 	'$expand_modules'(GI, G1, GO, HM, BM, SM, HVars).
-'$complete_goal_expansion'(G, HM, BM, SM, G1, G2, _HVars) :-
+'$complete_goal_expansion'(G, HM, BM, SM, G1, G2, _HVars-H) :-
 	'$all_system_predicate'(G, BM, BM0), !,
 	% make built-in processing transparent.
        '$match_mod'(G, HM, BM0, SM, G1),
-       '$c_built_in'(G1, SM, G2).
+       '$c_built_in'(G1, SM, H, G2).
 '$complete_goal_expansion'(G, HM, BM, SM, NG, NG, _) :-
 	'$match_mod'(G, HM, BM, SM, NG).
 

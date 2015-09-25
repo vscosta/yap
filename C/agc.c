@@ -348,7 +348,7 @@ mark_global_cell(CELL *pt)
 	  CELL ar[256];
 	  Int i,n = (f)(Yap_BlobTag(t), Yap_BlobInfo(t), ar, 256);
 	  if (n < 0) {
-	    Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"not enough space for slot internal variables in agc");
+	    Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"not enough space for slot internal variables in agc");
 	      }
 	  for (i = 0; i< n; i++) {
 	    CELL *pt = ar+i;
@@ -360,7 +360,7 @@ mark_global_cell(CELL *pt)
 	  if ( (f2 = Yap_blob_gc_relocate_handler(t)) < 0 ) {
 	    int out = (f2)(Yap_BlobTag(t), Yap_BlobInfo(t), ar, n);
 	    if (out < 0)
-	      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"bad restore of slot internal variables in agc");
+	      Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"bad restore of slot internal variables in agc");
 	  }
 	}
 
@@ -436,7 +436,6 @@ clean_atom_list(AtomHashEntry *HashPtr)
 #ifdef DEBUG_RESTORE3
 	fprintf(stderr, "Purged %p:%s patm=%p %p\n", at, at->StrOfAE, patm, at->NextOfAE);
 #endif
-	GLOBAL_agc_collected += sizeof(AtomEntry)+strlen(at->StrOfAE);
 	GLOBAL_agc_collected += sizeof(AtomEntry)+strlen((const char *)at->StrOfAE);
       }
       *patm = atm = at->NextOfAE;

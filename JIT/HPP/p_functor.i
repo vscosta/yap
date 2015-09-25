@@ -180,7 +180,7 @@
 	                  if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) { \
 	                    saveregs(); \
 	                    if (!Yap_gcl((1+d1)*sizeof(CELL), 3, YREG, NEXTOP(NEXTOP((*_PREG),e),Osbmp))) { \
-	                      Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage); \
+	                      Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage); \
 	                      setregs(); \
 	                      JMPNext(); \
 						  break; \
@@ -259,7 +259,7 @@
 	              if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) { \
 	                saveregs(); \
 	                if (!Yap_gcl((1+d1)*sizeof(CELL), 3, YREG, NEXTOP(NEXTOP((*_PREG),e),Osbmp))) { \
-	                  Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage); \
+	                  Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage); \
 	                  setregs(); \
 	                  JMPNext(); \
 					  break; \
@@ -345,7 +345,7 @@
 	              if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) { \
 	                saveregs(); \
 	                if (!Yap_gcl((1+d1)*sizeof(CELL), 3, YREG, NEXTOP(NEXTOP((*_PREG),e),Osbmp))) { \
-	                  Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage); \
+	                  Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage); \
 	                  setregs(); \
 	                  JMPNext(); \
 					  break; \
@@ -424,7 +424,7 @@
 	          if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) { \
 	            saveregs(); \
 	            if (!Yap_gcl((1+d1)*sizeof(CELL), 3, YREG, NEXTOP(NEXTOP((*_PREG),e),Osbmp))) { \
-	              Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage); \
+	              Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage); \
 	              setregs(); \
 	              JMPNext(); \
 				  break; \
@@ -744,7 +744,7 @@
 	                  if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) { \
 	                    saveregs(); \
 	                    if (!Yap_gcl((1+d1)*sizeof(CELL), 3, YREG, NEXTOP(NEXTOP((*_PREG),e),Osbmp))) { \
-	                      Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage); \
+	                      Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage); \
 	                      setregs(); \
 	                      JMPNext(); \
 						  break; \
@@ -823,7 +823,7 @@
 	              if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) { \
 	                saveregs(); \
 	                if (!Yap_gcl((1+d1)*sizeof(CELL), 3, YREG, NEXTOP(NEXTOP((*_PREG),e),Osbmp))) { \
-	                  Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage); \
+	                  Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage); \
 	                  setregs(); \
 	                  JMPNext(); \
 					  break; \
@@ -909,7 +909,7 @@
 	              if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) { \
 	                saveregs(); \
 	                if (!Yap_gcl((1+d1)*sizeof(CELL), 3, YREG, NEXTOP(NEXTOP((*_PREG),e),Osbmp))) { \
-	                  Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage); \
+	                  Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage); \
 	                  setregs(); \
 	                  JMPNext(); \
 					  break; \
@@ -988,7 +988,7 @@
 	          if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) { \
 	            saveregs(); \
 	            if (!Yap_gcl((1+d1)*sizeof(CELL), 3, YREG, NEXTOP(NEXTOP((*_PREG),e),Osbmp))) { \
-	              Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage); \
+	              Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage); \
 	              setregs(); \
 	              JMPNext(); \
 				  break; \

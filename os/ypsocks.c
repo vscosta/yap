@@ -195,9 +195,9 @@ Yap_init_socks(char *host, long interface_port)
    he = gethostbyname(host);
    if (he == NULL) {
 #if HAVE_STRERROR
-     Yap_Error(SYSTEM_ERROR, TermNil, "can not get address for host %s: %s", host, strerror(h_errno));
+     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "can not get address for host %s: %s", host, strerror(h_errno));
 #else
-     Yap_Error(SYSTEM_ERROR, TermNil, "can not get address for host");
+     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "can not get address for host");
 #endif
      return;
    }
@@ -217,9 +217,9 @@ Yap_init_socks(char *host, long interface_port)
    s = socket ( AF_INET, SOCK_STREAM, 0);
    if (s<0) {
 #if HAVE_STRERROR
-     Yap_Error(SYSTEM_ERROR, TermNil, "could not create socket: %s", strerror(errno));
+     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "could not create socket: %s", strerror(errno));
 #else
-     Yap_Error(SYSTEM_ERROR, TermNil, "could not create socket");
+     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "could not create socket");
 #endif
      return;
    }
@@ -231,10 +231,10 @@ Yap_init_socks(char *host, long interface_port)
    if (setsockopt(s, SOL_SOCKET, SO_LINGER, (void *) &ling,
 		  sizeof(ling)) < 0) {
 #if HAVE_STRERROR
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_connect/3 (setsockopt_linger: %s)", strerror(socket_errno));
 #else
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_connect/3 (setsockopt_linger)");
 #endif
       return;
@@ -244,9 +244,9 @@ Yap_init_socks(char *host, long interface_port)
    r = connect ( s, (struct sockaddr *) &soadr, sizeof(soadr));
    if (r<0) {
 #if HAVE_STRERROR
-     Yap_Error(SYSTEM_ERROR, TermNil, "connect failed, could not connect to interface: %s", strerror(errno));
+     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "connect failed, could not connect to interface: %s", strerror(errno));
 #else
-     Yap_Error(SYSTEM_ERROR, TermNil, "connect failed, could not connect to interface");
+     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "connect failed, could not connect to interface");
 #endif
      return;
    }
@@ -254,25 +254,25 @@ Yap_init_socks(char *host, long interface_port)
 #if HAVE_DUP2 && !defined(__MINGW32__)
    if(dup2(s,0)<0) {
 #if HAVE_STRERROR
-     Yap_Error(SYSTEM_ERROR, TermNil, "could not dup2 stdin: %s", strerror(errno));
+     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "could not dup2 stdin: %s", strerror(errno));
 #else
-     Yap_Error(SYSTEM_ERROR, TermNil, "could not dup2 stdin");
+     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "could not dup2 stdin");
 #endif
      return;
    }
    if(dup2(s,1)<0) {
 #if HAVE_STRERROR
-     Yap_Error(SYSTEM_ERROR, TermNil, "could not dup2 stdout: %s", strerror(errno));
+     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "could not dup2 stdout: %s", strerror(errno));
 #else
-     Yap_Error(SYSTEM_ERROR, TermNil, "could not dup2 stdout");
+     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "could not dup2 stdout");
 #endif
      return;
    }
    if(dup2(s,2)<0) {
 #if HAVE_STRERROR
-     Yap_Error(SYSTEM_ERROR, TermNil, "could not dup2 stderr: %s", strerror(errno));
+     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "could not dup2 stderr: %s", strerror(errno));
 #else
-     Yap_Error(SYSTEM_ERROR, TermNil, "could not dup2 stderr");
+     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "could not dup2 stderr");
 #endif
      return;
    }
@@ -316,7 +316,7 @@ Yap_init_socks(char *host, long interface_port)
    close(s);
 #endif
 #else /* HAVE_SOCKET */
-   Yap_Error(SYSTEM_ERROR, TermNil, "sockets not installed", strerror(errno));
+   Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "sockets not installed", strerror(errno));
 #endif /* HAVE_SOCKET */
 }
 
@@ -453,10 +453,10 @@ p_socket(USES_REGS1)
   fd = socket(domain, type, protocol);
   if (invalid_socket_fd(fd)) {
 #if HAVE_STRERROR
-    Yap_Error(SYSTEM_ERROR, TermNil,
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	"socket/4 (socket: %s)", strerror(socket_errno));
 #else
-    Yap_Error(SYSTEM_ERROR, TermNil,
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	  "socket/4 (socket)");
 #endif
     return(FALSE);
@@ -489,7 +489,7 @@ Yap_CloseSocket(int fd, socket_info status, socket_domain domain)
     char bfr;
 
     if (shutdown(fd, 1) != 0) {
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_close/1 (close)");
       return(FALSE);
     }
@@ -499,7 +499,7 @@ Yap_CloseSocket(int fd, socket_info status, socket_domain domain)
     /* prevent further reading
        from the socket */
     if (shutdown(fd, 0) < 0)  {
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_close/1 (close)");
       return(FALSE);
     }
@@ -507,10 +507,10 @@ Yap_CloseSocket(int fd, socket_info status, socket_domain domain)
     /* close the socket */
     if (closesocket(fd) != 0) {
 #if HAVE_STRERROR
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_close/1 (close: %s)", strerror(socket_errno));
 #else
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_close/1 (close)");
 #endif
     }
@@ -519,10 +519,10 @@ Yap_CloseSocket(int fd, socket_info status, socket_domain domain)
       status == client_socket) {
     if (shutdown(fd,2) < 0) {
 #if HAVE_STRERROR
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_close/1 (shutdown: %s)", strerror(socket_errno));
 #else
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_close/1 (shutdown)");
 #endif
       return(FALSE);
@@ -530,10 +530,10 @@ Yap_CloseSocket(int fd, socket_info status, socket_domain domain)
   }
   if (close(fd) != 0) {
 #if HAVE_STRERROR
-    Yap_Error(SYSTEM_ERROR, TermNil,
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_close/1 (close: %s)", strerror(socket_errno));
 #else
-    Yap_Error(SYSTEM_ERROR, TermNil,
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_close/1 (close)");
 #endif
 #endif
@@ -611,10 +611,10 @@ p_socket_bind(USES_REGS1)
 	     ((size_t) (((struct sockaddr_un *) 0)->sun_path) + len))
 	< 0) {
 #if HAVE_STRERROR
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_bind/2 (bind: %s)", strerror(socket_errno));
 #else
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_bind/2 (bind)");
 #endif
       return(FALSE);
@@ -641,10 +641,10 @@ p_socket_bind(USES_REGS1)
       shost = RepAtom(AtomOfTerm(thost))->StrOfAE;
       if((he=gethostbyname(shost))==NULL) {
 #if HAVE_STRERROR
-	Yap_Error(SYSTEM_ERROR, TermNil,
+	Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	      "socket_bind/2 (gethostbyname: %s)", strerror(socket_errno));
 #else
-	Yap_Error(SYSTEM_ERROR, TermNil,
+	Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	      "socket_bind/2 (gethostbyname)");
 #endif
 	return(FALSE);
@@ -660,10 +660,10 @@ p_socket_bind(USES_REGS1)
     saddr.sin_family = AF_INET;
     if(bind(fd,(struct sockaddr *)&saddr, sizeof(saddr))==-1) {
 #if HAVE_STRERROR
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_bind/2 (bind: %s)", strerror(socket_errno));
 #else
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_bind/2 (bind)");
 #endif
       return(FALSE);
@@ -679,10 +679,10 @@ p_socket_bind(USES_REGS1)
       Term t;
       if (getsockname(fd, (struct sockaddr *)&saddr, &namelen) < 0) {
 #if HAVE_STRERROR
-	Yap_Error(SYSTEM_ERROR, TermNil,
+	Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	      "socket_bind/2 (getsockname: %s)", strerror(socket_errno));
 #else
-	Yap_Error(SYSTEM_ERROR, TermNil,
+	Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	      "socket_bind/2 (getsockname)");
 #endif
 	return(FALSE);
@@ -754,10 +754,10 @@ p_socket_connect(USES_REGS1)
 		   ((size_t) (((struct sockaddr_un *) 0)->sun_path) + len)))
 	< 0) {
 #if HAVE_STRERROR
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_connect/3 (connect: %s)", strerror(socket_errno));
 #else
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_connect/3 (connect)");
 #endif
       return(FALSE);
@@ -784,10 +784,10 @@ p_socket_connect(USES_REGS1)
       shost = RepAtom(AtomOfTerm(thost))->StrOfAE;
       if((he=gethostbyname(shost))==NULL) {
 #if HAVE_STRERROR
-	Yap_Error(SYSTEM_ERROR, TermNil,
+	Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	      "socket_connect/3 (gethostbyname: %s)", strerror(socket_errno));
 #else
-	Yap_Error(SYSTEM_ERROR, TermNil,
+	Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	      "socket_connect/3 (gethostbyname)");
 #endif
 	return(FALSE);
@@ -814,10 +814,10 @@ p_socket_connect(USES_REGS1)
       if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (void *) &ling,
 		     sizeof(ling)) < 0) {
 #if HAVE_STRERROR
-	Yap_Error(SYSTEM_ERROR, TermNil,
+	Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 		  "socket_connect/3 (setsockopt_linger: %s)", strerror(socket_errno));
 #else
-	Yap_Error(SYSTEM_ERROR, TermNil,
+	Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 		  "socket_connect/3 (setsockopt_linger)");
 #endif
 	return FALSE;
@@ -830,10 +830,10 @@ p_socket_connect(USES_REGS1)
 
       if (setsockopt(fd, SOL_SOCKET, SO_BROADCAST, (void *)&one, sizeof(one))) {
 #if HAVE_STRERROR
-	Yap_Error(SYSTEM_ERROR, TermNil,
+	Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 		  "socket_connect/3 (setsockopt_broadcast: %s)", strerror(socket_errno));
 #else
-	Yap_Error(SYSTEM_ERROR, TermNil,
+	Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 		  "socket_connect/3 (setsockopt_broadcast)");
 #endif
 	return FALSE;
@@ -843,10 +843,10 @@ p_socket_connect(USES_REGS1)
     flag = connect(fd,(struct sockaddr *)&saddr, sizeof(saddr));
     if(flag<0) {
 #if HAVE_STRERROR
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_connect/3 (connect: %s)", strerror(socket_errno));
 #else
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_connect/3 (connect)");
 #endif
       return FALSE;
@@ -892,10 +892,10 @@ p_socket_listen(USES_REGS1)
   }
   if (listen(fd,j) < 0) {
 #if HAVE_STRERROR
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_listen/2 (listen: %s)", strerror(socket_errno));
 #else
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_listen/2 (listen)");
 #endif
   }
@@ -930,10 +930,10 @@ p_socket_accept(USES_REGS1)
     memset((void *)&caddr,(int) 0, sizeof(caddr));
     if ((fd=accept(ofd, (struct sockaddr *)&caddr, &len)) < 0) {
 #if HAVE_STRERROR
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_accept/3 (accept: %s)", strerror(socket_errno));
 #else
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	       "socket_accept/3 (accept)");
 #endif
     }
@@ -955,20 +955,20 @@ p_socket_accept(USES_REGS1)
     memset((void *)&caddr,(int) 0, sizeof(caddr));
     if (invalid_socket_fd(fd=accept(ofd, (struct sockaddr *)&caddr, &len))) {
 #if HAVE_STRERROR
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_accept/3 (accept: %s)", strerror(socket_errno));
 #else
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_accept/3 (accept)");
 #endif
       return(FALSE);
     }
     if ((s = inet_ntoa(caddr.sin_addr)) == NULL) {
 #if HAVE_STRERROR
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_accept/3 (inet_ntoa: %s)", strerror(socket_errno));
 #else
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_accept/3 (inet_ntoa)");
 #endif
     }
@@ -1148,10 +1148,10 @@ p_socket_select(USES_REGS1)
   /* do the real work */
   if (select(fdmax+1, &readfds, &writefds, &exceptfds, ptime) < 0) {
 #if HAVE_STRERROR
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_select/5 (select: %s)", strerror(socket_errno));
 #else
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "socket_select/5 (select)");
 #endif
   }
@@ -1173,10 +1173,10 @@ p_current_host(USES_REGS1) {
   name = oname;
   if (gethostname(name, sizeof(oname)) < 0) {
 #if HAVE_STRERROR
-    Yap_Error(SYSTEM_ERROR, TermNil,
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	  "current_host/2 (gethostname: %s)", strerror(socket_errno));
 #else
-    Yap_Error(SYSTEM_ERROR, TermNil,
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	  "current_host/2 (gethostname)");
 #endif
     return(FALSE);
@@ -1187,10 +1187,10 @@ p_current_host(USES_REGS1) {
     /* not a fully qualified name, ask the name server */
     if((he=gethostbyname(name))==NULL) {
 #if HAVE_STRERROR
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "current_host/2 (gethostbyname: %s)", strerror(socket_errno));
 #else
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "current_host/2 (gethostbyname)");
 #endif
       return(FALSE);
@@ -1210,7 +1210,7 @@ p_current_host(USES_REGS1) {
     else {
       int isize = strlen(sin);
       if (isize >= 256) {
-	Yap_Error(SYSTEM_ERROR, ARG1,
+	Yap_Error(SYSTEM_ERROR_INTERNAL, ARG1,
 	      "current_host/2 (input longer than longest FAQ host name)");
 	return(FALSE);
       }
@@ -1252,10 +1252,10 @@ p_hostname_address(USES_REGS1) {
   if (IsVarTerm(t1)) {
     if ((he = gethostbyaddr(s, strlen(s), AF_INET)) == NULL) {
 #if HAVE_STRERROR
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "hostname_address/2 (gethostbyname: %s)", strerror(socket_errno));
 #else
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "hostname_address/2 (gethostbyname)");
 #endif
     }
@@ -1265,10 +1265,10 @@ p_hostname_address(USES_REGS1) {
     struct in_addr adr;
     if ((he = gethostbyname(s)) == NULL) {
 #if HAVE_STRERROR
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "hostname_address/2 (gethostbyname: %s)", strerror(socket_errno));
 #else
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "hostname_address/2 (gethostbyname)");
 #endif
     }

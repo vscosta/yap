@@ -652,22 +652,22 @@ static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream) {
   CACHE_REGS
   fe->t = 0;
   // running out of memory
-  if (LOCAL_Error_TYPE == OUT_OF_TRAIL_ERROR) {
+  if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL) {
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     if (!Yap_growtrail(sizeof(CELL) * K16, FALSE)) {
       return YAP_PARSING_FINISHED;
     }
-  } else if (LOCAL_Error_TYPE == OUT_OF_AUXSPACE_ERROR) {
+  } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK) {
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
       return YAP_PARSING_FINISHED;
     }
-  } else if (LOCAL_Error_TYPE == OUT_OF_HEAP_ERROR) {
+  } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_HEAP) {
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     if (!Yap_growheap(FALSE, 0, NULL)) {
       return YAP_PARSING_FINISHED;
     }
-  } else if (LOCAL_Error_TYPE == OUT_OF_STACK_ERROR) {
+  } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     if (!Yap_gcl(LOCAL_Error_Size, fe->nargs, ENV, CP)) {
       return YAP_PARSING_FINISHED;
@@ -695,10 +695,10 @@ static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream) {
 static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
   CACHE_REGS
   fe->t = 0;
-  if (LOCAL_Error_TYPE == OUT_OF_TRAIL_ERROR ||
-      LOCAL_Error_TYPE == OUT_OF_AUXSPACE_ERROR ||
-      LOCAL_Error_TYPE == OUT_OF_HEAP_ERROR ||
-      LOCAL_Error_TYPE == OUT_OF_STACK_ERROR) {
+  if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL ||
+      LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK ||
+      LOCAL_Error_TYPE == RESOURCE_ERROR_HEAP ||
+      LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
     return YAP_SCANNING_ERROR;
   }
   Term ParserErrorStyle = re->sy;
@@ -1234,7 +1234,7 @@ term_to_string(USES_REGS1) {
     s = Yap_TermToString(ARG2, NULL,  0, &length, 0, Quote_illegal_f|Handle_vars_f);
     if (!s || !
         MkStringTerm(s)) {
-       Yap_Error(RESOURCE_ERROR_MEMORY,t1,"Could not get memory from the operating system");
+       Yap_Error(RESOURCE_ERROR_HEAP,t1,"Could not get memory from the operating system");
        return false;
     }
     return Yap_unify(ARG2, MkStringTerm(s));
@@ -1267,7 +1267,7 @@ term_to_atom(USES_REGS1) {
     char * s =
     Yap_TermToString(t1, NULL,  0, &length, 0, Quote_illegal_f|Handle_vars_f);
     if (!s || !(at = Yap_LookupAtom(s))) {
-      Yap_Error(RESOURCE_ERROR_MEMORY,t1,"Could not get memory from the operating system");
+      Yap_Error(RESOURCE_ERROR_HEAP,t1,"Could not get memory from the operating system");
       return false;
     }
     return Yap_unify(ARG2, MkAtomTerm(at));

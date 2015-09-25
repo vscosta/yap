@@ -371,7 +371,7 @@ handle_cp_overflow(int res, tr_fr_ptr TR0, UInt arity, Term t)
   switch(res) {
   case -1:
     if (!Yap_gcl((ASP-HR)*sizeof(CELL), arity+1, ENV, gc_P(P,CP))) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return 0L;
     }
     return Deref(XREGS[arity+1]);
@@ -384,14 +384,14 @@ handle_cp_overflow(int res, tr_fr_ptr TR0, UInt arity, Term t)
       if (size > 4*1024*1024)
 	size = 4*1024*1024;
       if (!Yap_ExpandPreAllocCodeSpace(size, NULL, TRUE)) {
-	Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, LOCAL_ErrorMessage);
+	Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, LOCAL_ErrorMessage);
 	return 0L;
       }
     }
     return Deref(XREGS[arity+1]);
   case -4:
     if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), FALSE)) {
-      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_TRAIL, TermNil, LOCAL_ErrorMessage);
       return 0L;
     }
     return Deref(XREGS[arity+1]);
@@ -1270,7 +1270,7 @@ Yap_ImportTerm(char * buf) {
   // if not enough stack available
   while (HR + sz > ASP - 4096) {
     if (!Yap_gcl( (sz+4096)*sizeof(CELL), PP->ArityOfPE, ENV, gc_P(P,CP))) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return 0L;
     }
   }
@@ -1462,7 +1462,7 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;
+  LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
   LOCAL_Error_Size = (TR-TR0)*sizeof(tr_fr_ptr *);
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
@@ -1478,7 +1478,7 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
+  LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   HR = InitialH;
@@ -1495,7 +1495,7 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   HR = InitialH;
-  LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;
+  LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
   LOCAL_Error_Size = (ASP-HR)*sizeof(CELL);
   return 0L;
   
@@ -1509,12 +1509,12 @@ expand_vts( int args USES_REGS )
   
   LOCAL_Error_Size = 0;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
-  if (yap_errno == OUT_OF_TRAIL_ERROR) {
+  if (yap_errno == RESOURCE_ERROR_TRAIL) {
     /* Trail overflow */
     if (!Yap_growtrail(expand, FALSE)) {
       return FALSE;
     }
-  } else if (yap_errno == OUT_OF_AUXSPACE_ERROR) {
+  } else if (yap_errno == RESOURCE_ERROR_AUXILIARY_STACK) {
     /* Aux space overflow */
     if (expand > 4*1024*1024)
       expand = 4*1024*1024;
@@ -1523,7 +1523,7 @@ expand_vts( int args USES_REGS )
     }
   } else {
     if (!Yap_gcl(expand, 3, ENV, gc_P(P,CP))) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in term_variables");
+      Yap_Error(RESOURCE_ERROR_STACK, TermNil, "in term_variables");
       return FALSE;
     }
   }
@@ -1811,7 +1811,7 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;
+  LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
   LOCAL_Error_Size = (TR-TR0)*sizeof(tr_fr_ptr *);
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
@@ -1827,7 +1827,7 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
+  LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   HR = InitialH;
@@ -1844,7 +1844,7 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   HR = InitialH;
-  LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;
+  LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
   LOCAL_Error_Size = (ASP-HR)*sizeof(CELL);
   return 0L;
   
@@ -2043,7 +2043,7 @@ static Term vars_within_complex_term(register CELL *pt0, register CELL *pt0_end,
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;
+  LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
   LOCAL_Error_Size = (TR-TR0)*sizeof(tr_fr_ptr *);
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
@@ -2059,7 +2059,7 @@ static Term vars_within_complex_term(register CELL *pt0, register CELL *pt0_end,
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
+  LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   HR = InitialH;
@@ -2076,7 +2076,7 @@ static Term vars_within_complex_term(register CELL *pt0, register CELL *pt0_end,
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   HR = InitialH;
-  LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;
+  LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
   LOCAL_Error_Size = (ASP-HR)*sizeof(CELL);
   return 0L;
   
@@ -2248,7 +2248,7 @@ static Term new_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end,
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;
+  LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
   LOCAL_Error_Size = (TR-TR0)*sizeof(tr_fr_ptr *);
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
@@ -2264,7 +2264,7 @@ static Term new_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end,
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
+  LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   HR = InitialH;
@@ -2281,7 +2281,7 @@ static Term new_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end,
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   HR = InitialH;
-  LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;
+  LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
   LOCAL_Error_Size = (ASP-HR)*sizeof(CELL);
   return 0L;
   
@@ -2437,7 +2437,7 @@ static Term free_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;
+  LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
   LOCAL_Error_Size = (TR-TR0)*sizeof(tr_fr_ptr *);
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
@@ -2453,7 +2453,7 @@ static Term free_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
+  LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   HR = InitialH;
@@ -2470,7 +2470,7 @@ static Term free_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   HR = InitialH;
-  LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;
+  LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
   LOCAL_Error_Size = (ASP-HR)*sizeof(CELL);
   return 0L;
   
@@ -2582,7 +2582,7 @@ static Term bind_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;
+  LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
   LOCAL_Error_Size = (TR-TR0)*sizeof(tr_fr_ptr *);
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
@@ -2598,7 +2598,7 @@ static Term bind_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
+  LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   HR = InitialH;
@@ -2825,7 +2825,7 @@ p_non_singletons_in_term( USES_REGS1 )	/* non_singletons in term t		 */
       return Yap_unify(ARG3,out);
     } else {
       if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
-	Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "overflow in singletons");
+	Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, ARG1, "overflow in singletons");
 	return FALSE;
       }
     }
@@ -2971,7 +2971,7 @@ int Yap_IsGroundTerm(Term t)
     if (out < 0) {
       *HR++ = t;
       if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
-	Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "overflow in ground");
+	Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, ARG1, "overflow in ground");
 	return FALSE;
       }      
       t = *--HR;
@@ -3584,13 +3584,13 @@ Yap_TermHash(Term t, Int size, Int depth, int variant)
     CELL *ar = hash_complex_term(&t1-1, &t1, depth, HR, FALSE PASS_REGS);
     if (ar == (CELL *)-1) {
       if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
-	Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "overflow in term_hash");
+	Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, ARG1, "overflow in term_hash");
 	return FALSE;
       } 
       t1 = Deref(ARG1);
     } else if(ar == (CELL *)-2) {
       if (!Yap_gcl((ASP-HR)*sizeof(CELL), 0, ENV, gc_P(P,CP))) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in term_hash");
+	Yap_Error(RESOURCE_ERROR_STACK, TermNil, "in term_hash");
 	return FALSE;
       }
       t1 = Deref(ARG1);
@@ -3641,13 +3641,13 @@ p_term_hash( USES_REGS1 )
     CELL *ar = hash_complex_term(&t1-1, &t1, depth, HR, FALSE PASS_REGS);
     if (ar == (CELL *)-1) {
       if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
-	Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "overflow in term_hash");
+	Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, ARG1, "overflow in term_hash");
 	return FALSE;
       } 
       t1 = Deref(ARG1);
     } else if(ar == (CELL *)-2) {
       if (!Yap_gcl((ASP-HR)*sizeof(CELL), 4, ENV, gc_P(P,CP))) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in term_hash");
+	Yap_Error(RESOURCE_ERROR_STACK, TermNil, "in term_hash");
 	return FALSE;
       }
       t1 = Deref(ARG1);
@@ -3699,13 +3699,13 @@ p_instantiated_term_hash( USES_REGS1 )
     CELL *ar = hash_complex_term(&t1-1, &t1, depth, HR, TRUE PASS_REGS);
     if (ar == (CELL *)-1) {
       if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
-	Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "overflow in term_hash");
+	Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, ARG1, "overflow in term_hash");
 	return FALSE;
       } 
       t1 = Deref(ARG1);
     } else if(ar == (CELL *)-2) {
       if (!Yap_gcl((ASP-HR)*sizeof(CELL), 4, ENV, gc_P(P,CP))) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in term_hash");
+	Yap_Error(RESOURCE_ERROR_STACK, TermNil, "in term_hash");
 	return FALSE;
       }
       t1 = Deref(ARG1);
@@ -3952,7 +3952,7 @@ is_variant(Term t1, Term t2, int parity USES_REGS)
  error:
   if (out == -1) {
     if (!Yap_gcl((ASP-HR)*sizeof(CELL), parity, ENV, gc_P(P,CP))) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in variant");
+      Yap_Error(RESOURCE_ERROR_STACK, TermNil, "in variant");
       return FALSE;
     }
     return is_variant(t1, t2, parity PASS_REGS);
@@ -4501,13 +4501,13 @@ p_term_subsumer( USES_REGS1 ) /* term_subsumer terms t1 and t2	 */
       HR = oldH;
       if (out == -1) {
 	if (!Yap_gcl((ASP-HR)*sizeof(CELL), 0, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in term_subsumer");
+	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, "in term_subsumer");
 	  return FALSE;
 	}
       } else {
 	/* Trail overflow */
 	if (!Yap_growtrail(0, FALSE)) {
-	  Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "in term_subsumer");
+	  Yap_Error(RESOURCE_ERROR_TRAIL, TermNil, "in term_subsumer");
 	  return FALSE;
 	} 
       }
@@ -4728,7 +4728,7 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;
+  LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
   LOCAL_Error_Size = (TR-TR0)*sizeof(tr_fr_ptr *);
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
@@ -4744,7 +4744,7 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
+  LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   HR = InitialH;
@@ -4761,7 +4761,7 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   HR = InitialH;
-  LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;
+  LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
   LOCAL_Error_Size = (ASP-HR)*sizeof(CELL);
   return -1;
   
@@ -4908,7 +4908,7 @@ unnumber_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow, int share
 	  Int id = IntegerOfTerm(ap2[1]);
 	  ground = FALSE;
 	  if (id < -1) {
-	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, "unnumber vars cannot cope with VAR(-%d)", id);
+	    Yap_Error(RESOURCE_ERROR_STACK, TermNil, "unnumber vars cannot cope with VAR(-%d)", id);
 	    return 0L;
 	  }
 	  if (id <= max) {

@@ -772,21 +772,21 @@ clause_property(ClauseRef, file(FileName)) :-
 	( recorded('$mf','$mf_clause'(FileName,_Name,_Arity,_Module,ClauseRef),_R)
 	-> true
 	;
-	'$instance_property'(ClauseRef, 2, FileName) ).
+	instance_property(ClauseRef, 2, FileName) ).
 clause_property(ClauseRef, source(FileName)) :-
 	( recorded('$mf','$mf_clause'(FileName,_Name,_Arity,_Module,ClauseRef),_R)
 	-> true
 	;
-	'$instance_property'(ClauseRef, 2, FileName) ).
+	instance_property(ClauseRef, 2, FileName) ).
 clause_property(ClauseRef, line_count(LineNumber)) :-
-	'$instance_property'(ClauseRef, 4, LineNumber),
+	instance_property(ClauseRef, 4, LineNumber),
 	LineNumber > 0.
 clause_property(ClauseRef, fact) :-
-	'$instance_property'(ClauseRef, 3, true).
+	instance_property(ClauseRef, 3, true).
 clause_property(ClauseRef, erased) :-
-	'$instance_property'(ClauseRef, 0, true).
+	instance_property(ClauseRef, 0, true).
 clause_property(ClauseRef, predicate(PredicateIndicator)) :-
-	'$instance_property'(ClauseRef, 1, PredicateIndicator).
+	instance_property(ClauseRef, 1, PredicateIndicator).
 
 '$set_predicate_attribute'(M:N/Ar, Flag, V) :-
 	functor(P, N, Ar),

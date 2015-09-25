@@ -237,7 +237,7 @@ readNumber(
       text =
 	Yap_TermToString(Term t, NULL,  size_t sz, NULL, ENC_UTF8, 0);
       } catch(const std::range_error& e) {
-	Yap_Error(SYSTEM_ERROR, TermNil, "failed to convert the number", s);
+	Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "failed to convert the number", s);
 	return false;
       }
     }
@@ -260,7 +260,7 @@ bool addText(Term t, int flags = 0, char *buf=NULL, size_t sz = 0, size_t *fsz =
       text =
 	Yap_TermToString(Term t, buf, sz, fsz, ENC_UTF8, flags);
       } catch(const std::range_error& e) {
-	Yap_Error(SYSTEM_ERROR, TermNil, "failed to convert the number", s);
+	Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "failed to convert the number", s);
 	return false;
       }
     }

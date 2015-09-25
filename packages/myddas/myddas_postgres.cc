@@ -789,7 +789,7 @@ c_PG_row( USES_REGS1 ) {
 #endif /* MYDDAS_STATS */
   } else
     {
-      Yap_Error(SYSTEM_ERROR, TermNil, "PG: %s", PG_errmsg( db ) );
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "PG: %s", PG_errmsg( db ) );
     }
 	return rc;
 }

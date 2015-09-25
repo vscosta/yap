@@ -2800,7 +2800,7 @@
           /* make sure we have something to show for our trouble */
           saveregs();
           if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxx),Osbpp))) {
-            Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+            Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
             setregs();
             JMPNext();
           } else {
@@ -2917,7 +2917,7 @@
           /* make sure we have something to show for our trouble */
           saveregs();
           if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxc),Osbpp))) {
-            Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+            Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
             setregs();
             JMPNext();
           } else {
@@ -3027,7 +3027,7 @@
         /* make sure we have something to show for our trouble */
         saveregs();
         if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,xxn),Osbpp))) {
-          Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+          Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
           setregs();
           JMPNext();
         } else {
@@ -3134,7 +3134,7 @@
           /* make sure we have something to show for our trouble */
           saveregs();
           if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxx),Osbpp))) {
-            Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+            Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
             setregs();
             JMPNext();
           } else {
@@ -3261,7 +3261,7 @@
           /* make sure we have something to show for our trouble */
           saveregs();
           if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxc),Osbpp))) {
-            Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+            Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
             setregs();
             JMPNext();
           } else {
@@ -3389,7 +3389,7 @@
         /* make sure we have something to show for our trouble */
         saveregs();
         if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxn),Osbpp))) {
-          Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+          Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
           setregs();
           JMPNext();
         } else {
@@ -3765,7 +3765,7 @@
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
 	  if (!Yap_gcl((1+d1)*sizeof(CELL), 3, YREG, NEXTOP(NEXTOP(PREG,e),Osbmp))) {
-	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+	    Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {

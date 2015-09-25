@@ -261,14 +261,14 @@
     LOCAL_RetriesCounter--;
     if (LOCAL_RetriesCounter == 0) {
       saveregs();
-      Yap_NilError(RETRY_COUNTER_UNDERFLOW,"");
+      Yap_NilError(RETRY_COUNTER_UNDERFLOW_EVENT,"");
       setregs();
       JMPNext();
     }
     LOCAL_PredEntriesCounter--;
     if (LOCAL_PredEntriesCounter == 0) {
       saveregs();
-      Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
+      Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,"");
       setregs();
       JMPNext();
     }
@@ -313,14 +313,14 @@
       LOCAL_RetriesCounter--;
       if (LOCAL_RetriesCounter == 0) {
         saveregs();
-        Yap_NilError(RETRY_COUNTER_UNDERFLOW,"");
+        Yap_NilError(RETRY_COUNTER_UNDERFLOW_EVENT,"");
         setregs();
         JMPNext();
       }
       LOCAL_PredEntriesCounter--;
       if (LOCAL_PredEntriesCounter == 0) {
         saveregs();
-        Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
+        Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,"");
         setregs();
         JMPNext();
       }
@@ -657,16 +657,16 @@
 #if defined(YAPOR) || defined(THREADS)
       PP = NULL;
 #endif
-      if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+      if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
 	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growglobal(NULL)) {
-	  Yap_NilError(OUT_OF_ATTVARS_ERROR, LOCAL_ErrorMessage);
+	  Yap_NilError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, LOCAL_ErrorMessage);
 	  FAIL();
 	}
       } else {
 	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_gc(3, ENV, CP)) {
-	  Yap_NilError(OUT_OF_STACK_ERROR, LOCAL_ErrorMessage);
+	  Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage);
 	  FAIL();
 	}
       }
@@ -769,5 +769,3 @@
 #endif
   JMPNext();
   ENDBOp();
-
-

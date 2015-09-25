@@ -23,134 +23,129 @@
 #ifndef YAP_FLAGS_H
 #define YAP_FLAGS_H 1
 
-//INLINE_ONLY inline EXTERN  bool nat( Term inp );
+// INLINE_ONLY inline EXTERN  bool nat( Term inp );
 
-static inline  bool nat( Term inp ) {
+static inline bool nat(Term inp) {
   if (IsVarTerm(inp)) {
-    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag in 0...");
+    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s", "bound");
     return false;
   }
   if (IsIntTerm(inp)) {
     Int i = IntOfTerm(inp);
-    if (i >= 0) return true;
-    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, inp, "set_prolog_flag in 0...");
+    if (i >= 0)
+      return true;
+    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, inp, "set_prolog_flag: value must be %s", ">= 0");
     return false;
   }
-  Yap_Error(TYPE_ERROR_INTEGER, inp, "set_prolog_flag in 0...");
+  Yap_Error(TYPE_ERROR_INTEGER, inp, "set_prolog_flag: value must be %s", "integer");
   return false;
 }
 
-static inline  bool at2n( Term inp ) {
-  Yap_Error(PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag.");
+static inline bool at2n(Term inp) {
+  Yap_Error(PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag %s", "flag is read-only");
   return false;
 }
 
-static inline  bool isfloat( Term inp ) {
+static inline bool isfloat(Term inp) {
   if (IsVarTerm(inp)) {
-    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag in 0.0.");
+    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s", "integer");
+
     return false;
   }
   if (IsFloatTerm(inp)) {
     return true;
   }
-  Yap_Error(TYPE_ERROR_FLOAT, inp, "set_prolog_flag in 0...");
+  Yap_Error(TYPE_ERROR_FLOAT, inp, "set_prolog_flag: value must be %s", "floating-point");
   return false;
 }
 
-INLINE_ONLY inline EXTERN bool ro( Term inp );
+INLINE_ONLY inline EXTERN bool ro(Term inp);
 
-INLINE_ONLY inline EXTERN bool ro( Term inp ) {
+INLINE_ONLY inline EXTERN bool ro(Term inp) {
   if (IsVarTerm(inp)) {
-    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag in 0...");
+    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s", "bound");
     return false;
   }
-  Yap_Error( PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag.");
+  Yap_Error(PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag %s", "flag is read-only");
   return false;
 }
 
-
-INLINE_ONLY inline EXTERN bool aro( Term inp ) {
+INLINE_ONLY inline EXTERN bool aro(Term inp) {
   if (IsVarTerm(inp)) {
-    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag in 0...");
+    Yap_Error(INSTANTIATION_ERROR, inp,  "set_prolog_flag %s", "value must be bound");
+
     return false;
   }
-  Yap_Error( PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag.");
+  Yap_Error(PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag %s", "flag is read-only");
+
   return false;
 }
 
-//INLINE_ONLY inline EXTERN bool boolean( Term inp );
+// INLINE_ONLY inline EXTERN bool boolean( Term inp );
 
-static inline bool boolean( Term inp ) {
-  if (inp == TermTrue ||
-      inp == TermFalse||
-      inp == TermOn||
-      inp == TermOff )
+static inline bool boolean(Term inp) {
+  if (inp == TermTrue || inp == TermFalse || inp == TermOn || inp == TermOff)
     return true;
   if (IsVarTerm(inp)) {
-    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag in {true,false,on,off");
+    Yap_Error(INSTANTIATION_ERROR, inp,  "set_prolog_flag %s", "value must be bound");
+;
     return false;
   }
   if (IsAtomTerm(inp)) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, inp, "set_prolog_flag in {true,false,on,off}");
+    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, inp,
+              "set_prolog_flag in {true,false,on,off}");
     return false;
   }
   Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag in {true,false,on,off");
   return false;
 }
 
-static bool synerr( Term inp ) {
-  if (inp == TermDec10 ||
-      inp == TermFail||
-      inp == TermError||
-      inp == TermQuiet )
+static bool synerr(Term inp) {
+  if (inp == TermDec10 || inp == TermFail || inp == TermError ||
+      inp == TermQuiet)
     return true;
 
   if (IsAtomTerm(inp)) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, inp, "set_prolog_flag in {dec10,error,fail,quiet}");
+    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, inp,
+              "set_prolog_flag in {dec10,error,fail,quiet}");
     return false;
   }
-  Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag in {dec10,error,fail,quiet}");
+  Yap_Error(TYPE_ERROR_ATOM, inp,
+            "set_prolog_flag in {dec10,error,fail,quiet}");
   return false;
 }
 
+static inline bool filler(Term inp) { return true; }
 
-static inline bool filler( Term inp )
-{
-  return true;
-}
-
-static bool bqs( Term inp ) {
-  if (inp == TermCodes ||
-      inp == TermString||
-      inp == TermSymbolChar )
+static bool bqs(Term inp) {
+  if (inp == TermCodes || inp == TermString || inp == TermSymbolChar)
     return true;
 
   if (IsAtomTerm(inp)) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, inp, "set_prolog_flag in {codes,string}");
+    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, inp,
+              "set_prolog_flag in {codes,string}");
     return false;
   }
   Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag in {codes,string}");
   return false;
 }
 
-//INLINE_ONLY inline EXTERN  bool isatom( Term inp );
+// INLINE_ONLY inline EXTERN  bool isatom( Term inp );
 
-static inline   bool isatom( Term inp ) {
+static inline bool isatom(Term inp) {
   if (IsVarTerm(inp)) {
-    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag");
+    Yap_Error(INSTANTIATION_ERROR, inp,  "set_prolog_flag %s", "value must be bound");
     return false;
   }
-  if (IsAtomTerm(inp) )
+  if (IsAtomTerm(inp))
     return true;
-  Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flagm");
+  Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
   return false;
 }
 
 // INLINE_ONLY inline EXTERN  bool ok( Term inp );
 
-static inline   bool ok( Term inp ) {
-  return true;
-}
+static inline bool ok(Term inp) { return true; }
 
 // a pair, obtained from x(y) -> 1,2,y)
 typedef struct x_el {
@@ -172,28 +167,27 @@ typedef struct struct_param2 {
 } param2_t;
 
 typedef struct {
-   char *name;
+  char *name;
   bool writable;
   flag_func def;
   const char *init;
   flag_func helper;
 } flag_info;
 
-
-typedef  struct {
+typedef struct {
   char *name;
   flag_func def;
   const char *init;
 } arg_info;
 
 typedef union flagTerm {
-    Term at;
-    struct DB_TERM *DBT;
+  Term at;
+  struct DB_TERM *DBT;
 } flag_term;
 
-void  Yap_InitFlags( bool );
+void Yap_InitFlags(bool);
 
-#define YAP_FLAG( x, NAME, WRITABLE, DEF, INIT, HELPER )    x
+#define YAP_FLAG(x, NAME, WRITABLE, DEF, INIT, HELPER) x
 
 typedef enum {
 #include "YapGFlagInfo.h"
@@ -204,28 +198,22 @@ typedef enum {
 } local_flag_t;
 #undef YAP_FLAG
 
+bool setYapFlag(Term tflag, Term t2);
+Term getYapFlag(Term tflag);
 
-bool setYapFlag( Term tflag, Term t2 );
-Term getYapFlag( Term tflag );
+static inline bool check_refs_to_ltable(void) { return true; }
 
-static inline bool  check_refs_to_ltable( void ) {
-  return true;
-}
-
-static inline void setAtomicGlobalPrologFlag(int id, Term v)
-{
+static inline void setAtomicGlobalPrologFlag(int id, Term v) {
   GLOBAL_Flags[id].at = v;
 }
 
-static inline void setAtomicLocalPrologFlag(int id, Term v)
-{
-    CACHE_REGS
-    check_refs_to_ltable();
-    LOCAL_Flags[id].at = v;
+static inline void setAtomicLocalPrologFlag(int id, Term v) {
+  CACHE_REGS
+  check_refs_to_ltable();
+  LOCAL_Flags[id].at = v;
 }
 
-static inline void setBooleanLocalPrologFlag(int id, bool v)
-{
+static inline void setBooleanLocalPrologFlag(int id, bool v) {
   CACHE_REGS
   check_refs_to_ltable();
   if (v) {
@@ -235,43 +223,37 @@ static inline void setBooleanLocalPrologFlag(int id, bool v)
   }
 }
 
-static inline void setBooleanGlobalPrologFlag(int id, bool v)
-{
+static inline void setBooleanGlobalPrologFlag(int id, bool v) {
   if (v) {
-      GLOBAL_Flags[id].at = TermTrue;
-   } else {
-      GLOBAL_Flags[id].at = TermFalse;
+    GLOBAL_Flags[id].at = TermTrue;
+  } else {
+    GLOBAL_Flags[id].at = TermFalse;
   }
 }
 
-static inline bool trueGlobalPrologFlag(int id)
-{
-    return GLOBAL_Flags[id].at == TermTrue;
-
+static inline bool trueGlobalPrologFlag(int id) {
+  return GLOBAL_Flags[id].at == TermTrue;
 }
 
-static inline bool falseGlobalPrologFlag(int id)
-{
-    return GLOBAL_Flags[id].at == TermFalse;
+static inline bool falseGlobalPrologFlag(int id) {
+  return GLOBAL_Flags[id].at == TermFalse;
 }
 
-static inline bool trueLocalPrologFlag(int id)
-{
-    CACHE_REGS
-    return LOCAL_Flags[id].at == TermTrue;
+static inline bool trueLocalPrologFlag(int id) {
+  CACHE_REGS
+  return LOCAL_Flags[id].at == TermTrue;
 }
 
-static inline bool falsePrologFlag(int id)
-{
-    CACHE_REGS
-    return LOCAL_Flags[id].at == TermFalse;
+static inline bool falsePrologFlag(int id) {
+  CACHE_REGS
+  return LOCAL_Flags[id].at == TermFalse;
 }
 
-static inline bool isoLanguageFlag(void){
+static inline bool isoLanguageFlag(void) {
   return GLOBAL_Flags[ISO_FLAG].at == TermTrue;
 }
 
-static inline bool strictISOFlag(void){
+static inline bool strictISOFlag(void) {
   return GLOBAL_Flags[STRICT_ISO_FLAG].at == TermTrue;
 }
 
@@ -280,53 +262,49 @@ static inline bool silentMode(void) {
 }
 
 static inline void setVerbosity(Term val) {
-   GLOBAL_Flags[VERBOSE_FLAG].at = val;
+  GLOBAL_Flags[VERBOSE_FLAG].at = val;
 }
 
 static inline bool setSyntaxErrorsFlag(Term val) {
-  if (!synerr( val ))
+  if (!synerr(val))
     return false;
-    CACHE_REGS
-   LOCAL_Flags[SYNTAX_ERRORS_FLAG].at = val;
-   return true;
+  CACHE_REGS
+  LOCAL_Flags[SYNTAX_ERRORS_FLAG].at = val;
+  return true;
 }
 
 static inline Term getSyntaxErrorsFlag(void) {
-    CACHE_REGS
+  CACHE_REGS
   return LOCAL_Flags[SYNTAX_ERRORS_FLAG].at;
 }
 
 static inline bool setBackQuotesFlag(Term val) {
-  if (!bqs( val ))
+  if (!bqs(val))
     return false;
   if (val == TermSymbolChar)
     val = TermString;
   GLOBAL_Flags[BACKQUOTED_STRING_FLAG].at = val;
-   return true;
+  return true;
 }
 
 static inline Term getBackQuotesFlag(void) {
-   return GLOBAL_Flags[BACKQUOTED_STRING_FLAG].at;
+  return GLOBAL_Flags[BACKQUOTED_STRING_FLAG].at;
 }
 
-static inline int  indexingMode(void) {
-  return GLOBAL_Flags[INDEX_FLAG].at;
-}
+static inline int indexingMode(void) { return GLOBAL_Flags[INDEX_FLAG].at; }
 
-static inline const char  *floatFormat(void) {
+static inline const char *floatFormat(void) {
   return RepAtom(AtomOfTerm(GLOBAL_Flags[FLOAT_FORMAT_FLAG].at))->rep.uStrOfAE;
 }
 
-static inline size_t  indexingDepth(void) {
+static inline size_t indexingDepth(void) {
   return IntOfTerm(GLOBAL_Flags[INDEX_SUB_TERM_SEARCH_DEPTH_FLAG].at);
 }
 
 bool rmdot(Term inp);
 
+xarg *Yap_ArgListToVector(Term listl, const param_t *def, int n);
 
-xarg * Yap_ArgListToVector (Term listl, const param_t *def, int n);
+xarg *Yap_ArgList2ToVector(Term listl, const param2_t *def, int n);
 
-xarg * Yap_ArgList2ToVector (Term listl, const param2_t *def, int n);
-
-
-#endif  // YAP_FLAGS_H
+#endif // YAP_FLAGS_H

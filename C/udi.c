@@ -76,7 +76,7 @@ p_new_udi( USES_REGS1 )
   blk = (UdiInfo) Yap_AllocCodeSpace(sizeof(struct udi_info));
   memset((void *) blk,0, sizeof(struct udi_info));
   if (!blk) {
-	  Yap_Error(OUT_OF_HEAP_ERROR, spec, "new user index/1");
+	  Yap_Error(RESOURCE_ERROR_HEAP, spec, "new user index/1");
 	  return FALSE;
   }
 

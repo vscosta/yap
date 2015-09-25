@@ -422,17 +422,17 @@ thread_run(void *widp)
   do {
     t = tgs[0] = Yap_PopTermFromDB(LOCAL_ThreadHandle.tgoal);
     if (t == 0) {
-      if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+      if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
 	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growglobal(NULL)) {
-	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
+	  Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil, LOCAL_ErrorMessage);
 	  thread_die(worker_id, FALSE);
 	  return NULL;
 	}
       } else {
 	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growstack(LOCAL_ThreadHandle.tgoal->NOfCells*CellSize)) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  thread_die(worker_id, FALSE);
 	  return NULL;
 	}
@@ -551,9 +551,9 @@ p_thread_sleep( USES_REGS1 )
   req.tv_nsec = ntime;
   if (nanosleep(&req, &oreq)) {
 #if HAVE_STRERROR
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "%s in thread_sleep/1", strerror(errno));
+    Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "%s in thread_sleep/1", strerror(errno));
 #else
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "error %d in thread_sleep/1", errno);
+    Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "error %d in thread_sleep/1", errno);
 #endif
     return FALSE;
   }
@@ -563,15 +563,15 @@ p_thread_sleep( USES_REGS1 )
   UInt rtime;
   if ((rtime = sleep(time)) < 0) {
 #if HAVE_STRERROR
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "%s in thread_sleep/1", strerror(errno));
+    Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "%s in thread_sleep/1", strerror(errno));
 #else
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "error %d in thread_sleep/1", errno);
+    Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "error %d in thread_sleep/1", errno);
 #endif
   }
   return Yap_unify(ARG3,MkIntegerTerm(rtime)) &&
     Yap_unify(ARG4,MkIntTerm(0L));
 #else 
-  Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "no support for thread_sleep/1 in this YAP configuration");
+  Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "no support for thread_sleep/1 in this YAP configuration");
 #endif
 }
 
@@ -1461,17 +1461,17 @@ p_thread_atexit( USES_REGS1 )
   do {
     t = Yap_PopTermFromDB(LOCAL_ThreadHandle.texit);
     if (t == 0) {
-      if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+      if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
 	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growglobal(NULL)) {
-	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
+	  Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil, LOCAL_ErrorMessage);
 	  thread_die(worker_id, FALSE);
 	  return FALSE;
 	}
       } else {
 	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growstack(LOCAL_ThreadHandle.tgoal->NOfCells*CellSize)) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  thread_die(worker_id, FALSE);
 	  return FALSE;
 	}

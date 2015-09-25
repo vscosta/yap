@@ -721,7 +721,7 @@
       LOCAL_PredEntriesCounter--;
       if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) {
 	saveregs();
-	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
+	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,"");
 	setregs();
 	JMPNext();
       }
@@ -747,7 +747,7 @@
       if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) {
 	ENV = B->cp_env;
 	saveregs();
-	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
+	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,"");
 	setregs();
 	JMPNext();
       }
@@ -783,7 +783,7 @@
       LOCAL_PredEntriesCounter--;
       if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) {
 	saveregs();
-	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
+	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,"");
 	setregs();
 	JMPNext();
       }
@@ -827,7 +827,7 @@
       LOCAL_PredEntriesCounter--;
       if (LOCAL_PredEntriesCounter == 0) {
 	saveregs();
-	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
+	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,"");
 	setregs();
 	JMPNext();
       }
@@ -869,7 +869,7 @@
 	LOCAL_PredEntriesCounter--;
 	if (LOCAL_PredEntriesCounter == 0) {
 	  saveregs();
-	  Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
+	  Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,"");
 	  setregs();
 	  JMPNext();
 	}
@@ -921,7 +921,7 @@
 	  LOCAL_PredEntriesCounter--;
 	  if (LOCAL_PredEntriesCounter == 0) {
 	    saveregs();
-	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
+	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,"");
 	    setregs();
 	    JMPNext();
 	  }
@@ -1101,16 +1101,16 @@
 #if defined(YAPOR) || defined(THREADS)
 	  PP = NULL;
 #endif
-	  if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	  if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
 	    LOCAL_Error_TYPE = YAP_NO_ERROR;
 	    if (!Yap_growglobal(NULL)) {
-	      Yap_NilError(OUT_OF_ATTVARS_ERROR, LOCAL_ErrorMessage);
+	      Yap_NilError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, LOCAL_ErrorMessage);
 	      FAIL();
 	    }
 	  } else {
 	    LOCAL_Error_TYPE = YAP_NO_ERROR;
 	    if (!Yap_gc(3, ENV, CP)) {
-	      Yap_NilError(OUT_OF_STACK_ERROR, LOCAL_ErrorMessage);
+	      Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage);
 	      FAIL();
 	    }
 	  }
@@ -1235,7 +1235,7 @@
 	  PREG = NEXTOP(PREG,Osbpa);
 	  saveregs();
 	  if (!Yap_gcl(sz, arity, YENV, PREG)) {
-	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+	    Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  } else {
@@ -1334,7 +1334,7 @@
       LOCAL_PredEntriesCounter--;
       if (LOCAL_PredEntriesCounter == 0) {
 	saveregs();
-	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
+	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,"");
 	setregs();
 	JMPNext();
       }
@@ -10937,7 +10937,7 @@
 	    /* make sure we have something to show for our trouble */
 	    saveregs();
 	    if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxx),Osbpp))) {
-	      Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+	      Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
 	      setregs();
 	      JMPNext();
 	    } else {
@@ -11054,7 +11054,7 @@
 	    /* make sure we have something to show for our trouble */
 	    saveregs();
 	    if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxc),Osbpp))) {
-	      Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+	      Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
 	      setregs();
 	      JMPNext();
 	    } else {
@@ -11164,7 +11164,7 @@
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
 	  if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,xxn),Osbpp))) {
-	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+	    Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -11271,7 +11271,7 @@
 	    /* make sure we have something to show for our trouble */
 	    saveregs();
 	    if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxx),Osbpp))) {
-	      Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+	      Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
 	      setregs();
 	      JMPNext();
 	    } else {
@@ -11398,7 +11398,7 @@
 	    /* make sure we have something to show for our trouble */
 	    saveregs();
 	    if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxc),Osbpp))) {
-	      Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+	      Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
 	      setregs();
 	      JMPNext();
 	    } else {
@@ -11526,7 +11526,7 @@
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
 	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxn),Osbpp))) {
-	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+	    Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -11902,7 +11902,7 @@
 	    /* make sure we have something to show for our trouble */
 	    saveregs();
 	    if (!Yap_gcl((1+d1)*sizeof(CELL), 3, YREG, NEXTOP(NEXTOP(PREG,e),Osbmp))) {
-	      Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+	      Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
 	      setregs();
 	      JMPNext();
 	    } else {

@@ -116,26 +116,30 @@ q(A):-
 */
 do_not_compile_expressions :- set_value('$c_arith',[]).
 
-'$c_built_in'(IN, M, OUT) :-
+'$c_built_in'(IN, M, H, OUT) :-
 	get_value('$c_arith',true), !,
-	do_c_built_in(IN, M, OUT).
-'$c_built_in'(IN, _, IN).
+	do_c_built_in(IN, M, H, OUT).
+'$c_built_in'(IN, _, _H, IN).
 
 
-do_c_built_in(G, M, OUT) :- var(G), !,
-	do_c_built_metacall(G, M, OUT).
-do_c_built_in(Mod:G, _, OUT) :-
-	'$yap_strip_module'(Mod:G, M1, G1),
+do_c_built_in(G, M, H, OUT) :- var(G), !,
+	do_c_built_metacall(G, M, H, OUT).
+do_c_built_in(Mod:G, _, H, OUT) :-
+	'$yap_strip_module'(Mod:G, M1,  G1),
 	var(G1), !,
-	do_c_built_metacall(G1, M1, OUT).
-do_c_built_in('C'(A,B,C), _, (A=[B|C])) :- !.
-do_c_built_in(X is Y, M, P) :-
+	do_c_built_metacall(G1, M1, H, OUT).
+do_c_built_in('C'(A,B,C), _, _, (A=[B|C])) :- !.
+do_c_built_in('$do_error'( Error, Goal), M, H,
+        ('$cp'(Goal, Caller),functor(H,Na,Ar), throw(error(Error, [g=Goal,c=c(M:Na/Ar,File,FilePos),p=Caller])) ) :-
+        stream_property( loop_stream, name(File) ).
+        stream_property( loop_stream, position(FilePos) ).
+do_c_built_in(X is Y, M, _,  P) :-
         primitive(X), !,
 	do_c_built_in(X =:= Y, M, P).
-do_c_built_in(X is Y, M, (P,A=X)) :-
+do_c_built_in(X is Y, M, _, (P,A=X)) :-
 	nonvar(X), !,
 	do_c_built_in(A is Y, M, P).
-do_c_built_in(X is Y, _, P) :-
+do_c_built_in(X is Y, _, _, P) :-
 	nonvar(Y),		% Don't rewrite variables
 	!,
 	(
@@ -144,9 +148,9 @@ do_c_built_in(X is Y, _, P) :-
 		expand_expr(Y, P0, X0),
 		'$drop_is'(X0, X, P0, P)
 	).
-do_c_built_in(phrase(NT,Xs), Mod, NTXsNil) :-
+do_c_built_in(phrase(NT,Xs),  Mod, _, NTXsNil) :-
 	'$_arith':do_c_built_in(phrase(NT,Xs,[]), Mod, NTXsNil).
-do_c_built_in(phrase(NT,Xs0,Xs), Mod, NewGoal) :-
+do_c_built_in(phrase(NT,Xs0,Xs), Mod, _,  NewGoal) :-
     '$goal_expansion_allowed'(phrase(NT,Xs0,Xs), Mod),
     Goal = phrase(NT,Xs0,Xs),
     callable(NT),
@@ -169,7 +173,7 @@ do_c_built_in(phrase(NT,Xs0,Xs), Mod, NewGoal) :-
 	   NewGoal = NewGoal1
 	;  ( Xs0 = Xs0c, NewGoal1 ) = NewGoal
     ).
-do_c_built_in(Comp0, _, R) :-		% now, do it for comparisons
+do_c_built_in(Comp0, _, _, R) :-		% now, do it for comparisons
 	'$compop'(Comp0, Op, E, F),
 	!,
 	'$compop'(Comp,  Op, U, V),
@@ -177,7 +181,7 @@ do_c_built_in(Comp0, _, R) :-		% now, do it for comparisons
 	expand_expr(F, Q, V),
 	'$do_and'(P, Q, R0),
 	'$do_and'(R0, Comp, R).
-do_c_built_in(P, _M, P).
+do_c_built_in(P, _M, _H, P).
 
 do_c_built_metacall(G1, Mod, '$execute_wo_mod'(G1,Mod)) :-
     var(Mod), !.

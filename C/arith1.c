@@ -1050,7 +1050,7 @@ Yap_InitUnaryExps(void)
   for (i = 0; i < sizeof(InitUnTab)/sizeof(InitUnEntry); ++i) {
     AtomEntry *ae = RepAtom(Yap_LookupAtom(InitUnTab[i].OpName));
     if (ae == NULL) {
-      Yap_EvalError(OUT_OF_HEAP_ERROR,TermNil,"at InitUnaryExps");
+      Yap_EvalError(RESOURCE_ERROR_HEAP,TermNil,"at InitUnaryExps");
       return;
     }
     WRITE_LOCK(ae->ARWLock);

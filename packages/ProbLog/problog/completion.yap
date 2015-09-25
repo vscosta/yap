@@ -243,7 +243,7 @@ reset_completion :-
 propagate_evidence(_,_) :-
 	\+ current_predicate(user:known/3),
 	!,
-	throw(error(system_error,'The predicate user:known/3 is not defined. If you really have empty interpretations declare the user:known/3 as dynamic and come back.')).
+	throw(error(SYSTEM_ERROR_INTERNAL,'The predicate user:known/3 is not defined. If you really have empty interpretations declare the user:known/3 as dynamic and come back.')).
 
 
 propagate_evidence(InterpretationID,Query_Type) :-

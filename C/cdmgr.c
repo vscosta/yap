@@ -519,7 +519,7 @@ InitConsultStack( void )
   CACHE_REGS
   LOCAL_ConsultLow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);
   if (LOCAL_ConsultLow == NULL) {
-    Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCodes");
+    Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"No Heap Space in InitCodes");
     return;
   }
   LOCAL_ConsultCapacity = InitialConsultCapacity;
@@ -780,9 +780,9 @@ split_megaclause(PredEntry *ap)
 	  Yap_FreeCodeSpace((char *)cl);
 	}
 	if (ap->ArityOfPE) {
-	  Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"while breaking up mega clause for %s/%d\n",RepAtom(NameOfFunctor(ap->FunctorOfPred))->StrOfAE,ap->ArityOfPE);
+	  Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while breaking up mega clause for %s/%d\n",RepAtom(NameOfFunctor(ap->FunctorOfPred))->StrOfAE,ap->ArityOfPE);
 	} else {
-	  Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"while breaking up mega clause for %s\n", RepAtom((Atom)ap->FunctorOfPred)->StrOfAE);
+	  Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while breaking up mega clause for %s\n", RepAtom((Atom)ap->FunctorOfPred)->StrOfAE);
 	}
 	return;
       }
@@ -862,7 +862,7 @@ IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
 #endif
   /* Do not try to index a dynamic predicate  or one whithout args */
   if (is_dynamic(ap)) {
-    Yap_Error(SYSTEM_ERROR,TermNil,"trying to index a dynamic predicate");
+    Yap_Error(SYSTEM_ERROR_INTERNAL,TermNil,"trying to index a dynamic predicate");
     return;
   }
   if ((BaseAddr = Yap_PredIsIndexable(ap, NSlots, next_pc)) != NULL) {
@@ -1137,7 +1137,7 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
     case _op_fail:
       return;
     default:
-      Yap_Error(SYSTEM_ERROR,TermNil,"Bug in Indexing Code: opcode %d", op);
+      Yap_Error(SYSTEM_ERROR_INTERNAL,TermNil,"Bug in Indexing Code: opcode %d", op);
       return;
     }
 #if defined(YAPOR) || defined(THREADS)
@@ -1588,7 +1588,7 @@ add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag)
   cl =
     (DynamicClause *) Yap_AllocCodeSpace((Int)NEXTOP(NEXTOP(NEXTOP(ncp,Otapl),e),l));
   if (cl == NIL) {
-    Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"Heap crashed against Stacks");
+    Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"Heap crashed against Stacks");
     return;
   }
   Yap_ClauseSpace += (Int)NEXTOP(NEXTOP(NEXTOP(ncp,Otapl),e),l);
@@ -1834,7 +1834,7 @@ static void  expand_consult( void )
   /* I assume it always works ;-) */
   while ((new_cl = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*LOCAL_ConsultCapacity)) == NULL) {
     if (!Yap_growheap(FALSE, sizeof(consult_obj)*LOCAL_ConsultCapacity, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_HEAP,TermNil,LOCAL_ErrorMessage);
       return;
     }
   }
@@ -2245,7 +2245,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
     sc[3] = t;
     Yap_PrintWarning( Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, sc) );
   } else if (Yap_multiple( p, mode PASS_REGS ) ) {
-     Term disc[4], sc[4], disct;
+     Term disc[4], sc[4];
     if (p->ArityOfPE) {
       disc[0] = MkAtomTerm(NameOfFunctor(p->FunctorOfPred));
     } else {
@@ -2707,7 +2707,7 @@ p_purge_clauses( USES_REGS1 )
      in case the objs pointing to it are dead themselves */
   if (DeadMegaClauses != before) {
     if (!Yap_gc(2, ENV, gc_P(P,CP))) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return FALSE;
     }
   }
@@ -3959,18 +3959,18 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 	ARG5 = th;
 	ARG6 = tb;
 	ARG7 = tr;
-	if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
 	  LOCAL_Error_TYPE = YAP_NO_ERROR;
 	  if (!Yap_growglobal(NULL)) {
 	    UNLOCK(pe->PELock);
-	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
+	    Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil, LOCAL_ErrorMessage);
 	    return FALSE;
 	  }
 	} else {
 	  LOCAL_Error_TYPE = YAP_NO_ERROR;
 	  if (!Yap_gcl(LOCAL_Error_Size, 7, ENV, gc_P(P,CP))) {
 	    UNLOCK(pe->PELock);
-	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	    Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	    return FALSE;
 	  }
 	}
@@ -3983,7 +3983,7 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 	ARG8 = tr;
 	if (!Yap_gcl(LOCAL_Error_Size, 8, ENV, gc_P(P,CP))) {
 	  UNLOCK(pe->PELock);
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
 	th = ARG6;
@@ -4107,18 +4107,18 @@ fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th, Term tb, Term 
 	ARG5 = th;
 	ARG6 = tb;
 	ARG7 = tr;
-	if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
 	  LOCAL_Error_TYPE = YAP_NO_ERROR;
 	  if (!Yap_locked_growglobal(NULL)) {
 	    UNLOCK(pe->PELock);
-	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
+	    Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil, LOCAL_ErrorMessage);
 	    return FALSE;
 	  }
 	} else {
 	  LOCAL_Error_TYPE = YAP_NO_ERROR;
 	  if (!Yap_locked_gcl(LOCAL_Error_Size, 7, ENV, gc_P(P,CP))) {
 	    UNLOCK(pe->PELock);
-	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	    Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	    return FALSE;
 	  }
 	}
@@ -4131,7 +4131,7 @@ fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th, Term tb, Term 
 	ARG8 = tr;
 	if (!Yap_gcl(LOCAL_Error_Size, 8, ENV, CP)) {
 	  UNLOCK(pe->PELock);
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
 	th = ARG6;
@@ -4215,7 +4215,7 @@ replace_integer(Term orig, UInt new)
   /* should create an old integer */
   if (!IsApplTerm(orig)) {
     CACHE_REGS
-    Yap_Error(SYSTEM_ERROR,orig,"%uld-->%uld  where it should increase",(unsigned long int)IntegerOfTerm(orig),(unsigned long int)new);
+    Yap_Error(SYSTEM_ERROR_INTERNAL,orig,"%uld-->%uld  where it should increase",(unsigned long int)IntegerOfTerm(orig),(unsigned long int)new);
     return MkIntegerTerm(new);
   }
   /* appl->appl */
@@ -4376,7 +4376,7 @@ Yap_UpdateTimestamps(PredEntry *ap)
   LogUpdClause *lcl;
 
 #if THREADS
-  Yap_Error(SYSTEM_ERROR,TermNil,"Timestamp overflow %p", ap);
+  Yap_Error(SYSTEM_ERROR_INTERNAL,TermNil,"Timestamp overflow %p", ap);
   return;
 #endif
   if (!ap->cs.p_code.NOfClauses)
@@ -4484,7 +4484,7 @@ Yap_UpdateTimestamps(PredEntry *ap)
   return;
  overflow:
   if (!Yap_growstack(64*1024)) {
-    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+    Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
     return;
   }
   goto restart;
@@ -4585,10 +4585,10 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
     }
     while ((t = Yap_FetchClauseTermFromDB(cl->usc.ClSource)) == 0L) {
       if (first_time) {
-	if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
 	  LOCAL_Error_TYPE = YAP_NO_ERROR;
 	  if (!Yap_growglobal(NULL)) {
-	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
+	    Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil, LOCAL_ErrorMessage);
 	    UNLOCKPE(45,pe);
 	    return FALSE;
 	  }
@@ -4598,7 +4598,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
 	  ARG6 = tb;
 	  ARG7 = tr;
 	  if (!Yap_gc(7, ENV, gc_P(P,CP))) {
-	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	    Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	    UNLOCKPE(45,pe);
 	    return FALSE;
 	  }
@@ -4612,7 +4612,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
 	ARG7 = tb;
 	ARG8 = tr;
 	if (!Yap_gcl(LOCAL_Error_Size, 8, ENV, CP)) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  UNLOCKPE(45,pe);
 	  return FALSE;
 	}
@@ -4899,7 +4899,7 @@ p_dbassert( USES_REGS1 )
 
 /* instance(+Ref,?Term) */
 static Int
-p_instance_property( USES_REGS1 )
+instance_property( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
   DBRef dbr;
@@ -5293,7 +5293,7 @@ static Int predicate_flags(USES_REGS1) { /* $predicate_flags(+Functor,+Mod,?OldF
   if (IsAtomTerm(t1)) {
     while ((pe = RepPredProp(PredPropByAtom(AtomOfTerm(t1), mod))) == NULL) {
       if (!Yap_growheap(FALSE, 0, NULL)) {
-        Yap_Error(OUT_OF_HEAP_ERROR, ARG1, "while generating new predicate");
+        Yap_Error(RESOURCE_ERROR_HEAP, ARG1, "while generating new predicate");
         return FALSE;
       }
       t1 = Deref(ARG1);
@@ -5303,7 +5303,7 @@ static Int predicate_flags(USES_REGS1) { /* $predicate_flags(+Functor,+Mod,?OldF
     Functor funt = FunctorOfTerm(t1);
     while ((pe = RepPredProp(PredPropByFunc(funt, mod))) == NULL) {
       if (!Yap_growheap(FALSE, 0, NULL)) {
-        Yap_Error(OUT_OF_HEAP_ERROR, ARG1, "while generating new predicate");
+        Yap_Error(RESOURCE_ERROR_HEAP, ARG1, "while generating new predicate");
         return FALSE;
       }
       t1 = Deref(ARG1);
@@ -5404,7 +5404,7 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$static_clause", 4, p_static_clause, SyncPredFlag);
   Yap_InitCPred("$continue_static_clause", 5, p_continue_static_clause, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$static_pred_statistics", 5, p_static_pred_statistics, SyncPredFlag);
-  Yap_InitCPred("$instance_property", 3, p_instance_property, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("instance_property", 3, instance_property, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$fetch_nth_clause", 4, p_nth_instance, SyncPredFlag);
   CurrentModule = DBLOAD_MODULE;
   Yap_InitCPred("dbload_get_space", 4, p_dbload_get_space, 0L);

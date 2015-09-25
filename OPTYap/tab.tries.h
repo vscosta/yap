@@ -1062,7 +1062,7 @@ static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent, sg_node_ptr c
         SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, t);
       } else {
         if (subs_arity == MAX_TABLE_VARS)
-          Yap_Error(INTERNAL_ERROR, TermNil, "subgoal_search_loop: MAX_TABLE_VARS exceeded");
+          Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "subgoal_search_loop: MAX_TABLE_VARS exceeded");
         STACK_PUSH_UP(t, stack_vars);
         *((CELL *)t) = GLOBAL_table_var_enumerator(subs_arity);
         t = MakeTableVarTerm(subs_arity);
@@ -1230,7 +1230,7 @@ static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent, sg_node_ptr c
 	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, AbsAppl((Term *)f));
 #endif /* MODE_GLOBAL_TRIE_LOOP */	
       } else if (f == FunctorDBRef) {
-	Yap_Error(INTERNAL_ERROR, TermNil, "subgoal_search_loop: unsupported type tag FunctorDBRef");
+	Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "subgoal_search_loop: unsupported type tag FunctorDBRef");
       } else {
 #ifdef TRIE_RATIONAL_TERMS
         term_array_push(&Ts, (void *) t, (void *) current_node);
@@ -1253,7 +1253,7 @@ static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent, sg_node_ptr c
         }
       }
     } else {
-      Yap_Error(INTERNAL_ERROR, TermNil, "subgoal_search_loop: unknown type tag");
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "subgoal_search_loop: unknown type tag");
 #endif /* MODE_TERMS_LOOP */
     }
     t = STACK_POP_DOWN(stack_terms);
@@ -1352,7 +1352,7 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
         ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_val + in_pair);
       } else {
         if (vars_arity == MAX_TABLE_VARS)
-          Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_loop: MAX_TABLE_VARS exceeded");
+          Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "answer_search_loop: MAX_TABLE_VARS exceeded");
         stack_vars_base[vars_arity] = t;
         *((CELL *)t) = GLOBAL_table_var_enumerator(vars_arity);
         t = MakeTableVarTerm(vars_arity);
@@ -1525,7 +1525,7 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
 	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, (CELL)opq, _trie_retry_extension);
 	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_bigint);
       } else if (f == FunctorDBRef) {
-	Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_loop: unsupported type tag FunctorDBRef");
+	Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "answer_search_loop: unsupported type tag FunctorDBRef");
       } else {
 #ifdef TRIE_RATIONAL_TERMS
         term_array_push(&Ts, (void *) t, (void *) current_node);
@@ -1551,7 +1551,7 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
       in_pair = 0;
 #endif /* TRIE_COMPACT_PAIRS */
     } else {
-      Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_loop: unknown type tag");
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "answer_search_loop: unknown type tag");
 #endif /* MODE_TERMS_LOOP */
     }
     t = STACK_POP_DOWN(stack_terms);
@@ -1606,7 +1606,7 @@ static inline ans_node_ptr answer_search_min_max(sg_fr_ptr sg_fr, ans_node_ptr c
     } else if (f == FunctorBigInt) {
       trie_value = AbsAppl( (CELL *) TrNode_entry(child_node) );
     } else
-      Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_min_max: invalid arithmetic value");
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "answer_search_min_max: invalid arithmetic value");
     child_node = TrNode_child(child_node);
   }
 
@@ -1686,7 +1686,7 @@ static inline ans_node_ptr answer_search_sum(sg_fr_ptr sg_fr, ans_node_ptr curre
     } else if (f == FunctorBigInt) {
       trie_value = AbsAppl( (CELL *) TrNode_entry(child_node) );
     } else
-      Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_min_max: invalid arithmetic value");
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "answer_search_min_max: invalid arithmetic value");
     child_node = TrNode_child(child_node);
   }
 
@@ -1911,7 +1911,7 @@ static inline CELL *load_answer_loop(ans_node_ptr current_node USES_REGS) {
         Term head, tail = STACK_POP_UP(stack_aux);
 #ifdef TRIE_RATIONAL_TERMS
         if (IsRationalTerm(tail)) {
-          Yap_Error(INTERNAL_ERROR, tail, "Rational element of a Rational Term appears as the first Tail of a list");
+          Yap_Error(SYSTEM_ERROR_INTERNAL, tail, "Rational element of a Rational Term appears as the first Tail of a list");
         }
 #endif /* RATIONAL TERM SUPPORT FOR TRIES */
         while (STACK_NOT_EMPTY(stack_aux, stack_terms)) {

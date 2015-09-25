@@ -749,7 +749,7 @@ c_sqlite3_row( USES_REGS1 ) {
 #endif /* MYDDAS_STATS */
   } else
     {
-      Yap_Error(SYSTEM_ERROR, TermNil, "sqlite3: %s", sqlite3_errmsg( db ) );
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "sqlite3: %s", sqlite3_errmsg( db ) );
     }
 	return rc;
 }

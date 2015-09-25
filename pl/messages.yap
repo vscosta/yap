@@ -367,7 +367,7 @@ system_message(error(evaluation_error(zero_divisor), Where)) -->
 	[ 'ZERO DIVISOR ERROR- ~w' - [Where] ].
 system_message(error(not_implemented(Type, What), Where)) -->
 	[ '~w: ~w not implemented- ~w' - [Where, Type, What] ].
-system_message(error(operating_system_error, Where)) -->
+system_message(error(operating_SYSTEM_ERROR_INTERNAL, Where)) -->
 	[ 'OPERATING SYSTEM ERROR- ~w' - [Where] ].
 system_message(error(out_of_heap_error, Where)) -->
 	[ 'OUT OF DATABASE SPACE ERROR- ~w' - [Where] ].

@@ -408,7 +408,7 @@ Yap_LookupAtomWithAddress(const char *atom,
   a = HashChain[hash].Entry;
   /* search atom in chain */
   if (SearchAtom(p, a) != NIL) {
-    Yap_Error(INTERNAL_ERROR,TermNil,"repeated initialisation for atom %s", ae);
+    Yap_Error(SYSTEM_ERROR_INTERNAL,TermNil,"repeated initialisation for atom %s", ae);
     WRITE_UNLOCK(HashChain[hash].AERWLock);
     return;
   }
@@ -1347,7 +1347,7 @@ Yap_GetName(char *s, UInt max, Term t)
     *s++ = i;
     t = TailOfTerm(t);
     if (--max == 0) {
-      Yap_Error(FATAL_ERROR,t,"not enough space for GetName");      
+      Yap_Error(SYSTEM_ERROR_FATAL,t,"not enough space for GetName");      
     }
   }
   *s = '\0';

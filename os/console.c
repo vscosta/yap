@@ -167,7 +167,7 @@ ConsoleGetc(int sno)
     LOCAL_PrologMode &= ~ConsoleGetcMode;
     LOCAL_newline = TRUE;
     if (LOCAL_PrologMode & AbortMode) {
-      Yap_Error(PURE_ABORT, TermNil, "");
+      Yap_Error(ABORT_EVENT, TermNil, "");
       LOCAL_ErrorMessage = "Abort";
       return console_post_process_eof(s);
     }
@@ -190,7 +190,7 @@ prompt1 ( USES_REGS1 )
     return (FALSE);
   LOCAL_AtPrompt = a = AtomOfTerm (t);
   if (strlen ((char *)RepAtom (a)->StrOfAE) > MAX_PROMPT) {
-    Yap_Error(SYSTEM_ERROR,t,"prompt %s is too long", RepAtom (a)->StrOfAE);
+    Yap_Error(SYSTEM_ERROR_INTERNAL,t,"prompt %s is too long", RepAtom (a)->StrOfAE);
     return(FALSE);
   }
   strncpy(LOCAL_Prompt, (char *)RepAtom (a)->StrOfAE, MAX_PROMPT);
@@ -209,7 +209,7 @@ prompt ( USES_REGS1 )
     return (FALSE);
   a = AtomOfTerm (t);
   if (strlen(RepAtom (a)->StrOfAE) > MAX_PROMPT) {
-    Yap_Error(SYSTEM_ERROR,t,"prompt %s is too long", RepAtom (a)->StrOfAE);
+    Yap_Error(SYSTEM_ERROR_INTERNAL,t,"prompt %s is too long", RepAtom (a)->StrOfAE);
     return(FALSE);
   }
   strncpy(LOCAL_Prompt, (char *)RepAtom (LOCAL_AtPrompt)->StrOfAE, MAX_PROMPT);

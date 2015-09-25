@@ -15,7 +15,7 @@
         LOCAL_PredEntriesCounter--; \
         if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) { \
 	      saveregs(); \
-	      Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	      Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	      setregs(); \
 	      JMPNext(); \
         } \
@@ -44,7 +44,7 @@
         if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) { \
 	      ENV = B->cp_env; \
 	      saveregs(); \
-	      Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	      Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	      setregs(); \
 	      JMPNext(); \
         } \
@@ -78,7 +78,7 @@
       LOCAL_PredEntriesCounter--; \
       if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) { \
 	saveregs(); \
-	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	setregs(); \
 	JMPNext(); \
       }
@@ -100,7 +100,7 @@
       LOCAL_PredEntriesCounter--; \
       if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) { \
 	saveregs(); \
-	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	setregs(); \
 	JMPNext(); \
       }
@@ -141,7 +141,7 @@
       LOCAL_PredEntriesCounter--; \
       if (LOCAL_PredEntriesCounter == 0) { \
 	saveregs(); \
-	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	setregs(); \
 	JMPNext(); \
       }
@@ -170,7 +170,7 @@
       LOCAL_PredEntriesCounter--; \
       if (LOCAL_PredEntriesCounter == 0) { \
 	saveregs(); \
-	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	setregs(); \
 	JMPNext(); \
       }
@@ -196,7 +196,7 @@
       LOCAL_PredEntriesCounter--; \
       if (LOCAL_PredEntriesCounter == 0) { \
 	saveregs(); \
-	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	setregs(); \
 	JMPNext(); \
       }
@@ -219,7 +219,7 @@
       LOCAL_PredEntriesCounter--; \
       if (LOCAL_PredEntriesCounter == 0) { \
 	saveregs(); \
-	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	setregs(); \
 	JMPNext(); \
       }
@@ -258,7 +258,7 @@
 	LOCAL_PredEntriesCounter--; \
 	if (LOCAL_PredEntriesCounter == 0) { \
 	  saveregs(); \
-	  Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	  Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	  setregs(); \
 	  JMPNext(); \
 	} \
@@ -297,7 +297,7 @@
 	LOCAL_PredEntriesCounter--; \
 	if (LOCAL_PredEntriesCounter == 0) { \
 	  saveregs(); \
-	  Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	  Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	  setregs(); \
 	  JMPNext(); \
 	} \
@@ -337,7 +337,7 @@
 	LOCAL_PredEntriesCounter--; \
 	if (LOCAL_PredEntriesCounter == 0) { \
 	  saveregs(); \
-	  Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	  Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	  setregs(); \
 	  JMPNext(); \
 	} \
@@ -375,7 +375,7 @@
 	LOCAL_PredEntriesCounter--; \
 	if (LOCAL_PredEntriesCounter == 0) { \
 	  saveregs(); \
-	  Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	  Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	  setregs(); \
 	  JMPNext(); \
 	} \
@@ -418,7 +418,7 @@
 	  LOCAL_PredEntriesCounter--; \
 	  if (LOCAL_PredEntriesCounter == 0) { \
 	    saveregs(); \
-	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	    setregs(); \
 	    JMPNext(); \
 	  } \
@@ -489,7 +489,7 @@
 	  LOCAL_PredEntriesCounter--; \
 	  if (LOCAL_PredEntriesCounter == 0) { \
 	    saveregs(); \
-	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	    setregs(); \
 	    JMPNext(); \
 	  } \
@@ -561,7 +561,7 @@
 	  LOCAL_PredEntriesCounter--; \
 	  if (LOCAL_PredEntriesCounter == 0) { \
 	    saveregs(); \
-	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	    setregs(); \
 	    JMPNext(); \
 	  } \
@@ -626,7 +626,7 @@
 	  LOCAL_PredEntriesCounter--; \
 	  if (LOCAL_PredEntriesCounter == 0) { \
 	    saveregs(); \
-	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	    setregs(); \
 	    JMPNext(); \
 	  } \
@@ -695,7 +695,7 @@
 	  LOCAL_PredEntriesCounter--; \
 	  if (LOCAL_PredEntriesCounter == 0) { \
 	    saveregs(); \
-	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	    setregs(); \
 	    JMPNext(); \
 	  } \
@@ -769,7 +769,7 @@
 	  LOCAL_PredEntriesCounter--; \
 	  if (LOCAL_PredEntriesCounter == 0) { \
 	    saveregs(); \
-	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	    setregs(); \
 	    JMPNext(); \
 	  } \
@@ -844,7 +844,7 @@
 	  LOCAL_PredEntriesCounter--; \
 	  if (LOCAL_PredEntriesCounter == 0) { \
 	    saveregs(); \
-	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	    setregs(); \
 	    JMPNext(); \
 	  } \
@@ -912,7 +912,7 @@
 	  LOCAL_PredEntriesCounter--; \
 	  if (LOCAL_PredEntriesCounter == 0) { \
 	    saveregs(); \
-	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	    setregs(); \
 	    JMPNext(); \
 	  } \
@@ -983,7 +983,7 @@
 	  LOCAL_PredEntriesCounter--; \
 	  if (LOCAL_PredEntriesCounter == 0) { \
 	    saveregs(); \
-	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	    setregs(); \
 	    JMPNext(); \
 	  } \
@@ -1056,7 +1056,7 @@
 	  LOCAL_PredEntriesCounter--; \
 	  if (LOCAL_PredEntriesCounter == 0) { \
 	    saveregs(); \
-	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	    setregs(); \
 	    JMPNext(); \
 	  } \
@@ -1130,7 +1130,7 @@
 	  LOCAL_PredEntriesCounter--; \
 	  if (LOCAL_PredEntriesCounter == 0) { \
 	    saveregs(); \
-	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	    setregs(); \
 	    JMPNext(); \
 	  } \
@@ -1197,7 +1197,7 @@
 	  LOCAL_PredEntriesCounter--; \
 	  if (LOCAL_PredEntriesCounter == 0) { \
 	    saveregs(); \
-	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,""); \
+	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT,""); \
 	    setregs(); \
 	    JMPNext(); \
 	  } \

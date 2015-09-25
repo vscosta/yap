@@ -421,7 +421,7 @@ char_conversion( USES_REGS1 )
     CharConversionTable2 = Yap_AllocCodeSpace(NUMBER_OF_CHARS*sizeof(char));
     while (CharConversionTable2 == NULL) {
       if (!Yap_growheap(FALSE, NUMBER_OF_CHARS*sizeof(char), NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+	Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
 	return(FALSE);
       }
     }

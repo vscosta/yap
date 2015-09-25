@@ -485,7 +485,7 @@ int PL_error(const char *pred, int arity, const char *msg, PL_error_code id, ...
 			  PL_ATOM, ATOM_no_memory);
 	  break;
 	default:
-	  PL_unify_atom(formal, ATOM_system_error);
+	  PL_unify_atom(formal, ATOM_SYSTEM_ERROR_INTERNAL);
 	  break;
       }
 

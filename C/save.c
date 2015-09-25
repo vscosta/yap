@@ -161,7 +161,7 @@ LightBug(s)
 #endif				/* LIGHT */
 
 static Int
-do_system_error(yap_error_number etype, const char *msg)
+do_SYSTEM_ERROR_INTERNAL(yap_error_number etype, const char *msg)
 {
   CACHE_REGS
 #if HAVE_SNPRINTF
@@ -190,7 +190,7 @@ int myread(FILE *fd, char *buffer, Int len) {
   while (len > 0) {
     nread = fread(buffer, 1,  (int)len, fd);
     if (nread < 1) {
-      return do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"bad read on saved state");
+      return do_SYSTEM_ERROR_INTERNAL(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"bad read on saved state");
     }
     buffer += nread;
     len -= nread;
@@ -206,7 +206,7 @@ mywrite(FILE *fd, char *buff, Int len) {
   while (len > 0) {
     nwritten = fwrite(buff, 1, (size_t)len, fd);
     if (nwritten < 0) {
-      return do_system_error(SYSTEM_ERROR,"bad write on saved state");
+      return do_SYSTEM_ERROR_INTERNAL(SYSTEM_ERROR_INTERNAL,"bad write on saved state");
     }
     buff += nwritten;
     len -= nwritten;
@@ -277,7 +277,7 @@ close_file(void)
   if (splfild == 0)
     return 0;
   if (fclose(splfild) < 0)
-    return do_system_error(SYSTEM_ERROR,"bad close on saved state");
+    return do_SYSTEM_ERROR_INTERNAL(SYSTEM_ERROR_INTERNAL,"bad close on saved state");
   splfild = 0;
   return 1;
 }
@@ -314,7 +314,7 @@ get_header_cell(void)
   int n;
   while (count < sizeof(CELL)) {
     if ((n = fread(&l, 1, sizeof(CELL)-count, splfild)) < 0) {
-      do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"failed to read saved state header");
+      do_SYSTEM_ERROR_INTERNAL(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"failed to read saved state header");
       return 0L;
     }
     count += n;
@@ -581,7 +581,7 @@ do_save(int mode USES_REGS) {
   Term t1 = Deref(ARG1);
 
   if (Yap_HoleSize) {
-    Yap_Error(SYSTEM_ERROR,MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)),
+    Yap_Error(SYSTEM_ERROR_INTERNAL,MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)),
 	      "restore/1: address space has holes of size %ld, cannot save", (long int)Yap_HoleSize);
     return FALSE;
   }
@@ -591,7 +591,7 @@ do_save(int mode USES_REGS) {
   }
   Yap_CloseStreams(TRUE);
   if ((splfild = open_file(LOCAL_FileNameBuf, O_WRONLY | O_CREAT)) < 0) {
-    Yap_Error(SYSTEM_ERROR,MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)),
+    Yap_Error(SYSTEM_ERROR_INTERNAL,MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)),
 	      "restore/1, open(%s)", strerror(errno));
     return(FALSE);
   }
@@ -621,14 +621,14 @@ p_save2( USES_REGS1 )
   Term t;
 #ifdef YAPOR
   if (GLOBAL_number_workers != 1) {
-    Yap_Error(SYSTEM_ERROR,TermNil,
+    Yap_Error(SYSTEM_ERROR_INTERNAL,TermNil,
 	      "cannot perform save: more than a worker/thread running");
     return(FALSE);
   }
 #endif /* YAPOR */
 #ifdef THREADS
   if (GLOBAL_NOfThreads != 1) {
-    Yap_Error(SYSTEM_ERROR,TermNil,
+    Yap_Error(SYSTEM_ERROR_INTERNAL,TermNil,
 	      "cannot perform save: more than a worker/thread running");
     return(FALSE);
   }
@@ -669,7 +669,7 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap USES_REGS)
   pp[0] = '\0';
   do {
     if ((n = fread(pp, 1, 1, splfild)) <= 0) {
-      do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"failed to scan first line from saved state");
+      do_SYSTEM_ERROR_INTERNAL(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"failed to scan first line from saved state");
       return FAIL_RESTORE;
     }
   } while (pp[0] != 1);
@@ -679,7 +679,7 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap USES_REGS)
     int count = 0, n, to_read = Unsigned(strlen(msg) + 1);
     while (count < to_read) {
       if ((n = fread(pp, 1, to_read-count, splfild)) <= 0) {
-	do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"failed to scan version info from saved state");
+	do_SYSTEM_ERROR_INTERNAL(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"failed to scan version info from saved state");
 	return FAIL_RESTORE;
       }
       count += n;
@@ -690,7 +690,7 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap USES_REGS)
     strncpy(LOCAL_ErrorMessage, "saved state ", MAX_ERROR_MSG_SIZE);
     strncat(LOCAL_ErrorMessage, LOCAL_FileNameBuf, MAX_ERROR_MSG_SIZE-1);
     strncat(LOCAL_ErrorMessage, " failed to match version ID", MAX_ERROR_MSG_SIZE-1);
-    LOCAL_Error_TYPE = CONSISTENCY_ERROR;
+    LOCAL_Error_TYPE = SYSTEM_ERROR_SAVED_STATE;
     return FAIL_RESTORE;
   }
   /* check info on header */
@@ -1151,7 +1151,7 @@ rehash(CELL *oldcode, int NOfE, int KindOfEntries USES_REGS)
     basep = (CELL *)TR;
     if (basep + (NOfE*2) > (CELL *)LOCAL_TrailTop) {
       if (!Yap_growtrail((ADDR)(basep + (NOfE*2))-LOCAL_TrailTop, TRUE)) {
-	Yap_Error(OUT_OF_TRAIL_ERROR, TermNil,
+	Yap_Error(RESOURCE_ERROR_TRAIL, TermNil,
 		  "not enough space to restore hash tables for indexing");
 	Yap_exit(1);
       }
@@ -1295,7 +1295,7 @@ RestoreHashPreds( USES_REGS1 )
   np = (PredEntry **) Yap_AllocAtomSpace(sizeof(PredEntry *)*size);
   if (!np) {
     if (!(np = (PredEntry **) malloc(sizeof(PredEntry *)*size))) {
-      Yap_Error(FATAL_ERROR,TermNil,"Could not allocate space for pred table");
+      Yap_Error(SYSTEM_ERROR_FATAL,TermNil,"Could not allocate space for pred table");
       return;
     }
     malloced = TRUE;
@@ -1448,10 +1448,10 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   /* try to open from current directory */
   /* could not open file */
   if (LOCAL_ErrorMessage == NULL) {
-    do_system_error(PERMISSION_ERROR_OPEN_SOURCE_SINK,"incorrect saved state");
+    do_SYSTEM_ERROR_INTERNAL(PERMISSION_ERROR_OPEN_SOURCE_SINK,"incorrect saved state");
   } else {
     strncpy(LOCAL_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
-    do_system_error(PERMISSION_ERROR_OPEN_SOURCE_SINK,"could not open saved state");
+    do_SYSTEM_ERROR_INTERNAL(PERMISSION_ERROR_OPEN_SOURCE_SINK,"could not open saved state");
   }
   return FAIL_RESTORE;
 }
@@ -1529,7 +1529,7 @@ RestoreHeap(OPCODE old_ops[] USES_REGS)
   if (!(Yap_ReInitConstExps() &&
 	Yap_ReInitUnaryExps() &&
 	Yap_ReInitBinaryExps())) {
-    Yap_Error(SYSTEM_ERROR, TermNil, "arithmetic operator not in saved state");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "arithmetic operator not in saved state");
   }
 #ifdef DEBUG_RESTORE1
   fprintf(errout, "phase 1 done\n");
@@ -1708,13 +1708,13 @@ p_restore( USES_REGS1 )
   Term t1 = Deref(ARG1);
 #ifdef YAPOR
   if (GLOBAL_number_workers != 1) {
-    Yap_Error(SYSTEM_ERROR,TermNil,"cannot perform save: more than a worker/thread running");
+    Yap_Error(SYSTEM_ERROR_INTERNAL,TermNil,"cannot perform save: more than a worker/thread running");
     return(FALSE);
   }
 #endif /* YAPOR */
 #ifdef THREADS
   if (GLOBAL_NOfThreads != 1) {
-    Yap_Error(SYSTEM_ERROR,TermNil,"cannot perform save: more than a worker/thread running");
+    Yap_Error(SYSTEM_ERROR_INTERNAL,TermNil,"cannot perform save: more than a worker/thread running");
     return(FALSE);
   }
 #endif /* THREADS */

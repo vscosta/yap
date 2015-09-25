@@ -679,17 +679,17 @@ ENDPBOp();
 
 
   BOp(trie_trust_double, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_double: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_trust_double: invalid instruction");
   ENDBOp();
 
 
   BOp(trie_try_double, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_double: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_try_double: invalid instruction");
   ENDBOp();
 
 
   BOp(trie_retry_double, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_double: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_retry_double: invalid instruction");
   ENDBOp();
 
 
@@ -710,12 +710,12 @@ ENDPBOp();
 
 
   BOp(trie_trust_longint, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_longint: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_trust_longint: invalid instruction");
   ENDBOp();
 
 
   BOp(trie_try_longint, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_longint: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_try_longint: invalid instruction");
   ENDBOp();
 
 

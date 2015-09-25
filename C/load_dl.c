@@ -55,7 +55,7 @@ Yap_CallFunctionByName(const char *thing_string)
   // you could do RTLD_NOW as well.  shouldn't matter
   if (!handle) {
     CACHE_REGS
-    Yap_Error(SYSTEM_ERROR, ARG1, "Dynamic linking on main module : %s\n", dlerror());
+    Yap_Error(SYSTEM_ERROR_INTERNAL, ARG1, "Dynamic linking on main module : %s\n", dlerror());
   }
   prismf * addr = (prismf *)dlsym(handle, thing_string);
   if (addr)
@@ -142,7 +142,7 @@ Yap_LoadForeignFile(char *file, int flags)
   out = (void *)dlopen(file,dlflag);
   if (!out) {
     CACHE_REGS
-    Yap_Error(SYSTEM_ERROR, ARG1, "dlopen error for %s: %s\n", file, dlerror());
+    Yap_Error(SYSTEM_ERROR_INTERNAL, ARG1, "dlopen error for %s: %s\n", file, dlerror());
   }
   return out;
 }
@@ -152,7 +152,7 @@ Yap_CallForeignFile(void *handle, char *f)
 {
   YapInitProc proc = (YapInitProc) dlsym(handle, f);
   if (!proc) {
-    /* Yap_Error(SYSTEM_ERROR, ARG1, "dlsym error %s\n", dlerror());*/
+    /* Yap_Error(SYSTEM_ERROR_INTERNAL, ARG1, "dlsym error %s\n", dlerror());*/
     return FALSE;
   }
   (*proc) ();
@@ -164,7 +164,7 @@ Yap_CloseForeignFile(void *handle)
 {
   if ( dlclose(handle) < 0) {
     CACHE_REGS
-    Yap_Error(SYSTEM_ERROR, ARG1, "dlclose error %s\n", dlerror());
+    Yap_Error(SYSTEM_ERROR_INTERNAL, ARG1, "dlclose error %s\n", dlerror());
     return -1;
   }
   return 0;

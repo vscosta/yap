@@ -888,7 +888,7 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
     d0 = AbsAppl(HR);
     if (pt1+d1 > ENV - StackGap( PASS_REGS1 )) {
       if (!Yap_gcl((1+d1)*sizeof(CELL), 3, ENV, gc_P(P,CP))) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	return FALSE;
       }
       goto restart;
@@ -993,7 +993,7 @@ p_cut_by( USES_REGS1 )
 static Int
 p_erroneous_call( USES_REGS1 )
 {
-  Yap_Error(SYSTEM_ERROR, TermNil, "bad call to internal built-in");
+  Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "bad call to internal built-in");
   return(FALSE);
 }
 

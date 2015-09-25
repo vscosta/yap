@@ -244,7 +244,7 @@ RestoreTrail(int worker_p USES_REGS)
   if (TR == aux_tr)
     return;
   if (aux_tr < TR){
-    Yap_Error(SYSTEM_ERROR, TermNil, "oops");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "oops");
   }
   Yap_NEW_MAHASH((ma_h_inner_struct *)HR PASS_REGS);
   while (TR != aux_tr) {
@@ -594,7 +594,7 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 	      CELL ar[256];
 	      Int i,n = (f)(Yap_BlobTag(t), Yap_BlobInfo(t), ar, 256);
 	      if (n < 0) {
-		Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"not enough space for slot internal variables");
+		Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"not enough space for slot internal variables");
 	      }
 	      for (i = 0; i< n; i++) {
 		CELL *pt = ar+i;
@@ -618,7 +618,7 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 	      if ( (f2 = Yap_blob_gc_relocate_handler(t)) < 0 ) {
 		int out = (f2)(Yap_BlobTag(t), Yap_BlobInfo(t), ar, n);
 		if (out < 0) {
-		  Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"bad restore of slot internal variables");
+		  Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"bad restore of slot internal variables");
 		  return;
 		}
 	      }
@@ -1303,7 +1303,7 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *ol
     sz = in_size;
   }
 #ifdef YAPOR
-  Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"cannot grow Heap: more than a worker/thread running");
+  Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"cannot grow Heap: more than a worker/thread running");
   return FALSE;
 #endif
   if (GLOBAL_SizeOfOverflow > sz) {
@@ -1482,7 +1482,7 @@ Yap_locked_growheap(bool fix_code, size_t in_size, void *cip)
     }
   }
 #if USE_SYSTEM_MALLOC
-  P = Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"malloc failed");
+  P = Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"malloc failed");
   res = FALSE;
 #else
   res=do_growheap(fix_code, in_size, (struct intermediates *)cip, NULL, NULL, NULL PASS_REGS);
@@ -1521,12 +1521,12 @@ Yap_locked_growglobal(CELL **ptr)
 
 #if defined(YAPOR_THREADS)
   if (GLOBAL_number_workers != 1) {
-    Yap_Error(OUT_OF_STACK_ERROR,TermNil,"cannot grow Global: more than a worker/thread running");
+    Yap_Error(RESOURCE_ERROR_STACK,TermNil,"cannot grow Global: more than a worker/thread running");
     return(FALSE);
   }
 #elif defined(THREADS)
   if (GLOBAL_NOfThreads != 1) {
-    Yap_Error(OUT_OF_STACK_ERROR,TermNil,"cannot grow Global: more than a worker/thread running");
+    Yap_Error(RESOURCE_ERROR_STACK,TermNil,"cannot grow Global: more than a worker/thread running");
     return(FALSE);
   }
 #endif
@@ -1882,7 +1882,7 @@ Yap_shift_visit(CELL **to_visit, CELL ***to_visit_maxp, CELL ***to_visit_base)
   char *newb = Yap_ExpandPreAllocCodeSpace(0, NULL, FALSE);
 
   if (newb == NULL) {
-    Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"cannot allocate temporary space for unification (%p)", to_visit);
+    Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"cannot allocate temporary space for unification (%p)", to_visit);
     return to_visit;
   }
   /* check new size */
@@ -1890,7 +1890,7 @@ Yap_shift_visit(CELL **to_visit, CELL ***to_visit_maxp, CELL ***to_visit_base)
   /* how much we grew */
   dsz = totalsz-totalsz0;
   if (dsz == 0) {
-    Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"cannot allocate temporary space for unification (%p)", to_visit);
+    Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"cannot allocate temporary space for unification (%p)", to_visit);
     return to_visit;
   }
   /* copy whole block to end */
@@ -1962,7 +1962,7 @@ Yap_CopyThreadStacks(int worker_q, int worker_p, bool incremental)
     char *oldq = (char *)REMOTE_ThreadHandle(worker_q).stack_address, *newq;
 
     if (!(newq = REMOTE_ThreadHandle(worker_q).stack_address = realloc(REMOTE_ThreadHandle(worker_q).stack_address,p_size*K1))) {
-      Yap_Error(OUT_OF_STACK_ERROR,TermNil,"cannot expand slave thread to match master thread");
+      Yap_Error(RESOURCE_ERROR_STACK,TermNil,"cannot expand slave thread to match master thread");
     }
     start_growth_time = Yap_cputime();
     gc_verbose = Yap_is_gc_verbose();

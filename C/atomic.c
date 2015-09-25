@@ -109,7 +109,7 @@ hide( USES_REGS1 )
   }
   atomToInclude = AtomOfTerm(t1);
   if (AlreadyHidden(RepAtom(atomToInclude)->UStrOfAE)) {
-    Yap_Error(SYSTEM_ERROR,t1,"an atom of name %s was already hidden",
+    Yap_Error(SYSTEM_ERROR_INTERNAL,t1,"an atom of name %s was already hidden",
 	  RepAtom(atomToInclude)->StrOfAE);
     return(FALSE);
   }
@@ -176,7 +176,7 @@ unhide( USES_REGS1 )
   atom = RepAtom(AtomOfTerm(t1));
   WRITE_LOCK(atom->ARWLock);
   if (atom->PropsOfAE != NIL) {
-    Yap_Error(SYSTEM_ERROR,t1,"cannot unhide an atom in use");
+    Yap_Error(SYSTEM_ERROR_INTERNAL,t1,"cannot unhide an atom in use");
     return(FALSE);
   }
   WRITE_LOCK(INVISIBLECHAIN.AERWLock);
@@ -1019,7 +1019,7 @@ atom_concat2( USES_REGS1 )
     Atom at;
     
     if (!inpv) {
-      LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;
+      LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
       free(inpv);
       goto error;
     }
@@ -1067,7 +1067,7 @@ string_concat2( USES_REGS1 )
     int i = 0;
     
     if (!inpv) {
-      LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;
+      LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
       free(inpv);
       goto error;
     }
@@ -1116,7 +1116,7 @@ atomic_concat2( USES_REGS1 )
     Atom at;
     
     if (!inpv) {
-      LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;
+      LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
       free(inpv);
       goto error;
     }
@@ -1161,7 +1161,7 @@ atomics_to_string2( USES_REGS1 )
     Atom at;
     
     if (!inpv) {
-      LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;
+      LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
       free(inpv);
       goto error;
     }
@@ -1207,7 +1207,7 @@ atomics_to_string3( USES_REGS1 )
     Atom at;
     
     if (!inpv) {
-      LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;
+      LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
       free(inpv);
       goto error;
     }
@@ -1395,7 +1395,7 @@ atom_split( USES_REGS1 )
     wlen = wcslen(ws);
     if (len > wlen) return FALSE;
     if (s1+len > (unsigned char *)LCL0-1024)
-      Yap_Error(OUT_OF_STACK_ERROR,t1,"$atom_split/4");
+      Yap_Error(RESOURCE_ERROR_STACK,t1,"$atom_split/4");
     for (i = 0; i< len; i++) {
       if (ws[i] > MAX_ISO_LATIN1) {
 	break;
@@ -1405,7 +1405,7 @@ atom_split( USES_REGS1 )
     if (ws1[i] > MAX_ISO_LATIN1) {
       /* first sequence is wide */
       if (ws1+len > (wchar_t *)ASP-1024)
-	Yap_Error(OUT_OF_STACK_ERROR,t1,"$atom_split/4");
+	Yap_Error(RESOURCE_ERROR_STACK,t1,"$atom_split/4");
       ws = (wchar_t *)RepAtom(at)->StrOfAE;
       for (i = 0; i< len; i++) {
 	ws1[i] = ws[i];
@@ -1418,7 +1418,7 @@ atom_split( USES_REGS1 )
       } else {
 	char *s2 = (char *)HR;
 	if (s2+(wlen-len) > (char *)ASP-1024)
-	  Yap_Error(OUT_OF_STACK_ERROR,t1,"$atom_split/4");
+	  Yap_Error(RESOURCE_ERROR_STACK,t1,"$atom_split/4");
 	ws += len;
 	while ((*s2++ = *ws++));
 	to2 = MkAtomTerm(Yap_LookupAtom(( char *)HR));
@@ -1435,7 +1435,7 @@ atom_split( USES_REGS1 )
     s = RepAtom(at)->UStrOfAE;
     if (len > (Int)strlen((char *)s)) return(FALSE);
     if (s1+len > (unsigned char *)ASP-1024)
-      Yap_Error(OUT_OF_STACK_ERROR,t1,"$atom_split/4");
+      Yap_Error(RESOURCE_ERROR_STACK,t1,"$atom_split/4");
     for (i = 0; i< len; i++) {
       s1[i] = s[i];
     }
@@ -1510,7 +1510,7 @@ alloc_tmp_stack(size_t sz USES_REGS) {
   void *pt = (void *)HR;
   while (HR > ASP-(1044+sz/sizeof(CELL))) {
     if (!Yap_gc(5, ENV, gc_P(P,CP))) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, "sub_atom/5");
+      Yap_Error(RESOURCE_ERROR_STACK, TermNil, "sub_atom/5");
       return(NULL);
     }
   }
@@ -1548,7 +1548,7 @@ build_new_atomic(int mask, wchar_t *wp, const unsigned char *p, size_t min, size
     src = skip_utf8((unsigned char *)src, min);
     const unsigned char *cp = src;
 
-    LOCAL_TERM_ERROR( 4*(len+1) );
+    LOCAL_TERM_ERROR( t, 4*(len+1) );
     buf = buf_from_tstring(HR);
     while (len) {
       utf8proc_int32_t  chr;

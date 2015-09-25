@@ -485,6 +485,48 @@ Yap_DebugErrorPuts(const char *s)
   Yap_DebugPuts (stderr, s);
 }
 
+void Yap_DebugWriteIndicator( PredEntry *ap )
+{
+  Term tmod = ap->ModuleOfPred;
+  if (!tmod) tmod = TermProlog;
+#if THREADS
+  Yap_DebugPlWrite(MkIntegerTerm(worker_id));
+  Yap_DebugPutc(stderr,' ');
+#endif
+  Yap_DebugPutc(stderr,'>');
+  Yap_DebugPutc(stderr,'\t');
+  Yap_DebugPlWrite(tmod);
+  Yap_DebugPutc(stderr,':');
+  if (ap->ModuleOfPred == IDB_MODULE) {
+      Term t = Deref(ARG1);
+      if (IsAtomTerm(t)) {
+          Yap_DebugPlWrite(t);
+        } else if (IsIntegerTerm(t)) {
+          Yap_DebugPlWrite(t);
+        } else {
+          Functor f = FunctorOfTerm(t);
+          Atom At = NameOfFunctor(f);
+          Yap_DebugPlWrite(MkAtomTerm(At));
+          Yap_DebugPutc(stderr,'/');
+          Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
+        }
+    } else {
+      if (ap->ArityOfPE == 0) {
+          Atom At = (Atom)ap->FunctorOfPred;
+          Yap_DebugPlWrite(MkAtomTerm(At));
+        } else {
+          Functor f = ap->FunctorOfPred;
+          Atom At = NameOfFunctor(f);
+          Yap_DebugPlWrite(MkAtomTerm(At));
+          Yap_DebugPutc(stderr,'/');
+          Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
+        }
+    }
+
+  Yap_DebugPutc(stderr,'\n');
+}
+
+
 #endif
 
 /* static */
@@ -1530,13 +1572,13 @@ binary_file(char *file_name)
 	fname = Yap_AbsoluteFile( fname, LOCAL_FileNameBuf);
       } else {
 	if (!strncpy(LOCAL_FileNameBuf, fname, YAP_FILENAME_MAX))
-	  return (PlIOError (SYSTEM_ERROR,file_name,"file name is too long in open/3"));
+	  return (PlIOError (SYSTEM_ERROR_INTERNAL,file_name,"file name is too long in open/3"));
       }
     } else if (trueGlobalPrologFlag(OPEN_EXPANDS_FILENAME_FLAG)) {
       fname = Yap_AbsoluteFile( fname, LOCAL_FileNameBuf);
     } else {
       if (!strncpy(LOCAL_FileNameBuf, fname, YAP_FILENAME_MAX)) {
-	return PlIOError (SYSTEM_ERROR,file_name,"file name is too long in open/3");
+	return PlIOError (SYSTEM_ERROR_INTERNAL,file_name,"file name is too long in open/3");
       }
     }
     // binary type
@@ -1575,7 +1617,7 @@ binary_file(char *file_name)
       if (args[OPEN_BOM].tvalue == TermTrue) {
 	needs_bom = true;
 	if (avoid_bom) {
-	  return (PlIOError (SYSTEM_ERROR,file_name,"BOM not compatible with encoding"));
+	  return (PlIOError (SYSTEM_ERROR_INTERNAL,file_name,"BOM not compatible with encoding"));
 	}
       }
       else if (args[OPEN_BOM].tvalue == TermFalse) {
@@ -1663,7 +1705,7 @@ open4 (  USES_REGS1 )
     StreamDesc *st;
     int sno = GetFreeStreamD();
     if (sno < 0)
-      return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_null_stream/1"));
+      return (PlIOError (SYSTEM_ERROR_INTERNAL,TermNil, "new stream not available for open_null_stream/1"));
     st = &GLOBAL_Stream[sno];
     st->status = Append_Stream_f | Output_Stream_f | Null_Stream_f;
 #if _WIN32
@@ -1672,7 +1714,7 @@ open4 (  USES_REGS1 )
     st->file = fopen("/dev/null","w");
 #endif		   
     if (st->file == NULL) {
-      Yap_Error( SYSTEM_ERROR, TermNil, "Could not open NULL stream (/dev/null,NUL)" );
+      Yap_Error( SYSTEM_ERROR_INTERNAL, TermNil, "Could not open NULL stream (/dev/null,NUL)" );
       return false;
     }      
     st->linepos = 0;

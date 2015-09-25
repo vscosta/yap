@@ -108,10 +108,10 @@ SocketGetc(int sno)
     ch = c;
   } else {
 #if HAVE_STRERROR
-      Yap_Error(SYSTEM_ERROR, TermNil, 
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, 
 	    "( socket_getc: %s)", strerror(errno));
 #else
-      Yap_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "(socket_getc)");
 #endif
     return post_process_eof(s);
@@ -155,7 +155,7 @@ ConsoleSocketGetc(int sno)
   } else if (count > 0) {
     ch = c;
   } else {
-    Yap_Error(SYSTEM_ERROR, TermNil, "read");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "read");
     return console_post_process_eof(s);
   }
   return console_post_process_read_char(ch, s);
@@ -178,9 +178,9 @@ ConsoleSocketPutc (int sno, int ch)
 #else
   if (write(s->u.socket.fd,  &c, sizeof(c)) < 0) {
 #if HAVE_STRERROR
-    Yap_Error(FATAL_ERROR, TermNil, "no access to console: %s", strerror(errno));
+    Yap_Error(SYSTEM_ERROR_FATAL, TermNil, "no access to console: %s", strerror(errno));
 #else
-    Yap_Error(FATAL_ERROR, TermNil, "no access to console");
+    Yap_Error(SYSTEM_ERROR_FATAL, TermNil, "no access to console");
 #endif
   }
 #endif
@@ -236,7 +236,7 @@ Yap_InitSocketStream(int fd, socket_info flags, socket_domain domain) {
 
   sno = GetFreeStreamD();
   if (sno < 0) {
-    PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for socket/4");
+    PlIOError (SYSTEM_ERROR_INTERNAL,TermNil, "new stream not available for socket/4");
     return(TermNil);
   }
   st = &GLOBAL_Stream[sno];

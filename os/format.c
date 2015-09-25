@@ -306,7 +306,7 @@ doformat(volatile Term otail, volatile Term oargs, int sno USES_REGS)
       *HR++ = oargs;
       *HR++ = otail;
       if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
-        Yap_Error(OUT_OF_HEAP_ERROR,otail,"format/2");
+        Yap_Error(RESOURCE_ERROR_HEAP,otail,"format/2");
         return FALSE;
       }
       oargs = HR[-2];
@@ -343,7 +343,7 @@ doformat(volatile Term otail, volatile Term oargs, int sno USES_REGS)
   } else if (IsStringTerm(tail)) {
     fstr = fptr = StringOfTerm(tail);
   } else {
-    Yap_Error(CONSISTENCY_ERROR, tail, "format/2");
+    Yap_Error(SYSTEM_ERROR_SAVED_STATE, tail, "format/2");
     return FALSE;
   }
   if (IsVarTerm(args)) {
@@ -870,7 +870,7 @@ doformat(volatile Term otail, volatile Term oargs, int sno USES_REGS)
 					       goto do_default_error;
           do_consistency_error:
           default:
-					       LOCAL_Error_TYPE = CONSISTENCY_ERROR;
+					       LOCAL_Error_TYPE = SYSTEM_ERROR_SAVED_STATE;
           do_default_error:
 					       if (tnum <= 8)
                              targs = NULL;

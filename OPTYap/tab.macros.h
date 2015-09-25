@@ -235,7 +235,7 @@ typedef enum {
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
 #define AUX_STACK_CHECK_EXPAND(STACK, STACK_LIMIT)                                  \
         if ((STACK_LIMIT) >= (STACK))                                               \
-          Yap_Error(INTERNAL_ERROR, TermNil, "stack full (AUX_STACK_CHECK_EXPAND)")
+          Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "stack full (AUX_STACK_CHECK_EXPAND)")
 #else /* YAPOR_THREADS */
 #define AUX_STACK_CHECK_EXPAND(STACK, STACK_LIMIT)                                  \
         if ((STACK_LIMIT) >= (STACK))                                               \
@@ -243,7 +243,7 @@ typedef enum {
 #endif /* YAPOR */
 #define STACK_CHECK_EXPAND(STACK, STACK_LIMIT)                                      \
         if ((STACK_LIMIT) >= (STACK) + 4096)                                        \
-          Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)")
+          Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "stack full (STACK_CHECK_EXPAND)")
 
 
 
@@ -1238,7 +1238,7 @@ static inline CELL *__expand_auxiliary_stack(CELL *stack USES_REGS) {
   char *old_top = (char *)LOCAL_TrailTop;
   INFORMATION_MESSAGE("Expanding trail in " UInt_FORMAT " bytes", K64);
   if (! Yap_growtrail(K64, TRUE)) {  /* TRUE means 'contiguous_only' */
-    Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)");
+    Yap_Error(RESOURCE_ERROR_TRAIL, TermNil, "stack full (STACK_CHECK_EXPAND)");
     return NULL;
   } else {
     UInt diff = (char *)LOCAL_TrailTop - old_top;
@@ -1399,7 +1399,7 @@ static inline void __abolish_incomplete_subgoals(choiceptr prune_cp USES_REGS) {
 
 #ifdef YAPOR
 static inline void pruning_over_tabling_data_structures(void) {
-  Yap_Error(INTERNAL_ERROR, TermNil, "pruning over tabling data structures");
+  Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "pruning over tabling data structures");
   return;
 }
 

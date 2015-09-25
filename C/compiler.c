@@ -137,7 +137,7 @@
 * Handle overflows when allocating big clauses properly.
 *
 * Revision 1.54  2004/11/19 22:08:41  vsc
-* replace SYSTEM_ERROR by out OUT_OF_WHATEVER_ERROR whenever appropriate.
+* replace SYSTEM_ERROR_INTERNAL by out OUT_OF_WHATEVER_ERROR whenever appropriate.
 *
 * Revision 1.53  2004/09/03 03:11:08  vsc
 * memory management fixes
@@ -579,7 +579,7 @@ compile_sf_term(Term t, int argno, int level)
       if (IsAtomicTerm(t))
 	Yap_emit((cglobs->onhead ? unify_s_a_op : write_s_a_op), t, (CELL) argno, &cglobs->cint);
       else if (!IsVarTerm(t)) {
-	LOCAL_Error_TYPE = INTERNAL_COMPILER_ERROR;
+	LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
 	LOCAL_Error_Term = TermNil;
 	LOCAL_ErrorMessage = "illegal argument of soft functor";
 	save_machine_regs();
@@ -607,7 +607,7 @@ c_args(Term app, unsigned int level, compiler_struct *cglobs)
 
   if (level == 0) {
     if (Arity >= MaxTemps) {
-      LOCAL_Error_TYPE = INTERNAL_COMPILER_ERROR;
+      LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
       LOCAL_Error_Term = TermNil;
       LOCAL_ErrorMessage = "exceed maximum arity of compiled goal";
       save_machine_regs();
@@ -641,16 +641,16 @@ try_store_as_dbterm(Term t, Int argno, unsigned int arity, int level, compiler_s
   if ((dbt = Yap_StoreTermInDB(t, -1)) == NULL) {
     HR = h0;
     switch(LOCAL_Error_TYPE) {
-    case OUT_OF_STACK_ERROR:
+    case RESOURCE_ERROR_STACK:
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       siglongjmp(cglobs->cint.CompilerBotch,OUT_OF_STACK_BOTCH);
-    case OUT_OF_TRAIL_ERROR:
+    case RESOURCE_ERROR_TRAIL:
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       siglongjmp(cglobs->cint.CompilerBotch,OUT_OF_TRAIL_BOTCH);
-    case OUT_OF_HEAP_ERROR:
+    case RESOURCE_ERROR_HEAP:
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       siglongjmp(cglobs->cint.CompilerBotch,OUT_OF_HEAP_BOTCH);
-    case OUT_OF_AUXSPACE_ERROR:
+    case RESOURCE_ERROR_AUXILIARY_STACK:
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       siglongjmp(cglobs->cint.CompilerBotch,OUT_OF_AUX_BOTCH);
     default:
@@ -968,7 +968,7 @@ c_test(Int Op, Term t1, compiler_struct *cglobs) {
     if (!IsNewVar(t)) {
 	char s[32];
 
-	LOCAL_Error_TYPE = TYPE_ERROR_VARIABLE;
+	LOCAL_Error_TYPE = UNINSTANTIATION_ERROR;
 	LOCAL_Error_Term = t;
 	LOCAL_ErrorMessage = LOCAL_ErrorSay;
 	Yap_bip_name(Op, s);
@@ -1315,7 +1315,7 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
     } else {
       char s[32];
 
-      LOCAL_Error_TYPE = TYPE_ERROR_VARIABLE;
+      LOCAL_Error_TYPE = UNINSTANTIATION_ERROR;
       LOCAL_Error_Term = t1;
       LOCAL_ErrorMessage = LOCAL_ErrorSay;
       Yap_bip_name(Op, s);
@@ -1338,7 +1338,7 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
     } else {
       char s[32];
 
-      LOCAL_Error_TYPE = TYPE_ERROR_VARIABLE;
+      LOCAL_Error_TYPE = UNINSTANTIATION_ERROR;
       LOCAL_Error_Term = t3;
       LOCAL_ErrorMessage = LOCAL_ErrorSay;
       Yap_bip_name(Op, s);
@@ -2192,9 +2192,9 @@ c_head(Term t, compiler_struct *cglobs)
 #else
   {
     if (Yap_ExecutionMode == MIXED_MODE)
-      Yap_NilError(NOJIT_ERROR, "mixed");
+      Yap_NilError(SYSTEM_ERROR_JIT_NOT_AVAILABLE, "mixed");
     else /* Yap_ExecutionMode == COMPILED */
-      Yap_NilError(NOJIT_ERROR, "just compiled");
+      Yap_NilError(SYSTEM_ERROR_JIT_NOT_AVAILABLE, "just compiled");
   }
 #endif
   c_args(t, 0, cglobs);
@@ -2401,7 +2401,7 @@ clear_bvarray(int var, CELL *bvarray
   if (*bvarray & nbit) {
     CACHE_REGS
     /* someone had already marked this variable: complain */
-    LOCAL_Error_TYPE = INTERNAL_COMPILER_ERROR;
+    LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
     LOCAL_Error_Term = TermNil;
     LOCAL_ErrorMessage = "compiler internal error: variable initialised twice";
     save_machine_regs();
@@ -2443,7 +2443,7 @@ push_bvmap(int label, PInstr *pcpc, compiler_struct *cglobs)
 {
   if (bvindex == MAX_DISJUNCTIONS) {
     CACHE_REGS
-    LOCAL_Error_TYPE = INTERNAL_COMPILER_ERROR;
+    LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
     LOCAL_Error_Term = TermNil;
     LOCAL_ErrorMessage = "Too many embedded disjunctions";
     save_machine_regs();
@@ -2467,7 +2467,7 @@ reset_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs)
 
   if (bvindex == 0) {
     CACHE_REGS
-    LOCAL_Error_TYPE = INTERNAL_COMPILER_ERROR;
+    LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
     LOCAL_Error_Term = TermNil;
     LOCAL_ErrorMessage = "No embedding in disjunctions";
     save_machine_regs();
@@ -2488,7 +2488,7 @@ pop_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs)
 {
   if (bvindex == 0) {
     CACHE_REGS
-    LOCAL_Error_TYPE = INTERNAL_COMPILER_ERROR;
+    LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
     LOCAL_Error_Term = TermNil;
     LOCAL_ErrorMessage = "Too few embedded disjunctions";
     /*  save_machine_regs();
@@ -2542,7 +2542,7 @@ CheckUnsafe(PInstr *pc, compiler_struct *cglobs)
 	if ( (v->FlagsOfVE & PermFlag && pc == v->FirstOpForV) ||
 	     (v3->FlagsOfVE & PermFlag && pc == v3->FirstOpForV) ) {
 	  CACHE_REGS
-	    LOCAL_Error_TYPE = INTERNAL_COMPILER_ERROR;
+	    LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
 	  LOCAL_Error_Term = TermNil;
 	  LOCAL_ErrorMessage = "comparison should not have first instance of variables";
 	  save_machine_regs();
@@ -2783,7 +2783,7 @@ checktemp(Int arg, Int rn, compiler_vm_op ic, compiler_struct *cglobs)
     }
   if (target1 == cglobs->MaxCTemps) {
     CACHE_REGS
-    LOCAL_Error_TYPE = INTERNAL_COMPILER_ERROR;
+    LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
     LOCAL_Error_Term = TermNil;
     LOCAL_ErrorMessage = "too many temporaries";
     save_machine_regs();
@@ -2918,7 +2918,7 @@ c_layout(compiler_struct *cglobs)
 #ifdef DEBUG
       if (cglobs->pbvars != LOCAL_nperm) {
 	CACHE_REGS
-	LOCAL_Error_TYPE = INTERNAL_COMPILER_ERROR;
+	LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
 	LOCAL_Error_Term = TermNil;
 	LOCAL_ErrorMessage = "wrong number of variables found in bitmap";
 	save_machine_regs();
@@ -3497,12 +3497,12 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
 
 	YAPLeaveCriticalSection();
 	if (!Yap_gcl(LOCAL_Error_Size, NOfArgs, ENV, gc_P(P,CP))) {
-	  LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;
+	  LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
 	  LOCAL_Error_Term = inp_clause;
 	}
 	if (osize > ASP-HR) {
 	  if (!Yap_growstack(2*sizeof(CELL)*(ASP-HR))) {
-	    LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;
+	    LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
 	    LOCAL_Error_Term = inp_clause;
 	  }
 	}
@@ -3517,7 +3517,7 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
       ARG1 = inp_clause;
       ARG3 = src;
       if (!Yap_ExpandPreAllocCodeSpace(LOCAL_Error_Size, NULL, TRUE)) {
-	LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
+	LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
 	LOCAL_Error_Term = inp_clause;
       }
       YAPEnterCriticalSection();
@@ -3538,7 +3538,7 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
       ARG3 = src;
       YAPLeaveCriticalSection();
       if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
-	LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;
+	LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
 	LOCAL_Error_Term = inp_clause;
 	return NULL;
       }
@@ -3552,7 +3552,7 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
       ARG3 = src;
       YAPLeaveCriticalSection();
       if (!Yap_growtrail(LOCAL_TrailTop-(ADDR)TR, FALSE)) {
-	LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;
+	LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
 	LOCAL_Error_Term = inp_clause;
 	return NULL;
       }

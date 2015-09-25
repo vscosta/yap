@@ -462,7 +462,7 @@ non_ground(Term t, Term *Var USES_REGS)
 	return out;
     }
     if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
-      Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "overflow in ground");
+      Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, ARG1, "overflow in ground");
       return FALSE;
     }      
   }

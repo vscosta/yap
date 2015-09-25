@@ -465,7 +465,7 @@
 
     aux_stack_var_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_do_var_in_pair: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_do_var_in_pair: invalid instruction");
 #endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
@@ -481,7 +481,7 @@
     pop_trie_node();
     aux_stack_var_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_var_in_pair: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_trust_var_in_pair: invalid instruction");
 #endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
@@ -497,7 +497,7 @@
     store_trie_node(TrNode_next(node));
     aux_stack_var_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_var_in_pair: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_try_var_in_pair: invalid instruction");
 #endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
@@ -513,7 +513,7 @@
     restore_trie_node(TrNode_next(node));
     aux_stack_var_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_var_in_pair: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_retry_var_in_pair: invalid instruction");
 #endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
@@ -580,7 +580,7 @@
 
     aux_stack_val_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_do_val_in_pair: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_do_val_in_pair: invalid instruction");
 #endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
@@ -597,7 +597,7 @@
     pop_trie_node();
     aux_stack_val_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_val_in_pair: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_trust_val_in_pair: invalid instruction");
 #endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
@@ -614,7 +614,7 @@
     store_trie_node(TrNode_next(node));
     aux_stack_val_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_val_in_pair: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_try_val_in_pair: invalid instruction");
 #endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
@@ -631,7 +631,7 @@
     restore_trie_node(TrNode_next(node));
     aux_stack_val_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_val_in_pair: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_retry_val_in_pair: invalid instruction");
 #endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
@@ -697,7 +697,7 @@
 
     aux_stack_term_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_do_atom_in_pair: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_do_atom_in_pair: invalid instruction");
 #endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
@@ -713,7 +713,7 @@
     pop_trie_node();
     aux_stack_term_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_atom_in_pair: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_trust_atom_in_pair: invalid instruction");
 #endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
@@ -729,7 +729,7 @@
     store_trie_node(TrNode_next(node));
     aux_stack_term_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_atom_in_pair: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_try_atom_in_pair: invalid instruction");
 #endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
@@ -745,7 +745,7 @@
     restore_trie_node(TrNode_next(node));
     aux_stack_term_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_atom_in_pair: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_retry_atom_in_pair: invalid instruction");
 #endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
@@ -803,7 +803,7 @@
 
     aux_stack_new_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_do_null_in_pair: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_do_null_in_pair: invalid instruction");
 #endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
@@ -819,7 +819,7 @@
     pop_trie_node();
     aux_stack_new_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_null_in_pair: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_trust_null_in_pair: invalid instruction");
 #endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
@@ -835,7 +835,7 @@
     store_trie_node(TrNode_next(node));
     aux_stack_new_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_null_in_pair: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_try_null_in_pair: invalid instruction");
 #endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
@@ -851,7 +851,7 @@
     restore_trie_node(TrNode_next(node));
     aux_stack_new_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_null_in_pair: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_retry_null_in_pair: invalid instruction");
 #endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
@@ -970,7 +970,7 @@
 
     aux_stack_appl_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_do_appl_in_pair: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_do_appl_in_pair: invalid instruction");
 #endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
@@ -988,7 +988,7 @@
     pop_trie_node();
     aux_stack_appl_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_appl_in_pair: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_trust_appl_in_pair: invalid instruction");
 #endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
@@ -1006,7 +1006,7 @@
     store_trie_node(TrNode_next(node));
     aux_stack_appl_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_appl_in_pair: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_try_appl_in_pair: invalid instruction");
 #endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
@@ -1024,7 +1024,7 @@
     restore_trie_node(TrNode_next(node));
     aux_stack_appl_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_appl_in_pair: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_retry_appl_in_pair: invalid instruction");
 #endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
@@ -1103,17 +1103,17 @@
 
 
   BOp(trie_trust_double, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_double: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_trust_double: invalid instruction");
   ENDBOp();
 
 
   BOp(trie_try_double, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_double: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_try_double: invalid instruction");
   ENDBOp();
 
 
   BOp(trie_retry_double, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_double: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_retry_double: invalid instruction");
   ENDBOp();
 
 
@@ -1133,17 +1133,17 @@
 
 
   BOp(trie_trust_longint, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_longint: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_trust_longint: invalid instruction");
   ENDBOp();
 
 
   BOp(trie_try_longint, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_longint: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_try_longint: invalid instruction");
   ENDBOp();
 
 
   BOp(trie_retry_longint, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_longint: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_retry_longint: invalid instruction");
   ENDBOp();
 
 
@@ -1163,17 +1163,17 @@
 
 
   BOp(trie_trust_bigint, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_bigint: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_trust_bigint: invalid instruction");
   ENDBOp();
 
 
   BOp(trie_try_bigint, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_bigint: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_try_bigint: invalid instruction");
   ENDBOp();
 
 
   BOp(trie_retry_bigint, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_bigint: invalid instruction");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "trie_retry_bigint: invalid instruction");
   ENDBOp();
 
 

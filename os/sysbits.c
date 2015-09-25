@@ -156,7 +156,7 @@ Yap_WinError(char *yap_error)
 		NULL, GetLastError(),
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, 256,
 		NULL);
-  Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "%s at %s", msg, yap_error);
+  Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "%s at %s", msg, yap_error);
 }
 #endif /* __WINDOWS__ */
 
@@ -290,7 +290,7 @@ is_directory(const char *FileName)
   }
   return S_ISDIR(buf.st_mode);
 #else
-  Yap_Error(SYSTEM_ERROR, TermNil,
+  Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "stat not available in this configuration");
   return false;
 #endif
@@ -310,12 +310,12 @@ has_access(const char *FileName, int mode)
   if (access( FileName, mode ) == 0)
     return true;
   if (errno == EINVAL) {
-    Yap_Error(SYSTEM_ERROR, TermNil,
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
               "bad flags to access");
   }
   return false;
 #else
-  Yap_Error(SYSTEM_ERROR, TermNil,
+  Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
             "access not available in this configuration");
   return false;
 #endif
@@ -383,7 +383,7 @@ yapExpandVars (const char *source, char *result)
     result = malloc( YAP_FILENAME_MAX+1);
 
   if (strlen(source) >= YAP_FILENAME_MAX) {
-    Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "%s in true_file-name is larger than the buffer size (%d bytes)", source, strlen(source));
+    Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "%s in true_file-name is larger than the buffer size (%d bytes)", source, strlen(source));
   }
   /* step 1: eating home information */
   if (source[0] == '~') {
@@ -412,13 +412,13 @@ yapExpandVars (const char *source, char *result)
 	res++, src++;
       res[0] = '\0';
       if ((user_passwd = getpwnam (result)) == NULL) {
-        Yap_FileError(OPERATING_SYSTEM_ERROR, MkAtomTerm(Yap_LookupAtom(source)),"User %s does not exist in %s", result, source);
+        Yap_FileError(SYSTEM_ERROR_OPERATING_SYSTEM, MkAtomTerm(Yap_LookupAtom(source)),"User %s does not exist in %s", result, source);
 	return NULL;
       }
       strncpy (result, user_passwd->pw_dir, YAP_FILENAME_MAX);
       strcat(result, src);
 #else
-      Yap_FileError(OPERATING_SYSTEM_ERROR, MkAtomTerm(Yap_LookupAtom(source)),"User %s cannot be found in %s, missing getpwnam", result, source);
+      Yap_FileError(SYSTEM_ERROR_OPERATING_SYSTEM, MkAtomTerm(Yap_LookupAtom(source)),"User %s cannot be found in %s, missing getpwnam", result, source);
       return NULL;
 #endif
     }
@@ -653,7 +653,7 @@ DirName(const char *X) {
   if (!o)
     return NULL;
   if (( err = _splitpath_s(o, drive, YAP_FILENAME_MAX-1, dir, YAP_FILENAME_MAX-1,NULL, 0, NULL, 0) ) != 0) {
-    Yap_FileError(OPERATING_SYSTEM_ERROR, TermNil, "could not perform _splitpath %s: %s", X, strerror(errno));
+    Yap_FileError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "could not perform _splitpath %s: %s", X, strerror(errno));
     return NULL;
 
   }
@@ -690,7 +690,7 @@ static char *myrealpath( const char *path, char *out)
       s0 = malloc(strlen(s)+1);
       strcpy(s0, s);
       if ((rc = myrealpath(dirname((char *)path), out))==NULL) {
-	Yap_FileError(OPERATING_SYSTEM_ERROR, TermNil, "could not find file %s: %s", path, strerror(errno));
+	Yap_FileError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "could not find file %s: %s", path, strerror(errno));
 	return NULL;
       }
       if(rc[strlen(rc)-1] != '/' )
@@ -943,7 +943,7 @@ initSysPath(Term tlib, Term tcommons, bool dir_done, bool commons_done) {
     while (*--pt != '\\') {
       /* skip executable */
       if (pt == LOCAL_FileNameBuf) {
-        Yap_FileError(OPERATING_SYSTEM_ERROR, TermNil, "could not find executable name");
+        Yap_FileError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "could not find executable name");
         /* do nothing */
         return FALSE;
       }
@@ -951,7 +951,7 @@ initSysPath(Term tlib, Term tcommons, bool dir_done, bool commons_done) {
     while (*--pt != '\\') {
       /* skip parent directory "bin\\" */
       if (pt == LOCAL_FileNameBuf) {
-        Yap_FileError(OPERATING_SYSTEM_ERROR, TermNil, "could not find executable name");
+        Yap_FileError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "could not find executable name");
         /* do nothing */
         return FALSE;
       }
@@ -1792,7 +1792,7 @@ Yap_random (void)
 #elif HAVE_RAND
   return (((double) (rand ()) / RAND_MAX));
 #else
-  Yap_Error(SYSTEM_ERROR, TermNil,
+  Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
             "random not available in this configuration");
   return (0.0);
 #endif
@@ -2058,17 +2058,17 @@ SearchForTrailFault(void *ptr, int sure)
   if ((ptr > (void *)LOCAL_TrailTop-1024  &&
        TR < (tr_fr_ptr) LOCAL_TrailTop+(64*1024))) {
     if (!Yap_growtrail(64*1024, TRUE)) {
-      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP failed to reserve %ld bytes in growtrail", K64);
+      Yap_Error(RESOURCE_ERROR_TRAIL, TermNil, "YAP failed to reserve %ld bytes in growtrail", K64);
     }
     /* just in case, make sure the OS keeps the signal handler. */
     /*    my_signal_info(SIGSEGV, HandleSIGSEGV); */
   } else
 #endif /* OS_HANDLES_TR_OVERFLOW */
     if (sure)
-      Yap_Error(FATAL_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_FATAL, TermNil,
 		"tried to access illegal address %p!!!!", ptr);
     else
-      Yap_Error(FATAL_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR_FATAL, TermNil,
 		"likely bug in YAP, segmentation violation");
 }
 
@@ -2083,7 +2083,7 @@ HandleSIGSEGV(int   sig,   void   *sipv, void *uap)
     void *ptr = TR;
   int sure = FALSE;
   if (LOCAL_PrologMode & ExtendStackMode) {
-    Yap_Error(FATAL_ERROR, TermNil, "OS memory allocation crashed at address %p, bailing out\n",LOCAL_TrailTop);
+    Yap_Error(SYSTEM_ERROR_FATAL, TermNil, "OS memory allocation crashed at address %p, bailing out\n",LOCAL_TrailTop);
   }
 #if (defined(__svr4__) || defined(__SVR4))
   siginfo_t *sip = sipv;
@@ -2275,7 +2275,7 @@ ReceiveSignal (int s, void *x, void *y)
     case SIGQUIT:
     case SIGKILL:
       LOCAL_PrologMode &= ~InterruptMode;
-      Yap_Error(INTERRUPT_ERROR,MkIntTerm(s),NULL);
+      Yap_Error(INTERRUPT_EVENT,MkIntTerm(s),NULL);
       break;
 #endif
 #ifdef SIGUSR1
@@ -2681,9 +2681,9 @@ MSCHandleSignal(DWORD dwCtrlType) {
       shell = "/bin/sh";
     if (system (shell) < 0) {
 #if HAVE_STRERROR
-      Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "%s in sh/0", strerror(errno));
+      Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "%s in sh/0", strerror(errno));
 #else
-      Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "in sh/0");
+      Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "in sh/0");
 #endif
       return FALSE;
     }
@@ -2695,7 +2695,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
     system (shell);
     return (TRUE);
 #else
-    Yap_Error(SYSTEM_ERROR,TermNil,"sh not available in this configuration");
+    Yap_Error(SYSTEM_ERROR_INTERNAL,TermNil,"sh not available in this configuration");
     return(FALSE);
 #endif /* MSH */
 #endif
@@ -2772,7 +2772,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
     system (shell);
     return TRUE;
 #else
-    Yap_Error (SYSTEM_ERROR,TermNil,"shell not available in this configuration");
+    Yap_Error (SYSTEM_ERROR_INTERNAL,TermNil,"shell not available in this configuration");
     return FALSE;
 #endif
 #endif /* HAVE_SYSTEM */
@@ -2811,7 +2811,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
 			    &pi )           // Pointer to PROCESS_INFORMATION structure
 	    )
 	  {
-	    Yap_Error( SYSTEM_ERROR, ARG1,  "CreateProcess failed (%d).\n", GetLastError() );
+	    Yap_Error( SYSTEM_ERROR_INTERNAL, ARG1,  "CreateProcess failed (%d).\n", GetLastError() );
 	    return FALSE;
 	  }
 	// Wait until child process exits.
@@ -2849,9 +2849,9 @@ MSCHandleSignal(DWORD dwCtrlType) {
 #endif
     if (system (s)) {
 #if HAVE_STRERROR
-      Yap_Error(OPERATING_SYSTEM_ERROR,t1,"%s in system(%s)", strerror(errno), s);
+      Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM,t1,"%s in system(%s)", strerror(errno), s);
 #else
-      Yap_Error(OPERATING_SYSTEM_ERROR,t1,"in system(%s)", s);
+      Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM,t1,"in system(%s)", s);
 #endif
       return FALSE;
     }
@@ -2865,7 +2865,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
     return (TRUE);
 #undef command
 #else
-    Yap_Error(SYSTEM_ERROR,TermNil,"sh not available in this machine");
+    Yap_Error(SYSTEM_ERROR_INTERNAL,TermNil,"sh not available in this machine");
     return(FALSE);
 #endif
 #endif /* HAVE_SYSTEM */
@@ -2904,15 +2904,15 @@ MSCHandleSignal(DWORD dwCtrlType) {
       unlink (newname);
     if (r != 0) {
 #if HAVE_STRERROR
-      Yap_Error(OPERATING_SYSTEM_ERROR,t2,"%s in rename(%s,%s)", strerror(errno),oldname,newname);
+      Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM,t2,"%s in rename(%s,%s)", strerror(errno),oldname,newname);
 #else
-      Yap_Error(OPERATING_SYSTEM_ERROR,t2,"in rename(%s,%s)",oldname,newname);
+      Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM,t2,"in rename(%s,%s)",oldname,newname);
 #endif
       return FALSE;
     }
     return TRUE;
 #else
-    Yap_Error(SYSTEM_ERROR,TermNil,"rename/2 not available in this machine");
+    Yap_Error(SYSTEM_ERROR_INTERNAL,TermNil,"rename/2 not available in this machine");
     return (FALSE);
 #endif
   }
@@ -2968,7 +2968,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
     to = MkAtomTerm(Yap_LookupAtom(so));
     return(Yap_unify_constant(ARG2,to));
 #else
-    Yap_Error(SYSTEM_ERROR, TermNil,
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	      "getenv not available in this configuration");
     return (FALSE);
 #endif
@@ -3001,7 +3001,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
     } else s2 = RepAtom(AtomOfTerm(t2))->StrOfAE;
     while (!(p0 = p = Yap_AllocAtomSpace(strlen(s)+strlen(s2)+3))) {
       if (!Yap_growheap(FALSE, MinHeapGap, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+	Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
 	return FALSE;
       }
     }
@@ -3011,15 +3011,15 @@ MSCHandleSignal(DWORD dwCtrlType) {
     if (putenv(p0) == 0)
       return TRUE;
 #if HAVE_STRERROR
-    Yap_Error(OPERATING_SYSTEM_ERROR, TermNil,
+    Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil,
 	      "in putenv(%s)", strerror(errno), p0);
 #else
-    Yap_Error(OPERATING_SYSTEM_ERROR, TermNil,
+    Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil,
 	      "in putenv(%s)", p0);
 #endif
     return FALSE;
 #else
-    Yap_Error(SYSTEM_ERROR, TermNil,
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	      "putenv not available in this configuration");
     return FALSE;
 #endif
@@ -3126,9 +3126,9 @@ MSCHandleSignal(DWORD dwCtrlType) {
       new.it_value.tv_usec = i2;
       if (setitimer(ITIMER_REAL, &new, &old) < 0) {
 #if HAVE_STRERROR
-	Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "setitimer: %s", strerror(errno));
+	Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "setitimer: %s", strerror(errno));
 #else
-	Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "setitimer %d", errno);
+	Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "setitimer %d", errno);
 #endif
 	return FALSE;
       }
@@ -3148,7 +3148,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
     /* not actually trying to set the alarm */
     if (IntegerOfTerm(t) == 0)
       return TRUE;
-    Yap_Error(SYSTEM_ERROR, TermNil,
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	      "alarm not available in this configuration");
     return FALSE;
 #endif
@@ -3213,9 +3213,9 @@ MSCHandleSignal(DWORD dwCtrlType) {
       new.it_value.tv_usec = IntegerOfTerm(t2);
       if (setitimer(ITIMER_VIRTUAL, &new, &old) < 0) {
 #if HAVE_STRERROR
-	Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "setitimer: %s", strerror(errno));
+	Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "setitimer: %s", strerror(errno));
 #else
-	Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "setitimer %d", errno);
+	Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "setitimer %d", errno);
 #endif
 	return FALSE;
       }
@@ -3226,7 +3226,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
     /* not actually trying to set the alarm */
     if (IntegerOfTerm(t) == 0)
       return TRUE;
-    Yap_Error(SYSTEM_ERROR, TermNil,
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	      "virtual_alarm not available in this configuration");
     return FALSE;
 #endif
@@ -3588,7 +3588,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
       k = (wchar_t *)Yap_AllocCodeSpace(sz);
       while (k == NULL) {
 	if (!Yap_growheap(FALSE, sz, NULL)) {
-	  Yap_Error(OUT_OF_HEAP_ERROR, MkIntegerTerm(sz), "generating key in win_registry_get_value/3");
+	  Yap_Error(RESOURCE_ERROR_HEAP, MkIntegerTerm(sz), "generating key in win_registry_get_value/3");
 	  return FALSE;
 	}
       }

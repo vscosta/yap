@@ -224,7 +224,7 @@ static char *ensure_space(size_t sz) {
   if (!s) {
     s = (char *)HR;
     if (s + sz >= (char *)ASP) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil,
+      Yap_Error(RESOURCE_ERROR_STACK, TermNil,
                 "not enough space to write bignum: it requires %d bytes", sz);
       s = NULL;
     }

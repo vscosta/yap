@@ -71,7 +71,7 @@ encoding_t enc_id(char *s)
         if (!strcmp(s,  "utf32_le")) return ENC_ISO_UTF32_LE;
         if (!strcmp(s,  "default")) return Yap_DefaultEncoding();
         else {
-            Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, 0, "bad encoding %s, should be {octet,iso_latin_1,iso_ascii,iso_ansi,iso_utf8,utf16_be,utf16_le,utf32_be,utf32_le}", s);
+            Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, 0, "bad encoding %s", s);
             return ENC_OCTET;
         }
     }

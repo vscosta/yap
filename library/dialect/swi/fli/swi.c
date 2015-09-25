@@ -2424,7 +2424,7 @@ X_API predicate_t PL_predicate(const char *name, int arity, const char *m)
     Atom at;
     while (!(at = Yap_LookupAtom((char *)m))) {
       if (!Yap_growheap(FALSE, 0L, NULL)) {
-        Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+        Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
         return NULL;
       }
     }
@@ -2432,7 +2432,7 @@ X_API predicate_t PL_predicate(const char *name, int arity, const char *m)
   }
   while (!(at = Yap_LookupAtom((char *)name))) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
       return NULL;
     }
   }

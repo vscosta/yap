@@ -135,7 +135,7 @@ MemPutc(int sno, int ch)
 	save_machine_regs();
 	longjmp(*(jmp_buf *)GLOBAL_Stream[sno].u.mem_string.error_handler,1);
       } else {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP could not grow heap for writing to string");
+	Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "YAP could not grow heap for writing to string");
       }
       return -1;
     }
@@ -208,7 +208,7 @@ open_mem_read_stream (USES_REGS1)   /* $open_mem_read_stream(+List,-Stream) */
   }
   while ((nbuf = (char *)Yap_AllocAtomSpace((sl+1)*sizeof(char))) == NULL) {
     if (!Yap_growheap(FALSE, (sl+1)*sizeof(char), NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil,  LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_HEAP, TermNil,  LOCAL_ErrorMessage);
       return(FALSE);
     }
   }
@@ -283,7 +283,7 @@ Yap_OpenBufWriteStream( USES_REGS1 )
 
   while ((nbuf = (char *)Yap_AllocAtomSpace(Yap_page_size*sizeof(char))) == NULL) {
     if (!Yap_growheap(FALSE, Yap_page_size*sizeof(char), NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil,  LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_HEAP, TermNil,  LOCAL_ErrorMessage);
       return -1;
     }
   }
@@ -298,7 +298,7 @@ open_mem_write_stream (USES_REGS1)   /* $open_mem_write_stream(-Stream) */
 
   sno = Yap_OpenBufWriteStream( PASS_REGS1 );
   if (sno == -1)
-    return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_mem_read_stream/1"));
+    return (PlIOError (SYSTEM_ERROR_INTERNAL,TermNil, "new stream not available for open_mem_read_stream/1"));
   t = Yap_MkStream (sno);
   return (Yap_unify (ARG1, t));
 }
@@ -359,7 +359,7 @@ peek_mem_write_stream ( USES_REGS1 )
       HR = HI;
       if (!Yap_gcl((ASP-HI)*sizeof(CELL), 3, ENV, Yap_gcP()) ) {
 	UNLOCK(GLOBAL_Stream[sno].streamlock);
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	return(FALSE);
       }
       i = GLOBAL_Stream[sno].u.mem_string.pos;

@@ -568,7 +568,7 @@ void share_private_nodes(int worker_q) {
 
     /* update depth */
     if (depth >= MAX_BRANCH_DEPTH)
-      Yap_Error(INTERNAL_ERROR, TermNil, "maximum depth exceded (share_private_nodes)");
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "maximum depth exceded (share_private_nodes)");
     or_frame = B->cp_or_fr;
 #ifdef TABLING
     previous_or_frame = LOCAL_top_cp_on_stack->cp_or_fr;

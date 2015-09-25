@@ -3975,7 +3975,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   if (HeapTop >= LOCAL_GlobalBase - MinHeapGap) {
     *--ASP = (CELL)current_env;
     if (!Yap_locked_growheap(FALSE, MinHeapGap, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
       return -1;
     }
     current_env = (CELL *)*ASP;
@@ -3998,7 +3998,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
     if (
 	!Yap_locked_growtrail(sz, FALSE)
 	) {
-      Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"out of %lB during gc", sz);
+      Yap_Error(RESOURCE_ERROR_TRAIL,TermNil,"out of %lB during gc", sz);
       return -1;
     } else {
       LOCAL_total_marked = 0;
@@ -4249,7 +4249,7 @@ LeaveGCMode( USES_REGS1 )
   if (LOCAL_PrologMode & AbortMode) {
     LOCAL_PrologMode &= ~AbortMode;
     /* in case someone mangles the P register */
-    Yap_Error(PURE_ABORT, TermNil, "abort from console");
+    Yap_Error(ABORT_EVENT, TermNil, "abort from console");
     Yap_RestartYap( 1 );
   }
 }

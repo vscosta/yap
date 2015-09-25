@@ -617,7 +617,7 @@
   YAP_AtomToInt(Yap_LookupAtom("syntax_error"));
   YAP_AtomToInt(Yap_LookupAtom("syntax_errors"));
   YAP_AtomToInt(Yap_LookupAtom("system"));
-  YAP_AtomToInt(Yap_LookupAtom("system_error"));
+  YAP_AtomToInt(Yap_LookupAtom("SYSTEM_ERROR_INTERNAL"));
   YAP_AtomToInt(Yap_LookupAtom("system_init_file"));
   YAP_AtomToInt(Yap_LookupAtom("system_thread_id"));
   YAP_AtomToInt(Yap_LookupAtom("system_time"));

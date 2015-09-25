@@ -170,14 +170,14 @@ int Yap_CleanOpaqueVariable(CELL *pt)
 #ifdef DEBUG
   /* sanity checking */
   if (pt[0] != (CELL)FunctorBigInt) {
-    Yap_Error(SYSTEM_ERROR, TermNil, "CleanOpaqueVariable bad call");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "CleanOpaqueVariable bad call");
     return FALSE;
   }
 #endif
   blob_tag = pt[1];
   if (blob_tag < USER_BLOB_START ||
       blob_tag >= USER_BLOB_END) {
-    Yap_Error(SYSTEM_ERROR, AbsAppl(pt), "clean opaque: bad blob with tag " UInt_FORMAT ,blob_tag);
+    Yap_Error(SYSTEM_ERROR_INTERNAL, AbsAppl(pt), "clean opaque: bad blob with tag " UInt_FORMAT ,blob_tag);
     return FALSE;
   }
   blob_info = blob_tag - USER_BLOB_START;
@@ -198,14 +198,14 @@ Yap_blob_write_handler(Term t)
 #ifdef DEBUG
   /* sanity checking */
   if (pt[0] != (CELL)FunctorBigInt) {
-    Yap_Error(SYSTEM_ERROR, TermNil, "CleanOpaqueVariable bad call");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "CleanOpaqueVariable bad call");
     return FALSE;
   }
 #endif
   blob_tag = pt[1];
   if (blob_tag < USER_BLOB_START ||
       blob_tag >= USER_BLOB_END) {
-    Yap_Error(SYSTEM_ERROR, AbsAppl(pt), "clean opaque: bad blob with tag " UInt_FORMAT ,blob_tag);
+    Yap_Error(SYSTEM_ERROR_INTERNAL, AbsAppl(pt), "clean opaque: bad blob with tag " UInt_FORMAT ,blob_tag);
     return FALSE;
   }
   blob_info = blob_tag - USER_BLOB_START;
@@ -224,7 +224,7 @@ Yap_blob_gc_mark_handler(Term t)
 #ifdef DEBUG
   /* sanity checking */
   if (pt[0] != (CELL)FunctorBigInt) {
-    Yap_Error(SYSTEM_ERROR, TermNil, "CleanOpaqueVariable bad call");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "CleanOpaqueVariable bad call");
     return FALSE;
   }
 #endif
@@ -248,14 +248,14 @@ Yap_blob_gc_relocate_handler(Term t)
 #ifdef DEBUG
   /* sanity checking */
   if (pt[0] != (CELL)FunctorBigInt) {
-    Yap_Error(SYSTEM_ERROR, TermNil, "CleanOpaqueVariable bad call");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "CleanOpaqueVariable bad call");
     return FALSE;
   }
 #endif
   blob_tag = pt[1];
   if (blob_tag < USER_BLOB_START ||
       blob_tag >= USER_BLOB_END) {
-    Yap_Error(SYSTEM_ERROR, AbsAppl(pt), "clean opaque: bad blob with tag " UInt_FORMAT ,blob_tag);
+    Yap_Error(SYSTEM_ERROR_INTERNAL, AbsAppl(pt), "clean opaque: bad blob with tag " UInt_FORMAT ,blob_tag);
     return FALSE;
   }
   blob_info = blob_tag - USER_BLOB_START;
@@ -271,7 +271,7 @@ extern Int Yap_blob_tag(Term t)
 #ifdef DEBUG
   /* sanity checking */
   if (pt[0] != (CELL)FunctorBigInt) {
-    Yap_Error(SYSTEM_ERROR, TermNil, "CleanOpaqueVariable bad call");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "CleanOpaqueVariable bad call");
     return FALSE;
   }
 #endif
@@ -287,7 +287,7 @@ Yap_blob_info(Term t)
 #ifdef DEBUG
   /* sanity checking */
   if (pt[0] != (CELL)FunctorBigInt) {
-    Yap_Error(SYSTEM_ERROR, TermNil, "CleanOpaqueVariable bad call");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "CleanOpaqueVariable bad call");
     return FALSE;
   }
 #endif
@@ -342,7 +342,7 @@ Yap_HeapStoreOpaqueTerm(Term t)
   }
   new = Yap_AllocCodeSpace(sz);
   if (!new) {
-    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "subgoal_search_loop: no space for %s", StringOfTerm(t) );
+    Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "subgoal_search_loop: no space for %s", StringOfTerm(t) );
   } else {
     if (ptr[0] == (CELL)FunctorBigInt) {
       MP_INT *new = (MP_INT *)(RepAppl(t)+2);
@@ -539,7 +539,7 @@ p_rational( USES_REGS1 )
       (mpq_numref(rat)->_mp_alloc)*(sizeof(mp_limb_t)/CellSize) +
       (mpq_denref(rat)->_mp_alloc)*(sizeof(mp_limb_t)/CellSize);
     if (!Yap_gcl(size, 3, ENV, P)) {
-      Yap_Error(OUT_OF_STACK_ERROR, t, LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_STACK, t, LOCAL_ErrorMessage);
       return FALSE;
     }
   }

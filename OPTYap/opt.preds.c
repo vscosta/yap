@@ -312,7 +312,7 @@ static Int p_table( USES_REGS1 ) {
     return (FALSE);
   if (list != TermNil) {  /* non-empty list */
 #ifndef MODE_DIRECTED_TABLING
-    Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "invalid tabling declaration for %s/%d (mode directed tabling not enabled)", AtomName(at), arity);
+    Yap_Error(SYSTEM_ERROR_COMPILER, TermNil, "invalid tabling declaration for %s/%d (mode directed tabling not enabled)", AtomName(at), arity);
     return(FALSE);
 #else 
     /*************************************************************************************
@@ -343,7 +343,7 @@ static Int p_table( USES_REGS1 ) {
       else if (mode == MODE_DIRECTED_SUM || mode == MODE_DIRECTED_LAST) {
         if (pos_sum_last) {
           free(aux_mode_directed);
-          Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "invalid tabling declaration for %s/%d (more than one argument with modes 'sum' and/or 'last')", AtomName(at), arity);
+          Yap_Error(SYSTEM_ERROR_COMPILER, TermNil, "invalid tabling declaration for %s/%d (more than one argument with modes 'sum' and/or 'last')", AtomName(at), arity);
           return(FALSE);
         } else
           pos_sum_last = 1;

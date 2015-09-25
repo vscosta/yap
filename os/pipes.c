@@ -70,7 +70,7 @@ ConsolePipePutc (int sno, int ch)
   {
     DWORD written;
     if (WriteFile(s->u.pipe.hdl, &c, sizeof(c), &written, NULL) == FALSE) {
-      PlIOError (SYSTEM_ERROR,TermNil, "write to pipe returned error");
+      PlIOError (SYSTEM_ERROR_INTERNAL,TermNil, "write to pipe returned error");
       return EOF;
     }
   }
@@ -108,7 +108,7 @@ PipePutc (int sno, int ch)
   {
     DWORD written;
     if (WriteFile(s->u.pipe.hdl, &c, sizeof(c), &written, NULL) == FALSE) {
-      PlIOError (SYSTEM_ERROR,TermNil, "write to pipe returned error");
+      PlIOError (SYSTEM_ERROR_INTERNAL,TermNil, "write to pipe returned error");
       return EOF;
     }
   }
@@ -177,7 +177,7 @@ ConsolePipeGetc(int sno)
   } else if (count > 0) {
     ch = c;
   } else {
-    Yap_Error(SYSTEM_ERROR, TermNil, "read");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "read");
     return console_post_process_eof(s);
   }
   return console_post_process_read_char(ch, s);
@@ -208,9 +208,9 @@ PipeGetc(int sno)
     ch = c;
   } else {
 #if HAVE_STRERROR
-    Yap_Error(SYSTEM_ERROR, TermNil, "at pipe getc: %s", strerror(errno));
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "at pipe getc: %s", strerror(errno));
 #else
-    Yap_Error(SYSTEM_ERROR, TermNil, "at pipe getc");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "at pipe getc");
 #endif
     return post_process_eof(s);
   }
@@ -246,14 +246,14 @@ open_pipe_stream (USES_REGS1)
   satt.bInheritHandle = TRUE;
   if (!CreatePipe(&ReadPipe, &WritePipe, &satt, 0))
     {
-      return (PlIOError (SYSTEM_ERROR,TermNil, "open_pipe_stream/2 could not create pipe"));
+      return (PlIOError (SYSTEM_ERROR_INTERNAL,TermNil, "open_pipe_stream/2 could not create pipe"));
     }
 #else
   int filedes[2];
 
   if (pipe(filedes) != 0)
     {
-      return (PlIOError (SYSTEM_ERROR,TermNil, "open_pipe_stream/2 could not create pipe"));
+      return (PlIOError (SYSTEM_ERROR_INTERNAL,TermNil, "open_pipe_stream/2 could not create pipe"));
     }
 #endif
   sno = GetFreeStreamD();

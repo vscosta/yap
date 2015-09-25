@@ -1102,7 +1102,7 @@ Term Yap_scan_num(StreamDesc *inp) {
   LOCAL_ScannerExtraBlocks = NULL;
   if (!(ptr = AllocScannerMemory(4096))) {
       LOCAL_ErrorMessage = "Trail Overflow";
-      LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;
+      LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
       return TermNil;
     }
   ch = getchr(inp);
@@ -1133,7 +1133,7 @@ Term Yap_scan_num(StreamDesc *inp) {
 #define CHECK_SPACE()                                                          \
   if (ASP - HR < 1024) {                                                       \
   LOCAL_ErrorMessage = "Stack Overflow";                                     \
-  LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;                                     \
+  LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;                                     \
   LOCAL_Error_Size = 0L;                                                     \
   if (p)                                                                     \
   p->Tok = Ord(kind = eot_tok);                                          \
@@ -1256,7 +1256,7 @@ static wchar_t *ch_to_wide(char *base, char *charp) {
   wchar_t *nb = (wchar_t *)base;
 
   if ((nb + n) + 1024 > (wchar_t *)AuxSp) {
-      LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
+      LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
       LOCAL_ErrorMessage =
           "Heap Overflow While Scanning: please increase code space (-h)";
       return NULL;
@@ -1335,7 +1335,7 @@ TokEntry *Yap_tokenizer( struct stream_desc *inp_stream,
       t->TokNext = NULL;
       if (t == NULL) {
           LOCAL_ErrorMessage = "Trail Overflow";
-          LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;
+          LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
           if (p)
             p->Tok = Ord(kind = eot_tok);
           /* serious error now */
@@ -1411,7 +1411,7 @@ scan_name:
 huge_var_error:
                   /* huge atom or variable, we are in trouble */
                   LOCAL_ErrorMessage = "Code Space Overflow due to huge atom";
-                  LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
+                  LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
                   Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
                   if (p)
                     p->Tok = Ord(kind = eot_tok);
@@ -1437,7 +1437,7 @@ huge_var_error:
                   ae = Yap_LookupAtom(TokImage);
                 }
               if (ae == NIL) {
-                  LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;
+                  LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
                   LOCAL_ErrorMessage = "Code Space Overflow";
                   if (p)
                     t->Tok = Ord(kind = eot_tok);
@@ -1468,7 +1468,7 @@ huge_var_error:
             cherr = 0;
             if (!(ptr = AllocScannerMemory(4096))) {
                 LOCAL_ErrorMessage = "Trail Overflow";
-                LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;
+                LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
                 if (p)
                   t->Tok = Ord(kind = eot_tok);
                 /* serious error now */
@@ -1491,7 +1491,7 @@ huge_var_error:
                 e = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
                 if (e == NULL) {
                     LOCAL_ErrorMessage = "Trail Overflow";
-                    LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;
+                    LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
                     if (p)
                       p->Tok = Ord(kind = eot_tok);
                     /* serious error now */
@@ -1520,7 +1520,7 @@ huge_var_error:
                       e2 = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
                       if (e2 == NULL) {
                           LOCAL_ErrorMessage = "Trail Overflow";
-                          LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;
+                          LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
                           if (p)
                             p->Tok = Ord(kind = eot_tok);
                           /* serious error now */
@@ -1551,7 +1551,7 @@ huge_var_error:
                       e2 = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
                       if (e2 == NULL) {
                           LOCAL_ErrorMessage = "Trail Overflow";
-                          LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;
+                          LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
                           t->Tok = Ord(kind = eot_tok);
                           /* serious error now */
                           return l;
@@ -1583,7 +1583,7 @@ quoted_string:
 
           while (TRUE) {
               if (charp + 1024 > (char *)AuxSp) {
-                  LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
+                  LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
                   LOCAL_ErrorMessage =
                       "Heap Overflow While Scanning: please increase code space (-h)";
                   break;
@@ -1620,7 +1620,7 @@ quoted_string:
               ++len;
               if (charp > (char *)AuxSp - 1024) {
                   /* Not enough space to read in the string. */
-                  LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
+                  LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
                   LOCAL_ErrorMessage =
                       "not enough space to read in string or quoted atom";
                   /* serious error now */
@@ -1675,7 +1675,7 @@ quoted_string:
                   t->TokInfo = Unsigned(Yap_LookupAtom(TokImage));
                 }
               if (!(t->TokInfo)) {
-                  LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;
+                  LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
                   LOCAL_ErrorMessage = "Code Space Overflow";
                   if (p)
                     t->Tok = Ord(kind = eot_tok);
@@ -1767,7 +1767,7 @@ enter_symbol:
                   ae = Yap_LookupAtom(TokImage);
                 }
               if (ae == NIL) {
-                  LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;
+                  LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
                   LOCAL_ErrorMessage = "Code Space Overflow";
                   if (p)
                     t->Tok = Ord(kind = eot_tok);
@@ -1776,7 +1776,7 @@ enter_symbol:
                 }
               t->TokInfo = Unsigned(ae);
               if (t->TokInfo == (CELL)NIL) {
-                  LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;
+                  LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
                   LOCAL_ErrorMessage = "Code Space Overflow";
                   if (p)
                     t->Tok = Ord(kind = eot_tok);
@@ -1932,7 +1932,7 @@ enter_symbol:
                     }
                   if (charp > (char *)AuxSp - 1024) {
                       /* Not enough space to read in the string. */
-                      LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
+                      LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
                       LOCAL_ErrorMessage =
                           "not enough space to read in string or quoted atom";
                       /* serious error now */
@@ -1961,7 +1961,7 @@ enter_symbol:
               qq->end.linepos = inp_stream->linepos - 1;
               qq->end.charno = inp_stream->charcount - 1;
               if (!(t->TokInfo)) {
-                  LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;
+                  LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
                   LOCAL_ErrorMessage = "Code Space Overflow";
                   if (p)
                     t->Tok = Ord(kind = eot_tok);
@@ -1997,7 +1997,7 @@ enter_symbol:
           TokEntry *e = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
           if (e == NULL) {
               LOCAL_ErrorMessage = "Trail Overflow";
-              LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;
+              LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
               p->Tok = Ord(kind = eot_tok);
               /* serious error now */
               return l;
