@@ -293,7 +293,7 @@ on_signal(Signal,OldAction,default) :-
 	'$reset_signal'(Signal, OldAction).
 on_signal(_Signal,_OldAction,Action) :-
 	var(Action), !,
-	throw(error(SYSTEM_ERROR_INTERNAL,'Somehow the meta_predicate declarations of on_signal are subverted!')).
+	throw(error('SYSTEM_ERROR_INTERNAL','Somehow the meta_predicate declarations of on_signal are subverted!')).
 on_signal(Signal,OldAction,Action) :-
 	Action = (_:Goal),
 	var(Goal), !,

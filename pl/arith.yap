@@ -1,5 +1,4 @@
-/****************
-*********************************************************
+/*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -130,15 +129,19 @@ do_c_built_in(Mod:G, _, H, OUT) :-
 	do_c_built_metacall(G1, M1, H, OUT).
 do_c_built_in('C'(A,B,C), _, _, (A=[B|C])) :- !.
 do_c_built_in('$do_error'( Error, Goal), M, H,
-        ('$cp'(Goal, Caller),functor(H,Na,Ar), throw(error(Error, [g=Goal,c=c(M:Na/Ar,File,FilePos),p=Caller])) ) :-
-        stream_property( loop_stream, name(File) ).
+	      ('$p_and_cp'(Goal, Caller),
+	       functor(H,Na,Ar),
+	       throw(error(Error, [g=Goal,c=c(M:Na/Ar,File,FilePos),p=Caller]))
+	      )
+	     ):-
+        stream_property( loop_stream, name(File) ),
         stream_property( loop_stream, position(FilePos) ).
-do_c_built_in(X is Y, M, _,  P) :-
+do_c_built_in(X is Y, M, H,  P) :-
         primitive(X), !,
-	do_c_built_in(X =:= Y, M, P).
-do_c_built_in(X is Y, M, _, (P,A=X)) :-
+	do_c_built_in(X =:= Y, M, H, P).
+do_c_built_in(X is Y, M, H, (P,A=X)) :-
 	nonvar(X), !,
-	do_c_built_in(A is Y, M, P).
+	do_c_built_in(A is Y, M, H, P).
 do_c_built_in(X is Y, _, _, P) :-
 	nonvar(Y),		% Don't rewrite variables
 	!,
@@ -148,8 +151,8 @@ do_c_built_in(X is Y, _, _, P) :-
 		expand_expr(Y, P0, X0),
 		'$drop_is'(X0, X, P0, P)
 	).
-do_c_built_in(phrase(NT,Xs),  Mod, _, NTXsNil) :-
-	'$_arith':do_c_built_in(phrase(NT,Xs,[]), Mod, NTXsNil).
+do_c_built_in(phrase(NT,Xs),  Mod, H, NTXsNil) :-
+	'$_arith':do_c_built_in(phrase(NT,Xs,[]), Mod, H, NTXsNil).
 do_c_built_in(phrase(NT,Xs0,Xs), Mod, _,  NewGoal) :-
     '$goal_expansion_allowed'(phrase(NT,Xs0,Xs), Mod),
     Goal = phrase(NT,Xs0,Xs),
@@ -183,11 +186,11 @@ do_c_built_in(Comp0, _, _, R) :-		% now, do it for comparisons
 	'$do_and'(R0, Comp, R).
 do_c_built_in(P, _M, _H, P).
 
-do_c_built_metacall(G1, Mod, '$execute_wo_mod'(G1,Mod)) :-
+do_c_built_metacall(G1, Mod, _, '$execute_wo_mod'(G1,Mod)) :-
     var(Mod), !.
-do_c_built_metacall(G1, Mod, '$execute_in_mod'(G1,Mod)) :-
+do_c_built_metacall(G1, Mod, _, '$execute_in_mod'(G1,Mod)) :-
     atom(Mod), !.
-do_c_built_metacall(G1, Mod, call(Mod:G1)).
+do_c_built_metacall(G1, Mod, _, call(Mod:G1)).
 
 '$do_and'(true, P, P) :- !.
 '$do_and'(P, true, P) :- !.
