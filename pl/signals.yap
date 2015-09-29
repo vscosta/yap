@@ -140,11 +140,7 @@ as the user makes a query.
 Please also note, that neither POSIX Operating Systems nor YAP guarantee
 that the order of delivery and handling is going to correspond with the
 order of dispatch.
-
-
-
-
- */
+*/
 :- meta_predicate on_signal(+,?,:), alarm(+,:,-).
 
 '$creep'(G) :-
