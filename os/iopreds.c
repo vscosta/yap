@@ -277,7 +277,6 @@ InitFileIO(StreamDesc *s)
 static void
 InitStdStream (int sno, SMALLUNSGN flags, FILE * file)
 {
-  CACHE_REGS
     StreamDesc *s = &GLOBAL_Stream[sno];
   s->file = file; 
   s->status = flags;
@@ -358,16 +357,23 @@ Yap_InitStdStreams (void)
   InitStdStreams();
 }
 
+
+
 Int
-PlIOError (yap_error_number type, Term culprit, const char *who, ...)
+PlIOError__ (const char *function, int lineno, const char *file, yap_error_number type, Term culprit,  ...)
 {
+  
   if (trueLocalPrologFlag(FILEERRORS_FLAG) == MkIntTerm(1) ||
       type == RESOURCE_ERROR_MAX_STREAMS /* do not catch resource errors */) {
       va_list args;
-
-      va_start(args, who);
-      Yap_Error(type, culprit, who);
-      va_end( args );
+    const char *format;
+    char who[1024];
+    
+      va_start(args, culprit);
+    format = va_arg(args, char *);
+    vsnprintf(who, 1023, format, args);
+    va_end( args );
+   Yap_Error__(function, lineno,file, type, culprit, who);
       /* and fail */
       return FALSE;
   } else {
@@ -487,6 +493,7 @@ Yap_DebugErrorPuts(const char *s)
 
 void Yap_DebugWriteIndicator( PredEntry *ap )
 {
+  CACHE_REGS
   Term tmod = ap->ModuleOfPred;
   if (!tmod) tmod = TermProlog;
 #if THREADS
@@ -1546,7 +1553,7 @@ binary_file(char *file_name)
     /* done */
     sno = GetFreeStreamD();
     if (sno < 0)
-      return (PlIOError (RESOURCE_ERROR_MAX_STREAMS,TermNil, "open/3"));
+      return PlIOError (RESOURCE_ERROR_MAX_STREAMS,TermNil, "open/3");
     st = &GLOBAL_Stream[sno];
     st->user_name = file_name;
     st->name = Yap_LookupAtom(Yap_AbsoluteFile(fname, NULL)); 
@@ -1634,9 +1641,9 @@ binary_file(char *file_name)
     {
       UNLOCK(st->streamlock);
  	if (errno == ENOENT)
-	  return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK,ARG6,"open/3"));
+	  return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK,ARG6,"%s: %s", fname, strerror(errno)));
 	else
-	  return (PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK,file_name,"open/3"));
+	  return (PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK,file_name,"%s: %s", fname, strerror(errno)));
     }
 #if MAC
   if (open_mode == AtomWrite)

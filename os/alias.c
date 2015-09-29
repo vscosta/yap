@@ -184,7 +184,6 @@ Yap_FetchStreamAlias (int sno, Term t2 USES_REGS)
   }
 }
 
-
 static void
 ExtendAliasArray(void)
 {

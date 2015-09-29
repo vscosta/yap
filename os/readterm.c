@@ -759,8 +759,6 @@ static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
  *
  */
 Term Yap_read_term(int inp_stream, Term opts, int nargs) {
-  CACHE_REGS
-
   FEnv fe;
   REnv re;
 #if EMACS

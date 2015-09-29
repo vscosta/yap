@@ -338,7 +338,7 @@ time_file(USES_REGS1)
 static Int
 file_size(USES_REGS1)
 {
- 
+  int rc;
   Int sno = Yap_CheckStream (ARG1, (Input_Stream_f | Output_Stream_f | Socket_Stream_f), "file_size/2");
   if (sno < 0)
     return (FALSE);
@@ -346,9 +346,12 @@ file_size(USES_REGS1)
       !(GLOBAL_Stream[sno]. status &  (InMemory_Stream_f|Socket_Stream_f|Pipe_Stream_f))) {
 	// there
 	struct stat file_stat;
-	if (fstat(fileno(GLOBAL_Stream[sno].file), &file_stat) < 0) {
+	if ((rc = fstat(fileno(GLOBAL_Stream[sno].file), &file_stat) )< 0) {
         UNLOCK(GLOBAL_Stream[sno].streamlock);
-	  PlIOError( PERMISSION_ERROR_INPUT_STREAM, ARG1, "%s in file_size/2", strerror(errno));
+      if (rc == ENOENT)
+        PlIOError( EXISTENCE_ERROR_SOURCE_SINK, ARG1, "%s in file_size", strerror(errno));
+      else
+	  PlIOError( PERMISSION_ERROR_INPUT_STREAM, ARG1, "%s in file_size", strerror(errno));
 	  return false;
 	}
 	// and back again

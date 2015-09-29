@@ -19,10 +19,9 @@
 
 #define ENCODING_H 1
 
-#if defined(_PL_STREAM_H)
-typedef IOENC encoding_t;
-#define ENC_ISO_LATIN1 ENC_ISO_LATIN_1 
-#else
+
+#include "Yap.h"
+
 typedef enum {
   ENC_OCTET      = 0,  /// binary files
   ENC_ISO_LATIN1 = 1,  /// US+West Europe
@@ -77,7 +76,6 @@ encoding_t enc_id(char *s)
     }
 }
 
-#endif
 
 #endif
 

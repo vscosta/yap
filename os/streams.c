@@ -126,18 +126,20 @@ FILE *Yap_GetOutputStream(Term t, const char *msg) {
 
 int GetFreeStreamD(void) {
   CACHE_REGS
+  LOCK(GLOBAL_StreamDescLock);
   int sno;
   for (sno = 0; sno < MaxStreams; ++sno) {
-    LOCK(GLOBAL_Stream[sno].streamlock);
     if (GLOBAL_Stream[sno].status & Free_Stream_f) {
       break;
     }
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
   }
   if (sno == MaxStreams) {
+    UNLOCK(GLOBAL_StreamDescLock);
     return -1;
   }
   GLOBAL_Stream[sno].encoding = LOCAL_encoding;
+  LOCK(GLOBAL_Stream[sno].streamlock);
+  UNLOCK(GLOBAL_StreamDescLock);
   return sno;
 }
 

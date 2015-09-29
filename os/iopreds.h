@@ -252,7 +252,10 @@ GetCurInpPos (StreamDesc * inp_stream)
   return (inp_stream->linecount);
 }
 
-Int PlIOError( yap_error_number, Term, const char *, ...);
+#define PlIOError(type, culprit,...)  PlIOError__(__FUNCTION__, __LINE__,__FILE__, type, culprit, __VA_ARGS__)    
+
+Int PlIOError__( const char *, int, const char *, yap_error_number, Term, ...);
+
 int GetFreeStreamD(void);
 Term Yap_MkStream (int n);
 
@@ -260,8 +263,6 @@ bool Yap_PrintWarning( Term twarning );
 
 char *Yap_MemExportStreamPtr( int sno );
 
-Int
-PlIOError (yap_error_number type, Term culprit, const char *who, ...);
 
 void	Yap_plwrite(Term, struct stream_desc *, int, int, int);
 void    Yap_WriteAtom(struct stream_desc *s, Atom atom);
@@ -369,6 +370,12 @@ inline static Term
 StreamName(int i)
 {
   return(GLOBAL_Stream[i].user_name);
+}
+
+inline static Atom
+StreamFullName(int i)
+{
+  return(GLOBAL_Stream[i].name);
 }
 
 inline static void
