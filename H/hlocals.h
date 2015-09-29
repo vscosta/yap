@@ -167,7 +167,10 @@ typedef struct worker_local {
   char*  ErrorMessage_;
   Term  Error_Term_;
   yap_error_number  Error_TYPE_;
-  UInt  Error_Size_;
+const char*  Error_File_;
+const char*  Error_Function_;
+  int  Error_Lineno_;
+  size_t  Error_Size_;
   char  ErrorSay_[MAX_ERROR_MSG_SIZE];
   jmp_buf  IOBotch_;
   TokEntry*  tokptr_;

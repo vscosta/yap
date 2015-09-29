@@ -561,7 +561,7 @@ typedef enum
             LOCAL_PrologMode &= ~CritMode;                                \
             if (LOCAL_PrologMode & AbortMode) {                           \
 	      LOCAL_PrologMode &= ~AbortMode;                             \
-	      Yap_Error(PURE_ABORT, 0, "");                             \
+	      Yap_Error(ABORT_EVENT, 0, "");					\
             }                                                            \
 	    GLOBAL_locks_who_locked_heap = MAX_WORKERS;                  \
             UNLOCK(GLOBAL_locks_heap_access);                            \
@@ -578,7 +578,7 @@ typedef enum
           LOCAL_PrologMode &= ~CritMode;                                \
           if (LOCAL_PrologMode & AbortMode) {                           \
 	    LOCAL_PrologMode &= ~AbortMode;                             \
-	    Yap_Error(PURE_ABORT, 0, "");                             \
+	    Yap_Error(ABORT_EVENT, 0, "");					\
             Yap_RestartYap( 1 );                                      \
           }                                                            \
           /* UNLOCK(BGL); */                                           \

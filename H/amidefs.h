@@ -592,8 +592,9 @@ typedef struct yami {
       COUNT               s;
       struct yami        *l;
       struct pred_entry  *p;
+      struct pred_entry  *p0;
       CELL next;
-    } slp;
+    } slpp;
     struct {
       COUNT               s;
       Int                 I;

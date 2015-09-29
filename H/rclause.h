@@ -513,12 +513,13 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       pc->y_u.sllll.l4 = PtoOpAdjust(pc->y_u.sllll.l4);
       pc = NEXTOP(pc,sllll);
       break;
-      /* instructions type slp */
+      /* instructions type slpp */
     case _call_c_wfail:
-      pc->y_u.slp.s = ConstantAdjust(pc->y_u.slp.s);
-      pc->y_u.slp.l = PtoOpAdjust(pc->y_u.slp.l);
-      pc->y_u.slp.p = PtoPredAdjust(pc->y_u.slp.p);
-      pc = NEXTOP(pc,slp);
+      pc->y_u.slpp.s = ConstantAdjust(pc->y_u.slpp.s);
+      pc->y_u.slpp.l = PtoOpAdjust(pc->y_u.slpp.l);
+      pc->y_u.slpp.p = PtoPredAdjust(pc->y_u.slpp.p);
+      pc->y_u.slpp.p0 = PtoPredAdjust(pc->y_u.slpp.p0);
+      pc = NEXTOP(pc,slpp);
       break;
       /* instructions type sssl */
     case _go_on_cons:

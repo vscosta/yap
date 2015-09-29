@@ -184,6 +184,9 @@ static void InitWorker(int wid) {
 
 
 
+
+
+
   REMOTE_BreakLevel(wid) = 0;
   REMOTE_PrologMode(wid) = BootMode;
   REMOTE_CritLocks(wid) = 0;

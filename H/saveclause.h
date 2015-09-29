@@ -530,12 +530,13 @@
       CHECK(save_PtoOp(stream, pc->y_u.sllll.l4));
       pc = NEXTOP(pc,sllll);
       break;
-      /* instructions type slp */
+      /* instructions type slpp */
     case _call_c_wfail:
-      CHECK(save_Constant(stream, pc->y_u.slp.s));
-      CHECK(save_PtoOp(stream, pc->y_u.slp.l));
-      CHECK(save_PtoPred(stream, pc->y_u.slp.p));
-      pc = NEXTOP(pc,slp);
+      CHECK(save_Constant(stream, pc->y_u.slpp.s));
+      CHECK(save_PtoOp(stream, pc->y_u.slpp.l));
+      CHECK(save_PtoPred(stream, pc->y_u.slpp.p));
+      CHECK(save_PtoPred(stream, pc->y_u.slpp.p0));
+      pc = NEXTOP(pc,slpp);
       break;
       /* instructions type sssl */
     case _go_on_cons:

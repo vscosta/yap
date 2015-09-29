@@ -210,7 +210,7 @@
   OPCODE(call_cpred                 ,Osbpp),
   OPCODE(execute_cpred              ,pp),
   OPCODE(call_usercpred             ,Osbpp),
-  OPCODE(call_c_wfail               ,slp),
+  OPCODE(call_c_wfail               ,slpp),
   OPCODE(try_c                      ,OtapFs),
   OPCODE(retry_c                    ,OtapFs),
   OPCODE(cut_c                      ,OtapFs),

@@ -299,6 +299,12 @@
 #define REMOTE_Error_Term(wid) REMOTE(wid)->Error_Term_
 #define LOCAL_Error_TYPE LOCAL->Error_TYPE_
 #define REMOTE_Error_TYPE(wid) REMOTE(wid)->Error_TYPE_
+#define LOCAL_Error_File LOCAL->Error_File_
+#define REMOTE_Error_File(wid) REMOTE(wid)->Error_File_
+#define LOCAL_Error_Function LOCAL->Error_Function_
+#define REMOTE_Error_Function(wid) REMOTE(wid)->Error_Function_
+#define LOCAL_Error_Lineno LOCAL->Error_Lineno_
+#define REMOTE_Error_Lineno(wid) REMOTE(wid)->Error_Lineno_
 #define LOCAL_Error_Size LOCAL->Error_Size_
 #define REMOTE_Error_Size(wid) REMOTE(wid)->Error_Size_
 #define LOCAL_ErrorSay LOCAL->ErrorSay_

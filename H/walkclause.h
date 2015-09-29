@@ -398,9 +398,9 @@
     case _switch_on_sub_arg_type:
       pc = NEXTOP(pc,sllll);
       break;
-      /* instructions type slp */
+      /* instructions type slpp */
     case _call_c_wfail:
-      pp = pc->y_u.slp.p;
+      pp = pc->y_u.slpp.p;
       return walk_found_c_pred(pp, startp, endp);
       /* instructions type sssl */
     case _go_on_cons:

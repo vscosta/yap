@@ -465,7 +465,7 @@ typedef enum {
 } find_pred_type;
 
 Int	     Yap_PredForCode(yamop *, find_pred_type, Atom *, UInt *, Term *);
-PredEntry *Yap_PredEntryForCode(yamop *, find_pred_type, CODEADDR *, CODEADDR *);
+PredEntry *Yap_PredEntryForCode(yamop *, find_pred_type, void* *, void* *);
 LogUpdClause   *Yap_new_ludbe(Term, PredEntry *, UInt);
 Term        Yap_LUInstance(LogUpdClause *, UInt);
 
@@ -473,7 +473,9 @@ Term        Yap_LUInstance(LogUpdClause *, UInt);
 int          Yap_new_udi_clause(PredEntry *, yamop *, Term);
 yamop       *Yap_udi_search(PredEntry *);
 
-Term    Yap_bug_location(yamop *codeptr, choiceptr b_ptr, CELL *env);
+Term    Yap_bug_location(yamop *p, yamop *cp, choiceptr b_ptr, CELL *env);
+Term    Yap_pc_location(yamop *p, choiceptr b_ptr, CELL *env);
+Term    Yap_env_location(yamop *p, choiceptr b_ptr, CELL *env, Int ignore_first);
 
 #if  LOW_PROF
 void	Yap_InformOfRemoval(void *);
