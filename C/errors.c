@@ -291,7 +291,7 @@ static char tmpbuf[YAP_BUF_SIZE];
 #include "YapErrors.h"
 
 /**
- * @brief Yap_Error__
+ * @brief Yap_Errorp
  *   This function handles errors in the C code. Check errors.yap for the
  *corresponding Prolog code.
  *
@@ -313,7 +313,9 @@ static char tmpbuf[YAP_BUF_SIZE];
  * The list includes the following options:
  *   + c=c(file, line, function): where the bug was detected;
  *
- *   + p=p(mod, name, arity, file, line): the prolog procedure that caused the bug,
+ *   + e=p(mod, name, arity, cl, file, lin): where the code was entered;
+ *
+ *   + p=p(mod, name, arity, cl, file, line): the prolog procedure that caused the bug,
  *and optionally,
  *
  *   + g=g(Goal):   the goal that created this mess
@@ -327,7 +329,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   CELL nt[3];
   Functor fun;
   bool serious;
-  Term tf, error_t;
+  Term tf, error_t, comment, culprit;
 
   /* disallow recursive error handling */
   if (LOCAL_PrologMode & InErrorMode) {
@@ -362,39 +364,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
             tmpbuf);
     Yap_exit(1);
   }
-  /* must do this here */
-  if (type == (SYSTEM_ERROR_FATAL || type == SYSTEM_ERROR_INTERNAL
-#if USE_SYSTEM_MALLOC
-               || !Yap_heap_regs
-#else
-               || !Yap_HeapBase
-#endif
-               )) {
-    {
-      va_start(ap, where);
-      char *format = NULL;
-      format = va_arg(ap, char *);
-      /* now build the error string */
-      if (format) {
-#if HAVE_VSNPRINTF
-        (void)vsnprintf(tmpbuf, YAP_BUF_SIZE, format, ap);
-#else
-        (void)vsprintf(tmpbuf, format, ap);
-#endif
-      } else {
-        tmpbuf[0] = '\0';
-      }
-      va_end(ap);
-    }
-    if (LOCAL_PrologMode == UserCCallMode) {
-      fprintf(stderr, "%%\n%%\n");
-      fprintf(stderr, "%% YAP OOOPS in USER C-CODE: %s.\n", tmpbuf);
-      fprintf(stderr, "%%\n%%\n");
-    } else {
-      fprintf(stderr, "%%\n%%\n");
-      fprintf(stderr, "%% YAP OOOPS: %s.\n", tmpbuf);
-      fprintf(stderr, "%%\n%%\n");
-    }
+  if (LOCAL_PrologMode == BootMode) {
     Yap_detect_bug_location(P, FIND_PRED_FROM_ANYWHERE, (char *)HR, 256);
     fprintf(stderr, "%%\n%% PC: %s\n", (char *)HR);
     Yap_detect_bug_location(CP, FIND_PRED_FROM_ANYWHERE, (char *)HR, 256);
@@ -440,8 +410,11 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
 #else
       (void)vsprintf(tmpbuf, format, ap);
 #endif
-    } else
+      comment = MkAtomTerm(Yap_LookupAtom(tmpbuf));
+    } else {
       tmpbuf[0] = '\0';
+      comment = TermNil;
+    }
     va_end(ap);
   }
   if (LOCAL_PrologMode & BootMode) {
@@ -521,28 +494,36 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
               MAX_ERROR_MSG_SIZE);
       LOCAL_ErrorMessage = LOCAL_ErrorSay;
     }
+    if (LOCAL_ErrorSay && LOCAL_ErrorSay[0])
+      comment  = MkAtomTerm(Yap_LookupAtom( LOCAL_ErrorSay ) );
+    else
+      comment = TermNil;
   }
   switch (type) {
   case RESOURCE_ERROR_HEAP:
   case RESOURCE_ERROR_STACK:
   case RESOURCE_ERROR_TRAIL:
-    nt[1] = MkAtomTerm(Yap_LookupAtom(tmpbuf));
-    break;
+    comment  = MkAtomTerm(Yap_LookupAtom(tmpbuf));
   default:
-    {
-      Term stack_dump;
-
-      if ((stack_dump = Yap_all_calls()) == 0L) {
-	stack_dump = TermNil;
-	LOCAL_Error_Size = 0L;
-      }
-      nt[1] = MkPairTerm(MkAtomTerm(Yap_LookupAtom(tmpbuf)),
-			 MkPairTerm(stack_dump, TermNil));
-      if (type == SYNTAX_ERROR) {
-	nt[1] = MkPairTerm(where, nt[1]);
-      }
+    nt[1] = TermNil;
+    if (comment != TermNil)
+      nt[1] = MkPairTerm(MkPairTerm(MkAtomTerm(Yap_LookupAtom("i")),comment), nt[1]);
+    if (file && function) {
+      Term ts[3], t3;
+      ts[0] = MkAtomTerm(Yap_LookupAtom(file));
+      ts[1] = MkIntegerTerm(lineno);
+      ts[2] = MkAtomTerm(Yap_LookupAtom(function));
+      t3 = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("c"),3),3,ts);
+      nt[1] = MkPairTerm(MkPairTerm(MkAtomTerm(Yap_LookupAtom("c")),t3), nt[1]);
+   }
+    if ((culprit=Yap_pc_location( P, B, ENV)) != TermNil ) {
+      nt[1] = MkPairTerm(MkPairTerm(MkAtomTerm(Yap_LookupAtom("p")),culprit), nt[1]);
+    }
+    if ((culprit=Yap_env_location( CP, B, ENV, 0)) != TermNil ) {
+      nt[1] = MkPairTerm(MkPairTerm(MkAtomTerm(Yap_LookupAtom("e")),culprit), nt[1]);
     }
   }
+  Yap_DebugPlWrite(nt[1]);
   /* disable active signals at this point */
   LOCAL_Signals = 0;
   CalculateStackGap(PASS_REGS1);

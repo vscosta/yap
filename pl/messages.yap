@@ -44,7 +44,11 @@ generic informational messages
 help messages (not currently implemented in YAP)
 + `query`
 query 	used in query processing (not currently implemented in YAP)
-+ `silent`
++ `silent`,M,Na,Ar,File, FilePos]],
+	[nl, nl].
+caller( error(_,Term), _) -->
+	{  lists:memberchk([g|g(Call)], Term) },
+	['~*|called from
 messages that do not produce output but that can be intercepted by hooks.
 
 
@@ -192,130 +196,107 @@ compose_message(version(Version), _Leve) -->
 	[ '~a' - [Version] ].
 compose_message(myddas_version(Version), _Leve) -->
 	[ 'MYDDAS version ~a' - [Version] ].
-compose_message(yes, _Leve) --> !,
+compose_message(yes, _Level) --> !,
 	[  'yes'- []  ].
+
 compose_message(Term, Level) -->
-	{ Level == error -> true ; Level == warning },
-	file_location(Term, Cause),
-	main_message(Term, Cause),
-	stack_dump( Term ),
-	extra_info( Term ),
+	{  Level == error -> true ; Level == warning },
+	location(Term, Level),
 	[nl],
-	!.
+	main_message( Term, Level ),
+	c_goal( Term, Level ),
+	caller( Term, Level ),
+	extra_info(  Term, Level ),
+	!,
+	[nl].
 compose_message(A-L, _Level) -->
-	{ format(user_error,A,L) }.
+	{ format(user_error,A,L)  }.
 
-
-file_location(error(_,syntax_error(_,between(_,LN,_),FileName,_) ), _ ) -->
+location( error(_,Term), Level ) -->
+	{ lists:memberchk([p|p(M,Na,Ar,File,FilePos)], Term ) },
+	[  '~a:~d:0 ~a in ~a:~q/~d:'-[File, FilePos,Level,M,Na,Ar] ],
+	[nl].
+location(error(_,syntax_error(_,between(_,LN,_),FileName,_) ), _ ) -->
 	[ '~a:~d:0: ' - [FileName,LN] ] .
-file_location(warning(_,syntax_error(_,between(_,LN,_),FileName,_) ), _ ) -->
+location(warning(_,syntax_error(_,between(_,LN,_),FileName,_) ), _ ) -->
 	[ '~a:~d:0: ' - [FileName,LN] ] .
-file_location(style_check(_,LN,FileName,_ ), _ ) -->
-				%	  { stream_position_data( line_count, LN) },
+location(style_check(_,LN,FileName,_ ), _ ) -->
+	%	  { stream_position_data( line_count, LN) },
 	!,
 	[ '~a:~d:0: ' - [FileName,LN] ] .
-file_location(error(_,L), Goal )-->
-	{
-	 lists:memberchk(context(G),L),
-	 clause_to_indicator(G, Goal)
-	->
-	 true
-	;
-	 lists:memberchk(context(G,_P), L),
-	 clause_to_indicator(G, Goal)
-	->
-	 true
-	;
-	 true
-	 },
-	{
-	 lists:memberchk(local_sp(LN:FileName:Mod:Ind,_P,_CP,_PP,_,_),L)
-	->
-	 ( var(Goal) -> Goal = Mod:Ind ;  true )
-	;
-	 lists:memberchk(local_sp(LN:FileName:[],_P,_CP,_PP,_,_),L)
-	->
-	 true
-	;
-	 prolog_load_context(file, FileName),
-	 stream_property( Stream, alias(loop_stream) ),
-	 stream_property( Stream, line_count( LN ) )
-	->
-	 true
-	;
-	  user_input = S,
-	  stream_property( S, line_count( LN ) ),
-	 stream_property( S, file_name( FileName ) )
-	},
-	{
-	 nonvar(Goal)
-	->
-	 true
-	;
-	 Ind = 'system:0'
-	},
-	 [ '~d:0: ' - [FileName,LN] ].
-%file_location(Info,query) -->
-%        { format( user_error, 'information available is: ~n~q.~n~n ' , [Info])} .
-
-
-
-/*print_message(error, error(Msg,[Info|local_sp(P,CP,Envs,CPs)])) :- !,
-	recorda(sp_info,local_sp(Msg, P,CP,PP,Envs,CPs),R),
-	print_message(error, error(Msg, Info)),
-	erase(R).
-*/
 
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
 main_message( error(syntax_error,syntax_error(Msg,between(L0,LM,LF),_Stream,Term)), _ ) -->
 	!,
-	  ['syntax error: ~s' - [Msg]],
+	  ['~*|!!! syntax error: ~s' - [10,Msg]],
 	  [nl],
 %	  [prefix('    ')],
 	  ( syntax_error_term( between(L0,LM,LF), Term )
-	  -> []
+	  ->
+	    []
 	  ;
-	    ['failed_processing ~w' - [Term],
-	     nl]
+	    ['failed_processing ~w' - [Term]],
+	    [nl]
 	  ).
-main_message(style_check(singleton(SVs),_S,_W,P), I) -->
+main_message(style_check(singleton(SVs),_S,_W,P), _) -->
 	{ clause_to_indicator(P, I) },
-	[  'singleton variable~*c ~s in ~q.' - [ NVs, 0's, SVsL, I] ], % '
+	[  '~*|!!! singleton variable~*c ~s in ~q.' - [ 10,  NVs, 0's, SVsL, I] ],
 	{ svs(SVs,SVsL,[]),
 	  ( SVs = [_] -> NVs = 0 ; NVs = 1 )
 	}.
-main_message(style_check(multiple(N,A,Mod,I0),_L,File,_),_I) -->
-	[  '~a redefines ~q from  ~a.' - [File, Mod:N/A, I0] ].
+main_message(style_check(multiple(N,A,Mod,I0),_L,File,_),_) -->
+	[  '~*|!!! ~a redefines ~q from  ~a.' - [8,File, Mod:N/A, I0] ].
 main_message(style_check(discontiguous(N,A,Mod),_P,_T,_M), _) -->
-	[  'discontiguous definition for ~p.' - [Mod:N/A] ].
+	[  '~*|!!! !!! discontiguous definition for ~p.' - [8,Mod:N/A] ].
 main_message(error(Msg,Info), _) --> {var(Info)}, !,
-	[ nl, '~internal YAP problem, incomplete message ~w~n.' - [Msg], nl ].
-main_message(error(consistency_error(Who), [Where|_]), _Source) -->
-	[ 'argument ~a not consistent with ~q.'-[Who,Where] ].
+	[ nl, '~*|!!! found internal YAP problem, incomplete message ~w~n.' - [8,Msg], nl ].
+main_message(error(consistency_error(Who)), _Source) -->
+	[ '~*|!!! has argument ~a not consistent with type.'-[8,Who] ].
 main_message(error(domain_error(Who , Type), _Where), _Source) -->
-	[ 'value ~a should be in ~q,' - [Who,Type], nl ].
+	[ '~*|!!!  ~q does not belong to domain ~a,' - [8,Who,Type], nl ].
 main_message(error(evaluation_error(What), _Where), _Source) -->
-	[ ' ~a during evaluation of arithmetic expressions,' - [What], nl ].
-main_message(error(existence_error(Who , Type), _Where), _Source) -->
-	[  '~a ~q could not be found,' - [Who, Type], nl ].
+	[ '~*|!!! caused ~a during evaluation of arithmetic expressions,' - [8,What], nl ].
+main_message(error(existence_error(Type , Who), _Where), _Source) -->
+	[  '~*|!!!  ~q ~a could not be found,' - [8,Type, Who], nl ].
 main_message(error(permission_error(Op, Type, Id), _Where), _Source) -->
-	[ ' ~q not allowed in ~a ~q,' - [Id, Type, Op], nl ].
-main_message(error(instantiation_error), _Source) -->
-	[ 'unbound variable' - [], nl ].
+	[ '~*|!!!  ~q is not allowed in ~a ~q,' - [8, Op, Type,Id], nl ].
+main_message(error(instantiation_error, _Where), _Source) -->
+	[ '~*|!!! unbound variable' - [8], nl ].
 main_message(error(representation_error), _Source) -->
-	[ 'unbound variable' - [], nl ].
+	[ '~*|!!! unbound variable' - [8], nl ].
 main_message(error(type_error(Type,Who), _What), _Source) -->
-	[ ' ~q should be of type ~a' - [Who,Type], nl ].
+	[ '~*|!!! ~q should be of type ~a' - [8,Who,Type], nl ].
 main_message(error(uninstantiation_error(T),_), _Source) -->
-	[ 'found ~q, expected unbound variable ' - [T], nl ].
+	[ '~*|!!! found ~q, expected unbound variable ' - [8,T], nl ].
 
-stack_dump(_) --> !.
-stack_dump(error(_,_)) -->
-	{ fail },
-	{ recorded(sp_info,local_sp(_Msg,_P,CP,_PP,Envs,CPs),_) },
-	{ Envs = [_|_] ; CPs = [_|_] }, !,
-	[nl],
-	'$hacks':display_stack_info(CPs, Envs, 20, CP).
+caller( error(_,Term), _) -->
+	{  lists:memberchk([p|p(M,Na,Ar,File,FilePos)], Term ) },
+	{  lists:memberchk([g|g(Call)], Term) },
+	  !,
+	  ['~*|goal was ~q' - [10,Call]],
+	  [nl],
+	['~*|exception raised from ~a:~q/~d, ~a:~d:0. '-[10,M,Na,Ar,File, FilePos]],
+	[nl].
+caller( error(_,Term), _) -->
+	{ lists:memberchk([e|p(M,Na,Ar,File,FilePos)], Term ) },
+	!,
+	['~*|exception raised from  ~a:~q/~d, ~a:~d:0. '-[10,M,Na,Ar,File, FilePos]],
+	[nl].
+caller( error(_,Term), _) -->
+	{  lists:memberchk([g|g(Call)], Term) },
+	!,
+	['~*|goal  ~q '-[10,Call]],
+	[nl].
+caller( _, _) -->
+	[].
+
+c_goal( error(_,Term), Level ) -->
+	{ lists:memberchk([c|c(File, Line, Func)], Term ) },
+	!,
+	['~*|~a raised at C-function ~a() in ~a/~d:0. '-[10, Level, Func, File, Line]],
+	[nl].
+c_goal( _, _Level ) --> [].
+
 
 prolog_message(X) -->
 	system_message(X).
@@ -386,8 +367,7 @@ system_message(error(permission_error(access,static_procedure,P), Where)) -->
 system_message(error(permission_error(alias,new,P), Where)) -->
 	[ 'PERMISSION ERROR- ~w: cannot create alias ~w' - [Where,P] ].
 system_message(error(permission_error(create,Name,P), Where)) -->
-	{ object_name(Name, ObjName) },
-	[ 'PERMISSION ERROR- ~w: cannot create ~a ~w' - [Where,ObjName,P] ].
+	[ 'PERMISSION ERROR- ~w: cannot create ~a ~w' - [Where,Name,P] ].
 system_message(error(permission_error(import,M1:I,redefined,SecondMod), Where)) -->
 	[ 'PERMISSION ERROR- loading ~w: modules ~w and ~w both define ~w' - [Where,M1,SecondMod,I] ].
 system_message(error(permission_error(input,binary_stream,Stream), Where)) -->
@@ -536,7 +516,11 @@ domain_error(write_option, Opt) --> !,
 domain_error(Domain, Opt) -->
 	[ '~w not a valid element for ~w' - [Opt,Domain] ].
 
-extra_info( _ ) --> [].
+extra_info( error(_,Extra), _ ) -->
+	    {lists:memberchk([i|Msg], Extra)}, !,
+	    ['   Comments: ~s~nx.' - [Msg] ].
+extra_info( _, _ ) -->
+	[].
 
 object_name(array, array).
 object_name(atom, atom).
@@ -553,6 +537,7 @@ object_name(float, float).
 object_name(in_byte, byte).
 object_name(in_character, character).
 object_name(integer, integer).
+
 object_name(key, 'database key').
 object_name(leash_mode, 'leash mode').
 object_name(library, library).

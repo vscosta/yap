@@ -217,19 +217,13 @@ to allow user-control.
 
 
 
-'$do_error'(Type,Message) :-
+'$do_error'(Type,Goal) :-
         format('~w~n', [Type]),
-%	stop_low_level_trace,
-	current_stack(local_sp(Location,
-			       P,CP,PP,Envs,CPs)),
-				%	'$stack_dump',
-	'$compose_context'(Message, Location, CMessage),
-	throw(error(Type,[context(CMessage)
-			 ,local_sp(Location,P,CP,PP,Envs,CPs)])).
-
-'$compose_context'(context(Culprit), Caller, context(Culprit, Caller) ) :-
-		  !.
-'$compose_context'(Culprit, _Caller, context(Culprit) ).
+	ancestor_location(Call, Caller),
+	throw(error(Type, [
+	       [g|g(Goal)],
+	       [p|Call],
+	       [e|Caller]])).
 
 
 '$do_pi_error'(type_error(callable,Name/0),Message) :- !,
