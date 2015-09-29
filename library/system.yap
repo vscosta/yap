@@ -509,23 +509,23 @@ delete_dirfiles([F|Fs], File, Ignore) :-
 
 directory_files(File, FileList, Ignore) :-
        list_directory(File, FileList, Error),
-       handle_SYSTEM_ERROR_INTERNAL(Error, Ignore, directory_files(File, FileList)).
+       handle_system_internal(Error, Ignore, directory_files(File, FileList)).
 
-handle_SYSTEM_ERROR_INTERNAL(Error, _Ignore, _G) :- var(Error), !.
-handle_SYSTEM_ERROR_INTERNAL(Error, off, G) :- atom(Error), !,
-	throw(error(SYSTEM_ERROR_INTERNAL(Error),G)).
-handle_SYSTEM_ERROR_INTERNAL(Error, off, G) :-
+handle_system_internal(Error, _Ignore, _G) :- var(Error), !.
+handle_system_internal(Error, off, G) :- atom(Error), !,
+	throw(error(system_internal(Error),G)).
+handle_system_internal(Error, off, G) :-
 	error_message(Error, Message),
-	throw(error(SYSTEM_ERROR_INTERNAL(Message),G)).
+	throw(error(system_internal(Message),G)).
 
-handle_SYSTEM_ERROR_INTERNAL(Error, _Id, _Ignore, _G) :- var(Error), !.
-handle_SYSTEM_ERROR_INTERNAL(Error, _SIG, off, G) :- integer(Error), !,
+handle_system_internal(Error, _Id, _Ignore, _G) :- var(Error), !.
+handle_system_internalA(Error, _SIG, off, G) :- integer(Error), !,
 	error_message(Error, Message),
-	throw(error(SYSTEM_ERROR_INTERNAL(Message),G)).
-handle_SYSTEM_ERROR_INTERNAL(signal, SIG, off, G) :- !,
-        throw(error(SYSTEM_ERROR_INTERNAL(child_signal(SIG)),G)).
-handle_SYSTEM_ERROR_INTERNAL(stopped, SIG, off, G) :-
-        throw(error(SYSTEM_ERROR_INTERNAL(child_stopped(SIG)),G)).
+	throw(error(system_internal(Message),G)).
+handle_system_internal(signal, SIG, off, G) :- !,
+        throw(error(system_internal(child_signal(SIG)),G)).
+handle_system_internal(stopped, SIG, off, G) :-
+        throw(error(system_internal(child_stopped(SIG)),G)).
 
 file_property(IFile, type(Type)) :-
 	true_file_name(IFile, File),
@@ -546,7 +546,7 @@ file_property(IFile, linkto(LinkName)) :-
 
 file_property(File, Type, Size, Date, Permissions, LinkName) :-
 	file_property(File, Type, Size, Date, Permissions, LinkName, Error),
-	handle_SYSTEM_ERROR_INTERNAL(Error, off, file_property(File)).
+	handle_system_internal(Error, off, file_property(File)).
 
 file_exists(File) :-
 	var(File), !,
@@ -615,7 +615,7 @@ exec(Command, [StdIn, StdOut, StdErr], PID) :-
 	process_err_stream_for_exec(StdErr, Err, G, L2, L3),
 	( exec_command(TrueCommand, In, Out, Err, PID, Error) -> true ; true ),
 	close_temp_streams(L3),
-	handle_SYSTEM_ERROR_INTERNAL(Error, off, G).
+	handle_system_internal(Error, off, G).
 
 process_inp_stream_for_exec(Error, _, G, L, L) :- var(Error), !,
 	close_temp_streams(L),
@@ -695,9 +695,9 @@ shell :-
 	G = shell,
 	get_shell0(FullCommand),
 	exec_command(FullCommand, 0, 1, 2, PID, Error),
-	handle_SYSTEM_ERROR_INTERNAL(Error, off, G),
+	handle_system_internal(Error, off, G),
 	wait(PID, _Status, Error, Id),
-	handle_SYSTEM_ERROR_INTERNAL(Error, Id, off, G).
+	handle_system_internal(Error, Id, off, G).
 
 shell(Command) :-
 	G = shell(Command),
@@ -705,14 +705,14 @@ shell(Command) :-
 	get_shell(Shell,Opt),
 	do_shell(Shell, Opt, Command, Status, Error),
 	Status = 0,
-	handle_SYSTEM_ERROR_INTERNAL(Error, off, G).
+	handle_system_internal(Error, off, G).
 
 shell(Command, Status) :-
 	G = shell(Command, Status),
 	check_command(Command, G),
 	get_shell(Shell,Opt),
 	do_shell(Shell, Opt, Command, Status, Error),
-	handle_SYSTEM_ERROR_INTERNAL(Error, off, G).
+	handle_system_internal(Error, off, G).
 
 protect_command([], [0'"]). % "
 protect_command([H|L], [H|NL]) :-
@@ -735,7 +735,7 @@ get_shell('/bin/sh','-c').
 system :-
 	default_shell(Command),
 	do_system(Command, _Status, Error),
-	handle_SYSTEM_ERROR_INTERNAL(Error, off, system).
+	handle_system_internal(Error, off, system).
 
 default_shell(Shell) :- win, !,
 	getenv('COMSPEC', Shell).
@@ -747,13 +747,13 @@ system(Command, Status) :-
 	check_command(Command, G),
 	do_system(Command, Status, Error),
 	Status = 0,
-	handle_SYSTEM_ERROR_INTERNAL(Error, off, G).
+	handle_system_internal(Error, off, G).
 
 wait(PID,STATUS) :- var(PID), !,
  	throw(error(instantiation_error,wait(PID,STATUS))).
 wait(PID,STATUS) :- integer(PID), !,
  	plwait(PID, STATUS, Error, _Detail),
- 	handle_SYSTEM_ERROR_INTERNAL(Error, off, wait(PID,STATUS)).
+ 	handle_system_internal(Error, off, wait(PID,STATUS)).
 wait(PID,STATUS) :-
  	throw(error(type_error(integer,PID),wait(PID,STATUS))).
 
@@ -762,22 +762,22 @@ wait(PID,STATUS) :-
 %
 host_name(X) :-
 	host_name(X, Error),
-	handle_SYSTEM_ERROR_INTERNAL(Error, off, host_name(X)).
+	handle_system_internal(Error, off, host_name(X)).
 
 host_id(X) :-
 	host_id(X0, Error),
-	handle_SYSTEM_ERROR_INTERNAL(Error, off, host_id(X)),
+	handle_system_internal(Error, off, host_id(X)),
 	number_codes(X0, S),
 	atom_codes(X, S).
 
 pid(X) :-
 	pid(X, Error),
-	handle_SYSTEM_ERROR_INTERNAL(Error, off, pid(X)).
+	handle_system_internal(Error, off, pid(X)).
 
 kill(X,Y) :-
 	integer(X), integer(Y), !,
 	kill(X, Y, Error),
-	handle_SYSTEM_ERROR_INTERNAL(Error, off, kill(X,Y)).
+	handle_system_internal(Error, off, kill(X,Y)).
 kill(X,Y) :- (var(X) ; var(Y)), !,
 	throw(error(instantiation_error,kill(X,Y))).
 kill(X,Y) :- integer(X), !,
@@ -790,19 +790,19 @@ mktemp(X,Y) :- var(X), !,
 mktemp(X,Y) :-
 	atom(X), !,
 	mktemp(X, Y, Error),
-	handle_SYSTEM_ERROR_INTERNAL(Error, off, mktemp(X,Y)).
+	handle_system_internal(Error, off, mktemp(X,Y)).
 mktemp(X,Y) :-
 	throw(error(type_error(atom,X),mktemp(X,Y))).
 
 tmpnam(X) :-
 	tmpnam(X, Error),
-	handle_SYSTEM_ERROR_INTERNAL(Error, off, tmpnam(X)).
+	handle_system_internal(Error, off, tmpnam(X)).
 
 %%% Added from Theo, path_seperator is used to replace the c predicate dir_separator which is not OS aware
 
 tmpdir(TmpDir):-
   tmpdir(Dir, Error),
-  handle_SYSTEM_ERROR_INTERNAL(Error, off, tmpdir(Dir)),
+  handle_system_internal(Error, off, tmpdir(Dir)),
   path_separator(D),
   (atom_concat(_, D, Dir) ->
     TmpDir = Dir
