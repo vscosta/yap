@@ -287,6 +287,10 @@ name( USES_REGS1 )
     if (NewT)
       return Yap_unify(NewT, ARG2);
     // else
+  } else if (IsVarTerm(t)){
+    Yap_Error(INSTANTIATION_ERROR,t,
+              "name/2");
+    return FALSE;
   } else {
     Term at = Yap_ListToAtomic( t PASS_REGS );
     if (at) return Yap_unify(at, ARG1);
