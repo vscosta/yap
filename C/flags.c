@@ -46,6 +46,7 @@ static bool indexer(Term inp);
 static bool getenc(Term inp);
 static bool typein( Term inp );
 static bool dqf( Term t2 );
+static bool bqf( Term t2 );
 
 static void newFlag( Term fl, Term val );
 static Int current_prolog_flag(USES_REGS1);
@@ -89,30 +90,68 @@ static bool indexer( Term inp ) {
 
 static bool dqf1( ModEntry *new, Term t2 USES_REGS ) {
   new->flags &= ~(DBLQ_CHARS|DBLQ_CODES|DBLQ_ATOM|DBLQ_STRING);
-  if (t2 == TermString) {
-    new->flags |=  DBLQ_STRING;
-    return true;
-  } else if (t2 == TermAtom) {
-    new->flags |=  DBLQ_ATOM;
-    return true;
-  } else if (t2 == TermCodes) {
-    new->flags |=  DBLQ_CODES;
-    return true;
-  } else if (t2 == TermChars) {
-    new->flags |=  DBLQ_CHARS;
-    return true;
+  if (IsAtomTerm(t2) ) {
+    if (t2 == TermString) {
+      new->flags |=  DBLQ_STRING;
+      return true;
+    } else if (t2 == TermAtom) {
+      new->flags |=  DBLQ_ATOM;
+      return true;
+    } else if (t2 == TermCodes) {
+      new->flags |=  DBLQ_CODES;
+      return true;
+    } else if (t2 == TermChars) {
+      new->flags |=  DBLQ_CHARS;
+      return true;
+    }
+    /* bad argument, but still an atom */
+    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "bad option %s for backquoted string flag, use one string, arom, codes or chars", RepAtom(AtomOfTerm(t2))->StrOfAE);
+    return false;
+  } else {
+    Yap_Error(TYPE_ERROR_ATOM, t2, "set_prolog_flag(double_quotes, %s), should be {string,atom,codes,chars}", RepAtom(AtomOfTerm(t2))->StrOfAE);
+    return false;
   }
-  Yap_Error(TYPE_ERROR_ATOM, t2, "set_prolog_flag(double_quotes, {string,atom,codes,chars}");
-  return false;
 }
 
-static bool dqf( Term t2 ) {
+ static bool dqf( Term t2 ) {
   CACHE_REGS
   ModEntry *new = Yap_GetModuleEntry(CurrentModule);
   return dqf1( new, t2 PASS_REGS);
 }
 
 
+ 
+static bool bqf1( ModEntry *new, Term t2 USES_REGS ) {
+  new->flags &=  ~(BCKQ_CHARS|BCKQ_CODES|BCKQ_ATOM|BCKQ_STRING);
+   if (IsAtomTerm(t2)) {
+     if (t2 == TermString) {
+       new->flags |=  BCKQ_STRING;
+       return true;
+     } else if (t2 == TermAtom) {
+       new->flags |=  BCKQ_ATOM;
+       return true;
+     } else if (t2 == TermCodes) {
+       new->flags |=  BCKQ_CODES;
+       return true;
+     } else if (t2 == TermChars) {
+       new->flags |=  BCKQ_CHARS;
+       return true;
+     }
+     Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "bad option %s for backquoted string flag, use one string, arom, codes or chars", RepAtom(AtomOfTerm(t2))->StrOfAE);
+    return false;
+  } else {
+    Yap_Error(TYPE_ERROR_ATOM, t2, "flag  %s is not module-scoped", RepAtom(AtomOfTerm(t2))->StrOfAE);
+    return false;
+  }
+}
+
+
+static bool bqf( Term t2 ) {
+  CACHE_REGS
+  ModEntry *new = Yap_GetModuleEntry(CurrentModule);
+  return bqf1( new, t2 PASS_REGS);
+}
+ 
 static bool isaccess( Term inp ) {
   if (inp == TermReadWrite ||
       inp == TermReadOnly )
@@ -192,7 +231,7 @@ static bool typein( Term inp ) {
   if (IsVarTerm(inp)) {
     Term tin = CurrentModule;
     if (tin == PROLOG_MODULE)
-      tin = TermProlog;
+     tin = TermProlog;
     return Yap_unify( inp, tin );
   }
   if (!IsAtomTerm(inp) ) {
@@ -589,6 +628,7 @@ static bool sys_thread_id(Term inp)
 
 static bool setYapFlagInModule( Term tflag, Term t2, Term mod )
 {
+  CACHE_REGS
   FlagEntry *fv;
   ModEntry *new = Yap_GetModuleEntry(mod);
   if (!new)
@@ -617,37 +657,25 @@ static bool setYapFlagInModule( Term tflag, Term t2, Term mod )
       new->flags |=  (UNKNOWN_WARNING);
       return true;
     }
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "bad option for %s:unknown flag", RepAtom(AtomOfTerm(tflag))->StrOfAE);
+    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "bad option  %s  for unknown flag, use one of error, fail or warning.", RepAtom(AtomOfTerm(tflag))->StrOfAE);
     return false;
+  } else if (fv->FlagOfVE == DOUBLE_QUOTES_FLAG) {
+    return dqf1( new, t2 PASS_REGS );
   } else if (fv->FlagOfVE == CHARACTER_ESCAPES_FLAG) {
     if (t2 == TermTrue) {
       new->flags |= M_CHARESCAPE;
       return true;
     } else if (t2 == TermFalse) {
       new->flags &= ~(M_CHARESCAPE);
+      return true;
     }
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "bad option for %s:character_escapes flag", RepAtom(AtomOfTerm(tflag))->StrOfAE);
+    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "bad option %s for character_escapes flag, use true or false", RepAtom(AtomOfTerm(tflag))->StrOfAE);
     return false;
-    } else if (fv->FlagOfVE == BACKQUOTED_STRING_FLAG) {
-      new->flags &= ~(BCKQ_CHARS|BCKQ_CODES|BCKQ_ATOM|BCKQ_STRING);
-      if (t2 == TermString) {
-        new->flags |=  BCKQ_STRING;
-        return true;
-      } else if (t2 == TermAtom) {
-        new->flags |=  BCKQ_ATOM;
-        return true;
-      } else if (t2 == TermCodes) {
-        new->flags |=  BCKQ_CODES;
-        return true;
-      } else if (t2 == TermChars) {
-        new->flags |=  BCKQ_CHARS;
-        return true;
-      }
-  } if (fv->FlagOfVE == DOUBLE_QUOTES_FLAG) {
-	return dqf1(new, t2 PASS_REGS );
+  } else if (fv->FlagOfVE == BACKQUOTED_STRING_FLAG) {
+    return bqf1( new, t2 PASS_REGS );;
   }
-  Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "flag  %s is not module-scoped", RepAtom(AtomOfTerm(tflag))->StrOfAE);
-  return FALSE;
+  // bad key?
+  return false;
 }
 
 static Term  getYapFlagInModule( Term tflag, Term mod )
@@ -862,6 +890,8 @@ static Int current_prolog_flag( USES_REGS1 ) {
 
 void Yap_setModuleFlags(ModEntry *new, ModEntry *cme)
 {
+  CACHE_REGS
+
   Atom at = new->AtomOfME;
   if (at == AtomProlog || CurrentModule == PROLOG_MODULE) {
       new->flags = M_SYSTEM | UNKNOWN_ERROR  |M_CHARESCAPE | DBLQ_CODES | BCKQ_STRING;
