@@ -386,19 +386,24 @@ p_logsum( USES_REGS1 )
 
 
 Int
-Yap_ArithError(yap_error_number type, Term where, char *format,...)
+Yap_ArithError__(const char *file, const char *function, int lineno, yap_error_number type, Term where,...)
 {
   CACHE_REGS
   va_list ap;
-
+  char *format;
+  
   if (LOCAL_ArithError)
     return 0L;
   LOCAL_ArithError = TRUE;
   LOCAL_Error_TYPE = type;
+  LOCAL_Error_File = file;
+  LOCAL_Error_Function = function;
+  LOCAL_Error_Lineno = lineno;
   LOCAL_Error_Term = where;
   if (!LOCAL_ErrorMessage)
     LOCAL_ErrorMessage = LOCAL_ErrorSay;
-  va_start (ap, format);
+  va_start (ap, where);
+  format = va_arg( ap, char *);
   if (format != NULL) {
 #if   HAVE_VSNPRINTF
     (void) vsnprintf(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE, format, ap);
@@ -413,19 +418,21 @@ Yap_ArithError(yap_error_number type, Term where, char *format,...)
 }
 
 yamop *
-Yap_EvalError(yap_error_number type, Term where, char *format,...)
+Yap_EvalError__(const char *file, const char *function, int lineno,yap_error_number type, Term where,...)
 {
   CACHE_REGS
   va_list ap;
+   char *format;
 
   if (LOCAL_ArithError) {
       LOCAL_ArithError = YAP_NO_ERROR;
-    return Yap_Error( LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+    return Yap_Error__(file, function, lineno, LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
   }
   
   if (!LOCAL_ErrorMessage)
     LOCAL_ErrorMessage = LOCAL_ErrorSay;
-  va_start (ap, format);
+  va_start (ap, where);
+  format = va_arg(ap, char *);
   if (format != NULL) {
 #if   HAVE_VSNPRINTF
     (void) vsnprintf(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE, format, ap);
@@ -436,7 +443,7 @@ Yap_EvalError(yap_error_number type, Term where, char *format,...)
     LOCAL_ErrorMessage[0] = '\0';
   }
   va_end (ap);
-  return Yap_Error( type, where, LOCAL_ErrorMessage);
+  return Yap_Error__(file, function,  lineno, type, where, LOCAL_ErrorMessage);
 }
 
 /**
