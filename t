@@ -1,4 +1,0 @@
--regex-Prolog=/^[a-z][_a-zA-Z0-9]*([a-z][_a-zA-Z0-9]*)"(".*")."/\1/p,predicate,predicate definition/
---regex-Prolog=/^[a-z][_a-zA-Z0-9]*("'".*"'")."/\1/p,predicate,predicate definition/
---regex-Prolog=/^[a-z][_a-zA-Z0-9]*("'".*"'")"[ \t]*":-"/\2/p,predicate,predicate definition/
---regex-Prolog=/^:-[ \t]+(dynamic|multifile|thread_local|table)[ \t]+([a-z][_a-zA-Z0-9]*:)?([a-z0-9_][_a-zA-Z0-9]*)/\3/p,predicate,predicate metadata/
