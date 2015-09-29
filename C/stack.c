@@ -50,7 +50,7 @@ static void do_toggle_static_predicates_in_use(int);
 #endif
 static Int  in_use( USES_REGS1 );
 static Int  toggle_static_predicates_in_use( USES_REGS1 );
-static Int  PredForCode(yamop *, Atom *, arity_t *, Term *);
+static Int  PredForCode(yamop *, Atom *, arity_t *, Term *, PredEntry **);
 static LogUpdIndex *find_owner_log_index(LogUpdIndex *, yamop *);
 static StaticIndex *find_owner_static_index(StaticIndex *, yamop *);
 
@@ -406,12 +406,16 @@ clause_was_found(PredEntry *pp, Atom *pat, UInt *parity) {
       *parity = ArityOfFunctor(pp->FunctorOfPred);
     }
   } else {
-    *parity = pp->ArityOfPE;
-    if (pp->ArityOfPE) {
-      *pat = NameOfFunctor(pp->FunctorOfPred);
-    } else {
-      *pat = (Atom)(pp->FunctorOfPred);
-    }  
+    if (parity) {
+      *parity = pp->ArityOfPE;
+    }
+    if (pat) {
+      if (pp->ArityOfPE) {
+        *pat = NameOfFunctor(pp->FunctorOfPred);
+      } else {
+        *pat = (Atom)(pp->FunctorOfPred);
+      }
+    }
   }
 }
 
@@ -421,7 +425,7 @@ code_in_pred_info(PredEntry *pp, Atom *pat, UInt *parity) {
 }
 
 static int
-code_in_pred_lu_index(LogUpdIndex *icl, yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
+code_in_pred_lu_index(LogUpdIndex *icl, yamop *codeptr, void* *startp, void* *endp) {
   LogUpdIndex *cicl;
   if (IN_BLOCK(codeptr,icl,icl->ClSize)) {
     if (startp) *startp = (CODEADDR)icl;
@@ -438,7 +442,7 @@ code_in_pred_lu_index(LogUpdIndex *icl, yamop *codeptr, CODEADDR *startp, CODEAD
 }
 
 static int
-code_in_pred_s_index(StaticIndex *icl, yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
+code_in_pred_s_index(StaticIndex *icl, yamop *codeptr, void* *startp, void* *endp) {
   StaticIndex *cicl;
   if (IN_BLOCK(codeptr,icl,icl->ClSize)) {
     if (startp) *startp = (CODEADDR)icl;
@@ -455,7 +459,7 @@ code_in_pred_s_index(StaticIndex *icl, yamop *codeptr, CODEADDR *startp, CODEADD
 }
 
 static Int
-find_code_in_clause(PredEntry *pp, yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
+find_code_in_clause(PredEntry *pp, yamop *codeptr, void **startp, void **endp) {
   Int i = 1;
   yamop *clcode;
 
@@ -527,6 +531,7 @@ find_code_in_clause(PredEntry *pp, yamop *codeptr, CODEADDR *startp, CODEADDR *e
 static Term
 clause_loc(void *clcode, PredEntry *pp) {
 
+  CACHE_REGS
   if (pp->PredFlags & LogUpdatePredFlag) {
     LogUpdClause *cl = ClauseCodeToLogUpdClause(clcode);
       cl = ClauseCodeToLogUpdClause(clcode);
@@ -560,7 +565,7 @@ clause_loc(void *clcode, PredEntry *pp) {
 }
 
 static int
-cl_code_in_pred(PredEntry *pp, yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
+cl_code_in_pred(PredEntry *pp, yamop *codeptr, void* *startp, void* *endp) {
   Int out;
 
   PELOCK(39,pp);
@@ -628,7 +633,7 @@ code_in_pred(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
 }
 
 static Int
-PredForCode(yamop *codeptr, Atom *pat, UInt *parity, Term *pmodule) {
+PredForCode(yamop *codeptr, Atom *pat, UInt *parity, Term *pmodule, PredEntry **pep) {
   Int found = 0;
   ModEntry *me = CurrentModules;
 
@@ -641,6 +646,8 @@ PredForCode(yamop *codeptr, Atom *pat, UInt *parity, Term *pmodule) {
       if ((found = code_in_pred(pp,  pat, parity, codeptr)) != 0) {
         if (pmodule)
           *pmodule = MkAtomTerm(me->AtomOfME);
+        if (pep)
+          *pep = pp;
         return found;
       }
       pp = pp->NextPredOfModule;
@@ -669,7 +676,7 @@ Yap_PredForCode(yamop *codeptr, find_pred_type where_from, Atom *pat, UInt *pari
       return out;
     }
   } else {
-    return PredForCode(codeptr, pat, parity, pmodule);
+    return PredForCode(codeptr, pat, parity, pmodule, NULL);
   }
   if (p == NULL) {
     return 0;
@@ -684,7 +691,7 @@ Yap_PredForCode(yamop *codeptr, find_pred_type where_from, Atom *pat, UInt *pari
 
 /* intruction blocks we found ourselves at */
 static PredEntry *
-walk_got_lu_block(LogUpdIndex *cl, CODEADDR *startp, CODEADDR *endp)
+walk_got_lu_block(LogUpdIndex *cl, void* *startp, void* *endp)
 {
   PredEntry *pp = cl->ClPred;
   *startp = (CODEADDR)cl;
@@ -694,7 +701,7 @@ walk_got_lu_block(LogUpdIndex *cl, CODEADDR *startp, CODEADDR *endp)
 
 /* intruction blocks we found ourselves at */
 static PredEntry *
-walk_got_lu_clause(LogUpdClause *cl, CODEADDR *startp, CODEADDR *endp)
+walk_got_lu_clause(LogUpdClause *cl, void* *startp, void* *endp)
 {
   *startp = (CODEADDR)cl;
   *endp = (CODEADDR)cl+cl->ClSize;
@@ -703,7 +710,7 @@ walk_got_lu_clause(LogUpdClause *cl, CODEADDR *startp, CODEADDR *endp)
 
 /* we hit a meta-call, so we don't know what is happening */
 static PredEntry *
-found_meta_call(CODEADDR *startp, CODEADDR *endp)
+found_meta_call(void* *startp, void* *endp)
 {
   PredEntry *pp = PredMetaCall;
   *startp = (CODEADDR)&(pp->OpcodeOfPred);
@@ -713,7 +720,7 @@ found_meta_call(CODEADDR *startp, CODEADDR *endp)
 
 /* intruction blocks we found ourselves at */
 static PredEntry *
-walk_found_c_pred(PredEntry *pp, CODEADDR *startp, CODEADDR *endp)
+walk_found_c_pred(PredEntry *pp, void* *startp, void* *endp)
 {
   StaticClause  *cl = ClauseCodeToStaticClause(pp->CodeOfPred);
   *startp = (CODEADDR)&(cl->ClCode);
@@ -723,7 +730,7 @@ walk_found_c_pred(PredEntry *pp, CODEADDR *startp, CODEADDR *endp)
 
 /* we hit a mega-clause, no point in going on */
 static PredEntry *
-found_mega_clause(PredEntry *pp, CODEADDR *startp, CODEADDR *endp)
+found_mega_clause(PredEntry *pp, void* *startp, void* *endp)
 {
   MegaClause *mcl = ClauseCodeToMegaClause(pp->cs.p_code.FirstClause);
   *startp = (CODEADDR)mcl;
@@ -733,7 +740,7 @@ found_mega_clause(PredEntry *pp, CODEADDR *startp, CODEADDR *endp)
 
 /* we hit a mega-clause, no point in going on */
 static PredEntry *
-found_idb_clause(yamop *pc, CODEADDR *startp, CODEADDR *endp)
+found_idb_clause(yamop *pc, void* *startp, void* *endp)
 {
   LogUpdClause *cl = ClauseCodeToLogUpdClause(pc);
 
@@ -744,7 +751,7 @@ found_idb_clause(yamop *pc, CODEADDR *startp, CODEADDR *endp)
 
 /* we hit a expand_index, no point in going on */
 static PredEntry *
-found_expand_index(yamop *pc, CODEADDR *startp, CODEADDR *endp, yamop *codeptr USES_REGS)
+found_expand_index(yamop *pc, void* *startp, void* *endp, yamop *codeptr USES_REGS)
 {
   PredEntry *pp = codeptr->y_u.sssllp.p;
   if (pc == codeptr) {
@@ -756,7 +763,7 @@ found_expand_index(yamop *pc, CODEADDR *startp, CODEADDR *endp, yamop *codeptr U
 
 /* we hit a expand_index, no point in going on */
 static PredEntry *
-found_fail(yamop *pc, CODEADDR *startp, CODEADDR *endp USES_REGS)
+found_fail(yamop *pc, void* *startp, void* *endp USES_REGS)
 {
   PredEntry *pp = RepPredProp(Yap_GetPredPropByAtom(AtomFail,CurrentModule));
   *startp = *endp = (CODEADDR)FAILCODE;
@@ -765,7 +772,7 @@ found_fail(yamop *pc, CODEADDR *startp, CODEADDR *endp USES_REGS)
 
 /* we hit a expand_index, no point in going on */
 static PredEntry *
-found_owner_op(yamop *pc, CODEADDR *startp, CODEADDR *endp USES_REGS)
+found_owner_op(yamop *pc, void* *startp, void* *endp USES_REGS)
 {
   PredEntry *pp = ((PredEntry *)(Unsigned(pc)-(CELL)(&(((PredEntry *)NULL)->OpcodeOfPred))));
   *startp = (CODEADDR)&(pp->OpcodeOfPred);
@@ -775,7 +782,7 @@ found_owner_op(yamop *pc, CODEADDR *startp, CODEADDR *endp USES_REGS)
 
 /* we hit a expand_index, no point in going on */
 static PredEntry *
-found_expand(yamop *pc, CODEADDR *startp, CODEADDR *endp USES_REGS)
+found_expand(yamop *pc, void* *startp, void* *endp USES_REGS)
 {
   PredEntry *pp = ((PredEntry *)(Unsigned(pc)-(CELL)(&(((PredEntry *)NULL)->cs.p_code.ExpandCode))));
   *startp = (CODEADDR)&(pp->cs.p_code.ExpandCode);
@@ -784,7 +791,7 @@ found_expand(yamop *pc, CODEADDR *startp, CODEADDR *endp USES_REGS)
 }
 
 static PredEntry *
-found_ystop(yamop *pc, int clause_code, CODEADDR *startp, CODEADDR *endp, PredEntry *pp USES_REGS)
+found_ystop(yamop *pc, int clause_code, void* *startp, void* *endp, PredEntry *pp USES_REGS)
 {
   if (pc == YESCODE) {
     pp = RepPredProp(Yap_GetPredPropByAtom(AtomTrue,CurrentModule));
@@ -826,7 +833,7 @@ found_ystop(yamop *pc, int clause_code, CODEADDR *startp, CODEADDR *endp, PredEn
 }
 
 static PredEntry *
-ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp USES_REGS) {
+ClauseInfoForCode(yamop *codeptr, void* *startp, void* *endp USES_REGS) {
   yamop *pc;
   PredEntry *pp = NULL;
   int clause_code = FALSE;
@@ -844,7 +851,7 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp USES_REGS) {
 }
 
 PredEntry *
-Yap_PredEntryForCode(yamop *codeptr, find_pred_type where_from, CODEADDR *startp, CODEADDR *endp) {
+Yap_PredEntryForCode(yamop *codeptr, find_pred_type where_from, void* *startp, void* *endp) {
   CACHE_REGS
   if (where_from == FIND_PRED_FROM_CP) {
     PredEntry *pp = PredForChoicePt(codeptr, NULL);
@@ -909,7 +916,7 @@ pred_for_code( USES_REGS1 ) {
   } else {
     return FALSE;
   }
-  cl = PredForCode(codeptr, &at, &arity, &tmodule);
+  cl = PredForCode(codeptr, &at, &arity, &tmodule, NULL);
   if (!tmodule) tmodule = TermProlog;
   if (cl == 0) {
     return Yap_unify(ARG5,MkIntTerm(0));
@@ -1063,8 +1070,9 @@ p_all_envs( USES_REGS1 )
 
  Term
 clause_info ( yamop *codeptr, PredEntry *pp) {
+   CACHE_REGS
   Term ts[2];
-  CODEADDR begin;
+  void *begin;
 
   if (pp->ArityOfPE == 0) {
     ts[0] = MkAtomTerm((Atom)pp->FunctorOfPred);
@@ -1154,7 +1162,7 @@ Term
  Yap_all_calls( void )
 {
   CACHE_REGS
-  return all_calls( true PASS_REGS1 );
+  return all_calls( true PASS_REGS );
 }
 
 
@@ -1162,7 +1170,7 @@ static Int
 current_stack( USES_REGS1 )
 {
   Term t;
-  while ((t = all_calls( false PASS_REGS1 )) == 0L) {
+  while ((t = all_calls( false PASS_REGS)) == 0L) {
     if (!Yap_gcl(LOCAL_Error_Size, 1, ENV, gc_P(P,CP))) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, "while dumping stack");
       return FALSE;
@@ -1615,7 +1623,7 @@ parent_pred( USES_REGS1 )
   Atom at;
   arity_t arity;
   Term module;
-  if (!PredForCode(P_before_spy, &at, &arity, &module)) {
+  if (!PredForCode(P_before_spy, &at, &arity, &module, NULL)) {
     return Yap_unify(ARG1, MkIntTerm(0)) &&
 	   Yap_unify(ARG2, MkAtomTerm(AtomMetaCall)) &&
 	   Yap_unify(ARG3, MkIntTerm(0));
@@ -1970,17 +1978,12 @@ Yap_detect_bug_location(yamop *yap_pc, int where_from, char *tp, int psize)
   }
 }
 
-Term
-Yap_bug_location(yamop *codeptr, choiceptr b_ptr, CELL *env)
+static Term
+build_bug_location( yamop *codeptr, PredEntry *pe)
 {
   CACHE_REGS
-    Term p[5];
-    while ( true ) {
-      PredEntry *pe= EnvPreg(codeptr);
-      if (pe &&
-	pe->ModuleOfPred != PROLOG_MODULE
-	&& !(pe->PredFlags & HiddenPredFlag)) {
-      if (pe->ModuleOfPred == PROLOG_MODULE)
+  Term p[5];
+  if (pe->ModuleOfPred == PROLOG_MODULE)
 	p[0] = TermProlog;
       else
 	p[0] = pe->ModuleOfPred;
@@ -1997,10 +2000,10 @@ Yap_bug_location(yamop *codeptr, choiceptr b_ptr, CELL *env)
 	    ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
 	  p[4] = MkIntegerTerm( mcl->ClLine );
 	} else {
-	  CODEADDR clcode;
+	  void *clcode;
 	  if ( find_code_in_clause( pe, codeptr, &clcode, NULL) > 0 ) {
 	    if (pe->PredFlags & LogUpdatePredFlag) {
-	      LogUpdClause *cl = ClauseCodeToLogUpdClause(clcode);
+	      LogUpdClause *cl = clcode;
 	    	
 	      if (cl->ClFlags & FactMask) {
 		p[4] =  MkIntegerTerm(cl->lusl.ClLine);
@@ -2008,13 +2011,11 @@ Yap_bug_location(yamop *codeptr, choiceptr b_ptr, CELL *env)
 		p[4] = MkIntegerTerm(cl->lusl.ClSource->ag.line_number);
 	      }
 	    } else if (pe->PredFlags & DynamicPredFlag) {
-	      DynamicClause *cl;
-	      cl = ClauseCodeToDynamicClause(clcode);
 	
 	      p[4] = MkIntTerm(0);
 	    } else {
 	      StaticClause *cl;
-	      cl = ClauseCodeToStaticClause(clcode);
+	      cl = clcode;
 	      
 	      if (cl->ClFlags & FactMask) {
 		p[4] =  MkIntTerm(cl->usc.ClLine);
@@ -2034,18 +2035,70 @@ Yap_bug_location(yamop *codeptr, choiceptr b_ptr, CELL *env)
 	p[4] = MkIntTerm(0);
       }
       return Yap_MkApplTerm( Yap_MkFunctor(Yap_LookupAtom("p"), 5), 5, p);
-      } else {
-	if (b_ptr && (CELL*)b_ptr < env) {
-	  env = b_ptr->cp_env;
-	  b_ptr = b_ptr->cp_b;
-	} else {
-	  env = ENV_Parent(env);
-	}
-      }
-    }
 }
 
 
+Term
+Yap_pc_location(yamop *pc, choiceptr b_ptr, CELL *env)
+{
+  CACHE_REGS
+  yamop *codeptr = pc;
+  PredEntry *pe;
+  if (PP == NULL) {
+    if(PredForCode(pc, NULL, NULL, NULL, &pe) < 0)
+      return TermNil;
+  } else
+    pe = PP;
+  if (pe != NULL
+      //pe->ModuleOfPred != PROLOG_MODULE &&
+      // &&!(pe->PredFlags & HiddenPredFlag)
+      ) {
+    return build_bug_location( codeptr, pe );
+  }
+  return TermNil;
+}
+
+
+Term
+Yap_env_location( yamop *cp, choiceptr b_ptr, CELL *env, Int ignore_first)
+{
+  while ( true ) {
+    if (b_ptr == NULL || env == NULL)
+      return TermNil;
+    PredEntry *pe= EnvPreg(cp);
+      if (ignore_first <= 0 && pe
+	  //pe->ModuleOfPred != PROLOG_MODULE &&s
+          &&  !(pe->PredFlags & HiddenPredFlag)
+          ) {
+	return build_bug_location( cp, pe );
+      } else {
+	if (b_ptr && b_ptr->cp_env < env) {
+	  cp = b_ptr->cp_cp;
+	  env = b_ptr->cp_env;
+	  b_ptr = b_ptr->cp_b;
+	} else {
+	  cp = (yamop *)env[E_CP];
+	  env = ENV_Parent(env);
+	}
+        ignore_first--;
+    }
+  }
+}
+
+static Int
+clause_location( USES_REGS1 )
+{
+  return Yap_unify(Yap_pc_location(P, B, ENV), ARG1) &&
+  Yap_unify(Yap_env_location(CP, B, ENV, 1), ARG2);
+}
+
+static Int
+ancestor_location( USES_REGS1 )
+{
+  return
+  Yap_unify(Yap_env_location(CP, B, ENV, 2), ARG1) &&
+  Yap_unify(Yap_env_location(CP, B, ENV, 3), ARG2);
+}
 
 
 void
@@ -2055,7 +2108,9 @@ Yap_InitStInfo(void)
   Term cm = CurrentModule;
 
   Yap_InitCPred("in_use", 2, in_use, HiddenPredFlag|TestPredFlag | SafePredFlag|SyncPredFlag);
+#ifndef THREADS
   Yap_InitCPred("toggle_static_predicates_in_use", 0, toggle_static_predicates_in_use, HiddenPredFlag|SafePredFlag|SyncPredFlag);
+#endif
   CurrentModule = HACKS_MODULE;
   Yap_InitCPred("current_choicepoints", 1, p_all_choicepoints, 0);
   Yap_InitCPred("current_continuations", 1, p_all_envs, 0);
@@ -2063,10 +2118,12 @@ Yap_InitStInfo(void)
   Yap_InitCPred("continuation", 4, env_info,0);
   Yap_InitCPred("cp_to_predicate", 5, p_cpc_info, 0);
   CurrentModule = cm;
-  Yap_InitCPred("current_stack", 1, current_stack, HiddenPredFlag|SyncPredFlag);
-  Yap_InitCPred("pred_for_code", 5, pred_for_code, HiddenPredFlag|SyncPredFlag);
+  Yap_InitCPred("current_stack", 1, current_stack, HiddenPredFlag);
+  Yap_InitCPred("pred_for_code", 5, pred_for_code, HiddenPredFlag);
   Yap_InitCPred("parent_pred", 3, parent_pred, HiddenPredFlag|SafePredFlag);
-  Yap_InitCPred("program_continuation", 3, program_continuation, HiddenPredFlag|SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("program_continuation", 3, program_continuation, HiddenPredFlag|SafePredFlag);
+  Yap_InitCPred("clause_location", 2, clause_location, HiddenPredFlag|SafePredFlag);
+  Yap_InitCPred("ancestor_location", 2, ancestor_location, HiddenPredFlag|SafePredFlag);
 
 
 }

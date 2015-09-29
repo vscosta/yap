@@ -472,6 +472,7 @@ static char     SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #include <string.h>
 #endif
 #include <heapgc.h>
+#include <iopreds.h>
 
 
 static void retract_all(PredEntry *, int);
@@ -2230,7 +2231,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   if (pflags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag))
     spy_flag = TRUE;
   goal_expansion_support(p, tf);
-  if (Yap_discontiguous( p ) ) {
+  if (Yap_discontiguous( p PASS_REGS) ) {
     Term disc[3], sc[4];
     if (p->ArityOfPE) {
       disc[0] = MkAtomTerm(NameOfFunctor(p->FunctorOfPred));
@@ -2565,6 +2566,12 @@ p_compile_dynamic( USES_REGS1 )
 Atom
 Yap_ConsultingFile ( USES_REGS1 )
 {
+  int sno;
+  if ((sno = Yap_CheckAlias(AtomLoopStream)) >= 0) {
+    //    if(sno ==0)
+    //  return(AtomUserIn);
+    return StreamFullName( sno);
+  }
   if (LOCAL_consult_level == 0) {
     return(AtomUser);
   } else {
@@ -3838,7 +3845,7 @@ p_hide_predicate( USES_REGS1 )
     return FALSE;
   if (EndOfPAEntr(pe))
     return FALSE;
-  pe->PredFlags |= HiddenPredFlag;
+  pe->PredFlags |= (HiddenPredFlag|NoTracePredFlag);
   return TRUE;
 }
 
