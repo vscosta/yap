@@ -6133,11 +6133,12 @@
 	  low_level_trace(enter_pred,PREG->y_u.Osbpp.p,XREGS+1);
 #endif  /* LOW_LEVEL_TRACE */
 	BEGD(d0);
-	CPredicate f = PREG->y_u.Osbpp.p->cs.f_code;
+	PP = PREG->Osbpp.p0;
 	PREG = NEXTOP(PREG, Osbpp);
 	saveregs();
 	d0 = (f)(PASS_REGS1);
 	setregs();
+	CPredicate f = PREG->y_u.Osbpp.p->cs.f_code;
 #ifdef SHADOW_S
 	SREG = Yap_REGS.S_;
 #endif
@@ -6207,6 +6208,7 @@
         /* now call C-Code */
 	  {
 	    CPredicate f = PREG->y_u.pp.p->cs.f_code;
+	    PP = PREG->y_u.pp.p0;
 	    yamop *oldPREG = PREG;
 	    saveregs();
 	    d0 = (f)(PASS_REGS1);
@@ -6307,10 +6309,10 @@
 
 	ENDBOp();
 
-	BOp(call_c_wfail, slp);
+	BOp(call_c_wfail, slpp);
 #ifdef LOW_LEVEL_TRACER
 	if (Yap_do_low_level_trace) {
-	  low_level_trace(enter_pred,PREG->y_u.slp.p,XREGS+1);
+	  low_level_trace(enter_pred,PREG->y_u.slpp.p,XREGS+1);
 	}
 #endif  /* LOW_LEVEL_TRACE */
 #ifdef FROZEN_STACKS
@@ -6323,7 +6325,7 @@
 #endif /* YAPOR_SBA */
 	  else {
 	    BEGD(d0);
-	    d0 = PREG->y_u.slp.s;
+	    d0 = PREG->y_u.slpp.s;
 	    ASP = ((CELL *)YREG) + d0;
 	    ENDD(d0);
 	  }
@@ -6333,13 +6335,14 @@
 	  ASP = (CELL *) B;
 	else {
 	  BEGD(d0);
-	  d0 = PREG->y_u.slp.s;
+	  d0 = PREG->y_u.slpp.s;
 	  ASP = ((CELL *) YREG) + d0;
 	  ENDD(d0);
 	}
 #endif /* FROZEN_STACKS */
 	{
-	  CPredicate f = PREG->y_u.slp.p->cs.f_code;
+	  CPredicate f = PREG->y_u.slpp.p->cs.f_code;
+	  PP = PREG->y_u.slpp.p0;
 	  saveregs();
 	  SREG = (CELL *)((f)(PASS_REGS1));
 	  setregs();
@@ -6347,9 +6350,9 @@
 	if (!SREG) {
 	  /* be careful about error handling */
 	  if (PREG != FAILCODE)
-	    PREG = PREG->y_u.slp.l;
+	    PREG = PREG->y_u.slpp.l;
 	} else {
-	  PREG = NEXTOP(PREG, slp);
+	  PREG = NEXTOP(PREG, slpp);
 	}
 	CACHE_A1();
 	JMPNext();
@@ -6373,7 +6376,7 @@
 	ENDCACHE_Y();
 
       TRYCC:
-	ASP = (CELL *)B;
+	1ASP = (CELL *)B;
 	{
 	  CPredicate f = (CPredicate)(PREG->y_u.OtapFs.f);
 	  saveregs();
