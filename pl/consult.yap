@@ -431,8 +431,8 @@ load_files(Files,Opts) :-
     b_setval('$source_file', File),
     ( var(Stream) ->
 	  /* need_to_open_file */
-	  '$full_filename'(File, Y, Call),
-	  open(Y, read, Stream)
+	  ( '$full_filename'(File, Y, Call) -> true ; '$do_error'(existence_error(source_sink,File),Call) ),
+	  ( open(Y, read, Stream) -> true ; '$do_error'(permission_error(input,stream,Y),Call) )
         ;
 	stream_property(Stream, file_name(Y))
     ), !,
@@ -446,8 +446,7 @@ load_files(Files,Opts) :-
     '$start_lf'(If, Mod, Stream, TOpts, File, Y, Reexport, Imports),
 %	stop_low_level_trace,
     close(Stream).
-'$lf'(X, _, Call, _) :-
-    '$do_error'(permission_error(input,stream,X),Call).
+
 
 '$start_lf'(not_loaded, Mod, _Stream, TOpts, UserFile, File, Reexport,Imports) :-
 	'$file_loaded'(File, Mod, Imports, TOpts), !,

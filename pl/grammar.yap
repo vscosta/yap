@@ -78,7 +78,7 @@ Grammar related built-in predicates:
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
 % :- meta_predicate ^(?,0,?).
-% ^(Xs, Goal, Xs) :- call(Goal).
+				% ^(Xs, Goal, Xs) :- call(Goal).
 
 % :- meta_predicate ^(?,1,?,?).
 % ^(Xs0, Goal, Xs0, Xs) :- call(Goal, Xs).

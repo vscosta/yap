@@ -112,7 +112,7 @@ q(A):-
       A is 22.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-*/
+w*/
 do_not_compile_expressions :- set_value('$c_arith',[]).
 
 '$c_built_in'(IN, M, H, OUT) :-
@@ -128,14 +128,12 @@ do_c_built_in(Mod:G, _, H, OUT) :-
 	var(G1), !,
 	do_c_built_metacall(G1, M1, H, OUT).
 do_c_built_in('C'(A,B,C), _, _, (A=[B|C])) :- !.
-do_c_built_in('$do_error'( Error, Goal), M, H,
-	      ('$p_and_cp'(Goal, Caller),
-	       functor(H,Na,Ar),
-	       throw(error(Error, [g=Goal,c=c(M:Na/Ar,File,FilePos),p=Caller]))
+do_c_built_in('$do_error'( Error, Goal), M, Head,
+	      (clause_location(Call, Caller),
+	       strip_module(M:Goal,M1,NGoal),
+	       throw(error(Error, [[g|g(M1:NGoal)],[p|Call],[e|Caller],[h|g(Head)]]))
 	      )
-	     ):-
-        stream_property( loop_stream, name(File) ),
-        stream_property( loop_stream, position(FilePos) ).
+	     ) :- !.
 do_c_built_in(X is Y, M, H,  P) :-
         primitive(X), !,
 	do_c_built_in(X =:= Y, M, H, P).
@@ -157,7 +155,7 @@ do_c_built_in(phrase(NT,Xs0,Xs), Mod, _,  NewGoal) :-
     '$goal_expansion_allowed'(phrase(NT,Xs0,Xs), Mod),
     Goal = phrase(NT,Xs0,Xs),
     callable(NT),
-    catch('$translate_rule'((pseudo_nt --> NT), Rule),
+    catch(prolog:'$translate_rule'((pseudo_nt --> NT), Rule),
 	  error(Pat,ImplDep),
 	  ( \+ '$harmless_dcgexception'(Pat),
 	    throw(error(Pat,ImplDep))
@@ -374,7 +372,7 @@ expand_expr(Op, X, Y, O, Q, P) :-
 '$harmless_dcgexception'(type_error(callable,_)).	% ex: phrase(27,L)
 
 
-
+:- set_value('$c_arith',true).
 /**
   @}
 */

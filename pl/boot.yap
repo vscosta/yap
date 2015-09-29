@@ -186,6 +186,7 @@ list, since backtracking could not "pass through" the cut.
 */
 
 
+
 system_module(_init, _SysExps, _Decls) :- !.
 system_module(M, SysExps, Decls) :-
 	'$current_module'(prolog, M),
@@ -285,6 +286,49 @@ private(_).
 
 :- use_system_module( '$_strict_iso', ['$check_iso_strict_clause'/1,
         '$iso_check_goal'/2]).
+
+'$prepare_goals'((A,B),(NA,NB),Any) :-
+	!,
+	'$prepare_goals'(A,NA,Any),
+	'$prepare_goals'(B,NB,Any).
+'$prepare_goals'((A;B),(NA;NB),Any) :-
+	!,
+	'$prepare_goals'(A,NA,Any),
+	'$prepare_goals'(B,NB,Any).
+'$prepare_goals'((A->B),(NA->NB),Any) :-
+	!,
+	'$prepare_goals'(A,NA,Any),
+	'$prepare_goals'(B,NB,Any).
+'$prepare_goals'((A*->B),(NA*->NB),Any) :-
+	!,
+	'$prepare_goals'(A,NA,Any),
+	'$prepare_goals'(B,NB,Any).
+'$prepare_goals'((\+ A),(\+ NA),Any) :-
+	!,
+	'$prepare_goals'(A,NA,Any).
+'$prepare_goals'('$do_error'(Error,Goal),
+               (clause_location(Call, Caller),
+		writeln(Goal),
+		strip_module(M:Goal,M1,NGoal),
+		throw(error(Error, [[g|g(M1:NGoal)],[p|Call],[e|Caller],[h|g(Head)]]))
+	       ),
+               true) :-
+	!.
+'$prepare_goals'(X is AOB,
+                 is(X, IOp, A, B ),
+		 true) :-
+	var(X),
+	functor(AOB, Op, 2),
+	arg(1, AOB, A),
+	arg(2, AOB, B),
+	!,
+	'$binary_op_as_integer'(Op,IOp).
+'$prepare_goals'((A,B),(A,B),_Any).
+
+'$prepare_clause'((H :- B), (H:-NB)) :-
+	'$prepare_goals'(B,NB,Any),
+	Any==true.
+
 
 
 %
@@ -1326,6 +1370,7 @@ bootstrap(F) :-
 	'$start_consult'(consult, File, LC),
 	file_directory_name(File, Dir),
 	working_directory(OldD, Dir),
+
 	(
 	  current_prolog_flag(verbose_load, silent)
 	->
@@ -1452,7 +1497,7 @@ expand_term(Term,Expanded) :-
 % Grammar Rules expansion
 %
 '$expand_term_grammar'((A-->B), C) :-
-	'$translate_rule'((A-->B),C), !.
+	prolog:'$translate_rule'((A-->B),C), !.
 '$expand_term_grammar'(A, A).
 
 %

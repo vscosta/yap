@@ -119,7 +119,7 @@ print_message(_, loaded(F,C,_M,T,H)) :- !,
 print_message(_, Msg) :-
 	format(user_error, '~w ~n', [Msg]).
 
-:- bootstrap('errors.yap').
+:- bootstrap(   'arith.yap').
 :- bootstrap('lists.yap').
 :- bootstrap('consult.yap').
 :- bootstrap('preddecls.yap').
@@ -129,14 +129,14 @@ print_message(_, Msg) :-
 :- bootstrap('atoms.yap').
 :- bootstrap('os.yap').
 :- bootstrap('absf.yap').
-xs%:- start_low_level_trace.
+%:- Start_low_level_trace.
 :-set_prolog_flag(verbose,  normal).
 
 :-set_prolog_flag(gc_trace, verbose).
 %:- set_prolog_flag( verbose_file_search, true ).
 
 :- [
-    'arith.yap',
+    'errors.yap',
     'directives.yap',
     'utils.yap',
     'control.yap',
