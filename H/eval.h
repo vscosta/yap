@@ -378,8 +378,14 @@ Term	Yap_eval_unary(Int,Term);
 Term	Yap_eval_binary(Int,Term,Term);
 
 Term	Yap_InnerEval__(Term USES_REGS);
-Int     Yap_ArithError(yap_error_number,Term,char *msg, ...);
-yamop*  Yap_EvalError(yap_error_number,Term,char *msg, ...);
+
+
+
+#define Yap_EvalError( id, t, ...) Yap_EvalError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
+yamop  *Yap_EvalError__(const char *, const char *, int, yap_error_number,Term, ...);
+
+#define Yap_ArithError( id, t, ...) Yap_ArithError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
+Int Yap_ArithError__(const char *, const char *, int, yap_error_number,Term, ...);
 
 #include "inline-only.h"
 
