@@ -391,9 +391,9 @@ output_walk(C,"Osblp",_) :- !,
 output_walk(C,"Osbpp",[Op|_]) :-
 	c_call_op(Op), !,
 	walk_to_c_code(C,"Osbpp","p").
-output_walk(C,"slp",[Op|_]) :-
+output_walk(C,"slpp",[Op|_]) :-
 	c_call_op(Op), !,
-	walk_to_c_code(C,"slp","p").
+	walk_to_c_code(C,"slpp","p").
 output_walk(C,"Osbpp",[Op|_]) :-
 	special_walk_op(Op), !,
 	walk_to_meta_call(C).

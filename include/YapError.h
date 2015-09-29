@@ -38,8 +38,9 @@
 
 struct yami  *Yap_Error__(const char *file, const char *function, int lineno, yap_error_number err,YAP_Term wheret, ...);
 
-#define Yap_Error( id, t, ...) Yap_Error__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
 #define Yap_NilError( id,  ...) Yap_Error__(__FILE__, __FUNCTION__, __LINE__, id, TermNil,  __VA_ARGS__)
+
+#define Yap_Error( id, inp, ...) Yap_Error__(__FILE__, __FUNCTION__, __LINE__, id, inp,  __VA_ARGS__)
 
 
 #define JMP_LOCAL_ERROR(v, LAB)                                                \

@@ -68,6 +68,9 @@ gen_struct(Inp,Out) :-
 gen_struct(Inp,Out) :-
 	split(Inp,"	 ",["union",Type, Field|_]), !,
 	append(["  union ",Type,"  ",Field,"_",";"], Out).
+gen_struct(Inp,Out) :-
+	split(Inp,"	 ",["const",Type, Field|_]), !,
+	append(["const ", Type,"  ",Field,"_",";"], Out).
 gen_struct(Inp,"") :-
 	split(Inp,"	 ",["void","void"|_]), !.
 gen_struct(Inp,Out) :-
@@ -110,6 +113,10 @@ gen_dstruct(Inp,Out) :-
 	gen_dstruct(Inp3, Out).
 gen_dstruct(Inp,Out) :-
 	split(Inp,"	 ",["union"|Inp2]), !,
+	glue(Inp2, " ", Inp3),
+	gen_dstruct(Inp3, Out).
+gen_dstruct(Inp,Out) :-
+	split(Inp,"	 ",["const"|Inp2]), !,
 	glue(Inp2, " ", Inp3),
 	gen_dstruct(Inp3, Out).
 gen_dstruct(Inp,Out) :-
@@ -198,6 +205,10 @@ gen_hstruct(Inp,Out) :-
 	glue(Inp2, " ", Inp3),
 	gen_hstruct(Inp3,Out).
 gen_hstruct(Inp,Out) :-
+	split(Inp,"	 ",["const"|Inp2]), !,
+	glue(Inp2, " ", Inp3),
+	gen_hstruct(Inp3,Out).
+gen_hstruct(Inp,Out) :-
 	split(Inp,"	 ",["union"|Inp2]), !,
 	glue(Inp2, " ", Inp3),
 	gen_hstruct(Inp3,Out).
@@ -280,6 +291,8 @@ gen_init(Inp,Out) :-
 	gen_init(Inp3, Out).
 gen_init(Inp,"") :-
 	split(Inp,"	 ",[_, _, "void"|_]), !.
+gen_init(Inp,"") :-
+	split(Inp,"	 ",["const"|_]), !.
 gen_init(Inp,Init) :-
 	split(Inp,"	 ",[_, _, Init0| _]),
 	append("Init",_,Init0), !,

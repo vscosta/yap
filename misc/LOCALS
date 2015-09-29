@@ -193,7 +193,10 @@ ADDR				TrailTop				void
 char*				ErrorMessage				void
 Term				Error_Term				void
 yap_error_number		Error_TYPE				void
-UInt             		Error_Size				void
+const char*             	Error_File				void
+const char*            		Error_Function				void
+int             		Error_Lineno				void
+size_t             		Error_Size				void
 char				ErrorSay[MAX_ERROR_MSG_SIZE]		void
 jmp_buf 			IOBotch					void
 TokEntry*			tokptr					void

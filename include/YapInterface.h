@@ -1899,9 +1899,9 @@ extern X_API void YAP_Write(YAP_Term t,FILE *s,int);
 
 extern X_API  FILE * YAP_TermToStream(YAP_Term t);
 
-extern X_API int YAP_InitConsult(int mode, const char *filename);
+extern X_API int YAP_InitConsult(int mode, const char *filename, int *previous_sno);
 
-extern X_API void YAP_EndConsult(int s);
+extern X_API void YAP_EndConsult(int s, int *previous_sno);
 
 #ifndef _PL_STREAM_H
 // if we don't know what a stream is, just don't assume nothing about the pointer
