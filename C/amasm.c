@@ -1460,13 +1460,14 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
 	  siglongjmp(cip->CompilerBotch, 1);
 	} else
 	  code_p->opc = emit_op(_call_c_wfail);
-	code_p->y_u.slp.s =
+	code_p->y_u.slpp.s =
 	  emit_count(-Signed(RealEnvSize) - CELLSIZE * cip->cpc->rnd2);
-	code_p->y_u.slp.l =  emit_fail(cip);
-	code_p->y_u.slp.p =
+	code_p->y_u.slpp.l =  emit_fail(cip);
+	code_p->y_u.slpp.p0 =  clinfo->CurrentPred;
+	code_p->y_u.slpp.p =
 	  emit_pe(RepPredProp(fe));
       }
-      GONEXT(slp);
+      GONEXT(slpp);
     } else {
       if (pass_no) {
 	code_p->y_u.Osbpp.p =  RepPredProp(fe);
