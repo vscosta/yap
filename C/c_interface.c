@@ -2630,7 +2630,7 @@ YAP_ClearExceptions(void)
 }
 
 X_API int
-YAP_InitConsult(int mode, const char *filename)
+YAP_InitConsult(int mode, const char *filename, int *osnop)
 {
   FILE *f;
   int sno;
@@ -2645,6 +2645,13 @@ YAP_InitConsult(int mode, const char *filename)
   if (!f)
     return -1;
   sno = Yap_OpenStream(f, NULL, TermNil, Input_Stream_f );
+  *osnop = Yap_CheckAlias( AtomLoopStream );
+  if (!Yap_AddAlias(AtomLoopStream,sno)) {
+    Yap_CloseStream( sno);
+    sno = -1;
+  }
+  GLOBAL_Stream[sno].name = Yap_LookupAtom( filename );
+  GLOBAL_Stream[sno].user_name = MkAtomTerm( Yap_LookupAtom( filename ) );
   RECOVER_MACHINE_REGS();
     UNLOCK(GLOBAL_Stream[sno].streamlock);
   return sno;
@@ -2667,10 +2674,12 @@ YAP_TermToStream(Term t)
 }
 
 X_API void
-YAP_EndConsult(int sno)
+YAP_EndConsult(int sno, int *osnop)
 {
   BACKUP_MACHINE_REGS();
   Yap_CloseStream(sno);
+  if (osnop >= 0 )
+    Yap_AddAlias( AtomLoopStream, *osnop );
   Yap_end_consult();
 
   RECOVER_MACHINE_REGS();
@@ -2800,7 +2809,7 @@ static void
 do_bootfile (char *bootfilename USES_REGS)
 {
   Term t;
-  int bootfile;
+  int bootfile, osno;
   Functor functor_query = Yap_MkFunctor(Yap_LookupAtom("?-"),1);
   Functor functor_command1 = Yap_MkFunctor(Yap_LookupAtom(":-"),1);
 
@@ -2810,7 +2819,7 @@ do_bootfile (char *bootfilename USES_REGS)
     To be honest, YAP_InitConsult does not really do much,
     it's here for the future. It also makes what we want to do clearer.
   */
-  bootfile = YAP_InitConsult(YAP_BOOT_MODE,bootfilename);
+  bootfile = YAP_InitConsult(YAP_BOOT_MODE,bootfilename, &osno);
   if (bootfile <0)
     {
       fprintf(stderr, "[ FATAL ERROR: could not open bootfile %s ]\n", bootfilename);
@@ -2843,14 +2852,26 @@ do_bootfile (char *bootfilename USES_REGS)
         }
       else
 	{
-	  char *ErrorMessage = YAP_CompileClause(t);
+	  Term ts[2];
+	  char *ErrorMessage;
+	  Functor fun = Yap_MkFunctor(Yap_LookupAtom("$prepare_clause"),2);
+	  PredEntry *pe = RepPredProp(PredPropByFunc(fun,PROLOG_MODULE));
+
+	  if (pe->OpcodeOfPred != UNDEF_OPCODE &&
+	      pe->OpcodeOfPred != FAIL_OPCODE) {
+	    ts[0] = t;
+	    RESET_VARIABLE(ts+1);
+	    if ( YAP_RunGoal(Yap_MkApplTerm( fun,2,ts)) )
+	      t = ts[1];
+	  }
+	  ErrorMessage = YAP_CompileClause(t);
 	  if (ErrorMessage) {
 	    fprintf(stderr, "%s", ErrorMessage);
 	  }
 	}
       }  while (t != TermEof );
 
-  YAP_EndConsult(bootfile);
+    YAP_EndConsult(bootfile, &osno);
 #if DEBUG
   if (Yap_output_msg)
     fprintf(stderr,"Boot loaded\n");
