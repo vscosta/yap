@@ -1,1 +1,0 @@
-echo "bootstrap('./pl/init.yap'). module(user). qsave_program('startup.yss')." |  LD_LIBRARY_PATH=. ./yap -b ./pl/boot.yap
