@@ -115,7 +115,7 @@ static enc_map_t ematches[] = {
     {NULL, ENC_OCTET}};
 
 static encoding_t DefaultEncoding(void) {
-  CACHE_REGS
+  encoding_t rc;
   int i = 0, j;
   char *enc;
   while (encvs[i]) {
@@ -125,28 +125,31 @@ static encoding_t DefaultEncoding(void) {
       /* that's how it is supposed to be, except in OSX */
       if (!enc)
         enc = v;
+      else
+        enc++;
       // now that we have one name, try to match it
       j = 0;
-      while (ematches[j].s != NULL) {
-        if (!strcmp(ematches[j].s, enc)) {
-          return LOCAL_encoding = ematches[j].e;
-        } else {
-          j++;
-        }
+      while (ematches[j].s) {
+        if (!strcmp(ematches[j].s, enc))
+          return ematches[j].e;
       }
-      Yap_Warning("System uses unknown default encoding %s (taken from %s)",
-                  enc, v);
-    } else {
-      i++;
     }
+    i++;
   }
 // by default, return UTF-8
 // except in _WIN32
 #ifdef _WIN32
-  return ENC_UTF16_BE;
+  rc = ENC_UTF16_BE;
 #else
-  return ENC_ISO_UTF8;
+  rc = ENC_ISO_UTF8;
 #endif
+  {
+    int j = 0;
+    while (rc != ematches[j].e)
+      j++;
+    Yap_Warning("YAP will use default encoding %s", ematches[j].s);
+  }
+  return rc;
 }
 
 encoding_t Yap_DefaultEncoding(void) {
@@ -160,7 +163,6 @@ void Yap_SetDefaultEncoding(encoding_t new_encoding) {
 }
 
 encoding_t Yap_InitialEncoding(void) {
-  return ENC_ISO_UTF8;
   char *s = getenv("LANG");
   size_t sz;
 
