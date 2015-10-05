@@ -252,9 +252,9 @@ GetCurInpPos (StreamDesc * inp_stream)
   return (inp_stream->linecount);
 }
 
-#define PlIOError(type, culprit,...)  PlIOError__(__FUNCTION__, __LINE__,__FILE__, type, culprit, __VA_ARGS__)    
+#define PlIOError(type, culprit,...)  PlIOError__(__FILE__, __FUNCTION__, __LINE__, type, culprit, __VA_ARGS__)    
 
-Int PlIOError__( const char *, int, const char *, yap_error_number, Term, ...);
+Int PlIOError__( const char *, const char *, int, yap_error_number, Term, ...);
 
 int GetFreeStreamD(void);
 Term Yap_MkStream (int n);
@@ -415,19 +415,34 @@ console_count_output_char(int ch, StreamDesc *s)
 inline static Term
 StreamPosition(int sno)
 {
-CACHE_REGS
+  CACHE_REGS
   Term sargs[5];
   Int cpos;
   cpos = GLOBAL_Stream[sno].charcount;
   if (GLOBAL_Stream[sno].stream_getc == PlUnGetc) {
     cpos--;
   }
-  sargs[0] = MkIntegerTerm (cpos);
+  sargs[0] = MkIntegerTerm (LOCAL_StartCharCount = cpos);
   sargs[1] = MkIntegerTerm (LOCAL_StartLineCount = GLOBAL_Stream[sno].linecount);
   sargs[2] = MkIntegerTerm (LOCAL_StartLinePos = GLOBAL_Stream[sno].linepos);
   sargs[3] = sargs[4] = MkIntTerm (0);
   return Yap_MkApplTerm (FunctorStreamPos, 5, sargs);
 }
+
+
+inline static Term
+CurrentPositionToTerm(void)
+{
+  CACHE_REGS
+  Term sargs[5];
+  sargs[0] = MkIntegerTerm (LOCAL_StartCharCount);
+  sargs[1] = MkIntegerTerm (LOCAL_StartLineCount );
+  sargs[2] = MkIntegerTerm (LOCAL_StartLinePos );
+  sargs[3] = sargs[4] = MkIntTerm (0);
+  return Yap_MkApplTerm (FunctorStreamPos, 5, sargs);
+}
+
+
 
 
 
