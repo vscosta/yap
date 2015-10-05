@@ -410,7 +410,7 @@ also `absolute_file_name/2` and chdir/1.
 
 datime(X) :-
 	datime(X, Error),
-	handle_SYSTEM_ERROR_INTERNAL(Error, off, datime(X)).
+	handle_system_internal(Error, off, datime(X)).
  
 mktime(V, A) :- var(V), !,
 	throw(error(instantiation_error,mktime(V,A))).
@@ -418,7 +418,7 @@ mktime(In,Out) :-
 	check_mktime_inp(In, mktime(In,Out)),
 	In = datime(Y,Mo,D,H,Mi,S),
 	mktime(Y, Mo, D, H, Mi, S, Out, Error),
-	handle_SYSTEM_ERROR_INTERNAL(Error, off, mktime(In,Out)).
+	handle_system_internal(Error, off, mktime(In,Out)).
  
 check_mktime_inp(V, Inp) :- var(V), !,
 	throw(error(instantiation_error,Inp)).
@@ -470,7 +470,7 @@ delete_file(IFile, Dir, Recurse, Ignore) :-
 	delete_file(Type, File, Dir, Recurse, Ignore).
 
 delete_file(N, File, _Dir, _Recurse, Ignore) :- number(N), !, % error.
-	handle_SYSTEM_ERROR_INTERNAL(N, Ignore, delete_file(File)).
+	handle_system_internal(N, Ignore, delete_file(File)).
 delete_file(directory, File, Dir, Recurse, Ignore) :-
 	delete_directory(Dir, File, Recurse, Ignore), !.
 delete_file(_, File, _Dir, _Recurse, Ignore) :-
@@ -479,7 +479,7 @@ delete_file(_, File, _Dir, _Recurse, Ignore) :-
 unlink_file(IFile, Ignore) :-
 	true_file_name(IFile, File),
 	unlink(File, N),
-	handle_SYSTEM_ERROR_INTERNAL(N, Ignore, delete_file(File)).
+	handle_system_internal(N, Ignore, delete_file(File)).
 
 delete_directory(on, File, _Recurse, Ignore) :-
 	rm_directory(File, Ignore).
@@ -488,7 +488,7 @@ delete_directory(off, File, Recurse, Ignore) :-
 
 rm_directory(File, Ignore) :-
 	rmdir(File, Error),
-	handle_SYSTEM_ERROR_INTERNAL(Error, Ignore, delete_file(File)).
+	handle_system_internal(Error, Ignore, delete_file(File)).
 
 delete_directory(on, File, Ignore) :-
 	directory_files(File, FileList, Ignore),
@@ -519,7 +519,7 @@ handle_system_internal(Error, off, G) :-
 	throw(error(system_internal(Message),G)).
 
 handle_system_internal(Error, _Id, _Ignore, _G) :- var(Error), !.
-handle_system_internalA(Error, _SIG, off, G) :- integer(Error), !,
+handle_system_internal(Error, _SIG, off, G) :- integer(Error), !,
 	error_message(Error, Message),
 	throw(error(system_internal(Message),G)).
 handle_system_internal(signal, SIG, off, G) :- !,
