@@ -201,6 +201,7 @@ compose_message(yes, _Level) --> !,
 
 compose_message(Term, Level) -->
 	{  Level == error -> true ; Level == warning },
+	[nl],
 	location(Term, Level),
 	[nl],
 	main_message( Term, Level ),
@@ -208,12 +209,21 @@ compose_message(Term, Level) -->
 	caller( Term, Level ),
 	extra_info(  Term, Level ),
 	!,
-	[nl].
-compose_message(A-L, _Level) -->
-	{ format(user_error,A,L)  }.
+	[nl,nl].
+compose_message(Term, Level) -->
+	{  Level == error -> true ; Level == warning },
+	[nl],
+	main_message( Term, Level ),
+	[nl,nl].
 
 location( error(_,Term), Level ) -->
-	{ lists:memberchk([p|p(M,Na,Ar,File,FilePos)], Term ) },
+	{  source_location(F0, L),
+	   stream_property(_Stream, alias(loop_stream)) }, !,
+	{ lists:memberchk([p|p(M,Na,Ar,_File,_FilePos)], Term ) },
+	[  '~a:~d:0 ~a in ~a:~q/~d:'-[F0, L,Level,M,Na,Ar] ],
+	[nl].
+location( error(_,Term), Level ) -->
+	{ lists:memberchk([p|p(M,Na,Ar,File,FilePos)], Term ) }, !,
 	[  '~a:~d:0 ~a in ~a:~q/~d:'-[File, FilePos,Level,M,Na,Ar] ],
 	[nl].
 location(error(_,syntax_error(_,between(_,LN,_),FileName,_) ), _ ) -->
@@ -257,7 +267,7 @@ main_message(error(domain_error(Who , Type), _Where), _Source) -->
 main_message(error(evaluation_error(What), _Where), _Source) -->
 	[ '~*|!!! caused ~a during evaluation of arithmetic expressions,' - [8,What], nl ].
 main_message(error(existence_error(Type , Who), _Where), _Source) -->
-	[  '~*|!!!  ~q ~a could not be found,' - [8,Type, Who], nl ].
+	[  '~*|!!!  ~q ~q could not be found,' - [8,Type, Who], nl ].
 main_message(error(permission_error(Op, Type, Id), _Where), _Source) -->
 	[ '~*|!!!  ~q is not allowed in ~a ~q,' - [8, Op, Type,Id], nl ].
 main_message(error(instantiation_error, _Where), _Source) -->
@@ -265,9 +275,17 @@ main_message(error(instantiation_error, _Where), _Source) -->
 main_message(error(representation_error), _Source) -->
 	[ '~*|!!! unbound variable' - [8], nl ].
 main_message(error(type_error(Type,Who), _What), _Source) -->
-	[ '~*|!!! ~q should be of type ~a' - [8,Who,Type], nl ].
+	[ '~*|!!! ~q should be of type ~a' - [8,Who,Type]],
+	[ nl ].
 main_message(error(uninstantiation_error(T),_), _Source) -->
 	[ '~*|!!! found ~q, expected unbound variable ' - [8,T], nl ].
+
+consulting -->
+	{  source_location(F0, L),
+	   stream_property(_Stream, alias(loop_stream)) }, !,
+	[ '~*| while consulting ~a:~d'-[10,F0,L] ],
+	   [nl].
+consulting --> [].	
 
 caller( error(_,Term), _) -->
 	{  lists:memberchk([p|p(M,Na,Ar,File,FilePos)], Term ) },
