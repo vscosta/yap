@@ -1,3 +1,24 @@
+/*************************************************************************
+*									 *
+  *	 YAP Prolog 							 *
+*									 *
+  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 *
+**************************************************************************
+*									 *
+* File:		debug.pl						 *
+* Last rev:								 *
+* mods:									 *
+* comments:	YAP debugger						 *
+*									 *
+*************************************************************************/
+
+
+:- system_module( '$_debug', [], ['$do_spy'/4,
+        '$init_debugger'/0,
+        '$skipeol'/1]).
 
 
 
@@ -991,6 +1012,3 @@ be lost.
 	'$ldebugger_process_meta_args'(BGs, M, BMs, BG1s).
 '$ldebugger_process_meta_args'([G|BGs], M, [_|BMs], [G|BG1s]) :-
 	'$ldebugger_process_meta_args'(BGs, M, BMs, BG1s).
-
-:- '$no_whole_file'.
-
