@@ -159,7 +159,7 @@ print_message(_, Msg) :-
 	 'grammar.yap',
 	 'ground.yap',
 	 'listing.yap',
-     'arithpreds.yap',
+    'arithpreds.yap',
 	 % modules must be after preds, otherwise we will have trouble
 	 % with meta-predicate expansion being invoked
 	 % must follow grammar
@@ -178,7 +178,8 @@ print_message(_, Msg) :-
 	 'eam.yap',
 	 'chtypes.yap',
 	 'yapor.yap',
-     'qly.yap',
+    'qly.yap',
+     'spy.yap',
      'udi.yap'].
 
 :- meta_predicate(log_event(+,:)).
