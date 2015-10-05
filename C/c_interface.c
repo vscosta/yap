@@ -2653,7 +2653,7 @@ YAP_InitConsult(int mode, const char *filename, int *osnop)
   GLOBAL_Stream[sno].name = Yap_LookupAtom( filename );
   GLOBAL_Stream[sno].user_name = MkAtomTerm( Yap_LookupAtom( filename ) );
   RECOVER_MACHINE_REGS();
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
+  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return sno;
 }
 
