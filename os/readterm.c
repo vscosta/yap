@@ -505,7 +505,7 @@ static bool complete_clause_processing(FEnv *fe, TokEntry *tokstarts, Term t);
 static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
   Term v1, v2, v3;
-  if (fe->vp) {
+   if (fe->vp) {
     while (TRUE) {
       fe->old_H = HR;
 
@@ -547,7 +547,9 @@ static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
 
   // trail must be ok by now.]
   if ((!fe->vp || Yap_unify(v1, fe->vp)) &&
-      (!fe->np || Yap_unify(v2, fe->np)) && (!fe->tp || Yap_unify(v3, fe->tp)))
+      (!fe->np || Yap_unify(v2, fe->np)) &&
+      (!fe->sp || Yap_unify(v3, fe->sp)) &&
+      (!fe->tp || Yap_unify(fe->tp, CurrentPositionToTerm())))
     return fe->t;
   return 0;
 }
@@ -607,13 +609,13 @@ static parser_state_t scanEOF(FEnv *fe, int inp_stream) {
 static parser_state_t initParser(Term opts, FEnv *fe, REnv *re, int inp_stream,
                                  int nargs) {
   CACHE_REGS
-  fe->old_H = HR;
   LOCAL_ErrorMessage = NULL;
   fe->old_TR = TR;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
   LOCAL_SourceFileName = GLOBAL_Stream[inp_stream].name;
   LOCAL_eot_before_eof = false;
   fe->tpos = StreamPosition(inp_stream);
+  fe->old_H = HR;
   fe->reading_clause = nargs < 0;
   if (fe->reading_clause) {
     fe->nargs = -nargs;
@@ -1225,22 +1227,22 @@ static Int atom_to_term(USES_REGS1) {
  */
 static Int
 term_to_string(USES_REGS1) {
-  Term t1 = Deref(ARG2), rc = false;
+  Term t2 = Deref(ARG2), rc = false, t1 = Deref(ARG1);
   const char * s;
-  if (IsVarTerm(t1)) {
+  if (IsVarTerm(t2)) {
     size_t length;
-    s = Yap_TermToString(ARG2, NULL,  0, &length, 0, Quote_illegal_f|Handle_vars_f);
+    s = Yap_TermToString(ARG1, NULL,  0, &length, 0, Quote_illegal_f|Handle_vars_f);
     if (!s || !
         MkStringTerm(s)) {
        Yap_Error(RESOURCE_ERROR_HEAP,t1,"Could not get memory from the operating system");
        return false;
     }
     return Yap_unify(ARG2, MkStringTerm(s));
-  } else if (!IsStringTerm(t1)) {
-    Yap_Error(TYPE_ERROR_STRING, t1, "string_to_ter®m/2");
+  } else if (!IsStringTerm(t2)) {
+    Yap_Error(TYPE_ERROR_STRING, t2, "string_to_ter®m/2");
     return false;
   } else {
-    s = StringOfTerm(t1);
+    s = StringOfTerm(t2);
   }
   return (rc = readFromBuffer(s, TermNil)) != 0L && Yap_unify(rc, ARG1);
 }
