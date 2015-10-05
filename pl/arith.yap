@@ -257,8 +257,8 @@ expand_expr(T, E, V) :-
 %	after having expanded into Q
 %	and giving as result P (the last argument)
 expand_expr(Op, X, O, Q, Q) :-
-	number(X), !,
-	is( O, Op, X).
+	number(X), 
+	catch(is( O, Op, X),_,fail), !. % do not do error handling at compile time
 expand_expr(Op, X, O, Q, P) :-
 	'$unary_op_as_integer'(Op,IOp),
 	'$do_and'(Q, is( O, IOp, X), P).
@@ -271,8 +271,8 @@ expand_expr(Op, X, O, Q, P) :-
 %		incrementing and decrementing,
 %		the elementar arithmetic operations [+,-,*,//]
 expand_expr(Op, X, Y, O, Q, Q) :-
-	number(X), number(Y), !,
-	is( O, Op, X, Y).
+	number(X), number(Y),
+	catch(is( O, Op, X, Y),_,fail), !.
 expand_expr(+, X, Y, O, Q, P) :- !,
 	'$preprocess_args_for_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$plus'(X1,Y1,O), F),
