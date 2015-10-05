@@ -144,13 +144,6 @@ static bool bqf1( ModEntry *new, Term t2 USES_REGS ) {
     return false;
   }
 }
-
-
-static bool bqf( Term t2 ) {
-  CACHE_REGS
-  ModEntry *new = Yap_GetModuleEntry(CurrentModule);
-  return bqf1( new, t2 PASS_REGS);
-}
  
 static bool isaccess( Term inp ) {
   if (inp == TermReadWrite ||
