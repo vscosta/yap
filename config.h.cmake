@@ -1407,12 +1407,18 @@ signal. */
 /* Define to 1 if you have the <sys/socket.h> header file. */
 #ifndef HAVE_SYS_SOCKET_H
 
+
 #cmakedefine HAVE_SYS_SOCKET_H ${HAVE_SYS_SOCKET_H}
 #endif
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #ifndef HAVE_SYS_STAT_H
 #cmakedefine HAVE_SYS_STAT_H ${HAVE_SYS_STAT_H}
+#endif
+
+/* Define to 1 if you have the <sys/syscall.h> header file. */
+#ifndef HAVE_SYS_SYSCALL_H
+#cmakedefine HAVE_SYS_SYSCALL_H ${HAVE_SYS_SYSCALL_H}
 #endif
 
 /* Define to 1 if you have the <sys/times.h> header file. */
