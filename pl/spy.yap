@@ -1,20 +1,3 @@
-/*************************************************************************
-*									 *
-  *	 YAP Prolog 							 *
-*									 *
-  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		spy.pl							 *
-* Last rev:								 *
-* mods:									 *
-* comments:	YAP debugger: managing tracing and spy-points		 *
-*									 *
-*************************************************************************/
-
 :- system_module( '$_debug', [debug/0,
         debugging/0,
         leash/1,
@@ -23,9 +6,8 @@
         nospyall/0,
         notrace/0,
         (spy)/1,
-        trace/0], ['$do_spy'/4,
-        '$init_debugger'/0,
-        '$skipeol'/1]).
+        trace/0], [
+        '$init_debugger'/0]).
 
 :- use_system_module( '$_boot', ['$find_goal_definition'/4,
         '$system_catch'/4]).
@@ -89,7 +71,7 @@ mode and the existing spy-points, when the debugger is on.
 	'__NB_setval__'('$debug_jump',false).
 
 
- % setting and reseting spy points
+ % First part : setting and reseting spy points
 
  % $suspy does most of the work
  '$suspy'(V,S,M) :- var(V) , !,
