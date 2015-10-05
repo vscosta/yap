@@ -33,6 +33,9 @@ static char     SccsId[] = "%W% %G%";
 #if HAVE_STRING_H
 #include <string.h>
 #endif
+#if HAVE_SYS_SYSCALL_H
+#include <sys/syscall.h>
+#endif
 #ifdef TABLING
 #include "tab.macros.h"
 #endif /* TABLING */
@@ -1562,13 +1565,16 @@ p_thread_unlock( USES_REGS1 )
 intptr_t
 system_thread_id(void)
 {
-#ifdef HAVE_GETTID_SYSCALL
+#if HAVE_SYS_GETTID
+  Return syscall( SYS_GETTID );
+#elif HAVE_GETTID_SYSCALL
     return syscall(__NR_gettid);
 #elif defined( HAVE_GETTID_MACRO )
     return gettid();
 #elif  defined(__WINDOWS__)
     return GetCurrentThreadId();
 #endif
+
 }
 
 
