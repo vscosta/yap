@@ -616,8 +616,10 @@ static Int cont_stream_property(USES_REGS1) { /* current_stream */
   } else {
     while (GLOBAL_Stream[i].status & Free_Stream_f) {
       ++i;
-      if (i == MaxStreams)
-        cut_fail();
+      if (i == MaxStreams) {
+	UNLOCK(GLOBAL_StreamDescLock);
+       cut_fail();
+      }
     }
     LOCK(GLOBAL_Stream[i].streamlock);
     UNLOCK(GLOBAL_StreamDescLock);
