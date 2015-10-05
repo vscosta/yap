@@ -49,7 +49,6 @@ static void mark_pred(int, PredEntry *);
 static void do_toggle_static_predicates_in_use(int);
 #endif
 static Int  in_use( USES_REGS1 );
-static Int  toggle_static_predicates_in_use( USES_REGS1 );
 static Int  PredForCode(yamop *, Atom *, arity_t *, Term *, PredEntry **);
 static LogUpdIndex *find_owner_log_index(LogUpdIndex *, yamop *);
 static StaticIndex *find_owner_static_index(StaticIndex *, yamop *);
