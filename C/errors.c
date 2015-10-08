@@ -375,8 +375,9 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   LOCAL_PrologMode |= InErrorMode;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
   Yap_ClearExs();
-  if (where == 0L)
+  if (where == 0L) {
     where = TermNil;
+  }
   // first, obtain current location
   sprintf(LOCAL_FileNameBuf, "%s:%d in C-function %s ", file, lineno, function);
   tf = MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf));
@@ -391,12 +392,14 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   if (type == INTERRUPT_EVENT) {
     fprintf(stderr, "%% YAP exiting: cannot handle signal %d\n",
             (int)IntOfTerm(where));
+    LOCAL_PrologMode &= ~InErrorMode;
     Yap_exit(1);
   }
   if (LOCAL_within_print_message) {
     /* error within error */
     fprintf(stderr, "%% ERROR WITHIN WARNING %d: %s\n", LOCAL_CurrentError,
             tmpbuf);
+    LOCAL_PrologMode &= ~InErrorMode;
     Yap_exit(1);
   }
   if (LOCAL_PrologMode == BootMode) {
@@ -421,8 +424,10 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
     else
       comment = TermNil;
     va_end(ap);
-  if (P == (yamop *)(FAILCODE))
-    return P;
+    if (P == (yamop *)(FAILCODE)) {
+      LOCAL_PrologMode &= ~InErrorMode;
+      return P;
+    }
   /* PURE_ABORT may not have set where correctly, BootMode may not have the data
    * terms ready */
   if (type == ABORT_EVENT || LOCAL_PrologMode & BootMode) {
