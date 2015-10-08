@@ -8,7 +8,7 @@ extern  "C" {
 #include "YapInterface.h"
 #include "blobs.h"
 
-    char   *Yap_TermToString(Term t, char *s, size_t sz, size_t *length, encoding_t encoding, int flags);
+    char   *Yap_TermToString(Term t, char *s, size_t sz, size_t *length, encoding_t *encodingp, int flags);
     
     void YAP_UserCPredicate(const char *, YAP_UserCPred, YAP_Arity arity);
     void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, YAP_Arity, YAP_Term);
@@ -299,7 +299,7 @@ const char *YAPTerm::text() {
   encoding_t enc = LOCAL_encoding;
 
   BACKUP_MACHINE_REGS();
-  if (!(os = Yap_TermToString(t, os, sze, &length, enc, 0))) {      RECOVER_MACHINE_REGS();
+  if (!(os = Yap_TermToString(t, os, sze, &length, &enc, 0))) {      RECOVER_MACHINE_REGS();
       return (char *)NULL;
   }
   RECOVER_MACHINE_REGS();

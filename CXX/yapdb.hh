@@ -122,7 +122,7 @@ protected:
     BACKUP_MACHINE_REGS();
     Term *outp;
 
-    out = Yap_StringToTerm(s, strlen(s)+1, LOCAL_encoding, 1200, &vnames ) ;
+    out = Yap_StringToTerm(s, strlen(s)+1, &LOCAL_encoding, 1200, &vnames ) ;
     //extern char *s0;
     //fprintf(stderr,"ap=%p arity=%d text=%s", ap, ap->ArityOfPE, s);
   //  Yap_DebugPlWrite(out);
