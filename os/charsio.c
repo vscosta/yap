@@ -104,6 +104,7 @@ plUnGetc( int sno, int ch )
 
 static Int dopeek( int sno )
 {
+  CACHE_REGS
    Int ocharcount, olinecount, olinepos;
    StreamDesc *s;
    Int ch;
@@ -117,13 +118,13 @@ static Int dopeek( int sno )
   s->linecount = olinecount;
   s->linepos = olinepos;
   /* buffer the character */
-  if (s->encoding == LOCAL_encoding)) {
+  if (s->encoding == LOCAL_encoding) {
     ungetwc( ch, s-> file );
   } else {
     /* do the ungetc as if a write .. */
     int (*f)(int, int) = s->stream_putc;
     s->stream_putc = plUnGetc;
-    put_wchar( ch, sno );
+    put_wchar( sno, ch );
     s->stream_putc = f;
   }
   return ch;
@@ -826,9 +827,11 @@ peek_code_1 ( USES_REGS1 )
     Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek_code/2");
     return FALSE;
   }
-  if ((ch =  dopeek( sno )) < 0)
-    return false;
+  if ((ch =  dopeek( sno )) < 0) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
+    return false;
+  }
+  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return(Yap_unify_constant(ARG1,MkIntTerm(ch)));
 }
 
