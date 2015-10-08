@@ -505,6 +505,14 @@ string_chars( USES_REGS1 )
   return FALSE;
 }
 
+/** @pred  number_chars(? _I_,? _L_) is iso 
+
+The predicate holds when at least one of the arguments is ground
+(otherwise, an error message will be displayed). The argument  _I_ must
+be unifiable with a number, and the argument  _L_ with the list of the
+characters of the external representation of  _I_.
+ 
+*/
 static Int 
 number_chars( USES_REGS1 )
 {
@@ -2326,15 +2334,6 @@ unifies with the number of characters forming that atom.
   Yap_InitCPred("string_length", 2, string_length, SafePredFlag);
   Yap_InitCPred("$atom_split", 4, atom_split, SafePredFlag);
   Yap_InitCPred("number_chars", 2, number_chars, 0);
-/** @pred  number_chars(? _I_,? _L_) is iso 
-
-The predicate holds when at least one of the arguments is ground
-(otherwise, an error message will be displayed). The argument  _I_ must
-be unifiable with a number, and the argument  _L_ with the list of the
-characters of the external representation of  _I_.
-
- 
-*/
   Yap_InitCPred("number_atom", 2, number_atom, 0);
 /** @pred  number_atom(? _I_,? _L_) 
 
