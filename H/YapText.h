@@ -671,7 +671,7 @@ Yap_ListOfCodesToNumber(Term t0 USES_REGS)
   seq_tv_t inp, out;
   inp.val.t = t0;
   inp.type = YAP_STRING_CODES;
-  out.type = YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+  out.type = YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   return out.val.t;
@@ -719,8 +719,8 @@ Yap_ListToNumber(Term t0 USES_REGS)
   seq_tv_t inp, out;
 
   inp.val.t = t0;
-  inp.type = YAP_STRING_STRING|YAP_STRING_ATOMS_CODES|YAP_STRING_TERM;
-  out.type = YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+  inp.type = YAP_STRING_STRING|YAP_STRING_ATOMS_CODES;
+  out.type = YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
