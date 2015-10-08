@@ -866,8 +866,8 @@ void Yap_CloseStreams(int loud) {
   }
 }
 
-    static void
-    CloseStream(int sno) {
+static void
+CloseStream(int sno) {
   CACHE_REGS
   if (!(GLOBAL_Stream[sno].status &
         (Null_Stream_f | Socket_Stream_f | InMemory_Stream_f | Pipe_Stream_f)))
