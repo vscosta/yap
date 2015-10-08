@@ -1895,7 +1895,7 @@ YAP_ReadBuffer(const char *s, Term *tp)
   BACKUP_H();
 
   LOCAL_ErrorMessage=NULL;
-  while (!(t = Yap_StringToTerm(s, strlen(s)+1, LOCAL_encoding, 1200, tp))) {
+  while (!(t = Yap_StringToTerm(s, strlen(s)+1, &LOCAL_encoding, 1200, tp))) {
     if (LOCAL_ErrorMessage) {
       if (!strcmp(LOCAL_ErrorMessage,"Stack Overflow")) {
 	if (!Yap_dogc( 0, NULL PASS_REGS )) {
@@ -2745,7 +2745,7 @@ YAP_WriteBuffer(Term t, char *buf, size_t sze, int flags)
   char *b;
 
   BACKUP_MACHINE_REGS();
-  if ((b = Yap_TermToString(t, buf, sze, &length,LOCAL_encoding, flags)) != buf) {
+  if ((b = Yap_TermToString(t, buf, sze, &length, &LOCAL_encoding, flags)) != buf) {
     if (b) free(b);
     RECOVER_MACHINE_REGS();
     return FALSE;
@@ -2755,12 +2755,13 @@ YAP_WriteBuffer(Term t, char *buf, size_t sze, int flags)
 }
 
 X_API char *
-YAP_WriteDynamicBuffer(Term t, char *buf, size_t sze, size_t *lengthp, int *encp, int flags)
+YAP_WriteDynamicBuffer(YAP_Term t, char *buf, size_t sze, size_t *lengthp, encoding_t
+		       *encp, int flags)
 {
   char *b;
 
   BACKUP_MACHINE_REGS();
-  b = Yap_TermToString(t, buf, sze, lengthp, *encp, flags);
+  b = Yap_TermToString(t, buf, sze, lengthp, encp, flags);
   RECOVER_MACHINE_REGS();
   return b;
 }
