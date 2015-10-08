@@ -4607,6 +4607,7 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
 {
 
   register CELL **to_visit0, **to_visit = (CELL **)Yap_PreAllocCodeSpace();
+  Int numbv0 = numbv;
   register tr_fr_ptr TR0 = TR;
   CELL *InitialH = HR;
 
@@ -4733,7 +4734,7 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   HR = InitialH;
-  return -1;
+  return numbv-1;
   
  aux_overflow:
   LOCAL_Error_Size = (to_visit-to_visit0)*sizeof(CELL **);
@@ -4748,7 +4749,7 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   HR = InitialH;
-  return -1;
+  return numbv-1;
   
  global_overflow:
 #ifdef RATIONAL_TREES
@@ -4763,7 +4764,7 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
   HR = InitialH;
   LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
   LOCAL_Error_Size = (ASP-HR)*sizeof(CELL);
-  return -1;
+  return numbv-1;
   
 }
 
@@ -4798,7 +4799,7 @@ Yap_NumberVars( Term inp, Int numbv, int handle_singles )	/* numbervariables in 
 			       RepAppl(t)+
 				     ArityOfFunctor(f), numbv, handle_singles PASS_REGS);
   }
-  if (out < 0) {
+  if (out < numbv) {
     if (!expand_vts( 3 PASS_REGS ))
       return FALSE;
     goto restart;
