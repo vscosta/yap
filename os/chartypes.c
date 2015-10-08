@@ -65,11 +65,9 @@ Term Yap_StringToNumberTerm(char *s, encoding_t *encp) {
     GLOBAL_Stream[sno].encoding = *encp;
   else
     GLOBAL_Stream[sno].encoding = LOCAL_encoding;
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   while (*s && isblank(*s++))
     ;
   t = Yap_scan_num(GLOBAL_Stream + sno);
-  GLOBAL_Stream[sno].status = Free_Stream_f;
   if (t == TermNil) {
     CACHE_REGS
     int sign = 1;
@@ -86,7 +84,7 @@ Term Yap_StringToNumberTerm(char *s, encoding_t *encp) {
       } else {
         return MkFloatTerm(-INFINITY);
       }
-    }
+    } 
     if (strcmp(s, "nan") == 0) {
       if (sign > 0) {
         return MkFloatTerm(NAN);
@@ -95,6 +93,8 @@ Term Yap_StringToNumberTerm(char *s, encoding_t *encp) {
       }
     }
   }
+  Yap_CloseStream(sno);
+  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return t;
 }
 
