@@ -1116,15 +1116,15 @@ Term Yap_scan_num(StreamDesc *inp) {
       ch = getchr(inp);
     }
   if (chtype(ch) != NU) {
-      Yap_clean_tokenizer(NULL, NULL, NULL);
-      return TermNil;
-    }
+    Yap_clean_tokenizer((TokEntry *)LOCAL_ScannerStack, NULL, NULL);
+    return TermNil;
+  }
   cherr = '\0';
   if (ASP - HR < 1024)
     return TermNil;
   out = get_num(&ch, &cherr, inp, ptr, 4096, sign); /*  */
   PopScannerMemory(ptr, 4096);
-  Yap_clean_tokenizer(NULL, NULL, NULL);
+  Yap_clean_tokenizer((TokEntry *)LOCAL_ScannerStack, NULL, NULL);
   if (LOCAL_ErrorMessage != NULL || ch != -1 || cherr)
     return TermNil;
   return out;
