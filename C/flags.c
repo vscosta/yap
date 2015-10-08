@@ -1143,7 +1143,7 @@ setInitialValue( bool bootstrap, flag_func f, const char *s,flag_term *tarr )
     Term t0;
     if (bootstrap) { return false; }
     CACHE_REGS
-    t0 = Yap_StringToTerm(s, strlen(s)+1, LOCAL_encoding, 1200, NULL);
+    t0 = Yap_StringToTerm(s, strlen(s)+1, &LOCAL_encoding, 1200, NULL);
     if (!t0)
       return false;
     if (IsAtomTerm(t0) || IsIntTerm(t0)) {

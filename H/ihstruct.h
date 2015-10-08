@@ -102,14 +102,14 @@
   DBLOAD_MODULE = MkAtomTerm(AtomDBLoad);
   RANGE_MODULE = MkAtomTerm(AtomRange);
 
-  HIDDEN_PREDICATES = NULL;
-
 
 
   CurrentModules = NULL;
 
 
   Yap_InitModules();
+
+  HIDDEN_PREDICATES = NULL;
 
 
   Yap_InitPlIO();

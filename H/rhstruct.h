@@ -102,14 +102,14 @@
   DBLOAD_MODULE = AtomTermAdjust(DBLOAD_MODULE);
   RANGE_MODULE = AtomTermAdjust(RANGE_MODULE);
 
-  RestoreHiddenPredicates();
-
 
 
   CurrentModules = ModEntryPtrAdjust(CurrentModules);
 
 
 
+
+  RestoreHiddenPredicates();
 
 
 

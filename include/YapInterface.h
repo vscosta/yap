@@ -1868,7 +1868,7 @@ extern X_API void YAP_Error(int myerrno, YAP_Term t, const char *buf, ...);
 
 extern X_API int YAP_WriteBuffer(YAP_Term,char *,size_t,int);
 
-extern X_API char* YAP_WriteDynamicBuffer(YAP_Term t,char *buf,size_t sze, size_t *lengthp, int *encp, int flags);
+extern X_API char* YAP_WriteDynamicBuffer(YAP_Term t,char *buf,size_t sze, size_t *lengthp, YAP_encoding_t *encp, int flags);
 
 /*  void YAP_Term(YAP_Term) */
 extern X_API YAP_Term YAP_CopyTerm(YAP_Term);

@@ -96,6 +96,8 @@ typedef bool YAP_Bool;
 
 #define YAP_agc_hook    Agc_hook
 
+#define YAP_encoding_t encoding_t
+
 #else
 
 /* Type definitions */
@@ -145,6 +147,10 @@ typedef YAP_Bool (* YAP_UserCPred)(void);
 typedef int  (*YAP_agc_hook)(void *_Atom);
 
 #include "YapError.h"
+
+#include <../os/encoding.h>
+
+typedef encoding_t YAP_encoding_t;
 
 #endif
 
@@ -366,21 +372,6 @@ typedef enum stream_f {
 } estream_f;
 
 typedef uint64_t stream_flags_t;
-
-
-/********* encoding ***********************/
-
-typedef enum
-{ PL_ENC_UNKNOWN = 0,                      /* invalid/unknown */
-  PL_ENC_OCTET,                            /* raw 8 bit input */
-  PL_ENC_ASCII,                            /* US-ASCII (0..127) */
-  PL_ENC_ISO_LATIN_1,                      /* ISO Latin-1 (0..256) */
-  PL_ENC_ANSI,                             /* default (multibyte) codepage */
-  PL_ENC_UTF8,
-  PL_ENC_UNICODE_BE,                       /* big endian unicode file */
-  PL_ENC_UNICODE_LE,                       /* little endian unicode file */
-  PL_ENC_WCHAR                             /* pl_wchar_t */
-} PL_IOENC;
 
 
 /********* YAP C-Flags ***********************/

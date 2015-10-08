@@ -158,7 +158,6 @@ Yap_DefaultStreamOps( StreamDesc * st)
 {
   st->stream_wputc = put_wchar;
   st->stream_wgetc = get_wchar;
-  st->stream_gets = DefaultGets;
   if (GLOBAL_CharConversionTable != NULL)
     st->stream_wgetc_for_read = ISOWGetc;
   else
@@ -363,7 +362,7 @@ Int
 PlIOError__ (const char *file, const char *function, int lineno,  yap_error_number type, Term culprit,  ...)
 {
   
-  if (trueLocalPrologFlag(FILEERRORS_FLAG) == MkIntTerm(1) ||
+  if (trueLocalPrologFlag(FILEERRORS_FLAG) == TermTrue||
       type == RESOURCE_ERROR_MAX_STREAMS /* do not catch resource errors */) {
     va_list args;
     const char *format;
@@ -469,8 +468,14 @@ Yap_DebugPuts( FILE *s, const char *sch)
 {
   if (Yap_Option['l' - 96])
     (void) fputs(sch, Yap_logfile);
-  return (fputs(sch, s));
+  return fputs( sch, s);
 }
+
+void Yap_DebugErrorPuts(const char *s)
+{
+  Yap_DebugPuts (stderr, s);
+}
+
 
 void
 Yap_DebugPlWrite(Term t)
@@ -483,12 +488,6 @@ void
 Yap_DebugErrorPutc(int c)
 {
   Yap_DebugPutc (stderr, c);
-}
-
-void
-Yap_DebugErrorPuts(const char *s)
-{
-  Yap_DebugPuts (stderr, s);
 }
 
 void Yap_DebugWriteIndicator( PredEntry *ap )
@@ -617,6 +616,23 @@ ResetEOF(StreamDesc *s) {
 
 /* handle reading from a stream after having found an EOF */
 static int
+EOFWGetc(int sno)
+{
+  register StreamDesc *s = &GLOBAL_Stream[sno];
+  
+  if (s->status & Push_Eof_Stream_f) {
+    /* ok, we have pushed an EOF, send it away */
+    s->status &= ~Push_Eof_Stream_f;
+    return EOF;
+  }
+  if (ResetEOF(s)) {
+    s->stream_wgetc = get_wchar;
+    return(s->stream_wgetc(sno));
+  }
+  return EOF;
+}
+
+static int
 EOFGetc(int sno)
 {
   register StreamDesc *s = &GLOBAL_Stream[sno];
@@ -627,6 +643,7 @@ EOFGetc(int sno)
     return EOF;
   }
   if (ResetEOF(s)) {
+    s->stream_getc = PlGetc;
     return(s->stream_getc(sno));
   }
   return EOF;
@@ -638,7 +655,6 @@ console_post_process_eof(StreamDesc *s)
 {
   CACHE_REGS
   s->stream_getc = EOFGetc;
-  Yap_DefaultStreamOps( s );
   LOCAL_newline = FALSE;
   return EOFCHAR;
 }
@@ -665,9 +681,17 @@ post_process_eof(StreamDesc *s)
 {
   s->status |= Eof_Stream_f;
   s->stream_getc = EOFGetc;
-  Yap_DefaultStreamOps( s );
   return EOFCHAR;
 }
+
+int
+post_process_weof(StreamDesc *s)
+{
+  s->status |= Eof_Stream_f;
+  s->stream_wgetc = EOFWGetc;
+  return EOFCHAR;
+}
+
 
 /* standard routine, it should read from anything pointed by a FILE *.
  It could be made more efficient by doing our own buffering and avoiding
@@ -741,168 +765,6 @@ GetUTF8 (int sno)
   return c;
 }
 
-
-/* reads a character from a buffer and does the rest  */
-int
-PlUnGetc (int sno)
-{
-  register StreamDesc *s = &GLOBAL_Stream[sno];
-  Int ch;
-  
-  if (s->stream_getc != PlUnGetc)
-    return(s->stream_getc(sno));
-  ch = s->och;
-  if (s->status & InMemory_Stream_f) {
-    Yap_MemOps( s );
-    s->stream_wputc = put_wchar;
-  } else if (s->status & Socket_Stream_f) {
-    Yap_SocketOps( s );
-    s->stream_wputc = put_wchar;
-  } else if (s->status & Promptable_Stream_f) {
-    Yap_ConsoleOps( s );
-    s->stream_wputc = put_wchar;
-  } else {
-    s->stream_getc = PlGetc;
-    s->stream_gets = PlGetsFunc();
-  }
-  return(ch);
-}
-
-/* give back 0376+ch  */
-static int
-PlUnGetc376 (int sno)
-{
-  register StreamDesc *s = &GLOBAL_Stream[sno];
-  Int ch;
-  
-  if (s->stream_getc != PlUnGetc376)
-    return(s->stream_getc(sno));
-  s->stream_getc = PlUnGetc;
-  ch = s->och;
-  s->och = 0xFE;
-  return ch;
-}
-
-/* give back 0376+ch  */
-static int
-PlUnGetc00 (int sno)
-{
-  register StreamDesc *s = &GLOBAL_Stream[sno];
-  Int ch;
-  
-  if (s->stream_getc != PlUnGetc00)
-    return(s->stream_getc(sno));
-  s->stream_getc = PlUnGetc;
-  ch = s->och;
-  s->och = 0x00;
-  return ch;
-}
-
-/* give back 0377+ch  */
-static int
-PlUnGetc377 (int sno)
-{
-  register StreamDesc *s = &GLOBAL_Stream[sno];
-  Int ch;
-  
-  if (s->stream_getc != PlUnGetc377)
-    return(s->stream_getc(sno));
-  s->stream_getc = PlUnGetc;
-  ch = s->och;
-  s->och = 0xFF;
-  return ch;
-}
-
-/* give back 0357+ch  */
-static int
-PlUnGetc357 (int sno)
-{
-  register StreamDesc *s = &GLOBAL_Stream[sno];
-  Int ch;
-  
-  if (s->stream_getc != PlUnGetc357)
-    return(s->stream_getc(sno));
-  s->stream_getc = PlUnGetc;
-  ch = s->och;
-  s->och = 0xEF;
-  return ch;
-}
-
-/* give back 0357+0273+ch  */
-static int
-PlUnGetc357273 (int sno)
-{
-  register StreamDesc *s = &GLOBAL_Stream[sno];
-  Int ch;
-  
-  if (s->stream_getc != PlUnGetc357273)
-    return(s->stream_getc(sno));
-  s->stream_getc = PlUnGetc357;
-  ch = s->och;
-  s->och = 0xBB;
-  return ch;
-}
-
-/* give back 000+000+ch  */
-static int
-PlUnGetc0000 (int sno)
-{
-  register StreamDesc *s = &GLOBAL_Stream[sno];
-  Int ch;
-  
-  if (s->stream_getc != PlUnGetc0000)
-    return(s->stream_getc(sno));
-  s->stream_getc = PlUnGetc00;
-  ch = s->och;
-  s->och = 0x00;
-  return ch;
-}
-
-/* give back 000+000+ch  */
-static int
-PlUnGetc0000fe (int sno)
-{
-  register StreamDesc *s = &GLOBAL_Stream[sno];
-  Int ch;
-  
-  if (s->stream_getc != PlUnGetc0000fe)
-    return(s->stream_getc(sno));
-  s->stream_getc = PlUnGetc0000;
-  ch = s->och;
-  s->och = 0xfe;
-  return ch;
-}
-
-/* give back 0377+0376+ch  */
-static int
-PlUnGetc377376 (int sno)
-{
-  register StreamDesc *s = &GLOBAL_Stream[sno];
-  Int ch;
-  
-  if (s->stream_getc != PlUnGetc377376)
-    return(s->stream_getc(sno));
-  s->stream_getc = PlUnGetc377;
-  ch = s->och;
-  s->och = 0xFE;
-  return ch;
-}
-
-/* give back 0377+0376+000+ch  */
-static int
-PlUnGetc37737600 (int sno)
-{
-  register StreamDesc *s = &GLOBAL_Stream[sno];
-  Int ch;
-  
-  if (s->stream_getc != PlUnGetc37737600)
-    return(s->stream_getc(sno));
-  s->stream_getc = PlUnGetc377376;
-  ch = s->och;
-  s->och = 0x00;
-  return ch;
-}
-
 static int
 utf8_nof(char ch)
 {
@@ -917,20 +779,21 @@ utf8_nof(char ch)
   return 5;
 }
 
-int
-get_wchar(int sno)
+static int
+get_wchar__(int sno)
 {
   int ch;
   wchar_t wch;
   int how_many = 0;
+  StreamDesc *s = GLOBAL_Stream+sno;
   
   while (TRUE) {
-    ch = GLOBAL_Stream[sno].stream_getc(sno);
+    ch = getc(GLOBAL_Stream[sno].file);
     if (ch == -1) {
       if (how_many) {
         /* error */
       }
-      return EOF;
+      return post_process_weof(s);
     }
     switch (GLOBAL_Stream[sno].encoding) {
       case ENC_OCTET:
@@ -981,12 +844,7 @@ get_wchar(int sno)
             /* error */
             /* try to recover character, assume this is our first character */
             wchar_t och = GLOBAL_Stream[sno].och;
-            
-            GLOBAL_Stream[sno].och = ch;
-            GLOBAL_Stream[sno].stream_getc = PlUnGetc;
-            GLOBAL_Stream[sno].stream_wgetc = get_wchar;
-            GLOBAL_Stream[sno].stream_gets = DefaultGets;
-            return och;
+	    return och;
           }
           if (!how_many) {
             return wch;
@@ -1033,6 +891,12 @@ get_wchar(int sno)
   return EOF;
 }
 
+int
+get_wchar(int sno)
+{
+  return post_process_read_char( get_wchar__( sno ), GLOBAL_Stream+sno );
+}
+
 #ifndef MB_LEN_MAX
 #define MB_LEN_MAX 6
 #endif
@@ -1075,8 +939,7 @@ handle_write_encoding_error(int sno, wchar_t ch)
 int
 put_wchar(int sno, wchar_t ch)
 {
-  
-  /* pass the bug if we can */
+  /* pass the bucck if we can */
   switch (GLOBAL_Stream[sno].encoding) {
     case ENC_OCTET:
       return GLOBAL_Stream[sno].stream_putc(sno, ch);
@@ -1284,42 +1147,31 @@ write_bom(int sno, StreamDesc *st)
 static void
 check_bom(int sno, StreamDesc *st)
 {
+  int ch1, ch2, ch3, ch4;
   
-  int ch;
-  
-  ch = st->stream_getc(sno);
-  if (ch == EOFCHAR) {
-    st->och = ch;
-    st->stream_getc = PlUnGetc;
-    st->stream_wgetc = get_wchar;
-    st->stream_gets = DefaultGets;
-    return;
-  }
-  switch(ch) {
+  ch1 = st->stream_getc(sno);
+  switch(ch1) {
     case 0x00:
     {
-      ch = st->stream_getc(sno);
-      if (ch == EOFCHAR || ch != 0x00) {
-        st->och = ch;
-        st->stream_getc = PlUnGetc00;
-        st->stream_wgetc = get_wchar;
-        st->stream_gets = DefaultGets;
+      ch2 = st->stream_getc(sno);
+      if ( ch2 != 0x00) {
+	ungetc( ch1, st->file );
+	ungetc( ch2, st->file );
         return;
       } else {
-        ch = st->stream_getc(sno);
-        if (ch == EOFCHAR || ch != 0xFE) {
-          st->och = ch;
-          st->stream_getc = PlUnGetc0000;
-          st->stream_wgetc = get_wchar;
-          st->stream_gets = DefaultGets;
+        ch3 = st->stream_getc(sno);
+        if (ch3 == EOFCHAR || ch3 != 0xFE) {
+	  ungetc( ch1, st->file );
+	  ungetc( ch2, st->file );
+	  ungetc( ch3, st->file );
           return;
         } else {
-          ch = st->stream_getc(sno);
-          if (ch == EOFCHAR || ch != 0xFF) {
-            st->och = ch;
-            st->stream_getc = PlUnGetc0000fe;
-            st->stream_wgetc = get_wchar;
-            st->stream_gets = DefaultGets;
+          ch4 = st->stream_getc(sno);
+          if (ch4 == EOFCHAR || ch3 != 0xFF) {
+ 	    ungetc( ch1, st->file );
+	    ungetc( ch2, st->file );
+	    ungetc( ch3, st->file );
+	    ungetc( ch4, st->file );
             return;
           } else {
             st->status  |= HAS_BOM_f;
@@ -1331,12 +1183,10 @@ check_bom(int sno, StreamDesc *st)
     }
     case 0xFE:
     {
-      ch = st->stream_getc(sno);
-      if (ch != 0xFF) {
-        st->och = ch;
-        st->stream_getc = PlUnGetc376;
-        st->stream_wgetc = get_wchar;
-        st->stream_gets = DefaultGets;
+      ch2 = st->stream_getc(sno);
+      if (ch2 != 0xFF) {
+	ungetc( ch1, st->file );
+	ungetc( ch2, st->file );
         return;
       } else {
         st->status  |= HAS_BOM_f;
@@ -1346,27 +1196,26 @@ check_bom(int sno, StreamDesc *st)
     }
     case 0xFF:
     {
-      ch = st->stream_getc(sno);
-      if (ch != 0xFE) {
-        st->och = ch;
-        st->stream_getc = PlUnGetc377;
-        st->stream_wgetc = get_wchar;
-        st->stream_gets = DefaultGets;
+      ch2 = st->stream_getc(sno);
+      if (ch2 != 0xFE) {
+	ungetc( ch1, st->file );
+	ungetc( ch2, st->file );
         return;
       } else {
-        ch = st->stream_getc(sno);
-        if (ch == EOFCHAR || ch != 0x00) {
-          st->och = ch;
-          st->stream_getc = PlUnGetc377376;
-          st->stream_wgetc = get_wchar;
-          st->stream_gets = DefaultGets;
+        ch3 = st->stream_getc(sno);
+        if ( ch3 != 0x00) {
+	  ungetc( ch1, st->file );
+	  ungetc( ch2, st->file );
+	  ungetc( ch3, st->file );
+          return;
         } else {
-          ch = st->stream_getc(sno);
-          if (ch == EOFCHAR || ch != 0x00) {
-            st->och = ch;
-            st->stream_getc = PlUnGetc37737600;
-            st->stream_wgetc = get_wchar;
-            st->stream_gets = DefaultGets;
+          ch4 = st->stream_getc(sno);
+          if (ch4 != 0x00) {
+ 	    ungetc( ch1, st->file );
+	    ungetc( ch2, st->file );
+	    ungetc( ch3, st->file );
+	    ungetc( ch4, st->file );
+            return;
           } else {
             st->status  |= HAS_BOM_f;
             st->encoding = ENC_ISO_UTF32_LE;
@@ -1379,20 +1228,17 @@ check_bom(int sno, StreamDesc *st)
       }
     }
     case 0xEF:
-      ch = st->stream_getc(sno);
-      if (ch != 0xBB) {
-        st->och = ch;
-        st->stream_getc = PlUnGetc357;
-        st->stream_wgetc = get_wchar;
-        st->stream_gets = DefaultGets;
-        return;
+      ch2 = st->stream_getc(sno);
+      if (ch2 != 0xBB) {
+	ungetc( ch1, st->file );
+	ungetc( ch2, st->file );
+	return;
       } else {
-        ch = st->stream_getc(sno);
-        if (ch != 0xBF) {
-          st->och = ch;
-          st->stream_getc = PlUnGetc357273;
-          st->stream_wgetc = get_wchar;
-          st->stream_gets = DefaultGets;
+        ch3 = st->stream_getc(sno);
+        if (ch3 != 0xBF) {
+	  ungetc( ch1, st->file );
+	  ungetc( ch2, st->file );
+	  ungetc( ch3, st->file );
           return;
         } else {
           st->status  |= HAS_BOM_f;
@@ -1400,12 +1246,8 @@ check_bom(int sno, StreamDesc *st)
           return;
         }
       }
-    default:
-      st->och = ch;
-      st->stream_getc = PlUnGetc;
-      st->stream_wgetc = get_wchar;
-      st->stream_gets = DefaultGets;
-      return;
+  default:
+    ungetc( ch1, st->file );
   }
 }
 
@@ -1548,8 +1390,11 @@ do_open (  Term file_name, Term t2, Term tlist USES_REGS )
   }
   /* get options */
   xarg *args = Yap_ArgListToVector ( tlist, open_defs, OPEN_END  );
-  if (args == NULL)
+  if (args == NULL) {
+      if (LOCAL_Error_TYPE)
+      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, "option handling in open/3");
     return FALSE;
+    }
   /* done */
   sno = GetFreeStreamD();
   if (sno < 0)
@@ -1579,7 +1424,7 @@ do_open (  Term file_name, Term t2, Term tlist USES_REGS )
       fname = Yap_AbsoluteFile( fname, LOCAL_FileNameBuf);
     } else {
       if (!strncpy(LOCAL_FileNameBuf, fname, YAP_FILENAME_MAX))
-        return (PlIOError (SYSTEM_ERROR_INTERNAL,file_name,"file name is too long in open/3"));
+        return PlIOError (SYSTEM_ERROR_INTERNAL,file_name,"file name is too long in open/3");
     }
   } else if (trueGlobalPrologFlag(OPEN_EXPANDS_FILENAME_FLAG)) {
     fname = Yap_AbsoluteFile( fname, LOCAL_FileNameBuf);
@@ -1651,6 +1496,7 @@ do_open (  Term file_name, Term t2, Term tlist USES_REGS )
     Yap_SetTextFile (RepAtom (AtomOfTerm (file_name))->StrOfAE);
   }
 #endif
+  flags &= ~(Free_Stream_f);
   if (!initStream( sno, fd, fname, file_name, encoding, flags, open_mode ))
     return false;
   if (open_mode == AtomWrite ) {
@@ -1670,7 +1516,6 @@ do_open (  Term file_name, Term t2, Term tlist USES_REGS )
   }
   
   
-  flags &= ~(Free_Stream_f);
   UNLOCK(st->streamlock);
   {
     Term t = Yap_MkStream (sno);
@@ -1730,7 +1575,7 @@ p_open_null_stream (USES_REGS1)
   st->stream_putc = NullPutc;
   st->stream_wputc = put_wchar;
   st->stream_getc = PlGetc;
-  st->stream_gets = PlGetsFunc();
+  st->stream_gets = PlGets;
   st->stream_wgetc = get_wchar;
   st->stream_wgetc_for_read = get_wchar;
   if (st->encoding  == ENC_ISO_UTF8)
@@ -1808,26 +1653,41 @@ CheckStream (Term arg, int kind, const char *msg)
   }
   if (GLOBAL_Stream[sno].status & Free_Stream_f)
   {
-    PlIOError(EXISTENCE_ERROR_STREAM, arg, msg);
+    Yap_Error(EXISTENCE_ERROR_STREAM, arg, msg);
     return (-1);
   }
   LOCK(GLOBAL_Stream[sno].streamlock);
-  if ((GLOBAL_Stream[sno].status & kind) == 0)
+  if ((   kind & Input_Stream_f) && !(GLOBAL_Stream[sno].status & Input_Stream_f))
+    {
+      UNLOCK(GLOBAL_Stream[sno].streamlock);
+      PlIOError(PERMISSION_ERROR_INPUT_STREAM, arg, msg);
+    }
+  if    ((kind & (Append_Stream_f|Output_Stream_f)) && ! (GLOBAL_Stream[sno].status & Output_Stream_f))
   {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    if (kind & Input_Stream_f)
-      PlIOError(PERMISSION_ERROR_INPUT_STREAM, arg, msg);
-    else
-      PlIOError(PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
-    return (-1);
+    PlIOError(PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
   }
   return (sno);
 }
+
 
 int
 Yap_CheckStream (Term arg, int kind, const char *msg)
 {
   return CheckStream(arg, kind, (char *)msg);
+}
+
+int
+Yap_CheckTextStream (Term arg, int kind, const char *msg)
+{
+  int sno;
+  if ((sno = CheckStream(arg, kind, (char *)msg)) < 0)
+    return -1;
+  if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
+    return -1;
+  }
+  return sno;
 }
 
 

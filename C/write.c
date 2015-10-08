@@ -388,7 +388,7 @@ int Yap_FormatFloat(Float f,  char **s, size_t sz) {
     int sno;
     char *so;
     
-    sno = Yap_open_buf_write_stream(*s, sz,  GLOBAL_Stream[LOCAL_c_output_stream].encoding, 0);
+    sno = Yap_open_buf_write_stream(*s, sz,  &GLOBAL_Stream[LOCAL_c_output_stream].encoding, 0);
    if (sno < 0)
     return FALSE;
    wglb.stream = GLOBAL_Stream+sno;
@@ -1251,7 +1251,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags, int prio
 
 
 char *
-Yap_TermToString(Term t, char *s,  size_t sz, size_t *length, encoding_t encp, int flags)
+Yap_TermToString(Term t, char *s,  size_t sz, size_t *length, encoding_t *encp, int flags)
 {
   CACHE_REGS
   int sno = Yap_open_buf_write_stream(s, sz, encp, flags);
@@ -1259,10 +1259,11 @@ Yap_TermToString(Term t, char *s,  size_t sz, size_t *length, encoding_t encp, i
   
   if (sno < 0)
   return NULL;
-  LOCK(GLOBAL_Stream[sno].streamlock);
   LOCAL_c_output_stream = sno;
   if (encp)
-  GLOBAL_Stream[sno].encoding = encp;
+    GLOBAL_Stream[sno].encoding = *encp;
+  else
+    GLOBAL_Stream[sno].encoding = LOCAL_encoding;
   Yap_plwrite (t, GLOBAL_Stream+sno, 0, flags, 1200);
   s = Yap_MemExportStreamPtr( sno );
   Yap_CloseStream( sno );

@@ -137,9 +137,9 @@ int GetFreeStreamD(void) {
     UNLOCK(GLOBAL_StreamDescLock);
     return -1;
   }
-  GLOBAL_Stream[sno].encoding = LOCAL_encoding;
   LOCK(GLOBAL_Stream[sno].streamlock);
   UNLOCK(GLOBAL_StreamDescLock);
+  GLOBAL_Stream[sno].encoding = LOCAL_encoding;
   return sno;
 }
 
@@ -588,6 +588,7 @@ static bool do_stream_property(int sno,
       }
     }
   }
+  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return rc;
 }
 
@@ -657,7 +658,8 @@ static Int stream_property(USES_REGS1) { /* Init current_stream */
     i = Yap_CheckStream(t1, Input_Stream_f | Output_Stream_f | Append_Stream_f,
                         "current_stream/3");
     if (i < 0) {
-      cut_fail();
+      UNLOCK(GLOBAL_Stream[i].streamlock);
+     cut_fail();
     }
     args = Yap_ArgListToVector(Deref(ARG2), stream_property_defs,
                                STREAM_PROPERTY_END);

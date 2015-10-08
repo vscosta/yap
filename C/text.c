@@ -22,12 +22,6 @@
 #include "yapio.h"
 #include "YapText.h"
 
-#if defined(__BIG_ENDIAN__)
-#define ENC_WCHAR ENC_ISO_UTF32_BE
-#else
-#define ENC_WCHAR ENC_ISO_UTF32_LE
-#endif
-
 #include <string.h>
 #include <wchar.h>
 
@@ -39,9 +33,9 @@ min_size(size_t i, size_t j) {
 #define wcsnlen(S, N) min_size(N, wcslen(S))
 #endif
 
-static inline unsigned char *get_char(unsigned char *p, int *c) { *c = *p; return p+1; }
+static inline unsigned char *getChar(unsigned char *p, int *c) { *c = *p; return p+1; }
 
-static inline wchar_t *get_wchar(wchar_t *p, int *c) { *c = *p; return p+1; }
+static inline wchar_t *getWchar(wchar_t *p, int *c) { *c = *p; return p+1; }
 
 #ifndef NAN
 #define NAN      (0.0/0.0)
@@ -366,19 +360,31 @@ Yap_readText( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *l
   bool wide;
 
   /* we know what the term is */
-  if (inp->type & YAP_STRING_STRING && !IsVarTerm(inp->val.t) && IsStringTerm(inp->val.t)) { const char *s;
-    s = (char *)StringOfTerm( inp->val.t );
-    if ( s == NULL ) {
-      return 0L;
+  if ( !(inp->type & (YAP_STRING_CHARS|YAP_STRING_WCHARS)))
+    {
+      if (IsVarTerm(inp->val.t) && !(inp->type & YAP_STRING_TERM)) {
+	LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+         } else if (!IsAtomTerm(inp->val.t) && inp->type == YAP_STRING_ATOM) {
+		LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
+      } else if (!IsStringTerm(inp->val.t) && inp->type == YAP_STRING_STRING) {
+		LOCAL_Error_TYPE = TYPE_ERROR_STRING;
+      } else if (!IsNumTerm(inp->val.t) && (inp->type & ( YAP_STRING_INT|YAP_STRING_FLOAT| YAP_STRING_BIG)) == inp->type) {
+		LOCAL_Error_TYPE = TYPE_ERROR_NUMBER;
+      } else if (!IsAtomicTerm(inp->val.t) && !(inp->type & YAP_STRING_TERM)) {
+	 	LOCAL_Error_TYPE	 = TYPE_ERROR_ATOMIC;
+	  }
+      LOCAL_Error_Term = inp->val.t;
     }
+
     // this is a term, extract the UTF8 representation
+   if ( IsStringTerm(inp->val.t)) {
     *enc = ENC_ISO_UTF8;
     *minimal = FALSE;
     if (lengp)
       *lengp = strlen(s);
     return (void *)s;
   }
-  if (inp->type & YAP_STRING_ATOM  && !IsVarTerm(inp->val.t) && IsAtomTerm(inp->val.t)) {
+   if ( IsAtomTerm(inp->val.t)) {
     // this is a term, extract to a buffer, and representation is wide
     *minimal = TRUE;
     Atom at = AtomOfTerm(inp->val.t);
@@ -394,13 +400,13 @@ Yap_readText( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *l
       return s;
     }
   }
-  if (inp->type & YAP_STRING_CODES  && !IsVarTerm(inp->val.t) && (s = Yap_ListOfCodesToBuffer( buf, inp->val.t, inp, &wide, lengp PASS_REGS))) {
+  if (inp->type & YAP_STRING_CODES  &&  (s = Yap_ListOfCodesToBuffer( buf, inp->val.t, inp, &wide, lengp PASS_REGS))) {
     // this is a term, extract to a sfer, and representation is wide
     *minimal = TRUE;
     *enc = ( wide ? ENC_WCHAR : ENC_ISO_LATIN1 );
     return s;
   }
-  if (inp->type & YAP_STRING_ATOMS  && !IsVarTerm(inp->val.t) && (s = Yap_ListOfAtomsToBuffer( buf, inp->val.t, inp, &wide, lengp PASS_REGS))) {
+  if (inp->type & YAP_STRING_ATOMS   && (s = Yap_ListOfAtomsToBuffer( buf, inp->val.t, inp, &wide, lengp PASS_REGS))) {
     // this is a term, extract to a buffer, and representation is wide
     *minimal = TRUE;
     s = Yap_ListOfAtomsToBuffer( buf, inp->val.t, inp, &wide, lengp PASS_REGS);
@@ -449,7 +455,8 @@ Yap_readText( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *l
       if (buf) s = buf;
       else s = Yap_PreAllocCodeSpace();
       size_t sz = LOCAL_MAX_SIZE-1;
-      o = Yap_TermToString(inp->val.t, s, sz, lengp, ENC_ISO_UTF8, 0);
+      encoding_t enc = ENC_ISO_UTF8;
+      o = Yap_TermToString(inp->val.t, s, sz, lengp, &enc, 0);
       return s;
     }
    if (inp->type & YAP_STRING_CHARS) {
@@ -513,7 +520,7 @@ write_strings( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng
       LOCAL_TERM_ERROR( t, 2*(lim-s) );
       buf = buf_from_tstring(HR);
       while (cp < lim) {
-	cp = get_char(cp, &chr);
+	cp = getChar(cp, &chr);
 	buf += put_utf8(buf, chr);
       }
       if (max >= min) *buf++ = '\0';
@@ -535,7 +542,7 @@ write_strings( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng
       buf = buf_from_tstring(HR);
       while (wp < lim) {
 	utf8proc_int32_t chr;
-	wp = get_wchar(wp, &chr);
+	wp = getWchar(wp, &chr);
 	buf += put_utf8(buf, chr);
       }
       if (max >= min) *buf++ = '\0';
@@ -599,7 +606,7 @@ write_atoms( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
       LOCAL_TERM_ERROR( t, 2*(lim-s) );
       while (cp < lim) {
 	utf8proc_int32_t chr;
-	cp = get_char(cp, &chr);
+	cp = getChar(cp, &chr);
 	if (chr == '\0') break;
 	w[0] = chr;
 	HR[0] = MkAtomTerm(Yap_LookupAtom(w));
@@ -619,7 +626,7 @@ write_atoms( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
       LOCAL_TERM_ERROR( t, 2*(lim-s) );
       while (*cp && cp < lim) {
 	utf8proc_int32_t chr;
-	cp = get_wchar(cp, &chr);
+	cp = getWchar(cp, &chr);
         if (chr == '\0') break;
 	w[0] = chr;
 	HR[0] = MkAtomTerm(Yap_LookupMaybeWideAtom(w));
@@ -679,7 +686,7 @@ write_codes( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
       LOCAL_TERM_ERROR( t, 2*(lim-s) );
       while (cp < lim) {
 	utf8proc_int32_t chr;
-	cp = get_char(cp, &chr);
+	cp = getChar(cp, &chr);
 	HR[0] = MkIntTerm(chr);
 	HR[1] = AbsPair(HR+2);
 	HR += 2;
@@ -695,7 +702,7 @@ write_codes( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
       LOCAL_TERM_ERROR( t, 2*(lim-s) );
       while (cp < lim) {
 	utf8proc_int32_t chr;
-	cp = get_wchar(cp, &chr);
+	cp = getWchar(cp, &chr);
 	HR[0] = MkIntTerm(chr);
 	HR[1] = AbsPair(HR+2);
 	HR += 2;
@@ -1049,13 +1056,13 @@ write_length( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng 
 static Term
 write_number( void *s0, seq_tv_t *out, encoding_t enc, int minimal, int size USES_REGS)
 {
-  return Yap_StringToNumberTerm(s0, enc);
+  return Yap_StringToNumberTerm(s0, &enc);
 }
 
 static Term
 string_to_term( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng USES_REGS)
 {
-  return Yap_StringToTerm(s0, strlen(s0)+1, enc, 1200, NULL);
+  return Yap_StringToTerm(s0, strlen(s0)+1, &enc, 1200, NULL);
 }
 
 

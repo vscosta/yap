@@ -73,7 +73,7 @@ static char SccsId[] = "%W% %G%";
 #endif
 #ifdef _WIN32
 #if HAVE_IO_H
-/* Windows */
+ /* Windows */
 #include <io.h>
 #endif
 #endif

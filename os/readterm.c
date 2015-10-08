@@ -432,10 +432,6 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   }
   re->seekable = (GLOBAL_Stream[inp_stream].status & Seekable_Stream_f) != 0;
   if (re->seekable) {
-    if (GLOBAL_Stream[inp_stream].stream_getc == PlUnGetc) {
-      re->had_ungetc = TRUE;
-      re->ungetc_oldc = GLOBAL_Stream[inp_stream].och;
-    }
 #if HAVE_FGETPOS
     fgetpos(GLOBAL_Stream[inp_stream].file, &re->rpos);
 #else
@@ -676,10 +672,6 @@ static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream) {
     }
   }
   // go back to the start
-  if (re->had_ungetc) {
-    GLOBAL_Stream[inp_stream].stream_getc = PlUnGetc;
-    GLOBAL_Stream[inp_stream].och = re->ungetc_oldc;
-  }
   if (re->seekable) {
     if (GLOBAL_Stream[inp_stream].status & InMemory_Stream_f) {
       GLOBAL_Stream[inp_stream].u.mem_string.pos = re->cpos;
@@ -808,7 +800,7 @@ static Int read_term(
 
   /* needs to change LOCAL_output_stream for write */
   yhandle_t h = Yap_InitSlot(ARG2);
-  inp_stream = Yap_CheckStream(ARG1, Input_Stream_f, "read/3");
+  inp_stream = Yap_CheckTextStream(ARG1, Input_Stream_f, "read/3");
   if (inp_stream == -1) {
     return (FALSE);
   }
@@ -876,10 +868,6 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re,
   fe->ce = Yap_CharacterEscapes(CurrentModule);
   re->seekable = (GLOBAL_Stream[inp_stream].status & Seekable_Stream_f) != 0;
   if (re->seekable) {
-    if (GLOBAL_Stream[inp_stream].stream_getc == PlUnGetc) {
-      re->had_ungetc = TRUE;
-      re->ungetc_oldc = GLOBAL_Stream[inp_stream].och;
-    }
 #if HAVE_FGETPOS
     fgetpos(GLOBAL_Stream[inp_stream].file, &re->rpos);
 #else
@@ -995,7 +983,7 @@ static Int read_clause(
   Term t3 = Deref(ARG3);
   yhandle_t h = Yap_InitSlot(ARG2);
   /* needs to change LOCAL_output_stream for write */
-  inp_stream = Yap_CheckStream(ARG1, Input_Stream_f, "read/3");
+  inp_stream = Yap_CheckTextStream(ARG1, Input_Stream_f, "read/3");
   out = Yap_read_term(inp_stream, t3, -3);
   UNLOCK(GLOBAL_Stream[inp_stream].streamlock);
   return out && Yap_unify(Yap_GetFromSlot(h), out);
@@ -1036,7 +1024,7 @@ static Int read2(
   Int out;
 
   /* needs to change LOCAL_output_stream for write */
-  inp_stream = Yap_CheckStream(ARG1, Input_Stream_f, "read/3");
+  inp_stream = Yap_CheckTextStream(ARG1, Input_Stream_f, "read/3");
   if (inp_stream == -1) {
     return (FALSE);
   }
@@ -1129,7 +1117,7 @@ static Int style_checker(USES_REGS1) {
   return TRUE;
 }
 
-Term Yap_StringToTerm(const char *s, size_t len, encoding_t enc, int prio,
+Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp, int prio,
                       Term *bindings) {
   CACHE_REGS
   Term bvar = MkVarTerm(), ctl;
@@ -1144,7 +1132,7 @@ Term Yap_StringToTerm(const char *s, size_t len, encoding_t enc, int prio,
   }
 
   Term rval;
-  int stream = Yap_open_buf_read_stream(s, len, enc, MEM_BUF_USER);
+  int stream = Yap_open_buf_read_stream(s, len, encp, MEM_BUF_USER);
 
   rval = Yap_read_term(stream, ctl, 3);
   Yap_CloseStream(stream);
@@ -1162,12 +1150,14 @@ Term Yap_ReadFromAtom(Atom a, Term opts) {
   if (IsWideAtom(a)) {
     wchar_t *ws = a->WStrOfAE;
     size_t len = wcslen(ws);
-    sno = Yap_open_buf_read_stream((char *)ws, len, ENC_ISO_ANSI, MEM_BUF_USER);
+    encoding_t enc = ENC_ISO_ANSI;
+    sno = Yap_open_buf_read_stream((char *)ws, len, &enc, MEM_BUF_USER);
   } else {
     char *s = a->StrOfAE;
     size_t len = strlen(s);
+    encoding_t enc = ENC_ISO_LATIN1;
     sno =
-        Yap_open_buf_read_stream((char *)s, len, ENC_ISO_LATIN1, MEM_BUF_USER);
+        Yap_open_buf_read_stream((char *)s, len, &enc, MEM_BUF_USER);
   }
 
   rval = Yap_read_term(sno, opts, 3);
@@ -1178,7 +1168,8 @@ Term Yap_ReadFromAtom(Atom a, Term opts) {
 static Term readFromBuffer(const char *s, Term opts) {
   Term rval;
   int sno;
-  sno = Yap_open_buf_read_stream((char *)s, strlen_utf8((unsigned char *)s), ENC_ISO_UTF8,
+  encoding_t enc = ENC_ISO_UTF8;
+  sno = Yap_open_buf_read_stream((char *)s, strlen_utf8((unsigned char *)s), &enc,
                                  MEM_BUF_USER);
 
   rval = Yap_read_term(sno, opts, 3);
@@ -1231,7 +1222,7 @@ term_to_string(USES_REGS1) {
   const char * s;
   if (IsVarTerm(t2)) {
     size_t length;
-    s = Yap_TermToString(ARG1, NULL,  0, &length, 0, Quote_illegal_f|Handle_vars_f);
+    s = Yap_TermToString(ARG1, NULL,  0, &length, NULL, Quote_illegal_f|Handle_vars_f);
     if (!s || !
         MkStringTerm(s)) {
        Yap_Error(RESOURCE_ERROR_HEAP,t1,"Could not get memory from the operating system");
@@ -1265,7 +1256,7 @@ term_to_atom(USES_REGS1) {
   if (IsVarTerm(t1)) {
     size_t length;
     char * s =
-    Yap_TermToString(t1, NULL,  0, &length, 0, Quote_illegal_f|Handle_vars_f);
+    Yap_TermToString(t1, NULL,  0, &length, NULL, Quote_illegal_f|Handle_vars_f);
     if (!s || !(at = Yap_LookupAtom(s))) {
       Yap_Error(RESOURCE_ERROR_HEAP,t1,"Could not get memory from the operating system");
       return false;
@@ -1340,7 +1331,8 @@ static Int read_term_from_string(USES_REGS1) {
     len = strlen_utf8(s);
   }
   char *ss = (char *)s;
-  int sno = Yap_open_buf_read_stream(ss, len, ENC_ISO_UTF8, MEM_BUF_USER);
+  encoding_t enc = ENC_ISO_UTF8;
+  int sno = Yap_open_buf_read_stream(ss, len, &enc, MEM_BUF_USER);
   rc = readFromBuffer(ss, Deref(ARG3));
   Yap_CloseStream(sno);
   if (!rc)
@@ -1378,7 +1370,8 @@ static Int read_term_from_atomic(USES_REGS1) {
     len = strlen_utf8(( unsigned char *)s);
   }
   char *ss = (char *)s;
-  int sno = Yap_open_buf_read_stream(ss, len, ENC_ISO_UTF8, MEM_BUF_USER);
+  encoding_t enc = ENC_ISO_UTF8;
+  int sno = Yap_open_buf_read_stream(ss, len, &enc, MEM_BUF_USER);
   rc = readFromBuffer(ss, Deref(ARG3));
   Yap_CloseStream(sno);
   if (!rc)

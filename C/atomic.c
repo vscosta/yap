@@ -427,7 +427,7 @@ atom_chars( USES_REGS1 )
   if (LOCAL_Error_TYPE && Yap_HandleError( "atom_chars/2" )) {
     goto restart_aux;
   }
-  return FALSE;
+  return false;
 }
 
 static Int 

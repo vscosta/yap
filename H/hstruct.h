@@ -102,14 +102,14 @@
   Term  dbload_module;
   Term  range_module;
 
-  Prop  hidden_predicates;
-
 
 
   struct mod_entry  *current_modules;
 
 
 
+
+  Prop  hidden_predicates;
 
 
 

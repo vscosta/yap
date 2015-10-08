@@ -52,6 +52,7 @@ typedef enum{       /* we accept two domains for the moment, IPV6 may follow */
 
 extern Term  Yap_InitSocketStream(int, socket_info, socket_domain);
 extern int   Yap_CheckStream(Term, int, const char *);
+extern int   Yap_CheckTextStream(Term, int, const char *);
 extern int   Yap_CheckSocketStream(Term, const char *);
 extern socket_domain   Yap_GetSocketDomain(int);
 extern socket_info   Yap_GetSocketStatus(int);
@@ -305,13 +306,13 @@ int console_post_process_read_char( int, StreamDesc *);
 int console_post_process_eof( StreamDesc *);
 int post_process_read_char( int, StreamDesc *);
 int post_process_eof( StreamDesc *);
+int post_process_weof( StreamDesc *);
 
 bool is_same_tty(FILE *f1, FILE *f2);
 
 int ISOWGetc (int sno);
 int GetUTF8 (int sno);
 Term read_line(int sno);
-int PlUnGetc( int);
 int PlGets (int sno, UInt size, char *buf);
 GetsFunc PlGetsFunc(void);
 int PlGetc (int sno);
@@ -419,9 +420,6 @@ StreamPosition(int sno)
   Term sargs[5];
   Int cpos;
   cpos = GLOBAL_Stream[sno].charcount;
-  if (GLOBAL_Stream[sno].stream_getc == PlUnGetc) {
-    cpos--;
-  }
   sargs[0] = MkIntegerTerm (LOCAL_StartCharCount = cpos);
   sargs[1] = MkIntegerTerm (LOCAL_StartLineCount = GLOBAL_Stream[sno].linecount);
   sargs[2] = MkIntegerTerm (LOCAL_StartLinePos = GLOBAL_Stream[sno].linepos);

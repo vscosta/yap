@@ -25,7 +25,7 @@ struct format_status*		FormatInfo				=NULL
 Atom				AtPrompt				=AtomNil
 char				Prompt[MAX_PROMPT+1]			void
 
-encoding_t			encoding				=Yap_InitialEncoding()
+encoding_t			encoding				=Yap_DefaultEncoding()
 bool				quasi_quotations			=false
 UInt				default_priority			=1200
 

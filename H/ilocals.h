@@ -21,7 +21,7 @@ static void InitWorker(int wid) {
   REMOTE_FormatInfo(wid) = NULL;
   REMOTE_AtPrompt(wid) = AtomNil;
 
-  REMOTE_encoding(wid) = Yap_InitialEncoding();
+  REMOTE_encoding(wid) = Yap_DefaultEncoding();
   REMOTE_quasi_quotations(wid) = false;
   REMOTE_default_priority(wid) = 1200;
   REMOTE_eot_before_eof(wid) = false;

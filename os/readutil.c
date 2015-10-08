@@ -83,7 +83,7 @@ rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS)
 	end = Deref(XREGS[arity]);
       if (GLOBAL_Stream[sno].encoding == ENC_ISO_UTF8)
 	return Yap_unify(ARG2, Yap_UTF8ToDiffListOfCodes((const char *)TR, end PASS_REGS)) ;
-      else if (GLOBAL_Stream[sno].encoding == PL_ENC_WCHAR)
+      else if (GLOBAL_Stream[sno].encoding == ENC_WCHAR)
 	return Yap_unify(ARG2, Yap_WCharsToDiffListOfCodes((const wchar_t *)TR, end PASS_REGS)) ;
       return Yap_unify(ARG2, Yap_CharsToDiffListOfCodes((const char *)TR, end, ENC_ISO_LATIN1 PASS_REGS)) ;
     }

@@ -310,8 +310,13 @@ write_term2 ( USES_REGS1 )
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   xarg * args = Yap_ArgListToVector ( ARG2, write_defs, WRITE_END  );
-  if (args == NULL)
+  if (args == NULL) {
+    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
+      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
+    if (LOCAL_Error_TYPE)
+      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
     return false;
+  }
   yhandle_t mySlots = Yap_StartSlots();
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1) output_stream = 1;
@@ -335,11 +340,18 @@ write_term3 ( USES_REGS1 )
   
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
-  yhandle_t mySlots = Yap_StartSlots();
   xarg *args = Yap_ArgListToVector ( ARG3, write_defs, WRITE_END  );
-  if (args == NULL)
+  if (args == NULL) {
+    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
+      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
+    if (LOCAL_Error_TYPE)
+      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
     return false;
-  int output_stream = Yap_CheckStream (ARG1, Output_Stream_f, "write/2");
+  }
+  int output_stream = Yap_CheckTextStream (ARG1, Output_Stream_f, "write/2");
+  if (output_stream < 0 )
+    return false;
+  yhandle_t mySlots = Yap_StartSlots();
   write_term( output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
@@ -360,14 +372,23 @@ write2 ( USES_REGS1 )
      we cannot make recursive Prolog calls */
 
  
-  xarg *args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
-  if (args == NULL)
+  xarg *args;
+  yhandle_t mySlots;
+  int output_stream = Yap_CheckTextStream (ARG1, Output_Stream_f, "write/2");
+  if (output_stream < 0 )
     return false;
-  yhandle_t mySlots = Yap_StartSlots();
-  int output_stream = Yap_CheckStream (ARG1, Output_Stream_f, "write/2");
+  args  = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
+  if (args == NULL) {
+    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
+      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
+    if (LOCAL_Error_TYPE)
+      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+    return false;
+  }
+  mySlots = Yap_StartSlots();
   args[WRITE_NUMBERVARS].used = true;
   args[WRITE_NUMBERVARS].tvalue = TermTrue;
-write_term( output_stream, ARG2, args PASS_REGS);
+  write_term( output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
   if (EX != 0L) {
@@ -385,13 +406,16 @@ write1 ( USES_REGS1 )
   
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
-   int output_stream = LOCAL_c_output_stream;
+  int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1) output_stream = 1;
   xarg * args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
-  if (args == NULL)
+  if (args == NULL) {
+    if (LOCAL_Error_TYPE)
+      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
     return false;
+  }
   yhandle_t mySlots = Yap_StartSlots();
- args[WRITE_NUMBERVARS].used = true;
+  args[WRITE_NUMBERVARS].used = true;
   args[WRITE_NUMBERVARS].tvalue = TermTrue;
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term( output_stream, ARG1, args PASS_REGS);
@@ -415,8 +439,11 @@ write_canonical1 ( USES_REGS1 )
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1) output_stream = 1;
   xarg * args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
-  if (args == NULL)
+  if (args == NULL) {
+    if (LOCAL_Error_TYPE)
+      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
     return false;
+  }
   yhandle_t mySlots = Yap_StartSlots();
   args[WRITE_IGNORE_OPS].used = true;
   args[WRITE_IGNORE_OPS].tvalue = TermTrue;
@@ -442,10 +469,15 @@ write_canonical ( USES_REGS1 )
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   xarg * args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
-  if (args == NULL)
+  if (args == NULL) {
+    if (LOCAL_Error_TYPE)
+      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+    return false;
+  }
+  int output_stream = Yap_CheckTextStream (ARG1, Output_Stream_f, "write/2");
+  if (output_stream < 0 )
     return false;
   yhandle_t mySlots = Yap_StartSlots();
-  int output_stream = Yap_CheckStream (ARG1, Output_Stream_f, "write/2");
   args[WRITE_IGNORE_OPS].used = true;
   args[WRITE_IGNORE_OPS].tvalue = TermTrue;
   args[WRITE_QUOTED].used = true;
@@ -469,8 +501,11 @@ writeq1 ( USES_REGS1 )
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   xarg *args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
-   if (args == NULL)
+  if (args == NULL) {
+    if (LOCAL_Error_TYPE)
+      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
     return false;
+  }
   yhandle_t mySlots = Yap_StartSlots();
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1) output_stream = 1;
@@ -499,10 +534,15 @@ writeq ( USES_REGS1 )
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   xarg *args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
-  if (args == NULL)
+  if (args == NULL) {
+    if (LOCAL_Error_TYPE)
+      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+    return false;
+  }
+  int output_stream = Yap_CheckTextStream (ARG1, Output_Stream_f, "write/2");
+  if (output_stream < 0 )
     return false;
   yhandle_t mySlots = Yap_StartSlots();
-  int output_stream = Yap_CheckStream (ARG1, Output_Stream_f, "write/2");
    args[WRITE_NUMBERVARS].used = true;
    args[WRITE_NUMBERVARS].tvalue = TermTrue;
    args[WRITE_QUOTED].used = true;
@@ -527,8 +567,11 @@ print1 ( USES_REGS1 )
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   xarg *args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
-   if (args == NULL)
+  if (args == NULL) {
+    if (LOCAL_Error_TYPE)
+      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
     return false;
+  }
   yhandle_t mySlots = Yap_StartSlots();
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1) output_stream = 1;
@@ -557,9 +600,14 @@ print ( USES_REGS1 )
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   xarg *args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
-  if (args == NULL)
+  if (args == NULL) {
+    if (LOCAL_Error_TYPE)
+      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
     return false;
-  int output_stream = Yap_CheckStream (ARG1, Output_Stream_f, "write/2");
+  }
+  int output_stream = Yap_CheckTextStream (ARG1, Output_Stream_f, "write/2");
+  if (output_stream < 0 )
+    return false;
   yhandle_t mySlots = Yap_StartSlots();
   args[WRITE_PORTRAY].used = true;
   args[WRITE_PORTRAY].tvalue = TermTrue;
@@ -586,8 +634,11 @@ writeln1 ( USES_REGS1 )
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1) output_stream = 1;
   xarg *args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
-   if (args == NULL)
+  if (args == NULL) {
+    if (LOCAL_Error_TYPE)
+      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
     return false;
+  }
   yhandle_t mySlots = Yap_StartSlots();
   args[WRITE_NL].used = true;
   args[WRITE_NL].tvalue = TermTrue;
@@ -614,9 +665,12 @@ writeln ( USES_REGS1 )
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   xarg *args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
-  if (args == NULL )
+  if (args == NULL) {
+    if (LOCAL_Error_TYPE)
+      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
     return false;
-  int output_stream = Yap_CheckStream (ARG1, Output_Stream_f, "writeln/2");
+  }
+  int output_stream = Yap_CheckTextStream (ARG1, Output_Stream_f, "writeln/2");
   if (output_stream < 0)
     return false;
   yhandle_t mySlots = Yap_StartSlots();

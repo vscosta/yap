@@ -1530,7 +1530,7 @@ atom_to_term(term_t atom, term_t term, term_t bindings)
 }
 
 Term
-Yap_StringToTerm(const char *s, size_t len, term_t bindings)
+Yap_StringToTerm(const char *s, size_t *lenp, term_t bindings)
 { GET_LD;
   read_data rd;
   int rval;

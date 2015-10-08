@@ -153,8 +153,9 @@ MemPutc(int sno, int ch)
 
 
  int
- Yap_open_buf_read_stream(const char *nbuf, size_t nchars, encoding_t enc,  memBufSource src)
+ Yap_open_buf_read_stream(const char *nbuf, size_t nchars, encoding_t *encp,  memBufSource src)
 {
+  CACHE_REGS
   int sno;
   StreamDesc *st;
  
@@ -180,7 +181,10 @@ MemPutc(int sno, int ch)
   st->linepos = 0;
   st->charcount = 0;
   st->linecount = 1;
-  st->encoding = enc;
+  if (encp)
+    st->encoding = *encp;
+  else
+    st->encoding = LOCAL_encoding;
   UNLOCK(st->streamlock);
   return sno;
 }
@@ -227,14 +231,15 @@ open_mem_read_stream (USES_REGS1)   /* $open_mem_read_stream(+List,-Stream) */
     ti = TailOfTerm(ti);
   }
   nbuf[nchars] = '\0';
-  sno = Yap_open_buf_read_stream(nbuf, nchars, LOCAL_encoding, MEM_BUF_CODE);
+  sno = Yap_open_buf_read_stream(nbuf, nchars, &LOCAL_encoding, MEM_BUF_CODE);
   t = Yap_MkStream (sno);
   return (Yap_unify (ARG2, t));
 }
 
 int
-Yap_open_buf_write_stream(char *buf, size_t nchars, encoding_t enc,  memBufSource sr)
+Yap_open_buf_write_stream(char *buf, size_t nchars, encoding_t *encp,  memBufSource sr)
 {
+  CACHE_REGS
     int sno;
     StreamDesc *st;
 
@@ -258,7 +263,10 @@ Yap_open_buf_write_stream(char *buf, size_t nchars, encoding_t enc,  memBufSourc
     st->linepos = 0;
     st->charcount = 0;
     st->linecount = 1;
-    st->encoding = enc;
+    if (encp)
+      st->encoding = *encp;
+    else
+      st->encoding = LOCAL_encoding;
     Yap_DefaultStreamOps( st );
 #if MAY_WRITE
     st->file = open_memstream(&st->nbuf, &st->nsize);
@@ -287,7 +295,7 @@ Yap_OpenBufWriteStream( USES_REGS1 )
       return -1;
     }
   }
-  return Yap_open_buf_write_stream(nbuf, sz, GLOBAL_Stream[LOCAL_c_output_stream].encoding, 0);
+  return Yap_open_buf_write_stream(nbuf, sz, &GLOBAL_Stream[LOCAL_c_output_stream].encoding, 0);
 }
 
 static Int

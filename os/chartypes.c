@@ -1,4 +1,3 @@
-
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -54,14 +53,18 @@ static char SccsId[] = "%W% %G%";
 static Int p_change_type_of_char(USES_REGS1);
 static Int p_type_of_char(USES_REGS1);
 
-Term Yap_StringToNumberTerm(char *s, encoding_t enc) {
+Term Yap_StringToNumberTerm(char *s, encoding_t *encp) {
+  CACHE_REGS
   int sno;
   Term t;
 
-  sno = Yap_open_buf_read_stream(s, strlen(s), enc, MEM_BUF_USER);
+  sno = Yap_open_buf_read_stream(s, strlen(s), encp, MEM_BUF_USER);
   if (sno < 0)
     return FALSE;
-  GLOBAL_Stream[sno].encoding = enc;
+  if (encp)
+    GLOBAL_Stream[sno].encoding = *encp;
+  else
+    GLOBAL_Stream[sno].encoding = LOCAL_encoding;
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   while (*s && isblank(*s++))
     ;
@@ -160,25 +163,6 @@ encoding_t Yap_DefaultEncoding(void) {
 void Yap_SetDefaultEncoding(encoding_t new_encoding) {
   CACHE_REGS
   LOCAL_encoding = new_encoding;
-}
-
-encoding_t Yap_InitialEncoding(void) {
-  char *s = getenv("LANG");
-  size_t sz;
-
-  /* if we don't have a LANG then just use ISO_LATIN1 */
-  if (s == NULL)
-    s = getenv("LC_CTYPE");
-  if (s == NULL)
-    return ENC_ISO_UTF8;
-  sz = strlen(s);
-  if (sz >= 5) {
-    if (s[sz - 5] == 'U' && s[sz - 4] == 'T' && s[sz - 3] == 'F' &&
-        s[sz - 2] == '-' && s[sz - 1] == '8') {
-      return ENC_ISO_UTF8;
-    }
-  }
-  return ENC_ISO_UTF8;
 }
 
 static Int get_default_encoding(USES_REGS1) {

@@ -829,7 +829,7 @@ doformat(volatile Term otail, volatile Term oargs, int sno USES_REGS)
               finfo.pad_entries[finfo.padders].pad = (char *)bufp;
               bufp = NULL;
               sz = 0;
-              nsno = Yap_open_buf_write_stream((char *)bufp, sz, GLOBAL_Stream[sno].encoding, 0);
+              nsno = Yap_open_buf_write_stream((char *)bufp, sz, &GLOBAL_Stream[sno].encoding, 0);
               if (osno) {
                 GLOBAL_Stream[nsno].linepos = GLOBAL_Stream[sno].linepos;
                 GLOBAL_Stream[nsno].linecount = GLOBAL_Stream[sno].linecount;
