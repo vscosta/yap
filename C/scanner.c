@@ -1154,7 +1154,7 @@ Yap_tokRep(TokEntry *tokptr)
     case Name_tok:
       return (char *)RepAtom((Atom)info)->StrOfAE;
     case Number_tok:
-      if ((b = Yap_TermToString(info, buf, sze, &length,LOCAL_encoding, flags)) != buf) {
+      if ((b = Yap_TermToString(info, buf, sze, &length, &LOCAL_encoding, flags)) != buf) {
         if (b) free(b);
         return NULL;
       }
