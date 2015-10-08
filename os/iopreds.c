@@ -88,6 +88,9 @@ static char SccsId[] = "%W% %G%";
 #endif
 #include "iopreds.h"
 
+static int get_wchar( int);
+static int get_wchar_from_file( int);
+
 FILE *Yap_stdin;
 FILE *Yap_stdout;
 FILE *Yap_stderr;
@@ -157,7 +160,10 @@ void
 Yap_DefaultStreamOps( StreamDesc * st)
 {
   st->stream_wputc = put_wchar;
-  st->stream_wgetc = get_wchar;
+  if (!(st->status & (Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f)))
+    st->stream_wgetc = get_wchar_from_file;
+  else
+    st->stream_wgetc = get_wchar;
   if (GLOBAL_CharConversionTable != NULL)
     st->stream_wgetc_for_read = ISOWGetc;
   else
@@ -266,7 +272,8 @@ InitFileIO(StreamDesc *s)
       s->stream_wputc = put_wchar;
       s->stream_getc = PlGetc;
       s->stream_gets = PlGetsFunc();
-    }
+      s->stream_wgetc = get_wchar_from_file;
+   }
   }
   s->stream_wputc = put_wchar;
   s->stream_wgetc = get_wchar;
@@ -779,6 +786,122 @@ utf8_nof(char ch)
   return 5;
 }
 
+#define wide_char() \
+      switch (GLOBAL_Stream[sno].encoding) { \
+      case ENC_OCTET:\
+        return ch;\
+      case ENC_ISO_LATIN1:\
+        return ch;\
+      case ENC_ISO_ASCII:\
+        if (ch & 0x80) {\
+          /* error */\
+        }\
+        return ch;\
+      case ENC_ISO_ANSI:\
+      {\
+        char buf[1];\
+        int out;\
+        \
+        if (!how_many) {\
+          memset((void *)&(GLOBAL_Stream[sno].mbstate), 0, sizeof(mbstate_t));\
+        }\
+        buf[0] = ch;\
+        if ((out = mbrtowc(&wch, buf, 1, &(GLOBAL_Stream[sno].mbstate))) == 1)\
+          return wch;\
+        if (out == -1) {\
+          /* error */\
+        }\
+        how_many++;\
+        break;\
+      }\
+      case ENC_ISO_UTF8:\
+      {\
+        if (!how_many) {\
+          if (ch & 0x80) {\
+            how_many = utf8_nof(ch);\
+            /*\
+             keep a backup of the start character in case we meet an error,\
+             useful if we are scanning ISO files.\
+             */\
+            GLOBAL_Stream[sno].och = ch;\
+            wch = (ch & ((1<<(6-how_many))-1))<<(6*how_many);\
+          } else {\
+            return ch;\
+          }\
+        } else {\
+          how_many--;\
+          if ((ch & 0xc0) == 0x80) {\
+            wch += (ch & ~0xc0) << (how_many*6);\
+          } else {\
+            /* error */\
+            /* try to recover character, assume this is our first character */\
+            wchar_t och = GLOBAL_Stream[sno].och;\
+	    return och;\
+          }\
+          if (!how_many) {\
+            return wch;\
+          }\
+        }\
+      }\
+        break;\
+      case ENC_UTF16_BE:\
+        if (how_many) {\
+          return wch+ch;\
+        }\
+        how_many=1;\
+        wch = ch << 8;\
+        break;\
+      case ENC_UTF16_LE:\
+        if (how_many) {\
+          return wch+(ch<<8);\
+        }\
+        how_many=1;\
+        wch = ch;\
+        break;\
+      case ENC_ISO_UTF32_LE:\
+        if (!how_many) {\
+          how_many = 4;\
+          wch = 0;\
+        }\
+        how_many--;\
+        wch += ((unsigned char) (ch & 0xff)) << (how_many*8);\
+        if (how_many == 0)\
+          return wch;\
+        break;\
+      case ENC_ISO_UTF32_BE:\
+        if (!how_many) {\
+          how_many = 4;\
+          wch = 0;\
+        }\
+        how_many--;\
+        wch += ((unsigned char) (ch & 0xff)) << ((3-how_many)*8);\
+        if (how_many == 0)\
+          return wch;\
+        break;\
+    }\
+
+
+static int
+get_wchar(int sno)
+{
+  int ch;
+  wchar_t wch;
+  int how_many = 0;
+
+  while (TRUE) {
+    ch = GLOBAL_Stream[sno].stream_getc(sno);
+    if (ch == -1) {
+      if (how_many) {
+	/* error */
+      }
+      return EOF;
+    }
+    wide_char();
+  }
+  return EOF;
+}
+
+// layered version
 static int
 get_wchar__(int sno)
 {
@@ -795,104 +918,13 @@ get_wchar__(int sno)
       }
       return post_process_weof(s);
     }
-    switch (GLOBAL_Stream[sno].encoding) {
-      case ENC_OCTET:
-        return ch;
-      case ENC_ISO_LATIN1:
-        return ch;
-      case ENC_ISO_ASCII:
-        if (ch & 0x80) {
-          /* error */
-        }
-        return ch;
-      case ENC_ISO_ANSI:
-      {
-        char buf[1];
-        int out;
-        
-        if (!how_many) {
-          memset((void *)&(GLOBAL_Stream[sno].mbstate), 0, sizeof(mbstate_t));
-        }
-        buf[0] = ch;
-        if ((out = mbrtowc(&wch, buf, 1, &(GLOBAL_Stream[sno].mbstate))) == 1)
-          return wch;
-        if (out == -1) {
-          /* error */
-        }
-        how_many++;
-        break;
-      }
-      case ENC_ISO_UTF8:
-      {
-        if (!how_many) {
-          if (ch & 0x80) {
-            how_many = utf8_nof(ch);
-            /*
-             keep a backup of the start character in case we meet an error,
-             useful if we are scanning ISO files.
-             */
-            GLOBAL_Stream[sno].och = ch;
-            wch = (ch & ((1<<(6-how_many))-1))<<(6*how_many);
-          } else {
-            return ch;
-          }
-        } else {
-          how_many--;
-          if ((ch & 0xc0) == 0x80) {
-            wch += (ch & ~0xc0) << (how_many*6);
-          } else {
-            /* error */
-            /* try to recover character, assume this is our first character */
-            wchar_t och = GLOBAL_Stream[sno].och;
-	    return och;
-          }
-          if (!how_many) {
-            return wch;
-          }
-        }
-      }
-        break;
-      case ENC_UTF16_BE:
-        if (how_many) {
-          return wch+ch;
-        }
-        how_many=1;
-        wch = ch << 8;
-        break;
-      case ENC_UTF16_LE:
-        if (how_many) {
-          return wch+(ch<<8);
-        }
-        how_many=1;
-        wch = ch;
-        break;
-      case ENC_ISO_UTF32_LE:
-        if (!how_many) {
-          how_many = 4;
-          wch = 0;
-        }
-        how_many--;
-        wch += ((unsigned char) (ch & 0xff)) << (how_many*8);
-        if (how_many == 0)
-          return wch;
-        break;
-      case ENC_ISO_UTF32_BE:
-        if (!how_many) {
-          how_many = 4;
-          wch = 0;
-        }
-        how_many--;
-        wch += ((unsigned char) (ch & 0xff)) << ((3-how_many)*8);
-        if (how_many == 0)
-          return wch;
-        break;
-    }
+    wide_char();
   }
   return EOF;
 }
 
-int
-get_wchar(int sno)
+static int
+get_wchar_from_file(int sno)
 {
   return post_process_read_char( get_wchar__( sno ), GLOBAL_Stream+sno );
 }
@@ -1690,7 +1722,23 @@ Yap_CheckTextStream (Term arg, int kind, const char *msg)
   return sno;
 }
 
+ 
+/* used from C-interface */
+int Yap_GetFreeStreamDForReading(void) {
+  int sno = GetFreeStreamD();
+  StreamDesc *s;
 
+  if (sno < 0)
+    return sno;
+  s = GLOBAL_Stream + sno;
+  s->status |= User_Stream_f | Input_Stream_f;
+  s->charcount = 0;
+  s->linecount = 1;
+  s->linepos = 0;
+  Yap_DefaultStreamOps( s );
+  UNLOCK(s->streamlock);
+  return sno;
+}
 
 static Int
 always_prompt_user( USES_REGS1 )

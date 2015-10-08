@@ -145,34 +145,6 @@ int GetFreeStreamD(void) {
 
 int Yap_GetFreeStreamD(void) { return GetFreeStreamD(); }
 
-/* used from C-interface */
-int Yap_GetFreeStreamDForReading(void) {
-  CACHE_REGS
-  int sno = GetFreeStreamD();
-  StreamDesc *s;
-
-  if (sno < 0)
-    return sno;
-  s = GLOBAL_Stream + sno;
-  s->status |= User_Stream_f | Input_Stream_f;
-  s->charcount = 0;
-  s->linecount = 1;
-  s->linepos = 0;
-  s->stream_wgetc = get_wchar;
-  s->stream_wputc = put_wchar;
-  s->encoding = LOCAL_encoding;
-  if (GLOBAL_CharConversionTable != NULL)
-    s->stream_wgetc_for_read = ISOWGetc;
-  else
-    s->stream_wgetc_for_read = s->stream_wgetc;
-  if (s->encoding == ENC_ISO_UTF8)
-    s->stream_getc_for_utf8 = s->stream_getc;
-  else
-    s->stream_getc_for_utf8 = GetUTF8;
-  UNLOCK(s->streamlock);
-  return sno;
-}
-
 static Int p_stream_flags(USES_REGS1) { /* '$stream_flags'(+N,-Flags) */
   Term trm;
   trm = Deref(ARG1);

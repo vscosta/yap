@@ -113,7 +113,7 @@ static Int dopeek( int sno )
   ocharcount = s->charcount;
   olinecount = s->linecount;
   olinepos = s->linepos;
-  ch = get_wchar(sno);
+  ch = s->stream_wgetc( sno );
   s->charcount = ocharcount;
   s->linecount = olinecount;
   s->linepos = olinepos;

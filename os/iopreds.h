@@ -318,7 +318,6 @@ GetsFunc PlGetsFunc(void);
 int PlGetc (int sno);
 int FilePutc (int sno, int c);
 int DefaultGets( int,UInt,char*);
-int get_wchar( int);
 int put_wchar(int sno, wchar_t ch);
 Int GetStreamFd(int sno);
 int ResetEOF(StreamDesc *s);
