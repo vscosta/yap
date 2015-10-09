@@ -2419,14 +2419,16 @@ YAP_RunGoalOnce(Term t)
   Term out;
   yamop *old_CP = CP;
   Int oldPrologMode = LOCAL_PrologMode;
+  yhandle_t CSlot;
 
   BACKUP_MACHINE_REGS();
   Yap_InitYaamRegs( 0 );
-  
+  CSlot = Yap_StartSlots();
   LOCAL_PrologMode = UserMode;
   //  Yap_heap_regs->yap_do_low_level_trace=true;
   out = Yap_RunTopGoal(t);
   LOCAL_PrologMode = oldPrologMode;
+  Yap_CloseSlots(CSlot);
   if (!(oldPrologMode & UserCCallMode)) {
     /* called from top-level */
     LOCAL_AllowRestart = FALSE;

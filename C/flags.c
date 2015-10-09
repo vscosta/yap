@@ -46,7 +46,6 @@ static bool indexer(Term inp);
 static bool getenc(Term inp);
 static bool typein( Term inp );
 static bool dqf( Term t2 );
-static bool bqf( Term t2 );
 
 static void newFlag( Term fl, Term val );
 static Int current_prolog_flag(USES_REGS1);
