@@ -1566,7 +1566,7 @@ intptr_t
 system_thread_id(void)
 {
 #if HAVE_SYS_GETTID
-  Return syscall( SYS_GETTID );
+  return syscall( SYS_GETTID );
 #elif HAVE_GETTID_SYSCALL
     return syscall(__NR_gettid);
 #elif defined( HAVE_GETTID_MACRO )
