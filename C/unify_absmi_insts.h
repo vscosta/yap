@@ -3171,6 +3171,7 @@
       PREG = NEXTOP(PREG, yx);
       GONext();
 
+
       derefa_body(d0, pt0, punsafe_unk, punsafe_nonvar);
       /* d0 is a variable, check whether we need to globalise it */
       if (pt0 <= HR || pt0 >= YREG) {

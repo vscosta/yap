@@ -365,7 +365,7 @@ void    Yap_InitSortPreds(void);
 /* stack.c */
 void   Yap_InitStInfo(void);
 void   Yap_dump_stack( void );
-void   Yap_detect_bug_location(yamop *yap_pc, int where_from, char *tp, int psize);
+void   Yap_detect_bug_location(yamop *yap_pc, int where_from, int psize);
 
 #if !defined(YAPOR) && !defined(THREADS)
 bool  Yap_search_for_static_predicate_in_use(struct pred_entry *, bool);

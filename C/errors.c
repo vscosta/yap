@@ -403,10 +403,8 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
     Yap_exit(1);
   }
   if (LOCAL_PrologMode == BootMode) {
-    Yap_detect_bug_location(P, FIND_PRED_FROM_ANYWHERE, (char *)HR, 256);
-    fprintf(stderr, "%%\n%% PC: %s\n", (char *)HR);
-    Yap_detect_bug_location(CP, FIND_PRED_FROM_ANYWHERE, (char *)HR, 256);
-    fprintf(stderr, "%%   Continuation: %s\n", (char *)HR);
+    Yap_detect_bug_location(P, FIND_PRED_FROM_ANYWHERE,  256);
+    Yap_detect_bug_location(CP, FIND_PRED_FROM_ANYWHERE,  256);
     error_exit_yap(1);
   }
      va_start(ap, where);
@@ -471,7 +469,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
       if (LOCAL_PrologMode & BootMode) {
         fprintf(stderr, "%% YAP crashed while booting %s\n", tmpbuf);
       } else {
-        Yap_detect_bug_location(P, FIND_PRED_FROM_ANYWHERE, tmpbuf, YAP_BUF_SIZE);
+        Yap_detect_bug_location(P, FIND_PRED_FROM_ANYWHERE, YAP_BUF_SIZE);
         fprintf(stderr, "%% Bug found while executing %s\n", tmpbuf);
       }
       error_exit_yap(1);

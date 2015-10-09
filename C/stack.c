@@ -1661,9 +1661,10 @@ void Yap_dump_stack(void) {
     }
 #endif
 #endif
-    Yap_detect_bug_location(P, FIND_PRED_FROM_ANYWHERE, (char *)HR, 256);
+    Yap_detect_bug_location(P, FIND_PRED_FROM_ANYWHERE
+			    , 256);
     fprintf(stderr, "%%\n%% PC: %s\n", (char *)HR);
-    Yap_detect_bug_location(CP, FIND_PRED_FROM_ANYWHERE, (char *)HR, 256);
+    Yap_detect_bug_location(CP, FIND_PRED_FROM_ANYWHERE, 256);
     fprintf(stderr, "%%   Continuation: %s\n", (char *)HR);
     fprintf(stderr, "%%    %luKB of Global Stack (%p--%p)\n",
             (unsigned long int)(sizeof(CELL) * (HR - H0)) / 1024, H0, HR);
@@ -1692,7 +1693,7 @@ void Yap_dump_stack(void) {
                     "Use--Local In Use)\n%%\n");
     while (b_ptr != NULL) {
       while (env_ptr && env_ptr <= (CELL *)b_ptr) {
-        Yap_detect_bug_location(ipc, FIND_PRED_FROM_ENV, tp, 256);
+        Yap_detect_bug_location(ipc, FIND_PRED_FROM_ENV, 256);
         if (env_ptr == (CELL *)b_ptr && (choiceptr)env_ptr[E_CB] > b_ptr) {
           b_ptr = b_ptr->cp_b;
           fprintf(stderr, "%%  %s\n", tp);
@@ -1716,7 +1717,7 @@ void Yap_dump_stack(void) {
             b_ptr->cp_ap->opc != Yap_opcode(_or_last) &&
             b_ptr->cp_ap->opc != Yap_opcode(_Nstop)) {
           /* we can safely ignore ; because there is always an upper env */
-          Yap_detect_bug_location(b_ptr->cp_ap, FIND_PRED_FROM_CP, tp, 256);
+          Yap_detect_bug_location(b_ptr->cp_ap, FIND_PRED_FROM_CP, 256);
           fprintf(stderr, "%%         %s (%luKB--%luKB)\n", tp,
                   (unsigned long int)((b_ptr->cp_h - H0) * sizeof(CELL) / 1024),
                   (unsigned long int)((ADDR)LCL0 - (ADDR)b_ptr) / 1024);
@@ -1850,51 +1851,28 @@ void DumpActiveGoals(USES_REGS1) {
   }
 }
 
-void Yap_detect_bug_location(yamop *yap_pc, int where_from, char *tp,
+void Yap_detect_bug_location(yamop *yap_pc, int where_from,
                              int psize) {
   Atom pred_name;
   UInt pred_arity;
   Term pred_module;
   Int cl;
 
-  tp[0] = '\0';
   if ((cl = Yap_PredForCode(yap_pc, where_from, &pred_name, &pred_arity,
                             &pred_module)) == 0) {
 /* system predicate */
-#if HAVE_SNPRINTF
-    snprintf(tp, psize, "%s", "meta-call");
-#else
-    sprintf(tp, "%s", "meta-call");
-#endif
+    fprintf(stderr, "%s", "meta-call");
   } else if (pred_module == 0) {
-/* don't give info on system predicates */
-#if HAVE_SNPRINTF
-    snprintf(tp, psize, "prolog:%s/%lu", RepAtom(pred_name)->StrOfAE,
-             (unsigned long int)pred_arity);
-#else
-    sprintf(tp, "in prolog:%s/%lu", RepAtom(pred_name)->StrOfAE,
+    fprintf(stderr, "in prolog:%s/%lu", RepAtom(pred_name)->StrOfAE,
             (unsigned long int)pred_arity);
-#endif
   } else if (cl < 0) {
-#if HAVE_SNPRINTF
-    snprintf(tp, psize, "%s:%s/%lu", RepAtom(AtomOfTerm(pred_module))->StrOfAE,
-             RepAtom(pred_name)->StrOfAE, (unsigned long int)pred_arity);
-#else
-    sprintf(tp, "%s:%s/%lu", RepAtom(AtomOfTerm(pred_module))->StrOfAE,
+    fprintf(stderr, "%s:%s/%lu", RepAtom(AtomOfTerm(pred_module))->StrOfAE,
             RepAtom(pred_name)->StrOfAE, (unsigned long int)pred_arity);
-#endif
   } else {
-#if HAVE_SNPRINTF
-    snprintf(tp, psize, "%s:%s/%lu at clause %lu ",
-             RepAtom(AtomOfTerm(pred_module))->StrOfAE,
-             RepAtom(pred_name)->StrOfAE, (unsigned long int)pred_arity,
-             (unsigned long int)cl);
-#else
-    sprintf(tp, "%s:%s/%lu at clause %lu",
+    fprintf(stderr, "%s:%s/%lu at clause %lu",
             RepAtom(AtomOfTerm(pred_module))->StrOfAE,
             RepAtom(pred_name)->StrOfAE, (unsigned long int)pred_arity,
             (unsigned long int)cl);
-#endif
   }
 }
 
