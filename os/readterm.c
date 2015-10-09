@@ -620,6 +620,14 @@ static parser_state_t initParser(Term opts, FEnv *fe, REnv *re, int inp_stream,
     fe->nargs = nargs;
     fe->args = setReadEnv(opts, fe, re, inp_stream);
   }
+  if (fe->args == NULL) {
+    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
+      LOCAL_Error_TYPE = DOMAIN_ERROR_READ_OPTION;
+    if (LOCAL_Error_TYPE)
+      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+    fe->t = 0;
+    return YAP_PARSING_FINISHED;;
+  }
   if (GLOBAL_Stream[inp_stream].status & Push_Eof_Stream_f) {
     fe->t = MkAtomTerm(AtomEof);
     GLOBAL_Stream[inp_stream].status &= ~Push_Eof_Stream_f;
@@ -790,7 +798,9 @@ static Int
   yhandle_t h = Yap_InitSlot(ARG1);
   if ((rc = Yap_read_term(LOCAL_c_input_stream, ARG2, 2)) == 0)
     return FALSE;
-  return Yap_unify(Yap_GetFromSlot(h), rc);
+  Term tf = Yap_GetFromSlot(h);
+  Yap_RecoverSlots(1, h PASS_REGS);
+  return Yap_unify(tf, rc);
 }
 
 static Int read_term(
@@ -806,7 +816,9 @@ static Int read_term(
   }
   out = Yap_read_term(inp_stream, ARG3, 3);
   UNLOCK(GLOBAL_Stream[inp_stream].streamlock);
-  return out != 0L && Yap_unify(Yap_GetFromSlot(h), out);
+  Term tf = Yap_GetFromSlot(h);
+  Yap_RecoverSlots(1, h PASS_REGS);
+  return out != 0L && Yap_unify(tf, out);
 }
 
 #define READ_CLAUSE_DEFS()                                                     \
@@ -952,7 +964,9 @@ static Int read_clause2(USES_REGS1) {
   Term rc;
   yhandle_t h = Yap_InitSlot(ARG1);
   rc = Yap_read_term(LOCAL_c_input_stream, Deref(ARG2), -2);
-  return rc && Yap_unify(Yap_GetFromSlot(h), rc);
+  Term tf = Yap_GetFromSlot(h);
+  Yap_RecoverSlots(1, h PASS_REGS);
+  return rc && Yap_unify(tf, rc);
 }
 
 /**
@@ -986,7 +1000,9 @@ static Int read_clause(
   inp_stream = Yap_CheckTextStream(ARG1, Input_Stream_f, "read/3");
   out = Yap_read_term(inp_stream, t3, -3);
   UNLOCK(GLOBAL_Stream[inp_stream].streamlock);
-  return out && Yap_unify(Yap_GetFromSlot(h), out);
+  Term tf = Yap_GetFromSlot(h);
+  Yap_RecoverSlots(1, h PASS_REGS);
+  return out && Yap_unify(tf, out);
 }
 
 /**
@@ -1139,7 +1155,9 @@ Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp, int prio,
   UNLOCK(GLOBAL_Stream[stream].streamlock);
   if (rval && bindings) {
     *bindings = Yap_GetFromSlot(sl);
-    Yap_RecoverSlots(sl, 1 PASS_REGS);
+  }
+  if (bindings) {
+        Yap_RecoverSlots(sl, 1 PASS_REGS);
   }
   return rval;
 }

@@ -67,6 +67,7 @@ static inline void Yap_RebootSlots__(int wid USES_REGS) {
 
 /// @brief declares a new set of slots.
 /// Used to tell how many slots we had when we entered a segment of code.
+//#define Yap_StartSlots() ( printf("[<<<%s,%s,%d-%ld\n",__FILE__,__FUNCTION__,__LINE__,LOCAL_CurSlot)?Yap_StartSlots__(PASS_REGS1): -1)
 #define Yap_StartSlots() Yap_StartSlots__(PASS_REGS1)
 
 static inline yhandle_t Yap_StartSlots__(USES_REGS1) {
@@ -78,7 +79,9 @@ static inline yhandle_t Yap_StartSlots__(USES_REGS1) {
   return LOCAL_CurSlot;
 }
 
+
 /// @brief reset slots to a well-known position in the stack
+//#define Yap_CloseSlots(slot) ( printf("- %s,%s,%d %ld>>>]\n",__FILE__,__FUNCTION__,__LINE__, slot)?Yap_CloseSlots__(slot PASS_REGS):-1)
 #define Yap_CloseSlots(slot) Yap_CloseSlots__(slot PASS_REGS)
 
 static inline void Yap_CloseSlots__(yhandle_t slot USES_REGS) {
@@ -143,9 +146,10 @@ static inline void ensure_slots(int N USES_REGS) {
   }
 }
 
+/// @brief create a new slot with term t
+//#define Yap_InitSlot(t) ( printf("+%d %s,%s,%d>>>]\n",1,__FILE__,__FUNCTION__,__LINE__)?Yap_InitSlot__(t PASS_REGS):-1)
 #define Yap_InitSlot(t) Yap_InitSlot__(t PASS_REGS)
 
-/// @brief create a new slot with term t
 static inline yhandle_t Yap_InitSlot__(Term t USES_REGS) {
   yhandle_t old_slots = LOCAL_CurSlot;
   // fprintf(stderr,"IS %s:%d\n", __FUNCTION__, __LINE__);
@@ -156,6 +160,7 @@ static inline yhandle_t Yap_InitSlot__(Term t USES_REGS) {
   return old_slots;
 }
 
+//#define Yap_NewSlots(n) ( printf("+%d %s,%s,%d>>>]\n",n,__FILE__,__FUNCTION__,__LINE__)?Yap_NewSlots__(n PASS_REGS):-1)
 #define Yap_NewSlots(n) Yap_NewSlots__(n PASS_REGS)
 
 /// @brief allocate n empty new slots
@@ -172,6 +177,7 @@ static inline yhandle_t Yap_NewSlots__(int n USES_REGS) {
   return old_slots;
 }
 
+//#define Yap_InitSlots(n, ts) ( printf("+%d %s,%s,%d>>>]\n",n,__FILE__,__FUNCTION__,__LINE__)?Yap_InitSlots__(n, ts PASS_REGS):-1)
 #define Yap_InitSlots(n, ts) Yap_InitSlots__(n, ts PASS_REGS)
 
 /// @brief create n new slots with terms ts[]
@@ -190,15 +196,16 @@ static inline yhandle_t Yap_InitSlots__(int n, Term *ts USES_REGS) {
 /// @brief Succeeds if it is to recover the space allocated for $n$ contiguos
 /// slots starting at topSlot.
 static inline bool Yap_RecoverSlots(int n, yhandle_t topSlot USES_REGS) {
-  if (topSlot + n < LOCAL_CurSlot)
+  if (topSlot+n < LOCAL_CurSlot)
     return false;
-// fprintf(stderr,"RS %s:%d\n", __FUNCTION__, __LINE__);
 #ifdef DEBUG
-  if (topSlot + n > LOCAL_CurSlot) {
+  if (n > LOCAL_CurSlot) {
     Yap_Error(SYSTEM_ERROR_INTERNAL, 0 ,  "Inconsistent slot state in Yap_RecoverSlots.", 0);
     return false;
   }
 #endif
+  LOCAL_CurSlot -= n;
+// fprintf(stderr,"RS %s:%d\n", __FUNCTION__, __LINE__);
   return true;
 }
 

@@ -1048,7 +1048,7 @@ Term Yap_Parse(UInt prio) {
   CACHE_REGS
   Volatile Term t;
   JMPBUFF FailBuff;
-  yhandle_t sls  = Yap_CurrentSlot(PASS_REGS1);
+  yhandle_t sls  = Yap_StartSlots();
 
   if (!sigsetjmp(FailBuff.JmpBuff, 0)) {
 
