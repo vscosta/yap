@@ -1973,7 +1973,6 @@ Term Yap_pc_location(yamop *pc, choiceptr b_ptr, CELL *env) {
 }
 
 Term Yap_env_location(yamop *cp, choiceptr b_ptr, CELL *env, Int ignore_first) {
-  CACHE_REGS
   while (true) {
     if (b_ptr == NULL || env == NULL)
       return TermNil;
