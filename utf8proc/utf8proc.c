@@ -187,7 +187,7 @@ UTF8PROC_DLLEXPORT utf8proc_ssize_t utf8proc_encode_char(utf8proc_int32_t uc, ut
   } else return 0;
 }
 
-
+extern utf8proc_ssize_t unsafe_encode_char(utf8proc_int32_t uc, utf8proc_uint8_t *dst);
 
 
 
