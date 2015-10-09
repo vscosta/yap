@@ -2786,19 +2786,6 @@ X_API int PL_thread_self(void)
   #endif
 }
 
-#if THREADS
-
-static int
-alertThread(int tid)
-{
-  #if _WIN32
-  return pthread_kill(REMOTE_ThreadHandle(tid).pthread_handle, YAP_WINTIMER_SIGNAL) == 0;
-  #else
-  return pthread_kill(REMOTE_ThreadHandle(tid).pthread_handle, YAP_ALARM_SIGNAL) == 0;
-  #endif
-}
-
-#endif
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PL_thread_raise() is used  for  re-routing   interrupts  in  the Windows
 version, where the signal handler is running  from a different thread as
