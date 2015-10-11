@@ -1609,8 +1609,6 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       push_branch(cglobs->onbranch, TermNil, cglobs);
       cglobs->curbranch++;
       cglobs->onbranch = cglobs->curbranch;
-      if (cglobs->onlast)
-	Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
       Yap_emit_3ops(push_or_op, l1, Zero, Zero, &cglobs->cint);
       Yap_emit_3ops(either_op, l1, Zero, Zero, &cglobs->cint);
       Yap_emit(restore_tmps_op, Zero, Zero, &cglobs->cint);
@@ -1622,17 +1620,19 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       if (cglobs->onlast) {
 #ifdef TABLING
 	PELOCK(43,cglobs->cint.CurrentPred);
-	if (is_tabled(cglobs->cint.CurrentPred))
+	if (is_tabled(cglobs->cint.CurrentPred)) {
 	  Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
-	else
-#endif /* TABLING */
+	} else {
+#endif
+	  Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 	  Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
+	}
 	UNLOCK(cglobs->cint.CurrentPred->PELock);
 #endif
-      }
-      else
-	++cglobs->goalno;
+	} else {
+	  ++cglobs->goalno;
+	}
       cglobs->onbranch = pop_branch(cglobs);
       Yap_emit(pop_or_op, Zero, Zero, &cglobs->cint);
       /*                      --cglobs->onbranch; */
