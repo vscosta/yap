@@ -1699,6 +1699,15 @@ quoted_string:
         case SY:
           if (ch == '`')
             goto quoted_string;
+          if (ch == '.') {
+	    int nch = Yap_peek(inp_stream-GLOBAL_Stream);
+	    if (chtype(nch) == BS || chtype(nch) == EF || nch == '%') {
+	      t->Tok = Ord(kind = eot_tok);
+	      if (chtype(ch) == EF)
+		mark_eof(inp_stream);
+	      return l;
+	    }
+	  }
           och = ch;
           ch = getchr(inp_stream);
           if (och == '/' && ch == '*') {
