@@ -378,6 +378,7 @@ Yap_readText( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *l
 
     // this is a term, extract the UTF8 representation
    if ( IsStringTerm(inp->val.t)) {
+     const char *s = inp->val.t;
     *enc = ENC_ISO_UTF8;
     *minimal = FALSE;
     if (lengp)

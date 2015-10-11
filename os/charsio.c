@@ -102,7 +102,7 @@ plUnGetc( int sno, int ch )
   return ungetc(ch, GLOBAL_Stream[sno].file);
 }
 
-static Int dopeek( int sno )
+Int Yap_peek( int sno )
 {
   CACHE_REGS
    Int ocharcount, olinecount, olinepos;
@@ -163,7 +163,7 @@ at_end_of_stream ( USES_REGS1 )
     if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
       out = ( dopeek_byte(sno) < 0 );
     } else {
-      out = ( dopeek(sno) < 0 );
+      out = ( Yap_peek(sno) < 0 );
     }
   }
   UNLOCK(GLOBAL_Stream[sno].streamlock);
@@ -179,7 +179,7 @@ at_end_of_stream_0 ( USES_REGS1 )
   int sno = LOCAL_c_input_stream;
   out = GLOBAL_Stream[sno].status & Eof_Stream_f;
   if (!out) {
-    out = ( dopeek(sno) < 0 );
+    out = ( Yap_peek(sno) < 0 );
   }
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return out;
@@ -793,10 +793,10 @@ peek_code ( USES_REGS1 )
     return FALSE;
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    PlIOError(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek_code/2");
+    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek_code/2");
     return FALSE;
   }
-  if ((ch =  dopeek( sno )) < 0) {
+  if ((ch =  Yap_peek( sno )) < 0) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
    return false;
   }
@@ -827,7 +827,7 @@ peek_code_1 ( USES_REGS1 )
     Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek_code/2");
     return FALSE;
   }
-  if ((ch =  dopeek( sno )) < 0) {
+  if ((ch =  Yap_peek( sno )) < 0) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return false;
   }
@@ -919,7 +919,7 @@ peek_char ( USES_REGS1 )
     Yap_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek_byte/2");
     return(FALSE);
   }
-  if ((ch =  dopeek( sno )) < 0) {
+  if ((ch =  Yap_peek( sno )) < 0) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return false;
   }
@@ -945,7 +945,7 @@ peek_char_1 ( USES_REGS1 )
   Int ch;
 
   LOCK(GLOBAL_Stream[sno].streamlock);
-  if ((ch =  dopeek( sno )) < 0) {
+  if ((ch =  Yap_peek( sno )) < 0) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return false;
   }
