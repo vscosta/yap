@@ -68,9 +68,15 @@ CallPredicate(PredEntry *pen, choiceptr cut_pt, yamop *code USES_REGS) {
         DEPTH -= MkIntConstant(2);
 #endif	/* DEPTH_LIMIT */
     if (P->opc != EXECUTE_CPRED_OP_CODE) {
-        CP = P;
-        ENV = YENV;
+      //	YENV[E_CP] = CP;
+      //      YENV[E_E] = ENV;
+      //#ifdef DEPTH_LIMIT
+      //	YENV[E_DEPTH] = DEPTH;
+      //#endif
+      //        ENV = YENV;
         YENV = ASP;
+	
+        CP = P;
     }
     /* make sure we have access to the user given cut */
     YENV[E_CB] = (CELL) cut_pt;
