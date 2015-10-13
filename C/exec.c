@@ -74,8 +74,8 @@ CallPredicate(PredEntry *pen, choiceptr cut_pt, yamop *code USES_REGS) {
       //	YENV[E_DEPTH] = DEPTH;
       //#endif
       //        ENV = YENV;
+	ENV = YENV;
         YENV = ASP;
-	
         CP = P;
     }
     /* make sure we have access to the user given cut */
