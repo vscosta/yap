@@ -6,7 +6,7 @@
 
 project(YAP)
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 2.8XSXCG)
 # where we have most scripts
 # set path to additional CMake modules
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
@@ -418,7 +418,7 @@ add_subdirectory (packages/CLPBN)
 
 add_subdirectory (packages/CLPBN/horus)
 
-add_subdirectory (packages/Problog)
+add_subdirectory (packages/ProbLog)
 
 add_subdirectory (packages/raptor)
 
