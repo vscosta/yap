@@ -1,0 +1,90 @@
+################################################################
+# YAP/SWI-Prolog R interface package
+# Author:    Nicos Angelopoulos
+# Copyright: Perl License
+################################################################
+
+PACKAGE=real
+DOC=real
+PKGCFLAGS=@REAL_INCLUDES@
+REAL_LIBS=@REAL_LIBS@
+include ../Makefile.defs
+
+OBJS=	real.o
+SOLIBS=		real.@SO@
+
+LIBPL=		real.pl
+
+all:		@REAL_TARGET@
+
+ritf:		$(SOLIBS)
+dummy::
+
+# this has be compatible with a name from expansion of --with-R=Dir or
+# with a set of quoted names from REXEC CMD 
+real.o: $(srcdir)/real.c
+		$(CC) -c $(CFLAGS) -I. $< -o $@
+
+real.@SO@:	$(OBJS)
+		$(LD) $(LDSOFLAGS) -o $@ $(OBJS) $(LIBS) $(REAL_LIBS) $(LIBPLSO)
+
+install:	install-@REAL_TARGET@
+install-dummy::
+install-ritf:	$(SOLIBS) $(addprefix $(srcdir)/, $(LIBPL))
+		mkdir -p $(DESTDIR)$(SOLIBDIR)
+		rm -f $(DESTDIR)$(SOLIBDIR)/real.@SO@
+		$(INSTALL_PROGRAM) $(SOLIBS) $(DESTDIR)$(SOLIBDIR)
+		mkdir -p $(DESTDIR)$(PLLIBDIR)
+		for f in $(LIBPL); do \
+		  $(INSTALL_DATA) $(srcdir)/$$f $(DESTDIR)$(PLLIBDIR); \
+		done
+		$(MKINDEX)
+
+ln-install::
+		$(MAKE) INSTALL_DATA="../ln-install" INSTALL_PROGRAM="../ln-install" install
+
+rpm-install:	install
+
+html-install::
+		mkdir -p $(DESTDIR)$(PKGDOC)
+		$(INSTALL) -m 644 $(DOC).html $(DESTDIR)$(PKGDOC)
+
+pdf-install::
+		mkdir -p $(DESTDIR)$(PKGDOC)
+		$(INSTALL) -m 644 $(DOC).pdf $(DESTDIR)$(PKGDOC)
+
+uninstall::
+		(cd $(SOLIBDIR) && rm -f $(TARGETS))
+		(cd $(PLBASE)/library && rm -f $(LIBPL))
+		$(MKINDEX)
+
+################################################################
+# Documentation
+################################################################
+
+TEXEXTRA=	libreal.tex
+$(TEX):		$(TEXEXTRA)
+
+libreal.tex:	$(srcdir)/real.pl
+		$(PLTOTEX) --section 'library(real)' --out=$@
+
+
+################################################################
+# Testing
+################################################################
+
+check::
+		$(PL) -q -f examples/test_real.pl -g test_real,halt -t 'halt(1)'
+
+################################################################
+# Clean
+################################################################
+
+clean:
+		rm -f $(SOLIBS) *~ *.o *% a.out core config.log
+
+distclean:	clean
+		rm -f $(TARGETS) config.cache config.h config.status Makefile
+		rm -f $(DOC).aux $(DOC).log $(DOC).out $(DOC).toc
+		rm -rf html
+		rm -rf autom4te.cache

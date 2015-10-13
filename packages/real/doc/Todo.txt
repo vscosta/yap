@@ -1,0 +1,34 @@
+
+Close connection at halt (any change of at_halt/1 Vitor ?!!).
+
+Investigate why plot_cpu/1 needs so much stack. (does it stilL ?)
+Investigate the x.y notation and see if SWI can cope with it.
+Calling functions natively ? 
+
+We could drop the <- operator even, just hook an exception 
+   handler for predicates that are not there !!!
+
+--- threads (SWI, specific ?)
+The R OS lib is thread-unsafe, add a Prolog layer to cope with this ?
+
+Jan on Mailing list : 2013/1/10,
+
+worker thread.  Just create a thread named 'R' and initialize R.
+
+If you want to do something with R, use
+
+    thread_self(Me),
+    thread_send_message('R', process(Me, <data>)),
+    thread_get_message(r_reply(Result))
+
+and in the R thread, in a loop:
+
+    thread_get_message(process(Sender, Data)),
+    r_compute(Data, Result),
+    thread_send_message(Sender, r_reply(Result)).
+
+Of course, you need to make all this a bit cleaner and handle errors,
+etc, but this is the basic idea.
+
+--- r_session compatibility add-on ? 
+one that would also solve the threading issue ?

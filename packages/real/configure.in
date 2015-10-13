@@ -1,0 +1,103 @@
+dnl Process this file with autoconf to produce a configure script.
+
+m4_ifdef([HAS_TOP],[m4_ignore],[   
+AC_INIT(install-sh)
+AC_PREREQ([2.50])
+AC_CONFIG_HEADER(config.h)
+])
+
+AC_SUBST(REAL_INCLUDES)
+AC_SUBST(REAL_LIBS)
+AC_SUBST(REAL_TARGET)
+
+AC_ARG_WITH(R,
+	[ --with-R[=DIR]              interface to the R language],
+	if test "$withval" = yes; then
+	    yap_cv_R=yes
+	elif test "$withval" = no; then
+	    yap_cv_R=no
+	else
+	    yap_cv_R=$withval
+	fi,
+	[yap_cv_R=no])
+
+m4_ifdef([HAS_TOP],[m4_ignore],[   m4_include([../ac_swi_c.m4])  ])
+
+if test "$host" != "$build" -a "$yap_cv_R" != "yes"
+then
+    # cross-compiler
+    REAL_TARGET="ritf"
+    REAL_INCLUDES=-I"'""$yap_cv_R""'"/include 
+    case "$target_cpu" in
+    i*86*)
+      REAL_LIBS="-L"'""$yap_cv_R""'"/bin/i386 -lR"
+    ;;
+    x86*)
+      REAL_LIBS="-L"'""$yap_cv_R""'"/bin/x64 -lR"
+    ;;
+    **)
+      REAL_TARGET="dummy"
+    ;;
+    esac
+else
+  # default instalation
+  if test "$yap_cv_R" = "yes"
+  then
+   #assumes we have r on path
+   AC_CHECK_PROGS(REXE, [R.exe R r], "none", [ $PATH ]  )
+  else
+   AC_CHECK_PROGS(REXE, [R.exe R r], "none", [ "$yap_cv_R"/bin:$PATH ] )
+  fi
+  #it worked?
+  if test "$REXE" = none -o x"$REXE" = "x"; then
+    REAL_TARGET="dummy"
+    #give up on installing R, we couldn't find it.
+  else
+    REAL_TARGET="ritf"
+    REAL_INCLUDES="$( $REXE CMD config --cppflags | grep -v ^WARNING)"
+    REAL_LIBS="$($REXE CMD config --ldflags | grep -v ^WARNING)"
+    # if non-nil we're done
+    if test x"$REAL_INCLUDES" = x; then
+      REAL_INCLUDES=-I\"$yap_cv_R\"/include
+      case "$target_cpu" in
+      i*86*)
+        REAL_LIBS="-L\"$yap_cv_R/bin/i386\" -lR"
+      ;;
+      x86*)
+        REAL_LIBS="-L\"$yap_cv_R/bin/x64\" -lR"
+      ;;
+      **)
+        REAL_TARGET="dummy"
+      ;;
+      esac
+
+    fi
+
+  fi
+fi
+
+if test $REAL_TARGET = "ritf"
+then
+    ocppflags="$CPPFLAGS"
+    ocflags="$CFLAGS"
+    CPPFLAGS+=" $REAL_INCLUDES"
+    CFLAGS+=" $REAL_INCLUDES"
+
+    AC_CHECK_HEADERS(R.h)
+    AC_CHECK_HEADERS(Rembedded.h)
+    AC_CHECK_HEADERS(Rinterface.h)
+
+    CFLAGS="$ocflags"
+    CPPFLAGS="$ocppflags"
+fi
+
+m4_ifdef([HAS_TOP],[m4_ignore], [AC_OUTPUT(Makefile)
+				 AC_OUTPUT(rconfig.h)])
+
+
+
+
+
+
+
+

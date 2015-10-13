@@ -1,0 +1,24 @@
+# skeleton Makefile for cross compiling windows for SWI
+# alot of the work is done by a prolog script that 
+# uses includes and R dlls in my disk space and includes those ala 
+# buildenv.sh (on the fly)
+#
+SOBJ=	$(PACKSODIR)/real.$(SOEXT)
+CFLAGS+=-std=c99
+LIBS=	-lR
+
+all:	$(SOBJ)
+   
+$(SOBJ): real.o
+	mkdir -p $(PACKSODIR)
+	$(LD) $(ARCH) $(LDSOFLAGS) -o $@ $< $(LIBS) $(SWISOLIB)
+
+real.o:
+	$(CC) $(ARCH) $(CFLAGS) -c -o real.o real.c
+
+check::
+install::
+clean:
+	rm -f real.o
+distclean: clean
+	rm -f $(SOBJ)

@@ -1,0 +1,39 @@
+\documentclass[11pt]{article}
+\usepackage{times}
+\usepackage{pl}
+\usepackage{html}
+\sloppy
+\makeindex
+
+\onefile
+\htmloutput{.}					% Output directory
+\htmlmainfile{real}				% Main document file
+\bodycolor{white}				% Page colour
+
+\begin{document}
+
+\title{SWI/YAP Prolog interface to R}
+\author{Nicos Angelopoulos \\
+	V\'{\i}tor Santos Costa \\
+	Jan Wielemaker
+       }
+
+\maketitle
+
+\begin{abstract}
+This package contains an interface to
+\url[The R Project for Statistical Computing]{http://www.r-project.org/}
+\end{abstract}
+
+\pagebreak
+\tableofcontents
+
+\vfill
+\vfill
+
+\newpage
+
+\input{libreal.tex}
+
+\end{document}
+

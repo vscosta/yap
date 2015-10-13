@@ -1,0 +1,50 @@
+1:1:2       ?
+    Fixed   x <- list().   on Swi 7.
+	 Cushioned Yap use by wrapping thread_self/1 to real_thread_self/1.
+
+1:1:0       2014/02/15    (thankless_task)
+	Added support for threaded execution.
+	We need to look into environments to make deployment easier.
+
+1:0:4       2014/12/25
+	Fixed passing unamed R lists to Prolog pairs. Missing name is the number
+	position. Added example for that.
+
+0:1:2       2013 November 3   (the_stoic)
+   Added support for a[x,y] and a().
+	Corrected some branch variables, thanks to new Swi warnings.
+	Jan, added some stuff on strings support. 
+
+0:1:1       2013 January 17   (cross_compiled)
+	swipl-win.exe doesnot use the std I/O streams. So <-print/1 doesnot display
+	on console. Added message that only displays when Prolog was started with
+	swipl-win.exe and only once. The windows dlls are now cross compiled. 
+	There are now also shared (.so) libs for linux i386 and x86_64.
+	Added Makefile.swi to the sources.
+
+0:1:0       2012 December 26   [oliebollen]
+   First release with updated syntax, documentation and Windows binaries.
+	Reflects state of affairs for the PADL 2013 related publication.
+   Great work by Vitor on passing c() via C and on utf support.
+
+0:0:5       2012 September 12
+   ?fixed?  * in array indicators (tut5) broken (why ?).
+   Moved real_ex.pl to examples/for_real.pl
+   Fixed '  x <- list(.),  x$a <- 3.  '. Added to examples (composite_list).
+   In readme.txt autoconfig -> autoconf.
+   Support $ as term. 
+   Expand the cases understood as printable to include ^ and $.
+   Added r_wait/0.
+
+0:0:4       2012 May 24
+   Fixed translation of P <- (v1-v2)^2, (report: Michiel Hildebrand)
+   Added a (v1-v2)^2 example to real_ex.pl .
+
+0:0:3       2012 Feb ??
+   Complete re-writing of the C-code for SWI interface. (80% done by Jan Wielimeker.)
+   Added examples/pagerank.pl (Vitor Santos Costa).
+
+0:0:2       2011 Dec ??
+0:0:1       2011 Dec ??
+
+   First two releases only shown to Vitor and Jan.

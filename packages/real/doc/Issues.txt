@@ -1,0 +1,7 @@
+On MacOs the macports binary seems not to be working properly (eg median()). (Michiel Hildebrand, May 2012). The issue does not persist for MacOS binaries (i assume) from R.
+
+On windows XP the setting of PATH does not seem to be work from within Prolog.
+User needs to set the PATH to include the R.dll directory  (and possibly R_HOME/modules/<exec-arch>/)
+through the graphical interface ( right-click on computer and then add to the User or System
+environment variable PATH).
+
