@@ -370,22 +370,22 @@ Yap_readText( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *l
 		LOCAL_Error_TYPE = TYPE_ERROR_STRING;
       } else if (!IsNumTerm(inp->val.t) && (inp->type & ( YAP_STRING_INT|YAP_STRING_FLOAT| YAP_STRING_BIG)) == inp->type) {
 		LOCAL_Error_TYPE = TYPE_ERROR_NUMBER;
-      } else if (!IsAtomicTerm(inp->val.t) && !(inp->type & YAP_STRING_TERM)) {
-	 	LOCAL_Error_TYPE	 = TYPE_ERROR_ATOMIC;
-	  }
+      }
       LOCAL_Error_Term = inp->val.t;
     }
 
     // this is a term, extract the UTF8 representation
-   if ( IsStringTerm(inp->val.t)) {
-     const char *s = inp->val.t;
+  if ( IsStringTerm(inp->val.t) &&
+       inp->type & YAP_STRING_STRING) {
+    const char *s = StringOfTerm(inp->val.t);
     *enc = ENC_ISO_UTF8;
     *minimal = FALSE;
     if (lengp)
       *lengp = strlen(s);
     return (void *)s;
   }
-   if ( IsAtomTerm(inp->val.t)) {
+   if ( IsAtomTerm(inp->val.t)
+	&& inp->type & YAP_STRING_ATOM) {
     // this is a term, extract to a buffer, and representation is wide
     *minimal = TRUE;
     Atom at = AtomOfTerm(inp->val.t);
@@ -892,7 +892,7 @@ write_buffer( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng 
       out->val.c = malloc(sz);
     } else if (!(out->type & (YAP_STRING_WITH_BUFFER))) {
       if (ASP-(sz/sizeof(CELL)+1) > HR+1024) {
-	out->val.c = (char *)(ASP-(sz/sizeof(CELL)+1));
+	out->val.c = Yap_PreAllocCodeSpace();
       }
     }
   } else {
@@ -914,8 +914,7 @@ write_buffer( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng 
    case ENC_ISO_LATIN1:
       {
 	unsigned char *s = s0, *lim = s + (max = strnlen(s0, max));
-	unsigned char *cp = s, *buf0, *buf;
-        
+	unsigned char *cp = s, *buf0, *buf;        
 
 	buf = buf0 = out->val.uc;
 	if (!buf)

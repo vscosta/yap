@@ -283,6 +283,7 @@ Yap_AtomicToListOfCodes(Term t0 USES_REGS)
   seq_tv_t inp, out;
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+  out.val.uc = NULL;
   out.type = YAP_STRING_CODES;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -295,6 +296,7 @@ Yap_AtomicToAtom(Term t0 USES_REGS)
   seq_tv_t inp, out;
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+  out.val.uc = NULL;
   out.type = YAP_STRING_ATOM;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -307,6 +309,7 @@ Yap_AtomToLength(Term t0 USES_REGS)
   seq_tv_t inp, out;
   inp.val.t = t0;
   inp.type = YAP_STRING_ATOM;
+  out.val.uc = NULL;
   out.type = YAP_STRING_LENGTH;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return (size_t)(-1L);
@@ -319,6 +322,7 @@ Yap_AtomToListOfAtoms(Term t0 USES_REGS)
   seq_tv_t inp, out;
   inp.val.t = t0;
   inp.type = YAP_STRING_ATOM;
+  out.val.uc = NULL;
   out.type = YAP_STRING_ATOMS;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -332,6 +336,7 @@ Yap_AtomSWIToListOfAtoms(Term t0 USES_REGS)
 
   inp.val.t = t0;
   inp.type = YAP_STRING_ATOM|YAP_STRING_STRING|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_ATOMS_CODES|YAP_STRING_TERM;
+  out.val.uc = NULL;
   out.type = YAP_STRING_ATOMS;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -346,6 +351,7 @@ Yap_AtomToListOfCodes(Term t0 USES_REGS)
   seq_tv_t inp, out;
   inp.val.t = t0;
   inp.type = YAP_STRING_ATOM;
+  out.val.uc = NULL;
   out.type = YAP_STRING_CODES;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -358,6 +364,7 @@ Yap_AtomToNumber(Term t0 USES_REGS)
   seq_tv_t inp, out;
   inp.val.t = t0;
   inp.type = YAP_STRING_ATOM;
+  out.val.uc = NULL;
   out.type = YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -371,6 +378,7 @@ Yap_AtomToString(Term t0 USES_REGS)
 
   inp.val.t = t0;
   inp.type = YAP_STRING_ATOM;
+  out.val.uc = NULL;
   out.type = YAP_STRING_STRING;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -385,6 +393,7 @@ Yap_AtomSWIToString(Term t0 USES_REGS)
 
   inp.val.t = t0;
   inp.type = YAP_STRING_ATOM|YAP_STRING_STRING|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_ATOMS_CODES;
+  out.val.uc = NULL;
   out.type = YAP_STRING_STRING;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -399,6 +408,7 @@ Yap_AtomicToString(Term t0 USES_REGS)
 
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+  out.val.uc = NULL;
   out.type = YAP_STRING_STRING;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -413,6 +423,7 @@ Yap_AtomicToTDQ(Term t0, Term mod USES_REGS)
   
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+  out.val.uc = NULL;
   out.type = mod_to_type(mod PASS_REGS);
   
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -429,6 +440,7 @@ Yap_AtomicToTBQ(Term t0, Term mod USES_REGS)
   
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+  out.val.uc = NULL;
   out.type = mod_to_bqtype(mod PASS_REGS);
   
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -447,6 +459,7 @@ Yap_CharsToAtom( const char *s, encoding_t enc  USES_REGS )
   inp.sz = 0;
   inp.enc = enc;
   inp.type = YAP_STRING_CHARS;
+  out.val.uc = NULL;
   out.type = YAP_STRING_ATOM;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -462,6 +475,7 @@ Yap_CharsToListOfAtoms( const char *s, encoding_t enc USES_REGS )
   inp.sz = 0;
   inp.enc = enc;
   inp.type = YAP_STRING_CHARS;
+  out.val.uc = NULL;
   out.type = YAP_STRING_ATOMS;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -477,6 +491,7 @@ Yap_CharsToListOfCodes( const char *s, encoding_t enc USES_REGS )
   inp.sz = 0;
   inp.enc = enc;
   inp.type = YAP_STRING_CHARS;
+  out.val.uc = NULL;
   out.type = YAP_STRING_CODES;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -507,6 +522,7 @@ Yap_CharsToDiffListOfCodes( const char *s, Term tail, encoding_t enc USES_REGS )
   inp.sz = 0;
   inp.enc = enc;
   inp.type = YAP_STRING_CHARS;
+  out.val.uc = NULL;
   out.type = YAP_STRING_DIFF|YAP_STRING_CODES;
   out.dif = tail;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -524,6 +540,7 @@ Yap_UTF8ToDiffListOfCodes( const char *s, Term tail USES_REGS )
   inp.type = YAP_STRING_CHARS;
   inp.enc = ENC_ISO_UTF8;
   out.type = YAP_STRING_DIFF|YAP_STRING_CODES;
+  out.val.uc = NULL;
   out.dif = tail;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -539,6 +556,7 @@ Yap_WCharsToDiffListOfCodes( const wchar_t *s, Term tail USES_REGS )
   inp.sz = 0;
   inp.type = YAP_STRING_WCHARS;
   out.type = YAP_STRING_DIFF|YAP_STRING_CODES;
+  out.val.uc = NULL;
   out.dif = tail;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -555,6 +573,7 @@ Yap_CharsToString( const char *s, encoding_t enc USES_REGS )
   inp.enc = enc;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_STRING;
+  out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   return out.val.t;
@@ -569,6 +588,7 @@ Yap_AtomToUTF8Text( Atom at, const char *s USES_REGS )
   inp.sz = 0;
   inp.type = YAP_STRING_ATOM;
   out.type = YAP_STRING_CHARS;
+  out.val.uc = NULL;
   out.enc = ENC_ISO_UTF8;
   if (s) {
     out.val.c0 = s;
@@ -592,6 +612,7 @@ Yap_CharsToTDQ( const char *s, Term mod, encoding_t enc USES_REGS )
   inp.mod = mod;
   inp.enc = enc;
   out.type = mod_to_type(mod PASS_REGS);
+  out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   if (out.type == YAP_STRING_ATOM)
@@ -610,6 +631,7 @@ Yap_CharsToTBQ( const char *s, Term mod, encoding_t enc USES_REGS )
   inp.mod = mod;
   inp.enc = enc;
   out.type = mod_to_bqtype(mod PASS_REGS);
+  out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   if (out.type == YAP_STRING_ATOM)
@@ -624,6 +646,7 @@ Yap_ListOfAtomsToAtom(Term t0 USES_REGS)
   inp.val.t = t0;
   inp.type = YAP_STRING_ATOMS;
   out.type = YAP_STRING_ATOM;
+  out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return (Atom)NULL;
   return out.val.a;
@@ -636,6 +659,7 @@ Yap_ListOfAtomsToNumber(Term t0 USES_REGS)
   inp.val.t = t0;
   inp.type = YAP_STRING_ATOMS;
   out.type = YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+  out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   return out.val.t;
@@ -648,6 +672,7 @@ Yap_ListOfAtomsToString(Term t0 USES_REGS)
   inp.val.t = t0;
   inp.type = YAP_STRING_ATOMS;
   out.type = YAP_STRING_STRING;
+  out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   return out.val.t;
@@ -660,6 +685,7 @@ Yap_ListOfCodesToAtom(Term t0 USES_REGS)
   inp.val.t = t0;
   inp.type = YAP_STRING_CODES;
   out.type = YAP_STRING_ATOM;
+  out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return (Atom)NULL;
   return out.val.a;
@@ -672,6 +698,7 @@ Yap_ListOfCodesToNumber(Term t0 USES_REGS)
   inp.val.t = t0;
   inp.type = YAP_STRING_CODES;
   out.type = YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG;
+  out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   return out.val.t;
@@ -683,6 +710,7 @@ Yap_ListOfCodesToString(Term t0 USES_REGS)
   seq_tv_t inp, out;
   inp.val.t = t0;
   inp.type = YAP_STRING_CODES;
+  out.val.uc = NULL;
   out.type = YAP_STRING_STRING;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -695,6 +723,7 @@ Yap_ListToAtom(Term t0 USES_REGS)
   seq_tv_t inp, out;
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING|YAP_STRING_ATOMS_CODES|YAP_STRING_TERM|YAP_STRING_ATOM;
+  out.val.uc = NULL;
   out.type = YAP_STRING_ATOM;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -707,6 +736,7 @@ Yap_ListToAtomic(Term t0 USES_REGS)
   seq_tv_t inp, out;
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING|YAP_STRING_ATOMS_CODES|YAP_STRING_TERM;
+  out.val.uc = NULL;
   out.type = YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -720,6 +750,7 @@ Yap_ListToNumber(Term t0 USES_REGS)
 
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING|YAP_STRING_ATOMS_CODES;
+  out.val.uc = NULL;
   out.type = YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -735,6 +766,7 @@ Yap_ListToString(Term t0 USES_REGS)
 
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING|YAP_STRING_ATOMS_CODES|YAP_STRING_TERM;
+  out.val.uc = NULL;
   out.type = YAP_STRING_STRING;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -750,6 +782,7 @@ Yap_ListSWIToString(Term t0 USES_REGS)
 
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_ATOMS_CODES|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+  out.val.uc = NULL;
   out.type = YAP_STRING_STRING;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -765,6 +798,7 @@ YapListToTDQ(Term t0, Term mod USES_REGS)
   
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING|YAP_STRING_ATOMS_CODES|YAP_STRING_TERM;
+  out.val.uc = NULL;
   out.type = mod_to_type(mod PASS_REGS);
   
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -782,6 +816,7 @@ YapListToTBQ(Term t0, Term mod USES_REGS)
   
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING|YAP_STRING_ATOMS_CODES|YAP_STRING_TERM;
+  out.val.uc = NULL;
   out.type = mod_to_bqtype(mod PASS_REGS);
   
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -802,6 +837,7 @@ Yap_NCharsToAtom( const char *s, size_t len, encoding_t enc USES_REGS )
   inp.type = YAP_STRING_CHARS|YAP_STRING_NCHARS;
   inp.enc = enc;
   out.type = YAP_STRING_ATOM;
+  out.val.uc = NULL;
   out.max = len;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -981,6 +1017,7 @@ Yap_NWCharsToListOfCodes( const wchar_t *s, size_t len USES_REGS )
   inp.sz = len;
   inp.type = YAP_STRING_WCHARS|YAP_STRING_NCHARS;
   out.type = YAP_STRING_CODES;
+  out.val.uc = NULL;
   out.max = len;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -995,6 +1032,7 @@ Yap_NWCharsToString( const wchar_t *s, size_t len USES_REGS )
   inp.val.w0 = s;
   inp.sz = len;
   inp.type = YAP_STRING_WCHARS|YAP_STRING_NCHARS;
+  out.val.uc = NULL;
   out.type = YAP_STRING_STRING;
   out.max = len;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -1009,6 +1047,7 @@ Yap_StringToAtom(Term t0 USES_REGS)
   inp.sz = 0;
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING;
+  out.val.uc = NULL;
   out.type = YAP_STRING_ATOM;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -1023,6 +1062,7 @@ Yap_StringSWIToAtom(Term t0 USES_REGS)
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_ATOMS_CODES|YAP_STRING_TERM;
   out.type = YAP_STRING_ATOM;
+  out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   return out.val.a;
@@ -1036,6 +1076,7 @@ Yap_StringToAtomic(Term t0 USES_REGS)
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING;
   out.type = YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+  out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   return out.val.t;
@@ -1049,6 +1090,7 @@ Yap_StringToLength(Term t0 USES_REGS)
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING;
   out.type = YAP_STRING_LENGTH;
+  out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return (size_t)(-1L);
   return out.val.l;
@@ -1062,6 +1104,7 @@ Yap_StringToListOfAtoms(Term t0 USES_REGS)
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING;
   out.type = YAP_STRING_ATOMS;
+  out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   return out.val.t;
@@ -1075,6 +1118,7 @@ Yap_StringSWIToListOfAtoms(Term t0 USES_REGS)
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_ATOMS_CODES|YAP_STRING_TERM;
   out.type = YAP_STRING_ATOMS;
+  out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   return out.val.t;
@@ -1088,6 +1132,7 @@ Yap_StringToListOfCodes(Term t0 USES_REGS)
   inp.sz = 0;
   inp.type = YAP_STRING_STRING;
   out.type = YAP_STRING_CODES;
+  out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   return out.val.t;
@@ -1100,6 +1145,7 @@ Yap_StringSWIToListOfCodes(Term t0 USES_REGS)
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_ATOMS_CODES|YAP_STRING_TERM;
   out.type = YAP_STRING_CODES;
+  out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   return out.val.t;
@@ -1113,6 +1159,7 @@ Yap_StringToNumber(Term t0 USES_REGS)
   inp.sz = 0;
   inp.type = YAP_STRING_STRING;
   out.type = YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+  out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   return out.val.t;
@@ -1125,6 +1172,7 @@ Yap_WCharsToListOfCodes(const wchar_t *s USES_REGS)
   inp.val.w0 = s;
   inp.sz = 0;
   inp.type = YAP_STRING_WCHARS;
+  out.val.uc = NULL;
   out.type = YAP_STRING_CODES;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -1141,6 +1189,7 @@ Yap_WCharsToTDQ( wchar_t *s, Term mod USES_REGS )
   inp.sz = 0;
   inp.mod = mod;
   out.type = mod_to_type(mod PASS_REGS);
+  out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   if (out.type == YAP_STRING_ATOM)
@@ -1158,6 +1207,7 @@ Yap_WCharsToTBQ( wchar_t *s, Term mod USES_REGS )
   inp.sz = 0;
   inp.mod = mod;
   out.type = mod_to_bqtype(mod PASS_REGS);
+  out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   if (out.type == YAP_STRING_ATOM)
@@ -1173,6 +1223,7 @@ Yap_WCharsToString(const wchar_t *s USES_REGS)
   inp.sz = 0;
   inp.type = YAP_STRING_WCHARS;
   out.type = YAP_STRING_STRING;
+  out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   return out.val.t;
@@ -1189,6 +1240,7 @@ Yap_ConcatAtoms(Term t1, Term t2 USES_REGS)
   inpv[1].type = YAP_STRING_ATOM;
   inpv[1].sz = 0;
   out.type = YAP_STRING_ATOM;
+  out.val.uc = NULL;
   if (!Yap_Concat_Text(2, inpv, &out PASS_REGS))
     return (Atom)NULL;
   return out.val.a;
@@ -1205,6 +1257,7 @@ Yap_ConcatAtomics(Term t1, Term t2 USES_REGS)
   inpv[1].type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
   inpv[1].sz = 0;
   out.type = YAP_STRING_ATOM;
+  out.val.uc = NULL;
   if (!Yap_Concat_Text(2, inpv, &out PASS_REGS))
     return (Atom)NULL;
   return out.val.a;
@@ -1221,6 +1274,7 @@ Yap_ConcatStrings(Term t1, Term t2 USES_REGS)
   inpv[1].type = YAP_STRING_STRING;
   inpv[1].sz = 0;
   out.type = YAP_STRING_STRING;
+
   if (!Yap_Concat_Text(2, inpv, &out PASS_REGS))
     return 0L;
   return out.val.t;
@@ -1297,7 +1351,7 @@ Yap_SpliceString(Term t1, Term ts[], size_t cut, size_t max USES_REGS)
   outv[1].sz = 0;
   cuts[0] = cut;
   cuts[1] = max;
-  if (!Yap_Splice_Text(2, cuts, &inp, (encoding_t *)NULL, outv PASS_REGS))
+ if (!Yap_Splice_Text(2, cuts, &inp, (encoding_t *)NULL, outv PASS_REGS))
     return 0L;
   ts[0] = outv[0].val.t;
   ts[1] = outv[1].val.t;
