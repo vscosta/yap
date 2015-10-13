@@ -1716,6 +1716,7 @@ Yap_CheckTextStream (Term arg, int kind, const char *msg)
   if ((sno = CheckStream(arg, kind, (char *)msg)) < 0)
     return -1;
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
+      PlIOError(PERMISSION_ERROR_INPUT_BINARY_STREAM, arg, msg);
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return -1;
   }

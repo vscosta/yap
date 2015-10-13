@@ -1322,6 +1322,7 @@ YAP: NO EQUIVALENT */
 X_API int PL_raise_exception(term_t exception)
 {
   CACHE_REGS
+    LOCAL_Error_TYPE=YAP_NO_ERROR;
   EX = Yap_StoreTermInDB(Yap_GetFromSlot(exception),0);
   return 0;
 }

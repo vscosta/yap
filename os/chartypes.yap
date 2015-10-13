@@ -144,7 +144,7 @@ Term
 }
 
 char *
-  Yap_TermToString(Term t, char *s,  size_t sz, size_t *length, encoding_t encp, int flags)
+Yap_TermToString(Term t, char *s,  size_t sz, size_t *length, encoding_t *encp, int flags)
 {
   CACHE_REGS
   int sno = Yap_open_buf_write_stream(&s, &sz);
@@ -235,7 +235,7 @@ Term
 }
 
 char *
-  Yap_TermToString(Term t, char *s,  size_t sz, size_t *length, encoding_t encp, int flags)
+  Yap_TermToString(Term t, char *s,  size_t sz, size_t *length, encoding_t *encp, int flags)
 {
   CACHE_REGS
   int sno = Yap_open_buf_write_stream(&s, &sz);
@@ -244,10 +244,9 @@ char *
   if (sno < 0)
     return NULL;
   LOCAL_output_stream = sno;
-  if (encp)
+  if (encp )
     GLOBAL_Stream[sno].encoding = encp;
   Yap_plwrite (t, GLOBAL_Stream[sno].stream_wputc, 0, flags, 1200);
-  s[GLOBAL_Stream[sno].u.mem_string.pos] = '\0';
   LOCK(GLOBAL_Stream[sno].streamlock);
   GLOBAL_Stream[sno].status = Free_Stream_f;
   UNLOCK(GLOBAL_Stream[sno].streamlock);
