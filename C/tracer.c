@@ -108,9 +108,9 @@ jmp_deb2( void )
 
 void
 jmp_deb(int i) {
-    if (i) printf("Here we go %ld\n", old_value++);
+  if (i) printf("Here we go %ld\n", old_value++);
     if (old_value == 716) jmp_deb2();
-    }
+}
 
 struct various_codes *sc;
 
@@ -198,9 +198,6 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   }
   //*(H0+(0xb65f2850-0xb64b2008)/sizeof(CELL))==0xc || 
   //0x4fd4d
-  if (vsc_count == 40650191LL)
-    jmp_deb(1);
-  return;
   if (vsc_count > 1388060LL && vsc_count < 1388070LL) {
     if (vsc_count==1388061LL)
       jmp_deb(1);
