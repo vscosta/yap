@@ -418,7 +418,7 @@ add_subdirectory (packages/CLPBN)
 
 add_subdirectory (packages/CLPBN/horus)
 
-add_subdirectory (packages/Problog)
+add_subdirectory (packages/ProbLog)
 
 add_subdirectory (packages/raptor)
 
