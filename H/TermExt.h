@@ -554,7 +554,7 @@ INLINE_ONLY inline EXTERN Int IsAtomicTerm (Term);
 INLINE_ONLY inline EXTERN Int
 IsAtomicTerm (Term t)
 {
-  return (Int) (IsAtomOrIntTerm (t) || IsLargeNumTerm (t));
+  return (Int) (IsAtomOrIntTerm (t) || IsLargeNumTerm (t) || IsStringTerm(t));
 }
 
 
