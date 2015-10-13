@@ -93,8 +93,6 @@ prolog:message_to_string(Event, Message) :-
 compose_message(_, banner) -->
 	current_prolog_flag(verbose, silent), !.
 compose_message( Term, _Level ) -->
-	user:message_hook(Term), !.
-compose_message( Term, _Level ) -->
 	prolog:message(Term), !.
 compose_message( query(_QueryResult,_), _Level) -->
 	[].
