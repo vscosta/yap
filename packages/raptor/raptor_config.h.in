@@ -1,0 +1,2 @@
+#undef  HAVE_RAPTOR2_RAPTOR2_H
+#undef  HAVE_RAPTOR_H

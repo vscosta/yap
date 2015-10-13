@@ -1,0 +1,15 @@
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:ex="http://www.example.org/">
+
+    <rdf:Description rdf:about="http://www.example.org/vincent_donofrio">
+        <ex:starred_in>
+            <ex:tv_show rdf:about="http://www.example.org/law_and_order_ci" />
+        </ex:starred_in>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="http://www.example.org/the_thirteenth_floor">
+        <ex:similar_plot_as rdf:resource="http://www.example.org/the_matrix" />
+    </rdf:Description>
+
+</rdf:RDF>
+

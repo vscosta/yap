@@ -1,0 +1,15 @@
+dnl Process this file with autoconf to produce a configure script.
+
+AC_INIT(install-sh)
+AC_PREREQ([2.50])
+
+AC_ARG_ENABLE(chr,
+	[ --enable-chr            install chr library ],
+	use_chr="$enableval", use_chr=yes)
+
+
+AC_CONFIG_HEADER(config.h)
+
+m4_include([../ac_swi_noc.m4])
+
+AC_OUTPUT(Makefile)

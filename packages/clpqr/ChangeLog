@@ -1,0 +1,63 @@
+[Sep 16 2009]
+
+ * ENHANCED: CLP(Q/R): Correct residual goals for suspendend non-linear
+   constraints.
+   
+[Aug 9 2009]
+
+ * ENHANCED: CLP(Q/R): Working residual goals with copy_term/3. Please review.
+   
+[Mar 30 2009]
+
+ * FIXED: alarm handling on Win64 (Kerri Haris)
+   
+[Nov 21 2008]
+
+ * FIXED: wakeup issue in S_LIST and H_LIST_FF instructions.  Matt Lilley.
+   
+[Mar 30 2009]
+
+ * FIXED: alarm handling on Win64 (Kerri Haris)
+   
+[Nov 21 2008]
+
+ * FIXED: wakeup issue in S_LIST and H_LIST_FF instructions.  Matt Lilley.
+   
+[Nov 21 2008]
+
+ * FIXED: wakeup issue in S_LIST and H_LIST_FF instructions.  Matt Lilley.
+   
+Sep 10, 2006
+
+  * JW: Removed dependency on C/3.
+
+Mar 31, 2006
+
+  * JW: Removed SICStus ugraphs.pl and replaced by new SWI-Prolog library
+
+Oct 17, 2005
+
+   * LDK: Changed floor and ceiling operators to cope with
+     inaccurate floats.
+
+Feb 25, 2005
+
+   * TS: Fix for Bugzilla Bug 19 by Leslie De Koninck.
+
+Feb 21, 2005
+
+   * JW: Fixed various module imports and expanded SWI-Prolog
+     library(ordsets) to support all of the clp(R) library.
+
+Dec 16, 2004
+
+   * JW: Make loading parts silent
+   * TS: Fixed bug toplevel printing. Now only pass different
+	 variables to dump/3.
+
+Dec 15, 2004
+
+   * JW: Added version to CVS, updated copyright notices, etc.
+   * TS: Added automatic printing of constraints on variables
+	 in toplevel query.
+         

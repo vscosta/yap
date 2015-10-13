@@ -1,0 +1,65 @@
+#
+# default base directory for YAP installation
+# (EROOT for architecture-dependent files)
+#
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+ROOTDIR = $(prefix)
+EROOTDIR = @exec_prefix@
+abs_top_builddir = @abs_top_builddir@
+#
+# where the binary should be
+#
+BINDIR = $(EROOTDIR)/bin
+#
+# where YAP should look for libraries
+#
+LIBDIR=@libdir@
+SHAREDIR=$(ROOTDIR)/share/Yap
+YAPLIBDIR=@libdir@/Yap
+#
+#
+CC=@CC@
+CFLAGS= @SHLIB_CFLAGS@ @RAPTOR_CPPFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I. -I../.. -I$(srcdir)/../../include  
+LDFLAGS=@LDFLAGS@
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+SHELL=/bin/sh
+RANLIB=@RANLIB@
+srcdir=@srcdir@
+SO=@SO@
+#4.1VPATH=@srcdir@:@srcdir@/OPTYap
+CWD=$(PWD)
+#
+
+RAPTOR_PROLOG= \
+	$(srcdir)/rdf.yap
+
+OBJS=raptor.o
+SOBJS=raptor.@SO@
+
+#in some systems we just create a single object, in others we need to
+# create a libray
+
+all: $(SOBJS) 
+
+raptor.o: $(srcdir)/raptor_yap.c
+	$(CC) -c $(CFLAGS)  $< -o $@
+
+@DO_SECOND_LD@%.@SO@: %.o
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $<  @RAPTOR_LIBS@ @EXTRA_LIBS_FOR_DLLS@
+
+
+install: all
+	mkdir -p $(DESTDIR)$(SHAREDIR)
+	for h in $(RAPTOR_PROLOG); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
+	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
+
+clean:
+	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
+

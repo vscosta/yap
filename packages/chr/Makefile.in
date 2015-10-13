@@ -1,0 +1,114 @@
+################################################################
+# SWI-Prolog CHR package
+# Author:    Tom Schrijvers and many others
+# Copyright: LGPL (see COPYING or www.gnu.org
+################################################################
+
+PACKAGE=chr
+include ../Makefile.defs
+
+CHRDIR=$(PLLIBDIR)/chr
+EXDIR=$(PKGEXDIR)/chr
+
+LIBPL=		$(srcdir)/chr_runtime.pl $(srcdir)/chr_op.pl \
+		chr_translate.pl $(srcdir)/chr_debug.pl \
+		$(srcdir)/chr_messages.pl \
+		$(srcdir)/pairlist.pl $(srcdir)/clean_code.pl \
+		$(srcdir)/find.pl $(srcdir)/a_star.pl \
+		$(srcdir)/binomialheap.pl $(srcdir)/builtins.pl \
+		$(srcdir)/chr_hashtable_store.pl $(srcdir)/listmap.pl \
+		guard_entailment.pl \
+		$(srcdir)/chr_compiler_options.pl \
+		$(srcdir)/chr_compiler_utility.pl \
+		$(srcdir)/chr_compiler_errors.pl \
+		$(srcdir)/chr_integertable_store.pl
+CHRPL=		$(srcdir)/chr_swi.pl
+EXAMPLES=	chrfreeze.chr fib.chr gcd.chr primes.chr \
+		bool.chr family.chr fibonacci.chr leq.chr listdom.chr \
+		chrdif.chr
+
+all:		chr_translate.pl
+
+chr_translate_bootstrap.pl:
+
+chr_translate_bootstrap1.pl: $(srcdir)/chr_translate_bootstrap1.chr $(srcdir)/chr_translate_bootstrap.pl
+		$(PL) -q -f $(srcdir)/chr_swi_bootstrap.pl \
+		      -g "chr_compile_step1('$<','$@'),halt" \
+		      -t 'halt(1)'
+		$(PL) -q -f $(srcdir)/chr_swi_bootstrap.pl \
+		      -g "chr_compile_step2('$<','$@'),halt" \
+		      -t 'halt(1)'
+
+chr_translate_bootstrap2.pl: $(srcdir)/chr_translate_bootstrap2.chr chr_translate_bootstrap1.pl
+		$(PL) -q -f $(srcdir)/chr_swi_bootstrap.pl \
+		      -g "chr_compile_step2('$<','$@'),halt" \
+		      -t 'halt(1)'
+		$(PL) -q -f $(srcdir)/chr_swi_bootstrap.pl \
+		      -g "chr_compile_step3('$<','$@'),halt" \
+		      -t 'halt(1)'
+
+guard_entailment.pl: $(srcdir)/guard_entailment.chr chr_translate_bootstrap2.pl
+		$(PL) -q -f $(srcdir)/chr_swi_bootstrap.pl \
+		      -g "chr_compile_step3('$<','$@'),halt" \
+		      -t 'halt(1)'
+
+chr_translate.pl: $(srcdir)/chr_translate.chr chr_translate_bootstrap2.pl guard_entailment.pl
+		$(PL) -q -f $(srcdir)/chr_swi_bootstrap.pl \
+		      -g "chr_compile_step3('$<','$@'),halt" \
+		      -t 'halt(1)'
+		$(PL) -p chr=. -q -f $(srcdir)/chr_swi_bootstrap.pl \
+		      -g "chr_compile_step4('guard_entailment.chr','guard_entailment.pl'),halt" \
+		      -t 'halt(1)'
+		$(PL) -p chr=. -q -f $(srcdir)/chr_swi_bootstrap.pl \
+		      -g "chr_compile_step4('$<','$@'),halt" \
+		      -t 'halt(1)'
+
+chr.pl:		$(srcdir)/chr_swi.pl
+		cp $< $@
+
+install:	all $(DESTDIR)$(PLLIBDIR) install-examples
+		mkdir -p $(DESTDIR)$(CHRDIR)
+		$(INSTALL_DATA) $(LIBPL) $(DESTDIR)$(CHRDIR)
+		$(INSTALL_DATA) $(CHRPL) $(DESTDIR)$(PLLIBDIR)/chr.pl
+		$(INSTALL_DATA) $(srcdir)/README   $(DESTDIR)$(CHRDIR)
+		$(MKINDEX)
+
+$(DESTDIR)$(PLLIBDIR):
+		mkdir $@
+
+ln-install::
+		@$(MAKE) INSTALL_DATA='../ln-install' install
+
+rpm-install:	install
+
+pdf-install:	install-examples
+
+html-install:	install-examples
+
+install-examples::
+		mkdir -p $(DESTDIR)$(EXDIR)
+		for i in $(EXAMPLES); do \
+		$(INSTALL_DATA) $(srcdir)/Examples/$$i $(DESTDIR)$(EXDIR); \
+		done
+
+uninstall:
+		(cd $(PLBASE)/library && rm -f $(LIBPL))
+		@IN_SWI@$$(PL) -f none -g make -t halt
+
+check:		chr.pl
+		$(PL) -q -f $(srcdir)/chr_test.pl -g test,halt -t 'halt(1)'
+
+
+################################################################
+# Clean
+################################################################
+
+clean:
+		rm -f *~ *.o *.@SO@ *% config.log
+		rm -f chr.pl chr_translate.pl
+		rm -f chr_translate_bootstrap1.pl chr_translate_bootstrap2.pl
+		rm -f guard_entailment.pl
+
+distclean:	clean
+		rm -f config.h config.cache config.status Makefile
+		rm -f $(TEX)

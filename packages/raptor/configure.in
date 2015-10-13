@@ -1,0 +1,94 @@
+dnl Process this file with autoconf to produce a configure script.
+
+m4_ifdef([HAS_TOP],[m4_ignore],[   
+AC_INIT(install-sh)
+AC_PREREQ([2.50])
+AC_CONFIG_HEADER(config.h)
+])
+
+AC_ARG_WITH(raptor,
+	[ --with-raptor[=DIR]              raptor RDF parser],
+	if test "$withval" = yes; then
+	    yap_cv_raptor=yes
+	elif test "$withval" = no; then
+	    yap_cv_raptor=no
+	else
+	    yap_cv_raptor=$withval
+	fi,
+	[yap_cv_raptor=yes])
+
+
+AC_SUBST(PKG_RAPTOR)
+AC_SUBST(RAPTOR_LIBS)
+AC_SUBST(RAPTOR_CPPFLAGS)
+
+if test "$yap_cv_raptor" = no;
+then
+      PKG_RAPTOR=""
+else
+
+  old_inc="$CPPFLAGS"
+  old_libs="$LIBS"
+
+  if test "$yap_cv_raptor" != "NONE" -a "$yap_cv_raptor" != "yes"; then
+     RAPTOR_CPPFLAGS="-I $yap_cv_raptor/include"
+     raptor_dir="$yap_cv_raptor"
+  elif test "$prefix" != "NONE"; then
+     RAPTOR_CPPFLAGS="-I $prefix/include"
+     raptor_dir="$prefix"
+  else
+     RAPTOR_CPPFLAGS="-I /usr/local/include"
+     raptor_dir=/usr/local
+  fi
+
+  CPPFLAGS="$CPPFLAGS $RAPTOR_CPPFLAGS" 
+
+  AC_CHECK_HEADERS(raptor2/raptor2.h)
+  AC_CHECK_HEADERS(raptor.h)
+
+
+dnl raptor can be most everywhere
+  if test -d "$raptor_dir/lib64/raptor" -a "$YAP_TARGET" = amd64; then
+    LIBS="-L $raptor_dir/lib64/raptor"
+  elif test -d "$raptor_dir/lib64" -a "$YAP_TARGET" = amd64; then
+    LIBS="$LIBS -L $raptor_dir/lib64  -L $raptor_dir/lib "
+  elif test -d "$raptor_dir/lib/raptor"; then
+    LIBS="$LIBS -L $raptor_dir/lib/raptor"
+  elif test -d "$raptor_dir/lib"; then
+    LIBS="$LIBS -L $raptor_dir/lib"
+  fi
+
+  AC_CHECK_LIB( raptor2, raptor_world_open, [], [
+	      AC_CHECK_LIB( raptor, raptor_world_open, [], [raptor_available=no]] )
+ )
+  RAPTOR_LIBS="$LIBS"
+
+  if test "$raptor_available" = no 
+  then
+    PKG_RAPTOR=""
+    cat << EOF
+##################################################################
+# ERROR: Could not find raptor library. Either I don't have the
+# correct path, or RAPTOR is installed in some strange way
+##################################################################
+EOF
+else
+  PKG_RAPTOR="packages/raptor"
+fi
+
+
+  CPPFLAGS="$old_inc"
+  LIBS="$oldlibs"
+
+fi
+
+
+m4_ifdef([HAS_TOP],[
+		AC_CONFIG_HEADER(packages/raptor/raptor_config.h)
+		AC_OUTPUT(packages/raptor/Makefile)
+		]
+				,[
+		AC_CONFIG_HEADER(raptor_config.h)
+		AC_OUTPUT(Makefile)
+		])
+
