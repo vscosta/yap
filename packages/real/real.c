@@ -2291,7 +2291,7 @@ execute_R(term_t rvar, term_t value)
 
     PROTECT_AND_COUNT( sexp = term_to_sexp(value, true) );
     //PROTECT_AND_COUNT( sexp = protected_tryEval(sexp, R_GlobalEnv, &hadError) );
-    if (sexp == R_UnboundValue || Rf_isNull(sExp))
+    if (sexp == R_UnboundValue || Rf_isNull(sexp))
     {
       UNPROTECT( nprotect );
       return false;

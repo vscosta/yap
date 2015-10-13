@@ -49,8 +49,8 @@ refactoring (trivial):
 #define	JPL_C_LIB_VERSION_STATUS "alpha"
 
 /*#define DEBUG(n, g) ((void)0) */
-#define DEBUG_LEVEL 3
-#define DEBUG(n, g) ( n >= DEBUG_LEVEL ? g : (void)0 )
+#define DEBUG_LEVEL 4
+#define JPL_DEBUG(n, g) ( n >= DEBUG_LEVEL ? g : (void)0 )
 
 /* disable type-of-ref caching (at least until GC issues are resolved) */
 #define		JPL_CACHE_TYPE_OF_REF		FALSE
@@ -642,7 +642,7 @@ jni_env(void) /* economically gets a JNIEnv pointer, valid for this thread */
   { case JNI_OK:
       return env;
     case JNI_EDETACHED:
-      DEBUG(2, Sdprintf( "[JPL: jni_env() calls AttachCurrentThread]\n"));
+      JPL_DEBUG(2, Sdprintf( "[JPL: jni_env() calls AttachCurrentThread]\n"));
       return (*jvm)->AttachCurrentThread(jvm, (void**)&env, NULL) == 0 ? env : NULL;
     default: /* error */
       return NULL;
@@ -851,7 +851,7 @@ jni_free_iref(		    /* called indirectly from agc hook when a possible iref is u
 	{
 	if ( !jni_tidy_iref_type_cache(iref) )
 	    {
-	      DEBUG(0, Sdprintf( "[JPL: jni_tidy_iref_type_cache(%u) failed]\n", iref));
+	      JPL_DEBUG(0, Sdprintf( "[JPL: jni_tidy_iref_type_cache(%lu) failed]\n", iref));
 	    }
 	hr_del_count++;
 	return TRUE;
@@ -1045,12 +1045,12 @@ jni_atom_freed(
         sprintf( cs, IREF_FMT, (IREF_INTTYPE)iref);	/* reconstruct digits part of tag in cs */
         if ( strcmp(cp,cs) != 0 )	/* original digits != reconstructed digits? */
             {
-	      DEBUG(0, Sdprintf( "[JPL: garbage-collected tag '%s'=%u is bogus (not canonical)]\n", cp, iref));
+	      JPL_DEBUG(0, Sdprintf( "[JPL: garbage-collected tag '%s'=%lu is bogus (not canonical)]\n", cp, iref));
 	    }
 	else
 	if ( !jni_free_iref(env,iref) )		/* free it (iff it's in the hashedref table) */
 	    {
-	      DEBUG(0, Sdprintf( "[JPL: garbage-collected tag '%s' is bogus (not in HashedRefs)]\n", cp));
+	      JPL_DEBUG(0, Sdprintf( "[JPL: garbage-collected tag '%s' is bogus (not in HashedRefs)]\n", cp));
 	    }
 	}
     else
@@ -1343,7 +1343,7 @@ jni_hr_del(
     HrEntry	*ep;	/* pointer to a HashedRef table entry */
     HrEntry	**epp;	/* pointer to ep's handle, in case it needs updating */
 
-    DEBUG(1, Sdprintf( "[removing possible object reference %u]\n", iref));
+    JPL_DEBUG(1, Sdprintf( "[removing possible object reference %u]\n", iref));
     for ( index=0 ; index<hr_table->length ; index++ )		/* for each slot */
 	{
 	for ( epp=&(hr_table->slots[index]), ep=*epp ; ep!=NULL ; epp=&(ep->next), ep=*epp )
@@ -1354,12 +1354,12 @@ jni_hr_del(
 		*epp = ep->next;				/* bypass the entry */
 		free( ep);					/* free the now-redundant space */
 		hr_table->count--;				/* adjust table's entry count */
-		DEBUG(1, Sdprintf( "[found & removed hashtable entry for object reference %u]\n", iref));
+		JPL_DEBUG(1, Sdprintf( "[found & removed hashtable entry for object reference %lu]\n", iref));
 		return TRUE;					/* entry found and removed */
 		}
 	    }
 	}
-    DEBUG(1, Sdprintf("[JPL: failed to find hashtable entry for (presumably bogus) object reference %u]\n", iref));
+    JPL_DEBUG(1, Sdprintf("[JPL: failed to find hashtable entry for (presumably bogus) object reference %lu]\n", iref));
     return FALSE;
     }
 
@@ -1828,7 +1828,7 @@ jni_create_jvm_c(
     int			optn = 0;
     JNIEnv		*env;
 
-    DEBUG(1, Sdprintf( "[creating JVM with 'java.class.path=%s']\n", classpath));
+    JPL_DEBUG(1, Sdprintf( "[creating JVM with 'java.class.path=%s']\n", classpath));
     vm_args.version = JNI_VERSION_1_2;	    /* "Java 1.2 please" */
     if ( classpath )
 		{
@@ -1906,7 +1906,7 @@ jni_create_jvm(
     int	    r1;
     int	    r2;
 
-    DEBUG(1, Sdprintf("[JPL: checking for Java VM...]\n"));
+    JPL_DEBUG(1, Sdprintf("[JPL: checking for Java VM...]\n"));
     return
 	( jvm != NULL
 	? 1				    /* already initialised */
@@ -1915,8 +1915,8 @@ jni_create_jvm(
 	  : ( (r2=jni_init()) < 0
 	    ? r2			    /* err code from jni_init() */
 	    : ( r1 == 0			    /* success code from JVM-specific routine */
-	      ? ( DEBUG(0, Sdprintf("[JPL: Java VM created]\n")), r1)
-	      : ( DEBUG(0, Sdprintf("[JPL: Java VM found]\n")), r1)
+	      ? ( JPL_DEBUG(0, Sdprintf("[JPL: Java VM created]\n")), r1)
+	      : ( JPL_DEBUG(0, Sdprintf("[JPL: Java VM found]\n")), r1)
 	      )
 	    )
 	  )
@@ -1948,7 +1948,7 @@ jni_create_default_jvm(void)
 	char *cp = getenv("CLASSPATH");
 #endif
 
-	DEBUG(0, Sdprintf("jni_create_default_jvm(): cp=%s\n", cp));
+	JPL_DEBUG(0, Sdprintf("jni_create_default_jvm(): cp=%s\n", cp));
 
 	if ( (r=jni_create_jvm(cp)) < 0 )
 		{
@@ -3303,7 +3303,7 @@ jpl_do_jpl_init(		/* to be called once only, after PL init, before any JPL calls
 
     if ( jpl_status != JPL_INIT_RAW )	/* jpl init already attempted? (shouldn't happen) */
 	{
-	DEBUG(1, Sdprintf( "[JPL: jpl_do_jpl_init() called AGAIN (skipping...)]\n"));
+	JPL_DEBUG(1, Sdprintf( "[JPL: jpl_do_jpl_init() called AGAIN (skipping...)]\n"));
 	return TRUE;
 	}
 
@@ -3421,7 +3421,7 @@ jpl_do_jpl_init(		/* to be called once only, after PL init, before any JPL calls
 	goto err;
 	}
 
-    DEBUG(1, Sdprintf( "[jpl_do_jpl_init() sets jpl_status = JPL_INIT_PVM_MAYBE, returns TRUE]\n"));
+    JPL_DEBUG(1, Sdprintf( "[jpl_do_jpl_init() sets jpl_status = JPL_INIT_PVM_MAYBE, returns TRUE]\n"));
     jpl_status = JPL_INIT_PVM_MAYBE;
     return TRUE;
 
@@ -3527,12 +3527,12 @@ jpl_test_pvm_init(
 	if ( !PL_is_initialised(&argc,&argv) )	/* PVM not ready? */
 	    {
 	    /* jpl_status remains = JPL_INIT_PVM_MAYBE */
-	    DEBUG(1, Sdprintf( "[pl_test_pvm_init(): PL is not yet initialised: returning FALSE]\n"));
+	    JPL_DEBUG(1, Sdprintf( "[pl_test_pvm_init(): PL is not yet initialised: returning FALSE]\n"));
 	    return FALSE;   /* already-active Prolog VM not found (NB not an exceptional condition) */
 	    }
 	else
 	    {
-	    DEBUG(1, Sdprintf( "[pl_test_pvm_init(): PL is already initialised: proceeding to jpl_post_pvm_init()]\n"));
+	    JPL_DEBUG(1, Sdprintf( "[pl_test_pvm_init(): PL is already initialised: proceeding to jpl_post_pvm_init()]\n"));
 	    return jpl_post_pvm_init(env,argc,argv);  /* TRUE, FALSE or exception */
 	    }
 	}
@@ -3594,10 +3594,10 @@ jpl_do_pvm_init(
 	cp = (char*)(*env)->GetStringUTFChars(env,arg,0);
 	argv[i] = (char*)malloc(strlen(cp)+1);
 	strcpy( argv[i], cp);
-	DEBUG(1, Sdprintf( "  argv[%d] = %s\n", i, argv[i]));
+	JPL_DEBUG(1, Sdprintf( "  argv[%d] = %s\n", i, argv[i]));
 	(*env)->ReleaseStringUTFChars( env, arg, cp);
 	}
-	DEBUG(1, Sdprintf( "	argv[%d] = NULL\n", argc));
+	JPL_DEBUG(1, Sdprintf( "	argv[%d] = NULL\n", argc));
     argv[argc] = NULL;
     if ( !PL_initialise(argc,(char**)argv) )	    /* NB not (const char**) */
 	{
@@ -4352,14 +4352,14 @@ JNIEXPORT int JNICALL
 		}
 
 	rc = current_pool_engine_handle(&engine);
-	DEBUG(0, Sdprintf( "attach_engine(): current_engine=%p, thread_self=%d, pool_id=%d\n", engine, PL_thread_self(), rc));
+	JPL_DEBUG(0, Sdprintf( "attach_engine(): current_engine=%p, thread_self=%d, pool_id=%d\n", engine, PL_thread_self(), rc));
 
 	if	( !getPointerValue(env,jengine,(pointer*)&engine) )					/* checks jengine isn't null */
 		{
 		return -3; /* null engine holder */
 		}
 
-	DEBUG(0, Sdprintf( "attach_engine(): new_engine=%p\n", engine));
+	JPL_DEBUG(0, Sdprintf( "attach_engine(): new_engine=%p\n", engine));
 
 	if ( (rc=PL_set_engine(engine,NULL)) == PL_ENGINE_SET )
 		{
@@ -4387,13 +4387,13 @@ JNIEXPORT void JNICALL
     {
 	qid_t		qid;
 
-	DEBUG(1, Sdprintf( ">close_query(env=%lu,jProlog=%lu,jquid=%u)...\n", (long)env, (long)jProlog, (long)jqid));
+	JPL_DEBUG(1, Sdprintf( ">close_query(env=%lu,jProlog=%lu,jquid=%lu)...\n", (long)env, (long)jProlog, (long)jqid));
     if	(   jpl_ensure_pvm_init(env)
 		&&	getUIntPtrValue(env,jqid,(uintptr_t *)&qid)							/* checks that jqid != NULL */
 	)
 		{
 		PL_close_query( qid);											/* void */
-		DEBUG(1, Sdprintf( "  ok: PL_close_query(%lu)\n", (long)qid));
+		JPL_DEBUG(1, Sdprintf( "  ok: PL_close_query(%lu)\n", (long)qid));
 	}
     }
 
@@ -4414,13 +4414,13 @@ JNIEXPORT jint JNICALL													/* returns -1, 0 or 1 (or -2 for error) */
 	term_t		term1;
 	term_t		term2;
 
-	DEBUG(1, Sdprintf( ">compare(term1=%lu,term2=%lu)\n", (long)jterm1, (long)jterm2));
+	JPL_DEBUG(1, Sdprintf( ">compare(term1=%lu,term2=%lu)\n", (long)jterm1, (long)jterm2));
 	if	(	jpl_ensure_pvm_init(env)
 		&&	getTermTValue(env,jterm1,&term1) /* checks jterm1 isn't null */
 		&&	getTermTValue(env,jterm2,&term2) /* checks jterm2 isn't null */
 	    )
 		{
-		DEBUG(1, Sdprintf( "> PL_compare( %u, %u)", term1, term2));
+		JPL_DEBUG(1, Sdprintf( "> PL_compare( %lu, %lu)", term1, term2));
 		return PL_compare(term1,term2); /* returns -1, 0 or 1 */
 		}
 	else
@@ -4554,21 +4554,21 @@ JNIEXPORT jobject JNICALL
     term_t	term;
 	jobject		term_t;		/* return value */
 
-	DEBUG(1, Sdprintf( ">exception(jqid=%lu)\n", (long)jqid));
+	JPL_DEBUG(1, Sdprintf( ">exception(jqid=%lu)\n", (long)jqid));
 	return	(	jpl_ensure_pvm_init(env)
-			&&	( DEBUG(1, Sdprintf( "	ok: jpl_ensure_pvm_init(env)\n")), TRUE )
+			&&	( JPL_DEBUG(1, Sdprintf( "	ok: jpl_ensure_pvm_init(env)\n")), TRUE )
 		 /* &&	jqid != NULL	// redundant */
-			&&	( DEBUG(1, Sdprintf( "	ok: jqid != NULL\n")), TRUE )
+			&&	( JPL_DEBUG(1, Sdprintf( "	ok: jqid != NULL\n")), TRUE )
 			&&	getUIntPtrValue(env,jqid,(uintptr_t *)&qid)						/* checks that jqid isn't null */
-			&&	( DEBUG(1, Sdprintf( "	ok: getUIntPtrValue(env,jqid,&qid)\n")), TRUE )
+			&&	( JPL_DEBUG(1, Sdprintf( "	ok: getUIntPtrValue(env,jqid,&qid)\n")), TRUE )
 			&&	( (term=PL_exception(qid)) , TRUE )					/* we'll build a term_t object regardless */
-			&&	( DEBUG(1, Sdprintf("  ok: ( (term=PL_exception(qid)), TRUE)\n")), TRUE )
+			&&	( JPL_DEBUG(1, Sdprintf("  ok: ( (term=PL_exception(qid)), TRUE)\n")), TRUE )
 			&&	(term_t=(*env)->AllocObject(env,jTermT_c)) != NULL
-			&&	( DEBUG(1, Sdprintf( "	ok: (term_t=(*env)->AllocObject(env,jTermT_c)) != NULL\n")), TRUE )
+			&&	( JPL_DEBUG(1, Sdprintf( "	ok: (term_t=(*env)->AllocObject(env,jTermT_c)) != NULL\n")), TRUE )
 			&&	setTermTValue(env,term_t,term)
-			&&	( DEBUG(1, Sdprintf( "	ok: setTermTValue(env,term_t,term)\n")), TRUE )
+			&&	( JPL_DEBUG(1, Sdprintf( "	ok: setTermTValue(env,term_t,term)\n")), TRUE )
 			?	(
-					DEBUG(1, Sdprintf("  =%lu\n",(long)term_t)),
+					JPL_DEBUG(1, Sdprintf("  =%lu\n",(long)term_t)),
 					term_t
 				)
 			:	NULL													/* oughta diagnose failure? */
@@ -4876,14 +4876,14 @@ JNIEXPORT jobject JNICALL
 	jobject		rval;
 	term_t		trefs;
 
-	DEBUG(1, Sdprintf( ">new_term_refs(env=%lu,jProlog=%lu,jn=%lu)...\n", (long)env, (long)jProlog, (long)jn));
+	JPL_DEBUG(1, Sdprintf( ">new_term_refs(env=%lu,jProlog=%lu,jn=%lu)...\n", (long)env, (long)jProlog, (long)jn));
 
 	return	(	jpl_ensure_pvm_init(env)
 			&&	jn >= 0										/* I hope PL_new_term_refs(0) is defined [ISSUE] */
 			&&	(rval=(*env)->AllocObject(env,jTermT_c)) != NULL
 			&&	( trefs=PL_new_term_refs((int)jn), TRUE )
 			&&	setUIntPtrValue(env,rval,trefs)
-			&&	( DEBUG(1, Sdprintf("  ok: stashed trefs=%ld into new term_t object\n",(long)trefs)), TRUE )
+			&&	( JPL_DEBUG(1, Sdprintf("  ok: stashed trefs=%ld into new term_t object\n",(long)trefs)), TRUE )
 			?	rval
 			:	NULL
     )
@@ -4906,14 +4906,14 @@ JNIEXPORT jboolean JNICALL
 	qid_t		qid;
 	int		rval;		/* for boolean return value */
 
-	DEBUG(1, Sdprintf( ">next_solution(env=%lu,jProlog=%lu,jqid=%lu)...\n", (long)env, (long)jProlog, (long)jqid));
+	JPL_DEBUG(1, Sdprintf( ">next_solution(env=%lu,jProlog=%lu,jqid=%lu)...\n", (long)env, (long)jProlog, (long)jqid));
 	return	jpl_ensure_pvm_init(env)
 		&&	getUIntPtrValue(env,jqid,(uintptr_t *)&qid)						/* checks that jqid isn't null */
-		&&	( DEBUG(1, Sdprintf( "	ok: getUIntPtrValue(env,jqid,&qid(%lu))\n",(long)qid)), TRUE )
+		&&	( JPL_DEBUG(1, Sdprintf( "	ok: getUIntPtrValue(env,jqid,&qid(%lu))\n",(long)qid)), TRUE )
 		&&	( rval=PL_next_solution(qid), TRUE )					/* can call this until it returns FALSE */
-		&&	( DEBUG(1, Sdprintf( "	ok: PL_next_solution(qid=%lu)=%u\n",(long)qid,rval)), TRUE )
+		&&	( JPL_DEBUG(1, Sdprintf( "	ok: PL_next_solution(qid=%lu)=%u\n",(long)qid,rval)), TRUE )
 		&&	(
-				DEBUG(1, Sdprintf("  =%lu\n",(long)rval)),
+				JPL_DEBUG(1, Sdprintf("  =%lu\n",(long)rval)),
 				rval
 	    )
 	;
@@ -4984,23 +4984,23 @@ Java_jpl_fli_Prolog_open_1query(
     qid_t	qid;
     jobject	jqid;		/* for returned new QidT object */
 
-    DEBUG(1, Sdprintf( ">open_query(env=%lu,jProlog=%lu,jmodule=%lu,jflags=%lu,jpredicate=%lu,jterm0=%lu)...\n",
+    JPL_DEBUG(1, Sdprintf( ">open_query(env=%lu,jProlog=%lu,jmodule=%lu,jflags=%lu,jpredicate=%lu,jterm0=%lu)...\n",
 		       (long)env, (long)jProlog, (long)jmodule, (long)jflags, (long)jpredicate, (long)jterm0));
     return  (	jpl_ensure_pvm_init(env)
 	    &&	( getPointerValue(env,jmodule,(pointer*)&module) , TRUE )	/* NULL module is OK below... */
-	    &&	( DEBUG(1, Sdprintf("  ok: getPointerValue(env,jmodule=%lu,&(pointer)module=%lu)\n",(long)jmodule,(long)module)), TRUE )
+	    &&	( JPL_DEBUG(1, Sdprintf("  ok: getPointerValue(env,jmodule=%lu,&(pointer)module=%lu)\n",(long)jmodule,(long)module)), TRUE )
 	    &&	getPointerValue(env,jpredicate,(pointer*)&predicate)		/* checks that jpredicate != NULL */
-	    &&	( DEBUG(1, Sdprintf("  ok: getPointerValue(env,jpredicate=%lu,&(pointer)predicate=%lu)\n",(long)jpredicate,(long)predicate)), TRUE )
+	    &&	( JPL_DEBUG(1, Sdprintf("  ok: getPointerValue(env,jpredicate=%lu,&(pointer)predicate=%lu)\n",(long)jpredicate,(long)predicate)), TRUE )
 	    &&	getTermTValue(env,jterm0,&term0)			    /* jterm0!=NULL */
 	    &&	( (qid=PL_open_query(module,jflags,predicate,term0)) , TRUE )	/* NULL module is OK (?) [ISSUE] */
-	    &&	( DEBUG(1, Sdprintf("  ok: PL_open_query(module=%lu,jflags=%u,predicate=%lu,term0=%lu)=%lu\n",(long)module,jflags,(long)predicate,(long)term0,(long)qid)), TRUE )
+	    &&	( JPL_DEBUG(1, Sdprintf("  ok: PL_open_query(module=%lu,jflags=%u,predicate=%lu,term0=%lu)=%lu\n",(long)module,jflags,(long)predicate,(long)term0,(long)qid)), TRUE )
 	    &&	(jqid=(*env)->AllocObject(env,jQidT_c)) != NULL
-	    &&	( DEBUG(1, Sdprintf("  ok: AllocObject(env,jQidT_c)=%lu\n",(long)jqid)), TRUE )
+	    &&	( JPL_DEBUG(1, Sdprintf("  ok: AllocObject(env,jQidT_c)=%lu\n",(long)jqid)), TRUE )
 	    &&	setUIntPtrValue(env,jqid,(uintptr_t)qid)
-	    &&	( DEBUG(1, Sdprintf("  ok: setUIntPtrValue(env,%lu,%lu)\n",(long)jqid,(long)qid)), TRUE )
-	    &&	( DEBUG(1, Sdprintf("[open_query module = %s]\n", (module==NULL?"(null)":PL_atom_chars(PL_module_name(module))))), TRUE )
+	    &&	( JPL_DEBUG(1, Sdprintf("  ok: setUIntPtrValue(env,%lu,%lu)\n",(long)jqid,(long)qid)), TRUE )
+	    &&	( JPL_DEBUG(1, Sdprintf("[open_query module = %s]\n", (module==NULL?"(null)":PL_atom_chars(PL_module_name(module))))), TRUE )
 	    ?	(
-		    DEBUG(1, Sdprintf("  =%lu\n",(long)jqid)),
+		    JPL_DEBUG(1, Sdprintf("  =%lu\n",(long)jqid)),
 		    jqid
 		)
 	    :	NULL							    /* oughta diagnose failure? raise JPL exception? */
@@ -5030,7 +5030,7 @@ JNIEXPORT jobject JNICALL
 	predicate_t predicate;
 	jobject		rval;
 
-	DEBUG(1, Sdprintf(">predicate(env=%lu,jProlog=%lu,jname=%lu,jarity=%lu,jmodule=%lu)...\n",
+	JPL_DEBUG(1, Sdprintf(">predicate(env=%lu,jProlog=%lu,jname=%lu,jarity=%lu,jmodule=%lu)...\n",
 					  (long)env, (long)jProlog, (long)jname, (long)jarity, (long)jmodule));
 	return	(	jpl_ensure_pvm_init(env)
 			&&	jni_String_to_atom(env,jname,&pname)			/* checks that jname isn't NULL */
@@ -5045,7 +5045,7 @@ JNIEXPORT jobject JNICALL
 			&&	(rval=(*env)->AllocObject(env,jPredicateT_c)) != NULL
 			&&	setPointerValue(env,rval,(pointer)predicate)
 			?	(
-				   DEBUG(1, Sdprintf("[predicate() module=%s\n",(jmodule==NULL?"(null)":PL_atom_chars(mname)))),
+				   JPL_DEBUG(1, Sdprintf("[predicate() module=%s\n",(jmodule==NULL?"(null)":PL_atom_chars(mname)))),
 					rval
     )
 			:	NULL													/* oughta warn of failure? */
@@ -5263,14 +5263,14 @@ JNIEXPORT void JNICALL
     {
 	atom_t		atom;
 
-	DEBUG(1, Sdprintf( ">unregister_atom(env=%lu,jProlog=%lu,jatom=%u)...\n", (long)env, (long)jProlog, (long)jatom));
+	JPL_DEBUG(1, Sdprintf( "unregister_atom(env=%lu,jProlog=%lu,jatom=%lu)...\n", (long)env, (long)jProlog, (long)jatom));
 
 	if	(	jpl_ensure_pvm_init(env)
 		&&	getAtomTValue(env,jatom,&atom)							/* checks that jatom isn't null */
 		)
 	{
 		PL_unregister_atom( atom);										/* void */
-		DEBUG(1, Sdprintf( "  ok: PL_unregister_atom(%lu)\n", (long)atom));
+		JPL_DEBUG(1, Sdprintf( "  ok: PL_unregister_atom(%lu)\n", (long)atom));
 	}
     }
 
@@ -5355,7 +5355,7 @@ create_pool_engines()
     {
     int		i;
 
-    DEBUG(1, Sdprintf( "JPL creating engine pool:\n"));
+    JPL_DEBUG(1, Sdprintf( "JPL creating engine pool:\n"));
     if ( (engines=malloc(sizeof(PL_engine_t)*JPL_MAX_POOL_ENGINES)) == NULL )
 	{
 	return -1; /* malloc failed */
@@ -5363,10 +5363,10 @@ create_pool_engines()
     engines_allocated = JPL_MAX_POOL_ENGINES;
     memset(engines, 0, sizeof(PL_engine_t)*engines_allocated);
 
-    DEBUG(1, Sdprintf( "JPL stashing default engine as [0]\n"));
+    JPL_DEBUG(1, Sdprintf( "JPL stashing default engine as [0]\n"));
     PL_set_engine( PL_ENGINE_CURRENT, &engines[0]);
 
-    DEBUG(1, Sdprintf( "JPL detaching default engine\n"));
+    JPL_DEBUG(1, Sdprintf( "JPL detaching default engine\n"));
     /* PL_set_engine( NULL, NULL); */
 
     for ( i=1 ; i<JPL_INITIAL_POOL_ENGINES ; i++ )
@@ -5375,7 +5375,7 @@ create_pool_engines()
 	    {
 	    return -2; /* PL_create_engine failed */
 	    }
-	DEBUG(1, Sdprintf( "\tengine[%d]=%p created\n", i, engines[i]));
+	JPL_DEBUG(1, Sdprintf( "\tengine[%d]=%p created\n", i, engines[i]));
 	}
     return 0;
     }
@@ -5415,7 +5415,7 @@ Java_jpl_fli_Prolog_attach_1pool_1engine(
 
 	    if ( (rc=PL_set_engine(engines[i],NULL)) == PL_ENGINE_SET )
 		{
-		DEBUG(1, Sdprintf( "JPL attaching engine[%d]=%p\n", i, engines[i]));
+		JPL_DEBUG(1, Sdprintf( "JPL attaching engine[%d]=%p\n", i, engines[i]));
 		pthread_mutex_unlock( &engines_mutex);
 		return	(   (rval=(*env)->AllocObject(env,jEngineT_c)) != NULL
 			&&  setPointerValue(env,rval,(pointer)engines[i])
@@ -5425,7 +5425,7 @@ Java_jpl_fli_Prolog_attach_1pool_1engine(
 		}
 	    if ( rc != PL_ENGINE_INUSE )
 		{
-		DEBUG(1, Sdprintf( "JPL PL_set_engine fails with %d\n", rc));
+		JPL_DEBUG(1, Sdprintf( "JPL PL_set_engine fails with %d\n", rc));
 		pthread_mutex_unlock( &engines_mutex);
 		return NULL; /* bad engine status: oughta throw exception */
 		}
@@ -5433,7 +5433,7 @@ Java_jpl_fli_Prolog_attach_1pool_1engine(
 
 	for ( i=0 ; i<engines_allocated ; i++ )
 	{ if ( !engines[i] )
-	  { DEBUG(1, Sdprintf("JPL no engines ready; creating new one\n"));
+	  { JPL_DEBUG(1, Sdprintf("JPL no engines ready; creating new one\n"));
 	    if ( (engines[i]=PL_create_engine(NULL)) == NULL )
 	    { Sdprintf("JPL: Failed to create engine %d\n", i);
 	      return NULL;
@@ -5442,7 +5442,7 @@ Java_jpl_fli_Prolog_attach_1pool_1engine(
 	  }
 	}
 
-	DEBUG(1, Sdprintf("JPL no engines ready; waiting...\n"));
+	JPL_DEBUG(1, Sdprintf("JPL no engines ready; waiting...\n"));
 	while( pthread_cond_wait(&engines_cond,&engines_mutex) == EINTR )
 	    {
 	    ;
@@ -5464,11 +5464,11 @@ pool_engine_id(
 	{
 	if ( engines[i] && engines[i] == e )
 	    {
-	    DEBUG(1, Sdprintf( "JPL current  pool engine[%d] = %p (thread_self = %d)\n", i, e, PL_thread_self()));
+	    JPL_DEBUG(1, Sdprintf( "JPL current  pool engine[%d] = %p (thread_self = %d)\n", i, e, PL_thread_self()));
 	    return i;
 	    }
 	}
-    DEBUG(1, Sdprintf( "JPL current non-pool engine = %p (thread_self = %d)\n", e, PL_thread_self()));
+    JPL_DEBUG(1, Sdprintf( "JPL current non-pool engine = %p (thread_self = %d)\n", e, PL_thread_self()));
     return -1; /* no current pool engine */
     }
 
@@ -5544,7 +5544,7 @@ Java_jpl_fli_Prolog_release_1pool_1engine(
 
 	i = current_pool_engine_handle(&e);
 	if ( i > 0 )
-	    { DEBUG(1, Sdprintf("JPL releasing engine[%d]=%p\n", i, e));
+	    { JPL_DEBUG(1, Sdprintf("JPL releasing engine[%d]=%p\n", i, e));
 	      PL_set_engine(NULL, NULL);
 	      pthread_cond_signal(&engines_cond); /* alert waiters */
 	    }
@@ -5692,26 +5692,26 @@ static foreign_t
 		}
 	if ( jvm_dia == jvm_ia ) /* jvm_dia still points to the built-in (non-malloc-ed) default default opts */
 		{
-		DEBUG(1, Sdprintf("JPL not freeing original (static) JVM opts; replacing with malloc-ed [%d+1]\n", n));
+		JPL_DEBUG(1, Sdprintf("JPL not freeing original (static) JVM opts; replacing with malloc-ed [%d+1]\n", n));
 		jvm_dia = (char**)malloc((n+1)*sizeof(char**));
 		}
 	else
 		{
-		DEBUG(1, Sdprintf("JPL has malloc-ed JVM opt[?] (of malloc-ed strings)\n"));
+		JPL_DEBUG(1, Sdprintf("JPL has malloc-ed JVM opt[?] (of malloc-ed strings)\n"));
 		for ( i = 0; jvm_dia[i] != NULL && i < 100; i++ )  /* a malloc-ed array always has NULL in its last element */
 			{
-			DEBUG(1, Sdprintf("JPL freeing malloc-ed JVM opt '%s'\n", jvm_dia[i]));
+			JPL_DEBUG(1, Sdprintf("JPL freeing malloc-ed JVM opt '%s'\n", jvm_dia[i]));
 			free(jvm_dia[i]);  /* a malloc-ed array's elements always point to malloc-ed strings, which we should free */
 			}
 		if ( n != i )  /* we need an array of a different length */
 			{
-			DEBUG(1, Sdprintf("JPL needs different qty JVM opts so freeing old [%d] and malloc-ing new [%d]\n", i, n));
+			JPL_DEBUG(1, Sdprintf("JPL needs different qty JVM opts so freeing old [%d] and malloc-ing new [%d]\n", i, n));
 			free(jvm_dia);
 			jvm_dia = (char**)malloc((n+1)*sizeof(char**));
 			}
 		else
 			{
-			DEBUG(1, Sdprintf("JPL needs [%d] JVM opts as before\n"));
+			JPL_DEBUG(1, Sdprintf("JPL needs [%d] JVM opts as before\n"));
 			}
 		}
 	head = PL_new_term_ref();  /* variable for the elements */
@@ -5720,7 +5720,7 @@ static foreign_t
 		{
 		if ( PL_get_atom_chars(head,&s) )
 			{
-			DEBUG(1, Sdprintf("JPL malloc-ing space for '%s'\n", s));
+			JPL_DEBUG(1, Sdprintf("JPL malloc-ing space for '%s'\n", s));
 			jvm_dia[i] = (char*)malloc(strlen(s)+1);
 			strcpy(jvm_dia[i],s);
 			}
