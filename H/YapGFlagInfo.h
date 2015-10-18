@@ -44,7 +44,7 @@ YAP_FLAG(  ALLOW_ASSERT_FOR_STATIC_PREDICATES,  "allow_assert_for_static_predica
   /* YAP_FLAG(  ALLOW_VARIABLE_NAME_AS_FUNCTOR_FLAG,  "allow_variable_name_as_functor", true, boolean, "false" , NULL ), /\**< `allow_variable_name_as_functor` */
 
   /* 														     allow A(X) *\/ */
-YAP_FLAG(  ANSWER_FORMAT_FLAG, "answer_format", true, isatom, "~p" , NULL ), /** `arithmetic_exceptions `
+YAP_FLAG(  ANSWER_FORMAT_FLAG, "answer_format", true, isatom, "~p" , Yap_set_fpu_exceptions ), /** `arithmetic_exceptions `
 
     Read-write flag telling whether arithmetic exceptions generate
     Prolog exceptions. If enabled:

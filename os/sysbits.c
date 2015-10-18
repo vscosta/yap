@@ -136,7 +136,7 @@ static void InitRandom(void);
 static Int p_alarm( USES_REGS1 );
 static Int p_getenv( USES_REGS1 );
 static Int p_putenv( USES_REGS1 );
-static bool set_fpu_exceptions(bool);
+static bool set_fpu_exceptions(Term);
 static char *expandVars(const char *pattern, char *expanded, int maxlen);
 #ifdef MACYAP
 static int chdir(char *);
@@ -2134,7 +2134,6 @@ Yap_MathException__( USES_REGS1 )
     return  EVALUATION_ERROR_UNDEFINED;
   }
   if (raised ) {
-
     feclearexcept(FE_ALL_EXCEPT);
     if (raised & FE_OVERFLOW) {
       return  EVALUATION_ERROR_FLOAT_OVERFLOW;
@@ -3238,9 +3237,9 @@ MSCHandleSignal(DWORD dwCtrlType) {
 
   /* by default Linux with glibc is IEEE compliant anyway..., but we will pretend it is not. */
   static bool
-    set_fpu_exceptions(bool flag)
+    set_fpu_exceptions(Term flag)
   {
-    if (flag) {
+    if (flag == TermTrue) {
 #if HAVE_FESETEXCEPTFLAG
       fexcept_t excepts;
       return fesetexceptflag(&excepts, FE_DIVBYZERO| FE_UNDERFLOW|FE_OVERFLOW) == 0;
@@ -3309,19 +3308,11 @@ MSCHandleSignal(DWORD dwCtrlType) {
   }
 
   bool
-    Yap_set_fpu_exceptions(bool flag)
+    Yap_set_fpu_exceptions(Term flag)
   {
     return set_fpu_exceptions(flag);
   }
 
-  static Int
-    p_set_fpu_exceptions( USES_REGS1 ) {
-    if (Deref(ARG1) == MkAtomTerm(AtomTrue)) {
-      return set_fpu_exceptions(true);
-    } else {
-      return set_fpu_exceptions( false );
-    }
-  }
 
   static Int
     p_host_type( USES_REGS1 ) {
@@ -3732,7 +3723,6 @@ MSCHandleSignal(DWORD dwCtrlType) {
     Yap_InitCPred ("$alarm", 4, p_alarm, SafePredFlag|SyncPredFlag);
     Yap_InitCPred ("$getenv", 2, p_getenv, SafePredFlag);
     Yap_InitCPred ("$putenv", 2, p_putenv, SafePredFlag|SyncPredFlag);
-    Yap_InitCPred ("$set_fpu_exceptions",1, p_set_fpu_exceptions, SafePredFlag|SyncPredFlag);
     Yap_InitCPred ("$host_type", 1, p_host_type, SafePredFlag|SyncPredFlag);
     Yap_InitCPred ("$env_separator", 1, p_env_separator, SafePredFlag);
     Yap_InitCPred ("$unix", 0, p_unix, SafePredFlag);

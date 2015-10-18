@@ -369,7 +369,7 @@ Int
 PlIOError__ (const char *file, const char *function, int lineno,  yap_error_number type, Term culprit,  ...)
 {
   
-  if (trueLocalPrologFlag(FILEERRORS_FLAG) == TermTrue||
+  if (trueLocalPrologFlag(FILEERRORS_FLAG)||
       type == RESOURCE_ERROR_MAX_STREAMS /* do not catch resource errors */) {
     va_list args;
     const char *format;
@@ -377,7 +377,11 @@ PlIOError__ (const char *file, const char *function, int lineno,  yap_error_numb
     
     va_start(args, culprit);
     format = va_arg(args, char *);
-    vsnprintf(who, 1023, format, args);
+    if (format) {
+      vsnprintf(who, 1023, format, args);
+    } else {
+      who[0] ='\0';
+    }
     va_end( args );
     Yap_Error__(file, function, lineno, type, culprit, who);
     /* and fail */
@@ -1641,8 +1645,10 @@ Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
   return sno;
 }
 
+#define CheckStream( arg,  kind, msg) CheckStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
+
 static int
-CheckStream (Term arg, int kind, const char *msg)
+CheckStream__ (const char *file, const char *f, int line, Term arg, int kind, const char *msg)
 {
   int sno = -1;
   arg = Deref (arg);
@@ -1655,7 +1661,7 @@ CheckStream (Term arg, int kind, const char *msg)
     if (sname == AtomUser) {
       if (kind & Input_Stream_f) {
         if (kind & (Output_Stream_f|Append_Stream_f)) {
-          PlIOError(PERMISSION_ERROR_INPUT_STREAM, arg,
+          PlIOError__(file, f,  line, PERMISSION_ERROR_INPUT_STREAM, arg,
                     "ambiguous use of 'user' as a stream");
           return (-1);
         }
@@ -1666,7 +1672,7 @@ CheckStream (Term arg, int kind, const char *msg)
     }
     if ((sno = Yap_CheckAlias(sname)) < 0) {
       UNLOCK(GLOBAL_Stream[sno].streamlock);
-      Yap_Error(EXISTENCE_ERROR_STREAM, arg, msg);
+      PlIOError__(file, f,  line, EXISTENCE_ERROR_STREAM, arg, msg);
       return -1;
     } else {
       LOCK(GLOBAL_Stream[sno].streamlock);
@@ -1685,38 +1691,37 @@ CheckStream (Term arg, int kind, const char *msg)
   }
   if (GLOBAL_Stream[sno].status & Free_Stream_f)
   {
-    Yap_Error(EXISTENCE_ERROR_STREAM, arg, msg);
+    PlIOError__(file, f,  line, EXISTENCE_ERROR_STREAM, arg, msg);
     return (-1);
   }
   LOCK(GLOBAL_Stream[sno].streamlock);
-  if ((   kind & Input_Stream_f) && !(GLOBAL_Stream[sno].status & Input_Stream_f))
+  if (( GLOBAL_Stream[sno].status  & Input_Stream_f) && !(kind & Input_Stream_f))
     {
       UNLOCK(GLOBAL_Stream[sno].streamlock);
-      PlIOError(PERMISSION_ERROR_INPUT_STREAM, arg, msg);
+      PlIOError__(file, f,  line, PERMISSION_ERROR_INPUT_STREAM, arg, msg);
     }
-  if    ((kind & (Append_Stream_f|Output_Stream_f)) && ! (GLOBAL_Stream[sno].status & Output_Stream_f))
+  if    ((GLOBAL_Stream[sno].status & (Append_Stream_f|Output_Stream_f)) && ! ( kind & Output_Stream_f))
   {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    PlIOError(PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
+    PlIOError__(file, f,  line, PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
   }
   return (sno);
 }
 
-
 int
-Yap_CheckStream (Term arg, int kind, const char *msg)
+Yap_CheckStream__ (const char *file, const char *f, int line, Term arg, int kind, const char *msg)
 {
-  return CheckStream(arg, kind, (char *)msg);
+  return CheckStream__(file, f, line, arg, kind, msg);
 }
 
 int
-Yap_CheckTextStream (Term arg, int kind, const char *msg)
+Yap_CheckTextStream__ (const char *file, const char *f, int line, Term arg, int kind, const char *msg)
 {
   int sno;
-  if ((sno = CheckStream(arg, kind, (char *)msg)) < 0)
+  if ((sno = CheckStream__(file, f,  line, arg, kind, msg)) < 0)
     return -1;
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-      PlIOError(PERMISSION_ERROR_INPUT_BINARY_STREAM, arg, msg);
+      PlIOError__(file, f,  line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg, msg);
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return -1;
   }
@@ -1763,7 +1768,7 @@ always_prompt_user( USES_REGS1 )
 static Int
 close1 (USES_REGS1)
 {				/* '$close'(+GLOBAL_Stream) */
-  Int sno = CheckStream (ARG1, (Input_Stream_f | Output_Stream_f | Socket_Stream_f), "close/2");
+  Int sno = CheckStream(ARG1, (Input_Stream_f | Output_Stream_f | Socket_Stream_f), "close/2");
   if (sno < 0)
     return (FALSE);
   if (sno <= StdErrStream) {

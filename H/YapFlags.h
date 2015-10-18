@@ -207,6 +207,10 @@ static inline void setAtomicGlobalPrologFlag(int id, Term v) {
   GLOBAL_Flags[id].at = v;
 }
 
+static inline Term getAtomicGlobalPrologFlag(int id) {
+  return GLOBAL_Flags[id].at;
+}
+
 static inline void setAtomicLocalPrologFlag(int id, Term v) {
   CACHE_REGS
   check_refs_to_ltable();

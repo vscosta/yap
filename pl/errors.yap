@@ -259,9 +259,7 @@ to allow user-control.
 '$process_error'(error(permission_error(module,redefined,A),B), Level) :-
 	Level \= top, !,
 	throw(error(permission_error(module,redefined,A),B)).
-'$process_error'(error(Msg, Where), _) :- !,
-	'$set_fpu_exceptions'(true),
-	print_message(error,error(Msg, Where)).
+'$process_error'(error(Msg, Where), _) :-
+print_message(error,error(Msg, Where)), !.
 '$process_error'(Throw, _) :-
 	print_message(error,error(unhandled_exception,Throw)).
-

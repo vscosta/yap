@@ -51,8 +51,10 @@ typedef enum{       /* we accept two domains for the moment, IPV6 may follow */
 } socket_domain;
 
 extern Term  Yap_InitSocketStream(int, socket_info, socket_domain);
-extern int   Yap_CheckStream(Term, int, const char *);
-extern int   Yap_CheckTextStream(Term, int, const char *);
+#define Yap_CheckStream( arg,  kind, msg) Yap_CheckStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
+extern int   Yap_CheckStream__(const char *, const char *, int , Term, int, const char *);
+#define Yap_CheckTextStream( arg,  kind, msg) Yap_CheckTextStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
+extern int   Yap_CheckTextStream__(const char *, const char *, int , Term, int, const char *);
 extern int   Yap_CheckSocketStream(Term, const char *);
 extern socket_domain   Yap_GetSocketDomain(int);
 extern socket_info   Yap_GetSocketStatus(int);

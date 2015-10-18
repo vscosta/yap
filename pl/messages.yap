@@ -214,6 +214,8 @@ compose_message(Term, Level) -->
 	main_message( Term, Level ),
 	[nl,nl].
 
+location(error(syntax_error(syntax_error(_,between(_,LN,_),FileName,_)),_ ), _ ) -->
+	[ '~a:~d:0: ' - [FileName,LN] ] .
 location( error(_,Term), Level ) -->
 	{  source_location(F0, L),
 	   stream_property(_Stream, alias(loop_stream)) }, !,
@@ -226,15 +228,13 @@ location( error(_,Term), Level ) -->
 	[nl].
 location(error(_,syntax_error(_,between(_,LN,_),FileName,_) ), _ ) -->
 	[ '~a:~d:0: ' - [FileName,LN] ] .
-location(warning(_,syntax_error(_,between(_,LN,_),FileName,_) ), _ ) -->
-	[ '~a:~d:0: ' - [FileName,LN] ] .
 location(style_check(_,LN,FileName,_ ), _ ) -->
 	%	  { stream_position_data( line_count, LN) },
 	!,
 	[ '~a:~d:0: ' - [FileName,LN] ] .
 
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
-main_message( error(syntax_error,syntax_error(Msg,between(L0,LM,LF),_Stream,Term)), _ ) -->
+main_message( error(syntax_error(Msg,between(L0,LM,LF),_Stream,Term)), _ ) -->
 	!,
 	  ['~*|!!! syntax error: ~s' - [10,Msg]],
 	  [nl],
@@ -262,8 +262,8 @@ main_message(error(consistency_error(Who)), _Source) -->
 	[ '~*|!!! has argument ~a not consistent with type.'-[8,Who] ].
 main_message(error(domain_error(Who , Type), _Where), _Source) -->
 	[ '~*|!!!  ~q does not belong to domain ~a,' - [8,Who,Type], nl ].
-main_message(error(evaluation_error(What), _Where), _Source) -->
-	[ '~*|!!! caused ~a during evaluation of arithmetic expressions,' - [8,What], nl ].
+main_message(error(evaluation_error(What, Who), _Where), _Source) -->
+[ '~*|!!! ~w caused ~a during evaluation of arithmetic expressions,' - [8,Who,What], nl ].
 main_message(error(existence_error(Type , Who), _Where), _Source) -->
 	[  '~*|!!!  ~q ~q could not be found,' - [8,Type, Who], nl ].
 main_message(error(permission_error(Op, Type, Id), _Where), _Source) -->
@@ -283,7 +283,7 @@ consulting -->
 	   stream_property(_Stream, alias(loop_stream)) }, !,
 	[ '~*| while consulting ~a:~d'-[10,F0,L] ],
 	   [nl].
-consulting --> [].	
+consulting --> [].
 
 caller( error(_,Term), _) -->
 	{  lists:memberchk([p|p(M,Na,Ar,File,FilePos)], Term ) },
