@@ -54,176 +54,99 @@ Globalize(Term v USES_REGS)
   return v;
 }
 
-static char *
-get_string_from_list( Term t, seq_tv_t *inp, char *s, int atoms USES_REGS)
-{
-  char *s0 = s;
-  size_t max = -1;
-  if (inp->type & YAP_STRING_TRUNC) {
-    max = inp->max;
-  }
-
-  if (TRUE /* atoms == -1 */) {
-    while (t != TermNil) {
-      Term h = HeadOfTerm(t);
-      if (IsAtomTerm(h)) {
-	Atom at;
-	if (IsWideAtom(at = AtomOfTerm(h)))
-	  *s++ = RepAtom(at)->WStrOfAE[0];
-	else
-	  *s++ = (unsigned char)(RepAtom(at)->StrOfAE[0]);
-      } else {
-	*s++  = IntOfTerm(h);
-      }
-      if (--max == 0) {
-	*s++ = 0;
-	return s0;
-      }
-      t = TailOfTerm(t);
-    }
-  } else if (atoms) {
-    while (t != TermNil) {
-      Atom at;
-      if (IsWideAtom(at = AtomOfTerm(HeadOfTerm(t)))) {
-	int i = RepAtom(at)->WStrOfAE[0];
-	if (i <= 0) {
-	  LOCAL_Error_TYPE = REPRESENTATION_ERROR_CHARACTER_CODE;
-	  return NULL;
-	}
-	*s++ = i;
-      } else
-	*s++ = RepAtom(at)->StrOfAE[0];
-      if (--max == 0) {
-	*s++ = 0;
-	return s0;
-      }
-      t = TailOfTerm(t);
-    }
-  } else {
-    while (t != TermNil) {
-      Int i = IntOfTerm(HeadOfTerm(t));
-      if (i <= 0 || i > 255) {
-	LOCAL_Error_TYPE = REPRESENTATION_ERROR_CHARACTER_CODE;
-	return NULL;
-      }
-      *s++ = i;
-      if (--max == 0) {
-	*s++ = '\0';
-	return s0;
-      }
-      t = TailOfTerm(t);
-    }
-  }
-  *s++ = '\0';
-  return s0;
-}
-
-static wchar_t *
-get_wide_from_list( Term t, seq_tv_t *inp, wchar_t *s, int atoms USES_REGS)
-{
-  wchar_t *s0 = s;
-  size_t max = -1;
-  if (inp->type & YAP_STRING_TRUNC) {
-    max = inp->max;
-  }
-
-  if (TRUE /* atoms == -1*/) {
-    while (t != TermNil) {
-      Term h = HeadOfTerm(t);
-      if (IsAtomTerm(h)) {
-	Atom at;
-	if (IsWideAtom(at = AtomOfTerm(h)))
-	  *s++ = RepAtom(at)->WStrOfAE[0];
-	else
-	  *s++ = (unsigned char)(RepAtom(at)->StrOfAE[0]);
-      } else {
-	*s++ = IntOfTerm(h);
-      }
-      if (--max == 0) {
-	*s++ = 0;
-	return s0;
-      }
-      t = TailOfTerm(t);
-    }
-  } else if (atoms) {
-    while (t != TermNil) {
-      Atom at;
-      if (IsWideAtom(at = AtomOfTerm(HeadOfTerm(t))))
-	*s++ = RepAtom(at)->WStrOfAE[0];
-      else
-	*s++ = (unsigned char)(RepAtom(at)->StrOfAE[0]);
-      if (--max == 0) {
-	*s++ = 0;
-	return s0;
-      }
-      t = TailOfTerm(t);
-    }
-  } else {
-    while (t != TermNil) {
-      int code;
-      *s++ = code = IntOfTerm(HeadOfTerm(t));
-      if (code <= 0) {
-	LOCAL_Error_TYPE = REPRESENTATION_ERROR_CHARACTER_CODE;
-	return NULL;
-      }
-      if (--max == 0) {
-	*s++ = 0;
-	return s0;
-      }
-      t = TailOfTerm(t);
-    }
-  }
-  *s++ = '\0';
-  return s0;
-}
-
-
 static Int
-SkipListCodes(Term *l, Term **tailp, Int *atoms, bool *wide)
+SkipListCodes(unsigned char **bufp, Term *l, Term **tailp, Int *atoms, bool *wide, seq_tv_t *inp USES_REGS)
 {
   Int length = 0;
   Term *s; /* slow */
   Term v; /* temporary */
+  *wide = false;
+  size_t max = 1;
+  unsigned char *st0 = *bufp, *st;
+  unsigned char *smax = NULL;
 
   do_derefa(v,l,derefa_unk,derefa_nonvar);
+  *tailp = l;
   s = l;
-  *wide = false;
 
+  if (inp->type & YAP_STRING_TRUNC) {
+    max = inp->max;
+  } else {
+    max = 0; // basically, this will never be reached;
+  }
 
+  if (!st0) {
+      *bufp = st0 = (unsigned char *)Yap_PreAllocCodeSpace();
+      
+      smax = (unsigned char *)AuxTop-8; // give 8 bytes for max UTF-8 size + '\0';
+  }  else if (inp->sz > 0) {
+     smax = st0+(inp->sz-8); // give 8 bytes for max UTF-8 size + '\0';
+  } else {
+    // AUX_ERROR( *l, 2*(length+1), st0, unsigned char);
+    return 0;
+  }
+  *bufp = st = st0;
+  
   if (*l == TermNil) {
-    *tailp = l;
-    *atoms = 0;
-    *wide = FALSE;
     return 0;
   }
   if ( IsPairTerm(*l) )
   { intptr_t power = 1, lam = 0;
-    do
-    { if ( power == lam )
-      { s = l;
-	power *= 2;
-	lam = 0;
+    Term hd0 = HeadOfTerm(*l);
+    if (IsVarTerm(hd0)) {
+      return -INSTANTIATION_ERROR;
+    }
+    //are we looking for atoms/codes?
+    // whatever the case, we should be consistent throughout,
+    // so we should be consistent with the first arg.
+    if (*atoms == 1) {
+      if ( !IsIntegerTerm(hd0) ) {
+	return -INSTANTIATION_ERROR;
       }
-      lam++;
+    } else if (*atoms == 2) {
+      if ( !IsAtomTerm(hd0) ) {
+	return -TYPE_ERROR_ATOM;
+      }
+    }
+ 
+    do { 
+      int ch;
       length++;
+      if (length == max) {
+	*st++ = '\0';
+      }
       { Term hd = Deref(RepPair(*l)[0]);
 	if (IsVarTerm(hd)) {
-	  length =  -INSTANTIATION_ERROR;
+	  return  -INSTANTIATION_ERROR;
 	} else if (IsAtomTerm(hd)) {
 	  (*atoms)++;
-	  /* if (*atoms < length)
-	     { *tailp = l; return -TYPE_ERROR_STRING; } */
+	  if (*atoms < length)
+	     { *tailp = l; return -TYPE_ERROR_NUMBER; }
 	  if (IsWideAtom(AtomOfTerm(hd))) {
-	    if ((RepAtom(AtomOfTerm(hd))->WStrOfAE)[1] != '\0') { length = -REPRESENTATION_ERROR_CHARACTER; }
-	    *wide = TRUE;
+	    int ch;
+	    if ((RepAtom(AtomOfTerm(hd))->WStrOfAE)[1] != '\0') {
+	      length = -REPRESENTATION_ERROR_CHARACTER;
+	    }
+	    ch = RepAtom(AtomOfTerm(hd))->WStrOfAE[0];
+	    *wide = true;
 	  } else {
 	    AtomEntry *ae = RepAtom(AtomOfTerm(hd));
-	    if ((ae->StrOfAE)[1] != '\0') { length = -REPRESENTATION_ERROR_CHARACTER_CODE; }
+	    if ((ae->StrOfAE)[1] != '\0') {
+	      length = -REPRESENTATION_ERROR_CHARACTER;
+	    } else {
+	      ch = RepAtom(AtomOfTerm(hd))->StrOfAE[0];
+	      *wide |= ch > 0x80;
+	    }
 	  }
 	} else if (IsIntegerTerm(hd)) {
-	  Int ch = IntegerOfTerm(hd);
-	  if (/* *atoms|| */ch < 0) { *tailp = l; /*if (*atoms) length = -TYPE_ERROR_STRING;*/ length = -DOMAIN_ERROR_NOT_LESS_THAN_ZERO; }
-	  else if (ch > 0x80) { *wide = TRUE; }
+	   ch = IntegerOfTerm(hd);
+	  if (*atoms) length = -TYPE_ERROR_ATOM;
+	  else if (ch < 0) {
+	    *tailp = l;
+	    length = -DOMAIN_ERROR_NOT_LESS_THAN_ZERO;
+	  } else {
+	    *wide |= ch > 0x80;
+	  }
 	} else {
 	  length = -TYPE_ERROR_INTEGER;
 	}
@@ -232,102 +155,70 @@ SkipListCodes(Term *l, Term **tailp, Int *atoms, bool *wide)
 	  return length;
 	}
       }
+      // now copy char to buffer
+      size_t chsz = put_utf8( st, ch );
+      if (smax <= st+chsz) {
+	*st++ = '\0';
+	  *tailp = l;
+	  return length;
+      } else {
+	st += chsz;
+      }
       l = RepPair(*l)+1;
       do_derefa(v,l,derefa2_unk,derefa2_nonvar);
     } while ( *l != *s && IsPairTerm(*l) );
   }
+  if (IsVarTerm(*l)) {
+	  return  -INSTANTIATION_ERROR;
+  }
+  if (   *l != TermNil) {
+	  return  -TYPE_ERROR_LIST;
+  }
+  st[0] = '\0';
   *tailp = l;
 
   return length;
 }
 
-
 static void *
-Yap_ListOfAtomsToBuffer(void *buf, Term t, seq_tv_t *inp, bool *widep, size_t *lenp USES_REGS)
+to_buffer(void *buf, Term t, seq_tv_t *inp, bool *widep, Int *atoms, size_t *lenp USES_REGS)
 {
-  Int atoms = 0;
   CELL *r = NULL;
   Int n;
 
-  *widep = false;
-  n = SkipListCodes(&t, &r, &atoms, widep);
+  if (!buf) {
+    inp->sz = *lenp;
+  }
+  unsigned char *bufc = buf;
+  n = SkipListCodes(&bufc, &t, &r, atoms, widep, inp PASS_REGS);
   if (n < 0) {
     LOCAL_Error_TYPE = -n;
     LOCAL_Error_Term = *r;
     return NULL;
   }
-  if (*r != TermNil) {
-    if (IsVarTerm(*r))
-      LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-    else
-      LOCAL_Error_TYPE = TYPE_ERROR_LIST;
-    LOCAL_Error_Term = *r;
-    return NULL;
-  }
-  /*  if (n && !atoms) {
-    LOCAL_Error_Term = t;
-    LOCAL_Error_TYPE = TYPE_ERROR_CHARACTER;
-    return NULL;
-  }
-  */
   *lenp = n;
-  if (*widep) {
-    wchar_t *s;
-    if (buf) s = buf;
-    else s = ((AtomEntry *)Yap_PreAllocCodeSpace())->WStrOfAE;
-    AUX_ERROR( t, 2*(n+1), s, wchar_t);
-    s = get_wide_from_list( t, inp, s, atoms PASS_REGS);
-    return s;
-  } else {
-    char *s;
-    if (buf) s = buf;
-    else s = (char *)((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE;
-    AUX_ERROR( t, 2*(n+1), s, char);
-    s = get_string_from_list( t, inp, s, atoms PASS_REGS);
-    return s;
-  }
+  return bufc;  
 }
 
 static void *
 Yap_ListOfCodesToBuffer(void *buf, Term t, seq_tv_t *inp, bool *widep, size_t *lenp USES_REGS)
 {
-  Int atoms = 0;
-  CELL *r = NULL;
-  Int n;
+  Int atoms = 1; // we only want lists of atoms
+  return to_buffer( buf, t, inp, widep, &atoms, lenp PASS_REGS);
+}
 
-  *widep = false;
-  n = SkipListCodes(&t, &r, &atoms, widep);
-  if (n < 0) {
-    LOCAL_Error_TYPE = -n;
-    LOCAL_Error_Term = *r;
-    return NULL;
-  }
-  if (*r != TermNil) {
-    if (IsVarTerm(*r))
-      LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-    else
-      LOCAL_Error_TYPE = TYPE_ERROR_LIST;
-    LOCAL_Error_Term = *r;
-    return NULL;
-  }
-  if (n && atoms)
-    return NULL;
-  *lenp = n;
-  if (*widep) {
-    wchar_t *s;
-    if (buf) s = buf;
-    else s = ((AtomEntry *)Yap_PreAllocCodeSpace())->WStrOfAE;
-    AUX_ERROR( t, 2*(n+1), s, wchar_t);
-    s = get_wide_from_list( t, inp, s, atoms  PASS_REGS);
-    return s;
-  } else {
-     char *s;
-    if (buf) s = buf;
-    else s = ((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE;
-    AUX_ERROR( t, 2*(n+1), (char *)s, char);
-    s = ( char *)get_string_from_list( t, inp, (char *)s, atoms PASS_REGS);
-    return s;
-  }
+static void *
+Yap_ListOfAtomsToBuffer(void *buf, Term t, seq_tv_t *inp, bool *widep, size_t *lenp USES_REGS)
+{
+  Int atoms = 2; // we only want lists of integer codes
+  return to_buffer( buf, t, inp, widep, &atoms, lenp PASS_REGS);
+}
+
+static void *
+Yap_ListToBuffer(void *buf, Term t, seq_tv_t *inp, bool *widep, size_t *lenp USES_REGS)
+{
+  Int atoms = 0; // we accept both types of lists.
+  return to_buffer( buf, t, inp, widep, &atoms, lenp PASS_REGS);
 }
 
 #if USE_GEN_TYPE_ERROR
@@ -355,24 +246,32 @@ gen_type_error(int flags) {
  void *
 Yap_readText( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *lengp USES_REGS)
 {
-  char *s;
+  char  *s, *s0 = buf;
   wchar_t *ws;
   bool wide;
 
   /* we know what the term is */
   if ( !(inp->type & (YAP_STRING_CHARS|YAP_STRING_WCHARS)))
     {
-      if (IsVarTerm(inp->val.t) && !(inp->type & YAP_STRING_TERM)) {
+      if ( !(inp->type & YAP_STRING_TERM)) {
+	if (IsVarTerm(inp->val.t)) {
 	LOCAL_Error_TYPE = INSTANTIATION_ERROR;
          } else if (!IsAtomTerm(inp->val.t) && inp->type == YAP_STRING_ATOM) {
 		LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
       } else if (!IsStringTerm(inp->val.t) && inp->type == YAP_STRING_STRING) {
 		LOCAL_Error_TYPE = TYPE_ERROR_STRING;
+	}else if (!IsPairTerm(inp->val.t) &&
+		  !IsStringTerm(inp->val.t) &&
+		  inp->type == (YAP_STRING_ATOMS_CODES|YAP_STRING_STRING)) {
+		LOCAL_Error_TYPE = TYPE_ERROR_LIST;
       } else if (!IsNumTerm(inp->val.t) && (inp->type & ( YAP_STRING_INT|YAP_STRING_FLOAT| YAP_STRING_BIG)) == inp->type) {
 		LOCAL_Error_TYPE = TYPE_ERROR_NUMBER;
       }
       LOCAL_Error_Term = inp->val.t;
     }
+    }
+  if (LOCAL_Error_TYPE != YAP_NO_ERROR)
+    return NULL;
 
     // this is a term, extract the UTF8 representation
   if ( IsStringTerm(inp->val.t) &&
@@ -401,23 +300,30 @@ Yap_readText( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *l
       return s;
     }
   }
-  if (inp->type & YAP_STRING_CODES  &&  (s = Yap_ListOfCodesToBuffer( buf, inp->val.t, inp, &wide, lengp PASS_REGS))) {
+   if (((inp->type &(YAP_STRING_CODES|YAP_STRING_ATOMS)) ==
+	(YAP_STRING_CODES|YAP_STRING_ATOMS))) {
+	 s = Yap_ListToBuffer( s0, inp->val.t, inp, &wide, lengp PASS_REGS);
     // this is a term, extract to a sfer, and representation is wide
-    *minimal = TRUE;
-    *enc = ( wide ? ENC_WCHAR : ENC_ISO_LATIN1 );
+    *minimal = true;
+    *enc = ENC_ISO_UTF8;
     return s;
   }
-  if (inp->type & YAP_STRING_ATOMS   && (s = Yap_ListOfAtomsToBuffer( buf, inp->val.t, inp, &wide, lengp PASS_REGS))) {
+       if (inp->type == YAP_STRING_CODES) {
+	 s = Yap_ListOfCodesToBuffer( s0, inp->val.t, inp, &wide, lengp PASS_REGS);
+    // this is a term, extract to a sfer, and representation is wide
+    *minimal = true;
+    *enc = ENC_ISO_UTF8;
+    return s;
+       }
+       if (inp->type == YAP_STRING_ATOMS) {
+	 s = Yap_ListOfAtomsToBuffer( s0, inp->val.t, inp, &wide, lengp PASS_REGS);
     // this is a term, extract to a buffer, and representation is wide
-    *minimal = TRUE;
-    s = Yap_ListOfAtomsToBuffer( buf, inp->val.t, inp, &wide, lengp PASS_REGS);
-    if (!s) return NULL;
-    if (wide) { *enc = ENC_ISO_UTF8; }
-    else { *enc = ENC_ISO_LATIN1; }
+    *minimal = true;
+    *enc = ENC_ISO_UTF8;
     return s;
   }
   if (inp->type & YAP_STRING_INT && IsIntegerTerm(inp->val.t)) {
-      if (buf) s = buf;
+    if (s0) s = s0;
       else s = Yap_PreAllocCodeSpace();
       AUX_ERROR( inp->val.t, LOCAL_MAX_SIZE, s, char);
       if (snprintf(s, LOCAL_MAX_SIZE-1, Int_FORMAT, IntegerOfTerm(inp->val.t)) < 0) {
@@ -428,7 +334,7 @@ Yap_readText( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *l
       return s;
     }
   if (inp->type & YAP_STRING_FLOAT && IsFloatTerm(inp->val.t)) {
-      if (buf) s = buf;
+      if (s0) s = s0;
       else s = Yap_PreAllocCodeSpace();
       AUX_ERROR( inp->val.t, LOCAL_MAX_SIZE, s, char);
       if ( !Yap_FormatFloat( FloatOfTerm(inp->val.t), &s, LOCAL_MAX_SIZE-1 ) ) {
@@ -440,7 +346,7 @@ Yap_readText( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *l
     }
 #if USE_GMP
   if (inp->type & YAP_STRING_BIG && IsBigIntTerm(inp->val.t)) {
-      if (buf) s = buf;
+      if (s0) s = s0;
       else s = Yap_PreAllocCodeSpace();
       if ( !Yap_mpz_to_string( Yap_BigIntOfTerm(inp->val.t), s, LOCAL_MAX_SIZE-1 , 10 ) ) {
 	AUX_ERROR( inp->val.t, LOCAL_MAX_SIZE, s, char);
@@ -453,7 +359,7 @@ Yap_readText( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *l
    if (inp->type & YAP_STRING_TERM)
     {
       char *s, *o;
-      if (buf) s = buf;
+      if (s0) s = s0;
       else s = Yap_PreAllocCodeSpace();
       size_t sz = LOCAL_MAX_SIZE-1;
       encoding_t enc = ENC_ISO_UTF8;
@@ -872,7 +778,7 @@ write_wbuffer( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng
  }
 
 
-static size_t
+ size_t
 write_buffer( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng USES_REGS)
 {
   size_t min = 0, max = leng, sz_end;
@@ -916,7 +822,7 @@ write_buffer( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng 
 	unsigned char *s = s0, *lim = s + (max = strnlen(s0, max));
 	unsigned char *cp = s, *buf0, *buf;        
 
-	buf = buf0 = out->val.uc;
+	buf = buf0 = s0;
 	if (!buf)
 	  return -1;
 	while (*cp && cp < lim) {
@@ -1056,13 +962,18 @@ write_length( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng 
 static Term
 write_number( void *s0, seq_tv_t *out, encoding_t enc, int minimal, int size USES_REGS)
 {
-  return Yap_StringToNumberTerm(s0, &enc);
+  Term o;
+  return
+    Yap_StringToNumberTerm(s0, &enc);
 }
 
 static Term
 string_to_term( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng USES_REGS)
 {
-  return Yap_StringToTerm(s0, strlen(s0)+1, &enc, 1200, NULL);
+  printf("TR0=%p\n", TR);
+ Term o = out->val.t = Yap_StringToTerm(s0, strlen(s0)+1, &enc, 1200, NULL);
+  printf("TRF=%p\n", TR);
+ return o;
 }
 
 
@@ -1091,9 +1002,7 @@ write_Text( void *inp, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
     out->val.a =
       write_atom( inp, out, enc, minimal, leng PASS_REGS);
     return out->val.a != NULL;
-  case YAP_STRING_INT:
-  case YAP_STRING_FLOAT:
-  case YAP_STRING_BIG:
+  case YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG:
     out->val.t =
       write_number( inp, out, enc, minimal, leng PASS_REGS);
     return out->val.t != 0;
