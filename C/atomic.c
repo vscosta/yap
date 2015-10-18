@@ -522,14 +522,18 @@ number_chars( USES_REGS1 )
   if (Yap_IsGroundTerm(t1)) {
     Term tf;
     tf = Yap_NumberToListOfAtoms(t1 PASS_REGS);
-    if (tf)
+    if (tf) {
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
       return Yap_unify( ARG2, tf );
+    }
   } else {
     /* ARG1 unbound */
     Term   t = Deref(ARG2);
     Term tf = Yap_ListToNumber(t PASS_REGS);
-    if (tf)
+    if (tf) {
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
       return Yap_unify( ARG1, tf );
+    }
   }
   /* error handling */
   if (LOCAL_Error_TYPE && Yap_HandleError( "number_chars/2" )) {
