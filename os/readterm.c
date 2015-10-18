@@ -225,11 +225,10 @@ Term Yap_syntax_error(TokEntry *errtok, int sno) {
 
   *tailp = TermNl;
   startline = MkIntegerTerm(cline);
-  clean_vars(LOCAL_VarTable);
-  clean_vars(LOCAL_AnonVarTable);
   if (errtok != LOCAL_toktide) {
     errtok = LOCAL_toktide;
   }
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
   errline = MkIntegerTerm(errtok->TokPos);
   while (tok) {
     Term ts[2];
@@ -288,10 +287,14 @@ Term Yap_syntax_error(TokEntry *errtok, int sno) {
     } break;
     case String_tok: {
       Term t0 = Yap_CharsToTDQ((char *)info, CurrentModule, ENC_ISO_LATIN1 PASS_REGS);
+      if (!t0)
+	return 0;
       ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString, 1), 1, &t0);
     } break;
     case WString_tok: {
       Term t0 = Yap_WCharsToTDQ((wchar_t *)info, CurrentModule PASS_REGS);
+      if (!t0)
+	return 0;
       ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString, 1), 1, &t0);
     } break;
     case BQString_tok: {
@@ -343,9 +346,9 @@ Term Yap_syntax_error(TokEntry *errtok, int sno) {
     tf[0] = MkStringTerm("");
   /* file */
   tf[2] = Yap_StreamUserName(sno);
-  tf[1] = Yap_MkApplTerm(FunctorSyntaxError, 4, tf);
-  tf[0] = MkAtomTerm(AtomSyntaxError);
-  return Yap_MkApplTerm(FunctorError, 2, tf);
+  clean_vars(LOCAL_VarTable);
+  clean_vars(LOCAL_AnonVarTable);
+  return Yap_MkApplTerm(FunctorSyntaxError, 4, tf);
 }
 
 typedef struct FEnv {
@@ -379,6 +382,8 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re,
                               int inp_stream);
 static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   CACHE_REGS
+    LOCAL_VarTable = NULL;
+  LOCAL_AnonVarTable = NULL;
   re->cm = CurrentModule;
   xarg *args = Yap_ArgListToVector(opts, read_defs, READ_END);
   if (args == NULL) {

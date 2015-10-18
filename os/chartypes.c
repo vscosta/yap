@@ -68,31 +68,6 @@ Term Yap_StringToNumberTerm(char *s, encoding_t *encp) {
   while (*s && isblank(*s++))
     ;
   t = Yap_scan_num(GLOBAL_Stream + sno);
-  if (t == TermNil) {
-    CACHE_REGS
-    int sign = 1;
-    if (s[0] == '+') {
-      s++;
-    }
-    if (s[0] == '-') {
-      s++;
-      sign = -1;
-    }
-    if (strcmp(s, "inf") == 0) {
-      if (sign > 0) {
-        return MkFloatTerm(INFINITY);
-      } else {
-        return MkFloatTerm(-INFINITY);
-      }
-    } 
-    if (strcmp(s, "nan") == 0) {
-      if (sign > 0) {
-        return MkFloatTerm(NAN);
-      } else {
-        return MkFloatTerm(-NAN);
-      }
-    }
-  }
   Yap_CloseStream(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return t;
