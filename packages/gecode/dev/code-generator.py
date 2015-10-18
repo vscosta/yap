@@ -666,15 +666,18 @@ def gecode_version():
 @@GECODE_VERSION""")
     f.close()
     cxx.preprocess(file_hh,output_file=file_txt)
-    f = open(file_txt)
-    version = ""
-    for line in f:
-        if line.startswith("@@"):
-            version = line[3:-2]
-            break
-    f.close()
-    os.remove(file_hh)
-    os.remove(file_txt)
+    if True:
+        f = open(file_txt)
+        version = ""
+        for line in f:
+            if line.startswith("@@"):
+                version = line[3:-2]
+                break
+        f.close()
+        os.remove(file_hh)
+        os.remove(file_txt)
+    else:
+        version = "4.4.0" 
     GECODE_VERSION = version
     return version
 
