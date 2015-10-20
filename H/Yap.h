@@ -849,27 +849,6 @@ LOG0(const char *f, int l, const char *fmt, ...)
 
 // YAP lexicon
 
-/* Character types for tokenizer and write.c */
-
-typedef enum char_kind_t {
-  BG =     0,       /* initial state */
-  UC =      1,      /* Upper case */
-  UL =     2,       /* Underline */
-  LC =     3,       /* Lower case */
-  NU =     4,       /* digit */
-  QT =	5,	/* single quote */
-  DC =	6,	/* double quote */
-  SY =      7,       /* Symbol character */
-  SL =      8,       /* Solo character */
-  BK =      9,       /* Brackets & friends */
-  BS =      10,      /* Blank */
-  EF =	    11,	/* End of File marker */
-  CC =	12	/* comment,char %	*/
-} charkind_t;
-
-#ifndef __ANDROID__
-#define __android_log_print( ... )
-#endif
 
 #include "GitSHA1.h"
 
