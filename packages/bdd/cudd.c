@@ -41,17 +41,15 @@ CUDD will generate better/faster code.
 #include "cudd_config.h"
 #include "YapInterface.h"
 
-#if HAVE_UTIL_H
-#include <util.h>
-#endif
 #if HAVE_CUDD_UTIL_H
 #include <cudd/util.h>
-#endif
-#if HAVE_CUDD_H
-#include "cudd.h"
+#elif HAVE_UTIL_H
+#include <util.h>
 #endif
 #if HAVE_CUDD_CUDD_H
 #include "cudd/cudd.h"
+#elif HAVE_CUDD_H
+#include "cudd.h"
 #endif
 
 static YAP_Functor FunctorDollarVar,
