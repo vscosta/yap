@@ -178,7 +178,6 @@ ENDIF("${isSystemDir}" STREQUAL "-1")
 
 
 #
-set ( YAP_MALLOC_T void *)
 set ( MIN_STACKSPACE 1024*SIZEOF_INT_P )
 set ( MIN_HEAPSPACE 2*1024*SIZEOF_INT_P )
 set ( MIN_TRAILSPACE 512*SIZEOF_INT_P )
@@ -313,6 +312,8 @@ endif (YAP_CALL_TRACER)
 
 #set( CMAKE_REQUIRED_LIBRARIES  ${READLINE_LIBS} ${CMAKE_REQUIRED_LIBRARIES} )
 #target_link_libraries(libYap ${READLINE_LIBS})
+
+option (YAPOR "or-p" OFF)
 
 option (YAP_THREADS
 "support system threads" OFF)
@@ -458,15 +459,23 @@ option (WITH_YAP_STATIC
 #TODO:
 
 option (WITH_YAP_MALLOC
-  "use malloc to allocate memory" ON)
-if (YAP_MALLOC)
+  "use malloc to allocate memory" OFF)
+# modern systems do this.
+set ( MALLOC_T "void *" )
+if (YAPOR)
+  set ( USE_DL_MALLOC 1 )
+  set ( USE_SYSTEM_MALLOC 0 )
+else()
   # use default allocator
   set ( USE_SYSTEM_MALLOC 1 )
+  set ( USE_DL_MALLOC 0                                                                                                            )
+  set ( USE_SYSTEM_MMAP 0                                                                                                            )
+  set ( USE_SYSTEM_SHM 0                                                                                                            )
 endif()
 
-option(YAP_CONDOR
+option(WITH_YAP_CONDOR
   "allow YAP to be used from condor" OFF)
-  if (YAP_MALLOC)
+  if (WITH_YAP_MALLOC)
     # use default allocator
     set ( YAP_STATIC ON )
     set ( YAP_DLL OFF )
@@ -496,6 +505,7 @@ target_link_libraries(libYap
   ${GMP_LIBRARIES}
   ${READLINE_LIBS}
   ${CMAKE_DL_LIBS}
+  m
   )
 
 add_executable (yap-bin ${CONSOLE_SOURCES})

@@ -1613,17 +1613,17 @@ signal. */
 
 /* malloc_t */
 #ifndef MALLOC_T
-#cmakedefine MALLOC_T "${MALLOC_T}"
+#define MALLOC_T "void *"
 #endif
 
 /* max number of threads, default 1 or 1024 */
-#ifndef MAX_THRADS
-#cmakedefine MAX_THREADS ${MAX_THREADS}
+#ifndef MAX_THREADS
+#define MAX_THREADS ${MAX_THREADS}
 #endif
 
 /* maximum amount of or-parallelism */
 #ifndef MAX_WORKERS
-#cmakedefine MAX_WORKERS ${MAX_WORKERS}
+#define MAX_WORKERS ${MAX_WORKERS}
 #endif
 
 /* o not use realloc() from HP-UX 10.20 together with MPI */
@@ -1818,37 +1818,37 @@ signal. */
 
 /* use Doug Lea's malloc for all allocation */
 #ifndef USE_DL_MALLOC
-#cmakedefine USE_DL_MALLOC ${USE_DL_MALLOC}
+#define USE_DL_MALLOC ${USE_DL_MALLOC}
 #endif
 
 /* use bignums/rationals in YAP code. */
 #ifndef USE_GMP
-#cmakedefine USE_GMP ${USE_GMP}
+#define USE_GMP ${USE_GMP}
 #endif
 
 /* use Judy library for UDI indexing in YAP code. */
 #ifndef USE_JUDY
-#cmakedefine USE_JUDY ${USE_JUDY}
+#define USE_JUDY ${USE_JUDY}
 #endif
 
 /* do not use our own locking routines */
 #ifndef USE_PTHREAD_LOCKING
-#cmakedefine USE_PTHREAD_LOCKING ${USE_PTHREAD_LOCKING}
+#define USE_PTHREAD_LOCKING ${USE_PTHREAD_LOCKING}
 #endif
 
 /* use OS malloc for all allocation */
 #ifndef USE_SYSTEM_MALLOC
-#cmakedefine USE_SYSTEM_MALLOC ${USE_SYSTEM_MALLOC}
+#define USE_SYSTEM_MALLOC ${USE_SYSTEM_MALLOC}
 #endif
 
 /* use mmap in or-parallel allocation */
 #ifndef USE_SYSTEM_MMAP
-#cmakedefine USE_SYSTEM_MMAP ${USE_SYSTEM_MMAP}
+#define USE_SYSTEM_MMAP  ${USE_SYSTEM_MMAP}
 #endif
 
 /* use shm in or-parallel allocation */
 #ifndef USE_SYSTEM_SHM
-#cmakedefine USE_SYSTEM_SHM ${USE_SYSTEM_SHM}
+#define USE_SYSTEM_SHM ${USE_SYSTEM_SHM}
 #endif
 
 /* Whether daylight savings time offset is set via the altzone variable */
