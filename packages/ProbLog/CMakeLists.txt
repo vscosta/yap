@@ -1,5 +1,5 @@
 set (PROGRAMS
-  Problog.yap 
+  problog.yap 
   problog_lbdd.yap 
   problog_lfi.yap 
   dtproblog.yap 
