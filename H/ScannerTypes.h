@@ -13,18 +13,18 @@ typedef enum TokenKinds {
   eot_tok
 } tkinds;
 
-typedef	 struct	TOKEN {
+typedef struct TOKEN {
   enum TokenKinds Tok;
   Term TokInfo;
-  int	TokPos;
+  int TokPos;
   struct TOKEN *TokNext;
 } TokEntry;
 
-#define	Ord(X) ((enum TokenKinds) (X))
+#define Ord(X) ((enum TokenKinds)(X))
 
-#define	NextToken GNextToken( PASS_REGS1 )
+#define NextToken GNextToken(PASS_REGS1)
 
-typedef	struct VARSTRUCT {
+typedef struct VARSTRUCT {
   Term VarAdr;
   CELL hv;
   UInt refs;
