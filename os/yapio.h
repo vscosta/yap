@@ -44,23 +44,6 @@ typedef struct AliasDescS {
 
 #define MAX_ISO_LATIN1 255
 
-/****************** character definition table **************************/
-
-#define NUMBER_OF_CHARS 256
-extern char *Yap_chtype;
-
-#include "inline-only.h"
-INLINE_ONLY EXTERN inline int chtype(Int);
-int Yap_wide_chtype(Int);
-
-INLINE_ONLY EXTERN inline int
-chtype(Int ch)
-{
-  if (ch < NUMBER_OF_CHARS)
-    return Yap_chtype[ch];
-  return Yap_wide_chtype(ch);
-}
-
 
 /* parser stack, used to be AuxSp, now is ASP */
 #define ParserAuxSp LOCAL_ScannerStack

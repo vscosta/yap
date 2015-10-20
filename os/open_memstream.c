@@ -29,6 +29,8 @@
 
 // #include "verify.h"
 
+#if !HAVE_OPEN_MEMSTREAM
+
 #if !HAVE_FUNOPEN
 # error Sorry, not ported to your platform yet
 #else
@@ -192,3 +194,5 @@ open_memstream (char **buf, size_t *len)
   return f;
 }
 #endif /* HAVE_FUNOPEN */
+
+#endif /* HAVE_OPEN_MEMSTREAM*/

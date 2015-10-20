@@ -250,6 +250,7 @@ rules.
 :- use_module('../swi/library/predopts.pl').
 :- use_module('../swi/library/menu.pl').
 :- use_module('../library/ypp.yap').
+:- use_module('../os/chartypes.yap').
 
 yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
@@ -257,8 +258,6 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :-	set_prolog_flag(generate_debug_info,true).
 
-
-% grep:- recorda('$dialect',yap,_).
 
 %
 % cleanup ensure loaded and recover some data-base space.

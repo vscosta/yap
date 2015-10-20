@@ -94,6 +94,7 @@ Term		user_module		USER_MODULE		MkAT AtomUser
 Term		idb_module		IDB_MODULE		MkAT AtomIDB
 Term		attributes_module	ATTRIBUTES_MODULE	MkAT AtomAttributes
 Term		charsio_module		CHARSIO_MODULE		MkAT AtomCharsio
+Term		chtype_module		CHTYPE_MODULE		MkAT AtomChType
 Term		terms_module		TERMS_MODULE		MkAT AtomTerms
 Term		system_module		SYSTEM_MODULE		MkAT AtomSystem
 Term		operating_system_module	OPERATING_SYSTEM_MODULE	MkAT AtomOperatingSystemSupport

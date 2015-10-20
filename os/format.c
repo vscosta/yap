@@ -276,7 +276,6 @@ doformat(volatile Term otail, volatile Term oargs, int sno USES_REGS)
 {
   char tmp1[TMP_STRING_SIZE], *tmpbase;
   int ch;
-  int column_boundary;
   Term mytargs[8], *targs;
   Int tnum, targ;
   const char *fstr = NULL, *fptr;
@@ -320,7 +319,6 @@ doformat(volatile Term otail, volatile Term oargs, int sno USES_REGS)
   args = oargs;
   tail = otail;
   targ = 0;
-  column_boundary = 0;
   if (IsVarTerm(tail)) {
     Yap_Error(INSTANTIATION_ERROR,tail,"format/2");
     return(FALSE);
@@ -782,7 +780,6 @@ doformat(volatile Term otail, volatile Term oargs, int sno USES_REGS)
             while (repeats--) {
               f_putc(sno, (int) '\n');
             }
-            column_boundary = 0;
             finfo.padders = 0;
             break;
           case 'N':
@@ -790,14 +787,12 @@ doformat(volatile Term otail, volatile Term oargs, int sno USES_REGS)
               has_repeats = 1;
             if (GLOBAL_Stream[sno].linepos != 0) {
               f_putc(sno, '\n');
-              column_boundary = 0;
               finfo.padders = 0;
             }
             if (repeats > 1) {
               Int i;
               for (i = 1; i < repeats; i++)
                 f_putc(sno, '\n');
-              column_boundary = 0;
               finfo.padders = 0;
             }
             break;

@@ -1,4 +1,4 @@
-﻿
+
   /* This file, dhstruct.h, was generated automatically by "yap -L misc/buildheap"
      please do not update, update misc/HEAPFIELDS instead */
 
@@ -91,6 +91,7 @@
 #define IDB_MODULE Yap_heap_regs->idb_module
 #define ATTRIBUTES_MODULE Yap_heap_regs->attributes_module
 #define CHARSIO_MODULE Yap_heap_regs->charsio_module
+#define CHTYPE_MODULE Yap_heap_regs->chtype_module
 #define TERMS_MODULE Yap_heap_regs->terms_module
 #define SYSTEM_MODULE Yap_heap_regs->system_module
 #define OPERATING_SYSTEM_MODULE Yap_heap_regs->operating_system_module

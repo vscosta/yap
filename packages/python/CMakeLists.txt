@@ -1,3 +1,4 @@
+
 #CHECK: PythonLibs
 
 set (PYTHON_SOURCES
@@ -6,8 +7,8 @@ set (PYTHON_SOURCES
 #try to use Brew first
 #set ( PYTHON_LIBRARY /Anaconda/lib/libpython2.7.dylib )
 #set ( PYTHON_INCLUDE_DIR /Anaconda/include/python2.7 )
-set(  PYTHON_LIBRARY /usr/local/opt/python/Frameworks/Python.framework/Versions/Current/lib/libpython2.7.dylib) #             - path to the python library
-set(  PYTHON_INCLUDE_DIR /usr/local/opt/python/Frameworks/Python.framework/Versions/Current/include/python2.7 )  #      - path to where Python.h is found
+#set(  PYTHON_LIBRARY /usr/local/opt/python/Frameworks/Python.framework/Versions/Current/lib/libpython2.7.dylib) #             - path to the python library
+#set(  PYTHON_INCLUDE_DIR /usr/local/opt/python/Frameworks/Python.framework/Versions/Current/include/python2.7 )  #      - path to where Python.h is found
 
   macro_optional_find_package(PythonInterp ON)
   macro_optional_find_package (PythonLibs ON)

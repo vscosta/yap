@@ -93,6 +93,7 @@ static inline const char *enc_name(encoding_t enc)
     case ENC_UTF16_LE: return "utf16_le";
     case ENC_ISO_UTF32_BE: return "utf32_be";
     case  ENC_ISO_UTF32_LE: return "utf32_le";
+    default: return "thanks for watching!!";
     }
 }
 

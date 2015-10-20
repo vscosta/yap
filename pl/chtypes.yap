@@ -21,6 +21,11 @@
   * @defgroup YAPChars Sequences of Characters: atoms, strings, lists of codes.  
   * @ingroup builtins     
   *
+  *    The Prolog library includes a set of built-in predicates designed to
+support manipulation of sequences of text, represented either as
+lists, atoms or strings. 
+
+
 */                                                                       
 
 /*

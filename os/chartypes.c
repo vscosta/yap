@@ -1,23 +1,22 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		charcodes.c						 *
-* Last rev:	5/2/88							 *
-* mods:									 *
-* comments:	Character codes and character conversion		 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		charcodes.c						 *
+ * Last rev:	5/2/88							 *
+ * mods:									 *
+ * comments:	Character codes and character conversion		 *
+ *									 *
+ *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
-
 /*
  * This file includes the definition of a pipe related IO.
  *
@@ -27,12 +26,19 @@ static char SccsId[] = "%W% %G%";
 #include "Yatom.h"
 #include "YapHeap.h"
 #include "yapio.h"
+#include "YapText.h"
 #include <stdlib.h>
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #if HAVE_STDARG_H
 #include <stdarg.h>
+#endif
+#if HAVE_CTYPE_H
+#include <ctype.h>
+#endif
+#if HAVE_WCTYPE_H
+#include <wctype.h>
 #endif
 #ifdef _WIN32
 #if HAVE_IO_H
@@ -51,11 +57,10 @@ static char SccsId[] = "%W% %G%";
 #include "eval.h"
 
 static Int p_change_type_of_char(USES_REGS1);
-static Int p_type_of_char(USES_REGS1);
 
 Term Yap_StringToNumberTerm(char *s, encoding_t *encp) {
   CACHE_REGS
-  int sno;
+    int sno;
   Term t;
 
   sno = Yap_open_buf_read_stream(s, strlen(s), encp, MEM_BUF_USER);
@@ -65,7 +70,7 @@ Term Yap_StringToNumberTerm(char *s, encoding_t *encp) {
     GLOBAL_Stream[sno].encoding = *encp;
   else
     GLOBAL_Stream[sno].encoding = LOCAL_encoding;
-  while (*s && isblank(*s++))
+  while (*s && iswblank(*s++))
     ;
   t = Yap_scan_num(GLOBAL_Stream + sno);
   Yap_CloseStream(sno);
@@ -82,15 +87,15 @@ typedef struct enc_map {
 } enc_map_t;
 
 static enc_map_t ematches[] = {
-    {"UTF-8", ENC_ISO_UTF8},
-    {"UTF-16", ENC_UTF16_LE}, // ok, this is a very bad name
-    {"UCS-2", ENC_UTF16_LE},  // ok, this is probably gone by now
-    {"ISO-LATIN1", ENC_ISO_LATIN1},
-    {"ISO-8859-1", ENC_ISO_LATIN1},
-    {"Windows-1252", ENC_ISO_LATIN1}, // almost, but not quite
-    {"CP-1252", ENC_ISO_LATIN1},
-    {"C", ENC_ISO_ASCII},
-    {NULL, ENC_OCTET}};
+  {"UTF-8", ENC_ISO_UTF8},
+  {"UTF-16", ENC_UTF16_LE}, // ok, this is a very bad name
+  {"UCS-2", ENC_UTF16_LE},  // ok, this is probably gone by now
+  {"ISO-LATIN1", ENC_ISO_LATIN1},
+  {"ISO-8859-1", ENC_ISO_LATIN1},
+  {"Windows-1252", ENC_ISO_LATIN1}, // almost, but not quite
+  {"CP-1252", ENC_ISO_LATIN1},
+  {"C", ENC_ISO_ASCII},
+  {NULL, ENC_OCTET}};
 
 static encoding_t DefaultEncoding(void) {
   encoding_t rc;
@@ -114,8 +119,8 @@ static encoding_t DefaultEncoding(void) {
     }
     i++;
   }
-// by default, return UTF-8
-// except in _WIN32
+  // by default, return UTF-8
+  // except in _WIN32
 #ifdef _WIN32
   rc = ENC_UTF16_BE;
 #else
@@ -132,12 +137,12 @@ static encoding_t DefaultEncoding(void) {
 
 encoding_t Yap_DefaultEncoding(void) {
   CACHE_REGS
-  return LOCAL_encoding;
+    return LOCAL_encoding;
 }
 
 void Yap_SetDefaultEncoding(encoding_t new_encoding) {
   CACHE_REGS
-  LOCAL_encoding = new_encoding;
+    LOCAL_encoding = new_encoding;
 }
 
 static Int get_default_encoding(USES_REGS1) {
@@ -147,7 +152,7 @@ static Int get_default_encoding(USES_REGS1) {
 
 static Int p_encoding(USES_REGS1) { /* '$encoding'(Stream,N) */
   int sno =
-      Yap_CheckStream(ARG1, Input_Stream_f | Output_Stream_f, "encoding/2");
+    Yap_CheckStream(ARG1, Input_Stream_f | Output_Stream_f, "encoding/2");
   Term t = Deref(ARG2);
   if (sno < 0)
     return FALSE;
@@ -187,7 +192,7 @@ static Int tolower2(USES_REGS1) {
 }
 
 static Int
-    p_change_type_of_char(USES_REGS1) { /* change_type_of_char(+char,+type) */
+p_change_type_of_char(USES_REGS1) { /* change_type_of_char(+char,+type) */
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
   if (!IsVarTerm(t1) && !IsIntegerTerm(t1))
@@ -198,15 +203,365 @@ static Int
   return TRUE;
 }
 
-static Int p_type_of_char(USES_REGS1) { /* type_of_char(+char,-type)      */
-  Term t;
-
-  Term t1 = Deref(ARG1);
-  if (!IsVarTerm(t1) && !IsIntegerTerm(t1))
-    return FALSE;
-  t = MkIntTerm(Yap_chtype[IntegerOfTerm(t1)]);
-  return Yap_unify(t, ARG2);
+static int get_char(Term t) {
+  if (IsVarTerm(t = Deref(t))) {
+    Yap_Error(INSTANTIATION_ERROR, t, NULL);
+    return 0;
+  }
+  if (!IsAtomTerm(t)) {
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, NULL);
+    return 0;
+  }
+  Atom at = AtomOfTerm(t);
+  if (IsWideAtom(at)) {
+    wchar_t *s0 = RepAtom(AtomOfTerm(t))->WStrOfAE;
+    if (s0[1] != '\0') {
+      Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, NULL);
+      return 0;
+    }
+    return s0[0];
+  } else {
+    char *s0 = RepAtom(AtomOfTerm(t))->StrOfAE;
+    if (s0[1] != '\0') {
+      Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, NULL);
+      return 0;
+    }
+    return s0[0];
+  }
+  return 0;
 }
+
+static int get_code(Term t) {
+  if (IsVarTerm(t = Deref(t))) {
+    Yap_Error(INSTANTIATION_ERROR, t, NULL);
+    return 0;
+  }
+  if (!IsIntegerTerm(t)) {
+    Yap_Error(TYPE_ERROR_CHARACTER_CODE, t, NULL);
+    return 0;
+  }
+  Int ch = IntegerOfTerm(t);
+  if (ch < -1) {
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE, t, NULL);
+    return 0;
+  }
+  return ch;
+}
+
+static Int char_type_alnum(USES_REGS1) {
+  int ch = get_char(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k == UC || k == LC || k == NU;
+}
+
+static Int char_type_alpha(USES_REGS1) {
+  int ch = get_char(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k == UC || k == LC;
+}
+
+static Int char_type_csym(USES_REGS1) {
+  int ch = get_char(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k >= UC && k <= NU;
+}
+
+static Int char_type_csymf(USES_REGS1) {
+  int ch = get_char(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k >= UC && k <= LC;
+}
+
+static Int char_type_ascii(USES_REGS1) {
+  int ch = get_char(ARG1);
+  return isascii(ch);
+}
+
+static Int char_type_white(USES_REGS1) {
+  int ch = get_char(ARG1);
+  if (ch < 256) {
+    char_kind_t k = Yap_chtype[ch];
+    return k >= UC && k <= LC;
+  }
+  utf8proc_category_t ct = utf8proc_category(ch);
+  return ct == UTF8PROC_CATEGORY_ZS;
+}
+
+static Int char_type_digit(USES_REGS1) {
+  Int ch = get_char(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k == NU;
+}
+
+static Int char_type_xdigit(USES_REGS1) {
+  Int ch = get_char(ARG1);
+#if HAVE_ISWXDIGIT
+  return iswxdigit( ch );
+#elif HAVE_ISWHEXNUMBER
+  return iswhexnumber(ch);
+#else
+  return iswdigit(ch) || ( (ch >= 'a' && ch <= 'f') &&
+			   (ch >= 'A' && ch <= 'F') );
+#endif
+}
+
+static Int char_type_graph(USES_REGS1) {
+  Int ch = get_char(ARG1);
+  return iswgraph(ch);
+}
+
+static Int char_type_lower(USES_REGS1) {
+  int ch = get_char(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k == LC;
+}
+
+static Int char_type_upper(USES_REGS1) {
+  int ch = get_char(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k == UC;
+}
+
+static Int char_type_punct(USES_REGS1) {
+  int ch = get_char(ARG1);
+  if (ch < 256) {
+    char_kind_t k = Yap_chtype[ch];
+    return k >= QT && k <= BK;
+  }
+  return false;
+}
+
+static Int char_type_space(USES_REGS1) {
+  int ch = get_char(ARG1);
+  if (ch < 256) {
+    char_kind_t k = Yap_chtype[ch];
+    return k == BS;
+  }
+  utf8proc_category_t ct = utf8proc_category(ch);
+  return (ct >= UTF8PROC_CATEGORY_ZS && ct <= UTF8PROC_CATEGORY_PO);
+}
+
+static Int char_type_end_of_file(USES_REGS1) {
+  Int ch = get_char(ARG1);
+  return ch == WEOF || ch == -1;
+}
+
+static Int char_type_end_of_line(USES_REGS1) {
+  Int ch = get_char(ARG1);
+  if (ch < 256) {
+    return ch >= 10 && ch <= 13;
+  }
+  utf8proc_category_t ct = utf8proc_category(ch);
+  return (ct >= UTF8PROC_CATEGORY_ZL && ct <= UTF8PROC_CATEGORY_ZP);
+}
+
+static Int char_type_newline(USES_REGS1) {
+  Int ch = get_char(ARG1);
+  if (ch < 256) {
+    return ch == 10;
+  }
+  return false;
+}
+
+
+static Int char_type_period(USES_REGS1) {
+  Int ch = get_char(ARG1);
+  return ch == '.' || ch == '!' || ch == '?';
+}
+
+static Int char_type_quote(USES_REGS1) {
+  Int ch = get_char(ARG1);
+  utf8proc_category_t ct = utf8proc_category(ch);
+  return ct == UTF8PROC_CATEGORY_PI || ct == UTF8PROC_CATEGORY_PF;
+}
+
+static Int char_type_paren(USES_REGS1) {
+  Int ch = get_char(ARG1);
+  utf8proc_category_t ct = utf8proc_category(ch);
+  return ct == UTF8PROC_CATEGORY_PS || ct == UTF8PROC_CATEGORY_PE;
+}
+
+static Int char_type_prolog_var_start(USES_REGS1) {
+  Int ch = get_char(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k == LC || ch == '_';
+}
+
+static Int char_type_prolog_atom_start(USES_REGS1) {
+  Int ch = get_char(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k == UC;
+}
+
+static Int char_type_prolog_identifier_continue(USES_REGS1) {
+  int ch = get_char(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k >= UC && k <= NU;
+}
+
+static Int char_type_prolog_symbol(USES_REGS1) {
+  int ch = get_char(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k == SL && k == SY;
+}
+
+static Int code_type_alnum(USES_REGS1) {
+  int ch = get_code(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k == UC || k == LC || k == NU;
+}
+
+static Int code_type_alpha(USES_REGS1) {
+  int ch = get_code(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k == UC || k == LC;
+}
+
+static Int code_type_csym(USES_REGS1) {
+  int ch = get_code(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k >= UC && k <= NU;
+}
+
+static Int code_type_csymf(USES_REGS1) {
+  int ch = get_code(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k >= UC && k <= LC;
+}
+
+static Int code_type_ascii(USES_REGS1) {
+  int ch = get_code(ARG1);
+  return isascii(ch);
+}
+
+static Int code_type_white(USES_REGS1) {
+  int ch = get_code(ARG1);
+  if (ch < 256) {
+    char_kind_t k = Yap_chtype[ch];
+    return k >= UC && k <= LC;
+  }
+  utf8proc_category_t ct = utf8proc_category(ch);
+  return ct == UTF8PROC_CATEGORY_ZS;
+}
+
+static Int code_type_digit(USES_REGS1) {
+  Int ch = get_code(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k == NU;
+}
+
+static Int code_type_xdigit(USES_REGS1) {
+  Int ch = get_code(ARG1);
+#if HAVE_ISWXDIGIT
+  return iswxdigit( ch );
+#elif HAVE_ISWHEXNUMBER
+  return iswhexnumber(ch);
+#else
+  return iswdigit(ch) || ( (ch >= 'a' && ch <= 'f') &&
+			   (ch >= 'A' && ch <= 'F') );
+#endif
+}
+
+static Int code_type_graph(USES_REGS1) {
+  Int ch = get_code(ARG1);
+  return iswgraph(ch);
+}
+
+static Int code_type_lower(USES_REGS1) {
+  int ch = get_code(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k == LC;
+}
+
+static Int code_type_upper(USES_REGS1) {
+  int ch = get_code(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k == UC;
+}
+
+static Int code_type_punct(USES_REGS1) {
+  int ch = get_char(ARG1);
+  if (ch < 256) {
+    char_kind_t k = Yap_chtype[ch];
+    return k >= QT && k <= BK;
+  }
+  return false;
+}
+
+static Int code_type_space(USES_REGS1) {
+  int ch = get_code(ARG1);
+  if (ch < 256) {
+    char_kind_t k = Yap_chtype[ch];
+    return k == BS;
+  }
+  utf8proc_category_t ct = utf8proc_category(ch);
+  return (ct >= UTF8PROC_CATEGORY_ZS && ct <= UTF8PROC_CATEGORY_PO);
+}
+
+static Int code_type_end_of_file(USES_REGS1) {
+  Int ch = get_code(ARG1);
+  return ch == WEOF || ch == -1;
+}
+
+static Int code_type_end_of_line(USES_REGS1) {
+  Int ch = get_code(ARG1);
+  if (ch < 256) {
+    return ch >= 10 && ch <= 13;
+  }
+  utf8proc_category_t ct = utf8proc_category(ch);
+  return (ct >= UTF8PROC_CATEGORY_ZL && ct <= UTF8PROC_CATEGORY_ZP);
+}
+
+static Int code_type_newline(USES_REGS1) {
+  Int ch = get_code(ARG1);
+  if (ch < 256) {
+    return ch == 10;
+  }
+  return false;
+}
+
+
+static Int code_type_period(USES_REGS1) {
+  Int ch = get_code(ARG1);
+  return ch == '.' || ch == '!' || ch == '?';
+}
+
+static Int code_type_quote(USES_REGS1) {
+  Int ch = get_code(ARG1);
+  utf8proc_category_t ct = utf8proc_category(ch);
+  return ct == UTF8PROC_CATEGORY_PI || ct == UTF8PROC_CATEGORY_PF;
+}
+
+static Int code_type_paren(USES_REGS1) {
+  Int ch = get_code(ARG1);
+  utf8proc_category_t ct = utf8proc_category(ch);
+  return ct == UTF8PROC_CATEGORY_PS || ct == UTF8PROC_CATEGORY_PE;
+}
+
+static Int code_type_prolog_var_start(USES_REGS1) {
+  Int ch = get_code(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k == LC || ch == '_';
+}
+
+static Int code_type_prolog_atom_start(USES_REGS1) {
+  Int ch = get_code(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k == UC;
+}
+
+static Int code_type_prolog_identifier_continue(USES_REGS1) {
+  int ch = get_code(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k >= UC && k <= NU;
+}
+
+static Int code_type_prolog_symbol(USES_REGS1) {
+  int ch = get_code(ARG1);
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k == SL && k == SY;
+}
+
 
 int ISOWGetc(int sno) {
   int ch = GLOBAL_Stream[sno].stream_wgetc(sno);
@@ -239,27 +594,28 @@ static Int p_disable_char_conversion(USES_REGS1) {
 
   for (i = 0; i < MaxStreams; i++) {
     if (!(GLOBAL_Stream[i].status & Free_Stream_f))
-      GLOBAL_Stream[i].stream_wgetc_for_read = GLOBAL_Stream[i].stream_wgetc;
+      GLOBAL_Stream[i].stream_wgetc_for_read =
+	GLOBAL_Stream[i].stream_wgetc;
   }
   GLOBAL_CharConversionTable = NULL;
   return (TRUE);
 }
 
 static Int char_conversion(USES_REGS1) {
-  Term t0 = Deref(ARG1), t1 = Deref(ARG2);
+  Term t = Deref(ARG1), t1 = Deref(ARG2);
   unsigned char *s0, *s1;
 
-  if (IsVarTerm(t0)) {
-    Yap_Error(INSTANTIATION_ERROR, t0, "char_conversion/2");
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR, t, "char_conversion/2");
     return (FALSE);
   }
-  if (!IsAtomTerm(t0)) {
-    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t0, "char_conversion/2");
+  if (!IsAtomTerm(t)) {
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, "char_conversion/2");
     return (FALSE);
   }
-  s0 = RepAtom(AtomOfTerm(t0))->UStrOfAE;
+  s0 = RepAtom(AtomOfTerm(t))->UStrOfAE;
   if (s0[1] != '\0') {
-    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t0, "char_conversion/2");
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, "char_conversion/2");
     return (FALSE);
   }
   if (IsVarTerm(t1)) {
@@ -283,17 +639,17 @@ static Int char_conversion(USES_REGS1) {
     if (s0[0] == s1[0])
       return (TRUE);
     GLOBAL_CharConversionTable2 =
-        Yap_AllocCodeSpace(NUMBER_OF_CHARS * sizeof(char));
+      Yap_AllocCodeSpace(NUMBER_OF_CHARS * sizeof(char));
     while (GLOBAL_CharConversionTable2 == NULL) {
       if (!Yap_growheap(FALSE, NUMBER_OF_CHARS * sizeof(char), NULL)) {
-        Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
-        return (FALSE);
+	Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
+	return (FALSE);
       }
     }
     if (trueGlobalPrologFlag(CHAR_CONVERSION_FLAG)) {
       CACHE_REGS
-      if (p_force_char_conversion(PASS_REGS1) == FALSE)
-        return (FALSE);
+	if (p_force_char_conversion(PASS_REGS1) == FALSE)
+	  return (FALSE);
     }
     for (i = 0; i < NUMBER_OF_CHARS; i++)
       GLOBAL_CharConversionTable2[i] = i;
@@ -305,24 +661,26 @@ static Int char_conversion(USES_REGS1) {
 }
 
 static Int p_current_char_conversion(USES_REGS1) {
-  Term t0, t1;
+  Term t, t1;
   unsigned char *s0, *s1;
 
   if (GLOBAL_CharConversionTable == NULL) {
     return (FALSE);
   }
-  t0 = Deref(ARG1);
-  if (IsVarTerm(t0)) {
-    Yap_Error(INSTANTIATION_ERROR, t0, "current_char_conversion/2");
+  t = Deref(ARG1);
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR, t, "current_char_conversion/2");
     return (FALSE);
   }
-  if (!IsAtomTerm(t0)) {
-    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t0, "current_char_conversion/2");
+  if (!IsAtomTerm(t)) {
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t,
+	      "current_char_conversion/2");
     return (FALSE);
   }
-  s0 = RepAtom(AtomOfTerm(t0))->UStrOfAE;
+  s0 = RepAtom(AtomOfTerm(t))->UStrOfAE;
   if (s0[1] != '\0') {
-    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t0, "current_char_conversion/2");
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t,
+	      "current_char_conversion/2");
     return (FALSE);
   }
   t1 = Deref(ARG2);
@@ -335,16 +693,18 @@ static Int p_current_char_conversion(USES_REGS1) {
     return (Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(out))));
   }
   if (!IsAtomTerm(t1)) {
-    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t1, "current_char_conversion/2");
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t1,
+	      "current_char_conversion/2");
     return (FALSE);
   }
   s1 = RepAtom(AtomOfTerm(t1))->UStrOfAE;
   if (s1[1] != '\0') {
-    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t1, "current_char_conversion/2");
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t1,
+	      "current_char_conversion/2");
     return (FALSE);
   } else {
     return (GLOBAL_CharConversionTable[(int)s0[0]] == '\0' &&
-            GLOBAL_CharConversionTable[(int)s0[0]] == s1[0]);
+	    GLOBAL_CharConversionTable[(int)s0[0]] == s1[0]);
   }
 }
 
@@ -375,24 +735,88 @@ static Int p_all_char_conversions(USES_REGS1) {
 void Yap_InitChtypes(void) {
   DefaultEncoding();
   Yap_InitCPred("$change_type_of_char", 2, p_change_type_of_char,
-                SafePredFlag | SyncPredFlag | HiddenPredFlag);
-  Yap_InitCPred("$type_of_char", 2, p_type_of_char,
-                SafePredFlag | SyncPredFlag | HiddenPredFlag);
+		SafePredFlag | SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("toupper", 2, toupper2, SafePredFlag);
   Yap_InitCPred("tolower", 2, tolower2, SafePredFlag);
   Yap_InitCPred("char_conversion", 2, char_conversion, SyncPredFlag);
 
   Yap_InitCPred("$get_default_encoding", 1, get_default_encoding,
-                SafePredFlag | HiddenPredFlag);
+		SafePredFlag | HiddenPredFlag);
 
   Yap_InitCPred("$encoding", 2, p_encoding, SafePredFlag | SyncPredFlag),
 
-      Yap_InitCPred("$current_char_conversion", 2, p_current_char_conversion,
-                    SyncPredFlag | HiddenPredFlag);
+    Yap_InitCPred("$current_char_conversion", 2,
+		  p_current_char_conversion,
+		  SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$all_char_conversions", 1, p_all_char_conversions,
-                SyncPredFlag | HiddenPredFlag);
+		SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$force_char_conversion", 0, p_force_char_conversion,
-                SyncPredFlag | HiddenPredFlag);
+		SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$disable_char_conversion", 0, p_disable_char_conversion,
-                SyncPredFlag | HiddenPredFlag);
-}
+		SyncPredFlag | HiddenPredFlag);
+  CurrentModule = CHTYPE_MODULE;
+  Yap_InitCPred("char_type_alnum", 1, char_type_alnum, SafePredFlag);
+  Yap_InitCPred("char_type_alpha", 1, char_type_alpha, SafePredFlag);
+  Yap_InitCPred("char_type_csym", 1, char_type_csym, SafePredFlag);
+  Yap_InitCPred("char_type_csymf", 1, char_type_csymf, SafePredFlag);
+  Yap_InitCPred("char_type_ascii", 1, char_type_ascii, SafePredFlag);
+  Yap_InitCPred("char_type_white", 1, char_type_white, SafePredFlag);
+  Yap_InitCPred("char_type_digit", 1, char_type_digit, SafePredFlag);
+  Yap_InitCPred("char_type_xdigit", 1, char_type_xdigit, SafePredFlag);
+  Yap_InitCPred("char_type_graph", 1, char_type_graph, SafePredFlag);
+  Yap_InitCPred("char_type_lower", 1, char_type_lower, SafePredFlag);
+  Yap_InitCPred("char_type_upper", 1, char_type_upper, SafePredFlag);
+  Yap_InitCPred("char_type_punct", 1, char_type_punct, SafePredFlag);
+  Yap_InitCPred("char_type_space", 1, char_type_space, SafePredFlag);
+  Yap_InitCPred("char_type_end_of_file", 1, char_type_end_of_file,
+		SafePredFlag);
+  Yap_InitCPred("char_type_end_of_line", 1, char_type_end_of_line,
+		SafePredFlag);
+  Yap_InitCPred("char_type_newline", 1, char_type_newline, SafePredFlag);
+  Yap_InitCPred("char_type_period", 1, char_type_period, SafePredFlag);
+  Yap_InitCPred("char_type_quote", 1, char_type_quote, SafePredFlag);
+  Yap_InitCPred("char_type_paren", 1, char_type_paren, SafePredFlag);
+  Yap_InitCPred("char_type_prolog_var_start", 1, char_type_prolog_var_start,
+		SafePredFlag);
+    Yap_InitCPred("char_type_prolog_symbol", 1, char_type_prolog_symbol,
+		  SafePredFlag);
+    Yap_InitCPred("char_type_prolog_atom_start", 1,
+		  char_type_prolog_atom_start, SafePredFlag);
+    Yap_InitCPred("char_type_prolog_identifier_continue", 1,
+		  char_type_prolog_identifier_continue, SafePredFlag);
+    Yap_InitCPred("char_typetype_prolog_symbol", 1,
+		  char_type_prolog_symbol,
+		  SafePredFlag);
+    Yap_InitCPred("code_type_alnum", 1, code_type_alnum, SafePredFlag);
+    Yap_InitCPred("code_type_alpha", 1, code_type_alpha, SafePredFlag);
+    Yap_InitCPred("code_type_csym", 1, code_type_csym, SafePredFlag);
+    Yap_InitCPred("code_type_csymf", 1, code_type_csymf, SafePredFlag);
+    Yap_InitCPred("code_type_ascii", 1, code_type_ascii, SafePredFlag);
+    Yap_InitCPred("code_type_white", 1, code_type_white, SafePredFlag);
+    Yap_InitCPred("code_type_digit", 1, code_type_digit, SafePredFlag);
+    Yap_InitCPred("code_type_xdigit", 1, code_type_xdigit, SafePredFlag);
+    Yap_InitCPred("code_type_graph", 1, code_type_graph, SafePredFlag);
+    Yap_InitCPred("code_type_lower", 1, code_type_lower, SafePredFlag);
+    Yap_InitCPred("code_type_upper", 1, code_type_upper, SafePredFlag);
+    Yap_InitCPred("code_type_punct", 1, code_type_punct, SafePredFlag);
+    Yap_InitCPred("code_type_space", 1, code_type_space, SafePredFlag);
+    Yap_InitCPred("code_type_end_of_file", 1, code_type_end_of_file,
+		  SafePredFlag);
+    Yap_InitCPred("code_type_end_of_line", 1, code_type_end_of_line,
+		  SafePredFlag);
+    Yap_InitCPred("code_type_newline", 1, code_type_newline, SafePredFlag);
+    Yap_InitCPred("code_type_period", 1, code_type_period, SafePredFlag);
+    Yap_InitCPred("code_type_quote", 1, code_type_quote, SafePredFlag);
+    Yap_InitCPred("code_type_paren", 1, code_type_paren, SafePredFlag);
+    Yap_InitCPred("code_type_prolog_var_start", 1,
+		  code_type_prolog_var_start, SafePredFlag);
+    Yap_InitCPred("code_type_prolog_symbol", 1, code_type_prolog_symbol,
+		  SafePredFlag);
+    Yap_InitCPred("code_type_prolog_atom_start", 1,
+		  code_type_prolog_atom_start, SafePredFlag);
+    Yap_InitCPred("code_type_prolog_identifier_continue", 1,
+		  code_type_prolog_identifier_continue, SafePredFlag);
+    Yap_InitCPred("code_type_prolog_symbol", 1, code_type_prolog_symbol,
+		  SafePredFlag);
+  CurrentModule = PROLOG_MODULE;
+  }

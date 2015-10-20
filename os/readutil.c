@@ -156,14 +156,14 @@ read_stream_to_terms(USES_REGS1)
 {
   int sno = Yap_CheckStream (ARG1, Input_Stream_f, "read_line_to_codes/2");
   Term t, hd;
-  yhandle_t tails, outs, news;
+  yhandle_t tails, news;
 
   if (sno < 0)
     return FALSE;
 
   t = AbsPair(HR);
   RESET_VARIABLE(HR);
-  outs = Yap_InitSlot( (CELL)(HR) );
+  Yap_InitSlot( (CELL)(HR) );
   tails = Yap_InitSlot( (CELL)(HR) );
   news = Yap_InitSlot( (CELL)(HR) );
   HR++;

@@ -46,7 +46,14 @@ char * Yap_blob_to_string(AtomEntry *ref, const char *s0, size_t sz)
         fclose(f);    // return the final result.
     return s;
     } else {
+#if __APPLE__
         size_t sz0 = strlcpy( s, (char *)RepAtom( AtomSWIStream )->StrOfAE, sz);
+#else
+        size_t sz0;
+	char *f = (char *)memcpy(s, (char *)RepAtom( AtomSWIStream )->StrOfAE, sz);
+	f[0]='\0';
+	sz0 = f-s;
+#endif
         s = s+sz0;
         sz -= sz0;
 #if defined(__linux__) || defined(__APPLE__)

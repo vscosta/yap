@@ -13,9 +13,16 @@ INCLUDE_DIRECTORIES(
      ${YAP_INCLUDE_DIR}
      ${CMAKE_CURRENT_BINARY_DIR}
      .
-)
+     )
+   
 
 #indexers
 ADD_SUBDIRECTORY(rtree)
 ADD_SUBDIRECTORY(b+tree)
 ADD_SUBDIRECTORY(uthash)
+
+disallow_intree_builds()
+
+#project (utf8proc C)
+
+# Be sure to also update these in Makefile!

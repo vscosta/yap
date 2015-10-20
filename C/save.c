@@ -32,6 +32,7 @@ static char     SccsId[] = "@(#)save.c	1.3 3/15/90";
 #include "dlmalloc.h"
 #endif
 #include "yapio.h"
+#include "YapText.h"
 #include "sshift.h"
 #include "Foreign.h"
 #if HAVE_STRING_H
