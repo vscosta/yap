@@ -215,7 +215,7 @@ has_reposition(int sno,
 char *Yap_guessFileName(int f, int sno, char *nameb, size_t max) {
 #if __linux__
   char path[256];
-  if (snprintf(path, 255, "/proc/self/fd/~d", f) && readlink(path, nameb, max))
+  if (snprintf(path, 255, "/proc/self/fd/%d", f) && readlink(path, nameb, max))
     return nameb;
 #elif __APPLE__
   if (fcntl(f, F_GETPATH, nameb) != -1) {
@@ -720,7 +720,7 @@ static bool do_set_stream(int sno,
           GLOBAL_Stream[sno].status |= Eof_Error_Stream_f;
           GLOBAL_Stream[sno].status &= ~Reset_Eof_Stream_f;
         } else if (t2 == TermReset) {
-          GLOBAL_Stream[sno].status |= GLOBAL_Stream[sno].status &=
+          GLOBAL_Stream[sno].status  &=
               ~Eof_Error_Stream_f;
           GLOBAL_Stream[sno].status |= Reset_Eof_Stream_f;
         } else if (t2 == TermEOfCode) {
@@ -754,8 +754,7 @@ static bool do_set_stream(int sno,
           GLOBAL_Stream[sno].status |= RepError_Xml_f;
           GLOBAL_Stream[sno].status &= ~RepError_Prolog_f;
         } else if (t2 == TermError) {
-          GLOBAL_Stream[sno].status |= GLOBAL_Stream[sno].status &=
-              ~RepError_Xml_f;
+          GLOBAL_Stream[sno].status &= ~RepError_Xml_f;
           GLOBAL_Stream[sno].status |= RepError_Prolog_f;
         } else if (t2 == TermEOfCode) {
           GLOBAL_Stream[sno].status &= ~RepError_Xml_f;

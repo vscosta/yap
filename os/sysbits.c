@@ -103,6 +103,9 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_LIBGEN_H
 #include <libgen.h>
 #endif
+#if HAVE_STDARG_H
+#include <stdarg.h>
+#endif
 #if HAVE_READLINE_READLINE_H
 #include <readline/readline.h>
 #endif
