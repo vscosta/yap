@@ -59,16 +59,3 @@ static inline int si_callback(void *key, void *data, void *arg)
   return Yap_ClauseListExtend(c->cl, *cl, c->pred);
 }
 
-#ifdef USE_JUDY
-#include <Judy.h>
-/* Judy1 integer sparse set intersection */
-static inline int j1_callback(void *key, void *data, void *arg)
-{
-  int r;
-  Pvoid_t *arrayP = (Pvoid_t *) arg;
-  J1S(r, *arrayP, (Word_t) data);
-  if (r == JERR)
-    return FALSE;
-  return TRUE;
-}
-#endif

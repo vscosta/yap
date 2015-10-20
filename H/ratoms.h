@@ -1,4 +1,4 @@
-﻿
+
   /* This file, ratoms.h, was generated automatically by "yap -L misc/buildatoms"
      please do not update, update misc/ATOMS instead */
 
@@ -55,6 +55,7 @@
   AtomCharacterCode = AtomAdjust(AtomCharacterCode);
   AtomChars = AtomAdjust(AtomChars);
   AtomCharset = AtomAdjust(AtomCharset);
+  AtomChType = AtomAdjust(AtomChType);
   AtomCleanCall = AtomAdjust(AtomCleanCall);
   AtomColomn = AtomAdjust(AtomColomn);
   AtomCodeSpace = AtomAdjust(AtomCodeSpace);

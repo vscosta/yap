@@ -1,4 +1,4 @@
-﻿
+
   /* This file, ihstruct.h, was generated automatically by "yap -L misc/buildheap"
      please do not update, update misc/HEAPFIELDS instead */
 
@@ -91,6 +91,7 @@
   IDB_MODULE = MkAtomTerm(AtomIDB);
   ATTRIBUTES_MODULE = MkAtomTerm(AtomAttributes);
   CHARSIO_MODULE = MkAtomTerm(AtomCharsio);
+  CHTYPE_MODULE = MkAtomTerm(AtomChType);
   TERMS_MODULE = MkAtomTerm(AtomTerms);
   SYSTEM_MODULE = MkAtomTerm(AtomSystem);
   OPERATING_SYSTEM_MODULE = MkAtomTerm(AtomOperatingSystemSupport);

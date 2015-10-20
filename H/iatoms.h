@@ -1,4 +1,4 @@
-﻿
+
   /* This file, iatoms.h, was generated automatically by "yap -L misc/buildatoms"
      please do not update, update misc/ATOMS instead */
 
@@ -55,6 +55,7 @@
   AtomCharacterCode = Yap_LookupAtom("character_code");
   AtomChars = Yap_LookupAtom("chars");
   AtomCharset = Yap_LookupAtom("charset");
+  AtomChType = Yap_FullLookupAtom("$char_type");
   AtomCleanCall = Yap_FullLookupAtom("$clean_call");
   AtomColomn = Yap_LookupAtom(":");
   AtomCodeSpace = Yap_LookupAtom("code_space");

@@ -1,4 +1,4 @@
-﻿
+
   /* This file, hstruct.h, was generated automatically by "yap -L misc/buildheap"
      please do not update, update misc/HEAPFIELDS instead */
 
@@ -91,6 +91,7 @@
   Term  idb_module;
   Term  attributes_module;
   Term  charsio_module;
+  Term  chtype_module;
   Term  terms_module;
   Term  system_module;
   Term  operating_system_module;

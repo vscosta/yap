@@ -1,4 +1,4 @@
-﻿
+
   /* This file, rhstruct.h, was generated automatically by "yap -L misc/buildheap"
      please do not update, update misc/HEAPFIELDS instead */
 
@@ -91,6 +91,7 @@
   IDB_MODULE = AtomTermAdjust(IDB_MODULE);
   ATTRIBUTES_MODULE = AtomTermAdjust(ATTRIBUTES_MODULE);
   CHARSIO_MODULE = AtomTermAdjust(CHARSIO_MODULE);
+  CHTYPE_MODULE = AtomTermAdjust(CHTYPE_MODULE);
   TERMS_MODULE = AtomTermAdjust(TERMS_MODULE);
   SYSTEM_MODULE = AtomTermAdjust(SYSTEM_MODULE);
   OPERATING_SYSTEM_MODULE = AtomTermAdjust(OPERATING_SYSTEM_MODULE);

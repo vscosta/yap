@@ -1,4 +1,4 @@
-﻿
+
   /* This file, tatoms.h, was generated automatically by "yap -L misc/buildatoms"
      please do not update, update misc/ATOMS instead */
 
@@ -161,6 +161,9 @@
   Atom AtomCharset_;
 #define AtomCharset Yap_heap_regs->AtomCharset_
 #define TermCharset MkAtomTerm( Yap_heap_regs->AtomCharset_ )
+  Atom AtomChType_;
+#define AtomChType Yap_heap_regs->AtomChType_
+#define TermChType MkAtomTerm( Yap_heap_regs->AtomChType_ )
   Atom AtomCleanCall_;
 #define AtomCleanCall Yap_heap_regs->AtomCleanCall_
 #define TermCleanCall MkAtomTerm( Yap_heap_regs->AtomCleanCall_ )
