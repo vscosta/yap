@@ -26,6 +26,7 @@ char *
 findExecutable(const char *av0, char *buffer);
 
 #include <stdlib.h>
+#include <unistd.h>
 #include <dlfcn.h>
 #include <string.h>
 #include <stdio.h>

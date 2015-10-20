@@ -454,7 +454,7 @@ static void Yap_setCurrentSourceLocation(struct stream_desc *s) {
 }
 
 /* token table with some help from Richard O'Keefe's PD scanner */
-static char chtype0[NUMBER_OF_CHARS + 1] = {
+char_kind_t Yap_chtype0[NUMBER_OF_CHARS + 1] = {
     EF,
     /* nul soh stx etx eot enq ack bel  bs  ht  nl  vt  np  cr  so  si
            */
@@ -546,23 +546,6 @@ typedef struct scanner_internals {
   wchar_t *CommentsBuff;
   size_t CommentsBuffLim;
 } scanner_internals;
-
-char *Yap_chtype = chtype0 + 1;
-
-int Yap_wide_chtype(Int ch) {
-#if HAVE_WCTYPE_H
-  if (iswalnum(ch)) {
-    if (iswlower(ch))
-      return LC;
-    if (iswdigit(ch))
-      return NU;
-    return UC;
-  }
-  if (iswpunct(ch))
-    return SY;
-#endif
-  return BS;
-}
 
 // standard get char, uses conversion table
 // and converts to wide
