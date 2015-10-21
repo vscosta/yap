@@ -4607,7 +4607,6 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
 {
 
   register CELL **to_visit0, **to_visit = (CELL **)Yap_PreAllocCodeSpace();
-  Int numbv0 = numbv;
   register tr_fr_ptr TR0 = TR;
   CELL *InitialH = HR;
 

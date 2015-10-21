@@ -182,7 +182,7 @@
 * YAP_Error changed.
 *
 * Revision 1.84  2005/03/02 18:35:46  vsc
-* try to make initialisation process more robust
+* try to make initialization process more robust
 * try to make name more robust (in case Lookup new atom fails)
 *
 * Revision 1.83  2005/03/01 22:25:09  vsc
@@ -223,13 +223,14 @@
 * replace heap_base by Yap_heap_base, according to Yap's convention for globals.
 *
 * Revision 1.74  2004/11/19 22:08:43  vsc
-* replace SYSTEM_ERROR_INTERNAL by out OUT_OF_WHATEVER_ERROR whenever appropriate.
+* replace SYSTEM_ERROR_INTERNAL by out OUT_OF_WHATEVER_ERROR whenever
+*appropriate.
 *
 * Revision 1.73  2004/11/19 17:14:14  vsc
 * a few fixes for 64 bit compiling.
 *
 * Revision 1.72  2004/11/18 22:32:37  vsc
-* fix situation where we might assume nonextsing double initialisation of C
+* fix situation where we might assume nonextsing double initialization of C
 *predicates (use
 * Hidden Pred Flag).
 * $host_type was double initialised.
@@ -342,21 +343,20 @@ static Int p_walltime(USES_REGS1);
 static Int p_break(USES_REGS1);
 
 #if YAP_JIT
-void* (*Yap_JitCall)(JIT_Compiler* jc, yamop* p);
-void (* Yap_llvmShutdown)(void ) ;
-Int  (* Yap_traced_absmi)(void ) ;
+void *(*Yap_JitCall)(JIT_Compiler *jc, yamop *p);
+void (*Yap_llvmShutdown)(void);
+Int (*Yap_traced_absmi)(void);
 
 static Int p_jit(USES_REGS1) { /* '$set_value'(+Atom,+Atomic) */
   void *jit_handle;
 
-  if ( (jit_handle = Yap_LoadForeignFile( YAP_YAPJITLIB, 0 ) ) ) {
-    if (!Yap_CallForeignFile(jit_handle, "init_jit") )
-      fprintf(stderr, "Could not load JIT\n" );
+  if ((jit_handle = Yap_LoadForeignFile(YAP_YAPJITLIB, 0))) {
+    if (!Yap_CallForeignFile(jit_handle, "init_jit"))
+      fprintf(stderr, "Could not load JIT\n");
     return FALSE;
   }
   return TRUE;
 }
-
 
 #endif /* YAP_JIT */
 
@@ -449,13 +449,14 @@ Int show_time(USES_REGS1) /* MORE PRECISION */
 }
 
 #endif /* BEAM */
-// @{
+       // @{
 
 /**
    @defgroup YAPSetVal
    @ingroup Internal_Database
 
-   Maintain a light-weight map where the key is an atom, and the value can be any constant.
+   Maintain a light-weight map where the key is an atom, and the value can be
+   any constant.
 */
 
 /** @pred  set_value(+ _A_,+ _C_)
@@ -529,7 +530,6 @@ static Int p_values(USES_REGS1) { /* '$values'(Atom,Old,New) */
 }
 
 //@}
-
 
 static Int p_opdec(USES_REGS1) { /* '$opdec'(p,type,atom)		 */
   /* we know the arguments are integer, atom, atom */
@@ -839,21 +839,24 @@ static Int
   }
   out = IntegerOfTerm(t);
 #if YAP_JIT
-  if (ExpEnv.analysis_struc.stats_enabled || ExpEnv.analysis_struc.time_pass_enabled) {
-    if (strcmp(((char*)ExpEnv.analysis_struc.outfile), "STDERR")) {
+  if (ExpEnv.analysis_struc.stats_enabled ||
+      ExpEnv.analysis_struc.time_pass_enabled) {
+    if (strcmp(((char *)ExpEnv.analysis_struc.outfile), "STDERR")) {
       int stderrcopy = dup(2);
-      if (strcmp(((char*)ExpEnv.analysis_struc.outfile), "STDOUT") == 0) {
+      if (strcmp(((char *)ExpEnv.analysis_struc.outfile), "STDOUT") == 0) {
         dup2(1, 2);
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
         shutdown_llvm();
 #pragma GCC diagnostic pop
         dup2(stderrcopy, 2);
-      }
-      else {
-        int Outputfile = open(((char*)ExpEnv.analysis_struc.outfile), O_CREAT | O_APPEND | O_WRONLY, 0777);
+      } else {
+        int Outputfile = open(((char *)ExpEnv.analysis_struc.outfile),
+                              O_CREAT | O_APPEND | O_WRONLY, 0777);
         if (Outputfile < 0) {
-          fprintf(stderr, "Error:: I can not write analysis passes's output on %s...\n", ((char*)ExpEnv.analysis_struc.outfile));
+          fprintf(stderr,
+                  "Error:: I can not write analysis passes's output on %s...\n",
+                  ((char *)ExpEnv.analysis_struc.outfile));
           fprintf(stderr, "        %s...\n", strerror(errno));
           errno = 0;
           exit(1);
@@ -864,8 +867,7 @@ static Int
         dup2(stderrcopy, 2);
       }
       close(stderrcopy);
-    }
-    else
+    } else
       shutdown_llvm();
   }
 #endif
@@ -874,25 +876,19 @@ static Int
   return TRUE;
 }
 
-static bool
-valid_prop(Prop p, Term task)
-{
-  if  (RepPredProp(p)->OpcodeOfPred == UNDEF_OPCODE)
+static bool valid_prop(Prop p, Term task) {
+  if (RepPredProp(p)->OpcodeOfPred == UNDEF_OPCODE)
     return false;
-    if ( (RepPredProp(p)->PredFlags & (HiddenPredFlag|StandardPredFlag) ) )
-    {
-    return (task == SYSTEM_MODULE || task == TermTrue );
-  } else  {
-    return (task ==  USER_MODULE || task == TermTrue );
+  if ((RepPredProp(p)->PredFlags & (HiddenPredFlag | StandardPredFlag))) {
+    return (task == SYSTEM_MODULE || task == TermTrue);
+  } else {
+    return (task == USER_MODULE || task == TermTrue);
   }
 }
 
-static PropEntry *
-followLinkedListOfProps (PropEntry *p, Term task)
-{
+static PropEntry *followLinkedListOfProps(PropEntry *p, Term task) {
   while (p) {
-    if (p->KindOfPE == PEProp &&
-        valid_prop(p, task) ) {
+    if (p->KindOfPE == PEProp && valid_prop(p, task)) {
       // found our baby..
       return p;
     }
@@ -901,9 +897,7 @@ followLinkedListOfProps (PropEntry *p, Term task)
   return NIL;
 }
 
-static PropEntry *
-getPredProp (PropEntry *p, Term task)
-{
+static PropEntry *getPredProp(PropEntry *p, Term task) {
   PredEntry *pe;
   if (p == NIL)
     return NIL;
@@ -915,7 +909,7 @@ getPredProp (PropEntry *p, Term task)
       // first search remainder of functor list
       Prop pf;
       if ((pf = followLinkedListOfProps(RepFunctorProp(p)->PropsOfFE, task))) {
-	return pf;
+        return pf;
       }
     }
     p = p->NextOfPE;
@@ -923,9 +917,7 @@ getPredProp (PropEntry *p, Term task)
   return NIL;
 }
 
-static PropEntry *
-nextPredForAtom (PropEntry *p, Term task)
-{
+static PropEntry *nextPredForAtom(PropEntry *p, Term task) {
   PredEntry *pe;
   if (p == NIL)
     return NIL;
@@ -942,18 +934,15 @@ nextPredForAtom (PropEntry *p, Term task)
     }
 
     // if that fails, follow the functor
-    return getPredProp( f->NextOfPE , task);
+    return getPredProp(f->NextOfPE, task);
   }
 }
 
-
-static Prop
-initFunctorSearch(Term t3, Term t2, Term task)
-{
+static Prop initFunctorSearch(Term t3, Term t2, Term task) {
   if (IsAtomTerm(t3)) {
     Atom at = AtomOfTerm(t3);
     // access the entry at key address.
-    return followLinkedListOfProps( RepAtom( at )->PropsOfAE , task  );
+    return followLinkedListOfProps(RepAtom(at)->PropsOfAE, task);
   } else if (IsIntTerm(t3)) {
     if (IsNonVarTerm(t2) && t2 != IDB_MODULE) {
       Yap_Error(TYPE_ERROR_CALLABLE, t3, "current_predicate/2");
@@ -962,8 +951,9 @@ initFunctorSearch(Term t3, Term t2, Term task)
       Prop p;
       // access the entry at key address.
       // a single property (this will be deterministic
-      p = AbsPredProp( Yap_FindLUIntKey( IntOfTerm( t3 ) ) );
-      if (valid_prop(p, task)) return p;
+      p = AbsPredProp(Yap_FindLUIntKey(IntOfTerm(t3)));
+      if (valid_prop(p, task))
+        return p;
     }
     Yap_Error(TYPE_ERROR_CALLABLE, t3, "current_predicate/2");
     return NULL;
@@ -974,39 +964,34 @@ initFunctorSearch(Term t3, Term t2, Term task)
     } else {
       f = FunctorOfTerm(t3);
       if (IsExtensionFunctor(f)) {
-	Yap_Error(TYPE_ERROR_CALLABLE, t3, "current_predicate/2");
-	return NULL;
+        Yap_Error(TYPE_ERROR_CALLABLE, t3, "current_predicate/2");
+        return NULL;
       }
     }
-    return followLinkedListOfProps(  f->PropsOfFE, task );
+    return followLinkedListOfProps(f->PropsOfFE, task);
   }
 }
 
-static PredEntry *
-firstModulePred( PredEntry * npp, Term task)
-{
+static PredEntry *firstModulePred(PredEntry *npp, Term task) {
   if (!npp)
     return NULL;
   do {
     npp = npp->NextPredOfModule;
-  } while (npp &&
-	   !valid_prop(AbsPredProp(npp), task));
+  } while (npp && !valid_prop(AbsPredProp(npp), task));
   return npp;
 }
 
-static PredEntry *
-firstModulesPred( PredEntry *npp, Term task )
-{
+static PredEntry *firstModulesPred(PredEntry *npp, Term task) {
   ModEntry *m;
   if (npp) {
-    m = Yap_GetModuleEntry( npp-> ModuleOfPred );
+    m = Yap_GetModuleEntry(npp->ModuleOfPred);
     npp = npp->NextPredOfModule;
   } else {
     m = CurrentModules;
     npp = m->PredForME;
   }
   do {
-    while (npp && !valid_prop(AbsPredProp(npp), task ) )
+    while (npp && !valid_prop(AbsPredProp(npp), task))
       npp = npp->NextPredOfModule;
     if (npp)
       return npp;
@@ -1018,12 +1003,11 @@ firstModulesPred( PredEntry *npp, Term task )
   return npp;
 }
 
-
 static Int cont_current_predicate(USES_REGS1) {
   UInt Arity;
   Term name, task;
   Term t1 = ARG1, t2 = ARG2, t3 = ARG3;
-  bool  rc, will_cut = false;
+  bool rc, will_cut = false;
   Functor f;
   PredEntry *pp;
   t1 = Yap_YapStripModule(t1, &t2);
@@ -1031,58 +1015,58 @@ static Int cont_current_predicate(USES_REGS1) {
   task = Deref(ARG4);
 
   pp = AddressOfTerm(EXTRA_CBACK_ARG(4, 1));
-  if (IsNonVarTerm(t3))  {
+  if (IsNonVarTerm(t3)) {
     PropEntry *np, *p;
 
     // t3 is a functor, or compound term,
     // just follow the functor chain
-    p = AbsPredProp( pp );
+    p = AbsPredProp(pp);
     if (!p) {
       // initial search, tracks down what is the first call with
       // that name, functor..
-      p = initFunctorSearch( t3, t2, task );
-        // now, we can do lookahead.
+      p = initFunctorSearch(t3, t2, task);
+      // now, we can do lookahead.
       if (p == NIL)
         cut_fail();
-        pp = RepPredProp(p);
-	if (!IsVarTerm(t2)) {
-	  do {
-	    if (t2 == TermProlog)
-	      t2 = PROLOG_MODULE;
-	    if (pp->ModuleOfPred == t2) {
-	      will_cut = true;
-	      break;
-	    } else {
-	      pp = RepPredProp(p = followLinkedListOfProps( p->NextOfPE, task  ));
-	    }
-	  } while (!will_cut && p);
-	}
-	if (!p)
-	cut_fail();
+      pp = RepPredProp(p);
+      if (!IsVarTerm(t2)) {
+        do {
+          if (t2 == TermProlog)
+            t2 = PROLOG_MODULE;
+          if (pp->ModuleOfPred == t2) {
+            will_cut = true;
+            break;
+          } else {
+            pp = RepPredProp(p = followLinkedListOfProps(p->NextOfPE, task));
+          }
+        } while (!will_cut && p);
       }
-      do {
-	np = followLinkedListOfProps( p->NextOfPE, task );
-	if (!np) {
-	  will_cut = true;
-	} else {
-	  EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(RepPredProp(np));
-	  B->cp_h = HR;
-	}
-      } while (p == NULL);
+      if (!p)
+        cut_fail();
+    }
+    do {
+      np = followLinkedListOfProps(p->NextOfPE, task);
+      if (!np) {
+        will_cut = true;
+      } else {
+        EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(RepPredProp(np));
+        B->cp_h = HR;
+      }
+    } while (p == NULL);
   } else if (IsNonVarTerm(t1)) {
     PropEntry *np, *p;
     // run over the same atomany predicate defined for that atom
     // may be fair bait, depends on whether we know the module.
-    p = AbsPredProp( pp );
+    p = AbsPredProp(pp);
     if (!p) {
       // initialization time
-      if (IsIntTerm( t1 )) {
-	// or this or nothing....
-        p = AbsPredProp( Yap_FindLUIntKey( IntOfTerm( t3 ) ) );
-      } else if (IsAtomTerm( t1 )) {
-	// should be the usual situation.
-	Atom at = AtomOfTerm(t1);
-	p = getPredProp( RepAtom(at)->PropsOfAE , task);
+      if (IsIntTerm(t1)) {
+        // or this or nothing....
+        p = AbsPredProp(Yap_FindLUIntKey(IntOfTerm(t3)));
+      } else if (IsAtomTerm(t1)) {
+        // should be the usual situation.
+        Atom at = AtomOfTerm(t1);
+        p = getPredProp(RepAtom(at)->PropsOfAE, task);
       } else {
         Yap_Error(TYPE_ERROR_CALLABLE, t1, "current_predicate/2");
       }
@@ -1103,19 +1087,19 @@ static Int cont_current_predicate(USES_REGS1) {
     PredEntry *npp;
 
     if (!pp) {
-      if (!IsAtomTerm( t2 )) {
-	Yap_Error(TYPE_ERROR_ATOM, t2, "current_predicate/2");
+      if (!IsAtomTerm(t2)) {
+        Yap_Error(TYPE_ERROR_ATOM, t2, "current_predicate/2");
       }
       ModEntry *m = Yap_GetModuleEntry(t2);
-      pp = firstModulePred( m->PredForME , task );
+      pp = firstModulePred(m->PredForME, task);
       if (!pp)
         cut_fail();
     }
-    npp = firstModulePred( pp , task);
+    npp = firstModulePred(pp, task);
 
     if (!npp)
       will_cut = true;
-      // just try next one
+    // just try next one
     else {
       EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(npp);
       B->cp_h = HR;
@@ -1125,11 +1109,11 @@ static Int cont_current_predicate(USES_REGS1) {
     PredEntry *npp;
 
     if (!pp) {
-      pp = firstModulesPred( CurrentModules->PredForME, task );
+      pp = firstModulesPred(CurrentModules->PredForME, task);
       if (!pp)
         cut_fail();
     }
-    npp = firstModulesPred( pp , task);
+    npp = firstModulesPred(pp, task);
 
     if (!npp)
       will_cut = true;
@@ -1162,15 +1146,14 @@ static Int cont_current_predicate(USES_REGS1) {
     }
   }
   if (Arity) {
-    rc =  Yap_unify(t3,Yap_MkNewApplTerm(f, Arity));
+    rc = Yap_unify(t3, Yap_MkNewApplTerm(f, Arity));
   } else {
-    rc =  Yap_unify(t3,name);
+    rc = Yap_unify(t3, name);
   }
-  rc = rc &&
-	Yap_unify(t2, ModToTerm(pp->ModuleOfPred)) &&
-        Yap_unify(t1, name);
+  rc = rc && Yap_unify(t2, ModToTerm(pp->ModuleOfPred)) && Yap_unify(t1, name);
   if (will_cut) {
-    if (rc) cut_succeed();
+    if (rc)
+      cut_succeed();
     cut_fail();
   }
   return rc;
@@ -1248,7 +1231,8 @@ static Int cont_current_op(USES_REGS1) {
   }
 }
 
-static Int init_current_op(USES_REGS1) { /* current_op(-Precedence,-Type,-Atom)		 */
+static Int init_current_op(
+    USES_REGS1) { /* current_op(-Precedence,-Type,-Atom)		 */
   EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((CELL)OpList);
   B->cp_h = HR;
   return cont_current_op(PASS_REGS1);
@@ -1316,25 +1300,22 @@ void Yap_show_statistics(void) {
   frag = (100.0 * (heap_space_taken - HeapUsed)) / heap_space_taken;
 
   fprintf(stderr, "Code Space:  %ld (%ld bytes needed, %ld bytes used, "
-                          "fragmentation %.3f%%).\n",
-           (unsigned long int)(Unsigned(H0) - Unsigned(Yap_HeapBase)),
-           (unsigned long int)(Unsigned(HeapTop) - Unsigned(Yap_HeapBase)),
-           (unsigned long int)(HeapUsed), frag);
+                  "fragmentation %.3f%%).\n",
+          (unsigned long int)(Unsigned(H0) - Unsigned(Yap_HeapBase)),
+          (unsigned long int)(Unsigned(HeapTop) - Unsigned(Yap_HeapBase)),
+          (unsigned long int)(HeapUsed), frag);
   fprintf(stderr, "Stack Space: %ld (%ld for Global, %ld for local).\n",
-           (unsigned long int)(sizeof(CELL) * (LCL0 - H0)),
-           (unsigned long int)(sizeof(CELL) * (HR - H0)),
-           (unsigned long int)(sizeof(CELL) * (LCL0 - ASP)));
+          (unsigned long int)(sizeof(CELL) * (LCL0 - H0)),
+          (unsigned long int)(sizeof(CELL) * (HR - H0)),
+          (unsigned long int)(sizeof(CELL) * (LCL0 - ASP)));
   fprintf(stderr, "Trail Space: %ld (%ld used).\n",
-           (unsigned long int)(sizeof(tr_fr_ptr) * (Unsigned(LOCAL_TrailTop) -
-                                                    Unsigned(LOCAL_TrailBase))),
-           (unsigned long int)(sizeof(tr_fr_ptr) *
-                               (Unsigned(TR) - Unsigned(LOCAL_TrailBase))));
-  fprintf(stderr, "Runtime: %lds.\n",
-           (unsigned long int)(runtime(PASS_REGS1)));
-  fprintf(stderr, "Cputime: %lds.\n",
-           (unsigned long int)(Yap_cputime()));
-  fprintf(stderr, "Walltime: %lds.\n",
-           (unsigned long int)(Yap_walltime()));
+          (unsigned long int)(sizeof(tr_fr_ptr) * (Unsigned(LOCAL_TrailTop) -
+                                                   Unsigned(LOCAL_TrailBase))),
+          (unsigned long int)(sizeof(tr_fr_ptr) *
+                              (Unsigned(TR) - Unsigned(LOCAL_TrailBase))));
+  fprintf(stderr, "Runtime: %lds.\n", (unsigned long int)(runtime(PASS_REGS1)));
+  fprintf(stderr, "Cputime: %lds.\n", (unsigned long int)(Yap_cputime()));
+  fprintf(stderr, "Walltime: %lds.\n", (unsigned long int)(Yap_walltime()));
 }
 
 static Int p_statistics_heap_max(USES_REGS1) {
@@ -1501,7 +1482,8 @@ static Int p_statistics_atom_info(USES_REGS1) {
     while (catom != NIL) {
       Atom ncatom;
       count++;
-      spaceused += sizeof(AtomEntry) + strlen((char *)RepAtom(catom)->StrOfAE) + 1;
+      spaceused +=
+          sizeof(AtomEntry) + strlen((char *)RepAtom(catom)->StrOfAE) + 1;
       ncatom = RepAtom(catom)->NextOfAE;
       if (ncatom != NIL) {
         READ_LOCK(RepAtom(ncatom)->ARWLock);
@@ -1566,7 +1548,6 @@ static Int p_executable(USES_REGS1) {
 
   return Yap_unify(MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)), ARG1);
 }
-
 
 static Int p_system_mode(USES_REGS1) {
   Term t1 = Deref(ARG1);
@@ -1684,13 +1665,12 @@ static Int p_parallel_mode(USES_REGS1) { return FALSE; }
 static Int p_yapor_workers(USES_REGS1) { return FALSE; }
 #endif /* YAPOR */
 
-
 void Yap_InitCPreds(void) {
   /* numerical comparison */
   Yap_InitCPred("set_value", 2, p_setval, SafePredFlag | SyncPredFlag);
-    Yap_InitCPred("get_value", 2, p_value,
+  Yap_InitCPred("get_value", 2, p_value,
                 TestPredFlag | SafePredFlag | SyncPredFlag);
-    Yap_InitCPred("$values", 3, p_values, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$values", 3, p_values, SafePredFlag | SyncPredFlag);
   /* general purpose */
   Yap_InitCPred("$opdec", 4, p_opdec, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("=..", 2, p_univ, 0);
@@ -1758,8 +1738,7 @@ void Yap_InitCPreds(void) {
   Yap_InitCPred("$exit_undefp", 0, p_exitundefp, SafePredFlag);
 
 #ifdef YAP_JIT
-  Yap_InitCPred("$jit_init", 1, p_jit,
-                SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$jit_init", 1, p_jit, SafePredFlag | SyncPredFlag);
 #endif /* YAPOR */
 #ifdef INES
   Yap_InitCPred("euc_dist", 3, p_euc_dist, SafePredFlag);
@@ -1819,8 +1798,7 @@ void Yap_InitCPreds(void) {
   Yap_init_optyap_preds();
 #endif /* YAPOR || TABLING */
 #if YAP_JIT
-  Yap_InitCPred("jit", 0, p_jit,
-                SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("jit", 0, p_jit, SafePredFlag | SyncPredFlag);
 #endif
   Yap_InitThreadPreds();
   {

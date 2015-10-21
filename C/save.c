@@ -500,7 +500,7 @@ save_code_info(void)
       return -1;
   }
   /* and the current character codes */
-  if (mywrite(splfild, Yap_chtype, NUMBER_OF_CHARS) < 0)
+  if (mywrite(splfild, (char *)Yap_chtype, NUMBER_OF_CHARS*sizeof(char_kind_t)) < 0)
     return -1;
   return 0;
 }
@@ -950,7 +950,7 @@ get_insts(OPCODE old_ops[])
 static int
 get_hash(void)
 {
-  return myread(splfild, Yap_chtype , NUMBER_OF_CHARS);
+  return myread(splfild, (char *)Yap_chtype , NUMBER_OF_CHARS*sizeof(char_kind_t));
 }
 
 /* Copy all of the old code to the new Heap */

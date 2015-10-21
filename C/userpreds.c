@@ -17,7 +17,7 @@
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
-a
+
 /*
  * This file is an entry for user defined C-predicates.
  *
@@ -51,8 +51,7 @@ a
 /* You should include here the prototypes for all static functions */
 
 #ifdef EUROTRA
-    static int
-    p_clean(void);
+static int p_clean(void);
 static int p_namelength(void);
 static int p_getpid(void);
 static int p_exit(void);

@@ -50,7 +50,7 @@ typedef enum {
   symbol     /* the previous term was a symbol like +, -, *, .... */
 } wtype;
 
-typedef StreamDesc  *wrf;
+typedef StreamDesc *wrf;
 
 typedef struct union_slots {
   Int old;
@@ -117,7 +117,8 @@ static void putAtom(Atom, int, struct write_globs *);
 static void writeTerm(Term, int, int, int, struct write_globs *,
                       struct rewind_term *);
 
-#define wrputc(WF, X) (X)->stream_wputc(X-GLOBAL_Stream, WF) /* writes a character */
+#define wrputc(WF, X)                                                          \
+  (X)->stream_wputc(X - GLOBAL_Stream, WF) /* writes a character */
 
 /*
   protect bracket from merging with previoous character.
@@ -181,10 +182,10 @@ static void wrputn(Int n,
   protect_close_number(wglb, ob);
 }
 
-inline static void
-wrputs(char *s, StreamDesc *stream) {
+inline static void wrputs(char *s, StreamDesc *stream) {
   int c;
-  while ((c = *s++)) wrputc(c, stream);
+  while ((c = *s++))
+    wrputc(c, stream);
 }
 
 static void wrputws(wchar_t *s, wrf stream) /* writes a string	 */
@@ -294,9 +295,9 @@ static void wrputf(Float f, struct write_globs *wglb) /* writes a float	 */
 
 {
 #if THREADS
-    char s[256];
+  char s[256];
 #endif
- wrf stream = wglb->stream;
+  wrf stream = wglb->stream;
   int sgn;
   int ob;
 
@@ -375,27 +376,28 @@ static void wrputf(Float f, struct write_globs *wglb) /* writes a float	 */
     wrputc(' ', stream);
   }
   /* use SWI's format_float */
-  sprintf(buf, (char *)floatFormat(),f);
+  sprintf(buf, (char *)floatFormat(), f);
 
   wrputs(buf, stream);
 #endif
   protect_close_number(wglb, ob);
 }
 
-int Yap_FormatFloat(Float f,  char **s, size_t sz) {
-    CACHE_REGS
+int Yap_FormatFloat(Float f, char **s, size_t sz) {
+  CACHE_REGS
   struct write_globs wglb;
-    int sno;
-    char *so;
-    
-    sno = Yap_open_buf_write_stream(*s, sz,  &GLOBAL_Stream[LOCAL_c_output_stream].encoding, 0);
-   if (sno < 0)
+  int sno;
+  char *so;
+
+  sno = Yap_open_buf_write_stream(
+      *s, sz, &GLOBAL_Stream[LOCAL_c_output_stream].encoding, 0);
+  if (sno < 0)
     return FALSE;
-   wglb.stream = GLOBAL_Stream+sno;
-   wrputf(f, &wglb);
-   so = Yap_MemExportStreamPtr(sno);
-   Yap_CloseStream(sno);
-   *s = so;
+  wglb.stream = GLOBAL_Stream + sno;
+  wrputf(f, &wglb);
+  so = Yap_MemExportStreamPtr(sno);
+  Yap_CloseStream(sno);
+  *s = so;
   return TRUE;
 }
 
@@ -420,11 +422,11 @@ static int wrputblob(AtomEntry *ref, int Quote_illegal,
                      struct write_globs *wglb) {
   wrf stream = wglb->stream;
   int rc;
-  int Yap_write_blob(AtomEntry *ref,  StreamDesc *stream);
-  
-  if ((rc = Yap_write_blob(ref,  stream))) {
-      return rc;
-  } 
+  int Yap_write_blob(AtomEntry * ref, StreamDesc * stream);
+
+  if ((rc = Yap_write_blob(ref, stream))) {
+    return rc;
+  }
   lastw = alphanum;
   return 1;
 }
@@ -485,7 +487,8 @@ static void write_quoted(wchar_t ch, wchar_t quote, wrf stream) {
       wrputc('\'', stream); /* be careful about quotes */
     return;
   }
-  if (!(ch < 0xff && chtype(ch) == BS) && ch != '\'' && ch != '\\' && ch != '`') {
+  if (!(ch < 0xff && chtype(ch) == BS) && ch != '\'' && ch != '\\' &&
+      ch != '`') {
     wrputc(ch, stream);
   } else {
     switch (ch) {
@@ -557,7 +560,7 @@ static void write_string(const unsigned char *s,
 {
   StreamDesc *stream = wglb->stream;
   utf8proc_int32_t chr, qt;
-   unsigned char *ptr = (unsigned char *)                                                                                                                                                          s;
+  unsigned char *ptr = (unsigned char *)s;
 
   if (wglb->Write_strings)
     qt = '`';
@@ -565,7 +568,7 @@ static void write_string(const unsigned char *s,
     qt = '"';
   wrputc(qt, stream);
   do {
-    ptr +=  get_utf8(ptr, &chr);
+    ptr += get_utf8(ptr, &chr);
     if (chr == '\0')
       break;
     write_quoted(chr, qt, stream);
@@ -880,7 +883,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
   struct rewind_term nrwt;
   nrwt.parent = rwt;
   nrwt.u_sd.s.ptr = 0;
-  
+
   if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
     putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
     return;
@@ -911,10 +914,10 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       EX = oEX;
       return;
     }
-    if (wglb->Use_portray) 
-      if (callPortray(t, &EX, wglb->stream-GLOBAL_Stream PASS_REGS)) {
-	EX = oEX;
-	return;
+    if (wglb->Use_portray)
+      if (callPortray(t, &EX, wglb->stream - GLOBAL_Stream PASS_REGS)) {
+        EX = oEX;
+        return;
       }
     if (trueGlobalPrologFlag(WRITE_STRINGS_FLAG) && IsCodesTerm(t)) {
       putString(t, wglb);
@@ -986,8 +989,8 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
     }
 #endif
     if (wglb->Use_portray) {
-      if (callPortray(t, &EX, wglb->stream-GLOBAL_Stream PASS_REGS)) {
-	EX = oEX;
+      if (callPortray(t, &EX, wglb->stream - GLOBAL_Stream PASS_REGS)) {
+        EX = oEX;
         return;
       }
     }
@@ -1200,7 +1203,8 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
   EX = oEX;
 }
 
-void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags, int priority)
+void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
+                 int priority)
 /* term to be written			 */
 /* consumer				 */
 /* write options			 */
@@ -1208,11 +1212,11 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags, int prio
   CACHE_REGS
   struct write_globs wglb;
   struct rewind_term rwt;
-  yhandle_t sls  = Yap_CurrentSlot(PASS_REGS1);
+  yhandle_t sls = Yap_CurrentSlot(PASS_REGS1);
 
   if (!mywrite) {
-      CACHE_REGS
-    wglb.stream = GLOBAL_Stream+LOCAL_c_error_stream;
+    CACHE_REGS
+    wglb.stream = GLOBAL_Stream + LOCAL_c_error_stream;
   } else
     wglb.stream = mywrite;
   wglb.lw = start;
@@ -1246,30 +1250,27 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags, int prio
     }
   }
   restore_from_write(&rwt, &wglb);
-  Yap_CloseSlots( sls );
+  Yap_CloseSlots(sls);
 }
 
-
-char *
-Yap_TermToString(Term t, char *s,  size_t sz, size_t *length, encoding_t *encp, int flags)
-{
+char *Yap_TermToString(Term t, char *s, size_t sz, size_t *length,
+                       encoding_t *encp, int flags) {
   CACHE_REGS
   int sno = Yap_open_buf_write_stream(s, sz, encp, flags);
   int old_output_stream = LOCAL_c_output_stream;
-  
+
   if (sno < 0)
-  return NULL;
+    return NULL;
   LOCAL_c_output_stream = sno;
   if (encp)
     GLOBAL_Stream[sno].encoding = *encp;
   else
     GLOBAL_Stream[sno].encoding = LOCAL_encoding;
-  Yap_plwrite (t, GLOBAL_Stream+sno, 0, flags, 1200);
-  s = Yap_MemExportStreamPtr( sno );
-  Yap_CloseStream( sno );
+  Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, 1200);
+  s = Yap_MemExportStreamPtr(sno);
+  Yap_CloseStream(sno);
   LOCAL_c_output_stream = old_output_stream;
-  if ( EX == 0 ) return s;
+  if (EX == 0)
+    return s;
   return NULL;
 }
-
-
