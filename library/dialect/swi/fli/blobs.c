@@ -52,7 +52,7 @@ PL_is_blob(term_t t, PL_blob_t **type)
   CACHE_REGS
   Term yt = Yap_GetFromSlot(t);
   Atom a;
-  BlobPropEntry *b;
+  YAP_BlobPropEntry *b;
 
   if (IsVarTerm(yt))
     return FALSE;

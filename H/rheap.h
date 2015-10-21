@@ -1627,9 +1627,9 @@ RestoreEntries(PropEntry *pp, int int_key USES_REGS)
       pp->NextOfPE =
 	PropAdjust(pp->NextOfPE);
       {
-	BlobPropEntry *bpe = (BlobPropEntry *)pp;
-	bpe->blob_type =
-	  BlobTypeAdjust(bpe->blob_type);
+        YAP_BlobPropEntry *bpe = (YAP_BlobPropEntry *)pp;
+        bpe->blob_type =
+        BlobTypeAdjust(bpe->blob_type);
       }
       break;
     default:

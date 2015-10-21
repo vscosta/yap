@@ -416,7 +416,7 @@ clean_atom_list(AtomHashEntry *HashPtr)
     } else {
       NOfAtoms--;
       if (IsBlob(atm)) {
-	BlobPropEntry *b = RepBlobProp(at->PropsOfAE);
+	YAP_BlobPropEntry *b = RepBlobProp(at->PropsOfAE);
 	if (b->NextOfPE != NIL) {
 	  patm = &(at->NextOfAE);
 	  atm = at->NextOfAE;
@@ -425,7 +425,7 @@ clean_atom_list(AtomHashEntry *HashPtr)
 	NOfAtoms++;
 	NOfBlobs--;
 	Yap_FreeCodeSpace((char *)b);
-	GLOBAL_agc_collected += sizeof(BlobPropEntry);
+	GLOBAL_agc_collected += sizeof(YAP_BlobPropEntry);
 	GLOBAL_agc_collected += sizeof(AtomEntry)+sizeof(size_t)+at->rep.blob->length;
       } else if (IsWideAtom(atm)) {
 #ifdef DEBUG_RESTORE3

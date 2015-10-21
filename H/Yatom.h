@@ -1556,29 +1556,30 @@ IsArrayProperty (int flags)
 
 
 /*	SWI Blob property 						*/
-typedef struct blob_atom_entry
+typedef struct YAP_blob_prop_entry
 {
   Prop NextOfPE;		/* used to chain properties             */
   PropFlags KindOfPE;		/* kind of property                     */
   struct YAP_blob_t *blob_type;     /* type of blob */
-} BlobPropEntry;
+} YAP_BlobPropEntry;
 
 #if USE_OFFSETS_IN_PROPS
 
-INLINE_ONLY inline EXTERN BlobAtomEntry *RepBlobProp (Prop p);
+INLINE_ONLY inline EXTERN YAP_BlobPropEntry *RepBlobProp (Prop p);
 
-INLINE_ONLY inline EXTERN BlobPropEntry *
+INLINE_ONLY inline EXTERN YAP_BlobPropEntry *
 RepBlobProp (Prop p)
 {
-  return (BlobPropEntry *) (AtomBase + Unsigned (p));
+  return (YAP_BlobPropEntry *) (AtomBase + Unsigned (p));
 }
 
 
 
+                        
 INLINE_ONLY inline EXTERN AtomEntry *AbsBlobProp (BlobPropEntry * p);
 
 INLINE_ONLY inline EXTERN Prop
-AbsBlobProp (BlobPropEntry * p)
+AbsBlobProp (YAP_BlobPropEntry * p)
 {
   return (Prop) (Addr (p) - AtomBase);
 }
@@ -1586,20 +1587,20 @@ AbsBlobProp (BlobPropEntry * p)
 
 #else
 
-INLINE_ONLY inline EXTERN BlobPropEntry *RepBlobProp (Prop p);
+INLINE_ONLY inline EXTERN YAP_BlobPropEntry *RepBlobProp (Prop p);
 
-INLINE_ONLY inline EXTERN BlobPropEntry *
+INLINE_ONLY inline EXTERN YAP_BlobPropEntry *
 RepBlobProp (Prop p)
 {
-  return (BlobPropEntry *) (p);
+  return (YAP_BlobPropEntry *) (p);
 }
 
 
 
-INLINE_ONLY inline EXTERN Prop AbsBlobProp (BlobPropEntry * p);
+INLINE_ONLY inline EXTERN Prop AbsBlobProp (YAP_BlobPropEntry * p);
 
 INLINE_ONLY inline EXTERN Prop
-AbsBlobProp (BlobPropEntry * p)
+AbsBlobProp (YAP_BlobPropEntry * p)
 {
   return (Prop) (p);
 }

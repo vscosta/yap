@@ -73,7 +73,7 @@ int Yap_write_blob(AtomEntry *ref, FILE *stream)
     if (type->write) {
         
         Atom at = AbsAtom(ref);
-        return type->write(stream, at, 0);
+            return type->write(stream, at, 0);
     } else {
 #if defined(__linux__) || defined(__APPLE__)
             return fprintf(stream, "\'%s\'(%p)", RepAtom(AtomSWIStream)->StrOfAE, ref);
@@ -92,7 +92,7 @@ YAP_is_blob(Term t, blob_type_t **type)
     CACHE_REGS
     Term yt = Yap_GetFromSlot(t);
     Atom a;
-    BlobPropEntry *b;
+    YAP_BlobPropEntry *b;
     
     if (IsVarTerm(yt))
         return FALSE;
@@ -122,7 +122,7 @@ YAP_is_blob(Term t, blob_type_t **type)
 AtomEntry *
 Yap_lookupBlob(void *blob, size_t len, void *type0, int *new)
 {
-    BlobPropEntry *b;
+    YAP_BlobPropEntry *b;
     AtomEntry *ae;
     blob_type_t *type = type0;
     if (new)
@@ -145,7 +145,7 @@ Yap_lookupBlob(void *blob, size_t len, void *type0, int *new)
     }
     if (new)
         *new = TRUE;
-    b = (BlobPropEntry *)Yap_AllocCodeSpace(sizeof(BlobPropEntry));
+    b = (YAP_BlobPropEntry *)Yap_AllocCodeSpace(sizeof(YAP_BlobPropEntry));
     if (!b) {
         UNLOCK(Blobs_Lock);
         return NULL;
@@ -225,7 +225,10 @@ YAP_blob_data(Atom x, size_t *len, blob_type_t **type)
             if ( len )
                 *len = wcslen(x->WStrOfAE);
             if ( type )
-                *type = &unregistered_blob_atom;
+              
+              
+              
+              *type = &unregistered_blob_atom;
             return x->WStrOfAE;
         }
         if ( len )

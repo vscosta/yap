@@ -14,7 +14,7 @@
 //   global name
 //   init code and restore code (optional)
 //
-//   
+//
 //
 // MkAT (MkAtomTerm) cvts from a predefined atom to a term
 // MkPred constructs a pred_entry
@@ -37,7 +37,7 @@ lockvar         dlmalloc_lock		DLMallocLock		MkLock
 #endif
 #if USE_DL_MALLOC || (USE_SYSTEM_MALLOC && HAVE_MALLINFO)
 #ifndef  HeapUsed
-#define  HeapUsed  Yap_givemallinfo()		
+#define  HeapUsed  Yap_givemallinfo()
 #endif
 Int		heap_used		NotHeapUsed		void void
 #else
@@ -89,7 +89,7 @@ ATOMS
 Term		term_dollar_u		TermDollarU		MkAT AtomDollarU
 #endif
 
-//modules	
+//modules
 Term		user_module		USER_MODULE		MkAT AtomUser
 Term		idb_module		IDB_MODULE		MkAT AtomIDB
 Term		attributes_module	ATTRIBUTES_MODULE	MkAT AtomAttributes
@@ -219,11 +219,11 @@ yamop           table_answer_resolution_completion_code[1]      ANSWER_RESOLUTIO
 /*    PREG just before we enter $spy. We use that to find out the clause which  */
 /*    was calling the debugged goal.  */
 /*  */
-yamop		*debugger_p_before_spy	P_before_spy		=NULL PtoOpAdjust 
+yamop		*debugger_p_before_spy	P_before_spy		=NULL PtoOpAdjust
 
 /* support recorded_k  */
-yamop		*retry_recordedp_code	RETRY_C_RECORDEDP_CODE	=NULL PtoOpAdjust 
-yamop		*retry_recorded_k_code	RETRY_C_RECORDED_K_CODE =NULL PtoOpAdjust 
+yamop		*retry_recordedp_code	RETRY_C_RECORDEDP_CODE	=NULL PtoOpAdjust
+yamop		*retry_recorded_k_code	RETRY_C_RECORDED_K_CODE =NULL PtoOpAdjust
 
 /* compiler flags */
 int		system_profiling	PROFILING		=FALSE void
@@ -283,8 +283,8 @@ UInt		int_bb_keys_size	INT_BB_KEYS_SIZE	=INT_KEYS_DEFAULT_SIZE void
 int		update_mode		UPDATE_MODE	        =UPDATE_MODE_LOGICAL void
 
 /* nasty IDB stuff */
-struct DB_STRUCT *db_erased_marker	DBErasedMarker		InitDBErasedMarker() RestoreDBErasedMarker() 
-struct logic_upd_clause *logdb_erased_marker LogDBErasedMarker	InitLogDBErasedMarker() RestoreLogDBErasedMarker() 
+struct DB_STRUCT *db_erased_marker	DBErasedMarker		InitDBErasedMarker() RestoreDBErasedMarker()
+struct logic_upd_clause *logdb_erased_marker LogDBErasedMarker	InitLogDBErasedMarker() RestoreLogDBErasedMarker()
 
 /* Dead clauses and IDB entries */
 struct static_clause *dead_static_clauses DeadStaticClauses	=NULL RestoreDeadStaticClauses()
