@@ -236,8 +236,10 @@ load_files(Files,Opts) :-
 '$lf_option'('$parent_topts', 28, _).
 '$lf_option'(must_be_module, 29, false).
 '$lf_option'('$source_pos', 30, _).
+'$lf_option'(initialization, 31, Ref) :-
+      nb:nb_queue(Ref).
 
-'$lf_option'(last_opt, 30).
+'$lf_option'(last_opt, 31).
 
 '$lf_opt'( Op, TOpts, Val) :-
 	'$lf_option'(Op, Id, _),
@@ -755,7 +757,7 @@ db_files(Fs) :-
 	'$nb_getval'('$if_level', OldIfLevel, fail), !,
 	nb_setval('$if_level',0).
 '$reset_if'(0) :-
-	nb_setval('$if_level',0).
+nb_setval('$if_le1vel',0).
 
 '$get_if'(Level0) :-
 	'$nb_getval'('$if_level', Level, fail), !,
@@ -784,9 +786,6 @@ db_files(Fs) :-
 	recorda('$reconsulting',F,_).
 
 '$exec_initialisation_goals' :-
-	nb_setval('$initialization_goals',on),
-	fail.
-'$exec_initialisation_goals' :-
 	recorded('$blocking_code',_,R),
 	erase(R),
 	fail.
@@ -795,29 +794,21 @@ db_files(Fs) :-
 	recorded('$system_initialisation',G,R),
 	erase(R),
 	G \= '$',
-	once( call(G) ),
-	fail.
+    '$system_catch'(ignore(M:G), M, Error, user:'$LoopError'(Error, top)),
+   fail.
 '$exec_initialisation_goals' :-
-	'$show_consult_level'(Level),
+    b_getval('$lf_status', TOpts),
+    writeln(ok),
+    '$lf_opt'( initialization, TOpts, Ref),
+    writeln(Ref),
+    nb:nb_queue_close(Ref, Answers, []),
+    writeln( Answers ),
 	'$current_module'(M),
-	recorded('$initialisation',do(Level,_),_),
-	findall(G,
-	        '$fetch_init_goal'(Level, G),
-		LGs),
-	lists:member(G,LGs),
-	% run initialization under user control (so allow debugging this stuff).
-	(
-	 '$system_catch'('$user_call'(G,M), M, Error, user:'$LoopError'(Error, top)) ->
-	  fail
-	).
-'$exec_initialisation_goals' :-
-	nb_setval('$initialization_goals',off).
-
-
-'$fetch_init_goal'(Level, G) :-
-	recorded('$initialisation',do(Level,G),R),
-	erase(R),
-	G\='$'.
+    lists:member(G, Answers),
+     writeln(G),
+	 '$system_catch'(ignore(M:G), M, Error, user:'$LoopError'(Error, top)),
+    fail.
+'$exec_initialisation_goals'.
 
 /**
   @pred include(+ _F_) is directive
@@ -1385,10 +1376,9 @@ environment. Use initialization/2 for more flexible behavior.
 '$initialization'(C) :- db_reference(C), !,
 	'$do_error'(type_error(callable,C),initialization(C)).
 '$initialization'(G) :-
-	'$show_consult_level'(Level1),
-	% it will be done after we leave the current consult level.
-	Level is Level1-1,
-	recordz('$initialisation',do(Level,G),_),
+    b_getval('$lf_status', TOpts),
+    '$lf_opt'( initialization, TOpts, Ref),
+    nb:nb_queue_enqueue(Ref, G),
 	fail.
 '$initialization'(_).
 
