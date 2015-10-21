@@ -196,7 +196,6 @@ compose_message(myddas_version(Version), _Leve) -->
 	[ 'MYDDAS version ~a' - [Version] ].
 compose_message(yes, _Level) --> !,
 	[  'yes'- []  ].
-
 compose_message(Term, Level) -->
 	{  Level == error -> true ; Level == warning },
 	[nl],
@@ -291,7 +290,7 @@ caller( error(_,Term), _) -->
 	  !,
 	  ['~*|goal was ~q' - [10,Call]],
 	  [nl],
-	['~*|exception raised from ~a:~q/~d, ~a:~d:0. '-[10,M,Na,Ar,File, FilePos]],
+  ['~*|exception raised from ~a:~q:~d, ~a:~d:0. '-[10,M,Na,Ar,File, FilePos]],
 	[nl].
 caller( error(_,Term), _) -->
 	{ lists:memberchk([e|p(M,Na,Ar,File,FilePos)], Term ) },
@@ -665,24 +664,14 @@ the  _Prefix_ is printed too.
 prolog:print_message_lines(_S, _, []) :- !.
 prolog:print_message_lines(S, Prefix, [Line|Rest]) :-
 	print_message_line(Line, Rest, S, Prefix, Left0), !,
-	(Left0 = [prefix(NPrefix)|Left]
-	->
-	 true
-	;
-	 Prefix = NPrefix,
-	 Left = Left0
-	),
-	prolog:print_message_lines(S, NPrefix, Left).
+prolog:print_message_lines(S, Prefix, Rest).
 
 print_message_line( at_same_line, [end(_)|Rest], _S, _,Rest) :- !.
 print_message_line( at_same_line, [nl|Rest], S, _, Rest) :- !,
  	nl(S).
 print_message_line(at_same_line, Rest, _S, _, Rest) :- !.
-print_message_line(end(_),  Rest, _S, _, Rest):- !.
 print_message_line(flush, Rest, S, _, Rest):- !,
 	flush_output(S).
-print_message_line(nl, [prefix(MyPrefix), Rest], S, _Prefix, [prefix(MyPrefix)|Rest]) :- !,
-	nl(S).
 print_message_line(nl, Rest, S, Prefix, [Prefix|Rest]) :- !,
 	nl(S).
 print_message_line(begin(_,_), L, _S, _Prefix, L).
@@ -697,10 +686,10 @@ print_message_line(Fmt, L, S, _, L) :-
 	format(S, Fmt, []).
 
 
-prefix(help,	      '',          user_error) --> [].
-prefix(query,	      '',          user_error) --> [].
-prefix(debug,	      '',          user_error) --> [].
-prefix(warning,	      '',      user_error) --> [].
+prefix(help,	      ''-[],          user_error) --> [].
+prefix(query,	      ''-[],          user_error) --> [].
+prefix(debug,	      ''-[],          user_error) --> [].
+prefix(warning,	      ''-[],      user_error) --> [].
 /*	{ thread_self(Id) },
 	(   { Id == main }
 	->  [ 'warning, ' - [] ]
@@ -709,7 +698,7 @@ prefix(warning,	      '',      user_error) --> [].
 	;   ['warning [Thread ~d ], ' - [Id] ]
 	).
 */
-prefix(error,	      '',   user_error) --> [].
+prefix(error,	      ''-[],   user_error) --> [].
 /*
 	{ thread_self(Id) },
 	(   { Id == main }
@@ -727,12 +716,12 @@ prefix(error,	      '',   user_error) -->
 	;   [ 'error [ Thread ~d ] ' - [Id], nl ]
 	).
 */
-prefix(banner,	      '',	   user_error) --> [].
+prefix(banner,	      ''-[],	   user_error) --> [].
 prefix(informational, '~*|% '-[LC],     user_error) -->
 	{ '$show_consult_level'(LC) },
 	[].
-prefix(debug(_),      '% ',	   user_error) --> [].
-prefix(information,   '% ',	   user_error) --> [].
+prefix(debug(_),      '% '-[],	   user_error) --> [].
+prefix(information,   '% '-[],	   user_error) --> [].
 
 
 clause_to_indicator(T, M:NameArity) :-
@@ -831,8 +820,10 @@ prolog:print_message(Severity, Term) :-
 	   true
 	),
 %	!,
+	Prefix = M-L,
+	format( Stream, M, L),
 	prolog:print_message_lines(Stream, Prefix, Lines), !.
-prolog:print_message(_Severity, _Term).
+	prolog:print_message(_Severity, _Term).
 /**
   @}
   @}
