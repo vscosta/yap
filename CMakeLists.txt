@@ -13,7 +13,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 set(CMAKE_PREFIX_PATH ~/Qt/5.4/clang_64/ ${CMAKE_PREFIX_PATH})
 
-set(CMAKE_BUILD_TYPE  Debug)
+# set(CMAKE_BUILD_TYPE  Debug)
 
 if(POLICY CMP0042)
 cmake_policy(SET CMP0042 NEW) # Set MACOSX_RPATH=YES by default
@@ -236,7 +236,7 @@ message(STATUS "Original CMAKE_C_FLAGS ${CMAKE_C_FLAGS}")
 
 # Compilation Flags
 if (CMAKE_COMPILER_IS_GNUCC)
-    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O3 -fomit-frame-pointer -fstrict-aliasing -freorder-blocks -fsched-interblock")
+    set(CMAKE_C_FLAGS_f "${CMAKE_C_FLAGS} -O3 -fomit-frame-pointer -fstrict-aliasing -freorder-blocks -fsched-interblock")
 endif()
 
 message(STATUS "Running with CMAKE_C_FLAGS ${CMAKE_C_FLAGS}")
@@ -365,12 +365,12 @@ if (YAP_THREADS AND THREADS_FOUND)
   # recommended for new code.
   else()
 set (MAX_WORKERS 1)
-  set (MAX_THREADS 1)
+set (MAX_THREADS 1)
 endif (YAP_THREADS AND THREADS_FOUND)
 
-cmake_dependent_option (YAP_PTHREADLOCKING
-  "use pthread locking primitives for internal locking" ON
-  "NOT YAP_THREADS; NOT THREADS_FOUND" OFF)
+cmake_dependent_option (YAP_USE_PTHREADS_LOCKS
+  "use pthread locking primitives for internal locking" 1
+  "NOT YAP_THREADS; NOT THREADS_FOUND" 0)
 
 #
 # include OS and I/o stuff
