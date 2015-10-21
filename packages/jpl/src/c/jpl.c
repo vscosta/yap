@@ -1343,7 +1343,7 @@ jni_hr_del(
     HrEntry	*ep;	/* pointer to a HashedRef table entry */
     HrEntry	**epp;	/* pointer to ep's handle, in case it needs updating */
 
-    JPL_DEBUG(1, Sdprintf( "[removing possible object reference %u]\n", iref));
+    JPL_DEBUG(1, Sdprintf( "[removing possible object reference %p]\n", (void *)iref));
     for ( index=0 ; index<hr_table->length ; index++ )		/* for each slot */
 	{
 	for ( epp=&(hr_table->slots[index]), ep=*epp ; ep!=NULL ; epp=&(ep->next), ep=*epp )
@@ -5711,7 +5711,7 @@ static foreign_t
 			}
 		else
 			{
-			JPL_DEBUG(1, Sdprintf("JPL needs [%d] JVM opts as before\n"));
+			JPL_DEBUG(1, Sdprintf("JPL needs [%d] JVM opts as before\n", n));
 			}
 		}
 	head = PL_new_term_ref();  /* variable for the elements */
