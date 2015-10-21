@@ -91,7 +91,7 @@ SkipListCodes(unsigned char **bufp, Term *l, Term **tailp, Int *atoms, bool *wid
     return 0;
   }
   if ( IsPairTerm(*l) )
-  { intptr_t power = 1, lam = 0;
+  {
     Term hd0 = HeadOfTerm(*l);
     if (IsVarTerm(hd0)) {
       return -INSTANTIATION_ERROR;
@@ -962,7 +962,6 @@ write_length( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng 
 static Term
 write_number( void *s0, seq_tv_t *out, encoding_t enc, int minimal, int size USES_REGS)
 {
-  Term o;
   return
     Yap_StringToNumberTerm(s0, &enc);
 }
