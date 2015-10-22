@@ -37,6 +37,18 @@ to test for an element or to enumerate all the elements by backtracking.
 lists:member(X,[X|_]).
 lists:member(X,[_|L]) :-
 	lists:member(X,L).
+	
+%% @pred  identical_member(?Element, ?Set) is nondet
+%
+% identical_member holds true when Set is a list, and Element is
+% exactly identical to one of the elements that occurs in it. 
+
+lists:identical_member(X,[Y|M]) :-
+	(
+	 X == Y
+	;
+	 M \= [], lists:identical_member(X,M)
+	).
 
 /**  @pred append(? _List1_,? _List2_,? _List3_) 
 
