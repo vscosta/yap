@@ -58,24 +58,6 @@ static Int skip(USES_REGS1);
 static Int flush_output(USES_REGS1);
 static Int flush_all_streams(USES_REGS1);
 
-INLINE_ONLY inline EXTERN Term MkCharTerm(Int c);
-
-/**
- * MkCharTerm: convert a character into a single atom.
- *
- * @param c the character code
- *
- * @return the term.
- */
-INLINE_ONLY inline EXTERN Term MkCharTerm(Int c) {
-  wchar_t cs[2];
-  if (c < 0)
-    return MkAtomTerm(AtomEof);
-  cs[0] = c;
-  cs[1] = '\0';
-  return MkAtomTerm(Yap_LookupMaybeWideAtom(cs));
-}
-
 /**
  * CharOfAtom: convert an atom  into a single character.
  *
@@ -186,11 +168,11 @@ static int yap_fflush(int sno) {
 static Int get(USES_REGS1) { /* '$get'(Stream,-N)                     */
   int sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "get/2");
   int ch;
-  //Int status;
+  // Int status;
 
   if (sno < 0)
     return FALSE;
-  //status = GLOBAL_Stream[sno].status;
+  // status = GLOBAL_Stream[sno].status;
   while ((ch = GLOBAL_Stream[sno].stream_wgetc(sno)) <= 32 && ch >= 0)
     ;
   UNLOCK(GLOBAL_Stream[sno].streamlock);
@@ -204,7 +186,7 @@ static Int get_char(USES_REGS1) { /* '$get'(Stream,-N)                     */
 
   if (sno < 0)
     return FALSE;
-  //status = GLOBAL_Stream[sno].status;
+  // status = GLOBAL_Stream[sno].status;
   ch = GLOBAL_Stream[sno].stream_wgetc(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (Yap_unify_constant(ARG2, MkCharTerm(ch)));
@@ -212,12 +194,12 @@ static Int get_char(USES_REGS1) { /* '$get'(Stream,-N)                     */
 
 static Int get_code(USES_REGS1) { /* get0(Stream,-N)                    */
   int sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "get0/2");
-  //Int status;
+  // Int status;
   Int out;
 
   if (sno < 0)
     return (FALSE);
-  //status = GLOBAL_Stream[sno].status;
+  // status = GLOBAL_Stream[sno].status;
   out = GLOBAL_Stream[sno].stream_wgetc(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (Yap_unify_constant(ARG2, MkIntegerTerm(out)));
@@ -226,10 +208,10 @@ static Int get_code(USES_REGS1) { /* get0(Stream,-N)                    */
 static Int get_1(USES_REGS1) { /* get_code1(Stream,-N)                     */
   int sno = LOCAL_c_input_stream;
   int ch;
-  //Int status;
+  // Int status;
 
   LOCK(GLOBAL_Stream[sno].streamlock);
-  //status = GLOBAL_Stream[sno].status;
+  // status = GLOBAL_Stream[sno].status;
   while ((ch = GLOBAL_Stream[sno].stream_wgetc(sno)) <= 32 && ch >= 0)
     ;
   UNLOCK(GLOBAL_Stream[sno].streamlock);
@@ -238,10 +220,10 @@ static Int get_1(USES_REGS1) { /* get_code1(Stream,-N)                     */
 
 static Int getcode_1(USES_REGS1) { /* get0(Stream,-N)                    */
   int sno = LOCAL_c_input_stream;
-  //Int status;
+  // Int status;
   Int out;
 
-  //status = GLOBAL_Stream[sno].status;
+  // status = GLOBAL_Stream[sno].status;
   LOCK(GLOBAL_Stream[sno].streamlock);
   out = GLOBAL_Stream[sno].stream_wgetc(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);
@@ -250,11 +232,11 @@ static Int getcode_1(USES_REGS1) { /* get0(Stream,-N)                    */
 
 static Int getchar_1(USES_REGS1) { /* get0(Stream,-N)                    */
   int sno = LOCAL_c_input_stream;
-  //Int status;
+  // Int status;
   Int out;
 
   LOCK(GLOBAL_Stream[sno].streamlock);
-  //status = GLOBAL_Stream[sno].status;
+  // status = GLOBAL_Stream[sno].status;
   out = GLOBAL_Stream[sno].stream_wgetc(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (Yap_unify_constant(ARG1, MkCharTerm(out)));
@@ -262,7 +244,7 @@ static Int getchar_1(USES_REGS1) { /* get0(Stream,-N)                    */
 
 static Int get0_line_codes(USES_REGS1) { /* '$get0'(Stream,-N) */
   int sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "get0/2");
-  //Int status;
+  // Int status;
   Term out;
   Int ch = '\0';
   int rewind;
@@ -270,7 +252,7 @@ static Int get0_line_codes(USES_REGS1) { /* '$get0'(Stream,-N) */
   if (sno < 0)
     return (FALSE);
   rewind = FALSE;
-  //status = GLOBAL_Stream[sno].status;
+  // status = GLOBAL_Stream[sno].status;
   out = read_line(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   if (rewind)
