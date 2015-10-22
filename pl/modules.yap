@@ -765,7 +765,11 @@ expand_goal(G, NG) :-
 	'$do_expand'(G, Mod, prolog, []-G,  NG), !.
 expand_goal(G, G).
 
-'$do_expand'(G, _HM, _BM, _SM, _, G) :- var(G), !.
+'$do_expand'(G, _HM, _BM, SM, HVars-_, OG) :- var(G), !,
+	( lists:identical_member(G, HVars) -> OG = G; OG = SM:G).
+% nothing I can do here:
+'$do_expand'(M:G, _HM, _BM, _SM,  _HVars, M:G) :- !,
+	 nonvar(M), var(G), !.
 '$do_expand'(M:G, HM, _BM, _SM,  HVars, M:GI) :- !,
 	 nonvar(M),
 	'$do_expand'(G, HM, M, M, HVars, GI).
