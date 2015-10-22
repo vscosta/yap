@@ -1083,10 +1083,11 @@ number of steps.
 	'$name_well_known_vars'(NVL0).
 
 '$name_vars_in_goals1'([], I, I).
-'$name_vars_in_goals1'(['$VAR'(Name)|NGVL], I0, IF) :-
+'$name_vars_in_goals1'([SName|NGVL], I0, IF) :-
 	I is I0+1,
 	'$gen_name_string'(I0,[],SName), !,
 	atom_codes(Name, [95|SName]),
+	'$VAR'(Name, SName ),
 	'$name_vars_in_goals1'(NGVL, I, IF).
 '$name_vars_in_goals1'([NV|NGVL], I0, IF) :-
 	nonvar(NV),

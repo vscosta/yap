@@ -748,6 +748,13 @@ p_float_format( USES_REGS1 )
   return TRUE;
 }
 
+static Int
+p_dollar_var( USE_REGS1 )
+{
+  Term tv = Yap_MkApplTerm(LOCAL_FunctorVar, 1, &ARG1);
+  return Yap_unify(tv, ARG2);
+}
+
 
 void
 Yap_InitWriteTPreds(void)
@@ -765,6 +772,8 @@ Yap_InitWriteTPreds(void)
   Yap_InitCPred ("print", 1, print1, SyncPredFlag);
   Yap_InitCPred ("print", 2, print, SyncPredFlag);
   Yap_InitCPred ("write_depth", 3, p_write_depth, SafePredFlag|SyncPredFlag);
+ ;
+  Yap_InitCPred ("$VAR", 2, p_dollar_var, SafePredFlag);
  ;
   Yap_InitCPred ("$float_format", 1, p_float_format, SafePredFlag|SyncPredFlag);
 }
