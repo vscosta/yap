@@ -110,6 +110,30 @@ assert(C) :-
 		asserta_static(Mod:(H :- B))
 	).
 
+'$assert_clause2'(HI,BI,Mod,Where,R,P) :-
+	'$expand_clause'((HI :- BI),C0,C,Mod,HM),
+	'$assert_clause3'(C0,C,HM,Where,R,P).
+
+'$assert_clause3'(C0,C,Mod,Where,R,P) :-
+	'$check_head_and_body'(C,H,B,P),
+	( '$is_log_updatable'(H, Mod) ->
+            '$compile_dynamic'((H :- B), Where, C0, Mod, R)
+	;
+          '$is_dynamic'(H, Mod) ->
+	    '$assertat_d'(Where, H, B, C0, Mod, R)
+	;
+	  '$undefined'(H,Mod) ->
+	    functor(H, Na, Ar),
+	    dynamic(Mod:Na/Ar),
+	    '$assert_clause3'(C0,C,Mod,Where,R,P)
+	;
+        current_prolog_flag(language, sicstus) -> % I can assert over static facts in YAP mode
+	'$assert1'(Where,C,C0,Mod,H)
+        ;
+	    functor(H, Na, Ar),
+            '$do_error'(permission_error(modify,static_procedure,Na/Ar),P)
+	).
+
 /** @pred  asserta(+ _C_,- _R_)
 
 The same as `asserta(C)` but unifying  _R_ with
