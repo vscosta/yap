@@ -8,7 +8,6 @@ set(PL_SOURCES
 	boot.yap
 	callcount.yap
 	checker.yap
-	chtypes.yap
 	consult.yap
 	control.yap
 	corout.yap
@@ -51,6 +50,7 @@ set(PL_SOURCES
 	swi.yap
 	yapor.yap
 	yio.yap
+	../os/chartypes.yap
   )
 
 add_custom_target (${YAP_STARTUP} ALL SOURCES ${PL_SOURCES} ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
