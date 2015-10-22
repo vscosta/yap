@@ -474,12 +474,12 @@ PropAdjust__ (Prop p USES_REGS)
 
 #endif
 
-INLINE_ONLY inline EXTERN struct PL_blob_t *BlobTypeAdjust__ (struct PL_blob_t *CACHE_TYPE);
+INLINE_ONLY inline EXTERN struct YAP_blob_t *BlobTypeAdjust__ (struct YAP_blob_t *CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN struct PL_blob_t *
-BlobTypeAdjust__ (struct PL_blob_t *at USES_REGS)
+INLINE_ONLY inline EXTERN struct YAP_blob_t *
+BlobTypeAdjust__ (struct YAP_blob_t *at USES_REGS)
 {
-  return (struct PL_blob_t *) ((at == NULL ? (at) : (struct PL_blob_t *) (CharP (at) + LOCAL_HDiff)));
+  return (struct YAP_blob_t *) ((at == NULL ? (at) : (struct YAP_blob_t *) (CharP (at) + LOCAL_HDiff)));
 }
 
 INLINE_ONLY inline EXTERN PredEntry *PredEntryAdjust__ (PredEntry * CACHE_TYPE);
