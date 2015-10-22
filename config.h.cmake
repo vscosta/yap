@@ -1833,7 +1833,7 @@ signal. */
 
 /* do not use our own locking routines */
 #ifndef USE_PTHREAD_LOCKING
-#define USE_PTHREAD_LOCKING ${USE_PTHREAD_LOCKING}
+#define USE_PTHREAD_LOCKING ${YAP_USE_PTHREADS_LOCKS}
 #endif
 
 /* use OS malloc for all allocation */
