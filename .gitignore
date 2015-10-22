@@ -78,4 +78,4 @@ yap
 *cmake_files
 C/pl-yap.c
 GitSHA1.c
-CmakeLists.txt.*
+CMakeLists.txt.*
