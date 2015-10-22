@@ -79,3 +79,4 @@ yap
 C/pl-yap.c
 GitSHA1.c
 CMakeLists.txt.*
+FindPackageLog.txt
