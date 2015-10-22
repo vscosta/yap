@@ -1638,8 +1638,8 @@ static Int p_nb_queue_close(USES_REGS1) {
       return Yap_unify(ARG3, ARG2);
     }
     out = Yap_unify(ARG3, qp[QUEUE_TAIL]) && Yap_unify(ARG2, qp[QUEUE_HEAD]);
-    qp[-1] = (CELL)Yap_MkFunctor(AtomHeap, 1);
-    qp[QUEUE_ARENA] = qp[QUEUE_HEAD] = qp[QUEUE_TAIL] = MkIntegerTerm(0);
+    qp[QUEUE_HEAD] = qp[QUEUE_TAIL] = RESET_VARIABLE(qp + QUEUE_TAIL);
+    qp[QUEUE_SIZE] = MkIntTerm(0);
     return out;
   }
   Yap_Error(INSTANTIATION_ERROR, t, "queue/3");
