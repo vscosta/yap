@@ -720,7 +720,8 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
       Yap_Error(SYNTAX_ERROR, terr, LOCAL_ErrorMessage);
       return YAP_PARSING_FINISHED;
     } else {
-      Yap_PrintWarning(terr);
+      Term tn = Yap_MkApplTerm(FunctorShortSyntaxError, 1, &terr);
+      Yap_PrintWarning(tn);
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       if (ParserErrorStyle == TermDec10)
         return YAP_SCANNING;
@@ -991,7 +992,7 @@ static Int read_clause2(USES_REGS1) {
 *
 * The next two options are called implicitly:
 *
-*   + The `module` option is initialised to the current source module, by
+*   + The `module` option is initialized to the current source module, by
 *default.
 *   + The `tons` option is set from the single var flag
 */
