@@ -739,18 +739,22 @@ p_write_depth ( USES_REGS1 )
 }
 
 static Int
-p_float_format( USES_REGS1 )
+dollar_var( USES_REGS1 )
 {
   Term in = Deref(ARG1);
-  if (IsVarTerm(in))
-    return Yap_unify(ARG1, MkAtomTerm(AtomFloatFormat));
-  AtomFloatFormat = AtomOfTerm(in);
-  return TRUE;
-}
-
-static Int
-p_dollar_var( USE_REGS1 )
-{
+  if (IsVarTerm(in)) {
+    Term t2;
+    if (!IsVarTerm(t2=Deref(ARG2))) {
+      if (IsApplTerm(t2) &&
+          FunctorOfTerm( t2 ) == LOCAL_FunctorVar ) {
+        return Yap_unify(ArgOfTerm(1, t2), ARG1);
+      }
+      Yap_Error( TYPE_ERROR_COMPOUND, ARG2 , "");
+      return false;
+    } else {
+      Yap_Error( INSTANTIATION_ERROR, ARG2 , "");
+    }
+  }
   Term tv = Yap_MkApplTerm(LOCAL_FunctorVar, 1, &ARG1);
   return Yap_unify(tv, ARG2);
 }
@@ -773,7 +777,6 @@ Yap_InitWriteTPreds(void)
   Yap_InitCPred ("print", 2, print, SyncPredFlag);
   Yap_InitCPred ("write_depth", 3, p_write_depth, SafePredFlag|SyncPredFlag);
  ;
-  Yap_InitCPred ("$VAR", 2, p_dollar_var, SafePredFlag);
+  Yap_InitCPred ("$VAR", 2, dollar_var, SafePredFlag);
  ;
-  Yap_InitCPred ("$float_format", 1, p_float_format, SafePredFlag|SyncPredFlag);
 }
