@@ -170,16 +170,16 @@ prolog:char_type( LOWER , lower) :-
     char_type_lower( LOWER ).
 prolog:char_type( LOWER, lower( Upper)) :-
 	toupper( LOWER, Upper),
-    char_type_lower( LOWER ),
-prolog:char_type( LOWER, to_lower( Upper))
+    char_type_lower( LOWER ).
+prolog:char_type( LOWER, to_lower( Upper)) :-
 	toupper( LOWER, Upper).
 prolog:char_type( UPPER, upper  ) :-
      char_type_upper( UPPER ).
 prolog:char_type( UPPER , upper( Lower)) :-
-    char_type_upper( UPPER ),
+    char_type_upper( UPPER ).
+tolower( UPPER, Lower).
 prolog:char_type( UPPER, to_upper( Lower) ) :-
-	tolower( UPPER, Lower),
-	char_type_upper( UPPER).
+	tolower( UPPER, Lower).
 prolog:char_type( PUNCT , punct) :-
     char_type_punct( PUNCT ).
 prolog:char_type( SPACE , space) :-
@@ -236,14 +236,16 @@ prolog:char_type( PROLOG_PROLOG_SYMBOL , prolog_prolog_symbol) :-
 		    code_type_lower( LOWER ).
 		prolog:code_type( LOWER, lower( Upper)) :-
 			toupper( LOWER, Upper),
-		    code_type_lower( LOWER ),
+		    code_type_lower( LOWER ).
 		prolog:code_type( LOWER, to_lower( Upper))
 			toupper( LOWER, Upper).
 		prolog:code_type( UPPER, upper  ) :-
 		     code_type_upper( UPPER ).
 		prolog:code_type( UPPER , upper( Lower)) :-
-		    code_type_upper( UPPER ),
-		prolog:code_type( UPPER, to_upper( Lower) ) :-
+		    code_type_upper( UPPER ).
+prolog:code_type( UPPER, to_upp
+
+		er( Lower) ) :-
 			tolower( UPPER, Lower),
 			char_type_upper( UPPER).
 	prolog:code_type( PUNCT , punct) :-
