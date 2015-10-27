@@ -6,7 +6,8 @@
 
 project(YAP)
 
-cmake_minimum_required(VERSION 2.8XSXCG)
+cmake_minimum_required(VERSION 2.8)
+
 # where we have most scripts
 # set path to additional CMake modules
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
@@ -17,10 +18,11 @@ set(CMAKE_PREFIX_PATH ~/Qt/5.4/clang_64/ ${CMAKE_PREFIX_PATH})
 
 if(POLICY CMP0042)
 cmake_policy(SET CMP0042 NEW) # Set MACOSX_RPATH=YES by default
-endif()
-if(POLICY CMP0042)
-cmake_policy(SET CMP0043 NEW)
-endif()
+endif(POLICY CMP0042)
+if(POLICY CMP0043)
+cmake_policy(SET CMP0058 NEW)
+endif(POLICY CMP0043)
+
 
 set(YAP_FOUND ON)
 
@@ -105,8 +107,10 @@ add_library(libYap SHARED
   ${HEADERS}
   $<TARGET_OBJECTS:libYAPOs>
   $<TARGET_OBJECTS:libOPTYap>
+#  $<TARGET_OBJECTS:myddas>
   )
 
+set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
 
   # Optional libraries that affect compilation
   #
@@ -151,7 +155,7 @@ set(YAP_STARTUP startup.yss)
 string(TIMESTAMP YAP_TIMESTAMP)
 string( SUBSTRING ${CMAKE_SHARED_LIBRARY_SUFFIX} 1 -1 SO_EXT )
 #
-include_directories (H include os utf8proc JIT/HPP)
+include_directories (H include os OPTYap utf8proc JIT/HPP)
 include_directories (BEFORE ${CMAKE_BINARY_DIR})
 
 # rpath stuff, hopefully it works
@@ -189,19 +193,18 @@ set ( DEF_TRAILSPACE 0 )
 # dd_definitions (-D)
 
 ## don't touch these opts
-set_property( DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  DEPTH_LIMIT=1;COROUTINING=1;RATIONAL_TREES=1 )
+  set_property( DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  DEPTH_LIMIT=1;COROUTINING=1;RATIONAL_TREES=1 )
 
 # inform we are compiling YAP
-set_property( DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  _YAP_NOT_INSTALLED_=1;HAVE_CONFIG_H )
+  set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  "_YAP_NOT_INSTALLED_=1;HAVE_CONFIG_H=1" )
 
 # Compilation model
-#set_property( DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  _XOPEN_SOURCE=700 )
+#  target_compile_definitions(libYap PUBLIC  _XOPEN_SOURCE=700 )
 
 #add_definitions( -Wall  -Wstrict-prototypes -Wmissing-prototypes)
 
 # Model Specific
-set_property( DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  $<$<CONFIG:Debug>:DEBUG=1;LOW_LEVEL_TRACER=1> )
-set_property( DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  DEBUG=1;LOW_LEVEL_TRACER=1 )
+  set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS   $<$<CONFIG:Debug>:DEBUG=1> )
 
 #ensure cells are properly aligned in code
 set (ALIGN_LONGS 1)
@@ -226,28 +229,21 @@ endif()
 
 # Model Specific
 if (HAVE_GCC)
-  set_property( DIRECTORY APPEND_STRING PROPERTY COMPILE_OPTIONS  -Wall;-Wstrict-prototypes;-Wmissing-prototypes )
-  set_property( DIRECTORY APPEND_STRING PROPERTY COMPILE_OPTIONS  -fexceptions )
+  set_property( DIRECTORY APPEND PROPERTY COMPILE_OPTIONS  -Wall )
+  set_property( DIRECTORY APPEND PROPERTY COMPILE_OPTIONS  $<$<CONFIG:Release>:-O3;-fomit-frame-pointer;-fstrict-aliasing;-freorder-blocks;-fsched-interblock> )
+  set_property( DIRECTORY APPEND  PROPERTY  COMPILE_OPTIONS  -fexceptions )
 endif()
 
-set_property( DIRECTORY APPEND_STRING PROPERTY -fsanitize=memory;-fsanitize-memory-track-origins=2)
-
-message(STATUS "Original CMAKE_C_FLAGS ${CMAKE_C_FLAGS}")
-
-# Compilation Flags
-if (CMAKE_COMPILER_IS_GNUCC)
-    set(CMAKE_C_FLAGS_f "${CMAKE_C_FLAGS} -O3 -fomit-frame-pointer -fstrict-aliasing -freorder-blocks -fsched-interblock")
-endif()
+# set_property( DIRECTORY APPEND_STRING PROPERTY -fsanitize=memory;-fsanitize-memory-track-origins=2)
 
 message(STATUS "Running with CMAKE_C_FLAGS ${CMAKE_C_FLAGS}")
 
 if (HAVE_GCC)
   # replace instructions codes by the address of their code
-  option (THREADED_CODE "threaded code" ON)
-  if (THREADED_CODE)
-    set (USE_THREADED_CODE 1)
-    add_definitions(-DUSE_THREADEAD_CODE=1)
-    endif (THREADED_CODE)
+  option (USE_THREADED_CODE "threaded code" ON)
+  if (USE_THREADED_CODE)
+    set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  THREADED_CODE=1)
+  endif (USE_THREADED_CODE)
 endif (HAVE_GCC)
 
 #
@@ -256,72 +252,50 @@ set (BUILD_SHARED_LIBS ON)
 #option (YAP_SWI_IO ON)
 
 
-#utf-8 is not an option
-# we use the nice UTF-8 package
-#available at the Julia project
-include_directories ( utf8proc )
-add_definitions (-DUTF8PROC=1)
-  add_subdirectory ( utf8proc )
 
-
-macro_optional_find_package (GMP ON)
-macro_log_feature (GMP_FOUND "libgmp"
-  "GNU big integers and rationals"
-  "http://gmplib.org")
-if (GMP_FOUND)
-  include_directories (${GMP_INCLUDE_DIR})
-
-  #add_executable(test ${SOURCES})
-#  target_link_libraries(libYap ${GMP_LIBRARIES})
-  #config.h needs this (TODO: change in code latter)
-  set (USE_GMP 1)
-  set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${GMP_INCLUDE_DIR} )
-#  set( CMAKE_REQUIRED_LIBRARIES  ${GMP_LIBRARIES} ${CMAKE_REQUIRED_LIBRARIES} )
-endif (GMP_FOUND)
-
-option (YAP_TABLING "Support tabling" ON)
-if (YAP_TABLING)
-  #this depends on DEPTH_LIMIT define it after
-
-  #this macro should realy be in config.h or other like it
-  #and it is used across several files outside OPTYap
-  add_definitions (-DTABLING=1)
-  include_directories (OPTYap)
-endif(YAP_TABLING)
-
-option (YAP_EAM "enable EAM (Extended Andorra Model)" OFF)
-if (YAP_EAM)
-  #this macro should realy be in config.h or other like it
-  add_definitions (-DBEAM=1)
-  include_directories (BEAM)
-  add_subdirectory (BEAM)
-  set (EXTRALIBS ${EXTRALIBS} beam)
-endif (YAP_EAM)
-
-#TODO: option (or-parallelism)
-
-# option (WAM_Profile
-#   "support low level profiling of abstract machine" OFF)
-
-option (YAP_CALL_TRACER
-"support for procedure-call tracing" ON)
+CMAKE_DEPENDENT_OPTION (USE_CALL_TRACER
+"support for procedure-call tracing" ON "CMAKE_BUILD_TYPE=DEBUG" OFF )
 #TODO:
-if (YAP_CALL_TRACER)
-    set_directory_properties(PROPERTIES COMPILE_DEFINITIONS_DEBUG LOW_LEVEL_TRACER=1)
-endif (YAP_CALL_TRACER)
+if (USE_CALL_TRACER)
+    set_target_properties(libYap PUBLIC PROPERTIES APPEND COMPILE_DEFINITIONS  $<$<CONFIG:Debug>:LOW_LEVEL_TRACER=1>)
+endif (USE_CALL_TRACER)
 
 #set( CMAKE_REQUIRED_LIBRARIES  ${READLINE_LIBS} ${CMAKE_REQUIRED_LIBRARIES} )
 #target_link_libraries(libYap ${READLINE_LIBS})
 
-option (YAPOR "or-p" OFF)
+#utf-8 is not an option
+# we use the nice UTF-8 package
+#available at the Julia project
+include_directories ( utf8proc )
+set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  UTF8PROC=1)
+add_subDIRECTORY ( utf8proc )
 
-option (YAP_THREADS
-"support system threads" OFF)
+
+option (USE_GMP "Use Multiprecision Library" ON)
+if (USE_GMP)
+  find_package (GMP)
+  macro_log_feature (GMP_FOUND
+      "libgmp"
+      "GNU big integers and rationals"
+      "http://gmplib.org")
+  if (GMP_FOUND)
+    include_directories (${GMP_INCLUDE_DIR})
+    #add_executable(test ${SOURCES})
+    target_link_libraries(libYap ${GMP_LIBRARIES})
+    #config.h needs this (TODO: change in code latter)
+    set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${GMP_INCLUDE_DIR} )
+    #set( CMAKE_REQUIRED_LIBRARIES  ${GMP_LIBRARIES} ${CMAKE_REQUIRED_LIBRARIES} )
+  endif (GMP_FOUND)
+endif(USE_GMP)
+
+
 macro_optional_find_package (Threads OFF)
 macro_log_feature (THREADS_FOUND "Threads Support"
   "GNU Threads Library (or similar)"
   "http://www.gnu.org/software/threads")
-if (YAP_THREADS AND THREADS_FOUND)
+CMAKE_DEPENDENT_OPTION (USE_THREADS
+  "support system threads" OFF "THREADS_FOUND" OFF)
+if (USE_THREADS)
   #
   #   CMAKE_THREAD_LIBS_INIT     - the thread library
   #   CMAKE_USE_SPROC_INIT       - are we using sproc?
@@ -356,130 +330,169 @@ if (YAP_THREADS AND THREADS_FOUND)
     check_function_exists( pthread_mutexattr_settype HAVE_PTHREAD_MUTEXATTR_SETTYPE )
     check_function_exists( pthread_setconcurrency HAVE_PTHREAD_SETCONCURRENCY )
   endif (CMAKE_USE_PTHREADS_INIT)
-  add_definitions (-DTHREADS=1)
- set (MAX_WORKERS 64)
-  set (MAX_THREADS 1024)
+  set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  THREADS=1)
   #
   # Please note that the compiler flag can only be used with the imported
   # target. Use of both the imported target as well as this switch is highly
   # recommended for new code.
   else()
-set (MAX_WORKERS 1)
-set (MAX_THREADS 1)
-endif (YAP_THREADS AND THREADS_FOUND)
+endif (USE_THREADS)
 
-cmake_dependent_option (YAP_USE_PTHREADS_LOCKS
-  "use pthread locking primitives for internal locking" 1
-  "NOT YAP_THREADS; NOT THREADS_FOUND" 0)
+CMAKE_DEPENDENT_OPTION (USE_MAX_THREADS 1024
+  "maximum number of threads" "USE_THREADS" 1)
+
+CMAKE_DEPENDENT_OPTION (USE_MAX_WORKERS 64
+  "maximum number of or-parallel workers" "USE_THREADS" 1)
+  
+cmake_dependent_option (USE_USE_PTHREAD_LOCKING
+  "use pthread locking primitives for internal locking" ON
+  "USE_THREADS" OFF)
+
+IF(USE_USE_PTHREAD_LOCKING)
+  set_DIRECTORY_properties(PROPERTIES APPEND COMPILE_DEFINITIONS USE_PTHREAD_LOCKING=1)
+ENDIF()
+
 
 #
 # include OS and I/o stuff
 #
 # convenience libraries
-add_subdirectory (os)
-add_subdirectory (OPTYap)
+# OPTYap exports important flags
+#
+add_subDIRECTORY (OPTYap)
+
+option (USE_MYDDAS "MYDDAS High-Level Data-base interface" ON)
+if (USE_MYDDAS) 
+#add_subDIRECTORY (packages/myddas)
+endif (USE_MYDDAS) 
+
+add_subDIRECTORY (os)
 
 #bootstrap and saved state
-add_subdirectory (pl)
+add_subDIRECTORY (pl)
 
 #C++ interface
-add_subdirectory (CXX)
+add_subDIRECTORY (CXX)
 
 ADD_SUBDIRECTORY(library)
 ADD_SUBDIRECTORY(swi/library)
 # ADD_SUBDIRECTORY(os)
 # ADD_SUBDIRECTORY(packages)
 
-option (JIT
+option (USE_JIT
 "just in Time Clause Compilation" OFF)
-# macro_optional_find_package (JIT OFF)
-# macro_optional_add_subdirectory(JIT OFF)
+if (USE_JIT) 
+  add_subDIRECTORY(JIT)
+endif (USE_JIT) 
 
-macro_optional_add_subdirectory(library/mpi)
+macro_optional_add_subDIRECTORY(library/mpi)
 
-add_subdirectory(library/lammpi)
+option (USE_GECODE  "Generic Constraint Development Environment (GECODE) library" ON)
+if (USE_GECODE) 
+add_subDIRECTORY (packages/gecode)
+endif (USE_GECODE) 
 
-add_subdirectory (packages/gecode)
+option (USE_REAL "Prolog->R interface" ON)
+if (USE_REAL) 
+add_subDIRECTORY (packages/real)
+endif (USE_REAL) 
 
-add_subdirectory (packages/myddas)
+option (USE_PYTHON "Prolog->Python interface" ON)
+if (USE_PYTHON) 
+add_subDIRECTORY (packages/python)
+endif (USE_PYTHON) 
 
-add_subdirectory (packages/real)
+#add_subDIRECTORY (packages/archive)
+option (USE_JPL "Prolog<->Python interface" ON)
+if (USE_JPL) 
+add_subDIRECTORY (packages/jpl)
+endif (USE_JPL) 
 
-add_subdirectory (packages/python)
+option (USE_SWIG "ON")
+if (USE_SWIG) 
+add_subDIRECTORY (packages/swig)
+endif (USE_SWIG) 
 
-#add_subdirectory (packages/archive)
+option (USE_BDD "ON")
+if (USE_BDD) 
+add_subDIRECTORY (packages/bdd)
+endif (USE_BDD) 
 
-add_subdirectory (packages/jpl)
+option (USE_CLPBN "ON")
+if (USE_CLPBN) 
+add_subDIRECTORY (packages/CLPBN)
+endif (USE_CLPBN) 
 
-add_subdirectory (packages/swig)
+option (USE_HORUS "enable HORUS graphical model tookit" "ON")
+if (USE_HORUS) 
+add_subDIRECTORY (packages/CLPBN/horus)
+endif (USE_HORUS) 
 
-add_subdirectory (packages/bdd)
+option (USE_PROBLOG "ON")
+if (USE_PROBLOG) 
+add_subDIRECTORY (packages/ProbLog)
+endif (USE_PROBLOG) 
 
-add_subdirectory (packages/CLPBN)
+option (USE_RAPTOR "ON")
+if (USE_RAPTOR) 
+add_subDIRECTORY (packages/raptor)
+endif (USE_RAPTOR) 
 
-add_subdirectory (packages/CLPBN/horus)
+option (USE_CUDA "ON")
+if (USE_CUDA) 
+# add_subDIRECTORY (packages/cuda)
+endif(USE_CUDA)
 
-add_subdirectory (packages/ProbLog)
+#add_subDIRECTORY (packages/prosqlite)
 
-add_subdirectory (packages/raptor)
-
-# add_subdirectory (packages/cuda)
-
-
-#add_subdirectory (packages/prosqlite)
-
-#add_subdirectory (packages/zlib)
+#add_subDIRECTORY (packages/zlib)
 
 #todo: use cmake target builds
-# option (WITH_MAXPERFORMANCE
+# option (USE_MAXPERFORMANCE
 #   "try using the best flags for specific architecture" OFF)
 
-# option (WITH_MAXMEMORY
+# option (USE_MAXMEMORY
 #   "try using the best flags for using the memory to the most" ON)
 #TODO: check MAXMEMORY
 
 #TODO: use cmake target builds
-# option (WITH_DEBUGYAP
+# option (USE_DEBUGYAP
 #   "enable C-debugging for YAP" OFF)
 
 #TODO: use cmake arch/compiler
-# option (WITH_CYGWIN
+# option (USE_CYGWIN
 #   "use cygwin library in WIN32" OFF)
 
-option (WITH_YAP_PRISM
+option (USE_PRISM
   "use PRISM system in YAP" ON)
 #TODO:
 
-option (WITH_YAP_DLL
+option (USE_YAP_DLL
   "compile YAP as a DLL" ON)
 #TODO:
 
-option (WITH_YAP_STATIC
+option (USE_YAP_STATIC
   "compile YAP statically" OFF)
 #TODO:
 
-option (WITH_YAP_MALLOC
-  "use malloc to allocate memory" OFF)
 # modern systems do this.
 set ( MALLOC_T "void *" )
-if (YAPOR)
-  set ( USE_DL_MALLOC 1 )
-  set ( USE_SYSTEM_MALLOC 0 )
-else()
-  # use default allocator
-  set ( USE_SYSTEM_MALLOC 1 )
-  set ( USE_DL_MALLOC 0                                                                                                            )
-  set ( USE_SYSTEM_MMAP 0                                                                                                            )
-  set ( USE_SYSTEM_SHM 0                                                                                                            )
-endif()
+CMAKE_DEPENDENT_OPTION (USE_SYSTEM_MALLOC
+  "use malloc to allocate memory" ON  "NOT USE_COPY_OR_PARALELISM" OFF)
+CMAKE_DEPENDENT_OPTION (USE_DL_MALLOC
+  "use malloc to allocate memory" ON  "NOT USE_SYSTEM_MALLOC" OFF)
+CMAKE_DEPENDENT_OPTION (USE_YAP_MALLOC
+  "use malloc to allocate memory" ON  "NOT USE_SYSTEM_MALLOC;NOT USE_DL_MALLOC" OFF)
 
-option(WITH_YAP_CONDOR
+
+option(USE_YAP_CONDOR
   "allow YAP to be used from condor" OFF)
-  if (WITH_YAP_MALLOC)
-    # use default allocator
-    set ( YAP_STATIC ON )
-    set ( YAP_DLL OFF )
-  endif()
+
+if (USE_YAP_CONDOR)
+  # use default allocator
+  set ( YAP_STATIC ON )
+  set ( YAP_DLL OFF )
+endif()
 
 #TODO: detect arch before allow this option
 # OPTION(WIN64
@@ -505,7 +518,6 @@ target_link_libraries(libYap
   ${GMP_LIBRARIES}
   ${READLINE_LIBS}
   ${CMAKE_DL_LIBS}
-  m
   )
 
 add_executable (yap-bin ${CONSOLE_SOURCES})
@@ -514,20 +526,35 @@ set_target_properties (yap-bin PROPERTIES OUTPUT_NAME yap)
 
 target_link_libraries(yap-bin libYap )
 
-if (MPI_C_FOUND)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MPI_C_COMPILE_FLAGS} ")
-  include_directories(${MPI_C_INCLUDE_PATH})
-  target_link_libraries(yap-bin ${MPI_C_LIBRARIES} )
-  if(MPI_C_COMPILE_FLAGS)
-    set_target_properties(yap-bin PROPERTIES
-      COMPILE_FLAGS "${MPI_C_COMPILE_FLAGS}")
-  endif()
 
-  if(MPI_C_LINK_FLAGS)
-    set_target_properties(yap-bin PROPERTIES
-      LINK_FLAGS "${MPI_C_LINK_FLAGS}")
-  endif()
-endif (MPI_C_FOUND)
+CMAKE_DEPENDENT_OPTION (USE_SYSTEM_MMAP "Use MMAP for shared memory allocation" ON
+  "NOT USE_YAPOR_THOR" OFF)
+
+CMAKE_DEPENDENT_OPTION (USE_SYSTEM_SHM "Use SHM for shared memory allocation" ON
+  "NOT USE_YAPOR_THOR; NOT USE_SYSTEM_MMAP" OFF )
+
+if (USE_MPI)
+
+  add_subDIRECTORY(library/lammpi)
+
+  if (MPI_C_FOUND)
+  
+  CMAKE_DEPENDENT_OPTION( USE_MPI ON "Interface to OpenMPI/MPICH"
+    "MPI_C_FOUND" OFF)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MPI_C_COMPILE_FLAGS} ")
+    include_directories(${MPI_C_INCLUDE_PATH})
+    target_link_libraries(yap-bin ${MPI_C_LIBRARIES} )
+    if(MPI_C_COMPILE_FLAGS)
+      set_target_properties(yap-bin PROPERTIES
+	COMPILE_FLAGS "${MPI_C_COMPILE_FLAGS}")
+    endif(MPI_C_COMPILE_FLAGS)
+
+    if(MPI_C_LINK_FLAGS)
+      set_target_properties(yap-bin PROPERTIES
+	LINK_FLAGS "${MPI_C_LINK_FLAGS}")
+    endif()
+  endif (MPI_C_FOUND)
+endif (USE_MPI)
 
 
 add_custom_target (main ALL DEPENDS ${YAP_STARTUP} ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
@@ -537,11 +564,11 @@ add_custom_target (main ALL DEPENDS ${YAP_STARTUP} ) # WORKING_DIRECTORY ${CMAKE
 #
 
 configure_file ("${PROJECT_SOURCE_DIR}/config.h.cmake"
-  "${PROJECT_BINARY_DIR}/config.h" )
-configure_file ("${PROJECT_SOURCE_DIR}/config.h.cmake"
   "${PROJECT_BINARY_DIR}/YapConfig.h" )
 configure_file ("${PROJECT_SOURCE_DIR}/YapTermConfig.h.cmake"
   "${PROJECT_BINARY_DIR}/YapTermConfig.h" )
+configure_file ("${PROJECT_SOURCE_DIR}/config.h.cmake"
+  "${PROJECT_BINARY_DIR}/config.h" )
  configure_file("${PROJECT_SOURCE_DIR}/GitSHA1.c.in" "${PROJECT_BINARY_DIR}/GitSHA1.c" @ONLY)
 
 # ADD_SUBDIRECTORY(console/terminal)
@@ -554,4 +581,9 @@ install (
     LIBRARY  DESTINATION ${libdir}
   )
 
+
 macro_display_feature_log()
+if(POLICY CMP0058)
+cmake_policy(SET CMP0058 NEW)
+endif(POLICY CMP0058)
+
