@@ -1,29 +1,55 @@
 SET( CMAKE_FIND_FRAMEWORK LAST)
 SET( CMAKE_FIND_APPBUNDLE LAST)
 
+ 
+# Be sure to also update these in Makefile!
+set(SO_MAJOR 1)
+set(SO_MINOR 0)
+set(SO_PATCH 0)
+
+
 set( MYDDAS_SOURCES
-  myddas_mysql.c
-  myddas_odbc.c
-  myddas_postgres.c
-  myddas_sqlite3.c
-  myddas_util.c
   myddas_initialization.c
   myddas_shared.c
   myddas_statistics.c
   myddas_top_level.c
   myddas_wkb2prolog.c )
 
-set( MYDDAS_PROLOG
+set( MYDDAS_HEADERS
+  myddas.h
+  myddas_statistics.h
+  myddas_statistics_structs.h
+  myddas_structs.h
+  myddas_top_level.c
+  myddas_types.h
+  myddas_wkb2prolog.c )
+
+set( MYDDAS_UTIL_SOURCES
+  myddas_util.c
+  myddas_initialization.c )
+
+add_subdirectory (mysql)
+add_subdirectory (odbc)
+add_subdirectory (postgres)
+add_subdirectory (sqlite3)
+
+set( MYDDAS_YPP
   pl/myddas.ypp
   pl/myddas_assert_predicates.ypp
-  pl/myddas_mysql.ypp
-  pl/myddas_sqlite3.ypp
-  pl/myddas_postgres.ypp
   pl/myddas_top_level.ypp
   pl/myddas_errors.ypp
   pl/myddas_prolog2sql.ypp
   pl/myddas_util_predicates.ypp
   pl/myddas_prolog2sql_optimizer.ypp )
+
+set( MYDDAS_PROLOG
+  myddas.yap
+  myddas_assert_predicates.yap
+  myddas_top_level.yap
+  myddas_errors.yap
+  myddas_prolog2sql.yap
+  myddas_util_predicates.yap
+  myddas_prolog2sql_optimizer.yap )
 
 function(cpp_compile filename)
   get_filename_component(base ${filename} NAME_WE)
@@ -35,87 +61,33 @@ function(cpp_compile filename)
   set_source_files_properties(${output} PROPERTIES GENERATED TRUE)
 endfunction()
 
-foreach(file ${MYDDAS_PROLOG})
+foreach(file ${MYDDAS_YPP})
   cpp_compile(GENERATED_SOURCES ${file})
 endforeach()
 
-source_group("" FILES ${MYDDAS_PROLOG})
-source_group(generated FILES ${GENERATED_SOURCES})
+source_group("" FILES ${MYDDAS_YPP})
+source_group(generated FILES ${MYDDAS_YAP})
 
-macro_optional_find_package(ODBC ON)
-macro_optional_find_package(MySQL ON)
-macro_optional_find_package(Sqlite3 ON)
-macro_optional_find_package(PostgreSQL ON)
+  set_property( DIRECTORY ../..
+    APPEND PROPERTY COMPILE_DEFINITIONS  USE_MYDDAS=1)
 
-macro_log_feature (ODBC_FOUND "ODBC"
-    "Use ODBC Data-Base Interface "
-"http://www.unixodbc.org" FALSE)
+  Add_custom_target (plmyddas ALL DEPENDS ${MYDDAS_YAP} ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 
-macro_log_feature (MYSQL_FOUND "MySQL"
-  "Use MYSQL Data-Base Interface "
-  "http://www.mysql.org" FALSE)
 
-  macro_log_feature (SQLITE3_FOUND "SQLite3"
-      "SQL Light Data-Base "
-  "http://www.sqlite3.org" FALSE)
+ add_library (myddas OBJECT
+   ${MYDDAS_SOURCES}
+  ${MYDDAS_UTIL_SOURCES}
+   ${MYDDAS_HEADES}
+)
 
-  macro_log_feature (PostgreSQL_FOUND "PostgreSQL"
-      "PostgreSQL Data-Base "
-  "http://www.postgresql.org" FALSE)
+set_target_properties (myddas  PROPERTIES
+  POSITION_INDEPENDENT_CODE ON
+ )
 
-if (ODBC_FOUND OR MYSQL_FOUND OR SQLITE3_FOUND OR PostgreSQL_FOUND)
-    add_definitions (-DUSE_MYDDAS=1)
-  add_library (myddas SHARED ${MYDDAS_SOURCES})
-  target_link_libraries(myddas libYap)
-  if (ODBC_FOUND)
-      # ODBC_INCLUDE_DIRECTORIES, where to find sql.h
-      # ODBC_LIBRARIES, the libraries to link against to use ODBC
-      # ODBC_FOUND.  If false, you cannot build anything that requires MySQL.
-          add_definitions (-DMYDDAS_ODBC=1)
-      target_link_libraries(myddas ${ODBC_LIBRARIES})
-      include_directories (${ODBC_INCLUDE_DIRECTORIES})
-  endif (ODBC_FOUND)
 
-  if (SQLITE3_FOUND)
-    #  SQLITE3_FOUND - system has Sqlite3
-    #  SQLITE3_INCLUDE_DIRS - the Sqlite3 include directory
-    #  SQLITE3_LIBRARIES - Link these to use Sqlite3
-    #  SQLITE3_DEFINITIONS - Compiler switches required for using Sqlite3
-    check_function_exists( sqlite3_table_column_metadata HAVE_SQLITE3_TABLE_COLUMN_METADATA )
-    if (HAVE_SQLITE3_TABLE_COLUMN_METADATA:INTERNAL=1)
-      add_definitions (-DMYDDAS_SQLITE3=1)
-      target_link_libraries(myddas ${SQLITE3_LIBRARIES})
-      include_directories (${SQLITE3_INCLUDE_DIRS})
-    endif()
-  endif (SQLITE3_FOUND)
-
-  if (MYSQL_FOUND)
-    #  MYSQL_INCLUDE_DIR - where to find mysql.h, etc.
-    #  MYSQL_LIBRARIES   - List of libraries when using MySQL.
-    #  MYSQL_FOUND       - True if MySQL found.
-        add_definitions (-DMYDDAS_MYSQL=1)
-    target_link_libraries(myddas ${MYSQL_LIBRARIES})
-    include_directories (${MYSQL_INCLUDE_DIR})
-  endif (MYSQL_FOUND)
-
-  if (PostgreSQL_FOUND)
-    #  PostgreSQL_INCLUDE_DIRS  - Include directories for PostgreSQL
-    #  PostgreSQL_LIBRARY_DIRS  - Link directories for PostgreSQL libraries
-    #  PostgreSQL_LIBRARIES     - The PostgreSQL libraries.
-    add_definitions (-DMYDDAS_POSTGRES=1)
-    target_link_libraries(myddas ${PostgreSQL_LIBRARIES})
-    include_directories (${MYSQL_INCLUDE_DIRS})
-endif (PostgreSQL_FOUND)
-
-  add_custom_target (plmyddas ALL DEPENDS ${GENERATED_SOURCES} ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
-endif (ODBC_FOUND OR MYSQL_FOUND OR SQLITE3_FOUND OR PostgreSQL_FOUND)
-
-cmake_dependent_option (WITH_MYDDAS_Stats
+  
+cmake_dependent_option (USE_MYDDAS_Stats
   "enable the MYDDAS library statistics support" OFF
-  WITH_MYDDAS OFF)
+  USE_MYDDAS OFF)
 #TODO:
 
-cmake_dependent_option (WITH_MYDDAS_top_level
-  "enable the MYDDAS top-level support to MySQL" OFF
-  'WITH_MYDDAS AND MYSQL_FOUND' OFF)
-#TODO:

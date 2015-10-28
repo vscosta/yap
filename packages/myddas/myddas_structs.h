@@ -1,7 +1,12 @@
 #ifndef __MYDDAS_STRUCTS_H__
 #define __MYDDAS_STRUCTS_H__
 
-#include "myddas.h"
+#include "myddas_types.h"
+
+typedef struct myddas_util_query *MYDDAS_UTIL_QUERY;
+typedef struct myddas_list_connection *MYDDAS_UTIL_CONNECTION;
+typedef struct myddas_list_preds *MYDDAS_UTIL_PREDICATE;
+
 #ifdef MYDDAS_STATS
 #include "myddas_statistics_structs.h"
 #endif 

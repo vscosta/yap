@@ -1,5 +1,3 @@
-#if defined MYDDAS_ODBC || defined MYDDAS_MYSQL || defined MYDDAS_SQLITE3 
-
 #include <string.h>
 #include <stdlib.h>
 #ifdef MYDDAS_SQLITE3
@@ -7,11 +5,6 @@
 #endif /*MYDDAS_MYSQL*/
 #include "Yap.h"
 #include "cut_c.h"
-#include "myddas.h"
-#include "myddas_structs.h"
-#ifdef MYDDAS_STATS
-#include "myddas_statistics.h"
-#endif
 #ifdef MYDDAS_ODBC
 #include <sql.h>
 #endif /*MYDDAS_ODBC*/
@@ -19,18 +12,7 @@
 #include <mysql/mysql.h>
 #endif /*MYDDAS_MYSQL*/
 
-
-
-/* Search for the predicate in the given predicate list*/
-static MYDDAS_UTIL_PREDICATE
-myddas_util_find_predicate(const char *, Int , const char *, MYDDAS_UTIL_PREDICATE);
-/* Deletes a predicate list */
-static void 
-myddas_util_delete_predicate_list(MYDDAS_UTIL_PREDICATE);
-
-/* Prints a error message */
-static void
-myddas_util_error_message(char *,Int,char *);
+#include "myddas_util.h"
 
 
 #ifdef MYDDAS_MYSQL
@@ -221,7 +203,6 @@ n_print(Int n, char c)
 }
 #endif
 
-static
 void myddas_util_error_message(char *message ,Int line,char *file){
 #ifdef DEBUG
   printf ("ERROR: %s at line %d in file %s\n",message,(int)line,file);
@@ -230,7 +211,7 @@ void myddas_util_error_message(char *message ,Int line,char *file){
 #endif
 }
 
-static MYDDAS_UTIL_PREDICATE
+MYDDAS_UTIL_PREDICATE
 myddas_util_find_predicate(const char *pred_name, Int pred_arity,
 			   const char *pred_module, MYDDAS_UTIL_PREDICATE list){
 
@@ -243,7 +224,7 @@ myddas_util_find_predicate(const char *pred_name, Int pred_arity,
   return NULL;
 }
 
-static void 
+void 
 myddas_util_delete_predicate_list(MYDDAS_UTIL_PREDICATE preds_list){
   CACHE_REGS
   MYDDAS_UTIL_PREDICATE to_delete = NULL;
@@ -402,8 +383,3 @@ void check_int( void ){
   return;
 }
 #endif
-
-
-#endif /*defined MYDDAS_ODBC || defined MYDDAS_MYSQL*/
-
-

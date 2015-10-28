@@ -1,4 +1,3 @@
-#ifdef USE_MYDDAS
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -112,5 +111,3 @@ myddas_init_initialize_predicate(const char *pred_name, int pred_arity,
 
   return new;
 }
-
-#endif
