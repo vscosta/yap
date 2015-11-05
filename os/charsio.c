@@ -452,7 +452,7 @@ static Int tab_1(USES_REGS1) { /* nl                      */
 }
 
 static Int tab(USES_REGS1) { /* nl(Stream)                      */
-  int sno = LOCAL_c_output_stream;
+  int sno;
   Term t2;
   Int tabs, i;
   if (IsVarTerm(t2 = Deref(ARG2))) {
