@@ -1035,7 +1035,7 @@ Succeeds if there are loops in the term  _T_, that is, it is an infinite term.
 void 
 Yap_InitAbsmi(void)
 {
-  /* initialise access to abstract machine instructions */
+  /* initialize access to abstract machine instructions */
 #if USE_THREADED_CODE
   Yap_absmi(1);
   InitReverseLookupOpcode();
