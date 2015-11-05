@@ -313,7 +313,7 @@ specifies the used encoding that influence `get_code/2` and
 `put_code/2` as well as all the other text I/O predicates.
 
 The default encoding for files is derived from the Prolog flag
-`encoding`, which is initialised from the environment.  If the
+`encoding`, which is initialized from the environment.  If the
 environment variable `LANG` ends in "UTF-8", this encoding is
 assumed. Otherwise the default is `text` and the translation is
 left to the wide-character functions of the C-library (note that the
@@ -621,7 +621,7 @@ static void PopScannerMemory(char *block, unsigned int size) {
 }
 
 char *Yap_AllocScannerMemory(unsigned int size) {
-  /* I assume memory has been initialised */
+  /* I assume memory has been initialized */
   return AllocScannerMemory(size);
 }
 
@@ -1153,9 +1153,10 @@ Term Yap_scan_num(StreamDesc *inp) {
       ef = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
       tokptr->TokNext = e;
       e->Tok = Error_tok;
-      if (!LOCAL_ErrorMessage)
+      if (!LOCAL_ErrorMessage) {
         LOCAL_ErrorMessage =
             "syntax error while converting from a string to a number";
+      }
       e->TokInfo = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
       e->TokPos = GetCurInpPos(inp);
       e->TokNext = ef;
