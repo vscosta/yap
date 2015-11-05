@@ -136,7 +136,7 @@
     f( if_nonvar_op, "check_var\t %r") \
     f( save_pair_op, "save_pair\t%v") \
     f( save_appl_op, "save_appl\t%v") \
-    f( mark_initialised_pvars_op, "pvar_bitmap\t%l,%b") \
+    f( mark_initialized_pvars_op, "pvar_bitmap\t%l,%b") \
     f( mark_live_regs_op, "pvar_live_regs\t%l,%b") \
     f( fetch_args_vv_op, "fetch_reg1_reg2\t%N,%N") \
     f( fetch_args_cv_op, "fetch_constant_reg\t%l,%N") \
