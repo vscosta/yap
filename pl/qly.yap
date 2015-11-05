@@ -237,6 +237,9 @@ qend_program :-
     X \= encoding.
 
 '$init_state' :-
+	once('$handle_throw'(_,_,_)),
+	fail.
+'$init_state' :-
 	recorded('$program_state', _P, _), !,
 	'$do_init_state'.
 '$init_state'.
@@ -249,7 +252,7 @@ qend_program :-
 	recorded('$program_state',L,R),
 	erase(R),
 	lists:member(F-V,L),
-	catch(yap_flag(F,V),_,fail),
+	catch(yap_flag(F,V),Error,user:'$Error'(Error)),
 	fail.
 '$do_init_state' :-
 	'$reinit_thread0',
@@ -313,7 +316,7 @@ qend_program :-
 	recorded('$restore_goal',G,R),
 	erase(R),
 	prompt(_,'| '),
-	'$system_catch'('$do_yes_no'((G->true),user),user,Error,user:'$Error'(Error)),
+	catch(once(user:G),Error,user:'$Error'(Error)),
 	fail.
 '$init_from_saved_state_and_args'.
 
@@ -330,8 +333,7 @@ qend_program :-
     fail.
 '$startup_goals' :-
 	recorded('$startup_goal',G,_),
-	'$current_module'(Module),
-	'$system_catch'('$query'(once(G), []),Module,Error,user:'$Error'(Error)),
+	catch(once(user:G),Error,user:'$Error'(Error)),
 	fail.
 '$startup_goals' :-
 	get_value('$init_goal',GA),
@@ -342,7 +344,7 @@ qend_program :-
 '$startup_goals' :-
     recorded('$restore_flag', goal(Module:GA), R),
     erase(R),
-    '$system_catch'('$query'(once(GA), []),Module,Error,user:'$Error'(Error)),
+    catch(once(Module:GA),Error,user:'$Error'(Error)),
     fail.
 '$startup_goals' :-
 	get_value('$myddas_goal',GA), GA \= [],
@@ -736,7 +738,7 @@ qload_file( F0 ) :-
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     '$current_module'(Mod, Mod ),
     print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
-    '$exec_initialisation_goals'.
+    '$exec_initialization_goals'.
 
 '$qload_file'(_S, SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
     recorded('$source_file','$source_file'( FilePl, _Age, SourceModule), _),

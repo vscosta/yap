@@ -189,7 +189,7 @@ following flags:
 % autoload(true,false)
 % derived_from(File) -> make
 % encoding(Encoding) => implemented
-				% expand(true,false)
+% expand(true,false)
 % if(changed,true,not_loaded) => implemented
 % imports(all,List) => implemented
 % qcompile() => implemented
@@ -457,20 +457,26 @@ load_files(Files,Opts) :-
 	'$loaded'(File, UserFile, Mod, ParentF, Line, not_loaded, _, _Dir, Opts),
         '$reexport'( TOpts, ParentF, Reexport, Imports, File ).
 '$start_lf'(changed, Mod, _Stream, TOpts, UserFile, File, Reexport, Imports) :-
-    '$file_unchanged'(File, Mod, Imports, TOpts), !,
-    '$lf_opt'('$options', TOpts, Opts),
-    '$lf_opt'('$location', TOpts, ParentF:Line),
-    '$loaded'(File, UserFile, Mod, ParentF, Line, changed, _, _Dir, Opts),
-    '$reexport'( TOpts, ParentF, Reexport, Imports, File ).
+	'$file_unchanged'(File, Mod, Imports, TOpts), !,
+	'$lf_opt'('$options', TOpts, Opts),
+	'$lf_opt'('$location', TOpts, ParentF:Line),
+	'$loaded'(File, UserFile, Mod, ParentF, Line, changed, _, _Dir, Opts),
+	'$reexport'( TOpts, ParentF, Reexport, Imports, File ).
 '$start_lf'(_, Mod, PlStream, TOpts, _UserFile, File, Reexport, ImportList) :-
     % check if there is a qly file
 %	start_low_level_trace,
 	'$absolute_file_name'(File,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)],F,qload_file(File)),
-	open( F, read, Stream , [type(binary)] ),
-	'$q_header'( Stream, Type ),
-    (  Type == file
-    ->
-      H0 is heapused, '$cputime'(T0,_),
+    	open( F, read, Stream , [type(binary)] ),
+	(
+	 '$q_header'( Stream, Type ),
+	 Type == file
+	->
+	 !
+	 ;
+	 close(Stream),
+	fail
+	),
+	H0 is heapused, '$cputime'(T0,_),
        time_file64(F, T0F),
        stream_property(PlStream, file_name(FilePl)),
        time_file64(FilePl, T0Fl),
@@ -488,11 +494,7 @@ load_files(Files,Opts) :-
        '$reexport'( TOpts, ParentF, Reexport, ImportList, File ),
        '$early_print'(Verbosity, loaded( loaded, F, M, T, H)),
 %	stop_low_level_trace,
-       '$exec_initialisation_goals'
-    ;
-       close( Stream),
-       fail
-    ).
+       '$exec_initialization_goals'.
 '$start_lf'(_, Mod, Stream, TOpts, UserFile, File, _Reexport, _Imports) :-
 	'$do_lf'(Mod, Stream, UserFile, File, TOpts).
 
@@ -674,7 +676,6 @@ db_files(Fs) :-
 	current_prolog_flag(generate_debug_info, GenerateDebug),
 	'$lf_opt'(compilation_mode, TOpts, CompMode),
 	'$comp_mode'(OldCompMode, CompMode),
-	recorda('$initialisation','$',_),
 	( Reconsult \== consult ->
 	    '$start_reconsulting'(File),
 	    '$start_consult'(Reconsult,File,LC),
@@ -722,7 +723,7 @@ db_files(Fs) :-
 	'$reexport'( TOpts, ParentF, Reexport, Imports, File ),
 	nb_setval('$qcompile', ContextQCompiling),
 	( LC == 0 -> prompt(_,'   |: ') ; true),
-	'$exec_initialisation_goals',
+	'$exec_initialization_goals',
 	% format( 'O=~w~n', [Mod=UserFile] ),
 	!.
 
@@ -785,30 +786,38 @@ nb_setval('$if_le1vel',0).
 	recorda('$reconsulted','$',_),
 	recorda('$reconsulting',F,_).
 
-'$exec_initialisation_goals' :-
+'$exec_initialization_goals' :-
 	recorded('$blocking_code',_,R),
 	erase(R),
 	fail.
 % system goals must be performed first
-'$exec_initialisation_goals' :-
-	recorded('$system_initialisation',G,R),
+'$exec_initialization_goals' :-
+	recorded('$system_initialization',G,R),
 	erase(R),
 	G \= '$',
-    '$system_catch'(ignore(M:G), M, Error, user:'$LoopError'(Error, top)),
+	( catch(user:G, Error, user:'$LoopError'(Error, top))
+	->
+	  true
+	;
+	  format(user_error,':- ~w failed.~n',[G])
+	),
    fail.
-'$exec_initialisation_goals' :-
-    b_getval('$lf_status', TOpts),
-    writeln(ok),
-    '$lf_opt'( initialization, TOpts, Ref),
-    writeln(Ref),
-    nb:nb_queue_close(Ref, Answers, []),
-    writeln( Answers ),
+'$exec_initialization_goals' :-
 	'$current_module'(M),
-    lists:member(G, Answers),
-     writeln(G),
-	 '$system_catch'(ignore(M:G), M, Error, user:'$LoopError'(Error, top)),
-    fail.
-'$exec_initialisation_goals'.
+	b_getval('$lf_status', TOpts),
+	'$lf_opt'( initialization, TOpts, Ref),
+	nb:nb_queue_close(Ref, Answers, []),
+	lists:member(G, Answers),
+%	start_low_level_trace,
+	(
+	 catch(M:G, Error, user:'$LoopError'(Error, top))
+	->
+	 true
+	;                                                                                 format(user_error,':- ~w:~w failed.~n',[M,G])
+	),
+%	stop_low_level_trace,
+	fail.
+'$exec_initialization_goals'.
 
 /**
   @pred include(+ _F_) is directive
@@ -865,14 +874,7 @@ nb_setval('$if_le1vel',0).
 	'$init_win_graphics',
     fail.
 '$do_startup_reconsult'(X) :-
-	( current_prolog_flag(halt_after_consult, false) ->
-	  '$system_catch'(load_files(X, [silent(true)]), Module, Error, '$Error'(Error))
-	;
-	  set_prolog_flag(verbose, silent),
-	  '$system_catch'(load_files(X, [silent(true),skip_unix_header(true)]),Module,_,fail)
-	;
-	  true
-	),
+	catch(load_files(user:X, [silent(true)]), Error, '$Error'(Error)),
 	!,
 	( current_prolog_flag(halt_after_consult, false) -> true ; halt).
 '$do_startup_reconsult'(_).
@@ -1376,9 +1378,9 @@ environment. Use initialization/2 for more flexible behavior.
 '$initialization'(C) :- db_reference(C), !,
 	'$do_error'(type_error(callable,C),initialization(C)).
 '$initialization'(G) :-
-    b_getval('$lf_status', TOpts),
-    '$lf_opt'( initialization, TOpts, Ref),
-    nb:nb_queue_enqueue(Ref, G),
+	b_getval('$lf_status', TOpts),
+	'$lf_opt'( initialization, TOpts, Ref),
+	nb:nb_queue_enqueue(Ref, G),
 	fail.
 '$initialization'(_).
 
@@ -1441,8 +1443,10 @@ initialization(_G,_OPT).
 	 '$do_error'(type_error(atom,OPT),initialization(OPT))
 	).
 '$initialization'(G,now) :-
-	( call(G) -> true ;
-	  format(user_error,':- ~w failed.~n',[G]) ).
+    '$current_module'(M),
+   ( catch(M:G, Error, user:'$LoopError'(Error, top)) -> true
+    ;                                                                                 format(user_error,':- ~w:~w failed.~n',[M,G])
+   ).
 '$initialization'(G,after_load) :-
 	'$initialization'(G).
 % ignore for now.
