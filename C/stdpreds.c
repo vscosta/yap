@@ -233,7 +233,7 @@
 * fix situation where we might assume nonextsing double initialization of C
 *predicates (use
 * Hidden Pred Flag).
-* $host_type was double initialised.
+* $host_type was double initialized.
 *
 * Revision 1.71  2004/07/23 21:08:44  vsc
 * windows fixes
@@ -880,9 +880,9 @@ static bool valid_prop(Prop p, Term task) {
   if (RepPredProp(p)->OpcodeOfPred == UNDEF_OPCODE)
     return false;
   if ((RepPredProp(p)->PredFlags & (HiddenPredFlag | StandardPredFlag))) {
-    return (task == SYSTEM_MODULE || task == TermTrue);
+    return (task == SYSTEM_MODULE || task == TermTrue || IsVarTerm(task));
   } else {
-    return (task == USER_MODULE || task == TermTrue);
+    return (task == USER_MODULE || task == TermTrue || IsVarTerm(task));
   }
 }
 
@@ -929,7 +929,7 @@ static PropEntry *nextPredForAtom(PropEntry *p, Term task) {
     FunctorEntry *f = pe->FunctorOfPred;
     // first search remainder of functor list
     PropEntry *pf;
-    if ((pf = followLinkedListOfProps(p->NextOfPE, task)), task) {
+    if ((pf = followLinkedListOfProps(p->NextOfPE, task))) {
       return pf;
     }
 
@@ -1017,6 +1017,27 @@ static Int cont_current_predicate(USES_REGS1) {
   pp = AddressOfTerm(EXTRA_CBACK_ARG(4, 1));
   if (IsNonVarTerm(t3)) {
     PropEntry *np, *p;
+    
+    if (IsNonVarTerm(t2)) {
+      // module and functor known, should be easy
+      if (IsAtomTerm(t2)) {
+        if ((p = Yap_GetPredPropByAtom(AtomOfTerm(t3), t2)) &&
+            valid_prop(p, task)
+            ) {
+          cut_succeed();
+        } else {
+          cut_fail();
+        }
+      } else {
+        if ((p = Yap_GetPredPropByFunc(FunctorOfTerm(t3), t2)) &&
+            valid_prop(p, task)
+            ) {
+          cut_succeed();
+        } else {
+          cut_fail();
+        }
+      }
+    }
 
     // t3 is a functor, or compound term,
     // just follow the functor chain
@@ -1029,30 +1050,20 @@ static Int cont_current_predicate(USES_REGS1) {
       if (p == NIL)
         cut_fail();
       pp = RepPredProp(p);
-      if (!IsVarTerm(t2)) {
-        do {
-          if (t2 == TermProlog)
-            t2 = PROLOG_MODULE;
-          if (pp->ModuleOfPred == t2) {
-            will_cut = true;
-            break;
-          } else {
-            pp = RepPredProp(p = followLinkedListOfProps(p->NextOfPE, task));
-          }
-        } while (!will_cut && p);
-      }
-      if (!p)
-        cut_fail();
+     }
+    np = followLinkedListOfProps(p->NextOfPE, task);
+    Term mod = pp->ModuleOfPred;
+    if (mod == PROLOG_MODULE)
+      mod = TermProlog;
+    bool b = Yap_unify(t2, mod);
+    if (!np) {
+      if (b) cut_succeed();
+      else cut_fail();
+    } else {
+      EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(RepPredProp(np));
+      B->cp_h = HR;
+     return b;
     }
-    do {
-      np = followLinkedListOfProps(p->NextOfPE, task);
-      if (!np) {
-        will_cut = true;
-      } else {
-        EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(RepPredProp(np));
-        B->cp_h = HR;
-      }
-    } while (p == NULL);
   } else if (IsNonVarTerm(t1)) {
     PropEntry *np, *p;
     // run over the same atomany predicate defined for that atom
