@@ -346,7 +346,7 @@
 * fix situation where we might assume nonextsing double initialization of C
 *predicates (use
 * Hidden Pred Flag).
-* $host_type was double initialised.
+* $host_type was double initialized.
 *
 * Revision 1.141  2004/11/04 18:22:31  vsc
 * don't ever use memory that has been freed (that was done by LU).
@@ -479,6 +479,7 @@ static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #endif
 #include <heapgc.h>
 #include <iopreds.h>
+#include <assert.h>
 
 static void retract_all(PredEntry *, int);
 static void add_first_static(PredEntry *, yamop *, int);
@@ -2155,7 +2156,10 @@ static int addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
     sc[1] = MkIntegerTerm(Yap_source_line_no());
     sc[2] = MkAtomTerm(LOCAL_SourceFileName);
     sc[3] = t;
-    Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, sc));
+    t = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, sc);
+    sc[0]  = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 1), 1, &t);
+    sc[1]  = MkAtomTerm(AtomWarning);
+    Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError,2), 2, sc)); 
   } else if (Yap_multiple(p, mode PASS_REGS)) {
     Term disc[4], sc[4];
     if (p->ArityOfPE) {
@@ -2170,7 +2174,10 @@ static int addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
     sc[1] = MkIntegerTerm(Yap_source_line_no());
     sc[2] = MkAtomTerm(LOCAL_SourceFileName);
     sc[3] = t;
-    Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, sc));
+    t = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, sc);
+    sc[0]  = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 1), 1, &t);
+    sc[1]  = MkAtomTerm(AtomWarning);
+    Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError,2), 2, sc)); 
   }
   if (mode == consult)
     not_was_reconsulted(p, t, TRUE);
@@ -2321,12 +2328,15 @@ void Yap_EraseStaticClause(StaticClause *cl, PredEntry *ap, Term mod) {
       ocl = pcl;
       pcl = pcl->ClNext;
     }
-    ocl->ClNext = cl->ClNext;
+    if (ocl) {
+      ocl->ClNext = cl->ClNext;
+    }
     if (cl->ClCode == ap->cs.p_code.LastClause) {
       ap->cs.p_code.LastClause = ocl->ClCode;
     }
   }
   if (ap->cs.p_code.NOfClauses == 1) {
+    assert( ap->cs.p_code.FirstClause );
     ap->cs.p_code.TrueCodeOfPred = ap->cs.p_code.FirstClause;
     ap->OpcodeOfPred = ap->cs.p_code.TrueCodeOfPred->opc;
   }
