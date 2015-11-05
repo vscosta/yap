@@ -384,9 +384,9 @@ PlIOError__ (const char *file, const char *function, int lineno,  yap_error_numb
     va_end( args );
     Yap_Error__(file, function, lineno, type, culprit, who);
     /* and fail */
-    return FALSE;
+    return false;
   } else {
-    return FALSE;
+    return false;
   }
 }
 
@@ -420,8 +420,8 @@ InTTYLine(char *line)
   TTYChar('\n');
   *p = 0;
 }
-
 #endif
+
 
 void
 Yap_DebugSetIFile(char *fname)
@@ -431,9 +431,10 @@ Yap_DebugSetIFile(char *fname)
   curfile = fopen(fname, "r");
   if (curfile == NULL) {
     curfile = stdin;
-    fprintf(stderr,"%% YAP Warning: can not open %s for input\n", fname);
+    Yap_Warning("%% YAP  open %s for input\n", fname);
   }
 }
+
 
 void
 Yap_DebugEndline()
@@ -496,9 +497,18 @@ Yap_DebugPlWrite(Term t)
 
 void
 Yap_DebugPlWriteln(Term t)
+{
+  CACHE_REGS
+  Yap_plwrite(t, NULL, 15, 0, 1200);
+  Yap_DebugPutc (GLOBAL_Stream[LOCAL_c_error_stream].file, '.');
+  Yap_DebugPutc (GLOBAL_Stream[LOCAL_c_error_stream].file, 10);
+}
+
+void
 Yap_DebugErrorPutc(int c)
 {
-  Yap_DebugPutc (stderr, c);
+  CACHE_REGS
+  Yap_DebugPutc (GLOBAL_Stream[LOCAL_c_error_stream].file, c);
 }
 
 void Yap_DebugWriteIndicator( PredEntry *ap )
@@ -1980,7 +1990,10 @@ Yap_InitIOPreds(void)
   Yap_InitWriteTPreds();
   Yap_InitReadTPreds();
   Yap_InitFormat();
+  Yap_InitRandomPreds();
   Yap_InitReadline();
   Yap_InitSockets();
+  Yap_InitSignalPreds();
   Yap_InitSysPreds();
+  Yap_InitTimePreds();
 }
