@@ -218,23 +218,25 @@ Term Yap_syntax_error(TokEntry *errtok, int sno) {
   Term info;
   Term startline, errline, endline;
   Term tf[4];
-  Term *tailp = tf + 3;
+  Term *tailp = tf+3;
   CELL *Hi = HR;
   TokEntry *tok = LOCAL_tokptr;
   Int cline = tok->TokPos;
 
-  *tailp = TermNl;
   startline = MkIntegerTerm(cline);
   if (errtok != LOCAL_toktide) {
     errtok = LOCAL_toktide;
   }
   LOCAL_Error_TYPE = YAP_NO_ERROR;
   errline = MkIntegerTerm(errtok->TokPos);
+  if (LOCAL_ErrorMessage)
+    tf[0] = MkStringTerm(LOCAL_ErrorMessage);
+  else
+    tf[0] = MkStringTerm("");
   while (tok) {
     Term ts[2];
 
     if (HR > ASP - 1024) {
-      tf[3] = TermNil;
       errline = MkIntegerTerm(0);
       endline = MkIntegerTerm(0);
       /* for some reason moving this earlier confuses gcc on solaris */
@@ -254,7 +256,11 @@ Term Yap_syntax_error(TokEntry *errtok, int sno) {
     switch (tok->Tok) {
     case Name_tok: {
       Term t0[1];
-      t0[0] = MkAtomTerm((Atom)info);
+      if (info) {
+	t0[0] = MkAtomTerm((Atom)info);
+      } else {
+	t0[0] = TermNil;
+      }
       ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomAtom, 1), 1, t0);
     } break;
       case QuasiQuotes_tok:
@@ -273,22 +279,18 @@ Term Yap_syntax_error(TokEntry *errtok, int sno) {
       ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomNumber, 1), 1, &(tok->TokInfo));
       break;
     case Var_tok: {
-      Term t[3];
+      Term t[2];
       VarEntry *varinfo = (VarEntry *)info;
 
       t[0] = MkIntTerm(0);
       t[1] = Yap_CharsToString(varinfo->VarRep, ENC_ISO_LATIN1 PASS_REGS);
-      if (varinfo->VarAdr == TermNil) {
-        t[2] = varinfo->VarAdr = MkVarTerm();
-      } else {
-        t[2] = varinfo->VarAdr;
-      }
-      ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomGVar, 3), 3, t);
+      ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomGVar, 2), 2, t);
     } break;
     case String_tok: {
       Term t0 = Yap_CharsToTDQ((char *)info, CurrentModule, ENC_ISO_LATIN1 PASS_REGS);
-      if (!t0)
+      if (!t0) {
 	return 0;
+      }
       ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString, 1), 1, &t0);
     } break;
     case WString_tok: {
@@ -312,7 +314,7 @@ Term Yap_syntax_error(TokEntry *errtok, int sno) {
       endline = MkIntegerTerm(tok->TokPos);
       ts[0] = MkAtomTerm(Yap_LookupAtom("EOT"));
 
-      break;
+     break;
     case Ponctuation_tok: {
       char s[2];
       s[1] = '\0';
@@ -340,15 +342,16 @@ Term Yap_syntax_error(TokEntry *errtok, int sno) {
   /* 0: id */
   /* 1: strat, error, end line */
   /*2 msg */
-  if (LOCAL_ErrorMessage)
-    tf[0] = MkStringTerm(LOCAL_ErrorMessage);
-  else
-    tf[0] = MkStringTerm("");
   /* file */
   tf[2] = Yap_StreamUserName(sno);
   clean_vars(LOCAL_VarTable);
   clean_vars(LOCAL_AnonVarTable);
-  return Yap_MkApplTerm(FunctorSyntaxError, 4, tf);
+  Term terr = Yap_MkApplTerm(FunctorSyntaxError, 4, tf);
+  Term tn[2];
+  tn[0] = Yap_MkApplTerm(FunctorShortSyntaxError, 1, &terr);
+  tn[1] = TermNil;
+  terr = Yap_MkApplTerm(FunctorError, 2, tn);
+  return terr;
 }
 
 typedef struct FEnv {
@@ -720,11 +723,12 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
       Yap_Error(SYNTAX_ERROR, terr, LOCAL_ErrorMessage);
       return YAP_PARSING_FINISHED;
     } else {
-      Term tn = Yap_MkApplTerm(FunctorShortSyntaxError, 1, &terr);
-      Yap_PrintWarning(tn);
       LOCAL_Error_TYPE = YAP_NO_ERROR;
-      if (ParserErrorStyle == TermDec10)
-        return YAP_SCANNING;
+      if (ParserErrorStyle == TermDec10) {
+	if (Yap_PrintWarning(terr))
+	  return YAP_SCANNING;
+	return YAP_PARSING_FINISHED;
+      }
     }
   }
   LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -950,8 +954,10 @@ static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart, Term t) {
     singls[1] =  MkIntegerTerm(LOCAL_SourceFileLineno);
     singls[2] = MkAtomTerm(LOCAL_SourceFileName );
     singls[3] = t;
-    Yap_PrintWarning(
-        Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, singls));
+    t = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, singls);
+    singls[0]  = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 1), 1, &t);
+    singls[1]  = TermNil;
+    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, singls ));
   }
   if (fe->np && !Yap_unify(v1, fe->np))
     return 0;
@@ -990,7 +996,7 @@ static Int read_clause2(USES_REGS1) {
 *   + The `syntax_errors` flag controls response to syntactic errors, the
 *default is `dec10`.
 *
-* The next two options are called implicitly:
+* The next two options are called implicitly:plwae
 *
 *   + The `module` option is initialized to the current source module, by
 *default.
@@ -1004,6 +1010,8 @@ static Int read_clause(
   yhandle_t h = Yap_InitSlot(ARG2);
   /* needs to change LOCAL_output_stream for write */
   inp_stream = Yap_CheckTextStream(ARG1, Input_Stream_f, "read/3");
+  if (inp_stream < 0)
+    return false;
   out = Yap_read_term(inp_stream, t3, -3);
   UNLOCK(GLOBAL_Stream[inp_stream].streamlock);
   Term tf = Yap_GetFromSlot(h);
