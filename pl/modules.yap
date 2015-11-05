@@ -477,7 +477,7 @@ of predicates.
 
 '$prepare_restore_hidden'(Old,Old) :- !.
 '$prepare_restore_hidden'(Old,New) :-
-	recorda('$system_initialisation', source_mode(New,Old), _).
+	recorda('$system_initialization', source_mode(New,Old), _).
 
 '$add_module_on_file'(DonorMod, DonorF, SourceF, Exports) :-
     recorded('$module','$module'(OtherF, DonorMod, _, _, _),R),
@@ -801,7 +801,8 @@ expand_goal(G, G).
 	NG =.. [Name|NGArgs].
 
 '$expand_args'([], _, _, _, [], _, []).
-'$expand_args'([A|GArgs], HM, BM, SM,   [0|GDefs], HVars, [NA|NGArgs]) :-
+'$expand_args'([A|GArgs], HM, BM, SM,   [M|GDefs], HVars, [NA|NGArgs]) :-
+	( M == ':' -> true ; number(M) ),
 	'$do_expand'(A, HM, BM, SM, HVars, NA), !,
 	'$expand_args'(GArgs, HM, BM, SM, GDefs, HVars, NGArgs).
 '$expand_args'([A|GArgs], HM, BM, SM, [_|GDefs], HVars, [A|NGArgs]) :-
