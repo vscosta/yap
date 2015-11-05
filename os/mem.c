@@ -259,7 +259,6 @@ Yap_open_buf_write_stream(char *buf, size_t nchars, encoding_t *encp,  memBufSou
       return -1;
     }
     st->nsize = nchars;
-    /* currently these streams are not seekable */
     st->linepos = 0;
     st->charcount = 0;
     st->linecount = 1;
@@ -324,9 +323,9 @@ Yap_MemExportStreamPtr( int sno )
 {
   char *s;
 #if MAY_WRITE
-  if (fflush(GLOBAL_Stream[sno].file) == 0 &&
-      (s =  GLOBAL_Stream[sno].nbuf)) {
-    s[ftell(GLOBAL_Stream[sno].file)]  = '\0';
+  if (fflush(GLOBAL_Stream[sno].file) == 0)
+    {
+      s =  GLOBAL_Stream[sno].nbuf;
     return s;
   }
   return NULL;
