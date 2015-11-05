@@ -484,7 +484,7 @@ static inline Term Yap_AtomToNumber(Term t0 USES_REGS) {
   inp.type = YAP_STRING_ATOM;
   out.val.uc = NULL;
   out.type =
-      YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_TERM;
+      YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   return out.val.t;
