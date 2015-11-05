@@ -139,7 +139,7 @@ p_setarg( USES_REGS1 )
 
 */
 
-/* create and initialise a new timed var. The problem is: how to set
+/* create and initialize a new timed var. The problem is: how to set
    the clock?
 
    If I give it the current value of B->TR, we may have trouble if no

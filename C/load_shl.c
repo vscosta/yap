@@ -51,7 +51,7 @@ LoadForeign( StringList ofiles, StringList libs,
 		 char *proc_name, YapInitProc *init_proc )
 {
 
-  /* *init_proc is initialised to NULL in load_foreign.c */
+  /* *init_proc is initialized to NULL in load_foreign.c */
   int init_missing = -1;
 
   int n, i;
