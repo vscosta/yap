@@ -347,6 +347,9 @@ read_sig.
 %
 % make thes predicates non-traceable.
 
+:- '$set_no_trace'(current_choicepoint(_DCP), yap_hacks).
+:- '$set_no_trace'(current_choice_point(_DCP), yap_hacks).
+:- '$set_no_trace'(true, yap_hacks).
 :- '$set_no_trace'(true, prolog).
 :- '$set_no_trace'('$call'(_,_,_,_), prolog).
 :- '$set_no_trace'('$execute_nonstop'(_,_), prolog).
