@@ -250,6 +250,7 @@ rules.
 :- use_module('../swi/library/menu.pl').
 :- use_module('../library/ypp.yap').
 :- use_module('../os/chartypes.yap').
+:- ensure_loaded('../os/edio.yap').
 
 yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
