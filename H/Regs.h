@@ -91,6 +91,7 @@ typedef struct regstore_t
   {
     CELL    EventFlag_;		/* 13                                         */
     CELL    CreepFlag_;		/* 13                                         */
+    yamop *P_;			/* 7 prolog machine program counter           */
     CELL   *HB_;		/* 4 heap (global) stack top at latest c.p.   */
 #if defined(YAPOR_SBA) || defined(TABLING)
     choiceptr BB_;		/* 4 local stack top at latest c.p.   */
@@ -105,10 +106,7 @@ typedef struct regstore_t
     yamop *CP_;			/* 28 continuation program counter            */
     CELL  *ENV_;		/* 1 current environment                      */
     struct cut_c_str *CUT_C_TOP;
-#if defined USE_MYDDAS
-    struct myddas_global *MYDDAS_GLOBAL_POINTER;
-#endif
-    yamop *P_;			/* 7 prolog machine program counter           */
+
     CELL  *YENV_;		/* 5 current environment (may differ from ENV)*/
     CELL  *S_;			/* 6 structure pointer                        */
     CELL  *ASP_;		/* 8 top of local       stack                 */
@@ -120,6 +118,7 @@ typedef struct regstore_t
 /* visualc*/
     struct DB_TERM   * EX_;     /* 18                                         */
     Term  CurrentModule_;
+    struct myddas_global *MYDDAS_GLOBAL_POINTER;
 #if defined(YAPOR_SBA) || defined(TABLING)
     CELL *H_FZ_;
     choiceptr B_FZ_;
@@ -734,7 +733,7 @@ INLINE_ONLY EXTERN inline void restore_B(void) {
 /* make standard registers globally accessible so that they are there
    when we come from a longjmp */
 #if PUSH_REGS
-/* In this case we need to initialise the abstract registers */
+/* In this case we need to initialize the abstract registers */
 extern REGSTORE Yap_standard_regs;
 #endif /* PUSH_REGS */
 
