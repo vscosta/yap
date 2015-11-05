@@ -2,6 +2,7 @@
 % ProbLog extension to use an YAP BDD interface module, instead of simplecudd.
 %
 
+:- include(problog).
 
 :- use_module(library(trie_sp)).
 :- use_module(library(bdd)).
