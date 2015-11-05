@@ -140,5 +140,5 @@ typedef struct global_data {
   char*  CharConversionTable_;
   char*  CharConversionTable2_;
 
-  void*  LastWtimePtr_;
+  void*  LastWTimePtr_;
 } w_shared;

@@ -140,5 +140,5 @@
 #define GLOBAL_CharConversionTable Yap_global->CharConversionTable_
 #define GLOBAL_CharConversionTable2 Yap_global->CharConversionTable2_
 
-#define GLOBAL_LastWtimePtr Yap_global->LastWtimePtr_
+#define GLOBAL_LastWTimePtr Yap_global->LastWTimePtr_
 
