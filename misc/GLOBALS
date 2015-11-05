@@ -166,7 +166,7 @@ char*				CharConversionTable2			=NULL
 
 
 /* time */
-void*				LastWtimePtr				=NULL
+void*				LastWTimePtr				=NULL
 
 
 
