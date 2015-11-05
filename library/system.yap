@@ -625,9 +625,9 @@ process_inp_stream_for_exec(std, 0, _, L, L) :- !.
 process_inp_stream_for_exec(pipe(ForWriting), ForReading, _, L, [ForReading|L]) :- var(ForWriting), !,
 	open_pipe_streams(ForReading, ForWriting).
 process_inp_stream_for_exec(pipe(Stream), _, _, L, L) :- !,
-	stream_property(Stream, output).
+	stream_property(Stream, input).
 process_inp_stream_for_exec(Stream, Stream, _, L, L) :-
-	stream_property(Stream, output).
+	stream_property(Stream, put).
 
 
 process_out_stream_for_exec(Error, _, G, L, L) :- var(Error), !,
@@ -638,9 +638,9 @@ process_out_stream_for_exec(std, 1, _, L, L) :- !.
 process_out_stream_for_exec(pipe(ForReading), ForWriting, _, L, [ForWriting|L]) :- var(ForReading), !,
 	open_pipe_streams(ForReading, ForWriting).
 process_out_stream_for_exec(pipe(Stream), _, _, L, L) :- !,
-	stream_property(Stream, input).
+	stream_property(Stream, output).
 process_out_stream_for_exec(Stream, Stream, _, L, L) :-
-	stream_property(Stream, input).
+	stream_property(Stream, output).
 
 process_err_stream_for_exec(Error, _, G, L, L) :- var(Error), !,
 	close_temp_streams(L),
@@ -650,9 +650,9 @@ process_err_stream_for_exec(std, 2, _, L, L) :- !.
 process_err_stream_for_exec(pipe(ForReading), ForWriting, _, L, [ForWriting|L]) :- var(ForReading), !,
 	open_pipe_streams(ForReading, ForWriting).
 process_err_stream_for_exec(pipe(Stream), Stream, _, L, L) :- !,
-	stream_property(Stream, input).
+	stream_property(Stream, output).
 process_err_stream_for_exec(Stream, Stream, _, L, L) :-
-	stream_property(Stream, input).
+	stream_property(Stream, output).
 
 close_temp_streams([]).
 close_temp_streams([S|Ss]) :- 
@@ -813,3 +813,4 @@ tmpdir(TmpDir):-
 path_separator('\\'):-
   win, !.
 path_separator('/').
+
