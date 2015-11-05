@@ -640,8 +640,10 @@ ShowOp (compiler_vm_op ic, const char *f, struct PSEUDO *cpc)
 	  case 'v':
 	    {
 	      Ventry *v = (Ventry *) arg;
-	      Yap_DebugErrorPutc (v->KindOfVE == PermVar ? 'Y' : 'X');
-	      Yap_DebugPlWrite (MkIntTerm ((v->NoOfVE) & MaskVarAdrs));
+          if (v) {
+            Yap_DebugErrorPutc (v->KindOfVE == PermVar ? 'Y' : 'X');
+            Yap_DebugPlWrite (MkIntTerm ((v->NoOfVE) & MaskVarAdrs));
+          }
 	    }
 	    break;	
 	  case 'N':
