@@ -264,8 +264,6 @@ Term Yap_MkStream (int n);
 
 bool Yap_PrintWarning( Term twarning );
 
-char *Yap_MemExportStreamPtr( int sno );
-
 
 void	Yap_plwrite(Term, struct stream_desc *, int, int, int);
 void    Yap_WriteAtom(struct stream_desc *s, Atom atom);
@@ -281,6 +279,10 @@ void    Yap_ConsoleSocketOps( StreamDesc *st );
 bool    Yap_ReadlineOps( StreamDesc *st );
 int	Yap_OpenBufWriteStream( USES_REGS1);
 void    Yap_ConsoleOps( StreamDesc *s );
+
+void Yap_InitRandomPreds (void);
+void Yap_InitSignalPreds (void);
+void Yap_InitTimePreds (void);
 
 void Yap_init_socks(char *host, long interface_port);
 void Yap_InitPipes( void );
@@ -451,5 +453,5 @@ extern FILE *Yap_stdin;
 extern FILE *Yap_stdout;
 extern FILE *Yap_stderr;
 
-
+char *Yap_MemExportStreamPtr( int sno );
 #endif
