@@ -73,6 +73,8 @@ Term Yap_StringToNumberTerm(char *s, encoding_t *encp) {
   while (*s && iswblank(*s++))
     ;
   t = Yap_scan_num(GLOBAL_Stream + sno);
+  if (LOCAL_Error_TYPE == SYNTAX_ERROR)
+    LOCAL_Error_TYPE = YAP_NO_ERROR;
   Yap_CloseStream(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return t;
