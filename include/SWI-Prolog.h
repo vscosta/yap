@@ -794,11 +794,13 @@ PL_EXPORT(void*)	PL_blob_data(atom_t a,
 PL_EXPORT(void)		PL_register_blob_type(PL_blob_t *type);
 PL_EXPORT(PL_blob_t*)	PL_find_blob_type(const char* name);
 PL_EXPORT(PL_blob_t*)	YAP_find_blob_type(YAP_Atom at);
-PL_EXPORT(int)		PL_unregister_blob_type(PL_blob_t *type);
+PL_EXPORT(int)		PL_unr1egister_blob_type(PL_blob_t *type);
 PL_EXPORT(int)		PL_raise(int sig);
 
 #endif
 #if USE_GMP
+
+#include <gmp.h>
 
 PL_EXPORT(int)		PL_get_mpz(term_t t, mpz_t mpz);
 PL_EXPORT(int)		PL_unify_mpz(term_t t, mpz_t mpz);
