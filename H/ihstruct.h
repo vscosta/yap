@@ -40,7 +40,7 @@
 #endif
 #if USE_DL_MALLOC || (USE_SYSTEM_MALLOC && HAVE_MALLINFO)
 #ifndef  HeapUsed
-#define  HeapUsed  Yap_givemallinfo()		
+#define  HeapUsed  Yap_givemallinfo()
 #endif
 
 #else
@@ -94,7 +94,6 @@
   CHTYPE_MODULE = MkAtomTerm(AtomChType);
   TERMS_MODULE = MkAtomTerm(AtomTerms);
   SYSTEM_MODULE = MkAtomTerm(AtomSystem);
-  OPERATING_SYSTEM_MODULE = MkAtomTerm(AtomOperatingSystemSupport);
   READUTIL_MODULE = MkAtomTerm(AtomReadutil);
   HACKS_MODULE = MkAtomTerm(AtomYapHacks);
   ARG_MODULE = MkAtomTerm(AtomArg);
