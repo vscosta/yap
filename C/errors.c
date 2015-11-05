@@ -124,8 +124,8 @@ bool Yap_Warning(const char *s, ...) {
   } else
     return false;
   va_end(ap);
-  ts[0] = MkAtomTerm(AtomWarning);
-  ts[1] = MkAtomTerm(Yap_LookupAtom(tmpbuf));
+  ts[1] = MkAtomTerm(AtomWarning);
+  ts[0] = MkAtomTerm(Yap_LookupAtom(tmpbuf));
   rc = Yap_execute_pred(pred, ts, true PASS_REGS);
   LOCAL_within_print_message = false;
   return rc;
@@ -153,8 +153,8 @@ bool Yap_PrintWarning(Term twarning) {
     LOCAL_within_print_message = false;
     return true;
   }
-  ts[0] = MkAtomTerm(AtomWarning);
   ts[1] = twarning;
+  ts[0] = MkAtomTerm(AtomWarning);
   rc = Yap_execute_pred(pred, ts, true PASS_REGS);
   LOCAL_within_print_message = false;
   LOCAL_DoingUndefp = false;
@@ -403,11 +403,6 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
     LOCAL_PrologMode &= ~InErrorMode;
     Yap_exit(1);
   }
-  if (LOCAL_PrologMode == BootMode) {
-    Yap_detect_bug_location(P, FIND_PRED_FROM_ANYWHERE, 256);
-    Yap_detect_bug_location(CP, FIND_PRED_FROM_ANYWHERE, 256);
-    error_exit_yap(1);
-  }
   va_start(ap, where);
   format = va_arg(ap, char *);
   if (format != NULL) {
@@ -458,7 +453,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
 
   if (LOCAL_PrologMode & BootMode) {
     /* crash in flames! */
-    fprintf(stderr, "%% YAP Fatal Error: %s exiting....\n", tmpbuf);
+    fprintf(stderr, "%s:%d:0 YAP Fatal Error %d in function %s:\n  %s exiting....\n", file, lineno, type, function, s);
     error_exit_yap(1);
   }
 #ifdef DEBUG
