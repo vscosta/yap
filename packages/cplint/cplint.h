@@ -8,6 +8,7 @@ for the relative license.
 
 */
 #include "config.h"
+#include "cudd_config.h"
 #if HAVE_CUDD_UTIL_H
 #include "cudd/util.h"
 #include "cudd/cuddInt.h"

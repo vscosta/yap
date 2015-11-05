@@ -10,7 +10,7 @@ add_executable (Problogbdd
   ${SRC})
 
 set_target_properties (Problogbdd PROPERTIES
-  OUTPUT_NAME simplecudd
+  OUTPUT_NAME problogbdd
   )
 
 target_link_libraries(Problogbdd

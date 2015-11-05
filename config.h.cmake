@@ -270,16 +270,6 @@ function. */
 #cmakedefine HAVE_CRT_EXTERNS_H ${HAVE_CRT_EXTERNS_H}
 #endif
 
-/* "Define if you have the crypt function." */
-#ifndef HAVE_CRYPT
-#cmakedefine HAVE_CRYPT ${HAVE_CRYPT}
-#endif
-
-/* Define to 1 if you have the <crypt.h> header file. */
-#ifndef HAVE_CRYPT_H
-#cmakedefine HAVE_CRYPT_H ${HAVE_CRYPT_H}
-#endif
-
 /* Define to 1 if you have the `ctime' function. */
 #ifndef HAVE_CTIME
 #cmakedefine HAVE_CTIME ${HAVE_CTIME}
@@ -530,7 +520,125 @@ function. */
 #cmakedefine HAVE_GMP_H ${HAVE_GMP_H}
 #endif
 
-/* Define to 1 if you have the `gmtime' function. */
+/* Define to 1 if you have the <winsock.h> header file. */
+#ifndef HAVE_GLOB_H
+#cmakedefine HAVE_GLOB_H ${HAVE_GLOB_H}
+#endif
+
+/* Define to 1 if you have the <winsock.h> header file. */
+#ifndef HAVE_GLOB
+#cmakedefine HAVE_GLOB ${HAVE_GLOB}
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*q Define to 1 if you have the `gmtime' function. */
 #ifndef HAVE_GMTIME
 #cmakedefine HAVE_GMTIME ${HAVE_GMTIME}
 #endif
@@ -961,10 +1069,6 @@ function. */
 #ifndef HAVE_OPENDIR
 #cmakedefine HAVE_OPENDIR ${HAVE_OPENDIR}
 #endif
-
-
-/* Define to 1 if you have the <openssl/ripemd.h> header file. */
-#cmakedefine HAVE_OPENSSL_RIPEMD_H ${HAVE_OPENSSL_RIPEMD_H}
 
 /* Define to 1 if you have the `pipe2' function. */
 #ifndef HAVE_PIPE2
@@ -1567,6 +1671,11 @@ signal. */
 #endif
 
 /* Define to 1 if you have the <winsock.h> header file. */
+#ifndef HAVE_WORDEXP
+#cmakedefine HAVE_WORDEXP ${HAVE_WORDEXP}
+#endif
+
+/* Define to 1 if you have the <winsock.h> header file. */
 #ifndef HAVE_WORDEXP_H
 #cmakedefine HAVE_WORDEXP_H ${HAVE_WORDEXP_H}
 #endif
@@ -1618,12 +1727,12 @@ signal. */
 
 /* max number of threads, default 1 or 1024 */
 #ifndef MAX_THREADS
-#define MAX_THREADS ${MAX_THREADS}
+#define MAX_THREADS ${WITH_MAX_Threads}
 #endif
 
 /* maximum amount of or-parallelism */
 #ifndef MAX_WORKERS
-#define MAX_WORKERS ${MAX_WORKERS}
+#define MAX_WORKERS ${WITH_MAX_Workers}
 #endif
 
 /* o not use realloc() from HP-UX 10.20 together with MPI */
@@ -1816,39 +1925,24 @@ signal. */
 #cmakedefine TM_IN_SYS_TIME "${TM_IN_SYS_TIME}"
 #endif
 
-/* use Doug Lea's malloc for all allocation */
-#ifndef USE_DL_MALLOC
-#define USE_DL_MALLOC ${USE_DL_MALLOC}
-#endif
-
 /* use bignums/rationals in YAP code. */
 #ifndef USE_GMP
-#define USE_GMP ${USE_GMP}
+#define USE_GMP ${GMP_FOUND}
 #endif
 
 /* use Judy library for UDI indexing in YAP code. */
 #ifndef USE_JUDY
-#define USE_JUDY ${USE_JUDY}
-#endif
-
-/* do not use our own locking routines */
-#ifndef USE_PTHREAD_LOCKING
-#define USE_PTHREAD_LOCKING ${YAP_USE_PTHREADS_LOCKS}
-#endif
-
-/* use OS malloc for all allocation */
-#ifndef USE_SYSTEM_MALLOC
-#define USE_SYSTEM_MALLOC ${USE_SYSTEM_MALLOC}
+#define USE_JUDY ${WITH_JUDY}
 #endif
 
 /* use mmap in or-parallel allocation */
 #ifndef USE_SYSTEM_MMAP
-#define USE_SYSTEM_MMAP  ${USE_SYSTEM_MMAP}
+#define USE_SYSTEM_MMAP  ${WITH_SYSTEM_MMAP}
 #endif
 
 /* use shm in or-parallel allocation */
 #ifndef USE_SYSTEM_SHM
-#define USE_SYSTEM_SHM ${USE_SYSTEM_SHM}
+#define USE_SYSTEM_SHM ${WITH_SYSTEM_SHM}
 #endif
 
 /* Whether daylight savings time offset is set via the altzone variable */

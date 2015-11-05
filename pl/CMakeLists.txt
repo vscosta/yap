@@ -51,6 +51,7 @@ set(PL_SOURCES
 	yapor.yap
 	yio.yap
 	../os/chartypes.yap
+	../os/edio.yap
   )
 
 add_custom_target (${YAP_STARTUP} ALL SOURCES ${PL_SOURCES} ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
