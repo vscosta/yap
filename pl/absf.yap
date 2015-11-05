@@ -411,7 +411,7 @@ absolute_file_name(File0,File) :-
 '$get_abs_file'(File,Opts,AbsFile) :-
 	get_abs_file_parameter( expand, Opts, Expand ),
 	'$absf_trace'('variable expansion allowed? ~w', [Expand] ),
-	'$absolute_file_name'(File,ExpFile),
+	absolute_file_name(File,ExpFile),
 	'$absf_trace'(' variable expansion ~w', [ExpFile] ),
 	get_abs_file_parameter( relative_to, Opts, RelTo ),
 	(
@@ -580,7 +580,7 @@ prolog_file_name(File, PrologFileName) :-
 prolog_file_name(user, Out) :- !, Out = user.
 prolog_file_name(File, PrologFileName) :-
 	atom(File), !,
-	operating_system_support:true_file_name(File, PrologFileName).
+	system:true_file_name(File, PrologFileName).
 prolog_file_name(File, PrologFileName) :-
 	'$do_error'(type_error(atom,File), prolog_file_name(File, PrologFileName)).
 
