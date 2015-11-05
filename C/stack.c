@@ -31,6 +31,7 @@
 #include "Yap.h"
 #include "clause.h"
 #include "yapio.h"
+#include "iopreds.h"
 #include "eval.h"
 #include "tracer.h"
 #ifdef YAPOR
@@ -1763,8 +1764,13 @@ void DumpActiveGoals(USES_REGS1) {
         goto next;
       if (first++ == 1)
         fprintf(stderr, "Active ancestors:\n");
-      Yap_DebugWriteIndicator(pe);
-      Yap_DebugPutc(stderr, '\n');
+      Term mod = pe->ModuleOfPred;
+      if (mod == PROLOG_MODULE)
+        mod = TermProlog;
+      Term t = Yap_MkNewApplTerm(f, pe->ArityOfPE);
+      Yap_plwrite(Yap_PredicateIndicator(t,mod),GLOBAL_Stream+2, 0, 0, 1200);
+
+      fputc(  '\n', stderr );
     } else {
       UNLOCK(pe->PELock);
     }
@@ -1792,60 +1798,60 @@ void DumpActiveGoals(USES_REGS1) {
       else
         mod = TermProlog;
       if (mod != TermProlog && mod != MkAtomTerm(AtomUser)) {
-        Yap_DebugPlWrite(mod);
-        Yap_DebugPutc(stderr, ':');
+        Yap_plwrite(mod,GLOBAL_Stream+2, 0, 0, 1200);
+        fputc(  ':', stderr );
       }
       if (mod == IDB_MODULE) {
         if (pe->PredFlags & NumberDBPredFlag) {
           Int id = pe->src.IndxId;
-          Yap_DebugPlWrite(MkIntegerTerm(id));
+          Yap_plwrite(MkIntegerTerm(id),GLOBAL_Stream+2, 0, 0, 1200);
         } else if (pe->PredFlags & AtomDBPredFlag) {
           Atom At = (Atom)pe->FunctorOfPred;
-          Yap_DebugPlWrite(MkAtomTerm(At));
+          Yap_plwrite(MkAtomTerm(At),GLOBAL_Stream+2, 0, 0, 1200);
         } else {
           Functor f = pe->FunctorOfPred;
           Atom At = NameOfFunctor(f);
           arity_t arity = ArityOfFunctor(f);
           int i;
 
-          Yap_DebugPlWrite(MkAtomTerm(At));
-          Yap_DebugPutc(stderr, '(');
+          Yap_plwrite(MkAtomTerm(At),GLOBAL_Stream+2, 0, 0, 1200);
+          fputc(  '(', stderr );
           for (i = 0; i < arity; i++) {
             if (i > 0)
-	      Yap_DebugPutc(stderr, ',');
-            Yap_DebugPutc(stderr, '_');
+	      fputc(  ',', stderr );
+            fputc(  '_', stderr );
           }
-          Yap_DebugPutc(stderr, ')');
+          fputc(  ')', stderr );
         }
-        Yap_DebugPutc(stderr, '(');
-        Yap_DebugPlWrite(b_ptr->cp_a2);
-        Yap_DebugPutc(stderr, ')');
+        fputc(  '(', stderr );
+        Yap_plwrite(b_ptr->cp_a2,GLOBAL_Stream+2, 0, 0, 1200);
+        fputc(  ')', stderr );
       } else if (pe->ArityOfPE == 0) {
-        Yap_DebugPlWrite(MkAtomTerm((Atom)f));
+        Yap_plwrite(MkAtomTerm((Atom)f),GLOBAL_Stream+2, 0, 0, 1200);
       } else {
         Int i = 0, arity = pe->ArityOfPE;
         if (opnum == _or_last || opnum == _or_else) {
-          Yap_DebugPlWrite(MkAtomTerm(NameOfFunctor(f)));
-          Yap_DebugPutc(stderr, '(');
+          Yap_plwrite(MkAtomTerm(NameOfFunctor(f)),GLOBAL_Stream+2, 0, 0, 1200);
+        fputc(  '(', stderr );
           for (i = 0; i < arity; i++) {
             if (i > 0)
-              Yap_DebugPutc(stderr, ',');
-            Yap_DebugPutc(stderr, '_');
+              fputc(  ',', stderr );
+            fputc(  '_', stderr );
           }
-          Yap_DebugErrorPuts(") :- ... ( _  ; _ ");
+          fputs(") :- ... ( _  ; _ ", stderr);
         } else {
           Term *args = &(b_ptr->cp_a1);
-          Yap_DebugPlWrite(MkAtomTerm(NameOfFunctor(f)));
-          Yap_DebugPutc(stderr, '(');
+          Yap_plwrite(MkAtomTerm(NameOfFunctor(f)),GLOBAL_Stream+2, 0, 0, 1200);
+           fputc(  '(', stderr );
           for (i = 0; i < arity; i++) {
             if (i > 0)
-              Yap_DebugPutc(stderr, ',');
-            Yap_DebugPlWrite(args[i]);
-          }
+              fputc(  ',', stderr );
+            Yap_plwrite(args[i],GLOBAL_Stream+2, 0, 0, 1200);
+           }
         }
-        Yap_DebugPutc(stderr, ')');
+        fputc(  ')', stderr );
       }
-      Yap_DebugPutc(stderr, '\n');
+      fputc(  '\n', stderr );
     }
     b_ptr = b_ptr->cp_b;
   }
