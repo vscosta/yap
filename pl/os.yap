@@ -76,11 +76,11 @@ ls :-
 	'$do_print_files'(L).
 
 '$load_system_ls'(X,L) :-
-	'$undefined'(directory_files(X, L), operating_system_support),
+	'$undefined'(directory_files(X, L), system),
 	load_files(library(system),[silent(true)]),
 	fail.
 '$load_system_ls'(X,L) :-
-	operating_system_support:directory_files(X, L).
+	system:directory_files(X, L).
 
 
 '$do_print_files'([]) :-
