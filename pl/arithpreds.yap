@@ -22,7 +22,7 @@
 
   @addtogroup arithmetic_preds
 
-  
+
 */
 
 :- system_module(arithmetic_predicates, [
@@ -41,7 +41,7 @@
   a negative integer. E.g. `succ(X, 0)` fails silently and `succ(X, -1)`
   raises a domain-error. The behaviour to deal with natural numbers
   only was defined by Richard O'Keefe to support the common
-  count-down-to-zero in a natural way. 
+  count-down-to-zero in a natural way.
 
   */
 
@@ -167,5 +167,3 @@ plus(X, Y, Z) :-
        '$do_error'(type_error(integer, Z),plus(X,Y,Z)).
 '$plus_error'(X,Y,Z) :-
        '$do_error'(instantiation_error,plus(X,Y,Z)).
-
-
