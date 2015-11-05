@@ -1046,7 +1046,7 @@ static Int
 format2( USES_REGS1 )
 {				/* 'format'(Stream,Control,Args)          */
   Int res;
-  res = format(MkAtomTerm(AtomUserOut), Deref(ARG1),Deref(ARG2) PASS_REGS);
+  res = doformat( Deref(ARG1),Deref(ARG2), LOCAL_c_output_stream PASS_REGS);
   return res;
 }
 
