@@ -332,7 +332,9 @@ current_char_conversion(X,Y) :-
 '$fetch_char_conversion'([_,_|List],X,Y) :-
 	'$fetch_char_conversion'(List,X,Y).
 
-
+split_path_file(File, Path, Name) :-
+	file_directory_name(File, Path),
+	file_base_name(File, Name).
 
 /** @pred  current_stream( _F_, _M_, _S_) 
 
@@ -386,6 +388,17 @@ current_stream(File, Mode, Stream) :-
 	assert(user:file_search_path(N,D)),
 	'$add_file_search_paths'(Paths).
 
+
+prolog_file_name(File, PrologFileName) :-
+	var(File), !,
+	'$do_error'(instantiation_error, prolog_file_name(File, PrologFileName)).
+prolog_file_name(user, Out) :- !, Out = user.
+prolog_file_name(File, PrologFileName) :-
+	atom(File), !,
+	system:true_file_name(File, PrologFileName).
+prolog_file_name(File, PrologFileName) :-
+	'$do_error'(type_error(atom,File),
+		    prolog_file_name(File, PrologFileName)).
 
 '$format@'(Goal,Out) :-
 	with_output_to(codes(Out), Goal).
