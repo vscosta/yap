@@ -310,16 +310,18 @@ string_to_atomic( USES_REGS1 )
   LOCAL_MAX_SIZE = 1024;
 
  restart_aux:
-  if (Yap_IsGroundTerm(t1)) {
+  if (IsStringTerm(t1)) {
     Term t;
     // verify if an atom, int, float or bignnum
     t = Yap_StringToAtomic( t1 PASS_REGS );
     if (t != 0L)
       return Yap_unify(t, t2);
     // else
-  } else {
+  } else if (IsVarTerm(t1)) {
     Term t0 = Yap_AtomicToString( t2 PASS_REGS );
     if (t0) return Yap_unify(t0, t1);
+  } else {
+    LOCAL_Error_TYPE = TYPE_ERROR_STRING;
   }
   if (LOCAL_Error_TYPE && Yap_HandleError( "string_to_atomic/2" )) {
     t1 = Deref(ARG1);
@@ -336,16 +338,18 @@ string_to_atom( USES_REGS1 )
   LOCAL_MAX_SIZE = 1024;
 
  restart_aux:
-  if (Yap_IsGroundTerm(t1)) {
+  if (IsStringTerm(t1)) {
     Atom at;
     // verify if an atom, int, float or bignnum
     at = Yap_StringSWIToAtom( t1 PASS_REGS );
     if (at)
       return Yap_unify(MkAtomTerm(at), t2);
     // else
-  } else {
+  } else  if (IsVarTerm(t1)) {
     Term t0 = Yap_AtomSWIToString( t2 PASS_REGS );
     if (t0) return Yap_unify(t0, t1);
+  } else {
+    LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
   }
   if (LOCAL_Error_TYPE && Yap_HandleError( "string_to_atom/2" )) {
     t1 = Deref(ARG1);
@@ -362,13 +366,15 @@ string_to_list( USES_REGS1 )
   LOCAL_MAX_SIZE = 1024;
 
  restart_aux:
-  if (Yap_IsGroundTerm(list)) {
+  if (IsVarTerm(string)) {
     Term t1 = Yap_ListToString( list PASS_REGS);
     if (t1)
       return Yap_unify( ARG1, t1 );
-  } else {
+  } else if (IsStringTerm(string)) {
     Term tf = Yap_StringToListOfCodes(string PASS_REGS);
     return Yap_unify( ARG2, tf );
+  } else {
+    LOCAL_Error_TYPE = TYPE_ERROR_STRING;
   }
   if (LOCAL_Error_TYPE && Yap_HandleError( "string_to_list/2" )) {
     string = Deref(ARG1);
@@ -385,16 +391,18 @@ atom_string( USES_REGS1 )
   LOCAL_MAX_SIZE = 1024;
 
  restart_aux:
-  if (Yap_IsGroundTerm(t2)) {
+  if (IsVarTerm(t1)) {
     Atom at;
     // verify if an atom, int, float or bignnum
     at = Yap_StringSWIToAtom( t2 PASS_REGS );
     if (at)
       return Yap_unify(MkAtomTerm(at), t1);
     // else
-  } else {
+  } else if (IsAtomTerm(t1)) {
     Term t0 = Yap_AtomSWIToString( t1 PASS_REGS );
     if (t0) return Yap_unify(t0, t2);
+  } else {
+    LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
   }
   if (LOCAL_Error_TYPE && Yap_HandleError( "atom_string/2" )) {
     t1 = Deref(ARG1);
@@ -412,17 +420,19 @@ atom_chars( USES_REGS1 )
 
  restart_aux:
   t1  = Deref(ARG1);
-  if (Yap_IsGroundTerm(t1)) {
+  if (IsAtomTerm(t1)) {
     Term tf = Yap_AtomSWIToListOfAtoms(t1 PASS_REGS);
     if (tf)
       return Yap_unify( ARG2, tf );
-  } else {
+   } else if (IsVarTerm(t1)) {
     /* ARG1 unbound */
     Term   t = Deref(ARG2);
     Atom af = Yap_ListOfAtomsToAtom(t PASS_REGS);
     if (af)
       return Yap_unify( ARG1, MkAtomTerm(af) );
   /* error handling */
+  } else {
+    LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
   }
   if (LOCAL_Error_TYPE && Yap_HandleError( "atom_chars/2" )) {
     goto restart_aux;
@@ -434,18 +444,20 @@ static Int
 atom_codes( USES_REGS1 )
 {
   Term t1;
- restart_aux:
   t1  = Deref(ARG1);
-  if (Yap_IsGroundTerm(t1)) {
+restart_aux:
+  if (IsAtomTerm(t1)) {
     Term tf = Yap_AtomicToListOfCodes(t1 PASS_REGS);
     if (tf)
       return Yap_unify( ARG2, tf );
-  } else {
+  } else if (IsVarTerm(t1)) {
     /* ARG1 unbound */
     Term   t = Deref(ARG2);
     Atom af = Yap_ListToAtom(t PASS_REGS);
     if (af)
       return Yap_unify( ARG1, MkAtomTerm(af) );
+   } else if (IsVarTerm(t1)) {
+    LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
   }
   /* error handling */
   if (LOCAL_Error_TYPE && Yap_HandleError( "atom_codes/2" )) {
@@ -459,18 +471,20 @@ static Int
 string_codes( USES_REGS1 )
 {
   Term t1;
- restart_aux:
   t1  = Deref(ARG1);
-  if (Yap_IsGroundTerm(t1)) {
+restart_aux:
+  if (IsStringTerm(t1)) {
     Term tf = Yap_StringSWIToListOfCodes(t1 PASS_REGS);
     if (tf)
       return Yap_unify( ARG2, tf );
-  } else {
+   } else if (IsVarTerm(t1)) {
     /* ARG1 unbound */
     Term   t = Deref(ARG2);
     Term tf = Yap_ListSWIToString(t PASS_REGS);
     if (tf)
       return Yap_unify( ARG1, tf );
+  } else {
+    LOCAL_Error_TYPE = TYPE_ERROR_STRING;
   }
   /* error handling */
   if (LOCAL_Error_TYPE && Yap_HandleError( "atom_codes/2" )) {
@@ -484,18 +498,20 @@ static Int
 string_chars( USES_REGS1 )
 {
   Term t1;
- restart_aux:
   t1  = Deref(ARG1);
-  if (Yap_IsGroundTerm(t1)) {
+restart_aux:
+  if (IsStringTerm(t1)) {
     Term tf = Yap_StringSWIToListOfAtoms(t1 PASS_REGS);
     if (tf)
       return Yap_unify( ARG2, tf );
-  } else {
+   } else if (IsVarTerm(t1)) {
     /* ARG1 unbound */
     Term   t = Deref(ARG2);
     Term tf = Yap_ListSWIToString(t PASS_REGS);
     if (tf)
       return Yap_unify( ARG1, tf );
+  } else {
+    LOCAL_Error_TYPE = TYPE_ERROR_STRING;
   }
   /* error handling */
   if (LOCAL_Error_TYPE && Yap_HandleError( "string_chars/2" )) {
@@ -519,14 +535,14 @@ number_chars( USES_REGS1 )
   Term t1;
  restart_aux:
   t1  = Deref(ARG1);
-  if (Yap_IsGroundTerm(t1)) {
+  if (IsNumTerm(t1)) {
     Term tf;
     tf = Yap_NumberToListOfAtoms(t1 PASS_REGS);
     if (tf) {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       return Yap_unify( ARG2, tf );
     }
-  } else {
+  } else if (IsVarTerm(t1)) {
     /* ARG1 unbound */
     Term   t = Deref(ARG2);
     Term tf = Yap_ListToNumber(t PASS_REGS);
@@ -534,12 +550,14 @@ number_chars( USES_REGS1 )
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       return Yap_unify( ARG1, tf );
     }
+   } else if (IsVarTerm(t1)) {
+    LOCAL_Error_TYPE = TYPE_ERROR_NUMBER;
   }
   /* error handling */
   if (LOCAL_Error_TYPE && Yap_HandleError( "number_chars/2" )) {
     goto restart_aux;
   }
-  return FALSE;
+  return false;
 }
 
 static Int 
@@ -548,23 +566,24 @@ number_atom( USES_REGS1 )
   Term t1;
  restart_aux:
   t1  = Deref(ARG1);
-  if (Yap_IsGroundTerm(t1)) {
+  if (IsNumTerm(t1)) {
     Atom af;
     af = Yap_NumberToAtom(t1 PASS_REGS);
     if (af)
       return Yap_unify( ARG2, MkAtomTerm(af) );
-  } else {
+  } else if (IsVarTerm(t1)) {
     /* ARG1 unbound */
     Term   t = Deref(ARG2);
     Term tf = Yap_AtomToNumber(t PASS_REGS);
     if (tf)
       return Yap_unify( ARG1, tf );
-  }
-  /* error handling */
+   } else if (IsVarTerm(t1)) {
+    LOCAL_Error_TYPE = TYPE_ERROR_NUMBER;
+  }  /* error handling */
   if (LOCAL_Error_TYPE && Yap_HandleError( "number_atom/2")) {
     goto restart_aux;
   }
-  return FALSE;
+  return false;
 }
 
 static Int 
@@ -573,19 +592,21 @@ number_string( USES_REGS1 )
   Term t1;
  restart_aux:
   t1  = Deref(ARG1);
-  if (Yap_IsGroundTerm(t1)) {
+  if (IsNumTerm(t1)) {
     Term tf;
     tf = Yap_NumberToString(t1 PASS_REGS);
     if (tf)
       return Yap_unify( ARG2, tf );
-  } else {
+  } else if (IsVarTerm(t1)) {
     /* ARG1 unbound */
     Term   t = Deref(ARG2);
     Term tf = Yap_StringToNumber(t PASS_REGS);
     if (tf)
       return Yap_unify( ARG1, tf );
+  } else {
+    LOCAL_Error_TYPE = TYPE_ERROR_NUMBER;
   }
-  /* error handling */
+ /* error handling */
   if (LOCAL_Error_TYPE && Yap_HandleError( "number_string/2")) {
     goto restart_aux;
   }
@@ -598,17 +619,19 @@ number_codes( USES_REGS1 )
   Term t1;
  restart_aux:
   t1  = Deref(ARG1);
-  if (Yap_IsGroundTerm(t1)) {
+  if (IsNumTerm(t1)) {
     Term tf;
     tf = Yap_NumberToListOfCodes(t1 PASS_REGS);
     if (tf)
       return Yap_unify( ARG2, tf );
-  } else {
+  } else if (IsVarTerm(t1)) {
     /* ARG1 unbound */
     Term   t = Deref(ARG2);
     Term tf = Yap_ListToNumber(t PASS_REGS);
     if (tf)
       return Yap_unify( ARG1, tf );
+  } else {
+    LOCAL_Error_TYPE = TYPE_ERROR_NUMBER;
   }
   /* error handling */
   if (LOCAL_Error_TYPE && Yap_HandleError( "number_codes/2" )) {
@@ -753,7 +776,7 @@ atomic_concat3( USES_REGS1 )
 {
   Term t1;
   Term t2, t3, ot;
-  Atom at;
+  Atom at = NULL;
  restart_aux:
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
@@ -828,7 +851,7 @@ string_concat3( USES_REGS1 )
 {
   Term t1;
   Term t2, t3, ot;
-  Term tf;
+  Term tf = 0;
  restart_aux:
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
@@ -1138,7 +1161,7 @@ atomic_concat2( USES_REGS1 )
     }
 
     while (t1 != TermNil) {
-      inpv[i].type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+      inpv[i].type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_CHARS|YAP_STRING_CODES;
       inpv[i].val.t = HeadOfTerm(t1);
       i++;
       t1 = TailOfTerm(t1);
