@@ -220,6 +220,7 @@ typedef struct yap_boot_params {
   unsigned long int TrailSize;
   /* if NON-0, maximal size for Trail */
   unsigned long int MaxTrailSize;
+  
   /* if NON-0, minimal size for AttributeVarStack */
   unsigned long int AttsSize;
   /* if NON-0, maximal size for AttributeVarStack */
@@ -228,7 +229,7 @@ typedef struct yap_boot_params {
   char *YapLibDir;
   /* if NON-NULL, name for a Prolog file to use when booting  */
   char *YapPrologBootFile;
-  /* if NON-NULL, name for a Prolog file to use when initialising  */
+  /* if NON-NULL, name for a Prolog file to use when initializing  */
   char *YapPrologInitFile;
   /* if NON-NULL, name for a Prolog file to consult before entering top-level  */
   char *YapPrologRCFile;
