@@ -145,7 +145,7 @@ int GetFreeStreamD(void) {
 
 int Yap_GetFreeStreamD(void) { return GetFreeStreamD(); }
 
-static Int p_stream_flags(USES_REGS1) { /* '$stream_flags'(+N,-Flags) */
+static Int stream_flags(USES_REGS1) { /* '$stream_flags'(+N,-Flags) */
   Term trm;
   trm = Deref(ARG1);
   if (IsVarTerm(trm) || !IsIntTerm(trm))
@@ -799,6 +799,7 @@ static Int set_stream(USES_REGS1) { /* Init current_stream */
 void Yap_CloseStreams(int loud) {
   CACHE_REGS
   int sno;
+  fflush( NULL );
   for (sno = 3; sno < MaxStreams; ++sno) {
     if (GLOBAL_Stream[sno].status & Free_Stream_f)
       continue;
@@ -840,7 +841,9 @@ void Yap_CloseStreams(int loud) {
 static void
 CloseStream(int sno) {
   CACHE_REGS
-  if (!(GLOBAL_Stream[sno].status &
+
+    fflush( NULL );
+    if (!(GLOBAL_Stream[sno].status &
         (Null_Stream_f | Socket_Stream_f | InMemory_Stream_f | Pipe_Stream_f)))
     fclose(GLOBAL_Stream[sno].file);
 #if HAVE_SOCKET
@@ -1387,7 +1390,7 @@ Yap_InitBackIO (void)
 }
 
 void Yap_InitIOStreams(void) {
-  Yap_InitCPred("$stream_flags", 2, p_stream_flags,
+  Yap_InitCPred("$stream_flags", 2, stream_flags,
                 SafePredFlag | SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$check_stream", 2, p_check_stream,
                 SafePredFlag | SyncPredFlag | HiddenPredFlag);
@@ -1410,7 +1413,6 @@ void Yap_InitIOStreams(void) {
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("set_input", 1, set_input, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("set_output", 1, set_output, SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$stream", 1, p_stream, SafePredFlag | TestPredFlag);
   Yap_InitCPred("$stream", 1, p_stream, SafePredFlag | TestPredFlag);
 #if HAVE_SELECT
   Yap_InitCPred("stream_select", 3, p_stream_select,
