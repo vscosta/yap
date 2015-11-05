@@ -2395,7 +2395,7 @@ clear_bvarray(int var, CELL *bvarray
     bvarray++;
     var -= max;
   }
-  /* now put a 0 on it, from now on the variable is initialised */
+  /* now put a 0 on it, from now on the variable is initialized */
   nbit = ((CELL)1 << var);
 #ifdef DEBUG
   if (*bvarray & nbit) {
@@ -2403,7 +2403,7 @@ clear_bvarray(int var, CELL *bvarray
     /* someone had already marked this variable: complain */
     LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
     LOCAL_Error_Term = TermNil;
-    LOCAL_ErrorMessage = "compiler internal error: variable initialised twice";
+    LOCAL_ErrorMessage = "compiler internal error: variable initialized twice";
     save_machine_regs();
     siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
   }
@@ -2420,7 +2420,7 @@ add_bvarray_op(PInstr *cp, CELL *bvarray, int env_size, compiler_struct *cglobs)
   CELL *dest;
 
   dest = 
-    Yap_emit_extra_size(mark_initialised_pvars_op, (CELL)env_size, (size+1)*sizeof(CELL), &cglobs->cint);
+    Yap_emit_extra_size(mark_initialized_pvars_op, (CELL)env_size, (size+1)*sizeof(CELL), &cglobs->cint);
   /* copy the cells to dest */
   for (i = 0; i <= size; i++)
     *dest++ = *bvarray++;
@@ -2510,7 +2510,7 @@ CheckUnsafe(PInstr *pc, compiler_struct *cglobs)
   CACHE_REGS
   int pending = 0;
 
-  /* say that all variables are yet to initialise */
+  /* say that all variables are yet to initialize */
   CELL *vstat = init_bvarray(LOCAL_nperm, cglobs);
   UnsafeEntry *UnsafeStack =
     (UnsafeEntry *) Yap_AllocCMem(LOCAL_nperm * sizeof(UnsafeEntry), &cglobs->cint);
@@ -3366,7 +3366,7 @@ c_optimize(PInstr *pc)
        * with very little overhead */
       v = (Ventry *) (pc->rnd1);
       if (v->KindOfVE == VoidVar && onTail) {
-	pc->op = nop_op;
+        pc->op = nop_op;
       }
       else
 #endif	/* OLD_SYSTEM */
@@ -3473,7 +3473,7 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
   volatile int maxvnum = 512;
   int botch_why;
   /* may botch while doing a different module */
-  /* first, initialise cglobs->cint.CompilerBotch to handle all cases of interruptions */
+  /* first, initialize cglobs->cint.CompilerBotch to handle all cases of interruptions */
   compiler_struct cglobs;
   
   #ifdef TABLING_INNER_CUTS
