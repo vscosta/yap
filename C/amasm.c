@@ -1431,7 +1431,7 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
       op = _p_functor;
       break;
     default:
-      op = _p_equal;  /* just to make some compilers happy */
+        // op = _p_equal;  /* just to make some compilers happy */
       Yap_Error(SYSTEM_ERROR_COMPILER, TermNil, "internal assembler error for built-in (%d)", (Flags & 0x7f));
       save_machine_regs();
       siglongjmp(cip->CompilerBotch, 1);
@@ -3489,7 +3489,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     case label_op:
       if (!ystop_found &&
 	  cip->cpc->nextInst != NULL &&
-	  (cip->cpc->nextInst->op == mark_initialised_pvars_op ||
+	  (cip->cpc->nextInst->op == mark_initialized_pvars_op ||
 	   cip->cpc->nextInst->op == mark_live_regs_op ||
 	   cip->cpc->nextInst->op == blob_op ||
 	   cip->cpc->nextInst->op == string_op)) {
@@ -3621,7 +3621,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     case index_long_op:
       code_p = a_e(_index_long, code_p, pass_no);
       break;
-    case mark_initialised_pvars_op:
+    case mark_initialized_pvars_op:
       if (!ystop_found) {
 	code_p = a_il((CELL)*entry_codep, _Ystop, code_p, pass_no, cip);
 	ystop_found = TRUE;
@@ -3922,7 +3922,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
 	Yap_IndexSpace_Tree += size;
     }
   }
-  code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, &clause_has_dbterm, cip, size PASS_REGS);
+  do_pass(1, &entry_code, mode, &clause_has_blobs, &clause_has_dbterm, cip, size PASS_REGS);
   return entry_code;
 }
 
