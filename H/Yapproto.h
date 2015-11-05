@@ -146,6 +146,13 @@ void	Yap_InitCmpPreds(void);
 yamop  *Yap_cclause(Term, Int, Term, Term);
 
 /* computils.c */
+int	Yap_DebugPutc(FILE *,wchar_t);
+int	Yap_DebugPuts(FILE *,const char *);
+void	Yap_DebugSetIFile(char *);
+void	Yap_DebugEndline(void);
+void	Yap_DebugPlWrite(Term t);
+void	Yap_DebugPlWriteln(Term t);
+
 
 /* corout.c */
 void	Yap_InitCoroutPreds(void);
@@ -248,13 +255,6 @@ int  Yap_gcl(UInt, Int, CELL *, yamop *);
 int  Yap_locked_gcl(UInt, Int, CELL *, yamop *);
 
 /* init.c */
-#ifdef DEBUG
-int	Yap_DebugPutc(FILE *,wchar_t);
-int	Yap_DebugPuts(FILE *,const char *);
-void	Yap_DebugSetIFile(char *);
-void	Yap_DebugEndline(void);
-int	Yap_DebugGetc(void);
-#endif
 int	Yap_IsOpType(char *);
 void	Yap_InitWorkspace(UInt,UInt,UInt,UInt,UInt,int,int,int);
 bool    Yap_AddCallToFli( struct pred_entry *pe, CPredicate call );
@@ -270,7 +270,7 @@ void	Yap_KillStacks(int);
 void	Yap_KillStacks(int);
 #endif
 void	Yap_InitYaamRegs(int);
-void    Yap_ReInitWallTime(void);
+void    Yap_ReInitWTime(void);
 int	Yap_OpDec(int,char *,Atom,Term);
 void    Yap_CloseScratchPad(void);
 
@@ -282,12 +282,11 @@ int      Yap_eq(Term, Term);
 void    Yap_InitPlIO (void);
 void	Yap_InitBackIO(void);
 void	Yap_InitIOPreds(void);
-#ifdef DEBUG
 extern void Yap_DebugPlWrite (Term t);
+extern void Yap_DebugPlWriteln (Term t);
 extern void Yap_DebugErrorPutc (int n);
 extern void Yap_DebugErrorPuts (const char *s);
 extern void Yap_DebugWriteIndicator( struct pred_entry *ap );
-#endif
 void    Yap_PlWriteToStream(Term, int, int);
 /* depth_lim.c */
 void	Yap_InitItDeepenPreds(void);
@@ -400,6 +399,7 @@ void    Yap_systime_interval(Int *,Int *);
 void    Yap_walltime_interval(Int *,Int *);
 void	Yap_InitSysbits(void);
 void	Yap_InitSysPreds(void);
+void	Yap_InitcTime(int);
 void	Yap_InitTime(int);
 int     Yap_TrueFileName(const char *,  char *, int);
 int     Yap_TruePrefixedFileName(const char *,const  char *, char *,  int);
