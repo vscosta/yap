@@ -11,7 +11,7 @@
       
 BOp(Ystop, l);
       SET_ASP(YREG, E_CB*sizeof(CELL));
-      /* make sure ASP is initialised */
+      /* make sure ASP is initialized */
       saveregs();
 
 #if PUSH_REGS

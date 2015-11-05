@@ -540,7 +540,7 @@ void eam_pass(CInstr *ppc)
 		        emit_inst(_exit_eam);
 			break;
 
-		case mark_initialised_pvars_op:
+		case mark_initialized_pvars_op:
 		        break;
 		case fetch_args_for_bccall:
 		case bccall_op:

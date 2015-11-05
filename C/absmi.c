@@ -1713,7 +1713,7 @@ Yap_absmi(int inp)
 #if PUSH_REGS
   old_regs = &Yap_REGS;
 
-  /* done, let us now initialise this space */
+  /* done, let us now initialize this space */
   init_absmi_regs(&absmi_regs);
 
   /* the registers are all set up, let's swap */
