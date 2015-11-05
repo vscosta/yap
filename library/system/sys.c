@@ -89,6 +89,7 @@
 
 #include "config.h"
 #include "YapInterface.h"
+#include "crypto/md5.h"
 #include <stdlib.h>
 #if HAVE_UNISTD_H
 #include <unistd.h>
@@ -1072,28 +1073,52 @@ p_kill(void)
 #if HAVE_OPENSSL_RIPEMD_H
  #include <openssl/ripemd.h>
 #endif
-
+ 
 /** md5( +Text, -Key, -Remaining keyq
  * encode text using OpenSSL 
  *
- * arg Text as List of codes
- * arg2 and 3: difference list with character codes.
+ * arg Text is a List of ASCII codes
+ * arg2 and 3: difference list with the character codes for the
+ * digest.
  * 
  * @return whether ARG1's md5 unifies with the difference liat.
  */
  static YAP_Bool
    md5(void)
  {
-#if HAVE_OPENSSL_RIPEMD_H
-   char buf[21];
+   unsigned char buf[64];
+   md5_state_t pms;
+   const char *s;
+   size_t len = -1;
+   
+   if ( ! (s = YAP_StringToBuffer( YAP_ARG1 , NULL, len )) ||
+	s[0] == 0)
+     return false;
 
-   char *s = (char *) YAP_AllocSpaceFromYap(YAP_ListLength(YAP_ARG1)+1);
-   YAP_StringToBuffer( YAP_ARG1 , s, 20 ) ;
-   RIPEMD160((const unsigned char *)s, strlen(s), (unsigned char *)buf);
-   YAP_FreeSpaceFromYap(s);
-   return YAP_Unify( YAP_ARG2, YAP_BufferToDiffList( buf , YAP_ARG3 ) );
-#endif /* defined(__MINGW32__) || _MSC_VER */
-   return FALSE; 
+   md5_init( & pms );
+   md5_append( & pms, (const unsigned char *)s, strlen(s));
+   md5_finish( & pms, buf );
+   //free((void *)s);
+   YAP_Term t = YAP_ARG3;
+   int i = 16;
+   while (i > 0)
+     {
+       int top, bop;
+       i--;
+       top = buf[i]>>4;
+       if (top > 9)
+	 top = (top-10)+'a';
+       else
+	 top = top+'0';
+       bop = buf[i] & 15;
+       if (bop > 9)
+	 bop = (bop-10)+'a';
+       else
+	 bop = bop+'0';
+       t = YAP_MkPairTerm(YAP_MkIntTerm(top),
+			  YAP_MkPairTerm( YAP_MkIntTerm( bop ), t ));
+     }
+   return YAP_Unify( YAP_ARG2,t );
  }
 
 static YAP_Bool
@@ -1159,3 +1184,4 @@ int WINAPI win_sys(HANDLE hinst, DWORD reason, LPVOID reserved)
   return 1;
 }
 #endif
+                                                                                                                                                                                       
