@@ -482,8 +482,7 @@ true :- true.
 	 true
 	).
 '$read_toplevel'(Goal, Bindings) :-
-	prompt1('?- '),
-	prompt(_,'|: '),
+	'$prompt',
 	'$system_catch'(read_term(user_input,
 				  Goal,
 				  [variable_names(Bindings), syntax_errors(dec10)]),
@@ -508,22 +507,6 @@ true :- true.
 	fail.
 '$enter_top_level' :-
 	'$clean_up_dead_clauses',
-	fail.
-'$enter_top_level' :-
-	current_prolog_flag(break_level, BreakLevel),
-        current_prolog_flag(debug, DBON),
-	(
-	 '$trace_on'
-	->
-	 TraceDebug = trace
-	;
-	 DBON == true
-	->
-	 TraceDebug = debug
-	;
-	 true
-	),
-	'$early_print'(informational,prompt(BreakLevel,TraceDebug)),
 	fail.
 '$enter_top_level' :-
 	get_value('$top_level_goal',GA), GA \= [], !,
@@ -718,7 +701,7 @@ number of steps.
  %
  % ISO does not allow goals (use initialization).
  %
-'$process_directive'(D, _, M, VL, Pos) :-
+'$process_directive'(D, _, M, _VL, _Pos) :-
 	current_prolog_flag(language_mode, iso), !, % ISO Prolog mode, go in and do it,
 	 '$do_error'(context_error((:- M:D),query),directive).
  %
@@ -770,7 +753,7 @@ number of steps.
 	  '$go_compile_clause'(G,Vs,Pos,N,M,M,M,Source).
 '$go_compile_clause'((M:H :- B),Vs,Pos,N,_,BodyMod,SourceMod,Source) :- !,
 	  '$go_compile_clause'((H :- B),Vs,Pos,N,M,BodyMod,SourceMod,Source).
-'$go_compile_clause'(G,Vs,Pos,N,HeadMod,BodyMod,SourceMod,Source) :- !,
+'$go_compile_clause'(G,_Vs,Pos,N,HeadMod,BodyMod,SourceMod,_Source) :- !,
 	 '$precompile_term'(G, G0, G1, HeadMod, BodyMod, SourceMod),
 	 '$$compile'(G1, G0, N, HeadMod).
 
@@ -1213,7 +1196,7 @@ should be read as `p( _X_) if q( _X_) and r( _X_).
 	yap_hacks:env_choice_point(CP),
 	'$current_module'(M),
 	(
-	 yap_hacks:current_choice_point(DCP),
+	 '$current_choice_point'(DCP),
 	 '$execute'(X),
 	 yap_hacks:cut_at(DCP),
 	 '$call'(A,CP,((X*->A),Y),M)
@@ -1707,6 +1690,32 @@ log_event( String, Args ) :-
 '$show'(_,Msg) :-
 	format(user_error, '~w~n', [Msg]).
 
+
+'$prompt' :-
+	current_prolog_flag(break_level, BreakLevel),
+	( BreakLevel == 0
+	->
+	  LF = LD
+	  ;
+	  LF = ['Break (level ', BreakLevel,') '|LD]
+	),
+        current_prolog_flag(debug, DBON),
+	(
+	 '$trace_on'
+	->
+	 LD  = ['trace '|LP]
+	;
+	 DBON == true
+	->
+	 LD  = ['debug '|LP]
+	;
+	 LD = LP
+	),
+	LP = [P],
+	yap_flag(toplevel_prompt, P),
+	atomic_concat(LF, PF),
+	prompt1(PF),
+	prompt(_,'|: ').
 
 
 
