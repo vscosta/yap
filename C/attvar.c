@@ -469,8 +469,7 @@ p_put_att( USES_REGS1 ) {
 	if (!Yap_gcl(LOCAL_Error_Size, 5, ENV, gc_P(P,CP))) {
 	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
-	}    
-	inp = Deref(ARG1);
+	}
       }
       new = TRUE;
     }
@@ -549,7 +548,6 @@ p_rm_att( USES_REGS1 ) {
 	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}    
-	inp = Deref(ARG1);
       }
       new = TRUE;
       Yap_unify(ARG1, AbsAttVar(attv));
@@ -586,7 +584,6 @@ p_put_atts( USES_REGS1 ) {
     Functor mfun = FunctorOfTerm(tatts);
     int new = FALSE;
 
-    tatts = Deref(ARG2);
     if (IsAttachedTerm(inp)) {
       attv = RepAttVar(VarOfTerm(inp));
     } else {
@@ -596,7 +593,6 @@ p_put_atts( USES_REGS1 ) {
 	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}    
-	tatts = Deref(ARG2);
       }
       new = TRUE;
       Yap_unify(ARG1, AbsAttVar(attv));
