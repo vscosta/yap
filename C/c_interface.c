@@ -261,10 +261,10 @@
 *appropriate.
 *
 * Revision 1.57  2004/11/18 22:32:31  vsc
-* fix situation where we might assume nonextsing double initialisation of C
+* fix situation where we might assume nonextsing double initialization of C
 *predicates (use
 * Hidden Pred Flag).
-* $host_type was double initialised.
+* $host_type was double initialized.
 *
 * Revision 1.56  2004/10/31 02:18:03  vsc
 * fix bug in handling Yap heap overflow while adding new clause.
@@ -2631,12 +2631,12 @@ X_API Int YAP_Init(YAP_init_args *yap_init) {
   int do_bootstrap = (yap_init->YapPrologBootFile != NULL);
   CELL Trail = 0, Stack = 0, Heap = 0, Atts = 0;
   char boot_file[256];
-  static int initialised = FALSE;
+  static int initialized = FALSE;
 
   /* ignore repeated calls to YAP_Init */
-  if (initialised)
+  if (initialized)
     return YAP_BOOT_DONE_BEFOREHAND;
-  initialised = TRUE;
+  initialized = TRUE;
 
   Yap_InitPageSize(); /* init memory page size, required by later functions */
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
@@ -2814,7 +2814,7 @@ X_API Int YAP_Init(YAP_init_args *yap_init) {
     else
       Yap_AttsSize = 2048 * sizeof(CELL);
     if (restore_result == DO_ONLY_CODE) {
-      /* first, initialise the saved state */
+      /* first, initialize the saved state */
       Term t_goal = MkAtomTerm(AtomInitProlog);
       YAP_RunGoalOnce(t_goal);
       return YAP_BOOT_FROM_SAVED_CODE;
@@ -2831,7 +2831,7 @@ X_API Int YAP_Init(YAP_init_args *yap_init) {
     }
     do_bootfile(yap_init->YapPrologBootFile ? yap_init->YapPrologBootFile
                                             : BootFile PASS_REGS);
-    /* initialise the top-level */
+    /* initialize the top-level */
     if (!do_bootstrap) {
       char init_file[256];
       Atom atfile;

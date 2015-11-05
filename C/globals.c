@@ -50,7 +50,7 @@ scoping in future versions.   Both b_setval/2 and
 nb_setval/2 implicitly create a variable if the referenced name
 does not already refer to a variable.
 
-Global variables may be initialised from directives to make them
+Global variables may be initialized from directives to make them
 available during the program lifetime, but some considerations are
 necessary for saved-states and threads. Saved-states to not store
 global variables, which implies they have to be declared with
@@ -59,7 +59,7 @@ state. Each thread has its own set of global variables, starting with
 an empty set. Using `thread_initialization/1` to define a global
 variable it will be defined, restored after reloading a saved state
 and created in all threads that are created after the
-registration. Finally, global variables can be initialised using the
+registration. Finally, global variables can be initialized using the
 exception hook called exception/3. The latter technique is used
 by CHR.
 
@@ -89,7 +89,7 @@ consider module scoping in future versions.
 Both b_setval/2 and nb_setval/2 implicitly create a variable if the
 referenced name does not already refer to a variable.
 
-Global variables may be initialised from directives to make them
+Global variables may be initialized from directives to make them
 available during the program lifetime, but some considerations are
 necessary for saved-states and threads. Saved-states to not store global
 variables, which implies they have to be declared with initialization/1

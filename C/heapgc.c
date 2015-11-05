@@ -1580,7 +1580,6 @@ mark_regs(tr_fr_ptr old_TR USES_REGS)
   for (trail_ptr = old_TR; trail_ptr < tr; trail_ptr++) {
     mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
   }
-  printf("       %p TR=%p\n",trail_ptr,TR);
 
 }
 

@@ -131,7 +131,7 @@
 * extend interface
 *
 * Revision 1.167  2006/05/02 16:44:11  vsc
-* avoid uninitialised memory at overflow.
+* avoid uninitialized memory at overflow.
 *
 * Revision 1.166  2006/05/02 16:39:06  vsc
 * bug in indexing code
@@ -344,9 +344,9 @@
 * a few fixes for 64 bit compiling.
 *
 * Revision 1.106  2004/11/18 22:32:36  vsc
-* fix situation where we might assume nonextsing double initialisation of C predicates (use
+* fix situation where we might assume nonextsing double initialization of C predicates (use
 * Hidden Pred Flag).
-* $host_type was double initialised.
+* $host_type was double initialized.
 *
 * Revision 1.105  2004/11/04 18:22:32  vsc
 * don't ever use memory that has been freed (that was done by LU).
@@ -994,7 +994,7 @@ sort_group(GroupDef *grp, CELL *top, struct intermediates *cint)
   }
 #endif
   pt = base;
-  /* initialise vector */
+  /* initialize vector */
   for (i=0; i < max; i++) {
     *pt = i;
     pt += 2;
@@ -2430,7 +2430,7 @@ do_nonvar_group(GroupDef *grp, Term t, UInt compound_term, CELL *sreg, UInt arit
       return NULL;
     }
     type_sw = emit_type_switch(switch_on_type_op, cint);
-    /* have these first so that we will have something initialised here */
+    /* have these first so that we will have something initialized here */
     type_sw->ConstEntry = 
       type_sw->FuncEntry = 
       type_sw->PairEntry = 
@@ -4490,7 +4490,7 @@ expand_ctable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Term at)
     if (cases == pc->y_u.sssl.s) {
       return fetch_centry(old_ae, at, n-1, n);
     }
-    /* initialise */
+    /* initialize */
     target = (AtomSwiEntry *)emit_switch_space(cases, sizeof(AtomSwiEntry), cint, 0);
     pc->opc = Yap_opcode(_switch_on_cons);
     pc->y_u.sssl.s = cases;
@@ -4554,7 +4554,7 @@ expand_ftable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Functor f
     pc->y_u.sssl.s = cases;
     pc->y_u.sssl.e = n;
     pc->y_u.sssl.w = 0;
-    /* initialise */
+    /* initialize */
     target = (FuncSwiEntry *)emit_switch_space(cases, sizeof(FuncSwiEntry), cint, FuncSwitchMask);
     for (i=0; i<cases; i++) {
       target[i].Tag = NULL;

@@ -1550,7 +1550,7 @@ bool Yap_Reset(yap_reset_t mode) {
   // B shoul lead to CP with _ystop0,,
   P = FAILCODE;
   res = Yap_exec_absmi(true, mode);
-  /* reinitialise the engine */
+  /* reinitialize the engine */
   //  Yap_InitYaamRegs( worker_id );
   GLOBAL_Initialised = true;
   ENV = LCL0;
