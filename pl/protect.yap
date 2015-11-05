@@ -32,8 +32,8 @@ xc/*************************************************************************
 '$protect' :-
 	current_atom(Name),
 	atom_codes(Name,[0'$|_]), %'
-				%'$hide_predicates'(Name),
-	hide(Name),
+	'$hide_predicates'(Name),
+	'$hide'(Name),
 	fail.
 '$protect' :-
 	'$hide_predicates'(bootstrap),
