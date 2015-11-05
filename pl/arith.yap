@@ -215,7 +215,7 @@ do_c_built_metacall(G1, Mod, _, call(Mod:G1)).
 
 '$composed_built_in'(V) :- var(V), !,
 	fail.
-'$composed_built_in'((yap_hacks:current_choice_point(_),NG,'$$cut_by'(_))) :- !,
+'$composed_built_in'(('$current_choice_point'(_),NG,'$$cut_by'(_))) :- !,
 	'$composed_built_in'(NG).
 '$composed_built_in'((_,_)).
 '$composed_built_in'((_;_)).

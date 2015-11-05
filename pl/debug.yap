@@ -479,6 +479,9 @@ be lost.
 %
 % skip a goal or a port
 %
+'$zip'(_GoalNumber, _G, _Module) :-
+	current_prolog_flag(debug, false),
+	!.
 '$zip'(GoalNumber, G, Module) :-
     '__NB_getval__'('$debug_run',StopPoint,fail),
     % zip mode off, we cannot zip
@@ -796,6 +799,10 @@ be lost.
 %'$continue_debugging'(Exit, Debugger) :-
 %	writeln('$continue_debugging'(Exit, Debugger)), fail.
 % that's what follows
+'$continue_debugging'(_, _) :-
+	false,
+	current_prolog_flag( debug, false ),
+	!.
 '$continue_debugging'(_, debugger) :- !.
 % do not need to debug!
 % go back to original sequence.
@@ -829,7 +836,7 @@ be lost.
 	'$execute_clause'(G, M, R, CP).
 
 '$show_ancestors'(HowMany) :-
-	'__NB_getval__'('$spy_glist',[_|History]),
+	'__NB_getval__'('$spy_glist',[_|History], fail),
 	(
 	  History == []
 	->
