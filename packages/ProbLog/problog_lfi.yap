@@ -660,7 +660,7 @@ init_queries :-
 %= 
 %========================================================================
 
-init_one_query(QueryID,_Query_Type) :- trace,
+init_one_query(QueryID,_Query_Type) :-
 	create_known_values_file_name(QueryID,File_Name),
 	file_exists(File_Name),
 	!,
