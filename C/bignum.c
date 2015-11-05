@@ -360,11 +360,11 @@ Yap_OpaqueTermToString(Term t, char *str, size_t max)
 {
   size_t str_index = 0;
   CELL * li = RepAppl(t);
+  unsigned char *ptr = (unsigned char *)StringOfTerm(AbsAppl(li));
   if (li[0] == (CELL)FunctorString) {
     str_index += sprintf(& str[str_index], "\"");
     do {
       utf8proc_int32_t chr;
-      unsigned char *ptr = (unsigned char *)StringOfTerm(AbsAppl(li));
       ptr +=  get_utf8(ptr,  &chr);
       if (chr == '\0') break;
       str_index += sprintf(str+str_index, "%C", chr);
