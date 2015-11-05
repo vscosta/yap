@@ -1441,7 +1441,6 @@ RestoreEntries(PropEntry *pp, int int_key USES_REGS)
 	  CleanCode(RepPredProp(p0) PASS_REGS);
 	  RepPredProp(p0)->NextOfPE =
 	    PropAdjust(RepPredProp(p0)->NextOfPE);
-	  p0 = RepPredProp(p0)->NextOfPE;
 	}
       }
       break;
@@ -1488,7 +1487,7 @@ RestoreEntries(PropEntry *pp, int int_key USES_REGS)
 	ArrayEntry *ae = (ArrayEntry *)pp;
 	ae->NextOfPE =
 	  PropAdjust(ae->NextOfPE);
-	if (ae->ArrayEArity < 0) {
+	if (ae->TypeOfAE == STATIC_ARRAY) {
 	  /* static array entry */
 	  StaticArrayEntry *sae = (StaticArrayEntry *)ae;
 	  if (sae->NextAE)

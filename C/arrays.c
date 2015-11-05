@@ -121,9 +121,9 @@ extern int errno;
 #endif
 #endif
 
-static Int  p_compile_array_refs( USES_REGS1 );
-static Int  p_array_refs_compiled( USES_REGS1 );
-static Int  p_sync_mmapped_arrays( USES_REGS1 );
+static Int  compile_array_refs( USES_REGS1 );
+static Int  array_refs_compiled( USES_REGS1 );
+static Int  sync_mmapped_arrays( USES_REGS1 );
 
 /**
  * === Implementation Notes
@@ -144,7 +144,7 @@ static Int  p_sync_mmapped_arrays( USES_REGS1 );
  * in the code space. They have the lifetime of an heap
  * object. Any term can be an argument to a dynamic array.
  * 
- * Named arrays are named with atoms and are initialised with
+ * Named arrays are named with atoms and are initialized with
  * free variables.
  * 
  * + static arrays are allocated in the heap. Their space is
@@ -191,15 +191,15 @@ static Int  p_sync_mmapped_arrays( USES_REGS1 );
  * 
  */
 
-static Int  p_create_array( USES_REGS1 );
-static Int  p_create_mmapped_array( USES_REGS1 );
-static Int  p_array_references( USES_REGS1 );
-static Int  p_create_static_array( USES_REGS1 );
-static Int  p_resize_static_array( USES_REGS1 );
-static Int  p_close_static_array( USES_REGS1 );
-static Int  p_access_array( USES_REGS1 );
-static Int  p_assign_static( USES_REGS1 );
-static Int  p_assign_dynamic( USES_REGS1 );
+static Int  create_array( USES_REGS1 );
+static Int  create_mmapped_array( USES_REGS1 );
+static Int  array_references( USES_REGS1 );
+static Int  create_static_array( USES_REGS1 );
+static Int  resize_static_array( USES_REGS1 );
+static Int  close_static_array( USES_REGS1 );
+static Int  access_array( USES_REGS1 );
+static Int  assign_static( USES_REGS1 );
+static Int  assign_dynamic( USES_REGS1 );
 
 #if HAVE_MMAP
 
@@ -271,7 +271,7 @@ ResizeMmappedArray(StaticArrayEntry *pp, Int dim, void *area USES_REGS)
   /* This is a very stupid algorithm to change size for an array.
 
      First, we unmap it, then we actually change the size for the file,
-     and last we initialise again
+     and last we initialize again
   */
   if (munmap(ptr->start, ptr->size) == -1) {
       Yap_Error(SYSTEM_ERROR_INTERNAL,ARG1,"resize_mmapped_array (munmap: %s)", strerror(errno));
@@ -541,7 +541,7 @@ it can be used to unify with an element of a dynamic array.
 
 /// @memberof array_element/3
 static Int 
-p_access_array( USES_REGS1 )
+access_array( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   Term ti = Deref(ARG2);
@@ -587,7 +587,7 @@ p_access_array( USES_REGS1 )
 }
 
 static Int 
-p_array_arg( USES_REGS1 )
+array_arg( USES_REGS1 )
 {
   register Term ti = Deref(ARG3), t;
   register Int indx;
@@ -642,7 +642,7 @@ InitNamedArray(ArrayEntry * p, Int dim USES_REGS)
   tp[0] =  (CELL)Yap_MkFunctor(AtomArray, dim);
   tp++;
   p->ArrayEArity = dim;
-  /* Initialise the array as a set of variables */
+  /* Initialize the array as a set of variables */
   HR = tp+dim;
   for (; tp < HR; tp++) {
     RESET_VARIABLE(tp);
@@ -968,7 +968,7 @@ ClearStaticArray(StaticArrayEntry *pp)
 
 /* create an array (?Name, + Size) */
 static Int 
-p_create_array( USES_REGS1 )
+create_array( USES_REGS1 )
 {
   Term ti;
   Term t;
@@ -1080,7 +1080,7 @@ must be an atom (named array). The  _Size_ must evaluate to an
 integer.  The  _Type_ must be bound to one of types mentioned
 previously.
 */
-p_create_static_array( USES_REGS1 )
+create_static_array( USES_REGS1 )
 {
   Term ti = Deref(ARG2);
   Term t = Deref(ARG1);
@@ -1163,27 +1163,27 @@ p_create_static_array( USES_REGS1 )
 	pp = CreateStaticArray(ae, size, props, NULL, pp PASS_REGS);
 	WRITE_UNLOCK(ae->ARWLock);
 	if (pp == NULL) {
-	  return FALSE;
+	  return false;
 	}
-	return TRUE;
+	return true;
       } else {
 	WRITE_UNLOCK(ae->ARWLock);
 	Yap_Error(PERMISSION_ERROR_CREATE_ARRAY,t,"cannot create static array over dynamic array");
-	return FALSE;
+	return false;
       }
     } else {
       if (pp->ArrayEArity  == size &&
 	  pp->ArrayType == props) {
 	WRITE_UNLOCK(ae->ARWLock);
-	return TRUE;
+	return true;
       }
+      Yap_FreeCodeSpace(pp->ValueOfVE.floats);
       WRITE_UNLOCK(ae->ARWLock);
-      Yap_Error(PERMISSION_ERROR_CREATE_ARRAY,t,"cannot create static array over static array");
-      return FALSE;
+      return true;
     }
   }
   Yap_Error(TYPE_ERROR_ATOM,t,"create static array");
-  return FALSE;
+  return false;
 }
 
 /// create a new vectir in a given name Name. If one exists, destroy prrexisting onr
@@ -1209,7 +1209,7 @@ Yap_StaticVector( Atom Name, size_t size,  static_array_types props )
   
 /* has a static array associated (+Name) */
 static Int 
-p_static_array_properties( USES_REGS1 )
+static_array_properties( USES_REGS1 )
 {
   Term t = Deref(ARG1);
 
@@ -1262,8 +1262,8 @@ p_static_array_properties( USES_REGS1 )
 
 /* resize a static array (+Name, + Size, +Props) */
 /* does not work for mmap arrays yet */
-static Int 
-p_resize_static_array( USES_REGS1 )
+static Int
+resize_static_array( USES_REGS1 )
 {
   Term ti = Deref(ARG3);
   Term t = Deref(ARG1);
@@ -1318,7 +1318,7 @@ Reset static array with name  _Name_ to its initial value.
 
 */
 static Int 
-p_clear_static_array( USES_REGS1 )
+clear_static_array( USES_REGS1 )
 {
   Term t = Deref(ARG1);
 
@@ -1357,7 +1357,7 @@ further accesses to the array will return an error.
 
 */
 static Int 
-p_close_static_array( USES_REGS1 )
+close_static_array( USES_REGS1 )
 {
 /* does not work for mmap arrays yet */
   Term t = Deref(ARG1);
@@ -1419,7 +1419,7 @@ terms (type `term`).
 
 */
 static Int 
-p_create_mmapped_array( USES_REGS1 )
+create_mmapped_array( USES_REGS1 )
 {
 #ifdef HAVE_MMAP
   Term ti = Deref(ARG2);
@@ -1704,8 +1704,8 @@ replace_array_references(Term t0 USES_REGS)
   }
 }
 
-static Int 
-p_array_references( USES_REGS1 )
+static Int
+array_references( USES_REGS1 )
 {
   Term t = replace_array_references(ARG1 PASS_REGS);
   Term t1 = HeadOfTerm(t);
@@ -1732,7 +1732,7 @@ to use the operations on mutable terms.
 
 */
 static Int 
-p_assign_static( USES_REGS1 )
+assign_static( USES_REGS1 )
 {
   Term t1, t2, t3;
   StaticArrayEntry *ptr;
@@ -2065,7 +2065,7 @@ p_assign_static( USES_REGS1 )
 }
 
 static Int 
-p_assign_dynamic( USES_REGS1 )
+assign_dynamic( USES_REGS1 )
 {
   Term t1, t2, t3;
   StaticArrayEntry *ptr;
@@ -2228,7 +2228,7 @@ terms.
  */
 
 static Int 
-p_add_to_array_element( USES_REGS1 )
+add_to_array_element( USES_REGS1 )
 {
   Term t1, t2, t3;
   StaticArrayEntry *ptr;
@@ -2362,17 +2362,10 @@ p_add_to_array_element( USES_REGS1 )
       Yap_Error(TYPE_ERROR_NUMBER,ta,"add_to_array_element");
       return FALSE;
     }
-#ifdef MULTI_ASSIGNMENT_VARIABLES
     /* the evil deed is to be done now */
-    t3 = MkIntegerTerm(IntegerOfTerm(t3)+1);
-    MaBind(pt, t3);
+    MaBind(pt, ta);
     WRITE_UNLOCK(pp->ArRWLock);
     return Yap_unify(ARG4,t3);
-#else
-    Yap_Error(SYSTEM_ERROR_INTERNAL,t2,"add_to_array_element");
-    WRITE_UNLOCK(pp->ArRWLock);
-    return FALSE;
-#endif
   }
 
   WRITE_LOCK(ptr->ArRWLock);
@@ -2417,26 +2410,26 @@ p_add_to_array_element( USES_REGS1 )
     break;
   default:
     WRITE_UNLOCK(ptr->ArRWLock);
-    Yap_Error(TYPE_ERROR_INTEGER,t2,"add_to_array_element");
+    Yap_Error(TYPE_ERROR_NUMBER,t2,"add_to_array_element");
     return FALSE;
   }
 }
 
 static Int 
-p_compile_array_refs( USES_REGS1 )
+compile_array_refs( USES_REGS1 )
 {
   compile_arrays = TRUE;
   return (TRUE);
 }
 
 static Int 
-p_array_refs_compiled( USES_REGS1 )
+array_refs_compiled( USES_REGS1 )
 {
   return compile_arrays;
 }
 
 static Int
-p_sync_mmapped_arrays( USES_REGS1 )
+sync_mmapped_arrays( USES_REGS1 )
 {
 #ifdef HAVE_MMAP
   mmap_array_block *ptr = GLOBAL_mmap_arrays;
@@ -2460,7 +2453,7 @@ that name.
 
 */
 static Int
-p_static_array_to_term( USES_REGS1 )
+static_array_to_term( USES_REGS1 )
 {
   Term t = Deref(ARG1);
 
@@ -2631,7 +2624,7 @@ Give the location or memory address for  a static array with name
  _Name_. The result is observed as an integer.
 */
 static Int
-p_static_array_location( USES_REGS1 )
+static_array_location( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   Int *ptr;
@@ -2662,24 +2655,24 @@ p_static_array_location( USES_REGS1 )
 void 
 Yap_InitArrayPreds( void )
 {
-  Yap_InitCPred("$create_array", 2, p_create_array, SyncPredFlag);
-  Yap_InitCPred("$array_references", 3, p_array_references, SafePredFlag);
-  Yap_InitCPred("$array_arg", 3, p_array_arg, SafePredFlag);
-  Yap_InitCPred("static_array", 3, p_create_static_array, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("resize_static_array", 3, p_resize_static_array, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("mmapped_array", 4, p_create_mmapped_array, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("update_array", 3, p_assign_static, SafePredFlag);
-  Yap_InitCPred("dynamic_update_array", 3, p_assign_dynamic, SafePredFlag);
-  Yap_InitCPred("add_to_array_element", 4, p_add_to_array_element, SafePredFlag);
-  Yap_InitCPred("array_element", 3, p_access_array, 0);
-  Yap_InitCPred("reset_static_array", 1, p_clear_static_array, SafePredFlag);
-  Yap_InitCPred("close_static_array", 1, p_close_static_array, SafePredFlag);
-  Yap_InitCPred("$sync_mmapped_arrays", 0, p_sync_mmapped_arrays, SafePredFlag);
-  Yap_InitCPred("$compile_array_refs", 0, p_compile_array_refs, SafePredFlag);
-  Yap_InitCPred("$array_refs_compiled", 0, p_array_refs_compiled, SafePredFlag);
-  Yap_InitCPred("$static_array_properties", 3, p_static_array_properties, SafePredFlag);
-  Yap_InitCPred("static_array_to_term", 2, p_static_array_to_term, 0L);
-  Yap_InitCPred("static_array_location", 2, p_static_array_location, 0L);
+  Yap_InitCPred("$create_array", 2, create_array, SyncPredFlag);
+  Yap_InitCPred("$array_references", 3, array_references, SafePredFlag);
+  Yap_InitCPred("$array_arg", 3, array_arg, SafePredFlag);
+  Yap_InitCPred("static_array", 3, create_static_array, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("resize_static_array", 3, resize_static_array, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("mmapped_array", 4, create_mmapped_array, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("update_array", 3, assign_static, SafePredFlag);
+  Yap_InitCPred("dynamic_update_array", 3, assign_dynamic, SafePredFlag);
+  Yap_InitCPred("add_to_array_element", 4, add_to_array_element, SafePredFlag);
+  Yap_InitCPred("array_element", 3, access_array, 0);
+  Yap_InitCPred("reset_static_array", 1, clear_static_array, SafePredFlag);
+  Yap_InitCPred("close_static_array", 1, close_static_array, SafePredFlag);
+  Yap_InitCPred("$sync_mmapped_arrays", 0, sync_mmapped_arrays, SafePredFlag);
+  Yap_InitCPred("$compile_array_refs", 0, compile_array_refs, SafePredFlag);
+  Yap_InitCPred("$array_refs_compiled", 0, array_refs_compiled, SafePredFlag);
+  Yap_InitCPred("$static_array_properties", 3, static_array_properties, SafePredFlag);
+  Yap_InitCPred("static_array_to_term", 2, static_array_to_term, 0L);
+  Yap_InitCPred("static_array_location", 2, static_array_location, 0L);
 }
 
 
