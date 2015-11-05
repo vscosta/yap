@@ -1205,7 +1205,7 @@ fix_compiler_instructions(PInstr *pcpc USES_REGS)
     case write_last_list_op:
     case unify_last_struct_op:
     case write_last_struct_op:
-    case mark_initialised_pvars_op:
+    case mark_initialized_pvars_op:
     case mark_live_regs_op:
     case enter_profiling_op:
     case retry_profiled_op:
