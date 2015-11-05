@@ -389,7 +389,7 @@ abolish(X0) :-
 	'$do_error'(type_error(atom,M), Msg).
 
 '$old_abolish'(V,M) :- var(V), !,
-	( current_prolog_flag(language, sicstus) ->
+	( true -> % current_prolog_flag(language, sicstus) ->
 	    '$do_error'(instantiation_error,abolish(M:V))
 	;
 	    '$abolish_all_old'(M)
@@ -685,18 +685,43 @@ system_predicate(P) :-
  _Na_ is the name of the predicate, and  _Ar_ its arity.
 */
 current_predicate(F0) :-
-	'$yap_strip_module'(F0, M, AN),
-	( AN = A/N
-	->
-	  current_predicate(A, M:S),
-	  functor( S, A, N)
+	'$yap_strip_module'(F0, M, F),
+	(var(F) ->
+	 true
 	;
-	  AN == A//N
-	->
-	  current_predicate(A, M:S),
-	  Ar2 is N+2,
-	  functor( S, A, Ar2)
+	 (
+	  functor(F,AN,2)
+	 ->
+	   true
+	 ;
+	  '$do_error'(type_error(predicate_indicator,F0),
+		      current_predicate(F0))
+	 ),
+	 arg(1,F,A),
+	 (atom(A) -> true ;
+	  var(A) -> true ;
+	  '$do_error'(type_error(predicate_indicator,F0),current_predicate(F0))
+	 ),
+	 arg(2,F,N),
+	 (integer(N) -> true ;
+	  var(N) -> true ;
+	  '$do_error'(type_error(predicate_indicator,F0),current_predicate(F0))
+	 ),
+	 ( AN == '/'
+	 ->
+	   current_predicate(A, M:S),
+	   functor( S, A, N)
+	 ;
+	   AN == '//'
+	 ->
+	   current_predicate(A, M:S),
+	   Ar2 is N+2,
+	   functor( S, A, Ar2)
+	 ;
+	   '$do_error'(type_error(predicate_indicator,F0),current_predicate(F0))
+	 )
 	).
+
 
 '$imported_predicate'(A, ImportingMod, A/Arity, G, Flags) :-
 	'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod),
