@@ -283,7 +283,7 @@ ADDR Yap_InitPreAllocCodeSpace(int wid) {
 ADDR Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip, int safe) {
   CACHE_REGS
   char *ptr;
-  UInt sz = LOCAL_ScratchPad.msz;
+  UInt sz;
   if (sz0 < SCRATCH_INC_SIZE)
     sz0 = SCRATCH_INC_SIZE;
   if (sz0 < LOCAL_ScratchPad.sz)
