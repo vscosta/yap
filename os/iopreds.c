@@ -368,7 +368,6 @@ Yap_InitStdStreams (void)
 Int
 PlIOError__ (const char *file, const char *function, int lineno,  yap_error_number type, Term culprit,  ...)
 {
-  
   if (trueLocalPrologFlag(FILEERRORS_FLAG)||
       type == RESOURCE_ERROR_MAX_STREAMS /* do not catch resource errors */) {
     va_list args;
@@ -496,6 +495,7 @@ Yap_DebugPlWrite(Term t)
 }
 
 void
+Yap_DebugPlWriteln(Term t)
 Yap_DebugErrorPutc(int c)
 {
   Yap_DebugPutc (stderr, c);
