@@ -43,7 +43,10 @@ char * Yap_blob_to_string(AtomEntry *ref, const char *s0, size_t sz)
     }
     Atom at = AbsAtom(ref);
     rc = type->write(f, at, 0);
-        fclose(f);    // return the final result.
+      if (rc < 0) {
+        Yap_Error( EVALUATION_ERROR_UNDEFINED, MkAtomTerm(at), "failure in user-defined blob to string code" );
+      }
+      fclose(f);    // return the final result.
     return s;
     } else {
 #if __APPLE__
