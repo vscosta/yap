@@ -1617,18 +1617,27 @@ X_API void *YAP_AllocSpaceFromYap(size_t size) {
 
 X_API void YAP_FreeSpaceFromYap(void *ptr) { Yap_FreeCodeSpace(ptr); }
 
-/* copy a string to a buffer */
-X_API int YAP_StringToBuffer(Term t, char *buf, unsigned int bufsize) {
+/*  */
+/** 
+ * copy a string to a buffer, the buffer must have been malloced
+ * 
+ * @param t the text, or string
+ * @param buf the user-provided buffer
+ * @param bufsize bu
+ * 
+ * @return 
+ */X_API char *YAP_StringToBuffer(Term t, char *buf, unsigned int bufsize) {
   CACHE_REGS
   seq_tv_t inp, out;
   inp.val.t = t;
-  inp.type = YAP_STRING_CODES | YAP_STRING_TRUNC;
+  inp.type = YAP_STRING_ATOMS_CODES |YAP_STRING_STRING |YAP_STRING_ATOM | YAP_STRING_TRUNC | YAP_STRING_MALLOC;
   inp.max = bufsize;
   out.type = YAP_STRING_CHARS;
   out.val.c = buf;
+  out.enc = ENC_ISO_UTF8;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return FALSE;
-  return TRUE;
+    return NULL;
+  return out.val.c;
 }
 
 /* copy a string to a buffer */
@@ -3568,6 +3577,61 @@ YAP_tag_t YAP_TagOfTerm(Term t) {
 
 int YAP_BPROLOG_exception;
 Term YAP_BPROLOG_curr_toam_status;
+
+/** 
+ * Output the number of bytes needed to represent a string in UTF-8
+ * Note that the terminating zero is not included. No error checking
+ * is performed (the programmer should have that done).
+ * 
+ * @param t a list of codes, chars, string or atom.
+ * 
+ * @return a positive number with the size, or 0.
+ */
+size_t YAP_UTF8_TextLength(Term t) {
+  Term *aux;
+  utf8proc_uint8_t dst[8];
+  size_t sz = 0;
+
+  if (IsPairTerm( t )) {
+    while (t != TermNil) {
+      int c;
+
+      Term hd = HeadOfTerm( t );
+      if (IsAtomTerm(hd)) {
+	Atom at = AtomOfTerm(hd);
+	if (IsWideAtom(at))
+	  c = RepAtom(at)->WStrOfAE[0];
+	else
+	  c = RepAtom(at)->StrOfAE[0];
+      } else if (IsIntegerTerm(hd)) {
+	c = IntegerOfTerm( hd );
+      } else {
+	c = '\0';
+      }
+      sz += utf8proc_encode_char(c, dst);
+      t = TailOfTerm(t);
+    }
+  } else  if (IsAtomTerm(t)) {
+	Atom at = AtomOfTerm(t);
+	if (IsWideAtom(at)) {
+	  const wchar_t *s = RepAtom(at)->WStrOfAE;
+	  int c;
+	  while ((c = *s++)) {
+	    sz += utf8proc_encode_char(c, dst);
+	  }
+	} else {
+	  const unsigned char *s = (const unsigned char *)RepAtom(at)->StrOfAE;
+	  int c;
+
+	  while ((c = *s++)) {
+	    sz += utf8proc_encode_char(c, dst);
+	  }
+	}
+  } else  if (IsStringTerm(t)) {
+    sz = strlen(StringOfTerm( t )) ;
+  }
+  return sz;
+}
 
 Int YAP_ListLength(Term t) {
   Term *aux;
