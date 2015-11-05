@@ -325,7 +325,7 @@ void Yap_debug_end_loop(void)
 #endif
 
 static Int
-p_first_signal( USES_REGS1 )
+first_signal( USES_REGS1 )
 {
   Atom at;
   yap_signals sig;
@@ -440,9 +440,9 @@ p_first_signal( USES_REGS1 )
 }
 
 static Int
-p_continue_signals( USES_REGS1 )
+continue_signals( USES_REGS1 )
 {
-  return p_first_signal( PASS_REGS1 );
+  return first_signal( PASS_REGS1 );
 }
 
 void
@@ -453,8 +453,8 @@ Yap_InitSignalCPreds(void)
   Yap_InitCPred("$creep_fail", 0, p_creep_fail, SafePredFlag);
   Yap_InitCPred("$stop_creeping", 0, stop_creeping, NoTracePredFlag|HiddenPredFlag|SafePredFlag);
   Yap_InitCPred("$disable_debugging", 0, stop_creeping, NoTracePredFlag|HiddenPredFlag|SafePredFlag);
-  Yap_InitCPred ("$first_signal", 1, p_first_signal, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$continue_signals", 0, p_continue_signals, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$first_signal", 1, first_signal, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$continue_signals", 0, continue_signals, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("creep_allowed", 0, creep_allowed, 0);
 #ifdef DEBUG
   Yap_InitCPred("sys_debug", 1, p_debug, SafePredFlag|SyncPredFlag);
