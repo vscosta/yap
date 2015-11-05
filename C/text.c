@@ -786,7 +786,7 @@ write_buffer( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng 
     if (out->type & YAP_STRING_NCHARS) min = out->sz;
     if (out->type & YAP_STRING_TRUNC && out->max < max) max = out->max;
   }
-  if (out->enc != enc || out->type & (YAP_STRING_WITH_BUFFER|YAP_STRING_MALLOC)) {
+  if (out->enc != enc) {
     size_t sz;
     if (enc != ENC_WCHAR)
       sz = strlen((char *)s0)+1;
