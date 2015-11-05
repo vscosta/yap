@@ -496,7 +496,7 @@ Yap_InitCPred(const char *Name, UInt Arity, CPredicate code, pred_flags_t flags)
     else
       atom = Yap_FullLookupAtom(Name);
     if (atom == NIL && !Yap_growheap(FALSE, 0L, NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initialising %s", Name);
+      Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initializing %s", Name);
       return;
     }
   }
@@ -504,7 +504,7 @@ Yap_InitCPred(const char *Name, UInt Arity, CPredicate code, pred_flags_t flags)
     while (!f) {
       f = Yap_MkFunctor(atom,Arity);
       if (!f && !Yap_growheap(FALSE, 0L, NULL)) {
-	Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initialising %s", Name);
+	Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initializing %s", Name);
 	return;
       }
     }
@@ -515,7 +515,7 @@ Yap_InitCPred(const char *Name, UInt Arity, CPredicate code, pred_flags_t flags)
     else
       pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
     if (!pe && !Yap_growheap(FALSE, sizeof(PredEntry), NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initialising %s", Name);
+      Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initializing %s", Name);
       return;
     }
   }
@@ -541,7 +541,7 @@ Yap_InitCPred(const char *Name, UInt Arity, CPredicate code, pred_flags_t flags)
     cl = (StaticClause *)Yap_AllocCodeSpace(sz);
     if (!cl) {
       if (!Yap_growheap(FALSE, sz, NULL)) {
-	Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initialising %s", Name);
+	Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initializing %s", Name);
 	return;
       }
     } else {
@@ -645,7 +645,7 @@ Yap_InitCmpPred(const char *Name, UInt Arity, CmpPredicate cmp_code, pred_flags_
   while (atom == NIL) {
     atom = Yap_FullLookupAtom(Name);
     if (atom == NIL && !Yap_growheap(FALSE, 0L, NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initialising %s", Name);
+      Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initializing %s", Name);
       return;
     }
   }
@@ -653,7 +653,7 @@ Yap_InitCmpPred(const char *Name, UInt Arity, CmpPredicate cmp_code, pred_flags_
     while (!f) {
       f = Yap_MkFunctor(atom,Arity);
       if (!f && !Yap_growheap(FALSE, 0L, NULL)) {
-	Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initialising %s", Name);
+	Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initializing %s", Name);
 	return;
       }
     }
@@ -664,7 +664,7 @@ Yap_InitCmpPred(const char *Name, UInt Arity, CmpPredicate cmp_code, pred_flags_
     else
       pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
     if (!pe && !Yap_growheap(FALSE, sizeof(PredEntry), NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initialising %s", Name);
+      Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initializing %s", Name);
       return;
     }
   }
@@ -678,7 +678,7 @@ Yap_InitCmpPred(const char *Name, UInt Arity, CmpPredicate cmp_code, pred_flags_
       cl = (StaticClause *)Yap_AllocCodeSpace(sz);
       if (!cl) {
 	if (!Yap_growheap(FALSE, sz, NULL)) {
-	  Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initialising %s", Name);
+	  Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initializing %s", Name);
 	  return;
 	}
       } else {
@@ -721,7 +721,7 @@ Yap_InitAsmPred(const char *Name,  UInt Arity, int code, CPredicate def, pred_fl
   while (atom == NIL) {
     atom = Yap_FullLookupAtom(Name);
     if (atom == NIL && !Yap_growheap(FALSE, 0L, NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initialising %s", Name);
+      Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initializing %s", Name);
       return;
     }
   }
@@ -729,7 +729,7 @@ Yap_InitAsmPred(const char *Name,  UInt Arity, int code, CPredicate def, pred_fl
     while (!f) {
       f = Yap_MkFunctor(atom,Arity);
       if (!f && !Yap_growheap(FALSE, 0L, NULL)) {
-	Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initialising %s", Name);
+	Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initializing %s", Name);
 	return;
       }
     }
@@ -740,7 +740,7 @@ Yap_InitAsmPred(const char *Name,  UInt Arity, int code, CPredicate def, pred_fl
     else
       pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
     if (!pe && !Yap_growheap(FALSE, sizeof(PredEntry), NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initialising %s", Name);
+      Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initializing %s", Name);
       return;
     }
   }
@@ -875,7 +875,7 @@ Yap_InitCPredBack_(const char *Name, UInt Arity,
   while (atom == NIL) {
     atom = Yap_FullLookupAtom(Name);
     if (atom == NIL && !Yap_growheap(FALSE, 0L, NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initialising %s", Name);
+      Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initializing %s", Name);
       return;
     }
   }
@@ -883,7 +883,7 @@ Yap_InitCPredBack_(const char *Name, UInt Arity,
     while (!f) {
       f = Yap_MkFunctor(atom,Arity);
       if (!f && !Yap_growheap(FALSE, 0L, NULL)) {
-	Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initialising %s", Name);
+	Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initializing %s", Name);
 	return;
       }
     }
@@ -894,7 +894,7 @@ Yap_InitCPredBack_(const char *Name, UInt Arity,
     else
       pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
     if (!pe && !Yap_growheap(FALSE, sizeof(PredEntry), NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initialising %s", Name);
+      Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"while initializing %s", Name);
       return;
     }
   }
@@ -1133,7 +1133,7 @@ InitWideAtoms(void)
 static void
 InitInvisibleAtoms(void)
 {
-  /* initialise invisible chain */
+  /* initialize invisible chain */
   Yap_heap_regs->invisiblechain.Entry = NIL;
   INIT_RWLOCK(Yap_heap_regs->invisiblechain.AERWLock);
 }
@@ -1348,7 +1348,7 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
 {
   CACHE_REGS
 
-  /* initialise system stuff */
+  /* initialize system stuff */
 #if PUSH_REGS
 #ifdef THREADS
   if (!(Yap_local[0] = (struct worker_local *)calloc(sizeof(struct worker_local), 1)))
@@ -1357,7 +1357,7 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   pthread_setspecific(Yap_yaamregs_key, (const void *)&Yap_standard_regs);
   GLOBAL_master_thread = pthread_self();
 #else
-  /* In this case we need to initialise the abstract registers */
+  /* In this case we need to initialize the abstract registers */
   Yap_regp = &Yap_standard_regs;
   /* the emulator will eventually copy them to its own local
      register array, but for now they exist */
@@ -1417,7 +1417,7 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   Yap_AttsSize = Atts;
   Yap_InitTime( 0 );
   /* InitAbsmi must be done before InitCodes */
-  /* This must be done before initialising predicates */
+  /* This must be done before initializing predicates */
 #ifdef MPW
   Yap_InitAbsmi(REGS, FunctorList);
 #else
