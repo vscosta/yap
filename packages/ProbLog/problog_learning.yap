@@ -636,7 +636,6 @@ init_one_query(QueryID,Query,Type) :-
 	    assertz(query_md5(QueryID,Query_MD5,Type))
 	  )
 	 );
-
 	 true
 	),!,
 	garbage_collect.
@@ -811,8 +810,8 @@ my_load_intern(query_probability(QueryID,Prob),Handle,QueryID) :-
 	my_load_intern(X,Handle,QueryID).
 my_load_intern(query_gradient(QueryID,XFactID,Type,Value),Handle,QueryID) :-
 	!,
-	atomic_concat(x,StringFactID,XFactID),
-	atom_number(StringFactID,FactID),
+	atomic_concat(x,FactID,XFactID),
+%	atom_number(StringFactID,FactID),
 	assertz(query_gradient_intern(QueryID,FactID,Type,Value)),
 	read(Handle,X),
 	my_load_intern(X,Handle,QueryID).
