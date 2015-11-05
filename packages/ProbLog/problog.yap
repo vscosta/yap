@@ -2626,8 +2626,6 @@ init_problog_low(Threshold) :-
 	nb_setval(problog_completed_proofs, Trie_Completed_Proofs),
 	init_problog(Threshold).
 
-:- include(problog_lbdd).
-
 % generalizing problog_max to return all explanations, sorted by non-increasing probability
 problog_all_explanations(Goal,Expl) :-
 	problog_all_explanations_unsorted(Goal,Unsorted),
