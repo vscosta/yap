@@ -755,7 +755,8 @@ dollar_var( USES_REGS1 )
       Yap_Error( INSTANTIATION_ERROR, ARG2 , "");
     }
   }
-  Term tv = Yap_MkApplTerm(LOCAL_FunctorVar, 1, &ARG1);
+  Term t2 = Yap_unify( MkVarTerm(), ARG1);
+  Term tv = Yap_MkApplTerm(LOCAL_FunctorVar, 1, &t2);
   return Yap_unify(tv, ARG2);
 }
 
