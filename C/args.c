@@ -119,6 +119,7 @@ Yap_ArgListToVector (Term listl, const param_t *def, int n)
       if (!na) {
         free( a );
 	return NULL;
+      }
       na->used = 1;
       na->tvalue = ArgOfTerm(1, hd);      
     } else {
