@@ -140,5 +140,5 @@ static void InitGlobal(void) {
   GLOBAL_CharConversionTable = NULL;
   GLOBAL_CharConversionTable2 = NULL;
 
-  GLOBAL_LastWtimePtr = NULL;
+  GLOBAL_LastWTimePtr = NULL;
 }
