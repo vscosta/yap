@@ -341,7 +341,7 @@ static void wrputf(Float f, struct write_globs *wglb) /* writes a float	 */
   }
   lastw = alphanum;
   //  sprintf(s, "%.15g", f);
-  sprintf(s, RepAtom(AtomFloatFormat)->StrOfAE, f);
+  sprintf(s, floatFormat(), f);
   while (*pt == ' ')
     pt++;
   if (*pt == '-') {
@@ -1123,7 +1123,8 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         wrputc(' ', wglb->stream);
       }
       if (!IsVarTerm(ti) &&
-          (IsIntTerm(ti) || IsCodesTerm(ti) || IsAtomTerm(ti))) {
+          (IsIntTerm(ti) || IsCodesTerm(ti) ||
+	   IsAtomTerm(ti) || IsStringTerm(ti) )) {
         if (IsIntTerm(ti)) {
           Int k = IntOfTerm(ti);
           if (k == -1) {
@@ -1141,6 +1142,8 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
           }
         } else if (IsAtomTerm(ti)) {
           putAtom(AtomOfTerm(ti), FALSE, wglb);
+        } else if (IsStringTerm(ti)) {
+          putString(ti, wglb);
         } else {
           putUnquotedString(ti, wglb);
         }
@@ -1230,7 +1233,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   wglb.Keep_terms = (flags & (Use_portray_f | To_heap_f));
-  /* initialise wglb */
+  /* initialize wglb */
   rwt.parent = NULL;
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;

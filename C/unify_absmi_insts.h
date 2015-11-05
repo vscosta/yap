@@ -3087,7 +3087,7 @@
       XREG(PREG->y_u.yx.x) = (CELL) pt0;
       PREG = NEXTOP(PREG, yx);
 #if defined(YAPOR_SBA) && defined(FROZEN_STACKS)
-      /* We must initialise a shared variable to point to the SBA */
+      /* We must initialize a shared variable to point to the SBA */
       if (Unsigned((Int)(pt0)-(Int)(H_FZ)) >
 	  Unsigned((Int)(B_FZ)-(Int)(H_FZ))) {
 	*pt0 =  (CELL)STACK_TO_SBA(pt0);

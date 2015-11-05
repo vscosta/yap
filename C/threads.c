@@ -536,7 +536,7 @@ p_create_thread( USES_REGS1 )
   setup_engine(new_worker_id, FALSE);
   if ((REMOTE_ThreadHandle(new_worker_id).ret = pthread_create(&REMOTE_ThreadHandle(new_worker_id).pthread_handle, NULL, thread_run, (void *)(&(REMOTE_ThreadHandle(new_worker_id).id)))) == 0) {
     pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(owid).current_yaam_regs);
-    /* wait until the client is initialised */
+    /* wait until the client is initialized */
     return TRUE;
   }
   pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(owid).current_yaam_regs);
