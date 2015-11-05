@@ -12,21 +12,31 @@ set (YAPOS_SOURCES
   open_memstream.c
   pipes.c
   readline.c
+  random.c
   readterm.c
   readutil.c
+  sig.c
   sockets.c
   streams.c
   sysbits.c
+  time.c
   writeterm.c
   ypsocks.c
   ypstdio.c
+  )
+
+set (YAPOS_HEADERS
   encoding.h
   iopreds.h
   fmemopen.h
   yapio.h
+  sysbits.h
   )
 
-include_directories (../H ../include .  ${GMP_INCLUDE_DIR} ${PROJECT_BINARY_DIR})
+
+include_directories (../H ../include ../OPTYap .  ${GMP_INCLUDE_DIR} ${PROJECT_BINARY_DIR})
+
+
 
 macro_optional_find_package (Readline ON)
 macro_log_feature (READLINE_FOUND "libreadline"
@@ -64,6 +74,7 @@ set (POSITION_INDEPENDENT_CODE TRUE)
 add_library (libYAPOs  OBJECT
   ${YAPOS_SOURCES} )
 
+
 set_target_properties(libYAPOs
   PROPERTIES
   #  RPATH ${libdir} VERSION ${LIBYAPTAI_FULL_VERSION}
@@ -77,5 +88,6 @@ configure_file ("${PROJECT_SOURCE_DIR}/os/YapIOConfig.h.cmake"
 
   set( READLINE_LIBS ${READLINE_LIBRARIES} PARENT_SCOPE)
 
+  
 
 #set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${GMP_LIBRARIES} )

@@ -26,7 +26,6 @@ static char SccsId[] = "%W% %G%";
 */
 
 /*
- * In this routine we shall try to include the inevitably machine dependant
  * routines. These include, for the moment : Time, A rudimentary form of
  * signal handling, OS calls,
  *
