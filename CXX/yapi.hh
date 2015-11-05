@@ -26,10 +26,6 @@
 #endif
 #include <config.h>
 
-#if USE_GMP
-#include <gmpxx.h>
-#endif
-
 extern "C" {
 
 #include <stddef.h>
