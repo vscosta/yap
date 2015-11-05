@@ -340,7 +340,7 @@ YAP must support bignum for the configuration you are using (check the
 YAP configuration and setup). For now, YAP only supports the GNU GMP
 library, and `void \*` will be a cast for `mpz_t`. Notice
 that [YAP_BigNumOfTerm](@ref YAP_BigNumOfTerm) requires the number to be already
-initialised. As an example, we show how to print a bignum:
+initialized. As an example, we show how to print a bignum:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 static int
@@ -815,7 +815,7 @@ ignore the variable.
 
 There are several ways to call Prolog code from C-code. By default, the
 `YAP_RunGoal()` should be used for this task. It assumes the engine
-has been initialised before:
+has been initialized before:
 
 <ul>
  <li>YAP_Int YAP_RunGoal(YAP_Term Goal)
@@ -1792,6 +1792,8 @@ extern X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCP
 /*   YAP_Int      YAP_ListLength(YAP_Term t) */
 extern X_API YAP_Int YAP_ListLength(YAP_Term);
 
+extern X_API size_t YAP_UTF8_TextLength(YAP_Term t);
+
 /*  void UserBackCPredicate(char *name, int *init(), int *cont(), int *cut(), int
     arity, int extra) */
 extern X_API void YAP_UserBackCutCPredicate(const char *, YAP_UserCPred, YAP_UserCPred, YAP_UserCPred, YAP_Arity, unsigned int);
@@ -1924,7 +1926,7 @@ extern X_API YAP_Term YAP_IntsToList(YAP_Int *, size_t);
 extern X_API YAP_Int  YAP_ListToInts(YAP_Term, YAP_Int *, size_t);
 
 /*  int StringToBuffer(YAP_Term,char *,unsigned int) */
-extern X_API int YAP_StringToBuffer(YAP_Term,char *,unsigned int);
+extern X_API char *YAP_StringToBuffer(YAP_Term,char *,unsigned int);
 
 extern X_API YAP_Term YAP_BufferToString(const char *s);
 

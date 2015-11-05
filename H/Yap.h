@@ -62,15 +62,8 @@
 #if defined(YAPOR) || defined(TABLING)
 #include "opt.config.h"
 #endif /* YAPOR || TABLING */
-#if HAVE_STRINGS_H
-/* bzero */
-#include <strings.h>
-#endif
 #if HAVE_STDINT_H
 #include <stdint.h>
-#endif
-#if HAVE_INTTYPES_H
-#include <inttypes.h>
 #endif
 
 

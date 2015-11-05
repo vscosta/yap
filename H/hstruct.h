@@ -40,7 +40,7 @@
 #endif
 #if USE_DL_MALLOC || (USE_SYSTEM_MALLOC && HAVE_MALLINFO)
 #ifndef  HeapUsed
-#define  HeapUsed  Yap_givemallinfo()		
+#define  HeapUsed  Yap_givemallinfo()
 #endif
   Int  heap_used;
 #else
@@ -94,7 +94,6 @@
   Term  chtype_module;
   Term  terms_module;
   Term  system_module;
-  Term  operating_system_module;
   Term  readutil_module;
   Term  hacks_module;
   Term  arg_module;

@@ -1,7 +1,0 @@
-digraph d{
-x0 [label="burglary\nx0", style="filled", color="lightblue"];
-x1 [label="earthquake\nx1", style="filled", color="lightblue"];
-L3 [label="v",shape="invtriangle", style="filled", color="greenyellow"];
-x0 -> L3;
-x1 -> L3;
-}
