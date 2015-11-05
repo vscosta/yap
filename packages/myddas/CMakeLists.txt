@@ -77,7 +77,7 @@ source_group(generated FILES ${MYDDAS_YAP})
  add_library (myddas OBJECT
    ${MYDDAS_SOURCES}
   ${MYDDAS_UTIL_SOURCES}
-   ${MYDDAS_HEADES}
+   ${MYDDAS_HEADERS}
 )
 
 set_target_properties (myddas  PROPERTIES
