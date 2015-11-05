@@ -1,3 +1,4 @@
+
 /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
@@ -1449,7 +1450,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   /* try to open from current directory */
   /* could not open file */
   if (LOCAL_ErrorMessage == NULL) {
-    do_SYSTEM_ERROR_INTERNAL(PERMISSION_ERROR_OPEN_SOURCE_SINK,"incorrect saved state");
+    do_SYSTEM_ERROR_INTERNAL(PERMISSION_ERROR_OPEN_SOURCE_SINK,"incorrect saved state ");
   } else {
     strncpy(LOCAL_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
     do_SYSTEM_ERROR_INTERNAL(PERMISSION_ERROR_OPEN_SOURCE_SINK,"could not open saved state");
@@ -1569,7 +1570,7 @@ UnmarkTrEntries( USES_REGS1 )
 {
   CELL           entry, *Entries;
 
-  /* initialise a choice point */
+  /* initialize a choice point */
   B = (choiceptr)LCL0;
   B--;
   B->cp_ap = NOCODE;
@@ -1680,7 +1681,7 @@ Restore(char *s, char *lib_dir USES_REGS)
   /* restart IO */
   //  initIO();
   /* reset time */
-  Yap_ReInitWallTime();
+  Yap_ReInitWTime();
 #if USE_DL_MALLOC || USE_SYSTEM_MALLOC
   if (!AuxSp) {
     Yap_InitPreAllocCodeSpace( 0 );
