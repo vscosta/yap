@@ -412,7 +412,7 @@ backtracked into.
 
 */
     YAP_FLAG(TOPLEVEL_PROMPT_FLAG, "toplevel_prompt", true, isatom,
-             "~m~d~l~! ?- ", mkprompt),
+             "?- ", mkprompt),
     YAP_FLAG(TTY_CONTROL_FLAG, "tty_control", true, boolean, "true", NULL),
     YAP_FLAG(UNIX_FLAG, "unix", false, ro, "true", NULL), /**< `unix`
 
