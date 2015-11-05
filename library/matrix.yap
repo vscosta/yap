@@ -401,7 +401,7 @@ Unify  _NDims_ with the number of dimensions for  _Matrix_.
 
 Create a new matrix  _Matrix_ of type  _Type_, which may be one of
 `ints` or `floats`, with dimensions  _Dims_, and
-initialised from list  _List_.
+initialized from list  _List_.
 
 
 */
@@ -411,7 +411,7 @@ initialised from list  _List_.
 
 Create a new matrix  _Matrix_ of type  _Type_, which may be one of
 `ints` or `floats`, and with a list of dimensions  _Dims_.
-The matrix will be initialised to zeros.
+The matrix will be initialized to zeros.
 
 ~~~~~
 ?- matrix_new(ints,[2,3],Matrix).
