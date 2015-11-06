@@ -213,7 +213,7 @@ system_mod("ARG_MODULE", _, arg, sys  ).
 system_mod("PROLOG_MODULE", _ , prolog, sys ).
 system_mod("RANGE_MODULE", _, range, user ).
 system_mod("SWI_MODULE", _, swi, sys ).
-system_mod("OPERATING_SYSTEM_MODULE", _, operating_system_support , sys ).
+system_mod("OPERATING_SYSTEM_MODULE", _, system , sys ).
 system_mod("TERMS_MODULE", _, terms , sys).
 system_mod("SYSTEM_MODULE", _, system, sys ).
 system_mod("IDB_MODULE", _, idb, user ).
