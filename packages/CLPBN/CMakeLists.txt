@@ -89,6 +89,8 @@ set(
   ex/learning/train.yap
   )
 
+add_subDIRECTORY (horus)
+
 install(FILES
   ${CLPBN_TOP}
   DESTINATION ${libpl}

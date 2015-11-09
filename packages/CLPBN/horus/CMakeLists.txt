@@ -54,7 +54,7 @@
     ADD_LIBRARY(horus SHARED ${HORUS_SOURCES} )
   endif()
 
-  #set_property(TARGET horus PROPERTY CXX_STANDARD 11)
+#set_property(TARGET horus PROPERTY CXX_STANDARD 11)
   #set_property(TARGET horus PROPERTY CXX_STANDARD_REQUIRED ON)
 
   set_target_properties (horus PROPERTIES PREFIX "" CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON)
