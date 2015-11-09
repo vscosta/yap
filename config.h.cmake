@@ -1935,14 +1935,19 @@ signal. */
 #define USE_JUDY ${WITH_JUDY}
 #endif
 
-/* use mmap in or-parallel allocation */
-#ifndef USE_SYSTEM_MMAP
-#define USE_SYSTEM_MMAP  ${WITH_SYSTEM_MMAP}
+/* use Doug Lea's malloc ot implement the data-base.  */
+#ifndef USE_DL_MALLOC
+#cmakedefine USE_DL_MALLOC ${WITH_DL_MALLOC}
 #endif
 
-/* use shm in or-parallel allocation */
-#ifndef USE_SYSTEM_SHM
-#define USE_SYSTEM_SHM ${WITH_SYSTEM_SHM}
+/* use the OS malloc or some other external library to implement the data-base.  */
+#ifndef USE_SYSTEM_MALLOC
+#cmakedefine USE_SYSTEM_MALLOC ${WITH_SYSTEM_MALLOC}
+#endif
+
+/* Use mmap in or-parallel copying */
+#ifndef USE_SYSTEM_MMAP
+#cmakedefine USE_SYSTEM_MMAP  ${WITH_SYSTEM_MMAP}
 #endif
 
 /* Whether daylight savings time offset is set via the altzone variable */
@@ -1959,6 +1964,13 @@ signal. */
 #ifndef USE_TIME_GMTOFF
 #cmakedefine USE_TIME_GMTOFF ${USE_TIME_GMTOFF}
 #endif
+
+/* use the original YP malloc to implement the data-base.  */
+#ifndef USE_YAP_MALLOC
+#cmakedefine USE_YAP_MALLOC ${WITH_YAP_MALLOC}
+#endif
+
+
 
 /* Define to name of the UUID header file. */
 #ifndef UUID_H

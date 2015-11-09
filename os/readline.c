@@ -50,7 +50,7 @@ static char SccsId[] = "%W% %G%";
 
 #include "iopreds.h"
 
-#if defined(HAVE_LIBREADLINE)
+#if defined(USE_READLINE)
 
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -356,7 +356,7 @@ Yap_ReadlineForSIGINT(void)
 
 static Int has_readline(USES_REGS1)
 {
-#if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
+#if USE_READLINE
   return true;
 #else
   return false;

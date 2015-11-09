@@ -44,12 +44,21 @@ macro_log_feature (READLINE_FOUND "libreadline"
   "http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html")
 
 if (READLINE_FOUND)
+  # - Find the readline library
+  # This module defines
+  #  READLINE_INCLUDE_DIR, path to readline/readline.h, etc.
+  #  READLINE_LIBRARIES, the libraries required to use READLINE.
+  #  READLINE_FOUND, If false, do not try to use READLINE.
+  # also defined, but not for general use are
+  # READLINE_readline_LIBRARY, where to find the READLINE library.
+  # READLINE_ncurses_LIBRARY, where to find the ncurses library [might not be defined]
+
   set( CMAKE_REQUIRED_INCLUDES  ${READLINE_INCLUDE_DIR} ${CMAKE_REQUIRED_INCLUDES} )
   set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${READLINE_LIBRARIES} )
   check_include_files( "stdio.h;readline/readline.h" HAVE_READLINE_READLINE_H )
   check_include_files( "stdio.h;readline/history.h"  HAVE_READLINE_HISTORY_H )
   if (HAVE_READLINE_READLINE_H)
-  SET ( USE_READLINE 1 )
+    SET ( USE_READLINE ON )
     check_function_exists( add_history  HAVE_ADD_HISTORY )
   check_function_exists( rl_begin_undo_group HAVE_RL_BEGIN_UNDO_GROUP)
   check_function_exists( rl_clear_pending_input HAVE_RL_CLEAR_PENDING_INPUT)
@@ -60,12 +69,12 @@ if (READLINE_FOUND)
   check_function_exists( rl_reset_after_signal  HAVE_RL_RESET_AFTER_SIGNAL )
   check_function_exists( rl_set_keyboard_input_timeout  HAVE_RL_SET_KEYBOARD_INPUT_TIMEOUT )
   check_function_exists( rl_set_prompt  HAVE_RL_SET_PROMPT)
-  check_symbol_exists( rl_catch_signals stdio.h;readline/readline.h  HAVE_DECL_RL_CATCH_SIGNALS )
+  check_variable_exists( rl_catch_signals "readline/readline.h"   HAVE_DECL_RL_CATCH_SIGNALS )
   check_symbol_exists( rl_completion_func_t stdio.h;readline/readline.h HAVE_DECL_RL_COMPLETION_FUNC_T )
-  check_symbol_exists( rl_done stdio.h;readline/readline.h  HAVE_DECL_RL_DONE )
+  check_variable_exists( rl_done stdio.h;readline/readline.h  HAVE_DECL_RL_DONE )
   check_symbol_exists( rl_hook_func_t stdio.h;readline/readline.h  HAVE_DECL_RL_HOOK_FUNC_T )
   check_symbol_exists( rl_event_hook stdio.h;readline/readline.h HAVE_DECL_RL_EVENT_HOOK )
-  check_symbol_exists( rl_readline_state stdio.h;readline/readline.h HAVE_DECL_RL_READLINE_STATE )
+  check_variable_exists( rl_readline_state stdio.h;readline/readline.h HAVE_DECL_RL_READLINE_STATE )
      endif()
 endif (READLINE_FOUND)
 

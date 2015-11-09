@@ -1618,14 +1618,14 @@ X_API void *YAP_AllocSpaceFromYap(size_t size) {
 X_API void YAP_FreeSpaceFromYap(void *ptr) { Yap_FreeCodeSpace(ptr); }
 
 /*  */
-/** 
+/**
  * copy a string to a buffer, the buffer must have been malloced
- * 
+ *
  * @param t the text, or string
  * @param buf the user-provided buffer
  * @param bufsize bu
- * 
- * @return 
+ *
+ * @return
  */X_API char *YAP_StringToBuffer(Term t, char *buf, unsigned int bufsize) {
   CACHE_REGS
   seq_tv_t inp, out;
@@ -2652,7 +2652,7 @@ X_API Int YAP_Init(YAP_init_args *yap_init) {
   Yap_init_yapor_global_local_memory();
 #endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
   GLOBAL_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts;
-  Yap_InitSysbits(); /* init signal handling and time, required by later
+  Yap_InitSysbits(0); /* init signal handling and time, required by later
                         functions */
   GLOBAL_argv = yap_init->Argv;
   GLOBAL_argc = yap_init->Argc;
@@ -3578,13 +3578,13 @@ YAP_tag_t YAP_TagOfTerm(Term t) {
 int YAP_BPROLOG_exception;
 Term YAP_BPROLOG_curr_toam_status;
 
-/** 
+/**
  * Output the number of bytes needed to represent a string in UTF-8
  * Note that the terminating zero is not included. No error checking
  * is performed (the programmer should have that done).
- * 
+ *
  * @param t a list of codes, chars, string or atom.
- * 
+ *
  * @return a positive number with the size, or 0.
  */
 size_t YAP_UTF8_TextLength(Term t) {

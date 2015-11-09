@@ -1973,7 +1973,7 @@ Yap_InitPageSize(void)
    * predicates
    */
   void
-    Yap_InitSysbits (void)
+    Yap_InitSysbits (int wid)
   {
     CACHE_REGS
 #if  __simplescalar__

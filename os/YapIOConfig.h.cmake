@@ -1,6 +1,6 @@
 /* Define if you have libreadline */
 #ifndef HAVE_LIBREADLINE
-#define HAVE_LIBREADLINE ${USE_READLINE}
+#cmakedefine USE_READLINE ${USE_READLINE}
 #endif
 
 /* Define to 1 if you have the <readline/history.h> header file. */
