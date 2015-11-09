@@ -461,6 +461,9 @@
   Atom AtomGetworkSeq_;
 #define AtomGetworkSeq Yap_heap_regs->AtomGetworkSeq_
 #define TermGetworkSeq MkAtomTerm( Yap_heap_regs->AtomGetworkSeq_ )
+  Atom AtomGlob_;
+#define AtomGlob Yap_heap_regs->AtomGlob_
+#define TermGlob MkAtomTerm( Yap_heap_regs->AtomGlob_ )
   Atom AtomGlobal_;
 #define AtomGlobal Yap_heap_regs->AtomGlobal_
 #define TermGlobal MkAtomTerm( Yap_heap_regs->AtomGlobal_ )

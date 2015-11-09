@@ -155,6 +155,7 @@
   AtomGeneratePredInfo = Yap_FullLookupAtom("$generate_pred_info");
   AtomGetwork = Yap_FullLookupAtom("$getwork");
   AtomGetworkSeq = Yap_FullLookupAtom("$getwork_seq");
+  AtomGlob = Yap_LookupAtom("glob");
   AtomGlobal = Yap_LookupAtom("global");
   AtomGlobalSp = Yap_LookupAtom("global_sp");
   AtomGlobalTrie = Yap_LookupAtom("global_trie");
