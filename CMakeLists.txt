@@ -12,15 +12,13 @@ cmake_minimum_required(VERSION 2.8)
 # set path to additional CMake modules
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
-set(CMAKE_PREFIX_PATH ~/Qt/5.4/clang_64/ ${CMAKE_PREFIX_PATH})
-
 # set(CMAKE_BUILD_TYPE  Debug)
 
+set (MACOSX_RPATH ON)
 if(POLICY CMP0042)
-cmake_policy(SET CMP0042 NEW) # Set MACOSX_RPATH=YES by default
 endif(POLICY CMP0042)
 if(POLICY CMP0043)
-cmake_policy(SET CMP0058 NEW)
+cmake_policy(SET CMP0043 NEW)
 endif(POLICY CMP0043)
 
 
@@ -384,15 +382,14 @@ add_subDIRECTORY (packages/jpl)
 add_subDIRECTORY (packages/swig)
 
 add_subDIRECTORY (packages/bdd)
-add_subDIRECTORY (packages/cplint)
+
 add_subDIRECTORY (packages/ProbLog)
+
+add_subDIRECTORY (packages/swi-minisat2)
 
 add_subDIRECTORY (packages/CLPBN)
 
-
-
-add_subDIRECTORY (packages/CLPBN/horus)
-
+add_subDIRECTORY (packages/cplint)
 
 add_subDIRECTORY (packages/raptor)
 
