@@ -452,7 +452,7 @@ PrologPath(const char *Y, char *X) {
 
 static bool ChDir(const char *path) {
   bool rc = false;
-  char *qpath = Yap_AbsoluteFile(path, NULL);
+  char *qpath = Yap_AbsoluteFile(path, NULL, true);
 
 #ifdef __ANDROID__
   if (GLOBAL_AssetsWD) {
@@ -562,18 +562,17 @@ static char *myrealpath( const char *path, char *out)
 #endif
 }
 
-char *
-Yap_AbsoluteFile(const char *spec, char *tmp)
+static char *
+PrologExpandVars(const char *spec, char *tmp, bool ok_to)
 {
 
-    char *rc;
-  char o[YAP_FILENAME_MAX+1];
 #if _WIN32 || defined(__MINGW32__)
   char u[YAP_FILENAME_MAX+1];
+
   // first pass, remove Unix style stuff
   if (unix2win(spec, u, YAP_FILENAME_MAX) == NULL)
     return NULL;
-  spec = (const char *)u;
+  spec = u;
 #endif
   if (tmp == NULL) {
     tmp = malloc(YAP_FILENAME_MAX+1);
@@ -581,16 +580,106 @@ Yap_AbsoluteFile(const char *spec, char *tmp)
       return NULL;
     }
   }
-  if ( 1 || trueGlobalPrologFlag(FILE_NAME_VARIABLES_FLAG) )
+  if ( ok_to )
     {
-      spec=expandVars(spec,o,YAP_FILENAME_MAX);
+      tmp=expandVars(spec,tmp,YAP_FILENAME_MAX);
     }
-#if HAVE_REALPATH
-  rc =  myrealpath(spec, tmp);
-#endif
+  else
+    {
+      free(tmp);
+      tmp = (char *)spec;
+    }
+  return tmp;
+}
+
+/** 
+ * generate absolute path, if ok first expand SICStus Prolog style
+ * 
+ * @param spec the file path, including ~ and $
+ * @param tmp where to store the file
+ * @param ok where to process ~and $
+ * 
+ * @return tmp, or NULL
+ */  
+char *
+Yap_AbsoluteFile(const char *spec, char *tmp, bool ok)
+{
+  char *t1 = NULL;
+  t1 = PrologExpandVars(spec, t1, ok);
+  if (!t1)
+    return NULL;
+  char *rc =  myrealpath(t1, tmp);
   return rc;
 }
 
+/** 
+ * @pred prolog_expanded_file_system_path( +PrologPath, +ExpandVars, -OSPath )
+ * 
+ * Apply basic transformations to paths, and conidtionally apply
+ * traditional SICStus-style variable expansion.
+ *
+ * @param PrologPath the source, may be atom or string 
+ * @param ExpandVars expand initial occurrence of ~ or $
+ * @param ExpandVars expand initial occurrence of ~ or $
+ * @param Prefix add this path before _PrologPath_
+ * @param OSPath pathname.
+ * 
+ * @return 
+ */
+static Int
+prolog_expanded_file_system_path( USES_REGS1 )
+{
+  Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2);
+  Term t3 = Deref(ARG3);
+  char *o = LOCAL_FileNameBuf;
+  bool flag;
+  const char *cmd, *p0;
+    
+  if (IsAtomTerm(t1)) {
+    cmd = RepAtom(AtomOfTerm(t1))->StrOfAE;
+  } else if (IsStringTerm(t1)) {
+    cmd = StringOfTerm(t1);
+  } else {
+    
+    return FALSE;
+  }
+  if (t2 == TermTrue)
+    flag = true;
+  else if (t2 == TermFalse)
+    flag = false;
+  else
+    return false;
+  if (IsAtomTerm(t3)) {
+   p0 = RepAtom(AtomOfTerm(t3))->StrOfAE;
+  } else if (IsStringTerm(t3)) {
+    p0 = StringOfTerm(t3);
+  } else {
+    
+    return FALSE;
+  }
+  const char *out  = PrologExpandVars(cmd,o,flag);
+  if (Yap_IsAbsolutePath(out)) {
+    return Yap_unify(MkAtomTerm(Yap_LookupAtom(out)), ARG4);
+  } else if (p0[0] == '\0') {
+   char *rc =  myrealpath(out, LOCAL_FileNameBuf2 );
+    return Yap_unify(MkAtomTerm(Yap_LookupAtom(rc)), ARG4);
+  } else {
+    strncpy(  LOCAL_FileNameBuf2, p0, YAP_FILENAME_MAX );
+    char *pt =  LOCAL_FileNameBuf2 + strlen( LOCAL_FileNameBuf );
+    if ( !dir_separator( pt[-1] )) {
+#if ATARI || _MSC_VER || defined(__MINGW32__)
+      pt[0] = '\\';
+#else
+      pt[0] = '/';
+#endif
+      pt++;
+    }
+    out = strncpy( pt, out, YAP_FILENAME_MAX -(pt -LOCAL_FileNameBuf2) );
+   char *rc =  myrealpath(out, LOCAL_FileNameBuf );
+   return Yap_unify(MkAtomTerm(Yap_LookupAtom(rc)), ARG4);
+  }  
+}
 
 #define EXPAND_FILENAME_DEFS()                                                      \
   PAR("parameter_expansion", isatom, EXPAND_FILENAME_PARAMETER_EXPANSION),                                      \
@@ -834,7 +923,7 @@ static char *canoniseFileName( char *path) {
 
 
 static Int
-absolute_file_name( USES_REGS1 )
+absolute_file_system_path( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   const char *fp;
@@ -842,13 +931,13 @@ absolute_file_name( USES_REGS1 )
   char s[MAXPATHLEN+1];
 
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "absolute_file_name");
+    Yap_Error(INSTANTIATION_ERROR, t, "absolute_file_system_path");
     return false;
   } else if (!IsAtomTerm(t)) {
-    Yap_Error(TYPE_ERROR_ATOM, t, "absolute_file_name");
+    Yap_Error(TYPE_ERROR_ATOM, t, "absolute_file_system_path");
     return false;
   }
-  if (!(fp = Yap_AbsoluteFile( RepAtom(AtomOfTerm(t))->StrOfAE, s)))
+  if (!(fp = Yap_AbsoluteFile( RepAtom(AtomOfTerm(t))->StrOfAE, s, true)))
     return false;
   rc = Yap_unify(MkAtomTerm(Yap_LookupAtom(fp)), ARG2);
   if (fp != s)
@@ -1083,10 +1172,7 @@ commons_library( USES_REGS1 )
 static Int
 p_dir_sp ( USES_REGS1 )
 {
-#ifdef MAC
-  Term t = MkIntTerm(':');
-  Term t2 = MkIntTerm('/');
-#elif ATARI || _MSC_VER || defined(__MINGW32__)
+#if ATARI || _MSC_VER || defined(__MINGW32__)
   Term t = MkIntTerm('\\');
   Term t2 = MkIntTerm('/');
 #else
@@ -1202,7 +1288,7 @@ Yap_InitPageSize(void)
       strncpy( ares2, root, YAP_FILENAME_MAX );
       strncat( ares2, "/", YAP_FILENAME_MAX );
       strncat( ares2, work, YAP_FILENAME_MAX );
-      return Yap_AbsoluteFile( ares2, result );
+      return Yap_AbsoluteFile( ares2, result , false);
     } else {
       // expand path
       return myrealpath( work, result);
@@ -2152,7 +2238,6 @@ Yap_InitPageSize(void)
   void
     Yap_InitSysPreds(void)
   {
-    CACHE_REGS
     Yap_InitCPred ("log_event", 1, p_log_event, SafePredFlag|SyncPredFlag);
     Yap_InitCPred ("sh", 0, p_sh, SafePredFlag|SyncPredFlag);
     Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag);
@@ -2181,7 +2266,8 @@ Yap_InitPageSize(void)
 #ifdef _WIN32
     Yap_InitCPred ("win_registry_get_value", 3, p_win_registry_get_value,0);
 #endif
-    Yap_InitCPred ("absolute_file_name", 2, absolute_file_name, 0);
+    Yap_InitCPred ("absolute_file_system_path", 2, absolute_file_system_path, 0);
+    Yap_InitCPred ("prolog_expanded_file_system_path", 4, prolog_expanded_file_system_path, 0);
     Yap_InitCPred ("true_file_name", 2,
 		   true_file_name, SyncPredFlag);
     Yap_InitCPred ("true_file_name", 3, true_file_name3, SyncPredFlag);

@@ -217,7 +217,7 @@ InitReadline(void) {
 #endif
   rl_outstream = stderr;
   using_history();
-  char *s = Yap_AbsoluteFile("~/.YAP.history",NULL);
+  char *s = Yap_AbsoluteFile("~/.YAP.history",NULL,true);
   if (!read_history (s))
     { FILE *f = fopen(s, "w");
       if (f) {
@@ -275,7 +275,7 @@ getLine( int inp, int out )
     return false;
   if (myrl_line[0] != '\0' && myrl_line[1] != '\0') {
     add_history (myrl_line);
-      write_history ( Yap_AbsoluteFile("~/.YAP.history", NULL));
+    write_history ( Yap_AbsoluteFile("~/.YAP.history", NULL, true));
     }
     s->u.irl.ptr = s->u.irl.buf = myrl_line;
     return true;
