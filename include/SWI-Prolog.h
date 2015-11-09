@@ -26,7 +26,7 @@ extern "C" {
 #endif
 
 
-#if USE_GMP
+#if USE_GMP && !defined(__cplusplus)
 #include <gmp.h>
 #endif
 
@@ -798,7 +798,7 @@ PL_EXPORT(int)		PL_unr1egister_blob_type(PL_blob_t *type);
 PL_EXPORT(int)		PL_raise(int sig);
 
 #endif
-#if USE_GMP
+#if USE_GMP &&  !defined(__cplusplus)
 
 #include <gmp.h>
 
