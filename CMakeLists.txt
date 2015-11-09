@@ -116,6 +116,9 @@ set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
   #
   include (Config)
 
+  target_link_libraries(libYap m)
+
+
 set_target_properties(libYap
   PROPERTIES VERSION ${YAP_FULL_VERSION}
   SOVERSION ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}
@@ -333,7 +336,7 @@ CMAKE_DEPENDENT_OPTION (WITH_MAX_Threads 1024
 
 CMAKE_DEPENDENT_OPTION (WITH_MAX_Workers 64
   "maximum number of or-parallel workers" "WITH_MAX_Workers" 1)
-  
+
 cmake_dependent_option (WITH_Pthread_Locking
   "use pthread locking primitives for internal locking" ON
   "WITH_ThreadsS" OFF)
@@ -369,9 +372,9 @@ ADD_SUBDIRECTORY(swi/library)
 
 option (WITH_JIT
 "just in Time Clause Compilation" OFF)
-if (WITH_JIT) 
+if (WITH_JIT)
   add_subDIRECTORY(JIT)
-endif (WITH_JIT) 
+endif (WITH_JIT)
 
 add_subDIRECTORY (packages/gecode)
 
@@ -489,7 +492,7 @@ macro_optional_find_package (MPI OFF)
   add_subDIRECTORY(library/lammpi)
 
   if (MPI_C_FOUND)
-  
+
   CMAKE_DEPENDENT_OPTION( WITH_MPI ON "Interface to OpenMPI/MPICH"
     "MPI_C_FOUND" OFF)
   macro_optional_add_subDIRECTORY(library/mpi)
@@ -537,4 +540,3 @@ macro_display_feature_log()
 if(POLICY CMP0058)
 cmake_policy(SET CMP0058 NEW)
 endif(POLICY CMP0058)
-
