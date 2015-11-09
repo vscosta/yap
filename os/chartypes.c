@@ -90,6 +90,7 @@ typedef struct enc_map {
 
 static enc_map_t ematches[] = {
     {"UTF-8", ENC_ISO_UTF8},
+    {"utf8", ENC_ISO_UTF8},
     {"UTF-16", ENC_UTF16_LE}, // ok, this is a very bad name
     {"UCS-2", ENC_UTF16_LE},  // ok, this is probably gone by now
     {"ISO-LATIN1", ENC_ISO_LATIN1},
@@ -117,6 +118,7 @@ static encoding_t DefaultEncoding(void) {
       while (ematches[j].s) {
         if (!strcmp(ematches[j].s, enc))
           return ematches[j].e;
+        j++;
       }
     }
     i++;
