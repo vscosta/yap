@@ -470,18 +470,6 @@ true :- true.
 
 /* main execution loop							*/
 '$read_toplevel'(Goal, Bindings) :-
-	fail,
-	'$pred_exists'(read_history(_,_,_,_,_,_), user),
-	current_prolog_flag(readline, true), !,
-	read_history(h, '!h',
-                         [trace, end_of_file],
-                         Prompt, Goal, Bindings), !,
-	(nonvar(Err) ->
-	 '$early_print'(error,Err), fail
-	;
-	 true
-	).
-'$read_toplevel'(Goal, Bindings) :-
 	'$prompt',
 	'$system_catch'(read_term(user_input,
 				  Goal,
