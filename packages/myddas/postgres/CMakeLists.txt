@@ -13,12 +13,11 @@ macro_log_feature (POSTGRES_FOUND "postgres"
   "POSTGRES Driver for MYDDAS Data-Base Interface "
   "http://www.postgres.org" FALSE)
 
-add_library (Yappostgres SHARED ${YAPPOSTGRES_SOURCES})
-
 if (POSTGRES_FOUND)
   # POSTGRES_INCLUDE_DIRECTORIES, where to find sql.h
   # POSTGRES_LIBRARIES, the libraries to link against to use POSTGRES
   # POSTGRES_FOUND.  If false, you cannot build anything that requires Postgres.
+  add_library (Yappostgres SHARED ${YAPPOSTGRES_SOURCES})
   add_definitions (-DMYDDAS_POSTGRES=1)
   target_link_libraries(Yappostgres libYap   ${POSTGRES_LIBRARIES})
   include_directories (${POSTGRES_INCLUDE_DIRECTORIES} ..)
@@ -35,4 +34,3 @@ set_target_properties (Yappostgres PROPERTIES
    install(TARGETS  Yappostgres
     LIBRARY DESTINATION ${libdir}
     )
-
