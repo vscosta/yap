@@ -412,8 +412,6 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   }
   if (args[READ_SINGLETONS].used) {
     fe->sp = args[READ_SINGLETONS].tvalue;
-  } else if (args[READ_SINGLETONS].used) {
-    fe->sp = MkVarTerm();
   } else {
     fe->sp = 0;
   }
@@ -872,7 +870,7 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re,
     fe->tp = 0;
   }
   if (trueLocalPrologFlag(SINGLE_VAR_WARNINGS_FLAG)) {
-    fe->sp = MkVarTerm();
+    fe->sp = TermNil;
   } else {
     fe->sp = 0;
   }
@@ -902,7 +900,7 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re,
 
 static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart, Term t) {
   CACHE_REGS
-  Term v1, v2, v3;
+  Term v1, v2, v3 = TermNil;
   {
     fe->old_H = HR;
     while (TRUE) {

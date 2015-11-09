@@ -126,8 +126,10 @@ Yap_FindExecutable(void)
 void *
 Yap_LoadForeignFile(char *file, int flags)
 {
+  CACHE_REGS
   int dlflag;
   void *out;
+  
 
   if (flags &  EAGER_LOADING)
     dlflag = RTLD_NOW;
@@ -139,11 +141,15 @@ Yap_LoadForeignFile(char *file, int flags)
   else 
     dlflag |= RTLD_LOCAL;
 #endif
-  
-  out = (void *)dlopen(file,dlflag);
-  if (!out) {
-    CACHE_REGS
-    Yap_Error(SYSTEM_ERROR_INTERNAL, ARG1, "dlopen error for %s: %s\n", file, dlerror());
+  if (!Yap_TrueFileName(file, LOCAL_FileNameBuf, true)){
+    /* use LD_LIBRARY_PATH */
+    strncpy(LOCAL_FileNameBuf,file, YAP_FILENAME_MAX-1);
+    strncat(LOCAL_FileNameBuf,".", YAP_FILENAME_MAX-1);
+    strncat(LOCAL_FileNameBuf, "SO_EXT",  YAP_FILENAME_MAX-1);
+  }
+  out = (void *)dlopen(LOCAL_FileNameBuf, flags);
+  if (out == NULL) {
+      Yap_Error(SYSTEM_ERROR_INTERNAL, ARG1, "dlopen failed for %s: %s\n", file, dlerror());
   }
   return out;
 }
@@ -183,7 +189,7 @@ LoadForeign(StringList ofiles, StringList libs,
   CACHE_REGS
 
   while (libs) {
-    if (!Yap_TrueFileName((char *)AtomName(libs->name), LOCAL_FileNameBuf, TRUE)) {
+    if (!Yap_TrueFileName((char *)AtomName(libs->name), LOCAL_FileNameBuf, true)) {
       /* use LD_LIBRARY_PATH */
       strncpy(LOCAL_FileNameBuf, (char *)AtomName(libs->name), YAP_FILENAME_MAX);
     }
@@ -217,7 +223,7 @@ LoadForeign(StringList ofiles, StringList libs,
     if((handle=dlopen(LOCAL_FileNameBuf,RTLD_LAZY|RTLD_GLOBAL)) == 0)
 #endif
     {
-      fprintf(stderr,"dlopen of %s failed with error %s\n", LOCAL_FileNameBuf, dlerror());
+      fprintf(stderr,"dlopen of image %s failed: %s\n", LOCAL_FileNameBuf, dlerror());
 /*      strcpy(LOCAL_ErrorSay,dlerror());*/
       return LOAD_FAILLED;
     }

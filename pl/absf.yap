@@ -50,7 +50,6 @@
 */
 :- multifile user:library_directory/1.
 :- dynamic user:library_directory/1.
-
 %% user:library_directory( ?Dir )
 %  Specifies the set of directories where
 % one can find Prolog libraries.
@@ -219,11 +218,13 @@ user:file_search_path(path, C) :-
 
   -  extensions(+ _ListOfExtensions_)
 
-     List of file-extensions to try.  Default is `''`.  For each
-     extension, absolute_file_name/3 will first add the extension and then
-     verify the conditions imposed by the other options.  If the condition
-     fails, the next extension of the list is tried.  Extensions may be
-     specified both with dot, as `.ext`, or without, as plain `ext`.
+     List of file-name suffixes to add to try adding to the file. The
+     Default is the empty suffix, `''`.  For each extension,
+     absolute_file_name/3 will first add the extension and then verify
+     the conditions imposed by the other options.  If the condition
+     fails, the next extension of the list is tried.  Extensions may
+     be specified both with dot, as `.ext`, or without, as plain
+     `ext`.
 
   -  relative_to(+ _FileOrDir_ )
 
@@ -262,20 +263,29 @@ user:file_search_path(path, C) :-
 
   -  file_errors(`fail`/`error`)
 
-     If `error` (default), throw and `existence_error` exception
+     If `error` (default), throw  `existence_error` exception
      if the file cannot be found.  If `fail`, stay silent.
 
   -  solutions(`first`/`all`)
 
-     If `first` (default), the search cannot backtrack. leaves no choice-point.
-     Otherwise a choice-point will be left and backtracking may yield
-     more solutions.
+     If `first` (default), commit to the first solution.  Otherwise
+     absolute_file_name will enumerate all solutions via backtracking.
 
   -  expand(`true`/`false`)
 
-     If `true` (default is `false`) and  _Spec_  is atomic,
-     call expand_file_name/2 followed by member/2 on  _Spec_  before
-     proceeding.  This is originally a SWI-Prolog extension.
+     If `true` (default is `false`) and _Spec_ is atomic, call
+     expand_file_name/2 followed by member/2 on _Spec_ before
+     proceeding.  This is originally a SWI-Prolog extension, but
+     whereas SWI-Prolog implements its own conventions, YAP uses the
+     shell's `glob` primitive.
+
+  -  glob(`Pattern`)
+
+     If  _Pattern_ is atomic, add the pattern as a suffix to the current expansion, and call
+     expand_file_name/2 followed by member/2 on the result. This is originally  a SICStus Prolog exception.
+
+     Both `glob` and `expand` rely on the same underlying
+     mechanism. YAP gives preference to `glob`.
 
   -  verbose_file_search(`true`/`false`)
 
@@ -320,7 +330,7 @@ absolute_file_name(File0,File) :-
 '$absolute_file_name'(File, _Opts, _TrueFileName, G) :- var(File), !,
 	'$do_error'(instantiation_error, G).
 '$absolute_file_name'(File,LOpts,TrueFileName, G) :-
-	current_prolog_flag(file_name_variables, OldF),
+	current_prolog_flag(open_expands_filename, OldF),
 	current_prolog_flag( fileerrors, PreviousFileErrors ),
 	current_prolog_flag( verbose_file_search, PreviousVerbose ),
 	abs_file_parameters(LOpts,Opts),
@@ -328,7 +338,7 @@ absolute_file_name(File0,File) :-
 	get_abs_file_parameter( expand, Opts, Expand ),
 	set_prolog_flag( verbose_file_search,  Verbose ),
 	get_abs_file_parameter( file_errors, Opts, FErrors ),
-	(  FErrors = fail ->
+	(  FErrors == fail ->
 	  set_prolog_flag( fileerrors, false )
 	;
 	  set_prolog_flag( fileerrors, true )
@@ -342,7 +352,7 @@ absolute_file_name(File0,File) :-
 	 '$absf_trace'('found solution ~a', [TrueFileName] ),
 %	 	stop_lowxb(  _level_trace,
 	 set_prolog_flag( fileerrors, PreviousFileErrors ),
-	 set_prolog_flag( file_name_variables, OldF),
+	 set_prolog_flag( open_expands_filename, OldF),
 	 set_prolog_flag( verbose_file_search, PreviousVerbose ),
 	 '$absf_trace'('first solution only', [] ),
 	 !
@@ -408,44 +418,61 @@ absolute_file_name(File0,File) :-
 	'$to_list_of_atoms'(As, L1, [A|L2]),
 	'$to_list_of_atoms'(Bs, L2, LF).
 
-'$get_abs_file'(File,Opts,AbsFile) :-
-	get_abs_file_parameter( expand, Opts, Expand ),
-	'$absf_trace'('variable expansion allowed? ~w', [Expand] ),
-	absolute_file_name(File,ExpFile),
-	'$absf_trace'(' variable expansion ~w', [ExpFile] ),
+'$get_abs_file'(File,Opts, ExpFile) :-
+	'$control_for_expansion'(Opts, Expand),
 	get_abs_file_parameter( relative_to, Opts, RelTo ),
-	(
-	 RelTo \= '.'
-	->
-	( is_absolute_file_name(ExpFile) ->
-	   AbsFile = ExpFile
-	  ;
-	   '$dir_separator'(D),
-	   atom_codes(DA,[D]),
-	   atom_concat([RelTo, DA, ExpFile], AbsFile),
-	   '$absf_trace'('add relative path ~a', [RelTo] )
-	  )
-	;
-	  AbsFile = ExpFile
-	),
-	'$absf_trace'('after relative to absolute path, ~a ', [AbsFile] ).
+	prolog_expanded_file_system_path( File, Expand, RelTo, ExpFile ),
+	'$absf_trace'('Traditional expansion: ~w', [ExpFile] ).
+
+
+'$control_for_expansion'(Opts, true) :-
+	get_abs_file_parameter( expand, Opts, true ),
+	!.
+'$control_for_expansion'(_Opts, Flag) :-
+	current_prolog_flag( open_expands_filename, Flag ).
 
 
 '$search_in_path'(File,Opts,F) :-
 	get_abs_file_parameter( extensions, Opts, Extensions ),
 	'$absf_trace'('check extensions ~w?', [Extensions] ),
 	'$add_extensions'(Extensions, File, F0),
+	'$glob'( F0, Opts, FG),
 	get_abs_file_parameter( file_type, Opts, Type ),
 	get_abs_file_parameter( access, Opts, Access ),
-	'$absf_trace'('check access permission ~a...', [Access] ),
-	'$check_file'(F0,Type, Access, F).
+	'$check_file'(FG,Type, Access, F),
+	'$absf_trace'(' ~a  ok!', [Access]).
 '$search_in_path'(File,Opts,F) :-
 	get_abs_file_parameter( file_type, Opts, Type ),
 	'$absf_trace'('check type ~w', [Type] ),
 	'$add_type_extensions'(Type,File, F0),
 	get_abs_file_parameter( access, Opts, Access ),
-	'$absf_trace'('check access permission ~w?', [Access] ),
-	'$check_file'(F0, Type, Access, F).
+	'$glob'( F0, Opts, FG),
+	'$check_file'(FG, Type, Access, F),
+	'$absf_trace'('   ~w   ok!', [Access]).
+
+'$glob'( File1, Opts, ExpFile) :-
+	'$control_for_expansion'(Opts, Expand),
+	get_abs_file_parameter( glob, Opts, Glob ),
+	(Glob \== ''
+	->
+	'$dir_separator'(D),
+	atom_codes(DA,[D]),
+	 atom_concat( [File1, DA, Glob], File2 ),
+	 expand_file_name(File2, ExpFiles),
+	 lists:member(ExpFile, ExpFiles),
+	 \+ sub_atom( ExpFile, _, _, 1, '.'),
+	 \+ sub_atom( ExpFile, _, _, 2, '..')
+	;
+	 Expand == true
+	->
+	 expand_file_name(File1, ExpFiles),
+	 lists:member(ExpFile, ExpFiles),
+	 \+ sub_atom( ExpFile, _, _, 1, '.'),
+	 \+ sub_atom( ExpFile, _, _, 2, '..')
+	 ;
+	 File1 = ExpFile
+	),
+	'$absf_trace'(' With globbing (glob=~q;expand=~a): ~w', [Glob,Expand,ExpFile] ).
 
 % always verify if a directory
 '$check_file'(F, directory, _, F) :-
@@ -569,7 +596,7 @@ absolute_file_name(File0,File) :-
 	print_message( informational, absolute_file_path( Msg, Args ) ).
 '$absf_trace'(_Msg, _Args ).
 
-/** @pred prolog_file_name( +File, -PrologFileName)
+/** @pred prolog_file_name( +File, -PrologFileaNme)
 
 Unify _PrologFileName_ with the Prolog file associated to _File_.
 

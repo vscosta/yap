@@ -1,19 +1,19 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		attvar.c						 *
-* Last rev:								 *
-* mods:									 *
-* comments:	YAP support for attributed vars				 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		attvar.c						 *
+ * Last rev:								 *
+ * mods:									 *
+ * comments:	YAP support for attributed vars				 *
+ *									 *
+ *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -31,7 +31,7 @@ static char SccsId[] = "%W% %G%";
 /** @{ */
 
 /** @defgroup Attribute_Variables_Builtins Implementation of Attribute
-   Declarations
+    Declarations
     @ingroup Attributed_Variables
 */
 
@@ -201,7 +201,7 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
 
 void Yap_WakeUp(CELL *pt0) {
   CACHE_REGS
-  CELL d0 = *pt0;
+    CELL d0 = *pt0;
   RESET_VARIABLE(pt0);
   WakeAttVar(pt0, d0 PASS_REGS);
 }
@@ -911,9 +911,9 @@ static Term AllAttVars(USES_REGS1) {
       break;
     case (CELL) FunctorBigInt: {
       Int sz = 3 +
-               (sizeof(MP_INT) +
-                (((MP_INT *)(pt + 2))->_mp_alloc * sizeof(mp_limb_t))) /
-                   sizeof(CELL);
+	(sizeof(MP_INT) +
+	 (((MP_INT *)(pt + 2))->_mp_alloc * sizeof(mp_limb_t))) /
+	sizeof(CELL);
       pt += sz;
     } break;
     case (CELL) FunctorLongInt:
@@ -965,7 +965,7 @@ static Int p_is_attvar(USES_REGS1) {
 static Int p_attvar_bound(USES_REGS1) {
   Term t = Deref(ARG1);
   return IsVarTerm(t) && IsAttachedTerm(t) &&
-         !IsUnboundVar(&(RepAttVar(VarOfTerm(t))->Done));
+    !IsUnboundVar(&(RepAttVar(VarOfTerm(t))->Done));
 }
 
 static Int p_void_term(USES_REGS1) { return Yap_unify(ARG1, TermVoidAtt); }
@@ -1005,7 +1005,7 @@ static Int p_attvar_bound(USES_REGS1) { return FALSE; }
 
 void Yap_InitAttVarPreds(void) {
   CACHE_REGS
-  Term OldCurrentModule = CurrentModule;
+    Term OldCurrentModule = CurrentModule;
   CurrentModule = ATTRIBUTES_MODULE;
 #ifdef COROUTINING
   GLOBAL_attas[attvars_ext].bind_op = WakeAttVar;

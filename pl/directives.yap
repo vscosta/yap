@@ -67,6 +67,8 @@
 '$all_directives'(G) :- !,
 	'$directive'(G).
 
+:- multifile '$directive'/1.
+
 '$directive'(block(_)).
 '$directive'(char_conversion(_,_)).
 '$directive'(compile(_)).
@@ -132,6 +134,8 @@ considered.
 
 
 */
+:- multifile '$exec_directive'/5.
+
 '$exec_directive'(initialization(D), _, M, _, _) :-
 	'$initialization'(M:D).
 '$exec_directive'(initialization(D,OPT), _, M, _, _) :-

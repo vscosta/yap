@@ -155,6 +155,7 @@
   AtomGeneratePredInfo = AtomAdjust(AtomGeneratePredInfo);
   AtomGetwork = AtomAdjust(AtomGetwork);
   AtomGetworkSeq = AtomAdjust(AtomGetworkSeq);
+  AtomGlob = AtomAdjust(AtomGlob);
   AtomGlobal = AtomAdjust(AtomGlobal);
   AtomGlobalSp = AtomAdjust(AtomGlobalSp);
   AtomGlobalTrie = AtomAdjust(AtomGlobalTrie);

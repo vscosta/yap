@@ -1447,7 +1447,6 @@ do_open (  Term file_name, Term t2, Term tlist USES_REGS )
     return PlIOError (RESOURCE_ERROR_MAX_STREAMS,TermNil, "open/3");
   st = &GLOBAL_Stream[sno];
   st->user_name = file_name;
-  st->name = Yap_LookupAtom(Yap_AbsoluteFile(fname, NULL));
   flags = s;
   // user requested encoding?
   if (args[OPEN_ALIAS].used) {
@@ -1463,24 +1462,21 @@ do_open (  Term file_name, Term t2, Term tlist USES_REGS )
   } else {
     encoding = LOCAL_encoding;
   }
+  bool ok =
+    (
+     args[OPEN_EXPAND_FILENAME].used
+     ?
+     args[OPEN_EXPAND_FILENAME].tvalue == TermTrue
+     :
+     false
+     )
+    || trueGlobalPrologFlag(OPEN_EXPANDS_FILENAME_FLAG);
   // expand file name?
-  if (args[OPEN_EXPAND_FILENAME].used) {
-    Term t = args[OPEN_TYPE].tvalue;
-    if (t == TermTrue) {
-      fname = Yap_AbsoluteFile( fname, LOCAL_FileNameBuf);
-    } else {
-      if (!strncpy(LOCAL_FileNameBuf, fname, YAP_FILENAME_MAX))
-        return PlIOError (SYSTEM_ERROR_INTERNAL,file_name,"file name is too long in open/3");
-    }
-  } else if (trueGlobalPrologFlag(OPEN_EXPANDS_FILENAME_FLAG)) {
-    fname = Yap_AbsoluteFile( fname, LOCAL_FileNameBuf);
-  } else {
-    if (!strncpy(LOCAL_FileNameBuf, fname, YAP_FILENAME_MAX)) {
-      return PlIOError (SYSTEM_ERROR_INTERNAL,file_name,"file name is too long in open/3");
-    }
-  }
+  fname = Yap_AbsoluteFile( fname, LOCAL_FileNameBuf,  ok );
+  st->name = Yap_LookupAtom(fname);
+
   // binary type
-  if ((args[OPEN_TYPE].used)) {
+  if (args[OPEN_TYPE].used) {
     Term t = args[OPEN_TYPE].tvalue;
     bool bin = ( t == TermBinary );
     if (bin) {
@@ -1851,15 +1847,16 @@ read_line(int sno)
 
 
 #define   ABSOLUTE_FILE_NAME_DEFS()					\
-PAR( "extensions", ok, ABSOLUTE_FILE_NAME_EXTENSIONS),		\
-PAR( "relative_to", isatom, ABSOLUTE_FILE_NAME_RELATIVE_TO ),	\
-PAR( "access", isatom, ABSOLUTE_FILE_NAME_ACCESS ),			\
-PAR( "file_type", is_file_type, ABSOLUTE_FILE_NAME_FILE_TYPE  ),		\
-PAR( "file_errors", is_file_errors, ABSOLUTE_FILE_NAME_FILE_ERRORS ),	\
-PAR( "solutions", issolutions,  ABSOLUTE_FILE_NAME_SOLUTIONS ),		\
-PAR( "expand", boolean, ABSOLUTE_FILE_NAME_EXPAND ),			\
-PAR( "verbose_file_search", boolean, ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH),		\
-PAR( NULL, ok, ABSOLUTE_FILE_NAME_END )
+    PAR( "access", isatom, ABSOLUTE_FILE_NAME_ACCESS ),			\
+    PAR( "expand", boolean, ABSOLUTE_FILE_NAME_EXPAND ),		\
+    PAR( "extensions", ok, ABSOLUTE_FILE_NAME_EXTENSIONS),		\
+    PAR( "file_type", is_file_type, ABSOLUTE_FILE_NAME_FILE_TYPE  ),	\
+    PAR( "file_errors", is_file_errors, ABSOLUTE_FILE_NAME_FILE_ERRORS ), \
+    PAR( "glob", ok, ABSOLUTE_FILE_NAME_GLOB),				\
+    PAR( "relative_to", isatom, ABSOLUTE_FILE_NAME_RELATIVE_TO ),	\
+    PAR( "solutions", issolutions,  ABSOLUTE_FILE_NAME_SOLUTIONS ),	\
+    PAR( "verbose_file_search", boolean, ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH), \
+    PAR( NULL, ok, ABSOLUTE_FILE_NAME_END )
 
 #define PAR(x,y,z) z
 
@@ -1895,7 +1892,7 @@ static Int   abs_file_parameters (   USES_REGS1 )
   if (args[ABSOLUTE_FILE_NAME_RELATIVE_TO].used)
     t[ABSOLUTE_FILE_NAME_RELATIVE_TO] = args[ABSOLUTE_FILE_NAME_RELATIVE_TO].tvalue;
   else
-    t[ABSOLUTE_FILE_NAME_RELATIVE_TO] = TermDot;
+    t[ABSOLUTE_FILE_NAME_RELATIVE_TO] = TermEmptyAtom;
   if (args[ABSOLUTE_FILE_NAME_FILE_TYPE].used)
     t[ABSOLUTE_FILE_NAME_FILE_TYPE] = args[ABSOLUTE_FILE_NAME_FILE_TYPE].tvalue;
   else
@@ -1916,10 +1913,14 @@ static Int   abs_file_parameters (   USES_REGS1 )
     t[ABSOLUTE_FILE_NAME_EXPAND] = args[ABSOLUTE_FILE_NAME_EXPAND].tvalue;
   else
     t[ABSOLUTE_FILE_NAME_EXPAND] = TermFalse;
+  if (args[ABSOLUTE_FILE_NAME_GLOB].used)
+    t[ABSOLUTE_FILE_NAME_GLOB] = args[ABSOLUTE_FILE_NAME_GLOB].tvalue;
+  else
+    t[ABSOLUTE_FILE_NAME_GLOB] = TermEmptyAtom;  
   if (args[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH].used)
     t[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH] = args[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH].tvalue;
   else
-    t[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH] = getYapFlag( TermVerboseFileSearch );
+    t[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH] = TermFalse;  
   tf = Yap_MkApplTerm(Yap_MkFunctor(AtomOpt,ABSOLUTE_FILE_NAME_END), ABSOLUTE_FILE_NAME_END, t);
   return (Yap_unify (ARG2, tf));
   
@@ -1942,10 +1943,13 @@ static Int   get_abs_file_parameter (   USES_REGS1 )
     return Yap_unify( ARG3, ArgOfTerm( ABSOLUTE_FILE_NAME_FILE_ERRORS +1, topts ) );
   if (t == TermSolutions)
     return Yap_unify( ARG3, ArgOfTerm( ABSOLUTE_FILE_NAME_SOLUTIONS +1, topts ) );
+  if (t == TermGlob)
+    return Yap_unify( ARG3, ArgOfTerm( ABSOLUTE_FILE_NAME_GLOB +1, topts ) );
   if (t == TermExpand)
     return Yap_unify( ARG3, ArgOfTerm( ABSOLUTE_FILE_NAME_EXPAND +1, topts ) );
   if (t == TermVerboseFileSearch)
     return Yap_unify( ARG3, ArgOfTerm( ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH +1, topts ) );
+  Yap_Error(DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION, ARG2, NULL);
   return false;
   
 }

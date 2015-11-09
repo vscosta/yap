@@ -226,12 +226,15 @@ main_message(error(style_check(style_check(singleton(SVs),_Pos,_File,P)),_), _) 
 	{ svs(SVs,SVs,SVsL),
 	  ( SVs = [_] -> NVs = 0 ; NVs = 1 )
 	}.
-main_message(error(style_check(style_check(multiple(N,A,Mod,I0),File,_W,_P)),_),_) -->
-	[  '~*|!!! ~a redefines ~q from  ~a.' - [8,File, Mod:N/A, I0] ].
-main_message(error(style_check(style_check(discontiguous(N,A,Mod),_S,_W,_P)),_) ,_)-->
-	[  '~*|!!! !!! discontiguous definition for ~p.' - [8,Mod:N/A] ].
+main_message(error(style_check(style_check(multiple(N,A,Mod,I0),_Pos,File,_P)),_),_) -->
+	{ '$show_consult_level'(LC) },
+	[  '~*|!!! ~a redefines ~q from  ~a.' - [LC,File, Mod:N/A, I0] ].
+main_message(error(style_check(style_check(discontiguous(N,A,Mod),_S,_W,a_P)),_) ,_)-->
+	{ '$show_consult_level'(LC) },
+	[  '~*|!!! !!! discontiguous definition for ~p.' - [LC,Mod:N/A] ].
 main_message(error(consistency_error(Who)), _Source) -->
-	[ '~*|!!! has argument ~a not consistent with type.'-[8,Who] ].
+	{ '$show_consult_level'(LC) },
+	[ '~*|!!! has argument ~a not consistent with type.'-[LC,Who] ].
 main_message(error(domain_error(Who , Type), _Where), _Source) -->
 	[ '~*|!!!  ~q does not belong to domain ~a,' - [8,Who,Type], nl ].
 main_message(error(evaluation_error(What, Who), _Where), _Source) -->

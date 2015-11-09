@@ -41,6 +41,7 @@
 	maximize_v3/2
 ]).
 
+:- use_module(library(shlib)).
 
 :- use_module(library(lists)).
 
