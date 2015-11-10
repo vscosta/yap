@@ -218,7 +218,7 @@ Term Yap_syntax_error(TokEntry *errtok, int sno) {
   Term info;
   Term startline, errline, endline;
   Term tf[4];
-  Term *tailp = tf+3;
+  Term *tailp = tf + 3;
   CELL *Hi = HR;
   TokEntry *tok = LOCAL_tokptr;
   Int cline = tok->TokPos;
@@ -257,25 +257,23 @@ Term Yap_syntax_error(TokEntry *errtok, int sno) {
     case Name_tok: {
       Term t0[1];
       if (info) {
-	t0[0] = MkAtomTerm((Atom)info);
+        t0[0] = MkAtomTerm((Atom)info);
       } else {
-	t0[0] = TermNil;
+        t0[0] = TermNil;
       }
       ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomAtom, 1), 1, t0);
     } break;
-      case QuasiQuotes_tok:
-      {
-        Term t0[2];
-        t0[0] = MkAtomTerm(Yap_LookupAtom("<QQ>"));
-        ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomAtom, 1), 1, t0);
-     } break;
-      case WQuasiQuotes_tok:
-      {
-        Term t0[2];
-        t0[0] = MkAtomTerm(Yap_LookupAtom("<WideQQ>"));
-        ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomAtom, 1), 1, t0);
-      } break;
-      case Number_tok:
+    case QuasiQuotes_tok: {
+      Term t0[2];
+      t0[0] = MkAtomTerm(Yap_LookupAtom("<QQ>"));
+      ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomAtom, 1), 1, t0);
+    } break;
+    case WQuasiQuotes_tok: {
+      Term t0[2];
+      t0[0] = MkAtomTerm(Yap_LookupAtom("<WideQQ>"));
+      ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomAtom, 1), 1, t0);
+    } break;
+    case Number_tok:
       ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomNumber, 1), 1, &(tok->TokInfo));
       break;
     case Var_tok: {
@@ -287,20 +285,22 @@ Term Yap_syntax_error(TokEntry *errtok, int sno) {
       ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomGVar, 2), 2, t);
     } break;
     case String_tok: {
-      Term t0 = Yap_CharsToTDQ((char *)info, CurrentModule, ENC_ISO_LATIN1 PASS_REGS);
+      Term t0 =
+          Yap_CharsToTDQ((char *)info, CurrentModule, ENC_ISO_LATIN1 PASS_REGS);
       if (!t0) {
-	return 0;
+        return 0;
       }
       ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString, 1), 1, &t0);
     } break;
     case WString_tok: {
       Term t0 = Yap_WCharsToTDQ((wchar_t *)info, CurrentModule PASS_REGS);
       if (!t0)
-	return 0;
+        return 0;
       ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString, 1), 1, &t0);
     } break;
     case BQString_tok: {
-      Term t0 = Yap_CharsToTBQ((char *)info, CurrentModule, ENC_ISO_LATIN1 PASS_REGS);
+      Term t0 =
+          Yap_CharsToTBQ((char *)info, CurrentModule, ENC_ISO_LATIN1 PASS_REGS);
       ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString, 1), 1, &t0);
     } break;
     case WBQString_tok: {
@@ -314,7 +314,7 @@ Term Yap_syntax_error(TokEntry *errtok, int sno) {
       endline = MkIntegerTerm(tok->TokPos);
       ts[0] = MkAtomTerm(Yap_LookupAtom("EOT"));
 
-     break;
+      break;
     case Ponctuation_tok: {
       char s[2];
       s[1] = '\0';
@@ -385,7 +385,7 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re,
                               int inp_stream);
 static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   CACHE_REGS
-    LOCAL_VarTable = NULL;
+  LOCAL_VarTable = NULL;
   LOCAL_AnonVarTable = NULL;
   re->cm = CurrentModule;
   xarg *args = Yap_ArgListToVector(opts, read_defs, READ_END);
@@ -507,7 +507,7 @@ static bool complete_clause_processing(FEnv *fe, TokEntry *tokstarts, Term t);
 static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
   Term v1, v2, v3;
-   if (fe->vp) {
+  if (fe->vp) {
     while (TRUE) {
       fe->old_H = HR;
 
@@ -632,7 +632,8 @@ static parser_state_t initParser(Term opts, FEnv *fe, REnv *re, int inp_stream,
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
     fe->t = 0;
-    return YAP_PARSING_FINISHED;;
+    return YAP_PARSING_FINISHED;
+    ;
   }
   if (GLOBAL_Stream[inp_stream].status & Push_Eof_Stream_f) {
     fe->t = MkAtomTerm(AtomEof);
@@ -723,9 +724,9 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
     } else {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       if (ParserErrorStyle == TermDec10) {
-	if (Yap_PrintWarning(terr))
-	  return YAP_SCANNING;
-	return YAP_PARSING_FINISHED;
+        if (Yap_PrintWarning(terr))
+          return YAP_SCANNING;
+        return YAP_PARSING_FINISHED;
       }
     }
   }
@@ -949,13 +950,13 @@ static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart, Term t) {
   if (v3 != TermNil) {
     Term singls[4];
     singls[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomSingleton, 1), 1, &v3);
-    singls[1] =  MkIntegerTerm(LOCAL_SourceFileLineno);
-    singls[2] = MkAtomTerm(LOCAL_SourceFileName );
+    singls[1] = MkIntegerTerm(LOCAL_SourceFileLineno);
+    singls[2] = MkAtomTerm(LOCAL_SourceFileName);
     singls[3] = t;
     t = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, singls);
-    singls[0]  = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 1), 1, &t);
-    singls[1]  = TermNil;
-    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, singls ));
+    singls[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 1), 1, &t);
+    singls[1] = TermNil;
+    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, singls));
   }
   if (fe->np && !Yap_unify(v1, fe->np))
     return 0;
@@ -1169,7 +1170,7 @@ Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp, int prio,
     *bindings = Yap_GetFromSlot(sl);
   }
   if (bindings) {
-        Yap_RecoverSlots(sl, 1 PASS_REGS);
+    Yap_RecoverSlots(sl, 1 PASS_REGS);
   }
   return rval;
 }
@@ -1186,8 +1187,7 @@ Term Yap_ReadFromAtom(Atom a, Term opts) {
     char *s = a->StrOfAE;
     size_t len = strlen(s);
     encoding_t enc = ENC_ISO_LATIN1;
-    sno =
-        Yap_open_buf_read_stream((char *)s, len, &enc, MEM_BUF_USER);
+    sno = Yap_open_buf_read_stream((char *)s, len, &enc, MEM_BUF_USER);
   }
 
   rval = Yap_read_term(sno, opts, 3);
@@ -1199,8 +1199,8 @@ static Term readFromBuffer(const char *s, Term opts) {
   Term rval;
   int sno;
   encoding_t enc = ENC_ISO_UTF8;
-  sno = Yap_open_buf_read_stream((char *)s, strlen_utf8((unsigned char *)s), &enc,
-                                 MEM_BUF_USER);
+  sno = Yap_open_buf_read_stream((char *)s, strlen_utf8((unsigned char *)s),
+                                 &enc, MEM_BUF_USER);
 
   rval = Yap_read_term(sno, opts, 3);
   Yap_CloseStream(sno);
@@ -1232,7 +1232,7 @@ static Int atom_to_term(USES_REGS1) {
   }
   ctl = TermNil;
   if ((rc = Yap_ReadFromAtom(at, ctl)) == 0L)
-  return false;
+    return false;
   return Yap_unify(rc, ARG2);
 }
 
@@ -1246,17 +1246,17 @@ static Int atom_to_term(USES_REGS1) {
  * @param _T_ the output term _T_, may be any term
  *
  */
-static Int
-term_to_string(USES_REGS1) {
+static Int term_to_string(USES_REGS1) {
   Term t2 = Deref(ARG2), rc = false, t1 = Deref(ARG1);
-  const char * s;
+  const char *s;
   if (IsVarTerm(t2)) {
     size_t length;
-    s = Yap_TermToString(ARG1, NULL,  0, &length, NULL, Quote_illegal_f|Handle_vars_f);
-    if (!s || !
-        MkStringTerm(s)) {
-       Yap_Error(RESOURCE_ERROR_HEAP,t1,"Could not get memory from the operating system");
-       return false;
+    s = Yap_TermToString(ARG1, NULL, 0, &length, NULL,
+                         Quote_illegal_f | Handle_vars_f);
+    if (!s || !MkStringTerm(s)) {
+      Yap_Error(RESOURCE_ERROR_HEAP, t1,
+                "Could not get memory from the operating system");
+      return false;
     }
     return Yap_unify(ARG2, MkStringTerm(s));
   } else if (!IsStringTerm(t2)) {
@@ -1268,7 +1268,6 @@ term_to_string(USES_REGS1) {
   return (rc = readFromBuffer(s, TermNil)) != 0L && Yap_unify(rc, ARG1);
 }
 
-
 /**
  * @pred atom_to_term( ?_Atom_ , ? _T_ )
  *
@@ -1279,16 +1278,16 @@ term_to_string(USES_REGS1) {
  * @param _T_ the output term _T_, may be any term
  *
  */
-static Int
-term_to_atom(USES_REGS1) {
+static Int term_to_atom(USES_REGS1) {
   Term t1 = Deref(ARG2), ctl, rc = false;
   Atom at;
   if (IsVarTerm(t1)) {
     size_t length;
-    char * s =
-    Yap_TermToString(t1, NULL,  0, &length, NULL, Quote_illegal_f|Handle_vars_f);
+    char *s = Yap_TermToString(t1, NULL, 0, &length, NULL,
+                               Quote_illegal_f | Handle_vars_f);
     if (!s || !(at = Yap_LookupAtom(s))) {
-      Yap_Error(RESOURCE_ERROR_HEAP,t1,"Could not get memory from the operating system");
+      Yap_Error(RESOURCE_ERROR_HEAP, t1,
+                "Could not get memory from the operating system");
       return false;
     }
     return Yap_unify(ARG2, MkAtomTerm(at));
@@ -1299,8 +1298,7 @@ term_to_atom(USES_REGS1) {
     at = AtomOfTerm(t1);
   }
   ctl = TermNil;
-  return Yap_ReadFromAtom(at, ctl) == 0L
-  && Yap_unify(rc, ARG1);
+  return Yap_ReadFromAtom(at, ctl) == 0L && Yap_unify(rc, ARG1);
 }
 
 /**
@@ -1397,7 +1395,7 @@ static Int read_term_from_atomic(USES_REGS1) {
   } else {
     Term t = Yap_AtomicToString(t1 PASS_REGS);
     s = UStringOfTerm(t);
-    len = strlen_utf8(( unsigned char *)s);
+    len = strlen_utf8((unsigned char *)s);
   }
   char *ss = (char *)s;
   encoding_t enc = ENC_ISO_UTF8;
@@ -1416,8 +1414,7 @@ void Yap_InitReadTPreds(void) {
   Yap_InitCPred("read_term", 3, read_term, 0);
   Yap_InitCPred("read_clause", 2, read_clause2, SyncPredFlag);
   Yap_InitCPred("read_clause", 3, read_clause, 0);
-  
-  
+
   Yap_InitCPred("term_to_string", 2, term_to_string, 0);
   Yap_InitCPred("term_to_atom", 2, term_to_atom, 0);
   Yap_InitCPred("atom_to_term", 3, atom_to_term, 0);
