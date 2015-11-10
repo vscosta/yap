@@ -5,15 +5,19 @@
 :- use_module(library(gecode/clpfd)).
 :- use_module(library(maplist)).
 
+main :-
+    sudoku(Ex, Els),
+	fail.
+main.
 
-sudoku( Ex ) :-
+sudoku( Ex, Els ) :-
 	problem(Ex, Els),
 	output(Els).
 
 %
 % gecode constraints
 %
-problem(Ex, Els) :- 
+problem(Ex, Els) :-
 	length(Els, 81),
 	Els ins 1..9,
 	M <== matrix( Els, [dim=[9,9]] ),
@@ -51,7 +55,7 @@ output_row( M, Row ) :-
 	format('| ~d ~d ~d | ~d ~d ~d | ~d ~d ~d |~n', L).
 
 output_line :-
-	format(' ~|~`-t~24+~n', []). 
+	format(' ~|~`-t~24+~n', []).
 
 ex( 1, [
             _,6,_,1,_,4,_,5,_,

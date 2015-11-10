@@ -19,9 +19,23 @@
 :- use_module(library(gecode/clpfd)).
 :- use_module(library(maplist)).
 
+main :- ex(Ex, People, Names, _Preferences),
+	photo(Ex, People, Amount ),
+	format( 'Example ~a: ~w~n', [Ex, Amount]),
+	maplist(join, People, Names, PeopleNames),
+	keysort( PeopleNames, SortedPeopleNames),
+	maplist(join, _People, SortedNames, SortedPeopleNames),
+	maplist(output, SortedNames ),
+	fail.
+main.
+
+join( Key, El, Key-El ).
+
+output( Name ) :- format('   ~a~n', [Name]).
+
 % 5 people want to have a photograph together, but they have preferences.
 photo(Ex, People, Amount) :-
-	ex(Ex, People, Preferences),
+	ex(Ex, People, _, Preferences),
 	length(People, Len),
 	Len0 is Len-1,
 	People ins 0..Len0,
@@ -39,7 +53,9 @@ photo(Ex, People, Amount) :-
 preference_satisfied(X-Y, B) :-
 	abs(X - Y) #= 1 #<==> B.
 
-ex(s,[Alice,Bob,Carl,Deb,Evan], [Alice-Carl,
+ex(s,[Alice,Bob,Carl,Deb,Evan],
+   ['Alice','Bob','Carl','Deb','Evan'],
+   [Alice-Carl,
 		Carl-Deb,
 		Deb-Alice,
 		Evan-Alice,
@@ -49,6 +65,7 @@ ex(s,[Alice,Bob,Carl,Deb,Evan], [Alice-Carl,
 		Evan-Bob]).
 
 ex(l,[Betty,Chris,Donald,Fred,Gary,Mary,Paul,Peter,Susan],
+    ['Betty','Chris','Donald','Fred','Gary','Mary','Paul','Peter','Susan'],
 	[Betty-Donald,
 	 Betty-Gary,
 	 Betty-Peter,
