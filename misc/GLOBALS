@@ -80,7 +80,7 @@ struct swi_mutex*		WithMutex		                void
 
 // streams 
 struct stream_desc*		Stream					void
-#if defined(THREADS)
+#if defined(THREADS)||defined(YAPOR)
 lockvar				StreamDescLock                MkLock
 #endif
 
