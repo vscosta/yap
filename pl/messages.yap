@@ -832,7 +832,7 @@ execute_print_message(silent, _Msg) :-
 	!.
 execute_print_message(informational, _Msg) :-
 	current_prolog_flag(verbose, silent),
-	!, writeln(ok:_Msg).
+	!.
 execute_print_message(banner, _Msg) :-
 	current_prolog_flag(verbose, silent),
 	!.
