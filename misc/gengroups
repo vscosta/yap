@@ -1,0 +1,4 @@
+grep -nHR -e group ../pl ../C ../H ../packages ../library | \
+  grep '(@|\\)'| \
+  grep -v \#| \
+  grep -v ^grep

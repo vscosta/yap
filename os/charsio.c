@@ -579,7 +579,7 @@ static Int put_byte_1(USES_REGS1) { /* '$put_byte'(Stream,N)                 */
   return (TRUE);
 }
 
-static Int skip_1(USES_REGS1) { /* '$skip'(Stream,N)                     */
+static Int skip_1(USES_REGS1) { /* 'skip'(N)                     */
   Int n;
   Term t2;
   int sno;
@@ -607,9 +607,11 @@ static Int skip_1(USES_REGS1) { /* '$skip'(Stream,N)                     */
 static Int skip(USES_REGS1) { /* '$skip'(Stream,N)                     */
   Int n;
   Term t2;
-  int sno;
+  int sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "skip/2");
   int ch;
 
+  if (sno < 0)
+    return (FALSE);
   if (IsVarTerm(t2 = Deref(ARG2))) {
     Yap_Error(INSTANTIATION_ERROR, t2, "skip/2");
     return FALSE;
@@ -620,7 +622,6 @@ static Int skip(USES_REGS1) { /* '$skip'(Stream,N)                     */
     Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "skip/2");
     return FALSE;
   }
-  sno = LOCAL_c_input_stream;
   LOCK(GLOBAL_Stream[sno].streamlock);
   while ((ch = GLOBAL_Stream[sno].stream_wgetc(sno)) != n && ch != -1)
     ;

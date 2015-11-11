@@ -671,8 +671,8 @@ system_predicate(A,T1) :-
 
 Defines the relation:  _P_ is a currently defined system predicate.
 */
-system_predicate(P) :-
-	strip_module(M, P),
+system_predicate(P0) :-
+	strip_module(P0, M, P),
 	system_predicate(_, M:P).
 
 

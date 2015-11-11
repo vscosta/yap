@@ -18,7 +18,11 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
-/** Aliases
+/** 
+ * @group
+ *
+ *
+ * Aliases:
  * This file defines the main operations on aliases, a second name for a file. Aliases are always
  * textual constants (atoms). 
  *
@@ -115,6 +119,16 @@ static char SccsId[] = "%W% %G%";
 static Atom FetchAlias (int sno);
 static bool ExistsAliasForStream (int sno, Atom al);
 
+/** 
+ * Specify an alias to the stream. The alias <tt>Name</tt> must be an atom. The
+ * alias can be used instead of the stream descriptor for every operation
+ * concerning the stream.
+ * 
+ * @param + _tname_ Name of Alias 
+ * @param + _tstream_ stream identifier
+ * 
+ * @return 
+ */
 static Int add_alias_to_stream (USES_REGS1)
 {
   Term tname = Deref(ARG1);
