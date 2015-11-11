@@ -6,7 +6,8 @@
 :- use_module(library(maplist)).
 
 main :-
-    sudoku(Ex, Els),
+    ex(Ex, _),
+    sudoku(Ex, _My),
 	fail.
 main.
 
