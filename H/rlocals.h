@@ -68,7 +68,6 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
-
   REMOTE_GlobalArena(wid) = TermToGlobalOrAtomAdjust(REMOTE_GlobalArena(wid));
 
 

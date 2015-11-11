@@ -27,8 +27,6 @@
 
 #define LOCAL_newline LOCAL->newline_
 #define REMOTE_newline(wid) REMOTE(wid)->newline_
-#define LOCAL_FormatInfo LOCAL->FormatInfo_
-#define REMOTE_FormatInfo(wid) REMOTE(wid)->FormatInfo_
 #define LOCAL_AtPrompt LOCAL->AtPrompt_
 #define REMOTE_AtPrompt(wid) REMOTE(wid)->AtPrompt_
 #define LOCAL_Prompt LOCAL->Prompt_

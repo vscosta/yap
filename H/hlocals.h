@@ -18,7 +18,6 @@ typedef struct worker_local {
 
 
   bool  newline_;
-  struct format_status*  FormatInfo_;
   Atom  AtPrompt_;
   char  Prompt_[MAX_PROMPT+1];
   encoding_t  encoding_;

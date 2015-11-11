@@ -20,8 +20,6 @@ bool				within_print_message	=false
 //
 bool				newline					=true
 
-struct format_status*		FormatInfo				=NULL
-
 Atom				AtPrompt				=AtomNil
 char				Prompt[MAX_PROMPT+1]			void
 

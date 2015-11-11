@@ -18,7 +18,6 @@ static void InitWorker(int wid) {
 
 
   REMOTE_newline(wid) = true;
-  REMOTE_FormatInfo(wid) = NULL;
   REMOTE_AtPrompt(wid) = AtomNil;
 
   REMOTE_encoding(wid) = Yap_DefaultEncoding();
