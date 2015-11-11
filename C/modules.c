@@ -22,8 +22,8 @@ static char SccsId[] = "%W% %G%";
 #include "Yatom.h"
 #include "YapHeap.h"
 
-static Int p_current_module(USES_REGS1);
-static Int p_current_module1(USES_REGS1);
+static Int current_module(USES_REGS1);
+static Int current_module1(USES_REGS1);
 static ModEntry *LookupModule(Term a);
 
  static ModEntry *FetchModuleEntry(Atom at)
@@ -167,7 +167,7 @@ void Yap_NewModulePred(Term mod, struct pred_entry *ap) {
 }
 
 static Int
-    p_current_module(USES_REGS1) { /* $current_module(Old,New)		 */
+    current_module(USES_REGS1) { /* $current_module(Old,New)		 */
   Term t;
 
   if (CurrentModule) {
@@ -191,14 +191,14 @@ static Int
   return TRUE;
 }
 
-static Int p_current_module1(USES_REGS1) { /* $current_module(Old)
+static Int current_module1(USES_REGS1) { /* $current_module(Old)
                                               */
   if (CurrentModule)
     return Yap_unify_constant(ARG1, CurrentModule);
   return Yap_unify_constant(ARG1, TermProlog);
 }
 
-static Int p_change_module(USES_REGS1) { /* $change_module(New)		 */
+static Int change_module(USES_REGS1) { /* $change_module(New)		 */
   Term mod = Deref(ARG1);
   LookupModule(mod);
   CurrentModule = mod;
@@ -280,7 +280,7 @@ static Int init_ground_module(USES_REGS1) {
   return cont_ground_module(PASS_REGS1);
 }
 
-static Int p_strip_module(USES_REGS1) {
+static Int strip_module(USES_REGS1) {
   Term t1 = Deref(ARG1), tmod = CurrentModule;
   if (tmod == PROLOG_MODULE) {
     tmod = TermProlog;
@@ -328,7 +328,7 @@ restart:
   return 0L;
 }
 
-static Int p_yap_strip_module(USES_REGS1) {
+static Int yap_strip_module(USES_REGS1) {
   Term t1 = Deref(ARG1), tmod = CurrentModule;
   if (tmod == PROLOG_MODULE) {
     tmod = TermProlog;
@@ -341,7 +341,7 @@ static Int p_yap_strip_module(USES_REGS1) {
   return Yap_unify(ARG3, t1) && Yap_unify(ARG2, tmod);
 }
 
-static Int p_context_module(USES_REGS1) {
+static Int context_module(USES_REGS1) {
   yamop *parentcp = P;
   CELL *yenv;
   PredEntry *ap = EnvPreg(parentcp);
@@ -399,16 +399,16 @@ restart:
 }
 
 void Yap_InitModulesC(void) {
-  Yap_InitCPred("$current_module", 2, p_current_module,
+  Yap_InitCPred("$current_module", 2, current_module,
                 SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$current_module", 1, p_current_module1,
+  Yap_InitCPred("$current_module", 1, current_module1,
                 SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$change_module", 1, p_change_module,
+  Yap_InitCPred("$change_module", 1, change_module,
                 SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("strip_module", 3, p_strip_module, SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$yap_strip_module", 3, p_yap_strip_module,
+  Yap_InitCPred("strip_module", 3, strip_module, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$yap_strip_module", 3, yap_strip_module,
                 SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("context_module", 1, p_context_module, 0);
+  Yap_InitCPred("context_module", 1, context_module, 0);
   Yap_InitCPredBack("$all_current_modules", 1, 1, init_current_module,
                     cont_current_module, SafePredFlag | SyncPredFlag);
   Yap_InitCPredBack("$ground_module", 3, 1, init_ground_module,
