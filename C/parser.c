@@ -770,7 +770,7 @@ static Term ParseTerm( int prio, JMPBUFF *FailBuff USES_REGS) {
     case BQString_tok: /* build list on the heap */
     {
       Volatile char *p = (char *)LOCAL_tokptr->TokInfo;
-      printf("%s\n", p);
+
       t = Yap_CharsToTBQ(p, CurrentModule, ENC_ISO_LATIN1 PASS_REGS);
       if (!t) {
         syntax_msg( "could not convert \'%s\"", (char *)LOCAL_tokptr->TokInfo );
