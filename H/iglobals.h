@@ -71,7 +71,7 @@ static void InitGlobal(void) {
 #endif /* THREADS */
 
 
-#if defined(THREADS)
+#if defined(THREADS)||defined(YAPOR)
   INIT_LOCK(GLOBAL_StreamDescLock);
 #endif
 

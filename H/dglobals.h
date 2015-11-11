@@ -71,7 +71,7 @@
 #endif /* THREADS */
 
 #define GLOBAL_Stream Yap_global->Stream_
-#if defined(THREADS)
+#if defined(THREADS)||defined(YAPOR)
 #define GLOBAL_StreamDescLock Yap_global->StreamDescLock_
 #endif
 

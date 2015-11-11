@@ -71,7 +71,7 @@ static void RestoreGlobal(void) {
 #endif /* THREADS */
 
 
-#if defined(THREADS)
+#if defined(THREADS)||defined(YAPOR)
   REINIT_LOCK(GLOBAL_StreamDescLock);
 #endif
 

@@ -71,7 +71,7 @@ typedef struct global_data {
 #endif /* THREADS */
 
   struct stream_desc*  Stream_;
-#if defined(THREADS)
+#if defined(THREADS)||defined(YAPOR)
   lockvar  StreamDescLock_;
 #endif
 
