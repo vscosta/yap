@@ -655,25 +655,49 @@ is the atom  _A_.
 */
 system_predicate(A,T1) :-
 	'$yap_strip_module'( T1, M, T),
+    '$system_predicate3'( A, M, T).
+
+'$system_predicate3'( A, M, T) :-
 	(
 	 M \= prolog,
-	 '$current_predicate'(A, M, T0, system)
+	 '$current_predicate'(A, M, T, system)
 	 ;
 	 '$imported_predicate'(T, M, SourceT, SourceMod),
 	 M \= prolog,
 	 functor(T, A, _),
 	 '$system_predicate'(SourceT, SourceMod)
 	;
-	 '$current_predicate'(A, prolog, T0, system)
+	 '$current_predicate'(A, prolog, T, system)
 	).
 
 /** @pred  system_predicate( ?_P_ )
 
-Defines the relation:  _P_ is a currently defined system predicate.
+Defines the relation:  indicator _P_ refers to a currently defined system predicate.
 */
 system_predicate(P0) :-
 	strip_module(P0, M, P),
-	system_predicate(_, M:P).
+
+    (
+     var(P)
+    ->
+     P = A/Arity,
+     '$system_predicate3'( A, M, T),
+     functor(T, A, Arity)
+    ;
+     P = A//Arity2
+    ->
+     '$system_predicate3'( A, M, T),
+     functor(T, A, Arity),
+     Arity2 is Arity+2
+    ;
+     P = A/Arity
+    ->
+     '$system_predicate3'( A, M, T),
+     functor(T, A, Arity)
+    ;
+    '$do_error'(type_error(predicate_indicator,P),
+                system_predicate(P0))
+    ).
 
 
 /**
