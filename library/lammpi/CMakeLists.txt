@@ -2,7 +2,7 @@
 set (MPI_SOURCES
   hash.c prologterms2c.c yap_mpi.c)
 
-  macro_optional_find_package(MPI ON)
+  macro_optional_find_package(Mpi ON)
   macro_log_feature (MPI_C_FOUND "Mpi"
     "Use Mpi System"
     "http://www.mpi.org" FALSE)

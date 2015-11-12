@@ -307,6 +307,7 @@ be lost.
 %'$do_spy'(V, M, CP, Flag) :-
 %	writeln('$do_spy'(V, M, CP, Flag)), fail.
 '$do_spy'(V, M, CP, Flag) :-
+    '$stop_creeping',
 	var(V), !,
 	'$do_spy'(call(V), M, CP, Flag).
 '$do_spy'(!, _, CP, _) :-
@@ -323,6 +324,7 @@ be lost.
 '$do_spy'((T->A;B), M, CP, CalledFromDebugger) :- !,
 	( '$do_spy'(T, M, CP, debugger) -> '$do_spy'(A, M, CP, CalledFromDebugger)
 	;
+      
 	  '$do_spy'(B, M, CP, CalledFromDebugger)
 	).
 '$do_spy'((T->A|B), M, CP, CalledFromDebugger) :- !,
@@ -331,6 +333,7 @@ be lost.
 	->
 	  '$do_spy'(A, M, CP, CalledFromDebugger)
 	;
+     '$stop_creeping',
 	  '$do_spy'(B, M, CP, CalledFromDebugger)
 	).
 '$do_spy'((T->A), M, CP, CalledFromDebugger) :- !,
@@ -339,13 +342,15 @@ be lost.
 	(
 	  '$do_spy'(A, M, CP, CalledFromDebugger)
 	;
-	  '$do_spy'(B, M, CP, CalledFromDebugger)
+     '$stop_creeping',
+     '$do_spy'(B, M, CP, CalledFromDebugger)
 	).
 '$do_spy'((A|B), M, CP, CalledFromDebugger) :- !,
 	(
 	  '$do_spy'(A, M, CP, CalledFromDebugger )
 	;
-	  '$do_spy'(B, M, CP, CalledFromDebugger )
+     '$stop_creeping',
+     '$do_spy'(B, M, CP, CalledFromDebugger )
 	).
 '$do_spy'((\+G), M, CP, CalledFromDebugger) :- !,
 	\+ '$do_spy'(G, M, CP, CalledFromDebugger).
@@ -427,44 +432,44 @@ be lost.
 	    /* go execute the continuation	*/
 	    (
 	       /* exit port */
-	       Retry = false,
-	       /* found an answer, so it can redo */
-	       nb_setarg(6, Info, true),
-	      '$show_trace'(exit,G,Module,GoalNumber,Det),	/* output message at exit	*/
-	       /* exit port */
-	       /* get rid of deterministic computations */
-	      (
-		Det == true
+         Retry = false,
+         /* found an answer, so it can redo */
+         nb_setarg(6, Info, true),
+         '$show_trace'(exit,G,Module,GoalNumber,Det),	/* output message at exit	*/
+        /* exit port */
+        /* get rid of deterministic computations */
+        (
+         Det == true
 		->
-		'$$cut_by'(CP)
+         '$$cut_by'(CP)
 		;
-		true
-	      ),
-	      '$continue_debugging'(exit, CalledFromDebugger)
+         true
+        ),
+         '$continue_debugging'(exit, CalledFromDebugger)
 	     ;
-	       % make sure we are in system mode when running the debugger.
-		/* backtracking from exit				*/
-	        /* we get here when we want to redo a goal		*/
-		/* redo port */
-	      (
-	         arg(6, Info, true)
-	      ->
-	       '$stop_creeping',
-	        '$show_trace'(redo,G,Module,GoalNumber,_), /* inform user_error		*/
-	        nb_setarg(6, Info, false)
-	       ;
-	         true
-	      ),
+	     /* make sure we are in system mode when running the debugger. */
+         /* backtracking from exit				*/
+         /* we get here when we want to redo a goal		*/
+         /* redo port */
+         (
+          arg(6, Info, true)
+         ->
+          '$stop_creeping',
+          '$show_trace'(redo,G,Module,GoalNumber,_), /* inform user_error		*/
+         nb_setarg(6, Info, false)
+         ;
+          true
+         ),
 	     '$continue_debugging'(fail, CalledFromDebugger),
-	     fail			/* to backtrack to spycalls	*/
-	     )
+	     fail			/* to backtrack to spycall	*/
+        )
 	  ;
-         '$stop_creeping',
+        '$stop_creeping',
 	    '$show_trace'(fail,G,Module,GoalNumber,_), /* inform at fail port		*/
-	    '$continue_debugging'(fail, CalledFromDebugger),
+       '$continue_debugging'(fail, CalledFromDebugger),
 	    /* fail port */
 	    fail
-	).
+       ).
 
 '$enter_goal'(GoalNumber, G, Module) :-
     '$zip'(GoalNumber, G, Module), !.
@@ -512,7 +517,7 @@ be lost.
 	),
 	'$execute_nonstop'(G1,M).
 '$spycall'(G, M, _, _) :-
-        (
+    (
 	 '$system_predicate'(G,M)
 	;
 	 '$system_module'(M)
@@ -572,6 +577,7 @@ be lost.
 	 (CP1 == CP2 -> ! ; ( true ; '$creep', fail ) ),
 	  '$stop_creeping'
 	;
+     '$stop_creeping',
 	 fail
 	).
 '$creep'(G,M) :-

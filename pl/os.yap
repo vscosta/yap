@@ -143,7 +143,7 @@ Execute a new shell.
 unix(V) :- var(V), !,
 	'$do_error'(instantiation_error,unix(V)).
 unix(argv(L)) :-
-	prolog_flag(argv, L).
+	current_prolog_flag(argv, L).
 unix(cd) :- cd('~').
 unix(cd(A)) :- cd(A).
 unix(environ(X,Y)) :- '$do_environ'(X,Y).
