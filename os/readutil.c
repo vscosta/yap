@@ -110,6 +110,73 @@ read_line_to_codes2(USES_REGS1)
 }
 
 static Int
+read_line_to_string( USES_REGS1 )
+{
+  int sno = Yap_CheckStream (ARG1, Input_Stream_f, "read_line_to_codes/2");
+  Int status;
+  UInt max_inp, buf_sz;
+  char *buf;
+  int  binary_stream;
+
+  if (sno < 0)
+    return FALSE;
+  status = GLOBAL_Stream[sno].status;
+  binary_stream = GLOBAL_Stream[sno].status & Binary_Stream_f;
+  if (status & Eof_Stream_f) {
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
+    return Yap_unify_constant(ARG2, MkAtomTerm (AtomEof));
+  }
+  max_inp = (ASP-HR)/2-1024;
+  buf = (char *)TR;
+  buf_sz = (char *)LOCAL_TrailTop-buf;
+  while (true) {
+    size_t sz;
+    
+    if ( buf_sz > max_inp ) {
+      buf_sz = max_inp;
+    }
+    sz = GLOBAL_Stream[sno].stream_gets(sno, buf_sz, buf);
+    if (sz == -1 || sz == 0) {
+      if (GLOBAL_Stream[sno].status & Eof_Stream_f) {
+        UNLOCK(GLOBAL_Stream[sno].streamlock);
+        return Yap_unify_constant(ARG2, MkAtomTerm (AtomEof));
+      }
+      UNLOCK(GLOBAL_Stream[sno].streamlock);
+      return false;
+    }
+    if (GLOBAL_Stream[sno].status & Eof_Stream_f || buf[sz-1] == 10) {
+      /* we're done */
+
+      if (!GLOBAL_Stream[sno].status & Eof_Stream_f) {
+        UNLOCK(GLOBAL_Stream[sno].streamlock);
+        /* handle CR before NL */
+        if ((Int)sz-2 >= 0 && buf[sz-2] == 13)
+          buf[sz-2] = '\0';
+        else {
+          buf[sz-1] = '\0';
+        }
+      } else {
+        UNLOCK(GLOBAL_Stream[sno].streamlock);
+      }
+    }
+    if (GLOBAL_Stream[sno].encoding == ENC_ISO_UTF8) {
+      return Yap_unify(ARG2, Yap_UTF8ToString((const char *)TR PASS_REGS)) ;
+    } else if (GLOBAL_Stream[sno].encoding == ENC_WCHAR) {
+      return Yap_unify(ARG2, Yap_WCharsToString((const wchar_t *)TR PASS_REGS)) ;
+    }else {
+    return Yap_unify(ARG2, Yap_CharsToString((const char *)TR, ENC_ISO_LATIN1 PASS_REGS) );
+    }
+    buf += (buf_sz-1);
+    max_inp -= (buf_sz-1);
+    if (max_inp <= 0) {
+      UNLOCK(GLOBAL_Stream[sno].streamlock);
+      Yap_Error(RESOURCE_ERROR_STACK, ARG1, NULL);
+      return FALSE;      
+    }
+  }
+}
+
+static Int
 read_stream_to_codes(USES_REGS1)
 {
   int sno = Yap_CheckStream (ARG1, Input_Stream_f, "reaMkAtomTerm (AtomEofd_line_to_codes/2");
@@ -198,6 +265,7 @@ Yap_InitReadUtil(void)
 
   Term cm = CurrentModule;
   CurrentModule = READUTIL_MODULE;
+  Yap_InitCPred("read_line_to_string", 2, read_line_to_string, SyncPredFlag);
   Yap_InitCPred("read_line_to_codes", 2, read_line_to_codes, SyncPredFlag);
   Yap_InitCPred("read_line_to_codes", 3, read_line_to_codes2, SyncPredFlag);
   Yap_InitCPred("read_stream_to_codes", 3, read_stream_to_codes, SyncPredFlag);
