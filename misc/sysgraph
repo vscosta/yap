@@ -12,6 +12,9 @@
 :- use_module(library(maplist)).
 :- use_module(library(system)).
 
+:- use_module(library(analysis/graphs)).
+:- use_module(library(analysis/load)).
+
 :- initialization(main).
 
 :- style_check(all).
@@ -22,18 +25,18 @@
 :- dynamic
     node/4,
     edge/1,
-   public/2,
-   private/2,
-   module_on/3,
-   exported/1,
-   dir/2,
-   consulted/2,
-   op_export/3,
-   library/1,
-   undef/2,
-   c_dep/2,
-   do_comment/5,
-   module_file/2.
+    public/2,
+    private/2,
+    module_on/3,
+    exported/1,
+    dir/2,
+    consulted/2,
+    op_export/3,
+    library/1,
+    undef/2,
+    c_dep/2,
+    do_comment/5,
+    module_file/2.
 
 % @short node(?Module:module, ?Predicate:pred_indicator, ?File:file, ?Generator:atom) is nondet
 %
@@ -55,25 +58,33 @@ main :-
     fail.
 main :-
 	unix(argv([D])),
-	load(  D/['C'-prolog,
+	Dirs = ['C'-prolog,
 		   'os'-prolog,
 		   'pl'-prolog,
 		   'OPTYap'-prolog,
 		   'library'-user,
-		   'swi/console'-prolog,
-		   'swi/library'-user,
+%		   'swi/console'-user
 		   'packages'-user
-		 ]),
+		 ],
+%    maplist(distribute(D), Dirs, Paths),          
+    load( D, Dirs ),
+    maplist( pl_graphs, Dirs ),
 	fail.
 main :-
     %%% phase 4: construct graph
     retractall( consulted(_,_) ),
-%    maplist( pl_graphs, Dirs ),
     undefs,
     doubles,
     %     pl_exported(pl).
     c_links,
     mkdocs.
+
+distribute( Root, File-Class, Path-Class) :-
+    sub_atom(Root,_,_,1,/),
+    !,
+    atom_concat(Root, File, Path ).
+distribute( Root, File-Class, Path-Class) :-
+    atom_concat([Root, /, File], Path ).
 
 init :-
         retractall(dir(_)),
@@ -788,6 +799,14 @@ user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/up/grap
 user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/up/hindsight.c' ).
 user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/up/util.c' ).
 user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/up/viterbi.c' ).
+
+doskip( D):- sub_atom( D, _, _, 0, '~' ).
+doskip( D):- sub_atom( D, _, _, 0, '/.' ).
+doskip( D):- sub_atom( D, _, _, 0, '/..' ).
+doskip( D):- sub_atom( D, _, _, 0, '/.git' ).
+doskip( D):- sub_atom( D, _, _, _, '/.#' ).
+doskip( D):- sub_atom( D, _, _, 0, '#' ).
+doskip( D):- user_skip( D ).
 
 user_skip( 'packages/gecode/3.6.0').
 user_skip( 'packages/gecode/3.7.0').

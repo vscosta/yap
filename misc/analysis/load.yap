@@ -4,14 +4,14 @@
 
   ***********************************************************/
 
-load( D/MAP ) :-
+load( D, _OMAP ) :-
         working_directory(_, D),
         fail.
-load(  Map ) :-
+load( _, _Map ) :-
 	 % from libraries outside the current directories
         assert( node( attributes, woken_att_do/4, 'library/atts.yap', prolog ) ),
         fail.
-load( D, Map ) :-
+load( _ , Dirs ) :-
         dirs( Dirs ),
     %%% phase 1: find modules
         nb_setval( current_module, user ),
@@ -23,25 +23,20 @@ load( D, Map ) :-
         maplist( c_preds, Dirs ).
 	
 dirs( Roots ) :-
-        member( Root-_, Roots ),
+    member( Root-_, Roots ),
+%    (Root = 'OPTYap' -> start_low_level_trace ; true ),
         absolute_file_name( Root, FRoot ),
         rdir( FRoot ),
         fail.
 dirs( _Roots ).
 
 rdir( FRoot ) :-
-        directory_files( FRoot , Files),
-        member(  File, Files ),
-        atom_concat( [FRoot,'/',File], New0 ),
-        absolute_file_name( New0, New ),
-        \+ doskip( New ),
+        absolute_file_name( FRoot, [glob(*), solutions(all), file_errors(fail)], File ),
+        \+ doskip( File ),
         (
-         file_property( New, type(directory) )
+         file_property( File, type(directory) )
         ->
-         File \= '.',
-         File \= '..',
-         File \= '.git',
-         rdir( New )
+         rdir( File )
         ;
          assert_new( dir( FRoot, File ))
         ),
@@ -50,10 +45,7 @@ rdir(_).
 
 c_preds(Dir - Mod) :-
         atom( Dir ),
-        atom_concat([Dir,'/*'], Pattern), % */
-	expand_file_name( Pattern, Files ),
-	member( File0, Files ),
-	absolute_file_name( File0, File ),
+        absolute_file_name( Dir, [glob(*), solutions(all), file_errors(fail)], File ),
 	( ( sub_atom(File,_,_,0,'.c')
 	  ;
 	    sub_atom(File,_,_,0,'.i')
@@ -61,7 +53,7 @@ c_preds(Dir - Mod) :-
 	    sub_atom(File,_,_,0,'.C')
 	  ;
 	    sub_atom(File,_,_,0,'.cpp')
-	  ;
+                                                                         	  ;
 	    sub_atom(File,_,_,0,'.icc')
 	  ;
 	    sub_atom(File,_,_,0,'.h')
@@ -70,8 +62,6 @@ c_preds(Dir - Mod) :-
 	  c_file( File , Mod )
 	;
 	  exists_directory( File ),
-	  \+ atom_concat(_, '/.', File),
-	  \+ atom_concat(_, '/..', File),
 	  \+ doskip( File ),
 	  c_preds( File - Mod )
 	),
@@ -94,22 +84,22 @@ c_file(F, Mod) :-
 	  !,
 	  close(S)
 	;
-	  sub_string(String, _, _, _, "PL_extension"),
+	  sub_string(String, _, _, _, `PL_extension`),
                                 %writeln(Fields),
 	  c_ext(S, Mod, F),
 	  fail
 	;
-	  split_string(String, ",; ()\t\"\'", Fields), %'
+	  split_string(String, `,; ()\t\"\'`, Fields), %'
                                 %writeln(Fields),
 	  line_count(S, Lines),
 	  c_line(Fields , Mod, F:Lines),
 	  fail
 	).
 
-c_line(["}"],  Mod, _) :- !,
+c_line([`}`],  Mod, _) :- !,
 	nb_setval( current_module, Mod ).
 c_line(Line, _Mod, _) :-
-	append( _, [ "CurrentModule", "=", M|_], Line),
+	append( _, [ `CurrentModule`, `=`, M|_], Line),
 	system_mod(M, _Mod, Mod, _),
 	nb_setval( current_module, Mod ).
 c_line(Line,  Mod, F: LineP) :-
@@ -121,10 +111,10 @@ c_ext( S, Mod, F ) :-
 	repeat,
 	read_line_to_string( S, String ),
 	(
-	 sub_string( String, _, _, _, "NULL" ),
+	 sub_string( String, _, _, _, `NULL` ),
 	 !
 	;
-	 split_string(String, ",; (){}\t\"\'", ["FRG", NS,AS,FS|_]), %'
+	 split_string(String, `,; (){}\t\"\'`, [`FRG`, NS,AS,FS|_]), %'
 	 atom_string(N,NS),
 	 atom_string(Fu,FS),
 	 number_string(A, AS),
@@ -133,7 +123,7 @@ c_ext( S, Mod, F ) :-
 	 assert( node( Mod , N/A,  F-Line, Fu ) ),
 	 handle_pred( Mod, N, A, F )
 	;
-	 split_string(String, ",; (){}\t\"\'", [NS,AS,FS|_]), %'
+	 split_string(String, `,; (){}\t\"\'`, [NS,AS,FS|_]), %'
 	 atom_string(N,NS),
 	 atom_string(Fu,FS),
 	 number_string(A, AS),
@@ -154,12 +144,12 @@ break_line( Line, N/A, swi(Fu)) :-
 	take_line( Line, NS, AS, FS ), !,
 	atom_string(N,NS),
 	number_string(A, AS),
-	atomic_concat(["pl_",FS,"_",A,"_va"], Fu).
+	atomic_concat([`pl_`,FS,`_`,A,`_va`], Fu).
 break_line( Line, N/A, bp(Fu)) :-
 	take_line( Line, NS, AS, FS ), !,
 	atom_string(N,NS),
 	number_string(A, AS),
-	atomic_concat(["pc_",FS,"_",A], Fu).
+	atomic_concat([`pc_`,FS,`_`,A], Fu).
 break_line( Line, N/A, c(FuE, FuB)) :-
 	take_line( Line, NS, AS, FSE, FSB ), !,
 	atom_string(N,NS),
@@ -168,57 +158,57 @@ break_line( Line, N/A, c(FuE, FuB)) :-
 	number_string(A, AS).
 
 take_line( Line, NS, AS, FS ) :-
-	append( _, [ "Yap_InitCPred", NS, AS, FS|_], Line), !.
+	append( _, [ `Yap_InitCPred`, NS, AS, FS|_], Line), !.
 take_line( Line, NS, AS, FS ) :-
-	append( _, [ "Yap_InitAsmPred", NS, AS, _, FS|_], Line), !.
+	append( _, [ `Yap_InitAsmPred`, NS, AS, _, FS|_], Line), !.
 take_line( Line, NS, AS, FS ) :-
-	append( _, [ "Yap_InitCmpPred", NS, AS, FS|_], Line), !.
+	append( _, [ `Yap_InitCmpPred`, NS, AS, FS|_], Line), !.
 take_line( Line, NS, AS, FS ) :-
-	append( _, [ "Yap_InitCmpPred", NS, AS, FS|_], Line), !.
+	append( _, [ `Yap_InitCmpPred`, NS, AS, FS|_], Line), !.
 take_line( Line, NS, AS, FS ) :-
-	append( _, [ "YAP_UserCPredicate", NS, FS, AS|_], Line), !.
+	append( _, [ `YAP_UserCPredicate`, NS, FS, AS|_], Line), !.
 take_line( Line, NS, AS, FS ) :-
-	append( _, [ "PRED", NS0, AS, FS|_], Line), !,
-	append( ["pl_", NS0, AS, "_va"], NS ).
+	append( _, [ `PRED`, NS0, AS, FS|_], Line), !,
+	append( [`pl_`, NS0, AS, `_va`], NS ).
 take_line( Line, NS, AS, FS ) :-
-	append( _, [ "PRED_IMPL", NS0, AS, FS|_], Line), !,
-	append( ["pl_", NS0, AS, "_va"], NS ).
+	append( _, [ `PRED_IMPL`, NS0, AS, FS|_], Line), !,
+	append( [`pl_`, NS0, AS, `_va`], NS ).
 take_line( Line, NS, AS, FS ) :-
-	append( _, [ "PL_register_foreign", NS, AS, FS|_], Line), !.
+	append( _, [ `PL_register_foreign`, NS, AS, FS|_], Line), !.
 take_line( Line, NS, AS, FS ) :-
-	append( _, [ "PRED_DEF", NS0, AS, FS|_], Line), !,
-	append( ["pl_", NS0, AS, "_va"], NS ).
+	append( _, [ `PRED_DEF`, NS0, AS, FS|_], Line), !,
+	append( [`pl_`, NS0, AS, `_va`], NS ).
 take_line( Line, NS, AS, FS ) :-
-	append( _, [ "FRG", NS, AS, FS|_], Line), !.
+	append( _, [ `FRG`, NS, AS, FS|_], Line), !.
                                 % from odbc
 take_line( Line, NS, AS, FS ) :-
-	append( _, [ "NDET", NS, AS, FS|_], Line), !.
+	append( _, [ `NDET`, NS, AS, FS|_], Line), !.
 take_line( Line, NS, AS, FS ) :-
-	append( _, [ "DET", NS, AS, FS|_], Line), !.
+	append( _, [ `DET`, NS, AS, FS|_], Line), !.
 
 
 take_line( Line,  AS, FS ) :-
-	append( _, [ "REGISTER_CPRED", FS, AS], Line), !.
+	append( _, [ `REGISTER_CPRED`, FS, AS], Line), !.
 
 
 take_line( Line, NS, AS, FSE, FSB ) :-
-	append( _, [ "Yap_InitCPredBack", NS, AS, _, FSE, FSB|_], Line), !.
+	append( _, [ `Yap_InitCPredBack`, NS, AS, _, FSE, FSB|_], Line), !.
 
-system_mod("ATTRIBUTES_MODULE", _, attributes, user ).
-system_mod("HACKS_MODULE", _, '$hacks' , sys ).
-system_mod("USER_MODULE", _, user, user ).
-system_mod("DBLOAD_MODULE", _, '$db_load', sys ).
-system_mod("GLOBALS_MODULE", _, globals, sys ).
-system_mod("ARG_MODULE", _, arg, sys  ).
-system_mod("PROLOG_MODULE", _ , prolog, sys ).
-system_mod("RANGE_MODULE", _, range, user ).
-system_mod("SWI_MODULE", _, swi, sys ).
-system_mod("OPERATING_SYSTEM_MODULE", _, system , sys ).
-system_mod("TERMS_MODULE", _, terms , sys).
-system_mod("SYSTEM_MODULE", _, system, sys ).
-system_mod("IDB_MODULE", _, idb, user ).
-system_mod("CHARSIO_MODULE", _, charsio, sys ).
-system_mod("cm", M, M, user ).
+system_mod(`ATTRIBUTES_MODULE`, _, attributes, user ).
+system_mod(`HACKS_MODULE`, _, '$hacks' , sys ).
+system_mod(`USER_MODULE`, _, user, user ).
+system_mod(`DBLOAD_MODULE`, _, '$db_load', sys ).
+system_mod(`GLOBALS_MODULE`, _, globals, sys ).
+system_mod(`ARG_MODULE`, _, arg, sys  ).
+system_mod(`PROLOG_MODULE`, _ , prolog, sys ).
+system_mod(`RANGE_MODULE`, _, range, user ).
+system_mod(`SWI_MODULE`, _, swi, sys ).
+system_mod(`OPERATING_SYSTEM_MODULE`, _, system , sys ).
+system_mod(`TERMS_MODULE`, _, terms , sys).
+system_mod(`SYSTEM_MODULE`, _, system, sys ).
+system_mod(`IDB_MODULE`, _, idb, user ).
+system_mod(`CHARSIO_MODULE`, _, charsio, sys ).
+system_mod(`cm`, M, M, user ).
 
 call_c_files(  File, Mod, _Fun, [CFile] ) :-
 	search_file( CFile, File, c, F ),
