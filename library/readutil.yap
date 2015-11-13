@@ -23,7 +23,8 @@
 	read_file_to_codes/2,
 	read_file_to_codes/3,
 	read_file_to_terms/2,
-	read_file_to_terms/3
+                     read_file_to_terms/3,
+                     read_line_to_string/2
 		    ]).
 
 
