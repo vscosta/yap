@@ -507,6 +507,9 @@ delete_dirfiles([F|Fs], File, Ignore) :-
 	delete_file(TrueF, off, on, Ignore),
 	delete_dirfiles(Fs, File, Ignore).
 
+directory_files(File, FileList) :-
+    directory_files(File, FileList, on).
+    
 directory_files(File, FileList, Ignore) :-
        list_directory(File, FileList, Error),
        handle_system_internal(Error, Ignore, directory_files(File, FileList)).
