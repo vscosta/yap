@@ -412,7 +412,18 @@ be lost.
 	'$continue_debugging'(fail, CalledFromDebugger),
 	fail.
 
-% if we are in
+/** 
+ * core routine for the debugger
+ * 
+ * @param _ GoalNumbera id
+ * @param _ S9c
+ * @param _ 
+ * @param Retry 
+ * @param Det 
+ * @param false 
+ * 
+ * @return 
+*/
 '$loop_spy2'(GoalNumber, G, Module, CalledFromDebugger, CP) :-
 /* the following choice point is where the predicate is  called */
 	   '__NB_getval__'('$spy_glist',[Info|_],true),	/* get goal list		*/
@@ -592,6 +603,13 @@ be lost.
 	  fail
 	).
 
+
+/** 
+ * call predicate M:G within the ddebugger
+ * 
+ * 
+ * @return 
+*/
 '$trace'(G,M) :-
 	(
 	 '$$save_by'(CP1),
@@ -760,16 +778,18 @@ be lost.
 '$action'(0'n,_,_,_,_,off) :- !,			% 'n		nodebug
 	'$skipeol'(0'n),				% '
 	% tell debugger never to stop.
-        '__NB_setval__'('$debug_run', -1),
+    '__NB_setval__'('$debug_run', -1),
 	'__NB_setval__'('$debug_jump',true),
 	nodebug.
 '$action'(0'r,_,CallId,_,_,_) :- !,		        % 'r		retry
-        '$scan_number'(0'r,CallId,ScanNumber),		% '
+    '$scan_number'(0'r,CallId,ScanNumber),		% '
 	set_prolog_flag(debug, true),
 	throw(error('$retry_spy'(ScanNumber),[])).
 '$action'(0's,P,CallNumber,_,_,on) :- !,		% 's		skip
 	'$skipeol'(0's),				% '
-	( (P=call; P=redo) ->
+	(
+
+     (P=call; P=redo) ->
 	  '__NB_setval__'('$debug_run',CallNumber),
 	  '__NB_setval__'('$debug_jump',false)
 	;
@@ -1019,9 +1039,36 @@ be lost.
 	G1 =.. [F|BG1s].
 
 '$ldebugger_process_meta_args'([], _, [], []).
-'$ldebugger_process_meta_args'([G|BGs], M, [0|BMs], ['$trace'(G1,M1)|BG1s]) :-
+'$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$trace_call'(G1,M1)|BG1s]) :-
+    number(N),
+    N > 0,
 	!,
 	strip_module( M:G, M1, G1 ),
 	'$ldebugger_process_meta_args'(BGs, M, BMs, BG1s).
 '$ldebugger_process_meta_args'([G|BGs], M, [_|BMs], [G|BG1s]) :-
 	'$ldebugger_process_meta_args'(BGs, M, BMs, BG1s).
+
+'$trace_call'(G1,M1, A1) :-
+    '$trace_call'( call(M1:G1, A1 )).
+'$trace_call'(G1,M1, A1, A2) :-
+    '$trace_call'( call(M1:G1, A1, A2 )).
+'$trace_call'(G1,M1, A1, A2, A3) :-
+    '$trace_call'( call(M1:G1, A1, A2, A3 )).
+'$trace_call'(G1,M1, A1, A2, A3, A4) :-
+    '$trace_call'( call(M1:G1, A1, A2, A3, A4 )).
+'$trace_call'(G1,M1, A1, A2, A3, A4, A5) :-
+    '$trace_call'( call(M1:G1, A1, A2, A3, A4, A5 )).
+'$trace_call'(G1,M1, A1, A2, A3, A4, A5, A6 ) :-
+    '$trace_call'( call(M1:G1, A1, A2, A3, A4, A5, A6  )).
+'$trace_call'(G1,M1, A1, A2, A3, A4, A5, A6, A7) :-
+    '$trace_call'( call(M1:G1, A1, A2, A3, A4, A5, A6, A7 )).
+'$trace_call'(G1,M1, A1, A2, A3, A4, A5, A6, A7, A8) :-
+    '$trace_call'( call(M1:G1, A1, A2, A3, A4, A5, A6, A7, A8 )).
+'$trace_call'(G1,M1, A1, A2, A3, A4, A5, A6, A7, A8, A9) :-
+    '$trace_call'( call(M1:G1, A1, A2, A3, A4, A5, A6, A7, A8, A9 )).
+'$trace_call'(G1,M1, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10) :-
+    '$trace_call'( call(M1:G1, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10 )).
+'$trace_call'(G1,M1, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11) :-
+    '$trace_call'( call(M1:G1, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11 )).
+'$trace_call'(G1,M1, EA1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12) :-
+    '$trace_call'( call(M1:G1, EA1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 )).
