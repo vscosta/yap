@@ -19,8 +19,16 @@ static char SccsId[] = "%W% %G%";
 #endif
 
 /**
+ * @file   globals.c
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Tue Nov 17 23:16:17 2015
+ * 
+ * @brief  support for backtrable and non-backtrackable variables in Prolog.
+ * 
+ * 
+ */
 
-@file globals.c
+/**
 
  @defgroup Global_Variables Global Variables
 @ingroup builtins
@@ -1413,6 +1421,7 @@ Int Yap_DeleteGlobal(Atom at) {
   return nbdelete(at PASS_REGS);
 }
 
+
 static Int p_nb_delete(USES_REGS1) {
   Term t = Deref(ARG1);
 
@@ -1522,8 +1531,15 @@ static Int p_nb_create2(USES_REGS1) {
   return TRUE;
 }
 
+
+/// @{
+
+/// @addtogroup nb
+
 /* a non-backtrackable queue is a term of the form $array(Arena,Start,End,Size)
  * plus an Arena. */
+
+
 
 static Int nb_queue(UInt arena_sz USES_REGS) {
   Term queue_arena, queue, ar[QUEUE_FUNCTOR_ARITY], *nar;
@@ -2542,6 +2558,8 @@ static Int p_nb_beam_size(USES_REGS1) {
   return Yap_unify(ARG2, qd[HEAP_SIZE]);
 }
 
+/// @}
+
 static Int cont_current_nb(USES_REGS1) {
   Int unif;
   GlobalEntry *ge = (GlobalEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(1, 1));
@@ -2760,6 +2778,8 @@ void Yap_InitGlobals(void) {
   Yap_InitCPred("nb_create", 4, p_nb_create2, 0L);
   Yap_InitCPredBack("$nb_current", 1, 1, init_current_nb, cont_current_nb,
                     SafePredFlag);
+  /// @{ 
+  /// @addtogroup nb
   CurrentModule = GLOBALS_MODULE;
   Yap_InitCPred("nb_queue", 1, p_nb_queue, 0L);
   Yap_InitCPred("nb_queue", 2, p_nb_queue_sized, 0L);
@@ -2792,6 +2812,7 @@ void Yap_InitGlobals(void) {
   Yap_InitCPred("nb_beam_check", 1, p_nb_beam_check, SafePredFlag);
 #endif
   Yap_InitCPred("nb_beam_size", 2, p_nb_beam_size, SafePredFlag);
+  /// @}
   CurrentModule = cm;
 }
 

@@ -1,3 +1,12 @@
+/**
+ * @file   clauses.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Tue Nov 17 14:51:30 2015
+ * 
+ * @brief  Utilities for clause manipulation.
+ * 
+ * 
+*/
 
 :- module(clauses,
           [list2conj/2,
@@ -7,9 +16,8 @@
 %%! @{
 
 /**
-  @file clauses.yap
-  @defgroup clauses Clause Manipulation
-  @ingroup library
+ *  @defgroup clauses Clause Manipulation
+ *  @ingroup library
 
   This library supports a number of useful utilities that come up over and
   over again when manipulating Prolog programs. This will include

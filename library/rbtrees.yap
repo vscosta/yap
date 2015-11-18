@@ -1,13 +1,12 @@
-/* 
-
-	This code implements Red-Black trees as described in:
-
-	"Introduction to Algorithms", Second Edition
-	Cormen, Leiserson, Rivest, and Stein,
-	MIT Press
-
-        Author: Vitor Santos Costa
-
+/**
+ * @file   rbtrees.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @author Jan Wielemaker
+ * @date   Wed Nov 18 00:11:41 2015
+ * 
+ * @brief  Red-Black trees
+ * 
+ * 
 */
 
 
@@ -53,9 +52,8 @@
 %%! @{
 
 /**
-  @file rbtrees.yap
-  @defgroup rbtrees Red-Black Trees
-  @ingroup library
+  * @defgroup rbtrees Red-Black Trees
+  * @ingroup library
   
 Red-Black trees are balanced search binary trees. They are named because
 nodes can be classified as either red or   black. The code we include is

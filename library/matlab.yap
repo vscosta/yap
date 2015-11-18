@@ -1,5 +1,39 @@
+/**
+ * @file   matlab.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Tue Nov 17 22:51:48 2015
+ * 
+ * @brief  YAP Matlab interface.
+ * 
+ * 
+*/
 
-/** @defgroup MATLAB MATLAB Package Interface
+
+:- module(matlab,
+	  [start_matlab/1,
+	   close_matlab/0,
+	   matlab_on/0,
+	   matlab_eval_string/1,
+	   matlab_eval_string/2,
+	   matlab_cells/2,
+	   matlab_cells/3,
+	   matlab_initialized_cells/4,
+	   matlab_zeros/2,
+	   matlab_zeros/3,
+	   matlab_zeros/4,
+	   matlab_matrix/4,
+	   matlab_vector/2,
+	   matlab_vector/3,
+	   matlab_set/4,
+	   matlab_get_variable/2,
+	   matlab_item/3,
+	   matlab_item/4,
+	   matlab_item1/3,
+	   matlab_item1/4,
+	   matlab_sequence/3,
+	   matlab_call/2]).
+
+/** @defgroup matlab MATLAB Package Interface
 @ingroup library
 @{
 
@@ -20,7 +54,9 @@ export LD_LIBRARY_PATH=''$MATLAB_HOME"/sys/os/glnxa64:''$MATLAB_HOME"/bin/glnxa6
 where `MATLAB_HOME` is the directory where matlab is installed
 at. Please replace `ax64` for `x86` on a 32-bit PC.
 
+*/
 
+/*
 
  @pred start_matlab(+ _Options_) 
 
@@ -190,29 +226,6 @@ variable with name  _Array_. Corresponds to the MATLAB command
 
  
 */
-:- module(matlab,
-	  [start_matlab/1,
-	   close_matlab/0,
-	   matlab_on/0,
-	   matlab_eval_string/1,
-	   matlab_eval_string/2,
-	   matlab_cells/2,
-	   matlab_cells/3,
-	   matlab_initialized_cells/4,
-	   matlab_zeros/2,
-	   matlab_zeros/3,
-	   matlab_zeros/4,
-	   matlab_matrix/4,
-	   matlab_vector/2,
-	   matlab_vector/3,
-	   matlab_set/4,
-	   matlab_get_variable/2,
-	   matlab_item/3,
-	   matlab_item/4,
-	   matlab_item1/3,
-	   matlab_item1/4,
-	   matlab_sequence/3,
-	   matlab_call/2]).
 
 :- ensure_loaded(library(lists)).
 

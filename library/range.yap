@@ -15,6 +15,16 @@
 *									 *
 *************************************************************************/
 
+/**
+ * @file   range.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Wed Nov 18 00:10:17 2015
+ * 
+ * @brief  stub for geometry operations.
+ * 
+ * 
+*/
+
 :- module(range, [
 		  euclidean_distance/3,
 		  in_range/4,

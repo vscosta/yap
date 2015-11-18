@@ -20,263 +20,32 @@
 %% @{  
 
 /**
-  @defgroup Old_Style_Attribute_Declarations SICStus Prolog style Attribute Declarations
-  @ingroup Attributed_Variables
+  @ingroup Old_Style_Attribute_Declarations
+
   
-Old style attribute declarations are activated through loading the
-library <tt>atts</tt> . The command
+SICStus style attribute declarations are activated through loading the
+library <tt>atts</tt>. The command
 
 ~~~~~
 | ?- use_module(library(atts)).
 ~~~~~
-enables this form of use of attributed variables. The package provides the
-following functionality:
+enables this form of attributed variables.
 
-+ Each attribute must be declared first. Attributes are described by a functor
-and are declared per module. Each Prolog module declares its own sets of
-attributes. Different modules may have different functors with the same
-module.
-+ The built-in put_atts/2 adds or deletes attributes to a
-variable. The variable may be unbound or may be an attributed
-variable. In the latter case, YAP discards previous values for the
-attributes.
-+ The built-in get_atts/2 can be used to check the values of
-an attribute associated with a variable.
-+ The unification algorithm calls the user-defined predicate
-<tt>verify_attributes/3</tt> before trying to bind an attributed
-variable. Unification will resume after this call.
-+ The user-defined predicate
-<tt>attribute_goal/2</tt> converts from an attribute to a goal.
-+ The user-defined predicate
-<tt>project_attributes/2</tt> is used from a set of variables into a set of
-constraints or goals. One application of <tt>project_attributes/2</tt> is in
-the top-level, where it is used to output the set of
-  floundered constraints at the end of a query.
+The directive
+
+- attribute/1
+
+and the following user defined predicates can be used:
+
+- Module:get_atts/2
+
+- Module:put_atts/2
+
+- Module:put_atts/3
+
+- Module:woken_att_do/4
+
 */
-
-%% @}
-
-
-%% @{
-
-/** @defgroup Attribute_Declarations Attribute Declarations
-@ingroup Old_Style_Attribute_Declarations
-  
-Attributes are compound terms associated with a variable. Each attribute
-has a <em>name</em> which is <em>private</em> to the module in which the
-attribute was defined. Variables may have at most one attribute with a
-name. Attribute names are defined with the following declaration:
-
-~~~~~
-:- attribute AttributeSpec, ..., AttributeSpec.
-~~~~~
-
-where each  _AttributeSpec_ has the form ( _Name_/ _Arity_).
-One single such declaration is allowed per module  _Module_.
-
-Although the YAP module system is predicate based, attributes are local
-to modules. This is implemented by rewriting all calls to the
-built-ins that manipulate attributes so that attribute names are
-preprocessed depending on the module.  The `user:goal_expansion/3`
-mechanism is used for this purpose.
-
-
-The  attribute manipulation predicates always work as follows:
-
-+ The first argument is the unbound variable associated with
-attributes,
-+ The second argument is a list of attributes. Each attribute will
-be a Prolog term or a constant, prefixed with the <tt>+</tt> and <tt>-</tt> unary
-operators. The prefix <tt>+</tt> may be dropped for convenience.
-
-The following three procedures are available to the user. Notice that
-these built-ins are rewritten by the system into internal built-ins, and
-that the rewriting process <em>depends</em> on the module on which the
-built-ins have been invoked.
-
- 
-The user-predicate predicate verify_attributes/3 is called when
-attempting to unify an attributed variable which might have attributes
-in some  _Module_.
-
- 
-Attributes are usually presented as goals. The following routines are
-used by built-in predicates such as call_residue/2 and by the
-Prolog top-level to display attributes:
-
- 
-Constraint solvers must be able to project a set of constraints to a set
-of variables. This is useful when displaying the solution to a goal, but
-may also be used to manipulate computations. The user-defined
-project_attributes/2 is responsible for implementing this
-projection.
-
-
-The following two examples example is taken from the SICStus Prolog manual. It
-sketches the implementation of a simple finite domain `solver`.  Note
-that an industrial strength solver would have to provide a wider range
-of functionality and that it quite likely would utilize a more efficient
-representation for the domains proper.  The module exports a single
-predicate `domain( _-Var_, _?Domain_)` which associates
- _Domain_ (a list of terms) with  _Var_.  A variable can be
-queried for its domain by leaving  _Domain_ unbound.
-
-We do not present here a definition for project_attributes/2.
-Projecting finite domain constraints happens to be difficult.
-
-~~~~~
-:- module(domain, [domain/2]).
-
-:- use_module(library(atts)).
-:- use_module(library(ordsets), [
-        ord_intersection/3,
-        ord_intersect/2,
-        list_to_ord_set/2
-   ]).
-
-:- attribute dom/1.
-
-verify_attributes(Var, Other, Goals) :-
-        get_atts(Var, dom(Da)), !,          % are we involved?
-        (   var(Other) ->                   % must be attributed then
-            (   get_atts(Other, dom(Db)) -> %   has a domain?
-                ord_intersection(Da, Db, Dc),
-                Dc = [El|Els],              % at least one element
-                (   Els = [] ->             % exactly one element
-                    Goals = [Other=El]      % implied binding
-                ;   Goals = [],
-                    put_atts(Other, dom(Dc))% rescue intersection
-                )
-            ;   Goals = [],
-                put_atts(Other, dom(Da))    % rescue the domain
-            )
-        ;   Goals = [],
-            ord_intersect([Other], Da)      % value in domain?
-        ).
-verify_attributes(_, _, []).                % unification triggered
-                                            % because of attributes
-                                            % in other modules
-
-attribute_goal(Var, domain(Var,Dom)) :-     % interpretation as goal
-        get_atts(Var, dom(Dom)).
-
-domain(X, Dom) :-
-        var(Dom), !,
-        get_atts(X, dom(Dom)).
-domain(X, List) :-
-        list_to_ord_set(List, Set),
-        Set = [El|Els],                     % at least one element
-        (   Els = [] ->                     % exactly one element
-            X = El                          % implied binding
-        ;   put_atts(Fresh, dom(Set)),
-            X = Fresh                       % may call
-                                            % verify_attributes/3
-        ).
-~~~~~
-
-Note that the _implied binding_ `Other=El` was deferred until after
-the completion of `verify_attribute/3`.  Otherwise, there might be a
-danger of recursively invoking `verify_attribute/3`, which might bind
-`Var`, which is not allowed inside the scope of `verify_attribute/3`.
-Deferring unifications into the third argument of `verify_attribute/3`
-effectively serializes the calls to `verify_attribute/3`.
-
-Assuming that the code resides in the file domain.yap, we
-can use it via:
-
-~~~~~
-| ?- use_module(domain).
-~~~~~
-
-Let's test it:
-
-~~~~~
-| ?- domain(X,[5,6,7,1]), domain(Y,[3,4,5,6]), domain(Z,[1,6,7,8]).
-
-domain(X,[1,5,6,7]),
-domain(Y,[3,4,5,6]),
-domain(Z,[1,6,7,8]) ? 
-
-yes
-| ?- domain(X,[5,6,7,1]), domain(Y,[3,4,5,6]), domain(Z,[1,6,7,8]), 
-     X=Y.
-
-Y = X,
-domain(X,[5,6]),
-domain(Z,[1,6,7,8]) ? 
-
-yes
-| ?- domain(X,[5,6,7,1]), domain(Y,[3,4,5,6]), domain(Z,[1,6,7,8]),
-     X=Y, Y=Z.
-
-X = 6,
-Y = 6,
-Z = 6
-~~~~~
-
-To demonstrate the use of the  _Goals_ argument of
-verify_attributes/3, we give an implementation of
-freeze/2.  We have to name it `myfreeze/2` in order to
-avoid a name clash with the built-in predicate of the same name.
-
-~~~~~
-:- module(myfreeze, [myfreeze/2]).
-
-:- use_module(library(atts)).
-
-:- attribute frozen/1.
-
-verify_attributes(Var, Other, Goals) :-
-        get_atts(Var, frozen(Fa)), !,       % are we involved?
-        (   var(Other) ->                   % must be attributed then
-            (   get_atts(Other, frozen(Fb)) % has a pending goal?
-            ->  put_atts(Other, frozen((Fa,Fb))) % rescue conjunction
-            ;   put_atts(Other, frozen(Fa)) % rescue the pending goal
-            ),
-            Goals = []
-        ;   Goals = [Fa]
-        ).
-verify_attributes(_, _, []).
-
-attribute_goal(Var, Goal) :-                % interpretation as goal
-        get_atts(Var, frozen(Goal)).
-
-myfreeze(X, Goal) :-
-        put_atts(Fresh, frozen(Goal)),
-        Fresh = X.
-~~~~~
-
-Assuming that this code lives in file myfreeze.yap,
-we would use it via:
-
-~~~~~
-| ?- use_module(myfreeze).
-| ?- myfreeze(X,print(bound(x,X))), X=2.
-
-bound(x,2)                      % side effect
-X = 2                           % bindings
-~~~~~
-
-The two solvers even work together:
-
-~~~~~
-| ?- myfreeze(X,print(bound(x,X))), domain(X,[1,2,3]),
-     domain(Y,[2,10]), X=Y.
-
-bound(x,2)                      % side effect
-X = 2,                          % bindings
-Y = 2
-~~~~~
-
-The two example solvers interact via bindings to shared attributed
-variables only.  More complicated interactions are likely to be found
-in more sophisticated solvers.  The corresponding
-verify_attributes/3 predicates would typically refer to the
-attributes from other known solvers/modules via the module prefix in
-` _Module_:get_atts/2`.
-
-
- */
 
 
 :- use_module(library(lists), [member/2]).
@@ -327,7 +96,7 @@ store_new_module(Mod,Ar,ArgPosition) :-
 	
 :- user_defined_directive(attribute(G), attributes:new_attribute(G)).
 
-/** @pred _Module_:get_atts( _-Var_, _?ListOfAttributes_) 
+/** @pred Module:get_atts( _-Var_, _?ListOfAttributes_) 
 
 
 Unify the list  _?ListOfAttributes_ with the attributes for the unbound
@@ -346,7 +115,8 @@ Succeeds if a corresponding attribute is not associated with
 */
 user:goal_expansion(get_atts(Var,AccessSpec), Mod, Goal) :-
 	expand_get_attributes(AccessSpec,Mod,Var,Goal).
-/** @pred _Module_:put_atts( _-Var_, _?ListOfAttributes_) 
+
+/** @pred Module:put_atts( _-Var_, _?ListOfAttributes_) 
 
 
 Associate with or remove attributes from a variable  _Var_. The
@@ -473,9 +243,7 @@ find_used([M|Mods],Mods0,L0,Lf) :-
 find_used([_|Mods],Mods0,L0,Lf) :-
 	find_used(Mods,Mods0,L0,Lf).
 
-/** @pred _Module_:verify_attributes( _-Var_,  _+Value_,  _-Goals_) 
-
-
+/** @pred Module:verify_attributes( _-Var_,  _+Value_,  _-Goals_) 
 
 The predicate is called when trying to unify the attributed variable
  _Var_ with the Prolog term  _Value_. Note that  _Value_ may be

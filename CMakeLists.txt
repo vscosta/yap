@@ -397,6 +397,8 @@ add_subDIRECTORY (packages/cplint)
 
 add_subDIRECTORY (packages/raptor)
 
+add_subDIRECTORY (docs)
+
 # add_subDIRECTORY (packages/cuda)
 
 #todo: use cmake target builds

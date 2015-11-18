@@ -1,15 +1,13 @@
-%   Also has code from:
-%   File   : APPLIC.PL
-%   Author : Lawrence Byrd + Richard A. O'Keefe
-%   Updated: 4 August 1984 and Ken Johnson 11-8-87
-%   Purpose: Various "function" application routines based on apply/2.
-%   Needs  : append/3 from listut.pl
-
-
-%   File   : apply_macros.yap
-%   Author : E. Alphonse from code by Joachim Schimpf, Jan Wielemaker, Vitor Santos Costa
-%   Purpose: Macros to apply a predicate to all elements
-%            of a list or to all sub-terms of a term.
+/**
+ * @file   mapargs.yap
+ * @author Lawrence Byrd + Richard A. O'Keefe, VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @author : E. Alphonse from code by Joachim Schimpf, Jan Wielemaker, Vitor Santos Costa
+ * @date    4 August 1984 and Ken Johnson 11-8-87
+ * 
+ * @brief  Macros to apply a predicate to all sub-terms of a term.
+ * 
+ * 
+*/
 
 
 :- module(mapargs,[ mapargs/2,                 % :Goal, +S
@@ -22,7 +20,13 @@
 		    foldargs/5, 		% :Pred, +S, ?S1,  ?V0, ?V
 		    foldargs/6, 		% :Pred, +S, ?S1, ?S2, ?V0, ?V
 		    foldargs/7	 		% :Pred, +S, ?S1, ?S2, ?S3, ?V0, ?V
-			]).
+                  ]).
+
+/**
+* @defgroup mapargs Apply a predicate to all  arguments of a term
+* @ingroup library
+*/
+
 
 :- use_module(library(maputils)).
 :- use_module(library(lists), [append/3]).

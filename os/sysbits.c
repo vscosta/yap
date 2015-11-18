@@ -563,8 +563,9 @@ static char *myrealpath( const char *path, char *out)
 }
 
 static char *
-PrologExpandVars(const char *spec, char *tmp, bool ok_to)
+PrologExpandVars(const char *spec, char *tmp0, bool ok_to)
 {
+  char *tmp;
 
 #if _WIN32 || defined(__MINGW32__)
   char u[YAP_FILENAME_MAX+1];
@@ -574,18 +575,20 @@ PrologExpandVars(const char *spec, char *tmp, bool ok_to)
     return NULL;
   spec = u;
 #endif
-  if (tmp == NULL) {
+  if (tmp0 == NULL) {
     tmp = malloc(YAP_FILENAME_MAX+1);
     if (tmp == NULL) {
       return NULL;
     }
+  } else {
+    tmp = tmp0;
   }
   if ( ok_to )
     {
       tmp=expandVars(spec,tmp,YAP_FILENAME_MAX);
     }
   else
-    {
+    if (tmp != tmp0) {
       free(tmp);
       tmp = (char *)spec;
     }

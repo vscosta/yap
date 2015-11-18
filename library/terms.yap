@@ -23,8 +23,8 @@ terms. Most of these utilities have been implemented in `C` for
 efficiency. They are available through the
 `use_module(library(terms))` command.
 
-
-
+*/
+/**
  @pred cyclic_term(? _Term_) 
 
 

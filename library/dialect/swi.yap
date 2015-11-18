@@ -151,7 +151,7 @@ that concatenated give  _A12_.
 
 goal_expansion(atom_concat(A,B,C),atomic_concat(A,B,C)).
 %goal_expansion(arg(A,_,_),_) :- nonvar(A), !, fail.
-goal_expansion(arg(A,B,C),genarg(A,B,C)).
+goal_expansion(arg(A,B,C),arg:genarg(A,B,C)).
 
 % make sure we also use 
 :- user:library_directory(X),

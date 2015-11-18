@@ -1,4 +1,13 @@
 %%% -*- Mode: Prolog; -*-
+/**
+ * @file   c_alarms.yap
+ * @author Theofrastos Mantadelis
+ * @date   Tue Nov 17 14:50:03 2015
+ * 
+ * @brief  Concurrent alarms
+ * 
+ * 
+*/
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -210,7 +219,7 @@
                      timer_elapsed/2,
                      timer_pause/2]).
 
-/** @defgroup CAlarms Concurrent Alarms
+/** @defgroup c_alarms Concurrent Alarms
 @ingroup library
 @{
 

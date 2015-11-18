@@ -15,25 +15,46 @@
 *									 *
 *************************************************************************/
 
-% original code from RA O'Keefe.
+/**
+ * @file   random.yap
+ * @author original code from RA O'Keefe.
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Wed Nov 18 00:05:21 2015
+ * 
+ * @brief Integer Random Number Generator
+ * 
+ * 
+*/
 
-%   This is algorithm AS 183 from Applied Statistics.  I also have a C
-%   version.  It is really very good.  It is straightforward to make a
-%   version which yields 15-bit random integers using only integer
-%   arithmetic.
- 
-/** @defgroup Pseudo_Random Random Number Generator
+:- module(random, [
+	random/1,
+	random/3,
+	randseq/3,
+	randset/3,
+	getrand/1,
+	setrand/1
+    ]).
+
+/** @defgroup random Random Number Generator
 @ingroup library
 @{
 
-The following random number operations are included with the
-`use_module(library(random))` command. Since YAP-4.3.19 YAP uses
+ Since YAP-4.3.19 YAP uses
 the O'Keefe public-domain algorithm, based on the "Applied Statistics"
 algorithm AS183.
 
+The following random number operations are included with the
+`use_module(library(random))` command.
+
+In ROK's words: ``This is algorithm AS 183 from Applied Statistics.  I also have a C
+   version.  It is really very good.  It is straightforward to make a
+   version which yields 15-bit random integers using only integer
+   arithmetic.''
 
 
- @pred getrand(- _Key_) 
+*/
+
+/** @pred getrand(- _Key_) 
 
 
 Unify  _Key_ with a term of the form `rand(X,Y,Z)` describing the
@@ -104,15 +125,6 @@ random number generator. The integer `X` must be in the range
 
 
  */
-:- module(random, [
-	random/1,
-	random/3,
-	randseq/3,
-	randset/3,
-	getrand/1,
-	setrand/1
-    ]).
-
 :- use_module(library(pairs)).
 :- use_module(library(error)).
 :- use_module(library(lists)).

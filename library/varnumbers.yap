@@ -1,13 +1,24 @@
-%   File   : varnumbers.yap
-%   Author : Vitor Santos Costa
-%   Updated: 2006
-%   Purpose: opposite to numbervars
+/**
+ * @file   varnumbers.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   2006
+ * 
+ * @brief  opposite to numbervars
+ * 
+ * 
+*/
 
 :- module(varnumbers, [
 		  numbervars/1,
 		  max_var_number/3,
 		  varnumbers/2
               ]).
+
+/**
+* @defgroup varnumbers Variabilize term.
+* @ingroup ellllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll
+* 
+*/
 
 
 numbervars(Term) :-

@@ -1,9 +1,18 @@
+/**
+ * @file   ypp.yap
+ * @author Nuno Fonseca (nunofonseca@acm.org), Tiago Soares
+ * @date  2005-05-14
+ * 
+ * @brief  Yap PreProcessing
+ * 
+ * 
+*/
 %====================================================================================
 %
 % YPP: Yap PreProcessing
 %
 % Author: Nuno Fonseca (nunofonseca@acm.org)
-% Date: 2005-05-14
+% Date: 
 % $Id: ypp.yap,v 1.4 2006-03-07 17:30:47 tiagosoares Exp $
 %
 %====================================================================================
@@ -20,7 +29,14 @@
 	      ypp_consult/1,    % similiar to standard consult but with preprocessing
 	      ypp_reconsult/1
     ]
-    ).
+        ).
+
+/**
+* @defgroup ypp Yap PreProcessing
+* @ingroup library
+* 
+*/
+
 %====================================================================================
 % Public Predicates
 %====================================================================================

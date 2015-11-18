@@ -1,10 +1,58 @@
+/**
+ * @file   lists.yap
+ * @author Bob Welham, Lawrence Byrd, and R. A. O'Keefe. Contributions from Vitor Santos Costa, Jan Wielemaker and others.
+ * @date   1999
+ * 
+ * @brief  List Manipulation Predicates
+ * 
+ * 
+*/
 % This file has been included as an YAP library by Vitor Santos Costa, 1999
 
-%
-% This file includes code from Bob Welham, Lawrence Byrd, and R. A. O'Keefe.
-%
+:- module(lists,
+	  [
+	   append/3,
+	   append/2,
+	   delete/3,
+	   intersection/3,
+	   flatten/2,
+	   last/2,
+	   list_concat/2,
+	   max_list/2,
+	   list_to_set/2,
+	   member/2,
+	   memberchk/2,
+	   min_list/2,
+	   nextto/3,
+	   nth/3,
+	   nth/4,
+	   nth0/3,
+	   nth0/4,
+	   nth1/3,
+	   nth1/4,
+	   numlist/3,
+	   permutation/2,
+	   prefix/2,
+	   remove_duplicates/2,
+	   reverse/2,
+	   same_length/2,
+	   select/3,
+	   selectchk/3,
+	   sublist/2,
+	   substitute/4,
+	   subtract/3,
+	   suffix/2,
+	   sum_list/2,
+	   sum_list/3,
+	   sumlist/2
+	  ]).
 
-/** @defgroup Lists List Manipulation
+
+:- use_module(library(error),
+		 [must_be/2]).
+
+
+/** @defgroup lists List Manipulation
 @ingroup library
 @{
 
@@ -12,56 +60,7 @@ The following list manipulation routines are available once included
 with the `use_module(library(lists))` command. 
 
 */
-/**
- @pred append(? _Prefix_,? _Suffix_,? _Combined_) 
 
-
-True when all three arguments are lists, and the members of
- _Combined_ are the members of  _Prefix_ followed by the members of  _Suffix_.
-It may be used to form  _Combined_ from a given  _Prefix_,  _Suffix_ or to take
-a given  _Combined_ apart.
-
- 
-*/
-/** @pred append(? _Lists_,? _Combined_)
-
-Holds if the lists of  _Lists_ can be concatenated as a
- _Combined_ list.
-
- 
-*/
-/** @pred flatten(+ _List_, ? _FlattenedList_) 
-
-
-Flatten a list of lists  _List_ into a single list
- _FlattenedList_.
-
-~~~~~{.prolog}
-?- flatten([[1],[2,3],[4,[5,6],7,8]],L).
-
-L = [1,2,3,4,5,6,7,8] ? ;
-
-no
-~~~~~
-
- 
-*/
-/** @pred intersection(+ _Set1_, + _Set2_, + _Set3_) 
-
-
-Succeeds if  _Set3_ unifies with the intersection of  _Set1_ and
- _Set2_.  _Set1_ and  _Set2_ are lists without duplicates. They
-need not be ordered.
-
- 
-*/
-/** @pred last(+ _List_,? _Last_) 
-
-
-True when  _List_ is a list and  _Last_ is identical to its last element.
-
- 
-*/
 /** @pred list_concat(+ _Lists_,? _List_) 
 
 
@@ -186,121 +185,10 @@ Modes `same_length(-,+)` and `same_length(+,-)` generate either list given
 the other; mode `same_length(-,-)` generates two lists of the same length,
 in which case the arguments will be bound to lists of length 0, 1, 2, ...
 
- 
-*/
-/** @pred select(? _Element_, ? _List_, ? _Residue_) 
-
-
-True when  _Set_ is a list,  _Element_ occurs in  _List_, and
- _Residue_ is everything in  _List_ except  _Element_ (things
-stay in the same order).
-
- 
-*/
-/** @pred selectchk(? _Element_, ? _List_, ? _Residue_) 
-
-
-Semi-deterministic selection from a list. Steadfast: defines as
-
-~~~~~{.prolog}
-selectchk(Elem, List, Residue) :-
-        select(Elem, List, Rest0), !,
-        Rest = Rest0.
-~~~~~
-
- 
-*/
-/** @pred sublist(? _Sublist_, ? _List_) 
-
-
-True when both `append(_,Sublist,S)` and `append(S,_,List)` hold.
-
- 
-*/
-/** @pred subtract(+ _Set_, + _Delete_, ? _Result_) 
-
-
-Delete all elements from  _Set_ that   occur  in  _Delete_ (a set)
-and unify the  result  with   _Result_.   Deletion  is  based  on
-unification using memberchk/2. The complexity is
-`|Delete|\*|Set|`.
-
-See ord_subtract/3.
-
-
-
  */
-/** @pred suffix(? _Suffix_, ? _List_) 
 
 
-Holds when `append(_,Suffix,List)` holds.
-
- 
-*/
-/** @pred sum_list(? _Numbers_, + _SoFar_, ? _Total_)
-
-True when  _Numbers_ is a list of numbers, and  _Total_ is the sum of their total plus  _SoFar_.
-
- 
-*/
-/** @pred sum_list(? _Numbers_, ? _Total_) 
-
-
-True when  _Numbers_ is a list of numbers, and  _Total_ is their sum.
-
- 
-*/
-/** @pred sumlist(? _Numbers_, ? _Total_) 
-
-
-True when  _Numbers_ is a list of integers, and  _Total_ is their
-sum. The same as sum_list/2, please do use sum_list/2
-instead.
-
- 
-*/
-:- module(lists,
-	  [
-	   append/3,
-	   append/2,
-	   delete/3,
-	   intersection/3,
-	   flatten/2,
-	   last/2,
-	   list_concat/2,
-	   max_list/2,
-	   list_to_set/2,
-	   member/2,
-	   memberchk/2,
-	   min_list/2,
-	   nextto/3,
-	   nth/3,
-	   nth/4,
-	   nth0/3,
-	   nth0/4,
-	   nth1/3,
-	   nth1/4,
-	   numlist/3,
-	   permutation/2,
-	   prefix/2,
-	   remove_duplicates/2,
-	   reverse/2,
-	   same_length/2,
-	   select/3,
-	   selectchk/3,
-	   sublist/2,
-	   substitute/4,
-	   subtract/3,
-	   suffix/2,
-	   sum_list/2,
-	   sum_list/3,
-	   sumlist/2
-	  ]).
-:- use_module(library(error),
-		 [must_be/2]).
-
-
-%%	append(+ListOfLists, ?List)
+%%   @pred append(? _Lists_,? _Combined_)
 %
 %	Concatenate a list of lists.  Is  true   if  Lists  is a list of
 %	lists, and List is the concatenation of these lists.
@@ -319,10 +207,11 @@ append_([L1,L2|[L3|LL]], L) :-
 	append(L1,L2,LI),
 	append_([LI|[L3|LL]],L).
 
+/** @pred last(+ _List_,? _Last_) 
 
-%   last(List, Last)
-%   is true when List is a List and Last is identical to its last element.
-%   This could be defined as last(L, X) :- append(_, [X], L).
+
+True when  _List_ is a list and  _Last_ is identical to its last element.
+d(_, [X], L).
 
 last([H|List], Last) :-
 	last(List, H, Last).
@@ -494,34 +383,43 @@ same_length([], []).
 same_length([_|List1], [_|List2]) :-
 	same_length(List1, List2).
 
-%%      selectchk(+Elem, +List, -Rest) is semidet.
-%
-%       Semi-deterministic removal of first element in List that unifies
-%       Elem.
 
+/** @pred selectchk(? _Element_, ? _List_, ? _Residue_) 
+
+
+Semi-deterministic selection from a list. Steadfast: defines as
+
+~~~~~{.prolog}
+selectchk(Elem, List, Residue) :-
+        select(Elem, List, Rest0), !,
+        Rest = Rest0.
+~~~~~
+*/
 selectchk(Elem, List, Rest) :-
         select(Elem, List, Rest0), !,
         Rest = Rest0.
 
 
-%   select(?Element, ?Set, ?Residue)
-%   is true when Set is a list, Element occurs in Set, and Residue is
-%   everything in Set except Element (things stay in the same order).
 
+/** @pred select(? _Element_, ? _List_, ? _Residue_) 
+
+
+True when  _Set_ is a list,  _Element_ occurs in  _List_, and
+ _Residue_ is everything in  _List_ except  _Element_ (things
+stay in the same order).
+*/
 select(Element, [Element|Rest], Rest).
 select(Element, [Head|Tail], [Head|Rest]) :-
 	select(Element, Tail, Rest).
 
-
-%   sublist(Sublist, List)
-%   is true when both append(_,Sublist,S) and append(S,_,List) hold.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%	sublist(?Sub, +List) is nondet.
 %
 %	True if all elements of Sub appear in List in the same order.
-
+%
+%   ALlo, both `append(_,Sublist,S)` and `append(S,_,List)` hold.
 sublist(L, L).
 sublist(Sub, [H|T]) :-
 	'$sublist1'(T, H, Sub).
@@ -545,21 +443,38 @@ substitute2([X0|XList], X, Y, [Y|YList]) :-
 substitute2([X0|XList], X, Y, [X0|YList]) :-
 	substitute2(XList, X, Y, YList).
 
-%   suffix(Suffix, List)
-%   holds when append(_,Suffix,List) holds. 
+/** @pred suffix(? _Suffix_, ? _List_) 
+
+Holds when `append(_,Suffix,List)` holds.
+*/
 suffix(Suffix, Suffix).
 suffix(Suffix, [_|List]) :-
 	suffix(Suffix,List).
 
-%   sumlist(Numbers, Total)
-%   is true when Numbers is a list of integers, and Total is their sum.
+/** @pred sumlist(? _Numbers_, ? _Total_) 
 
+
+True when  _Numbers_ is a list of integers, and  _Total_ is their
+sum. The same as sum_list/2, please do use sum_list/2
+instead.
+
+ 
+*/
 sumlist(Numbers, Total) :-
 	sumlist(Numbers, 0, Total).
 
+/** @pred sum_list(? _Numbers_, + _SoFar_, ? _Total_)
+
+True when  _Numbers_ is a list of numbers, and  _Total_ is the sum of their total plus  _SoFar_.
+*/
 sum_list(Numbers, SoFar, Total) :-
 	sumlist(Numbers, SoFar, Total).
 
+/** @pred sum_list(? _Numbers_, ? _Total_) 
+
+
+True when  _Numbers_ is a list of numbers, and  _Total_ is their sum.
+*/
 sum_list(Numbers, Total) :-
 	sumlist(Numbers, 0, Total).
 
@@ -584,9 +499,20 @@ list_concat([H|T], [H|Lf], Li) :-
 
 
 
-%
-% flatten a list
-%
+/** @pred flatten(+ _List_, ? _FlattenedList_) 
+
+
+Flatten a list of lists  _List_ into a single list
+ _FlattenedList_.
+
+~~~~~{.prolog}
+?- flatten([[1],[2,3],[4,[5,6],7,8]],L).
+
+L = [1,2,3,4,5,6,7,8] ? ;
+
+no
+~~~~~
+*/
 flatten(X,Y) :- flatten_list(X,Y,[]).
  
 flatten_list(V) --> {var(V)}, !, [V].
@@ -638,6 +564,17 @@ numlist_(L, U, [L|Ns]) :-
         succ(L, L2),
         numlist_(L2, U, Ns).
 
+
+/** @pred intersection(+ _Set1_, + _Set2_, + _Set3_) 
+
+
+Succeeds if  _Set3_ unifies with the intersection of  _Set1_ and
+ _Set2_.  _Set1_ and  _Set2_ are lists without duplicates. They
+need not be ordered.
+
+The code was copied from SWI-Prolog's list library.
+ 
+*/
 
 % copied from SWI lists library.
 intersection([], _, []) :- !.

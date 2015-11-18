@@ -15,12 +15,23 @@
 *									 *
 *************************************************************************/
 
+/**
+ * @file   timeout.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Wed Nov 18 01:26:14 2015
+ * 
+ * @brief  Calls With Timeout
+ * 
+ * 
+*/
+
+
 :- module(timeout, [
 	time_out/3
     ]).
 
 
-/** @defgroup Timeout Calls With Timeout
+/** @defgroup timeout Calls With Timeout
 @ingroup library
 @{
 

@@ -16,17 +16,34 @@
 *************************************************************************/
 
 /**
- @groupdef PseudoRandom Van Gelder Random Number Generator
- @ingroup builtins
- @{
+ * @file   prandom.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Tue Nov 17 23:43:18 2015
+ * 
+ * @brief  Van Gelder Random Number Generator
+ * 
+ * 
 */
 
+:- module(prandom, [
+	ranstart/0,
+	ranstart/1,
+	rannum/1,
+	ranunif/2]).
+
+
+%%
+% @groupdef prandom Van Gelder Random Number Generator
+% @ingroup builtins
+% @{
+%
+%
 % The following code produces the same random numbers as my previous 
 % ranpkg.pl, but is more accurately documented and slightly more 
 % efficient.  
- 
+% 
 % ranpkg.pl	random number package	Allen Van Gelder, Stanford
- 
+vvvvvv 
 % rannum produces a random non-negative integer whose low bits are not
 % all that random, so it should be scaled to a smaller range in general.
 % The integer is in the range 0 .. 2^(w-1) - 1,
@@ -89,12 +106,6 @@ the result is in 0 ..  _R_-1.
 
 
  */
-:- module(prandom, [
-	ranstart/0,
-	ranstart/1,
-	rannum/1,
-	ranunif/2]).
-
 :- initialization(ranstart).
 
 :- dynamic ranState/5.
@@ -107,7 +118,7 @@ wsize(32) :-
 	yap_flag(max_tagged_integer,I), I >> 32 =:= 0, !.
 wsize(64).
 
-ranstart :- ranstart(8'365).
+ranstart :- ranstart(8'365). %
  
 ranstart(N) :-
 	wsize(Wsize),				% bits available for int.

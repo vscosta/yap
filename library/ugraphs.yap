@@ -1,15 +1,46 @@
+/**
+ * @file   ugraphs.yap
+ * @author R.A.O'Keefe
+ * @author adapted to support some of the functionality of the SICStus ugraphs library
+by Vitor Santos Costa.
+ * @date  20 March 1984
+ * 
+ * @brief  
+ * 
+ * 
+*/
 %   File   : GRAPHS.PL
 %   Author : R.A.O'Keefe
-%   Updated: 20 March 1984
-%   Purpose: Graph-processing utilities.
+%   Updated: 
+%   Purpose: .
 
 %
-% adapted to support some of the functionality of the SICStus ugraphs library
-% by Vitor Santos Costa.
+% 
 %
- 
 
-/** @defgroup UGraphs Unweighted Graphs
+:- module(ugraphs,
+	  [
+	   add_vertices/3,
+	   add_edges/3,
+	   complement/2,
+	   compose/3,
+	   del_edges/3,
+	   del_vertices/3,
+	   edges/2,
+	   neighbours/3,
+	   neighbors/3,
+	   reachable/3,
+	   top_sort/2,
+	   top_sort/3,
+	   transitive_closure/2,
+	   transpose/2,
+	   vertices/2,
+	   vertices_edges_to_ugraph/3,
+	   ugraph_union/3
+	]).
+
+
+/** @defgroup ugraphs Unweighted Graphs
 @ingroup library
 @{
 
@@ -293,26 +324,6 @@ L = [1,2,3,4,5]
 
  
 */
-:- module(ugraphs,
-	  [
-	   add_vertices/3,
-	   add_edges/3,
-	   complement/2,
-	   compose/3,
-	   del_edges/3,
-	   del_vertices/3,
-	   edges/2,
-	   neighbours/3,
-	   neighbors/3,
-	   reachable/3,
-	   top_sort/2,
-	   top_sort/3,
-	   transitive_closure/2,
-	   transpose/2,
-	   vertices/2,
-	   vertices_edges_to_ugraph/3,
-	   ugraph_union/3
-	]).
 
 :- use_module(library(lists), [
 	append/3,

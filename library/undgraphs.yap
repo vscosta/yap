@@ -1,8 +1,16 @@
+/**
+ * @file   undgraphs.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   2006
+ *
+ * @brief  Directed Graph Processing Utilities.
+ * 
+ * 
+*/
 %   File   : dgraphs.yap
 %   Author : Vitor Santos Costa
 %   Updated: 2006
-%   Purpose: Directed Graph Processing Utilities.
-
+%   Purpose: 
 
 :- module( undgraphs,
 	   [
@@ -19,7 +27,7 @@
 	    undgraph_components/2,
 	    undgraph_min_tree/2]).
 
-/** @defgroup UnDGraphs Undirected Graphs
+/** @defgroup undgraphs Undirected Graphs
 @ingroup library
 @{
 

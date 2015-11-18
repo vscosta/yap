@@ -1212,6 +1212,12 @@ static inline Term Yap_StringToNumber(Term t0 USES_REGS) {
   return out.val.t;
 }
 
+static inline Term Yap_UTF8ToString(const char *s USES_REGS) {
+  return MkStringTerm( s );
+}
+
+
+
 static inline Term Yap_WCharsToListOfCodes(const wchar_t *s USES_REGS) {
   seq_tv_t inp, out;
   inp.val.w0 = s;

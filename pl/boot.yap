@@ -359,7 +359,7 @@ true :- true.
 	;
 	  format(user_error,'[~w]~n', [Module])
 	),
-	'$system_catch'('$enter_top_level',Module,Error,user:'$Error'(Error)).
+	'$system_catch'('$enter_top_level',Module,Error,'$Error'(Error)).
 
 
 '$init_system' :-
@@ -620,7 +620,7 @@ number of steps.
  '$execute_commands'([],_,_,_,_) :- !.
  '$execute_commands'([C|Cs],VL,Pos,Con,Source) :- !,
 	 (
-	   '$system_catch'('$execute_command'(C,VL,Pos,Con,C),prolog,Error,user:'$LoopError'(Error, Con)),
+	   '$system_catch'('$execute_command'(C,VL,Pos,Con,C),prolog,Error,(writeln(k),'$LoopError'(Error, Con))),
 	   fail
 	 ;
 	   '$execute_commands'(Cs,VL,Pos,Con,Source)
@@ -1534,80 +1534,6 @@ catch(G, C, A) :-
 
 The goal `throw( _Ball_)` throws an exception. Execution is
 stopped, and the exception is sent to the ancestor goals until reaching
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 a matching catch/3, or until reaching top-level.
 
 */

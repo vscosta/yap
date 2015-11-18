@@ -1,12 +1,11 @@
-
 /**
-  @defgroup DBUsage Memory Usage in Prolog Data-Base
-  @ingroup library
-  @{
-
-  This library provides a set of utilities for studying memory usage in YAP.
-  The following routines are available once included with the
-  `use_module(library(dbusage))` command.
+ * @file   dbusage.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Tue Nov 17 15:04:52 2015
+ * 
+ * @brief Useful statistics on memory usage
+ * 
+ * 
 */
 
 :- module(dbusage, [
@@ -16,6 +15,16 @@
 	db_dynamic/0,
 	db_dynamic/1
     ]).
+
+/**
+  * @defgroup dbusage Memory Usage in Prolog Data-Base
+  * @ingroup library
+  @{
+
+  This library provides a set of utilities for studying memory usage in YAP.
+  The following routines are available once included with the
+  `use_module(library(dbusage))` command.
+*/
 
 /** @pred db_usage 
   Give general overview of data-base usage in the system.

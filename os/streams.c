@@ -998,13 +998,13 @@ static Int p_file_name(USES_REGS1) {
   return Yap_unify_constant(ARG2, tout);
 }
 
-static Int p_cur_line_no(USES_REGS1) { /* '$current_line_number'(+Stream,-N) */
+static Int line_count(USES_REGS1) { /* '$current_line_number'(+Stream,-N) */
   Term tout;
   int sno =
       Yap_CheckStream(ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f,
                       "current_line_number/2");
   if (sno < 0)
-    return (FALSE);
+    return (false);
   /* one has to be somewhat more careful because of terminals */
   if (GLOBAL_Stream[sno].status & Tty_Stream_f) {
     Int no = 1;
@@ -1396,8 +1396,6 @@ void Yap_InitIOStreams(void) {
                 SafePredFlag | SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$check_stream", 1, p_check_if_stream,
                 SafePredFlag | SyncPredFlag | HiddenPredFlag | HiddenPredFlag);
-  Yap_InitCPred("$current_line_number", 2, p_cur_line_no,
-                SafePredFlag | SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$line_position", 2, p_line_position,
                 SafePredFlag | SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$character_count", 2, p_character_count,
@@ -1418,6 +1416,8 @@ void Yap_InitIOStreams(void) {
   Yap_InitCPred("stream_select", 3, p_stream_select,
                 SafePredFlag | SyncPredFlag);
 #endif
+  Yap_InitCPred("line_count", 2, line_count,
+                SafePredFlag | SyncPredFlag );  
   Yap_InitCPred("$show_stream_position", 2, p_show_stream_position,
                 SafePredFlag | SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("set_stream_position", 2, set_stream_position,

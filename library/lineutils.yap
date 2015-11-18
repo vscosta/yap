@@ -1,3 +1,12 @@
+/**
+ * @file   lineutils.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Tue Nov 17 22:02:22 2015
+ * 
+ * @brief  line text processing.
+ * 
+ * 
+*/
 
 :- module(line_utils,
 	  [search_for/2,
@@ -21,7 +30,7 @@
 	   process/2
 	  ]).
 
-/** @defgroup LineUtilities Line Manipulation Utilities
+/** @defgroup line_utils Line Manipulation Utilities
 @ingroup library
 @{
 
@@ -31,6 +40,7 @@ available by loading the
 ~~~~
 :- use_module(library(lineutils)).
 ~~~~
+
 
 */
 

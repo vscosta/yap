@@ -1,7 +1,12 @@
-%   File   : hacks.yap
-%   Author : Vitor Santos Costa
-%   Updated: 2007
-%   Purpose: Prolog hacking
+/**
+ * @file   hacks.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Tue Nov 17 19:00:25 2015
+ * 
+ * @brief  Prolog hacking
+ * 
+ * 
+*/
 
 :- module(yap_hacks, [
 		      current_choicepoint/1,
@@ -17,7 +22,17 @@
 		      disable_interrupts/0,
 		      virtual_alarm/3,
 		      context_variables/1
-              ]).
+                     ]).
+
+/**
+* @defgroup yap_hacks YAP hacking
+* @ingroup library
+*
+* Manipulate the Prolog stacks, including setting and resetting
+* choice-points.
+* 
+*/
+
 
 stack_dump :-
 	stack_dump(-1).

@@ -1,3 +1,12 @@
+/**
+ * @file   cleanup.yap
+ * @author Christian Thaeter
+ * @date   Tue Nov 17 14:52:58 2015
+ * 
+ * @brief  old implementation of call_cleanup
+ * 
+ * 
+*/
 
 
 :- module( cleanup, [
@@ -8,7 +17,7 @@
 		     op(1150, fx,fragile)
 		    ]).
 
-%% @defgroup Cleanup Call Cleanup
+%% @defgroup cleanup Old Call Cleanup
 % @ingroup library
 % @{
 %

@@ -1,3 +1,16 @@
+/**
+ * @file   coinduction.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>, Arvin Bansal,
+ *          
+ *         
+ * @date   Tue Nov 17 14:55:02 2015
+ * 
+ * @brief  Co-inductive execution
+ * 
+ * 
+*/
+
+
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -30,7 +43,7 @@
 
 :- use_module(library(error)).
 
-/** <module> Co-Logic Programming
+/** <module> coinduction Co-Logic Programming
   @ingroup library
 
 This simple module implements the   directive coinductive/1 as described
