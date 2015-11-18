@@ -1,3 +1,13 @@
+/**
+ * @file   itries.yap
+ * @author Ricardo Rocha
+ * @date   
+ * 
+ * @brief  Tries module for ILP
+ * 
+ * 
+*/
+
 /*********************************
   File:     itries.yap
   Author:   Ricardo Rocha

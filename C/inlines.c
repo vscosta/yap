@@ -997,8 +997,24 @@ p_erroneous_call( USES_REGS1 )
   return(FALSE);
 }
 
+/** 
+ * @genarg( ?_Index_, +_Term_ , -_Arg_ )
+ * 
+ * Similar to arg/3, but it can also backtrack through _T_'s arguments, that is:
+
+~~~~~~~~~
+?- arg:genarg(I, f(a,b), A).
+A = a,
+I = 1.
+;
+A = b,
+I = 2.
+~~~~~~~~~
+ * 
+ * Note: SWI-Prolog defines arg/3 as genarg/3.  
+ */
 static Int
-init_genarg( USES_REGS1 )
+genarg( USES_REGS1 )
 {				/* getarg(?Atom)		 */
   Term t0 = Deref(ARG1);
   Term t1 = Deref(ARG2);
@@ -1110,7 +1126,7 @@ Yap_InitInlines(void)
   Yap_InitAsmPred("functor", 3, _functor, p_functor, 0);
   Yap_InitAsmPred("$label_ctl", 2, _p_label_ctl, p_erroneous_call, SafePredFlag);
   CurrentModule = ARG_MODULE;
-  Yap_InitCPredBack("genarg", 3, 3, init_genarg, cont_genarg,SafePredFlag);
+  Yap_InitCPredBack("genarg", 3, 3, genarg, cont_genarg,SafePredFlag);
   CurrentModule = cm;
 }
 

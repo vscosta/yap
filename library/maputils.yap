@@ -1,16 +1,16 @@
+/**
+ * @file   maputils.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Tue Nov 17 22:48:58 2015
+ * 
+ * @brief  Auxiliary routines for map... libraries
+ * 
+ * 
+*/
 %%%%%%%%%%%%%%%%%%%%
 % map utilities
 %%%%%%%%%%%%%%%%%%%%
 
-/**
-  * @file maputils.yap
-  *
-  * @addtogroup maplist
-  *
-  * Auxiliary routines
-  *
-  *@{
-*/
 :- module(maputils,
 	  [compile_aux/2,
 	   goal_expansion_allowed/0,
@@ -18,6 +18,13 @@
 	   aux_preds/5,
 	   append_args/3]).
 
+/**
+* @addtogroup maplist
+  *
+  * Auxiliary routines
+  *
+  *@{
+*/
 :- use_module(library(lists), [append/3]).
 
 :- dynamic number_of_expansions/1.

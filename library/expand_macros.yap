@@ -1,3 +1,13 @@
+/**
+ * @file   expand_macros.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Tue Nov 17 15:16:12 2015
+ * 
+ * @brief  utilities that perform macro expansion for maplist/2 and
+ * friends.
+ * 
+ * 
+*/
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%

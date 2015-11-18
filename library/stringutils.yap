@@ -1,3 +1,12 @@
+/**
+ * @file   stringutils.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Wed Nov 18 01:14:42 2015
+ * 
+ * @brief Simple string utilitiities .
+ * 
+ * 
+*/
 :- module(string_utils,
 	  [string/1,
 	   upcase_string/2,

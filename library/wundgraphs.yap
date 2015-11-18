@@ -1,7 +1,10 @@
-%   File   : dgraphs.yap
-%   Author : Vitor Santos Costa
-%   Updated: 2006
-%   Purpose: Directed Graph Processing Utilities.
+/**
+ * @file   wundgraphs.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   2006
+ * 
+ * @brief   Directed Graph Processing Utilities.
+*/
 
 :- module( wundgraphs,
 	   [
@@ -17,6 +20,12 @@
 	    wundgraph_wneighbors/3,
 	    wundgraph_min_tree/3,
 	    wundgraph_max_tree/3]).
+
+/**
+* @defgroup wundgraphs
+* @ingroup library
+*/
+
 
 :- reexport( library(wdgraphs),
 	   [

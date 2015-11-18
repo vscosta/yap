@@ -41,11 +41,11 @@ unsigned long int tree_mem=0;
 #define FREE_MEM_USAGE(tree) (memory_usage-=tree->mem_alloc)
 #define ADD_MEM_USAGE(tree) (memory_usage+=tree->mem_alloc)
 
-/*
+/** @pred rl_new( ? Size, ? Tree).
  */
 static
 YAP_Bool 
-p_rl_new(void) {
+rl_new(void) {
   YAP_Term t1=YAP_Deref(YAP_ARG1);
   YAP_Term t2=YAP_Deref(YAP_ARG2);
   RL_Tree* new_tree;
@@ -70,13 +70,13 @@ p_rl_new(void) {
   
   return(TRUE);
 }
-/*
+/* @pred rl_new( ? OldTree, ? NewTree).
  *
- *
+ * copy from old tree to mew tree
  */
 static
 YAP_Bool 
-p_rl_copy(void) {
+rl_copy(void) {
   YAP_Term t1=YAP_Deref(YAP_ARG1); // src
   YAP_Term t2=YAP_Deref(YAP_ARG2); // dest
   RL_Tree* new_tree;
@@ -108,13 +108,13 @@ p_rl_copy(void) {
     return (FALSE);  
   return(TRUE);
 }
-/*
+/**  @pred rl_size( ? Tree, ? Size).
  *
- *
+ * 
  */
 static
 YAP_Bool 
-p_rl_size(void) {
+rl_size(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1),t_size;
   IDTYPE id;
@@ -134,13 +134,13 @@ p_rl_size(void) {
   
   return(TRUE);
 }
-/*
+/** @pred rl_new( ? AllTrees ).
  *
  *
  */
 static
 YAP_Bool 
-p_rl_mem_usage(void) {
+rl_mem_usage(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1);
 
@@ -150,11 +150,11 @@ p_rl_mem_usage(void) {
   return(TRUE);
 }
 
-/*
+/**  @pred rl_free(  ? Tree).
  */
 static
 YAP_Bool 
-p_rl_free(void) {
+rl_free(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1);
   IDTYPE id;
@@ -176,12 +176,12 @@ p_rl_free(void) {
 }
 
 /*
- *
+ * @pred rl_set_in(  + Tree, +Value )
  *
  */
 static
 YAP_Bool 
-p_rl_set_in(void) {
+rl_set_in(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1);
   YAP_Term t2=YAP_Deref(YAP_ARG2);
@@ -215,7 +215,7 @@ p_rl_set_in(void) {
  */
 static
 YAP_Bool 
-p_rl_in(void) {
+rl_in(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1);
   YAP_Term t2=YAP_Deref(YAP_ARG2);
@@ -238,13 +238,13 @@ p_rl_in(void) {
 }
 #endif
 
-/*
+/*@pred rl_free(  ? Tree).
  *
  *
  */
 static
 YAP_Bool 
-p_rl_set_out(void) {
+rl_set_out(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1);
   YAP_Term t2=YAP_Deref(YAP_ARG2);
@@ -275,7 +275,7 @@ p_rl_set_out(void) {
  */
 static
 YAP_Bool 
-p_rl_freeze(void) {
+rl_freeze(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1);
   IDTYPE id;
@@ -299,13 +299,14 @@ p_rl_freeze(void) {
 
   return (TRUE);
 }
-/*
- *
+/**  @pred rl_set_all(  + Tree, Els).
+ * @addrogroup rl
  *
  */
+  
 static
 YAP_Bool 
-p_rl_set_all_in(void) {
+rl_set_all_in(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1);
   IDTYPE id;
@@ -331,13 +332,13 @@ p_rl_set_all_in(void) {
 
   return (TRUE);
 }
-/*
+/** @pred rl_print(  + Tree).
  *
  *
  */
 static
 YAP_Bool 
-p_rl_print(void) {
+rl_print(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1);
   IDTYPE id;
@@ -373,7 +374,7 @@ yap_back_data_type *back_data;
  */
 static
 YAP_Bool 
-p_rl_b_in2(void) {
+rl_b_in2(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1);
   IDTYPE id;
@@ -394,7 +395,7 @@ p_rl_b_in2(void) {
 }
 static
 YAP_Bool   
-p_rl_b_in1(void) {
+rl_b_in1(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1);
   YAP_Term t2=YAP_Deref(YAP_ARG2);
@@ -411,7 +412,7 @@ p_rl_b_in1(void) {
     // return all in through backtracking
     YAP_PRESERVE_DATA(back_data,yap_back_data_type);
     back_data->last_solution = YAP_MkIntTerm(0);
-    return p_rl_b_in2();
+    return rl_b_in2();
   } else {
     id = YAP_IntOfTerm(t1);
     tree=ID2PTR(id);
@@ -430,21 +431,21 @@ void init_rl(void);
 void init_rl(void){
 
      
- YAP_UserCPredicate("rl_new", p_rl_new,2);        //  Maximum -> RangeID
- YAP_UserCPredicate("rl_free", p_rl_free,1);      //  RangeId ->
- YAP_UserCPredicate("rl_size", p_rl_size,2);      //  RangeId -> Size (in bytes)
- YAP_UserCPredicate("rl_mem", p_rl_mem_usage,1);  //  -> TotalMemory (in bytes)
+ YAP_UserCPredicate("rl_new", rl_new,2);        //  Maximum -> RangeID
+ YAP_UserCPredicate("rl_free", rl_free,1);      //  RangeId ->
+ YAP_UserCPredicate("rl_size", rl_size,2);      //  RangeId -> Size (in bytes)
+ YAP_UserCPredicate("rl_mem", rl_mem_usage,1);  //  -> TotalMemory (in bytes)
 
- YAP_UserCPredicate("rl_copy", p_rl_copy,2);      //  RangeId  -> NewRangeId
- YAP_UserCPredicate("rl_set_out", p_rl_set_out,2);//  RangeId x Number  ->
- YAP_UserBackCPredicate("rl_in", p_rl_b_in1,p_rl_b_in2,2,sizeof(yap_back_data_type));   //  +RangeId x ?Number 
- //YAP_UserCPredicate("rl_in", p_rl_in,2);        //  RangeId x Number  ->
- YAP_UserCPredicate("rl_set_in", p_rl_set_in,2);  //  RangeIdxNumber  -> 
- YAP_UserCPredicate("rl_set_all_in", p_rl_set_all_in,1); //  RangeId -> 
+ YAP_UserCPredicate("rl_copy", rl_copy,2);      //  RangeId  -> NewRangeId
+ YAP_UserCPredicate("rl_set_out", rl_set_out,2);//  RangeId x Number  ->
+ YAP_UserBackCPredicate("rl_in", rl_b_in1,rl_b_in2,2,sizeof(yap_back_data_type));   //  +RangeId x ?Number 
+ //YAP_UserCPredicate("rl_in", rl_in,2);        //  RangeId x Number  ->
+ YAP_UserCPredicate("rl_set_in", rl_set_in,2);  //  RangeIdxNumber  -> 
+ YAP_UserCPredicate("rl_set_all_in", rl_set_all_in,1); //  RangeId -> 
 
- YAP_UserCPredicate("rl_print", p_rl_print,1);    //  RangeId ->
+ YAP_UserCPredicate("rl_print", rl_print,1);    //  RangeId ->
 
- YAP_UserCPredicate("rl_freeze", p_rl_freeze,1);  //  RangeId
+ YAP_UserCPredicate("rl_freeze", rl_freeze,1);  //  RangeId
  
  // fprintf(stderr,"Range list  module succesfully loaded.");
  //fflush(stderr);

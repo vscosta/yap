@@ -15,17 +15,65 @@
 *									 *
 *************************************************************************/
 
-/** @defgroup System Calling The Operating System from YAP
+/**
+ * @file   system.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Wed Nov 18 01:23:45 2015
+ * 
+ * @brief interaction with the OS, be it Unix, Linux, or Windows.
+ * 
+ * 
+*/
+
+
+
+:- module operating_system_support,
+    [
+     delete_file/1,
+     delete_file/2,
+	directory_files/2,
+	environ/2,
+	exec/3,
+	file_exists/1,
+	file_exists/2,
+	file_property/2,
+	host_id/1,
+				     host_name/1,
+				     kill/1,
+				     md5/3,
+	pid/1,
+				     mktemp/2,
+	make_directory/1,
+	popen/3,
+	rename_file/2,
+	shell/0,
+	shell/1,
+	shell/2,
+	sleep/1,
+	system/0,
+	system/1,
+	system/2,
+	mktime/2,
+	tmpnam/1,
+	tmp_file/2,
+				     tmpdir/1,
+				     wait/2,
+	working_directory/2
+          ]).
+
+/** @defgroup operating_system_support, Operating System Functionality
 @ingroup library
 @{
 
-YAP now provides a library of system utilities compatible with the
+YAP  provides a library of system utilities compatible with the
 SICStus Prolog system library. This library extends and to some point
-replaces the functionality of Operating System access routines. The
+complements the functionality of Operating System access routines. The
 library includes Unix/Linux and Win32 `C` code. They
 are available through the `use_module(library(system))` command.
 
+*/
 
+/**
 
  @pred datime(datime(- _Year_, - _Month_, - _DayOfTheMonth_, - _Hour_, - _Minute_, - _Second_)
 
@@ -366,39 +414,6 @@ also `absolute_file_name/2` and chdir/1.
 
  
 */
-:- module(operating_system_support, [
-	datime/1,
-	delete_file/1,
-	delete_file/2,
-	directory_files/2,
-	environ/2,
-	exec/3,
-	file_exists/1,
-	file_exists/2,
-	file_property/2,
-	host_id/1,
-				     host_name/1,
-				     kill/1,
-				     md5/3,
-	pid/1,
-				     mktemp/2,
-	make_directory/1,
-	popen/3,
-	rename_file/2,
-	shell/0,
-	shell/1,
-	shell/2,
-	sleep/1,
-	system/0,
-	system/1,
-	system/2,
-	mktime/2,
-	tmpnam/1,
-	tmp_file/2,
-				     tmpdir/1,
-				     wait/2,
-	working_directory/2
-          ]).
 
 :- use_module(library(lists), [append/3]).
 

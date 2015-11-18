@@ -14,6 +14,79 @@
 * comments:	Have some fun with blobs				 *
 *									 *
 *************************************************************************/
+/**
+ * @file   matrix.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Tue Nov 17 22:53:40 2015
+ * 
+ * @brief  Vector, Array and Matrix  library
+ * 
+ * 
+*/
+
+
+:- module( matrix,
+	   [(<==)/2, op(800, xfx, '<=='),
+	    op(700, xfx, in),
+	    op(700, xfx, ins),
+            op(450, xfx, ..), % should bind more tightly than \/
+	    op(710, xfx, of), of/2,
+	    matrix_new/3,
+	    matrix_new/4,
+	    matrix_new_set/4,
+	    matrix_dims/2,
+	    matrix_ndims/2,
+	    matrix_size/2,
+	    matrix_type/2,
+	    matrix_to_list/2,
+	    matrix_to_lists/2,
+	    matrix_get/3,
+	    matrix_set/3,
+	    matrix_set_all/2,
+	    matrix_add/3,
+	    matrix_inc/2,
+	    matrix_dec/2,
+	    matrix_mult/2,
+	    matrix_inc/3,
+	    matrix_dec/3,
+	    matrix_arg_to_offset/3,
+	    matrix_offset_to_arg/3,
+	    matrix_max/2,
+	    matrix_maxarg/2,
+	    matrix_min/2,
+	    matrix_minarg/2,
+	    matrix_sum/2,
+	    matrix_sum_out/3,
+	    matrix_sum_out_several/3,
+	    matrix_sum_logs_out/3,
+	    matrix_sum_logs_out_several/3,
+	    matrix_add_to_all/2,
+	    matrix_agg_lines/3,
+	    matrix_agg_cols/3,
+	    matrix_to_logs/1,
+	    matrix_to_exps/1,
+	    matrix_to_exps2/1,
+	    matrix_to_logs/2,
+	    matrix_to_exps/2,
+	    matrix_op/4,
+	    matrix_op_to_all/4,
+	    matrix_op_to_lines/4,
+	    matrix_op_to_cols/4,
+	    matrix_shuffle/3,
+	    matrix_transpose/2,
+	    matrix_set_all_that_disagree/5,
+	    matrix_expand/3,
+	    matrix_select/4,
+	    matrix_column/3,
+	    matrix_get/2,
+	    matrix_set/2,
+	    foreach/2,
+	    foreach/4,
+	    op(50, yf, []),
+            op(50, yf, '()'),
+            op(100, xfy, '.'),
+            op(100, fy, '.')
+	    ]).
 
 /** @defgroup matrix Matrix Library
 @ingroup library
@@ -569,68 +642,6 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
 
 
 */
-:- module( matrix,
-	   [(<==)/2, op(800, xfx, '<=='),
-	    op(700, xfx, in),
-	    op(700, xfx, ins),
-            op(450, xfx, ..), % should bind more tightly than \/
-	    op(710, xfx, of), of/2,
-	    matrix_new/3,
-	    matrix_new/4,
-	    matrix_new_set/4,
-	    matrix_dims/2,
-	    matrix_ndims/2,
-	    matrix_size/2,
-	    matrix_type/2,
-	    matrix_to_list/2,
-	    matrix_to_lists/2,
-	    matrix_get/3,
-	    matrix_set/3,
-	    matrix_set_all/2,
-	    matrix_add/3,
-	    matrix_inc/2,
-	    matrix_dec/2,
-	    matrix_mult/2,
-	    matrix_inc/3,
-	    matrix_dec/3,
-	    matrix_arg_to_offset/3,
-	    matrix_offset_to_arg/3,
-	    matrix_max/2,
-	    matrix_maxarg/2,
-	    matrix_min/2,
-	    matrix_minarg/2,
-	    matrix_sum/2,
-	    matrix_sum_out/3,
-	    matrix_sum_out_several/3,
-	    matrix_sum_logs_out/3,
-	    matrix_sum_logs_out_several/3,
-	    matrix_add_to_all/2,
-	    matrix_agg_lines/3,
-	    matrix_agg_cols/3,
-	    matrix_to_logs/1,
-	    matrix_to_exps/1,
-	    matrix_to_exps2/1,
-	    matrix_to_logs/2,
-	    matrix_to_exps/2,
-	    matrix_op/4,
-	    matrix_op_to_all/4,
-	    matrix_op_to_lines/4,
-	    matrix_op_to_cols/4,
-	    matrix_shuffle/3,
-	    matrix_transpose/2,
-	    matrix_set_all_that_disagree/5,
-	    matrix_expand/3,
-	    matrix_select/4,
-	    matrix_column/3,
-	    matrix_get/2,
-	    matrix_set/2,
-	    foreach/2,
-	    foreach/4,
-	    op(50, yf, []),
-            op(50, yf, '()'),
-            op(100, xfy, '.'),
-            op(100, fy, '.')
-	    ]).
 
 :- load_foreign_files([matrix], [], init_matrix).
 

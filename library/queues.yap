@@ -1,18 +1,50 @@
-% This file has been included as an YAP library by Vitor Santos Costa, 1999
+/**
+ * @file   queues.yap
+ * @author R.A.O'Keefe
+ * @date   Friday November 18th, 1983, 8:09:31 
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   1999-
+ * 
+ * @brief   define queue operations
+ * 
+ * 
+*/
 
-%   File   : QUEUES.PL
-%   Author : R.A.O'Keefe
-%   Updated: Friday November 18th, 1983, 8:09:31 pm
-%   Purpose: define queue operations
-%   Needs  : lib(lists) for append/3.
+:- module(queues, [
+	make_queue/1,		%   create empty queue
+	join_queue/3,		%   add element to end of queue
+	list_join_queue/3,	%   add many elements to end of queue
+	jump_queue/3,		%   add element to front of queue
+	list_jump_queue/3,	%   add many elements to front of queue
+	head_queue/2,		%   look at first element of queue
+	serve_queue/3,		%   remove first element of queue
+	length_queue/2,		%   count elements of queue
+	empty_queue/1,		%   test whether queue is empty
+	list_to_queue/2,	%   convert list to queue
+	queue_to_list/2		%   convert queue to list
+    ]).
 
-/** @defgroup Queues Queues
+
+/** @defgroup queues Queues
 @ingroup library
 @{
 
 The following queue manipulation routines are available once
 included with the `use_module(library(queues))` command. Queues are
 implemented with difference lists.
+
+In this package, a queue is represented as a term Front-Back,  where
+    Front  is  a list and Back is a tail of that list, and is normally a
+    variable.  join_queue will only work when the Back  is  a  variable,
+    the  other routines will accept any tail.  The elements of the queue
+    are the list difference, that is, all the elements starting at Front
+    and stopping at Back.  Examples:
+
+	[a,b,c,d,e|Z]-Z	    has elements a,b,c,d,e
+	[a,b,c,d,e]-[d,e]   has elements a,b,c
+	Z-Z		    has no elements
+	[1,2,3]-[1,2,3]	    has no elements
+
 
 */
 
@@ -99,20 +131,6 @@ Removes the first element of the queue for service.
 
  
 */
-:- module(queues, [
-	make_queue/1,		%   create empty queue
-	join_queue/3,		%   add element to end of queue
-	list_join_queue/3,	%   add many elements to end of queue
-	jump_queue/3,		%   add element to front of queue
-	list_jump_queue/3,	%   add many elements to front of queue
-	head_queue/2,		%   look at first element of queue
-	serve_queue/3,		%   remove first element of queue
-	length_queue/2,		%   count elements of queue
-	empty_queue/1,		%   test whether queue is empty
-	list_to_queue/2,	%   convert list to queue
-	queue_to_list/2		%   convert queue to list
-    ]).
-
 :- use_module(library(lists), [append/3]).
 
 /*
@@ -130,19 +148,6 @@ Removes the first element of the queue for service.
 	list_to_queue(+, -),
 	queue_to_list(+, -),
 	queue_to_list(+, +, -).
-*/
-
-/*  In this package, a queue is represented as a term Front-Back,  where
-    Front  is  a list and Back is a tail of that list, and is normally a
-    variable.  join_queue will only work when the Back  is  a  variable,
-    the  other routines will accept any tail.  The elements of the queue
-    are the list difference, that is, all the elements starting at Front
-    and stopping at Back.  Examples:
-
-	[a,b,c,d,e|Z]-Z	    has elements a,b,c,d,e
-	[a,b,c,d,e]-[d,e]   has elements a,b,c
-	Z-Z		    has no elements
-	[1,2,3]-[1,2,3]	    has no elements
 */
 
 %   make_queue(Queue)

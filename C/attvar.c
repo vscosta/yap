@@ -30,9 +30,9 @@ static char SccsId[] = "%W% %G%";
 
 /** @{ */
 
-/** @defgroup Attribute_Variables_Builtins Implementation of Attribute
+/** @defgroup AttributeVariables_Builtins Implementation of Attribute
     Declarations
-    @ingroup Attributed_Variables
+    @ingroup AttributeVariables
 */
 
 #ifdef COROUTINING
@@ -408,7 +408,7 @@ static Term GetAllAtts(attvar_record *attv) {
   return attv->Atts;
 }
 
-static Int p_put_att(USES_REGS1) {
+static Int put_att(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
   /* if this is unbound, ok */
@@ -456,7 +456,7 @@ static Int p_put_att(USES_REGS1) {
   }
 }
 
-static Int p_put_att_term(USES_REGS1) {
+static Int put_att_term(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
   /* if this is unbound, ok */
@@ -486,7 +486,7 @@ static Int p_put_att_term(USES_REGS1) {
   }
 }
 
-static Int p_rm_att(USES_REGS1) {
+static Int rm_att(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
   /* if this is unbound, ok */
@@ -530,7 +530,7 @@ static Int p_rm_att(USES_REGS1) {
   }
 }
 
-static Int p_put_atts(USES_REGS1) {
+static Int put_atts(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
 
@@ -577,7 +577,7 @@ static Int p_put_atts(USES_REGS1) {
   }
 }
 
-static Int p_del_atts(USES_REGS1) {
+static Int del_atts(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
   Term otatts;
@@ -604,7 +604,7 @@ static Int p_del_atts(USES_REGS1) {
   }
 }
 
-static Int p_del_all_atts(USES_REGS1) {
+static Int del_all_atts(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
 
@@ -618,7 +618,7 @@ static Int p_del_all_atts(USES_REGS1) {
   return TRUE;
 }
 
-static Int p_get_att(USES_REGS1) {
+static Int get_att(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
   /* if this is unbound, ok */
@@ -647,7 +647,7 @@ static Int p_get_att(USES_REGS1) {
   }
 }
 
-static Int p_free_att(USES_REGS1) {
+static Int free_att(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
   /* if this is unbound, ok */
@@ -674,7 +674,8 @@ static Int p_free_att(USES_REGS1) {
   }
 }
 
-static Int p_get_atts(USES_REGS1) {
+
+static Int get_atts(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
   /* if this is unbound, ok */
@@ -714,7 +715,7 @@ static Int p_get_atts(USES_REGS1) {
   }
 }
 
-static Int p_has_atts(USES_REGS1) {
+static Int has_atts(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
   /* if this is unbound, ok */
@@ -738,7 +739,7 @@ static Int p_has_atts(USES_REGS1) {
   }
 }
 
-static Int p_bind_attvar(USES_REGS1) {
+static Int bind_attvar(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
   /* if this is unbound, ok */
@@ -755,7 +756,7 @@ static Int p_bind_attvar(USES_REGS1) {
   }
 }
 
-static Int p_unbind_attvar(USES_REGS1) {
+static Int unbind_attvar(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
   /* if this is unbound, ok */
@@ -772,7 +773,7 @@ static Int p_unbind_attvar(USES_REGS1) {
   }
 }
 
-static Int p_get_all_atts(USES_REGS1) {
+static Int get_all_atts(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
   /* if this is unbound, ok */
@@ -800,7 +801,7 @@ static int ActiveAtt(Term tatt, UInt ar) {
   return FALSE;
 }
 
-static Int p_modules_with_atts(USES_REGS1) {
+static Int modules_with_atts(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
   /* if this is unbound, ok */
@@ -835,7 +836,7 @@ static Int p_modules_with_atts(USES_REGS1) {
   }
 }
 
-static Int p_swi_all_atts(USES_REGS1) {
+static Int swi_all_atts(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
   Functor attf = FunctorAtt1;
@@ -933,7 +934,7 @@ static Term AllAttVars(USES_REGS1) {
   }
 }
 
-static Int p_all_attvars(USES_REGS1) {
+static Int all_attvars(USES_REGS1) {
   do {
     Term out;
 
@@ -956,23 +957,23 @@ static Int p_all_attvars(USES_REGS1) {
 
 
 */
-static Int p_is_attvar(USES_REGS1) {
+static Int is_attvar(USES_REGS1) {
   Term t = Deref(ARG1);
   return (IsVarTerm(t) && IsAttVar(VarOfTerm(t)));
 }
 
 /* check if we are not redoing effort */
-static Int p_attvar_bound(USES_REGS1) {
+static Int attvar_bound(USES_REGS1) {
   Term t = Deref(ARG1);
   return IsVarTerm(t) && IsAttachedTerm(t) &&
     !IsUnboundVar(&(RepAttVar(VarOfTerm(t))->Done));
 }
 
-static Int p_void_term(USES_REGS1) { return Yap_unify(ARG1, TermVoidAtt); }
+static Int void_term(USES_REGS1) { return Yap_unify(ARG1, TermVoidAtt); }
 
-static Int p_free_term(USES_REGS1) { return Yap_unify(ARG1, TermFreeTerm); }
+static Int free_term(USES_REGS1) { return Yap_unify(ARG1, TermFreeTerm); }
 
-static Int p_fast_unify(USES_REGS1) {
+static Int fast_unify(USES_REGS1) {
   /*
     Case we want to unify two variables, but we do not
     think there is a point in waking them up
@@ -995,11 +996,11 @@ static Int p_fast_unify(USES_REGS1) {
 
 #else
 
-static Int p_all_attvars(USES_REGS1) { return FALSE; }
+static Int all_attvars(USES_REGS1) { return FALSE; }
 
-static Int p_is_attvar(USES_REGS1) { return FALSE; }
+static Int is_attvar(USES_REGS1) { return FALSE; }
 
-static Int p_attvar_bound(USES_REGS1) { return FALSE; }
+static Int attvar_bound(USES_REGS1) { return FALSE; }
 
 #endif /* COROUTINING */
 
@@ -1013,30 +1014,30 @@ void Yap_InitAttVarPreds(void) {
   GLOBAL_attas[attvars_ext].to_term_op = AttVarToTerm;
   GLOBAL_attas[attvars_ext].term_to_op = TermToAttVar;
   GLOBAL_attas[attvars_ext].mark_op = mark_attvar;
-  Yap_InitCPred("get_att", 4, p_get_att, SafePredFlag);
-  Yap_InitCPred("get_module_atts", 2, p_get_atts, SafePredFlag);
-  Yap_InitCPred("has_module_atts", 2, p_has_atts, SafePredFlag);
-  Yap_InitCPred("get_all_atts", 2, p_get_all_atts, SafePredFlag);
-  Yap_InitCPred("get_all_swi_atts", 2, p_swi_all_atts, SafePredFlag);
-  Yap_InitCPred("free_att", 3, p_free_att, SafePredFlag);
-  Yap_InitCPred("put_att", 5, p_put_att, 0);
-  Yap_InitCPred("put_att_term", 2, p_put_att_term, 0);
-  Yap_InitCPred("put_module_atts", 2, p_put_atts, 0);
-  Yap_InitCPred("del_all_module_atts", 2, p_del_atts, 0);
-  Yap_InitCPred("del_all_atts", 1, p_del_all_atts, 0);
-  Yap_InitCPred("rm_att", 4, p_rm_att, 0);
-  Yap_InitCPred("bind_attvar", 1, p_bind_attvar, SafePredFlag);
-  Yap_InitCPred("unbind_attvar", 1, p_unbind_attvar, SafePredFlag);
-  Yap_InitCPred("modules_with_attributes", 2, p_modules_with_atts,
+  Yap_InitCPred("get_att", 4, get_att, SafePredFlag);
+  Yap_InitCPred("get_module_atts", 2, get_atts, SafePredFlag);
+  Yap_InitCPred("has_module_atts", 2, has_atts, SafePredFlag);
+  Yap_InitCPred("get_all_atts", 2, get_all_atts, SafePredFlag);
+  Yap_InitCPred("get_all_swi_atts", 2, swi_all_atts, SafePredFlag);
+  Yap_InitCPred("free_att", 3, free_att, SafePredFlag);
+  Yap_InitCPred("put_att", 5, put_att, 0);
+  Yap_InitCPred("put_att_term", 2, put_att_term, 0);
+  Yap_InitCPred("put_module_atts", 2, put_atts, 0);
+  Yap_InitCPred("del_all_module_atts", 2, del_atts, 0);
+  Yap_InitCPred("del_all_atts", 1, del_all_atts, 0);
+  Yap_InitCPred("rm_att", 4, rm_att, 0);
+  Yap_InitCPred("bind_attvar", 1, bind_attvar, SafePredFlag);
+  Yap_InitCPred("unbind_attvar", 1, unbind_attvar, SafePredFlag);
+  Yap_InitCPred("modules_with_attributes", 2, modules_with_atts,
                 SafePredFlag);
-  Yap_InitCPred("void_term", 1, p_void_term, SafePredFlag);
-  Yap_InitCPred("free_term", 1, p_free_term, SafePredFlag);
-  Yap_InitCPred("fast_unify_attributed", 2, p_fast_unify, 0);
+  Yap_InitCPred("void_term", 1, void_term, SafePredFlag);
+  Yap_InitCPred("free_term", 1, free_term, SafePredFlag);
+  Yap_InitCPred("fast_unify_attributed", 2, fast_unify, 0);
 #endif /* COROUTINING */
-  Yap_InitCPred("all_attvars", 1, p_all_attvars, 0);
+  Yap_InitCPred("all_attvars", 1, all_attvars, 0);
   CurrentModule = OldCurrentModule;
-  Yap_InitCPred("attvar", 1, p_is_attvar, SafePredFlag | TestPredFlag);
-  Yap_InitCPred("$att_bound", 1, p_attvar_bound, SafePredFlag | TestPredFlag);
+  Yap_InitCPred("attvar", 1, is_attvar, SafePredFlag | TestPredFlag);
+  Yap_InitCPred("$att_bound", 1, attvar_bound, SafePredFlag | TestPredFlag);
 }
 
 /** @} */

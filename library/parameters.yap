@@ -1,3 +1,12 @@
+/**
+ * @file   parameters.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Tue Nov 17 23:34:04 2015
+ * 
+ * @brief  Experimental test generation code. 
+ * 
+ * 
+*/
 
 :- module( parameters,
 	   [such_that/2,
@@ -17,9 +26,8 @@
 %%! @{
 
 /**
-  @file parameters.yap
-  @defgroup parameter Automating test generation
-  @ingroup library
+  * @defgroup parameters Automating test generation
+  * @ingroup library
 
   This library aims at facilitating test generation in a logic
   program, namely when interfacing to foreign code. It introduces the

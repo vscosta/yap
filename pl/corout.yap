@@ -17,38 +17,13 @@
 
 
 /**
-  @defgroup CohYroutining Co-routining
-  @ingroup extensions
-  @{
-
-Prolog uses a simple left-to-right flow of control. It is sometimes
-convenient to change this control so that goals will only be executed
-when conditions are fulfilled. This may result in a more "data-driven"
-execution, or may be necessary to correctly implement extensions such as
-negation by default.
-
-The `COROUTINING` flag enables this option. Note that the support for
-coroutining  will in general slow down execution.
-
-The following declaration is supported:
-
-+ block/1
-The argument to `block/1` is a condition on a goal or a conjunction
-of conditions, with each element separated by commas. Each condition is
-of the form `predname( _C1_,..., _CN_)`, where  _N_ is the
-arity of the goal, and each  _CI_ is of the form `-`, if the
-argument must suspend until the first such variable is bound, or
-`?`, otherwise.
-
-+ wait/1
-The argument to `wait/1` is a predicate descriptor or a conjunction
-of these predicates. These predicates will suspend until their first
-argument is bound.
-
-
-The following primitives are supported:
-
- 
+ * @file   corout.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Mon Nov 16 22:47:27 2015
+ * 
+ * @brief  Support for co-routining
+ * 
+ * 
 */
 
 
@@ -68,6 +43,11 @@ The following primitives are supported:
 :- use_system_module( attributes, [get_module_atts/2,
         put_module_atts/2]).
 
+
+%%@{
+
+%% @aaddtogroup CohYroutining
+%% @ingroup AttributedVariables
 
 /** @pred attr_unify_hook(+ _AttValue_,+ _VarValue_) 
 
@@ -106,30 +86,7 @@ wake_delay(redo_eq(Done, X, Y, Goal)) :-
 wake_delay(redo_ground(Done, X, Goal)) :-
 	redo_ground(Done, X, Goal).
 
-/** @pred attribute_goals(+ _Var_,- _Gs_,+ _GsRest_) 
 
-
-
-This nonterminal, if it is defined in a module, is used by  _copy_term/3_
-to project attributes of that module to residual goals. It is also
-used by the toplevel to obtain residual goals after executing a query.
-
-
-Normal user code should deal with put_attr/3, get_attr/3 and del_attr/2.
-The routines in this section fetch or set the entire attribute list of a
-variables. Use of these predicates is anticipated to be restricted to
-printing and other special purpose operations.
-
-*/
-
-/**
- @pred get_attrs(+ _Var_,- _Attributes_)
-
-Get all attributes of  _Var_.  _Attributes_ is a term of the form
-`att( _Module_,  _Value_,  _MoreAttributes_)`, where  _MoreAttributes_ is
-`[]` for the last attribute.
- 
-*/
 attribute_goals(Var) -->
 	{ get_attr(Var, '$coroutining', Delays) },
 	attgoal_for_delays(Delays, Var).
@@ -158,7 +115,8 @@ remove_when_declarations(when(Cond,Goal,_), when(Cond,NoWGoal)) :- !,
 	remove_when_declarations(Goal, NoWGoal).
 remove_when_declarations(Goal, Goal).
 
-				%
+
+%
 % operators defined in this module:
 %
 /**
@@ -523,10 +481,10 @@ extract_head_for_block(C, G) :-
 %                   when(((nonvar(A1);nonvar(A2)),(nonvar(A2);nonvar(A3))),G).
 
 generate_body_for_block((C1, C2), G, (Code1 -> true ; Code2), (WhenConds,OtherWhenConds)) :- !,
-	generate_for_cond_in_block(C1, G, Code1, WhenConds),
-	generate_body_for_block(C2, G, Code2, OtherWhenConds).
+       generate_for_cond_in_block(C1, G, Code1, WhenConds),
+       generate_body_for_block(C2, G, Code2, OtherWhenConds).
 generate_body_for_block(C, G, (Code -> true ; fail), WhenConds) :-
-	generate_for_cond_in_block(C, G, Code, WhenConds).
+       generate_for_cond_in_block(C, G, Code, WhenConds).
 
 generate_for_cond_in_block(C, G, Code, Whens) :-
 	C =.. [_|Args],

@@ -1,13 +1,39 @@
-% This file has been included as an YAP library by Vitor Santos Costa, 2013
+/**
+ * @file   exo_interval.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   2013
+ * 
+ * @brief  This file implements a very simple interval solver
+ * designed to interact with the exo
+ * data-base.
+ * It assumes simple queries and a contiguous interval,
+ * and does not really expect to do non-trivial
+ * constraint propagation and solving.
+ * 
+ * 
+*/
+:- module(exo_interval,
+	[max/2,
+	 min/2,
+	 any/2,
+	 max/1,
+	 min/1,
+	 maximum/1,
+	 minimum/1,
+	 any/1,
+	 (#<)/2,
+	 (#>)/2,
+	 (#=<)/2,
+	 (#>=)/2,
+	 (#=)/2,
+	 op(700, xfx, (#>)),
+	 op(700, xfx, (#<)),
+	 op(700, xfx, (#>=)),
+	 op(700, xfx, (#=<)),
+	 op(700, xfx, (#=))]).
 
-% it implements a very simple interval solver designed to interact with the exo
-% data-base.
-% It assumes simple queries and a contiguous interval,
-% and does not really expect to do non-trivial
-% constraint propagation and solving.
 
-
-/** @defgroup Exo_Intervals Exo Intervals
+/** @defgroup exo_interval Exo Intervals
 @ingroup library
 @{
 
@@ -73,26 +99,6 @@ infimum.
 
  
 */
-:- module(exo_interval,
-	[max/2,
-	 min/2,
-	 any/2,
-	 max/1,
-	 min/1,
-	 maximum/1,
-	 minimum/1,
-	 any/1,
-	 (#<)/2,
-	 (#>)/2,
-	 (#=<)/2,
-	 (#>=)/2,
-	 (#=)/2,
-	 op(700, xfx, (#>)),
-	 op(700, xfx, (#<)),
-	 op(700, xfx, (#>=)),
-	 op(700, xfx, (#=<)),
-	 op(700, xfx, (#=))]).
-
 :- meta_predicate max(?,0), min(?,0), any(?,0).
 
 max(X, G) :-

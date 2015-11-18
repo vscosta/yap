@@ -26,6 +26,8 @@ static char SccsId[] = "%W% %G%";
 #include "YapText.h"
 #include "encoding.h"
 
+/// @addtogroup readutil
+
 
 static Int
 rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS)

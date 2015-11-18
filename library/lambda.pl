@@ -1,5 +1,14 @@
+/**
+ * @file   heaps.yap
+ * @author Ulrich Neumerkel
+ * @date   2009
+ * 
+ * @brief   Lambda expressions in Prolog.
+ * 
+ * 
+*/
 /*
-    Author:        Ulrich Neumerkel
+    Author:        
     E-mail:        ulrich@complang.tuwien.ac.at
     Copyright (C): 2009 Ulrich Neumerkel. All rights reserved.
 
@@ -40,7 +49,8 @@ official policies, either expressed or implied, of Ulrich Neumerkel.
 		   (+\)/2, (+\)/3, (+\)/4, (+\)/5, (+\)/6, (+\)/7,
 		   op(201,xfx,+\)]).
 
-/** <module> Lambda expressions
+/**
+ @defgroup Lambda expressions
 @ingroup library
 
 This library provides lambda expressions to simplify higher order

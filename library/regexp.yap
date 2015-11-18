@@ -15,7 +15,24 @@
 *									 *
 *************************************************************************/
 
-/** @defgroup RegExp Regular Expressions
+/**
+ * @file   regexp.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Wed Nov 18 00:27:52 2015
+ * 
+ * @brief  Support for Regular Expressions	in YAP
+ * 
+ * 
+*/
+
+
+:- module(regexp, [
+	regexp/3,
+	regexp/4
+          ]).
+
+
+/** @defgroup regexp Regular Expressions
 @ingroup library
 @{
 
@@ -147,11 +164,6 @@ sub-expression.  Thus the `"b"` has already been claimed before the
 
 
  */
-:- module(regexp, [
-	regexp/3,
-	regexp/4
-          ]).
-
 :- load_foreign_files([regexp], [], init_regexp).
 
 regexp(RegExp, String, Opts) :-

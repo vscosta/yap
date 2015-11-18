@@ -14,6 +14,15 @@
 * comments:	Consulting Files in YAP					 *
 *									 *
 *************************************************************************/
+/**
+ * @file   consult.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Wed Nov 18 14:01:10 2015
+ * 
+ * @brief  loading programs into YAP
+ * 
+ * 
+*/
 :- system_module( '$_consult', [compile/1,
         consult/1,
         db_files/1,
@@ -874,7 +883,7 @@ nb_setval('$if_le1vel',0).
 	'$init_win_graphics',
 	fail.
 '$do_startup_reconsult'(X) :-
-	catch(load_files(user:X, [silent(true)]), Error, '$Error'(Error)),
+	catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error)),
 	!,
 	( current_prolog_flag(halt_after_consult, false) -> true ; halt).
 '$do_startup_reconsult'(_).
@@ -1444,8 +1453,9 @@ initialization(_G,_OPT).
 	).
 '$initialization'(G,now) :-
     '$current_module'(M),
-   ( catch(M:G, Error, user:'$LoopError'(Error, top)) -> true
-    ;                                                                                 format(user_error,':- ~w:~w failed.~n',[M,G])
+    ( catch(M:G, Error, user:'$LoopError'(Error, top)) -> true
+    ;
+      format(user_error,':- ~w:~w failed.~n',[M,G])
    ).
 '$initialization'(G,after_load) :-
 	'$initialization'(G).

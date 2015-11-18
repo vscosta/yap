@@ -1,0 +1,42 @@
+#!/usr/local/bin/yap -L -- $*
+#.
+
+:- style_check(all).
+
+:- yap_flag( write_strings, on).
+:- yap_flag( gc_trace, verbose ).
+
+:- use_module(library(readutil)).
+:- use_module(library(lineutils)).
+:- use_module(library(lists)).
+:- use_module(library(maplist)).
+:- use_module(library(system)).
+
+
+:- initialization main.
+
+main :-
+    unix( argv(L) ),
+    member( Lib, L ),
+    absolute_file_name( Lib, NL, [glob('*.pl *.yap'),file_type(prolog), file_errors(fail), solutions(all)] ),
+%    current_module(M), writeln(M:NL), 
+    catch( ensure_loaded(library( NL )) , _, (writeln(crash:NL), module(user))),
+    fail.
+
+main :-
+    unix( argv(L) ),
+    member( Lib, L ),
+    absolute_file_name( Lib, NL, [glob('*.pl *.yap'),file_type(prolog), file_errors(fail), solutions(all)] ),
+    writeln( NL ),
+    module_property( Mod, file( NL )),
+    module_property( Mod, exports( Preds )),
+    file_base_name( NL, NameF),
+    format('~n~n~n~n/**~n @file ~a~n@defgroup ~a~n~n@ingroup @library~n~n', [NameF, Mod]),
+    maplist(out, Preds ),
+    format('~n~n*/', []),
+    fail.
+
+main.
+
+out(N/A) :- format('  - ~q~n', [N/A]).
+

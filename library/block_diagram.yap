@@ -1,5 +1,15 @@
 %%% -*- Mode: Prolog; -*-
 
+/**
+ * @file   block_diagram.yap
+ * @author  Theofrastos Mantadelis, Sugestions from Paulo Moura
+ * @date   Tue Nov 17 14:12:02 2015
+ * 
+ * @brief Graph the program structure. 
+ * 
+ * 
+*/
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Flags was developed at Katholieke Universiteit Leuven
@@ -201,7 +211,7 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-/** @defgroup Block_Diagram Block Diagram
+/** @defgroup block_diagram Block Diagram
 @ingroup library
 @{
 

@@ -1,3 +1,13 @@
+/**
+ * @file   wgraphs.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   2006
+ * 
+ * @brief  Weighted  Graph Processing Utilities.
+ * 
+ * 
+*/
+
 /**************************************
 
 SICStus compatible wgraphs.yap
@@ -7,6 +17,12 @@ SICStus compatible wgraphs.yap
 :- module( wgraphs,
 	   [vertices_edges_to_wgraph/3]
 	 ).
+
+/**
+* @defgroup wgraphs
+* @ingroup library
+*/
+
 
 :- reexport(library(wdgraphs),
 	    [wdgraph_vertices/2 as vertices,

@@ -15,10 +15,39 @@
 *									 *
 *************************************************************************/
 
+/**
+ * @file   avl.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Tue Nov 17 00:59:28 2015
+ * 
+ * @brief  Support for constructing AVL trees
+ * 
+ * 
+*/
 
-/** @defgroup AVL_Trees AVL Trees
-@ingroup library
+
+
+:- module(avl, [
+	avl_new/1,
+	avl_insert/4,
+	avl_lookup/3
+          ]).
+
+/**
+* @defgroup avl AVL Trees
+* @ingroup library
 @{
+Supports constructing AVL trees, available through the directive:
+
+~~~~~~~
+:- use_module(library(avl)).
+~~~~~~~
+
+It includes the following predicates:
+
+  - avl_insert/4
+  - avl_lookup/3
+  - avl_new/1
 
 AVL trees are balanced search binary trees. They are named after their
 inventors, Adelson-Velskii and Landis, and they were the first
@@ -34,6 +63,15 @@ you need deletion.
 */
 
 
+/** @pred avl_new(+ _T_) 
+
+
+Create a new tree.
+
+ 
+*/
+avl_new([]).
+
 /** @pred avl_insert(+ _Key_,? _Value_,+ _T0_,- _TF_) 
 
 
@@ -43,31 +81,6 @@ allowed.
 
  
 */
-/** @pred avl_lookup(+ _Key_,- _Value_,+ _T_) 
-
-
-Lookup an element with key  _Key_ in the AVL tree
- _T_, returning the value  _Value_.
-
-
-
-
- */
-/** @pred avl_new(+ _T_) 
-
-
-Create a new tree.
-
- 
-*/
-:- module(avl, [
-	avl_new/1,
-	avl_insert/4,
-	avl_lookup/3
-          ]).
-
-avl_new([]).
-
 avl_insert(Key, Value, T0, TF) :-
 	insert(T0, Key, Value, TF, _).
 
@@ -115,6 +128,13 @@ table2(< ,- ,> ).
 table2(> ,< ,- ).
 table2(- ,- ,- ).
 
+/** @pred avl_lookup(+ _Key_,- _Value_,+ _T_) 
+
+
+Lookup an element with key  _Key_ in the AVL tree
+ _T_, returning the value  _Value_.
+
+*/
 
 avl_lookup(Key, Value, avl(L,Key0,KVal,_,R)) :-
 	compare(Cmp, Key, Key0),

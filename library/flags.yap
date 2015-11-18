@@ -1,5 +1,15 @@
 %%% -*- Mode: Prolog; -*-
 
+/**
+ * @file   flags.yap
+ * @author Theofrastos Mantadelis, Bernd Gutmann, Paulo Moura
+ * @date   Tue Nov 17 15:18:02 2015
+ * 
+ * @brief  Flag Manipulation in Prolog
+ * 
+ * 
+*/
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Flags was developed at Katholieke Universiteit Leuven
@@ -218,6 +228,15 @@
                   flag_help/0,
                   flags_print/0,
                   defined_flag/7]).
+
+/**
+* @defgroup flags Flag Manipulation in Prolog
+* @ingroup library
+*
+* Routines to manipulate flags: they allow defining, set,
+* resetting.
+*/
+
 
 :- use_module(library(lists), [append/3, memberchk/2, member/2]).
 

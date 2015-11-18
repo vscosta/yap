@@ -1,27 +1,48 @@
 /**
-
-  @defgroup YAPMapList Meta- and Control Predicates
-  @ingroup library
-@{
-
+ * @file   maplist.yap
+ * @author Lawrence Byrd + Richard A. O'Keefe, VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @author : E. Alphonse from code by Joachim Schimpf, Jan Wielemaker, Vitor Santos Costa
+ * @date    4 August 1984 and Ken Johnson 11-8-87
+ * 
+ * @brief  Macros to apply a predicate to all elements of a list.
+ * 
+ * 
 */
 
-%   Also has code from:
-%   File   : APPLIC.PL
-%   Author : Lawrence Byrd + Richard A. O'Keefe
-%   Updated: 4 August 1984 and Ken Johnson 11-8-87
-%   Purpose: Various "function" application routines based on apply/2.
-%   Needs  : append/3 from listut.pl
-
-
-%   File   : apply_macros.yap
-%   Author : E. Alphonse from code by Joachim Schimpf, Jan Wielemaker, Vitor Santos Costa
-%   Purpose: Macros to apply a predicate to all elements
-%            of a list or to all sub-terms of a term.
+  :- module(maplist,
+    [maplist/2,
+    maplist/3,
+    maplist/4,
+    maplist/5,
+    checklist/2,
+  checknodes/2,
+  convlist/3,
+  foldl/4,
+  foldl/5,
+  foldl/6,
+  foldl/7,
+  foldl2/6,
+  foldl2/7,
+  foldl2/8,
+  foldl3/8,
+  foldl4/10,
+  include/3,
+  exclude/3,
+  mapnodes/3,
+  partition/4,
+  partition/5,
+  scanl/4,
+  scanl/5,
+  scanl/6,
+  scanl/7,
+  selectlist/3,
+  selectlist/4,
+  selectlists/5,
+  sumlist/4,
+  sumnodes/4
+    ]).
 
 /**
-  * @file maplist.yap
-  *
   * @defgroup maplist Map List and Term Operations
   * @ingroup library
   *
@@ -78,39 +99,6 @@ trans(X,X).
   @{
 
   */
-
-  :- module(maplist,
-    [maplist/2,
-    maplist/3,
-    maplist/4,
-    maplist/5,
-    checklist/2,
-  checknodes/2,
-  convlist/3,
-  foldl/4,
-  foldl/5,
-  foldl/6,
-  foldl/7,
-  foldl2/6,
-  foldl2/7,
-  foldl2/8,
-  foldl3/8,
-  foldl4/10,
-  include/3,
-  exclude/3,
-  mapnodes/3,
-  partition/4,
-  partition/5,
-  scanl/4,
-  scanl/5,
-  scanl/6,
-  scanl/7,
-  selectlist/3,
-  selectlist/4,
-  selectlists/5,
-  sumlist/4,
-  sumnodes/4
-    ]).
 
 
 

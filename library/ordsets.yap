@@ -1,26 +1,42 @@
+/**
+ * @file   ordsets.yap
+ * @author : R.A.O'Keefe
+ * @date 22 May 1983
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   1999
+ * @brief  
+ * 
+ * 
+*/
 % This file has been included as an YAP library by Vitor Santos Costa, 1999
 
-%   File   : ORDSET.PL
-%   Author : R.A.O'Keefe
-%   Updated: 22 May 1983
-%   Purpose: Ordered set manipulation utilities
-
-%   In this module, sets are represented by ordered lists with no
-%   duplicates.  Thus {c,r,a,f,t} would be [a,c,f,r,t].  The ordering
-%   is defined by the @< family of term comparison predicates, which
-%   is the ordering used by sort/2 and setof/3.
-
-%   The benefit of the ordered representation is that the elementary
-%   set operations can be done in time proportional to the Sum of the
-%   argument sizes rather than their Product.  Some of the unordered
-%   set routines, such as member/2, length/2, select/3 can be used
-%   unchanged.  The main difficulty with the ordered representation is
-%   remembering to use it!
-
+:- module(ordsets, [
+	list_to_ord_set/2,	%  List -> Set
+	merge/3,		%  OrdList x OrdList -> OrdList
+	ord_add_element/3,	%  Set x Elem -> Set
+	ord_del_element/3,	%  Set x Elem -> Set
+	ord_disjoint/2,		%  Set x Set ->
+	ord_insert/3,		%  Set x Elem -> Set
+        ord_member/2,           %  Set -> Elem
+	ord_intersect/2,	%  Set x Set ->
+	ord_intersect/3,	%  Set x Set -> Set
+	ord_intersection/3,	%  Set x Set -> Set
+	ord_intersection/4,	%  Set x Set -> Set x Set
+	ord_seteq/2,		%  Set x Set ->
+	ord_setproduct/3,	%  Set x Set -> Set
+	ord_subset/2,		%  Set x Set ->
+	ord_subtract/3,		%  Set x Set -> Set
+	ord_symdiff/3,		%  Set x Set -> Set
+        ord_union/2,            %  Set^2 -> Set
+	ord_union/3,		%  Set x Set -> Set
+	ord_union/4,		%  Set x Set -> Set x Set,
+	ord_empty/1,             % -> Set
+	ord_memberchk/2             % Element X Set
+      ]).
 
 /** @defgroup Ordered_Sets Ordered Sets
-@ingroup library
-@{
+  * @ingroup library
+  * @{
 
 The following ordered set manipulation routines are available once
 included with the `use_module(library(ordsets))` command.  An
@@ -29,29 +45,22 @@ elements. Output arguments are guaranteed to be ordered sets, if the
 relevant inputs are. This is a slightly patched version of Richard
 O'Keefe's original library.
 
- 
+In this module, sets are represented by ordered lists with no
+duplicates.  Thus {c,r,a,f,t} would be [a,c,f,r,t].  The ordering
+is defined by the @< family of term comparison predicates, which
+is the ordering used by sort/2 and setof/3.
+
+The benefit of the ordered representation is that the elementary
+set operations can be done in time proportional to the Sum of the
+argument sizes rather than their Product.  Some of the unordered
+set routines, such as member/2, length/2, select/3 can be used
+unchanged.  The main difficulty with the ordered representation is
+remembering to use it!
+
+
 */
 
 
-/** @pred list_to_ord_set(+ _List_, ? _Set_) 
-
-
-Holds when  _Set_ is the ordered representation of the set
-represented by the unordered representation  _List_.
-
- 
-*/
-/** @pred merge(+ _List1_, + _List2_, - _Merged_) 
-
-
-Holds when  _Merged_ is the stable merge of the two given lists.
-
-Notice that merge/3 will not remove duplicates, so merging
-ordered sets will not necessarily result in an ordered set. Use
-`ord_union/3` instead.
-
- 
-*/
 /** @pred ord_add_element(+ _Set1_, + _Element_, ? _Set2_) 
 
 
@@ -173,29 +182,6 @@ Holds when  _Union_ is the union of the lists  _Sets_.
 
  
 */
-:- module(ordsets, [
-	list_to_ord_set/2,	%  List -> Set
-	merge/3,		%  OrdList x OrdList -> OrdList
-	ord_add_element/3,	%  Set x Elem -> Set
-	ord_del_element/3,	%  Set x Elem -> Set
-	ord_disjoint/2,		%  Set x Set ->
-	ord_insert/3,		%  Set x Elem -> Set
-        ord_member/2,           %  Set -> Elem
-	ord_intersect/2,	%  Set x Set ->
-	ord_intersect/3,	%  Set x Set -> Set
-	ord_intersection/3,	%  Set x Set -> Set
-	ord_intersection/4,	%  Set x Set -> Set x Set
-	ord_seteq/2,		%  Set x Set ->
-	ord_setproduct/3,	%  Set x Set -> Set
-	ord_subset/2,		%  Set x Set ->
-	ord_subtract/3,		%  Set x Set -> Set
-	ord_symdiff/3,		%  Set x Set -> Set
-        ord_union/2,            %  Set^2 -> Set
-	ord_union/3,		%  Set x Set -> Set
-	ord_union/4,		%  Set x Set -> Set x Set,
-	ord_empty/1,             % -> Set
-	ord_memberchk/2             % Element X Set
-      ]).
 
 /*
 :- mode
@@ -221,7 +207,7 @@ Holds when  _Union_ is the union of the lists  _Sets_.
 */
 
 
-%   list_to_ord_set(+List, ?Set)
+%% @pred  list_to_ord_set(+List, ?Set)
 %   is true when Set is the ordered representation of the set represented
 %   by the unordered representation List.  The only reason for giving it
 %   a name at all is that you may not have realised that sort/2 could be
@@ -231,7 +217,7 @@ list_to_ord_set(List, Set) :-
 	sort(List, Set).
 
 
-%   merge(+List1, +List2, -Merged)
+%% @ored merge(+List1, +List2, -Merged)
 %   is true when Merged is the stable merge of the two given lists.
 %   If the two lists are not ordered, the merge doesn't mean a great
 %   deal.  Merging is perfectly well defined when the inputs contain
@@ -250,7 +236,7 @@ merge(List1, [], List1).
 
 
 
-%   ord_disjoint(+Set1, +Set2)
+%% @ored ord_disjoint(+Set1, +Set2)
 %   is true when the two ordered sets have no element in common.  If the
 %   arguments are not ordered, I have no idea what happens.
 
@@ -267,7 +253,7 @@ ord_disjoint(>, Head1, Tail1, _, Tail2) :-
 
 
 
-%   ord_insert(+Set1, +Element, ?Set2)
+%% @ored ord_insert(+Set1, +Element, ?Set2)
 %   ord_add_element(+Set1, +Element, ?Set2)
 %   is the equivalent of add_element for ordered sets.  It should give
 %   exactly the same result as merge(Set1, [Element], Set2), but a bit
@@ -292,7 +278,7 @@ ord_insert(>, Head, Tail, Element, [Element,Head|Tail]).
 
 
 
-%   ord_intersect(+Set1, +Set2)
+%% @pred   ord_intersect(+Set1, +Set2)
 %   is true when the two ordered sets have at least one element in common.
 %   Note that the test is == rather than = .
 
@@ -310,7 +296,7 @@ ord_intersect(L1, L2, L) :-
 	ord_intersection(L1, L2, L).
 
 
-%   ord_intersection(+Set1, +Set2, ?Intersection)
+%% @pred   ord_intersection(+Set1, +Set2, ?Intersection)
 %   is true when Intersection is the ordered representation of Set1
 %   and Set2, provided that Set1 and Set2 are ordered sets.
 
@@ -327,7 +313,7 @@ ord_intersection([Head1|Tail1], [Head2|Tail2], Intersection) :-
 	    ord_intersection([Head1|Tail1], Tail2, Intersection)
 	).
 
-%   ord_intersection(+Set1, +Set2, ?Intersection, ?Difference)
+%% @pred   ord_intersection(+Set1, +Set2, ?Intersection, ?Difference)
 %   is true when Intersection is the ordered representation of Set1
 %   and Set2, provided that Set1 and Set2 are ordered sets.
 
@@ -408,7 +394,7 @@ ord_del_element(>, Head1, Tail1, _, [Head1|Tail1]).
 
 
 
-%   ord_symdiff(+Set1, +Set2, ?Difference)
+%% @pred   ord_symdiff(+Set1, +Set2, ?Difference)
 %   is true when Difference is the symmetric difference of Set1 and Set2.
 
 ord_symdiff(Set1, [], Set1) :- !.
@@ -444,7 +430,7 @@ ord_union(>, Head1, Tail1, Head2, Tail2, [Head2|Union]) :-
 	ord_union([Head1|Tail1], Tail2, Union).
 
 
-%   ord_union(+Set1, +Set2, ?Union, ?Difference)
+%% @pred   ord_union(+Set1, +Set2, ?Union, ?Difference)
 %   is true when Union is the union of Set1 and Set2 and Difference is the
 %   difference between Set2 and Set1.
 
@@ -463,7 +449,7 @@ ord_union(>, Head1, Tail1, Head2, Tail2, [Head2|Union], [Head2|Diff]) :-
 
 
 
-%   ord_setproduct(+Set1, +Set2, ?Product)
+%% @pred   ord_setproduct(+Set1, +Set2, ?Product)
 %   is in fact identical to setproduct(Set1, Set2, Product).
 %   If Set1 and Set2 are ordered sets, Product will be an ordered
 %   set of x1-x2 pairs.  Note that we cannot solve for Set1 and

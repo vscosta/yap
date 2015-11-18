@@ -127,6 +127,7 @@ doubles :-
 doubles.
 
 undefs :-
+    trace,
     format('UNDEFINED procedure calls:~n',[]),
     setof(M, Target^F^Line^NA^undef( ( Target :- F-M:NA ), Line  ), Ms ),
     member( Mod, Ms ),

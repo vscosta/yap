@@ -15,7 +15,47 @@
 *									 *
 *************************************************************************/
 
-/** @defgroup NonhYBacktrackable_Data_Structures Non-Backtrackable Data Structures
+/**
+ * @file   nb.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Tue Nov 17 23:18:13 2015
+ * 
+ * @brief  stub for global (non-backtrackable) variables.
+ * 
+ * 
+*/
+
+
+:- module(nb, [
+	       nb_create_accumulator/2,
+	       nb_add_to_accumulator/2,
+	       nb_accumulator_value/2,
+	       nb_queue/1,
+	       nb_queue/2,
+	       nb_queue_close/3,
+	       nb_queue_enqueue/2,
+	       nb_queue_dequeue/2,
+	       nb_queue_peek/2,
+	       nb_queue_empty/1,
+	       nb_queue_size/2,
+	       nb_queue_replace/3,
+	       nb_heap/2,
+	       nb_heap_close/1,
+	       nb_heap_add/3,
+	       nb_heap_del/3,
+	       nb_heap_peek/3,
+	       nb_heap_empty/1,
+	       nb_heap_size/2,
+	       nb_beam/2,
+	       nb_beam_close/1,
+	       nb_beam_add/3,
+	       nb_beam_del/3,
+	       nb_beam_peek/3,
+	       nb_beam_empty/1,
+%	       nb_beam_check/1,
+	       nb_beam_size/2]).
+
+/** @defgroup nb Non-Backtrackable Data Structures
 @ingroup library
 @{
 
@@ -188,31 +228,3 @@ Unify  _Size_ with the number of elements in the queue   _Queue_.
 
  
 */
-:- module(nb, [
-	       nb_create_accumulator/2,
-	       nb_add_to_accumulator/2,
-	       nb_accumulator_value/2,
-	       nb_queue/1,
-	       nb_queue/2,
-	       nb_queue_close/3,
-	       nb_queue_enqueue/2,
-	       nb_queue_dequeue/2,
-	       nb_queue_peek/2,
-	       nb_queue_empty/1,
-	       nb_queue_size/2,
-	       nb_queue_replace/3,
-	       nb_heap/2,
-	       nb_heap_close/1,
-	       nb_heap_add/3,
-	       nb_heap_del/3,
-	       nb_heap_peek/3,
-	       nb_heap_empty/1,
-	       nb_heap_size/2,
-	       nb_beam/2,
-	       nb_beam_close/1,
-	       nb_beam_add/3,
-	       nb_beam_del/3,
-	       nb_beam_peek/3,
-	       nb_beam_empty/1,
-%	       nb_beam_check/1,
-	       nb_beam_size/2]).

@@ -1,18 +1,53 @@
-% This file has been included as an YAP library by Vitor Santos Costa, 1999
+/**
+ * @file   trees.yap
+ * @author  R.A.O'Keefe
+This file has been included as an YAP library by Vitor Santos Costa, 1999
 
+ * @date   Wed Nov 18 01:30:42 2015
+ * 
+ * @brief  
+ * 
+ * 
+*/
+
+:- module(trees, [
+	get_label/3,
+	list_to_tree/2,
+	map_tree/3,
+	put_label/4,
+	tree_size/2,
+	tree_to_list/2
+    ]).
+
+:- meta_predicate
+        map_tree(2, ?, ?).
+
+
+
+
+
+% 
 %   File   : TREES.PL
-%   Author : R.A.O'Keefe
+%   Author :
 %   Updated: 8 November 1983
 %   Purpose: Updatable binary trees.
 
-/*  These are the routines I meant to describe in DAI-WP-150, but the
+
+/** @defgroup trees Updatable Binary Trees
+@ingroup library
+@{
+
+The following queue manipulation routines are available once
+included with the `use_module(library(trees))` command.
+
+These are the routines I meant to describe in DAI-WP-150, but the
     wrong version went in.  We have
-	list_to_tree : O(N)
-	tree_to_list : O(N)
-	tree_size    : O(N)
-	map_tree     : O(N)
-	get_label    : O(lg N)
-	put_label    : O(lg N)
++	list_to_tree : O(N)
++	tree_to_list : O(N)
++	tree_size    : O(N)
++	map_tree     : O(N)
++	get_label    : O(lg N)
++	put_label    : O(lg N)
     where N is the number of elements in the tree.  The way get_label
     and put_label work is worth noting: they build up a pattern which
     is matched against the whole tree when the position number finally
@@ -23,17 +58,7 @@
     to match the old tree and a pattern to match the new tree.
 */
 
-
-/** @defgroup Trees Updatable Binary Trees
-@ingroup library
-@{
-
-The following queue manipulation routines are available once
-included with the `use_module(library(trees))` command.
-
-
-
- @pred get_label(+ _Index_, + _Tree_, ? _Label_) 
+/** @pred get_label(+ _Index_, + _Tree_, ? _Label_) 
 
 
 Treats the tree as an array of  _N_ elements and returns the
@@ -82,18 +107,6 @@ Is the converse operation to list_to_tree.
 
 
  */
-:- module(trees, [
-	get_label/3,
-	list_to_tree/2,
-	map_tree/3,
-	put_label/4,
-	tree_size/2,
-	tree_to_list/2
-    ]).
-
-:- meta_predicate
-        map_tree(2, ?, ?).
-
 /*
 :- mode
 	get_label(+, +, ?),

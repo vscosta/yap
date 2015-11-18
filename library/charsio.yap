@@ -15,6 +15,17 @@
 *									 *
 *************************************************************************/
 
+/**
+ * @file   charsio.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Tue Nov 17 01:17:33 2015
+ * 
+ * @brief  Several operations on text.
+ * 
+ * 
+*/
+
+
 :- module(charsio, [
 	format_to_chars/3,
 	format_to_chars/4,
@@ -32,10 +43,33 @@
  term_to_atom/2 
     ]).
 
-/** @defgroup CharsIO Operations on Sequences of Codes.
+/** @defgroup charsio Operations on Sequences of Codes.
 @ingroup library
 
 Term to sequence of codes conversion, mostly replaced by engine code.
+You can use the following directive to load the files.
+
+
+~~~~~~~
+:- use_module(library(avl)).
+~~~~~~~
+
+It includes the following predicates:
+  - atom_to_chars/2
+  - atom_to_chars/3
+  - format_to_chars/3
+  - format_to_chars/4
+  - number_to_chars/2
+  - number_to_chars/3
+  - open_chars_stream/2
+  - read_from_chars/2
+  - term_to_atom/2
+  - with_output_to_chars/2
+  - with_output_to_chars/3
+  - with_output_to_chars/4
+  - write_to_chars/2
+  - write_to_chars/3
+
 */
 
 :- meta_predicate(with_output_to_chars(0,?)).
@@ -184,8 +218,8 @@ a dot character such that either (i) the dot character is followed by
 blank characters; or (ii) the dot character is the last character in the
 string.
 
-%	@compat	The SWI-Prolog version does not require Codes to end
-%		in a full-stop.
+@compat	The SWI-Prolog version does not require Codes to end
+		in a full-stop.
 */
 read_from_chars("", end_of_file) :- !.
 read_from_chars(List, Term) :-

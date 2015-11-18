@@ -1,12 +1,13 @@
 /**
-  @defgroup DBQUeue Non-baacktrackable queues in YAP.
-  @ingroup library
-  @{
-  
-A library to implement queues of NB Terms
-
-  @{
+ * @file   dbqueues.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Tue Nov 17 15:01:49 2015
+ * 
+ * @brief  A library to support queues with no-backtrackable queues.
+ * 
+ * 
 */
+
 
 :- module(nbqueue, [
 		    nb_enqueue/2,
@@ -14,6 +15,14 @@ A library to implement queues of NB Terms
 		    nb_clean_queue/1,	  
 		    nb_size/2	  
 		   ]).
+
+/**
+ * @defgroup dbqueues Non-backtrackable queues in YAP.
+ *  @ingroup library
+  
+A library to implement queues of NB Terms
+
+*/
 
 
 :- unhide('$init_nb_queue').
@@ -59,6 +68,3 @@ nb_dequeue_all(Ref) :-
 nb_dequeue_size(Ref, Size) :-
 	prolog:'$nb_size'(Ref, Size).
 
-/**
-  @}
-*/

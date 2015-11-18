@@ -15,6 +15,16 @@
 *									 *
 *************************************************************************/
 
+/**
+ * @file   readutil.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Wed Nov 18 00:16:15 2015
+ * 
+ * @brief  Read full lines and a full file in a single call.
+ * 
+ * 
+*/
+
 :- module(readutil, [
 	read_line_to_codes/2,
 	read_line_to_codes/3,
@@ -27,6 +37,14 @@
                      read_line_to_string/2
 		    ]).
 
+/**
+* @defsgroup readutil
+* @ingroup library
+*
+*  Read full lines and a full file in a single call.
+* 
+*/
+
 
 read_stream_to_codes(Stream, Codes) :-
 	read_stream_to_codes(Stream, Codes, []).
@@ -37,6 +55,7 @@ read_file_to_codes(File, Codes, _) :-
 	close(Stream).
 
 read_file_to_codes(File, Codes) :-
+    v
 	open(File, read, Stream),
 	read_stream_to_codes(Stream, Codes, []),
 	close(Stream).

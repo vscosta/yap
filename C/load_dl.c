@@ -149,7 +149,12 @@ Yap_LoadForeignFile(char *file, int flags)
   }
   out = (void *)dlopen(LOCAL_FileNameBuf, flags);
   if (out == NULL) {
-      Yap_Error(SYSTEM_ERROR_INTERNAL, ARG1, "dlopen failed for %s: %s\n", file, dlerror());
+    char *m_os = dlerror();
+    if (m_os) {
+      LOCAL_ErrorMessage = dlerror();
+    } else {
+      LOCAL_ErrorMessage = "dlopen failed";
+    }
   }
   return out;
 }
