@@ -175,6 +175,7 @@ file_search_path(path, C) :-
 :- multifile user:file_search_path/2.
 
 :- dynamic user:file_search_path/2.
+
 user:file_search_path(library, Dir) :-
 	user:library_directory(Dir).
 user:file_search_path(commons, Dir) :-
@@ -182,7 +183,7 @@ user:file_search_path(commons, Dir) :-
 user:file_search_path(swi, Home) :-
 	current_prolog_flag(home, Home).
 user:file_search_path(yap, Home) :-
-        current_prolog_flag(home, Home).
+    current_prolog_flag(home, Home).
 user:file_search_path(system, Dir) :-
 	prolog_flag(host_type, Dir).
 user:file_search_path(foreign, Dir) :-
@@ -216,11 +217,15 @@ absolute_file_name(File,Opts,TrueFileName) :-
 absolute_file_name(V,Out) :- var(V), !,	% absolute_file_name needs commenting.
 	'$do_error'(instantiation_error, absolute_file_name(V, Out)).
 absolute_file_name(user,user) :- !.
-absolute_file_name(File0,File) :-	
+absolute_file_name(File0,File) :-
 	'$absolute_file_name'(File0,[access(none),file_type(txt),file_errors(fail),solutions(first)],File,absolute_file_name(File0,File)).
 
 '$full_filename'(F0, F, G) :-
-	'$absolute_file_name'(F0,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],F,G).
+	'$absolute_file_name'(F0,[access(read),
+                              file_type(prolog),
+                              file_errors(fail),
+                              solutions(first),
+                              expand(true)],F,G).
 
 '$absolute_file_name'(File, _Opts, _TrueFileName, G) :- var(File), !,
 	'$do_error'(instantiation_error, G).
@@ -292,6 +297,7 @@ absolute_file_name(File0,File) :-
 	'$cat_file_name'(File0,File), !,
 	'$add_path'(File, PFile),
 	'$get_abs_file'(PFile,Opts,AbsFile),
+    '$absf_trace'('~w to ~w', [PFile, NewFile] ),
 	'$search_in_path'(AbsFile,Opts,NewFile).
 '$find_in_path'(File,_,_,Call) :-
 	'$do_error'(domain_error(source_sink,File),Call).
@@ -354,20 +360,26 @@ absolute_file_name(File0,File) :-
 	atom_codes(DA,[D]),
 	 atom_concat( [File1, DA, Glob], File2 ),
 	 expand_file_name(File2, ExpFiles),
-	 lists:member(ExpFile, ExpFiles),
-	 \+ sub_atom( ExpFile, _, _, 1, '.'),
-	 \+ sub_atom( ExpFile, _, _, 2, '..')
+     '$enumerate_glob'(File1, ExpFiles, ExpFile)
 	;
 	 Expand == true
 	->
 	 expand_file_name(File1, ExpFiles),
-	 lists:member(ExpFile, ExpFiles),
-	 \+ sub_atom( ExpFile, _, _, 1, '.'),
-	 \+ sub_atom( ExpFile, _, _, 2, '..')
+     '$enumerate_glob'(File1, ExpFiles, ExpFile)
 	 ;
 	 File1 = ExpFile
 	),
 	'$absf_trace'(' With globbing (glob=~q;expand=~a): ~w', [Glob,Expand,ExpFile] ).
+
+
+'$enumerate_glob'(File1, [ExpFile], ExpFile) :-
+    !.
+'$enumerate_glob'(File1, ExpFiles, ExpFile) :-
+    lists:member(ExpFile, ExpFiles),
+    file_base_name( ExpFile, Base ),
+    Base \= '.',
+    Base \='..'.
+
 
 % always verify if a directory
 '$check_file'(F, directory, _, F) :-
@@ -479,7 +491,7 @@ absolute_file_name(File0,File) :-
 	Name =.. [N,P0],
 	'$add_file_to_dir'(P0,A,File,NFile),
 	NewName =.. [N,NFile],
-	'$absf_trace'(' try  ~a', [NewName] ),
+	'$absf_trace'(' try  ~q', [NewName] ),
 	'$find_in_path'(NewName, Opts, OFile, Goal).
 
 '$add_file_to_dir'(P0,A,Atoms,NFile) :-
@@ -566,4 +578,3 @@ remove_from_path(New) :- '$check_path'(New,Path),
 '$check_path'([Ch],[Ch]) :- '$dir_separator'(Ch), !.
 '$check_path'([Ch],[Ch,A]) :- !, integer(Ch), '$dir_separator'(A).
 '$check_path'([N|S],[N|SN]) :- integer(N), '$check_path'(S,SN).
-
