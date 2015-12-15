@@ -37,47 +37,6 @@
 
 */
 
-%   length of a list.
-
-/** @pred  length(? _L_,? _S_)
-
-
-Unify the well-defined list  _L_ with its length. The procedure can
-be used to find the length of a pre-defined list, or to build a list
-of length  _S_.
-
-
-
-
- */
-length(L, M) :-
-	  '$skip_list'(L, M, M0, R),
-	  ( var(R) -> '$$_length'(R, M, M0) ;
-           R == []
-         ).
-
-%
-% in case A1 is unbound or a difference list, things get tricky
-%
-'$$_length'(R, M, M0) :-
-	( var(M) -> '$$_length1'(R,M,M0)
-	; M >= M0 -> '$$_length2'(R,M,M0) ).
-
-%
-% Size is unbound, generate lists
-%
-'$$_length1'([], M, M).
-'$$_length1'([_|L], O, N) :-
-	M is N + 1,
-	'$$_length1'(L, O, M).
-
-%
-% Size is bound, generate single list
-%
-'$$_length2'(NL, O, N) :-
-	( N =:= O -> NL = [];
-          M is N + 1, NL  = [_|L], '$$_length2'(L, O, M) ).
-
 /** @pred  sort(+ _L_,- _S_) is iso
 
 
