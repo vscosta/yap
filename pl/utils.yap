@@ -61,9 +61,6 @@ a postfix operator.
 '$check_op'(P,_,_,G) :-
 	P < 0, !,
 	'$do_error'(domain_error(operator_priority,P),G).
-'$check_op'(P,_,_,G) :-
-	P > 1200, !,
-	'$do_error'(domain_error(operator_priority,P),G).
 '$check_op'(_,T,_,G) :-
 	\+ atom(T), !,
 	'$do_error'(type_error(atom,T),G).
