@@ -37,34 +37,72 @@ with SICStus Prolog.
 
 */
 
+
+
+/** 
+ * @pred '$undefp_expand'(+ M0:G0, -MG)
+ * 
+ * @param G0 input goal
+ * @param M0 current module
+ * @param G1 new goal
+ * 
+ * @return succeeds on finding G1, otherwise fails.
+ *
+ * Tries:
+ *   1 - `user:unknown_predicate_handler`
+ *   2 - `goal_expansion`
+ *   1 - `import` mechanism`
+*/
+'$undefp_expand'(M0:G0, MG) :-
+    user:unknown_predicate_handler(G0,M0,M1:G1),
+    M0:G0 \== M1:G1,
+    !,
+     (
+      '$pred_exists'(G1, M1)
+     ->
+      MG = M1:G1
+     ;
+      '$undefp_expand_user'(M1:G1, MG)
+     ).
+'$undefp_expand'(MG0, MG) :-
+    '$undefp_expand_user'(MG0, MG).
+
+'$undefp_expand_user'(M0:G0, MG) :-
+    '_user_expand_goal'(M0:G0, MG1),
+    M0:G0 \== MG1,
+    !,
+    '$yap_strip_module'( MG1, M1, G1),
+    (
+     '$pred_exists'(G1, M1)
+    ->
+     MG = M1:G1
+    ;
+     '$undefp_expand_import'(M1:G1, MG)
+    ).
+'$undefp_expand_user'(MG0, MG) :-
+    '$undefp_expand_import'(MG0, MG).
+
+'$undefp_expand_import'(M0:G0, M1:G1) :-
+    '$get_undefined_pred'(G0, M0, G1, M1),
+    M0:G0 \== M1:G1.
+
 '$undefp'([M0|G0], Default) :-
     % make sure we do not loop on undefined predicates
-				% for undefined_predicates.
-	'$disable_debugging',
-	'$enter_undefp',
-	(  '$get_undefined_pred'(G0, M0, Goal, NM)
+    yap_flag( unknown, Unknown, fast_fail),
+    yap_flag( debug, Debug, false),
+    (
+     '$undefp_expand'(M0:G0, NM:Goal),
+     Goal \= fail,
+     '$complete_goal'(M0, G0, Goal, NM, NG)
 	->
-	    '$exit_undefp',
-	    Goal \= fail,
-	    '$complete_goal'(M0, G0, Goal, NM, NG),
-	    '$execute0'(NG, NM)
+     yap_flag( unknown, _, Unknown),
+     yap_flag( debug, _, Debug),
+     '$execute0'(NG, NM)
 	;
-	user:unknown_predicate_handler(G0,M0,NG)
-	->
-	    '$exit_undefp',
-	    '$enable_debugging',
-	    call(M0:NG)
-	;
-	'$messages' = M0,
-	'$enable_debugging',
-	fail
-	;
-	'$exit_undefp',
-	'$enable_debugging',
-	'$handle_error'(Default,G0,M0)
+     yap_flag( unknown, _, Unknown),
+     yap_flag( debug, _, Debug),
+     '$handle_error'(Default,G0,M0)
     ).
-
-
 
 /** @pred  unknown(- _O_,+ _N_) 
 
@@ -106,8 +144,6 @@ the output of a message of the form:
 Undefined predicate: user:xyz(A1,A2)
 ~~~~~
 followed by the failure of that call.
-
- 
 */
 :- multifile user:unknown_predicate_handler/3.
 
@@ -123,11 +159,13 @@ followed by the failure of that call.
 '$handle_error'(fail,_Goal,_Mod) :-
     fail.
 
+:- '$set_no_trace'('$handle_error'(_,_,_), prolog).
+
 '$complete_goal'(M, _G, CurG, CurMod, NG) :-
 	  (
 	   '$is_metapredicate'(CurG,CurMod)
 	  ->
-	   '$meta_expansion'(CurG, M, CurMod, M, NG, [])
+       '$expand_meta_call'(CurMod:CurG, [], NG)
 	  ;
 	   NG = CurG
 	  ).

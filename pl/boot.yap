@@ -185,31 +185,10 @@ list, since backtracking could not "pass through" the cut.
 
 */
 
-
-
-system_module(_init, _SysExps, _Decls) :- !.
-system_module(M, SysExps, Decls) :-
-	'$current_module'(prolog, M),
-	'$compile'( ('$system_module'(M) :- true), 0, assert_static('$system_module'(M)), M ),
-	'$export_preds'(SysExps, prolog),
-	'$export_preds'(Decls, M).
-
-'$export_preds'([], _).
-'$export_preds'([N/A|Decls], M) :-
-    functor(S, N, A),
-    '$sys_export'(S, M),
-    '$export_preds'(Decls, M).
+system_module(Mod, _SysExps, _Decls) :- !,
+    system_module(Mod).
 
 use_system_module(_init, _SysExps) :- !.
-use_system_module(M, SysExps) :-
-	'$current_module'(M0, M0),
-	'$import_system'(SysExps, M0, M).
-
-'$import_system'([], _, _).
-'$import_system'([N/A|Decls], M0, M) :-
-    functor(S, N, A),
-    '$compile'( (G :- M0:G) ,0, assert_static((M:G :- M0:G)), M ),
-    '$import_system'(Decls, M0, M).
 
 private(_).
 
@@ -287,6 +266,14 @@ private(_).
 :- use_system_module( '$_strict_iso', ['$check_iso_strict_clause'/1,
         '$iso_check_goal'/2]).
 
+/*
+'$undefp'([M0|G0], Default) :-
+    G0 \= '$imported_predicate'(_,_,_,_),
+    G0 \= '$full_clause_optimisation'(_H, _M, _B0, _BF),
+    G0 \= '$expand_a_clause'(_,_,_,_),
+    G0 \= '$all_directives'(_),
+    format(user_error, 'ERROR:  undefined ~a:~q.~n', [M0, G0]), fail.
+*/
 '$prepare_goals'((A,B),(NA,NB),Any) :-
 	!,
 	'$prepare_goals'(A,NA,Any),
@@ -308,7 +295,6 @@ private(_).
 	'$prepare_goals'(A,NA,Any).
 '$prepare_goals'('$do_error'(Error,Goal),
                (clause_location(Call, Caller),
-		writeln(Goal),
 		strip_module(M:Goal,M1,NGoal),
 		throw(error(Error, [[g|g(M1:NGoal)],[p|Call],[e|Caller],[h|g(Head)]]))
 	       ),
@@ -620,7 +606,7 @@ number of steps.
  '$execute_commands'([],_,_,_,_) :- !.
  '$execute_commands'([C|Cs],VL,Pos,Con,Source) :- !,
 	 (
-	   '$system_catch'('$execute_command'(C,VL,Pos,Con,C),prolog,Error,(writeln(k),'$LoopError'(Error, Con))),
+	   '$system_catch'('$execute_command'(C,VL,Pos,Con,C),prolog,Error,'$LoopError'(Error, Con)),
 	   fail
 	 ;
 	   '$execute_commands'(Cs,VL,Pos,Con,Source)
@@ -710,10 +696,11 @@ number of steps.
 '$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :- !,
 	  '$continue_with_command'(Where,V,'$stream_position'(C,L,A1,A2,A3),G,Source).
 '$continue_with_command'(reconsult,V,Pos,G,Source) :-
-	 '$go_compile_clause'(G,V,Pos,5,Source),
+%    writeln(G),
+	 '$go_compile_clause'(G,V,Pos,reconsult,Source),
 	 fail.
 '$continue_with_command'(consult,V,Pos,G,Source) :-
-	'$go_compile_clause'(G,V,Pos,13,Source),
+	'$go_compile_clause'(G,V,Pos,consult,Source),
 	 fail.
 '$continue_with_command'(top,V,_,G,_) :-
 	 '$query'(G,V).
@@ -727,56 +714,46 @@ number of steps.
  % Pos the source position
  % N where to add first or last
  % Source the original clause
- '$go_compile_clause'(G,Vs,Pos,N,Source) :-
-	 '$current_module'(Mod),
-	 '$go_compile_clause'(G,Vs,Pos,N,Mod,Mod,Mod,Source).
+ '$go_compile_clause'(G,Vs,Pos, Where, Source) :-
+     '$precompile_term'(G, G0, G1),
+     !,
+	 '$$compile'(G1, Where, G0, _).
+ '$go_compile_clause'(G,Vs,Pos, Where, Source) :-
+     throw(error(system, compilation_failed(G))).
+          
+'$$compile'(C, Where, C0, R) :-
+    '$head_and_body'( C, MH, B ),
+    strip_module( MH, Mod, H),
+   (
+     '$undefined'(H, Mod)
+    ->
+     '$init_pred'(H, Mod, Where)
+	;
+     true
+    ),
 
-'$go_compile_clause'(G,_Vs,_Pos,_N,_HM,_BM,_SM,Source) :-
-	var(G), !,
-	'$do_error'(instantiation_error,assert(Source)).
-'$go_compile_clause'((G:-_),_Vs,_Pos,_N,_HM,_BM,_SM,Source) :-
-	var(G), !,
-	'$do_error'(instantiation_error,assert(Source)).
-'$go_compile_clause'(M:G,Vs,Pos,N,_,_,SourceMod,Source) :- !,
-	  '$go_compile_clause'(G,Vs,Pos,N,M,M,M,Source).
-'$go_compile_clause'((M:H :- B),Vs,Pos,N,_,BodyMod,SourceMod,Source) :- !,
-	  '$go_compile_clause'((H :- B),Vs,Pos,N,M,BodyMod,SourceMod,Source).
-'$go_compile_clause'(G,_Vs,Pos,N,HeadMod,BodyMod,SourceMod,_Source) :- !,
-	 '$precompile_term'(G, G0, G1, HeadMod, BodyMod, SourceMod),
-	 '$$compile'(G1, G0, N, HeadMod).
+%    writeln(Mod:((H:-B))),
+    '$compile'((H:-B), Where, C0, Mod, R).
 
+'$init_pred'(H, Mod, _Where ) :-
+    recorded('$import','$import'(NM,Mod,NH,H,_,_),RI),
+%    NM \= Mod,
+    functor(NH,N,Ar),
+    '$early_print'(warning,redefine_imported(Mod,NM,M:N/Ar)),
+    erase(RI),
+    fail.
+'$init_pred'(H, Mod, Where ) :-
+    '$init_as_dynamic'(Where),
+    !,
+    functor(H, Na, Ar),
+    '$dynamic'(Na/Ar, Mod).
+'$init_pred'(_H, _Mod, _Where ).
 
- % process an input clause
- '$$compile'(G, G0, L, Mod) :-
-	 '$head_and_body'(G,H,_),
-	 (
-	  '$is_dynamic'(H, Mod)
-	 ->
-	  '$assertz_dynamic'(L, G, G0, Mod)
-	 ;
-	  '$nb_getval'('$assert_all',on,fail)
-	 ->
-	  functor(H,N,A),
-	  '$dynamic'(N/A,Mod),
-	  '$assertz_dynamic'(L, G, G0, Mod)
-	 ;
-	  '$not_imported'(H, Mod),
-	  '$compile'(G, L, G0, Mod)
-	 ).
-
-%
-% check if current module redefines an imported predicate.
-% and remove import.
-%
-'$not_imported'(H, Mod) :-
-	recorded('$import','$import'(NM,Mod,NH,H,_,_),R),
-	NM \= Mod,
-	functor(NH,N,Ar),
-	'$early_print'(warning,redefine_imported(Mod,NM,N/Ar)),
-	erase(R),
-	fail.
-'$not_imported'(_, _).
-
+'$init_as_dynamic'( asserta ).
+'$init_as_dynamic'( assertz ).
+'$init_as_dynamic'( consult ) :- '$nb_getval'('$assert_all',on,fail).
+'$init_as_dynamic'( reconsult ) :- '$nb_getval'('$assert_all',on,fail).
+     
 
 '$check_if_reconsulted'(N,A) :-
          once(recorded('$reconsulted',N/A,_)),
@@ -1392,10 +1369,16 @@ bootstrap(F) :-
 			 user:'$LoopError'(Error, Status)),
 	!.
 
-'$enter_command'(Stream,Mod,top) :- !,
-    	read_term(Stream, Command, [module(Mod), syntax_errors(dec10),variable_names(Vars), term_position(Pos)]),
-	'$command'(Command,Vars,Pos,Status).
 '$enter_command'(Stream,Mod,Status) :-
+    !,
+    read_term(Stream, Command, [module(Mod), syntax_errors(dec10),variable_names(Vars), term_position(Pos)]),
+	'$command'(Command,Vars,Pos, Status).
+'$enter_command'(_Stream, _Mod, _HeadMob).
+
+
+/** @pred  expand_term( _T_,- _X_)
+
+This predicate is used by YAP for preprocessingStatus) :-
 	read_clause(Stream, Command, [variable_names(Vars), term_position(Pos)]),
 	'$command'(Command,Vars,Pos,Status).
 
@@ -1411,42 +1394,41 @@ bootstrap(F) :-
 %
 % split head and body, generate an error if body is unbound.
 %
-'$check_head_and_body'((H:-B),H,B,P) :- !,
-	'$check_head'(H,P).
-'$check_head_and_body'(H,H,true,P) :-
-	'$check_head'(H,P).
-
-'$check_head'(H,P) :- var(H), !,
-	'$do_error'(instantiation_error,P).
-'$check_head'(H,P) :- number(H), !,
-	'$do_error'(type_error(callable,H),P).
-'$check_head'(H,P) :- db_reference(H), !,
-	'$do_error'(type_error(callable,H),P).
-'$check_head'(_,_).
-
-% term expansion
+'$check_head_and_body'((M:H:-B),M,H,B,P) :-
+    !,
+    error:is_callable(M:H,P).
+'$check_head_and_body'(M:H, M, H, true, P) :-
+    error:is_callable(M:H,P).
+                                % term expansion
 %
 % return two arguments: Expanded0 is the term after "USER" expansion.
 %                       Expanded is the final expanded term.
 %
-'$precompile_term'(Term, Expanded0, Expanded, HeadMod, BodyMod, SourceMod) :-
+'$precompile_term'(Term, Expanded0, Expanded) :-
 %format('[ ~w~n',[Term]),
-	'$module_expansion'(Term, Expanded0, ExpandedI, HeadMod, BodyMod, SourceMod), !,
+	'$expand_clause'(Term, Expanded0, ExpandedI), !,
 %format('      -> ~w~n',[Expanded0]),
 	(
 	 current_prolog_flag(strict_iso, true)      /* strict_iso on */
-        ->
+    ->
 	 Expanded = ExpandedI,
 	 '$check_iso_strict_clause'(Expanded0)
-        ;
+    ;
 	 '$expand_array_accesses_in_term'(ExpandedI,Expanded)
+    -> true
+    ;
+     Expanded = ExpandedI
 	).
-'$precompile_term'(Term, Term, Term, _, _, _).
+'$precompile_term'(Term, Term, Term).
 
+'$expand_clause'(InputCl, C1, CO) :-
+    source_module(SM),
+    '$yap_strip_module'(SM:InputCl, M, ICl),
+    '$expand_a_clause'( M:ICl, SM, C1, CO),
+    !.
+'$expand_clause'(Cl, Cl, Cl).
 
 /** @pred  expand_term( _T_,- _X_)
-
-
 
 This predicate is used by YAP for preprocessing each top level
 term read when consulting a file and before asserting or executing it.
