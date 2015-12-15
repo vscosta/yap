@@ -22,7 +22,7 @@
 #define store_low_level_trace_info(CP, TAB_ENT)
 #endif /* LOW_LEVEL_TRACER */
 
-#define TABLING_ERROR_CHECKING_STACK                                             \
+#define TABLING_ERROR_CHECKING_STACK					\
         TABLING_ERROR_CHECKING(store_node, Unsigned(H) + 1024 > Unsigned(B));    \
 	TABLING_ERROR_CHECKING(store_node, Unsigned(H_FZ) + 1024 > Unsigned(B))
 
@@ -377,7 +377,7 @@
                -> we need a shared data structure to avoid redundant computations!
       UNLOCK_OR_FRAME(LOCAL_top_or_fr);
 #else
-      Sfprintf(Serror, "PROBLEM: cp_last_answer field is local to the cp!\n");
+      fprintf(stderr, "PROBLEM: cp_last_answer field is local to the cp!\n");
       exit(1);
 #endif
     }
