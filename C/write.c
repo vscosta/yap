@@ -1117,14 +1117,17 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       if (op > p) {
         wrclose_bracket(wglb, TRUE);
       }
-    } else if (wglb->Handle_vars && functor == LOCAL_FunctorVar) {
+    } else if ( functor == FunctorDollarVar) {
       Term ti = ArgOfTerm(1, t);
       if (lastw == alphanum) {
         wrputc(' ', wglb->stream);
       }
-      if (!IsVarTerm(ti) &&
-          (IsIntTerm(ti) || IsCodesTerm(ti) ||
-	   IsAtomTerm(ti) || IsStringTerm(ti) )) {
+      if (wglb->Handle_vars &&
+          !IsVarTerm(ti) &&
+          (IsIntTerm(ti) ||
+           IsCodesTerm(ti) ||
+           IsAtomTerm(ti) ||
+           IsStringTerm(ti) )) {
         if (IsIntTerm(ti)) {
           Int k = IntOfTerm(ti);
           if (k == -1) {

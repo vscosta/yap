@@ -133,6 +133,7 @@
   AtomFail = AtomAdjust(AtomFail);
   AtomFalse = AtomAdjust(AtomFalse);
   AtomFast = AtomAdjust(AtomFast);
+  AtomFastFail = AtomAdjust(AtomFastFail);
   AtomFileErrors = AtomAdjust(AtomFileErrors);
   AtomFileerrors = AtomAdjust(AtomFileerrors);
   AtomFileType = AtomAdjust(AtomFileType);
@@ -390,8 +391,8 @@
   AtomUserErr = AtomAdjust(AtomUserErr);
   AtomUserIn = AtomAdjust(AtomUserIn);
   AtomUserOut = AtomAdjust(AtomUserOut);
+  AtomDollarVar = AtomAdjust(AtomDollarVar);
   AtomVBar = AtomAdjust(AtomVBar);
-  AtomVar = AtomAdjust(AtomVar);
   AtomVarBranches = AtomAdjust(AtomVarBranches);
   AtomVariableNames = AtomAdjust(AtomVariableNames);
   AtomHiddenVar = AtomAdjust(AtomHiddenVar);
@@ -443,6 +444,7 @@
   FunctorDoLogUpdClause0 = FuncAdjust(FunctorDoLogUpdClause0);
   FunctorDoLogUpdClauseErase = FuncAdjust(FunctorDoLogUpdClauseErase);
   FunctorDoStaticClause = FuncAdjust(FunctorDoStaticClause);
+  FunctorDollarVar = FuncAdjust(FunctorDollarVar);
   FunctorDomainError = FuncAdjust(FunctorDomainError);
   FunctorDot = FuncAdjust(FunctorDot);
   FunctorDot10 = FuncAdjust(FunctorDot10);
@@ -531,5 +533,4 @@
   FunctorUMinus = FuncAdjust(FunctorUMinus);
   FunctorUPlus = FuncAdjust(FunctorUPlus);
   FunctorVBar = FuncAdjust(FunctorVBar);
-  FunctorVar = FuncAdjust(FunctorVar);
   FunctorHiddenVar = FuncAdjust(FunctorHiddenVar);

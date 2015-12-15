@@ -390,8 +390,8 @@
   AtomUserErr = Yap_LookupAtom("user_error");
   AtomUserIn = Yap_LookupAtom("user_input");
   AtomUserOut = Yap_LookupAtom("user_output");
+  AtomDollarVar = Yap_LookupAtom("$VAR");
   AtomVBar = Yap_LookupAtom("|");
-  AtomVar = Yap_FullLookupAtom("$VAR");
   AtomVarBranches = Yap_LookupAtom("var_branches");
   AtomVariableNames = Yap_LookupAtom("variable_names");
   AtomHiddenVar = Yap_FullLookupAtom("$V");
@@ -443,6 +443,7 @@
   FunctorDoLogUpdClause0 = Yap_MkFunctor(AtomDoLogUpdClause0,6);
   FunctorDoLogUpdClauseErase = Yap_MkFunctor(AtomDoLogUpdClauseErase,6);
   FunctorDoStaticClause = Yap_MkFunctor(AtomDoStaticClause,5);
+  FunctorDollarVar = Yap_MkFunctor(AtomDollarVar,1);
   FunctorDomainError = Yap_MkFunctor(AtomDomainError,2);
   FunctorDot = Yap_MkFunctor(AtomDot,2);
   FunctorDot10 = Yap_MkFunctor(AtomDot,10);
@@ -531,5 +532,4 @@
   FunctorUMinus = Yap_MkFunctor(AtomMinus,1);
   FunctorUPlus = Yap_MkFunctor(AtomPlus,1);
   FunctorVBar = Yap_MkFunctor(AtomVBar,2);
-  FunctorVar = Yap_MkFunctor(AtomVar,1);
   FunctorHiddenVar = Yap_MkFunctor(AtomHiddenVar,1);

@@ -4584,7 +4584,7 @@ numbervar(Int id USES_REGS)
 {
   Term ts[1];
   ts[0] = MkIntegerTerm(id);
-  return Yap_MkApplTerm(LOCAL_FunctorVar, 1, ts);
+  return Yap_MkApplTerm(FunctorDollarVar, 1, ts);
 }
 
 static Term
@@ -4592,7 +4592,7 @@ numbervar_singleton(USES_REGS1)
 {
   Term ts[1];
   ts[0] = MkIntegerTerm(-1);
-  return Yap_MkApplTerm(LOCAL_FunctorVar, 1, ts);
+  return Yap_MkApplTerm(FunctorDollarVar, 1, ts);
 }
 
 static void
@@ -4904,7 +4904,7 @@ unnumber_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow, int share
 	  *ptf++ = d0;  /* you can just unnumber other extensions. */
 	  continue;
 	}
-	if (f == FunctorVar) {
+	if (f == FunctorDollarVar) {
 	  Int id = IntegerOfTerm(ap2[1]);
 	  ground = FALSE;
 	  if (id < -1) {

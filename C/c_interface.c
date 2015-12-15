@@ -3652,7 +3652,7 @@ Term YAP_UnNumberVars(Term t) {
 }
 
 int YAP_IsNumberedVariable(Term t) {
-  return IsApplTerm(t) && FunctorOfTerm(t) == FunctorVar &&
+  return IsApplTerm(t) && FunctorOfTerm(t) == FunctorDollarVar &&
          IsIntegerTerm(ArgOfTerm(1, t));
 }
 

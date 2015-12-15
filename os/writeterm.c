@@ -173,7 +173,7 @@ bind_variable_names(Term  t USES_REGS)
        return false;
     }
     t2 = ArgOfTerm(2, tl);
-    tv = Yap_MkApplTerm(LOCAL_FunctorVar, 1, &t1);
+    tv = Yap_MkApplTerm(FunctorDollarVar, 1, &t1);
     if (IsVarTerm(t2)) {
       Bind(VarOfTerm(t2), tv);
     }
@@ -746,7 +746,7 @@ dollar_var( USES_REGS1 )
     Term t2;
     if (!IsVarTerm(t2=Deref(ARG2))) {
       if (IsApplTerm(t2) &&
-          FunctorOfTerm( t2 ) == LOCAL_FunctorVar ) {
+          FunctorOfTerm( t2 ) == FunctorDollarVar ) {
         return Yap_unify(ArgOfTerm(1, t2), ARG1);
       }
       Yap_Error( TYPE_ERROR_COMPOUND, ARG2 , "");
@@ -756,7 +756,7 @@ dollar_var( USES_REGS1 )
     }
   }
   Term t2 = Yap_unify( MkVarTerm(), ARG1);
-  Term tv = Yap_MkApplTerm(LOCAL_FunctorVar, 1, &t2);
+  Term tv = Yap_MkApplTerm(FunctorDollarVar, 1, &t2);
   return Yap_unify(tv, ARG2);
 }
 

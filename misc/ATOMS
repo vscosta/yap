@@ -396,7 +396,6 @@ A	UserErr			N	"user_error"
 A	UserIn			N	"user_input"
 A	UserOut			N	"user_output"
 A	VBar			N	"|"
-A	Var			F	"$VAR"
 A	VarBranches		N	"var_branches"
 A	VariableNames		N	"variable_names"
 A	HiddenVar		F	"$V"
@@ -448,6 +447,7 @@ F	DoLogUpdClause		DoLogUpdClause	6
 F	DoLogUpdClause0		DoLogUpdClause0	6
 F	DoLogUpdClauseErase	DoLogUpdClauseErase	6
 F	DoStaticClause		DoStaticClause	5
+F	DollarVar           DollarVar       1
 F	DomainError		DomainError	2
 F	Dot			Dot		2
 F	Dot10			Dot		10
@@ -536,6 +536,5 @@ F	TypeError		TypeError	2
 F	UMinus			Minus		1
 F	UPlus			Plus		1
 F	VBar			VBar		2
-F	Var			Var		1
 F	HiddenVar		HiddenVar	1
 

@@ -1166,12 +1166,12 @@
   Atom AtomUserOut_;
 #define AtomUserOut Yap_heap_regs->AtomUserOut_
 #define TermUserOut MkAtomTerm( Yap_heap_regs->AtomUserOut_ )
+  Atom AtomDollarVar_;
+#define AtomDollarVar Yap_heap_regs->AtomDollarVar_
+#define TermDollarVar MkAtomTerm( Yap_heap_regs->AtomDollarVar_ )
   Atom AtomVBar_;
 #define AtomVBar Yap_heap_regs->AtomVBar_
 #define TermVBar MkAtomTerm( Yap_heap_regs->AtomVBar_ )
-  Atom AtomVar_;
-#define AtomVar Yap_heap_regs->AtomVar_
-#define TermVar MkAtomTerm( Yap_heap_regs->AtomVar_ )
   Atom AtomVarBranches_;
 #define AtomVarBranches Yap_heap_regs->AtomVarBranches_
 #define TermVarBranches MkAtomTerm( Yap_heap_regs->AtomVarBranches_ )
@@ -1287,6 +1287,8 @@
 #define FunctorDoLogUpdClauseErase Yap_heap_regs->FunctorDoLogUpdClauseErase_
   Functor FunctorDoStaticClause_;
 #define FunctorDoStaticClause Yap_heap_regs->FunctorDoStaticClause_
+  Functor FunctorDollarVar_;
+#define FunctorDollarVar Yap_heap_regs->FunctorDollarVar_
   Functor FunctorDomainError_;
 #define FunctorDomainError Yap_heap_regs->FunctorDomainError_
   Functor FunctorDot_;
@@ -1463,7 +1465,5 @@
 #define FunctorUPlus Yap_heap_regs->FunctorUPlus_
   Functor FunctorVBar_;
 #define FunctorVBar Yap_heap_regs->FunctorVBar_
-  Functor FunctorVar_;
-#define FunctorVar Yap_heap_regs->FunctorVar_
   Functor FunctorHiddenVar_;
 #define FunctorHiddenVar Yap_heap_regs->FunctorHiddenVar_

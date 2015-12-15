@@ -558,7 +558,7 @@ static int p_grab_tokens() {
   char ch, IdChars[256], *chp;
 
   IdFunctor = FunctorId;
-  VarFunctor = FunctorVar;
+  VarFunctor = FunctorDollarVar;
   p0 = p;
   ch = Yap_PlGetchar();
   while (1) {
