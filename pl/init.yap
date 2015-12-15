@@ -22,6 +22,7 @@
 
     @{
 */
+
 :- system_module( '$_init', [!/0,
         (:-)/1,
         (?-)/1,
@@ -32,7 +33,6 @@
         goal_expansion/2,
         goal_expansion/3,
         otherwise/0,
-        prolog_booting/0,
         term_expansion/2,
         version/2,
 	'$do_log_upd_clause'/6,
@@ -43,7 +43,6 @@
 
 :- use_system_module( '$_boot', ['$cut_by'/1]).
 
-'prolog_booting'.
 
 % This is yap's init file
 % should be consulted first step after booting
@@ -110,45 +109,70 @@ otherwise.
 
 :- '$all_current_modules'(M), yap_flag(M:unknown, error) ; true.
 
-print_message(_, absolute_file_path(X, Y)) :- !,
+'$early_print_message'(_, absolute_file_path(X, Y)) :- !,
 	format(user_error, X, Y), nl(user_error).
-print_message(_, loading( C, F)) :- !,
-	    format(user_error, '% ~a ~a...~n', [C,F]).
-print_message(_, loaded(F,C,_M,T,H)) :- !,
-	    format(user_error, '% ~a ~a ~d bytes in ~d seconds...~n', [F ,C, H, T]).
-print_message(_, Msg) :-
-	format(user_error, '~w ~n', [Msg]).
+'$early_print_message'(_, loading( C, F)) :- !,
+    '$show_consult_level'(LC),
+    format(user_error, '~*|% ~a ~a...~n', [LC,C,F]).
+'$early_print_message'(_, loaded(F,C,_M,T,H)) :- !,
+    '$show_consult_level'(LC),
+    format(user_error, '~*|% ~a ~a ~d bytes in ~d seconds...~n', [LC, F ,C, H, T]).
+'$early_print_message'(Level, Msg) :-
+    source_location(F0, L),
+    !,
+	format(user_error, '~a:~d: unprocessed ~a ~w ~n', [F0, L,Level,Msg]).
+'$early_print_message'(Level, Msg) :-
+	format(user_error, 'unprocessed ~a ~w ~n', [Level,Msg]).
 
-:- bootstrap(   'arith.yap').
+
+print_message(Severity, Term) :-
+	'$pred_exists'(execute_print_message(_,_), '$messages'),
+    '$messages':execute_print_message(Severity, Term),
+    !.
+print_message(Level, Msg) :-
+     source_location(F0, L),
+    '$early_print_message'(Level, Msg).
+
+
+:- bootstrap('arith.yap').
 :- bootstrap('lists.yap').
 :- bootstrap('consult.yap').
 :- bootstrap('preddecls.yap').
 :- bootstrap('preddyns.yap').
+:- bootstrap('meta.yap').
+:- bootstrap('newmod.yap').
 
 
 :- bootstrap('atoms.yap').
 :- bootstrap('os.yap').
 :- bootstrap('absf.yap').
-%:- Start_low_level_trace.
 :-set_prolog_flag(verbose,  normal).
 
-:-set_prolog_flag(gc_trace, verbose).
+%:-set_prolog_flag(gc_trace, verbose).
 %:- set_prolog_flag( verbose_file_search, true ).
 
-:- [
-    'errors.yap',
-    'directives.yap',
-    'utils.yap',
-    'control.yap',
-    'flags.yap'
-   ].
-%:- stop_low_level_trace.
+:- compile_expressions.
 
-:- [	 'preds.yap',
+:- dynamic prolog:'$parent_module'/2.
+
+:- [
+    'directives.yap',
+	 'preds.yap',
 	 'modules.yap'
    ].
+:- stop_low_level_trace.
 
-:- compile_expressions.
+:- use_module('error.yap').
+:- use_module('grammar.yap').
+
+
+:- [
+'errors.yap',
+'utils.yap',
+'control.yap',
+'flags.yap'
+].
+
 
 :- [
     % lists is often used.
@@ -156,7 +180,6 @@ print_message(_, Msg) :-
 	 'debug.yap',
 	 'checker.yap',
 	 'depth_bound.yap',
-	 'grammar.yap',
 	 'ground.yap',
 	 'listing.yap',
     'arithpreds.yap',
@@ -185,9 +208,9 @@ print_message(_, Msg) :-
 
 :- dynamic prolog:'$user_defined_flag'/4.
 
-:- dynamic prolog:'$parent_module'/2.
-
 :- multifile prolog:debug_action_hook/1.
+
+:- multifile prolog:'$system_predicate'/2.
 
 :-	 ['protect.yap'].
 

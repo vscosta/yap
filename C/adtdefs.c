@@ -795,12 +795,6 @@ Prop Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod) {
   p->beamTable = NULL;
 #endif /* BEAM */
   /* careful that they don't cross MkFunctor */
-  if (PRED_GOAL_EXPANSION_FUNC) {
-    if (fe->PropsOfFE &&
-        (RepPredProp(fe->PropsOfFE)->PredFlags & GoalExPredFlag)) {
-      p->PredFlags |= GoalExPredFlag;
-    }
-  }
   if (!trueGlobalPrologFlag(DEBUG_INFO_FLAG)) {
     p->PredFlags |= NoTracePredFlag;
   }
@@ -918,7 +912,7 @@ Prop Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod) {
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
   p->cs.p_code.NOfClauses = 0;
   p->PredFlags = 0L;
-  p->src.OwnerFile = AtomNil;
+  p->src.OwnerFile = LOCAL_SourceFileName;
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->cs.p_code.ExpandCode = EXPAND_OP_CODE;
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
@@ -936,21 +930,6 @@ Prop Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod) {
   p->beamTable = NULL;
 #endif
   /* careful that they don't cross MkFunctor */
-  if (PRED_GOAL_EXPANSION_FUNC) {
-    Prop p1 = ae->PropsOfAE;
-
-    while (p1) {
-      PredEntry *pe = RepPredProp(p1);
-
-      if (pe->KindOfPE == PEProp) {
-        if (pe->PredFlags & GoalExPredFlag) {
-          p->PredFlags |= GoalExPredFlag;
-        }
-        break;
-      }
-      p1 = pe->NextOfPE;
-    }
-  }
   AddPropToAtom(ae, (PropEntry *)p);
   p0 = AbsPredProp(p);
   p->FunctorOfPred = (Functor)AbsAtom(ae);

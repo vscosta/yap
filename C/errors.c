@@ -602,3 +602,67 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
     LOCAL_PrologMode &= ~InErrorMode;
     return P;
   }
+
+static Int
+is_boolean( USES_REGS1 )
+{
+  Term t = Deref(ARG1);
+  //Term Context = Deref(ARG2);
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR, t, NULL);
+    return false;
+  }
+  return t == TermTrue || t == TermFalse;
+}
+
+
+static Int
+is_callable( USES_REGS1 )
+{
+  Term G = Deref(ARG1);
+  //Term Context = Deref(ARG2);
+  while (true) {
+    if (IsVarTerm(G)) {
+      Yap_Error(INSTANTIATION_ERROR, G, NULL);
+      return false;
+    }
+    if (IsApplTerm(G)) {
+      Functor f = FunctorOfTerm(G);
+      if (IsExtensionFunctor(f)) {
+        Yap_Error(TYPE_ERROR_CALLABLE, G, NULL);
+      }
+      if (f == FunctorModule) {
+        Term tm = ArgOfTerm( 1, G);
+        if (IsVarTerm(tm)) {
+          Yap_Error(INSTANTIATION_ERROR, G, NULL);
+          return false;
+        }
+        if (!IsAtomTerm(tm)) {
+          Yap_Error(TYPE_ERROR_CALLABLE, G, NULL);
+          return false;
+        }
+        G = ArgOfTerm( 2, G );
+      } else {
+        return true;
+      }
+    } else if (IsPairTerm(G) || IsAtomTerm(G)) {
+      return true;
+    } else {
+      Yap_Error(TYPE_ERROR_CALLABLE, G, NULL);
+      return false;
+    }
+  }
+  return false;
+}
+
+
+void
+Yap_InitErrorPreds( void )
+{
+  CACHE_REGS
+  Term cm = CurrentModule;
+  CurrentModule = ERROR_MODULE;
+  Yap_InitCPred("is_boolean", 2, is_boolean, 0L);
+  Yap_InitCPred("is_callable", 2, is_callable, 0L);
+  CurrentModule = cm;
+}

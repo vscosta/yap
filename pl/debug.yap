@@ -518,11 +518,15 @@ be lost.
 
 %
 '$spycall'(G, M, _, _) :-
+    current_prolog_flag( debug, false),
+    !,
+	'$execute_nonstop'(G,M).
+'$spycall'(G, M, _, _) :-
 	'__NB_getval__'('$debug_jump',true, fail),
 	!,
 	( '$is_metapredicate'(G, M)
 	->
-	  '$meta_expansion'(G,M,M,M,G1,[])
+      '$expand_meta_call'(M:G, [], G1)
 	;
 	  G = G1
 	),
@@ -535,8 +539,8 @@ be lost.
 	),
 	!,
 	( '$is_metapredicate'(G, M)
-	   ->
-	  '$meta_expansion'(G,M,M,M,G10,[]),
+    ->
+      '$expand_meta_call'(M:G, [], G10),
 	  '$debugger_process_meta_arguments'(G10, M, G1),
 	  '$execute'(M:G1)
 	;
@@ -548,7 +552,7 @@ be lost.
 	'$continue_debugging_goal'(no, '$execute_nonstop'(G,M)).
 '$spycall'(G, M, CalledFromDebugger, InRedo) :-
 	'$is_metapredicate'(G, M), !,
-	'$meta_expansion'(G,M,M,M,G1,[]),
+    '$expand_meta_call'(M:G, [], G1),
 	'$spycall_expanded'(G1, M, CalledFromDebugger, InRedo).
 '$spycall'(G, M, CalledFromDebugger, InRedo) :-
 	'$spycall_expanded'(G, M, CalledFromDebugger, InRedo).
@@ -1039,15 +1043,17 @@ be lost.
 	G1 =.. [F|BG1s].
 
 '$ldebugger_process_meta_args'([], _, [], []).
-'$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$trace_call'(G1,M1)|BG1s]) :-
+'$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$spy'([M1|G1])|BG1s]) :-
     number(N),
-    N > 0,
+    N >= 0,
 	!,
 	strip_module( M:G, M1, G1 ),
 	'$ldebugger_process_meta_args'(BGs, M, BMs, BG1s).
 '$ldebugger_process_meta_args'([G|BGs], M, [_|BMs], [G|BG1s]) :-
 	'$ldebugger_process_meta_args'(BGs, M, BMs, BG1s).
 
+'$trace_call'(G1,M1) :-
+    '$trace_call'( call(M1:G1 )).
 '$trace_call'(G1,M1, A1) :-
     '$trace_call'( call(M1:G1, A1 )).
 '$trace_call'(G1,M1, A1, A2) :-

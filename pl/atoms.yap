@@ -50,7 +50,7 @@ atom_concat(Xs,At) :-
 % just slice first atom
 '$atom_concat_constraints'([At0|Xs], 0, At, Unbound) :-
 	atom(At0), !,
-	sub_atom(At, 0, _Sz, L, At0 ),
+	sub_atom(At0, 0, _Sz, L, Ata ),
 	sub_atom(At, _, L, 0, Atr ), %remainder
 	'$atom_concat_constraints'(Xs, 0, Atr, Unbound).
 % first hole: Follow says whether we have two holes in a row, At1 will be our atom

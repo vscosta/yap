@@ -131,7 +131,10 @@ do_c_built_in('C'(A,B,C), _, _, (A=[B|C])) :- !.
 do_c_built_in('$do_error'( Error, Goal), M, Head,
 	      (clause_location(Call, Caller),
 	       strip_module(M:Goal,M1,NGoal),
-	       throw(error(Error, [[g|g(M1:NGoal)],[p|Call],[e|Caller],[h|g(Head)]]))
+	       throw(error(Error,
+                       [[g|g(M1:NGoal)],[p|Call],[e|Caller],[h|g(Head)]]
+                      )
+                )
 	      )
 	     ) :- !.
 do_c_built_in(X is Y, M, H,  P) :-
@@ -152,10 +155,10 @@ do_c_built_in(X is Y, _, _, P) :-
 do_c_built_in(phrase(NT,Xs),  Mod, H, NTXsNil) :-
 	'$_arith':do_c_built_in(phrase(NT,Xs,[]), Mod, H, NTXsNil).
 do_c_built_in(phrase(NT,Xs0,Xs), Mod, _,  NewGoal) :-
+    nonvar(NT), nonvar(Mod), 
     '$goal_expansion_allowed'(phrase(NT,Xs0,Xs), Mod),
     Goal = phrase(NT,Xs0,Xs),
-    callable(NT),
-    catch(prolog:'$translate_rule'((pseudo_nt --> NT), Rule),
+    catch(prolog:'$translate_rule'((pseudo_nt --> Mod:NT), Rule),
 	  error(Pat,ImplDep),
 	  ( \+ '$harmless_dcgexception'(Pat),
 	    throw(error(Pat,ImplDep))
@@ -171,8 +174,15 @@ do_c_built_in(phrase(NT,Xs0,Xs), Mod, _,  NewGoal) :-
     ),
     (   var(Xs0c)
 	-> Xs0 = Xs0c,
-	   NewGoal = NewGoal1
-	;  ( Xs0 = Xs0c, NewGoal1 ) = NewGoal
+	   NewGoal2 = NewGoal1
+	;  ( Xs0 = Xs0c, NewGoal1 ) = NewGoal2
+    ),
+    '$yap_strip_module'(Mod:NewGoal2, M, NewGoal3),
+    (nonvar(NewGoal3) -> NewGoal == M:NewGoal3
+    ;
+     var(M) -> NewGoal = '$execute_wo_mod'(NewGoal3,M)
+    ;
+     NewGoal = '$execute_in_mod'(NewGoal3,M)
     ).
 do_c_built_in(Comp0, _, _, R) :-		% now, do it for comparisons
 	'$compop'(Comp0, Op, E, F),

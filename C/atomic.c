@@ -1153,7 +1153,8 @@ atomic_concat2( USES_REGS1 )
     seq_tv_t *inpv = (seq_tv_t *)malloc(n*sizeof(seq_tv_t)), out;
     int i = 0;
     Atom at;
-    
+
+    if (n == 1) return Yap_unify(ARG2, HeadOfTerm(t1));
     if (!inpv) {
       LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
       free(inpv);

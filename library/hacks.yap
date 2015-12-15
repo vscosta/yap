@@ -21,6 +21,7 @@
 		      enable_interrupts/0,
 		      disable_interrupts/0,
 		      virtual_alarm/3,
+              fully_strip_module/3,
 		      context_variables/1
                      ]).
 
@@ -64,4 +65,8 @@ virtual_alarm(Interval, Goal, Left) :-
 virtual_alarm(Interval.USecs, Goal, Left.LUSecs) :-
 	on_signal(sig_vtalarm, _, Goal),
 	virtual_alarm(Interval, USecs, Left, LUSecs).
+
+fully_strip_module(T,M,S) :-
+    '$hacks':fully_strip_module(T,M,S).
+
 

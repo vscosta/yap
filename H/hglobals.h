@@ -141,4 +141,6 @@ typedef struct global_data {
   char*  CharConversionTable2_;
 
   void*  LastWTimePtr_;
+
+  int  MaxPriority_;
 } w_shared;

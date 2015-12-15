@@ -15,11 +15,20 @@
 *									 *
 *************************************************************************/
 
+/**
+ * @file   grammar.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Thu Nov 19 10:20:55 2015
+ *
+ * @brief  Grammar Rules
+ *
+ *
+*/
 
-/** 
+/**
+@{
 @defgroup Grammars Grammar Rules
 @ingroup builtins
-@{
 
 Grammar rules in Prolog are both a convenient way to express definite
 clause grammars and  an extension of the well known context-free grammars.
@@ -34,34 +43,33 @@ linked by the standard conjunction operator `,`.
 
 <em>Items can be:</em>
 
-+ 
++
 a <em>non-terminal</em> symbol may be either a complex term or an atom.
-+ 
++
 a <em>terminal</em> symbol may be any Prolog symbol. Terminals are
 written as Prolog lists.
-+ 
++
 an <em>empty body</em> is written as the empty list `[ ]`.
-+ 
++
 <em>extra conditions</em> may be inserted as Prolog procedure calls, by being
 written inside curly brackets `{` and `}`.
-+ 
++
 the left side of a rule consists of a nonterminal and an optional list
 of terminals.
-+ 
++
 alternatives may be stated in the right-hand side of the rule by using
 the disjunction operator `;`.
-+ 
-the <em>cut</em> and <em>conditional</em> symbol (`->`) may be inserted in the 
++
+the <em>cut</em> and <em>conditional</em> symbol (`->`) may be inserted in the
 right hand side of a grammar rule
 
 
 Grammar related built-in predicates:
 
- 
+
 */
 
-
-:- module( '$_grammar', [!/2,
+:- module( system('$_grammar'), [!/2,
          (',')/4,
          (->)/4,
          ('.')/4,
@@ -89,14 +97,18 @@ Grammar related built-in predicates:
     Also, phrase/2-3 check their first argument.
 */
 
-prolog:'$translate_rule'((LP-->RP), (NH:-B)) :-
-	t_head(LP, NH, NGs, S, SR, (LP-->RP)),
+prolog:'$translate_rule'(Rule, (NH :- B) ) :-
+     source_module( SM ),
+     '$yap_strip_module'( SM:Rule,  M0, (LP-->RP) ),
+     t_head(LP, NH0, NGs, S, SR, (LP-->M:RP)),
+     '$yap_strip_module'( M0:NH0,  M, NH1 ),
+     ( M == SM -> NH = NH1, B = B0 ; NH = M:NH1, B = M:B0 ),
 	 (var(NGs) ->
 	     t_body(RP, _, last, S, SR, B1)
 	 ;
 	     t_body((RP,{NGs}), _, last, S, SR, B1)
 	 ),
-	t_tidy(B1, B).
+	t_tidy(B1, B0).
 
 
 t_head(V, _, _, _, _, G0) :- var(V), !,
@@ -106,7 +118,7 @@ t_head((H,List), NH, NGs, S, S1, G0) :- !,
 	t_hlist(List, S1, SR, NGs, G0).
 t_head(H, NH, _, S, SR, G0) :-
 	t_hgoal(H, NH, S, SR, G0).
-	
+
 t_hgoal(V, _, _, _, G0) :- var(V), !,
 	'$do_error'(instantiation_error,G0).
 t_hgoal(M:H, M:NH, S, SR, G0) :- !,
@@ -168,12 +180,10 @@ t_body(T, filled_in, _, S, SR, Tt) :-
 	extend([S,SR], T, Tt).
 
 
-
 extend(More, OldT, NewT) :-
 	OldT =.. OldL,
 	lists:append(OldL, More, NewL),
 	NewT =.. NewL.
-
 
 t_tidy(P,P) :- var(P), !.
 t_tidy((P1;P2), (Q1;Q2)) :- !,
@@ -193,7 +203,7 @@ t_tidy((P1,P2), (Q1,Q2)) :- !,
 	t_tidy(P2, Q2).
 t_tidy(A, A).
 
-/** @pred  `C`( _S1_, _T_, _S2_) 
+/** @pred  `C`( _S1_, _T_, _S2_)
 
 
 This predicate is used by the grammar rules compiler and is defined as
@@ -211,9 +221,9 @@ Both this predicate and the previous are used as a convenient way to
 start execution of grammar rules.
 */
 prolog:phrase(PhraseDef, WordList) :-
-	phrase(PhraseDef, WordList, []).
+	prolog:phrase(PhraseDef, WordList, []).
 
-/** @pred  phrase(+ _P_, _L_, _R_) 
+/** @pred  phrase(+ _P_, _L_, _R_)
 
 
 This predicate succeeds when the difference list ` _L_- _R_`

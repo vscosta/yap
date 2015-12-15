@@ -135,6 +135,7 @@ void Yap_ResetConsultStack(void);
 void Yap_AssertzClause(struct pred_entry *, yamop *);
 void Yap_HidePred(struct pred_entry *pe);
 int Yap_SetNoTrace(char *name, UInt arity, Term tmod);
+bool Yap_unknown(Term tflagvalue);
 
 /* cmppreds.c */
 Int Yap_compare_terms(Term, Term);
@@ -176,6 +177,7 @@ bool Yap_Warning(const char *s, ...);
 bool Yap_PrintWarning(Term t);
 int Yap_HandleError(const char *msg, ...);
 int Yap_SWIHandleError(const char *, ...);
+void Yap_InitErrorPreds(void);
 
 /* eval.c */
 void Yap_InitEval(void);
@@ -317,6 +319,8 @@ void Yap_InitModulesC(void);
 struct mod_entry *Yap_GetModuleEntry(Term tmod);
 Term Yap_GetModuleFromEntry(struct mod_entry *me);
 bool Yap_CharacterEscapes(Term mt);
+bool Yap_constPred( struct pred_entry *pt);
+bool Yap_isSystemModule(Term mod);
 
 #if HAVE_MPI
 /* mpi.c */

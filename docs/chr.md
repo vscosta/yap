@@ -2,6 +2,8 @@
 CHR: Constraint Handling Rules  {#chr}
 ==============================
 
+@ingroup packages
+
 This chapter is written by Tom Schrijvers, K.U. Leuven for the hProlog
 system. Adjusted by Jan Wielemaker to fit the SWI-Prolog documentation
 infrastructure and remove hProlog specific references.
@@ -59,7 +61,7 @@ actual_rule --> simpagation_rule.
 
 simplification_rule --> constraints, [atom(`<=>`)], guard, body.
 propagation_rule --> constraints, [atom(`==>`)], guard, body.
-simpagation_rule --> constraints, [atom(`\`)], constraints, [atom(`<=>`)], 
+simpagation_rule --> constraints, [atom(`\`)], constraints, [atom(`<=>`)],
                      guard, body.
 
 constraints --> constraint, constraint_id.
@@ -98,7 +100,7 @@ informally. They do not differ essentially from other CHR systems.
 
 When a constraint is called, it is considered an active constraint and
 the system will try to apply the rules to it. Rules are tried and executed
-sequentially in the order they are written. 
+sequentially in the order they are written.
 
 A rule is conceptually tried for an active constraint in the following
 way. The active constraint is matched with a constraint in the head of
@@ -140,7 +142,7 @@ its head.
 The simpagation rule removes the constraints in its head after the
 `\` and then calls its body. It is an optimization of
 simplification rules of the form: \[constraints_1, constraints_2 <=>
-constraints_1, body \] Namely, in the simpagation form: 
+constraints_1, body \] Namely, in the simpagation form:
 
 ~~~~~
 constraints1 \ constraints2 <=> body
@@ -186,7 +188,7 @@ checks.
 + optimize
 This is an experimental option controlling the degree of optimization.
 Possible values are `full`, to enable all available
-optimizations, and `off` (default), to disable all optimizations.  
+optimizations, and `off` (default), to disable all optimizations.
 The default is derived from the SWI-Prolog flag `optimise`, where
 `true` is mapped to `full`.  Therefore the commandline
 option `-O` provides full CHR optimization.
@@ -209,7 +211,7 @@ The latter is the default. The meaning is the following:
 + -
 The corresponding argument of every occurrence
 of the constraint is always unbound.
-+ + 
++ +
 The corresponding argument of every occurrence
 of the constraint is always ground.
 + ?
@@ -217,7 +219,7 @@ The corresponding argument of every occurrence
 of the constraint can have any instantiation, which may change
 over time. This is the default value.
 
-The declaration is used by the compiler for various optimizations. 
+The declaration is used by the compiler for various optimizations.
 Note that it is up to the user the ensure that the mode declaration
 is correct with respect to the use of the constraint.
 This option may occur once for each constraint.
@@ -251,7 +253,7 @@ type declarations. The value is a term of the form
 `type(` _name_`,` _list_`)`, where
  _name_ is a term and  _list_ is a list of alternatives.
 Variables can be used to define generic types. Recursive definitions
-are allowed. Examples are 
+are allowed. Examples are
 
 ~~~~~
 type(bool,[true,false]).
@@ -266,8 +268,8 @@ The mode, type_declaration and type_definition options are provided
 for backward compatibility. The new syntax is described below.
 
 
- 
-### CHR in Prolog Programs	
+
+### CHR in Prolog Programs
 
 
 The CHR constraints defined in a particulary chr file are
@@ -295,7 +297,7 @@ The new style is as follows:
 :- chr_type list(T) ---> [] ; [T|list(T)].
 :- constraints foo(+list(int),?float), bar.
 ~~~~~
- 
+
 
 
 #### Compilation
@@ -327,7 +329,7 @@ pl files and the operator definitions required by CHR do not
 leak into modules where they might cause conflicts.
 
 
- 
+
 
 
 #### CHR Debugging
@@ -433,8 +435,8 @@ notrace/0.
 
 Here are two example constraint solvers written in CHR.
 
-+ 
-The program below defines a solver with one constraint, 
++
+The program below defines a solver with one constraint,
 `leq/2`, which is a less-than-or-equal constraint.
 
 ~~~~~
@@ -453,7 +455,7 @@ cycle(X,Y,Z):-
         leq(Z,X).
 ~~~~~
 
-+ 
++
 The program below implements a simple finite domain
 constraint solver.
 
@@ -461,7 +463,7 @@ constraint solver.
 :- module(dom,[dom/2]).
 :- use_module(library(chr)).
 
-:- constraints dom/2. 
+:- constraints dom/2.
 
 dom(X,[]) <=> fail.
 dom(X,[Y]) <=> X = Y.

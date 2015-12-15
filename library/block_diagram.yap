@@ -7,7 +7,7 @@
  * 
  * @brief Graph the program structure. 
  * 
- * 
+ * @{
 */
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -473,3 +473,5 @@ write_explicit.
   atom_concat([InModule, ' -> DYNAMIC [label="DYNAMIC",style=dashed]'], NodeConnection),
   write(NodeConnection), nl.
  */
+
+%% @}

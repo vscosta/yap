@@ -21,16 +21,57 @@
         variables_within_term/3]).
 
 
-%, portray_clause((H:-BF))
-'$full_clause_optimisation'(H, M, B0, BF) :-
-	'$localise_vars_opt'(H, M, B0, BF), !.
+'$add_extra_safe'('$plus'(_,_,V)) --> !, [V].
+'$add_extra_safe'('$minus'(_,_,V)) --> !, [V].
+'$add_extra_safe'('$times'(_,_,V)) --> !, [V].
+'$add_extra_safe'('$div'(_,_,V)) --> !, [V].
+'$add_extra_safe'('$and'(_,_,V)) --> !, [V].
+'$add_extra_safe'('$or'(_,_,V)) --> !, [V].
+'$add_extra_safe'('$sll'(_,_,V)) --> !, [V].
+'$add_extra_safe'('$slr'(_,_,V)) --> !, [V].
+'$add_extra_safe'(C=D,A,B) :-
+   !,
+   ( compound(C) ->
+     '$variables_in_term'(C,E,A)
+   ;
+     E=A
+   ),
+   ( compound(D) ->
+     '$variables_in_term'(D,B,E)
+   ;
+     B=E
+   ).
+'$add_extra_safe'(_) --> [].
 
-% the idea here is to make global variables in disjunctions
-% local.
-'$localise_vars_opt'(H, M, (B1;B2), (NB1;NB2)) :-
-	'$variables_in_term'(H, [], LV),
-	'$localise_vars'(B1, M, NB1, LV, LV, []),
-	'$localise_disj_vars'(B2, M, NB2, LV, LV, []).
+
+'$gen_equals'([], [], _, O, O).
+'$gen_equals'([V|Commons],[NV|NCommons], LV0, O, NO) :- V == NV, !,
+	'$gen_equals'(Commons,NCommons, LV0, O, NO).
+'$gen_equals'([V|Commons],[NV|NCommons], LV0, O, OO) :-
+	'$vmember'(V,LV0),
+         OO = (V=NV,'$safe'(NV),NO),
+	'$gen_equals'(Commons,NCommons, LV0, O, NO).
+'$gen_equals'([V|Commons],[NV|NCommons], LV0, O, OO) :- 
+         OO = (V=NV,NO),
+	'$gen_equals'(Commons,NCommons, LV0, O, NO).
+
+'$safe_guard'((A,B), M) :- !,
+	    '$safe_guard'(A, M),
+	    '$safe_guard'(B, M).
+'$safe_guard'((A;B), M) :- !,
+	    '$safe_guard'(A, M),
+	    '$safe_guard'(B, M).
+'$safe_guard'(A, M) :- !,
+	    '$safe_builtin'(A, M).
+
+'$safe_builtin'(G, Mod) :-
+	'$predicate_flags'(G, Mod, Fl, Fl),
+	Fl /\ 0x00008880 =\= 0.
+
+'$vmember'(V,[V1|_]) :- V == V1, !.
+'$vmember'(V,[_|LV0]) :-
+	'$vmember'(V,LV0).
+
 
 '$localise_disj_vars'((B;B2), M, (NB ; NB2), LV, LV0, LEqs) :- !,
 	'$localise_vars'(B, M, NB, LV, LV0, LEqs),
@@ -67,59 +108,19 @@
 	'$gen_equals'(Commons, NCommons, LV0, (G1,NB1), O).
 '$localise_vars'(G, _, G, _, _, _).
 
-'$gen_equals'([], [], _, O, O).
-'$gen_equals'([V|Commons],[NV|NCommons], LV0, O, NO) :- V == NV, !,
-	'$gen_equals'(Commons,NCommons, LV0, O, NO).
-'$gen_equals'([V|Commons],[NV|NCommons], LV0, O, OO) :-
-	'$vmember'(V,LV0),
-         OO = (V=NV,'$safe'(NV),NO),
-	'$gen_equals'(Commons,NCommons, LV0, O, NO).
-'$gen_equals'([V|Commons],[NV|NCommons], LV0, O, OO) :- 
-         OO = (V=NV,NO),
-	'$gen_equals'(Commons,NCommons, LV0, O, NO).
-
-'$safe_guard'((A,B), M) :- !,
-	    '$safe_guard'(A, M),
-	    '$safe_guard'(B, M).
-'$safe_guard'((A;B), M) :- !,
-	    '$safe_guard'(A, M),
-	    '$safe_guard'(B, M).
-'$safe_guard'(A, M) :- !,
-	    '$safe_builtin'(A, M).
-
-'$safe_builtin'(G, Mod) :-
-	'$predicate_flags'(G, Mod, Fl, Fl),
-	Fl /\ 0x00008880 =\= 0.
-
-'$vmember'(V,[V1|_]) :- V == V1, !.
-'$vmember'(V,[_|LV0]) :-
-	'$vmember'(V,LV0).
-
 '$flatten_bd'((A,B),R,NB) :- !,
 	'$flatten_bd'(B,R,R1),
 	'$flatten_bd'(A,R1,NB).
 '$flatten_bd'(A,R,(A,R)).
 
-'$add_extra_safe'('$plus'(_,_,V)) --> !, [V].
-'$add_extra_safe'('$minus'(_,_,V)) --> !, [V].
-'$add_extra_safe'('$times'(_,_,V)) --> !, [V].
-'$add_extra_safe'('$div'(_,_,V)) --> !, [V].
-'$add_extra_safe'('$and'(_,_,V)) --> !, [V].
-'$add_extra_safe'('$or'(_,_,V)) --> !, [V].
-'$add_extra_safe'('$sll'(_,_,V)) --> !, [V].
-'$add_extra_safe'('$slr'(_,_,V)) --> !, [V].
-'$add_extra_safe'(C=D,A,B) :-
-   !,
-   ( compound(C) ->
-     '$variables_in_term'(C,E,A)
-   ;
-     E=A
-   ),
-   ( compound(D) ->
-     '$variables_in_term'(D,B,E)
-   ;
-     B=E
-   ).
-'$add_extra_safe'(_) --> [].
+% the idea here is to make global variables in disjunctions
+% local.
+'$localise_vars_opt'(H, M, (B1;B2), (NB1;NB2)) :-
+	'$variables_in_term'(H, [], LV),
+	'$localise_vars'(B1, M, NB1, LV, LV, []),
+	'$localise_disj_vars'(B2, M, NB2, LV, LV, []).
 
 
+%, portray_clause((H:-BF))
+'$full_clause_optimisation'(H, M, B0, BF) :-
+	'$localise_vars_opt'(H, M, B0, BF), !.

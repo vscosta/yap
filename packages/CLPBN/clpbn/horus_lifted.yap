@@ -92,7 +92,7 @@ all_tuples(Constraints, Tuple, Tuples) :-
 
 
 run([]).
-run(Goal.Constraints) :-
+run([Goal|Constraints]) :-
 	user:Goal,
 	run(Constraints).
 

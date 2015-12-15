@@ -1,23 +1,11 @@
 SET (CODES
-web/bootstrap/doxy-boot.js
-web/bootstrap/footer.html
-web/bootstrap/header.html
-web/bootstrap/customdoxygen.css
-offcanvas.css
-offcanvas.js
 solarized-light.css
 theme.css
 yap.css
-bootstrap.min.css
-bootstrap.min.js
-font-awesome.min.css
-jquery-2.0.3.min.js
-application.js
-pygments.css
-misc/icons/yap_64x64x32.png 
-misc/icons/yap_256x256x32.png
-misc/icons/yap_128x128x32.png
-misc/icons/yap_48x48x32.png
+icons/yap_64x64x32.png 
+icons/yap_256x256x32.png
+icons/yap_128x128x32.png
+icons/yap_48x48x32.png
   )
 
 SET (DOCS

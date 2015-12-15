@@ -13,6 +13,7 @@ set (LIBRARY_PL
   dbqueues.yap
   dbusage.yap
   dgraphs.yap
+  error.yap
   exo_interval.yap
   expand_macros.yap
   gensym.yap
@@ -54,7 +55,8 @@ set (LIBRARY_PL
   wundgraphs.yap
   lam_mpi.yap
   ypp.yap
-  c_alarms.yap
+   ytest.yap
+   c_alarms.yap
   flags.yap
   block_diagram.yap
   )

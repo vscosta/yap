@@ -1,6 +1,7 @@
 Constraint Logic Programming over Rationals and Reals  {#clpqr}
 =====================================================
 
+@ingroup paackages
 
 YAP now uses the CLP(R) package developed by <em>Leslie De Koninck</em>,
 K.U. Leuven as part of a thesis with supervisor Bart Demoen and daily
@@ -27,7 +28,7 @@ explicitely before using it:
 
 The following predicates are provided to work with constraints:
 
- 
+
 ### Syntax of the predicate arguments {#CLPQR_Syntax}
 
 
@@ -103,19 +104,19 @@ They are given in the following table.
 A = B * C      when B or C is ground	or		 // A = 5 * C or A = B * 4 \\
 	                A and (B or C) are ground	 // 20 = 5 * C or 20 = B * 4 \\
 
-A = B / C      when C is ground or			// A = B / 3 
-	                A and B are ground		// 4 = 12 / C 
+A = B / C      when C is ground or			// A = B / 3
+	                A and B are ground		// 4 = 12 / C
 
-X = min(Y,Z)   when Y and Z are ground or	// X = min(4,3) 
-X = max(Y,Z)        Y and Z are ground		// X = max(4,3) 
-X = abs(Y)          Y is ground			    // X = abs(-7) 
+X = min(Y,Z)   when Y and Z are ground or	// X = min(4,3)
+X = max(Y,Z)        Y and Z are ground		// X = max(4,3)
+X = abs(Y)          Y is ground			    // X = abs(-7)
 
-X = pow(Y,Z)   when X and Y are ground or		// 8 = 2 ^ Z 
-X = exp(Y,Z)           X and Z are ground		// 8 = Y ^ 3 
-X = Y ^ Z              Y and Z are ground		// X = 2 ^ 3 
+X = pow(Y,Z)   when X and Y are ground or		// 8 = 2 ^ Z
+X = exp(Y,Z)           X and Z are ground		// 8 = Y ^ 3
+X = Y ^ Z              Y and Z are ground		// X = 2 ^ 3
 
-X = sin(Y)	    when X is ground or			// 1 = sin(Y) 
-X = cos(Y)	         Y is ground			// X = sin(1.5707) 
+X = sin(Y)	    when X is ground or			// 1 = sin(Y)
+X = cos(Y)	         Y is ground			// X = sin(1.5707)
 X = tan(Y)
 ~~~~~
 

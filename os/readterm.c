@@ -351,6 +351,12 @@ Term Yap_syntax_error(TokEntry *errtok, int sno) {
   tn[0] = Yap_MkApplTerm(FunctorShortSyntaxError, 1, &terr);
   tn[1] = TermNil;
   terr = Yap_MkApplTerm(FunctorError, 2, tn);
+  #if DEBUG
+   if (Yap_ExecutionMode == YAP_BOOT_MODE) {
+     fprintf(stderr, "SYNTAX ERROR while booting: ");
+     Yap_DebugPlWriteln( terr );
+   }
+   #endif
   return terr;
 }
 
@@ -365,6 +371,7 @@ typedef struct FEnv {
   xarg *args;          /// input args
   bool reading_clause; /// read_clause
   size_t nargs;        /// arity of current procedure
+  encoding_t enc;      /// encoding of the stream being read
 } FEnv;
 
 typedef struct renv {
@@ -388,6 +395,7 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   LOCAL_VarTable = NULL;
   LOCAL_AnonVarTable = NULL;
   re->cm = CurrentModule;
+  fe->enc = GLOBAL_Stream[inp_stream].encoding;
   xarg *args = Yap_ArgListToVector(opts, read_defs, READ_END);
   if (args == NULL) {
     return NULL;
@@ -651,7 +659,8 @@ static parser_state_t scan(REnv *re, FEnv *fe, int inp_stream) {
   /* preserve   value of H after scanning: otherwise we may lose strings
       and floats */
   LOCAL_tokptr = LOCAL_toktide =
-      Yap_tokenizer(GLOBAL_Stream + inp_stream, false, &fe->tpos);
+
+    Yap_tokenizer(GLOBAL_Stream + inp_stream, false, &fe->tpos);
   if (LOCAL_ErrorMessage)
     return YAP_SCANNING_ERROR;
   if (LOCAL_tokptr->Tok != Ord(eot_tok)) {
@@ -737,8 +746,10 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
 static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
   CACHE_REGS
   TokEntry *tokstart = LOCAL_tokptr;
-
+  encoding_t e = LOCAL_encoding;
+  LOCAL_encoding = fe->enc;
   fe->t = Yap_Parse(re->prio);
+  LOCAL_encoding = e;
   fe->toklast = LOCAL_tokptr;
   LOCAL_tokptr = tokstart;
   TR = (tr_fr_ptr)tokstart;

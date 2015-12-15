@@ -18,10 +18,10 @@
  * @file   consult.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Wed Nov 18 14:01:10 2015
- * 
+ *
  * @brief  loading programs into YAP
- * 
- * 
+ *
+ *
 */
 :- system_module( '$_consult', [compile/1,
         consult/1,
@@ -439,7 +439,7 @@ load_files(Files,Opts) :-
 	'$do_lf'(Mod, user_input, user_input, user_input, TOpts).
 '$lf'(File, Mod, Call, TOpts) :-
    '$lf_opt'(stream, TOpts, Stream),
-    b_setval('$source_file', File),
+   b_setval('$source_file', File),
     ( var(Stream) ->
 	  /* need_to_open_file */
       ( '$full_filename'(File, Y, Call) -> true ; '$do_error'(existence_error(source_sink,File),Call) ),
@@ -447,7 +447,6 @@ load_files(Files,Opts) :-
         ;
 	stream_property(Stream, file_name(Y))
     ), !,
- %   start_low_level_trace,
     ( file_size(Stream, Pos) -> true ; Pos = 0),
     '$set_lf_opt'('$source_pos', TOpts, Pos),
     '$lf_opt'(reexport, TOpts, Reexport),
@@ -455,7 +454,6 @@ load_files(Files,Opts) :-
     ( var(If) -> If = true ; true ),
     '$lf_opt'(imports, TOpts, Imports),
     '$start_lf'(If, Mod, Stream, TOpts, File, Y, Reexport, Imports),
-%	stop_low_level_trace,
     close(Stream).
 
 
@@ -502,8 +500,9 @@ load_files(Files,Opts) :-
        '$lf_opt'('$location', TOpts, ParentF:_Line),
        '$reexport'( TOpts, ParentF, Reexport, ImportList, File ),
        '$early_print'(Verbosity, loaded( loaded, F, M, T, H)),
-%	stop_low_level_trace,
-       '$exec_initialization_goals'.
+       working_directory( _, OldD),
+       '$exec_initialization_goals',
+       '$current_module'(_M, Mod).
 '$start_lf'(_, Mod, Stream, TOpts, UserFile, File, _Reexport, _Imports) :-
 	'$do_lf'(Mod, Stream, UserFile, File, TOpts).
 
@@ -661,6 +660,7 @@ db_files(Fs) :-
 	'$extract_minus'(Fs, MFs).
 
 '$do_lf'(ContextModule, Stream, UserFile, File,  TOpts) :-
+    prompt1(': '), prompt(_,'     '),
 	stream_property(OldStream, alias(loop_stream) ),
 	'$lf_opt'(encoding, TOpts, Encoding),
 	set_stream( Stream, [alias(loop_stream), encoding(Encoding)] ),
@@ -804,7 +804,8 @@ nb_setval('$if_le1vel',0).
 	recorded('$system_initialization',G,R),
 	erase(R),
 	G \= '$',
-	( catch(user:G, Error, user:'$LoopError'(Error, top))
+    strip_module(user:G, M0, G0),
+	( catch(M0:G0, Error, user:'$LoopError'(Error, top))
 	->
 	  true
 	;
@@ -813,18 +814,18 @@ nb_setval('$if_le1vel',0).
    fail.
 '$exec_initialization_goals' :-
 	'$current_module'(M),
-	b_getval('$lf_status', TOpts),
+	'$nb_getval'('$lf_status', TOpts, fail),
 	'$lf_opt'( initialization, TOpts, Ref),
 	nb:nb_queue_close(Ref, Answers, []),
 	lists:member(G, Answers),
-%	start_low_level_trace,
+    strip_module( M:G, M0, G0),
 	(
-	 catch(M:G, Error, user:'$LoopError'(Error, top))
+	 catch(M0:G0, Error, user:'$LoopError'(Error, top))
 	->
 	 true
-	;                                                                                 format(user_error,':- ~w:~w failed.~n',[M,G])
+	;                                                                           format(user_error,':- ~w:~w failed.~n',[M,G])
 	),
-%	stop_low_level_trace,
+	stop_low_level_trace,
 	fail.
 '$exec_initialization_goals'.
 
@@ -1174,7 +1175,7 @@ unload_file( F0 ) :-
 '$unload_file'( FileName, _F0 ) :-
     recorded('$mf','$mf_clause'(FileName,_Name,_Arity,_Module,ClauseRef), R),
     erase(R),
-    erase(ClauseRef),
+    '$erase_clause'(ClauseRef),
     fail.
 '$unload_file'( FileName, _F0 ) :-
     recorded('$multifile_dynamic'(_,_,_), '$mf'(_Na,_A,_M,FileName,R), R1),
@@ -1371,6 +1372,7 @@ last one, onto underscores.
 '$remove_multifile_clauses'(_).
 
 /** @pred initialization(+ _G_) is iso
+
 The compiler will execute goals  _G_ after consulting the current
 file.
 
@@ -1379,19 +1381,15 @@ In other words, the source module and execution directory will be the ones of th
 environment. Use initialization/2 for more flexible behavior.
 
 */
-'$initialization'(V) :-
-	var(V), !,
-	'$do_error'(instantiation_error,initialization(V)).
-'$initialization'(C) :- number(C), !,
-	'$do_error'(type_error(callable,C),initialization(C)).
-'$initialization'(C) :- db_reference(C), !,
-	'$do_error'(type_error(callable,C),initialization(C)).
 '$initialization'(G) :-
+    '$initialization'( G, after_load ).
+
+'$initialization_queue'(G) :-
 	b_getval('$lf_status', TOpts),
 	'$lf_opt'( initialization, TOpts, Ref),
 	nb:nb_queue_enqueue(Ref, G),
 	fail.
-'$initialization'(_).
+'$initialization_queue'(_).
 
 
 
@@ -1411,56 +1409,28 @@ Similar to initialization/1, but allows for specifying when
       Do not execute  _Goal_ while loading the program, but only when restoring a state (not implemented yet).
 
 */
-initialization(G,OPT) :-
-	( '$initialization'(G,OPT) -> fail ).
+initialization(G0,OPT) :-
+    expand_goal(G0, G),
+	catch('$initialization'(G, OPT), Error, '$LoopError'( Error ) ),
+    fail.
 initialization(_G,_OPT).
 
 '$initialization'(G,OPT) :-
-	(
-	   var(G)
-	->
-	  '$do_error'(instantiation_error,initialization(G,OPT))
-	;
-	   number(G)
-	->
-	  '$do_error'(type_error(callable,G),initialization(G,OPT))
-	;
-	   db_reference(G)
-	->
-	  '$do_error'(type_error(callable,G),initialization(G,OPT))
-	;
+    error:must_be_of_type(callable, G, initialization(G,OPT)),
+    error:must_be_of_type(oneof([after_load, now, restore]), OPT, initialization(G0,OPT)),
+    (
 	 OPT == now
 	->
-	 fail
+    ( call(G) -> true ; format(user_error,':- ~w:~w failed.~n',[G]) )
 	;
 	 OPT == after_load
 	->
-	 fail
+	 '$initialization_queue'(G)
 	;
 	 OPT == restore
 	->
-	 fail
-	;
-	 var(OPT)
-        ->
-         '$do_error'(instantiation_error,initialization(G,OPT))
-        ;
-	 atom(OPT)
-        ->
-	 '$do_error'(domain_error(initialization,OPT),initialization(OPT))
-	;
-	 '$do_error'(type_error(atom,OPT),initialization(OPT))
-	).
-'$initialization'(G,now) :-
-    '$current_module'(M),
-    ( catch(M:G, Error, user:'$LoopError'(Error, top)) -> true
-    ;
-      format(user_error,':- ~w:~w failed.~n',[M,G])
-   ).
-'$initialization'(G,after_load) :-
-	'$initialization'(G).
-% ignore for now.
-'$initialization'(_G,restore).
+    recordz('$call_at_restore', G, _ )
+    ).
 
 /**
 
@@ -1482,7 +1452,6 @@ term_expansion/2, goal_expansion/2 and the expansion of
 grammar rules to compile sections of the source-code
 conditionally. One of the reasons for introducing conditional
 compilation is to simplify writing portable code.
-
 
 
 Note that these directives can only be appear as separate terms in the
@@ -1587,7 +1556,7 @@ no test succeeds the else branch is processed.
 % we can try the elif
 '$elif'(Goal,_) :-
 	'$get_if'(Level),
-	nb_getval('$endif',elif(Level,OldEndif,Mode)),
+	'$nb_getval'('$endif',elif(Level,OldEndif,Mode),fail),
 	('$if_call'(Goal)
 	    ->
 % we will not skip, and we will not run any more branches.

@@ -389,17 +389,6 @@ current_stream(File, Mode, Stream) :-
 	'$add_file_search_paths'(Paths).
 
 
-prolog_file_name(File, PrologFileName) :-
-	var(File), !,
-	'$do_error'(instantiation_error, prolog_file_name(File, PrologFileName)).
-prolog_file_name(user, Out) :- !, Out = user.
-prolog_file_name(File, PrologFileName) :-
-	atom(File), !,
-	system:true_file_name(File, PrologFileName).
-prolog_file_name(File, PrologFileName) :-
-	'$do_error'(type_error(atom,File),
-		    prolog_file_name(File, PrologFileName)).
-
 '$format@'(Goal,Out) :-
 	with_output_to(codes(Out), Goal).
 

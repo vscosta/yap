@@ -257,8 +257,7 @@ the pair with the smallest Key), but does not remove it from the heap.
 min_of_heap(t(_,_,t(Key,Datum,_,_)), Key, Datum).
 
 
-%% @pred   @pred min_of_heap(+ _Heap_,  - _Key1_,  - _Datum1_,
-- _Key2_,  - _Datum2_)
+%% @pred   @pred min_of_heap(+ _Heap_,  - _Key1_,  - _Datum1_, -_Key2_,  - _Datum2_)
 %
 %   returns the smallest (Key1) and second smallest (Key2) pairs in
 %   the heap, without deleting them.  It fails if the heap does not

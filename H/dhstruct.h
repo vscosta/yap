@@ -101,6 +101,7 @@
 #define SWI_MODULE Yap_heap_regs->swi_module
 #define DBLOAD_MODULE Yap_heap_regs->dbload_module
 #define RANGE_MODULE Yap_heap_regs->range_module
+#define ERROR_MODULE Yap_heap_regs->error_module
 
 
 
@@ -207,9 +208,6 @@
 
 #define PROFILING Yap_heap_regs->system_profiling
 #define CALL_COUNTING Yap_heap_regs->system_call_counting
-#define PRED_GOAL_EXPANSION_ALL Yap_heap_regs->system_pred_goal_expansion_all
-#define PRED_GOAL_EXPANSION_FUNC Yap_heap_regs->system_pred_goal_expansion_func
-#define PRED_GOAL_EXPANSION_ON Yap_heap_regs->system_pred_goal_expansion_on
 #define optimizer_on Yap_heap_regs->compiler_optimizer_on
 #define compile_mode Yap_heap_regs->compiler_compile_mode
 #define profiling Yap_heap_regs->compiler_profiling

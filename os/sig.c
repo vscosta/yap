@@ -902,7 +902,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
 			 "	 stb	%g0, [%g1 + 3]\n"
 			 "	retl\n"
 			 "	 mov	%g4, %o7\n"
-			 );
+                         );
   }
 #endif /* sparc */
 

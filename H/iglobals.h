@@ -141,4 +141,6 @@ static void InitGlobal(void) {
   GLOBAL_CharConversionTable2 = NULL;
 
   GLOBAL_LastWTimePtr = NULL;
+
+  GLOBAL_MaxPriority = 1200;
 }

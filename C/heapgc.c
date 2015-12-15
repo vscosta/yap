@@ -4267,6 +4267,7 @@ Yap_locked_gc(Int predarity, CELL *current_env, yamop *nextop)
   CACHE_REGS
   int res;
 #if YAPOR_COPY
+  
   fprintf(stderr, "\n\n***** Trying to call the garbage collector in YAPOR/copying ****\n\n\n");
   exit( 1 );
 #endif

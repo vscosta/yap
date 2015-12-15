@@ -1,7 +1,7 @@
 %%% -*- Mode: Prolog; -*-
 
 /**
- * @file   flags.yap
+ * @file   library/flags.yap
  * @author Theofrastos Mantadelis, Bernd Gutmann, Paulo Moura
  * @date   Tue Nov 17 15:18:02 2015
  * 
@@ -235,6 +235,7 @@
 *
 * Routines to manipulate flags: they allow defining, set,
 * resetting.
+* @{
 */
 
 
@@ -585,4 +586,4 @@ defined_flag(FlagName, FlagGroup, FlagType, DefaultValue, Description, Access, H
   nonvar(FlagName), nonvar(FlagGroup),
   '$defined_flag$'(FlagName, FlagGroup, FlagType, DefaultValue, Description, Access, Handler).
 
-
+%%@}

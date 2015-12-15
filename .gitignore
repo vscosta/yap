@@ -78,6 +78,7 @@ yap
 *cmake_files
 C/pl-yap.c
 GitSHA1.c
+.vscode
 CMakeLists.txt.*
 FindPackageLog.txt
 GitSHA1.c
@@ -112,10 +113,13 @@ packages/real/rconfig.h
 
 packages/ProbLog/problog/#completion.yap#
 
-packages/ProbLog/problog_examples/output/out.dat
+packages/ProbLog/problog_examples/output
+packages/ProbLog/problog_examples/queries
+packages/swig/java/*.java
+packages/swig/java/*.class
+packages/swig/java/*.jar
+packages/swig/java/*wrap*
+*jnilib
+*.jar
 
-packages/ProbLog/problog_examples/output/,_query_1_cluster_1.dot
-
-packages/ProbLog/problog_examples/output/out.dat
-
-packages/ProbLog/problog_examples/output/,_query_1_cluster_1
+packages/cplint/approx/simplecuddLPADs/LPADBDD

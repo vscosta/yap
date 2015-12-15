@@ -25,6 +25,10 @@
   AtomEmptyBrackets = AtomAdjust(AtomEmptyBrackets);
   AtomEmptySquareBrackets = AtomAdjust(AtomEmptySquareBrackets);
   AtomEmptyCurlyBrackets = AtomAdjust(AtomEmptyCurlyBrackets);
+  AtomAsserta = AtomAdjust(AtomAsserta);
+  AtomAssertaStatic = AtomAdjust(AtomAssertaStatic);
+  AtomAssertz = AtomAdjust(AtomAssertz);
+  AtomAssertzStatic = AtomAdjust(AtomAssertzStatic);
   AtomAt = AtomAdjust(AtomAt);
   AtomAtom = AtomAdjust(AtomAtom);
   AtomAtomic = AtomAdjust(AtomAtomic);
@@ -66,6 +70,7 @@
   AtomCompact = AtomAdjust(AtomCompact);
   AtomCompound = AtomAdjust(AtomCompound);
   AtomConsistencyError = AtomAdjust(AtomConsistencyError);
+  AtomConsult = AtomAdjust(AtomConsult);
   AtomConsultOnBoot = AtomAdjust(AtomConsultOnBoot);
   AtomContext = AtomAdjust(AtomContext);
   AtomCputime = AtomAdjust(AtomCputime);
@@ -289,6 +294,7 @@
   AtomReadOnly = AtomAdjust(AtomReadOnly);
   AtomReadWrite = AtomAdjust(AtomReadWrite);
   AtomReadutil = AtomAdjust(AtomReadutil);
+  AtomReconsult = AtomAdjust(AtomReconsult);
   AtomRecordedP = AtomAdjust(AtomRecordedP);
   AtomRecordedWithKey = AtomAdjust(AtomRecordedWithKey);
   AtomRedefineWarnings = AtomAdjust(AtomRedefineWarnings);

@@ -25,6 +25,10 @@
   AtomEmptyBrackets = Yap_LookupAtom("()");
   AtomEmptySquareBrackets = Yap_LookupAtom("[]");
   AtomEmptyCurlyBrackets = Yap_LookupAtom("{}");
+  AtomAsserta = Yap_LookupAtom("asserta");
+  AtomAssertaStatic = Yap_LookupAtom("asserta_static");
+  AtomAssertz = Yap_LookupAtom("assertz");
+  AtomAssertzStatic = Yap_LookupAtom("assertz_static");
   AtomAt = Yap_LookupAtom("at");
   AtomAtom = Yap_LookupAtom("atom");
   AtomAtomic = Yap_LookupAtom("atomic");
@@ -66,6 +70,7 @@
   AtomCompact = Yap_LookupAtom("compact");
   AtomCompound = Yap_LookupAtom("compound");
   AtomConsistencyError = Yap_LookupAtom("consistency_error");
+  AtomConsult = Yap_LookupAtom("consult");
   AtomConsultOnBoot = Yap_FullLookupAtom("$consult_on_boot");
   AtomContext = Yap_LookupAtom("context");
   AtomCputime = Yap_LookupAtom("cputime");
@@ -133,6 +138,7 @@
   AtomFail = Yap_LookupAtom("fail");
   AtomFalse = Yap_LookupAtom("false");
   AtomFast = Yap_FullLookupAtom("$fast");
+  AtomFastFail = Yap_LookupAtom("fast_fail");
   AtomFileErrors = Yap_LookupAtom("file_errors");
   AtomFileerrors = Yap_LookupAtom("fileerrors");
   AtomFileType = Yap_LookupAtom("file_type");
@@ -288,6 +294,7 @@
   AtomReadOnly = Yap_LookupAtom("read_only");
   AtomReadWrite = Yap_LookupAtom("read_write");
   AtomReadutil = Yap_LookupAtom("readutil");
+  AtomReconsult = Yap_LookupAtom("reconsult");
   AtomRecordedP = Yap_FullLookupAtom("$recordep");
   AtomRecordedWithKey = Yap_FullLookupAtom("$recorded_with_key");
   AtomRedefineWarnings = Yap_LookupAtom("redefine_warnings");

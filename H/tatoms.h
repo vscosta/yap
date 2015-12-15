@@ -71,6 +71,18 @@
   Atom AtomEmptyCurlyBrackets_;
 #define AtomEmptyCurlyBrackets Yap_heap_regs->AtomEmptyCurlyBrackets_
 #define TermEmptyCurlyBrackets MkAtomTerm( Yap_heap_regs->AtomEmptyCurlyBrackets_ )
+  Atom AtomAsserta_;
+#define AtomAsserta Yap_heap_regs->AtomAsserta_
+#define TermAsserta MkAtomTerm( Yap_heap_regs->AtomAsserta_ )
+  Atom AtomAssertaStatic_;
+#define AtomAssertaStatic Yap_heap_regs->AtomAssertaStatic_
+#define TermAssertaStatic MkAtomTerm( Yap_heap_regs->AtomAssertaStatic_ )
+  Atom AtomAssertz_;
+#define AtomAssertz Yap_heap_regs->AtomAssertz_
+#define TermAssertz MkAtomTerm( Yap_heap_regs->AtomAssertz_ )
+  Atom AtomAssertzStatic_;
+#define AtomAssertzStatic Yap_heap_regs->AtomAssertzStatic_
+#define TermAssertzStatic MkAtomTerm( Yap_heap_regs->AtomAssertzStatic_ )
   Atom AtomAt_;
 #define AtomAt Yap_heap_regs->AtomAt_
 #define TermAt MkAtomTerm( Yap_heap_regs->AtomAt_ )
@@ -194,6 +206,9 @@
   Atom AtomConsistencyError_;
 #define AtomConsistencyError Yap_heap_regs->AtomConsistencyError_
 #define TermConsistencyError MkAtomTerm( Yap_heap_regs->AtomConsistencyError_ )
+  Atom AtomConsult_;
+#define AtomConsult Yap_heap_regs->AtomConsult_
+#define TermConsult MkAtomTerm( Yap_heap_regs->AtomConsult_ )
   Atom AtomConsultOnBoot_;
 #define AtomConsultOnBoot Yap_heap_regs->AtomConsultOnBoot_
 #define TermConsultOnBoot MkAtomTerm( Yap_heap_regs->AtomConsultOnBoot_ )
@@ -395,6 +410,9 @@
   Atom AtomFast_;
 #define AtomFast Yap_heap_regs->AtomFast_
 #define TermFast MkAtomTerm( Yap_heap_regs->AtomFast_ )
+  Atom AtomFastFail_;
+#define AtomFastFail Yap_heap_regs->AtomFastFail_
+#define TermFastFail MkAtomTerm( Yap_heap_regs->AtomFastFail_ )
   Atom AtomFileErrors_;
 #define AtomFileErrors Yap_heap_regs->AtomFileErrors_
 #define TermFileErrors MkAtomTerm( Yap_heap_regs->AtomFileErrors_ )
@@ -860,6 +878,9 @@
   Atom AtomReadutil_;
 #define AtomReadutil Yap_heap_regs->AtomReadutil_
 #define TermReadutil MkAtomTerm( Yap_heap_regs->AtomReadutil_ )
+  Atom AtomReconsult_;
+#define AtomReconsult Yap_heap_regs->AtomReconsult_
+#define TermReconsult MkAtomTerm( Yap_heap_regs->AtomReconsult_ )
   Atom AtomRecordedP_;
 #define AtomRecordedP Yap_heap_regs->AtomRecordedP_
 #define TermRecordedP MkAtomTerm( Yap_heap_regs->AtomRecordedP_ )

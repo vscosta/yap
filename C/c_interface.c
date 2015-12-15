@@ -2394,6 +2394,7 @@ X_API void YAP_ClearExceptions(void) {
 }
 
 X_API int YAP_InitConsult(int mode, const char *filename, int *osnop) {
+  CACHE_REGS
   FILE *f;
   int sno;
   BACKUP_MACHINE_REGS();
@@ -2403,7 +2404,7 @@ X_API int YAP_InitConsult(int mode, const char *filename, int *osnop) {
   }
   bool consulted = (mode == YAP_CONSULT_MODE);
   Yap_init_consult(consulted, filename);
-  f = fopen(filename, "r");
+  f = fopen(Yap_AbsoluteFile(filename, LOCAL_FileNameBuf, FILENAME_MAX-1), "r");
   if (!f)
     return -1;
   sno = Yap_OpenStream(f, NULL, TermNil, Input_Stream_f);
@@ -2717,7 +2718,7 @@ X_API Int YAP_Init(YAP_init_args *yap_init) {
       setBooleanGlobalPrologFlag(HALT_AFTER_CONSULT_FLAG,
                                  yap_init->HaltAfterConsult);
     }
-    /* tell the system who should cope with interrupts */
+    /* tell the scystem who should cope with interrupts */
     Yap_ExecutionMode = yap_init->ExecutionMode;
     if (do_bootstrap) {
       restore_result = YAP_BOOT_FROM_PROLOG;
@@ -3326,7 +3327,6 @@ X_API int YAP_FileNoFromStream(Term t) {
   if (IsVarTerm(t))
     return -1;
   return Yap_StreamToFileNo(t);
-  return -1;
 }
 
 X_API void *YAP_FileDescriptorFromStream(Term t) {
@@ -3335,7 +3335,6 @@ X_API void *YAP_FileDescriptorFromStream(Term t) {
   if (IsVarTerm(t))
     return NULL;
   return Yap_FileDescriptorFromStream(t);
-  return NULL;
 }
 
 X_API void *YAP_Record(Term t) {
@@ -3588,7 +3587,6 @@ Term YAP_BPROLOG_curr_toam_status;
  * @return a positive number with the size, or 0.
  */
 size_t YAP_UTF8_TextLength(Term t) {
-  Term *aux;
   utf8proc_uint8_t dst[8];
   size_t sz = 0;
 

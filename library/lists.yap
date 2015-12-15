@@ -1,5 +1,5 @@
 /**
- * @file   lists.yap
+ * @file   library/lists.yap
  * @author Bob Welham, Lawrence Byrd, and R. A. O'Keefe. Contributions from Vitor Santos Costa, Jan Wielemaker and others.
  * @date   1999
  * 
@@ -212,6 +212,7 @@ append_([L1,L2|[L3|LL]], L) :-
 
 True when  _List_ is a list and  _Last_ is identical to its last element.
 d(_, [X], L).
+*/
 
 last([H|List], Last) :-
 	last(List, H, Last).
@@ -623,3 +624,4 @@ close_list([_|T]) :-
 	close_list(T).
 
 
+%% @}

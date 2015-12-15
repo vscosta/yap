@@ -453,8 +453,6 @@
 #define REMOTE_ImportDBRefHashTableNum(wid) REMOTE(wid)->ImportDBRefHashTableNum_
 #define LOCAL_ImportFAILCODE LOCAL->ImportFAILCODE_
 #define REMOTE_ImportFAILCODE(wid) REMOTE(wid)->ImportFAILCODE_
-#define LOCAL_FunctorVar LOCAL->FunctorVar_
-#define REMOTE_FunctorVar(wid) REMOTE(wid)->FunctorVar_
 #if __ANDROID__
 
 #define LOCAL_assetManager LOCAL->assetManager_

@@ -357,7 +357,7 @@ typedef enum stream_f {
   Eof_Error_Stream_f	=	0x000200, /**< Stream should generate error on trying to read after EOF */
   Reset_Eof_Stream_f	=	0x000400, /**< Stream should be reset on findind an EO (C-D and console.*/
   Past_Eof_Stream_f	=	0x000800, /**< Read EOF from stream */
-  Push_Eof_Stream_f	=	0x001000, /**< keep on sennding EOFs */
+  Push_Eof_Stream_f	=	0x001000, /**< keep on sending EOFs */
   Seekable_Stream_f	=	0x002000, /**< we can jump around the stream (std regular files) */
   Promptable_Stream_f	=	0x004000, /**< Interactive line-by-line stream */
   Client_Socket_Stream_f=	0x008000, /**< socket in client mode */
@@ -369,7 +369,8 @@ typedef enum stream_f {
   HAS_BOM_f		=	0x200000, /**< media for streamhas a BOM mar. */
   RepError_Prolog_f	=	0x400000, /**< handle representation error as Prolog terms */
   RepError_Xml_f	=	0x800000,  /**< handle representation error as XML objects */
-  DoNotCloseOnAbort_Stream_f=  0x1000000  /**< do not close the stream after an abort event */
+  DoNotCloseOnAbort_Stream_f=  0x1000000,  /**< do not close the stream after an abort event */
+  Readline_Stream_f=  0x2000000  /**< the stream is a readline stream */
 } estream_f;
 
 typedef uint64_t stream_flags_t;

@@ -1,3 +1,4 @@
+
 %%% -*- Mode: Prolog; -*-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1180,3 +1181,11 @@ init_logger :-
 
 :- initialization(init_flags).
 :- initialization(init_logger).
+
+%:- spy em_one_iteration.
+
+
+%:- initialization(do_learning(100) ).
+
+                
+

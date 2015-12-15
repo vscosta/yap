@@ -355,8 +355,8 @@ true :- true.
     % do catch as early as possible
     (
      current_prolog_flag(halt_after_consult, false),
-     current_prolog_flag(verbose, normal),
-      \+ '$uncaught_throw'
+     current_prolog_flag(verbose, normal)
+     % \+ '$uncaught_throw'
     ->
      '$version'
     ;
@@ -488,7 +488,7 @@ true :- true.
 	'$run_atom_goal'(GA),
 	current_prolog_flag(break_level, BreakLevel),
 	(
-	 Breaklevel \= 0
+	 BreakLevel \= 0
 	->
 	 true
 	;
@@ -756,12 +756,12 @@ number of steps.
      
 
 '$check_if_reconsulted'(N,A) :-
-         once(recorded('$reconsulted',N/A,_)),
-	 recorded('$reconsulted',X,_),
-	 ( X = N/A , !;
-	   X = '$', !, fail;
-	   fail
-	 ).
+    once(recorded('$reconsulted',N/A,_)),
+    recorded('$reconsulted',X,_),
+    ( X = N/A , !;
+      X = '$', !, fail;
+      fail
+    ).
 
 '$inform_as_reconsulted'(N,A) :-
 	 recorda('$reconsulted',N/A,_).
@@ -977,7 +977,7 @@ number of steps.
 	format(user_error,'~a',[V]),
 	'$write_output_vars'(VL),
 	format(user_error,' = ', []),
-        ( recorded('$print_options','$toplevel'(Opts),_) ->
+        ( yap_flag(toplevel_print_options, Opts) ->
 	   write_term(user_error,B,[priority(699)|Opts]) ;
 	   write_term(user_error,B,[priority(699)])
         ).
@@ -999,20 +999,20 @@ number of steps.
 	).
 '$write_goal_output'(_-G, First, [G|NG], next, NG) :- !,
         ( First = first -> true ; format(user_error,',~n',[]) ),
-        ( recorded('$print_options','$toplevel'(Opts),_) ->
+        (  yap_flag(toplevel_print_options, Opts) ->
 	   write_term(user_error,G,Opts) ;
 	   format(user_error,'~w',[G])
         ).
 '$write_goal_output'(_M:G, First, [G|NG], next, NG) :- !,
         ( First = first -> true ; format(user_error,',~n',[]) ),
-        ( recorded('$print_options','$toplevel'(Opts),_) ->
+        (  yap_flag(toplevel_print_options, Opts) ->
 	   write_term(user_error,G,Opts) ;
 	   format(user_error,'~w',[G])
         ).
 '$write_goal_output'(G, First, [M:G|NG], next, NG) :-
 	'$current_module'(M),
         ( First = first -> true ; format(user_error,',~n',[]) ),
-        ( recorded('$print_options','$toplevel'(Opts),_) ->
+        (  yap_flag(toplevel_print_options, Opts) ->
 	   write_term(user_error,G,Opts) ;
 	   format(user_error,'~w',[G])
         ).
@@ -1031,11 +1031,11 @@ number of steps.
 	'$name_well_known_vars'(NVL0).
 
 '$name_vars_in_goals1'([], I, I).
-'$name_vars_in_goals1'([SName|NGVL], I0, IF) :-
+'$name_vars_in_goals1'([V|NGVL], I0, IF) :-
 	I is I0+1,
 	'$gen_name_string'(I0,[],SName), !,
 	atom_codes(Name, [95|SName]),
-	'$VAR'(Name, SName ),
+	V = '$VAR'(Name),
 	'$name_vars_in_goals1'(NGVL, I, IF).
 '$name_vars_in_goals1'([NV|NGVL], I0, IF) :-
 	nonvar(NV),
@@ -1267,36 +1267,25 @@ not(G) :-    \+ '$execute'(G).
         ;
 	    '$call'(B,CP,G0,M)
 	).
-'$call'(\+ X, _CP, _G0, M) :- !,
+'$call'(\+ X, _CP, G0, M) :- !,
 	\+ ('$current_choice_point'(CP),
 	  '$call'(X,CP,G0,M) ).
-'$call'(not(X), _CP, _G0, M) :- !,
+'$call'(not(X), _CP, G0, M) :- !,
 	\+ ('$current_choice_point'(CP),
 	  '$call'(X,CP,G0,M) ).
 '$call'(!, CP, _,_) :- !,
 	'$$cut_by'(CP).
 '$call'([A|B], _, _, M) :- !,
 	'$csult'([A|B], M).
-'$call'(G, CP, G0, CurMod) :-
-	( '$is_expand_goal_or_meta_predicate'(G,CurMod) ->
-	   (
-	     '$do_goal_expansion'(G, CurMod, NG) ->
-	     '$call'(NG, CP, G0,CurMod)
-	     ;
-	       % repeat other code.
-             '$is_metapredicate'(G,CurMod) ->
-	       (
-	         '$meta_expansion'(G,CurMod,CurMod,CurMod,NG,[]) ->
-	         '$execute0'(NG, CurMod)
-	       ;
-	         '$execute0'(G, CurMod)
-	       )
-	   ;
-	     '$execute0'(G, CurMod)
-	   )
-	;
-	  '$execute0'(G, CurMod)
-	).
+'$call'(G, _CP, _G0, CurMod) :-
+	(
+     '$is_metapredicate'(G,CurMod)
+    ->
+     '$expand_meta_call'(CurMod:G, [], NG)
+    ;
+     NG = G
+    ),
+    '$execute0'(NG, CurMod).
 
 '$check_callable'(V,G) :- var(V), !,
 	'$do_error'(instantiation_error,G).
@@ -1319,7 +1308,6 @@ bootstrap(F) :-
 	'$start_consult'(consult, File, LC),
 	file_directory_name(File, Dir),
 	working_directory(OldD, Dir),
-
 	(
 	  current_prolog_flag(verbose_load, silent)
 	->
@@ -1345,25 +1333,25 @@ bootstrap(F) :-
 
 '$loop'(Stream,exo) :-
 	prolog_flag(agc_margin,Old,0),
-	prompt1('|     '), prompt(_,'| '),
+    prompt1(': '), prompt(_,'     '),
 	'$current_module'(OldModule),
 	repeat,
 		'$system_catch'(dbload_from_stream(Stream, OldModule, exo), '$db_load', Error,
-			 user:'$LoopError'(Error, Status)),
+			 user:'$LoopError'(Error, top)),
 	prolog_flag(agc_margin,_,Old),
 	!.
 '$loop'(Stream,db) :-
 	prolog_flag(agc_margin,Old,0),
-	prompt1('|     '), prompt(_,'| '),
+    prompt1(': '), prompt(_,'     '),
 	'$current_module'(OldModule),
 	repeat,
 		'$system_catch'(dbload_from_stream(Stream, OldModule, db), '$db_load', Error,
-			 user:'$LoopError'(Error, Status)),
+			 user:'$LoopError'(Error, top)),
 	prolog_flag(agc_margin,_,Old),
 	!.
 '$loop'(Stream,Status) :-
 	repeat,
-		prompt1('|     '), prompt(_,'| '),
+        prompt1(': '), prompt(_,'     '),
 		'$current_module'(OldModule),
 		'$system_catch'('$enter_command'(Stream,OldModule,Status), OldModule, Error,
 			 user:'$LoopError'(Error, Status)),
@@ -1547,7 +1535,8 @@ throw(Ball) :-
 	    throw(Ball)
 	).
 
-catch_ball(Abort, _) :- Abort == '$abort', !, fail.
+catch_ball(Abort, _) :-
+    Abort == '$abort', !, fail.
 % system defined throws should be ignored by user, unless the
 % user is hacking away.
 catch_ball(Ball, V) :-
@@ -1563,7 +1552,7 @@ catch_ball(C, C).
 	current_prolog_flag(break_level, 0 ),
 	recorded('$toplevel_hooks',H,_),
 	H \= fail, !,
-	( call(user:H1) -> true ; true).
+	( call(user:H) -> true ; true).
 '$run_toplevel_hooks'.
 
 '$run_at_thread_start' :-
@@ -1589,30 +1578,47 @@ log_event( String, Args ) :-
 
 '$prompt' :-
 	current_prolog_flag(break_level, BreakLevel),
-	( BreakLevel == 0
+	(
+     BreakLevel == 0
 	->
 	  LF = LD
-	  ;
-	  LF = ['Break (level ', BreakLevel,') '|LD]
+    ;
+	  LF = ['Break (level ', BreakLevel, ')'|LD]
 	),
-        current_prolog_flag(debug, DBON),
+    current_prolog_flag(debug, DBON),
 	(
 	 '$trace_on'
 	->
-	 LD  = ['trace '|LP]
+     (
+      var(LF)
+     ->
+      LD  = ['trace'|LP]
+     ;
+      LD  = [', trace '|LP]
+     )
 	;
 	 DBON == true
 	->
-	 LD  = ['debug '|LP]
+     (var(LF)
+     ->
+      LD  = ['debug'|LP]
+     ;
+      LD  = [', debug'|LP]
+     )
 	;
 	 LD = LP
 	),
-	LP = [P],
+    (
+     var(LF)
+    ->
+     LP = [P]
+    ;
+     LP = [' ',P]
+    ),
 	yap_flag(toplevel_prompt, P),
 	atomic_concat(LF, PF),
 	prompt1(PF),
-	prompt(_,'|: ').
-
+	prompt(_,'    ').
 
 
 /**

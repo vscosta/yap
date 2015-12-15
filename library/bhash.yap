@@ -34,6 +34,8 @@
  * @defgroup bhash Backtrackable Hash Tables
  * @ingroup library
 
+@{
+
 This library implements hash-arrays.
 It requires the hash key to be a ground term. The library can
 be loaded as
@@ -326,4 +328,5 @@ mklistvals(K.Vals, KK.NVals) :-
 	mklistvals(Vals, NVals).
 
 /**
+@}
 */

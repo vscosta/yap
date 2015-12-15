@@ -51,7 +51,7 @@ PROJECT_BRIEF          = "The YAP Prolog Compiler Manual"
 # pixels and the maximum width should not exceed 200 pixels. Doxygen will copy
 # the logo to the output directory.
 
-PROJECT_LOGO           = @CMAKE_SOURCE_DIR@/misc/icons/yap_96x96x32.png
+PROJECT_LOGO           = @CMAKE_SOURCE_DIR@/docs/icons/yap_96x96x32.png
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
 # into which the generated documentation will be written. If a relative path is
@@ -384,7 +384,7 @@ INLINE_GROUPED_CLASSES = NO
 # with only public data fields or simple typedef fields will be shown inline in
 # the documentation of the scope in which they are defined (i.e. file,
 # namespace, or group documentation), provided this scope is documented. If set
-# to NO, structs, classes, and unions are shown on a separate page (for HTML and
+v# to NO, structs, classes, and unions are shown on a separate page (for HTML and
 # Man pages) or section (for LaTeX and RTF).
 # The default value is: NO.
 
@@ -728,7 +728,7 @@ WARNINGS               = YES
 
 # If the WARN_IF_UNDOCUMENTED tag is set to YES then doxygen will generate
 # warnings for undocumented members. If EXTRACT_ALL is set to YES then this flag
-# will automatically be disabled.
+                                     # will automatically be disabled.
 # The default value is: YES.
 
 WARN_IF_UNDOCUMENTED   = YES
@@ -776,15 +776,15 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  =                        @PROJECT_SOURCE_DIR@/pl \
-                       @PROJECT_SOURCE_DIR@/swi \
                        @PROJECT_SOURCE_DIR@/CXX \
                        @PROJECT_SOURCE_DIR@/OPTYap \
                        @PROJECT_SOURCE_DIR@/C \
                        @PROJECT_SOURCE_DIR@/H \
                        @PROJECT_SOURCE_DIR@/include \
                        @PROJECT_SOURCE_DIR@/os \
-                       @PROJECT_SOURCE_DIR@/packages \
                        @PROJECT_SOURCE_DIR@/library \
+                       @PROJECT_SOURCE_DIR@/packages \
+                       @PROJECT_SOURCE_DIR@/swi/library \
                        @PROJECT_SOURCE_DIR@/docs/yap.md \
                        @PROJECT_SOURCE_DIR@/docs/chr.md \
                        @PROJECT_SOURCE_DIR@/docs/clpqr.md \
@@ -828,7 +828,7 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = *pltotex.pl packages/swig/android packages/chr packages/RDF packages/pyswip
+EXCLUDE                = *pltotex.pl
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -844,7 +844,7 @@ EXCLUDE_SYMLINKS       = NO
 # Note that the wildcards are matched against the file with absolute path, so to
 # exclude all test directories for example use the pattern */test/*
 
-EXCLUDE_PATTERNS       =
+EXCLUDE_PATTERNS       = */CMakeFiles/* *~
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
@@ -881,7 +881,7 @@ EXAMPLE_RECURSIVE      = NO
 # that contain images that are to be included in the documentation (see the
 # \image command).
 
-IMAGE_PATH             = @CMAKE_SOURCE_DIR@/misc/icons
+IMAGE_PATH             = @CMAKE_SOURCE_DIR@/docs/icons
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should
 # invoke to filter for each input file. Doxygen will invoke the filter program
@@ -1105,7 +1105,7 @@ HTML_HEADER            =
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
 HTML_FOOTER            =
-@CMAKE_SOURCE_DIR@/docs/web/bootstrap/footer.html
+#@CMAKE_SOURCE_DIR@/docs/web/bootstrap/footer.html
 
 # The HTML_STYLESHEET tag can be used to specify a user-defined cascading style
 # sheet that is used by each HTML page. It can be used to fine-tune the look of

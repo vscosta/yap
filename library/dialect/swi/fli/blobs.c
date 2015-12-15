@@ -17,7 +17,7 @@
 /**
  *
  * @{
-*   @file blobs.c
+*   @file swi/fli/blobs.c
  *
  *   @addtogroup swi-c-interface
  *

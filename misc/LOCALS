@@ -288,8 +288,6 @@ UInt				ImportDBRefHashTableNum			=0
 yamop			       *ImportFAILCODE				=NULL
 
 
-Functor				FunctorVar				=FunctorVar
-
 #if __ANDROID__
 // current virtual directory.
 struct AAssetManager* assetManager				=GLOBAL_assetManager

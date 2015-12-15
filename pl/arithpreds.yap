@@ -31,16 +31,6 @@
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
-
-a :-
-    a,
-    b,
-    z,
-    za.
-
-
-
-
 /** @pred succ(? _Int1_:int, ? _Int2_:int) is det
   *
 

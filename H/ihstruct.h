@@ -101,6 +101,7 @@
   SWI_MODULE = MkAtomTerm(AtomSwi);
   DBLOAD_MODULE = MkAtomTerm(AtomDBLoad);
   RANGE_MODULE = MkAtomTerm(AtomRange);
+  ERROR_MODULE = MkAtomTerm(AtomError);
 
 
 
@@ -207,9 +208,6 @@
 
   PROFILING = FALSE;
   CALL_COUNTING = FALSE;
-  PRED_GOAL_EXPANSION_ALL = FALSE;
-  PRED_GOAL_EXPANSION_FUNC = FALSE;
-  PRED_GOAL_EXPANSION_ON = FALSE;
   optimizer_on = TRUE;
   compile_mode = 0;
   profiling = FALSE;

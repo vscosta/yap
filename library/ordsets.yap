@@ -34,7 +34,7 @@
 	ord_memberchk/2             % Element X Set
       ]).
 
-/** @defgroup Ordered_Sets Ordered Sets
+/** @defgroup ordsets Ordered Sets
   * @ingroup library
   * @{
 

@@ -442,10 +442,10 @@ follows immediate semantics.
     library.
  */
     YAP_FLAG(UNKNOWN_FLAG, "unknown", true, isatom, "error",
-             NULL), /**< `unknown is iso`
+             Yap_unknown), /**< `unknown is iso`
 
-Corresponds to calling the unknown/2 built-in. Possible values
-are `error`, `fail`, and `warning`.
+Corresponds to calling the unknown/2 built-in. Possible ISO values
+are `error`, `fail`, and `warning`. Yap includes the following extensions: `fast_fail` does not invoke any handler.
 */
     YAP_FLAG(VARIABLE_NAMES_MAY_END_WITH_QUOTES_FLAG,
              "variable_names_may_end_with_quotes", true, boolean, "false",

@@ -252,7 +252,6 @@ const char*  Error_Function_;
   UInt  ImportDBRefHashTableSize_;
   UInt  ImportDBRefHashTableNum_;
   yamop  *ImportFAILCODE_;
-  Functor  FunctorVar_;
 #if __ANDROID__
 
   struct AAssetManager*  assetManager_;

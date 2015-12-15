@@ -16,18 +16,18 @@
 :- initialization main.
 
 main :-
-    unix( argv(L) ),
+    unix( argv(L0 ) ),
+    (L0 == [] -> L = [.] ; L = L0 ),
     member( Lib, L ),
     absolute_file_name( Lib, NL, [glob('*.pl *.yap'),file_type(prolog), file_errors(fail), solutions(all)] ),
-%    current_module(M), writeln(M:NL), 
-    catch( ensure_loaded(library( NL )) , _, (writeln(crash:NL), module(user))),
+    %current_module(M), writeln(M:x:NL),
+    catch( ensure_loaded( NL ) , Error, (format('crash ~w in ~a~n',[Error,NL]), module(user) ) ),
     fail.
 
 main :-
     unix( argv(L) ),
     member( Lib, L ),
     absolute_file_name( Lib, NL, [glob('*.pl *.yap'),file_type(prolog), file_errors(fail), solutions(all)] ),
-    writeln( NL ),
     module_property( Mod, file( NL )),
     module_property( Mod, exports( Preds )),
     file_base_name( NL, NameF),
@@ -39,4 +39,3 @@ main :-
 main.
 
 out(N/A) :- format('  - ~q~n', [N/A]).
-

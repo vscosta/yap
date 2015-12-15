@@ -1588,7 +1588,7 @@ static Int p_unlock_system(USES_REGS1) {
   return TRUE;
 }
 
-static Int p_enterundefp(USES_REGS1) {
+static Int enter_undefp(USES_REGS1) {
   if (LOCAL_DoingUndefp) {
     return FALSE;
   }
@@ -1596,7 +1596,7 @@ static Int p_enterundefp(USES_REGS1) {
   return TRUE;
 }
 
-static Int p_exitundefp(USES_REGS1) {
+static Int exit_undefp(USES_REGS1) {
   if (LOCAL_DoingUndefp) {
     LOCAL_DoingUndefp = FALSE;
     return TRUE;
@@ -1745,8 +1745,8 @@ void Yap_InitCPreds(void) {
   Yap_InitCPred("$halt", 1, p_halt, SyncPredFlag);
   Yap_InitCPred("$lock_system", 0, p_lock_system, SafePredFlag);
   Yap_InitCPred("$unlock_system", 0, p_unlock_system, SafePredFlag);
-  Yap_InitCPred("$enter_undefp", 0, p_enterundefp, SafePredFlag);
-  Yap_InitCPred("$exit_undefp", 0, p_exitundefp, SafePredFlag);
+  Yap_InitCPred("$enter_undefp", 0, enter_undefp, SafePredFlag);
+  Yap_InitCPred("$exit_undefp", 0, exit_undefp, SafePredFlag);
 
 #ifdef YAP_JIT
   Yap_InitCPred("$jit_init", 1, p_jit, SafePredFlag | SyncPredFlag);
@@ -1772,6 +1772,7 @@ void Yap_InitCPreds(void) {
   Yap_InitCmpPreds();
   Yap_InitCoroutPreds();
   Yap_InitDBPreds();
+  Yap_InitErrorPreds();
   Yap_InitExecFs();
   Yap_InitGlobals();
   Yap_InitInlines();

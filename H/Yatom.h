@@ -437,7 +437,10 @@ IsModProperty (int flags)
 #define UNKNOWN_FAIL            (0x0400) /* module */
 #define UNKNOWN_WARNING         (0x0800) /* module */
 #define UNKNOWN_ERROR           (0x1000) /* module */
-#define UNKNOWN_MASK            (UNKNOWN_ERROR|UNKNOWN_WARNING|UNKNOWN_FAIL)
+#define UNKNOWN_FAST_FAIL       (0x2000) /* module */
+#define UNKNOWN_ABORT           (0x4000) /* module */
+#define UNKNOWN_HALT            (0x8000) /* module */
+#define UNKNOWN_MASK            (UNKNOWN_ERROR|UNKNOWN_WARNING|UNKNOWN_FAIL|UNKNOWN_FAST_FAIL|UNKNOWN_ABORT|UNKNOWN_HALT )
 
 Term  Yap_getUnknownModule(ModEntry *m);
 void  Yap_setModuleFlags(ModEntry *n, ModEntry *o);
@@ -688,7 +691,7 @@ don't forget to also add in qly.h
 #define SyncPredFlag  ((pred_flags_t)0x00100000)	/* has to synch before it can execute */
 #define NumberDBPredFlag  ((pred_flags_t)0x00080000)	/* entry for a number key */
 #define AtomDBPredFlag  ((pred_flags_t)0x00040000)	/* entry for an atom key */
-#define GoalExPredFlag  ((pred_flags_t)0x00020000)	/* predicate that is called by goal_expand */
+ // #define GoalExPredFlag  ((pred_flags_t)0x00020000)	/* predicate that is called by goal_expand */
 #define TestPredFlag  ((pred_flags_t)0x00010000)	/* is a test (optim. comit) */
 #define AsmPredFlag  ((pred_flags_t)0x00008000)	/* inline */
 #define StandardPredFlag  ((pred_flags_t)0x00004000)	/* system predicate */

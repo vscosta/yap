@@ -261,7 +261,6 @@
 :- style_check(all).
 :- yap_flag(unknown,error).
 
-
 % this is a test to determine whether YAP provides the needed trie library
 :- initialization(
         (       predicate_property(trie_disable_hash, imported_from(tries)) ->

@@ -979,7 +979,7 @@ InitStdPreds(void)
   Yap_InitCPreds();
   Yap_InitBackCPreds();
   BACKUP_MACHINE_REGS();
-    Yap_InitPlIO();
+  Yap_InitPlIO();
   Yap_InitFlags(false);
 #if HAVE_MPE
   Yap_InitMPE ();

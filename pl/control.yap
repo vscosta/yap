@@ -15,6 +15,16 @@
 *									 *
 *************************************************************************/
 
+/**
+ * @file   control.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Thu Nov 19 10:26:35 2015
+ *
+ * @brief  Control Predicates
+ *
+ *
+*/
+
 :- system_module( '$_control', [at_halt/1,
         b_getval/2,
         break/0,
@@ -68,15 +78,17 @@
 
 :- use_system_module( '$coroutining', [freeze_goal/2]).
 
-/** 
+/**
+
+
+@{
 
 @addtogroup YAPControl
-@{
 
 */
 
 
-/** @pred  once(: _G_) is iso 
+/** @pred  once(: _G_) is iso
 
 
 Execute the goal  _G_ only once. The predicate is defined by:
@@ -88,14 +100,14 @@ Execute the goal  _G_ only once. The predicate is defined by:
 Note that cuts inside once/1 can only cut the other goals inside
 once/1.
 
- 
+
 */
 once(G) :-
 	strip_module(G, M, C),
 	'$meta_call'(C, M),
 	!.
 
-/** @pred  forall(: _Cond_,: _Action_) 
+/** @pred  forall(: _Cond_,: _Action_)
 
 
 For all alternative bindings of  _Cond_  _Action_ can be
@@ -107,9 +119,9 @@ proven. The example verifies that all arithmetic statements in the list
                  Result =:= Formula).
 ~~~~~
 
- 
+
 */
-/** @pred forall(+ _Cond_,+ _Action_) 
+/** @pred forall(+ _Cond_,+ _Action_)
 
 
 
@@ -128,7 +140,7 @@ The next example verifies that all arithmetic statements in the list
 */
 forall(Cond, Action) :- \+((Cond, \+(Action))).
 
-/** @pred  ignore(: _Goal_) 
+/** @pred  ignore(: _Goal_)
 
 
 Calls  _Goal_ as once/1, but succeeds, regardless of whether
@@ -140,7 +152,7 @@ ignore(Goal) :-
 ignore(_).
 ~~~~~
 
- 
+
 */
 ignore(Goal) :- (Goal->true;true).
 
@@ -216,14 +228,14 @@ call(X,A) :- '$execute'(X,A).
 
 call(X,A1,A2) :- '$execute'(X,A1,A2).
 
-/** @pred  call(+ _Closure_,...,? _Ai_,...) is iso 
+/** @pred  call(+ _Closure_,...,? _Ai_,...) is iso
 
 
-Meta-call where  _Closure_ is a closure that is converted into a goal by 
-appending the  _Ai_ additional arguments. The number of arguments varies 
+Meta-call where  _Closure_ is a closure that is converted into a goal by
+appending the  _Ai_ additional arguments. The number of arguments varies
 between 0 and 10.
 
- 
+
 */
 call(X,A1,A2,A3) :- '$execute'(X,A1,A2,A3).
 
@@ -248,7 +260,7 @@ call(X,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11) :- '$execute'(X,A1,A2,A3,A4,A5,A6,A7,
 This is similar to <tt>call_cleanup/1</tt> with an additional
  _CleanUpGoal_ which gets called after  _Goal_ is finished.
 
- 
+
 */
 call_cleanup(Goal, Cleanup) :-
 	setup_call_catcher_cleanup(true, Goal, _Catcher, Cleanup).
@@ -256,7 +268,7 @@ call_cleanup(Goal, Cleanup) :-
 call_cleanup(Goal, Catcher, Cleanup) :-
 	setup_call_catcher_cleanup(true, Goal, Catcher, Cleanup).
 
-/** @pred setup_call_cleanup(: _Setup_,: _Goal_, : _CleanUpGoal_) 
+/** @pred setup_call_cleanup(: _Setup_,: _Goal_, : _CleanUpGoal_)
 
 
 Calls `(Setup, Goal)`. For each sucessful execution of  _Setup_, calling  _Goal_, the
@@ -311,12 +323,12 @@ Det = yes ;
 This predicate is under consideration for inclusion into the ISO standard.
 For compatibility with other Prolog implementations see `call_cleanup/2`.
 
- 
+
 */
 setup_call_cleanup(Setup, Goal, Cleanup) :-
 	setup_call_catcher_cleanup(Setup, Goal, _Catcher, Cleanup).
 
-/** @pred setup_call_catcher_cleanup(: _Setup_,: _Goal_, + _Catcher_,: _CleanUpGoal_) 
+/** @pred setup_call_catcher_cleanup(: _Setup_,: _Goal_, + _Catcher_,: _CleanUpGoal_)
 
 
 Similar to `setup_call_cleanup( _Setup_,  _Goal_,  _Cleanup_)` with
@@ -325,7 +337,7 @@ to calling  _Cleanup_,  _Catcher_ unifies with the termination
 code.  If this unification fails,  _Cleanup_ is
  *not* called.
 
- 
+
 */
 setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	yap_hacks:disable_interrupts,
@@ -365,10 +377,10 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	 yap_hacks:enable_interrupts,
 	 fail
 	).
-	 
+
 
 '$cleanup_exception'(Exception, exception(Exception), Cleanup) :- !,
-	% whatever happens, let exception go through 
+	% whatever happens, let exception go through
 	catch('$clean_call'(_,Cleanup),_,true),
 	throw(Exception).
 '$cleanup_exception'(Exception, _, _) :-
@@ -406,9 +418,9 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 
 '$cc_check_throw' :-
 	'$nb_getval'('$catch', Ball, fail),
-	throw(Ball).	
+	throw(Ball).
 
-/** @pred  call_with_args(+ _Name_,...,? _Ai_,...) 
+/** @pred  call_with_args(+ _Name_,...,? _Ai_,...)
 
 
 Meta-call where  _Name_ is the name of the procedure to be called and
@@ -422,7 +434,7 @@ call/n:
 call(p(X1,...,Xm), Y1,...,Yn) :- p(X1,...,Xm,Y1,...,Yn).
 ~~~~~
 
- 
+
 */
 
 %%% Some "dirty" predicates
@@ -431,13 +443,13 @@ call(p(X1,...,Xm), Y1,...,Yn) :- p(X1,...,Xm,Y1,...,Yn).
 % this predicate shows the code produced by the compiler
 '$show_code' :- '$debug'(0'f). %' just make emacs happy
 
-/** @pred  grow_heap(+ _Size_) 
+/** @pred  grow_heap(+ _Size_)
 Increase heap size  _Size_ kilobytes.
 
- 
+
 */
 grow_heap(X) :- '$grow_heap'(X).
-/** @pred  grow_stack(+ _Size_) 
+/** @pred  grow_stack(+ _Size_)
 
 
 Increase stack size  _Size_ kilobytes
@@ -451,47 +463,47 @@ grow_stack(X) :- '$grow_stack'(X).
 % environment to return to.
 %
 %garbage_collect :- save(dump), '$gc',  save(dump2).
-/** @pred  garbage_collect 
+/** @pred  garbage_collect
 
 
 The goal `garbage_collect` forces a garbage collection.
 
- 
+
 */
 garbage_collect :-
 	'$gc'.
 
 
 
-/** @pred  gc 
+/** @pred  gc
 
 
 The goal `gc` enables garbage collection. The same as
 `yap_flag(gc,on)`.
 
- 
+
 */
 gc :-
 	yap_flag(gc,on).
-/** @pred  nogc 
+/** @pred  nogc
 
 
 The goal `nogc` disables garbage collection. The same as
 `yap_flag(gc,off)`.
 
- 
+
 */
 nogc :-
 	yap_flag(gc,off).
 
 
-/** @pred  garbage_collect_atoms 
+/** @pred  garbage_collect_atoms
 
 
 The goal `garbage_collect` forces a garbage collection of the atoms
 in the data-base. Currently, only atoms are recovered.
 
- 
+
 */
 garbage_collect_atoms :-
 	'$atom_gc'.
@@ -507,13 +519,13 @@ garbage_collect_atoms :-
 '$good_character_code'(X) :- var(X), !.
 '$good_character_code'(X) :- integer(X), X > -2, X < 256.
 
-/** @pred prolog_initialization( _G_) 
+/** @pred prolog_initialization( _G_)
 
 
 Add a goal to be executed on system initialization. This is compatible
 with SICStus Prolog's initialization/1.
 
- 
+
 */
 prolog_initialization(G) :- var(G), !,
 	'$do_error'(instantiation_error,initialization(G)).
@@ -527,9 +539,9 @@ prolog_initialization(T) :-
 
 /** @pred version
 
-Write YAP's boot message. 
+Write YAP's boot message.
 
- 
+
 */
 version :- '$version'.
 
@@ -538,7 +550,7 @@ version :- '$version'.
 Add a message to be written when yap boots or after aborting. It is not
 possible to remove messages.
 
- 
+
 */
 version(V) :- var(V),  !,
 	'$do_error'(instantiation_error,version(V)).
@@ -549,16 +561,22 @@ version(T) :-
 '$assert_version'(T) :- recordz('$version',T,_), fail.
 '$assert_version'(_).
 
-'$set_toplevel_hook'(_) :- 
+'$set_toplevel_hook'(_) :-
 	recorded('$toplevel_hooks',_,R),
 	erase(R),
 	fail.
-'$set_toplevel_hook'(H) :- 
+'$set_toplevel_hook'(H) :-
 	recorda('$toplevel_hooks',H,_),
 	fail.
 '$set_toplevel_hook'(_).
 
-/** @pred  nb_getval(+ _Name_, - _Value_)  
+%% @}
+
+%% @{
+
+%% @addtogroup Global_Variables
+
+/** @pred  nb_getval(+ _Name_, - _Value_)
 
 
 The nb_getval/2 predicate is a synonym for b_getval/2,
@@ -567,18 +585,18 @@ a particular global variable either using non-backtrackable or
 backtrackable assignment, using nb_getval/2 can be used to
 document that the variable is used non-backtrackable.
 
- 
+
 */
-/** @pred nb_getval(+ _Name_,- _Value_) 
+/** @pred nb_getval(+ _Name_,- _Value_)
 
 
 The nb_getval/2 predicate is a synonym for b_getval/2, introduced for
 compatibility and symmetry.  As most scenarios will use a particular
 global variable either using non-backtrackable or backtrackable
-assignment, using nb_getval/2 can be used to document that the 
+assignment, using nb_getval/2 can be used to document that the
 variable is used non-backtrackable.
 
- 
+
 */
 nb_getval(GlobalVariable, Val) :-
 	'$nb_getval'(GlobalVariable, Val, Error),
@@ -591,9 +609,9 @@ nb_getval(GlobalVariable, Val) :-
 	;
 	 '$do_error'(existence_error(variable, GlobalVariable),nb_getval(GlobalVariable, Val))
 	).
-		    
 
-/** @pred  b_getval(+ _Name_, - _Value_)  
+
+/** @pred  b_getval(+ _Name_, - _Value_)
 
 
 Get the value associated with the global variable  _Name_ and unify
@@ -601,13 +619,13 @@ it with  _Value_. Note that this unification may further
 instantiate the value of the global variable. If this is undesirable
 the normal precautions (double negation or copy_term/2) must be
 taken. The b_getval/2 predicate generates errors if  _Name_ is not
-an atom or the requested variable does not exist. 
+an atom or the requested variable does not exist.
 
 Notice that for compatibility with other systems  _Name_ <em>must</em> be already associated with a term: otherwise the system will generate an error.
 
- 
+
 */
-/** @pred b_getval(+ _Name_,- _Value_) 
+/** @pred b_getval(+ _Name_,- _Value_)
 
 
 Get the value associated with the global variable  _Name_ and unify
@@ -617,7 +635,7 @@ precautions (double negation or copy_term/2) must be taken. The
 b_getval/2 predicate generates errors if  _Name_ is not an atom or
 the requested variable does not exist.
 
- 
+
 */
 b_getval(GlobalVariable, Val) :-
 	'$nb_getval'(GlobalVariable, Val, Error),
@@ -631,6 +649,12 @@ b_getval(GlobalVariable, Val) :-
 	 '$do_error'(existence_error(variable, GlobalVariable),b_getval(GlobalVariable, Val))
 	).
 
+
+%% @}
+
+%% @{
+
+%% @addtogroup YAPControl
 
 /* This is the break predicate,
 	it saves the importante data about current streams and
@@ -653,7 +677,7 @@ b_getval(GlobalVariable, Val) :-
 	b_setval('$spy_glist',[]),
 	'$disable_debugging'.
 
-'$debug_restart'(state(Trace, Debug, Jump, Run, SPY_GN, GList)) :- 
+'$debug_restart'(state(Trace, Debug, Jump, Run, SPY_GN, GList)) :-
 	b_setval('$spy_glist',GList),
 	b_setval('$spy_gn',SPY_GN),
 	set_prolog_flag(debug, Debug),
@@ -662,7 +686,7 @@ b_getval(GlobalVariable, Val) :-
 	b_setval('$trace',Trace),
 	'$enable_debugging'.
 
-/** @pred  break 
+/** @pred  break
 
 
 Suspends the execution of the current goal and creates a new execution
@@ -676,7 +700,7 @@ previous level just type the end-of-file character or call the
 end_of_file predicate.  This predicate is especially useful during
 debugging.
 
- 
+
 */
 break :-
 	'$init_debugger',
@@ -691,19 +715,22 @@ break :-
 	b_getval('$spy_glist',GList),
 	b_setval('$spy_glist',[]),
 	current_output(OutStream), current_input(InpStream),
-	current_prolog_flag(break_level, NBL ),
+	current_prolog_flag(break_level, BL ),
+    NBL is BL+1,
+	set_prolog_flag(break_level, NBL ),
 	format(user_error, '% Break (level ~w)~n', [NBL]),
 	'$do_live',
 	!,
 	set_value('$live','$true'),
 	b_setval('$spy_glist',GList),
 	nb_setval('$spy_gn',SPY_GN),
-	set_input(InpStream), 
+	set_input(InpStream),
 	set_output(OutStream),
 	set_prolog_flag(debug, Debug),
 	nb_setval('$debug_jump',Jump),
 	nb_setval('$debug_run',Run),
 	nb_setval('$trace',Trace),
+	set_prolog_flag(break_level, BL ),
 	'$break'( false ).
 
 
@@ -712,30 +739,26 @@ at_halt(G) :-
 	fail.
 at_halt(_).
 
-/** @pred  halt is iso 
-
+/** @pred  halt is iso
 
 Halts Prolog, and exits to the calling application. In YAP,
 halt/0 returns the exit code `0`.
-
- 
 */
 halt :-
 	print_message(informational, halt),
 	fail.
 halt :-
-	'$halt'(0).
+    halt(0).
 
 /** @pred  halt(+  _I_) is iso
 
 Halts Prolog, and exits to the calling application returning the code
 given by the integer  _I_.
 
- 
 */
 halt(_) :-
 	recorded('$halt', G, _),
-	call(G),
+	catch(once(G), Error, user:'$Error'(Error)),
 	fail.
 halt(X) :-
 	'$sync_mmapped_arrays',
@@ -748,7 +771,7 @@ prolog_current_frame(Env) :-
 '$run_atom_goal'(GA) :-
 	'$current_module'(Module),
 	atom_to_term(GA, G, _),
-	'$system_catch'('$query'(once(G), []),Module,Error,user:'$Error'(Error)).
+	catch(once(Module:G), Error,user:'$Error'(Error)).
 
 '$add_dot_to_atom_goal'([],[0'.]) :- !. %'
 '$add_dot_to_atom_goal'([0'.],[0'.]) :- !.

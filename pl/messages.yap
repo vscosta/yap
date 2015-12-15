@@ -17,9 +17,21 @@
 *************************************************************************/
 
 /**
+ * @file   messages.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Thu Nov 19 10:22:26 2015
+ * 
+ * @brief  The YAP Message Handler
+ * 
+ * 
+*/
+
+/**
+
+  @{
+
   @defgroup Messages Message Handling
   @ingroup YAPControl
-  @{
 
 The interaction between YAP and the user relies on YAP's ability to
 portray messages. These messages range from prompts to error
@@ -173,8 +185,8 @@ compose_message(myddas_version(Version), _Leve) -->
 compose_message(yes, _Level) --> !,
 	[  'yes'- []  ].
 compose_message(Term, Level) -->
-	{  Level == error -> true ; Level == warning },
 	location(Term, Level),
+	( {  Level == error } -> display_consulting( Level ) ; { Level == warning } ),
 	[nl],
 	main_message( Term, Level ),
 	c_goal( Term, Level ),
@@ -187,7 +199,7 @@ compose_message(Term, Level) -->
 	main_message( Term, Level ),
 	[nl,nl].
 
-location(error(syntax_error(syntax_error(_,between(_,LN,_),FileName,_)),_ ), _ ) -->
+location(error(syntax_error(syntax_error(_,between(_,LN,_),FileName,_))), _ ) -->
 	!,
 	[ '~a:~d:0: ' - [FileName,LN] ] .
 location(error(style_check(style_check(_,LN,FileName,_ ) ), _), _ ) -->
@@ -221,25 +233,32 @@ main_message( error(syntax_error(syntax_error(Msg,between(L0,LM,LF),_Stream,Term
 	    [nl]
 	  ).
 main_message(error(style_check(style_check(singleton(SVs),_Pos,_File,P)),_), _) -->
+    !,
 	{ clause_to_indicator(P, I) },
 	[  '~*|!!! singleton variable~*c ~s in ~q.' - [ 10,  NVs, 0's, SVsL, I] ],
 	{ svs(SVs,SVs,SVsL),
 	  ( SVs = [_] -> NVs = 0 ; NVs = 1 )
 	}.
 main_message(error(style_check(style_check(multiple(N,A,Mod,I0),_Pos,File,_P)),_),_) -->
+    !,
 	{ '$show_consult_level'(LC) },
 	[  '~*|!!! ~a redefines ~q from  ~a.' - [LC,File, Mod:N/A, I0] ].
-main_message(error(style_check(style_check(discontiguous(N,A,Mod),_S,_W,a_P)),_) ,_)-->
+main_message(error(style_check(style_check(discontiguous(N,A,Mod),_S,_W,_P)),_) ,_)-->
+    !,
 	{ '$show_consult_level'(LC) },
 	[  '~*|!!! !!! discontiguous definition for ~p.' - [LC,Mod:N/A] ].
 main_message(error(consistency_error(Who)), _Source) -->
+    !,
 	{ '$show_consult_level'(LC) },
 	[ '~*|!!! has argument ~a not consistent with type.'-[LC,Who] ].
 main_message(error(domain_error(Who , Type), _Where), _Source) -->
+    !,
 	[ '~*|!!!  ~q does not belong to domain ~a,' - [8,Who,Type], nl ].
 main_message(error(evaluation_error(What, Who), _Where), _Source) -->
-[ '~*|!!! ~w caused ~a during evaluation of arithmetic expressions,' - [8,Who,What], nl ].
+    !,
+    [ '~*|!!! ~w caused ~a during evaluation of arithmetic expressions,' - [8,Who,What], nl ].
 main_message(error(existence_error(Type , Who), _Where), _Source) -->
+    !,
 	[  '~*|!!!  ~q ~q could not be found,' - [8,Type, Who], nl ].
 main_message(error(permission_error(Op, Type, Id), _Where), _Source) -->
 	[ '~*|!!!  ~q is not allowed in ~a ~q,' - [8, Op, Type,Id], nl ].
@@ -253,12 +272,11 @@ main_message(error(type_error(Type,Who), _What), _Source) -->
 main_message(error(uninstantiation_error(T),_), _Source) -->
 	[ '~*|!!! found ~q, expected unbound variable ' - [8,T], nl ].
 
-consulting -->
+display_consulting(Level) -->
 	{  source_location(F0, L),
 	   stream_property(_Stream, alias(loop_stream)) }, !,
-	[ '~*| while consulting ~a:~d'-[10,F0,L] ],
-	   [nl].
-consulting --> [].
+	[ '~a:~d:0 found  while compiling this file.'-[F0,L], nl ].
+display_consulting(_) --> [].
 
 caller( error(_,Term), _) -->
 	{  lists:memberchk([p|p(M,Na,Ar,File,FilePos)], Term ) },
@@ -309,7 +327,7 @@ system_message(error(existence_error(directory,Key), Where)) -->
 system_message(error(existence_error(key,Key), Where)) -->
 	[ 'EXISTENCE ERROR- ~w: ~w not an existing key' - [Where,Key] ].
 system_message(error(existence_error(mutex,Key), Where)) -->
-        [ 'EXISTENCE ERROR- ~w: ~w is an erased mutex' - [Where,Key] ].
+    [ 'EXISTENCE ERROR- ~w: ~w is an erased mutex' - [Where,Key] ].
 system_message(existence_error(prolog_flag,F)) -->
 	[ 'Prolog Flag ~w: new Prolog flags must be created using create_prolog_flag/3.' - [F] ].
 system_message(error(existence_error(prolog_flag,P), Where)) --> !,
@@ -693,7 +711,7 @@ print_lines(S, Prefixes, Key) -->
 	!,
 	{ format(S, Fmt, []) },
 	print_lines(S, Prefixes, Key).
-print_lines(S, _Key) -->
+print_lines(S, _Prefixes, _Key) -->
 	[ Msg ],
 	{ format(S, 'Illegal message Component: ~q !!!.~n', [Msg]) }.
 
@@ -819,7 +837,7 @@ prolog:print_message_lines(S, Prefix0, Lines) :-
 	),	 
 	(Msg = [at_same_line|Msg1]
 	->
-	 print_lines(S, [Prefix], Key,Msg1, [])
+	 print_lines(S, [Prefix], Key, Msg1, [])
 		;
 	 print_lines(S, [Prefix], Key, [Prefix|Msg], [])
 	).
@@ -897,11 +915,7 @@ stub to ensure everything os ok
 
 */
 
-
-prolog:print_message(Severity, Term) :-
-	execute_print_message(Severity, Term).
 /**
-  @}
   @}
 */
 

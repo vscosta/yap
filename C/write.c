@@ -445,7 +445,7 @@ static int legalAtom(unsigned char *s) /* Is this a legal atom ? */
     } else if (Yap_chtype[ch] == SL) {
       return (!s[1]);
     } else if ((ch == ',' || ch == '.') && !s[1]) {
-      return FALSE;
+      return false;
     } else {
       if (ch == '/') {
         if (s[1] == '*')
@@ -470,7 +470,9 @@ static wtype
 AtomIsSymbols(unsigned char *s) /* Is this atom just formed by symbols ? */
 {
   int ch;
-  if (Yap_chtype[(int)s[0]] == SL && s[1] == '\0')
+  if ( Yap_chtype[(int)s[0]] == SL &&
+       s[1] == '\0'
+       )
     return (separator);
   while ((ch = *s++) != '\0') {
     if (Yap_chtype[ch] != SY)
@@ -840,6 +842,9 @@ static void write_list(Term t, int direction, int depth,
       do_jump = (direction >= 0);
     }
     if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
+      if (lastw == symbol || lastw == separator) {
+        wrputc(' ', wglb->stream);
+      }
       wrputc('|', wglb->stream);
       putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
       return;
@@ -856,6 +861,9 @@ static void write_list(Term t, int direction, int depth,
     Term nt = from_pointer(RepPair(t) + 1, &nrwt, wglb);
     /* we found an infinite loop */
     if (IsAtomTerm(nt)) {
+      if (lastw == symbol || lastw == separator) {
+        wrputc(' ', wglb->stream);
+      }
       wrputc('|', wglb->stream);
       writeTerm(nt, 999, depth, FALSE, wglb, rwt);
     } else {
@@ -865,6 +873,9 @@ static void write_list(Term t, int direction, int depth,
     }
     restore_from_write(&nrwt, wglb);
   } else if (ti != MkAtomTerm(AtomNil)) {
+      if (lastw == symbol || lastw == separator) {
+        wrputc(' ', wglb->stream);
+      }
     wrputc('|', wglb->stream);
     lastw = separator;
     writeTerm(from_pointer(RepPair(t) + 1, &nrwt, wglb), 999, depth, FALSE,
@@ -1101,6 +1112,9 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         wrputc(',', wglb->stream);
         lastw = separator;
       } else if (!strcmp((char *)RepAtom(atom)->StrOfAE, "|")) {
+        if (lastw == symbol || lastw == separator) {
+          wrputc(' ', wglb->stream);
+        }
         wrputc('|', wglb->stream);
         lastw = separator;
       } else

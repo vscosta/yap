@@ -101,6 +101,7 @@
   Term  swi_module;
   Term  dbload_module;
   Term  range_module;
+  Term  error_module;
 
 
 
@@ -207,9 +208,6 @@
 
   int  system_profiling;
   int  system_call_counting;
-  int  system_pred_goal_expansion_all;
-  int  system_pred_goal_expansion_func;
-  int  system_pred_goal_expansion_on;
   int  compiler_optimizer_on;
   int  compiler_compile_mode;
   int  compiler_profiling;

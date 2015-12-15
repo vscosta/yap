@@ -142,3 +142,5 @@
 
 #define GLOBAL_LastWTimePtr Yap_global->LastWTimePtr_
 
+#define GLOBAL_MaxPriority Yap_global->MaxPriority_
+

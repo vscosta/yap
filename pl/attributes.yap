@@ -20,8 +20,7 @@
 
 @{
 
-@ingroup AttributedVariables
-
+@addtogroup New_Style_Attribute_Declarations
 */
 
 :- module('$attributes', [
@@ -35,7 +34,6 @@
 :- use_system_module( '$coroutining', [attr_unify_hook/2]).
 
 :- use_system_module( attributes, [all_attvars/1,
-        attributed_module/3,
         bind_attvar/1,
         del_all_atts/1,
         del_all_module_atts/2,
@@ -47,9 +45,6 @@
         unbind_attvar/1,
         woken_att_do/4]).
 
-
-
-:- dynamic attributes:attributed_module/3, attributes:modules_with_attributes/1.
 
 /** @pred get_attr(+ _Var_,+ _Module_,- _Value_)
 
@@ -115,7 +110,7 @@ prolog:del_attrs(Var) :-
 Get all attributes of  _Var_.  _Attributes_ is a term of the form
 `att( _Module_,  _Value_,  _MoreAttributes_)`, where  _MoreAttributes_ is
 `[]` for the last attribute.
- 
+
 */
 prolog:get_attrs(AttVar, SWIAtts) :-
 	attributes:get_all_swi_atts(AttVar,SWIAtts).
@@ -319,7 +314,7 @@ prolog:call_residue_vars(Goal,Residue) :-
 	  '$ord_remove'([V1|Vss], Vs0s, Residue)
 	).
 
-/** @pred attribute_goals(+ _Var_,- _Gs_,+ _GsRest_) 
+/** @pred attribute_goals(+ _Var_,- _Gs_,+ _GsRest_)
 
 
 
@@ -341,12 +336,13 @@ User-defined procedure, called to convert the attributes in  _Var_ to
 a  _Goal_. Should fail when no interpretation is available.
  */
 attvar_residuals([], _) --> [].
+
 attvar_residuals(att(Module,Value,As), V) -->
 	(   { nonvar(V) }
 	->  % a previous projection predicate could have instantiated
 	    % this variable, for example, to avoid redundant goals
 	    []
-	; { attributes:attributed_module(Module, _, _)  } ->
+	; { attributes:module_has_attributes(Module)  } ->
 	    % SICStus like run, put attributes back first
 	    { Value =.. [Name,_|Vs],
 	      NValue =.. [Name,_|Vs],
@@ -430,7 +426,7 @@ prolog:call_residue(Goal,Residue) :-
 call_residue(Goal,Module,Residue) :-
 	prolog:call_residue_vars(Module:Goal,NewAttVars),
 	(
-	 attributes:modules_with_attributes([_|_])
+	 attributes:has_modules_with_attributes([_|_])
 	->
 	 project_attributes(NewAttVars, Module:Goal)
 	;
@@ -448,7 +444,7 @@ project_delayed_goals(G) :-
 % just try to simplify store  by projecting constraints
 % over query variables.
 % called by top_level to find out about delayed goals
-	attributes:modules_with_attributes([_|_]), !,
+	attributes:has_modules_with_attributes([_|_]), !,
 	attributes:all_attvars(LAV),
 	LAV = [_|_],
 	project_attributes(LAV, G), !.
@@ -491,7 +487,7 @@ attribute_goal/2 handler.
 
  */
 project_attributes(AllVs, G) :-
-	attributes:modules_with_attributes(LMods),
+	attributes:has_modules_with_attributes(LMods),
 	LMods = [_|_],
 	term_variables(G, InputVs),
 	pick_att_vars(InputVs, AttIVs),

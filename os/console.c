@@ -66,12 +66,12 @@ console_post_process_read_char(int ch, StreamDesc *s)
     ++s->linecount;
     ++s->charcount;
     s->linepos = 0;
-    LOCAL_newline = TRUE;
+    LOCAL_newline = true;
   } else {
       CACHE_REGS
     ++s->charcount;
     ++s->linepos;
-    LOCAL_newline = FALSE;
+    LOCAL_newline = false;
   }
   return ch;
 }
@@ -122,6 +122,7 @@ ConsolePutc (int sno, int ch)
   if (ch == 10)
     {
       putc ('\n', s->file);
+      LOCAL_newline = true;
     }
   else
 #endif

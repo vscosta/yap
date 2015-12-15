@@ -39,7 +39,8 @@ extended where necessary with attributes denoting integer precedence or
 operator type.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- term       ---->     subterm(1200)   end_of_term_marker
+                                                                  term
+---->     subterm(1200)   end_of_term_marker
 
  subterm(N) ---->     term(M)         [M <= N]
 
@@ -163,21 +164,19 @@ typedef struct jmp_buff_struct { sigjmp_buf JmpBuff; } JMPBUFF;
 
 static void GNextToken(CACHE_TYPE1);
 static void checkfor(wchar_t, JMPBUFF *CACHE_TYPE);
-static Term ParseArgs( Atom, wchar_t, JMPBUFF *, Term CACHE_TYPE);
-static Term ParseList( JMPBUFF *CACHE_TYPE);
-static Term ParseTerm( int, JMPBUFF *CACHE_TYPE);
+static Term ParseArgs(Atom, wchar_t, JMPBUFF *, Term CACHE_TYPE);
+static Term ParseList(JMPBUFF *CACHE_TYPE);
+static Term ParseTerm(int, JMPBUFF *CACHE_TYPE);
 
 const char *Yap_tokRep(TokEntry *tokptr);
 
-static void
-syntax_msg( const char *msg, ...)
-{
+static void syntax_msg(const char *msg, ...) {
   CACHE_REGS
   va_list ap;
 
   if (LOCAL_toktide == LOCAL_tokptr) {
     va_start(ap, msg);
-    vsnprintf( LOCAL_FileNameBuf2, YAP_FILENAME_MAX-1, msg, ap );
+    vsnprintf(LOCAL_FileNameBuf2, YAP_FILENAME_MAX - 1, msg, ap);
     LOCAL_ErrorMessage = LOCAL_FileNameBuf2;
     LOCAL_Error_TYPE = SYNTAX_ERROR;
     va_end(ap);
@@ -225,7 +224,8 @@ syntax_msg( const char *msg, ...)
 
 #define FAIL siglongjmp(FailBuff->JmpBuff, 1)
 
-VarEntry *Yap_LookupVar(const char *var) /* lookup variable in variables table   */
+VarEntry *
+Yap_LookupVar(const char *var) /* lookup variable in variables table   */
 {
   CACHE_REGS
   VarEntry *p;
@@ -291,7 +291,7 @@ static Term VarNames(VarEntry *p, Term l USES_REGS) {
 
       t[0] = MkAtomTerm(Yap_LookupAtom(p->VarRep));
       if (!IsVarTerm(p->VarAdr))
-	p->VarAdr = MkVarTerm();
+        p->VarAdr = MkVarTerm();
       t[1] = p->VarAdr;
       o = Yap_MkApplTerm(FunctorEq, 2, t);
       o = MkPairTerm(o, VarNames(p->VarRight,
@@ -316,7 +316,7 @@ Term Yap_VarNames(VarEntry *p, Term l) {
 
 static Term Singletons(VarEntry *p, Term l USES_REGS) {
   if (p != NULL) {
-    if ( p->VarRep[0] != '_' && p->refs == 1) {
+    if (p->VarRep[0] != '_' && p->refs == 1) {
       Term t[2];
       Term o;
 
@@ -378,7 +378,7 @@ static int IsPrefixOp(Atom op, int *pptr, int *rpptr USES_REGS) {
   }
   if ((p = opp->Prefix) != 0) {
     READ_UNLOCK(opp->OpRWLock);
-    *pptr = *rpptr = p & MaskPrio;
+    *pptr = *rpptr = p &MaskPrio;
     if (p & DcrrpFlag)
       --*rpptr;
     return TRUE;
@@ -405,7 +405,7 @@ static int IsInfixOp(Atom op, int *pptr, int *lpptr, int *rpptr USES_REGS) {
   }
   if ((p = opp->Infix) != 0) {
     READ_UNLOCK(opp->OpRWLock);
-    *pptr = *rpptr = *lpptr = p & MaskPrio;
+    *pptr = *rpptr = *lpptr = p &MaskPrio;
     if (p & DcrrpFlag)
       --*rpptr;
     if (p & DcrlpFlag)
@@ -434,7 +434,7 @@ static int IsPosfixOp(Atom op, int *pptr, int *lpptr USES_REGS) {
   }
   if ((p = opp->Posfix) != 0) {
     READ_UNLOCK(opp->OpRWLock);
-    *pptr = *lpptr = p & MaskPrio;
+    *pptr = *lpptr = p &MaskPrio;
     if (p & DcrlpFlag)
       --*lpptr;
     return (TRUE);
@@ -462,7 +462,7 @@ inline static void checkfor(wchar_t c, JMPBUFF *FailBuff USES_REGS) {
   if (LOCAL_tokptr->Tok != Ord(Ponctuation_tok) ||
       LOCAL_tokptr->TokInfo != (Term)c) {
     char s[1024];
-    strncpy(s, Yap_tokRep(LOCAL_tokptr), 1023 );
+    strncpy(s, Yap_tokRep(LOCAL_tokptr), 1023);
     syntax_msg("expected to find \'%c\', found %s", c, s);
     FAIL;
   }
@@ -523,7 +523,7 @@ static int get_quasi_quotation(term_t t, unsigned char **here,
 }
 #endif /*O_QUASIQUOTATIONS*/
 
-static Term ParseArgs( Atom a, wchar_t close, JMPBUFF *FailBuff,
+static Term ParseArgs(Atom a, wchar_t close, JMPBUFF *FailBuff,
                       Term arg1 USES_REGS) {
   int nargs = 0;
   Term *p, t;
@@ -543,12 +543,12 @@ static Term ParseArgs( Atom a, wchar_t close, JMPBUFF *FailBuff,
 
       func = Yap_MkFunctor(a, 1);
       if (func == NULL) {
-	syntax_msg("Heap Overflow");
+        syntax_msg("Heap Overflow");
         FAIL;
       }
       t = Yap_MkApplTerm(func, nargs, p);
       if (HR > ASP - 4096) {
-	syntax_msg("Stack Overflow");
+        syntax_msg("Stack Overflow");
         return TermNil;
       }
       NextToken;
@@ -561,7 +561,7 @@ static Term ParseArgs( Atom a, wchar_t close, JMPBUFF *FailBuff,
       syntax_msg("Trail Overflow");
       FAIL;
     }
-    *tp++ = Unsigned(ParseTerm( 999, FailBuff PASS_REGS));
+    *tp++ = Unsigned(ParseTerm(999, FailBuff PASS_REGS));
     ParserAuxSp = (char *)tp;
     ++nargs;
     if (LOCAL_tokptr->Tok != Ord(Ponctuation_tok))
@@ -576,7 +576,7 @@ static Term ParseArgs( Atom a, wchar_t close, JMPBUFF *FailBuff,
    * order
    */
   if (HR > ASP - (nargs + 1)) {
-     syntax_msg("Stack Overflow");
+    syntax_msg("Stack Overflow");
     FAIL;
   }
   func = Yap_MkFunctor(a, nargs);
@@ -596,7 +596,7 @@ static Term ParseArgs( Atom a, wchar_t close, JMPBUFF *FailBuff,
     t = Yap_MkApplTerm(func, nargs, p);
 #endif
   if (HR > ASP - 4096) {
-       syntax_msg("Stack Overflow");
+    syntax_msg("Stack Overflow");
     return TermNil;
   }
   /* check for possible overflow against local stack */
@@ -616,26 +616,22 @@ static Term MakeAccessor(Term t, Functor f USES_REGS) {
   return Yap_MkApplTerm(f, 2, tf);
 }
 
-static Term ParseList( JMPBUFF *FailBuff USES_REGS) {
+static Term ParseList(JMPBUFF *FailBuff USES_REGS) {
   Term o;
   CELL *to_store;
   o = AbsPair(HR);
 loop:
   to_store = HR;
   HR += 2;
-  to_store[0] = ParseTerm( 999, FailBuff PASS_REGS);
+  to_store[0] = ParseTerm(999, FailBuff PASS_REGS);
   if (LOCAL_tokptr->Tok == Ord(Ponctuation_tok)) {
     if (((int)LOCAL_tokptr->TokInfo) == ',') {
       NextToken;
-      if (LOCAL_tokptr->Tok == Ord(Name_tok) &&
-          strcmp((char *)RepAtom((Atom)(LOCAL_tokptr->TokInfo))->StrOfAE, "..") == 0) {
-        NextToken;
-        to_store[1] = ParseTerm( 999, FailBuff PASS_REGS);
-      } else {
+      {
         /* check for possible overflow against local stack */
         if (HR > ASP - 4096) {
           to_store[1] = TermNil;
-	  syntax_msg("Stack Overflow");
+          syntax_msg("Stack Overflow");
           FAIL;
         } else {
           to_store[1] = AbsPair(HR);
@@ -644,18 +640,19 @@ loop:
       }
     } else if (((int)LOCAL_tokptr->TokInfo) == '|') {
       NextToken;
-      to_store[1] = ParseTerm( 999, FailBuff PASS_REGS);
+      to_store[1] = ParseTerm(999, FailBuff PASS_REGS);
     } else {
       to_store[1] = MkAtomTerm(AtomNil);
     }
   } else {
-     syntax_msg("looking for symbol ',','|' got symbol '%s'", Yap_tokRep(LOCAL_tokptr) );
-      FAIL;
+    syntax_msg("looking for symbol ',','|' got symbol '%s'",
+               Yap_tokRep(LOCAL_tokptr));
+    FAIL;
   }
   return (o);
 }
 
-static Term ParseTerm( int prio, JMPBUFF *FailBuff USES_REGS) {
+static Term ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS) {
   /* parse term with priority prio */
   Volatile Term t;
   Volatile Functor func;
@@ -719,15 +716,15 @@ static Term ParseTerm( int prio, JMPBUFF *FailBuff USES_REGS) {
         /* try to parse as a prefix operator */
         TRY(
             /* build appl on the heap */
-            func = Yap_MkFunctor((Atom)t, 1);
-            if (func == NULL) {
-              syntax_msg( "Heap Overflow" );
+            func = Yap_MkFunctor((Atom)t, 1); if (func == NULL) {
+              syntax_msg("Heap Overflow");
               FAIL;
-            } t = ParseTerm( oprprio, FailBuff PASS_REGS);
+            }
+            t = ParseTerm(oprprio, FailBuff PASS_REGS);
             t = Yap_MkApplTerm(func, 1, &t);
             /* check for possible overflow against local stack */
             if (HR > ASP - 4096) {
-              syntax_msg( "Stack Overflow" );
+              syntax_msg("Stack Overflow");
               FAIL;
             } curprio = opprio;
             , break;)
@@ -735,7 +732,7 @@ static Term ParseTerm( int prio, JMPBUFF *FailBuff USES_REGS) {
     }
     if (LOCAL_tokptr->Tok == Ord(Ponctuation_tok) &&
         Unsigned(LOCAL_tokptr->TokInfo) == 'l')
-      t = ParseArgs( (Atom)t, ')', FailBuff, 0L PASS_REGS);
+      t = ParseArgs((Atom)t, ')', FailBuff, 0L PASS_REGS);
     else
       t = MkAtomTerm((Atom)t);
     break;
@@ -745,52 +742,52 @@ static Term ParseTerm( int prio, JMPBUFF *FailBuff USES_REGS) {
     NextToken;
     break;
 
-    case String_tok: /* build list on the heap */
-    {
-      Volatile char *p = (char *)LOCAL_tokptr->TokInfo;
-      t = Yap_CharsToTDQ(p, CurrentModule, ENC_ISO_LATIN1 PASS_REGS);
-      if (!t) {
-        syntax_msg( "could not convert \'%s\'", (char *)LOCAL_tokptr->TokInfo );
-	FAIL;
-      }
-      NextToken;
-    } break;
-      
-    case WString_tok: /* build list on the heap */
-    {
-      Volatile wchar_t *p = (wchar_t *)LOCAL_tokptr->TokInfo;
-      t = Yap_WCharsToTDQ(p, CurrentModule PASS_REGS);
-      if (!t) {
-	syntax_msg( "could not convert \'%S\'", (wchar_t *)LOCAL_tokptr->TokInfo );
-	FAIL;
-      }
-      NextToken;
-    } break;
-      
-    case BQString_tok: /* build list on the heap */
-    {
-      Volatile char *p = (char *)LOCAL_tokptr->TokInfo;
+  case String_tok: /* build list on the heap */
+  {
+    Volatile char *p = (char *)LOCAL_tokptr->TokInfo;
+    t = Yap_CharsToTDQ(p, CurrentModule, LOCAL_encoding PASS_REGS);
+    if (!t) {
+      syntax_msg("could not convert \"%s\"", (char *)LOCAL_tokptr->TokInfo);
+      FAIL;
+    }
+    NextToken;
+  } break;
 
-      t = Yap_CharsToTBQ(p, CurrentModule, ENC_ISO_LATIN1 PASS_REGS);
-      if (!t) {
-        syntax_msg( "could not convert \'%s\"", (char *)LOCAL_tokptr->TokInfo );
-        FAIL;
-      }
-      NextToken;
-    } break;
-      
-    case WBQString_tok: /* build list on the heap */
-    {
-      Volatile wchar_t *p = (wchar_t *)LOCAL_tokptr->TokInfo;
-      t = Yap_WCharsToTBQ(p, CurrentModule PASS_REGS);
-      if (!t) {
-        syntax_msg( "could not convert \"%S\"", (wchar_t *)LOCAL_tokptr->TokInfo );
-        FAIL;
-      }
-      NextToken;
-    } break;
-      
-case Var_tok:
+  case WString_tok: /* build list on the heap */
+  {
+    Volatile wchar_t *p = (wchar_t *)LOCAL_tokptr->TokInfo;
+    t = Yap_WCharsToTDQ(p, CurrentModule PASS_REGS);
+    if (!t) {
+      syntax_msg("could not convert \'%S\'", (wchar_t *)LOCAL_tokptr->TokInfo);
+      FAIL;
+    }
+    NextToken;
+  } break;
+
+  case BQString_tok: /* build list on the heap */
+  {
+    Volatile char *p = (char *)LOCAL_tokptr->TokInfo;
+
+    t = Yap_CharsToTBQ(p, CurrentModule,  LOCAL_encoding PASS_REGS);
+    if (!t) {
+      syntax_msg("could not convert \'%s\"", (char *)LOCAL_tokptr->TokInfo);
+      FAIL;
+    }
+    NextToken;
+  } break;
+
+  case WBQString_tok: /* build list on the heap */
+  {
+    Volatile wchar_t *p = (wchar_t *)LOCAL_tokptr->TokInfo;
+    t = Yap_WCharsToTBQ(p, CurrentModule PASS_REGS);
+    if (!t) {
+      syntax_msg("could not convert \"%S\"", (wchar_t *)LOCAL_tokptr->TokInfo);
+      FAIL;
+    }
+    NextToken;
+  } break;
+
+  case Var_tok:
     varinfo = (VarEntry *)(LOCAL_tokptr->TokInfo);
     if ((t = varinfo->VarAdr) == TermNil) {
       t = varinfo->VarAdr = MkVarTerm();
@@ -799,7 +796,7 @@ case Var_tok:
     break;
 
   case Error_tok:
-    syntax_msg( "found ill-formed \"%s\"", Yap_tokRep(LOCAL_tokptr) );
+    syntax_msg("found ill-formed \"%s\"", Yap_tokRep(LOCAL_tokptr));
     FAIL;
 
   case Ponctuation_tok:
@@ -819,7 +816,7 @@ case Var_tok:
         NextToken;
         break;
       }
-      t = ParseList( FailBuff PASS_REGS);
+      t = ParseList(FailBuff PASS_REGS);
       checkfor(']', FailBuff PASS_REGS);
       break;
     case '{':
@@ -834,7 +831,7 @@ case Var_tok:
       t = Yap_MkApplTerm(FunctorBraces, 1, &t);
       /* check for possible overflow against local stack */
       if (HR > ASP - 4096) {
-	syntax_msg("Stack Overflow");
+        syntax_msg("Stack Overflow");
         FAIL;
       }
       checkfor('}', FailBuff PASS_REGS);
@@ -884,43 +881,46 @@ case Var_tok:
     NextToken;
     t = ParseTerm(GLOBAL_MaxPriority, FailBuff PASS_REGS);
     if (LOCAL_tokptr->Tok != QuasiQuotes_tok) {
-      syntax_msg( "expected to find quasi quotes, got \"%s\"", , Yap_tokRep(LOCAL_tokptr) );
+      syntax_msg("expected to find quasi quotes, got \"%s\"", ,
+                 Yap_tokRep(LOCAL_tokptr));
       FAIL;
     }
     if (!(is_quasi_quotation_syntax(t, &at))) {
-      syntax_msg( "bad quasi quotation syntax, at \"%s\"", Yap_tokRep(LOCAL_tokptr) );
+      syntax_msg("bad quasi quotation syntax, at \"%s\"",
+                 Yap_tokRep(LOCAL_tokptr));
       FAIL;
     }
     /* Arg 2: the content */
     tn = Yap_MkNewApplTerm(SWIFunctorToFunctor(FUNCTOR_quasi_quotation4), 4);
     tnp = RepAppl(tn) + 1;
     tnp[0] = MkAtomTerm(at);
-    if (!get_quasi_quotation(Yap_InitSlot(ArgOfTerm(2, tn)),
-                             &qq->text,
+    if (!get_quasi_quotation(Yap_InitSlot(ArgOfTerm(2, tn)), &qq->text,
                              qq->text + strlen((const char *)qq->text))) {
-       syntax_msg( "could not get quasi quotation, at \"%s\"", Yap_tokRep(LOCAL_tokptr) );
-       FAIL;
+      syntax_msg("could not get quasi quotation, at \"%s\"",
+                 Yap_tokRep(LOCAL_tokptr));
+      FAIL;
     }
     if (positions) {
       intptr_t qqend = qq->end.charno;
 
       // set_range_position(positions, -1, qqend PASS_LD);
-      if (!PL_unify_term(Yap_InitSlot(ArgOfTerm(2, t) ), PL_FUNCTOR,
+      if (!PL_unify_term(Yap_InitSlot(ArgOfTerm(2, t)), PL_FUNCTOR,
                          FUNCTOR_minus2, PL_INTPTR,
                          qq->mid.charno + 2,    /* end of | token */
                          PL_INTPTR, qqend - 2)) /* end minus "|}" */
-	syntax_msg( "failed to unify quasi quotation, at \"%s\"", Yap_tokRep(LOCAL_tokptr) );
-        FAIL;
+        syntax_msg("failed to unify quasi quotation, at \"%s\"",
+                   Yap_tokRep(LOCAL_tokptr));
+      FAIL;
     }
 
-    tnp[2] =
-        Yap_GetFromSlot(LOCAL_varnames); /* Arg 3: the var dictionary */
+    tnp[2] = Yap_GetFromSlot(LOCAL_varnames); /* Arg 3: the var dictionary */
     /* Arg 4: the result */
     t = ArgOfTerm(4, tn);
     if (!(to = PL_new_term_ref()) ||
         !PL_unify_list(LOCAL_qq_tail, to, LOCAL_qq_tail) ||
-        !PL_unify(to, Yap_InitSlot(tn ))) {
-      syntax_msg( "failed to unify quasi quotation, at \"%s\"", Yap_tokRep(LOCAL_tokptr) );
+        !PL_unify(to, Yap_InitSlot(tn))) {
+      syntax_msg("failed to unify quasi quotation, at \"%s\"",
+                 Yap_tokRep(LOCAL_tokptr));
       FAIL;
     }
   }
@@ -928,7 +928,7 @@ case Var_tok:
     NextToken;
     break;
   default:
-    syntax_msg( "expected operator, got \'%s\'", Yap_tokRep(LOCAL_tokptr) );
+    syntax_msg("expected operator, got \'%s\'", Yap_tokRep(LOCAL_tokptr));
     FAIL;
   }
 
@@ -941,38 +941,39 @@ case Var_tok:
           opprio <= prio && oplprio >= curprio) {
         /* try parsing as infix operator */
         Volatile int oldprio = curprio;
-        TRY3(func = Yap_MkFunctor((Atom)LOCAL_tokptr->TokInfo, 2);
-             if (func == NULL) {
-	       syntax_msg("Heap Overflow");
-               FAIL;
-             } NextToken;
-             {
-               Term args[2];
-               args[0] = t;
-               args[1] = ParseTerm(oprprio, FailBuff PASS_REGS);
-               t = Yap_MkApplTerm(func, 2, args);
-               /* check for possible overflow against local stack */
-               if (HR > ASP - 4096) {
-		 syntax_msg("Stack Overflow");
-                 FAIL;
-               }
-             },
-             curprio = opprio;
-             opinfo = save_opinfo; continue;, opinfo = save_opinfo;
-             curprio = oldprio;)
+        TRY3(
+            func = Yap_MkFunctor((Atom)LOCAL_tokptr->TokInfo, 2);
+            if (func == NULL) {
+              syntax_msg("Heap Overflow");
+              FAIL;
+            } NextToken;
+            {
+              Term args[2];
+              args[0] = t;
+              args[1] = ParseTerm(oprprio, FailBuff PASS_REGS);
+              t = Yap_MkApplTerm(func, 2, args);
+              /* check for possible overflow against local stack */
+              if (HR > ASP - 4096) {
+                syntax_msg("Stack Overflow");
+                FAIL;
+              }
+            },
+            curprio = opprio;
+            opinfo = save_opinfo; continue;, opinfo = save_opinfo;
+            curprio = oldprio;)
       }
       if (IsPosfixOp(opinfo, &opprio, &oplprio PASS_REGS) && opprio <= prio &&
           oplprio >= curprio) {
         /* parse as posfix operator */
         Functor func = Yap_MkFunctor((Atom)LOCAL_tokptr->TokInfo, 1);
         if (func == NULL) {
-	  syntax_msg("Heap Overflow");
+          syntax_msg("Heap Overflow");
           FAIL;
         }
         t = Yap_MkApplTerm(func, 1, &t);
         /* check for possible overflow against local stack */
         if (HR > ASP - 4096) {
-	  syntax_msg("Stack Overflow");
+          syntax_msg("Stack Overflow");
           FAIL;
         }
         curprio = opprio;
@@ -991,7 +992,7 @@ case Var_tok:
         t = Yap_MkApplTerm(FunctorComma, 2, args);
         /* check for possible overflow against local stack */
         if (HR > ASP - 4096) {
-	  syntax_msg("Stack Overflow");
+          syntax_msg("Stack Overflow");
           FAIL;
         }
         curprio = 1000;
@@ -1006,7 +1007,7 @@ case Var_tok:
         t = Yap_MkApplTerm(FunctorVBar, 2, args);
         /* check for possible overflow against local stack */
         if (HR > ASP - 4096) {
-	  syntax_msg("Stack Overflow");
+          syntax_msg("Stack Overflow");
           FAIL;
         }
         curprio = opprio;
@@ -1021,7 +1022,7 @@ case Var_tok:
                  IsPosfixOp(AtomEmptySquareBrackets, &opprio,
                             &oplprio PASS_REGS) &&
                  opprio <= prio && oplprio >= curprio) {
-        t = ParseArgs( AtomEmptySquareBrackets, ']', FailBuff, t PASS_REGS);
+        t = ParseArgs(AtomEmptySquareBrackets, ']', FailBuff, t PASS_REGS);
         t = MakeAccessor(t, FunctorEmptySquareBrackets PASS_REGS);
         curprio = opprio;
         continue;
@@ -1029,14 +1030,14 @@ case Var_tok:
                  IsPosfixOp(AtomEmptyCurlyBrackets, &opprio,
                             &oplprio PASS_REGS) &&
                  opprio <= prio && oplprio >= curprio) {
-        t = ParseArgs( AtomEmptyCurlyBrackets, '}', FailBuff, t PASS_REGS);
+        t = ParseArgs(AtomEmptyCurlyBrackets, '}', FailBuff, t PASS_REGS);
         t = MakeAccessor(t, FunctorEmptyCurlyBrackets PASS_REGS);
         curprio = opprio;
         continue;
       }
     }
     if (LOCAL_tokptr->Tok <= Ord(WString_tok)) {
-      syntax_msg( "expected operator, got \'%s\'", Yap_tokRep(LOCAL_tokptr) );
+      syntax_msg("expected operator, got \'%s\'", Yap_tokRep(LOCAL_tokptr));
       FAIL;
     }
     break;
@@ -1048,28 +1049,27 @@ Term Yap_Parse(UInt prio) {
   CACHE_REGS
   Volatile Term t;
   JMPBUFF FailBuff;
-  yhandle_t sls  = Yap_StartSlots();
+  yhandle_t sls = Yap_StartSlots();
 
   if (!sigsetjmp(FailBuff.JmpBuff, 0)) {
 
     t = ParseTerm(prio, &FailBuff PASS_REGS);
 #if DEBUG
-  if (GLOBAL_Option['p' - 'a' + 1]) {
-    Yap_DebugPutc(stderr, '[');
-    if (t==0) Yap_DebugPlWrite(MkIntTerm(0));
-    else Yap_DebugPlWrite(t);
-    Yap_DebugPutc(stderr, ']');
-    Yap_DebugPutc(stderr, '\n');
-  }
+    if (GLOBAL_Option['p' - 'a' + 1]) {
+      Yap_DebugPutc(stderr, '[');
+      if (t == 0)
+        Yap_DebugPlWrite(MkIntTerm(0));
+      else
+        Yap_DebugPlWrite(t);
+      Yap_DebugPutc(stderr, ']');
+      Yap_DebugPutc(stderr, '\n');
+    }
 #endif
-    Yap_CloseSlots( sls );
-    if (LOCAL_tokptr != NULL &&
-	LOCAL_tokptr->Tok != Ord(eot_tok)
-	) {
+    Yap_CloseSlots(sls);
+    if (LOCAL_tokptr != NULL && LOCAL_tokptr->Tok != Ord(eot_tok)) {
       t = 0;
     }
-    if (t != 0 &&
-	LOCAL_Error_TYPE == SYNTAX_ERROR) {
+    if (t != 0 && LOCAL_Error_TYPE == SYNTAX_ERROR) {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       LOCAL_ErrorMessage = NULL;
     }
@@ -1077,7 +1077,7 @@ Term Yap_Parse(UInt prio) {
     //  return (0L);
     return t;
   }
-  Yap_CloseSlots( sls );
+  Yap_CloseSlots(sls);
 
   return (0);
 }
