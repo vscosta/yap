@@ -27,14 +27,15 @@ work with. Most packages included in YAP that use attributed
 variables, such as CHR, CLP(FD), and CLP(QR), rely on the SWI-Prolog
 interface.
 
-+ @ref Old_Style_Attribute_Declarations
++ @ref attributes
 + @ref New_Style_Attribute_Declarations
 + @ref CohYroutining
++ @ref AttributeVariables_Builtins
 
 @{
 
-@defgroup Old_Style_Attribute_Declarations SICStus Style attribute declarations.
-@ingroup AttributeDeclarations
+@defgroup attributes SICStus Style attribute declarations.
+@ingroup AttributedVariables
 
 The YAP library `atts` implements attribute variables in the style of
 SICStus Prolog. Attributed variables work as follows:
@@ -98,17 +99,17 @@ these built-ins are rewritten by the system into internal built-ins, and
 that the rewriting process <em>depends</em> on the module on which the
 built-ins have been invoked.
 
- 
+
 The user-predicate predicate verify_attributes/3 is called when
 attempting to unify an attributed variable which might have attributes
 in some  _Module_.
 
- 
+
 Attributes are usually presented as goals. The following routines are
 used by built-in predicates such as call_residue/2 and by the
 Prolog top-level to display attributes:
 
- 
+
 Constraint solvers must be able to project a set of constraints to a set
 of variables. This is useful when displaying the solution to a goal, but
 may also be used to manipulate computations. The user-defined
@@ -199,15 +200,15 @@ Let's test it:
 
 domain(X,[1,5,6,7]),
 domain(Y,[3,4,5,6]),
-domain(Z,[1,6,7,8]) ? 
+domain(Z,[1,6,7,8]) ?
 
 yes
-| ?- domain(X,[5,6,7,1]), domain(Y,[3,4,5,6]), domain(Z,[1,6,7,8]), 
+| ?- domain(X,[5,6,7,1]), domain(Y,[3,4,5,6]), domain(Z,[1,6,7,8]),
      X=Y.
 
 Y = X,
 domain(X,[5,6]),
-domain(Z,[1,6,7,8]) ? 
+domain(Z,[1,6,7,8]) ?
 
 yes
 | ?- domain(X,[5,6,7,1]), domain(Y,[3,4,5,6]), domain(Z,[1,6,7,8]),
