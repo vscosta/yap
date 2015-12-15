@@ -618,7 +618,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
           goto do_type_atom_error;
         yhandle_t sl = Yap_StartSlots();
         // stream is already locked.
-        Yap_plwrite(t, GLOBAL_Stream + sno, 0, Handle_vars_f | To_heap_f, 1200);
+        Yap_plwrite(t, GLOBAL_Stream + sno, 0, Handle_vars_f | To_heap_f, GLOBAL_MaxPriority);
         Yap_CloseSlots(sl);
         break;
       case 'c': {
@@ -871,7 +871,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
           t = targs[targ++];
           yhandle_t sl = Yap_StartSlots();
           Yap_plwrite(t, GLOBAL_Stream + sno, 0,
-                      Quote_illegal_f | Ignore_ops_f | To_heap_f, 1200);
+                      Quote_illegal_f | Ignore_ops_f | To_heap_f, GLOBAL_MaxPriority);
           Yap_CloseSlots(sl);
           break;
         case '@':
@@ -910,7 +910,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
           {
             Int sl = Yap_InitSlot(args);
             Yap_plwrite(t, GLOBAL_Stream + sno, 0,
-                        Handle_vars_f | Use_portray_f | To_heap_f, 1200);
+                        Handle_vars_f | Use_portray_f | To_heap_f, GLOBAL_MaxPriority);
             args = Yap_GetFromSlot(sl);
             Yap_CloseSlots(sl);
           }
@@ -939,7 +939,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
           t = targs[targ++];
           yhandle_t sl0 = Yap_StartSlots();
           Yap_plwrite(t, GLOBAL_Stream + sno, 0,
-                      Handle_vars_f | Quote_illegal_f | To_heap_f, 1200);
+                      Handle_vars_f | Quote_illegal_f | To_heap_f, GLOBAL_MaxPriority);
           Yap_CloseSlots(sl0);
           break;
         case 'w':
@@ -948,7 +948,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
           t = targs[targ++];
           yhandle_t slf = Yap_StartSlots();
           Yap_plwrite(t, GLOBAL_Stream + sno, 0, Handle_vars_f | To_heap_f,
-                      1200);
+                      GLOBAL_MaxPriority);
           Yap_CloseSlots(slf);
           break;
         case '~':

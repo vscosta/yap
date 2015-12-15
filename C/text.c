@@ -969,9 +969,7 @@ write_number( void *s0, seq_tv_t *out, encoding_t enc, int minimal, int size USE
 static Term
 string_to_term( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng USES_REGS)
 {
-  printf("TR0=%p\n", TR);
- Term o = out->val.t = Yap_StringToTerm(s0, strlen(s0)+1, &enc, 1200, NULL);
-  printf("TRF=%p\n", TR);
+ Term o = out->val.t = Yap_StringToTerm(s0, strlen(s0)+1, &enc, GLOBAL_MaxPriority, NULL);
  return o;
 }
 

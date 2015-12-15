@@ -168,6 +168,9 @@ char*				CharConversionTable2			=NULL
 /* time */
 void*				LastWTimePtr				=NULL
 
+/* max priority */
+int 				MaxPriority				    =1200
+
 
 
 END_GLOBAL_DATA

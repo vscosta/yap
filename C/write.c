@@ -1158,7 +1158,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
     } else if (!wglb->Ignore_ops && functor == FunctorBraces) {
       wrputc('{', wglb->stream);
       lastw = separator;
-      writeTerm(from_pointer(RepAppl(t) + 1, &nrwt, wglb), 1200, depth + 1,
+      writeTerm(from_pointer(RepAppl(t) + 1, &nrwt, wglb), GLOBAL_MaxPriority, depth + 1,
                 FALSE, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
       wrputc('}', wglb->stream);
@@ -1269,7 +1269,7 @@ char *Yap_TermToString(Term t, char *s, size_t sz, size_t *length,
     GLOBAL_Stream[sno].encoding = *encp;
   else
     GLOBAL_Stream[sno].encoding = LOCAL_encoding;
-  Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, 1200);
+  Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, GLOBAL_MaxPriority);
   s = Yap_MemExportStreamPtr(sno);
   Yap_CloseStream(sno);
   LOCAL_c_output_stream = old_output_stream;

@@ -808,7 +808,7 @@ case Var_tok:
     case '(':
     case 'l': /* non solo ( */
       NextToken;
-      t = ParseTerm( 1200, FailBuff PASS_REGS);
+      t = ParseTerm(GLOBAL_MaxPriority, FailBuff PASS_REGS);
       checkfor(')', FailBuff PASS_REGS);
       break;
     case '[':
@@ -830,7 +830,7 @@ case Var_tok:
         NextToken;
         break;
       }
-      t = ParseTerm( 1200, FailBuff PASS_REGS);
+      t = ParseTerm(GLOBAL_MaxPriority, FailBuff PASS_REGS);
       t = Yap_MkApplTerm(FunctorBraces, 1, &t);
       /* check for possible overflow against local stack */
       if (HR > ASP - 4096) {
@@ -882,7 +882,7 @@ case Var_tok:
     }
 
     NextToken;
-    t = ParseTerm( 1200, FailBuff PASS_REGS);
+    t = ParseTerm(GLOBAL_MaxPriority, FailBuff PASS_REGS);
     if (LOCAL_tokptr->Tok != QuasiQuotes_tok) {
       syntax_msg( "expected to find quasi quotes, got \"%s\"", , Yap_tokRep(LOCAL_tokptr) );
       FAIL;
@@ -987,7 +987,7 @@ case Var_tok:
         Volatile Term args[2];
         NextToken;
         args[0] = t;
-        args[1] = ParseTerm( 1000, FailBuff PASS_REGS);
+        args[1] = ParseTerm(1000, FailBuff PASS_REGS);
         t = Yap_MkApplTerm(FunctorComma, 2, args);
         /* check for possible overflow against local stack */
         if (HR > ASP - 4096) {

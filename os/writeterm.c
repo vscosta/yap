@@ -143,7 +143,7 @@ static char SccsId[] = "%W% %G%";
 int beam_write ( USES_REGS1 )
 {
   Yap_StartSlots();
-  Yap_plwrite (ARG1, GLOBAL_Stream+LOCAL_c_output_stream, 0, 0, 1200);
+  Yap_plwrite (ARG1, GLOBAL_Stream+LOCAL_c_output_stream, 0, 0, GLOBAL_MaxPriority);
   Yap_CloseSlots();
   if (EX != 0L) {
     Term ball = Yap_PopTermFromDB(EX);
@@ -288,7 +288,7 @@ write_term ( int output_stream, Term t, xarg *args USES_REGS )
   if (args[WRITE_PRIORITY].used) {
     prio = IntegerOfTerm(args[WRITE_PRIORITY].tvalue);
   } else {
-    prio = 1200;
+    prio = GLOBAL_MaxPriority;
   }
   Yap_plwrite( t, GLOBAL_Stream+output_stream, depth, flags, prio);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);

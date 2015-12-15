@@ -1723,7 +1723,7 @@ X_API Term YAP_ReadBuffer(const char *s, Term *tp) {
   BACKUP_H();
 
   LOCAL_ErrorMessage = NULL;
-  while (!(t = Yap_StringToTerm(s, strlen(s) + 1, &LOCAL_encoding, 1200, tp))) {
+  while (!(t = Yap_StringToTerm(s, strlen(s) + 1, &LOCAL_encoding, GLOBAL_MaxPriority, tp))) {
     if (LOCAL_ErrorMessage) {
       if (!strcmp(LOCAL_ErrorMessage, "Stack Overflow")) {
         if (!Yap_dogc(0, NULL PASS_REGS)) {
@@ -2467,7 +2467,7 @@ X_API void YAP_Write(Term t, FILE *f, int flags) {
   BACKUP_MACHINE_REGS();
   int sno = Yap_OpenStream(f, NULL, TermNil, Output_Stream_f);
 
-  Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, 1200);
+  Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, GLOBAL_MaxPriority);
   Yap_ReleaseStream(sno);
 
   RECOVER_MACHINE_REGS();

@@ -446,9 +446,9 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   }
   if (args[READ_PRIORITY].used) {
     re->prio = IntegerOfTerm(args[READ_PRIORITY].tvalue);
-    if (re->prio > 1200) {
+    if (re->prio > GLOBAL_MaxPriority) {
       Yap_Error(DOMAIN_ERROR_OPERATOR_PRIORITY, opts,
-                "max priority in Prolog is 1200, not %ld", re->prio);
+                "max priority in Prolog is %d, not %ld", GLOBAL_MaxPriority, re->prio);
     }
   } else {
     re->prio = LOCAL_default_priority;

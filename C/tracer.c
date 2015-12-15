@@ -50,7 +50,7 @@ static void send_tracer_message(char *start, char *name, Int arity, char *mname,
       for (i = 0; i < arity; i++) {
         if (i > 0)
           fprintf(stderr, ",");
-        Yap_plwrite(args[i], NULL, 15, Handle_vars_f | AttVar_Portray_f, 1200);
+        Yap_plwrite(args[i], NULL, 15, Handle_vars_f | AttVar_Portray_f, GLOBAL_MaxPriority);
       }
       if (arity) {
         fprintf(stderr, ")");
