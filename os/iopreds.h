@@ -301,6 +301,7 @@ void Yap_InitWriteTPreds(void);
 void Yap_InitReadTPreds(void);
 void Yap_socketStream( StreamDesc *s );
 void Yap_ReadlineFlush( int  sno );
+Int Yap_ReadlinePeekChar( int  sno );
 int Yap_ReadlineForSIGINT(void);
 bool Yap_ReadlinePrompt( StreamDesc * s );
 
@@ -327,6 +328,8 @@ int DefaultGets( int,UInt,char*);
 int put_wchar(int sno, wchar_t ch);
 Int GetStreamFd(int sno);
 int ResetEOF(StreamDesc *s);
+int EOFPeek(int sno);
+int EOFWPeek(int sno);
 
 void Yap_SetAlias (Atom arg, int sno);
 bool Yap_AddAlias (Atom arg, int sno);

@@ -300,6 +300,42 @@ static int ReadlineGetc(int sno) {
   return console_post_process_read_char(ch, s);
 }
 
+
+/** 
+  @brief  Yap_ReadlinePeekChar peeks the next char from the
+  readline buffer, but does not actually grab it.
+
+  The idea is to take advantage of the buffering. Special care must be taken with EOF, though.
+
+*/
+Int Yap_ReadlinePeekChar( int sno) {
+  StreamDesc *s = &GLOBAL_Stream[sno];
+  int ch;
+
+  if (s->u.irl.buf) {
+    const char *ttyptr = s->u.irl.ptr;
+    ch = *ttyptr;
+    if (ch == '\0') {
+       ch = '\n';
+    }
+  } if (getLine(sno, StdErrStream) ) {
+      CACHE_REGS
+    ch = s->u.irl.ptr[0];
+    if (ch == '\0') {
+       ch = '\n';
+    }
+    if (ch == '\n') {
+      LOCAL_newline = true;
+    } else {
+      LOCAL_newline = false;
+    }
+  } else {
+    return EOF;
+  }
+  return ch;
+}
+
+
 int Yap_ReadlineForSIGINT(void) {
   CACHE_REGS
   int ch;

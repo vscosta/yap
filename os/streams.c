@@ -140,6 +140,7 @@ int GetFreeStreamD(void) {
   LOCK(GLOBAL_Stream[sno].streamlock);
   UNLOCK(GLOBAL_StreamDescLock);
   GLOBAL_Stream[sno].encoding = LOCAL_encoding;
+  GLOBAL_Stream[sno].och = '\0';
   return sno;
 }
 

@@ -26,6 +26,7 @@ static char SccsId[] = "%W% %G%";
 #include "Yap.h"
 #include "Yatom.h"
 #include "YapHeap.h"
+#include "YapText.h"
 #include "yapio.h"
 #include <stdlib.h>
 #if HAVE_UNISTD_H
@@ -84,18 +85,66 @@ Int Yap_peek(int sno) {
   Int ch;
 
   s = GLOBAL_Stream + sno;
+  if ( s->status & Readline_Stream_f) {
+    ch = Yap_ReadlinePeekChar( sno );
+    if (ch == EOFCHAR) {
+      s->stream_getc = EOFPeek;
+      s->stream_wgetc = EOFWPeek;
+      s->status |= Push_Eof_Stream_f;
+    }
+    return ch;
+  }
   ocharcount = s->charcount;
   olinecount = s->linecount;
   olinepos = s->linepos;
   ch = s->stream_wgetc(sno);
+  s ->och = ch;
+  if (ch == EOFCHAR) {
+    s->stream_getc = EOFPeek;
+    s->stream_wgetc = EOFWPeek;
+    s->status |= Push_Eof_Stream_f;
+   return ch;
+  }
   s->charcount = ocharcount;
   s->linecount = olinecount;
   s->linepos = olinepos;
   /* buffer the character */
   if (s->encoding == LOCAL_encoding) {
     ungetwc(ch, s->file);
-  } else {
+  } else if (s->encoding == ENC_OCTET ||
+      s->encoding == ENC_ISO_LATIN1||
+      s->encoding == ENC_ISO_ASCII) {
+    ungetc(ch, s->file);
+  } else if (s->encoding == ENC_ISO_UTF8) {
+    unsigned char cs[8];
+    size_t n = put_utf8(cs, ch );
+    while (n--) {
+      ungetc(cs[n-1], s->file);
+    }
+  } else if (s->encoding == ENC_UTF16_BE) {
     /* do the ungetc as if a write .. */
+    unsigned long int c = ch;
+    if (c >((1<<16)-1)) {
+      ungetc(c/1<<16, s->file);
+      c %= 1<< 16;
+    }
+    ungetc(c, s->file);
+  } else if (s->encoding == ENC_UTF16_BE) {
+    /* do the ungetc as if a write .. */
+    unsigned long int c = ch;
+    if (c > ((1<<16)-1)) {
+      ungetc(c/1<<16, s->file);
+      c %= 1<< 16;
+    } 
+  } else if (s->encoding == ENC_UTF16_LE) {
+    /* do the ungetc as if a write .. */
+    unsigned long int c = ch;
+    if (c >(( 1<<16)-1)) {
+      ungetc(c%1<<16, s->file);
+      c /= 1<< 16;
+    }
+    ungetc(c, s->file);
+  } else {    
     int (*f)(int, int) = s->stream_putc;
     s->stream_putc = plUnGetc;
     put_wchar(sno, ch);
