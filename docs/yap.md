@@ -9,6 +9,8 @@ This file documents the YAP Prolog System version 6.3.4, a high-performance Prol
 
 + @ref run
 
++ @ref YAPSyntax
+
 + @ref consult
 
 + @ref builtins
@@ -33,14 +35,14 @@ This file documents the YAP Prolog System version 6.3.4, a high-performance Prol
 \author Rúben Azevedo
 
 
-© 1989-2014 L. Damas, V. Santos Costa and Universidade
+© 1989-201 L. Damas, V. Santos Costa and Universidade
 do Porto.
 Permission is granted to make and distribute verbatim copies of this manual provided the copyright notice and this permission notice are preserved on all copies.
 Permission is granted to copy and distribute modified versions of this manual under the conditions for verbatim copying, provided that the entire resulting derived work is distributed under the terms of a permission notice identical to this one.
 Permission is granted to copy and distribute translations of this manual into another language, under the above conditions for modified versions.
 
 <center>
-![The YAP Logo](yap_256x256x32.png) 
+![The YAP Logo](yap_256x256x32.png)
 </center>
 
 This file contains extracts of the SWI-Prolog manual, as written by Jan
@@ -450,7 +452,7 @@ Compiling WIN32 packages depends on a number of parameters: chosen compiler,
 packages to install, directory setup. You may have to change these ones that
 control the `mkwin` script:
 
- * `VER`: major/minor number  
+ * `VER`: major/minor number
  * `PATCHID`: third digit
  * `SRC`: directory containing yap sources, in the local environment notation.
  * `SRC_WIN`: same, but in WIN32 standard notation.
@@ -1116,5 +1118,3 @@ being designed to work with the swig (www.swig.orgv) interface compiler.
 + The @ref swi-c-interface emulates Jan Wielemaker's SWI foreign language interface.
 
 + The @ref  yap-cplus-interface is desiged to interface with the SWI ackage \cite x Object-Oriented systems.
-
-
