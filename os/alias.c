@@ -18,6 +18,17 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
+/**
+ * @file   alias.c
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Thu Nov 19 10:53:20 2015
+ * 
+ * @brief  File Aliases
+ * 
+ * 
+ */
+
+
 /** 
  * @group
  *
