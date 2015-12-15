@@ -181,13 +181,19 @@ Since YAP4.3.0 multifile procedures can be static or dynamic.
 
 **/
 multifile(P) :-
-	'$current_module'(OM),
-	'$multifile'(P, OM).
+    strip_module(P, OM, Pred),
+	'$multifile'(Pred, OM).
 
-'$multifile'(V, _) :- var(V), !,
+'$multifile'(V, _) :-
+    var(V),
+    !,
 	'$do_error'(instantiation_error,multifile(V)).
-'$multifile'((X,Y), M) :- !, '$multifile'(X, M), '$multifile'(Y, M).
-'$multifile'(Mod:PredSpec, _) :- !,
+'$multifile'((X,Y), M) :-
+    !,
+    '$multifile'(X, M),
+    '$multifile'(Y, M).
+'$multifile'(Mod:PredSpec, _) :-
+    !,
 	'$multifile'(PredSpec, Mod).
 '$multifile'(N//A, M) :- !,
 	integer(A),
@@ -197,7 +203,7 @@ multifile(P) :-
 	'$add_multifile'(N,A,M),
 	fail.
 '$multifile'(N/A, M) :-
-         functor(S,N,A),
+    functor(S,N,A),
 	'$is_multifile'(S, M), !.
 '$multifile'(N/A, M) :- !,
 	'$new_multifile'(N,A,M).
@@ -261,3 +267,32 @@ discontiguous(F) :-
 	'$predicate_flags'(T,Mod,F,F),
 	F\/0x00400000 =\= 0.
 
+/**
+ @pred module_transparent( + _Preds_ ) is directive
+   _Preds_ is a list of predicates that can access the calling context.
+
+This predicate was implemented to achieve compatibility with the older
+module expansion system in SWI-Prolog. Please use meta_predicate/1 for
+new code.
+
+_Preds_ is a comma separated sequence of name/arity predicate
+indicators (like in dynamic/1). Each goal associated with a
+transparent declared predicate will inherit the context module from
+its caller.
+
+*/
+:- dynamic('$module_transparent'/4).
+
+'$module_transparent'((P,Ps), M) :- !,
+	'$module_transparent'(P, M),
+	'$module_transparent'(Ps, M).
+'$module_transparent'(M:D, _) :- !,
+	'$module_transparent'(D, M).
+'$module_transparent'(F/N, M) :-
+	'$module_transparent'(F,M,N,_), !.
+'$module_transparent'(F/N, M) :-
+	functor(P,F,N),
+	asserta(prolog:'$module_transparent'(F,M,N,P)),
+	'$predicate_flags'(P, M, Fl, Fl),
+	NFlags is Fl \/ 0x200004,
+	'$pre_dicate_flags'(P, M, Fl, NFlags).

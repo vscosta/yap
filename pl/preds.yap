@@ -16,9 +16,9 @@
 *************************************************************************/
 
 /**
- * @defgroup Database Using the Clausal Data Base
- * @ingroup builtins
  * @{
+ * @defgroup Database The Clausal Data Base
+ * @ingroup builtins
 
 Predicates in YAP may be dynamic or static. By default, when
 consulting or reconsulting, predicates are assumed to be static:
@@ -108,8 +108,7 @@ undefined results.
 
 */
 assert_static(C) :-
-	strip_module(C, Mod, C1),
-	'$assert_static'(C1, Mod,last,_,assert_static(C)).
+	'$assert'(C , assertz_static, _ ).
 
 /** @pred  asserta_static(: _C_)
 
@@ -118,9 +117,8 @@ Adds clause  _C_ as the first clause for a static procedure.
 
 
 */
-asserta_static(C) :-
-	strip_module(C, Mod, C1),
-	'$assert_static'(C1,Mod,first,_,asserta_static(C)).
+asserta_static(CI) :- 
+	'$assert'(C , asserta_static, _ ).
 
 
 /** @pred  assertz_static(: _C_)
@@ -139,29 +137,8 @@ static predicates, if source mode was on when they were compiled:
 
 
 */
-assertz_static(C) :-
-	strip_module(C, Mod, C1),
-	'$assert_static'(C1,Mod,last,_,assertz_static(C)).
-
-'$assert_static'(V,M,_,_,_) :- var(V), !,
-	'$do_error'(instantiation_error,assert(M:V)).
-'$assert_static'((H:-_G),_M1,_Where,_R,P) :-
-	var(H), !, '$do_error'(instantiation_error,P).
-'$assert_static'(CI,Mod,Where,R,P) :-
-	'$expand_clause'(CI,C0,C,Mod, HM),
-	'$check_head_and_body'(C,H,B,P),
-	( '$is_dynamic'(H, HM) ->
-	    '$do_error'(permission_error(modify,dynamic_procedure,HM:Na/Ar),P)
-	;
-	  '$undefined'(H,HM), get_value('$full_iso',true) ->
-	    functor(H,Na,Ar), '$dynamic'(Na/Ar, HM), '$assertat_d'(Where,H,B,C0,HM,R)
-	;
-	'$assert1'(Where,C,C0,HM,H)
-        ).
-
-
-'$assert1'(last,C,C0,Mod,_) :- '$compile'(C,0,C0,Mod).
-'$assert1'(first,C,C0,Mod,_) :- '$compile'(C,2,C0,Mod).
+assertz_static(CI) :- 
+	'$assert'(C , assertz_static, _ ).
 
 /** @pred  clause(+ _H_, _B_) is iso
 
@@ -177,7 +154,8 @@ This predicate is applicable to static procedures compiled with
 
 */
 clause(V0,Q) :-
-	strip_module(V0, M, V),
+	'$yap_strip_module'(V0, M, V),
+    must_be_of_type( callable, V ),
 	'$clause'(V,M,Q,_).
 
 /** @pred  clause(+ _H_, _B_,- _R_)
@@ -187,28 +165,24 @@ reference to the clause in the database. You can use instance/2
 to access the reference's value. Note that you may not use
 erase/1 on the reference on static procedures.
 */
-clause(P,Q,R) :- var(P), !,
-	'$current_module'(M),
-	'$clause'(P,M,Q,R).
+clause(P,Q,R) :- 
+	'$instance_module'(R,M0), !,
+	instance(R,T0),
+	( T0 = (H :- B) -> Q = B ; H=T0, Q = true),
+    '$yap_strip_module'(P, M, T),
+    '$yap_strip_module'(M0:H, M1, H1),
+    (
+     M == M1
+    ->
+     H1 = T
+    ;     
+     M1:H1 = T
+    ).
 clause(V0,Q,R) :-
-	strip_module(V0, M, V),
+	'$yap_strip_module'(V0, M, V),
+    must_be_of_type( callable, V ),
 	'$clause'(V,M,Q,R).
 
-'$clause'(P,M,Q,R) :-
-	'$instance_module'(R,M0), !,
-	M0 = M,
-	instance(R,T),
-	( T = (H :- B) -> P = H, Q = B ; P=T, Q = true).
-'$clause'(V,M,Q,R) :- var(V), !,
-	'$do_error'(instantiation_error,clause(M:V,Q,R)).
-'$clause'(C,M,Q,R) :-
-	number(C), !,
-	'$do_error'(type_error(callable,C),clause(M:C,Q,R)).
-'$clause'(C,M,Q,R) :-
-	db_reference(C), !,
-	'$do_error'(type_error(callable,C),clause(M:R,Q,R)).
-'$clause'(M:P,_,Q,R) :- !,
-	'$clause'(P,M,Q,R).
 '$clause'(P,M,Q,R) :-
 	'$is_exo'(P, M), !,
 	Q = true,
@@ -461,7 +435,7 @@ stash_predicate(P0) :-
 '$stash_predicate2'(PredDesc, M) :-
 	'$do_error'(type_error(predicate_indicator,PredDesc),stash_predicate(M:PredDesc)).
 
-/** @pred @pred hide_predicate(+ _Pred_)
+/** @pred hide_predicate(+ _Pred_)
 Make predicate  _Pred_ invisible to `current_predicate/2`,
 `listing`, and friends.
 
@@ -534,8 +508,8 @@ predicate_property(Pred,Prop) :-
 '$predicate_property2'(Pred,Prop,M0) :-
 	var(Pred), !,
 	(M = M0 ;
-	 M = prolog ;
-	 M = user), % prolog and user modules are automatically incorporate in every other module
+	 M0 \= prolog, M = prolog ;
+	 M0 \= user, M = user), % prolog and user modules are automatically incorporate in every other module
 	'$generate_all_preds_from_mod'(Pred, SourceMod, M),
 	'$predicate_property'(Pred,SourceMod,M,Prop).
 '$predicate_property2'(M:Pred,Prop,_) :- !,
@@ -544,7 +518,7 @@ predicate_property(Pred,Prop) :-
 	'$pred_exists'(Pred,Mod), !,
 	'$predicate_property'(Pred,Mod,Mod,Prop).
 '$predicate_property2'(Pred,Prop,Mod) :-
-	'$imported_predicate'(Pred, Mod, NPred, M),
+    '$get_undefined_pred'(Pred, Mod, NPred, M),
 	(
 	 Prop = imported_from(M)
 	;
@@ -553,7 +527,7 @@ predicate_property(Pred,Prop) :-
 	).
 
 '$generate_all_preds_from_mod'(Pred, M, M) :-
-	'$current_predicate'(_Na,M,Pred,user).
+	'$current_predicate'(_Na,M,Pred,_).
 '$generate_all_preds_from_mod'(Pred, SourceMod, Mod) :-
 	recorded('$import','$import'(SourceMod, Mod, Orig, Pred,_,_),_),
 	'$pred_exists'(Orig, SourceMod).
@@ -573,7 +547,7 @@ predicate_property(Pred,Prop) :-
 	\+ '$undefined'(P,M).
 '$predicate_property'(P,M,_,meta_predicate(Q)) :-
 	functor(P,Na,Ar),
-	'$meta_predicate'(Na,M,Ar,Q).
+	prolog:'$meta_predicate'(Na,M,Ar,Q).
 '$predicate_property'(P,M,_,multifile) :-
 	'$is_multifile'(P,M).
 '$predicate_property'(P,M,_,public) :-
