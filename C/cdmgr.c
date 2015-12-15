@@ -1441,6 +1441,26 @@ static void retract_all(PredEntry *p, int in_use) {
   Yap_PutValue(AtomAbol, MkAtomTerm(AtomTrue));
 }
 
+bool Yap_unknown( Term t )
+{
+  
+    if (t == TermFastFail) {
+      UndefCode->OpcodeOfPred = FAIL_OPCODE;
+      return true;
+    } else if (t == TermError) {
+      UndefCode->OpcodeOfPred = UndefCode->CodeOfPred->opc;
+      return true;
+    } else if (t == TermFail) {
+      UndefCode->OpcodeOfPred = UndefCode->CodeOfPred->opc;
+      return true;
+    } else if (t == TermWarning) {
+      UndefCode->OpcodeOfPred = UndefCode->CodeOfPred->opc;
+      return true;
+    }
+
+    return false;
+}
+    
 static int source_pred(PredEntry *p, yamop *q) {
   if (p->PredFlags & (DynamicPredFlag | LogUpdatePredFlag))
     return FALSE;

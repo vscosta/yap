@@ -18,8 +18,28 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
-/*
- * This file includes the definition of a pipe related IO.
+/**
+ * @file   charsio.c
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Thu Nov 19 11:37:16 2015
+ * @brief This file includes the definition of character-by-character related
+ *IO.
+ *
+ *
+ */
+
+/* @defgroup CharIO Character-Based Input/Output
+ * @ingroup  InputOutput
+ *
+ * YAP implements most of the ISO-Prolog built-ins. Input/Output may be
+ *performed on
+ * the current stream or on a specified stream, and it may involve a:
+ * + byte
+ * + character code
+ * + character atom
+ *
+ * Old-style operations, like get0/2 are still implemented.
+ *
  *
  */
 
@@ -171,6 +191,13 @@ static Int dopeek_byte(int sno) {
   return ch;
 }
 
+/** @pred  at_end_of_stream(+ _S_) is iso
+
+Succeed if the stream  _S_ has stream position end-of-stream or
+past-end-of-stream. Note that  _S_ must be a readable stream.
+
+
+*/
 static Int at_end_of_stream(USES_REGS1) { /* at_end_of_stream */
   /* the next character is a EOF */
   int sno = Yap_CheckStream(ARG1, Input_Stream_f, NULL);
@@ -190,6 +217,14 @@ static Int at_end_of_stream(USES_REGS1) { /* at_end_of_stream */
   return out;
 }
 
+/** @pred  at_end_of_stream is iso
+
+
+Succeed if the current stream has stream position end-of-stream or
+past-end-of-stream.
+
+
+*/
 static Int at_end_of_stream_0(USES_REGS1) { /* at_end_of_stream */
   /* the next character is a EOF */
   Int out;
@@ -214,6 +249,15 @@ static int yap_fflush(int sno) {
     return (0);
 }
 
+/** @pred  get(_S_, - _C_)
+
+
+The next non-blank character from the  stream _S_ is unified
+with  _C_. Blank characters are the ones whose ASCII codes are not
+greater than 32. If there are no more non-blank characters in the
+stream,  _C_ is unified with -1. If `end_of_stream` has already
+been reached in the previous reading, this call will give an error message.
+*/
 static Int get(USES_REGS1) { /* '$get'(Stream,-N)                     */
   int sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "get/2");
   int ch;
@@ -228,6 +272,12 @@ static Int get(USES_REGS1) { /* '$get'(Stream,-N)                     */
   return (Yap_unify_constant(ARG2, MkIntegerTerm(ch)));
 }
 
+/** @pred  get_char(+ _S_,- _C_) is iso
+
+If  _C_ is unbound, or is an atom representation of a character, and
+the stream  _S_ is a text stream, read the next character from that
+stream and unify its representation as an atom with  _C_.
+*/
 static Int get_char(USES_REGS1) { /* '$get'(Stream,-N)                     */
   int sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "get/2");
   int ch;
@@ -241,6 +291,14 @@ static Int get_char(USES_REGS1) { /* '$get'(Stream,-N)                     */
   return (Yap_unify_constant(ARG2, MkCharTerm(ch)));
 }
 
+/** @pred  get_code(+ _S_,- _C_) is iso
+
+If  _C_ is unbound, or is a character code, and the stream  _S_ is a
+text stream, read the next character from that stream and unify its
+code with  _C_.
+
+
+*/
 static Int get_code(USES_REGS1) { /* get0(Stream,-N)                    */
   int sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "get0/2");
   // Int status;
@@ -254,6 +312,17 @@ static Int get_code(USES_REGS1) { /* get0(Stream,-N)                    */
   return (Yap_unify_constant(ARG2, MkIntegerTerm(out)));
 }
 
+/** @pred  get(- _C_)
+
+
+The next non-blank character from the current input stream is unified
+with  _C_. Blank characters are the ones whose ASCII codes are not
+greater than 32. If there are no more non-blank characters in the
+stream,  _C_ is unified with -1. If `end_of_stream` has already
+been reached in the previous reading, this call will give an error message.
+
+
+*/
 static Int get_1(USES_REGS1) { /* get_code1(Stream,-N)                     */
   int sno = LOCAL_c_input_stream;
   int ch;
@@ -267,6 +336,15 @@ static Int get_1(USES_REGS1) { /* get_code1(Stream,-N)                     */
   return (Yap_unify_constant(ARG2, MkIntegerTerm(ch)));
 }
 
+/** @pred  get_code(- _C_) is iso
+
+
+If  _C_ is unbound, or is the code for a character, and
+the current stream is a text stream, read the next character from the
+current stream and unify its code with  _C_.
+
+
+*/
 static Int getcode_1(USES_REGS1) { /* get0(Stream,-N)                    */
   int sno = LOCAL_c_input_stream;
   // Int status;
@@ -279,6 +357,15 @@ static Int getcode_1(USES_REGS1) { /* get0(Stream,-N)                    */
   return (Yap_unify_constant(ARG1, MkIntegerTerm(out)));
 }
 
+/** @pred  get_char(- _C_) is iso
+
+
+If  _C_ is unbound, or is an atom representation of a character, and
+the current stream is a text stream, read the next character from the
+current stream and unify its atom representation with  _C_.
+
+
+*/
 static Int getchar_1(USES_REGS1) { /* get0(Stream,-N)                    */
   int sno = LOCAL_c_input_stream;
   // Int status;
@@ -310,6 +397,14 @@ static Int get0_line_codes(USES_REGS1) { /* '$get0'(Stream,-N) */
     return Yap_unify(out, ARG2);
 }
 
+/** @pred  get_byte(+ _S_,- _C_) is iso
+
+If  _C_ is unbound, or is a character code, and the stream  _S_ is a
+binary stream, read the next byte from that stream and unify its
+code with  _C_.
+
+
+*/
 static Int get_byte(USES_REGS1) { /* '$get_byte'(Stream,-N) */
   int sno = Yap_CheckStream(ARG1, Input_Stream_f, "get_byte/2");
   Int status;
@@ -330,6 +425,15 @@ static Int get_byte(USES_REGS1) { /* '$get_byte'(Stream,-N) */
   return Yap_unify_constant(ARG2, out);
 }
 
+/** @pred  get_byte(- _C_) is iso
+
+
+If  _C_ is unbound, or is a character code, and the current stream is a
+binary stream, read the next byte from the current stream and unify its
+code with  _C_.
+
+
+*/
 static Int get_byte_1(USES_REGS1) { /* '$get_byte'(Stream,-N) */
   int sno = LOCAL_c_input_stream;
   Int status;
@@ -349,6 +453,15 @@ static Int get_byte_1(USES_REGS1) { /* '$get_byte'(Stream,-N) */
   return Yap_unify_constant(ARG1, out);
 }
 
+/** @pred  put_code(+ _N_) is iso
+
+Outputs to the current output stream the character whose ASCII code is
+ _N_. The current output stream must be a text stream. The character
+ _N_ must be a legal ASCII character code, an expression yielding such
+a code, or a list in which case only the first element is used.
+
+
+*/
 static Int put_code_1(USES_REGS1) { /* '$put'(,N)                      */
   int sno = LOCAL_c_output_stream, ch;
   Term t2;
@@ -373,6 +486,12 @@ static Int put_code_1(USES_REGS1) { /* '$put'(,N)                      */
   return (TRUE);
 }
 
+/** @pred  put_code(+ _S_,+ _N_) is iso
+
+As `put_code(N)`, but to text stream  _S_.
+
+
+*/
 static Int put_code(USES_REGS1) { /* '$put'(Stream,N)                      */
   int ch;
   Term t2;
@@ -406,6 +525,15 @@ static Int put_code(USES_REGS1) { /* '$put'(Stream,N)                      */
   return (TRUE);
 }
 
+/** @pred  put_char(+ _N_) is iso
+
+
+Outputs to the current output stream the character who is used to build
+the representation of atom `A`. The current output stream must be a
+text stream.
+
+
+*/
 static Int put_char_1(USES_REGS1) { /* '$put'(,N)                      */
   int sno = LOCAL_c_output_stream;
   Term t2;
@@ -436,6 +564,12 @@ static Int put_char_1(USES_REGS1) { /* '$put'(,N)                      */
   return (TRUE);
 }
 
+/** @pred  put_char(+ _S_,+ _A_) is iso
+
+As `put_char(A)`, but to text stream  _S_.
+
+
+*/
 static Int put_char(USES_REGS1) { /* '$put'(Stream,N)                      */
   Term t2;
   int ch;
@@ -468,6 +602,13 @@ static Int put_char(USES_REGS1) { /* '$put'(Stream,N)                      */
   return (TRUE);
 }
 
+/** @pred  tab(+ _N_)
+
+
+Outputs  _N_ spaces to the current output stream.
+
+
+*/
 static Int tab_1(USES_REGS1) { /* nl                      */
   int sno = LOCAL_c_output_stream;
   Term t2;
@@ -500,6 +641,12 @@ static Int tab_1(USES_REGS1) { /* nl                      */
   return (TRUE);
 }
 
+/** @pred  tab(+ _S_,+ _N_)
+
+The same as tab/1, but using stream  _S_.
+
+
+*/
 static Int tab(USES_REGS1) { /* nl(Stream)                      */
   int sno;
   Term t2;
@@ -534,6 +681,10 @@ static Int tab(USES_REGS1) { /* nl(Stream)                      */
   return (TRUE);
 }
 
+/** @pred  nl(+ _S_) is iso
+
+Outputs a new line to stream  _S_.
+ */
 static Int nl_1(USES_REGS1) { /* nl                      */
   int sno = LOCAL_c_output_stream;
   LOCK(GLOBAL_Stream[sno].streamlock);
@@ -551,6 +702,15 @@ static Int nl_1(USES_REGS1) { /* nl                      */
   return (TRUE);
 }
 
+/** @pred  nl is iso
+
+
+Outputs a new line to the current output stream.
+
+
+
+
+ */
 static Int nl(USES_REGS1) { /* nl(Stream)                      */
   int sno = Yap_CheckTextStream(ARG1, Output_Stream_f, "nl/1");
   if (sno < 0)
@@ -569,6 +729,12 @@ static Int nl(USES_REGS1) { /* nl(Stream)                      */
   return (TRUE);
 }
 
+/** @pred  put_byte(+ _S_,+ _N_) is iso
+
+As `put_byte(N)`, but to binary stream  _S_.
+
+
+*/
 static Int put_byte(USES_REGS1) { /* '$put_byte'(Stream,N)                 */
   Term t2;
   Int ch;
@@ -601,6 +767,14 @@ static Int put_byte(USES_REGS1) { /* '$put_byte'(Stream,N)                 */
   return (TRUE);
 }
 
+/** @pred  put_byte(+ _N_) is iso
+
+
+Outputs to the current output stream the character whose code is
+ _N_. The current output stream must be a binary stream.
+
+
+*/
 static Int put_byte_1(USES_REGS1) { /* '$put_byte'(Stream,N)                 */
   Term t2;
   Int ch;
@@ -628,6 +802,15 @@ static Int put_byte_1(USES_REGS1) { /* '$put_byte'(Stream,N)                 */
   return (TRUE);
 }
 
+/** @pred  skip(+ _N_)
+
+
+Skips input characters until the next occurrence of the character with
+ASCII code  _N_. The argument to this predicate can take the same forms
+as those for `put` (see 6.11).
+
+
+*/
 static Int skip_1(USES_REGS1) { /* 'skip'(N)                     */
   Int n;
   Term t2;
@@ -653,6 +836,13 @@ static Int skip_1(USES_REGS1) { /* 'skip'(N)                     */
   return (TRUE);
 }
 
+/** @pred  skip(+ _S_,- _C_)
+
+Like skip/1, but using stream  _S_ instead of the current
+input stream.
+
+
+*/
 static Int skip(USES_REGS1) { /* '$skip'(Stream,N)                     */
   Int n;
   Term t2;
@@ -662,16 +852,18 @@ static Int skip(USES_REGS1) { /* '$skip'(Stream,N)                     */
   if (sno < 0)
     return (FALSE);
   if (IsVarTerm(t2 = Deref(ARG2))) {
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_Error(INSTANTIATION_ERROR, t2, "skip/2");
     return FALSE;
   } else if (!IsIntegerTerm(t2)) {
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_Error(TYPE_ERROR_INTEGER, t2, "skip/2");
     return FALSE;
   } else if ((n = IntegerOfTerm(t2)) < 0) {
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "skip/2");
     return FALSE;
   }
-  LOCK(GLOBAL_Stream[sno].streamlock);
   while ((ch = GLOBAL_Stream[sno].stream_wgetc(sno)) != n && ch != -1)
     ;
   UNLOCK(GLOBAL_Stream[sno].streamlock);
@@ -689,8 +881,10 @@ static Int skip(USES_REGS1) { /* '$skip'(Stream,N)                     */
  */
 static Int flush_output(USES_REGS1) { /* flush_output(Stream)          */
   int sno = Yap_CheckStream(ARG1, Output_Stream_f, "flush_output/1");
-  if (sno < 0)
+  if (sno < 0) {
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
     return (FALSE);
+  }
   yap_fflush(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
@@ -724,16 +918,6 @@ static Int flush_all_streams(USES_REGS1) { /* $flush_all_streams          */
 
   return TRUE;
 }
-
-/** @pred  peek(+ _S_, - _C_) is deprecated
-
-
-If  _C_ is unbound, or is the code for a character, and
-the  stream _S_ is a text stream, read the next character from the
-current stream and unify its code with  _C_, while
-leaving the current stream position unaltered.
-
-*/
 
 /** @pred  peek_code(+ _S_, - _C_) is iso
 

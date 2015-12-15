@@ -104,15 +104,6 @@ bool Yap_Warning(const char *s, ...) {
   LOCAL_within_print_message = true;
   pred = RepPredProp(PredPropByFunc(FunctorPrintMessage,
                                     PROLOG_MODULE)); // PROCEDURE_print_message2
-  if (pred->OpcodeOfPred == UNDEF_OPCODE) {
-    // fprintf(stderr, "warning message:\n");
-    // Yap_DebugPlWrite(twarning);
-    // fprintf(stderr, "\n");
-    LOCAL_DoingUndefp = false;
-    LOCAL_within_print_message = false;
-    return true;
-  }
-
   va_start(ap, s);
   format = va_arg(ap, char *);
   if (format != NULL) {
@@ -124,6 +115,13 @@ bool Yap_Warning(const char *s, ...) {
   } else
     return false;
   va_end(ap);
+  if (pred->OpcodeOfPred == UNDEF_OPCODE) {
+    fprintf(stderr, "warning message: %s\n", tmpbuf);
+    LOCAL_DoingUndefp = false;
+    LOCAL_within_print_message = false;
+    return true;
+  }
+
   ts[1] = MkAtomTerm(AtomWarning);
   ts[0] = MkAtomTerm(Yap_LookupAtom(tmpbuf));
   rc = Yap_execute_pred(pred, ts, true PASS_REGS);
@@ -146,9 +144,9 @@ bool Yap_PrintWarning(Term twarning) {
   LOCAL_DoingUndefp = true;
   LOCAL_within_print_message = true;
   if (pred->OpcodeOfPred == UNDEF_OPCODE) {
-    // fprintf(stderr, "warning message:\n");
-    // Yap_DebugPlWrite(twarning);
-    // fprintf(stderr, "\n");
+     fprintf(stderr, "warning message:\n");
+     Yap_DebugPlWrite(twarning);
+     fprintf(stderr, "\n");
     LOCAL_DoingUndefp = false;
     LOCAL_within_print_message = false;
     return true;
@@ -489,7 +487,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   }
   case ABORT_EVENT:
     nt[0] = MkAtomTerm(AtomDAbort);
-    fun = FunctorVar;
+    fun = FunctorDollarVar;
     serious = TRUE;
     break;
   case CALL_COUNTER_UNDERFLOW_EVENT:

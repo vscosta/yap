@@ -637,17 +637,18 @@ static bool setYapFlagInModule( Term tflag, Term t2, Term mod )
       // module specific stuff now
 
   if (fv->FlagOfVE == UNKNOWN_FLAG) {
+    new->flags &= ~(UNKNOWN_MASK);
     if (t2 == TermError) {
-      new->flags &= ~(UNKNOWN_FAIL|UNKNOWN_WARNING);
       new->flags |=  (UNKNOWN_ERROR);
       return true;
     } else if (t2 == TermFail) {
-      new->flags &= ~(UNKNOWN_ERROR|UNKNOWN_WARNING);
       new->flags |=  (UNKNOWN_FAIL);
       return true;
     } else if (t2 == TermWarning) {
-      new->flags &= ~(UNKNOWN_ERROR|UNKNOWN_FAIL);
       new->flags |=  (UNKNOWN_WARNING);
+      return true;
+    } else if (t2 == TermFastFail) {
+      new->flags |=  (UNKNOWN_FAST_FAIL);
       return true;
     }
     Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "bad option  %s  for unknown flag, use one of error, fail or warning.", RepAtom(AtomOfTerm(tflag))->StrOfAE);
@@ -834,7 +835,7 @@ static Int prolog_flag(USES_REGS1) {
       return cont_prolog_flag( PASS_REGS1 );
     }
   do_cut( 0 );
-  if (IsVarTerm( Deref(ARG2) ) ) {
+  if (IsVarTerm( Deref(ARG3) ) ) {
     Term flag = getYapFlag( Deref(ARG1) );
     if (flag == 0)
       return false;
@@ -1462,6 +1463,7 @@ Yap_InitFlags( bool bootstrap) {
 	Obtain the value for a YAP Prolog flag, same as current_prolog_flag/2_.
     */
     Yap_InitCPredBack("prolog_flag", 3, 1, prolog_flag, cont_yap_flag, 0);
+    Yap_InitCPredBack("yap_flag", 3, 1, prolog_flag, cont_yap_flag, 0);
     Yap_InitCPredBack("prolog_flag", 2, 1, prolog_flag, cont_yap_flag, 0);
     Yap_InitCPred("set_prolog_flag", 2, set_prolog_flag, SyncPredFlag);
     Yap_InitCPred("$create_prolog_flag", 3, do_create_prolog_flag, SyncPredFlag);
