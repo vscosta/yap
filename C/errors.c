@@ -662,7 +662,7 @@ Yap_InitErrorPreds( void )
   CACHE_REGS
   Term cm = CurrentModule;
   CurrentModule = ERROR_MODULE;
-  Yap_InitCPred("is_boolean", 2, is_boolean, 0L);
-  Yap_InitCPred("is_callable", 2, is_callable, 0L);
+  Yap_InitCPred("is_boolean", 2, is_boolean, TestPredFlag);
+  Yap_InitCPred("is_callable", 2, is_callable, TestPredFlag);
   CurrentModule = cm;
 }
