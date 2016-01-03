@@ -787,7 +787,6 @@ static int ExpandPredHash(void) {
 
 /* fe is supposed to be locked */
 Prop Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod) {
-  CACHE_REGS
   PredEntry *p = (PredEntry *)Yap_AllocAtomSpace(sizeof(*p));
 
   if (p == NULL) {
@@ -931,7 +930,7 @@ Prop Yap_NewThreadPred(PredEntry *ap USES_REGS) {
 Prop Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod) {
   Prop p0;
   PredEntry *p = (PredEntry *)Yap_AllocAtomSpace(sizeof(*p));
-
+  CACHE_REGS
   /* Printf("entering %s:%s/0\n", RepAtom(AtomOfTerm(cur_mod))->StrOfAE,
    * ae->StrOfAE); */
 
