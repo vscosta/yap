@@ -28,11 +28,41 @@ static char SccsId[] = "%W% %G%";
 #include "Yap.h"
 #include "Yatom.h"
 #include "yapio.h"
+#include "clause.h"
 #include <stdio.h>
 #include <wchar.h>
-#if HAVE_STRING_H
+#if HAVE_STRING_Hq
 #include <string.h>
 #endif
+
+ uint64_t HashFunction(const unsigned char *CHP) {
+  /* djb2 */
+  uint64_t hash = 5381;
+  uint64_t c;
+
+  while ((c = (uint64_t)(*CHP++)) != '\0') {
+    /* hash = ((hash << 5) + hash) + c; hash * 33 + c */
+    hash = hash * (uint64_t)33 + c;
+ }
+  return hash;
+  /*
+  UInt OUT=0, i = 1;
+  while(*CHP != '\0') { OUT += (UInt)(*CHP++); }
+  return OUT;
+  */
+}
+
+uint64_t WideHashFunction(wchar_t *CHP) {
+  UInt hash = 5381;
+
+  UInt c;
+
+  while ((c = *CHP++) != '\0') {
+    hash = hash * 33 ^ c;
+  }
+  return hash;
+}
+
 
 /* this routine must be run at least having a read lock on ae */
 static Prop
@@ -142,14 +172,17 @@ static inline Atom SearchWideAtom(const wchar_t *p, Atom a) {
 
 static Atom
 LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
-  UInt hash;
+  uint64_t hash;
   const unsigned char *p;
   Atom a, na;
   AtomEntry *ae;
+  size_t sz = AtomHashTableSize;
 
   /* compute hash */
   p = atom;
-  hash = HashFunction(p) % AtomHashTableSize;
+
+  hash = HashFunction(p);
+  hash = hash % sz ;
 
   /* we'll start by holding a read lock in order to avoid contention */
   READ_LOCK(HashChain[hash].AERWLock);
