@@ -793,9 +793,9 @@ Prop Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod) {
     WRITE_UNLOCK(fe->FRWLock);
     return NULL;
   }
-  if (cur_mod == TermProlog)
+  if (cur_mod == TermProlog || cur_mod == 0L) {
     p->ModuleOfPred = 0L;
-  else
+  } else
     p->ModuleOfPred = cur_mod;
 // TRUE_FUNC_WRITE_LOCK(fe);
 #if DEBUG_NEW_FUNCTOR
