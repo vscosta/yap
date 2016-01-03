@@ -20,7 +20,7 @@ static char SccsId[] = "%W% %G%";
 
 /*
  * This file includes the definition of a miscellania of standard predicates
- * for yap refering to: Files and GLOBAL_Streams, Simple Input/Output, 
+ * for yap refering to: Files and GLOBAL_Streams, Simple Input/Output,
  *
  */
 
@@ -49,7 +49,7 @@ static char SccsId[] = "%W% %G%";
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
-#if HAVE_SYS_SELECT_H && !_MSC_VER && !defined(__MINGW32__) 
+#if HAVE_SYS_SELECT_H && !_MSC_VER && !defined(__MINGW32__)
 #include <sys/select.h>
 #endif
 #ifdef HAVE_UNISTD_H
@@ -77,7 +77,7 @@ static char SccsId[] = "%W% %G%";
 #if !HAVE_STRNCPY
 #define strncpy(X,Y,Z) strcpy(X,Y)
 #endif
-#if _MSC_VER || defined(__MINGW32__) 
+#if _MSC_VER || defined(__MINGW32__)
 #if HAVE_SOCKET
 #include <winsock2.h>
 #endif
@@ -88,7 +88,7 @@ static char SccsId[] = "%W% %G%";
 #endif
 #include "iopreds.h"
 
-#if _MSC_VER || defined(__MINGW32__) 
+#if _MSC_VER || defined(__MINGW32__)
 #define SYSTEM_STAT _stat
 #else
 #define SYSTEM_STAT stat
@@ -102,7 +102,7 @@ static char SccsId[] = "%W% %G%";
 int beam_write ( USES_REGS1 )
 {
   Yap_StartSlots();
-  Yap_plwrite (ARG1, GLOBAL_Stream+LOCAL_output_stream, 0, 0, 1200);
+  Yap_plwrite (ARG1, GLOBAL_Stream+LOCAL_output_stream, 0, 0, GLOBAL_MaxPriority);
   Yap_CloseSlots();
   if (EX != 0L) {
     Term ball = Yap_PopTermFromDB(EX);
@@ -122,7 +122,7 @@ p_write ( USES_REGS1 )
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   yhandle_t mySlots = Yap_StartSlots();
-  Yap_plwrite (ARG2, GLOBAL_Stream+LOCAL_output_stream, 0, flags, 1200);
+  Yap_plwrite (ARG2, GLOBAL_Stream+LOCAL_output_stream, 0, flags, GLOBAL_MaxPriority);
   Yap_CloseSlots( mySlots );
   if (EX != 0L) {
     Term ball = Yap_PopTermFromDB(EX);
@@ -159,8 +159,7 @@ p_write2_prio ( USES_REGS1 )
   Int flags = IntegerOfTerm(Deref(ARG2));
   int stream_f;
 
-  stream_f = Output_Stream_f;
-  LOCAL_output_stream = CheckStream (ARG1, stream_f, "write/2");
+  LOCAL_output_stream = CheckTextStream(ARG1, Output_Stream_f, "write/2");
   if (LOCAL_output_stream == -1) {
     LOCAL_output_stream = old_output_stream;
     return(FALSE);
@@ -185,7 +184,7 @@ static Int
 p_write2 ( USES_REGS1 )
 {				/* '$write'(+Stream,+Flags,?Term) */
   int old_output_stream = LOCAL_output_stream;
-  LOCAL_output_stream = CheckStream (ARG1, Output_Stream_f, "write/2");
+  LOCAL_output_stream = CheckTextStream(ARG1, Output_Stream_f, "write/2");
   if (LOCAL_output_stream == -1) {
     LOCAL_output_stream = old_output_stream;
     return(FALSE);
@@ -194,7 +193,7 @@ p_write2 ( USES_REGS1 )
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   yhandle_t myslots = Yap_StartSlots();
-  Yap_plwrite (ARG3, GLOBAL_Stream+LOCAL_output_stream, 0, (int) IntOfTerm (Deref (ARG2)), 1200);
+  Yap_plwrite (ARG3, GLOBAL_Stream+LOCAL_output_stream, 0, (int) IntOfTerm (Deref (ARG2)), GLOBAL_MaxPriority);
   Yap_CloseSlots(myslots);
   LOCAL_output_stream = old_output_stream;
   if (EX != 0L) {

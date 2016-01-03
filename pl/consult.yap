@@ -825,7 +825,6 @@ nb_setval('$if_le1vel',0).
 	 true
 	;                                                                           format(user_error,':- ~w:~w failed.~n',[M,G])
 	),
-	stop_low_level_trace,
 	fail.
 '$exec_initialization_goals'.
 
@@ -884,7 +883,7 @@ nb_setval('$if_le1vel',0).
 	'$init_win_graphics',
 	fail.
 '$do_startup_reconsult'(X) :-
-	catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error)),
+	catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
 	!,
 	( current_prolog_flag(halt_after_consult, false) -> true ; halt).
 '$do_startup_reconsult'(_).
@@ -1411,14 +1410,16 @@ Similar to initialization/1, but allows for specifying when
 */
 initialization(G0,OPT) :-
     expand_goal(G0, G),
-	catch('$initialization'(G, OPT), Error, '$LoopError'( Error ) ),
+   catch('$initialization'(G, OPT), Error, '$LoopError'( Error, consult ) ),
     fail.
-initialization(_G,_OPT).
+initialization(_G,_OPT) :-
+                stop_low_level_trace.
 
 '$initialization'(G,OPT) :-
-    error:must_be_of_type(callable, G, initialization(G,OPT)),
-    error:must_be_of_type(oneof([after_load, now, restore]), OPT, initialization(G0,OPT)),
-    (
+   error:must_be_of_type(callable, G, initialization(G,OPT)),
+    error:must_be_of_type(oneof([after_load, now, restore]),
+                OPT, initialization(G0,OPT)),
+   (
 	 OPT == now
 	->
     ( call(G) -> true ; format(user_error,':- ~w:~w failed.~n',[G]) )
@@ -1431,7 +1432,7 @@ initialization(_G,_OPT).
 	->
     recordz('$call_at_restore', G, _ )
     ).
-
+:- .
 /**
 
 @}

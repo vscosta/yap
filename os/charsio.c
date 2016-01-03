@@ -105,8 +105,8 @@ Int Yap_peek(int sno) {
   Int ch;
 
   s = GLOBAL_Stream + sno;
-  if ( s->status & Readline_Stream_f) {
-    ch = Yap_ReadlinePeekChar( sno );
+  if (s->status & Readline_Stream_f) {
+    ch = Yap_ReadlinePeekChar(sno);
     if (ch == EOFCHAR) {
       s->stream_getc = EOFPeek;
       s->stream_wgetc = EOFWPeek;
@@ -118,12 +118,12 @@ Int Yap_peek(int sno) {
   olinecount = s->linecount;
   olinepos = s->linepos;
   ch = s->stream_wgetc(sno);
-  s ->och = ch;
+  s->och = ch;
   if (ch == EOFCHAR) {
     s->stream_getc = EOFPeek;
     s->stream_wgetc = EOFWPeek;
     s->status |= Push_Eof_Stream_f;
-   return ch;
+    return ch;
   }
   s->charcount = ocharcount;
   s->linecount = olinecount;
@@ -131,40 +131,39 @@ Int Yap_peek(int sno) {
   /* buffer the character */
   if (s->encoding == LOCAL_encoding) {
     ungetwc(ch, s->file);
-  } else if (s->encoding == ENC_OCTET ||
-      s->encoding == ENC_ISO_LATIN1||
-      s->encoding == ENC_ISO_ASCII) {
+  } else if (s->encoding == ENC_OCTET || s->encoding == ENC_ISO_LATIN1 ||
+             s->encoding == ENC_ISO_ASCII) {
     ungetc(ch, s->file);
   } else if (s->encoding == ENC_ISO_UTF8) {
     unsigned char cs[8];
-    size_t n = put_utf8(cs, ch );
+    size_t n = put_utf8(cs, ch);
     while (n--) {
-      ungetc(cs[n-1], s->file);
+      ungetc(cs[n - 1], s->file);
     }
   } else if (s->encoding == ENC_UTF16_BE) {
     /* do the ungetc as if a write .. */
     unsigned long int c = ch;
-    if (c >((1<<16)-1)) {
-      ungetc(c/1<<16, s->file);
-      c %= 1<< 16;
+    if (c > ((1 << 16) - 1)) {
+      ungetc(c / 1 << 16, s->file);
+      c %= 1 << 16;
     }
     ungetc(c, s->file);
   } else if (s->encoding == ENC_UTF16_BE) {
     /* do the ungetc as if a write .. */
     unsigned long int c = ch;
-    if (c > ((1<<16)-1)) {
-      ungetc(c/1<<16, s->file);
-      c %= 1<< 16;
-    } 
+    if (c > ((1 << 16) - 1)) {
+      ungetc(c / 1 << 16, s->file);
+      c %= 1 << 16;
+    }
   } else if (s->encoding == ENC_UTF16_LE) {
     /* do the ungetc as if a write .. */
     unsigned long int c = ch;
-    if (c >(( 1<<16)-1)) {
-      ungetc(c%1<<16, s->file);
-      c /= 1<< 16;
+    if (c > ((1 << 16) - 1)) {
+      ungetc(c % 1 << 16, s->file);
+      c /= 1 << 16;
     }
     ungetc(c, s->file);
-  } else {    
+  } else {
     int (*f)(int, int) = s->stream_putc;
     s->stream_putc = plUnGetc;
     put_wchar(sno, ch);
@@ -512,7 +511,7 @@ static Int put_code(USES_REGS1) { /* '$put'(Stream,N)                      */
     return (FALSE);
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "put/2");
+    Yap_Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "put/2");
     return (FALSE);
   }
 
@@ -552,7 +551,7 @@ static Int put_char_1(USES_REGS1) { /* '$put'(,N)                      */
   LOCK(GLOBAL_Stream[sno].streamlock);
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "put/2");
+    Yap_Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "put/2");
     return (FALSE);
   }
   GLOBAL_Stream[sno].stream_wputc(sno, ch);
@@ -590,7 +589,7 @@ static Int put_char(USES_REGS1) { /* '$put'(Stream,N)                      */
     return (FALSE);
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "put/2");
+    Yap_Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "put/2");
     return (FALSE);
   }
   GLOBAL_Stream[sno].stream_wputc(sno, (int)IntegerOfTerm(Deref(ARG2)));
@@ -627,7 +626,7 @@ static Int tab_1(USES_REGS1) { /* nl                      */
   LOCK(GLOBAL_Stream[sno].streamlock);
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "nl/0");
+    Yap_Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "nl/0");
     return (FALSE);
   }
 
@@ -667,7 +666,7 @@ static Int tab(USES_REGS1) { /* nl(Stream)                      */
 
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "nl/0");
+    Yap_Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "nl/0");
     return (FALSE);
   }
 
@@ -755,7 +754,7 @@ static Int put_byte(USES_REGS1) { /* '$put_byte'(Stream,N)                 */
       // && strictISOFlag()
       ) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, NULL);
+    Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, NULL);
     return false;
   }
   GLOBAL_Stream[sno].stream_putc(sno, ch);
@@ -794,7 +793,7 @@ static Int put_byte_1(USES_REGS1) { /* '$put_byte'(Stream,N)                 */
       //&& strictISOFlag()
       ) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "get0/2");
+    Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "get0/2");
     return (FALSE);
   }
   GLOBAL_Stream[sno].stream_putc(sno, ch);
@@ -937,7 +936,7 @@ static Int peek_code(USES_REGS1) { /* at_end_of_stream */
     return FALSE;
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek_code/2");
+    Yap_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek_code/2");
     return FALSE;
   }
   if ((ch = Yap_peek(sno)) < 0) {
@@ -967,7 +966,7 @@ static Int peek_code_1(USES_REGS1) { /* at_end_of_stream */
   LOCK(GLOBAL_Stream[sno].streamlock);
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek_code/2");
+    Yap_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek_code/2");
     return FALSE;
   }
   if ((ch = Yap_peek(sno)) < 0) {
@@ -996,7 +995,7 @@ static Int peek_byte(USES_REGS1) { /* at_end_of_stream */
     return (FALSE);
   if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_STREAM, ARG1, "peek_byte/2");
+    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek_byte/2");
     return (FALSE);
   }
   if ((ch = dopeek_byte(sno)) < 0) {
@@ -1026,7 +1025,7 @@ static Int peek_byte_1(USES_REGS1) { /* at_end_of_stream */
   LOCK(GLOBAL_Stream[sno].streamlock);
   if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek_byte/2");
+    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek_byte/2");
     return (FALSE);
   }
   if ((ch = dopeek_byte(sno)) < 0) {

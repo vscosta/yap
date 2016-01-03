@@ -177,8 +177,8 @@ source/0 ( (see Setting the Compiler)).
 
 */
 retract( C ) :-
-    strip_module( C, M, H0),
-	'$check_head_and_body'(M:H0,_M,H,B,retract(M:C)),
+    strip_module( C, M, C0),
+	'$check_head_and_body'(C0,M,H,B,retract(M:C)),
 	'$predicate_flags'(H, M, F, F),
 	'$retract2'(F, H,M,B,_).
 
@@ -214,28 +214,29 @@ database reference is  _R_. The predicate must be dynamic.
 
 */
 retract(M:C,R) :- !,
-    strip_module( C, M, H0),
+    '$yap_strip_module'( C, M, H0),
     '$retract'(H0, M, R).
 
-'$retract'(C, M, R) :-
+'$retract'(C, M0, R) :-
 	db_reference(R),
     !,
     '$is_dynamic'(H,M), 
-	'$check_head_and_body'(M:C,_M,H,B,retract(C,R)),
+	'$check_head_and_body'(M0:C,M,H,B,retract(C,R)),
 	instance(R,(H:-B)),
     erase(R).
-'$retract'(C,M,R) :-
-	'$check_head_and_body'(C,_M,H,B,retract(C,R)),
+'$retract'(C,M0,R) :-
+	'$check_head_and_body'(M0:C,M,H,B,retract(C,R)),
 	var(R), !,
 	'$retract2'(H, M, B, R).
 '$retract'(C,M,_) :-
-	'$fetch_predicate_indicator_from_clause'(C, PI),
-    \+ '$dynamic'(Na/Ar,M),
+	'$fetch_predicate_indicator_from_clause'(C, M, PI),
+    \+ '$dynamic'(PI),
 	'$do_error'(permission_error(modify,static_procedure,PI),retract(M:C)).
 
-'$fetch_predicate_indicator_from_clause'((C :- _), Na/Ar) :- !,
-functor(C, Na, Ar).
-'$fetch_predicate_indicator_from_clause'(C, Na/Ar) :-
+'$fetch_predicate_indicator_from_clause'((C :- _), M:Na/Ar) :-
+    !,
+    functor(C, Na, Ar).
+'$fetch_predicate_indicator_from_clause'(C, M:Na/Ar) :-
 	functor(C, Na, Ar).
 
 

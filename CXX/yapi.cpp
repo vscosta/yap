@@ -428,7 +428,7 @@ YAPQuery::initQuery( YAPTerm ts[], arity_t arity )
   if (arity) {
     q_g = Yap_NewSlots( arity );
     for (arity_t i=0; i < arity; i++) {
-      Yap_PutInSlot(q_g+i, ts[i].term() PASS_REGS);
+      Yap_PutInSlot(q_g+i, ts[i].term());
     }
     Term t = Yap_MkApplTerm(ap->FunctorOfPred, ap->ArityOfPE, Yap_AddressFromSlot(q_g));
     goal = YAPTerm( t );

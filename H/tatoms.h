@@ -56,6 +56,9 @@
   Atom AtomArrow_;
 #define AtomArrow Yap_heap_regs->AtomArrow_
 #define TermArrow MkAtomTerm( Yap_heap_regs->AtomArrow_ )
+  Atom AtomAttributedModule_;
+#define AtomAttributedModule Yap_heap_regs->AtomAttributedModule_
+#define TermAttributedModule MkAtomTerm( Yap_heap_regs->AtomAttributedModule_ )
   Atom AtomDoubleArrow_;
 #define AtomDoubleArrow Yap_heap_regs->AtomDoubleArrow_
 #define TermDoubleArrow MkAtomTerm( Yap_heap_regs->AtomDoubleArrow_ )
@@ -1426,6 +1429,8 @@
 #define FunctorPortray Yap_heap_regs->FunctorPortray_
   Functor FunctorPrintMessage_;
 #define FunctorPrintMessage Yap_heap_regs->FunctorPrintMessage_
+  Functor FunctorProcedure_;
+#define FunctorProcedure Yap_heap_regs->FunctorProcedure_
   Functor FunctorPrologConstraint_;
 #define FunctorPrologConstraint Yap_heap_regs->FunctorPrologConstraint_
   Functor FunctorQuery_;

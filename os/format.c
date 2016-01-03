@@ -1220,7 +1220,7 @@ static Int format(Term tout, Term tf, Term tas USES_REGS) {
     return false;
     UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   } else {
-    yhandle_t sls = Yap_CurrentSlot(PASS_REGS1);
+    yhandle_t sls = Yap_CurrentSlot();
 
     out = doformat(tf, tas, output_stream PASS_REGS);
 

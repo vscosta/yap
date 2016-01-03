@@ -56,7 +56,7 @@ typedef enum {
 
 extern char_kind_t Yap_chtype0[];
 
-#define Yap_chtype (Yap_chtype0+1)
+#define Yap_chtype (Yap_chtype0 + 1)
 
 char_kind_t Yap_wide_chtype(int ch);
 
@@ -483,8 +483,7 @@ static inline Term Yap_AtomToNumber(Term t0 USES_REGS) {
   inp.val.t = t0;
   inp.type = YAP_STRING_ATOM;
   out.val.uc = NULL;
-  out.type =
-      YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG;
+  out.type = YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   return out.val.t;
@@ -1213,10 +1212,8 @@ static inline Term Yap_StringToNumber(Term t0 USES_REGS) {
 }
 
 static inline Term Yap_UTF8ToString(const char *s USES_REGS) {
-  return MkStringTerm( s );
+  return MkStringTerm(s);
 }
-
-
 
 static inline Term Yap_WCharsToListOfCodes(const wchar_t *s USES_REGS) {
   seq_tv_t inp, out;

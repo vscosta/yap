@@ -148,36 +148,8 @@ void Yap_init_socks(char *host, long interface_port);
 extern int errno;
 #endif
 
-INLINE_ONLY EXTERN UInt inline HashFunction(const unsigned char *);
-INLINE_ONLY EXTERN UInt inline WideHashFunction(wchar_t *);
-
-INLINE_ONLY EXTERN inline UInt HashFunction(const unsigned char *CHP) {
-  /* djb2 */
-  UInt hash = 5381;
-  UInt c;
-
-  while ((c = (UInt)(*CHP++)) != '\0') {
-    /* hash = ((hash << 5) + hash) + c; hash * 33 + c */
-    hash = hash * 33 ^ c;
-  }
-  return hash;
-  /*
-  UInt OUT=0, i = 1;
-  while(*CHP != '\0') { OUT += (UInt)(*CHP++); }
-  return OUT;
-  */
-}
-
-INLINE_ONLY EXTERN UInt inline WideHashFunction(wchar_t *CHP) {
-  UInt hash = 5381;
-
-  UInt c;
-
-  while ((c = *CHP++) != '\0') {
-    hash = hash * 33 ^ c;
-  }
-  return hash;
-}
+uint64_t HashFunction(const unsigned char *);
+uint64_t  WideHashFunction(wchar_t *);
 
 INLINE_ONLY inline EXTERN Term MkCharTerm(Int c);
 

@@ -10,71 +10,71 @@
 %  http://dtai.cs.kuleuven.be/problog
 %
 %  ProbLog was developed at Katholieke Universiteit Leuven
-%                                                            
+%
 %  Copyright 2009
 %  Angelika Kimmig, Vitor Santos Costa, Bernd Gutmann
-%                                                              
+%
 %  Main author of this file:
 %  Bernd Gutmann
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Artistic License 2.0
-% 
+%
 % Copyright (c) 2000-2006, The Perl Foundation.
-% 
+%
 % Everyone is permitted to copy and distribute verbatim copies of this
 % license document, but changing it is not allowed.  Preamble
-% 
+%
 % This license establishes the terms under which a given free software
 % Package may be copied, modified, distributed, and/or
 % redistributed. The intent is that the Copyright Holder maintains some
 % artistic control over the development of that Package while still
 % keeping the Package available as open source and free software.
-% 
+%
 % You are always permitted to make arrangements wholly outside of this
 % license directly with the Copyright Holder of a given Package. If the
 % terms of this license do not permit the full use that you propose to
 % make of the Package, you should contact the Copyright Holder and seek
 % a different licensing arrangement.  Definitions
-% 
+%
 % "Copyright Holder" means the individual(s) or organization(s) named in
 % the copyright notice for the entire Package.
-% 
+%
 % "Contributor" means any party that has contributed code or other
 % material to the Package, in accordance with the Copyright Holder's
 % procedures.
-% 
+%
 % "You" and "your" means any person who would like to copy, distribute,
 % or modify the Package.
-% 
+%
 % "Package" means the collection of files distributed by the Copyright
 % Holder, and derivatives of that collection and/or of those files. A
 % given Package may consist of either the Standard Version, or a
 % Modified Version.
-% 
+%
 % "Distribute" means providing a copy of the Package or making it
 % accessible to anyone else, or in the case of a company or
 % organization, to others outside of your company or organization.
-% 
+%
 % "Distributor Fee" means any fee that you charge for Distributing this
 % Package or providing support for this Package to another party. It
 % does not mean licensing fees.
-% 
+%
 % "Standard Version" refers to the Package if it has not been modified,
 % or has been modified only in ways explicitly requested by the
 % Copyright Holder.
-% 
+%
 % "Modified Version" means the Package, if it has been changed, and such
 % changes were not explicitly requested by the Copyright Holder.
-% 
+%
 % "Original License" means this Artistic License as Distributed with the
 % Standard Version of the Package, in its current version or as it may
 % be modified by The Perl Foundation in the future.
-% 
+%
 % "Source" form means the source code, documentation source, and
 % configuration files for the Package.
-% 
+%
 % "Compiled" form means the compiled bytecode, object code, binary, or
 % any other form resulting from mechanical transformation or translation
 % of the Source form.
@@ -82,34 +82,34 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Permission for Use and Modification Without Distribution
-% 
+%
 % (1) You are permitted to use the Standard Version and create and use
 % Modified Versions for any purpose without restriction, provided that
 % you do not Distribute the Modified Version.
 %
 % Permissions for Redistribution of the Standard Version
-% 
+%
 % (2) You may Distribute verbatim copies of the Source form of the
 % Standard Version of this Package in any medium without restriction,
 % either gratis or for a Distributor Fee, provided that you duplicate
 % all of the original copyright notices and associated disclaimers. At
 % your discretion, such verbatim copies may or may not include a
 % Compiled form of the Package.
-% 
+%
 % (3) You may apply any bug fixes, portability changes, and other
 % modifications made available from the Copyright Holder. The resulting
 % Package will still be considered the Standard Version, and as such
 % will be subject to the Original License.
 %
 % Distribution of Modified Versions of the Package as Source
-% 
+%
 % (4) You may Distribute your Modified Version as Source (either gratis
 % or for a Distributor Fee, and with or without a Compiled form of the
 % Modified Version) provided that you clearly document how it differs
 % from the Standard Version, including, but not limited to, documenting
 % any non-standard features, executables, or modules, and provided that
 % you do at least ONE of the following:
-% 
+%
 % (a) make the Modified Version available to the Copyright Holder of the
 % Standard Version, under the Original License, so that the Copyright
 % Holder may include your modifications in the Standard Version.  (b)
@@ -128,7 +128,7 @@
 %
 % Distribution of Compiled Forms of the Standard Version or
 % Modified Versions without the Source
-% 
+%
 % (5) You may Distribute Compiled forms of the Standard Version without
 % the Source, provided that you include complete instructions on how to
 % get the Source of the Standard Version. Such instructions must be
@@ -139,13 +139,13 @@
 % within thirty days after you become aware that the instructions are
 % invalid, then you do not forfeit any of your rights under this
 % license.
-% 
+%
 % (6) You may Distribute a Modified Version in Compiled form without the
 % Source, provided that you comply with Section 4 with respect to the
 % Source of the Modified Version.
 %
 % Aggregating or Linking the Package
-% 
+%
 % (7) You may aggregate the Package (either the Standard Version or
 % Modified Version) with other packages and Distribute the resulting
 % aggregation provided that you do not charge a licensing fee for the
@@ -153,7 +153,7 @@
 % components in the aggregation are permitted. The terms of this license
 % apply to the use and Distribution of the Standard or Modified Versions
 % as included in the aggregation.
-% 
+%
 % (8) You are permitted to link Modified and Standard Versions with
 % other works, to embed the Package in a larger work of your own, or to
 % build stand-alone binary or bytecode versions of applications that
@@ -161,7 +161,7 @@
 % provided the result does not expose a direct interface to the Package.
 %
 % Items That are Not Considered Part of a Modified Version
-% 
+%
 % (9) Works (including, but not limited to, modules and scripts) that
 % merely extend or make use of the Package, do not, by themselves, cause
 % the Package to be a Modified Version. In addition, such works are not
@@ -169,21 +169,21 @@
 % terms of this license.
 %
 % General Provisions
-% 
+%
 % (10) Any use, modification, and distribution of the Standard or
 % Modified Versions is governed by this Artistic License. By using,
 % modifying or distributing the Package, you accept this license. Do not
 % use, modify, or distribute the Package, if you do not accept this
 % license.
-% 
+%
 % (11) If your Modified Version has been derived from a Modified Version
 % made by someone other than you, you are nevertheless required to
 % ensure that your Modified Version complies with the requirements of
 % this license.
-% 
+%
 % (12) This license does not grant you the right to use any trademark,
 % service mark, tradename, or logo of the Copyright Holder.
-% 
+%
 % (13) This license includes the non-exclusive, worldwide,
 % free-of-charge patent license to make, have made, use, offer to sell,
 % sell, import and otherwise transfer the Package with respect to any
@@ -193,7 +193,7 @@
 % that the Package constitutes direct or contributory patent
 % infringement, then this Artistic License to you shall terminate on the
 % date that such litigation is filed.
-% 
+%
 % (14) Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
 % HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
 % WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
@@ -312,7 +312,7 @@ print_ad_intern(_::Fact,[],Mass,Handle) :-
 	P2 is 1.0 - Mass,
 	format(Handle,'~f :: ~q',[P2,Fact]).
 print_ad_intern_one(_::Fact,_::AuxFact,Mass,NewMass,Handle) :-
-	% ask problog to get the fact_id 
+	% ask problog to get the fact_id
 	once(probabilistic_fact(_,AuxFact,FactID)),
 	% look in our table for the probability
 	array_element(factprob,FactID,P),
@@ -342,7 +342,7 @@ do_learning_intern(0,_) :-
 do_learning_intern(Iterations,Epsilon) :-
 	Iterations>0,
 	logger_start_timer(duration),
-	
+
 	current_iteration(CurrentIteration),
 	!,
 	retractall(current_iteration(_)),
@@ -350,7 +350,7 @@ do_learning_intern(Iterations,Epsilon) :-
 	NextIteration is CurrentIteration+1,
 	assertz(current_iteration(NextIteration)),
 	EndIteration is CurrentIteration+Iterations-1,
-	
+
 	format_learning(1,'~nIteration ~d of ~d~n',[CurrentIteration,EndIteration]),
 	logger_set_variable(iteration,CurrentIteration),
 
@@ -358,7 +358,7 @@ do_learning_intern(Iterations,Epsilon) :-
 
 	once(llh_testset),
 
-	once(ground_truth_difference),  
+	once(ground_truth_difference),
 	once(em_one_iteration),
 
 	problog_flag(log_frequency,Log_Frequency),
@@ -381,11 +381,11 @@ do_learning_intern(Iterations,Epsilon) :-
 	  LLH_Diff is abs(Last_LLH-Current_LLH)
 	 );  (
 	      logger_get_variable(llh_training_set,Current_LLH),
-	      assertz(last_llh(Current_LLH)), 
+	      assertz(last_llh(Current_LLH)),
 	      LLH_Diff is Epsilon+1
 	     )
 	),
-	
+
 	logger_stop_timer(duration),
 	logger_write_data,
 	RemainingIterations is Iterations-1,
@@ -424,12 +424,12 @@ init_learning :-
 
 	check_theory,
 
-	
+
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% Delete the stuff from the previous run 
+	% Delete the stuff from the previous run
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	problog_flag(reuse_initialized_bdds,Re_Use_Flag),
-		
+
 	(
 	 Re_Use_Flag==false
 	->
@@ -438,7 +438,7 @@ init_learning :-
 	),
 	empty_output_directory,
 
-	
+
 	logger_write_header,
 
 	format_learning(1,'Initializing everything~n',[]),
@@ -471,7 +471,7 @@ init_learning :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% build BDD script for every example
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	
+
 	once(init_queries),
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -492,7 +492,7 @@ init_learning :-
 %========================================================================
 %= This predicate checks some aspects of the data given by the user.
 %= You know folks: Garbage in, garbage out.
-%= 
+%=
 %========================================================================
 check_theory :-
 	 (
@@ -510,7 +510,7 @@ check_theory :-
 	  );
 	  true
 	 ),
-	 
+
 	 (
 	  (current_predicate(user:example/1),user:example(_))
 	 ->
@@ -584,7 +584,7 @@ check_theory :-
 %=
 %========================================================================
 
-initialize_fact_probabilities :-	
+initialize_fact_probabilities :-
 	problog:probclause_id(N),
 	static_array(factprob,N,float),
 
@@ -658,7 +658,7 @@ init_queries :-
 	assertz(test_set_cluster_list(Test_Set_Cluster_List)).
 
 %========================================================================
-%= 
+%=
 %========================================================================
 
 init_one_query(QueryID,_Query_Type) :-
@@ -689,10 +689,8 @@ create_test_query_cluster_list(L2) :-
 	calc_all_md5(AllCluster,AllCluster2),
 	findall(a(QueryID1,ClusterID1,Len),(bagof(a(QueryID,ClusterID),member(a(QueryID,ClusterID,_MD5),AllCluster2),L),nth1(1,L,a(QueryID1,ClusterID1)),length(L,Len)),L2),
 	!,
-
 	length(AllCluster,Len1),
 	length(L2,Len2),
-
 	(
 	 Len1>0
 	->
@@ -717,25 +715,22 @@ create_training_query_cluster_list(L2) :-
 				      ), AllCluster),
 
 	calc_all_md5(AllCluster,AllCluster2),
-
-	
 	findall(a(QueryID1,ClusterID1,Len),
 		(
 		 bagof(a(QueryID,ClusterID),member(a(QueryID,ClusterID,_MD5),AllCluster2),L),
 		 nth1(1,L,a(QueryID1,ClusterID1)),
 		 length(L,Len)
 		),L2),
-
 	length(AllCluster,Len1),
 	length(L2,Len2),
 
 	Reduction is Len2/Len1,
-	
+
 	format_learning(3,' ~d cluster after splitting, ~d unique cluster ==> reduction factor of ~4f~n',[Len1,Len2,Reduction]).
 
 
 %========================================================================
-%= 
+%=
 %========================================================================
 
 reset_learning :-
@@ -751,7 +746,7 @@ reset_learning :-
 	  close_static_array(factprob),
 	  close_static_array(factprob_temp),
 	  close_static_array(factusage),
-	  
+
 	  close_static_array(known_count_true_training),
 	  close_static_array(known_count_false_training),
 	  close_static_array(known_count_true_test),
@@ -760,14 +755,14 @@ reset_learning :-
 	  reset_completion,
 	  empty_bdd_directory,
 	  empty_output_directory,
-	
+
 	  logger_reset_all_variables
 	 );
 	 true
 	).
 
 %========================================================================
-%= calculate the LLH on the test set and set the variable 
+%= calculate the LLH on the test set and set the variable
 %= in the logger module
 %========================================================================
 
@@ -863,7 +858,7 @@ write_probabilities_file :-
 	forall(get_fact_probability(ID,_),
 	       (
 		array_element(factprob,ID,Prob),
-		
+
 		(
 		 non_ground_fact(ID)
 		->
@@ -885,17 +880,17 @@ write_probabilities_file :-
 
 update_query(QueryID,ClusterID ,Method,Command,PID,Output_File_Name) :-
 	current_iteration(Iteration),
-	
+
 	create_bdd_input_file_name(Iteration,Input_File_Name),
 	create_bdd_output_file_name(QueryID,ClusterID,Iteration,Output_File_Name),
 	create_bdd_file_name(QueryID,ClusterID,BDD_File_Name),
 
 	convert_filename_to_problog_path('problogbdd_lfi',Absolute_Name),
-	
+
 	atomic_concat([Absolute_Name,
 		       ' -i "', Input_File_Name, '"',
 		       ' -l "', BDD_File_Name, '"',
-		       ' -m ', Method, 
+		       ' -m ', Method,
 		       ' -id ', QueryID],Command),
 	open( Output_File_Name, write, Stream ),
 	exec(Command,[std, Stream ,std],PID),
@@ -914,7 +909,7 @@ update_query_wait(QueryID,_ClusterID,Count,Symbol,Command,PID,OutputFilename,BDD
 	   );
 	 true
 	),
-	
+
 	once(my_load_allinone(OutputFilename,QueryID,Count,BDD_Probability)),
 
 	problog_flag(retain_bdd_output,Retain_BDD_Output),
@@ -1019,7 +1014,7 @@ em_one_iteration :-
 		    KK_Sum is KK_True+KK_False,
 
 		    KK_Sum>0,
-		    
+
 		    % add counts
 		    add_to_array_element(factprob_temp,FactID,KK_True,_NewValue),
 		    add_to_array_element(factusage,FactID,KK_Sum,_NewCount),
@@ -1038,7 +1033,7 @@ em_one_iteration :-
 		        LProb is Part1 + KK_False*log(1-P);
 			LProb is Part1
 		    ),
-		    
+
 		    bb_get(dummy,Old),
 	            New is Old+LProb,
 		    bb_put(dummy,New),
@@ -1056,7 +1051,7 @@ em_one_iteration :-
 	evaluate_bdds(AllCluster,Handle,Parallel_Processes,'e','.',LLH_From_True_BDDs,LLH),
 
 	logger_set_variable(llh_training_set,LLH),
-	
+
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% stop calculate new values
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1065,7 +1060,7 @@ em_one_iteration :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% start copy new values
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
+
 	problog_flag(pc_numerator,Pseudo_Counts_Numerator),
 	problog_flag(pc_denominator,Pseudo_Counts_Denominator),
 
@@ -1098,7 +1093,7 @@ em_one_iteration :-
 %=   S      : symbol to print after a process finished
 %=   OldLLH : accumulator for LLH
 %=   LLH    : resulting LLH
-%= 
+%=
 %=  evaluate_bdds(+L,+H,+P,+T,+S,+OldLLH,-LLH)
 %========================================================================
 
@@ -1107,7 +1102,7 @@ evaluate_bdds([H|T],Handle,Parallel_Processes,Type,Symbol,OldLLH,LLH) :-
 	once(slice_n([H|T],Parallel_Processes,ForNow,Later)),
 	logger_start_timer(bdd_evaluation),
 	once(evaluate_bdds_start(ForNow,Type,ForNow_Jobs)),
-	once(evaluate_bdds_stop(ForNow_Jobs,Handle,Symbol,OldLLH,NewLLH)),	
+	once(evaluate_bdds_stop(ForNow_Jobs,Handle,Symbol,OldLLH,NewLLH)),
 	logger_stop_timer(bdd_evaluation),
 	evaluate_bdds(Later,Handle,Parallel_Processes,Type,Symbol,NewLLH,LLH).
 
@@ -1142,7 +1137,7 @@ init_flags :-
 	problog_define_flag(output_directory, problog_flag_validate_directory, 'directory for logfiles etc', Output_Folder,learning_general,flags:learning_output_dir_handler),
 	problog_define_flag(retain_bdd_output,problog_flag_validate_boolean,'Keep output files from BDD tool',false,learning_general),
 	problog_define_flag(log_frequency, problog_flag_validate_posint, 'log results every nth iteration', 1, learning_general),
-	problog_define_flag(reuse_initialized_bdds,problog_flag_validate_boolean, 'Reuse BDDs from previous runs',false, learning_general),	
+	problog_define_flag(reuse_initialized_bdds,problog_flag_validate_boolean, 'Reuse BDDs from previous runs',false, learning_general),
 	problog_define_flag(pc_numerator,problog_flag_validate_in_interval_right_open([0.0,+inf]),'Add X to numerator (Pseudocounts)',0.0,learning_general),
 	problog_define_flag(pc_denominator,problog_flag_validate_in_interval_right_open([0.0,+inf]),'Add X to denominator (Pseudocounts)',0.0,learning_general),
 	problog_define_flag(parallel_processes,problog_flag_validate_posint,'Number of parallel BDD processes',8,learning_general),
@@ -1156,7 +1151,7 @@ init_logger :-
 
 	logger_define_variable(llh_training_set,float),
 	logger_define_variable(llh_test_set,float),
-	
+
 	logger_define_variable(bdd_evaluation,time),
 
 	logger_define_variable(ground_truth_diff,float),
@@ -1186,6 +1181,3 @@ init_logger :-
 
 
 %:- initialization(do_learning(100) ).
-
-                
-

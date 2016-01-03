@@ -124,7 +124,7 @@ Atom Yap_ConsultingFile(USES_REGS1);
 struct pred_entry *Yap_PredForChoicePt(choiceptr bptr, op_numbers *op);
 void Yap_InitCdMgr(void);
 struct pred_entry *Yap_PredFromClause(Term t USES_REGS);
-bool Yap_discontiguous(struct pred_entry *ap USES_REGS);
+bool Yap_discontiguous(struct pred_entry *ap, Term mode USES_REGS);
 bool Yap_multiple(struct pred_entry *ap, int mode USES_REGS);
 void Yap_init_consult(int, const char *);
 void Yap_end_consult(void);
@@ -136,6 +136,7 @@ void Yap_AssertzClause(struct pred_entry *, yamop *);
 void Yap_HidePred(struct pred_entry *pe);
 int Yap_SetNoTrace(char *name, UInt arity, Term tmod);
 bool Yap_unknown(Term tflagvalue);
+struct pred_entry *Yap_MkLogPred(struct pred_entry *pe);
 
 /* cmppreds.c */
 Int Yap_compare_terms(Term, Term);
@@ -319,7 +320,7 @@ void Yap_InitModulesC(void);
 struct mod_entry *Yap_GetModuleEntry(Term tmod);
 Term Yap_GetModuleFromEntry(struct mod_entry *me);
 bool Yap_CharacterEscapes(Term mt);
-bool Yap_constPred( struct pred_entry *pt);
+bool Yap_constPred(struct pred_entry *pt);
 bool Yap_isSystemModule(Term mod);
 
 #if HAVE_MPI

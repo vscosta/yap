@@ -102,7 +102,7 @@ PL_put_blob(term_t t, void *blob, size_t len, PL_blob_t *type)
   if (type->acquire) {
     type->acquire(AtomToSWIAtom(AbsAtom(ae)));
   }
-  Yap_PutInSlot(t, MkAtomTerm(AbsAtom(ae))  PASS_REGS);
+  Yap_PutInSlot(t, MkAtomTerm(AbsAtom(ae)));
   return ret;
 }
 

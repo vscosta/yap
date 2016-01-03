@@ -128,26 +128,26 @@ set(C_INTERFACE_SOURCES
   	H/compile.h
   	H/corout.h
   	H/dlmalloc.h
-  	H/dglobals.h
-  	H/dlocals.h
-  	H/dhstruct.h
+  	H/heap/dglobals.h
+  	H/heap/dlocals.h
+  	H/heap/dhstruct.h
   	H/eval.h
   	H/heapgc.h
-  	H/hglobals.h
-  	H/hlocals.h
-  	H/hstruct.h
-  	H/iglobals.h
-  	H/ihstruct.h
-  	H/ilocals.h
+  	H/heap/hglobals.h
+  	H/heap/hlocals.h
+  	H/heap/hstruct.h
+  	H/heap/iglobals.h
+  	H/heap/ihstruct.h
+  	H/heap/ilocals.h
   	H/index.h
   	H/inline-only.h
   	H/iswiatoms.h
   	H/qly.h
   	H/rclause.h
-  	H/rglobals.h
-  	H/rlocals.h
+  	H/heap/rglobals.h
+  	H/heap/rlocals.h
   	H/rheap.h
-  	H/rhstruct.h
+  	H/heap/rhstruct.h
   	H/threads.h
   	H/tracer.h
   	H/trim_trail.h

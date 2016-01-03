@@ -444,26 +444,28 @@ static int legalAtom(unsigned char *s) /* Is this a legal atom ? */
       return (s[1] == '}' && !s[2]);
     } else if (Yap_chtype[ch] == SL) {
       return (!s[1]);
+    } else if (ch == '`') {
+      return false;
     } else if ((ch == ',' || ch == '.') && !s[1]) {
       return false;
     } else {
       if (ch == '/') {
         if (s[1] == '*')
-          return FALSE;
+          return false;
       }
       while (ch) {
         if (Yap_chtype[ch] != SY) {
-          return FALSE;
+          return false;
         }
         ch = *++s;
       }
     }
-    return TRUE;
+    return true;
   } else
     while ((ch = *++s) != 0)
       if (Yap_chtype[ch] > NU)
-        return FALSE;
-  return (TRUE);
+        return false;
+  return true;
 }
 
 static wtype
@@ -709,7 +711,7 @@ static Term from_pointer(CELL *ptr0, struct rewind_term *rwt,
 
     if (!IsAtomicTerm(t) && !IsVarTerm(t)) {
       while (x) {
-        if (Yap_GetDerefedFromSlot(x->u_sd.s.old PASS_REGS) == t)
+        if (Yap_GetDerefedFromSlot(x->u_sd.s.old) == t)
           return TermFoundVar;
         x = x->parent;
       }
@@ -736,8 +738,8 @@ static CELL *restore_from_write(struct rewind_term *rwt,
   CELL *ptr;
 
   if (wglb->Keep_terms) {
-    ptr = (CELL *)Yap_GetPtrFromSlot(rwt->u_sd.s.ptr PASS_REGS);
-    Yap_RecoverSlots(2, rwt->u_sd.s.old PASS_REGS);
+    ptr = Yap_GetPtrFromSlot(rwt->u_sd.s.ptr );
+    Yap_RecoverSlots(2, rwt->u_sd.s.old );
     //      printf("leak=%d %d\n", LOCALCurSlot,rwt->u_sd.s.old) ;
   } else {
     ptr = rwt->u_sd.d.ptr;
@@ -1232,7 +1234,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   CACHE_REGS
   struct write_globs wglb;
   struct rewind_term rwt;
-  yhandle_t sls = Yap_CurrentSlot(PASS_REGS1);
+  yhandle_t sls = Yap_CurrentSlot();
 
   if (!mywrite) {
     CACHE_REGS

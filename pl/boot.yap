@@ -186,7 +186,7 @@ list, since backtracking could not "pass through" the cut.
 */
 
 system_module(Mod, _SysExps, _Decls) :- !,
-    system_module(Mod).
+    new_system_module(Mod).
 
 use_system_module(_init, _SysExps) :- !.
 
@@ -325,8 +325,6 @@ private(_).
 Succeed.
 
 Succeeds once.
-
-
 */
 true :- true.
 
@@ -341,7 +339,7 @@ true :- true.
 	repeat,
 	'$current_module'(Module),
 	( Module==user ->
-	  '$compile_mode'(_,0)
+	  true % '$compile_mode'(_,0)
 	;
 	  format(user_error,'[~w]~n', [Module])
 	),
@@ -618,11 +616,17 @@ number of steps.
  %
  %
 
- '$execute_command'(C,_,_,top,Source) :- var(C), !,
-	 '$do_error'(instantiation_error,meta_call(Source)).
-'$execute_command'(C,_,_,top,Source) :- number(C), !,
-	 '$do_error'(type_error(callable,C),meta_call(Source)).
- '$execute_command'(R,_,_,top,Source) :- db_reference(R), !,
+'$execute_command'(C,_,_,top,Source) :-
+    var(C),
+    !,
+	'$do_error'(instantiation_error,meta_call(Source)).
+'$execute_command'(C,_,_,top,Source) :-
+    number(C),
+    !,
+	'$do_error'(type_error(callable,C),meta_call(Source)).
+ '$execute_command'(R,_,_,top,Source) :-
+     db_reference(R),
+     !,
 	 '$do_error'(type_error(callable,R),meta_call(Source)).
  '$execute_command'(end_of_file,_,_,_,_) :- !.
  '$execute_command'(Command,_,_,_,_) :-
@@ -639,11 +643,12 @@ number of steps.
 	     O = (:- G1)
 	 ->
 	   '$process_directive'(G1, Option, M, VL, Pos)
-          ;
+     ;
 	    '$execute_commands'(O,VL,Pos,Option,O)
 	 ).
  '$execute_command'((?-G), VL, Pos, Option, Source) :-
-	 Option \= top, !,
+	 Option \= top,
+     !,
 	 '$execute_command'(G, VL, Pos, top, Source).
  '$execute_command'(G, VL, Pos, Option, Source) :-
 	 '$continue_with_command'(Option, VL, Pos, G, Source).
@@ -658,7 +663,8 @@ number of steps.
  '$process_directive'(G, top, M, VL, Pos) :-
 	 current_prolog_flag(language_mode, yap), !,      /* strict_iso on */
 	 '$process_directive'(G, consult, M, VL, Pos).
- '$process_directive'(G, top, _, _, _) :- !,
+ '$process_directive'(G, top, _, _, _) :-
+     !,
 	 '$do_error'(context_error((:- G),clause),query).
  %
  % allow modules
@@ -676,34 +682,42 @@ number of steps.
  % ISO does not allow goals (use initialization).
  %
 '$process_directive'(D, _, M, _VL, _Pos) :-
-	current_prolog_flag(language_mode, iso), !, % ISO Prolog mode, go in and do it,
-	 '$do_error'(context_error((:- M:D),query),directive).
+	current_prolog_flag(language_mode, iso),
+    !, % ISO Prolog mode, go in and do it,
+	'$do_error'(context_error((:- M:D),query),directive).
  %
  % but YAP and SICStus does.
  %
  '$process_directive'(G, Mode, M, VL, Pos) :-
      ( '$undefined'('$save_directive'(G, Mode, M, VL, Pos),prolog) ->
 	   true
-	       ;
+	 ;
 	  '$save_directive'(G, Mode, M, VL, Pos)
-	  ->
+	 ->
 	   true
-	   ;
+	 ;
 	   true
      ),
-     ( '$execute'(M:G) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
+     (
+      '$execute'(M:G)
+      ->
+      true
+     ;
+      format(user_error,':- ~w:~w failed.~n',[M,G])
+     ).
 
-'$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :- !,
-	  '$continue_with_command'(Where,V,'$stream_position'(C,L,A1,A2,A3),G,Source).
+'$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :-
+    !,
+	'$continue_with_command'(Where,V,'$stream_position'(C,L,A1,A2,A3),G,Source).
 '$continue_with_command'(reconsult,V,Pos,G,Source) :-
 %    writeln(G),
-	 '$go_compile_clause'(G,V,Pos,reconsult,Source),
-	 fail.
+	'$go_compile_clause'(G,V,Pos,reconsult,Source),
+	fail.
 '$continue_with_command'(consult,V,Pos,G,Source) :-
 	'$go_compile_clause'(G,V,Pos,consult,Source),
-	 fail.
+	fail.
 '$continue_with_command'(top,V,_,G,_) :-
-	 '$query'(G,V).
+	'$query'(G,V).
 
  %
  % not 100% compatible with SICStus Prolog, as SICStus Prolog would put
@@ -714,13 +728,13 @@ number of steps.
  % Pos the source position
  % N where to add first or last
  % Source the original clause
- '$go_compile_clause'(G,Vs,Pos, Where, Source) :-
+'$go_compile_clause'(G,Vs,Pos, Where, Source) :-
      '$precompile_term'(G, G0, G1),
      !,
 	 '$$compile'(G1, Where, G0, _).
  '$go_compile_clause'(G,Vs,Pos, Where, Source) :-
      throw(error(system, compilation_failed(G))).
-          
+
 '$$compile'(C, Where, C0, R) :-
     '$head_and_body'( C, MH, B ),
     strip_module( MH, Mod, H),
@@ -731,7 +745,6 @@ number of steps.
 	;
      true
     ),
-
 %    writeln(Mod:((H:-B))),
     '$compile'((H:-B), Where, C0, Mod, R).
 
@@ -751,9 +764,10 @@ number of steps.
 
 '$init_as_dynamic'( asserta ).
 '$init_as_dynamic'( assertz ).
-'$init_as_dynamic'( consult ) :- '$nb_getval'('$assert_all',on,fail).
-'$init_as_dynamic'( reconsult ) :- '$nb_getval'('$assert_all',on,fail).
-     
+'$init_as_dynamic'( consult ) :-
+    '$nb_getval'('$assert_all',on,fail).
+'$init_as_dynamic'( reconsult ) :-
+    '$nb_getval'('$assert_all',on,fail).
 
 '$check_if_reconsulted'(N,A) :-
     once(recorded('$reconsulted',N/A,_)),
@@ -769,7 +783,8 @@ number of steps.
 '$clear_reconsulting' :-
 	recorded('$reconsulted',X,Ref),
 	erase(Ref),
-	X == '$', !,
+	X == '$',
+    !,
 	( recorded('$reconsulting',_,R) -> erase(R) ).
 
 '$prompt_alternatives_on'(determinism).
@@ -777,10 +792,10 @@ number of steps.
 /* Executing a query */
 
 '$query'(end_of_file,_).
-
 '$query'(G,[]) :-
 	 '$prompt_alternatives_on'(OPT),
-	 ( OPT = groundness ; OPT = determinism), !,
+	 ( OPT = groundness ; OPT = determinism),
+     !,
 	 '$yes_no'(G,(?-)).
 '$query'(G,V) :-
 	 (
@@ -827,17 +842,17 @@ number of steps.
 '$delayed_goals'(G, V, NV, LGs, NCP) :-
 	(
 	  CP is '$last_choice_pt',
-	  '$current_choice_point'(NCP1),
+	 '$current_choice_point'(NCP1),
 	 '$attributes':delayed_goals(G, V, NV, LGs),
-	  '$current_choice_point'(NCP2),
-	  '$clean_ifcp'(CP),
-	   NCP is NCP2-NCP1
+	 '$current_choice_point'(NCP2),
+	 '$clean_ifcp'(CP),
+	 NCP is NCP2-NCP1
 	  ;
 	   copy_term_nat(V, NV),
 	   LGs = [],
 %	   term_factorized(V, NV, LGs),
 	   NCP = 0
-        ).
+    ).
 
 '$out_neg_answer' :-
 	'$early_print'( help, false),
@@ -851,7 +866,7 @@ number of steps.
 	'$user_call'(G, M).
 
 '$write_query_answer_true'([]) :- !,
-	format(user_error,'true',[]).
+	format(user_error,true,[]).
 '$write_query_answer_true'(_).
 
 
@@ -883,18 +898,25 @@ number of steps.
 	%    '$add_nl_outside_console',
 	    fail
 	;
-	    C== 10 -> '$add_nl_outside_console',
-		( '$undefined'('$early_print'(_,_),prolog) ->
-			format(user_error,'yes~n', [])
-	        ;
-		   '$early_print'(help,yes)
+	    C== 10
+    ->
+        '$add_nl_outside_console',
+		(
+         '$undefined'('$early_print'(_,_),prolog)
+        ->
+         format(user_error,'yes~n', [])
+        ;
+         '$early_print'(help,yes)
 		)
 	;
-	    C== 13 ->
+	    C== 13
+    ->
 	    get0(user_input,NC),
 	    '$do_another'(NC)
 	;
-	    C== -1 -> halt
+	    C== -1
+    ->
+        halt
 	;
 	    skip(user_input,10), '$ask_again_for_another'
 	).
@@ -909,7 +931,7 @@ number of steps.
 	'$another'.
 
 '$write_answer'(_,_,_) :-
-        flush_output,
+    flush_output,
 	fail.
 '$write_answer'(Vs, LBlk, FLAnsw) :-
 	'$purge_dontcares'(Vs,IVs),
@@ -969,7 +991,7 @@ number of steps.
 	format(codes(String),Format,G).
 
 '$write_goal_output'(var([V|VL]), First, [var([V|VL])|L], next, L) :- !,
-        ( First = first -> true ; format(user_error,',~n',[]) ),
+    ( First = first -> true ; format(user_error,',~n',[]) ),
 	format(user_error,'~a',[V]),
 	'$write_output_vars'(VL).
 '$write_goal_output'(nonvar([V|VL],B), First, [nonvar([V|VL],B)|L], next, L) :- !,
@@ -1281,7 +1303,9 @@ not(G) :-    \+ '$execute'(G).
 	(
      '$is_metapredicate'(G,CurMod)
     ->
-     '$expand_meta_call'(CurMod:G, [], NG)
+     '$disable_debugging',
+     ( '$expand_meta_call'(CurMod:G, [], NG) ->  true ; true ),
+     '$enable_debugging'
     ;
      NG = G
     ),
@@ -1330,6 +1354,11 @@ bootstrap(F) :-
 	),
 	!,
 	close(Stream).
+
+% '$undefp'([M0|G0], Default) :-
+%    writeln(M0:G0),
+%    fail.
+
 
 '$loop'(Stream,exo) :-
 	prolog_flag(agc_margin,Old,0),
@@ -1382,10 +1411,15 @@ This predicate is used by YAP for preprocessingStatus) :-
 %
 % split head and body, generate an error if body is unbound.
 %
-'$check_head_and_body'((M:H:-B),M,H,B,P) :-
+'$check_head_and_body'(C,M,H,B,P) :-
+    '$yap_strip_module'(C,M1,(MH:-B0)),
     !,
+    '$yap_strip_module'(M1:MH,M,H),
+    ( M == M1 -> B = B0 ; B = M1:B0),
     error:is_callable(M:H,P).
-'$check_head_and_body'(M:H, M, H, true, P) :-
+
+'$check_head_and_body'(MH, M, H, true, P) :-
+    '$yap_strip_module'(MH,M,H),
     error:is_callable(M:H,P).
                                 % term expansion
 %
@@ -1428,10 +1462,11 @@ whenever the compilation of arithmetic expressions is in progress.
 
 */
 expand_term(Term,Expanded) :-
-	( '$do_term_expansion'(Term,Expanded)
-        ->
-	   true
-        ;
+	(
+     '$do_term_expansion'(Term,Expanded)
+    ->
+	  true
+    ;
 	  '$expand_term_grammar'(Term,Expanded)
 	).
 

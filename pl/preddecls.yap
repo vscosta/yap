@@ -25,6 +25,8 @@
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
+'$log_upd'(1).
+
 /**
   @defgroup YAPPredDecls Declaring Properties of Predicates
   @ingroup YAPCompilerSettings

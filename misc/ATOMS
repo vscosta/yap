@@ -1,6 +1,6 @@
 //
 // Fields are TAB spaced
-// Atoms are of the form A Name Normal,FullLookup String 
+// Atoms are of the form A Name Normal,FullLookup String
 // Functors are of the form F Name Atom Arity
 // Terms are of the form T FullName Atom
 //
@@ -25,6 +25,7 @@ A	ArrayAccess		F	"$array_arg"
 A	ArrayOverflow		N	"array_overflow"
 A	ArrayType		N	"array_type"
 A	Arrow			N	"->"
+A   AttributedModule    N   "attributes_module"
 A	DoubleArrow		N	"-->"
 A	Assert			N	":-"
 A	EmptyBrackets		N	"()"
@@ -514,6 +515,7 @@ F	PermissionError		PermissionError	3
 F	Plus			Plus		2
 F	Portray			Portray		1
 F	PrintMessage		PrintMessage	2
+F   Procedure       Procedure       5
 F	PrologConstraint	Prolog		2
 F	Query			Query		1
 F	RecordedWithKey		RecordedWithKey	6
@@ -545,4 +547,3 @@ F	UMinus			Minus		1
 F	UPlus			Plus		1
 F	VBar			VBar		2
 F	HiddenVar		HiddenVar	1
-

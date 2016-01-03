@@ -9,11 +9,11 @@ set (LIBRARY_PL
   avl.yap
   bhash.yap
   charsio.yap
+  clauses.yap
   coinduction.yap
   dbqueues.yap
   dbusage.yap
   dgraphs.yap
-  error.yap
   exo_interval.yap
   expand_macros.yap
   gensym.yap
@@ -70,6 +70,7 @@ add_subdirectory(regex)
 add_subdirectory(rltree)
 add_subdirectory(system)
 add_subdirectory(tries)
+add_subdirectory(ytest)
 
 add_custom_target (library SOURCES ${LIBRARY_PL} ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 

@@ -15,10 +15,21 @@
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+:- module( expand_macros,
+           [compile_aux/2,
+            pred_name/4,
+            transformation_id/1,
+            allowed_expansion/1,
+            allowed_module/2] ).
+            
+       
 :- use_module(library(lists), [append/3]).
 :- use_module(library(charsio), [format_to_chars/3, read_from_chars/2]).
 :- use_module(library(error), [must_be/2]).
 :- use_module(library(occurs), [sub_term/2]).
+
+:- multifile allowed_module/2.
 
 :- dynamic number_of_expansions/1.
 
@@ -32,15 +43,18 @@ number_of_expansions(0).
 
 compile_aux([Clause|Clauses], Module) :-
 	% compile the predicat declaration if needed
-	( Clause = (Head :- _)
-	; Clause = Head ),
+	(
+     Clause = (Head :- _)
+	;
+     Clause = Head
+    ),
 	!,
 	functor(Head, F, N),
 	( current_predicate(Module:F/N)
 	->
 	    true
 	;
-%	    format("*** Creating auxiliary predicate ~q~n", [F/N]),
+%	    format'*** Creating auxiliary predicate ~q~n', [F/N]),
 %	    checklist(portray_clause, [Clause|Clauses]),
 	    compile_term([Clause|Clauses], Module)
 	).
@@ -84,15 +98,17 @@ harmless_dcgexception(instantiation_error).	% ex: phrase(([1],x:X,[3]),L)
 harmless_dcgexception(type_error(callable,_)).	% ex: phrase(27,L)
 
 
-'$expand':allowed_expansion(QExpand) :-
+allowed_expansion(QExpand) :-
     strip_module(QExpand, Mod, Pred),
     goal_expansion_allowed(Pred, Mod).
 
 goal_expansion_allowed(Pred, Mod) :-
 	allowed_module(Pred,Mod),
 	once( prolog_load_context(_, _) ), % make sure we are compiling.
-	\+ current_prolog_flag(xref, true).
 
+
+
+    
 allowed_module(checklist(_,_),expand_macros).
 allowed_module(checklist(_,_),apply_macros).
 allowed_module(checklist(_,_),maplist).
@@ -147,5 +163,3 @@ allowed_module(checknodes(_,_),maplist).
 allowed_module(sumnodes(_,_,_,_),expand_macros).
 allowed_module(sumnodes(_,_,_,_),apply_macros).
 allowed_module(sumnodes(_,_,_,_),maplist).
-allowed_module(phrase(_,_),_).
-allowed_module(phrase(_,_,_),_).

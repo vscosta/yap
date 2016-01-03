@@ -25,37 +25,66 @@
 
 // INLINE_ONLY inline EXTERN  bool nat( Term inp );
 
+#define SYSTEM_OPTION_0 "attributed_variables,rational_trees]"
+#if THREADS
+#define SYSTEM_OPTION_1 "threads,"
+#endif
+#if USE_GMP
+#define SYSTEM_OPTION_3 "big_numbers,"
+#endif
+#if DEPTH_LIMIT
+#define SYSTEM_OPTION_4 "depth_limit,"
+#endif
+#if LOW_LEVEL_TRACE
+#define SYSTEM_OPTION_5 "low_level_tracer,"
+#endif
+#if YAPOR
+#define SYSTEM_OPTION_6 "or_parallelism,"
+#endif
+#if USE_READLINE
+#define SYSTEM_OPTION_7 "readline,"
+#endif
+#if TABLING
+#define SYSTEM_OPTION_8 "tabling,"
+#endif
+
 static inline bool nat(Term inp) {
   if (IsVarTerm(inp)) {
-    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s", "bound");
+    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s",
+              "bound");
     return false;
   }
   if (IsIntTerm(inp)) {
     Int i = IntOfTerm(inp);
     if (i >= 0)
       return true;
-    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, inp, "set_prolog_flag: value must be %s", ">= 0");
+    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, inp,
+              "set_prolog_flag: value must be %s", ">= 0");
     return false;
   }
-  Yap_Error(TYPE_ERROR_INTEGER, inp, "set_prolog_flag: value must be %s", "integer");
+  Yap_Error(TYPE_ERROR_INTEGER, inp, "set_prolog_flag: value must be %s",
+            "integer");
   return false;
 }
 
 static inline bool at2n(Term inp) {
-  Yap_Error(PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag %s", "flag is read-only");
+  Yap_Error(PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag %s",
+            "flag is read-only");
   return false;
 }
 
 static inline bool isfloat(Term inp) {
   if (IsVarTerm(inp)) {
-    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s", "integer");
+    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s",
+              "integer");
 
     return false;
   }
   if (IsFloatTerm(inp)) {
     return true;
   }
-  Yap_Error(TYPE_ERROR_FLOAT, inp, "set_prolog_flag: value must be %s", "floating-point");
+  Yap_Error(TYPE_ERROR_FLOAT, inp, "set_prolog_flag: value must be %s",
+            "floating-point");
   return false;
 }
 
@@ -63,20 +92,24 @@ INLINE_ONLY inline EXTERN bool ro(Term inp);
 
 INLINE_ONLY inline EXTERN bool ro(Term inp) {
   if (IsVarTerm(inp)) {
-    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s", "bound");
+    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s",
+              "bound");
     return false;
   }
-  Yap_Error(PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag %s", "flag is read-only");
+  Yap_Error(PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag %s",
+            "flag is read-only");
   return false;
 }
 
 INLINE_ONLY inline EXTERN bool aro(Term inp) {
   if (IsVarTerm(inp)) {
-    Yap_Error(INSTANTIATION_ERROR, inp,  "set_prolog_flag %s", "value must be bound");
+    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
+              "value must be bound");
 
     return false;
   }
-  Yap_Error(PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag %s", "flag is read-only");
+  Yap_Error(PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag %s",
+            "flag is read-only");
 
   return false;
 }
@@ -87,8 +120,9 @@ static inline bool boolean(Term inp) {
   if (inp == TermTrue || inp == TermFalse || inp == TermOn || inp == TermOff)
     return true;
   if (IsVarTerm(inp)) {
-    Yap_Error(INSTANTIATION_ERROR, inp,  "set_prolog_flag %s", "value must be bound");
-;
+    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
+              "value must be bound");
+    ;
     return false;
   }
   if (IsAtomTerm(inp)) {
@@ -134,7 +168,8 @@ static bool bqs(Term inp) {
 
 static inline bool isatom(Term inp) {
   if (IsVarTerm(inp)) {
-    Yap_Error(INSTANTIATION_ERROR, inp,  "set_prolog_flag %s", "value must be bound");
+    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
+              "value must be bound");
     return false;
   }
   if (IsAtomTerm(inp))
@@ -142,6 +177,8 @@ static inline bool isatom(Term inp) {
   Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
   return false;
 }
+
+static inline bool options(Term inp) { return Yap_IsGroundTerm(inp); }
 
 // INLINE_ONLY inline EXTERN  bool ok( Term inp );
 

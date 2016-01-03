@@ -81,8 +81,6 @@
 	    jpl_set_element/2
 	  ]).
 
-:- expects_dialect(swi).
-
 :- use_module(library(lists)).
 :- use_module(library(apply)).
 :- use_module(library(shlib)).
@@ -156,6 +154,8 @@ jpl_tidy_iref_type_cache( Iref) :-
 %     a proper list (perhaps empty) of suitable actual parameters for the named method
 %
 %   finally, an attempt will be made to unify Result with the returned result
+
+:- stop_low_level_trace.
 
 jpl_call(X, Mspec, Params, R) :-
 	(   jpl_object_to_type(X, Type)         % the usual case (goal fails safely if X is var or rubbish)

@@ -37,88 +37,7 @@ with SICStus Prolog.
 
 */
 
-
-
-/** 
- * @pred '$undefp_expand'(+ M0:G0, -MG)
- * 
- * @param G0 input goal
- * @param M0 current module
- * @param G1 new goal
- * 
- * @return succeeds on finding G1, otherwise fails.
- *
- * Tries:
- *   1 - `user:unknown_predicate_handler`
- *   2 - `goal_expansion`
- *   1 - `import` mechanism`
-*/
-'$undefp_expand'(M0:G0, MG) :-
-    user:unknown_predicate_handler(G0,M0,M1:G1),
-    M0:G0 \== M1:G1,
-    !,
-     (
-      '$pred_exists'(G1, M1)
-     ->
-      MG = M1:G1
-     ;
-      '$undefp_expand_user'(M1:G1, MG)
-     ).
-'$undefp_expand'(MG0, MG) :-
-    '$undefp_expand_user'(MG0, MG).
-
-'$undefp_expand_user'(M0:G0, MG) :-
-    '_user_expand_goal'(M0:G0, MG1),
-    M0:G0 \== MG1,
-    !,
-    '$yap_strip_module'( MG1, M1, G1),
-    (
-     '$pred_exists'(G1, M1)
-    ->
-     MG = M1:G1
-    ;
-     '$undefp_expand_import'(M1:G1, MG)
-    ).
-'$undefp_expand_user'(MG0, MG) :-
-    '$undefp_expand_import'(MG0, MG).
-
-'$undefp_expand_import'(M0:G0, M1:G1) :-
-    '$get_undefined_pred'(G0, M0, G1, M1),
-    M0:G0 \== M1:G1.
-
-'$undefp'([M0|G0], Default) :-
-    % make sure we do not loop on undefined predicates
-    yap_flag( unknown, Unknown, fast_fail),
-    yap_flag( debug, Debug, false),
-    (
-     '$undefp_expand'(M0:G0, NM:Goal),
-     Goal \= fail,
-     '$complete_goal'(M0, G0, Goal, NM, NG)
-	->
-     yap_flag( unknown, _, Unknown),
-     yap_flag( debug, _, Debug),
-     '$execute0'(NG, NM)
-	;
-     yap_flag( unknown, _, Unknown),
-     yap_flag( debug, _, Debug),
-     '$handle_error'(Default,G0,M0)
-    ).
-
-/** @pred  unknown(- _O_,+ _N_) 
-
-The unknown predicate, informs about what the user wants to be done
-	when there are no clauses for a certain predicate.
-
-This predicate is strongly deprecated. Use prolog_flag for generic
-behaviour, and user:unknown_predicate_handler/3 for flexible behaviour
-on undefined goals.
-
-*/
-
-unknown(P, NP) :-
-    prolog_flag( unknown, P, NP ).
-
-/**  @pred  user:unknown_predicate_handler(+ _Call_, + _M_, - _N_) 
+/**  @pred  user:unknown_predicate_handler(+ _Call_, + _M_, - _N_)
 
 In YAP, the default action on undefined predicates is to output an
 `error` message. Alternatives are to silently `fail`, or to print a
@@ -150,7 +69,8 @@ followed by the failure of that call.
 '$handle_error'(error,Goal,Mod) :-
     functor(Goal,Name,Arity),
     'program_continuation'(PMod,PName,PAr),
-    '$do_error'(existence_error(procedure,Name/Arity),context(Mod:Goal,PMod:PName/PAr)).
+    '$do_error'(existence_error(procedure,Name/Arity),
+           context(Mod:Goal,PMod:PName/PAr)).
 '$handle_error'(warning,Goal,Mod) :-
     functor(Goal,Name,Arity),
     'program_continuation'(PMod,PName,PAr),
@@ -161,14 +81,69 @@ followed by the failure of that call.
 
 :- '$set_no_trace'('$handle_error'(_,_,_), prolog).
 
-'$complete_goal'(M, _G, CurG, CurMod, NG) :-
-	  (
-	   '$is_metapredicate'(CurG,CurMod)
-	  ->
-       '$expand_meta_call'(CurMod:CurG, [], NG)
-	  ;
-	   NG = CurG
-	  ).
+/**
+Z * @pred '$undefp_expand'(+ M0:G0, -MG)
+ *
+ * @param G0 input goal
+ * @param M0 current module
+ * @param G1 new goal
+ *
+ * @return succeeds on finding G1, otherwise fails.
+ *
+ * Tries:
+ *   1 - `user:unknown_predicate_handler`
+ *   2 - `goal_expansion`
+ *   1 - `import` mechanism`
+*/
+'$undefp_search'(M0:G0, MG) :-
+    '$pred_exists'(unknown_predicate_handler(_,_,_,_), user),
+    '$yap_strip_module'(M0:G0,  EM0, GM0),
+    user:unknown_predicate_handler(GM0,EM0,M1:G1),
+    !,
+    expand_goal(M1:G1, MG).
+'$undefp_search'(MG, FMG) :-
+    expand_goal(MG, FMG).
+
+'$undefp'([M0|G0], Action) :-
+    % make sure we do not loop on undefined predicates
+    '$stop_creeping'(Current),
+    yap_flag( unknown, _, fail),
+    yap_flag( debug, Debug, false),
+    (
+     '$undefp_search'(M0:G0, NM:NG),
+     ( M0 \== NM -> true  ; G0 \== NG ),
+     NG \= fail,
+    '$pred_exists'(NG,NM)
+	->
+     yap_flag( unknown, _, Action),
+     yap_flag( debug, _, Debug),
+     (
+       Current == true
+      ->
+       % carry on signal processing
+       '$start_creep'([NM|NG], creep)
+     ;
+       '$execute0'(NG, NM)
+     )
+	;
+     yap_flag( unknown, _, Action),
+     yap_flag( debug, _, Debug),
+     '$handle_error'(Action,G0,M0)
+    ).
+
+/** @pred  unknown(- _O_,+ _N_)
+
+The unknown predicate, informs about what the user wants to be done
+	when there are no clauses for a predicate. Using unknown/3 is
+	strongly deprecated. We recommend setting the `unknown` prolog
+	flag for generic behaviour, and calling the hook
+	user:unknown_predicate_handler/3 to fine-tune specific cases
+	undefined goals.
+
+*/
+
+unknown(P, NP) :-
+    prolog_flag( unknown, P, NP ).
 
 /**
 @}

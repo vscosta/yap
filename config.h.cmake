@@ -8,6 +8,7 @@
  #define CONFIG_H
 
  /* config.h.in.  Generated from configure.in by autoheader.  */
+ #define SYSTEM_OPTIONS  "${YAP_SYSTEM_OPTIONS}"
 
 /* Define if building universal (internal helper macro) */
 #ifndef AC_APPLE_UNIVERSAL_BUILD

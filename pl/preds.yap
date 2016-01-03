@@ -117,7 +117,7 @@ Adds clause  _C_ as the first clause for a static procedure.
 
 
 */
-asserta_static(CI) :- 
+asserta_static(CI) :-
 	'$assert'(C , asserta_static, _ ).
 
 
@@ -137,7 +137,7 @@ static predicates, if source mode was on when they were compiled:
 
 
 */
-assertz_static(CI) :- 
+assertz_static(CI) :-
 	'$assert'(C , assertz_static, _ ).
 
 /** @pred  clause(+ _H_, _B_) is iso
@@ -165,7 +165,7 @@ reference to the clause in the database. You can use instance/2
 to access the reference's value. Note that you may not use
 erase/1 on the reference on static procedures.
 */
-clause(P,Q,R) :- 
+clause(P,Q,R) :-
 	'$instance_module'(R,M0), !,
 	instance(R,T0),
 	( T0 = (H :- B) -> Q = B ; H=T0, Q = true),
@@ -175,7 +175,7 @@ clause(P,Q,R) :-
      M == M1
     ->
      H1 = T
-    ;     
+    ;
      M1:H1 = T
     ).
 clause(V0,Q,R) :-
@@ -189,17 +189,17 @@ clause(V0,Q,R) :-
 	R = '$exo_clause'(M,P),
 	'$execute0'(P, M).
 '$clause'(P,M,Q,R) :-
-	'$is_source'(P, M), !,
-	'$static_clause'(P,M,Q,R).
-'$clause'(P,M,Q,R) :-
 	'$is_log_updatable'(P, M), !,
 	'$log_update_clause'(P,M,Q,R).
+'$clause'(P,M,Q,R) :-
+	'$is_source'(P, M), !,
+	'$static_clause'(P,M,Q,R).
 '$clause'(P,M,Q,R) :-
 	'$some_recordedp'(M:P), !,
 	'$recordedp'(M:P,(P:-Q),R).
 '$clause'(P,M,Q,R) :-
 	\+ '$undefined'(P,M),
-	( '$system_predicate'(P,M) -> true ;
+	( '$is_system_predicate'(P,M) -> true ;
 	    '$number_of_clauses'(P,M,N), N > 0 ),
 	functor(P,Name,Arity),
 	'$do_error'(permission_error(access,private_procedure,Name/Arity),
@@ -533,7 +533,7 @@ predicate_property(Pred,Prop) :-
 	'$pred_exists'(Orig, SourceMod).
 
 '$predicate_property'(P,M,_,built_in) :-
-	'$system_predicate'(P,M).
+	'$is_system_predicate'(P,M).
 '$predicate_property'(P,M,_,source) :-
 	'$predicate_flags'(P,M,F,F),
 	F /\ 0x00400000 =\= 0.
@@ -584,7 +584,7 @@ predicate_statistics(P0,NCls,Sz,ISz) :-
 	'$is_log_updatable'(P, M), !,
 	'$lu_statistics'(P,NCls,Sz,ISz,M).
 '$predicate_statistics'(P,M,_,_,_) :-
-	'$system_predicate'(P,M), !, fail.
+	'$is_system_predicate'(P,M), !, fail.
 '$predicate_statistics'(P,M,_,_,_) :-
 	'$undefined'(P,M), !, fail.
 '$predicate_statistics'(P,M,NCls,Sz,ISz) :-
@@ -613,36 +613,12 @@ Defines the relation:  _P_ is a currently defined predicate whose name is the at
 */
 current_predicate(A,T0) :-
 	'$yap_strip_module'(T0, M, T),
-	(
-	 '$current_predicate'(A, M, T, user)
-	 ;
-	 '$imported_predicate'(T, M, SourceT, SourceMod),
-	 functor(T, A, _),
-	 \+ '$system_predicate'(SourceT, SourceMod)
-	).
-
-/** @pred  system_predicate( _A_, _P_)
-
-  Defines the relation:   _P_ is a built-in predicate whose name
-is the atom  _A_.
-
-*/
-system_predicate(A,T1) :-
-	'$yap_strip_module'( T1, M, T),
-    '$system_predicate3'( A, M, T).
-
-'$system_predicate3'( A, M, T) :-
-	(
-	 M \= prolog,
-	 '$current_predicate'(A, M, T, system)
-	 ;
-	 '$imported_predicate'(T, M, SourceT, SourceMod),
-	 M \= prolog,
-	 functor(T, A, _),
-	 '$system_predicate'(SourceT, SourceMod)
-	;
-	 '$current_predicate'(A, prolog, T, system)
-	).
+    (
+     '$current_predicate'(A,M, T, user)
+    ;
+     '$imported_predicate'(T, M, T1, M1),
+     \+ '$is_system_predicate'(T1,M1)
+    ).
 
 /** @pred  system_predicate( ?_P_ )
 
@@ -652,22 +628,32 @@ system_predicate(P0) :-
 	strip_module(P0, M, P),
 
     (
-     var(P)
+     P = A/Arity, ground(P)
     ->
-     P = A/Arity,
-     '$system_predicate3'( A, M, T),
+     functor(T, A, Arity),
+     '$current_predicate'(A, M, T, _system),
+     '$is_system_predicate'( T, M)
+    ;
+     P = A//Arity2, ground(P)
+    ->
+     Arity is Arity2-2,
+     functor(T, A, Arity),
+     '$current_predicate'(A, M, T, _system),
+     '$is_system_predicate'( T, M)
+    ;
+     P = A/Arity
+    ->
+     '$current_predicate'(A, M, T, _system),
+     '$is_system_predicate'( T,  M),
      functor(T, A, Arity)
     ;
      P = A//Arity2
     ->
-     '$system_predicate3'( A, M, T),
+     '$current_predicate'(A, M, T, _system),
+     '$is_system_predicate'( T,  M),
      functor(T, A, Arity),
-     Arity2 is Arity+2
-    ;
-     P = A/Arity
-    ->
-     '$system_predicate3'( A, M, T),
-     functor(T, A, Arity)
+     Arity >= 2,
+     Arity2 is Arity-2
     ;
     '$do_error'(type_error(predicate_indicator,P),
                 system_predicate(P0))

@@ -2,10 +2,10 @@
  * @file   library/lists.yap
  * @author Bob Welham, Lawrence Byrd, and R. A. O'Keefe. Contributions from Vitor Santos Costa, Jan Wielemaker and others.
  * @date   1999
- * 
+ *
  * @brief  List Manipulation Predicates
- * 
- * 
+ *
+ *
 */
 % This file has been included as an YAP library by Vitor Santos Costa, 1999
 
@@ -48,55 +48,51 @@
 	  ]).
 
 
-:- use_module(library(error),
-		 [must_be/2]).
-
-
 /** @defgroup lists List Manipulation
 @ingroup library
 @{
 
 The following list manipulation routines are available once included
-with the `use_module(library(lists))` command. 
+with the `use_module(library(lists))` command.
 
 */
 
-/** @pred list_concat(+ _Lists_,? _List_) 
+/** @pred list_concat(+ _Lists_,? _List_)
 
 
 True when  _Lists_ is a list of lists and  _List_ is the
 concatenation of  _Lists_.
 
- 
+
 */
-/** @pred max_list(? _Numbers_, ? _Max_) 
+/** @pred max_list(? _Numbers_, ? _Max_)
 
 
 True when  _Numbers_ is a list of numbers, and  _Max_ is the maximum.
 
- 
+
 */
-/** @pred min_list(? _Numbers_, ? _Min_) 
+/** @pred min_list(? _Numbers_, ? _Min_)
 
 
 True when  _Numbers_ is a list of numbers, and  _Min_ is the minimum.
 
- 
+
 */
-/** @pred nth(? _N_, ? _List_, ? _Elem_) 
+/** @pred nth(? _N_, ? _List_, ? _Elem_)
 
 
 The same as nth1/3.
 
- 
+
 */
 /** @pred nth(? _N_, ? _List_, ? _Elem_, ? _Rest_)
 
 Same as `nth1/4`.
 
- 
+
 */
-/** @pred nth0(? _N_, ? _List_, ? _Elem_) 
+/** @pred nth0(? _N_, ? _List_, ? _Elem_)
 
 
 True when  _Elem_ is the Nth member of  _List_,
@@ -105,7 +101,7 @@ N elements and unify  _Elem_ with the next.)  It can only be used to
 select a particular element given the list and index.  For that
 task it is more efficient than member/2
 
- 
+
 */
 /** @pred nth0(? _N_, ? _List_, ? _Elem_, ? _Rest_)
 
@@ -117,9 +113,9 @@ it yields  _List_, e.g. `nth0(2, List, c, [a,b,d,e])` unifies List with
 `[a,b,c,d,e]`.  `nth/4` is the same except that it counts from 1.  `nth0/4`
 can be used to insert  _Elem_ after the Nth element of  _Rest_.
 
- 
+
 */
-/** @pred nth1(+ _Index_,? _List_,? _Elem_) 
+/** @pred nth1(+ _Index_,? _List_,? _Elem_)
 
 
 Succeeds when the  _Index_-th element of  _List_ unifies with
@@ -130,15 +126,15 @@ instantiated to atoms or integers.  The environment variable will be
 passed to `shell/[0-2]` and can be requested using `getenv/2`.
 They also influence expand_file_name/2.
 
- 
+
 */
-/** @pred nth1(? _N_, ? _List_, ? _Elem_) 
+/** @pred nth1(? _N_, ? _List_, ? _Elem_)
 
 
 The same as nth0/3, except that it counts from
 1, that is `nth(1, [H|_], H)`.
 
- 
+
 */
 /** @pred nth1(? _N_, ? _List_, ? _Elem_, ? _Rest_)
 
@@ -149,33 +145,33 @@ insert  _Elem_ before the Nth (counting from 1) element of
  _Rest_, when it yields  _List_, e.g. `nth(3, List, c, [a,b,d,e])` unifies List with `[a,b,c,d,e]`.  `nth/4`
 can be used to insert  _Elem_ after the Nth element of  _Rest_.
 
- 
+
 */
-/** @pred numlist(+ _Low_, + _High_, + _List_) 
+/** @pred numlist(+ _Low_, + _High_, + _List_)
 
 
 If  _Low_ and  _High_ are integers with  _Low_ =<
  _High_, unify  _List_ to a list `[Low, Low+1, ...High]`. See
 also between/3.
 
- 
+
 */
-/** @pred permutation(+ _List_,? _Perm_) 
+/** @pred permutation(+ _List_,? _Perm_)
 
 
 True when  _List_ and  _Perm_ are permutations of each other.
 
- 
+
 */
-/** @pred remove_duplicates(+ _List_, ? _Pruned_) 
+/** @pred remove_duplicates(+ _List_, ? _Pruned_)
 
 
 Removes duplicated elements from  _List_.  Beware: if the  _List_ has
 non-ground elements, the result may surprise you.
 
- 
+
 */
-/** @pred same_length(? _List1_, ? _List2_) 
+/** @pred same_length(? _List1_, ? _List2_)
 
 
 True when  _List1_ and  _List2_ are both lists and have the same number
@@ -192,7 +188,7 @@ in which case the arguments will be bound to lists of length 0, 1, 2, ...
 %
 %	Concatenate a list of lists.  Is  true   if  Lists  is a list of
 %	lists, and List is the concatenation of these lists.
-%	
+%
 %	@param	ListOfLists must be a list of -possibly- partial lists
 
 append(ListOfLists, List) :-
@@ -207,7 +203,7 @@ append_([L1,L2|[L3|LL]], L) :-
 	append(L1,L2,LI),
 	append_([LI|[L3|LL]],L).
 
-/** @pred last(+ _List_,? _Last_) 
+/** @pred last(+ _List_,? _Last_)
 
 
 True when  _List_ is a list and  _Last_ is identical to its last element.
@@ -282,7 +278,7 @@ generate_nth(I, IN, [_|List], El) :-
 
 %   nth0(+N, ?List, ?Elem, ?Rest) unifies Elem with the Nth element of List,
 %   counting from 0, and Rest with the other elements.  It can be used
-%   to select the Nth element of List (yielding Elem and Rest), or to 
+%   to select the Nth element of List (yielding Elem and Rest), or to
 %   insert Elem before the Nth (counting from 1) element of Rest, when
 %   it yields List, e.g. nth0(2, List, c, [a,b,d,e]) unifies List with
 %   [a,b,c,d,e].  nth is the same except that it counts from 1.  nth
@@ -348,7 +344,7 @@ permutation(List, [First|Perm]) :-
 % prefix(Part, Whole) iff Part is a leading substring of Whole
 
 prefix([], _).
-prefix([Elem | Rest_of_part], [Elem | Rest_of_whole]) :- 
+prefix([Elem | Rest_of_part], [Elem | Rest_of_whole]) :-
   prefix(Rest_of_part, Rest_of_whole).
 
 %   remove_duplicates(List, Pruned)
@@ -385,7 +381,7 @@ same_length([_|List1], [_|List2]) :-
 	same_length(List1, List2).
 
 
-/** @pred selectchk(? _Element_, ? _List_, ? _Residue_) 
+/** @pred selectchk(? _Element_, ? _List_, ? _Residue_)
 
 
 Semi-deterministic selection from a list. Steadfast: defines as
@@ -402,7 +398,7 @@ selectchk(Elem, List, Rest) :-
 
 
 
-/** @pred select(? _Element_, ? _List_, ? _Residue_) 
+/** @pred select(? _Element_, ? _List_, ? _Residue_)
 
 
 True when  _Set_ is a list,  _Element_ occurs in  _List_, and
@@ -444,7 +440,7 @@ substitute2([X0|XList], X, Y, [Y|YList]) :-
 substitute2([X0|XList], X, Y, [X0|YList]) :-
 	substitute2(XList, X, Y, YList).
 
-/** @pred suffix(? _Suffix_, ? _List_) 
+/** @pred suffix(? _Suffix_, ? _List_)
 
 Holds when `append(_,Suffix,List)` holds.
 */
@@ -452,14 +448,14 @@ suffix(Suffix, Suffix).
 suffix(Suffix, [_|List]) :-
 	suffix(Suffix,List).
 
-/** @pred sumlist(? _Numbers_, ? _Total_) 
+/** @pred sumlist(? _Numbers_, ? _Total_)
 
 
 True when  _Numbers_ is a list of integers, and  _Total_ is their
 sum. The same as sum_list/2, please do use sum_list/2
 instead.
 
- 
+
 */
 sumlist(Numbers, Total) :-
 	sumlist(Numbers, 0, Total).
@@ -471,7 +467,7 @@ True when  _Numbers_ is a list of numbers, and  _Total_ is the sum of their tota
 sum_list(Numbers, SoFar, Total) :-
 	sumlist(Numbers, SoFar, Total).
 
-/** @pred sum_list(? _Numbers_, ? _Total_) 
+/** @pred sum_list(? _Numbers_, ? _Total_)
 
 
 True when  _Numbers_ is a list of numbers, and  _Total_ is their sum.
@@ -500,7 +496,7 @@ list_concat([H|T], [H|Lf], Li) :-
 
 
 
-/** @pred flatten(+ _List_, ? _FlattenedList_) 
+/** @pred flatten(+ _List_, ? _FlattenedList_)
 
 
 Flatten a list of lists  _List_ into a single list
@@ -515,19 +511,19 @@ no
 ~~~~~
 */
 flatten(X,Y) :- flatten_list(X,Y,[]).
- 
+
 flatten_list(V) --> {var(V)}, !, [V].
 flatten_list([]) --> !.
 flatten_list([H|T]) --> !, flatten_list(H),flatten_list(T).
 flatten_list(H) --> [H].
- 
+
 max_list([H|L],Max) :-
 	max_list(L,H,Max).
 
 max_list([],Max,Max).
 max_list([H|L],Max0,Max) :-
 	(
-	  H > Max0 
+	  H > Max0
 	->
 	  max_list(L,H,Max)
 	;
@@ -540,7 +536,7 @@ min_list([H|L],Max) :-
 min_list([],Max,Max).
 min_list([H|L],Max0,Max) :-
 	(
-	  H < Max0 
+	  H < Max0
 	->
 	  min_list(L, H, Max)
 	;
@@ -548,10 +544,10 @@ min_list([H|L],Max0,Max) :-
 	).
 
 %%      numlist(+Low, +High, -List) is semidet.
-%                                                                               
+%
 %       List is a list [Low, Low+1, ... High].  Fails if High < Low.%
 %
-%       @error type_error(integer, Low)                                         
+%       @error type_error(integer, Low)
 %       @error type_error(integer, High)
 
 numlist(L, U, Ns) :-
@@ -566,7 +562,7 @@ numlist_(L, U, [L|Ns]) :-
         numlist_(L2, U, Ns).
 
 
-/** @pred intersection(+ _Set1_, + _Set2_, + _Set3_) 
+/** @pred intersection(+ _Set1_, + _Set2_, + _Set3_)
 
 
 Succeeds if  _Set3_ unifies with the intersection of  _Set1_ and
@@ -574,14 +570,14 @@ Succeeds if  _Set3_ unifies with the intersection of  _Set1_ and
 need not be ordered.
 
 The code was copied from SWI-Prolog's list library.
- 
+
 */
 
 % copied from SWI lists library.
 intersection([], _, []) :- !.
 intersection([X|T], L, Intersect) :-
-	memberchk(X, L), !, 
-	Intersect = [X|R], 
+	memberchk(X, L), !,
+	Intersect = [X|R],
 	intersection(T, L, R).
 intersection([_|T], L, R) :-
 	intersection(T, L, R).

@@ -745,34 +745,46 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS) {
   case String_tok: /* build list on the heap */
   {
     Volatile char *p = (char *)LOCAL_tokptr->TokInfo;
+    // we may be operating under a syntax error
+    yap_error_number oerr = LOCAL_Error_TYPE;
+    LOCAL_Error_TYPE = YAP_NO_ERROR;
     t = Yap_CharsToTDQ(p, CurrentModule, LOCAL_encoding PASS_REGS);
     if (!t) {
       syntax_msg("could not convert \"%s\"", (char *)LOCAL_tokptr->TokInfo);
       FAIL;
     }
+    LOCAL_Error_TYPE = oerr;
     NextToken;
   } break;
 
   case WString_tok: /* build list on the heap */
   {
     Volatile wchar_t *p = (wchar_t *)LOCAL_tokptr->TokInfo;
+    // we may be operating under a syntax error
+    yap_error_number oerr = LOCAL_Error_TYPE;
+    LOCAL_Error_TYPE = YAP_NO_ERROR;
     t = Yap_WCharsToTDQ(p, CurrentModule PASS_REGS);
     if (!t) {
       syntax_msg("could not convert \'%S\'", (wchar_t *)LOCAL_tokptr->TokInfo);
       FAIL;
     }
-    NextToken;
+     LOCAL_Error_TYPE = oerr;
+   NextToken;
   } break;
 
   case BQString_tok: /* build list on the heap */
   {
     Volatile char *p = (char *)LOCAL_tokptr->TokInfo;
+    // we may be operating under a syntax error
+    yap_error_number oerr = LOCAL_Error_TYPE;
+    LOCAL_Error_TYPE = YAP_NO_ERROR;
 
     t = Yap_CharsToTBQ(p, CurrentModule,  LOCAL_encoding PASS_REGS);
     if (!t) {
       syntax_msg("could not convert \'%s\"", (char *)LOCAL_tokptr->TokInfo);
       FAIL;
     }
+    LOCAL_Error_TYPE = oerr;
     NextToken;
   } break;
 
@@ -780,10 +792,14 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS) {
   {
     Volatile wchar_t *p = (wchar_t *)LOCAL_tokptr->TokInfo;
     t = Yap_WCharsToTBQ(p, CurrentModule PASS_REGS);
+    // we may be operating under a syntax error
+    yap_error_number oerr = LOCAL_Error_TYPE;
+    LOCAL_Error_TYPE = YAP_NO_ERROR;
     if (!t) {
       syntax_msg("could not convert \"%S\"", (wchar_t *)LOCAL_tokptr->TokInfo);
       FAIL;
     }
+    LOCAL_Error_TYPE = oerr;
     NextToken;
   } break;
 

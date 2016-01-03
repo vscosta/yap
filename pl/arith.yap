@@ -155,35 +155,8 @@ do_c_built_in(X is Y, _, _, P) :-
 do_c_built_in(phrase(NT,Xs),  Mod, H, NTXsNil) :-
 	'$_arith':do_c_built_in(phrase(NT,Xs,[]), Mod, H, NTXsNil).
 do_c_built_in(phrase(NT,Xs0,Xs), Mod, _,  NewGoal) :-
-    nonvar(NT), nonvar(Mod), 
-    '$goal_expansion_allowed'(phrase(NT,Xs0,Xs), Mod),
-    Goal = phrase(NT,Xs0,Xs),
-    catch(prolog:'$translate_rule'((pseudo_nt --> Mod:NT), Rule),
-	  error(Pat,ImplDep),
-	  ( \+ '$harmless_dcgexception'(Pat),
-	    throw(error(Pat,ImplDep))
-	  )
-	 ),
-    Rule = (pseudo_nt(Xs0c,Xsc) :- NewGoal0),
-    Goal \== NewGoal0,
-    % apply translation only if we are safe
-    \+ '$contains_illegal_dcgnt'(NT), !,
-    (   var(Xsc), Xsc \== Xs0c
-	->  Xs = Xsc, NewGoal1 = NewGoal0
-	;   NewGoal1 = (NewGoal0, Xsc = Xs)
-    ),
-    (   var(Xs0c)
-	-> Xs0 = Xs0c,
-	   NewGoal2 = NewGoal1
-	;  ( Xs0 = Xs0c, NewGoal1 ) = NewGoal2
-    ),
-    '$yap_strip_module'(Mod:NewGoal2, M, NewGoal3),
-    (nonvar(NewGoal3) -> NewGoal == M:NewGoal3
-    ;
-     var(M) -> NewGoal = '$execute_wo_mod'(NewGoal3,M)
-    ;
-     NewGoal = '$execute_in_mod'(NewGoal3,M)
-    ).
+    '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal ).
+
 do_c_built_in(Comp0, _, _, R) :-		% now, do it for comparisons
 	'$compop'(Comp0, Op, E, F),
 	!,
@@ -267,7 +240,7 @@ expand_expr(T, E, V) :-
 %	after having expanded into Q
 %	and giving as result P (the last argument)
 expand_expr(Op, X, O, Q, Q) :-
-	number(X), 
+	number(X),
 	catch(is( O, Op, X),_,fail), !. % do not do error handling at compile time
 expand_expr(Op, X, O, Q, P) :-
 	'$unary_op_as_integer'(Op,IOp),
@@ -362,7 +335,7 @@ expand_expr(Op, X, Y, O, Q, P) :-
 	'$do_and'(Z = X, Y = W, E).
 
 
-'$goal_expansion_allowed'(phrase(_NT,_Xs0,_Xs), _Mod).
+'$goal_expansion_allowed'(phrase(NT,_Xs0,_Xs), Mod).
 
 %%	contains_illegal_dcgnt(+Term) is semidet.
 %

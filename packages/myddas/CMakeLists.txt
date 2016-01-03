@@ -13,7 +13,7 @@ set( MYDDAS_SOURCES
   myddas_shared.c
   myddas_statistics.c
   myddas_top_level.c
-  myddas_wkb2prolog.c )
+  )
 
 set( MYDDAS_HEADERS
   myddas.h
@@ -21,8 +21,7 @@ set( MYDDAS_HEADERS
   myddas_statistics_structs.h
   myddas_structs.h
   myddas_top_level.c
-  myddas_types.h
-  myddas_wkb2prolog.c )
+  myddas_types.h )
 
 set( MYDDAS_UTIL_SOURCES
   myddas_util.c

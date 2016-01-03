@@ -50,7 +50,8 @@ static void send_tracer_message(char *start, char *name, Int arity, char *mname,
       for (i = 0; i < arity; i++) {
         if (i > 0)
           fprintf(stderr, ",");
-        Yap_plwrite(args[i], NULL, 15, Handle_vars_f | AttVar_Portray_f, GLOBAL_MaxPriority);
+        Yap_plwrite(args[i], NULL, 15, Handle_vars_f | AttVar_Portray_f,
+                    GLOBAL_MaxPriority);
       }
       if (arity) {
         fprintf(stderr, ")");
@@ -174,8 +175,8 @@ void low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args) {
   // if (!worker_id) return;
   LOCK(Yap_heap_regs->low_level_trace_lock);
   sc = Yap_heap_regs;
-  // if (vsc_count == 161862) jmp_deb(1);
-#ifdef THREADS 
+// if (vsc_count == 161862) jmp_deb(1);
+#ifdef THREADS
   LOCAL_ThreadHandle.thread_inst_count++;
 #endif
 #ifdef COMMENTED
@@ -319,7 +320,7 @@ void low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args) {
     printf("\n");
   }
 #endif
-  fprintf(stderr, "%lld %ld ", vsc_count, LCL0-(CELL*)B);
+  fprintf(stderr, "%lld %ld ", vsc_count, LCL0 - (CELL *)B);
 #if defined(THREADS) || defined(YAPOR)
   fprintf(stderr, "(%d)", worker_id);
 #endif
@@ -475,6 +476,8 @@ static Int vsc_go(USES_REGS1) {
 void Yap_InitLowLevelTrace(void) {
   Yap_InitCPred("start_low_level_trace", 0, start_low_level_trace,
                 SafePredFlag);
+  Yap_InitCPred("$start_low_level_trace", 0, start_low_level_trace,
+                SafePredFlag);
 /** @pred start_low_level_trace
 
 
@@ -488,6 +491,7 @@ Begin display of messages at procedure entry and retry.
 #endif
   Yap_InitCPred("stop_low_level_trace", 0, stop_low_level_trace, SafePredFlag);
   Yap_InitCPred("show_low_level_trace", 0, show_low_level_trace, SafePredFlag);
+  Yap_InitCPred("$stop_low_level_trace", 0, stop_low_level_trace, SafePredFlag);
   Yap_InitCPred("total_choicepoints", 1, total_choicepoints, SafePredFlag);
   Yap_InitCPred("reset_total_choicepoints", 0, reset_total_choicepoints,
                 SafePredFlag);
@@ -495,4 +499,14 @@ Begin display of messages at procedure entry and retry.
   Yap_InitCPred("vsc_go", 0, vsc_go, SafePredFlag);
 }
 
+#else
+
+static null(USES_REGS1) { return true; }
+
+void Yap_InitLowLevelTrace(void) {
+  Yap_InitCPred("$start_low_level_trace", 0, null,
+                SafePredFlag | HiddenPredFlag);
+  Yap_InitCPred("$stop_low_level_trace", 0, null,
+                SafePredFlag | HiddenPredFlag);
+}
 #endif

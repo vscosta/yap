@@ -200,5 +200,5 @@ int IsRealNumber(char *c);
 int IsNumber(const char *c);
 char * freadstr(FILE *fd, const char *separators);
 int CharIn(const char c, const char *in);
-int patternmatch(char *pattern, char *thestr);
+int patternmatch(const char *pattern, const char *thestr);
 

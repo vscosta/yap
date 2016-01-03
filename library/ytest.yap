@@ -3,9 +3,13 @@
                    run_tests/0,
                    test_mode/0,
                    op(1150, fx, test),
-                   op(999, xfx, returns)] ).
+                   op(995, xfx, given),
+                   op(990, xfx, returns)] ).
 
-:- use_module( clauses ).
+:- use_module( library(clauses) ).
+:- use_module( library(maplist) ).
+:- use_module( library(gensym) ).
+:- use_module( library(lists) ).
 
 :- multifile test/1.
 
@@ -17,37 +21,47 @@ user:term_expansion( test( (A, B) ), ytest:test( Lab, Cond, Done ) ) :-
     info((A,B), Lab, Cond , Done ).
 
 run_tests :-
-    run_test(_Lab),
+    source_module(M),
+    run_test(_Lab,M),
     fail.
 run_tests :-
     show_bad.
 
-run_test(Lab) :-
-    current_module(M,M),
+run_test(Lab, M) :-
+    test(Lab, (G returns Sols given Program ), Done),
+    ensure_ground( Done),
+    format('~w  :    ',[ Lab ]),
+    reset( Streams ),
+    assertall(Program, Refs),
+    conj2list( Sols, LSols ),
+%    trace,
+    catch( do_returns(M:G, LSols, Lab), Ball,  end( Ball ) ),
+    shutdown( Streams, Refs ).
+run_test(Lab,M) :-
     test(Lab, (G returns Sols ), Done),
-    ground( Done), 
+    ensure_ground( Done),
     format('~w  :    ',[ Lab ]),
     reset( Streams ),
     conj2list( Sols, LSols ),
 %    trace,
     catch( do_returns(M:G, LSols, Lab), Ball,  end( Ball ) ),
-    shutdown( Streams ).
+    shutdown( Streams, _ ).
 
 info((A,B), Lab, Cl, G) :- !,
     info(A, Lab, Cl, G),
     info(B, Lab, Cl, G).
 info(A, _, _, _) :- var(A), !.
-info(A returns B, _, (A returns B), g(_,ok))  :- !.
+info(A returns B, _, (A returns B), g(_,ok)) :- !.
 info(A, A, _, g(ok,_)) :- primitive(A), !.
 info(_A, _, _, _).
 
 do_returns(G0 ,  Sols0, Lab ) :-
     counter(I),
     fetch(I, Sols0, Pattern0, Next),
-    Pattern0 = ( V0 =@= Target0),
-    copy_term(G0-V0, G-VGF),
-    catch( answer(G, VGF, Target0, Lab, Sol) , Error, Sol = error(G, Error) ),
-    step( _I, Sols, G0, Sol, Lab ),
+     Pattern0 = ( V0 =@= Target0 ),
+     copy_term(G0-V0, G-VGF),
+     catch( answer(G, VGF, Target0, Lab, Sol) , Error, Sol = error(G, Error) ),
+     step( _I, Sols, G0, Sol, Lab ),
     !.
 
 answer(G, V, Target0, Lab, answer(G)) :-
@@ -56,7 +70,7 @@ answer(G, V, Target0, Lab, answer(G)) :-
     ->
       success(Lab, V)
     ;
-      failure(V, Target0, Lab) 
+      failure(V, Target0, Lab)
     ).
 
 step( I, Sols , G0, Sol, Lab ) :-
@@ -107,14 +121,14 @@ inc( I ) :-
     nb_getval( counter,( I ) ),
     I1 is I+1,
     nb_setval( counter,( I1 ) ).
-    
+
 counter( I ) :-
     nb_getval( counter,( I ) ).
-    
 
-shutdown( _Streams ) :- 
+
+shutdown( _Streams, Refs ) :-
                                 %    close_io( Streams ).
-    true.
+    maplist( erase, Refs ).
 
 test_error( Ball, e( Ball ) ).
 
@@ -148,3 +162,13 @@ end(done) :-
 end(Ball) :-
     writeln( bad:Ball ).
 
+assertall(Cls, REfs) :-
+    conj2list(Cls, LCls),
+    maplist( assert, LCls, Refs).
+
+ensure_ground( g(Lab,Ok)) :-
+        ground(Ok),
+        gensym( tmp_, Lab ).
+ensure_ground( g(Lab,Ok)) :-
+        ground(Ok),
+        ground(Lab).

@@ -241,7 +241,7 @@ read_stream_to_terms(USES_REGS1)
     RESET_VARIABLE(HR);
     RESET_VARIABLE(HR+1);
     hd = (CELL)HR;
-    Yap_PutInSlot(news, (CELL)(HR+1) PASS_REGS);
+    Yap_PutInSlot(news, (CELL)(HR+1));
     HR += 2;
     while ((hd=Yap_read_term(sno, TermNil, 2)) == 0L)
       ;
@@ -253,7 +253,7 @@ read_stream_to_terms(USES_REGS1)
     } else {
       CELL *newpt = (CELL*)Yap_GetFromSlot(news);
       *pt =AbsPair(newpt-1);
-     Yap_PutInSlot(tails, (CELL)newpt PASS_REGS);
+     Yap_PutInSlot(tails, (CELL)newpt);
     }
   }
   UNLOCK(GLOBAL_Stream[sno].streamlock);

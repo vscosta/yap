@@ -85,6 +85,8 @@ Grammar related built-in predicates:
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
+:- use_module( library( expand_macros ) ).
+
 % :- meta_predicate ^(?,0,?).
 				% ^(Xs, Goal, Xs) :- call(Goal).
 
@@ -100,15 +102,15 @@ Grammar related built-in predicates:
 prolog:'$translate_rule'(Rule, (NH :- B) ) :-
      source_module( SM ),
      '$yap_strip_module'( SM:Rule,  M0, (LP-->RP) ),
-     t_head(LP, NH0, NGs, S, SR, (LP-->M:RP)),
+     t_head(LP, NH0, NGs, S, SR, (LP-->SM:RP)),
      '$yap_strip_module'( M0:NH0,  M, NH1 ),
-     ( M == SM -> NH = NH1, B = B0 ; NH = M:NH1, B = M:B0 ),
+     ( M == SM -> NH = NH1 ; NH = M:NH1 ),
 	 (var(NGs) ->
 	     t_body(RP, _, last, S, SR, B1)
 	 ;
 	     t_body((RP,{NGs}), _, last, S, SR, B1)
 	 ),
-	t_tidy(B1, B0).
+	t_tidy(B1, B).
 
 
 t_head(V, _, _, _, _, G0) :- var(V), !,
@@ -265,6 +267,55 @@ prolog:'\\+'(A, S0, S) :-
 	 t_body(\+ A, _, last, S0, S, Goal),
 	 '$execute'(Goal).
 
+:- multifile system:goal_expansion/2.
+
+:- dynamic system:goal_expansion/2.
+
+'$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal) :-
+    catch(prolog:'$translate_rule'(
+                                   (pseudo_nt --> Mod:NT), Rule),
+     	  error(Pat,ImplDep),
+     	  ( \+ '$harmless_dcgexception'(Pat),
+     	    throw(error(Pat,ImplDep))
+     	  )
+     	 ),
+         Rule = (pseudo_nt(Xs0c,Xsc) :- NewGoal0),
+         Goal \== NewGoal0,
+         % apply translation only if we are safe
+         \+ '$contains_illegal_dcgnt'(NT),
+         !,
+         (   var(Xsc), Xsc \== Xs0c
+     	->  Xs = Xsc, NewGoal1 = NewGoal0
+     	;   NewGoal1 = (NewGoal0, Xsc = Xs)
+         ),
+         (   var(Xs0c)
+     	-> Xs0 = Xs0c,
+     	   NewGoal2 = NewGoal1
+     	;  ( Xs0 = Xs0c, NewGoal1 ) = NewGoal2
+         ),
+         '$yap_strip_module'(Mod:NewGoal2, M, NewGoal3),
+         (nonvar(NewGoal3) -> NewGoal = M:NewGoal3
+         ;
+          var(M) -> NewGoal = '$execute_wo_mod'(NewGoal3,M)
+         ;
+          NewGoal = '$execute_in_mod'(NewGoal3,M)
+         ).
+
+allowed_module(phrase(_,_),_).
+allowed_module(phrase(_,_,_),_).
+
+
+system:goal_expansion(Mod:phrase(NT,Xs, Xs),Mod:NewGoal) :- 
+    source_module(M),
+    nonvar(NT), nonvar(Mod),
+    '$goal_expansion_allowed',
+    '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal).
+    
+system:goal_expansion(Mod:phrase(NT,Xs0),Mod:NewGoal) :-
+    source_module(M),
+    nonvar(NT), nonvar(Mod),
+    '$goal_expansion_allowed',
+    '$c_built_in_phrase'(NT, [], Xs, Mod, NewGoal).
 
 /**
 @}

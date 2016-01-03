@@ -30,6 +30,7 @@ static char     SccsId[] = "%W% %G%";
 #include "yapio.h"
 #include "blobs.h"
 #include <stdio.h>
+#include <unistd.h>
 #if HAVE_STRING_H
 #include <string.h>
 #endif
@@ -1565,7 +1566,9 @@ p_thread_unlock( USES_REGS1 )
 intptr_t
 system_thread_id(void)
 {
-#if HAVE_SYS_GETTID
+#if defined(__APPLE__)
+  return      syscall(SYS_thread_selfid);
+#elif HAVE_SYS_GETTID || defined(__APPLE__)
   return syscall( SYS_GETTID );
 #elif HAVE_GETTID_SYSCALL
     return syscall(__NR_gettid);

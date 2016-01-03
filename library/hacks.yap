@@ -2,10 +2,10 @@
  * @file   hacks.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Tue Nov 17 19:00:25 2015
- * 
+ *
  * @brief  Prolog hacking
- * 
- * 
+ *
+ *
 */
 
 :- module(yap_hacks, [
@@ -21,7 +21,7 @@
 		      enable_interrupts/0,
 		      disable_interrupts/0,
 		      virtual_alarm/3,
-              fully_strip_module/3,
+              	      fully_strip_module/3,
 		      context_variables/1
                      ]).
 
@@ -31,7 +31,7 @@
 *
 * Manipulate the Prolog stacks, including setting and resetting
 * choice-points.
-* 
+*
 */
 
 
@@ -68,5 +68,3 @@ virtual_alarm(Interval.USecs, Goal, Left.LUSecs) :-
 
 fully_strip_module(T,M,S) :-
     '$hacks':fully_strip_module(T,M,S).
-
-

@@ -63,7 +63,7 @@ Prolog exceptions. If enabled:
 ~~~~
 ?- X is 2/0.
 ERROR!!
-ZERO DIVISOR ERROR- X is Exp
+ZERO DIVISO]]R ERROR- X is Exp
 ~~~~
 
 If disabled:
@@ -364,7 +364,7 @@ bound to `off` disable strict mode, and keep the current language
 mode. The default for YAP is `off`.
 Under strict ISO Prolog mode all calls to non-ISO built-ins generate an
 error. Compilation of clauses that would call non-ISO built-ins will
-§§also generate errors. Pre-processing for grammar rules is also
+also generate errors. Pre-processing for grammar rules is also
 disabled. Module expansion is still performed.
 Arguably, ISO Prolog does not provide all the functionality required
 from a modern Prolog system. Moreover, because most Prolog
@@ -376,10 +376,9 @@ will work the same way in every Prolog and in every platform. We thus
 believe this mode is mostly useful when investigating how a program
 depends on a Prolog's platform specific features.
 
-*/
-    YAP_FLAG(SYSTEM_OPTIONS_FLAG, "system_options", false, ro,
-             "[big_numbers,coroutining,depth_limit,low_level_tracer,rational_"
-             "trees,threads,tabling]",
+                    */
+    YAP_FLAG(SYSTEM_OPTIONS_FLAG, "system_options", false, options,
+             SYSTEM_OPTIONS,
              NULL), /**<  `system_options `
 
 This read only flag tells which options were used to compile
@@ -411,8 +410,8 @@ presented. Only the first solution is considered and the goal is not
 backtracked into.
 
 */
-    YAP_FLAG(TOPLEVEL_PROMPT_FLAG, "toplevel_prompt", true, isatom,
-             "?- ", mkprompt),
+    YAP_FLAG(TOPLEVEL_PROMPT_FLAG, "toplevel_prompt", true, isatom, "?- ",
+             mkprompt),
     YAP_FLAG(TTY_CONTROL_FLAG, "tty_control", true, boolean, "true", NULL),
     YAP_FLAG(UNIX_FLAG, "unix", false, ro, "true", NULL), /**< `unix`
 
@@ -445,7 +444,8 @@ follows immediate semantics.
              Yap_unknown), /**< `unknown is iso`
 
 Corresponds to calling the unknown/2 built-in. Possible ISO values
-are `error`, `fail`, and `warning`. Yap includes the following extensions: `fast_fail` does not invoke any handler.
+are `error`, `fail`, and `warning`. Yap includes the following extensions:
+`fast_fail` does not invoke any handler.
 */
     YAP_FLAG(VARIABLE_NAMES_MAY_END_WITH_QUOTES_FLAG,
              "variable_names_may_end_with_quotes", true, boolean, "false",

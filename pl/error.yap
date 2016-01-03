@@ -17,7 +17,7 @@
 	    domain_error/3,		% +Domain, +Values, +Term
 	    existence_error/2,		% +Type, +Term
 	    permission_error/3,		% +Action, +Type, +Term
-        must_be_instantiated/1,        % +Term
+            must_be_instantiated/1,        % +Term
 	    instantiation_error/1,	% +Term
 	    representation_error/1, 	% +Reason
 	    is_of_type/2		% +Type, +Term
@@ -106,7 +106,7 @@ must_be_of_type(Type, X) :-
 	;   is_not(Type, X)
 	).
 
-inline(must_be_of_type( callable, X ), error:is_callable(X, _) ). 
+inline(must_be_of_type( callable, X ), error:is_callable(X, _) ).
 
 must_be_of_type(callable, X, Comment) :-
 	!,

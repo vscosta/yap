@@ -355,5 +355,6 @@ read_sig.
 :- '$set_no_trace'('$execute_nonstop'(_,_), prolog).
 :- '$set_no_trace'('$execute_clause'(_,_,_,_), prolog).
 :- '$set_no_trace'('$restore_regs'(_,_), prolog).
+:- '$set_no_trace'('$expand_meta_call'(_,_,_), prolog).
 
 %%! @}

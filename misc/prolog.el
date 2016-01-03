@@ -69,6 +69,7 @@
 ;;                            ; see `prolog-system' below for possible values
 ;; (setq auto-mode-alist (append '(("\\.pl$" . prolog-mode)
 ;;                                 ("\\.yap$" . prolog-mode)
+;;                                 ("\\.ypp$" . prolog-mode)
 ;;                                 ("\\.prolog$" . prolog-mode)
 ;;                                 ("\\.m$" . mercury-mode))
 ;;                                auto-mode-alist))
@@ -447,9 +448,10 @@ Legal values:
       "meta_predicate" "module" "module_transparent" "multifile" "require"
       "use_module" "volatile"))
    (yap
-     ("discontiguous" "dynamic" "ensure_loaded" "export" "export_list" "import"
+    ("block" "char_conversion" "discontiguous" "dynamic" "encoding"
+    "ensure_loaded" "export" "expects_dialect" "export_list" "import"
       "meta_predicate" "module" "module_transparent" "multifile" "require"
-      "table" "use_module" "volatile"))
+      "table" "thread_local" "use_module" "wait"))
     (gnu
      ("built_in" "char_conversion" "discontiguous" "dynamic" "ensure_linked"
       "ensure_loaded" "foreign" "include" "initialization" "multifile" "op"
@@ -650,6 +652,7 @@ nil means send actual operating system end of file."
   '((eclipse "^[a-zA-Z0-9()]* *\\?- \\|^\\[[a-zA-Z]* [0-9]*\\]:")
     (sicstus "| [ ?][- ] *")
     (swi "^\\(\\[[a-zA-Z]*\\] \\)?[1-9]?[0-9]*[ ]?\\?- \\|^| +")
+    (yap "^\\(\\[[a-zA-Z]*\\] \\)?[1-9]?[0-9]*[ ]?\\?- \\|^| +")
     (t "^ *\\?-"))
   "*Alist of prompts of the prolog system command line."
   :group 'prolog-inferior
@@ -657,6 +660,7 @@ nil means send actual operating system end of file."
 
 (defcustom prolog-continued-prompt-regexp
   '((sicstus "^\\(| +\\|     +\\)")
+    (yap` "^\\(| +\\|     +\\)")
     (t "^|: +"))
   "*Alist of regexps matching the prompt when consulting `user'."
   :group 'prolog-inferior

@@ -20,6 +20,7 @@
   AtomArrayOverflow = AtomAdjust(AtomArrayOverflow);
   AtomArrayType = AtomAdjust(AtomArrayType);
   AtomArrow = AtomAdjust(AtomArrow);
+  AtomAttributedModule = AtomAdjust(AtomAttributedModule);
   AtomDoubleArrow = AtomAdjust(AtomDoubleArrow);
   AtomAssert = AtomAdjust(AtomAssert);
   AtomEmptyBrackets = AtomAdjust(AtomEmptyBrackets);
@@ -509,6 +510,7 @@
   FunctorPlus = FuncAdjust(FunctorPlus);
   FunctorPortray = FuncAdjust(FunctorPortray);
   FunctorPrintMessage = FuncAdjust(FunctorPrintMessage);
+  FunctorProcedure = FuncAdjust(FunctorProcedure);
   FunctorPrologConstraint = FuncAdjust(FunctorPrologConstraint);
   FunctorQuery = FuncAdjust(FunctorQuery);
   FunctorRecordedWithKey = FuncAdjust(FunctorRecordedWithKey);

@@ -43,7 +43,7 @@ name with the `:/2` operator.
 
 **/
 '$module_dec'(system(N), Ps) :- !,
-	'$system_module'(N),
+	new_system_module(N),
 	recordz('$system_initialization', prolog:'$mk_system_predicates'( Ps , N ), _),
     '$current_module'(_,N).
 '$module_dec'(N, Ps) :-	

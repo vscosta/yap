@@ -698,6 +698,8 @@ static size_t
 save_pred(FILE *stream, PredEntry *ap) {
   CHECK(save_UInt(stream, (UInt)ap));
   CHECK(save_predFlags(stream, ap->PredFlags));
+  if (ap->PredFlags & ForeignPredFlags)
+    return 1;
   CHECK(save_UInt(stream, ap->cs.p_code.NOfClauses));
   CHECK(save_UInt(stream, ap->src.IndxId));
   CHECK(save_UInt(stream, ap->TimeStampOfPred));
@@ -706,11 +708,8 @@ save_pred(FILE *stream, PredEntry *ap) {
 
 static int
 clean_pred(PredEntry *pp USES_REGS) {
-  if (pp->PredFlags & (AsmPredFlag|CPredFlag)) {
-    /* assembly */
-    if (pp->CodeOfPred) {
-      CleanClauses(pp->CodeOfPred, pp->CodeOfPred, pp PASS_REGS);
-    }
+  if (pp->PredFlags & ForeignPredFlags) {
+    return true;
   } else {
     CleanClauses(pp->cs.p_code.FirstClause, pp->cs.p_code.LastClause, pp PASS_REGS);
   }

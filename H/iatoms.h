@@ -20,6 +20,7 @@
   AtomArrayOverflow = Yap_LookupAtom("array_overflow");
   AtomArrayType = Yap_LookupAtom("array_type");
   AtomArrow = Yap_LookupAtom("->");
+  AtomAttributedModule = Yap_LookupAtom("attributes_module");
   AtomDoubleArrow = Yap_LookupAtom("-->");
   AtomAssert = Yap_LookupAtom(":-");
   AtomEmptyBrackets = Yap_LookupAtom("()");
@@ -509,6 +510,7 @@
   FunctorPlus = Yap_MkFunctor(AtomPlus,2);
   FunctorPortray = Yap_MkFunctor(AtomPortray,1);
   FunctorPrintMessage = Yap_MkFunctor(AtomPrintMessage,2);
+  FunctorProcedure = Yap_MkFunctor(AtomProcedure,5);
   FunctorPrologConstraint = Yap_MkFunctor(AtomProlog,2);
   FunctorQuery = Yap_MkFunctor(AtomQuery,1);
   FunctorRecordedWithKey = Yap_MkFunctor(AtomRecordedWithKey,6);

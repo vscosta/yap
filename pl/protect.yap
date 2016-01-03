@@ -20,32 +20,20 @@ xc/*************************************************************************
 % This protects all code from further changes
 % and also makes it impossible from some predicates to be seen
 '$protect' :-
-	'$current_predicate'(_A, M, T0, all),
-                                %format(' ~a ~n', [M]) ,
-    '$system_module'(M),
-	'$predicate_flags'(T0, M, Flags, Flags),
-    % not multifile, dynamic, or logical updates.
-    Flags /\ (0x20000000\/0x08000000\/0x00002000) =\= 0,
-	NFlags is Flags \/ 0x00004000,
-	'$predicate_flags'(T0, M, _Flags, NFlags), 
-        %format('~w ~16r ~16r~n', [T0,Flags, NFlags]) ,
-	fail.
-'$protect' :-
 	current_atom(Name),
-	atom_codes(Name,[0'$|_]), %'
-	'$hide_predicates'(Name),
-	'$hide'(Name),
-	fail.
+    sub_atom(Name,0,1,_, '$'),
+    '$hide'(Name),
+    fail.
 '$protect' :-
-	'$hide_predicates'(bootstrap),
-	hide(bootstrap).
+	'$all_current_modules'(M),
+    M \= user,
+    '$current_predicate'(_,M,P,_),
+    functor(P,N,A),
+    '$new_system_predicate'(N,A,M),
+ %   writeln(N/A),
+    fail.
 '$protect'.
 
-'$hide_predicates'(Name) :-
-	'$current_predicate'(Name, Mod, P, all),
-	'$hide_predicate'(P,Mod),
-	fail.
-'$hide_predicates'(_).
 
 % hide all atoms who start by '$'
 '$hide'('$VAR') :- !, fail.			/* not $VAR */
@@ -66,5 +54,5 @@ xc/*************************************************************************
 '$hide'('$parse_quasi_quotations') :- !, fail.
 '$hide'('$quasi_quotation') :- !, fail.
 '$hide'('$qq_open') :- !, fail.
-'$hide'(Name) :- hide(Name), fail.
+%'$hide'(Name) :- hide_atom(Name), fail.
 

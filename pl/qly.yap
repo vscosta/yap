@@ -259,7 +259,7 @@ qend_program :-
 	 fail.
 '$do_init_state' :-
 	set_value('$user_module',user),
-	'$protect',
+%	'$protect',
 	fail.
 '$do_init_state' :-
 	'$current_module'(prolog),

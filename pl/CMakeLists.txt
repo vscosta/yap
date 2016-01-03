@@ -26,11 +26,13 @@ set(PL_SOURCES
 	init.yap
 	listing.yap
 	lists.yap
-	messages.yap
 	load_foreign.yap
+        messages.yap
+        meta.yap
 	modules.yap
 	os.yap
 	preddecls.yap
+        preddyns.yap   
 	preds.yap
 	profile.yap
 	protect.yap

@@ -573,7 +573,7 @@ static int EOFWGetc(int sno) {
     return EOF;
   }
   if (ResetEOF(s)) {
-    Yap_ConsoleOps(s); 
+    Yap_ConsoleOps(s);
     return (s->stream_wgetc(sno));
   }
   return EOF;
@@ -589,7 +589,7 @@ static int EOFGetc(int sno) {
     return EOF;
   }
   if (ResetEOF(s)) {
-    Yap_ConsoleOps(s); 
+    Yap_ConsoleOps(s);
     return s->stream_getc(sno);
   }
   return EOF;
@@ -646,20 +646,17 @@ int post_process_weof(StreamDesc *s) {
   return EOFCHAR;
 }
 
-/** 
- * caled after EOF found a peek, it just calls console_post_process to conclude the job.
- * 
- * @param sno 
- * 
+/**
+ * caled after EOF found a peek, it just calls console_post_process to conclude
+ *the job.
+ *
+ * @param sno
+ *
  * @return EOF
  */
-int EOFPeek(int sno) {
-  return EOFGetc( sno );
-}
+int EOFPeek(int sno) { return EOFGetc(sno); }
 
-int EOFWPeek(int sno) {
-  return EOFWGetc( sno );
-}
+int EOFWPeek(int sno) { return EOFWGetc(sno); }
 
 /* standard routine, it should read from anything pointed by a FILE *.
  It could be made more efficient by doing our own buffering and avoiding
@@ -841,7 +838,7 @@ static int get_wchar(int sno) {
       if (how_many) {
         /* error */
       }
-      return post_process_weof(GLOBAL_Stream+sno);
+      return post_process_weof(GLOBAL_Stream + sno);
     }
     wide_char();
   }
@@ -1383,10 +1380,8 @@ do_open(Term file_name, Term t2,
     }
   }
   // BOM mess
-  if ((encoding == ENC_OCTET ||
-       encoding == ENC_ISO_ASCII ||
-      encoding == ENC_ISO_LATIN1 ||
-       encoding == ENC_ISO_UTF8 || bin))  {
+  if ((encoding == ENC_OCTET || encoding == ENC_ISO_ASCII ||
+       encoding == ENC_ISO_LATIN1 || encoding == ENC_ISO_UTF8 || bin)) {
     avoid_bom = true;
   }
   if (args[OPEN_BOM].used) {
@@ -1546,7 +1541,7 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
     if (sname == AtomUser) {
       if (kind & Input_Stream_f) {
         if (kind & (Output_Stream_f | Append_Stream_f)) {
-          PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_STREAM, arg,
+          PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_STREAM, arg,
                       "ambiguous use of 'user' as a stream");
           return (-1);
         }
@@ -1581,12 +1576,12 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
   if ((GLOBAL_Stream[sno].status & Input_Stream_f) &&
       !(kind & Input_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_STREAM, arg, msg);
+    PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
   }
   if ((GLOBAL_Stream[sno].status & (Append_Stream_f | Output_Stream_f)) &&
       !(kind & Output_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
+    PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_STREAM, arg, msg);
   }
   return (sno);
 }
@@ -1602,7 +1597,12 @@ int Yap_CheckTextStream__(const char *file, const char *f, int line, Term arg,
   if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
     return -1;
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-    PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg, msg);
+    if (kind == Input_Stream_f)
+      PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg,
+                  msg);
+    else
+      PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg,
+                  msg);
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return -1;
   }

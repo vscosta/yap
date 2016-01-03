@@ -1,3 +1,5 @@
+:- [library(hacks)].
+
 '$predicate_flags'(P, M, Flags0, Flags1) :-
     var(Flags0),
     Flags0 ==  Flags1,
@@ -14,7 +16,7 @@
       true
     ;
       Flags1 /\ 0x200000 =\= 0,
-      Flags0 /\ 0x200000 =\= 0  
+      Flags0 /\ 0x200000 =\= 0
     ).
 
 '$get_undefined_pred'(G,M,G,M0) :-
@@ -55,7 +57,6 @@ user:term_expansion( ( :- '$meta_predicate'( _ ) ), [] ).
 user:goal_expansion(_:'_user_expand_goal'(A, M, B), user:user_expand_goal(A, M, B) ).
 
 
-                   
 user_expand_goal(A, M, B) :-
     (
      current_predicate(M:goal_expansion/2),
@@ -70,8 +71,8 @@ user:goal_expansion(prolog:'$meta_predicate'(N,M,A,D) , user:mt( N, M, A, D) ).
 mt(N,M,A,D) :-
     functor(D,N,A),
     predicate_property(M:D, meta_predicate(D)).
-        
-    
+
+
 '$full_clause_optimisation'(_H, _M, B, B).
 
 '$c_built_in'(G, _SM, _H, G).
@@ -85,6 +86,4 @@ mt(N,M,A,D) :-
 
 :- hide( expand_goal ).
 
-:- include('pl/meta').
-
-
+:- include(library(boot/meta)).

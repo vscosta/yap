@@ -117,9 +117,6 @@ allowing for variables in the list.
 	       cyclic_term/1,
 	       variant/2]).
 
-:- use_module(library(error),[must_be/2]).
-
-
 :- source.
 
 :- style_check(all).

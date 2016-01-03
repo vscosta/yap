@@ -133,6 +133,7 @@ user:prolog_file_type(qly, qly).
 user:prolog_file_type(A, executable) :-
 	current_prolog_flag(shared_object_extension, A).
 
+
 /**
   @pred user:file_search_path(+Name:atom, -Directory:atom) is nondet
 

@@ -22,7 +22,6 @@
 
     @{
 */
-
 :- system_module( '$_init', [!/0,
         (:-)/1,
         (?-)/1,
@@ -44,17 +43,18 @@
 :- use_system_module( '$_boot', ['$cut_by'/1]).
 
 
-% This is yap's init file
+% This is the YAP init file
 % should be consulted first step after booting
 
 % These are pseudo declarations
 % so that the user will get a redefining system predicate
+
+
+:- '$init_pred_flag_vals'('$flag_info'(a,0), prolog).
+
 /** @pred  fail is iso
 
-
 Always fails.
-
-
 */
 fail :- fail.
 
@@ -160,7 +160,6 @@ print_message(Level, Msg) :-
 	 'preds.yap',
 	 'modules.yap'
    ].
-:- stop_low_level_trace.
 
 :- use_module('error.yap').
 :- use_module('grammar.yap').
@@ -281,7 +280,6 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :-	set_prolog_flag(generate_debug_info,true).
 
-
 %
 % cleanup ensure loaded and recover some data-base space.
 %
@@ -291,7 +289,7 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- set_value('$user_module',user), '$protect'.
 
-:- style_check([-discontiguous,-multiple,-single_var]).
+:- style_check([+discontiguous,+multiple,+single_var]).
 
 %
 % moved this to init_gc in gc.c to separate the alpha
@@ -375,6 +373,7 @@ If this hook predicate succeeds it must instantiate the  _Action_ argument to th
 /*
    Add some tests
 */
+
 
 :- yap_flag(user:unknown,error).
 

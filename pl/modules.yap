@@ -230,7 +230,6 @@ Unfortunately it is still not possible to change argument order.
 use_module(F,Is) :-
 	'$load_files'(F, [if(not_loaded),must_be_module(true),imports(Is)], use_module(F,Is)).
 
-
 '$module'(O,N,P,Opts) :- !,
 	'$module'(O,N,P),
 	'$process_module_decls_options'(Opts,module(Opts,N,P)).
@@ -303,15 +302,19 @@ module is called, or as soon as it becomes the current type-in module.
 */
 current_module(Mod) :-
 	'$all_current_modules'(Mod),
-	\+ prolog:'$system_module'(Mod).
+	\+ '$hidden_atom'(Mod).
 
 /** @pred current_module( ? Mod:atom, ? _F_ : file ) is nondet
 
 Succeeds if  _M_ is a module associated with the file  _F_, that is, if _File_ is the source for _M_. If _M_ is not declared in a file, _F_ unifies with `user`.
  */
 current_module(Mod,TFN) :-
-	'$all_current_modules'(Mod),
+	( atom(Mod) -> true ; '$all_current_modules'(Mod) ),
 	( recorded('$module','$module'(TFN,Mod,_,_Publics, _),_) -> true ; TFN = user ).
+
+system_module(Mod) :-
+	( atom(Mod) -> true ; '$all_current_modules'(Mod) ),
+	'$is_system_module'(Mod).
 
 '$trace_module'(X) :-
 	telling(F),
@@ -345,7 +348,7 @@ current_module(Mod,TFN) :-
 
 % be careful here not to generate an undefined exception.
 '$imported_predicate'(G, ImportingMod, G, prolog) :-
-	'$system_predicate'(G, prolog), !.
+	nonvar(G), '$is_system_predicate'(G, prolog), !.
 '$imported_predicate'(G, ImportingMod, G0, ExportingMod) :-
 	( var(G) -> true ;
 	  var(ImportingMod) -> true ;
@@ -365,7 +368,7 @@ current_module(Mod,TFN) :-
 	'$pred_exists'(G, user), !.
 '$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
     recorded('$dialect',swi,_),
-    get_prolog_flag(autoload, true),
+    prolog_flag(autoload, true),
     prolog_flag(unknown, OldUnk, fail),
     (
      '$autoload'(G, ImportingMod, ExportingModI, swi)
@@ -385,6 +388,7 @@ current_module(Mod,TFN) :-
 
 '$autoload'(G, _ImportingMod, ExportingMod, Dialect) :-
     functor(G, Name, Arity),
+    '$pred_exists'(index(Name,Arity,ExportingMod,_),Dialect),
     call(Dialect:index(Name,Arity,ExportingMod,_)),
     !.
 '$autoload'(G, ImportingMod, ExportingMod, _Dialect) :-
@@ -400,7 +404,7 @@ current_module(Mod,TFN) :-
 	autoloader:find_predicate(G,ExportingModI).
 '$autoloader_find_predicate'(G,ExportingModI) :-
 	yap_flag(autoload, true, false),
-    yap_flag( unknown, Unknown, fast_fail),
+    yap_flag( unknown, Unknown, fail),
 	yap_flag(debug, Debug, false), !,
 	load_files([library(autoloader),
 		    autoloader:library('INDEX'),
@@ -426,7 +430,6 @@ be associated to a new file.
 
 '$declare_module'(Name, _Super, Context, _File, _Line) :-
 	add_import_module(Name, Context, start).
-
 
 /**
  \pred abolish_module( + Mod) is det
@@ -762,6 +765,8 @@ unload_module(Mod) :-
 /*  debug */
 module_state :-
 	recorded('$module','$module'(HostF,HostM,SourceF, Everything, Line),_),
-	format('HostF ~a, HostM ~a, SourceF ~w, Everything ~w, Line ~d.~n', [HostF,HostM,SourceF, Everything, Line]),
+	format('HostF ~a, HostM ~a, SourceF ~w, Line ~d,~n     Everything ~w.~n', [HostF,HostM,SourceF, Line, Everything]),
+    recorded('$import','$import'(HostM,M,G0,G,_N,_K),R),
+    format('   ~w:~w :- ~w:~w.~n',[M,G,HostM,G0]),
 	fail.
 module_state.

@@ -371,7 +371,7 @@ X_API void PL_reset_term_refs(term_t after)
 {
   CACHE_REGS
   term_t new = Yap_NewSlots(1);
-  Yap_RecoverSlots(after-new, new PASS_REGS);
+  Yap_RecoverSlots(after-new, new);
 }
 
 /** @}
@@ -430,10 +430,10 @@ X_API int PL_get_arg(int index, term_t ts, term_t a)
   if ( !IsApplTerm(t) ) {
     if (IsPairTerm(t)) {
       if (index == 1){
-        Yap_PutInSlot(a,HeadOfTerm(t) PASS_REGS);
+        Yap_PutInSlot(a,HeadOfTerm(t));
         return 1;
       } else if (index == 2) {
-        Yap_PutInSlot(a,TailOfTerm(t) PASS_REGS);
+        Yap_PutInSlot(a,TailOfTerm(t));
         return 1;
       }
     }
@@ -444,7 +444,7 @@ X_API int PL_get_arg(int index, term_t ts, term_t a)
     return 0;
     if (index < 1 || index > ArityOfFunctor(f))
     return 0;
-    Yap_PutInSlot(a,ArgOfTerm(index, t) PASS_REGS);
+    Yap_PutInSlot(a,ArgOfTerm(index, t));
     return 1;
   }
 }
@@ -792,8 +792,8 @@ X_API int PL_get_list(term_t ts, term_t h, term_t tl)
   if (IsVarTerm(t) || !IsPairTerm(t) ) {
     return 0;
   }
-  Yap_PutInSlot(h,HeadOfTerm(t) PASS_REGS);
-  Yap_PutInSlot(tl,TailOfTerm(t) PASS_REGS);
+  Yap_PutInSlot(h,HeadOfTerm(t));
+  Yap_PutInSlot(tl,TailOfTerm(t));
   return 1;
 }
 
@@ -808,7 +808,7 @@ X_API int PL_get_head(term_t ts, term_t h)
   if (!YAP_IsPairTerm(t) ) {
     return 0;
   }
-  Yap_PutInSlot(h,YAP_HeadOfTerm(t) PASS_REGS);
+  Yap_PutInSlot(h,YAP_HeadOfTerm(t));
   return 1;
 }
 
@@ -925,7 +925,7 @@ X_API int PL_get_tail(term_t ts, term_t tl)
   if (!YAP_IsPairTerm(t) ) {
     return 0;
   }
-  Yap_PutInSlot(tl,YAP_TailOfTerm(t) PASS_REGS);
+  Yap_PutInSlot(tl,YAP_TailOfTerm(t) );
   return 1;
 }
 
@@ -1035,7 +1035,7 @@ X_API int PL_cons_functor(term_t d, functor_t f,...)
   Functor ff = SWIFunctorToFunctor(f);
 
   if (IsAtomTerm((Term)ff)) {
-    Yap_PutInSlot(d, (YAP_Term)f PASS_REGS);
+    Yap_PutInSlot(d, (YAP_Term)f );
     return TRUE;
   }
   arity = ArityOfFunctor(ff);
@@ -1056,7 +1056,7 @@ X_API int PL_cons_functor(term_t d, functor_t f,...)
     Yap_unify(tmp[i],Yap_GetFromSlot(va_arg(ap, term_t)));
   }
   va_end (ap);
-  Yap_PutInSlot(d,t PASS_REGS);
+  Yap_PutInSlot(d,t );
   return TRUE;
 }
 
@@ -1068,7 +1068,7 @@ X_API int PL_cons_functor_v(term_t d, functor_t f, term_t a0)
   Functor ff = SWIFunctorToFunctor(f);
 
   if (IsAtomTerm((Term)ff)) {
-    Yap_PutInSlot(d, (YAP_Term)f PASS_REGS);
+    Yap_PutInSlot(d, (YAP_Term)f );
     return TRUE;
   }
   arity = ArityOfFunctor(ff);
@@ -1088,7 +1088,7 @@ X_API int PL_cons_functor_v(term_t d, functor_t f, term_t a0)
     Yap_unify(tmp[i] , Yap_GetFromSlot(a0 ) );
     a0++;
   }
-  Yap_PutInSlot(d,t PASS_REGS);
+  Yap_PutInSlot(d,t );
 
   return TRUE;
 }
@@ -1101,14 +1101,14 @@ X_API int PL_cons_list(term_t d, term_t h, term_t t)
       return FALSE;
     }
   }
-  Yap_PutInSlot(d,MkPairTerm(Yap_GetFromSlot(h),Yap_GetFromSlot(t)) PASS_REGS);
+  Yap_PutInSlot(d,MkPairTerm(Yap_GetFromSlot(h),Yap_GetFromSlot(t)));
   return true;
 }
 
 X_API int PL_put_atom(term_t t, atom_t a)
 {
   CACHE_REGS
-  Yap_PutInSlot(t,MkAtomTerm(SWIAtomToAtom(a)) PASS_REGS);
+  Yap_PutInSlot(t,MkAtomTerm(SWIAtomToAtom(a)));
   return TRUE;
 }
 
@@ -1121,7 +1121,8 @@ X_API int PL_put_atom_chars(term_t t, const char *s)
     return FALSE;
   }
   Yap_AtomIncreaseHold(at);
-  Yap_PutInSlot(t,MkAtomTerm(at) PASS_REGS);
+  Yap_PutInSlot(t,MkAtomTerm(at));
+  
   return TRUE;
 }
 
@@ -1134,14 +1135,14 @@ X_API int PL_put_atom_nchars(term_t t, size_t len, const char *s)
     return FALSE;
   }
   Yap_AtomIncreaseHold(at);
-  Yap_PutInSlot(t,MkAtomTerm(at) PASS_REGS);
+  Yap_PutInSlot(t,MkAtomTerm(at));
   return TRUE;
 }
 
 X_API int PL_put_float(term_t t, double fl)
 {
   CACHE_REGS
-  Yap_PutInSlot(t,YAP_MkFloatTerm(fl) PASS_REGS);
+  Yap_PutInSlot(t,YAP_MkFloatTerm(fl) );
   return TRUE;
 }
 
@@ -1152,7 +1153,7 @@ X_API int PL_put_functor(term_t t, functor_t f)
 
   CACHE_REGS
   if (IsAtomTerm((Term)ff)) {
-    Yap_PutInSlot(t,(Term)ff PASS_REGS);
+    Yap_PutInSlot(t,(Term)ff);
   } else {
     arity = ArityOfFunctor(ff);
     if (Unsigned(HR)+arity > Unsigned(ASP)-CreepFlag) {
@@ -1160,10 +1161,9 @@ X_API int PL_put_functor(term_t t, functor_t f)
         return FALSE;
       }
     }
-    if (arity == 2 && ff == FunctorDot)
-    Yap_PutInSlot(t,YAP_MkNewPairTerm() PASS_REGS);
-    else
-    Yap_PutInSlot(t,YAP_MkNewApplTerm((YAP_Functor)ff,arity) PASS_REGS);
+    if (arity == 2 && ff == FunctorDot){
+    } else
+    Yap_PutInSlot(t,YAP_MkNewApplTerm((YAP_Functor)ff,arity) );
   }
   return TRUE;
 }
@@ -1171,14 +1171,14 @@ X_API int PL_put_functor(term_t t, functor_t f)
 X_API int PL_put_integer(term_t t, long n)
 {
   CACHE_REGS
-    Yap_PutInSlot(t,YAP_MkIntTerm(n) PASS_REGS);
+    Yap_PutInSlot(t,YAP_MkIntTerm(n));
   return TRUE;
 }
 
 X_API int PL_put_boolean(term_t t, uintptr_t n)
 {
   CACHE_REGS
-  Yap_PutInSlot(t,(n==0?TermFalse:TermTrue) PASS_REGS);
+  Yap_PutInSlot(t,(n==0?TermFalse:TermTrue));
   return TRUE;
 }
 
@@ -1186,7 +1186,7 @@ X_API int PL_put_int64(term_t t, int64_t n)
 {
   CACHE_REGS
   #if SIZEOF_INT_P==8
-  Yap_PutInSlot(t,MkIntegerTerm(n) PASS_REGS);
+  Yap_PutInSlot(t,MkIntegerTerm(n) );
   return TRUE;
   #elif USE_GMP
   char s[64];
@@ -1221,21 +1221,21 @@ X_API int PL_put_int64(term_t t, int64_t n)
 X_API int PL_put_intptr(term_t t, intptr_t n)
 {
   CACHE_REGS
-    Yap_PutInSlot(t,YAP_MkIntTerm(n) PASS_REGS);
+    Yap_PutInSlot(t,YAP_MkIntTerm(n));
   return TRUE;
 }
 
 X_API int PL_put_uintptr(term_t t, uintptr_t n)
 {
   CACHE_REGS
-    Yap_PutInSlot(t,YAP_MkIntTerm(n) PASS_REGS);
+    Yap_PutInSlot(t,YAP_MkIntTerm(n) );
   return TRUE;
 }
 
 X_API int PL_put_list(term_t t)
 {
   CACHE_REGS
-  Yap_PutInSlot(t,YAP_MkNewPairTerm() PASS_REGS);
+  Yap_PutInSlot(t,YAP_MkNewPairTerm() );
   if (Unsigned(HR) > Unsigned(ASP)-CreepFlag) {
     if (!do_gc(0)) {
       return FALSE;
@@ -1252,14 +1252,14 @@ X_API int PL_put_list_chars(term_t t, const char *s)
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_put_string_nchars" ))
     return FALSE;
   }
-  Yap_PutInSlot(t, nt PASS_REGS);
+  Yap_PutInSlot(t, nt);
   return TRUE;
 }
 
 X_API void PL_put_nil(term_t t)
 {
   CACHE_REGS
-  Yap_PutInSlot(t,TermNil PASS_REGS);
+  Yap_PutInSlot(t,TermNil);
 }
 
 /*  void PL_put_pointer(term_t -t, void *ptr)
@@ -1269,7 +1269,7 @@ X_API int PL_put_pointer(term_t t, void *ptr)
 {
   CACHE_REGS
   YAP_Term tptr = YAP_MkIntTerm((YAP_Int)ptr);
-  Yap_PutInSlot(t,tptr PASS_REGS);
+  Yap_PutInSlot(t,tptr );
   return TRUE;
 }
 
@@ -1282,7 +1282,7 @@ X_API int PL_put_string_chars(term_t t, const char *chars)
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_putPL_put_string_chars" ))
     return FALSE;
   }
-  Yap_PutInSlot(t, nt PASS_REGS);
+  Yap_PutInSlot(t, nt);
   return TRUE;
 }
 
@@ -1295,21 +1295,21 @@ X_API int PL_put_string_nchars(term_t t, size_t len, const char *chars)
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_putPL_put_string_chars" ))
     return FALSE;
   }
-  Yap_PutInSlot(t, nt PASS_REGS);
+  Yap_PutInSlot(t, nt);
   return TRUE;
 }
 
 X_API int PL_put_term(term_t d, term_t s)
 {
   CACHE_REGS
-  Yap_PutInSlot(d,Yap_GetFromSlot(s ) PASS_REGS);
+  Yap_PutInSlot(d,Yap_GetFromSlot(s ) );
   return TRUE;
 }
 
 X_API int PL_put_variable(term_t t)
 {
   CACHE_REGS
-  Yap_PutInSlot(t,MkVarTerm() PASS_REGS);
+  Yap_PutInSlot(t,MkVarTerm());
   return TRUE;
 }
 
@@ -1518,8 +1518,8 @@ X_API int PL_unify_list(term_t tt, term_t h, term_t tail)
   } else if (!IsPairTerm(t)) {
     return FALSE;
   }
-  Yap_PutInSlot(h,HeadOfTerm(t) PASS_REGS);
-  Yap_PutInSlot(tail,TailOfTerm(t) PASS_REGS);
+  Yap_PutInSlot(h,HeadOfTerm(t));
+  Yap_PutInSlot(tail,TailOfTerm(t) );
   return TRUE;
 }
 
@@ -2207,7 +2207,7 @@ PL_recorded_external
   Term t = Yap_ImportTerm((void *)tp);
   if (t == 0)
   return FALSE;
-  Yap_PutInSlot(ts, t PASS_REGS);
+  Yap_PutInSlot(ts, t );
   return TRUE;
 }
 
@@ -2234,7 +2234,7 @@ PL_recorded(record_t db, term_t ts)
   Term t = YAP_Recorded((void *)db);
   if (t == ((CELL)0))
   return FALSE;
-  Yap_PutInSlot(ts,t PASS_REGS);
+  Yap_PutInSlot(ts,t );
   return TRUE;
 }
 
@@ -2311,7 +2311,7 @@ PL_exception(qid_t q)
   if (YAP_GoalHasException(&t)) {
     CACHE_REGS
     term_t to = Yap_NewSlots(1);
-    Yap_PutInSlot(to,t PASS_REGS);
+    Yap_PutInSlot(to,t );
     return to;
   } else {
     return 0L;
@@ -2391,7 +2391,7 @@ PL_strip_module(term_t raw, module_t *m, term_t plain)
   if (!t)
   return FALSE;
   *m = Yap_GetModuleEntry(m0);
-  Yap_PutInSlot(plain, t PASS_REGS);
+  Yap_PutInSlot(plain, t );
   return TRUE;
 }
 

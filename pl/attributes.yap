@@ -45,6 +45,10 @@
         unbind_attvar/1,
         woken_att_do/4]).
 
+:- dynamic attributes:existing_attribute/4.
+:- dynamic attributes:modules_with_attributes/1.
+:- dynamic attributes:attributed_module/3.
+
 
 /** @pred get_attr(+ _Var_,+ _Module_,- _Value_)
 
@@ -426,7 +430,7 @@ prolog:call_residue(Goal,Residue) :-
 call_residue(Goal,Module,Residue) :-
 	prolog:call_residue_vars(Module:Goal,NewAttVars),
 	(
-	 attributes:has_modules_with_attributes([_|_])
+	 attributes:modules_with_attributes([_|_])
 	->
 	 project_attributes(NewAttVars, Module:Goal)
 	;
@@ -444,7 +448,7 @@ project_delayed_goals(G) :-
 % just try to simplify store  by projecting constraints
 % over query variables.
 % called by top_level to find out about delayed goals
-	attributes:has_modules_with_attributes([_|_]), !,
+	attributes:modules_with_attributes([_|_]), !,
 	attributes:all_attvars(LAV),
 	LAV = [_|_],
 	project_attributes(LAV, G), !.
@@ -487,7 +491,7 @@ attribute_goal/2 handler.
 
  */
 project_attributes(AllVs, G) :-
-	attributes:has_modules_with_attributes(LMods),
+	attributes:modules_with_attributes(LMods),
 	LMods = [_|_],
 	term_variables(G, InputVs),
 	pick_att_vars(InputVs, AttIVs),

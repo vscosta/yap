@@ -59,9 +59,10 @@ name starts with a `$` character.
 listing :-
     current_output(Stream),
     '$current_module'(Mod),
+    \+ system_module(Mod),
     Mod \= prolog,
     Mod \= system,
-    \+ '$hidden'( Mod ),
+    \+ '$hidden_atom'( Mod ),
     '$current_predicate'(_,Mod,Pred, user),
     '$undefined'(Pred, prolog), % skip predicates exported from prolog.
     functor(Pred,Name,Arity),

@@ -21,16 +21,16 @@ if (POSTGRES_FOUND)
   add_definitions (-DMYDDAS_POSTGRES=1)
   target_link_libraries(Yappostgres libYap   ${POSTGRES_LIBRARIES})
   include_directories (${POSTGRES_INCLUDE_DIRECTORIES} ..)
-else()
-  add_definitions (-DMYDDAS_POSTGRES=0)
-endif (POSTGRES_FOUND)
-
-set_target_properties (Yappostgres PROPERTIES
-  POSITION_INDEPENDENT_CODE ON
-  VERSION "${SO_MAJOR}.${SO_MINOR}.${SO_PATCH}"
-  SOVERSION ${SO_MAJOR}
+  set_target_properties (Yappostgres PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    VERSION "${SO_MAJOR}.${SO_MINOR}.${SO_PATCH}"
+    SOVERSION ${SO_MAJOR}
   )
 
    install(TARGETS  Yappostgres
     LIBRARY DESTINATION ${libdir}
     )
+else()
+  add_definitions (-DMYDDAS_POSTGRES=0)
+endif (POSTGRES_FOUND)
+

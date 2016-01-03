@@ -70,6 +70,7 @@ inline static ModEntry *GetModuleEntry(Atom at)
     new->NextME = CurrentModules;
     CurrentModules = new;
     new->AtomOfME = ae;
+    new->OwnerFile = Yap_ConsultingFile( PASS_REGS1);
     AddPropToAtom(ae, (PropEntry *)new);
     if (CurrentModule == 0L || (oat = GetModuleEntry(AtomOfTerm(CurrentModule))) == new) {
       Yap_setModuleFlags(new, NULL);
@@ -85,6 +86,8 @@ Term Yap_getUnknownModule(ModEntry *m) {
     return TermError;
   } else if (m && m->flags & UNKNOWN_WARNING) {
     return TermWarning;
+  } else if (m && m->flags & UNKNOWN_FAST_FAIL) {
+    return TermFastFail;
   } else {
     return TermFail;
   }
@@ -92,13 +95,7 @@ Term Yap_getUnknownModule(ModEntry *m) {
 
 bool Yap_getUnknown ( Term mod) {
   ModEntry *m = LookupModule( mod );
-  if (m && m->flags & UNKNOWN_ERROR) {
-    return TermError;
-  } else if (m && m->flags & UNKNOWN_WARNING) {
-    return TermWarning;
-  } else {
-    return TermFail;
-  }
+  return Yap_getUnknownModule( m );
 }
 
 
@@ -131,8 +128,10 @@ Term Yap_Module_Name(PredEntry *ap) {
 }
 
 static ModEntry *LookupSystemModule(Term a) {
+  CACHE_REGS
   Atom at;
   ModEntry *me;
+  
 
   /* prolog module */
   if (a == 0) {
@@ -141,6 +140,7 @@ static ModEntry *LookupSystemModule(Term a) {
   at = AtomOfTerm(a);
   me = GetModuleEntry(at);
   me->flags |= M_SYSTEM;
+  me->OwnerFile = Yap_ConsultingFile( PASS_REGS1 );
   return me;}
 
 
@@ -316,7 +316,7 @@ static Int init_ground_module(USES_REGS1) {
 }
 
 /** 
- * @pred is_system_module( + _Mod_)
+ * @pred system_module( + _Mod_)
  * 
  * @param module 
  * 
@@ -335,7 +335,7 @@ static Int is_system_module( USES_REGS1 )
   return Yap_isSystemModule( t );
 }
 
-static Int system_module( USES_REGS1 )
+static Int new_system_module( USES_REGS1 )
 {
   ModEntry *me;
   Term t;
@@ -348,6 +348,7 @@ static Int system_module( USES_REGS1 )
     return false;
   }
   me = LookupSystemModule( t );
+  me->OwnerFile = Yap_ConsultingFile( PASS_REGS1);
   return me != NULL;
 }
 
@@ -495,8 +496,8 @@ void Yap_InitModulesC(void) {
   Yap_InitCPred("$yap_strip_module", 3, yap_strip_module,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("context_module", 1, context_module, 0);
-  Yap_InitCPred("system_module", 1, system_module, SafePredFlag);
-  Yap_InitCPred("is_system_module", 1, is_system_module, SafePredFlag);
+  Yap_InitCPred("$is_system_module", 1, is_system_module, SafePredFlag);
+  Yap_InitCPred("new_system_module", 1, new_system_module, SafePredFlag);
   Yap_InitCPredBack("$all_current_modules", 1, 1, init_current_module,
                     cont_current_module, SafePredFlag | SyncPredFlag);
   Yap_InitCPredBack("$ground_module", 3, 1, init_ground_module,
