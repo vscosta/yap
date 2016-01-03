@@ -108,6 +108,7 @@
   AtomDoStaticClause = AtomAdjust(AtomDoStaticClause);
   AtomDots = AtomAdjust(AtomDots);
   AtomDOUBLE = AtomAdjust(AtomDOUBLE);
+  AtomDoubleDash = AtomAdjust(AtomDoubleDash);
   AtomE = AtomAdjust(AtomE);
   AtomEOFBeforeEOT = AtomAdjust(AtomEOFBeforeEOT);
   AtomEQ = AtomAdjust(AtomEQ);
@@ -465,6 +466,7 @@
   FunctorDot7 = FuncAdjust(FunctorDot7);
   FunctorDot8 = FuncAdjust(FunctorDot8);
   FunctorDot9 = FuncAdjust(FunctorDot9);
+  FunctorDoubleDash = FuncAdjust(FunctorDoubleDash);
   FunctorEmptySquareBrackets = FuncAdjust(FunctorEmptySquareBrackets);
   FunctorEmptyCurlyBrackets = FuncAdjust(FunctorEmptyCurlyBrackets);
   FunctorEq = FuncAdjust(FunctorEq);

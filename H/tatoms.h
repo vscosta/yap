@@ -320,6 +320,9 @@
   Atom AtomDOUBLE_;
 #define AtomDOUBLE Yap_heap_regs->AtomDOUBLE_
 #define TermDOUBLE MkAtomTerm( Yap_heap_regs->AtomDOUBLE_ )
+  Atom AtomDoubleDash_;
+#define AtomDoubleDash Yap_heap_regs->AtomDoubleDash_
+#define TermDoubleDash MkAtomTerm( Yap_heap_regs->AtomDoubleDash_ )
   Atom AtomE_;
 #define AtomE Yap_heap_regs->AtomE_
 #define TermE MkAtomTerm( Yap_heap_regs->AtomE_ )
@@ -1339,6 +1342,8 @@
 #define FunctorDot8 Yap_heap_regs->FunctorDot8_
   Functor FunctorDot9_;
 #define FunctorDot9 Yap_heap_regs->FunctorDot9_
+  Functor FunctorDoubleDash_;
+#define FunctorDoubleDash Yap_heap_regs->FunctorDoubleDash_
   Functor FunctorEmptySquareBrackets_;
 #define FunctorEmptySquareBrackets Yap_heap_regs->FunctorEmptySquareBrackets_
   Functor FunctorEmptyCurlyBrackets_;
