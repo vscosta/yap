@@ -108,7 +108,7 @@
   AtomDoStaticClause = Yap_FullLookupAtom("$do_static_clause");
   AtomDots = Yap_LookupAtom("dots");
   AtomDOUBLE = Yap_FullLookupAtom("Double");
-  AtomDoubleDash = Yap_FullLookupAtom("//");
+  AtomDoubleSlash = Yap_FullLookupAtom("//");
   AtomE = Yap_LookupAtom("e");
   AtomEOFBeforeEOT = Yap_LookupAtom("end_of_file_found_before_end_of_term");
   AtomEQ = Yap_LookupAtom("=");

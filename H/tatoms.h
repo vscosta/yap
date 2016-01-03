@@ -320,9 +320,9 @@
   Atom AtomDOUBLE_;
 #define AtomDOUBLE Yap_heap_regs->AtomDOUBLE_
 #define TermDOUBLE MkAtomTerm( Yap_heap_regs->AtomDOUBLE_ )
-  Atom AtomDoubleDash_;
-#define AtomDoubleDash Yap_heap_regs->AtomDoubleDash_
-#define TermDoubleDash MkAtomTerm( Yap_heap_regs->AtomDoubleDash_ )
+  Atom AtomDoubleSlash_;
+#define AtomDoubleSlash Yap_heap_regs->AtomDoubleSlash_
+#define TermDoubleSlash MkAtomTerm( Yap_heap_regs->AtomDoubleSlash_ )
   Atom AtomE_;
 #define AtomE Yap_heap_regs->AtomE_
 #define TermE MkAtomTerm( Yap_heap_regs->AtomE_ )

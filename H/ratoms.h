@@ -108,7 +108,7 @@
   AtomDoStaticClause = AtomAdjust(AtomDoStaticClause);
   AtomDots = AtomAdjust(AtomDots);
   AtomDOUBLE = AtomAdjust(AtomDOUBLE);
-  AtomDoubleDash = AtomAdjust(AtomDoubleDash);
+  AtomDoubleSlash = AtomAdjust(AtomDoubleSlash);
   AtomE = AtomAdjust(AtomE);
   AtomEOFBeforeEOT = AtomAdjust(AtomEOFBeforeEOT);
   AtomEQ = AtomAdjust(AtomEQ);
