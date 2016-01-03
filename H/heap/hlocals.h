@@ -2,9 +2,9 @@
   /* This file, hlocals.h, was generated automatically by "yap -L misc/buildlocalglobal"
      please do not update, update misc/LOCALS instead */
 
-
+// Stuff that must be considered local to a thread or worker
 typedef struct worker_local {
-
+// Streams
   struct AliasDescS*  FileAliases_;
   int  NOfFileAliases_;
   int  SzOfFileAliases_;
@@ -13,10 +13,10 @@ typedef struct worker_local {
   int  c_error_stream_;
   bool  sockets_io_;
   bool  within_print_message_;
-
-
-
-
+//
+// Used by the prompts to check if they are after a newline, and then a
+// prompt should be output, or if we are in the middle of a line.
+//
   bool  newline_;
   Atom  AtPrompt_;
   char  Prompt_[MAX_PROMPT+1];
@@ -27,7 +27,7 @@ typedef struct worker_local {
   UInt  max_depth_;
   UInt  max_list_;
   UInt  max_write_args_;
-
+// Restore info
   CELL*  OldASP_;
   CELL*  OldLCL0_;
   tr_fr_ptr  OldTR_;
@@ -48,26 +48,26 @@ typedef struct worker_local {
   Int  XDiff_;
   Int  DelayDiff_;
   Int  BaseDiff_;
-
+// Reduction counters
   YAP_ULONG_LONG  ReductionsCounter_;
   YAP_ULONG_LONG  PredEntriesCounter_;
   YAP_ULONG_LONG  RetriesCounter_;
   int  ReductionsCounterOn_;
   int  PredEntriesCounterOn_;
   int  RetriesCounterOn_;
-
-
+// support for consulting files
+/* current consult stack */
   union CONSULT_OBJ*  ConsultSp_;
-
+/* current maximum number of cells in consult stack */
   UInt  ConsultCapacity_;
-
+/* top of consult stack  */
   union CONSULT_OBJ*  ConsultBase_;
-
+/* low-water mark for consult  */
   union CONSULT_OBJ*  ConsultLow_;
   Term  VarNames_;
   Atom  SourceFileName_;
   UInt  SourceFileLineno_;
-
+//global variables
   Term  GlobalArena_;
   UInt  GlobalArenaOverflows_;
   Int  ArenaOverflows_;
@@ -92,7 +92,7 @@ typedef struct worker_local {
   Term  WokenGoals_;
   Term  AttsMutableList_;
 #endif
-
+// gc_stuff
   Term  GcGeneration_;
   Term  GcPhase_;
   UInt  GcCurrentPhase_;
@@ -102,7 +102,7 @@ typedef struct worker_local {
   Int  LastGcTime_;
   Int  LastSSTime_;
   CELL*  OpenArray_;
-
+/* in a single gc */
   Int  total_marked_;
   Int  total_oldies_;
   struct choicept*  current_B_;
@@ -135,16 +135,16 @@ typedef struct worker_local {
   struct static_array_entry*  StaticArrays_;
   struct global_entry*  GlobalVariables_;
   int  AllowRestart_;
-
+// Thread Local Area for Fast Storage of Intermediate Compiled Code
   struct mem_blk*  CMemFirstBlock_;
   UInt  CMemFirstBlockSz_;
-
+// Variable used by the compiler to store number of permanent vars in a clause
   int  nperm_;
-
+// Thread Local Area for Labels
   Int*  LabelFirstArray_;
   UInt  LabelFirstArraySz_;
-
-
+// Thread Local Area for SWI-Prolog emulation routines.
+// struct PL_local_data*		PL_local_data_p				=Yap_InitThreadIO(wid)
 #ifdef THREADS
   struct thandle  ThreadHandle_;
 #endif /* THREADS */
@@ -158,7 +158,7 @@ typedef struct worker_local {
   Int  total_choicepoints_;
 #endif
   int  consult_level_;
-
+// Variables related to memory allocation
   ADDR  LocalBase_;
   ADDR  GlobalBase_;
   ADDR  TrailBase_;
@@ -185,27 +185,27 @@ const char*  Error_Function_;
   sigjmp_buf  RestartEnv_;
   char  FileNameBuf_[YAP_FILENAME_MAX];
   char  FileNameBuf2_[YAP_FILENAME_MAX];
-
+// Prolog State
   UInt  BreakLevel_;
   Int  PrologMode_;
   int  CritLocks_;
-
+// Prolog execution and state flags
   union flagTerm*  Flags_;
   UInt  flagCount_;
-
-
+//analyst.c
+/* used to find out how many instructions of each kind are executed */
 #ifdef ANALYST
   YAP_ULONG_LONG  opcount_[_std_top+1];
   YAP_ULONG_LONG  2opcount[_std_top+1][_std_top+1]_;
 #endif /* ANALYST */
-
+//dbase.c
   struct db_globs*  s_dbg_;
-
+//eval.c
   yap_error_number  matherror_;
   Term  mathtt_;
   char*  mathstring_;
   yap_error_number  CurrentError_;
-
+//grow.c
   int  heap_overflows_;
   Int  total_heap_overflow_time_;
   int  stack_overflows_;
@@ -216,15 +216,15 @@ const char*  Error_Function_;
   Int  total_trail_overflow_time_;
   int  atom_table_overflows_;
   Int  total_atom_table_overflow_time_;
-
+//load_dyld
 #ifdef LOAD_DYLD
   int  dl_errno_;
 #endif
-
+//tracer.c
 #ifdef LOW_LEVEL_TRACER
   int  do_trace_primitives_;
 #endif
-
+//quick loader
   struct export_atom_hash_entry_struct  *ExportAtomHashChain_;
   UInt  ExportAtomHashTableSize_;
   UInt  ExportAtomHashTableNum_;
@@ -253,23 +253,23 @@ const char*  Error_Function_;
   UInt  ImportDBRefHashTableNum_;
   yamop  *ImportFAILCODE_;
 #if __ANDROID__
-
+// current virtual directory.
   struct AAssetManager*  assetManager_;
   char*  InAssetDir_;
 #endif
-
+// exo indexing
   UInt  ibnds_[256];
   struct index_t*  exo_it_;
   CELL*  exo_base_;
   UInt  exo_arity_;
   UInt  exo_arg_;
-
+// atom completion
   struct scan_atoms*  search_atoms_;
-
+// Slots
   yhandle_t  CurSlot_;
   yhandle_t  NSlots_;
   CELL*  SlotBase_;
-
+// Mutexes
   struct swi_mutex*  Mutexes_;
   Term  SourceModule_;
   Term  Including_;
