@@ -54,7 +54,7 @@ static inline Int CallPredicate(PredEntry *pen, choiceptr cut_pt,
     if (pen->ModuleOfPred) {
       if (DEPTH == MkIntTerm(0)) {
         UNLOCK(pen->PELock);
-        return FALSE;
+        return false;
       } else
         DEPTH = RESET_DEPTH();
     }
@@ -75,7 +75,7 @@ static inline Int CallPredicate(PredEntry *pen, choiceptr cut_pt,
   /* make sure we have access to the user given cut */
   YENV[E_CB] = (CELL)cut_pt;
   P = code;
-  return TRUE;
+  return true;
 }
 
 inline static Int CallMetaCall(Term t, Term mod USES_REGS) {
@@ -193,7 +193,7 @@ inline static Int do_execute(Term t, Term mod USES_REGS) {
   /* first do predicate expansion, even before you process signals.
    This way you don't get to spy goal_expansion(). */
   if (Yap_has_a_signal() && !LOCAL_InterruptsDisabled &&
-             !(LOCAL_PrologMode & (AbortMode | InterruptMode | SystemMode))) {
+      !(LOCAL_PrologMode & (AbortMode | InterruptMode | SystemMode))) {
     return EnterCreepMode(t, mod PASS_REGS);
   }
 restart_exec:
@@ -216,7 +216,7 @@ restart_exec:
     pen = RepPredProp(PredPropByFunc(f, mod));
     /* You thought we would be over by now */
     /* but no meta calls require special preprocessing */
-    if (pen->PredFlags &  MetaPredFlag) {
+    if (pen->PredFlags & MetaPredFlag) {
       if (f == FunctorModule) {
         Term tmod = ArgOfTerm(1, t);
         if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
@@ -364,7 +364,7 @@ restart_exec:
   pen = RepPredProp(PredPropByFunc(f, mod));
   /* You thought we would be over by now */
   /* but no meta calls require special preprocessing */
-  if (pen->PredFlags &  MetaPredFlag) {
+  if (pen->PredFlags & MetaPredFlag) {
     Term t = copy_execn_to_heap(f, pt, n, arity, mod PASS_REGS);
     return (CallMetaCall(t, mod PASS_REGS));
   }
@@ -552,6 +552,7 @@ static Int execute11(USES_REGS1) { /* '$execute'(Goal)	 */
 
 static Int execute12(USES_REGS1) { /* '$execute'(Goal)	 */
   Term t = Deref(ARG1);
+
   heap_store(Deref(ARG2) PASS_REGS);
   heap_store(Deref(ARG3) PASS_REGS);
   heap_store(Deref(ARG4) PASS_REGS);
@@ -634,106 +635,104 @@ restart_exec:
 }
 
 static Int execute_in_mod(USES_REGS1) { /* '$execute'(Goal)	 */
-  return (do_execute(Deref(ARG1), Deref(ARG2) PASS_REGS));
+  return do_execute(Deref(ARG1), Deref(ARG2) PASS_REGS);
 }
 
+static bool complete_ge(bool out, Term omod, yhandle_t sl, bool creeping) {
+  CACHE_REGS
+  if (creeping) {
+    Yap_signal(YAP_CREEP_SIGNAL);
+  }
+  CurrentModule = omod;
+  Yap_CloseSlots(sl);
+  if (out) {
+  }
+  return out;
+}
+
+
 static Int _user_expand_goal(USES_REGS1) {
+  yhandle_t sl = Yap_StartSlots();
   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
-  Int out = FALSE;
   PredEntry *pe;
   Term cmod = CurrentModule, omod = cmod;
-  Term mg_args[2], mg;
-  Term g = Yap_YapStripModule( ARG1, &cmod);
-  yhandle_t h1 = Yap_InitSlot( ARG1), h2 = Yap_InitSlot( ARG2);
-  
+  Term mg_args[2];
+  Term g = Yap_YapStripModule(ARG1, &cmod);
+  yhandle_t h1 = Yap_InitSlot(g), h2 = Yap_InitSlot(ARG2);
+
   /* CurMod:goal_expansion(A,B) */
   ARG1 = g;
   if ((pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, cmod))) &&
-      pe->OpcodeOfPred != FAIL_OPCODE &&
-      pe->OpcodeOfPred != UNDEF_OPCODE &&
+      pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, NULL, false PASS_REGS)) {
-    out = true;
-    goto complete;
+    return complete_ge(true, omod, sl, creeping);
   }
   /* system:goal_expansion(A,B) */
   mg_args[0] = cmod;
   mg_args[1] = Yap_GetFromSlot(h1);
-  ARG1 = Yap_MkApplTerm( FunctorModule, 2, mg_args );
-  ARG2 =  Yap_GetFromSlot(h2);
+  ARG1 = Yap_MkApplTerm(FunctorModule, 2, mg_args);
+  ARG2 = Yap_GetFromSlot(h2);
   if ((pe = RepPredProp(
            Yap_GetPredPropByFunc(FunctorGoalExpansion2, SYSTEM_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, NULL, false PASS_REGS)) {
-    out = true;
-    goto complete;
+    return complete_ge(true, omod, sl, creeping);
   }
   ARG1 = Yap_GetFromSlot(h1);
   ARG2 = cmod;
-  ARG3 =  Yap_GetFromSlot(h2);
+  ARG3 = Yap_GetFromSlot(h2);
   /* user:goal_expansion(A,CurMod,B) */
   if ((pe = RepPredProp(
            Yap_GetPredPropByFunc(FunctorGoalExpansion, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, NULL PASS_REGS, false)) {
-    out = TRUE;
-    goto complete;
+    return complete_ge(true, omod, sl, creeping);
   }
   mg_args[0] = cmod;
   mg_args[1] = Yap_GetFromSlot(h1);
-  ARG1 = Yap_MkApplTerm( FunctorModule, 2, mg_args );
-  ARG2 =  Yap_GetFromSlot(h2);
+  ARG1 = Yap_MkApplTerm(FunctorModule, 2, mg_args);
+  ARG2 = Yap_GetFromSlot(h2);
   /* user:goal_expansion(A,B) */
   if (cmod != USER_MODULE && /* we have tried this before */
       (pe = RepPredProp(
            Yap_GetPredPropByFunc(FunctorGoalExpansion2, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, NULL PASS_REGS, false)) {
-    ARG3 = ARG2;
-    out = TRUE;
+    return complete_ge(true, omod, sl, creeping);
   }
-complete:
-  if (creeping) {
-    Yap_signal(YAP_CREEP_SIGNAL);
-  }
-  CurrentModule = omod;
-  return out;
+  return complete_ge(false, omod, sl, creeping);
 }
 
 static Int do_term_expansion(USES_REGS1) {
+  yhandle_t sl = Yap_StartSlots();
   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
-  Int out = FALSE;
   PredEntry *pe;
-  Term cmod = CurrentModule;
+  Term cmod = CurrentModule, omod = cmod;
+  Term mg_args[2];
+  Term g = Yap_YapStripModule(ARG1, &cmod);
+  yhandle_t h1 = Yap_InitSlot(g), h2 = Yap_InitSlot(ARG2);
 
   /* CurMod:term_expansion(A,B) */
+  ARG1 = g;
   if ((pe = RepPredProp(Yap_GetPredPropByFunc(FunctorTermExpansion, cmod))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, NULL, false PASS_REGS)) {
-    out = TRUE;
-    goto complete;
+    return complete_ge(true, omod, sl, creeping);
   }
   /* system:term_expansion(A,B) */
+  mg_args[0] = cmod;
+  mg_args[1] = Yap_GetFromSlot(h1);
+  ARG1 = Yap_MkApplTerm(FunctorModule, 2, mg_args);
+  ARG2 = Yap_GetFromSlot(h2);
   if ((pe = RepPredProp(
            Yap_GetPredPropByFunc(FunctorTermExpansion, SYSTEM_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, NULL, false PASS_REGS)) {
-    out = TRUE;
-    goto complete;
+    return complete_ge(true, omod, sl, creeping);
   }
-  /* user:term_expansion(A,B) */
-  if (cmod != USER_MODULE && /* we have tried this before */
-      (pe = RepPredProp(
-           Yap_GetPredPropByFunc(FunctorTermExpansion, USER_MODULE))) &&
-      pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
-      Yap_execute_pred(pe, NULL, false PASS_REGS)) {
-    out = TRUE;
-  }
-complete:
-  if (creeping) {
-    Yap_signal(YAP_CREEP_SIGNAL);
-  }
-  return out;
+  return complete_ge(false, omod, sl, creeping);
 }
+
 
 static Int execute0(USES_REGS1) { /* '$execute0'(Goal,Mod)	 */
   Term t = Deref(ARG1), t0 = t;
