@@ -806,7 +806,7 @@ X_API Term YAP_MkPairTerm(Term t1, Term t2) {
     BACKUP_H();
     t1 = Yap_GetFromSlot(sl1);
     t2 = Yap_GetFromSlot(sl2);
-    Yap_RecoverSlots(2, sl2 PASS_REGS);
+    Yap_RecoverSlots(2, sl2);
   }
   t = MkPairTerm(t1, t2);
   RECOVER_H();
@@ -828,7 +828,7 @@ X_API Term YAP_MkListFromTerms(Term *ta, Int sz) {
     }
     BACKUP_H();
     ta = (CELL *)Yap_GetFromSlot(sl1);
-    Yap_RecoverSlots(1, sl1 PASS_REGS);
+    Yap_RecoverSlots(1, sl1);
   }
   h = HR;
   t = AbsPair(h);
@@ -1063,7 +1063,7 @@ X_API Int YAP_TermHash(Term t, Int sz, Int depth, int variant) {
 
 X_API Int YAP_CurrentSlot(void) {
   CACHE_REGS
-  return Yap_CurrentSlot(PASS_REGS1);
+  return Yap_CurrentSlot();
 }
 
 X_API Int YAP_NewSlots(int n) {
@@ -1078,7 +1078,7 @@ X_API Int YAP_InitSlot(Term t) {
 
 X_API int YAP_RecoverSlots(int n, Int top_slot) {
   CACHE_REGS
-  return Yap_RecoverSlots(n, top_slot PASS_REGS);
+  return Yap_RecoverSlots(n, top_slot);
 }
 
 X_API Term YAP_GetFromSlot(Int slot) {
@@ -1109,7 +1109,7 @@ restart:
 
 X_API void YAP_PutInSlot(Int slot, Term t) {
   CACHE_REGS
-  Yap_PutInSlot(slot, t PASS_REGS);
+  Yap_PutInSlot(slot, t);
 }
 
 typedef Int (*CPredicate0)(void);
