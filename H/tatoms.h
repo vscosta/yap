@@ -1342,8 +1342,8 @@
 #define FunctorDot8 Yap_heap_regs->FunctorDot8_
   Functor FunctorDot9_;
 #define FunctorDot9 Yap_heap_regs->FunctorDot9_
-  Functor FunctorDoubleDash_;
-#define FunctorDoubleDash Yap_heap_regs->FunctorDoubleDash_
+  Functor FunctorDoubleSlash_;
+#define FunctorDoubleSlash Yap_heap_regs->FunctorDoubleSlash_
   Functor FunctorEmptySquareBrackets_;
 #define FunctorEmptySquareBrackets Yap_heap_regs->FunctorEmptySquareBrackets_
   Functor FunctorEmptyCurlyBrackets_;
