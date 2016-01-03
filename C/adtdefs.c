@@ -968,6 +968,8 @@ Prop Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod) {
   if (!trueGlobalPrologFlag(DEBUG_INFO_FLAG)) {
     p->PredFlags |= (NoTracePredFlag | NoSpyPredFlag);
   }
+  if (Yap_isSystemModule(CurrentModule))
+    p->PredFlags |= StandardPredFlag;
   WRITE_UNLOCK(ae->ARWLock);
   {
     Yap_inform_profiler_of_clause(&(p->OpcodeOfPred), &(p->OpcodeOfPred) + 1, p,
