@@ -1329,11 +1329,6 @@ interrupt_dexecute( USES_REGS1 )
 static void
 undef_goal( USES_REGS1 )
 {
-  if ( !UndefCode ||
-       UndefCode->OpcodeOfPred == FAIL_OPCODE) {
-    P = FAILCODE;
-    return;
-  }
   PredEntry *pe = PredFromDefCode(P);
   BEGD(d0);
   /* avoid trouble with undefined dynamic procedures */
@@ -1345,7 +1340,7 @@ undef_goal( USES_REGS1 )
   }
 #endif
   if ((pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|MultiFileFlag)) ||
-      !UndefCode ||
+      CurrentModule == PROLOG_MODULE ||
       (UndefCode->OpcodeOfPred == UNDEF_OPCODE)) {
 #if defined(YAPOR) || defined(THREADS)
     UNLOCKPE(19,PP);
