@@ -5206,9 +5206,6 @@ static Int p_slu(USES_REGS1) {
   return TRUE;
 }
 
-/* check current status for logical updates */
-static Int p_lu(USES_REGS1) { return Yap_unify(ARG1, MkIntTerm(UPDATE_MODE)); }
-
 /* get a hold over the index table for logical update predicates */
 static Int p_hold_index(USES_REGS1) {
   Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "hold_index in debugger");
@@ -5320,7 +5317,7 @@ static Int p_install_thread_local(USES_REGS1) { /* '$is_dynamic'(+P)	 */
 }
 
 void Yap_InitDBPreds(void) {
-  Yap_InitCPred("recorded", 3, p_recorded, SyncPredFlag);
+  Yap_InitCPred("$set_pred_flags", 2, p_rcdz, SyncPredFlag);
   /** @pred  recorded(+ _K_, _T_, _R_)
 
 
@@ -5336,6 +5333,7 @@ void Yap_InitDBPreds(void) {
 
 
   */
+  Yap_InitCPred("recorded", 3, p_recorded, SyncPredFlag);
   Yap_InitCPred("recorda", 3, p_rcda, SyncPredFlag);
   /** @pred  recorda(+ _K_, _T_,- _R_)
 
@@ -5382,7 +5380,6 @@ void Yap_InitDBPreds(void) {
   Yap_InitCPred("$db_peek_queue", 2, p_peek_queue, SyncPredFlag);
   Yap_InitCPred("$db_clean_queues", 1, p_clean_queues, SyncPredFlag);
   Yap_InitCPred("$switch_log_upd", 1, p_slu, SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$log_upd", 1, p_lu, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$hold_index", 3, p_hold_index, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$fetch_reference_from_index", 3, p_fetch_reference_from_index,
                 SafePredFlag | SyncPredFlag);
