@@ -65,9 +65,9 @@ static Int number_codes( USES_REGS1 );
 static Int current_atom( USES_REGS1 );
 static Int cont_current_atom( USES_REGS1 );
 static int AlreadyHidden(unsigned char *);
-static Int hide( USES_REGS1 );
-static Int hidden( USES_REGS1 );
-static Int unhide( USES_REGS1 );
+static Int hide_atom( USES_REGS1 );
+static Int hidden_atom( USES_REGS1 );
+static Int unhide_atom( USES_REGS1 );
 
 
 
@@ -86,7 +86,7 @@ AlreadyHidden(unsigned char *name)
   return (TRUE);
 }
 
-/** @pred hide(+ _Atom_)
+/** @pred hide_atom(+ _Atom_)
     Make atom  _Atom_ invisible.
 
     Notice that defining a new atom with the same characters will
@@ -94,17 +94,17 @@ AlreadyHidden(unsigned char *name)
 
  **/
 static Int 
-hide( USES_REGS1 )
+hide_atom( USES_REGS1 )
 {				/* hide(+Atom)		 */
   Atom            atomToInclude;
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR,t1,"hide/1");
+    Yap_Error(INSTANTIATION_ERROR,t1,"hide_atom/1");
     return(FALSE);
   }
   if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM,t1,"hide/1");
+    Yap_Error(TYPE_ERROR_ATOM,t1,"hide_atom/1");
     return(FALSE);
   }
   atomToInclude = AtomOfTerm(t1);
@@ -123,13 +123,13 @@ hide( USES_REGS1 )
   return (TRUE);
 }
 
-/** @pred hidden( +Atom ) 
+/** @pred hidden_atom( +Atom ) 
     Is the  atom _Ãtom_ visible to Prolog?
 
  **/
 static Int 
-hidden( USES_REGS1 )
-{				/* '$hidden'(+F)		 */
+hidden_atom( USES_REGS1 )
+{				/* '$hidden_atom'(+F)		 */
   Atom            at;
   AtomEntry      *chain;
   Term t1 = Deref(ARG1);
@@ -153,30 +153,30 @@ hidden( USES_REGS1 )
 }
 
 
-/** @pred unhide(+ _Atom_) 
+/** @pred unhide_atom(+ _Atom_) 
     Make hidden atom  _Atom_ visible
     
     Note that the operation fails if another atom with name _Atom_ was defined since.
 
  **/
 static Int 
-unhide( USES_REGS1 )
-{				/* unhide(+Atom)		 */
+unhide_atom( USES_REGS1 )
+{				/* unhide_atom(+Atom)		 */
   AtomEntry      *atom, *old, *chain;
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR,t1,"unhide/1");
+    Yap_Error(INSTANTIATION_ERROR,t1,"unhide_atom/1");
     return(FALSE);
   }
   if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM,t1,"unhide/1");
+    Yap_Error(TYPE_ERROR_ATOM,t1,"unhide_atom/1");
     return(FALSE);
   }
   atom = RepAtom(AtomOfTerm(t1));
   WRITE_LOCK(atom->ARWLock);
   if (atom->PropsOfAE != NIL) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL,t1,"cannot unhide an atom in use");
+    Yap_Error(SYSTEM_ERROR_INTERNAL,t1,"cannot unhide_atom an atom in use");
     return(FALSE);
   }
   WRITE_LOCK(INVISIBLECHAIN.AERWLock);
@@ -2406,9 +2406,9 @@ atoms or numbers.
   Yap_InitCPred("atomics_to_string", 3, atomics_to_string3, 0);
   Yap_InitCPred("get_string_code", 3, get_string_code3, 0);
   /* hiding and unhiding some predicates */
-  Yap_InitCPred("hide", 1, hide, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("unhide", 1, unhide, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$hidden", 1, hidden, HiddenPredFlag|SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("hide_atom", 1, hide_atom, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("unhide_atom", 1, unhide_atom, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$hidden_atom", 1, hidden_atom, HiddenPredFlag|SafePredFlag|SyncPredFlag);
 }
 
 /**
