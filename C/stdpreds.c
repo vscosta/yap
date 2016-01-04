@@ -923,8 +923,9 @@ static PropEntry *nextPredForAtom(PropEntry *p, Term task) {
   if (p == NIL)
     return NIL;
   pe = RepPredProp(p);
-  if (pe->ArityOfPE == 0) {
-    // if atom prop, search atom list
+  if (pe->ArityOfPE == 0 ||
+      (pe->PredFlags & (NumberDBPredFlag |AtomDBPredFlag) ) ) {
+     // if atom prop, search atom list
     return followLinkedListOfProps(p->NextOfPE, task);
   } else {
     FunctorEntry *f = pe->FunctorOfPred;
@@ -1060,7 +1061,7 @@ static Int cont_current_predicate(USES_REGS1) {
     }
   } else if (IsNonVarTerm(t1)) {
     PropEntry *np, *p;
-    // run over the same atomany predicate defined for that atom
+    // run over the same atom any predicate defined for that atom
     // may be fair bait, depends on whether we know the module.
     p = AbsPredProp(pp);
     if (!p) {
@@ -1114,6 +1115,7 @@ static Int cont_current_predicate(USES_REGS1) {
     // operating across all modules.
     PredEntry *npp = pp;
     ModEntry *me;
+    
     if (!pp) {
       pp = firstModulesPred(CurrentModules->PredForME, CurrentModules, task);
     }

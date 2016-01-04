@@ -556,13 +556,28 @@ p_compare( USES_REGS1 )
 {				/* compare(?Op,?T1,?T2)	 */
   Int             r = compare(Deref(ARG2), Deref(ARG3));
   Atom            p;
-
+  Term t = Deref(ARG1);
   if (r < 0)
     p = AtomLT;
   else if (r > 0)
     p = AtomGT;
   else
     p = AtomEQ;
+  if (!IsVarTerm(t)) {
+    if (IsAtomTerm(t)) {
+      Atom a = AtomOfTerm(t);
+      if (a == p)
+	return true;
+      if (a != AtomLT &&
+	  a != AtomGT &&
+	  a != AtomEq)
+	Yap_Error(DOMAIN_ERROR_ORDER, ARG1, NULL);
+    } else {
+	Yap_Error(TYPE_ERROR_ATOM, ARG1, NULL);
+    }
+    return false;
+  }
+  
   return Yap_unify_constant(ARG1, MkAtomTerm(p));
 }
 

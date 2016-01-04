@@ -271,6 +271,10 @@ prolog:'\\+'(A, S0, S) :-
 
 :- dynamic system:goal_expansion/2.
 
+:- dynamic prolog:'$goal_expansion_allowed'/0.
+
+prolog:'$goal_expansion_allowed'.
+
 '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal) :-
     catch(prolog:'$translate_rule'(
                                    (pseudo_nt --> Mod:NT), Rule),

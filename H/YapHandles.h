@@ -61,7 +61,7 @@ functions are then exported through corresponding FLI C-functions
 #define Yap_RebootSlots(wid) Yap_RebootSlots__(wid PASS_REGS)
 
 static inline void Yap_RebootSlots__(int wid USES_REGS) {
-  //  // fprintf(stderr,  " StartSlots = %ld", LOCAL_CurSlot);
+  // fprintf(stderr,  " StartSlots = %ld", LOCAL_CurSlot);
   REMOTE_CurSlot(wid) = 1;
 }
 
@@ -166,9 +166,9 @@ INLINE_ONLY inline EXTERN void ensure_slots(int N USES_REGS) {
 }
 
 /// @brief create a new slot with term t
-   // #define Yap_InitSlot(t)                                               \
-  //  (printf("+%d %ld %s,%s,%d>>>]\n", 1, LOCAL_CurSlot,__FILE__, __FUNCTION__, __LINE__) \
-  //    ? Yap_InitSlot__(t PASS_REGS)                                   \
+   // #define Yap_InitSlot(t)                                               
+  //  (printf("+%d %ld %s,%s,%d>>>]\n", 1, LOCAL_CurSlot,__FILE__, __FUNCTION__, __LINE__) 
+  //    ? Yap_InitSlot__(t PASS_REGS)                                   
   //    : -1)
 #define Yap_InitSlot(t) Yap_InitSlot__(t PASS_REGS)
 
@@ -199,9 +199,9 @@ INLINE_ONLY inline EXTERN yhandle_t Yap_NewSlots__(int n USES_REGS) {
   return old_slots;
 }
 
-//#define Yap_InitSlots(n, ts)                                          \
-  //  (printf("+%d %d %s,%s,%d>>>]\n", n, LOCAL_CurSlot, __FILE__, __FUNCTION__, __LINE__) \
-  //   ? Yap_InitSlots__(n, ts PASS_REGS)                               \
+//#define Yap_InitSlots(n, ts)                                          
+  //  (printf("+%d %d %s,%s,%d>>>]\n", n, LOCAL_CurSlot, __FILE__, __FUNCTION__, __LINE__) 
+  //   ? Yap_InitSlots__(n, ts PASS_REGS)                               
   //   : -1)
 #define Yap_InitSlots(n, ts) Yap_InitSlots__(n, ts PASS_REGS)
 

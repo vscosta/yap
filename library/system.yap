@@ -205,15 +205,6 @@ The atom  _File_ corresponds to an existing file.
 
 
 */
-/** @pred file_exists(+ _File_,+ _Permissions_)
-
-The atom  _File_ corresponds to an existing file with permissions
-compatible with  _Permissions_. YAP currently only accepts for
-permissions to be described as a number. The actual meaning of this
-number is Operating System dependent.
-
-
-*/
 /** @pred file_property(+ _File_,? _Property_)
 
 
@@ -567,16 +558,6 @@ file_property(File, Type, Size, Date, Permissions, LinkName) :-
 	file_property(File, Type, Size, Date, Permissions, LinkName, Error),
 	handle_system_internal(Error, off, file_property(File)).
 
-file_exists(File) :-
-	var(File), !,
-	throw(error(instantiation_error,file_exists(File))).
-file_exists(File) :-
-	\+ atom(File), !,
-	throw(error(type_error(atom,File),file_exists(File))).
-file_exists(IFile) :-
-	true_file_name(IFile, File),
-	file_property(File, _Type, _Size, _Date, _Permissions, _, Error),
-	var(Error).
 
 file_exists(File, Permissions) :-
 	var(File), !,

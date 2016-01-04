@@ -2142,14 +2142,14 @@ static Int p_is_no_trace(USES_REGS1) { /* '$undefined'(P,Mod)	 */
 
   pe = get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
   if (EndOfPAEntr(pe))
-    return TRUE;
+    return true;
   PELOCK(36, pe);
-  if (pe->PredFlags & NoTracePredFlag) {
+  if (pe->PredFlags & (NoTracePredFlag|HiddenPredFlag)) {
     UNLOCKPE(57, pe);
-    return TRUE;
+    return true;
   }
   UNLOCKPE(59, pe);
-  return FALSE;
+  return false;
 }
 
 static Int p_set_no_trace(USES_REGS1) { /* '$set_no_trace'(+Fun,+M)	 */
@@ -2438,7 +2438,7 @@ static Int
   bool out;
 
   pe = get_pred(Deref(ARG1), Deref(ARG2), "system_predicate");
-  if (EndOfPAEntr(pe))
+  if (EndOfPAEntr(pe) || pe->OpcodeOfPred == UNDEF_OPCODE)
     return FALSE;
   PELOCK(27, pe);
   out = (pe->PredFlags & SystemPredFlags);
@@ -2984,7 +2984,7 @@ restart_system_pred:
 }
 
 static Int /* $system_predicate(P) */
-    p_hide_predicate(USES_REGS1) {
+    hide_predicate(USES_REGS1) {
   PredEntry *pe;
 
   Term t1 = Deref(ARG1);
@@ -3017,13 +3017,13 @@ restart_system_pred:
     }
     pe = RepPredProp(Yap_GetPredPropByFunc(funt, mod));
   } else if (IsPairTerm(t1)) {
-    return TRUE;
+    return true;
   } else
-    return FALSE;
+    return false;
   if (EndOfPAEntr(pe))
-    return FALSE;
-  pe->PredFlags |= (HiddenPredFlag | NoTracePredFlag);
-  return TRUE;
+    return false;
+  pe->PredFlags |= (NoSpyPredFlag|NoTracePredFlag);
+  return true;
 }
 
 static Int /* $hidden_predicate(P) */
@@ -4648,7 +4648,7 @@ void Yap_InitCdMgr(void) {
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$set_pred_module", 2, p_set_pred_module, SafePredFlag);
   Yap_InitCPred("$set_pred_owner", 2, p_set_pred_owner, SafePredFlag);
-  Yap_InitCPred("$hide_predicate", 2, p_hide_predicate, SafePredFlag);
+  Yap_InitCPred("$hide_predicate", 2, hide_predicate, SafePredFlag);
   Yap_InitCPred("$stash_predicate", 2, p_stash_predicate, SafePredFlag);
   Yap_InitCPred("$hidden_predicate", 2, p_hidden_predicate, SafePredFlag);
   Yap_InitCPred("$log_update_clause", 4, p_log_update_clause, SyncPredFlag);

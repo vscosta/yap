@@ -655,6 +655,35 @@ is_callable( USES_REGS1 )
   return false;
 }
 
+static Int
+is_predicate_indicator( USES_REGS1 )
+{
+  Term G = Deref(ARG1);
+  //Term Context = Deref(ARG2);
+  Term mod = CurrentModule;
+
+  G = Yap_YapStripModule(G, &mod);
+  if (IsVarTerm(G)) {
+    Yap_Error(INSTANTIATION_ERROR, G, NULL);
+    return false;
+  }
+  if (!IsVarTerm(mod) && !IsAtomTerm(mod)) {
+    Yap_Error(TYPE_ERROR_ATOM, G, NULL);
+    return false;
+  }
+  if (IsApplTerm(G)) {
+    Functor f = FunctorOfTerm(G);
+    if (IsExtensionFunctor(f)) {
+      Yap_Error(TYPE_ERROR_PREDICATE_INDICATOR, G, NULL);
+    }
+    if (f == FunctorSlash || f == FunctorDoubleSlash) {
+      return true;
+    }
+  }
+  Yap_Error(TYPE_ERROR_PREDICATE_INDICATOR, G, NULL);
+  return false;
+}
+
 
 void
 Yap_InitErrorPreds( void )
@@ -664,5 +693,6 @@ Yap_InitErrorPreds( void )
   CurrentModule = ERROR_MODULE;
   Yap_InitCPred("is_boolean", 2, is_boolean, TestPredFlag);
   Yap_InitCPred("is_callable", 2, is_callable, TestPredFlag);
+  Yap_InitCPred("is_predicate_indicator", 2, is_predicate_indicator, TestPredFlag);
   CurrentModule = cm;
 }

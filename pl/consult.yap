@@ -432,18 +432,18 @@ load_files(Files,Opts) :-
 	  true
 	).
 '$lf'(user, Mod, _, TOpts) :- !,
-	b_setval('$source_file', user_input),
+	b_setval('$user_source_file', user,user_input),
 	'$do_lf'(Mod, user_input, user_input, user_input, TOpts).
 '$lf'(user_input, Mod, _, TOpts) :- !,
-	b_setval('$source_file', user_input),
+	b_setval('$user_source_file', user_input),
 	'$do_lf'(Mod, user_input, user_input, user_input, TOpts).
 '$lf'(File, Mod, Call, TOpts) :-
    '$lf_opt'(stream, TOpts, Stream),
-   b_setval('$source_file', File),
+   b_setval('$user_source_file', File),
     ( var(Stream) ->
 	  /* need_to_open_file */
       ( '$full_filename'(File, Y, Call) -> true ; '$do_error'(existence_error(source_sink,File),Call) ),
-	  ( open(Y, read, Stream) -> true ; '$do_error'(permission_error(input,stream,Y),Call) )
+( open(Y, read, Stream) -> true ; '$do_error'(permission_error(input,stream,Y),Call) )
         ;
 	stream_property(Stream, file_name(Y))
     ), !,

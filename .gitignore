@@ -123,3 +123,13 @@ packages/swig/java/*wrap*
 *.jar
 
 packages/cplint/approx/simplecuddLPADs/LPADBDD
+
+packages/swi-minisat2/˜:ilp
+
+packages/cplint/L
+
+packages/CLPBN/horus/hcli
+
+packages/bdd/simplecudd/problogbdd
+
+packages/bdd/cudd_config.h

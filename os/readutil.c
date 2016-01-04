@@ -36,7 +36,7 @@ rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS)
   Int status;
   UInt max_inp, buf_sz, sz;
   char *buf;
-  int  binary_stream;
+  bool  binary_stream;
 
   if (sno < 0)
     return FALSE;
@@ -118,12 +118,10 @@ read_line_to_string( USES_REGS1 )
   Int status;
   UInt max_inp, buf_sz;
   char *buf;
-  int  binary_stream;
 
   if (sno < 0)
     return FALSE;
   status = GLOBAL_Stream[sno].status;
-  binary_stream = GLOBAL_Stream[sno].status & Binary_Stream_f;
   if (status & Eof_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return Yap_unify_constant(ARG2, MkAtomTerm (AtomEof));
@@ -149,7 +147,7 @@ read_line_to_string( USES_REGS1 )
     if (GLOBAL_Stream[sno].status & Eof_Stream_f || buf[sz-1] == 10) {
       /* we're done */
 
-      if (!GLOBAL_Stream[sno].status & Eof_Stream_f) {
+      if (!(GLOBAL_Stream[sno].status & Eof_Stream_f)) {
         UNLOCK(GLOBAL_Stream[sno].streamlock);
         /* handle CR before NL */
         if ((Int)sz-2 >= 0 && buf[sz-2] == 13)

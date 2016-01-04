@@ -355,8 +355,6 @@ Int PlIOError__(const char *file, const char *function, int lineno,
   }
 }
 
-#ifdef DEBUG
-
 static int eolflg = 1;
 
 static char my_line[200] = {0};
@@ -487,8 +485,6 @@ void Yap_DebugWriteIndicator(PredEntry *ap) {
 
   Yap_DebugPutc(stderr, '\n');
 }
-
-#endif
 
 /* static */
 int FilePutc(int sno, int ch) {
@@ -1194,7 +1190,7 @@ static void check_bom(int sno, StreamDesc *st) {
   }
 }
 
-static bool initStream(int sno, FILE *fd, const char *name, Term file_name,
+ bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
                        encoding_t encoding, stream_flags_t flags,
                        Atom open_mode) {
   StreamDesc *st = &GLOBAL_Stream[sno];
@@ -1408,9 +1404,10 @@ do_open(Term file_name, Term t2,
     if (errno == ENOENT)
       return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, ARG6, "%s: %s", fname,
                         strerror(errno)));
-    else
+    else {
       return (PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, file_name, "%s: %s",
                         fname, strerror(errno)));
+    }
   }
 #if MAC
   if (open_mode == AtomWrite) {
@@ -1418,7 +1415,7 @@ do_open(Term file_name, Term t2,
   }
 #endif
   flags &= ~(Free_Stream_f);
-  if (!initStream(sno, fd, fname, file_name, encoding, flags, open_mode))
+  if (!Yap_initStream(sno, fd, fname, file_name, encoding, flags, open_mode))
     return false;
   if (open_mode == AtomWrite) {
     if (needs_bom && !write_bom(sno, st))
@@ -1521,7 +1518,7 @@ int Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags) {
       at = AtomWrite;
   } else
     at = AtomRead;
-  initStream(sno, fd, name, file_name, LOCAL_encoding, flags, at);
+  Yap_initStream(sno, fd, name, file_name, LOCAL_encoding, flags, at);
   return sno;
 }
 

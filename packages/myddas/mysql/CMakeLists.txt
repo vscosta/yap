@@ -10,7 +10,7 @@ set(SO_MAJOR 1)
 set(SO_MINOR 0)
 set(SO_PATCH 0)
 
-macro_optional_find_package(MYSQL ON)
+macro_optional_find_package(MySQL ON)
 
 macro_log_feature (MYSQL_FOUND "MySQL"
   "MYSQL Driver for MYDDAS Data-Base Interface "

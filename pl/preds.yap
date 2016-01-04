@@ -440,19 +440,10 @@ Make predicate  _Pred_ invisible to `current_predicate/2`,
 `listing`, and friends.
 
  **/
-hide_predicate(V) :- var(V), !,
-	'$do_error'(instantiation_error,hide_predicate(V)).
 hide_predicate(P0) :-
-	strip_module(P0, M, P),
-	'$hide_predicate2'(P, M).
-
-'$hide_predicate2'(V, M) :- var(V), !,
-	'$do_error'(instantiation_error,hide_predicate(M:V)).
-'$hide_predicate2'(N/A, M) :- !,
-	functor(S,N,A),
-	'$hide_predicate'(S, M) .
-'$hide_predicate2'(PredDesc, M) :-
-	'$do_error'(type_error(predicate_indicator,PredDesc),hide_predicate(M:PredDesc)).
+	'$yap_strip_module'(P0, M, P),
+	must_be_of_type(callable, M:P),
+	'$hide_predicate'(P, M).
 
 /** @pred  predicate_property( _P_, _Prop_) is iso
 

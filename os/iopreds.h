@@ -50,6 +50,9 @@ typedef enum{       /* we accept two domains for the moment, IPV6 may follow */
       af_unix       /* or AF_FILE */
 } socket_domain;
 
+extern bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
+                       encoding_t encoding, stream_flags_t flags,
+		    Atom open_mode);
 extern Term  Yap_InitSocketStream(int, socket_info, socket_domain);
 #define Yap_CheckStream( arg,  kind, msg) Yap_CheckStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
 extern int   Yap_CheckStream__(const char *, const char *, int , Term, int, const char *);

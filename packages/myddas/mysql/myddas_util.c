@@ -18,7 +18,7 @@
 #include "Yap.h"
 #include <string.h>
 #include <stdlib.h>
-#include <mysql/mysql.h>
+#include <mysql.h>
 #include <myddas_util.h>
 
 #ifdef MYDDAS_MYSQL

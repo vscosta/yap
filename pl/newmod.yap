@@ -48,7 +48,7 @@ name with the `:/2` operator.
     '$current_module'(_,N).
 '$module_dec'(N, Ps) :-	
     source_location(F,_Line),
-	'$nb_getval'( '$source_file', F0 , fail),
+    '$nb_getval'( '$user_source_file', F0 , fail),
 	'$add_module_on_file'(N, F, F0, Ps),
 	'$current_module'(_,N).
 

@@ -125,7 +125,7 @@ random number generator. The integer `X` must be in the range
 
 
  */
-:- use_module(library(pairs)).
+%:- use_module(library(pairs)).
 :- use_module(library(lists)).
 
 

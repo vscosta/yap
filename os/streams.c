@@ -255,18 +255,7 @@ static Int representation_error(int sno, Term t2 USES_REGS) {
 }
 
 static Int file_name(int sno, Term t2 USES_REGS) {
-  char s[MAXPATHLEN + 1];
-  int f = Yap_GetStreamFd(sno);
-  Term rc;
-  char *name = Yap_guessFileName(f, sno, s, MAXPATHLEN);
-  if (name)
-    rc = MkAtomTerm(Yap_LookupAtom(name));
-  else
-    return false;
-  if (!IsVarTerm(t2) && !isatom(t2)) {
-    return FALSE;
-  }
-  return Yap_unify_constant(t2, rc);
+  return Yap_unify_constant(t2, MkAtomTerm(GLOBAL_Stream[sno].name) );
 }
 
 static Int file_no(int sno, Term t2 USES_REGS) {
@@ -788,7 +777,7 @@ static Int set_stream(USES_REGS1) { /* Init current_stream */
       Yap_CheckStream(ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f,
                       "set_stream_position/2");
   if (sno < 0) {
-    return (FALSE);
+    return false;
   }
   return do_set_stream(sno, Deref(ARG2) PASS_REGS);
 }

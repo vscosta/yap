@@ -431,6 +431,15 @@ stream_position_data(Prop, Term, Value) :-
 	atom_codes(Char, [Code]),
 	'$codes_to_chars'(String0, String, Chars).
 
+/** @pred file_exists(+ _File__)
+
+The atom  _File_ corresponds to an existing file or directory.
+
+
+*/
+file_exists(IFile) :-
+	true_file_name(IFile, File),
+	'$file_exists'(File).
 
 /**
 @}

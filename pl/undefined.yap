@@ -108,7 +108,7 @@ Z * @pred '$undefp_expand'(+ M0:G0, -MG)
     % make sure we do not loop on undefined predicates
     '$stop_creeping'(Current),
     yap_flag( unknown, _, fail),
-    yap_flag( debug, Debug, false),
+ %   yap_flag( debug, Debug, false),
     (
      '$undefp_search'(M0:G0, NM:NG),
      ( M0 \== NM -> true  ; G0 \== NG ),
@@ -116,7 +116,7 @@ Z * @pred '$undefp_expand'(+ M0:G0, -MG)
     '$pred_exists'(NG,NM)
 	->
      yap_flag( unknown, _, Action),
-     yap_flag( debug, _, Debug),
+  %   yap_flag( debug, _, Debug),
      (
        Current == true
       ->
@@ -127,7 +127,7 @@ Z * @pred '$undefp_expand'(+ M0:G0, -MG)
      )
 	;
      yap_flag( unknown, _, Action),
-     yap_flag( debug, _, Debug),
+%     yap_flag( debug, _, Debug),
      '$handle_error'(Action,G0,M0)
     ).
 

@@ -5106,7 +5106,8 @@ static Int p_dequeue(USES_REGS1) {
   db_queue *father_key;
   QueueEntry *cur_instance;
   Term Father = Deref(ARG1);
-
+  Int rc;
+  
   if (IsVarTerm(Father)) {
     Yap_Error(INSTANTIATION_ERROR, Father, "dequeue");
     return FALSE;
@@ -5120,16 +5121,11 @@ static Int p_dequeue(USES_REGS1) {
       /* an empty queue automatically goes away */
       WRITE_UNLOCK(father_key->QRWLock);
       FreeDBSpace((char *)father_key);
-      return FALSE;
+      return false;
     }
-    if (!Yap_dequeue_tqueue(father_key, ARG2, true, true PASS_REGS))
-      return FALSE;
-    if (cur_instance == father_key->LastInQueue)
-      father_key->FirstInQueue = father_key->LastInQueue = NULL;
-    else
-      father_key->FirstInQueue = cur_instance->next;
+    rc = Yap_dequeue_tqueue(father_key, ARG2, true, true PASS_REGS);
     WRITE_UNLOCK(father_key->QRWLock);
-    return TRUE;
+    return rc;
   }
 }
 
@@ -5151,13 +5147,7 @@ static Int p_dequeue_unlocked(USES_REGS1) {
       FreeDBSpace((char *)father_key);
       return FALSE;
     }
-    if (!Yap_dequeue_tqueue(father_key, ARG2, true, true PASS_REGS))
-      return FALSE;
-    if (cur_instance == father_key->LastInQueue)
-      father_key->FirstInQueue = father_key->LastInQueue = NULL;
-    else
-      father_key->FirstInQueue = cur_instance->next;
-    return TRUE;
+    return Yap_dequeue_tqueue(father_key, ARG2, true, true PASS_REGS);
   }
 }
 

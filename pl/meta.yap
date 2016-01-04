@@ -322,12 +322,6 @@ meta_predicate declaration
     '$yap_strip_module'(BM:G,  NBM, GM),
     '$expand_goal'(GM, G1, GO, HM, SM, NBM, HVars).
 
-'$user_expansion'(MG, M2:G2) :-
-    '_user_expand_goal'(MG, MG2),
-     !,
-     '$yap_strip_module'( MG2, M2, G2).
-'$user_expansion'(MG, MG).
-
 
 '$import_expansion'(M:G, M1:G1) :-
     '$imported_predicate'(G, M, G1, M1),
@@ -377,12 +371,14 @@ o:p(B) :- n:g, X is 2+3, call(B).
 
 '$user_expansion'(M0N:G0N, M1:G1) :-
     '_user_expand_goal'(M0N:G0N, M:G),
+    !,
     ( M:G == M0N:G0N
     ->
       M1:G1 = M:G
     ;
       '$user_expansion'(M:G, M1:G1)
     ).
+'$user_expansion'(MG, MG).
 
   '$match_mod'(G, HMod, SMod, M, O) :-
     (

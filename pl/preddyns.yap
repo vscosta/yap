@@ -178,9 +178,9 @@ source/0 ( (see Setting the Compiler)).
 */
 retract( C ) :-
     strip_module( C, M, C0),
-	'$check_head_and_body'(C0,M,H,B,retract(M:C)),
-	'$predicate_flags'(H, M, F, F),
-	'$retract2'(F, H,M,B,_).
+	'$check_head_and_body'(M:C0,M1,H,B,retract(M:C)),
+	'$predicate_flags'(H, M1, F, F),
+	'$retract2'(F, H, M1, B,_).
 
 '$retract2'(F, H, M, B, R) :-
 	F /\ 0x08000000 =:= 0x08000000, !,
@@ -219,9 +219,9 @@ retract(M:C,R) :- !,
 
 '$retract'(C, M0, R) :-
 	db_reference(R),
-    !,
-    '$is_dynamic'(H,M), 
-	'$check_head_and_body'(M0:C,M,H,B,retract(C,R)),
+    	'$check_head_and_body'(M0:C,M,H,B,retract(C,R)),
+	dynamic(H,M),
+	!,
 	instance(R,(H:-B)),
     erase(R).
 '$retract'(C,M0,R) :-

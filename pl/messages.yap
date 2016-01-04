@@ -212,7 +212,7 @@ location( error(_,Term), Level ) -->
 	{ lists:memberchk([p|p(M,Na,Ar,_File,_FilePos)], Term ) },
 	[  '~a:~d:0 ~a in ~a:~q/~d:'-[F0, L,Level,M,Na,Ar] ],
 	[nl].
-location( error(_,Term), Level ) -->
+	location( error(_,Term), Level ) -->
 	{ lists:memberchk([p|p(M,Na,Ar,File,FilePos)], Term ) }, !,
 	[  '~a:~d:0 ~a in ~a:~q/~d:'-[File, FilePos,Level,M,Na,Ar] ],
 	[nl].

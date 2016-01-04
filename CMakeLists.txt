@@ -12,6 +12,8 @@ cmake_minimum_required(VERSION 2.8)
 # set path to additional CMake modules
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
+
+
 # set(CMAKE_BUILD_TYPE  Debug)
 
 set (MACOSX_RPATH ON)

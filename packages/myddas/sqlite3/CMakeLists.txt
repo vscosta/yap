@@ -3,7 +3,7 @@ set( YAPSQLITE3_SOURCES
   myddas_sqlite3.c
  )
 
-macro_optional_find_package(SQLITE3 ON)
+macro_optional_find_package(Sqlite3 ON)
 
   macro_log_feature (SQLITE3_FOUND "Sqlite3"
       "Sqlite3 Data-Base "

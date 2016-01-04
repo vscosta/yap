@@ -32,14 +32,16 @@ tell(F) :-
 	current_output(Stream),
 	stream_property(Stream,file_name(F)),
 	!.
-tell(F) :- current_stream(_,write,Stream), '$user_file_name'(Stream, F),  !,
+tell(F) :-
+	current_stream(_,write,Stream),
+	'$user_file_name'(Stream, F),  !,
 	set_output(Stream).
 tell(Stream) :-
 	'$stream'(Stream),
 	current_stream(_,write,Stream), !,
 	set_output(Stream).
 tell(F) :-
-	open(F,write,Stream),
+	open(F,append,Stream),
 	set_output(Stream).
 		
 telling(File) :-
@@ -48,6 +50,7 @@ telling(File) :-
 	( stream_property(user_output,file_name(NFile)) -> File = user ; File = NFile ).
 
 told :- current_output(Stream),
+        !,
 	set_output(user),
 	close(Stream).
 

@@ -410,14 +410,14 @@ init_learning :-
 	learning_initialized,
 	!.
 init_learning :-
-	convert_filename_to_problog_path('problogbdd_lfi', Path),
+	convert_filename_to_problog_path('simplecudd_lfi', Path),
 	(
 	 file_exists(Path)
 	->
 	 true;
 	 (
 	  problog_path(PD),
-	  format(user_error, 'WARNING: Can not find file: problogbdd_lfi. Please place file in problog path: ~q~n',[PD]),
+	  format(user_error, 'WARNING: Can not find file: simplecudd_lfi. Please place file in problog path: ~q~n',[PD]),
 	  fail
 	 )
 	),
@@ -885,7 +885,7 @@ update_query(QueryID,ClusterID ,Method,Command,PID,Output_File_Name) :-
 	create_bdd_output_file_name(QueryID,ClusterID,Iteration,Output_File_Name),
 	create_bdd_file_name(QueryID,ClusterID,BDD_File_Name),
 
-	convert_filename_to_problog_path('problogbdd_lfi',Absolute_Name),
+	convert_filename_to_problog_path('simplecudd_lfi',Absolute_Name),
 
 	atomic_concat([Absolute_Name,
 		       ' -i "', Input_File_Name, '"',

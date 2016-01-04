@@ -673,7 +673,7 @@ b_getval(GlobalVariable, Val) :-
 '$debug_stop'( State ) :-
         '$debug_state'( State ),
 	b_setval('$trace',off),
-	set_prolog_flag(debug, false),
+%	set_prolog_flag(debug, false),
 	b_setval('$spy_glist',[]),
 	'$disable_debugging'.
 

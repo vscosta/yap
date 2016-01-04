@@ -86,7 +86,8 @@ representation_error(Reason) :-
 %	| negative_integer | Integer < 0 |
 %	| oneof(L) | Ground term that is member of L |
 %	| list(Type) | Proper list with elements of Type |
-%	| list_or_partial_list | A list or an open list (ending in a variable |
+%	| list_or_partial_list | A list or an open list (ending in a variable) |
+%	| predicate_indicator | a predicate indicator of the form M:N/A or M:N//A |
 %
 %	@throws instantiation_error if Term is insufficiently
 %	instantiated and type_error(Type, Term) if Term is not of Type.
@@ -100,6 +101,9 @@ must_be(Type, X, Comment) :-
 must_be_of_type(callable, X) :-
 	!,
 	is_callable(X, _).
+must_be_of_type(predicate_indicator, X) :-
+	!,
+	is_predicate_indicator(X, _).
 must_be_of_type(Type, X) :-
 	(   has_type(Type, X)
 	->  true
@@ -108,6 +112,9 @@ must_be_of_type(Type, X) :-
 
 inline(must_be_of_type( callable, X ), error:is_callable(X, _) ).
 
+must_be_of_type(predicate_indicator, X, Comment) :-
+	!,
+	is_predicate_indicator(X, Comment).
 must_be_of_type(callable, X, Comment) :-
 	!,
 	is_callable(X, Comment).

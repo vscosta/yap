@@ -1,0 +1,32 @@
+#!/usr/local/bin/yap
+#.
+#
+#
+
+:- use_module(library(system)).
+
+main :-
+      source_dir( Dir ),
+      directory_files(Dir/input/parse,[_,_|Files]),
+      member( File, Files ),
+      atom_concat(test_, Number, File),
+      run( File ),
+      match( File ),
+      fail.
+main.
+
+run(File) :-
+	open( Dir/in/File, read, Stream ),
+	tmp_dir( Tmp ),
+	open( Tmp/File, Write, Output ),
+	parse( Stream, Output ).
+
+parse( Stream, Output ) :-
+	catch( take(Stream, Term ), ERR, TERM = err__(ERR) ),
+	show( Stream, Output, Term ).
+
+take( Stream, Term ) :-
+	repeat,
+	read_term( Stream, Term ),
+	( Term == end_of_file -> ! ; true ).
+
