@@ -1207,6 +1207,7 @@ static void check_bom(int sno, StreamDesc *st) {
   if (name == NULL) {
     char buf[YAP_FILENAME_MAX + 1];
     name = Yap_guessFileName(fileno(fd), sno, buf, YAP_FILENAME_MAX);
+    if (name)
     st->name = Yap_LookupAtom(name);
   }
   st->user_name = file_name;

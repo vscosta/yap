@@ -258,7 +258,7 @@ GetCurInpPos (StreamDesc * inp_stream)
   return (inp_stream->linecount);
 }
 
-#define PlIOError(type, culprit,...)  PlIOError__(__FILE__, __FUNCTION__, __LINE__, type, culprit, __VA_ARGS__)    
+#define PlIOError(type, culprit,...)  PlIOError__(__FILE__, __FUNCTION__, __LINE__, type, culprit, __VA_ARGS__)
 
 Int PlIOError__( const char *, const char *, int, yap_error_number, Term, ...);
 
