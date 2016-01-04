@@ -432,7 +432,7 @@ load_files(Files,Opts) :-
 	  true
 	).
 '$lf'(user, Mod, _, TOpts) :- !,
-	b_setval('$user_source_file', user,user_input),
+	b_setval('$user_source_file', user),
 	'$do_lf'(Mod, user_input, user_input, user_input, TOpts).
 '$lf'(user_input, Mod, _, TOpts) :- !,
 	b_setval('$user_source_file', user_input),

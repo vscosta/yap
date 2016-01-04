@@ -2144,7 +2144,7 @@ static Int p_is_no_trace(USES_REGS1) { /* '$undefined'(P,Mod)	 */
   if (EndOfPAEntr(pe))
     return true;
   PELOCK(36, pe);
-  if (pe->PredFlags & (NoTracePredFlag|HiddenPredFlag)) {
+  if (pe->PredFlags & (NoTracePredFlag | HiddenPredFlag)) {
     UNLOCKPE(57, pe);
     return true;
   }
@@ -3022,7 +3022,7 @@ restart_system_pred:
     return false;
   if (EndOfPAEntr(pe))
     return false;
-  pe->PredFlags |= (NoSpyPredFlag|NoTracePredFlag);
+  pe->PredFlags |= (HiddenPredFlag / NoSpyPredFlag | NoTracePredFlag);
   return true;
 }
 

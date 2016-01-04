@@ -36,9 +36,9 @@
 '$imported_predicate'(G,M,G,M0) :-
     predicate_property(M:G, imported_from(M0)).
 
-'$system_predicate'( call(_), _M) :- !.
-'$system_predicate'( call(_,_), _M) :- !.
-'$system_predicate'(G,M) :-
+'$is_system_predicate'( call(_), _M) :- !.
+'$is_system_predicate'( call(_,_), _M) :- !.
+'$is_system_predicate'(G,M) :-
     predicate_property(M:G, built_in).
 
 '$is_multifile'(G,M) :-
@@ -84,6 +84,6 @@ mt(N,M,A,D) :-
 '$yap_strip_module'(T,M,S) :-
     fully_strip_module(T,M,S).
 
-:- hide( expand_goal ).
+:- hide_predicate( expand_goal ).
 
 :- include(library(boot/meta)).

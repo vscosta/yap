@@ -8,12 +8,12 @@
 a(1).
 b(1).
 
-test member,
-      meta_expand( lists:member(X,[X|Y]), Clause )
+test membe,
+      meta_expand( lists:membe(X,[X|Y]), Clause )
 
       returns
 
-      Clause =@=  ( lists:member(X,[X|Y]) ).
+      Clause =@=  ( lists:membe(X,[X|Y]) ).
 
 test a,
       meta_expand( ( a(X) :- call(X) ) , Clause )

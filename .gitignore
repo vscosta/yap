@@ -24,7 +24,6 @@ tmtags*
 .zedstate
 config.h
 Yap.h
-*Makefile
 YapConfig.h
 YapTermConfig.h
 .graffiti
@@ -48,7 +47,6 @@ groups
 .Rhistory
 .zedstate
 .graffiti
-*Makefile
 .kateproject
 autom4te.cache
 *rej
@@ -61,7 +59,6 @@ JIT/HPP/bkp
 cmake_install.cmake
 cmake_clean.cmake
 *.build
-Makefile
 C/myabsmi.c
 *.ctags#
 *.hs
@@ -133,3 +130,7 @@ packages/CLPBN/horus/hcli
 packages/bdd/simplecudd/problogbdd
 
 packages/bdd/cudd_config.h
+Makefile
+build
+Debug
+debug
