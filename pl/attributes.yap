@@ -49,6 +49,13 @@
 :- dynamic attributes:modules_with_attributes/1.
 :- dynamic attributes:attributed_module/3.
 
+    :- multifile
+        attributes:attributed_module/3.
+
+:- dynamic existing_attribute/4.
+:- dynamic modules_with_attributes/1.
+:- dynamic attributed_module/3.
+
 
 /** @pred get_attr(+ _Var_,+ _Module_,- _Value_)
 
@@ -370,6 +377,10 @@ attvar_residuals(att(Module,Value,As), V) -->
 	    ),
 	    attvar_residuals(As, V)
 	).
+
+    attributes:module_has_attributes(Mod) :-
+        attributes:attributed_module(Mod, _, _), !.
+
 
 list([])     --> [].
 list([L|Ls]) --> [L], list(Ls).

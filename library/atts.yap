@@ -52,8 +52,10 @@ and the following user defined predicates can be used:
 
 :- multifile
 	user:goal_expansion/3.
-:- multifile
-	user:term_expansion/2.
+    :- multifile
+    	user:term_expansion/2.
+        :- multifile
+        	attributed_module/3.
 
 :- dynamic existing_attribute/4.
 :- dynamic modules_with_attributes/1.
@@ -269,13 +271,6 @@ do_verify_attributes([Mod|Mods], AttVar, Binding, [Mod:Goal|Goals]) :-
 	do_verify_attributes(Mods, AttVar, Binding, Goals).
 do_verify_attributes([_|Mods], AttVar, Binding, Goals) :-
 	do_verify_attributes(Mods, AttVar, Binding, Goals).
-
-has_modules_with_attributes(LMods) :-
-    modules_with_attributes(LMods).
-
-module_has_attributes(Mod) :-
-    attributed_module(Mod, _, _), !.
-
 
 /**
   @}
