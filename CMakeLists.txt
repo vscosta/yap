@@ -239,7 +239,11 @@ endif()
 # Model Specific
 if (HAVE_GCC)
   set_property( DIRECTORY APPEND PROPERTY COMPILE_OPTIONS  -Wall )
+if ( ${C_COMPILER} MATCHES "GNU")
   set_property( DIRECTORY APPEND PROPERTY COMPILE_OPTIONS  $<$<CONFIG:Release>:-O3;-fomit-frame-pointer;-fstrict-aliasing;-freorder-blocks;-fsched-interblock> )
+else()
+   set_property( DIRECTORY APPEND PROPERTY COMPILE_OPTIONS  $<$<CONFIG:Release>:-O3;-fstrict-aliasing;-freorder-blocks;-fsched-interblock> )
+endif()
   set_property( DIRECTORY APPEND  PROPERTY  COMPILE_OPTIONS  -fexceptions )
 endif()
 
