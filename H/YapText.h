@@ -29,7 +29,7 @@
  */
 
 #include "Yap.h"
-#include "utf8proc.h"
+#include "../utf8proc/utf8proc.h"
 
 /* Character types for tokenizer and write.c */
 
