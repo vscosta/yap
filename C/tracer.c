@@ -173,7 +173,7 @@ void low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args) {
 #endif
 
   // if (!worker_id) return;
-  LOCK(Yap_heap_regs->low_level_trace_lock);
+  LOCK(Yap_low_level_trace_lock);
   sc = Yap_heap_regs;
 // if (vsc_count == 161862) jmp_deb(1);
 #ifdef THREADS
@@ -326,11 +326,11 @@ void low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args) {
 #endif
   /* check_trail_consistency(); */
   if (pred == NULL) {
-    UNLOCK(Yap_heap_regs->low_level_trace_lock);
+    UNLOCK(Yap_low_level_trace_lock);
     return;
   }
   if (pred->ModuleOfPred == 0 && !LOCAL_do_trace_primitives) {
-    UNLOCK(Yap_heap_regs->low_level_trace_lock);
+    UNLOCK(Yap_low_level_trace_lock);
     return;
   }
   switch (port) {
@@ -406,7 +406,7 @@ void low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args) {
     break;
   }
   fflush(NULL);
-  UNLOCK(Yap_heap_regs->low_level_trace_lock);
+  UNLOCK(Yap_low_level_trace_lock);
 }
 
 void toggle_low_level_trace(void) {
