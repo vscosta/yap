@@ -1680,9 +1680,17 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
   attvars_in_term_nvar:
     {
       if (IsPairTerm(d0)) {
-	if (to_visit + 1024 >= (CELL **)AuxSp) {
-	  goto aux_overflow;
-	}
+        if (to_visit + 1024 >= (CELL **)AuxSp) {
+          goto aux_overflow;
+        }
+        {
+          CELL *npt0 = RepPair(d0);
+          if(IsAtomicTerm(Deref(npt0[0]))) {
+            pt0 = npt0;
+            pt0_end = pt0 + 1;
+            continue;
+          }
+        }
 #ifdef RATIONAL_TREES
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
@@ -1697,7 +1705,7 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
 	}
 #endif
 	pt0 = RepPair(d0) - 1;
-	pt0_end = RepPair(d0) + 1;
+          pt0_end = pt0+2;
       } else if (IsApplTerm(d0)) {
 	register Functor f;
 	register CELL *ap2;
@@ -1739,14 +1747,14 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
       /* next make sure noone will see this as a variable again */ 
       if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
 	/* Trail overflow */
-	if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
-	  goto trail_overflow;
-	}
+        if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
+          goto trail_overflow;
+        }
       }
       TrailTerm(TR++) = (CELL)ptd0;
       /* leave an empty slot to fill in later */
       if (HR+1024 > ASP) {
-	goto global_overflow;
+        goto global_overflow;
       }
       HR[1] = AbsPair(HR+2);
       HR += 2;
