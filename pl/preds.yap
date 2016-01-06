@@ -616,8 +616,7 @@ current_predicate(A,T0) :-
 Defines the relation:  indicator _P_ refers to a currently defined system predicate.
 */
 system_predicate(P0) :-
-	strip_module(P0, M, P),
-
+	'$yap_strip_module'(P0, M, P),
     (
      P = A/Arity, ground(P)
     ->
@@ -662,7 +661,9 @@ system_predicate(P0) :-
 current_predicate(F0) :-
 	'$yap_strip_module'(F0, M, F),
 	(var(F) ->
-	 true
+     F = A/N,
+	 current_predicate(A, M:S),
+     functor(S, A, N)
 	;
 	 (
 	  functor(F,AN,2)
