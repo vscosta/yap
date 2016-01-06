@@ -812,6 +812,7 @@ Term Yap_read_term(int inp_stream, Term opts, int nargs) {
     }
   }
   if (fe.t) {
+    CACHE_REGS
     if (fe.reading_clause &&
         !complete_clause_processing(&fe, LOCAL_tokptr, fe.t))
       fe.t = 0;
