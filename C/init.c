@@ -1025,7 +1025,7 @@ static void InitLogDBErasedMarker(void) {
  LogDBErasedMarker->ClSize =
       (UInt)NEXTOP(((LogUpdClause *)NULL)->ClCode, e);
  LogDBErasedMarker->ClCode->opc = Yap_opcode(_op_fail);
-  INIT_CLREF_COUNT(Yap_heap_regs->logdb_erased_marker);
+  INIT_CLREF_COUNT(LogDBErasedMarker);
 }
 
 static void InitSWIAtoms(void) {
@@ -1087,7 +1087,7 @@ static void InitWideAtoms(void) {
 static void InitInvisibleAtoms(void) {
   /* initialize invisible chain */
   INVISIBLECHAIN.Entry = NIL;
-  INIT_RWLOCK(Yap_heap_regs->INVISIBLECHAIN.AERWLock);
+  INIT_RWLOCK(INVISIBLECHAIN.AERWLock);
 }
 
 #ifdef YAPOR

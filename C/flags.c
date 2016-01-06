@@ -988,6 +988,7 @@ bool setYapFlag(Term tflag, Term t2) {
     return FALSE;
   }
   if (fv->global) {
+    CACHE_REGS
     switch (fv->FlagOfVE) {
     case UNKNOWN_FLAG:
     case CHARACTER_ESCAPES_FLAG:

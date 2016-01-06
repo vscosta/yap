@@ -409,7 +409,9 @@ add_subDIRECTORY (packages/cplint)
 
 add_subDIRECTORY (packages/raptor)
 
-# add_subDIRECTORY (docs)
+add_subDIRECTORY (packages/xml)
+
+add_subDIRECTORY (docs)
 
 # add_subDIRECTORY (packages/cuda)
 
