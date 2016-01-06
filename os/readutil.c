@@ -196,18 +196,20 @@ read_stream_to_codes(USES_REGS1)
     *HR = t;
     HR+=2;
     h0 = HR-1;
+    yhandle_t news, news1, st = Yap_StartSlots();
     if (HR >= ASP-1024) {
       RESET_VARIABLE(h0);
-      ARG4 = AbsPair(HBASE);
-      ARG5 = (CELL)h0;
-      if (!Yap_gcl((ASP-HBASE)*sizeof(CELL), 5, ENV, Yap_gcP())) {
-	Yap_Error(RESOURCE_ERROR_STACK, ARG1, "read_stream_to_codes/3");
-	return FALSE;
+      news = Yap_InitSlot(AbsPair(HBASE));
+      news1 = Yap_InitSlot(  (CELL)(h0));
+      if (!Yap_gcl((ASP-HBASE)*sizeof(CELL), 3, ENV, Yap_gcP())) {
+        Yap_Error(RESOURCE_ERROR_STACK, ARG1, "read_stream_to_codes/3");
+        return false;
       }
       /* build a legal term again */
-      h0 = (CELL *)ARG5;
-      HBASE = RepPair(ARG4);
+      h0 = (CELL*)(Yap_GetFromSlot(news1));
+      HBASE = RepPair(Yap_GetFromSlot(news));
     }
+    Yap_CloseSlots(st);
   }
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   if (HR == HBASE)
