@@ -8,9 +8,9 @@
 #
 # All text after a single hash (#) is considered a comment and will be ignored.
 # The format is:
-# TAG = value [value, ...]
+# TAG = value [value, file.]
 # For lists, items can also be appended using:
-# TAG += value [value, ...]
+# TAG += value [value, file.]
 # Values that contain spaces should be placed between quotes (\" \").
 
 #---------------------------------------------------------------------------
@@ -407,7 +407,7 @@ TYPEDEF_HIDES_STRUCT   = NO
 # code, doxygen keeps a cache of pre-resolved symbols. If the cache is too small
 # doxygen will become slower. If the cache is too large, memory is wasted. The
 # cache size is given by this formula: 2^(16+LOOKUP_CACHE_SIZE). The valid range
-# is 0..9, the default is 0, corresponding to a cache size of 2^16=65536
+# is 0file9, the default is 0, corresponding to a cache size of 2^16=65536
 # symbols. At the end of a run doxygen will report the cache usage and suggest
 # the optimal cache size from a speed point of view.
 # Minimum value: 0, maximum value: 9, default value: 0.
@@ -636,8 +636,8 @@ GENERATE_BUGLIST       = YES
 GENERATE_DEPRECATEDLIST= YES
 
 # The ENABLED_SECTIONS tag can be used to enable conditional documentation
-# sections, marked by \if <section_label> ... \endif and \cond <section_label>
-# ... \endcond blocks.
+# sections, marked by \if <section_label> file. \endif and \cond <section_label>
+# file. \endcond blocks.
 
 ENABLED_SECTIONS       =
 
@@ -1094,6 +1094,7 @@ HTML_FILE_EXTENSION    = .html
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
 HTML_HEADER            =
+
 #@CMAKE_SOURCE_DIR@/docs/web/bootstrap/header.html
 
 # The HTML_FOOTER tag can be used to specify a user-defined HTML footer for each
@@ -1105,6 +1106,7 @@ HTML_HEADER            =
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
 HTML_FOOTER            =
+
 #@CMAKE_SOURCE_DIR@/docs/web/bootstrap/footer.html
 
 # The HTML_STYLESHEET tag can be used to specify a user-defined cascading style
@@ -1118,6 +1120,7 @@ HTML_FOOTER            =
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
 HTML_STYLESHEET        =
+
 #@CMAKE_SOURCE_DIR@/docs/web/bootstrap/customdoxygen.css
 
 # The HTML_EXTRA_STYLESHEET tag can be used to specify additional user-defined
@@ -1131,7 +1134,9 @@ HTML_STYLESHEET        =
 # list). For an example see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_STYLESHEET  = @CMAKE_SOURCE_DIR@/docs/solarized-light.css
+HTML_EXTRA_STYLESHEET  =
+
+# @CMAKE_SOURCE_DIR@/docs/solarized-light.css
 
 # The HTML_EXTRA_FILES tag can be used to specify one or more extra images or
 # other source files which should be copied to the HTML output directory. Note
@@ -1142,6 +1147,7 @@ HTML_EXTRA_STYLESHEET  = @CMAKE_SOURCE_DIR@/docs/solarized-light.css
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
 HTML_EXTRA_FILES       =
+
 #@CMAKE_SOURCE_DIR@/docs/web/bootstrap/doxy-boot.js
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output. Doxygen
@@ -1489,7 +1495,7 @@ MATHJAX_FORMAT         = HTML-CSS
 # output directory using the MATHJAX_RELPATH option. The destination directory
 # should contain the MathJax.js script. For instance, if the mathjax directory
 # is located at the same level as the HTML output directory, then
-# MATHJAX_RELPATH should be ../mathjax. The default value points to the MathJax
+# MATHJAX_RELPATH should be file/mathjax. The default value points to the MathJax
 # Content Delivery Network so you can quickly see the result without installing
 # MathJax. However, it is strongly recommended to install a local copy of
 # MathJax from http://www.mathjax.org before deployment.
@@ -1886,7 +1892,7 @@ MAN_LINKS              = NO
 # captures the structure of the code including all documentation.
 # The default value is: NO.
 
-GENERATE_XML           = NO
+GENERATE_XML           = YES
 
 # The XML_OUTPUT tag is used to specify where the XML pages will be put. If a
 # relative path is entered the value of OUTPUT_DIRECTORY will be put in front of
@@ -2069,7 +2075,7 @@ SKIP_FUNCTION_MACROS   = YES
 # a tag file without this location is as follows:
 # TAGFILES = file1 file2 ...
 # Adding location for the tag files is done as follows:
-# TAGFILES = file1=loc1 "file2 = loc2" ...
+# TAGFILES = file1=loc1 "file2 = loc2" file.
 # where loc1 and loc2 can be relative or absolute paths or URLs. See the
 # section "Linking to external documentation" for more information about the use
 # of tag files.
