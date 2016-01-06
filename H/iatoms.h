@@ -405,8 +405,10 @@
   AtomVariableNames = Yap_LookupAtom("variable_names");
   AtomHiddenVar = Yap_FullLookupAtom("$V");
   AtomVariable = Yap_LookupAtom("variable");
+  AtomVerbose = Yap_LookupAtom("verbose");
   AtomVerboseFileSearch = Yap_LookupAtom("verbose_file_search");
   AtomVersionNumber = Yap_FullLookupAtom("$version_name");
+  AtomVeryVerbose = Yap_LookupAtom("very_verbose");
   AtomWakeUpGoal = Yap_FullLookupAtom("$wake_up_goal");
   AtomWarning = Yap_LookupAtom("warning");
   AtomWhen = Yap_FullLookupAtom("$when");

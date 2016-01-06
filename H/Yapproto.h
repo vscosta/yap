@@ -254,7 +254,7 @@ void Yap_CopyThreadStacks(int, int, int);
 /* heapgc.c */
 Int Yap_total_gc_time(void);
 void Yap_init_gc(void);
-int Yap_is_gc_verbose(void);
+bool Yap_is_gc_verbose(void);
 int Yap_gc(Int, CELL *, yamop *);
 int Yap_locked_gc(Int, CELL *, yamop *);
 int Yap_gcl(UInt, Int, CELL *, yamop *);

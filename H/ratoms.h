@@ -405,8 +405,10 @@
   AtomVariableNames = AtomAdjust(AtomVariableNames);
   AtomHiddenVar = AtomAdjust(AtomHiddenVar);
   AtomVariable = AtomAdjust(AtomVariable);
+  AtomVerbose = AtomAdjust(AtomVerbose);
   AtomVerboseFileSearch = AtomAdjust(AtomVerboseFileSearch);
   AtomVersionNumber = AtomAdjust(AtomVersionNumber);
+  AtomVeryVerbose = AtomAdjust(AtomVeryVerbose);
   AtomWakeUpGoal = AtomAdjust(AtomWakeUpGoal);
   AtomWarning = AtomAdjust(AtomWarning);
   AtomWhen = AtomAdjust(AtomWhen);

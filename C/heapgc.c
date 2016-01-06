@@ -1,4 +1,4 @@
-/*************************************************************************
+/**************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -45,15 +45,15 @@ static void mark_db_fixed(CELL *  CACHE_TYPE);
 static void mark_regs(tr_fr_ptr CACHE_TYPE);
 static void mark_trail(tr_fr_ptr, tr_fr_ptr, CELL *, choiceptr CACHE_TYPE);
 static void mark_environments(CELL *, size_t, CELL * CACHE_TYPE);
-static void mark_choicepoints(choiceptr, tr_fr_ptr, int CACHE_TYPE);
+static void mark_choicepoints(choiceptr, tr_fr_ptr, bool CACHE_TYPE);
 static void into_relocation_chain(CELL *, CELL * CACHE_TYPE);
 static void sweep_trail(choiceptr, tr_fr_ptr CACHE_TYPE);
 static void sweep_environments(CELL *, size_t, CELL * CACHE_TYPE);
 static void sweep_choicepoints(choiceptr CACHE_TYPE);
 static void compact_heap( CACHE_TYPE1 );
 static void update_relocation_chain(CELL *, CELL * CACHE_TYPE);
-static int  is_gc_verbose(void);
-static int  is_gc_very_verbose(void);
+static bool  is_gc_verbose(void);
+static bool  is_gc_very_verbose(void);
 static void  LeaveGCMode( CACHE_TYPE1 );
 #ifdef EASY_SHUNTING
 static void  set_conditionals(tr_fr_ptr CACHE_TYPE);
@@ -1971,7 +1971,7 @@ youngest_cp(choiceptr gc_B, dep_fr_ptr *depfrp)
 
 
 static void 
-mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose USES_REGS)
+mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, bool very_verbose USES_REGS)
 {
   OPCODE 
     trust_lu = Yap_opcode(_trust_logical),
@@ -3908,7 +3908,7 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp USES_REGS)
   if (CurrentH0) {
     H0 = CurrentH0;
 #ifdef TABLING
-    /* make sure that we have the correct H_FZ if we're not tabling */
+    /* make sure that we havce the correct H_FZ if we're not tabling */
     if (B_FZ == (choiceptr)LCL0)
       H_FZ = H0;
 #endif /* TABLING */
@@ -3923,7 +3923,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   volatile tr_fr_ptr     old_TR = NULL;
   UInt		m_time, c_time, time_start, gc_time;
   Int           effectiveness, tot;
-  int           gc_trace;
+  bool           gc_trace;
   UInt		gc_phase;
   UInt		alloc_sz;
   int jmp_res;
@@ -3931,7 +3931,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   heap_cells = HR-H0;
   gc_verbose = is_gc_verbose();
   effectiveness = 0;
-  gc_trace = FALSE;
+  gc_trace = false;
   LOCAL_GcCalls++;
 #ifdef INSTRUMENT_GC
   {
@@ -3956,8 +3956,8 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
 #ifdef DEBUG
   check_global();
 #endif
-  if (Yap_GetValue(AtomGcTrace) != TermNil)
-    gc_trace = 1;
+  if (gcTrace() != TermOff)
+    gc_trace = true;
   if (gc_trace) {
     fprintf(stderr, "%% gc\n");
   } else if (gc_verbose) {
@@ -4130,34 +4130,34 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   return effectiveness;
 }
 
-static int
+static bool
 is_gc_verbose(void)
 {
   CACHE_REGS
   if (LOCAL_PrologMode == BootMode)
-    return FALSE;
+    return false;
 #ifdef INSTRUMENT_GC
   /* always give info when we are debugging gc */
-  return(TRUE);
+  return true;
 #else
-  return(Yap_GetValue(AtomGcVerbose) != TermNil ||
-	 Yap_GetValue(AtomGcVeryVerbose) != TermNil);
+  Term t = gcTrace();
+  return t == TermVerbose || t == TermVeryVerbose;
 #endif
 }
 
-int
+bool
 Yap_is_gc_verbose(void)
 {
   return is_gc_verbose();
 }
 
-static int
+static bool
 is_gc_very_verbose(void)
 {
   CACHE_REGS
   if (LOCAL_PrologMode == BootMode)
-    return FALSE;
-  return Yap_GetValue(AtomGcVeryVerbose) != TermNil;
+    return false;
+  return gcTrace() == TermVeryVerbose;
 }
 
 Int

@@ -1211,12 +1211,18 @@
   Atom AtomVariable_;
 #define AtomVariable Yap_heap_regs->AtomVariable_
 #define TermVariable MkAtomTerm( Yap_heap_regs->AtomVariable_ )
+  Atom AtomVerbose_;
+#define AtomVerbose Yap_heap_regs->AtomVerbose_
+#define TermVerbose MkAtomTerm( Yap_heap_regs->AtomVerbose_ )
   Atom AtomVerboseFileSearch_;
 #define AtomVerboseFileSearch Yap_heap_regs->AtomVerboseFileSearch_
 #define TermVerboseFileSearch MkAtomTerm( Yap_heap_regs->AtomVerboseFileSearch_ )
   Atom AtomVersionNumber_;
 #define AtomVersionNumber Yap_heap_regs->AtomVersionNumber_
 #define TermVersionNumber MkAtomTerm( Yap_heap_regs->AtomVersionNumber_ )
+  Atom AtomVeryVerbose_;
+#define AtomVeryVerbose Yap_heap_regs->AtomVeryVerbose_
+#define TermVeryVerbose MkAtomTerm( Yap_heap_regs->AtomVeryVerbose_ )
   Atom AtomWakeUpGoal_;
 #define AtomWakeUpGoal Yap_heap_regs->AtomWakeUpGoal_
 #define TermWakeUpGoal MkAtomTerm( Yap_heap_regs->AtomWakeUpGoal_ )

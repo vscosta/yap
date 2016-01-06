@@ -342,6 +342,10 @@ static inline size_t indexingDepth(void) {
   return IntOfTerm(GLOBAL_Flags[INDEX_SUB_TERM_SEARCH_DEPTH_FLAG].at);
 }
 
+static inline Term gcTrace(void) {
+  return GLOBAL_Flags[GC_TRACE_FLAG].at;
+}
+
 bool rmdot(Term inp);
 
 xarg *Yap_ArgListToVector(Term listl, const param_t *def, int n);
