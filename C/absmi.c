@@ -1109,7 +1109,7 @@ interrupt_deallocate( USES_REGS1 )
       }
       return interrupt_handler( pe PASS_REGS );
     }
-    if (!Yap_locked_gc(0, ENV, CP)) {
+    if (!Yap_locked_gc(0, ENV, YESCODE)) {
       Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
     }
     S = ASP;
