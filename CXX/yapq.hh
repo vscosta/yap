@@ -12,8 +12,9 @@
  * uses an SWI-like status info internally.
  */
 class YAPQuery: public YAPPredicate, open_query_struct {
-  Term vnames;
+  YAPListTerm vnames;
   YAPTerm goal;
+  Term names;
   Term t;
 
   void  initOpenQ();
@@ -39,8 +40,10 @@ public:
   ///
   /// It is given a string, calls the parser and obtains a Prolog term that should be a callable
   /// goal.
-  inline YAPQuery(const char *s): YAPPredicate(s, t, vnames)
+  inline YAPQuery(const char *s): YAPPredicate(s, t, names)
   {
+    vnames = YAPListTerm( names );
+       
     initQuery( t );
   };
 

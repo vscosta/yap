@@ -299,7 +299,7 @@ const char *YAPTerm::text() {
   encoding_t enc = LOCAL_encoding;
 
   BACKUP_MACHINE_REGS();
-  if (!(os = Yap_TermToString(t, os, sze, &length, &enc, 0))) {      RECOVER_MACHINE_REGS();
+  if (!(os = Yap_TermToString(Yap_GetFromSlot(t), os, sze, &length, &enc, 0))) {      RECOVER_MACHINE_REGS();
       return (char *)NULL;
   }
   RECOVER_MACHINE_REGS();
@@ -460,8 +460,9 @@ YAPQuery::YAPQuery(YAPPredicate p, YAPTerm ts[]): YAPPredicate(p.ap)
 
 YAPListTerm YAPQuery::namedVars() {
   CACHE_REGS
-  Term o = Yap_GetFromSlot( vnames );
-  return YAPListTerm( o );
+    Term o = vnames.term();
+  Yap_DebugPlWrite(names); printf("<<<<<<<<<<<<<<<<-------------------------\n");
+  return YAPListTerm( names );  // should be o
 }
 
 bool YAPQuery::next()
@@ -469,13 +470,18 @@ bool YAPQuery::next()
   CACHE_REGS
   int result;
 
+  Yap_DebugPlWrite(vnames.term()); fprintf(stderr,"++++++++++++++\n");                
+
   BACKUP_MACHINE_REGS();
   if (q_open != 1) return false;
   if (setjmp(q_env))
     return false;
    // don't forget, on success these guys must create slots
   if (this->q_state == 0) {
-    result = (bool)YAP_EnterGoal((YAP_PredEntryPtr)ap, q_g, &q_h);
+    fprintf(stderr,"+++++ ap=%p +++++++++\n", ap);            
+    Yap_DebugPlWrite(Yap_GetFromSlot(q_g)); fprintf(stderr,"+++++ ap +++++++++\n");            
+result = (bool)YAP_EnterGoal((YAP_PredEntryPtr)ap, q_g, &q_h);
+		     Yap_DebugPlWrite(Yap_GetFromSlot(q_g)); fprintf(stderr,"+++++ ap=%d +++++++++\n", result);            
   } else {
       LOCAL_AllowRestart = q_open;
       result = (bool)YAP_RetryGoal(&q_h);
@@ -752,7 +758,7 @@ void *YAPPrologPredicate::assertClause( YAPTerm clause, bool last, YAPTerm sourc
     RECOVER_MACHINE_REGS();
   }
     return tref;
-  return 0;
+    return 0;
 }
 void* YAPPrologPredicate::retractClause( YAPTerm skeleton, bool all) {
   return 0;

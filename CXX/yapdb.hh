@@ -117,13 +117,13 @@ protected:
   /// It also communicates the array of arguments t[]
   /// and the array of variables
   /// back to yapquery
-  YAPPredicate(const char *s, Term &out, Term &vnames ) {
+  YAPPredicate(const char *s, Term &out, Term &names ) {
     CACHE_REGS
     BACKUP_MACHINE_REGS();
     Term *outp;
-
-    out = Yap_StringToTerm(s, strlen(s)+1, &LOCAL_encoding, 1200, &vnames ) ;
-    //extern char *s0;
+    
+  out = Yap_StringToTerm(s, strlen(s)+1, &LOCAL_encoding, 1200, &names ) ;
+  //extern char *s0;
     //fprintf(stderr,"ap=%p arity=%d text=%s", ap, ap->ArityOfPE, s);
   //  Yap_DebugPlWrite(out);
       //  delete [] ns;
