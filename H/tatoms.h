@@ -56,6 +56,9 @@
   Atom AtomArrow_;
 #define AtomArrow Yap_heap_regs->AtomArrow_
 #define TermArrow MkAtomTerm( Yap_heap_regs->AtomArrow_ )
+  Atom AtomAttributedModule_;
+#define AtomAttributedModule Yap_heap_regs->AtomAttributedModule_
+#define TermAttributedModule MkAtomTerm( Yap_heap_regs->AtomAttributedModule_ )
   Atom AtomDoubleArrow_;
 #define AtomDoubleArrow Yap_heap_regs->AtomDoubleArrow_
 #define TermDoubleArrow MkAtomTerm( Yap_heap_regs->AtomDoubleArrow_ )
@@ -71,6 +74,18 @@
   Atom AtomEmptyCurlyBrackets_;
 #define AtomEmptyCurlyBrackets Yap_heap_regs->AtomEmptyCurlyBrackets_
 #define TermEmptyCurlyBrackets MkAtomTerm( Yap_heap_regs->AtomEmptyCurlyBrackets_ )
+  Atom AtomAsserta_;
+#define AtomAsserta Yap_heap_regs->AtomAsserta_
+#define TermAsserta MkAtomTerm( Yap_heap_regs->AtomAsserta_ )
+  Atom AtomAssertaStatic_;
+#define AtomAssertaStatic Yap_heap_regs->AtomAssertaStatic_
+#define TermAssertaStatic MkAtomTerm( Yap_heap_regs->AtomAssertaStatic_ )
+  Atom AtomAssertz_;
+#define AtomAssertz Yap_heap_regs->AtomAssertz_
+#define TermAssertz MkAtomTerm( Yap_heap_regs->AtomAssertz_ )
+  Atom AtomAssertzStatic_;
+#define AtomAssertzStatic Yap_heap_regs->AtomAssertzStatic_
+#define TermAssertzStatic MkAtomTerm( Yap_heap_regs->AtomAssertzStatic_ )
   Atom AtomAt_;
 #define AtomAt Yap_heap_regs->AtomAt_
 #define TermAt MkAtomTerm( Yap_heap_regs->AtomAt_ )
@@ -194,6 +209,9 @@
   Atom AtomConsistencyError_;
 #define AtomConsistencyError Yap_heap_regs->AtomConsistencyError_
 #define TermConsistencyError MkAtomTerm( Yap_heap_regs->AtomConsistencyError_ )
+  Atom AtomConsult_;
+#define AtomConsult Yap_heap_regs->AtomConsult_
+#define TermConsult MkAtomTerm( Yap_heap_regs->AtomConsult_ )
   Atom AtomConsultOnBoot_;
 #define AtomConsultOnBoot Yap_heap_regs->AtomConsultOnBoot_
 #define TermConsultOnBoot MkAtomTerm( Yap_heap_regs->AtomConsultOnBoot_ )
@@ -302,6 +320,9 @@
   Atom AtomDOUBLE_;
 #define AtomDOUBLE Yap_heap_regs->AtomDOUBLE_
 #define TermDOUBLE MkAtomTerm( Yap_heap_regs->AtomDOUBLE_ )
+  Atom AtomDoubleSlash_;
+#define AtomDoubleSlash Yap_heap_regs->AtomDoubleSlash_
+#define TermDoubleSlash MkAtomTerm( Yap_heap_regs->AtomDoubleSlash_ )
   Atom AtomE_;
 #define AtomE Yap_heap_regs->AtomE_
 #define TermE MkAtomTerm( Yap_heap_regs->AtomE_ )
@@ -395,6 +416,9 @@
   Atom AtomFast_;
 #define AtomFast Yap_heap_regs->AtomFast_
 #define TermFast MkAtomTerm( Yap_heap_regs->AtomFast_ )
+  Atom AtomFastFail_;
+#define AtomFastFail Yap_heap_regs->AtomFastFail_
+#define TermFastFail MkAtomTerm( Yap_heap_regs->AtomFastFail_ )
   Atom AtomFileErrors_;
 #define AtomFileErrors Yap_heap_regs->AtomFileErrors_
 #define TermFileErrors MkAtomTerm( Yap_heap_regs->AtomFileErrors_ )
@@ -860,6 +884,9 @@
   Atom AtomReadutil_;
 #define AtomReadutil Yap_heap_regs->AtomReadutil_
 #define TermReadutil MkAtomTerm( Yap_heap_regs->AtomReadutil_ )
+  Atom AtomReconsult_;
+#define AtomReconsult Yap_heap_regs->AtomReconsult_
+#define TermReconsult MkAtomTerm( Yap_heap_regs->AtomReconsult_ )
   Atom AtomRecordedP_;
 #define AtomRecordedP Yap_heap_regs->AtomRecordedP_
 #define TermRecordedP MkAtomTerm( Yap_heap_regs->AtomRecordedP_ )
@@ -1166,12 +1193,12 @@
   Atom AtomUserOut_;
 #define AtomUserOut Yap_heap_regs->AtomUserOut_
 #define TermUserOut MkAtomTerm( Yap_heap_regs->AtomUserOut_ )
+  Atom AtomDollarVar_;
+#define AtomDollarVar Yap_heap_regs->AtomDollarVar_
+#define TermDollarVar MkAtomTerm( Yap_heap_regs->AtomDollarVar_ )
   Atom AtomVBar_;
 #define AtomVBar Yap_heap_regs->AtomVBar_
 #define TermVBar MkAtomTerm( Yap_heap_regs->AtomVBar_ )
-  Atom AtomVar_;
-#define AtomVar Yap_heap_regs->AtomVar_
-#define TermVar MkAtomTerm( Yap_heap_regs->AtomVar_ )
   Atom AtomVarBranches_;
 #define AtomVarBranches Yap_heap_regs->AtomVarBranches_
 #define TermVarBranches MkAtomTerm( Yap_heap_regs->AtomVarBranches_ )
@@ -1184,12 +1211,18 @@
   Atom AtomVariable_;
 #define AtomVariable Yap_heap_regs->AtomVariable_
 #define TermVariable MkAtomTerm( Yap_heap_regs->AtomVariable_ )
+  Atom AtomVerbose_;
+#define AtomVerbose Yap_heap_regs->AtomVerbose_
+#define TermVerbose MkAtomTerm( Yap_heap_regs->AtomVerbose_ )
   Atom AtomVerboseFileSearch_;
 #define AtomVerboseFileSearch Yap_heap_regs->AtomVerboseFileSearch_
 #define TermVerboseFileSearch MkAtomTerm( Yap_heap_regs->AtomVerboseFileSearch_ )
   Atom AtomVersionNumber_;
 #define AtomVersionNumber Yap_heap_regs->AtomVersionNumber_
 #define TermVersionNumber MkAtomTerm( Yap_heap_regs->AtomVersionNumber_ )
+  Atom AtomVeryVerbose_;
+#define AtomVeryVerbose Yap_heap_regs->AtomVeryVerbose_
+#define TermVeryVerbose MkAtomTerm( Yap_heap_regs->AtomVeryVerbose_ )
   Atom AtomWakeUpGoal_;
 #define AtomWakeUpGoal Yap_heap_regs->AtomWakeUpGoal_
 #define TermWakeUpGoal MkAtomTerm( Yap_heap_regs->AtomWakeUpGoal_ )
@@ -1287,6 +1320,8 @@
 #define FunctorDoLogUpdClauseErase Yap_heap_regs->FunctorDoLogUpdClauseErase_
   Functor FunctorDoStaticClause_;
 #define FunctorDoStaticClause Yap_heap_regs->FunctorDoStaticClause_
+  Functor FunctorDollarVar_;
+#define FunctorDollarVar Yap_heap_regs->FunctorDollarVar_
   Functor FunctorDomainError_;
 #define FunctorDomainError Yap_heap_regs->FunctorDomainError_
   Functor FunctorDot_;
@@ -1313,6 +1348,8 @@
 #define FunctorDot8 Yap_heap_regs->FunctorDot8_
   Functor FunctorDot9_;
 #define FunctorDot9 Yap_heap_regs->FunctorDot9_
+  Functor FunctorDoubleSlash_;
+#define FunctorDoubleSlash Yap_heap_regs->FunctorDoubleSlash_
   Functor FunctorEmptySquareBrackets_;
 #define FunctorEmptySquareBrackets Yap_heap_regs->FunctorEmptySquareBrackets_
   Functor FunctorEmptyCurlyBrackets_;
@@ -1403,6 +1440,8 @@
 #define FunctorPortray Yap_heap_regs->FunctorPortray_
   Functor FunctorPrintMessage_;
 #define FunctorPrintMessage Yap_heap_regs->FunctorPrintMessage_
+  Functor FunctorProcedure_;
+#define FunctorProcedure Yap_heap_regs->FunctorProcedure_
   Functor FunctorPrologConstraint_;
 #define FunctorPrologConstraint Yap_heap_regs->FunctorPrologConstraint_
   Functor FunctorQuery_;
@@ -1463,7 +1502,5 @@
 #define FunctorUPlus Yap_heap_regs->FunctorUPlus_
   Functor FunctorVBar_;
 #define FunctorVBar Yap_heap_regs->FunctorVBar_
-  Functor FunctorVar_;
-#define FunctorVar Yap_heap_regs->FunctorVar_
   Functor FunctorHiddenVar_;
 #define FunctorHiddenVar Yap_heap_regs->FunctorHiddenVar_

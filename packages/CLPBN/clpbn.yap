@@ -21,6 +21,7 @@
 
 :- use_module(library(atts)).
 
+
 :- use_module(library(bhash)).
 
 :- use_module(library(lists)).
@@ -33,7 +34,7 @@
 
 :- attribute key/1, dist/2, evidence/1.
 
-:- use_module('clpbn/ve',
+:- use_module(clpbn/ve,
 		[ve/3,
 		 check_if_ve_done/1,
 		 init_ve_solver/4,
@@ -198,7 +199,7 @@ clpbn_flag(parameter_softening,Before,After) :- !,
 	retract(parameter_softening(Before)),
 	assert(parameter_softening(After)).
 
-clpbn_flag(use_factors,Before,After) :- !,
+clpbn_flag(use_parfactors,Before,After) :- !,
 	retract(use_parfactors(Before)),
 	assert(use_parfactors(After)).
 

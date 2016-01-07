@@ -17,8 +17,23 @@
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
+/**
+ * @file   chartypes.c
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Thu Nov 19 12:05:14 2015
+ * 
+ * @brief  Character Properties
+ * 
+ * 
+ */
+
+///{@
+
+
+/// @addtogroup CharProps 
+
 /*
- * This file includes the definition of a pipe related IO.
+ * This file includes the definition of a character properties.
  *
  */
 
@@ -98,7 +113,12 @@ static enc_map_t ematches[] = {
     {"Windows-1252", ENC_ISO_LATIN1}, // almost, but not quite
     {"CP-1252", ENC_ISO_LATIN1},
     {"C", ENC_ISO_ASCII},
-    {NULL, ENC_OCTET}};
+#ifdef _WIN32
+    {NULL, ENC_UTF16_LE}
+#else
+    {NULL, ENC_ISO_UTF8}
+#endif
+};
 
 static encoding_t DefaultEncoding(void) {
   encoding_t rc;
@@ -134,7 +154,7 @@ static encoding_t DefaultEncoding(void) {
     int j = 0;
     while (rc != ematches[j].e)
       j++;
-    Yap_Warning("YAP will use default encoding %s", ematches[j].s);
+    //    Yap_Warning("YAP will use default encoding %s", ematches[j].s);
   }
   return rc;
 }
@@ -822,7 +842,7 @@ static Int p_all_char_conversions(USES_REGS1) {
 
 void Yap_InitChtypes(void) {
   CACHE_REGS
-  DefaultEncoding();
+  LOCAL_encoding = DefaultEncoding();
   Yap_InitCPred("$change_type_of_char", 2, p_change_type_of_char,
                 SafePredFlag | SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("toupper", 2, toupper2, SafePredFlag);

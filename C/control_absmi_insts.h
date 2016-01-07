@@ -426,6 +426,10 @@
       Op(deallocate, p);
       CACHE_Y_AS_ENV(YREG);
       check_trail(TR);
+#ifndef NO_CHECKING
+      /* check stacks */
+      check_stack(NoStackDeallocate, HR);
+#endif
       PREG = NEXTOP(PREG, p);
       /* other instructions do depend on S being set by deallocate
          :-( */
@@ -452,24 +456,23 @@
         ENV_YREG = (CELL *) ((CELL) ENV_YREG + ENV_Size(CPREG));
 #endif /* FROZEN_STACKS */
       WRITEBACK_Y_AS_ENV();
-#ifndef NO_CHECKING
-      /* check stacks */
-      check_stack(NoStackDeallocate, HR);
-#endif
       ENDCACHE_Y_AS_ENV();
       GONext();
 
     NoStackDeallocate:
       BEGD(d0);
 #ifdef SHADOW_S
-      Yap_REGS.S_ = SREG;
+      Yap_REGS.S_ = YREG;
 #endif
+      PREG = NEXTOP(PREG,p);
       saveregs();
       d0 = interrupt_deallocate( PASS_REGS1 );
       setregs();
+      PREG = PREVOP(PREG,p);
 #ifdef SHADOW_S
       SREG = Yap_REGS.S_;
 #endif
+      // return to original deallocate
       if (!d0) FAIL();
       JMPNext();
       ENDD(d0);

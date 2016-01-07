@@ -228,8 +228,9 @@
 :- initialization((
 	bb_put(logger_filename,'out.dat'),
 	bb_put(logger_delimiter,';'),
-	bb_put(logger_variables,[])
-)).
+                   bb_put(logger_variables,[])
+                  )).
+
 
 %========================================================================
 %= Defines a new variable, possible types are: int, float and time

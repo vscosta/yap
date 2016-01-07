@@ -25,6 +25,7 @@ static char SccsId[] = "%W% %G%";
 static Int current_module(USES_REGS1);
 static Int current_module1(USES_REGS1);
 static ModEntry *LookupModule(Term a);
+static ModEntry *LookupSystemModule(Term a);
 
  static ModEntry *FetchModuleEntry(Atom at)
 /* get predicate entry for ap/arity; create it if neccessary.              */
@@ -69,6 +70,7 @@ inline static ModEntry *GetModuleEntry(Atom at)
     new->NextME = CurrentModules;
     CurrentModules = new;
     new->AtomOfME = ae;
+    new->OwnerFile = Yap_ConsultingFile( PASS_REGS1);
     AddPropToAtom(ae, (PropEntry *)new);
     if (CurrentModule == 0L || (oat = GetModuleEntry(AtomOfTerm(CurrentModule))) == new) {
       Yap_setModuleFlags(new, NULL);
@@ -84,9 +86,16 @@ Term Yap_getUnknownModule(ModEntry *m) {
     return TermError;
   } else if (m && m->flags & UNKNOWN_WARNING) {
     return TermWarning;
+  } else if (m && m->flags & UNKNOWN_FAST_FAIL) {
+    return TermFastFail;
   } else {
     return TermFail;
   }
+}
+
+bool Yap_getUnknown ( Term mod) {
+  ModEntry *m = LookupModule( mod );
+  return Yap_getUnknownModule( m );
 }
 
 
@@ -118,6 +127,23 @@ Term Yap_Module_Name(PredEntry *ap) {
 
 }
 
+static ModEntry *LookupSystemModule(Term a) {
+  CACHE_REGS
+  Atom at;
+  ModEntry *me;
+  
+
+  /* prolog module */
+  if (a == 0) {
+    return GetModuleEntry(AtomProlog);
+  }
+  at = AtomOfTerm(a);
+  me = GetModuleEntry(at);
+  me->flags |= M_SYSTEM;
+  me->OwnerFile = Yap_ConsultingFile( PASS_REGS1 );
+  return me;}
+
+
 static ModEntry *LookupModule(Term a) {
   Atom at;
   ModEntry *me;
@@ -131,6 +157,13 @@ static ModEntry *LookupModule(Term a) {
   return me;
 }
 
+bool Yap_isSystemModule(Term a) {
+  ModEntry *me = LookupModule(a);
+  return
+    me != NULL &&
+    me->flags & M_SYSTEM;
+}
+
 Term Yap_Module(Term tmod) {
   LookupModule(tmod);
   return tmod;
@@ -141,6 +174,7 @@ ModEntry *Yap_GetModuleEntry(Term mod) {
   if (!(me = LookupModule(mod)))
     return NULL;
   return me;
+
 }
 
 Term Yap_GetModuleFromEntry(ModEntry *me) {
@@ -191,13 +225,6 @@ static Int
   return TRUE;
 }
 
-static Int current_module1(USES_REGS1) { /* $current_module(Old)
-                                              */
-  if (CurrentModule)
-    return Yap_unify_constant(ARG1, CurrentModule);
-  return Yap_unify_constant(ARG1, TermProlog);
-}
-
 static Int change_module(USES_REGS1) { /* $change_module(New)		 */
   Term mod = Deref(ARG1);
   LookupModule(mod);
@@ -205,6 +232,14 @@ static Int change_module(USES_REGS1) { /* $change_module(New)		 */
   LOCAL_SourceModule = mod;
   return TRUE;
 }
+
+static Int current_module1(USES_REGS1) { /* $current_module(Old)
+                                              */
+  if (CurrentModule)
+    return Yap_unify_constant(ARG1, CurrentModule);
+  return Yap_unify_constant(ARG1, TermProlog);
+}
+
 
 static Int cont_current_module(USES_REGS1) {
   ModEntry *imod = AddressOfTerm(EXTRA_CBACK_ARG(1, 1)), *next;
@@ -278,6 +313,43 @@ static Int init_ground_module(USES_REGS1) {
   B->cp_h = HR;
   EXTRA_CBACK_ARG(3, 1) = MkAddressTerm(CurrentModules);
   return cont_ground_module(PASS_REGS1);
+}
+
+/** 
+ * @pred system_module( + _Mod_)
+ * 
+ * @param module 
+ * 
+ * @return 
+ */
+static Int is_system_module( USES_REGS1 )
+{
+  Term t;
+  if (IsVarTerm(t = Deref (ARG1))) {
+    return false;
+  }
+  if (!IsAtomTerm(t)) {
+    Yap_Error(TYPE_ERROR_ATOM, t, "load_files/2");
+    return false;
+  }
+  return Yap_isSystemModule( t );
+}
+
+static Int new_system_module( USES_REGS1 )
+{
+  ModEntry *me;
+  Term t;
+  if (IsVarTerm(t = Deref (ARG1))) {
+    Yap_Error( INSTANTIATION_ERROR, t, NULL);
+    return false;
+  }
+  if (!IsAtomTerm(t)) {
+    Yap_Error(TYPE_ERROR_ATOM, t, NULL);
+    return false;
+  }
+  me = LookupSystemModule( t );
+  me->OwnerFile = Yap_ConsultingFile( PASS_REGS1);
+  return me != NULL;
 }
 
 static Int strip_module(USES_REGS1) {
@@ -359,9 +431,23 @@ static Int context_module(USES_REGS1) {
   return Yap_unify(ARG1, CurrentModule);
 }
 
+/** 
+ * @pred source_module(-Mod)
+ * 
+ * @param Mod is the current text source module. 
+ * 
+ *  : _Mod_ is the current read-in or source module.
+*/
+static Int source_module(USES_REGS1) {
+  if (LOCAL_SourceModule == PROLOG_MODULE) {
+    return Yap_unify(ARG1, TermProlog);
+  }
+  return Yap_unify(ARG1, LOCAL_SourceModule);
+}
+
 Term Yap_StripModule(Term t, Term *modp) {
   CACHE_REGS
-  Term tmod;
+ Term tmod;
 
   if (modp)
     tmod = *modp;
@@ -406,9 +492,12 @@ void Yap_InitModulesC(void) {
   Yap_InitCPred("$change_module", 1, change_module,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("strip_module", 3, strip_module, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("source_module", 1, source_module, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$yap_strip_module", 3, yap_strip_module,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("context_module", 1, context_module, 0);
+  Yap_InitCPred("$is_system_module", 1, is_system_module, SafePredFlag);
+  Yap_InitCPred("new_system_module", 1, new_system_module, SafePredFlag);
   Yap_InitCPredBack("$all_current_modules", 1, 1, init_current_module,
                     cont_current_module, SafePredFlag | SyncPredFlag);
   Yap_InitCPredBack("$ground_module", 3, 1, init_ground_module,
@@ -417,19 +506,19 @@ void Yap_InitModulesC(void) {
 
 void Yap_InitModules(void) {
   CACHE_REGS
-  LookupModule(MkAtomTerm(AtomProlog));
+  LookupSystemModule(MkAtomTerm(AtomProlog));
   LOCAL_SourceModule = MkAtomTerm(AtomProlog);
   LookupModule(USER_MODULE);
   LookupModule(IDB_MODULE);
   LookupModule(ATTRIBUTES_MODULE);
-  LookupModule(CHARSIO_MODULE);
-  LookupModule(TERMS_MODULE);
-  LookupModule(SYSTEM_MODULE);
-  LookupModule(READUTIL_MODULE);
-  LookupModule(HACKS_MODULE);
+  LookupSystemModule(CHARSIO_MODULE);
+  LookupSystemModule(TERMS_MODULE);
+  LookupSystemModule(SYSTEM_MODULE);
+  LookupSystemModule(READUTIL_MODULE);
+  LookupSystemModule(HACKS_MODULE);
   LookupModule(ARG_MODULE);
-  LookupModule(GLOBALS_MODULE);
-  LookupModule(DBLOAD_MODULE);
-  LookupModule(RANGE_MODULE);
+  LookupSystemModule(GLOBALS_MODULE);
+  LookupSystemModule(DBLOAD_MODULE);
+  LookupSystemModule(RANGE_MODULE);
   CurrentModule = PROLOG_MODULE;
 }

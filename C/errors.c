@@ -104,15 +104,6 @@ bool Yap_Warning(const char *s, ...) {
   LOCAL_within_print_message = true;
   pred = RepPredProp(PredPropByFunc(FunctorPrintMessage,
                                     PROLOG_MODULE)); // PROCEDURE_print_message2
-  if (pred->OpcodeOfPred == UNDEF_OPCODE) {
-    // fprintf(stderr, "warning message:\n");
-    // Yap_DebugPlWrite(twarning);
-    // fprintf(stderr, "\n");
-    LOCAL_DoingUndefp = false;
-    LOCAL_within_print_message = false;
-    return true;
-  }
-
   va_start(ap, s);
   format = va_arg(ap, char *);
   if (format != NULL) {
@@ -124,6 +115,13 @@ bool Yap_Warning(const char *s, ...) {
   } else
     return false;
   va_end(ap);
+  if (pred->OpcodeOfPred == UNDEF_OPCODE) {
+    fprintf(stderr, "warning message: %s\n", tmpbuf);
+    LOCAL_DoingUndefp = false;
+    LOCAL_within_print_message = false;
+    return true;
+  }
+
   ts[1] = MkAtomTerm(AtomWarning);
   ts[0] = MkAtomTerm(Yap_LookupAtom(tmpbuf));
   rc = Yap_execute_pred(pred, ts, true PASS_REGS);
@@ -146,9 +144,9 @@ bool Yap_PrintWarning(Term twarning) {
   LOCAL_DoingUndefp = true;
   LOCAL_within_print_message = true;
   if (pred->OpcodeOfPred == UNDEF_OPCODE) {
-    // fprintf(stderr, "warning message:\n");
-    // Yap_DebugPlWrite(twarning);
-    // fprintf(stderr, "\n");
+     fprintf(stderr, "warning message:\n");
+     Yap_DebugPlWrite(twarning);
+     fprintf(stderr, "\n");
     LOCAL_DoingUndefp = false;
     LOCAL_within_print_message = false;
     return true;
@@ -489,7 +487,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   }
   case ABORT_EVENT:
     nt[0] = MkAtomTerm(AtomDAbort);
-    fun = FunctorVar;
+    fun = FunctorDollarVar;
     serious = TRUE;
     break;
   case CALL_COUNTER_UNDERFLOW_EVENT:
@@ -604,3 +602,97 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
     LOCAL_PrologMode &= ~InErrorMode;
     return P;
   }
+
+static Int
+is_boolean( USES_REGS1 )
+{
+  Term t = Deref(ARG1);
+  //Term Context = Deref(ARG2);
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR, t, NULL);
+    return false;
+  }
+  return t == TermTrue || t == TermFalse;
+}
+
+
+static Int
+is_callable( USES_REGS1 )
+{
+  Term G = Deref(ARG1);
+  //Term Context = Deref(ARG2);
+  while (true) {
+    if (IsVarTerm(G)) {
+      Yap_Error(INSTANTIATION_ERROR, G, NULL);
+      return false;
+    }
+    if (IsApplTerm(G)) {
+      Functor f = FunctorOfTerm(G);
+      if (IsExtensionFunctor(f)) {
+        Yap_Error(TYPE_ERROR_CALLABLE, G, NULL);
+      }
+      if (f == FunctorModule) {
+        Term tm = ArgOfTerm( 1, G);
+        if (IsVarTerm(tm)) {
+          Yap_Error(INSTANTIATION_ERROR, G, NULL);
+          return false;
+        }
+        if (!IsAtomTerm(tm)) {
+          Yap_Error(TYPE_ERROR_CALLABLE, G, NULL);
+          return false;
+        }
+        G = ArgOfTerm( 2, G );
+      } else {
+        return true;
+      }
+    } else if (IsPairTerm(G) || IsAtomTerm(G)) {
+      return true;
+    } else {
+      Yap_Error(TYPE_ERROR_CALLABLE, G, NULL);
+      return false;
+    }
+  }
+  return false;
+}
+
+static Int
+is_predicate_indicator( USES_REGS1 )
+{
+  Term G = Deref(ARG1);
+  //Term Context = Deref(ARG2);
+  Term mod = CurrentModule;
+
+  G = Yap_YapStripModule(G, &mod);
+  if (IsVarTerm(G)) {
+    Yap_Error(INSTANTIATION_ERROR, G, NULL);
+    return false;
+  }
+  if (!IsVarTerm(mod) && !IsAtomTerm(mod)) {
+    Yap_Error(TYPE_ERROR_ATOM, G, NULL);
+    return false;
+  }
+  if (IsApplTerm(G)) {
+    Functor f = FunctorOfTerm(G);
+    if (IsExtensionFunctor(f)) {
+      Yap_Error(TYPE_ERROR_PREDICATE_INDICATOR, G, NULL);
+    }
+    if (f == FunctorSlash || f == FunctorDoubleSlash) {
+      return true;
+    }
+  }
+  Yap_Error(TYPE_ERROR_PREDICATE_INDICATOR, G, NULL);
+  return false;
+}
+
+
+void
+Yap_InitErrorPreds( void )
+{
+  CACHE_REGS
+  Term cm = CurrentModule;
+  CurrentModule = ERROR_MODULE;
+  Yap_InitCPred("is_boolean", 2, is_boolean, TestPredFlag);
+  Yap_InitCPred("is_callable", 2, is_callable, TestPredFlag);
+  Yap_InitCPred("is_predicate_indicator", 2, is_predicate_indicator, TestPredFlag);
+  CurrentModule = cm;
+}

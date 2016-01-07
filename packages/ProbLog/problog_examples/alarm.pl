@@ -53,7 +53,7 @@ myclause(calls(Person), (person(Person),alarm,hears_alarm(Person))).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%   Training examples    %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%l
 
 example(1).
 example(2).
@@ -64,4 +64,3 @@ known(1,alarm,true).
 %%%% Example 2
 known(2,earthquake,false).
 known(2,calls(mary),true).
-

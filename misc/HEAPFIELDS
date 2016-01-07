@@ -25,192 +25,195 @@
 // Restore... sets up call to RestoreFunc
 //
 
+START_HEAP
+
 /* memory management */
-UInt		hole_size		Yap_HoleSize		void void
-struct malloc_state *av_		Yap_av			void void
+UInt		Yap_HoleSize		void    void
+struct malloc_state *Yap_av			void void
 #if USE_DL_MALLOC
-struct memory_hole memory_holes[MAX_DLMALLOC_HOLES] Yap_MemoryHoles void void
-UInt		nof_memory_holes	Yap_NOfMemoryHoles	void void
+struct Yap_MemoryHoles[MAX_DLMALLOC_HOLES]  void void
+UInt		Yap_NOfMemoryHoles	void void
 #if defined(YAPOR) || defined(THREADS)
-lockvar         dlmalloc_lock		DLMallocLock		MkLock
+lockvar         DLMallocLock		MkLock
 #endif
 #endif
 #if USE_DL_MALLOC || (USE_SYSTEM_MALLOC && HAVE_MALLINFO)
 #ifndef  HeapUsed
 #define  HeapUsed  Yap_givemallinfo()
 #endif
-Int		heap_used		NotHeapUsed		void void
+Int		NotHeapUsed		void void
 #else
-Int		heap_used		HeapUsed		void void
+Int		HeapUsed		void void
 #endif
-Int		heap_max		HeapMax			void void
-ADDR		heap_top		HeapTop			void void
-ADDR		heap_lim		HeapLim			void void
-struct FREEB    *free_blocks		FreeBlocks		void void
+Int		HeapMax			void void
+ADDR		HeapTop			void void
+ADDR		HeapLim			void void
+struct FREEB    *FreeBlocks		void void
 #if defined(YAPOR) || defined(THREADS)
-lockvar		free_blocks_lock	FreeBlocksLock		MkLock
-lockvar		heap_used_lock		HeapUsedLock		MkLock
-lockvar		heap_top_lock		HeapTopLock		MkLock
-int		heap_top_owner		HeapTopOwner		=-1 void
+lockvar		FreeBlocksLock		MkLock
+lockvar		HeapUsedLock		MkLock
+lockvar		HeapTopLock		MkLock
+int		HeapTopOwner		=-1 void
 #endif
-UInt		MaxStack_		MaxStack		=0 void
-UInt		MaxTrail_		MaxTrail		=0 void
+UInt		MaxStack		=0 void
+UInt		MaxTrail		=0 void
 
 /* execution info */
 /* OPCODE REVERSE TABLE, needed to recover op tables */
 #if USE_THREADED_CODE
-op_entry	*op_rtable		OP_RTABLE		void	OpRTableAdjust
+op_entry	*OP_RTABLE		void	OpRTableAdjust
 #endif
 
 /* popular opcodes */
-OPCODE		execute_cpred_op_code	EXECUTE_CPRED_OP_CODE	MkOp _execute_cpred
-OPCODE		expand_op_code		EXPAND_OP_CODE		MkOp _expand_index
-OPCODE		fail_op			FAIL_OPCODE		MkOp _op_fail
-OPCODE		index_op		INDEX_OPCODE		MkOp _index_pred
-OPCODE		lockpred_op		LOCKPRED_OPCODE		MkOp _lock_pred
-OPCODE		orlast_op		ORLAST_OPCODE		MkOp _or_last
-OPCODE		undef_op		UNDEF_OPCODE		MkOp _undef_p
-OPCODE		retry_userc_op		RETRY_USERC_OPCODE	MkOp _retry_userc
-OPCODE		execute_cpred_op	EXECUTE_CPRED_OPCODE	MkOp _execute_cpred
+OPCODE		EXECUTE_CPRED_OP_CODE	MkOp _execute_cpred
+OPCODE		EXPAND_OP_CODE		MkOp _expand_index
+OPCODE		FAIL_OPCODE		MkOp _op_fail
+OPCODE		INDEX_OPCODE		MkOp _index_pred
+OPCODE		LOCKPRED_OPCODE		MkOp _lock_pred
+OPCODE		ORLAST_OPCODE		MkOp _or_last
+OPCODE		UNDEF_OPCODE		MkOp _undef_p
+OPCODE		RETRY_USERC_OPCODE	MkOp _retry_userc
+OPCODE		EXECUTE_CPRED_OPCODE	MkOp _execute_cpred
 
 /* atom tables */
-UInt		n_of_atoms		NOfAtoms		void void
-UInt		atom_hash_table_size	AtomHashTableSize	void void
-UInt		wide_atom_hash_table_size WideAtomHashTableSize void void
-UInt		n_of_wide_atoms		NOfWideAtoms		void void
-AtomHashEntry	invisiblechain		INVISIBLECHAIN		InitInvisibleAtoms() RestoreInvisibleAtoms()
-AtomHashEntry	*wide_hash_chain	WideHashChain		InitWideAtoms()  RestoreWideAtoms()
-AtomHashEntry	*hash_chain		HashChain		InitAtoms() RestoreAtoms()
+UInt		NOfAtoms		void void
+UInt		AtomHashTableSize	void void
+UInt		WideAtomHashTableSize void void
+UInt		NOfWideAtoms		void void
+AtomHashEntry	INVISIBLECHAIN		InitInvisibleAtoms() RestoreInvisibleAtoms()
+AtomHashEntry	*WideHashChain		InitWideAtoms()  RestoreWideAtoms()
+AtomHashEntry	*HashChain		InitAtoms() RestoreAtoms()
 
 /* use atom defs here */
 ATOMS
 
 #ifdef EUROTRA
-Term		term_dollar_u		TermDollarU		MkAT AtomDollarU
+Term		TermDollarU		MkAT AtomDollarU
 #endif
 
 //modules
-Term		user_module		USER_MODULE		MkAT AtomUser
-Term		idb_module		IDB_MODULE		MkAT AtomIDB
-Term		attributes_module	ATTRIBUTES_MODULE	MkAT AtomAttributes
-Term		charsio_module		CHARSIO_MODULE		MkAT AtomCharsio
-Term		chtype_module		CHTYPE_MODULE		MkAT AtomChType
-Term		terms_module		TERMS_MODULE		MkAT AtomTerms
-Term		system_module		SYSTEM_MODULE		MkAT AtomSystem
-Term		readutil_module		READUTIL_MODULE		MkAT AtomReadutil
-Term		hacks_module		HACKS_MODULE		MkAT AtomYapHacks
-Term		arg_module		ARG_MODULE		MkAT AtomArg
-Term		globals_module		GLOBALS_MODULE		MkAT AtomNb
-Term		swi_module		SWI_MODULE		MkAT AtomSwi
-Term		dbload_module		DBLOAD_MODULE		MkAT AtomDBLoad
-Term		range_module		RANGE_MODULE		MkAT AtomRange
+Term		USER_MODULE		MkAT AtomUser
+Term		IDB_MODULE		MkAT AtomIDB
+Term		ATTRIBUTES_MODULE	MkAT AtomAttributes
+Term		CHARSIO_MODULE		MkAT AtomCharsio
+Term		CHTYPE_MODULE		MkAT AtomChType
+Term		TERMS_MODULE		MkAT AtomTerms
+Term		SYSTEM_MODULE		MkAT AtomSystem
+Term		READUTIL_MODULE		MkAT AtomReadutil
+Term		HACKS_MODULE		MkAT AtomYapHacks
+Term		ARG_MODULE		MkAT AtomArg
+Term		GLOBALS_MODULE		MkAT AtomNb
+Term		SWI_MODULE		MkAT AtomSwi
+Term		DBLOAD_MODULE		MkAT AtomDBLoad
+Term		RANGE_MODULE		MkAT AtomRange
+Term		ERROR_MODULE		MkAT AtomError
 
 //
 // Module list
 //
-struct mod_entry *current_modules	CurrentModules		=NULL	ModEntryPtrAdjust
+struct mod_entry *CurrentModules		=NULL	ModEntryPtrAdjust
 // make sure we have the modules set at this point.
 // don't actually want to define a field
-void		void			void			Yap_InitModules()  void
+void		void			Yap_InitModules()  void
 
 // hidden predicates
-Prop		hidden_predicates	HIDDEN_PREDICATES	=NULL RestoreHiddenPredicates()
+Prop		HIDDEN_PREDICATES	=NULL RestoreHiddenPredicates()
 
 // make sure we have the streams  set at this point.
 // don't actually want to define a field
-void		void			void			Yap_InitPlIO()  void
+void		void			Yap_InitPlIO()  void
 
-union flagTerm*	GLOBAL_Flags_		GLOBAL_Flags		=0 void
-UInt	  	GLOBAL_flagCount_	GLOBAL_flagCount	Yap_InitFlags(true)  RestoreFlags(GLOBAL_flagCount)
+union flagTerm*	GLOBAL_Flags		=0 void
+UInt	  	GLOBAL_flagCount	Yap_InitFlags(true)  RestoreFlags(GLOBAL_flagCount)
 
 /* Anderson's JIT */
-yap_exec_mode	execution_mode		Yap_ExecutionMode	=INTERPRETED void
+yap_exec_mode	Yap_ExecutionMode	=INTERPRETED void
 
 /*  The Predicate Hash Table: fast access to predicates. */
-struct pred_entry **pred_hash		PredHash		InitPredHash() RestorePredHash()
+struct pred_entry **PredHash		InitPredHash() RestorePredHash()
 #if defined(YAPOR) || defined(THREADS)
-rwlock_t	pred_hash_rw_lock	PredHashRWLock		void
+rwlock_t	PredHashRWLock		void
 #endif
-UInt		preds_in_hash_table	PredsInHashTable	=0 void
-UInt		pred_hash_table_size	PredHashTableSize	void
+UInt		PredsInHashTable	=0 void
+uint64_t	PredHashTableSize	=0 void
 
 
 /* Well-Known Predicates */
-struct pred_entry *creep_code		CreepCode		MkPred AtomCreep 1 PROLOG_MODULE
-struct pred_entry *undef_code		UndefCode		MkPred AtomUndefp 2 PROLOG_MODULE
-struct pred_entry *spy_code		SpyCode			MkPred AtomSpy 1 PROLOG_MODULE
-struct pred_entry *pred_fail		PredFail		MkPred AtomFail 0 PROLOG_MODULE
-struct pred_entry *pred_true		PredTrue		MkPred AtomTrue 0 PROLOG_MODULE
+struct pred_entry *CreepCode		MkPred AtomCreep 1 PROLOG_MODULE
+struct pred_entry *UndefCode		MkPred AtomUndefp 2 PROLOG_MODULE
+struct pred_entry *SpyCode			MkPred AtomSpy 1 PROLOG_MODULE
+struct pred_entry *PredFail		MkPred AtomFail 0 PROLOG_MODULE
+struct pred_entry *PredTrue		MkPred AtomTrue 0 PROLOG_MODULE
 #ifdef COROUTINING
-struct pred_entry  *wake_up_code	WakeUpCode		MkPred AtomWakeUpGoal 2 PROLOG_MODULE
+struct pred_entry  *WakeUpCode		MkPred AtomWakeUpGoal 2 PROLOG_MODULE
 #endif
-struct pred_entry *pred_goal_expansion	PredGoalExpansion	MkPred FunctorGoalExpansion USER_MODULE
-struct pred_entry *pred_meta_call	PredMetaCall		MkPred FunctorMetaCall PROLOG_MODULE
-struct pred_entry *pred_trace_meta_call	PredTraceMetaCall	MkPred FunctorTraceMetaCall PROLOG_MODULE
-struct pred_entry *pred_dollar_catch	PredDollarCatch         MkPred FunctorCatch PROLOG_MODULE
-struct pred_entry *pred_recorded_with_key PredRecordedWithKey	MkPred FunctorRecordedWithKey PROLOG_MODULE
-struct pred_entry *pred_log_upd_clause	PredLogUpdClause	MkPred FunctorDoLogUpdClause PROLOG_MODULE
-struct pred_entry *pred_log_upd_clause_erase PredLogUpdClauseErase MkPred FunctorDoLogUpdClauseErase PROLOG_MODULE
-struct pred_entry *pred_log_upd_clause0	PredLogUpdClause0	MkPred FunctorDoLogUpdClause PROLOG_MODULE
-struct pred_entry *pred_static_clause	PredStaticClause	MkPred FunctorDoStaticClause PROLOG_MODULE
-struct pred_entry *pred_throw		PredThrow		MkPred FunctorThrow PROLOG_MODULE
-struct pred_entry *pred_handle_throw	PredHandleThrow		MkPred FunctorHandleThrow PROLOG_MODULE
-struct pred_entry *pred_is		PredIs			MkPred FunctorIs PROLOG_MODULE
-struct pred_entry *pred_safe_call_cleanup PredSafeCallCleanup	MkPred FunctorSafeCallCleanup PROLOG_MODULE
-struct pred_entry *pred_restore_regs	PredRestoreRegs		MkPred FunctorRestoreRegs PROLOG_MODULE
-struct pred_entry *pred_comment_hook	PredCommentHook		MkPred FunctorCommentHook PROLOG_MODULE
+struct pred_entry *PredGoalExpansion	MkPred FunctorGoalExpansion USER_MODULE
+struct pred_entry *PredMetaCall		MkPred FunctorMetaCall PROLOG_MODULE
+struct pred_entry *PredTraceMetaCall	MkPred FunctorTraceMetaCall PROLOG_MODULE
+struct pred_entry *PredDollarCatch         MkPred FunctorCatch PROLOG_MODULE
+struct pred_entry *PredRecordedWithKey	MkPred FunctorRecordedWithKey PROLOG_MODULE
+struct pred_entry *PredLogUpdClause	MkPred FunctorDoLogUpdClause PROLOG_MODULE
+struct pred_entry *PredLogUpdClauseErase MkPred FunctorDoLogUpdClauseErase PROLOG_MODULE
+struct pred_entry *PredLogUpdClause0	MkPred FunctorDoLogUpdClause PROLOG_MODULE
+struct pred_entry *PredStaticClause	MkPred FunctorDoStaticClause PROLOG_MODULE
+struct pred_entry *PredThrow		MkPred FunctorThrow PROLOG_MODULE
+struct pred_entry *PredHandleThrow		MkPred FunctorHandleThrow PROLOG_MODULE
+struct pred_entry *PredIs			MkPred FunctorIs PROLOG_MODULE
+struct pred_entry *PredSafeCallCleanup	MkPred FunctorSafeCallCleanup PROLOG_MODULE
+struct pred_entry *PredRestoreRegs		MkPred FunctorRestoreRegs PROLOG_MODULE
+struct pred_entry *PredCommentHook		MkPred FunctorCommentHook PROLOG_MODULE
 #ifdef YAPOR
-struct pred_entry *pred_getwork		PredGetwork		MkPred AtomGetwork 0 PROLOG_MODULE
-struct pred_entry *pred_getwork_seq	PredGetworkSeq		MkPred AtomGetworkSeq 0 PROLOG_MODULE
+struct pred_entry *PredGetwork		MkPred AtomGetwork 0 PROLOG_MODULE
 #endif /* YAPOR */
+struct pred_entry *PredProcedure		MkLogPred FunctorProcedure   PROLOG_MODULE
 
 /* low-level tracer */
 #ifdef LOW_LEVEL_TRACER
-int		yap_do_low_level_trace	Yap_do_low_level_trace	=FALSE void
+int		Yap_do_low_level_trace	=FALSE void
 #if defined(YAPOR) || defined(THREADS)
-lockvar		low_level_trace_lock	Yap_low_level_trace_lock MkLock
+lockvar		Yap_low_level_trace_lock MkLock
 #endif
 #endif
 
 /* code management info */
-UInt		clause_space		Yap_ClauseSpace		=0 void
-UInt		index_space_Tree	Yap_IndexSpace_Tree	=0 void
-UInt		index_space_EXT		Yap_IndexSpace_EXT	=0 void
-UInt		index_space_SW		Yap_IndexSpace_SW	=0 void
-UInt		lu_clause_space		Yap_LUClauseSpace	=0 void
-UInt		lu_index_space_Tree	Yap_LUIndexSpace_Tree	=0 void
-UInt		lu_index_space_CP	Yap_LUIndexSpace_CP	=0 void
-UInt		lu_index_space_EXT	Yap_LUIndexSpace_EXT	=0 void
-UInt		lu_index_space_SW	Yap_LUIndexSpace_SW	=0 void
+UInt		Yap_ClauseSpace		=0 void
+UInt		Yap_IndexSpace_Tree	=0 void
+UInt		Yap_IndexSpace_EXT	=0 void
+UInt		Yap_IndexSpace_SW	=0 void
+UInt		Yap_LUClauseSpace	=0 void
+UInt		Yap_LUIndexSpace_Tree	=0 void
+UInt		Yap_LUIndexSpace_CP	=0 void
+UInt		Yap_LUIndexSpace_EXT	=0 void
+UInt		Yap_LUIndexSpace_SW	=0 void
 
 /* static code: may be shared by many predicate or may be used for meta-execution */
-yamop		comma_code[5]		COMMA_CODE		void void
-yamop		dummycode[1]		DUMMYCODE		MkInstE _op_fail
-yamop		failcode[1]		FAILCODE		MkInstE _op_fail
-yamop		nocode[1]		NOCODE			MkInstE _Nstop
+yamop		COMMA_CODE[5]		void void
+yamop		DUMMYCODE[1]		MkInstE _op_fail
+yamop		FAILCODE[1]		MkInstE _op_fail
+yamop		NOCODE[1]			MkInstE _Nstop
 
-yamop		env_for_trustfail[2]	ENV_FOR_TRUSTFAIL	InitEnvInst(ENV_FOR_TRUSTFAIL,&TRUSTFAILCODE,_trust_fail,PredFail) RestoreEnvInst(ENV_FOR_TRUSTFAIL,&TRUSTFAILCODE,_trust_fail,PredFail)
-yamop		*trustfailcode		TRUSTFAILCODE		void
-yamop		env_for_yescode[2]	ENV_FOR_YESCODE		InitEnvInst(ENV_FOR_YESCODE,&YESCODE,_Ystop,PredFail) RestoreEnvInst(ENV_FOR_YESCODE,&YESCODE,_Ystop,PredFail)
-yamop		*yescode		YESCODE			void
+yamop	ENV_FOR_TRUSTFAIL[2]	InitEnvInst(ENV_FOR_TRUSTFAIL,&TRUSTFAILCODE,_trust_fail,PredFail) RestoreEnvInst(ENV_FOR_TRUSTFAIL,&TRUSTFAILCODE,_trust_fail,PredFail)
+yamop		*TRUSTFAILCODE		void
+yamop	ENV_FOR_YESCODE[2]		InitEnvInst(ENV_FOR_YESCODE,&YESCODE,_Ystop,PredFail) RestoreEnvInst(ENV_FOR_YESCODE,&YESCODE,_Ystop,PredFail)
+yamop		*YESCODE			void
 
-  yamop		rtrycode[1]		RTRYCODE		InitOtaplInst(RTRYCODE,_retry_and_mark,PredFail) RestoreOtaplInst(RTRYCODE,_retry_and_mark,PredFail)
+yamop		RTRYCODE[1]		InitOtaplInst(RTRYCODE,_retry_and_mark,PredFail) RestoreOtaplInst(RTRYCODE,_retry_and_mark,PredFail)
 
 #ifdef BEAM
-yamop		beam_retry_code[1]	BEAM_RETRY_CODE		MkInstE _beam_retry_code
+yamop	BEAM_RETRY_CODE[1]		MkInstE _beam_retry_code
 #endif /* BEAM */
 #ifdef YAPOR
-yamop		getwork_code[1]		GETWORK			InitOtaplInst(GETWORK,_getwork,PredGetwork) RestoreOtaplInst(GETWORK,_getwork,PredGetwork)
-yamop		getwork_seq_code[1]	GETWORK_SEQ		InitOtaplInst(GETWORK_SEQ,_getwork_seq,PredGetworkSeq) RestoreOtaplInst(GETWORK_SEQ,_getwork_seq,PredGetworkSeq)
-yamop		getwork_first_time[1]	GETWORK_FIRST_TIME	MkInstE _getwork_first_time
+yamop		GETWORK[1]			InitOtaplInst(GETWORK,_getwork,PredGetwork) RestoreOtaplInst(GETWORK,_getwork,PredGetwork)
+yamop		GETWORK_SEQ[1]   	InitOtaplInst(GETWORK_SEQ,_getwork_seq,PredGetworkSeq) RestoreOtaplInst(GETWORK_SEQ,_getwork_seq,PredGetworkSeq)
+yamop	    GETWORK_FIRST_TIME[1]	MkInstE _getwork_first_time
 #endif /* YAPOR */
 #ifdef TABLING
-yamop		table_load_answer_code[1] LOAD_ANSWER		InitOtaplInst(LOAD_ANSWER,_table_load_answer,PredFail) RestoreOtaplInst(LOAD_ANSWER,_table_load_answer,PredFail)
-yamop		table_try_answer_code[1] TRY_ANSWER		InitOtaplInst(TRY_ANSWER,_table_try_answer,PredFail) RestoreOtaplInst(TRY_ANSWER,_table_try_answer,PredFail)
-yamop		table_answer_resolution_code[1]	ANSWER_RESOLUTION InitOtaplInst(ANSWER_RESOLUTION,_table_answer_resolution,PredFail) RestoreOtaplInst(ANSWER_RESOLUTION,_table_answer_resolution,PredFail)
-yamop		table_completion_code[1]	COMPLETION	InitOtaplInst(COMPLETION,_table_completion,PredFail) RestoreOtaplInst(COMPLETION,_table_completion,PredFail)
+yamop		 LOAD_ANSWER[1]		InitOtaplInst(LOAD_ANSWER,_table_load_answer,PredFail) RestoreOtaplInst(LOAD_ANSWER,_table_load_answer,PredFail)
+yamop		TRY_ANSWER[1] 		InitOtaplInst(TRY_ANSWER,_table_try_answer,PredFail) RestoreOtaplInst(TRY_ANSWER,_table_try_answer,PredFail)
+yamop		ANSWER_RESOLUTION[1]	 InitOtaplInst(ANSWER_RESOLUTION,_table_answer_resolution,PredFail) RestoreOtaplInst(ANSWER_RESOLUTION,_table_answer_resolution,PredFail)
+yamop		COMPLETION[1]	InitOtaplInst(COMPLETION,_table_completion,PredFail) RestoreOtaplInst(COMPLETION,_table_completion,PredFail)
 #ifdef THREADS_CONSUMER_SHARING
-yamop           table_answer_resolution_completion_code[1]      ANSWER_RESOLUTION_COMPLETION InitOtaplInst(ANSWER_RESOLUTION_COMPLETION,_table_answer_resolution_completion,PredFail) RestoreOtaplInst(ANSWER_RESOLUTION_COMPLETION,_table_answer_resolution_completion,PredFail)
+yamop       ANSWER_RESOLUTION_COMPLETION[1] InitOtaplInst(ANSWER_RESOLUTION_COMPLETION,_table_answer_resolution_completion,PredFail) RestoreOtaplInst(ANSWER_RESOLUTION_COMPLETION,_table_answer_resolution_completion,PredFail)
 #endif /* THREADS_CONSUMER_SHARING */
 #endif /* TABLING */
 
@@ -218,126 +221,125 @@ yamop           table_answer_resolution_completion_code[1]      ANSWER_RESOLUTIO
 /*    PREG just before we enter $spy. We use that to find out the clause which  */
 /*    was calling the debugged goal.  */
 /*  */
-yamop		*debugger_p_before_spy	P_before_spy		=NULL PtoOpAdjust
+yamop		*P_before_spy		=NULL PtoOpAdjust
 
 /* support recorded_k  */
-yamop		*retry_recordedp_code	RETRY_C_RECORDEDP_CODE	=NULL PtoOpAdjust
-yamop		*retry_recorded_k_code	RETRY_C_RECORDED_K_CODE =NULL PtoOpAdjust
-
+yamop		*RETRY_C_RECORDEDP_CODE	=NULL PtoOpAdjust
+yamop		*RETRY_C_RECORDED_K_CODE =NULL PtoOpAdjust
+R
 /* compiler flags */
-int		system_profiling	PROFILING		=FALSE void
-int		system_call_counting	CALL_COUNTING		=FALSE void
-int		system_pred_goal_expansion_all	PRED_GOAL_EXPANSION_ALL	=FALSE void
-int		system_pred_goal_expansion_func	PRED_GOAL_EXPANSION_FUNC =FALSE void
-int		system_pred_goal_expansion_on	PRED_GOAL_EXPANSION_ON	=FALSE void
-int		compiler_optimizer_on	optimizer_on		=TRUE void
-int		compiler_compile_mode	compile_mode		=0 void
-int		compiler_profiling	profiling		=FALSE void
-int		compiler_call_counting	call_counting		=FALSE void
+int		PROFILING		=FALSE void
+int		CALL_COUNTING		=FALSE void
+int		optimizer_on		=TRUE void
+int		compile_mode		=0 void
+int		profiling		=FALSE void
+int		call_counting		=FALSE void
 /********* whether we should try to compile array references ******************/
-int		compiler_compile_arrays	compile_arrays		=FALSE void
+int		compile_arrays		=FALSE void
 
 /* DBTerms: pre-compiled ground terms */
 #if defined(YAPOR) || defined(THREADS)
-lockvar		dbterms_list_lock	DBTermsListLock		MkLock
+lockvar		DBTermsListLock		MkLock
 #endif
-struct dbterm_list *dbterms_list	DBTermsList		=NULL RestoreDBTermsList()
+struct dbterm_list *DBTermsList		=NULL RestoreDBTermsList()
 
 /* JITI support */
-yamop		*expand_clauses_first	ExpandClausesFirst	=NULL void
-yamop		*expand_clauses_last	ExpandClausesLast	=NULL RestoreExpandList()
-UInt		expand_clauses		Yap_ExpandClauses	=0 void
+yamop		*ExpandClausesFirst	=NULL void
+yamop		*ExpandClausesLast	=NULL RestoreExpandList()
+UInt		Yap_ExpandClauses	=0 void
 #if defined(YAPOR) || defined(THREADS)
-lockvar		expand_clauses_list_lock ExpandClausesListLock	MkLock
-lockvar		op_list_lock		OpListLock		MkLock
+lockvar		ExpandClausesListLock	MkLock
+lockvar		OpListLock		MkLock
 #endif
 /* instrumentation */
 #ifdef DEBUG
-UInt		new_cps			Yap_NewCps		=0L void
-UInt		live_cps		Yap_LiveCps		=0L void
-UInt		dirty_cps		Yap_DirtyCps		=0L void
-UInt		freed_cps		Yap_FreedCps		=0L void
+UInt		Yap_NewCps		=0L void
+UInt		Yap_LiveCps		=0L void
+UInt		Yap_DirtyCps		=0L void
+UInt		Yap_FreedCps		=0L void
 #endif
-UInt		expand_clauses_sz	Yap_expand_clauses_sz	=0L void
+UInt		Yap_expand_clauses_sz	=0L void
 
 /* UDI support */
-struct udi_info *udi_control_blocks	UdiControlBlocks	=NULL RestoreUdiControlBlocks()
+struct udi_info *UdiControlBlocks	=NULL RestoreUdiControlBlocks()
 
 /* data-base statistics */
 /* system boots in compile mode */
-Int		static_predicates_marked STATIC_PREDICATES_MARKED   =FALSE void
+Int		STATIC_PREDICATES_MARKED   =FALSE void
 
 
 /* Internal Database */
-Prop		*IntKeys		INT_KEYS		=NULL RestoreIntKeys()
-Prop		*IntLUKeys		INT_LU_KEYS		=NULL RestoreIntLUKeys()
-Prop		*IntBBKeys		INT_BB_KEYS		=NULL RestoreIntBBKeys()
+Prop		*INT_KEYS		=NULL RestoreIntKeys()
+Prop		*INT_LU_KEYS		=NULL RestoreIntLUKeys()
+Prop		*INT_BB_KEYS		=NULL RestoreIntBBKeys()
 
 /* Internal Database Statistics */
-UInt		int_keys_size		INT_KEYS_SIZE		=INT_KEYS_DEFAULT_SIZE void
-UInt		int_keys_timestamp	INT_KEYS_TIMESTAMP	=0L void
-UInt		int_bb_keys_size	INT_BB_KEYS_SIZE	=INT_KEYS_DEFAULT_SIZE void
+UInt		INT_KEYS_SIZE		=INT_KEYS_DEFAULT_SIZE void
+UInt		INT_KEYS_TIMESTAMP	=0L void
+UInt		INT_BB_KEYS_SIZE	=INT_KEYS_DEFAULT_SIZE void
 
 /* Internal Data-Base Control */
-int		update_mode		UPDATE_MODE	        =UPDATE_MODE_LOGICAL void
+int		UPDATE_MODE	        =UPDATE_MODE_LOGICAL void
 
 /* nasty IDB stuff */
-struct DB_STRUCT *db_erased_marker	DBErasedMarker		InitDBErasedMarker() RestoreDBErasedMarker()
-struct logic_upd_clause *logdb_erased_marker LogDBErasedMarker	InitLogDBErasedMarker() RestoreLogDBErasedMarker()
+struct DB_STRUCT *DBErasedMarker		InitDBErasedMarker() RestoreDBErasedMarker()
+struct logic_upd_clause *LogDBErasedMarker	InitLogDBErasedMarker() RestoreLogDBErasedMarker()
 
 /* Dead clauses and IDB entries */
-struct static_clause *dead_static_clauses DeadStaticClauses	=NULL RestoreDeadStaticClauses()
-struct static_mega_clause *dead_mega_clauses DeadMegaClauses	=NULL RestoreDeadMegaClauses()
-struct static_index *dead_static_indices DeadStaticIndices	=NULL RestoreDeadStaticIndices()
-struct logic_upd_clause *db_erased_list	DBErasedList		=NULL RestoreDBErasedList()
-struct logic_upd_index *db_erased_ilist DBErasedIList		=NULL RestoreDBErasedIList()
+struct static_clause *DeadStaticClauses	=NULL RestoreDeadStaticClauses()
+struct static_mega_clause *DeadMegaClauses	=NULL RestoreDeadMegaClauses()
+struct static_index *DeadStaticIndices	=NULL RestoreDeadStaticIndices()
+struct logic_upd_clause *DBErasedList		=NULL RestoreDBErasedList()
+struct logic_upd_index *DBErasedIList		=NULL RestoreDBErasedIList()
 #if defined(YAPOR) || defined(THREADS)
-lockvar  dead_static_clauses_lock	DeadStaticClausesLock	MkLock
-lockvar  dead_mega_clauses_lock		DeadMegaClausesLock	MkLock
-lockvar  dead_static_indices_lock	DeadStaticIndicesLock	MkLock
+lockvar  DeadStaticClausesLock	MkLock
+lockvar  DeadMegaClausesLock	MkLock
+lockvar  DeadStaticIndicesLock	MkLock
 #endif
 
 #ifdef COROUTINING
 /* number of attribute modules */
-int		num_of_atts		NUM_OF_ATTS		=1	void
+int		NUM_OF_ATTS		=1	void
 /* initialised by memory allocator */
-UInt		atts_size		Yap_AttsSize		void void
+UInt		Yap_AttsSize		void void
 #endif
 
 /* Operators */
-struct operator_entry	*op_list	OpList			=NULL OpListAdjust
+struct operator_entry	*OpList			=NULL OpListAdjust
 
 /* foreign code loaded */
-struct ForeignLoadItem 	*foreign_code_loaded	ForeignCodeLoaded	=NULL RestoreForeignCode()
-ADDR		foreign_code_base	ForeignCodeBase		=NULL void
-ADDR		foreign_code_top	ForeignCodeTop		=NULL void
-ADDR		foreign_code_max	ForeignCodeMax		=NULL void
+struct ForeignLoadItem 	*ForeignCodeLoaded	=NULL RestoreForeignCode()
+ADDR		ForeignCodeBase		=NULL void
+ADDR		ForeignCodeTop		=NULL void
+ADDR		ForeignCodeMax		=NULL void
 
 /* recorded terms */
-struct record_list *yap_records		Yap_Records		=NULL		RestoreYapRecords()
+struct record_list *Yap_Records		=NULL		RestoreYapRecords()
 
 /* SWI atoms and functors */
-Atom		*swi_atoms	SWI_Atoms		InitSWIAtoms() RestoreSWIAtoms()
-Functor		*swi_functors   SWI_Functors	void void
+Atom		*SWI_Atoms		InitSWIAtoms() RestoreSWIAtoms()
+Functor		*SWI_Functors	void void
 
-struct swi_reverse_hash	swi_reverse_hash[N_SWI_HASH] SWI_ReverseHash	void void
+swi_rev_hash     SWI_ReverseHash[N_SWI_HASH]	void void
 
 /* integer access to atoms */
-Int            atom_translations	AtomTranslations	void  void
-Int            max_atom_translations	MaxAtomTranslations	void  void
+Int            AtomTranslations	void  void
+Int            MaxAtomTranslations	void  void
 
 /* integer access to functors */
-Int            functor_translations	FunctorTranslations	void  void
-Int            max_functor_translations	MaxFunctorTranslations	void  void
+Int            FunctorTranslations	void  void
+Int            MaxFunctorTranslations	void  void
 
-Atom		empty_wakeups[MAX_EMPTY_WAKEUPS]	EmptyWakeups		InitEmptyWakeups() RestoreEmptyWakeups()
-int		max_empty_wakeups	MaxEmptyWakeups		=0
+Atom	EmptyWakeups[MAX_EMPTY_WAKEUPS]		InitEmptyWakeups() RestoreEmptyWakeups()
+int		MaxEmptyWakeups		=0
 
 /* SWI blobs */
-struct YAP_blob_t		*swi_blob_types		BlobTypes		=NULL		RestoreBlobTypes()
-struct AtomEntryStruct	*swi_blobs	Blobs		=NULL		RestoreBlobs()
-UInt   			nofblobs	NOfBlobs		=0
-UInt   			nofblobsmax	NOfBlobsMax		=256
+struct YAP_blob_t		*BlobTypes		=NULL		RestoreBlobTypes()
+struct AtomEntryStruct	*Blobs		=NULL		RestoreBlobs()
+UInt   			NOfBlobs		=0
+UInt   			NOfBlobsMax		=256
 #if defined(YAPOR) || defined(THREADS)
-lockvar         blobs_lock		Blobs_Lock		MkLock
+lockvar         Blobs_Lock		MkLock
 #endif
+
+END_HEAP

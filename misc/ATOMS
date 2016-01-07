@@ -1,6 +1,6 @@
 //
 // Fields are TAB spaced
-// Atoms are of the form A Name Normal,FullLookup String 
+// Atoms are of the form A Name Normal,FullLookup String
 // Functors are of the form F Name Atom Arity
 // Terms are of the form T FullName Atom
 //
@@ -25,11 +25,16 @@ A	ArrayAccess		F	"$array_arg"
 A	ArrayOverflow		N	"array_overflow"
 A	ArrayType		N	"array_type"
 A	Arrow			N	"->"
+A   AttributedModule    N   "attributes_module"
 A	DoubleArrow		N	"-->"
 A	Assert			N	":-"
 A	EmptyBrackets		N	"()"
 A	EmptySquareBrackets	N	"[]"
 A	EmptyCurlyBrackets	N	"{}"
+A	Asserta			N	"asserta"
+A	AssertaStatic	N	"asserta_static"
+A	Assertz			N	"assertz"
+A	AssertzStatic	N	"assertz_static"
 A	At			N	"at"
 A	Atom			N	"atom"
 A	Atomic			N	"atomic"
@@ -71,6 +76,7 @@ A	CommentHook		N	"comment_hook"
 A	Compact			N	"compact"
 A	Compound		N	"compound"
 A	ConsistencyError	N	"consistency_error"
+A	Consult	N	"consult"
 A	ConsultOnBoot		F	"$consult_on_boot"
 A	Context			N	"context"
 A	Cputime			N	"cputime"
@@ -107,6 +113,7 @@ A	DomainError		N	"domain_error"
 A	DoStaticClause		F	"$do_static_clause"
 A	Dots			N	"dots"
 A	DOUBLE			F	"Double"
+A	DoubleSlash			F	"//"
 A	E			N	"e"
 A	EOFBeforeEOT		N	"end_of_file_found_before_end_of_term"
 A	EQ			N	"="
@@ -138,6 +145,7 @@ A	FB			N	"fb"
 A	Fail			N	"fail"
 A	False			N	"false"
 A	Fast			F	"$fast"
+A	FastFail		N	"fast_fail"
 A	FileErrors		N	"file_errors"
 A	Fileerrors		N	"fileerrors"
 A	FileType		N	"file_type"
@@ -293,6 +301,7 @@ A	Read			N	"read"
 A	ReadOnly		N	"read_only"
 A	ReadWrite		N	"read_write"
 A	Readutil		N	"readutil"
+A	Reconsult		N	"reconsult"
 A	RecordedP		F	"$recordep"
 A	RecordedWithKey		F	"$recorded_with_key"
 A	RedefineWarnings	N	"redefine_warnings"
@@ -395,14 +404,16 @@ A	User			N	"user"
 A	UserErr			N	"user_error"
 A	UserIn			N	"user_input"
 A	UserOut			N	"user_output"
+A	DollarVar	    N	"$VAR"
 A	VBar			N	"|"
-A	Var			F	"$VAR"
 A	VarBranches		N	"var_branches"
 A	VariableNames		N	"variable_names"
 A	HiddenVar		F	"$V"
 A	Variable		N	"variable"
+A   Verbose         N   "verbose"
 A	VerboseFileSearch	N	"verbose_file_search"
 A	VersionNumber		F	"$version_name"
+A   VeryVerbose         N   "very_verbose"
 A	WakeUpGoal		F	"$wake_up_goal"
 A	Warning			N	"warning"
 A	When			F	"$when"
@@ -414,7 +425,7 @@ F	AfInet			AfInet		2
 F	AfLocal			AfLocal		1
 F	AfUnix			AfUnix		1
 F	AltNot			AltNot		1
-F	Arg			Arg		3
+F	Arg			    Arg		3
 F	ArrayEntry		ArrayAccess	3
 F	Arrow			Arrow		2
 F	DoubleArrow		DoubleArrow	2
@@ -448,6 +459,7 @@ F	DoLogUpdClause		DoLogUpdClause	6
 F	DoLogUpdClause0		DoLogUpdClause0	6
 F	DoLogUpdClauseErase	DoLogUpdClauseErase	6
 F	DoStaticClause		DoStaticClause	5
+F	DollarVar           DollarVar       1
 F	DomainError		DomainError	2
 F	Dot			Dot		2
 F	Dot10			Dot		10
@@ -461,6 +473,7 @@ F	Dot6			Dot		6
 F	Dot7			Dot		7
 F	Dot8			Dot		8
 F	Dot9			Dot		9
+F	DoubleSlash			DoubleSlash		2
 F	EmptySquareBrackets	EmptySquareBrackets	2
 F	EmptyCurlyBrackets	EmptyCurlyBrackets	2
 F	Eq			Eq		2
@@ -506,6 +519,7 @@ F	PermissionError		PermissionError	3
 F	Plus			Plus		2
 F	Portray			Portray		1
 F	PrintMessage		PrintMessage	2
+F   Procedure       Procedure       5
 F	PrologConstraint	Prolog		2
 F	Query			Query		1
 F	RecordedWithKey		RecordedWithKey	6
@@ -536,6 +550,4 @@ F	TypeError		TypeError	2
 F	UMinus			Minus		1
 F	UPlus			Plus		1
 F	VBar			VBar		2
-F	Var			Var		1
 F	HiddenVar		HiddenVar	1
-

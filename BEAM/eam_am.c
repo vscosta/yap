@@ -2512,7 +2512,7 @@ break_debug(contador);
 #endif
 
 #ifdef DEBUG
-			 Yap_plwrite ((Term) beam_X[1], NULL, 0, 1200);
+			 Yap_plwrite ((Term) beam_X[1], NULL, 0, GLOBAL_MaxPriority);
 #else
 			 extern int beam_write (void);
 			 beam_write();

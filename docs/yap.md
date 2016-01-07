@@ -9,6 +9,8 @@ This file documents the YAP Prolog System version 6.3.4, a high-performance Prol
 
 + @ref run
 
++ @ref YAPSyntax
+
 + @ref consult
 
 + @ref builtins
@@ -33,14 +35,14 @@ This file documents the YAP Prolog System version 6.3.4, a high-performance Prol
 \author Rúben Azevedo
 
 
-© 1989-2014 L. Damas, V. Santos Costa and Universidade
+© 1989-201 L. Damas, V. Santos Costa and Universidade
 do Porto.
 Permission is granted to make and distribute verbatim copies of this manual provided the copyright notice and this permission notice are preserved on all copies.
 Permission is granted to copy and distribute modified versions of this manual under the conditions for verbatim copying, provided that the entire resulting derived work is distributed under the terms of a permission notice identical to this one.
 Permission is granted to copy and distribute translations of this manual into another language, under the above conditions for modified versions.
 
 <center>
-![The YAP Logo](yap_256x256x32.png) 
+![The YAP Logo](yap_256x256x32.png)
 </center>
 
 This file contains extracts of the SWI-Prolog manual, as written by Jan
@@ -52,30 +54,23 @@ us to include his text in this document.
 
 This document provides User information on version 6.3.4 of
 YAP (<em>Yet Another Prolog</em>). The YAP Prolog System is a
-high-performance Prolog compiler developed at LIACC, Universidade do
-Porto. YAP provides several important features:
-
-+ Speed: YAP is widely considered one of the fastest
-  available Prolog systems.
-
-+ Functionality: it supports stream Input/Output, sockets, modules,
+high-performance Prolog compiler developed at Universidade do
+Porto.  YAP supports stream Input/Output, sockets, modules,
   exceptions, Prolog debugger, C-interface, dynamic code, internal
   database, DCGs, saved states, co-routining, arrays, threads.
 
-+ We explicitly allow both commercial and non-commercial use of YAP.
+We explicitly allow both commercial and non-commercial use of YAP.
 
 
 YAP is based on the David H. D. Warren's WAM (Warren Abstract Machine),
 with several optimizations for better performance. YAP follows the
 Edinburgh tradition, and was originally designed to be largely
 compatible with DEC-10 Prolog, Quintus Prolog, and especially with
-C-Prolog.
+C-Prolog. More recently, we have worked on being compatible with SICStus Prolog and with SWI-Prolog.
 
 YAP implements most of the ISO-Prolog standard. We are striving at
 full compatibility, and the manual describes what is still
-missing. The manual also includes a (largely incomplete) comparison
-with SICStus Prolog.
-
+missing.
 The document is intended neither as an introduction to Prolog nor to the
 implementation aspects of the compiler. A good introduction to
 programming in Prolog is the book @cite TheArtOfProlog , by
@@ -83,16 +78,13 @@ L. Sterling and E. Shapiro, published by "The MIT Press, Cambridge
 MA". Other references should include the classical @cite ProgrammingInProlog , by W.F. Clocksin and C.S. Mellish, published by
 Springer-Verlag.
 
-YAP 4.3 is known to build with many versions of gcc (\<= gcc-2.7.2, \>=
-gcc-2.8.1, \>= egcs-1.0.1, gcc-2.95.\*) and on a variety of Unixen:
-SunOS 4.1, Solaris 2.\*, Irix 5.2, HP-UX 10, Dec Alpha Unix, Linux 1.2
-and Linux 2.\* (RedHat 4.0 thru 5.2, Debian 2.\*) in both the x86 and
-alpha platforms. It has been built on Windows NT 4.0 using Cygwin from
-Cygnus Solutions (see README.nt) and using Visual C++ 6.0.
+YAP 6.3.4 has been built with the gcc and clang compilers on Linux and OSX machines. We expect to recover support for  WIN32 machines and
+Android next.
 
 The overall copyright and permission notice for YAP4.3 can be found in
 the Artistic file in this directory. YAP follows the Perl Artistic
-license, and it is thus non-copylefted freeware.
+license, and it is thus non-copylefted freeware. Some components of YAP have been obtained from SWI Prolog and ciao, and have
+different ;icenses.
 
 If you have a question about this software, desire to add code, found a
 bug, want to request a feature, or wonder how to get further assistance,
@@ -102,7 +94,7 @@ subscribe to the mailing list, visit the page
 
 On-line documentation is available for YAP at:
 
-<http://www.ncc.up.pt/~vsc/YAP/>
+<http://www.ncc.up.pt/~vsc/yAP/>
 
 Recent versions of YAP, including both source and selected binaries,
 can be found from this same URL.
@@ -113,7 +105,7 @@ manual is largely based on the DECsystem-10 Prolog User's Manual by
 D.L. Bowen, L. Byrd, F. C. N. Pereira, L. M. Pereira, and
 D. H. D. Warren. We have  used comments from the Edinburgh Prolog
 library written by R. O'Keefe. Documentation from many built-ins is
-originally from the SWI-Prolog manual, with the gracious uathorization
+originally from the SWI-Prolog manual, with the gracious authorization
 from
 Jan Wielemaker. We would also like to gratefully
 acknowledge the contributions from Ashwin Srinivasian.
@@ -145,15 +137,7 @@ Buenabad, Inês Dutra and Vítor Santos Costa.
 
 + The JPL (Java-Prolog Library) package developed by .
 
-+ The Logtalk Object-Oriented system is developed at the University
-	of Beira Interior, Portugal, by Paulo Moura:
-
-    <http://logtalk.org/>
-
-    Logtalk is no longer distributed with YAP. Please use the Logtalk standalone
-	installer for a smooth integration with YAP.
-
-+ The minisat SAT solver interface developed by Michael Codish,
+ The minisat SAT solver interface developed by Michael Codish,
  Vitaly Lagoon, and Peter J. Stuckey.
 
 + The MYDDAS relational data-base interface developed at the
@@ -188,14 +172,7 @@ and
 
 <https://github.com/vscosta/yap-6.3>
 
-Several packages are shared with SWI-Prolog and need to be obtained
-from separate repositories. Proceed as follows:
-
-~~~~~~
-cd yap-6.3
-git submodule init
-git submodule update
-~~~~~~
+YAP-6.3.4 does not use repositories. Please just use `git clone` to obtain the distribution.
 
 Most of these repositories are basically copies of the original
 repositories at the SWI-Prolog site. YAP-6 will work either with or
@@ -204,27 +181,19 @@ without these packages.
 Installing YAP           {#install}
 ==============
 
-YAP is a `configure` based system. We discuss how to use `configure`
+YAP is a `ccmake` based system. We discuss how to use `cmake`
 to install YAP, and what are the major options.
 
 Compiling YAP {#CompilingYAP}
 -------------
 
-
 To compile YAP it should be sufficient to:
 
-1 `autoconf`. Recent versions of YAP try to follow GNU
-      conventions on where to place software.
+2 create a directory, say `Build`.
 
-  + The main executable is placed at  _$BINDIR_. This executa§ble is
-    actually a script that calls the Prolog engine, stored at  _$LIBDIR_.
+  obs: please avoid compiling YAP in the src directory, some packages do not allow for that.
 
-  + _$LIBDIR_ is the directory where libraries are stored. YAPLIBDIR is a
-    subdirectory that contains the Prolog engine and a Prolog library.
-
-  + _$INCLUDEDIR_ is used if you want to use YAP as a library.
-
-  + _$INFODIR_ is where to store `info` files. Usually /usr/local/info, /usr/info, or /usr/share/info.
+1 run `cmake`, ideally using a cmake above 3.0.
 
 2 `make`.
 
@@ -238,58 +207,62 @@ To compile YAP it should be sufficient to:
 Tuning the Functionality of YAP
 -------------------------------
 
-Compiling YAP with the standard options give you a plain vanilla
-Prolog. You can tune YAP to include extra functionality by calling
-`configure` with the appropriate options:
+By default, YAP supports tabling, depth first search, and most features found in
+modern Prologs. In some cases, you may want to suport extra features, or reduce system size.
+`cmake`provides an graphical interface for doing so. From the commmand line,  a typical example could be:
 
-  + `--enable-rational-trees=yes` gives you support for infinite
-     rational trees.
+~~~~~
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~
+~~~~~
 
-  + `--enable-coroutining=yes` gives you support for coroutining,
-    including freezing of goals, attributed variables, and
-constraints. This will also enable support for infinite rational
-trees.
+Options include:
 
-  + `--enable-depth-limit=yes` allows depth limited evaluation, say for
-implementing iterative deepening.
++ `CMAKE_BUILD_TYPE`: the two main options are Debug, for system development, and Release. to use the system.
 
-  + `--enable-low-level-tracer=yes` allows support for tracing all calls,
++ `CMAKE_INSTALL_PREFIX`: where to install YAP
+
++ WITH_DEPTH_LIMIT allows depth limited evaluation, say for
+implementing iterative deepening (default)
+
++ `WITH_CALL_TRACER` allows support for tracing all calls,
 retries, and backtracks in the system. This can help in debugging your
-application, but results in performance loss.
+application, but results in performance loss (enabled in Debug).
 
-  + `--enable-wam-profile=yes` allows profiling of abstract machine
+  + `WITH_WAM_PROFILER` allows profiling of abstract machine
 instructions. This is useful when developing YAP, should not be so
-useful for normal users.
+useful for normal users (not currently supportted)
 
-  + `--enable-condor=yes` allows using the Condor system that
+  + `WITH_YAP_CONDOR` allows using the Condor system that
 support High Throughput Computing (HTC) on large collections of
-distributively owned computing resources.
+distributively owned computing resources (not yet available)
 
-  + `--enable-tabling=yes` allows tabling support. This option
-is still experimental.
+  + `WITH_TABLING` allows tabling support (default)
 
-  + `--enable-parallelism={env-copy,sba,a-cow}` allows
-or-parallelism supported by one of these three forms. This option is
+  + `WITH_YAPOR_COPY` allows
+or-parallelism according to the Muse-based, YapOR model. This option is
 still highly experimental.
 
-  + `--with-max-workers` allows definition of the maximum
+  /*+ `--with-max-workers` allows definition of the maximum
 number of parallel processes (its value can be consulted at runtime
-using the flag `max_workers`).
+using the flag `max_workers`).*/
 
-  + `--with-gmp[=DIR]` give a path to where one can find the
-`GMP` library if not installed in the default path.
++ `WITH_GMP` give a path to where one can find the
+`GMP` library if not installed in the default path. It is highly advised to have GMP in your compilation environment.
 
-  + `--enable-threads` allows using of the multi-threading
++ `WITH_READLINE` give a path to where one can find the
+`readline` library if not installed in the default path. It is highly advised in Unix-like environments.
+
+ + `-WITH_Threads` allows using of the multi-threading
 predicates provided by YAP. Depending on the operating system, the
 option `--enable-pthread-locking` may also need to be used.
 
-  + `--with-max-threads` allows definition of the maximum
+  /*+ `--with-max-threads` allows definition of the maximum
 number of threads (the default value is 1024; its value can be consulted
-at runtime using the flag [max_threads](@ref max_threads)).
+at runtime using the flag [max_threads](@ref max_threads)).*/
 
 
 
-Next section discusses machine dependent details.
+Next section discusses machine dependent details, and it is out-of-date.
 
 Tuning YAP for a Particular Machine and Compiler {#Machine_Options}
 ------------------------------------------------
@@ -450,7 +423,7 @@ Compiling WIN32 packages depends on a number of parameters: chosen compiler,
 packages to install, directory setup. You may have to change these ones that
 control the `mkwin` script:
 
- * `VER`: major/minor number  
+ * `VER`: major/minor number
  * `PATCHID`: third digit
  * `SRC`: directory containing yap sources, in the local environment notation.
  * `SRC_WIN`: same, but in WIN32 standard notation.
@@ -1116,5 +1089,3 @@ being designed to work with the swig (www.swig.orgv) interface compiler.
 + The @ref swi-c-interface emulates Jan Wielemaker's SWI foreign language interface.
 
 + The @ref  yap-cplus-interface is desiged to interface with the SWI ackage \cite x Object-Oriented systems.
-
-

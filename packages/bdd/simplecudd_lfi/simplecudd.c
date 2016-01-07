@@ -370,7 +370,7 @@ int CheckFileVersion(const char *version) {
   return -1;
 }
 
-int simpleBDDtoDot(DdManager *manager, DdNode *bdd, char *filename) {
+int simpleBDDtoDot(DdManager *manager, DdNode *bdd, const char *filename) {
   DdNode *f[1];
   int ret;
   FILE *fd;
@@ -385,8 +385,8 @@ int simpleBDDtoDot(DdManager *manager, DdNode *bdd, char *filename) {
   return ret;
 }
 
-int simpleNamedBDDtoDot(DdManager *manager, const namedvars varmap, DdNode *bdd,
-                        char *filename) {
+int simpleNamedBDDtoDot(DdManager *manager, namedvars varmap, DdNode *bdd,
+                        const char *filename) {
   DdNode *f[1];
   int ret;
   FILE *fd;
@@ -435,7 +435,7 @@ void SaveExpand(DdManager *manager, namedvars varmap, hisqueue *Nodes,
                 DdNode *Current, FILE *outputfile) {
   DdNode *h, *l;
   hisnode *Found;
-  char *curnode;
+  const char *curnode;
   int inode;
   if (Current != HIGH(manager) && Current != LOW(manager)) {
     if ((Found = GetNode(Nodes, varmap.varstart, Current)) == NULL) {
@@ -917,7 +917,7 @@ namedvars InitNamedVars(int varcnt, int varstart) {
   int i;
   temp.varcnt = varcnt;
   temp.varstart = varstart;
-  temp.vars = (char **)malloc(sizeof(char *) * varcnt);
+  temp.vars = (const char **)malloc(sizeof(char *) * varcnt);
   temp.loaded = (int *)malloc(sizeof(int) * varcnt);
   temp.dvalue = (double *)malloc(sizeof(double) * varcnt);
   temp.ivalue = (int *)malloc(sizeof(int) * varcnt);
@@ -934,7 +934,7 @@ namedvars InitNamedVars(int varcnt, int varstart) {
 
 void EnlargeNamedVars(namedvars *varmap, int newvarcnt) {
   int i;
-  varmap->vars = (char **)realloc(varmap->vars, sizeof(char *) * newvarcnt);
+  varmap->vars = (const char **)realloc(varmap->vars, sizeof(const char *) * newvarcnt);
   varmap->loaded = (int *)realloc(varmap->loaded, sizeof(int) * newvarcnt);
   varmap->dvalue =
       (double *)realloc(varmap->dvalue, sizeof(double) * newvarcnt);
@@ -954,7 +954,7 @@ void EnlargeNamedVars(namedvars *varmap, int newvarcnt) {
 int AddNamedVarAt(namedvars varmap, const char *varname, int index) {
   if (varmap.varcnt > index) {
     varmap.vars[index] = (char *)malloc(sizeof(char) * (strlen(varname) + 1));
-    strcpy(varmap.vars[index], varname);
+    strcpy(varmap.vars[index], (char *)varname);
     return index;
   }
   return -1;
@@ -1010,7 +1010,7 @@ int GetNamedVarIndex(const namedvars varmap, const char *varname) {
   return -1 * varmap.varcnt;
 }
 
-char *GetNodeVarName(DdManager *manager, namedvars varmap, DdNode *node) {
+const char *GetNodeVarName(DdManager *manager, namedvars varmap, DdNode *node) {
   if (node == NULL)
     return NULL;
   if (node == HIGH(manager))
@@ -1020,7 +1020,7 @@ char *GetNodeVarName(DdManager *manager, namedvars varmap, DdNode *node) {
   return varmap.vars[GetIndex(node) - varmap.varstart];
 }
 
-char *GetNodeVarNameDisp(DdManager *manager, namedvars varmap, DdNode *node) {
+const char *GetNodeVarNameDisp(DdManager *manager, namedvars varmap, DdNode *node) {
   if (HIGH(manager) == node)
     return "TRUE";
   if (LOW(manager) == node)

@@ -13,7 +13,7 @@
            conj2list/2,
 	   clauselength/2]).
 
-%%! @{
+%% @{
 
 /**
  *  @defgroup clauses Clause Manipulation
@@ -31,26 +31,42 @@
 
   It is often easier to apply operations on lists than on clauses
 */
+conj2list( M:Conj, List ) :-
+	conj2list_( Conj, M, List, [] ).
+
 conj2list( Conj, List ) :-
-	conj2list( Conj, List, [] ).
+	conj2list_( Conj, List, [] ).
 
 
-conj2list( C ) -->
+conj2list_( C ) -->
 	{ var(C) },
 	!,
 	[C].
-conj2list( true )  --> !.
-conj2list( (C1, C2) ) -->
+conj2list_( true )  --> !.
+conj2list_( (C1, C2) ) -->
 	!,
-	conj2list( C1 ),
-	conj2list( C2 ).
-conj2list( C ) -->
+	conj2list_( C1 ),
+	conj2list_( C2 ).
+conj2list_( C ) -->
         [C].
 
-/** conj2list( +List, -Conj) is det
+conj2list_( C, M ) -->
+	{ var(C) },
+	!,
+	[M: C].
+conj2list_( true , _)  --> !.
+conj2list_( (C1, C2), M ) -->
+	!,
+	conj2list_( C1, M ),
+	conj2list_( C2, M  ).
+conj2list_( C, M ) -->
+    { strip_module(M:C, NM, NC) },
+        [NM:NC].
+
+/** list2conj( +List, -Conj) is det
   Generate a conjunction from a list of literals.
 
-  Notice that this relies on indexing within the list to avoid creating
+  Notice Mthat this relies on indexing within the list to avoid creating
   choice-points.
 */
 list2conj([], true).
@@ -77,3 +93,4 @@ clauselength( (C1, C2), I2, I ) :- !,
 clauselength( _C, I1, I ) :-
         I1 is I+1.
 
+%%@}

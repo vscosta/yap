@@ -6,7 +6,6 @@ set (LIBRARY_PL
   date.pl
   debug.pl
   edit.pl
-  error.pl
   main.pl
   menu.pl
   nb_set.pl

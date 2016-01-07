@@ -21,7 +21,7 @@
  * @date   Tue Nov 17 01:17:33 2015
  * 
  * @brief  Several operations on text.
- * 
+ * @{
  * 
 */
 

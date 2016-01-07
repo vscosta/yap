@@ -53,7 +53,9 @@ if (READLINE_FOUND)
   # READLINE_readline_LIBRARY, where to find the READLINE library.
   # READLINE_ncurses_LIBRARY, where to find the ncurses library [might not be defined]
 
-  set( CMAKE_REQUIRED_INCLUDES  ${READLINE_INCLUDE_DIR} ${CMAKE_REQUIRED_INCLUDES} )
+  include_directories (BEFORE ${READLINE_INCLUDE_DIR})
+
+  set(YAP_SYSTEM_OPTIONS "readline " ${YAP_SYSTEM_OPTIONS} PARENT_SCOPE)
   set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${READLINE_LIBRARIES} )
   check_include_files( "stdio.h;readline/readline.h" HAVE_READLINE_READLINE_H )
   check_include_files( "stdio.h;readline/history.h"  HAVE_READLINE_HISTORY_H )
@@ -81,15 +83,17 @@ endif (READLINE_FOUND)
 set (POSITION_INDEPENDENT_CODE TRUE)
 
 add_library (libYAPOs  OBJECT
-  ${YAPOS_SOURCES} )
-
+  ${YAPOS_SOURCES}
+  )
 
 set_target_properties(libYAPOs
   PROPERTIES
+
   #  RPATH ${libdir} VERSION ${LIBYAPTAI_FULL_VERSION}
   #  SOVERSION ${LIBYAPTAI_MAJOR_VERSION}.${LIBYAPTAI_MINOR_VERSION}
   POSITION_INDEPENDENT_CODE TRUE
   OUTPUT_NAME YAPOs
+  depends dheap
   )
 
 configure_file ("${PROJECT_SOURCE_DIR}/os/YapIOConfig.h.cmake"
@@ -97,6 +101,6 @@ configure_file ("${PROJECT_SOURCE_DIR}/os/YapIOConfig.h.cmake"
 
   set( READLINE_LIBS ${READLINE_LIBRARIES} PARENT_SCOPE)
 
-  
+
 
 #set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${GMP_LIBRARIES} )

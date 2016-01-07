@@ -20,11 +20,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <mysql/mysql.h>
+#include <mysql.h>
 #include "Yap.h"
 #include "Yatom.h"
 #include "cut_c.h"
 #include "myddas_structs.h"
+#include "myddas_util.h"
 #ifdef MYDDAS_STATS
 #include "myddas_statistics.h"
 #endif

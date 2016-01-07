@@ -455,7 +455,7 @@ save_regs(int mode USES_REGS)
   if (putcellptr(CellPtr(HeapTop)) < 0)
     return -1;
   /* and the space it ocuppies */
-  if (putout(Unsigned(Yap_heap_regs->heap_used)) < 0)
+  if (putout(Unsigned(HeapUsed)) < 0)
     return -1;
   /* Then the start of the free code */
   if (putcellptr(CellPtr(FreeBlocks)) < 0)
@@ -1035,6 +1035,8 @@ get_coded(int flag, OPCODE old_ops[] USES_REGS)
   return 1;
 }
 
+
+
 /* restore some heap registers */
 static void
 restore_heap_regs( USES_REGS1 )
@@ -1043,7 +1045,7 @@ restore_heap_regs( USES_REGS1 )
     HeapTop = AddrAdjust(HeapTop);
     *((YAP_SEG_SIZE *) HeapTop) = InUseFlag;
   }
-  HeapMax = Yap_heap_regs->heap_used = OldHeapUsed;
+  HeapMax = HeapUsed = OldHeapUsed;
   HeapLim = LOCAL_GlobalBase;
 }
 

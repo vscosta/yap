@@ -14,10 +14,10 @@
 /**
 *  @file apply.yap
 * @defgroup apply_stub Apply Predicates
-
+*
 * @ingroup library
-
-@{
+*
+* @{
 
 This library provides a SWI-compatible set of utilities for applying a
 predicate to all elements of a list.
@@ -34,8 +34,6 @@ The apply library is a _stub_, it just forwards definitions to the
   - partition/4,
   - partition/5
 
-@}
-
  */
 
 :- reexport(library(maplist),
@@ -49,4 +47,6 @@ The apply library is a _stub_, it just forwards definitions to the
 	     partition/5
 	    ]).
 
+
+%% @}
 

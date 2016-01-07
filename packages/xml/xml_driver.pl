@@ -11,11 +11,15 @@
  * This program is offered free of charge, as unsupported source code. You may
  * use it, copy it, distribute it, modify it or sell it without restriction,
  * but entirely at your own risk.
+*/
+
+ /** @pred xml_parse( {+Controls}, +?Chars, ?+Document )
  *
- * xml_parse( {+Controls}, +?Chars, ?+Document ) parses Chars to/from a data
+ * parses Chars to/from a data
  * structure of the form xml(<atts>, <content>). <atts> is a list of
  * <atom>=<string> attributes from the (possibly implicit) XML signature of the
- * document. <content> is a (possibly empty) list comprising occurrences of  * ~~~
+ * document. <content> is a (possibly empty) list comprising occurrences of
+ * ~~~
  *    pcdata(<string>)                    :  Text
  *    comment(<string>)                   :  An xml comment;
  *    element(<tag>,<atts>,<content>)     :  <tag>..</tag> encloses <content>
@@ -75,7 +79,7 @@
  * is not well-formed, diagnosis tries to identify the specific culprit term.
  */
 
-:- module( xml, [xml_parse/2,
+:- module( xml_driver, [xml_parse/2,
 		xml_parse/3,
 		 document_to_xml/3,
 		 xml_subterm/2
@@ -105,7 +109,8 @@ document_to_xml( Controls, Document, Chars ) :-
 		xml_exception( Message, Document, Culprit, Path )
 	).
 
-/** xml_subterm( +XMLTerm, ?Subterm )
+/** @pred xml_subterm( +XMLTerm, ?Subterm )
+ *
  * unifies Subterm with a sub-term of Term.
  * Note that XMLTerm is a sub-term of itself. 
  */

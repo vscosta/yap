@@ -35,12 +35,12 @@ IF (CUDD_FOUND)
     ${CUDD_INCLUDE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     )
- 
+
   check_include_files( util.h HAVE_UTIL_H )
   check_include_files( cudd/util.h HAVE_CUDD_UTIL_H )
   check_include_files( cudd.h HAVE_CUDD_H )
   check_include_files( "stdio.h;cudd/cudd.h" HAVE_CUDD_CUDD_H )
-  check_include_files( cuddInt.h HAVE_CUDDINT_H )  
+  check_include_files( cuddInt.h HAVE_CUDDINT_H )
   check_include_files( "stdio.h;cudd/cudd.h;cudd/cuddInt.h" HAVE_CUDD_CUDDINT_H )
 
   configure_file ("${PROJECT_SOURCE_DIR}/cudd_config.h.cmake"
@@ -63,6 +63,7 @@ IF (CUDD_FOUND)
 
   add_subdirectory(simplecudd)
   add_subdirectory(simplecudd_lfi)
+  set(YAP_SYSTEM_OPTIONS "cudd " ${YAP_SYSTEM_OPTIONS} PARENT_SCOPE)
 
   install(TARGETS  cudd
     LIBRARY DESTINATION ${dlls}
@@ -72,7 +73,7 @@ IF (CUDD_FOUND)
   INSTALL(FILES ddnnf.yap DESTINATION ${libpl})
   INSTALL(FILES simpbool.yap DESTINATION ${libpl})
   INSTALL(FILES trie_sp.yap DESTINATION ${libpl})
-  
+
 ENDIF (CUDD_FOUND)
 
 SET (CUDD_FOUND_EXPORT ${CUDD_FOUND} PARENT_SCOPE)

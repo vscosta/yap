@@ -252,7 +252,7 @@ Switches on the debugger and enters tracing mode.
 */
 trace :-
 	 '$init_debugger',
-	'__NB_getval__'('$trace', on, fail), !.
+     fail.
 trace :-
 	'__NB_setval__'('$trace',on),
 	'$start_debugging'(on),

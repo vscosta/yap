@@ -72,7 +72,7 @@ typedef struct swi_reverse_hash {
 
 //#define GC_MAVARS_HASH_SIZE 512
 //
-//typedef struct gc_ma_hash_entry_struct {
+// typedef struct gc_ma_hash_entry_struct {
 //  UInt timestmp;
 //#ifdef TABLING
 //  tr_fr_ptr loc;
@@ -85,12 +85,12 @@ typedef struct swi_reverse_hash {
 typedef void (*HaltHookFunc)(int, void *);
 
 typedef struct halt_hook {
-  void * environment;
+  void *environment;
   HaltHookFunc hook;
   struct halt_hook *next;
 } halt_hook_entry;
 
-int	Yap_HaltRegisterHook(HaltHookFunc, void *);
+int Yap_HaltRegisterHook(HaltHookFunc, void *);
 
 typedef struct atom_hash_entry {
 #if defined(YAPOR) || defined(THREADS)
@@ -99,7 +99,7 @@ typedef struct atom_hash_entry {
   Atom Entry;
 } AtomHashEntry;
 
-//typedef struct scratch_block_struct {
+// typedef struct scratch_block_struct {
 //  char *ptr;
 //  UInt sz, msz;
 //} scratch_block;
@@ -112,7 +112,7 @@ typedef struct record_list {
 
 /* SWI Emulation */
 #define SWI_BUF_SIZE 512
-#define SWI_TMP_BUF_SIZE 2*SWI_BUF_SIZE
+#define SWI_TMP_BUF_SIZE 2 * SWI_BUF_SIZE
 #define SWI_BUF_RINGS 16
 
 /* ricardo
@@ -151,21 +151,51 @@ typedef struct thandle {
 } yap_thandle;
 #endif */
 
-//typedef int   (*Agc_hook)(Atom);
+// typedef int   (*Agc_hook)(Atom);
 
 /*******************
   this is the data base: everything here should be possible to restore
 ********************/
+#if YAPOR
 typedef struct various_codes {
   /* memory allocation and management */
   special_functors funcs;
 
-#include "hstruct.h"
+#include "heap/hstruct.h"
 
 } all_heap_codes;
 
-//#include "hglobals.h"
-//#include "hlocals.h"
+#include "heap/hglobals.h"
+
+#include "heap/dhstruct.h"
+#include "heap/dglobals.h"
+#else
+typedef struct various_codes {
+  /* memory allocation and management */
+  special_functors funcs;
+
+  #include "tatoms.h"
+
+} all_heap_codes;
+
+#if __INIT_C__
+#define EXTERNAL
+#else
+#define EXTERNAL extern
+#endif
+
+#include "heap/h0struct.h"
+
+#include "heap/h0globals.h"
+
+#endif
+
+#include "heap/hlocals.h"
+
+
+
+#include "heap/dlocals.h"
+
 
 /* ricardo
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
@@ -191,74 +221,56 @@ extern struct worker_local Yap_local;
 #ifdef USE_SYSTEM_MALLOC
 extern struct various_codes *Yap_heap_regs;
 #else
-#define Yap_heap_regs  ((all_heap_codes *)HEAP_INIT_BASE)
+#define Yap_heap_regs ((all_heap_codes *)HEAP_INIT_BASE)
 #endif
-
-#include "dhstruct.h"
-//#include "dglobals.h"
-//#include "dlocals.h"
 
 /**
  * gc-P: how to start-up the grbage collector in C-code
  */
 
-static inline
-yamop *
-gc_P(yamop *p, yamop *cp)
-{
-  return (p->opc == EXECUTE_CPRED_OPCODE ? cp : p);
+static inline yamop *gc_P(yamop *p, yamop *cp) {
+  return (p && p->opc == EXECUTE_CPRED_OPCODE ? cp : p);
 }
-
 
 /**
   Yap_CurrentModule: access the current module for looking
   up predicates
   */
 
-#define Yap_CurrentModule() Yap_CurrentModule__ (PASS_REGS1)
+#define Yap_CurrentModule() Yap_CurrentModule__(PASS_REGS1)
 
-INLINE_ONLY inline EXTERN Term Yap_CurrentModule__ (USES_REGS1) ;
+INLINE_ONLY inline EXTERN Term Yap_CurrentModule__(USES_REGS1);
 
-INLINE_ONLY inline EXTERN Term
-Yap_CurrentModule__ (USES_REGS1)
-{
-  if (CurrentModule) return CurrentModule;
+INLINE_ONLY inline EXTERN Term Yap_CurrentModule__(USES_REGS1) {
+  if (CurrentModule)
+    return CurrentModule;
   return TermProlog;
 }
-
-
 
 /*******************
   these are the global variables: they need not be restored...
 ********************/
 
-#define UPDATE_MODE_IMMEDIATE          0
-#define UPDATE_MODE_LOGICAL            1
-#define UPDATE_MODE_LOGICAL_ASSERT     2
-
-
-
+#define UPDATE_MODE_IMMEDIATE 0
+#define UPDATE_MODE_LOGICAL 1
+#define UPDATE_MODE_LOGICAL_ASSERT 2
 
 /* initially allow for files with up to 1024 predicates. This number
    is extended whenever needed */
-#define  InitialConsultCapacity    1024
+#define InitialConsultCapacity 1024
 
-
-#if (defined(USE_SYSTEM_MALLOC) && HAVE_MALLINFO)||USE_DL_MALLOC
+#if (defined(USE_SYSTEM_MALLOC) && HAVE_MALLINFO) || USE_DL_MALLOC
 UInt Yap_givemallinfo(void);
 #endif
 
-ADDR    Yap_ExpandPreAllocCodeSpace(UInt, void *, int);
+ADDR Yap_ExpandPreAllocCodeSpace(UInt, void *, int);
 #define Yap_ReleasePreAllocCodeSpace(x)
-ADDR    Yap_InitPreAllocCodeSpace(int);
+ADDR Yap_InitPreAllocCodeSpace(int);
 
 #include "inline-only.h"
-INLINE_ONLY EXTERN inline ADDR
-Yap_PreAllocCodeSpace(void);
+INLINE_ONLY EXTERN inline ADDR Yap_PreAllocCodeSpace(void);
 
-INLINE_ONLY EXTERN inline ADDR
-Yap_PreAllocCodeSpace(void)
-{
+INLINE_ONLY EXTERN inline ADDR Yap_PreAllocCodeSpace(void) {
   CACHE_REGS
   return AuxBase;
 }

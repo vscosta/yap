@@ -15,10 +15,21 @@
 *									 *
 *************************************************************************/
 
+/**
+ * @file   setof.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Thu Nov 19 10:45:32 2015
+ * 
+ * @brief  Setof and friends.
+ * 
+ * 
+*/
 
-/** @defgroup Sets Collecting Solutions to a Goal
-@ingroup builtins
+/**
+
 @{
+@defgroup Sets Collecting Solutions to a Goal
+@ingroup builtins
 
 When there are several solutions to a goal, if the user wants to collect all
 the solutions he may be led to use the data base, because backtracking will
@@ -52,6 +63,7 @@ post-process the result of the query in several different ways:
 % this is used by the all predicate
 
 :- op(50,xfx,same).
+
 
 _^Goal :-
 	'$execute'(Goal).
@@ -108,6 +120,7 @@ Similar to findall/3, but appends all answers to list  _L0_.
 
 */
 findall(Template, Generator, Answers, SoFar) :-
+     must_be_of_type( list_or_partial_list, Template ),
 	'$findall'(Template, Generator, SoFar, Answers).
 
 % starts by calling the generator,
@@ -123,7 +136,6 @@ findall(Template, Generator, Answers, SoFar) :-
 	).
 
 
-
 % findall_with_key is very similar to findall, but uses the SICStus
 % algorithm to guarantee that variables will have the same names.
 %
@@ -137,6 +149,7 @@ findall(Template, Generator, Answers, SoFar) :-
 	  nb:nb_queue_close(Ref, Answers, []),
 	  '$collect_with_common_vars'(Answers, _)
 	).
+
 
 '$collect_with_common_vars'([], _).
 '$collect_with_common_vars'([Key-_|Answers], VarList) :-
@@ -171,6 +184,7 @@ no
 
  */
 setof(Template, Generator, Set) :-
+    
 	( '$is_list_or_partial_list'(Set) ->
 		true
 	;
@@ -208,6 +222,7 @@ no
 
 
 */
+
 bagof(Template, Generator, Bag) :-
 	( '$is_list_or_partial_list'(Bag) ->
 		true

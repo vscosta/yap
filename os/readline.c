@@ -1,4 +1,4 @@
-/*************************************************************************
+  /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -166,6 +166,7 @@ bool Yap_ReadlineOps(StreamDesc *s) {
         is_same_tty(s->file, GLOBAL_Stream[0].file))
       s->stream_putc = ReadlinePutc;
     s->stream_getc = ReadlineGetc;
+    s->status |= Readline_Stream_f;
     return true;
   }
   return false;
@@ -231,11 +232,11 @@ static bool getLine(int inp, int out) {
   /* window of vulnerability opened */
   LOCAL_PrologMode |= ConsoleGetcMode;
 
-  if (GLOBAL_Stream[out].linepos == 0) { // no output so far
-    fflush(NULL);
+  fflush(NULL);
+  LOCAL_PrologMode |= ConsoleGetcMode;
+  if (LOCAL_newline) { // no output so far
     myrl_line = readline(LOCAL_Prompt);
   } else {
-    LOCAL_PrologMode |= ConsoleGetcMode;
     myrl_line = readline(NULL);
   }
   /* Do it the gnu way */
@@ -277,9 +278,11 @@ static int ReadlinePutc(int sno, int ch) {
   return ((int)ch);
 }
 
-/*
-  reading from the console is complicated because we need to
+/**
+  @brief reading from the console is complicated because we need to
   know whether to prompt and so on...
+
+  EOF must be handled by resetting the file.
 */
 static int ReadlineGetc(int sno) {
   StreamDesc *s = &GLOBAL_Stream[sno];
@@ -299,6 +302,42 @@ static int ReadlineGetc(int sno) {
   }
   return console_post_process_read_char(ch, s);
 }
+
+
+/** 
+  @brief  Yap_ReadlinePeekChar peeks the next char from the
+  readline buffer, but does not actually grab it.
+
+  The idea is to take advantage of the buffering. Special care must be taken with EOF, though.
+
+*/
+Int Yap_ReadlinePeekChar( int sno) {
+  StreamDesc *s = &GLOBAL_Stream[sno];
+  int ch;
+
+  if (s->u.irl.buf) {
+    const char *ttyptr = s->u.irl.ptr;
+    ch = *ttyptr;
+    if (ch == '\0') {
+       ch = '\n';
+    }
+  } if (getLine(sno, StdErrStream) ) {
+      CACHE_REGS
+    ch = s->u.irl.ptr[0];
+    if (ch == '\0') {
+       ch = '\n';
+    }
+    if (ch == '\n') {
+      LOCAL_newline = true;
+    } else {
+      LOCAL_newline = false;
+    }
+  } else {
+    return EOF;
+  }
+  return ch;
+}
+
 
 int Yap_ReadlineForSIGINT(void) {
   CACHE_REGS

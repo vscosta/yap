@@ -20,11 +20,16 @@
   AtomArrayOverflow = Yap_LookupAtom("array_overflow");
   AtomArrayType = Yap_LookupAtom("array_type");
   AtomArrow = Yap_LookupAtom("->");
+  AtomAttributedModule = Yap_LookupAtom("attributes_module");
   AtomDoubleArrow = Yap_LookupAtom("-->");
   AtomAssert = Yap_LookupAtom(":-");
   AtomEmptyBrackets = Yap_LookupAtom("()");
   AtomEmptySquareBrackets = Yap_LookupAtom("[]");
   AtomEmptyCurlyBrackets = Yap_LookupAtom("{}");
+  AtomAsserta = Yap_LookupAtom("asserta");
+  AtomAssertaStatic = Yap_LookupAtom("asserta_static");
+  AtomAssertz = Yap_LookupAtom("assertz");
+  AtomAssertzStatic = Yap_LookupAtom("assertz_static");
   AtomAt = Yap_LookupAtom("at");
   AtomAtom = Yap_LookupAtom("atom");
   AtomAtomic = Yap_LookupAtom("atomic");
@@ -66,6 +71,7 @@
   AtomCompact = Yap_LookupAtom("compact");
   AtomCompound = Yap_LookupAtom("compound");
   AtomConsistencyError = Yap_LookupAtom("consistency_error");
+  AtomConsult = Yap_LookupAtom("consult");
   AtomConsultOnBoot = Yap_FullLookupAtom("$consult_on_boot");
   AtomContext = Yap_LookupAtom("context");
   AtomCputime = Yap_LookupAtom("cputime");
@@ -102,6 +108,7 @@
   AtomDoStaticClause = Yap_FullLookupAtom("$do_static_clause");
   AtomDots = Yap_LookupAtom("dots");
   AtomDOUBLE = Yap_FullLookupAtom("Double");
+  AtomDoubleSlash = Yap_FullLookupAtom("//");
   AtomE = Yap_LookupAtom("e");
   AtomEOFBeforeEOT = Yap_LookupAtom("end_of_file_found_before_end_of_term");
   AtomEQ = Yap_LookupAtom("=");
@@ -133,6 +140,7 @@
   AtomFail = Yap_LookupAtom("fail");
   AtomFalse = Yap_LookupAtom("false");
   AtomFast = Yap_FullLookupAtom("$fast");
+  AtomFastFail = Yap_LookupAtom("fast_fail");
   AtomFileErrors = Yap_LookupAtom("file_errors");
   AtomFileerrors = Yap_LookupAtom("fileerrors");
   AtomFileType = Yap_LookupAtom("file_type");
@@ -288,6 +296,7 @@
   AtomReadOnly = Yap_LookupAtom("read_only");
   AtomReadWrite = Yap_LookupAtom("read_write");
   AtomReadutil = Yap_LookupAtom("readutil");
+  AtomReconsult = Yap_LookupAtom("reconsult");
   AtomRecordedP = Yap_FullLookupAtom("$recordep");
   AtomRecordedWithKey = Yap_FullLookupAtom("$recorded_with_key");
   AtomRedefineWarnings = Yap_LookupAtom("redefine_warnings");
@@ -390,14 +399,16 @@
   AtomUserErr = Yap_LookupAtom("user_error");
   AtomUserIn = Yap_LookupAtom("user_input");
   AtomUserOut = Yap_LookupAtom("user_output");
+  AtomDollarVar = Yap_LookupAtom("$VAR");
   AtomVBar = Yap_LookupAtom("|");
-  AtomVar = Yap_FullLookupAtom("$VAR");
   AtomVarBranches = Yap_LookupAtom("var_branches");
   AtomVariableNames = Yap_LookupAtom("variable_names");
   AtomHiddenVar = Yap_FullLookupAtom("$V");
   AtomVariable = Yap_LookupAtom("variable");
+  AtomVerbose = Yap_LookupAtom("verbose");
   AtomVerboseFileSearch = Yap_LookupAtom("verbose_file_search");
   AtomVersionNumber = Yap_FullLookupAtom("$version_name");
+  AtomVeryVerbose = Yap_LookupAtom("very_verbose");
   AtomWakeUpGoal = Yap_FullLookupAtom("$wake_up_goal");
   AtomWarning = Yap_LookupAtom("warning");
   AtomWhen = Yap_FullLookupAtom("$when");
@@ -443,6 +454,7 @@
   FunctorDoLogUpdClause0 = Yap_MkFunctor(AtomDoLogUpdClause0,6);
   FunctorDoLogUpdClauseErase = Yap_MkFunctor(AtomDoLogUpdClauseErase,6);
   FunctorDoStaticClause = Yap_MkFunctor(AtomDoStaticClause,5);
+  FunctorDollarVar = Yap_MkFunctor(AtomDollarVar,1);
   FunctorDomainError = Yap_MkFunctor(AtomDomainError,2);
   FunctorDot = Yap_MkFunctor(AtomDot,2);
   FunctorDot10 = Yap_MkFunctor(AtomDot,10);
@@ -456,6 +468,7 @@
   FunctorDot7 = Yap_MkFunctor(AtomDot,7);
   FunctorDot8 = Yap_MkFunctor(AtomDot,8);
   FunctorDot9 = Yap_MkFunctor(AtomDot,9);
+  FunctorDoubleSlash = Yap_MkFunctor(AtomDoubleSlash,2);
   FunctorEmptySquareBrackets = Yap_MkFunctor(AtomEmptySquareBrackets,2);
   FunctorEmptyCurlyBrackets = Yap_MkFunctor(AtomEmptyCurlyBrackets,2);
   FunctorEq = Yap_MkFunctor(AtomEq,2);
@@ -501,6 +514,7 @@
   FunctorPlus = Yap_MkFunctor(AtomPlus,2);
   FunctorPortray = Yap_MkFunctor(AtomPortray,1);
   FunctorPrintMessage = Yap_MkFunctor(AtomPrintMessage,2);
+  FunctorProcedure = Yap_MkFunctor(AtomProcedure,5);
   FunctorPrologConstraint = Yap_MkFunctor(AtomProlog,2);
   FunctorQuery = Yap_MkFunctor(AtomQuery,1);
   FunctorRecordedWithKey = Yap_MkFunctor(AtomRecordedWithKey,6);
@@ -531,5 +545,4 @@
   FunctorUMinus = Yap_MkFunctor(AtomMinus,1);
   FunctorUPlus = Yap_MkFunctor(AtomPlus,1);
   FunctorVBar = Yap_MkFunctor(AtomVBar,2);
-  FunctorVar = Yap_MkFunctor(AtomVar,1);
   FunctorHiddenVar = Yap_MkFunctor(AtomHiddenVar,1);

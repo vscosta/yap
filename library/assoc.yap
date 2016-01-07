@@ -11,9 +11,6 @@
  * Note: the keys should be bound, the associated values need not be.
 */
 
-
-
- */
 :- module(assoc, [
         empty_assoc/1,
 	assoc_to_list/2,

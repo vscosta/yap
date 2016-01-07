@@ -12,6 +12,8 @@ cmake_minimum_required(VERSION 2.8)
 # set path to additional CMake modules
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
+
+
 # set(CMAKE_BUILD_TYPE  Debug)
 
 set (MACOSX_RPATH ON)
@@ -28,14 +30,18 @@ set(YAP_MAJOR_VERSION 6)
 set(YAP_MINOR_VERSION 3)
 set(YAP_PATCH_VERSION 4)
 
+set(YAP_SYSTEM_OPTIONS "attributed_variables" )
+
 if (WIN32)
   set (YAP_ARCH $ENV{PROCESSOR_ARCHITECTURE})
+  set(YAP_SYSTEM_OPTIONS "windows " ${YAP_SYSTEM_OPTIONS})
 endif()
 if (UNIX)
   find_program (UNAME uname)
   execute_process (
     COMMAND ${UNAME} -m
     OUTPUT_VARIABLE YAP_ARCH OUTPUT_STRIP_TRAILING_WHITESPACE )
+    set(YAP_SYSTEM_OPTIONS "unix " ${YAP_SYSTEM_OPTIONS})
 endif()
 
 set(YAP_FULL_VERSION
@@ -92,21 +98,22 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   #cmake_policy( NO_POLICY_SCOPE )
 endif()
 
+set (BUILD_SHARED_LIBS ON)
 
 ## define system
 
 include (Sources)
 
 
-add_library(libYap SHARED
+add_library(libYap
   ${ENGINE_SOURCES}
   ${C_INTERFACE_SOURCES}
   ${STATIC_SOURCES}
   ${OPTYAP_SOURCES}
   ${HEADERS}
-  $<TARGET_OBJECTS:libYAPOs>
+    $<TARGET_OBJECTS:libYAPOs>
   $<TARGET_OBJECTS:libOPTYap>
-#  $<TARGET_OBJECTS:myddas>
+  $<TARGET_OBJECTS:myddas>
   )
 
 set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
@@ -232,7 +239,11 @@ endif()
 # Model Specific
 if (HAVE_GCC)
   set_property( DIRECTORY APPEND PROPERTY COMPILE_OPTIONS  -Wall )
+if ( ${C_COMPILER} MATCHES "GNU")
   set_property( DIRECTORY APPEND PROPERTY COMPILE_OPTIONS  $<$<CONFIG:Release>:-O3;-fomit-frame-pointer;-fstrict-aliasing;-freorder-blocks;-fsched-interblock> )
+else()
+   set_property( DIRECTORY APPEND PROPERTY COMPILE_OPTIONS  $<$<CONFIG:Release>:-O3;-fstrict-aliasing;-freorder-blocks;-fsched-interblock> )
+endif()
   set_property( DIRECTORY APPEND  PROPERTY  COMPILE_OPTIONS  -fexceptions )
 endif()
 
@@ -249,15 +260,14 @@ if (HAVE_GCC)
 endif (HAVE_GCC)
 
 #
-set (BUILD_SHARED_LIBS ON)
-
 #option (YAP_SWI_IO ON)
 
 OPTION (WITH_CALL_TRACER
 "support for procedure-call tracing" ON)
 #TODO:
 if (WITH_CALL_TRACER)
-  set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:LOW_LEVEL_TRACER=1> )
+    set(YAP_SYSTEM_OPTIONS "call_tracer " ${YAP_SYSTEM_OPTIONS})
+set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:LOW_LEVEL_TRACER=1> )
 endif (WITH_CALL_TRACER)
 
 #set( CMAKE_REQUIRED_LIBRARIES  ${READLINE_LIBS} ${CMAKE_REQUIRED_LIBRARIES} )
@@ -275,6 +285,7 @@ macro_log_feature (GMP_FOUND
   "libgmp"
   "GNU big integers and rationals"
   "http://gmplib.org")
+  set(YAP_SYSTEM_OPTIONS "big_numbers " ${YAP_SYSTEM_OPTIONS})
 if (GMP_FOUND)
   include_directories (${GMP_INCLUDE_DIR})
     #add_executable(test ${SOURCES})
@@ -323,7 +334,8 @@ if (WITH_Threads)
     check_function_exists( pthread_mutexattr_settype HAVE_PTHREAD_MUTEXATTR_SETTYPE )
     check_function_exists( pthread_setconcurrency HAVE_PTHREAD_SETCONCURRENCY )
   endif (CMAKE_USE_PTHREADS_INIT)
-  set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  THREADS=1)
+  set(YAP_SYSTEM_OPTIONS "threads " ${YAP_SYSTEM_OPTIONS})
+ set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  THREADS=1)
   #
   # Please note that the compiler flag can only be used with the imported
   # target. Use of both the imported target as well as this switch is highly
@@ -344,7 +356,6 @@ IF(WITH_Pthread_Lockin)
   set_DIRECTORY_properties(PROPERTIES APPEND COMPILE_DEFINITIONS USE_PTHREAD_LOCKING=1)
 ENDIF()
 
-
 #
 # include OS and I/o stuff
 #
@@ -353,7 +364,7 @@ ENDIF()
 #
 add_subDIRECTORY (OPTYap)
 
-#add_subDIRECTORY (packages/myddas)
+add_subDIRECTORY (packages/myddas)
 
 
 add_subDIRECTORY (os)
@@ -368,6 +379,7 @@ ADD_SUBDIRECTORY(library)
 ADD_SUBDIRECTORY(swi/library)
 # ADD_SUBDIRECTORY(os)
 # ADD_SUBDIRECTORY(packages)
+
 
 option (WITH_JIT
 "just in Time Clause Compilation" OFF)
@@ -396,6 +408,8 @@ add_subDIRECTORY (packages/CLPBN)
 add_subDIRECTORY (packages/cplint)
 
 add_subDIRECTORY (packages/raptor)
+
+add_subDIRECTORY (packages/xml)
 
 add_subDIRECTORY (docs)
 

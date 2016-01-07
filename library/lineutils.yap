@@ -18,6 +18,7 @@
 	   blank/3,
 	   split/2,
 	   split/3,
+       split_unquoted/3,
 	   fields/2,
 	   fields/3,
 	   glue/3,
@@ -198,6 +199,58 @@ split(SplitCodes, [C|New], Set) -->
 	[C], !,
 	split(SplitCodes, New, Set).
 split(_, [], []) --> [].
+
+/** @pred split_unquoted(+ _Line_,+ _Separators_,- _Split_)
+
+
+
+Unify  _Words_ with a set of strings obtained from  _Line_ by
+using the character codes in  _Separators_ as separators, but treat text within double quotes as a single unit. As an
+example, consider:
+
+~~~~~{.prolog}
+?- split("Hello * I \"am free\""," *",S).
+
+S = ["Hello","I","am free"] ?
+
+no
+~~~~~
+
+*/
+split_unquoted(String, SplitCodes, Strings) :-
+	split_unquoted_at_blank(SplitCodes, Strings, String, []).
+
+split_unquoted_at_blank(SplitCodes, [[0'"|New]|More]) --> %0'"
+    "\"",
+    split_quoted(New, More),
+    split_unquoted_at_blank(SplitCodes, More).
+split_unquoted_at_blank(SplitCodes, More) -->
+	[C],
+	{ member(C, SplitCodes) }, !,
+	split_unquoted_at_blank(SplitCodes, More).
+split_unquoted_at_blank(SplitCodes, [[C|New]| More]) -->
+	[C], !,
+	split_unquoted(SplitCodes, New, More).
+split_unquoted_at_blank(_, []) --> [].
+
+split_unquoted(SplitCodes, [], More) -->
+	[C],
+	{ member(C, SplitCodes) }, !,
+	split_unquoted_at_blank(SplitCodes, More).
+split_unquoted(SplitCodes, [C|New], Set) -->
+	[C], !,
+	split_unquoted(SplitCodes, New, Set).
+split_unquoted(_, [], []) --> [].
+
+split_quoted( [0'"], More) --> %0'"
+    "\"".
+split_quoted( [0'\\ ,C|New], More) --> %0'"
+    "\\",
+    [C],
+    split_quoted(New, More).
+split_quoted( [C|New], More) --> %0'"
+    [C],
+    split_quoted(New, More).
 
 /** @pred fields(+ _Line_,- _Split_)
 

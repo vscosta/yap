@@ -56,6 +56,8 @@ if (Java_Development_FOUND)
   set_target_properties(jplYap PROPERTIES
     OUTPUT_NAME jpl )
 
+    set(YAP_SYSTEM_OPTIONS "jpl " ${YAP_SYSTEM_OPTIONS} PARENT_SCOPE)
+
   install(TARGETS  jplYap
     LIBRARY DESTINATION ${dlls}
     )

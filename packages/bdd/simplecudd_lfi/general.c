@@ -254,7 +254,7 @@ int CharIn(const char c, const char *in) {
 
 /* string handling */
 
-int patternmatch(char *pattern, char *thestr) {
+int patternmatch(const char *pattern, const char *thestr) {
   int i, j = -1, pl = strlen(pattern), sl = strlen(thestr);
   for(i = 0; i < pl; i++) {
     if (pattern[i] == '*') {

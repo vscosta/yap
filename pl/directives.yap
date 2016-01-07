@@ -67,7 +67,10 @@
 '$all_directives'(G) :- !,
 	'$directive'(G).
 
-:- multifile '$directive'/1.
+%:- '$multifile'( '$directive'/1, prolog ).
+:- multifile prolog:'$exec_directive'/5, prolog:'$directive'/1.
+
+
 
 '$directive'(block(_)).
 '$directive'(char_conversion(_,_)).
@@ -134,8 +137,6 @@ considered.
 
 
 */
-:- multifile '$exec_directive'/5.
-
 '$exec_directive'(initialization(D), _, M, _, _) :-
 	'$initialization'(M:D).
 '$exec_directive'(initialization(D,OPT), _, M, _, _) :-
@@ -154,7 +155,8 @@ considered.
 '$exec_directive'(module(N,P,Op), Status, _, _, _) :-
 	'$module'(Status,N,P,Op).
 '$exec_directive'(meta_predicate(P), _, M, _, _) :-
-	'$meta_predicate'(P, M).
+    strip_module(M:P,M0,P0),
+	'$meta_predicate'(M0:P0).
 '$exec_directive'(module_transparent(P), _, M, _, _) :-
 	'$module_transparent'(P, M).
 '$exec_directive'(noprofile(P), _, M, _, _) :-
@@ -212,13 +214,14 @@ considered.
 	Context \= top.
 '$exec_directive'(predicate_options(PI, Arg, Options), Context, Module, VL, Pos) :-
 	Context \= top,
-	'$predopts':expand_predicate_options(PI, Arg, Options, Clauses),
+	predopts:expand_predicate_options(PI, Arg, Options, Clauses),
 	'$assert_list'(Clauses, Context, Module, VL, Pos).
 
 '$assert_list'([], _Context, _Module, _VL, _Pos).
 '$assert_list'(Clause.Clauses, Context, Module, VL, Pos) :-
 	'$command'(Clause, VL, Pos, Context),
 	'$assert_list'(Clauses, Context, Module, VL, Pos).
+
 
 %
 % allow users to define their own directives.

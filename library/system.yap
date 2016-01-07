@@ -19,16 +19,17 @@
  * @file   system.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Wed Nov 18 01:23:45 2015
- * 
+ *
  * @brief interaction with the OS, be it Unix, Linux, or Windows.
- * 
- * 
+ *
+ *
 */
 
 
 
-:- module operating_system_support,
+:- module( operating_system_support,
     [
+     datime/1,
      delete_file/1,
      delete_file/2,
 	directory_files/2,
@@ -56,8 +57,8 @@
 	mktime/2,
 	tmpnam/1,
 	tmp_file/2,
-				     tmpdir/1,
-				     wait/2,
+    tmpdir/1,
+	wait/2,
 	working_directory/2
           ]).
 
@@ -86,14 +87,14 @@ on local time. This function uses the WIN32
 ~~~~~
    ?- datime(X).
 
-X = datime(2001,5,28,15,29,46) ? 
+X = datime(2001,5,28,15,29,46) ?
 ~~~~~
 
- 
+
 */
 
 
-/** @pred  environ(+ _E_,- _S_) 
+/** @pred  environ(+ _E_,- _S_)
 
 
 
@@ -101,25 +102,25 @@ X = datime(2001,5,28,15,29,46) ?
 
   Given an environment variable  _E_ this predicate unifies the second argument  _S_ with its value.
 
- 
+
 */
-/** @pred  system(+ _S_) 
+/** @pred  system(+ _S_)
 
 
 Passes command  _S_ to the Bourne shell (on UNIX environments) or the
 current command interpreter in WIN32 environments.
 
- 
+
 */
-/** @pred  working_directory(- _CurDir_,? _NextDir_) 
+/** @pred  working_directory(- _CurDir_,? _NextDir_)
 
 
 Fetch the current directory at  _CurDir_. If  _NextDir_ is bound
 to an atom, make its value the current working directory.
 
- 
+
 */
-/** @pred delete_file(+ _File_) 
+/** @pred delete_file(+ _File_)
 
 
 The delete_file/1 procedure removes file  _File_. If
@@ -129,7 +130,7 @@ The delete_file/1 procedure removes file  _File_. If
    ?- delete_file(x).
 ~~~~~
 
- 
+
 */
 /** @pred delete_file(+ _File_,+ _Opts_)
 
@@ -144,9 +145,9 @@ This example is equivalent to using the delete_file/1 predicate:
    ?- delete_file(x, [recursive]).
 ~~~~~
 
- 
+
 */
-/** @pred directory_files(+ _Dir_,+ _List_) 
+/** @pred directory_files(+ _Dir_,+ _List_)
 
 
 Given a directory  _Dir_,  directory_files/2 procedures a
@@ -159,9 +160,9 @@ listing of all files and directories in the directory:
 The predicates uses the `dirent` family of routines in Unix
 environments, and `findfirst` in WIN32.
 
- 
+
 */
-/** @pred environ(? _EnvVar_,+ _EnvValue_) 
+/** @pred environ(? _EnvVar_,+ _EnvValue_)
 
 
 Unify environment variable  _EnvVar_ with its value  _EnvValue_,
@@ -174,9 +175,9 @@ not currently in Win32 configurations.
 X = 'C:\\cygwin\\home\\administrator' ?
 ~~~~~
 
- 
+
 */
-/** @pred exec(+ _Command_, _StandardStreams_,- _PID_) 
+/** @pred exec(+ _Command_, _StandardStreams_,- _PID_)
 
 
 Execute command  _Command_ with its standard streams connected to
@@ -195,25 +196,16 @@ The streams may be one of standard stream, `std`, null stream,
 `null`, or `pipe(S)`, where  _S_ is a pipe stream. Note
 that it is up to the user to close the pipe.
 
- 
+
 */
-/** @pred file_exists(+ _File_) 
+/** @pred file_exists(+ _File_)
 
 
 The atom  _File_ corresponds to an existing file.
 
- 
-*/
-/** @pred file_exists(+ _File_,+ _Permissions_)
 
-The atom  _File_ corresponds to an existing file with permissions
-compatible with  _Permissions_. YAP currently only accepts for
-permissions to be described as a number. The actual meaning of this
-number is Operating System dependent.
-
- 
 */
-/** @pred file_property(+ _File_,? _Property_) 
+/** @pred file_property(+ _File_,? _Property_)
 
 
 The atom  _File_ corresponds to an existing file, and  _Property_
@@ -239,28 +231,28 @@ P = mod_time(990826911) ? ;
 no
 ~~~~~
 
- 
+
 */
-/** @pred host_id(- _Id_) 
+/** @pred host_id(- _Id_)
 
 
 
 Unify  _Id_ with an identifier of the current host. YAP uses the
-`hostid` function when available, 
+`hostid` function when available,
 
- 
+
 */
-/** @pred host_name(- _Name_) 
+/** @pred host_name(- _Name_)
 
 
 
 Unify  _Name_ with a name for the current host. YAP uses the
 `hostname` function in Unix systems when available, and the
-`GetComputerName` function in WIN32 systems. 
+`GetComputerName` function in WIN32 systems.
 
- 
+
 */
-/** @pred mktemp( _Spec_,- _File_) 
+/** @pred mktemp( _Spec_,- _File_)
 
 
 
@@ -268,7 +260,7 @@ Direct interface to `mktemp`: given a  _Spec_, that is a file
 name with six  _X_ to it, create a file name  _File_. Use
 tmpnam/1 instead.
 
- 
+
 */
 /** @pred mktime(+_Datime_, - _Seconds_)
 
@@ -286,18 +278,18 @@ WIN32 `GetLocalTime` function or the Unix `mktime` function.
 X = 991081786 ? ;
 ~~~~~
 
- 
+
 */
-/** @pred pid(- _Id_) 
+/** @pred pid(- _Id_)
 
 
 
 Unify  _Id_ with the process identifier for the current
 process. An interface to the <tt>getpid</tt> function.
 
- 
+
 */
-/** @pred popen(+ _Command_, + _TYPE_, - _Stream_) 
+/** @pred popen(+ _Command_, + _TYPE_, - _Stream_)
 
 
 Interface to the <tt>popen</tt> function. It opens a process by creating a
@@ -318,17 +310,17 @@ X = 'C:\\cygwin\\home\\administrator' ?
 
 The WIN32 implementation of popen/3 relies on exec/3.
 
- 
+
 */
-/** @pred rename_file(+ _OldFile_,+ _NewFile_) 
+/** @pred rename_file(+ _OldFile_,+ _NewFile_)
 
 
 Create file  _OldFile_ to  _NewFile_. This predicate uses the
 `C` built-in function `rename`.
 
- 
+
 */
-/** @pred shell 
+/** @pred shell
 
 
 Start a new shell and leave YAP in background until the shell
@@ -336,7 +328,7 @@ completes. YAP uses the shell given by the environment variable
 `SHELL`. In WIN32 environment YAP will use `COMSPEC` if
 `SHELL` is undefined.
 
- 
+
 */
 /** @pred shell(+ _Command_)
 
@@ -346,7 +338,7 @@ the shell given by the environment variable `SHELL` with the option
 `" -c "`. In WIN32 environment YAP will use `COMSPEC` if
 `SHELL` is undefined, in this case with the option `" /c "`.
 
- 
+
 */
 /** @pred shell(+ _Command_,- _Status_)
 
@@ -357,19 +349,19 @@ environment variable `SHELL` with the option `" -c "`. In
 WIN32 environment YAP will use `COMSPEC` if `SHELL` is
 undefined, in this case with the option `" /c "`.
 
- 
+
 */
-/** @pred sleep(+ _Time_) 
+/** @pred sleep(+ _Time_)
 
 
-Block the current thread for  _Time_ seconds. When YAP is compiled 
-without multi-threading support, this predicate blocks the YAP process. 
-The number of seconds must be a positive number, and it may an integer 
-or a float. The Unix implementation uses `usleep` if the number of 
-seconds is below one, and `sleep` if it is over a second. The WIN32 
+Block the current thread for  _Time_ seconds. When YAP is compiled
+without multi-threading support, this predicate blocks the YAP process.
+The number of seconds must be a positive number, and it may an integer
+or a float. The Unix implementation uses `usleep` if the number of
+seconds is below one, and `sleep` if it is over a second. The WIN32
 implementation uses `Sleep` for both cases.
 
- 
+
 */
 /** @pred system
 
@@ -377,33 +369,33 @@ Start a new default shell and leave YAP in background until the shell
 completes. YAP uses `/bin/sh` in Unix systems and `COMSPEC` in
 WIN32.
 
- 
+
 */
 /** @pred system(+ _Command_,- _Res_)
 
 Interface to `system`: execute command  _Command_ and unify
  _Res_ with the result.
 
- 
+
 */
-/** @pred tmp_file(+_Base_, - _File_) 
+/** @pred tmp_file(+_Base_, - _File_)
 
 Create a name for a temporary file.  _Base_ is an user provided
 identifier for the category of file. The  _TmpName_ is guaranteed to
 be unique. If the system halts, it will automatically remove all created
 temporary files.
 
- 
+
 */
-/** @pred tmpnam(- _File_) 
+/** @pred tmpnam(- _File_)
 
 
 
 Interface with  _tmpnam_: obtain a new, unique file name  _File_.
 
- 
+
 */
-/** @pred working_directory(- _Old_,+ _New_) 
+/** @pred working_directory(- _Old_,+ _New_)
 
 
 
@@ -412,7 +404,7 @@ and change working directory to  _New_.  Use the pattern
 `working_directory(CWD, CWD)` to get the current directory.  See
 also `absolute_file_name/2` and chdir/1.
 
- 
+
 */
 
 :- use_module(library(lists), [append/3]).
@@ -426,7 +418,7 @@ also `absolute_file_name/2` and chdir/1.
 datime(X) :-
 	datime(X, Error),
 	handle_system_internal(Error, off, datime(X)).
- 
+
 mktime(V, A) :- var(V), !,
 	throw(error(instantiation_error,mktime(V,A))).
 mktime(In,Out) :-
@@ -434,7 +426,7 @@ mktime(In,Out) :-
 	In = datime(Y,Mo,D,H,Mi,S),
 	mktime(Y, Mo, D, H, Mi, S, Out, Error),
 	handle_system_internal(Error, off, mktime(In,Out)).
- 
+
 check_mktime_inp(V, Inp) :- var(V), !,
 	throw(error(instantiation_error,Inp)).
 check_mktime_inp(datime(Y,Mo,D,H,Mi,S), Inp) :- !,
@@ -446,7 +438,7 @@ check_mktime_inp(datime(Y,Mo,D,H,Mi,S), Inp) :- !,
 	check_int(S, Inp).
 check_mktime_inp(T, Inp) :-
 	throw(error(domain_error(mktime,T),Inp)).
-	
+
 check_int(I, _) :- integer(I), !.
 check_int(I, Inp) :- var(I),
 	throw(error(instantiation_error,Inp)).
@@ -524,7 +516,7 @@ delete_dirfiles([F|Fs], File, Ignore) :-
 
 directory_files(File, FileList) :-
     directory_files(File, FileList, on).
-    
+
 directory_files(File, FileList, Ignore) :-
        list_directory(File, FileList, Error),
        handle_system_internal(Error, Ignore, directory_files(File, FileList)).
@@ -566,16 +558,6 @@ file_property(File, Type, Size, Date, Permissions, LinkName) :-
 	file_property(File, Type, Size, Date, Permissions, LinkName, Error),
 	handle_system_internal(Error, off, file_property(File)).
 
-file_exists(File) :-
-	var(File), !,
-	throw(error(instantiation_error,file_exists(File))).
-file_exists(File) :-
-	\+ atom(File), !,
-	throw(error(type_error(atom,File),file_exists(File))).
-file_exists(IFile) :-
-	true_file_name(IFile, File),
-	file_property(File, _Type, _Size, _Date, _Permissions, _, Error),
-	var(Error).
 
 file_exists(File, Permissions) :-
 	var(File), !,
@@ -627,7 +609,7 @@ environ_split([C|S],[C|SNa],SVal) :-
 %
 exec(Command, [StdIn, StdOut, StdErr], PID) :-
 	G = exec(Command, [StdIn, StdOut, StdErr], PID),
-	check_command_with_default_shell(Command, TrueCommand, G), 
+	check_command_with_default_shell(Command, TrueCommand, G),
 	process_inp_stream_for_exec(StdIn, In, G, [], L1),
 	process_out_stream_for_exec(StdOut, Out, G, L1, L2),
 	process_err_stream_for_exec(StdErr, Err, G, L2, L3),
@@ -673,7 +655,7 @@ process_err_stream_for_exec(Stream, Stream, _, L, L) :-
 	stream_property(Stream, output).
 
 close_temp_streams([]).
-close_temp_streams([S|Ss]) :- 
+close_temp_streams([S|Ss]) :-
 	close(S),
 	close_temp_streams(Ss).
 
@@ -749,7 +731,7 @@ get_shell(Shell, '/c') :-
 	win, !,
 	getenv('COMSPEC', Shell).
 get_shell('/bin/sh','-c').
-	   
+
 system :-
 	default_shell(Command),
 	do_system(Command, _Status, Error),
@@ -758,7 +740,7 @@ system :-
 default_shell(Shell) :- win, !,
 	getenv('COMSPEC', Shell).
 default_shell('/bin/sh').
-	
+
 
 system(Command, Status) :-
 	G = system(Command, Status),
@@ -831,4 +813,3 @@ tmpdir(TmpDir):-
 path_separator('\\'):-
   win, !.
 path_separator('/').
-

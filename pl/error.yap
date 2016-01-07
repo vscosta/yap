@@ -1,50 +1,52 @@
+/**
+  @file pl/error.yap
 
-:- module(error,
+ @author Jan Wielemaker
+ @author Richard O'Keefe
+@author adapted to YAP by Vitor Santos Costa
+*/
+
+:- module(system(error),
 	  [ must_be_of_type/2,		% +Type, +Term
 	    must_be_of_type/3,		% +Type, +Term, +Comment
-	    type_error/,		% +Type, +Term
-	    must_be_in_domain/2,	% +Domain, +Term
-	    must_be_in_domain/3,	% +Domain, +Term, +Comment
-	    domain_error/2,		% +Domain, +Term
+		must_be/2,		% +Type, +Term
+  	    must_be/3,		% +Type, +Term, +Comment
+  	    type_error/2,		% +Type, +Term
+%	    must_be_in_domain/2,	% +Domain, +Term
+%	    must_be_in_domain/3,	% +Domain, +Term, +Comment
+	    domain_error/3,		% +Domain, +Values, +Term
 	    existence_error/2,		% +Type, +Term
 	    permission_error/3,		% +Action, +Type, +Term
+            must_be_instantiated/1,        % +Term
 	    instantiation_error/1,	% +Term
 	    representation_error/1, 	% +Reason
-
-	    must_be/2,			% +Type, +Term
 	    is_of_type/2		% +Type, +Term
 	  ]).
 
-:- if(current_prolog_flag(dialect, yap)).
+/** @defgroup error Error generating support
+@ingroup builtin
 
-:- use_module(library(lists),[memberchk/2]).
+This  SWI module  provides  predicates  to  simplify  error  generation  and
+checking. Adapted to use YAP built-ins.
 
-:- endif.
-
-/** <module> Error generating support
-@ingroup swi
-
-This  module  provides  predicates  to  simplify  error  generation  and
-checking. It's implementation is based on a discussion on the SWI-Prolog
+Its implementation is based on a discussion on the SWI-Prolog
 mailinglist on best practices in error   handling. The utility predicate
 must_be/2  provides  simple  run-time  type    validation.  The  *_error
 predicates are simple wrappers around throw/1   to simplify throwing the
 most common ISO error terms.
 
-@author Jan Wielemaker
-@author Richard O'Keefe
-@see	library(debug) and library(prolog_stack).
+YAP reuses the code with some extensions, and supports interfacing to some C-builtins.
 */
 
 :- multifile
 	has_type/2.
 
-%%	type_error(+Type, +Term).
-%%	domain_error(+Type, +Term).
-%%	existence_error(+Type, +Term).
-%%	permission_error(+Action, +Type, +Term).
-%%	instantiation_error(+Term).
-%%	representation_error(+Reason).
+%%	@pred type_error(+Type, +Term).
+%%	@pred domain_error(+Type, +Value, +Term).
+%%	@pred existence_error(+Type, +Term).
+%%	@pred permission_error(+Action, +Type, +Term).
+%%	@pred instantiation_error(+Term).
+%%	@pred representation_error(+Reason).
 %
 %	Throw ISO compliant error messages.
 
@@ -61,7 +63,7 @@ instantiation_error(_Term) :-
 representation_error(Reason) :-
 	throw(error(representation_error(Reason), _)).
 
-%%	must_be(+Type, @Term) is det.
+%%	must_be_of_type(+Type, @Term) is det.
 %
 %	True if Term satisfies the type constraints for Type. Defined
 %	types are =atom=, =atomic=, =between=, =boolean=, =callable=,
@@ -69,11 +71,11 @@ representation_error(Reason) :-
 %	=integer=, =nonneg=, =positive_integer=, =negative_integer=,
 %	=nonvar=, =number=, =oneof=, =list=, =list_or_partial_list=,
 %	=symbol=, =var=, =rational= and =string=.
-%	
+%
 %	Most of these types are defined by an arity-1 built-in predicate
 %	of the same name. Below  is  a   brief  definition  of the other
 %	types.
-%	
+%
 %	| boolean | one of =true= or =false= |
 %	| chars | Proper list of 1-character atoms |
 %	| codes | Proper list of Unicode character codes |
@@ -84,18 +86,45 @@ representation_error(Reason) :-
 %	| negative_integer | Integer < 0 |
 %	| oneof(L) | Ground term that is member of L |
 %	| list(Type) | Proper list with elements of Type |
-%	| list_or_partial_list | A list or an open list (ending in a variable |
+%	| list_or_partial_list | A list or an open list (ending in a variable) |
+%	| predicate_indicator | a predicate indicator of the form M:N/A or M:N//A |
 %
 %	@throws instantiation_error if Term is insufficiently
 %	instantiated and type_error(Type, Term) if Term is not of Type.
 
 must_be(Type, X) :-
+	must_be_of_type(Type, X).
+
+must_be(Type, X, Comment) :-
+	must_be_of_type(Type, X, Comment).
+
+must_be_of_type(callable, X) :-
+	!,
+	is_callable(X, _).
+must_be_of_type(predicate_indicator, X) :-
+	!,
+	is_predicate_indicator(X, _).
+must_be_of_type(Type, X) :-
 	(   has_type(Type, X)
 	->  true
 	;   is_not(Type, X)
 	).
 
-%%	is_not(+Type, @Term)
+inline(must_be_of_type( callable, X ), error:is_callable(X, _) ).
+
+must_be_of_type(predicate_indicator, X, Comment) :-
+	!,
+	is_predicate_indicator(X, Comment).
+must_be_of_type(callable, X, Comment) :-
+	!,
+	is_callable(X, Comment).
+must_be_of_type(Type, X, _Comment) :-
+	(   has_type(Type, X)
+	->  true
+	;   is_not(Type, X)
+	).
+
+%%	@predicate is_not(+Type, @Term)
 %
 %	Throws appropriate error. It is _known_ that Term is not of type
 %	Type.
@@ -163,7 +192,7 @@ has_type(impossible, _) :-	instantiation_error(_).
 has_type(any, _).
 has_type(atom, X)	  :- atom(X).
 has_type(atomic, X)	  :- atomic(X).
-has_type(between(L,U), X) :- (   integer(L) 
+has_type(between(L,U), X) :- (   integer(L)
 			     ->  integer(X), between(L,U,X)
 			     ;   number(X), X >= L, X =< U
 			     ).
@@ -182,7 +211,7 @@ has_type(positive_integer, X)	  :- integer(X), X > 0.
 has_type(negative_integer, X)	  :- integer(X), X < 0.
 has_type(nonvar, X)	  :- nonvar(X).
 has_type(number, X)	  :- number(X).
-has_type(oneof(L), X)	  :- ground(X), memberchk(X, L).
+has_type(oneof(L), X)	  :- ground(X), lists:memberchk(X, L).
 has_type(proper_list, X)  :- is_list(X).
 has_type(list, X)  	  :- is_list(X).
 has_type(list_or_partial_list, X)  :- is_list_or_partial_list(X).
@@ -221,3 +250,8 @@ is_list_or_partial_list(L0) :-
 	'$skip_list'(_, L0,L),
 	( var(L) -> true ; L == [] ).
 
+must_be_instantiated(X) :-
+  ( var(X) -> instantiation_error(X) ; true).
+
+must_be_instantiated(X, Comment) :-
+  ( var(X) -> instantiation_error(X, Comment) ; true).

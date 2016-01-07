@@ -11,7 +11,8 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2008-08-07 20:51:23 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-08-07 20:51:23 $,$Author: vsc $
+**
 * $Log: not supported by cvs2svn $
 * Revision 1.99  2008/07/22 23:34:49  vsc
 * SWI and module fixes
@@ -172,7 +173,8 @@
 * TABLING NEW: better support for incomplete tabling
 *
 * Revision 1.52  2005/07/06 19:34:11  ricroc
-* TABLING: answers for completed calls can now be obtained by loading (new option) or executing (default) them from the trie data structure.
+* TABLING: answers for completed calls can now be obtained by loading (new
+*option) or executing (default) them from the trie data structure.
 *
 * Revision 1.51  2005/07/06 15:10:15  vsc
 * improvements to compiler: merged instructions and fixes for ->
@@ -233,51 +235,49 @@
 *									 *
 *************************************************************************/
 #ifdef SCCS
-static char     SccsId[] = "@(#)rheap.c	1.3 3/15/90";
+static char SccsId[] = "@(#)rheap.c	1.3 3/15/90";
 #endif
 
-#define Atomics		0
-#define Funcs		1
+#define Atomics 0
+#define Funcs 1
 
 #define ConstantTermAdjust(P) ConstantTermAdjust__(P PASS_REGS)
 #define DBGroundTermAdjust(P) DBGroundTermAdjust__(P PASS_REGS)
-#define AdjustDBTerm(P,A,B,C) AdjustDBTerm__(P,A,B,C PASS_REGS)
-#define AdjustSwitchTable(op, table, i) AdjustSwitchTable__(op, table, i PASS_REGS)
-#define RestoreOtaplInst(start, opc, pe)  RestoreOtaplInst__(start, opc, pe PASS_REGS)
-#define RestoreDBErasedMarker()  RestoreDBErasedMarker__( PASS_REGS1 )
-#define RestoreLogDBErasedMarker()  RestoreLogDBErasedMarker__( PASS_REGS1 )
-#define RestoreForeignCode()	RestoreForeignCode__( PASS_REGS1 )
-#define RestoreEmptyWakeups() RestoreEmptyWakeups__( PASS_REGS1 )
-#define RestoreAtoms() RestoreAtoms__( PASS_REGS1 )
-#define RestoreWideAtoms() RestoreWideAtoms__( PASS_REGS1 )
-#define RestoreSWIBlobs() RestoreSWIBlobs__( PASS_REGS1 )
-#define RestoreSWIBlobTypes() RestoreSWIBlobTypes__( PASS_REGS1 )
-#define RestoreInvisibleAtoms() RestoreInvisibleAtoms__( PASS_REGS1 )
-#define RestorePredHash() RestorePredHash__( PASS_REGS1 )
-#define RestoreHiddenPredicates() RestoreHiddenPredicates__( PASS_REGS1 )
-#define RestoreDBTermsList() RestoreDBTermsList__( PASS_REGS1 )
-#define RestoreExpandList() RestoreExpandList__( PASS_REGS1 )
-#define RestoreIntKeys() RestoreIntKeys__( PASS_REGS1 )
-#define RestoreIntLUKeys() RestoreIntLUKeys__( PASS_REGS1 )
-#define RestoreIntBBKeys() RestoreIntBBKeys__( PASS_REGS1 )
-#define RestoreDeadStaticClauses() RestoreDeadStaticClauses__( PASS_REGS1 )
-#define RestoreDeadMegaClauses() RestoreDeadMegaClauses__( PASS_REGS1 )
-#define RestoreDeadStaticIndices() RestoreDeadStaticIndices__( PASS_REGS1 )
-#define RestoreDBErasedList() RestoreDBErasedList__( PASS_REGS1 )
-#define RestoreDBErasedIList() RestoreDBErasedIList__( PASS_REGS1 )
-#define RestoreYapRecords() RestoreYapRecords__( PASS_REGS1 )
-#define RestoreSWIAtoms() RestoreSWIAtoms__( PASS_REGS1 )
-static Term
-ConstantTermAdjust__ (Term t USES_REGS)
-{
+#define AdjustDBTerm(P, A, B, C) AdjustDBTerm__(P, A, B, C PASS_REGS)
+#define AdjustSwitchTable(op, table, i)                                        \
+  AdjustSwitchTable__(op, table, i PASS_REGS)
+#define RestoreOtaplInst(start, opc, pe)                                       \
+  RestoreOtaplInst__(start, opc, pe PASS_REGS)
+#define RestoreDBErasedMarker() RestoreDBErasedMarker__(PASS_REGS1)
+#define RestoreLogDBErasedMarker() RestoreLogDBErasedMarker__(PASS_REGS1)
+#define RestoreForeignCode() RestoreForeignCode__(PASS_REGS1)
+#define RestoreEmptyWakeups() RestoreEmptyWakeups__(PASS_REGS1)
+#define RestoreAtoms() RestoreAtoms__(PASS_REGS1)
+#define RestoreWideAtoms() RestoreWideAtoms__(PASS_REGS1)
+#define RestoreSWIBlobs() RestoreSWIBlobs__(PASS_REGS1)
+#define RestoreSWIBlobTypes() RestoreSWIBlobTypes__(PASS_REGS1)
+#define RestoreInvisibleAtoms() RestoreInvisibleAtoms__(PASS_REGS1)
+#define RestorePredHash() RestorePredHash__(PASS_REGS1)
+#define RestoreHiddenPredicates() RestoreHiddenPredicates__(PASS_REGS1)
+#define RestoreDBTermsList() RestoreDBTermsList__(PASS_REGS1)
+#define RestoreExpandList() RestoreExpandList__(PASS_REGS1)
+#define RestoreIntKeys() RestoreIntKeys__(PASS_REGS1)
+#define RestoreIntLUKeys() RestoreIntLUKeys__(PASS_REGS1)
+#define RestoreIntBBKeys() RestoreIntBBKeys__(PASS_REGS1)
+#define RestoreDeadStaticClauses() RestoreDeadStaticClauses__(PASS_REGS1)
+#define RestoreDeadMegaClauses() RestoreDeadMegaClauses__(PASS_REGS1)
+#define RestoreDeadStaticIndices() RestoreDeadStaticIndices__(PASS_REGS1)
+#define RestoreDBErasedList() RestoreDBErasedList__(PASS_REGS1)
+#define RestoreDBErasedIList() RestoreDBErasedIList__(PASS_REGS1)
+#define RestoreYapRecords() RestoreYapRecords__(PASS_REGS1)
+#define RestoreSWIAtoms() RestoreSWIAtoms__(PASS_REGS1)
+static Term ConstantTermAdjust__(Term t USES_REGS) {
   if (IsAtomTerm(t))
     return AtomTermAdjust(t);
   return t;
 }
 
-static Term
-DBGroundTermAdjust__ (Term t USES_REGS)
-{
+static Term DBGroundTermAdjust__(Term t USES_REGS) {
   /* The term itself is restored by dbtermlist */
   if (IsPairTerm(t)) {
     return AbsPair(PtoHeapCellAdjust(RepPair(t)));
@@ -288,10 +288,9 @@ DBGroundTermAdjust__ (Term t USES_REGS)
 
 /* Now, everything on its place so you must adjust the pointers */
 
-static void 
-do_clean_susp_clauses(yamop *ipc USES_REGS) {
+static void do_clean_susp_clauses(yamop *ipc USES_REGS) {
   COUNT i;
-  yamop **st = (yamop **)NEXTOP(ipc,sssllp);
+  yamop **st = (yamop **)NEXTOP(ipc, sssllp);
 
   ipc->opc = Yap_opcode(_expand_clauses);
   ipc->y_u.sssllp.p = PtoPredAdjust(ipc->y_u.sssllp.p);
@@ -308,150 +307,130 @@ do_clean_susp_clauses(yamop *ipc USES_REGS) {
   }
 }
 
-static void
-AdjustSwitchTable__(op_numbers op, yamop *table, COUNT i USES_REGS)
-{
+static void AdjustSwitchTable__(op_numbers op, yamop *table,
+                                COUNT i USES_REGS) {
   CELL *startcode = (CELL *)table;
   /* in case the table is already gone */
   if (!table)
     return;
   switch (op) {
-  case _switch_on_func:
-    {
-      COUNT            j;
-      CELL            *oldcode;
+  case _switch_on_func: {
+    COUNT j;
+    CELL *oldcode;
 
-      oldcode = startcode;
-      for (j = 0; j < i; j++) {
-	Functor oldfunc = (Functor)(oldcode[0]);
-	CODEADDR oldjmp = (CODEADDR)(oldcode[1]);
-	if (oldfunc) {
-	  oldcode[0] = (CELL)FuncAdjust(oldfunc);
-	}
-	oldcode[1] = (CELL)CodeAddrAdjust(oldjmp);
-	oldcode += 2;
+    oldcode = startcode;
+    for (j = 0; j < i; j++) {
+      Functor oldfunc = (Functor)(oldcode[0]);
+      CODEADDR oldjmp = (CODEADDR)(oldcode[1]);
+      if (oldfunc) {
+        oldcode[0] = (CELL)FuncAdjust(oldfunc);
       }
-      rehash(startcode, i, Funcs PASS_REGS);
+      oldcode[1] = (CELL)CodeAddrAdjust(oldjmp);
+      oldcode += 2;
     }
-    break;
-  case _switch_on_cons:
-    {
-      COUNT            j;
-      CELL            *oldcode;
+    rehash(startcode, i, Funcs PASS_REGS);
+  } break;
+  case _switch_on_cons: {
+    COUNT j;
+    CELL *oldcode;
 
 #if !defined(USE_OFFSETS)
-      oldcode = startcode;
+    oldcode = startcode;
 #endif
-      for (j = 0; j < i; j++) {
-	Term oldcons = oldcode[0];
-	CODEADDR oldjmp = (CODEADDR)(oldcode[1]);
-	if (oldcons != 0x0 && IsAtomTerm(oldcons)) {
-	  oldcode[0] = AtomTermAdjust(oldcons);
-	}
-	oldcode[1] = (CELL)CodeAddrAdjust(oldjmp);
-	oldcode += 2;
+    for (j = 0; j < i; j++) {
+      Term oldcons = oldcode[0];
+      CODEADDR oldjmp = (CODEADDR)(oldcode[1]);
+      if (oldcons != 0x0 && IsAtomTerm(oldcons)) {
+        oldcode[0] = AtomTermAdjust(oldcons);
       }
+      oldcode[1] = (CELL)CodeAddrAdjust(oldjmp);
+      oldcode += 2;
+    }
 #if !USE_OFFSETS
-      rehash(startcode, i, Atomics PASS_REGS);
+    rehash(startcode, i, Atomics PASS_REGS);
 #endif
+  } break;
+  case _go_on_func: {
+    Functor oldfunc = (Functor)(startcode[0]);
+
+    startcode[0] = (CELL)FuncAdjust(oldfunc);
+    startcode[1] = (CELL)CodeAddrAdjust((CODEADDR)startcode[1]);
+    startcode[3] = (CELL)CodeAddrAdjust((CODEADDR)startcode[3]);
+  } break;
+  case _go_on_cons: {
+    Term oldcons = startcode[0];
+
+    if (IsAtomTerm(oldcons)) {
+      startcode[0] = AtomTermAdjust(oldcons);
     }
-    break;
-  case _go_on_func:
-    {
+    startcode[1] = (CELL)CodeAddrAdjust((CODEADDR)startcode[1]);
+    startcode[3] = (CELL)CodeAddrAdjust((CODEADDR)startcode[3]);
+  } break;
+  case _if_func: {
+    Int j;
+
+    for (j = 0; j < i; j++) {
       Functor oldfunc = (Functor)(startcode[0]);
-
+      CODEADDR oldjmp = (CODEADDR)(startcode[1]);
       startcode[0] = (CELL)FuncAdjust(oldfunc);
-      startcode[1] = (CELL)CodeAddrAdjust((CODEADDR)startcode[1]);
-      startcode[3] = (CELL)CodeAddrAdjust((CODEADDR)startcode[3]);
+      startcode[1] = (CELL)CodeAddrAdjust(oldjmp);
+      startcode += 2;
     }
-    break;
-  case _go_on_cons:
-    {
+    /* adjust fail code */
+    startcode[1] = (CELL)CodeAddrAdjust((CODEADDR)startcode[1]);
+  } break;
+  case _if_cons: {
+    Int j;
+
+    for (j = 0; j < i; j++) {
       Term oldcons = startcode[0];
-
+      CODEADDR oldjmp = (CODEADDR)(startcode[1]);
       if (IsAtomTerm(oldcons)) {
-	startcode[0] = AtomTermAdjust(oldcons);
+        startcode[0] = (CELL)AtomTermAdjust(oldcons);
       }
-      startcode[1] = (CELL)CodeAddrAdjust((CODEADDR)startcode[1]);
-      startcode[3] = (CELL)CodeAddrAdjust((CODEADDR)startcode[3]);
+      startcode[1] = (CELL)CodeAddrAdjust(oldjmp);
+      startcode += 2;
     }
-    break;
-  case _if_func:
-    {
-      Int j;
-
-      for (j = 0; j < i; j++) {
-	Functor oldfunc = (Functor)(startcode[0]);
-	CODEADDR oldjmp = (CODEADDR)(startcode[1]);
-	startcode[0] = (CELL)FuncAdjust(oldfunc);
-	startcode[1] = (CELL)CodeAddrAdjust(oldjmp);
-	startcode += 2;
-      }
-      /* adjust fail code */
-      startcode[1] = (CELL)CodeAddrAdjust((CODEADDR)startcode[1]);
-    }
-    break;
-  case _if_cons:
-    {
-      Int j;
-
-      for (j = 0; j < i; j++) {
-	Term oldcons = startcode[0];
-	CODEADDR oldjmp = (CODEADDR)(startcode[1]);
-	if (IsAtomTerm(oldcons)) {
-	  startcode[0] = (CELL)AtomTermAdjust(oldcons);
-	}
-	startcode[1] = (CELL)CodeAddrAdjust(oldjmp);
-	startcode += 2;
-      }
-      /* adjust fail code */
-      startcode[1] = (CELL)CodeAddrAdjust((CODEADDR)startcode[1]);
-    }
-    break;
+    /* adjust fail code */
+    startcode[1] = (CELL)CodeAddrAdjust((CODEADDR)startcode[1]);
+  } break;
   default:
-    Yap_Error(SYSTEM_ERROR_INTERNAL,0L,"Opcode Not Implemented in AdjustSwitchTable");
+    Yap_Error(SYSTEM_ERROR_INTERNAL, 0L,
+              "Opcode Not Implemented in AdjustSwitchTable");
   }
 }
 
-static void  RestoreAtomList(Atom CACHE_TYPE);
-static void  RestoreAtom(AtomEntry * CACHE_TYPE);
-static void  RestoreHashPreds( CACHE_TYPE1 );
+static void RestoreAtomList(Atom CACHE_TYPE);
+static void RestoreAtom(AtomEntry *CACHE_TYPE);
+static void RestoreHashPreds(CACHE_TYPE1);
 
-static void
-RestoreAtoms__( USES_REGS1 )
-{
+static void RestoreAtoms__(USES_REGS1) {
   AtomHashEntry *HashPtr;
-  register int    i;
+  register int i;
 
-  Yap_heap_regs->hash_chain = 
-    PtoAtomHashEntryAdjust(Yap_heap_regs->hash_chain);
+  HashChain = PtoAtomHashEntryAdjust(HashChain);
   HashPtr = HashChain;
   for (i = 0; i < AtomHashTableSize; ++i) {
     HashPtr->Entry = NoAGCAtomAdjust(HashPtr->Entry);
     RestoreAtomList(HashPtr->Entry PASS_REGS);
     HashPtr++;
-  }  
+  }
 }
 
-static void
-RestoreWideAtoms__( USES_REGS1 )
-{
+static void RestoreWideAtoms__(USES_REGS1) {
   AtomHashEntry *HashPtr;
-  register int    i;
+  register int i;
 
-  Yap_heap_regs->wide_hash_chain = 
-    PtoAtomHashEntryAdjust(Yap_heap_regs->wide_hash_chain);
+  WideHashChain = PtoAtomHashEntryAdjust(WideHashChain);
   HashPtr = WideHashChain;
   for (i = 0; i < WideAtomHashTableSize; ++i) {
     HashPtr->Entry = AtomAdjust(HashPtr->Entry);
     RestoreAtomList(HashPtr->Entry PASS_REGS);
     HashPtr++;
-  }  
+  }
 }
 
-static void
-RestoreInvisibleAtoms__( USES_REGS1 )
-{
+static void RestoreInvisibleAtoms__(USES_REGS1) {
   INVISIBLECHAIN.Entry = AtomAdjust(INVISIBLECHAIN.Entry);
   RestoreAtomList(INVISIBLECHAIN.Entry PASS_REGS);
   RestoreAtom(RepAtom(AtomFoundVar) PASS_REGS);
@@ -461,15 +440,14 @@ RestoreInvisibleAtoms__( USES_REGS1 )
 #include "rclause.h"
 
 /* adjusts terms stored in the data base, when they have no variables */
-static Term 
-AdjustDBTerm__(Term trm, Term *p_base, Term *p_lim, Term *p_max USES_REGS)
-{
+static Term AdjustDBTerm__(Term trm, Term *p_base, Term *p_lim,
+                           Term *p_max USES_REGS) {
   if (IsVarTerm(trm))
     return CodeVarAdjust(trm);
   if (IsAtomTerm(trm))
     return AtomTermAdjust(trm);
   if (IsPairTerm(trm)) {
-    Term           *p;
+    Term *p;
     Term out;
 
     p = PtoHeapCellAdjust(RepPair(trm));
@@ -478,41 +456,41 @@ AdjustDBTerm__(Term trm, Term *p_base, Term *p_lim, Term *p_max USES_REGS)
     if (p >= p_base || p < p_lim) {
       p[0] = AdjustDBTerm(p[0], p, p_lim, p_max);
       if (IsPairTerm(p[1])) {
-	/* avoid term recursion with very deep lists */
-	Term *newp = PtoHeapCellAdjust(RepPair(p[1]));
-	p[1] = AbsPair(newp);
-	p_base = p;
-	p = newp;
-	goto loop;
+        /* avoid term recursion with very deep lists */
+        Term *newp = PtoHeapCellAdjust(RepPair(p[1]));
+        p[1] = AbsPair(newp);
+        p_base = p;
+        p = newp;
+        goto loop;
       } else {
-	p[1] = AdjustDBTerm(p[1], p, p_lim, p_max);
+        p[1] = AdjustDBTerm(p[1], p, p_lim, p_max);
       }
     }
     return out;
   }
   if (IsApplTerm(trm)) {
-    Term           *p;
+    Term *p;
     Functor f;
     Term *p0 = p = PtoHeapCellAdjust(RepAppl(trm));
     /* if it is before the current position, then we are looking
        at old code */
     if (p >= p_base || p < p_lim) {
       if (p >= p_max || p < p_lim) {
-	if (DBRefOfTerm(trm)!=DBRefAdjust(DBRefOfTerm(trm),FALSE))
-	/* external term pointer, has to be a DBRef */
-	return MkDBRefTerm(DBRefAdjust(DBRefOfTerm(trm),FALSE));
+        if (DBRefOfTerm(trm) != DBRefAdjust(DBRefOfTerm(trm), FALSE))
+          /* external term pointer, has to be a DBRef */
+          return MkDBRefTerm(DBRefAdjust(DBRefOfTerm(trm), FALSE));
       }
       f = (Functor)p[0];
       if (!IsExtensionFunctor(f)) {
-	UInt             Arity, i;
+        UInt Arity, i;
 
-	f = FuncAdjust(f);
-	*p++ = (Term)f;
-	Arity = ArityOfFunctor(f);
-	for (i = 0; i < Arity; ++i) {
-	  *p = AdjustDBTerm(*p, p0, p_lim, p_max);
-	  p++;
-	}
+        f = FuncAdjust(f);
+        *p++ = (Term)f;
+        Arity = ArityOfFunctor(f);
+        for (i = 0; i < Arity; ++i) {
+          *p = AdjustDBTerm(*p, p0, p_lim, p_max);
+          p++;
+        }
       } else if (f == FunctorDBRef) {
       }
     }
@@ -521,48 +499,46 @@ AdjustDBTerm__(Term trm, Term *p_base, Term *p_lim, Term *p_max USES_REGS)
   return trm;
 }
 
-static void
-RestoreDBTerm(DBTerm *dbr, int attachments USES_REGS)
-{
+static void RestoreDBTerm(DBTerm *dbr, int attachments USES_REGS) {
   if (attachments) {
 #ifdef COROUTINING
-    if (attachments == 1 && dbr->ag.attachments )
-      dbr->ag.attachments = AdjustDBTerm(dbr->ag.attachments, dbr->Contents, dbr->Contents, dbr->Contents+dbr->NOfCells);
+    if (attachments == 1 && dbr->ag.attachments)
+      dbr->ag.attachments =
+          AdjustDBTerm(dbr->ag.attachments, dbr->Contents, dbr->Contents,
+                       dbr->Contents + dbr->NOfCells);
 #endif
   } else {
     if (dbr->ag.NextDBT)
       dbr->ag.NextDBT = DBTermAdjust(dbr->ag.NextDBT);
-  }    
+  }
   if (dbr->DBRefs) {
-    DBRef          *cp;
-    DBRef            tm;
+    DBRef *cp;
+    DBRef tm;
 
     dbr->DBRefs = DBRefPAdjust(dbr->DBRefs);
     cp = dbr->DBRefs;
     while ((tm = *--cp) != 0) {
-      *cp = DBRefAdjust(tm,TRUE);
+      *cp = DBRefAdjust(tm, TRUE);
     }
   }
-  dbr->Entry = AdjustDBTerm(dbr->Entry, dbr->Contents, dbr->Contents, dbr->Contents+dbr->NOfCells);
+  dbr->Entry = AdjustDBTerm(dbr->Entry, dbr->Contents, dbr->Contents,
+                            dbr->Contents + dbr->NOfCells);
 }
 
 /* Restoring the heap */
 
-static void
-RestoreEmptyWakeups__( USES_REGS1 )
-{
+static void RestoreEmptyWakeups__(USES_REGS1) {
   int i;
-  for (i=0; i < MaxEmptyWakeups; i++) {
+  for (i = 0; i < MaxEmptyWakeups; i++) {
     EmptyWakeups[i] = AtomAdjust(EmptyWakeups[i]);
   }
 }
 
 /* Restores a prolog clause, in its compiled form */
-static void 
-RestoreStaticClause(StaticClause *cl USES_REGS)
+static void RestoreStaticClause(StaticClause *cl USES_REGS)
 /*
  * Cl points to the start of the code, IsolFlag tells if we have a single
- * clause for this predicate or not 
+ * clause for this predicate or not
  */
 {
   if (cl->ClFlags & SrcMask) {
@@ -576,11 +552,10 @@ RestoreStaticClause(StaticClause *cl USES_REGS)
 }
 
 /* Restores a prolog clause, in its compiled form */
-static void 
-RestoreMegaClause(MegaClause *cl USES_REGS)
+static void RestoreMegaClause(MegaClause *cl USES_REGS)
 /*
  * Cl points to the start of the code, IsolFlag tells if we have a single
- * clause for this predicate or not 
+ * clause for this predicate or not
  */
 {
   yamop *ptr, *max, *nextptr;
@@ -589,19 +564,20 @@ RestoreMegaClause(MegaClause *cl USES_REGS)
   if (cl->ClNext) {
     cl->ClNext = (MegaClause *)AddrAdjust((ADDR)(cl->ClNext));
   }
-  max = (yamop *)((CODEADDR)cl+cl->ClSize);
+  max = (yamop *)((CODEADDR)cl + cl->ClSize);
 
   if (cl->ClFlags & ExoMask) {
-    CELL *base = (CELL *)((ADDR)cl->ClCode+2*sizeof(struct index_t *));
-    CELL *end = (CELL*)max, *ptr;
+    CELL *base = (CELL *)((ADDR)cl->ClCode + 2 * sizeof(struct index_t *));
+    CELL *end = (CELL *)max, *ptr;
 
     for (ptr = base; ptr < end; ptr++) {
       Term t = *ptr;
-      if (IsAtomTerm(t)) *ptr = AtomTermAdjust(t);
+      if (IsAtomTerm(t))
+        *ptr = AtomTermAdjust(t);
       /* don't handle other complex terms just yet, ints are ok  */
     }
   } else {
-    for (ptr = cl->ClCode; ptr < max; ) {
+    for (ptr = cl->ClCode; ptr < max;) {
       nextptr = (yamop *)((char *)ptr + cl->ClItemSize);
       restore_opcodes(ptr, nextptr PASS_REGS);
       ptr = nextptr;
@@ -610,11 +586,10 @@ RestoreMegaClause(MegaClause *cl USES_REGS)
 }
 
 /* Restores a prolog clause, in its compiled form */
-static void 
-RestoreDynamicClause(DynamicClause *cl, PredEntry *pp USES_REGS)
+static void RestoreDynamicClause(DynamicClause *cl, PredEntry *pp USES_REGS)
 /*
  * Cl points to the start of the code, IsolFlag tells if we have a single
- * clause for this predicate or not 
+ * clause for this predicate or not
  */
 {
   if (cl->ClPrevious != NULL) {
@@ -625,11 +600,10 @@ RestoreDynamicClause(DynamicClause *cl, PredEntry *pp USES_REGS)
 }
 
 /* Restores a prolog clause, in its compiled form */
-static void 
-RestoreLUClause(LogUpdClause *cl, PredEntry *pp USES_REGS)
+static void RestoreLUClause(LogUpdClause *cl, PredEntry *pp USES_REGS)
 /*
  * Cl points to the start of the code, IsolFlag tells if we have a single
- * clause for this predicate or not 
+ * clause for this predicate or not
  */
 {
   //  INIT_LOCK(cl->ClLock);
@@ -650,8 +624,7 @@ RestoreLUClause(LogUpdClause *cl, PredEntry *pp USES_REGS)
   restore_opcodes(cl->ClCode, NULL PASS_REGS);
 }
 
-static void
-RestoreDBTermEntry(struct dbterm_list *dbl USES_REGS) {
+static void RestoreDBTermEntry(struct dbterm_list *dbl USES_REGS) {
   DBTerm *dbt;
 
   if (dbl->dbterms)
@@ -668,9 +641,7 @@ RestoreDBTermEntry(struct dbterm_list *dbl USES_REGS) {
   }
 }
 
-static void 
-CleanLUIndex(LogUpdIndex *idx, int recurse USES_REGS)
-{
+static void CleanLUIndex(LogUpdIndex *idx, int recurse USES_REGS) {
   //  INIT_LOCK(idx->ClLock);
   idx->ClPred = PtoPredAdjust(idx->ClPred);
   if (idx->ParentIndex)
@@ -693,10 +664,8 @@ CleanLUIndex(LogUpdIndex *idx, int recurse USES_REGS)
   }
 }
 
-static void 
-CleanSIndex(StaticIndex *idx, int recurse USES_REGS)
-{
- beginning:
+static void CleanSIndex(StaticIndex *idx, int recurse USES_REGS) {
+beginning:
   if (!(idx->ClFlags & SwitchTableMask)) {
     restore_opcodes(idx->ClCode, NULL PASS_REGS);
   }
@@ -710,64 +679,50 @@ CleanSIndex(StaticIndex *idx, int recurse USES_REGS)
     idx->SiblingIndex = SIndexAdjust(idx->SiblingIndex);
     /* use loop to avoid recursion with very complex indices */
     if (recurse) {
-      idx =  idx->SiblingIndex;
+      idx = idx->SiblingIndex;
       goto beginning;
     }
   }
 }
 
-
-static void 
-RestoreSWIAtoms__( USES_REGS1 )
-{
+static void RestoreSWIAtoms__(USES_REGS1) {
   int i, j;
-  for (i=0; i < AtomTranslations; i++) {
+  for (i = 0; i < AtomTranslations; i++) {
     SWI_Atoms[i] = AtomAdjust(SWI_Atoms[i]);
   }
-  for (j=0; j < FunctorTranslations; j++) {
+  for (j = 0; j < FunctorTranslations; j++) {
     SWI_Functors[j] = FuncAdjust(SWI_Functors[j]);
   }
   RestoreSWIHash();
 }
 
-#define RestoreBlobTypes() RestoreBlobTypes__( PASS_REGS1 )
-#define RestoreBlobs() RestoreBlobs__( PASS_REGS1);
+#define RestoreBlobTypes() RestoreBlobTypes__(PASS_REGS1)
+#define RestoreBlobs() RestoreBlobs__(PASS_REGS1);
 
+static void RestoreBlobTypes__(USES_REGS1) {}
 
-static void
-RestoreBlobTypes__( USES_REGS1 )
-{
-}
-
-static void 
-RestoreBlobs__( USES_REGS1 )
-{
+static void RestoreBlobs__(USES_REGS1) {
   Blobs = AtomAdjust(Blobs);
   RestoreAtomList(Blobs PASS_REGS);
 }
 
-static void
-RestoreHiddenPredicates__( USES_REGS1 )
-{
+static void RestoreHiddenPredicates__(USES_REGS1) {
   HIDDEN_PREDICATES = PropAdjust(HIDDEN_PREDICATES);
   RestoreEntries(HIDDEN_PREDICATES, TRUE PASS_REGS);
 }
 
-
-static void
-RestorePredHash__( USES_REGS1 )
-{
+static void RestorePredHash__(USES_REGS1) {
   PredHash = PtoPtoPredAdjust(PredHash);
   if (PredHash == NULL) {
-    Yap_Error(SYSTEM_ERROR_FATAL,MkIntTerm(0),"restore should find predicate hash table");
+    Yap_Error(SYSTEM_ERROR_FATAL, MkIntTerm(0),
+              "restore should find predicate hash table");
   }
   REINIT_RWLOCK(PredHashRWLock);
-  RestoreHashPreds( PASS_REGS1 ); /* does most of the work */
+  RestoreHashPreds(PASS_REGS1); /* does most of the work */
 }
 
-static void
-RestoreEnvInst(yamop start[2], yamop **instp, op_numbers opc, PredEntry *pred)
-{
+static void RestoreEnvInst(yamop start[2], yamop **instp, op_numbers opc,
+                           PredEntry *pred) {
   yamop *ipc = start;
 
   ipc->opc = Yap_opcode(_call);
@@ -780,9 +735,8 @@ RestoreEnvInst(yamop start[2], yamop **instp, op_numbers opc, PredEntry *pred)
   *instp = ipc;
 }
 
-static void
-RestoreOtaplInst__(yamop start[1], OPCODE opc, PredEntry *pe USES_REGS)
-{
+static void RestoreOtaplInst__(yamop start[1], OPCODE opc,
+                               PredEntry *pe USES_REGS) {
   yamop *ipc = start;
 
   /* this is a place holder, it should not really be used */
@@ -799,12 +753,10 @@ RestoreOtaplInst__(yamop start[1], OPCODE opc, PredEntry *pe USES_REGS)
 #endif /* TABLING */
 }
 
-static void
-RestoreDBTermsList__( USES_REGS1 )
-{
-  if (Yap_heap_regs->dbterms_list) {
-    struct dbterm_list *dbl = PtoDBTLAdjust(Yap_heap_regs->dbterms_list);
-    Yap_heap_regs->dbterms_list = dbl;
+static void RestoreDBTermsList__(USES_REGS1) {
+  if (DBTermsList) {
+    struct dbterm_list *dbl = PtoDBTLAdjust(DBTermsList);
+    DBTermsList = dbl;
     while (dbl) {
       RestoreDBTermEntry(dbl PASS_REGS);
       dbl = dbl->next_dbl;
@@ -812,15 +764,13 @@ RestoreDBTermsList__( USES_REGS1 )
   }
 }
 
-static void
-RestoreExpandList__( USES_REGS1 )
-{
-  if (Yap_heap_regs->expand_clauses_first)
-    Yap_heap_regs->expand_clauses_first = PtoOpAdjust(Yap_heap_regs->expand_clauses_first);
-  if (Yap_heap_regs->expand_clauses_last)
-    Yap_heap_regs->expand_clauses_last = PtoOpAdjust(Yap_heap_regs->expand_clauses_last);
+static void RestoreExpandList__(USES_REGS1) {
+  if (ExpandClausesFirst)
+    ExpandClausesFirst = PtoOpAdjust(ExpandClausesFirst);
+  if (ExpandClausesLast)
+    ExpandClausesLast = PtoOpAdjust(ExpandClausesLast);
   {
-    yamop *ptr = Yap_heap_regs->expand_clauses_first;
+    yamop *ptr = ExpandClausesFirst;
     while (ptr) {
       do_clean_susp_clauses(ptr PASS_REGS);
       ptr = ptr->y_u.sssllp.snext;
@@ -828,106 +778,88 @@ RestoreExpandList__( USES_REGS1 )
   }
 }
 
-static void
-RestoreUdiControlBlocks(void)
-{
-}
+static void RestoreUdiControlBlocks(void) {}
 
-static void
-RestoreIntKeys__( USES_REGS1 )
-{
-  if (Yap_heap_regs->IntKeys != NULL) {
-    Yap_heap_regs->IntKeys = (Prop *)AddrAdjust((ADDR)(Yap_heap_regs->IntKeys));
+static void RestoreIntKeys__(USES_REGS1) {
+  if (INT_KEYS != NULL) {
+    INT_KEYS = (Prop *)AddrAdjust((ADDR)(INT_KEYS));
     {
       UInt i;
-      for (i = 0; i < Yap_heap_regs->int_keys_size; i++) {
-	if (Yap_heap_regs->IntKeys[i] != NIL) {
-	  Prop p0 = Yap_heap_regs->IntKeys[i] = PropAdjust(Yap_heap_regs->IntKeys[i]);
-	  RestoreEntries(RepProp(p0), TRUE PASS_REGS);
-	}
+      for (i = 0; i < INT_KEYS_SIZE; i++) {
+        if (INT_KEYS[i] != NIL) {
+          Prop p0 = INT_KEYS[i] = PropAdjust(INT_KEYS[i]);
+          RestoreEntries(RepProp(p0), TRUE PASS_REGS);
+        }
       }
     }
   }
 }
 
-static void
-RestoreIntLUKeys__( USES_REGS1 )
-{
-  if (Yap_heap_regs->IntLUKeys != NULL) {
-    Yap_heap_regs->IntLUKeys = (Prop *)AddrAdjust((ADDR)(Yap_heap_regs->IntLUKeys));
+static void RestoreIntLUKeys__(USES_REGS1) {
+  if (INT_LU_KEYS != NULL) {
+    INT_LU_KEYS = (Prop *)AddrAdjust((ADDR)(INT_LU_KEYS));
     {
       Int i;
       for (i = 0; i < INT_KEYS_SIZE; i++) {
-	Prop p0 = INT_LU_KEYS[i];
-	if (p0) {
-	  p0 = PropAdjust(p0);
-	  INT_LU_KEYS[i] = p0;
-	  while (p0) {
-	    PredEntry *pe = RepPredProp(p0);
-	    pe->NextOfPE =
-	      PropAdjust(pe->NextOfPE);
-	    CleanCode(pe PASS_REGS);
-	    p0 = RepProp(pe->NextOfPE);
-	  }
-	}
+        Prop p0 = INT_LU_KEYS[i];
+        if (p0) {
+          p0 = PropAdjust(p0);
+          INT_LU_KEYS[i] = p0;
+          while (p0) {
+            PredEntry *pe = RepPredProp(p0);
+            pe->NextOfPE = PropAdjust(pe->NextOfPE);
+            CleanCode(pe PASS_REGS);
+            p0 = RepProp(pe->NextOfPE);
+          }
+        }
       }
     }
   }
 }
 
-static void
-RestoreIntBBKeys__( USES_REGS1 )
-{
-  if (Yap_heap_regs->IntBBKeys != NULL) {
-    Yap_heap_regs->IntBBKeys = (Prop *)AddrAdjust((ADDR)(Yap_heap_regs->IntBBKeys));
+static void RestoreIntBBKeys__(USES_REGS1) {
+  if (INT_BB_KEYS != NULL) {
+    INT_BB_KEYS = (Prop *)AddrAdjust((ADDR)(INT_BB_KEYS));
     {
       UInt i;
-      for (i = 0; i < Yap_heap_regs->int_bb_keys_size; i++) {
-	if (Yap_heap_regs->IntBBKeys[i] != NIL) {
-	  Prop p0 = Yap_heap_regs->IntBBKeys[i] = PropAdjust(Yap_heap_regs->IntBBKeys[i]);
-	  RestoreEntries(RepProp(p0), TRUE PASS_REGS);
-	}
+      for (i = 0; i < INT_BB_KEYS_SIZE; i++) {
+        if (INT_BB_KEYS[i] != NIL) {
+          Prop p0 = INT_BB_KEYS[i] = PropAdjust(INT_BB_KEYS[i]);
+          RestoreEntries(RepProp(p0), TRUE PASS_REGS);
+        }
       }
     }
   }
 }
 
-static void 
-RestoreDBErasedMarker__( USES_REGS1 )
-{
-  Yap_heap_regs->db_erased_marker =
-    DBRefAdjust(Yap_heap_regs->db_erased_marker,TRUE);
-  Yap_heap_regs->db_erased_marker->id = FunctorDBRef;
-  Yap_heap_regs->db_erased_marker->Flags = ErasedMask;
-  Yap_heap_regs->db_erased_marker->Code = NULL;
-  Yap_heap_regs->db_erased_marker->DBT.DBRefs = NULL;
-  Yap_heap_regs->db_erased_marker->Parent = NULL;
+static void RestoreDBErasedMarker__(USES_REGS1) {
+  DBErasedMarker = DBRefAdjust(DBErasedMarker, TRUE);
+  DBErasedMarker->id = FunctorDBRef;
+  DBErasedMarker->Flags = ErasedMask;
+  DBErasedMarker->Code = NULL;
+  DBErasedMarker->DBT.DBRefs = NULL;
+  DBErasedMarker->Parent = NULL;
 }
 
-static void 
-RestoreLogDBErasedMarker__( USES_REGS1 )
-{
-  Yap_heap_regs->logdb_erased_marker =
-    PtoLUCAdjust(Yap_heap_regs->logdb_erased_marker);
-  Yap_heap_regs->logdb_erased_marker->Id = FunctorDBRef;
-  Yap_heap_regs->logdb_erased_marker->ClFlags = ErasedMask|LogUpdMask;
-  Yap_heap_regs->logdb_erased_marker->lusl.ClSource = NULL;
-  Yap_heap_regs->logdb_erased_marker->ClRefCount = 0;
-  Yap_heap_regs->logdb_erased_marker->ClPred = PredLogUpdClause;
-  Yap_heap_regs->logdb_erased_marker->ClExt = NULL;
-  Yap_heap_regs->logdb_erased_marker->ClPrev = NULL;
-  Yap_heap_regs->logdb_erased_marker->ClNext = NULL;
-  Yap_heap_regs->logdb_erased_marker->ClSize = (UInt)NEXTOP(((LogUpdClause *)NULL)->ClCode,e);
-  Yap_heap_regs->logdb_erased_marker->ClCode->opc = Yap_opcode(_op_fail);
-  INIT_CLREF_COUNT(Yap_heap_regs->logdb_erased_marker);
+static void RestoreLogDBErasedMarker__(USES_REGS1) {
+  LogDBErasedMarker = PtoLUCAdjust(LogDBErasedMarker);
+  LogDBErasedMarker->Id = FunctorDBRef;
+  LogDBErasedMarker->ClFlags = ErasedMask | LogUpdMask;
+  LogDBErasedMarker->lusl.ClSource = NULL;
+  LogDBErasedMarker->ClRefCount = 0;
+  LogDBErasedMarker->ClPred = PredLogUpdClause;
+  LogDBErasedMarker->ClExt = NULL;
+  LogDBErasedMarker->ClPrev = NULL;
+  LogDBErasedMarker->ClNext = NULL;
+  LogDBErasedMarker->ClSize = (UInt)NEXTOP(((LogUpdClause *)NULL)->ClCode, e);
+  LogDBErasedMarker->ClCode->opc = Yap_opcode(_op_fail);
+  INIT_CLREF_COUNT(LogDBErasedMarker);
 }
 
-static void 
-RestoreDeadStaticClauses__( USES_REGS1 )
-{
-  if (Yap_heap_regs->dead_static_clauses) {
-    StaticClause *sc = PtoStCAdjust(Yap_heap_regs->dead_static_clauses);
-    Yap_heap_regs->dead_static_clauses = sc;
+static void RestoreDeadStaticClauses__(USES_REGS1) {
+  if (DeadStaticClauses) {
+    StaticClause *sc = PtoStCAdjust(DeadStaticClauses);
+    DeadStaticClauses = sc;
     while (sc) {
       RestoreStaticClause(sc PASS_REGS);
       sc = sc->ClNext;
@@ -935,12 +867,10 @@ RestoreDeadStaticClauses__( USES_REGS1 )
   }
 }
 
-static void 
-RestoreDeadMegaClauses__( USES_REGS1 )
-{
-  if (Yap_heap_regs->dead_mega_clauses) {
-    MegaClause *mc = (MegaClause *)AddrAdjust((ADDR)(Yap_heap_regs->dead_mega_clauses));
-    Yap_heap_regs->dead_mega_clauses = mc;
+static void RestoreDeadMegaClauses__(USES_REGS1) {
+  if (DeadMegaClauses) {
+    MegaClause *mc = (MegaClause *)AddrAdjust((ADDR)(DeadMegaClauses));
+    DeadMegaClauses = mc;
     while (mc) {
       RestoreMegaClause(mc PASS_REGS);
       mc = mc->ClNext;
@@ -948,12 +878,10 @@ RestoreDeadMegaClauses__( USES_REGS1 )
   }
 }
 
-static void 
-RestoreDeadStaticIndices__( USES_REGS1 )
-{
-  if (Yap_heap_regs->dead_static_indices) {
-    StaticIndex *si = (StaticIndex *)AddrAdjust((ADDR)(Yap_heap_regs->dead_static_indices));
-    Yap_heap_regs->dead_static_indices = si;
+static void RestoreDeadStaticIndices__(USES_REGS1) {
+  if (DeadStaticIndices) {
+    StaticIndex *si = (StaticIndex *)AddrAdjust((ADDR)(DeadStaticIndices));
+    DeadStaticIndices = si;
     while (si) {
       CleanSIndex(si, FALSE PASS_REGS);
       si = si->SiblingIndex;
@@ -961,12 +889,9 @@ RestoreDeadStaticIndices__( USES_REGS1 )
   }
 }
 
-static void 
-RestoreDBErasedList__( USES_REGS1 )
-{
-  if (Yap_heap_regs->db_erased_list) {
-    LogUpdClause *lcl = Yap_heap_regs->db_erased_list = 
-      PtoLUCAdjust(Yap_heap_regs->db_erased_list);
+static void RestoreDBErasedList__(USES_REGS1) {
+  if (DBErasedList) {
+    LogUpdClause *lcl = DBErasedList = PtoLUCAdjust(DBErasedList);
     while (lcl) {
       RestoreLUClause(lcl, FALSE PASS_REGS);
       lcl = lcl->ClNext;
@@ -974,12 +899,9 @@ RestoreDBErasedList__( USES_REGS1 )
   }
 }
 
-static void 
-RestoreDBErasedIList__( USES_REGS1 )
-{
-  if (Yap_heap_regs->db_erased_ilist) {
-    LogUpdIndex *icl = Yap_heap_regs->db_erased_ilist = 
-      LUIndexAdjust(Yap_heap_regs->db_erased_ilist);
+static void RestoreDBErasedIList__(USES_REGS1) {
+  if (DBErasedIList) {
+    LogUpdIndex *icl = DBErasedIList = LUIndexAdjust(DBErasedIList);
     while (icl) {
       CleanLUIndex(icl, FALSE PASS_REGS);
       icl = icl->SiblingIndex;
@@ -987,14 +909,12 @@ RestoreDBErasedIList__( USES_REGS1 )
   }
 }
 
-static void
-RestoreForeignCode__( USES_REGS1 )
-{
+static void RestoreForeignCode__(USES_REGS1) {
   ForeignObj *f_code;
 
   if (!ForeignCodeLoaded)
     return;
-  if (ForeignCodeLoaded != NULL) 
+  if (ForeignCodeLoaded != NULL)
     ForeignCodeLoaded = (void *)AddrAdjust((ADDR)ForeignCodeLoaded);
   f_code = ForeignCodeLoaded;
   while (f_code != NULL) {
@@ -1004,8 +924,8 @@ RestoreForeignCode__( USES_REGS1 )
     objs = f_code->objs;
     while (objs != NULL) {
       if (objs->next != NULL)
-	objs->next = (StringList)AddrAdjust((ADDR)objs->next);
-	objs->name = AtomAdjust(objs->name);
+        objs->next = (StringList)AddrAdjust((ADDR)objs->next);
+      objs->name = AtomAdjust(objs->name);
       objs = objs->next;
     }
     if (f_code->libs != NULL)
@@ -1013,7 +933,7 @@ RestoreForeignCode__( USES_REGS1 )
     libs = f_code->libs;
     while (libs != NULL) {
       if (libs->next != NULL)
-	libs->next = (StringList)AddrAdjust((ADDR)libs->next);
+        libs->next = (StringList)AddrAdjust((ADDR)libs->next);
       libs->name = AtomAdjust(libs->name);
       libs = libs->next;
     }
@@ -1026,9 +946,7 @@ RestoreForeignCode__( USES_REGS1 )
   }
 }
 
-static void
-RestoreYapRecords__( USES_REGS1 )
-{
+static void RestoreYapRecords__(USES_REGS1) {
   struct record_list *ptr;
 
   Yap_Records = DBRecordAdjust(Yap_Records);
@@ -1042,37 +960,29 @@ RestoreYapRecords__( USES_REGS1 )
   }
 }
 
-static void
-RestoreBallTerm(int wid)
-{
+static void RestoreBallTerm(int wid) {
   CACHE_REGS
   if (LOCAL_BallTerm) {
-    LOCAL_BallTerm  = DBTermAdjust(LOCAL_BallTerm);
+    LOCAL_BallTerm = DBTermAdjust(LOCAL_BallTerm);
     RestoreDBTerm(LOCAL_BallTerm, 1 PASS_REGS);
   }
 }
 
-#include "rglobals.h"
-#include "rlocals.h"
+#include "heap/rglobals.h"
+
+#include "heap/rlocals.h"
 
 /* restore the failcodes */
-static void 
-restore_codes(void)
-{
+static void restore_codes(void) {
   CACHE_REGS
-  Yap_heap_regs->heap_top = AddrAdjust(LOCAL_OldHeapTop);
-#include "rhstruct.h"
-  RestoreGlobal();
-#ifndef worker_id
-#define worker_id 0
-#endif
-  RestoreWorker(worker_id  PASS_REGS);
- }
+  HeapTop = AddrAdjust(LOCAL_OldHeapTop);
 
+#include "heap/rhstruct.h"
 
-static void
-RestoreDBEntry(DBRef dbr USES_REGS)
-{
+  RestoreWorker(worker_id PASS_REGS);
+}
+
+static void RestoreDBEntry(DBRef dbr USES_REGS) {
 #ifdef DEBUG_RESTORE
   fprintf(stderr, "Restoring at %x", dbr);
   if (dbr->Flags & DBAtomic)
@@ -1093,9 +1003,9 @@ RestoreDBEntry(DBRef dbr USES_REGS)
   if (dbr->Code != NULL)
     dbr->Code = PtoOpAdjust(dbr->Code);
   if (dbr->Prev != NULL)
-    dbr->Prev = DBRefAdjust(dbr->Prev,TRUE);
+    dbr->Prev = DBRefAdjust(dbr->Prev, TRUE);
   if (dbr->Next != NULL)
-    dbr->Next = DBRefAdjust(dbr->Next,TRUE);
+    dbr->Next = DBRefAdjust(dbr->Next, TRUE);
 #ifdef DEBUG_RESTORE2
   fprintf(stderr, "Recomputing masks\n");
 #endif
@@ -1103,19 +1013,17 @@ RestoreDBEntry(DBRef dbr USES_REGS)
 }
 
 /* Restores a DB structure, as it was saved in the heap */
-static void 
-RestoreDB(DBEntry *pp USES_REGS)
-{
-  register DBRef  dbr;
+static void RestoreDB(DBEntry *pp USES_REGS) {
+  register DBRef dbr;
 
   if (pp->First != NULL)
-    pp->First = DBRefAdjust(pp->First,TRUE);
+    pp->First = DBRefAdjust(pp->First, TRUE);
   if (pp->Last != NULL)
     pp->Last = DBRefAdjust(pp->Last, TRUE);
   if (pp->ArityOfDB)
     pp->FunctorOfDB = FuncAdjust(pp->FunctorOfDB);
   else
-    pp->FunctorOfDB = (Functor) AtomAdjust((Atom)(pp->FunctorOfDB));
+    pp->FunctorOfDB = (Functor)AtomAdjust((Atom)(pp->FunctorOfDB));
   if (pp->F0 != NULL)
     pp->F0 = DBRefAdjust(pp->F0, TRUE);
   if (pp->L0 != NULL)
@@ -1135,13 +1043,11 @@ RestoreDB(DBEntry *pp USES_REGS)
 
 /*
  * Restores a group of clauses for the same predicate, starting with First
- * and ending with Last, First may be equal to Last 
+ * and ending with Last, First may be equal to Last
  */
-static void 
-CleanClauses(yamop *First, yamop *Last, PredEntry *pp USES_REGS)
-{
-    if (!First)
-      return;
+static void CleanClauses(yamop *First, yamop *Last, PredEntry *pp USES_REGS) {
+  if (!First)
+    return;
   if (pp->PredFlags & LogUpdatePredFlag) {
     LogUpdClause *cl = ClauseCodeToLogUpdClause(First);
     while (cl != NULL) {
@@ -1157,7 +1063,8 @@ CleanClauses(yamop *First, yamop *Last, PredEntry *pp USES_REGS)
 
     do {
       RestoreDynamicClause(ClauseCodeToDynamicClause(cl), pp PASS_REGS);
-      if (cl == Last) return;
+      if (cl == Last)
+        return;
       cl = NextDynamicClause(cl);
     } while (TRUE);
   } else {
@@ -1165,27 +1072,24 @@ CleanClauses(yamop *First, yamop *Last, PredEntry *pp USES_REGS)
 
     do {
       RestoreStaticClause(cl PASS_REGS);
-      if (cl->ClCode == Last) return;
+      if (cl->ClCode == Last)
+        return;
       cl = cl->ClNext;
     } while (TRUE);
   }
 }
 
-
-
 /* Restores a DB structure, as it was saved in the heap */
-static void 
-RestoreBB(BlackBoardEntry *pp, int int_key USES_REGS)
-{
+static void RestoreBB(BlackBoardEntry *pp, int int_key USES_REGS) {
   Term t = pp->Element;
   if (t) {
     if (!IsVarTerm(t)) {
       if (IsAtomicTerm(t)) {
-	if (IsAtomTerm(t)) {
-	  pp->Element = AtomTermAdjust(t);
-	}
+        if (IsAtomTerm(t)) {
+          pp->Element = AtomTermAdjust(t);
+        }
       } else {
-	RestoreLUClause((LogUpdClause *)DBRefOfTerm(t),NULL PASS_REGS);
+        RestoreLUClause((LogUpdClause *)DBRefOfTerm(t), NULL PASS_REGS);
       }
     }
   }
@@ -1197,151 +1101,141 @@ RestoreBB(BlackBoardEntry *pp, int int_key USES_REGS)
   }
 }
 
-static void
-restore_static_array(StaticArrayEntry *ae USES_REGS)
-{
+static void restore_static_array(StaticArrayEntry *ae USES_REGS) {
   Int sz = -ae->ArrayEArity;
   switch (ae->ArrayType) {
   case array_of_ints:
   case array_of_doubles:
   case array_of_chars:
   case array_of_uchars:
-  return;
-  case array_of_ptrs:
-    {
-      AtomEntry **base = (AtomEntry **)AddrAdjust((ADDR)(ae->ValueOfVE.ptrs));
-      Int i;
-      ae->ValueOfVE.ptrs = base;
-      if (ae != NULL) {
-	for (i=0; i<sz; i++) {
-	  AtomEntry *reg = *base;
-	  if (reg == NULL) {
-	    base++;
-	  } else if (IsOldCode((CELL)reg)) {
-	    *base++ = AtomEntryAdjust(reg);
-	  } else if (IsOldLocalInTR((CELL)reg)) {
-	    *base++ = (AtomEntry *)LocalAddrAdjust((ADDR)reg);
-	  } else if (IsOldGlobal((CELL)reg)) {
-	    *base++ = (AtomEntry *)GlobalAddrAdjust((ADDR)reg);
-	  } else if (IsOldTrail((CELL)reg)) {
-	    *base++ = (AtomEntry *)TrailAddrAdjust((ADDR)reg);
-	  } else {
-	    /* oops */
-	    base++;
-	  }
-	}
+    return;
+  case array_of_ptrs: {
+    AtomEntry **base = (AtomEntry **)AddrAdjust((ADDR)(ae->ValueOfVE.ptrs));
+    Int i;
+    ae->ValueOfVE.ptrs = base;
+    if (ae != NULL) {
+      for (i = 0; i < sz; i++) {
+        AtomEntry *reg = *base;
+        if (reg == NULL) {
+          base++;
+        } else if (IsOldCode((CELL)reg)) {
+          *base++ = AtomEntryAdjust(reg);
+        } else if (IsOldLocalInTR((CELL)reg)) {
+          *base++ = (AtomEntry *)LocalAddrAdjust((ADDR)reg);
+        } else if (IsOldGlobal((CELL)reg)) {
+          *base++ = (AtomEntry *)GlobalAddrAdjust((ADDR)reg);
+        } else if (IsOldTrail((CELL)reg)) {
+          *base++ = (AtomEntry *)TrailAddrAdjust((ADDR)reg);
+        } else {
+          /* oops */
+          base++;
+        }
       }
     }
-  return;
-  case array_of_atoms:  
-    {
-      Term *base = (Term *)AddrAdjust((ADDR)(ae->ValueOfVE.atoms));
-      Int i;
-      ae->ValueOfVE.atoms = base;
-      if (ae != 0L) {
-	for (i=0; i<sz; i++) {
-	  Term reg = *base;
-	  if (reg == 0L) {
-	    base++;
-	  } else {
-	    *base++ = AtomTermAdjust(reg);
-	  }
-	}
+  }
+    return;
+  case array_of_atoms: {
+    Term *base = (Term *)AddrAdjust((ADDR)(ae->ValueOfVE.atoms));
+    Int i;
+    ae->ValueOfVE.atoms = base;
+    if (ae != 0L) {
+      for (i = 0; i < sz; i++) {
+        Term reg = *base;
+        if (reg == 0L) {
+          base++;
+        } else {
+          *base++ = AtomTermAdjust(reg);
+        }
       }
     }
-  return;
-  case array_of_dbrefs:
-    {
-      Term *base = (Term *)AddrAdjust((ADDR)(ae->ValueOfVE.dbrefs));
-      Int i;
+  }
+    return;
+  case array_of_dbrefs: {
+    Term *base = (Term *)AddrAdjust((ADDR)(ae->ValueOfVE.dbrefs));
+    Int i;
 
-      ae->ValueOfVE.dbrefs = base;
-      if (ae != 0L) {
-	for (i=0; i<sz; i++) {
-	  Term reg = *base;
-	  if (reg == 0L) {
-	    base++;
-	  } else {
-	    *base++ = AbsAppl(PtoHeapCellAdjust(RepAppl(reg)));
-	  }
-	}
+    ae->ValueOfVE.dbrefs = base;
+    if (ae != 0L) {
+      for (i = 0; i < sz; i++) {
+        Term reg = *base;
+        if (reg == 0L) {
+          base++;
+        } else {
+          *base++ = AbsAppl(PtoHeapCellAdjust(RepAppl(reg)));
+        }
       }
     }
-  return;
-  case array_of_nb_terms:
-    {
-      live_term *base = (live_term *)AddrAdjust((ADDR)(ae->ValueOfVE.lterms));
-      Int i;
+  }
+    return;
+  case array_of_nb_terms: {
+    live_term *base = (live_term *)AddrAdjust((ADDR)(ae->ValueOfVE.lterms));
+    Int i;
 
-      ae->ValueOfVE.lterms = base;
-      if (ae != 0L) {
-	for (i=0; i < sz; i++,base++) {
-	  Term reg = base->tlive;
-	  if (IsVarTerm(reg)) {
-	    CELL *var = (CELL *)reg;
+    ae->ValueOfVE.lterms = base;
+    if (ae != 0L) {
+      for (i = 0; i < sz; i++, base++) {
+        Term reg = base->tlive;
+        if (IsVarTerm(reg)) {
+          CELL *var = (CELL *)reg;
 
-	    if (IsOldGlobalPtr(var)) {
-	      base->tlive = (CELL)PtoGloAdjust(var);
-	    } else {
-	      base->tlive = (CELL)PtoHeapCellAdjust(var);
-	    }
-	  } else if (IsAtomTerm(reg)) {
-	    base->tlive = AtomTermAdjust(reg);
-	  } else if (IsApplTerm(reg)) {
-	    CELL *db = RepAppl(reg);
-	    db = PtoGloAdjust(db);
-	    base->tlive = AbsAppl(db);
-	  } else if (IsApplTerm(reg)) {
-	    CELL *db = RepPair(reg);
-	    db = PtoGloAdjust(db);
-	    base->tlive = AbsPair(db);
-	  }
+          if (IsOldGlobalPtr(var)) {
+            base->tlive = (CELL)PtoGloAdjust(var);
+          } else {
+            base->tlive = (CELL)PtoHeapCellAdjust(var);
+          }
+        } else if (IsAtomTerm(reg)) {
+          base->tlive = AtomTermAdjust(reg);
+        } else if (IsApplTerm(reg)) {
+          CELL *db = RepAppl(reg);
+          db = PtoGloAdjust(db);
+          base->tlive = AbsAppl(db);
+        } else if (IsApplTerm(reg)) {
+          CELL *db = RepPair(reg);
+          db = PtoGloAdjust(db);
+          base->tlive = AbsPair(db);
+        }
 
-	  reg = base->tstore;
-	  if (IsVarTerm(reg)) {
-	    base->tstore = (Term)GlobalAddrAdjust((ADDR)reg);
-	  } else if (IsAtomTerm(reg)) {
-	    base->tstore = AtomTermAdjust(reg);
-	  } else {
-	    DBTerm *db = (DBTerm *)RepAppl(reg);
-	    db = DBTermAdjust(db);
-	    RestoreDBTerm(db, 1 PASS_REGS);
-	    base->tstore = AbsAppl((CELL *)db);
-	  }
-	}
+        reg = base->tstore;
+        if (IsVarTerm(reg)) {
+          base->tstore = (Term)GlobalAddrAdjust((ADDR)reg);
+        } else if (IsAtomTerm(reg)) {
+          base->tstore = AtomTermAdjust(reg);
+        } else {
+          DBTerm *db = (DBTerm *)RepAppl(reg);
+          db = DBTermAdjust(db);
+          RestoreDBTerm(db, 1 PASS_REGS);
+          base->tstore = AbsAppl((CELL *)db);
+        }
       }
     }
-  case array_of_terms:
-    {
-      DBTerm **base = (DBTerm **)AddrAdjust((ADDR)(ae->ValueOfVE.terms));
-      Int i;
+  }
+  case array_of_terms: {
+    DBTerm **base = (DBTerm **)AddrAdjust((ADDR)(ae->ValueOfVE.terms));
+    Int i;
 
-      ae->ValueOfVE.terms = base;
-      if (ae != 0L) {
-	for (i=0; i<sz; i++) {
-	  DBTerm *reg = *base;
-	  if (reg == NULL) {
-	    base++;
-	  } else {
-	    *base++ = reg = DBTermAdjust(reg);
-	    RestoreDBTerm(reg, 1 PASS_REGS);
-	  }
-	}
+    ae->ValueOfVE.terms = base;
+    if (ae != 0L) {
+      for (i = 0; i < sz; i++) {
+        DBTerm *reg = *base;
+        if (reg == NULL) {
+          base++;
+        } else {
+          *base++ = reg = DBTermAdjust(reg);
+          RestoreDBTerm(reg, 1 PASS_REGS);
+        }
       }
     }
-  return;
+  }
+    return;
   }
 }
 
 /*
  * Clean all the code for a particular predicate, this can get a bit tricky,
- * because of the indexing code 
+ * because of the indexing code
  */
-static void 
-CleanCode(PredEntry *pp USES_REGS)
-{
-  pred_flags_t            flag;
-
+static void CleanCode(PredEntry *pp USES_REGS) {
+  pred_flags_t flag;
 
   /* Init takes care of the first 2 cases */
   if (pp->ModuleOfPred) {
@@ -1350,11 +1244,11 @@ CleanCode(PredEntry *pp USES_REGS)
   if (pp->ArityOfPE) {
     if (pp->ModuleOfPred == IDB_MODULE) {
       if (pp->PredFlags & NumberDBPredFlag) {
-	/* it's an integer, do nothing */
+        /* it's an integer, do nothing */
       } else if (pp->PredFlags & AtomDBPredFlag) {
-	pp->FunctorOfPred = (Functor)AtomAdjust((Atom)(pp->FunctorOfPred));
+        pp->FunctorOfPred = (Functor)AtomAdjust((Atom)(pp->FunctorOfPred));
       } else {
-	pp->FunctorOfPred = FuncAdjust(pp->FunctorOfPred);
+        pp->FunctorOfPred = FuncAdjust(pp->FunctorOfPred);
       }
     } else {
       pp->FunctorOfPred = FuncAdjust(pp->FunctorOfPred);
@@ -1371,20 +1265,20 @@ CleanCode(PredEntry *pp USES_REGS)
   if (pp->NextPredOfModule) {
     pp->NextPredOfModule = PtoPredAdjust(pp->NextPredOfModule);
   }
-  if (pp->PredFlags & (AsmPredFlag|CPredFlag)) {
+  if (pp->PredFlags & (AsmPredFlag | CPredFlag)) {
     /* assembly */
     if (pp->CodeOfPred) {
       pp->CodeOfPred = PtoOpAdjust(pp->CodeOfPred);
       CleanClauses(pp->CodeOfPred, pp->CodeOfPred, pp PASS_REGS);
     }
   } else {
-    yamop        *FirstC, *LastC;
+    yamop *FirstC, *LastC;
     /* Prolog code */
     if (pp->cs.p_code.FirstClause)
       pp->cs.p_code.FirstClause = PtoOpAdjust(pp->cs.p_code.FirstClause);
     if (pp->cs.p_code.LastClause)
       pp->cs.p_code.LastClause = PtoOpAdjust(pp->cs.p_code.LastClause);
-    pp->CodeOfPred =PtoOpAdjust(pp->CodeOfPred);
+    pp->CodeOfPred = PtoOpAdjust(pp->CodeOfPred);
     pp->cs.p_code.TrueCodeOfPred = PtoOpAdjust(pp->cs.p_code.TrueCodeOfPred);
     pp->cs.p_code.ExpandCode = Yap_opcode(_expand_index);
     flag = pp->PredFlags;
@@ -1394,24 +1288,29 @@ CleanCode(PredEntry *pp USES_REGS)
     if (FirstC == NULL && LastC == NULL) {
       return;
     }
-#ifdef	DEBUG_RESTORE2
-    fprintf(stderr, "at %lx Correcting clauses from %p to %p\n", *(OPCODE *) FirstC, FirstC, LastC);
+#ifdef DEBUG_RESTORE2
+    fprintf(stderr, "at %lx Correcting clauses from %p to %p\n",
+            *(OPCODE *)FirstC, FirstC, LastC);
 #endif
     CleanClauses(FirstC, LastC, pp PASS_REGS);
     if (flag & IndexedPredFlag) {
-#ifdef	DEBUG_RESTORE2
+#ifdef DEBUG_RESTORE2
       fprintf(stderr, "Correcting indexed code\n");
 #endif
       if (flag & LogUpdatePredFlag) {
-	CleanLUIndex(ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred), TRUE PASS_REGS);
+        CleanLUIndex(ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred),
+                     TRUE PASS_REGS);
       } else {
-	CleanSIndex(ClauseCodeToStaticIndex(pp->cs.p_code.TrueCodeOfPred), TRUE PASS_REGS);
-      } 
+        CleanSIndex(ClauseCodeToStaticIndex(pp->cs.p_code.TrueCodeOfPred),
+                    TRUE PASS_REGS);
+      }
     } else if (flag & DynamicPredFlag) {
-#ifdef	DEBUG_RESTORE2
+#ifdef DEBUG_RESTORE2
       fprintf(stderr, "Correcting dynamic code\n");
 #endif
-      RestoreDynamicClause(ClauseCodeToDynamicClause(pp->cs.p_code.TrueCodeOfPred),pp PASS_REGS);
+      RestoreDynamicClause(
+          ClauseCodeToDynamicClause(pp->cs.p_code.TrueCodeOfPred),
+          pp PASS_REGS);
     }
   }
   /* we are pointing at ourselves */
@@ -1419,237 +1318,183 @@ CleanCode(PredEntry *pp USES_REGS)
 
 /*
  * Restores all of the entries, for a particular atom, we only have problems
- * if we find code or data bases 
+ * if we find code or data bases
  */
-static void 
-RestoreEntries(PropEntry *pp, int int_key USES_REGS)
-{
+static void RestoreEntries(PropEntry *pp, int int_key USES_REGS) {
   while (!EndOfPAEntr(pp)) {
-    switch(pp->KindOfPE) {
-    case FunctorProperty:
-      {
-	FunctorEntry *fe = (FunctorEntry *)pp;
-	Prop p0;
-	fe->NextOfPE =
-	  PropAdjust(fe->NextOfPE);
-	fe->NameOfFE =
-	  AtomAdjust(fe->NameOfFE);
-	p0 = fe->PropsOfFE =
-	  PropAdjust(fe->PropsOfFE);
-	if (!EndOfPAEntr(p0)) {
-	  /* at most one property */
-	  CleanCode(RepPredProp(p0) PASS_REGS);
-	  RepPredProp(p0)->NextOfPE =
-	    PropAdjust(RepPredProp(p0)->NextOfPE);
-	}
+    switch (pp->KindOfPE) {
+    case FunctorProperty: {
+      FunctorEntry *fe = (FunctorEntry *)pp;
+      Prop p0;
+      fe->NextOfPE = PropAdjust(fe->NextOfPE);
+      fe->NameOfFE = AtomAdjust(fe->NameOfFE);
+      p0 = fe->PropsOfFE = PropAdjust(fe->PropsOfFE);
+      if (!EndOfPAEntr(p0)) {
+        /* at most one property */
+        CleanCode(RepPredProp(p0) PASS_REGS);
+        RepPredProp(p0)->NextOfPE = PropAdjust(RepPredProp(p0)->NextOfPE);
       }
-      break;
-    case ValProperty:
-      {
-	ValEntry *ve = (ValEntry *)pp;
-	Term      tv = ve->ValueOfVE;
-	ve->NextOfPE =
-	  PropAdjust(ve->NextOfPE);
-	if (IsAtomTerm(tv))
-	  ve->ValueOfVE = AtomTermAdjust(tv);
+    } break;
+    case ValProperty: {
+      ValEntry *ve = (ValEntry *)pp;
+      Term tv = ve->ValueOfVE;
+      ve->NextOfPE = PropAdjust(ve->NextOfPE);
+      if (IsAtomTerm(tv))
+        ve->ValueOfVE = AtomTermAdjust(tv);
+    } break;
+    case HoldProperty: {
+      HoldEntry *he = (HoldEntry *)pp;
+      he->NextOfPE = PropAdjust(he->NextOfPE);
+    } break;
+    case MutexProperty: {
+      HoldEntry *he = (HoldEntry *)pp;
+      he->NextOfPE = PropAdjust(he->NextOfPE);
+    } break;
+    case TranslationProperty: {
+      TranslationEntry *he = (TranslationEntry *)pp;
+      he->NextOfPE = PropAdjust(he->NextOfPE);
+    } break;
+    case FlagProperty: {
+      FlagEntry *he = (FlagEntry *)pp;
+      he->NextOfPE = PropAdjust(he->NextOfPE);
+    } break;
+    case ArrayProperty: {
+      ArrayEntry *ae = (ArrayEntry *)pp;
+      ae->NextOfPE = PropAdjust(ae->NextOfPE);
+      if (ae->TypeOfAE == STATIC_ARRAY) {
+        /* static array entry */
+        StaticArrayEntry *sae = (StaticArrayEntry *)ae;
+        if (sae->NextAE)
+          sae->NextAE = PtoArraySAdjust(sae->NextAE);
+        restore_static_array(sae PASS_REGS);
+      } else {
+        if (ae->NextAE)
+          ae->NextAE = PtoArrayEAdjust(ae->NextAE);
+        if (IsVarTerm(ae->ValueOfVE))
+          RESET_VARIABLE(&(ae->ValueOfVE));
+        else {
+          CELL *ptr = RepAppl(ae->ValueOfVE);
+          /* in fact it should just be a pointer to the global,
+             but we'll be conservative.
+             Notice that the variable should have been reset in restore_program
+             mode.
+          */
+          if (IsOldGlobalPtr(ptr)) {
+            ae->ValueOfVE = AbsAppl(PtoGloAdjust(ptr));
+          } else if (IsOldCodeCellPtr(ptr)) {
+            ae->ValueOfVE = AbsAppl(PtoHeapCellAdjust(ptr));
+          } else if (IsOldLocalInTRPtr(ptr)) {
+            ae->ValueOfVE = AbsAppl(PtoLocAdjust(ptr));
+          } else if (IsOldTrailPtr(ptr)) {
+            ae->ValueOfVE = AbsAppl(CellPtoTRAdjust(ptr));
+          }
+        }
       }
-      break;
-    case HoldProperty:
-      {
-	HoldEntry *he = (HoldEntry *)pp;
-	he->NextOfPE =
-	  PropAdjust(he->NextOfPE);
-      }
-      break;
-   case MutexProperty:
-      {
-	HoldEntry *he = (HoldEntry *)pp;
-	he->NextOfPE =
-	  PropAdjust(he->NextOfPE);
-      }
-      break;
-    case TranslationProperty:
-      {
-	TranslationEntry *he = (TranslationEntry *)pp;
-	he->NextOfPE =
-	  PropAdjust(he->NextOfPE);
-      }
-      break;
-    case FlagProperty:
-      {
-	FlagEntry *he = (FlagEntry *)pp;
-	he->NextOfPE =
-	  PropAdjust(he->NextOfPE);
-      }
-      break;
-    case ArrayProperty:
-      {
-	ArrayEntry *ae = (ArrayEntry *)pp;
-	ae->NextOfPE =
-	  PropAdjust(ae->NextOfPE);
-	if (ae->TypeOfAE == STATIC_ARRAY) {
-	  /* static array entry */
-	  StaticArrayEntry *sae = (StaticArrayEntry *)ae;
-	  if (sae->NextAE)
-	    sae->NextAE = PtoArraySAdjust(sae->NextAE);
-	  restore_static_array(sae PASS_REGS);
-	} else {
-	  if (ae->NextAE)
-	    ae->NextAE = PtoArrayEAdjust(ae->NextAE);
-	  if (IsVarTerm(ae->ValueOfVE))
-	    RESET_VARIABLE(&(ae->ValueOfVE));
-	  else {
-	    CELL *ptr = RepAppl(ae->ValueOfVE);
-	    /* in fact it should just be a pointer to the global,
-	       but we'll be conservative.
-	       Notice that the variable should have been reset in restore_program mode.
-	    */
-	    if (IsOldGlobalPtr(ptr)) {
-	      ae->ValueOfVE = AbsAppl(PtoGloAdjust(ptr));
-	    } else if (IsOldCodeCellPtr(ptr)) {
-	      ae->ValueOfVE = AbsAppl(PtoHeapCellAdjust(ptr));
-	    } else if (IsOldLocalInTRPtr(ptr)) {
-	      ae->ValueOfVE = AbsAppl(PtoLocAdjust(ptr));
-	    } else if (IsOldTrailPtr(ptr)) {
-	      ae->ValueOfVE = AbsAppl(CellPtoTRAdjust(ptr));
-	    }
-	  }
-	}
-      }
-      break;
-    case PEProp:
-      {
-	PredEntry *pe = (PredEntry *) pp;
-	pe->NextOfPE =
-	  PropAdjust(pe->NextOfPE);
-	CleanCode(pe PASS_REGS);
-      }
-      break;
+    } break;
+    case PEProp: {
+      PredEntry *pe = (PredEntry *)pp;
+      pe->NextOfPE = PropAdjust(pe->NextOfPE);
+      CleanCode(pe PASS_REGS);
+    } break;
     case DBProperty:
     case CodeDBProperty:
 #ifdef DEBUG_RESTORE2
       fprintf(stderr, "Correcting data base clause at %p\n", pp);
 #endif
       {
-	DBEntry *de = (DBEntry *) pp;
-	de->NextOfPE =
-	  PropAdjust(de->NextOfPE);
-	RestoreDB(de PASS_REGS);
+        DBEntry *de = (DBEntry *)pp;
+        de->NextOfPE = PropAdjust(de->NextOfPE);
+        RestoreDB(de PASS_REGS);
       }
       break;
-    case BBProperty:
-      {
-	BlackBoardEntry *bb = (BlackBoardEntry *) pp;
-	bb->NextOfPE =
-	  PropAdjust(bb->NextOfPE);
-	RestoreBB(bb, int_key PASS_REGS);
-      }
-      break;
-    case GlobalProperty:
-      {
-	GlobalEntry *gb = (GlobalEntry *) pp;
-	Term gbt = gb->global;
+    case BBProperty: {
+      BlackBoardEntry *bb = (BlackBoardEntry *)pp;
+      bb->NextOfPE = PropAdjust(bb->NextOfPE);
+      RestoreBB(bb, int_key PASS_REGS);
+    } break;
+    case GlobalProperty: {
+      GlobalEntry *gb = (GlobalEntry *)pp;
+      Term gbt = gb->global;
 
-	gb->NextOfPE =
-	  PropAdjust(gb->NextOfPE);
-	gb->AtomOfGE =
-	  AtomEntryAdjust(gb->AtomOfGE);
-	if (gb->NextGE) {
-	  gb->NextGE =
-	    GlobalEntryAdjust(gb->NextGE);
-	}
-	if (IsVarTerm(gbt)) {
-	  CELL *gbp = VarOfTerm(gbt);
-	  if (IsOldGlobalPtr(gbp))
-	    gbp = PtoGloAdjust(gbp);
-	  else
-	    gbp = CellPtoHeapAdjust(gbp);
-	  gb->global = (CELL)gbp;
-	} else if (IsPairTerm(gbt)) {
-	  gb->global = AbsPair(PtoGloAdjust(RepPair(gbt)));
-	} else if (IsApplTerm(gbt)) {
-	  CELL *gbp = RepAppl(gbt);
-	  if (IsOldGlobalPtr(gbp))
-	    gbp = PtoGloAdjust(gbp);
-	  else
-	    gbp = CellPtoHeapAdjust(gbp);
-	  gb->global = AbsAppl(gbp);
-	} else if (IsAtomTerm(gbt)) {
-	  gb->global = AtomTermAdjust(gbt);
-	} /* numbers need no adjusting */
+      gb->NextOfPE = PropAdjust(gb->NextOfPE);
+      gb->AtomOfGE = AtomEntryAdjust(gb->AtomOfGE);
+      if (gb->NextGE) {
+        gb->NextGE = GlobalEntryAdjust(gb->NextGE);
       }
-      break;
-    case OpProperty:
-      {
-	OpEntry *opp = (OpEntry *)pp;
-	if (opp->NextOfPE) {
-	  opp->NextOfPE =
-	    PropAdjust(opp->NextOfPE);
-	}
-	opp->OpName =
-	  AtomAdjust(opp->OpName);
-	if (opp->OpModule) {
-	 opp->OpModule = AtomTermAdjust(opp->OpModule);
-	}
-	if (opp->OpNext) {
-	 opp->OpNext = OpEntryAdjust(opp->OpNext);
-	}
+      if (IsVarTerm(gbt)) {
+        CELL *gbp = VarOfTerm(gbt);
+        if (IsOldGlobalPtr(gbp))
+          gbp = PtoGloAdjust(gbp);
+        else
+          gbp = CellPtoHeapAdjust(gbp);
+        gb->global = (CELL)gbp;
+      } else if (IsPairTerm(gbt)) {
+        gb->global = AbsPair(PtoGloAdjust(RepPair(gbt)));
+      } else if (IsApplTerm(gbt)) {
+        CELL *gbp = RepAppl(gbt);
+        if (IsOldGlobalPtr(gbp))
+          gbp = PtoGloAdjust(gbp);
+        else
+          gbp = CellPtoHeapAdjust(gbp);
+        gb->global = AbsAppl(gbp);
+      } else if (IsAtomTerm(gbt)) {
+        gb->global = AtomTermAdjust(gbt);
+      } /* numbers need no adjusting */
+    } break;
+    case OpProperty: {
+      OpEntry *opp = (OpEntry *)pp;
+      if (opp->NextOfPE) {
+        opp->NextOfPE = PropAdjust(opp->NextOfPE);
       }
-      break;
-    case ModProperty:
-      {
-	ModEntry *me = (ModEntry *)pp;
-	if (me->NextOfPE) {
-	  me->NextOfPE =
-	    PropAdjust(me->NextOfPE);
-	}
-	if (me->PredForME) {
-	  me->PredForME =
-	  PtoPredAdjust(me->PredForME);
-	}
-	me->AtomOfME =
-	  AtomAdjust(me->AtomOfME);
-	if (me->NextME)
-	  me->NextME = (struct mod_entry *)
-	    AddrAdjust((ADDR)me->NextME);
+      opp->OpName = AtomAdjust(opp->OpName);
+      if (opp->OpModule) {
+        opp->OpModule = AtomTermAdjust(opp->OpModule);
       }
-      break;      
+      if (opp->OpNext) {
+        opp->OpNext = OpEntryAdjust(opp->OpNext);
+      }
+    } break;
+    case ModProperty: {
+      ModEntry *me = (ModEntry *)pp;
+      if (me->NextOfPE) {
+        me->NextOfPE = PropAdjust(me->NextOfPE);
+      }
+      if (me->PredForME) {
+        me->PredForME = PtoPredAdjust(me->PredForME);
+      }
+      me->AtomOfME = AtomAdjust(me->AtomOfME);
+      if (me->NextME)
+        me->NextME = (struct mod_entry *)AddrAdjust((ADDR)me->NextME);
+    } break;
     case ExpProperty:
-      pp->NextOfPE =
-	PropAdjust(pp->NextOfPE);
+      pp->NextOfPE = PropAdjust(pp->NextOfPE);
       break;
     case WideAtomProperty:
-      pp->NextOfPE =
-	PropAdjust(pp->NextOfPE);
+      pp->NextOfPE = PropAdjust(pp->NextOfPE);
       break;
     case BlobProperty:
-      pp->NextOfPE =
-	PropAdjust(pp->NextOfPE);
+      pp->NextOfPE = PropAdjust(pp->NextOfPE);
       {
         YAP_BlobPropEntry *bpe = (YAP_BlobPropEntry *)pp;
-        bpe->blob_type =
-        BlobTypeAdjust(bpe->blob_type);
+        bpe->blob_type = BlobTypeAdjust(bpe->blob_type);
       }
       break;
     default:
       /* OOPS */
       Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
-	    "Invalid Atom Property %d at %p", pp->KindOfPE, pp);
+                "Invalid Atom Property %d at %p", pp->KindOfPE, pp);
       return;
     }
     pp = RepProp(pp->NextOfPE);
   }
 }
 
-
-static void
-RestoreAtom(AtomEntry *at USES_REGS)
-{
+static void RestoreAtom(AtomEntry *at USES_REGS) {
   AtomEntry *nat;
 
   /* this should be done before testing for wide atoms */
   at->PropsOfAE = PropAdjust(at->PropsOfAE);
-#if DEBUG_RESTORE2			/* useful during debug */
+#if DEBUG_RESTORE2 /* useful during debug */
   if (IsWideAtom(AbsAtom(at)))
     fprintf(stderr, "Restoring %S\n", at->WStrOfAE);
   else
@@ -1661,4 +1506,3 @@ RestoreAtom(AtomEntry *at USES_REGS)
   if (nat)
     at->NextOfAE = AbsAtom(AtomEntryAdjust(nat));
 }
-

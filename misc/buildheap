@@ -30,10 +30,8 @@ main :-
 	%file_filter_with_initialization('misc/LOCALS','H/dlocals.h',gen_dstruct,Warning,['dlocals.h','LOCALS']),
 	%file_filter_with_initialization('misc/LOCALS','H/rlocals.h',gen_hstruct,Warning,['rlocals.h','LOCALS']),
 	%file_filter_with_initialization('misc/LOCALS','H/ilocals.h',gen_init,Warning,['ilocals.h','LOCALS']).
-	
+
 warning('~n  /* This file, ~a, was generated automatically by \"yap -L misc/buildheap\"~n     please do not update, update misc/~a instead */~n~n').
-
-
 
 /* define the field */
 gen_struct(Inp,"") :-
@@ -49,6 +47,12 @@ gen_struct(Inp,Out) :-
 	Out = "typedef struct worker_local {".
 gen_struct(Inp,Out) :-
 	Inp = "END_WORKER_LOCAL", !,
+	Out = "} w_local;".
+gen_struct(Inp,Out) :-
+	Inp = "START_HEAP", !,
+	Out = "typedef struct worker_local {".
+gen_struct(Inp,Out) :-
+	Inp = "END_HEAP", !,
 	Out = "} w_local;".
 gen_struct(Inp,Out) :-
 	Inp = "START_GLOBAL_DATA", !,
@@ -76,7 +80,7 @@ gen_struct(Inp,Out) :-
 gen_struct(Inp,_) :-
 	split(Inp,"	 ",[_, _, _| _]),
 	format(user_error,"OOPS: could not gen_struct for ~s~n",[Inp]).
-	
+
 gen_dstruct(Inp,"") :-
 	Inp = [0'/,0'/|_], !.
 gen_dstruct(Inp,"") :-
@@ -145,8 +149,8 @@ cut_c_stuff(Name, RName) :-
 	cut_mat(Name, RName).
 
 cut_mat([], []).
-cut_mat([0'[|_], []) :- !. %' 
-cut_mat(H.Name, H.RName) :- 
+cut_mat([0'[|_], []) :- !. %'
+cut_mat([H|Name], [H|RName]) :-
 	cut_mat(Name, RName).
 
 gen_hstruct(Inp,"") :-
@@ -185,9 +189,9 @@ gen_hstruct(Inp,Out) :-
 	glue(Inp2, " ", Inp3),
 	gen_hstruct(Inp3,Out).
 gen_hstruct(Inp,Out) :-
-        split(Inp," 	",["const"|Inp2]), !,
-        glue(Inp2, " ", Inp3),
-        gen_hstruct(Inp3,Out).
+    split(Inp," 	",["const"|Inp2]), !,
+    glue(Inp2, " ", Inp3),
+    gen_hstruct(Inp3,Out).
 gen_hstruct(Inp,Out) :-
 	split(Inp,"	 ",[_, Field, MacroName, "MkAT", _]), !,
 	fetch_name(Global,Field,MacroName),
@@ -258,6 +262,14 @@ gen_init(Inp,Out) :-
 	Out = "}",
 	retract(globals(all)).
 gen_init(Inp,Out) :-
+	Inp = "START_HEAP", !,
+	Out = "static void InitGlobal(void) {",
+	assert(globals(heap)).
+gen_init(Inp,Out) :-
+	Inp = "END_HEAP", !,
+	Out = "}",
+	retract(globals(heap)).
+gen_init(Inp,Out) :-
 	split(Inp,"	 ",["struct"|Inp2]), !,
 	glue(Inp2, " ", Inp3),
 	gen_init(Inp3, Out).
@@ -306,20 +318,20 @@ gen_init(Inp,Out) :-
 	fetch_name(Global,RField,MacroName),
 	append(["  ",Global,"->opc = Yap_opcode(",OP,");"], Out).
 gen_init(Inp,Out) :-
-	split(Inp,"	 ",[_, Field, MacroName, "MkPred", Atom, "0", Module]), !,
+	split(Inp,"	 ",[_, Field, MacroName, "MkLogPred", Atom, "0", Module]), !,
 	cut_c_stuff(Field, RField),
 	fetch_name(Global,RField,MacroName),
-	append(["  ",Global," = RepPredProp(PredPropByAtom(",Atom,",",Module,"));"], Out).
+	append(["  ",Global," = Yap_MkLogPred(RepPredProp(PredPropByAtom(",Atom,",",Module,")));"], Out).
 gen_init(Inp,Out) :-
-	split(Inp,"	 ",[_, Field, MacroName, "MkPred", Atom, Arity, Module]), !,
+	split(Inp,"	 ",[_, Field, MacroName, "MkLogPred", Atom, Arity, Module]), !,
 	cut_c_stuff(Field, RField),
 	fetch_name(Global,RField,MacroName),
-	append(["  ",Global," = RepPredProp(PredPropByFunc(Yap_MkFunctor(",Atom,",",Arity,"),",Module,"));"], Out).
+	append(["  ",Global," = Yap_MkLogPred(RepPredProp(PredPropByFunc(Yap_MkFunctor(",Atom,",",Arity,"),",Module,")));"], Out).
 gen_init(Inp,Out) :-
-	split(Inp,"	 ",[_, Field, MacroName, "MkPred", Fun, Module]), !,
+	split(Inp,"	 ",[_, Field, MacroName, "MkLogPred", Fun, Module]), !,
 	cut_c_stuff(Field, RField),
 	fetch_name(Global,RField,MacroName),
-	append(["  ",Global," = RepPredProp(PredPropByFunc(",Fun,",",Module,"));"], Out).
+	append(["  ",Global," = Yap_MkLogPred(RepPredProp(PredPropByFunc(",Fun,",",Module,")));"], Out).
 gen_init(Inp,Out) :-
 	split(Inp,"	 ",[_, Field, MacroName, F0|_]),
 	append("=",F,F0), !,
@@ -329,4 +341,3 @@ gen_init(Inp,Out) :-
 gen_init(Inp,_) :-
 	split(Inp,"	 ",[_, _, _| _]),
 	format(user_error,"OOPS: could not gen_init for ~s~n",[Inp]).
-

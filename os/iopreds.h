@@ -50,6 +50,9 @@ typedef enum{       /* we accept two domains for the moment, IPV6 may follow */
       af_unix       /* or AF_FILE */
 } socket_domain;
 
+extern bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
+                       encoding_t encoding, stream_flags_t flags,
+		    Atom open_mode);
 extern Term  Yap_InitSocketStream(int, socket_info, socket_domain);
 #define Yap_CheckStream( arg,  kind, msg) Yap_CheckStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
 extern int   Yap_CheckStream__(const char *, const char *, int , Term, int, const char *);
@@ -255,7 +258,7 @@ GetCurInpPos (StreamDesc * inp_stream)
   return (inp_stream->linecount);
 }
 
-#define PlIOError(type, culprit,...)  PlIOError__(__FILE__, __FUNCTION__, __LINE__, type, culprit, __VA_ARGS__)    
+#define PlIOError(type, culprit,...)  PlIOError__(__FILE__, __FUNCTION__, __LINE__, type, culprit, __VA_ARGS__)
 
 Int PlIOError__( const char *, const char *, int, yap_error_number, Term, ...);
 
@@ -301,6 +304,7 @@ void Yap_InitWriteTPreds(void);
 void Yap_InitReadTPreds(void);
 void Yap_socketStream( StreamDesc *s );
 void Yap_ReadlineFlush( int  sno );
+Int Yap_ReadlinePeekChar( int  sno );
 int Yap_ReadlineForSIGINT(void);
 bool Yap_ReadlinePrompt( StreamDesc * s );
 
@@ -327,6 +331,8 @@ int DefaultGets( int,UInt,char*);
 int put_wchar(int sno, wchar_t ch);
 Int GetStreamFd(int sno);
 int ResetEOF(StreamDesc *s);
+int EOFPeek(int sno);
+int EOFWPeek(int sno);
 
 void Yap_SetAlias (Atom arg, int sno);
 bool Yap_AddAlias (Atom arg, int sno);

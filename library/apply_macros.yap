@@ -1,3 +1,4 @@
+
 /%   File   : apply_macros.yap
 %   Author : E. Alphonse from code by Joachim Schimpf
 %   Updated: 15 June 2002
@@ -25,7 +26,6 @@ definitions to the @ref maplist library, these include:
   - partition/4,
   - partition/5
 
-@}
 
 */
 
@@ -33,4 +33,4 @@ definitions to the @ref maplist library, these include:
 
 :- reexport(mapargs).
 
-
+%% @}

@@ -19,10 +19,10 @@
  * @file   readutil.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Wed Nov 18 00:16:15 2015
- * 
+ *
  * @brief  Read full lines and a full file in a single call.
- * 
- * 
+ *
+ *
 */
 
 :- module(readutil, [
@@ -42,7 +42,7 @@
 * @ingroup library
 *
 *  Read full lines and a full file in a single call.
-* 
+*
 */
 
 
@@ -55,7 +55,6 @@ read_file_to_codes(File, Codes, _) :-
 	close(Stream).
 
 read_file_to_codes(File, Codes) :-
-    v
 	open(File, read, Stream),
 	read_stream_to_codes(Stream, Codes, []),
 	close(Stream).
@@ -79,5 +78,3 @@ prolog_read_stream_to_terms(Stream, Terms, Terms0) :-
 	    Terms = [Term|TermsI],
 	    prolog_read_stream_to_terms(Stream, TermsI, Terms0)
 	).
-
-

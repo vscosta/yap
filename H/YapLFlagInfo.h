@@ -22,7 +22,7 @@
 
 YAP_FLAG(  AUTOLOAD_FLAG, "autoload", true, boolean, "false" , NULL ),
 YAP_FLAG(  BREAK_LEVEL_FLAG, "break_level", true, nat, "0" , NULL ),
-YAP_FLAG(  ENCODING_FLAG, "encoding", true, isatom, "text" , getenc ),
+YAP_FLAG(  ENCODING_FLAG, "encoding", true, isatom, "utf-8" , getenc ),
 YAP_FLAG(  FILEERRORS_FLAG, "fileerrors", true, boolean, "true" , NULL ), /**< `fileerrors`
                                                                            
                                                                            If `on` `fileerrors` is `on`, if `off` (default)

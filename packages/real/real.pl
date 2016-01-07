@@ -10,7 +10,7 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- module('real', [
+:- module(real, [
      start_r/0,
      end_r/0,
 	r/2,
@@ -61,7 +61,7 @@
 :- create_prolog_flag( real, none, [type(atom)] ).
 
 
-:- set_prolog_flag(double_quotes, string ).
+%:- set_prolog_flag(double_quotes, string ).
 
 
 /** <module> An interface to the R statistical software.
@@ -749,12 +749,12 @@ rexpr_codes(V,[]) -->
 rexpr_codes(T,[]) -->
 	{ current_predicate(string/1), string(T),
 	  !,
-	  format( codes(S), "~s", [T])
+	  format( codes(S), '~s', [T])
 	},
 	"\"", S, "\"".
 rexpr_codes(+A,[]) -->
 	!,
-	{ atom(A) -> format(codes(S), "~s", [A]) },
+	{ atom(A) -> format(codes(S), '~s', [A]) },
 	"\"", S, "\"".
 rexpr_codes(-A,[]) -->
 	!,

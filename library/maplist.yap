@@ -3,10 +3,10 @@
  * @author Lawrence Byrd + Richard A. O'Keefe, VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @author : E. Alphonse from code by Joachim Schimpf, Jan Wielemaker, Vitor Santos Costa
  * @date    4 August 1984 and Ken Johnson 11-8-87
- * 
+ *
  * @brief  Macros to apply a predicate to all elements of a list.
- * 
- * 
+ *
+ *
 */
 
   :- module(maplist,
@@ -156,7 +156,6 @@ triple. See the example above.
 :- use_module(library(maputils)).
 :- use_module(library(lists), [append/3]).
 :- use_module(library(charsio), [format_to_chars/3, read_from_chars/2]).
-:- use_module(library(error), [must_be/2]).
 :- use_module(library(occurs), [sub_term/2]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1245,4 +1244,3 @@ goal_expansion(sumnodes(Meta, Term, AccIn, AccOut), Mod:Goal) :-
 /**
 @}
 */
-

@@ -1,4 +1,4 @@
-/**
+s/**
  * @file   dbqueues.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Tue Nov 17 15:01:49 2015
@@ -25,9 +25,9 @@ A library to implement queues of NB Terms
 */
 
 
-:- unhide('$init_nb_queue').
-:- unhide('$nb_enqueue').
-:- unhide('$nb_dequeue').
+:- unhide_atom('$init_nb_queue').
+:- unhide_atom('$nb_enqueue').
+:- unhide_atom('$nb_dequeue').
 
 
 nb_enqueue(Name,El) :- var(Name),

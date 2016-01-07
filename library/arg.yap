@@ -25,6 +25,8 @@
 
 @ingroup @library
 
+@{
+
 Extends arg/3 by including backtracking through arguments and access
 to sub-arguments,
 
@@ -158,3 +160,6 @@ path_arg([], Term, Term).
 path_arg([Index|Indices], Term, SubTerm) :-
 	genarg(Index, Term, Arg),
 	path_arg(Indices, Arg, SubTerm).
+
+%%@}
+

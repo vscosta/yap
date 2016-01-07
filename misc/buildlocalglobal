@@ -1,12 +1,12 @@
 
 :- use_module(library(lineutils),
-	[file_filter_with_init/5,
-	 split/3,
-	 glue/3]).
+              [file_filter_with_init/5,
+               split/3,
+               glue/3]).
 
 :- use_module(library(lists),
-	[append/2,
-	 append/3]).
+              [append/2,
+               append/3]).
 
 :- initialization(main).
 
@@ -17,31 +17,33 @@
 :- style_check(all).
 
 file_filter_with_initialization(A,B,C,D,E) :-
-     file_filter_with_init(A,B,C,D,E).
+    file_filter_with_init(A,B,C,D,E).
 
 main :-
 	warning(Warning),
-	%file_filter_with_initialization('misc/HEAPFIELDS','H/hstruct.h',gen_struct,Warning,['hstruct.h','HEAPFIELDS']),
-	%file_filter_with_initialization('misc/HEAPFIELDS','H/dhstruct.h',gen_dstruct,Warning,['dhstruct.h','HEAPFIELDS']),
-	%file_filter_with_initialization('misc/HEAPFIELDS','H/rhstruct.h',gen_hstruct,Warning,['rhstruct.h','HEAPFIELDS']),
-	%file_filter_with_initialization('misc/HEAPFIELDS','H/ihstruct.h',gen_init,Warning,['ihstruct.h','HEAPFIELDS']),
-	file_filter_with_initialization('misc/GLOBALS','H/hglobals.h',gen_struct,Warning,['hglobals.h','GLOBALS']),
-	file_filter_with_initialization('misc/GLOBALS','H/dglobals.h',gen_dstruct,Warning,['dglobals.h','GLOBALS']),
-	file_filter_with_initialization('misc/GLOBALS','H/rglobals.h',gen_hstruct,Warning,['rglobals.h','GLOBALS']),
-	file_filter_with_initialization('misc/GLOBALS','H/iglobals.h',gen_init,Warning,['iglobals.h','GLOBALS']),
-	file_filter_with_initialization('misc/LOCALS','H/hlocals.h',gen_struct,Warning,['hlocals.h','LOCALS']),
-	file_filter_with_initialization('misc/LOCALS','H/dlocals.h',gen_dstruct,Warning,['dlocals.h','LOCALS']),
-	file_filter_with_initialization('misc/LOCALS','H/rlocals.h',gen_hstruct,Warning,['rlocals.h','LOCALS']),
-	file_filter_with_initialization('misc/LOCALS','H/ilocals.h',gen_init,Warning,['ilocals.h','LOCALS']).
-	
+	file_filter_with_initialization('misc/HEAPFIELDS','H/heap/hstruct.h',gen_struct,Warning,['hstruct.h','HEAPFIELDS']),
+	file_filter_with_initialization('misc/HEAPFIELDS','H/heap/dhstruct.h',gen_dstruct,Warning,['dhstruct.h','HEAPFIELDS']),
+	file_filter_with_initialization('misc/HEAPFIELDS','H/heap/h0struct.h',gen_0struct,Warning,['d0hstruct.h','HEAPFIELDS']),
+	file_filter_with_initialization('misc/HEAPFIELDS','H/heap/rhstruct.h',gen_hstruct,Warning,['rhstruct.h','HEAPFIELDS']),
+	file_filter_with_initialization('misc/HEAPFIELDS','H/heap/ihstruct.h',gen_init,Warning,['ihstruct.h','HEAPFIELDS']),
+	file_filter_with_initialization('misc/GLOBALS','H/heap/h0globals.h',gen_0struct,Warning,['hglobals.h','GLOBALS']),
+	file_filter_with_initialization('misc/GLOBALS','H/heap/hglobals.h',gen_struct,Warning,['hglobals.h','GLOBALS']),
+	file_filter_with_initialization('misc/GLOBALS','H/heap/dglobals.h',gen_dstruct,Warning,['dglobals.h','GLOBALS']),
+	file_filter_with_initialization('misc/GLOBALS','H/heap/iglobals.h',gen_init,Warning,['iglobals.h','GLOBALS']),
+	file_filter_with_initialization('misc/GLOBALS','H/heap/i0globals.h',gen_0init,Warning,['iglobals.h','GLOBALS']),
+	file_filter_with_initialization('misc/LOCALS','H/heap/hlocals.h',gen_struct,Warning,['hlocals.h','LOCALS']),
+	file_filter_with_initialization('misc/LOCALS','H/heap/dlocals.h',gen_dstruct,Warning,['dlocals.h','LOCALS']),
+	file_filter_with_initialization('misc/LOCALS','H/heap/rlocals.h',gen_hstruct,Warning,['rlocals.h','LOCALS']),
+	file_filter_with_initialization('misc/LOCALS','H/heap/ilocals.h',gen_init,Warning,['ilocals.h','LOCALS']).
+
 warning('~n  /* This file, ~a, was generated automatically by \"yap -L misc/buildlocalglobal\"~n     please do not update, update misc/~a instead */~n~n').
 
 
 
 /* define the field */
-gen_struct(Inp,"") :-
+gen_struct(Inp,Inp) :-
 	Inp = [0'/,0'/|_], !.
-gen_struct(Inp,"") :-
+gen_struct(Inp,Inp) :-
 	Inp = [0'/,0'*|_], !.
 gen_struct(Inp, Out) :-
 	Inp = [0'#|_], !, Out = Inp. % '
@@ -60,6 +62,12 @@ gen_struct(Inp,Out) :-
 	Inp = "END_GLOBAL_DATA", !,
 	Out = "} w_shared;".
 gen_struct(Inp,Out) :-
+	Inp = "START_HEAP", !,
+	Out = "".
+gen_struct(Inp,Out) :-
+	Inp = "END_HEAP", !,
+	Out = "".
+gen_struct(Inp,Out) :-
 	Inp = "ATOMS", !,
 	Out = "#include \"tatoms.h\"".
 gen_struct(Inp,Out) :-
@@ -74,7 +82,7 @@ gen_struct(Inp,Out) :-
 gen_struct(Inp,"") :-
 	split(Inp,"	 ",["void","void"|_]), !.
 gen_struct(Inp,Out) :-
-	split(Inp,"	 ",[Type, Field|_]), 
+	split(Inp,"	 ",[Type, Field|_]),
 	split(Field,"[",[RField,VECField]), !,
 	append(["  ",Type,"  ",RField,"_","[",VECField,";"], Out).
 gen_struct(Inp,Out) :-
@@ -83,7 +91,68 @@ gen_struct(Inp,Out) :-
 gen_struct(Inp,_) :-
 	split(Inp,"	 ",[_, _, _| _]),
 	format(user_error,"OOPS: could not gen_struct for ~s~n",[Inp]).
-	
+
+/* define the field */
+gen_0struct(Inp,Inp) :-
+	Inp = [0'/,0'/|_], !.
+gen_0struct(Inp,Inp) :-
+	Inp = [0'/,0'*|_], !.
+gen_0struct(Inp, Out) :-
+	Inp = [0'#|_], !, Out = Inp. % '
+gen_0struct(Inp,"") :-
+	Inp = [0'.|_], !. %'
+gen_0struct(Inp,Out) :-
+	Inp = "START_GLOBAL_DATA", !,
+	Out = "",
+    assert(globals(all)).
+gen_0struct(Inp,Out) :-
+	Inp = "END_GLOBAL_DATA", !,
+	Out = "",
+    retract(globals(all)).
+gen_0struct(Inp,Out) :-
+	Inp = "START_HEAP", !,
+	Out = "",
+    assert(globals(heap)).
+gen_0struct(Inp,Out) :-
+	Inp = "END_HEAP", !,
+	Out = "",
+    retract(globals(heap)).
+gen_0struct(Inp,Out) :-
+	Inp = "ATOMS", !,
+	Out = "#include \"tatoms.h\"".
+gen_0struct(Inp,Out) :-
+	split(Inp,"	 ",["struct",Type, Field|L]), !,
+    extract("struct", Inp, NInp),
+    gen_0struct( NInp, NOut ),
+    extract("EXTERNAL", NOut, IOut),
+	append("EXTERNAL    struct ", IOut, Out).
+gen_0struct(Inp,Out) :-
+	split(Inp,"	 ",["const",Type, Field|L]), !,
+    extract("const", Inp, NInp),
+    gen_0struct( NInp, NOut ),
+    extract("EXTERNAL", NOut, IOut),
+	append("EXTERNAL    const ", IOut, Out).
+gen_0struct(Inp,Out) :-
+	split(Inp,"	 ",["union",Type, Field|L]), !,
+    extract("union", Inp, NInp),
+    gen_0struct( NInp, NOut ),
+    extract("EXTERNAL", NOut, IOut),
+	append("EXTERNAL    union ", IOut, Out).
+gen_0struct(Inp,"") :-
+	split(Inp,"	 ",["void","void"|_]), !.
+gen_0struct(Inp,Out) :-
+	split(Inp,"	 ",[Type, Field|_]),
+	split(Field,"[",[RField,VECField]), !,
+    fetch_name(Name, RField),
+	append(["EXTERNAL  ",Type,"  ",Name,"[",VECField,";"], Out).
+gen_0struct(Inp,Out) :-
+	split(Inp,"	 ",[Type, Field|_]), !,
+    fetch_name(Name, Field),
+	append(["EXTERNAL  ",Type,"  ",Name,";"], Out).
+gen_0struct(Inp,_) :-
+	split(Inp,"	 ",[_, _, _| _]),
+	format(user_error,"OOPS: could not gen_0struct for ~s~n",[Inp]).
+
 gen_dstruct(Inp,"") :-
 	Inp = [0'/,0'/|_], !.
 gen_dstruct(Inp,"") :-
@@ -102,6 +171,12 @@ gen_dstruct(Inp,"") :-
 gen_dstruct(Inp,"") :-
 	Inp = "END_GLOBAL_DATA", !,
 	retract(globals(all)).
+gen_dstruct(Inp,"") :-
+	Inp = "START_HEAP", !,
+	assert(globals(heap)).
+gen_dstruct(Inp,"") :-
+	Inp = "END_HEAP", !,
+	retract(globals(heap)).
 gen_dstruct(Inp,Out) :-
 	Inp = "ATOMS", !,
 	Out = "".
@@ -138,6 +213,9 @@ fetch_name(Global,Global2,RField," ") :-
 	globals(all), !,
 	append(["GLOBAL_", RField],Global),
 	append(["Yap_global->", RField,"_"],Global2).
+fetch_name(RField,Global2,RField," ") :-
+	globals(heap), !,
+	append(["Yap_heap_regs->", RField,"_"],Global2).
 fetch_name(Global,Global2,RField," ") :-
 	globals(worker),
 	append(["LOCAL_", RField],Global),
@@ -161,16 +239,18 @@ fetch_name(Global, RField) :-
 fetch_name(Global, RField) :-
 	globals(all), !,
 	append(["GLOBAL_", RField],Global).
+fetch_name(RField, RField) :-
+	globals(heap), !.
 
-% handle *field[4]
+                                % handle *field[4]
 cut_c_stuff([0'*|Name], RName) :- !, % 'cut *
 	cut_c_stuff(Name, RName).
 cut_c_stuff(Name, RName) :-
 	cut_mat(Name, RName).
 
 cut_mat([], []).
-cut_mat([0'[|_], []) :- !. %' 
-cut_mat(H.Name, H.RName) :- 
+cut_mat([0'[|_], []) :- !. %'
+cut_mat(H.Name, H.RName) :-
 	cut_mat(Name, RName).
 
 gen_hstruct(Inp,"") :-
@@ -191,13 +271,21 @@ gen_hstruct(Inp,Out) :-
 	Out = "}",
 	retract(globals(worker_init)).
 gen_hstruct(Inp,Out) :-
-	Inp = "START_GLOBAL_DATA", !,
-	Out = "static void RestoreGlobal(void) {",
-	assert(globals(all)).
+    Inp = "START_GLOBAL_DATA", !,
+    Out = "static void RestoreGlobal(void) {",
+    assert(globals(all)).
 gen_hstruct(Inp,Out) :-
-	Inp = "END_GLOBAL_DATA", !,
-	Out = "}",
-	retract(globals(all)).
+    Inp = "END_GLOBAL_DATA", !,
+    Out = "}",
+    retract(globals(all)).
+gen_hstruct(Inp,Out) :-
+    Inp = "START_HEAP", !,
+    Out = "",
+    assert(globals(heap)).
+gen_hstruct(Inp,Out) :-
+    Inp = "END_HEAP", !,
+    Out = "",
+    retract(globals(heap)).
 gen_hstruct(Inp, Out) :-
 	Inp = [0'#|_], !, Out = Inp. % '
 gen_hstruct(Inp,Out) :-
@@ -213,18 +301,28 @@ gen_hstruct(Inp,Out) :-
 	glue(Inp2, " ", Inp3),
 	gen_hstruct(Inp3,Out).
 gen_hstruct(Inp,Out) :-
-	split(Inp,"	 ",[_, Field, "MkAT", _]), !,
+	split(Inp,"	 ",[_, Field, "MkAT", _]),
+    globals(heap),
+    !,
 	fetch_name(Global,Field),
-	append(["  ",Global,Field," = AtomTermAdjust(Yap_heap_regs->",Field,");"], Out).
+	append(["  ",Global," = AtomTermAdjust(",Global,");"], Out).
 gen_hstruct(Inp,Out) :-
-	split(Inp,"	 ",[_, Field, "MkPred"| _]), !,
+    globals(heap),
+	split(Inp,"	 ",[_, Field, "MkPred"| _]),
+    !,
 	cut_c_stuff(Field, RField),
 	fetch_name(Global,RField),
-	append(["  ",Global,RField," = PtoPredAdjust(Yap_heap_regs->",RField,");"], Out).
+	append(["  ",Global," = PtoPredAdjust(",Global,");"], Out).
+gen_hstruct(Inp,Out) :-
+    globals(heap),
+	split(Inp,"	 ",[_, Field, "MkLogPred"| _]), !,
+	cut_c_stuff(Field, RField),
+	fetch_name(Global,RField),
+	append(["  ",Global," = PtoPredAdjust(",Global,");"], Out).
 gen_hstruct(Inp,Out) :-
 	split(Inp,"	 ",[_, Field, "MkOp", Name]), !,
 	fetch_name(Global,Field),
-	append(["  ",Global,Field," = Yap_opcode(",Name,");"], Out).
+	append(["  ",Global," = Yap_opcode(",Name,");"], Out).
 gen_hstruct(Inp,Out) :-
 	split(Inp,"	 ",[_, Field, "MkLock"]), !,
 	fetch_name(Global,Field),
@@ -232,16 +330,20 @@ gen_hstruct(Inp,Out) :-
 gen_hstruct(Inp,Out) :-
 	split(Inp,"	 ",[_, Field,"MkRWLock"]), !,
 	fetch_name(Global,Field),
-	append(["  REINIT_RWLOCK(",Global,Field,");"], Out).
+	append(["  REINIT_RWLOCK(",Global,");"], Out).
 gen_hstruct(Inp,Out) :-
 	split(Inp,"	 ",[_, Field,"MkInstE",OP]), !,
 	cut_c_stuff(Field, RField),
 	fetch_name(Global,RField),
-	append(["  ",Global,RField,"->opc = Yap_opcode(",OP,");"], Out).
+	append(["  ",Global,"->opc = Yap_opcode(",OP,");"], Out).
 gen_hstruct(Inp,"") :-
 	split(Inp,"	 ",[_, _, _]), !.
 gen_hstruct(Inp,"") :-
 	split(Inp,"	 ",[_, _, _, "void"]), !.
+gen_hstruct(Inp,Restore) :-
+	split(Inp,"	 ",[_, _, _, Restore0]),
+	append("Restore",_,Restore0), !,
+	append(["  ",Restore0,";"],Restore). %'
 gen_hstruct(Inp,Restore) :-
 	split(Inp,"	 ",[_, _, _, Restore0]),
 	append("Restore",_,Restore0), !,
@@ -274,13 +376,21 @@ gen_init(Inp,Out) :-
 	Out = "}",
 	retract(globals(worker_init)).
 gen_init(Inp,Out) :-
-	Inp = "START_GLOBAL_DATA", !,
-	Out = "static void InitGlobal(void) {",
-	assert(globals(all)).
+    Inp = "START_GLOBAL_DATA", !,
+    Out = "static void InitGlobal(void) {",
+    assert(globals(all)).
 gen_init(Inp,Out) :-
-	Inp = "END_GLOBAL_DATA", !,
-	Out = "}",
-	retract(globals(all)).
+    Inp = "END_GLOBAL_DATA", !,
+    Out = "}",
+    retract(globals(all)).
+gen_init(Inp,Out) :-
+    Inp = "START_HEAP", !,
+    Out = "",
+    assert(globals(heap)).
+gen_init(Inp,Out) :-
+    Inp = "END_HEAP", !,
+    Out = "",
+    retract(globals(heap)).
 gen_init(Inp,Out) :-
 	split(Inp,"	 ",["struct"|Inp2]), !,
 	glue(Inp2, " ", Inp3),
@@ -343,6 +453,21 @@ gen_init(Inp,Out) :-
 	fetch_name(Global,RField),
 	append(["  ",Global," = RepPredProp(PredPropByFunc(",Fun,",",Module,"));"], Out).
 gen_init(Inp,Out) :-
+	split(Inp,"	 ",[_, Field, "MkLogPred", Atom, "0", Module]), !,
+	cut_c_stuff(Field, RField),
+	fetch_name(Global,RField),
+	append(["  ",Global," = Yap_MkLogPred(RepPredProp(PredPropByAtom(",Atom,",",Module,")));"], Out).
+gen_init(Inp,Out) :-
+	split(Inp,"	 ",[_, Field, "MkLogPred", Atom, Arity, Module]), !,
+	cut_c_stuff(Field, RField),
+	fetch_name(Global,RField),
+	append(["  ",Global," = Yap_MkLogPred(RepPredProp(PredPropByFunc(Yap_MkFunctor(",Atom,",",Arity,"),",Module,")));"], Out).
+gen_init(Inp,Out) :-
+	split(Inp,"	 ",[_, Field, "MkLogPred", Fun, Module]), !,
+	cut_c_stuff(Field, RField),
+	fetch_name(Global,RField),
+	append(["  ",Global," = Yap_MkLogPred(RepPredProp(PredPropByFunc(",Fun,",",Module,")));"], Out).
+gen_init(Inp,Out) :-
 	split(Inp,"	 ",[".", Field,F0|_]), !,
 	cut_c_stuff(Field, RField),
 	split(RField,".",[_,MField]),
@@ -358,4 +483,19 @@ gen_init(Inp,Out) :-
 gen_init(Inp,_) :-
 	split(Inp,"	 ",[_, _, _| _]),
 	format(user_error,"OOPS: could not gen_init for ~s~n",[Inp]).
+
+extract(X, Y, F) :-
+    append(X, R, Y),
+    !,
+    extract(R, F).
+
+extract([0' |H], IF) :- !,
+    extract( H, IF).
+extract([0'\t |H], IF) :- !,
+    extract( H, IF).
+extract(H,H).
+
+
+
+
 

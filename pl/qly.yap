@@ -537,14 +537,14 @@ qload_module(Mod) :-
       Type == file ->
 	  '$qload_file'(S, File)
     ),
-    !, 
+    !,
     close(S).
 
 '$qload_module'(_S, Mod, _File, _SourceModule) :-
     unload_module( Mod ), fail.
 '$qload_module'(S, _Mod, _File, _SourceModule) :-
 	'$qload_module_preds'(S), fail.
-%:- start_low_level_trace.
+
 '$qload_module'(_S, Mod, File, SourceModule) :-
     Mod:'@mod_info'(F, Exps, MFs, Line,Parents, Imps, Metas, ModTransps, Foreigns, TEs),
     abolish(Mod:'@mod_info'/10),
@@ -560,7 +560,7 @@ qload_module(Mod) :-
     % no evil.
     '$convert_for_export'(all, Exps, Mod, SourceModule, TranslationTab, _AllExports0, qload_module),
     '$add_to_imports'(TranslationTab, Mod, SourceModule). % insert ops, at least for now
-%:- stop_low_level_trace.
+
 '$fetch_imports_module'(Mod, Imports) :-
 	findall(Info, '$fetch_import_module'(Mod, Info), Imports).
 
@@ -754,8 +754,8 @@ qload_file( F0 ) :-
     user:'$file_property'( '$lf_loaded'( F, Age, _ ) ),
     recordaifnot('$source_file','$source_file'( F, Age, SourceModule), _),
     fail.
-'$qload_file'(_S, _SourceModule, _File, FilePl, F0, _ImportList, _TOpts) :-
-    b_setval('$source_file', F0 ),
+'$qload_file'(_S, _SourceModule, File, FilePl, F0, _ImportList, _TOpts) :-
+    b_setval('$user_source_file', F0 ),
     '$process_directives'( FilePl ),
     fail.
 '$qload_file'(_S, SourceModule, _File,  FilePl, _F0, ImportList, TOpts) :-

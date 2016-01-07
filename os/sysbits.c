@@ -587,11 +587,12 @@ PrologExpandVars(const char *spec, char *tmp0, bool ok_to)
     {
       tmp=expandVars(spec,tmp,YAP_FILENAME_MAX);
     }
-  else
+  else {
     if (tmp != tmp0) {
       free(tmp);
-      tmp = (char *)spec;
     }
+  tmp = (char *)spec;
+  }
   return tmp;
 }
 
@@ -751,8 +752,9 @@ do_expand_file_name(Term t1, Term opts USES_REGS)
 	  }
 	  tmpe = expandVars( spec, tmpe,  YAP_FILENAME_MAX);
 #ifdef GLOB_BRACE
-	  flags = GLOB_BRACE;
+	  flags = GLOB_BRACE|GLOB_TILDE;
 #endif
+      flags |= GLOB_NOCHECK;
 	  spec = tmpe;
 	} else if (t == TermTrue) {
 	  use_glob = false;
@@ -810,10 +812,17 @@ do_expand_file_name(Term t1, Term opts USES_REGS)
     case 0:                     /* Successful.  */
       ss = gresult.gl_pathv;
       pathcount = gresult.gl_pathc;
-      break;
+      if (pathcount) {
+        break;
+      }
     case GLOB_NOMATCH:
       globfree(&gresult);
-      return Yap_unify_constant(TermNil, ARG2);
+      {
+        Term t;
+        char *out = LOCAL_FileNameBuf;
+        t = MkAtomTerm( Yap_LookupAtom( expandVars(spec, out, YAP_FILENAME_MAX-1) ));
+        return MkPairTerm( t, TermNil );
+      }
     case GLOB_ABORTED:
       PlIOError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "glob aborted: %sn", strerror(errno));
       globfree (&gresult);
@@ -836,7 +845,15 @@ do_expand_file_name(Term t1, Term opts USES_REGS)
     case 0:                     /* Successful.  */
       ss = wresult.we_wordv;
       pathcount = wresult.we_wordc;
-      break;
+      if (pathcount) {
+        break;
+      } else {
+        Term t;
+        char *out = LOCAL_FileNameBuf;
+        t = MkAtomTerm( Yap_LookupAtom( expandVars(spec, out, YAP_FILENAME_MAX-1) ) );
+       wordfree (&wresult);
+       return MkPairTerm( t, TermNil );
+      }
     case WRDE_NOSPACE:
       /* If the error was WRDE_NOSPACE,
          then perhaps part of the result was allocated.  */
@@ -844,7 +861,7 @@ do_expand_file_name(Term t1, Term opts USES_REGS)
       wordfree (&wresult);
       return TermNil;
     default:                    /* Some other error.  */
-      PlIOError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "wordexp failed: %s", strerror(errno));
+     ; PlIOError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "wordexp failed: %s", strerror(errno));
       wordfree (&wresult);
       return TermNil;
     }
@@ -856,8 +873,8 @@ do_expand_file_name(Term t1, Term opts USES_REGS)
 #if HAVE_REALPATH
     s =  myrealpath(s, tmp);
 #endif
-    if (!exists(s))
-      continue;
+    //if (!exists(s))
+    //  continue;
     Atom a = Yap_LookupAtom(s);
     tf = MkPairTerm(MkAtomTerm( a ),tf);
   }

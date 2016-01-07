@@ -81,14 +81,14 @@
 	    jpl_set_element/2
 	  ]).
 
-:- expects_dialect(swi).
+%:- expects_dialect(swi).
 
 :- use_module(library(lists)).
 :- use_module(library(apply)).
 :- use_module(library(shlib)).
 
 % suppress debugging this library
-:- set_prolog_flag(generate_debug_info, false).
+%:- set_prolog_flag(generate_debug_info, false).
 
 %------------------------------------------------------------------------------
 

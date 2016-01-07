@@ -185,31 +185,10 @@ list, since backtracking could not "pass through" the cut.
 
 */
 
-
-
-system_module(_init, _SysExps, _Decls) :- !.
-system_module(M, SysExps, Decls) :-
-	'$current_module'(prolog, M),
-	'$compile'( ('$system_module'(M) :- true), 0, assert_static('$system_module'(M)), M ),
-	'$export_preds'(SysExps, prolog),
-	'$export_preds'(Decls, M).
-
-'$export_preds'([], _).
-'$export_preds'([N/A|Decls], M) :-
-    functor(S, N, A),
-    '$sys_export'(S, M),
-    '$export_preds'(Decls, M).
+system_module(Mod, _SysExps, _Decls) :- !,
+    new_system_module(Mod).
 
 use_system_module(_init, _SysExps) :- !.
-use_system_module(M, SysExps) :-
-	'$current_module'(M0, M0),
-	'$import_system'(SysExps, M0, M).
-
-'$import_system'([], _, _).
-'$import_system'([N/A|Decls], M0, M) :-
-    functor(S, N, A),
-    '$compile'( (G :- M0:G) ,0, assert_static((M:G :- M0:G)), M ),
-    '$import_system'(Decls, M0, M).
 
 private(_).
 
@@ -287,6 +266,14 @@ private(_).
 :- use_system_module( '$_strict_iso', ['$check_iso_strict_clause'/1,
         '$iso_check_goal'/2]).
 
+/*
+'$undefp'([M0|G0], Default) :-
+    G0 \= '$imported_predicate'(_,_,_,_),
+    G0 \= '$full_clause_optimisation'(_H, _M, _B0, _BF),
+    G0 \= '$expand_a_clause'(_,_,_,_),
+    G0 \= '$all_directives'(_),
+    format(user_error, 'ERROR:  undefined ~a:~q.~n', [M0, G0]), fail.
+*/
 '$prepare_goals'((A,B),(NA,NB),Any) :-
 	!,
 	'$prepare_goals'(A,NA,Any),
@@ -308,7 +295,6 @@ private(_).
 	'$prepare_goals'(A,NA,Any).
 '$prepare_goals'('$do_error'(Error,Goal),
                (clause_location(Call, Caller),
-		writeln(Goal),
 		strip_module(M:Goal,M1,NGoal),
 		throw(error(Error, [[g|g(M1:NGoal)],[p|Call],[e|Caller],[h|g(Head)]]))
 	       ),
@@ -339,8 +325,6 @@ private(_).
 Succeed.
 
 Succeeds once.
-
-
 */
 true :- true.
 
@@ -355,7 +339,7 @@ true :- true.
 	repeat,
 	'$current_module'(Module),
 	( Module==user ->
-	  '$compile_mode'(_,0)
+	  true % '$compile_mode'(_,0)
 	;
 	  format(user_error,'[~w]~n', [Module])
 	),
@@ -369,8 +353,8 @@ true :- true.
     % do catch as early as possible
     (
      current_prolog_flag(halt_after_consult, false),
-     current_prolog_flag(verbose, normal),
-      \+ '$uncaught_throw'
+     current_prolog_flag(verbose, normal)
+     % \+ '$uncaught_throw'
     ->
      '$version'
     ;
@@ -502,7 +486,7 @@ true :- true.
 	'$run_atom_goal'(GA),
 	current_prolog_flag(break_level, BreakLevel),
 	(
-	 Breaklevel \= 0
+	 BreakLevel \= 0
 	->
 	 true
 	;
@@ -620,7 +604,7 @@ number of steps.
  '$execute_commands'([],_,_,_,_) :- !.
  '$execute_commands'([C|Cs],VL,Pos,Con,Source) :- !,
 	 (
-	   '$system_catch'('$execute_command'(C,VL,Pos,Con,C),prolog,Error,(writeln(k),'$LoopError'(Error, Con))),
+	   '$system_catch'('$execute_command'(C,VL,Pos,Con,C),prolog,Error,'$LoopError'(Error, Con)),
 	   fail
 	 ;
 	   '$execute_commands'(Cs,VL,Pos,Con,Source)
@@ -632,11 +616,17 @@ number of steps.
  %
  %
 
- '$execute_command'(C,_,_,top,Source) :- var(C), !,
-	 '$do_error'(instantiation_error,meta_call(Source)).
-'$execute_command'(C,_,_,top,Source) :- number(C), !,
-	 '$do_error'(type_error(callable,C),meta_call(Source)).
- '$execute_command'(R,_,_,top,Source) :- db_reference(R), !,
+'$execute_command'(C,_,_,top,Source) :-
+    var(C),
+    !,
+	'$do_error'(instantiation_error,meta_call(Source)).
+'$execute_command'(C,_,_,top,Source) :-
+    number(C),
+    !,
+	'$do_error'(type_error(callable,C),meta_call(Source)).
+ '$execute_command'(R,_,_,top,Source) :-
+     db_reference(R),
+     !,
 	 '$do_error'(type_error(callable,R),meta_call(Source)).
  '$execute_command'(end_of_file,_,_,_,_) :- !.
  '$execute_command'(Command,_,_,_,_) :-
@@ -653,11 +643,12 @@ number of steps.
 	     O = (:- G1)
 	 ->
 	   '$process_directive'(G1, Option, M, VL, Pos)
-          ;
+     ;
 	    '$execute_commands'(O,VL,Pos,Option,O)
 	 ).
  '$execute_command'((?-G), VL, Pos, Option, Source) :-
-	 Option \= top, !,
+	 Option \= top,
+     !,
 	 '$execute_command'(G, VL, Pos, top, Source).
  '$execute_command'(G, VL, Pos, Option, Source) :-
 	 '$continue_with_command'(Option, VL, Pos, G, Source).
@@ -672,7 +663,8 @@ number of steps.
  '$process_directive'(G, top, M, VL, Pos) :-
 	 current_prolog_flag(language_mode, yap), !,      /* strict_iso on */
 	 '$process_directive'(G, consult, M, VL, Pos).
- '$process_directive'(G, top, _, _, _) :- !,
+ '$process_directive'(G, top, _, _, _) :-
+     !,
 	 '$do_error'(context_error((:- G),clause),query).
  %
  % allow modules
@@ -690,33 +682,42 @@ number of steps.
  % ISO does not allow goals (use initialization).
  %
 '$process_directive'(D, _, M, _VL, _Pos) :-
-	current_prolog_flag(language_mode, iso), !, % ISO Prolog mode, go in and do it,
-	 '$do_error'(context_error((:- M:D),query),directive).
+	current_prolog_flag(language_mode, iso),
+    !, % ISO Prolog mode, go in and do it,
+	'$do_error'(context_error((:- M:D),query),directive).
  %
  % but YAP and SICStus does.
  %
  '$process_directive'(G, Mode, M, VL, Pos) :-
      ( '$undefined'('$save_directive'(G, Mode, M, VL, Pos),prolog) ->
 	   true
-	       ;
+	 ;
 	  '$save_directive'(G, Mode, M, VL, Pos)
-	  ->
+	 ->
 	   true
-	   ;
+	 ;
 	   true
      ),
-     ( '$execute'(M:G) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
+     (
+      '$execute'(M:G)
+      ->
+      true
+     ;
+      format(user_error,':- ~w:~w failed.~n',[M,G])
+     ).
 
-'$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :- !,
-	  '$continue_with_command'(Where,V,'$stream_position'(C,L,A1,A2,A3),G,Source).
+'$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :-
+    !,
+	'$continue_with_command'(Where,V,'$stream_position'(C,L,A1,A2,A3),G,Source).
 '$continue_with_command'(reconsult,V,Pos,G,Source) :-
-	 '$go_compile_clause'(G,V,Pos,5,Source),
-	 fail.
+%    writeln(G),
+	'$go_compile_clause'(G,V,Pos,reconsult,Source),
+	fail.
 '$continue_with_command'(consult,V,Pos,G,Source) :-
-	'$go_compile_clause'(G,V,Pos,13,Source),
-	 fail.
+	'$go_compile_clause'(G,V,Pos,consult,Source),
+	fail.
 '$continue_with_command'(top,V,_,G,_) :-
-	 '$query'(G,V).
+	'$query'(G,V).
 
  %
  % not 100% compatible with SICStus Prolog, as SICStus Prolog would put
@@ -727,64 +728,54 @@ number of steps.
  % Pos the source position
  % N where to add first or last
  % Source the original clause
- '$go_compile_clause'(G,Vs,Pos,N,Source) :-
-	 '$current_module'(Mod),
-	 '$go_compile_clause'(G,Vs,Pos,N,Mod,Mod,Mod,Source).
+'$go_compile_clause'(G,Vs,Pos, Where, Source) :-
+     '$precompile_term'(G, G0, G1),
+     !,
+	 '$$compile'(G1, Where, G0, _).
+ '$go_compile_clause'(G,Vs,Pos, Where, Source) :-
+     throw(error(system, compilation_failed(G))).
 
-'$go_compile_clause'(G,_Vs,_Pos,_N,_HM,_BM,_SM,Source) :-
-	var(G), !,
-	'$do_error'(instantiation_error,assert(Source)).
-'$go_compile_clause'((G:-_),_Vs,_Pos,_N,_HM,_BM,_SM,Source) :-
-	var(G), !,
-	'$do_error'(instantiation_error,assert(Source)).
-'$go_compile_clause'(M:G,Vs,Pos,N,_,_,SourceMod,Source) :- !,
-	  '$go_compile_clause'(G,Vs,Pos,N,M,M,M,Source).
-'$go_compile_clause'((M:H :- B),Vs,Pos,N,_,BodyMod,SourceMod,Source) :- !,
-	  '$go_compile_clause'((H :- B),Vs,Pos,N,M,BodyMod,SourceMod,Source).
-'$go_compile_clause'(G,_Vs,Pos,N,HeadMod,BodyMod,SourceMod,_Source) :- !,
-	 '$precompile_term'(G, G0, G1, HeadMod, BodyMod, SourceMod),
-	 '$$compile'(G1, G0, N, HeadMod).
+'$$compile'(C, Where, C0, R) :-
+    '$head_and_body'( C, MH, B ),
+    strip_module( MH, Mod, H),
+   (
+     '$undefined'(H, Mod)
+    ->
+     '$init_pred'(H, Mod, Where)
+	;
+     true
+    ),
+%    writeln(Mod:((H:-B))),
+    '$compile'((H:-B), Where, C0, Mod, R).
 
+'$init_pred'(H, Mod, _Where ) :-
+    recorded('$import','$import'(NM,Mod,NH,H,_,_),RI),
+%    NM \= Mod,
+    functor(NH,N,Ar),
+    '$early_print'(warning,redefine_imported(Mod,NM,M:N/Ar)),
+    erase(RI),
+    fail.
+'$init_pred'(H, Mod, Where ) :-
+    '$init_as_dynamic'(Where),
+    !,
+    functor(H, Na, Ar),
+    '$dynamic'(Na/Ar, Mod).
+'$init_pred'(_H, _Mod, _Where ).
 
- % process an input clause
- '$$compile'(G, G0, L, Mod) :-
-	 '$head_and_body'(G,H,_),
-	 (
-	  '$is_dynamic'(H, Mod)
-	 ->
-	  '$assertz_dynamic'(L, G, G0, Mod)
-	 ;
-	  '$nb_getval'('$assert_all',on,fail)
-	 ->
-	  functor(H,N,A),
-	  '$dynamic'(N/A,Mod),
-	  '$assertz_dynamic'(L, G, G0, Mod)
-	 ;
-	  '$not_imported'(H, Mod),
-	  '$compile'(G, L, G0, Mod)
-	 ).
-
-%
-% check if current module redefines an imported predicate.
-% and remove import.
-%
-'$not_imported'(H, Mod) :-
-	recorded('$import','$import'(NM,Mod,NH,H,_,_),R),
-	NM \= Mod,
-	functor(NH,N,Ar),
-	'$early_print'(warning,redefine_imported(Mod,NM,N/Ar)),
-	erase(R),
-	fail.
-'$not_imported'(_, _).
-
+'$init_as_dynamic'( asserta ).
+'$init_as_dynamic'( assertz ).
+'$init_as_dynamic'( consult ) :-
+    '$nb_getval'('$assert_all',on,fail).
+'$init_as_dynamic'( reconsult ) :-
+    '$nb_getval'('$assert_all',on,fail).
 
 '$check_if_reconsulted'(N,A) :-
-         once(recorded('$reconsulted',N/A,_)),
-	 recorded('$reconsulted',X,_),
-	 ( X = N/A , !;
-	   X = '$', !, fail;
-	   fail
-	 ).
+    once(recorded('$reconsulted',N/A,_)),
+    recorded('$reconsulted',X,_),
+    ( X = N/A , !;
+      X = '$', !, fail;
+      fail
+    ).
 
 '$inform_as_reconsulted'(N,A) :-
 	 recorda('$reconsulted',N/A,_).
@@ -792,7 +783,8 @@ number of steps.
 '$clear_reconsulting' :-
 	recorded('$reconsulted',X,Ref),
 	erase(Ref),
-	X == '$', !,
+	X == '$',
+    !,
 	( recorded('$reconsulting',_,R) -> erase(R) ).
 
 '$prompt_alternatives_on'(determinism).
@@ -800,10 +792,10 @@ number of steps.
 /* Executing a query */
 
 '$query'(end_of_file,_).
-
 '$query'(G,[]) :-
 	 '$prompt_alternatives_on'(OPT),
-	 ( OPT = groundness ; OPT = determinism), !,
+	 ( OPT = groundness ; OPT = determinism),
+     !,
 	 '$yes_no'(G,(?-)).
 '$query'(G,V) :-
 	 (
@@ -850,17 +842,17 @@ number of steps.
 '$delayed_goals'(G, V, NV, LGs, NCP) :-
 	(
 	  CP is '$last_choice_pt',
-	  '$current_choice_point'(NCP1),
+	 '$current_choice_point'(NCP1),
 	 '$attributes':delayed_goals(G, V, NV, LGs),
-	  '$current_choice_point'(NCP2),
-	  '$clean_ifcp'(CP),
-	   NCP is NCP2-NCP1
+	 '$current_choice_point'(NCP2),
+	 '$clean_ifcp'(CP),
+	 NCP is NCP2-NCP1
 	  ;
 	   copy_term_nat(V, NV),
 	   LGs = [],
 %	   term_factorized(V, NV, LGs),
 	   NCP = 0
-        ).
+    ).
 
 '$out_neg_answer' :-
 	'$early_print'( help, false),
@@ -874,7 +866,7 @@ number of steps.
 	'$user_call'(G, M).
 
 '$write_query_answer_true'([]) :- !,
-	format(user_error,'true',[]).
+	format(user_error,true,[]).
 '$write_query_answer_true'(_).
 
 
@@ -906,18 +898,25 @@ number of steps.
 	%    '$add_nl_outside_console',
 	    fail
 	;
-	    C== 10 -> '$add_nl_outside_console',
-		( '$undefined'('$early_print'(_,_),prolog) ->
-			format(user_error,'yes~n', [])
-	        ;
-		   '$early_print'(help,yes)
+	    C== 10
+    ->
+        '$add_nl_outside_console',
+		(
+         '$undefined'('$early_print'(_,_),prolog)
+        ->
+         format(user_error,'yes~n', [])
+        ;
+         '$early_print'(help,yes)
 		)
 	;
-	    C== 13 ->
+	    C== 13
+    ->
 	    get0(user_input,NC),
 	    '$do_another'(NC)
 	;
-	    C== -1 -> halt
+	    C== -1
+    ->
+        halt
 	;
 	    skip(user_input,10), '$ask_again_for_another'
 	).
@@ -932,7 +931,7 @@ number of steps.
 	'$another'.
 
 '$write_answer'(_,_,_) :-
-        flush_output,
+    flush_output,
 	fail.
 '$write_answer'(Vs, LBlk, FLAnsw) :-
 	'$purge_dontcares'(Vs,IVs),
@@ -992,7 +991,7 @@ number of steps.
 	format(codes(String),Format,G).
 
 '$write_goal_output'(var([V|VL]), First, [var([V|VL])|L], next, L) :- !,
-        ( First = first -> true ; format(user_error,',~n',[]) ),
+    ( First = first -> true ; format(user_error,',~n',[]) ),
 	format(user_error,'~a',[V]),
 	'$write_output_vars'(VL).
 '$write_goal_output'(nonvar([V|VL],B), First, [nonvar([V|VL],B)|L], next, L) :- !,
@@ -1000,7 +999,7 @@ number of steps.
 	format(user_error,'~a',[V]),
 	'$write_output_vars'(VL),
 	format(user_error,' = ', []),
-        ( recorded('$print_options','$toplevel'(Opts),_) ->
+        ( yap_flag(toplevel_print_options, Opts) ->
 	   write_term(user_error,B,[priority(699)|Opts]) ;
 	   write_term(user_error,B,[priority(699)])
         ).
@@ -1022,20 +1021,20 @@ number of steps.
 	).
 '$write_goal_output'(_-G, First, [G|NG], next, NG) :- !,
         ( First = first -> true ; format(user_error,',~n',[]) ),
-        ( recorded('$print_options','$toplevel'(Opts),_) ->
+        (  yap_flag(toplevel_print_options, Opts) ->
 	   write_term(user_error,G,Opts) ;
 	   format(user_error,'~w',[G])
         ).
 '$write_goal_output'(_M:G, First, [G|NG], next, NG) :- !,
         ( First = first -> true ; format(user_error,',~n',[]) ),
-        ( recorded('$print_options','$toplevel'(Opts),_) ->
+        (  yap_flag(toplevel_print_options, Opts) ->
 	   write_term(user_error,G,Opts) ;
 	   format(user_error,'~w',[G])
         ).
 '$write_goal_output'(G, First, [M:G|NG], next, NG) :-
 	'$current_module'(M),
         ( First = first -> true ; format(user_error,',~n',[]) ),
-        ( recorded('$print_options','$toplevel'(Opts),_) ->
+        (  yap_flag(toplevel_print_options, Opts) ->
 	   write_term(user_error,G,Opts) ;
 	   format(user_error,'~w',[G])
         ).
@@ -1054,11 +1053,11 @@ number of steps.
 	'$name_well_known_vars'(NVL0).
 
 '$name_vars_in_goals1'([], I, I).
-'$name_vars_in_goals1'([SName|NGVL], I0, IF) :-
+'$name_vars_in_goals1'([V|NGVL], I0, IF) :-
 	I is I0+1,
 	'$gen_name_string'(I0,[],SName), !,
 	atom_codes(Name, [95|SName]),
-	'$VAR'(Name, SName ),
+	V = '$VAR'(Name),
 	'$name_vars_in_goals1'(NGVL, I, IF).
 '$name_vars_in_goals1'([NV|NGVL], I0, IF) :-
 	nonvar(NV),
@@ -1290,36 +1289,27 @@ not(G) :-    \+ '$execute'(G).
         ;
 	    '$call'(B,CP,G0,M)
 	).
-'$call'(\+ X, _CP, _G0, M) :- !,
+'$call'(\+ X, _CP, G0, M) :- !,
 	\+ ('$current_choice_point'(CP),
 	  '$call'(X,CP,G0,M) ).
-'$call'(not(X), _CP, _G0, M) :- !,
+'$call'(not(X), _CP, G0, M) :- !,
 	\+ ('$current_choice_point'(CP),
 	  '$call'(X,CP,G0,M) ).
 '$call'(!, CP, _,_) :- !,
 	'$$cut_by'(CP).
 '$call'([A|B], _, _, M) :- !,
 	'$csult'([A|B], M).
-'$call'(G, CP, G0, CurMod) :-
-	( '$is_expand_goal_or_meta_predicate'(G,CurMod) ->
-	   (
-	     '$do_goal_expansion'(G, CurMod, NG) ->
-	     '$call'(NG, CP, G0,CurMod)
-	     ;
-	       % repeat other code.
-             '$is_metapredicate'(G,CurMod) ->
-	       (
-	         '$meta_expansion'(G,CurMod,CurMod,CurMod,NG,[]) ->
-	         '$execute0'(NG, CurMod)
-	       ;
-	         '$execute0'(G, CurMod)
-	       )
-	   ;
-	     '$execute0'(G, CurMod)
-	   )
-	;
-	  '$execute0'(G, CurMod)
-	).
+'$call'(G, _CP, _G0, CurMod) :-
+	(
+     '$is_metapredicate'(G,CurMod)
+    ->
+     '$disable_debugging',
+     ( '$expand_meta_call'(CurMod:G, [], NG) ->  true ; true ),
+     '$enable_debugging'
+    ;
+     NG = G
+    ),
+    '$execute0'(NG, CurMod).
 
 '$check_callable'(V,G) :- var(V), !,
 	'$do_error'(instantiation_error,G).
@@ -1342,7 +1332,6 @@ bootstrap(F) :-
 	'$start_consult'(consult, File, LC),
 	file_directory_name(File, Dir),
 	working_directory(OldD, Dir),
-
 	(
 	  current_prolog_flag(verbose_load, silent)
 	->
@@ -1366,36 +1355,47 @@ bootstrap(F) :-
 	!,
 	close(Stream).
 
+% '$undefp'([M0|G0], Default) :-
+%    writeln(M0:G0),
+%    fail.
+
+
 '$loop'(Stream,exo) :-
 	prolog_flag(agc_margin,Old,0),
-	prompt1('|     '), prompt(_,'| '),
+    prompt1(': '), prompt(_,'     '),
 	'$current_module'(OldModule),
 	repeat,
 		'$system_catch'(dbload_from_stream(Stream, OldModule, exo), '$db_load', Error,
-			 user:'$LoopError'(Error, Status)),
+			 user:'$LoopError'(Error, top)),
 	prolog_flag(agc_margin,_,Old),
 	!.
 '$loop'(Stream,db) :-
 	prolog_flag(agc_margin,Old,0),
-	prompt1('|     '), prompt(_,'| '),
+    prompt1(': '), prompt(_,'     '),
 	'$current_module'(OldModule),
 	repeat,
 		'$system_catch'(dbload_from_stream(Stream, OldModule, db), '$db_load', Error,
-			 user:'$LoopError'(Error, Status)),
+			 user:'$LoopError'(Error, top)),
 	prolog_flag(agc_margin,_,Old),
 	!.
 '$loop'(Stream,Status) :-
 	repeat,
-		prompt1('|     '), prompt(_,'| '),
+        prompt1(': '), prompt(_,'     '),
 		'$current_module'(OldModule),
 		'$system_catch'('$enter_command'(Stream,OldModule,Status), OldModule, Error,
 			 user:'$LoopError'(Error, Status)),
 	!.
 
-'$enter_command'(Stream,Mod,top) :- !,
-    	read_term(Stream, Command, [module(Mod), syntax_errors(dec10),variable_names(Vars), term_position(Pos)]),
-	'$command'(Command,Vars,Pos,Status).
 '$enter_command'(Stream,Mod,Status) :-
+    !,
+    read_term(Stream, Command, [module(Mod), syntax_errors(dec10),variable_names(Vars), term_position(Pos)]),
+	'$command'(Command,Vars,Pos, Status).
+'$enter_command'(_Stream, _Mod, _HeadMob).
+
+
+/** @pred  expand_term( _T_,- _X_)
+
+This predicate is used by YAP for preprocessingStatus) :-
 	read_clause(Stream, Command, [variable_names(Vars), term_position(Pos)]),
 	'$command'(Command,Vars,Pos,Status).
 
@@ -1411,42 +1411,46 @@ bootstrap(F) :-
 %
 % split head and body, generate an error if body is unbound.
 %
-'$check_head_and_body'((H:-B),H,B,P) :- !,
-	'$check_head'(H,P).
-'$check_head_and_body'(H,H,true,P) :-
-	'$check_head'(H,P).
+'$check_head_and_body'(C,M,H,B,P) :-
+    '$yap_strip_module'(C,M1,(MH:-B0)),
+    !,
+    '$yap_strip_module'(M1:MH,M,H),
+    ( M == M1 -> B = B0 ; B = M1:B0),
+    error:is_callable(M:H,P).
 
-'$check_head'(H,P) :- var(H), !,
-	'$do_error'(instantiation_error,P).
-'$check_head'(H,P) :- number(H), !,
-	'$do_error'(type_error(callable,H),P).
-'$check_head'(H,P) :- db_reference(H), !,
-	'$do_error'(type_error(callable,H),P).
-'$check_head'(_,_).
-
-% term expansion
+'$check_head_and_body'(MH, M, H, true, P) :-
+    '$yap_strip_module'(MH,M,H),
+    error:is_callable(M:H,P).
+                                % term expansion
 %
 % return two arguments: Expanded0 is the term after "USER" expansion.
 %                       Expanded is the final expanded term.
 %
-'$precompile_term'(Term, Expanded0, Expanded, HeadMod, BodyMod, SourceMod) :-
+'$precompile_term'(Term, Expanded0, Expanded) :-
 %format('[ ~w~n',[Term]),
-	'$module_expansion'(Term, Expanded0, ExpandedI, HeadMod, BodyMod, SourceMod), !,
+	'$expand_clause'(Term, Expanded0, ExpandedI), !,
 %format('      -> ~w~n',[Expanded0]),
 	(
 	 current_prolog_flag(strict_iso, true)      /* strict_iso on */
-        ->
+    ->
 	 Expanded = ExpandedI,
 	 '$check_iso_strict_clause'(Expanded0)
-        ;
+    ;
 	 '$expand_array_accesses_in_term'(ExpandedI,Expanded)
+    -> true
+    ;
+     Expanded = ExpandedI
 	).
-'$precompile_term'(Term, Term, Term, _, _, _).
+'$precompile_term'(Term, Term, Term).
 
+'$expand_clause'(InputCl, C1, CO) :-
+    source_module(SM),
+    '$yap_strip_module'(SM:InputCl, M, ICl),
+    '$expand_a_clause'( M:ICl, SM, C1, CO),
+    !.
+'$expand_clause'(Cl, Cl, Cl).
 
 /** @pred  expand_term( _T_,- _X_)
-
-
 
 This predicate is used by YAP for preprocessing each top level
 term read when consulting a file and before asserting or executing it.
@@ -1458,10 +1462,11 @@ whenever the compilation of arithmetic expressions is in progress.
 
 */
 expand_term(Term,Expanded) :-
-	( '$do_term_expansion'(Term,Expanded)
-        ->
-	   true
-        ;
+	(
+     '$do_term_expansion'(Term,Expanded)
+    ->
+	  true
+    ;
 	  '$expand_term_grammar'(Term,Expanded)
 	).
 
@@ -1565,7 +1570,8 @@ throw(Ball) :-
 	    throw(Ball)
 	).
 
-catch_ball(Abort, _) :- Abort == '$abort', !, fail.
+catch_ball(Abort, _) :-
+    Abort == '$abort', !, fail.
 % system defined throws should be ignored by user, unless the
 % user is hacking away.
 catch_ball(Ball, V) :-
@@ -1581,7 +1587,7 @@ catch_ball(C, C).
 	current_prolog_flag(break_level, 0 ),
 	recorded('$toplevel_hooks',H,_),
 	H \= fail, !,
-	( call(user:H1) -> true ; true).
+	( call(user:H) -> true ; true).
 '$run_toplevel_hooks'.
 
 '$run_at_thread_start' :-
@@ -1607,30 +1613,47 @@ log_event( String, Args ) :-
 
 '$prompt' :-
 	current_prolog_flag(break_level, BreakLevel),
-	( BreakLevel == 0
+	(
+     BreakLevel == 0
 	->
 	  LF = LD
-	  ;
-	  LF = ['Break (level ', BreakLevel,') '|LD]
+    ;
+	  LF = ['Break (level ', BreakLevel, ')'|LD]
 	),
-        current_prolog_flag(debug, DBON),
+    current_prolog_flag(debug, DBON),
 	(
 	 '$trace_on'
 	->
-	 LD  = ['trace '|LP]
+     (
+      var(LF)
+     ->
+      LD  = ['trace'|LP]
+     ;
+      LD  = [', trace '|LP]
+     )
 	;
 	 DBON == true
 	->
-	 LD  = ['debug '|LP]
+     (var(LF)
+     ->
+      LD  = ['debug'|LP]
+     ;
+      LD  = [', debug'|LP]
+     )
 	;
 	 LD = LP
 	),
-	LP = [P],
+    (
+     var(LF)
+    ->
+     LP = [P]
+    ;
+     LP = [' ',P]
+    ),
 	yap_flag(toplevel_prompt, P),
 	atomic_concat(LF, PF),
 	prompt1(PF),
-	prompt(_,'|: ').
-
+	prompt(_,'    ').
 
 
 /**

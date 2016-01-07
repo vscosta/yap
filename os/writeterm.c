@@ -143,7 +143,7 @@ static char SccsId[] = "%W% %G%";
 int beam_write ( USES_REGS1 )
 {
   Yap_StartSlots();
-  Yap_plwrite (ARG1, GLOBAL_Stream+LOCAL_c_output_stream, 0, 0, 1200);
+  Yap_plwrite (ARG1, GLOBAL_Stream+LOCAL_c_output_stream, 0, 0, GLOBAL_MaxPriority);
   Yap_CloseSlots();
   if (EX != 0L) {
     Term ball = Yap_PopTermFromDB(EX);
@@ -173,7 +173,7 @@ bind_variable_names(Term  t USES_REGS)
        return false;
     }
     t2 = ArgOfTerm(2, tl);
-    tv = Yap_MkApplTerm(LOCAL_FunctorVar, 1, &t1);
+    tv = Yap_MkApplTerm(FunctorDollarVar, 1, &t1);
     if (IsVarTerm(t2)) {
       Bind(VarOfTerm(t2), tv);
     }
@@ -288,7 +288,7 @@ write_term ( int output_stream, Term t, xarg *args USES_REGS )
   if (args[WRITE_PRIORITY].used) {
     prio = IntegerOfTerm(args[WRITE_PRIORITY].tvalue);
   } else {
-    prio = 1200;
+    prio = GLOBAL_MaxPriority;
   }
   Yap_plwrite( t, GLOBAL_Stream+output_stream, depth, flags, prio);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
@@ -746,7 +746,7 @@ dollar_var( USES_REGS1 )
     Term t2;
     if (!IsVarTerm(t2=Deref(ARG2))) {
       if (IsApplTerm(t2) &&
-          FunctorOfTerm( t2 ) == LOCAL_FunctorVar ) {
+          FunctorOfTerm( t2 ) == FunctorDollarVar ) {
         return Yap_unify(ArgOfTerm(1, t2), ARG1);
       }
       Yap_Error( TYPE_ERROR_COMPOUND, ARG2 , "");
@@ -756,7 +756,7 @@ dollar_var( USES_REGS1 )
     }
   }
   Term t2 = Yap_unify( MkVarTerm(), ARG1);
-  Term tv = Yap_MkApplTerm(LOCAL_FunctorVar, 1, &t2);
+  Term tv = Yap_MkApplTerm(FunctorDollarVar, 1, &t2);
   return Yap_unify(tv, ARG2);
 }
 

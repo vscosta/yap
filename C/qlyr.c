@@ -698,7 +698,7 @@ read_tag(FILE *stream)
   return ch;
 }
 
-static UInt
+static pred_flags_t
 read_predFlags(FILE *stream)
 {
   pred_flags_t v;
@@ -1018,23 +1018,30 @@ read_pred(FILE *stream, Term mod) {
 
   ap = LookupPredEntry((PredEntry *)read_UInt(stream));
   flags = read_predFlags(stream);
+#if 0
+  if (ap->ArityOfPE && ap->ModuleOfPred != IDB_MODULE)
+    // __android_log_print(ANDROID_LOG_INFO, "YAP ", "   %s/%ld %llx %llx\n", NameOfFunctor(ap->FunctorOfPred)->StrOfAE, ap->ArityOfPE, ap->PredFlags, flags);
+     printf("   %s/%ld %llx %llx\n", NameOfFunctor(ap->FunctorOfPred)->StrOfAE, ap->ArityOfPE, ap->PredFlags, flags); 
+  else if (ap->ModuleOfPred != IDB_MODULE)
+    //__android_log_print(ANDROID_LOG_INFO, "YAP ","   %s/%ld %llx %llx\n", ((Atom)(ap->FunctorOfPred))->StrOfAE, ap->ArityOfPE, flags);
+     printf("   %s/%ld %llx %llx\n", ((Atom)(ap->FunctorOfPred))->StrOfAE, ap->ArityOfPE, ap->PredFlags, flags); 
+    //else
+    //  __android_log_print(ANDROID_LOG_INFO, "YAP ","   number\n");
+#endif
+  if (flags & ForeignPredFlags) {
+    if (!(ap->PredFlags & ForeignPredFlags))
+      QLYR_ERROR(INCONSISTENT_CPRED);
+    if (flags & MetaPredFlag)
+      ap->PredFlags |= MetaPredFlag;
+    return;
+  }
   nclauses = read_UInt(stream);
   if (ap->PredFlags & IndexedPredFlag) {
     Yap_RemoveIndexation(ap);
   }
-#if 0
-  if (ap->ArityOfPE && ap->ModuleOfPred != IDB_MODULE)
-      __android_log_print(ANDROID_LOG_INFO, "YAP ", "   %s/%ld %lx\n", NameOfFunctor(ap->FunctorOfPred)->StrOfAE, ap->ArityOfPE, flags);
-  /*   printf("   %s/%ld %lx\n", NameOfFunctor(ap->FunctorOfPred)->StrOfAE, ap->ArityOfPE, flags); */
-  else if (ap->ModuleOfPred != IDB_MODULE)
-  __android_log_print(ANDROID_LOG_INFO, "YAP ","   %s/%ld %lx\n", ((Atom)(ap->FunctorOfPred))->StrOfAE, ap->ArityOfPE, flags);
-  /*   printf("   %s/%ld %lx\n", ((Atom)(ap->FunctorOfPred))->StrOfAE, ap->ArityOfPE, flags); */
-  else
-      __android_log_print(ANDROID_LOG_INFO, "YAP ","   number\n");
-#endif
-  fl1 = flags & ((pred_flags_t)STATIC_PRED_FLAGS|(UInt)EXTRA_PRED_FLAGS);
-  ap->PredFlags &= ~((UInt)STATIC_PRED_FLAGS|(UInt)EXTRA_PRED_FLAGS);
-  ap->PredFlags |= fl1;
+  //fl1 = flags & ((pred_flags_t)STATIC_PRED_FLAGS|(UInt)EXTRA_PRED_FLAGS);
+  //ap->PredFlags &= ~((UInt)STATIC_PRED_FLAGS|(UInt)EXTRA_PRED_FLAGS);
+  ap->PredFlags = flags & ~StatePredFlags;
   if (flags & NumberDBPredFlag) {
     ap->src.IndxId = read_UInt(stream);
   } else {
@@ -1046,9 +1053,9 @@ read_pred(FILE *stream, Term mod) {
   }
   ap->TimeStampOfPred = read_UInt(stream);
   /* multifile predicates cannot reside in module 0 */
-  if (flags & MultiFileFlag && ap->ModuleOfPred == PROLOG_MODULE) {
-    ap->ModuleOfPred = TermProlog;
-  }
+  //  if (flags & MultiFileFlag && ap->ModuleOfPred == PROLOG_MODULE) {
+  //  ap->ModuleOfPred = TermProlog;
+  // }
   if (nclauses)
     read_clauses(stream, ap, nclauses, flags);
 #if DEBUG

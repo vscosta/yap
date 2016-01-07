@@ -296,6 +296,36 @@ exists_file(USES_REGS1)
   }
 }
 
+static Int
+file_exists(USES_REGS1)
+{
+  Term tname = Deref(ARG1);
+  char *file_name;
+
+  if (IsVarTerm(tname)) {
+    Yap_Error(INSTANTIATION_ERROR, tname, "access");
+    return FALSE;
+  } else if (!IsAtomTerm (tname)) {
+    Yap_Error(TYPE_ERROR_ATOM, tname, "access");
+    return FALSE;
+  } else {
+#if HAVE_STAT
+    struct SYSTEM_STAT ss;
+
+    file_name = RepAtom(AtomOfTerm(tname))->StrOfAE;
+    if (SYSTEM_STAT(file_name, &ss) != 0) {
+      if (errno == ENOENT)
+	return false;
+      PlIOError(SYSTEM_ERROR_OPERATING_SYSTEM, tname, "error %s", strerror(errno) );
+      return false;
+    }
+    return true;
+#else
+    return FALSE;
+#endif
+  }
+}
+
 
 static Int
 time_file(USES_REGS1)
@@ -501,10 +531,12 @@ file_base_name ( USES_REGS1 )
       while (i && !Yap_dir_separator((int)c[--i]));
       return Yap_unify(ARG2, MkAtomTerm(Yap_LookupWideAtom(c+i)));
   } else {
-      char *c = RepAtom(at)->StrOfAE;
+      const char *c = RepAtom(at)->StrOfAE;
       char *s;
 #if HAVE_BASENAME
-      s = basename( c );
+      char c1[YAP_FILENAME_MAX+1];
+      strncpy( c1, c, YAP_FILENAME_MAX);
+      s = basename( c1 );
 #else
       Int i = strlen(c);
       while (i && !Yap_dir_separator((int)c[--i]));
@@ -524,7 +556,7 @@ file_directory_name ( USES_REGS1 )
   Atom at;
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "file_directory_name/2");
-    return FALSE;    
+    return false;    
   }
   at = AtomOfTerm(t);
   if (IsWideAtom(at)) {
@@ -538,12 +570,14 @@ file_directory_name ( USES_REGS1 )
       wcsncpy(s, c, i);
       return Yap_unify(ARG2, MkAtomTerm(Yap_LookupWideAtom(s)));
   } else {
-      char *c = RepAtom(at)->StrOfAE;
+      const char *c = RepAtom(at)->StrOfAE;
 #if HAVE_BASENAME
-      char *s;
-      s = dirname( c );
+      const char *s;
+      char c1[YAP_FILENAME_MAX+1];
+      strncpy( c1, c, YAP_FILENAME_MAX);
+      s = dirname( c1 );
 #else
-      char *s[YAP_FILENAME_MAX+1];
+      char s[YAP_FILENAME_MAX+1];
       Int i = strlen(c);
       while (i && !Yap_dir_separator((int)c[--i]));
       if (Yap_dir_separator((int)c[i])) {
@@ -639,6 +673,7 @@ Yap_InitFiles( void )
  Yap_InitCPred ("access", 1, access_path, SafePredFlag|SyncPredFlag);
  Yap_InitCPred ("exists_directory", 1, exists_directory, SafePredFlag|SyncPredFlag);
  Yap_InitCPred ("exists_file", 1, exists_file, SafePredFlag|SyncPredFlag);
+ Yap_InitCPred ("$file_exists", 1, file_exists, SafePredFlag|SyncPredFlag);
  Yap_InitCPred ("time_file64", 2, time_file, SafePredFlag|SyncPredFlag);
  Yap_InitCPred ("time_file", 2, time_file, SafePredFlag|SyncPredFlag);
  Yap_InitCPred ("file_size", 2,file_size, SafePredFlag|SyncPredFlag);

@@ -20,50 +20,44 @@ xc/*************************************************************************
 % This protects all code from further changes
 % and also makes it impossible from some predicates to be seen
 '$protect' :-
-	'$current_predicate'(_A, M, T0, all),
-	%format(' ~a ~n', [M]) ,
-        M \= user,
-	M \= lists,
-	'$predicate_flags'(T0, M, Flags, Flags), 
-	NFlags is Flags \/ 0x00004000,
-	'$predicate_flags'(T0, M, _Flags, NFlags), 
-        %format('~w ~16r ~16r~n', [T0,Flags, NFlags]) ,
-	fail.
+    current_atom(Name),
+    '$current_predicate'(Name,M,P,_),
+    M \= user,
+    functor(P,Name,Arity),
+    '$new_system_predicate'(Name,Arity,M),
+    sub_atom(Name,0,1,_, '$'),
+    \+ '$visible'(Name),
+    hide_predicate(M:P),
+    fail.
 '$protect' :-
-	current_atom(Name),
-	atom_codes(Name,[0'$|_]), %'
-	'$hide_predicates'(Name),
-	'$hide'(Name),
-	fail.
-'$protect' :-
-	'$hide_predicates'(bootstrap),
-	hide(bootstrap).
+    current_atom(Name),
+    sub_atom(Name,0,1,_, '$'),
+    \+ '$visible'(Name),
+    hide_atom(Name),
+    fail.
 '$protect'.
 
-'$hide_predicates'(Name) :-
-	'$current_predicate'(Name, Mod, P, all),
-	'$hide_predicate'(P,Mod),
-	fail.
-'$hide_predicates'(_).
 
 % hide all atoms who start by '$'
-'$hide'('$VAR') :- !, fail.			/* not $VAR */
-'$hide'('$dbref') :- !, fail.			/* not stream position */
-'$hide'('$stream') :- !, fail.			/* not $STREAM */
-'$hide'('$stream_position') :- !, fail.		/* not stream position */
-'$hide'('$hacks') :- !, fail.			
-'$hide'('$source_location') :- !, fail.			
-'$hide'('$messages') :- !, fail.		
-'$hide'('$push_input_context') :- !, fail.		
-'$hide'('$pop_input_context') :- !, fail.		
-'$hide'('$set_source_module') :- !, fail.		
-'$hide'('$declare_module') :- !, fail.		
-'$hide'('$store_clause') :- !, fail.		
-'$hide'('$skip_list') :- !, fail.		
-'$hide'('$win_insert_menu_item') :- !, fail.
-'$hide'('$set_predicate_attribute') :- !, fail.
-'$hide'('$parse_quasi_quotations') :- !, fail.
-'$hide'('$quasi_quotation') :- !, fail.
-'$hide'('$qq_open') :- !, fail.
-'$hide'(Name) :- hide(Name), fail.
+'$visible'('$').			/* not $VAR */
+'$visible'('$VAR').			/* not $VAR */
+'$visible'('$dbref').			/* not stream position */
+'$visible'('$stream').			/* not $STREAM */
+'$visible'('$stream_position').		/* not stream position */
+'$visible'('$hacks').			
+'$visible'('$source_location').			
+'$visible'('$messages').		
+'$visible'('$push_input_context').		
+'$visible'('$pop_input_context').		
+'$visible'('$set_source_module').		
+'$visible'('$declare_module').		
+'$visible'('$store_clause').		
+'$visible'('$skip_list').		
+'$visible'('$win_insert_menu_item').
+'$visible'('$set_predicate_attribute').
+'$visible'('$parse_quasi_quotations').
+'$visible'('$quasi_quotation').
+'$visible'('$qq_open').
+'$visible'('$live').
+'$visible'('$init_prolog').
 

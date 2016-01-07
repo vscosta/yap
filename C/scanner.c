@@ -1735,17 +1735,16 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
     case SY:
       if (ch == '`')
         goto quoted_string;
-      if (ch == '.') {
-        int nch = Yap_peek(inp_stream - GLOBAL_Stream);
-        if (chtype(nch) == BS || chtype(nch) == EF || nch == '%') {
+      och = ch;
+      ch = getchr(inp_stream);
+      if (och == '.') {
+        if (chtype(ch) == BS || chtype(ch) == EF || ch == '%') {
           t->Tok = Ord(kind = eot_tok);
           if (chtype(ch) == EF)
             mark_eof(inp_stream);
           return l;
         }
       }
-      och = ch;
-      ch = getchr(inp_stream);
       if (och == '/' && ch == '*') {
         if (store_comments) {
           CHECK_SPACE();
@@ -1830,9 +1829,9 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
         Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
         t->Tok = Ord(kind = Name_tok);
         if (ch == '(')
-          solo_flag = FALSE;
+          solo_flag = false;
         else
-          solo_flag = TRUE;
+          solo_flag = true;
       }
       break;
 

@@ -444,33 +444,37 @@ static int legalAtom(unsigned char *s) /* Is this a legal atom ? */
       return (s[1] == '}' && !s[2]);
     } else if (Yap_chtype[ch] == SL) {
       return (!s[1]);
+    } else if (ch == '`') {
+      return false;
     } else if ((ch == ',' || ch == '.') && !s[1]) {
-      return FALSE;
+      return false;
     } else {
       if (ch == '/') {
         if (s[1] == '*')
-          return FALSE;
+          return false;
       }
       while (ch) {
         if (Yap_chtype[ch] != SY) {
-          return FALSE;
+          return false;
         }
         ch = *++s;
       }
     }
-    return TRUE;
+    return true;
   } else
     while ((ch = *++s) != 0)
       if (Yap_chtype[ch] > NU)
-        return FALSE;
-  return (TRUE);
+        return false;
+  return true;
 }
 
 static wtype
 AtomIsSymbols(unsigned char *s) /* Is this atom just formed by symbols ? */
 {
   int ch;
-  if (Yap_chtype[(int)s[0]] == SL && s[1] == '\0')
+  if ( Yap_chtype[(int)s[0]] == SL &&
+       s[1] == '\0'
+       )
     return (separator);
   while ((ch = *s++) != '\0') {
     if (Yap_chtype[ch] != SY)
@@ -707,7 +711,7 @@ static Term from_pointer(CELL *ptr0, struct rewind_term *rwt,
 
     if (!IsAtomicTerm(t) && !IsVarTerm(t)) {
       while (x) {
-        if (Yap_GetDerefedFromSlot(x->u_sd.s.old PASS_REGS) == t)
+        if (Yap_GetDerefedFromSlot(x->u_sd.s.old) == t)
           return TermFoundVar;
         x = x->parent;
       }
@@ -734,8 +738,8 @@ static CELL *restore_from_write(struct rewind_term *rwt,
   CELL *ptr;
 
   if (wglb->Keep_terms) {
-    ptr = (CELL *)Yap_GetPtrFromSlot(rwt->u_sd.s.ptr PASS_REGS);
-    Yap_RecoverSlots(2, rwt->u_sd.s.old PASS_REGS);
+    ptr = Yap_GetPtrFromSlot(rwt->u_sd.s.ptr );
+    Yap_RecoverSlots(2, rwt->u_sd.s.old );
     //      printf("leak=%d %d\n", LOCALCurSlot,rwt->u_sd.s.old) ;
   } else {
     ptr = rwt->u_sd.d.ptr;
@@ -840,6 +844,9 @@ static void write_list(Term t, int direction, int depth,
       do_jump = (direction >= 0);
     }
     if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
+      if (lastw == symbol || lastw == separator) {
+        wrputc(' ', wglb->stream);
+      }
       wrputc('|', wglb->stream);
       putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
       return;
@@ -856,6 +863,9 @@ static void write_list(Term t, int direction, int depth,
     Term nt = from_pointer(RepPair(t) + 1, &nrwt, wglb);
     /* we found an infinite loop */
     if (IsAtomTerm(nt)) {
+      if (lastw == symbol || lastw == separator) {
+        wrputc(' ', wglb->stream);
+      }
       wrputc('|', wglb->stream);
       writeTerm(nt, 999, depth, FALSE, wglb, rwt);
     } else {
@@ -865,6 +875,9 @@ static void write_list(Term t, int direction, int depth,
     }
     restore_from_write(&nrwt, wglb);
   } else if (ti != MkAtomTerm(AtomNil)) {
+      if (lastw == symbol || lastw == separator) {
+        wrputc(' ', wglb->stream);
+      }
     wrputc('|', wglb->stream);
     lastw = separator;
     writeTerm(from_pointer(RepPair(t) + 1, &nrwt, wglb), 999, depth, FALSE,
@@ -1101,6 +1114,9 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         wrputc(',', wglb->stream);
         lastw = separator;
       } else if (!strcmp((char *)RepAtom(atom)->StrOfAE, "|")) {
+        if (lastw == symbol || lastw == separator) {
+          wrputc(' ', wglb->stream);
+        }
         wrputc('|', wglb->stream);
         lastw = separator;
       } else
@@ -1117,14 +1133,17 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       if (op > p) {
         wrclose_bracket(wglb, TRUE);
       }
-    } else if (wglb->Handle_vars && functor == LOCAL_FunctorVar) {
+    } else if ( functor == FunctorDollarVar) {
       Term ti = ArgOfTerm(1, t);
       if (lastw == alphanum) {
         wrputc(' ', wglb->stream);
       }
-      if (!IsVarTerm(ti) &&
-          (IsIntTerm(ti) || IsCodesTerm(ti) ||
-	   IsAtomTerm(ti) || IsStringTerm(ti) )) {
+      if (wglb->Handle_vars &&
+          !IsVarTerm(ti) &&
+          (IsIntTerm(ti) ||
+           IsCodesTerm(ti) ||
+           IsAtomTerm(ti) ||
+           IsStringTerm(ti) )) {
         if (IsIntTerm(ti)) {
           Int k = IntOfTerm(ti);
           if (k == -1) {
@@ -1158,7 +1177,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
     } else if (!wglb->Ignore_ops && functor == FunctorBraces) {
       wrputc('{', wglb->stream);
       lastw = separator;
-      writeTerm(from_pointer(RepAppl(t) + 1, &nrwt, wglb), 1200, depth + 1,
+      writeTerm(from_pointer(RepAppl(t) + 1, &nrwt, wglb), GLOBAL_MaxPriority, depth + 1,
                 FALSE, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
       wrputc('}', wglb->stream);
@@ -1215,7 +1234,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   CACHE_REGS
   struct write_globs wglb;
   struct rewind_term rwt;
-  yhandle_t sls = Yap_CurrentSlot(PASS_REGS1);
+  yhandle_t sls = Yap_CurrentSlot();
 
   if (!mywrite) {
     CACHE_REGS
@@ -1269,7 +1288,7 @@ char *Yap_TermToString(Term t, char *s, size_t sz, size_t *length,
     GLOBAL_Stream[sno].encoding = *encp;
   else
     GLOBAL_Stream[sno].encoding = LOCAL_encoding;
-  Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, 1200);
+  Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, GLOBAL_MaxPriority);
   s = Yap_MemExportStreamPtr(sno);
   Yap_CloseStream(sno);
   LOCAL_c_output_stream = old_output_stream;

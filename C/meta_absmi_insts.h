@@ -106,9 +106,6 @@
 	}
 #endif /* FROZEN_STACKS */
 	d0 = ARG1;
-	if (PRED_GOAL_EXPANSION_ALL) {
-	  goto execute_metacall;
-	}
       restart_execute:
 	deref_head(d0, execute_unk);
       execute_nvar:
@@ -119,7 +116,7 @@
 	  }
 	  pen = RepPredProp(PredPropByFunc(f, mod));
 	execute_pred_f:
-	  if (pen->PredFlags & (MetaPredFlag|GoalExPredFlag)) {
+	  if (pen->PredFlags & MetaPredFlag) {
 	    /* just strip all of M:G */
 	    if (f == FunctorModule) {
 	      Term tmod = ArgOfTerm(1,d0);

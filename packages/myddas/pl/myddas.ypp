@@ -806,6 +806,8 @@
 				       ]).
 
 #ifdef MYDDAS_MYSQL
+:- load_foreign_files([], [], init_mysql).
+
 :- use_module(myddas_mysql,[
 			    db_my_result_set/1,
 			    db_datalog_describe/1,

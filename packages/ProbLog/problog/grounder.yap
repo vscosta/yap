@@ -75,7 +75,8 @@ grounder_compute_reachable_atoms(A,ID,Success) :-
 	
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	( % go over all proofs for A in interpretation ID
-	 tabled_meta_interpreter(A,ID),
+      tabled_meta_interpreter(A,ID),
+      writeln(A),
 	 bb_put(dep_proven,true),
 	  
 	 fail; % go to next proof
@@ -100,6 +101,8 @@ grounder_compute_reachable_atoms(A,ID,Success) :-
 %========================================================================
 
 
+tabled_meta_interpreter(X,ID) :-
+    writeln(ID:X), fail.
 tabled_meta_interpreter((X,Y),ID) :-
 	!,
 	tabled_meta_interpreter(X,ID),
@@ -143,9 +146,9 @@ tabled_meta_interpreter(Atom,ID) :-
 	% we can ignore probabilistic facts and only look for myclauses
 	% since in ProbLog the requirement is that non-ground facts have to be 
 	% ground at query time
-
 	current_predicate(user:myclause/3),
 	user:myclause(ID,Atom,Body),
+    writeln(Atom:Body),
 
 	tabled_meta_interpreter(Body,ID),
 

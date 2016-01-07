@@ -718,8 +718,8 @@ void Yap_walltime_interval(Int *now,Int *interval)
   Yap_ReInitWTime (void)
   {
     Yap_InitWTime();
-    if (Yap_global->LastWTimePtr_ != NULL)
-      Yap_FreeCodeSpace(Yap_global->LastWTimePtr_);
+    if (GLOBAL_LastWTimePtr != NULL)
+      Yap_FreeCodeSpace(GLOBAL_LastWTimePtr);
     Yap_InitLastWTime();
   }
 

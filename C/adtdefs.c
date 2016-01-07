@@ -28,11 +28,41 @@ static char SccsId[] = "%W% %G%";
 #include "Yap.h"
 #include "Yatom.h"
 #include "yapio.h"
+#include "clause.h"
 #include <stdio.h>
 #include <wchar.h>
-#if HAVE_STRING_H
+#if HAVE_STRING_Hq
 #include <string.h>
 #endif
+
+ uint64_t HashFunction(const unsigned char *CHP) {
+  /* djb2 */
+  uint64_t hash = 5381;
+  uint64_t c;
+
+  while ((c = (uint64_t)(*CHP++)) != '\0') {
+    /* hash = ((hash << 5) + hash) + c; hash * 33 + c */
+    hash = hash * (uint64_t)33 + c;
+ }
+  return hash;
+  /*
+  UInt OUT=0, i = 1;
+  while(*CHP != '\0') { OUT += (UInt)(*CHP++); }
+  return OUT;
+  */
+}
+
+uint64_t WideHashFunction(wchar_t *CHP) {
+  UInt hash = 5381;
+
+  UInt c;
+
+  while ((c = *CHP++) != '\0') {
+    hash = hash * 33 ^ c;
+  }
+  return hash;
+}
+
 
 /* this routine must be run at least having a read lock on ae */
 static Prop
@@ -142,14 +172,17 @@ static inline Atom SearchWideAtom(const wchar_t *p, Atom a) {
 
 static Atom
 LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
-  UInt hash;
+  uint64_t hash;
   const unsigned char *p;
   Atom a, na;
   AtomEntry *ae;
+  size_t sz = AtomHashTableSize;
 
   /* compute hash */
   p = atom;
-  hash = HashFunction(p) % AtomHashTableSize;
+
+  hash = HashFunction(p);
+  hash = hash % sz ;
 
   /* we'll start by holding a read lock in order to avoid contention */
   READ_LOCK(HashChain[hash].AERWLock);
@@ -754,29 +787,24 @@ static int ExpandPredHash(void) {
 
 /* fe is supposed to be locked */
 Prop Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod) {
-  CACHE_REGS
   PredEntry *p = (PredEntry *)Yap_AllocAtomSpace(sizeof(*p));
 
   if (p == NULL) {
     WRITE_UNLOCK(fe->FRWLock);
     return NULL;
   }
-  if (cur_mod == TermProlog)
+  if (cur_mod == TermProlog || cur_mod == 0L) {
     p->ModuleOfPred = 0L;
-  else
+  } else
     p->ModuleOfPred = cur_mod;
 // TRUE_FUNC_WRITE_LOCK(fe);
-#if DEBUG_NEW_FUNCTOR
-  if (!strcmp(fe->NameOfFE->StrOfAE, "library_directory"))
-    jmp_deb(1);
-#endif
   INIT_LOCK(p->PELock);
   p->KindOfPE = PEProp;
   p->ArityOfPE = fe->ArityOfFE;
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
   p->cs.p_code.NOfClauses = 0;
   p->PredFlags = 0L;
-  p->src.OwnerFile = LOCAL_SourceFileName;
+  p->src.OwnerFile = Yap_source_file_name();
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
   p->cs.p_code.ExpandCode = EXPAND_OP_CODE;
@@ -795,12 +823,6 @@ Prop Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod) {
   p->beamTable = NULL;
 #endif /* BEAM */
   /* careful that they don't cross MkFunctor */
-  if (PRED_GOAL_EXPANSION_FUNC) {
-    if (fe->PropsOfFE &&
-        (RepPredProp(fe->PropsOfFE)->PredFlags & GoalExPredFlag)) {
-      p->PredFlags |= GoalExPredFlag;
-    }
-  }
   if (!trueGlobalPrologFlag(DEBUG_INFO_FLAG)) {
     p->PredFlags |= NoTracePredFlag;
   }
@@ -904,7 +926,7 @@ Prop Yap_NewThreadPred(PredEntry *ap USES_REGS) {
 Prop Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod) {
   Prop p0;
   PredEntry *p = (PredEntry *)Yap_AllocAtomSpace(sizeof(*p));
-
+  CACHE_REGS
   /* Printf("entering %s:%s/0\n", RepAtom(AtomOfTerm(cur_mod))->StrOfAE,
    * ae->StrOfAE); */
 
@@ -918,7 +940,7 @@ Prop Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod) {
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
   p->cs.p_code.NOfClauses = 0;
   p->PredFlags = 0L;
-  p->src.OwnerFile = AtomNil;
+  p->src.OwnerFile = Yap_source_file_name();
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->cs.p_code.ExpandCode = EXPAND_OP_CODE;
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
@@ -936,27 +958,14 @@ Prop Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod) {
   p->beamTable = NULL;
 #endif
   /* careful that they don't cross MkFunctor */
-  if (PRED_GOAL_EXPANSION_FUNC) {
-    Prop p1 = ae->PropsOfAE;
-
-    while (p1) {
-      PredEntry *pe = RepPredProp(p1);
-
-      if (pe->KindOfPE == PEProp) {
-        if (pe->PredFlags & GoalExPredFlag) {
-          p->PredFlags |= GoalExPredFlag;
-        }
-        break;
-      }
-      p1 = pe->NextOfPE;
-    }
-  }
   AddPropToAtom(ae, (PropEntry *)p);
   p0 = AbsPredProp(p);
   p->FunctorOfPred = (Functor)AbsAtom(ae);
   if (!trueGlobalPrologFlag(DEBUG_INFO_FLAG)) {
     p->PredFlags |= (NoTracePredFlag | NoSpyPredFlag);
   }
+  if (Yap_isSystemModule(CurrentModule))
+    p->PredFlags |= StandardPredFlag;
   WRITE_UNLOCK(ae->ARWLock);
   {
     Yap_inform_profiler_of_clause(&(p->OpcodeOfPred), &(p->OpcodeOfPred) + 1, p,

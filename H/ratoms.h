@@ -20,11 +20,16 @@
   AtomArrayOverflow = AtomAdjust(AtomArrayOverflow);
   AtomArrayType = AtomAdjust(AtomArrayType);
   AtomArrow = AtomAdjust(AtomArrow);
+  AtomAttributedModule = AtomAdjust(AtomAttributedModule);
   AtomDoubleArrow = AtomAdjust(AtomDoubleArrow);
   AtomAssert = AtomAdjust(AtomAssert);
   AtomEmptyBrackets = AtomAdjust(AtomEmptyBrackets);
   AtomEmptySquareBrackets = AtomAdjust(AtomEmptySquareBrackets);
   AtomEmptyCurlyBrackets = AtomAdjust(AtomEmptyCurlyBrackets);
+  AtomAsserta = AtomAdjust(AtomAsserta);
+  AtomAssertaStatic = AtomAdjust(AtomAssertaStatic);
+  AtomAssertz = AtomAdjust(AtomAssertz);
+  AtomAssertzStatic = AtomAdjust(AtomAssertzStatic);
   AtomAt = AtomAdjust(AtomAt);
   AtomAtom = AtomAdjust(AtomAtom);
   AtomAtomic = AtomAdjust(AtomAtomic);
@@ -66,6 +71,7 @@
   AtomCompact = AtomAdjust(AtomCompact);
   AtomCompound = AtomAdjust(AtomCompound);
   AtomConsistencyError = AtomAdjust(AtomConsistencyError);
+  AtomConsult = AtomAdjust(AtomConsult);
   AtomConsultOnBoot = AtomAdjust(AtomConsultOnBoot);
   AtomContext = AtomAdjust(AtomContext);
   AtomCputime = AtomAdjust(AtomCputime);
@@ -102,6 +108,7 @@
   AtomDoStaticClause = AtomAdjust(AtomDoStaticClause);
   AtomDots = AtomAdjust(AtomDots);
   AtomDOUBLE = AtomAdjust(AtomDOUBLE);
+  AtomDoubleSlash = AtomAdjust(AtomDoubleSlash);
   AtomE = AtomAdjust(AtomE);
   AtomEOFBeforeEOT = AtomAdjust(AtomEOFBeforeEOT);
   AtomEQ = AtomAdjust(AtomEQ);
@@ -133,6 +140,7 @@
   AtomFail = AtomAdjust(AtomFail);
   AtomFalse = AtomAdjust(AtomFalse);
   AtomFast = AtomAdjust(AtomFast);
+  AtomFastFail = AtomAdjust(AtomFastFail);
   AtomFileErrors = AtomAdjust(AtomFileErrors);
   AtomFileerrors = AtomAdjust(AtomFileerrors);
   AtomFileType = AtomAdjust(AtomFileType);
@@ -288,6 +296,7 @@
   AtomReadOnly = AtomAdjust(AtomReadOnly);
   AtomReadWrite = AtomAdjust(AtomReadWrite);
   AtomReadutil = AtomAdjust(AtomReadutil);
+  AtomReconsult = AtomAdjust(AtomReconsult);
   AtomRecordedP = AtomAdjust(AtomRecordedP);
   AtomRecordedWithKey = AtomAdjust(AtomRecordedWithKey);
   AtomRedefineWarnings = AtomAdjust(AtomRedefineWarnings);
@@ -390,14 +399,16 @@
   AtomUserErr = AtomAdjust(AtomUserErr);
   AtomUserIn = AtomAdjust(AtomUserIn);
   AtomUserOut = AtomAdjust(AtomUserOut);
+  AtomDollarVar = AtomAdjust(AtomDollarVar);
   AtomVBar = AtomAdjust(AtomVBar);
-  AtomVar = AtomAdjust(AtomVar);
   AtomVarBranches = AtomAdjust(AtomVarBranches);
   AtomVariableNames = AtomAdjust(AtomVariableNames);
   AtomHiddenVar = AtomAdjust(AtomHiddenVar);
   AtomVariable = AtomAdjust(AtomVariable);
+  AtomVerbose = AtomAdjust(AtomVerbose);
   AtomVerboseFileSearch = AtomAdjust(AtomVerboseFileSearch);
   AtomVersionNumber = AtomAdjust(AtomVersionNumber);
+  AtomVeryVerbose = AtomAdjust(AtomVeryVerbose);
   AtomWakeUpGoal = AtomAdjust(AtomWakeUpGoal);
   AtomWarning = AtomAdjust(AtomWarning);
   AtomWhen = AtomAdjust(AtomWhen);
@@ -443,6 +454,7 @@
   FunctorDoLogUpdClause0 = FuncAdjust(FunctorDoLogUpdClause0);
   FunctorDoLogUpdClauseErase = FuncAdjust(FunctorDoLogUpdClauseErase);
   FunctorDoStaticClause = FuncAdjust(FunctorDoStaticClause);
+  FunctorDollarVar = FuncAdjust(FunctorDollarVar);
   FunctorDomainError = FuncAdjust(FunctorDomainError);
   FunctorDot = FuncAdjust(FunctorDot);
   FunctorDot10 = FuncAdjust(FunctorDot10);
@@ -456,6 +468,7 @@
   FunctorDot7 = FuncAdjust(FunctorDot7);
   FunctorDot8 = FuncAdjust(FunctorDot8);
   FunctorDot9 = FuncAdjust(FunctorDot9);
+  FunctorDoubleSlash = FuncAdjust(FunctorDoubleSlash);
   FunctorEmptySquareBrackets = FuncAdjust(FunctorEmptySquareBrackets);
   FunctorEmptyCurlyBrackets = FuncAdjust(FunctorEmptyCurlyBrackets);
   FunctorEq = FuncAdjust(FunctorEq);
@@ -501,6 +514,7 @@
   FunctorPlus = FuncAdjust(FunctorPlus);
   FunctorPortray = FuncAdjust(FunctorPortray);
   FunctorPrintMessage = FuncAdjust(FunctorPrintMessage);
+  FunctorProcedure = FuncAdjust(FunctorProcedure);
   FunctorPrologConstraint = FuncAdjust(FunctorPrologConstraint);
   FunctorQuery = FuncAdjust(FunctorQuery);
   FunctorRecordedWithKey = FuncAdjust(FunctorRecordedWithKey);
@@ -531,5 +545,4 @@
   FunctorUMinus = FuncAdjust(FunctorUMinus);
   FunctorUPlus = FuncAdjust(FunctorUPlus);
   FunctorVBar = FuncAdjust(FunctorVBar);
-  FunctorVar = FuncAdjust(FunctorVar);
   FunctorHiddenVar = FuncAdjust(FunctorHiddenVar);

@@ -20,6 +20,7 @@
 	  [display_stack_info/4,
 	   display_stack_info/6,
 	   display_pc/4,
+       fully_strip_module/3,
 	   code_location/3]).
 
 /** hacks:context_variables(-NamedVariables)
@@ -175,6 +176,9 @@ list_of_qmarks(0,[]) :- !.
 list_of_qmarks(I,[?|L]) :-
 	I1 is I-1,
 	list_of_qmarks(I1,L).
+
+fully_strip_module( T, M, TF) :-
+    '$yap_strip_module'( T, M, TF).
 
 
 beautify_hidden_goal('$yes_no'(G,_Query), prolog) -->

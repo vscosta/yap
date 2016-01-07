@@ -14334,10 +14334,7 @@ S_SREG = RepAppl(d0);
               }
 #endif /* FROZEN_STACKS */
               d0 = ARG1;
-              if (PRED_GOAL_EXPANSION_ALL) {
-                goto execute_metacall;
-              }
-            restart_execute:
+             restart_execute:
               deref_head(d0, execute_unk);
             execute_nvar:
               if (IsApplTerm(d0)) {

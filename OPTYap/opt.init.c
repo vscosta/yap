@@ -24,7 +24,7 @@
 #include <signal.h>
 #ifdef YAPOR
 #include "or.macros.h"
-#endif	/* YAPOR */
+#endif /* YAPOR */
 #ifdef TABLING
 #include "tab.macros.h"
 #elif !defined(YAPOR_COW)
@@ -34,43 +34,42 @@
 #include "sys/wait.h"
 #endif /* YAPOR_COW */
 
-
-
 /*********************
 **      Macros      **
 *********************/
 
 #ifdef USE_PAGES_MALLOC
-#define STRUCTS_PER_PAGE(STR_TYPE)  ((Yap_page_size - ADJUST_SIZE(sizeof(struct page_header))) / ADJUST_SIZE(sizeof(STR_TYPE)))
+#define STRUCTS_PER_PAGE(STR_TYPE)                                             \
+  ((Yap_page_size - ADJUST_SIZE(sizeof(struct page_header))) /                 \
+   ADJUST_SIZE(sizeof(STR_TYPE)))
 
-#define INIT_GLOBAL_PAGE_ENTRY(PG,STR_TYPE)                    \
-        INIT_LOCK(PgEnt_lock(PG));                             \
-        PgEnt_pages_in_use(PG) = 0;                            \
-        PgEnt_strs_in_use(PG) = 0;                             \
-        PgEnt_strs_per_page(PG) = STRUCTS_PER_PAGE(STR_TYPE);  \
-        PgEnt_first(PG) = NULL;                                \
-        PgEnt_last(PG) = NULL;
-#define INIT_LOCAL_PAGE_ENTRY(PG,STR_TYPE)                     \
-        PgEnt_pages_in_use(PG) = 0;                            \
-        PgEnt_strs_in_use(PG) = 0;                             \
-        PgEnt_strs_per_page(PG) = STRUCTS_PER_PAGE(STR_TYPE);  \
-        PgEnt_first(PG) = NULL;                                \
-        PgEnt_last(PG) = NULL;
+#define INIT_GLOBAL_PAGE_ENTRY(PG, STR_TYPE)                                   \
+  INIT_LOCK(PgEnt_lock(PG));                                                   \
+  PgEnt_pages_in_use(PG) = 0;                                                  \
+  PgEnt_strs_in_use(PG) = 0;                                                   \
+  PgEnt_strs_per_page(PG) = STRUCTS_PER_PAGE(STR_TYPE);                        \
+  PgEnt_first(PG) = NULL;                                                      \
+  PgEnt_last(PG) = NULL;
+#define INIT_LOCAL_PAGE_ENTRY(PG, STR_TYPE)                                    \
+  PgEnt_pages_in_use(PG) = 0;                                                  \
+  PgEnt_strs_in_use(PG) = 0;                                                   \
+  PgEnt_strs_per_page(PG) = STRUCTS_PER_PAGE(STR_TYPE);                        \
+  PgEnt_first(PG) = NULL;                                                      \
+  PgEnt_last(PG) = NULL;
 #else
-#define INIT_GLOBAL_PAGE_ENTRY(PG,STR_TYPE)  PgEnt_strs_in_use(PG) = 0
-#define INIT_LOCAL_PAGE_ENTRY(PG,STR_TYPE)   PgEnt_strs_in_use(PG) = 0
+#define INIT_GLOBAL_PAGE_ENTRY(PG, STR_TYPE) PgEnt_strs_in_use(PG) = 0
+#define INIT_LOCAL_PAGE_ENTRY(PG, STR_TYPE) PgEnt_strs_in_use(PG) = 0
 #endif /* USE_PAGES_MALLOC */
-
-
 
 /*******************************
 **      Global functions      **
 *******************************/
 
-void Yap_init_global_optyap_data(int max_table_size, int n_workers, int sch_loop, int delay_load) {
+void Yap_init_global_optyap_data(int max_table_size, int n_workers,
+                                 int sch_loop, int delay_load) {
   int i;
 
-  /* global data related to memory management */
+/* global data related to memory management */
 #ifdef USE_PAGES_MALLOC
   INIT_GLOBAL_PAGE_ENTRY(GLOBAL_pages_alloc, void *);
   INIT_GLOBAL_PAGE_ENTRY(GLOBAL_pages_void, void *);
@@ -94,29 +93,34 @@ void Yap_init_global_optyap_data(int max_table_size, int n_workers, int sch_loop
 #endif /* TABLING */
 #ifdef YAPOR
   INIT_GLOBAL_PAGE_ENTRY(GLOBAL_pages_or_fr, struct or_frame);
-  INIT_GLOBAL_PAGE_ENTRY(GLOBAL_pages_qg_sol_fr, struct query_goal_solution_frame);
-  INIT_GLOBAL_PAGE_ENTRY(GLOBAL_pages_qg_ans_fr, struct query_goal_answer_frame);
+  INIT_GLOBAL_PAGE_ENTRY(GLOBAL_pages_qg_sol_fr,
+                         struct query_goal_solution_frame);
+  INIT_GLOBAL_PAGE_ENTRY(GLOBAL_pages_qg_ans_fr,
+                         struct query_goal_answer_frame);
 #ifdef TABLING
   INIT_GLOBAL_PAGE_ENTRY(GLOBAL_pages_susp_fr, struct suspension_frame);
 #endif
 #ifdef TABLING_INNER_CUTS
-  INIT_GLOBAL_PAGE_ENTRY(GLOBAL_pages_tg_sol_fr, struct table_subgoal_solution_frame);
-  INIT_GLOBAL_PAGE_ENTRY(GLOBAL_pages_tg_ans_fr, struct table_subgoal_answer_frame);
+  INIT_GLOBAL_PAGE_ENTRY(GLOBAL_pages_tg_sol_fr,
+                         struct table_subgoal_solution_frame);
+  INIT_GLOBAL_PAGE_ENTRY(GLOBAL_pages_tg_ans_fr,
+                         struct table_subgoal_answer_frame);
 #endif
 #endif /* YAPOR */
 
 #ifdef YAPOR
   /* global static data */
-  GLOBAL_number_workers= n_workers;
+  GLOBAL_number_workers = n_workers;
   GLOBAL_worker_pid(0) = getpid();
-  for (i = 1; i < GLOBAL_number_workers; i++) GLOBAL_worker_pid(i) = 0;
+  for (i = 1; i < GLOBAL_number_workers; i++)
+    GLOBAL_worker_pid(i) = 0;
   GLOBAL_scheduler_loop = sch_loop;
   GLOBAL_delayed_release_load = delay_load;
 
   /* global data related to or-parallelism */
   ALLOC_OR_FRAME(GLOBAL_root_or_fr);
   BITMAP_clear(GLOBAL_bm_present_workers);
-  for (i = 0; i < GLOBAL_number_workers; i++) 
+  for (i = 0; i < GLOBAL_number_workers; i++)
     BITMAP_insert(GLOBAL_bm_present_workers, i);
   BITMAP_copy(GLOBAL_bm_idle_workers, GLOBAL_bm_present_workers);
   BITMAP_clear(GLOBAL_bm_root_cp_workers);
@@ -146,7 +150,8 @@ void Yap_init_global_optyap_data(int max_table_size, int n_workers, int sch_loop
   GLOBAL_root_tab_ent = NULL;
 #ifdef LIMIT_TABLING
   if (max_table_size)
-    GLOBAL_max_pages = ((max_table_size - 1) * 1024 * 1024 / SHMMAX + 1) * SHMMAX / Yap_page_size;
+    GLOBAL_max_pages = ((max_table_size - 1) * 1024 * 1024 / SHMMAX + 1) *
+                       SHMMAX / Yap_page_size;
   else
     GLOBAL_max_pages = -1;
   GLOBAL_first_sg_fr = NULL;
@@ -154,7 +159,8 @@ void Yap_init_global_optyap_data(int max_table_size, int n_workers, int sch_loop
   GLOBAL_check_sg_fr = NULL;
 #endif /* LIMIT_TABLING */
 #ifdef YAPOR
-  new_dependency_frame(GLOBAL_root_dep_fr, FALSE, NULL, NULL, NULL, NULL, FALSE, NULL);
+  new_dependency_frame(GLOBAL_root_dep_fr, FALSE, NULL, NULL, NULL, NULL, FALSE,
+                       NULL);
 #endif /* YAPOR */
   for (i = 0; i < MAX_TABLE_VARS; i++) {
     CELL *pt = GLOBAL_table_var_enumerator_addr(i);
@@ -169,14 +175,13 @@ void Yap_init_global_optyap_data(int max_table_size, int n_workers, int sch_loop
   return;
 }
 
-
 void Yap_init_local_optyap_data(int wid) {
 #if defined(YAPOR_THREADS) || defined(THREADS_CONSUMER_SHARING)
   CACHE_REGS
 #endif /* YAPOR_THREADS || THREADS_CONSUMER_SHARING */
 
 #if defined(TABLING) && (defined(YAPOR) || defined(THREADS))
-  /* local data related to memory management */
+/* local data related to memory management */
 #ifdef YAPOR
   REMOTE_next_free_ans_node(wid) = NULL;
 #elif THREADS
@@ -203,7 +208,7 @@ void Yap_init_local_optyap_data(int wid) {
 
 #ifdef YAPOR
   /* local data related to or-parallelism */
-  Set_REMOTE_top_cp(wid, (choiceptr) LOCAL_LocalBase);
+  Set_REMOTE_top_cp(wid, (choiceptr)LOCAL_LocalBase);
   REMOTE_top_or_fr(wid) = GLOBAL_root_or_fr;
   REMOTE_load(wid) = 0;
   REMOTE_share_request(wid) = MAX_WORKERS;
@@ -217,11 +222,11 @@ void Yap_init_local_optyap_data(int wid) {
 
 #ifdef TABLING
   /* local data related to tabling */
-  REMOTE_top_sg_fr(wid) = NULL; 
-  REMOTE_top_dep_fr(wid) = NULL; 
+  REMOTE_top_sg_fr(wid) = NULL;
+  REMOTE_top_dep_fr(wid) = NULL;
 #ifdef YAPOR
-  REMOTE_top_dep_fr(wid) = GLOBAL_root_dep_fr; 
-  Set_REMOTE_top_cp_on_stack(wid, (choiceptr) LOCAL_LocalBase); /* ??? */
+  REMOTE_top_dep_fr(wid) = GLOBAL_root_dep_fr;
+  Set_REMOTE_top_cp_on_stack(wid, (choiceptr)LOCAL_LocalBase); /* ??? */
   REMOTE_top_susp_or_fr(wid) = GLOBAL_root_or_fr;
 #endif /* YAPOR */
 #ifdef THREADS_CONSUMER_SHARING
@@ -234,7 +239,6 @@ void Yap_init_local_optyap_data(int wid) {
   return;
 }
 
-
 void Yap_init_root_frames(void) {
   CACHE_REGS
 
@@ -244,7 +248,7 @@ void Yap_init_root_frames(void) {
   INIT_LOCK(OrFr_lock(or_fr));
   OrFr_alternative(or_fr) = NULL;
   BITMAP_copy(OrFr_members(or_fr), GLOBAL_bm_present_workers);
-  SetOrFr_node(or_fr, (choiceptr) LOCAL_LocalBase);
+  SetOrFr_node(or_fr, (choiceptr)LOCAL_LocalBase);
   OrFr_nearest_livenode(or_fr) = NULL;
   OrFr_depth(or_fr) = 0;
   Set_OrFr_pend_prune_cp(or_fr, NULL);
@@ -265,23 +269,26 @@ void Yap_init_root_frames(void) {
 #ifdef TABLING
   /* root global trie node */
   new_global_trie_node(GLOBAL_root_gt, 0, NULL, NULL, NULL);
-  /* root dependency frame */
+/* root dependency frame */
 #ifdef YAPOR
-  DepFr_cons_cp(GLOBAL_root_dep_fr) = B;  /* with YAPOR, at that point, LOCAL_top_dep_fr shouldn't be the same as GLOBAL_root_dep_fr ? */
+  DepFr_cons_cp(GLOBAL_root_dep_fr) = B; /* with YAPOR, at that point,
+                                            LOCAL_top_dep_fr shouldn't be the
+                                            same as GLOBAL_root_dep_fr ? */
 #else
-  new_dependency_frame(LOCAL_top_dep_fr, FALSE, NULL, NULL, B, NULL, FALSE, NULL); 
+  new_dependency_frame(LOCAL_top_dep_fr, FALSE, NULL, NULL, B, NULL, FALSE,
+                       NULL);
 #endif /* YAPOR */
 #endif /* TABLING */
 }
 
-
 void itos(int i, char *s) {
-  int n,r,j;
+  int n, r, j;
   n = 10;
-  while (n <= i) n *= 10;
+  while (n <= i)
+    n *= 10;
   j = 0;
   while (n > 1) {
-    n = n / 10;   
+    n = n / 10;
     r = i / n;
     i = i - r * n;
     s[j++] = r + '0';

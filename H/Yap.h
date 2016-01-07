@@ -377,6 +377,17 @@ typedef volatile int lockvar;
 #include "Regs.h"
 
 /*************************************************************************************************
+                                       OPTYAP includes
+*************************************************************************************************/
+
+#if defined(YAPOR) || defined(TABLING)
+#include "opt.structs.h"
+#include "opt.proto.h"
+#include "opt.macros.h"
+#endif /* YAPOR || TABLING */
+
+
+/*************************************************************************************************
                               variables concerned with Error Handling
 *************************************************************************************************/
 
@@ -734,17 +745,6 @@ typedef struct scratch_block_struct {
 #include "ScannerTypes.h"
 
 /*************************************************************************************************
-                                       OPTYAP includes
-*************************************************************************************************/
-
-#if defined(YAPOR) || defined(TABLING)
-#include "opt.structs.h"
-#include "opt.proto.h"
-#include "opt.macros.h"
-#endif /* YAPOR || TABLING */
-
-
-/*************************************************************************************************
                                   GLOBAL and LOCAL variables
 *************************************************************************************************/
 
@@ -771,10 +771,8 @@ extern struct worker_local Yap_local;
 
 #include <stdio.h>
 #define YP_FILE		FILE
-#include "hglobals.h"
-#include "dglobals.h"
-#include "hlocals.h"
-#include "dlocals.h"
+
+#include <YapHeap.h>
 
 
 /*************************************************************************************************

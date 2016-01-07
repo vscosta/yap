@@ -351,6 +351,12 @@ Term Yap_syntax_error(TokEntry *errtok, int sno) {
   tn[0] = Yap_MkApplTerm(FunctorShortSyntaxError, 1, &terr);
   tn[1] = TermNil;
   terr = Yap_MkApplTerm(FunctorError, 2, tn);
+#if DEBUG
+  if (Yap_ExecutionMode == YAP_BOOT_MODE) {
+    fprintf(stderr, "SYNTAX ERROR while booting: ");
+    Yap_DebugPlWriteln(terr);
+  }
+#endif
   return terr;
 }
 
@@ -365,6 +371,7 @@ typedef struct FEnv {
   xarg *args;          /// input args
   bool reading_clause; /// read_clause
   size_t nargs;        /// arity of current procedure
+  encoding_t enc;      /// encoding of the stream being read
 } FEnv;
 
 typedef struct renv {
@@ -388,10 +395,12 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   LOCAL_VarTable = NULL;
   LOCAL_AnonVarTable = NULL;
   re->cm = CurrentModule;
+  fe->enc = GLOBAL_Stream[inp_stream].encoding;
   xarg *args = Yap_ArgListToVector(opts, read_defs, READ_END);
   if (args == NULL) {
     return NULL;
   }
+
   re->bq = getBackQuotesFlag();
   if (args[READ_MODULE].used) {
     CurrentModule = args[READ_MODULE].tvalue;
@@ -446,9 +455,10 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   }
   if (args[READ_PRIORITY].used) {
     re->prio = IntegerOfTerm(args[READ_PRIORITY].tvalue);
-    if (re->prio > 1200) {
+    if (re->prio > GLOBAL_MaxPriority) {
       Yap_Error(DOMAIN_ERROR_OPERATOR_PRIORITY, opts,
-                "max priority in Prolog is 1200, not %ld", re->prio);
+                "max priority in Prolog is %d, not %ld", GLOBAL_MaxPriority,
+                re->prio);
     }
   } else {
     re->prio = LOCAL_default_priority;
@@ -651,6 +661,7 @@ static parser_state_t scan(REnv *re, FEnv *fe, int inp_stream) {
   /* preserve   value of H after scanning: otherwise we may lose strings
       and floats */
   LOCAL_tokptr = LOCAL_toktide =
+
       Yap_tokenizer(GLOBAL_Stream + inp_stream, false, &fe->tpos);
   if (LOCAL_ErrorMessage)
     return YAP_SCANNING_ERROR;
@@ -737,8 +748,10 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
 static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
   CACHE_REGS
   TokEntry *tokstart = LOCAL_tokptr;
-
+  encoding_t e = LOCAL_encoding;
+  LOCAL_encoding = fe->enc;
   fe->t = Yap_Parse(re->prio);
+  LOCAL_encoding = e;
   fe->toklast = LOCAL_tokptr;
   LOCAL_tokptr = tokstart;
   TR = (tr_fr_ptr)tokstart;
@@ -798,6 +811,17 @@ Term Yap_read_term(int inp_stream, Term opts, int nargs) {
       return fe.t;
     }
   }
+  if (fe.t) {
+    CACHE_REGS
+    if (fe.reading_clause &&
+        !complete_clause_processing(&fe, LOCAL_tokptr, fe.t))
+      fe.t = 0;
+    else if (!fe.reading_clause && !complete_processing(&fe, LOCAL_tokptr))
+      fe.t = 0;
+  }
+#if EMACS
+  first_char = tokstart->TokPos;
+#endif /* EMACS */
   return fe.t;
 }
 
@@ -808,7 +832,7 @@ static Int
   if ((rc = Yap_read_term(LOCAL_c_input_stream, ARG2, 2)) == 0)
     return FALSE;
   Term tf = Yap_GetFromSlot(h);
-  Yap_RecoverSlots(1, h PASS_REGS);
+  Yap_RecoverSlots(1, h);
   return Yap_unify(tf, rc);
 }
 
@@ -826,7 +850,7 @@ static Int read_term(
   out = Yap_read_term(inp_stream, ARG3, 3);
   UNLOCK(GLOBAL_Stream[inp_stream].streamlock);
   Term tf = Yap_GetFromSlot(h);
-  Yap_RecoverSlots(1, h PASS_REGS);
+  Yap_RecoverSlots(1, h);
   return out != 0L && Yap_unify(tf, out);
 }
 
@@ -976,7 +1000,7 @@ static Int read_clause2(USES_REGS1) {
   yhandle_t h = Yap_InitSlot(ARG1);
   rc = Yap_read_term(LOCAL_c_input_stream, Deref(ARG2), -2);
   Term tf = Yap_GetFromSlot(h);
-  Yap_RecoverSlots(1, h PASS_REGS);
+  Yap_RecoverSlots(1, h);
   return rc && Yap_unify(tf, rc);
 }
 
@@ -1014,7 +1038,7 @@ static Int read_clause(
   out = Yap_read_term(inp_stream, t3, -3);
   UNLOCK(GLOBAL_Stream[inp_stream].streamlock);
   Term tf = Yap_GetFromSlot(h);
-  Yap_RecoverSlots(1, h PASS_REGS);
+  Yap_RecoverSlots(1, h);
   return out && Yap_unify(tf, out);
 }
 
@@ -1170,7 +1194,7 @@ Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp, int prio,
     *bindings = Yap_GetFromSlot(sl);
   }
   if (bindings) {
-    Yap_RecoverSlots(sl, 1 PASS_REGS);
+    Yap_RecoverSlots(sl, 1);
   }
   return rval;
 }

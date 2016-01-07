@@ -706,9 +706,6 @@ void
 init_myddas(void)
 {
   CACHE_REGS
-#if defined MYDDAS_MYSQL
-  Yap_InitBackMYDDAS_MySQLPreds();
-#endif
 #if defined MYDDAS_ODBC
   Yap_InitBackMYDDAS_ODBCPreds();
 #endif
@@ -732,21 +729,6 @@ init_myddas(void)
 #endif
 #if defined MYDDAS_TOP_LEVEL && defined MYDDAS_MYSQL // && defined HAVE_LIBREADLINE
   Yap_InitMYDDAS_TopLevelPreds();
-#endif
-#ifdef MYDDAS_MYSQL_INIT
-  if (yap_init->myddas) {
-    Yap_PutValue(AtomMyddasGoal,MkIntegerTerm(yap_init->myddas));
-
-    /* Mandatory Fields */
-    Yap_PutValue(AtomMyddasUser,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_user)));
-    Yap_PutValue(AtomMyddasDB,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_db)));
-
-    /* Non-Mandatory Fields */
-    if (yap_init->myddas_pass != NULL)
-      Yap_PutValue(AtomMyddasPass,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_pass)));
-    if (yap_init->myddas_host != NULL)
-      Yap_PutValue(AtomMyddasHost,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_host)));
-  }
 #endif
 #if USE_MYDDAS
 #define stringify(X) _stringify(X)

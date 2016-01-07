@@ -24,7 +24,6 @@ tmtags*
 .zedstate
 config.h
 Yap.h
-*Makefile
 YapConfig.h
 YapTermConfig.h
 .graffiti
@@ -48,7 +47,6 @@ groups
 .Rhistory
 .zedstate
 .graffiti
-*Makefile
 .kateproject
 autom4te.cache
 *rej
@@ -61,7 +59,6 @@ JIT/HPP/bkp
 cmake_install.cmake
 cmake_clean.cmake
 *.build
-Makefile
 C/myabsmi.c
 *.ctags#
 *.hs
@@ -78,6 +75,7 @@ yap
 *cmake_files
 C/pl-yap.c
 GitSHA1.c
+.vscode
 CMakeLists.txt.*
 FindPackageLog.txt
 GitSHA1.c
@@ -112,10 +110,29 @@ packages/real/rconfig.h
 
 packages/ProbLog/problog/#completion.yap#
 
-packages/ProbLog/problog_examples/output/out.dat
+packages/ProbLog/problog_examples/output
+packages/ProbLog/problog_examples/queries
+packages/swig/java/*.java
+packages/swig/java/*.class
+packages/swig/java/*.jar
+packages/swig/java/*wrap*
+*jnilib
+*.jar
 
-packages/ProbLog/problog_examples/output/,_query_1_cluster_1.dot
+packages/cplint/approx/simplecuddLPADs/LPADBDD
 
-packages/ProbLog/problog_examples/output/out.dat
+packages/swi-minisat2/˜:ilp
 
-packages/ProbLog/problog_examples/output/,_query_1_cluster_1
+packages/cplint/L
+
+packages/CLPBN/horus/hcli
+
+packages/bdd/simplecudd/problogbdd
+
+packages/bdd/cudd_config.h
+Makefile
+build
+Debug
+debug
+Release
+Build

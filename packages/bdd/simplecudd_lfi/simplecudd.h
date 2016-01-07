@@ -249,7 +249,7 @@ typedef struct _bddfileheader {
 typedef struct _namedvars {
   int varcnt;
   int varstart;
-  char **vars;
+  const char ** vars;
   int *loaded;
   double *dvalue;
   int *ivalue;
@@ -317,8 +317,8 @@ void SetNamedVarValuesAt(namedvars varmap, int index, double dvalue, int ivalue,
 int SetNamedVarValues(namedvars varmap, const char *varname, double dvalue, int ivalue, void *dynvalue);
 int GetNamedVarIndex(const namedvars varmap, const char *varname);
 int RepairVarcnt(namedvars *varmap);
-char* GetNodeVarName(DdManager *manager, namedvars varmap, DdNode *node);
-char* GetNodeVarNameDisp(DdManager *manager, namedvars varmap, DdNode *node);
+const char* GetNodeVarName(DdManager *manager, namedvars varmap, DdNode *node);
+const char* GetNodeVarNameDisp(DdManager *manager, namedvars varmap, DdNode *node);
 int all_loaded(namedvars varmap, int disp);
 int all_loaded_for_deterministic_variables(namedvars varmap, int disp);
 
@@ -351,6 +351,6 @@ void ExpandNodes(hisqueue *Nodes, int index, int nodenum);
 
 /* Export */
 
-int simpleBDDtoDot(DdManager *manager, DdNode *bdd, char *filename);
-int simpleNamedBDDtoDot(DdManager *manager, namedvars varmap, DdNode *bdd, char *filename);
+int simpleBDDtoDot(DdManager *manager, DdNode *bdd, const char *filename);
+int simpleNamedBDDtoDot(DdManager *manager, namedvars varmap, DdNode *bdd, const char *filename);
 

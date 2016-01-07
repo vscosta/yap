@@ -158,17 +158,30 @@ MemPutc(int sno, int ch)
   CACHE_REGS
   int sno;
   StreamDesc *st;
- 
+  FILE *f;
+  encoding_t encoding;
+  stream_flags_t flags;
+   
   sno = GetFreeStreamD();
   if (sno < 0)
     return (PlIOError (RESOURCE_ERROR_MAX_STREAMS,TermNil, "new stream not available for open_mem_read_stream/1"));
-  st = &GLOBAL_Stream[sno];
-  Yap_DefaultStreamOps( st );
+  st = GLOBAL_Stream+sno;
+  if (encp)
+    encoding = *encp;
+  else
+    encoding = LOCAL_encoding;
 #if MAY_READ
   // like any file stream.
-  st->status = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
-  st->file = fmemopen( (void *)nbuf, nchars, "r");
+  f = fmemopen( (void *)nbuf, nchars, "r");
+  flags = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
 #else
+  f = NULL;
+  flags = Input_Stream_f | InMemory_Stream_f;
+#endif
+  Yap_initStream(sno, f, NULL, TermNil,
+                        encoding,  flags, AtomRead);
+  // like any file stream.
+#if !MAY_READ
   /* currently these streams are not seekable */
   st->status = Input_Stream_f | InMemory_Stream_f;
   st->u.mem_string.pos = 0;
@@ -178,13 +191,6 @@ MemPutc(int sno, int ch)
   st->u.mem_string.src = src;
 #endif
   Yap_MemOps( st );
-  st->linepos = 0;
-  st->charcount = 0;
-  st->linecount = 1;
-  if (encp)
-    st->encoding = *encp;
-  else
-    st->encoding = LOCAL_encoding;
   UNLOCK(st->streamlock);
   return sno;
 }

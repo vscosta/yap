@@ -248,7 +248,7 @@ This option allows exporting the current model to the href{http://graphmod.ics.u
 
 
 + export_graphviz
-This option allows exporting the factor graph's structure into a format that can be parsed by href{http://www.graphviz.org/}{Graphviz}.
+This option allows exporting the factor graph's structure into a format that xocan be parsed by href{http://www.graphviz.org/}{Graphviz}.
   + Values: `true` or `false` (default).
   + Affects: `hve`, `bp`, and `cbp`.
 
@@ -362,7 +362,7 @@ The options that are available with the `set_pfl_flag/2` predicate can be used i
    ->
 	% we're using factor language
 	% set appropriate flag
-	set_pfl_flag(use_factors,on)
+	set_pfl_flag(use_parfactors,on)
    ;
 	% we're within clp(bn), no need to do anything
 	true
@@ -504,7 +504,11 @@ new_skolem(Sk, D) :-
 	functor(Sk, N, A),
 	functor(NSk, N, A),
 	% [f,t] is special for evidence
-	( D = [f,t] -> assert((evidence(NSk, 1) :- user:NSk)) ; true ),
+	( D = [f,t] ->
+      dynamic(N/A),
+      assert((evidence(NSk, 1) :- user:NSk))
+    ;
+      true ),
 	interface_predicate(NSk),
 	assert(skolem(NSk, D)).
 

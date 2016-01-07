@@ -241,7 +241,7 @@ double CalcExpectedCountsUp(extmanager * MyManager, DdNode *Current, char *query
 double CalcExpectedCountsDown(extmanager * MyManager, DdNode *Current, char *query_id);
 double CalcExpectedCounts(extmanager * MyManager, DdNode *Current, char *query_id, int calcdown_needed);
 int patterncalculated(char *pattern, extmanager MyManager, int loc);
-char * extractpattern(char *thestr);
+char * extractpattern(const char *thestr);
 
 int main(int argc, char **arg) {
   extmanager MyManager;
@@ -476,7 +476,7 @@ int main(int argc, char **arg) {
       free(MyManager.varmap.dynvalue);
     }
     for (i = 0; i < MyManager.varmap.varcnt; i++)
-      free(MyManager.varmap.vars[i]);
+      free((const char *)MyManager.varmap.vars[i]);
     free(MyManager.varmap.vars);
   }
   if (params.error != NULL) free(params.error);
@@ -1168,7 +1168,7 @@ gradientpair CalcGradient(extmanager MyManager, DdNode *Current, int TargetVar, 
   return tvalue;
 }
 
-char * extractpattern(char *thestr) {
+char * extractpattern(const char *thestr) {
   char *p;
   int i = 0, sl = strlen(thestr);
   while((thestr[i] != '_') && (i < sl)) i++;

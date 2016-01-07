@@ -3875,7 +3875,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     cl->ClSize = osize;
     cip->code_addr = (yamop *)cl;
   } else if (mode == ASSEMBLING_CLAUSE && 
-      (ap->PredFlags & SourcePredFlag ||
+             (ap->PredFlags & (SourcePredFlag|MultiFileFlag) ||
        trueGlobalPrologFlag(SOURCE_FLAG ) ) &&
       !is_fact) {
     DBTerm *x;
@@ -3907,19 +3907,21 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     }
     Yap_inform_profiler_of_clause(cip->code_addr, (char *)(cip->code_addr)+size, ap, ( mode == ASSEMBLING_INDEX ? GPROF_INDEX : GPROF_CLAUSE )); 
     if (mode == ASSEMBLING_CLAUSE) {
-      if (ap->PredFlags & LogUpdatePredFlag) {
-	((LogUpdClause *)(cip->code_addr))->ClSize = size;
-	Yap_LUClauseSpace += size;
+       if (ap->PredFlags & LogUpdatePredFlag) {
+        ((LogUpdClause *)(cip->code_addr))->ClSize = size;
+        Yap_LUClauseSpace += size;
       } else {
-	((StaticClause *)(cip->code_addr))->ClSize = size;
-	((StaticClause *)(cip->code_addr))->ClFlags = 0;
-	Yap_ClauseSpace += size;
+        StaticClause *cl = ((StaticClause *)(cip->code_addr));
+        cl->usc.ClSource = NULL;
+        cl->ClSize = size;
+        cl->ClFlags = 0;
+        Yap_ClauseSpace += size;
       }
     } else {
       if (ap->PredFlags & LogUpdatePredFlag) {
-	Yap_LUIndexSpace_Tree += size;
+        Yap_LUIndexSpace_Tree += size;
       } else
-	Yap_IndexSpace_Tree += size;
+        Yap_IndexSpace_Tree += size;
     }
   }
   do_pass(1, &entry_code, mode, &clause_has_blobs, &clause_has_dbterm, cip, size PASS_REGS);

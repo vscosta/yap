@@ -806,7 +806,7 @@ X_API Term YAP_MkPairTerm(Term t1, Term t2) {
     BACKUP_H();
     t1 = Yap_GetFromSlot(sl1);
     t2 = Yap_GetFromSlot(sl2);
-    Yap_RecoverSlots(2, sl2 PASS_REGS);
+    Yap_RecoverSlots(2, sl2);
   }
   t = MkPairTerm(t1, t2);
   RECOVER_H();
@@ -828,7 +828,7 @@ X_API Term YAP_MkListFromTerms(Term *ta, Int sz) {
     }
     BACKUP_H();
     ta = (CELL *)Yap_GetFromSlot(sl1);
-    Yap_RecoverSlots(1, sl1 PASS_REGS);
+    Yap_RecoverSlots(1, sl1);
   }
   h = HR;
   t = AbsPair(h);
@@ -1063,7 +1063,7 @@ X_API Int YAP_TermHash(Term t, Int sz, Int depth, int variant) {
 
 X_API Int YAP_CurrentSlot(void) {
   CACHE_REGS
-  return Yap_CurrentSlot(PASS_REGS1);
+  return Yap_CurrentSlot();
 }
 
 X_API Int YAP_NewSlots(int n) {
@@ -1078,7 +1078,7 @@ X_API Int YAP_InitSlot(Term t) {
 
 X_API int YAP_RecoverSlots(int n, Int top_slot) {
   CACHE_REGS
-  return Yap_RecoverSlots(n, top_slot PASS_REGS);
+  return Yap_RecoverSlots(n, top_slot);
 }
 
 X_API Term YAP_GetFromSlot(Int slot) {
@@ -1109,7 +1109,7 @@ restart:
 
 X_API void YAP_PutInSlot(Int slot, Term t) {
   CACHE_REGS
-  Yap_PutInSlot(slot, t PASS_REGS);
+  Yap_PutInSlot(slot, t);
 }
 
 typedef Int (*CPredicate0)(void);
@@ -1723,7 +1723,7 @@ X_API Term YAP_ReadBuffer(const char *s, Term *tp) {
   BACKUP_H();
 
   LOCAL_ErrorMessage = NULL;
-  while (!(t = Yap_StringToTerm(s, strlen(s) + 1, &LOCAL_encoding, 1200, tp))) {
+  while (!(t = Yap_StringToTerm(s, strlen(s) + 1, &LOCAL_encoding, GLOBAL_MaxPriority, tp))) {
     if (LOCAL_ErrorMessage) {
       if (!strcmp(LOCAL_ErrorMessage, "Stack Overflow")) {
         if (!Yap_dogc(0, NULL PASS_REGS)) {
@@ -2394,6 +2394,7 @@ X_API void YAP_ClearExceptions(void) {
 }
 
 X_API int YAP_InitConsult(int mode, const char *filename, int *osnop) {
+  CACHE_REGS
   FILE *f;
   int sno;
   BACKUP_MACHINE_REGS();
@@ -2403,7 +2404,7 @@ X_API int YAP_InitConsult(int mode, const char *filename, int *osnop) {
   }
   bool consulted = (mode == YAP_CONSULT_MODE);
   Yap_init_consult(consulted, filename);
-  f = fopen(filename, "r");
+  f = fopen(Yap_AbsoluteFile(filename, LOCAL_FileNameBuf, FILENAME_MAX-1), "r");
   if (!f)
     return -1;
   sno = Yap_OpenStream(f, NULL, TermNil, Input_Stream_f);
@@ -2467,7 +2468,7 @@ X_API void YAP_Write(Term t, FILE *f, int flags) {
   BACKUP_MACHINE_REGS();
   int sno = Yap_OpenStream(f, NULL, TermNil, Output_Stream_f);
 
-  Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, 1200);
+  Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, GLOBAL_MaxPriority);
   Yap_ReleaseStream(sno);
 
   RECOVER_MACHINE_REGS();
@@ -2717,7 +2718,7 @@ X_API Int YAP_Init(YAP_init_args *yap_init) {
       setBooleanGlobalPrologFlag(HALT_AFTER_CONSULT_FLAG,
                                  yap_init->HaltAfterConsult);
     }
-    /* tell the system who should cope with interrupts */
+    /* tell the scystem who should cope with interrupts */
     Yap_ExecutionMode = yap_init->ExecutionMode;
     if (do_bootstrap) {
       restore_result = YAP_BOOT_FROM_PROLOG;
@@ -3326,7 +3327,6 @@ X_API int YAP_FileNoFromStream(Term t) {
   if (IsVarTerm(t))
     return -1;
   return Yap_StreamToFileNo(t);
-  return -1;
 }
 
 X_API void *YAP_FileDescriptorFromStream(Term t) {
@@ -3335,7 +3335,6 @@ X_API void *YAP_FileDescriptorFromStream(Term t) {
   if (IsVarTerm(t))
     return NULL;
   return Yap_FileDescriptorFromStream(t);
-  return NULL;
 }
 
 X_API void *YAP_Record(Term t) {
@@ -3588,7 +3587,6 @@ Term YAP_BPROLOG_curr_toam_status;
  * @return a positive number with the size, or 0.
  */
 size_t YAP_UTF8_TextLength(Term t) {
-  Term *aux;
   utf8proc_uint8_t dst[8];
   size_t sz = 0;
 
@@ -3652,7 +3650,7 @@ Term YAP_UnNumberVars(Term t) {
 }
 
 int YAP_IsNumberedVariable(Term t) {
-  return IsApplTerm(t) && FunctorOfTerm(t) == FunctorVar &&
+  return IsApplTerm(t) && FunctorOfTerm(t) == FunctorDollarVar &&
          IsIntegerTerm(ArgOfTerm(1, t));
 }
 

@@ -1768,8 +1768,7 @@ void DumpActiveGoals(USES_REGS1) {
       if (mod == PROLOG_MODULE)
         mod = TermProlog;
       Term t = Yap_MkNewApplTerm(f, pe->ArityOfPE);
-      Yap_plwrite(Yap_PredicateIndicator(t,mod),GLOBAL_Stream+2, 0, 0, 1200);
-
+      Yap_plwrite(Yap_PredicateIndicator(t,mod),GLOBAL_Stream+2, 0, 0, GLOBAL_MaxPriority);
       fputc(  '\n', stderr );
     } else {
       UNLOCK(pe->PELock);
@@ -1798,23 +1797,23 @@ void DumpActiveGoals(USES_REGS1) {
       else
         mod = TermProlog;
       if (mod != TermProlog && mod != MkAtomTerm(AtomUser)) {
-        Yap_plwrite(mod,GLOBAL_Stream+2, 0, 0, 1200);
+        Yap_plwrite(mod,GLOBAL_Stream+2, 0, 0, GLOBAL_MaxPriority);
         fputc(  ':', stderr );
       }
       if (mod == IDB_MODULE) {
         if (pe->PredFlags & NumberDBPredFlag) {
           Int id = pe->src.IndxId;
-          Yap_plwrite(MkIntegerTerm(id),GLOBAL_Stream+2, 0, 0, 1200);
+          Yap_plwrite(MkIntegerTerm(id),GLOBAL_Stream+2, 0, 0, GLOBAL_MaxPriority);
         } else if (pe->PredFlags & AtomDBPredFlag) {
           Atom At = (Atom)pe->FunctorOfPred;
-          Yap_plwrite(MkAtomTerm(At),GLOBAL_Stream+2, 0, 0, 1200);
+          Yap_plwrite(MkAtomTerm(At),GLOBAL_Stream+2, 0, 0, GLOBAL_MaxPriority);
         } else {
           Functor f = pe->FunctorOfPred;
           Atom At = NameOfFunctor(f);
           arity_t arity = ArityOfFunctor(f);
           int i;
 
-          Yap_plwrite(MkAtomTerm(At),GLOBAL_Stream+2, 0, 0, 1200);
+          Yap_plwrite(MkAtomTerm(At),GLOBAL_Stream+2, 0, 0, GLOBAL_MaxPriority);
           fputc(  '(', stderr );
           for (i = 0; i < arity; i++) {
             if (i > 0)
@@ -1824,14 +1823,14 @@ void DumpActiveGoals(USES_REGS1) {
           fputc(  ')', stderr );
         }
         fputc(  '(', stderr );
-        Yap_plwrite(b_ptr->cp_a2,GLOBAL_Stream+2, 0, 0, 1200);
+        Yap_plwrite(b_ptr->cp_a2,GLOBAL_Stream+2, 0, 0, GLOBAL_MaxPriority);
         fputc(  ')', stderr );
       } else if (pe->ArityOfPE == 0) {
-        Yap_plwrite(MkAtomTerm((Atom)f),GLOBAL_Stream+2, 0, 0, 1200);
+        Yap_plwrite(MkAtomTerm((Atom)f),GLOBAL_Stream+2, 0, 0, GLOBAL_MaxPriority);
       } else {
         Int i = 0, arity = pe->ArityOfPE;
         if (opnum == _or_last || opnum == _or_else) {
-          Yap_plwrite(MkAtomTerm(NameOfFunctor(f)),GLOBAL_Stream+2, 0, 0, 1200);
+          Yap_plwrite(MkAtomTerm(NameOfFunctor(f)),GLOBAL_Stream+2, 0, 0, GLOBAL_MaxPriority);
         fputc(  '(', stderr );
           for (i = 0; i < arity; i++) {
             if (i > 0)
@@ -1841,12 +1840,12 @@ void DumpActiveGoals(USES_REGS1) {
           fputs(") :- ... ( _  ; _ ", stderr);
         } else {
           Term *args = &(b_ptr->cp_a1);
-          Yap_plwrite(MkAtomTerm(NameOfFunctor(f)),GLOBAL_Stream+2, 0, 0, 1200);
+          Yap_plwrite(MkAtomTerm(NameOfFunctor(f)),GLOBAL_Stream+2, 0, 0, GLOBAL_MaxPriority);
            fputc(  '(', stderr );
           for (i = 0; i < arity; i++) {
             if (i > 0)
               fputc(  ',', stderr );
-            Yap_plwrite(args[i],GLOBAL_Stream+2, 0, 0, 1200);
+            Yap_plwrite(args[i],GLOBAL_Stream+2, 0, 0, GLOBAL_MaxPriority);
            }
         }
         fputc(  ')', stderr );

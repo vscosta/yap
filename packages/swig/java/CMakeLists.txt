@@ -58,7 +58,7 @@ if (Java_Development_FOUND)
 
    set(CMAKE_JNI_TARGET 1)
     ADD_JAR( NativeJar
-      SOURCES "../../../misc/icons/yap_16x16x32.png"
+      SOURCES "../../../docs/icons/yap_16x16x32.png"
       DEPENDS Native
       PROPERTIES OUTPUT_NAME Native
       )

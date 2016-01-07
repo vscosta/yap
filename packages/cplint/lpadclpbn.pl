@@ -22,7 +22,6 @@
 
 :-set_clpbn_flag(bnt_model,propositional).
 
-
 /* start of list of parameters that can be set by the user with
 set(Parameter,Value) */
 setting(epsilon_parsing,0.00001).
