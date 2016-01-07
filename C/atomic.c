@@ -113,6 +113,25 @@ hide_atom( USES_REGS1 )
 	  RepAtom(atomToInclude)->StrOfAE);
     return(FALSE);
   }
+  AtomEntry *ae = RepAtom(atomToInclude);
+  Prop p = ae->PropsOfAE;
+  while (p) {
+    if (IsPredProperty(p->KindOfPE) ||
+        IsDBProperty(p->KindOfPE ) ) {
+      RepPredProp(p)->PredFlags |= HiddenPredFlag;
+  
+    } else if (p->KindOfPE == FunctorProperty) {
+      Prop q = RepFunctorProp(p)->PropsOfFE;
+      while (q) {
+        if (IsPredProperty(q->KindOfPE) ||
+            IsDBProperty(q->KindOfPE) ) {
+          RepPredProp(q)->PredFlags |= HiddenPredFlag;
+        }
+        q = q->NextOfPE;
+      }
+    }
+    p =p->NextOfPE;
+  }
   Yap_ReleaseAtom(atomToInclude);
   WRITE_LOCK(INVISIBLECHAIN.AERWLock);
   WRITE_LOCK(RepAtom(atomToInclude)->ARWLock);
