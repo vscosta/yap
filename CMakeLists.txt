@@ -411,6 +411,14 @@ add_subDIRECTORY (packages/raptor)
 
 add_subDIRECTORY (packages/xml)
 
+# please install doxygen for prolog first
+# git clone http://www.github.com/vscosta/doxygen-yap
+# cd doxygen-yap
+# mkdir -p build
+# cd build
+# make; sudo make install
+option (WITH_DOCS
+  "generate YAP docs" OFF)
 add_subDIRECTORY (docs)
 
 # add_subDIRECTORY (packages/cuda)
