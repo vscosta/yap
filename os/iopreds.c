@@ -1256,6 +1256,8 @@ typedef enum open_enum_choices { OPEN_DEFS() } open_choices_t;
 static const param_t open_defs[] = {OPEN_DEFS()};
 #undef PAR
 
+
+
 static Int
 do_open(Term file_name, Term t2,
         Term tlist USES_REGS) { /* '$open'(+File,+Mode,?Stream,-ReturnCode) */
@@ -1264,7 +1266,7 @@ do_open(Term file_name, Term t2,
   SMALLUNSGN s;
   char io_mode[8];
   StreamDesc *st;
-  bool avoid_bom = true, needs_bom = false, bin = false;
+  bool avoid_bom = false, needs_bom = false;
   char *fname;
   stream_flags_t flags;
   FILE *fd;
@@ -1361,42 +1363,32 @@ do_open(Term file_name, Term t2,
       flags |= Binary_Stream_f;
       encoding = ENC_OCTET;
       avoid_bom = true;
+      needs_bom = false;
     } else if (t == TermText) {
 #ifdef _WIN32
       strncat(io_mode, "t", 8);
 #endif
 /* note that this matters for UNICODE style  conversions */
-#if MAC
-      if (open_mode == AtomWrite) {
-        Yap_SetTextFile(RepAtom(AtomOfTerm(file_name))->StrOfAE);
-      }
-#endif
     } else {
       Yap_Error(DOMAIN_ERROR_STREAM, tlist,
                 "type is ~a, must be one of binary or text", t);
     }
   }
   // BOM mess
-  if ((encoding == ENC_OCTET || encoding == ENC_ISO_ASCII ||
-       encoding == ENC_ISO_LATIN1 || encoding == ENC_ISO_UTF8 || bin)) {
-    avoid_bom = true;
+  if (encoding == ENC_UTF16_BE || encoding == ENC_UTF16_LE ||
+       encoding == ENC_ISO_UTF32_BE || encoding == ENC_ISO_UTF32_LE ) {
+    needs_bom = true;
   }
   if (args[OPEN_BOM].used) {
     if (args[OPEN_BOM].tvalue == TermTrue) {
+      avoid_bom = false;
       needs_bom = true;
-      if (avoid_bom) {
-        return (PlIOError(SYSTEM_ERROR_INTERNAL, file_name,
-                          "BOM not compatible with encoding"));
-      }
     } else if (args[OPEN_BOM].tvalue == TermFalse) {
-      needs_bom = false;
       avoid_bom = true;
-    } else {
-      Yap_Error(DOMAIN_ERROR_STREAM, tlist,
-                "bom is ~a,  should be one of true or false",
-                args[OPEN_BOM].tvalue);
+      needs_bom = false;
     }
-  } else if (st - GLOBAL_Stream < 3) {
+  }
+  if (st - GLOBAL_Stream < 3) {
     flags |= RepError_Prolog_f;
   }
   if ((fd = fopen(fname, io_mode)) == NULL ||
@@ -1420,19 +1412,9 @@ do_open(Term file_name, Term t2,
     return false;
   if (open_mode == AtomWrite) {
     if (needs_bom && !write_bom(sno, st))
-      return FALSE;
-  } else if ((open_mode == AtomRead) && !avoid_bom &&
-             (needs_bom || (flags & Seekable_Stream_f))) {
+      return false;
+  } else if ( open_mode == AtomRead && !avoid_bom ) {
     check_bom(sno, st); // can change encoding
-    if (st->encoding == ENC_ISO_UTF32_BE) {
-      Yap_Error(DOMAIN_ERROR_STREAM_ENCODING, ARG1,
-                "UTF-32 (BE) stream encoding unsupported");
-      return FALSE;
-    } else if (st->encoding == ENC_ISO_UTF32_LE) {
-      Yap_Error(DOMAIN_ERROR_STREAM_ENCODING, ARG1,
-                "UTF-32 (LE) stream encoding unsupported");
-      return FALSE;
-    }
   }
 
   UNLOCK(st->streamlock);
@@ -1441,7 +1423,6 @@ do_open(Term file_name, Term t2,
     return (Yap_unify(ARG3, t));
   }
 }
-
 static Int open3(USES_REGS1) { /* '$open'(+File,+Mode,?Stream,-ReturnCode) */
   return do_open(Deref(ARG1), Deref(ARG2), TermNil PASS_REGS);
 }
