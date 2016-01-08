@@ -878,13 +878,20 @@ static Int
 }
 
 static bool valid_prop(Prop p, Term task) {
-  if (RepPredProp(p)->OpcodeOfPred == UNDEF_OPCODE)
+  if ((RepPredProp(p)->PredFlags & HiddenPredFlag) ||
+      (RepPredProp(p)->OpcodeOfPred == UNDEF_OPCODE) ){
     return false;
-  if ((RepPredProp(p)->PredFlags & (HiddenPredFlag | StandardPredFlag))) {
-    return (task == SYSTEM_MODULE || task == TermTrue || IsVarTerm(task));
-  } else {
-    return (task == USER_MODULE || task == TermTrue || IsVarTerm(task));
   }
+  if(task == TermSystem || task == TermProlog)  {
+    return RepPredProp(p)->PredFlags & StandardPredFlag;
+  }
+  if(task == TermUser)  {
+    return !(RepPredProp(p)->PredFlags & StandardPredFlag);
+  }
+  if (IsVarTerm(task)) {
+    return true;
+  }
+  return false;
 }
 
 static PropEntry *followLinkedListOfProps(PropEntry *p, Term task) {

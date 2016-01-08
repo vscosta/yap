@@ -2908,36 +2908,8 @@ static Int p_clean_up_dead_clauses(USES_REGS1) {
 
 void Yap_HidePred(PredEntry *pe) {
   Prop p0 = AbsPredProp(pe);
-  if (pe->ArityOfPE == 0) {
-    Atom a = (Atom)pe->FunctorOfPred;
 
-    p0 = RepAtom(a)->PropsOfAE;
-    if (p0 == AbsPredProp(pe)) {
-      RepAtom(a)->PropsOfAE = pe->NextOfPE;
-    } else {
-      while (p0->NextOfPE != AbsPredProp(pe))
-        p0 = p0->NextOfPE;
-      if (p0 == NIL)
-        return;
-      p0->NextOfPE = pe->NextOfPE;
-    }
-  } else {
-    Functor funt = pe->FunctorOfPred;
-
-    p0 = funt->PropsOfFE;
-    if (p0 == AbsPredProp(pe)) {
-      funt->PropsOfFE = pe->NextOfPE;
-    } else {
-      while (p0->NextOfPE != AbsPredProp(pe))
-        p0 = p0->NextOfPE;
-      if (p0 == NIL)
-        return;
-      p0->NextOfPE = pe->NextOfPE;
-    }
-  }
-  pe->NextOfPE = HIDDEN_PREDICATES;
-  HIDDEN_PREDICATES = AbsPredProp(pe);
-  pe->PredFlags |= HiddenPredFlag;
+  pe->PredFlags |= (HiddenPredFlag | NoSpyPredFlag | NoTracePredFlag);
 }
 
 static Int /* $system_predicate(P) */
@@ -3022,7 +2994,7 @@ restart_system_pred:
     return false;
   if (EndOfPAEntr(pe))
     return false;
-  pe->PredFlags |= (HiddenPredFlag / NoSpyPredFlag | NoTracePredFlag);
+  pe->PredFlags |= (HiddenPredFlag | NoSpyPredFlag | NoTracePredFlag);
   return true;
 }
 

@@ -20,14 +20,11 @@ xc/*************************************************************************
 % This protects all code from further changes
 % and also makes it impossible from some predicates to be seen
 '$protect' :-
-    current_atom(Name),
-    '$current_predicate'(Name,M,P,_),
+    '$current_predicate'(Name,M,P,_),riteln(P),
     M \= user,
     functor(P,Name,Arity),
     '$new_system_predicate'(Name,Arity,M),
     sub_atom(Name,0,1,_, '$'),
-    \+ '$visible'(Name),
-    hide_predicate(M:P),
     fail.
 '$protect' :-
     current_atom(Name),
@@ -44,15 +41,15 @@ xc/*************************************************************************
 '$visible'('$dbref').			/* not stream position */
 '$visible'('$stream').			/* not $STREAM */
 '$visible'('$stream_position').		/* not stream position */
-'$visible'('$hacks').			
-'$visible'('$source_location').			
-'$visible'('$messages').		
-'$visible'('$push_input_context').		
-'$visible'('$pop_input_context').		
-'$visible'('$set_source_module').		
-'$visible'('$declare_module').		
-'$visible'('$store_clause').		
-'$visible'('$skip_list').		
+'$visible'('$hacks').
+'$visible'('$source_location').
+'$visible'('$messages').
+'$visible'('$push_input_context').
+'$visible'('$pop_input_context').
+'$visible'('$set_source_module').
+'$visible'('$declare_module').
+'$visible'('$store_clause').
+'$visible'('$skip_list').
 '$visible'('$win_insert_menu_item').
 '$visible'('$set_predicate_attribute').
 '$visible'('$parse_quasi_quotations').
@@ -60,4 +57,3 @@ xc/*************************************************************************
 '$visible'('$qq_open').
 '$visible'('$live').
 '$visible'('$init_prolog').
-

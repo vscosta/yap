@@ -13,7 +13,15 @@
 
 %% @{
 
-/** @defgroup absolute_file_name File Name Resolution
+:- system_module( absf, [absolute_file_name/2,
+        absolute_file_name/3,
+        add_to_path/1,
+        add_to_path/2,
+        path/1,
+        remove_from_path/1], ['$full_filename'/3,
+        '$system_library_directories'/2]).
+
+/** @defgroup absf File Name Resolution
 
    @ingroup builtins
 
@@ -24,14 +32,6 @@
   variables and registry information to search for files.
 
   **/
-:- system_module( absolute_file_name, [absolute_file_name/2,
-        absolute_file_name/3,
-        add_to_path/1,
-        add_to_path/2,
-        path/1,
-        remove_from_path/1], ['$full_filename'/3,
-        '$system_library_directories'/2]).
-
 :- use_system_module( '$_boot', ['$system_catch'/4]).
 
 :- use_system_module( '$_errors', ['$do_error'/2]).

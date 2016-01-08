@@ -1876,6 +1876,7 @@ static LogUpdClause *new_lu_db_entry(Term t, PredEntry *pe) {
     cl->ClTimeStart = 0L;
   }
   cl->ClTimeEnd = TIMESTAMP_EOT;
+
 #if MULTIPLE_STACKS
   //  INIT_LOCK(cl->ClLock);
   INIT_CLREF_COUNT(cl);
@@ -2709,6 +2710,8 @@ static PredEntry *new_lu_entry(Term t) {
   }
   pe->ArityOfPE = 3;
   pe->OpcodeOfPred = Yap_opcode(_op_fail);
+  if (CurrentModule == PROLOG_MODULE)
+    pe->PredFlags |= StandardPredFlag;
   pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred = FAILCODE;
   return pe;
 }
@@ -5107,7 +5110,7 @@ static Int p_dequeue(USES_REGS1) {
   QueueEntry *cur_instance;
   Term Father = Deref(ARG1);
   Int rc;
-  
+
   if (IsVarTerm(Father)) {
     Yap_Error(INSTANTIATION_ERROR, Father, "dequeue");
     return FALSE;
