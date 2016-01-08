@@ -2024,9 +2024,13 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
       return l;
 
     default:
+      {
+       char err[1024];
+       snprintf( err, 1023,  "\n++++ token: unrecognised char %c (%d), type %c\n", ch, ch, chtype(ch) );
 #if DEBUG
-      fprintf(stderr, "\n++++ token: wrong char type %c %d\n", ch, chtype(ch));
+       fprintf(stderr, "%s", err);
 #endif
+      }
       t->Tok = Ord(kind = eot_tok);
     }
 #if DEBUG

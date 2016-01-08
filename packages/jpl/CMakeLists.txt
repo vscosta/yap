@@ -53,6 +53,13 @@ if (Java_Development_FOUND)
 
   target_link_libraries(jplYap libYap ${JAVA_LIBRARIES} ${JNI_LIBRARIES})
 
+  #SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+  LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${libdir};${dlls};${JAVA_JVM_LIBRARY}/..;${JAVA_JVM_LIBRARY}/..;" isSystemDir)
+  IF("${isSystemDir}" STREQUAL "-1")
+     SET(CMAKE_INSTALL_RPATH "${libdir};${dlls}")
+  ENDIF("${isSystemDir}" STREQUAL "-1")
+
+
   set_target_properties(jplYap PROPERTIES
     OUTPUT_NAME jpl )
 

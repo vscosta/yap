@@ -1,4 +1,4 @@
-xc/*************************************************************************
+/*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -20,7 +20,7 @@ xc/*************************************************************************
 % This protects all code from further changes
 % and also makes it impossible from some predicates to be seen
 '$protect' :-
-    '$current_predicate'(Name,M,P,_),riteln(P),
+    '$current_predicate'(Name,M,P,_),
     M \= user,
     functor(P,Name,Arity),
     '$new_system_predicate'(Name,Arity,M),
