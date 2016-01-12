@@ -2524,6 +2524,10 @@ static Int p_owner_file(USES_REGS1) { /* '$owner_file'(+P,M,F)	 */
     UNLOCKPE(48, pe);
     return FALSE;
   }
+ if (is_system(pe) || is_foreign(pe) ) { 
+   UNLOCKPE(48, pe);
+    return FALSE;
+ } 
   owner = pe->src.OwnerFile;
   UNLOCKPE(49, pe);
   if (owner == AtomNil)

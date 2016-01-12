@@ -554,6 +554,7 @@ typedef uint64_t pred_flags_t;
 #define StatePredFlags (InUsePredFlag|CountPredFlag|SpiedPredFlag|IndexedPredFlag )
 #define is_system(pe) (pe->PredFlags & SystemPredFlags)
 #define is_dynamic(pe) (pe->PredFlags & DynamicPredFlag)
+#define is_foreign(pe) (pe->PredFlags & ForeignPredFlags)
 #define is_static(pe) (pe->PredFlags & CompiledPredFlag)
 #define is_logupd(pe) (pe->PredFlags & LogUpdatePredFlag)
 #ifdef TABLING
