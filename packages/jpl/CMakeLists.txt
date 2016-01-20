@@ -3,8 +3,7 @@
 set (JPL_SOURCES
   src/c/jpl.c)
 
-macro_optional_find_package(Java ON)
-find_package(Java )
+find_package(Java COMPONENTS Runtime Development)
 # find_package(Java COMPONENTS Development)
 # find_package(Java COMPONENTS Runtime)
 #find_package(JavaLibs)
@@ -12,7 +11,7 @@ macro_log_feature (Java_Development_FOUND "Java"
     "Use Java System"
     "http://www.java.org" FALSE)
 
-if (Java_FOUND)
+if (Java_Development_FOUND)
   #   Java_JAVA_EXECUTABLE    = the full path to the Java runtime
   #   Java_JAVAC_EXECUTABLE   = the full path to the Java compiler
   #   Java_JAVAH_EXECUTABLE   = the full path to the Java header generator
@@ -79,4 +78,4 @@ if (Java_FOUND)
       )
     endif(JNI_FOUND)
 
-endif (Java_FOUND)
+endif (Java_Development_FOUND)

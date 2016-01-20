@@ -361,7 +361,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   CELL nt[3];
   Functor fun;
   bool serious;
-  Term tf, error_t, comment, culprit;
+  Term tf, error_t, comment, culprit = TermNil;
   char *format;
   char s[MAXPATHLEN];
 
@@ -527,6 +527,8 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
 
     }
   if (type != ABORT_EVENT) {
+    Term location;
+
     /* This is used by some complex procedures to detect there was an error */
     if (IsAtomTerm(nt[0])) {
       strncpy(LOCAL_ErrorSay, (char *) RepAtom(AtomOfTerm(nt[0]))->StrOfAE,
@@ -538,14 +540,14 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
               MAX_ERROR_MSG_SIZE);
       LOCAL_ErrorMessage = LOCAL_ErrorSay;
     }
+    nt[1] = TermNil;
     switch (type) {
       case RESOURCE_ERROR_HEAP:
       case RESOURCE_ERROR_STACK:
       case RESOURCE_ERROR_TRAIL:
         comment = MkAtomTerm(Yap_LookupAtom(tmpbuf));
-      default:
-        nt[1] = TermNil;
-            if (comment != TermNil)
+      default: 
+           if (comment != TermNil)
               nt[1] = MkPairTerm(MkPairTerm(MkAtomTerm(Yap_LookupAtom("i")), comment),
                                  nt[1]);
             if (file && function) {
@@ -557,12 +559,12 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
               nt[1] =
                       MkPairTerm(MkPairTerm(MkAtomTerm(Yap_LookupAtom("c")), t3), nt[1]);
             }
-            if ((culprit = Yap_pc_location(P, B, ENV)) != TermNil) {
-              nt[1] = MkPairTerm(MkPairTerm(MkAtomTerm(Yap_LookupAtom("p")), culprit),
+            if ((location = Yap_pc_location(P, B, ENV)) != TermNil) {
+              nt[1] = MkPairTerm(MkPairTerm(MkAtomTerm(Yap_LookupAtom("p")), location),
                                  nt[1]);
             }
-            if ((culprit = Yap_env_location(CP, B, ENV, 0)) != TermNil) {
-              nt[1] = MkPairTerm(MkPairTerm(MkAtomTerm(Yap_LookupAtom("e")), culprit),
+            if ((location = Yap_env_location(CP, B, ENV, 0)) != TermNil) {
+              nt[1] = MkPairTerm(MkPairTerm(MkAtomTerm(Yap_LookupAtom("e")), location),
                                  nt[1]);
             }
     }

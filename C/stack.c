@@ -1924,6 +1924,8 @@ static Term build_bug_location(yamop *codeptr, PredEntry *pe) {
           } else
             p[4] = MkIntTerm(0);
         }
+      } else {
+        p[4] = MkIntTerm(0);
       }
     }
   } else if (pe->OpcodeOfPred == UNDEF_OPCODE) {
