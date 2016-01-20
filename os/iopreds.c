@@ -18,6 +18,14 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
+/**
+ * @file   iopreds.c
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Wed Jan 20 00:45:56 2016
+ * 
+ * @brief  main open and close predicates over generic streams.
+ * 
+ */
 /*
  * This file includes the definition of a miscellania of standard predicates
  * for yap refering to: Files and GLOBAL_Streams, Simple Input/Output,
@@ -1229,6 +1237,37 @@ static void check_bom(int sno, StreamDesc *st) {
   return true;
 }
 
+  static bool
+    open_header( int sno, Atom open_mode)
+  {
+    if  (open_mode == AtomWrite) {
+      const char *ptr;
+      const char s[] = "#!";
+      int ch;
+      
+      ptr = s;
+      while ((ch = *ptr++))
+        GLOBAL_Stream[sno].stream_wputc( sno, ch );
+      const char *b =  Yap_FindExecutable();
+      ptr = b;
+      while ((ch = *ptr++))
+        GLOBAL_Stream[sno].stream_wputc( sno, ch );
+      const char *l = " -L --\n\n YAP script\n#\n# .\n";
+       ptr = l;
+      while ((ch = *ptr++))
+        GLOBAL_Stream[sno].stream_wputc( sno, ch );
+    
+    } else if  (open_mode == AtomRead) {
+      // skip header
+      int ch;
+      while ((ch =Yap_peek(sno)) == '#' ) {
+        while ((ch = GLOBAL_Stream[sno].stream_wgetc( sno )) != 10 && ch != -1 );
+      }
+    }
+    return true;
+  }
+    
+
 #define OPEN_DEFS()                                                            \
   PAR("alias", isatom, OPEN_ALIAS), PAR("bom", boolean, OPEN_BOM),             \
       PAR("buffer", isatom, OPEN_BUFFER),                                      \
@@ -1242,6 +1281,7 @@ static void check_bom(int sno, StreamDesc *st) {
       PAR("mode", isatom, OPEN_MODE), PAR("output", ok, OPEN_OUTPUT),          \
       PAR("representation_errors", boolean, OPEN_REPRESENTATION_ERRORS),       \
       PAR("reposition", boolean, OPEN_REPOSITION),                             \
+      PAR("script", boolean, OPEN_SCRIPT),                             \
       PAR("type", isatom, OPEN_TYPE), PAR("wait", boolean, OPEN_WAIT),         \
       PAR(NULL, ok, OPEN_END)
 
@@ -1352,6 +1392,10 @@ do_open(Term file_name, Term t2,
   fname = Yap_AbsoluteFile(fname, LOCAL_FileNameBuf, ok);
   st->name = Yap_LookupAtom(fname);
 
+  // Skip scripts that start with !#/.. or similar
+ bool script = (args[OPEN_SCRIPT].used
+                 ? args[OPEN_SCRIPT].tvalue == TermTrue
+            : false);
   // binary type
   if (args[OPEN_TYPE].used) {
     Term t = args[OPEN_TYPE].tvalue;
@@ -1416,6 +1460,10 @@ do_open(Term file_name, Term t2,
   } else if ( open_mode == AtomRead && !avoid_bom ) {
     check_bom(sno, st); // can change encoding
   }
+  if (script)
+    open_header(sno, open_mode);
+
+
 
   UNLOCK(st->streamlock);
   {
@@ -1423,10 +1471,109 @@ do_open(Term file_name, Term t2,
     return (Yap_unify(ARG3, t));
   }
 }
+
+/** @pred  open(+ _F_,+ _M_,- _S_) is iso
+
+
+Opens the file with name  _F_ in mode  _M_ (`read`, `write` or
+`append`), returning  _S_ unified with the stream name.
+
+Yap allows 64 streams opened at the same time. If you need more,
+ redefine the MaxStreams constant.  Each stream is either an input or
+ an output stream but not both. There are always 3 open streams:
+ user_input for reading, user_output for writing and user_error for
+ writing. If there is no ambiguity, the atoms user_input and
+ user_output may be referred to as `user`.
+
+The `file_errors` flag controls whether errors are reported when in
+mode `read` or `append` the file  _F_ does not exist or is not
+readable, and whether in mode `write` or `append` the file is not
+writable.
+
+*/
+
+
 static Int open3(USES_REGS1) { /* '$open'(+File,+Mode,?Stream,-ReturnCode) */
   return do_open(Deref(ARG1), Deref(ARG2), TermNil PASS_REGS);
 }
 
+/** @pred open(+ _F_,+ _M_,- _S_,+ _Opts_) is iso
+
+Opens the file with name  _F_ in mode  _M_ (`read`,  `write` or
+`append`), returning  _S_ unified with the stream name, and following
+these options:
+
+
+
++ `type(+ _T_)` is iso
+
+  Specify whether the stream is a `text` stream (default), or a
+`binary` stream.
+
++ `reposition(+ _Bool_)` is iso
+  Specify whether it is possible to reposition the stream (`true`), or
+not (`false`). By default, YAP enables repositioning for all
+files, except terminal files and sockets.
+
++ `eof(+ _Action_)` is iso
+
+  Specify the action to take if attempting to input characters from a
+stream where we have previously found an `end_of_file`. The possible
+actions are `error`, that raises an error, `reset`, that tries to
+reset the stream and is used for `tty` type files, and `eof_code`,
+which generates a new `end_of_file` (default for non-tty files).
+
++ `alias(+ _Name_)` is iso
+
+  Specify an alias to the stream. The alias <tt>Name</tt> must be an atom. The
+alias can be used instead of the stream descriptor for every operation
+concerning the stream.
+
+    The operation will fail and give an error if the alias name is already
+in use. YAP allows several aliases for the same file, but only
+one is returned by stream_property/2
+
++ `bom(+ _Bool_)`
+
+  If present and `true`, a BOM (<em>Byte Order Mark</em>) was
+detected while opening the file for reading or a BOM was written while
+opening the stream. See BOM for details.
+
++ `encoding(+ _Encoding_)`
+
+Set the encoding used for text.  See Encoding for an overview of
+wide character and encoding issues.
+
++ `representation_errors(+ _Mode_)`
+
+  Change the behaviour when writing characters to the stream that cannot
+be represented by the encoding.  The behaviour is one of `error`
+(throw and Input/Output error exception), `prolog` (write `\u...\`
+escape code or `xml` (write `\&#...;` XML character entity).
+The initial mode is `prolog` for the user streams and
+`error` for all other streams. See also Encoding.
+
++ `expand_filename(+ _Mode_)`
+
+  If  _Mode_ is `true` then do filename expansion, then ask Prolog
+to do file name expansion before actually trying to opening the file:
+this includes processing `~` characters and processing `$`
+environment variables at the beginning of the file. Otherwise, just try
+to open the file using the given name.
+
+  The default behavior is given by the Prolog flag
+open_expands_filename.
+
++ `script( + _Boolean_ )` YAP extension.
+
+  The file may be a Prolog script. In `read` mode just check for
+  initial lines if they start with the hash symbol, and skip them. In
+  `write` mode output an header that can be used to launch the file by
+  calling `yap -l file -- $*`. Note that YAP will not set file
+  permissions as executable. In `append` mode ignore the flag.
+
+
+*/
 static Int open4(USES_REGS1) { /* '$open'(+File,+Mode,?Stream,-ReturnCode) */
   return do_open(Deref(ARG1), Deref(ARG2), Deref(ARG4) PASS_REGS);
 }
@@ -1605,6 +1752,12 @@ int Yap_GetFreeStreamDForReading(void) {
   return sno;
 }
 
+/** 
+ * @pred always_prompt_user
+ * 
+ * Ensure that the stream always prompts before asking the standard input stream for data.
+
+ */
 static Int always_prompt_user(USES_REGS1) {
   StreamDesc *s = GLOBAL_Stream + StdInStream;
 
@@ -1621,7 +1774,17 @@ static Int always_prompt_user(USES_REGS1) {
   return (TRUE);
 }
 
-static Int close1(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
+static Int close1/** @pred  close(+ _S_) is iso
+
+
+Closes the stream  _S_. If  _S_ does not stand for a stream
+currently opened an error is reported. The streams user_input,
+user_output, and user_error can never be closed.
+
+
+*/
+
+(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
   Int sno = CheckStream(
       ARG1, (Input_Stream_f | Output_Stream_f | Socket_Stream_f), "close/2");
   if (sno < 0)
@@ -1650,6 +1813,15 @@ typedef enum close_enum_choices { CLOSE_DEFS() } close_choices_t;
 static const param_t close_defs[] = {CLOSE_DEFS()};
 #undef PAR
 
+/** @pred  close(+ _S_,+ _O_) is iso
+
+Closes the stream  _S_, following options  _O_.
+
+The only valid options are `force(true)` and `force(false)`.
+YAP currently ignores these options.
+
+
+*/
 static Int close2(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
   Int sno = CheckStream(
       ARG1, (Input_Stream_f | Output_Stream_f | Socket_Stream_f), "close/2");
