@@ -774,6 +774,8 @@ YAP Built-ins          {#builtins}
   + @ref YAP_Terms
 
   + @ref InputOutput
+  
+  + @ref AbsoluteFileName
 
   + @ref YAPOS
 
@@ -805,6 +807,9 @@ language. Next, we discuss how to use the most important ones.
 
 The YAP Library        {#library}
 ===============
+
+@defgroup library YAP library files
+@{
 
   Library files reside in the library_directory path (set by the
   `LIBDIR` variable in the Makefile for YAP). Several files in the
@@ -861,9 +866,13 @@ The YAP Library        {#library}
 - @ref wgraphs
 - @ref wundgraphs
 - @ref ypp
+@}
 
 The YAP Packages  {#packages}
 ================
+
+@defgroup packages YAP packages files
+@{
 
 + @ref real
 
@@ -891,9 +900,15 @@ Leuven packages ported from SWI-Prolog:
 
 + @subpage clpqr
 
+@}
 
 Compatibility {#swi}
 =============
+
+
+@defgroup swi  Compatibility 
+@{
+
 
 YAP has been designed to be as compatible as possible with other
 Prolog systems, originally with C-Prolog\cite x and SICStus
@@ -1075,8 +1090,14 @@ architectures. Otherwise, YAP follows IEEE arithmetic.
 Please inform the authors on other incompatibilities that may still
 exist.
 
+@}
+
 Foreign Language interface for YAP     {#fli}
 ==================================
+
+@defgroup fli Foreigd Code Interfacing
+
+@{
 
 YAP provides the user with three facilities for writing
 predicates in a language other than Prolog. Under Unix systems,
@@ -1088,4 +1109,9 @@ being designed to work with the swig (www.swig.orgv) interface compiler.
 
 + The @ref swi-c-interface emulates Jan Wielemaker's SWI foreign language interface.
 
-+ The @ref  yap-cplus-interface is desiged to interface with the SWI ackage \cite x Object-Oriented systems.
++ The @ref  yap-cplus-interface is desiged to interface with the SWIG package by using Object-Oriented concepts
+
++ The @ref LoadInterface handles the setup of foreign files
+
+@}
+

@@ -15,11 +15,13 @@
 * comments:	comparing two prolog terms				 *
 *									 *
 *************************************************************************/
+
 ///    @file cmppreds.c
 
 
 
-/** @defgroup Comparing_Terms Comparing Terms
+/** 
+    @defgroup Comparing_Terms Comparing Terms
 @ingroup builtins
 
 The following predicates are used to compare and order terms, using the
@@ -29,8 +31,7 @@ standard ordering:
 variables come before numbers, numbers come before atoms which in turn
 come before compound terms, i.e.: variables @< numbers @< atoms @<
 compound terms.
-+ 
-Variables are roughly ordered by "age" (the "oldest" variable is put
++  Variables are roughly ordered by "age" (the "oldest" variable is put
 first);
 + 
 Floating point numbers are sorted in increasing order;

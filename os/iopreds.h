@@ -239,6 +239,7 @@ Yap_GetStreamHandle(Term t)
 
 #define YAP_ERROR NIL
 
+/// maximum number of open streams
 #define MaxStreams 64
 
 #define EXPAND_FILENAME		0x000080

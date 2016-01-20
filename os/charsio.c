@@ -601,7 +601,7 @@ static Int put_char(USES_REGS1) { /* '$put'(Stream,N)                      */
   return (TRUE);
 }
 
-/** @pred  tab(+ _N_)
+/** @pred  tab_1(+ _N_)
 
 
 Outputs  _N_ spaces to the current output stream.

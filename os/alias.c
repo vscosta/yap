@@ -30,8 +30,8 @@ static char SccsId[] = "%W% %G%";
 
 
 /** 
- * @group
- *
+ * @defgroup Aliases
+ * @ingroup InputOutput
  *
  * Aliases:
  * This file defines the main operations on aliases, a second name for a file. Aliases are always

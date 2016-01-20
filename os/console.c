@@ -18,9 +18,20 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
+/**
+ * @file   console.c
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Wed Jan 20 00:56:23 2016
+ * 
+ * @brief  
+ * 
+ * 
+ */
 /*
  * This file includes the interface to the console IO, tty style. Refer also to the readline library.
- *
+ * @defgroup console Support for console-based interaction.
+ * @ingroup InputOutput
+ 
  */
 
 #include "Yap.h"
@@ -181,6 +192,13 @@ ConsoleGetc(int sno)
   return console_post_process_read_char(ch, s);
 }
 
+/** @pred prompt1(+ _A__)
+
+
+Changes YAP input prompt for the .
+
+
+*/
 
 static Int
 prompt1 ( USES_REGS1 )
@@ -198,7 +216,13 @@ prompt1 ( USES_REGS1 )
   return (TRUE);
 }
 
+/** @pred prompt(- _A_,+ _B_)
 
+
+Changes YAP input prompt from  _A_ to  _B_, active on *next* standard input interaction.
+
+
+*/
 static Int
 prompt ( USES_REGS1 )
 {				/* prompt(Old,New)       */
@@ -211,7 +235,7 @@ prompt ( USES_REGS1 )
   a = AtomOfTerm (t);
   if (strlen(RepAtom (a)->StrOfAE) > MAX_PROMPT) {
     Yap_Error(SYSTEM_ERROR_INTERNAL,t,"prompt %s is too long", RepAtom (a)->StrOfAE);
-    return(FALSE);
+    return false;
   }
   strncpy(LOCAL_Prompt, (char *)RepAtom (LOCAL_AtPrompt)->StrOfAE, MAX_PROMPT);
   LOCAL_AtPrompt = a;
