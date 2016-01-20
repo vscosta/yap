@@ -4,13 +4,15 @@ set (JPL_SOURCES
   src/c/jpl.c)
 
 macro_optional_find_package(Java ON)
-find_package(Java COMPONENTS Development)
-#find_package(Java COMPONENTS Runtime)
+find_package(Java )
+# find_package(Java COMPONENTS Development)
+# find_package(Java COMPONENTS Runtime)
+#find_package(JavaLibs)
 macro_log_feature (Java_Development_FOUND "Java"
     "Use Java System"
     "http://www.java.org" FALSE)
 
-if (Java_Development_FOUND)
+if (Java_FOUND)
   #   Java_JAVA_EXECUTABLE    = the full path to the Java runtime
   #   Java_JAVAC_EXECUTABLE   = the full path to the Java compiler
   #   Java_JAVAH_EXECUTABLE   = the full path to the Java header generator
@@ -45,33 +47,36 @@ if (Java_Development_FOUND)
   #   JAVA_INCLUDE_PATH2    = the include path to jni_md.h
   #   JAVA_AWT_INCLUDE_PATH = the include path to jawt.h
 
-  add_library (jplYap SHARED src/c/jpl.c)
+  if (JNI_FOUND)
 
-  add_subdirectory (src/java)
+    add_library(jplYap SHARED src/c/jpl.c)
 
-  include_directories (${JAVA_INCLUDE_DIRS} ${JNI_INCLUDE_DIRS})
+    add_subdirectory (src/java)
 
-  target_link_libraries(jplYap libYap ${JAVA_LIBRARIES} ${JNI_LIBRARIES})
+    include_directories (${JAVA_INCLUDE_DIRS} ${JNI_INCLUDE_DIRS})
 
-  #SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-  LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${libdir};${dlls};${JAVA_JVM_LIBRARY}/..;${JAVA_JVM_LIBRARY}/..;" isSystemDir)
-  IF("${isSystemDir}" STREQUAL "-1")
-     SET(CMAKE_INSTALL_RPATH "${libdir};${dlls}")
-  ENDIF("${isSystemDir}" STREQUAL "-1")
+    target_link_libraries(jplYap libYap ${JAVA_LIBRARIES} ${JNI_LIBRARIES})
+
+    #SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+    LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${libdir};${dlls};${JAVA_JVM_LIBRARY}/..;${JAVA_JVM_LIBRARY}/..;" isSystemDir)
+    IF("${isSystemDir}" STREQUAL "-1")
+      SET(CMAKE_INSTALL_RPATH "${libdir};${dlls}")
+    ENDIF("${isSystemDir}" STREQUAL "-1")
 
 
-  set_target_properties(jplYap PROPERTIES
-    OUTPUT_NAME jpl )
+    set_target_properties(jplYap PROPERTIES
+      OUTPUT_NAME jpl )
 
     set(YAP_SYSTEM_OPTIONS "jpl " ${YAP_SYSTEM_OPTIONS} PARENT_SCOPE)
 
-  install(TARGETS  jplYap
-    LIBRARY DESTINATION ${dlls}
-    )
+    install(TARGETS  jplYap
+      LIBRARY DESTINATION ${dlls}
+      ARCHIVE DESTINATION ${dlls}
+      )
+    
+    install(FILES jpl.pl
+      DESTINATION ${libpl}
+      )
+    endif(JNI_FOUND)
 
-  install(FILES jpl.pl
-    DESTINATION ${libpl}
-    )
-
-
-endif (Java_Development_FOUND)
+endif (Java_FOUND)

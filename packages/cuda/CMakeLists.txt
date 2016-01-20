@@ -90,6 +90,7 @@ endif( THRUST_INCLUDE_DIR )
 
   install(TARGETS  libcuda
     LIBRARY DESTINATION ${dlls}
+    ARCHIVE DESTINATION ${dlls}
     )
 
   install(FILES ${PL_SOURCES}

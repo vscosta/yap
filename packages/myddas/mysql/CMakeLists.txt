@@ -33,6 +33,7 @@ set_target_properties (Yapmysql PROPERTIES
 
   install(TARGETS Yapmysql
      LIBRARY  DESTINATION ${libdir}
+    ARCHIVE DESTINATION ${libdir}
    )
 
 else()

@@ -26,6 +26,7 @@ if (SQLITE3_FOUND)
 
    install(TARGETS  Yapsqlite3
     LIBRARY DESTINATION ${libdir}
-    )
+     ARCHIVE DESTINATION ${libdir}
+  )
 
 endif (SQLITE3_FOUND)

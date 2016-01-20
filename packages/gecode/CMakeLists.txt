@@ -46,6 +46,7 @@ if (GECODE_FOUND)
 
   install(TARGETS  gecode_yap
     LIBRARY DESTINATION ${dlls}
+    ARCHIVE DESTINATION ${dlls}
     )
 
   install(FILES gecode.yap
@@ -57,3 +58,4 @@ if (GECODE_FOUND)
     )
 
 endif (GECODE_FOUND)
+

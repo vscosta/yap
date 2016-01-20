@@ -28,7 +28,8 @@ target_link_libraries(sys libYap)
 set_target_properties (sys PROPERTIES  PREFIX "")
 
 install(TARGETS  sys
-  LIBRARY DESTINATION ${dlls} )
+  LIBRARY DESTINATION ${dlls}
+  ARCHIVE DESTINATION ${dlls} )
 
 configure_file ("sys_config.h.cmake" "sys_config.h" )
 

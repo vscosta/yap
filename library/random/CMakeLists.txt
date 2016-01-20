@@ -6,5 +6,6 @@ target_link_libraries(yap_random libYap)
 set_target_properties (yap_random PROPERTIES PREFIX "")
 
 install(TARGETS  yap_random
-  LIBRARY DESTINATION ${dlls} )
+  LIBRARY DESTINATION ${dlls}
+  ARCHIVE DESTINATION ${dlls} )
 

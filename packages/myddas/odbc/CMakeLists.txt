@@ -34,5 +34,6 @@ set_target_properties (Yapodbc PROPERTIES
 
    install(TARGETS  Yapodbc
     LIBRARY DESTINATION ${libdir}
+    ARCHIVE DESTINATION ${libdir}
     )
 

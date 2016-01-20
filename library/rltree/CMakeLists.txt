@@ -11,5 +11,6 @@ target_link_libraries(yap_rl libYap)
 set_target_properties (yap_rl PROPERTIES PREFIX "")
 
 install(TARGETS  yap_rl
-  LIBRARY DESTINATION ${dlls} )
+  LIBRARY DESTINATION ${dlls}
+  ARCHIVE DESTINATION ${dlls} )
 

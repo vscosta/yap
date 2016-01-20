@@ -37,4 +37,5 @@ set_target_properties (utf8proc PROPERTIES
 
   
 install(TARGETS  utf8proc
-  LIBRARY DESTINATION ${libdir} )
+  LIBRARY DESTINATION ${libdir}
+  ARCHIVE DESTINATION ${libdir})
