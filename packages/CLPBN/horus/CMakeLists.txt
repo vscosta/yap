@@ -69,4 +69,5 @@
   install(TARGETS  horus HorusCli
     RUNTIME DESTINATION ${bindir}
     LIBRARY DESTINATION ${dlls}
+    ARCHIVE DESTINATION ${dlls}
     )

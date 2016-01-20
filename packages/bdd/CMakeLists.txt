@@ -67,6 +67,8 @@ IF (CUDD_FOUND)
 
   install(TARGETS  cudd
     LIBRARY DESTINATION ${dlls}
+    ARCHIVE DESTINATION ${dlls}
+
     )
 
   INSTALL(FILES bdd.yap DESTINATION ${libpl})
