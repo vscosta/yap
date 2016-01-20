@@ -818,10 +818,7 @@ do_expand_file_name(Term t1, Term opts USES_REGS)
     case GLOB_NOMATCH:
       globfree(&gresult);
       {
-        Term t;
-        char *out = LOCAL_FileNameBuf;
-        t = MkAtomTerm( Yap_LookupAtom( expandVars(spec, out, YAP_FILENAME_MAX-1) ));
-        return MkPairTerm( t, TermNil );
+        return TermNil;
       }
     case GLOB_ABORTED:
       PlIOError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "glob aborted: %sn", strerror(errno));
@@ -861,7 +858,7 @@ do_expand_file_name(Term t1, Term opts USES_REGS)
       wordfree (&wresult);
       return TermNil;
     default:                    /* Some other error.  */
-     ; PlIOError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "wordexp failed: %s", strerror(errno));
+     PlIOError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "wordexp failed: %s", strerror(errno));
       wordfree (&wresult);
       return TermNil;
     }
