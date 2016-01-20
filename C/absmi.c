@@ -1062,6 +1062,39 @@ interrupt_pexecute( PredEntry *pen USES_REGS )
   return interrupt_handler( pen PASS_REGS );
 }
 
+static void
+execute_dealloc( USES_REGS1 )
+{
+     /* other instructions do depend on S being set by deallocate
+         :-( */
+  CELL *ENV_YREG = YENV;
+  S = ENV_YREG;
+  CP = (yamop *) ENV_YREG[E_CP];
+  ENV = ENV_YREG = (CELL *) ENV_YREG[E_E];
+#ifdef DEPTH_LIMIT
+  DEPTH = ENV_YREG[E_DEPTH];
+#endif  /* DEPTH_LIMIT */
+#ifdef FROZEN_STACKS
+  {
+    choiceptr top_b = PROTECT_FROZEN_B(B);
+#ifdef YAPOR_SBA
+    if (ENV_YREG > (CELL *) top_b || ENV_YREG < HR) ENV_YREG = (CELL *) top_b;
+#else
+    if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
+#endif /* YAPOR_SBA */
+    else ENV_YREG = (CELL *)((CELL) ENV_YREG + ENV_Size(CP));
+  }
+#else
+  if (ENV_YREG > (CELL *) B)
+    ENV_YREG = (CELL *) B;
+      else
+        ENV_YREG = (CELL *) ((CELL) ENV_YREG + ENV_Size(CP));
+#endif /* FROZEN_STACKS */
+  YENV = ENV_YREG;
+  P = NEXTOP(P,p);
+      
+}
+
       /* don't forget I cannot creep at deallocate (where to?) */
       /* also, this is unusual in that I have already done deallocate,
 	 so I don't need to redo it.
@@ -1085,6 +1118,7 @@ interrupt_deallocate( USES_REGS1 )
 	/* keep on going if there is something else */
        (P->opc != Yap_opcode(_procceed) &&
 	P->opc != Yap_opcode(_cut_e))) {
+    execute_dealloc( PASS_REGS1 );
     return 1;
   } else {
     CELL cut_b = LCL0-(CELL *)(S[E_CB]);
