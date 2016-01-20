@@ -81,9 +81,9 @@
 /**
 
 
-@{
-
 @addtogroup YAPControl
+
+%% @{
 
 */
 

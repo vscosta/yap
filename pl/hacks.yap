@@ -16,6 +16,9 @@
 *									 *
 *************************************************************************/
 
+
+%% @file pl/hacks.yap
+
 :- module('$hacks',
 	  [display_stack_info/4,
 	   display_stack_info/6,

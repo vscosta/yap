@@ -22,14 +22,14 @@
 	 ], [] ).
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
-%% @{
-
 /**
 @defgroup YAPOS Access to Operating System Functionality
 @ingroup builtins
 
 The following built-in predicates allow access to underlying
 Operating System functionality.
+
+%% @{
 
  */
 

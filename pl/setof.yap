@@ -25,9 +25,16 @@
  * 
 */
 
+
+:- system_module( '$_setof', [(^)/2,
+        all/3,
+        bagof/3,
+        findall/3,
+        findall/4,
+        setof/3], []).
+
 /**
 
-@{
 @defgroup Sets Collecting Solutions to a Goal
 @ingroup builtins
 
@@ -40,41 +47,36 @@ predicates instead of writing his own routines.  findall/3 gives you
 the fastest, but crudest solution. The other built-in predicates
 post-process the result of the query in several different ways:
 
+@{
 
 
 
 */
 
-:- system_module( '$_setof', [(^)/2,
-        all/3,
-        bagof/3,
-        findall/3,
-        findall/4,
-        setof/3], []).
-
 :- use_system_module( '$_boot', ['$catch'/3]).
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
-
-%   The "existential quantifier" symbol is only significant to bagof
-%   and setof, which it stops binding the quantified variable.
-%   op(200, xfy, ^) is defined during bootstrap.
 
 % this is used by the all predicate
 
 :- op(50,xfx,same).
 
 
+%% @pred ^/2
+%
+% The "existential quantifier" symbol is only significant to bagof
+%   and setof, which it stops binding the quantified variable.
+%   op(200, xfy, ^) is defined during bootstrap.
+
 _^Goal :-
 	'$execute'(Goal).
 
 
-%   findall/3 is a simplified version of bagof which has an implicit
-%   existential quantifier on every variable.
-
 
 /** @pred  findall( _T_,+ _G_,- _L_) is iso
 
+findall/3 is a simplified version of bagof which has an implicit
+   existential quantifier on every variable.
 
 Unifies  _L_ with a list that contains all the instantiations of the
 term  _T_ satisfying the goal  _G_.

@@ -97,7 +97,7 @@ files and to set-up the Prolog environment. We discuss
 
 /**
 
- @pred load_files(+ _Files_, + _Options_)
+ @pred load_files(+_Files_, +_Options_)
 
 Implementation of the consult/1 family. Execution is controlled by the
 following flags:

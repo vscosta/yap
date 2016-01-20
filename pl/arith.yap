@@ -15,7 +15,9 @@
 *									 *
 *************************************************************************/
 
-% the default mode is on
+                                % the default mode is on
+
+%% @file arith.yap
 
 :- system_module( '$_arith', [compile_expressions/0,
         expand_exprs/2,
@@ -112,7 +114,7 @@ q(A):-
       A is 22.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-w*/
+*/
 do_not_compile_expressions :- set_value('$c_arith',[]).
 
 '$c_built_in'(IN, M, H, OUT) :-

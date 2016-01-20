@@ -23,8 +23,9 @@
 	    is_of_type/2		% +Type, +Term
 	  ]).
 
-/** @defgroup error Error generating support
-@ingroup builtin
+/**
+ @defgroup error Error generating support
+@ingroup YAPError
 
 This  SWI module  provides  predicates  to  simplify  error  generation  and
 checking. Adapted to use YAP built-ins.
@@ -36,6 +37,9 @@ predicates are simple wrappers around throw/1   to simplify throwing the
 most common ISO error terms.
 
 YAP reuses the code with some extensions, and supports interfacing to some C-builtins.
+
+@{
+
 */
 
 :- multifile
@@ -255,3 +259,5 @@ must_be_instantiated(X) :-
 
 must_be_instantiated(X, Comment) :-
   ( var(X) -> instantiation_error(X, Comment) ; true).
+
+%% @}

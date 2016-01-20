@@ -15,14 +15,14 @@
 *									 *
 *************************************************************************/
 
-%% @{
-
 /**
 
 @defgroup YAPControl Control Predicates
 @ingroup builtins
 
 */
+
+%% @{
 
 
 

@@ -14,6 +14,9 @@
 * comments:	fast save/restore					 *
 *									 *
 *************************************************************************/
+
+%% @file qly.yap
+
 :- system_module( '$_qly', [qload_module/1,
         qsave_file/1,
         qsave_module/1,
@@ -55,6 +58,8 @@ saved.
 YAP always tries to find saved states from the current directory
 first. If it cannot it will use the environment variable [YAPLIBDIR](@ref YAPLIBDIR), if
 defined, or search the default library directory.
+
+@{ 
 */
 
 /** @pred save_program(+ _F_)
@@ -778,3 +783,5 @@ qload_file( F0 ) :-
     fail.
 '$process_directives'( _FilePl ) :-
     abolish(user:'$file_property'/1).
+
+%% @}

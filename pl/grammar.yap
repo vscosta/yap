@@ -66,6 +66,7 @@ right hand side of a grammar rule
 
 Grammar related built-in predicates:
 
+@{
 
 */
 
