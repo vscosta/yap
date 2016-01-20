@@ -180,7 +180,8 @@ static int parse_quasi_quotations(ReadData _PL_rd ARG_LD) {
 #endif /*O_QUASIQUOTATIONS*/
 
 #define READ_DEFS()                                                            \
-  PAR("comments", filler, READ_COMMENTS), PAR("module", isatom, READ_MODULE),  \
+      PAR("comments", filler, READ_COMMENTS), \
+      PAR("module", isatom, READ_MODULE),                                 \
       PAR("priority", nat, READ_PRIORITY),                                     \
       PAR("quasi_quotations", filler, READ_QUASI_QUOTATIONS),                  \
       PAR("term_position", filler, READ_TERM_POSITION),                        \
@@ -372,10 +373,12 @@ typedef struct FEnv {
   bool reading_clause; /// read_clause
   size_t nargs;        /// arity of current procedure
   encoding_t enc;      /// encoding of the stream being read
+  Term tcomms;         /// Access to comments
+  Term cmod;          /// Access to comments
 } FEnv;
 
 typedef struct renv {
-  Term cm, bq;
+  Term  bq;
   bool ce, sw;
   Term sy;
   UInt cpos;
@@ -394,7 +397,7 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   CACHE_REGS
   LOCAL_VarTable = NULL;
   LOCAL_AnonVarTable = NULL;
-  re->cm = CurrentModule;
+  fe->cmod = CurrentModule;
   fe->enc = GLOBAL_Stream[inp_stream].encoding;
   xarg *args = Yap_ArgListToVector(opts, read_defs, READ_END);
   if (args == NULL) {
@@ -413,6 +416,11 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
     fe->qq = args[READ_QUASI_QUOTATIONS].tvalue;
   } else {
     fe->qq = 0;
+  }
+  if (args[READ_COMMENTS].used) {
+    fe->tcomms = args[READ_COMMENTS].tvalue;
+  } else {
+    fe->tcomms = 0;
   }
   if (args[READ_TERM_POSITION].used) {
     fe->tp = args[READ_TERM_POSITION].tvalue;
@@ -517,6 +525,8 @@ static bool complete_clause_processing(FEnv *fe, TokEntry *tokstarts, Term t);
 static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
   Term v1, v2, v3;
+
+  CurrentModule = fe->cmod;
   if (fe->vp) {
     while (TRUE) {
       fe->old_H = HR;
@@ -561,6 +571,7 @@ static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
   if ((!fe->vp || Yap_unify(v1, fe->vp)) &&
       (!fe->np || Yap_unify(v2, fe->np)) &&
       (!fe->sp || Yap_unify(v3, fe->sp)) &&
+      (!fe->tcomms || Yap_unify(LOCAL_Comments, fe->tcomms)) &&
       (!fe->tp || Yap_unify(fe->tp, CurrentPositionToTerm())))
     return fe->t;
   return 0;
@@ -808,10 +819,10 @@ Term Yap_read_term(int inp_stream, Term opts, int nargs) {
       state = parseError(&re, &fe, inp_stream);
       break;
     case YAP_PARSING_FINISHED:
-      return fe.t;
+      break;
     }
   }
-  if (fe.t) {
+  {
     CACHE_REGS
     if (fe.reading_clause &&
         !complete_clause_processing(&fe, LOCAL_tokptr, fe.t))
@@ -880,12 +891,11 @@ static const param_t read_clause_defs[] = {READ_CLAUSE_DEFS()};
 static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re,
                               int inp_stream) {
   CACHE_REGS
-  re->cm = CurrentModule;
+
   xarg *args = Yap_ArgListToVector(opts, read_clause_defs, READ_END);
   if (args == NULL) {
     return NULL;
   }
-  re->cm = CurrentModule;
   re->bq = getBackQuotesFlag();
   CurrentModule = LOCAL_SourceModule;
   fe->qq = 0;
@@ -899,7 +909,11 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re,
   } else {
     fe->sp = 0;
   }
-  if (args[READ_CLAUSE_SYNTAX_ERRORS].used) {
+   if (args[READ_CLAUSE_COMMENTS].used) {
+    fe->tcomms = args[READ_CLAUSE_COMMENTS].tvalue;
+  } else {
+    fe->tcomms = 0;
+  } if (args[READ_CLAUSE_SYNTAX_ERRORS].used) {
     re->sy = args[READ_CLAUSE_SYNTAX_ERRORS].tvalue;
   } else {
     re->sy = TermDec10;
@@ -926,6 +940,7 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re,
 static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart, Term t) {
   CACHE_REGS
   Term v1, v2, v3 = TermNil;
+  CurrentModule = fe->cmod;
   {
     fe->old_H = HR;
     while (TRUE) {
@@ -971,6 +986,8 @@ static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart, Term t) {
   }
   Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
 
+    if  (fe->tcomms && Yap_unify(LOCAL_Comments, fe->tcomms))
+      return false;
   if (v3 != TermNil) {
     Term singls[4];
     singls[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomSingleton, 1), 1, &v3);
