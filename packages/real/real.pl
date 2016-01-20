@@ -10,6 +10,16 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+/**
+
+@file real.pl
+@author	Nicos Angelopoulos
+@author	Vitor Santos Costa
+@version	1:0:4, 2013/12/25, sinter_class
+@license	Perl Artistic License
+
+*/
+
 :- module(real, [
      start_r/0,
      end_r/0,
@@ -64,7 +74,7 @@
 %:- set_prolog_flag(double_quotes, string ).
 
 
-/** <module> An interface to the R statistical software.
+/** @defgroup libReal  An interface to the R statistical software.
 @ingroup packages
 
 #### Introduction
@@ -269,10 +279,6 @@ logical :-
 
 #### Info
 
-@author	Nicos Angelopoulos
-@author	Vitor Santos Costa
-@version	1:0:4, 2013/12/25, sinter_class
-@license	Perl Artistic License
 @see		http://stoics.org.uk/~nicos/sware/real
 @see		pack(real/examples/for_real)
 @see		pack(real/doc/real.html)
