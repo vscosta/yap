@@ -184,8 +184,6 @@ where  _LeftTree_ contains all items in  _Tree_ less than
 greater than  _Key_. This operations destroys  _Tree_.
 */
 
- */
-
  
 splay_access(V, Item, Val, Tree, NewTree):-
 	bst(access(V), Item, Val, Tree, NewTree).
