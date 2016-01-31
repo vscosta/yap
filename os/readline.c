@@ -1,4 +1,4 @@
-  /*************************************************************************
+/*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -51,7 +51,7 @@ static char SccsId[] = "%W% %G%";
 
 #include "iopreds.h"
 
-#if defined(USE_READLINE)
+#if USE_READLINE
 
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -191,18 +191,21 @@ static int prolog_complete(int ignore, int key) {
   return 0;
 }
 
-static void InitReadline(void) {
+bool Yap_InitReadline(Term enable) {
   // don't call readline within emacs
   // if (getenv("ËMACS"))
   //  return;
+  if (enable == TermFalse)
+    return true;
   GLOBAL_Stream[StdInStream].u.irl.buf = NULL;
   GLOBAL_Stream[StdInStream].u.irl.ptr = NULL;
+  GLOBAL_Stream[StdInStream].status |= Readline_Stream_f;
 #if _MSC_VER || defined(__MINGW32__)
   rl_instream = stdin;
 #endif
   rl_outstream = stderr;
   using_history();
-  char *s = Yap_AbsoluteFile("~/.YAP.history", NULL, true);
+  const char *s = Yap_AbsoluteFile("~/.YAP.history", NULL, true);
   if (!read_history(s)) {
     FILE *f = fopen(s, "w");
     if (f) {
@@ -217,6 +220,7 @@ static void InitReadline(void) {
 #else
   rl_add_defun("prolog-complete", (void *)prolog_complete, '\t');
 #endif
+  return Yap_ReadlineOps(GLOBAL_Stream + StdInStream);
 }
 
 static bool getLine(int inp, int out) {
@@ -250,6 +254,7 @@ static bool getLine(int inp, int out) {
     }
   } else {
     LOCAL_PrologMode &= ~ConsoleGetcMode;
+    LOCAL_newline = true;
   }
   strncpy(LOCAL_Prompt, RepAtom(LOCAL_AtPrompt)->StrOfAE, MAX_PROMPT);
   /* window of vulnerability closed */
@@ -274,6 +279,7 @@ static int ReadlinePutc(int sno, int ch) {
   console_count_output_char(ch, s);
   if (ch == 10) {
     Yap_ReadlineFlush(sno);
+    LOCAL_newline = true;
   }
   return ((int)ch);
 }
@@ -303,15 +309,15 @@ static int ReadlineGetc(int sno) {
   return console_post_process_read_char(ch, s);
 }
 
-
-/** 
+/**
   @brief  Yap_ReadlinePeekChar peeks the next char from the
   readline buffer, but does not actually grab it.
 
-  The idea is to take advantage of the buffering. Special care must be taken with EOF, though.
+  The idea is to take advantage of the buffering. Special care must be taken
+  with EOF, though.
 
 */
-Int Yap_ReadlinePeekChar( int sno) {
+Int Yap_ReadlinePeekChar(int sno) {
   StreamDesc *s = &GLOBAL_Stream[sno];
   int ch;
 
@@ -319,13 +325,14 @@ Int Yap_ReadlinePeekChar( int sno) {
     const char *ttyptr = s->u.irl.ptr;
     ch = *ttyptr;
     if (ch == '\0') {
-       ch = '\n';
+      ch = '\n';
     }
-  } if (getLine(sno, StdErrStream) ) {
-      CACHE_REGS
+  }
+  if (getLine(sno, StdErrStream)) {
+    CACHE_REGS
     ch = s->u.irl.ptr[0];
     if (ch == '\0') {
-       ch = '\n';
+      ch = '\n';
     }
     if (ch == '\n') {
       LOCAL_newline = true;
@@ -337,7 +344,6 @@ Int Yap_ReadlinePeekChar( int sno) {
   }
   return ch;
 }
-
 
 int Yap_ReadlineForSIGINT(void) {
   CACHE_REGS
@@ -372,10 +378,17 @@ static Int has_readline(USES_REGS1) {
 #endif
 }
 
-void Yap_InitReadline(void) {
+void Yap_InitReadlinePreds(void) {
   Yap_InitCPred("$has_readline", 0, has_readline,
                 SafePredFlag | HiddenPredFlag);
-  InitReadline();
 }
 
+#else
+bool Yap_InitReadline(Term enable) {
+  if (enable == TermTrue)
+    return true;
+  return false;
+}
+
+void Yap_InitReadlinePreds(void) {}
 #endif

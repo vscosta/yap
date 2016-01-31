@@ -1,6 +1,6 @@
 /* Define if you have libreadline */
 #ifndef HAVE_LIBREADLINE
-#cmakedefine USE_READLINE ${USE_READLINE}
+#cmakedefine HAVE_LIBREADLINE  ${HAVE_LIBREADLINE}
 #endif
 
 /* Define to 1 if you have the <readline/history.h> header file. */
@@ -10,7 +10,11 @@
 
 /* Define to 1 if you have the <readline/readline.h> header file. */
 #ifndef HAVE_READLINE_READLINE_H
-#cmakedefine HAVE_READLINE_READLINE_H ${HAVE_READLINE_READLINE_H}
+#cmakedefine HAVE_READLINE_READLINE_H  ${HAVE_READLINE_READLINE_H}
+#endif
+
+#if  defined(HAVE_LIBREADLINE) && defined(HAVE_READLINE_READLINE_H)
+#define USE_READLINE 1
 #endif
 
 /* Define to 1 if you have the declaration of `rl_catch_signals ', and to 0 if
