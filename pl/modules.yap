@@ -347,7 +347,7 @@ system_module(Mod) :-
 
 
 % be careful here not to generate an undefined exception.
-'$imported_predicate'(G, ImportingMod, G, prolog) :-
+'$imported_predicate'(G, _ImportingMod, G, prolog) :-
 	nonvar(G), '$is_system_predicate'(G, prolog), !.
 '$imported_predicate'(G, ImportingMod, G0, ExportingMod) :-
 	( var(G) -> true ;
@@ -766,7 +766,7 @@ unload_module(Mod) :-
 module_state :-
 	recorded('$module','$module'(HostF,HostM,SourceF, Everything, Line),_),
 	format('HostF ~a, HostM ~a, SourceF ~w, Line ~d,~n     Everything ~w.~n', [HostF,HostM,SourceF, Line, Everything]),
-    recorded('$import','$import'(HostM,M,G0,G,_N,_K),R),
+    recorded('$import','$import'(HostM,M,G0,G,_N,_K),_R),
     format('   ~w:~w :- ~w:~w.~n',[M,G,HostM,G0]),
 	fail.
 module_state.

@@ -117,7 +117,7 @@ Adds clause  _C_ as the first clause for a static procedure.
 
 
 */
-asserta_static(CI) :-
+asserta_static(C) :-
 	'$assert'(C , asserta_static, _ ).
 
 
@@ -137,7 +137,7 @@ static predicates, if source mode was on when they were compiled:
 
 
 */
-assertz_static(CI) :-
+assertz_static(C) :-
 	'$assert'(C , assertz_static, _ ).
 
 /** @pred  clause(+ _H_, _B_) is iso

@@ -113,10 +113,10 @@ otherwise.
 	format(user_error, X, Y), nl(user_error).
 '$early_print_message'(_, loading( C, F)) :- !,
     '$show_consult_level'(LC),
-    format(user_error, '~*|% ~a ~a...~n', [LC,C,F]).
-'$early_print_message'(_, loaded(F,C,_M,T,H)) :- !,
+    format(user_error, '~*|% ~a ~w...~n', [LC,C,F]).
+'$early_print_message'(_, loaded(F,C,M,T,H)) :- !,
     '$show_consult_level'(LC),
-    format(user_error, '~*|% ~a ~a ~d bytes in ~d seconds...~n', [LC, F ,C, H, T]).
+    format(user_error, '~*|% ~a:~w ~a ~d bytes in ~d seconds...~n', [LC, M, F ,C, H, T]).
 '$early_print_message'(Level, Msg) :-
     source_location(F0, L),
     !,
@@ -146,7 +146,7 @@ print_message(Level, Msg) :-
 :- bootstrap('atoms.yap').
 :- bootstrap('os.yap').
 :- bootstrap('absf.yap').
-:-set_prolog_flag(verbose,  normal).
+:- set_prolog_flag(verbose,  normal).
 
 %:-set_prolog_flag(gc_trace, verbose).
 %:- set_prolog_flag( verbose_file_search, true ).
@@ -166,10 +166,10 @@ print_message(Level, Msg) :-
 
 
 :- [
-'errors.yap',
-'utils.yap',
-'control.yap',
-'flags.yap'
+    'errors.yap',
+    'utils.yap',
+    'control.yap',
+    'flags.yap'
 ].
 
 
@@ -246,7 +246,7 @@ rules.
 :- dynamic user:goal_expansion/3.
 
 :- multifile user:goal_expansion/2.
-
+        
 :- dynamic user:goal_expansion/2.
 
 :- multifile system:goal_expansion/2.
@@ -265,11 +265,7 @@ rules.
 :- use_module('attributes.yap').
 :- use_module('corout.yap').
 :- use_module('dialect.yap').
-:- use_module('history.pl').
 :- use_module('dbload.yap').
-:- use_module('swi.yap').
-:- use_module('../swi/library/predopts.pl').
-:- use_module('../swi/library/menu.pl').
 :- use_module('../library/ypp.yap').
 :- use_module('../os/chartypes.yap').
 :- ensure_loaded('../os/edio.yap').

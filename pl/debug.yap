@@ -1050,7 +1050,7 @@ be lost.
 	G =.. [F|BGs],
 	'$ldebugger_process_meta_args'(BGs, M, BMs, BG1s),
 	G1 =.. [F|BG1s].
-'$debugger_process_meta_arguments'(G, M, G).
+'$debugger_process_meta_arguments'(G, _M, G).
 
 '$ldebugger_process_meta_args'([], _, [], []).
 '$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$spy'([M1|G1])|BG1s]) :-

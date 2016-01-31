@@ -449,8 +449,8 @@ Legal values:
       "use_module" "volatile"))
    (yap
     ("block" "char_conversion" "discontiguous" "dynamic" "encoding"
-    "ensure_loaded" "export" "expects_dialect" "export_list" "import"
-      "meta_predicate" "module" "module_transparent" "multifile" "require"
+     "ensure_loaded" "export" "expects_dialect" "meta_predicate" "module"
+     "module_transparent" "multifile" "reexport"
       "table" "thread_local" "use_module" "wait"))
     (gnu
      ("built_in" "char_conversion" "discontiguous" "dynamic" "ensure_linked"
@@ -652,7 +652,7 @@ nil means send actual operating system end of file."
   '((eclipse "^[a-zA-Z0-9()]* *\\?- \\|^\\[[a-zA-Z]* [0-9]*\\]:")
     (sicstus "| [ ?][- ] *")
     (swi "^\\(\\[[a-zA-Z]*\\] \\)?[1-9]?[0-9]*[ ]?\\?- \\|^| +")
-    (yap "^\\(\\[[a-zA-Z]*\\] \\)?[1-9]?[0-9]*[ ]?\\?- \\|^| +")
+    (yap "| [ ?][- ] *")
     (t "^ *\\?-"))
   "*Alist of prompts of the prolog system command line."
   :group 'prolog-inferior

@@ -1820,80 +1820,10 @@ Given the packaged stream position term  _StreamPosition_, unify
 
 */
 
-/** @pred  tell(+ _S_)
-
-
-If  _S_ is a currently opened stream for output, it becomes the
-current output stream. If  _S_ is an atom it is taken to be a
-filename.  If there is no output stream currently associated with it,
-then it is opened for output, and the new output stream created becomes
-the current output stream. If it is not possible to open the file, an
-error occurs.  If there is a single opened output stream currently
-associated with the file, then it becomes the current output stream; if
-there are more than one in that condition, one of them is chosen.
-
-Whenever  _S_ is a stream not currently opened for output, an error
-may be reported, depending on the state of the file_errors flag. The
-predicate just fails, if  _S_ is neither a stream nor an atom.
-
-
-*/
-
-/** @pred  telling(- _S_)
-
-
-The current output stream is unified with  _S_.
-
-
-*/
-
-/** @pred  told
-
-
-Closes the current output stream, and the user's terminal becomes again
-the current output stream. It is important to remember to close streams
-after having finished using them, as the maximum number of
-simultaneously opened streams is 17.
-
-
-*/
-
-/** @pred  see(+ _S_)
-
-
-If  _S_ is a currently opened input stream then it is assumed to be
-the current input stream. If  _S_ is an atom it is taken as a
-filename. If there is no input stream currently associated with it, then
-it is opened for input, and the new input stream thus created becomes
-the current input stream. If it is not possible to open the file, an
-error occurs.  If there is a single opened input stream currently
-associated with the file, it becomes the current input stream; if there
-are more than one in that condition, then one of them is chosen.
-
-When  _S_ is a stream not currently opened for input, an error may be
-reported, depending on the state of the `file_errors` flag. If
- _S_ is neither a stream nor an atom the predicates just fails.
-
-
-*/
-
-/** @pred  seeing(- _S_)
-
-
-The current input stream is unified with  _S_.
-
-
-*/
-
-/** @pred  seen
-
-
-Closes the current input stream (see 6.7.).
 
 
 
 
- */
 
 /** @defgroup InputOutput_of_Terms Handling Input/Output of Terms
 @ingroup YAPBuiltins
@@ -4244,7 +4174,7 @@ is sometimes useful. As in other Prolog systems, YAP has
 several primitives that allow updating Prolog terms. Note that these
 primitives are also backtrackable.
 
-The `setarg/3` primitive allows updating any argument of a Prolog
+The setarg/3 primitive allows updating any argument of a Prolog
 compound terms. The `mutable` family of predicates provides
 <em>mutable variables</em>. They should be used instead of `setarg/3`,
 as they allow the encapsulation of accesses to updatable

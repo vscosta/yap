@@ -598,10 +598,14 @@ warn_singletons(FEnv *fe, TokEntry *tokstart)
      singls[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomSingleton, 1), 1, &v);
      singls[1] = MkIntegerTerm(LOCAL_SourceFileLineno);
      singls[2] = MkAtomTerm(LOCAL_SourceFileName);
-     singls[3] = v;
+     if (fe->t)
+       singls[3] =  fe->t;
+     else
+       singls[1] = TermTrue;
      Term t = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, singls);
      singls[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 1), 1, &t);
-     singls[1] = TermNil;
+     
+     singls[1] = v;
      Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, singls));
    }
 }
@@ -683,7 +687,7 @@ static bool complete_clause_processing(FEnv *fe, TokEntry
     v_vnames = get_varnames(fe, tokstart);
   else
     v_vnames = 0L;
-  if (trueGlobalPrologFlag(SINGLE_VAR_WARNINGS_FLAG)) {
+  if (trueLocalPrologFlag(SINGLE_VAR_WARNINGS_FLAG)) {
     warn_singletons(fe, tokstart);
   }
   if (fe->tcomms)
@@ -900,12 +904,6 @@ static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
   fe->toklast = LOCAL_tokptr;
   LOCAL_tokptr = tokstart;
   TR = (tr_fr_ptr)tokstart;
-  if (fe->t == 0)
-    return YAP_PARSING_ERROR;
-  if (fe->reading_clause && !complete_clause_processing(fe, tokstart))
-    fe->t = 0;
-  else if (!fe->reading_clause && !complete_processing(fe, tokstart))
-    fe->t = 0;
 #if EMACS
   first_char = tokstart->TokPos;
 #endif /* EMACS */

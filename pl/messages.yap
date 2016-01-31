@@ -274,7 +274,7 @@ main_message(error(system_error(Who), _What), _Source) -->
 main_message(error(uninstantiation_error(T),_), _Source) -->
 	[ '~*|!!! found ~q, expected unbound variable ' - [8,T], nl ].
 
-display_consulting(Level) -->
+display_consulting(_Level) -->
 	{  source_location(F0, L),
 	   stream_property(_Stream, alias(loop_stream)) }, !,
 	[ '~a:~d:0 found  while compiling this file.'-[F0,L], nl ].

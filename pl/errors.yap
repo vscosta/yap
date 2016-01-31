@@ -63,7 +63,7 @@ system_error(Type,Goal) :-
 
 
 '$do_error'(Type,Goal) :-
-%        format('~w~n', [Type]),
+%        format('~w~n', [Type]),    
 	ancestor_location(Call, Caller),
 	throw(error(Type, [
 	       [g|g(Goal)],

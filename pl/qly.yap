@@ -762,7 +762,7 @@ qload_file( F0 ) :-
     user:'$file_property'( '$lf_loaded'( F, Age, _ ) ),
     recordaifnot('$source_file','$source_file'( F, Age, SourceModule), _),
     fail.
-'$qload_file'(_S, _SourceModule, File, FilePl, F0, _ImportList, _TOpts) :-
+'$qload_file'(_S, _SourceModule, _File, FilePl, F0, _ImportList, _TOpts) :-
     b_setval('$user_source_file', F0 ),
     '$process_directives'( FilePl ),
     fail.
