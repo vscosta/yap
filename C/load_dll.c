@@ -19,7 +19,7 @@
 #include "yapio.h"
 #include "Foreign.h"
 
-#if LOAD_DLL
+#if _WIN32
 
 #include <windows.h>
 
@@ -101,7 +101,7 @@ LoadForeign(StringList ofiles, StringList libs,
      other routines */
   while (libs) {
     HINSTANCE handle;
-    char * s = AtomName(libs->name);
+    const char * s = AtomName(libs->name);
 
     if (s[0] == '-') {
       strcat(LOCAL_FileNameBuf,s+2);
