@@ -34,31 +34,7 @@ static char SccsId[] = "%W% %G%";
  
  */
 
-#include "Yap.h"
-#include "Yatom.h"
-#include "YapHeap.h"
-#include "yapio.h"
-#include <stdlib.h>
-#if HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#if HAVE_STDARG_H
-#include <stdarg.h>
-#endif
-#ifdef _WIN32
-#if HAVE_IO_H
-/* Windows */
-#include <io.h>
-#endif 
-#if HAVE_SOCKET
-#include <winsock2.h>
-#endif
-#include <windows.h>
-#ifndef S_ISDIR
-#define S_ISDIR(x) (((x)&_S_IFDIR)==_S_IFDIR)
-#endif
-#endif
-#include "iopreds.h"
+#include "sysbits.h"
 
 static Int prompt( USES_REGS1 );
 static Int prompt1( USES_REGS1 );
@@ -94,7 +70,8 @@ is_same_tty(FILE *f1, FILE *f2)
 #if HAVE_TTYNAME
   return(ttyname(fileno(f1)) == ttyname(fileno(f2)));
 #else
-  return;
+  // assume a single console, for now
+  return true;
 #endif  
 }
 
@@ -114,14 +91,18 @@ is_same_tty2 (USES_REGS1)
 void
 Yap_ConsoleOps( StreamDesc *s )
 {
+  Yap_DefaultStreamOps( s );
   /* the putc routine only has to check it is putting out a newline */
   s->stream_putc = ConsolePutc;
+#if USE_READLINE
   /* if a tty have a special routine to call readline */
-  if (!Yap_ReadlineOps( s )) {
-    /* else just PlGet plus checking for prompt */
-    s->stream_getc = ConsoleGetc;
-  }
-  Yap_DefaultStreamOps( s );
+  if (( s->status & Readline_Stream_f) &&
+      trueGlobalPrologFlag(READLINE_FLAG)   ) {
+      if (Yap_ReadlineOps( s ))
+        return;
+    }
+#endif
+  s->stream_getc = ConsoleGetc;
 }
 
 /* static */
@@ -155,7 +136,7 @@ ConsoleGetc(int sno)
   /* keep the prompt around, just in case, but don't actually
      show it in silent mode */
   if (LOCAL_newline) {
-    if (silentMode()) {
+    if (!silentMode()) {
       char *cptr = LOCAL_Prompt, ch;
 
       /* use the default routine */
@@ -247,7 +228,10 @@ Yap_GetCharForSIGINT(void)
 {
     CACHE_REGS
   int ch;
-  if ((ch = Yap_ReadlineForSIGINT()) == 0)
+#if USE_READLINE
+    if (trueGlobalPrologFlag(READLINE_FLAG) ||
+         (ch = Yap_ReadlineForSIGINT()) == 0)
+#endif
     {  /* ask for a new line */
       fprintf(stderr, "Action (h for help): ");
       ch = getc(stdin);
@@ -261,6 +245,7 @@ Yap_GetCharForSIGINT(void)
 
 
 void Yap_InitConsole(void) {
+  LOCAL_newline = true;
   Yap_InitCPred ("prompt", 1, prompt1, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("prompt1", 1, prompt1, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$is_same_tty", 2, is_same_tty2, SafePredFlag|SyncPredFlag|HiddenPredFlag);

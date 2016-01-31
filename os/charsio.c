@@ -105,7 +105,10 @@ Int Yap_peek(int sno) {
   Int ch;
 
   s = GLOBAL_Stream + sno;
-  if (s->status & Readline_Stream_f) {
+#if USE_READLINE
+  if (s->status & Readline_Stream_f
+      && trueGlobalPrologFlag(READLINE_FLAG)
+      ) {
     ch = Yap_ReadlinePeekChar(sno);
     if (ch == EOFCHAR) {
       s->stream_getc = EOFPeek;
@@ -114,6 +117,7 @@ Int Yap_peek(int sno) {
     }
     return ch;
   }
+#endif
   ocharcount = s->charcount;
   olinecount = s->linecount;
   olinepos = s->linepos;
@@ -155,6 +159,7 @@ Int Yap_peek(int sno) {
       ungetc(c / 1 << 16, s->file);
       c %= 1 << 16;
     }
+    return c;
   } else if (s->encoding == ENC_UTF16_LE) {
     /* do the ungetc as if a write .. */
     unsigned long int c = ch;
@@ -238,7 +243,9 @@ static Int at_end_of_stream_0(USES_REGS1) { /* at_end_of_stream */
 }
 
 static int yap_fflush(int sno) {
+#if USE_READLINE
   Yap_ReadlineFlush(sno);
+#endif
   if ((GLOBAL_Stream[sno].status & Output_Stream_f) &&
       !(GLOBAL_Stream[sno].status &
         (Null_Stream_f | InMemory_Stream_f | Socket_Stream_f | Pipe_Stream_f |

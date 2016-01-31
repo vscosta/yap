@@ -27,8 +27,7 @@ static char SccsId[] = "%W% %G%";
  * 
  */
 /*
- * This file includes the definition of a miscellania of standard predicates
- * for yap refering to: Files and GLOBAL_Streams, Simple Input/Output,
+ * This file includes the definition of a miscellania of standard predicates * for yap refering to: Files and GLOBAL_Streams, Simple Input/Output,
  *
  */
 
@@ -178,10 +177,10 @@ static void unix_upd_stream_info(StreamDesc *s) {
   Yap_socketStream(s);
 #if _MSC_VER || defined(__MINGW32__)
   {
-    if (_isatty(_fileno(s->u.file.file))) {
+    if (_isatty(_fileno(s->file))) {
       s->status |= Tty_Stream_f | Reset_Eof_Stream_f | Promptable_Stream_f;
       /* make all console descriptors unbuffered */
-      setvbuf(s->u.file.file, NULL, _IONBF, 0);
+      setvbuf(s->file, NULL, _IONBF, 0);
       return;
     }
 #if _MSC_VER
@@ -1017,11 +1016,7 @@ Int GetStreamFd(int sno) {
   } else
 #endif
       if (GLOBAL_Stream[sno].status & Pipe_Stream_f) {
-#if _MSC_VER || defined(__MINGW32__)
-    return ((Int)(GLOBAL_Stream[sno].u.pipe.hdl));
-#else
     return (GLOBAL_Stream[sno].u.pipe.fd);
-#endif
   } else if (GLOBAL_Stream[sno].status & InMemory_Stream_f) {
     return (-1);
   }
@@ -1030,7 +1025,7 @@ Int GetStreamFd(int sno) {
 
 Int Yap_GetStreamFd(int sno) { return GetStreamFd(sno); }
 
-static int binary_file(char *file_name) {
+static int binary_file(const char *file_name) {
 #if HAVE_STAT
 #if _MSC_VER || defined(__MINGW32__)
   struct _stat ss;
@@ -1269,20 +1264,20 @@ static void check_bom(int sno, StreamDesc *st) {
     
 
 #define OPEN_DEFS()                                                            \
-  PAR("alias", isatom, OPEN_ALIAS), PAR("bom", boolean, OPEN_BOM),             \
+  PAR("alias", isatom, OPEN_ALIAS), PAR("bom", booleanFlag, OPEN_BOM),             \
       PAR("buffer", isatom, OPEN_BUFFER),                                      \
-      PAR("close_on_abort", boolean, OPEN_CLOSE_ON_ABORT),                     \
+      PAR("close_on_abort", booleanFlag, OPEN_CLOSE_ON_ABORT),                     \
       PAR("create", isatom, OPEN_CREATE),                                      \
       PAR("encoding", isatom, OPEN_ENCODING),                                  \
       PAR("eof_action", isatom, OPEN_EOF_ACTION),                              \
-      PAR("expand_filename", boolean, OPEN_EXPAND_FILENAME),                   \
+      PAR("expand_filename", booleanFlag, OPEN_EXPAND_FILENAME),                   \
       PAR("file_name", isatom, OPEN_FILE_NAME), PAR("input", ok, OPEN_INPUT),  \
       PAR("locale", isatom, OPEN_LOCALE), PAR("lock", isatom, OPEN_LOCK),      \
       PAR("mode", isatom, OPEN_MODE), PAR("output", ok, OPEN_OUTPUT),          \
-      PAR("representation_errors", boolean, OPEN_REPRESENTATION_ERRORS),       \
-      PAR("reposition", boolean, OPEN_REPOSITION),                             \
-      PAR("script", boolean, OPEN_SCRIPT),                             \
-      PAR("type", isatom, OPEN_TYPE), PAR("wait", boolean, OPEN_WAIT),         \
+      PAR("representation_errors", booleanFlag, OPEN_REPRESENTATION_ERRORS),       \
+      PAR("reposition", booleanFlag, OPEN_REPOSITION),                             \
+      PAR("script", booleanFlag, OPEN_SCRIPT),                             \
+      PAR("type", isatom, OPEN_TYPE), PAR("wait", booleanFlag, OPEN_WAIT),         \
       PAR(NULL, ok, OPEN_END)
 
 #define PAR(x, y, z) z
@@ -1307,7 +1302,7 @@ do_open(Term file_name, Term t2,
   char io_mode[8];
   StreamDesc *st;
   bool avoid_bom = false, needs_bom = false;
-  char *fname;
+  const char *fname;
   stream_flags_t flags;
   FILE *fd;
   encoding_t encoding;
@@ -1439,7 +1434,7 @@ do_open(Term file_name, Term t2,
       (!(flags & Binary_Stream_f) && binary_file(fname))) {
     UNLOCK(st->streamlock);
     if (errno == ENOENT)
-      return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, ARG6, "%s: %s", fname,
+      return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, file_name, "%s: %s", fname,
                         strerror(errno)));
     else {
       return (PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, file_name, "%s: %s",
@@ -1799,7 +1794,7 @@ user_output, and user_error can never be closed.
 }
 
 #define CLOSE_DEFS()                                                           \
-  PAR("force", boolean, CLOSE_FORCE), PAR(NULL, ok, CLOSE_END)
+  PAR("force", booleanFlag, CLOSE_FORCE), PAR(NULL, ok, CLOSE_END)
 
 #define PAR(x, y, z) z
 
@@ -1857,14 +1852,14 @@ Term read_line(int sno) {
 
 #define ABSOLUTE_FILE_NAME_DEFS()                                              \
   PAR("access", isatom, ABSOLUTE_FILE_NAME_ACCESS),                            \
-      PAR("expand", boolean, ABSOLUTE_FILE_NAME_EXPAND),                       \
+      PAR("expand", booleanFlag, ABSOLUTE_FILE_NAME_EXPAND),                       \
       PAR("extensions", ok, ABSOLUTE_FILE_NAME_EXTENSIONS),                    \
       PAR("file_type", is_file_type, ABSOLUTE_FILE_NAME_FILE_TYPE),            \
       PAR("file_errors", is_file_errors, ABSOLUTE_FILE_NAME_FILE_ERRORS),      \
       PAR("glob", ok, ABSOLUTE_FILE_NAME_GLOB),                                \
       PAR("relative_to", isatom, ABSOLUTE_FILE_NAME_RELATIVE_TO),              \
       PAR("solutions", issolutions, ABSOLUTE_FILE_NAME_SOLUTIONS),             \
-      PAR("verbose_file_search", boolean,                                      \
+      PAR("verbose_file_search", booleanFlag,                                      \
           ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH),                             \
       PAR(NULL, ok, ABSOLUTE_FILE_NAME_END)
 
@@ -2010,7 +2005,9 @@ void Yap_InitIOPreds(void) {
   Yap_InitReadTPreds();
   Yap_InitFormat();
   Yap_InitRandomPreds();
-  Yap_InitReadline();
+#if USE_READLINE
+  Yap_InitReadlinePreds();
+#endif
   Yap_InitSockets();
   Yap_InitSignalPreds();
   Yap_InitSysPreds();

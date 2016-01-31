@@ -24,75 +24,8 @@ static char SccsId[] = "%W% %G%";
  *
  */
 
-#include "Yap.h"
-#include "Yatom.h"
-#include "YapHeap.h"
-#include "yapio.h"
-#include "eval.h"
-#include "YapText.h"
-#include <stdlib.h>
-#if HAVE_STDARG_H
-#include <stdarg.h>
-#endif
-#if HAVE_CTYPE_H
-#include <ctype.h>
-#endif
-#if HAVE_WCTYPE_H
-#include <wctype.h>
-#endif
-#if HAVE_LIMITS_H
-#include <limits.h>
-#endif
-#if HAVE_SYS_PARAMS_H
-#include <sys/params.h>
-#endif
-#if HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-#if HAVE_SYS_SELECT_H && !_MSC_VER && !defined(__MINGW32__) 
-#include <sys/select.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#if HAVE_STRING_H
-#include <string.h>
-#endif
-#if HAVE_LIBGEN_H
-#include <libgen.h>
-#endif
-#if HAVE_SIGNAL_H
-#include <signal.h>
-#endif
-#if HAVE_FCNTL_H
-/* for O_BINARY and O_TEXT in WIN32 */
-#include <fcntl.h>
-#endif
-#ifdef _WIN32
-#if HAVE_IO_H
- /* Windows */
-#include <io.h>
-#endif
-#endif
-#if !HAVE_STRNCAT
-#define strncat(X,Y,Z) strcat(X,Y)
-#endif
-#if !HAVE_STRNCPY
-#define strncpy(X,Y,Z) strcpy(X,Y)
-#endif
-#if _MSC_VER || defined(__MINGW32__) 
-#if HAVE_SOCKET
-#include <winsock2.h>
-#endif
-#include <windows.h>
-#ifndef S_ISDIR
-#define S_ISDIR(x) (((x)&_S_IFDIR)==_S_IFDIR)
-#endif
-#endif
-#include "iopreds.h"
+#include "sysbits.h"
+
 
 #if _MSC_VER || defined(__MINGW32__) 
 #define SYSTEM_STAT _stat
@@ -341,16 +274,35 @@ time_file(USES_REGS1)
   } else {
     const char *n = RepAtom(AtomOfTerm(tname))->StrOfAE;
 #if __WIN32
-    FILETIME ftWrite;
-    if ((hdl = CreateFile( n, 0, 0, NULL, OPEN_EXISTING, NULL)) == 0)
+    FILETIME ft;
+    HANDLE hdl;
+    Term rc;
+    
+    if ((hdl = CreateFile( n, 0, 0, NULL, OPEN_EXISTING, 0, 0)) == 0)
       return false;
-    if (GetFileTime(hdl, NULL,NULL,&ftWrite))
+    if (GetFileTime(hdl, NULL,NULL,&ft))
       return false;
     // Convert the last-write time to local time.
     // FileTimeToSystemTime(&ftWrite, &stUTC);
     // SystemTimeToTzSpecificLocalTime(NULL, &stUTC, &stLocal);
     CloseHandle( hdl );
-    return Yap_unify(ARG2, MkIntegerTerm(ftWrite));
+  ULONGLONG qwResult;
+
+   // Copy the time into a quadword.
+   qwResult = (((ULONGLONG) ft.dwHighDateTime) << 32) + ft.dwLowDateTime;
+  #if SIZEOF_INT_P==8
+   rc = MkIntegerTerm(qwResult);
+  #elif USE_GMP
+   char s[64];
+   MP_INT rop;
+
+   snprintf(s, 64, "%I64d", (long long int)n);
+   mpz_init_set_str (&rop, s, 10);
+   rc = Yap_MkBigNumTerm((void *)&rop) PASS_REGS);
+ #else
+    rc = MkIntegerTerm(ft.dwHighDateTime);
+#endif
+    return Yap_unify(ARG2, rc);
 #elif HAVE_STAT
     struct SYSTEM_STAT ss;
  
@@ -505,7 +457,7 @@ is_absolute_file_name ( USES_REGS1 )
   at = AtomOfTerm(t);
   if (IsWideAtom(at)) {
 #if _WIN32
-    return PathisRelativeW(RepAtom(at)->WStrOfAE[0]);
+    return PathIsRelativeW(RepAtom(at)->WStrOfAE);
 #else
     return RepAtom(at)->WStrOfAE[0] == '/';
 #endif
