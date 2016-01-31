@@ -1419,7 +1419,7 @@ initialization(_G,_OPT) :-
 '$initialization'(G,OPT) :-
    error:must_be_of_type(callable, G, initialization(G,OPT)),
     error:must_be_of_type(oneof([after_load, now, restore]),
-                OPT, initialization(G0,OPT)),
+                OPT, initialization(G,OPT)),
    (
 	 OPT == now
 	->
