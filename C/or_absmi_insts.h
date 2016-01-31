@@ -32,7 +32,7 @@
       Op(either, Osblp);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-        low_level_trace(try_or, (PredEntry *)PREG, NULL);
+        low_level_trace(try_or, PREG->y_u.Osblp.p0, NULL);
       }
 #endif
 #ifdef COROUTINING
