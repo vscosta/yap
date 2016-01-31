@@ -17,6 +17,8 @@
 
 /**
 
+@file eval.h
+
     @defgroup arithmetic Arithmetic in YAP 
 
 @ingroup builtins
@@ -26,8 +28,6 @@
   + See @ref arithmetic_cmps for the arithmetic comparisons supported in YAP
 
   + See @ref arithmetic_operators for what arithmetic operations are supported in YAP
-
-    @tableofcontents
 
     YAP supports several different numeric types:
 <ul>
@@ -93,13 +93,19 @@ exceptions:
    @exception "evaluation_error(undefined( V ), Call)" result is not defined (nan)
    @exception "evaluation_error(overflow( V ), Call)" result is arithmetic overflow
    
+    @tableofcontents
+
 @secreflist
 @refitem is/2
 @refitem isnan/1
 @endsecreflist
 
+@{
 
  **/
+
+#ifndef EVAL_H
+#define EVAL_H 1
 
 #include <stdlib.h>
 
@@ -681,4 +687,8 @@ p_plus(Term t1, Term t2 USES_REGS) {
 /* copied from SWI-Prolog */
 #ifndef DBL_EPSILON /* normal for IEEE 64-bit double */
 #define DBL_EPSILON 0.00000000000000022204
+#endif
+
+/// @}
+
 #endif
