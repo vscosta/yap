@@ -137,8 +137,8 @@ check_area(void)
 }
 */
 
-PredEntry *old_p[10000];
-Term old_x1[10000], old_x2[10000], old_x3[10000];
+//PredEntry *old_p[10000];
+//Term old_x1[10000], old_x2[10000], old_x3[10000];
 
 // static CELL oldv;
 
@@ -329,18 +329,23 @@ void low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args) {
     UNLOCK(Yap_low_level_trace_lock);
     return;
   }
-  if (pred->ModuleOfPred == 0 && !LOCAL_do_trace_primitives) {
-    UNLOCK(Yap_low_level_trace_lock);
-    return;
+  if (pred->ModuleOfPred == PROLOG_MODULE) {
+    if (!LOCAL_do_trace_primitives) {
+        UNLOCK(Yap_low_level_trace_lock);   
+        return;
+    }
+    mname = "prolog";
+  } else {
+    mname = RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;    
   }
   switch (port) {
   case enter_pred:
-    mname = (char *)RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
     arity = pred->ArityOfPE;
-    if (arity == 0)
+    if (arity == 0) {
       s = (char *)RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
-    else
+    } else {
       s = (char *)RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
+    }
     /*    if ((pred->ModuleOfPred == 0) && (s[0] == '$'))
           return;       */
     send_tracer_message("CALL: ", s, arity, mname, args);
