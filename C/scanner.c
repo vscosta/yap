@@ -151,7 +151,7 @@ double-quoting. The implementation of YAP represents strings as
 lists of integers. Since YAP 4.3.0 there is no static limit on string
 size.
 
-Escape sequences can be used to include the non-printable characters
+Escape sequences can be used anf include the non-printable characters
 `a` (alert), `b` (backspace), `r` (carriage return),
 `f` (form feed), `t` (horizontal tabulation), `n` (new
 line), and `v` (vertical tabulation). Escape sequences also be
@@ -562,6 +562,46 @@ typedef struct scanner_extra_alloc {
   struct scanner_extra_alloc *next;
   void *filler;
 } ScannerExtraBlock;
+
+static TokEntry *
+CodeSpaceError(TokEntry *t, TokEntry *p, TokEntry *l)
+{
+          LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
+          LOCAL_ErrorMessage = "Code Space Overflow";
+          if (t) {
+            t->Tok = eot_tok;
+            t->TokInfo = TermOutOfHeapError;          
+          }
+          /* serious error now */
+          return l;
+        }
+
+static TokEntry *
+TrailSpaceError(TokEntry *t, TokEntry *l)
+{        
+    LOCAL_ErrorMessage = "Trail Overflow";
+      LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
+      if (t) {
+        t->Tok = eot_tok;
+        t->TokInfo = TermOutOfTrailError;   
+      }
+      return l;
+}
+        
+ static TokEntry *
+AuxSpaceError(TokEntry *p, TokEntry *l, const char *msg)
+{
+          /* huge atom or variable, we are in trouble */
+          LOCAL_ErrorMessage = (char *)msg;
+          LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
+          Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+          if (p) {
+            p->Tok = eot_tok;
+            p->TokInfo = TermOutOfAuxspaceError;   
+          }
+          /* serious error now */
+          return l;
+}
 
 static void InitScannerMemory(void) {
   CACHE_REGS
@@ -1160,7 +1200,8 @@ Term Yap_scan_num(StreamDesc *inp) {
       e->TokInfo = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
       e->TokPos = GetCurInpPos(inp);
       e->TokNext = ef;
-      ef->Tok = Ord(kind = eot_tok);
+      ef->Tok = Ord(kind = eot_tok);  
+      ef->TokInfo = TermSyntaxError;
       ef->TokPos = GetCurInpPos(inp);
       ef->TokNext = NULL;
       LOCAL_tokptr = tokptr;
@@ -1180,8 +1221,10 @@ Term Yap_scan_num(StreamDesc *inp) {
     LOCAL_ErrorMessage = "Stack Overflow";                                     \
     LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;                                   \
     LOCAL_Error_Size = 0L;                                                     \
-    if (p)                                                                     \
+    if (p) {                                                                    \
       p->Tok = Ord(kind = eot_tok);                                            \
+      p->TokInfo = TermOutOfStackError;                                        \
+    }                                            \
     /* serious error now */                                                    \
     return l;                                                                  \
   }
@@ -1199,8 +1242,6 @@ const char *Yap_tokRep(TokEntry *tokptr) {
   case Number_tok:
     if ((b = Yap_TermToString(info, buf, sze, &length, &LOCAL_encoding,
                               flags)) != buf) {
-      if (b)
-        free(b);
       return NULL;
     }
     return buf;
@@ -1370,12 +1411,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
     t = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
     t->TokNext = NULL;
     if (t == NULL) {
-      LOCAL_ErrorMessage = "Trail Overflow";
-      LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
-      if (p)
-        p->Tok = Ord(kind = eot_tok);
-      /* serious error now */
-      return l;
+      return TrailSpaceError(p, l);
     }
     if (!l)
       l = t;
@@ -1428,6 +1464,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
       } else {
         t->Tok = Ord(kind = eot_tok);
         mark_eof(inp_stream);
+        t->TokInfo = TermEof;   
       }
       break;
 
@@ -1445,14 +1482,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
       for (; chtype(ch) <= NU; ch = getchr(inp_stream)) {
         if (charp == (char *)AuxSp - 1024) {
         huge_var_error:
+          return AuxSpaceError(p, l, "Code Space Overflow due to huge atom");
           /* huge atom or variable, we are in trouble */
-          LOCAL_ErrorMessage = "Code Space Overflow due to huge atom";
-          LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
-          Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
-          if (p)
-            p->Tok = Ord(kind = eot_tok);
-          /* serious error now */
-          return l;
         }
         add_ch_to_buff(ch);
       }
@@ -1474,12 +1505,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
           ae = Yap_LookupAtom(TokImage);
         }
         if (ae == NIL) {
-          LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
-          LOCAL_ErrorMessage = "Code Space Overflow";
-          if (p)
-            t->Tok = Ord(kind = eot_tok);
-          /* serious error now */
-          return l;
+            return CodeSpaceError(t, p, l);           
         }
         t->TokInfo = Unsigned(ae);
         Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
@@ -1504,18 +1530,15 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
 
       cherr = 0;
       if (!(ptr = AllocScannerMemory(4096))) {
-        LOCAL_ErrorMessage = "Trail Overflow";
-        LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
-        if (p)
-          t->Tok = Ord(kind = eot_tok);
-        /* serious error now */
-        return l;
-      }
+      return TrailSpaceError(t, l);
+        }
       CHECK_SPACE();
       if ((t->TokInfo = get_num(&cha, &cherr, inp_stream, ptr, 4096, 1)) ==
           0L) {
-        if (p)
-          p->Tok = Ord(kind = eot_tok);
+        if (p) {
+          p->Tok = eot_tok;
+          t->TokInfo = TermError;
+        }
         /* serious error now */
         return l;
       }
@@ -1527,12 +1550,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
         t->TokPos = GetCurInpPos(inp_stream);
         e = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
         if (e == NULL) {
-          LOCAL_ErrorMessage = "Trail Overflow";
-          LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
-          if (p)
-            p->Tok = Ord(kind = eot_tok);
-          /* serious error now */
-          return l;
+      return TrailSpaceError(p, l);
+
         } else {
           e->TokNext = NULL;
         }
@@ -1556,12 +1575,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
             t->TokPos = GetCurInpPos(inp_stream);
             e2 = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
             if (e2 == NULL) {
-              LOCAL_ErrorMessage = "Trail Overflow";
-              LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
-              if (p)
-                p->Tok = Ord(kind = eot_tok);
-              /* serious error now */
-              return l;
+                return TrailSpaceError(p, l);   
             } else {
               e2->TokNext = NULL;
             }
@@ -1587,11 +1601,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
             t->TokPos = GetCurInpPos(inp_stream);
             e2 = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
             if (e2 == NULL) {
-              LOCAL_ErrorMessage = "Trail Overflow";
-              LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
-              t->Tok = Ord(kind = eot_tok);
-              /* serious error now */
-              return l;
+               return TrailSpaceError(p, l);    
             } else {
               e2->TokNext = NULL;
             }
@@ -1649,6 +1659,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
           Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
           mark_eof(inp_stream);
           t->Tok = Ord(kind = eot_tok);
+          t->TokInfo = TermEof;
           break;
         } else {
           add_ch_to_buff(ch);
@@ -1657,14 +1668,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
         ++len;
         if (charp > (char *)AuxSp - 1024) {
           /* Not enough space to read in the string. */
-          LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
-          LOCAL_ErrorMessage =
-              "not enough space to read in string or quoted atom";
-          /* serious error now */
-          Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
-          t->Tok = Ord(kind = eot_tok);
-          return l;
-        }
+          return AuxSpaceError(t, l, "not enough space to read in string or quoted atom");
+       }
       }
       if (wcharp) {
         *wcharp = '\0';
@@ -1682,6 +1687,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
               "not enough heap space to read in string or quoted atom";
           Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
           t->Tok = Ord(kind = eot_tok);
+          t->TokInfo = TermOutOfHeapError;
           return l;
         }
         if (wcharp) {
@@ -1711,13 +1717,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
           t->TokInfo = Unsigned(Yap_LookupAtom(TokImage));
         }
         if (!(t->TokInfo)) {
-          LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
-          LOCAL_ErrorMessage = "Code Space Overflow";
-          if (p)
-            t->Tok = Ord(kind = eot_tok);
-          /* serious error now */
-          return l;
-        }
+             return CodeSpaceError(t, p, l); 
+         }
         Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
         t->Tok = Ord(kind = Name_tok);
         if (ch == '(')
@@ -1728,6 +1729,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
     case BS:
       if (ch == '\0') {
         t->Tok = Ord(kind = eot_tok);
+        t->TokInfo = TermEof;
         return l;
       } else
         ch = getchr(inp_stream);
@@ -1740,8 +1742,12 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
       if (och == '.') {
         if (chtype(ch) == BS || chtype(ch) == EF || ch == '%') {
           t->Tok = Ord(kind = eot_tok);
-          if (chtype(ch) == EF)
+          if (chtype(ch) == EF) {
             mark_eof(inp_stream);
+            t->TokInfo = TermEof;
+          } else {
+              t->TokInfo = TermNewLine;
+          }
           return l;
         }
       }
@@ -1768,6 +1774,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
         }
         if (chtype(ch) == EF) {
           t->Tok = Ord(kind = eot_tok);
+          t->TokInfo = TermEof;
           break;
         } else {
           /* leave comments */
@@ -1787,8 +1794,12 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
     enter_symbol:
       if (och == '.' && (chtype(ch) == BS || chtype(ch) == EF || ch == '%')) {
         t->Tok = Ord(kind = eot_tok);
-        if (chtype(ch) == EF)
+        if (chtype(ch) == EF) {
           mark_eof(inp_stream);
+          t->TokInfo = TermEof;          
+          } else {
+          t->TokInfo = TermNl;               
+          }
         return l;
       } else {
         Atom ae;
@@ -1810,22 +1821,12 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
           ae = Yap_LookupAtom(TokImage);
         }
         if (ae == NIL) {
-          LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
-          LOCAL_ErrorMessage = "Code Space Overflow";
-          if (p)
-            t->Tok = Ord(kind = eot_tok);
-          /* serious error now */
-          return l;
-        }
+             return CodeSpaceError(t, p, l);      
+        } 
         t->TokInfo = Unsigned(ae);
         if (t->TokInfo == (CELL)NIL) {
-          LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
-          LOCAL_ErrorMessage = "Code Space Overflow";
-          if (p)
-            t->Tok = Ord(kind = eot_tok);
-          /* serious error now */
-          return l;
-        }
+              return CodeSpaceError(t, p, l); 
+       }
         Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
         t->Tok = Ord(kind = Name_tok);
         if (ch == '(')
@@ -1882,12 +1883,14 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
             LOCAL_ErrorMessage = "not enough heap space to read in quasi quote";
             Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
             t->Tok = Ord(kind = eot_tok);
+            t->TokInfo = TermOutOfHeapError;
             return l;
           }
           if (cur_qq) {
             LOCAL_ErrorMessage = "quasi quote in quasi quote";
             Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
             t->Tok = Ord(kind = eot_tok);
+             t->TokInfo = TermOutOfHeapError;
             free(qq);
             return l;
           } else {
@@ -1925,6 +1928,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
           free(cur_qq);
           cur_qq = NULL;
           t->Tok = Ord(kind = eot_tok);
+          t->TokInfo = TermError;
           return l;
         }
         cur_qq = NULL;
@@ -1946,6 +1950,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
               "not enough heap space to read in a quasi quoted atom";
           Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
           t->Tok = Ord(kind = eot_tok);
+          t->TokInfo = TermError;          
           return l;
         }
         charp = TokImage;
@@ -1968,6 +1973,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
             Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
             mark_eof(inp_stream);
             t->Tok = Ord(kind = eot_tok);
+            t->TokInfo = TermOutOfHeapError;                      
             break;
           } else {
             charp = (char *)put_utf8((unsigned char *)charp, ch);
@@ -1975,13 +1981,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
           }
           if (charp > (char *)AuxSp - 1024) {
             /* Not enough space to read in the string. */
-            LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
-            LOCAL_ErrorMessage =
-                "not enough space to read in string or quoted atom";
-            /* serious error now */
-            Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
-            t->Tok = Ord(kind = eot_tok);
-            return l;
+           return AuxSpaceError(t, l, "not enough space to read in string or quoted atom");        
           }
         }
         len = charp - TokImage;
@@ -1990,6 +1990,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
           LOCAL_ErrorMessage = "not enough heap space to read in quasi quote";
           Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
           t->Tok = Ord(kind = eot_tok);
+          t->TokInfo = TermOutOfHeapError;          
           return l;
         }
         strncpy(mp, TokImage, len + 1);
@@ -2004,12 +2005,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
         qq->end.linepos = inp_stream->linepos - 1;
         qq->end.charno = inp_stream->charcount - 1;
         if (!(t->TokInfo)) {
-          LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
-          LOCAL_ErrorMessage = "Code Space Overflow";
-          if (p)
-            t->Tok = Ord(kind = eot_tok);
-          /* serious error now */
-          return l;
+               return CodeSpaceError(t, p, l); 
         }
         Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
         solo_flag = FALSE;
@@ -2021,6 +2017,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
     case EF:
       mark_eof(inp_stream);
       t->Tok = Ord(kind = eot_tok);
+      t->TokInfo = TermEof;          
       return l;
 
     default:
@@ -2032,6 +2029,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
 #endif
       }
       t->Tok = Ord(kind = eot_tok);
+      t->TokInfo = TermEof;          
     }
 #if DEBUG
     if (GLOBAL_Option[2])
@@ -2041,12 +2039,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
       /* insert an error token to inform the system of what happened */
       TokEntry *e = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
       if (e == NULL) {
-        LOCAL_ErrorMessage = "Trail Overflow";
-        LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
-        p->Tok = Ord(kind = eot_tok);
-        /* serious error now */
-        return l;
-      }
+         return TrailSpaceError(p, l);
+     }
       p->TokNext = e;
       e->Tok = Error_tok;
       e->TokInfo = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
