@@ -29,7 +29,7 @@
 static bool ro(Term inp);
 static bool nat(Term inp);
 static bool isatom(Term inp);
-static bool boolean(Term inp);
+static bool booleanFlag(Term inp);
 // static bool string( Term inp );
 // static bool  list_atom( Term inp );
 static bool list_option(Term inp);
@@ -1124,7 +1124,7 @@ static bool setInitialValue(bool bootstrap, flag_func f, const char *s,
                             flag_term *tarr) {
   errno = 0;
 
-  if (f == boolean) {
+  if (f == booleanFlag) {
     if (!bootstrap) {
       return 0;
     }
@@ -1266,7 +1266,7 @@ static bool setInitialValue(bool bootstrap, flag_func f, const char *s,
   PAR("access", isaccess, PROLOG_FLAG_PROPERTY_ACCESS, "read_write"),          \
       PAR("type", isground, PROLOG_FLAG_PROPERTY_TYPE, "term"),                \
       PAR("scope", flagscope, PROLOG_FLAG_PROPERTY_SCOPE, "global"),           \
-      PAR("keep", boolean, PROLOG_FLAG_PROPERTY_KEEP, "false"),                \
+      PAR("keep", booleanFlag, PROLOG_FLAG_PROPERTY_KEEP, "false"),                \
       PAR(NULL, ok, PROLOG_FLAG_PROPERTY_END, 0)
 
 #define PAR(x, y, z, w) z
@@ -1318,7 +1318,7 @@ do_prolog_flag_property(Term tflag,
                                args[PROLOG_FLAG_PROPERTY_ACCESS].tvalue);
         break;
       case PROLOG_FLAG_PROPERTY_TYPE:
-        if (fv->type == boolean)
+        if (fv->type == booleanFlag)
           rc = rc &&
                Yap_unify(TermBoolean, args[PROLOG_FLAG_PROPERTY_TYPE].tvalue);
         else if (fv->type == isatom)
@@ -1480,7 +1480,7 @@ static Int do_create_prolog_flag(USES_REGS1) {
       case PROLOG_FLAG_PROPERTY_TYPE: {
         Term ttype = args[PROLOG_FLAG_PROPERTY_TYPE].tvalue;
         if (ttype == TermBoolean)
-          fv->type = boolean;
+          fv->type = booleanFlag;
         else if (ttype == TermInteger)
           fv->type = isatom;
         else if (ttype == TermFloat)
