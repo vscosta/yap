@@ -14,7 +14,7 @@
 * comments:	module support						 *
 *									 *
 *************************************************************************/
-#ifdef SCCS
+#ifdef SCCSLookupSystemModule
 static char SccsId[] = "%W% %G%";
 #endif
 
@@ -26,9 +26,69 @@ static Int current_module(USES_REGS1);
 static Int current_module1(USES_REGS1);
 static ModEntry *LookupModule(Term a);
 static ModEntry *LookupSystemModule(Term a);
+static ModEntry *GetModuleEntry(Atom at);
+static ModEntry *FetchModuleEntry(Atom at);
 
+/** 
+ * initialize module data-structure
+ * 
+ * @param to parent module (CurrentModule)
+ * @param ae module name.
+ * 
+ * @return a new module structure
+ *//**               */
+static ModEntry *
+initMod( AtomEntry *toname, AtomEntry *ae) {
+    CACHE_REGS
+    ModEntry *n, *parent;
+    
+    if (toname == NULL)
+      parent = NULL;
+    else {
+      parent = FetchModuleEntry( toname );
+    }
+    n = (ModEntry *)Yap_AllocAtomSpace(sizeof(*n));
+    INIT_RWLOCK(n->ModRWLock);
+    n->KindOfPE = ModProperty;
+    n->PredForME = NULL;
+    n->NextME = CurrentModules;
+    CurrentModules = n;
+    n->AtomOfME = ae;
+    n->OwnerFile = Yap_ConsultingFile( PASS_REGS1);
+    AddPropToAtom(ae, (PropEntry *)n);
+    Yap_setModuleFlags(n, parent);
+    return n;
+}
+
+/** 
+ * get predicate entry for ap/arity; create it if neccessary
+ * 
+ * @param[in] at 
+ * 
+ * @return module descriptorxs
+ */
+ static ModEntry *GetModuleEntry(Atom at)
+{
+  Prop p0;
+  AtomEntry *ae = RepAtom(at);
+       
+  READ_LOCK(ae->ARWLock);
+  p0 = ae->PropsOfAE;
+  while (p0) {
+    ModEntry *me = RepModProp(p0);
+    if (me->KindOfPE == ModProperty) {
+      READ_UNLOCK(ae->ARWLock);
+      return me;
+    }
+    p0 = me->NextOfPE;
+  }
+  READ_UNLOCK(ae->ARWLock);
+ 
+  return initMod( ( CurrentModule == PROLOG_MODULE ? NULL : AtomOfTerm( CurrentModule ) ), at );
+}
+
+/** get  entry for ap/arity; assumes one is there.              */
  static ModEntry *FetchModuleEntry(Atom at)
-/* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;
   AtomEntry *ae = RepAtom(at);
@@ -45,40 +105,6 @@ static ModEntry *LookupSystemModule(Term a);
   }
   READ_UNLOCK(ae->ARWLock);
   return NULL;
-}
-
-inline static ModEntry *GetModuleEntry(Atom at)
-/* Get predicate entry for ap/arity; create it if necessary.              */
-{
-  Prop p0;
-  AtomEntry *ae = RepAtom(at);
-  ModEntry *new, *oat;
-
-  p0 = ae->PropsOfAE;
-  while (p0) {
-    if (p0->KindOfPE == ModProperty) {
-      return RepModProp(p0);
-    }
-    p0 = p0->NextOfPE;
-  }
-  {
-    CACHE_REGS
-    new = (ModEntry *)Yap_AllocAtomSpace(sizeof(*new));
-    INIT_RWLOCK(new->ModRWLock);
-    new->KindOfPE = ModProperty;
-    new->PredForME = NULL;
-    new->NextME = CurrentModules;
-    CurrentModules = new;
-    new->AtomOfME = ae;
-    new->OwnerFile = Yap_ConsultingFile( PASS_REGS1);
-    AddPropToAtom(ae, (PropEntry *)new);
-    if (CurrentModule == 0L || (oat = GetModuleEntry(AtomOfTerm(CurrentModule))) == new) {
-      Yap_setModuleFlags(new, NULL);
-    } else {
-      Yap_setModuleFlags(new, oat);
-    }
-  }
-  return new;
 }
 
 Term Yap_getUnknownModule(ModEntry *m) {
@@ -109,21 +135,20 @@ bool Yap_getUnknown ( Term mod) {
 Term Yap_Module_Name(PredEntry *ap) {
   CACHE_REGS
   Term mod;
+  if (!ap)
+    return TermUser;
   if (!ap->ModuleOfPred)
-    /* If the system predicate is a metacall I should return the
+    /* If the system predicate is a meta-call I should return the
        module for the metacall, which I will suppose has to be
        reachable from the current module anyway.
 
        So I will return the current module in case the system
        predicate is a meta-call. Otherwise it will still work.
     */
-    mod = CurrentModule;
+    return TermProlog;
   else {
-    mod = ap->ModuleOfPred;
+    return ap->ModuleOfPred;
   }
-  if (mod)
-    return mod;
-  return TermProlog;
 
 }
 
@@ -135,13 +160,16 @@ static ModEntry *LookupSystemModule(Term a) {
 
   /* prolog module */
   if (a == 0) {
-    return GetModuleEntry(AtomProlog);
+    a = TermProlog;
   }
   at = AtomOfTerm(a);
   me = GetModuleEntry(at);
+  if (!me)
+    return NULL;
   me->flags |= M_SYSTEM;
   me->OwnerFile = Yap_ConsultingFile( PASS_REGS1 );
-  return me;}
+  return me;
+}
 
 
 static ModEntry *LookupModule(Term a) {
@@ -201,7 +229,7 @@ void Yap_NewModulePred(Term mod, struct pred_entry *ap) {
 }
 
 static Int
-    current_module(USES_REGS1) { /* $current_module(Old,New)		 */
+    current_module(USES_REGS1) { /* $current_module(Old,N)		 */
   Term t;
 
   if (CurrentModule) {
@@ -225,7 +253,7 @@ static Int
   return TRUE;
 }
 
-static Int change_module(USES_REGS1) { /* $change_module(New)		 */
+static Int change_module(USES_REGS1) { /* $change_module(N)		 */
   Term mod = Deref(ARG1);
   LookupModule(mod);
   CurrentModule = mod;
@@ -347,8 +375,8 @@ static Int new_system_module( USES_REGS1 )
     Yap_Error(TYPE_ERROR_ATOM, t, NULL);
     return false;
   }
-  me = LookupSystemModule( t );
-  me->OwnerFile = Yap_ConsultingFile( PASS_REGS1);
+  if ((me = LookupSystemModule( t ) ))
+      me->OwnerFile = Yap_ConsultingFile( PASS_REGS1);
   return me != NULL;
 }
 
