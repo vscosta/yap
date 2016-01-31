@@ -15,7 +15,16 @@
 
 #ifndef YAP_HANDLES_H
 #define YAP_HANDLES_H 1
+
 #include "Regs.h"
+#include "YAtom.h"
+
+#define LOCAL_CurHandle LOCAL_CurSlot
+#define REMOTE_CurHandle REMOTE_CurSlot
+#define LOCAL_NHandles  LOCAL_NSlots 
+#define REMOTE_NHandles  REMOTE_NSlots 
+#define LOCAL_HandleBase LOCAL_SlotBase
+#define REMOTE_HanvdleBase SlotBase
 
 /**
    @groupdef  term_t_slots
@@ -30,7 +39,7 @@ garbage-collection.
 automatically released at the end
 of a function. Hence, slots should always be used as local variables.
 
-Slots are organized as follows:
+Handles are organized as follows:
 ---- Offset of next pointer in chain (tagged as an handle_t)
 ---- Number of entries (tagged as handle_t), in the example TAG(INT,4)
 Entry
@@ -39,7 +48,7 @@ Entry
 Entry
 ---- Number of entries (tagged as handle_t), in the example TAG(INT,4)
 
-Slots are not known to the yaam. Instead, A new set of slots is created when the
+Handles are not known to the yaam. Instead, A new set of slots is created when the
 emulator calls user C-code.
 (see YAP_Execute* functions). They are also created:
 
@@ -58,105 +67,119 @@ functions are then exported through corresponding FLI C-functions
 
 /// @brief reboot the slot system.
 /// Used when wwe start from scratch (Reset).
-#define Yap_RebootSlots(wid) Yap_RebootSlots__(wid PASS_REGS)
+#define Yap_RebootHandles(wid) Yap_RebootHandles__(wid PASS_REGS)
+#define Yap_RebootSlots(wid) Yap_RebootHandles__(wid PASS_REGS)
 
-static inline void Yap_RebootSlots__(int wid USES_REGS) {
-  // fprintf(stderr,  " StartSlots = %ld", LOCAL_CurSlot);
-  REMOTE_CurSlot(wid) = 1;
+static inline void Yap_RebootHandles__(int wid USES_REGS) {
+  // fprintf(stderr,  " StartHandles = %ld", LOCAL_CurHandle);
+  REMOTE_CurHandle(wid) = 1;
 }
 
 /// @brief declares a new set of slots.
-/// Used to tell how many slots we had when we entered a segment of code.
-//#define Yap_StartSlots() (
-// printf("[<<<%s,%s,%d-%ld\n",__FILE__,__FUNCTION__,__LINE__,LOCAL_CurSlot)?Yap_StartSlots__(PASS_REGS1):
+/// Used to tell how many slots we have so d=dara when we entered a segment of code.
+//#define Yap_StartHandles() (
+// printf("[<<<%s,%s,%d-%ld\n",__FILE__,__FUNCTION__,__LINE__,LOCAL_CurHandle)?Yap_StartHandles__(PASS_REGS1):
 //-1)
-#define Yap_StartSlots() Yap_StartSlots__(PASS_REGS1)
+#define Yap_StartHandles() Yap_StartHandles__(PASS_REGS1)
+#define Yap_StartSlots() Yap_StartHandles__(PASS_REGS1)
 
-INLINE_ONLY inline EXTERN yhandle_t Yap_StartSlots__(USES_REGS1);
-INLINE_ONLY inline EXTERN yhandle_t Yap_StartSlots__(USES_REGS1) {
-  //  // fprintf(stderr,  " StartSlots = %ld", LOCAL_CurSlot);
+INLINE_ONLY inline EXTERN yhandle_t Yap_StartHandles__(USES_REGS1);
+INLINE_ONLY inline EXTERN yhandle_t Yap_StartHandles__(USES_REGS1) {
+  //  // fprintf(stderr,  " StartHandles = %ld", LOCAL_CurHandle);
   // fprintf(stderr,"SS %s:%d\n", __FILE__, __LINE__);;
-  if (LOCAL_CurSlot < 0) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, 0L, " StartSlots = %ld", LOCAL_CurSlot);
+  if (LOCAL_CurHandle < 0) {
+    Yap_Error(SYSTEM_ERROR_INTERNAL, 0L, " StartHandles = %ld", LOCAL_CurHandle);
   }
-  return LOCAL_CurSlot;
+  return LOCAL_CurHandle;
 }
 
-/// @brief reset slots to a well-known position in the stack
-//#define Yap_CloseSlots(slot) ( printf("- %s,%s,%d
-//%ld>>>]\n",__FILE__,__FUNCTION__,__LINE__, slot)?Yap_CloseSlots__(slot
+/// @brief reset the nmber of slots _slot_ to the number existing before the call that produce _slot_
+///(eg, Yap_StartHandles(), YAP_NewHandles(), or YAP_PushHandle)
+//#define Yap_CloseHandles(slot) ( printf("- %s,%s,%d
+//%ld>>>]\n",__FILE__,__FUNCTION__,__LINE__, slot)?Yap_CloseHandles__(slot
 // PASS_REGS):-1)
-#define Yap_CloseSlots(slot) Yap_CloseSlots__(slot PASS_REGS)
+#define Yap_CloseHandles(slot) Yap_CloseHandles__(slot PASS_REGS)
+#define Yap_CloseSlots(slot) Yap_CloseHandles__(slot PASS_REGS)
 
-INLINE_ONLY inline EXTERN void Yap_CloseSlots__(yhandle_t slot USES_REGS);
-INLINE_ONLY inline EXTERN void Yap_CloseSlots__(yhandle_t slot USES_REGS) {
-  // fprintf(stderr,"CS %s:%d\n", __FILE__, __LINE__);;
-  LOCAL_CurSlot = slot;
+INLINE_ONLY inline EXTERN void Yap_CloseHandles__(yhandle_t slot USES_REGS);
+INLINE_ONLY inline EXTERN void Yap_CloseHandles__(yhandle_t slot USES_REGS) {
+  // fprintf(stderr,"CS %s:%d\n", __FILE__, __LINE__);
+  LOCAL_CurHandle = slot;
 }
 
-#define Yap_CurrentSlot() Yap_CurrentSlot__(PASS_REGS1)
+#define Yap_CurrentHandle() Yap_CurrentHandle__(PASS_REGS1)
+#define Yap_CurrentSlot() Yap_CurrentHandle__(PASS_REGS1)
+
 /// @brief report the current position of the slots, assuming that they occupy
 /// the top of the stack.
-INLINE_ONLY inline EXTERN yhandle_t Yap_CurrentSlot__(USES_REGS1);
-INLINE_ONLY inline EXTERN yhandle_t Yap_CurrentSlot__(USES_REGS1) {
-  return LOCAL_CurSlot;
+INLINE_ONLY inline EXTERN yhandle_t Yap_CurrentHandle__(USES_REGS1);
+INLINE_ONLY inline EXTERN yhandle_t Yap_CurrentHandle__(USES_REGS1) {
+  return LOCAL_CurHandle;
 }
 
-#define Yap_GetFromSlot(slot) Yap_GetFromSlot__(slot PASS_REGS)
+#define Yap_GetFromHandle(slot) Yap_GetFromHandle__(slot PASS_REGS)
+#define Yap_GetFromSlot(slot) Yap_GetFromHandle__(slot PASS_REGS)
+
 /// @brief read from a slot.
-INLINE_ONLY inline EXTERN Term Yap_GetFromSlot__(yhandle_t slot USES_REGS);
-INLINE_ONLY inline EXTERN Term Yap_GetFromSlot__(yhandle_t slot USES_REGS) {
+INLINE_ONLY inline EXTERN Term Yap_GetFromHandle__(yhandle_t slot USES_REGS);
+INLINE_ONLY inline EXTERN Term Yap_GetFromHandle__(yhandle_t slot USES_REGS) {
   //  fprintf(stderr, "GS %s:%d\n", __FILE__, __LINE__);
-  return Deref(LOCAL_SlotBase[slot]);
+  return Deref(LOCAL_HandleBase[slot]);
 }
 
-#define Yap_GetDerefedFromSlot( slot ) Yap_GetDerefedFromSlot__(slot PASS_REGS)
+#define Yap_GetDerefedFromHandle( slot ) Yap_GetDerefedFromHandle__(slot PASS_REGS)
+#define Yap_GetDerefedFromSlot( slot ) Yap_GetDerefedFromHandle__(slot PASS_REGS)
+
 /// @brief read from a slot. but does not try to dereference the slot.
-INLINE_ONLY inline EXTERN Term Yap_GetDerefedFromSlot__(yhandle_t slot USES_REGS);
-INLINE_ONLY inline EXTERN Term Yap_GetDerefedFromSlot__(yhandle_t slot USES_REGS) {
+INLINE_ONLY inline EXTERN Term Yap_GetDerefedFromHandle__(yhandle_t slot USES_REGS);
+INLINE_ONLY inline EXTERN Term Yap_GetDerefedFromHandle__(yhandle_t slot USES_REGS) {
   // fprintf(stderr,"GDS %s:%d\n", __FILE__, __LINE__);
-  return LOCAL_SlotBase[slot];
+  return LOCAL_HandleBase[slot];
 }
 
-#define Yap_GetPtrFromSlot( slot ) Yap_GetPtrFromSlot__(slot PASS_REGS)
+#define Yap_GetPtrFromHandle( slot ) Yap_GetPtrFromHandle__(slot PASS_REGS)
+#define Yap_GetPtrFromSlot( slot ) Yap_GetPtrFromHandle__(slot PASS_REGS)
 
 /// @brief read the object in a slot. but do not try to dereference the slot.
-INLINE_ONLY inline EXTERN Term *Yap_GetPtrFromSlot__(yhandle_t slot USES_REGS);
-INLINE_ONLY inline EXTERN Term *Yap_GetPtrFromSlot__(yhandle_t slot USES_REGS) {
+INLINE_ONLY inline EXTERN Term *Yap_GetPtrFromHandle__(yhandle_t slot USES_REGS);
+INLINE_ONLY inline EXTERN Term *Yap_GetPtrFromHandle__(yhandle_t slot USES_REGS) {
   // fprintf(stderr,"GPS %s:%d\n", __FILE__, __LINE__);
-  return (Term *)LOCAL_SlotBase[slot];
+  return (Term *)LOCAL_HandleBase[slot];
 }
 
-#define Yap_AddressFromSlot(slot) Yap_AddressFromSlot__(slot PASS_REGS)
+#define Yap_AddressFromHandle(slot) Yap_AddressFromHandle__(slot PASS_REGS)
+#define Yap_AddressFromSlot(slot) Yap_AddressFromHandle__(slot PASS_REGS)
 
-INLINE_ONLY inline EXTERN CELL *Yap_AddressFromSlot__(yhandle_t slot USES_REGS);
-INLINE_ONLY inline EXTERN CELL *Yap_AddressFromSlot__(yhandle_t slot USES_REGS) {
+INLINE_ONLY inline EXTERN CELL *Yap_AddressFromHandle__(yhandle_t slot USES_REGS);
+INLINE_ONLY inline EXTERN CELL *Yap_AddressFromHandle__(yhandle_t slot USES_REGS) {
   /// @brief get the memory address of a slot
 
-  return LOCAL_SlotBase + slot;
+  return LOCAL_HandleBase + slot;
 }
 
-#define Yap_PutInSlot(slot, t) Yap_PutInSlot__(slot, t PASS_REGS)
+#define Yap_PutInSlot(slot, t) Yap_PutInHandle__(slot, t PASS_REGS)
+#define Yap_PutInHandle(slot, t) Yap_PutInHandle__(slot, t PASS_REGS)
 /// @brief store  term in a slot
-INLINE_ONLY inline EXTERN void Yap_PutInSlot__(yhandle_t slot, Term t USES_REGS);
-INLINE_ONLY inline EXTERN void Yap_PutInSlot__(yhandle_t slot, Term t USES_REGS) {
+INLINE_ONLY inline EXTERN void Yap_PutInHandle__(yhandle_t slot, Term t USES_REGS);
+INLINE_ONLY inline EXTERN void Yap_PutInHandle__(yhandle_t slot, Term t USES_REGS) {
   // fprintf(stderr,"PS %s:%d\n", __FILE__, __LINE__);
-  LOCAL_SlotBase[slot] = t;
+  LOCAL_HandleBase[slot] = t;
 }
 
 #ifndef max
 #define max(X, Y) (X > Y ? X : Y)
 #endif
 
+#define ensure_handles ensure_slots
 INLINE_ONLY inline EXTERN void ensure_slots(int N USES_REGS) {
-  if (LOCAL_CurSlot + N >= LOCAL_NSlots) {
-    size_t inc = max(16 * 1024, LOCAL_NSlots / 2); // measured in cells
+  if (LOCAL_CurHandle + N >= LOCAL_NHandles) {
+    size_t inc = max(16 * 1024, LOCAL_NHandles / 2); // measured in cells
     inc = max(inc, N + 16);                        // measured in cells
-    LOCAL_SlotBase =
-        (CELL *)realloc(LOCAL_SlotBase, (inc + LOCAL_NSlots) * sizeof(CELL));
-    LOCAL_NSlots += inc;
-    if (!LOCAL_SlotBase) {
-      unsigned long int kneeds = ((inc + LOCAL_NSlots) * sizeof(CELL)) / 1024;
+    LOCAL_HandleBase =
+        (CELL *)realloc(LOCAL_HandleBase, (inc + LOCAL_NHandles) * sizeof(CELL));
+    LOCAL_NHandles += inc;
+    if (!LOCAL_HandleBase) {
+      unsigned long int kneeds = ((inc + LOCAL_NHandles) * sizeof(CELL)) / 1024;
       Yap_Error(
           SYSTEM_ERROR_INTERNAL, 0 /* TermNil */,
           "Out of memory for the term handles (term_t) aka slots, l needed",
@@ -166,75 +189,95 @@ INLINE_ONLY inline EXTERN void ensure_slots(int N USES_REGS) {
 }
 
 /// @brief create a new slot with term t
-   // #define Yap_InitSlot(t)                                               
-  //  (printf("+%d %ld %s,%s,%d>>>]\n", 1, LOCAL_CurSlot,__FILE__, __FUNCTION__, __LINE__) 
-  //    ? Yap_InitSlot__(t PASS_REGS)                                   
+   // #define Yap_InitHandle(t)                                               
+  //  (printf("+%d %ld %s,%s,%d>>>]\n", 1, LOCAL_CurHandle,__FILE__, __FUNCTION__, __LINE__) 
+  //    ? Yap_InitHandle__(t PASS_REGS)                                   
   //    : -1)
-#define Yap_InitSlot(t) Yap_InitSlot__(t PASS_REGS)
+#define Yap_InitHandle(t) Yap_InitHandle__(t PASS_REGS)
+#define Yap_PushHandle(t) Yap_InitHandle__(t PASS_REGS)
+#define Yap_InitSlot(t) Yap_InitHandle__(t PASS_REGS)
 
-INLINE_ONLY inline EXTERN yhandle_t Yap_InitSlot__(Term t USES_REGS);
-INLINE_ONLY inline EXTERN yhandle_t Yap_InitSlot__(Term t USES_REGS) {
-  yhandle_t old_slots = LOCAL_CurSlot;
+INLINE_ONLY inline EXTERN yhandle_t Yap_InitHandle__(Term t USES_REGS);
+INLINE_ONLY inline EXTERN yhandle_t Yap_InitHandle__(Term t USES_REGS) {
+  yhandle_t old_slots = LOCAL_CurHandle;
 
   ensure_slots(1 PASS_REGS);
-  LOCAL_SlotBase[old_slots] = t;
-  LOCAL_CurSlot++;
+  LOCAL_HandleBase[old_slots] = t;
+  LOCAL_CurHandle++;
   return old_slots;
 }
 
-//#define Yap_NewSlots(n) ( printf("+%d %ld %s,%s,%d>>>]\n",n,LOCAL_CurSlot,__FILE__,__FUNCTION__,__LINE__) ?Yap_NewSlots__(n PASS_REGS):-1)
-#define Yap_NewSlots(n)  Yap_NewSlots__(n PASS_REGS)
+//#define Yap_NewHandles(n) ( printf("+%d %ld %s,%s,%d>>>]\n",n,LOCAL_CurHandle,__FILE__,__FUNCTION__,__LINE__) ?Yap_NewHandles__(n PASS_REGS):-1)
+#define Yap_NewHandles(n)  Yap_NewHandles__(n PASS_REGS)
+#define Yap_NewSlots(n)  Yap_NewHandles__(n PASS_REGS)
 
-INLINE_ONLY inline EXTERN yhandle_t Yap_NewSlots__(int n USES_REGS);
-INLINE_ONLY inline EXTERN yhandle_t Yap_NewSlots__(int n USES_REGS) {
-  yhandle_t old_slots = LOCAL_CurSlot;
+INLINE_ONLY inline EXTERN yhandle_t Yap_NewHandles__(int n USES_REGS);
+INLINE_ONLY inline EXTERN yhandle_t Yap_NewHandles__(int n USES_REGS) {
+  yhandle_t old_slots = LOCAL_CurHandle;
   int i;
   //fprintf(stderr, "NS %s:%d\n", __FILE__, __LINE__);
 
   ensure_slots(n PASS_REGS);
   for (i = 0; i < n; i++) {
-    LOCAL_SlotBase[old_slots + i] = MkVarTerm();
+    LOCAL_HandleBase[old_slots + i] = MkVarTerm();
   }
-  LOCAL_CurSlot += n;
+  LOCAL_CurHandle += n;
   return old_slots;
 }
 
-//#define Yap_InitSlots(n, ts)                                          
-  //  (printf("+%d %d %s,%s,%d>>>]\n", n, LOCAL_CurSlot, __FILE__, __FUNCTION__, __LINE__) 
-  //   ? Yap_InitSlots__(n, ts PASS_REGS)                               
+//#define Yap_InitHandles(n, ts)                                          
+  //  (printf("+%d %d %s,%s,%d>>>]\n", n, LOCAL_CurHandle, __FILE__, __FUNCTION__, __LINE__) 
+  //   ? Yap_InitHandles__(n, ts PASS_REGS)                               
   //   : -1)
-#define Yap_InitSlots(n, ts) Yap_InitSlots__(n, ts PASS_REGS)
+#define Yap_InitHandles(n, ts) Yap_InitHandles__(n, ts PASS_REGS)
+#define Yap_InitSlots(n, ts) Yap_InitHandles__(n, ts PASS_REGS)
 
 /// @brief create n new slots with terms ts[]
-INLINE_ONLY inline EXTERN yhandle_t Yap_InitSlots__(int n, Term *ts USES_REGS);
-INLINE_ONLY inline EXTERN yhandle_t Yap_InitSlots__(int n, Term *ts USES_REGS) {
-  yhandle_t old_slots = LOCAL_CurSlot;
+INLINE_ONLY inline EXTERN yhandle_t Yap_InitHandles__(int n, Term *ts USES_REGS);
+INLINE_ONLY inline EXTERN yhandle_t Yap_InitHandles__(int n, Term *ts USES_REGS) {
+  yhandle_t old_slots = LOCAL_CurHandle;
   int i;
   ensure_slots(n PASS_REGS);
   for (i = 0; i < n; i++)
-    LOCAL_SlotBase[old_slots + i] = ts[i];
-  LOCAL_CurSlot += n;
+    LOCAL_HandleBase[old_slots + i] = ts[i];
+  LOCAL_CurHandle += n;
   return old_slots;
 }
 
-#define Yap_RecoverSlots(n, ts) Yap_RecoverSlots__(n, ts PASS_REGS)
+#define Yap_RecoverHandles(n, ts) Yap_RecoverHandles__(n, ts PASS_REGS)
+#define Yap_RecoverSlots(n, ts) Yap_RecoverHandles__(n, ts PASS_REGS)
 
 /// @brief Succeeds if it is to recover the space allocated for $n$ contiguos
-/// slots starting at topSlot.
-static inline bool Yap_RecoverSlots__(int n, yhandle_t topSlot USES_REGS);
-static inline bool Yap_RecoverSlots__(int n, yhandle_t topSlot USES_REGS) {
-  if (topSlot + n < LOCAL_CurSlot)
+/// slots starting at topHandle.
+static inline bool Yap_RecoverHandles__(int n, yhandle_t topHandle USES_REGS);
+static inline bool Yap_RecoverHandles__(int n, yhandle_t topHandle USES_REGS) {
+  if (topHandle + n < LOCAL_CurHandle)
     return false;
 #ifdef DEBUG
-  if (n > LOCAL_CurSlot) {
+  if (n > LOCAL_CurHandle) {
     Yap_Error(SYSTEM_ERROR_INTERNAL, 0,
-              "Inconsistent slot state in Yap_RecoverSlots.", 0);
+              "Inconsistent slot state in Yap_RecoverHandles.", 0);
     return false;
   }
 #endif
-  LOCAL_CurSlot -= n;
-  //fprintf(stderr,"RS %ld %s:%d\n", LOCAL_CurSlot, __FILE__, __LINE__);
+  LOCAL_CurHandle -= n;
+  //fprintf(stderr,"RS %ld %s:%d\n", LOCAL_CurHandle, __FILE__, __LINE__);
   return true;
 }
 
+#define Yap_PopSlot( ts) Yap_PopHandle__( ts PASS_REGS)
+#define Yap_PopHandle( ts) Yap_PopHandle__( ts PASS_REGS)
+
+/// @brief recovers the element at position $n$ dropping any other elements p
+static inline Term Yap_PopHandle__( yhandle_t topHandle USES_REGS);
+static inline Term Yap_PopHandle__( yhandle_t topHandle USES_REGS) {
+  if (LOCAL_CurHandle < topHandle)
+    return TermNil;
+  else {
+      LOCAL_CurHandle = topHandle;
+  //fprintf(stderr,"RS %ld %s:%d\n", LOCAL_CurHandle, __FILE__, __LINE__);≈
+  return Deref(LOCAL_HandleBase[topHandle]);
+
+  }
+}
 #endif
