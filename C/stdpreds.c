@@ -863,12 +863,11 @@ static Int cont_current_predicate(USES_REGS1) {
           if (task != TermUser) {        
             ModEntry *m = Yap_GetModuleEntry(TermProlog);
             pp = firstModulePred(m->PredForME, task);
-            if (!pp)
-              cut_fail(); 
+            if (!pp) {
+              cut_fail();
+            }
           } 
-        } else {
-          cut_fail();            
-        }
+      }
     }
     npp = firstModulePred(pp, task);
 
