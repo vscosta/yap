@@ -69,13 +69,6 @@ typedef int _Bool;
 #define __WINDOWS__ 1
 #endif
 #endif
-#ifndef X_API
-#if (defined(_MSC_VER) || defined(__MINGW32__)) && defined(PL_KERNEL)
-#define X_API __declspec(dllexport)
-#else
-#define X_API
-#endif
-#endif
 
 
 #include "pl-types.h"
@@ -100,7 +93,7 @@ stuff.
 #endif
 
 #ifdef HAVE_DECLSPEC
-# ifdef PL_KERNEL
+# ifdef _YAP_NOT_INSTALLED_
 #define PL_EXPORT(type)		__declspec(dllexport) type
 #define PL_EXPORT_DATA(type)	__declspec(dllexport) type
 #define install_t	 	void
