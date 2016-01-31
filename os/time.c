@@ -159,8 +159,8 @@ static FILETIME StartOfTimes_sys, last_time_sys;
 static clock_t TimesStartOfTimes, Times_last_time;
 
 /* store user time in this variable */
-static void
-InitTime (int wid)
+void
+Yap_InitTime (int wid)
 {
   HANDLE hProcess = GetCurrentProcess();
   FILETIME CreationTime, ExitTime, KernelTime, UserTime;
