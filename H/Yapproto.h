@@ -176,7 +176,8 @@ void Yap_RestartYap(int);
 void Yap_exit(int);
 bool Yap_Warning(const char *s, ...);
 bool Yap_PrintWarning(Term t);
-int Yap_HandleError(const char *msg, ...);
+bool Yap_HandleError__(const char *file, const char *function, int lineno, const char *s, ...);
+#define Yap_HandleError(...) Yap_HandleError__(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__) 
 int Yap_SWIHandleError(const char *, ...);
 void Yap_InitErrorPreds(void);
 

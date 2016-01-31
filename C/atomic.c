@@ -1100,7 +1100,7 @@ atom_concat2( USES_REGS1 )
  error:
   /* Error handling */
   if (LOCAL_Error_TYPE) {
-    if (Yap_HandleError( "string_code/3" )) {
+    if (Yap_HandleError( "atom_concat/2" )) {
       goto restart_aux;
     } else {
       return FALSE;

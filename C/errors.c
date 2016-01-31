@@ -163,7 +163,7 @@ bool Yap_PrintWarning(Term twarning) {
   return rc;
 }
 
-int Yap_HandleError(const char *s, ...) {
+bool Yap_HandleError__(const char *file, const char *function, int lineno, const char *s, ...) {
   CACHE_REGS
   yap_error_number err = LOCAL_Error_TYPE;
   const char *serr;
@@ -177,28 +177,28 @@ int Yap_HandleError(const char *s, ...) {
   switch (err) {
   case RESOURCE_ERROR_STACK:
     if (!Yap_gc(2, ENV, gc_P(P, CP))) {
-      Yap_Error(RESOURCE_ERROR_STACK, ARG1, serr);
-      return (FALSE);
+      Yap_Error__(file, function, lineno, RESOURCE_ERROR_STACK, ARG1, serr);
+      return false;
     }
-    return TRUE;
+    return true;
   case RESOURCE_ERROR_AUXILIARY_STACK:
     if (LOCAL_MAX_SIZE < (char *)AuxSp - AuxBase) {
       LOCAL_MAX_SIZE += 1024;
     }
     if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
       /* crash in flames */
-      Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, ARG1, serr);
-      return FALSE;
+      Yap_Error__(file, function, lineno, RESOURCE_ERROR_AUXILIARY_STACK, ARG1, serr);
+      return false;
     }
-    return TRUE;
+    return true;
   case RESOURCE_ERROR_HEAP:
     if (!Yap_growheap(FALSE, 0, NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP, ARG2, serr);
-      return FALSE;
+      Yap_Error__(file, function, lineno, RESOURCE_ERROR_HEAP, ARG2, serr);
+      return false;
     }
   default:
-    Yap_Error(err, LOCAL_Error_Term, serr);
-    return (FALSE);
+    Yap_Error__(file, function, lineno, err, LOCAL_Error_Term, serr);
+    return false;
   }
 }
 
