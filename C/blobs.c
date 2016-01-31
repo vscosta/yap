@@ -35,6 +35,7 @@ char * Yap_blob_to_string(AtomEntry *ref, const char *s0, size_t sz)
     char *s = (char *)s0;
     
     blob_type_t *type = RepBlobProp(ref->PropsOfAE)->blob_type;
+#if HAVE_FMEMOPEN
     if (type->write) {
         FILE *f = fmemopen( s, sz, "w");
         if (f == NULL){
@@ -49,6 +50,7 @@ char * Yap_blob_to_string(AtomEntry *ref, const char *s0, size_t sz)
       fclose(f);    // return the final result.
     return s;
     } else {
+#endif
 #if __APPLE__
         size_t sz0 = strlcpy( s, (char *)RepAtom( AtomSWIStream )->StrOfAE, sz);
 #else
@@ -65,8 +67,10 @@ char * Yap_blob_to_string(AtomEntry *ref, const char *s0, size_t sz)
         snprintf(s+strlen(s), sz0, "(0x%p)", ref);
 #endif
         return s;
-    }
+#if HAVE_FMEMOPEN
+   }
     return NULL;
+#endif
 }
 
 int Yap_write_blob(AtomEntry *ref, FILE *stream)
