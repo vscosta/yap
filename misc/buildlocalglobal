@@ -30,7 +30,7 @@ main :-
 	file_filter_with_initialization('misc/GLOBALS','H/heap/hglobals.h',gen_struct,Warning,['hglobals.h','GLOBALS']),
 	file_filter_with_initialization('misc/GLOBALS','H/heap/dglobals.h',gen_dstruct,Warning,['dglobals.h','GLOBALS']),
 	file_filter_with_initialization('misc/GLOBALS','H/heap/iglobals.h',gen_init,Warning,['iglobals.h','GLOBALS']),
-	file_filter_with_initialization('misc/GLOBALS','H/heap/i0globals.h',gen_0init,Warning,['iglobals.h','GLOBALS']),
+%%	file_filter_with_initialization('misc/GLOBALS','H/heap/i0globals.h',gen_0init,Warning,['iglobals.h','GLOBALS']),
 	file_filter_with_initialization('misc/LOCALS','H/heap/hlocals.h',gen_struct,Warning,['hlocals.h','LOCALS']),
 	file_filter_with_initialization('misc/LOCALS','H/heap/dlocals.h',gen_dstruct,Warning,['dlocals.h','LOCALS']),
 	file_filter_with_initialization('misc/LOCALS','H/heap/rlocals.h',gen_hstruct,Warning,['rlocals.h','LOCALS']),
