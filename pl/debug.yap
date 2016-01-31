@@ -541,7 +541,7 @@ be lost.
 	 G10 = NM:NG,
 	'$do_spy'(NG, NM, CP, spy).
 '$spycall'(G, M, _, _) :-
-	'$tabled_predicate'(G,M),
+	( '$is_system_predicate'(G,M) ; '$tabled_predicate'(G,M) ),
 	 !,
 	'$continue_debugging_goal'(no, '$execute_nonstop'(G,M)).
 '$spycall'(G, M, CalledFromDebugger, InRedo) :-
