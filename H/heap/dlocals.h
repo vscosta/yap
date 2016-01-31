@@ -25,14 +25,14 @@
 
 
 
+#define LOCAL_encoding LOCAL->encoding_
+#define REMOTE_encoding(wid) REMOTE(wid)->encoding_
 #define LOCAL_newline LOCAL->newline_
 #define REMOTE_newline(wid) REMOTE(wid)->newline_
 #define LOCAL_AtPrompt LOCAL->AtPrompt_
 #define REMOTE_AtPrompt(wid) REMOTE(wid)->AtPrompt_
 #define LOCAL_Prompt LOCAL->Prompt_
 #define REMOTE_Prompt(wid) REMOTE(wid)->Prompt_
-#define LOCAL_encoding LOCAL->encoding_
-#define REMOTE_encoding(wid) REMOTE(wid)->encoding_
 #define LOCAL_quasi_quotations LOCAL->quasi_quotations_
 #define REMOTE_quasi_quotations(wid) REMOTE(wid)->quasi_quotations_
 #define LOCAL_default_priority LOCAL->default_priority_
