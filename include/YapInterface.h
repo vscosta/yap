@@ -20,9 +20,9 @@
 
 @defgroup ChYInterface Foreign Language interface to YAP
 
-
+@brief Core interface to YAP.
+q
 */
-
 
 #ifndef _yap_c_interface_h
 
@@ -31,7 +31,7 @@
 #define __YAP_PROLOG__ 1
 
 #ifndef YAPVERSION
-#define YAPVERSION 60000   //> default versison
+#define YAPVERSION 60000
 #endif
 
 #include "YapDefs.h"
@@ -40,7 +40,61 @@
 #include <stdarg.h>
 #endif
 
+#if HAVE_STDBOOL_H
+#include <stdbool.h>
+#endif
+
 #include <wchar.h>
+
+/*
+   __BEGIN_DECLS should be used at the beginning of the C declarations,
+   so that C++ compilers don't mangle their names.  __END_DECLS is used
+   at the end of C declarations.
+*/
+#undef __BEGIN_DECLS
+#undef __END_DECLS
+#ifdef __cplusplus
+# define __BEGIN_DECLS extern "C" {
+# define __END_DECLS }
+#else
+# define __BEGIN_DECLS /* empty */
+# define __END_DECLS /* empty */
+#endif /* _cplusplus */
+
+__BEGIN_DECLS
+
+/** 
+ * X_API macro 
+ *
+ * brif
+ * 
+ * @param _WIN32 
+ * 
+ * @return 
+ */
+#if defined(_WIN32)
+#if YAP_H
+#define X_API __declspec(dllexport)
+#else
+#define X_API __declspec(dllimport)
+#endif
+#else
+#define X_API
+#endif
+
+#ifndef Int_FORMAT
+
+#if _WIN64
+#define Int_FORMAT "%I64d"
+#define Int_ANYFORMAT "%I64i"
+#define UInt_FORMAT "%I64u"
+#else
+#define Int_FORMAT "%ld"
+#define Int_ANYFORMAT "%li"
+#define UInt_FORMAT "%lu"
+#endif
+
+#endif /* portable form of formatted output for Prolog terms */
 
 /**
 
@@ -78,31 +132,6 @@ system.
 @{
 
 */
-
-/*
-   __BEGIN_DECLS should be used at the beginning of the C declarations,
-   so that C++ compilers don't mangle their names.  __END_DECLS is used
-   at the end of C declarations.
-*/
-#undef __BEGIN_DECLS
-#undef __END_DECLS
-#ifdef __cplusplus
-# define __BEGIN_DECLS extern "C" {
-# define __END_DECLS }
-#else
-# define __BEGIN_DECLS /* empty */
-# define __END_DECLS /* empty */
-#endif /* _cplusplus */
-
-__BEGIN_DECLS
-
-#if defined(_MSC_VER) && defined(YAP_EXPORTS)
-#define X_API __declspec(dllexport)
-#else
-#define X_API
-#endif
-
-__END_DECLS
 
 /**
  *
@@ -1563,68 +1592,12 @@ the future we plan to split this library into several smaller libraries
 
 */
 
-#define _yap_c_interface_h 1
-
-#define __YAP_PROLOG__ 1
-
-#ifndef YAPVERSION
-#define YAPVERSION 60000
-#endif
-
-#include "YapDefs.h"
-
-#if HAVE_STDARG_H
-#include <stdarg.h>
-#endif
-
-#if HAVE_STDBOOL_H
-#include <stdbool.h>
-#endif
-
-#include <wchar.h>
-
-/*
-   __BEGIN_DECLS should be used at the beginning of the C declarations,
-   so that C++ compilers don't mangle their names.  __END_DECLS is used
-   at the end of C declarations.
-*/
-#undef __BEGIN_DECLS
-#undef __END_DECLS
-#ifdef __cplusplus
-# define __BEGIN_DECLS extern "C" {
-# define __END_DECLS }
-#else
-# define __BEGIN_DECLS /* empty */
-# define __END_DECLS /* empty */
-#endif /* _cplusplus */
-
-__BEGIN_DECLS
-
-#if defined(_MSC_VER) && defined(YAP_EXPORTS)
-#define X_API __declspec(dllexport)
-#else
-#define X_API
-#endif
-
-#ifndef Int_FORMAT
-
-#if _WIN64
-#define Int_FORMAT "%I64d"
-#define Int_ANYFORMAT "%I64i"
-#define UInt_FORMAT "%I64u"
-#else
-#define Int_FORMAT "%ld"
-#define Int_ANYFORMAT "%li"
-#define UInt_FORMAT "%lu"
-#endif
-
-#endif /* portable form of formatted output for Prolog terms */
-
 /* Primitive Functions */
 
 #define YAP_Deref(t)  (t)
 
-extern X_API YAP_Term YAP_A(int);
+X_API
+extern YAP_Term YAP_A(int);
 #define YAP_ARG1	YAP_A(1)
 #define YAP_ARG2	YAP_A(2)
 #define YAP_ARG3	YAP_A(3)
@@ -2146,8 +2119,28 @@ extern X_API YAP_Term     YAP_ImportTerm(char *);
 
 extern X_API int      YAP_RequiresExtraStack(size_t);
 
-extern X_API int
-YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap);
+/** 
+ * YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
+ * 
+ * @param [in] argc the number of arguments to YAP 
+ * @param [in] argv the array of arguments to YAP 
+ * @param [in,out] argc the array with processed settings YAP 
+ * 
+ * @return 
+ *//*
+ * proccess command line arguments: valid switches are:
+ *  -b    boot file
+ *  -l    load file
+ *  -L    load file, followed by exit.
+ *  -s    stack area size (K)
+ *  -h    heap area size
+ *  -a    aux stack size
+ *  -e    emacs_mode -m  
+ *  -DVar=Value  
+ *  reserved memory for alloc IF DEBUG 
+ *  -P    only in development versions
+ */
+ extern X_API int YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap);
 
 extern X_API YAP_Int      YAP_AtomToInt(YAP_Atom At);
 
