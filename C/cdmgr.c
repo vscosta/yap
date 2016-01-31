@@ -1954,8 +1954,9 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
                     cclause() in case there is a overflow */
   t = Deref(ARG1); /* just in case there was an heap overflow */
   if (!LOCAL_ErrorMessage) {
-
+    YAPEnterCriticalSection();
     addclause(t, code_adr, mode, mod, &ARG5);
+    YAPLeaveCriticalSection();
   }
   if (LOCAL_ErrorMessage) {
     if (!LOCAL_Error_Term)
@@ -1964,7 +1965,6 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
     YAPLeaveCriticalSection();
     return false;
   }
-  YAPLeaveCriticalSection();
   return true;
 }
 
