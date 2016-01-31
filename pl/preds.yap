@@ -618,28 +618,35 @@ Defines the relation:  indicator _P_ refers to a currently defined system predic
 system_predicate(P0) :-
 	'$yap_strip_module'(P0, M, P),
     (
-     P = A/Arity, ground(P)
+      var(P)
+    ->
+      P = A/Arity,
+     '$current_predicate'(A, M, T, system),
+     functor(T, A, Arity),
+     '$is_system_predicate'( T,  M)
+    ;
+      ground(P), P = A/Arity
     ->
      functor(T, A, Arity),
-     '$current_predicate'(A, M, T, _system),
+     '$current_predicate'(A, M, T, system),
      '$is_system_predicate'( T, M)
     ;
-     P = A//Arity2, ground(P)
+      ground(P), P = A//Arity2
     ->
-     Arity is Arity2-2,
+     Arity is Arity2+2,
      functor(T, A, Arity),
-     '$current_predicate'(A, M, T, _system),
+     '$current_predicate'(A, M, T, system),
      '$is_system_predicate'( T, M)
     ;
      P = A/Arity
     ->
-     '$current_predicate'(A, M, T, _system),
+     '$current_predicate'(A, M, T, system),
      '$is_system_predicate'( T,  M),
      functor(T, A, Arity)
     ;
      P = A//Arity2
     ->
-     '$current_predicate'(A, M, T, _system),
+     '$current_predicate'(A, M, T, system),
      '$is_system_predicate'( T,  M),
      functor(T, A, Arity),
      Arity >= 2,
