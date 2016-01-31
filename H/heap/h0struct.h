@@ -120,12 +120,12 @@ EXTERNAL  UInt  GLOBAL_flagCount;
 /* Anderson's JIT */
 EXTERNAL  yap_exec_mode  Yap_ExecutionMode;
 /*  The Predicate Hash Table: fast access to predicates. */
+EXTERNAL  UInt  PredsInHashTable;
+EXTERNAL  uint64_t  PredHashTableSize;
 EXTERNAL    struct pred_entry  **PredHash;
 #if defined(YAPOR) || defined(THREADS)
 EXTERNAL  rwlock_t  PredHashRWLock;
 #endif
-EXTERNAL  UInt  PredsInHashTable;
-EXTERNAL  UInt  PredHashTableSize;
 /* Well-Known Predicates */
 EXTERNAL    struct pred_entry  *CreepCode;
 EXTERNAL    struct pred_entry  *UndefCode;

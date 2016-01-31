@@ -120,12 +120,12 @@
 
   Yap_ExecutionMode = INTERPRETED;
 
+  PredsInHashTable = 0;
+  PredHashTableSize = 0;
   InitPredHash();
 #if defined(YAPOR) || defined(THREADS)
 
 #endif
-  PredsInHashTable = 0;
-
 
   CreepCode = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomCreep,1),PROLOG_MODULE));
   UndefCode = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomUndefp,2),PROLOG_MODULE));

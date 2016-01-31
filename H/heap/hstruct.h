@@ -120,12 +120,12 @@
 /* Anderson's JIT */
   yap_exec_mode  Yap_ExecutionMode_;
 /*  The Predicate Hash Table: fast access to predicates. */
+  UInt  PredsInHashTable_;
+  uint64_t  PredHashTableSize_;
   struct pred_entry  **PredHash_;
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t  PredHashRWLock_;
 #endif
-  UInt  PredsInHashTable_;
-  UInt  PredHashTableSize_;
 /* Well-Known Predicates */
   struct pred_entry  *CreepCode_;
   struct pred_entry  *UndefCode_;
