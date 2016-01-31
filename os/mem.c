@@ -64,6 +64,11 @@ FILE * open_memstream (char **buf, size_t *len);
 #define MAY_WRITE 1
 #endif
 
+#if _WIN32
+#undef MAY_WRITE
+#undef MAY_READ
+#endif
+
 #if !MAY_READ
 static int MemGetc( int);
 
@@ -253,13 +258,15 @@ Yap_open_buf_write_stream(char *buf, size_t nchars, encoding_t *encp,  memBufSou
     sno = GetFreeStreamD();
     if (sno < 0)
       return -1;
-    if (!buf) {
+    st = GLOBAL_Stream+sno;
+    st->status = Output_Stream_f  | InMemory_Stream_f;
+   if (!buf) {
       if (!nchars) {
-	nchars = Yap_page_size;
+        nchars = Yap_page_size;
       }
       buf = malloc( nchars );
+      st->status |= FreeOnClose_Stream_f;
     }
-    st = GLOBAL_Stream+sno;
     st->nbuf = buf;
     if(!st->nbuf) {
       return -1;
@@ -275,12 +282,11 @@ Yap_open_buf_write_stream(char *buf, size_t nchars, encoding_t *encp,  memBufSou
     Yap_DefaultStreamOps( st );
 #if MAY_WRITE
     st->file = open_memstream(&st->nbuf, &st->nsize);
-    st->status = Output_Stream_f | InMemory_Stream_f|Seekable_Stream_f;
+    st->status |=  Seekable_Stream_f;
 #else
     st->u.mem_string.pos = 0;
-    st->u.mem_string.buf = nbuf;
+    st->u.mem_string.buf = st->nbuf;
     st->u.mem_string.max_size = nchars;
-    st->status = Output_Stream_f | InMemory_Stream_f;
  #endif
     Yap_MemOps( st );
     UNLOCK(st->streamlock);
@@ -327,8 +333,8 @@ open_mem_write_stream (USES_REGS1)   /* $open_mem_write_stream(-Stream) */
 char *
 Yap_MemExportStreamPtr( int sno )
 {
-  char *s;
 #if MAY_WRITE
+  char *s;
   if (fflush(GLOBAL_Stream[sno].file) == 0)
     {
       s =  GLOBAL_Stream[sno].nbuf;
@@ -336,7 +342,7 @@ Yap_MemExportStreamPtr( int sno )
   }
   return NULL;
 #else
-  return &GLOBAL_Stream[sno].u.mem_string;
+  return GLOBAL_Stream[sno].u.mem_string.buf;
 #endif
 }
 
@@ -360,7 +366,6 @@ peek_mem_write_stream ( USES_REGS1 )
       i = GLOBAL_Stream[sno].nsize;
     }
 #else
-  size_t pos;
     ptr = GLOBAL_Stream[sno].u.mem_string.buf;
     i = GLOBAL_Stream[sno].u.mem_string.pos;
 #endif
@@ -399,6 +404,35 @@ void
 #else
   st->stream_getc = MemGetc;
 #endif
+}
+
+bool Yap_CloseMemoryStream( int sno )
+{
+      if (!(GLOBAL_Stream[sno].status & Output_Stream_f) ) {
+#if MAY_WRITE
+        fclose(GLOBAL_Stream[sno].file);
+        if (GLOBAL_Stream[sno].status & FreeOnClose_Stream_f)
+            free( GLOBAL_Stream[sno].nbuf );
+#else 
+   if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_CODE)
+      Yap_FreeAtomSpace(GLOBAL_Stream[sno].u.mem_string.buf);
+    else if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_MALLOC) {
+      free(GLOBAL_Stream[sno].u.mem_string.buf);
+    }
+#endif       
+      } else {
+#if MAY_READ
+        fclose(GLOBAL_Stream[sno].file);
+        Yap_FreeAtomSpace(GLOBAL_Stream[sno].nbuf);
+#else
+   if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_CODE)
+      Yap_FreeAtomSpace(GLOBAL_Stream[sno].u.mem_string.buf);
+    else if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_MALLOC) {
+      free(GLOBAL_Stream[sno].u.mem_string.buf);
+    }
+#endif                 
+      }
+     return true;
 }
 
 void
