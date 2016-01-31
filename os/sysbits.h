@@ -13,22 +13,98 @@
  *
  */
 
+#if _WIN32 || defined(__MINGW32__)
+#if !defined(MINGW_HAS_SECURE_API)
+#define MINGW_HAS_SECURE_API 1
+#endif
+//#undef _POSIX_
+#endif
+#include "Yap.h"
+#include "Yatom.h"
+#include "YapHeap.h"
+#include "yapio.h"
+#include "eval.h"
+#if _WIN32 || defined(__MINGW32__)
+#include <winsock2.h>
+/* Windows */
+#include <io.h>
+#include <windows.h>
+#include <direct.h>
+#include "Shlwapi.h"
+#endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#if HAVE_STDARG_H
+#include <stdarg.h>
+#endif
+#include <stdlib.h>
+
+#if HAVE_SYS_PARAM_H
+#include <sys/param.h>
+#endif 
+
+
+#ifdef FENV_H
+#include <fenv.h>
+#endif
+#define S_ISDIR(x) (((x)&_S_IFDIR)==_S_IFDIR)
+#if HAVE_STDARG_H
+#include <stdarg.h>
+#endif
+#if HAVE_CTYPE_H
+#include <ctype.h>
+#endif
+#if HAVE_SYS_PARAMS_H
+#include <sys/params.h>
+#endif
+#if HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+#if HAVE_SYS_SELECT_H && !_MSC_VER && !defined(__MINGW32__) 
+#include <sys/select.h>
+#endif
+#if HAVE_STRING_H
+#include <string.h>
+#endif
+#if HAVE_LIBGEN_H
+#include <libgen.h>
+#endif
+#if HAVE_WCTYPE_H
+#include <wctype.h>
+#endif
+#if HAVE_LIMITS_H
+#include <limits.h>
+#endif
+#if HAVE_ERRNO_H
+#include <errno.h>
+#endif
+#if HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+#if !HAVE_STRNCAT
+#define strncat(X,Y,Z) strcat(X,Y)
+#endif
+#if !HAVE_STRNCPY
+#define strncpy(X,Y,Z) strcpy(X,Y)
+#endif
+#include "iopreds.h"
+
+#if HAVE_SIGNAL_H
+
+#include <signal.h>
+
+#endif
+#ifdef MPW
+#define signal	sigset
+#endif
+
 /* windows.h does not like absmi.h, this
    should fix it for now */
-#if _WIN32 || __MINGW32__
-#include <winsock2.h>
-#endif
-#include "absmi.h"
-#include "yapio.h"
-#include "iopreds.h"
-#include "alloc.h"
 #include <math.h>
-#if STDC_HEADERS
-#include <stdlib.h>
-#endif
-#if HAVE_WINDOWS_H
-#include <windows.h>
-#endif
 #if HAVE_SYS_TIME_H && !_MSC_VER
 #include <sys/time.h>
 #endif
@@ -40,12 +116,6 @@
 #endif
 #if HAVE_STRING_H
 #include <string.h>
-#endif
-#if !HAVE_STRNCAT
-#define strncat(X,Y,Z) strcat(X,Y)
-#endif
-#if !HAVE_STRNCPY
-#define strncpy(X,Y,Z) strcpy(X,Y)
 #endif
 #if HAVE_GETPWNAM
 #include <pwd.h>
@@ -61,17 +131,6 @@
 #include <fcntl.h>
 #endif
 #if  _MSC_VER || defined(__MINGW32__)
-#include <windows.h>
-/* required for DLL compatibility */
-#if HAVE_DIRECT_H
-#include <direct.h>
-#endif
-#include <io.h>
-#include <shlwapi.h>
-#else
-#if HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
 #endif
 /* CYGWIN seems to include this automatically */
 #if HAVE_FENV_H && !defined(__CYGWIN__)
@@ -86,13 +145,7 @@
 #if HAVE_LIBGEN_H
 #include <libgen.h>
 #endif
-#if HAVE_STDARG_H
-#include <stdarg.h>
-#endif
-#if HAVE_ERRNO_H
-#include <errno.h>
-#endif
-#if HAVE_READLINE_READLINE_H
+#if defined(HAVE_READLINE_READLINE_H)
 #include <readline/readline.h>
 #endif
 
