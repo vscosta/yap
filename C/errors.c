@@ -115,17 +115,17 @@ bool Yap_Warning(const char *s, ...) {
   } else
     return false;
   va_end(ap);
-  if (pred->OpcodeOfPred == UNDEF_OPCODE) {
+  if (pred->OpcodeOfPred == UNDEF_OPCODE||
+      pred->OpcodeOfPred == FAIL_OPCODE) {
     fprintf(stderr, "warning message: %s\n", tmpbuf);
     LOCAL_DoingUndefp = false;
     LOCAL_within_print_message = false;
-    return true;
+    return false;
   }
 
   ts[1] = MkAtomTerm(AtomWarning);
   ts[0] = MkAtomTerm(Yap_LookupAtom(tmpbuf));
   rc = Yap_execute_pred(pred, ts, true PASS_REGS);
-  LOCAL_within_print_message = false;
   return rc;
 }
 
@@ -133,6 +133,7 @@ bool Yap_PrintWarning(Term twarning) {
   CACHE_REGS
   PredEntry *pred = RepPredProp(PredPropByFunc(
       FunctorPrintMessage, PROLOG_MODULE)); // PROCEDURE_print_message2;
+  Term cmod = CurrentModule;
   bool rc;
   Term ts[2];
 
@@ -143,13 +144,16 @@ bool Yap_PrintWarning(Term twarning) {
   }
   LOCAL_DoingUndefp = true;
   LOCAL_within_print_message = true;
-  if (pred->OpcodeOfPred == UNDEF_OPCODE) {
+  if (pred->OpcodeOfPred == UNDEF_OPCODE ||
+      pred->OpcodeOfPred == FAIL_OPCODE 
+  ) {
      fprintf(stderr, "warning message:\n");
      Yap_DebugPlWrite(twarning);
      fprintf(stderr, "\n");
     LOCAL_DoingUndefp = false;
     LOCAL_within_print_message = false;
-    return true;
+    CurrentModule = cmod;
+    return false;
   }
   ts[1] = twarning;
   ts[0] = MkAtomTerm(AtomWarning);
