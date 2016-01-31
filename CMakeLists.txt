@@ -111,6 +111,7 @@ add_library(libYap
   ${STATIC_SOURCES}
   ${OPTYAP_SOURCES}
   ${HEADERS}
+  ${WINDLLS}
     $<TARGET_OBJECTS:libYAPOs>
   $<TARGET_OBJECTS:libOPTYap>
   $<TARGET_OBJECTS:myddas>
@@ -495,6 +496,11 @@ target_link_libraries(libYap
   ${READLINE_LIBS}
   ${CMAKE_DL_LIBS}
   )
+
+if(WIN32)
+  target_link_libraries(libYap  wsock32 ws2_32 Shlwapi
+    )
+endif()
 
 add_executable (yap-bin ${CONSOLE_SOURCES})
 
