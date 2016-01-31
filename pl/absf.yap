@@ -238,7 +238,7 @@ absolute_file_name(File0,File) :-
 	'$extend_path_directory'(Name, A, File, Opts, NewFile, Call).
 '$find_in_path'(File0,Opts,NewFile,_) :-
 	'$cat_file_name'(File0,File), !,
-	'$add_path'(File, PFile),
+	'$add_path'(File, Opts, PFile),
 	'$get_abs_file'(PFile,Opts,AbsFile),
     '$absf_trace'('~w to ~w', [PFile, NewFile] ),
 	'$search_in_path'(AbsFile,Opts,NewFile).
@@ -304,7 +304,7 @@ absolute_file_name(File0,File) :-
 	 atom_concat( [File1, DA, Glob], File2 ),
 	 expand_file_name(File2, ExpFiles),
      % glob is not very much into failing
-     [File2] \== ExpFiles,
+     %[File2] \== ExpFiles,
      '$enumerate_glob'(File2, ExpFiles, ExpFile)
 	;
 	 Expand == true
@@ -317,9 +317,9 @@ absolute_file_name(File0,File) :-
 	'$absf_trace'(' With globbing (glob=~q;expand=~a): ~w', [Glob,Expand,ExpFile] ).
 
 
-'$enumerate_glob'(File1, [ExpFile], ExpFile) :-
+'$enumerate_glob'(_File1, [ExpFile], ExpFile) :-
     !.
-'$enumerate_glob'(File1, ExpFiles, ExpFile) :-
+'$enumerate_glob'(_File1, ExpFiles, ExpFile) :-
     lists:member(ExpFile, ExpFiles),
     file_base_name( ExpFile, Base ),
     Base \= '.',
@@ -357,10 +357,14 @@ absolute_file_name(File0,File) :-
 '$add_type_extensions'(_,File,File) :-
 	'$absf_trace'('  wo  extension ~w?', [File] ).
 
-'$add_path'(File, File) :-
+'$add_path'(File, _, File) :-
 	is_absolute_file_name(File), !.
-'$add_path'(File, File) :-
-	working_directory(Dir, Dir),
+'$add_path'(File, Opts, File) :-
+    ( get_abs_file_parameter( relative_to, Opts, Dir ) -> 
+      true
+      ;
+	   working_directory(Dir, Dir)
+    ),
 	'$dir_separator'( D ),
 	atom_codes( DSep, [D] ),
 	atomic_concat([Dir, DSep,File],PFile),
