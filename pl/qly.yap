@@ -273,6 +273,9 @@ qend_program :-
 '$do_init_state' :-
 	'$init_from_saved_state_and_args',
 	 fail.
+'$do_init_state' :-
+    stream_property(user_input, tty(true)),
+    set_prolog_flag(readline, true).
 '$do_init_state'.
 
 %
