@@ -502,7 +502,7 @@ BaseName(const char *X) {
 }
 
 
-const har *
+const char *
 DirName(const char *X) {
   char dir[YAP_FILENAME_MAX];
   char drive[YAP_FILENAME_MAX];
@@ -675,7 +675,7 @@ prolog_expanded_file_system_path( USES_REGS1 )
     const char *rc =  myrealpath(out, LOCAL_FileNameBuf2 );
     return Yap_unify(MkAtomTerm(Yap_LookupAtom(rc)), ARG4);
   } else {
-    char *pt =stpncpy(  LOCAL_FileNameBuf2, p0, YAP_FILENAME_MAX );
+    char *pt =strncpy(  LOCAL_FileNameBuf2, p0, YAP_FILENAME_MAX );
     printf("%s\n", LOCAL_FileNameBuf2);
     if ( !dir_separator( pt[-1] )) {
 #if ATARI || _MSC_VER || defined(__MINGW32__)
