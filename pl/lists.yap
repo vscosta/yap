@@ -3,9 +3,7 @@
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Thu Nov 19 09:54:00 2015
  *
- * @brief  core list operations
- *
- * @ingroup lists
+ * @addtogroup lists
  * @{
 */
 
@@ -73,7 +71,7 @@ lists:append([H|T], L, [H|R]) :-
 	lists:append(T, L, R).
 
 
-:- set_prolog_flag(source, false). % :- no_source.
+:- set_prolog_flag(source, true). % :- no_source.
 
 %   lists:delete(List, Elem, Residue)
 %   is true when List is a list, in which Elem may or may not occur, and
@@ -90,7 +88,7 @@ eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 */
 lists:delete([], _, []).
 lists:delete([Head|List], Elem, Residue) :-
-	Head == Elem, !,
+	Head = Elem,
 	lists:delete(List, Elem, Residue).
 lists:delete([Head|List], Elem, [Head|Residue]) :-
 	lists:delete(List, Elem, Residue).
