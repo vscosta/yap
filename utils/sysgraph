@@ -322,7 +322,7 @@ search_file(  F0, LocF, Type, FN ) :-
     absolute_file_name(F1, [
         relative_to(Left), 
             file_type(Type),file_errors(fail),
-            access(read) ], NF ).
+            access(read) ], FN ).
 search_file(  Loc , F, _FN ) :-
     format('~n~n~n###############~n~n FAILED TO FIND ~w when at  ~a~n~n###############~n~n~n', [Loc, F ]),
      fail.
@@ -345,7 +345,7 @@ candidate_dir( Loc, _Source,  D, OLoc) :-
     NLoc \= Loc,
     candidate_dir( NLoc, Loc, D, OLoc).
 
-candidate_dir_down(Loc, Source,  D, Loc) :-
+candidate_dir_down(Loc, _Source,  D, Loc) :-
     % ensure that the prefix of F, D,  is a suffix of Loc
     match(D, Loc).
 % next, try going down in the current subroot
@@ -353,7 +353,7 @@ candidate_dir( Loc, _Source,  D, OLoc) :-
     sub_dir(NLoc, Loc),
     candidate_dir_down(NLoc, Source,  D, OLoc).
     
-match('.', Loc) :- !.
+match('.', _Loc) :- !.
 match(D, Loc) :-
     file_base_name( D, B),
     file_base_name( Loc, B),
@@ -394,7 +394,7 @@ new_op( F, M, op( X, Y, Z) ) :-
     public( F, M, op( X, Y, Z) ).
 
 
-error(F, Error) :-
+error(_F, Error) :-
     print_message( error, Error ),
     fail.
 
@@ -406,7 +406,7 @@ preprocess_file(F,F).
 
 
 %%%%%%%
-%% declare a concept export1able
+%% declare a concept exportable
 public( F, M, op(X,Y,Z) ) :- !,
     (
         assert_new( public( F, op(X,Y,Z) ) ),
