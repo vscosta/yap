@@ -157,7 +157,9 @@ set(C_INTERFACE_SOURCES
     H/YapLFlagInfo.h
   	H/YapText.h
   	H/cut_c.h
-  	H/iatoms.h H/ratoms.h H/tatoms.h
+  	H/heap/iatoms.h
+    H/heap/ratoms.h
+    H/heap/tatoms.h
   	CXX/yapdb.hh
   	CXX/yapi.hh
   	BEAM/eam.h BEAM/eamamasm.h
