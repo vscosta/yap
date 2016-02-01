@@ -769,7 +769,7 @@ do_expand_file_name(Term t1, Term opts USES_REGS)
           if (!use_system_expansion) {
             use_system_expansion = true;            
 #ifdef WRDE_NOCMD
-            if (t == TermFalse) {`
+            if (t == TermFalse) {
               flags = WRDE_NOCMD;
             }
 #endif
