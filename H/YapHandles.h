@@ -17,7 +17,7 @@
 #define YAP_HANDLES_H 1
 
 #include "Regs.h"
-#include "YAtom.h"
+#include "Yatom.h"
 
 #define LOCAL_CurHandle LOCAL_CurSlot
 #define REMOTE_CurHandle REMOTE_CurSlot

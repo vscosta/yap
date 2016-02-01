@@ -631,7 +631,6 @@ Yap_AbsoluteFile(const char *spec, char *tmp, bool ok)
  *
  * @param PrologPath the source, may be atom or string
  * @param ExpandVars expand initial occurrence of ~ or $
- * @param ExpandVars expand initial occurrence of ~ or $
  * @param Prefix add this path before _PrologPath_
  * @param OSPath pathname.
  *
@@ -676,7 +675,6 @@ prolog_expanded_file_system_path( USES_REGS1 )
     return Yap_unify(MkAtomTerm(Yap_LookupAtom(rc)), ARG4);
   } else {
     char *pt =strncpy(  LOCAL_FileNameBuf2, p0, YAP_FILENAME_MAX );
-    printf("%s\n", LOCAL_FileNameBuf2);
     if ( !dir_separator( pt[-1] )) {
 #if ATARI || _MSC_VER || defined(__MINGW32__)
       pt[0] = '\\';
@@ -687,7 +685,7 @@ prolog_expanded_file_system_path( USES_REGS1 )
       pt[0] = '\n';
     }
     out = strncpy( pt, out, YAP_FILENAME_MAX -(pt -LOCAL_FileNameBuf2) );
-    const char *rc =  myrealpath(LOCAL_FileNameBuf2, LOCAL_FileNameBuf );
+    const char *rc =  myrealpath(LOCAL_FileNameBuf, LOCAL_FileNameBuf2 );
     return Yap_unify(MkAtomTerm(Yap_LookupAtom(rc)), ARG4);
   }
 }
@@ -760,12 +758,6 @@ do_expand_file_name(Term t1, Term opts USES_REGS)
               return TermNil;
             }
             tmpe = expandVars( spec, tmpe,  YAP_FILENAME_MAX);
-#ifdef GLOB_BRACE
-            flags = GLOB_BRACE|GLOB_TILDE;
-#endif
-            //#ifdef GLOB_NOCHECK
-            //      flags |= GLOB_NOCHECK;
-            //#endif
             spec = tmpe;
           } else if (t == TermTrue) {
             use_system_expansion = true;
@@ -777,7 +769,7 @@ do_expand_file_name(Term t1, Term opts USES_REGS)
           if (!use_system_expansion) {
             use_system_expansion = true;            
 #ifdef WRDE_NOCMD
-            if (t == TermFalse) {
+            if (t == TermFalse) {`
               flags = WRDE_NOCMD;
             }
 #endif
@@ -835,8 +827,15 @@ do_expand_file_name(Term t1, Term opts USES_REGS)
   size_t pathcount;
   if ( glob_vs_wordexp ) {
 #if HAVE_GLOB
-    memset( &gresult,0,sizeof(gresult) );
-    switch (glob (spec, flags, NULL, &gresult))
+#ifdef GLOB_NOCHECK
+  flags = GLOB_NOCHECK;
+#else
+  flags = 0;
+#endif
+#ifdef GLOB_BRACE
+  flags |= GLOB_BRACE|GLOB_TILDE;
+#endif
+  switch (glob (spec, flags, NULL, &gresult))
     {
       case 0:                     /* Successful.  */
           ss = gresult.gl_pathv;
@@ -902,9 +901,9 @@ do_expand_file_name(Term t1, Term opts USES_REGS)
 #else
       tmp = s;
 #endif
-    //if (!exists(s))
+   //if (!exists(s))
     //  continue;
-      Atom a = Yap_LookupAtom(s);
+      Atom a = Yap_LookupAtom(tmp);
       tf = MkPairTerm(MkAtomTerm( a ),tf);
     }
 #if HAVE_GLOB

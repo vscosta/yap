@@ -303,7 +303,7 @@ absolute_file_name(File0,File) :-
 	atom_codes(DA,[D]),
 	 atom_concat( [File1, DA, Glob], File2 ),
 	 expand_file_name(File2, ExpFiles),
-     % glob is not very much into failing
+     % glob is not very much into failing	
      %[File2] \== ExpFiles,
      '$enumerate_glob'(File2, ExpFiles, ExpFile)
 	;
