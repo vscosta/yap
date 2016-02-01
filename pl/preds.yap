@@ -292,7 +292,7 @@ abolish(X0) :-
 
 '$new_abolish'(V,M) :- var(V), !,
 	'$abolish_all'(M).
-'$new_abolish'(A,M) :- atom(A), !,
+'$new_abolish'(A/V,M) :- atom(A), var(V), !,
 	'$abolish_all_atoms'(A,M).
 '$new_abolish'(Na//Ar1, M) :-
 	integer(Ar1),
