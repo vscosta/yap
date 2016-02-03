@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %    Author:        Nicos Angelopoulos, Vitor Santos Costa, Jan Wielemaker
 %    E-mail:        Nicos Angelopoulos <nicos@gmx.co.uk>
-%    Copyright (C): Nicos Angelopoulos, Universidade do Porto, VU University Amsterdam
+				%    Copyright (C): Nicos Angelopoulos, Universidade do Porto, VU University Amsterdam
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  This file is part of real
@@ -49,12 +49,12 @@
         op(100, fy, '.')
      ]).
 
+
 :- use_module(library(shlib)).
 :- use_module(library(lists)).
 :- use_module(library(apply_macros)).
 :- use_module(library(charsio)).
 :- use_module(library(readutil)).
-:- use_module(library(debug)).
 
 :- dynamic( real:r_started/1 ).
 

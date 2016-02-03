@@ -1433,10 +1433,10 @@ static Int open4(USES_REGS1) { /* '$open'(+File,+Mode,?Stream,-ReturnCode) */
 
 static Int p_file_expansion(USES_REGS1) { /* '$file_expansion'(+File,-Name) */
   Term file_name = Deref(ARG1);
-
+  
   /* we know file_name is bound */
-  if (!IsAtomTerm(file_name)) {
-    PlIOError(TYPE_ERROR_ATOM, file_name, "absolute_file_name/3");
+  if (IsVarTerm(file_name)) {
+    PlIOError(INSTANTIATION_ERROR, file_name, "absolute_file_name/3");
     return (FALSE);
   }
   if (!Yap_TrueFileName(RepAtom(AtomOfTerm(file_name))->StrOfAE,

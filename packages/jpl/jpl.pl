@@ -4488,8 +4488,8 @@ search_path_separator(:).
 %       we do not check for that.
 
 check_java_environment :-
-	check_lib(java),
-	check_lib(jvm).
+	check_lib(jvm),
+	check_lib(java).
 
 check_lib(Name) :-
 	check_shared_object(Name, File, EnvVar, Absolute),
@@ -4666,13 +4666,17 @@ java_home(Home) :-
 	atomic_list_concat([Key0, Version], /, Key),
 	win_registry_get_value(Key, 'JavaHome', WinHome),
 	prolog_to_os_filename(Home, WinHome),
-	exists_directory(Home), !.
+	exists_directory(Home).
 :- else.
 java_home(Home) :-
 	member(Home, [ '/usr/lib/java',
-		       '/usr/local/lib/java'
+		       '/usr/lib/jvm',
+		       '/usr/lib/jvm/jre',
+		       '/usr/local/lib/java',
+		       '/usr/local/lib/jvm',
+		       '/usr/local/lib/jvm/jre'
 		     ]),
-	exists_directory(Home), !.
+	exists_directory(Home).
 :- endif.
 
 :- dynamic

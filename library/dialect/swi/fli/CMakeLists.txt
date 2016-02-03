@@ -1,23 +1,24 @@
 
-set (LIBSWIFLI_SOURCES
+set (LIBSWI_SOURCES
   swi.c blobs.c)
 
 set (POSITION_INDEPENDENT_CODE TRUE)
 
-add_library (libSWIFLi  OBJECT
-  ${LIBSWIFLI_SOURCES})
+add_library (libswi  OBJECT
+  ${LIBSWI_SOURCES})
 
-set_target_properties(libSWIFLi
+set_target_properties(libswi
   PROPERTIES
   #  RPATH ${libdir} VERSION ${LIBYAPTAI_FULL_VERSION}
   #  SOVERSION ${LIBYAPTAI_MAJOR_VERSION}.${LIBYAPTAI_MINOR_VERSION}
-  POSITION_INDEPENDENT_CODE TRUE
-  OUTPUT_NAME swiFLI
+  POSITION_INDEPENDENT_CODE ON
   )
 
 include_directories (../../../H ../.../../include ../os ${CMAKE_BINARY_DIR} ${GMP_INCLUDE_DIR})
 
 target_link_libraries( libYap)
+
+set (YAP_SWILIB $<TARGET_FILE_NAME:libswi> )
 
 set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${GMP_INCLUDE_DIR} )
 #set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${GMP_LIBRARIES} )

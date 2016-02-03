@@ -1913,7 +1913,15 @@ signal. */
 
 /* library search variable */
 #ifndef SO_PATH
-#define SO_PATH "${dlls}"
+#ifdef __APPLE__
+#define SO_PATH "DYLD_LIBRARY_PATH"
+#elif _WIN32
+#define SO_PATH "PATH"
+#elif __unix__
+#define SO_PATH "LD_LIBRARY_PATH"
+#else
+#define SO_PATH NULL
+#endif
 #endif
 
 /* enable condor distributed execution, static compilation */

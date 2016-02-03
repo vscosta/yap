@@ -604,11 +604,11 @@ Defines the relation:  _P_ is a currently defined predicate whose name is the at
 */
 current_predicate(A,T0) :-
 	'$yap_strip_module'(T0, M, T),
-    (
-     '$current_predicate'(A,M, T, user)
+	(
+	 '$current_predicate'(A,M, T, user)
     ;
-     '$imported_predicate'(T, M, T1, M1),
-     \+ '$is_system_predicate'(T1,M1)
+	 '$imported_predicate'(T, M, T1, M1),
+	 \+ '$is_system_predicate'(T1,M1)
     ).
 
 /** @pred  system_predicate( ?_P_ )
@@ -661,9 +661,9 @@ system_predicate(P0) :-
 current_predicate(F0) :-
 	'$yap_strip_module'(F0, M, F),
 	(var(F) ->
-     F = A/N,
+	 F = A/N,
 	 current_predicate(A, M:S),
-     functor(S, A, N)
+	 functor(S, A, N)
 	;
 	 (
 	  functor(F,AN,2)

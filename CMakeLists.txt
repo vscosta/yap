@@ -6,11 +6,15 @@
 
 project(YAP)
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required (VERSION 2.8)
 
 # where we have most scripts
 # set path to additional CMake modules
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+
+include(disallow)
+
+disallow_intree_builds()
 
 
 
@@ -113,8 +117,9 @@ add_library(libYap
   ${HEADERS}
     $<TARGET_OBJECTS:libYAPOs>
   $<TARGET_OBJECTS:libOPTYap>
-  $<TARGET_OBJECTS:myddas>
-  )
+  $<TARGET_OBJECTS:myddas>  
+  $<TARGET_OBJECTS:libswi>  
+)
 
 set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
 
@@ -411,7 +416,7 @@ add_subDIRECTORY (packages/raptor)
 
 add_subDIRECTORY (packages/xml)
 
-add_subDIRECTORY (docs)
+# add_subDIRECTORY (docs)
 
 # add_subDIRECTORY (packages/cuda)
 

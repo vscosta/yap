@@ -79,8 +79,6 @@ set (ENGINE_SOURCES
   C/utilpreds.c
   C/yap-args.c
   C/write.c
-  library/dialect/swi/fli/swi.c
-  library/dialect/swi/fli/blobs.c
   C/udi.c
   #packages/udi/rtree.c
   #packages/udi/rtree_udi.c
@@ -161,8 +159,7 @@ set(C_INTERFACE_SOURCES
   	CXX/yapdb.hh
   	CXX/yapi.hh
   	BEAM/eam.h BEAM/eamamasm.h
-   	library/dialect/swi/fli/swi.h
-  )
+	)
 
 
 

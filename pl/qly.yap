@@ -318,6 +318,9 @@ qend_program :-
 	prompt(_,'| '),
 	catch(once(user:G),Error,user:'$Error'(Error)),
 	fail.
+'$init_from_saved_state_and_args' :-
+        '$protect',
+        fail.
 '$init_from_saved_state_and_args'.
 
 '$init_path_extensions' :-
@@ -370,6 +373,9 @@ qend_program :-
 	use_module(library(myddas)),
 	call(db_open(mysql,myddas,Host/Db,User,Pass)),
 	'$myddas_import_all',
+	fail.
+'$startup_goals' :-
+	'$protect',
 	fail.
 '$startup_goals'.
 
@@ -475,7 +481,7 @@ qsave_module(Mod) :-
 	qsave_module(Mod, OF).
 
 /**
-@pred restore(+ _F_)
+  @pred restore(+ _F_)
 Restores a previously saved state of YAP from file  _F_.
 
 */

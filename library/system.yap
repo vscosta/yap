@@ -27,7 +27,7 @@
 
 
 
-:- module( operating_system_support,
+:- module(operating_system_support,
     [
      datime/1,
      delete_file/1,
@@ -35,8 +35,7 @@
 	directory_files/2,
 	environ/2,
 	exec/3,
-	file_exists/1,
-	file_exists/2,
+     file_exists/2,
 	file_property/2,
 	host_id/1,
 				     host_name/1,
@@ -46,7 +45,7 @@
 				     mktemp/2,
 	make_directory/1,
 	popen/3,
-	rename_file/2,
+     rename_file/2,
 	shell/0,
 	shell/1,
 	shell/2,
@@ -142,7 +141,7 @@ recursively, and `ignore` if errors are not to be reported.
 This example is equivalent to using the delete_file/1 predicate:
 
 ~~~~~
-   ?- delete_file(x, [recursive]).
+  ?- delete_file(x, [recursive]).
 ~~~~~
 
 
@@ -266,7 +265,7 @@ tmpnam/1 instead.
 
 The `mktime/2` procedure receives a term of the form _datime(+ _Year_,
 + _Month_, + _DayOfTheMonth_, + _Hour_, + _Minute_, + _Second_)_ and
-returns the number of _Seconds_ elapsed since 00:00:00 on January 1,
+  returns the number of _Seconds_ elapsed since 00:00:00 on January 1,
 1970, Coordinated Universal Time (UTC).  The user provides information
 on _Year_, _Month_, _DayOfTheMonth_, _Hour_, _Minute_, and
 _Second_. The _Hour_ is given on local time. This function uses the
@@ -558,7 +557,7 @@ file_property(File, Type, Size, Date, Permissions, LinkName) :-
 	file_property(File, Type, Size, Date, Permissions, LinkName, Error),
 	handle_system_internal(Error, off, file_property(File)).
 
-
+  
 file_exists(File, Permissions) :-
 	var(File), !,
 	throw(error(instantiation_error,file_exists(File, Permissions))).

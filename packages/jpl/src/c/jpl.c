@@ -1969,7 +1969,7 @@ jni_ensure_jvm_plc(void)
 
 
 #if __YAP_PROLOG__
-#include "hacks.c"
+#include "hacks.h"
 #endif
 
 /* NB after any JNI call which clearly indicates success, */

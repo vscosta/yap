@@ -11,31 +11,31 @@ macro_log_feature (Java_Development_FOUND "Java"
     "http://www.java.org" FALSE)
 
 if (Java_Development_FOUND)
-  #   Java_JAVA_EXECUTABLE    = the full path to the Java runtime
-  #   Java_JAVAC_EXECUTABLE   = the full path to the Java compiler
-  #   Java_JAVAH_EXECUTABLE   = the full path to the Java header generator
-  #   Java_JAVADOC_EXECUTABLE = the full path to the Java documention generator
-  #   Java_JAR_EXECUTABLE     = the full path to the Java archiver
-  #   Java_VERSION_STRING     = Version of java found, eg. 1.6.0_12
-  #   Java_VERSION_MAJOR      = The major version of the package found.
-  #   Java_VERSION_MINOR      = The minor version of the package found.
-  #   Java_VERSION_PATCH      = The patch version of the package found.
-  #   Java_VERSION_TWEAK      = The tweak version of the package found (after '_')
-  #   Java_VERSION            = This is set to: $major.$minor.$patch(.$tweak)
-  #   JAVA_LIBRARIES           - path to the java library
-  #   JAVA_INCLUDE_PATH        - path to where Java.h is found (deprecated)
-  #   JAVA_INCLUDE_DIRS        - path to where Java.h is found
-  #   JAVA_DEBUG_LIBRARIES     - path to the debug library (deprecated)
-  #   JAVALIBS_VERSION_STRING  - version of the Java libs found (since CMake 2.8.8)
+
+  find_package(JNI)
+  include(UseJava)
+
   #
-  #
+  #   Java_JAVA_EXECUTABLE      = the full path to the Java runtime
+  #   Java_JAVAC_EXECUTABLE     = the full path to the Java compiler
+  #   Java_JAVAH_EXECUTABLE     = the full path to the Java header generator
+  #   Java_JAVADOC_EXECUTABLE   = the full path to the Java documention generator
+  #   Java_IDLJ_EXECUTABLE      = the full path to the Java idl compiler
+  #   Java_JAR_EXECUTABLE       = the full path to the Java archiver
+  #   Java_JARSIGNER_EXECUTABLE = the full path to the Java jar signer
+  #   Java_VERSION_STRING       = Version of java found, eg. 1.6.0_12
+  #   Java_VERSION_MAJOR        = The major version of the package found.
+  #   Java_VERSION_MINOR        = The minor version of the package found.
+  #   Java_VERSION_PATCH        = The patch version of the package found.
+  #   Java_VERSION_TWEAK        = The tweak version of the package found (after '_')
+  #   Java_VERSION              = This is set to: $major.$minor.$patch(.$tweak)
   #
   # The Java_ADDITIONAL_VERSIONS variable can be used to specify a list
   # of version numbers that should be taken into account when searching
   # for Java.  You need to set this variable before calling
   # find_package(JavaLibs).
   #
-  macro_optional_find_package(JNI ON)
+  #macro_optional_find_package(JNI ON)
   #   JNI_INCLUDE_DIRS      = the include dirs to use
   #   JNI_LIBRARIES         = the libraries to use
   #   JNI_FOUND             = TRUE if JNI headers and libraries were found.
@@ -45,23 +45,10 @@ if (Java_Development_FOUND)
   #   JAVA_INCLUDE_PATH2    = the include path to jni_md.h
   #   JAVA_AWT_INCLUDE_PATH = the include path to jawt.h
 
-  add_library (jplYap SHARED src/c/jpl.c)
-
-  add_subdirectory (src/java)
-
-  include_directories (${JAVA_INCLUDE_DIRS} ${JNI_INCLUDE_DIRS})
-
-  target_link_libraries(jplYap libYap ${JAVA_LIBRARIES} ${JNI_LIBRARIES})
-
-  set_target_properties(jplYap PROPERTIES
-    OUTPUT_NAME jpl )
-
-    set(YAP_SYSTEM_OPTIONS "jpl " ${YAP_SYSTEM_OPTIONS} PARENT_SCOPE)
-
-  install(TARGETS  jplYap
-    LIBRARY DESTINATION ${dlls}
-    )
-
+  add_subdirectory (src/c)  
+  
+  add_subdirectory (src/java)  
+  
   install(FILES jpl.pl
     DESTINATION ${libpl}
     )
