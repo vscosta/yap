@@ -161,14 +161,14 @@ typedef struct various_codes {
   /* memory allocation and management */
   special_functors funcs;
 
-#include "heap/hstruct.h"
+#include "struct.h"
 
 } all_heap_codes;
 
-#include "heap/hglobals.h"
+#include "hglobals.h"
 
-#include "heap/dhstruct.h"
-#include "heap/dglobals.h"
+#include "dhstruct.h"
+#include "dglobals.h"
 #else
 typedef struct various_codes {
   /* memory allocation and management */
@@ -184,17 +184,17 @@ typedef struct various_codes {
 #define EXTERNAL extern
 #endif
 
-#include "heap/h0struct.h"
+#include "h0struct.h"
 
-#include "heap/h0globals.h"
+#include "h0globals.h"
 
 #endif
 
-#include "heap/hlocals.h"
+#include "hlocals.h"
 
 
 
-#include "heap/dlocals.h"
+#include "dlocals.h"
 
 
 /* ricardo

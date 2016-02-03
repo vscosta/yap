@@ -29,7 +29,7 @@
 
 // #include "verify.h"
 
-#if !HAVE_OPEN_MEMSTREAM
+#if !HAVE_OPEN_MEMSTREAM && !_WIN32
 
 #if !HAVE_FUNOPEN
 # error Sorry, not ported to your platform yet

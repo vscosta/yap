@@ -947,8 +947,8 @@ static void InitStdPreds(void) {
   Yap_InitCPreds();
   Yap_InitBackCPreds();
   BACKUP_MACHINE_REGS();
-  Yap_InitPlIO();
   Yap_InitFlags(false);
+  Yap_InitPlIO();
 #if HAVE_MPE
   Yap_InitMPE();
 #endif
@@ -1221,9 +1221,9 @@ void Yap_CloseScratchPad(void) {
   LOCAL_ScratchPad.msz = SCRATCH_START_SIZE;
 }
 
-#include "heap/iglobals.h"
+#include "iglobals.h"
 
-#include "heap/ilocals.h"
+#include "ilocals.h"
 
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
 struct global_data *Yap_global;
@@ -1247,7 +1247,7 @@ static void InitCodes(void) {
     Yap_local[wid] = NULL;
   }
 #endif
-#include "heap/ihstruct.h"
+#include "ihstruct.h"
 #if THREADS
   Yap_InitThread(0);
 #endif /* THREADS */

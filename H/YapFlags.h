@@ -88,9 +88,9 @@ static inline bool isfloat(Term inp) {
   return false;
 }
 
-INLINE_ONLY inline EXTERN bool ro(Term inp);
+static inline bool ro(Term inp);
 
-INLINE_ONLY inline EXTERN bool ro(Term inp) {
+static inline bool ro(Term inp) {
   if (IsVarTerm(inp)) {
     Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s",
               "bound");
@@ -114,9 +114,9 @@ INLINE_ONLY inline EXTERN bool aro(Term inp) {
   return false;
 }
 
-// INLINE_ONLY inline EXTERN bool boolean( Term inp );
+// INLINE_ONLY inline EXTERN bool booleanFlag( Term inp );
 
-static inline bool boolean(Term inp) {
+static inline bool booleanFlag(Term inp) {
   if (inp == TermTrue || inp == TermFalse || inp == TermOn || inp == TermOff)
     return true;
   if (IsVarTerm(inp)) {
@@ -150,6 +150,17 @@ static bool synerr(Term inp) {
 }
 
 static inline bool filler(Term inp) { return true; }
+
+static inline bool list_filler(Term inp) {
+  if (IsVarTerm(inp) ||
+      IsPairTerm(inp) ||
+      inp == TermNil)
+    return true;
+
+    Yap_Error(TYPE_ERROR_LIST, inp,
+              "set_prolog_flag in {codes,string}");
+      
+  return false; }
 
 static bool bqs(Term inp) {
   if (inp == TermCodes || inp == TermString || inp == TermSymbolChar)

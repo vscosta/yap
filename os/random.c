@@ -1,7 +1,34 @@
-
-
-#include "sysbits.h"
-
+#include "Yap.h"
+#include "Yatom.h"
+#include "YapHeap.h"
+#include "yapio.h"
+#include <stdlib.h>
+#if HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#if HAVE_STDARG_H
+#include <stdarg.h>
+#endif
+#ifdef _WIN32
+#if HAVE_IO_H
+/* Windows */
+#include <io.h>
+#endif 
+#if HAVE_SOCKET
+#include <winsock2.h>
+#endif
+#include <windows.h>
+#ifndef S_ISDIR
+#define S_ISDIR(x) (((x)&_S_IFDIR)==_S_IFDIR)
+#endif
+#endif
+#if HAVE_ERRNO_H
+#include <errno.h>
+#endif
+#if HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+#include "iopreds.h"
 
 #if HAVE_TIME_H
 #include <time.h>

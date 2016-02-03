@@ -126,26 +126,26 @@ set(C_INTERFACE_SOURCES
   	H/compile.h
   	H/corout.h
   	H/dlmalloc.h
-  	H/heap/dglobals.h
-  	H/heap/dlocals.h
-  	H/heap/dhstruct.h
+  	H/generated/dglobals.h
+  	H/generated/dlocals.h
+  	H/generated/dhstruct.h
   	H/eval.h
   	H/heapgc.h
-  	H/heap/hglobals.h
-  	H/heap/hlocals.h
-  	H/heap/hstruct.h
-  	H/heap/iglobals.h
-  	H/heap/ihstruct.h
-  	H/heap/ilocals.h
+  	H/generated/hglobals.h
+  	H/generated/hlocals.h
+  	H/generated/hstruct.h
+  	H/generated/iglobals.h
+  	H/generated/ihstruct.h
+  	H/generated/ilocals.h
   	H/index.h
   	H/inline-only.h
   	H/iswiatoms.h
   	H/qly.h
   	H/rclause.h
-  	H/heap/rglobals.h
-  	H/heap/rlocals.h
+  	H/generated/rglobals.h
+  	H/generated/rlocals.h
   	H/rheap.h
-  	H/heap/rhstruct.h
+  	H/generated/rhstruct.h
   	H/threads.h
   	H/tracer.h
   	H/trim_trail.h
@@ -155,7 +155,9 @@ set(C_INTERFACE_SOURCES
     H/YapLFlagInfo.h
   	H/YapText.h
   	H/cut_c.h
-  	H/iatoms.h H/ratoms.h H/tatoms.h
+  	H/generated/iatoms.h
+    H/generated/ratoms.h
+    H/generated/tatoms.h
   	CXX/yapdb.hh
   	CXX/yapi.hh
   	BEAM/eam.h BEAM/eamamasm.h

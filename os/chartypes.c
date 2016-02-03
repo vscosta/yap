@@ -31,6 +31,10 @@ static char SccsId[] = "%W% %G%";
 
 
 /// @addtogroup CharProps 
+/**
+ * @defgroup CharIO Character-Based Input/Output
+ * @ingroup  InputOutput
+ */
 
 /*
  * This file includes the definition of a character properties.

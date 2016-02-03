@@ -1,23 +1,24 @@
-\ifnum\pdfoutput>0 % pdflatex compilation
-\documentclass[a4paper,10pt]{article}
+%\ifnum\pdfoutput>0 % pdflatex compilation
+\documentclass[a4paper,10pt]{scrartcl}
 \usepackage[pdftex]{graphicx}
 \DeclareGraphicsExtensions{.pdf,.png,.jpg}
 \RequirePackage[hyperindex]{hyperref}
-\else % htlatex compilation
-\documentclass{article}
-\usepackage{graphicx}
-\DeclareGraphicsExtensions{.png, .gif, .jpg}
-\newcommand{\href}[2]{\Link[#1]{}{} #2 \EndLink}
-\newcommand{\hypertarget}[2]{\Link[]{}{#1} #2 \EndLink}
-\newcommand{\hyperlink}[2]{\Link[]{#1}{} #2 \EndLink}
-\newcommand{\url}[1]{\Link[#1]{}{} #1 \EndLink}
-\fi
+%\else % htlatex compilation
+%\documentclass{article}
+%\usepackage{graphicx}
+%\DeclareGraphicsExtensions{.png, .gif, .jpg}
+%\newcommand{\href}[2]{\Link[#1]{}{} #2 \EndLink}
+%\newcommand{\hypertarget}[2]{\Link[]{}{#1} #2 \EndLink}
+%\newcommand{\hyperlink}[2]{\Link[]{#1}{} #2 \EndLink}
+%\newcommand{\url}[1]{\Link[#1]{}{} #1 \EndLink}
+%\fi
 
 
 
 \begin{document}
 \title{\texttt{cplint} Manual}
 
+\subtitle{Yap Version}
 
 \author{Fabrizio Riguzzi\\
 fabrizio.riguzzi@unife.it}
@@ -30,8 +31,11 @@ fabrizio.riguzzi@unife.it}
 
 \texttt{cplint} is a suite of programs for reasoning with ICL \cite{DBLP:journals/ai/Poole97}, LPADs \cite{VenVer03-TR,VenVer04-ICLP04-IC} and CP-logic programs \cite{VenDenBru-JELIA06,DBLP:journals/tplp/VennekensDB09}. It contains programs both for inference and learning.
 
+\texttt{cplint} is available in two versions, one for Yap Prolog and one for SWI-Prolog. They differ slightly in the features offered.
+This manual is about the Yap version. You can find the manual for the SWI-Prolog version at \url{http://ds.ing.unife.it/~friguzzi/software/cplint-swi/manual.html}.
+
 \section{Installation}
-\texttt{cplint} is distributed in source code in the source code development tree of Yap. It includes Prolog and C files. Download it by following the instruction in \url{http://www.dcc.fc.up.pt/\string ~vsc/Yap/downloads.html}.
+\texttt{cplint} is distributed in the source code development tree of Yap. It includes Prolog and C files. Download it by following the instruction in \url{http://www.dcc.fc.up.pt/\string ~vsc/Yap/downloads.html}.
 
 \texttt{cplint} requires \href{http://vlsi.colorado.edu/\string ~fabio/CUDD/}{CUDD}.
 You can download CUDD from \url{ftp://vlsi.colorado.edu/pub/cudd-2.5.0.tar.gz}.

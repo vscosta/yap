@@ -190,7 +190,7 @@
 #include "iqueue.h"
 #include <signal.h>
 #include <stdarg.h>
-#define  VERSION "2.0.0"
+#define VERSION "2.0.0"
 
 int all_loaded_for_deterministic_variables(namedvars varmap, int disp);
 
@@ -236,16 +236,20 @@ void termhandler(int num);
 void myexpand(extmanager MyManager, DdNode *Current);
 double CalcProbability(extmanager MyManager, DdNode *Current);
 double CalcProbabilitySigmoid(extmanager MyManager, DdNode *Current);
-gradientpair CalcGradient(extmanager MyManager, DdNode *Current, int TargetVar, char *TargetPattern, int type);
-double CalcExpectedCountsUp(extmanager * MyManager, DdNode *Current, char *query_id) ;
-double CalcExpectedCountsDown(extmanager * MyManager, DdNode *Current, char *query_id);
-double CalcExpectedCounts(extmanager * MyManager, DdNode *Current, char *query_id, int calcdown_needed);
+gradientpair CalcGradient(extmanager MyManager, DdNode *Current, int TargetVar,
+                          char *TargetPattern, int type);
+double CalcExpectedCountsUp(extmanager *MyManager, DdNode *Current,
+                            char *query_id);
+double CalcExpectedCountsDown(extmanager *MyManager, DdNode *Current,
+                              char *query_id);
+double CalcExpectedCounts(extmanager *MyManager, DdNode *Current,
+                          char *query_id, int calcdown_needed);
 int patterncalculated(char *pattern, extmanager MyManager, int loc);
-char * extractpattern(const char *thestr);
+char *extractpattern(const char *thestr);
 
 int main(int argc, char **arg) {
   extmanager MyManager;
-  DdNode *bdd = NULL, **forest = NULL, *bakbdd= NULL;
+  DdNode *bdd = NULL, **forest = NULL, *bakbdd = NULL;
   bddfileheader fileheader;
   int i, ivarcnt, code, curbdd;
   gradientpair tvalue;
@@ -258,7 +262,8 @@ int main(int argc, char **arg) {
   if (params.errorcnt > 0) {
     printhelp(argc, arg);
     for (i = 0; i < params.errorcnt; i++) {
-      fprintf(stderr, "Error: not known or error at parameter %s.\n", arg[params.error[i]]);
+      fprintf(stderr, "Error: not known or error at parameter %s.\n",
+              arg[params.error[i]]);
     }
     return -1;
   }
@@ -269,19 +274,32 @@ int main(int argc, char **arg) {
     return -1;
   }
 
-  if (params.method != 0 && arg[params.method][0] != 'g' && arg[params.method][0] != 'p' && arg[params.method][0] != 'o' && arg[params.method][0] != 'l' && arg[params.method][0] != 'e' && arg[params.method][0] != 'd') {
+  if (params.method != 0 && arg[params.method][0] != 'g' &&
+      arg[params.method][0] != 'p' && arg[params.method][0] != 'o' &&
+      arg[params.method][0] != 'l' && arg[params.method][0] != 'e' &&
+      arg[params.method][0] != 'd') {
     printhelp(argc, arg);
-    fprintf(stderr, "Error: you must choose a calculation method beetween [p]robability, [g]radient, [l]ine search, [o]nline, [e]xpected counts, probability with [d]eterministic nodes.\n");
+    fprintf(stderr, "Error: you must choose a calculation method beetween "
+                    "[p]robability, [g]radient, [l]ine search, [o]nline, "
+                    "[e]xpected counts, probability with [d]eterministic "
+                    "nodes.\n");
     return -1;
   }
 
-  if (params.method != 0 && (arg[params.method][0] == 'g' || arg[params.method][0] == 'p' || arg[params.method][0] == 'l'|| arg[params.method][0] == 'e'|| arg[params.method][0] == 'd') && params.inputfile == -1) {
+  if (params.method != 0 &&
+      (arg[params.method][0] == 'g' || arg[params.method][0] == 'p' ||
+       arg[params.method][0] == 'l' || arg[params.method][0] == 'e' ||
+       arg[params.method][0] == 'd') &&
+      params.inputfile == -1) {
     printhelp(argc, arg);
-    fprintf(stderr, "Error: an input file is necessary for probability, gradient, line search calculation or expected counts methods.\n");
+    fprintf(stderr, "Error: an input file is necessary for probability, "
+                    "gradient, line search calculation or expected counts "
+                    "methods.\n");
     return -1;
   }
 
-  if (params.debug) DEBUGON;
+  if (params.debug)
+    DEBUGON;
   RAPIDLOADON;
   SETMAXBUFSIZE(params.maxbufsize);
 
@@ -304,42 +322,43 @@ int main(int argc, char **arg) {
     bdd = OnlineGenerateBDD(MyManager.manager, &MyManager.varmap);
     ivarcnt = GetVarCount(MyManager.manager);
   } else {
-    //fprintf(stderr,"reading file \n");
+    // fprintf(stderr,"reading file \n");
     fileheader = ReadFileHeader(arg[params.loadfile]);
-    switch(fileheader.filetype) {
-      case BDDFILE_SCRIPT:
-	//	fprintf(stderr," ..... %i \n",fileheader.varcnt);
-        MyManager.manager = simpleBDDinit(fileheader.varcnt);
-        MyManager.t = HIGH(MyManager.manager);
-        MyManager.f = LOW(MyManager.manager);
-        MyManager.varmap = InitNamedVars(fileheader.varcnt, fileheader.varstart);
-        if (fileheader.version > 1) {
-          forest = FileGenerateBDDForest(MyManager.manager, MyManager.varmap, fileheader);
-          bdd = forest[0];
-          bakbdd = bdd;
-        } else {
-          forest = NULL;
-          bdd = FileGenerateBDD(MyManager.manager, MyManager.varmap, fileheader);
-          bakbdd = bdd;
-        }
-        ivarcnt = fileheader.varcnt;
-        break;
-      case BDDFILE_NODEDUMP:
-        MyManager.manager = simpleBDDinit(fileheader.varcnt);
-        MyManager.t = HIGH(MyManager.manager);
-        MyManager.f = LOW(MyManager.manager);
-        MyManager.varmap = InitNamedVars(fileheader.varcnt, fileheader.varstart);
-        bdd = LoadNodeDump(MyManager.manager, MyManager.varmap, fileheader.inputfile);
-        ivarcnt = fileheader.varcnt;
-        break;
-      default:
-        fprintf(stderr, "Error: not a valid file format to load.\n");
-        return -1;
-        break;
+    switch (fileheader.filetype) {
+    case BDDFILE_SCRIPT:
+      //	fprintf(stderr," ..... %i \n",fileheader.varcnt);
+      MyManager.manager = simpleBDDinit(fileheader.varcnt);
+      MyManager.t = HIGH(MyManager.manager);
+      MyManager.f = LOW(MyManager.manager);
+      MyManager.varmap = InitNamedVars(fileheader.varcnt, fileheader.varstart);
+      if (fileheader.version > 1) {
+        forest = FileGenerateBDDForest(MyManager.manager, MyManager.varmap,
+                                       fileheader);
+        bdd = forest[0];
+        bakbdd = bdd;
+      } else {
+        forest = NULL;
+        bdd = FileGenerateBDD(MyManager.manager, MyManager.varmap, fileheader);
+        bakbdd = bdd;
+      }
+      ivarcnt = fileheader.varcnt;
+      break;
+    case BDDFILE_NODEDUMP:
+      MyManager.manager = simpleBDDinit(fileheader.varcnt);
+      MyManager.t = HIGH(MyManager.manager);
+      MyManager.f = LOW(MyManager.manager);
+      MyManager.varmap = InitNamedVars(fileheader.varcnt, fileheader.varstart);
+      bdd = LoadNodeDump(MyManager.manager, MyManager.varmap,
+                         fileheader.inputfile);
+      ivarcnt = fileheader.varcnt;
+      break;
+    default:
+      fprintf(stderr, "Error: not a valid file format to load.\n");
+      return -1;
+      break;
     }
     //    fprintf(stderr,"bdd built\n");
   }
-
 
   alarm(0);
 
@@ -349,104 +368,136 @@ int main(int argc, char **arg) {
     ivarcnt = RepairVarcnt(&MyManager.varmap);
     code = 0;
     if (params.inputfile != -1) {
-      if (LoadVariableData(MyManager.varmap, arg[params.inputfile]) == -1) return -1;
+      if (LoadVariableData(MyManager.varmap, arg[params.inputfile]) == -1)
+        return -1;
       //     if (!all_loaded(MyManager.varmap, 1)) return -1;
       all_loaded_for_deterministic_variables(MyManager.varmap, 1);
     }
     // impose a predifined order good for debugging
-    // can be used with a partial number of variables to impose ordering at beggining of BDD
+    // can be used with a partial number of variables to impose ordering at
+    // beggining of BDD
     if (params.orderfile != -1) {
-      ImposeOrder(MyManager.manager, MyManager.varmap, GetVariableOrder(arg[params.orderfile], MyManager.varmap.varcnt));
+      ImposeOrder(
+          MyManager.manager, MyManager.varmap,
+          GetVariableOrder(arg[params.orderfile], MyManager.varmap.varcnt));
     }
     curbdd = 0;
     do {
       MyManager.his = InitHistory(ivarcnt);
       if (params.method != 0) {
-        switch(arg[params.method][0]) {
-          case 'g':
-            for (i = 0; i < MyManager.varmap.varcnt; i++) {
-              if (MyManager.varmap.vars[i] != NULL) {
+        switch (arg[params.method][0]) {
+        case 'g':
+          for (i = 0; i < MyManager.varmap.varcnt; i++) {
+            if (MyManager.varmap.vars[i] != NULL) {
 
-                 // check whether this is a continues fact
-                if (MyManager.varmap.dynvalue[i] == NULL) {  // nope, regular fact
-                  varpattern = extractpattern(MyManager.varmap.vars[i]);
-                  if ((varpattern == NULL) || (!patterncalculated(varpattern, MyManager, i))) {
-                    tvalue = CalcGradient(MyManager, bdd, i + MyManager.varmap.varstart, varpattern, 0);
-                    probability = tvalue.probability;
-                    if (varpattern == NULL) {
-                      printf("query_gradient(%s,%s,p,%e).\n", arg[params.queryid], MyManager.varmap.vars[i], tvalue.gradient);
-                    } else {
-                      varpattern[strlen(varpattern) - 2] = '\0';
-                      printf("query_gradient(%s,%s,p,%e).\n", arg[params.queryid], varpattern, tvalue.gradient);
-                    }
-                    ReInitHistory(MyManager.his, MyManager.varmap.varcnt);
-                    if (varpattern != NULL) free(varpattern);
-                  }
-                } else { // it is! let's do the Hybrid Problog Magic
-                  // first for mu
-                  varpattern = extractpattern(MyManager.varmap.vars[i]);
-                  if ((varpattern == NULL) || (!patterncalculated(varpattern, MyManager, i))) {
-                    tvalue = CalcGradient(MyManager, bdd, i + MyManager.varmap.varstart, varpattern, 1);
-                    probability = tvalue.probability;
-                    if (varpattern == NULL) {
-                      printf("query_gradient(%s,%s,mu,%e).\n", arg[params.queryid], MyManager.varmap.vars[i], tvalue.gradient);
-                    } else {
-                      varpattern[strlen(varpattern) - 2] = '\0';
-                      printf("query_gradient(%s,%s,mu,%e).\n", arg[params.queryid], varpattern, tvalue.gradient);
-                    }
+              // check whether this is a continues fact
+              if (MyManager.varmap.dynvalue[i] == NULL) { // nope, regular fact
+                varpattern = extractpattern(MyManager.varmap.vars[i]);
+                if ((varpattern == NULL) ||
+                    (!patterncalculated(varpattern, MyManager, i))) {
+                  tvalue = CalcGradient(MyManager, bdd,
+                                        i + MyManager.varmap.varstart,
+                                        varpattern, 0);
+                  probability = tvalue.probability;
+                  if (varpattern == NULL) {
+                    printf("query_gradient(%s,%s,p,%e).\n", arg[params.queryid],
+                           MyManager.varmap.vars[i], tvalue.gradient);
+                  } else {
+                    varpattern[strlen(varpattern) - 2] = '\0';
+                    printf("query_gradient(%s,%s,p,%e).\n", arg[params.queryid],
+                           varpattern, tvalue.gradient);
                   }
                   ReInitHistory(MyManager.his, MyManager.varmap.varcnt);
-                  if (varpattern != NULL) free(varpattern);
-
-                  // then for sigma
-                  varpattern = extractpattern(MyManager.varmap.vars[i]);
-                  if ((varpattern == NULL) || (!patterncalculated(varpattern, MyManager, i))) {
-                    tvalue = CalcGradient(MyManager, bdd, i + MyManager.varmap.varstart, varpattern, 2);
-                    probability = tvalue.probability;
-                    if (varpattern == NULL) {
-                      printf("query_gradient(%s,%s,sigma,%e).\n", arg[params.queryid], MyManager.varmap.vars[i], tvalue.gradient);
-                    } else {
-                      varpattern[strlen(varpattern) - 2] = '\0';
-                      printf("query_gradient(%s,%s,sigma,%e).\n", arg[params.queryid], varpattern, tvalue.gradient);
-                    }
-                  }
-                  ReInitHistory(MyManager.his, MyManager.varmap.varcnt);
-                  if (varpattern != NULL) free(varpattern);
+                  if (varpattern != NULL)
+                    free(varpattern);
                 }
+              } else { // it is! let's do the Hybrid Problog Magic
+                // first for mu
+                varpattern = extractpattern(MyManager.varmap.vars[i]);
+                if ((varpattern == NULL) ||
+                    (!patterncalculated(varpattern, MyManager, i))) {
+                  tvalue = CalcGradient(MyManager, bdd,
+                                        i + MyManager.varmap.varstart,
+                                        varpattern, 1);
+                  probability = tvalue.probability;
+                  if (varpattern == NULL) {
+                    printf("query_gradient(%s,%s,mu,%e).\n",
+                           arg[params.queryid], MyManager.varmap.vars[i],
+                           tvalue.gradient);
+                  } else {
+                    varpattern[strlen(varpattern) - 2] = '\0';
+                    printf("query_gradient(%s,%s,mu,%e).\n",
+                           arg[params.queryid], varpattern, tvalue.gradient);
+                  }
+                }
+                ReInitHistory(MyManager.his, MyManager.varmap.varcnt);
+                if (varpattern != NULL)
+                  free(varpattern);
 
-              } else {
-                fprintf(stderr, "Error: no variable name given for parameter.\n");
+                // then for sigma
+                varpattern = extractpattern(MyManager.varmap.vars[i]);
+                if ((varpattern == NULL) ||
+                    (!patterncalculated(varpattern, MyManager, i))) {
+                  tvalue = CalcGradient(MyManager, bdd,
+                                        i + MyManager.varmap.varstart,
+                                        varpattern, 2);
+                  probability = tvalue.probability;
+                  if (varpattern == NULL) {
+                    printf("query_gradient(%s,%s,sigma,%e).\n",
+                           arg[params.queryid], MyManager.varmap.vars[i],
+                           tvalue.gradient);
+                  } else {
+                    varpattern[strlen(varpattern) - 2] = '\0';
+                    printf("query_gradient(%s,%s,sigma,%e).\n",
+                           arg[params.queryid], varpattern, tvalue.gradient);
+                  }
+                }
+                ReInitHistory(MyManager.his, MyManager.varmap.varcnt);
+                if (varpattern != NULL)
+                  free(varpattern);
               }
+
+            } else {
+              fprintf(stderr, "Error: no variable name given for parameter.\n");
             }
-            if (probability < 0.0) {
-              // no nodes, so we have to calculate probability ourself
-              tvalue = CalcGradient(MyManager, bdd, 0 + MyManager.varmap.varstart, NULL, 0);
-              probability = tvalue.probability;
-            }
-            printf("query_probability(%s,%e).\n", arg[params.queryid], probability);
-            break;
-         case 'l':
-            tvalue = CalcGradient(MyManager, bdd, 0 + MyManager.varmap.varstart, NULL, 0);
+          }
+          if (probability < 0.0) {
+            // no nodes, so we have to calculate probability ourself
+            tvalue = CalcGradient(MyManager, bdd, 0 + MyManager.varmap.varstart,
+                                  NULL, 0);
             probability = tvalue.probability;
-            printf("query_probability(%s,%e).\n", arg[params.queryid], probability);
-            break;
-          case 'e':
-            //fprintf(stderr,"start calc exp count\n");
-	    printf("query_probability(%s,%30.30e).\n", arg[params.queryid],CalcExpectedCounts(&MyManager, bdd,arg[params.queryid],1));
-            break;
-          case 'd':
-            //fprintf(stderr,"start calc exp count\n");
-	    printf("query_probability(%s,%30.30e).\n", arg[params.queryid],CalcExpectedCounts(&MyManager, bdd,arg[params.queryid],0));
-            break;
-          case 'p':
-	    printf("query_probability(%s,%e).\n", arg[params.queryid],  CalcProbability(MyManager, bdd));
-            break;
-          case 'o':
-            onlinetraverse(MyManager.manager, MyManager.varmap, MyManager.his, bdd);
-            break;
-          default:
-            myexpand(MyManager, bdd);
-            break;
+          }
+          printf("query_probability(%s,%e).\n", arg[params.queryid],
+                 probability);
+          break;
+        case 'l':
+          tvalue = CalcGradient(MyManager, bdd, 0 + MyManager.varmap.varstart,
+                                NULL, 0);
+          probability = tvalue.probability;
+          printf("query_probability(%s,%e).\n", arg[params.queryid],
+                 probability);
+          break;
+        case 'e':
+          // fprintf(stderr,"start calc exp count\n");
+          printf("query_probability(%s,%30.30e).\n", arg[params.queryid],
+                 CalcExpectedCounts(&MyManager, bdd, arg[params.queryid], 1));
+          break;
+        case 'd':
+          // fprintf(stderr,"start calc exp count\n");
+          printf("query_probability(%s,%30.30e).\n", arg[params.queryid],
+                 CalcExpectedCounts(&MyManager, bdd, arg[params.queryid], 0));
+          break;
+        case 'p':
+          printf("query_probability(%s,%e).\n", arg[params.queryid],
+                 CalcProbability(MyManager, bdd));
+          break;
+        case 'o':
+          onlinetraverse(MyManager.manager, MyManager.varmap, MyManager.his,
+                         bdd);
+          break;
+        default:
+          myexpand(MyManager, bdd);
+          break;
         }
       } else {
         myexpand(MyManager, bdd);
@@ -458,10 +509,14 @@ int main(int argc, char **arg) {
         bdd = NULL;
       }
       ReInitHistory(MyManager.his, MyManager.varmap.varcnt);
-    } while(bdd != NULL);
+    } while (bdd != NULL);
     bdd = bakbdd;
-    if (params.savedfile > -1) SaveNodeDump(MyManager.manager, MyManager.varmap, bdd, arg[params.savedfile]);
-    if (params.exportfile > -1) simpleNamedBDDtoDot(MyManager.manager, MyManager.varmap, bdd, arg[params.exportfile]);
+    if (params.savedfile > -1)
+      SaveNodeDump(MyManager.manager, MyManager.varmap, bdd,
+                   arg[params.savedfile]);
+    if (params.exportfile > -1)
+      simpleNamedBDDtoDot(MyManager.manager, MyManager.varmap, bdd,
+                          arg[params.exportfile]);
     free(MyManager.his);
   }
   if (MyManager.manager != NULL) {
@@ -469,70 +524,113 @@ int main(int argc, char **arg) {
     free(MyManager.varmap.dvalue);
     free(MyManager.varmap.ivalue);
     if (MyManager.varmap.dynvalue != NULL) {
-      for(i = 0; i < MyManager.varmap.varcnt; i++)
+      for (i = 0; i < MyManager.varmap.varcnt; i++)
         if (MyManager.varmap.dynvalue[i] != NULL) {
           free(MyManager.varmap.dynvalue[i]);
         }
       free(MyManager.varmap.dynvalue);
     }
     for (i = 0; i < MyManager.varmap.varcnt; i++)
-      free((const char *)MyManager.varmap.vars[i]);
+      free((void *)MyManager.varmap.vars[i]);
     free(MyManager.varmap.vars);
   }
-  if (params.error != NULL) free(params.error);
+  if (params.error != NULL)
+    free(params.error);
 
   return code;
-
 }
 
 /* Shell Parameters handling */
 
 int argtype(const char *arg) {
-  if (strcmp(arg, "-l") == 0 || strcmp(arg, "--load") == 0) return 0;
-  if (strcmp(arg, "-e") == 0 || strcmp(arg, "--export") == 0) return 2;
-  if (strcmp(arg, "-m") == 0 || strcmp(arg, "--method") == 0) return 3;
-  if (strcmp(arg, "-i") == 0 || strcmp(arg, "--input") == 0) return 4;
-  if (strcmp(arg, "-h") == 0 || strcmp(arg, "--help") == 0) return 5;
-  if (strcmp(arg, "-d") == 0 || strcmp(arg, "--debug") == 0) return 6;
-  if (strcmp(arg, "-id") == 0 || strcmp(arg, "--queryid") == 0) return 7;
-  if (strcmp(arg, "-t") == 0 || strcmp(arg, "--timeout") == 0) return 8;
-  if (strcmp(arg, "-sd") == 0 || strcmp(arg, "--savedump") == 0) return 9;
-  if (strcmp(arg, "-sl") == 0 || strcmp(arg, "--slope") == 0) return 10;
-  if (strcmp(arg, "-o") == 0 || strcmp(arg, "--online") == 0) return 11;
-  if (strcmp(arg, "-bs") == 0 || strcmp(arg, "--bufsize") == 0) return 12;
-  if (strcmp(arg, "-pid") == 0 || strcmp(arg, "--pid") == 0) return 13;
-  if (strcmp(arg, "-ord") == 0 || strcmp(arg, "--order") == 0) return 14;
+  if (strcmp(arg, "-l") == 0 || strcmp(arg, "--load") == 0)
+    return 0;
+  if (strcmp(arg, "-e") == 0 || strcmp(arg, "--export") == 0)
+    return 2;
+  if (strcmp(arg, "-m") == 0 || strcmp(arg, "--method") == 0)
+    return 3;
+  if (strcmp(arg, "-i") == 0 || strcmp(arg, "--input") == 0)
+    return 4;
+  if (strcmp(arg, "-h") == 0 || strcmp(arg, "--help") == 0)
+    return 5;
+  if (strcmp(arg, "-d") == 0 || strcmp(arg, "--debug") == 0)
+    return 6;
+  if (strcmp(arg, "-id") == 0 || strcmp(arg, "--queryid") == 0)
+    return 7;
+  if (strcmp(arg, "-t") == 0 || strcmp(arg, "--timeout") == 0)
+    return 8;
+  if (strcmp(arg, "-sd") == 0 || strcmp(arg, "--savedump") == 0)
+    return 9;
+  if (strcmp(arg, "-sl") == 0 || strcmp(arg, "--slope") == 0)
+    return 10;
+  if (strcmp(arg, "-o") == 0 || strcmp(arg, "--online") == 0)
+    return 11;
+  if (strcmp(arg, "-bs") == 0 || strcmp(arg, "--bufsize") == 0)
+    return 12;
+  if (strcmp(arg, "-pid") == 0 || strcmp(arg, "--pid") == 0)
+    return 13;
+  if (strcmp(arg, "-ord") == 0 || strcmp(arg, "--order") == 0)
+    return 14;
 
   return -1;
 }
 
 void printhelp(int argc, char **arg) {
   fprintf(stderr, "\n\nProbLogBDD Tool Version: %s\n\n", VERSION);
-  fprintf(stderr, "SimpleCUDD library (www.cs.kuleuven.be/~theo/tools/simplecudd.html)\n");
-  fprintf(stderr, "SimpleCUDD was developed at Katholieke Universiteit Leuven(www.kuleuven.be)\n");
+  fprintf(
+      stderr,
+      "SimpleCUDD library (www.cs.kuleuven.be/~theo/tools/simplecudd.html)\n");
+  fprintf(stderr, "SimpleCUDD was developed at Katholieke Universiteit "
+                  "Leuven(www.kuleuven.be)\n");
   fprintf(stderr, "Copyright Katholieke Universiteit Leuven 2008\n");
-  fprintf(stderr, "Authors: Theofrastos Mantadelis, Angelika Kimmig, Bernd Gutmann\n");
+  fprintf(stderr,
+          "Authors: Theofrastos Mantadelis, Angelika Kimmig, Bernd Gutmann\n");
   fprintf(stderr, "This package falls under the: Artistic License 2.0\n");
-  fprintf(stderr, "\nUsage: %s -l [filename] -i [filename] -o (-s(d) [filename] -e [filename] -m [method] -id [queryid] -sl [double]) (-t [seconds] -d -h)\n", arg[0]);
+  fprintf(stderr, "\nUsage: %s -l [filename] -i [filename] -o (-s(d) "
+                  "[filename] -e [filename] -m [method] -id [queryid] -sl "
+                  "[double]) (-t [seconds] -d -h)\n",
+          arg[0]);
   fprintf(stderr, "Generates and traverses a BDD\nMandatory parameters:\n");
-  fprintf(stderr, "\t-l [filename]\t->\tfilename to load supports two formats:\n\t\t\t\t\t\t1. script with generation instructions\n\t\t\t\t\t\t2. node dump saved file\n");
-  fprintf(stderr, "\t-i [filename]\t->\tfilename to input problem specifics (mandatory with file formats 1, 2)\n");
-  fprintf(stderr, "\t-o\t\t->\tgenerates the BDD in online mode instead from a file can be used instead of -l\n");
+  fprintf(stderr, "\t-l [filename]\t->\tfilename to load supports two "
+                  "formats:\n\t\t\t\t\t\t1. script with generation "
+                  "instructions\n\t\t\t\t\t\t2. node dump saved file\n");
+  fprintf(stderr, "\t-i [filename]\t->\tfilename to input problem specifics "
+                  "(mandatory with file formats 1, 2)\n");
+  fprintf(stderr, "\t-o\t\t->\tgenerates the BDD in online mode instead from a "
+                  "file can be used instead of -l\n");
   fprintf(stderr, "Optional parameters:\n");
-  fprintf(stderr, "\t-sd [filename]\t->\tfilename to save generated BDD in node dump format (fast loading, traverse valid only)\n");
-  fprintf(stderr, "\t-e [filename]\t->\tfilename to export generated BDD in dot format\n");
-  fprintf(stderr, "\t-m [method]\t->\tthe calculation method to be used: none(default), [p]robability, [g]radient, [l]ine search, [o]nline, [e]xpexted counts, prob. with [d]eterministic nodes\n");
-  fprintf(stderr, "\t-id [queryid]\t->\tthe queries identity name (used by gradient) default: %s\n", arg[0]);
-  fprintf(stderr, "\t-sl [double]\t->\tthe sigmoid slope (used by gradient) default: 1.0\n");
+  fprintf(stderr, "\t-sd [filename]\t->\tfilename to save generated BDD in "
+                  "node dump format (fast loading, traverse valid only)\n");
+  fprintf(
+      stderr,
+      "\t-e [filename]\t->\tfilename to export generated BDD in dot format\n");
+  fprintf(stderr, "\t-m [method]\t->\tthe calculation method to be used: "
+                  "none(default), [p]robability, [g]radient, [l]ine search, "
+                  "[o]nline, [e]xpexted counts, prob. with [d]eterministic "
+                  "nodes\n");
+  fprintf(stderr, "\t-id [queryid]\t->\tthe queries identity name (used by "
+                  "gradient) default: %s\n",
+          arg[0]);
+  fprintf(stderr, "\t-sl [double]\t->\tthe sigmoid slope (used by gradient) "
+                  "default: 1.0\n");
   fprintf(stderr, "Extra parameters:\n");
-  fprintf(stderr, "\t-t [seconds]\t->\tthe seconds (int) for BDD generation timeout default 0 = no timeout\n");
-  fprintf(stderr, "\t-pid [pid]\t->\ta process id (int) to check for termination default 0 = no process to check\n");
-  fprintf(stderr, "\t-bs [bytes]\t->\tthe bytes (int) to use as a maximum buffer size to read files default 0 = no max\n");
-  fprintf(stderr, "\t-ord [filename]\t->\tUse the [filename] to define a specific BDD variable order\n");
-  fprintf(stderr, "\t-d\t\t->\tRun in debug mode (gives extra messages in stderr)\n");
+  fprintf(stderr, "\t-t [seconds]\t->\tthe seconds (int) for BDD generation "
+                  "timeout default 0 = no timeout\n");
+  fprintf(stderr, "\t-pid [pid]\t->\ta process id (int) to check for "
+                  "termination default 0 = no process to check\n");
+  fprintf(stderr, "\t-bs [bytes]\t->\tthe bytes (int) to use as a maximum "
+                  "buffer size to read files default 0 = no max\n");
+  fprintf(stderr, "\t-ord [filename]\t->\tUse the [filename] to define a "
+                  "specific BDD variable order\n");
+  fprintf(stderr,
+          "\t-d\t\t->\tRun in debug mode (gives extra messages in stderr)\n");
   fprintf(stderr, "\t-h\t\t->\tHelp (displays this message)\n");
-  fprintf(stderr, "Extra notes:\nSupports a forest of BDDs in one shared BDD.\nSelected computational methods will be applied to each BDD seperately.\nFile operations will be applied only to the first BDD.\n");
-  fprintf(stderr, "\nExample: %s -l testbdd -i input.txt -m g -id testbdd\n", arg[0]);
+  fprintf(stderr, "Extra notes:\nSupports a forest of BDDs in one shared "
+                  "BDD.\nSelected computational methods will be applied to "
+                  "each BDD seperately.\nFile operations will be applied only "
+                  "to the first BDD.\n");
+  fprintf(stderr, "\nExample: %s -l testbdd -i input.txt -m g -id testbdd\n",
+          arg[0]);
 }
 
 parameters loadparam(int argc, char **arg) {
@@ -552,122 +650,122 @@ parameters loadparam(int argc, char **arg) {
   params.maxbufsize = 0;
   params.ppid = NULL;
   params.orderfile = -1;
-  params.error = (int *) malloc(argc * sizeof(int));
+  params.error = (int *)malloc(argc * sizeof(int));
   for (i = 1; i < argc; i++) {
-    switch(argtype(arg[i])) {
-      case 0:
-        if (argc > i + 1) {
-          i++;
-          params.loadfile = i;
-        } else {
-          params.error[params.errorcnt] = i;
-          params.errorcnt++;
-        }
-        break;
-      case 2:
-        if (argc > i + 1) {
-          i++;
-          params.exportfile = i;
-        } else {
-          params.error[params.errorcnt] = i;
-          params.errorcnt++;
-        }
-        break;
-      case 3:
-        if (argc > i + 1) {
-          i++;
-          params.method = i;
-        } else {
-          params.error[params.errorcnt] = i;
-          params.errorcnt++;
-        }
-        break;
-      case 4:
-        if (argc > i + 1) {
-          i++;
-          params.inputfile = i;
-        } else {
-          params.error[params.errorcnt] = i;
-          params.errorcnt++;
-        }
-        break;
-      case 5:
-        printhelp(argc, arg);
-        break;
-      case 6:
-        params.debug = 1;
-        break;
-      case 7:
-        if (argc > i + 1) {
-          i++;
-          params.queryid = i;
-        } else {
-          params.error[params.errorcnt] = i;
-          params.errorcnt++;
-        }
-        break;
-      case 8:
-        if ((argc > i + 1) && (IsPosNumber(arg[i + 1]))) {
-          i++;
-          params.timeout = atoi(arg[i]);
-        } else {
-          params.error[params.errorcnt] = i;
-          params.errorcnt++;
-        }
-        break;
-      case 9:
-        if (argc > i + 1) {
-          i++;
-          params.savedfile = i;
-        } else {
-          params.error[params.errorcnt] = i;
-          params.errorcnt++;
-        }
-        break;
-      case 10:
-        if ((argc > i + 1) && (IsRealNumber(arg[i + 1]))) {
-          i++;
-          params.sigmoid_slope = atof(arg[i]);
-        } else {
-          params.error[params.errorcnt] = i;
-          params.errorcnt++;
-        }
-        break;
-      case 11:
-        params.online = 1;
-        break;
-      case 12:
-        if ((argc > i + 1) && (IsPosNumber(arg[i + 1]))) {
-          i++;
-          params.maxbufsize = atoi(arg[i]);
-        } else {
-          params.error[params.errorcnt] = i;
-          params.errorcnt++;
-        }
-        break;
-      case 13:
-        if ((argc > i + 1) && (IsPosNumber(arg[i + 1]))) {
-          i++;
-          params.ppid = (char *) malloc(sizeof(char) * (strlen(arg[i]) + 1));
-          strcpy(params.ppid, arg[i]);
-        } else {
-          params.error[params.errorcnt] = i;
-          params.errorcnt++;
-        }
-        break;
-      case 14:
-        if (argc > i + 1) {
-          i++;
-          params.orderfile = i;
-        } else {
-          params.error[params.errorcnt] = i;
-          params.errorcnt++;
-        }
-        break;
-      default:
+    switch (argtype(arg[i])) {
+    case 0:
+      if (argc > i + 1) {
+        i++;
+        params.loadfile = i;
+      } else {
         params.error[params.errorcnt] = i;
         params.errorcnt++;
-        break;
+      }
+      break;
+    case 2:
+      if (argc > i + 1) {
+        i++;
+        params.exportfile = i;
+      } else {
+        params.error[params.errorcnt] = i;
+        params.errorcnt++;
+      }
+      break;
+    case 3:
+      if (argc > i + 1) {
+        i++;
+        params.method = i;
+      } else {
+        params.error[params.errorcnt] = i;
+        params.errorcnt++;
+      }
+      break;
+    case 4:
+      if (argc > i + 1) {
+        i++;
+        params.inputfile = i;
+      } else {
+        params.error[params.errorcnt] = i;
+        params.errorcnt++;
+      }
+      break;
+    case 5:
+      printhelp(argc, arg);
+      break;
+    case 6:
+      params.debug = 1;
+      break;
+    case 7:
+      if (argc > i + 1) {
+        i++;
+        params.queryid = i;
+      } else {
+        params.error[params.errorcnt] = i;
+        params.errorcnt++;
+      }
+      break;
+    case 8:
+      if ((argc > i + 1) && (IsPosNumber(arg[i + 1]))) {
+        i++;
+        params.timeout = atoi(arg[i]);
+      } else {
+        params.error[params.errorcnt] = i;
+        params.errorcnt++;
+      }
+      break;
+    case 9:
+      if (argc > i + 1) {
+        i++;
+        params.savedfile = i;
+      } else {
+        params.error[params.errorcnt] = i;
+        params.errorcnt++;
+      }
+      break;
+    case 10:
+      if ((argc > i + 1) && (IsRealNumber(arg[i + 1]))) {
+        i++;
+        params.sigmoid_slope = atof(arg[i]);
+      } else {
+        params.error[params.errorcnt] = i;
+        params.errorcnt++;
+      }
+      break;
+    case 11:
+      params.online = 1;
+      break;
+    case 12:
+      if ((argc > i + 1) && (IsPosNumber(arg[i + 1]))) {
+        i++;
+        params.maxbufsize = atoi(arg[i]);
+      } else {
+        params.error[params.errorcnt] = i;
+        params.errorcnt++;
+      }
+      break;
+    case 13:
+      if ((argc > i + 1) && (IsPosNumber(arg[i + 1]))) {
+        i++;
+        params.ppid = (char *)malloc(sizeof(char) * (strlen(arg[i]) + 1));
+        strcpy(params.ppid, arg[i]);
+      } else {
+        params.error[params.errorcnt] = i;
+        params.errorcnt++;
+      }
+      break;
+    case 14:
+      if (argc > i + 1) {
+        i++;
+        params.orderfile = i;
+      } else {
+        params.error[params.errorcnt] = i;
+        params.errorcnt++;
+      }
+      break;
+    default:
+      params.error[params.errorcnt] = i;
+      params.errorcnt++;
+      break;
     }
   }
   return params;
@@ -689,9 +787,12 @@ void pidhandler(int num) {
       exit(-1);
     }
   }
-  s = (char *) malloc(sizeof(char) * (19 + strlen(params.ppid)));
-  strcpy(s, "ps "); strcat(s, params.ppid); strcat(s, " >/dev/null");
-  if (system(s) != 0) exit(4);
+  s = (char *)malloc(sizeof(char) * (19 + strlen(params.ppid)));
+  strcpy(s, "ps ");
+  strcat(s, params.ppid);
+  strcat(s, " >/dev/null");
+  if (system(s) != 0)
+    exit(4);
 #ifndef __MINGW32__
   signal(SIGALRM, pidhandler);
 #endif
@@ -699,9 +800,7 @@ void pidhandler(int num) {
   free(s);
 }
 
-void termhandler(int num) {
-  exit(3);
-}
+void termhandler(int num) { exit(3); }
 
 /* Debugging traverse function */
 
@@ -712,7 +811,8 @@ void myexpand(extmanager MyManager, DdNode *Current) {
   curnode = GetNodeVarNameDisp(MyManager.manager, MyManager.varmap, Current);
   printf("%s\n", curnode);
   if ((Current != MyManager.t) && (Current != MyManager.f) &&
-      ((Found = GetNode(MyManager.his, MyManager.varmap.varstart, Current)) == NULL)) {
+      ((Found = GetNode(MyManager.his, MyManager.varmap.varstart, Current)) ==
+       NULL)) {
     l = LowNodeOf(MyManager.manager, Current);
     h = HighNodeOf(MyManager.manager, Current);
     printf("l(%s)->", curnode);
@@ -739,27 +839,33 @@ double CalcProbability(extmanager MyManager, DdNode *Current) {
     // gcc stupidly complains.
     curnode = NULL;
   }
-  if (Current == MyManager.t) return 1.0;
-  if (Current == MyManager.f) return 0.0;
+  if (Current == MyManager.t)
+    return 1.0;
+  if (Current == MyManager.f)
+    return 0.0;
 
-  if ((Found = GetNode(MyManager.his, MyManager.varmap.varstart, Current)) != NULL) return Found->dvalue;
+  if ((Found = GetNode(MyManager.his, MyManager.varmap.varstart, Current)) !=
+      NULL)
+    return Found->dvalue;
   l = LowNodeOf(MyManager.manager, Current);
   h = HighNodeOf(MyManager.manager, Current);
-  if (params.debug) fprintf(stderr, "l(%s)->", curnode);
+  if (params.debug)
+    fprintf(stderr, "l(%s)->", curnode);
   lvalue = CalcProbability(MyManager, l);
-  if (params.debug) fprintf(stderr, "h(%s)->", curnode);
+  if (params.debug)
+    fprintf(stderr, "h(%s)->", curnode);
   hvalue = CalcProbability(MyManager, h);
 
-
-  tvalue = MyManager.varmap.dvalue[GetIndex(Current) - MyManager.varmap.varstart];
+  tvalue =
+      MyManager.varmap.dvalue[GetIndex(Current) - MyManager.varmap.varstart];
 
   tvalue = tvalue * hvalue + lvalue * (1.0 - tvalue);
   AddNode(MyManager.his, MyManager.varmap.varstart, Current, tvalue, 0, NULL);
   return tvalue;
 }
 
-
-double CalcExpectedCounts(extmanager * MyManager, DdNode *Current, char *query_id, int calcdown_needed) {
+double CalcExpectedCounts(extmanager *MyManager, DdNode *Current,
+                          char *query_id, int calcdown_needed) {
 
   // fprintf(stderr,"%%calcing up\n");
   double ret = CalcExpectedCountsUp(MyManager, Current, query_id);
@@ -769,13 +875,12 @@ double CalcExpectedCounts(extmanager * MyManager, DdNode *Current, char *query_i
   if (calcdown_needed != 0) {
     // double retd=CalcExpectedCountsDown(MyManager,Current, query_id);
   }
-/*   if(1 != retd){ */
-/*     fprintf(stderr,"down %e != up %e/%e\n",ret,retd,ret); */
-/*     exit(1); */
-/*   } */
+  /*   if(1 != retd){ */
+  /*     fprintf(stderr,"down %e != up %e/%e\n",ret,retd,ret); */
+  /*     exit(1); */
+  /*   } */
   return ret;
 }
-
 
 /* ComparisonFunction compare_nodes (  extmanager MyManager) */
 /* { */
@@ -790,11 +895,14 @@ double CalcExpectedCounts(extmanager * MyManager, DdNode *Current, char *query_i
 /*     int aindex,bindex, aperm, bperm; */
 /*     aindex=GetIndex(a); */
 /*     bindex=GetIndex(b); */
-/*     aperm=Cudd_IsConstant(a) ? CUDD_CONST_INDEX : Cudd_ReadPerm(MyManager.manager,aindex); */
+/*     aperm=Cudd_IsConstant(a) ? CUDD_CONST_INDEX :
+ * Cudd_ReadPerm(MyManager.manager,aindex); */
 /*     Cudd_ReadPerm(MyManager.manager,bindex); */
-/*     bperm=Cudd_IsConstant(b) ? CUDD_CONST_INDEX : Cudd_ReadPerm(MyManager.manager,bindex); */
+/*     bperm=Cudd_IsConstant(b) ? CUDD_CONST_INDEX :
+ * Cudd_ReadPerm(MyManager.manager,bindex); */
 /*     int temp = aperm-bperm; */
-/* //-Cudd_ReadPerm(MyManager.manager,(*b).index);//-Cudd_ReadPerm(MyManager,b);// - Cudd_ReadPerm(b); */
+/* //-Cudd_ReadPerm(MyManager.manager,(*b).index);//-Cudd_ReadPerm(MyManager,b);//
+ * - Cudd_ReadPerm(b); */
 /*     //fprintf(stderr,"comparing3 %p %p %p\n",a,b,MyManager); */
 /*     //  return -1; */
 /*     if (temp < 0) */
@@ -810,244 +918,314 @@ double CalcExpectedCounts(extmanager * MyManager, DdNode *Current, char *query_i
 /* } */
 
 #define NODE_VALUE 1001
-#define LOG_EXPECTED  0
+#define LOG_EXPECTED 0
 
+static void PrintNodeQueue(Queue q, extmanager MyManager) {
 
-static
-void PrintNodeQueue(Queue q , extmanager MyManager){
+  QueueIterator qiter = QueueIteratorNew(q, 1);
+  fprintf(stderr, "Queue %p is [", q);
 
-    QueueIterator qiter = QueueIteratorNew(q, 1);
-    fprintf(stderr,"Queue %p is [", q);
-
-    while (qiter->currentItem != NULL) {
-      DdNode* val = (DdNode*) qiter->currentItem->element;
-      QueueIteratorAdvance(qiter);
-      fprintf(stderr," %s %s", GetNodeVarNameDisp(MyManager.manager, MyManager.varmap, val),
-	      (qiter->currentItem !=NULL)?",":"]\n");
-    }
-
+  while (qiter->currentItem != NULL) {
+    DdNode *val = (DdNode *)qiter->currentItem->element;
+    QueueIteratorAdvance(qiter);
+    fprintf(stderr, " %s %s",
+            GetNodeVarNameDisp(MyManager.manager, MyManager.varmap, val),
+            (qiter->currentItem != NULL) ? "," : "]\n");
+  }
 }
- /** also nesting in CalcExpected seems to not work (must be here nested only valid within function frame)*/
+/** also nesting in CalcExpected seems to not work (must be here nested only
+ * valid within function frame)*/
 /* will be changed at later stage */
-static extmanager * ineedtostorethatsomehow;
+static extmanager *ineedtostorethatsomehow;
 
-static
-int comparator(void *av, void *bv){
-    int ret = 0;
-    DdNode* a = (DdNode*)av;
-    DdNode* b = (DdNode*)bv;
-    int aindex,bindex, aperm, bperm;
-    aindex=GetIndex(a);
-    bindex=GetIndex(b);
-    aperm=Cudd_IsConstant(a) ? CUDD_CONST_INDEX : Cudd_ReadPerm(ineedtostorethatsomehow->manager,aindex);
-    Cudd_ReadPerm(ineedtostorethatsomehow->manager,bindex);
-    bperm=Cudd_IsConstant(b) ? CUDD_CONST_INDEX : Cudd_ReadPerm(ineedtostorethatsomehow->manager,bindex);
-    int temp = -aperm+bperm;
-    if (temp < 0)
-      ret= 1;
-    else if (temp > 0)
-      ret= -1;
-    //    else //never return zero otherwise one is pruned away, or(?)
-    //      return 0;
-    if(LOG_EXPECTED){
-      fprintf(stderr,"perm(%s,%i)=%i perm(%s,%i)=%i => %i\n",GetNodeVarNameDisp(ineedtostorethatsomehow->manager, ineedtostorethatsomehow->varmap, a),
-	      aindex,
-	      aperm,
-	      GetNodeVarNameDisp(ineedtostorethatsomehow->manager, ineedtostorethatsomehow->varmap, b),
-	      bindex,bperm,
-			     ret);}
+static int comparator(void *av, void *bv) {
+  int ret = 0;
+  DdNode *a = (DdNode *)av;
+  DdNode *b = (DdNode *)bv;
+  int aindex, bindex, aperm, bperm;
+  aindex = GetIndex(a);
+  bindex = GetIndex(b);
+  aperm = Cudd_IsConstant(a)
+              ? CUDD_CONST_INDEX
+              : Cudd_ReadPerm(ineedtostorethatsomehow->manager, aindex);
+  Cudd_ReadPerm(ineedtostorethatsomehow->manager, bindex);
+  bperm = Cudd_IsConstant(b)
+              ? CUDD_CONST_INDEX
+              : Cudd_ReadPerm(ineedtostorethatsomehow->manager, bindex);
+  int temp = -aperm + bperm;
+  if (temp < 0)
+    ret = 1;
+  else if (temp > 0)
+    ret = -1;
+  //    else //never return zero otherwise one is pruned away, or(?)
+  //      return 0;
+  if (LOG_EXPECTED) {
+    fprintf(stderr, "perm(%s,%i)=%i perm(%s,%i)=%i => %i\n",
+            GetNodeVarNameDisp(ineedtostorethatsomehow->manager,
+                               ineedtostorethatsomehow->varmap, a),
+            aindex, aperm,
+            GetNodeVarNameDisp(ineedtostorethatsomehow->manager,
+                               ineedtostorethatsomehow->varmap, b),
+            bindex, bperm, ret);
+  }
 
-    return ret;
+  return ret;
 }
 
-static void
-skip_nodes_cnt(extmanager * MyManager, double (*counts)[] , int skipcnt, DdNode* l,double dprob, char *query_id);
+static void skip_nodes_cnt(extmanager *MyManager, double (*counts)[],
+                           int skipcnt, DdNode *l, double dprob,
+                           char *query_id);
 
 /** output information for skipped nodes **/
-static void
-skip_nodes(extmanager * MyManager, double (*counts)[] , DdNode* node, DdNode* l,double dprob, char *query_id){
+static void skip_nodes(extmanager *MyManager, double (*counts)[], DdNode *node,
+                       DdNode *l, double dprob, char *query_id) {
   int skipcnt;
-  skipcnt = Cudd_ReadPerm(MyManager->manager,GetIndex(node))+1;
-  if(LOG_EXPECTED){fprintf(stderr,">> skipper >> %s=%i@%i of %i -> %i@%i %i\n",
-			   (char *)(MyManager->varmap.dynvalue[GetIndex(node) - MyManager->varmap.varstart]),
-			   GetIndex(node),
-			   Cudd_ReadPerm(MyManager->manager,GetIndex(node)),
-			   Cudd_ReadSize( MyManager->manager),
-			   GetIndex(l),
-			   Cudd_ReadPerm(MyManager->manager,GetIndex(l)),
-			   Cudd_IsConstant(l)
-			   );
+  skipcnt = Cudd_ReadPerm(MyManager->manager, GetIndex(node)) + 1;
+  if (LOG_EXPECTED) {
+    fprintf(stderr, ">> skipper >> %s=%i@%i of %i -> %i@%i %i\n",
+            (char *)(MyManager->varmap.dynvalue[GetIndex(node) -
+                                                MyManager->varmap.varstart]),
+            GetIndex(node), Cudd_ReadPerm(MyManager->manager, GetIndex(node)),
+            Cudd_ReadSize(MyManager->manager), GetIndex(l),
+            Cudd_ReadPerm(MyManager->manager, GetIndex(l)), Cudd_IsConstant(l));
   }
-  skip_nodes_cnt( MyManager, counts,  skipcnt,  l, dprob, query_id);
+  skip_nodes_cnt(MyManager, counts, skipcnt, l, dprob, query_id);
 }
 
-static void
-skip_nodes_cnt(extmanager * MyManager, double (*counts)[] , int skipcnt, DdNode* l,double dprob, char *query_id){
-  if(LOG_EXPECTED) fprintf(stderr,"====================\n");
+static void skip_nodes_cnt(extmanager *MyManager, double (*counts)[],
+                           int skipcnt, DdNode *l, double dprob,
+                           char *query_id) {
+  if (LOG_EXPECTED)
+    fprintf(stderr, "====================\n");
   double p;
   int ivalue;
   //  fprintf(stderr, " skip (:%i) \n",__LINE__);
-  while(Cudd_IsConstant(l) ?
-	skipcnt < Cudd_ReadSize( MyManager->manager)  // the terminals/leafs/constants will be ignored
-	:
-	skipcnt < Cudd_ReadPerm(MyManager->manager,GetIndex(l) )
-	){
+  while (Cudd_IsConstant(l)
+             ? skipcnt < Cudd_ReadSize(MyManager->manager) // the
+             // terminals/leafs/constants
+             // will be ignored
+             : skipcnt < Cudd_ReadPerm(MyManager->manager, GetIndex(l))) {
     skipcnt++;
-    if(LOG_EXPECTED){    fprintf(stderr,"skipcnt %i\n",skipcnt-1);}
-    int idx=Cudd_ReadInvPerm(MyManager->manager,skipcnt-1);
-    if(LOG_EXPECTED){fprintf(stderr,"index %i %i\n",idx,MyManager->varmap.varstart);}
-    //fprintf(stdout,"%i %s.\n",skipcnt,MyManager->varmap.dynvalue[GetIndex(node) - MyManager->varmap.varstart]);
-    if(LOG_EXPECTED){fprintf(stderr,"Node skipped level %i index: %i name: %s (dprob is %e)\n",
-			     skipcnt,idx,
-                             MyManager->varmap.vars[idx - MyManager->varmap.varstart],
-			     dprob);}
-    //notiz
+    if (LOG_EXPECTED) {
+      fprintf(stderr, "skipcnt %i\n", skipcnt - 1);
+    }
+    int idx = Cudd_ReadInvPerm(MyManager->manager, skipcnt - 1);
+    if (LOG_EXPECTED) {
+      fprintf(stderr, "index %i %i\n", idx, MyManager->varmap.varstart);
+    }
+    // fprintf(stdout,"%i
+    // %s.\n",skipcnt,MyManager->varmap.dynvalue[GetIndex(node) -
+    // MyManager->varmap.varstart]);
+    if (LOG_EXPECTED) {
+      fprintf(stderr,
+              "Node skipped level %i index: %i name: %s (dprob is %e)\n",
+              skipcnt, idx,
+              MyManager->varmap.vars[idx - MyManager->varmap.varstart], dprob);
+    }
+    // notiz
     ivalue = MyManager->varmap.ivalue[idx - MyManager->varmap.varstart];
     //+ new{
-    //double tvalue; // probability of prob fact corresp to node
-    //tvalue = MyManager->varmap.dvalue[idx - MyManager->varmap.varstart];
+    // double tvalue; // probability of prob fact corresp to node
+    // tvalue = MyManager->varmap.dvalue[idx - MyManager->varmap.varstart];
     //}
-    if(ivalue==1){
-      p=dprob*MyManager->varmap.dvalue[idx - MyManager->varmap.varstart];
+    if (ivalue == 1) {
+      p = dprob * MyManager->varmap.dvalue[idx - MyManager->varmap.varstart];
       //+ new{
-      //p=dprob*MyManager->varmap.dvalue[idx - MyManager->varmap.varstart] *tvalue;
+      // p=dprob*MyManager->varmap.dvalue[idx - MyManager->varmap.varstart]
+      // *tvalue;
       //}
-      if(p>0){// probability is zero, don't follow this branch
-	(*counts)[idx - MyManager->varmap.varstart]+=p;
-	//	fprintf(stdout,"oec(%s,%s,%e). %%2\n",query_id,MyManager->varmap.vars[idx - MyManager->varmap.varstart],p);
-	if(LOG_EXPECTED) fprintf(stderr,"ec -> %s,%s,%e . %%2_1\n",query_id,MyManager->varmap.vars[idx - MyManager->varmap.varstart],p);
-      }else{
-	if(LOG_EXPECTED){fprintf(stdout,"%% ec(%s,%s,%30.30e). %%2_2\n",query_id,MyManager->varmap.vars[idx - MyManager->varmap.varstart],p);}
+      if (p > 0) { // probability is zero, don't follow this branch
+        (*counts)[idx - MyManager->varmap.varstart] += p;
+        //	fprintf(stdout,"oec(%s,%s,%e).
+        //%%2\n",query_id,MyManager->varmap.vars[idx -
+        // MyManager->varmap.varstart],p);
+        if (LOG_EXPECTED)
+          fprintf(stderr, "ec -> %s,%s,%e . %%2_1\n", query_id,
+                  MyManager->varmap.vars[idx - MyManager->varmap.varstart], p);
+      } else {
+        if (LOG_EXPECTED) {
+          fprintf(stdout, "%% ec(%s,%s,%30.30e). %%2_2\n", query_id,
+                  MyManager->varmap.vars[idx - MyManager->varmap.varstart], p);
+        }
       }
     }
   }
   //  fprintf(stderr, " skip %i \n",__LINE__);
-  if(LOG_EXPECTED){fprintf(stderr,"skipped\n");}
+  if (LOG_EXPECTED) {
+    fprintf(stderr, "skipped\n");
+  }
 }
 
-
-double CalcExpectedCountsDown(extmanager * MyManager, DdNode *Current, char *query_id) {
-  ineedtostorethatsomehow=MyManager;
+double CalcExpectedCountsDown(extmanager *MyManager, DdNode *Current,
+                              char *query_id) {
+  ineedtostorethatsomehow = MyManager;
   Queue q = QueueNew();
-  //fprintf(stderr", =====> queue is: %p \n",q);
+  // fprintf(stderr", =====> queue is: %p \n",q);
   int i;
-  char *curnode, *curh, *curl,*dynvalue;
+  char *curnode, *curh, *curl, *dynvalue;
   DdNode *h, *l, *node;
   ComparisonFunction fun;
-  hisnode *Found = NULL,*lfound, *hfound;
-  double dprob; //downward probability of current node
+  hisnode *Found = NULL, *lfound, *hfound;
+  double dprob;  // downward probability of current node
   double tvalue; // probability of prob fact corresp to node
   int ivalue;
-  double retval; //last value of true
+  double retval; // last value of true
 
-  double counts[MyManager->varmap.varcnt] ;
-  double (*pcnt)[MyManager->varmap.varcnt];
+  double counts[MyManager->varmap.varcnt];
+  double(*pcnt)[MyManager->varmap.varcnt];
   pcnt = &counts;
-  for( i = 0 ;i< MyManager->varmap.varcnt ; i++){
-    (*pcnt)[i]=0;
+  for (i = 0; i < MyManager->varmap.varcnt; i++) {
+    (*pcnt)[i] = 0;
   }
   // skip everything before the first node:
-  skip_nodes_cnt(MyManager,pcnt,0,Current,1,query_id);
-
+  skip_nodes_cnt(MyManager, pcnt, 0, Current, 1, query_id);
 
   fun = *comparator;
-  if(LOG_EXPECTED){fprintf(stderr," ##############################\n");}
-  if(LOG_EXPECTED){  fprintf(stderr," ##############################\n fun is %p\n",fun);}
-  if(!Cudd_IsConstant(Current)){
-      QueuePutOnPriority(q, Current, NODE_VALUE,fun);
-      Found = GetNode(MyManager->his, MyManager->varmap.varstart, Current);
-      (*Found).dvalue2=1.0/((*Found).dvalue);
-      dynvalue = (*Found).dynvalue;
+  if (LOG_EXPECTED) {
+    fprintf(stderr, " ##############################\n");
   }
-  Current= NULL; // not used anymore or should not be
-  retval=0;
+  if (LOG_EXPECTED) {
+    fprintf(stderr, " ##############################\n fun is %p\n", fun);
+  }
+  if (!Cudd_IsConstant(Current)) {
+    QueuePutOnPriority(q, Current, NODE_VALUE, fun);
+    Found = GetNode(MyManager->his, MyManager->varmap.varstart, Current);
+    (*Found).dvalue2 = 1.0 / ((*Found).dvalue);
+    dynvalue = (*Found).dynvalue;
+  }
+  Current = NULL; // not used anymore or should not be
+  retval = 0;
 
-  while(QueueSize(q)>0){
-    if(LOG_EXPECTED){fprintf(stderr,"\n");}
-    if(LOG_EXPECTED){PrintNodeQueue(q,*MyManager);}
-    node=QueueGet(q);
+  while (QueueSize(q) > 0) {
+    if (LOG_EXPECTED) {
+      fprintf(stderr, "\n");
+    }
+    if (LOG_EXPECTED) {
+      PrintNodeQueue(q, *MyManager);
+    }
+    node = QueueGet(q);
     curnode = GetNodeVarNameDisp(MyManager->manager, MyManager->varmap, node);
     // int level = Cudd_ReadPerm(MyManager->manager,GetIndex(node));
-    if(!Cudd_IsConstant(node)){
-    tvalue = MyManager->varmap.dvalue[GetIndex(node) - MyManager->varmap.varstart];
-    ivalue = MyManager->varmap.ivalue[GetIndex(node) - MyManager->varmap.varstart];
-    dynvalue = MyManager->varmap.vars[GetIndex(node) - MyManager->varmap.varstart];
-    Found = GetNode(MyManager->his, MyManager->varmap.varstart, node);
-    dprob=(*Found).dvalue2;
-    l = LowNodeOf(MyManager->manager, node);
-    h = HighNodeOf(MyManager->manager, node);
-    lfound = GetNode(MyManager->his, MyManager->varmap.varstart, l);
-    hfound = GetNode(MyManager->his, MyManager->varmap.varstart, h) ;
-    curh = GetNodeVarNameDisp(MyManager->manager, MyManager->varmap, h);
-    curl = GetNodeVarNameDisp(MyManager->manager, MyManager->varmap, l);
+    if (!Cudd_IsConstant(node)) {
+      tvalue =
+          MyManager->varmap.dvalue[GetIndex(node) - MyManager->varmap.varstart];
+      ivalue =
+          MyManager->varmap.ivalue[GetIndex(node) - MyManager->varmap.varstart];
+      dynvalue =
+          MyManager->varmap.vars[GetIndex(node) - MyManager->varmap.varstart];
+      Found = GetNode(MyManager->his, MyManager->varmap.varstart, node);
+      dprob = (*Found).dvalue2;
+      l = LowNodeOf(MyManager->manager, node);
+      h = HighNodeOf(MyManager->manager, node);
+      lfound = GetNode(MyManager->his, MyManager->varmap.varstart, l);
+      hfound = GetNode(MyManager->his, MyManager->varmap.varstart, h);
+      curh = GetNodeVarNameDisp(MyManager->manager, MyManager->varmap, h);
+      curl = GetNodeVarNameDisp(MyManager->manager, MyManager->varmap, l);
 
-      if(LOG_EXPECTED){fprintf(stderr, "%s (%i)-->  %s %s\n", curnode,(*node).index,curh,curl);}
-      /** low node */
-      if((*lfound).dvalue2<-0.1){ //only if not seen before == dvalue2=0 (almost) otherwise requing does not harm
-	if(LOG_EXPECTED){fprintf(stderr,"queueing l(%s)=%s \n",curnode,curl);}
-	QueuePutOnPriority(q, l, NODE_VALUE,fun);
-	(*lfound).dvalue2=0;
+      if (LOG_EXPECTED) {
+        fprintf(stderr, "%s (%i)-->  %s %s\n", curnode, (*node).index, curh,
+                curl);
       }
-      ((*lfound).dvalue2)=((*lfound).dvalue2)+(ivalue==0? dprob : dprob*(1-tvalue));
-      if(LOG_EXPECTED){fprintf(stderr, "l(%s)=%s %e \n", curnode,curl,(*lfound).dvalue2);}
-      if(LOG_EXPECTED){fprintf(stderr, "l(%s)=%s %e %e %e\n", curnode,curl,(*lfound).dvalue2,tvalue,dprob);}
+      /** low node */
+      if ((*lfound).dvalue2 < -0.1) { // only if not seen before == dvalue2=0
+                                      // (almost) otherwise requing does not
+                                      // harm
+        if (LOG_EXPECTED) {
+          fprintf(stderr, "queueing l(%s)=%s \n", curnode, curl);
+        }
+        QueuePutOnPriority(q, l, NODE_VALUE, fun);
+        (*lfound).dvalue2 = 0;
+      }
+      ((*lfound).dvalue2) =
+          ((*lfound).dvalue2) + (ivalue == 0 ? dprob : dprob * (1 - tvalue));
+      if (LOG_EXPECTED) {
+        fprintf(stderr, "l(%s)=%s %e \n", curnode, curl, (*lfound).dvalue2);
+      }
+      if (LOG_EXPECTED) {
+        fprintf(stderr, "l(%s)=%s %e %e %e\n", curnode, curl, (*lfound).dvalue2,
+                tvalue, dprob);
+      }
 
       /** high node */
-      if((*hfound).dvalue2<-0.1){ //only if not seen before == dvalue2=0 (almost) otherwise requing does not harm
-	fun = *comparator;
-	(*fun)(l,l);
-	if(LOG_EXPECTED){
-	  PrintNodeQueue(q,*MyManager);
-	  fprintf(stderr,"-> %p\n",h);
-	}
-	QueuePutOnPriority(q, h, NODE_VALUE,fun);
-	(*hfound).dvalue2=0;
+      if ((*hfound).dvalue2 < -0.1) { // only if not seen before == dvalue2=0
+                                      // (almost) otherwise requing does not
+                                      // harm
+        fun = *comparator;
+        (*fun)(l, l);
+        if (LOG_EXPECTED) {
+          PrintNodeQueue(q, *MyManager);
+          fprintf(stderr, "-> %p\n", h);
+        }
+        QueuePutOnPriority(q, h, NODE_VALUE, fun);
+        (*hfound).dvalue2 = 0;
       }
-      (*hfound).dvalue2=(*hfound).dvalue2+(ivalue==0? dprob : (dprob*(tvalue)));
-      if(LOG_EXPECTED){fprintf(stderr, "h(%s)=%s %e %e %e\n", curnode,curh,(*hfound).dvalue2,tvalue,dprob);}
+      (*hfound).dvalue2 =
+          (*hfound).dvalue2 + (ivalue == 0 ? dprob : (dprob * (tvalue)));
+      if (LOG_EXPECTED) {
+        fprintf(stderr, "h(%s)=%s %e %e %e\n", curnode, curh, (*hfound).dvalue2,
+                tvalue, dprob);
+      }
       /** output expected counts current node */
-      if(ivalue==1){
-	(*pcnt)[GetIndex(node) - MyManager->varmap.varstart]+=dprob * tvalue * (*hfound).dvalue;
-	//fprintf(stdout,"oec(%s,%s,%e). %% 1_1\n",query_id,dynvalue,dprob * tvalue * (*hfound).dvalue);
-	if(LOG_EXPECTED) fprintf(stderr,"ec -> %s,%s,%e . %% 1_1\n",query_id,dynvalue,dprob * tvalue * (*hfound).dvalue);
-      }else{
-	(*pcnt)[GetIndex(node) - MyManager->varmap.varstart]+=dprob * tvalue * (*hfound).dvalue;
-	if(LOG_EXPECTED) fprintf(stderr,"ec -> %s,%s,%e . %% 1_2\n",query_id,dynvalue,dprob * tvalue * (*hfound).dvalue);
+      if (ivalue == 1) {
+        (*pcnt)[GetIndex(node) - MyManager->varmap.varstart] +=
+            dprob * tvalue * (*hfound).dvalue;
+        // fprintf(stdout,"oec(%s,%s,%e). %% 1_1\n",query_id,dynvalue,dprob *
+        // tvalue * (*hfound).dvalue);
+        if (LOG_EXPECTED)
+          fprintf(stderr, "ec -> %s,%s,%e . %% 1_1\n", query_id, dynvalue,
+                  dprob * tvalue * (*hfound).dvalue);
+      } else {
+        (*pcnt)[GetIndex(node) - MyManager->varmap.varstart] +=
+            dprob * tvalue * (*hfound).dvalue;
+        if (LOG_EXPECTED)
+          fprintf(stderr, "ec -> %s,%s,%e . %% 1_2\n", query_id, dynvalue,
+                  dprob * tvalue * (*hfound).dvalue);
       }
       /** output expected counts of skipped nodes for low branch*/
-      skip_nodes(MyManager,pcnt,node,l,dprob*((ivalue==0)?1:(1-tvalue))*(*lfound).dvalue,query_id);
-      skip_nodes(MyManager,pcnt,node,h,dprob*((ivalue==0)?1:(tvalue))*(*hfound).dvalue,query_id);
-    }else{
-      if(LOG_EXPECTED){fprintf(stderr,"here: retval %s %e=>%e\n",curnode,retval,(*Found).dvalue2);}
-      if(node==(MyManager->t)){
-	if(LOG_EXPECTED){fprintf(stderr,"updating retval %e=>%e\n",retval,(*Found).dvalue2);}
-	retval=(*Found).dvalue2;
+      skip_nodes(MyManager, pcnt, node, l,
+                 dprob * ((ivalue == 0) ? 1 : (1 - tvalue)) * (*lfound).dvalue,
+                 query_id);
+      skip_nodes(MyManager, pcnt, node, h,
+                 dprob * ((ivalue == 0) ? 1 : (tvalue)) * (*hfound).dvalue,
+                 query_id);
+    } else {
+      if (LOG_EXPECTED) {
+        fprintf(stderr, "here: retval %s %e=>%e\n", curnode, retval,
+                (*Found).dvalue2);
       }
-
+      if (node == (MyManager->t)) {
+        if (LOG_EXPECTED) {
+          fprintf(stderr, "updating retval %e=>%e\n", retval, (*Found).dvalue2);
+        }
+        retval = (*Found).dvalue2;
+      }
     }
   }
-  for( i = 0 ;i< MyManager->varmap.varcnt ; i++){
+  for (i = 0; i < MyManager->varmap.varcnt; i++) {
     ivalue = MyManager->varmap.ivalue[i];
     /* fprintf(stderr,"Node  level %i index: %i name: %s (dprob is %e)\n", */
     /* 	    i,idx, */
     /* 	    MyManager->varmap.vars[idx - MyManager->varmap.varstart], */
     /* 	    dprob); */
-    //fprintf(stderr,"Node idx: %i level: %i \n",i,Cudd_ReadPerm(MyManager->manager,i));
-    if(ivalue==0){
-      fprintf(stdout,"%% det: ec(%s,%s,%30.30e).\n",query_id,MyManager->varmap.vars[i],(counts)[i]);
-    }else{
-      fprintf(stdout,"ec(%s,%s,%30.30e).\n",query_id,MyManager->varmap.vars[i],(counts)[i]);
-
+    // fprintf(stderr,"Node idx: %i level: %i
+    // \n",i,Cudd_ReadPerm(MyManager->manager,i));
+    if (ivalue == 0) {
+      fprintf(stdout, "%% det: ec(%s,%s,%30.30e).\n", query_id,
+              MyManager->varmap.vars[i], (counts)[i]);
+    } else {
+      fprintf(stdout, "ec(%s,%s,%30.30e).\n", query_id,
+              MyManager->varmap.vars[i], (counts)[i]);
     }
   }
   // free(counts);
-  if(LOG_EXPECTED){
-fprintf(stderr,"retval is %e\n",retval);
-}
+  if (LOG_EXPECTED) {
+    fprintf(stderr, "retval is %e\n", retval);
+  }
   return retval;
 }
 
-double CalcExpectedCountsUp(extmanager * MyManager, DdNode *Current, char *query_id) {
+double CalcExpectedCountsUp(extmanager *MyManager, DdNode *Current,
+                            char *query_id) {
   //  fprintf(stderr,"--------------------- the manager 2 %p \n",&MyManager);
 
   DdNode *h, *l;
@@ -1057,52 +1235,62 @@ double CalcExpectedCountsUp(extmanager * MyManager, DdNode *Current, char *query
   //  tvalue=0.0;
   int ivalue;
   if (params.debug) {
-    curnode = GetNodeVarNameDisp(MyManager->manager, MyManager->varmap, Current);
+    curnode =
+        GetNodeVarNameDisp(MyManager->manager, MyManager->varmap, Current);
     fprintf(stderr, "%s\n", curnode);
   }
 
-  if (Current == MyManager->t){
-    //    if ((Found = GetNode(MyManager->his, MyManager->varmap.varstart, Current)) == NULL) {
+  if (Current == MyManager->t) {
+    //    if ((Found = GetNode(MyManager->his, MyManager->varmap.varstart,
+    //    Current)) == NULL) {
     //    fprintf(stderr,"adding true \n");
-    AddNode(MyManager->his, MyManager->varmap.varstart, MyManager->t, 1, 0, NULL);//}//needed in down
+    AddNode(MyManager->his, MyManager->varmap.varstart, MyManager->t, 1, 0,
+            NULL); //}//needed in down
     return 1.0;
   }
-  if (Current == MyManager->f){
+  if (Current == MyManager->f) {
     //    fprintf(stderr,"adding false \n");
-    //    if ((Found = GetNode(MyManager->his, MyManager->varmap.varstart, Current)) == NULL) {
-    AddNode(MyManager->his, MyManager->varmap.varstart, MyManager->f, 0, 0, NULL);//}//needed in down
+    //    if ((Found = GetNode(MyManager->his, MyManager->varmap.varstart,
+    //    Current)) == NULL) {
+    AddNode(MyManager->his, MyManager->varmap.varstart, MyManager->f, 0, 0,
+            NULL); //}//needed in down
     return 0.0;
   }
 
-  if ((Found = GetNode(MyManager->his, MyManager->varmap.varstart, Current)) != NULL) return Found->dvalue;
+  if ((Found = GetNode(MyManager->his, MyManager->varmap.varstart, Current)) !=
+      NULL)
+    return Found->dvalue;
   l = LowNodeOf(MyManager->manager, Current);
   h = HighNodeOf(MyManager->manager, Current);
-  if (params.debug) fprintf(stderr, "l(%s)->", curnode);
-  lvalue = CalcExpectedCountsUp(MyManager, l,query_id);
-  if (params.debug) fprintf(stderr, "h(%s)->", curnode);
-  hvalue = CalcExpectedCountsUp(MyManager, h,query_id);
+  if (params.debug)
+    fprintf(stderr, "l(%s)->", curnode);
+  lvalue = CalcExpectedCountsUp(MyManager, l, query_id);
+  if (params.debug)
+    fprintf(stderr, "h(%s)->", curnode);
+  hvalue = CalcExpectedCountsUp(MyManager, h, query_id);
 
+  tvalue =
+      MyManager->varmap.dvalue[GetIndex(Current) - MyManager->varmap.varstart];
+  // notiz
+  ivalue =
+      MyManager->varmap.ivalue[GetIndex(Current) - MyManager->varmap.varstart];
 
-  tvalue = MyManager->varmap.dvalue[GetIndex(Current) - MyManager->varmap.varstart];
-  //notiz
-  ivalue = MyManager->varmap.ivalue[GetIndex(Current) - MyManager->varmap.varstart];
-
-  if(ivalue == 1){
+  if (ivalue == 1) {
     tvalue = tvalue * hvalue + lvalue * (1.0 - tvalue);
-  }else if (ivalue == 0){
-    tvalue = hvalue + lvalue ;
+  } else if (ivalue == 0) {
+    tvalue = hvalue + lvalue;
   }
   //  fprintf(stderr," ---> %e \n",tvalue);
   AddNode(MyManager->his, MyManager->varmap.varstart, Current, tvalue, 0, NULL);
   return tvalue;
 }
 
-
 /* Bernds Algorithm */
 // type=0  regular probabilistic fact
 // type=1  derive gradient for mu
 // type=2  derive gradient for sigma
-gradientpair CalcGradient(extmanager MyManager, DdNode *Current, int TargetVar, char *TargetPattern, int type) {
+gradientpair CalcGradient(extmanager MyManager, DdNode *Current, int TargetVar,
+                          char *TargetPattern, int type) {
   DdNode *h, *l;
   hisnode *Found;
   char *curnode = NULL, *dynvalue;
@@ -1126,55 +1314,78 @@ gradientpair CalcGradient(extmanager MyManager, DdNode *Current, int TargetVar, 
     tvalue.gradient = 0.0;
     return tvalue;
   }
-  //node is in cache
-  if ((Found = GetNode(MyManager.his, MyManager.varmap.varstart, Current)) != NULL) {
+  // node is in cache
+  if ((Found = GetNode(MyManager.his, MyManager.varmap.varstart, Current)) !=
+      NULL) {
     tvalue.probability = Found->dvalue;
-    tvalue.gradient = *((double *) Found->dynvalue);
+    tvalue.gradient = *((double *)Found->dynvalue);
     return tvalue;
   }
 
-  //inductive case
+  // inductive case
   l = LowNodeOf(MyManager.manager, Current);
   h = HighNodeOf(MyManager.manager, Current);
-  if (params.debug) fprintf(stderr, "l(%s)->", curnode);
-  lowvalue = CalcGradient(MyManager, l, TargetVar, TargetPattern,type);
-  if (params.debug) fprintf(stderr, "h(%s)->", curnode);
-  highvalue = CalcGradient(MyManager, h, TargetVar, TargetPattern,type);
-  dynvalue = (char*) MyManager.varmap.dynvalue[GetIndex(Current) - MyManager.varmap.varstart];
+  if (params.debug)
+    fprintf(stderr, "l(%s)->", curnode);
+  lowvalue = CalcGradient(MyManager, l, TargetVar, TargetPattern, type);
+  if (params.debug)
+    fprintf(stderr, "h(%s)->", curnode);
+  highvalue = CalcGradient(MyManager, h, TargetVar, TargetPattern, type);
+  dynvalue = (char *)MyManager.varmap
+                 .dynvalue[GetIndex(Current) - MyManager.varmap.varstart];
   if (dynvalue == NULL) { // no dynvalue, it's a regular probabilistic fact
-    memset( &dynvalue_parsed, 0, sizeof(dynvalue_parsed) );
-    this_probability = sigmoid(MyManager.varmap.dvalue[GetIndex(Current) - MyManager.varmap.varstart], params.sigmoid_slope);
-  } else { // there is a dynvalue, it's a continuous fact! let's do the hybrid ProbLog magic here
+    memset(&dynvalue_parsed, 0, sizeof(dynvalue_parsed));
+    this_probability = sigmoid(
+        MyManager.varmap.dvalue[GetIndex(Current) - MyManager.varmap.varstart],
+        params.sigmoid_slope);
+  } else { // there is a dynvalue, it's a continuous fact! let's do the hybrid
+           // ProbLog magic here
     curnode = GetNodeVarNameDisp(MyManager.manager, MyManager.varmap, Current);
     dynvalue_parsed = parse_density_integral_string(dynvalue, curnode);
-    this_probability=cumulative_normal(dynvalue_parsed.low,dynvalue_parsed.high,dynvalue_parsed.mu,dynvalue_parsed.sigma);
+    this_probability =
+        cumulative_normal(dynvalue_parsed.low, dynvalue_parsed.high,
+                          dynvalue_parsed.mu, dynvalue_parsed.sigma);
   }
 
-  tvalue.probability = this_probability * highvalue.probability + (1 - this_probability) * lowvalue.probability;
-  tvalue.gradient = this_probability * highvalue.gradient + (1 - this_probability) * lowvalue.gradient;
+  tvalue.probability = this_probability * highvalue.probability +
+                       (1 - this_probability) * lowvalue.probability;
+  tvalue.gradient = this_probability * highvalue.gradient +
+                    (1 - this_probability) * lowvalue.gradient;
   if ((GetIndex(Current) == TargetVar) ||
-      ((TargetPattern != NULL) && patternmatch(TargetPattern, MyManager.varmap.vars[GetIndex(Current)]))) {
-    if (type == 0) {  // current node is normal probabilistic fact
-      tvalue.gradient += (highvalue.probability - lowvalue.probability) * this_probability * (1 - this_probability) * params.sigmoid_slope;
+      ((TargetPattern != NULL) &&
+       patternmatch(TargetPattern, MyManager.varmap.vars[GetIndex(Current)]))) {
+    if (type == 0) { // current node is normal probabilistic fact
+      tvalue.gradient += (highvalue.probability - lowvalue.probability) *
+                         this_probability * (1 - this_probability) *
+                         params.sigmoid_slope;
     } else if (type == 1) { // it's a continues fact and we need d/dmu
-      tvalue.gradient += cumulative_normal_dmu(dynvalue_parsed.low, dynvalue_parsed.high, dynvalue_parsed.mu, dynvalue_parsed.sigma) * (highvalue.probability + lowvalue.probability);
+      tvalue.gradient +=
+          cumulative_normal_dmu(dynvalue_parsed.low, dynvalue_parsed.high,
+                                dynvalue_parsed.mu, dynvalue_parsed.sigma) *
+          (highvalue.probability + lowvalue.probability);
     } else if (type == 2) { // it's a continues fact and we need d/dsigma
-      tvalue.gradient += cumulative_normal_dsigma(dynvalue_parsed.low, dynvalue_parsed.high, dynvalue_parsed.mu, dynvalue_parsed.sigma) * (highvalue.probability + lowvalue.probability);
+      tvalue.gradient +=
+          cumulative_normal_dsigma(dynvalue_parsed.low, dynvalue_parsed.high,
+                                   dynvalue_parsed.mu, dynvalue_parsed.sigma) *
+          (highvalue.probability + lowvalue.probability);
     }
   }
-  gradient = (double *) malloc(sizeof(double));
+  gradient = (double *)malloc(sizeof(double));
   *gradient = tvalue.gradient;
-  AddNode(MyManager.his, MyManager.varmap.varstart, Current, tvalue.probability, 0, gradient);
+  AddNode(MyManager.his, MyManager.varmap.varstart, Current, tvalue.probability,
+          0, gradient);
   return tvalue;
 }
 
-char * extractpattern(const char *thestr) {
+char *extractpattern(const char *thestr) {
   char *p;
   int i = 0, sl = strlen(thestr);
-  while((thestr[i] != '_') && (i < sl)) i++;
-  if (i == sl) return NULL;
+  while ((thestr[i] != '_') && (i < sl))
+    i++;
+  if (i == sl)
+    return NULL;
   i++;
-  p = (char *) malloc(sizeof(char) * (i + 2));
+  p = (char *)malloc(sizeof(char) * (i + 2));
   strncpy(p, thestr, i);
   p[i] = '*';
   p[i + 1] = '\0';
@@ -1183,8 +1394,10 @@ char * extractpattern(const char *thestr) {
 
 int patterncalculated(char *pattern, extmanager MyManager, int loc) {
   int i;
-  if (pattern == NULL) return 0;
+  if (pattern == NULL)
+    return 0;
   for (i = loc - 1; i > -1; i--)
-    if (patternmatch(pattern, MyManager.varmap.vars[i])) return 1;
+    if (patternmatch(pattern, MyManager.varmap.vars[i]))
+      return 1;
   return 0;
 }

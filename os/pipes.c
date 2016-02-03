@@ -47,6 +47,12 @@ static char SccsId[] = "%W% %G%";
 #define S_ISDIR(x) (((x)&_S_IFDIR)==_S_IFDIR)
 #endif
 #endif
+#if HAVE_ERRNO_H
+#include <errno.h>
+#endif
+#if HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
 #include "iopreds.h"
 
 static int PipePutc( int, int);
@@ -66,15 +72,6 @@ ConsolePipePutc (int sno, int ch)
       ch = '\n';
     }
 #endif
-#if _MSC_VER || defined(__MINGW32__) 
-  {
-    DWORD written;
-    if (WriteFile(s->u.pipe.hdl, &c, sizeof(c), &written, NULL) == FALSE) {
-      PlIOError (SYSTEM_ERROR_INTERNAL,TermNil, "write to pipe returned error");
-      return EOF;
-    }
-  }
-#else
   {
     int out = 0;
     while (!out) {
@@ -88,7 +85,6 @@ ConsolePipePutc (int sno, int ch)
       }
     }
   }
-#endif
   count_output_char(ch,s);
   return ((int) ch);
 }
@@ -104,15 +100,6 @@ PipePutc (int sno, int ch)
       ch = '\n';
     }
 #endif
-#if _MSC_VER || defined(__MINGW32__) 
-  {
-    DWORD written;
-    if (WriteFile(s->u.pipe.hdl, &c, sizeof(c), &written, NULL) == FALSE) {
-      PlIOError (SYSTEM_ERROR_INTERNAL,TermNil, "write to pipe returned error");
-      return EOF;
-    }
-  }
-#else
   {
     int out = 0;
     while (!out) {
@@ -126,7 +113,6 @@ PipePutc (int sno, int ch)
       }
     }
   }
-#endif
   console_count_output_char(ch,s);
   return ((int) ch);
 }
@@ -159,19 +145,10 @@ ConsolePipeGetc(int sno)
     strncpy(LOCAL_Prompt, RepAtom (LOCAL_AtPrompt)->StrOfAE, MAX_PROMPT);
     LOCAL_newline = false;
   }
-#if _MSC_VER || defined(__MINGW32__) 
-  if (ReadFile(s->u.pipe.hdl, &c, sizeof(c), &count, NULL) == FALSE) {
-    LOCAL_PrologMode |= ConsoleGetcMode;
-    Yap_WinError("read from console pipe returned error");
-    LOCAL_PrologMode &= ~ConsoleGetcMode;
-    return console_post_process_eof(s);
-  }
-#else
   /* should be able to use a buffer */
   LOCAL_PrologMode |= ConsoleGetcMode;
   count = read(s->u.pipe.fd, &c, sizeof(char));
   LOCAL_PrologMode &= ~ConsoleGetcMode;
-#endif
   if (count == 0) {
     return console_post_process_eof(s);
   } else if (count > 0) {
@@ -192,16 +169,8 @@ PipeGetc(int sno)
   char c;
   
   /* should be able to use a buffer */
-#if _MSC_VER || defined(__MINGW32__) 
-  DWORD count;
-  if (ReadFile(s->u.pipe.hdl, &c, sizeof(c), &count, NULL) == FALSE) {
-    Yap_WinError("read from pipe returned error");
-    return EOF;
-  }
-#else
   int count;
   count = read(s->u.pipe.fd, &c, sizeof(char));
-#endif
   if (count == 0) {
     return post_process_eof(s);
   } else if (count > 0) {
@@ -237,25 +206,19 @@ open_pipe_stream (USES_REGS1)
   Term t1, t2;
   StreamDesc *st;
   int sno;
-#if  _MSC_VER || defined(__MINGW32__) 
-  HANDLE ReadPipe, WritePipe;
-  SECURITY_ATTRIBUTES satt;
-
-  satt.nLength = sizeof(satt);
-  satt.lpSecurityDescriptor = NULL;
-  satt.bInheritHandle = TRUE;
-  if (!CreatePipe(&ReadPipe, &WritePipe, &satt, 0))
-    {
-      return (PlIOError (SYSTEM_ERROR_INTERNAL,TermNil, "open_pipe_stream/2 could not create pipe"));
-    }
-#else
   int filedes[2];
 
-  if (pipe(filedes) != 0)
+  if (
+#if   _MSC_VER || defined(__MINGW32__)
+      // assume for now only text streams...
+      _pipe(filedes, 1024, O_TEXT)
+#else
+      pipe(filedes)
+#endif      
+      != 0)
     {
-      return (PlIOError (SYSTEM_ERROR_INTERNAL,TermNil, "open_pipe_stream/2 could not create pipe"));
+      return (PlIOError (SYSTEM_ERROR_INTERNAL,TermNil, "error %s",  strerror(errno)) );
     }
-#endif
   sno = GetFreeStreamD();
   if (sno < 0)
     return (PlIOError (RESOURCE_ERROR_MAX_STREAMS,TermNil, "new stream not available for open_pipe_stream/2"));
@@ -268,11 +231,7 @@ open_pipe_stream (USES_REGS1)
   st->stream_putc = PipePutc;
   st->stream_getc = PipeGetc;
   Yap_DefaultStreamOps( st );
-#if  _MSC_VER || defined(__MINGW32__) 
-  st->u.pipe.hdl = ReadPipe;
-#else
   st->u.pipe.fd = filedes[0];
-#endif
   st->file = fdopen( filedes[0], "r");
   UNLOCK(st->streamlock);
   sno = GetFreeStreamD();
@@ -286,11 +245,7 @@ open_pipe_stream (USES_REGS1)
   st->stream_putc = PipePutc;
   st->stream_getc = PipeGetc;
   Yap_DefaultStreamOps( st );
-#if  _MSC_VER || defined(__MINGW32__) 
-  st->u.pipe.hdl = WritePipe;
-#else
   st->u.pipe.fd = filedes[1];
-#endif
   st->file = fdopen( filedes[1], "w");
   UNLOCK(st->streamlock);
   t2 = Yap_MkStream (sno);

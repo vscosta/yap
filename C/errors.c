@@ -115,17 +115,17 @@ bool Yap_Warning(const char *s, ...) {
   } else
     return false;
   va_end(ap);
-  if (pred->OpcodeOfPred == UNDEF_OPCODE) {
+  if (pred->OpcodeOfPred == UNDEF_OPCODE||
+      pred->OpcodeOfPred == FAIL_OPCODE) {
     fprintf(stderr, "warning message: %s\n", tmpbuf);
     LOCAL_DoingUndefp = false;
     LOCAL_within_print_message = false;
-    return true;
+    return false;
   }
 
   ts[1] = MkAtomTerm(AtomWarning);
   ts[0] = MkAtomTerm(Yap_LookupAtom(tmpbuf));
   rc = Yap_execute_pred(pred, ts, true PASS_REGS);
-  LOCAL_within_print_message = false;
   return rc;
 }
 
@@ -133,6 +133,7 @@ bool Yap_PrintWarning(Term twarning) {
   CACHE_REGS
   PredEntry *pred = RepPredProp(PredPropByFunc(
       FunctorPrintMessage, PROLOG_MODULE)); // PROCEDURE_print_message2;
+  Term cmod = CurrentModule;
   bool rc;
   Term ts[2];
 
@@ -143,13 +144,16 @@ bool Yap_PrintWarning(Term twarning) {
   }
   LOCAL_DoingUndefp = true;
   LOCAL_within_print_message = true;
-  if (pred->OpcodeOfPred == UNDEF_OPCODE) {
+  if (pred->OpcodeOfPred == UNDEF_OPCODE ||
+      pred->OpcodeOfPred == FAIL_OPCODE 
+  ) {
      fprintf(stderr, "warning message:\n");
      Yap_DebugPlWrite(twarning);
      fprintf(stderr, "\n");
     LOCAL_DoingUndefp = false;
     LOCAL_within_print_message = false;
-    return true;
+    CurrentModule = cmod;
+    return false;
   }
   ts[1] = twarning;
   ts[0] = MkAtomTerm(AtomWarning);
@@ -159,7 +163,7 @@ bool Yap_PrintWarning(Term twarning) {
   return rc;
 }
 
-int Yap_HandleError(const char *s, ...) {
+bool Yap_HandleError__(const char *file, const char *function, int lineno, const char *s, ...) {
   CACHE_REGS
   yap_error_number err = LOCAL_Error_TYPE;
   const char *serr;
@@ -173,28 +177,28 @@ int Yap_HandleError(const char *s, ...) {
   switch (err) {
   case RESOURCE_ERROR_STACK:
     if (!Yap_gc(2, ENV, gc_P(P, CP))) {
-      Yap_Error(RESOURCE_ERROR_STACK, ARG1, serr);
-      return (FALSE);
+      Yap_Error__(file, function, lineno, RESOURCE_ERROR_STACK, ARG1, serr);
+      return false;
     }
-    return TRUE;
+    return true;
   case RESOURCE_ERROR_AUXILIARY_STACK:
     if (LOCAL_MAX_SIZE < (char *)AuxSp - AuxBase) {
       LOCAL_MAX_SIZE += 1024;
     }
     if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
       /* crash in flames */
-      Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, ARG1, serr);
-      return FALSE;
+      Yap_Error__(file, function, lineno, RESOURCE_ERROR_AUXILIARY_STACK, ARG1, serr);
+      return false;
     }
-    return TRUE;
+    return true;
   case RESOURCE_ERROR_HEAP:
     if (!Yap_growheap(FALSE, 0, NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP, ARG2, serr);
-      return FALSE;
+      Yap_Error__(file, function, lineno, RESOURCE_ERROR_HEAP, ARG2, serr);
+      return false;
     }
   default:
-    Yap_Error(err, LOCAL_Error_Term, serr);
-    return (FALSE);
+    Yap_Error__(file, function, lineno, err, LOCAL_Error_Term, serr);
+    return false;
   }
 }
 
@@ -361,7 +365,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   CELL nt[3];
   Functor fun;
   bool serious;
-  Term tf, error_t, comment, culprit;
+  Term tf, error_t, comment, culprit = TermNil;
   char *format;
   char s[MAXPATHLEN];
 
@@ -527,6 +531,8 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
 
     }
   if (type != ABORT_EVENT) {
+    Term location;
+
     /* This is used by some complex procedures to detect there was an error */
     if (IsAtomTerm(nt[0])) {
       strncpy(LOCAL_ErrorSay, (char *) RepAtom(AtomOfTerm(nt[0]))->StrOfAE,
@@ -538,14 +544,14 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
               MAX_ERROR_MSG_SIZE);
       LOCAL_ErrorMessage = LOCAL_ErrorSay;
     }
+    nt[1] = TermNil;
     switch (type) {
       case RESOURCE_ERROR_HEAP:
       case RESOURCE_ERROR_STACK:
       case RESOURCE_ERROR_TRAIL:
         comment = MkAtomTerm(Yap_LookupAtom(tmpbuf));
-      default:
-        nt[1] = TermNil;
-            if (comment != TermNil)
+      default: 
+           if (comment != TermNil)
               nt[1] = MkPairTerm(MkPairTerm(MkAtomTerm(Yap_LookupAtom("i")), comment),
                                  nt[1]);
             if (file && function) {
@@ -557,12 +563,12 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
               nt[1] =
                       MkPairTerm(MkPairTerm(MkAtomTerm(Yap_LookupAtom("c")), t3), nt[1]);
             }
-            if ((culprit = Yap_pc_location(P, B, ENV)) != TermNil) {
-              nt[1] = MkPairTerm(MkPairTerm(MkAtomTerm(Yap_LookupAtom("p")), culprit),
+            if ((location = Yap_pc_location(P, B, ENV)) != TermNil) {
+              nt[1] = MkPairTerm(MkPairTerm(MkAtomTerm(Yap_LookupAtom("p")), location),
                                  nt[1]);
             }
-            if ((culprit = Yap_env_location(CP, B, ENV, 0)) != TermNil) {
-              nt[1] = MkPairTerm(MkPairTerm(MkAtomTerm(Yap_LookupAtom("e")), culprit),
+            if ((location = Yap_env_location(CP, B, ENV, 0)) != TermNil) {
+              nt[1] = MkPairTerm(MkPairTerm(MkAtomTerm(Yap_LookupAtom("e")), location),
                                  nt[1]);
             }
     }

@@ -2,10 +2,11 @@
 
 macro_optional_find_package(Java ON)
 
- find_package(Java COMPONENTS Runtime Development)
- #find_package(Java COMPONENTS Runtime)
-
-macro_log_feature (Java_Development_FOUND "Java"
+#find_package(Java)
+find_package(Java COMPONENTS Runtime Development)
+find_package(JNI)
+ 
+macro_log_feature (Java_FOUND "Java"
     "Use Java System"
     "http://www.java.org" FALSE)
 macro_optional_find_package(JNI ON)
@@ -14,7 +15,7 @@ macro_optional_find_package(JNI ON)
     "http://www.java.org" FALSE)
 
 
-if (Java_Development_FOUND)
+if (Java_FOUND AND JNI_FOUND)
 
     include ( UseJava  )
     include ( UseSWIG  )
@@ -91,4 +92,4 @@ install_jar(JavaYAP ${libpl})
 
 
 
- Endif (Java_Development_FOUND)
+ Endif (Java_FOUND AND JNI_FOUND)

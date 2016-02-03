@@ -38,7 +38,21 @@ INLINE_ONLY inline EXTERN AtomEntry *RepAtom(Atom a) {
 
 INLINE_ONLY inline EXTERN Atom AbsAtom(AtomEntry *p);
 
-INLINE_ONLY inline EXTERN Atom AbsAtom(AtomEntry *p) { return (Atom)(p); }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  INLINE_ONLY inline EXTERN Atom AbsAtom(AtomEntry *p) { return (Atom)(p); }
 
 INLINE_ONLY inline EXTERN AtomEntry *RepAtom(Atom a);
 
@@ -554,6 +568,7 @@ typedef uint64_t pred_flags_t;
 #define StatePredFlags (InUsePredFlag|CountPredFlag|SpiedPredFlag|IndexedPredFlag )
 #define is_system(pe) (pe->PredFlags & SystemPredFlags)
 #define is_dynamic(pe) (pe->PredFlags & DynamicPredFlag)
+#define is_foreign(pe) (pe->PredFlags & ForeignPredFlags)
 #define is_static(pe) (pe->PredFlags & CompiledPredFlag)
 #define is_logupd(pe) (pe->PredFlags & LogUpdatePredFlag)
 #ifdef TABLING
@@ -1586,7 +1601,7 @@ INLINE_ONLY EXTERN inline void AddPropToAtom(AtomEntry *ae, PropEntry *p) {
 INLINE_ONLY inline EXTERN const char *AtomName(Atom at);
 
 /**
- * AtomName: get a string with the name of an Atom. Assumes 8 bit
+ * AtomName(Atom at): get a string with the name of an Atom. Assumes 8 bit
  *representation.
  *
  * @param at the atom
@@ -1600,7 +1615,7 @@ INLINE_ONLY inline EXTERN const char *AtomName(Atom at) {
 INLINE_ONLY inline EXTERN const char *AtomTermName(Term t);
 
 /**
- * AtomTermName: get a string with the name of a term storing an Atom. Assumes 8
+ * AtomTermName(Term t): get a string with the name of a term storing an Atom. Assumes 8
  *bit representation.
  *
  * @param t the atom term

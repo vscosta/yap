@@ -130,12 +130,12 @@ UInt	  	GLOBAL_flagCount	Yap_InitFlags(true)  RestoreFlags(GLOBAL_flagCount)
 yap_exec_mode	Yap_ExecutionMode	=INTERPRETED void
 
 /*  The Predicate Hash Table: fast access to predicates. */
+UInt		PredsInHashTable	=0 void
+uint64_t	PredHashTableSize	=0 void
 struct pred_entry **PredHash		InitPredHash() RestorePredHash()
 #if defined(YAPOR) || defined(THREADS)
 rwlock_t	PredHashRWLock		void
 #endif
-UInt		PredsInHashTable	=0 void
-uint64_t	PredHashTableSize	=0 void
 
 
 /* Well-Known Predicates */

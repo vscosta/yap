@@ -14,6 +14,9 @@
 * comments:	fast save/restore					 *
 *									 *
 *************************************************************************/
+
+%% @file qly.yap
+
 :- system_module( '$_qly', [qload_module/1,
         qsave_file/1,
         qsave_module/1,
@@ -55,6 +58,8 @@ saved.
 YAP always tries to find saved states from the current directory
 first. If it cannot it will use the environment variable [YAPLIBDIR](@ref YAPLIBDIR), if
 defined, or search the default library directory.
+
+@{ 
 */
 
 /** @pred save_program(+ _F_)
@@ -268,6 +273,9 @@ qend_program :-
 '$do_init_state' :-
 	'$init_from_saved_state_and_args',
 	 fail.
+'$do_init_state' :-
+    stream_property(user_input, tty(true)),
+    set_prolog_flag(readline, true).
 '$do_init_state'.
 
 %
@@ -760,7 +768,7 @@ qload_file( F0 ) :-
     user:'$file_property'( '$lf_loaded'( F, Age, _ ) ),
     recordaifnot('$source_file','$source_file'( F, Age, SourceModule), _),
     fail.
-'$qload_file'(_S, _SourceModule, File, FilePl, F0, _ImportList, _TOpts) :-
+'$qload_file'(_S, _SourceModule, _File, FilePl, F0, _ImportList, _TOpts) :-
     b_setval('$user_source_file', F0 ),
     '$process_directives'( FilePl ),
     fail.
@@ -784,3 +792,5 @@ qload_file( F0 ) :-
     fail.
 '$process_directives'( _FilePl ) :-
     abolish(user:'$file_property'/1).
+
+%% @}

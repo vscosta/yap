@@ -1,15 +1,7 @@
 
-
 #include "sysbits.h"
 
-#if HAVE_SIGNAL_H
-
-#include <signal.h>
-
-#ifdef MPW
-#define signal	sigset
-#endif
-
+#if HAVE_SIGNAL
 
 #ifdef MSH
 
@@ -578,6 +570,39 @@ MSCHandleSignal(DWORD dwCtrlType) {
   }
 
 #endif /* HAVE_SIGNAL */
+
+
+  /* wrapper for alarm system call */
+#if _MSC_VER || defined(__MINGW32__)
+
+  static DWORD WINAPI
+    DoTimerThread(LPVOID targ)
+  {
+    Int *time = (Int *)targ;
+    HANDLE htimer;
+    LARGE_INTEGER liDueTime;
+
+    htimer = CreateWaitableTimer(NULL, FALSE, NULL);
+    liDueTime.QuadPart =  -10000000;
+    liDueTime.QuadPart *=  time[0];
+    /* add time in usecs */
+    liDueTime.QuadPart -=  time[1]*10;
+    /* Copy the relative time into a LARGE_INTEGER. */
+    if (SetWaitableTimer(htimer, &liDueTime,0,NULL,NULL,0) == 0) {
+      return(FALSE);
+    }
+    if (WaitForSingleObject(htimer, INFINITE) != WAIT_OBJECT_0)
+      fprintf(stderr,"WaitForSingleObject failed (%ld)\n", GetLastError());
+    Yap_signal (YAP_WINTIMER_SIGNAL);
+    /* now, say what is going on */
+    Yap_PutValue(AtomAlarm, MkAtomTerm(AtomTrue));
+    ExitThread(1);
+#if _MSC_VER
+    return(0L);
+#endif
+  }
+
+#endif
 
   static Int
     enable_interrupts( USES_REGS1 )

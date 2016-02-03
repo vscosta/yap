@@ -44,7 +44,7 @@ pl-minisat.C
   install (
     TARGETS minisat2
     RUNTIME DESTINATION ${bindir}
-    ARCHIVE  DESTINATION ${libdir}
+    ARCHIVE  DESTINATION ${dlls}
     LIBRARY  DESTINATION ${dlls}
   )
 

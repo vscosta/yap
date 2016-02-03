@@ -7,7 +7,7 @@
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-2014	 *
 *									 *
 **************************************************************************
-*									 *
+*									Ptv *
 * File:		boot.yap						 *
 * Last rev:	8/2/88							 *
 * mods:									 *
@@ -15,14 +15,14 @@
 *									 *
 *************************************************************************/
 
-%% @{
-
 /**
-
+@file boot.yap
 @defgroup YAPControl Control Predicates
 @ingroup builtins
 
 */
+
+%% @{
 
 
 
@@ -55,30 +55,16 @@ This predicate might be defined as:
 ~~~~~~~~~~~~
 if  _P_ did not include "cuts".
 
-If _P_ includes cuts, the cuts are defined to be scoped by _P_: they canno cut over the calling prredicate.
+If _P_ includes cuts, the cuts are defined to be scoped by _P_: they cannot cut over the calling prredicate.
 
  ~~~~~~~~~~~~
   go(P).
-          :- \+ P, !, fail.
+
+:- \+ P, !, fail.
   \+(_).
  ~~~~~~~~~~~~
 
 */
-
-
-/** @pred  not :_P_
-
-
-Goal  _P_ is not provable. The same as `\+  _P_`.
-
-This predicate is kept for compatibility with C-Prolog and previous
-versions of YAP. Uses of not/1 should be replaced by
-`\+`/1, as YAP does not implement true negation.
-
-
-*/
-
-
 
 /** @pred   :_Condition__ -> :_Action_  is iso
 
@@ -185,8 +171,8 @@ list, since backtracking could not "pass through" the cut.
 
 */
 
-system_module(Mod, _SysExps, _Decls) :- !,
-    new_system_module(Mod).
+system_module(Mod, _SysExps, _Decls) :- ! .
+%    new_system_module(Mod).
 
 use_system_module(_init, _SysExps) :- !.
 
@@ -308,7 +294,7 @@ private(_).
 	arg(1, AOB, A),
 	arg(2, AOB, B),
 	!,
-	'$binary_op_as_integer'(Op,IOp).
+	'$inbrary_op_as_integer'(Op,IOp).
 '$prepare_goals'((A,B),(A,B),_Any).
 
 '$prepare_clause'((H :- B), (H:-NB)) :-
@@ -519,13 +505,13 @@ true :- true.
 	).
 
 
- '$erase_sets' :-
-		 eraseall('$'),
+'$erase_sets' :-
+                 eraseall('$'),
 		 eraseall('$$set'),
 		 eraseall('$$one'),
 		 eraseall('$reconsulted'), fail.
- '$erase_sets' :- \+ recorded('$path',_,_), recorda('$path',"",_).
- '$erase_sets'.
+'$erase_sets' :- \+ recorded('$path',_,_), recorda('$path',"",_).
+'$erase_sets'.
 
 '$version' :-
 	current_prolog_flag(version_git,VersionGit),
@@ -719,15 +705,18 @@ number of steps.
 '$continue_with_command'(top,V,_,G,_) :-
 	'$query'(G,V).
 
+ %%
+ % @pred '$go_compile_clause'(G,Vs,Pos, Where, Source) is det
  %
+ % interfaces the loader and the compiler
  % not 100% compatible with SICStus Prolog, as SICStus Prolog would put
  % module prefixes all over the place, although unnecessarily so.
  %
- % G is the goal to compile
-				% Vs the named variables
- % Pos the source position
- % N where to add first or last
- % Source the original clause
+ % @param [in] _G_ is the clause to compile
+ % @param [in] _Vs_ a list of varables and their name
+ % @param [in] _Pos_ the source-code position
+ % @param [in] _N_  a flag telling whether to add first or last
+ % @param [in] _Source_ the original clause
 '$go_compile_clause'(G,Vs,Pos, Where, Source) :-
      '$precompile_term'(G, G0, G1),
      !,
@@ -1379,29 +1368,37 @@ bootstrap(F) :-
 	prolog_flag(agc_margin,_,Old),
 	!.
 '$loop'(Stream,Status) :-
+ %   start_low_level_trace,
+	'$current_module'( OldModule ),
 	repeat,
-        prompt1(': '), prompt(_,'     '),
-		'$current_module'(OldModule),
-		'$system_catch'('$enter_command'(Stream,OldModule,Status), OldModule, Error,
-			 user:'$LoopError'(Error, Status)),
+	'$system_catch'( '$enter_command'(Stream,OldModule,Status),
+                     OldModule, Error,
+			         user:'$LoopError'(Error, Status)
+                   ),
 	!.
 
-'$enter_command'(Stream,Mod,Status) :-
-    !,
-    read_term(Stream, Command, [module(Mod), syntax_errors(dec10),variable_names(Vars), term_position(Pos)]),
+'$enter_command'(Stream, Mod, Status) :-
+    prompt1(': '), prompt(_,'     '),
+    Options = [module(Mod), syntax_errors(dec10),variable_names(Vars), term_position(Pos)],
+    (
+      Status == top
+    ->
+      read_term(Stream, Command, Options)
+    ;
+      read_clause(Stream, Command, Options)
+    ),
 	'$command'(Command,Vars,Pos, Status).
-'$enter_command'(_Stream, _Mod, _HeadMob).
 
+/** @pred  user:expand_term( _T_,- _X_) is dynamic,multifile.
 
-/** @pred  expand_term( _T_,- _X_)
+  This user-defined predicate is called by YAP after
+  reading goals and clauses.
 
-This predicate is used by YAP for preprocessingStatus) :-
-	read_clause(Stream, Command, [variable_names(Vars), term_position(Pos)]),
-	'$command'(Command,Vars,Pos,Status).
+  - _Module_:`expand_term(` _T_ , _X_) is called first on the
+  current source module _Module_ ; if i
+  - `user:expand_term(` _T_ , _X_ `)` is available on every module.
 
-'$abort_loop'(Stream) :-
-	'$do_error'(permission_error(input,closed_stream,Stream), loop).
-
+  */
 
 /* General purpose predicates				*/
 

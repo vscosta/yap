@@ -370,7 +370,8 @@ typedef enum stream_f {
   RepError_Prolog_f	=	0x400000, /**< handle representation error as Prolog terms */
   RepError_Xml_f	=	0x800000,  /**< handle representation error as XML objects */
   DoNotCloseOnAbort_Stream_f=  0x1000000,  /**< do not close the stream after an abort event */
-  Readline_Stream_f=  0x2000000  /**< the stream is a readline stream */
+  Readline_Stream_f=  0x2000000,  /**< the stream is a readline stream */
+  FreeOnClose_Stream_f=  0x4000000  /**< the stream buffer should be releaed on close */
 } estream_f;
 
 typedef uint64_t stream_flags_t;

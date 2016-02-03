@@ -28,8 +28,6 @@
 
 /**
 
-  @{
-
   @defgroup Messages Message Handling
   @ingroup YAPControl
 
@@ -67,6 +65,7 @@ messages that do not produce output but that can be intercepted by hooks.
 The next table shows the main predicates and hooks associated to message
 handling in YAP:
 
+@{
 
 */
 
@@ -269,10 +268,13 @@ main_message(error(representation_error), _Source) -->
 main_message(error(type_error(Type,Who), _What), _Source) -->
 	[ '~*|!!! ~q should be of type ~a' - [8,Who,Type]],
 	[ nl ].
+main_message(error(system_error(Who), _What), _Source) -->
+	[ '~*|!!! ~q error' - [8,Who]],
+	[ nl ].
 main_message(error(uninstantiation_error(T),_), _Source) -->
 	[ '~*|!!! found ~q, expected unbound variable ' - [8,T], nl ].
 
-display_consulting(Level) -->
+display_consulting(_Level) -->
 	{  source_location(F0, L),
 	   stream_property(_Stream, alias(loop_stream)) }, !,
 	[ '~a:~d:0 found  while compiling this file.'-[F0,L], nl ].
@@ -528,7 +530,8 @@ domain_error(Domain, Opt) -->
 
 extra_info( error(_,Extra), _ ) -->
 	    {lists:memberchk([i|Msg], Extra)}, !,
-	    ['   ~w~nx.' - [Msg] ].
+        ['~*|user provided data is: ~q' - [10,Msg]],
+        [nl].
 extra_info( _, _ ) -->
 	[].
 
@@ -587,7 +590,7 @@ list_of_preds([P|L]) -->
 	list_of_preds(L).
 
 syntax_error_term(between(_I,_J,_L),LTaL) -->
-%	['found at line ~d to line ~d' - [_I,_L], nl ],
+	['error found at line ~d to line ~d' - [_I,_L], nl ],
 	syntax_error_tokens(LTaL).
 
 syntax_error_tokens([]) --> [].

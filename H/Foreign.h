@@ -37,7 +37,7 @@
 #undef NO_DYN
 #endif /* __AIX */
 
-#if HAVE_DLOPEN
+#ifdef HAVE_DLOPEN
 #define LOAD_DL 1
 #ifdef NO_DYN
 #undef NO_DYN

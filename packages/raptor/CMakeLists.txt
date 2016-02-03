@@ -59,7 +59,8 @@ INCLUDE_DIRECTORIES(
 
   install(TARGETS  libxml2
     LIBRARY DESTINATION ${dlls}
-    )
+     ARCHIVE DESTINATION ${dlls}
+   )
 
   INSTALL(FILES xml2.yap DESTINATION ${libpl})
 
@@ -106,6 +107,8 @@ IF (RAPTOR_FOUND)
 
   install(TARGETS  raptor
     LIBRARY DESTINATION ${dlls}
+    ARCHIVE DESTINATION ${dlls}
+
     )
 
   INSTALL(FILES raptor.yap DESTINATION ${libpl})

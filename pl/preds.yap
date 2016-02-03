@@ -117,7 +117,7 @@ Adds clause  _C_ as the first clause for a static procedure.
 
 
 */
-asserta_static(CI) :-
+asserta_static(C) :-
 	'$assert'(C , asserta_static, _ ).
 
 
@@ -137,7 +137,7 @@ static predicates, if source mode was on when they were compiled:
 
 
 */
-assertz_static(CI) :-
+assertz_static(C) :-
 	'$assert'(C , assertz_static, _ ).
 
 /** @pred  clause(+ _H_, _B_) is iso
@@ -292,7 +292,7 @@ abolish(X0) :-
 
 '$new_abolish'(V,M) :- var(V), !,
 	'$abolish_all'(M).
-'$new_abolish'(A,M) :- atom(A), !,
+'$new_abolish'(A/V,M) :- atom(A), var(V), !,
 	'$abolish_all_atoms'(A,M).
 '$new_abolish'(Na//Ar1, M) :-
 	integer(Ar1),
@@ -618,28 +618,35 @@ Defines the relation:  indicator _P_ refers to a currently defined system predic
 system_predicate(P0) :-
 	'$yap_strip_module'(P0, M, P),
     (
-     P = A/Arity, ground(P)
+      var(P)
+    ->
+      P = A/Arity,
+     '$current_predicate'(A, M, T, system),
+     functor(T, A, Arity),
+     '$is_system_predicate'( T,  M)
+    ;
+      ground(P), P = A/Arity
     ->
      functor(T, A, Arity),
-     '$current_predicate'(A, M, T, _system),
+     '$current_predicate'(A, M, T, system),
      '$is_system_predicate'( T, M)
     ;
-     P = A//Arity2, ground(P)
+      ground(P), P = A//Arity2
     ->
-     Arity is Arity2-2,
+     Arity is Arity2+2,
      functor(T, A, Arity),
-     '$current_predicate'(A, M, T, _system),
+     '$current_predicate'(A, M, T, system),
      '$is_system_predicate'( T, M)
     ;
      P = A/Arity
     ->
-     '$current_predicate'(A, M, T, _system),
+     '$current_predicate'(A, M, T, system),
      '$is_system_predicate'( T,  M),
      functor(T, A, Arity)
     ;
      P = A//Arity2
     ->
-     '$current_predicate'(A, M, T, _system),
+     '$current_predicate'(A, M, T, system),
      '$is_system_predicate'( T,  M),
      functor(T, A, Arity),
      Arity >= 2,

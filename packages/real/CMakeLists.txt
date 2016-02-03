@@ -3,11 +3,11 @@ PROJECT ( YAP_REAL C )
 
 macro_optional_find_package (R ON)
 
-  macro_log_feature (R_HOME "R"
+  macro_log_feature (R_FOUND "R"
     "Use R Environment"
     "http://www.r.org" FALSE)
 
-if (R_HOME)
+if (R_FOUND)
 
   set (REAL_SOURCES
     real.c
@@ -25,14 +25,12 @@ include_directories (
     )
 
 
-  #R_COMMAND           - Path to R command
-  #  R_HOME              - Path to 'R home', as reported by R
-  #  R_INCLUDE_DIR       - Path to R include directory
-  #  R_LIBRARY_BASE      - Path to R library
-  #  R_LIBRARY_BLAS      - Path to Rblas / blas library
-  #  R_LIBRARY_LAPACK    - Path to Rlapack / lapack library
-  #  R_LIBRARY_READLINE  - Path to readline library
-  #  R_LIBRARIES         - Array of: R_LIBRARY_BASE, R_LIBRARY_BLAS, R_LIBRARY_LAPACK, R_LIBRARY_BASE [, R_LIBRARY_READLINE]
+# The module defines the following variables:
+#  R_FOUND - System has R
+#  R_EXECUTABLE     - The R interpreter
+#  R_INCLUDE_DIR    - the R include directory
+#  R_LIBRARIES      - The libraries needed to use R
+#  R_VERSION_STRING - R version
 
   add_library (real SHARED ${REAL_SOURCES})
 
@@ -48,6 +46,7 @@ include_directories (
 
  install(TARGETS  real
     LIBRARY DESTINATION ${dlls}
+    ARCHIVE DESTINATION ${dlls}
     )
 
   install(FILES real.pl
@@ -55,4 +54,4 @@ include_directories (
     )
 
 
-endif (R_HOME)
+endif (R_FOUND)

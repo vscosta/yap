@@ -120,12 +120,12 @@
 
 #define Yap_ExecutionMode Yap_heap_regs->Yap_ExecutionMode_
 
+#define PredsInHashTable Yap_heap_regs->PredsInHashTable_
+#define PredHashTableSize Yap_heap_regs->PredHashTableSize_
 #define PredHash Yap_heap_regs->PredHash_
 #if defined(YAPOR) || defined(THREADS)
 #define PredHashRWLock Yap_heap_regs->PredHashRWLock_
 #endif
-#define PredsInHashTable Yap_heap_regs->PredsInHashTable_
-#define PredHashTableSize Yap_heap_regs->PredHashTableSize_
 
 #define CreepCode Yap_heap_regs->CreepCode_
 #define UndefCode Yap_heap_regs->UndefCode_

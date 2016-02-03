@@ -53,7 +53,8 @@ if (PYTHONLIBS_FOUND)         #   PYTHONLIBS_FOUND           - have the Python l
 
   install(TARGETS  libpython
     LIBRARY DESTINATION ${dlls}
-    )
+     ARCHIVE DESTINATION ${dlls}
+   )
 
   install(FILES python.pl
     DESTINATION ${libpl}

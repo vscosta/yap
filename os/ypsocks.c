@@ -16,12 +16,7 @@
 *************************************************************************/
 
 
-#include "Yap.h"
-
-#include "Yatom.h"
-#include "YapHeap.h"
-#include "yapio.h"
-#include "iopreds.h"
+#include "sysbits.h"
 
 #if   HAVE_SOCKET
 

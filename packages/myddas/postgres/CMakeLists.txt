@@ -30,6 +30,7 @@ if (PostgreSQL_FOUND)
 
    install(TARGETS  Yappostgres
     LIBRARY DESTINATION ${libdir}
+    ARCHIVE DESTINATION ${libdir}
     )
 else()
   add_definitions (-DMYDDAS_PostgreSQL=0)

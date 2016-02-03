@@ -13,6 +13,11 @@ static char SccsId[] = "%W% %G%";
 #ifndef IOPREDS_H
 #define IOPREDS_H 1
 
+#if _WIN32
+#define USE_SOCKET 1
+#define HAVE_SOCKET 1
+#endif
+
 #include <stdlib.h>
 #include "Yap.h"
 #include "Atoms.h"
@@ -32,6 +37,15 @@ extern size_t Yap_page_size;
 
 #include <wchar.h>
 
+#define Yap_CheckStream( arg,  kind, msg) Yap_CheckStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
+extern int   Yap_CheckStream__(const char *, const char *, int , Term, int, const char *);
+#define Yap_CheckTextStream( arg,  kind, msg) Yap_CheckTextStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
+extern int   Yap_CheckTextStream__(const char *, const char *, int , Term, int, const char *);
+
+extern bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
+                       encoding_t encoding, stream_flags_t flags,
+		    Atom open_mode);
+
 #if HAVE_SOCKET
 extern int Yap_sockets_io;
 
@@ -50,14 +64,7 @@ typedef enum{       /* we accept two domains for the moment, IPV6 may follow */
       af_unix       /* or AF_FILE */
 } socket_domain;
 
-extern bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
-                       encoding_t encoding, stream_flags_t flags,
-		    Atom open_mode);
 extern Term  Yap_InitSocketStream(int, socket_info, socket_domain);
-#define Yap_CheckStream( arg,  kind, msg) Yap_CheckStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
-extern int   Yap_CheckStream__(const char *, const char *, int , Term, int, const char *);
-#define Yap_CheckTextStream( arg,  kind, msg) Yap_CheckTextStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
-extern int   Yap_CheckTextStream__(const char *, const char *, int , Term, int, const char *);
 extern int   Yap_CheckSocketStream(Term, const char *);
 extern socket_domain   Yap_GetSocketDomain(int);
 extern socket_info   Yap_GetSocketStatus(int);
@@ -181,11 +188,7 @@ typedef struct stream_desc
     } file;
     memHandle mem_string;
     struct {
-#if defined(__MINGW32__) || defined(_MSC_VER)
-      HANDLE hdl;
-#else
       int fd;
-#endif
     } pipe;
 #if HAVE_SOCKET
     struct {
@@ -276,6 +279,7 @@ Term     Yap_scan_num(struct stream_desc *);
 void    Yap_DefaultStreamOps( StreamDesc *st );
 void	Yap_PipeOps( StreamDesc *st );
 void	Yap_MemOps( StreamDesc *st );
+bool    Yap_CloseMemoryStream( int sno );
 void    Yap_ConsolePipeOps( StreamDesc *st );
 void	Yap_SocketOps( StreamDesc *st );
 void    Yap_ConsoleSocketOps( StreamDesc *st );
@@ -294,7 +298,8 @@ void Yap_InitSockets( void );
 void Yap_InitSocketLayer(void);
 void Yap_InitMems( void );
 void Yap_InitConsole( void );
-void Yap_InitReadline( void );
+void Yap_InitReadlinePreds( void );
+bool Yap_InitReadline( Term );
 void Yap_InitChtypes(void);
 void Yap_InitCharsio(void);
 void Yap_InitFormat(void);

@@ -18,5 +18,6 @@ target_link_libraries(regexp libYap ${REGEX_SOURCES})
 set_target_properties (regexp PROPERTIES PREFIX "")
 
 install(TARGETS  regexp
-  LIBRARY DESTINATION ${dlls} )
+  LIBRARY DESTINATION ${dlls}
+  ARCHIVE DESTINATION ${dlls} )
 

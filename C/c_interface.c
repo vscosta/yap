@@ -1,332 +1,20 @@
 /************************************************************************* *
-*	 YAP Prolog 							 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.Santos Costa and Universidade do Porto 1985--	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		c_interface.c						 *
-* comments:	c_interface primitives definition 			 *
-*									 *
-* Last rev:	$Date: 2008-08-07 20:51:21 $,$Author: vsc $
-**
-* $Log: not supported by cvs2svn $
-* Revision 1.122  2008/08/01 21:44:24  vsc
-* swi compatibility support
-*
-* Revision 1.121  2008/07/24 16:02:00  vsc
-* improve C-interface and SWI comptaibility a bit.
-*
-* Revision 1.120  2008/07/11 17:02:07  vsc
-* fixes by Bart and Tom: mostly libraries but nasty one in indexing
-* compilation.
-*
-* Revision 1.119  2008/06/17 13:37:48  vsc
-* fix c_interface not to crash when people try to recover slots that are
-* not there.
-* fix try_logical and friends to handle case where predicate has arity 0.
-*
-* Revision 1.118  2008/06/04 14:47:18  vsc
-* make sure we do trim_trail whenever we mess with B!cfc
-*
-* Revision 1.117  2008/06/04 13:58:36  vsc
-* more fixes to C-interface
-*
-* Revision 1.116  2008/04/28 23:02:32  vsc
-* fix bug in current_predicate/2
-* fix bug in c_interface.
-*
-* Revision 1.115  2008/04/11 16:30:27  ricroc
-* *** empty log message ***
-*
-* Revision 1.114  2008/04/04 13:35:41  vsc
-* fix duplicate dependency frame at entry
-*
-* Revision 1.113  2008/04/04 09:10:02  vsc
-* restore was restoring twice
-*
-* Revision 1.112  2008/04/03 13:26:38  vsc
-* protect signal handling with locks for threaded version.
-* fix close/1 entry in manual (obs from Nicos).
-* fix -f option in chr Makefile.
-*
-* Revision 1.111  2008/04/02 21:44:07  vsc
-* threaded version should ignore saved states (for now).
-*
-* Revision 1.110  2008/04/02 17:37:06  vsc
-* handle out of memory error at thread creation (obs from Paulo Moura).
-*
-* Revision 1.109  2008/04/01 15:31:41  vsc
-* more saved state fixes
-*
-* Revision 1.108  2008/03/22 23:35:00  vsc
-* fix bug in all_calls
-*
-* Revision 1.107  2008/03/13 18:41:50  vsc
-* -q flag
-*
-* Revision 1.106  2008/02/12 17:03:50  vsc
-* SWI-portability changes
-*
-* Revision 1.105  2008/01/28 10:42:19  vsc
-* fix BOM trouble
-*
-* Revision 1.104  2007/12/05 12:17:23  vsc
-* improve JT
-* fix graph compatibility with SICStus
-* re-export declaration.
-*
-* Revision 1.103  2007/11/16 14:58:40  vsc
-* implement sophisticated operations with matrices.
-*
-* Revision 1.102  2007/11/01 20:50:31  vsc
-* fix YAP_LeaveGoal (again)
-*
-* Revision 1.101  2007/10/29 22:48:54  vsc
-* small fixes
-*
-* Revision 1.100  2007/10/28 00:54:09  vsc
-* new version of viterbi implementation
-* fix all:atvars reporting bad info
-* fix bad S info in x86_64
-*
-* Revision 1.99  2007/10/16 18:57:17  vsc
-* get rid of debug statement.
-*
-* Revision 1.98  2007/10/15 23:48:46  vsc
-* unset var
-*
-* Revision 1.97  2007/10/05 18:24:30  vsc
-* fix garbage collector and fix LeaveGoal
-*
-* Revision 1.96  2007/09/04 10:34:54  vsc
-* Improve SWI interface emulation.
-*
-* Revision 1.95  2007/06/04 12:28:01  vsc
-* interface speedups
-* bad error message in X is foo>>2.
-*
-* Revision 1.94  2007/05/15 11:33:51  vsc
-* fix min list
-*
-* Revision 1.93  2007/05/14 16:44:11  vsc
-* improve external interface
-*
-* Revision 1.92  2007/04/18 23:01:16  vsc
-* fix deadlock when trying to create a module with the same name as a
-* predicate (for now, just don't lock modules). obs Paulo Moura.
-*
-* Revision 1.91  2007/03/30 16:47:22  vsc
-* fix gmpless blob handling
-*
-* Revision 1.90  2007/03/22 11:12:20  vsc
-* make sure that YAP_Restart does not restart a failed goal.
-*
-* Revision 1.89  2007/01/28 14:26:36  vsc
-* WIN32 support
-*
-* Revision 1.88  2007/01/08 08:27:19  vsc
-* fix restore (Trevor)
-* make indexing a bit faster on IDB
-*
-* Revision 1.87  2006/12/13 16:10:14  vsc
-* several debugger and CLP(BN) improvements.
-*
-* Revision 1.86  2006/11/27 17:42:02  vsc
-* support for UNICODE, and other bug fixes.
-*
-* Revision 1.85  2006/05/16 18:37:30  vsc
-* WIN32 fixes
-* compiler bug fixes
-* extend interface
-*
-* Revision 1.84  2006/03/09 15:52:04  tiagosoares
-* CUT_C and MYDDAS support for 64 bits architectures
-*
-* Revision 1.83  2006/02/08 17:29:54  tiagosoares
-* MYDDAS: Myddas Top Level for MySQL and Datalog
-*
-* Revision 1.82  2006/01/18 15:34:53  vsc
-* avoid sideffects from MkBigInt
-*
-* Revision 1.81  2006/01/16 02:57:51  vsc
-* fix bug with very large integers
-* fix bug where indexing code was looking at code after a cut.
-*
-* Revision 1.80  2006/01/02 03:35:44  vsc
-* fix interface and docs
-*
-* Revision 1.79  2006/01/02 02:25:44  vsc
-* cannot release space from external GMPs.
-*
-* Revision 1.78  2006/01/02 02:16:18  vsc
-* support new interface between YAP and GMP, so that we don't rely on our own
-* allocation routines.
-* Several big fixes.
-*
-* Revision 1.77  2005/11/18 18:48:51  tiagosoares
-* support for executing c code when a cut occurs
-*
-* Revision 1.76  2005/11/03 18:49:26  vsc
-* fix bignum conversion
-*
-* Revision 1.75  2005/10/28 17:38:49  vsc
-* sveral updates
-*
-* Revision 1.74  2005/10/21 16:07:07  vsc
-* fix tabling
-*
-* Revision 1.73  2005/10/18 17:04:43  vsc
-* 5.1:
-* - improvements to GC
-*    2 generations
-*    generic speedups
-* - new scheme for attvars
-*    - hProlog like interface also supported
-* - SWI compatibility layer
-*    - extra predicates
-*    - global variables
-*    - moved to Prolog module
-* - CLP(R) by Leslie De Koninck, Tom Schrijvers, Cristian Holzbaur, Bart
-* Demoen and Jan Wielemacker
-* - load_files/2
-*
-* from 5.0.1
-*
-* - WIN32 missing include files (untested)
-* - -L trouble (my thanks to Takeyuchi Shiramoto-san)!
-* - debugging of backtrable user-C preds would core dump.
-* - redeclaring a C-predicate as Prolog core dumps.
-* - badly protected  YapInterface.h.
-* - break/0 was failing at exit.
-* - YAP_cut_fail and YAP_cut_succeed were different from manual.
-* - tracing through data-bases could core dump.
-* - cut could break on very large computations.
-* - first pass at BigNum issues (reported by Roberto).
-* - debugger could get go awol after fail port.
-* - weird message on wrong debugger option.
-*
-* Revision 1.72  2005/10/15 02:42:57  vsc
-* fix interface
-*
-* Revision 1.71  2005/08/17 13:35:51  vsc
-* YPP would leave exceptions on the system, disabling Yap-4.5.7
-* message.
-*
-* Revision 1.70  2005/08/04 15:45:51  ricroc
-* TABLING NEW: support to limit the table space size
-*
-* Revision 1.69  2005/07/19 17:12:18  rslopes
-* fix for older compilers that do not support declaration of vars
-* in the middle of the function code.
-*
-* Revision 1.68  2005/05/31 00:23:47  ricroc
-* remove abort_yapor function
-*
-* Revision 1.67  2005/04/10 04:35:19  vsc
-* AllocMemoryFromYap should now handle large requests the right way.
-*
-* Revision 1.66  2005/04/10 04:01:10  vsc
-* bug fixes, I hope!
-*
-* Revision 1.65  2005/03/15 18:29:23  vsc
-* fix GPL
-* fix idb: stuff in coroutines.
-*
-* Revision 1.64  2005/03/13 06:26:10  vsc
-* fix excessive pruning in meta-calls
-* fix Term->int breakage in compiler
-* improve JPL (at least it does something now for amd64).
-*
-* Revision 1.63  2005/03/04 20:30:10  ricroc
-* bug fixes for YapTab support
-*
-* Revision 1.62  2005/03/02 18:35:44  vsc
-* try to make initialization process more robust
-* try to make name more robust (in case Lookup new atom fails)
-*
-* Revision 1.61  2005/03/01 22:25:08  vsc
-* fix pruning bug
-* make DL_MALLOC less enthusiastic about walking through buckets.
-*
-* Revision 1.60  2005/02/08 18:04:47  vsc
-* library_directory may not be deterministic (usually it isn't).
-*
-* Revision 1.59  2004/12/08 00:56:35  vsc
-* missing ;
-*
-* Revision 1.58  2004/11/19 22:08:41  vsc
-* replace SYSTEM_ERROR_INTERNAL by out OUT_OF_WHATEVER_ERROR whenever
-*appropriate.
-*
-* Revision 1.57  2004/11/18 22:32:31  vsc
-* fix situation where we might assume nonextsing double initialization of C
-*predicates (use
-* Hidden Pred Flag).
-* $host_type was double initialized.
-*
-* Revision 1.56  2004/10/31 02:18:03  vsc
-* fix bug in handling Yap heap overflow while adding new clause.
-*
-* Revision 1.55  2004/10/28 20:12:20  vsc
-* Use Doug Lea's malloc as an alternative to YAP's standard malloc
-* don't use TR directly in scanner/parser, this avoids trouble with ^C while
-* consulting large files.
-* pass gcc -mno-cygwin to library compilation in cygwin environment (cygwin
-*should
-* compile out of the box now).
-*
-* Revision 1.54  2004/10/06 16:55:46  vsc
-* change configure to support big mem configs
-* get rid of extra globals
-* fix trouble with multifile preds
-*
-* Revision 1.53  2004/08/11 16:14:51  vsc
-* whole lot of fixes:
-*   - memory leak in indexing
-*   - memory management in WIN32 now supports holes
-*   - extend Yap interface, more support for SWI-Interface
-*   - new predicate mktime in system
-*   - buffer console I/O in WIN32
-*
-* Revision 1.52  2004/07/23 03:37:16  vsc
-* fix heap overflow in YAP_LookupAtom
-*
-* Revision 1.51  2004/07/22 21:32:20  vsc
-* debugger fixes
-* initial support for JPL
-* bad calls to garbage collector and gc
-* debugger fixes
-*
-* Revision 1.50  2004/06/29 19:04:41  vsc
-* fix multithreaded version
-* include new version of Ricardo's profiler
-* new predicat atomic_concat
-* allow multithreaded-debugging
-* small fixes
-*
-* Revision 1.49  2004/06/09 03:32:02  vsc
-* fix bugs
-*
-* Revision 1.48  2004/06/05 03:36:59  vsc
-* coroutining is now a part of attvars.
-* some more fixes.
-*
-* Revision 1.47  2004/05/17 21:42:08  vsc
-* misc fixes
-*
-* Revision 1.46  2004/05/14 17:56:45  vsc
-* Yap_WriteBuffer
-*
-* Revision 1.45  2004/05/14 17:11:30  vsc
-* support BigNums in interface
-*
-* Revision 1.44  2004/05/14 16:33:44  vsc
-* add Yap_ReadBuffer
-*									 *
-*									 *
-*************************************************************************/
+ *	 YAP Prolog 							 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.Santos Costa and Universidade do Porto 1985--	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		c_interface.c *
+ * comments:	c_interface primitives definition 			 *
+ *									 *
+ * Last rev:	$Date: 2008-08-07 20:51:21 $,$Author: vsc $
+ **
+ * $Log: not supported by cvs2svn $
+ *									 *
+ *									 *
+ *************************************************************************/
 
 /**
 @file c_interface.c
@@ -370,11 +58,11 @@
 #include <malloc.h>
 #endif
 
-typedef enum {
-  FRG_FIRST_CALL = 0, /* Initial call */
-  FRG_CUTTED = 1,     /* Context was cutted */
-  FRG_REDO = 2        /* Normal redo */
-} frg_code;
+    typedef enum {
+      FRG_FIRST_CALL = 0, /* Initial call */
+      FRG_CUTTED = 1,     /* Context was cutted */
+      FRG_REDO = 2        /* Normal redo */
+    } frg_code;
 
 struct foreign_context {
   uintptr_t context;            /* context value */
@@ -391,7 +79,7 @@ X_API int YAP_Reset(yap_reset_t mode);
 #define strncat(X, Y, Z) strcat(X, Y)
 #endif
 
-#if defined(_MSC_VER) && defined(YAP_EXPORTS)
+#if defined(_WIN32)
 #define X_API __declspec(dllexport)
 #endif
 
@@ -1626,11 +1314,12 @@ X_API void YAP_FreeSpaceFromYap(void *ptr) { Yap_FreeCodeSpace(ptr); }
  * @param bufsize bu
  *
  * @return
- */X_API char *YAP_StringToBuffer(Term t, char *buf, unsigned int bufsize) {
+ */ X_API char *YAP_StringToBuffer(Term t, char *buf, unsigned int bufsize) {
   CACHE_REGS
   seq_tv_t inp, out;
   inp.val.t = t;
-  inp.type = YAP_STRING_ATOMS_CODES |YAP_STRING_STRING |YAP_STRING_ATOM | YAP_STRING_TRUNC | YAP_STRING_MALLOC;
+  inp.type = YAP_STRING_ATOMS_CODES | YAP_STRING_STRING | YAP_STRING_ATOM |
+             YAP_STRING_TRUNC | YAP_STRING_MALLOC;
   inp.max = bufsize;
   out.type = YAP_STRING_CHARS;
   out.val.c = buf;
@@ -1723,7 +1412,8 @@ X_API Term YAP_ReadBuffer(const char *s, Term *tp) {
   BACKUP_H();
 
   LOCAL_ErrorMessage = NULL;
-  while (!(t = Yap_StringToTerm(s, strlen(s) + 1, &LOCAL_encoding, GLOBAL_MaxPriority, tp))) {
+  while (!(t = Yap_StringToTerm(s, strlen(s) + 1, &LOCAL_encoding,
+                                GLOBAL_MaxPriority, tp))) {
     if (LOCAL_ErrorMessage) {
       if (!strcmp(LOCAL_ErrorMessage, "Stack Overflow")) {
         if (!Yap_dogc(0, NULL PASS_REGS)) {
@@ -2404,7 +2094,8 @@ X_API int YAP_InitConsult(int mode, const char *filename, int *osnop) {
   }
   bool consulted = (mode == YAP_CONSULT_MODE);
   Yap_init_consult(consulted, filename);
-  f = fopen(Yap_AbsoluteFile(filename, LOCAL_FileNameBuf, FILENAME_MAX-1), "r");
+  f = fopen(Yap_AbsoluteFile(filename, LOCAL_FileNameBuf, FILENAME_MAX - 1),
+            "r");
   if (!f)
     return -1;
   sno = Yap_OpenStream(f, NULL, TermNil, Input_Stream_f);
@@ -3590,43 +3281,43 @@ size_t YAP_UTF8_TextLength(Term t) {
   utf8proc_uint8_t dst[8];
   size_t sz = 0;
 
-  if (IsPairTerm( t )) {
+  if (IsPairTerm(t)) {
     while (t != TermNil) {
       int c;
 
-      Term hd = HeadOfTerm( t );
+      Term hd = HeadOfTerm(t);
       if (IsAtomTerm(hd)) {
-	Atom at = AtomOfTerm(hd);
-	if (IsWideAtom(at))
-	  c = RepAtom(at)->WStrOfAE[0];
-	else
-	  c = RepAtom(at)->StrOfAE[0];
+        Atom at = AtomOfTerm(hd);
+        if (IsWideAtom(at))
+          c = RepAtom(at)->WStrOfAE[0];
+        else
+          c = RepAtom(at)->StrOfAE[0];
       } else if (IsIntegerTerm(hd)) {
-	c = IntegerOfTerm( hd );
+        c = IntegerOfTerm(hd);
       } else {
-	c = '\0';
+        c = '\0';
       }
       sz += utf8proc_encode_char(c, dst);
       t = TailOfTerm(t);
     }
-  } else  if (IsAtomTerm(t)) {
-	Atom at = AtomOfTerm(t);
-	if (IsWideAtom(at)) {
-	  const wchar_t *s = RepAtom(at)->WStrOfAE;
-	  int c;
-	  while ((c = *s++)) {
-	    sz += utf8proc_encode_char(c, dst);
-	  }
-	} else {
-	  const unsigned char *s = (const unsigned char *)RepAtom(at)->StrOfAE;
-	  int c;
+  } else if (IsAtomTerm(t)) {
+    Atom at = AtomOfTerm(t);
+    if (IsWideAtom(at)) {
+      const wchar_t *s = RepAtom(at)->WStrOfAE;
+      int c;
+      while ((c = *s++)) {
+        sz += utf8proc_encode_char(c, dst);
+      }
+    } else {
+      const unsigned char *s = (const unsigned char *)RepAtom(at)->StrOfAE;
+      int c;
 
-	  while ((c = *s++)) {
-	    sz += utf8proc_encode_char(c, dst);
-	  }
-	}
-  } else  if (IsStringTerm(t)) {
-    sz = strlen(StringOfTerm( t )) ;
+      while ((c = *s++)) {
+        sz += utf8proc_encode_char(c, dst);
+      }
+    }
+  } else if (IsStringTerm(t)) {
+    sz = strlen(StringOfTerm(t));
   }
   return sz;
 }

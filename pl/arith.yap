@@ -15,7 +15,9 @@
 *									 *
 *************************************************************************/
 
-% the default mode is on
+                                % the default mode is on
+
+%% @file arith.yap
 
 :- system_module( '$_arith', [compile_expressions/0,
         expand_exprs/2,
@@ -112,7 +114,7 @@ q(A):-
       A is 22.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-w*/
+*/
 do_not_compile_expressions :- set_value('$c_arith',[]).
 
 '$c_built_in'(IN, M, H, OUT) :-
@@ -335,7 +337,9 @@ expand_expr(Op, X, Y, O, Q, P) :-
 	'$do_and'(Z = X, Y = W, E).
 
 
-'$goal_expansion_allowed'(phrase(NT,_Xs0,_Xs), Mod).
+'$goal_expansion_allowed'(phrase(NT,_Xs0,_Xs), Mod) :-
+    callable(NT),
+    atom(Mod).
 
 %%	contains_illegal_dcgnt(+Term) is semidet.
 %

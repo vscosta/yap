@@ -541,7 +541,7 @@ be lost.
 	 G10 = NM:NG,
 	'$do_spy'(NG, NM, CP, spy).
 '$spycall'(G, M, _, _) :-
-	'$tabled_predicate'(G,M),
+	( '$is_system_predicate'(G,M) ; '$tabled_predicate'(G,M) ),
 	 !,
 	'$continue_debugging_goal'(no, '$execute_nonstop'(G,M)).
 '$spycall'(G, M, CalledFromDebugger, InRedo) :-
@@ -1050,7 +1050,7 @@ be lost.
 	G =.. [F|BGs],
 	'$ldebugger_process_meta_args'(BGs, M, BMs, BG1s),
 	G1 =.. [F|BG1s].
-'$debugger_process_meta_arguments'(G, M, G).
+'$debugger_process_meta_arguments'(G, _M, G).
 
 '$ldebugger_process_meta_args'([], _, [], []).
 '$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$spy'([M1|G1])|BG1s]) :-

@@ -115,6 +115,7 @@ add_library(libYap
   ${STATIC_SOURCES}
   ${OPTYAP_SOURCES}
   ${HEADERS}
+  ${WINDLLS}
     $<TARGET_OBJECTS:libYAPOs>
   $<TARGET_OBJECTS:libOPTYap>
   $<TARGET_OBJECTS:myddas>  
@@ -169,7 +170,7 @@ set(YAP_STARTUP startup.yss)
 string(TIMESTAMP YAP_TIMESTAMP)
 string( SUBSTRING ${CMAKE_SHARED_LIBRARY_SUFFIX} 1 -1 SO_EXT )
 #
-include_directories (H include os OPTYap utf8proc JIT/HPP)
+include_directories (H  H/generated include os OPTYap utf8proc JIT/HPP)
 include_directories (BEFORE ${CMAKE_BINARY_DIR})
 
 # rpath stuff, hopefully it works
@@ -416,9 +417,20 @@ add_subDIRECTORY (packages/raptor)
 
 add_subDIRECTORY (packages/xml)
 
-# add_subDIRECTORY (docs)
+# please install doxygen for prolog first
+# git clone http://www.github.com/vscosta/doxygen-yap
+# cd doxygen-yap
+# mkdir -p build
+# cd build
+# make; sudo make install
+option (WITH_DOCS
+  "generate YAP docs" OFF)
+
+  add_subDIRECTORY (docs)
+
 
 # add_subDIRECTORY (packages/cuda)
+
 
 #todo: use cmake target builds
 # option (USE_MAXPERFORMANCE
@@ -492,6 +504,11 @@ target_link_libraries(libYap
   ${READLINE_LIBS}
   ${CMAKE_DL_LIBS}
   )
+
+if(WIN32)
+  target_link_libraries(libYap  wsock32 ws2_32 Shlwapi
+    )
+endif()
 
 add_executable (yap-bin ${CONSOLE_SOURCES})
 

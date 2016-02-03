@@ -3,9 +3,10 @@
 set (JPL_SOURCES
   src/c/jpl.c)
 
-macro_optional_find_package(Java ON)
-find_package(Java COMPONENTS Development)
-#find_package(Java COMPONENTS Runtime)
+find_package(Java COMPONENTS Runtime Development)
+# find_package(Java COMPONENTS Development)
+# find_package(Java COMPONENTS Runtime)
+#find_package(JavaLibs)
 macro_log_feature (Java_Development_FOUND "Java"
     "Use Java System"
     "http://www.java.org" FALSE)
@@ -52,6 +53,5 @@ if (Java_Development_FOUND)
   install(FILES jpl.pl
     DESTINATION ${libpl}
     )
-
 
 endif (Java_Development_FOUND)

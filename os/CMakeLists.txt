@@ -36,14 +36,15 @@ set (YAPOS_HEADERS
 
 include_directories (../H ../include ../OPTYap .  ${GMP_INCLUDE_DIR} ${PROJECT_BINARY_DIR})
 
+ option (READLINE  "GNU readline console" ON)
 
+ if (READLINE)
+  macro_optional_find_package (Readline ON)
+  macro_log_feature (READLINE_FOUND "libreadline"
+    "Readline line editing library"
+    "http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html")
 
-macro_optional_find_package (Readline ON)
-macro_log_feature (READLINE_FOUND "libreadline"
-  "Readline line editing library"
-  "http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html")
-
-if (READLINE_FOUND)
+  if (READLINE_FOUND)
   # - Find the readline library
   # This module defines
   #  READLINE_INCLUDE_DIR, path to readline/readline.h, etc.
@@ -57,6 +58,8 @@ if (READLINE_FOUND)
 
   set(YAP_SYSTEM_OPTIONS "readline " ${YAP_SYSTEM_OPTIONS} PARENT_SCOPE)
   set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${READLINE_LIBRARIES} )
+  check_library_exists( readline readline "" HAVE_LIBREADLINE )
+
   check_include_files( "stdio.h;readline/readline.h" HAVE_READLINE_READLINE_H )
   check_include_files( "stdio.h;readline/history.h"  HAVE_READLINE_HISTORY_H )
   if (HAVE_READLINE_READLINE_H)
@@ -80,6 +83,8 @@ if (READLINE_FOUND)
      endif()
 endif (READLINE_FOUND)
 
+endif (READLINE)
+
 set (POSITION_INDEPENDENT_CODE TRUE)
 
 add_library (libYAPOs  OBJECT
@@ -100,7 +105,6 @@ configure_file ("${PROJECT_SOURCE_DIR}/os/YapIOConfig.h.cmake"
   "${PROJECT_BINARY_DIR}/os/YapIOConfig.h" )
 
   set( READLINE_LIBS ${READLINE_LIBRARIES} PARENT_SCOPE)
-
 
 
 #set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${GMP_LIBRARIES} )

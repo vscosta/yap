@@ -234,10 +234,12 @@ retract(M:C,R) :- !,
 	'$do_error'(permission_error(modify,static_procedure,PI),retract(M:C)).
 
 '$fetch_predicate_indicator_from_clause'((C :- _), M:Na/Ar) :-
-    !,
-    functor(C, Na, Ar).
+!,
+    '$yap_strip_module'(C, M, C1),
+    functor(C1, Na, Ar).
 '$fetch_predicate_indicator_from_clause'(C, M:Na/Ar) :-
-	functor(C, Na, Ar).
+    '$yap_strip_module'(C, M, C1),
+	functor(C1, Na, Ar).
 
 
 /** @pred  retractall(+ _G_) is iso

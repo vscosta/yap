@@ -1,18 +1,39 @@
+
+///
+/// @file YapErrors.h
+///
+/// @adddtogroup YapError
+///
+/// The file  YapErrors.h contains a list with all the error classes known internally to the YAP system.
+
 BEGIN_ERROR_CLASSES()
 
+/// base case
 ECLASS(NO_ERROR, "no_error", 0)
+/// bad domain, first argument often is the predicate.
 ECLASS(DOMAIN_ERROR, "domain_error", 2)
+/// bad arithmetic
 ECLASS(EVALUATION_ERROR, "evaluation_error", 2)
+/// missing object (I/O mostly)
 ECLASS(EXISTENCE_ERROR, "existence_error", 2)
-ECLASS(INSTANTIATION_ERROR_CLASS, "instantiation_error", 0)
+/// should be bound
+ECLASS(INSTANTIATION_ERROR_CLASS, "instantiation_error", 0) 
+/// bad access, I/O
 ECLASS(PERMISSION_ERROR, "permission_error", 3)
-ECLASS(REPRESENTATION_ERROR, "representation_error", 2)
+/// something that could not be represented into a type
+ECLASS(REPRESENTATION_ERROR, "representation_error", 2) 
+/// not enough ....
 ECLASS(RESOURCE_ERROR, "resource_error", 2)
-ECLASS(SYNTAX_ERROR_CLASS, "syntax_error", 2)
-ECLASS(SYSTEM_ERROR_CLASS, "system_error", 2)
+/// bad text
+ECLASS(SYNTAX_ERROR_CLASS, "syntax_error", 1)
+/// OS or internal
+ECLASS(SYSTEM_ERROR_CLASS, "system_error", 2) 
+/// bad typing
 ECLASS(TYPE_ERROR, "type_error", 2)
+/// should be unbound
 ECLASS(UNINSTANTIATION_ERROR_CLASS, "uninstantiation_error", 1)
-ECLASS(EVENT, "event", 2)
+/// escape hatch
+ECLASS(EVENT, "event", 2) 
 
 END_ERROR_CLASSES();
 
@@ -20,10 +41,10 @@ BEGIN_ERRORS()
 
 /* ISO_ERRORS */
 
-E0(YAP_NO_ERROR, NO_ERROR)
+E0(YAP_NO_ERROR, NO_ERROR) /// default state
 
 E(DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION, DOMAIN_ERROR,
-  "absolute_file_name_option")
+  "absolute_file_name_option")  
 E(DOMAIN_ERROR_ARRAY_OVERFLOW, DOMAIN_ERROR, "array_overflow")
 E(DOMAIN_ERROR_ARRAY_TYPE, DOMAIN_ERROR, "array_type")
 E(DOMAIN_ERROR_FILE_ERRORS, DOMAIN_ERROR, "file_errors")

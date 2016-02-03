@@ -66,6 +66,7 @@ right hand side of a grammar rule
 
 Grammar related built-in predicates:
 
+@{
 
 */
 
@@ -277,14 +278,14 @@ prolog:'$goal_expansion_allowed'.
 
 '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal) :-
     catch(prolog:'$translate_rule'(
-                                   (pseudo_nt --> Mod:NT), Rule),
+          (pseudo_nt --> Mod:NT), Rule),
      	  error(Pat,ImplDep),
      	  ( \+ '$harmless_dcgexception'(Pat),
      	    throw(error(Pat,ImplDep))
      	  )
      	 ),
          Rule = (pseudo_nt(Xs0c,Xsc) :- NewGoal0),
-         Goal \== NewGoal0,
+         Mod:NT \== NewGoal0,
          % apply translation only if we are safe
          \+ '$contains_illegal_dcgnt'(NT),
          !,
@@ -309,14 +310,12 @@ allowed_module(phrase(_,_),_).
 allowed_module(phrase(_,_,_),_).
 
 
-system:goal_expansion(Mod:phrase(NT,Xs, Xs),Mod:NewGoal) :- 
-    source_module(M),
-    nonvar(NT), nonvar(Mod),
+system:goal_expansion(Mod:phrase(NT,Xs0, Xs),Mod:NewGoal) :- 
+    nonvar(NT), nonvar(Mod), !,
     '$goal_expansion_allowed',
     '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal).
     
-system:goal_expansion(Mod:phrase(NT,Xs0),Mod:NewGoal) :-
-    source_module(M),
+system:goal_expansion(Mod:phrase(NT,Xs),Mod:NewGoal) :-
     nonvar(NT), nonvar(Mod),
     '$goal_expansion_allowed',
     '$c_built_in_phrase'(NT, [], Xs, Mod, NewGoal).

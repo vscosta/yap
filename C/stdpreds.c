@@ -13,255 +13,7 @@
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
 * Last rev:     $Date: 2008-07-24 16:02:00 $,$Author: vsc $
-**
-* $Log: not supported by cvs2svn $
-* Revision 1.131  2008/06/12 10:55:52  vsc
-* fix syntax error messages
-*
-* Revision 1.130  2008/04/06 11:53:02  vsc
-*  fix some restore bugs
-*
-* Revision 1.129  2008/03/15 12:19:33  vsc
-* fix flags
-*
-* Revision 1.128  2008/02/15 12:41:33  vsc
-* more fixes to modules
-*
-* Revision 1.127  2008/02/13 10:15:35  vsc
-* fix some bugs from yesterday plus improve support for modules in
-* operators.
-*
-* Revision 1.126  2008/02/07 23:09:13  vsc
-* don't break ISO standard in current_predicate/1.
-* Include Nicos flag.
-*
-* Revision 1.125  2008/01/23 17:57:53  vsc
-* valgrind it!
-* enable atom garbage collection.
-*
-* Revision 1.124  2007/11/26 23:43:08  vsc
-* fixes to support threads and assert correctly, even if inefficiently.
-*
-* Revision 1.123  2007/11/06 17:02:12  vsc
-* compile ground terms away.
-*
-* Revision 1.122  2007/10/18 08:24:16  vsc
-* fix global variables
-*
-* Revision 1.121  2007/10/10 09:44:24  vsc
-* some more fixes to make YAP swi compatible
-* fix absolute_file_name (again)
-* fix setarg
-*
-* Revision 1.120  2007/10/08 23:02:15  vsc
-* minor fixes
-*
-* Revision 1.119  2007/04/18 23:01:16  vsc
-* fix deadlock when trying to create a module with the same name as a
-* predicate (for now, just don't lock modules). obs Paulo Moura.
-*
-* Revision 1.118  2007/02/26 10:41:40  vsc
-* fix prolog_flags for chr.
-*
-* Revision 1.117  2007/01/28 14:26:37  vsc
-* WIN32 support
-*
-* Revision 1.116  2006/12/13 16:10:23  vsc
-* several debugger and CLP(BN) improvements.
-*
-* Revision 1.115  2006/11/28 13:46:41  vsc
-* fix wide_char support for name/2.
-*
-* Revision 1.114  2006/11/27 17:42:03  vsc
-* support for UNICODE, and other bug fixes.
-*
-* Revision 1.113  2006/11/16 14:26:00  vsc
-* fix handling of infinity in name/2 and friends.
-*
-* Revision 1.112  2006/11/08 01:56:47  vsc
-* fix argument order in db statistics.
-*
-* Revision 1.111  2006/11/06 18:35:04  vsc
-* 1estranha
-*
-* Revision 1.110  2006/10/10 14:08:17  vsc
-* small fixes on threaded implementation.
-*
-* Revision 1.109  2006/09/15 19:32:47  vsc
-* ichanges for QSAR
-*
-* Revision 1.108  2006/09/01 20:14:42  vsc
-* more fixes for global data-structures.
-* statistics on atom space.
-*
-* Revision 1.107  2006/08/22 16:12:46  vsc
-* global variables
-*
-* Revision 1.106  2006/08/07 18:51:44  vsc
-* fix garbage collector not to try to garbage collect when we ask for large
-* chunks of stack in a single go.
-*
-* Revision 1.105  2006/06/05 19:36:00  vsc
-* hacks
-*
-* Revision 1.104  2006/05/19 14:31:32  vsc
-* get rid of IntArrays and FloatArray code.
-* include holes when calculating memory usage.
-*
-* Revision 1.103  2006/05/18 16:33:05  vsc
-* fix info reported by memory manager under DL_MALLOC and SYSTEM_MALLOC
-*
-* Revision 1.102  2006/04/28 17:53:44  vsc
-* fix the expand_consult patch
-*
-* Revision 1.101  2006/04/28 13:23:23  vsc
-* fix number of overflow bugs affecting threaded version
-* make current_op faster.
-*
-* Revision 1.100  2006/02/05 02:26:35  tiagosoares
-* MYDDAS: Top Level Functionality
-*
-* Revision 1.99  2006/02/05 02:17:54  tiagosoares
-* MYDDAS: Top Level Functionality
-*
-* Revision 1.98  2005/12/17 03:25:39  vsc
-* major changes to support online event-based profiling
-* improve error discovery and restart on scanner.
-*
-* Revision 1.97  2005/11/22 11:25:59  tiagosoares
-* support for the MyDDAS interface library
-*
-* Revision 1.96  2005/10/28 17:38:49  vsc
-* sveral updates
-*
-* Revision 1.95  2005/10/21 16:09:02  vsc
-* SWI compatible module only operators
-*
-* Revision 1.94  2005/09/08 22:06:45  rslopes
-* BEAM for YAP update...
-*
-* Revision 1.93  2005/08/04 15:45:53  ricroc
-* TABLING NEW: support to limit the table space size
-*
-* Revision 1.92  2005/07/20 13:54:27  rslopes
-* solved warning: cast from pointer to integer of different size
-*
-* Revision 1.91  2005/07/06 19:33:54  ricroc
-* TABLING: answers for completed calls can now be obtained by loading (new
-*option) or executing (default) them from the trie data structure.
-*
-* Revision 1.90  2005/07/06 15:10:14  vsc
-* improvements to compiler: merged instructions and fixes for ->
-*
-* Revision 1.89  2005/05/26 18:01:11  rslopes
-* *** empty log message ***
-*
-* Revision 1.88  2005/04/27 20:09:25  vsc
-* indexing code could get confused with suspension points
-* some further improvements on oveflow handling
-* fix paths in Java makefile
-* changs to support gibbs sampling in CLP(BN)
-*
-* Revision 1.87  2005/04/07 17:48:55  ricroc
-* Adding tabling support for mixed strategy evaluation (batched and local
-*scheduling)
-*   UPDATE: compilation flags -DTABLING_BATCHED_SCHEDULING and
-*-DTABLING_LOCAL_SCHEDULING removed. To support tabling use -DTABLING in the
-*Makefile or --enable-tabling in configure.
-*   NEW: yap_flag(tabling_mode,MODE) changes the tabling execution mode of all
-*tabled predicates to MODE (batched, local or default).
-*   NEW: tabling_mode(PRED,MODE) changes the default tabling execution mode of
-*predicate PRED to MODE (batched or local).
-*
-* Revision 1.86  2005/03/13 06:26:11  vsc
-* fix excessive pruning in meta-calls
-* fix Term->int breakage in compiler
-* improve JPL (at least it does something now for amd64).
-*
-* Revision 1.85  2005/03/02 19:48:02  vsc
-* Fix some possible errors in name/2 and friends, and cleanup code a bit
-* YAP_Error changed.
-*
-* Revision 1.84  2005/03/02 18:35:46  vsc
-* try to make initialization process more robust
-* try to make name more robust (in case Lookup new atom fails)
-*
-* Revision 1.83  2005/03/01 22:25:09  vsc
-* fix pruning bug
-* make DL_MALLOC less enthusiastic about walking through buckets.
-*
-* Revision 1.82  2005/02/21 16:50:04  vsc
-* amd64 fixes
-* library fixes
-*
-* Revision 1.81  2005/02/08 04:05:35  vsc
-* fix mess with add clause
-* improves on sigsegv handling
-*
-* Revision 1.80  2005/01/05 05:32:37  vsc
-* Ricardo's latest version of profiler.
-*
-* Revision 1.79  2004/12/28 22:20:36  vsc
-* some extra bug fixes for trail overflows: some cannot be recovered that
-*easily,
-* some can.
-*
-* Revision 1.78  2004/12/08 04:45:03  vsc
-* polish changes to undefp
-* get rid of a few warnings
-*
-* Revision 1.77  2004/12/05 05:07:26  vsc
-* name/2 should accept [] as a valid list (string)
-*
-* Revision 1.76  2004/12/05 05:01:25  vsc
-* try to reduce overheads when running with goal expansion enabled.
-* CLPBN fixes
-* Handle overflows when allocating big clauses properly.
-*
-* Revision 1.75  2004/12/02 06:06:46  vsc
-* fix threads so that they at least start
-* allow error handling to work with threads
-* replace heap_base by Yap_heap_base, according to Yap's convention for globals.
-*
-* Revision 1.74  2004/11/19 22:08:43  vsc
-* replace SYSTEM_ERROR_INTERNAL by out OUT_OF_WHATEVER_ERROR whenever
-*appropriate.
-*
-* Revision 1.73  2004/11/19 17:14:14  vsc
-* a few fixes for 64 bit compiling.
-*
-* Revision 1.72  2004/11/18 22:32:37  vsc
-* fix situation where we might assume nonextsing double initialization of C
-*predicates (use
-* Hidden Pred Flag).
-* $host_type was double initialized.
-*
-* Revision 1.71  2004/07/23 21:08:44  vsc
-* windows fixes
-*
-* Revision 1.70  2004/06/29 19:04:42  vsc
-* fix multithreaded version
-* include new version of Ricardo's profiler
-* new predicat atomic_concat
-* allow multithreaded-debugging
-* small fixes
-*
-* Revision 1.69  2004/06/16 14:12:53  vsc
-* miscellaneous fixes
-*
-* Revision 1.68  2004/05/14 17:11:30  vsc
-* support BigNums in interface
-*
-* Revision 1.67  2004/05/14 16:33:45  vsc
-* add Yap_ReadBuffer
-*
-* Revision 1.66  2004/05/13 20:54:58  vsc
-* debugger fixes
-* make sure we always go back to current module, even during initizlization.
-*
-* Revision 1.65  2004/04/27 15:14:36  vsc
-* fix halt/0 and halt/1
-*									 *
+*	 *
 *									 *
 *************************************************************************/
 #ifdef SCCS
@@ -1008,12 +760,14 @@ static PredEntry *firstModulesPred(PredEntry *npp, ModEntry *m, Term task) {
 static Int cont_current_predicate(USES_REGS1) {
   UInt Arity;
   Term name, task;
-  Term t1 = ARG1, t2 = ARG2, t3 = ARG3;
+  Term t1 = ARG1, t2 = Deref(ARG2), t3 = ARG3;
   bool rc, will_cut = false;
   Functor f;
   PredEntry *pp;
   t1 = Yap_YapStripModule(t1, &t2);
   t3 = Yap_YapStripModule(t3, &t2);
+  t1 = Deref(t1);
+  t2 = Deref(t2);
   task = Deref(ARG4);
 
   pp = AddressOfTerm(EXTRA_CBACK_ARG(4, 1));
@@ -1102,17 +856,34 @@ static Int cont_current_predicate(USES_REGS1) {
 
     if (!pp) {
       if (!IsAtomTerm(t2)) {
-        Yap_Error(TYPE_ERROR_ATOM, t2, "current_predicate/2");
+        Yap_Error(TYPE_ERROR_ATOM, t2, "module name");
       }
       ModEntry *m = Yap_GetModuleEntry(t2);
       pp = firstModulePred(m->PredForME, task);
-      if (!pp)
-        cut_fail();
+      if (!pp) {
+          /* try Prolog Module */
+          if (task != TermUser) {        
+            ModEntry *m = Yap_GetModuleEntry(TermProlog);
+            pp = firstModulePred(m->PredForME, task);
+            if (!pp) {
+              cut_fail();
+            }
+          } 
+      }
     }
     npp = firstModulePred(pp, task);
 
-    if (!npp)
-      will_cut = true;
+    if (!npp) {
+        if (pp->ModuleOfPred != PROLOG_MODULE &&
+            task != TermUser) {        
+            ModEntry *m = Yap_GetModuleEntry(TermProlog);
+            npp = firstModulePred(m->PredForME, task);
+            if (!npp)
+              will_cut = true; 
+        } else {
+           will_cut = true;
+        }
+    }
     // just try next one
     else {
       EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(npp);
@@ -1164,11 +935,13 @@ static Int cont_current_predicate(USES_REGS1) {
     }
   }
   if (Arity) {
-    rc = Yap_unify(t3, Yap_MkNewApplTerm(f, Arity));
+    rc = Yap_unify(ARG3, Yap_MkNewApplTerm(f, Arity));
   } else {
-    rc = Yap_unify(t3, name);
+    rc = Yap_unify(ARG3, name);
   }
-  rc = rc && Yap_unify(t2, ModToTerm(pp->ModuleOfPred)) && Yap_unify(t1, name);
+  rc = rc && (IsAtomTerm(t2) ||
+      Yap_unify(ARG2, ModToTerm(pp->ModuleOfPred)))
+       && Yap_unify(ARG1, name);
   if (will_cut) {
     if (rc)
       cut_succeed();

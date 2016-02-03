@@ -14,7 +14,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+// 
 
+/**
+  * @file memopen.c
+  * @defgroup Memory Streams.
+  * @in.
+  * @return Description of returned value.
+  */
 #ifdef __APPLE__
 
 #include <stdio.h>

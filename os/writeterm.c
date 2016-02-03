@@ -100,19 +100,19 @@ static char SccsId[] = "%W% %G%";
 #define    WRITE_DEFS() \
     PAR( "module", isatom, WRITE_MODULE ), \
     PAR( "attributes", isatom, WRITE_ATTRIBUTES ), \
-    PAR( "cycles", boolean, WRITE_CYCLES ), \
-    PAR( "quoted", boolean, WRITE_QUOTED ), \
-    PAR( "ignore_ops", boolean, WRITE_IGNORE_OPS ), \
+    PAR( "cycles", booleanFlag, WRITE_CYCLES ), \
+    PAR( "quoted", booleanFlag, WRITE_QUOTED ), \
+    PAR( "ignore_ops", booleanFlag, WRITE_IGNORE_OPS ), \
     PAR( "max_depth",nat, WRITE_MAX_DEPTH ), \
-    PAR( "numbervars", boolean, WRITE_NUMBERVARS ), \
-    PAR( "portrayed", boolean, WRITE_PORTRAYED ), \
-    PAR( "portray", boolean, WRITE_PORTRAY ), \
+    PAR( "numbervars", booleanFlag, WRITE_NUMBERVARS ), \
+    PAR( "portrayed", booleanFlag, WRITE_PORTRAYED ), \
+    PAR( "portray", booleanFlag, WRITE_PORTRAY ), \
     PAR( "priority", nat, WRITE_PRIORITY ), \
-    PAR( "character_escapes", boolean, WRITE_CHARACTER_ESCAPES ), \
-    PAR( "backquotes", boolean, WRITE_BACKQUOTES ), \
-    PAR( "brace_terms", boolean, WRITE_BRACE_TERMS ), \
-    PAR( "fullstop", boolean, WRITE_FULLSTOP ), \
-    PAR( "nl", boolean, WRITE_NL ), \
+    PAR( "character_escapes", booleanFlag, WRITE_CHARACTER_ESCAPES ), \
+    PAR( "backquotes", booleanFlag, WRITE_BACKQUOTES ), \
+    PAR( "brace_terms", booleanFlag, WRITE_BRACE_TERMS ), \
+    PAR( "fullstop", booleanFlag, WRITE_FULLSTOP ), \
+    PAR( "nl", booleanFlag, WRITE_NL ), \
     PAR( "variable_names",ok, WRITE_VARIABLE_NAMES ),			\
     PAR( NULL, ok, WRITE_END )
 

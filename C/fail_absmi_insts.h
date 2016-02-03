@@ -133,7 +133,7 @@
 #endif /* TABLING */
 	      case _or_else:
 	      case _or_last:
-		low_level_trace(retry_or, (PredEntry *)ipc, &(B->cp_a1));
+		low_level_trace(retry_or, NULL, NULL);
 		break;
 	      case _retry2:
 	      case _retry3:

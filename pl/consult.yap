@@ -97,7 +97,7 @@ files and to set-up the Prolog environment. We discuss
 
 /**
 
- @pred load_files(+ _Files_, + _Options_)
+ @pred load_files(+_Files_, +_Options_)
 
 Implementation of the consult/1 family. Execution is controlled by the
 following flags:
@@ -473,9 +473,10 @@ load_files(Files,Opts) :-
     % check if there is a qly file
 %	start_low_level_trace,
 	'$absolute_file_name'(File,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)],F,qload_file(File)),
-    	open( F, read, Stream , [type(binary)] ),
+    open( F, read, Stream , [type(binary)] ),
 	(
 	 '$q_header'( Stream, Type ),
+     writeln(File:Type),
 	 Type == file
 	->
 	 !
@@ -1418,7 +1419,7 @@ initialization(_G,_OPT) :-
 '$initialization'(G,OPT) :-
    error:must_be_of_type(callable, G, initialization(G,OPT)),
     error:must_be_of_type(oneof([after_load, now, restore]),
-                OPT, initialization(G0,OPT)),
+                OPT, initialization(G,OPT)),
    (
 	 OPT == now
 	->

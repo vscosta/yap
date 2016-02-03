@@ -19,7 +19,8 @@
 static char     SccsId[] = "@(#)save.c	1.3 3/15/90";
 #endif
 
-#include "config.h"
+#include "absmi.h"
+#include "alloc.h"
 #if _MSC_VER || defined(__MINGW32__)
 #if HAVE_WINSOCK2_H
 #include <winsock2.h>
@@ -27,14 +28,12 @@ static char     SccsId[] = "@(#)save.c	1.3 3/15/90";
 #include <windows.h>
 #include <psapi.h>
 #endif
-#include "absmi.h"
-#include "alloc.h"
 #if USE_DL_MALLOC
 #include "dlmalloc.h"
 #endif
-#include "yapio.h"
 #include "YapText.h"
 #include "sshift.h"
+#include "yapio.h"
 #include "Foreign.h"
 #if HAVE_STRING_H
 #include <string.h>

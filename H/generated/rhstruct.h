@@ -120,12 +120,12 @@
 
 
 
+
+
   RestorePredHash();
 #if defined(YAPOR) || defined(THREADS)
 
 #endif
-
-
 
   CreepCode = PtoPredAdjust(CreepCode);
   UndefCode = PtoPredAdjust(UndefCode);

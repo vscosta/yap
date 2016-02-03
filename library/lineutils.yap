@@ -8,7 +8,7 @@
  * 
 */
 
-:- module(line_utils,
+:- module(lineutils,
 	  [search_for/2,
 	   search_for/3,
 	   scan_natural/3,
@@ -244,7 +244,8 @@ split_unquoted(_, [], []) --> [].
 
 split_quoted( [0'"], More) --> %0'"
     "\"".
-split_quoted( [0'\\ ,C|New], More) --> %0'"
+split_quoted( [0'\\ ,C|New], More) --> 
+    %0'"
     "\\",
     [C],
     split_quoted(New, More).

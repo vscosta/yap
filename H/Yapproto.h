@@ -176,7 +176,8 @@ void Yap_RestartYap(int);
 void Yap_exit(int);
 bool Yap_Warning(const char *s, ...);
 bool Yap_PrintWarning(Term t);
-int Yap_HandleError(const char *msg, ...);
+bool Yap_HandleError__(const char *file, const char *function, int lineno, const char *s, ...);
+#define Yap_HandleError(...) Yap_HandleError__(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__) 
 int Yap_SWIHandleError(const char *, ...);
 void Yap_InitErrorPreds(void);
 
@@ -295,6 +296,7 @@ extern void Yap_DebugErrorPuts(const char *s);
 extern void Yap_DebugWriteIndicator(struct pred_entry *ap);
 void Yap_PlWriteToStream(Term, int, int);
 /* depth_lim.c */
+bool   Yap_InitReadline(Term t);
 void Yap_InitItDeepenPreds(void);
 struct AliasDescS *Yap_InitStandardAliases(void);
 
@@ -485,7 +487,7 @@ struct AtomEntryStruct *Yap_lookupBlob(void *blob, size_t len, void *type,
 void Yap_init_optyap_preds(void);
 
 /* pl-file.c */
-// struct PL_local_data *Yap_InitThreadIO(int wid);
+//  struct PL_local_data *Yap_InitThreadIO(int wid);
 void Yap_flush(void);
 
 /* pl-yap.c */
@@ -495,3 +497,10 @@ Atom Yap_source_file_name(void);
 void Yap_install_blobs(void);
 
 yamop *Yap_gcP(void);
+
+#if !HAVE_STRNCAT
+#define strncat(X, Y, Z) strcat(X, Y)
+#endif
+#if !HAVE_STRNCPY
+#define strncpy(X, Y, Z) strcpy(X, Y)
+#endif

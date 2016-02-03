@@ -16,9 +16,13 @@
 *************************************************************************/
 
 
-/** @defgroup Term_Modification Term Modification
+/** 
+
+@file mavar.c
+
+@defgroup Term_Modification Term Modification
 @ingroup builtins
-@{
+
 
 It is sometimes useful to change the value of instantiated
 variables. Although, this is against the spirit of logic programming, it
@@ -26,14 +30,14 @@ is sometimes useful. As in other Prolog systems, YAP has
 several primitives that allow updating Prolog terms. Note that these
 primitives are also backtrackable.
 
-The `setarg/3` primitive allows updating any argument of a Prolog
-compound terms. The `mutable` family of predicates provides
-<em>mutable variables</em>. They should be used instead of `setarg/3`,
+The setarg/3 primitive allows updating any argument of a Prolog
+compound terms. The _mutable_ family of predicates provides
+<em>mutable variables</em>. They should be used instead of setarg/3,
 as they allow the encapsulation of accesses to updatable
 variables. Their implementation can also be more efficient for long
 deterministic computations.
 
-
+@{
  
 */
 
@@ -315,7 +319,6 @@ p_update_mutable( USES_REGS1 )
   return(TRUE);
 }
 
-static Int
 /** @pred  is_mutable(? _D_) 
 
 
@@ -323,6 +326,7 @@ Holds if  _D_ is a mutable term.
 
  
 */
+static Int
 p_is_mutable( USES_REGS1 )
 {
   Term t = Deref(ARG1);

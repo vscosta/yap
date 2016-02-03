@@ -15,6 +15,12 @@
 *									 *
 *************************************************************************/
 
+%% @file pl/profile.yap
+
+:- system_module( '$_profile', [profile_data/3,
+        profile_reset/0,
+        showprofres/0,
+        showprofres/1], []).
 
 /** @defgroup The_Count_Profiler The Count Profiler
 @ingroup Profiling
@@ -28,8 +34,8 @@ backtracking. It provides exact information:
 are maintained. This may change in the future.
 + As an example, the following user-level program gives a list of
 the most often called procedures in a program. The procedure
-`list_profile` shows all procedures, irrespective of module, and
-the procedure `list_profile/1` shows the procedures being used in
+list_profile/0 shows all procedures, irrespective of module, and
+the procedure list_profile/1 shows the procedures being used in
 a specific module.
 
 ~~~~~
@@ -63,11 +69,6 @@ These are  the current predicates to access and clear profiling data:
 */
 
 
-:- system_module( '$_profile', [profile_data/3,
-        profile_reset/0,
-        showprofres/0,
-        showprofres/1], []).
-
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
 
@@ -76,7 +77,7 @@ These are  the current predicates to access and clear profiling data:
 % describing a predicate; used e.g. on the tick profiler defined below
 :- multifile(user:prolog_predicate_name/2).
 
-/** @pred  profile_data(? _Na/Ar_, ? _Parameter_, - _Data_) 
+/** @pred  profile_data( ?Na/Ar, ?Parameter, -Data_) 
 
 
 Give current profile data on  _Parameter_ for a predicate described

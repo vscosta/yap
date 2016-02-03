@@ -590,12 +590,13 @@ typedef enum
 #else
 #define YAPEnterCriticalSection()                                        \
 	{                                                                \
-          LOCAL_PrologMode |= CritMode;                                   \
+      LOCAL_PrologMode |= CritMode;/* printf("%d, %s:%d\n",LOCAL_CritLocks+1,__FILE__,__LINE__);*/ \
           LOCAL_CritLocks++;                                              \
         }
 #define YAPLeaveCriticalSection()                                        \
 	{                                                                \
           LOCAL_CritLocks--;                                              \
+          /*printf("%d, %s:%d\n",LOCAL_CritLocks,__FILE__,__LINE__);*/  \
           if (!LOCAL_CritLocks) {                                         \
             LOCAL_PrologMode &= ~CritMode;                                \
             if (LOCAL_PrologMode & AbortMode) {                           \

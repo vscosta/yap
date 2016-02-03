@@ -11,6 +11,7 @@
 :- use_module(library(lists)).
 :- use_module(library(maplist)).
 :- use_module(library(system)).
+:- use_module(library(hacks)).
 
 :- use_module(library(analysis/graphs)).
 :- use_module(library(analysis/load)).
@@ -29,7 +30,8 @@
     private/2,
     module_on/3,
     exported/1,
-    dir/2,
+    dir/1,
+    sub_dir/2,
     consulted/2,
     op_export/3,
     library/1,
@@ -38,8 +40,9 @@
     do_comment/5,
     module_file/2.
 
-% @short node(?Module:module, ?Predicate:pred_indicator, ?File:file, ?Generator:atom) is nondet
+%% @pred node(?Module:module, ?Predicate:pred_indicator, ?File:file, ?Generator:atom) is nondet, dynamic.
 %
+% graph nodes
 
 
 inline( !/0 ).
@@ -66,7 +69,8 @@ main :-
 %		   'swi/console'-user
 		   'packages'-user
 		 ],
-%    maplist(distribute(D), Dirs, Paths),          
+%    maplist(distribute(D), Dirs, Paths),
+    assert(root(D)),
     load( D, Dirs ),
     maplist( pl_graphs, Dirs ),
 	fail.
@@ -87,7 +91,8 @@ distribute( Root, File-Class, Path-Class) :-
     atom_concat([Root, /, File], Path ).
 
 init :-
-        retractall(dir(_)),
+        retractall(dir(_)),  
+          retractall(s8Sadir(_)),
         retractall(edge(_)),
         retractall(private(_,_)),
         retractall(public(_,_)),
@@ -127,7 +132,6 @@ doubles :-
 doubles.
 
 undefs :-
-    trace,
     format('UNDEFINED procedure calls:~n',[]),
     setof(M, Target^F^Line^NA^undef( ( Target :- F-M:NA ), Line  ), Ms ),
     member( Mod, Ms ),
@@ -201,13 +205,8 @@ remove_escapes([A|Cs], [A|NCs]) :-
     remove_escapes(Cs, NCs).
 remove_escapes( [], [] ).
 
-always_strip_module(V, M, V1) :- var(V), !,
-		V = M:call(V1).
-always_strip_module(M0:A, M0, call(A)) :- var(A), !.
-always_strip_module(_:M0:A, M1, B) :- !,
-	always_strip_module(M0:A, M1, B).
-always_strip_module(M0:A, M0, call(A)) :- var(A),!.
-always_strip_module(M0:A, M0, A).
+always_strip_module(V, M, V1) :- 
+    fully_strip_module(V, M, V1).
 
 c_links :-
     open('tmp/foreigns.yap', write, S),
@@ -293,108 +292,97 @@ doc( Comment, N ) :-
 %
 %
 % Directories into atoms
-search_file(  Loc , F, Type, FN ) :-
-    search_file0(  Loc , F, Type, FN ),
-    !.
-search_file(  Loc , F, _FN ) :-
-    format('~n~n~n###############~n~n FAILED TO FIND ~w when at  ~a~n~n###############~n~n~n', [Loc, F ]),
-     fail.
+
+:- dynamic library/1.
+
+library('..').
+
+
+:- multifile user:prolog_file_type/2.
+
+:- dynamic user:prolog_file_type/2.
+
+prolog_file_type(c, '.c').
+prolog_file_type(c, '.h').
+prolog_file_type(c, '.h.cmake').
+prolog_file_type(c, '.i').
 
 %
 % handle some special cases.
 %
-search_file0( F, _, _Type, FN ) :-
-    doexpand(F, FN), !.
-search_file0( A/B, F, Type, FN ) :- !,
-    term_to_atom(A/B, AB),
-    search_file0( AB, F, Type, FN ).
-% libraries can be anywhere in the source.
-search_file0( LibLoc, F, Type, FN ) :-
-    LibLoc =.. [Dir,File],
-	!,
-    ( term_to_atom( Dir/File, Full ) ; Full = File ),
-    search_file0( Full, F, Type, FN ).
+search_file(  library(boot/F) , LocF, Type, FN ) :- !,
+    search_file(  '..'/pl/F , LocF, Type, FN ). 
 %try to use your base
-search_file0(  Loc , F, c, FN ) :-
-    atom_concat( D, '.yap', F),
-    atom_concat( [ D, '/', Loc], F1),
-    check_suffix(  F1 , c, NLoc ),
-    absolute_file_name( NLoc, FN),
-    file_base_name( FN, LocNam),
-    file_directory_name( FN, D),
-    dir( D, LocNam ).
-search_file0(  Loc , F, Type, FN ) :-
-    file_directory_name( F, FD),
-    check_suffix(  Loc , Type, LocS ),
-    atom_concat( [ FD, '/', LocS], NLoc),
-    absolute_file_name( NLoc, FN),
-    file_base_name( FN, LocNam),
-    file_directory_name( FN, D),
-    dir( D, LocNam).
-search_file0(  Loc , _F, Type, FN ) :-
-    file_base_name( Loc, Loc0),
-    file_directory_name( Loc, LocD),
-    check_suffix(  Loc0 , Type, LocS ),
-    dir( D, LocS),
-    sub_dir( D, DD),
-    atom_concat( [ DD, '/', LocD], NLoc),
-    absolute_file_name( NLoc, D),
-    atom_concat( [D,'/', LocS], FN).
-search_file0(  Loc , _F, Type, FN ) :-
-    file_base_name( Loc, Loc0),
-    check_suffix(  Loc0 , Type, LocS ),
-    dir( D, LocS),
-    atom_concat( [D,'/', LocS], FN).
-% you try using the parent
+search_file(  F0, LocF, Type, FN ) :-
+    filename(F0, F),
+    file_directory_name(LocF, LOC),   
+    file_directory_name(F, D),   
+    file_base_name(F, F1),
+    candidate_dir(LOC, '/', D, Left),
+    absolute_file_name(F1, [
+        relative_to(Left), 
+            file_type(Type),file_errors(fail),
+            access(read) ], FN ).
+search_file(  Loc , F, _FN ) :-
+    format('~n~n~n###############~n~n FAILED TO FIND ~w when at  ~a~n~n###############~n~n~n', [Loc, F ]),
+     fail.
 
-sub_dir( D, D ).
-sub_dir( D, DD) :-
-	D \= '/',
-	atom_concat( D, '/..', DD0),
-	absolute_file_name( DD0, DDA),
-	sub_dir( DDA, DD).
+candidate_dir( Loc, _, D, Loc) :-
+    % ensure that the prefix of F, D,  is a suffix of Loc
+    match(D, Loc).
+% next, try going down in the current subroot
+candidate_dir( Loc, _Source,  D, OLoc) :-
+    sub_dir(Loc, NLoc),
+    NLoc \= Source,
+    candidate_dir_down(NLoc, Source,  D, OLoc).
+% if that fails, go up
+candidate_dir( Loc, _Source,  D, OLoc) :-
+    sub_dir(NLoc, Loc),
+    candidate_dir( NLoc, Loc, D, OLoc).
+candidate_dir( Loc, _Source,  D, OLoc) :-
+    root(Loc),
+    root(NLoc),
+    NLoc \= Loc,
+    candidate_dir( NLoc, Loc, D, OLoc).
+
+candidate_dir_down(Loc, _Source,  D, Loc) :-
+    % ensure that the prefix of F, D,  is a suffix of Loc
+    match(D, Loc).
+% next, try going down in the current subroot
+candidate_dir( Loc, _Source,  D, OLoc) :-
+    sub_dir(NLoc, Loc),
+    candidate_dir_down(NLoc, Source,  D, OLoc).
+    
+match('.', _Loc) :- !.
+match(D, Loc) :-
+    file_base_name( D, B),
+    file_base_name( Loc, B),
+    file_directory_name( D, ND),
+    file_directory_name( D, NLoc),
+    match(ND, NLoc).
+    
+    
+filename(A, A) :- atom(A), !.
+filename(A/B, NAB) :- 
+    filename(A, NA),
+    filename(B, NB),
+    atom_concat([NA,'/', NB], NAB).
+filename( library(A), NAB ) :-
+    !,
+     filename(A, NA),
+     (
+      library(L),
+      atom_concat( [L, '/', NA], NAB)
+      ;
+      NAB = NA
+     ).
+filename( S, NAB ) :-
+    arg(1, S, A),
+    !,
+      NAB = NA.
 
 % files must be called .yap or .pl
 % if it is .yap...
-check_suffix(  Loc , pl, Loc ) :-
-    atom_concat( _, '.yap', Loc ), !.
-%, otherwise, .pl
-check_suffix(  Loc , pl,  Loc ) :-
-    atom_concat( _, '.pl', Loc ), !.
-%, otherwise, .prolog
-check_suffix(  Loc , pl,  Loc ) :-
-    atom_concat( _, '.prolog', Loc ), !.
-%, otherwise, .P
-% try adding suffix
-check_suffix(  Loc0 , pl, Loc ) :-
-    member( Suf , ['.yap', '.ypp', '.pl' , '.prolog']),
-    atom_concat( Loc0, Suf, Loc ).
-check_suffix(  Loc , c, Loc ) :-
-    atom_concat( _, '.c', Loc ), !.
-%, otherwise, .pl
-check_suffix(  Loc , c,  Loc ) :-
-    atom_concat( _, '.icc', Loc ), !.
-%, otherwise, .prolog
-check_suffix(  Loc , c,  Loc ) :-
-    atom_concat( _, '.cpp', Loc ), !.
-%, otherwise, .P
-% try adding suffix
-check_suffix(  Loc0 , c, Loc ) :-
-    member( Suf , ['.c', '.icc' , '.cpp']),
-    atom_concat( Loc0, Suf, Loc ).
-
-
-
-match_file( LocD, Loc0, Type, FN ) :-
-	var(LocD), !,
-	dir( LocD, Loc0 ),
-	atom_concat( [LocD, '/', Loc0], F ),
-	absolute_file_name( F, Type, FN ),
-	exists( FN ).
-match_file( SufLocD, Loc0, Type, FN ) :-
-	dir( LocD, Loc0 ),
-	atom_concat(_, SufLocD, LocD ),
-	atom_concat( [LocD, '/', Loc0], Type, FN ).
 
 
 new_op( F, M, op(X,Y,Z) ) :-
@@ -406,9 +394,9 @@ new_op( F, M, op( X, Y, Z) ) :-
     public( F, M, op( X, Y, Z) ).
 
 
-ypp(F, error(syntax_error(syntax_error),[syntax_error(read(_228515),between(K,L,M),_,_L,_)-_]) ) :-
-	format('SYNTAX ERROR at file ~a, line ~d (~d - ~d).~n', [F,L,K,M] ),
-	break.
+error(_F, Error) :-
+    print_message( error, Error ),
+    fail.
 
 preprocess_file(F,NF) :-
     atom_concat(_, '.ypp', F ), !,
@@ -418,19 +406,15 @@ preprocess_file(F,F).
 
 
 %%%%%%%
-%% declare a concept export1able
-public( F, M, op(X,Y,Z) ) :-
-    retract( private( F, M:op(X,Y,Z) ) ),
-    fail.
+%% declare a concept exportable
 public( F, M, op(X,Y,Z) ) :- !,
-    assert( op_export(F, _M, op(X,Y,Z) ) ),
-    assert_new( public( F, M:op(X,Y,Z) ) ),
     (
-	( M == user ; M == prolog )
-      ->
-	  op( X, Y, prolog:Z )
-      ;
-	  op( X, Y, M:Z )
+        assert_new( public( F, op(X,Y,Z) ) ),
+        directive( op(X,Y,M:Z), F, M ),
+        retract( private( F, op(X,Y,Z)) ),
+        fail
+        ;
+        true
     ).
 public( F, M, M:N/Ar ) :-
     retract( private( F, M:N/Ar ) ),

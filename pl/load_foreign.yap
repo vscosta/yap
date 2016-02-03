@@ -24,8 +24,12 @@
 
 :- use_system_module( '$_modules', ['$do_import'/3]).
 
-/** @defgroup LoadForeign Access to Foreign Language Programs
-@ingroup builtins
+/**
+
+@defgroup LoadForeign Access to Foreign Language Programs
+@ingroup fli
+
+@{
 
 */
 
@@ -49,7 +53,6 @@ if defined, or in the default library.
 
 YAP also supports the SWI-Prolog interface to loading foreign code:
 
- 
 */
 load_foreign_files(Objs,Libs,Entry) :-
     source_module(M),
@@ -205,5 +208,5 @@ call_shared_object_function( Handle, Function) :-
     '$call_shared_object_function'( Handle, Function),
     prolog_load_context(module, M),
     ignore( recordzifnot( '$foreign', M:'$swi_foreign'( Handle, Function ), _) ).
-%%! @}
+%% @}
 

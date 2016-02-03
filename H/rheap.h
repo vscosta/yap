@@ -968,16 +968,16 @@ static void RestoreBallTerm(int wid) {
   }
 }
 
-#include "heap/rglobals.h"
+#include "rglobals.h"
 
-#include "heap/rlocals.h"
+#include "rlocals.h"
 
 /* restore the failcodes */
 static void restore_codes(void) {
   CACHE_REGS
   HeapTop = AddrAdjust(LOCAL_OldHeapTop);
 
-#include "heap/rhstruct.h"
+#include "rhstruct.h"
 
   RestoreWorker(worker_id PASS_REGS);
 }

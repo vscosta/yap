@@ -189,7 +189,7 @@ static Int is_output(int sno
 static Int
 has_bom(int sno, Term t2 USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage) */
   bool rc = GLOBAL_Stream[sno].status & Seekable_Stream_f;
-  if (!IsVarTerm(t2) && !boolean(t2)) {
+  if (!IsVarTerm(t2) && !booleanFlag(t2)) {
     return FALSE;
   }
   if (rc) {
@@ -203,7 +203,7 @@ static Int
 has_reposition(int sno,
                Term t2 USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage)  */
   bool rc = GLOBAL_Stream[sno].status & Seekable_Stream_f;
-  if (!IsVarTerm(t2) && !boolean(t2)) {
+  if (!IsVarTerm(t2) && !booleanFlag(t2)) {
     return FALSE;
   }
   if (rc) {
@@ -647,9 +647,9 @@ static Int stream_property(USES_REGS1) { /* Init current_stream */
 
 #define SET_STREAM_DEFS()                                                      \
   PAR("alias", isatom, SET_STREAM_ALIAS),                                      \
-      PAR("buffer", boolean, SET_STREAM_BUFFER),                               \
+      PAR("buffer", booleanFlag, SET_STREAM_BUFFER),                           \
       PAR("buffer_size", nat, SET_STREAM_BUFFER_SIZE),                         \
-      PAR("close_on_abort", boolean, SET_STREAM_CLOSE_ON_ABORT),               \
+      PAR("close_on_abort", booleanFlag, SET_STREAM_CLOSE_ON_ABORT),           \
       PAR("encoding", isatom, SET_STREAM_ENCODING),                            \
       PAR("eof_action", isatom, SET_STREAM_EOF_ACTION),                        \
       PAR("file_name", isatom, SET_STREAM_FILE_NAME),                          \
@@ -798,18 +798,16 @@ void Yap_CloseStreams(int loud) {
       continue;
     if ((GLOBAL_Stream[sno].status & Popen_Stream_f))
       pclose(GLOBAL_Stream[sno].file);
-#if _MSC_VER || defined(__MINGW32__)
-    if (GLOBAL_Stream[sno].status & Pipe_Stream_f)
-      CloseHandle(GLOBAL_Stream[sno].u.pipe.hdl);
-#else
     if (GLOBAL_Stream[sno].status & (Pipe_Stream_f | Socket_Stream_f))
       close(GLOBAL_Stream[sno].u.pipe.fd);
-#endif
+#if USE_SOCKET
     else if (GLOBAL_Stream[sno].status & (Socket_Stream_f)) {
       Yap_CloseSocket(GLOBAL_Stream[sno].u.socket.fd,
                       GLOBAL_Stream[sno].u.socket.flags,
                       GLOBAL_Stream[sno].u.socket.domain);
-    } else if (GLOBAL_Stream[sno].status & InMemory_Stream_f) {
+    }
+#endif
+    else if (GLOBAL_Stream[sno].status & InMemory_Stream_f) {
       if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_CODE) {
         Yap_FreeAtomSpace(GLOBAL_Stream[sno].u.mem_string.buf);
       } else if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_MALLOC) {
@@ -846,12 +844,9 @@ static void CloseStream(int sno) {
   }
 #endif
   else if (GLOBAL_Stream[sno].status & Pipe_Stream_f) {
-#if _MSC_VER || defined(__MINGW32__)
-    CloseHandle(GLOBAL_Stream[sno].u.pipe.hdl);
-#else
     close(GLOBAL_Stream[sno].u.pipe.fd);
-#endif
   } else if (GLOBAL_Stream[sno].status & (InMemory_Stream_f)) {
+      Yap_CloseMemoryStream( sno );
     if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_CODE)
       Yap_FreeAtomSpace(GLOBAL_Stream[sno].u.mem_string.buf);
     else if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_MALLOC) {
@@ -1329,11 +1324,7 @@ Int Yap_StreamToFileNo(Term t) {
       Yap_CheckStream(t, (Input_Stream_f | Output_Stream_f), "StreamToFileNo");
   if (GLOBAL_Stream[sno].status & Pipe_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-#if _MSC_VER || defined(__MINGW32__)
-    return ((Int)(GLOBAL_Stream[sno].u.pipe.hdl));
-#else
     return (GLOBAL_Stream[sno].u.pipe.fd);
-#endif
 #if HAVE_SOCKET
   } else if (GLOBAL_Stream[sno].status & Socket_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
