@@ -102,6 +102,31 @@ FILE *Yap_stdin;
 FILE *Yap_stdout;
 FILE *Yap_stderr;
 
+static Term gethdir(Term t) {
+  Atom aref = AtomOfTerm( t );
+  char *s= RepAtom( aref )->StrOfAE;
+  size_t nsz;
+
+  s = strncpy(LOCAL_FileNameBuf, RepAtom( aref )->StrOfAE, MAXPATHLEN-1);
+  if (!s) {
+    return false;
+  }
+  if (TermDot == t) {
+    return TermEmptyAtom;
+  }
+  nsz = strlen(s);
+  if (!Yap_dir_separator(s[nsz-1])) {
+#if _WIN32
+    s[nsz] = '\\';
+#else
+    s[nsz] = '/';
+#endif
+    s[nsz+1] = '\0';
+  }
+    return
+      MkAtomTerm(Yap_LookupAtom( s ) );
+}
+
 static bool issolutions(Term t) {
   if (t == TermFirst || t == TermAll)
     return true;
@@ -1355,10 +1380,11 @@ do_open(Term file_name, Term t2,
   /* get options */
   xarg *args = Yap_ArgListToVector(tlist, open_defs, OPEN_END);
   if (args == NULL) {
-    if (LOCAL_Error_TYPE)
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term,
-                "option handling in open/3");
-    return FALSE;
+    if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
+      if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
+	LOCAL_Error_TYPE = DOMAIN_ERROR_OPEN_OPTION;
+      Yap_Error( LOCAL_Error_TYPE, LOCAL_Error_Term, "option handling in open/3" );
+    }
   }
   /* done */
   sno = GetFreeStreamD();
@@ -1384,8 +1410,12 @@ do_open(Term file_name, Term t2,
                  : false) ||
             trueGlobalPrologFlag(OPEN_EXPANDS_FILENAME_FLAG);
   // expand file name?
-  fname = Yap_AbsoluteFile(fname, LOCAL_FileNameBuf, ok);
+  fname = Yap_AbsoluteFile(fname, ok);
+  if (fname) {
   st->name = Yap_LookupAtom(fname);
+  } else {
+      PlIOError(EXISTENCE_ERROR_SOURCE_SINK, ARG1, NULL);
+  }
 
   // Skip scripts that start with !#/.. or similar
  bool script = (args[OPEN_SCRIPT].used
@@ -1432,6 +1462,9 @@ do_open(Term file_name, Term t2,
   }
   if ((fd = fopen(fname, io_mode)) == NULL ||
       (!(flags & Binary_Stream_f) && binary_file(fname))) {
+    strncpy( LOCAL_FileNameBuf, fname,MAXPATHLEN);
+    free( (void *)fname );
+    fname = LOCAL_FileNameBuf;
     UNLOCK(st->streamlock);
     if (errno == ENOENT)
       return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, file_name, "%s: %s", fname,
@@ -1829,8 +1862,15 @@ static Int close2(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
   }
   xarg *args =
       Yap_ArgListToVector((tlist = Deref(ARG2)), close_defs, CLOSE_END);
-  if (args == NULL)
+  if (args == NULL) {
+    if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
+      if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
+	LOCAL_Error_TYPE = DOMAIN_ERROR_CLOSE_OPTION;
+      Yap_Error( LOCAL_Error_TYPE, LOCAL_Error_Term, NULL );
+    }
+    return false;
     return FALSE;
+  }
   // if (args[CLOSE_FORCE].used) {
   // }
   Yap_CloseStream(sno);
@@ -1854,8 +1894,8 @@ Term read_line(int sno) {
   PAR("access", isatom, ABSOLUTE_FILE_NAME_ACCESS),                            \
       PAR("expand", booleanFlag, ABSOLUTE_FILE_NAME_EXPAND),                       \
       PAR("extensions", ok, ABSOLUTE_FILE_NAME_EXTENSIONS),                    \
-      PAR("file_type", is_file_type, ABSOLUTE_FILE_NAME_FILE_TYPE),            \
       PAR("file_errors", is_file_errors, ABSOLUTE_FILE_NAME_FILE_ERRORS),      \
+      PAR("file_type", is_file_type, ABSOLUTE_FILE_NAME_FILE_TYPE),            \
       PAR("glob", ok, ABSOLUTE_FILE_NAME_GLOB),                                \
       PAR("relative_to", isatom, ABSOLUTE_FILE_NAME_RELATIVE_TO),              \
       PAR("solutions", issolutions, ABSOLUTE_FILE_NAME_SOLUTIONS),             \
@@ -1884,19 +1924,28 @@ static Int abs_file_parameters(USES_REGS1) {
   /* get options */
   xarg *args = Yap_ArgListToVector(tlist, absolute_file_name_search_defs,
                                    ABSOLUTE_FILE_NAME_END);
-  if (args == NULL)
-    return FALSE;
+  if (args == NULL) {
+    if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
+      if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
+	LOCAL_Error_TYPE = DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION;
+      Yap_Error( LOCAL_Error_TYPE, LOCAL_Error_Term, NULL );
+    }
+    return false;
+  }
   /* done */
-  if (args[ABSOLUTE_FILE_NAME_EXTENSIONS].used)
+  if (args[ABSOLUTE_FILE_NAME_EXTENSIONS].used) {
     t[ABSOLUTE_FILE_NAME_EXTENSIONS] =
         args[ABSOLUTE_FILE_NAME_EXTENSIONS].tvalue;
-  else
+  }  else {
     t[ABSOLUTE_FILE_NAME_EXTENSIONS] = TermNil;
-  if (args[ABSOLUTE_FILE_NAME_RELATIVE_TO].used)
+  }
+  if (args[ABSOLUTE_FILE_NAME_RELATIVE_TO].used) {
     t[ABSOLUTE_FILE_NAME_RELATIVE_TO] =
-        args[ABSOLUTE_FILE_NAME_RELATIVE_TO].tvalue;
-  else
-    t[ABSOLUTE_FILE_NAME_RELATIVE_TO] = TermEmptyAtom;
+      gethdir( args[ABSOLUTE_FILE_NAME_RELATIVE_TO].tvalue );
+  } else {
+      t[ABSOLUTE_FILE_NAME_RELATIVE_TO] =
+	gethdir( TermDot );
+  }
   if (args[ABSOLUTE_FILE_NAME_FILE_TYPE].used)
     t[ABSOLUTE_FILE_NAME_FILE_TYPE] = args[ABSOLUTE_FILE_NAME_FILE_TYPE].tvalue;
   else
@@ -1937,28 +1986,11 @@ static Int get_abs_file_parameter(USES_REGS1) {
   Term t = Deref(ARG1), topts = ARG2;
   /* get options */
   /* done */
-  if (t == TermExtensions)
-    return Yap_unify(ARG3, ArgOfTerm(ABSOLUTE_FILE_NAME_EXTENSIONS + 1, topts));
-  if (t == TermRelativeTo)
-    return Yap_unify(ARG3,
-                     ArgOfTerm(ABSOLUTE_FILE_NAME_RELATIVE_TO + 1, topts));
-  if (t == TermFileType)
-    return Yap_unify(ARG3, ArgOfTerm(ABSOLUTE_FILE_NAME_FILE_TYPE + 1, topts));
-  if (t == TermAccess)
-    return Yap_unify(ARG3, ArgOfTerm(ABSOLUTE_FILE_NAME_ACCESS + 1, topts));
-  if (t == TermFileErrors)
-    return Yap_unify(ARG3,
-                     ArgOfTerm(ABSOLUTE_FILE_NAME_FILE_ERRORS + 1, topts));
-  if (t == TermSolutions)
-    return Yap_unify(ARG3, ArgOfTerm(ABSOLUTE_FILE_NAME_SOLUTIONS + 1, topts));
-  if (t == TermGlob)
-    return Yap_unify(ARG3, ArgOfTerm(ABSOLUTE_FILE_NAME_GLOB + 1, topts));
-  if (t == TermExpand)
-    return Yap_unify(ARG3, ArgOfTerm(ABSOLUTE_FILE_NAME_EXPAND + 1, topts));
-  if (t == TermVerboseFileSearch)
-    return Yap_unify(
-        ARG3, ArgOfTerm(ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH + 1, topts));
-  Yap_Error(DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION, ARG2, NULL);
+  int i = Yap_ArgKey( AtomOfTerm( t ), absolute_file_name_search_defs,
+                                   ABSOLUTE_FILE_NAME_END );
+  if (i >= 0)
+    return Yap_unify(ARG3, ArgOfTerm(i + 1, topts));
+  Yap_Error(DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION, ARG1, NULL);
   return false;
 }
 

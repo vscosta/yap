@@ -373,7 +373,7 @@ true :- true.
 	 get_value('$consult_on_boot',X),
          (
 	  X \= []
-	 ->
+	  ->
 	  bootstrap(X),
 	  module( user ),
 	  qsave_program( 'startup.yss')

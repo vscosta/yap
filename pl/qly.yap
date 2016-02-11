@@ -243,12 +243,19 @@ qend_program :-
 
 '$init_state' :-
 	once('$handle_throw'(_,_,_)),
-	fail.
-'$init_state' :-
-	recorded('$program_state', _P, _), !,
-	'$do_init_state'.
-'$init_state'.
+	(
+	    recorded('$program_state', _P, R)
+	 ->
+	     erase(R),
+	     '$do_init_state'
+	 ;
+	 true
+	).
 
+'$do_init_state' :-
+	set_value('$user_module',user),
+	'$protect',
+	fail.
 '$do_init_state' :-
 	compile_expressions,
 	 '$init_preds',
@@ -263,10 +270,6 @@ qend_program :-
 	'$reinit_thread0',
 	 fail.
 '$do_init_state' :-
-	set_value('$user_module',user),
-	'$protect',
-	fail.
-'$do_init_state' :-
 	'$current_module'(prolog),
 	module(user),
 	fail.
@@ -280,10 +283,13 @@ qend_program :-
 
 %
 % first, recover what we need from the saved state...
-%
+%'
 '$init_from_saved_state_and_args' :-
 	'$init_path_extensions',
 	fail.
+'$init_from_saved_state_and_args' :-
+        '$protect',
+        fail.
 % use if we come from a save_program and we have SWI's shlib
 '$init_from_saved_state_and_args' :-
 	current_prolog_flag(hwnd, _HWND),
@@ -320,15 +326,12 @@ qend_program :-
 '$init_from_saved_state_and_args' :-
 	'$startup_goals',
 	fail.
-'$init_from_saved_state_and_args' :-
+'$init_from_saved' :-
 	recorded('$restore_goal',G,R),
 	erase(R),
 	prompt(_,'| '),
 	catch(once(user:G),Error,user:'$Error'(Error)),
 	fail.
-'$init_from_saved_state_and_args' :-
-        '$protect',
-        fail.
 '$init_from_saved_state_and_args'.
 
 '$init_path_extensions' :-
@@ -343,9 +346,9 @@ qend_program :-
     module(user),
     fail.
 '$startup_goals' :-
-	recorded('$startup_goal',G,_),
-	catch(once(user:G),Error,user:'$Error'(Error)),
-	fail.
+    recorded('$startup_goal',G,_),
+    catch(once(user:G),Error,user:'$Error'(Error)),
+    fail.
 '$startup_goals' :-
 	get_value('$init_goal',GA),
 	GA \= [],

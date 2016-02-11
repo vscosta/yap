@@ -120,7 +120,7 @@ otherwise.
 '$early_print_message'(Level, Msg) :-
     source_location(F0, L),
     !,
-	format(user_error, '~a:~d: unprocessed ~a ~w ~n', [F0, L,Level,Msg]).
+    format(user_error, '~a:~d:0: unprocessed ~a ~w ~n', [F0, L,Level,Msg]).
 '$early_print_message'(Level, Msg) :-
 	format(user_error, 'unprocessed ~a ~w ~n', [Level,Msg]).
 
@@ -135,6 +135,9 @@ print_message(Level, Msg) :-
 
 
 :- bootstrap('arith.yap').
+
+:- compile_expressions.
+
 :- bootstrap('lists.yap').
 :- bootstrap('consult.yap').
 :- bootstrap('preddecls.yap').
@@ -145,13 +148,11 @@ print_message(Level, Msg) :-
 
 :- bootstrap('atoms.yap').
 :- bootstrap('os.yap').
+:- bootstrap('grammar.yap').
 :- bootstrap('absf.yap').
-:- set_prolog_flag(verbose,  normal).
 
 %:-set_prolog_flag(gc_trace, verbose).
 %:- set_prolog_flag( verbose_file_search, true ).
-
-:- compile_expressions.
 
 :- dynamic prolog:'$parent_module'/2.
 
@@ -162,8 +163,6 @@ print_message(Level, Msg) :-
    ].
 
 :- use_module('error.yap').
-:- use_module('grammar.yap').
-
 
 :- [
     'errors.yap',

@@ -105,10 +105,18 @@ compose_message( Term, _Level ) -->
 	prolog:message(Term), !.
 compose_message( query(_QueryResult,_), _Level) -->
 	[].
+compose_message( absolute_file_path(File), _Level) -->
+	[ '~N~n  absolute_file of ~w' - [File] ].	
 compose_message( absolute_file_path(Msg, Args), _Level) -->
-	[ ' absolute_file_path: ' - [],
+	[ '     : ' - [],
 	  Msg - Args,
 	  nl ].
+compose_message( arguments([]), _Level) -->
+	[].
+compose_message( arguments([A|As]), Level) -->
+	[ '  ~w' - [A],
+	  nl ],
+	  compose_message( arguments(As), Level).
 compose_message( ancestors([]), _Level) -->
 	[ 'There are no ancestors.' ].
 compose_message( breakp(bp(debugger,_,_,M:F/N,_),add,already), _Level) -->
@@ -195,7 +203,8 @@ compose_message(Term, Level) -->
 	[nl,nl].
 compose_message(Term, Level) -->
 	{  Level == error -> true ; Level == warning },
-	main_message( Term, Level ),
+	{ '$show_consult_level'(LC) },
+	main_message( Term, Level, LC ),
 	[nl,nl].
 
 location(error(syntax_error(syntax_error(_,between(_,LN,_),FileName,_))), _ ) -->
@@ -209,75 +218,72 @@ location( error(_,Term), Level ) -->
 	{  source_location(F0, L),
 	   stream_property(_Stream, alias(loop_stream)) }, !,
 	{ lists:memberchk([p|p(M,Na,Ar,_File,_FilePos)], Term ) },
-	[  '~a:~d:0 ~a in ~a:~q/~d:'-[F0, L,Level,M,Na,Ar] ],
+	[  '~a:~d:0: ~a in ~a:~q/~d:'-[F0, L,Level,M,Na,Ar] ],
 	[nl].
 	location( error(_,Term), Level ) -->
 	{ lists:memberchk([p|p(M,Na,Ar,File,FilePos)], Term ) }, !,
-	[  '~a:~d:0 ~a in ~a:~q/~d:'-[File, FilePos,Level,M,Na,Ar] ],
+	[  '~a:~d:0: ~a in ~a:~q/~d:'-[File, FilePos,Level,M,Na,Ar] ],
 	[nl].
 
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
-main_message(error(Msg,Info), _) --> {var(Info)}, !,
-	[ nl, '~*|!!! uninstantiated message ~w~n.' - [8,Msg], nl ].
-main_message( error(syntax_error(syntax_error(Msg,between(L0,LM,LF),_Stream,Term)),_), _ ) -->
+main_message(error(Msg,Info), _, LC) --> {var(Info)}, !,
+	[ nl, '~*|!!! uninstantiated message ~w~n.' - [LC,Msg], nl ].
+main_message( error(syntax_error(syntax_error(Msg,between(L0,LM,LF),_Stream,Term)),_), _, LC ) -->
 	!,
-	  ['~*|!!! syntax error: ~s' - [10,Msg]],
+	  ['~*|!!! syntax error: ~s' - [LC,Msg]],
 	  [nl],
 %	  [prefix('    ')],
 	  ( syntax_error_term( between(L0,LM,LF), Term )
 	  ->
 	    []
 	  ;
-	    ['failed_processing syntax error term ~q' - [Term]],
+	    ['~*|!!! failed_processing syntax error term ~q' - [LC,Term]],
 	    [nl]
 	  ).
-main_message(error(style_check(style_check(singleton(SVs),_Pos,_File,P)),_), _) -->
+main_message(error(style_check(style_check(singleton(SVs),_Pos,_File,P)),_), _, LC) -->
     !,
 	{ clause_to_indicator(P, I) },
-	[  '~*|!!! singleton variable~*c ~s in ~q.' - [ 10,  NVs, 0's, SVsL, I] ],
+	[  '~*|!!! singleton variable~*c ~s in ~q.' - [ LC,  NVs, 0's, SVsL, I] ],
 	{ svs(SVs,SVs,SVsL),
 	  ( SVs = [_] -> NVs = 0 ; NVs = 1 )
 	}.
-main_message(error(style_check(style_check(multiple(N,A,Mod,I0),_Pos,File,_P)),_),_) -->
+main_message(error(style_check(style_check(multiple(N,A,Mod,I0),_Pos,File,_P)),_),_, LC) -->
     !,
-	{ '$show_consult_level'(LC) },
 	[  '~*|!!! ~a redefines ~q from  ~a.' - [LC,File, Mod:N/A, I0] ].
-main_message(error(style_check(style_check(discontiguous(N,A,Mod),_S,_W,_P)),_) ,_)-->
+main_message(error(style_check(style_check(discontiguous(N,A,Mod),_S,_W,_P)),_,LC) ,_)-->
     !,
-	{ '$show_consult_level'(LC) },
-	[  '~*|!!! !!! discontiguous definition for ~p.' - [LC,Mod:N/A] ].
-main_message(error(consistency_error(Who)), _Source) -->
+	[  '~*|!!! discontiguous definition for ~p.' - [LC,Mod:N/A] ].
+main_message(error(consistency_error(Who)), _Source, LC) -->
     !,
-	{ '$show_consult_level'(LC) },
 	[ '~*|!!! has argument ~a not consistent with type.'-[LC,Who] ].
-main_message(error(domain_error(Who , Type), _Where), _Source) -->
+main_message(error(domain_error(Who , Type), _Where), _Source, LC) -->
     !,
-	[ '~*|!!!  ~q does not belong to domain ~a,' - [8,Who,Type], nl ].
-main_message(error(evaluation_error(What, Who), _Where), _Source) -->
+    	[ '~*|!!!  ~q does not belong to domain ~a,' - [LC,Type,Who], nl ].
+main_message(error(evaluation_error(What, Who), _Where), _Source, LC) -->
+        !,
+        [ '~*|!!! ~w caused ~a during evaluation of arithmetic expressions,' - [LC,Who,What], nl ].
+main_message(error(existence_error(Type , Who), _Where), _Source, LC) -->
     !,
-    [ '~*|!!! ~w caused ~a during evaluation of arithmetic expressions,' - [8,Who,What], nl ].
-main_message(error(existence_error(Type , Who), _Where), _Source) -->
-    !,
-	[  '~*|!!!  ~q ~q could not be found,' - [8,Type, Who], nl ].
-main_message(error(permission_error(Op, Type, Id), _Where), _Source) -->
-	[ '~*|!!!  ~q is not allowed in ~a ~q,' - [8, Op, Type,Id], nl ].
-main_message(error(instantiation_error, _Where), _Source) -->
-	[ '~*|!!! unbound variable' - [8], nl ].
-main_message(error(representation_error), _Source) -->
-	[ '~*|!!! unbound variable' - [8], nl ].
-main_message(error(type_error(Type,Who), _What), _Source) -->
-	[ '~*|!!! ~q should be of type ~a' - [8,Who,Type]],
+	[  '~*|!!!  ~q ~q could not be found,' - [LC,Type, Who], nl ].
+main_message(error(permission_error(Op, Type, Id), _Where), _Source, LC) -->
+	[ '~*|!!!  ~q is not allowed in ~a ~q,' - [LC, Op, Type,Id], nl ].
+main_message(error(instantiation_error, _Where), _Source, LC) -->
+	[ '~*|!!! unbound variable' - [LC], nl ].
+main_message(error(representation_error), _Source, LC) -->
+	[ '~*|!!! unbound variable' - [LC], nl ].
+main_message(error(type_error(Type,Who), _What), _Source, LC) -->
+	[ '~*|!!! ~q should be of type ~a' - [LC,Who,Type]],
 	[ nl ].
-main_message(error(system_error(Who), _What), _Source) -->
-	[ '~*|!!! ~q error' - [8,Who]],
+main_message(error(system_error(Who), _What), _Source, LC) -->
+	[ '~*|!!! ~q error' - [LC,Who]],
 	[ nl ].
-main_message(error(uninstantiation_error(T),_), _Source) -->
-	[ '~*|!!! found ~q, expected unbound variable ' - [8,T], nl ].
+main_message(error(uninstantiation_error(T),_), _Source, LC) -->
+	[ '~*|!!! found ~q, expected unbound variable ' - [LC,T], nl ].
 
 display_consulting(_Level) -->
 	{  source_location(F0, L),
 	   stream_property(_Stream, alias(loop_stream)) }, !,
-	[ '~a:~d:0 found  while compiling this file.'-[F0,L], nl ].
+	[ '~a:~d:0: found  while compiling this file.'-[F0,L], nl ].
 display_consulting(_) --> [].
 
 caller( error(_,Term), _) -->
@@ -286,12 +292,12 @@ caller( error(_,Term), _) -->
 	  !,
 	  ['~*|goal was ~q' - [10,Call]],
 	  [nl],
-	  ['~*|exception raised from ~a:~q:~d, ~a:~d:0. '-[10,M,Na,Ar,File, FilePos]],
+	  ['~*|exception raised from ~a:~q:~d, ~a:~d:0: '-[10,M,Na,Ar,File, FilePos]],
 	[nl].
 caller( error(_,Term), _) -->
 	{ lists:memberchk([e|p(M,Na,Ar,File,FilePos)], Term ) },
 	!,
-	['~*|exception raised from  ~a:~q/~d, ~a:~d:0. '-[10,M,Na,Ar,File, FilePos]],
+	['~*|exception raised from  ~a:~q/~d, ~a:~d:0: '-[10,M,Na,Ar,File, FilePos]],
 	[nl].
 caller( error(_,Term), _) -->
 	{  lists:memberchk([g|g(Call)], Term) },
@@ -304,7 +310,7 @@ caller( _, _) -->
 c_goal( error(_,Term), Level ) -->
 	{ lists:memberchk([c|c(File, Line, Func)], Term ) },
 	!,
-	['~*|~a raised at C-function ~a() in ~a/~d:0. '-[10, Level, Func, File, Line]],
+	['~*|~a raised at C-function ~a() in ~a:~d:0: '-[10, Level, Func, File, Line]],
 	[nl].
 c_goal( _, _Level ) --> [].
 

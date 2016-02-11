@@ -70,7 +70,7 @@ Grammar related built-in predicates:
 
 */
 
-:- module( system('$_grammar'), [!/2,
+:- system_module( '$_grammar', [!/2,
          (',')/4,
          (->)/4,
          ('.')/4,
@@ -82,14 +82,12 @@ Grammar related built-in predicates:
         phrase/2,
         phrase/3,
         {}/3,
-        ('|')/4]).
-
-:- use_system_module( '$_errors', ['$do_error'/2]).
+        ('|')/4], ['$do_error'/2]).
 
 :- use_module( library( expand_macros ) ).
 
 % :- meta_predicate ^(?,0,?).
-				% ^(Xs, Goal, Xs) :- call(Goal).
+% ^(Xs, Goal, Xs) :- call(Goal).
 
 % :- meta_predicate ^(?,1,?,?).
 % ^(Xs0, Goal, Xs0, Xs) :- call(Goal, Xs).
@@ -101,17 +99,17 @@ Grammar related built-in predicates:
 */
 
 prolog:'$translate_rule'(Rule, (NH :- B) ) :-
-     source_module( SM ),
-     '$yap_strip_module'( SM:Rule,  M0, (LP-->RP) ),
-     t_head(LP, NH0, NGs, S, SR, (LP-->SM:RP)),
-     '$yap_strip_module'( M0:NH0,  M, NH1 ),
-     ( M == SM -> NH = NH1 ; NH = M:NH1 ),
-	 (var(NGs) ->
-	     t_body(RP, _, last, S, SR, B1)
-	 ;
-	     t_body((RP,{NGs}), _, last, S, SR, B1)
-	 ),
-	t_tidy(B1, B).
+    source_module( SM ),
+    '$yap_strip_module'( SM:Rule,  M0, (LP-->RP) ),
+    t_head(LP, NH0, NGs, S, SR, (LP-->SM:RP)),
+    '$yap_strip_module'( M0:NH0,  M, NH1 ),
+    ( M == SM -> NH = NH1 ; NH = M:NH1 ),
+    (var(NGs) ->
+	 t_body(RP, _, last, S, SR, B1)
+     ;
+     t_body((RP,{NGs}), _, last, S, SR, B1)
+    ),
+    t_tidy(B1, B).
 
 
 t_head(V, _, _, _, _, G0) :- var(V), !,
@@ -232,8 +230,23 @@ prolog:phrase(PhraseDef, WordList) :-
 This predicate succeeds when the difference list ` _L_- _R_`
 is a phrase of type  _P_.
 */
+prolog:phrase(V, S0, S) :-
+    var(V),
+    !,
+    '$do_error'(instantiation_error,phrase(V,S0,S)).
+prolog:phrase([H|T], S0, S) :-
+    !,
+    S0 = [H|S1],	      
+    '$phrase_list'(T, S1, S).
+prolog:phrase([], S0, S) :-
+    !,
+    S0 = S.
 prolog:phrase(P, S0, S) :-
 	call(P, S0, S).
+
+'$phrase_list'([], S, S).
+'$phrase_list'([H|T], [H|S1], S0) :-
+    '$phrase_list'(T, S1, S0).
 
 prolog:!(S, S).
 
@@ -306,19 +319,16 @@ prolog:'$goal_expansion_allowed'.
           NewGoal = '$execute_in_mod'(NewGoal3,M)
          ).
 
-allowed_module(phrase(_,_),_).
-allowed_module(phrase(_,_,_),_).
+do_c_built_in('C'(A,B,C), _, _, (A=[B|C])) :- !.
 
-
-system:goal_expansion(Mod:phrase(NT,Xs0, Xs),Mod:NewGoal) :- 
+do_c_built_in(phrase(NT,Xs0, Xs),Mod, _, NewGoal) :- 
     nonvar(NT), nonvar(Mod), !,
     '$goal_expansion_allowed',
     '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal).
     
-system:goal_expansion(Mod:phrase(NT,Xs),Mod:NewGoal) :-
+do_c_built_in(phrase(NT,Xs),Mod,_,NewGoal) :-
     nonvar(NT), nonvar(Mod),
-    '$goal_expansion_allowed',
-    '$c_built_in_phrase'(NT, [], Xs, Mod, NewGoal).
+    '$c_built_in_phrase'(NT, Xs, [], Mod, NewGoal).
 
 /**
 @}

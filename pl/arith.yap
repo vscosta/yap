@@ -129,7 +129,6 @@ do_c_built_in(Mod:G, _, H, OUT) :-
 	'$yap_strip_module'(Mod:G, M1,  G1),
 	var(G1), !,
 	do_c_built_metacall(G1, M1, H, OUT).
-do_c_built_in('C'(A,B,C), _, _, (A=[B|C])) :- !.
 do_c_built_in('$do_error'( Error, Goal), M, Head,
 	      (clause_location(Call, Caller),
 	       strip_module(M:Goal,M1,NGoal),

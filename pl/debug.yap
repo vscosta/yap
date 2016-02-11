@@ -307,7 +307,6 @@ be lost.
 %'$do_spy'(V, M, CP, Flag) :-
 %	writeln('$do_spy'(V, M, CP, Flag)), fail.
 '$do_spy'(V, M, CP, Flag) :-
-'$stop_low_level_trace',
         '$stop_creeping'(_),
 	var(V), !,
 	'$do_spy'(call(V), M, CP, Flag).
@@ -521,15 +520,15 @@ be lost.
 '$spycall'(G, M, _, _) :-
     current_prolog_flag( debug, false),
     !,
-	'$execute_nonstop'(G,M).
+    '$execute_nonstop'(G,M).
 '$spycall'(G, M, _, _) :-
 	'__NB_getval__'('$debug_jump',true, fail),
 	!,
 	( '$is_metapredicate'(G, M)
 	->
-      '$expand_meta_call'(M:G, [], G1)
+	    '$expand_meta_call'(M:G, [], G1)
 	;
-	  G = G1
+	G = G1
 	),
 	'$execute_nonstop'(G1,M).
 '$spycall'(G, M, _, _) :-
@@ -542,8 +541,8 @@ be lost.
 	'$do_spy'(NG, NM, CP, spy).
 '$spycall'(G, M, _, _) :-
 	( '$is_system_predicate'(G,M) ; '$tabled_predicate'(G,M) ),
-	 !,
-	'$continue_debugging_goal'(no, '$execute_nonstop'(G,M)).
+	!,
+	'$continue_debugging_goal'(yes, '$execute_nonstop'(G,M)).
 '$spycall'(G, M, CalledFromDebugger, InRedo) :-
 	'$spycall_expanded'(G, M, CalledFromDebugger, InRedo).
 
@@ -568,13 +567,13 @@ be lost.
 	*->
 	'$stop_creeping'(_),
     (
-	'$continue_debugging_goal'(no, '$execute_clause'(G, M, R, CP))
+	'$continue_debugging_goal'(yes, '$execute_clause'(G, M, R, CP))
      ;
      InRedo = true
     )
 	 )
 	 ;
-	( '$continue_debugging_goal'(no, '$execute_nonstop'(G,M) ) ;  InRedo = true )
+	( '$continue_debugging_goal'(yes, '$execute_nonstop'(G,M) ) ;  InRedo = true )
     ).
     % I may backtrack to here from far away
 
@@ -786,7 +785,7 @@ be lost.
 '$action'(0'n,_,_,_,_,off) :- !,			% 'n		nodebug
 	'$skipeol'(0'n),				% '
 	% tell debugger never to stop.
-    '__NB_setval__'('$debug_run', -1),
+	'__NB_setval__'('$debug_run', -1),
 	'__NB_setval__'('$debug_jump',true),
 	nodebug.
 '$action'(0'r,_,CallId,_,_,_) :- !,		        % 'r		retry

@@ -639,23 +639,23 @@ static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
   CurrentModule = fe->cmod;
   if (CurrentModule == TermProlog)
     CurrentModule = PROLOG_MODULE;
-  if (fe->vp)
+  if (fe->t && fe->vp)
     v1 = get_variables(fe, tokstart);
   else
     v1 = 0L;
-  if (fe->np)
+  if (fe->t && fe->np)
     v2 = get_varnames(fe, tokstart);
   else
     v2 = 0L;
-  if (fe->sp)
+  if (fe->t && fe->sp)
     v3 = get_singletons(fe, tokstart);
   else
     v3 = 0L;
-  if (fe->tcomms)
+  if (fe->t && fe->tcomms)
     vc = LOCAL_Comments;
   else
     vc = 0L;
-  if (fe->tp)
+  if (fe->t && fe->tp)
     tp = get_stream_position(fe, tokstart );
   else
     tp = 0L;
@@ -679,22 +679,22 @@ static bool complete_clause_processing(FEnv *fe, TokEntry
   CurrentModule = fe->cmod;
   if (CurrentModule == TermProlog)
     CurrentModule = PROLOG_MODULE;
-  if (fe->vp)
+  if (fe->t && fe->vp)
     v_vp = get_variables(fe, tokstart);
   else
     v_vp = 0L;
-  if (fe->np)
+  if (fe->t && fe->np)
     v_vnames = get_varnames(fe, tokstart);
   else
     v_vnames = 0L;
-  if (trueLocalPrologFlag(SINGLE_VAR_WARNINGS_FLAG)) {
+  if (fe->t && trueLocalPrologFlag(SINGLE_VAR_WARNINGS_FLAG)) {
     warn_singletons(fe, tokstart);
   }
-  if (fe->tcomms)
+  if (fe->t && fe->tcomms)
     v_comments = LOCAL_Comments;
   else
     v_comments = 0L;
-  if (fe->tp)
+  if (fe->t && fe->tp)
     v_pos = get_stream_position(fe, tokstart );
   else
     v_pos = 0L;
@@ -813,7 +813,9 @@ static parser_state_t scan(REnv *re, FEnv *fe, int inp_stream) {
     return YAP_PARSING;
   }
   if (LOCAL_tokptr->Tok == eot_tok && LOCAL_tokptr->TokInfo == TermNl) {
-    LOCAL_ErrorMessage = "Empty clause";
+    char *out = malloc( strlen("Empty clause" + 1 ) );
+    strcpy( out, "Empty clause" );
+    LOCAL_ErrorMessage = out;
     LOCAL_Error_TYPE = SYNTAX_ERROR;
     LOCAL_Error_Term = TermEof;
     return YAP_PARSING_ERROR;
@@ -878,7 +880,8 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
   } else {
     Term terr = Yap_syntax_error(fe->toklast, inp_stream);
     if (ParserErrorStyle == TermError) {
-      LOCAL_ErrorMessage = "SYNTAX ERROR";
+      LOCAL_ErrorMessage = NULL;
+      LOCAL_Error_TYPE = SYNTAX_ERROR;
       Yap_Error(SYNTAX_ERROR, terr, LOCAL_ErrorMessage);
       return YAP_PARSING_FINISHED;
     } else {
@@ -933,7 +936,7 @@ Term Yap_read_term(int inp_stream, Term opts, int nargs) {
 #endif
 
   parser_state_t state = YAP_START_PARSING;
-  while (state != YAP_PARSING_FINISHED) {
+  while (true) {
     switch (state) {
     case YAP_START_PARSING:
       state = initParser(opts, &fe, &re, inp_stream, nargs);
@@ -951,21 +954,26 @@ Term Yap_read_term(int inp_stream, Term opts, int nargs) {
       state = parseError(&re, &fe, inp_stream);
       break;
     case YAP_PARSING_FINISHED:
-      break;
+      {
+	CACHE_REGS
+	  bool done;
+	if (fe.reading_clause)
+	  done = complete_clause_processing(&fe, LOCAL_tokptr);
+	else
+	  done = complete_processing(&fe, LOCAL_tokptr);
+	if (!done) {
+	  state = YAP_PARSING_ERROR;
+	  fe.t = 0;
+	  break;
+	}
+#if EMACS
+      first_char = tokstart->TokPos;
+#endif /* EMACS */
+      return fe.t;
+      }
     }
   }
-  {
-    CACHE_REGS
-    if (fe.reading_clause &&
-        !complete_clause_processing(&fe, LOCAL_tokptr))
-      fe.t = 0;
-    else if (!fe.reading_clause && !complete_processing(&fe, LOCAL_tokptr))
-      fe.t = 0;
-  }
-#if EMACS
-  first_char = tokstart->TokPos;
-#endif /* EMACS */
-  return fe.t;
+  return 0;
 }
 
 static Int
@@ -1113,11 +1121,11 @@ static Int read_clause2(USES_REGS1) {
 *   + The `syntax_errors` flag controls response to syntactic errors, the
 *default is `dec10`.
 *
-* The next two options are called implicitly:plwae
+* The next two options are called implicitly:
 *
 *   + The `module` option is initialized to the current source module, by
 *default.
-*   + The `tons` option is set from the single var flag
+*   + The `singletons` option is set from the single var flag
 */
 static Int read_clause(
     USES_REGS1) { /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */

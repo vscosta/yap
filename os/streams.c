@@ -567,6 +567,11 @@ static Int cont_stream_property(USES_REGS1) { /* current_stream */
   args = Yap_ArgListToVector(Deref(ARG2), stream_property_defs,
                              STREAM_PROPERTY_END);
   if (args == NULL) {
+    if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
+      if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
+	LOCAL_Error_TYPE = DOMAIN_ERROR_STREAM_PROPERTY_OPTION;
+      Yap_Error( LOCAL_Error_TYPE, LOCAL_Error_Term, NULL );
+    }
     cut_fail();
   }
   LOCK(GLOBAL_StreamDescLock);
@@ -628,8 +633,13 @@ static Int stream_property(USES_REGS1) { /* Init current_stream */
       cut_fail();
     }
     args = Yap_ArgListToVector(Deref(ARG2), stream_property_defs,
-                               STREAM_PROPERTY_END);
+			       STREAM_PROPERTY_END);
     if (args == NULL) {
+      if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
+	if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
+	  LOCAL_Error_TYPE = DOMAIN_ERROR_STREAM_PROPERTY_OPTION;
+	Yap_Error( LOCAL_Error_TYPE, LOCAL_Error_Term, NULL );
+      }
       UNLOCK(GLOBAL_Stream[i].streamlock);
       cut_fail();
     }
@@ -682,6 +692,11 @@ static bool do_set_stream(int sno,
 
   args = Yap_ArgListToVector(opts, set_stream_defs, SET_STREAM_END);
   if (args == NULL) {
+    if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
+      if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
+	LOCAL_Error_TYPE = DOMAIN_ERROR_SET_STREAM_OPTION;
+      Yap_Error( LOCAL_Error_TYPE, LOCAL_Error_Term, NULL );
+    }
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return false;
   }

@@ -46,6 +46,7 @@
         ttynl/0,
         ttyput/1,
         ttyskip/1,
+	rename/2,
         write_depth/2], ['$default_expand'/1,
         '$extend_file_search_path'/1,
         '$set_default_expand'/1]).
@@ -438,8 +439,25 @@ The atom  _File_ corresponds to an existing file or directory.
 
 */
 file_exists(IFile) :-
-	true_file_name(IFile, File),
-	'$file_exists'(File).
+	absolute_file_name(IFile, _File, [expand(true), solutions(first), access(exist)]).
+
+/** @pred  rename(+F , +G)
+
+      Renames the single file  _F_ to  _G_.
+*/
+rename(IFile, OFile) :-
+	absolute_file_name(IFile, IF, [access(read),expand(true)]),
+	absolute_file_name(OFile, OF, [expand(true)]),
+	'$rename'(IF, OF).
+
+/** @pred  access_file(+F , +G)
+
+      Verify whether file F respects property _G_. The file is  processed
+      with absolute_file_name.
+*/
+access_file(IFile, Access) :-
+    absolute_file_name(IFile, _IF, [access(Access),expand(true)]).
+
 
 /**
 @}

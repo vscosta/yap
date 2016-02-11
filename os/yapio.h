@@ -114,7 +114,7 @@ int Yap_growtrail_in_parser(tr_fr_ptr *, TokEntry **, VarEntry **);
 
 bool Yap_IsAbsolutePath(const char *p);
 Atom Yap_TemporaryFile(const char *prefix, int *fd);
-const char *Yap_AbsoluteFile(const char *spec, char *tmp, bool expand);
+const char *Yap_AbsoluteFile(const char *spec, bool expand);
 
 typedef enum mem_buf_source {
   MEM_BUF_CODE = 1,

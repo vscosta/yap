@@ -51,7 +51,7 @@ variable:
 
 if defined, or in the default library.
 
-YAP also supports the SWI-Prolog interface to loading foreign code:
+YAP supports the SWI-Prolog interface to loading foreign code, the shlib package.
 
 */
 load_foreign_files(Objs,Libs,Entry) :-
@@ -63,6 +63,29 @@ load_foreign_files(Objs,Libs,Entry) :-
 	recordzifnot( '$foreign', M:'$foreign'(Objs,Libs,Entry), _)
 	->
 	'$load_foreign_files'(NewObjs,NewLibs,Entry),
+        (
+	    prolog_load_context(file, F)
+	->
+	    ignore( recordzifnot( '$load_foreign_done', [F, M], _) )
+	;
+	    true
+        )
+	;
+	true 
+   ),
+   !. 
+
+/** @pred load_absolute_foreign_files( _Files_, _Libs_, _InitRoutine_)
+
+Loads object files produced by the C compiler. It is useful when no search should be performed and instead one has the full paths to the _Files_ and _Libs_.
+
+*/
+load_absolute_foreign_files(Objs,Libs,Entry) :-
+    source_module(M),
+    ( 
+	recordzifnot( '$foreign', M:'$foreign'(Objs,Libs,Entry), _)
+	->
+	'$load_foreign_files'(Objs,Libs,Entry),
         (
 	    prolog_load_context(file, F)
 	->
