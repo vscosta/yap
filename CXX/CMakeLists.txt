@@ -17,7 +17,7 @@ add_library (Yap++ SHARED
 
 include_directories (H include ${CMAKE_BINARY_DIR} ${GMP_INCLUDE_DIR})
 
-target_link_libraries(Yap++ ${CMAKE_DL_LIBS})
+target_link_libraries(Yap++ ${CMAKE_DL_LIBS} libYap)
 
 install(TARGETS  Yap++
   LIBRARY DESTINATION ${libdir}
@@ -26,5 +26,3 @@ install(TARGETS  Yap++
 
 set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${GMP_INCLUDE_DIR} )
 #set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${GMP_LIBRARIES} )
-
-
