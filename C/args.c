@@ -27,55 +27,65 @@ matchKey(Atom key, xarg *e0, int n, const param_t *def)
   return NULL;
 }
 
+/**
+ * Returns the index of an argument key, or -1 if not found.
+ *
+ */
+int
+Yap_ArgKey(Atom key, const param_t *def, int n)
+{
+  int i;
+  for (i=0; i< n; i++) {
+    if (!strcmp((char *)def->name, (char *)RepAtom(key)->StrOfAE)) {
+      return i;
+    }
+    def++;
+  }
+  return -1;
+}
+
+static xarg *
+failed( yap_error_number e, Term t, xarg *a)
+{
+  free( a );      
+  LOCAL_Error_TYPE = e;
+  LOCAL_Error_Term = t;
+  return NULL;
+}
+
+
 xarg *
 Yap_ArgListToVector (Term listl, const param_t *def, int n)
 {
   CACHE_REGS
     xarg *a = calloc(  n , sizeof(xarg) );
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
   if (IsApplTerm(listl) && FunctorOfTerm(listl) == FunctorModule)
     listl = ArgOfTerm(2,listl);
   if (!IsPairTerm(listl) && listl != TermNil) {
     if (IsVarTerm(listl) ) {
-	free( a );
-	LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-	LOCAL_Error_Term = listl;
-	return NULL;
-      }
+      return failed( INSTANTIATION_ERROR, listl, a);      
+    }
     if (IsAtomTerm(listl) ) {
       xarg *na = matchKey( AtomOfTerm(listl), a, n, def);
       if (!na) {
-	free( a );
-	LOCAL_Error_TYPE = TYPE_ERROR_LIST;
-	LOCAL_Error_Term = listl;
-	return NULL;
+        return failed( TYPE_ERROR_LIST, listl, a);      
       }
     } else if (IsApplTerm(listl)) {
       Functor f = FunctorOfTerm( listl );
       if (IsExtensionFunctor(f)) {
-	free( a );
-	LOCAL_Error_TYPE = TYPE_ERROR_LIST;
-	LOCAL_Error_Term = listl;
-	return NULL;    
+        return failed( TYPE_ERROR_LIST, listl, a);      
       }
       arity_t arity = ArityOfFunctor( f );
       if (arity != 1) {
-	free( a );
-	LOCAL_Error_TYPE = TYPE_ERROR_LIST;
-	LOCAL_Error_Term = listl;
-	return NULL;
+        return failed( TYPE_ERROR_LIST, listl, a);      
       }
       xarg *na = matchKey( NameOfFunctor( f ), a, n, def);
       if (!na) {
-	free( a );
-	LOCAL_Error_TYPE = TYPE_ERROR_LIST;
-	LOCAL_Error_Term = listl;
-	return NULL;
+        return failed( TYPE_ERROR_LIST, listl, a);      
       }
     } else {
-      free( a );
-      LOCAL_Error_TYPE = TYPE_ERROR_LIST;
-      LOCAL_Error_Term = listl;
-      return NULL;
+      return failed( TYPE_ERROR_LIST, listl, a);      
     }
     listl = MkPairTerm( listl, TermNil );
   }
@@ -83,61 +93,42 @@ Yap_ArgListToVector (Term listl, const param_t *def, int n)
     Term hd = HeadOfTerm( listl );
     listl = TailOfTerm( listl );
     if (IsVarTerm(hd) || IsVarTerm(listl))  {
-      LOCAL_Error_TYPE = INSTANTIATION_ERROR;
       if (IsVarTerm(hd)) {
-	LOCAL_Error_Term = hd;
+        return failed( INSTANTIATION_ERROR, hd, a);      
       } else {
-	LOCAL_Error_Term = listl;
+        return failed( INSTANTIATION_ERROR, listl, a);      
       }
-      free( a );
-      return NULL;
     }
     if (IsAtomTerm(hd)) {
       xarg *na = matchKey( AtomOfTerm( hd ), a, n, def);
       if (!na)
-	return NULL;
-
+        return failed( DOMAIN_ERROR, hd, a);      
       na->used = true;
       na->tvalue = TermNil;
       continue;
     } else if (IsApplTerm( hd )) {
       Functor f = FunctorOfTerm( hd );
       if (IsExtensionFunctor(f)) {
-	LOCAL_Error_TYPE = TYPE_ERROR_PARAMETER;
-	LOCAL_Error_Term = hd;
-	free( a );
-	return NULL;    
+        return failed( TYPE_ERROR_PARAMETER, hd, a);      
       }
       arity_t arity = ArityOfFunctor( f );
       if (arity != 1) {
-	LOCAL_Error_TYPE = DOMAIN_ERROR_OUT_OF_RANGE;
-	LOCAL_Error_Term = hd;
-	free( a );
-	return NULL;
+        return failed( DOMAIN_ERROR_OUT_OF_RANGE, hd, a);      
       }
       xarg *na = matchKey( NameOfFunctor( f ), a, n, def);
       if (!na) {
-        free( a );
-	return NULL;
+        return failed( DOMAIN_ERROR, hd, a);      
       }
       na->used = 1;
       na->tvalue = ArgOfTerm(1, hd);      
     } else {
-      LOCAL_Error_TYPE = TYPE_ERROR_PARAMETER;
-      free( a );
-      return NULL;    
+      return failed( TYPE_ERROR_PARAMETER, hd, a);      
     }
   }
   if (IsVarTerm(listl)) {
-    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-    LOCAL_Error_Term = listl;
-    free( a );
-    return NULL;
+    return failed( INSTANTIATION_ERROR, listl, a);      
   } else if (listl != TermNil) {
-    LOCAL_Error_TYPE = TYPE_ERROR_LIST;
-    LOCAL_Error_Term = listl;
-    free( a );
-    return NULL;
+    return failed( TYPE_ERROR_LIST, listl, a);      
   }
   return a;
 }              
@@ -167,64 +158,41 @@ Yap_ArgList2ToVector (Term listl, const param2_t *def, int n)
     xarg *a = calloc(  n , sizeof(xarg) );
   if (!IsPairTerm(listl) && listl != TermNil) {
     if (IsVarTerm(listl) ) {
-	free( a );
-	LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-	LOCAL_Error_Term = listl;
-	return NULL;
-      }
+      return failed( INSTANTIATION_ERROR, listl, a);      
+    }
     if (IsAtomTerm(listl) ) {
       xarg *na = matchKey2( AtomOfTerm(listl), a, n, def);
       if (!na) {
-	free( a );
-	LOCAL_Error_TYPE = TYPE_ERROR_LIST;
-	LOCAL_Error_Term = listl;
-	return NULL;
+        return failed( DOMAIN_ERROR, listl, a);      
       }
     }
     if (IsApplTerm(listl)) {
       Functor f = FunctorOfTerm( listl );
       if (IsExtensionFunctor(f)) {
-	free( a );
-	LOCAL_Error_TYPE = TYPE_ERROR_LIST;
-	LOCAL_Error_Term = listl;
-	return NULL;    
+        return failed( TYPE_ERROR_PARAMETER, listl, a);      
       }
       arity_t arity = ArityOfFunctor( f );
       if (arity != 1) {
-	free( a );
-	LOCAL_Error_TYPE = TYPE_ERROR_LIST;
-	LOCAL_Error_Term = listl;
-	return NULL;
+        return failed( TYPE_ERROR_LIST, listl, a);      
       }
       xarg *na = matchKey2( NameOfFunctor( f ), a, n, def);
       if (!na) {
-	free( a );
-	LOCAL_Error_TYPE = TYPE_ERROR_LIST;
-	LOCAL_Error_Term = listl;
-	return NULL;
+        return failed( DOMAIN_ERROR, listl, a);      
       }
     } else {
-      free( a );
-      LOCAL_Error_TYPE = TYPE_ERROR_LIST;
-      LOCAL_Error_Term = listl;
-      return NULL;
+      return failed( TYPE_ERROR_LIST, listl, a);      
     }
     listl = MkPairTerm( listl, TermNil );
   }
   while (IsPairTerm(listl)) {
     Term hd = HeadOfTerm( listl );
     if (IsVarTerm(hd))  {
-      LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-      free( a );
-      return NULL;
+      return failed( INSTANTIATION_ERROR, hd, a);      
     }
     if (IsAtomTerm(hd)) {
       xarg *na = matchKey2( AtomOfTerm( hd ), a, n, def);
       if (!na) {
-	LOCAL_Error_TYPE = DOMAIN_ERROR_OUT_OF_RANGE;
-	LOCAL_Error_Term = hd;
-	free( a );
-	return NULL;
+	return failed( DOMAIN_ERROR, hd, a);      
       }
       na->used = true;
       na->tvalue = TermNil;
@@ -232,41 +200,29 @@ Yap_ArgList2ToVector (Term listl, const param2_t *def, int n)
     } else if (IsApplTerm( hd )) {
       Functor f = FunctorOfTerm( hd );
       if (IsExtensionFunctor(f)) {
-	LOCAL_Error_TYPE = TYPE_ERROR_PARAMETER;
-	LOCAL_Error_Term = hd;
-	free( a );
-	return NULL;    
+        return failed( TYPE_ERROR_PARAMETER, hd, a);      
       }
       arity_t arity = ArityOfFunctor( f );
       if (arity != 1) {
-	LOCAL_Error_TYPE = DOMAIN_ERROR_OUT_OF_RANGE;
-	LOCAL_Error_Term = hd;
-	free( a );
-	return NULL;
+        return failed( DOMAIN_ERROR, hd, a);      
       }
       xarg *na = matchKey2( NameOfFunctor( f ), a, n, def);
       if (na) {
 	na->used = 1;
 	na->tvalue = ArgOfTerm(1, hd);
+      } else {
+	return failed( DOMAIN_ERROR, hd, a);      
       }
     } else {
-      LOCAL_Error_TYPE = TYPE_ERROR_PARAMETER;
-      LOCAL_Error_Term = hd;
-      free( a );
-      return NULL;    
+      return failed( INSTANTIATION_ERROR, hd, a);      
     }
     listl = TailOfTerm(listl);
   }
   if (IsVarTerm(listl))  {
-    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-    free( a );
-    return NULL;
+    return failed( INSTANTIATION_ERROR, listl, a);      
   }
   if (TermNil != listl) {
-    LOCAL_Error_TYPE = TYPE_ERROR_LIST;
-    LOCAL_Error_Term = listl;
-    free( a );
-    return NULL;
+    return failed( TYPE_ERROR_LIST, listl, a);      
   }
   return a;
 }		
