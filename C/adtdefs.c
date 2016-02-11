@@ -330,12 +330,12 @@ Atom Yap_LookupMaybeWideAtomWithLength(
   while (i < len0) {
     // primary support for atoms with null chars
     wchar_t c = atom[i];
-    if (c > 255) {
-      wide = TRUE;
+    if (c >= 255) {
+      wide = true;
       break;
     }
     if (c == '\0') {
-      len0 = i;
+      wide = true;
       break;
     }
     i++;
