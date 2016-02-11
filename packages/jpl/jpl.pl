@@ -29,6 +29,13 @@
 	the GNU General Public License.
 */
 
+%% @file jpl.pl
+%
+% @addgroup JPL Prolog to Java Interface
+% @ingroup packages
+%
+% @{
+
 :- module(jpl,
 	  [ jpl_get_default_jvm_opts/1,
 	    jpl_set_default_jvm_opts/1,
@@ -141,14 +148,15 @@ jpl_tidy_iref_type_cache( Iref) :-
 
 %------------------------------------------------------------------------------
 
-% jpl_call(+X, +MethodSpec, +Params, -Result) :-
-%   X should be:
-%     an object reference
+%% @pred jpl_call(+X, +MethodSpec, +Params, -Result)
+%
+%   - X should be:
+%     + an object reference
 %       (for static or instance methods)
-%     a classname, descriptor or type
+%     + a classname, descriptor or type
 %       (for static methods of the denoted class)
 %
-%   MethodSpec should be:
+%  - MethodSpec should be:
 %     a method name (as an atom)
 %       (may involve dynamic overload resolution based on inferred types of params)
 %
@@ -228,8 +236,7 @@ jpl_call(X, Mspec, Params, R) :-
 
 %------------------------------------------------------------------------------
 
-%%	jpl_call_instance(+ObjectType, +Object, +MethodName, Params,
-%%			  ActualParamTypes, Arity, -Result)
+%% @pred jpl_call_instance(+ObjectType, +Object, +MethodName, Params, ActualParamTypes, Arity, -Result)
 %
 %	call the MethodName-d method  (instance   or  static)  of Object
 %	(which is of ObjectType),  which   most  specifically applies to
@@ -275,8 +282,7 @@ jpl_call_instance(Type, Obj, Mname, Params, Taps, A, Rx) :-
 
 %------------------------------------------------------------------------------
 
-%%	jpl_call_static(+ClassType, +ClassObject, +MethodName, Params,
-%%			ActualParamTypes, Arity, -Result)
+%% @pred jpl_call_static(+ClassType, +ClassObject, +MethodName, Params, ActualParamTypes, Arity, -Result)
 %
 %	call the MethodName-d static method of   the  class (which is of
 %	ClassType, and which  is  represented   by  the  java.lang.Class
@@ -437,7 +443,7 @@ jpl_fergus_is_the_greatest([X|Xs], Greatest) :-
 
 %------------------------------------------------------------------------------
 
-%%	jpl_get(+X, +Fspec, -V)
+%% @pred jpl_get(+X, +Fspec, -V)
 %
 %   X can be:
 %     * a classname, a descriptor, or an (object or array) type
@@ -503,7 +509,7 @@ jpl_get(X, Fspec, V) :-
 
 %------------------------------------------------------------------------------
 
-%%	jpl_get_static(+Type, +ClassObject, +FieldName, -Value)
+%% @pred jpl_get_static(+Type, +ClassObject, +FieldName, -Value)
 %
 %	ClassObject is an instance of   java.lang.Class which represents
 %	the same class as Type; Value   (Vx below) is guaranteed unbound
@@ -624,7 +630,7 @@ jpl_get_instance(array(ElementType), _, Array, Fspec, Vx) :-
 
 %------------------------------------------------------------------------------
 
-%%	jpl_get_array_element(+ElementType, +Array, +Index, -Vc)
+%% @pred jpl_get_array_element(+ElementType, +Array, +Index, -Vc)
 %
 %	Array is (a  reference  to)  an   array  of  ElementType;  Vc is
 %	(unified with a JPL repn  of)   its  Index-th  (numbered from 0)
@@ -649,7 +655,7 @@ jpl_get_array_element(Type, Array, Index, Vc) :-
 
 %------------------------------------------------------------------------------
 
-%%	jpl_get_array_elements(+ElementType, +Array, +N, +M, -Vs)
+%% @pred jpl_get_array_elements(+ElementType, +Array, +N, +M, -Vs)
 %
 %	serves only jpl_get_instance Vs will always be unbound on entry
 
@@ -686,7 +692,7 @@ jpl_get_instance_field(array(_), Obj, FieldID, V) :-
 
 %------------------------------------------------------------------------------
 
-%%	jpl_get_object_array_elements(+Array, +LoIndex, +HiIndex, -Vcs)
+%% @pred 	jpl_get_object_array_elements(+Array, +LoIndex, +HiIndex, -Vcs)
 %
 %	Array should be a (zero-based) array   of  some object (array or
 %	non-array)  type;  LoIndex  is  an  integer,   0  =<  LoIndex  <
@@ -706,7 +712,7 @@ jpl_get_object_array_elements(Array, Lo, Hi, Vcs) :-
 
 %------------------------------------------------------------------------------
 
-%%	jpl_get_primitive_array_elements(+ElementType, +Array, +LoIndex, +HiIndex, -Vcs)
+%% @pred 	jpl_get_primitive_array_elements(+ElementType, +Array, +LoIndex, +HiIndex, -Vcs)
 %
 %	Array  should  be  a  (zero-based)  Java  array  of  (primitive)
 %	ElementType; Vcs should be unbound on entry, and on exit will be
@@ -768,7 +774,7 @@ jpl_get_static_field(array(_), Array, FieldID, V) :-
 
 %------------------------------------------------------------------------------
 
-%%	jpl_new(+X, +Params, -V)
+%% @pred 	jpl_new(+X, +Params, -V)
 %
 %   X can be:
 %    * an atomic classname
@@ -1250,7 +1256,7 @@ jpl_set_static(Type, ClassObj, Fname, V) :-
 
 %------------------------------------------------------------------------------
 
-%%	jpl_set_array(+ElementType, +Array, +Offset, +DatumQty, +Datums)
+%% @pred 	jpl_set_array(+ElementType, +Array, +Offset, +DatumQty, +Datums)
 %
 %	Datums, of which there are DatumQty,   are stashed in successive
 %	elements of Array which is an   array of ElementType starting at
@@ -1295,7 +1301,7 @@ jpl_set_array(T, A, N, I, Ds) :-
 
 %------------------------------------------------------------------------------
 
-%%	jpl_set_array_1(+Values, +Type, +BufferIndex, +BufferPointer)
+%% @pred 	jpl_set_array_1(+Values, +Type, +BufferIndex, +BufferPointer)
 %
 %	successive members of Values  are   stashed  as (primitive) Type
 %	from the BufferIndex-th element (numbered from 0) onwards of the
@@ -1330,7 +1336,7 @@ jpl_set_elements(double, Obj, N, I, Bp) :-
 
 %------------------------------------------------------------------------------
 
-%%	jpl_set_instance_field(+Type, +Obj, +FieldID, +V)
+%% @pred 	jpl_set_instance_field(+Type, +Obj, +FieldID, +V)
 %
 %	we can rely on Type, Obj and FieldID being valid, and on V being
 %	assignable (if V is a quoted term then it is converted here)
@@ -4111,7 +4117,7 @@ jpl_value_to_type(V, T) :-
 
 %------------------------------------------------------------------------------
 
-%%	jpl_value_to_type_1(+Value, -Type) is semidet.
+%% @pred 	jpl_value_to_type_1(+Value, -Type) is semidet.
 %
 %	Type is the  unique  most  specific   JPL  type  of  which Value
 %	represents an instance; called   solely  by jpl_value_to_type/2,
@@ -4391,7 +4397,7 @@ multimap_to_atom_1([K-V|KVs], T, Cs1, Cs0) :-
 
 %------------------------------------------------------------------------------
 
-%%	to_atom(+Term, -Atom)
+%% @pred 	to_atom(+Term, -Atom)
 %
 %	unifies Atom with a printed representation of Term.
 %
@@ -4435,7 +4441,7 @@ user:file_search_path(jar, library('.')).
 user:file_search_path(jar, swi(lib)).
 :-endif.
 
-%%	add_search_path(+Var, +Value) is det.
+%% @pred 	add_search_path(+Var, +Value) is det.
 %
 %	Add value to the end of  search-path   Var.  Value is normally a
 %	directory. Does not change the environment  if Dir is already in
@@ -4458,7 +4464,7 @@ add_search_path(Path, Dir) :-
 	;   setenv(Path, Dir)
 	).
 
-%%	search_path_separator(-Sep:atom)
+%% @pred 	search_path_separator(-Sep:atom)
 %
 %	Separator  used  the  the  OS    in  =PATH=,  =LD_LIBRARY_PATH=,
 %	=CLASSPATH=, etc.
@@ -4471,7 +4477,7 @@ search_path_separator(:).
 		 *         LOAD THE JVM         *
 		 *******************************/
 
-%%      check_java_environment
+%% @pred       check_java_environment
 %
 %       Verify the Java environment.  Preferably   we  would create, but
 %       most Unix systems do not   allow putenv("LD_LIBRARY_PATH=..." in
@@ -4487,53 +4493,50 @@ search_path_separator(:).
 %       Please not that Java2 doesn't require   $CLASSPATH to be set, so
 %       we do not check for that.
 
-check_java_environment :-
-	check_lib(jvm),
-	check_lib(java).
+check_java_libs(JVM, Java) :-
+    location( java_root, '/' , Root),
+    libfile( jvm, Root, JVM),
+    libfile( java, Root, Java), !.
 
-check_lib(Name) :-
-	check_shared_object(Name, File, EnvVar, Absolute),
-	(   Absolute == (-)
-	->  (   current_prolog_flag(windows, true)
-	    ->  A = '%', Z = '%'
-	    ;   A = '$', Z = ''
-	    ),
-	    format(string(Msg), 'Please add directory holding ~w to ~w~w~w',
-		   [ File, A, EnvVar, Z ]),
-	    throw(error(existence_error(library, Name),
-			context(_, Msg)))
-	;   true
-	).
+% try JAVA_HOME, registry, etc..
+location( java_root, _, Home) :- 
+    getenv( 'JAVA_HOME', Home ).
+location(java_root, _, JRE) :-
+    % OS well-known
+    member(Root, [ '/usr/lib',
+		   '/usr/local/lib',
+                   '/opt/lib'
+		 ]),
+    exists_directory(Root),
+    jdk_jre( Root, JRE).
 
-%%	check_shared_object(+Lib, -File, -EnvVar, -AbsFile) is semidet.
-%
-%	True if AbsFile is existing .so/.dll file for Lib.
-%
-%	@param File	Full name of Lib (i.e. libjpl.so or jpl.dll)
-%	@param EnvVar	Search-path for shared objects.
+jdk_jre( Home, J ) :-
+    member(Extension, [java, jvm, 'jvm/*java*', 'jvm/*jdk*', 'jvm/*sun*' ] ),
+    absolute_file_name( Extension, [expand(true), relative_to(Home), access(exists), file_type( directory ), file_errors(fail), solutions(all) ], J0 ),
+    pick_jdk_jre(J0, J).
 
-check_shared_object(Name, File, EnvVar, Absolute) :-
-	libfile(Name, File),
-	library_search_path(Path, EnvVar),
-	(   member(Dir, Path),
-	    atomic_list_concat([Dir, File], /, Absolute),
-	    exists_file(Absolute)
-	->  true
-	;   Absolute = (-)
-	).
+pick_jdk_jre(J, J).
+pick_jdk_jre(J0, J) :-
+    absolute_file_name( 'jre*', [expand(true), relative_to(J0), access(exists), file_type( directory ), file_errors(fail), solutions(all) ], J ).
+pick_jdk_jre(J0, J) :-
+    absolute_file_name( 'jdk*', [expand(true), relative_to(J0), access(exists), file_type( directory ), file_errors(fail), solutions(all) ], J ).
+    
 
-libfile(Base, File) :-
-	current_prolog_flag(unix, true), !,
-	atom_concat(lib, Base, F0),
-	current_prolog_flag(shared_object_extension, Ext),
-	file_name_extension(F0, Ext, File).
-libfile(Base, File) :-
-	current_prolog_flag(windows, true), !,
-	current_prolog_flag(shared_object_extension, Ext),
-	file_name_extension(Base, Ext, File).
+libfile(Base, HomeLib, File) :-
+    java_arch( Arch ),
+    jlib(Base, LBase),
+    atom_concat(['lib/',Arch,LBase], Lib),
+    absolute_file_name( Lib, [relative_to(HomeLib), access(read), file_type( executable),  expand(true), file_errors(fail), solutions(all)], File ).
+
+jlib( jvm, '/server/libjvm' ).
+jlib( jvm, '/client/libjvm' ).
+jlib( java, '/libjava' ).
+
+java_arch( amd64 ) :-
+    current_prolog_flag( arch, x86_64 ).
 
 
-%%	library_search_path(-Dirs:list, -EnvVar) is det.
+%% @pred 	library_search_path(-Dirs:list, -EnvVar) is det.
 %
 %	Dirs  is  the  list   of    directories   searched   for  shared
 %	objects/DLLs. EnvVar is the variable in which the search path os
@@ -4542,6 +4545,7 @@ libfile(Base, File) :-
 library_search_path(Path, EnvVar) :-
 	current_prolog_flag(shared_object_search_path, EnvVar),
 	search_path_separator(Sep),
+	phrase(java_dirs, _Extra),
 	(   getenv(EnvVar, Env),
 	    atomic_list_concat(Path, Sep, Env)
 	->  true
@@ -4549,7 +4553,7 @@ library_search_path(Path, EnvVar) :-
 	).
 
 
-%%      add_jpl_to_classpath
+%% @pred       add_jpl_to_classpath
 %
 %       Add jpl.jar to =CLASSPATH= to facilitate callbacks
 
@@ -4569,7 +4573,7 @@ add_jpl_to_classpath :-
 	setenv('CLASSPATH', New).
 
 
-%%      libjpl(-Spec) is det.
+%% @pred       libjpl(-Spec) is det.
 %
 %       Return the spec for loading the   JPL shared object. This shared
 %       object must be called libjpl.so as the Java System.loadLibrary()
@@ -4581,41 +4585,39 @@ libjpl(File) :-
 	;   File = foreign(jpl)
 	).
 
-%%	add_jpl_to_ldpath(+JPL) is det.
+%% @pred 	add_jpl_to_ldpath(+JPL) is det.
 %
 %	Add the directory holding jpl.so  to   search  path  for dynamic
 %	libraries. This is needed for callback   from Java. Java appears
 %	to use its own search  and  the   new  value  of the variable is
 %	picked up correctly.
 
-add_jpl_to_ldpath(JPL) :-
+add_jpl_to_ldpath(JPL, File) :-
 	absolute_file_name(JPL, File,
 			   [ file_type(executable),
+			     access(read),
 			     file_errors(fail)
 			   ]), !,
 	file_directory_name(File, Dir),
 	prolog_to_os_filename(Dir, OsDir),
 	current_prolog_flag(shared_object_search_path, PathVar),
 	add_search_path(PathVar, OsDir).
-add_jpl_to_ldpath(_).
 
-%%	add_java_to_ldpath is det.
+%% @pred 	add_java_to_ldpath is det.
 %
 %	Adds the directories holding jvm.dll and java.dll to the %PATH%.
 %	This appears to work on Windows. Unfortunately most Unix systems
 %	appear to inspect the content of LD_LIBRARY_PATH only once.
 
-add_java_to_ldpath :-
-	current_prolog_flag(windows, true), !,
-	phrase(java_dirs, Extra),
-	(   Extra \== []
-	->  print_message(informational, extend_ld_path(Extra)),
-	    maplist(win_add_dll_directory, Extra)
-	;   true
-	).
-add_java_to_ldpath.
+add_java_to_ldpath(_LIBJAVA, LIBJVM) :- 
+    add_lib_to_ldpath(LIBJVM),
+    fail.
+add_java_to_ldpath(LIBJAVA, _LIBJVM) :- 
+    add_lib_to_ldpath(LIBJAVA),
+    fail.
+add_java_to_ldpath(_,_).
 
-%%	java_dirs// is det.
+%% @pred 	java_dirs// is det.
 %
 %	DCG that produces existing candidate directories holding
 %	Java related DLLs
@@ -4643,7 +4645,7 @@ java_dir(_DLL, SubPath) -->
 java_dir(_, _) --> [].
 
 
-%%	java_home(-Home) is semidet
+%% @pred 	java_home(-Home) is semidet
 %
 %	Find the home location of Java.
 %
@@ -4667,7 +4669,7 @@ java_home(Home) :-
 	win_registry_get_value(Key, 'JavaHome', WinHome),
 	prolog_to_os_filename(Home, WinHome),
 	exists_directory(Home).
-:- else.
+:- endif.
 java_home(Home) :-
 	member(Home, [ '/usr/lib/java',
 		       '/usr/lib/jvm',
@@ -4677,7 +4679,7 @@ java_home(Home) :-
 		       '/usr/local/lib/jvm/jre'
 		     ]),
 	exists_directory(Home).
-:- endif.
+
 
 :- dynamic
 	jvm_ready/0.
@@ -4687,16 +4689,16 @@ java_home(Home) :-
 setup_jvm :-
 	jvm_ready, !.
 setup_jvm :-
-	add_jpl_to_classpath,
-	add_java_to_ldpath,
-	libjpl(JPL),
-	add_jpl_to_ldpath(JPL),
-	catch(load_foreign_library(JPL), E, report_java_setup_problem(E)),
-	assert(jvm_ready).
+    check_java_libs(JVM, Java),
+    add_jpl_to_classpath,
+    libjpl(JPL),
+    add_jpl_to_ldpath(JPL,FullJPL),
+    catch(load_absolute_foreign_files([FullJPL],[Java,JVM],install), E, report_java_setup_problem(E)),
+    assert(jvm_ready).
 
 report_java_setup_problem(E) :-
 	print_message(error, E),
-	check_java_environment.
+	check_java_libs(_,_).
 
 		 /*******************************
 		 *	      MESSAGES		*
@@ -4717,3 +4719,5 @@ dir_per_line([H|T]) -->
 % Initialize JVM
 
 :- initialization(setup_jvm, now).		% must be ready before export
+
+%% @}
