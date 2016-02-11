@@ -43,21 +43,6 @@
 void Yap_swi_install(void);
 void Yap_install_blobs(void);
 
-#define addr_hash(V) (((CELL) (V)) >> 4 & (N_SWI_HASH-1))
-
-static inline void
-add_to_hash(Int i, ADDR key)
-{
-
-  UInt h = addr_hash(key);
-  while (SWI_ReverseHash[h].key) {
-    h = (h+1)%N_SWI_HASH;
-  }
-  SWI_ReverseHash[h].key = key;
-  SWI_ReverseHash[h].pos = i;
-}
-
-
 static inline Term
 SWIModuleToModule(module_t m)
 {
@@ -75,10 +60,6 @@ SWIModuleToModule(module_t m)
 static inline atom_t
 AtomToSWIAtom(Atom at)
 {
-  TranslationEntry *p;
-
-  if ((p = Yap_GetTranslationProp(at,0)) != NULL)
-    return (atom_t)(p->Translation*2+1);
   return (atom_t)at;
 }
 
@@ -87,27 +68,18 @@ AtomToSWIAtom(Atom at)
 static inline Atom
 SWIAtomToAtom(atom_t at)
 {
-  if ((CELL)at & 1)
-    return SWI_Atoms[at/2];
   return (Atom)at;
 }
 
 static inline functor_t
 FunctorToSWIFunctor(Functor f)
 {
-  TranslationEntry *p;
-  Atom at = NameOfFunctor(f);
-  arity_t ar = ArityOfFunctor(f);
-  if ((p = Yap_GetTranslationProp(at,ar)) != NULL)
-    return (functor_t)(p->Translation*2+1);
   return (functor_t)f;
 }
 
 static inline Functor
 SWIFunctorToFunctor(functor_t f)
 {
-  if ((CELL)f & 1)
-    return SWI_Functors[f/2];
   return (Functor)f;
 }
 

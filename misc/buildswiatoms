@@ -14,7 +14,7 @@ main :-
 	warning(Warning),
 	nb_setval(atom_counter,0),
 	nb_setval(functor_counter,0),
-	file_filter_with_init('misc/SWIATOMS','include/dswiatoms.h',gen_defs, Warning, ['dswiatoms.h']),
+	file_filter_with_init('misc/SWIATOMS','include/generated/dswiatoms.h',gen_defs, Warning, ['dswiatoms.h']),
 	open('include/dswiatoms.h',append,W),
 	nb_getval(atom_counter,SWIAtoms),
 	nb_getval(functor_counter,SWIFunctors),

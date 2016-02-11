@@ -64,6 +64,8 @@
 
 //#include "pl-error.h"
 
+static atom_t ATOM_nil;
+
 extern int		PL_unify_termv(term_t l, va_list args);
 
 extern X_API Atom YAP_AtomFromSWIAtom(atom_t at);
@@ -105,8 +107,6 @@ extern X_API Int YAP_PLArityOfSWIFunctor(functor_t at);
 /* This is silly, but let's keep it like that for now */
 X_API Int
 YAP_PLArityOfSWIFunctor(functor_t f) {
-  if (((CELL)(f) & 2) && ((CELL)f) < N_SWI_FUNCTORS*4+2)
-  return ArityOfFunctor(SWI_Functors[(CELL)f/4]);
   if (IsAtomTerm(f))
   return 0;
   return ArityOfFunctor((Functor)f);
@@ -208,18 +208,10 @@ Text is in ISO Latin-1 encoding and the call fails if text cannot be represented
 X_API int
 PL_get_nchars(term_t l, size_t *lengthp, char **s, unsigned flags)
 { CACHE_REGS
-    seq_tv_t inp, out;
-  size_t leng;
-  void *buf = NULL;
+  seq_tv_t inp, out;
   
   inp.val.t = Yap_GetFromSlot( l );
   inp.type = cvtFlags( flags );
-  if (flags & (BUF_DISCARDABLE|BUF_RING)) {
-    buf = LOCAL_FileNameBuf;
-    leng = YAP_FILENAME_MAX-1;
-  } else {
-    buf = NULL;
-  }
   out.type = YAP_STRING_CHARS;
   if (flags & (REP_UTF8|REP_MB)) {
     out.enc = ENC_ISO_UTF8;
@@ -245,17 +237,10 @@ PL_get_chars(term_t t, char **s, unsigned flags)
 int PL_get_wchars(term_t l, size_t *lengthp, wchar_t **s, unsigned flags)
 {
   CACHE_REGS
+
     seq_tv_t inp, out;
-  size_t leng;
-  void *buf = NULL;
   inp.val.t = Yap_GetFromSlot( l );
   inp.type = cvtFlags( flags );
-  if (flags & (BUF_DISCARDABLE|BUF_RING)) {
-    buf = LOCAL_FileNameBuf;
-    leng = YAP_FILENAME_MAX-1;
-  } else {
-    buf = NULL;
-  }
   out.type = YAP_STRING_WCHARS;
    if (flags & BUF_MALLOC)
     out.type |= YAP_STRING_MALLOC;
@@ -2353,6 +2338,7 @@ PL_initialise(int myargc, char **myargv)
   GLOBAL_PL_Argv = myargv;
   GLOBAL_InitialisedFromPL = TRUE;
   int rc = YAP_Init(&init_args) != YAP_BOOT_ERROR;
+  ATOM_nil = YAP_SWIAtomFromAtom( AtomNil );
   return rc;
 }
 

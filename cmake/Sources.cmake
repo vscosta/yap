@@ -139,7 +139,6 @@ set(C_INTERFACE_SOURCES
   	H/generated/ilocals.h
   	H/index.h
   	H/inline-only.h
-  	H/iswiatoms.h
   	H/qly.h
   	H/rclause.h
   	H/generated/rglobals.h

@@ -42,22 +42,22 @@ number_of_expansions(0).
 %%%%%%%%%%%%%%%%%%%%
 
 compile_aux([Clause|Clauses], Module) :-
-	% compile the predicat declaration if needed
-	(
-     Clause = (Head :- _)
-	;
+	% compile the predicate declaration if needed
+    (
+	Clause = (Head :- _)
+     ;
      Clause = Head
     ),
-	!,
-	functor(Head, F, N),
-	( current_predicate(Module:F/N)
-	->
-	    true
-	;
-%	    format'*** Creating auxiliary predicate ~q~n', [F/N]),
-%	    checklist(portray_clause, [Clause|Clauses]),
-	    compile_term([Clause|Clauses], Module)
-	).
+    !,
+    functor(Head, F, N),
+    ( current_predicate(Module:F/N)
+     ->
+	 true
+     ;
+     %	    format'*** Creating auxiliary predicate ~q~n', [F/N]),
+     %	    checklist(portray_clause, [Clause|Clauses]),
+     compile_term([Clause|Clauses], Module)
+    ).
 
 compile_term([], _).
 compile_term([Clause|Clauses], Module) :-

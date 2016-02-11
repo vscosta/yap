@@ -152,6 +152,8 @@ typedef int  (*YAP_agc_hook)(void *_Atom);
 
 typedef encoding_t YAP_encoding_t;
 
+
+
 #endif
 
 typedef struct YAP_thread_attr_struct {

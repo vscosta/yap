@@ -316,20 +316,6 @@ ADDR		ForeignCodeMax		=NULL void
 /* recorded terms */
 struct record_list *Yap_Records		=NULL		RestoreYapRecords()
 
-/* SWI atoms and functors */
-Atom		*SWI_Atoms		InitSWIAtoms() RestoreSWIAtoms()
-Functor		*SWI_Functors	void void
-
-swi_rev_hash     SWI_ReverseHash[N_SWI_HASH]	void void
-
-/* integer access to atoms */
-Int            AtomTranslations	void  void
-Int            MaxAtomTranslations	void  void
-
-/* integer access to functors */
-Int            FunctorTranslations	void  void
-Int            MaxFunctorTranslations	void  void
-
 Atom	EmptyWakeups[MAX_EMPTY_WAKEUPS]		InitEmptyWakeups() RestoreEmptyWakeups()
 int		MaxEmptyWakeups		=0
 

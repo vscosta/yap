@@ -42,6 +42,29 @@ struct yami  *Yap_Error__(const char *file, const char *function, int lineno, ya
 
 #define Yap_Error( id, inp, ...) Yap_Error__(__FILE__, __FUNCTION__, __LINE__, id, inp,  __VA_ARGS__)
 
+#ifdef YAP_TERM_H
+/** 
+ * make sure next argument is a bound instance of type 
+ * atom.
+ */
+#define Yap_ensure_atom( T0, TF ) { if ( (TF = Yap_ensure_atom__(__FILE__, __FUNCTION__, __LINE__, T0  )  == 0L ) return false; }
+
+INLINE_ONLY extern inline Term
+Yap_ensure_atom__( const char *fu, const char *fi, int line, Term in )
+{
+  Term t = Deref(in);
+  //Term Context = Deref(ARG2);
+  if (!IsVarTerm(t) && IsAtomTerm(t))
+    return t;
+  if (IsVarTerm(t)) {
+    Yap_Error__(fu, fi, line, INSTANTIATION_ERROR, t, NULL);
+  } else {
+  if ( IsAtomTerm(t) ) return t ; 
+  Yap_Error__(fu, fi, line, TYPE_ERROR_ATOM, t, NULL);
+  return 0L;
+}
+
+#endif
 
 #define JMP_LOCAL_ERROR(v, LAB)                                                \
   if (H + 2 * (v) > ASP - 1024) {                                              \

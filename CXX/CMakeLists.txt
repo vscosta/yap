@@ -1,4 +1,10 @@
 
+# Be sure to also update these in Makefile!
+set(SO_MAJOR 1)
+set(SO_MINOR 0)
+set(SO_PATCH 0)
+
+
 add_library (Yap++ SHARED
     yapa.hh
     yapdb.hh
@@ -11,7 +17,7 @@ add_library (Yap++ SHARED
 
 include_directories (H include ${CMAKE_BINARY_DIR} ${GMP_INCLUDE_DIR})
 
-target_link_libraries(Yap++ libYap)
+target_link_libraries(Yap++ ${CMAKE_DL_LIBS})
 
 install(TARGETS  Yap++
   LIBRARY DESTINATION ${libdir}

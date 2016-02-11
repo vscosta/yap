@@ -34,7 +34,7 @@ include_directories (
 
   add_library (real SHARED ${REAL_SOURCES})
 
-  target_link_libraries (real ${R_LIBRARIES} libYap )
+  target_link_libraries (real ${R_LIBRARIES}  ${CMAKE_DL_LIBS} )
 
   set_target_properties (real PROPERTIES PREFIX "")
 
