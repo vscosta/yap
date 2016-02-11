@@ -17,10 +17,10 @@ typedef struct worker_local {
 // Used by the prompts to check if they are after a newline, and then a
 // prompt should be output, or if we are in the middle of a line.
 //
-  encoding_t  encoding_;
   bool  newline_;
   Atom  AtPrompt_;
   char  Prompt_[MAX_PROMPT+1];
+  encoding_t  encoding_;
   bool  quasi_quotations_;
   UInt  default_priority_;
   bool  eot_before_eof_;

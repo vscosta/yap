@@ -280,16 +280,6 @@
   ADDR  ForeignCodeMax_;
 /* recorded terms */
   struct record_list  *Yap_Records_;
-/* SWI atoms and functors */
-  Atom  *SWI_Atoms_;
-  Functor  *SWI_Functors_;
-  swi_rev_hash  SWI_ReverseHash_[N_SWI_HASH];
-/* integer access to atoms */
-  Int  AtomTranslations_;
-  Int  MaxAtomTranslations_;
-/* integer access to functors */
-  Int  FunctorTranslations_;
-  Int  MaxFunctorTranslations_;
   Atom  EmptyWakeups_[MAX_EMPTY_WAKEUPS];
   int  MaxEmptyWakeups_;
 /* SWI blobs */

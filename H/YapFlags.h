@@ -249,6 +249,8 @@ typedef enum {
 bool setYapFlag(Term tflag, Term t2);
 Term getYapFlag(Term tflag);
 
+int Yap_ArgKey(Atom key, const param_t *def, int n);
+
 static inline bool check_refs_to_ltable(void) { return true; }
 
 static inline void setAtomicGlobalPrologFlag(int id, Term v) {

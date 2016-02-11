@@ -17,10 +17,10 @@ static void InitWorker(int wid) {
 
 
 
-  REMOTE_encoding(wid) = Yap_DefaultEncoding();
   REMOTE_newline(wid) = true;
   REMOTE_AtPrompt(wid) = AtomNil;
 
+  REMOTE_encoding(wid) = Yap_DefaultEncoding();
   REMOTE_quasi_quotations(wid) = false;
   REMOTE_default_priority(wid) = 1200;
   REMOTE_eot_before_eof(wid) = false;

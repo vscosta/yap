@@ -270,7 +270,6 @@ static char SccsId[] = "@(#)rheap.c	1.3 3/15/90";
 #define RestoreDBErasedList() RestoreDBErasedList__(PASS_REGS1)
 #define RestoreDBErasedIList() RestoreDBErasedIList__(PASS_REGS1)
 #define RestoreYapRecords() RestoreYapRecords__(PASS_REGS1)
-#define RestoreSWIAtoms() RestoreSWIAtoms__(PASS_REGS1)
 static Term ConstantTermAdjust__(Term t USES_REGS) {
   if (IsAtomTerm(t))
     return AtomTermAdjust(t);
@@ -683,17 +682,6 @@ beginning:
       goto beginning;
     }
   }
-}
-
-static void RestoreSWIAtoms__(USES_REGS1) {
-  int i, j;
-  for (i = 0; i < AtomTranslations; i++) {
-    SWI_Atoms[i] = AtomAdjust(SWI_Atoms[i]);
-  }
-  for (j = 0; j < FunctorTranslations; j++) {
-    SWI_Functors[j] = FuncAdjust(SWI_Functors[j]);
-  }
-  RestoreSWIHash();
 }
 
 #define RestoreBlobTypes() RestoreBlobTypes__(PASS_REGS1)

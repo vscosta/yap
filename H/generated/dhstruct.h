@@ -280,16 +280,6 @@
 #define ForeignCodeMax Yap_heap_regs->ForeignCodeMax_
 
 #define Yap_Records Yap_heap_regs->Yap_Records_
-
-#define SWI_Atoms Yap_heap_regs->SWI_Atoms_
-#define SWI_Functors Yap_heap_regs->SWI_Functors_
-#define SWI_ReverseHash Yap_heap_regs->SWI_ReverseHash_
-
-#define AtomTranslations Yap_heap_regs->AtomTranslations_
-#define MaxAtomTranslations Yap_heap_regs->MaxAtomTranslations_
-
-#define FunctorTranslations Yap_heap_regs->FunctorTranslations_
-#define MaxFunctorTranslations Yap_heap_regs->MaxFunctorTranslations_
 #define EmptyWakeups Yap_heap_regs->EmptyWakeups_
 #define MaxEmptyWakeups Yap_heap_regs->MaxEmptyWakeups_
 

@@ -31,8 +31,6 @@ typedef int (*SWI_FlushFunction)(void *);
 typedef int (*SWI_PLGetStreamFunction)(void *);
 typedef int (*SWI_PLGetStreamPositionFunction)(void *);
 
-#include "../include/dswiatoms.h"
-
 typedef int (*Opaque_CallOnFail)(void *);
 typedef int (*Opaque_CallOnWrite)(FILE *, int, void *, int);
 typedef Int (*Opaque_CallOnGCMark)(int, void *, Term *, Int);

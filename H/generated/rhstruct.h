@@ -280,16 +280,6 @@
 
 
   RestoreYapRecords();
-
-  RestoreSWIAtoms();
-
-
-
-
-
-
-
-
   RestoreEmptyWakeups();
 
 

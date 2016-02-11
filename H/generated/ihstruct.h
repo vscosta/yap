@@ -280,16 +280,6 @@
   ForeignCodeMax = NULL;
 
   Yap_Records = NULL;
-
-  InitSWIAtoms();
-
-
-
-
-
-
-
-
   InitEmptyWakeups();
   MaxEmptyWakeups = 0;
 
