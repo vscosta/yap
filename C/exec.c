@@ -1037,7 +1037,7 @@ static Int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       LOCAL_PrologMode = UserMode;
     } break;
     case 3: { /* saved state */
-      return FALSE;
+       return false;
     }
     default:
       /* do nothing */

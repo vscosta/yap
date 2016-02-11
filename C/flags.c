@@ -104,7 +104,7 @@ static bool dqf1(ModEntry *new, Term t2 USES_REGS) {
     /* bad argument, but still an atom */
     Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "bad option %s for backquoted "
                                              "string flag, use one string, "
-                                             "arom, codes or chars",
+                                             "atom, codes or chars",
               RepAtom(AtomOfTerm(t2))->StrOfAE);
     return false;
   } else {
@@ -139,7 +139,7 @@ static bool bqf1(ModEntry *new, Term t2 USES_REGS) {
     }
     Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "bad option %s for backquoted "
                                              "string flag, use one string, "
-                                             "arom, codes or chars",
+                                             "atom, codes or chars",
               RepAtom(AtomOfTerm(t2))->StrOfAE);
     return false;
   } else {
@@ -589,9 +589,10 @@ static void initFlag(flag_info *f, int fnum, bool global) {
 
 static bool executable(Term inp) {
   CACHE_REGS
-  if (GLOBAL_argv && GLOBAL_argv[0])
-    Yap_TrueFileName(GLOBAL_argv[0], LOCAL_FileNameBuf, FALSE);
-  else
+    if (GLOBAL_argv && GLOBAL_argv[0]) {
+      if (!Yap_AbsoluteFileInBuffer(GLOBAL_argv[0], LOCAL_FileNameBuf, YAP_FILENAME_MAX - 1,true))
+	return false;
+    } else
     strncpy(LOCAL_FileNameBuf, Yap_FindExecutable(), YAP_FILENAME_MAX - 1);
 
   return Yap_unify(MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)), inp);
@@ -880,8 +881,7 @@ static Int cont_current_prolog_flag(USES_REGS1) {
     }
     EXTRA_CBACK_ARG(2, 1) = MkIntTerm(++i);
     flag = getYapFlag(f);
-    if (!Yap_unify(f, ARG2))
-      return false;
+    return Yap_unify(flag, ARG2);
   }
   cut_fail();
 }
@@ -1294,7 +1294,8 @@ do_prolog_flag_property(Term tflag,
   args = Yap_ArgList2ToVector(opts, prolog_flag_property_defs,
                               PROLOG_FLAG_PROPERTY_END);
   if (args == NULL) {
-    return FALSE;
+    Yap_Error( LOCAL_Error_TYPE, LOCAL_Error_Term, NULL );
+    return false;
   }
   if (!IsAtomTerm(tflag)) {
     if (IsApplTerm(tflag) && FunctorOfTerm(tflag) == FunctorModule) {
@@ -1454,8 +1455,9 @@ static Int do_create_prolog_flag(USES_REGS1) {
 
   args = Yap_ArgList2ToVector(opts, prolog_flag_property_defs,
                               PROLOG_FLAG_PROPERTY_END);
-  if (args == NULL) {
-    return FALSE;
+ if (args == NULL) {
+    Yap_Error( LOCAL_Error_TYPE, LOCAL_Error_Term, NULL );
+    return false;
   }
   fv = GetFlagProp(AtomOfTerm(tflag));
   if (fv) {

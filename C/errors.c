@@ -133,7 +133,7 @@ bool Yap_PrintWarning(Term twarning) {
   CACHE_REGS
   PredEntry *pred = RepPredProp(PredPropByFunc(
       FunctorPrintMessage, PROLOG_MODULE)); // PROCEDURE_print_message2;
-  Term cmod = CurrentModule;
+  Term cmod = ( CurrentModule == PROLOG_MODULE ? TermProlog : CurrentModule );
   bool rc;
   Term ts[2];
 
@@ -157,6 +157,8 @@ bool Yap_PrintWarning(Term twarning) {
   }
   ts[1] = twarning;
   ts[0] = MkAtomTerm(AtomWarning);
+  HB = B->cp_h = HR;
+  B->cp_tr = TR; 
   rc = Yap_execute_pred(pred, ts, true PASS_REGS);
   LOCAL_within_print_message = false;
   LOCAL_DoingUndefp = false;
@@ -613,13 +615,26 @@ static Int
 is_boolean( USES_REGS1 )
 {
   Term t = Deref(ARG1);
-  //Term Context = Deref(ARG2);
+  //Term Context = Deref(ARG2)Yap_Error(INSTANTIATION_ERROR, t, NULL);;
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, NULL);
     return false;
   }
   return t == TermTrue || t == TermFalse;
 }
+
+static Int
+is_atom( USES_REGS1 )
+{
+  Term t = Deref(ARG1);
+  //Term Context = Deref(ARG2)Yap_Error(INSTANTIATION_ERROR, t, NULL);;
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR, t, NULL);
+    return false;
+  }
+  return IsAtomTerm( t );
+}
+
 
 
 static Int
@@ -699,6 +714,7 @@ Yap_InitErrorPreds( void )
   CurrentModule = ERROR_MODULE;
   Yap_InitCPred("is_boolean", 2, is_boolean, TestPredFlag);
   Yap_InitCPred("is_callable", 2, is_callable, TestPredFlag);
+  Yap_InitCPred("is_atom", 2, is_atom, TestPredFlag);
   Yap_InitCPred("is_predicate_indicator", 2, is_predicate_indicator, TestPredFlag);
   CurrentModule = cm;
 }

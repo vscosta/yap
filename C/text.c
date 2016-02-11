@@ -650,7 +650,7 @@ write_atom( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng US
   switch (enc) {
   case ENC_ISO_UTF8:
     { unsigned char *s = s0, *lim = s + strnlen(s0, max);
-      wchar_t *buf = malloc(sizeof(wchar_t)*((lim+1)-s)), *ptr = buf;
+      wchar_t *buf = malloc(sizeof(wchar_t)*((lim+2)-s)), *ptr = buf;
       Atom at;
 
       while (*s && s < lim) {

@@ -60,11 +60,31 @@ static char SccsId[] = "%W% %G%";
 /************************************************************************/
 /* Yap workspace management                                             */
 
+#define MASK 0x968e00
 #if USE_SYSTEM_MALLOC
+#if 0
+inline static void * my_malloc(size_t sz)
+{
+  void *p;
+  p =  malloc(sz);
+  //    Yap_DebugPuts(stderr,"gof\n");
+  return p;
+}
+inline static void my_free(void *p)
+{
+  printf("f %p\n",p);
+  free(p);
+  if (((CELL)p & 0xffffff00) ==  MASK) jmp_deb(1);
+  //    Yap_DebugPuts(stderr,"gof\n");
+}
+#else
 #define my_malloc(sz) malloc(sz)
+#define my_free(ptr)  free(ptr)
+
+
+#endif
 #define my_realloc(ptr, sz, osz, safe) realloc(ptr, sz)
 #define my_realloc0(ptr, sz) realloc(ptr, sz)
-#define my_free(ptr) free(ptr)
 #else
 #define my_malloc(sz) Yap_dlmalloc(sz)
 #define my_realloc0(ptr, sz) Yap_dlrealloc(ptr, sz)

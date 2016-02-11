@@ -58,6 +58,9 @@
 #include <malloc.h>
 #endif
 
+typedef void *atom_t;
+typedef void *functor_t;
+
     typedef enum {
       FRG_FIRST_CALL = 0, /* Initial call */
       FRG_CUTTED = 1,     /* Context was cutted */
@@ -2094,10 +2097,14 @@ X_API int YAP_InitConsult(int mode, const char *filename, int *osnop) {
   }
   bool consulted = (mode == YAP_CONSULT_MODE);
   Yap_init_consult(consulted, filename);
-  f = fopen(Yap_AbsoluteFile(filename, LOCAL_FileNameBuf, FILENAME_MAX - 1),
-            "r");
+  const char *full = Yap_AbsoluteFile(filename, true);
+  if (!full)
+    return -1;
+  f = fopen( full, "r");
   if (!f)
     return -1;
+  else
+    free( (char *)full );
   sno = Yap_OpenStream(f, NULL, TermNil, Input_Stream_f);
   *osnop = Yap_CheckAlias(AtomLoopStream);
   if (!Yap_AddAlias(AtomLoopStream, sno)) {
@@ -3380,30 +3387,35 @@ X_API int YAP_RequiresExtraStack(size_t sz) {
   return TRUE;
 }
 
+ atom_t *TR_Atoms;
+ functor_t *TR_Functors;
+ size_t AtomTranslations, MaxAtomTranslations;
+ size_t FunctorTranslations, MaxFunctorTranslations;
+ 
 X_API Int YAP_AtomToInt(Atom At) {
   TranslationEntry *te = Yap_GetTranslationProp(At, 0);
   if (te != NIL)
     return te->Translation;
-  SWI_Atoms[AtomTranslations] = At;
+  TR_Atoms[AtomTranslations] = At;
   Yap_PutAtomTranslation(At, 0, AtomTranslations);
   AtomTranslations++;
   if (AtomTranslations == MaxAtomTranslations) {
-    Atom *nt = (Atom *)malloc(sizeof(Atom) * 2 * MaxAtomTranslations),
-         *ot = SWI_Atoms;
+    atom_t *ot = TR_Atoms;
+    atom_t *nt = (atom_t *)malloc(sizeof(atom_t) * 2 * MaxAtomTranslations);
     if (nt == NULL) {
       Yap_Error(SYSTEM_ERROR_INTERNAL, MkAtomTerm(At),
                 "No more room for translations");
       return -1;
     }
-    memcpy(nt, ot, sizeof(Atom) * MaxAtomTranslations);
-    SWI_Atoms = nt;
+    memcpy(nt, ot, sizeof(atom_t) * MaxAtomTranslations);
+    TR_Atoms = nt;
     free(ot);
     MaxAtomTranslations *= 2;
   }
   return AtomTranslations - 1;
 }
 
-X_API Atom YAP_IntToAtom(Int i) { return SWI_Atoms[i]; }
+X_API Atom YAP_IntToAtom(Int i) { return TR_Atoms[i]; }
 
 X_API Int YAP_FunctorToInt(Functor f) {
   Atom At = NameOfFunctor(f);
@@ -3411,27 +3423,27 @@ X_API Int YAP_FunctorToInt(Functor f) {
   TranslationEntry *te = Yap_GetTranslationProp(At, arity);
   if (te != NIL)
     return te->Translation;
-  SWI_Functors[FunctorTranslations] = f;
+  TR_Functors[FunctorTranslations] = f;
   Yap_PutAtomTranslation(At, arity, FunctorTranslations);
   FunctorTranslations++;
   if (FunctorTranslations == MaxFunctorTranslations) {
-    Functor *nt =
-                (Functor *)malloc(sizeof(Functor) * 2 * MaxFunctorTranslations),
-            *ot = SWI_Functors;
+   functor_t *nt =
+                (functor_t *)malloc(sizeof(functor_t) * 2 * MaxFunctorTranslations),
+            *ot = TR_Functors;
     if (nt == NULL) {
       Yap_Error(SYSTEM_ERROR_INTERNAL, MkAtomTerm(At),
                 "No more room for translations");
       return -1;
     }
-    memcpy(nt, ot, sizeof(Functor) * MaxFunctorTranslations);
-    SWI_Functors = nt;
+    memcpy(nt, ot, sizeof(functor_t) * MaxFunctorTranslations);
+    TR_Functors = nt;
     free(ot);
     MaxFunctorTranslations *= 2;
   }
   return FunctorTranslations - 1;
 }
 
-X_API Functor YAP_IntToFunctor(Int i) { return SWI_Functors[i]; }
+X_API Functor YAP_IntToFunctor(Int i) { return TR_Functors[i]; }
 
 #endif // C_INTERFACE_C
 

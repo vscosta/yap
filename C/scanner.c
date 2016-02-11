@@ -1247,6 +1247,7 @@ const char *Yap_tokRep(TokEntry *tokptr) {
     return buf;
   case Var_tok: {
     VarEntry *varinfo = (VarEntry *)info;
+    varinfo->VarAdr = TermNil;
     return varinfo->VarRep;
   }
   case String_tok:

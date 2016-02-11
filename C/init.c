@@ -1028,13 +1028,6 @@ static void InitLogDBErasedMarker(void) {
   INIT_CLREF_COUNT(LogDBErasedMarker);
 }
 
-static void InitSWIAtoms(void) {
-  MaxAtomTranslations = N_SWI_ATOMS;
-  MaxFunctorTranslations = N_SWI_FUNCTORS;
-  SWI_Atoms = (Atom *)malloc(sizeof(Atom) * MaxAtomTranslations);
-  SWI_Functors = (Functor *)malloc(sizeof(Functor) * 2 * N_SWI_ATOMS);
-}
-
 static void InitEmptyWakeups(void) {}
 
 static void InitAtoms(void) {
