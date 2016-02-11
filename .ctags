@@ -11,6 +11,9 @@
 --exclude=\.svn
 --exclude=\.git
 --exclude=CVS
+--exclude=Debug
+--exclude=Release
+--exclude=Threads
 --exclude=.*tags.*
 --exclude=.*TAGS.*
 --exclude=\.\#.*
