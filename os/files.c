@@ -344,15 +344,12 @@ file_size(USES_REGS1)
   return false;
 }
 
-/** @pred access_file( + Name, -
-
- */
 static Int
 access_file(USES_REGS1)
 {
   Term tname = Deref(ARG1);
   Term tmode = Deref(ARG2);
-  char ares[YAP_FILENAME_MAX];
+  char *ares;
   Atom atmode;
 
   if (IsVarTerm(tmode)) {
@@ -372,7 +369,7 @@ access_file(USES_REGS1)
   } else {
     if (atmode == AtomNone)
       return TRUE;
-    if (!Yap_TrueFileName (RepAtom(AtomOfTerm(tname))->StrOfAE, ares, (atmode == AtomCsult)))
+    if (! (ares = RepAtom(AtomOfTerm(tname))->StrOfAE))
       return FALSE;
   }
 #if HAVE_ACCESS
@@ -392,14 +389,14 @@ access_file(USES_REGS1)
     else if (atmode == AtomExecute)
       mode = X_OK;
     else {
-      PlIOError(DOMAIN_ERROR_IO_MODE, tmode, "access_file/2");
+      Yap_Error(DOMAIN_ERROR_IO_MODE, tmode, "access_file/2");
       return FALSE;   
     }
     if (access(ares, mode) < 0) {
       /* ignore errors while checking a file */
-      return FALSE;
+      return false;
     }
-    return TRUE;
+    return true;
   }
 #elif HAVE_STAT
   {
@@ -435,7 +432,7 @@ exists_directory(USES_REGS1)
     file_name = RepAtom(AtomOfTerm(tname))->StrOfAE;
     if (SYSTEM_STAT(file_name, &ss) != 0) {
     /* ignore errors while checking a file */
-      return FALSE;
+      return false;
     }
     return (S_ISDIR(ss.st_mode));
 #else
@@ -621,7 +618,7 @@ Yap_InitFiles( void )
  Yap_InitCPred ("file_directory_name", 2, file_directory_name, SafePredFlag);
  Yap_InitCPred ("is_absolute_file_name", 1, is_absolute_file_name, SafePredFlag);
  Yap_InitCPred ("same_file", 2, same_file, SafePredFlag|SyncPredFlag);
- Yap_InitCPred ("access_file", 2, access_file, SafePredFlag|SyncPredFlag);
+ Yap_InitCPred ("$access_file", 2, access_file, SafePredFlag|SyncPredFlag);
  Yap_InitCPred ("access", 1, access_path, SafePredFlag|SyncPredFlag);
  Yap_InitCPred ("exists_directory", 1, exists_directory, SafePredFlag|SyncPredFlag);
  Yap_InitCPred ("exists_file", 1, exists_file, SafePredFlag|SyncPredFlag);
