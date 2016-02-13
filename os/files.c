@@ -485,7 +485,7 @@ file_base_name ( USES_REGS1 )
   } else {
       const char *c = RepAtom(at)->StrOfAE;
       char *s;
-#if HAVE_BASENAME
+#if HAVE_BASENAME && 0 // DISABLED: Linux basename is not compatible with file_base_name in SWI and GNU
       char c1[YAP_FILENAME_MAX+1];
       strncpy( c1, c, YAP_FILENAME_MAX);
       s = basename( c1 );
@@ -523,7 +523,7 @@ file_directory_name ( USES_REGS1 )
       return Yap_unify(ARG2, MkAtomTerm(Yap_LookupWideAtom(s)));
   } else {
       const char *c = RepAtom(at)->StrOfAE;
-#if HAVE_BASENAME
+#if HAVE_BASENAME && 0 // DISABLED: Linux basename is not compatible with file_base_name in SWI and GNU
       const char *s;
       char c1[YAP_FILENAME_MAX+1];
       strncpy( c1, c, YAP_FILENAME_MAX);
@@ -532,10 +532,8 @@ file_directory_name ( USES_REGS1 )
       char s[YAP_FILENAME_MAX+1];
       Int i = strlen(c);
       while (i && !Yap_dir_separator((int)c[--i]));
-      if (Yap_dir_separator((int)c[i])) {
-	i++;
-      }
       strncpy(s, c, i);
+      s[i] = '\0';
 #endif
       return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(s)));
   }
