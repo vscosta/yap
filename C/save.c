@@ -1400,7 +1400,7 @@ commit_to_saved_state(char *s, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *A
   LOCAL_PrologMode = BootMode;
   if (Yap_HeapBase) {
     if (falseGlobalPrologFlag( HALT_AFTER_CONSULT_FLAG ) && !silentMode( )) {
-      Yap_AbsoluteFileInBuffer(s,LOCAL_FileNameBuf2, YAP_FILENAME_MAX, true);
+      Yap_locateFile(s,LOCAL_FileNameBuf2, YAP_FILENAME_MAX);
       fprintf(stderr, "%% Restoring file %s\n", LOCAL_FileNameBuf2);
     }
     Yap_CloseStreams(TRUE);
@@ -1442,7 +1442,8 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   int mode;
   char fname[PATH_MAX+1];
   
-  if (!Yap_AbsoluteFileInBuffer( inpf, fname, PATH_MAX, true))
+
+  if (!Yap_findFile( inpf, YAP_STARTUP, YapLibDir, fname, true, YAP_SAVED_STATE, true, true))
     return false;
   if (fname[0] &&
       (mode = try_open(fname,Astate,ATrail,AStack,AHeap,streamp)) != FAIL_RESTORE) {
