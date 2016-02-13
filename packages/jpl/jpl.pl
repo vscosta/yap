@@ -4412,7 +4412,7 @@ to_atom(Term, Atom) :-
 
 %------------------------------------------------------------------------------
 
-		 /*******************************
+		 /******************************
 		 *            MESSAGES          *
 		 *******************************/
 
@@ -4505,16 +4505,19 @@ location(java_root, _, JRE) :-
     % OS well-known
     member(Root, [ '/usr/lib',
 		   '/usr/local/lib',
-                   '/opt/lib'
+                   '/opt/lib',
+  '/Library/Java/JavaVirtualMachines',
+  '/System/Library/Frameworks'
 		 ]),
     exists_directory(Root),
     jdk_jre( Root, JRE).
 
 jdk_jre( Home, J ) :-
-    member(Extension, [java, jvm, 'jvm/*java*', 'jvm/*jdk*', 'jvm/*sun*' ] ),
+    member(Extension, [java, jvm, 'jvm/*java*', 'jvm/*jdk*', 'jvm/*sun*', 'jdk*/Contents/Home', 'JavaVM.framework/Home'] ),
     absolute_file_name( Extension, [expand(true), relative_to(Home), access(exists), file_type( directory ), file_errors(fail), solutions(all) ], J0 ),
     pick_jdk_jre(J0, J).
 
+  
 pick_jdk_jre(J, J).
 pick_jdk_jre(J0, J) :-
     absolute_file_name( 'jre*', [expand(true), relative_to(J0), access(exists), file_type( directory ), file_errors(fail), solutions(all) ], J ).
@@ -4523,11 +4526,15 @@ pick_jdk_jre(J0, J) :-
     
 
 libfile(Base, HomeLib, File) :-
-    java_arch( Arch ),
-    jlib(Base, LBase),
-    atom_concat(['lib/',Arch,LBase], Lib),
-    absolute_file_name( Lib, [relative_to(HomeLib), access(read), file_type( executable),  expand(true), file_errors(fail), solutions(all)], File ).
-
+  java_arch( Arch ),
+  jlib(Base, LBase),
+  atom_concat(['lib/',Arch,LBase], Lib),
+  absolute_file_name( Lib, [relative_to(HomeLib), access(read), file_type( executable),  expand(true), file_errors(fail), solutions(all)], File ).
+libfile(Base, HomeLib, File) :-
+  jlib(Base, LBase),
+  atom_concat(['lib',LBase], Lib),
+  absolute_file_name( Lib, [relative_to(HomeLib), access(read), file_type( executable),  expand(true), file_errors(fail), solutions(all)], File ).
+  
 jlib( jvm, '/server/libjvm' ).
 jlib( jvm, '/client/libjvm' ).
 jlib( java, '/libjava' ).
@@ -4597,7 +4604,7 @@ add_jpl_to_ldpath(JPL, File) :-
 			   [ file_type(executable),
 			     access(read),
 			     file_errors(fail)
-			   ]), !,
+			   ]),
 	file_directory_name(File, Dir),
 	prolog_to_os_filename(Dir, OsDir),
 	current_prolog_flag(shared_object_search_path, PathVar),
@@ -4660,7 +4667,7 @@ java_home_win_key(
 
 java_home(Home) :-
 	getenv('JAVA_HOME', Home),
-	exists_directory(Home), !.
+	exists_directory(Home).
 :- if(current_prolog_flag(windows, true)).
 java_home(Home) :-
 	java_home_win_key(_, Key0),	% TBD: user can't choose jre or jdk
@@ -4672,13 +4679,14 @@ java_home(Home) :-
 :- endif.
 java_home(Home) :-
 	member(Home, [ '/usr/lib/java',
-		       '/usr/lib/jvm',
+  '/usr/lib/jvm',
 		       '/usr/lib/jvm/jre',
 		       '/usr/local/lib/java',
 		       '/usr/local/lib/jvm',
-		       '/usr/local/lib/jvm/jre'
-		     ]),
-	exists_directory(Home).
+		       '/usr/local/lib/jvm/jre',
+  '/Library/Java/JavaVirtualMachines',
+'/System/Library/Frameworks'
+  ]).
 
 
 :- dynamic
