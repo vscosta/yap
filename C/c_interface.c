@@ -2357,7 +2357,7 @@ X_API Int YAP_Init(YAP_init_args *yap_init) {
   GLOBAL_argc = yap_init->Argc;
 #if BOOT_FROM_SAVED_STATE
   if (!yap_init->SavedState) {
-    yap_init->SavedState = YAP_STARTUP;
+    yap_init->SavedState = Yap_locateFile(YAP_STARTUP, LOCAL_FileNameBuf, sizeof(LOCAL_FileNameBuf)-1);
   }
 
 #else
