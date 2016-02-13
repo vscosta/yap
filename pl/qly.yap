@@ -287,9 +287,6 @@ qend_program :-
 '$init_from_saved_state_and_args' :-
 	'$init_path_extensions',
 	fail.
-'$init_from_saved_state_and_args' :-
-        '$protect',
-        fail.
 % use if we come from a save_program and we have SWI's shlib
 '$init_from_saved_state_and_args' :-
 	current_prolog_flag(hwnd, _HWND),
@@ -384,9 +381,6 @@ qend_program :-
 	use_module(library(myddas)),
 	call(db_open(mysql,myddas,Host/Db,User,Pass)),
 	'$myddas_import_all',
-	fail.
-'$startup_goals' :-
-	'$protect',
 	fail.
 '$startup_goals'.
 
