@@ -193,20 +193,19 @@ absolute_file_name(File0,File) :-
 	(
 	    First == first
 	 ->
-	     '$absf_trace'('      got first  ~a', [TrueFileName]),
-%	 	stop_low_level_trace,
+	     '$absf_trace'(' |------- got first  ~a', [TrueFileName]),
 	     set_prolog_flag( fileerrors, PreviousFileErrors ),
 	     set_prolog_flag( open_expands_filename, OldF),
 	     set_prolog_flag( verbose_file_search, PreviousVerbose ),
 	     !
 	 ;
 	 (
-	     '$absf_trace'('      found match ~a.', [TrueFileName]),
+	     '$absf_trace'(' +------- found match ~a.', [TrueFileName]),
 	     set_prolog_flag( fileerrors, PreviousFileErrors ),
 	     set_prolog_flag( file_name_variables, OldF),
 	     set_prolog_flag( verbose_file_search, PreviousVerbose )
 	  ;
-	  '$absf_trace'('      no more solutions.', []),
+	  '$absf_trace'(' -------- no more solutions.', []),
 	  set_prolog_flag( verbose_file_search, Verbose ),
 	  get_abs_file_parameter( file_errors, Opts, FErrors ),
 	  set_prolog_flag(file_name_variables, Expand),
@@ -215,7 +214,7 @@ absolute_file_name(File0,File) :-
 	 ;
 	 % no solution
 	 %	 	stop_low_level_trace,
-	 '$absf_trace'('      failed.', []),
+	 '$absf_trace'(' !------- failed.', []),
 	 set_prolog_flag( fileerrors, PreviousFileErrors ),
 	 set_prolog_flag( verbose_file_search, PreviousVerbose ),
 	 set_prolog_flag(file_name_variables, OldF),
@@ -240,23 +239,25 @@ absolute_file_name(File0,File) :-
     '$absf_trace'('start with ~w', [Name]),
     '$core_file_name'(Name, Opts, CorePath, []),
     '$absf_trace'('  after name/library unfolding: ~w', [Name]),
-    '$prefix'(CorePath, Opts, Path , CorePath),
-    '$absf_trace'('   after prefix expansion: ~s', [Path]),
+    '$variable_expansion'(CorePath, Opts,ExpandedPath),
+    '$absf_trace'('   after environment variable expansion: ~s', [ExpandedPath]),
+    '$prefix'(ExpandedPath, Opts, Path , []),
+    '$absf_trace'('    after prefix expansion: ~s', [Path]),
     atom_codes( APath, Path ),
     (
 	Expand = true
      ->
 	 expand_file_name( APath, EPaths),
-	 '$absf_trace'('    after variable expansion/globbing: ~w', [EPaths]),
+	 '$absf_trace'('     after shell globbing: ~w', [EPaths]),
 	 lists:member(EPath, EPaths)
      ;
      EPath = APath
     ),
 
 real_path( EPath, File),
-    '$absf_trace'('     after canonical path name: ~a', [File]),  
+    '$absf_trace'('      after canonical path name: ~a', [File]),  
     '$check_file'( File, Type, Access ),
-    '$absf_trace'('      after testing ~a for ~a and ~a', [File,Type,Access]). 
+    '$absf_trace'('       after testing ~a for ~a and ~a', [File,Type,Access]). 
 
 % allow paths in File Name
 '$core_file_name'(Name, Opts) -->
@@ -294,23 +295,13 @@ real_path( EPath, File),
     !,
     S. 
 
-% / separates both unix and windows path
-'$absolute_path'( [0'/|_], _Opts ) :- !.
-'$absolute_path'( [0'~|_], Opts ) :-
+
+'$variable_expansion'( Path, Opts, APath ) :-
     get_abs_file_parameter( expand, Opts, true ),
-    !.
-'$absolute_path'( [0'$|L], Opts ) :-
-    get_abs_file_parameter( expand, Opts, true ),
-    '$var'(L),
-    !.
-% \ windows path
-'$absolute_path'( [0'\\|_], _Opts ) :-
-    current_prolog_flag(windows, true),
-    !.
-% windows drive
-'$absolute_path'( Path, _Opts ) :-
-    current_prolog_flag(windows, true),
-    '$drive'( Path, _ ).
+    !,
+    '$expand_file_name'( Path, APath ).
+'$variable_expansion'( Path, _, Path ).
+
 
 '$var'(S) -->
     "{", !, '$id'(S), "}".
@@ -321,7 +312,7 @@ real_path( EPath, File),
     '$id'(_),
     ":\\\\".
 
-'$id'([C|S]) --> [S],
+'$id'([C|S]) --> [C],
 	     { C >= "a", C =< "z" ;  C >= "A", C =< "Z" ;
 	       C >= "0", C =< "9" ;  C =:= "_" },
 	     !,
@@ -334,9 +325,11 @@ real_path( EPath, File),
 	!,
 	exists_directory(F).
 '$check_file'(_F, _Type, none) :- !.
+'$check_file'(F, _Type, exist) :-
+'$access_file'(F, exist). % if it has a type cannot be a directory..
 '$check_file'(F, _Type, Access) :-
-    '$access_file'(F, Access),
-    \+ exists_directory(F). % if it has a type cannot be a directory..
+'$access_file'(F, Access),
+\+ exists_directory(F). % if it has a type cannot be a directory..
 
 '$suffix'(Last, _Opts) -->
     { lists:append(_, [0'.|Alphas], Last), '$id'(Alphas, _, [] ) },
@@ -388,11 +381,11 @@ real_path( EPath, File),
     Base \= '.',
     Base \='..'.
 
+'$prefix'( CorePath, _Opts) -->
+    { is_absolute_file_name( CorePath ) },
+    !,
+    CorePath.
 '$prefix'( CorePath, Opts) -->
-    { '$absolute_path'( CorePath, Opts ) },
-    '$absf_trace'('    rooted ~s', [CorePath]),
-    !.
-'$prefix'( _, Opts) -->
     {  get_abs_file_parameter( relative_to, Opts, Prefix ),
        Prefix \= '',
        '$absf_trace'('    relative_to ~a', [Prefix]),
@@ -401,17 +394,20 @@ real_path( EPath, File),
     },
     !,
     S,
-    '$dir'(Last).
-'$prefix'( _ , _) -->
+    '$dir'(Last),
+    CorePath.
+'$prefix'( CorePath,  _) -->
     {
 	recorded('$path',Prefix,_),
        '$absf_trace'('    try YAP path database ~a', [Prefix]),
        sub_atom(Prefix, _, _, 1, Last),
 	atom_codes(Prefix, S)    },
     S,
-    '$dir'(Last).
-'$prefix'(_,_ ) -->
-    '$absf_trace'('    empty prefix', []).
+    '$dir'(Last),
+    CorePath.
+'$prefix'(CorePath, _ ) -->
+    '$absf_trace'('    empty prefix', []),
+    CorePath.
 
 
 '$dir' --> { current_prolog_flag(windows, true) },
