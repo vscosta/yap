@@ -824,7 +824,8 @@ nb_setval('$if_le1vel',0).
 	 catch(M0:G0, Error, user:'$LoopError'(Error, top))
 	->
 	 true
-	;                                                                           format(user_error,':- ~w:~w failed.~n',[M,G])
+	;
+    format(user_error,':- ~w:~w failed.~n',[M,G])
 	),
 	fail.
 '$exec_initialization_goals'.
@@ -1423,7 +1424,7 @@ initialization(_G,_OPT) :-
    (
 	 OPT == now
 	->
-    ( call(G) -> true ; format(user_error,':- ~w:~w failed.~n',[G]) )
+    ( call(G) -> true ; format(user_error,':- ~w failed.~n',[G]) )
 	;
 	 OPT == after_load
 	->

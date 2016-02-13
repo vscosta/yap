@@ -213,8 +213,7 @@ print_message(Level, Msg) :-
 :-	 ['protect.yap'].
 
 version(yap,[6,3]).
-
-:- op(1150,fx,(mode)).
+q:- op(1150,fx,(mode)).
 
 :- dynamic 'extensions_to_present_answer'/1.
 
@@ -235,8 +234,7 @@ asserting goals for each sub-goal in a clause. The first argument is
 bound to the goal and the second to the module under which the goal
  _G_ will execute. If goal_expansion/3 succeeds the new
 sub-goal  _NG_ will replace  _G_ and will be processed in the same
-way. If goal_expansion/3 fails the system will use the default
-rules.
+ way. If goal_expansion/3 fails the system will use the defaultyap+flrules.
 
 
 */
