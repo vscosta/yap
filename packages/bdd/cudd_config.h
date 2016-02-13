@@ -27,6 +27,6 @@
 
 /* Define to 1 if you have the <util.h> header file. */
 #ifndef HAVE_UTIL_H
-#define HAVE_UTIL_H 1
+/* #undef HAVE_UTIL_H */
 #endif
 

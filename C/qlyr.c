@@ -1161,7 +1161,7 @@ qload_program( USES_REGS1 )
 }
 
 int
-Yap_Restore(char *s, char *lib_dir)
+Yap_Restore(const char *s, char *lib_dir)
 {
   CACHE_REGS
   

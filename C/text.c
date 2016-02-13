@@ -76,9 +76,13 @@ SkipListCodes(unsigned char **bufp, Term *l, Term **tailp, Int *atoms, bool *wid
   }
 
   if (!st0) {
+    if (inp->type & YAP_STRING_MALLOC) {
+      *bufp = st0 = (unsigned char *)malloc(MAXPATHLEN+1);
+      smax = st0+(MAXPATHLEN-8); // give 8 bytes for max UTF-8 size + '\0';
+    } else {
       *bufp = st0 = (unsigned char *)Yap_PreAllocCodeSpace();
-      
       smax = (unsigned char *)AuxTop-8; // give 8 bytes for max UTF-8 size + '\0';
+    }
   }  else if (inp->sz > 0) {
      smax = st0+(inp->sz-8); // give 8 bytes for max UTF-8 size + '\0';
   } else {
@@ -113,7 +117,7 @@ SkipListCodes(unsigned char **bufp, Term *l, Term **tailp, Int *atoms, bool *wid
       int ch;
       length++;
       if (length == max) {
-	*st++ = '\0';
+        *st++ = '\0';
       }
       { Term hd = Deref(RepPair(*l)[0]);
 	if (IsVarTerm(hd)) {
@@ -158,11 +162,11 @@ SkipListCodes(unsigned char **bufp, Term *l, Term **tailp, Int *atoms, bool *wid
       // now copy char to buffer
       size_t chsz = put_utf8( st, ch );
       if (smax <= st+chsz) {
-	*st++ = '\0';
-	  *tailp = l;
-	  return length;
+        *st++ = '\0';
+        *tailp = l;
+        return length;
       } else {
-	st += chsz;
+        st += chsz;
       }
       l = RepPair(*l)+1;
       do_derefa(v,l,derefa2_unk,derefa2_nonvar);
@@ -1424,4 +1428,66 @@ Yap_Splice_Text( int n,  size_t cuts[], seq_tv_t *inp, encoding_t encv[], seq_tv
       encv[i] = enc;
   }
   return (void *)outv;;
+}
+
+/** 
+ * Function to convert a generic text term (string, atom, list of codes, list of atoms)  into a buff
+er.
+ * 
+ * @param t     the term
+ * @param buf   the buffer, if NULL a buffer is malloced, and the user should reclai it 
+ * @param len   buffer size
+ * @param enc   encoding (UTF-8 is strongly recommended)
+ * 
+ * @return the buffer, or NULL in case of failure. If so, Yap_Error may be called.
+ */
+const char *
+Yap_TextTermToText(Term t, char *buf, size_t len)
+{ CACHE_REGS
+  seq_tv_t inp, out;
+  encoding_t enc = LOCAL_encoding;
+  
+  inp.val.t = t;
+  if (IsAtomTerm(t))
+    inp.type = YAP_STRING_ATOM;
+  else if (IsStringTerm(t))
+    inp.type = YAP_STRING_STRING;
+  else if (IsPairTerm(t) )
+    inp.type = (YAP_STRING_CODES|YAP_STRING_ATOMS);
+  else {
+    Yap_Error(TYPE_ERROR_TEXT, t,  NULL);
+    return false;
+  }
+  out.enc = enc;
+  out.type = YAP_STRING_CHARS;
+  if (!buf) {
+    inp.type |= YAP_STRING_MALLOC;
+    out.type |= YAP_STRING_MALLOC;
+  }
+  out.val.c = buf;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return NULL;
+  return out.val.c;
+}
+
+  
+/** 
+ * Convert from a text buffer (8-bit) to a term that has the same type as _Tguide_
+ * 
+ * @param s        the buffer
+ * @param tguide   the guide
+ * 
+ * @return the term
+ */
+Term Yap_MkTextTerm(const char *s,
+                                            Term tguide ) {
+CACHE_REGS
+  if (IsAtomTerm(tguide))
+    return MkAtomTerm(Yap_LookupAtom(s));
+ if (IsStringTerm(tguide))
+    return MkStringTerm(s);
+ if (IsPairTerm(tguide) && IsAtomTerm(HeadOfTerm(tguide))) {
+   return Yap_CharsToListOfAtoms( s, LOCAL_encoding  PASS_REGS );
+ }
+ return Yap_CharsToListOfCodes( s, LOCAL_encoding  PASS_REGS );
 }

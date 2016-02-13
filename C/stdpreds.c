@@ -1333,7 +1333,7 @@ static Int p_statistics_lu_db_size(USES_REGS1) {
 
 static Int p_executable(USES_REGS1) {
   if (GLOBAL_argv && GLOBAL_argv[0])
-    Yap_TrueFileName(GLOBAL_argv[0], LOCAL_FileNameBuf, FALSE);
+    Yap_locateFile(GLOBAL_argv[0], LOCAL_FileNameBuf, FALSE);
   else
     strncpy(LOCAL_FileNameBuf, Yap_FindExecutable(), YAP_FILENAME_MAX - 1);
 

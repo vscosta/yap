@@ -5,7 +5,7 @@
 
 /* Define to 1 if you have the <openssl/ripemd.h> header file. */
 #ifndef HAVE_APR_1_APR_MD5_H
-#define HAVE_APR_1_APR_MD5_H 1
+/* #undef HAVE_APR_1_APR_MD5_H */
 #endif
 
 

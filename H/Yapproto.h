@@ -346,7 +346,7 @@ void Yap_InitReadUtil(void);
 
 /* qly.c */
 void Yap_InitQLY(void);
-int Yap_Restore(char *, char *);
+int Yap_Restore(const char *, char *);
 void Yap_InitQLYR(void);
 
 /* range.c */
@@ -409,19 +409,22 @@ void Yap_InitSysbits(int wid);
 void Yap_InitSysPreds(void);
 void Yap_InitcTime(int);
 void Yap_InitTime(int);
-int Yap_TrueFileName(const char *, char *, bool);
-int Yap_TruePrefixedFileName(const char *, const char *, char *, int);
+const char *Yap_locateFile(const char *, char *, bool);
 double Yap_random(void);
 #ifdef _WIN32
 char *Yap_RegistryGetString(char *);
 void Yap_WinError(char *);
 #endif
+const char *Yap_TextTermToText(Term t, char *buf, size_t len);
+Term Yap_MkTextTerm(const char *s, Term tguide );
 
 typedef enum { YAP_STD, YAP_SAVED_STATE, YAP_OBJ, YAP_PL, YAP_QLY } file_type_t;
 
 const char *Yap_AbsoluteFile(const char *spec, bool ok);
 const char *Yap_AbsoluteFileInBuffer(const char *spec, char *outp, size_t sz, bool ok);
-
+const char *Yap_findFile(const char *isource, const char *idef, const char *root,
+                      char *result, bool access, file_type_t ftype,
+                      bool expand_root, bool in_lib);
 /* threads.c */
 void Yap_InitThreadPreds(void);
 void Yap_InitFirstWorkerThreadHandle(void);

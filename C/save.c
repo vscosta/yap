@@ -1441,7 +1441,6 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
     
   int mode;
   char fname[PATH_MAX+1];
-  
 
   if (!Yap_findFile( inpf, YAP_STARTUP, YapLibDir, fname, true, YAP_SAVED_STATE, true, true))
     return false;
@@ -1465,6 +1464,11 @@ Yap_OpenRestore(char *inpf, char *YapLibDir)
 {
   FILE *stream = NULL;
 
+  if (!inpf)
+    inpf = "startup.yss";
+  if (!YapLibDir) {
+    YapLibDir = YAP_LIBDIR;
+  }
   OpenRestore(inpf, YapLibDir, NULL, NULL, NULL, NULL, &stream);
   return stream;
 }

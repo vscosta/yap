@@ -208,7 +208,7 @@ typedef enum {
 
 typedef struct yap_boot_params {
   /* if NON-NULL, path where we can find the saved state */
-  char *SavedState;
+  const char *SavedState;
   /* if NON-0, minimal size for Heap or Code Area */
   unsigned long int HeapSize;
   /* if NON-0, maximal size for Heap or Code Area */

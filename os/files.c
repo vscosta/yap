@@ -451,15 +451,18 @@ is_absolute_file_name ( USES_REGS1 )
     Yap_Error(INSTANTIATION_ERROR, t, "file_base_name/2");
     return FALSE;    
   }
-  at = AtomOfTerm(t);
-  if (IsWideAtom(at)) {
+  const char *buf = Yap_TextTermToText( t, NULL, 0);
+  if (buf) {
+    return Yap_IsAbsolutePath( buf );
+  } else {
+    at = AtomOfTerm(t);
+    if (IsWideAtom(at)) {
 #if _WIN32
-    return PathIsRelativeW(RepAtom(at)->WStrOfAE);
+      return PathIsRelativeW(RepAtom(at)->WStrOfAE);
 #else
     return RepAtom(at)->WStrOfAE[0] == '/';
 #endif
-  } else {
-    return Yap_IsAbsolutePath( RepAtom(at)->StrOfAE );
+    }
   }
   return false;
 }

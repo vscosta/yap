@@ -1385,6 +1385,7 @@ do_open(Term file_name, Term t2,
 	LOCAL_Error_TYPE = DOMAIN_ERROR_OPEN_OPTION;
       Yap_Error( LOCAL_Error_TYPE, LOCAL_Error_Term, "option handling in open/3" );
     }
+    return false;
   }
   /* done */
   sno = GetFreeStreamD();
@@ -1614,8 +1615,8 @@ static Int p_file_expansion(USES_REGS1) { /* '$file_expansion'(+File,-Name) */
     PlIOError(INSTANTIATION_ERROR, file_name, "absolute_file_name/3");
     return (FALSE);
   }
-  if (!Yap_TrueFileName(RepAtom(AtomOfTerm(file_name))->StrOfAE,
-                        LOCAL_FileNameBuf, FALSE))
+  if (!Yap_locateFile(RepAtom(AtomOfTerm(file_name))->StrOfAE,
+                        LOCAL_FileNameBuf, false))
     return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, file_name,
                       "absolute_file_name/3"));
   return (Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))));
