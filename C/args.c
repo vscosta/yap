@@ -102,7 +102,7 @@ Yap_ArgListToVector (Term listl, const param_t *def, int n)
     if (IsAtomTerm(hd)) {
       xarg *na = matchKey( AtomOfTerm( hd ), a, n, def);
       if (!na)
-        return failed( DOMAIN_ERROR, hd, a);      
+        return failed( DOMAIN_ERROR_GENERIC_ARGUMENT, hd, a);
       na->used = true;
       na->tvalue = TermNil;
       continue;
@@ -117,7 +117,7 @@ Yap_ArgListToVector (Term listl, const param_t *def, int n)
       }
       xarg *na = matchKey( NameOfFunctor( f ), a, n, def);
       if (!na) {
-        return failed( DOMAIN_ERROR, hd, a);      
+          return failed( DOMAIN_ERROR_GENERIC_ARGUMENT, hd, a);
       }
       na->used = 1;
       na->tvalue = ArgOfTerm(1, hd);      
@@ -163,7 +163,7 @@ Yap_ArgList2ToVector (Term listl, const param2_t *def, int n)
     if (IsAtomTerm(listl) ) {
       xarg *na = matchKey2( AtomOfTerm(listl), a, n, def);
       if (!na) {
-        return failed( DOMAIN_ERROR, listl, a);      
+        return failed( DOMAIN_ERROR_GENERIC_ARGUMENT, listl, a);
       }
     }
     if (IsApplTerm(listl)) {
@@ -177,7 +177,7 @@ Yap_ArgList2ToVector (Term listl, const param2_t *def, int n)
       }
       xarg *na = matchKey2( NameOfFunctor( f ), a, n, def);
       if (!na) {
-        return failed( DOMAIN_ERROR, listl, a);      
+        return failed( DOMAIN_ERROR_GENERIC_ARGUMENT, listl, a);
       }
     } else {
       return failed( TYPE_ERROR_LIST, listl, a);      
@@ -192,7 +192,7 @@ Yap_ArgList2ToVector (Term listl, const param2_t *def, int n)
     if (IsAtomTerm(hd)) {
       xarg *na = matchKey2( AtomOfTerm( hd ), a, n, def);
       if (!na) {
-	return failed( DOMAIN_ERROR, hd, a);      
+        return failed( DOMAIN_ERROR_GENERIC_ARGUMENT, hd, a);
       }
       na->used = true;
       na->tvalue = TermNil;
@@ -204,14 +204,14 @@ Yap_ArgList2ToVector (Term listl, const param2_t *def, int n)
       }
       arity_t arity = ArityOfFunctor( f );
       if (arity != 1) {
-        return failed( DOMAIN_ERROR, hd, a);      
+        return failed( DOMAIN_ERROR_GENERIC_ARGUMENT, hd, a);
       }
       xarg *na = matchKey2( NameOfFunctor( f ), a, n, def);
       if (na) {
 	na->used = 1;
 	na->tvalue = ArgOfTerm(1, hd);
       } else {
-	return failed( DOMAIN_ERROR, hd, a);      
+        return failed( DOMAIN_ERROR_GENERIC_ARGUMENT, hd, a);
       }
     } else {
       return failed( INSTANTIATION_ERROR, hd, a);      
