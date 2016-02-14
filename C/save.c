@@ -1460,7 +1460,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
 }
 
 FILE *
-Yap_OpenRestore(char *inpf, char *YapLibDir)
+Yap_OpenRestore(const char *inpf, char *YapLibDir)
 {
   FILE *stream = NULL;
 

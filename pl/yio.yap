@@ -72,7 +72,7 @@ setting and clearing this flag are given under 7.7.
     @ingroup InputOutput
     @{
 
-    Autoload the socket/pipe library 
+    Autoload the socket/pipe library
 
 */
 
@@ -81,10 +81,10 @@ setting and clearing this flag are given under 7.7.
 Call socket/4 with  _TYPE_ bound to `SOCK_STREAM'` and
  _PROTOCOL_ bound to `0`.
 
- 
+
 */
 
-/** @pred  socket(+ _DOMAIN_,+ _TYPE_,+ _PROTOCOL_,- _SOCKET_) 
+/** @pred  socket(+ _DOMAIN_,+ _TYPE_,+ _PROTOCOL_,- _SOCKET_)
 
 Corresponds to the BSD system call `socket`. Create a socket for
 domain  _DOMAIN_ of type  _TYPE_ and protocol
@@ -94,14 +94,14 @@ The new socket object is
 accessible through a descriptor bound to the variable  _SOCKET_.
 
 The current implementation of YAP  accepts socket
-domains `AF_INET` and `AF_UNIX`. 
+domains `AF_INET` and `AF_UNIX`.
 Socket types depend on the
 underlying operating system, but at least the following types are
 supported: `SOCK_STREAM'` and `SOCK_DGRAM'` (untested in 6.3).
 
- 
+
 */
-/** @pred  socket_connect(+ _SOCKET_, + _PORT_, - _STREAM_) 
+/** @pred  socket_connect(+ _SOCKET_, + _PORT_, - _STREAM_)
 
 
 
@@ -119,7 +119,7 @@ connect to socket at file  _FILENAME_.
 Connect to socket at host  _HOST_ and port  _PORT_.
 */
 
- 
+
 /** @pred open_pipe_streams(Read, Write)
 
   Autoload old pipe access interface
@@ -130,7 +130,7 @@ Connect to socket at host  _HOST_ and port  _PORT_.
 
 
 
-/** @pred  exists(+ _F_) 
+/** @pred  exists(+ _F_)
 
 Checks if file  _F_ exists in the current directory.
 
@@ -158,13 +158,13 @@ exists(F) :-
    flags are defined in yapio.h
 */
 
-/** @pred  display(+ _T_) 
+/** @pred  display(+ _T_)
 
 
 Displays term  _T_ on the current output stream. All Prolog terms are
 written in standard parenthesized prefix notation.
 
- 
+
 */
 display(T) :-
 	   current_output(Out),
@@ -174,7 +174,7 @@ display(T) :-
 
 Like display/1, but using stream  _S_ to display the term.
 
- 
+
 */
 display(Stream, T) :-
 	   write_term(Stream, T, [ignore_ops(true)]).
@@ -195,7 +195,7 @@ display(Stream, T) :-
 
 Print formatted output to the current output stream.
 
- 
+
 */
 format(T) :-
 	format(T, []).
@@ -207,44 +207,44 @@ format(T) :-
 
 /* character I/O	*/
 
-/** @pred  ttyget(- _C_) 
+/** @pred  ttyget(- _C_)
 
 
 The same as `get(C)`, but from stream user_input.
 
- 
+
 */
 ttyget(N) :- get(user_input,N).
 
-/** @pred  ttyget0(- _C_) 
+/** @pred  ttyget0(- _C_)
 
 
 The same as `get0(C)`, but from stream user_input.
 
- 
+
 */
 ttyget0(N) :- get0(user_input,N).
 
-/** @pred  ttyskip(- _C_) 
+/** @pred  ttyskip(- _C_)
 
 
 Like skip/1, but always using stream user_input.
 stream.
 
- 
+
 */
 ttyskip(N) :-  N1 is N, '$skip'(user_input,N1).
 
-/** @pred  ttyput(+ _N_) 
+/** @pred  ttyput(+ _N_)
 
 
 As `put(N)` but always to user_output.
 
- 
+
 */
 ttyput(N) :-  N1 is N, put(user_output,N1).
 
-/** @pred  ttynl 
+/** @pred  ttynl
 
 
 Outputs a new line to stream user_output.
@@ -259,8 +259,8 @@ ttynl :- nl(user_output).
 
 /** @pred  current_line_number(- _LineNumber_)
 
-Unify  _LineNumber_ with the line number for  the current output stream. 
- 
+Unify  _LineNumber_ with the line number for  the current output stream.
+
 */
 current_line_number(N) :-
 	current_input(Stream),
@@ -268,13 +268,13 @@ current_line_number(N) :-
 
 /** @pred  current_line_number(+ _Stream_,- _LineNumber_)
 
-Unify  _LineNumber_ with the line number for  _Stream_. 
- 
+Unify  _LineNumber_ with the line number for  _Stream_.
+
 */
 current_line_number(Stream,N) :-
 	line_count(Stream, N).
 
-/** @pred  stream_position(+ _Stream_,- _StreamPosition_) 
+/** @pred  stream_position(+ _Stream_,- _StreamPosition_)
 
 Unify  _StreamPosition_ with the packaged information of position on
 current stream  _Stream_. Use stream_position_data/3 to
@@ -284,7 +284,7 @@ retrieve information on character or line count.
 stream_position(Stream, Position) :-
 	stream_property(Stream, position(Position)).
 
-/** @pred  stream_position(+ _Stream_,- _StreamPosition_, +_NewPosition_) 
+/** @pred  stream_position(+ _Stream_,- _StreamPosition_, +_NewPosition_)
 
 Unify _StreamPosition_ with the packaged information of position on
 current stream _Stream_ an then moves to position _NewPosition_.
@@ -312,14 +312,14 @@ at_end_of_line(S) :-
 at_end_of_line(S) :-
 	peek_code(S,N), ( N = 10 -> true ; N = -1).
 
-/** @pred  current_char_conversion(? _IN_,? _OUT_) is iso 
+/** @pred  current_char_conversion(? _IN_,? _OUT_) is iso
 
 
 If  _IN_ is unbound give all current character
 translations. Otherwise, give the translation for  _IN_, if one
 exists.
 
- 
+
 */
 current_char_conversion(X,Y) :-
 	var(X), !,
@@ -337,7 +337,7 @@ split_path_file(File, Path, Name) :-
 	file_directory_name(File, Path),
 	file_base_name(File, Name).
 
-/** @pred  current_stream( _F_, _M_, _S_) 
+/** @pred  current_stream( _F_, _M_, _S_)
 
 
 Defines the relation: The stream  _S_ is opened on the file  _F_
@@ -348,10 +348,10 @@ streams might not be associated to a file: in this case YAP tries to
 return the file number. If that is not available, YAP unifies  _F_
 with  _S_.
 
- 
+
 */
 current_stream(File, Mode, Stream) :-
-	
+
     stream_property(Stream, mode(Mode)),
     '$stream_name'(Stream, File).
 
@@ -397,7 +397,7 @@ sformat(String, Form, Args) :-
 	format(codes(String, []), Form, Args).
 
 
-/** @pred  stream_position_data(+ _Field_,+ _StreamPosition_,- _Info_) 
+/** @pred  stream_position_data(+ _Field_,+ _StreamPosition_,- _Info_)
   Extract values from stream position objects.
 
 
@@ -422,8 +422,9 @@ stream_position_data(Prop, Term, Value) :-
 '$stream_position_field'(line_position, 3).
 '$stream_position_field'(byte_count,    4).
 
+'$set_encoding'(Enc) :-
+    stream_property(loop_stream, Enc).
 
- 
 %! @}
 
 

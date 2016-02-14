@@ -326,10 +326,10 @@ real_path( EPath, File),
 	exists_directory(F).
 '$check_file'(_F, _Type, none) :- !.
 '$check_file'(F, _Type, exist) :-
-'$access_file'(F, exist). % if it has a type cannot be a directory..
+    '$access_file'(F, exist). % if it has a type cannot be a directory..
 '$check_file'(F, _Type, Access) :-
-'$access_file'(F, Access),
-\+ exists_directory(F). % if it has a type cannot be a directory..
+    '$access_file'(F, Access),
+    \+ exists_directory(F). % if it has a type cannot be a directory..
 
 '$suffix'(Last, _Opts) -->
     { lists:append(_, [0'.|Alphas], Last), '$id'(Alphas, _, [] ) },

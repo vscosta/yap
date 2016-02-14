@@ -258,25 +258,25 @@ Yap_readText( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *l
   if ( !(inp->type & (YAP_STRING_CHARS|YAP_STRING_WCHARS)))
     {
       if ( !(inp->type & YAP_STRING_TERM)) {
-	if (IsVarTerm(inp->val.t)) {
-	LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-         } else if (!IsAtomTerm(inp->val.t) && inp->type == YAP_STRING_ATOM) {
-		LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
-      } else if (!IsStringTerm(inp->val.t) && inp->type == YAP_STRING_STRING) {
-		LOCAL_Error_TYPE = TYPE_ERROR_STRING;
-	}else if (!IsPairTerm(inp->val.t) &&
-		  !IsStringTerm(inp->val.t) &&
-		  inp->type == (YAP_STRING_ATOMS_CODES|YAP_STRING_STRING)) {
-		LOCAL_Error_TYPE = TYPE_ERROR_LIST;
-      } else if (!IsNumTerm(inp->val.t) && (inp->type & ( YAP_STRING_INT|YAP_STRING_FLOAT| YAP_STRING_BIG)) == inp->type) {
-		LOCAL_Error_TYPE = TYPE_ERROR_NUMBER;
+        if (IsVarTerm(inp->val.t)) {
+          LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+        } else if (!IsAtomTerm(inp->val.t) && inp->type == YAP_STRING_ATOM) {
+          LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
+        } else if (!IsStringTerm(inp->val.t) && inp->type == YAP_STRING_STRING) {
+          LOCAL_Error_TYPE = TYPE_ERROR_STRING;
+        }else if (!IsPairTerm(inp->val.t) &&
+                  !IsStringTerm(inp->val.t) &&
+                  inp->type == (YAP_STRING_ATOMS_CODES|YAP_STRING_STRING)) {
+          LOCAL_Error_TYPE = TYPE_ERROR_LIST;
+        } else if (!IsNumTerm(inp->val.t) && (inp->type & ( YAP_STRING_INT|YAP_STRING_FLOAT| YAP_STRING_BIG)) == inp->type) {
+          LOCAL_Error_TYPE = TYPE_ERROR_NUMBER;
+        }
+        LOCAL_Error_Term = inp->val.t;
       }
-      LOCAL_Error_Term = inp->val.t;
-    }
     }
   if (LOCAL_Error_TYPE != YAP_NO_ERROR)
     return NULL;
-
+  
     // this is a term, extract the UTF8 representation
   if ( IsStringTerm(inp->val.t) &&
        inp->type & YAP_STRING_STRING) {
