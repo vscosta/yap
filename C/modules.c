@@ -134,7 +134,7 @@ bool Yap_getUnknown ( Term mod) {
 #define ByteAdr(X) ((char *)&(X))
 Term Yap_Module_Name(PredEntry *ap) {
   CACHE_REGS
-  Term mod;
+
   if (!ap)
     return TermUser;
   if (!ap->ModuleOfPred)

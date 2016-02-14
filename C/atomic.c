@@ -466,7 +466,7 @@ atom_codes( USES_REGS1 )
   t1  = Deref(ARG1);
 restart_aux:
   if (IsAtomTerm(t1)) {
-    Term tf = Yap_AtomicToListOfCodes(t1 PASS_REGS);
+    Term tf = Yap_AtomToListOfCodes(t1 PASS_REGS);
     if (tf)
       return Yap_unify( ARG2, tf );
   } else if (IsVarTerm(t1)) {
