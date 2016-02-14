@@ -355,7 +355,7 @@ void Yap_InitRange(void);
 /* save.c */
 int Yap_SavedInfo(char *, char *, CELL *, CELL *, CELL *);
 int Yap_SavedStateRestore(char *, char *);
-FILE *Yap_OpenRestore(char *, char *);
+FILE *Yap_OpenRestore(const char *, char *);
 void Yap_InitSavePreds(void);
 
 /* scanner.c */
