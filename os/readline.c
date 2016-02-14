@@ -327,6 +327,7 @@ Int Yap_ReadlinePeekChar(int sno) {
     if (ch == '\0') {
       ch = '\n';
     }
+    return ch;
   }
   if (getLine(sno, StdErrStream)) {
     CACHE_REGS
