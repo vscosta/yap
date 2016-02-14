@@ -106,9 +106,7 @@ Int Yap_peek(int sno) {
 
   s = GLOBAL_Stream + sno;
 #if USE_READLINE
-  if (s->status & Readline_Stream_f
-      && trueGlobalPrologFlag(READLINE_FLAG)
-      ) {
+  if (s->status & Readline_Stream_f && trueGlobalPrologFlag(READLINE_FLAG)) {
     ch = Yap_ReadlinePeekChar(sno);
     if (ch == EOFCHAR) {
       s->stream_getc = EOFPeek;
