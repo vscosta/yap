@@ -676,7 +676,7 @@ YAPPrologPredicate::YAPPrologPredicate(YAPAtom name,
                                        YAPModule mod,
                                        bool tabled,
                                        bool logical_updates,
-                                       bool thread_local,
+                                       bool is_thread_local,
                                        bool sourced,
                                        bool discontiguous,
                                        bool multiFile,
@@ -689,7 +689,7 @@ YAPPrologPredicate::YAPPrologPredicate(YAPAtom name,
                                        size_t mega_clause
                                        ) : YAPPredicate(name, arity, mod) {
   if (!ap) return;
-  if (thread_local) {
+  if (is_thread_local) {
     if (ap->cs.p_code.NOfClauses || tabled)
       return;
     ap->PredFlags |= (ThreadLocalPredFlag|LogUpdatePredFlag);
