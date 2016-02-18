@@ -1994,7 +1994,7 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 # endif
 #else
 # ifndef WORDS_BIGENDIAN
-# define WORDS_BIGENDIAN
+# define WORDS_BIGENDIAN 0
 #ifndef WORDS_BIGENDIAN
 #
 # endif
