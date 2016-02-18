@@ -130,14 +130,14 @@ the associated value.
 max_assoc(T,K,V) :-
 	rb_max(T,K,V).
 
-/** @pred gen_assoc(+ _Assoc_,? _Key_,? _Value_) 
+/** @pred gen_assoc( ?Key, +Assoc, ?Valu_) 
 
 
 Given the association list  _Assoc_, unify  _Key_ and  _Value_
-with two associated elements. It can be used to enumerate all elements
+with a key-value  pair in the list. It can be used to enumerate all elements
 in the association list. 
 */
-gen_assoc(T,K,V) :-
+gen_assoc(K, T, V) :-
 	rb_in(K,V,T).
 
 /** @pred get_assoc(+ _Key_,+ _Assoc_,? _Value_) 
