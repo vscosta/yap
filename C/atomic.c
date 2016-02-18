@@ -921,7 +921,7 @@ cont_string_code3( USES_REGS1 )
   s0 = UStringOfTerm( t2 );
   i = IntOfTerm(EXTRA_CBACK_ARG(3,1)); // offset in coded string, increases by 1..6
   j = IntOfTerm(EXTRA_CBACK_ARG(3,2)); // offset in UNICODE string, always increases by 1
-  s = (s0+i) + get_utf8( (unsigned char *)s0+i, &chr );
+  s = (s0+i) + get_utf8( (unsigned char *)s0+i, -1, &chr );
   if (s[0]) {
     EXTRA_CBACK_ARG(3,1) = MkIntTerm(s-s0);
     EXTRA_CBACK_ARG(3,2) = MkIntTerm(j+1);
@@ -983,7 +983,7 @@ string_code3( USES_REGS1 )
       if (ns == NULL) {
 	cut_fail(); // silently fail?
       }
-      get_utf8( (unsigned char *)ns, &chr);
+      get_utf8( (unsigned char *)ns, -1, &chr);
       if ( chr == '\0') cut_fail();
       if (Yap_unify(ARG3, MkIntegerTerm(chr))) cut_succeed();
       cut_fail();
@@ -1042,7 +1042,7 @@ get_string_code3( USES_REGS1 )
 	if (ns == NULL) {
 	  return FALSE;
 	} else {
-	   get_utf8( ns, &chr);
+      get_utf8( ns, -1, &chr);
 	  if ( chr != '\0')  return Yap_unify(ARG3, MkIntegerTerm(chr));
 	}
       }
@@ -1611,7 +1611,7 @@ build_new_atomic(int mask, wchar_t *wp, const unsigned char *p, size_t min, size
     buf = buf_from_tstring(HR);
     while (len) {
       utf8proc_int32_t  chr;
-      cp +=  get_utf8((unsigned char *)cp,  &chr);
+      cp +=  get_utf8((unsigned char *)cp, -1, &chr);
       buf += put_utf8((unsigned char *)buf, chr);
       len--;
     }
@@ -1834,7 +1834,7 @@ cont_sub_atomic( USES_REGS1 )
           /* found one, check if there is any left */
           while (min <= sz-len) {
 	    int chr;
-	    p +=  get_utf8((unsigned char *)p, &chr);
+	    p +=  get_utf8((unsigned char *)p, -1, &chr);
             after--;
             min++;
             if (cmpn_utf8(p, UStringOfTerm(nat), len) == 0)

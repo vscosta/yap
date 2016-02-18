@@ -141,9 +141,9 @@ INLINE_ONLY EXTERN inline char_kind_t chtype(Int ch) {
 #define __android_log_print(...)
 #endif
 
-inline static utf8proc_ssize_t get_utf8(utf8proc_uint8_t *ptr,
+inline static utf8proc_ssize_t get_utf8(utf8proc_uint8_t *ptr, size_t n,
                                         utf8proc_int32_t *valp) {
-  return utf8proc_iterate(ptr, -1, valp);
+  return utf8proc_iterate(ptr, n, valp);
 }
 
 inline static utf8proc_ssize_t put_utf8(utf8proc_uint8_t *ptr,
@@ -163,6 +163,11 @@ inline static utf8proc_uint8_t *skip_utf8(utf8proc_uint8_t *pt,
   }
   return pt;
 }
+
+inline static utf8proc_ssize_t utf8_nof( utf8proc_int32_t val) {
+  return utf8proc_charwidth(val);
+}
+
 
 inline static utf8proc_ssize_t strlen_utf8(const utf8proc_uint8_t *pt) {
   utf8proc_ssize_t rc = 0;
@@ -258,6 +263,12 @@ inline static int cmpn_utf8(const utf8proc_uint8_t *pt1,
   }
   return 0;
 }
+
+// UTF16
+
+#define LEAD_OFFSET (0xD800 - (0x10000 >> 10))
+#define SURROGATE_OFFSET ( 0x10000 - (0xD800 << 10) - 0xDC00 )
+
 
 const char *Yap_tokRep(TokEntry *tokptr);
 

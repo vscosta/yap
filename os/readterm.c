@@ -976,6 +976,7 @@ static Int read_term(
   Int out;
 
   /* needs to change LOCAL_output_stream for write */
+
   yhandle_t h = Yap_PushHandle(ARG2);
   inp_stream = Yap_CheckTextStream(ARG1, Input_Stream_f, "read/3");
   if (inp_stream == -1) {

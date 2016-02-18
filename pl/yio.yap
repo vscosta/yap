@@ -423,7 +423,7 @@ stream_position_data(Prop, Term, Value) :-
 '$stream_position_field'(byte_count,    4).
 
 '$set_encoding'(Enc) :-
-    stream_property(loop_stream, Enc).
+    set_stream(loop_stream, encoding(Enc)).
 
 %! @}
 

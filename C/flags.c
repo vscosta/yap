@@ -195,15 +195,11 @@ static bool mkprompt(Term inp) {
 
 static bool getenc(Term inp) {
   CACHE_REGS
-  if (IsVarTerm(inp)) {
-    return Yap_unify(inp, MkAtomTerm(Yap_LookupAtom(enc_name(LOCAL_encoding))));
-  }
-  if (!IsAtomTerm(inp)) {
-    Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
+  if (!IsVarTerm(inp) && !IsAtomTerm(inp)) {
+    Yap_Error(TYPE_ERROR_ATOM, inp, "get_encoding");
     return false;
   }
-  enc_id((char *)RepAtom(AtomOfTerm(inp))->StrOfAE);
-  return true;
+     return Yap_unify(inp, MkAtomTerm(Yap_LookupAtom(enc_name(LOCAL_encoding))));
 }
 
 /*
@@ -217,7 +213,7 @@ if (!IsAtomTerm(inp) ) {
 Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
 return false;
 }
-enc_id( RepAtom( AtomOfTerm( inp ) )->StrOfAE );
+enc_id( RepAtom( AtomOfTerm( inp ) )->StrOfAE, ENC_OCTET );
 return true;
 }
 */

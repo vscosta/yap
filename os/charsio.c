@@ -94,10 +94,6 @@ INLINE_ONLY inline EXTERN Int CharOfAtom(Atom at) {
   }
 }
 
-static int plUnGetc(int sno, int ch) {
-  return ungetc(ch, GLOBAL_Stream[sno].file);
-}
-
 Int Yap_peek(int sno) {
   CACHE_REGS
   Int ocharcount, olinecount, olinepos;
@@ -143,34 +139,42 @@ Int Yap_peek(int sno) {
       ungetc(cs[n - 1], s->file);
     }
   } else if (s->encoding == ENC_UTF16_BE) {
-    /* do the ungetc as if a write .. */
-    unsigned long int c = ch;
-    if (c > ((1 << 16) - 1)) {
-      ungetc(c / 1 << 16, s->file);
-      c %= 1 << 16;
+   /* do the ungetc as if a write .. */
+    // computations
+    int lead = LEAD_OFFSET + (ch >> 10);
+    int trail = 0xDC00 + (ch & 0x3FF);
+
+    if (lead) {
+      ungetc(lead / 256, s->file);
+      ungetc(lead % 256, s->file);
     }
-    ungetc(c, s->file);
-  } else if (s->encoding == ENC_UTF16_BE) {
-    /* do the ungetc as if a write .. */
-    unsigned long int c = ch;
-    if (c > ((1 << 16) - 1)) {
-      ungetc(c / 1 << 16, s->file);
-      c %= 1 << 16;
-    }
-    return c;
+    ungetc(trail / 256, s->file);
+    ungetc(trail % 256, s->file);
   } else if (s->encoding == ENC_UTF16_LE) {
     /* do the ungetc as if a write .. */
-    unsigned long int c = ch;
-    if (c > ((1 << 16) - 1)) {
-      ungetc(c % 1 << 16, s->file);
-      c /= 1 << 16;
+    // computations
+    uint16_t lead = LEAD_OFFSET + (ch >> 10);
+    uint16_t trail = 0xDC00 + (ch & 0x3FF);
+    lead = 0;
+    trail = ch;
+    if (lead) {
+      ungetc(lead / 256, s->file);
+      ungetc(lead % 256, s->file);
     }
-    ungetc(c, s->file);
-  } else {
-    int (*f)(int, int) = s->stream_putc;
-    s->stream_putc = plUnGetc;
-    put_wchar(sno, ch);
-    s->stream_putc = f;
+    if (trail) {
+      ungetc(trail / 256, s->file);
+      ungetc(trail % 256, s->file);
+    }
+  } else if (s->encoding ==  ENC_ISO_UTF32_LE) {
+        ungetc( (ch >> 24) & 0xff, s->file);
+        ungetc( (ch >> 16) & 0xff, s->file);
+        ungetc( (ch >> 8) & 0xff, s->file);
+        return ungetc( ch & 0xff, s->file);
+  } else if (s->encoding ==  ENC_ISO_UTF32_BE) {
+        ungetc( ch & 0xff, s->file);
+        ungetc( (ch >> 8) & 0xff, s->file);
+        ungetc( (ch >> 16) & 0xff, s->file);
+        return ungetc( (ch >> 24) & 0xff, s->file);
   }
   return ch;
 }
@@ -421,7 +425,7 @@ static Int get_byte(USES_REGS1) { /* '$get_byte'(Stream,-N) */
       //&& strictISOFlag()
       ) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "get_byte/2");
+    Yap_Error(PERMISSION_ERROR_INPUT_STREAM, ARG1, "get_byte/2");
     return (FALSE);
   }
   out = MkIntTerm(GLOBAL_Stream[sno].stream_getc(sno));
@@ -481,7 +485,7 @@ static Int put_code_1(USES_REGS1) { /* '$put'(,N)                      */
     return FALSE;
   }
   LOCK(GLOBAL_Stream[sno].streamlock);
-  GLOBAL_Stream[sno].stream_wputc(sno, (int)IntegerOfTerm(Deref(ARG2)));
+  GLOBAL_Stream[sno].stream_wputc(sno, ch);
   /*
    * if (!(GLOBAL_Stream[sno].status & Null_Stream_f))
    * yap_fflush(GLOBAL_Stream[sno].file);
@@ -924,7 +928,6 @@ static Int flush_all_streams(USES_REGS1) { /* $flush_all_streams          */
 }
 
 /** @pred  peek_code(+ _S_, - _C_) is iso
-
 
 If  _C_ is unbound, or is the code for a character, and
 the  stream _S_ is a text stream, read the next character from the

@@ -295,18 +295,10 @@ static Int has_close_on_abort(
 static bool
 has_encoding(int sno,
              Term t2 USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage)  */
-  if (!IsVarTerm(t2) && !(isatom(t2))) {
-    return FALSE;
-  }
-  if (0 && IsAtomTerm(t2)) {
-    encoding_t e = enc_id(RepAtom(AtomOfTerm(t2))->StrOfAE);
-    GLOBAL_Stream[sno].encoding = e;
-    return true;
-  } else {
-    const char *s = enc_name(LOCAL_encoding);
-    return Yap_unify(t2, MkAtomTerm(Yap_LookupAtom(s)));
-  }
+  const char *s = enc_name(GLOBAL_Stream[sno].encoding);
+  return Yap_unify(t2, MkAtomTerm(Yap_LookupAtom(s)));
 }
+
 
 static bool
 found_eof(int sno,
@@ -719,9 +711,12 @@ static bool do_set_stream(int sno,
                  sno, (args[SET_STREAM_CLOSE_ON_ABORT].tvalue == TermTrue));
         break;
       case SET_STREAM_ENCODING:
-        GLOBAL_Stream[sno].encoding =
-            enc_id(AtomOfTerm(args[SET_STREAM_ENCODING].tvalue)->StrOfAE);
-        has_encoding(sno, args[SET_STREAM_ENCODING].tvalue PASS_REGS);
+        {
+          Term t2 = args[SET_STREAM_ENCODING].tvalue;
+          Atom atEnc = AtomOfTerm(t2);
+          GLOBAL_Stream[sno].encoding =
+            enc_id(atEnc->StrOfAE, (GLOBAL_Stream[sno].status & HAS_BOM_f ? GLOBAL_Stream[sno].encoding :ENC_OCTET ) );
+        }
         break;
       case SET_STREAM_EOF_ACTION: {
         Term t2 = args[SET_STREAM_EOF_ACTION].tvalue;

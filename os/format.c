@@ -328,7 +328,7 @@ static int format_print_str(Int sno, Int size, Int has_size, Term args,
     const unsigned char *pt = UStringOfTerm(args);
     while (*pt && (!has_size || size > 0)) {
       utf8proc_int32_t ch;
-      pt += get_utf8((unsigned char *)pt, &ch);
+      pt += get_utf8((unsigned char *)pt, -1, &ch);
       f_putc(sno, ch);
     }
   } else {

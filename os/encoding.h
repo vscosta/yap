@@ -31,7 +31,7 @@ typedef enum {
   ENC_ISO_UTF32_LE = 128, /// yes, nobody
 } encoding_t;
 
-#if defined(__BIG_ENDIAN__)
+#if WORDS_BIGENDIAN
 #define ENC_WCHAR ENC_ISO_UTF32_BE
 #else
 #define ENC_WCHAR ENC_ISO_UTF32_LE
@@ -114,14 +114,27 @@ static inline const char *enc_name(encoding_t enc) {
   }
 }
 
-static inline encoding_t enc_id(char *s) {
+static inline encoding_t enc_id(const char *s, encoding_t enc_bom) {
   {
     if (!strcmp(s, "iso_utf8"))
       return ENC_ISO_UTF8;
     if (!strcmp(s, "utf8"))
       return ENC_ISO_UTF8;
+    if (!strcmp(s, "UTF-8"))
+      return ENC_ISO_UTF8;
     if (!strcmp(s, "utf16_le"))
       return ENC_UTF16_LE;
+    if (!strcmp(s, "utf16_be"))
+      return ENC_UTF16_BE;
+    if (!strcmp(s, "UTF-16")) {
+       if (enc_bom == ENC_UTF16_LE)
+        return ENC_UTF16_LE;
+      return ENC_UTF16_BE;
+    }
+    if (!strcmp(s, "UTF-16LE"))
+      return ENC_UTF16_LE;
+    if (!strcmp(s, "UTF16-BE"))
+      return ENC_UTF16_BE;
     if (!strcmp(s, "octet"))
       return ENC_OCTET;
     if (!strcmp(s, "iso_latin_1"))
@@ -134,11 +147,31 @@ static inline encoding_t enc_id(char *s) {
       return ENC_ISO_UTF32_BE;
     if (!strcmp(s, "utf32_le"))
       return ENC_ISO_UTF32_LE;
-    if (!strcmp(s, "default"))
-      return Yap_DefaultEncoding();
+    if (!strcmp(s, "UTF-32")) {
+      if (enc_bom == ENC_ISO_UTF32_LE)
+        return ENC_ISO_UTF32_LE;
+      return ENC_ISO_UTF32_BE;
+    }
+    if (!strcmp(s, "UTF-32BE"))
+      return ENC_ISO_UTF32_BE;
+    if (!strcmp(s, "UTF-32LE"))
+      return ENC_ISO_UTF32_LE;
+    if (!strcmp(s, "ISO-8859-1"))
+      return ENC_ISO_LATIN1;
+    // just for SWI compat, this actually refers to
+    // UCS-2
+    if (!strcmp(s, "unicode_be"))
+      return ENC_UTF16_BE;
+    if (!strcmp(s, "unicode_le"))
+      return ENC_UTF16_LE;
+    if (!strcmp(s, "default")) {
+        if (enc_bom != ENC_OCTET)
+          return enc_bom;
+        return Yap_DefaultEncoding();
+    }
     else {
-      Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, 0, "bad encoding %s", s);
-      return ENC_OCTET;
+      Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, MkAtomTerm(Yap_LookupAtom(s)), "bad encoding %s", s);
+      return Yap_DefaultEncoding();
     }
   }
 }

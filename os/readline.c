@@ -227,21 +227,19 @@ static bool getLine(int inp, int out) {
   CACHE_REGS
   rl_instream = GLOBAL_Stream[inp].file;
   rl_outstream = GLOBAL_Stream[out].file;
-  const char *myrl_line;
+  const unsigned char *myrl_line;
   StreamDesc *s = GLOBAL_Stream + inp;
 
   if (!(s->status & Tty_Stream_f))
     return false;
 
   /* window of vulnerability opened */
-  LOCAL_PrologMode |= ConsoleGetcMode;
-
   fflush(NULL);
   LOCAL_PrologMode |= ConsoleGetcMode;
   if (LOCAL_newline) { // no output so far
-    myrl_line = readline(LOCAL_Prompt);
+    myrl_line = (unsigned char *)readline(LOCAL_Prompt);
   } else {
-    myrl_line = readline(NULL);
+    myrl_line = (unsigned char *)readline(NULL);
   }
   /* Do it the gnu way */
   if (LOCAL_PrologMode & InterruptMode) {
@@ -261,7 +259,7 @@ static bool getLine(int inp, int out) {
   if (myrl_line == NULL)
     return false;
   if (myrl_line[0] != '\0' && myrl_line[1] != '\0') {
-    add_history(myrl_line);
+    add_history((char *)myrl_line);
     append_history(1, history_file);
   }
   s->u.irl.ptr = s->u.irl.buf = myrl_line;
@@ -296,7 +294,7 @@ static int ReadlineGetc(int sno) {
   bool fetch = (s->u.irl.buf == NULL);
 
   if (!fetch || getLine(sno, StdErrStream)) {
-    const char *ttyptr = s->u.irl.ptr++, *myrl_line = s->u.irl.buf;
+    const unsigned char *ttyptr = s->u.irl.ptr++, *myrl_line = s->u.irl.buf;
     ch = *ttyptr;
     if (ch == '\0') {
       ch = '\n';
@@ -322,7 +320,7 @@ Int Yap_ReadlinePeekChar(int sno) {
   int ch;
 
   if (s->u.irl.buf) {
-    const char *ttyptr = s->u.irl.ptr;
+    const unsigned char *ttyptr = s->u.irl.ptr;
     ch = *ttyptr;
     if (ch == '\0') {
       ch = '\n';
@@ -350,15 +348,15 @@ int Yap_ReadlineForSIGINT(void) {
   CACHE_REGS
   int ch;
   StreamDesc *s = &GLOBAL_Stream[StdInStream];
-  const char *myrl_line = s->u.irl.buf;
+  const unsigned char *myrl_line = s->u.irl.buf;
 
-  if ((LOCAL_PrologMode & ConsoleGetcMode) && myrl_line != (char *)NULL) {
+  if ((LOCAL_PrologMode & ConsoleGetcMode) && myrl_line != NULL) {
     ch = myrl_line[0];
     free((void *)myrl_line);
     myrl_line = NULL;
     return ch;
   } else {
-    myrl_line = readline("Action (h for help): ");
+    myrl_line = (const unsigned char *)readline("Action (h for help): ");
     if (!myrl_line) {
       ch = EOF;
       return ch;

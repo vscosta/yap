@@ -408,7 +408,7 @@ write_strings( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng
       buf = buf_from_tstring(HR);
       while (*cp && cp < lim) {
 	utf8proc_int32_t chr;
-	cp +=  get_utf8(cp, &chr);
+	cp +=  get_utf8(cp, -1, &chr);
 	buf += put_utf8(buf, chr);
       }
       if (max >= min) *buf++ = '\0';
@@ -496,7 +496,7 @@ write_atoms( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
       while (cp < lim && *cp) {
 	utf8proc_int32_t chr;
 	CELL *cl;
-	cp +=  get_utf8(cp, &chr);
+	cp +=  get_utf8(cp, -1, &chr);
 	if (chr == '\0') break;
 	w[0] = chr;
 	cl = HR;
@@ -581,7 +581,7 @@ write_codes( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
       LOCAL_TERM_ERROR( t, 2*(lim-s) );
       while (*cp && cp < lim) {
 	utf8proc_int32_t chr;
-	cp +=  get_utf8(cp, &chr);
+	cp +=  get_utf8(cp, -1, &chr);
 	HR[0] = MkIntTerm(chr);
 	HR[1] = AbsPair(HR+2);
 	HR += 2;
@@ -659,7 +659,7 @@ write_atom( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng US
 
       while (*s && s < lim) {
 	utf8proc_int32_t chr;
-	s +=  get_utf8(s, &chr);
+	s +=  get_utf8(s,-1, &chr);
 	*ptr++ = chr;
       }
       *ptr++ = '\0';
@@ -743,14 +743,14 @@ write_wbuffer( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng
 	  return -1;
 	while (*cp && cp < lim) {
 	  utf8proc_int32_t chr;
-	  cp +=  get_utf8(cp, &chr);
+	  cp +=  get_utf8(cp, -1, &chr);
 	  *buf++ = chr;
 	}
 	if (max >= min) *buf++ = '\0';
 	else while (max < min) {
 	  utf8proc_int32_t chr;
 	  max++;
-	  cp +=  get_utf8(cp,  &chr);
+	  cp +=  get_utf8(cp, -1, &chr);
 	  *buf++ = chr;
 	}
 	*buf = '\0';
@@ -890,14 +890,14 @@ write_buffer( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng 
 	  return -1;
 	while (*cp && cp < lim) {
 	  utf8proc_int32_t chr;
-	  cp +=  get_utf8(cp, &chr);
+	  cp +=  get_utf8(cp, -1, &chr);
 	  *buf++ = chr;
 	}
 	if (max >= min) *buf++ = '\0';
 	else while (max < min) {
 	  utf8proc_int32_t chr;
 	  max++;
-	  cp +=  get_utf8(cp, &chr);
+	  cp +=  get_utf8(cp, -1, &chr);
 	  *buf++ = chr;
 	}
  	sz_end = buf-out->val.uc;
@@ -1104,7 +1104,7 @@ cmp_Text( void *s1, void *s2, int l, encoding_t enc1, encoding_t enc2 )
 	{
 	  utf8proc_int32_t chr1, chr2;
 	  unsigned char *w2 = s2;
-	  for (i = 0; i < l; i++) { chr1 = *w1++; w2 +=  get_utf8(w2, &chr2); if (chr1-chr2) return chr1-chr2; }
+	  for (i = 0; i < l; i++) { chr1 = *w1++; w2 +=  get_utf8(w2, -1, &chr2); if (chr1-chr2) return chr1-chr2; }
 	}
 	return 0;
     case ENC_WCHAR:
@@ -1126,21 +1126,21 @@ cmp_Text( void *s1, void *s2, int l, encoding_t enc1, encoding_t enc2 )
 	{
 	  utf8proc_int32_t chr1, chr2;
 	  unsigned char *w2 = s2;
-	  for (i = 0; i < l; i++) { chr2 = *w2++; w1 += get_utf8(w1, &chr1); if (chr1-chr2) return chr1-chr2; }
+	  for (i = 0; i < l; i++) { chr2 = *w2++; w1 += get_utf8(w1, -1, &chr1); if (chr1-chr2) return chr1-chr2; }
 	}
 	return 0;
       case ENC_ISO_UTF8:
 	{
 	  utf8proc_int32_t chr1, chr2;
 	  unsigned char *w2 = s2;
-	  for (i = 0; i < l; i++) { w2 +=  get_utf8(w2, &chr2); w1 +=  get_utf8(w1, &chr1); if (chr1-chr2) return chr1-chr2; }
+	  for (i = 0; i < l; i++) { w2 +=  get_utf8(w2, -1, &chr2); w1 +=  get_utf8(w1,-1, &chr1); if (chr1-chr2) return chr1-chr2; }
 	}
 	return 0;
     case ENC_WCHAR:
 	{
 	  utf8proc_int32_t chr1, chr2;
 	  wchar_t *w2 = s2;
-	  for (i = 0; i < l; i++) { chr2 = *w2++; w1 +=  get_utf8(w1, &chr1); if (chr1-chr2) return chr1-chr2; }
+	  for (i = 0; i < l; i++) { chr2 = *w2++; w1 +=  get_utf8(w1, -1, &chr1); if (chr1-chr2) return chr1-chr2; }
 	}
 	return 0;
       default:
@@ -1162,7 +1162,7 @@ cmp_Text( void *s1, void *s2, int l, encoding_t enc1, encoding_t enc2 )
 	{
 	  utf8proc_int32_t chr1, chr2;
 	  unsigned char *w2 = s2;
-	  for (i = 0; i < l; i++) { chr1 = *w1++; w2 +=  get_utf8(w2, &chr2); if (chr1-chr2) return chr1-chr2; }
+	  for (i = 0; i < l; i++) { chr1 = *w1++; w2 +=  get_utf8(w2, -1, &chr2); if (chr1-chr2) return chr1-chr2; }
 	}
 	return 0;
     case ENC_WCHAR:
@@ -1232,7 +1232,7 @@ concat( int n, seq_tv_t *out, void *sv[], encoding_t encv[], size_t lengv[] USES
 	} else {
 	  unsigned char *ptr = sv[i];
 	  utf8proc_int32_t chr;
-	  while ( (ptr +=  get_utf8( ptr, &chr )) != NULL ) { if (chr == '\0') break; else *buf++ = chr; }
+	  while ( (ptr +=  get_utf8( ptr, -1, &chr )) != NULL ) { if (chr == '\0') break; else *buf++ = chr; }
 	}
       }
       *buf++ = '\0';
@@ -1276,7 +1276,7 @@ slice( size_t min, size_t max, void *buf, seq_tv_t *out, encoding_t enc USES_REG
        unsigned char *ptr = skip_utf8 (buf, min );
       utf8proc_int32_t chr;
       if (!ptr) return NULL;
-      while ( min++ < max ) { ptr +=  get_utf8(ptr, & chr); nbuf += put_utf8(nbuf, chr); }
+      while ( min++ < max ) { ptr +=  get_utf8(ptr, -1, & chr); nbuf += put_utf8(nbuf, chr); }
     }
     *nbuf ++ = '\0';
     close_tstring( nbuf  PASS_REGS );
@@ -1313,7 +1313,7 @@ slice( size_t min, size_t max, void *buf, seq_tv_t *out, encoding_t enc USES_REG
       utf8proc_int32_t chr;
 
       LOCAL_ERROR( MkAtomTerm(Yap_LookupAtom(buf)), max-min );
-      while ( min++ < max ) { ptr +=  get_utf8(ptr, & chr); *nbuf++ = chr; }
+      while ( min++ < max ) { ptr +=  get_utf8(ptr, -1, & chr); *nbuf++ = chr; }
       nbuf[0] = '\0';
       at = Yap_LookupMaybeWideAtom( (wchar_t*)HR );
     }

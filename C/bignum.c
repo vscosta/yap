@@ -365,7 +365,7 @@ Yap_OpaqueTermToString(Term t, char *str, size_t max)
     str_index += sprintf(& str[str_index], "\"");
     do {
       utf8proc_int32_t chr;
-      ptr +=  get_utf8(ptr,  &chr);
+      ptr +=  get_utf8(ptr, -1,  &chr);
       if (chr == '\0') break;
       str_index += sprintf(str+str_index, "%C", chr);
     } while (TRUE);

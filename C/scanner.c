@@ -1232,7 +1232,12 @@ const char *Yap_tokRep(TokEntry *tokptr) {
 
   switch (tokptr->Tok) {
   case Name_tok:
-    return (char *)RepAtom((Atom)info)->StrOfAE;
+    if (IsWideAtom((Atom)info)) {
+      wchar_t *wc = RepAtom((Atom)info)->WStrOfAE;
+      Term s = Yap_WCharsToString(wc PASS_REGS);
+      return StringOfTerm(s);
+    }
+    return  RepAtom((Atom)info)->StrOfAE;
   case Number_tok:
     if ((b = Yap_TermToString(info, buf, sze, &length, &LOCAL_encoding,
                               flags)) != buf) {
@@ -2038,9 +2043,6 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
       char err[1024];
       snprintf(err, 1023, "\n++++ token: unrecognised char %c (%d), type %c\n",
                ch, ch, chtype(ch));
-#if DEBUG
-      fprintf(stderr, "%s", err);
-#endif
     }
       t->Tok = Ord(kind = eot_tok);
       t->TokInfo = TermEof;
