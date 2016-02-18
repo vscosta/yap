@@ -21,9 +21,6 @@ add_definitions (-DMYDDAS_ODBC=1)
 add_library (Yapodbc SHARED ${YAPODBC_SOURCES})
 target_link_libraries(Yapodbc libYap ${ODBC_LIBRARIES})
 include_directories (${ODBC_INCLUDE_DIRECTORIES} ..)
-else()
-  add_definitions (-DMYDDAS_ODBC=0)
-  endif (ODBC_FOUND)
 
 set_target_properties (Yapodbc PROPERTIES
   POSITION_INDEPENDENT_CODE ON
@@ -31,9 +28,11 @@ set_target_properties (Yapodbc PROPERTIES
   SOVERSION ${SO_MAJOR}
   )
 
-
    install(TARGETS  Yapodbc
     LIBRARY DESTINATION ${libdir}
     ARCHIVE DESTINATION ${libdir}
     )
 
+else()
+  add_definitions (-DMYDDAS_ODBC=0)
+  endif (ODBC_FOUND)
