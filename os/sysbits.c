@@ -946,10 +946,24 @@ do_expand_file_name(Term t1, Term opts USES_REGS)
     return tf;
 }
 
+/* @pred expand_file_name( +Pattern, -ListOfPaths) is det
+
+This builtin receives a pattern and expands it into a list of files.
+  In Unix-like systems, YAP applies glob to expand patterns such as '*', '.', and '?'. Further variable expansion 
+may also happen. glob is shell-dependent: som   Yap_InitCPred ("absolute_file_system_path", 2, absolute_file_system_path, 0);
+    Yap_InitCPred ("real_path", 2, prolog_realpath, 0);
+    Yap_InitCPred ("true_file_name", 2,
+                   true_file_name, SyncPredFlag);
+    Yap_InitCPred ("true_file_name", 3, true_file_name3, SyncPredFlag);
+e shells allow command execution and brace-expansion.
+
+*/
 static Int
 expand_file_name( USES_REGS1)
 {
     Term tf = do_expand_file_name( Deref(ARG1), TermNil PASS_REGS);
+    if (tf == 0)
+      return false;
     return
             Yap_unify( tf, ARG2);
 }
@@ -2298,16 +2312,15 @@ Yap_InitSysPreds(void)
     Yap_InitCPred ("expand_file_name", 2, expand_file_name, SyncPredFlag);
     Yap_InitCPred ("working_directory", 2,working_directory, SyncPredFlag);
     Yap_InitCPred ("prolog_to_os_filename", 2, prolog_to_os_filename, SyncPredFlag);
-    Yap_InitCPred ("prolog_to_os_filename", 2, prolog_to_os_filename, SyncPredFlag);
-#ifdef _WIN32
-    Yap_InitCPred ("win_registry_get_value", 3, p_win_registry_get_value,0);
-#endif
     Yap_InitCPred ("absolute_file_system_path", 2, absolute_file_system_path, 0);
     Yap_InitCPred ("real_path", 2, prolog_realpath, 0);
     Yap_InitCPred ("true_file_name", 2,
                    true_file_name, SyncPredFlag);
     Yap_InitCPred ("true_file_name", 3, true_file_name3, SyncPredFlag);
-    Yap_InitCPred ("rmdir", 2, p_rmdir, SyncPredFlag);
+ #ifdef _WIN32
+    Yap_InitCPred ("win_registry_get_value", 3, p_win_registry_get_value,0);
+#endif
+     Yap_InitCPred ("rmdir", 2, p_rmdir, SyncPredFlag);
     Yap_InitCPred ("make_directory", 1, make_directory, SyncPredFlag);
 }
 

@@ -140,3 +140,7 @@ xcode
 Threads
 mxe
 caret
+
+configure
+
+cmake/cmake-android

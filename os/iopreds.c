@@ -2003,9 +2003,10 @@ case ENC_ISO_UTF32_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
         t[ABSOLUTE_FILE_NAME_EXPAND] = args[ABSOLUTE_FILE_NAME_EXPAND].tvalue;
       else
         t[ABSOLUTE_FILE_NAME_EXPAND] = TermFalse;
-      if (args[ABSOLUTE_FILE_NAME_GLOB].used)
+      if (args[ABSOLUTE_FILE_NAME_GLOB].used) {
         t[ABSOLUTE_FILE_NAME_GLOB] = args[ABSOLUTE_FILE_NAME_GLOB].tvalue;
-      else
+        t[ABSOLUTE_FILE_NAME_EXPAND] = TermTrue;
+      } else
         t[ABSOLUTE_FILE_NAME_GLOB] = TermEmptyAtom;
       if (args[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH].used)
         t[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH] =

@@ -1745,6 +1745,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
       if (ch == '.' && (pch = Yap_peek(inp_stream - GLOBAL_Stream)) &&
           (chtype(pch) == BS || chtype(pch) == EF || pch == '%')) {
         t->Tok = Ord(kind = eot_tok);
+        // consume...
+        ch = getchr(inp_stream); 
         if (chtype(ch) == EF) {
           mark_eof(inp_stream);
           t->TokInfo = TermEof;

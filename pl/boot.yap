@@ -927,7 +927,7 @@ number of steps.
 	'$sort'(IVs, NVs),
 	'$prep_answer_var_by_var'(NVs, LAnsw, LBlk),
 	'$name_vars_in_goals'(LAnsw, Vs, NLAnsw),
-        '$write_vars_and_goals'(NLAnsw, first, FLAnsw).
+    '$write_vars_and_goals'(NLAnsw, first, FLAnsw).
 
 '$purge_dontcares'([],[]).
 '$purge_dontcares'([Name=_|Vs],NVs) :-
