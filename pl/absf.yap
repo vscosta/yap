@@ -212,7 +212,7 @@ absolute_file_name(File0,File) :-
 	 set_prolog_flag(file_name_variables, OldF),
      % check if no solution
      arg(1,HasSol,no),
-     get_abs_file_parameter( file_errors, Opts, error ),
+     FileErrors = error,
 	 '$do_error'(existence_error(file,File),G)
 	).
     
