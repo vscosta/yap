@@ -143,6 +143,7 @@ swapped, thus the call
   is valid as well.
 */
 
+
 absolute_file_name(File,TrueFileName,Opts) :-
     ( var(TrueFileName) ->
 	  true ;
@@ -169,7 +170,7 @@ absolute_file_name(File0,File) :-
                               file_errors(fail),
                               solutions(first),
                               expand(true)],F,G).
-
+                              
 '$absolute_file_name'(File,LOpts,TrueFileName, G) :-
 %   must_be_of_type( atom, File ),
 	abs_file_parameters(LOpts,Opts),
@@ -181,47 +182,40 @@ absolute_file_name(File0,File) :-
 	set_prolog_flag( verbose_file_search,  Verbose ),
 	get_abs_file_parameter( file_errors, Opts, FErrors ),
 	get_abs_file_parameter( solutions, Opts, First ),
-	(  FErrors == fail ->
-	  set_prolog_flag( fileerrors, false )
-	;
-	  set_prolog_flag( fileerrors, true )
-	),
+	(  FErrors == fail -> FileErrors = false ; FileErrors = true ),
+	set_prolog_flag( fileerrors, FileErrors ),
 	set_prolog_flag(file_name_variables, Expand),
 	'$absf_trace'(File),
 	'$absf_trace_options'(LOpts),
-	'$find_in_path'(File, Opts,TrueFileName),
-	(
-	    First == first
-	 ->
-	     '$absf_trace'(' |------- got first  ~a', [TrueFileName]),
-	     set_prolog_flag( fileerrors, PreviousFileErrors ),
-	     set_prolog_flag( open_expands_filename, OldF),
-	     set_prolog_flag( verbose_file_search, PreviousVerbose ),
-	     !
-	 ;
-	 (
-	     '$absf_trace'(' +------- found match ~a.', [TrueFileName]),
-	     set_prolog_flag( fileerrors, PreviousFileErrors ),
-	     set_prolog_flag( file_name_variables, OldF),
-	     set_prolog_flag( verbose_file_search, PreviousVerbose )
-	  ;
-	  '$absf_trace'(' -------- no more solutions.', []),
-	  set_prolog_flag( verbose_file_search, Verbose ),
-	  get_abs_file_parameter( file_errors, Opts, FErrors ),
-	  set_prolog_flag(file_name_variables, Expand),
-	  fail
-	 )
-	 ;
-	 % no solution
+    HasSol = t(no),
+    (
+     % look for solutions
+         '$find_in_path'(File, Opts,TrueFileName),
+         (     (First == first -> ! ; nb_setarg(1, HasSol, yes) ),
+	           set_prolog_flag( fileerrors, PreviousFileErrors ),
+	           set_prolog_flag( open_expands_filename, OldF),
+	           set_prolog_flag( verbose_file_search, PreviousVerbose ),
+ 	          '$absf_trace'(' |------- found  ~a', [TrueFileName])
+	       ;
+                set_prolog_flag( fileerrors, FileErrors ),
+                set_prolog_flag( verbose_file_search, Verbose ),
+	           set_prolog_flag( file_name_variables, Expand ),
+	           '$absf_trace'(' |------- restarted search for  ~a', [File]),
+	           fail
+         )
+ 	 ;
+	 % finished
 	 %	 	stop_low_level_trace,
 	 '$absf_trace'(' !------- failed.', []),
 	 set_prolog_flag( fileerrors, PreviousFileErrors ),
 	 set_prolog_flag( verbose_file_search, PreviousVerbose ),
 	 set_prolog_flag(file_name_variables, OldF),
-	 get_abs_file_parameter( file_errors, Opts, error ),
+     % check if no solution
+     arg(1,HasSol,no),
+     get_abs_file_parameter( file_errors, Opts, error ),
 	 '$do_error'(existence_error(file,File),G)
 	).
-
+    
 % This sequence must be followed:
 % user and user_input are special;
 % library(F) must check library_directories
@@ -245,16 +239,15 @@ absolute_file_name(File0,File) :-
     '$absf_trace'('    after prefix expansion: ~s', [Path]),
     atom_codes( APath, Path ),
     (
-	Expand = true
+	 Expand = true
      ->
-	 expand_file_name( APath, EPaths),
-	 '$absf_trace'('     after shell globbing: ~w', [EPaths]),
-	 lists:member(EPath, EPaths)
+	   expand_file_name( APath, EPaths),
+	   '$absf_trace'('     after shell globbing: ~w', [EPaths]),
+	   lists:member(EPath, EPaths)
      ;
-     EPath = APath
+      EPath = APath
     ),
-
-real_path( EPath, File),
+    real_path( EPath, File),
     '$absf_trace'('      after canonical path name: ~a', [File]),  
     '$check_file'( File, Type, Access ),
     '$absf_trace'('       after testing ~a for ~a and ~a', [File,Type,Access]). 
@@ -368,6 +361,7 @@ real_path( EPath, File),
 	G \= '', 
 	atom_codes( G, Gs )
     },
+    !,
     '$dir',
     Gs.
 '$glob'(_Opts) -->
@@ -725,6 +719,5 @@ user:file_search_path(path, C) :-
 	),
 	lists:member(C, B)
     ).
-
 
 %% @}
