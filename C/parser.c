@@ -1084,6 +1084,8 @@ Term Yap_Parse(UInt prio) {
 #endif
     Yap_CloseSlots(sls);
     if (LOCAL_tokptr != NULL && LOCAL_tokptr->Tok != Ord(eot_tok)) {
+      LOCAL_Error_TYPE = SYNTAX_ERROR;
+      LOCAL_ErrorMessage = "term does not end on . ";
       t = 0;
     }
     if (t != 0 && LOCAL_Error_TYPE == SYNTAX_ERROR) {

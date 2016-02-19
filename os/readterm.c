@@ -867,14 +867,11 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
       LOCAL_Error_TYPE = SYNTAX_ERROR;
       Yap_Error(SYNTAX_ERROR, terr, LOCAL_ErrorMessage);
       return YAP_PARSING_FINISHED;
-    } else {
+    // dec-10
+    } else if (Yap_PrintWarning(terr)) {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
-      if (ParserErrorStyle == TermDec10) {
-        if (Yap_PrintWarning(terr))
-          return YAP_SCANNING;
-        return YAP_PARSING_FINISHED;
-      }
-    }
+      return YAP_SCANNING;
+     }
   }
   LOCAL_Error_TYPE = YAP_NO_ERROR;
   return YAP_PARSING_FINISHED;
@@ -893,6 +890,8 @@ static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
 #if EMACS
   first_char = tokstart->TokPos;
 #endif /* EMACS */
+  if (LOCAL_Error_TYPE != YAP_NO_ERROR || fe->t == 0)
+    return YAP_PARSING_ERROR;
   return YAP_PARSING_FINISHED;
 }
 
@@ -902,7 +901,7 @@ static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
  *
  * @arg inp_stream: where we read from
  * @arg: opts, a list with options
- * @arg: if called from read_term, arity
+ * @arg: if call∫ed from read_term, arity
  *  called from read_clause, -arity
  *
  * @return the term or 0 in case of error.
