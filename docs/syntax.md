@@ -1,12 +1,17 @@
+
+
+@file syntax.md
+
 @defgroup YAPSyntax YAP Syntax
 @ingroup mainpage
 
 We will describe the syntax of YAP at two levels. We first will
 describe the syntax for Prolog terms. In a second level we describe
-the \a tokens from which Prolog \a terms are
+the  tokens from which Prolog  terms are
 built.
 
-@section Formal_Syntax Syntax of Terms
+@defgroup Formal_Syntax Syntax of Terms
+@ingroup YAPSyntax
 
 Below, we describe the syntax of YAP terms from the different
 classes of tokens defined above. The formalism used will be <em>BNF</em>,
@@ -81,15 +86,18 @@ dot with single quotes.
 
 
 
-@section Tokens Prolog Tokens
+# @defgroup Tokens Prolog Tokens
+@ingroup YAPSyntax
 
 Prolog tokens are grouped into the following categories:
 
-@subsection Numbers Numbers
+## @defgroup Numbers Numbers
+@ingroup Tokens
 
 Numbers can be further subdivided into integer and floating-point numbers.
 
-@subsubsection Integers
+### @defgroup  Integers Integers
+@ingroup Numbers
 
 Integer numbers
 are described by the following regular expression:
@@ -136,7 +144,8 @@ the word size of the machine. This is 32 bits in most current machines,
 but 64 in some others, such as the Alpha running Linux or Digital
 Unix. The scanner will read larger or smaller integers erroneously.
 
-@subsubsection Floats
+### @defgroup  Floats Floats
+@ingroup Numbers
 
 Floating-point numbers are described by:
 
@@ -160,12 +169,13 @@ Examples:
 Floating-point numbers are represented as a double in the target
 machine. This is usually a 64-bit number.
 
-@subsection Strings Character Strings
+## Strings @defgroup  Strings Character Strings
 
 Strings are described by the following rules:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  string --> '"' string_quoted_characters '"'
+~~~~
+  string --> " string_quoted_characters "
+  string --> ` string_quoted_characters `
 
   string_quoted_characters --> '"' '"' string_quoted_characters
   string_quoted_characters --> '\'
@@ -177,9 +187,24 @@ Strings are described by the following rules:
   escape_sequence --> '\' | '"' | ''' | '`'
   escape_sequence --> at_most_3_octal_digit_seq_char '\'
   escape_sequence --> 'x' at_most_2_hexa_digit_seq_char '\'
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-where `string_character` in any character except the double quote
+~~~~
+
+where `string_character` is any character except the double quote (back quote)
 and escape characters.
+
+YAP supports four different textual elements:
+
+ + Atoms, mentioned above, are textual representations of symbols, that are interned in the
+ data-base. They are stored either in ISO-LATIN-1 (first 256 code points), or as UTF-32.
+
+ + Strings are atomic representations of text. The back-quote character is used to identify these objects in the program. Strings exist as stack objects, in the same way as other Prolog terms. As Prolog unification cannot be used to manipulate strings, YAP includes built-ins such as string_arg/3, sub_string/5, or string_concat to manipulate them efficiently. Strings are stored as opaque objects containing a
+ 
+ + Lists of codes represent text as a list of numbers, where each number is a character code. A string of _N_ bytes requires _N_ pairs, that is _2N_ cells, leading to a total of 16 bytes per character on 64 byte machines. Thus, they are a very expensive, but very flexible representation, as one can use unification to construct and access string elements.
+ 
+ + Lists of atoms represent text as a list of atoms, where each number has a single character code. A string of _N_ bytes also requires _2N_ pairs. They have similar properties to lists of codes.
+ 
+ The flags `double_quotes` and `backquoted_string` change the interpretation of text strings, they can take the
+ values `atom`, `string`, `codes`, and `chars`.
 
 Examples:
 
@@ -188,9 +213,7 @@ Examples:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The first string is an empty string, the last string shows the use of
-double-quoting. The implementation of YAP represents strings as
-lists of integers. Since YAP 4.3.0 there is no static limit on string
-size.
+double-quoting. 
 
 Escape sequences can be used to include the non-printable characters
 `a` (alert), `b` (backspace), `r` (carriage return),
@@ -210,13 +233,14 @@ The first three examples return a list including only character 12 (form
 feed). The last example escapes the escape character.
 
 Escape sequences were not available in C-Prolog and in original
-versions of YAP up to 4.2.0. Escape sequences can be disable by using:
+versions of YAP up to 4.2.0. Escape sequences can be disabled by using:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 :- yap_flag(character_escapes,false).
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-@subsection Atoms Atoms
+## @addgroup Atoms Atoms
+@ingroup Tokens
 
 Atoms are defined by one of the following rules:
 
@@ -256,7 +280,8 @@ Version `4.2.0` of YAP removed the previous limit of 256
 characters on an atom. Size of an atom is now only limited by the space
 available in the system.
 
-@subsection Variables Variables
+## @addgroup Variables Variables
+@ingroup Tokens
 
 Variables are described by:
 
@@ -276,8 +301,8 @@ variables are known as anonymous variables. Note that different
 occurrences of `_` on the same term represent <em>different</em>
 anonymous variables.
 
-@subsection Punctuation_Tokens Punctuation Tokens
-
+## @addgroup Punctuation_Tokens Punctuation Tokens
+@ingroup Tokens
 Punctuation tokens consist of one of the following characters:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -298,7 +323,9 @@ layout characters, the YAP parser behaves as if it had found a
 single blank character. The end of a file also counts as a blank
 character for this purpose.
 
-@section Encoding Wide Character Support
+## @addgroup WideChars Encoding Wide Character Support
+@ingroup YAPSyntax
+
 
 YAP now implements a SWI-Prolog compatible interface to wide
 characters and the Universal Character Set (UCS). The following text
@@ -319,7 +346,8 @@ atoms. If the text fits in ISO Latin-1, it is represented as an array
 of 8-bit characters.  Otherwise the text is represented as an array of
 wide chars, which may take 16 or 32 bits.  This representational issue
 is completely transparent to the Prolog user.  Users of the foreign
-language interface sometimes need to be aware of these issues though.
+language interface sometimes need to be aware of these issues though. Notice that this will likely 
+change in the future, we probably will use an UTF-8 based representation.
 
 Character coding comes into view when characters of strings need to be
 read from or written to file or when they have to be communicated to
@@ -327,74 +355,103 @@ other software components using the foreign language interface. In this
 section we only deal with I/O through streams, which includes file I/O
 as well as I/O through network sockets.
 
-@subsection Stream_Encoding Wide character encodings on streams
+== @addgroup Stream_Encoding Wide character encodings on streams
+@ingroup WideChars
 
-Although characters are uniquely coded using the UCS standard
-internally, streams and files are byte (8-bit) oriented and there are a
-variety of ways to represent the larger UCS codes in an 8-bit octet
-stream. The most popular one, especially in the context of the web, is
-UTF-8. Bytes 0...127 represent simply the corresponding US-ASCII
+The UCS standard describes all possible characters (or code points, as they include
+ideograms, ligatures, and other symbols). The current version, Unicode 8.0, allows 
+code points up to 0x10FFFF, and thus allows for 1,114,112 code points. See [Unicode Charts](http://unicode.org/charts/) for the supported languages.
+
+Notice that most symbols are rarely used. Encodings represent the Unicode characters in a way
+that is more suited for communication. The most popular encoding, especially in the context of the web and in the Unix/Linux/BSD/Mac communities, is
+UTF-8. UTF-8 is compact and as it uses bytes, does not have different endianesses.
+Bytes 0...127 represent simply the corresponding US-ASCII
 character, while bytes 128...255 are used for multi-byte
-encoding of characters placed higher in the UCS space. Especially on
-MS-Windows the 16-bit Unicode standard, represented by pairs of bytes is
-also popular.
+encoding of characters placed higher in the UCS space. 
 
-Prolog I/O streams have a property called <em>encoding</em> which
-specifies the used encoding that influence `get_code/2` and
-`put_code/2` as well as all the other text I/O predicates.
-
-The default encoding for files is derived from the Prolog flag
-`encoding`, which is initialised from the environment.  If the
+Especially on
+MS-Windows and Java the 16-bit Unicode standard, represented by pairs of bytes is
+also popular. Originally, Microsoft supported a UCS-2 with 16 bits that 
+ could represent only up to 64k characters. This was later extended to support the full
+ Unicode, we will call the latter version UTF-16. The extension uses a hole in the first 64K code points. Characters above 0xFFFF are divided into two 2-byte words, each one in that hole. There are two versions of UTF-16: big and low
+ endian. By default, UTF-16 is big endian, in practice most often it is used on Intel
+ hardware that is naturally little endian.
+ 
+ UTF-32, often called UCS-4, provides a natural interface where a code point is coded as 
+ four octets. Unfortunately, it is also more expensive, so it is not as widely used.
+ 
+ Last, other encodings are also commonly used. One such legacy encoding is ISO-LATIN-1, that
+ supported latin based languages in western europe. YAP currently uses either ISO-LATIN-1 or UTF-32
+ internally.
+ 
+Prolog supports the default encoding used by the Operating System,
+Namely, YAP checks the variables LANG, LC_ALL and LC_TYPE. Say, if at boot YAP detects that the
 environment variable `LANG` ends in "UTF-8", this encoding is
-assumed. Otherwise the default is `text` and the translation is
+assumed. Otherwise, the default is `text` and the translation is
 left to the wide-character functions of the C-library (note that the
 Prolog native UTF-8 mode is considerably faster than the generic
-`mbrtowc()` one).  The encoding can be specified explicitly in
+`mbrtowc()` one).  
+
+Prolog allows the encoding to be specified explicitly in
 load_files/2 for loading Prolog source with an alternative
 encoding, `open/4` when opening files or using `set_stream/2` on
 any open stream (not yet implemented). For Prolog source files we also
 provide the `encoding/1` directive that can be used to switch
 between encodings that are compatible to US-ASCII (`ascii`,
-`iso_latin_1`, `utf8` and many locales).  
-
-
+`iso_latin_1`, `utf8` and many locales).
 
 For
-additional information and Unicode resources, please visit
-<http://www.unicode.org/>.
+additional information and Unicode resources, please visit the
+[unicode](http://www.unicode.org/) organization web page.
 
 YAP currently defines and supports the following encodings:
 
-  + octet
+  + `octet`
 Default encoding for <em>binary</em> streams.  This causes
 the stream to be read and written fully untranslated.
 
-  + ascii
+  + `ascii` or `US_ASCII`
 7-bit encoding in 8-bit bytes.  Equivalent to `iso_latin_1`,
 but generates errors and warnings on encountering values above
 127.
 
-  + iso_latin_1
+  + `iso_latin_1` or `ISO-8859-1`
 8-bit encoding supporting many western languages.  This causes
 the stream to be read and written fully untranslated.
 
-  + text
+  + `text` 
 C-library default locale encoding for text files.  Files are read and
 written using the C-library functions `mbrtowc()` and
 `wcrtomb()`.  This may be the same as one of the other locales,
 notably it may be the same as `iso_latin_1` for western
 languages and `utf8` in a UTF-8 context.
 
-  + utf8
-Multi-byte encoding of full UCS, compatible to `ascii`.
+  + `utf8`, `iso_utf8`, or `UTF-8``
+Multi-byte encoding of the full Unicode 8, compatible to `ascii` .
 See above.
 
-  + unicode_be
+  + `unicode_be` or `UCS-2BE`
 Unicode Big Endian.  Reads input in pairs of bytes, most
 significant byte first.  Can only represent 16-bit characters.
 
-  + unicode_le
+  + `unicode_le` or `UCS-2LE`
 Unicode Little Endian.  Reads input in pairs of bytes, least
+significant byte first.  Can only represent 16-bit characters.
+
+  + `utf16_le` or `UTF-16LE` (experimental)
+  UTF-16 Little Endian.  Reads input in pairs of bytes, least
+significant byte first.  Can  represent the  full Unicode.
+
+  + `utf16_le` or `UTF-16BE` (experimental)
+Unicode Big Endian.  Reads input in pairs of bytes, least
+significant byte first.  Can  represent the  full Unicode.
+
+  + `utf32_le` or `UTF-32LE` (experimental)
+  UTF-16 Little Endian.  Reads input in pairs of bytes, least
+significant byte first.  Can  represent the  full Unicode.
+
+  + `utf32_le` or `UTF-32BE` (experimental)
+Unicode Big Endian.  Reads input in pairs of bytes, least
 significant byte first.  Can only represent 16-bit characters.
 
 
@@ -405,34 +462,31 @@ errors can be controlled using `open/4` or `set_stream/2` (not
 implemented). Initially the terminal stream write the characters using
 Prolog escape sequences while other streams generate an I/O exception.
 
-@subsection BOM BOM: Byte Order Mark
+
+
+=== @addgroup BOM BOM: Byte Order Mark
+@ingroup WideChars
 
 From Stream Encoding, you may have got the impression that
 text-files are complicated. This section deals with a related topic,
 making live often easier for the user, but providing another worry to
 the programmer.   *BOM* or <em>Byte Order Marker</em> is a technique
 for identifying Unicode text-files as well as the encoding they
-use. Such files start with the Unicode character `0xFEFF`, a
-non-breaking, zero-width space character. This is a pretty unique
-sequence that is not likely to be the start of a non-Unicode file and
-uniquely distinguishes the various Unicode file formats. As it is a
-zero-width blank, it even doesn't produce any output. This solves all
-problems, or ...
+use. Please read the [W3C](https://www.w3.org/International/questions/qa-byte-order-mark.en.php]
+page for a detailed explanation of byte-order marks.
 
-Some formats start of as US-ASCII and may contain some encoding mark to
-switch to UTF-8, such as the `encoding="UTF-8"` in an XML header.
-Such formats often explicitly forbid the the use of a UTF-8 BOM. In
-other cases there is additional information telling the encoding making
-the use of a BOM redundant or even illegal.
-
-The BOM is handled by the `open/4` predicate. By default, text-files are
+BOMa are necessary on multi-byte encodings, such as UTF-16 and UTF-32. There is  a BOM for UTF-8, but it is rarely used.
+The BOM is handled by the open/4 predicate. By default, text-files are
 probed for the BOM when opened for reading. If a BOM is found, the
 encoding is set accordingly and the property `bom(true)` is
 available through stream_property/2. When opening a file for
 writing, writing a BOM can be requested using the option
-`bom(true)` with `open/4`.
-
-@subsection Operators Summary of YAP Predefined Operators
+`bom(true)` with `open/4`. Do notice that YAP will write a BOM by default on UTF-16 (including UCS-2) and
+UTF-32; otherwise the default is not to write a BOM. BOMs are not avaliable for ASCII and
+ISO-LATIN-1.
+ 
+= @addgroup Operators Summary of YAP Predefined Operators
+@ingroup YapSyntax
 
 The Prolog syntax caters for operators of three main kinds:
 

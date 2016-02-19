@@ -181,12 +181,12 @@ original program path.
     YAP_FLAG(FAST_FLAG, "fast", true, booleanFlag, "false", NULL), /**< `fast `
 
     If `on` allow fast machine code, if `off` (default) disable it. Only
-available in experimental implemexbntations.
+available in experimental implementations.
  */
     YAP_FLAG(FILE_NAME_VARIABLES_FLAG, "file_name_variables", true, booleanFlag,
              "true", NULL),
     YAP_FLAG(FLOAT_FORMAT_FLAG, "float_format", true, isatom, "%15e",
-             NULL),                                     /**< + `float_format `
+             NULL),                                    /**< + `float_format `
 
                                     C-library `printf()` format specification used by write/1 and
                                     friends to determine how floating point numbers are printed. The

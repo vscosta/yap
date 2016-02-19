@@ -98,7 +98,7 @@ Int Yap_peek(int sno) {
   CACHE_REGS
   Int ocharcount, olinecount, olinepos;
   StreamDesc *s;
-  Int ch;
+  uint32_t ch;
 
   s = GLOBAL_Stream + sno;
 #if USE_READLINE
@@ -141,41 +141,50 @@ Int Yap_peek(int sno) {
   } else if (s->encoding == ENC_UTF16_BE) {
    /* do the ungetc as if a write .. */
     // computations
-    int lead = LEAD_OFFSET + (ch >> 10);
-    int trail = 0xDC00 + (ch & 0x3FF);
-
-    if (lead) {
-      ungetc(lead / 256, s->file);
-      ungetc(lead % 256, s->file);
-    }
-    ungetc(trail / 256, s->file);
-    ungetc(trail % 256, s->file);
-  } else if (s->encoding == ENC_UTF16_LE) {
-    /* do the ungetc as if a write .. */
-    // computations
+    if (ch < 0x10000) {
+        ungetc(ch % 256, s->file);
+       ungetc(ch / 256, s->file);
+    } else {
     uint16_t lead = LEAD_OFFSET + (ch >> 10);
     uint16_t trail = 0xDC00 + (ch & 0x3FF);
-    lead = 0;
-    trail = ch;
-    if (lead) {
-      ungetc(lead / 256, s->file);
-      ungetc(lead % 256, s->file);
-    }
-    if (trail) {
-      ungetc(trail / 256, s->file);
-      ungetc(trail % 256, s->file);
+
+    ungetc(lead % 256, s->file);
+    ungetc(lead / 256, s->file);
+    ungetc(trail % 256, s->file);
+    ungetc(trail / 256, s->file);
+  }
+  } else if (s->encoding == ENC_UTF16_LE) {
+    if (ch < 0x10000) {
+       ungetc(ch / 256, s->file);
+      ungetc(ch % 256, s->file);
+    } else {
+    uint16_t lead = LEAD_OFFSET + (ch >> 10);
+    uint16_t trail = 0xDC00 + (ch & 0x3FF);
+
+    ungetc(trail / 256, s->file);
+    ungetc(trail % 256, s->file);
+    ungetc(lead / 256, s->file);
+    ungetc(lead % 256, s->file);
     }
   } else if (s->encoding ==  ENC_ISO_UTF32_LE) {
         ungetc( (ch >> 24) & 0xff, s->file);
         ungetc( (ch >> 16) & 0xff, s->file);
         ungetc( (ch >> 8) & 0xff, s->file);
-        return ungetc( ch & 0xff, s->file);
+        ungetc( ch & 0xff, s->file);
   } else if (s->encoding ==  ENC_ISO_UTF32_BE) {
         ungetc( ch & 0xff, s->file);
         ungetc( (ch >> 8) & 0xff, s->file);
         ungetc( (ch >> 16) & 0xff, s->file);
-        return ungetc( (ch >> 24) & 0xff, s->file);
-  }
+        ungetc( (ch >> 24) & 0xff, s->file);
+  } else if (s->encoding == ENC_UCS2_BE) {
+   /* do the ungetc as if a write .. */
+    // computations
+        ungetc(ch % 256, s->file);
+       ungetc(ch / 256, s->file);
+   } else if (s->encoding == ENC_UCS2_LE) {
+       ungetc(ch / 256, s->file);
+      ungetc(ch % 256, s->file);
+   } 
   return ch;
 }
 

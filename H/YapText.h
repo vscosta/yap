@@ -266,9 +266,8 @@ inline static int cmpn_utf8(const utf8proc_uint8_t *pt1,
 
 // UTF16
 
-#define LEAD_OFFSET (0xD800 - (0x10000 >> 10))
-#define SURROGATE_OFFSET ( 0x10000 - (0xD800 << 10) - 0xDC00 )
-
+#define LEAD_OFFSET ((uint32_t)0xD800 - (uint32_t)(0x10000 >> 10))
+#define SURROGATE_OFFSET ( (uint32_t)0x10000 - (uint32_t)(0xD800 << 10) - (uint32_t)0xDC00 )
 
 const char *Yap_tokRep(TokEntry *tokptr);
 

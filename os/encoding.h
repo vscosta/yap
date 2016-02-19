@@ -29,6 +29,8 @@ typedef enum {
   ENC_UTF16_LE = 32,      /// People who made the same mistake
   ENC_ISO_UTF32_BE = 64,  /// nobody
   ENC_ISO_UTF32_LE = 128, /// yes, nobody
+  ENC_UCS2_BE = 256,  /// nobody
+  ENC_UCS2_LE = 512, /// yes, nobody
 } encoding_t;
 
 #if WORDS_BIGENDIAN
@@ -52,7 +54,7 @@ typedef enum {
   SEQ_ENC_ISO_UTF8,        /// Most everyone nowadays
   SEQ_ENC_UTF16_BE,        /// People who made a mistake
   SEQ_ENC_UTF16_LE,        /// People who made the same mistake
-  v\ SEQ_ENC_ISO_UTF32_BE, /// nobody
+  SEQ_ENC_ISO_UTF32_BE, /// nobody
   SEQ_ENC_ISO_UTF32_LE     /// yes, nobody
 } seq_encoding_t;
 
@@ -105,6 +107,10 @@ static inline const char *enc_name(encoding_t enc) {
     return "utf16_be";
   case ENC_UTF16_LE:
     return "utf16_le";
+  case ENC_UCS2_BE:
+    return "ucs2_be";
+  case ENC_UCS2_LE:
+    return "ucs2_le";
   case ENC_ISO_UTF32_BE:
     return "utf32_be";
   case ENC_ISO_UTF32_LE:
@@ -133,7 +139,7 @@ static inline encoding_t enc_id(const char *s, encoding_t enc_bom) {
     }
     if (!strcmp(s, "UTF-16LE"))
       return ENC_UTF16_LE;
-    if (!strcmp(s, "UTF16-BE"))
+    if (!strcmp(s, "UTF-16BE"))
       return ENC_UTF16_BE;
     if (!strcmp(s, "octet"))
       return ENC_OCTET;
@@ -158,12 +164,23 @@ static inline encoding_t enc_id(const char *s, encoding_t enc_bom) {
       return ENC_ISO_UTF32_LE;
     if (!strcmp(s, "ISO-8859-1"))
       return ENC_ISO_LATIN1;
+    if (!strcmp(s, "US_ASCII"))
+      return ENC_ISO_ASCII;
     // just for SWI compat, this actually refers to
     // UCS-2
     if (!strcmp(s, "unicode_be"))
-      return ENC_UTF16_BE;
+      return ENC_UCS2_BE;
     if (!strcmp(s, "unicode_le"))
-      return ENC_UTF16_LE;
+      return ENC_UCS2_LE;
+    if (!strcmp(s, "UCS-2")) {
+       if (enc_bom == ENC_UTF16_LE)
+        return ENC_UCS2_LE;
+      return ENC_UCS2_BE;
+    }
+    if (!strcmp(s, "UCS-2LE"))
+      return ENC_UCS2_LE;
+    if (!strcmp(s, "UCS-2BE"))
+      return ENC_UCS2_BE;
     if (!strcmp(s, "default")) {
         if (enc_bom != ENC_OCTET)
           return enc_bom;

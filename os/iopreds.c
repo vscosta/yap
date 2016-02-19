@@ -814,7 +814,7 @@ case ENC_UTF16_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
   if (c1 == -1)
     return post_process_weof(st);
   wch = (c1 << 8) + ch;
-  if (wch >= 0xEFFF) {
+  if (wch >= 0xd800 && wch < 0xdc00) {
     int c2 = st->stream_getc(sno);
     if (c2 == -1)
       return post_process_weof(st);
@@ -826,6 +826,7 @@ case ENC_UTF16_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
   return wch;
   }
 
+
 case ENC_UTF16_BE: // check http://unicode.org/faq/utf_bom.html#utf16-3
                    // little-endian: start with big shot
   {
@@ -834,7 +835,7 @@ case ENC_UTF16_BE: // check http://unicode.org/faq/utf_bom.html#utf16-3
   if (c1 == -1)
     return post_process_weof(st);
   wch = (c1) + (ch<<8);
-  if (wch >= 0xEFFF) {
+  if (wch >= 0xd800 && wch < 0xdc00) {
     int c3 = st->stream_getc(sno);
     if (c3 == -1)
       return post_process_weof(st);
@@ -845,6 +846,31 @@ case ENC_UTF16_BE: // check http://unicode.org/faq/utf_bom.html#utf16-3
   }
   return wch;
   }
+  
+  case ENC_UCS2_BE: // check http://unicode.org/faq/utf_bom.html#utf16-3
+                   // little-endian: start with big shot
+  {
+    int wch;
+      int c1 = st->stream_getc(sno);
+  if (c1 == -1)
+    return post_process_weof(st);
+  wch = (c1) + (ch<<8);
+  return wch;
+  }
+  
+  
+case ENC_UCS2_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
+                   // little-endian: start with big shot
+  {
+    int wch;
+      int c1 = st->stream_getc(sno);
+  if (c1 == -1)
+    return post_process_weof(st);
+  wch = (c1 << 8) + ch;
+
+  return wch;
+  }
+
 case ENC_ISO_UTF32_BE: // check http://unicode.org/faq/utf_bom.html#utf16-3
   // little-endian: start with big shot
   {
@@ -977,64 +1003,94 @@ case ENC_ISO_UTF32_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
         }
       case ENC_ISO_UTF8:
         if (ch < 0x80) {
-          return GLOBAL_Stream[sno].stream_putc(sno, ch);
+          GLOBAL_Stream[sno].stream_putc(sno, ch);
         } else if (ch < 0x800) {
           GLOBAL_Stream[sno].stream_putc(sno, 0xC0 | ch >> 6);
-          return GLOBAL_Stream[sno].stream_putc(sno, 0x80 | (ch & 0x3F));
+          GLOBAL_Stream[sno].stream_putc(sno, 0x80 | (ch & 0x3F));
         } else if (ch < 0x10000) {
           GLOBAL_Stream[sno].stream_putc(sno, 0xE0 | ch >> 12);
           GLOBAL_Stream[sno].stream_putc(sno, 0x80 | (ch >> 6 & 0x3F));
-          return GLOBAL_Stream[sno].stream_putc(sno, 0x80 | (ch & 0x3F));
+          GLOBAL_Stream[sno].stream_putc(sno, 0x80 | (ch & 0x3F));
         } else if (ch < 0x200000) {
           GLOBAL_Stream[sno].stream_putc(sno, 0xF0 | ch >> 18);
           GLOBAL_Stream[sno].stream_putc(sno, 0x80 | (ch >> 12 & 0x3F));
           GLOBAL_Stream[sno].stream_putc(sno, 0x80 | (ch >> 6 & 0x3F));
-          return GLOBAL_Stream[sno].stream_putc(sno, 0x80 | (ch & 0x3F));
+          GLOBAL_Stream[sno].stream_putc(sno, 0x80 | (ch & 0x3F));
         } else {
           /* should never happen */
           return -1;
         }
+        return ch;
         break;
+      case ENC_UTF16_LE:
+        {
+           if (ch < 0x10000) {
+             GLOBAL_Stream[sno].stream_putc(sno, (ch & 0xff));
+            GLOBAL_Stream[sno].stream_putc(sno, (ch >> 8));            
+          } else {
+         // computations
+          uint16_t ich = ch;
+          uint16_t lead = LEAD_OFFSET + (ich >> 10);
+          uint16_t trail = 0xDC00 + (ich & 0x3FF);
+
+          GLOBAL_Stream[sno].stream_putc(sno, (trail & 0xff));
+          GLOBAL_Stream[sno].stream_putc(sno, (trail >> 8));
+            GLOBAL_Stream[sno].stream_putc(sno, (lead & 0xff));
+            GLOBAL_Stream[sno].stream_putc(sno, (lead >> 8));
+         }
+         return ch;
+        }
       case ENC_UTF16_BE:
         {
           // computations
-          int lead = LEAD_OFFSET + (ch >> 10);
-          int trail = 0xDC00 + (ch & 0x3FF);
-
+           if (ch < 0x10000) {
+            GLOBAL_Stream[sno].stream_putc(sno, (ch >> 8));            
+             GLOBAL_Stream[sno].stream_putc(sno, (ch & 0xff));
+          } else {
+          uint16_t lead = (uint16_t)LEAD_OFFSET + ((uint16_t)ch >> 10);
+          uint16_t trail = 0xDC00 + ((uint16_t)ch & 0x3FF);
           
-          GLOBAL_Stream[sno].stream_putc(sno, (trail & 0xff));
-         GLOBAL_Stream[sno].stream_putc(sno, (trail >> 8));
-          if (trail) {
-            GLOBAL_Stream[sno].stream_putc(sno, (lead & 0xff));
             GLOBAL_Stream[sno].stream_putc(sno, (lead >> 8));
-          }
-          return lead >> 8;
-        }
-      case ENC_UTF16_LE:
-        {
-          // computations
-          int lead = LEAD_OFFSET + (ch >> 10);
-          int trail = 0xDC00 + (ch & 0x3FF);
-
-          
-          if (lead) {
-            GLOBAL_Stream[sno].stream_putc(sno, (lead >> 8));
-            GLOBAL_Stream[sno].stream_putc(sno, (lead & 0xff));
-          }
+            GLOBAL_Stream[sno].stream_putc(sno, (lead & 0xff)); 
           GLOBAL_Stream[sno].stream_putc(sno, (trail >> 8));
          GLOBAL_Stream[sno].stream_putc(sno, (trail & 0xff));
-          return lead >> 8;
+
         }
-      case ENC_ISO_UTF32_LE:
+        return ch;
+        }
+         case ENC_UCS2_LE:
+        {
+           if (ch >= 0x10000) {
+               return 0;
+           }
+             GLOBAL_Stream[sno].stream_putc(sno, (ch & 0xff));
+            GLOBAL_Stream[sno].stream_putc(sno, (ch >> 8));            
+         return ch;
+        }
+      case ENC_UCS2_BE:
+        {
+          // computations
+           if (ch < 0x10000) {
+            GLOBAL_Stream[sno].stream_putc(sno, (ch >> 8));            
+             GLOBAL_Stream[sno].stream_putc(sno, (ch & 0xff));
+             return ch;
+          } else {
+       return 0;
+         }
+        }
+        
+      case ENC_ISO_UTF32_BE:
         GLOBAL_Stream[sno].stream_putc(sno, (ch >> 24) & 0xff);
         GLOBAL_Stream[sno].stream_putc(sno, (ch >> 16) & 0xff);
         GLOBAL_Stream[sno].stream_putc(sno, (ch >> 8) & 0xff);
-        return GLOBAL_Stream[sno].stream_putc(sno, ch & 0xff);
-      case ENC_ISO_UTF32_BE:
+        GLOBAL_Stream[sno].stream_putc(sno, ch & 0xff);
+        return ch;
+      case ENC_ISO_UTF32_LE:
         GLOBAL_Stream[sno].stream_putc(sno, ch & 0xff);
         GLOBAL_Stream[sno].stream_putc(sno, (ch >> 8) & 0xff);
         GLOBAL_Stream[sno].stream_putc(sno, (ch >> 16) & 0xff);
-        return GLOBAL_Stream[sno].stream_putc(sno, (ch >> 24) & 0xff);
+         GLOBAL_Stream[sno].stream_putc(sno, (ch >> 24) & 0xff);
+         return ch;
       }
       }
       return -1;
@@ -1105,45 +1161,53 @@ case ENC_ISO_UTF32_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
       switch (st->encoding) {
       case ENC_ISO_UTF8:
         if (st->stream_putc(sno, 0xEF) < 0)
-          return FALSE;
+          return false;
         if (st->stream_putc(sno, 0xBB) < 0)
-          return FALSE;
+          return false;
         if (st->stream_putc(sno, 0xBF) < 0)
-          return FALSE;
+          return false;
         st->status |= HAS_BOM_f;
-        return TRUE;
+        return true;
       case ENC_UTF16_BE:
+      case ENC_UCS2_BE:
         if (st->stream_putc(sno, 0xFE) < 0)
-          return FALSE;
+          return false;
         if (st->stream_putc(sno, 0xFF) < 0)
-          return FALSE;
+          return false;
         st->status |= HAS_BOM_f;
-        return TRUE;
+        return true;
       case ENC_UTF16_LE:
+      case ENC_UCS2_LE:
         if (st->stream_putc(sno, 0xFF) < 0)
-          return FALSE;
+          return false;
         if (st->stream_putc(sno, 0xFE) < 0)
-          return FALSE;
-      case ENC_ISO_UTF32_BE:
+          return false;
+         st->status |= HAS_BOM_f;
+        return true;
+     case ENC_ISO_UTF32_BE:
         if (st->stream_putc(sno, 0x00) < 0)
-          return FALSE;
+          return false;
         if (st->stream_putc(sno, 0x00) < 0)
-          return FALSE;
+          return false;
         if (st->stream_putc(sno, 0xFE) < 0)
-          return FALSE;
+          return false;
         if (st->stream_putc(sno, 0xFF) < 0)
-          return FALSE;
+          return false;
+        st->status |= HAS_BOM_f;
+        return true;
       case ENC_ISO_UTF32_LE:
         if (st->stream_putc(sno, 0xFF) < 0)
-          return FALSE;
+          return false;
         if (st->stream_putc(sno, 0xFE) < 0)
-          return FALSE;
+          return false;
         if (st->stream_putc(sno, 0x00) < 0)
-          return FALSE;
+          return false;
         if (st->stream_putc(sno, 0x00) < 0)
-          return FALSE;
+          return false;
+        st->status |= HAS_BOM_f;
+        return true;
       default:
-        return TRUE;
+        return true;
       }
     }
 
@@ -1471,6 +1535,7 @@ case ENC_ISO_UTF32_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
       }
       // BOM mess
       if (encoding == ENC_UTF16_BE || encoding == ENC_UTF16_LE ||
+          encoding == ENC_UCS2_BE || encoding == ENC_UCS2_LE ||
           encoding == ENC_ISO_UTF32_BE || encoding == ENC_ISO_UTF32_LE) {
         needs_bom = true;
       }
