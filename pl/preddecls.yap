@@ -297,4 +297,4 @@ its caller.
 	asserta(prolog:'$module_transparent'(F,M,N,P)),
 	'$predicate_flags'(P, M, Fl, Fl),
 	NFlags is Fl \/ 0x200004,
-	'$pre_dicate_flags'(P, M, Fl, NFlags).
+	'$predicate_flags'(P, M, Fl, NFlags).
