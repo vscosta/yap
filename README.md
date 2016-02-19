@@ -1,165 +1,115 @@
 
+<center>
+![The YAP Logo](docs/icons/yap_128x128x32.png)
+</center>
 
-README for YAP6
+README for YAP6  
 ====================
 
 NOTE: this version of YAP is stil experimental, documentation may be out of date.
 
-This directory contains a release of the YAP 6.3.* Prolog system,
-originally developed at the Universidade do Porto by Luis Damas and
-Vitor Santos Costa. YAP contains the SWI-Prolog I/O library anad a
-number of SWI-Prolog packages, originally developed by Jan Wielemaker
-and other. It includes contributions from the Edinburgh Prolog
-library, the C-Prolog manual authors, Ricardo Lopes, Ricardo Rocha,
-M. Hermenegildo, D. Cabeza, Eric Alphonse, Paulo Moura, Nuno Fonseca,
-Jan Wielemaker, Paul Singleton, Fred Dushin, Markus Triska, Ulrich
-Neumerkel, and many others. You should read the rest of this file for
-information on what YAP is and for instructions on how to build it.
+## Introduction 
 
-YAP 6 has been built with several versions on GCC on a variety of
-Linux, BDS, and MacOSX configurations. It has been built on Windows7
-using the mingw toolkit and cygwin from Cygnus Solutions.
+This document provides User information on version 6.3.4 of
+YAP (<em>Yet Another Prolog</em>). The YAP Prolog System is a
+high-performance Prolog compiler developed at Universidade do
+Porto.  YAP supports stream Input/Output, sockets, modules,
+  exceptions, Prolog debugger, C-interface, dynamic code, internal
+  database, DCGs, saved states, co-routining, arrays, threads.
 
-The main core of the YAP distribution is distributed under a dual
-license: the Perl Artistic license 2 and the FSF's LGPL. The YAP
-distribution also contains files distributed under the LGPL
-exclusively, and under the GPL.
+We explicitly allow both commercial and non-commercial use of YAP.
 
-The YAP distribution includes several packages ported to YAP. We would
-like to take the opportunity to thank the developers of these packages
-for their generosity in allowing YAP to distribute these packages. Any
-bugs in these packages are probably our fault.
 
-If you have a question about this software, desire to add code, found
-a bug, want to request a feature, or wonder how to get further
-assistance, please send e-mail to yap-users@lists.sourceforge.net. To
-subscribe to the mailing list or access the list archives, please see
-http://lists.sourceforge.net/lists/listinfo/yap-users
-
-Online documentation is available for YAP at:
-
-	http://www.dcc.fc.up.pt/~vsc/YAP/
-
-Recent versions of YAP, including both source and selected binaries,
-can be found from this same URL.
-
-## What is YAP
-
-The YAP Prolog System is a high-performance Prolog compiler developed
-at LIACC, Universidade do Porto. YAP provides several important
-features:
-
- o speed: YAP is widely considered one of the fastest available Prolog
-systems.
-
- o functionality: it supports stream I/O, sockets, modules,
-exceptions, Prolog debugger, C-interface, dynamic code, internal
-database, DCGs, saved states, co-routining, arrays.
-
- o we explicitly allow both commercial and non-commercial use of YAP.
-
-YAP is based on the David H. D. Warren's WAM (Warren Abstract
-Machine), with several optimizations for better performance. YAP
-follows the Edinburgh tradition, and was originally designed to be
-largely compatible with DEC-10 Prolog, Quintus Prolog, and especially
-with C-Prolog.
+YAP is based on the David H. D. Warren's WAM (Warren Abstract Machine),
+with several optimizations for better performance. YAP follows the
+Edinburgh tradition, and was originally designed to be largely
+compatible with DEC-10 Prolog, Quintus Prolog, and especially with
+C-Prolog. More recently, we have worked on being compatible with SICStus Prolog and with SWI-Prolog.
 
 YAP implements most of the ISO-Prolog standard. We are striving at
-full compatibility. Moreover, we are working on integrating YAP on
-multi-programming language environments.
- 
-## Obtaining YAP's development sources.
+full compatibility, and the manual describes what is still
+missing.
+The document is intended neither as an introduction to Prolog nor to the
+implementation aspects of the compiler. A good introduction to
+programming in Prolog is the book @cite TheArtOfProlog , by
+L. Sterling and E. Shapiro, published by "The MIT Press, Cambridge
+MA". Other references should include the classical @cite ProgrammingInProlog , by W.F. Clocksin and C.S. Mellish, published by
+Springer-Verlag.
 
-YAP is now being maintained using the git source management system. A
-public repository is available at 
+YAP 6.3.4 has been built with the gcc and clang compilers on Linux and OSX machines. We expect to recover support for  WIN32 machines and
+Android next.
 
-https://github.com/vscosta/yap-6.3
+The overall copyright and permission notice for YAP4.3 can be found in
+the Artistic file in this directory. YAP follows the Perl Artistic
+license, and it is thus non-copylefted freeware. Some components of YAP have been obtained from SWI Prolog and ciao, and have
+different licenses.
 
-Please use
+If you have a question about this software, desire to add code, found a
+bug, want to request a feature, or wonder how to get further assistance,
+please send e-mail to <yap-users AT lists.sourceforge.net>.  To
+subscribe to the mailing list, visit the page
+<https://lists.sourceforge.net/lists/listinfo/yap-users>.
 
-git clone git://git.code.sf.net/p/yap/yap-6.3
-
-to obtain a copy of the current YAP tree.
-
-Notice that the current version of YAP does not use submodules
-
-3. How to compile YAP
-
-First, make sure you have gmp and readline *development* packages
-installed (that is, the headers and libraries). If you are in a WIN32
-environment you will still need GMP.
-
-Now, to compile YAP from the source directory just do:
-
- (1) ./configure
-
- (2) check the Makefile for any extensions or changes you want to make.
-
- (3) make
-
- (4) If the compilation succeeds, try ./yap
-
- (5) Happy? "make install"
-
- (6) "make install_info" will create the info files in the standard
-     info directory.
-
- (7) "make html" will create documentation in html format in the
-     current directory.
-
-In most systems you will need to be superuser so that  "make
-install"  can write on the standard system directories.
-
-# Where to install YAP
-
- YAP now uses cmake. Still, YAP try to follow GNU conventions on where
-to place software. By default, the home location is /usr/local on Unix,
-Linux, and OS/X machines.
-
-You can use the `CMAKE_INSTALL_PREFIX` variable to set the YAP default
-home directory. Use the graphical interface to cmake, or from the command line
-
-~~~~
-cmake -DCMAKE_INSTALL_PREFIX=/home/xpto
-~~~~
-
-
-# Which YAP to compile
-
-Compiling YAP with the standard options give you a Prolog with
-tabling. You can tune YAP to use extra functionality by using the
-following options to configure:
-
-Compilation options:
-
-   * -`DWITH_Threads=ON` enables POSIX thread support. The threads library
- mostly follows the SWI design: each thread has its own stack, and
- they all share the same data-base.
-
-  *   -`DWITH_CALL_TRACER=ON` allows support for tracing all calls,
-retries, and backtracks in the system. This can help in debugging a
-application, but results in performance loss. It is default in debug mode.
-
- 
-# Packages and Interface Libraries
-
-YAP includes a number of interface libraries. Some, like the Java
- interface JPL, have been ported from other Prologs (often from
- SWI-Prolog). Others, like the python and swig interface, have been
- developed within YAP.
-
-As an example:
- 
- `-DWITH_CUDD` enables compilation of the CUDD library, used by
- packages such as PFL/CLP(BN) and ProbLog. The source of the CUDD
- package is available from:
-
-  http://vlsi.colorado.edu/~fabio/CUDD
-
- Fedora Linux and MacPorts have cudd packages. In the case of Fedora,
- install cudd-devel. Ask vsc@dcc.fc.up.pt for a WIN32/WIN64 port 
-
-The cmake graphical interface lists all currently available external packages.
+On-line documentation is available for [YAP](http://www.dcc.fp.pt/~vsc/yap/)
 
 
 
+We are happy to include in YAP several excellent packages developed
+under separate licenses. Our thanks to the authors for their kind
+authorization to include these packages.
+
+The packages are, in alphabetical order:
+
++ The CHR package developed by Tom Schrijvers,
+Christian Holzbaur, and Jan Wielemaker.
+
++ The CLP(BN) package and Horus toolkit developed by Tiago Gomes, and Vítor Santos Costa.
+
++ The CLP(R) package developed by Leslie De Koninck, Bart Demoen, Tom
+Schrijvers, and Jan Wielemaker, based on the CLP(Q,R) implementation
+by Christian Holzbaur.
+
++ The CPLint package developed by Fabrizio Riguzzi's research
+laboratory at the [University of Ferrara](http://www.ing.unife.it/Docenti/FabrizioRiguzzi/)
+
++ The CUDA interface package developed by Carlos Martínez, Jorge
+Buenabad, Inês Dutra and Vítor Santos Costa.
+
++ The [GECODE](http://www.gecode.org) interface package developed by  Denys Duchier and Vítor Santos Costa.
+
++ The [JPL](http://www.swi-prolog.org/packages/jpl/) (Java-Prolog Library) package developed by .
+
+ The minisat SAT solver interface developed by Michael Codish,
+ Vitaly Lagoon, and Peter J. Stuckey.
+
++ The MYDDAS relational data-base interface developed at the
+ Universidade do Porto by Tiago Soares, Michel Ferreira, and Ricardo Rocha.
+
++ The [PRISM](http://rjida.meijo-u.ac.jp/prism/) logic-based
+programming system for statistical modeling developed at the Sato
+Research Laboratory, TITECH, Japan.
+
++ The ProbLog 1 system developed by the [ProbLog](https://dtai.cs.kuleuven.be/problog) team in the
+DTAI group of KULeuven.
+
++ The [R](http://stoics.org.uk/~nicos/sware/packs/real/) interface package developed by 	Nicos Angelopoulos,
+Vítor Santos Costa, João Azevedo, Jan Wielemaker, and Rui Camacho.
+
+
+Downloading YAP           {#download}
+==============
+
+The latest development version of Yap-6 is yap-6.3.4 and can be
+obtained from the repositories
+
+<http://sourceforge.net/p/yap/yap-6.3>
+
+and
+
+<https://github.com/vscosta/yap-6.3>
+
+YAP-6.3.4 does not use modules. Please just use `git clone` to obtain the distribution.
+
+Most of these repositories are basically copies of the original
+repositories at the SWI-Prolog site. YAP-6 will work either with or
+without these packages.
