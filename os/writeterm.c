@@ -678,7 +678,7 @@ writeln ( USES_REGS1 )
   args[WRITE_NL].tvalue = TermTrue;
   args[WRITE_NUMBERVARS].used = true;
   args[WRITE_NUMBERVARS].tvalue = TermTrue;
-  write_term( output_stream, ARG1, args PASS_REGS);
+  write_term( output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
   if (EX != 0L) {
