@@ -1519,7 +1519,7 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
 	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
 	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, li, _trie_retry_extension);
 	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_longint);
-      } else if (f == FunctorBigInt || FunctorString) {
+      } else if (f == FunctorBigInt || f == FunctorString) {
 	CELL *opq = Yap_HeapStoreOpaqueTerm(t);
 	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
 	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, (CELL)opq, _trie_retry_extension);
