@@ -242,7 +242,7 @@ split_unquoted(SplitCodes, [C|New], Set) -->
 	split_unquoted(SplitCodes, New, Set).
 split_unquoted(_, [], []) --> [].
 
-split_quoted( [0'"], More) --> %0'"
+split_quoted( [0'"], _More) --> %0'"
     "\"".
 split_quoted( [0'\\ ,C|New], More) --> 
     %0'"
