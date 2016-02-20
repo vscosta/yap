@@ -246,6 +246,11 @@ function. */
 #cmakedefine HAVE_BASENAME ${HAVE_BASENAME}
 #endif
 
+/* Define to 1 if you have the `basename' function. */
+#ifndef HAVE_BACKTRACE
+#cmakedefine HAVE_BACKTRACE ${HAVE_BACKTRACE}
+#endif
+
 /* Define to 1 if you have the `chdir' function. */
 #ifndef HAVE_CHDIR
 #cmakedefine HAVE_CHDIR ${HAVE_CHDIR}
@@ -531,115 +536,7 @@ function. */
 #cmakedefine HAVE_GLOB ${HAVE_GLOB}
 #endif
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*q Define to 1 if you have the `gmtime' function. */
+/* Define to 1 if you have the `gmtime' function. */
 #ifndef HAVE_GMTIME
 #cmakedefine HAVE_GMTIME ${HAVE_GMTIME}
 #endif

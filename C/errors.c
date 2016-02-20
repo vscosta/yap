@@ -27,6 +27,9 @@
 #if HAVE_STRING_H
 #include <string.h>
 #endif
+#if HAVE_EXECINFO_H
+#include <execinfo.h>
+#endif
 #include "Foreign.h"
 
 #if DEBUG
@@ -310,25 +313,25 @@ static char tmpbuf[YAP_BUF_SIZE];
 
 #define E(A, B, C)                                                             \
   case A:                                                                      \
-    ts -= 1;                                                                   \
-    ts[0] = MkAtomTerm(Yap_LookupAtom(C));                                     \
-    return mkerrorct(B, ts);
+  ts -= 1;                                                                   \
+  ts[0] = MkAtomTerm(Yap_LookupAtom(C));                                     \
+  return mkerrorct(B, ts);
 
 #define E2(A, B, C, D)                                                         \
-  case A:                                                                      \
-    ts -= 2;                                                                   \
-    ts[0] = MkAtomTerm(Yap_LookupAtom(C));                                     \
-    ts[1] = MkAtomTerm(Yap_LookupAtom(D));                                     \
-    return mkerrorct(B, ts);
+case A:                                                                      \
+  ts -= 2;                                                                   \
+  ts[0] = MkAtomTerm(Yap_LookupAtom(C));                                     \
+  ts[1] = MkAtomTerm(Yap_LookupAtom(D));                                     \
+  return mkerrorct(B, ts);
 
 #define END_ERRORS()                                                           \
-  }                                                                            \
-  }
+}                                                                            \
+}
 
 #include "YapErrors.h"
 
 /**
- * @brief Yap_Error
+* @brief Yap_Error
  *   This function handles errors in the C code. Check errors.yap for the
  *corresponding Prolog code.
  *
@@ -480,7 +483,21 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
       fprintf(stderr, "%% YAP crashed while booting %s\n", tmpbuf);
     } else {
       Yap_detect_bug_location(P, FIND_PRED_FROM_ANYWHERE, YAP_BUF_SIZE);
+      if (tmpbuf[0]) {
       fprintf(stderr, "%% Bug found while executing %s\n", tmpbuf);
+        }
+#if HAVE_BACKTRACE
+      void *callstack[256];
+      int i;
+      int frames = backtrace(callstack, 256);
+      char** strs = backtrace_symbols(callstack, frames);
+      fprintf(stderr, "Execution stack:\n");
+      for (i = 0; i < frames; ++i) {
+      fprintf(stderr, "       %s\n", strs[i]);
+
+      }
+      free(strs);
+#endif
     }
     error_exit_yap(1);
   }
