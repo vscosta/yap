@@ -1133,7 +1133,7 @@ Term Yap_scan_num(StreamDesc *inp) {
   }
   TokEntry *tokptr = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
   tokptr->TokPos = GetCurInpPos(inp);
-  ch = getchr(inp);
+  while((ch = getchr(inp)) == BS);
   if (ch == '-') {
     sign = -1;
     ch = getchr(inp);
