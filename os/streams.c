@@ -146,6 +146,40 @@ int GetFreeStreamD(void) {
 
 int Yap_GetFreeStreamD(void) { return GetFreeStreamD(); }
 
+
+static Term lineCount(int sno)
+{
+    Term tout;
+  /* one has to be somewhat more careful because of terminals */
+  if (GLOBAL_Stream[sno].status & Tty_Stream_f) {
+    Int no = 1;
+    int i;
+    Atom my_stream;
+#if HAVE_SOCKET
+    if (GLOBAL_Stream[sno].status & Socket_Stream_f)
+      my_stream = AtomSocket;
+    else
+#endif
+        if (GLOBAL_Stream[sno].status & Pipe_Stream_f)
+      my_stream = AtomPipe;
+    else if (GLOBAL_Stream[sno].status & InMemory_Stream_f)
+      my_stream = AtomCharsio;
+    else
+      my_stream = GLOBAL_Stream[sno].name;
+    for (i = 0; i < MaxStreams; i++) {
+      if ((GLOBAL_Stream[i].status & ( Socket_Stream_f |
+                                       Pipe_Stream_f | InMemory_Stream_f)) &&
+         !(GLOBAL_Stream[i].status & ( Free_Stream_f)) &&
+          GLOBAL_Stream[i].name == my_stream)
+        no += GLOBAL_Stream[i].linecount - 1;
+    }
+    tout = MkIntTerm(no);
+  } else
+    tout = MkIntTerm(GLOBAL_Stream[sno].linecount);
+  UNLOCK(GLOBAL_Stream[sno].streamlock);
+  return tout;
+}
+
 static Int stream_flags(USES_REGS1) { /* '$stream_flags'(+N,-Flags) */
   Term trm;
   trm = Deref(ARG1);
@@ -204,7 +238,7 @@ has_reposition(int sno,
                Term t2 USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage)  */
   bool rc = GLOBAL_Stream[sno].status & Seekable_Stream_f;
   if (!IsVarTerm(t2) && !booleanFlag(t2)) {
-    return FALSE;
+    return false;
   }
   if (rc) {
     return Yap_unify_constant(t2, TermTrue);
@@ -365,14 +399,14 @@ stream_position(int sno,
 
 static bool stream_line_count(
     int sno, Term t2 USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage)  */
-  Term tout = StreamPosition(GLOBAL_Stream[sno].linecount);
-  return Yap_unify(t2, MkIntegerTerm(tout));
+  Term tout = lineCount(sno);
+  return Yap_unify(t2, tout);
 }
 
 static bool stream_line_number(
     int sno, Term t2 USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage)  */
-  Term tout = StreamPosition(GLOBAL_Stream[sno].linecount);
-  return Yap_unify(t2, MkIntegerTerm(tout));
+  Term tout = MkIntegerTerm(GLOBAL_Stream[sno].linecount);
+  return Yap_unify(t2, tout);
 }
 
 static bool
@@ -525,7 +559,7 @@ static bool do_stream_property(int sno,
         break;
       case STREAM_PROPERTY_REPOSITION:
         rc = rc &&
-             has_reposition(sno, args[STREAM_PROPERTY_MODE].tvalue PASS_REGS);
+             has_reposition(sno, args[STREAM_PROPERTY_REPOSITION].tvalue PASS_REGS);
         break;
       case STREAM_PROPERTY_REPRESENTATION_ERRORS:
         rc = rc &&
@@ -546,74 +580,111 @@ static bool do_stream_property(int sno,
       }
     }
   }
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return rc;
 }
+
+static xarg *generate_property(int sno, Term t2, 
+   stream_property_choices_t p USES_REGS)
+{
+    if (p == STREAM_PROPERTY_INPUT) Yap_unify(t2, MkAtomTerm(AtomInput));
+    else    if (p == STREAM_PROPERTY_OUTPUT) Yap_unify(t2, MkAtomTerm(AtomOutput)); 
+    else {
+        Term t0 = MkVarTerm();
+        Functor f = Yap_MkFunctor(Yap_LookupAtom(stream_property_defs[p].name), 1);
+        Yap_unify( t2, Yap_MkApplTerm(f, 1, &t0));
+    }
+    return Yap_ArgListToVector(t2, stream_property_defs,
+                             STREAM_PROPERTY_END);
+}
+
 
 static Int cont_stream_property(USES_REGS1) { /* current_stream */
   bool det;
   xarg *args;
   int i = IntOfTerm(EXTRA_CBACK_ARG(2, 1));
+  stream_property_choices_t p = STREAM_PROPERTY_END;
   bool rc;
+  Term t2 = Deref(ARG2);  
+  Term t1 = Deref(ARG1);
 
-  args = Yap_ArgListToVector(Deref(ARG2), stream_property_defs,
-                             STREAM_PROPERTY_END);
+  if (IsVarTerm(t2)) {
+      p = IntOfTerm(EXTRA_CBACK_ARG(2, 2));
+      args = generate_property(i, t2, p++ PASS_REGS);
+
+       EXTRA_CBACK_ARG(2, 2) = MkIntTerm(p%STREAM_PROPERTY_END);
+        // otherwise, just drop through
+  } else {
+    args = Yap_ArgListToVector(t2, stream_property_defs,
+                                STREAM_PROPERTY_END);
+  }
   if (args == NULL) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-      if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
+      if (LOCAL_Error_TYPE == DOMAIN_ERROR_GENERIC_ARGUMENT)
 	LOCAL_Error_TYPE = DOMAIN_ERROR_STREAM_PROPERTY_OPTION;
       Yap_Error( LOCAL_Error_TYPE, LOCAL_Error_Term, NULL );
+      return false;
     }
     cut_fail();
   }
-  LOCK(GLOBAL_StreamDescLock);
-  if (args[STREAM_PROPERTY_ALIAS].tvalue &&
+    LOCK(GLOBAL_Stream[i].streamlock);
+   if (args[STREAM_PROPERTY_ALIAS].tvalue &&
       IsAtomTerm(args[STREAM_PROPERTY_ALIAS].tvalue)) {
-    // one solution only
-    det = true;
-    i = Yap_CheckAlias(AtomOfTerm(args[STREAM_PROPERTY_ALIAS].tvalue));
-    UNLOCK(GLOBAL_StreamDescLock);
-    if (i < 0) {
+     // one solution only
+    LOCK(GLOBAL_Stream[i].streamlock);
+       UNLOCK(GLOBAL_Stream[i].streamlock);
+   i = Yap_CheckAlias(AtomOfTerm(args[STREAM_PROPERTY_ALIAS].tvalue));
+    UNLOCK(GLOBAL_Stream[i].streamlock);
+    if (i < 0 ||!Yap_unify(ARG1, Yap_MkStream(i) ) ) {
       cut_fail();
     }
-    rc = true;
-  } else {
-    while (GLOBAL_Stream[i].status & Free_Stream_f) {
-      ++i;
-      if (i == MaxStreams) {
-        UNLOCK(GLOBAL_StreamDescLock);
-        cut_fail();
-      }
-    }
-    LOCK(GLOBAL_Stream[i].streamlock);
-    UNLOCK(GLOBAL_StreamDescLock);
-    rc = do_stream_property(i, args PASS_REGS);
-    UNLOCK(GLOBAL_Stream[i].streamlock);
-  }
-  if (rc)
+    cut_succeed();
+  } 
+       LOCK(GLOBAL_Stream[i].streamlock);
+   rc = do_stream_property(i, args PASS_REGS);   
+       UNLOCK(GLOBAL_Stream[i].streamlock);
+  if ( IsVarTerm(t1)) {
+    if (rc)
     rc = Yap_unify(ARG1, Yap_MkStream(i));
+   if (p == STREAM_PROPERTY_END ) {
+      // move to next existing stream
+      LOCK(GLOBAL_StreamDescLock);
+    while (++i < MaxStreams && GLOBAL_Stream[i].status & Free_Stream_f) ;
+    UNLOCK(GLOBAL_StreamDescLock);
+    if (i < MaxStreams) {
+       EXTRA_CBACK_ARG(2, 1) = MkIntTerm(i);      
+      det = false;
+   } else {
+        det = true;
+   }
+   } else {
+       det = false;
+   }
+   } else {
+       // done
+       det = (p == STREAM_PROPERTY_END );
+   }
   if (rc) {
     if (det)
       cut_succeed();
     else {
-      EXTRA_CBACK_ARG(2, 1) = MkIntTerm(i + 1);
       return true;
     }
-  } else if (det)
+  } else if (det) {
     cut_fail();
-  else {
-    EXTRA_CBACK_ARG(2, 1) = MkIntTerm(i + 1);
+  } else {
     return false;
   }
 }
 
 static Int stream_property(USES_REGS1) { /* Init current_stream */
   Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2);
   // Yap_DebugPlWrite(ARG1);fprintf(stderr,", ");
   // Yap_DebugPlWrite(ARG2);fprintf(stderr,"\n");
 
   /* make valgrind happy by always filling in memory */
   EXTRA_CBACK_ARG(2, 1) = MkIntTerm(0);
+  EXTRA_CBACK_ARG(2, 2) = MkIntTerm(0);
   if (!IsVarTerm(t1)) {
     Int i;
     xarg *args;
@@ -622,15 +693,18 @@ static Int stream_property(USES_REGS1) { /* Init current_stream */
                         "current_stream/3");
     if (i < 0) {
       UNLOCK(GLOBAL_Stream[i].streamlock);
-      cut_fail();
+      return false; // error...
     }
+    if (IsVarTerm(t2))
+      return cont_stream_property(PASS_REGS1);
     args = Yap_ArgListToVector(Deref(ARG2), stream_property_defs,
 			       STREAM_PROPERTY_END);
     if (args == NULL) {
       if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-	if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
+	   if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
 	  LOCAL_Error_TYPE = DOMAIN_ERROR_STREAM_PROPERTY_OPTION;
-	Yap_Error( LOCAL_Error_TYPE, LOCAL_Error_Term, NULL );
+	  Yap_Error( LOCAL_Error_TYPE, LOCAL_Error_Term, NULL );
+      return false;
       }
       UNLOCK(GLOBAL_Stream[i].streamlock);
       cut_fail();
@@ -685,7 +759,7 @@ static bool do_set_stream(int sno,
   args = Yap_ArgListToVector(opts, set_stream_defs, SET_STREAM_END);
   if (args == NULL) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-      if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
+      if (LOCAL_Error_TYPE == DOMAIN_ERROR_GENERIC_ARGUMENT)
 	LOCAL_Error_TYPE = DOMAIN_ERROR_SET_STREAM_OPTION;
       Yap_Error( LOCAL_Error_TYPE, LOCAL_Error_Term, NULL );
     }
@@ -1002,32 +1076,7 @@ static Int line_count(USES_REGS1) { /* '$current_line_number'(+Stream,-N) */
                       "current_line_number/2");
   if (sno < 0)
     return (false);
-  /* one has to be somewhat more careful because of terminals */
-  if (GLOBAL_Stream[sno].status & Tty_Stream_f) {
-    Int no = 1;
-    int i;
-    Atom my_stream;
-#if HAVE_SOCKET
-    if (GLOBAL_Stream[sno].status & Socket_Stream_f)
-      my_stream = AtomSocket;
-    else
-#endif
-        if (GLOBAL_Stream[sno].status & Pipe_Stream_f)
-      my_stream = AtomPipe;
-    else if (GLOBAL_Stream[sno].status & InMemory_Stream_f)
-      my_stream = AtomCharsio;
-    else
-      my_stream = GLOBAL_Stream[sno].name;
-    for (i = 0; i < MaxStreams; i++) {
-      if (!(GLOBAL_Stream[i].status & (Free_Stream_f | Socket_Stream_f |
-                                       Pipe_Stream_f | InMemory_Stream_f)) &&
-          GLOBAL_Stream[i].name == my_stream)
-        no += GLOBAL_Stream[i].linecount - 1;
-    }
-    tout = MkIntTerm(no);
-  } else
-    tout = MkIntTerm(GLOBAL_Stream[sno].linecount);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
+  tout = lineCount(sno);
   return (Yap_unify_constant(ARG2, tout));
 }
 
@@ -1377,9 +1426,11 @@ FILE *Yap_FileDescriptorFromStream(Term t) {
 
 void
 
-Yap_InitBackIO (void)
+Yap_InitBackIO (
+    
+    void)
 {
-  Yap_InitCPredBack("stream_property", 2, 1, stream_property,
+  Yap_InitCPredBack("stream_property", 2, 2, stream_property,
                     cont_stream_property, SafePredFlag | SyncPredFlag);
 }
 

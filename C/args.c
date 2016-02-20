@@ -58,6 +58,7 @@ xarg *
 Yap_ArgListToVector (Term listl, const param_t *def, int n)
 {
   CACHE_REGS
+  listl = Deref(listl);
     xarg *a = calloc(  n , sizeof(xarg) );
   LOCAL_Error_TYPE = YAP_NO_ERROR;
   if (IsApplTerm(listl) && FunctorOfTerm(listl) == FunctorModule)
@@ -84,6 +85,9 @@ Yap_ArgListToVector (Term listl, const param_t *def, int n)
       if (!na) {
         return failed( TYPE_ERROR_LIST, listl, a);      
       }
+      na->used = true;
+      na->tvalue = ArgOfTerm(1,listl);
+      return a;
     } else {
       return failed( TYPE_ERROR_LIST, listl, a);      
     }
@@ -119,7 +123,7 @@ Yap_ArgListToVector (Term listl, const param_t *def, int n)
       if (!na) {
           return failed( DOMAIN_ERROR_GENERIC_ARGUMENT, hd, a);
       }
-      na->used = 1;
+      na->used = true;
       na->tvalue = ArgOfTerm(1, hd);      
     } else {
       return failed( TYPE_ERROR_PARAMETER, hd, a);      
