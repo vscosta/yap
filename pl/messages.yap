@@ -192,13 +192,19 @@ compose_message(myddas_version(Version), _Leve) -->
 compose_message(yes, _Level) --> !,
 	[  'yes'- []  ].
 compose_message(Term, Level) -->
+%{writeln(Term)},
 	location(Term, Level),
+%{writeln(location)},
 	( {  Level == error } -> display_consulting( Level ) ; { Level == warning } ),
 	[nl],
-	main_message( Term, Level ),
+	{ '$show_consult_level'(LC) },
+	main_message( Term, Level, LC ),
+%{writeln(main)},
 	c_goal( Term, Level ),
+%{writeln(caller)},
 	caller( Term, Level ),
-	extra_info(  Term, Level ),
+%{writeln(extra)},
+    extra_info(  Term, Level ),
 	!,
 	[nl,nl].
 compose_message(Term, Level) -->
@@ -210,7 +216,7 @@ compose_message(Term, Level) -->
 location(error(syntax_error(syntax_error(_,between(_,LN,_),FileName,_))), _ ) -->
 	!,
 	[ '~a:~d:0: ' - [FileName,LN] ] .
-location(error(style_check(style_check(_,LN,FileName,_ ) ), _), _ ) -->
+location(error(style_check(style_check(_,LN,FileName,_ ) ),_), _ ) -->
 	%	  { stream_position_data( line_count, LN) },
 	!,
 	[ '~a:~d:0: ' - [FileName,LN] ] .
@@ -220,7 +226,7 @@ location( error(_,Term), Level ) -->
 	{ lists:memberchk([p|p(M,Na,Ar,_File,_FilePos)], Term ) },
 	[  '~a:~d:0: ~a in ~a:~q/~d:'-[F0, L,Level,M,Na,Ar] ],
 	[nl].
-	location( error(_,Term), Level ) -->
+location( error(_,Term), Level ) -->
 	{ lists:memberchk([p|p(M,Na,Ar,File,FilePos)], Term ) }, !,
 	[  '~a:~d:0: ~a in ~a:~q/~d:'-[File, FilePos,Level,M,Na,Ar] ],
 	[nl].
@@ -232,7 +238,6 @@ main_message( error(syntax_error(syntax_error(Msg,between(L0,LM,LF),_Stream,Term
 	!,
 	  ['~*|!!! syntax error: ~s' - [LC,Msg]],
 	  [nl],
-%	  [prefix('    ')],
 	  ( syntax_error_term( between(L0,LM,LF), Term )
 	  ->
 	    []
@@ -242,15 +247,16 @@ main_message( error(syntax_error(syntax_error(Msg,between(L0,LM,LF),_Stream,Term
 	  ).
 main_message(error(style_check(style_check(singleton(SVs),_Pos,_File,P)),_), _, LC) -->
     !,
+%    {writeln(ci)},
 	{ clause_to_indicator(P, I) },
 	[  '~*|!!! singleton variable~*c ~s in ~q.' - [ LC,  NVs, 0's, SVsL, I] ],
 	{ svs(SVs,SVs,SVsL),
 	  ( SVs = [_] -> NVs = 0 ; NVs = 1 )
 	}.
-main_message(error(style_check(style_check(multiple(N,A,Mod,I0),_Pos,File,_P)),_),_, LC) -->
+main_message(error(style_check(style_check(multiple(N,A,Mod,I0),_Pos,File,_P)),_), _, LC) -->
     !,
 	[  '~*|!!! ~a redefines ~q from  ~a.' - [LC,File, Mod:N/A, I0] ].
-main_message(error(style_check(style_check(discontiguous(N,A,Mod),_S,_W,_P)),_,LC) ,_)-->
+main_message(error(style_check(style_check(discontiguous(N,A,Mod),_S,_W,_P)),_) ,_, LC≈)-->
     !,
 	[  '~*|!!! discontiguous definition for ~p.' - [LC,Mod:N/A] ].
 main_message(error(consistency_error(Who)), _Source, LC) -->

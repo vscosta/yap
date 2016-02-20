@@ -1,3 +1,16 @@
+mod( '$char_type' , '/Users/vsc/git/yap-6.3/os/chartypes.yap' ).
+mod( '$swi' , '/Users/vsc/git/yap-6.3/pl/swi.yap' ).
+mod( '$messages' , '/Users/vsc/git/yap-6.3/pl/messages.yap' ).
+mod( '$history' , '/Users/vsc/git/yap-6.3/pl/history.pl' ).
+mod( '$hacks' , '/Users/vsc/git/yap-6.3/pl/hacks.yap' ).
+mod( prolog , '/Users/vsc/git/yap-6.3/pl/error.yap' ).
+mod( dialect , '/Users/vsc/git/yap-6.3/pl/dialect.yap' ).
+mod( '$db_load' , '/Users/vsc/git/yap-6.3/pl/dbload.yap' ).
+mod( '$coroutining' , '/Users/vsc/git/yap-6.3/pl/corout.yap' ).
+mod( '$attributes' , '/Users/vsc/git/yap-6.3/pl/attributes.yap' ).
+mod( ytest , '/Users/vsc/git/yap-6.3/library/ytest.yap' ).
+sys //2.
+sys //2.
 sys //2.
 sys //2.
 sys //2.

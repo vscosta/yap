@@ -112,24 +112,25 @@ Int Yap_peek(int sno) {
     return ch;
   }
 #endif
-  ocharcount = s->charcount;
+   /* buffer the character */
+  if (s->encoding == LOCAL_encoding) {
+    ch = fgetwc(s->file);
+    ungetwc(ch, s->file);
+    return ch;
+  } else {
+   ocharcount = s->charcount;
   olinecount = s->linecount;
   olinepos = s->linepos;
-  ch = s->stream_wgetc(sno);
-  s->och = ch;
-  if (ch == EOFCHAR) {
+    ch = s->stream_wgetc(sno);
+    if (ch == EOFCHAR) {
     s->stream_getc = EOFPeek;
     s->stream_wgetc = EOFWPeek;
     s->status |= Push_Eof_Stream_f;
     return ch;
   }
-  s->charcount = ocharcount;
-  s->linecount = olinecount;
-  s->linepos = olinepos;
-  /* buffer the character */
-  if (s->encoding == LOCAL_encoding) {
-    ungetwc(ch, s->file);
-  } else if (s->encoding == ENC_OCTET || s->encoding == ENC_ISO_LATIN1 ||
+    
+  }
+  if (s->encoding == ENC_OCTET || s->encoding == ENC_ISO_LATIN1 ||
              s->encoding == ENC_ISO_ASCII) {
     ungetc(ch, s->file);
   } else if (s->encoding == ENC_ISO_UTF8) {
@@ -185,7 +186,10 @@ Int Yap_peek(int sno) {
        ungetc(ch / 256, s->file);
       ungetc(ch % 256, s->file);
    } 
-  return ch;
+   s->charcount = ocharcount;
+  s->linecount = olinecount;
+  s->linepos = olinepos;
+ return ch;
 }
 
 static Int dopeek_byte(int sno) {

@@ -57,10 +57,12 @@ inline( []/0 ).
 %
 
 main :-
+    trace,
     init,
     fail.
 main :-
 	unix(argv([D])),
+    trace,
 	Dirs = ['C'-prolog,
 		   'os'-prolog,
 		   'pl'-prolog,
@@ -91,8 +93,8 @@ distribute( Root, File-Class, Path-Class) :-
     atom_concat([Root, /, File], Path ).
 
 init :-
-        retractall(dir(_)),  
-          retractall(s8Sadir(_)),
+        retractall(dir(_)),
+        retractall(s8Sadir(_)),
         retractall(edge(_)),
         retractall(private(_,_)),
         retractall(public(_,_)),
@@ -101,7 +103,8 @@ init :-
         retractall(module_on(_,_,_)),
         retractall(op_export(_,_,_)),
         retractall(exported(_)),
-        retractall(do_comment(_,_,_,_,_)).
+        retractall(do_comment(_,_,_,_,_)),
+        fail.
 init :-
         user_c_dep(A,B),
         do_user_c_dep(A,B),
@@ -205,7 +208,7 @@ remove_escapes([A|Cs], [A|NCs]) :-
     remove_escapes(Cs, NCs).
 remove_escapes( [], [] ).
 
-always_strip_module(V, M, V1) :- 
+always_strip_module(V, M, V1) :-
     fully_strip_module(V, M, V1).
 
 c_links :-
@@ -311,16 +314,16 @@ prolog_file_type(c, '.i').
 % handle some special cases.
 %
 search_file(  library(boot/F) , LocF, Type, FN ) :- !,
-    search_file(  '..'/pl/F , LocF, Type, FN ). 
+    search_file(  '..'/pl/F , LocF, Type, FN ).
 %try to use your base
 search_file(  F0, LocF, Type, FN ) :-
     filename(F0, F),
-    file_directory_name(LocF, LOC),   
-    file_directory_name(F, D),   
+    file_directory_name(LocF, LOC),
+    file_directory_name(F, D),
     file_base_name(F, F1),
     candidate_dir(LOC, '/', D, Left),
     absolute_file_name(F1, [
-        relative_to(Left), 
+        relative_to(Left),
             file_type(Type),file_errors(fail),
             access(read) ], FN ).
 search_file(  Loc , F, _FN ) :-
@@ -352,7 +355,7 @@ candidate_dir_down(Loc, _Source,  D, Loc) :-
 candidate_dir( Loc, _Source,  D, OLoc) :-
     sub_dir(NLoc, Loc),
     candidate_dir_down(NLoc, Source,  D, OLoc).
-    
+
 match('.', _Loc) :- !.
 match(D, Loc) :-
     file_base_name( D, B),
@@ -360,10 +363,10 @@ match(D, Loc) :-
     file_directory_name( D, ND),
     file_directory_name( D, NLoc),
     match(ND, NLoc).
-    
-    
+
+
 filename(A, A) :- atom(A), !.
-filename(A/B, NAB) :- 
+filename(A/B, NAB) :-
     filename(A, NA),
     filename(B, NB),
     atom_concat([NA,'/', NB], NAB).

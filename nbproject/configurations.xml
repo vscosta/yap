@@ -1,0 +1,2573 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="97">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <df root="." name="0">
+      <df name="C">
+        <in>absmi.c</in>
+        <in>adtdefs.c</in>
+        <in>agc.c</in>
+        <in>alloc.c</in>
+        <in>amasm.c</in>
+        <in>analyst.c</in>
+        <in>args.c</in>
+        <in>arith0.c</in>
+        <in>arith1.c</in>
+        <in>arith2.c</in>
+        <in>arrays.c</in>
+        <in>atomic.c</in>
+        <in>attvar.c</in>
+        <in>bb.c</in>
+        <in>bignum.c</in>
+        <in>blobs.c</in>
+        <in>c_interface.c</in>
+        <in>cdmgr.c</in>
+        <in>clause_list.c</in>
+        <in>cmppreds.c</in>
+        <in>compiler.c</in>
+        <in>computils.c</in>
+        <in>corout.c</in>
+        <in>cut_c.c</in>
+        <in>dbase.c</in>
+        <in>depth_bound.c</in>
+        <in>dlmalloc.c</in>
+        <in>errors.c</in>
+        <in>eval.c</in>
+        <in>exec.c</in>
+        <in>exo.c</in>
+        <in>exo_udi.c</in>
+        <in>flags.c</in>
+        <in>globals.c</in>
+        <in>gmp_support.c</in>
+        <in>gprof.c</in>
+        <in>grow.c</in>
+        <in>heapgc.c</in>
+        <in>index.c</in>
+        <in>init.c</in>
+        <in>inlines.c</in>
+        <in>load_aout.c</in>
+        <in>load_dl.c</in>
+        <in>load_dll.c</in>
+        <in>load_dyld.c</in>
+        <in>load_foreign.c</in>
+        <in>load_none.c</in>
+        <in>load_shl.c</in>
+        <in>mavar.c</in>
+        <in>modules.c</in>
+        <in>other.c</in>
+        <in>parser.c</in>
+        <in>qlyr.c</in>
+        <in>qlyw.c</in>
+        <in>range.c</in>
+        <in>save.c</in>
+        <in>scanner.c</in>
+        <in>signals.c</in>
+        <in>sort.c</in>
+        <in>stack.c</in>
+        <in>stdpreds.c</in>
+        <in>text.c</in>
+        <in>threads.c</in>
+        <in>tracer.c</in>
+        <in>udi.c</in>
+        <in>unify.c</in>
+        <in>userpreds.c</in>
+        <in>utilpreds.c</in>
+        <in>write.c</in>
+        <in>yap-args.c</in>
+      </df>
+      <df name="console">
+        <df name="Qt">
+          <df name="build-untitled-Desktop_Qt_5_4_2_clang_64bit-Debug">
+            <in>moc_mainwindow.cpp</in>
+          </df>
+          <df name="untitled">
+            <in>main.cpp</in>
+            <in>mainwindow.cpp</in>
+          </df>
+        </df>
+        <in>yap.c</in>
+      </df>
+      <df name="CXX">
+        <in>yapi.cpp</in>
+      </df>
+      <df name="Debug">
+        <df name="packages">
+          <df name="swig">
+            <df name="java">
+              <in>yapJAVA_wrap.cxx</in>
+            </df>
+          </df>
+        </df>
+        <in>GitSHA1.c</in>
+      </df>
+      <df name="library">
+        <df name="dialect">
+          <df name="swi">
+            <df name="fli">
+              <in>blobs.c</in>
+              <in>swi.c</in>
+            </df>
+          </df>
+        </df>
+        <df name="matrix">
+          <in>matrix.c</in>
+        </df>
+        <df name="random">
+          <in>yap_random.c</in>
+        </df>
+        <df name="regex">
+          <in>regexp.c</in>
+        </df>
+        <df name="rltree">
+          <in>range_list.c</in>
+          <in>yap_rl.c</in>
+        </df>
+        <df name="system">
+          <df name="crypto">
+            <in>md5.c</in>
+          </df>
+          <in>sys.c</in>
+        </df>
+        <df name="tries">
+          <in>base_itries.c</in>
+          <in>base_tries.c</in>
+          <in>core_tries.c</in>
+          <in>itries.c</in>
+          <in>tries.c</in>
+        </df>
+      </df>
+      <df name="OPTYap">
+        <in>opt.init.c</in>
+        <in>opt.preds.c</in>
+        <in>or.copy_engine.c</in>
+        <in>or.cow_engine.c</in>
+        <in>or.cut.c</in>
+        <in>or.memory.c</in>
+        <in>or.sba_engine.c</in>
+        <in>or.scheduler.c</in>
+        <in>or.thread_engine.c</in>
+        <in>tab.completion.c</in>
+        <in>tab.tries.c</in>
+      </df>
+      <df name="os">
+        <in>alias.c</in>
+        <in>charsio.c</in>
+        <in>chartypes.c</in>
+        <in>console.c</in>
+        <in>files.c</in>
+        <in>fmemopen.c</in>
+        <in>format.c</in>
+        <in>iopreds.c</in>
+        <in>mem.c</in>
+        <in>open_memstream.c</in>
+        <in>pipes.c</in>
+        <in>random.c</in>
+        <in>readline.c</in>
+        <in>readterm.c</in>
+        <in>readutil.c</in>
+        <in>sig.c</in>
+        <in>sockets.c</in>
+        <in>streams.c</in>
+        <in>sysbits.c</in>
+        <in>time.c</in>
+        <in>writeterm.c</in>
+        <in>ypsocks.c</in>
+        <in>ypstdio.c</in>
+      </df>
+      <df name="packages">
+        <df name="bdd">
+          <df name="simplecudd">
+            <in>general.c</in>
+            <in>problogbdd.c</in>
+            <in>problogmath.c</in>
+            <in>simplecudd.c</in>
+          </df>
+          <df name="simplecudd_lfi">
+            <in>adterror.c</in>
+            <in>allocate.c</in>
+            <in>general.c</in>
+            <in>iqueue.c</in>
+            <in>pqueue.c</in>
+            <in>problogbdd_lfi.c</in>
+            <in>problogmath.c</in>
+            <in>simplecudd.c</in>
+          </df>
+          <in>cudd.c</in>
+        </df>
+        <df name="CLPBN">
+          <df name="horus">
+            <in>BayesBall.cpp</in>
+            <in>BayesBallGraph.cpp</in>
+            <in>BeliefProp.cpp</in>
+            <in>ConstraintTree.cpp</in>
+            <in>CountingBp.cpp</in>
+            <in>ElimGraph.cpp</in>
+            <in>Factor.cpp</in>
+            <in>FactorGraph.cpp</in>
+            <in>GenericFactor.cpp</in>
+            <in>GroundSolver.cpp</in>
+            <in>Histogram.cpp</in>
+            <in>HorusCli.cpp</in>
+            <in>HorusYap.cpp</in>
+            <in>Indexer.cpp</in>
+            <in>LiftedBp.cpp</in>
+            <in>LiftedKc.cpp</in>
+            <in>LiftedOperations.cpp</in>
+            <in>LiftedUtils.cpp</in>
+            <in>LiftedVe.cpp</in>
+            <in>LiftedWCNF.cpp</in>
+            <in>Parfactor.cpp</in>
+            <in>ParfactorList.cpp</in>
+            <in>ProbFormula.cpp</in>
+            <in>Util.cpp</in>
+            <in>Var.cpp</in>
+            <in>VarElim.cpp</in>
+            <in>WeightedBp.cpp</in>
+          </df>
+        </df>
+        <df name="cplint">
+          <df name="approx">
+            <df name="simplecuddLPADs">
+              <in>ProblogBDD.c</in>
+              <in>general.c</in>
+              <in>simplecudd.c</in>
+            </df>
+          </df>
+          <df name="slipcase">
+            <in>bddem.c</in>
+          </df>
+          <in>cplint_Prob.c</in>
+          <in>cplint_yap.c</in>
+        </df>
+        <df name="gecode">
+          <in>gecode4_yap.cc</in>
+        </df>
+        <df name="jpl">
+          <df name="src">
+            <df name="c">
+              <in>jpl.c</in>
+            </df>
+          </df>
+        </df>
+        <df name="myddas">
+          <df name="mysql">
+            <in>myddas_mysql.c</in>
+            <in>myddas_util.c</in>
+            <in>myddas_wkb2prolog.c</in>
+          </df>
+          <df name="odbc">
+            <in>myddas_odbc.c</in>
+          </df>
+          <df name="postgres">
+            <in>myddas_postgres.c</in>
+          </df>
+          <df name="sqlite3">
+            <in>myddas_sqlite3.c</in>
+          </df>
+          <in>myddas_initialization.c</in>
+          <in>myddas_util.c</in>
+        </df>
+        <df name="python">
+          <in>python.c</in>
+        </df>
+        <df name="raptor">
+          <in>raptor_yap.c</in>
+          <in>xml2_yap.c</in>
+        </df>
+        <df name="real">
+          <in>real.c</in>
+        </df>
+        <df name="swi-minisat2">
+          <df name="C">
+            <in>Solver.C</in>
+            <in>pl-minisat.C</in>
+          </df>
+        </df>
+      </df>
+      <df name="utf8proc">
+        <in>utf8proc.c</in>
+      </df>
+      <df name="xcode">
+        <df name="CMakeFiles">
+          <df name="3.4.3">
+            <df name="CompilerIdC">
+              <in>CMakeCCompilerId.c</in>
+            </df>
+            <df name="CompilerIdCXX">
+              <in>CMakeCXXCompilerId.cpp</in>
+            </df>
+          </df>
+        </df>
+        <df name="packages">
+          <df name="swig">
+            <df name="java">
+              <in>yapJAVA_wrap.cxx</in>
+            </df>
+          </df>
+        </df>
+        <in>GitSHA1.c</in>
+      </df>
+    </df>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>CMakeLists.txt</itemPath>
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceFolderFilter>^(nbproject)$</sourceFolderFilter>
+  <sourceRootList>
+    <Elem>.</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Default" type="0">
+      <toolsSet>
+        <compilerSet>CLang|CLang</compilerSet>
+        <dependencyChecking>false</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <flagsDictionary>
+        <element flagsID="0" commonFlags="-std=c99"/>
+      </flagsDictionary>
+      <codeAssistance>
+      </codeAssistance>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>.</buildCommandWorkingDir>
+          <buildCommand>${MAKE} -f Makefile</buildCommand>
+          <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
+          <executablePath>Debug/yap</executablePath>
+        </makeTool>
+        <preBuild>
+          <preBuildCommandWorkingDir>.</preBuildCommandWorkingDir>
+          <preBuildCommand></preBuildCommand>
+        </preBuild>
+      </makefileType>
+      <item path="C/absmi.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>C</pElem>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/adtdefs.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>C</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/agc.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>C</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/alloc.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>C</pElem>
+            <pElem>include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/amasm.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>C</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/analyst.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/args.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>C</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/arith0.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>C</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/arith1.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>C</pElem>
+            <pElem>include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/arith2.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>C</pElem>
+            <pElem>include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/arrays.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>C</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/atomic.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>os</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>C</pElem>
+            <pElem>utf8proc</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/attvar.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>C</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/bb.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>C</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/bignum.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>C</pElem>
+            <pElem>utf8proc</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/blobs.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>C</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/c_interface.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>C</pElem>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>os</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>utf8proc</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/cdmgr.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>C</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>os</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/clause_list.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>C</pElem>
+            <pElem>include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/cmppreds.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>C</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/compiler.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>C</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/computils.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>C</pElem>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/corout.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>C</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/cut_c.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>C</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/dbase.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>C</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/depth_bound.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>C</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/dlmalloc.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/errors.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>C</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/eval.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>C</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/exec.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>C</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/exo.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>C</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/exo_udi.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>C</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/flags.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>C</pElem>
+            <pElem>include</pElem>
+            <pElem>os</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/globals.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>C</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/gmp_support.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>C</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/gprof.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>C</pElem>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/grow.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>C</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/heapgc.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>C</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/index.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>C</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/init.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>C</pElem>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>os</pElem>
+            <pElem>include</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/inlines.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>include</pElem>
+            <pElem>C</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/load_aout.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/load_dl.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>C</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/load_dll.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/load_dyld.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/load_foreign.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>os</pElem>
+            <pElem>C</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/load_none.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/load_shl.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/mavar.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>C</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/modules.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>C</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/other.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>C</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/parser.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>os</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>C</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/qlyr.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>C</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/qlyw.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>C</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/range.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>C</pElem>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/save.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>C</pElem>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/scanner.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>C</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>os</pElem>
+            <pElem>include</pElem>
+            <pElem>utf8proc</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/signals.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>C</pElem>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/sort.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>C</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/stack.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>C</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/stdpreds.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>C</pElem>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/text.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>os</pElem>
+            <pElem>include</pElem>
+            <pElem>C</pElem>
+            <pElem>utf8proc</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/threads.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>C</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/tracer.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>C</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/udi.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>C</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/unify.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>C</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/userpreds.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>C</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/utilpreds.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>C</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/write.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>os</pElem>
+            <pElem>C</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>utf8proc</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="C/yap-args.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>C</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="CXX/yapi.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Debug/GitSHA1.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="Debug/packages/swig/java/yapJAVA_wrap.cxx"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="OPTYap/opt.init.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="OPTYap/opt.preds.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>include</pElem>
+            <pElem>os</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="OPTYap/or.copy_engine.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="OPTYap/or.cow_engine.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>Debug/OPTYap</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="OPTYap/or.cut.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="OPTYap/or.memory.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="OPTYap/or.sba_engine.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="OPTYap/or.scheduler.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="OPTYap/or.thread_engine.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="OPTYap/tab.completion.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>OPTYap</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="OPTYap/tab.tries.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>OPTYap</pElem>
+            <pElem>include</pElem>
+            <pElem>Debug/OPTYap</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="console/Qt/build-untitled-Desktop_Qt_5_4_2_clang_64bit-Debug/moc_mainwindow.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="console/Qt/untitled/main.cpp" ex="false" tool="1" flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>../../Qt/5.4/clang_64/lib/QtCore.framework/Versions/5/Headers</pElem>
+            <pElem>../../Qt/5.4/clang_64/lib/QtCore.framework/Headers</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/6.1.0/include</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/c++/4.2.1/bits</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/c++/4.2.1</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/c++/4.2.1/ext</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/i386</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/sys/_types</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/sys</pElem>
+            <pElem>console/Qt/untitled</pElem>
+            <pElem>console/Qt/build-untitled-Desktop_Qt_5_4_2_clang_64bit-Debug</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/c++/4.2.1/debug</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/_types</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="console/Qt/untitled/mainwindow.cpp" ex="false" tool="1" flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>../../Qt/5.4/clang_64/lib/QtCore.framework/Headers</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/6.1.0/include</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/c++/4.2.1/bits</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/c++/4.2.1</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/c++/4.2.1/ext</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/i386</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/sys/_types</pElem>
+            <pElem>../../Qt/5.4/clang_64/lib/QtGui.framework/Headers</pElem>
+            <pElem>../../Qt/5.4/clang_64/lib/QtWidgets.framework/Headers</pElem>
+            <pElem>../../Qt/5.4/clang_64/lib/QtWidgets.framework/Versions/5/Headers</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/sys</pElem>
+            <pElem>console/Qt/untitled</pElem>
+            <pElem>console/Qt/build-untitled-Desktop_Qt_5_4_2_clang_64bit-Debug</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/c++/4.2.1/debug</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/_types</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="console/yap.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <folder path="0/CXX">
+        <ccTool>
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>CXX</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>os</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>utf8proc</pElem>
+            <pElem>Debug/CXX</pElem>
+          </incDir>
+        </ccTool>
+      </folder>
+      <folder path="0/Debug">
+        <cTool>
+          <incDir>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>CXX</pElem>
+            <pElem>Debug/packages/swig/java</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/JavaVM.framework/Headers</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+          </incDir>
+        </ccTool>
+      </folder>
+      <folder path="0/OPTYap">
+        <cTool>
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/console">
+        <cTool>
+          <incDir>
+            <pElem>include</pElem>
+            <pElem>console</pElem>
+            <pElem>Debug</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/console/Qt/build-untitled-Desktop_Qt_5_4_2_clang_64bit-Debug">
+        <ccTool>
+          <incDir>
+            <pElem>../../Qt/5.4/clang_64/lib/QtCore.framework/Headers</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/6.1.0/include</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/c++/4.2.1/bits</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/c++/4.2.1</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/c++/4.2.1/ext</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/i386</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/sys/_types</pElem>
+            <pElem>../../Qt/5.4/clang_64/lib/QtGui.framework/Headers</pElem>
+            <pElem>../../Qt/5.4/clang_64/lib/QtWidgets.framework/Headers</pElem>
+            <pElem>../../Qt/5.4/clang_64/lib/QtWidgets.framework/Versions/5/Headers</pElem>
+            <pElem>console/Qt/untitled</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/sys</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/c++/4.2.1/debug</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/include/_types</pElem>
+            <pElem>console/Qt/build-untitled-Desktop_Qt_5_4_2_clang_64bit-Debug</pElem>
+          </incDir>
+        </ccTool>
+      </folder>
+      <folder path="0/library/dialect">
+        <cTool>
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>library/dialect/swi/fli</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/library/matrix">
+        <cTool>
+          <incDir>
+            <pElem>include</pElem>
+            <pElem>library/matrix</pElem>
+            <pElem>Debug/library/matrix</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/library/random">
+        <cTool>
+          <incDir>
+            <pElem>library/random</pElem>
+            <pElem>include</pElem>
+            <pElem>Debug/library/random</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/library/regex">
+        <cTool>
+          <incDir>
+            <pElem>library/regex</pElem>
+            <pElem>include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/library/rltree">
+        <cTool>
+          <incDir>
+            <pElem>library/rltree</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/library/system/crypto">
+        <cTool>
+          <incDir>
+            <pElem>library/system/crypto</pElem>
+            <pElem>Debug/library/system</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/packages/CLPBN">
+        <ccTool>
+          <incDir>
+            <pElem>packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </folder>
+      <folder path="0/packages/bdd/simplecudd">
+        <cTool>
+          <incDir>
+            <pElem>packages/bdd/simplecudd</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/packages/bdd/simplecudd_lfi">
+        <cTool>
+          <incDir>
+            <pElem>packages/bdd/simplecudd_lfi</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/packages/cplint/approx">
+        <cTool>
+          <incDir>
+            <pElem>packages/cplint/approx/simplecuddLPADs</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/packages/cplint/slipcase">
+        <cTool>
+          <incDir>
+            <pElem>packages/cplint/slipcase</pElem>
+            <pElem>/usr/local/include/cudd</pElem>
+            <pElem>include</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>Debug/packages/cplint</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/packages/gecode">
+        <ccTool>
+          <incDir>
+            <pElem>/usr/local/include/gecode/support</pElem>
+            <pElem>/usr/local/include/gecode/kernel</pElem>
+            <pElem>/usr/local/include/gecode</pElem>
+            <pElem>include</pElem>
+            <pElem>packages/gecode</pElem>
+            <pElem>packages/gecode/4.2.1</pElem>
+            <pElem>/usr/local/include/gecode/int</pElem>
+            <pElem>/usr/local/include/gecode/set</pElem>
+            <pElem>/usr/local/include/gecode/third-party/boost/config</pElem>
+            <pElem>/usr/local/include/gecode/third-party/boost/numeric/interval/detail</pElem>
+            <pElem>/usr/local/include/gecode/third-party/boost/numeric/interval</pElem>
+            <pElem>/usr/local/include/gecode/float</pElem>
+            <pElem>/usr/local/include/gecode/int/extensional</pElem>
+            <pElem>/usr/local/include/gecode/iter</pElem>
+            <pElem>/usr/local/include/gecode/set/var-imp</pElem>
+            <pElem>/usr/local/include/gecode/search</pElem>
+            <pElem>/usr/local/include/gecode/int/var</pElem>
+            <pElem>/usr/local/include/gecode/float/var</pElem>
+            <pElem>/usr/local/include/gecode/set/var</pElem>
+            <pElem>/usr/local/include/gecode/int/branch</pElem>
+            <pElem>/usr/local/include/gecode/set/branch</pElem>
+            <pElem>/usr/local/include/gecode/float/branch</pElem>
+            <pElem>/usr/local/include/gecode/int/var-imp</pElem>
+            <pElem>/usr/local/include/gecode/float/var-imp</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+      </folder>
+      <folder path="0/packages/jpl">
+        <cTool>
+          <incDir>
+            <pElem>packages/jpl/src/c</pElem>
+            <pElem>include</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/JavaVM.framework/Headers</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/packages/myddas">
+        <cTool>
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/packages/myddas/odbc">
+        <cTool>
+          <incDir>
+            <pElem>packages/myddas/odbc</pElem>
+            <pElem>packages/myddas</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>Debug/packages/myddas/odbc</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/packages/myddas/postgres">
+        <cTool>
+          <incDir>
+            <pElem>packages/myddas/postgres</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>packages/myddas</pElem>
+            <pElem>os</pElem>
+            <pElem>Debug/packages/myddas/postgres</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/packages/myddas/sqlite3">
+        <cTool>
+          <incDir>
+            <pElem>packages/myddas/sqlite3</pElem>
+            <pElem>packages/myddas</pElem>
+            <pElem>include</pElem>
+            <pElem>os</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>Debug/packages/myddas/sqlite3</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/packages/python">
+        <cTool>
+          <incDir>
+            <pElem>include</pElem>
+            <pElem>packages/python</pElem>
+            <pElem>/anaconda/include/python2.7</pElem>
+            <pElem>Debug/packages/python</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/packages/real">
+        <cTool>
+          <incDir>
+            <pElem>include</pElem>
+            <pElem>packages/real</pElem>
+            <pElem>/Library/Frameworks/R.framework/Headers/R_ext</pElem>
+            <pElem>/Library/Frameworks/R.framework/Headers</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/packages/swi-minisat2">
+        <ccTool>
+          <incDir>
+            <pElem>packages/swi-minisat2/C</pElem>
+          </incDir>
+        </ccTool>
+      </folder>
+      <folder path="0/utf8proc">
+        <cTool>
+          <incDir>
+            <pElem>utf8proc</pElem>
+            <pElem>Debug/utf8proc</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/xcode/CMakeFiles">
+        <cTool>
+          <incDir>
+            <pElem>xcode/CMakeFiles/3.4.3/CompilerIdC</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>xcode/CMakeFiles/3.4.3/CompilerIdCXX</pElem>
+          </incDir>
+        </ccTool>
+      </folder>
+      <folder path="0/xcode/packages">
+        <ccTool>
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>CXX</pElem>
+            <pElem>xcode/packages/swig/java</pElem>
+            <pElem>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/JavaVM.framework/Headers</pElem>
+            <pElem>include</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+      </folder>
+      <item path="library/dialect/swi/fli/blobs.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="library/dialect/swi/fli/swi.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>os</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>utf8proc</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="library/matrix/matrix.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="library/random/yap_random.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="library/regex/regexp.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="library/rltree/range_list.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="library/rltree/yap_rl.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>include</pElem>
+            <pElem>Debug/library/rltree</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="library/system/crypto/md5.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="library/system/sys.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>library/system</pElem>
+            <pElem>include</pElem>
+            <pElem>library/system/crypto</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="library/tries/base_itries.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>library/tries</pElem>
+            <pElem>include</pElem>
+            <pElem>Debug/library/tries</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="library/tries/base_tries.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>library/tries</pElem>
+            <pElem>include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="library/tries/core_tries.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>library/tries</pElem>
+            <pElem>include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="library/tries/itries.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>include</pElem>
+            <pElem>library/tries</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="library/tries/tries.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>include</pElem>
+            <pElem>library/tries</pElem>
+            <pElem>Debug/library/tries</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/alias.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>os</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/charsio.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>os</pElem>
+            <pElem>include</pElem>
+            <pElem>utf8proc</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/chartypes.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>os</pElem>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>utf8proc</pElem>
+            <pElem>Debug/os</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/console.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>os</pElem>
+            <pElem>include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/files.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>os</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/fmemopen.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>os</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/format.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>os</pElem>
+            <pElem>utf8proc</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/iopreds.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>os</pElem>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>utf8proc</pElem>
+            <pElem>OPTYap</pElem>
+            <pElem>Debug/os</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/mem.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>os</pElem>
+            <pElem>include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/open_memstream.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>os</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/pipes.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>os</pElem>
+            <pElem>include</pElem>
+            <pElem>Debug/os</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/random.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>os</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/readline.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>os</pElem>
+            <pElem>include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/readterm.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>os</pElem>
+            <pElem>include</pElem>
+            <pElem>utf8proc</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/readutil.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>os</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/sig.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>os</pElem>
+            <pElem>include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/sockets.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>os</pElem>
+            <pElem>include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/streams.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>os</pElem>
+            <pElem>include</pElem>
+            <pElem>Debug/os</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/sysbits.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>os</pElem>
+            <pElem>include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/time.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>os</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/writeterm.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>os</pElem>
+            <pElem>include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/ypsocks.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>include</pElem>
+            <pElem>os</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="os/ypstdio.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/CLPBN/horus/BayesBall.cpp" ex="false" tool="1" flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/BayesBallGraph.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/BeliefProp.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/ConstraintTree.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/CountingBp.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/ElimGraph.cpp" ex="false" tool="1" flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/Factor.cpp" ex="false" tool="1" flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/FactorGraph.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/GenericFactor.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/GroundSolver.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/Histogram.cpp" ex="false" tool="1" flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/HorusCli.cpp" ex="false" tool="1" flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/HorusYap.cpp" ex="false" tool="1" flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>include</pElem>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/Indexer.cpp" ex="false" tool="1" flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/LiftedBp.cpp" ex="false" tool="1" flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/LiftedKc.cpp" ex="false" tool="1" flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/LiftedOperations.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/LiftedUtils.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/LiftedVe.cpp" ex="false" tool="1" flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/LiftedWCNF.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/Parfactor.cpp" ex="false" tool="1" flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/ParfactorList.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/ProbFormula.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/Util.cpp" ex="false" tool="1" flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/Var.cpp" ex="false" tool="1" flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/VarElim.cpp" ex="false" tool="1" flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/CLPBN/horus/WeightedBp.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/CLPBN/horus</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/bdd/cudd.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>include</pElem>
+            <pElem>packages/bdd</pElem>
+            <pElem>/usr/local/include/cudd</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>Debug/packages/bdd</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/bdd/simplecudd/general.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>Debug/packages/bdd/simplecudd</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/bdd/simplecudd/problogbdd.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>/usr/local/include/cudd</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>Debug/packages/bdd/simplecudd</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/bdd/simplecudd/problogmath.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/bdd/simplecudd/simplecudd.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>/usr/local/include/cudd</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>Debug/packages/bdd/simplecudd</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/bdd/simplecudd_lfi/adterror.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>Debug/packages/bdd/simplecudd_lfi</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/bdd/simplecudd_lfi/allocate.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>Debug/packages/bdd/simplecudd_lfi</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/bdd/simplecudd_lfi/general.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>Debug/packages/bdd/simplecudd_lfi</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/bdd/simplecudd_lfi/iqueue.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>Debug/packages/bdd/simplecudd_lfi</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/bdd/simplecudd_lfi/pqueue.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>Debug/packages/bdd/simplecudd_lfi</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/bdd/simplecudd_lfi/problogbdd_lfi.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>/usr/local/include/cudd</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>Debug/packages/bdd/simplecudd_lfi</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/bdd/simplecudd_lfi/problogmath.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>Debug/packages/bdd/simplecudd_lfi</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/bdd/simplecudd_lfi/simplecudd.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>/usr/local/include/cudd</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>Debug/packages/bdd/simplecudd_lfi</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/cplint/approx/simplecuddLPADs/ProblogBDD.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>/usr/local/include/cudd</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>Debug/packages/cplint/approx/simplecuddLPADs</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/cplint/approx/simplecuddLPADs/general.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/cplint/approx/simplecuddLPADs/simplecudd.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>/usr/local/include/cudd</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/cplint/cplint_Prob.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>/usr/local/include/cudd</pElem>
+            <pElem>packages/cplint</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/cplint/cplint_yap.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>/usr/local/include/cudd</pElem>
+            <pElem>packages/cplint</pElem>
+            <pElem>include</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/cplint/slipcase/bddem.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="packages/gecode/gecode4_yap.cc" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="packages/jpl/src/c/jpl.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="packages/myddas/myddas_initialization.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>packages/myddas</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/myddas/myddas_util.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>packages/myddas</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/myddas/mysql/myddas_mysql.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>packages/myddas/mysql</pElem>
+            <pElem>/usr/local/include/mysql</pElem>
+            <pElem>packages/myddas</pElem>
+            <pElem>Debug/packages/myddas/mysql</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/myddas/mysql/myddas_util.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>/usr/local/include/mysql</pElem>
+            <pElem>packages/myddas/mysql</pElem>
+            <pElem>Debug/packages/myddas/mysql</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/myddas/mysql/myddas_wkb2prolog.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>packages/myddas/mysql</pElem>
+            <pElem>Debug/packages/myddas/mysql</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/myddas/odbc/myddas_odbc.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="packages/myddas/postgres/myddas_postgres.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="packages/myddas/sqlite3/myddas_sqlite3.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="packages/python/python.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="packages/raptor/raptor_yap.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>/usr/local/include/raptor2</pElem>
+            <pElem>packages/raptor</pElem>
+            <pElem>include</pElem>
+            <pElem>/usr/local/include</pElem>
+            <pElem>Debug/packages/raptor</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/raptor/xml2_yap.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>H</pElem>
+            <pElem>H/generated</pElem>
+            <pElem>/anaconda/include/libxml2/libxml</pElem>
+            <pElem>packages/raptor</pElem>
+            <pElem>/anaconda/include/libxml2</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="packages/real/real.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="packages/swi-minisat2/C/Solver.C" ex="false" tool="1" flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>Debug/packages/swi-minisat2/C</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="packages/swi-minisat2/C/pl-minisat.C"
+            ex="false"
+            tool="1"
+            flavor2="0">
+        <ccTool>
+          <incDir>
+            <pElem>include</pElem>
+            <pElem>Debug/packages/swi-minisat2/C</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="utf8proc/utf8proc.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="xcode/CMakeFiles/3.4.3/CompilerIdC/CMakeCCompilerId.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="xcode/CMakeFiles/3.4.3/CompilerIdCXX/CMakeCXXCompilerId.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="xcode/GitSHA1.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>xcode</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="xcode/packages/swig/java/yapJAVA_wrap.cxx"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
