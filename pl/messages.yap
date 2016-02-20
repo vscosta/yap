@@ -256,7 +256,7 @@ main_message(error(style_check(style_check(singleton(SVs),_Pos,_File,P)),_), _, 
 main_message(error(style_check(style_check(multiple(N,A,Mod,I0),_Pos,File,_P)),_), _, LC) -->
     !,
 	[  '~*|!!! ~a redefines ~q from  ~a.' - [LC,File, Mod:N/A, I0] ].
-main_message(error(style_check(style_check(discontiguous(N,A,Mod),_S,_W,_P)),_) ,_, LC≈)-->
+main_message(error(style_check(style_check(discontiguous(N,A,Mod),_S,_W,_P)),_) ,_, LC)-->
     !,
 	[  '~*|!!! discontiguous definition for ~p.' - [LC,Mod:N/A] ].
 main_message(error(consistency_error(Who)), _Source, LC) -->
