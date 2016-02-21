@@ -28,7 +28,7 @@ YAP_FLAG(  FILEERRORS_FLAG, "fileerrors", true, booleanFlag, "true" , NULL ), /*
                                                                            If `on` `fileerrors` is `on`, if `off` (default)
                                                                            `fileerrors` is disabled.
                                                                            */
-YAP_FLAG(  LANGUAGE_MODE_FLAG, "language_mode", true, isatom, "yap" , NULL ), /**< `lamguage_mode`
+YAP_FLAG(  LANGUAGE_MODE_FLAG, "language_mode", true, isatom, "yap" , NULL ), /**< `language_mode`
                                                                            
                                                                            wweter native mode or trying to emulate a different Prolog.
                                                                            */
