@@ -280,7 +280,7 @@ void Yap_InitComma(void);
 
 /* cdmgr.c */
 void Yap_IPred(PredEntry *, UInt, yamop *);
-bool Yap_addclause(Term, yamop *, int, Term, Term *);
+bool Yap_addclause(Term, yamop *, Term, Term, Term *);
 void Yap_add_logupd_clause(PredEntry *, LogUpdClause *, int);
 void Yap_kill_iblock(ClauseUnion *, ClauseUnion *, PredEntry *);
 void Yap_EraseStaticClause(StaticClause *, PredEntry *, Term);

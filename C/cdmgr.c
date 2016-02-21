@@ -1530,7 +1530,7 @@ static Int
   return (TRUE);
 }
 
-bool Yap_multiple(PredEntry *ap, int mode USES_REGS) {
+bool Yap_multiple(PredEntry *ap, Term mode USES_REGS) {
   register consult_obj *fp;
 
   if ((ap->PredFlags & (MultiFileFlag | LogUpdatePredFlag | DynamicPredFlag)) ||
@@ -1604,7 +1604,8 @@ bool Yap_constPred(PredEntry *p) {
   return false;
 }
 
-static bool addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
+bool
+Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
 /*
  *
  mode
@@ -1620,7 +1621,21 @@ static bool addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   arity_t Arity;
   pred_flags_t pflags;
   Term tf;
+  int mode;
 
+  if (tmode == TermConsult) {
+    mode = consult;
+  } else if (tmode == TermReconsult) {
+    mode = consult;
+  } else if (tmode  == TermAsserta) {
+    mode = asserta;
+  } else if (tmode  == TermAssertz) {
+    mode = assertz;
+  } else if (tmode  == TermAssertaStatic) {
+    mode = asserta;
+  } else if (tmode  == TermAssertzStatic) {
+    mode = assertz;
+  }
   if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorAssert)
     tf = ArgOfTerm(1, t);
   else
@@ -1656,7 +1671,7 @@ static bool addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   }
   if (pflags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag))
     spy_flag = true;
-  if (Yap_discontiguous(p, mode PASS_REGS)) {
+  if (Yap_discontiguous(p, tmode PASS_REGS)) {
     Term disc[3], sc[4];
     if (p->ArityOfPE) {
       disc[0] = MkAtomTerm(NameOfFunctor(p->FunctorOfPred));
@@ -1673,7 +1688,7 @@ static bool addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
     sc[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 1), 1, &t);
     sc[1] = MkAtomTerm(AtomWarning);
     Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));
-  } else if (Yap_multiple(p, mode PASS_REGS)) {
+  } else if (Yap_multiple(p, tmode PASS_REGS)) {
     Term disc[4], sc[4];
     if (p->ArityOfPE) {
       disc[0] = MkAtomTerm(NameOfFunctor(p->FunctorOfPred));
@@ -1804,10 +1819,6 @@ static bool addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   return true;
 }
 
-bool Yap_addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref) {
-  return addclause(t, cp, mode, mod, t4ref);
-}
-
 void Yap_EraseMegaClause(yamop *cl, PredEntry *ap) {
   /* just make it fail */
   cl->opc = Yap_opcode(_op_fail);
@@ -1929,22 +1940,9 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
   int mode;
 
   if (IsVarTerm(t1) || !IsAtomicTerm(t1))
-    return FALSE;
+    return false;
   if (IsVarTerm(mod) || !IsAtomTerm(mod))
-    return FALSE;
-  if (t1 == TermConsult) {
-    mode = consult;
-  } else if (t1 == TermReconsult) {
-    mode = consult;
-  } else if (t1 == TermAsserta) {
-    mode = asserta;
-  } else if (t1 == TermAssertz) {
-    mode = assertz;
-  } else if (t1 == TermAssertaStatic) {
-    mode = asserta;
-  } else if (t1 == TermAssertzStatic) {
-    mode = assertz;
-  }
+    return false;
   /* separate assert in current file from reconsult
     if (mode == assertz && LOCAL_consult_level && mod == CurrentModule)
       mode = consult;
@@ -1955,7 +1953,7 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
   t = Deref(ARG1); /* just in case there was an heap overflow */
   if (!LOCAL_ErrorMessage) {
     YAPEnterCriticalSection();
-    addclause(t, code_adr, mode, mod, &ARG5);
+    Yap_addclause(t, code_adr, t1, mod, &ARG5);
     YAPLeaveCriticalSection();
   }
   if (LOCAL_ErrorMessage) {
@@ -4486,8 +4484,7 @@ static bool pred_flag_clause(Functor f, Term mod, const char *name,
   if (LOCAL_ErrorMessage) {
     return false;
   }
-  addclause(tn, code_adr, assertz, mod, NULL);
-  return true;
+  return Yap_addclause(tn, code_adr, TermAssertz, mod, NULL);
 }
 
 struct pred_entry *Yap_MkLogPred(struct pred_entry *pe) {

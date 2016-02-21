@@ -754,7 +754,7 @@ void *YAPPrologPredicate::assertClause( YAPTerm clause, bool last, YAPTerm sourc
       return 0;
   }
   Term *tref = &ntt;
-  if (Yap_addclause(ntt, codeaddr, (last ? 0 : 2), Yap_CurrentModule(), tref)) {
+  if (Yap_addclause(ntt, codeaddr, (last ? TermAssertz : TermAsserta), Yap_CurrentModule(), tref)) {
     RECOVER_MACHINE_REGS();
   }
     return tref;

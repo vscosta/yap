@@ -125,7 +125,7 @@ struct pred_entry *Yap_PredForChoicePt(choiceptr bptr, op_numbers *op);
 void Yap_InitCdMgr(void);
 struct pred_entry *Yap_PredFromClause(Term t USES_REGS);
 bool Yap_discontiguous(struct pred_entry *ap, Term mode USES_REGS);
-bool Yap_multiple(struct pred_entry *ap, int mode USES_REGS);
+bool Yap_multiple(struct pred_entry *ap, Term mode USES_REGS);
 void Yap_init_consult(int, const char *);
 void Yap_end_consult(void);
 void Yap_Abolish(struct pred_entry *);
