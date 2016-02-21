@@ -42,6 +42,7 @@
 
 :- use_system_module( '$_boot', ['$cut_by'/1]).
 
+% :- start_low_level_trace.
 
 % This is the YAP init file
 % should be consulted first step after booting
@@ -213,7 +214,8 @@ print_message(Level, Msg) :-
 :-	 ['protect.yap'].
 
 version(yap,[6,3]).
-q:- op(1150,fx,(mode)).
+
+:- op(1150,fx,(mode)).
 
 :- dynamic 'extensions_to_present_answer'/1.
 
