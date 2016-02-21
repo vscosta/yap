@@ -1581,6 +1581,15 @@ bool Yap_constPred(PredEntry *p) {
   pred_flags_t pflags;
   pflags = p->PredFlags;
 
+  if (Yap_isSystemModule(p->ModuleOfPred)) {
+    if (p->cs.p_code.NOfClauses == 0) {
+      p->src.OwnerFile = Yap_source_file_name();
+      return false;
+    }
+    if (p->src.OwnerFile == Yap_source_file_name()) {
+      return false;
+    }
+  }
   if (pflags &
       ((UserCPredFlag | CArgsPredFlag | NumberDBPredFlag | AtomDBPredFlag |
         TestPredFlag | AsmPredFlag | CPredFlag | BinaryPredFlag)))
@@ -1590,17 +1599,6 @@ bool Yap_constPred(PredEntry *p) {
       (SysExportPredFlag | MultiFileFlag | DynamicPredFlag | LogUpdatePredFlag))
     return false;
 
-  if (Yap_isSystemModule(p->ModuleOfPred)) {
-    if (p->cs.p_code.NOfClauses == 0) {
-      p->src.OwnerFile = Yap_source_file_name();
-      return false;
-    }
-    if (p->src.OwnerFile == Yap_source_file_name()) {
-      return false;
-    }
-
-    return true;
-  }
   return false;
 }
 
