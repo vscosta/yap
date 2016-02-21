@@ -570,14 +570,14 @@ number of steps.
 
 '$command'(C,VL,Pos,Con) :-
 	current_prolog_flag(strict_iso, true), !,      /* strict_iso on */
-	 '$execute_command'(C,VL,Pos,Con,C).
+	 '$execute_command'(C,VL,Pos,Con,_Source).
 '$command'(C,VL,Pos,Con) :-
 	( (Con = top ; var(C) ; C = [_|_])  ->
 	  '$execute_command'(C,VL,Pos,Con,C), ! ;
 	  % do term expansion
 	  expand_term(C, EC),
 	  % execute a list of commands
-	  '$execute_commands'(EC,VL,Pos,Con,C),
+	  '$execute_commands'(EC,VL,Pos,Con,_Source),
 	  % succeed only if the *original* was at end of file.
 	  C == end_of_file
 	).
@@ -713,15 +713,15 @@ number of steps.
  % module prefixes all over the place, although unnecessarily so.
  %
  % @param [in] _G_ is the clause to compile
- % @param [in] _Vs_ a list of varables and their name
+ % @param [in] _Vs_ a list of variables and their name
  % @param [in] _Pos_ the source-code position
  % @param [in] _N_  a flag telling whether to add first or last
- % @param [in] _Source_ the original clause
-'$go_compile_clause'(G,Vs,Pos, Where, Source) :-
-     '$precompile_term'(G, G0, G1),
+ % @param [out] _Source_ the user-tranasformed clause
+'$go_compile_clause'(G, _Vs, _Pos, Where, Source) :-
+     '$precompile_term'(G, Source, G1),
      !,
-	 '$$compile'(G1, Where, G0, _).
- '$go_compile_clause'(G,Vs,Pos, Where, Source) :-
+	 '$$compile'(G1, Where, Source, _).
+ '$go_compile_clause'(G,_Vs,_Pos, _Where, _Source) :-
      throw(error(system, compilation_failed(G))).
 
 '$$compile'(C, Where, C0, R) :-
@@ -1423,9 +1423,10 @@ bootstrap(F) :-
 % return two arguments: Expanded0 is the term after "USER" expansion.
 %                       Expanded is the final expanded term.
 %
-'$precompile_term'(Term, Expanded0, Expanded) :-
+'$precompile_term'(Term, ExpandedUser, Expanded) :-
 %format('[ ~w~n',[Term]),
-	'$expand_clause'(Term, Expanded0, ExpandedI), !,
+	'$expand_clause'(Term, ExpandedUser, ExpandedI), 
+    !,
 %format('      -> ~w~n',[Expanded0]),
 	(
 	 current_prolog_flag(strict_iso, true)      /* strict_iso on */
