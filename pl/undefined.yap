@@ -104,32 +104,6 @@ Z * @pred '$undefp_expand'(+ M0:G0, -MG)
 '$undefp_search'(MG, FMG) :-
     expand_goal(MG, FMG).
 
-'$undefp'([M0|G0], Action) :-
-    % make sure we do not loop on undefined predicates
-    '$stop_creeping'(Current),
-    yap_flag( unknown, _, fail),
- %   yap_flag( debug, Debug, false),
-    (
-     '$undefp_search'(M0:G0, NM:NG),
-     ( M0 \== NM -> true  ; G0 \== NG ),
-     NG \= fail,
-    '$pred_exists'(NG,NM)
-	->
-     yap_flag( unknown, _, Action),
-  %   yap_flag( debug, _, Debug),
-     (
-       Current == true
-      ->
-       % carry on signal processing
-       '$start_creep'([NM|NG], creep)
-     ;
-       '$execute0'(NG, NM)
-     )
-	;
-     yap_flag( unknown, _, Action),
-%     yap_flag( debug, _, Debug),
-     '$handle_error'(Action,G0,M0)
-    ).
 
 /** @pred  unknown(- _O_,+ _N_)
 

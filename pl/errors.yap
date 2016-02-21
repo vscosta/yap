@@ -90,16 +90,6 @@ system_error(Type,Goal,Culprit) :-
 	       [p|Call],
 	       [e|Caller]])).
 
-
-'$do_error'(Type,Goal) :-
-%        format('~w~n', [Type]),
-	ancestor_location(Call, Caller),
-	throw(error(Type, [
-	       [g|g(Goal)],
-	       [p|Call],
-	       [e|Caller]])).
-
-
 '$do_pi_error'(type_error(callable,Name/0),Message) :- !,
 	'$do_error'(type_error(callable,Name),Message).
 '$do_pi_error'(Error,Message) :- !,

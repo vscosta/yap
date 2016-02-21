@@ -857,51 +857,6 @@ prolog:print_message_lines(S, Prefix0, Lines) :-
 	 print_lines(S, [Prefix], Key, [Prefix|Msg], [])
 	).
 
-execute_print_message(_, _Msg) :-
-	% first step at hook processi --ng
-	'$nb_getval'('$if_skip_mode',skip,fail),
-	!.
-execute_print_message(silent, _Msg) :-
-	!.
-execute_print_message(informational, _Msg) :-
-	current_prolog_flag(verbose, silent),
-	!.
-execute_print_message(banner, _Msg) :-
-	current_prolog_flag(verbose, silent),
-	!.
-execute_print_message(Severity, Msg) :-
-	(
-	 var(Severity)
-	->
-	 !,
-	 format(user_error, 'malformed message ~q: message level is unbound~n', [Msg])
-	;
-	 var(Msg)
-	->
-	 !,
-	 format(user_error, 'uninstantiated message~n', [])
-	;
-	 user:portray_message(Severity, Msg)
-	),
-	!.
-execute_print_message(force(_Severity), Msg) :- !,
-	print(user_error,Msg).
-% This predicate has more hooks than a pirate ship!
-execute_print_message(Severity, Term) :-
-	translate_message( Term, Severity, Lines0, [ end(Id)]),
-	Lines = [begin(Severity, Id)| Lines0],
-	(
-	 user:message_hook(Term, Severity, Lines)
-	->
-	 true
-	;
-	 prefix( Severity, Prefix ),
-	 prolog:print_message_lines(user_error, Prefix, Lines)
-	),
-	!.
-execute_print_message(Severity, _Term) :-
-	format('No handler for ~a message ~q,~n',[Severity, _Term]).
-
 /** @pred prolog:print_message(+ Severity, +Term)
 
 The predicate print_message/2 is used to print messages, notably from
@@ -929,6 +884,52 @@ confusing to YAP (who will process the error?). So we write this small
 stub to ensure everything os ok
 
 */
+
+prolog:print_message(_, _Msg) :-
+	% first step at hook processi --ng
+	'$nb_getval'('$if_skip_mode',skip,fail),
+	!.
+prolog:print_message(silent, _Msg) :-
+	!.
+prolog:print_message(informational, _Msg) :-
+	current_prolog_flag(verbose, silent),
+	!.
+prolog:print_message(banner, _Msg) :-
+	current_prolog_flag(verbose, silent),
+	!.
+prolog:print_message(Severity, Msg) :-
+	(
+	 var(Severity)
+	->
+	 !,
+	 format(user_error, 'malformed message ~q: message level is unbound~n', [Msg])
+	;
+	 var(Msg)
+	->
+	 !,
+	 format(user_error, 'uninstantiated message~n', [])
+	;
+	 user:portray_message(Severity, Msg)
+	),
+	!.
+prolog:print_message(force(_Severity), Msg) :- !,
+	print(user_error,Msg).
+% This predicate has more hooks than a pirate ship!
+prolog:print_message(Severity, Term) :-
+	translate_message( Term, Severity, Lines0, [ end(Id)]),
+	Lines = [begin(Severity, Id)| Lines0],
+	(
+	 user:message_hook(Term, Severity, Lines)
+	->
+	 true
+	;
+	 prefix( Severity, Prefix ),
+	 prolog:print_message_lines(user_error, Prefix, Lines)
+	),
+	!.
+prolog:print_message(Severity, _Term) :-
+	format('No handler for ~a message ~q,~n',[Severity, _Term]).
+
 
 /**
   @}
