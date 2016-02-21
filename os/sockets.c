@@ -103,7 +103,7 @@ SocketGetc(int sno)
 #endif
   if (count == 0) {
     s->u.socket.flags = closed_socket;
-    return post_process_eof(s);
+    return EOF;
   } else if (count > 0) {
     ch = c;
   } else {
@@ -114,9 +114,9 @@ SocketGetc(int sno)
       Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "(socket_getc)");
 #endif
-    return post_process_eof(s);
+    return EOF;
   }
-  return post_process_read_char(ch, s);
+  return ch;
 }
 
 /*
@@ -158,7 +158,7 @@ ConsoleSocketGetc(int sno)
     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "read");
     return console_post_process_eof(s);
   }
-  return console_post_process_read_char(ch, s);
+  return ch;
 }
 
 /* static */

@@ -203,20 +203,16 @@ typedef struct stream_desc {
   } u;
   Int charcount, linecount, linepos;
   stream_flags_t status;
-  int och;
 #if defined(YAPOR) || defined(THREADS)
   lockvar streamlock; /* protect stream access */
 #endif
-  int (*stream_putc)(int, int); /* function the stream uses for writing */
-  int (*stream_getc)(int);      /* function the stream uses for reading */
-  GetsFunc stream_gets; /* function the stream uses for reading a sequence of
-                           characters */
-  /* function the stream uses for parser. It may be different if the ISO
-     character conversion is on */
-  int (*stream_wgetc_for_read)(int);
-  int (*stream_wgetc)(int);
-  int (*stream_wputc)(int, wchar_t);
-  encoding_t encoding;
+  int (*stream_putc)(int, int); /** function the stream uses for writing a single octet */
+  int (*stream_wputc)(int, wchar_t); /** function the stream uses for writing a character */
+  int (*stream_getc)(int);      /** function the stream uses for reading an octet. */
+  int (*stream_wgetc)(int);  /** function the stream uses for reading a character. */
+
+  int (*stream_wgetc_for_read)(int);  /* function the stream uses for parser. It may be different       from above if the ISO  character conversion is on */ 
+  encoding_t encoding; /** current encoding for stream */
 } StreamDesc;
 
 static inline bool IsStreamTerm(Term t) {
@@ -274,8 +270,8 @@ void Yap_ConsolePipeOps(StreamDesc *st);
 void Yap_SocketOps(StreamDesc *st);
 void Yap_ConsoleSocketOps(StreamDesc *st);
 bool Yap_ReadlineOps(StreamDesc *st);
-int Yap_OpenBufWriteStream(USES_REGS1);
-void Yap_ConsoleOps(StreamDesc *s);
+int  Yap_OpenBufWriteStream(USES_REGS1);
+void Yap_ConsoleOps(StreamDesc *s, bool recursive);
 
 void Yap_InitRandomPreds(void);
 void Yap_InitSignalPreds(void);
@@ -309,8 +305,7 @@ Term Yap_syntax_error(TokEntry *tokptr, int sno);
 
 int console_post_process_read_char(int, StreamDesc *);
 int console_post_process_eof(StreamDesc *);
-int post_process_read_char(int, StreamDesc *);
-int post_process_eof(StreamDesc *);
+int post_process_read_wchar(int, ssize_t, StreamDesc *);
 int post_process_weof(StreamDesc *);
 
 bool is_same_tty(FILE *f1, FILE *f2);

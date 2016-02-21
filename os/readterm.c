@@ -734,7 +734,6 @@ static parser_state_t scanEOF(FEnv *fe, int inp_stream) {
       fe->t = 0;
     if (fe->tp && !Yap_unify(fe->tp, fe->tpos))
       fe->t = 0;
-    post_process_eof(GLOBAL_Stream + inp_stream);
 #if DEBUG
     if (GLOBAL_Option['p' - 'a' + 1]) {
       fprintf(stderr, "[ end_of_file %p ]\n", GLOBAL_Stream[inp_stream].name);
@@ -1082,7 +1081,7 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re,
 static Int read_clause2(USES_REGS1) {
   Term rc;
   yhandle_t h = Yap_InitSlot(ARG1);
-  rc = Yap_read_term(LOCAL_c_input_stream, Deref(ARG2), 2);
+  rc = Yap_read_term(LOCAL_c_input_stream, Deref(ARG2), -2);
   Term tf = Yap_GetFromSlot(h);
   Yap_RecoverSlots(1, h);
   return rc && Yap_unify(tf, rc);

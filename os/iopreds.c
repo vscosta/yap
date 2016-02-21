@@ -96,7 +96,17 @@ static char SccsId[] = "%W% %G%";
 #endif
 #include "iopreds.h"
 
-static int get_wchar(int);
+
+#define GETW get_wchar_from_FILE
+#define GETC() fgetwc(st->file)
+#include "getw.h"
+
+#undef GETW
+#undef GETC
+#define GETW get_wchar
+#define GETC() st->stream_getc(sno)
+#include "getw.h"
+
 static int get_wchar_from_file(int);
 
 FILE *Yap_stdin;
@@ -180,10 +190,13 @@ static bool is_file_errors(Term t) {
 
 void Yap_DefaultStreamOps(StreamDesc *st) {
   st->stream_wputc = put_wchar;
-  if (!(st->status & (Tty_Stream_f | Reset_Eof_Stream_f | Promptable_Stream_f)))
-    st->stream_wgetc = get_wchar_from_file;
-  else
+  if (st->status & (Promptable_Stream_f)) {
     st->stream_wgetc = get_wchar;
+    Yap_ConsoleOps(st, true);
+  } else if (st->encoding == LOCAL_encoding) {
+    st->stream_wgetc = get_wchar_from_file;
+  } else
+    st->stream_wgetc = get_wchar_from_FILE;
   if (GLOBAL_CharConversionTable != NULL)
     st->stream_wgetc_for_read = ISOWGetc;
   else
@@ -250,15 +263,8 @@ static void unix_upd_stream_info(StreamDesc *s) {
   s->status |= Seekable_Stream_f;
 }
 
-GetsFunc PlGetsFunc(void) {
-  if (GLOBAL_CharConversionTable)
-    return DefaultGets;
-  else
-    return PlGets;
-}
 
 static void InitFileIO(StreamDesc *s) {
-  s->stream_gets = PlGetsFunc();
   if (s->status & Socket_Stream_f) {
     /* Console is a socket and socket will prompt */
     Yap_ConsoleSocketOps(s);
@@ -273,14 +279,16 @@ static void InitFileIO(StreamDesc *s) {
   } else {
     /* check if our console is promptable: may be tty or pipe */
     if (s->status & (Promptable_Stream_f)) {
-      Yap_ConsoleOps(s);
+      Yap_ConsoleOps(s, false);
     } else {
       /* we are reading from a file, no need to check for prompts */
       s->stream_putc = FilePutc;
       s->stream_wputc = put_wchar;
       s->stream_getc = PlGetc;
-      s->stream_gets = PlGetsFunc();
-      s->stream_wgetc = get_wchar_from_file;
+      if (s->encoding == LOCAL_encoding)
+        s->stream_wgetc = get_wchar_from_file;
+      else
+        s->stream_wgetc = get_wchar_from_FILE;
     }
   }
   s->stream_wputc = put_wchar;
@@ -571,12 +579,11 @@ int ResetEOF(StreamDesc *s) {
     } else if (s->status & InMemory_Stream_f) {
       Yap_MemOps(s);
     } else if (s->status & Promptable_Stream_f) {
-      Yap_ConsoleOps(s);
+      Yap_ConsoleOps(s, false);
     } else {
       s->stream_getc = PlGetc;
       Yap_DefaultStreamOps(s);
-      s->stream_gets = PlGetsFunc();
-    }
+     }
     /* next, reset our own error indicator */
     s->status &= ~Eof_Stream_f;
     /* try reading again */
@@ -597,7 +604,7 @@ static int EOFWGetc(int sno) {
     return EOF;
   }
   if (ResetEOF(s)) {
-    Yap_ConsoleOps(s);
+    Yap_ConsoleOps(s, false);
     return (s->stream_wgetc(sno));
   }
   return EOF;
@@ -613,7 +620,7 @@ static int EOFGetc(int sno) {
     return EOF;
   }
   if (ResetEOF(s)) {
-    Yap_ConsoleOps(s);
+    Yap_ConsoleOps(s, false);
     return s->stream_getc(sno);
   }
   return EOF;
@@ -633,9 +640,12 @@ int console_post_process_eof(StreamDesc *s) {
 }
 
 /* check if we read a newline or an EOF */
-int post_process_read_char(int ch, StreamDesc *s) {
-  ++s->charcount;
-  ++s->linepos;
+int post_process_read_wchar(int ch, ssize_t n, StreamDesc *s) {
+  if (ch == EOF) {
+      return post_process_weof(s);
+  }
+  s->charcount += n;
+  s->linepos += n;
   if (ch == '\n') {
     ++s->linecount;
     s->linepos = 0;
@@ -646,22 +656,12 @@ int post_process_read_char(int ch, StreamDesc *s) {
   return ch;
 }
 
-/* check if we read a newline or an EOF */
-int post_process_eof(StreamDesc *s) {
-  if (!ResetEOF(s)) {
-    s->status |= Eof_Stream_f;
-    s->stream_wgetc = EOFWGetc;
-    s->stream_getc = EOFGetc;
-    s->stream_wgetc_for_read = EOFWGetc;
-  }
-  return EOFCHAR;
-}
 
 int post_process_weof(StreamDesc *s) {
   if (!ResetEOF(s)) {
     s->status |= Eof_Stream_f;
     s->stream_wgetc = EOFWGetc;
-    s->stream_wgetc = EOFWGetc;
+    s->stream_getc = EOFGetc;
     s->stream_wgetc_for_read = EOFWGetc;
   }
   return EOFCHAR;
@@ -684,249 +684,16 @@ int EOFWPeek(int sno) { return EOFWGetc(sno); }
  post_process_read_char, something to think about */
 int PlGetc(int sno) {
   StreamDesc *s = &GLOBAL_Stream[sno];
-  Int ch;
 
-  ch = fgetc(s->file);
-  if (ch == EOF) {
-    return post_process_eof(s);
-  }
-  return post_process_read_char(ch, s);
+  return fgetc(s->file);
 }
 
-/* standard routine, it should read from anything pointed by a FILE *.
- It could be made more efficient by doing our own buffering and avoiding
- post_process_read_char, something to think about. It assumes codification in 8
- bits. */
-int PlGets(int sno, UInt size, char *buf) {
-  register StreamDesc *s = &GLOBAL_Stream[sno];
-  UInt len;
-
-  if (fgets(buf, size, s->file) == NULL) {
-    return post_process_eof(s);
-  }
-  len = strlen(buf);
-  s->charcount += len - 1;
-  post_process_read_char(buf[len - 2], s);
-  return strlen(buf);
-}
-
-/* standard routine, it should read from anything pointed by a FILE *.
- It could be made more efficient by doing our own buffering and avoiding
- post_process_read_char, something to think about */
-int DefaultGets(int sno, UInt size, char *buf) {
-  StreamDesc *s = &GLOBAL_Stream[sno];
-  char ch;
-  char *pt = buf;
-
-  if (!size)
-    return 0;
-  while ((ch = *buf++ = s->stream_getc(sno)) != -1 && ch != 10 && --size)
-    ;
-  *buf++ = '\0';
-  return (buf - pt) - 1;
-}
-
-/// compose a wide char from a sequence of getchars                                                           \
-//  this is a slow lane routine, called if no specialised code
-//  isavailable.
-static int get_wchar(int sno) {
-  StreamDesc *st = GLOBAL_Stream + sno;
-  int ch = st->stream_getc(sno);
-
-  if (ch == -1)
-    return post_process_weof(st);
-
-  switch (st->encoding) {
-  case ENC_OCTET:
-    return ch;
-  // no error detection, all characters are ok.
-  case ENC_ISO_LATIN1:
-    return ch;
-  // 7 bits code, anything above is bad news
-  case ENC_ISO_ASCII:
-    if (ch & 0x80) {
-      /* error */
-    }
-    return ch;
-  // default OS encoding, depends on locale.
-  case ENC_ISO_ANSI: {
-    char buf[8];
-    int out;
-    int wch;
-    mbstate_t mbstate;
-
-    memset((void *)&(mbstate), 0, sizeof(mbstate_t));
-    buf[0] = ch;
-    while ((out = mbrtowc(&wch, buf, 1, &(mbstate))) != 1) {
-      int ch = buf[0] = st->stream_getc(sno);
-      if (ch == -1)
-        return post_process_weof(st);
-    }
-    return wch;
-  }
-// UTF-8 works o 8 bits.
-case ENC_ISO_UTF8: {
-  unsigned char buf[8];
-
-  if (ch < 0x80) {
-    return ch;
-  }
-  // if ((ch - 0xc2) > (0xf4-0xc2)) return UTF8PROC_ERROR_INVALIDUTF8;
-  if (ch < 0xe0) {         // 2-byte sequence
-     // Must have valid continuation character
-    int c1 = buf[0] = st->stream_getc(sno);
-    if (c1 == -1)
-        return post_process_weof(st);
-    // if (!utf_cont(*str)) return UTF8PROC_ERROR_INVALIDUTF8;
-    return ((ch & 0x1f)<<6) | (c1 & 0x3f);
-  }
-  if (ch < 0xf0) {        // 3-byte sequence
-    //if ((str + 1 >= end) || !utf_cont(*str) || !utf_cont(str[1]))
-    //   return UTF8PROC_ERROR_INVALIDUTF8;
-     // Check for surrogate chars
-     //if (ch == 0xed && *str > 0x9f)
-     //    return UTF8PROC_ERROR_INVALIDUTF8;
-    int c1 = st->stream_getc(sno);
-    if (c1 == -1)
-        return post_process_weof(st);
-    int c2 =  st->stream_getc(sno);
-    if (c2 == -1)
-        return post_process_weof(st);
-    return  ((ch & 0xf)<<12) | ((c1 & 0x3f)<<6) | (c2 & 0x3f);
-  } else {
-    int c1 = st->stream_getc(sno);
-    if (c1 == -1)
-        return post_process_weof(st);
-    int c2 =  st->stream_getc(sno);
-    if (c2 == -1)
-        return post_process_weof(st);
-     int c3 =  st->stream_getc(sno);
-    if (c3 == -1)
-        return post_process_weof(st);
-    return ((ch & 7)<<18) | ((c1 & 0x3f)<<12) | ((c2 & 0x3f)<<6) | (c3 & 0x3f);
-  }
- }
-case ENC_UTF16_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
-                   // little-endian: start with big shot
-  {
-    int wch;
-      int c1 = st->stream_getc(sno);
-  if (c1 == -1)
-    return post_process_weof(st);
-  wch = (c1 << 8) + ch;
-  if (wch >= 0xd800 && wch < 0xdc00) {
-    int c2 = st->stream_getc(sno);
-    if (c2 == -1)
-      return post_process_weof(st);
-    int c3 = st->stream_getc(sno);
-    if (c3 == -1)
-      return post_process_weof(st);
-    wch = wch + (((c3 << 8) + c2)<<wch) + SURROGATE_OFFSET;
-  }
-  return wch;
-  }
-
-
-case ENC_UTF16_BE: // check http://unicode.org/faq/utf_bom.html#utf16-3
-                   // little-endian: start with big shot
-  {
-    int wch;
-      int c1 = st->stream_getc(sno);
-  if (c1 == -1)
-    return post_process_weof(st);
-  wch = (c1) + (ch<<8);
-  if (wch >= 0xd800 && wch < 0xdc00) {
-    int c3 = st->stream_getc(sno);
-    if (c3 == -1)
-      return post_process_weof(st);
-    int c2 = st->stream_getc(sno);
-    if (c2 == -1)
-      return post_process_weof(st);
-    wch = (((c3 << 8) + c2) << 10) + wch + SURROGATE_OFFSET;
-  }
-  return wch;
-  }
-  
-  case ENC_UCS2_BE: // check http://unicode.org/faq/utf_bom.html#utf16-3
-                   // little-endian: start with big shot
-  {
-    int wch;
-      int c1 = st->stream_getc(sno);
-  if (c1 == -1)
-    return post_process_weof(st);
-  wch = (c1) + (ch<<8);
-  return wch;
-  }
-  
-  
-case ENC_UCS2_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
-                   // little-endian: start with big shot
-  {
-    int wch;
-      int c1 = st->stream_getc(sno);
-  if (c1 == -1)
-    return post_process_weof(st);
-  wch = (c1 << 8) + ch;
-
-  return wch;
-  }
-
-case ENC_ISO_UTF32_BE: // check http://unicode.org/faq/utf_bom.html#utf16-3
-  // little-endian: start with big shot
-  {
-    int wch = ch;
-   {
-      int c1 = st->stream_getc(sno);
-      if (c1 == -1)
-        return post_process_weof(st);
-      wch = wch + c1;
-    }
-   {
-      int c1 = st->stream_getc(sno);
-      if (c1 == -1)
-        return post_process_weof(st);
-      wch = (wch << 8 )+c1; 
-    }
-   {
-      int c1 = st->stream_getc(sno);
-      if (c1 == -1)
-        return post_process_weof(st);
-      wch = (wch << 8) +c1; 
-   }
-    return wch;
-  }
-case ENC_ISO_UTF32_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
-  // little-endian: start with big shot
-  {
-    int wch = ch;
-   {
-      int c1 = st->stream_getc(sno);
-      if (c1 == -1)
-        return post_process_weof(st);
-      wch +=  c1<<8;
-    }
-   {
-      int c1 = st->stream_getc(sno);
-      if (c1 == -1)
-        return post_process_weof(st);
-      wch +=  c1<<16;
-    }
-   {
-      int c1 = st->stream_getc(sno);
-      if (c1 == -1)
-        return post_process_weof(st);
-      wch +=  c1<<24;
-   }
-    return wch;
-  }
-  }  
-}
 
   // layered version
-    static int get_wchar__(int sno) { return get_wchar(sno); }
+    static int get_wchar__(int sno) { return fgetwc(GLOBAL_Stream[sno].file); }
 
     static int get_wchar_from_file(int sno) {
-      return post_process_read_char(get_wchar__(sno), GLOBAL_Stream + sno);
+      return post_process_read_wchar(get_wchar__(sno), 1, GLOBAL_Stream + sno);
     }
 
 #ifndef MB_LEN_MAX
@@ -1214,23 +981,23 @@ case ENC_ISO_UTF32_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
     static void check_bom(int sno, StreamDesc *st) {
       int ch1, ch2, ch3, ch4;
 
-      ch1 = st->stream_getc(sno);
+      ch1 = fgetc(st->file);
       switch (ch1) {
       case 0x00: {
-        ch2 = st->stream_getc(sno);
+        ch2 = fgetc(st->file);
         if (ch2 != 0x00) {
           ungetc(ch1, st->file);
           ungetc(ch2, st->file);
           return;
         } else {
-          ch3 = st->stream_getc(sno);
+          ch3 = fgetc(st->file);
           if (ch3 == EOFCHAR || ch3 != 0xFE) {
             ungetc(ch1, st->file);
             ungetc(ch2, st->file);
             ungetc(ch3, st->file);
             return;
           } else {
-            ch4 = st->stream_getc(sno);
+            ch4 = fgetc(st->file);
             if (ch4 == EOFCHAR || ch3 != 0xFF) {
               ungetc(ch1, st->file);
               ungetc(ch2, st->file);
@@ -1246,7 +1013,7 @@ case ENC_ISO_UTF32_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
         }
       }
       case 0xFE: {
-        ch2 = st->stream_getc(sno);
+        ch2 = fgetc(st->file);
         if (ch2 != 0xFF) {
           ungetc(ch1, st->file);
           ungetc(ch2, st->file);
@@ -1258,17 +1025,17 @@ case ENC_ISO_UTF32_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
         }
       }
       case 0xFF: {
-        ch2 = st->stream_getc(sno);
+        ch2 = fgetc(st->file);
         if (ch2 != 0xFE) {
           ungetc(ch1, st->file);
           ungetc(ch2, st->file);
           return;
         } else {
-          ch3 = st->stream_getc(sno);
+          ch3 = fgetc(st->file);
           if (ch3 != 0x00) {
             ungetc(ch3, st->file);
           } else {
-            ch4 = st->stream_getc(sno);
+            ch4 = fgetc(st->file);
             if (ch4 == 0x00) {
               st->status |= HAS_BOM_f;
               st->encoding = ENC_ISO_UTF32_LE;
@@ -1284,13 +1051,13 @@ case ENC_ISO_UTF32_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
         return;
       }
       case 0xEF:
-        ch2 = st->stream_getc(sno);
+        ch2 = fgetc(st->file);
         if (ch2 != 0xBB) {
           ungetc(ch1, st->file);
           ungetc(ch2, st->file);
           return;
         } else {
-          ch3 = st->stream_getc(sno);
+          ch3 = fgetc(st->file);
           if (ch3 != 0xBF) {
             ungetc(ch1, st->file);
             ungetc(ch2, st->file);
@@ -1334,7 +1101,7 @@ case ENC_ISO_UTF32_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
         Yap_PipeOps(st);
         Yap_DefaultStreamOps(st);
       } else if (flags & Tty_Stream_f) {
-        Yap_ConsoleOps(st);
+        Yap_ConsoleOps(st, false);
         Yap_DefaultStreamOps(st);
       } else {
         st->stream_putc = FilePutc;
@@ -1342,7 +1109,6 @@ case ENC_ISO_UTF32_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
         unix_upd_stream_info(st);
         Yap_DefaultStreamOps(st);
       }
-      st->stream_gets = PlGetsFunc();
       return true;
     }
 
@@ -1747,7 +1513,6 @@ case ENC_ISO_UTF32_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
       st->stream_putc = NullPutc;
       st->stream_wputc = put_wchar;
       st->stream_getc = PlGetc;
-      st->stream_gets = PlGets;
       st->stream_wgetc = get_wchar;
       st->stream_wgetc_for_read = get_wchar;
       st->user_name = MkAtomTerm(st->name = AtomDevNull);
@@ -1896,7 +1661,7 @@ case ENC_ISO_UTF32_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
           if (s->status & Pipe_Stream_f) {
         Yap_ConsolePipeOps(s);
       } else
-        Yap_ConsoleOps(s);
+        Yap_ConsoleOps(s, false);
       return (TRUE);
     }
 

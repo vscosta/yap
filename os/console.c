@@ -89,8 +89,9 @@ is_same_tty2 (USES_REGS1)
 }
 
 void
-Yap_ConsoleOps( StreamDesc *s )
+Yap_ConsoleOps( StreamDesc *s, bool recursive )
 {
+  if (!recursive)
   Yap_DefaultStreamOps( s );
   /* the putc routine only has to check it is putting out a newline */
   s->stream_putc = ConsolePutc;
@@ -162,15 +163,15 @@ ConsoleGetc(int sno)
     if (LOCAL_PrologMode & AbortMode) {
       Yap_Error(ABORT_EVENT, TermNil, "");
       LOCAL_ErrorMessage = "Abort";
-      return console_post_process_eof(s);
+      return EOF;
     }
     goto restart;
   } else {
     LOCAL_PrologMode &= ~ConsoleGetcMode;
   }
   if (ch == EOF)
-    return console_post_process_eof(s);    
-  return console_post_process_read_char(ch, s);
+    return EOF;    
+  return ch;
 }
 
 /** @pred prompt1(+ _A__)
@@ -199,9 +200,7 @@ prompt1 ( USES_REGS1 )
 
 /** @pred prompt(- _A_,+ _B_)
 
-
 Changes YAP input prompt from  _A_ to  _B_, active on *next* standard input interaction.
-
 
 */
 static Int
@@ -221,6 +220,21 @@ prompt ( USES_REGS1 )
   strncpy(LOCAL_Prompt, (char *)RepAtom (LOCAL_AtPrompt)->StrOfAE, MAX_PROMPT);
   LOCAL_AtPrompt = a;
   return (TRUE);
+}
+
+/** @pred ensure_prompting
+
+Make sure we have a prompt at this point, even if we have to
+introduce a new line.
+
+*/
+static Int
+ensure_prompting ( USES_REGS1 )
+{				/* prompt(Old,New)       */
+if (!LOCAL_newline) {
+    GLOBAL_Stream[2].stream_wputc(2, 10); // hack!
+}
+return true;
 }
 
 int
@@ -250,6 +264,7 @@ void Yap_InitConsole(void) {
   Yap_InitCPred ("prompt1", 1, prompt1, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$is_same_tty", 2, is_same_tty2, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("prompt", 2, prompt, SafePredFlag|SyncPredFlag);
+    Yap_InitCPred ("$ensure_prompting", 0, ensure_prompting, SafePredFlag|SyncPredFlag);
 
 }
 

@@ -1866,8 +1866,14 @@ extern X_API YAP_Int YAP_FastInit(char saved_state[]);
 #define IOSTREAM void
 #endif /* FPL_STREAM_H */
 
+/// read a Prolog term from an operating system stream $s$.
 extern X_API YAP_Term YAP_Read(FILE *s);
 
+/// read a Prolog term from a Prolog opened stream $s$. Check YAP_OpenStream() for how to open 
+/// Prolog streams in `C`.
+extern X_API YAP_Term YAP_ReadFromStream(int s);
+
+/// read a Prolog clause from a Prolog opened stream $s$. Similar to YAP_ReadFromStream() but takes /// default options from read_clause/3.
 extern X_API YAP_Term YAP_ReadFromStream(int s);
 
 extern X_API void YAP_Write(YAP_Term t,FILE *s,int);
@@ -1877,12 +1883,6 @@ extern X_API  FILE * YAP_TermToStream(YAP_Term t);
 extern X_API int YAP_InitConsult(int mode, const char *filename, int *previous_sno);
 
 extern X_API void YAP_EndConsult(int s, int *previous_sno);
-
-#ifndef _PL_STREAM_H
-// if we don't know what a stream is, just don't assume nothing about the pointer
-#undef IOSTREAM
-#endif /* FPL_STREAM_H */
-
 
 extern X_API void YAP_Exit(int);
 

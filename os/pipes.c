@@ -172,7 +172,7 @@ PipeGetc(int sno)
   int count;
   count = read(s->u.pipe.fd, &c, sizeof(char));
   if (count == 0) {
-    return post_process_eof(s);
+    return EOF;
   } else if (count > 0) {
     ch = c;
   } else {
@@ -181,9 +181,9 @@ PipeGetc(int sno)
 #else
     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "at pipe getc");
 #endif
-    return post_process_eof(s);
+    return EOF;
   }
-  return post_process_read_char(ch, s);
+  return ch;
 }
 
 void
