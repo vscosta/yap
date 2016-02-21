@@ -148,3 +148,5 @@ cmake/cmake-android
 yap-6.3.workspace
 
 YAP.project
+
+*.tmp
