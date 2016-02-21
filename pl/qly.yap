@@ -323,7 +323,7 @@ qend_program :-
 '$init_from_saved_state_and_args' :-
 	'$startup_goals',
 	fail.
-'$init_from_saved' :-
+'$init_from_saved_state_and_args' :-
 	recorded('$restore_goal',G,R),
 	erase(R),
 	prompt(_,'| '),
