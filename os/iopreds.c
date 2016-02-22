@@ -190,6 +190,7 @@ static bool is_file_errors(Term t) {
 
 void Yap_DefaultStreamOps(StreamDesc *st) {
   st->stream_wputc = put_wchar;
+  st->stream_wgetc = get_wchar;
   if (st->status & (Promptable_Stream_f)) {
     st->stream_wgetc = get_wchar;
     Yap_ConsoleOps(st, true);
@@ -1354,6 +1355,7 @@ int PlGetc(int sno) {
         st->encoding = enc_id( s_encoding, st->encoding);
       else
         st->encoding = encoding;
+    Yap_DefaultStreamOps( st);
       if (script)
         open_header(sno, open_mode);
 

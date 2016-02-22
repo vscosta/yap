@@ -790,7 +790,8 @@ static bool do_set_stream(int sno,
           Atom atEnc = AtomOfTerm(t2);
           GLOBAL_Stream[sno].encoding =
             enc_id(atEnc->StrOfAE, (GLOBAL_Stream[sno].status & HAS_BOM_f ? GLOBAL_Stream[sno].encoding :ENC_OCTET ) );
-        }
+       Yap_DefaultStreamOps( GLOBAL_Stream+sno);
+     }
         break;
       case SET_STREAM_EOF_ACTION: {
         Term t2 = args[SET_STREAM_EOF_ACTION].tvalue;
