@@ -125,7 +125,7 @@ static void  restore_heap(void);
 static void  ShowAtoms(void);
 static void  ShowEntries(PropEntry *);
 #endif
-static int   OpenRestore(char *, char *, CELL *, CELL *, CELL *, CELL *, FILE **);
+static int   OpenRestore(const char *, char *, CELL *, CELL *, CELL *, CELL *, FILE **);
 static void  CloseRestore(void);
 #ifndef _WIN32
 static int  check_opcodes(OPCODE []);
@@ -1435,7 +1435,7 @@ static int try_open(char *inpf, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *
 }
 
 static int
-OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap, FILE **streamp)
+OpenRestore(const char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap, FILE **streamp)
 {
   CACHE_REGS
     
@@ -1550,7 +1550,7 @@ RestoreHeap(OPCODE old_ops[] USES_REGS)
  * state
  */
 int
-Yap_SavedInfo(char *FileName, char *YapLibDir, CELL *ATrail, CELL *AStack, CELL *AHeap)
+Yap_SavedInfo(const char *FileName, char *YapLibDir, CELL *ATrail, CELL *AStack, CELL *AHeap)
 {
   return DO_ONLY_CODE;
 
