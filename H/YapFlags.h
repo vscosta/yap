@@ -359,6 +359,8 @@ static inline Term gcTrace(void) {
   return GLOBAL_Flags[GC_TRACE_FLAG].at;
 }
 
+Term Yap_UnknownFlag(Term mod);
+
 bool rmdot(Term inp);
 
 xarg *Yap_ArgListToVector(Term listl, const param_t *def, int n);

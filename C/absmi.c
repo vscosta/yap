@@ -1364,6 +1364,10 @@ static void
 undef_goal( USES_REGS1 )
 {
   PredEntry *pe = PredFromDefCode(P);
+  if (Yap_UnknownFlag(CurrentModule) == TermFail) {
+    P = FAILCODE;
+    return;      
+  }
   BEGD(d0);
   /* avoid trouble with undefined dynamic procedures */
   /* I assume they were not locked beforehand */
@@ -1373,9 +1377,7 @@ undef_goal( USES_REGS1 )
     PP = pe;
   }
 #endif
-  if ((pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|MultiFileFlag)) ||
-      CurrentModule == PROLOG_MODULE ||
-      (UndefCode->OpcodeOfPred == UNDEF_OPCODE)) {
+  if (pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|MultiFileFlag)) {
 #if defined(YAPOR) || defined(THREADS)
     UNLOCKPE(19,PP);
     PP = NULL;

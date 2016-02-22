@@ -133,11 +133,14 @@ otherwise.
 
 :- dynamic prolog:'$parent_module'/2.
 
+%:- start_low_level_trace.
 :- [
     'directives.yap',
 	 'preds.yap',
 	 'modules.yap'
    ].
+%:- stop_low_level_trace.
+
 
 :- use_module('error.yap').
 

@@ -613,8 +613,8 @@ static bool sys_thread_id(Term inp) {
 static bool setYapFlagInModule(Term tflag, Term t2, Term mod) {
   CACHE_REGS
   FlagEntry *fv;
-  ModEntry *new = Yap_GetModuleEntry(mod);
-  if (!new)
+  ModEntry *me = Yap_GetModuleEntry(mod);
+  if (!me)
     return false;
   fv = GetFlagProp(AtomOfTerm(tflag));
   if (!fv && !fv->global) {
@@ -641,18 +641,18 @@ static bool setYapFlagInModule(Term tflag, Term t2, Term mod) {
   // module specific stuff now
 
   if (fv->FlagOfVE == UNKNOWN_FLAG) {
-    new->flags &= ~(UNKNOWN_MASK);
+    me->flags &= ~(UNKNOWN_MASK);
     if (t2 == TermError) {
-      new->flags |= (UNKNOWN_ERROR);
+      me->flags |= (UNKNOWN_ERROR);
       return true;
     } else if (t2 == TermFail) {
-      new->flags |= (UNKNOWN_FAIL);
+      me->flags |= (UNKNOWN_FAIL);
       return true;
     } else if (t2 == TermWarning) {
-      new->flags |= (UNKNOWN_WARNING);
+      me->flags |= (UNKNOWN_WARNING);
       return true;
     } else if (t2 == TermFastFail) {
-      new->flags |= (UNKNOWN_FAST_FAIL);
+      me->flags |= (UNKNOWN_FAST_FAIL);
       return true;
     }
     Yap_Error(
@@ -661,13 +661,13 @@ static bool setYapFlagInModule(Term tflag, Term t2, Term mod) {
         RepAtom(AtomOfTerm(tflag))->StrOfAE);
     return false;
   } else if (fv->FlagOfVE == DOUBLE_QUOTES_FLAG) {
-    return dqf1(new, t2 PASS_REGS);
+    return dqf1(me, t2 PASS_REGS);
   } else if (fv->FlagOfVE == CHARACTER_ESCAPES_FLAG) {
     if (t2 == TermTrue) {
-      new->flags |= M_CHARESCAPE;
+      me->flags |= M_CHARESCAPE;
       return true;
     } else if (t2 == TermFalse) {
-      new->flags &= ~(M_CHARESCAPE);
+      me->flags &= ~(M_CHARESCAPE);
       return true;
     }
     Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2,
@@ -675,7 +675,7 @@ static bool setYapFlagInModule(Term tflag, Term t2, Term mod) {
               RepAtom(AtomOfTerm(tflag))->StrOfAE);
     return false;
   } else if (fv->FlagOfVE == BACKQUOTED_STRING_FLAG) {
-    return bqf1(new, t2 PASS_REGS);
+    return bqf1(me, t2 PASS_REGS);
     ;
   }
   // bad key?
@@ -684,7 +684,7 @@ static bool setYapFlagInModule(Term tflag, Term t2, Term mod) {
 
 static Term getYapFlagInModule(Term tflag, Term mod) {
   FlagEntry *fv;
-  ModEntry *new = Yap_GetModuleEntry(mod);
+  ModEntry *me = Yap_GetModuleEntry(mod);
   if (!mod)
     return false;
   fv = GetFlagProp(AtomOfTerm(tflag));
@@ -695,28 +695,28 @@ static Term getYapFlagInModule(Term tflag, Term mod) {
   // module specific stuff now
 
   if (fv->FlagOfVE == UNKNOWN_FLAG) {
-    if (new->flags & UNKNOWN_ERROR)
+    if (me->flags & UNKNOWN_ERROR)
       return TermError;
-    if (new->flags & UNKNOWN_WARNING)
+    if (me->flags & UNKNOWN_WARNING)
       return TermWarning;
     return TermFail;
   } else if (fv->FlagOfVE == CHARACTER_ESCAPES_FLAG) {
-    if (new->flags & M_CHARESCAPE)
+    if (me->flags & M_CHARESCAPE)
       return TermTrue;
   } else if (fv->FlagOfVE == BACKQUOTED_STRING_FLAG) {
-    if (new->flags & BCKQ_CHARS)
+    if (me->flags & BCKQ_CHARS)
       return TermChars;
-    if (new->flags & BCKQ_CODES)
+    if (me->flags & BCKQ_CODES)
       return TermCodes;
-    if (new->flags & BCKQ_ATOM)
+    if (me->flags & BCKQ_ATOM)
       return TermAtom;
     return TermString;
   } else if (fv->FlagOfVE == DOUBLE_QUOTES_FLAG) {
-    if (new->flags & DBLQ_CHARS)
+    if (me->flags & DBLQ_CHARS)
       return TermChars;
-    if (new->flags & DBLQ_CODES)
+    if (me->flags & DBLQ_CODES)
       return TermCodes;
-    if (new->flags & DBLQ_ATOM)
+    if (me->flags & DBLQ_ATOM)
       return TermAtom;
     return TermString;
   }
@@ -1012,6 +1012,21 @@ bool setYapFlag(Term tflag, Term t2) {
   return true;
 }
 
+
+Term Yap_UnknownFlag(Term mod) {
+     if (mod == PROLOG_MODULE)
+       mod = TermProlog;
+
+      ModEntry *fv = Yap_GetModuleEntry(mod);
+  if (fv == NULL)
+     fv = Yap_GetModuleEntry(AtomUser);
+     if (fv->flags & UNKNOWN_ERROR)
+      return TermError;
+    if (fv->flags & UNKNOWN_WARNING)
+      return TermWarning;
+    return TermFail;
+}
+
 Term getYapFlag(Term tflag) {
   FlagEntry *fv;
   flag_term *tarr;
@@ -1043,7 +1058,7 @@ Term getYapFlag(Term tflag) {
       Yap_Error(DOMAIN_ERROR_PROLOG_FLAG, fl, "trying to read unknown flag %s",
                 RepAtom(AtomOfTerm(fl))->StrOfAE);
     }
-    return FALSE;
+    return false;
   }
   if (fv->global)
     tarr = GLOBAL_Flags;
