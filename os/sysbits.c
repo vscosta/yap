@@ -294,11 +294,12 @@ Yap_IsAbsolutePath(const char *p0)
 // this is necessary because
 // support for ~expansion at the beginning
 // systems like Android do not do this.
-static char *
-PlExpandVars (const char *source)
+static const char *
+PlExpandVars (const char *source, const char *root, char *result)
 {
     const char *src = source;
-    char *result = LOCAL_FileNameBuf;
+    if (!result)
+      result = malloc(YAP_FILENAME_MAX+1);
 
     if (strlen(source) >= YAP_FILENAME_MAX) {
         Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "%s in true_file-name is larger than the buffer size (%d bytes)", source, strlen(source));
@@ -376,7 +377,21 @@ PlExpandVars (const char *source)
             strcpy( result, src);
     }
     else {
-        strncpy (result, source, YAP_FILENAME_MAX);
+        size_t tocp = strlen(src);
+        if (root) {
+            tocp = strlen(root)+1;
+        }
+        if (tocp > YAP_FILENAME_MAX) {
+        Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, MkStringTerm(src), "path too long");
+        return NULL;
+        }
+        if (root) {
+            strncpy (result, root, YAP_FILENAME_MAX );
+            strncat ( result, "/", YAP_FILENAME_MAX);
+            strncat ( result, source, YAP_FILENAME_MAX);
+        } else {
+        strncpy (result, source, strlen(src)+1 );
+        }
     }
     return result;
 }
@@ -618,14 +633,15 @@ Yap_AbsoluteFile(const char *spec, bool ok)
 {
     const char*p;
     const char*rc;
-    rc = expandVars(spec);
+    rc = PlExpandVars(spec, NULL, NULL);
     if (!rc)
-        return spec;
+        rc = spec;
     if ((p = myrealpath(rc) ) ) {
         return p;
     } else {
         return NULL;
     }
+    freeBuffer( rc );
 }
 
 /**
@@ -676,11 +692,8 @@ do_glob(const char *spec, bool glob_vs_wordexp)
   if (spec == NULL) {
     return TermNil;
   }
-  const char *espec = PlExpandVars( spec );
-
 #if _WIN32 || defined(__MINGW32__)
     {
-        char u[YAP_FILENAME_MAX+1];
         WIN32_FIND_DATA find;
         HANDLE hFind;
         CELL *dest;
@@ -718,6 +731,8 @@ do_glob(const char *spec, bool glob_vs_wordexp)
         return tf;
     }
 #elif HAVE_WORDEXP || HAVE_GLOB
+    char *    espec = u;
+    strncpy( espec, spec, sizeof(u));
     /* Expand the string for the program to run.  */
     size_t pathcount;
 #if HAVE_GLOB
@@ -881,7 +896,7 @@ static const param_t expand_filename_defs[] = {EXPAND_FILENAME_DEFS()};
 
 static Term
 do_expand_file_name(Term t1, Term opts USES_REGS)
-{
+{ 
     xarg *args;
     expand_filename_enum_choices_t i;
     bool use_system_expansion = true;
@@ -1349,50 +1364,6 @@ working_directory(USES_REGS1)
     return true;
 }
 
-static const char *
-  expandWithPrefix(const char *source, const char *root, char *target, bool expand)
-{
-    char *work;
-
-    if (expand)
-      work = (char *)expandVars( source );
-    else {
-      if (!target)
-        target = malloc(YAP_FILENAME_MAX);
-      work = target;
-      if (root) {
-        strncpy( work, root , YAP_FILENAME_MAX-1 );
-        strncat( work, "/" , YAP_FILENAME_MAX-1 );
-        strncat( work, source , YAP_FILENAME_MAX-1 );
-      } else {
-       strncpy( work, source , YAP_FILENAME_MAX-1 );
-      }
-      return work;
-    }
-    // expand names first
-    if (root && !Yap_IsAbsolutePath( source ) ) {
-        const char *s = expandVars( source);
-        if (!s)
-            return source;
-        const char *r0 = expandVars( root);
-        size_t sl = strlen(s);
-        size_t rl = strlen(r0);
-        if (!target)
-          target = malloc(YAP_FILENAME_MAX);
-        char *r = target;
-        strncat( r,  r0, sl+rl+2 );
-        strncat( r, "/", sl+rl+2 );
-        strncat( r, s , sl+rl+2);
-        return r;
-    } else {
-      if (target != work) {
-           strncpy( target, work, sizeof(LOCAL_FileNameBuf)-1);
-           freeBuffer( work );
-        }
-        return target;
-    }
-}
-
 /** Yap_findFile(): tries to locate a file, no expansion should be performed/
    *
    *
@@ -1410,7 +1381,6 @@ static const char *
 const char*
 Yap_findFile (const char *isource, const char * idef,  const char *iroot, char *result, bool access, file_type_t ftype, bool expand_root, bool in_lib)
 {
-
     char save_buffer[YAP_FILENAME_MAX+1];
     const char *root, *source = isource;
     int rc = FAIL_RESTORE;
@@ -1506,8 +1476,7 @@ Yap_findFile (const char *isource, const char * idef,  const char *iroot, char *
         if (done)
             continue;
         //    { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "root= %s %s ", root, source) ; }
-        const char *work = expandWithPrefix( source, root, result, false );
-
+        const char *work =  PlExpandVars( source, root, result);
 
         // expand names in case you have
         // to add a prefix
@@ -1554,7 +1523,7 @@ p_expand_file_name ( USES_REGS1 )
     text = Yap_TextTermToText( t, NULL, 0);
     if (!text)
       return false;
-    if (!(text2 = PlExpandVars (text)))
+    if (!(text2 = PlExpandVars (text, NULL, NULL)))
         return false;
     freeBuffer( text );
     bool rc = Yap_unify(ARG2, Yap_MkTextTerm(text2, t));

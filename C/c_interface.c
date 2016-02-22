@@ -1,3 +1,4 @@
+
 /************************************************************************* *
  *	 YAP Prolog 							 *
  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
@@ -2348,7 +2349,7 @@ X_API Int YAP_Init(YAP_init_args *yap_init) {
   int restore_result;
   int do_bootstrap = (yap_init->YapPrologBootFile != NULL);
   CELL Trail = 0, Stack = 0, Heap = 0, Atts = 0;
-  char boot_file[256];
+  char boot_file[YAP_FILENAME_MAX+1];
   static int initialized = FALSE;
 
   /* ignore repeated calls to YAP_Init */
@@ -2367,7 +2368,7 @@ X_API Int YAP_Init(YAP_init_args *yap_init) {
   GLOBAL_argc = yap_init->Argc;
 #if BOOT_FROM_SAVED_STATE
   if (!yap_init->SavedState) {
-    yap_init->SavedState = Yap_locateFile(YAP_STARTUP, LOCAL_FileNameBuf, sizeof(LOCAL_FileNameBuf)-1);
+    yap_init->SavedState = Yap_locateFile(YAP_STARTUP, boot_file, sizeof(boot_file)-1);
   }
 
 #else
