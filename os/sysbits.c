@@ -60,6 +60,7 @@ void exit(int);
 static void
 freeBuffer( const void *ptr )
 {
+  CACHE_REGS
   if (ptr == NULL ||
       ptr == LOCAL_FileNameBuf || ptr == LOCAL_FileNameBuf2)
     return;
@@ -297,6 +298,7 @@ Yap_IsAbsolutePath(const char *p0)
 static const char *
 PlExpandVars (const char *source, const char *root, char *result)
 {
+    CACHE_REGS
     const char *src = source;
     if (!result)
       result = malloc(YAP_FILENAME_MAX+1);
@@ -600,6 +602,7 @@ static const char *myrealpath( const char *path)
 static const char *
 expandVars(const char *spec)
 {
+    CACHE_REGS
 #if _WIN32 || defined(__MINGW32__)
     char u[YAP_FILENAME_MAX+1];
 
@@ -658,7 +661,7 @@ Yap_AbsoluteFile(const char *spec, bool ok)
 const char *
 Yap_AbsoluteFileInBuffer(const char *spec, char *out, size_t sz, bool ok)
 {
-
+    CACHE_REGS
     const char*p;
     const char*rc;
     if (ok) {
@@ -689,6 +692,8 @@ static Term
 /* Expand the string for the program to run.  */
 do_glob(const char *spec, bool glob_vs_wordexp)
 {
+    CACHE_REGS
+    char u[YAP_FILENAME_MAX+1];
   if (spec == NULL) {
     return TermNil;
   }

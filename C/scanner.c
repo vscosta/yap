@@ -563,7 +563,8 @@ typedef struct scanner_extra_alloc {
   void *filler;
 } ScannerExtraBlock;
 
-static TokEntry *CodeSpaceError(TokEntry *t, TokEntry *p, TokEntry *l) {
+#define CodeSpaceError(t, p, l) CodeSpaceError__(t, p, l PASS_REGS)
+static TokEntry *CodeSpaceError__(TokEntry *t, TokEntry *p, TokEntry *l USES_REGS) {
   LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
   LOCAL_ErrorMessage = "Code Space Overflow";
   if (t) {
@@ -574,7 +575,8 @@ static TokEntry *CodeSpaceError(TokEntry *t, TokEntry *p, TokEntry *l) {
   return l;
 }
 
-static TokEntry *TrailSpaceError(TokEntry *t, TokEntry *l) {
+#define TrailSpaceError(t, l) TrailSpaceError__(t, l PASS_REGS)
+static TokEntry *TrailSpaceError__(TokEntry *t, TokEntry *l USES_REGS) {
   LOCAL_ErrorMessage = "Trail Overflow";
   LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
   if (t) {
@@ -584,7 +586,8 @@ static TokEntry *TrailSpaceError(TokEntry *t, TokEntry *l) {
   return l;
 }
 
-static TokEntry *AuxSpaceError(TokEntry *p, TokEntry *l, const char *msg) {
+#define AuxSpaceError(p, l, msg) AuxSpaceError__(p, l, msg PASS_REGS)
+static TokEntry *AuxSpaceError__(TokEntry *p, TokEntry *l, const char *msg USES_REGS) {
   /* huge atom or variable, we are in trouble */
   LOCAL_ErrorMessage = (char *)msg;
   LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;

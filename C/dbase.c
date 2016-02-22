@@ -2686,6 +2686,7 @@ static PredEntry *new_lu_int_key(Int key) {
 }
 
 static PredEntry *new_lu_entry(Term t) {
+  CACHE_REGS
   Prop p0;
   PredEntry *pe;
 

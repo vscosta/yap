@@ -267,6 +267,7 @@ static bool getLine(int inp, int out) {
 }
 
 static int ReadlinePutc(int sno, int ch) {
+    CACHE_REGS
   StreamDesc *s = &GLOBAL_Stream[sno];
 #if MAC || _MSC_VER || defined(__MINGW32__)
   if (ch == 10) {

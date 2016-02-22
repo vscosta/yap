@@ -26,7 +26,7 @@ static Int current_module(USES_REGS1);
 static Int current_module1(USES_REGS1);
 static ModEntry *LookupModule(Term a);
 static ModEntry *LookupSystemModule(Term a);
-static ModEntry *GetModuleEntry(Atom at);
+static ModEntry *GetModuleEntry(Atom at USES_REGS);
 static ModEntry *FetchModuleEntry(Atom at);
 
 /** 
@@ -67,7 +67,7 @@ initMod( AtomEntry *toname, AtomEntry *ae) {
  * 
  * @return module descriptorxs
  */
- static ModEntry *GetModuleEntry(Atom at)
+ static ModEntry *GetModuleEntry(Atom at USES_REGS)
 {
   Prop p0;
   AtomEntry *ae = RepAtom(at);
@@ -126,8 +126,9 @@ bool Yap_getUnknown ( Term mod) {
 
 
  bool Yap_CharacterEscapes(Term mt) {
+   CACHE_REGS
    if (mt == PROLOG_MODULE) mt = TermProlog;
-  return GetModuleEntry(AtomOfTerm(mt))->flags & M_CHARESCAPE;
+  return GetModuleEntry(AtomOfTerm(mt) PASS_REGS)->flags & M_CHARESCAPE;
 }
 
  
@@ -163,7 +164,7 @@ static ModEntry *LookupSystemModule(Term a) {
     a = TermProlog;
   }
   at = AtomOfTerm(a);
-  me = GetModuleEntry(at);
+  me = GetModuleEntry(at PASS_REGS);
   if (!me)
     return NULL;
   me->flags |= M_SYSTEM;
@@ -173,15 +174,16 @@ static ModEntry *LookupSystemModule(Term a) {
 
 
 static ModEntry *LookupModule(Term a) {
+  CACHE_REGS
   Atom at;
   ModEntry *me;
 
   /* prolog module */
   if (a == 0) {
-    return GetModuleEntry(AtomProlog);
+    return GetModuleEntry(AtomProlog PASS_REGS);
   }
   at = AtomOfTerm(a);
-  me = GetModuleEntry(at);
+  me = GetModuleEntry(at PASS_REGS);
   return me;
 }
 

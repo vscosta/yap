@@ -216,7 +216,7 @@ static const param_t read_defs[] = {READ_DEFS()};
 *    +
 */
 Term Yap_syntax_error(TokEntry *errtok, int sno) {
-  CACHE_REGS
+    CACHE_REGS
   Term info;
   Term startline, errline, endline;
   Term tf[4];
@@ -395,7 +395,7 @@ typedef struct renv {
 static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re,
                               int inp_stream);
 static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
-  CACHE_REGS
+    CACHE_REGS
   LOCAL_VarTable = NULL;
   LOCAL_AnonVarTable = NULL;
   fe->cmod = CurrentModule;
@@ -488,7 +488,7 @@ typedef enum {
 } parser_state_t;
 
 Int Yap_FirstLineInParse(void) {
-  CACHE_REGS
+    CACHE_REGS
   return LOCAL_StartLineCount;
 }
 
@@ -496,7 +496,7 @@ Int Yap_FirstLineInParse(void) {
 #define POPFET(X) fe->X = *--HR
 
 static void reset_regs(TokEntry *tokstart, FEnv *fe) {
-  CACHE_REGS
+    CACHE_REGS
 
   restore_machine_regs();
 
@@ -524,6 +524,7 @@ static void reset_regs(TokEntry *tokstart, FEnv *fe) {
 }
 
 static Term get_variables(FEnv *fe, TokEntry *tokstart) {
+  CACHE_REGS
   Term v;
   if (fe->vp) {
     while (true) {
@@ -543,6 +544,7 @@ static Term get_variables(FEnv *fe, TokEntry *tokstart) {
 }
 
 static Term get_varnames(FEnv *fe, TokEntry *tokstart) {
+  CACHE_REGS
   Term v;
   if (fe->np) {
     while (true) {
@@ -562,6 +564,7 @@ static Term get_varnames(FEnv *fe, TokEntry *tokstart) {
 }
 
 static Term get_singletons(FEnv *fe, TokEntry *tokstart) {
+    CACHE_REGS
   Term v;
   if (fe->sp) {
     while (TRUE) {
@@ -579,6 +582,7 @@ static Term get_singletons(FEnv *fe, TokEntry *tokstart) {
 }
 
 static void warn_singletons(FEnv *fe, TokEntry *tokstart) {
+    CACHE_REGS
   Term v;
   fe->sp = TermNil;
   v = get_singletons(fe, tokstart);
@@ -600,7 +604,8 @@ static void warn_singletons(FEnv *fe, TokEntry *tokstart) {
 }
 
 static Term get_stream_position(FEnv *fe, TokEntry *tokstart) {
-  Term v;
+     CACHE_REGS
+   Term v;
   if (fe->tp) {
     while (true) {
       fe->old_H = HR;
@@ -617,7 +622,7 @@ static Term get_stream_position(FEnv *fe, TokEntry *tokstart) {
 }
 
 static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
-  CACHE_REGS
+    CACHE_REGS
   Term v1, v2, v3, vc, tp;
 
   CurrentModule = fe->cmod;
@@ -655,7 +660,7 @@ static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
 }
 
 static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart) {
-  CACHE_REGS
+    CACHE_REGS
   Term v_vp, v_vnames, v_comments, v_pos;
 
   CurrentModule = fe->cmod;
@@ -704,7 +709,7 @@ static parser_state_t scanEOF(FEnv *fe, int inp_stream);
 static parser_state_t scan(REnv *re, FEnv *fe, int inp_stream);
 
 static parser_state_t scanEOF(FEnv *fe, int inp_stream) {
-  CACHE_REGS
+    CACHE_REGS
   // bool store_comments = false;
   TokEntry *tokstart = LOCAL_tokptr;
   // check for an user abort
@@ -745,7 +750,7 @@ static parser_state_t scanEOF(FEnv *fe, int inp_stream) {
 
 static parser_state_t initParser(Term opts, FEnv *fe, REnv *re, int inp_stream,
                                  int nargs) {
-  CACHE_REGS
+    CACHE_REGS
   LOCAL_ErrorMessage = NULL;
   fe->old_TR = TR;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -782,7 +787,7 @@ static parser_state_t initParser(Term opts, FEnv *fe, REnv *re, int inp_stream,
 }
 
 static parser_state_t scan(REnv *re, FEnv *fe, int inp_stream) {
-  CACHE_REGS
+    CACHE_REGS
   /* preserve   value of H after scanning: otherwise we may lose strings
       and floats */
   LOCAL_tokptr = LOCAL_toktide =
@@ -806,7 +811,7 @@ static parser_state_t scan(REnv *re, FEnv *fe, int inp_stream) {
 }
 
 static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream) {
-  CACHE_REGS
+    CACHE_REGS
   fe->t = 0;
   // running out of memory
   if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL) {
@@ -846,7 +851,7 @@ static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream) {
 }
 
 static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
-  CACHE_REGS
+    CACHE_REGS
   fe->t = 0;
   if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL ||
       LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK ||
@@ -877,7 +882,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
 }
 
 static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
-  CACHE_REGS
+    CACHE_REGS
   TokEntry *tokstart = LOCAL_tokptr;
   encoding_t e = LOCAL_encoding;
   LOCAL_encoding = fe->enc;
@@ -937,7 +942,7 @@ Term Yap_read_term(int inp_stream, Term opts, int nargs) {
       state = parseError(&re, &fe, inp_stream);
       break;
     case YAP_PARSING_FINISHED: {
-      CACHE_REGS
+        CACHE_REGS
       bool done;
       if (fe.reading_clause)
         done = complete_clause_processing(&fe, LOCAL_tokptr);
@@ -1011,7 +1016,7 @@ static const param_t read_clause_defs[] = {READ_CLAUSE_DEFS()};
 
 static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re,
                               int inp_stream) {
-  CACHE_REGS
+    CACHE_REGS
 
   xarg *args = Yap_ArgListToVector(opts, read_clause_defs, READ_END);
   if (args == NULL) {
@@ -1255,7 +1260,7 @@ static Int style_checker(USES_REGS1) {
 
 Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp, int prio,
                       Term *bindings) {
-  CACHE_REGS
+    CACHE_REGS
   Term bvar = MkVarTerm(), ctl;
   yhandle_t sl;
 

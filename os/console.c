@@ -259,6 +259,7 @@ Yap_GetCharForSIGINT(void)
 
 
 void Yap_InitConsole(void) {
+    CACHE_REGS
   LOCAL_newline = true;
   Yap_InitCPred ("prompt", 1, prompt1, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("prompt1", 1, prompt1, SafePredFlag|SyncPredFlag);

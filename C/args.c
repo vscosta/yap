@@ -44,8 +44,10 @@ Yap_ArgKey(Atom key, const param_t *def, int n)
   return -1;
 }
 
+#define failed(e, t, a) failed__(e, t, a PASS_REGS)
+
 static xarg *
-failed( yap_error_number e, Term t, xarg *a)
+failed__( yap_error_number e, Term t, xarg *a USES_REGS)
 {
   free( a );      
   LOCAL_Error_TYPE = e;
@@ -70,7 +72,7 @@ Yap_ArgListToVector (Term listl, const param_t *def, int n)
     if (IsAtomTerm(listl) ) {
       xarg *na = matchKey( AtomOfTerm(listl), a, n, def);
       if (!na) {
-        return failed( TYPE_ERROR_LIST, listl, a);      
+        return failed( TYPE_ERROR_LIST, listl, a );      
       }
     } else if (IsApplTerm(listl)) {
       Functor f = FunctorOfTerm( listl );

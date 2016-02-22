@@ -114,6 +114,7 @@ FILE *Yap_stdout;
 FILE *Yap_stderr;
 
 static Term gethdir(Term t) {
+  CACHE_REGS
   Atom aref = AtomOfTerm(t);
   char *s = RepAtom(aref)->StrOfAE;
   size_t nsz;
@@ -189,6 +190,7 @@ static bool is_file_errors(Term t) {
 }
 
 void Yap_DefaultStreamOps(StreamDesc *st) {
+    CACHE_REGS
   st->stream_wputc = put_wchar;
   st->stream_wgetc = get_wchar;
   if (st->status & (Promptable_Stream_f)) {
@@ -266,6 +268,7 @@ static void unix_upd_stream_info(StreamDesc *s) {
 
 
 static void InitFileIO(StreamDesc *s) {
+    CACHE_REGS
   if (s->status & Socket_Stream_f) {
     /* Console is a socket and socket will prompt */
     Yap_ConsoleSocketOps(s);
