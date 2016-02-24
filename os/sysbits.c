@@ -541,14 +541,14 @@ DirName(const char *X) {
 }
 #endif
 
-static const char *myrealpath( const char *path)
+static const char *myrealpath( const char *path, char *out)
 {
 #if _WIN32 || defined(__MINGW32__)
     DWORD  retval=0;
 
     // notice that the file does not need to exist
     retval = GetFullPathName(path,
-                             YAP_FILENAME_MAX,
+                             MAX_PATH-1,
                              out,
                              NULL);
 
@@ -594,9 +594,10 @@ static const char *myrealpath( const char *path)
         }
     }
 #endif
-    char *out = malloc(strlen(path)+1);
-    strcpy( out, path);
-    return out;
+    char *rc = malloc(strlen(path)+1);
+    strcpy( rc, path);
+    const char * f = rc;
+    return f;
 }
 
 static const char *
@@ -605,9 +606,10 @@ expandVars(const char *spec)
     CACHE_REGS
 #if _WIN32 || defined(__MINGW32__)
     char u[YAP_FILENAME_MAX+1];
+    char *out;
 
     // first pass, remove Unix style stuff
-    if ((ou=unix2win(spec, YAP_FILENAME_MAX)) == NULL)
+    if ((out=unix2win(spec, u, YAP_FILENAME_MAX)) == NULL)
         return NULL;
     spec = u;
 #endif
@@ -619,7 +621,7 @@ expandVars(const char *spec)
         if (IsPairTerm(t))
           return RepAtom(AtomOfTerm(HeadOfTerm(t)))->StrOfAE;
         return NULL;
-    } 
+    }
     return spec;
 }
 
@@ -639,7 +641,7 @@ Yap_AbsoluteFile(const char *spec, bool ok)
     rc = PlExpandVars(spec, NULL, NULL);
     if (!rc)
         rc = spec;
-    if ((p = myrealpath(rc) ) ) {
+    if ((p = myrealpath(rc, NULL )) ) {
         return p;
     } else {
         return NULL;
@@ -648,7 +650,7 @@ Yap_AbsoluteFile(const char *spec, bool ok)
 }
 
 /**
- * generate absolute path and stores path in an user given buffer. If 
+ * generate absolute path and stores path in an user given buffer. If
  * NULL, uses a temporary buffer that must be quickly released.
  *
  * if ok first expand variable names and do globbing
@@ -671,8 +673,8 @@ Yap_AbsoluteFileInBuffer(const char *spec, char *out, size_t sz, bool ok)
     } else {
       rc = spec;
     }
-    
-    if ((p = myrealpath(rc) ) ) {
+
+    if ((p = myrealpath(rc, out) ) ) {
       if (!out) {
 	out = LOCAL_FileNameBuf;
 	sz = YAP_FILENAME_MAX-1;
@@ -702,15 +704,14 @@ do_glob(const char *spec, bool glob_vs_wordexp)
         WIN32_FIND_DATA find;
         HANDLE hFind;
         CELL *dest;
+        char *espec;
+        Term tf;
 
         // first pass, remove Unix style stuff
-        if (unix2win(espec, u, YAP_FILENAME_MAX) == NULL)
+        if ((espec =unix2win(spec, u, YAP_FILENAME_MAX)) == NULL)
             return TermNil;
         espec = (const char *)u;
 
-        if (!use_system_expansion) {
-            return MkPairTerm(MkAtomTerm(Yap_LookupAtom(espec)), TermNil);
-        }
         hFind = FindFirstFile(espec, &find);
 
         if (hFind == INVALID_HANDLE_VALUE)
@@ -860,6 +861,7 @@ prolog_realpath( USES_REGS1 )
 {
     Term t1 = Deref(ARG1);
     const char *cmd;
+    char out[YAP_FILENAME_MAX];
 
     if (IsAtomTerm(t1)) {
         cmd = RepAtom(AtomOfTerm(t1))->StrOfAE;
@@ -868,7 +870,7 @@ prolog_realpath( USES_REGS1 )
     } else {
         return false;
     }
-    const char *rc = myrealpath( cmd );
+    const char *rc = myrealpath( cmd , out);
     if (!rc) {
         PlIOError( SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, strerror(errno));
         return false;
@@ -901,7 +903,7 @@ static const param_t expand_filename_defs[] = {EXPAND_FILENAME_DEFS()};
 
 static Term
 do_expand_file_name(Term t1, Term opts USES_REGS)
-{ 
+{
     xarg *args;
     expand_filename_enum_choices_t i;
     bool use_system_expansion = true;
@@ -969,7 +971,7 @@ do_expand_file_name(Term t1, Term opts USES_REGS)
 /* @pred expand_file_name( +Pattern, -ListOfPaths) is det
 
 This builtin receives a pattern and expands it into a list of files.
-  In Unix-like systems, YAP applies glob to expand patterns such as '*', '.', and '?'. Further variable expansion 
+  In Unix-like systems, YAP applies glob to expand patterns such as '*', '.', and '?'. Further variable expansion
 may also happen. glob is shell-dependent: som   Yap_InitCPred ("absolute_file_system_path", 2, absolute_file_system_path, 0);
     Yap_InitCPred ("real_path", 2, prolog_realpath, 0);
     Yap_InitCPred ("true_file_name", 2,
@@ -1786,7 +1788,7 @@ p_mv ( USES_REGS1 )
         Yap_Error(TYPE_ERROR_ATOM, t2, "second argument to rename/2 not atom");
     } else {
       oldname = (RepAtom(AtomOfTerm(t1)))->StrOfAE;
-      newname = (RepAtom(AtomOfTerm(t2)))->StrOfAE;    
+      newname = (RepAtom(AtomOfTerm(t2)))->StrOfAE;
       if ((r = link (oldname, newname)) == 0 && (r = unlink (oldname)) != 0)
         unlink (newname);
       if (r != 0) {
@@ -2297,4 +2299,3 @@ Yap_InitSysPreds(void)
      Yap_InitCPred ("rmdir", 2, p_rmdir, SyncPredFlag);
     Yap_InitCPred ("make_directory", 1, make_directory, SyncPredFlag);
 }
-

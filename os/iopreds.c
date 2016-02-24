@@ -196,6 +196,9 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
   if (st->status & (Promptable_Stream_f)) {
     st->stream_wgetc = get_wchar;
     Yap_ConsoleOps(st, true);
+  } else if (st->status & (InMemory_Stream_f)) {
+    st->stream_wgetc = get_wchar;
+    Yap_ConsoleOps(st, true);
   } else if (st->encoding == LOCAL_encoding) {
     st->stream_wgetc = get_wchar_from_file;
   } else
