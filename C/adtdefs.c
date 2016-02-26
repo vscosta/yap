@@ -562,61 +562,61 @@ Yap_OpPropForModule(Atom a,
   return info;
 }
 
-OpEntry *
-Yap_GetOpProp(Atom a,
-              op_type type
-                  USES_REGS) { /* look property list of atom a for kind  */
-  AtomEntry *ae = RepAtom(a);
-  PropEntry *pp;
-  OpEntry *oinfo = NULL;
-
-  READ_LOCK(ae->ARWLock);
-  pp = RepProp(ae->PropsOfAE);
+static OpEntry *
+fetchOpWithModule( PropEntry *pp, Term tmod, op_type type )
+{
   while (!EndOfPAEntr(pp)) {
     OpEntry *info = NULL;
+
     if (pp->KindOfPE != OpProperty) {
       pp = RepProp(pp->NextOfPE);
       continue;
     }
     info = (OpEntry *)pp;
-    if (info->OpModule != CurrentModule && info->OpModule != PROLOG_MODULE) {
+    if (info->OpModule != tmod) {
       pp = RepProp(pp->NextOfPE);
       continue;
     }
     if (type == INFIX_OP) {
       if (!info->Infix) {
-        pp = RepProp(pp->NextOfPE);
-        continue;
+        return NULL;
       }
     } else if (type == POSFIX_OP) {
       if (!info->Posfix) {
-        pp = RepProp(pp->NextOfPE);
-        continue;
+        return NULL;
       }
     } else {
       if (!info->Prefix) {
-        pp = RepProp(pp->NextOfPE);
-        continue;
+        return NULL;
       }
     }
-    /* if it is not the latest module */
-    if (info->OpModule == PROLOG_MODULE) {
-      /* cannot commit now */
-      oinfo = info;
-      pp = RepProp(pp->NextOfPE);
-    } else {
-      READ_LOCK(info->OpRWLock);
-      READ_UNLOCK(ae->ARWLock);
-      return info;
-    }
+       return info;
   }
-  if (oinfo) {
-    READ_LOCK(oinfo->OpRWLock);
-    READ_UNLOCK(ae->ARWLock);
-    return oinfo;
-  }
-  READ_UNLOCK(ae->ARWLock);
   return NULL;
+}
+  
+OpEntry *
+Yap_GetOpProp(Atom a,
+              op_type type,
+              Term tmod
+                  USES_REGS) { /* look property list of atom a for kind  */
+  AtomEntry *ae = RepAtom(a);
+  PropEntry *pp;
+  OpEntry *info;
+
+  READ_LOCK(ae->ARWLock);
+  pp = RepProp(ae->PropsOfAE);
+  if (( (info = fetchOpWithModule( pp, tmod, type )) != NULL) ||
+      ( (info = fetchOpWithModule( pp, USER_MODULE, type )) != NULL) ||
+      ( (info = fetchOpWithModule( pp, PROLOG_MODULE, type )) != NULL)
+    ) {
+    LOCK(info->OpRWLock);
+    return info;
+    READ_UNLOCK(ae->ARWLock);
+  }
+    READ_UNLOCK(ae->ARWLock);
+
+     return NULL;
 }
 
 inline static Prop GetPredPropByAtomHavingLock(AtomEntry *ae, Term cur_mod)

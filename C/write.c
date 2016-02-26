@@ -1007,7 +1007,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         return;
       }
     }
-    if (!wglb->Ignore_ops && Arity == 1 && Yap_IsPrefixOp(atom, &op, &rp)) {
+    if (!wglb->Ignore_ops && Arity == 1 && Yap_IsPrefixOp(atom, &op, &rp, CurrentModule)) {
       Term tright = ArgOfTerm(1, t);
       int bracket_right = !IsVarTerm(tright) && IsAtomTerm(tright) &&
                           Yap_IsOp(AtomOfTerm(tright));
@@ -1035,7 +1035,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
                 ((atom == AtomEmptyBrackets || atom == AtomEmptyCurlyBrackets ||
                   atom == AtomEmptySquareBrackets) &&
                  Yap_IsListTerm(ArgOfTerm(1, t)))) &&
-               Yap_IsPosfixOp(atom, &op, &lp)) {
+               Yap_IsPosfixOp(atom, &op, &lp, CurrentModule)) {
       Term tleft = ArgOfTerm(1, t);
 
       int bracket_left, offset;
@@ -1087,7 +1087,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         wrclose_bracket(wglb, TRUE);
       }
     } else if (!wglb->Ignore_ops && Arity == 2 &&
-               Yap_IsInfixOp(atom, &op, &lp, &rp)) {
+               Yap_IsInfixOp(atom, &op, &lp, &rp, CurrentModule)) {
       Term tleft = ArgOfTerm(1, t);
       Term tright = ArgOfTerm(2, t);
       int bracket_left =
