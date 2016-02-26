@@ -15,6 +15,7 @@ set (LIBRARY_PL
   dbqueues.yap
   dbusage.yap
   dgraphs.yap
+  error.yap
   exo_interval.yap
   expand_macros.yap
   gensym.yap

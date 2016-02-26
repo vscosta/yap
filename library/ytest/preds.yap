@@ -9,7 +9,7 @@
     ->
      Flags1 = 0x200000
     ).
-'$predicate_flags'(P, M, Flags0, Flags1) :-
+'$predicate_flags'(_P, _M, Flags0, Flags1) :-
     ( Flags1 /\ 0x200000 =\= 0,
       Flags0 /\ 0x200000 =:= 0
     ->
@@ -23,7 +23,7 @@
     predicate_property(M:G, imported_from(M0)), !.
 '$get_undefined_pred'(G,M,G,OM) :-
     functor(G,F,N),
-    ( system_predicate(F/N), OM = prolog ; current_predicate(user:F/N), OM= user),  !.
+    ( system_predicate(F/N), OM = prolog ; current_predicate(M:F/N), OM= user),  !.
 '$get_undefined_pred'(G,M,G,M0) :-
     predicate_property(M:G, imported_from(M0)), !.
 '$get_undefined_pred'(G,M,G,M).
