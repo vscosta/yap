@@ -8,6 +8,7 @@ set (LIBRARY_PL
   autoloader.yap
   avl.yap
   bhash.yap
+  bootlists.yap
   charsio.yap
   clauses.yap
   coinduction.yap
