@@ -79,7 +79,7 @@ GitSHA1.c
 CMakeLists.txt.*
 FindPackageLog.txt
 GitSHA1.c
-
+out
 GitSHA1.c
 
 os/YapIOConfig.h
