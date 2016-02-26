@@ -111,7 +111,7 @@ EXTERNAL  char  GLOBAL_pwd[YAP_FILENAME_MAX];
 #endif
 //udi.c
 //struct udi_control_block 	RtreeCmd				void	
-EXTERNAL  char*  GLOBAL_RestoreFile;
+EXTERNAL    const char*  GLOBAL_RestoreFile;
 //gprof.c
 EXTERNAL  Int  GLOBAL_ProfCalls;
 EXTERNAL  Int  GLOBAL_ProfGCs;

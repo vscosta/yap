@@ -121,19 +121,19 @@ gen_0struct(Inp,Out) :-
 	Inp = "ATOMS", !,
 	Out = "#include \"tatoms.h\"".
 gen_0struct(Inp,Out) :-
-	split(Inp,"	 ",["struct",Type, Field|L]), !,
+	split(Inp,"	 ",["struct"|_L]), !,
     extract("struct", Inp, NInp),
     gen_0struct( NInp, NOut ),
     extract("EXTERNAL", NOut, IOut),
 	append("EXTERNAL    struct ", IOut, Out).
 gen_0struct(Inp,Out) :-
-	split(Inp,"	 ",["const",Type, Field|L]), !,
+	split(Inp,"	 ",["const"|_L]), !,
     extract("const", Inp, NInp),
     gen_0struct( NInp, NOut ),
     extract("EXTERNAL", NOut, IOut),
 	append("EXTERNAL    const ", IOut, Out).
 gen_0struct(Inp,Out) :-
-	split(Inp,"	 ",["union",Type, Field|L]), !,
+	split(Inp,"	 ",["union"|_L]), !,
     extract("union", Inp, NInp),
     gen_0struct( NInp, NOut ),
     extract("EXTERNAL", NOut, IOut),
@@ -494,8 +494,4 @@ extract([0' |H], IF) :- !,
 extract([0'\t |H], IF) :- !,
     extract( H, IF).
 extract(H,H).
-
-
-
-
 
