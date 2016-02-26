@@ -171,7 +171,11 @@ list, since backtracking could not "pass through" the cut.
 
 */
 
-system_module(_Mod, _SysExps, _Decls) :- ! .
+system_module(_Mod, _SysExps, _Decls) :- ! ,
+    source_module( prolog ), !.
+system_module(_Mod, _SysExps, _Decls) :-
+	 nb_setval('$if_skip_mode',skip).
+
 %    new_system_module(Mod).
 
 use_system_module(_init, _SysExps) :- !.
@@ -1417,8 +1421,8 @@ bootstrap(F) :-
 	!.
 '$loop'(Stream,Status) :-
  %   start_low_level_trace,
-	'$current_module'( OldModule ),
 	repeat,
+	source_module( OldModule ),
 	'$system_catch'( '$enter_command'(Stream,OldModule,Status),
                      OldModule, Error,
 			         user:'$LoopError'(Error, Status)
