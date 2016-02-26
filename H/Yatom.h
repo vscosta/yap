@@ -266,16 +266,17 @@ INLINE_ONLY inline EXTERN int IsWideAtom(Atom at) {
 
 /*	Module property 						*/
 typedef struct mod_entry {
-  Prop NextOfPE;                /* used to chain properties            */
-  PropFlags KindOfPE;           /* kind of property                    */
-  struct pred_entry *PredForME; /* index in module table               */
-  Atom AtomOfME;                /* module's name	                */
-  Atom OwnerFile;               /* module's owner file	                */
+  Prop NextOfPE;                /** used to chain properties            */
+  PropFlags KindOfPE;           /** kind of property                    */
+  struct pred_entry *PredForME; /** list of predicates for that module               */
+  Atom AtomOfME;                /** module's name	                */
+  Atom OwnerFile;               /** module's owner file	                */
 #if defined(YAPOR) || defined(THREADS)
-  rwlock_t ModRWLock; /* a read-write lock to protect the entry */
+  rwlock_t ModRWLock; /** a read-write lock to protect the entry */
 #endif
-  unsigned int flags;       /* Module local flags (from SWI compat) */
-  struct mod_entry *NextME; /* next module                         */
+  Term  ParentForME;   /** the module we wer created from */
+  unsigned int flags;       /** Module local flags (from SWI compat): includes ops, strings */
+  struct mod_entry *NextME; /** next module                         */
 } ModEntry;
 
 #if USE_OFFSETS_IN_PROPS
@@ -391,12 +392,12 @@ INLINE_ONLY inline EXTERN PropFlags IsOpProperty(int flags) {
 
 typedef enum { INFIX_OP = 0, POSFIX_OP = 1, PREFIX_OP = 2 } op_type;
 
-OpEntry *Yap_GetOpProp(Atom, op_type CACHE_TYPE);
+ OpEntry *Yap_GetOpProp(Atom, op_type, Term CACHE_TYPE);
 
-int Yap_IsPrefixOp(Atom, int *, int *);
+int Yap_IsPrefixOp(Atom, int *, int *, Term);
 int Yap_IsOp(Atom);
-int Yap_IsInfixOp(Atom, int *, int *, int *);
-int Yap_IsPosfixOp(Atom, int *, int *);
+int Yap_IsInfixOp(Atom, int *, int *, int *, Term);
+int Yap_IsPosfixOp(Atom, int *, int *, Term);
 
 /* defines related to operator specifications				*/
 #define MaskPrio 0x0fff
