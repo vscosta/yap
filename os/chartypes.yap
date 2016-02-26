@@ -1,11 +1,4 @@
-:- module('$char_type',[
-			  op(1150, fx, block)
-				%dif/2,
-				%when/2,
-				%block/1,
-				%wait/1,
-				%frozen/2
-			 ]).
+%:- module('$char_type',[]).
 
 /**
   @defgroup  CharacterCodes Character Encoding and Manipulation.
