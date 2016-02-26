@@ -511,6 +511,8 @@ file_directory_name ( USES_REGS1 )
     return false;    
   }
   at = AtomOfTerm(t);
+  if (at == AtomEmptyAtom)
+     at = AtomDot;
   if (IsWideAtom(at)) {
       wchar_t s[YAP_FILENAME_MAX+1];
       wchar_t *c = RepAtom(at)->WStrOfAE;
