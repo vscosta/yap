@@ -18,6 +18,7 @@ set(PL_SOURCES
 	directives.yap
 	eam.yap
 	eval.yap
+    error.yap
 	errors.yap
 	flags.yap
 	grammar.yap
