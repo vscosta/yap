@@ -1018,13 +1018,13 @@ Term Yap_UnknownFlag(Term mod) {
        mod = TermProlog;
 
       ModEntry *fv = Yap_GetModuleEntry(mod);
-  if (fv == NULL)
-     fv = Yap_GetModuleEntry(AtomUser);
-     if (fv->flags & UNKNOWN_ERROR)
-      return TermError;
-    if (fv->flags & UNKNOWN_WARNING)
-      return TermWarning;
-    return TermFail;
+      if (fv == NULL)
+        fv = Yap_GetModuleEntry(TermUser);
+      if (fv->flags & UNKNOWN_ERROR)
+        return TermError;
+      if (fv->flags & UNKNOWN_WARNING)
+        return TermWarning;
+      return TermFail;
 }
 
 Term getYapFlag(Term tflag) {
