@@ -47,6 +47,11 @@
 	   sumlist/2
 	  ]).
 
+:- if( source_module(prolog) ).
+
+:- reconsult(bootlists).
+
+:- endif.
 
 /** @defgroup lists List Manipulation
 @ingroup library
