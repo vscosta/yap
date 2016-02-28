@@ -37,9 +37,7 @@ typedef int     (*PL_agc_hook_t)(atom_t);
 typedef uintptr_t	foreign_t;	/* return type of foreign functions */
 typedef wchar_t pl_wchar_t;             /* wide character support */
 #include <inttypes.h>			/* more portable than stdint.h */
-#if  !defined(_MSC_VER)
 typedef uintptr_t	PL_fid_t;	/* opaque foreign context handle */
-#endif
 typedef int  (*PL_dispatch_hook_t)(int fd);
 typedef void *pl_function_t;
 

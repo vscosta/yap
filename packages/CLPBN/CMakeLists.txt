@@ -89,7 +89,9 @@ set(
   ex/learning/train.yap
   )
 
+IF (WITH_HORUS)
 add_subDIRECTORY (horus)
+ENDIF()
 
 install(FILES
   ${CLPBN_TOP}

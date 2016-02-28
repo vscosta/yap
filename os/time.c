@@ -152,7 +152,7 @@ void Yap_systime_interval(Int *now,Int *interval)
 
 #include <time.h>
 
-  static FILETIME StartOfTimes, last_time;
+static FILETIME StartOfTimes, last_time;
 
 static FILETIME StartOfTimes_sys, last_time_sys;
 
@@ -530,6 +530,8 @@ real_cputime ()
 
 #endif /* HAVE_GETRUSAGE */
 
+uint64_t Yap_StartOfWTimes;
+
 #if HAVE_GETHRTIME
 
 #if HAVE_TIME_H
@@ -537,92 +539,48 @@ real_cputime ()
 #endif
 
 /* since the point YAP was started */
-static hrtime_t StartOfWTimes;
 
-/* since last call to walltime */
-#define  LastWTime (*(hrtime_t *)ALIGN_BY_TYPE(GLOBAL_LastWTimePtr,hrtime_t))
-
-static void
+ void
 Yap_InitWTime (void)
 {
-  StartOfWTimes = gethrtime();
+  Yap_StartOfWTimes = (uint64_t)gethrtime();
 }
 
-static void
-Yap_InitLastWTime(void) {
-  /* ask for twice the space in order to guarantee alignment */
-  GLOBAL_LastWTimePtr = (void *)Yap_AllocCodeSpace(2*sizeof(hrtime_t));
-  LastWTime = StartOfWTimes;
-}
-
-Int
-Yap_walltime (void)
+/// returns time since Jan 1 1980 in nano-seconds
+uint64_t Yap_walltime(uint64_t old)
 {
-  hrtime_t tp = gethrtime();
-  /* return time in milliseconds */
-  return((Int)((tp-StartOfWTimes)/((hrtime_t)1000000)));
-
+	hrtime_t tp = gethrtime();
+	/* return time in milliseconds */
+	return = (uint64_t)tp;
 }
 
-void Yap_walltime_interval(Int *now,Int *interval)
-{
-  hrtime_t tp = gethrtime();
-  /* return time in milliseconds */
-  *now = (Int)((tp-StartOfWTimes)/((hrtime_t)1000000));
-  *interval = (Int)((tp-LastWTime)/((hrtime_t)1000000));
-  LastWTime = tp;
-}
 
 
 #elif HAVE_GETTIMEOFDAY
 
 /* since the point YAP was started */
-static struct timeval StartOfWTimes;
-
-/* since last call to walltime */
-#define LastWTime (*(struct timeval *)GLOBAL_LastWTimePtr)
-
 /* store user time in this variable */
  void
 Yap_InitWTime (void)
 {
-  gettimeofday(&StartOfWTimes,NULL);
+	struct timeval   tp;
+
+	gettimeofday(&tp, NULL);
+	Yap_StartOfWTimes =  (uint64_t)tp.tv_sec * 1000000000 + (uint64_t)tp.tv_usec * 1000;
 }
 
- void
-Yap_InitLastWTime(void) {
-  GLOBAL_LastWTimePtr = (void *)Yap_AllocCodeSpace(sizeof(struct timeval));
-  LastWTime.tv_usec = StartOfWTimes.tv_usec;
-  LastWTime.tv_sec = StartOfWTimes.tv_sec;
-}
-
-
-Int
-Yap_walltime (void)
+ 
+ /// returns time in nano-secs since the epoch
+uint64_t
+Yap_walltime(void)
 {
-  struct timeval   tp;
+	struct timeval   tp;
 
-  gettimeofday(&tp,NULL);
-  if (StartOfWTimes.tv_usec > tp.tv_usec)
-    return((tp.tv_sec - StartOfWTimes.tv_sec - 1) * 1000 +
-	   (StartOfWTimes.tv_usec - tp.tv_usec) /1000);
-  else
-    return((tp.tv_sec - StartOfWTimes.tv_sec)) * 1000 +
-      ((tp.tv_usec - LastWTime.tv_usec) / 1000);
+	gettimeofday(&tp, NULL);
+	return (uint64_t)tp.tv_sec * 1000000000 + (uint64_t)tp.tv_usec * 1000;
 }
 
-void Yap_walltime_interval(Int *now,Int *interval)
-{
-  struct timeval   tp;
 
-  gettimeofday(&tp,NULL);
-  *now = (tp.tv_sec - StartOfWTimes.tv_sec) * 1000 +
-    (tp.tv_usec - StartOfWTimes.tv_usec) / 1000;
-  *interval = (tp.tv_sec - LastWTime.tv_sec) * 1000 +
-    (tp.tv_usec - LastWTime.tv_usec) / 1000;
-  LastWTime.tv_usec = tp.tv_usec;
-  LastWTime.tv_sec = tp.tv_sec;
-}
 
 #elif defined(_WIN32)
 
@@ -630,103 +588,68 @@ void Yap_walltime_interval(Int *now,Int *interval)
 #include <time.h>
 
 /* since the point YAP was started */
-static struct _timeb StartOfWTimes;
-
-/* since last call to walltime */
-#define LastWTime (*(struct timeb *)GLOBAL_LastWTimePtr)
+static LARGE_INTEGER Frequency;
 
 /* store user time in this variable */
-static void
-InitWTime (void)
+ void
+Yap_InitWTime (void)
 {
-  _ftime(&StartOfWTimes);
+	LARGE_INTEGER ElapsedNanoseconds;
+	QueryPerformanceFrequency(&Frequency);
+	QueryPerformanceCounter(&ElapsedNanoseconds);
+	ElapsedNanoseconds.QuadPart *= 1000000;
+	ElapsedNanoseconds.QuadPart /= Frequency.QuadPart;
+	Yap_StartOfWTimes = (uint64_t)ElapsedNanoseconds.QuadPart;
 }
 
-static void
-InitLastWTime(void) {
-  GLOBAL_LastWTimePtr = (void *)Yap_AllocCodeSpace(sizeof(struct timeb));
-  LastWTime.time = StartOfWTimes.time;
-  LastWTime.millitm = StartOfWTimes.millitm;
-}
 
 
-Int
+uint64_t
 Yap_walltime (void)
 {
-  struct _timeb   tp;
+	LARGE_INTEGER ElapsedNanoseconds;
+	QueryPerformanceCounter(&ElapsedNanoseconds);
+	//
+	// We now have the elapsed number of ticks, along with the
+	// number of ticks-per-second. We use these values
+	// to convert to the number of elapsed microseconds.
+	// To guard against loss-of-precision, we convert
+	// to microseconds *before* dividing by ticks-per-second.
+	//
 
-  _ftime(&tp);
-  if (StartOfWTimes.millitm > tp.millitm)
-    return((tp.time - StartOfWTimes.time - 1) * 1000 +
-	   (StartOfWTimes.millitm - tp.millitm));
-  else
-    return((tp.time - StartOfWTimes.time)) * 1000 +
-      ((tp.millitm - LastWTime.millitm) / 1000);
-}
-
-void Yap_walltime_interval(Int *now,Int *interval)
-{
-  struct _timeb   tp;
-
-  _ftime(&tp);
-  *now = (tp.time - StartOfWTimes.time) * 1000 +
-    (tp.millitm - StartOfWTimes.millitm);
-  *interval = (tp.time - LastWTime.time) * 1000 +
-    (tp.millitm - LastWTime.millitm) ;
-  LastWTime.millitm = tp.millitm;
-  LastWTime.time = tp.time;
+	ElapsedNanoseconds.QuadPart *= 1000000;
+	ElapsedNanoseconds.QuadPart /= Frequency.QuadPart;
+	return ElapsedNanoseconds.QuadPart;
 }
 
 #elif HAVE_TIMES
 
-static clock_t StartOfWTimes;
-
-#define LastWTime (*(clock_t *)GLOBAL_LastWTimePtr)
-
 /* store user time in this variable */
-static void
-InitWTime (void)
+ void
+Yap_InitWTime (void)
 {
-  StartOfWTimes = times(NULL);
+  Yap_StartOfWTimes = ((uint64_t)times(NULL))*10000000/TicksPerSec;
 }
 
-static void
-InitLastWTime(void) {
-  GLOBAL_LastWTimePtr = (void *)Yap_AllocCodeSpace(sizeof(clock_t));
-  LastWTime = StartOfWTimes;
-}
-
-Int
+uint64_t
 Yap_walltime (void)
 {
   clock_t t;
   t = times(NULL);
-  return ((t - StartOfWTimes)*1000 / TicksPerSec));
+  return = ((uint64_t)times(NULL)) * 10000000 / TicksPerSec;
 }
 
-void Yap_walltime_interval(Int *now,Int *interval)
-{
-  clock_t t;
-  t = times(NULL);
-  *now = ((t - StartOfWTimes)*1000) / TicksPerSec;
-  *interval = (t - GLOBAL_LastWTime) * 1000 / TicksPerSec;
-}
-
- 
 #endif /* HAVE_TIMES */
  void
   Yap_ReInitWTime (void)
   {
     Yap_InitWTime();
-    if (GLOBAL_LastWTimePtr != NULL)
-      Yap_FreeCodeSpace(GLOBAL_LastWTimePtr);
-    Yap_InitLastWTime();
-  }
+   }
 
 
 void
 Yap_InitTimePreds(void)
 {
     /* can only do after heap is initialized */
-    Yap_InitLastWTime();
+    Yap_InitWTime();
 }

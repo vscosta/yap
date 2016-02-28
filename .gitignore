@@ -79,7 +79,7 @@ GitSHA1.c
 CMakeLists.txt.*
 FindPackageLog.txt
 GitSHA1.c
-out
+
 GitSHA1.c
 
 os/YapIOConfig.h
@@ -148,6 +148,5 @@ cmake/cmake-android
 yap-6.3.workspace
 
 YAP.project
-sublime
+
 *.tmp
-CBlocks

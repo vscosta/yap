@@ -69,6 +69,11 @@
 #endif
 #endif
 
+#if _MSC_VER
+// no support for __builtin_expect
+#define __builtin_expect(Exp, Val) (Exp)
+#endif
+
 #include "inline-only.h"
 
 INLINE_ONLY inline EXTERN void restore_machine_regs(void);
@@ -586,10 +591,11 @@ INLINE_ONLY EXTERN inline void restore_TR(void) {
 }
 
 #else
-
-#define CP         Yap_REGS.CP_	/* continuation   program counter         */
+/** continuation   program counter: what to do when we exit the goal.         */
+#define CP         (Yap_REGS.CP_)	
 #define P          Yap_REGS.P_	/* prolog machine program counter */
-#define YENV       Yap_REGS.YENV_ /* current environment (may differ from ENV) */
+/** current environment (may be pointing at an enevironment frame before the neck sets ENV) */
+#define YENV       (Yap_REGS).YENV_ 
 #define S          Yap_REGS.S_	/* structure pointer                      */
 #define	HR          Yap_REGS.H_	/* top of heap (global)   stack           */
 #define B          Yap_REGS.B_	/* latest choice point            */

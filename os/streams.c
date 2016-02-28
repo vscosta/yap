@@ -881,8 +881,14 @@ void Yap_CloseStreams(int loud) {
   for (sno = 3; sno < MaxStreams; ++sno) {
     if (GLOBAL_Stream[sno].status & Free_Stream_f)
       continue;
-    if ((GLOBAL_Stream[sno].status & Popen_Stream_f))
-      pclose(GLOBAL_Stream[sno].file);
+	if ((GLOBAL_Stream[sno].status & Popen_Stream_f)) {
+#if _MSC_VER
+
+		_pclose(GLOBAL_Stream[sno].file);
+#else
+		pclose(GLOBAL_Stream[sno].file);
+#endif
+	}
     if (GLOBAL_Stream[sno].status & (Pipe_Stream_f | Socket_Stream_f))
       close(GLOBAL_Stream[sno].u.pipe.fd);
 #if USE_SOCKET

@@ -1,4 +1,4 @@
-/*************************************************************************post/////85
+/*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -38,7 +38,7 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_IO_H
 /* Windows */
 #include <io.h>
-#endif
+#endif 
 #if HAVE_SOCKET
 #include <winsock2.h>
 #endif
@@ -55,11 +55,11 @@ static char SccsId[] = "%W% %G%";
 FILE * open_memstream (char **buf, size_t *len);
 #endif
 
-#if HAVE_FMEMOPEN
+#if HAVE_FMEMOPEN 
 #define MAY_READ 1
 #endif
 
-#if HAVE_OPEN_MEMSTREAM
+#if HAVE_OPEN_MEMSTREAM  
 #define MAY_READ 1
 #define MAY_WRITE 1
 #endif
@@ -74,20 +74,21 @@ static int MemGetc( int);
 
 /* read from memory */
 static int
-MemGetc (int sno)
+MemGetc(int sno)
 {
-  register StreamDesc *s = &GLOBAL_Stream[sno];
-  Int ch;
-  int spos;
+	register StreamDesc *s = &GLOBAL_Stream[sno];
+	Int ch;
+	int spos;
 
-  spos = s->u.mem_string.pos;
-  if (spos == s->u.mem_string.max_size) {
-    return EOF;
-  } else {
-    ch = s->u.mem_string.buf[spos];
-    s->u.mem_string.pos = ++spos;
-  }
-  return ch;
+	spos = s->u.mem_string.pos;
+	if (spos == s->u.mem_string.max_size) {
+		return -1;
+	}
+	else {
+		ch = s->u.mem_string.buf[spos];
+		s->u.mem_string.pos = ++spos;
+	}
+	return ch;
 }
 #endif
 
@@ -166,7 +167,7 @@ MemPutc(int sno, int ch)
   FILE *f;
   encoding_t encoding;
   stream_flags_t flags;
-
+   
   sno = GetFreeStreamD();
   if (sno < 0)
     return (PlIOError (RESOURCE_ERROR_MAX_STREAMS,TermNil, "new stream not available for open_mem_read_stream/1"));
@@ -254,7 +255,7 @@ Yap_open_buf_write_stream(char *buf, size_t nchars, encoding_t *encp,  memBufSou
     int sno;
     StreamDesc *st;
 
-
+    
     sno = GetFreeStreamD();
     if (sno < 0)
       return -1;
@@ -322,11 +323,11 @@ open_mem_write_stream (USES_REGS1)   /* $open_mem_write_stream(-Stream) */
   return (Yap_unify (ARG1, t));
 }
 
-/**
+/** 
  * Yap_PeekMemwriteStream() shows the current buffer for a memory stream.
- *
+ * 
  * @param sno, the in-memory stream
- *
+ * 
  * @return temporary buffer, discarded by close and may be moved away
  * by other writes..
  */
@@ -413,13 +414,13 @@ bool Yap_CloseMemoryStream( int sno )
         fclose(GLOBAL_Stream[sno].file);
         if (GLOBAL_Stream[sno].status & FreeOnClose_Stream_f)
             free( GLOBAL_Stream[sno].nbuf );
-#else
+#else 
    if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_CODE)
       Yap_FreeAtomSpace(GLOBAL_Stream[sno].u.mem_string.buf);
     else if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_MALLOC) {
       free(GLOBAL_Stream[sno].u.mem_string.buf);
     }
-#endif
+#endif       
       } else {
 #if MAY_READ
         fclose(GLOBAL_Stream[sno].file);
@@ -430,7 +431,7 @@ bool Yap_CloseMemoryStream( int sno )
     else if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_MALLOC) {
       free(GLOBAL_Stream[sno].u.mem_string.buf);
     }
-#endif
+#endif                 
       }
      return true;
 }
@@ -446,3 +447,4 @@ Yap_InitMems( void )
   Yap_InitCPred ("peek_mem_write_stream", 3, peek_mem_write_stream, SyncPredFlag);
   CurrentModule = cm;
 }
+

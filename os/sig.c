@@ -363,7 +363,7 @@ Yap_MathException__( USES_REGS1 )
       return  EVALUATION_ERROR_UNDEFINED;
     }
   }
-#elif _WIN32 && FALSE
+#elif _WIN32
   unsigned int raised;
   int err;
 

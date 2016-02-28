@@ -24,7 +24,7 @@ static int GETW(int sno) {
   case ENC_ISO_ANSI: {
     char buf[8];
     int out;
-    wchar_t wch;
+    int wch;
     mbstate_t mbstate;
 
     memset((void *)&(mbstate), 0, sizeof(mbstate_t));

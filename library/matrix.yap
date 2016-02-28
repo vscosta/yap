@@ -29,14 +29,8 @@
 	   [(<==)/2, op(800, xfx, '<=='),
 	    op(700, xfx, in),
 	    op(700, xfx, ins),
-        op(450, xfx, ..), % should bind more tightly than \/
-        op(720, fx, ..), % should bind more tightly than of
-	    op(710, xfx, of),
-        (of)/2,
-	    op(50, yf, '[]'),
-        op(50, yf, '()'),
-        op(100, xfy, '.'),
-        op(100, fy, '.'),
+            op(450, xfx, ..), % should bind more tightly than \/
+	    op(710, xfx, of), of/2,
 	    matrix_new/3,
 	    matrix_new/4,
 	    matrix_new_set/4,
@@ -87,7 +81,11 @@
 	    matrix_get/2,
 	    matrix_set/2,
 	    foreach/2,
-	    foreach/4
+	    foreach/4,
+	    op(50, yf, []),
+            op(50, yf, '()'),
+            op(100, xfy, '.'),
+            op(100, fy, '.')
 	    ]).
 
 /** @defgroup matrix Matrix Library

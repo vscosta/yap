@@ -222,7 +222,11 @@ exists_file(USES_REGS1)
     /* ignore errors while checking a file */
       return FALSE;
     }
-    return (S_ISREG(ss.st_mode));
+#if	_MSC_VER
+	return ss.st_mode & S_IFREG;
+#else
+    return (_stat(ss.st_mode));
+#endif
 #else
     return FALSE;
 #endif
@@ -373,6 +377,33 @@ access_file(USES_REGS1)
       return FALSE;
   }
 #if HAVE_ACCESS
+#if _WIN32
+  {
+	  int mode;
+
+	  if (atmode == AtomExist)
+		  mode = 00;
+	  else if (atmode == AtomWrite)
+		  mode = 02;
+	  else if (atmode == AtomRead)
+		  mode = 04;
+	  else if (atmode == AtomAppend)
+		  mode = 03;
+	  else if (atmode == AtomCsult)
+		  mode = 04;
+	  else if (atmode == AtomExecute)
+		  mode = 00; // can always execute?
+	  else {
+		  Yap_Error(DOMAIN_ERROR_IO_MODE, tmode, "access_file/2");
+		  return FALSE;
+	  }
+	  if (access(ares, mode) < 0) {
+		  /* ignore errors while checking a file */
+		  return false;
+	  }
+	  return true;
+}
+#else
   {
     int mode;
 
@@ -398,6 +429,7 @@ access_file(USES_REGS1)
     }
     return true;
   }
+#endif
 #elif HAVE_STAT
   {
     struct SYSTEM_STAT ss;
@@ -511,8 +543,6 @@ file_directory_name ( USES_REGS1 )
     return false;    
   }
   at = AtomOfTerm(t);
-  if (at == AtomEmptyAtom)
-     at = AtomDot;
   if (IsWideAtom(at)) {
       wchar_t s[YAP_FILENAME_MAX+1];
       wchar_t *c = RepAtom(at)->WStrOfAE;

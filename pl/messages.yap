@@ -213,7 +213,7 @@ compose_message(Term, Level) -->
 	main_message( Term, Level, LC ),
 	[nl,nl].
 
-location(error(syntax_error(syntax_error(_,between(_,LN,_),FileName,_)), _), _ ) -->
+location(error(syntax_error(syntax_error(_,between(_,LN,_),FileName,_))), _ ) -->
 	!,
 	[ '~a:~d:0: ' - [FileName,LN] ] .
 location(error(style_check(style_check(_,LN,FileName,_ ) ),_), _ ) -->

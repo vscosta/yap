@@ -52,7 +52,6 @@ initMod( AtomEntry *toname, AtomEntry *ae) {
     n->KindOfPE = ModProperty;
     n->PredForME = NULL;
     n->NextME = CurrentModules;
-    n->ParentForME = CurrentModule;
     CurrentModules = n;
     n->AtomOfME = ae;
     n->OwnerFile = Yap_ConsultingFile( PASS_REGS1);
@@ -260,6 +259,7 @@ static Int change_module(USES_REGS1) { /* $change_module(N)		 */
   Term mod = Deref(ARG1);
   LookupModule(mod);
   CurrentModule = mod;
+  LOCAL_SourceModule = mod;
   return TRUE;
 }
 

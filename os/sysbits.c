@@ -23,7 +23,7 @@ static char SccsId[] = "%W% %G%";
 
 /// File Error Handler
 static void
-Yap_FileError(yap_error_number type, Term where, const char *format,...)
+FileError(yap_error_number type, Term where, const char *format,...)
 {
 
     if ( trueLocalPrologFlag(FILEERRORS_FLAG) ) {
@@ -53,7 +53,7 @@ static int chdir(char *);
 /* #define signal	skel_signal */
 #endif /* MACYAP */
 static const char *
-expandVars(const char *spec);
+expandVars(const char *spec, char *u);
 
 void exit(int);
 
@@ -245,7 +245,11 @@ has_access(const char *FileName, int mode)
 static bool
 exists( const char *f)
 {
+#if _MSC_VER
+	return has_access(f, 00);
+#else
     return has_access( f, F_OK );
+#endif
 }
 
 static int
@@ -279,7 +283,7 @@ bool
 Yap_IsAbsolutePath(const char *p0)
 {
     // verify first if expansion is needed: ~/ or $HOME/
-    const char *p = expandVars( p0 );
+    const char *p = expandVars( p0,  LOCAL_FileNameBuf );
     bool nrc;
 #if _WIN32 || __MINGW32__
     nrc = !PathIsRelative(p);
@@ -334,13 +338,13 @@ PlExpandVars (const char *source, const char *root, char *result)
                 res++, src++;
             res[0] = '\0';
             if ((user_passwd = getpwnam (result)) == NULL) {
-                Yap_FileError(SYSTEM_ERROR_OPERATING_SYSTEM, MkAtomTerm(Yap_LookupAtom(source)),"User %s does not exist in %s", result, source);
+                FileError(SYSTEM_ERROR_OPERATING_SYSTEM, MkAtomTerm(Yap_LookupAtom(source)),"User %s does not exist in %s", result, source);
                 return NULL;
             }
             strncpy (result, user_passwd->pw_dir, YAP_FILENAME_MAX);
             strcat(result, src);
 #else
-            Yap_FileError(SYSTEM_ERROR_OPERATING_SYSTEM, MkAtomTerm(Yap_LookupAtom(source)),"User %s cannot be found in %s, missing getpwnam", result, source);
+            FileError(SYSTEM_ERROR_OPERATING_SYSTEM, MkAtomTerm(Yap_LookupAtom(source)),"User %s cannot be found in %s, missing getpwnam", result, source);
             return NULL;
 #endif
         }
@@ -531,7 +535,7 @@ DirName(const char *X) {
     if (!o)
         return NULL;
     if (( err = _splitpath_s(o, drive, YAP_FILENAME_MAX-1, dir, YAP_FILENAME_MAX-1,NULL, 0, NULL, 0) ) != 0) {
-        Yap_FileError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "could not perform _splitpath %s: %s", X, strerror(errno));
+        FileError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "could not perform _splitpath %s: %s", X, strerror(errno));
         return NULL;
 
     }
@@ -541,14 +545,15 @@ DirName(const char *X) {
 }
 #endif
 
-static const char *myrealpath( const char *path, char *out)
+static const char *myrealpath( const char *path)
 {
 #if _WIN32 || defined(__MINGW32__)
     DWORD  retval=0;
+	char *out = LOCAL_FileNameBuf;
 
     // notice that the file does not need to exist
     retval = GetFullPathName(path,
-                             MAX_PATH-1,
+                             YAP_FILENAME_MAX,
                              out,
                              NULL);
 
@@ -589,23 +594,22 @@ static const char *myrealpath( const char *path, char *out)
 	    }
 #endif
 	    strcat(rc, b);
-	    return rc;
+		    return rc;
 	  }
         }
     }
+#else
+    char *out = malloc(strlen(path)+1);
+    strcpy( out, path);
+    return out;
 #endif
-    char *rc = malloc(strlen(path)+1);
-    strcpy( rc, path);
-    const char * f = rc;
-    return f;
 }
 
 static const char *
-expandVars(const char *spec)
+expandVars(const char *spec, char *u)
 {
     CACHE_REGS
 #if _WIN32 || defined(__MINGW32__)
-    char u[YAP_FILENAME_MAX+1];
     char *out;
 
     // first pass, remove Unix style stuff
@@ -621,7 +625,7 @@ expandVars(const char *spec)
         if (IsPairTerm(t))
           return RepAtom(AtomOfTerm(HeadOfTerm(t)))->StrOfAE;
         return NULL;
-    }
+    } 
     return spec;
 }
 
@@ -641,7 +645,7 @@ Yap_AbsoluteFile(const char *spec, bool ok)
     rc = PlExpandVars(spec, NULL, NULL);
     if (!rc)
         rc = spec;
-    if ((p = myrealpath(rc, NULL )) ) {
+    if ((p = myrealpath(rc) ) ) {
         return p;
     } else {
         return NULL;
@@ -650,7 +654,7 @@ Yap_AbsoluteFile(const char *spec, bool ok)
 }
 
 /**
- * generate absolute path and stores path in an user given buffer. If
+ * generate absolute path and stores path in an user given buffer. If 
  * NULL, uses a temporary buffer that must be quickly released.
  *
  * if ok first expand variable names and do globbing
@@ -667,14 +671,12 @@ Yap_AbsoluteFileInBuffer(const char *spec, char *out, size_t sz, bool ok)
     const char*p;
     const char*rc;
     if (ok) {
-      rc = expandVars(spec);
+      rc = expandVars(spec, LOCAL_FileNameBuf);
     if (!rc)
         return spec;
-    } else {
-      rc = spec;
-    }
-
-    if ((p = myrealpath(rc, out) ) ) {
+     }
+    
+    if ((p = myrealpath(rc) ) ) {
       if (!out) {
 	out = LOCAL_FileNameBuf;
 	sz = YAP_FILENAME_MAX-1;
@@ -703,12 +705,12 @@ do_glob(const char *spec, bool glob_vs_wordexp)
     {
         WIN32_FIND_DATA find;
         HANDLE hFind;
+		const char *espec;
         CELL *dest;
-        char *espec;
-        Term tf;
+		Term tf;
 
         // first pass, remove Unix style stuff
-        if ((espec =unix2win(spec, u, YAP_FILENAME_MAX)) == NULL)
+        if (unix2win(espec, u, YAP_FILENAME_MAX) == NULL)
             return TermNil;
         espec = (const char *)u;
 
@@ -861,7 +863,6 @@ prolog_realpath( USES_REGS1 )
 {
     Term t1 = Deref(ARG1);
     const char *cmd;
-    char out[YAP_FILENAME_MAX];
 
     if (IsAtomTerm(t1)) {
         cmd = RepAtom(AtomOfTerm(t1))->StrOfAE;
@@ -870,7 +871,7 @@ prolog_realpath( USES_REGS1 )
     } else {
         return false;
     }
-    const char *rc = myrealpath( cmd , out);
+    const char *rc = myrealpath( cmd );
     if (!rc) {
         PlIOError( SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, strerror(errno));
         return false;
@@ -903,7 +904,7 @@ static const param_t expand_filename_defs[] = {EXPAND_FILENAME_DEFS()};
 
 static Term
 do_expand_file_name(Term t1, Term opts USES_REGS)
-{
+{ 
     xarg *args;
     expand_filename_enum_choices_t i;
     bool use_system_expansion = true;
@@ -925,6 +926,7 @@ do_expand_file_name(Term t1, Term opts USES_REGS)
     args = Yap_ArgListToVector(opts, expand_filename_defs, EXPAND_FILENAME_END);
     if (args == NULL) {
         return TermNil;
+
     }
     tmpe = malloc(YAP_FILENAME_MAX+1);
 
@@ -934,7 +936,7 @@ do_expand_file_name(Term t1, Term opts USES_REGS)
             switch (i) {
             case EXPAND_FILENAME_PARAMETER_EXPANSION:
                 if (t == TermProlog) {
-                    const char *s = expandVars( spec);
+                    const char *s = expandVars( spec, LOCAL_FileNameBuf);
                     if (s == NULL) {
                         return TermNil;
                     }
@@ -962,7 +964,7 @@ do_expand_file_name(Term t1, Term opts USES_REGS)
 
 
     if (!use_system_expansion) {
-      return MkPairTerm(MkAtomTerm(Yap_LookupAtom(expandVars(spec))), TermNil);
+      return MkPairTerm(MkAtomTerm(Yap_LookupAtom(expandVars(spec, NULL))), TermNil);
     }
     tf = do_glob(spec, true);
     return tf;
@@ -971,7 +973,7 @@ do_expand_file_name(Term t1, Term opts USES_REGS)
 /* @pred expand_file_name( +Pattern, -ListOfPaths) is det
 
 This builtin receives a pattern and expands it into a list of files.
-  In Unix-like systems, YAP applies glob to expand patterns such as '*', '.', and '?'. Further variable expansion
+  In Unix-like systems, YAP applies glob to expand patterns such as '*', '.', and '?'. Further variable expansion 
 may also happen. glob is shell-dependent: som   Yap_InitCPred ("absolute_file_system_path", 2, absolute_file_system_path, 0);
     Yap_InitCPred ("real_path", 2, prolog_realpath, 0);
     Yap_InitCPred ("true_file_name", 2,
@@ -1203,7 +1205,7 @@ initSysPath(Term tlib, Term tcommons, bool dir_done, bool commons_done) {
         while (*--pt != '\\') {
             /* skip executable */
             if (pt == LOCAL_FileNameBuf) {
-                Yap_FileError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "could not find executable name");
+                FileError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "could not find executable name");
                 /* do nothing */
                 return FALSE;
             }
@@ -1211,7 +1213,7 @@ initSysPath(Term tlib, Term tcommons, bool dir_done, bool commons_done) {
         while (*--pt != '\\') {
             /* skip parent directory "bin\\" */
             if (pt == LOCAL_FileNameBuf) {
-                Yap_FileError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "could not find executable name");
+                FileError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "could not find executable name");
                 /* do nothing */
                 return FALSE;
             }
@@ -1788,7 +1790,7 @@ p_mv ( USES_REGS1 )
         Yap_Error(TYPE_ERROR_ATOM, t2, "second argument to rename/2 not atom");
     } else {
       oldname = (RepAtom(AtomOfTerm(t1)))->StrOfAE;
-      newname = (RepAtom(AtomOfTerm(t2)))->StrOfAE;
+      newname = (RepAtom(AtomOfTerm(t2)))->StrOfAE;    
       if ((r = link (oldname, newname)) == 0 && (r = unlink (oldname)) != 0)
         unlink (newname);
       if (r != 0) {
@@ -2299,3 +2301,4 @@ Yap_InitSysPreds(void)
      Yap_InitCPred ("rmdir", 2, p_rmdir, SyncPredFlag);
     Yap_InitCPred ("make_directory", 1, make_directory, SyncPredFlag);
 }
+

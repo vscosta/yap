@@ -83,7 +83,7 @@ X_API int YAP_Reset(yap_reset_t mode);
 #define strncat(X, Y, Z) strcat(X, Y)
 #endif
 
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(X_API)
 #define X_API __declspec(dllexport)
 #endif
 
@@ -2345,7 +2345,7 @@ static void construct_init_file(char *boot_file, char *BootFile) {
 
 #define BOOT_FROM_SAVED_STATE TRUE
 
-X_API Int YAP_Init(YAP_init_args *yap_init) {
+Int YAP_Init(YAP_init_args *yap_init) {
   int restore_result;
   int do_bootstrap = (yap_init->YapPrologBootFile != NULL);
   CELL Trail = 0, Stack = 0, Heap = 0, Atts = 0;

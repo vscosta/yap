@@ -738,7 +738,7 @@ CodeVoidPAdjust__ (void * addr USES_REGS)
 {
   if (!addr)
     return NULL;
-  return addr + LOCAL_HDiff;
+  return (void *)((char *)addr + LOCAL_HDiff);
 }
 
 INLINE_ONLY inline EXTERN struct halt_hook *HaltHookAdjust__ (struct halt_hook * CACHE_TYPE);

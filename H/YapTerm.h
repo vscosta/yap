@@ -34,7 +34,11 @@ typedef void *Atom;
 
 
 #ifndef EXTERN
+#ifdef _MSC_VER
+#define EXTERN
+#else
 #define EXTERN extern
+#endif
 #endif
 
 /* defines integer  types Int and UInt (unsigned) with the same size as a ptr

@@ -607,7 +607,7 @@ extern X_API void  PL_fatal_error(const char *msg);
 extern X_API int Sprintf(const char * fm,...);
 extern X_API int Sdprintf(const char *,...);
 
-extern char *PL_prompt_string(int fd);
+extern X_API char *PL_prompt_string(int fd);
 
                  /*******************************
                  *        FILENAME SUPPORT      *
@@ -639,7 +639,7 @@ readline overhead.
 #define PL_DISPATCH_WAIT      1		/* Dispatch till input available */
 #define PL_DISPATCH_INSTALLED 2		/* dispatch function installed? */
 
-extern X_API int PL_dispatch(int fd, int wait);
+PL_EXPORT(int) PL_dispatch(int fd, int wait);
 PL_EXPORT(PL_dispatch_hook_t) 	PL_dispatch_hook(PL_dispatch_hook_t);
 PL_EXPORT(void)		PL_add_to_protocol(const char *buf, size_t count);
 PL_EXPORT(char *)	PL_prompt_string(int fd);
@@ -667,7 +667,7 @@ PL_EXPORT(pl_wchar_t*)  PL_atom_generator_w(const pl_wchar_t *pref,
 
 PL_EXPORT(LRESULT)	PL_win_message_proc(HWND hwnd,
 					    UINT message,
-					    WPARAM wParam,
+					//    WPARAM wParam,
 					    LPARAM lParam);
 #endif /*_WINDOWS_*/
 

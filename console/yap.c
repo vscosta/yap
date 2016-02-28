@@ -22,11 +22,12 @@
 #include "cut_c.h"
 
 #ifdef _MSC_VER /* Microsoft's Visual C++ Compiler */
-#ifdef  HAVE_UNISTD_H
 #undef  HAVE_UNISTD_H
 #endif
+#ifdef _WIN32 /* Microsoft's Visual C++ Compiler */
+#include <windows.h>
+#include <io.h>
 #endif
-
 #include <stdio.h>
 #if HAVE_SYS_TYPES_H
 #include <sys/types.h>
@@ -57,6 +58,7 @@
 #include <ieeefp.h>
 #endif
 
+
 static void do_top_goal(YAP_Term Goal);
 static void exec_top_level(int BootMode, YAP_init_args *iap);
 
@@ -68,13 +70,7 @@ static void exec_top_level(int BootMode, YAP_init_args *iap);
 long _stksize = 32000;
 #endif
 
-#ifdef USE_MYPUTC
-static void
-myputc (int ch)
-{
-  putc(ch,stderr);
-}
-#endif
+
 
 static void
 do_top_goal (YAP_Term Goal)
@@ -87,7 +83,7 @@ init_standard_system(int argc, char *argv[], YAP_init_args *iap)
 {
   int BootMode;
 
-  BootMode = YAP_parse_yap_arguments(argc,argv,iap);
+//  BootMode = YAP_parse_yap_arguments(argc,argv,iap);
 
   /* init memory */
   if (BootMode == YAP_BOOT_FROM_PROLOG ||
@@ -142,16 +138,8 @@ main (int argc, char **argv)
 #endif
 {
   int BootMode;
-  YAP_init_args init_args;
   int i;
 
-#if DEBUG_LOCKS
-  char buf[1024];
-  sprintf(buf, "/tmp/yap%d", getpid());
-  debugf= fopen(buf, "w");
-  if (!debugf) fprintf(stderr,"ERROR %s\n", strerror(errno));
-  setvbuf( debugf,NULL, _IOLBF, 1024);
-#endif
   BootMode = init_standard_system(argc, argv, &init_args);
   if (BootMode == YAP_BOOT_ERROR) {
     fprintf(stderr,"[ FATAL ERROR: could not find saved state ]\n");

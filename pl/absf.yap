@@ -654,13 +654,6 @@ user:prolog_file_type(A, prolog) :-
 	A \== pl,
 	A \== yap.
 user:prolog_file_type(qly, qly).
-user:prolog_file_type(c, c).
-user:prolog_file_type(h, c).
-user:prolog_file_type(py, python).
-user:prolog_file_type(r, 'R').
-user:prolog_file_type(cc, 'c++').
-user:prolog_file_type(hh, 'c++').
-user:prolog_file_type(java, 'c++').
 user:prolog_file_type(A, executable) :-
 	current_prolog_flag(shared_object_extension, A).
 

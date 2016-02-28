@@ -152,7 +152,7 @@ typedef struct read_data_t {
 } read_data, *ReadData;
 
 Term Yap_read_term(int inp_stream, Term opts, int nargs);
-Term Yap_Parse(UInt prio, Term tmod);
+Term Yap_Parse(UInt prio);
 
 void init_read_data(ReadData _PL_rd, struct stream_desc *s);
 
@@ -207,7 +207,7 @@ typedef struct stream_desc {
   lockvar streamlock; /* protect stream access */
 #endif
   int (*stream_putc)(int, int); /** function the stream uses for writing a single octet */
-  int (*stream_wputc)(int, wchar_t); /** function the stream uses for writing a character */
+  int (*stream_wputc)(int, int); /** function the stream uses for writing a character */
   int (*stream_getc)(int);      /** function the stream uses for reading an octet. */
   int (*stream_wgetc)(int);  /** function the stream uses for reading a character. */
 
@@ -305,7 +305,7 @@ Term Yap_syntax_error(TokEntry *tokptr, int sno);
 
 int console_post_process_read_char(int, StreamDesc *);
 int console_post_process_eof(StreamDesc *);
-int post_process_read_wchar(int, ssize_t, StreamDesc *);
+int post_process_read_wchar(int, size_t, StreamDesc *);
 int post_process_weof(StreamDesc *);
 
 bool is_same_tty(FILE *f1, FILE *f2);

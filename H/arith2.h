@@ -74,8 +74,15 @@ mul_overflow(Int z, Int i1, Int i2)
   return (i2 &&  z/i2 != i1);
 }
 
-#ifndef OPTIMIZE_MULTIPLI
-#if __clang__ && FALSE  /* not in OSX yet */
+#if defined(_MSC_VER) && SIZEOF_DOUBLE == SIZEOF_INT_P
+#define DO_MULTI() { \
+uint64_t  h1 = (11 > 0 ? i1 : -i1) >> 32;\
+uint64_t  h2 = (12 > 0 ? i2 : -12) >> 32;\
+if (h1 != 0 && h2 != 0) goto overflow;\
+if ((uint64_t)(i1 & 0xfffffff)*h2 + ((uint64_t)(i2 & 0xfffffff)*h1) > 0x7fffffff) goto overflow;\
+z = i1 * i2;\
+}
+#elif __clang__ && FALSE  /* not in OSX yet */
 #define DO_MULTI() if (__builtin_smul_overflow( i1, i2, & z ) ) { goto overflow; }
 #elif  SIZEOF_DOUBLE == 2*SIZEOF_INT_P
 #define DO_MULTI() {\
@@ -97,7 +104,6 @@ mul_overflow(Int z, Int i1, Int i2)
   }\
   z = (Int)w;					\
 }
-#endif
 #endif
 
 inline static Term

@@ -938,6 +938,15 @@ typedef struct choicept {
   CELL *cp_env;
   /* GNUCC understands empty arrays */
   CELL cp_args[MIN_ARRAY];
+#else
+  /* Otherwise, we need a very dirty trick to access the arguments */
+  union {
+    CELL *cp_uenv;
+    CELL  cp_xargs[1];
+  } cp_last;
+#define cp_env		cp_last.cp_uenv
+#define cp_args		cp_last.cp_xargs
+#endif
 #define cp_a1		cp_args[0]
 #define cp_a2		cp_args[1]
 #define cp_a3		cp_args[2]
@@ -949,23 +958,6 @@ typedef struct choicept {
 #define cp_a9		cp_args[8]
 #define cp_a10		cp_args[9]
 #define EXTRA_CBACK_ARG(Arity,Offset)  B->cp_args[(Arity)+(Offset)-1]
-#else
-  /* Otherwise, we need a very dirty trick to access the arguments */
-  union {
-    CELL *cp_uenv;
-    CELL  cp_args[1];
-  } cp_last;
-#define cp_env		cp_last.cp_uenv
-#define cp_a1		cp_last.cp_args[1]
-#define cp_a2		cp_last.cp_args[2]
-#define cp_a3		cp_last.cp_args[3]
-#define cp_a4		cp_last.cp_args[4]
-#define cp_a5		cp_last.cp_args[5]
-#define cp_a6		cp_last.cp_args[6]
-#define cp_a7		cp_last.cp_args[7]
-#define cp_a8		cp_last.cp_args[8]
-#define EXTRA_CBACK_ARG(Arity,Offset)  B->cp_last.cp_args[(Arity)+(Offset)]
-#endif
 } *choiceptr;
 
 /* This has problems with \+ \+ a, !, b. */
@@ -1062,10 +1054,9 @@ OPCODE ENV_ToOp(yamop *cp)
 }
 
 static inline
-size_t EnvSize(yamop *cp)
+int64_t EnvSize(yamop *cp)
 {
-  return ((-ENV_Size(cp
-                     ))/(OPREG)sizeof(CELL));
+  return (-ENV_Size(cp)/sizeof(CELL));
 }
 
 static inline

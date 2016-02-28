@@ -131,7 +131,7 @@ char				pwd[YAP_FILENAME_MAX]			void
 //udi.c
 //struct udi_control_block 	RtreeCmd				void	
 
-const char*	 	RestoreFile				void	
+char*			 	RestoreFile				void	
 
 //gprof.c
 Int 				ProfCalls				void 

@@ -30,7 +30,9 @@ static char     SccsId[] = "%W% %G%";
 #include "yapio.h"
 #include "blobs.h"
 #include <stdio.h>
+#if HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #if HAVE_STRING_H
 #include <string.h>
 #endif

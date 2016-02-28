@@ -1,5 +1,7 @@
 #include <stdlib.h>
+#if HAVE_SYS_TIME_H 
 #include <sys/time.h>
+#endif
 
 #if defined MYDDAS_STATS
 

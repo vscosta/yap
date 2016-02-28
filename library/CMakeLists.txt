@@ -8,14 +8,12 @@ set (LIBRARY_PL
   autoloader.yap
   avl.yap
   bhash.yap
-  bootlists.yap
   charsio.yap
   clauses.yap
   coinduction.yap
   dbqueues.yap
   dbusage.yap
   dgraphs.yap
-  error.yap
   exo_interval.yap
   expand_macros.yap
   gensym.yap
