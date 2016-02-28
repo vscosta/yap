@@ -186,7 +186,7 @@ do_SYSTEM_ERROR_INTERNAL(yap_error_number etype, const char *msg)
 
 inline static
 int myread(FILE *fd, char *buffer, Int len) {
-  ssize_t nread;
+  size_t nread;
 
   while (len > 0) {
     nread = fread(buffer, 1,  (int)len, fd);
@@ -202,7 +202,7 @@ int myread(FILE *fd, char *buffer, Int len) {
 inline static
 Int
 mywrite(FILE *fd, char *buff, Int len) {
-  ssize_t nwritten;
+  size_t nwritten;
   
   while (len > 0) {
     nwritten = fwrite(buff, 1, (size_t)len, fd);
@@ -1440,7 +1440,7 @@ OpenRestore(const char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL 
   CACHE_REGS
     
   int mode;
-  char fname[PATH_MAX+1];
+  char fname[YAP_FILENAME_MAX +1];
 
   if (!Yap_findFile( inpf, YAP_STARTUP, YapLibDir, fname, true, YAP_SAVED_STATE, true, true))
     return false;

@@ -43,7 +43,7 @@
 % efficient.  
 % 
 % ranpkg.pl	random number package	Allen Van Gelder, Stanford
-%
+vvvvvv 
 % rannum produces a random non-negative integer whose low bits are not
 % all that random, so it should be scaled to a smaller range in general.
 % The integer is in the range 0 .. 2^(w-1) - 1,

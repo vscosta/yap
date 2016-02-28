@@ -385,8 +385,7 @@ static Int p_systime(USES_REGS1) {
 }
 
 static Int p_walltime(USES_REGS1) {
-  Int now, interval;
-  Yap_walltime_interval(&now, &interval);
+  uint64_t now, interval;
   return (Yap_unify_constant(ARG1, MkIntegerTerm(now)) &&
           Yap_unify_constant(ARG2, MkIntegerTerm(interval)));
 }
@@ -984,27 +983,24 @@ int Yap_IsOpMaxPrio(Atom at) {
   return max;
 }
 
-static bool unify_op(OpEntry *op, Term emod USES_REGS) {
+static Int unify_op(OpEntry *op USES_REGS) {
   Term tmod = op->OpModule;
 
-  if (tmod != PROLOG_MODULE &&
-      tmod != USER_MODULE &&
-      tmod != emod  &&
-      (op->Prefix || op->Infix || op->Posfix))
-     return false;
-  return Yap_unify_constant(ARG3, MkIntegerTerm(op->Prefix)) &&
+  if (tmod == PROLOG_MODULE)
+    tmod = TermProlog;
+  return Yap_unify_constant(ARG2, tmod) &&
+         Yap_unify_constant(ARG3, MkIntegerTerm(op->Prefix)) &&
          Yap_unify_constant(ARG4, MkIntegerTerm(op->Infix)) &&
          Yap_unify_constant(ARG5, MkIntegerTerm(op->Posfix));
 }
 
 static Int cont_current_op(USES_REGS1) {
   OpEntry *op = (OpEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(5, 1)), *next;
-  Term emod = Deref(ARG2);
-  
+
   READ_LOCK(op->OpRWLock);
   next = op->OpNext;
   if (Yap_unify_constant(ARG1, MkAtomTerm(op->OpName)) &&
-      unify_op(op, emod PASS_REGS)) {
+      unify_op(op PASS_REGS)) {
     READ_UNLOCK(op->OpRWLock);
     if (next) {
       EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((CELL)next);
@@ -1017,6 +1013,7 @@ static Int cont_current_op(USES_REGS1) {
     READ_UNLOCK(op->OpRWLock);
     if (next) {
       EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((CELL)next);
+      B->cp_h = HR;
       return FALSE;
     } else {
       cut_fail();
@@ -1036,7 +1033,7 @@ static Int cont_current_atom_op(USES_REGS1) {
 
   READ_LOCK(op->OpRWLock);
   next = NextOp(RepOpProp(op->NextOfPE) PASS_REGS);
-  if (unify_op(op, CurrentModule PASS_REGS)) {
+  if (unify_op(op PASS_REGS)) {
     READ_UNLOCK(op->OpRWLock);
     if (next) {
       EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((CELL)next);

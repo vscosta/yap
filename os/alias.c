@@ -68,7 +68,6 @@ static char SccsId[] = "%W% %G%";
 #include <stdarg.h>
 #endif
 #ifdef HAVE_UNISTD_H
-
 #include <unistd.h>
 #endif
 #if HAVE_CTYPE_H

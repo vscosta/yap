@@ -153,6 +153,6 @@ void Yap_InitRandom (void);
 void Yap_InitTime (int wid);
 void Yap_InitOSSignals (int wid);
 void Yap_InitWTime(void);
-void Yap_InitLastWTime ( void );
+
 
 

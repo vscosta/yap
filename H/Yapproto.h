@@ -13,6 +13,10 @@
 * version:      $Id: Yapproto.h,v 1.90 2008-08-07 20:51:23 vsc Exp $	 *
 *************************************************************************/
 
+#if defined(_WIN32)
+#define X_API __declspec(dllexport)
+#endif
+
 /* prototype file for Yap */
 
 /* absmi.c */
@@ -111,11 +115,11 @@ size_t Yap_OpaqueTermToString(Term t, char *str, size_t max);
 
 /* c_interface.c */
 #ifndef YAP_CPP_INTERFACE
-Int YAP_Execute(struct pred_entry *, CPredicate);
-Int YAP_ExecuteFirst(struct pred_entry *, CPredicate);
-Int YAP_ExecuteNext(struct pred_entry *, CPredicate);
-Int YAP_ExecuteOnCut(struct pred_entry *, CPredicate, struct cut_c_str *);
-Int YAP_RunGoalOnce(Term);
+X_API Int YAP_Execute(struct pred_entry *, CPredicate);
+X_API Int YAP_ExecuteFirst(struct pred_entry *, CPredicate);
+X_API Int YAP_ExecuteNext(struct pred_entry *, CPredicate);
+X_API Int YAP_ExecuteOnCut(struct pred_entry *, CPredicate, struct cut_c_str *);
+X_API Int YAP_RunGoalOnce(Term);
 #endif
 
 /* cdmgr.c */
@@ -388,14 +392,14 @@ int Yap_IsOpMaxPrio(Atom);
 void Yap_InitPageSize(void);
 bool Yap_set_fpu_exceptions(Term);
 UInt Yap_cputime(void);
-Int Yap_walltime(void);
+uint64_t Yap_walltime(void);
 int Yap_dir_separator(int);
 int Yap_volume_header(char *);
 int Yap_signal_index(const char *);
 #ifdef MAC
 void Yap_SetTextFile(char *);
 #endif
-#if __ANDROIDD__
+#if __ANDROID__
 extern AAssetManager *Yap_assetManager;
 
 extern void *Yap_openAssetFile(const char *path);
@@ -404,7 +408,6 @@ extern bool Yap_isAsset(const char *path);
 const char *Yap_getcwd(const char *, size_t);
 void Yap_cputime_interval(Int *, Int *);
 void Yap_systime_interval(Int *, Int *);
-void Yap_walltime_interval(Int *, Int *);
 void Yap_InitSysbits(int wid);
 void Yap_InitSysPreds(void);
 void Yap_InitcTime(int);

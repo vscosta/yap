@@ -48,45 +48,37 @@ a postfix operator.
  
 */
  op(P,T,V) :-
-     '$yap_strip_module'(V, M, N),
-	 '$check_top_op'(P,T,N,M,op(P,T,V)).
+	 '$check_op'(P,T,V,op(P,T,V)),
+	 '$op'(P, T, V).
 
 % just check the operator declarations for correctness.
-'$check_top_op'(P,T,Op,_M,G) :-
+'$check_op'(P,T,Op,G) :-
 	( var(P) ; var(T); var(Op)), !,
 	'$do_error'(instantiation_error,G).
-'$check_top_op'(P,_,_,_,G) :-
+'$check_op'(P,_,_,G) :-
 	\+ integer(P), !,
 	'$do_error'(type_error(integer,P),G).
-'$check_top_op'(P,_,_,_,G) :-
+'$check_op'(P,_,_,G) :-
 	P < 0, !,
 	'$do_error'(domain_error(operator_priority,P),G).
-'$check_top_op'(_,T,_,_,G) :-
+'$check_op'(_,T,_,G) :-
 	\+ atom(T), !,
 	'$do_error'(type_error(atom,T),G).
-'$check_top_op'(_,T,_,_,G) :-
+'$check_op'(_,T,_,G) :-
 	\+  '$associativity'(T), !,
 	'$do_error'(domain_error(operator_specifier,T),G).
-'$check_top_op'(P, T, M:Op, _M, G) :- !,
-    '$vsc_strip_module'(M:Op, M1, Op1),
-  (
-     atom(M1)
-    ->
-     '$check_top_op'(P, T, Op1, M1, G)
-    ;
-     '$do_error'(type_error(atom,Op),G)
-  ).
-'$check_top_op'(P, T, [Op|NV], M, G) :- !,
-	'$check_top_op'(P, T, Op, M, G),
-    (NV = []
-    ->
-     true
-    ;
-     '$check_top_op'(P, T, NV, M, G)
-    ).
-'$check_top_op'(P, T, V, M, G) :-
-	'$check_op_name'(P, T, V, M, G),
-    '$opdec'(P, T, V, M).
+'$check_op'(P,T,V,G) :-
+	'$check_module_for_op'(V, G, NV),
+	'$check_top_op'(P, T, NV, G).
+
+'$check_top_op'(_, _, [], _) :- !.
+'$check_top_op'(P, T, [Op|NV], G) :- !,
+	'$check_ops'(P, T, Op.NV, G).
+'$check_top_op'(P, T, V, G) :-
+	atom(V), !,
+	'$check_op_name'(P, T, V, G).
+'$check_top_op'(_P, _T, V, G) :-
+	'$do_error'(type_error(atom,V),G).
 
  '$associativity'(xfx).
  '$associativity'(xfy).
@@ -97,16 +89,43 @@ a postfix operator.
  '$associativity'(fx).
  '$associativity'(fy).
 
-'$check_op_name'(_,_,V,_,G) :-
+'$check_module_for_op'(MOp, G, _) :-
+	var(MOp), !,
+	'$do_error'(instantiation_error,G).
+'$check_module_for_op'(M:_V, G, _) :-
+	var(M), !,
+	'$do_error'(instantiation_error,G).
+'$check_module_for_op'(M:V, G, NV) :-
+	atom(M), !,
+	'$check_module_for_op'(V, G, NV).
+'$check_module_for_op'(M:_V, G, _) :- !,
+	'$do_error'(type_error(atom,M),G).
+'$check_module_for_op'(V, _G, V).
+
+'$check_ops'(_P, _T, [], _G) :- !.
+'$check_ops'(P, T, [Op|NV], G) :- !,
+	(
+	 var(NV)
+	->
+	 '$do_error'(instantiation_error,G)
+	;
+	 '$check_module_for_op'(Op, G, NOp),
+	 '$check_op_name'(P, T, NOp, G),
+	 '$check_ops'(P, T, NV, G)
+	).	
+'$check_ops'(_P, _T, Ops, G) :-
+	'$do_error'(type_error(list,Ops),G).
+
+'$check_op_name'(_,_,V,G) :-
 	  var(V), !,
 	  '$do_error'(instantiation_error,G).
- '$check_op_name'(_,_,',',_,G) :- !,
+ '$check_op_name'(_,_,',',G) :- !,
 	  '$do_error'(permission_error(modify,operator,','),G).
-'$check_op_name'(_,_,'[]',_,G) :-  T \= yf, T\= xf, !,
+'$check_op_name'(_,_,'[]',G) :-  T \= yf, T\= xf, !,
 	  '$do_error'(permission_error(create,operator,'[]'),G).
-'$check_op_name'(_,_,'{}',_,G) :- T \= yf, T\= xf, !,
+'$check_op_name'(_,_,'{}',G) :- T \= yf, T\= xf, !,
 	  '$do_error'(permission_error(create,operator,'{}'),G).
-'$check_op_name'(P,T,'|',_,G) :-
+'$check_op_name'(P,T,'|',G) :-
 	 (
 	  integer(P),
 	  P < 1001, P > 0
@@ -114,31 +133,77 @@ a postfix operator.
 	  atom_codes(T,[_,_])
 	 ), !,
 	 '$do_error'(permission_error(create,operator,'|'),G).
-'$check_op_name'(P,T,A,M,_G) :-
-    atom(A), !,
-    '$opdec'( P, T, A, M).
-'$check_op_name'(_,_,A,_,G) :-
+'$check_op_name'(_,_,V,_) :-
+	 atom(V), !.
+'$check_op_name'(_,_,A,G) :-
 	 '$do_error'(type_error(atom,A),G).
-	
+
+'$op'(P, T, ML) :-
+	strip_module(ML, M, [A|As]), !,
+	'$opl'(P, T, M, [A|As]).
+'$op'(P, T, A) :-
+	'$op2'(P,T,A).
+
+'$opl'(_P, _T, _, []).
+'$opl'(P, T, M, [A|As]) :-
+	'$op2'(P, T, M:A),
+	'$opl'(P, T, M, As).
+
+'$op2'(P,T,A) :-
+	atom(A), !,
+	'$opdec'(P,T,A,prolog).
+'$op2'(P,T,A) :-
+	strip_module(A,M,N),
+	'$opdec'(P,T,N,M).
 
 /** @pred current_op( _P_, _T_, _F_) is iso 
 
 
 Defines the relation:  _P_ is a currently defined  operator of type
-b*c _T_ and precedence  _P_. Returns only operators defined in current module.
+ _T_ and precedence  _P_.
 
  
 */
-current_op(X,Y,V) :-
-	'$yap_strip_module'(V,M,O),
-	'$do_current_op'(X, Y, O, M).
+current_op(X,Y,V) :- var(V), !,
+	'$current_module'(M),
+	'$do_current_op'(X,Y,V,M).
+current_op(X,Y,M:Z) :- !,
+	'$current_opm'(X,Y,Z,M).
+current_op(X,Y,Z) :-
+	'$current_module'(M),
+	'$do_current_op'(X,Y,Z,M).
 
-'$do_current_op'(X,Y,Z, M) :-
+
+'$current_opm'(X,Y,Z,M) :-
+	nonvar(Y),
+	\+ '$associativity'(Y),
+	'$do_error'(domain_error(operator_specifier,Y),current_op(X,Y,M:Z)).
+'$current_opm'(X,Y,Z,M) :-
+	var(Z), !,
+	'$do_current_op'(X,Y,Z,M).
+'$current_opm'(X,Y,M:Z,_) :- !,
+	'$current_opm'(X,Y,Z,M).
+'$current_opm'(X,Y,Z,M) :-
+	'$do_current_op'(X,Y,Z,M).
+
+'$do_current_op'(X,Y,Z,M) :-
 	nonvar(Y),
 	\+ '$associativity'(Y),
 	'$do_error'(domain_error(operator_specifier,Y),current_op(X,Y,M:Z)).
 '$do_current_op'(X,Y,Z,M) :-
-	'$current_op'(Z, M, Prefix, Infix, Posfix),
+	atom(Z), !,
+	'$current_atom_op'(Z, M1, Prefix, Infix, Posfix),
+	( M1 = prolog -> true ; M1 = M ),
+	(
+	 '$get_prefix'(Prefix, X, Y)
+	;
+	 '$get_infix'(Infix, X, Y)
+	;
+	 '$get_posfix'(Posfix, X, Y)
+	).
+'$do_current_op'(X,Y,Z,M) :-
+	'$current_op'(Z, M1, Prefix, Infix, Posfix),
+	( M1 = prolog -> true ; M1 = M ),
 	(
 	 '$get_prefix'(Prefix, X, Y)
 	;

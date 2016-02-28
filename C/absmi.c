@@ -644,7 +644,7 @@ push_live_regs(yamop *pco)
 }
 #endif
 
-#if defined(ANALYST) || defined(DEBUG)
+#if USE_THREADED_CODE && (defined(ANALYST) || defined(DEBUG))
 
 char *Yap_op_names[] =
 {
@@ -1066,27 +1066,27 @@ static void
 execute_dealloc( USES_REGS1 )
 {
      /* other instructions do depend on S being set by deallocate
-         :-( */
-  CELL *ENV_YREG = YENV;
-  S = ENV_YREG;
-  CP = (yamop *) ENV_YREG[E_CP];
-  ENV = ENV_YREG = (CELL *) ENV_YREG[E_E];
+         */
+  CELL *ENVYREG = YENV;
+  S = ENVYREG;
+  CP = (yamop *) ENVYREG[E_CP];
+  ENV = ENVYREG = (CELL *) ENVYREG[E_E];
 #ifdef DEPTH_LIMIT
-  DEPTH = ENV_YREG[E_DEPTH];
+  DEPTH = ENVYREG[E_DEPTH];
 #endif  /* DEPTH_LIMIT */
 #ifdef FROZEN_STACKS
   {
     choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
-    if (ENV_YREG > (CELL *) top_b || ENV_YREG < HR) ENV_YREG = (CELL *) top_b;
+    if (ENVYREG > (CELL *) top_b || ENVYREG < HR) ENVYREG = (CELL *) top_b;
 #else
-    if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
+    if (ENVYREG > (CELL *) top_b) ENVYREG = (CELL *) top_b;
 #endif /* YAPOR_SBA */
-    else ENV_YREG = (CELL *)((CELL) ENV_YREG + ENV_Size(CP));
+    else ENVYREG = (CELL *)((CELL) ENVYREG + ENV_Size(CP));
   }
 #else
-  if (ENV_YREG > (CELL *) B)
-    ENV_YREG = (CELL *) B;
+  if (ENVYREG > (CELL *) B)
+    ENVYREG = (CELL *) B;
       else
         ENV_YREG = (CELL *) ((CELL) ENV_YREG + ENV_Size(CP));
 #endif /* FROZEN_STACKS */

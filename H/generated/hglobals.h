@@ -111,7 +111,7 @@ typedef struct global_data {
 #endif
 //udi.c
 //struct udi_control_block 	RtreeCmd				void	
-const char*  RestoreFile_;
+  char*  RestoreFile_;
 //gprof.c
   Int  ProfCalls_;
   Int  ProfGCs_;

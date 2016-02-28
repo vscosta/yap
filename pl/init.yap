@@ -115,7 +115,7 @@ otherwise.
 
 :- compile_expressions.
 
-:- bootstrap('../library/bootlists.yap').
+:- bootstrap('lists.yap').
 :- bootstrap('consult.yap').
 :- bootstrap('preddecls.yap').
 :- bootstrap('preddyns.yap').

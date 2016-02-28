@@ -6,14 +6,10 @@
                    op(995, xfx, given),
                    op(990, xfx, returns)] ).
 
-:-      (current_op(X,Y,O), write(M0:O), fail:nl).
-
 :- use_module( library(clauses) ).
 :- use_module( library(maplist) ).
 :- use_module( library(gensym) ).
 :- use_module( library(lists) ).
-
-:-      (current_op(X,Y,O), write(M0:O), fail:nl).
 
 :- multifile test/1.
 

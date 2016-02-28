@@ -407,9 +407,7 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
 
   re->bq = getBackQuotesFlag();
   if (args[READ_MODULE].used) {
-    fe->cmod = args[READ_MODULE].tvalue;
-    if (fe->cmod == TermProlog)
-      fe->cmod = PROLOG_MODULE;
+    CurrentModule = args[READ_MODULE].tvalue;
   }
   if (args[READ_BACKQUOTED_STRING].used) {
     if (!setBackQuotesFlag(args[READ_BACKQUOTED_STRING].tvalue))
@@ -422,6 +420,8 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   }
   if (args[READ_COMMENTS].used) {
     fe->tcomms = args[READ_COMMENTS].tvalue;
+    if (fe->tcomms == TermProlog)
+      fe->tcomms = PROLOG_MODULE;
   } else {
     fe->tcomms = 0;
   }
@@ -451,7 +451,7 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
     fe->np = 0;
   }
   if (args[READ_CHARACTER_ESCAPES].used ||
-      Yap_CharacterEscapes(fe->cmod)) {
+      Yap_CharacterEscapes(CurrentModule)) {
     fe->ce = true;
   } else {
     fe->ce = false;
@@ -625,6 +625,9 @@ static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
     CACHE_REGS
   Term v1, v2, v3, vc, tp;
 
+  CurrentModule = fe->cmod;
+  if (CurrentModule == TermProlog)
+    CurrentModule = PROLOG_MODULE;
   if (fe->t && fe->vp)
     v1 = get_variables(fe, tokstart);
   else
@@ -660,6 +663,9 @@ static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart) {
     CACHE_REGS
   Term v_vp, v_vnames, v_comments, v_pos;
 
+  CurrentModule = fe->cmod;
+  if (CurrentModule == TermProlog)
+    CurrentModule = PROLOG_MODULE;
   if (fe->t && fe->vp)
     v_vp = get_variables(fe, tokstart);
   else
@@ -880,7 +886,7 @@ static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
   TokEntry *tokstart = LOCAL_tokptr;
   encoding_t e = LOCAL_encoding;
   LOCAL_encoding = fe->enc;
-  fe->t = Yap_Parse(re->prio, fe->cmod);
+  fe->t = Yap_Parse(re->prio);
   LOCAL_encoding = e;
   fe->toklast = LOCAL_tokptr;
   LOCAL_tokptr = tokstart;
@@ -1018,7 +1024,15 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re,
   }
   re->bq = getBackQuotesFlag();
   fe->enc = GLOBAL_Stream[inp_stream].encoding;
-  fe->cmod = LOCAL_SourceModule;
+  fe->cmod = CurrentModule;
+  CurrentModule = LOCAL_SourceModule;
+  if (CurrentModule == TermProlog)
+    CurrentModule = PROLOG_MODULE;
+  if (args[READ_CLAUSE_MODULE].used) {
+    fe->tcomms = args[READ_CLAUSE_MODULE].tvalue;
+  } else {
+    fe->tcomms = 0L;
+  }
   fe->sp = 0;
   fe->qq = 0;
   if (args[READ_CLAUSE_TERM_POSITION].used) {
@@ -1026,14 +1040,11 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re,
   } else {
     fe->tp = 0;
   }
-  if (args[READ_CLAUSE_MODULE].used) {
-    fe->cmod = args[READ_CLAUSE_MODULE].tvalue;
-    if (fe->cmod == TermProlog)
-      fe->cmod = PROLOG_MODULE;
-  } 
   fe->sp = 0;
   if (args[READ_CLAUSE_COMMENTS].used) {
     fe->tcomms = args[READ_CLAUSE_COMMENTS].tvalue;
+    if (fe->tcomms == TermProlog)
+      fe->tcomms = PROLOG_MODULE;
   } else {
     fe->tcomms = 0L;
   }
@@ -1053,7 +1064,7 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re,
   } else {
     fe->vp = 0;
   }
-  fe->ce = Yap_CharacterEscapes(fe->cmod);
+  fe->ce = Yap_CharacterEscapes(CurrentModule);
   re->seekable = (GLOBAL_Stream[inp_stream].status & Seekable_Stream_f) != 0;
   if (re->seekable) {
 #if HAVE_FGETPOS

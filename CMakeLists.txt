@@ -128,8 +128,9 @@ set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
   #
   include (Config)
 
+IF (NOT MSVC)
   target_link_libraries(libYap m)
-
+ENDIF (NOT MSVC)
 
 set_target_properties(libYap
   PROPERTIES VERSION ${YAP_FULL_VERSION}
@@ -286,18 +287,23 @@ include_directories ( utf8proc )
 set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  UTF8PROC=1)
 ADD_SUBDIRECTORY ( utf8proc )
 
-macro_optional_find_package (GMP ON)
+find_package (GMP)
 macro_log_feature (GMP_FOUND
-  "libgmp"
+  "GNU libgmp (in some cases MPIR"
   "GNU big integers and rationals"
   "http://gmplib.org")
   set(YAP_SYSTEM_OPTIONS "big_numbers " ${YAP_SYSTEM_OPTIONS})
 if (GMP_FOUND)
-  include_directories (${GMP_INCLUDE_DIR})
+# GMP_FOUND         - true if GMP/MPIR was found
+# GMP_INCLUDE_DIRS  - include search path
+# GMP_LIBARIES      - libraries to link with
+# GMP_LIBARY_DLL    - library DLL to install. Only available on WIN32.
+# GMP_LIBRARIES_DIR - the directory the library we link with is found in.
+  include_directories (${GMP_INCLUDE_DIRS})
     #add_executable(test ${SOURCES})
     target_link_libraries(libYap ${GMP_LIBRARIES})
     #config.h needs this (TODO: change in code latter)
-    set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${GMP_INCLUDE_DIR} )
+    set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${GMP_INCLUDE_DIRS} )
     #set( CMAKE_REQUIRED_LIBRARIES  ${GMP_LIBRARIES} ${CMAKE_REQUIRED_LIBRARIES} )
   endif (GMP_FOUND)
 
@@ -409,9 +415,19 @@ add_subDIRECTORY (packages/ProbLog)
 
 add_subDIRECTORY (packages/swi-minisat2)
 
-add_subDIRECTORY (packages/CLPBN)
+OPTION (WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages"  ON)
 
+OPTION (WITH_CPLINT " Enable the cplint probabilistic language"  ON)
+
+OPTION (WITH_HORUS " Enable the CLPBN and PFL probabilistic languages"  ON)
+
+IF (WITH_CLPBN)
+add_subDIRECTORY (packages/CLPBN)
+ENDIF()
+
+IF (WITH_CPLINT)
 add_subDIRECTORY (packages/cplint)
+ENDIF()
 
 add_subDIRECTORY (packages/raptor)
 
@@ -426,7 +442,7 @@ add_subDIRECTORY (packages/xml)
 option (WITH_DOCS
   "generate YAP docs" OFF)
 
-  add_subDIRECTORY (docs)
+ # add_subDIRECTORY (docs)
 
 
 # add_subDIRECTORY (packages/cuda)
@@ -506,8 +522,10 @@ target_link_libraries(libYap
   )
 
 if(WIN32)
-  target_link_libraries(libYap  wsock32 ws2_32 Shlwapi
-    )
+  if(MSVC)
+      set(MSVC_RUNTIME "dynamic")  
+  ENDIF(MSVC)
+  target_link_libraries(libYap  wsock32 ws2_32 Shlwapi)
 endif()
 
 add_executable (yap-bin ${CONSOLE_SOURCES})

@@ -20,7 +20,9 @@
 #define OPT_MAVAR_STATIC
 #include "Yatom.h"
 #include "YapHeap.h"
+#if HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #include <signal.h>
 #ifdef YAPOR
 #include "or.macros.h"

@@ -166,9 +166,9 @@ trie_stats;
 
 #define SHOW_TABLE_STR_ARRAY_SIZE 100000
 #define SHOW_TABLE_ARITY_ARRAY_SIZE 10000
-#define SHOW_TABLE_STRUCTURE(MESG, ARGS...)                                    \
+#define SHOW_TABLE_STRUCTURE( ...)                                    \
   if (TrStat_show == SHOW_MODE_STRUCTURE)                                      \
-  fprintf(TrStat_out, MESG, ##ARGS)
+  fprintf(TrStat_out, __VA_ARGS__ )
 
 #define CHECK_DECREMENT_GLOBAL_TRIE_REFERENCE(REF, MODE)                       \
   if (MODE == TRAVERSE_MODE_NORMAL && IsVarTerm(REF) &&                        \
@@ -1208,7 +1208,9 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
 #if !defined(THREADS_FULL_SHARING) && !defined(THREADS_CONSUMER_SHARING)
     new_subgoal_frame(sg_fr, preg, mode_directed);
     *sg_fr_end = sg_fr;
+#ifndef _MSC_VER
     __sync_synchronize();
+#endif
     TAG_AS_SUBGOAL_LEAF_NODE(current_sg_node);
     UNLOCK_SUBGOAL_NODE(current_sg_node);
 #else /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */

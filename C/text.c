@@ -931,7 +931,7 @@ write_buffer( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng 
 
 
 
-static ssize_t
+static size_t
 write_length( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng USES_REGS)
 {
   size_t max = -1;
@@ -998,7 +998,7 @@ write_Text( void *inp, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
   case YAP_STRING_LENGTH:
     out->val.l =
       write_length( inp, out, enc, minimal, leng PASS_REGS);
-    return out->val.l != (ssize_t)(-1);
+    return out->val.l != (size_t)(-1);
   case YAP_STRING_ATOM:
     out->val.a =
       write_atom( inp, out, enc, minimal, leng PASS_REGS);

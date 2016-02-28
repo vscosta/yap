@@ -708,7 +708,7 @@ db_files(Fs) :-
 	),
 	'$loop'(Stream,Reconsult),
 	'$lf_opt'(imports, TOpts, Imports),
-	'$import_to_current_module'(File, SourceModule, Imports, _, TOpts),
+	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
 	'$current_module'(Mod, SourceModule),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	'$early_print'(Verbosity, loaded(EndMsg, File, Mod, T, H)),

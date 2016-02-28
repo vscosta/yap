@@ -1,21 +1,19 @@
 #CHECK: JavaLibs
 
+set (JPL_SOURCES
+  src/c/jpl.c)
 
 find_package(Java COMPONENTS Runtime Development)
 # find_package(Java COMPONENTS Development)
 # find_package(Java COMPONENTS Runtime)
 #find_package(JavaLibs)
-
-set (JPL_SOURCES
-  src/c/jpl.c)
-
 macro_log_feature (Java_Development_FOUND "Java"
     "Use Java System"
     "http://www.java.org" FALSE)
 
-  find_package(JNI)
-if (Java_Development_FOUND AND JNI_FOUND)
+if (Java_Development_FOUND)
 
+  find_package(JNI)
   include(UseJava)
 
   #
@@ -56,4 +54,4 @@ if (Java_Development_FOUND AND JNI_FOUND)
     DESTINATION ${libpl}
     )
 
-endif (Java_Development_FOUND AND JNI_FOUND)
+endif (Java_Development_FOUND)

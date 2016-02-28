@@ -28,13 +28,16 @@ static char SccsId[] = "%W% %G%";
 
 /// @addtogroup readutil
 
-static Int rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS) {
-  int sno = Yap_CheckStream(ARG1, Input_Stream_f, "read_line_to_codes/2");
-  StreamDesc *st = GLOBAL_Stream + sno;
+
+static Int
+rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS)
+{
+  int sno = Yap_CheckStream (ARG1, Input_Stream_f, "read_line_to_codes/2");
+  StreamDesc *st = GLOBAL_Stream+sno;
   Int status;
   UInt max_inp, buf_sz, sz;
   int *buf;
-  bool binary_stream;
+  bool  binary_stream;
 
   if (sno < 0)
     return FALSE;
@@ -42,167 +45,168 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS) {
   binary_stream = GLOBAL_Stream[sno].status & Binary_Stream_f;
   if (status & Eof_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
+    return Yap_unify_constant(ARG2, MkAtomTerm (AtomEof));
   }
-  max_inp = (ASP - HR) / 2 - 1024;
+  max_inp = (ASP-HR)/2-1024;
   buf = (int *)TR;
-  buf_sz = (int *)LOCAL_TrailTop - buf;
+  buf_sz = (int *)LOCAL_TrailTop-buf;
   while (TRUE) {
-    if (buf_sz > max_inp) {
+    if ( buf_sz > max_inp ) {
       buf_sz = max_inp;
     }
     if (do_as_binary && !binary_stream) {
       GLOBAL_Stream[sno].status |= Binary_Stream_f;
     }
     if (st->status & Binary_Stream_f) {
-      char *b = (char *)TR;
-      sz = fread(b, 1, buf_sz, GLOBAL_Stream[sno].file);
+        char *b = (char *)TR;
+      sz = fread( b,1 , buf_sz, GLOBAL_Stream[sno].file);
     } else {
-      int ch;
-      int *pt = buf;
-      do {
+         int ch;
+        int *pt = buf;
+        do {
         *pt++ = ch = st->stream_wgetc_for_read(sno);
-        if (pt + 1 == buf + buf_sz)
-          break;
-      } while (ch != '\n' && ch != EOF);
-      sz = pt - buf;
-    }
+       if (pt+1 == buf+buf_sz)
+        break;
+         } while (ch != '\n');
+       sz = pt-buf;
+   }
     if (do_as_binary && !binary_stream)
       GLOBAL_Stream[sno].status &= ~Binary_Stream_f;
     if (sz == -1 || sz == 0) {
       if (GLOBAL_Stream[sno].status & Eof_Stream_f) {
-        UNLOCK(GLOBAL_Stream[sno].streamlock);
-        return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
+	UNLOCK(GLOBAL_Stream[sno].streamlock);
+	return Yap_unify_constant(ARG2, MkAtomTerm (AtomEof));
       }
       UNLOCK(GLOBAL_Stream[sno].streamlock);
       return FALSE;
     }
-    if (GLOBAL_Stream[sno].status & Eof_Stream_f || buf[sz - 1] == 10) {
+    if (GLOBAL_Stream[sno].status & Eof_Stream_f || buf[sz-1] == 10) {
       /* we're done */
       Term end;
       if (!(do_as_binary || GLOBAL_Stream[sno].status & Eof_Stream_f)) {
-        UNLOCK(GLOBAL_Stream[sno].streamlock);
-        /* handle CR before NL */
-        if ((Int)sz - 2 >= 0 && buf[sz - 2] == 13)
-          buf[sz - 2] = '\0';
-        else
-          buf[sz - 1] = '\0';
+	UNLOCK(GLOBAL_Stream[sno].streamlock);
+	/* handle CR before NL */
+	if ((Int)sz-2 >= 0 && buf[sz-2] == 13)
+	  buf[sz-2] = '\0';
+	else
+	  buf[sz-1] = '\0';
       } else {
-        UNLOCK(GLOBAL_Stream[sno].streamlock);
+	UNLOCK(GLOBAL_Stream[sno].streamlock);
       }
       if (arity == 2)
-        end = TermNil;
+	end = TermNil;
       else
-        end = Deref(XREGS[arity]);
-        return Yap_unify(ARG2, Yap_WCharsToDiffListOfCodes((const wchar_t *)TR,
-                                                           end PASS_REGS));
-      return Yap_unify(ARG2,
-                       Yap_CharsToDiffListOfCodes((const char *)TR, end,
-                                                  ENC_ISO_LATIN1 PASS_REGS));
+	end = Deref(XREGS[arity]);
+      if (GLOBAL_Stream[sno].encoding == ENC_ISO_UTF8)
+	return Yap_unify(ARG2, Yap_UTF8ToDiffListOfCodes((const char *)TR, end PASS_REGS)) ;
+      else if (GLOBAL_Stream[sno].encoding == ENC_WCHAR)
+	return Yap_unify(ARG2, Yap_WCharsToDiffListOfCodes((const wchar_t *)TR, end PASS_REGS)) ;
+      return Yap_unify(ARG2, Yap_CharsToDiffListOfCodes((const char *)TR, end, ENC_ISO_LATIN1 PASS_REGS)) ;
     }
-    buf += (buf_sz - 1);
-    max_inp -= (buf_sz - 1);
+    buf += (buf_sz-1);
+    max_inp -= (buf_sz-1);
     if (max_inp <= 0) {
       UNLOCK(GLOBAL_Stream[sno].streamlock);
       Yap_Error(RESOURCE_ERROR_STACK, ARG1, "read_line_to_codes/%d", arity);
-      return FALSE;
+      return FALSE;      
     }
   }
 }
 
-static Int read_line_to_codes(USES_REGS1) {
+static Int
+read_line_to_codes(USES_REGS1)
+{
   return rl_to_codes(TermNil, FALSE, 2 PASS_REGS);
 }
 
-static Int read_line_to_codes2(USES_REGS1) {
+static Int
+read_line_to_codes2(USES_REGS1)
+{
   return rl_to_codes(TermNil, TRUE, 3 PASS_REGS);
 }
 
-static Int read_line_to_string(USES_REGS1) {
-  int sno = Yap_CheckStream(ARG1, Input_Stream_f, "read_line_to_codes/2");
+static Int
+read_line_to_string( USES_REGS1 )
+{
+  int sno = Yap_CheckStream (ARG1, Input_Stream_f, "read_line_to_codes/2");
   Int status;
-  size_t max_inp, buf_sz;
-  unsigned char *buf;
-  StreamDesc *st = GLOBAL_Stream + sno;
+  UInt max_inp, buf_sz;
+  int *buf;
+ StreamDesc *st = GLOBAL_Stream+sno;
 
   if (sno < 0)
     return FALSE;
   status = GLOBAL_Stream[sno].status;
   if (status & Eof_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
+    return Yap_unify_constant(ARG2, MkAtomTerm (AtomEof));
   }
-  max_inp = (ASP - HR) / 2 - 1024;
-  buf = (unsigned char *)TR;
-  buf_sz = (unsigned char *)LOCAL_TrailTop - buf;
+  max_inp = (ASP-HR)/2-1024;
+  buf = (int *)TR;
+  buf_sz = (int *)LOCAL_TrailTop-buf;
   while (true) {
     size_t sz;
-
-    if (buf_sz > max_inp) {
+    
+    if ( buf_sz > max_inp ) {
       buf_sz = max_inp;
     }
-    if (st->status & Binary_Stream_f) {
-      char *b = (char *)TR;
-      sz = fread(b, 1, buf_sz, GLOBAL_Stream[sno].file);
+   if (st->status & Binary_Stream_f) {
+        char *b = (char *)TR;
+      sz = fread( b,1 , buf_sz, GLOBAL_Stream[sno].file);
     } else {
-      uint32_t ch;
-      unsigned char *pt = buf;
-      do {
-        ch = st->stream_wgetc_for_read(sno);
-        if (ch == EOF) {
-            sz = -1;
-            break;
-        }
-        pt += put_utf8(pt, ch);
-        if (pt + 4 == buf + buf_sz)
-          break;
-      } while (ch != '\n');
-      sz = pt - buf;
-    }
+         int ch;
+        int *pt = buf;
+        do {
+        *pt++ = ch = st->stream_wgetc_for_read(sno);
+       if (pt+1 == buf+buf_sz)
+        break;
+         } while (ch != '\n');
+       sz = pt-buf;
+   }
     if (sz == -1 || sz == 0) {
       if (GLOBAL_Stream[sno].status & Eof_Stream_f) {
         UNLOCK(GLOBAL_Stream[sno].streamlock);
-        return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
+        return Yap_unify_constant(ARG2, MkAtomTerm (AtomEof));
       }
       UNLOCK(GLOBAL_Stream[sno].streamlock);
       return false;
     }
-    if (GLOBAL_Stream[sno].status & Eof_Stream_f || buf[sz - 1] == 10) {
+    if (GLOBAL_Stream[sno].status & Eof_Stream_f || buf[sz-1] == 10) {
       /* we're done */
 
       if (!(GLOBAL_Stream[sno].status & Eof_Stream_f)) {
         UNLOCK(GLOBAL_Stream[sno].streamlock);
         /* handle CR before NL */
-        if ((Int)sz - 2 >= 0 && buf[sz - 2] == 13)
-          buf[sz - 2] = '\0';
+        if ((Int)sz-2 >= 0 && buf[sz-2] == 13)
+          buf[sz-2] = '\0';
         else {
-          buf[sz - 1] = '\0';
+          buf[sz-1] = '\0';
         }
       } else {
         UNLOCK(GLOBAL_Stream[sno].streamlock);
       }
     }
     if (GLOBAL_Stream[sno].encoding == ENC_ISO_UTF8) {
-      return Yap_unify(ARG2, Yap_UTF8ToString((const char *)TR PASS_REGS));
+      return Yap_unify(ARG2, Yap_UTF8ToString((const char *)TR PASS_REGS)) ;
     } else if (GLOBAL_Stream[sno].encoding == ENC_WCHAR) {
-      return Yap_unify(ARG2, Yap_WCharsToString((const wchar_t *)TR PASS_REGS));
-    } else {
-      return Yap_unify(
-          ARG2, Yap_CharsToString((const char *)TR, ENC_ISO_LATIN1 PASS_REGS));
+      return Yap_unify(ARG2, Yap_WCharsToString((const wchar_t *)TR PASS_REGS)) ;
+    }else {
+    return Yap_unify(ARG2, Yap_CharsToString((const char *)TR, ENC_ISO_LATIN1 PASS_REGS) );
     }
-    buf += (buf_sz - 1);
-    max_inp -= (buf_sz - 1);
+    buf += (buf_sz-1);
+    max_inp -= (buf_sz-1);
     if (max_inp <= 0) {
       UNLOCK(GLOBAL_Stream[sno].streamlock);
       Yap_Error(RESOURCE_ERROR_STACK, ARG1, NULL);
-      return FALSE;
+      return FALSE;      
     }
   }
 }
 
-static Int read_stream_to_codes(USES_REGS1) {
-  int sno = Yap_CheckStream(ARG1, Input_Stream_f,
-                            "reaMkAtomTerm (AtomEofd_line_to_codes/2");
+static Int
+read_stream_to_codes(USES_REGS1)
+{
+  int sno = Yap_CheckStream (ARG1, Input_Stream_f, "reaMkAtomTerm (AtomEofd_line_to_codes/2");
   CELL *HBASE = HR;
   CELL *h0 = &ARG4;
 
@@ -217,33 +221,36 @@ static Int read_stream_to_codes(USES_REGS1) {
     t = MkIntegerTerm(ch);
     h0[0] = AbsPair(HR);
     *HR = t;
-    HR += 2;
-    h0 = HR - 1;
+    HR+=2;
+    h0 = HR-1;
     yhandle_t news, news1, st = Yap_StartSlots();
-    if (HR >= ASP - 1024) {
+    if (HR >= ASP-1024) {
       RESET_VARIABLE(h0);
       news = Yap_InitSlot(AbsPair(HBASE));
-      news1 = Yap_InitSlot((CELL)(h0));
-      if (!Yap_gcl((ASP - HBASE) * sizeof(CELL), 3, ENV, Yap_gcP())) {
+      news1 = Yap_InitSlot(  (CELL)(h0));
+      if (!Yap_gcl((ASP-HBASE)*sizeof(CELL), 3, ENV, Yap_gcP())) {
         Yap_Error(RESOURCE_ERROR_STACK, ARG1, "read_stream_to_codes/3");
         return false;
       }
       /* build a legal term again */
-      h0 = (CELL *)(Yap_GetFromSlot(news1));
+      h0 = (CELL*)(Yap_GetFromSlot(news1));
       HBASE = RepPair(Yap_GetFromSlot(news));
     }
     Yap_CloseSlots(st);
   }
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   if (HR == HBASE)
-    return Yap_unify(ARG2, ARG3);
-  RESET_VARIABLE(HR - 1);
-  Yap_unify(HR[-1], ARG3);
-  return Yap_unify(AbsPair(HBASE), ARG2);
+    return Yap_unify(ARG2,ARG3);
+  RESET_VARIABLE(HR-1);
+  Yap_unify(HR[-1],ARG3);
+  return Yap_unify(AbsPair(HBASE),ARG2);
+    
 }
 
-static Int read_stream_to_terms(USES_REGS1) {
-  int sno = Yap_CheckStream(ARG1, Input_Stream_f, "read_line_to_codes/2");
+static Int
+read_stream_to_terms(USES_REGS1)
+{
+  int sno = Yap_CheckStream (ARG1, Input_Stream_f, "read_line_to_codes/2");
   Term t, hd;
   yhandle_t tails, news;
 
@@ -252,18 +259,18 @@ static Int read_stream_to_terms(USES_REGS1) {
 
   t = AbsPair(HR);
   RESET_VARIABLE(HR);
-  Yap_InitSlot((CELL)(HR));
-  tails = Yap_InitSlot((CELL)(HR));
-  news = Yap_InitSlot((CELL)(HR));
+  Yap_InitSlot( (CELL)(HR) );
+  tails = Yap_InitSlot( (CELL)(HR) );
+  news = Yap_InitSlot( (CELL)(HR) );
   HR++;
-
+    
   while (!(GLOBAL_Stream[sno].status & Eof_Stream_f)) {
     RESET_VARIABLE(HR);
-    RESET_VARIABLE(HR + 1);
+    RESET_VARIABLE(HR+1);
     hd = (CELL)HR;
-    Yap_PutInSlot(news, (CELL)(HR + 1));
+    Yap_PutInSlot(news, (CELL)(HR+1));
     HR += 2;
-    while ((hd = Yap_read_term(sno, TermNil, 2)) == 0L)
+    while ((hd=Yap_read_term(sno, TermNil, 2)) == 0L)
       ;
     // just ignore failure
     CELL *pt = VarOfTerm(Yap_GetFromSlot(tails));
@@ -271,17 +278,19 @@ static Int read_stream_to_terms(USES_REGS1) {
       *pt = Deref(ARG3);
       break;
     } else {
-      CELL *newpt = (CELL *)Yap_GetFromSlot(news);
-      *pt = AbsPair(newpt - 1);
-      Yap_PutInSlot(tails, (CELL)newpt);
+      CELL *newpt = (CELL*)Yap_GetFromSlot(news);
+      *pt =AbsPair(newpt-1);
+     Yap_PutInSlot(tails, (CELL)newpt);
     }
   }
   UNLOCK(GLOBAL_Stream[sno].streamlock);
-  return Yap_unify(t, ARG2);
+  return Yap_unify(t,ARG2);
 }
 
-void Yap_InitReadUtil(void) {
-  CACHE_REGS
+void
+Yap_InitReadUtil(void)
+{
+    CACHE_REGS
 
   Term cm = CurrentModule;
   CurrentModule = READUTIL_MODULE;
@@ -292,3 +301,4 @@ void Yap_InitReadUtil(void) {
   Yap_InitCPred("read_stream_to_terms", 3, read_stream_to_terms, SyncPredFlag);
   CurrentModule = cm;
 }
+

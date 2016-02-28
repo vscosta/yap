@@ -161,7 +161,7 @@ INLINE_ONLY inline EXTERN Term MkCharTerm(Int c);
  * @return the term.
  */
 INLINE_ONLY inline EXTERN Term MkCharTerm(Int c) {
-  wchar_t cs[2];
+  int cs[2];
   if (c < 0)
     return MkAtomTerm(AtomEof);
   cs[0] = c;

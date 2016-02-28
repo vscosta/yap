@@ -5,7 +5,7 @@
 #define INLINE_ONLY __attribute__((gnu_inline,always_inline))
 //#define INLINE_ONLY
 #else
-#define INLINE_ONLY  inline EXTERN
+#define INLINE_ONLY  EXTERN
 #endif
 
 #endif

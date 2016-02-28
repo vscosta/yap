@@ -196,58 +196,14 @@ int Yap_IsOpType(char *type) {
   return (i <= 7);
 }
 
-static OpEntry *
-fetchOpForModule(AtomEntry *ae, Term tmod )
-{
-  OpEntry *oinfo = NULL;
-  PropEntry **prev = &ae->PropsOfAE;
-  PropEntry *pp = ae->PropsOfAE;
-  
-  while (!EndOfPAEntr(pp)) {
-    OpEntry *info = RepOpProp(pp);
-    if (!info)
-      return NULL;
-    if (pp->KindOfPE == OpProperty) {
-      if (tmod == PROLOG_MODULE) {
-        if (info->OpModule != PROLOG_MODULE) {
-          info->Infix = info->Prefix = info->Posfix = 0;
-          info->OpModule = tmod;
-          if (oinfo == NULL)
-            oinfo = info;
-          else {
-            pp = RepProp(pp->NextOfPE);
-            *prev = pp;
-            //Yap_FreeCodeSpace( oinfo );
-            continue;
-          }
-        } else{
-          if (oinfo) {
-            // should never happen?
-            oinfo->Infix = info->Infix;
-            oinfo->Prefix = info->Prefix;
-            oinfo->Posfix = info->Posfix;
-            pp = RepProp(pp->NextOfPE);
-            *prev = pp;
-            //            Yap_FreeCodeSpace( oinfo );
-            continue;
-          }
-          return info;
-        }
-      } else if (info->OpModule == tmod)
-        return info;
-    }
-    prev = & pp->NextOfPE;
-    pp = RepProp(pp->NextOfPE);
-  }
-  return oinfo;
-}
-
 static int OpDec(int p, const char *type, Atom a, Term m) {
   int i;
   AtomEntry *ae = RepAtom(a);
   OpEntry *info;
 
   if (m == TermProlog)
+    m = PROLOG_MODULE;
+  else if (m == USER_MODULE)
     m = PROLOG_MODULE;
   for (i = 1; i <= 7; ++i)
     if (strcmp(type, optypes[i]) == 0)
@@ -264,7 +220,7 @@ static int OpDec(int p, const char *type, Atom a, Term m) {
       p |= DcrrpFlag;
   }
   WRITE_LOCK(ae->ARWLock);
-  info = fetchOpForModule(ae, m);
+  info = Yap_GetOpPropForAModuleHavingALock(ae, m);
   if (EndOfPAEntr(info)) {
     info = (OpEntry *)Yap_AllocAtomSpace(sizeof(OpEntry));
     info->KindOfPE = Ord(OpProperty);
@@ -283,7 +239,6 @@ static int OpDec(int p, const char *type, Atom a, Term m) {
     WRITE_LOCK(info->OpRWLock);
     WRITE_UNLOCK(ae->ARWLock);
   }
-  
   if (i <= 3) {
     if (trueGlobalPrologFlag(ISO_FLAG) &&
         info->Posfix != 0) /* there is a posfix operator */ {
@@ -294,6 +249,7 @@ static int OpDec(int p, const char *type, Atom a, Term m) {
     }
     info->Infix = p;
   } else if (i <= 5) {
+
     if (trueGlobalPrologFlag(ISO_FLAG) &&
         info->Infix != 0) /* there is an infix operator */ {
       /* ISO dictates */
@@ -441,7 +397,7 @@ static void InitOps(void) {
 /// @}
 
 #if DEBUG
-#ifdef HAVE_ISATTY
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #endif

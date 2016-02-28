@@ -83,7 +83,7 @@ typedef short utf8proc_int16_t;
 typedef unsigned short utf8proc_uint16_t;
 typedef int utf8proc_int32_t;
 typedef unsigned int utf8proc_uint32_t;
-#  ifdef _WIN64
+#  ifdef _WIN64 
 typedef __int64 utf8proc_ssize_t;
 typedef unsigned __int64 utf8proc_size_t;
 #  else
@@ -92,7 +92,8 @@ typedef unsigned int utf8proc_size_t;
 #  endif
 #  ifndef __cplusplus
 typedef unsigned char utf8proc_bool;
-enum {false, true};
+#define false 0
+#define true 1
 #  else
 typedef bool utf8proc_bool;
 #  endif

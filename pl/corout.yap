@@ -26,9 +26,9 @@
  * 
 */
 
-:-  op(1150, fx, prolog:block).
 
 :- module('$coroutining',[
+			  op(1150, fx, block)
 				%dif/2,
 				%when/2,
 				%block/1,

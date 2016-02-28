@@ -3343,7 +3343,7 @@ term_t Yap_CvtTerm(term_t ts)
           return ts;
         }
       } else if (f == FunctorDBRef) {
-        Term ta[0];
+        Term ta[1];
         ta[0] = MkIntegerTerm((Int)DBRefOfTerm(t));
         return Yap_InitSlot(Yap_MkApplTerm(FunctorDBREF, 1, ta));
       }

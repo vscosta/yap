@@ -12,6 +12,7 @@ include_directories (${JAVA_INCLUDE_DIRS} ${JNI_INCLUDE_DIRS} )
   # set(YAP_SYSTEM_OPTIONS "jpl " ${YAP_SYSTEM_OPTIONS} PARENT_SCOPE)
   install(TARGETS  jplYap
     LIBRARY DESTINATION ${dlls}
+  ARCHIVE DESTINATION ${dlls}
 	  )
 
 	

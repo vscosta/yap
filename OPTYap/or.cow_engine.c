@@ -18,7 +18,9 @@
 #include "Yap.h"
 #ifdef YAPOR_COW
 #include <sys/types.h>
+#if HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #include <stdio.h>
 #include "Yatom.h"
 #include "YapHeap.h"
