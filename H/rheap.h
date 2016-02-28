@@ -498,7 +498,7 @@ static Term AdjustDBTerm__(Term trm, Term *p_base, Term *p_lim,
   return trm;
 }
 
-static void RestoreDBTerm(DBTerm *dbr, int attachments USES_REGS) {
+static void RestoreDBTerm(DBTerm *dbr, bool src, int attachments USES_REGS) {
   if (attachments) {
 #ifdef COROUTINING
     if (attachments == 1 && dbr->ag.attachments)
@@ -540,9 +540,9 @@ static void RestoreStaticClause(StaticClause *cl USES_REGS)
  * clause for this predicate or not
  */
 {
-  if (cl->ClFlags & SrcMask) {
+  if (cl->ClFlags & SrcMask && !(cl->ClFlags & FactMask)) {
     cl->usc.ClSource = DBTermAdjust(cl->usc.ClSource);
-    RestoreDBTerm(cl->usc.ClSource, 2 PASS_REGS);
+    RestoreDBTerm(cl->usc.ClSource, true, 2 PASS_REGS);
   }
   if (cl->ClNext) {
     cl->ClNext = PtoStCAdjust(cl->ClNext);
@@ -611,7 +611,7 @@ static void RestoreLUClause(LogUpdClause *cl, PredEntry *pp USES_REGS)
   }
   if (!(cl->ClFlags & FactMask)) {
     cl->lusl.ClSource = DBTermAdjust(cl->lusl.ClSource);
-    RestoreDBTerm(cl->lusl.ClSource, 2 PASS_REGS);
+    RestoreDBTerm(cl->lusl.ClSource, true, 2 PASS_REGS);
   }
   if (cl->ClPrev) {
     cl->ClPrev = PtoLUCAdjust(cl->ClPrev);
@@ -635,7 +635,7 @@ static void RestoreDBTermEntry(struct dbterm_list *dbl USES_REGS) {
     dbl->next_dbl = PtoDBTLAdjust(dbl->next_dbl);
   dbl->p = PredEntryAdjust(dbl->p);
   while (dbt) {
-    RestoreDBTerm(dbt, 0 PASS_REGS);
+    RestoreDBTerm(dbt, false, 0 PASS_REGS);
     dbt = dbt->ag.NextDBT;
   }
 }
@@ -943,7 +943,7 @@ static void RestoreYapRecords__(USES_REGS1) {
     ptr->next_rec = DBRecordAdjust(ptr->next_rec);
     ptr->prev_rec = DBRecordAdjust(ptr->prev_rec);
     ptr->dbrecord = DBTermAdjust(ptr->dbrecord);
-    RestoreDBTerm(ptr->dbrecord, 0 PASS_REGS);
+    RestoreDBTerm(ptr->dbrecord, false,0 PASS_REGS);
     ptr = ptr->next_rec;
   }
 }
@@ -952,7 +952,7 @@ static void RestoreBallTerm(int wid) {
   CACHE_REGS
   if (LOCAL_BallTerm) {
     LOCAL_BallTerm = DBTermAdjust(LOCAL_BallTerm);
-    RestoreDBTerm(LOCAL_BallTerm, 1 PASS_REGS);
+    RestoreDBTerm(LOCAL_BallTerm, false,1 PASS_REGS);
   }
 }
 
@@ -984,7 +984,7 @@ static void RestoreDBEntry(DBRef dbr USES_REGS) {
   else
     fprintf(stderr, " a var\n");
 #endif
-  RestoreDBTerm(&(dbr->DBT), 1 PASS_REGS);
+  RestoreDBTerm(&(dbr->DBT), true, 1 PASS_REGS);
   if (dbr->Parent) {
     dbr->Parent = (DBProp)AddrAdjust((ADDR)(dbr->Parent));
   }
@@ -1191,7 +1191,7 @@ static void restore_static_array(StaticArrayEntry *ae USES_REGS) {
         } else {
           DBTerm *db = (DBTerm *)RepAppl(reg);
           db = DBTermAdjust(db);
-          RestoreDBTerm(db, 1 PASS_REGS);
+          RestoreDBTerm(db, false, 1 PASS_REGS);
           base->tstore = AbsAppl((CELL *)db);
         }
       }
@@ -1209,7 +1209,7 @@ static void restore_static_array(StaticArrayEntry *ae USES_REGS) {
           base++;
         } else {
           *base++ = reg = DBTermAdjust(reg);
-          RestoreDBTerm(reg, 1 PASS_REGS);
+          RestoreDBTerm(reg, false, 1 PASS_REGS);
         }
       }
     }

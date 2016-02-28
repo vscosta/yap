@@ -114,8 +114,8 @@ static int   CopyStacks( CACHE_TYPE1 );
 static int   get_coded(int, OPCODE [] CACHE_TYPE);
 static void  restore_codes(void);
 static void  RestoreDB(DBEntry * CACHE_TYPE);
-static void  RestoreDBTerm(DBTerm *, int CACHE_TYPE);
-static void  CleanClauses(yamop *, yamop *,PredEntry * CACHE_TYPE);
+static void  RestoreDBTerm(DBTerm *, bool, int CACHE_TYPE);
+static void  CleanClauses(yamop *First, yamop *Last, PredEntry *pp USES_REGS);
 static void  rehash(CELL *, int, int CACHE_TYPE);
 static void  CleanCode(PredEntry * CACHE_TYPE);
 static void  RestoreEntries(PropEntry *, int CACHE_TYPE);
@@ -1069,7 +1069,7 @@ restore_regs(int flag USES_REGS)
     S = PtoGloAdjust(S);
     if (EX) {
       EX = DBTermAdjust(EX);
-      RestoreDBTerm(EX, TRUE PASS_REGS);
+      RestoreDBTerm(EX, false, TRUE PASS_REGS);
     }
     LOCAL_WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(LOCAL_WokenGoals)));
   }

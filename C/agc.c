@@ -34,7 +34,7 @@ static char     SccsId[] = "@(#)agc.c	1.3 3/15/90";
 
 static void  RestoreEntries(PropEntry *, int USES_REGS);
 static void  CleanCode(PredEntry * USES_REGS);
-static void  RestoreDBTerm(DBTerm *dbr, int attachments USES_REGS);
+static void  RestoreDBTerm(DBTerm *dbr, bool src, int attachments USES_REGS);
 
 #define AtomMarkedBit 1
 
@@ -196,7 +196,7 @@ AdjustTermFlag(flag_term *tarr, UInt i)
 {
   CACHE_REGS
   if (IsVarTerm(tarr[i].at)) {
-    RestoreDBTerm( tarr[i].DBT, 0 PASS_REGS );
+    RestoreDBTerm( tarr[i].DBT, false, 0 PASS_REGS );
   } else if (IsAtomTerm( tarr[i].at )  )
     tarr[i].at = AtomTermAdjust(tarr[i].at);
 }
