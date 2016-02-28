@@ -1,4 +1,4 @@
-%%% -*- Mode: Prolog; -*-
+%%% -*- mode: Prolog; -*-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  $Date: 2009-06-17 22:22:00 +0200 (Mi, 17 Jun 2009) $
@@ -364,7 +364,7 @@ edges_ptree(ID,Edges) :-
 	sym(ID,Sym),
 	nb_getval(Sym, Trie),
 	%(
-	setof(X, trie_literal(Trie, X), Edges).%->
+	setof(X, trie_literal(Trie, X), Edges). %->
 	/*	true
 	;
 		Edges=[]
