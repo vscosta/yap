@@ -495,9 +495,9 @@ const char *DirName(const char *X) {
 #endif
 
 static const char *myrealpath(const char *path) {
+  char *out = LOCAL_FileNameBuf;
 #if _WIN32 || defined(__MINGW32__)
   DWORD retval = 0;
-  char *out = LOCAL_FileNameBuf;
 
   // notice that the file does not need to exist
   retval = GetFullPathName(path, YAP_FILENAME_MAX, out, NULL);
@@ -543,7 +543,7 @@ static const char *myrealpath(const char *path) {
     }
   }
 #endif
-  char *out = malloc(strlen(path) + 1);
+  out = malloc(strlen(path) + 1);
   strcpy(out, path);
   return out;
 }

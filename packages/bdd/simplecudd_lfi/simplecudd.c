@@ -974,107 +974,7 @@ int AddNamedVar(namedvars varmap, const char *varname) {
 
 void SetNamedVarValuesAt(namedvars varmap, int index, double dvalue, int ivalue,
                          void *dynvalue) {
-  varmap.dvalue[index] = dvalue;all_names  -o packages/myddas/odbc/libYapodbc.1.0.0.dylib -install_name @rpath/libYapodbc.1.dylib packages/myddas/odbc/CMakeFiles/Yapodbc.dir/myddas_odbc.c.o  libYap.6.3.4.dylib /usr/lib/libiodbc.dylib -ldl -lm /usr/local/lib/libgmp.dylib utf8proc/libutf8proc.1.3.0.dylib /usr/local/opt/readline/lib/libreadline.dylib /usr/lib/libncurses.dylib -Wl,-rpath,/Users/vsc/git/yap-6.3/Debug && :
-[7/87] : && /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk -dynamiclib -Wl,-headerpad_max_install_names  -o packages/myddas/postgres/libYappostgres.1.0.0.dylib -install_name @rpath/libYappostgres.1.dylib packages/myddas/postgres/CMakeFiles/Yappostgres.dir/myddas_postgres.c.o  libYap.6.3.4.dylib -lpq -ldl -lm /usr/local/lib/libgmp.dylib utf8proc/libutf8proc.1.3.0.dylib /usr/local/opt/readline/lib/libreadline.dylib /usr/lib/libncurses.dylib -Wl,-rpath,/Users/vsc/git/yap-6.3/Debug && :
-[8/87] : && /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk -dynamiclib -Wl,-headerpad_max_install_names  -o packages/myddas/sqlite3/libYapsqlite3.1.0.0.dylib -install_name @rpath/libYapsqlite3.1.dylib packages/myddas/sqlite3/CMakeFiles/Yapsqlite3.dir/myddas_sqlite3.c.o  /usr/local/opt/sqlite/lib/libsqlite3.dylib libYap.6.3.4.dylib -ldl -lm /usr/local/lib/libgmp.dylib utf8proc/libutf8proc.1.3.0.dylib /usr/local/opt/readline/lib/libreadline.dylib /usr/lib/libncurses.dylib -Wl,-rpath,/Users/vsc/git/yap-6.3/Debug && :
-[9/87] /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   -DCOROUTINING=1 -DDEBUG=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DLOW_LEVEL_TRACER=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -DYap___EXPORTS -D_YAP_NOT_INSTALLED_=1 -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk -fPIC -I. -I../H -I../H/generated -I../include -I../os -I../OPTYap -I../utf8proc -I../JIT/HPP -I/usr/local/include -I../CXX/H -I../CXX/include    -Wall -fexceptions -MMD -MT CXX/CMakeFiles/Yap++.dir/yapi.cpp.o -MF CXX/CMakeFiles/Yap++.dir/yapi.cpp.o.d -o CXX/CMakeFiles/Yap++.dir/yapi.cpp.o -c ../CXX/yapi.cpp
-[10/87] : && /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk -dynamiclib -Wl,-headerpad_max_install_names  -o library/matrix/matrix.dylib -install_name @rpath/matrix.dylib library/matrix/CMakeFiles/matrix.dir/matrix.c.o  libYap.6.3.4.dylib -ldl -lm /usr/local/lib/libgmp.dylib utf8proc/libutf8proc.1.3.0.dylib /usr/local/opt/readline/lib/libreadline.dylib /usr/lib/libncurses.dylib -Wl,-rpath,/Users/vsc/git/yap-6.3/Debug && :
-[11/87] : && /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk -dynamiclib -Wl,-headerpad_max_install_names  -o library/random/yap_random.dylib -install_name @rpath/yap_random.dylib library/random/CMakeFiles/yap_random.dir/yap_random.c.o  libYap.6.3.4.dylib -ldl -lm /usr/local/lib/libgmp.dylib utf8proc/libutf8proc.1.3.0.dylib /usr/local/opt/readline/lib/libreadline.dylib /usr/lib/libncurses.dylib -Wl,-rpath,/Users/vsc/git/yap-6.3/Debug && :
-[12/87] : && /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk -dynamiclib -Wl,-headerpad_max_install_names  -o library/regex/regexp.dylib -install_name @rpath/regexp.dylib library/regex/CMakeFiles/regexp.dir/regexp.c.o  libYap.6.3.4.dylib -ldl -lm /usr/local/lib/libgmp.dylib utf8proc/libutf8proc.1.3.0.dylib /usr/local/opt/readline/lib/libreadline.dylib /usr/lib/libncurses.dylib -Wl,-rpath,/Users/vsc/git/yap-6.3/Debug && :
-[13/87] : && /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk -dynamiclib -Wl,-headerpad_max_install_names  -o library/rltree/yap_rl.dylib -install_name @rpath/yap_rl.dylib library/rltree/CMakeFiles/yap_rl.dir/yap_rl.c.o library/rltree/CMakeFiles/yap_rl.dir/range_list.c.o  libYap.6.3.4.dylib -ldl -lm /usr/local/lib/libgmp.dylib utf8proc/libutf8proc.1.3.0.dylib /usr/local/opt/readline/lib/libreadline.dylib /usr/lib/libncurses.dylib -Wl,-rpath,/Users/vsc/git/yap-6.3/Debug && :
-[14/87] cd /Users/vsc/git/yap-6.3/Debug && /Users/vsc/git/yap-6.3/Debug/yap -b /Users/vsc/git/yap-6.3/pl/boot.yap -L /Users/vsc/git/yap-6.3/pl/init.yap -z qend_program
- % consulting /Users/vsc/git/yap-6.3/pl/init.yap...
-  % consulting arith.yap...
-  % arith.yap consulted 0 bytes in 4 msecs
-  % consulting bootlists.yap...
-  % bootlists.yap consulted 0 bytes in 1 msecs
-  % consulting consult.yap...
-  % consult.yap consulted 0 bytes in 11 msecs
-  % consulting preddecls.yap...
-  % preddecls.yap consulted 0 bytes in 3 msecs
-  % consulting preddyns.yap...
-  % preddyns.yap consulted 0 bytes in 3 msecs
-  % consulting meta.yap...
-  % meta.yap consulted 0 bytes in 6 msecs
-  % consulting newmod.yap...
-  % newmod.yap consulted 0 bytes in 3 msecs
-  % consulting atoms.yap...
-  % atoms.yap consulted 0 bytes in 3 msecs
-  % consulting os.yap...
-  % os.yap consulted 0 bytes in 3 msecs
-  % consulting grammar.yap...
-:- prolog:use_module(library(expand_macros)) failed.
-:- prolog:dynamic prolog:$goal_expansion_allowed/0 failed.
-  % grammar.yap consulted 0 bytes in 5 msecs
-  % consulting absf.yap...
-  % absf.yap consulted 0 bytes in 7 msecs
-loading(consulting,directives.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/directives.yap,prolog,5,0)
-loading(consulting,preds.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/preds.yap,prolog,9,0)
-loading(consulting,modules.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/modules.yap,prolog,9,0)
-loading(reconsulting,error.yap)
-loaded(reconsulted,/Users/vsc/git/yap-6.3/pl/error.yap,error,3,0)
-loading(consulting,errors.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/errors.yap,prolog,1,0)
-loading(consulting,utils.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/utils.yap,prolog,4,0)
-loading(consulting,control.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/control.yap,prolog,4,0)
-loading(consulting,flags.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/flags.yap,prolog,1,0)
-loading(consulting,yio.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/yio.yap,prolog,2,0)
-loading(consulting,debug.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/debug.yap,prolog,9,0)
-loading(consulting,checker.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/checker.yap,prolog,1,0)
-loading(consulting,depth_bound.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/depth_bound.yap,prolog,0,0)
-loading(consulting,ground.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/ground.yap,prolog,1,0)
-loading(consulting,listing.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/listing.yap,prolog,3,0)
-loading(consulting,arithpreds.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/arithpreds.yap,prolog,1,0)
-loading(consulting,eval.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/eval.yap,prolog,1,0)
-loading(consulting,signals.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/signals.yap,prolog,3,0)
-loading(consulting,profile.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/profile.yap,prolog,2,0)
-loading(consulting,callcount.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/callcount.yap,prolog,0,0)
-loading(consulting,load_foreign.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/load_foreign.yap,prolog,1,0)
-loading(consulting,setof.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/setof.yap,prolog,1,0)
-loading(consulting,sort.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/sort.yap,prolog,1,0)
-loading(consulting,statistics.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/statistics.yap,prolog,3,0)
-loading(consulting,strict_iso.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/strict_iso.yap,prolog,3,0)
-loading(consulting,tabling.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/tabling.yap,prolog,4,0)
-loading(consulting,threads.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/threads.yap,prolog,10,0)
-loading(consulting,eam.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/eam.yap,prolog,1,0)
-loading(consulting,yapor.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/yapor.yap,prolog,2,0)
-loading(consulting,qly.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/qly.yap,prolog,7,0)
-loading(consulting,spy.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/spy.yap,prolog,3,0)
-loading(consulting,udi.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/udi.yap,prolog,0,0)
-loading(consulting,protect.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/protect.yap,prolog,1,0)
-loading(consulting,arrays.yap)
-loaded(consulted,/Users/vsc/git/yap-6.3/pl/arrays.yap,prolog,1,0)
-loading(consulting,undefined.yap)
+  varmap.dvalue[index] = dvalue;
   varmap.ivalue[index] = ivalue;
   varmap.dynvalue[index] = dynvalue;
 }
@@ -1087,7 +987,7 @@ int SetNamedVarValues(namedvars varmap, const char *varname, double dvalue,
   } else if ((index < 0) || (index == 0 && varmap.vars[0] == NULL)) {
     index *= -1;
     varmap.vars[index] = (char *)malloc(sizeof(char) * (strlen(varname) + 1));
-    strcpy((cinst char *)varmap.vars[index], varname);
+    strcpy((char *)varmap.vars[index], varname);
     varmap.dvalue[index] = dvalue;
     varmap.ivalue[index] = ivalue;
     varmap.dynvalue[index] = dynvalue;
