@@ -48,7 +48,7 @@ refactoring (trivial):
 #define	JPL_C_LIB_VERSION_PATCH	 4
 #define	JPL_C_LIB_VERSION_STATUS "alpha"
 
-#if JPL_DEBUG
+#ifndef JPL_DEBUG
 /*#define DEBUG(n, g) ((void)0) */
 #define DEBUG_LEVEL 4
 #define JPL_DEBUG(n, g) ( n >= DEBUG_LEVEL ? g : (void)0 )

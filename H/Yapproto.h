@@ -15,7 +15,10 @@
 
 #if defined(_WIN32)
 #define X_API __declspec(dllexport)
+#else
+#define X_API
 #endif
+
 
 /* prototype file for Yap */
 

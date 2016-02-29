@@ -274,4 +274,6 @@ const char*  Error_Function_;
   Term  SourceModule_;
   Term  Including_;
   size_t  MAX_SIZE_;
+/* last call to walltime. */
+  uint64_t  LastWTime_;
 } w_local;

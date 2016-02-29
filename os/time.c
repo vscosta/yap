@@ -1,5 +1,5 @@
 
-#include "sysbits.h" 
+#include "sysbits.h"
 
 #ifdef SIMICS
 #ifdef HAVE_GETRUSAGE
@@ -569,7 +569,7 @@ Yap_InitWTime (void)
 	Yap_StartOfWTimes =  (uint64_t)tp.tv_sec * 1000000000 + (uint64_t)tp.tv_usec * 1000;
 }
 
- 
+
  /// returns time in nano-secs since the epoch
 uint64_t
 Yap_walltime(void)
@@ -628,7 +628,9 @@ Yap_walltime (void)
  void
 Yap_InitWTime (void)
 {
-  Yap_StartOfWTimes = ((uint64_t)times(NULL))*10000000/TicksPerSec;
+  // start thread 0
+  REMOTE_LastWTime(0) =
+  Yap_StartOfWTimes  = ((uint64_t)times(NULL))*10000000/TicksPerSec;
 }
 
 uint64_t

@@ -491,3 +491,6 @@
 #define LOCAL_MAX_SIZE LOCAL->MAX_SIZE_
 #define REMOTE_MAX_SIZE(wid) REMOTE(wid)->MAX_SIZE_
 
+#define LOCAL_LastWTime LOCAL->LastWTime_
+#define REMOTE_LastWTime(wid) REMOTE(wid)->LastWTime_
+

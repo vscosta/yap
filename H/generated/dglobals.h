@@ -51,7 +51,7 @@
 #define GLOBAL_ThreadsTotalTime Yap_global->ThreadsTotalTime_
 
 #define GLOBAL_ThreadHandlesLock Yap_global->ThreadHandlesLock_
-#endif	
+#endif
 #if defined(YAPOR) || defined(THREADS)
 
 #define GLOBAL_BGL Yap_global->BGL_
@@ -139,8 +139,6 @@
 
 #define GLOBAL_CharConversionTable Yap_global->CharConversionTable_
 #define GLOBAL_CharConversionTable2 Yap_global->CharConversionTable2_
-
-#define GLOBAL_LastWTimePtr Yap_global->LastWTimePtr_
 
 #define GLOBAL_MaxPriority Yap_global->MaxPriority_
 

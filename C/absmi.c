@@ -1090,9 +1090,9 @@ execute_dealloc( USES_REGS1 )
       else
         ENV_YREG = (CELL *) ((CELL) ENV_YREG + ENV_Size(CP));
 #endif /* FROZEN_STACKS */
-  YENV = ENV_YREG;
+  YENV = ENVYREG;
   P = NEXTOP(P,p);
-      
+
 }
 
       /* don't forget I cannot creep at deallocate (where to?) */
@@ -1366,7 +1366,7 @@ undef_goal( USES_REGS1 )
   PredEntry *pe = PredFromDefCode(P);
   if (Yap_UnknownFlag(CurrentModule) == TermFail) {
     P = FAILCODE;
-    return;      
+    return;
   }
   BEGD(d0);
   /* avoid trouble with undefined dynamic procedures */

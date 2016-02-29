@@ -274,4 +274,6 @@ static void InitWorker(int wid) {
   REMOTE_SourceModule(wid) = 0;
   REMOTE_Including(wid) = TermNil;
   REMOTE_MAX_SIZE(wid) = 1024L;
+
+  REMOTE_LastWTime(wid) = NULL;
 }

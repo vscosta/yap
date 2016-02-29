@@ -13,7 +13,7 @@
 //
 // The defs include 3+ components:
 //   Type
-//   name in structured / global name 
+//   name in structured / global name
 //   init code (optional)
 //   restore code (optional)
 //
@@ -51,7 +51,7 @@ typedef struct global_data {
   UInt  ThreadsTotalTime_;
 // Threads Array
   lockvar  ThreadHandlesLock_;
-#endif	
+#endif
 #if defined(YAPOR) || defined(THREADS)
 // protect long critical regions
   lockvar  BGL_;
@@ -69,12 +69,12 @@ typedef struct global_data {
   UInt  mbox_count_;
   struct swi_mutex*  WithMutex_;
 #endif /* THREADS */
-// streams 
+// streams
   struct stream_desc*  Stream_;
 #if defined(THREADS)||defined(YAPOR)
   lockvar  StreamDescLock_;
 #endif
-// access to yap initial arguments 
+// access to yap initial arguments
   char**  argv_;
   int  argc_;
 // extensions to Terms
@@ -110,8 +110,8 @@ typedef struct global_data {
   char  pwd_[YAP_FILENAME_MAX];
 #endif
 //udi.c
-//struct udi_control_block 	RtreeCmd				void	
-  char*  RestoreFile_;
+//struct udi_control_block 	RtreeCmd				void
+const char*  RestoreFile_;
 //gprof.c
   Int  ProfCalls_;
   Int  ProfGCs_;
@@ -139,8 +139,6 @@ typedef struct global_data {
 /* ISO char conversion: I will make no comments */
   char*  CharConversionTable_;
   char*  CharConversionTable2_;
-/* time */
-  void*  LastWTimePtr_;
 /* max priority */
   int  MaxPriority_;
 } w_shared;

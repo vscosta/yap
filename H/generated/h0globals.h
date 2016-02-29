@@ -13,7 +13,7 @@
 //
 // The defs include 3+ components:
 //   Type
-//   name in structured / global name 
+//   name in structured / global name
 //   init code (optional)
 //   restore code (optional)
 //
@@ -51,7 +51,7 @@ EXTERNAL  UInt  GLOBAL_NOfThreadsCreated;
 EXTERNAL  UInt  GLOBAL_ThreadsTotalTime;
 // Threads Array
 EXTERNAL  lockvar  GLOBAL_ThreadHandlesLock;
-#endif	
+#endif
 #if defined(YAPOR) || defined(THREADS)
 // protect long critical regions
 EXTERNAL  lockvar  GLOBAL_BGL;
@@ -69,12 +69,12 @@ EXTERNAL  lockvar  GLOBAL_mboxq_lock;
 EXTERNAL  UInt  GLOBAL_mbox_count;
 EXTERNAL    struct swi_mutex*  GLOBAL_WithMutex;
 #endif /* THREADS */
-// streams 
+// streams
 EXTERNAL    struct stream_desc*  GLOBAL_Stream;
 #if defined(THREADS)||defined(YAPOR)
 EXTERNAL  lockvar  GLOBAL_StreamDescLock;
 #endif
-// access to yap initial arguments 
+// access to yap initial arguments
 EXTERNAL  char**  GLOBAL_argv;
 EXTERNAL  int  GLOBAL_argc;
 // extensions to Terms
@@ -110,8 +110,8 @@ EXTERNAL    struct opaque_handler_struct*  GLOBAL_OpaqueHandlers;
 EXTERNAL  char  GLOBAL_pwd[YAP_FILENAME_MAX];
 #endif
 //udi.c
-//struct udi_control_block 	RtreeCmd				void	
-EXTERNAL  char*  GLOBAL_RestoreFile;
+//struct udi_control_block 	RtreeCmd				void
+EXTERNAL    const char*  GLOBAL_RestoreFile;
 //gprof.c
 EXTERNAL  Int  GLOBAL_ProfCalls;
 EXTERNAL  Int  GLOBAL_ProfGCs;
@@ -139,8 +139,6 @@ EXTERNAL  char*  GLOBAL_Home;
 /* ISO char conversion: I will make no comments */
 EXTERNAL  char*  GLOBAL_CharConversionTable;
 EXTERNAL  char*  GLOBAL_CharConversionTable2;
-/* time */
-EXTERNAL  void*  GLOBAL_LastWTimePtr;
 /* max priority */
 EXTERNAL  int  GLOBAL_MaxPriority;
 

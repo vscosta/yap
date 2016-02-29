@@ -8,7 +8,7 @@
 *									 *
 *************************************************************************/
 
-/** 
+/**
 
 
 
@@ -170,7 +170,7 @@ absolute_file_name(File0,File) :-
                               file_errors(fail),
                               solutions(first),
                               expand(true)],F,G).
-                              
+
 '$absolute_file_name'(File,LOpts,TrueFileName, G) :-
 %   must_be_of_type( atom, File ),
 	abs_file_parameters(LOpts,Opts),
@@ -215,7 +215,7 @@ absolute_file_name(File0,File) :-
      FileErrors = error,
 	 '$do_error'(existence_error(file,File),G)
 	).
-    
+
 % This sequence must be followed:
 % user and user_input are special;
 % library(F) must check library_directories
@@ -229,7 +229,7 @@ absolute_file_name(File0,File) :-
 %    (	atom(Name) -> true ; start_low_level_trace ),
     get_abs_file_parameter( file_type, Opts, Type ),
     get_abs_file_parameter( access, Opts, Access ),
-    get_abs_file_parameter( expand, Opts, Expand ),   
+    get_abs_file_parameter( expand, Opts, Expand ),
     '$absf_trace'('start with ~w', [Name]),
     '$core_file_name'(Name, Opts, CorePath, []),
     '$absf_trace'('  after name/library unfolding: ~w', [Name]),
@@ -239,29 +239,29 @@ absolute_file_name(File0,File) :-
     '$absf_trace'('    after prefix expansion: ~s', [Path]),
     atom_codes( APath, Path ),
     (
-	 Expand = true
+	   Expand = true
      ->
-	   expand_file_name( APath, EPaths),
-	   '$absf_trace'('     after shell globbing: ~w', [EPaths]),
-	   lists:member(EPath, EPaths)
+	    expand_file_name( APath, EPaths),
+	     '$absf_trace'('     after shell globbing: ~w', [EPaths]),
+	      lists:member(EPath, EPaths)
      ;
-      EPath = APath
+         EPath = APath
     ),
-    real_path( EPath, File),
-    '$absf_trace'('      after canonical path name: ~a', [File]),  
+      real_path( EPath, File),
+    '$absf_trace'('      after canonical path name: ~a', [File]),
     '$check_file'( File, Type, Access ),
-    '$absf_trace'('       after testing ~a for ~a and ~a', [File,Type,Access]). 
+    '$absf_trace'('       after testing ~a for ~a and ~a', [File,Type,Access]).
 
 % allow paths in File Name
 '$core_file_name'(Name, Opts) -->
-      '$file_name'(Name, Opts, E),
-      '$suffix'(E, Opts),
-      '$glob'(Opts).	  			 
+    '$file_name'(Name, Opts, E),
+    '$suffix'(E, Opts),
+    '$glob'(Opts).	  			 
 
 %
 % handle library(lists) or foreign(jpl)
 %
-'$file_name'(Name, Opts, E) --> 
+'$file_name'(Name, Opts, E) -->
     { Name =.. [Lib, P0] },
     !,
     { user:file_search_path(Lib, IDirs) },
@@ -269,9 +269,9 @@ absolute_file_name(File0,File) :-
     '$absf_trace'('  ~w first', [Dir]),
     '$file_name'(Dir, Opts, _),
     '$dir',
-    { '$absf_trace'('  ~w next', [P0]) },  
+    { '$absf_trace'('  ~w next', [P0]) },
     '$cat_file_name'(P0, E).
-'$file_name'(Name, _Opts, E) --> 
+'$file_name'(Name, _Opts, E) -->
     '$cat_file_name'(Name, E).
 
 
@@ -286,7 +286,7 @@ absolute_file_name(File0,File) :-
 '$cat_file_name'(File, S) -->
     {string(File), string_to_codes(File, S) },
     !,
-    S. 
+    S.
 
 
 '$variable_expansion'( Path, Opts, APath ) :-
@@ -326,7 +326,7 @@ absolute_file_name(File0,File) :-
 
 '$suffix'(Last, _Opts) -->
     { lists:append(_, [0'.|Alphas], Last), '$id'(Alphas, _, [] ) },
-    '$absf_trace'(' suffix in ~s', [Last]),  
+    '$absf_trace'(' suffix in ~s', [Last]),
     !.
 '$suffix'(_, Opts) -->
     {
@@ -358,7 +358,7 @@ absolute_file_name(File0,File) :-
 '$glob'(Opts) -->
     {
 	get_abs_file_parameter( glob, Opts, G ),
-	G \= '', 
+	G \= '',
 	atom_codes( G, Gs )
     },
     !,
@@ -415,7 +415,7 @@ absolute_file_name(File0,File) :-
 '$dir'(_) --> '$dir'.
 
 %
-% 
+%
 %
 '$system_library_directories'(library, Dir) :-
 	user:library_directory( Dir ).
@@ -441,7 +441,7 @@ absolute_file_name(File0,File) :-
      '$paths'(RC, C)
     ).
 '$paths'(S, S).
- 
+
 '$absf_trace'(Msg, Args ) -->
     { current_prolog_flag( verbose_file_search, true ) },
     !,

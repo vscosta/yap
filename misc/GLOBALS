@@ -9,7 +9,7 @@
 //
 // The defs include 3+ components:
 //   Type
-//   name in structured / global name 
+//   name in structured / global name
 //   init code (optional)
 //   restore code (optional)
 //
@@ -54,7 +54,7 @@ UInt				NOfThreadsCreated 			=1
 UInt  				ThreadsTotalTime 			=0L
 // Threads Array
 lockvar				ThreadHandlesLock			MkLock
-#endif	
+#endif
 
 #if defined(YAPOR) || defined(THREADS)
 // protect long critical regions
@@ -62,7 +62,7 @@ lockvar				BGL					MkLock
 #endif
 
 #if defined(YAPOR) || defined(TABLING)
-struct global_optyap_data	optyap_data				void	
+struct global_optyap_data	optyap_data				void
 #endif /* YAPOR || TABLING */
 
 // whether Yap is responsible for signal handling
@@ -78,13 +78,13 @@ UInt				mbox_count				=0
 struct swi_mutex*		WithMutex		                void
 #endif /* THREADS */
 
-// streams 
+// streams
 struct stream_desc*		Stream					void
 #if defined(THREADS)||defined(YAPOR)
 lockvar				StreamDescLock                MkLock
 #endif
 
-// access to yap initial arguments 
+// access to yap initial arguments
 char**				argv					void
 int           		 	argc					void
 
@@ -100,7 +100,7 @@ YAP_ULONG_LONG 			agc_collected				void
 /* total time spent in GC */
 Int 				tot_agc_time 				=0
 /* number of heap objects in all garbage collections */
-Int 				tot_agc_recovered 			=0 
+Int 				tot_agc_recovered 			=0
 
 //arrays.c
 #if HAVE_MMAP
@@ -129,12 +129,12 @@ char				pwd[YAP_FILENAME_MAX]			void
 #endif
 
 //udi.c
-//struct udi_control_block 	RtreeCmd				void	
+//struct udi_control_block 	RtreeCmd				void
 
-char*			 	RestoreFile				void	
+const char*			 	RestoreFile				void
 
 //gprof.c
-Int 				ProfCalls				void 
+Int 				ProfCalls				void
 Int				ProfGCs 				void
 Int				ProfHGrows 				void
 Int				ProfSGrows 				void
@@ -165,13 +165,9 @@ char*				CharConversionTable			=NULL
 char*				CharConversionTable2			=NULL
 
 
-/* time */
-void*				LastWTimePtr				=NULL
-
 /* max priority */
 int 				MaxPriority				    =1200
 
 
 
 END_GLOBAL_DATA
-

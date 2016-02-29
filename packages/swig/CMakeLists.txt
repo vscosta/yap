@@ -3,6 +3,7 @@ macro_optional_find_package (SWIG ON)
 macro_log_feature (SWIG_FOUND "Swig"
   "Use SWIG Documentation System "
   "http://www.swig.org" FALSE)
+
 if (SWIG_FOUND)
   #
   #   SWIG_FOUND - set to true if SWIG is found
@@ -15,10 +16,10 @@ if (SWIG_FOUND)
 
   INCLUDE(${SWIG_USE_FILE})
 
-			     
+
 add_subdirectory(python)
 
-			     
+
 add_subdirectory(java)
 
 

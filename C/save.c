@@ -206,7 +206,7 @@ mywrite(FILE *fd, char *buff, Int len) {
   
   while (len > 0) {
     nwritten = fwrite(buff, 1, (size_t)len, fd);
-    if (nwritten < 0) {
+    if ((long int)nwritten < 0) {
       return do_SYSTEM_ERROR_INTERNAL(SYSTEM_ERROR_INTERNAL,"bad write on saved state");
     }
     buff += nwritten;

@@ -1019,7 +1019,7 @@ Term Yap_UnknownFlag(Term mod) {
 
       ModEntry *fv = Yap_GetModuleEntry(mod);
   if (fv == NULL)
-     fv = Yap_GetModuleEntry(AtomUser);
+     fv = Yap_GetModuleEntry(TermUser);
      if (fv->flags & UNKNOWN_ERROR)
       return TermError;
     if (fv->flags & UNKNOWN_WARNING)

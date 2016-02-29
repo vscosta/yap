@@ -25,7 +25,7 @@ set(PL_SOURCES
 	hacks.yap
 	init.yap
 	listing.yap
-	lists.yap
+	bootlists.yap
 	load_foreign.yap
         messages.yap
         meta.yap
@@ -48,7 +48,6 @@ set(PL_SOURCES
 	udi.yap
 	undefined.yap
 	utils.yap
-	history.pl
 	swi.yap
 	yapor.yap
 	yio.yap

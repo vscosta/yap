@@ -51,7 +51,7 @@ static void InitGlobal(void) {
   GLOBAL_ThreadsTotalTime = 0L;
 
   INIT_LOCK(GLOBAL_ThreadHandlesLock);
-#endif	
+#endif
 #if defined(YAPOR) || defined(THREADS)
 
   INIT_LOCK(GLOBAL_BGL);
@@ -139,8 +139,6 @@ static void InitGlobal(void) {
 
   GLOBAL_CharConversionTable = NULL;
   GLOBAL_CharConversionTable2 = NULL;
-
-  GLOBAL_LastWTimePtr = NULL;
 
   GLOBAL_MaxPriority = 1200;
 }

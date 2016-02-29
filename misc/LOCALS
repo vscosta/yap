@@ -103,6 +103,8 @@ Term				WokenGoals				=0L 		TermToGlobalAdjust
 Term				AttsMutableList				=0L 		TermToGlobalAdjust
 #endif
 
+
+
 // gc_stuff
 Term				GcGeneration				=0L 		TermToGlobalAdjust
 Term				GcPhase					=0L 		TermToGlobalAdjust
@@ -318,5 +320,9 @@ Term				SourceModule				=0
 Term				Including				=TermNil
 
 size_t				MAX_SIZE				=1024L
+
+/* last call to walltime. */
+uint64_t			LastWTime				=0
+
 
 END_WORKER_LOCAL
