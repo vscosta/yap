@@ -2,7 +2,7 @@
 pl_graphs(Dir - Mod) :-
       atom( Dir ),
 	format(' ************* GRAPH: ~a ***********************/~n', [Dir]),
-    atom_concat([Dir,'/*'], Pattern),
+atom_concat([Dir,'/*'], Pattern),
 	expand_file_name( Pattern, Files ),
 	member( File, Files ),
 	( ( sub_atom(File,_,_,0,'.yap') ; sub_atom(File,_,_,0,'.pl') ) ->
@@ -18,7 +18,7 @@ pl_graphs(Dir - Mod) :-
 pl_graphs(_).
 
 %%
-                                %% @pred build_graph( File, Mod)
+%% @pred build_graph( File, Mod)
                                 % adds a node to the file graph and marks which files are modules
                                 %
                                 % main side-effect facts like edge( F0-Mod:File )
@@ -32,7 +32,7 @@ build_graph(F, Mod) :-
 	catch( open(PF, read, S, [script(true)]), _, fail ),
 	repeat,
 	nb_getval( current_module, MR ),
-	catch(read_term( S, T, [term_position(Pos),module(MR),comments(Cs)] ), Throw, error(Throw) ),
+	catch(read_clause( S, T, [term_position(Pos),module(MR),comments(Cs)] ), Throw, error(Throw) ),
 	(
 	 T == end_of_file
 	->
@@ -76,7 +76,7 @@ get_graph( (H :- B), F, _Pos, M ) :-
     !,
     functor( H, N, Ar),
     add_deps( B, M, M:N/Ar, F, _Pos, 0 ).
-    %% switches to new file n
+%% switches to new file n
 get_graph( (:-include( Fs ) ), F, _Pos, M ) :-
     !,
     source_graphs( M, F, Fs ).
@@ -117,7 +117,7 @@ add_deps({A}, M, P, F, _Pos, 2) :- !,
 	add_deps(A, M, P, F, _Pos, 0).
 add_deps([_|_], M, P, F, Pos, 2) :-
 	!,
-	put_dep( (F-M:P :- prolog:'C'/3 ), Pos ).
+	put_dep( (F-M:P :- boot-prolog:'C'/3 ), Pos ).
 add_deps(String, _M, _P, _F, _Pos, _) :-  string(String), !.
 add_deps([], _M, _P, _F, _Pos, 2) :- !.
 add_deps(!, _M, _P, _F, _Pos, _) :- !.
@@ -131,32 +131,13 @@ add_deps(A, M, P, F, Pos, L) :-
 	Ar is Ar0+L,
 	put_dep( ( F-M:P :- F-M:N/Ar ), Pos ).
 
-put_dep( (Target :- F0-M:Goal ), Pos ) :-
-exported( ( F0-M:Goal :- F1-M1:N/Ar ) ), !,
-                                %follow ancestor chain
-ancestor( ( F1-M1:N/Ar :- FA-MA:NA/Ar )  ),
-put_dep( ( Target :- FA-MA:NA/Ar ), Pos  ).
-                                % the base case, copying from the same module ( but maybe not same file 0.
-put_dep( ( Target :- _F-M:N/Ar ) , _ ) :-
-m_exists(M:N/Ar, F0),
-!,
-assert_new( edge( ( Target :- F0-M:N/Ar ) ) ).
-                                % prolog is visible ( but maybe not same file ).
-put_dep( ( Target :- _F-_prolog:N/Ar ), _ ) :-
-m_exists(prolog:N/Ar, F0),
-!,
-assert_new( edge( ( Target :- F0-prolog:N/Ar ) ) ).
-put_dep( ( _Target :- _F-Mod:_N/_Ar ), _Pos) :-
-var( Mod ), !.
-put_dep( ( Target :- F-Mod:N/Ar ), Pos) :-
-atom( Mod ),
-stream_position_data( line_count, Pos, Line ),
-assert_new( undef( (Target :- F-Mod:N/Ar ), Line) ).
+put_dep( (Target :- F0-M:Goal ), _Pos ) :-
+ground(F0-M:Goal), !,
+assert_new_e(  ( Target :- F0-M:N/Ar ) ).
+put_dep(_,_).
 
-ancestor( ( Younger :- Older) ) :-
-exported(  ( Mid :- Older ) ), !,
-ancestor( ( Younger :- Mid) ).
-ancestor( (Older :- Older) ).
+                                % prolog is visible ( but maybe not same file ).
 
 m_exists(P, F) :- private( F, P ), !.
 m_exists(P, F) :- public( F, P ).
+

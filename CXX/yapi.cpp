@@ -461,8 +461,8 @@ YAPQuery::YAPQuery(YAPPredicate p, YAPTerm ts[]): YAPPredicate(p.ap)
 YAPListTerm YAPQuery::namedVars() {
   CACHE_REGS
     Term o = vnames.term();
-  Yap_DebugPlWrite(names); printf("<<<<<<<<<<<<<<<<-------------------------\n");
-  return YAPListTerm( names );  // should be o
+  Yap_DebugPlWrite(o); printf("<<<<<<<<<<<<<<<<-------------------------\n");
+  return o;  // should be o
 }
 
 bool YAPQuery::next()

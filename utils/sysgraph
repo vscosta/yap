@@ -1,5 +1,5 @@
 #!/usr/local/bin/yap -L -- $*
-#.
+
 
 :- style_check(all).
 
@@ -20,7 +20,7 @@
 
 :- style_check(all).
 
-:- yap_flag( double_quotes, string ).
+%:- yap_flag( double_quotes, string ).
 %:- yap_flag( dollar_as_lower_case, on ).
 
 :- dynamic
@@ -38,7 +38,8 @@
     undef/2,
     c_dep/2,
     do_comment/5,
-    module_file/2.
+    module_file/2,
+    file/2.
 
 %% @pred node(?Module:module, ?Predicate:pred_indicator, ?File:file, ?Generator:atom) is nondet, dynamic.
 %
@@ -56,30 +57,30 @@ inline( []/0 ).
 % @short edge(+SourceModule:module, +SourcePredicate:pred_indicator, +TargetPredicate:pred_indicator, +InFile:file) is nondet
 %
 
-main :-
-    trace,
+ main :-
+	unix(argv([D])),
+    assert(root(D)),
     init,
     fail.
 main :-
-	unix(argv([D])),
-    trace,
-	Dirs = ['C'-prolog,
+ Dirs = ['C'-prolog,
+		   'OPTYap'-prolog,
 		   'os'-prolog,
 		   'pl'-prolog,
-		   'OPTYap'-prolog,
 		   'library'-user,
+		   'swi/library'-user,
 %		   'swi/console'-user
 		   'packages'-user
 		 ],
+    root(D),
 %    maplist(distribute(D), Dirs, Paths),
-    assert(root(D)),
     load( D, Dirs ),
-    maplist( pl_graphs, Dirs ),
 	fail.
 main :-
     %%% phase 4: construct graph
     retractall( consulted(_,_) ),
-    undefs,
+    trace,
+    find_undefs,
     doubles,
     %     pl_exported(pl).
     c_links,
@@ -94,6 +95,7 @@ distribute( Root, File-Class, Path-Class) :-
 
 init :-
         retractall(dir(_)),
+        retractall(file(_,_)),
         retractall(s8Sadir(_)),
         retractall(edge(_)),
         retractall(private(_,_)),
@@ -106,12 +108,18 @@ init :-
         retractall(do_comment(_,_,_,_,_)),
         fail.
 init :-
+    current_op(_, _, D),
+    assert(system_op(D)),
+    fail.
+init :-
         user_c_dep(A,B),
         do_user_c_dep(A,B),
         fail.
 init :-
-        user_skip(A),
-        do_user_skip(A),
+        root(M),
+        user_skip(D),
+        absolute_file_name( D, FD, [relative_to(M)]),
+        assert_static(fullskip(FD)),
         fail.
 init :-
         user_expand(N,A),
@@ -119,6 +127,10 @@ init :-
         fail.
 init :-
         catch( make_directory(tmp), _, fail),
+        fail.
+init :-
+    source_module(SM),
+        nb_setval(current_module, SM),
         fail.
 init.
 
@@ -134,8 +146,28 @@ doubles :-
     fail.
 doubles.
 
-undefs :-
+find_undefs :-
     format('UNDEFINED procedure calls:~n',[]),
+    pmodule(M),
+    format('    module ~a:~n',[M]),
+    predicate_in_module(M, P),
+    \+ edge((_-M:P :- _)),
+    format('      ~w:~n',[P]),
+     fail.
+find_undefs.
+
+pmodule(M) :-
+    findall(M, node(M, _,_,_), Ms),
+    sort(Ms, SMs),
+    member(M, SMs).
+
+predicate_in_module(M, P) :- 
+    findall(P, node(M, P,_,_), Ps),
+    sort(Ps, SPs),
+    member(P, SPs).
+
+
+/*
     setof(M, Target^F^Line^NA^undef( ( Target :- F-M:NA ), Line  ), Ms ),
     member( Mod, Ms ),
     format('    module ~a:~n',[Mod]),
@@ -157,6 +189,7 @@ undefs :-
 	 fail
     ).
 undefs.
+*/
 
 out_list([]) :-
     format('[]', []).
@@ -313,88 +346,60 @@ prolog_file_type(c, '.i').
 %
 % handle some special cases.
 %
-search_file(  library(boot/F) , LocF, Type, FN ) :- !,
-    search_file(  '..'/pl/F , LocF, Type, FN ).
+search_file(  S , LocF, Type, FN ) :- 
+    functor(S, _, N),
+    N> 0,
+    !,
+    arg(N, S, A),
+    search_file(  A , LocF, Type, FN ).
 %try to use your base
-search_file(  F0, LocF, Type, FN ) :-
-    filename(F0, F),
-    file_directory_name(LocF, LOC),
-    file_directory_name(F, D),
-    file_base_name(F, F1),
-    candidate_dir(LOC, '/', D, Left),
-    absolute_file_name(F1, [
-        relative_to(Left),
+search_file(  F0, LocF, Type, FO ) :-
+      file_directory_name(LocF, D),
+      file_base_name(F0, B),
+      findall(F, fsuffix(Type, B, F), Fs),
+      Fs = [_|_],
+      !,
+    absolute_file_name(F0, [
+        relative_to(D),
             file_type(Type),file_errors(fail),
-            access(read) ], FN ).
-search_file(  Loc , F, _FN ) :-
-    format('~n~n~n###############~n~n FAILED TO FIND ~w when at  ~a~n~n###############~n~n~n', [Loc, F ]),
+            access(none) ], FN ),
+    maplist(quantf(FN), Fs, DFs),
+    keysort(DFs, O),
+    O = [_D-FO|_].
+search_file(  Loc , F, Type, _FN ) :-
+    format('~n~n~n###############~n~n FAILED TO FIND ~w.~a when at  ~a~n~n###############~n~n~n', [Loc, Type, F ]),
      fail.
-
-candidate_dir( Loc, _, D, Loc) :-
-    % ensure that the prefix of F, D,  is a suffix of Loc
-    match(D, Loc).
-% next, try going down in the current subroot
-candidate_dir( Loc, _Source,  D, OLoc) :-
-    sub_dir(Loc, NLoc),
-    NLoc \= Source,
-    candidate_dir_down(NLoc, Source,  D, OLoc).
-% if that fails, go up
-candidate_dir( Loc, _Source,  D, OLoc) :-
-    sub_dir(NLoc, Loc),
-    candidate_dir( NLoc, Loc, D, OLoc).
-candidate_dir( Loc, _Source,  D, OLoc) :-
-    root(Loc),
-    root(NLoc),
-    NLoc \= Loc,
-    candidate_dir( NLoc, Loc, D, OLoc).
-
-candidate_dir_down(Loc, _Source,  D, Loc) :-
-    % ensure that the prefix of F, D,  is a suffix of Loc
-    match(D, Loc).
-% next, try going down in the current subroot
-candidate_dir( Loc, _Source,  D, OLoc) :-
-    sub_dir(NLoc, Loc),
-    candidate_dir_down(NLoc, Source,  D, OLoc).
-
-match('.', _Loc) :- !.
-match(D, Loc) :-
-    file_base_name( D, B),
-    file_base_name( Loc, B),
-    file_directory_name( D, ND),
-    file_directory_name( D, NLoc),
-    match(ND, NLoc).
-
-
-filename(A, A) :- atom(A), !.
-filename(A/B, NAB) :-
-    filename(A, NA),
-    filename(B, NB),
-    atom_concat([NA,'/', NB], NAB).
-filename( library(A), NAB ) :-
-    !,
-     filename(A, NA),
-     (
-      library(L),
-      atom_concat( [L, '/', NA], NAB)
-      ;
-      NAB = NA
-     ).
-filename( S, NAB ) :-
-    arg(1, S, A),
-    !,
-      NAB = NA.
-
+     
+fsuffix(Type,F0, F) :-
+    ( user:prolog_file_type(Suffix, Type),
+        (atom_concat('.', _, Suffix)
+        ->  
+        Suffix  = DSuffix
+        ;
+                    atom_concat('.', Suffix, DSuffix)
+        )
+         ;
+          DSuffix = ''
+    ),
+        atom_concat(F0, DSuffix, F1),
+           file_base_name(F1, B),
+    file(F, B),
+   atom_concat(_, F1, F).
+    
+    
+quantf(F, F1, I-F1) :-
+    atom_length(F1,M),
+    between(0,M,I),
+        sub_atom(F1, I, J, 0, End),
+        sub_atom(F, _I, J, 0, End),
+        !.
 % files must be called .yap or .pl
 % if it is .yap...
 
 
-new_op( F, M, op(X,Y,Z) ) :-
-    nb_getval( private, true ),
-    !,
-    private( F, M, op(X,Y,Z) ),
-    op( X, Y, Z).
-new_op( F, M, op( X, Y, Z) ) :-
-    public( F, M, op( X, Y, Z) ).
+new_op( prolog, _X,_Y,_Z ) :- !.
+new_op(  M, X,Y,Z ) :-
+    op( X, Y, M:Z).
 
 
 error(_F, Error) :-
@@ -410,15 +415,8 @@ preprocess_file(F,F).
 
 %%%%%%%
 %% declare a concept exportable
-public( F, M, op(X,Y,Z) ) :- !,
-    (
-        assert_new( public( F, op(X,Y,Z) ) ),
-        directive( op(X,Y,M:Z), F, M ),
-        retract( private( F, op(X,Y,Z)) ),
-        fail
-        ;
-        true
-    ).
+public( _F, M, op(X,Y,Z) ) :- !,
+        new_op(M,X,Y,Z).
 public( F, M, M:N/Ar ) :-
     retract( private( F, M:N/Ar ) ),
     fail.
@@ -427,6 +425,11 @@ public( F, M, N/Ar ) :-
     \+ node( M, N/Ar, F-_, _ ),
     nb_getval( line, L ),
     assert( node( M, N/Ar, F-L, prolog ) ), !.
+public( F, M, _N/Ar as NN ) :-
+    assert_new( public( F, M:NN/Ar ) ),
+    \+ node( M, NN/Ar, F-_, _ ),
+    nb_getval( line, L ),
+    assert( node( M, NN/Ar, F-L, prolog ) ), !.
 public( _F, _M, _/_Ar ).
 public( F, M, M:N//Ar ) :-
 	Ar2 is Ar+2,
@@ -440,16 +443,9 @@ public( F, M, N//Ar ) :-
     assert( node( M, N/Ar2, F-L, prolog ) ), !.
 public( _F, _M, _//_Ar ).
 
-private( F, M, op(X,Y,Z) ) :-
-    assert_new( private( F, M:op(X,Y,Z) ) ),
-    (
-	( M == user ; M == prolog )
-      ->
-	  op( X, Y, prolog:Z )
-      ;
-	  op( X, Y, M:Z )
-    ), !.
-private( _F, _M, op(_X,_Y,_Z) ).
+private( _F, M, op(X,Y,Z) ) :-
+!,
+	  new_op( M,X, Y, Z ).
 private( F, M, N/Ar ) :-
     assert_new( private( F, M:N/Ar ) ),
     \+ node( M, N/Ar, F-_, _ ),
@@ -469,6 +465,14 @@ is_public( F, M, OP ) :-
 
 is_private( F, M, OP ) :-
      private( F, M :OP ).
+
+
+
+assert_new_e((A-MG :- B-MG1 )) :-
+yap_strip_module(MG, M, P),
+             yap_strip_module(MG1, M1, P1),
+             assert(edge((A-M:P :- B-M1:P1  ) )).
+
 
 assert_new( G ) :- G, !.
 assert_new( G ) :- assert( G ).
@@ -699,27 +703,12 @@ check_quotes( N ) -->
     [_],
     check_quotes( N ).
 
-
-%%%
-%  ops_default sets operators back to YAP default.
-%
-ops_default :-
-    abolish( default_ops/1 ),
-    A = (_,_), functor(A,Comma,2),
-    findall(op(X,Y,prolog:Z), ( current_op(X,Y,prolog:Z), Z\= Comma ), L),
-    assert_static( default_ops(L) ).
-
-:- initialization(ops_default, now).
-
 ops_restore :-
-    A = (_,_), functor(A,Comma,2),
-    current_op(_X,Y,prolog:Z),
-    Z\= Comma,
-    op(0,Y,prolog:Z),
-    fail.
-ops_restore :-
-    default_ops(L),
-    maplist( call, L ).
+            current_op(_,Y,Op),
+            \+ system_op(Op),
+            op(0,Y,Op),
+            fail.
+ops_restore.
 
 do_user_c_dep(F1, F2) :-
     absolute_file_name(F1, A1),
@@ -794,7 +783,6 @@ doskip( D):- sub_atom( D, _, _, 0, '/..' ).
 doskip( D):- sub_atom( D, _, _, 0, '/.git' ).
 doskip( D):- sub_atom( D, _, _, _, '/.#' ).
 doskip( D):- sub_atom( D, _, _, 0, '#' ).
-doskip( D):- user_skip( D ).
 
 user_skip( 'packages/gecode/3.6.0').
 user_skip( 'packages/gecode/3.7.0').
@@ -808,11 +796,12 @@ user_skip( 'packages/gecode/gecode3.yap' ).
 user_skip( 'packages/gecode/gecode3_yap.cc' ).
 user_skip( 'packages/gecode/gecode3_yap_hand_written.yap').
 user_skip( 'packages/gecode/gecode3.yap-common.icc').
-user_skip( 'packages/prism/src/prolog/core').
-user_skip( 'packages/prism/src/prolog/up').
-user_skip( 'packages/prism/src/prolog/mp').
-user_skip( 'packages/prism/src/prolog/trans').
-user_skip( 'packages/prism/src/prolog/bp').
-user_skip( 'packages/prism/src/c').
+user_skip( 'packages/prism/src/prolog').
+user_skip( 'packages/prism').
 
 user_expand( library(clpfd), 'library/clp/clpfd.pl' ).
+ 
+ loop_error(_, Msg) :-
+ writeln(Msg),
+ fail.
+ 
