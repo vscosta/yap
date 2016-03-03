@@ -676,16 +676,17 @@ delete_import_module(Mod, ImportModule) :-
 	current_module(Source0, SourceF).
 
 /**
-  @pred module_property( + _Module_, ? _Property_ ) is nondet
+  @pred module_property( +Module, ? _Property_ ) is nondet
+
 Enumerate non-deterministically the main properties of _Module_ .
 
 Reports the following properties of _Module_:
 
   + `class`( ?_Class_ ): whether it is a `system`, `library`, or `user` module.
 
-  + `line_count`(?_Ls_): number of lines in source file.
+  + `line_count`(?_Ls_): number of lines in source file (if there is one).
 
-  + `file`(?_F_): source file for _Module_.
+  + `file`(?_F_): source file for _Module_ (if there is one).
 
   + `exports`(-Es): list of all predicate symbols and
    operator symbols exported or re-exported by this module.
@@ -700,7 +701,7 @@ module_property(Mod, file(F)) :-
 module_property(Mod, exports(Es)) :-
 	recorded('$module','$module'(_,Mod,_,Es,_),_).
 
-'$module_class'(Mod, system) :- '$system_module'( Mod ).
+'$module_class'(Mod, system) :- '$is_system_module'( Mod ).
 '$module_class'(Mod, library) :- '$library_module'( Mod ).
 '$module_class'(Mod, user) :- '$user_module'( Mod ).
 '$module_class'(_, temporary) :- fail.
