@@ -29,19 +29,19 @@ static ModEntry *LookupSystemModule(Term a);
 static ModEntry *GetModuleEntry(Atom at USES_REGS);
 static ModEntry *FetchModuleEntry(Atom at);
 
-/** 
+/**
  * initialize module data-structure
- * 
+ *
  * @param to parent module (CurrentModule)
  * @param ae module name.
- * 
+ *
  * @return a new module structure
  *//**               */
 static ModEntry *
 initMod( AtomEntry *toname, AtomEntry *ae) {
     CACHE_REGS
     ModEntry *n, *parent;
-    
+
     if (toname == NULL)
       parent = NULL;
     else {
@@ -60,18 +60,18 @@ initMod( AtomEntry *toname, AtomEntry *ae) {
     return n;
 }
 
-/** 
+/**
  * get predicate entry for ap/arity; create it if neccessary
- * 
- * @param[in] at 
- * 
+ *
+ * @param[in] at
+ *
  * @return module descriptorxs
  */
  static ModEntry *GetModuleEntry(Atom at USES_REGS)
 {
   Prop p0;
-  AtomEntry *ae = RepAtom(at);
-       
+  AtomEntry *ae = RepAtom(axclat);
+
   READ_LOCK(ae->ARWLock);
   p0 = ae->PropsOfAE;
   while (p0) {
@@ -83,7 +83,7 @@ initMod( AtomEntry *toname, AtomEntry *ae) {
     p0 = me->NextOfPE;
   }
   READ_UNLOCK(ae->ARWLock);
- 
+
   return initMod( ( CurrentModule == PROLOG_MODULE ? NULL : AtomOfTerm( CurrentModule ) ), at );
 }
 
@@ -131,7 +131,7 @@ bool Yap_getUnknown ( Term mod) {
   return GetModuleEntry(AtomOfTerm(mt) PASS_REGS)->flags & M_CHARESCAPE;
 }
 
- 
+
 #define ByteAdr(X) ((char *)&(X))
 Term Yap_Module_Name(PredEntry *ap) {
   CACHE_REGS
@@ -157,7 +157,7 @@ static ModEntry *LookupSystemModule(Term a) {
   CACHE_REGS
   Atom at;
   ModEntry *me;
-  
+
 
   /* prolog module */
   if (a == 0) {
@@ -345,12 +345,12 @@ static Int init_ground_module(USES_REGS1) {
   return cont_ground_module(PASS_REGS1);
 }
 
-/** 
+/**
  * @pred system_module( + _Mod_)
- * 
- * @param module 
- * 
- * @return 
+ *
+ * @param module
+ *
+ * @return
  */
 static Int is_system_module( USES_REGS1 )
 {
@@ -461,11 +461,11 @@ static Int context_module(USES_REGS1) {
   return Yap_unify(ARG1, CurrentModule);
 }
 
-/** 
+/**
  * @pred source_module(-Mod)
- * 
- * @param Mod is the current text source module. 
- * 
+ *
+ * @param Mod is the current text source module.
+ *
  *  : _Mod_ is the current read-in or source module.
 */
 static Int source_module(USES_REGS1) {
