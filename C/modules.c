@@ -70,7 +70,7 @@ initMod( AtomEntry *toname, AtomEntry *ae) {
  static ModEntry *GetModuleEntry(Atom at USES_REGS)
 {
   Prop p0;
-  AtomEntry *ae = RepAtom(axclat);
+  AtomEntry *ae = RepAtom(at);
 
   READ_LOCK(ae->ARWLock);
   p0 = ae->PropsOfAE;
