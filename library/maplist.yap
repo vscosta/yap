@@ -932,7 +932,7 @@ goal_expansion(partition(Meta, ListIn, List1, List2, List3), Mod:Goal) :-
 			  Outs2 = NOuts2,
 			  Outs3 = [In|NOuts3]
 			 ;
-			  error:must_be(oneof([<,=,>]), Diff)
+			  must_be(oneof([<,=,>]), Diff)
 			 ),
 			 RecursiveCall)
 		    ], Mod).
