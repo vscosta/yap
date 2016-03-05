@@ -42,12 +42,16 @@ to other modules; they can, however, be accessed by prefixing the module
 name with the `:/2` operator.
 
 **/
+'$module_dec'(system(N, Ss), Ps) :- !,
+	new_system_module(N),
+    '$mk_system_predicates'( Ss , N ),
+    '$module_dec'(N, Ps).
 '$module_dec'(system(N), Ps) :- !,
 	new_system_module(N),
-	recordz('$system_initialization', prolog:'$mk_system_predicates'( Ps , N ), _),
-    '$current_module'(_,N).
+%    '$mk_system_predicates'( Ps , N ),
+    '$module_dec'(N, Ps).
 '$module_dec'(N, Ps) :-	
-    source_location(F,_Line),
+    source_location(F,_Line),	
     '$nb_getval'( '$user_source_file', F0 , fail),
 	'$add_module_on_file'(N, F, F0, Ps),
 	'$current_module'(_,N).
@@ -55,7 +59,7 @@ name with the `:/2` operator.
 '$mk_system_predicates'( Ps, N ) :-
     lists:member(Name/A , Ps),
     functor(P,Name,A),
-    '$mk_system_predicate'(P, N),
+    '$new_system_predicate'(P, prolog),
     fail.
 '$mk_system_predicates'( _Ps, _N ).
 

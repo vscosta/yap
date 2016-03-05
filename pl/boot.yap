@@ -1461,7 +1461,7 @@ bootstrap(F) :-
     !,
     '$yap_strip_module'(M1:MH,M,H),
     ( M == M1 -> B = B0 ; B = M1:B0),
-    error:is_callable(M:H,P).
+    is_callable(M:H,P).
 
 '$check_head_and_body'(MH, M, H, true, P) :-
     '$yap_strip_module'(MH,M,H),

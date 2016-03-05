@@ -20,11 +20,20 @@
 % This protects all code from further changes
 % and also makes it impossible from some predicates to be seen
 '$protect' :-
-	'$current_predicate'(Name,M,P,_),
+	'$current_predicate'(Name,prolog,P,_),
     M \= user,
     functor(P,Name,Arity),
     '$new_system_predicate'(Name,Arity,M),
     sub_atom(Name,0,1,_, '$'),
+    functor(P,Name,Arity),
+    '$hide_predicate'(P,M),
+    fail.
+'$protect' :-
+    '$system_module'(M),
+	'$current_predicate'(Name,M,P,_),
+    M \= user,
+    functor(P,Name,Arity),
+    '$new_system_predicate'(Name,Arity,M),
     fail.
 '$protect' :-
     current_atom(Name),

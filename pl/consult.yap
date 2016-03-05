@@ -1418,8 +1418,8 @@ initialization(_G,_OPT) :-
                 stop_low_level_trace.
 
 '$initialization'(G,OPT) :-
-   error:must_be_of_type(callable, G, initialization(G,OPT)),
-    error:must_be_of_type(oneof([after_load, now, restore]),
+    must_be_of_type(callable, G, initialization(G,OPT)),
+    must_be_of_type(oneof([after_load, now, restore]),
                 OPT, initialization(G,OPT)),
    (
 	 OPT == now
