@@ -336,7 +336,7 @@ FetchAlias (int sno)
     }
     aliasp++;
   }
-  return(AtomFoundVar);
+  return NULL;
 }
 
 /* check if arg is an alias */
