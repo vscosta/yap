@@ -62,12 +62,16 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS) {
       unsigned char *pt = buf;
       do {
         ch = st->stream_wgetc_for_read(sno);
-        if (ch < 127)
+        if (ch < 127) {
           *pt++ = ch;
-        else
-          pt += get_utf8(pt, 4, &ch);
-        if (pt + 4 == buf + buf_sz)
-          break;
+          if (ch < 0) {
+              ch = '\n';
+              pt[-1] = '\n';
+         } else
+            pt += get_utf8(pt, 4, &ch);
+            if (pt + 4 == buf + buf_sz)
+            break;
+         }
       } while (ch != '\n');
       sz = pt - buf;
     }
@@ -150,10 +154,15 @@ static Int read_line_to_string(USES_REGS1) {
       unsigned char *pt = buf;
       do {
         ch = st->stream_wgetc_for_read(sno);
-        if (ch < 127)
-          *pt++ = ch;
-        else
+        if (ch < 127) {
+        if (ch < 0) {
+              ch = '\n';
+              pt[-1] = '\n';
+         } else
+           *pt++ = ch;
+        } else {
           pt += put_utf8(pt, ch);
+        }
         if (pt + 4 == buf + buf_sz)
           break;
       } while (ch != '\n');
