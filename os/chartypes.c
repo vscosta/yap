@@ -132,7 +132,7 @@ static encoding_t enc_os_default( encoding_t rc)\
 
   if (rc == ENC_ISO_ASCII) {
 #ifdef _WIN32
-      return = ENC_UTF16_BE;
+      return ENC_UTF16_BE;
 #else
       return ENC_ISO_UTF8;
 #endif
