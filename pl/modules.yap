@@ -692,6 +692,11 @@ Reports the following properties of _Module_:
    operator symbols exported or re-exported by this module.
 
 */
+module_property(Mod, Prop) :- 
+    var(Mod),
+    !,
+	recorded('$module','$module'(_,Mod,_,_Es,_),_),
+    module_property(Mod, Prop).
 module_property(Mod, class(L)) :-
 	'$module_class'(Mod, L).
 module_property(Mod, line_count(L)) :-
@@ -699,24 +704,30 @@ module_property(Mod, line_count(L)) :-
 module_property(Mod, file(F)) :-
 	recorded('$module','$module'(F,Mod,_,_,_),_).
 module_property(Mod, exports(Es)) :-
-	recorded('$module','$module'(_,Mod,_,Es,_),_).
+	(
+        recorded('$module','$module'(_,Mod,_,Es,_),_)
+    ->
+        true
+        ;
+        Mod==user
+        ->
+        findall( P, (current_predicate(user:P)), Es)
+        ;
+       Mod==prolog
+        ->
+        findall( N/A, (predicate_property(Mod:P0, public),functor(P0,N,A)), Es)
+    ).
 
-'$module_class'(Mod, system) :- '$is_system_module'( Mod ).
-'$module_class'(Mod, library) :- '$library_module'( Mod ).
-'$module_class'(Mod, user) :- '$user_module'( Mod ).
-'$module_class'(_, temporary) :- fail.
-'$module_class'(_, test) :- fail.
-'$module_class'(_, development) :- fail.
+'$module_class'(Mod, system) :- '$is_system_module'( Mod ), !.
+'$module_class'(Mod, library) :- '$library_module'( Mod ), !.
+'$module_class'(Mod, user) :- !.
+'$module_class'(  _, temporary) :- fail.
+'$module_class'(  _, test) :- fail.
+'$module_class'(  _, development) :- fail.
 
 '$library_module'(M1) :-
-	recorded('$module','$module'(F, M1, _, _MyExports,_Line),_),
-	user:library_directory(D),
-	sub_atom(F, 0, _, _, D).
-
-'$user_module'( Mod ) :-
-    \+ '$library_module'( Mod),
-    \+ '$system_module'( Mod).
-
+	recorded('$module','$module'(F, M1, library(_), _MyExports,_Line),_).
+    
 ls_imports :-
 	recorded('$import','$import'(M0,M,G0,G,_N,_K),_R),
 	numbervars(G0+G, 0, _),

@@ -863,26 +863,13 @@ static Int cont_current_predicate(USES_REGS1) {
       pp = firstModulePred(m->PredForME, task);
       if (!pp) {
         /* try Prolog Module */
-        if (task != TermUser) {
-          ModEntry *m = Yap_GetModuleEntry(TermProlog);
-          pp = firstModulePred(m->PredForME, task);
-          if (!pp) {
-            cut_fail();
-          }
-        }
+        cut_fail();
       }
     }
     npp = firstModulePred(pp, task);
 
     if (!npp) {
-      if (pp->ModuleOfPred != PROLOG_MODULE && task != TermUser) {
-        ModEntry *m = Yap_GetModuleEntry(TermProlog);
-        npp = firstModulePred(m->PredForME, task);
-        if (!npp)
-          will_cut = true;
-      } else {
-        will_cut = true;
-      }
+      will_cut = true;
     }
     // just try next one
     else {
