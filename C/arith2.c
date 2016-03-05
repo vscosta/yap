@@ -170,7 +170,7 @@ p_mod(Term t1, Term t2 USES_REGS) {
       break;
     }
   case (CELL)double_e:
-    return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "mod/2");
   case (CELL)big_int_e:
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
