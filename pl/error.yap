@@ -6,7 +6,7 @@
 @author adapted to YAP by Vitor Santos Costa
 */
 
-:- module(system(error),
+:- module(system(error,
 	  [ must_be_of_type/2,		% +Type, +Term
 	    must_be_of_type/3,		% +Type, +Term, +Comment
 		must_be/2,		% +Type, +Term
@@ -21,7 +21,7 @@
 	    instantiation_error/1,	% +Term
 	    representation_error/1, 	% +Reason
 	    is_of_type/2		% +Type, +Term
-	  ]).
+	  ]), [])  .
 
 /**
  @defgroup error Error generating support
@@ -117,8 +117,8 @@ must_be_of_type(Type, X) :-
 	;   is_not(Type, X)
 	).
 
-inline(must_be_of_type( callable, X ), error:is_callable(X, _) ).
-inline(must_be_of_type( callable, X ), error:is_callable(X, _) ).
+inline(must_be_of_type( callable, X ), is_callable(X, _) ).
+inline(must_be_of_type( callable, X ), is_callable(X, _) ).
 
 must_be_of_type(predicate_indicator, X, Comment) :-
 	!,
