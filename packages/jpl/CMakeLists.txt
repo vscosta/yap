@@ -14,6 +14,9 @@ macro_log_feature (Java_Development_FOUND "Java"
 if (Java_Development_FOUND)
 
   find_package(JNI)
+  
+  if (JNI_FOUND)
+  
   include(UseJava)
 
   #
@@ -48,6 +51,8 @@ if (Java_Development_FOUND)
 
   add_subdirectory (src/c)  
   
+  endif (JNI_FOUND)
+    
   add_subdirectory (src/java)  
   
   install(FILES jpl.pl
