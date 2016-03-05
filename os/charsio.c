@@ -112,26 +112,25 @@ Int Yap_peek(int sno) {
     return ch;
   }
 #endif
-   /* buffer the character */
+  /* buffer the character */
   if (s->encoding == LOCAL_encoding) {
     ch = fgetwc(s->file);
     ungetwc(ch, s->file);
     return ch;
   } else {
-   ocharcount = s->charcount;
-  olinecount = s->linecount;
-  olinepos = s->linepos;
+    ocharcount = s->charcount;
+    olinecount = s->linecount;
+    olinepos = s->linepos;
     ch = s->stream_wgetc(sno);
     if (ch == EOFCHAR) {
-    s->stream_getc = EOFPeek;
-    s->stream_wgetc = EOFWPeek;
-    s->status |= Push_Eof_Stream_f;
-    return ch;
-  }
-    
+      s->stream_getc = EOFPeek;
+      s->stream_wgetc = EOFWPeek;
+      s->status |= Push_Eof_Stream_f;
+      return ch;
+    }
   }
   if (s->encoding == ENC_OCTET || s->encoding == ENC_ISO_LATIN1 ||
-             s->encoding == ENC_ISO_ASCII) {
+      s->encoding == ENC_ISO_ASCII) {
     ungetc(ch, s->file);
   } else if (s->encoding == ENC_ISO_UTF8) {
     unsigned char cs[8];
@@ -140,56 +139,56 @@ Int Yap_peek(int sno) {
       ungetc(cs[n - 1], s->file);
     }
   } else if (s->encoding == ENC_UTF16_BE) {
-   /* do the ungetc as if a write .. */
+    /* do the ungetc as if a write .. */
     // computations
     if (ch < 0x10000) {
-        ungetc(ch % 256, s->file);
-       ungetc(ch / 256, s->file);
+      ungetc(ch % 256, s->file);
+      ungetc(ch / 256, s->file);
     } else {
-    uint16_t lead = LEAD_OFFSET + (ch >> 10);
-    uint16_t trail = 0xDC00 + (ch & 0x3FF);
+      uint16_t lead = LEAD_OFFSET + (ch >> 10);
+      uint16_t trail = 0xDC00 + (ch & 0x3FF);
 
-    ungetc(lead % 256, s->file);
-    ungetc(lead / 256, s->file);
-    ungetc(trail % 256, s->file);
-    ungetc(trail / 256, s->file);
-  }
+      ungetc(lead % 256, s->file);
+      ungetc(lead / 256, s->file);
+      ungetc(trail % 256, s->file);
+      ungetc(trail / 256, s->file);
+    }
   } else if (s->encoding == ENC_UTF16_LE) {
     if (ch < 0x10000) {
-       ungetc(ch / 256, s->file);
+      ungetc(ch / 256, s->file);
       ungetc(ch % 256, s->file);
     } else {
-    uint16_t lead = LEAD_OFFSET + (ch >> 10);
-    uint16_t trail = 0xDC00 + (ch & 0x3FF);
+      uint16_t lead = LEAD_OFFSET + (ch >> 10);
+      uint16_t trail = 0xDC00 + (ch & 0x3FF);
 
-    ungetc(trail / 256, s->file);
-    ungetc(trail % 256, s->file);
-    ungetc(lead / 256, s->file);
-    ungetc(lead % 256, s->file);
+      ungetc(trail / 256, s->file);
+      ungetc(trail % 256, s->file);
+      ungetc(lead / 256, s->file);
+      ungetc(lead % 256, s->file);
     }
-  } else if (s->encoding ==  ENC_ISO_UTF32_LE) {
-        ungetc( (ch >> 24) & 0xff, s->file);
-        ungetc( (ch >> 16) & 0xff, s->file);
-        ungetc( (ch >> 8) & 0xff, s->file);
-        ungetc( ch & 0xff, s->file);
-  } else if (s->encoding ==  ENC_ISO_UTF32_BE) {
-        ungetc( ch & 0xff, s->file);
-        ungetc( (ch >> 8) & 0xff, s->file);
-        ungetc( (ch >> 16) & 0xff, s->file);
-        ungetc( (ch >> 24) & 0xff, s->file);
+  } else if (s->encoding == ENC_ISO_UTF32_LE) {
+    ungetc((ch >> 24) & 0xff, s->file);
+    ungetc((ch >> 16) & 0xff, s->file);
+    ungetc((ch >> 8) & 0xff, s->file);
+    ungetc(ch & 0xff, s->file);
+  } else if (s->encoding == ENC_ISO_UTF32_BE) {
+    ungetc(ch & 0xff, s->file);
+    ungetc((ch >> 8) & 0xff, s->file);
+    ungetc((ch >> 16) & 0xff, s->file);
+    ungetc((ch >> 24) & 0xff, s->file);
   } else if (s->encoding == ENC_UCS2_BE) {
-   /* do the ungetc as if a write .. */
+    /* do the ungetc as if a write .. */
     // computations
-        ungetc(ch % 256, s->file);
-       ungetc(ch / 256, s->file);
-   } else if (s->encoding == ENC_UCS2_LE) {
-       ungetc(ch / 256, s->file);
-      ungetc(ch % 256, s->file);
-   } 
-   s->charcount = ocharcount;
+    ungetc(ch % 256, s->file);
+    ungetc(ch / 256, s->file);
+  } else if (s->encoding == ENC_UCS2_LE) {
+    ungetc(ch / 256, s->file);
+    ungetc(ch % 256, s->file);
+  }
+  s->charcount = ocharcount;
   s->linecount = olinecount;
   s->linepos = olinepos;
- return ch;
+  return ch;
 }
 
 static Int dopeek_byte(int sno) {
@@ -1135,9 +1134,9 @@ leaving the current stream position unaltered.
 
 */
 
-void Yap_flush(void) { CACHE_REGS(void)flush_all_streams(PASS_REGS1); }
+void Yap_flush(void) { CACHE_REGS(void) flush_all_streams(PASS_REGS1); }
 
-void Yap_FlushStreams(void) { CACHE_REGS(void)flush_all_streams(PASS_REGS1); }
+void Yap_FlushStreams(void) { CACHE_REGS(void) flush_all_streams(PASS_REGS1); }
 
 void Yap_InitCharsio(void) {
   Yap_InitCPred("get", 2, get, SafePredFlag | SyncPredFlag);
