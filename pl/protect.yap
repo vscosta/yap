@@ -16,24 +16,35 @@
 *************************************************************************/
 
 :- system_module( '$_protect', [], ['$protect'/0]).
+/**
+ * @file protect.yap
+ * @addgroup ProtectCore Freeze System Configuration
+ * @ingroup CoreUtilities
+ *
+ * This protects current code from further changes
+ *  and also makes it impossible for some predicates to be seen
+ * in user-space.
+ *
+ * Algorithm:
+ *  - fix system modules
+ *  - fix system predicates
+ *  - hide atoms with `$`
+ */
+ 
 
-% This protects all code from further changes
-% and also makes it impossible from some predicates to be seen
 '$protect' :-
-	'$current_predicate'(Name,prolog,P,_),
-    M \= user,
+    '$all_current_modules'(M),
+    ( sub_atom(M,0,1,_, '$') ; M= prolog; M= system ),
+    new_system_module( M ),    
+    fail.
+'$protect' :-
+	'$current_predicate'(Name,M,P,_),
+    '$is_system_module'(M),
     functor(P,Name,Arity),
     '$new_system_predicate'(Name,Arity,M),
     sub_atom(Name,0,1,_, '$'),
     functor(P,Name,Arity),
     '$hide_predicate'(P,M),
-    fail.
-'$protect' :-
-    '$system_module'(M),
-	'$current_predicate'(Name,M,P,_),
-    M \= user,
-    functor(P,Name,Arity),
-    '$new_system_predicate'(Name,Arity,M),
     fail.
 '$protect' :-
     current_atom(Name),
