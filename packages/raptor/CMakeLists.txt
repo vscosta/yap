@@ -55,6 +55,11 @@ else (WIN32)
       ${YAP_LIBRARY}
       )
   endif()
+  
+   install(TARGETS  libxml2
+    LIBRARY DESTINATION ${dlls}
+     ARCHIVE DESTINATION ${dlls}
+   )
 endif(WIN32)
 
   check_include_files( libxml2/libxml2.h HAVE_LIBXML2_LIBXML2_H )
@@ -63,11 +68,7 @@ endif(WIN32)
 
   set_target_properties (libxml2 PROPERTIES PREFIX "")
 
-  install(TARGETS  libxml2
-    LIBRARY DESTINATION ${dlls}
-     ARCHIVE DESTINATION ${dlls}
-   )
-
+ 
   INSTALL(FILES xml2.yap DESTINATION ${libpl})
 
 ENDIF (LIBXML2_FOUND)
@@ -120,8 +121,7 @@ IF (RAPTOR_FOUND)
   INSTALL(FILES raptor.yap DESTINATION ${libpl})
   INSTALL(FILES rdf.yap DESTINATION ${libpl})
 
+  configure_file ("raptor_config.h.cmake" "raptor_config.h" )
+
 ENDIF (RAPTOR_FOUND)
 
-
-
-  configure_file ("raptor_config.h.cmake" "raptor_config.h" )
