@@ -126,9 +126,9 @@ packages/swi-minisat2/˜:ilp
 packages/cplint/L
 
 packages/CLPBN/horus/hcli
-
+tmp
 packages/bdd/simplecudd/problogbdd
-
+trace
 packages/bdd/cudd_config.h
 Makefile
 build
@@ -146,7 +146,7 @@ Qt
 cmake/cmake-android
 sublime
 yap-6.3.workspace
-yap-6.3-geany
+yap-6.3.geany
 YAP.project
 CBlocks
 *.tmp

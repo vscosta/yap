@@ -13,7 +13,7 @@ find_path(GMP_INCLUDE_DIRS NAMES gmp.h
           DOC "The gmp include directory"
 )
 
-if(WIN32)
+if(MVC)
   if(CMAKE_BUILD_TYPE STREQUAL "Debug" AND MSVC)
 	set(MPIR_LIB "mpird")
   else()
@@ -28,11 +28,18 @@ if(WIN32)
 				PATHS "$ENV{PROGRAMFILES}/mpir/bin"
 				DOC "The MPIR library DLL"
   )
-else(WIN32)
-  find_library(GMP_LIBRARIES NAMES gmp
+else(MVC)
+  find_library(GMP_LIBRARIES  NAMES gmp
+                PATHS "{CMAKE_INSTALL_PREFIX}/lib"
                 DOC "The GMP library"
   )
-endif(WIN32)
+  if(WIN32)
+   find_library(GMP_LIBRARY_DLL NAMES gmp
+				PATHS "{CMAKE_INSTALL_PREFIX}/bin"
+				DOC "The GMP library DLL"
+   )
+  endif()
+endif(MVC)
 
 get_filename_component(GMP_LIBRARIES_DIR "${GMP_LIBRARIES}" PATH)
 
