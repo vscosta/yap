@@ -2393,7 +2393,7 @@ static Int p_is_multifile(USES_REGS1) { /* '$is_multifile'(+S,+Mod)	 */
   return (out);
 }
 
-static Int p_new_system_predicate(
+static Int new_system_predicate(
     USES_REGS1) { /* '$new_system_predicate'(+N,+Ar,+Mod)  */
   Atom at;
   arity_t arity;
@@ -2423,9 +2423,9 @@ static Int p_new_system_predicate(
     UNLOCKPE(43, pe);
     return false;
   }
-  pe->PredFlags |= StandardPredFlag;
+  pe->PredFlags |= (StandardPredFlag);
   UNLOCKPE(43, pe);
-  return (TRUE);
+  return (true);
 }
 
 static Int
@@ -2434,7 +2434,7 @@ static Int
   bool out;
 
   pe = get_pred(Deref(ARG1), Deref(ARG2), "system_predicate");
-  if (EndOfPAEntr(pe) || pe->OpcodeOfPred == UNDEF_OPCODE)
+  if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(27, pe);
   out = (pe->PredFlags & SystemPredFlags);
@@ -4593,7 +4593,7 @@ void Yap_InitCdMgr(void) {
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$is_multifile", 2, p_is_multifile,
                 TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$new_system_predicate", 3, p_new_system_predicate,
+  Yap_InitCPred("$new_system_predicate", 3, new_system_predicate,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$is_system_predicate", 2, p_is_system_predicate,
                 TestPredFlag | SafePredFlag);

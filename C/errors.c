@@ -727,11 +727,8 @@ void
 Yap_InitErrorPreds( void )
 {
   CACHE_REGS
-  Term cm = CurrentModule;
-  CurrentModule = ERROR_MODULE;
   Yap_InitCPred("is_boolean", 2, is_boolean, TestPredFlag);
   Yap_InitCPred("is_callable", 2, is_callable, TestPredFlag);
   Yap_InitCPred("is_atom", 2, is_atom, TestPredFlag);
   Yap_InitCPred("is_predicate_indicator", 2, is_predicate_indicator, TestPredFlag);
-  CurrentModule = cm;
 }
