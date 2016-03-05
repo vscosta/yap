@@ -152,7 +152,7 @@ typedef struct read_data_t {
 } read_data, *ReadData;
 
 Term Yap_read_term(int inp_stream, Term opts, int nargs);
-Term Yap_Parse(UInt prio);
+Term Yap_Parse(UInt prio, Term cmod);
 
 void init_read_data(ReadData _PL_rd, struct stream_desc *s);
 
