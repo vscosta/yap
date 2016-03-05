@@ -69,7 +69,7 @@ handling in YAP:
 
 */
 
-:- module('$messages',
+:- module(system('$messages'),
 	  [system_message/4,
 	   prefix/6,
 	   prefix/5,
