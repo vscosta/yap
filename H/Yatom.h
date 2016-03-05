@@ -391,7 +391,7 @@ INLINE_ONLY inline EXTERN PropFlags IsOpProperty(int flags) {
 
 typedef enum { INFIX_OP = 0, POSFIX_OP = 1, PREFIX_OP = 2 } op_type;
 
-OpEntry *Yap_GetOpProp(Atom, op_type CACHE_TYPE);
+OpEntry *Yap_GetOpProp(Atom, op_type, Term CACHE_TYPE);
 
 int Yap_IsPrefixOp(Atom, int *, int *);
 int Yap_IsOp(Atom);

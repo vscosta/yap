@@ -564,7 +564,8 @@ Yap_OpPropForModule(Atom a,
 
 OpEntry *
 Yap_GetOpProp(Atom a,
-              op_type type
+              op_type type,
+              Term cmod
                   USES_REGS) { /* look property list of atom a for kind  */
   AtomEntry *ae = RepAtom(a);
   PropEntry *pp;
@@ -579,7 +580,7 @@ Yap_GetOpProp(Atom a,
       continue;
     }
     info = (OpEntry *)pp;
-    if (info->OpModule != CurrentModule && info->OpModule != PROLOG_MODULE) {
+    if (info->OpModule != cmod && info->OpModule != PROLOG_MODULE) {
       pp = RepProp(pp->NextOfPE);
       continue;
     }

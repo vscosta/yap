@@ -118,7 +118,7 @@ packages/swig/java/*.jar
 packages/swig/java/*wrap*
 *jnilib
 *.jar
-
+*LOG
 packages/cplint/approx/simplecuddLPADs/LPADBDD
 
 packages/swi-minisat2/˜:ilp
@@ -140,13 +140,14 @@ xcode
 Threads
 mxe
 caret
-
+codelite
 configure
-
+Qt
 cmake/cmake-android
-
+sublime
 yap-6.3.workspace
-
+yap-6.3-geany
 YAP.project
-
+CBlocks
 *.tmp
+YAP.sublime*
