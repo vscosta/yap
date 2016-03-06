@@ -56,7 +56,7 @@ name with the `:/2` operator.
 	'$add_module_on_file'(N, F, F0, Ps),
 	'$current_module'(_,N).
 
-'$mk_system_predicates'( Ps, N ) :-
+'$mk_system_predicates'( Ps, _N ) :-
     lists:member(Name/A , Ps),
     functor(P,Name,A),
     '$new_system_predicate'(P, prolog),

@@ -718,15 +718,15 @@ module_property(Mod, exports(Es)) :-
         findall( N/A, (predicate_property(Mod:P0, public),functor(P0,N,A)), Es)
     ).
 
-'$module_class'(Mod, system) :- '$is_system_module'( Mod ), !.
-'$module_class'(Mod, library) :- '$library_module'( Mod ), !.
-'$module_class'(Mod, user) :- !.
-'$module_class'(  _, temporary) :- fail.
-'$module_class'(  _, test) :- fail.
-'$module_class'(  _, development) :- fail.
+'$module_class'( Mod, system) :- '$is_system_module'( Mod ), !.
+'$module_class'( Mod, library) :- '$library_module'( Mod ), !.
+'$module_class'(_Mod, user) :- !.
+'$module_class'(   _, temporary) :- fail.
+'$module_class'(   _, test) :- fail.
+'$module_class'(   _, development) :- fail.
 
 '$library_module'(M1) :-
-	recorded('$module','$module'(F, M1, library(_), _MyExports,_Line),_).
+	recorded('$module','$module'(_, M1, library(_), _MyExports,_Line),_).
     
 ls_imports :-
 	recorded('$import','$import'(M0,M,G0,G,_N,_K),_R),
