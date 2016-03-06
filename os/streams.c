@@ -219,9 +219,10 @@ is_output(int sno USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage) */
 
 static Int
 has_bom(int sno, Term t2 USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage) */
-  bool rc = GLOBAL_Stream[sno].status & Seekable_Stream_f;
+  bool rc = GLOBAL_Stream[sno].status & HAS_BOM_f;
   if (!IsVarTerm(t2) && !booleanFlag(t2)) {
-    return FALSE;
+   //   Yap_Error( DOMAIN_ERROR_BOOLEAN, t2, " stream_property/2");
+    return false;
   }
   if (rc) {
     return Yap_unify_constant(t2, TermTrue);
@@ -235,6 +236,7 @@ has_reposition(int sno,
                Term t2 USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage)  */
   bool rc = GLOBAL_Stream[sno].status & Seekable_Stream_f;
   if (!IsVarTerm(t2) && !booleanFlag(t2)) {
+    //  Yap_Error( DOMAIN_ERROR_BOOLEAN, t2, " stream_property/2");
     return false;
   }
   if (rc) {

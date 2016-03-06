@@ -481,7 +481,7 @@ probed for the BOM when opened for reading. If a BOM is found, the
 encoding is set accordingly and the property `bom(true)` is
 available through stream_property/2. When opening a file for
 writing, writing a BOM can be requested using the option
-`bom(true)` with `open/4`. Do notice that YAP will write a BOM by default on UTF-16 (including UCS-2) and
+`bom(true)` with `open/4`. YAP will parse an UTF-8 file for a BOM only if explicitly required to do so. Do notice that YAP will write a BOM by default on UTF-16 (including UCS-2) and
 UTF-32; otherwise the default is not to write a BOM. BOMs are not avaliable for ASCII and
 ISO-LATIN-1.
  
