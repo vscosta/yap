@@ -45,8 +45,8 @@ Prop Yap_NewPredPropByFunctor(struct FunctorEntryStruct *, Term);
 Prop Yap_NewPredPropByAtom(struct AtomEntryStruct *, Term);
 Prop Yap_PredPropByFunctorNonThreadLocal(struct FunctorEntryStruct *, Term);
 Prop Yap_PredPropByAtomNonThreadLocal(struct AtomEntryStruct *, Term);
-Functor Yap_UnlockedMkFunctor(struct AtomEntryStruct *, unsigned int);
-Functor Yap_MkFunctor(Atom, unsigned int);
+Functor Yap_UnlockedMkFunctor(struct AtomEntryStruct *, arity_t);
+Functor Yap_MkFunctor(Atom, arity_t);
 void Yap_MkFunctorWithAddress(Atom, unsigned int, FunctorEntry *);
 void Yap_PutValue(Atom, Term);
 void Yap_ReleaseAtom(Atom);
@@ -370,6 +370,8 @@ void Yap_InitSavePreds(void);
 /* signals.c */
 void Yap_InitSignalCPreds(void);
 void *Yap_InitSignals(int wid);
+bool Yap_DisableInterrupts(int wid);
+bool Yap_EnableInterrupts(int wid);
 
 void Yap_InitSockets(void);
 
