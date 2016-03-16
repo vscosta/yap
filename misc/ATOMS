@@ -15,9 +15,10 @@ A	AfLocal			N	"AF_LOCAL"
 A	AfUnix			N	"AF_UNIX"
 A	Alarm			F	"$alarm"
 A	Alias			N	"alias"
-A	All			N	"all"
+A	All             N	"all"
 A	AltNot			N	"not"
-A	Any			N	"any"
+A	Answer			N	"answer"
+A	Any             N	"any"
 A	Append			N	"append"
 A	Arg			N	"arg"
 A	Array			F	"$array"
@@ -135,6 +136,7 @@ A	ExecuteInMod		F	"$execute_in_mod"
 A	ExecuteWithin		F	"$execute_within"
 A	ExecuteWoMod		F	"$execute_wo_mod"
 A	Exist			N	"exist"
+A	Exit			N	"exit"
 A	ExistenceError		N	"existence_error"
 A	ExoClause		F	"$exo_clause"
 A	ExpectedNumber		N	"expected_number_syntax"
@@ -289,7 +291,8 @@ A	PrivateProcedure	N	"private_procedure"
 A	Procedure		N	"procedure"
 A	Profile			F	"$profile"
 A	Prolog			N	"prolog"
-A	Qly			N	"qly"
+A	ProtectStack	F	"$protect_stack"
+A	Qly			    N	"qly"
 A	Query			N	"?-"
 A	Queue			N	"queue"
 A	Quiet			N	"quiet"
@@ -479,6 +482,7 @@ F	EmptyCurlyBrackets	EmptyCurlyBrackets	2
 F	Eq			Eq		2
 F	Error			Error		2
 F	EvaluationError		EvaluationError	1
+F	Exception		Exception	1
 F	Execute2InMod		ExecuteWoMod	2
 F	ExecuteInMod		ExecuteInMod	2
 F	ExecuteWithin		ExecuteWithin	1
@@ -521,6 +525,7 @@ F	Portray			Portray		1
 F	PrintMessage		PrintMessage	2
 F   Procedure       Procedure       5
 F	PrologConstraint	Prolog		2
+F	ProtectStack	ProtectStack    1
 F	Query			Query		1
 F	RecordedWithKey		RecordedWithKey	6
 F	RDiv			RDiv		2

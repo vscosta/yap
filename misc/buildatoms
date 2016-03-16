@@ -13,29 +13,39 @@
 
 main :-
 	warning(Warning),
-	file_filter_with_init('misc/ATOMS','H/heap/tatoms.h',gen_fields, Warning, ['tatoms.h']),
-	file_filter_with_init('misc/ATOMS','H/heap/iatoms.h',gen_decl, Warning, ['iatoms.h']),
-	file_filter_with_init('misc/ATOMS','H/heap/ratoms.h',gen_rcov, Warning, ['ratoms.h']).
+	file_filter_with_init('misc/ATOMS','H/generated/tatoms.h',gen_fields, Warning, ['tatoms.h']),
+	file_filter_with_init('misc/ATOMS','H/generated/iatoms.h',gen_decl, Warning, ['iatoms.h']),
+	file_filter_with_init('misc/ATOMS','H/generated/ratoms.h',gen_rcov, Warning, ['ratoms.h']).
 
-warning('~n  /* This file, ~a, was generated automatically by \"yap -L misc/buildatoms\"~n     please do not update, update misc/ATOMS instead */~n~n').
+warning('~n  /* This file, ~a, was generated automatically by \"yap -L misc/buildatoms\"~n     {lease do not update, update misc/ATOMS instead */~n~n').
 
 gen_fields(Inp,Out) :-
 	split_unquoted(Inp," 	",["A",Atom,_,_]), !,
-	append(["  Atom Atom",Atom,"_;\n#define Atom",Atom," Yap_heap_regs->Atom",Atom,"_\n",
-	"#define Term",Atom," MkAtomTerm( Yap_heap_regs->Atom",Atom,"_ )"],Out).
+    ( Atom = [C|_], code_type(C, alpha), Atom \= "Trail"
+    ->
+        append(["Atom Atom",Atom,"; Term Term",Atom,";"], Out)
+    ;
+    	append(["Atom Atom",Atom,";"], Out)
+    ).
 %gen_fields(Inp,Out) :-
 %	split_unquoted(Inp," 	",["A",Atom,_]), !,
 %	append(["  Atom Atom_",Atom,"_;\n#define Atom_",Atom," Yap_heap_regs->Atom_",Atom,"_"],Out).
 gen_fields(Inp,Out) :-
 	split_unquoted(Inp," 	",["F",Name,_,_]), !,
-	append(["  Functor Functor",Name,"_;\n#define Functor",Name," Yap_heap_regs->Functor",Name,"_"],Out).
+	append(["  Functor Functor",Name,";\n"],Out).
+%	append(["  Functor Functor",Name,"_;\n#define Functor",Name," Yap_heap_regs->Functor",Name,"_"],Out).
 %gen_fields(Inp,Out) :-
 %	split_unquoted(Inp,"  	",["F",Name,Arity]), !,
 %	append(["  Functor Functor_",Name,Arity,"_;\n#define Functor_",Name,Arity," Yap_heap_regs->Functor_",Name,Arity,"_"],Out).
 
 gen_rcov(Inp,Out) :-
 	split_unquoted(Inp,"	 ",["A",Atom,_,_]), !,
-	append(["  Atom",Atom," = AtomAdjust(Atom",Atom,");"],Out).
+    ( Atom = [C|_], code_type(C, alpha), Atom \= "Trail"
+    ->
+      append(["  Atom",Atom," = AtomAdjust(Atom",Atom,"); Term",Atom," = MkAtomTerm(Atom",Atom,");"],Out)
+    ;
+      append(["  Atom",Atom," = AtomAdjust(Atom",Atom,");"],Out)
+    ).
 %gen_rcov(Inp,Out) :-
 %	split_unquoted(Inp," 	",["A",Atom,_]), !,
 %	append(["  Atom_",Atom," = AtomAdjust(Atom_",Atom,");"],Out).
@@ -48,10 +58,20 @@ gen_rcov(Inp,Out) :-
 
 gen_decl(Inp,Out) :-
 	split_unquoted(Inp,"	 ",["A",Atom,"N",String]), !,
-	append(["  Atom",Atom," = Yap_LookupAtom(",String,");"],Out).
+    ( Atom = [C|_], code_type(C, alpha), Atom \= "Trail"
+    ->
+      append(["  Atom",Atom," = Yap_LookupAtom(",String,"); Term",Atom," = MkAtomTerm(Atom",Atom,");"],Out)
+    ;
+      append(["  Atom",Atom," = Yap_LookupAtom(",String,");"],Out)
+    ).
 gen_decl(Inp,Out) :-
 	split_unquoted(Inp,"	 ",["A",Atom,"F",String]), !,
-	append(["  Atom",Atom," = Yap_FullLookupAtom(",String,");"],Out).
+    ( Atom = [C|_], code_type(C, alpha), Atom \= "Trail"
+    ->
+      append(["  Atom",Atom," = Yap_FullLookupAtom(",String,"); Term",Atom," = MkAtomTerm(Atom",Atom,");"],Out)
+    ;
+      append(["  Atom",Atom," = Yap_FullLookupAtom(",String,");"],Out)
+    ).
 %gen_decl(Inp,Out) :-
 %	split_unquoted(Inp," 	",["A",Atom,String]), String = [0'",0'$|_], !,
 %	append(["  Atom_",Atom," = Yap_FullLookupAtom(",String,");"],Out).

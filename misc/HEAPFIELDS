@@ -90,7 +90,8 @@ ATOMS
 #ifdef EUROTRA
 Term		TermDollarU		MkAT AtomDollarU
 #endif
-
+Term		TermAnswer		MkAT AtomAnswer
+z
 //modules
 Term		USER_MODULE		MkAT AtomUser
 Term		IDB_MODULE		MkAT AtomIDB
@@ -147,24 +148,25 @@ struct pred_entry *PredTrue		MkPred AtomTrue 0 PROLOG_MODULE
 #ifdef COROUTINING
 struct pred_entry  *WakeUpCode		MkPred AtomWakeUpGoal 2 PROLOG_MODULE
 #endif
-struct pred_entry *PredGoalExpansion	MkPred FunctorGoalExpansion USER_MODULE
-struct pred_entry *PredMetaCall		MkPred FunctorMetaCall PROLOG_MODULE
-struct pred_entry *PredTraceMetaCall	MkPred FunctorTraceMetaCall PROLOG_MODULE
 struct pred_entry *PredDollarCatch         MkPred FunctorCatch PROLOG_MODULE
-struct pred_entry *PredRecordedWithKey	MkPred FunctorRecordedWithKey PROLOG_MODULE
-struct pred_entry *PredLogUpdClause	MkPred FunctorDoLogUpdClause PROLOG_MODULE
-struct pred_entry *PredLogUpdClauseErase MkPred FunctorDoLogUpdClauseErase PROLOG_MODULE
-struct pred_entry *PredLogUpdClause0	MkPred FunctorDoLogUpdClause PROLOG_MODULE
-struct pred_entry *PredStaticClause	MkPred FunctorDoStaticClause PROLOG_MODULE
-struct pred_entry *PredThrow		MkPred FunctorThrow PROLOG_MODULE
-struct pred_entry *PredHandleThrow		MkPred FunctorHandleThrow PROLOG_MODULE
-struct pred_entry *PredIs			MkPred FunctorIs PROLOG_MODULE
-struct pred_entry *PredSafeCallCleanup	MkPred FunctorSafeCallCleanup PROLOG_MODULE
-struct pred_entry *PredRestoreRegs		MkPred FunctorRestoreRegs PROLOG_MODULE
-struct pred_entry *PredCommentHook		MkPred FunctorCommentHook PROLOG_MODULE
 #ifdef YAPOR
 struct pred_entry *PredGetwork		MkPred AtomGetwork 0 PROLOG_MODULE
 #endif /* YAPOR */
+struct pred_entry *PredGoalExpansion	MkPred FunctorGoalExpansion USER_MODULE
+struct pred_entry *PredHandleThrow		MkPred FunctorHandleThrow PROLOG_MODULE
+struct pred_entry *PredIs			MkPred FunctorIs PROLOG_MODULE
+struct pred_entry *PredLogUpdClause	MkPred FunctorDoLogUpdClause PROLOG_MODULE
+struct pred_entry *PredLogUpdClauseErase MkPred FunctorDoLogUpdClauseErase PROLOG_MODULE
+struct pred_entry *PredLogUpdClause0	MkPred FunctorDoLogUpdClause PROLOG_MODULE
+struct pred_entry *PredMetaCall		MkPred FunctorMetaCall PROLOG_MODULE
+struct pred_entry *PredProtectStack		MkPred FunctorProtectStack PROLOG_MODULE
+struct pred_entry *PredRecordedWithKey	MkPred FunctorRecordedWithKey PROLOG_MODULE
+struct pred_entry *PredRestoreRegs		MkPred FunctorRestoreRegs PROLOG_MODULE
+struct pred_entry *PredSafeCallCleanup	MkPred FunctorSafeCallCleanup PROLOG_MODULE
+struct pred_entry *PredStaticClause	MkPred FunctorDoStaticClause PROLOG_MODULE
+struct pred_entry *PredThrow		MkPred FunctorThrow PROLOG_MODULE
+struct pred_entry *PredTraceMetaCall	MkPred FunctorTraceMetaCall PROLOG_MODULE
+struct pred_entry *PredCommentHook		MkPred FunctorCommentHook PROLOG_MODULE
 struct pred_entry *PredProcedure		MkLogPred FunctorProcedure   PROLOG_MODULE
 
 /* low-level tracer */
