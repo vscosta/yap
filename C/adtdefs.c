@@ -67,7 +67,7 @@ uint64_t WideHashFunction(wchar_t *CHP) {
 /* this routine must be run at least having a read lock on ae */
 static Prop
 GetFunctorProp(AtomEntry *ae,
-               unsigned int arity) { /* look property list of atom a for kind */
+               arity_t arity) { /* look property list of atom a for kind */
   FunctorEntry *pp;
 
   pp = RepFunctorProp(ae->PropsOfAE);
@@ -79,7 +79,7 @@ GetFunctorProp(AtomEntry *ae,
 
 /* vsc: We must guarantee that IsVarTerm(functor) returns true! */
 static inline Functor InlinedUnlockedMkFunctor(AtomEntry *ae,
-                                               unsigned int arity) {
+                                               arity_t arity) {
   FunctorEntry *p;
   Prop p0;
 
@@ -100,12 +100,12 @@ static inline Functor InlinedUnlockedMkFunctor(AtomEntry *ae,
   return ((Functor)p);
 }
 
-Functor Yap_UnlockedMkFunctor(AtomEntry *ae, unsigned int arity) {
+Functor Yap_UnlockedMkFunctor(AtomEntry *ae, arity_t arity) {
   return (InlinedUnlockedMkFunctor(ae, arity));
 }
 
 /* vsc: We must guarantee that IsVarTerm(functor) returns true! */
-Functor Yap_MkFunctor(Atom ap, unsigned int arity) {
+Functor Yap_MkFunctor(Atom ap, arity_t arity) {
   AtomEntry *ae = RepAtom(ap);
   Functor f;
 
@@ -453,12 +453,15 @@ void Yap_ReleaseAtom(Atom atom) { /* Releases an atom from the hash chain */
   }
   /* else */
   inChain = RepAtom(HashChain[hash].Entry);
-  while (inChain->NextOfAE != atom)
+  while (inChain && inChain->NextOfAE != atom)
     inChain = RepAtom(inChain->NextOfAE);
+  if (!inChain)
+    return;
   WRITE_LOCK(inChain->ARWLock);
   inChain->NextOfAE = ap->NextOfAE;
   WRITE_UNLOCK(inChain->ARWLock);
   WRITE_UNLOCK(HashChain[hash].AERWLock);
+  ap->NextOfAE = NULL;
 }
 
 static Prop
