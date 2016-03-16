@@ -696,15 +696,15 @@ typedef enum {
 } dbentry_flags;
 
 /* predicate initialization */
-void Yap_InitCPred(const char *, UInt, CPredicate, pred_flags_t);
-void Yap_InitAsmPred(const char *, UInt, int, CPredicate, pred_flags_t);
-void Yap_InitCmpPred(const char *, UInt, CmpPredicate, pred_flags_t);
-void Yap_InitCPredBack(const char *, UInt, unsigned int, CPredicate, CPredicate,
-                       pred_flags_t);
-void Yap_InitCPredBackCut(const char *, UInt, unsigned int, CPredicate,
-                          CPredicate, CPredicate, pred_flags_t);
-void Yap_InitCPredBack_(const char *, UInt, unsigned int, CPredicate,
-                        CPredicate, CPredicate, pred_flags_t);
+void Yap_InitCPred(const char *name, arity_t arity, CPredicate f, pred_flags_t flags);
+void Yap_InitAsmPred(const char *name, arity_t arity, int code, CPredicate asmc, pred_flags_t flags);
+void Yap_InitCmpPred(const char *name, arity_t arity, CmpPredicate cmp, pred_flags_t flags);
+void Yap_InitCPredBack(const char *name, arity_t arity, arity_t extra, CPredicate call,
+                       CPredicate retry, pred_flags_t flags);
+void Yap_InitCPredBackCut(const char *name, arity_t arity, arity_t extra, CPredicate call,
+                          CPredicate retry, CPredicate cut, pred_flags_t flags);
+void Yap_InitCPredBack_(const char *name, arity_t arity, arity_t extra, CPredicate call,
+                        CPredicate retry, CPredicate cut, pred_flags_t flags);
 
 /* *********************** DBrefs **************************************/
 
