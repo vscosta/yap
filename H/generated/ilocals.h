@@ -275,5 +275,5 @@ static void InitWorker(int wid) {
   REMOTE_Including(wid) = TermNil;
   REMOTE_MAX_SIZE(wid) = 1024L;
 
-  REMOTE_LastWTime(wid) = NULL;
+  REMOTE_LastWTime(wid) = 0;
 }

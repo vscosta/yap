@@ -87,6 +87,7 @@
 #ifdef EUROTRA
   TermDollarU = MkAtomTerm(AtomDollarU);
 #endif
+  TermAnswer = MkAtomTerm(AtomAnswer);
 
   USER_MODULE = MkAtomTerm(AtomUser);
   IDB_MODULE = MkAtomTerm(AtomIDB);
@@ -135,24 +136,25 @@
 #ifdef COROUTINING
   WakeUpCode = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomWakeUpGoal,2),PROLOG_MODULE));
 #endif
-  PredGoalExpansion = RepPredProp(PredPropByFunc(FunctorGoalExpansion,USER_MODULE));
-  PredMetaCall = RepPredProp(PredPropByFunc(FunctorMetaCall,PROLOG_MODULE));
-  PredTraceMetaCall = RepPredProp(PredPropByFunc(FunctorTraceMetaCall,PROLOG_MODULE));
   PredDollarCatch = RepPredProp(PredPropByFunc(FunctorCatch,PROLOG_MODULE));
-  PredRecordedWithKey = RepPredProp(PredPropByFunc(FunctorRecordedWithKey,PROLOG_MODULE));
-  PredLogUpdClause = RepPredProp(PredPropByFunc(FunctorDoLogUpdClause,PROLOG_MODULE));
-  PredLogUpdClauseErase = RepPredProp(PredPropByFunc(FunctorDoLogUpdClauseErase,PROLOG_MODULE));
-  PredLogUpdClause0 = RepPredProp(PredPropByFunc(FunctorDoLogUpdClause,PROLOG_MODULE));
-  PredStaticClause = RepPredProp(PredPropByFunc(FunctorDoStaticClause,PROLOG_MODULE));
-  PredThrow = RepPredProp(PredPropByFunc(FunctorThrow,PROLOG_MODULE));
-  PredHandleThrow = RepPredProp(PredPropByFunc(FunctorHandleThrow,PROLOG_MODULE));
-  PredIs = RepPredProp(PredPropByFunc(FunctorIs,PROLOG_MODULE));
-  PredSafeCallCleanup = RepPredProp(PredPropByFunc(FunctorSafeCallCleanup,PROLOG_MODULE));
-  PredRestoreRegs = RepPredProp(PredPropByFunc(FunctorRestoreRegs,PROLOG_MODULE));
-  PredCommentHook = RepPredProp(PredPropByFunc(FunctorCommentHook,PROLOG_MODULE));
 #ifdef YAPOR
   PredGetwork = RepPredProp(PredPropByAtom(AtomGetwork,PROLOG_MODULE));
 #endif /* YAPOR */
+  PredGoalExpansion = RepPredProp(PredPropByFunc(FunctorGoalExpansion,USER_MODULE));
+  PredHandleThrow = RepPredProp(PredPropByFunc(FunctorHandleThrow,PROLOG_MODULE));
+  PredIs = RepPredProp(PredPropByFunc(FunctorIs,PROLOG_MODULE));
+  PredLogUpdClause = RepPredProp(PredPropByFunc(FunctorDoLogUpdClause,PROLOG_MODULE));
+  PredLogUpdClauseErase = RepPredProp(PredPropByFunc(FunctorDoLogUpdClauseErase,PROLOG_MODULE));
+  PredLogUpdClause0 = RepPredProp(PredPropByFunc(FunctorDoLogUpdClause,PROLOG_MODULE));
+  PredMetaCall = RepPredProp(PredPropByFunc(FunctorMetaCall,PROLOG_MODULE));
+  PredProtectStack = RepPredProp(PredPropByFunc(FunctorProtectStack,PROLOG_MODULE));
+  PredRecordedWithKey = RepPredProp(PredPropByFunc(FunctorRecordedWithKey,PROLOG_MODULE));
+  PredRestoreRegs = RepPredProp(PredPropByFunc(FunctorRestoreRegs,PROLOG_MODULE));
+  PredSafeCallCleanup = RepPredProp(PredPropByFunc(FunctorSafeCallCleanup,PROLOG_MODULE));
+  PredStaticClause = RepPredProp(PredPropByFunc(FunctorDoStaticClause,PROLOG_MODULE));
+  PredThrow = RepPredProp(PredPropByFunc(FunctorThrow,PROLOG_MODULE));
+  PredTraceMetaCall = RepPredProp(PredPropByFunc(FunctorTraceMetaCall,PROLOG_MODULE));
+  PredCommentHook = RepPredProp(PredPropByFunc(FunctorCommentHook,PROLOG_MODULE));
   PredProcedure = Yap_MkLogPred(RepPredProp(PredPropByFunc(FunctorProcedure,PROLOG_MODULE)));
 
 #ifdef LOW_LEVEL_TRACER

@@ -87,6 +87,7 @@
 #ifdef EUROTRA
   Term  TermDollarU_;
 #endif
+  Term  TermAnswer_;
 //modules
   Term  USER_MODULE_;
   Term  IDB_MODULE_;
@@ -135,24 +136,25 @@
 #ifdef COROUTINING
   struct pred_entry  *WakeUpCode_;
 #endif
-  struct pred_entry  *PredGoalExpansion_;
-  struct pred_entry  *PredMetaCall_;
-  struct pred_entry  *PredTraceMetaCall_;
   struct pred_entry  *PredDollarCatch_;
-  struct pred_entry  *PredRecordedWithKey_;
-  struct pred_entry  *PredLogUpdClause_;
-  struct pred_entry  *PredLogUpdClauseErase_;
-  struct pred_entry  *PredLogUpdClause0_;
-  struct pred_entry  *PredStaticClause_;
-  struct pred_entry  *PredThrow_;
-  struct pred_entry  *PredHandleThrow_;
-  struct pred_entry  *PredIs_;
-  struct pred_entry  *PredSafeCallCleanup_;
-  struct pred_entry  *PredRestoreRegs_;
-  struct pred_entry  *PredCommentHook_;
 #ifdef YAPOR
   struct pred_entry  *PredGetwork_;
 #endif /* YAPOR */
+  struct pred_entry  *PredGoalExpansion_;
+  struct pred_entry  *PredHandleThrow_;
+  struct pred_entry  *PredIs_;
+  struct pred_entry  *PredLogUpdClause_;
+  struct pred_entry  *PredLogUpdClauseErase_;
+  struct pred_entry  *PredLogUpdClause0_;
+  struct pred_entry  *PredMetaCall_;
+  struct pred_entry  *PredProtectStack_;
+  struct pred_entry  *PredRecordedWithKey_;
+  struct pred_entry  *PredRestoreRegs_;
+  struct pred_entry  *PredSafeCallCleanup_;
+  struct pred_entry  *PredStaticClause_;
+  struct pred_entry  *PredThrow_;
+  struct pred_entry  *PredTraceMetaCall_;
+  struct pred_entry  *PredCommentHook_;
   struct pred_entry  *PredProcedure_;
 /* low-level tracer */
 #ifdef LOW_LEVEL_TRACER

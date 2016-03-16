@@ -87,6 +87,7 @@
 #ifdef EUROTRA
   TermDollarU = AtomTermAdjust(TermDollarU);
 #endif
+  TermAnswer = AtomTermAdjust(TermAnswer);
 
   USER_MODULE = AtomTermAdjust(USER_MODULE);
   IDB_MODULE = AtomTermAdjust(IDB_MODULE);
@@ -135,24 +136,25 @@
 #ifdef COROUTINING
   WakeUpCode = PtoPredAdjust(WakeUpCode);
 #endif
-  PredGoalExpansion = PtoPredAdjust(PredGoalExpansion);
-  PredMetaCall = PtoPredAdjust(PredMetaCall);
-  PredTraceMetaCall = PtoPredAdjust(PredTraceMetaCall);
   PredDollarCatch = PtoPredAdjust(PredDollarCatch);
-  PredRecordedWithKey = PtoPredAdjust(PredRecordedWithKey);
-  PredLogUpdClause = PtoPredAdjust(PredLogUpdClause);
-  PredLogUpdClauseErase = PtoPredAdjust(PredLogUpdClauseErase);
-  PredLogUpdClause0 = PtoPredAdjust(PredLogUpdClause0);
-  PredStaticClause = PtoPredAdjust(PredStaticClause);
-  PredThrow = PtoPredAdjust(PredThrow);
-  PredHandleThrow = PtoPredAdjust(PredHandleThrow);
-  PredIs = PtoPredAdjust(PredIs);
-  PredSafeCallCleanup = PtoPredAdjust(PredSafeCallCleanup);
-  PredRestoreRegs = PtoPredAdjust(PredRestoreRegs);
-  PredCommentHook = PtoPredAdjust(PredCommentHook);
 #ifdef YAPOR
   PredGetwork = PtoPredAdjust(PredGetwork);
 #endif /* YAPOR */
+  PredGoalExpansion = PtoPredAdjust(PredGoalExpansion);
+  PredHandleThrow = PtoPredAdjust(PredHandleThrow);
+  PredIs = PtoPredAdjust(PredIs);
+  PredLogUpdClause = PtoPredAdjust(PredLogUpdClause);
+  PredLogUpdClauseErase = PtoPredAdjust(PredLogUpdClauseErase);
+  PredLogUpdClause0 = PtoPredAdjust(PredLogUpdClause0);
+  PredMetaCall = PtoPredAdjust(PredMetaCall);
+  PredProtectStack = PtoPredAdjust(PredProtectStack);
+  PredRecordedWithKey = PtoPredAdjust(PredRecordedWithKey);
+  PredRestoreRegs = PtoPredAdjust(PredRestoreRegs);
+  PredSafeCallCleanup = PtoPredAdjust(PredSafeCallCleanup);
+  PredStaticClause = PtoPredAdjust(PredStaticClause);
+  PredThrow = PtoPredAdjust(PredThrow);
+  PredTraceMetaCall = PtoPredAdjust(PredTraceMetaCall);
+  PredCommentHook = PtoPredAdjust(PredCommentHook);
   PredProcedure = PtoPredAdjust(PredProcedure);
 
 #ifdef LOW_LEVEL_TRACER

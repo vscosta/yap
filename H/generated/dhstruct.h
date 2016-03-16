@@ -87,6 +87,7 @@
 #ifdef EUROTRA
 #define TermDollarU Yap_heap_regs->TermDollarU_
 #endif
+#define TermAnswer Yap_heap_regs->TermAnswer_
 
 #define USER_MODULE Yap_heap_regs->USER_MODULE_
 #define IDB_MODULE Yap_heap_regs->IDB_MODULE_
@@ -135,24 +136,25 @@
 #ifdef COROUTINING
 #define WakeUpCode Yap_heap_regs->WakeUpCode_
 #endif
-#define PredGoalExpansion Yap_heap_regs->PredGoalExpansion_
-#define PredMetaCall Yap_heap_regs->PredMetaCall_
-#define PredTraceMetaCall Yap_heap_regs->PredTraceMetaCall_
 #define PredDollarCatch Yap_heap_regs->PredDollarCatch_
-#define PredRecordedWithKey Yap_heap_regs->PredRecordedWithKey_
-#define PredLogUpdClause Yap_heap_regs->PredLogUpdClause_
-#define PredLogUpdClauseErase Yap_heap_regs->PredLogUpdClauseErase_
-#define PredLogUpdClause0 Yap_heap_regs->PredLogUpdClause0_
-#define PredStaticClause Yap_heap_regs->PredStaticClause_
-#define PredThrow Yap_heap_regs->PredThrow_
-#define PredHandleThrow Yap_heap_regs->PredHandleThrow_
-#define PredIs Yap_heap_regs->PredIs_
-#define PredSafeCallCleanup Yap_heap_regs->PredSafeCallCleanup_
-#define PredRestoreRegs Yap_heap_regs->PredRestoreRegs_
-#define PredCommentHook Yap_heap_regs->PredCommentHook_
 #ifdef YAPOR
 #define PredGetwork Yap_heap_regs->PredGetwork_
 #endif /* YAPOR */
+#define PredGoalExpansion Yap_heap_regs->PredGoalExpansion_
+#define PredHandleThrow Yap_heap_regs->PredHandleThrow_
+#define PredIs Yap_heap_regs->PredIs_
+#define PredLogUpdClause Yap_heap_regs->PredLogUpdClause_
+#define PredLogUpdClauseErase Yap_heap_regs->PredLogUpdClauseErase_
+#define PredLogUpdClause0 Yap_heap_regs->PredLogUpdClause0_
+#define PredMetaCall Yap_heap_regs->PredMetaCall_
+#define PredProtectStack Yap_heap_regs->PredProtectStack_
+#define PredRecordedWithKey Yap_heap_regs->PredRecordedWithKey_
+#define PredRestoreRegs Yap_heap_regs->PredRestoreRegs_
+#define PredSafeCallCleanup Yap_heap_regs->PredSafeCallCleanup_
+#define PredStaticClause Yap_heap_regs->PredStaticClause_
+#define PredThrow Yap_heap_regs->PredThrow_
+#define PredTraceMetaCall Yap_heap_regs->PredTraceMetaCall_
+#define PredCommentHook Yap_heap_regs->PredCommentHook_
 #define PredProcedure Yap_heap_regs->PredProcedure_
 
 #ifdef LOW_LEVEL_TRACER

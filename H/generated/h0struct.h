@@ -135,24 +135,25 @@ EXTERNAL    struct pred_entry  *PredTrue;
 #ifdef COROUTINING
 EXTERNAL    struct pred_entry  *WakeUpCode;
 #endif
-EXTERNAL    struct pred_entry  *PredGoalExpansion;
-EXTERNAL    struct pred_entry  *PredMetaCall;
-EXTERNAL    struct pred_entry  *PredTraceMetaCall;
 EXTERNAL    struct pred_entry  *PredDollarCatch;
-EXTERNAL    struct pred_entry  *PredRecordedWithKey;
-EXTERNAL    struct pred_entry  *PredLogUpdClause;
-EXTERNAL    struct pred_entry  *PredLogUpdClauseErase;
-EXTERNAL    struct pred_entry  *PredLogUpdClause0;
-EXTERNAL    struct pred_entry  *PredStaticClause;
-EXTERNAL    struct pred_entry  *PredThrow;
-EXTERNAL    struct pred_entry  *PredHandleThrow;
-EXTERNAL    struct pred_entry  *PredIs;
-EXTERNAL    struct pred_entry  *PredSafeCallCleanup;
-EXTERNAL    struct pred_entry  *PredRestoreRegs;
-EXTERNAL    struct pred_entry  *PredCommentHook;
 #ifdef YAPOR
 EXTERNAL    struct pred_entry  *PredGetwork;
 #endif /* YAPOR */
+EXTERNAL    struct pred_entry  *PredGoalExpansion;
+EXTERNAL    struct pred_entry  *PredHandleThrow;
+EXTERNAL    struct pred_entry  *PredIs;
+EXTERNAL    struct pred_entry  *PredLogUpdClause;
+EXTERNAL    struct pred_entry  *PredLogUpdClauseErase;
+EXTERNAL    struct pred_entry  *PredLogUpdClause0;
+EXTERNAL    struct pred_entry  *PredMetaCall;
+EXTERNAL    struct pred_entry  *PredProtectStack;
+EXTERNAL    struct pred_entry  *PredRecordedWithKey;
+EXTERNAL    struct pred_entry  *PredRestoreRegs;
+EXTERNAL    struct pred_entry  *PredSafeCallCleanup;
+EXTERNAL    struct pred_entry  *PredStaticClause;
+EXTERNAL    struct pred_entry  *PredThrow;
+EXTERNAL    struct pred_entry  *PredTraceMetaCall;
+EXTERNAL    struct pred_entry  *PredCommentHook;
 EXTERNAL    struct pred_entry  *PredProcedure;
 /* low-level tracer */
 #ifdef LOW_LEVEL_TRACER
