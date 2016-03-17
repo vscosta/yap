@@ -10,13 +10,10 @@
 
 /**
 
-
-
  @file absf.yap
  @author L.Damas, V.S.Costa
 
 */
-
 :- system_module( absf, [absolute_file_name/2,
         absolute_file_name/3,
         add_to_path/1,
@@ -26,9 +23,8 @@
         '$system_library_directories'/2]).
 
 /**
-
-@defgroup AbsoluteFileName File Name Resolution
-    @ingroup builtins
+ * @defgroup AbsoluteFileName File Name Resolution
+ * @ingroup builtins
 
  Support for file name resolution through absolute_file_name/3 and
   friends. These utility built-ins describe a list of directories that
@@ -38,7 +34,7 @@
 
 @{
 
-*/
+ */
 
 :- use_system_module( '$_boot', ['$system_catch'/4]).
 
@@ -143,12 +139,12 @@ swapped, thus the call
   is valid as well.
 */
 
-
-absolute_file_name(File,TrueFileName,Opts) :-
+absolute_file_name(File,TrueFileName,Opts0) :-
     ( var(TrueFileName) ->
-	  true ;
+	    true ;
       atom(TrueFileName), TrueFileName \= []
-    ), !,
+    ),
+    !,
     absolute_file_name(File,Opts,TrueFileName).
 absolute_file_name(File,Opts,TrueFileName) :-
     '$absolute_file_name'(File,Opts,TrueFileName,absolute_file_name(File,Opts,TrueFileName)).
@@ -158,7 +154,8 @@ absolute_file_name(File,Opts,TrueFileName) :-
 
   Converts the given file specification into an absolute path, using default options. See absolute_file_name/3 for details on the options.
 */
-absolute_file_name(V,Out) :- var(V), !,	% absolute_file_name needs commenting.
+absolute_file_name(V,Out) :- var(V),
+ !,	% absolute_file_name needs commenting.
 	'$do_error'(instantiation_error, absolute_file_name(V, Out)).
 absolute_file_name(user,user) :- !.
 absolute_file_name(File0,File) :-
@@ -247,7 +244,7 @@ absolute_file_name(File0,File) :-
      ;
          EPath = APath
     ),
-      real_path( EPath, File),
+    real_path( EPath, File),
     '$absf_trace'('      after canonical path name: ~a', [File]),
     '$check_file'( File, Type, Access ),
     '$absf_trace'('       after testing ~a for ~a and ~a', [File,Type,Access]).
@@ -256,7 +253,7 @@ absolute_file_name(File0,File) :-
 '$core_file_name'(Name, Opts) -->
     '$file_name'(Name, Opts, E),
     '$suffix'(E, Opts),
-    '$glob'(Opts).	  			 
+    '$glob'(Opts).
 
 %
 % handle library(lists) or foreign(jpl)
@@ -435,10 +432,10 @@ absolute_file_name(File0,File) :-
     sub_atom(Cs, N0, 1, N, Sep),
     !,
     (
-	sub_atom(Cs,0,N0,_,C)
+	     sub_atom(Cs,0,N0,_,C)
      ;
-     sub_atom(Cs,_,N,0,RC),
-     '$paths'(RC, C)
+        sub_atom(Cs,_,N,0,RC),
+        '$paths'(RC, C)
     ).
 '$paths'(S, S).
 
@@ -590,10 +587,6 @@ user:library_directory( Dir ) :-
 
   This directory is initialized as a rule that calls the system predicate
   library_directories/2.
-*/
-
-:- multifile user:commons_directory/1.
-
 :- dynamic user:commons_directory/1.
 
 
