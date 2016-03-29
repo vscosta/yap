@@ -22,23 +22,23 @@ static char SccsId[] = "%W% %G%";
  * @file   alias.c
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Thu Nov 19 10:53:20 2015
- * 
+ *
  * @brief  File Aliases
- * 
- * 
+ *
+ *
  */
 
 
-/** 
+/**
  * @defgroup Aliases
  * @ingroup InputOutput
  *
  * Aliases:
  * This file defines the main operations on aliases, a second name for a file. Aliases are always
- * textual constants (atoms). 
+ * textual constants (atoms).
  *
  * Their first advantage is that they allow cleaning up code, by separating name from operation, eg
- * YAP has a loop stream used to run the main top-level, which can be std0 originally but then 
+ * YAP has a loop stream used to run the main top-level, which can be std0 originally but then
  * changed to a pipe, a file, or a memory region. Other important streams are the user streams. Finally,
  * the debugger uses debugger input and output.
  *
@@ -88,7 +88,7 @@ static char SccsId[] = "%W% %G%";
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
-#if HAVE_SYS_SELECT_H && !_MSC_VER && !defined(__MINGW32__) 
+#if HAVE_SYS_SELECT_H && !_MSC_VER && !defined(__MINGW32__)
 #include <sys/select.h>
 #endif
 #if HAVE_STRING_H
@@ -109,7 +109,7 @@ static char SccsId[] = "%W% %G%";
 #if !HAVE_STRNCPY
 #define strncpy(X,Y,Z) strcpy(X,Y)
 #endif
-#if _MSC_VER || defined(__MINGW32__) 
+#if _MSC_VER || defined(__MINGW32__)
 #if HAVE_SOCKET
 #include <winsock2.h>
 #endif
@@ -120,7 +120,7 @@ static char SccsId[] = "%W% %G%";
 #endif
 #include "iopreds.h"
 
-#if _MSC_VER || defined(__MINGW32__) 
+#if _MSC_VER || defined(__MINGW32__)
 #define SYSTEM_STAT _stat
 #else
 #define SYSTEM_STAT stat
@@ -129,15 +129,15 @@ static char SccsId[] = "%W% %G%";
 static Atom FetchAlias (int sno);
 static bool ExistsAliasForStream (int sno, Atom al);
 
-/** 
+/**
  * Specify an alias to the stream. The alias <tt>Name</tt> must be an atom. The
  * alias can be used instead of the stream descriptor for every operation
  * concerning the stream.
- * 
- * @param + _tname_ Name of Alias 
+ *
+ * @param + _tname_ Name of Alias
  * @param + _tstream_ stream identifier
- * 
- * @return 
+ *
+ * @return
  */
 static Int add_alias_to_stream (USES_REGS1)
 {
@@ -190,8 +190,8 @@ static Int check_if_valid_new_alias (USES_REGS1)
 
 bool
 Yap_FetchStreamAlias (int sno, Term t2 USES_REGS)
-{		      
-  
+{
+
   if (IsVarTerm(t2)) {
     Atom at = FetchAlias(sno);
     if (at == NULL)
@@ -213,25 +213,25 @@ ExtendAliasArray(void)
 {
     CACHE_REGS
   AliasDesc new;
-  UInt new_size = LOCAL_SzOfFileAliases+ALIASES_BLOCK_SIZE;
+  UInt new_size = GLOBAL_SzOfFileAliases+ALIASES_BLOCK_SIZE;
 
   new = (AliasDesc)Yap_AllocCodeSpace(sizeof(AliasDesc *)*new_size);
-  memcpy((void *)new, (void *)LOCAL_FileAliases, sizeof(AliasDesc *)*LOCAL_SzOfFileAliases);
-  Yap_FreeCodeSpace((ADDR) LOCAL_FileAliases);
-  LOCAL_FileAliases = new;
-  LOCAL_SzOfFileAliases = new_size;
+  memcpy((void *)new, (void *)GLOBAL_FileAliases, sizeof(AliasDesc *)*GLOBAL_SzOfFileAliases);
+  Yap_FreeCodeSpace((ADDR) GLOBAL_FileAliases);
+  GLOBAL_FileAliases = new;
+  GLOBAL_SzOfFileAliases = new_size;
 }
 
 void
 Yap_SetAlias (Atom arg, int sno)
 {
   CACHE_REGS
-  AliasDesc aliasp = LOCAL_FileAliases, aliasp_max = LOCAL_FileAliases+LOCAL_NOfFileAliases;
+  AliasDesc aliasp = GLOBAL_FileAliases, aliasp_max = GLOBAL_FileAliases+GLOBAL_NOfFileAliases;
 
   while (aliasp < aliasp_max) {
     // replace alias
     if (aliasp->name == arg) {
-      Int alno = aliasp-LOCAL_FileAliases;
+      Int alno = aliasp-GLOBAL_FileAliases;
       aliasp->alias_stream = sno;
       if (!(GLOBAL_Stream[sno].status &
 	    (Null_Stream_f|InMemory_Stream_f|Socket_Stream_f))) {
@@ -245,7 +245,7 @@ Yap_SetAlias (Atom arg, int sno)
 	case 2:
 	  Yap_stderr = GLOBAL_Stream[sno].file;
 #if HAVE_SETBUF
-	  setvbuf (GLOBAL_Stream[sno].file, NULL, _IONBF, 0); 
+	  setvbuf (GLOBAL_Stream[sno].file, NULL, _IONBF, 0);
 #endif /* HAVE_SETBUF */
 	  break;
 	default:
@@ -258,9 +258,9 @@ Yap_SetAlias (Atom arg, int sno)
   }
   // set new alias
   /* we have not found an alias, create one */
-  if (aliasp == LOCAL_FileAliases+ LOCAL_SzOfFileAliases) 
+  if (aliasp == GLOBAL_FileAliases+ GLOBAL_SzOfFileAliases)
     ExtendAliasArray();
-  LOCAL_NOfFileAliases++;
+  GLOBAL_NOfFileAliases++;
   aliasp->name = arg;
   aliasp->alias_stream = sno;
 }
@@ -270,13 +270,13 @@ void
 Yap_DeleteAliases (int sno)
 {
     CACHE_REGS
-  AliasDesc aliasp = LOCAL_FileAliases, aliasp_max = LOCAL_FileAliases+ LOCAL_NOfFileAliases, new_aliasp = aliasp;
+  AliasDesc aliasp = GLOBAL_FileAliases, aliasp_max = GLOBAL_FileAliases+ GLOBAL_NOfFileAliases, new_aliasp = aliasp;
 
   while (aliasp < aliasp_max) {
     if (aliasp->alias_stream == sno) {
-      if (aliasp - LOCAL_FileAliases < 3) {
+      if (aliasp - GLOBAL_FileAliases < 3) {
 	/* get back to std streams, but keep alias around */
-	Int alno = aliasp-LOCAL_FileAliases;
+	Int alno = aliasp-GLOBAL_FileAliases;
 	new_aliasp->alias_stream = alno;
 	switch(alno) {
 	case 0:
@@ -291,8 +291,8 @@ Yap_DeleteAliases (int sno)
 	}
 	new_aliasp++;
      } else {
-	LOCAL_NOfFileAliases--;
-	//       printf("RM %p at %d/%d %d\n", new_aliasp->name, new_aliasp-LOCAL_FileAliases, new_aliasp->alias_stream, sno);
+	GLOBAL_NOfFileAliases--;
+	//       printf("RM %p at %d/%d %d\n", new_aliasp->name, new_aliasp-GLOBAL_FileAliases, new_aliasp->alias_stream, sno);
       }
     } else {
       /* avoid holes in alias array */
@@ -311,9 +311,9 @@ int
 Yap_CheckAlias (Atom arg)
 {
     CACHE_REGS
-  AliasDesc aliasp = LOCAL_FileAliases, aliasp_max = LOCAL_FileAliases+LOCAL_NOfFileAliases;
+  AliasDesc aliasp = GLOBAL_FileAliases, aliasp_max = GLOBAL_FileAliases+GLOBAL_NOfFileAliases;
 
-  
+
   while (aliasp < aliasp_max) {
     if (aliasp->name == arg) {
       return(aliasp->alias_stream);
@@ -328,7 +328,7 @@ static Atom
 FetchAlias (int sno)
 {
     CACHE_REGS
-  AliasDesc aliasp = LOCAL_FileAliases, aliasp_max = LOCAL_FileAliases+LOCAL_NOfFileAliases;
+  AliasDesc aliasp = GLOBAL_FileAliases, aliasp_max = GLOBAL_FileAliases+GLOBAL_NOfFileAliases;
 
   while (aliasp < aliasp_max) {
     if (aliasp->alias_stream == sno) {
@@ -344,7 +344,7 @@ static bool
 ExistsAliasForStream (int sno, Atom al)
 {
     CACHE_REGS
-  AliasDesc aliasp = LOCAL_FileAliases, aliasp_max = LOCAL_FileAliases+LOCAL_NOfFileAliases;
+  AliasDesc aliasp = GLOBAL_FileAliases, aliasp_max = GLOBAL_FileAliases+GLOBAL_NOfFileAliases;
 
   while (aliasp < aliasp_max) {
     if (aliasp->alias_stream == sno && aliasp->name == al) {
@@ -360,8 +360,8 @@ bool
 Yap_FindStreamForAlias (Atom al)
 {
     CACHE_REGS
-  AliasDesc aliasp = LOCAL_FileAliases,
-      aliasp_max = LOCAL_FileAliases+LOCAL_NOfFileAliases;
+  AliasDesc aliasp = GLOBAL_FileAliases,
+      aliasp_max = GLOBAL_FileAliases+GLOBAL_NOfFileAliases;
 
   while (aliasp < aliasp_max) {
     if (aliasp->name == al) {
@@ -377,8 +377,8 @@ int
 Yap_RemoveAlias (Atom arg, int sno)
 {
     CACHE_REGS
-  
-  AliasDesc aliasp = LOCAL_FileAliases, aliasp_max = LOCAL_FileAliases+LOCAL_NOfFileAliases;
+
+  AliasDesc aliasp = GLOBAL_FileAliases, aliasp_max = GLOBAL_FileAliases+GLOBAL_NOfFileAliases;
 
   while (aliasp < aliasp_max) {
     if (aliasp->name == arg) {
@@ -389,11 +389,11 @@ Yap_RemoveAlias (Atom arg, int sno)
     }
     aliasp++;
   }
-  //printf("RM %p at %d\n", arg, aliasp-LOCAL_FileAliases);
+  //printf("RM %p at %d\n", arg, aliasp-GLOBAL_FileAliases);
   /* we have not found an alias neither a hole */
-  if (aliasp == LOCAL_FileAliases+LOCAL_SzOfFileAliases)
+  if (aliasp == GLOBAL_FileAliases+GLOBAL_SzOfFileAliases)
     ExtendAliasArray();
-  LOCAL_NOfFileAliases--;
+  GLOBAL_NOfFileAliases--;
   aliasp->name = arg;
   aliasp->alias_stream = sno;
   return(TRUE);
@@ -404,8 +404,8 @@ bool
 Yap_AddAlias (Atom arg, int sno)
 {
     CACHE_REGS
-  
-  AliasDesc aliasp = LOCAL_FileAliases, aliasp_max = LOCAL_FileAliases+LOCAL_NOfFileAliases;
+
+  AliasDesc aliasp = GLOBAL_FileAliases, aliasp_max = GLOBAL_FileAliases+GLOBAL_NOfFileAliases;
 
   while (aliasp < aliasp_max) {
     if (aliasp->name == arg) {
@@ -415,10 +415,10 @@ Yap_AddAlias (Atom arg, int sno)
     aliasp++;
   }
   /* we have not found an alias neither a hole */
-  if (aliasp == LOCAL_FileAliases+LOCAL_SzOfFileAliases)
+  if (aliasp == GLOBAL_FileAliases+GLOBAL_SzOfFileAliases)
     ExtendAliasArray();
-  LOCAL_NOfFileAliases++;
-  //  printf("ADD %p at %d\n", arg, aliasp-LOCAL_FileAliases);
+  GLOBAL_NOfFileAliases++;
+  //  printf("ADD %p at %d\n", arg, aliasp-GLOBAL_FileAliases);
   aliasp->name = arg;
   aliasp->alias_stream = sno;
   return true;
@@ -432,25 +432,25 @@ Yap_InitStandardAliases(void)
   /* init standard aliases */
 
     /* alloca alias array */
-  LOCAL_FileAliases = (AliasDesc)Yap_AllocCodeSpace(sizeof(struct AliasDescS)*ALIASES_BLOCK_SIZE);
+  GLOBAL_FileAliases = (AliasDesc)Yap_AllocCodeSpace(sizeof(struct AliasDescS)*ALIASES_BLOCK_SIZE);
 
-  if (LOCAL_FileAliases == NULL)
+  if (GLOBAL_FileAliases == NULL)
     return NULL;
-  
-  LOCAL_FileAliases[0].name = AtomUserIn;
-  LOCAL_FileAliases[0].alias_stream = 0;
-  LOCAL_FileAliases[1].name = AtomUserOut;
-  LOCAL_FileAliases[1].alias_stream = 1;
-  LOCAL_FileAliases[2].name = AtomUserErr;
-  LOCAL_FileAliases[2].alias_stream = 2;
-  LOCAL_FileAliases[3].name = AtomLoopStream;
-  LOCAL_FileAliases[3].alias_stream = 0;
-  LOCAL_FileAliases[4].name = AtomDebuggerInput;
-  LOCAL_FileAliases[4].alias_stream = 0;
-  LOCAL_NOfFileAliases = 5;
-  LOCAL_SzOfFileAliases = ALIASES_BLOCK_SIZE;
 
-  return LOCAL_FileAliases;
+  GLOBAL_FileAliases[0].name = AtomUserIn;
+  GLOBAL_FileAliases[0].alias_stream = 0;
+  GLOBAL_FileAliases[1].name = AtomUserOut;
+  GLOBAL_FileAliases[1].alias_stream = 1;
+  GLOBAL_FileAliases[2].name = AtomUserErr;
+  GLOBAL_FileAliases[2].alias_stream = 2;
+  GLOBAL_FileAliases[3].name = AtomLoopStream;
+  GLOBAL_FileAliases[3].alias_stream = 0;
+  GLOBAL_FileAliases[4].name = AtomDebuggerInput;
+  GLOBAL_FileAliases[4].alias_stream = 0;
+  GLOBAL_NOfFileAliases = 5;
+  GLOBAL_SzOfFileAliases = ALIASES_BLOCK_SIZE;
+
+  return GLOBAL_FileAliases;
 }
 
   /* create a new alias arg for stream sno */
