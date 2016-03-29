@@ -139,7 +139,7 @@ swapped, thus the call
   is valid as well.
 */
 
-absolute_file_name(File,TrueFileName,Opts0) :-
+absolute_file_name(File,TrueFileName,Opts) :-
     ( var(TrueFileName) ->
 	    true ;
       atom(TrueFileName), TrueFileName \= []
