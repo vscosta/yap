@@ -5,9 +5,6 @@
 
 static void InitWorker(int wid) {
 
-  REMOTE_FileAliases(wid) = Yap_InitStandardAliases();
-
-
   REMOTE_c_input_stream(wid) = 0;
   REMOTE_c_output_stream(wid) = 1;
   REMOTE_c_error_stream(wid) = 2;
@@ -77,12 +74,18 @@ static void InitWorker(int wid) {
   REMOTE_TmpPred(wid) = NULL;
   REMOTE_ScannerStack(wid) = NULL;
   REMOTE_ScannerExtraBlocks(wid) = NULL;
+
+
   REMOTE_BallTerm(wid) = NULL;
+
+  REMOTE_CBorder(wid) = 0;
+
   REMOTE_MaxActiveSignals(wid) = 64L;
+
   REMOTE_Signals(wid) = 0L;
+
   REMOTE_IPredArity(wid) = 0L;
   REMOTE_ProfEnd(wid) = NULL;
-  REMOTE_UncaughtThrow(wid) = FALSE;
   REMOTE_DoingUndefp(wid) = FALSE;
   REMOTE_StartCharCount(wid) = 0L;
   REMOTE_StartLineCount(wid) = 0L;

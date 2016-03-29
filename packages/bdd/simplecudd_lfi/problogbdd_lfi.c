@@ -807,7 +807,7 @@ void termhandler(int num) { exit(3); }
 void myexpand(extmanager MyManager, DdNode *Current) {
   DdNode *h, *l;
   hisnode *Found;
-  char *curnode;
+  const char *curnode;
   curnode = GetNodeVarNameDisp(MyManager.manager, MyManager.varmap, Current);
   printf("%s\n", curnode);
   if ((Current != MyManager.t) && (Current != MyManager.f) &&
@@ -828,7 +828,7 @@ void myexpand(extmanager MyManager, DdNode *Current) {
 double CalcProbability(extmanager MyManager, DdNode *Current) {
   DdNode *h, *l;
   hisnode *Found = NULL;
-  char *curnode; //, *dynvalue;
+  const char *curnode; //, *dynvalue;
   double lvalue, hvalue, tvalue;
   // density_integral dynvalue_parsed;
 
@@ -1062,7 +1062,7 @@ double CalcExpectedCountsDown(extmanager *MyManager, DdNode *Current,
   Queue q = QueueNew();
   // fprintf(stderr", =====> queue is: %p \n",q);
   int i;
-  char *curnode, *curh, *curl, *dynvalue;
+  const char *curnode, *curh, *curl, *dynvalue;
   DdNode *h, *l, *node;
   ComparisonFunction fun;
   hisnode *Found = NULL, *lfound, *hfound;
@@ -1230,7 +1230,7 @@ double CalcExpectedCountsUp(extmanager *MyManager, DdNode *Current,
 
   DdNode *h, *l;
   hisnode *Found;
-  char *curnode = NULL;
+  const char *curnode = NULL;
   double lvalue, hvalue, tvalue;
   //  tvalue=0.0;
   int ivalue;
@@ -1293,7 +1293,7 @@ gradientpair CalcGradient(extmanager MyManager, DdNode *Current, int TargetVar,
                           char *TargetPattern, int type) {
   DdNode *h, *l;
   hisnode *Found;
-  char *curnode = NULL, *dynvalue;
+  const char *curnode = NULL, *dynvalue;
   gradientpair lowvalue, highvalue, tvalue;
   double this_probability;
   double *gradient;

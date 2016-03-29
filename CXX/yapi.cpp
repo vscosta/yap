@@ -12,7 +12,7 @@ extern  "C" {
     
     void YAP_UserCPredicate(const char *, YAP_UserCPred, YAP_Arity arity);
     void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, YAP_Arity, YAP_Term);
-    void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred, YAP_Arity, unsigned int);
+    void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred, YAP_Arity,  YAP_Arity);
 }
 
 
@@ -512,9 +512,7 @@ void YAPQuery::close()
   CACHE_REGS
 
   RECOVER_MACHINE_REGS();
-  if (EX /* && !(q_flags & (true PL_Q_CATCH_EXCEPTION)) */) {
-      EX = (struct DB_TERM *)NULL;
-  }
+  Yap_ResetException(worker_id);
   /* need to implement backtracking here */
   if (q_open != 1 || q_state == 0) {
       RECOVER_MACHINE_REGS();

@@ -23,31 +23,32 @@
 
 #include "inline-only.h"
 
-EXTERN Int Yap_unify(Term a,Term b);
+EXTERN Int Yap_unify(Term a, Term b);
 
 INLINE_ONLY EXTERN inline Term Deref(Term a);
 
-INLINE_ONLY EXTERN inline Term Deref(Term a)
-{
-   while(IsVarTerm(a)) {
-	Term *b = (Term *) a;
-	a = *b;
-	if(a==((Term) b)) return a;
-   }
-   return(a);
+INLINE_ONLY EXTERN inline Term Deref(Term a) {
+  while (IsVarTerm(a)) {
+    Term *b = (Term *)a;
+    a = *b;
+    if (a == ((Term)b))
+      return a;
+  }
+  return (a);
 }
+
+INLINE_ONLY EXTERN inline CELL *GetTermAdress(Term a);
+
 
 INLINE_ONLY EXTERN inline Term Derefa(CELL *b);
 
-INLINE_ONLY EXTERN inline Term
-Derefa(CELL *b)
-{
+INLINE_ONLY EXTERN inline Term Derefa(CELL *b) {
   Term a = *b;
- restart:
+restart:
   if (!IsVarTerm(a)) {
-    return(a);
+    return (a);
   } else if (a == (CELL)b) {
-    return(a);
+    return (a);
   } else {
     b = (CELL *)a;
     a = *b;
@@ -55,64 +56,42 @@ Derefa(CELL *b)
   }
 }
 
-INLINE_ONLY inline EXTERN Term ArgOfTerm (int i, Term t);
+INLINE_ONLY inline EXTERN Term ArgOfTerm(int i, Term t);
 
-INLINE_ONLY inline EXTERN Term
-ArgOfTerm (int i, Term t)
+INLINE_ONLY inline EXTERN Term ArgOfTerm(int i, Term t)
 
 {
-  return (Term) (Derefa (RepAppl (t) + (i)));
+  return (Term)(Derefa(RepAppl(t) + (i)));
 }
 
+INLINE_ONLY inline EXTERN Term HeadOfTerm(Term);
 
-
-INLINE_ONLY inline EXTERN Term HeadOfTerm (Term);
-
-INLINE_ONLY inline EXTERN Term
-HeadOfTerm (Term t)
-{
-  return (Term) (Derefa (RepPair (t)));
+INLINE_ONLY inline EXTERN Term HeadOfTerm(Term t) {
+  return (Term)(Derefa(RepPair(t)));
 }
 
+INLINE_ONLY inline EXTERN Term TailOfTerm(Term);
 
-
-INLINE_ONLY inline EXTERN Term TailOfTerm (Term);
-
-INLINE_ONLY inline EXTERN Term
-TailOfTerm (Term t)
-{
-  return (Term) (Derefa (RepPair (t) + 1));
+INLINE_ONLY inline EXTERN Term TailOfTerm(Term t) {
+  return (Term)(Derefa(RepPair(t) + 1));
 }
 
+INLINE_ONLY inline EXTERN Term ArgOfTermCell(int i, Term t);
 
-
-
-INLINE_ONLY inline EXTERN Term ArgOfTermCell (int i, Term t);
-
-INLINE_ONLY inline EXTERN Term
-ArgOfTermCell (int i, Term t)
-{
-  return (Term) ((CELL) (RepAppl (t) + (i)));
+INLINE_ONLY inline EXTERN Term ArgOfTermCell(int i, Term t) {
+  return (Term)((CELL)(RepAppl(t) + (i)));
 }
 
+INLINE_ONLY inline EXTERN Term HeadOfTermCell(Term);
 
-
-INLINE_ONLY inline EXTERN Term HeadOfTermCell (Term);
-
-INLINE_ONLY inline EXTERN Term
-HeadOfTermCell (Term t)
-{
-  return (Term) ((CELL) (RepPair (t)));
+INLINE_ONLY inline EXTERN Term HeadOfTermCell(Term t) {
+  return (Term)((CELL)(RepPair(t)));
 }
 
+INLINE_ONLY inline EXTERN Term TailOfTermCell(Term);
 
-
-INLINE_ONLY inline EXTERN Term TailOfTermCell (Term);
-
-INLINE_ONLY inline EXTERN Term
-TailOfTermCell (Term t)
-{
-  return (Term) ((CELL) (RepPair (t) + 1));
+INLINE_ONLY inline EXTERN Term TailOfTermCell(Term t) {
+  return (Term)((CELL)(RepPair(t) + 1));
 }
 
 #endif /* YAPCOMPOUNDTERM_H */

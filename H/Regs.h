@@ -121,7 +121,6 @@ typedef struct regstore_t
     CELL  *AuxSp_;		/* 9 Auxiliary stack pointer                  */
     ADDR   AuxTop_;		/* 10 Auxiliary stack top                     */
 /* visualc*/
-    struct DB_TERM   * EX_;     /* 18                                         */
     Term  CurrentModule_;
     struct myddas_global *MYDDAS_GLOBAL_POINTER;
 #if defined(YAPOR_SBA) || defined(TABLING)
@@ -641,7 +640,6 @@ INLINE_ONLY EXTERN inline void restore_B(void) {
 #define	AuxSp         Yap_REGS.AuxSp_
 #define	AuxTop        Yap_REGS.AuxTop_
 #define	CurrentTrailTop      Yap_REGS.CurrentTrailTop_
-#define EX            Yap_REGS.EX_
 #define DEPTH	      Yap_REGS.DEPTH_
 #if defined(YAPOR_SBA) || defined(TABLING)
 #define H_FZ          Yap_REGS.H_FZ_

@@ -209,21 +209,21 @@ compose_message(Term, Level) -->
 
 location(error(syntax_error(syntax_error(_,between(_,LN,_),FileName,_)),_), _ , _) -->
 	!,
-	[ '~a:~d:0: ' - [FileName,LN] ] .
+	[ '~a:~d:0 ' - [FileName,LN] ] .
 location(error(style_check(style_check(_,LN,FileName,_ ) ),_), _ , _) -->
 	%	  { stream_position_data( line_count, LN) },
 	!,
-	[ '~a:~d:0: ' - [FileName,LN] ] .
+	[ '~a:~d:0 ' - [FileName,LN] ] .
 location( error(_,Term), Level, LC ) -->
 	{  source_location(F0, L),
 	   stream_property(_Stream, alias(loop_stream)) }, !,
 		 display_consulting( F0, Level, LC ),
 	{ lists:memberchk([p|p(M,Na,Ar,_File,_FilePos)], Term ) },
-	[  '~a:~d:0: ~a in ~a:~q/~d:'-[F0, L,Level,M,Na,Ar] ].
+	[  '~a:~d:0 ~a in ~a:~q/~d:'-[F0, L,Level,M,Na,Ar] ].
 location( error(_,Term), Level, LC ) -->
 	{ lists:memberchk([p|p(M,Na,Ar,File,FilePos)], Term ) }, !,
 	display_consulting( File, Level, LC ),
-	[  '~a:~d:0: ~a in ~a:~q/~d:'-[File, FilePos,Level,M,Na,Ar] ].
+	[  '~a:~d:0 ~a in ~a:~q/~d:'-[File, FilePos,Level,M,Na,Ar] ].
 
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
 main_message(error(Msg,Info), _, _) --> {var(Info)}, !,

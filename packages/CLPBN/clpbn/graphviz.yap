@@ -2,9 +2,8 @@
 :- module(clpbn_gviz,
 		[clpbn2gviz/4]).
 
-clpbn2gviz(Stream, Name, Network, Output) :-
-	format(Stream, 'digraph ~w {
-	graph [ rankdir="LR" ];~n',[Name]),
+clpbn2gviz(Stream, Name, Network, Node, Edge, Output) :-
+	format(Stream, 'digraph ~w { ~n	graph [ rankdir="LR" ];~n',[Name]),
 	output_vars(Stream, Network),
 	info_ouput(Stream, Output),
 	format(Stream, '}~n',[]).

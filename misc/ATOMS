@@ -319,6 +319,7 @@ A	Reset			N	"reset"
 A	Resize			N	"resize"
 A	ResourceError		N	"resource_error"
 A	RestoreRegs		F	"$restore_regs"
+A	Retry		N	"retry"
 A	RetryCounter		N	"retry_counter"
 A	RTree			N	"rtree"
 A	Safe			F	"$safe"
@@ -525,7 +526,7 @@ F	Portray			Portray		1
 F	PrintMessage		PrintMessage	2
 F   Procedure       Procedure       5
 F	PrologConstraint	Prolog		2
-F	ProtectStack	ProtectStack    1
+F	ProtectStack	ProtectStack    4
 F	Query			Query		1
 F	RecordedWithKey		RecordedWithKey	6
 F	RDiv			RDiv		2

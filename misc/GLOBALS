@@ -168,6 +168,10 @@ char*				CharConversionTable2			=NULL
 /* max priority */
 int 				MaxPriority				    =1200
 
+/// alias table access
+struct    AliasDescS*		FileAliases				=Yap_InitStandardAliases()
+int				NOfFileAliases				void
+int				SzOfFileAliases				void
 
 
 END_GLOBAL_DATA

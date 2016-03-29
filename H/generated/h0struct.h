@@ -87,6 +87,7 @@ EXTERNAL  AtomHashEntry  *HashChain;
 #ifdef EUROTRA
 EXTERNAL  Term  TermDollarU;
 #endif
+EXTERNAL  Term  TermAnswer;
 //modules
 EXTERNAL  Term  USER_MODULE;
 EXTERNAL  Term  IDB_MODULE;

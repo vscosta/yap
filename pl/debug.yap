@@ -1043,10 +1043,11 @@ be lost.
     ).
 
 '$debugger_process_meta_arguments'(G, M, G1) :-
-	functor(G,F,N),
-	'$meta_predicate'(F,M,N,D), !, % we're in an argument
+	'$yap_strip_module'( M:G, MM, GM ),
+	functor(GM,F,N),
+	'$meta_predicate'(F,MM,N,D), !, % we're in an argument
 	D =.. [F|BMs],
-	G =.. [F|BGs],
+	GM =.. [F|BGs],
 	'$ldebugger_process_meta_args'(BGs, M, BMs, BG1s),
 	G1 =.. [F|BG1s].
 '$debugger_process_meta_arguments'(G, _M, G).
@@ -1055,10 +1056,10 @@ be lost.
 '$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$spy'([M1|G1])|BG1s]) :-
     number(N),
     N >= 0,
+	'$yap_strip_module'( M:G, M1, G1 ),
+	functor(G1, Na, _),
+	Na \= '$trace_call',
 	!,
-	strip_module( M:G, M1, G1 ),
-	functor(G1, N, _),
-	N \= '$trace_call',
 	'$ldebugger_process_meta_args'(BGs, M, BMs, BG1s).
 '$ldebugger_process_meta_args'([G|BGs], M, [_|BMs], [G|BG1s]) :-
 	'$ldebugger_process_meta_args'(BGs, M, BMs, BG1s).

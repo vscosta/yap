@@ -565,6 +565,8 @@ macro_optional_find_package (MPI OFF)
   endif (MPI_C_FOUND)
 
 
+ ##   add_subDIRECTORY(utils)
+
 add_custom_target (main ALL DEPENDS ${YAP_STARTUP} ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 #
 # include subdirectories configuration
@@ -588,6 +590,7 @@ install (
     ARCHIVE  DESTINATION ${libdir}
     LIBRARY  DESTINATION ${libdir}
   )
+
 
 
 macro_display_feature_log()

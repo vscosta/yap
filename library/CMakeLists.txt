@@ -23,6 +23,7 @@ set (LIBRARY_PL
   lineutils.yap
   listing.yap
   lists.yap
+  log2md.yap
   nb.yap
   ordsets.yap
   mapargs.yap

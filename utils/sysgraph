@@ -26,7 +26,7 @@
 :- dynamic
     node/4,
     edge/1,
-    public/2,
+    (public)/2,
     private/2,
     module_on/3,
     exported/1,
@@ -79,7 +79,6 @@ main :-
 main :-
     %%% phase 4: construct graph
     retractall( consulted(_,_) ),
-    trace,
     find_undefs,
     doubles,
     %     pl_exported(pl).
@@ -146,50 +145,6 @@ doubles :-
     fail.
 doubles.
 
-find_undefs :-
-    format('UNDEFINED procedure calls:~n',[]),
-    pmodule(M),
-    format('    module ~a:~n',[M]),
-    predicate_in_module(M, P),
-    \+ edge((_-M:P :- _)),
-    format('      ~w:~n',[P]),
-     fail.
-find_undefs.
-
-pmodule(M) :-
-    findall(M, node(M, _,_,_), Ms),
-    sort(Ms, SMs),
-    member(M, SMs).
-
-predicate_in_module(M, P) :- 
-    findall(P, node(M, P,_,_), Ps),
-    sort(Ps, SPs),
-    member(P, SPs).
-
-
-/*
-    setof(M, Target^F^Line^NA^undef( ( Target :- F-M:NA ), Line  ), Ms ),
-    member( Mod, Ms ),
-    format('    module ~a:~n',[Mod]),
-    setof(NA, Target^F^Line^undef( ( Target :- F-Mod:NA ), Line  ), Ns ),
-    member( NA, Ns ),
-    \+ node( Mod , NA , _File1, _ ),
-    \+ node( prolog , NA , _File2, _ ),
-    format('      predicate ~w:~n',[NA]),
-    (
-        setof(F-Line, Target^undef( ( Target :- F-Mod:NA ), Line ), FLs ),
-	member(F-L, FLs ),
-	format('        line ~w, file ~a~n',[L,F]),
-	fail
-    ;
-         setof(F-M,Type^node( M, NA, F, Type ) , FMs ),
-	 format('      same name at:~n',[]),
-	 member((F-L)-M, FMs ),
-	 format('        module ~a, file ~a, line ~d~n',[M,F,L]),
-	 fail
-    ).
-undefs.
-*/
 
 out_list([]) :-
     format('[]', []).
@@ -338,23 +293,24 @@ library('..').
 
 :- dynamic user:prolog_file_type/2.
 
-prolog_file_type(c, '.c').
-prolog_file_type(c, '.h').
-prolog_file_type(c, '.h.cmake').
-prolog_file_type(c, '.i').
+%prolog_file_type(chr, prolog).
+prolog_file_type(c, c).
+prolog_file_type(h, c).
+prolog_file_type('h.cmake', c).
+prolog_file_type('i', c).
 
 %
 % handle some special cases.
 %
-search_file(  S , LocF, Type, FN ) :- 
-    functor(S, _, N),
+search_file(  S , LocF, Type, FN ) :-
+           functor(S, _, N),
     N> 0,
     !,
     arg(N, S, A),
     search_file(  A , LocF, Type, FN ).
 %try to use your base
 search_file(  F0, LocF, Type, FO ) :-
-      file_directory_name(LocF, D),
+    file_directory_name(LocF, D),
       file_base_name(F0, B),
       findall(F, fsuffix(Type, B, F), Fs),
       Fs = [_|_],
@@ -369,11 +325,11 @@ search_file(  F0, LocF, Type, FO ) :-
 search_file(  Loc , F, Type, _FN ) :-
     format('~n~n~n###############~n~n FAILED TO FIND ~w.~a when at  ~a~n~n###############~n~n~n', [Loc, Type, F ]),
      fail.
-     
+
 fsuffix(Type,F0, F) :-
     ( user:prolog_file_type(Suffix, Type),
         (atom_concat('.', _, Suffix)
-        ->  
+        ->
         Suffix  = DSuffix
         ;
                     atom_concat('.', Suffix, DSuffix)
@@ -385,8 +341,8 @@ fsuffix(Type,F0, F) :-
            file_base_name(F1, B),
     file(F, B),
    atom_concat(_, F1, F).
-    
-    
+
+
 quantf(F, F1, I-F1) :-
     atom_length(F1,M),
     between(0,M,I),
@@ -397,10 +353,17 @@ quantf(F, F1, I-F1) :-
 % if it is .yap...
 
 
-new_op( prolog, _X,_Y,_Z ) :- !.
-new_op(  M, X,Y,Z ) :-
-    op( X, Y, M:Z).
+new_op( M, M, X, Y, Z ) :- !,
+    myop(  X, Y, M:Z).
+new_op(  M1, M2, X,Y,Z ) :-
+    myop( X, Y, M1:Z),
+    myop( X, Y, M2:Z).
 
+myop(_X, _Y, _M:P) :-
+    system_op(P),
+    !.
+myop(X, Y, M:P) :-
+    op(X, Y, M:P).
 
 error(_F, Error) :-
     print_message( error, Error ),
@@ -416,7 +379,7 @@ preprocess_file(F,F).
 %%%%%%%
 %% declare a concept exportable
 public( _F, M, op(X,Y,Z) ) :- !,
-        new_op(M,X,Y,Z).
+        new_op(M,M,X,Y,Z).
 public( F, M, M:N/Ar ) :-
     retract( private( F, M:N/Ar ) ),
     fail.
@@ -445,7 +408,7 @@ public( _F, _M, _//_Ar ).
 
 private( _F, M, op(X,Y,Z) ) :-
 !,
-	  new_op( M,X, Y, Z ).
+	  new_op(M,M,X, Y, Z ).
 private( F, M, N/Ar ) :-
     assert_new( private( F, M:N/Ar ) ),
     \+ node( M, N/Ar, F-_, _ ),
@@ -468,10 +431,10 @@ is_private( F, M, OP ) :-
 
 
 
-assert_new_e((A-MG :- B-MG1 )) :-
-yap_strip_module(MG, M, P),
-             yap_strip_module(MG1, M1, P1),
-             assert(edge((A-M:P :- B-M1:P1  ) )).
+assert_new_e( A , MG , B, MG1 ) :-
+    always_strip_module(MG, M, P),
+    always_strip_module(MG1, M1, P1),
+    assert_new(edge((A-M:P :- B-M1:P1  ) )).
 
 
 assert_new( G ) :- G, !.
@@ -662,7 +625,7 @@ add_comments :-
       member(Line-Comment-Type-Dup, Lines),
       check_comment( Comment, CN, Line, File ),
       Line1 is Line-1,
-      format(S, '#~a~ncat << "EOF" > tmp~n~sEOF~nsed -e "~dr tmp" ~a > x~n\
+      format(S, '#~a~ncat << "EOF" > tmp~n~sEOF~nsed -e "~dr tmp" ~a > x~n\c
      mv x ~a~n~n',[Dup,CN, Line1, File, File])
 	  ;
 	  close(S)
@@ -800,8 +763,7 @@ user_skip( 'packages/prism/src/prolog').
 user_skip( 'packages/prism').
 
 user_expand( library(clpfd), 'library/clp/clpfd.pl' ).
- 
+
  loop_error(_, Msg) :-
  writeln(Msg),
  fail.
- 

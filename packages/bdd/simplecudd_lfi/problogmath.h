@@ -166,4 +166,4 @@ double Phi(double x);
 double cumulative_normal(double low, double high, double sigma, double mu);
 double cumulative_normal_dmu(double low, double high,double mu,double sigma);
 double cumulative_normal_dsigma(double low, double high,double mu,double sigma);
-density_integral parse_density_integral_string(char *input, char *variablename);
+density_integral parse_density_integral_string(char *input, const char *variablename);

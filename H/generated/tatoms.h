@@ -314,6 +314,7 @@ Atom AtomReset; Term TermReset;
 Atom AtomResize; Term TermResize;
 Atom AtomResourceError; Term TermResourceError;
 Atom AtomRestoreRegs; Term TermRestoreRegs;
+Atom AtomRetry; Term TermRetry;
 Atom AtomRetryCounter; Term TermRetryCounter;
 Atom AtomRTree; Term TermRTree;
 Atom AtomSafe; Term TermSafe;

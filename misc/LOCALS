@@ -2,10 +2,6 @@
 START_WORKER_LOCAL
 
 // Streams
-struct AliasDescS*		FileAliases				=Yap_InitStandardAliases()
-int				NOfFileAliases				void
-int				SzOfFileAliases				void
-
 int				c_input_stream				=0
 int				c_output_stream				=1
 int				c_error_stream				=2
@@ -83,16 +79,25 @@ Int				ArenaOverflows				=0L
 Int				DepthArenas				=0
 
 int				ArithError				=FALSE
-struct pred_entry*		LastAssertedPred			=NULL
-struct pred_entry*		TmpPred					=NULL
-char*				ScannerStack				=NULL
-struct scanner_extra_alloc*	 ScannerExtraBlocks			=NULL
+struct    pred_entry*		LastAssertedPred			=NULL
+struct    pred_entry*		TmpPred					=NULL
+char*			ScannerStack				=NULL
+struct    scanner_extra_alloc*	 ScannerExtraBlocks			=NULL
+
+/// worker control information
+/// pointer to an exception term, from throw
 struct DB_TERM*			BallTerm				=NULL 		RestoreBallTerm(wid)
+/// stack limit after which the stack is managed by C-code.
+Int				CBorder				=0
+
+
+/// max number of signals (uint64_t)
 UInt				MaxActiveSignals			=64L
+/// actual life signals
 uint64_t			Signals					=0L
+/// indexing help data?
 UInt				IPredArity				=0L
 yamop*				ProfEnd					=NULL
-int				UncaughtThrow				=FALSE
 int				DoingUndefp				=FALSE
 Int				StartCharCount				=0L
 Int				StartLineCount				=0L

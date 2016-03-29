@@ -5,9 +5,6 @@
 // Stuff that must be considered local to a thread or worker
 typedef struct worker_local {
 // Streams
-  struct AliasDescS*  FileAliases_;
-  int  NOfFileAliases_;
-  int  SzOfFileAliases_;
   int  c_input_stream_;
   int  c_output_stream_;
   int  c_error_stream_;
@@ -77,12 +74,18 @@ typedef struct worker_local {
   struct pred_entry*  TmpPred_;
   char*  ScannerStack_;
   struct scanner_extra_alloc*  ScannerExtraBlocks_;
+/// worker control information
+/// pointer to an exception term, from throw
   struct DB_TERM*  BallTerm_;
+/// stack limit after which the stack is managed by C-code.
+  Int  CBorder_;
+/// max number of signals (uint64_t)
   UInt  MaxActiveSignals_;
+/// actual life signals
   uint64_t  Signals_;
+/// indexing help data?
   UInt  IPredArity_;
   yamop*  ProfEnd_;
-  int  UncaughtThrow_;
   int  DoingUndefp_;
   Int  StartCharCount_;
   Int  StartLineCount_;

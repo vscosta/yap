@@ -205,7 +205,6 @@ private(_).
         '$do_live'/0,
         '$'/0,
         '$find_goal_definition'/4,
-        '$handle_throw'/3,
         '$head_and_body'/3,
         '$inform_as_reconsulted'/2,
         '$init_system'/0,
@@ -1417,8 +1416,8 @@ bootstrap(F) :-
 	!.
 '$loop'(Stream,Status) :-
  %   start_low_level_trace,
-	'$current_module'( OldModule ),
 	repeat,
+  '$current_module'( OldModule, OldModule ),
 	'$system_catch'( '$enter_command'(Stream,OldModule,Status),
                      OldModule, Error,
 			         user:'$LoopError'(Error, Status)
@@ -1554,11 +1553,7 @@ is responsible to capture uncaught exceptions.
 
 */
 catch(G, C, A) :-
-	'$catch'(C,A,_),
-	'$$save_by'(CP0),
-	'$execute'(G),
-	'$$save_by'(CP1),
-	(CP0 == CP1 -> !; true ).
+	'$catch'(G,_,[C|A]).
 
 % makes sure we have an environment.
 '$true'.
@@ -1571,11 +1566,24 @@ catch(G, C, A) :-
 %
 '$system_catch'(G, M, C, A) :-
 	% check current trail
-	'$catch'(C,A,_),
-	'$$save_by'(CP0),
-	'$execute_nonstop'(G, M),
+	'$catch'(M:G,_,[C|A]).
+
+'$catch'(MG,_,_) :-
+'$$save_by'(CP0),
+	'$execute'(MG),
 	'$$save_by'(CP1),
+    % remove catch
 	(CP0 == CP1 -> !; true ).
+'$catch'(_,C0,[C|A]) :-
+    nonvar(C0),
+    C0 = throw(Ball),
+    ( catch_ball( Ball, C)
+        ->
+      '$execute'(A)
+      ;
+      throw(Ball)
+    ).
+
 
 %
 % throw has to be *exactly* after system catch!
@@ -1588,32 +1596,12 @@ stopped, and the exception is sent to the ancestor goals until reaching
 a matching catch/3, or until reaching top-level.
 
 */
-throw(_Ball) :-
-	% use existing ball
-	'$get_exception'(Ball),
-	!,
-	'$jump_env_and_store_ball'(Ball).
 throw(Ball) :-
 	( var(Ball) ->
 	    '$do_error'(instantiation_error,throw(Ball))
 	;
 	% get current jump point
 	    '$jump_env_and_store_ball'(Ball)
-	).
-
-
-% just create a choice-point
-'$catch'(_,_,_).
-'$catch'(_,_,_) :- fail.
-
-'$handle_throw'(_, _, _).
-'$handle_throw'(C, A, _Ball) :-
-	'$reset_exception'(Ball),
-        % reset info
-	(catch_ball(Ball, C) ->
-	    '$execute'(A)
-	    ;
-	    throw(Ball)
 	).
 
 catch_ball(Abort, _) :-

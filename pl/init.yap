@@ -106,9 +106,7 @@ otherwise.
 	'$continue_static_clause'(A,B,C,D,E).
 '$do_static_clause'(_,_,_,_,_).
 
-:- '$handle_throw'(_,_,_), !.
-
-:- '$all_current_modules'(M), yap_flag(M:unknown, error) ; true.
+\:- '$all_current_modules'(M), yap_flag(M:unknown, error) ; true.
 
 
 :- bootstrap('arith.yap').

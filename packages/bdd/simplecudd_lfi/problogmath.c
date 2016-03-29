@@ -208,7 +208,7 @@ double cumulative_normal_dsigma(double low, double high,double mu,double sigma) 
 
 // this function parses two strings "$a;$b" and "???_???l$ch$d" where $a-$d are (real) numbers
 // it is used to parse in the parameters of continues variables from the input file
-density_integral parse_density_integral_string(char *input, char *variablename) {
+density_integral parse_density_integral_string(char *input, const char *variablename) {
   density_integral result;
   int i;
   char garbage[64], s1[64],s2[64],s3[64],s4[64];

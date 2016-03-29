@@ -5,12 +5,6 @@
 
 
 
-#define LOCAL_FileAliases LOCAL->FileAliases_
-#define REMOTE_FileAliases(wid) REMOTE(wid)->FileAliases_
-#define LOCAL_NOfFileAliases LOCAL->NOfFileAliases_
-#define REMOTE_NOfFileAliases(wid) REMOTE(wid)->NOfFileAliases_
-#define LOCAL_SzOfFileAliases LOCAL->SzOfFileAliases_
-#define REMOTE_SzOfFileAliases(wid) REMOTE(wid)->SzOfFileAliases_
 #define LOCAL_c_input_stream LOCAL->c_input_stream_
 #define REMOTE_c_input_stream(wid) REMOTE(wid)->c_input_stream_
 #define LOCAL_c_output_stream LOCAL->c_output_stream_
@@ -137,18 +131,24 @@
 #define REMOTE_ScannerStack(wid) REMOTE(wid)->ScannerStack_
 #define LOCAL_ScannerExtraBlocks LOCAL->ScannerExtraBlocks_
 #define REMOTE_ScannerExtraBlocks(wid) REMOTE(wid)->ScannerExtraBlocks_
+
+
 #define LOCAL_BallTerm LOCAL->BallTerm_
 #define REMOTE_BallTerm(wid) REMOTE(wid)->BallTerm_
+
+#define LOCAL_CBorder LOCAL->CBorder_
+#define REMOTE_CBorder(wid) REMOTE(wid)->CBorder_
+
 #define LOCAL_MaxActiveSignals LOCAL->MaxActiveSignals_
 #define REMOTE_MaxActiveSignals(wid) REMOTE(wid)->MaxActiveSignals_
+
 #define LOCAL_Signals LOCAL->Signals_
 #define REMOTE_Signals(wid) REMOTE(wid)->Signals_
+
 #define LOCAL_IPredArity LOCAL->IPredArity_
 #define REMOTE_IPredArity(wid) REMOTE(wid)->IPredArity_
 #define LOCAL_ProfEnd LOCAL->ProfEnd_
 #define REMOTE_ProfEnd(wid) REMOTE(wid)->ProfEnd_
-#define LOCAL_UncaughtThrow LOCAL->UncaughtThrow_
-#define REMOTE_UncaughtThrow(wid) REMOTE(wid)->UncaughtThrow_
 #define LOCAL_DoingUndefp LOCAL->DoingUndefp_
 #define REMOTE_DoingUndefp(wid) REMOTE(wid)->DoingUndefp_
 #define LOCAL_StartCharCount LOCAL->StartCharCount_

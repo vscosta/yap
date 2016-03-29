@@ -314,6 +314,7 @@
   AtomResize = AtomAdjust(AtomResize); TermResize = MkAtomTerm(AtomResize);
   AtomResourceError = AtomAdjust(AtomResourceError); TermResourceError = MkAtomTerm(AtomResourceError);
   AtomRestoreRegs = AtomAdjust(AtomRestoreRegs); TermRestoreRegs = MkAtomTerm(AtomRestoreRegs);
+  AtomRetry = AtomAdjust(AtomRetry); TermRetry = MkAtomTerm(AtomRetry);
   AtomRetryCounter = AtomAdjust(AtomRetryCounter); TermRetryCounter = MkAtomTerm(AtomRetryCounter);
   AtomRTree = AtomAdjust(AtomRTree); TermRTree = MkAtomTerm(AtomRTree);
   AtomSafe = AtomAdjust(AtomSafe); TermSafe = MkAtomTerm(AtomSafe);

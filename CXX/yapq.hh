@@ -11,7 +11,7 @@
  * interface to a YAP Query;
  * uses an SWI-like status info internally.
  */
-class YAPQuery: public YAPPredicate, open_query_struct {
+class YAPQuery: public YAPPredicate, public open_query_struct {
   YAPListTerm vnames;
   YAPTerm goal;
   Term names;

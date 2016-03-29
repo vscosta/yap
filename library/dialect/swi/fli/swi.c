@@ -1308,7 +1308,8 @@ X_API int PL_raise_exception(term_t exception)
 {
   CACHE_REGS
     LOCAL_Error_TYPE=YAP_NO_ERROR;
-  EX = Yap_StoreTermInDB(Yap_GetFromSlot(exception),0);
+  Yap_PutException(Yap_GetFromSlot(exception));
+  Yap_RaiseException( );
   return 0;
 }
 
@@ -2307,7 +2308,7 @@ X_API void
 PL_clear_exception(void)
 {
   CACHE_REGS
-  EX = NULL;
+  Yap_ResetException(worker_id);
 }
 
 X_API int
@@ -2623,8 +2624,8 @@ X_API void PL_close_query(qid_t qi)
 {
   CACHE_REGS
 
-  if (EX && !(qi->q_flags & (PL_Q_CATCH_EXCEPTION))) {
-    EX = NULL;
+  if (Yap_HasException() && !(qi->q_flags & (PL_Q_CATCH_EXCEPTION))) {
+    Yap_ResetException(worker_id);
   }
   /* need to implement backtracking here */
   if (qi->q_open != 1 || qi->q_state == 0) {

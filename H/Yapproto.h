@@ -195,15 +195,14 @@ void Yap_InitEval(void);
 void Yap_fail_all(choiceptr bb USES_REGS);
 Term Yap_ExecuteCallMetaCall(Term);
 void Yap_InitExecFs(void);
-Int Yap_JumpToEnv(Term);
-Term Yap_RunTopGoal(Term);
-void Yap_ResetExceptionTerm(int);
-Int Yap_execute_goal(Term, int, Term, bool);
-Int Yap_exec_absmi(bool, yap_reset_t);
+bool Yap_JumpToEnv(Term);
+Term Yap_RunTopGoal(Term, bool);
+bool Yap_execute_goal(Term, int, Term, bool);
+bool Yap_exec_absmi(bool, yap_reset_t);
 void Yap_trust_last(void);
-Term Yap_GetException(void);
+
 void Yap_PrepGoal(UInt, CELL *, choiceptr USES_REGS);
-int Yap_execute_pred(struct pred_entry *ppe, CELL *pt,
+bool Yap_execute_pred(struct pred_entry *ppe, CELL *pt,
                      bool pass_exception USES_REGS);
 int Yap_dogc(int extra_args, Term *tp USES_REGS);
 Term Yap_PredicateIndicator(Term t, Term mod);

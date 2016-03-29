@@ -141,4 +141,8 @@ EXTERNAL  char*  GLOBAL_CharConversionTable;
 EXTERNAL  char*  GLOBAL_CharConversionTable2;
 /* max priority */
 EXTERNAL  int  GLOBAL_MaxPriority;
+/// alias table access
+EXTERNAL    struct AliasDescS*  GLOBAL_FileAliases;
+EXTERNAL  int  GLOBAL_NOfFileAliases;
+EXTERNAL  int  GLOBAL_SzOfFileAliases;
 

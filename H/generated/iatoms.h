@@ -314,6 +314,7 @@
   AtomResize = Yap_LookupAtom("resize"); TermResize = MkAtomTerm(AtomResize);
   AtomResourceError = Yap_LookupAtom("resource_error"); TermResourceError = MkAtomTerm(AtomResourceError);
   AtomRestoreRegs = Yap_FullLookupAtom("$restore_regs"); TermRestoreRegs = MkAtomTerm(AtomRestoreRegs);
+  AtomRetry = Yap_LookupAtom("retry"); TermRetry = MkAtomTerm(AtomRetry);
   AtomRetryCounter = Yap_LookupAtom("retry_counter"); TermRetryCounter = MkAtomTerm(AtomRetryCounter);
   AtomRTree = Yap_LookupAtom("rtree"); TermRTree = MkAtomTerm(AtomRTree);
   AtomSafe = Yap_FullLookupAtom("$safe"); TermSafe = MkAtomTerm(AtomSafe);
@@ -520,7 +521,7 @@
   FunctorPrintMessage = Yap_MkFunctor(AtomPrintMessage,2);
   FunctorProcedure = Yap_MkFunctor(AtomProcedure,5);
   FunctorPrologConstraint = Yap_MkFunctor(AtomProlog,2);
-  FunctorProtectStack = Yap_MkFunctor(AtomProtectStack,1);
+  FunctorProtectStack = Yap_MkFunctor(AtomProtectStack,4);
   FunctorQuery = Yap_MkFunctor(AtomQuery,1);
   FunctorRecordedWithKey = Yap_MkFunctor(AtomRecordedWithKey,6);
   FunctorRDiv = Yap_MkFunctor(AtomRDiv,2);

@@ -74,7 +74,7 @@ extern void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, YAP_Arity, Y
 
 /*  void UserBackCPredicate(const char *name, int *init(), int *cont(), int
      arity, int extra) */
-extern void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred, YAP_Arity, unsigned int);
+extern void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred, YAP_Arity, YAP_Arity);
 
 extern Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp, int prio, Term *bindings_p);
 

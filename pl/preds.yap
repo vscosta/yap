@@ -78,7 +78,6 @@ and therefore he should try to avoid them whenever possible.
 
 :- use_system_module( '$_boot', ['$check_head_and_body'/4,
         '$check_if_reconsulted'/2,
-        '$handle_throw'/3,
         '$head_and_body'/3,
         '$inform_as_reconsulted'/2]).
 
@@ -205,9 +204,6 @@ clause(V0,Q,R) :-
 	'$do_error'(permission_error(access,private_procedure,Name/Arity),
 	      clause(M:P,Q,R)).
 
-'$init_preds' :-
-	once('$handle_throw'(_,_,_)),
-	fail.
 '$init_preds' :-
 	once('$do_static_clause'(_,_,_,_,_)),
 	fail.

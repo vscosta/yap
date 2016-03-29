@@ -24,9 +24,9 @@ scan_dir( Dir -user) :-
         pl_interfs(0, Dir-user ),
     %%% phase 2: find C-code predicates
         c_preds( Dir-user ).
-// the c-builtins do not depend on prolog code.
+% the c-builtins do not depend on prolog code.
 scan_dir( Dir -prolog) :-
-        c_preds( Dir-user ).
+        c_preds( Dir-user ),
         pl_interfs(0, Dir-user ).
     %%% phase 2: find C-code predicates
 
@@ -54,7 +54,7 @@ rdir( FRoot ) :-
 rdir(_).
 
 c_preds(Dir - Mod) :-
-	format('%~*| C ************* ~a\n', [1,Dir]),
+%	format('%~*| C ************* ~a\n', [1,Dir]),
     atom( Dir ),
         absolute_file_name( Dir, [glob(*), solutions(all), file_errors(fail)], File ),
 	( ( sub_atom(File,_,_,0,'.c')
@@ -116,7 +116,7 @@ c_line(Line,  Mod, F: LineP) :-
 	break_line( Line, N/A, Fu),
 	assert( node( Mod, N/A, F-LineP, Fu ) ),
 	handle_pred( Mod, N, A, F ).
-    
+
 c_ext( S, Mod, F ) :-
 	repeat,
     stream_property( S, position(Pos) ),
@@ -130,11 +130,11 @@ c_ext( S, Mod, F ) :-
 	 ( sub_string( Codes, _, _, _, `NULL` )
     ->
 	 !
-	;  
+	;
 	 split_string(String, `,; (){}\t\"\'`, [`FRG`, NS,AS,FS|_]),
 	 atom_string(N,NS),
 	 atom_string(Fu,FS),
-	 catch( number_string(A, AS), Error, handle( String , Error ) ),   
+	 catch( number_string(A, AS), Error, handle( String , Error ) ),
 	 stream_position_data( line_count, Pos, Line ),
 	 assert( node( Mod , N/A,  F-Line, Fu ) ),
 	 handle_pred( Mod, N, A, F )
@@ -274,10 +274,9 @@ clean_up(_,_).
 %
 %
 %
-
 pl_interfs(Lev0, Dir - Mod) :-
 	\+ ( fullskip( Dir ) ),
-	format('%~*| ************* ~a\n', [Lev0,Dir]),
+%	format('%~*| ************* ~a\n', [Lev0,Dir]),
     Lev is Lev0+1,
     nb_setval( current_module, Mod ),
 	atom( Dir ),
@@ -310,7 +309,7 @@ pl_interfs(_, _).
 pl_interface(F, Mod, _Lev) :-
     module_on( F , _Mod, L ),
     maplist( private(F, Mod), L ),
-    !. 
+    !.
 pl_interface(F, Mod, _) :-
 	consulted(F, Mod ),
 	!.
@@ -329,7 +328,7 @@ pl_interface(F, Mod, Lev) :-
 	catch( open(PF, read, S, [script(true)]) , _, fail ),
 	repeat,
 	nb_getval( current_module, MR ),
- 	catch( read_clause( S, T, [module( MR ),term_position(Pos)] ), Throw, loop_error( MR:Throw)),
+ 	catch( read_clause( S, T, [module( MR ),term_position(Pos),comment(Comment)] ), Throw, loop_error( MR:Throw)),
 
 	( T == end_of_file
 	->
@@ -351,7 +350,7 @@ pl_interface(F, Mod, Lev) :-
 	 ),
       clean_up( MR, F ),
       nb_setval( current_module, M0 )
-      
+
 %    writeln('***************************<<<<<<<<<<<'-M0),
 %      (current_op(X,Y,O), write(M0:O), fail;nl)
 	;
@@ -361,7 +360,7 @@ pl_interface(F, Mod, Lev) :-
 	 ( Mod == prolog -> MC = prolog ; MC = MC0 ),
       Lev1 is Lev+1,
 	 get_interface( T, F, MC, Lev1  ),
-      get_graph( T, F, Pos, MC ),
+     get_graph( T, F, Pos, MC ),
     fail
 	).
 
@@ -403,7 +402,7 @@ get_directive( V , _F, _M , _Lev) :-
 get_directive( module( NM0, Is ), F, _M , _Lev) :-
     !,
     (
-     (NM0 = system(_) -> NM = prolog ; NM = NM0 ),
+     (NM0 = system(NM) -> true ; NM0 = system(NM,_) -> true ; NM = NM0 ),
      assert(module_file( F, NM ) ),
      nb_setval( current_module, NM ),
      assert( module_on( F , NM, Is) ),
@@ -415,28 +414,25 @@ get_directive( module( NM0, Is ), F, _M , _Lev) :-
      writeln(oops:module( NM0, Is )),
      fail
     ).
-get_directive( reexport( Loc, Is ), F, M , Lev) :-
-    !,
-     (                       % find the file
-                             search_file(Loc, F, prolog, F1),
-                             pl_interface(F1, M, Lev),
-                             module_on( F1 , NM, Is0),
-                             (var(Is) ->
-                              Is = Is0
-                             ;
-                              true
-                             ),
-                                % extend the interface.rg
-                             retract( module_on( F , M, IsOld) ),
-                             append( Is, IsOld, NIs ),
-                             assert( module_on( F , M, NIs) ),
-                             maplist( exported(F, M, F1, NM), NIs )
-     fail
-                             ).
-get_directive(  use_module( Loc, Is ), F, M , Lev) :- !,
+    get_directive( reexport( Loc, Is ), F, M , Lev) :-
+      !,
+      search_file( Loc, F, prolog, F1),
+      pl_interface(F1, M, Lev),
+      module_on( F1 , NM, Is0),
+      (var(Is) ->
+        Is = Is0
+        ;
+        true
+        ),
+        % extend the interface.rg
+        retract( module_on( F , M, IsOld) ),
+        append( Is, IsOld, NIs ),
+        assert( module_on( F , M, NIs) ),
+        maplist( exported(F, M, F1, NM), NIs ).
+get_directive(  use_module( Loc, Is ), F, M , Lev) :-
     !,
     include_files(  F, M, Is, Lev, Loc ).
-get_directive(  use_module( Loc ), F, M , Lev) :- !,
+get_directive(  use_module( Loc ), F, M , Lev) :-
     !,
     include_files0( F, M, Lev, Loc ).
 %       nb_getval(current_module,MM), writeln(NM:MM:M).
@@ -517,7 +513,7 @@ get_directive( thread_local( T ), F, M , _Lev) :-
     declare_functors( T, F, M ).
 get_directive( op( X, Y, Z), _F, M , _Lev) :-
     !,
-    new_op(M,X,Y,Z).
+    new_op(M,M,X,Y,Z).
 get_directive( record( Records ), F, M , _Lev) :-
     !,
     handle_record( Records, F, M).
@@ -590,27 +586,23 @@ handle_pred( M, N, A, F ) :-
 	 )
 	).
 
-exported( _NF, _F, _NM, M, op(X,Y,Z)) :-
+exported( _NF, _F, NM, M, op(X,Y,Z)) :-
 	!,
-	new_op(M,X,Y,Z).
+	new_op(M, NM, X,Y,Z).
 exported( NF, F, NM, M, N/A) :- !,
     % sink no more
-	retractall( exported(( _ :- F-M:N/A) ) ),
-	assert_new_e( ( (F-M:N/A :- NF-NM:N/A )) ).
+	assert_new_e( F,M:N/A , NF, NM:N/A  ).
 exported( NF, F, NM, M, N/A as NN) :- !,
     % sink no more
-	retractall( exported(( _ :- F-M:N/A) ) ),
-	assert_new_e( ( ( F-M:NN/A :- NF-NM:N/A ) ) ).
+	assert_new_e( F,M:NN/A , NF,NM:N/A  ).
 exported( NF, F, NM, M, N//A) :- !,
 	A2 is A+2,
     % sink no more
-	retractall( exported(( _ :- F-M:N/A2) ) ),
-	assert_new_e( ( (F-M:N/A2 :- NF-NM:N/A2) ) ).
+	assert_new_e( F,M:N/A2 , NF, NM:N/A2 ).
 exported( NF, F, NM, M, N//A as NN) :- !,
 	A2 is A+2,
     % sink no more
-	retractall( exported(( _ :- F-M:N/A2) ) ),
-	assert_new_e( ( ( F-M:NN/A2 :- NF-NM:N/A2 )) ).
+	assert_new_e( F, M:NN/A2 , NF, NM:N/A2  ).
 
 
 
@@ -632,13 +624,12 @@ include_file( F, M, Is, Lev, Loc ) :-
 	is_list( Loc ), !,
 	maplist( include_file( F, M, Is, Lev), Loc ).
 include_file( F, M, Is0, Lev, Loc ) :-
-    % depth visit
+                                % depth visit\
 	(
-	nb_getval( private, Private ), % find the file
+ 	nb_getval( private, Private ), % find the file
 	once( search_file( Loc, F, prolog, NF ) ),
      pl_interface(NF, M, Lev),
     % should verify Is in _Is
-                                % link b
     %trace,
      ( module_on(NF, NM, Is)
      ->
@@ -652,7 +643,7 @@ include_file( F, M, Is0, Lev, Loc ) :-
     true
     ;
     writeln(bad_include_file( F, M, Is0, Lev, Loc )),
-    fail
+     fail
     ).
 
 source_files( F, M, Lev, Files ) :-
@@ -727,7 +718,6 @@ declare_term(F, M, S) :-
 	functor(S, N, A),
 	handle_pred( M, N, A, F ).
 
-handle(Line, Error ) :- 
+handle(Line, Error ) :-
     format('~s caused Error ~w~n~n', [Line, Error]),
     fail.
-

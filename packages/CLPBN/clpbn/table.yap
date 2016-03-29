@@ -204,7 +204,8 @@ in_table(K, V) :-
 
 store_in_table(K, V) :-
 	b_getval(clpbn_tables, Tab),
-	b_hash_insert(Tab, K, V).
+	b_hash_insert(Tab, K, V, NewTab),
+    ( Tab == NewTab -> true ; b_setval(clpbn_tables, NewTab)).
 
 clpbn_tabled_clause(M:Head, Body) :- !,
 	clpbn_tabled_clause(Head, M, Body).

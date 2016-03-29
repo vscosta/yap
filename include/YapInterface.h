@@ -1760,7 +1760,7 @@ extern X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, YAP_Ar
 
 /*  void UserBackCPredicate(const char *name, int *init(), int *cont(), int
     arity, int extra) */
-extern X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred, YAP_Arity, unsigned int);
+extern X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred, YAP_Arity, YAP_Arity);
 
 /*   YAP_Int      YAP_ListLength(YAP_Term t) */
 extern X_API YAP_Int YAP_ListLength(YAP_Term);
@@ -1769,7 +1769,7 @@ extern X_API size_t YAP_UTF8_TextLength(YAP_Term t);
 
 /*  void UserBackCPredicate(char *name, int *init(), int *cont(), int *cut(), int
     arity, int extra) */
-extern X_API void YAP_UserBackCutCPredicate(const char *, YAP_UserCPred, YAP_UserCPred, YAP_UserCPred, YAP_Arity, unsigned int);
+extern X_API void YAP_UserBackCutCPredicate(const char *, YAP_UserCPred, YAP_UserCPred, YAP_UserCPred, YAP_Arity, YAP_Arity);
 
 /*  void CallProlog(YAP_Term t) */
 extern X_API YAP_Int YAP_CallProlog(YAP_Term t);

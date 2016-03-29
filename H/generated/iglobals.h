@@ -141,4 +141,8 @@ static void InitGlobal(void) {
   GLOBAL_CharConversionTable2 = NULL;
 
   GLOBAL_MaxPriority = 1200;
+
+  GLOBAL_FileAliases = Yap_InitStandardAliases();
+
+
 }

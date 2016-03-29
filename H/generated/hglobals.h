@@ -141,4 +141,8 @@ const char*  RestoreFile_;
   char*  CharConversionTable2_;
 /* max priority */
   int  MaxPriority_;
+/// alias table access
+  struct AliasDescS*  FileAliases_;
+  int  NOfFileAliases_;
+  int  SzOfFileAliases_;
 } w_shared;

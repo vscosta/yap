@@ -45,7 +45,7 @@ build_graph(F, Mod) :-
 	 nb_setval( line, Line ),
 	 nb_getval( current_module, MC0 ),
 	 ( Mod == prolog -> MC = prolog ; MC = MC0 ),
-	 get_graph( T, F, Pos, MC  ),
+	 get_graph( T, F, Line, MC  ),
 	 fail
 	).
 
@@ -57,31 +57,34 @@ get_graph( V , _F, _Pos, _M ) :-
 get_graph( T, _F, _Pos, _M0 ) :-
 	var(T),
 	!.
-get_graph( M:T, F, _Pos, _M0 ) :- !,
-	get_graph( T, F, _Pos, M ).
-get_graph( ( M:H :- B), F, _Pos, M0 ) :-
+get_graph( M:T, F, Pos, _M0 ) :- !,
+    always_strip_module(M:T, NM, NT),
+	get_graph( NT, F, Pos, NM ).
+get_graph( ( M:H :- B), F, Pos, M0 ) :-
     !,
-    get_graph( (H :- M0:B), F, _Pos, M ).
-get_graph( ( M:H --> B), F, _Pos, M0 ) :-
+    get_graph( (H :- M0:B), F, Pos, M ).
+get_graph( ( M:H --> B), F, Pos, M0 ) :-
     !,
-    get_graph( ( H --> M0:B), F, _Pos, M ).
-get_graph( ( A, _ --> B), F, _Pos, M ) :-
+    get_graph( ( H --> M0:B), F, Pos, M ).
+get_graph( ( A, _ --> B), F, Pos, M ) :-
+    !,
     get_graph( ( A --> B), F, _Pos, M ).
-get_graph( (H --> B), F, _Pos, M ) :-
+get_graph( (H --> B), F, Pos, M ) :-
     !,
     functor( H, N, Ar),
     Ar2 is Ar+2,
-    add_deps( B, M, M:N/Ar2, F, _Pos, 2 ).
-get_graph( (H :- B), F, _Pos, M ) :-
+    add_deps( B, M, M:N/Ar2, F, Pos, 2 ).
+get_graph( (H :- B), F, Pos, M ) :-
     !,
     functor( H, N, Ar),
-    add_deps( B, M, M:N/Ar, F, _Pos, 0 ).
+    add_deps( B, M, M:N/Ar, F, Pos, 0 ).
 %% switches to new file n
 get_graph( (:-include( Fs ) ), F, _Pos, M ) :-
     !,
     source_graphs( M, F, Fs ).
 get_graph( (?- _ ), _F, _Pos, _M ) :- !.
 get_graph( (:- _ ), _F, _Pos, _M ) :- !.
+get_graph( _H, _F, _Pos, _M ).
 
 source_graphs( M, F, Fs ) :-
 	maplist( source_graph( M, F ), Fs ), !.
@@ -131,13 +134,12 @@ add_deps(A, M, P, F, Pos, L) :-
 	Ar is Ar0+L,
 	put_dep( ( F-M:P :- F-M:N/Ar ), Pos ).
 
-put_dep( (Target :- F0-M:Goal ), _Pos ) :-
-ground(F0-M:Goal), !,
-assert_new_e(  ( Target :- F0-M:N/Ar ) ).
+put_dep( (Target :- F0-G0 ), _Pos ) :-
+  ground(F0-G0), !,
+  Target = F-G,
+  assert_new_e(   F, G, F0, G0 ).
 put_dep(_,_).
 
-                                % prolog is visible ( but maybe not same file ).
-
+                                % prolog is visible ( but maybe not same file )   
 m_exists(P, F) :- private( F, P ), !.
 m_exists(P, F) :- public( F, P ).
-

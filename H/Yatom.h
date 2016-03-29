@@ -38,21 +38,7 @@ INLINE_ONLY inline EXTERN AtomEntry *RepAtom(Atom a) {
 
 INLINE_ONLY inline EXTERN Atom AbsAtom(AtomEntry *p);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  INLINE_ONLY inline EXTERN Atom AbsAtom(AtomEntry *p) { return (Atom)(p); }
+INLINE_ONLY inline EXTERN Atom AbsAtom(AtomEntry *p) { return (Atom)(p); }
 
 INLINE_ONLY inline EXTERN AtomEntry *RepAtom(Atom a);
 
@@ -503,9 +489,8 @@ don't forget to also add in qly.h
 typedef uint64_t pred_flags_t;
 
 #define DiscontiguousPredFlag                                                  \
-  ((                                                                           \
-      pred_flags_t)0x1000000000) /* predicates whose clauses may be all-over   \
-                                    the place.. */
+  ((pred_flags_t)0x1000000000) /* predicates whose clauses may be all-over     \
+                                  the place.. */
 #define SysExportPredFlag ((pred_flags_t)0x800000000)
 /* reuse export list to prolog module. */
 #define NoTracePredFlag                                                        \
@@ -518,8 +503,9 @@ typedef uint64_t pred_flags_t;
   ((pred_flags_t)0x80000000) /* predicate is implemented as a mega-clause */
 #define ThreadLocalPredFlag ((pred_flags_t)0x40000000) /* local to a thread */
 #define MultiFileFlag ((pred_flags_t)0x20000000)       /* is multi-file */
-#define UserCPredFlag ((pred_flags_t)0x10000000) /* CPred defined by the user  \
-                                                    */
+#define UserCPredFlag                                                          \
+  ((pred_flags_t)0x10000000) /* CPred defined by the user                      \
+                                */
 #define LogUpdatePredFlag                                                      \
   ((pred_flags_t)0x08000000) /* dynamic predicate with log. upd. sem. */
 #define InUsePredFlag ((pred_flags_t)0x04000000)  /* count calls to pred */
@@ -533,9 +519,10 @@ typedef uint64_t pred_flags_t;
   ((pred_flags_t)0x00200000) /* predicate subject to a meta declaration */
 #define SyncPredFlag                                                           \
   ((pred_flags_t)0x00100000) /* has to synch before it can execute */
-#define NumberDBPredFlag ((pred_flags_t)0x00080000) /* entry for an atom key   \
-                                                       */
-#define AtomDBPredFlag ((pred_flags_t)0x00040000)   /* entry for a number key */
+#define NumberDBPredFlag                                                       \
+  ((pred_flags_t)0x00080000)                      /* entry for an atom key     \
+                                                     */
+#define AtomDBPredFlag ((pred_flags_t)0x00040000) /* entry for a number key */
 // #define GoalExPredFlag  ((pred_flags_t)0x00020000)	/// predicate that is
 // called by goal_expand */
 #define TestPredFlag ((pred_flags_t)0x00010000) /* is a test (optim. comit) */
@@ -552,9 +539,10 @@ typedef uint64_t pred_flags_t;
 #define SequentialPredFlag                                                     \
   ((pred_flags_t)0x00000020) /* may not create parallel choice points! */
 #define ProfiledPredFlag                                                       \
-  ((pred_flags_t)0x00000010)                     /* pred is being profiled   */
-#define BackCPredFlag ((pred_flags_t)0x00000008) /*	Myddas Imported pred       \
-                                                    */
+  ((pred_flags_t)0x00000010) /* pred is being profiled   */
+#define BackCPredFlag                                                          \
+  ((pred_flags_t)0x00000008) /*	Myddas Imported pred                           \
+                                */
 #define ModuleTransparentPredFlag                                              \
   ((pred_flags_t)0x00000004)                      /* ModuleTransparent pred  */
 #define SWIEnvPredFlag ((pred_flags_t)0x00000002) /* new SWI interface */
@@ -563,9 +551,11 @@ typedef uint64_t pred_flags_t;
 #define SystemPredFlags                                                        \
   (AsmPredFlag | StandardPredFlag | CPredFlag | BinaryPredFlag | BackCPredFlag)
 #define ForeignPredFlags                                                       \
-  (AsmPredFlag | SWIEnvPredFlag | CPredFlag | BinaryPredFlag | UDIPredFlag  | CArgsPredFlag | UserCPredFlag|SafePredFlag|BackCPredFlag)
+  (AsmPredFlag | SWIEnvPredFlag | CPredFlag | BinaryPredFlag | UDIPredFlag |   \
+   CArgsPredFlag | UserCPredFlag | SafePredFlag | BackCPredFlag)
 
-#define StatePredFlags (InUsePredFlag|CountPredFlag|SpiedPredFlag|IndexedPredFlag )
+#define StatePredFlags                                                         \
+  (InUsePredFlag | CountPredFlag | SpiedPredFlag | IndexedPredFlag)
 #define is_system(pe) (pe->PredFlags & SystemPredFlags)
 #define is_dynamic(pe) (pe->PredFlags & DynamicPredFlag)
 #define is_foreign(pe) (pe->PredFlags & ForeignPredFlags)
@@ -696,15 +686,20 @@ typedef enum {
 } dbentry_flags;
 
 /* predicate initialization */
-void Yap_InitCPred(const char *name, arity_t arity, CPredicate f, pred_flags_t flags);
-void Yap_InitAsmPred(const char *name, arity_t arity, int code, CPredicate asmc, pred_flags_t flags);
-void Yap_InitCmpPred(const char *name, arity_t arity, CmpPredicate cmp, pred_flags_t flags);
-void Yap_InitCPredBack(const char *name, arity_t arity, arity_t extra, CPredicate call,
-                       CPredicate retry, pred_flags_t flags);
-void Yap_InitCPredBackCut(const char *name, arity_t arity, arity_t extra, CPredicate call,
-                          CPredicate retry, CPredicate cut, pred_flags_t flags);
-void Yap_InitCPredBack_(const char *name, arity_t arity, arity_t extra, CPredicate call,
-                        CPredicate retry, CPredicate cut, pred_flags_t flags);
+void Yap_InitCPred(const char *name, arity_t arity, CPredicate f,
+                   pred_flags_t flags);
+void Yap_InitAsmPred(const char *name, arity_t arity, int code, CPredicate asmc,
+                     pred_flags_t flags);
+void Yap_InitCmpPred(const char *name, arity_t arity, CmpPredicate cmp,
+                     pred_flags_t flags);
+void Yap_InitCPredBack(const char *name, arity_t arity, arity_t extra,
+                       CPredicate call, CPredicate retry, pred_flags_t flags);
+void Yap_InitCPredBackCut(const char *name, arity_t arity, arity_t extra,
+                          CPredicate call, CPredicate retry, CPredicate cut,
+                          pred_flags_t flags);
+void Yap_InitCPredBack_(const char *name, arity_t arity, arity_t extra,
+                        CPredicate call, CPredicate retry, CPredicate cut,
+                        pred_flags_t flags);
 
 /* *********************** DBrefs **************************************/
 
@@ -1615,7 +1610,8 @@ INLINE_ONLY inline EXTERN const char *AtomName(Atom at) {
 INLINE_ONLY inline EXTERN const char *AtomTermName(Term t);
 
 /**
- * AtomTermName(Term t): get a string with the name of a term storing an Atom. Assumes 8
+ * AtomTermName(Term t): get a string with the name of a term storing an Atom.
+ *Assumes 8
  *bit representation.
  *
  * @param t the atom term
@@ -1627,5 +1623,23 @@ INLINE_ONLY inline EXTERN const char *AtomTermName(Term t);
 INLINE_ONLY inline EXTERN const char *AtomTermName(Term t) {
   return RepAtom(AtomOfTerm(t))->rep.uStrOfAE;
 }
+
+bool Yap_ResetException(int wid);
+bool Yap_HasException(void);
+Term Yap_GetException(void);
+Term Yap_PeekException(void);
+bool Yap_PutException(Term t);
+INLINE_ONLY inline EXTERN bool Yap_HasException(void) {
+  return LOCAL_BallTerm != NULL;
+}
+INLINE_ONLY inline EXTERN DBTerm *Yap_RefToException(void) {
+  DBTerm *dbt = LOCAL_BallTerm;
+  LOCAL_BallTerm = NULL;
+  return dbt;
+}
+INLINE_ONLY inline EXTERN void Yap_CopyException(DBTerm *dbt) {
+  LOCAL_BallTerm = dbt;
+}
+bool Yap_RaiseException(void);
 
 #endif

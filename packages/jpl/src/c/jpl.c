@@ -1831,7 +1831,7 @@ jni_create_jvm_c(
     JNIEnv		*env;
 
     JPL_DEBUG(1, Sdprintf( "[creating JVM with 'java.class.path=%s']\n", classpath));
-    vm_args.version = JNI_VERSION_1_2;	    /* "Java 1.2 please" */
+    vm_args.version = JNI_VERSION_1_6;	    /* "Java 1.2 please" */
     if ( classpath )
 		{
 		cpoptp = (char *)malloc(strlen(classpath)+20);

@@ -249,7 +249,7 @@ typedef struct _bddfileheader {
 typedef struct _namedvars {
   int varcnt;
   int varstart;
-  const char ** vars;
+  char ** vars;
   int *loaded;
   double *dvalue;
   int *ivalue;
