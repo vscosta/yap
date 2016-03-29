@@ -67,7 +67,8 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS) {
           if (ch < 0) {
               ch = '\n';
               pt[-1] = '\n';
-         } else
+         }
+        } else {
             pt += get_utf8(pt, 4, &ch);
             if (pt + 4 == buf + buf_sz)
             break;
@@ -129,6 +130,7 @@ static Int read_line_to_string(USES_REGS1) {
   unsigned char *buf;
   size_t sz;
   StreamDesc *st = GLOBAL_Stream + sno;
+  int ch;
 
   if (sno < 0)
     return false;
@@ -140,9 +142,7 @@ static Int read_line_to_string(USES_REGS1) {
   max_inp = (ASP - HR) / 2 - 1024;
   buf = (unsigned char *)TR;
   buf_sz = (unsigned char *)LOCAL_TrailTop - buf;
-  while (true) {
-    size_t sz;
-
+ 
     if (buf_sz > max_inp) {
       buf_sz = max_inp;
     }
@@ -150,25 +150,23 @@ static Int read_line_to_string(USES_REGS1) {
       char *b = (char *)TR;
       sz = fread(b, 1, buf_sz, GLOBAL_Stream[sno].file);
     } else {
-      int ch;
       unsigned char *pt = buf;
       do {
-        ch = st->stream_wgetc_for_read(sno);
+         ch = st->stream_wgetc_for_read(sno);
         if (ch < 127) {
-        if (ch < 0) {
-              ch = '\n';
-              pt[-1] = '\n';
-         } else
-           *pt++ = ch;
+          *pt++ = ch;
+          if (ch < 0) {
+            ch = '\n';
+            pt[-1] = '\n';
+          }
         } else {
-          pt += put_utf8(pt, ch);
+          pt += get_utf8(pt, 4, &ch);
+          if (pt + 4 == buf + buf_sz)
+            break;
         }
-        if (pt + 4 == buf + buf_sz)
-          break;
       } while (ch != '\n');
       sz = pt - buf;
     }
-  }
   if (sz == -1 || sz == 0) {
     if (GLOBAL_Stream[sno].status & Eof_Stream_f) {
       UNLOCK(GLOBAL_Stream[sno].streamlock);
