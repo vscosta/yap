@@ -59,7 +59,7 @@ YAP always tries to find saved states from the current directory
 first. If it cannot it will use the environment variable [YAPLIBDIR](@ref YAPLIBDIR), if
 defined, or search the default library directory.
 
-@{ 
+@{
 */
 
 /** @pred save_program(+ _F_)
@@ -123,7 +123,7 @@ save_program(_File, Goal) :-
 save_program(File, _Goal) :-
         qsave_program(File).
 
-/** @pred qsave_program
+/** @pred qend_program
 
   Saves an image of the current state of the YAP database in default
   filee, usually `startup.yss`.
@@ -242,7 +242,6 @@ qend_program :-
     X \= encoding.
 
 '$init_state' :-
-	once('$handle_throw'(_,_,_)),
 	(
 	    recorded('$program_state', _P, R)
 	 ->
