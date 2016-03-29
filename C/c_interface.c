@@ -25,12 +25,12 @@
 
 #define C_INTERFACE_C 1
 
-#include <stdlib.h>
+
 #include "Yap.h"
+#include "attvar.h"
 #include "clause.h"
 #include "yapio.h"
-#include "Foreign.h"
-#include "attvar.h"
+#include <stdlib.h>
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -53,8 +53,8 @@
 #ifdef YAPOR
 #include "or.macros.h"
 #endif /* YAPOR */
-#include "threads.h"
 #include "cut_c.h"
+#include "threads.h"
 #if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
@@ -62,11 +62,11 @@
 typedef void *atom_t;
 typedef void *functor_t;
 
-    typedef enum {
-      FRG_FIRST_CALL = 0, /* Initial call */
-      FRG_CUTTED = 1,     /* Context was cutted */
-      FRG_REDO = 2        /* Normal redo */
-    } frg_code;
+typedef enum {
+  FRG_FIRST_CALL = 0, /* Initial call */
+  FRG_CUTTED = 1,     /* Context was cutted */
+  FRG_REDO = 2        /* Normal redo */
+} frg_code;
 
 struct foreign_context {
   uintptr_t context;            /* context value */
@@ -987,7 +987,7 @@ static uintptr_t execute_cargs_back(PredEntry *pe, CPredicate exec_code,
 static uintptr_t complete_fail(choiceptr ptr, int has_cp USES_REGS) {
   // this case is easy, jut be sure to throw everything
   // after the old B;
-  while (B != ptr) {
+  while (B && B->cp_b && B->cp_b <= ptr) {
     B = B->cp_b;
   }
   if (has_cp)
@@ -1066,16 +1066,9 @@ Int YAP_Execute(PredEntry *pe, CPredicate exec_code) {
     complete_fail(((choiceptr)(LCL0 - OASP)), FALSE PASS_REGS);
   // CurrentModule = omod;
   if (!ret) {
-    Term t;
-
-    LOCAL_BallTerm = EX;
-    EX = NULL;
-    if ((t = Yap_GetException())) {
-      Yap_JumpToEnv(t);
-      return FALSE;
+      Yap_RaiseException();
     }
-  }
-  return ret;
+   return ret;
 }
 
 #define FRG_REDO_MASK 0x00000003L
@@ -1107,15 +1100,8 @@ Int YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code) {
     Yap_CloseSlots(CurSlot);
     PP = NULL;
     if (val == 0) {
-      Term t;
-
-      LOCAL_BallTerm = EX;
-      EX = NULL;
-      if ((t = Yap_GetException())) {
-        cut_c_pop();
-        B = B->cp_b;
-        Yap_JumpToEnv(t);
-        return FALSE;
+      if (Yap_RaiseException()) {
+        return false;
       }
       return complete_fail(((choiceptr)(LCL0 - ocp)), TRUE PASS_REGS);
     } else if (val == 1) { /* TRUE */
@@ -1132,15 +1118,8 @@ Int YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code) {
     Int ret = (exec_code)(PASS_REGS1);
     Yap_CloseSlots(CurSlot);
     if (!ret) {
-      Term t;
-
-      LOCAL_BallTerm = EX;
-      EX = NULL;
-      if ((t = Yap_GetException())) {
-        Yap_JumpToEnv(t);
-        return FALSE;
-      }
-    }
+      Yap_RaiseException();
+     }
     return ret;
   }
 }
@@ -1148,13 +1127,16 @@ Int YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code) {
 Int YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code,
                      struct cut_c_str *top) {
   CACHE_REGS
-  choiceptr oB = B;
+  Int oB = LCL0-(CELL*)B;
   Int val;
   /* for slots to work */
   yhandle_t CurSlot = Yap_StartSlots();
   /* find out where we belong */
-  while (B->cp_b < (choiceptr)top)
+  while (B < (choiceptr)top) {
+    oB = LCL0 - (CELL *)B;
     B = B->cp_b;
+
+  }
   PP = pe;
   if (pe->PredFlags & (SWIEnvPredFlag | CArgsPredFlag)) {
     // SWI Emulation
@@ -1163,7 +1145,7 @@ Int YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code,
         (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE, 1));
     CELL *args = B->cp_args;
 
-    B = oB;
+    B = (choiceptr)(LCL0 - oB);
     ctx->control = FRG_CUTTED;
     ctx->engine = NULL; //(PL_local_data *)Yap_regp;
     if (pe->PredFlags & CArgsPredFlag) {
@@ -1172,27 +1154,22 @@ Int YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code,
       val = codev(Yap_InitSlots(pe->ArityOfPE, args), 0, ctx);
     }
   } else {
+    Int oYENV = LCL0 - YENV;
+    yamop *oP = P, *oCP = CP;
     // YAP Native
+    B = (choiceptr)(LCL0 - oB);
     val = exec_code(PASS_REGS1);
-    B = oB;
+    YENV = LCL0 - oYENV;
+    P = oP;
+    CP = oCP;
   }
   Yap_CloseSlots(CurSlot);
-
   PP = NULL;
   //    B = LCL0-(CELL*)oB;
-  if (val == 0) {
-    Term t;
-
-    LOCAL_BallTerm = EX;
-    EX = NULL;
-    if ((t = Yap_GetException())) {
-      cut_c_pop();
-      Yap_JumpToEnv(t);
-      return FALSE;
-    }
-    return FALSE;
+  if (false && Yap_RaiseException()) {
+    return false;
   } else { /* TRUE */
-    return TRUE;
+    return true;
   }
 }
 
@@ -1220,14 +1197,7 @@ Int YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code) {
     /* make sure we clean up the frames left by the user */
     PP = NULL;
     if (val == 0) {
-      Term t;
-
-      LOCAL_BallTerm = EX;
-      EX = NULL;
-      if ((t = Yap_GetException())) {
-        cut_c_pop();
-        B = B->cp_b;
-        Yap_JumpToEnv(t);
+      if (Yap_RaiseException()) {
         return FALSE;
       } else {
         return complete_fail(((choiceptr)(LCL0 - ocp)), TRUE PASS_REGS);
@@ -1246,15 +1216,8 @@ Int YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code) {
     Int ret = (exec_code)(PASS_REGS1);
     Yap_CloseSlots(CurSlot);
     if (!ret) {
-      Term t;
-
-      LOCAL_BallTerm = EX;
-      EX = NULL;
-      if ((t = Yap_GetException())) {
-        Yap_JumpToEnv(t);
-        return FALSE;
-      }
-    }
+        Yap_RaiseException();
+   }
     return ret;
   }
 }
@@ -1292,6 +1255,7 @@ X_API void *YAP_ReallocSpaceFromYap(void *ptr, size_t size) {
   RECOVER_MACHINE_REGS();
   return new_ptr;
 }
+
 X_API void *YAP_AllocSpaceFromYap(size_t size) {
   CACHE_REGS
   void *ptr;
@@ -1531,8 +1495,8 @@ X_API Term YAP_NWideBufferToAtomList(const wchar_t *s, size_t len) {
 }
 
 /* copy a string of size len to a buffer */
-X_API Term
-YAP_NWideBufferToAtomDiffList(const wchar_t *s, Term t0, size_t len) {
+X_API Term YAP_NWideBufferToAtomDiffList(const wchar_t *s, Term t0,
+                                         size_t len) {
   Term t;
   BACKUP_H();
 
@@ -1802,16 +1766,11 @@ X_API Int YAP_RunGoal(Term t) {
 
   LOCAL_AllowRestart = FALSE;
   LOCAL_PrologMode = UserMode;
-  out = Yap_RunTopGoal(t);
+  out = Yap_RunTopGoal(t, true);
   LOCAL_PrologMode = UserCCallMode;
   // should we catch the exception or pass it through?
   // We'll pass it through
-  if (EX) {
-    Term ball = Yap_PopTermFromDB(EX);
-    EX = NULL;
-    Yap_JumpToEnv(ball);
-    return FALSE;
-  }
+  Yap_RaiseException();
   if (out) {
     P = (yamop *)ENV[E_CP];
     ENV = (CELL *)ENV[E_E];
@@ -1896,7 +1855,7 @@ X_API Int YAP_RunGoalOnce(Term t) {
   CSlot = Yap_StartSlots();
   LOCAL_PrologMode = UserMode;
   //  Yap_heap_regs->yap_do_low_level_trace=true;
-  out = Yap_RunTopGoal(t);
+  out = Yap_RunTopGoal(t, true);
   LOCAL_PrologMode = oldPrologMode;
   Yap_CloseSlots(CSlot);
   if (!(oldPrologMode & UserCCallMode)) {
@@ -1907,12 +1866,7 @@ X_API Int YAP_RunGoalOnce(Term t) {
   }
   // should we catch the exception or pass it through?
   // We'll pass it through
-  if (EX) {
-    Term ball = Yap_PopTermFromDB(EX);
-    EX = NULL;
-    Yap_JumpToEnv(ball);
-    return FALSE;
-  }
+  Yap_RaiseException();
   if (out) {
     choiceptr cut_pt, ob;
 
@@ -2044,47 +1998,16 @@ X_API void YAP_PruneGoal(YAP_dogoalinfo *gi) {
 
 X_API bool YAP_GoalHasException(Term *t) {
   CACHE_REGS
-  int out = FALSE;
   BACKUP_MACHINE_REGS();
-  if (EX) {
-    do {
-      LOCAL_Error_TYPE = YAP_NO_ERROR;
-      *t = Yap_FetchTermFromDB(EX);
-      if (LOCAL_Error_TYPE == YAP_NO_ERROR) {
-        RECOVER_MACHINE_REGS();
-        return TRUE;
-      } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
-        LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_growglobal(NULL)) {
-          Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
-                    LOCAL_ErrorMessage);
-          RECOVER_MACHINE_REGS();
-          return FALSE;
-        }
-      } else {
-        LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_growstack(EX->NOfCells * CellSize)) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-          RECOVER_MACHINE_REGS();
-          return FALSE;
-        }
-      }
-    } while (*t == (CELL)0);
-    out = TRUE;
-  }
-  RECOVER_MACHINE_REGS();
-  return out;
-}
+  if (t)
+  *t = Yap_PeekException();
+  return Yap_PeekException();
+ }
 
 X_API void YAP_ClearExceptions(void) {
   CACHE_REGS
 
-  if (EX) {
-    LOCAL_BallTerm = EX;
-  }
-  EX = NULL;
-  Yap_ResetExceptionTerm(0);
-  LOCAL_UncaughtThrow = FALSE;
+  Yap_ResetException(worker_id);
 }
 
 X_API int YAP_InitConsult(int mode, const char *filename, int *osnop) {
@@ -2101,11 +2024,11 @@ X_API int YAP_InitConsult(int mode, const char *filename, int *osnop) {
   const char *full = Yap_AbsoluteFile(filename, true);
   if (!full)
     return -1;
-  f = fopen( full, "r");
+  f = fopen(full, "r");
   if (!f)
     return -1;
   else
-    free( (char *)full );
+    free((char *)full);
   sno = Yap_OpenStream(f, NULL, TermNil, Input_Stream_f);
   *osnop = Yap_CheckAlias(AtomLoopStream);
   if (!Yap_AddAlias(AtomLoopStream, sno)) {
@@ -2153,7 +2076,6 @@ X_API Term YAP_Read(FILE *f) {
   RECOVER_MACHINE_REGS();
   return o;
 }
-
 
 X_API Term YAP_ReadFromStream(int sno) {
   Term o;
@@ -2283,7 +2205,7 @@ static void do_bootfile(char *bootfilename USES_REGS) {
     YAP_Reset(YAP_FULL_RESET);
     Yap_StartSlots();
     t = YAP_ReadClauseFromStream(bootfile);
-    // Yap_DebugPlWrite(t);fprintf(stderr, "\n");
+    //Yap_DebugPlWriteln(t);
     if (t == 0) {
       fprintf(stderr,
               "[ SYNTAX ERROR: while parsing bootfile %s at line %d ]\n",
@@ -2349,7 +2271,7 @@ Int YAP_Init(YAP_init_args *yap_init) {
   int restore_result;
   int do_bootstrap = (yap_init->YapPrologBootFile != NULL);
   CELL Trail = 0, Stack = 0, Heap = 0, Atts = 0;
-  char boot_file[YAP_FILENAME_MAX+1];
+  char boot_file[YAP_FILENAME_MAX + 1];
   static int initialized = FALSE;
 
   /* ignore repeated calls to YAP_Init */
@@ -2368,7 +2290,8 @@ Int YAP_Init(YAP_init_args *yap_init) {
   GLOBAL_argc = yap_init->Argc;
 #if BOOT_FROM_SAVED_STATE
   if (!yap_init->SavedState) {
-    yap_init->SavedState = Yap_locateFile(YAP_STARTUP, boot_file, sizeof(boot_file)-1);
+    yap_init->SavedState =
+        Yap_locateFile(YAP_STARTUP, boot_file, sizeof(boot_file) - 1);
   }
 
 #else
@@ -2717,24 +2640,30 @@ X_API void YAP_PredicateInfo(void *p, Atom *a, UInt *arity, Term *m) {
     *m = TermProlog;
 }
 
-X_API void YAP_UserCPredicate(const char *name, CPredicate def, UInt arity) {
+X_API void YAP_UserCPredicate(const char *name, CPredicate def, arity_t arity) {
   Yap_InitCPred(name, arity, def, UserCPredFlag);
 }
 
-X_API void YAP_UserBackCPredicate(const char *name, CPredicate init,
-                                  CPredicate cont, UInt arity,
-                                  unsigned int extra) {
+X_API void YAP_UserBackCPredicate_(const char *name, CPredicate init,
+                                   CPredicate cont, arity_t arity,
+                                   arity_t extra) {
   Yap_InitCPredBackCut(name, arity, extra, init, cont, NULL, UserCPredFlag);
 }
 
 X_API void YAP_UserBackCutCPredicate(const char *name, CPredicate init,
                                      CPredicate cont, CPredicate cut,
-                                     UInt arity, unsigned int extra) {
+                                     arity_t arity, arity_t extra) {
   Yap_InitCPredBackCut(name, arity, extra, init, cont, cut, UserCPredFlag);
 }
 
-X_API void YAP_UserCPredicateWithArgs(const char *a, CPredicate f, UInt arity,
-                                      Term mod) {
+X_API void YAP_UserBackCPredicate(const char *name, CPredicate init,
+                                  CPredicate cont, arity_t arity,
+                                  arity_t extra) {
+  Yap_InitCPredBackCut(name, arity, extra, init, cont, NULL, UserCPredFlag);
+}
+
+X_API void YAP_UserCPredicateWithArgs(const char *a, CPredicate f,
+                                      arity_t arity, Term mod) {
   CACHE_REGS
   PredEntry *pe;
   Term cm = CurrentModule;
@@ -3398,11 +3327,11 @@ X_API int YAP_RequiresExtraStack(size_t sz) {
   return TRUE;
 }
 
- atom_t *TR_Atoms;
- functor_t *TR_Functors;
- size_t AtomTranslations, MaxAtomTranslations;
- size_t FunctorTranslations, MaxFunctorTranslations;
- 
+atom_t *TR_Atoms;
+functor_t *TR_Functors;
+size_t AtomTranslations, MaxAtomTranslations;
+size_t FunctorTranslations, MaxFunctorTranslations;
+
 X_API Int YAP_AtomToInt(Atom At) {
   TranslationEntry *te = Yap_GetTranslationProp(At, 0);
   if (te != NIL)
@@ -3438,9 +3367,9 @@ X_API Int YAP_FunctorToInt(Functor f) {
   Yap_PutAtomTranslation(At, arity, FunctorTranslations);
   FunctorTranslations++;
   if (FunctorTranslations == MaxFunctorTranslations) {
-   functor_t *nt =
-                (functor_t *)malloc(sizeof(functor_t) * 2 * MaxFunctorTranslations),
-            *ot = TR_Functors;
+    functor_t *nt = (functor_t *)malloc(sizeof(functor_t) * 2 *
+                                        MaxFunctorTranslations),
+              *ot = TR_Functors;
     if (nt == NULL) {
       Yap_Error(SYSTEM_ERROR_INTERNAL, MkAtomTerm(At),
                 "No more room for translations");

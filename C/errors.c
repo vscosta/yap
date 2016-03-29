@@ -262,7 +262,19 @@ static void error_exit_yap(int value) {
 #endif
   }
   fprintf(stderr, "\n   Exiting ....\n");
-  Yap_exit(value);
+#if HAVE_BACKTRACE
+      void *callstack[256];
+      int i;
+      int frames = backtrace(callstack, 256);
+      char** strs = backtrace_symbols(callstack, frames);
+      fprintf(stderr, "Execution stack:\n");
+      for (i = 0; i < frames; ++i) {
+      fprintf(stderr, "       %s\n", strs[i]);
+
+      }
+      free(strs);
+#endif
+   Yap_exit(value);
 }
 
 /* This needs to be a static because I can't trust the stack (WIN32), and
@@ -370,7 +382,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   CELL nt[3];
   Functor fun;
   bool serious;
-  Term tf, error_t, comment, culprit = TermNil;
+  Term tf, error_t, comment;
   char *format;
   char s[MAXPATHLEN];
 
@@ -470,8 +482,8 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
       IsApplTerm(where) &&
       FunctorOfTerm(where) == FunctorError) {
     error_t = where;
-    Yap_JumpToEnv(error_t);
     P = (yamop *)FAILCODE;
+    Yap_JumpToEnv(error_t);
     LOCAL_PrologMode &= ~InErrorMode;
     return P;
   }
@@ -596,25 +608,14 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
     LOCAL_Signals = 0;
     CalculateStackGap(PASS_REGS1);
     LOCAL_PrologMode &= ~InErrorMode;
-    /* we might be in the middle of a critical region */
-    if (LOCAL_InterruptsDisabled) {
-      LOCAL_InterruptsDisabled = 0;
-      LOCAL_UncaughtThrow = TRUE;
-      Yap_RestartYap(1);
-    }
 #if DEBUG
 //    DumpActiveGoals( PASS_REGS1 );
 #endif
     /* wait if we we are in user code,
      it's up to her to decide */
     fun = FunctorError;
-    if (LOCAL_PrologMode & UserCCallMode) {
-      error_t = Yap_MkApplTerm(fun, 2, nt);
-      if (!(EX = Yap_StoreTermInDB(error_t, 2))) {
-        /* fat chance */
-        Yap_RestartYap(1);
-      }
-    } else {
+  error_t = Yap_MkApplTerm(fun, 2, nt);
+ 
       if (type == ABORT_EVENT) {
         error_t = MkAtomTerm(AtomDAbort);
       } else {
@@ -622,7 +623,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
       }
       Yap_JumpToEnv(error_t);
       P = (yamop *)FAILCODE;
-    }
+  
 
     LOCAL_PrologMode &= ~InErrorMode;
     return P;

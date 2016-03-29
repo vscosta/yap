@@ -413,8 +413,6 @@ save_regs(int mode USES_REGS)
       return -1;
     if (putout(EventFlag) < 0)
       return -1;
-    if (putcellptr((CELL *)EX) < 0)
-      return -1;
 #if defined(YAPOR_SBA) || defined(TABLING)
     if (putcellptr(H_FZ) < 0)
       return -1;
@@ -859,9 +857,6 @@ get_regs(int flag USES_REGS)
     EventFlag = get_cell();
     if (LOCAL_ErrorMessage)
       return -1;
-    EX = (struct DB_TERM *)get_cellptr();
-    if (LOCAL_ErrorMessage)
-      return -1;
 #if defined(YAPOR_SBA) || defined(TABLING)
     H_FZ = get_cellptr();
     if (LOCAL_ErrorMessage)
@@ -1067,10 +1062,6 @@ restore_regs(int flag USES_REGS)
     HB = PtoLocAdjust(HB);
     YENV = PtoLocAdjust(YENV);
     S = PtoGloAdjust(S);
-    if (EX) {
-      EX = DBTermAdjust(EX);
-      RestoreDBTerm(EX, false, TRUE PASS_REGS);
-    }
     LOCAL_WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(LOCAL_WokenGoals)));
   }
 }
@@ -1201,12 +1192,6 @@ rehash(CELL *oldcode, int NOfE, int KindOfEntries USES_REGS)
     hentry[0] = WorkTerm;
     hentry[1] = savep[i*2+1];
   }
-}
-
-static void
-RestoreSWIHash(void)
-{
-  // Yap_InitSWIHash();
 }
 
 

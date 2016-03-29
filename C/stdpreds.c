@@ -1415,8 +1415,9 @@ static Int p_break(USES_REGS1) {
   return FALSE;
 }
 
+
 void Yap_InitBackCPreds(void) {
-  Yap_InitCPredBack("$current_predicate", 4, 1, current_predicate,
+   Yap_InitCPredBack("$current_predicate", 4, 1, current_predicate,
                     cont_current_predicate, SafePredFlag | SyncPredFlag);
   Yap_InitCPredBack("$current_op", 5, 1, init_current_op, cont_current_op,
                     SafePredFlag | SyncPredFlag);

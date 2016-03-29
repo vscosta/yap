@@ -6440,7 +6440,8 @@
 #endif /* YAPOR */
 	CACHE_Y(YREG);
 	/* Alocate space for the cut_c structure*/
-	CUT_C_PUSH(NEXTOP(NEXTOP(PREG,OtapFs),OtapFs),S_YREG);
+
+  (NEXTOP(NEXTOP(PREG,OtapFs),OtapFs),S_YREG);
 	S_YREG = S_YREG - PREG->y_u.OtapFs.extra;
 	store_args(PREG->y_u.OtapFs.s);
 	store_yaam_regs(NEXTOP(PREG, OtapFs), 0);

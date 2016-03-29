@@ -19,12 +19,12 @@
 
 #ifdef LOW_LEVEL_TRACER
 
-#include "Yatom.h"
 #include "YapHeap.h"
+#include "Yatom.h"
 #include "attvar.h"
-#include "yapio.h"
 #include "clause.h"
 #include "tracer.h"
+#include "yapio.h"
 
 static void send_tracer_message(char *start, char *name, Int arity, char *mname,
                                 CELL *args) {
@@ -137,8 +137,8 @@ check_area(void)
 }
 */
 
-//PredEntry *old_p[10000];
-//Term old_x1[10000], old_x2[10000], old_x3[10000];
+// PredEntry *old_p[10000];
+// Term old_x1[10000], old_x2[10000], old_x3[10000];
 
 // static CELL oldv;
 
@@ -321,6 +321,7 @@ void low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args) {
   }
 #endif
   fprintf(stderr, "%lld %ld ", vsc_count, LCL0 - (CELL *)B);
+  fprintf(stderr, "%ld ", LCL0 - (CELL *)Yap_REGS.CUT_C_TOP);
 #if defined(THREADS) || defined(YAPOR)
   fprintf(stderr, "(%d)", worker_id);
 #endif
@@ -331,12 +332,12 @@ void low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args) {
   }
   if (pred->ModuleOfPred == PROLOG_MODULE) {
     if (!LOCAL_do_trace_primitives) {
-        UNLOCK(Yap_low_level_trace_lock);   
-        return;
+      UNLOCK(Yap_low_level_trace_lock);
+      return;
     }
     mname = "prolog";
   } else {
-    mname = RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;    
+    mname = RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
   }
   switch (port) {
   case enter_pred:

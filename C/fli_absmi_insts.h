@@ -2,7 +2,6 @@
  *    Call C predicates instructions                                   *
 \************************************************************************/
 
-
 #ifdef INDENT_CODE
 {
   {
@@ -11,43 +10,48 @@
 
       BOp(call_cpred, Osbpp);
 #if __ANDROID__ && STRONG_DEBUG
-      char *s; Atom name;
+      char *s;
+      Atom name;
       if (PREG->y_u.Osbpp.p->ArityOfPE) {
-	Functor f = PREG->y_u.Osbpp.p->FunctorOfPred;
-	name = f->NameOfFE;
+        Functor f = PREG->y_u.Osbpp.p->FunctorOfPred;
+        name = f->NameOfFE;
       } else {
-	 name = (Atom)(PREG->y_u.Osbpp.p->FunctorOfPred);
+        name = (Atom)(PREG->y_u.Osbpp.p->FunctorOfPred);
       }
       s = name->StrOfAE;
 
-      LOG( " %s ", s);
+      LOG(" %s ", s);
 #endif
       check_trail(TR);
-      if (!(PREG->y_u.Osbpp.p->PredFlags & (SafePredFlag|NoTracePredFlag|HiddenPredFlag))) {
+      if (!(PREG->y_u.Osbpp.p->PredFlags &
+            (SafePredFlag | NoTracePredFlag | HiddenPredFlag))) {
         CACHE_Y_AS_ENV(YREG);
         check_stack(NoStackCCall, HR);
         ENDCACHE_Y_AS_ENV();
       }
-    do_c_call:
+    do_c_call :
 #ifdef FROZEN_STACKS
-      {
-        choiceptr top_b = PROTECT_FROZEN_B(B);
+    {
+      choiceptr top_b = PROTECT_FROZEN_B(B);
 
 #ifdef YAPOR_SBA
-        if (YREG > (CELL *) top_b || YREG < HR) ASP = (CELL *)top_b;
+      if (YREG > (CELL *)top_b || YREG < HR)
+        ASP = (CELL *)top_b;
 #else
-        if (YREG > (CELL *) top_b) ASP = (CELL *)top_b;
+      if (YREG > (CELL *)top_b)
+        ASP = (CELL *)top_b;
 #endif /* YAPOR_SBA */
-        else ASP = (CELL *)(((char *)YREG) +  PREG->y_u.Osbpp.s);
-      }
+      else
+        ASP = (CELL *)(((char *)YREG) + PREG->y_u.Osbpp.s);
+    }
 #else
       SET_ASP(YREG, PREG->y_u.Osbpp.s);
-      /* for slots to work */
+/* for slots to work */
 #endif /* FROZEN_STACKS */
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
-        low_level_trace(enter_pred,PREG->y_u.Osbpp.p,XREGS+1);
-#endif  /* LOW_LEVEL_TRACE */
+        low_level_trace(enter_pred, PREG->y_u.Osbpp.p, XREGS + 1);
+#endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
       CPredicate f = PREG->y_u.Osbpp.p->cs.f_code;
       PREG = NEXTOP(PREG, Osbpp);
@@ -79,29 +83,32 @@
         CACHE_Y_AS_ENV(YREG);
 #ifndef NO_CHECKING
         check_stack(NoStackExecuteC, HR);
-      do_executec:
+      do_executec :
 #endif
 #ifdef FROZEN_STACKS
-        {
-          choiceptr top_b = PROTECT_FROZEN_B(B);
+      {
+        choiceptr top_b = PROTECT_FROZEN_B(B);
 
 #ifdef YAPOR_SBA
-          if (YREG > (CELL *) top_b || YREG < HR) ASP = (CELL *)top_b;
+        if (YREG > (CELL *)top_b || YREG < HR)
+          ASP = (CELL *)top_b;
 #else
-          if (YREG > (CELL *) top_b) ASP = (CELL *)top_b;
+        if (YREG > (CELL *)top_b)
+          ASP = (CELL *)top_b;
 #endif /* YAPOR_SBA */
-          else ASP = YREG+E_CB;
-        }
+        else
+          ASP = YREG + E_CB;
+      }
 #else
-        SET_ASP(YREG, E_CB*sizeof(CELL));
-        /* for slots to work */
+        SET_ASP(YREG, E_CB * sizeof(CELL));
+/* for slots to work */
 #endif /* FROZEN_STACKS */
         pt0 = PREG->y_u.pp.p;
 #ifdef LOW_LEVEL_TRACER
         if (Yap_do_low_level_trace) {
-          low_level_trace(enter_pred,pt0,XREGS+1);
+          low_level_trace(enter_pred, pt0, XREGS + 1);
         }
-#endif  /* LOW_LEVEL_TRACE */
+#endif /* LOW_LEVEL_TRACE */
         CACHE_A1();
         BEGD(d0);
         d0 = (CELL)B;
@@ -110,18 +117,18 @@
         ENV_YREG[E_CB] = d0;
         ENDD(d0);
 #ifdef DEPTH_LIMIT
-        if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is prolog */
+        if (DEPTH <= MkIntTerm(1)) { /* I assume Module==0 is prolog */
           if (pt0->ModuleOfPred) {
             if (DEPTH == MkIntTerm(0)) {
               FAIL();
-	    } else{
-	      DEPTH = RESET_DEPTH();
-	    }
+            } else {
+              DEPTH = RESET_DEPTH();
+            }
           }
         } else if (pt0->ModuleOfPred) {
           DEPTH -= MkIntConstant(2);
         }
-#endif  /* DEPTH_LIMIT */
+#endif /* DEPTH_LIMIT */
         /* now call C-Code */
         {
           CPredicate f = PREG->y_u.pp.p->cs.f_code;
@@ -169,25 +176,29 @@
     do_user_call:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-        low_level_trace(enter_pred,PREG->y_u.Osbpp.p,XREGS+1);
+        low_level_trace(enter_pred, PREG->y_u.Osbpp.p, XREGS + 1);
       }
-#endif  /* LOW_LEVEL_TRACE */
+#endif /* LOW_LEVEL_TRACE */
 #ifdef FROZEN_STACKS
       {
         choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
-        if (YREG > (CELL *) top_b || YREG < HR) ASP = (CELL *) top_b;
+        if (YREG > (CELL *)top_b || YREG < HR)
+          ASP = (CELL *)top_b;
 #else
-        if (YREG > (CELL *) top_b) ASP = (CELL *) top_b;
+        if (YREG > (CELL *)top_b)
+          ASP = (CELL *)top_b;
 #endif /* YAPOR_SBA */
-        else ASP = (CELL *)(((char *)YREG) +  PREG->y_u.Osbpp.s);
+        else
+          ASP = (CELL *)(((char *)YREG) + PREG->y_u.Osbpp.s);
       }
 #else
       SET_ASP(YREG, PREG->y_u.Osbpp.s);
-      /* for slots to work */
+/* for slots to work */
 #endif /* FROZEN_STACKS */
       {
-        /* make sure that we can still have access to our old PREG after calling user defined goals and backtracking or failing */
+        /* make sure that we can still have access to our old PREG after calling
+         * user defined goals and backtracking or failing */
         yamop *savedP;
 
         LOCAL_PrologMode |= UserCCallMode;
@@ -199,17 +210,15 @@
           saveregs();
           save_machine_regs();
 
-          SREG = (CELL *) YAP_Execute(p, p->cs.f_code);
+          SREG = (CELL *)YAP_Execute(p, p->cs.f_code);
         }
         setregs();
         LOCAL_PrologMode &= ~UserCCallMode;
         restore_machine_regs();
         PREG = savedP;
       }
-      if (EX) {
-        struct DB_TERM *exp = EX;
-        EX = NULL;
-        Yap_JumpToEnv(Yap_PopTermFromDB(exp));
+      if (Yap_HasException()) {
+        Yap_RaiseException();
         SREG = NULL;
       }
       if (!SREG) {
@@ -228,16 +237,18 @@
       BOp(call_c_wfail, slpp);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-        low_level_trace(enter_pred,PREG->y_u.slpp.p,XREGS+1);
+        low_level_trace(enter_pred, PREG->y_u.slpp.p, XREGS + 1);
       }
-#endif  /* LOW_LEVEL_TRACE */
+#endif /* LOW_LEVEL_TRACE */
 #ifdef FROZEN_STACKS
       {
         choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
-        if (YREG > (CELL *) top_b || YREG < HR) ASP = (CELL *) top_b;
+        if (YREG > (CELL *)top_b || YREG < HR)
+          ASP = (CELL *)top_b;
 #else
-        if (YREG > (CELL *) top_b) ASP = (CELL *) top_b;
+        if (YREG > (CELL *)top_b)
+          ASP = (CELL *)top_b;
 #endif /* YAPOR_SBA */
         else {
           BEGD(d0);
@@ -247,12 +258,12 @@
         }
       }
 #else
-      if (YREG > (CELL *) B)
-        ASP = (CELL *) B;
+      if (YREG > (CELL *)B)
+        ASP = (CELL *)B;
       else {
         BEGD(d0);
         d0 = PREG->y_u.slpp.s;
-        ASP = ((CELL *) YREG) + d0;
+        ASP = ((CELL *)YREG) + d0;
         ENDD(d0);
       }
 #endif /* FROZEN_STACKS */
@@ -279,14 +290,14 @@
 #endif /* YAPOR */
       CACHE_Y(YREG);
       /* Alocate space for the cut_c structure*/
-      CUT_C_PUSH(NEXTOP(NEXTOP(PREG,OtapFs),OtapFs),S_YREG);
+      CUT_C_PUSH(NEXTOP(NEXTOP(PREG, OtapFs), OtapFs), S_YREG);
       S_YREG = S_YREG - PREG->y_u.OtapFs.extra;
       store_args(PREG->y_u.OtapFs.s);
-      store_yaam_regs(NEXTOP(PREG, OtapFs), 0);
+      store_yaam_regs(NEXTOP(P, OtapFs), 0);
       B = B_YREG;
 #ifdef YAPOR
       SCH_set_load(B_YREG);
-#endif  /* YAPOR */
+#endif /* YAPOR */
       SET_BB(B_YREG);
       ENDCACHE_Y();
 
@@ -295,9 +306,9 @@
       {
         CPredicate f = (CPredicate)(PREG->y_u.OtapFs.f);
         saveregs();
-        SREG = (CELL *) ((f) (PASS_REGS1));
+        SREG = (CELL *)((f)(PASS_REGS1));
         /* This last instruction changes B B*/
-        while (POP_CHOICE_POINT(B)){
+        while (POP_CHOICE_POINT(B)) {
           cut_c_pop();
         }
         setregs();
@@ -306,11 +317,11 @@
         /* Removes the cut functions from the stack
            without executing them because we have fail
            and not cuted the predicate*/
-        while(POP_CHOICE_POINT(B))
+        while (POP_CHOICE_POINT(B))
           cut_c_pop();
         FAIL();
       }
-      if ((CELL *) B == YREG && ASP != (CELL *) B) {
+      if ((CELL *)B == YREG && ASP != (CELL *)B) {
         /* as Luis says, the predicate that did the try C might
          * have left some data on the stack. We should preserve
          * it, unless the builtin also did cut */
@@ -332,7 +343,7 @@
       ENV = B_YREG->cp_env;
       HR = PROTECT_FROZEN_H(B);
 #ifdef DEPTH_LIMIT
-      DEPTH =B->cp_depth;
+      DEPTH = B->cp_depth;
 #endif
       HBREG = HR;
       restore_args(PREG->y_u.OtapFs.s);
@@ -341,11 +352,12 @@
       ENDBOp();
 
       BOp(cut_c, OtapFs);
-      /*This is a phantom instruction. This is not executed by the WAM*/
+/*This is a phantom instruction. This is not executed by the WAM*/
 #ifdef DEBUG
       /*If WAM executes this instruction, probably there's an error
         when we put this instruction, cut_c, after retry_c*/
-      printf ("ERROR: Should not print this message FILE: absmi.c %d\n",__LINE__);
+      printf("ERROR: Should not print this message FILE: absmi.c %d\n",
+             __LINE__);
 #endif /*DEBUG*/
       ENDBOp();
 
@@ -355,7 +367,7 @@
 #endif /* YAPOR */
       CACHE_Y(YREG);
       /* Alocate space for the cut_c structure*/
-      CUT_C_PUSH(NEXTOP(NEXTOP(PREG,OtapFs),OtapFs),S_YREG);
+      CUT_C_PUSH(NEXTOP(NEXTOP(PREG, OtapFs), OtapFs), S_YREG);
       S_YREG = S_YREG - PREG->y_u.OtapFs.extra;
       store_args(PREG->y_u.OtapFs.s);
       store_yaam_regs(NEXTOP(PREG, OtapFs), 0);
@@ -369,15 +381,16 @@
       ASP = YREG;
       saveregs();
       save_machine_regs();
-      SREG = (CELL *) YAP_ExecuteFirst(PREG->y_u.OtapFs.p, (CPredicate)(PREG->y_u.OtapFs.f));
-      EX = NULL;
+      SREG = (CELL *)YAP_ExecuteFirst(PREG->y_u.OtapFs.p,
+                                      (CPredicate)(PREG->y_u.OtapFs.f));
+      Yap_ResetException( worker_id );
       restore_machine_regs();
       setregs();
       LOCAL_PrologMode &= UserMode;
       if (!SREG) {
         FAIL();
       }
-      if ((CELL *) B == YREG && ASP != (CELL *) B) {
+      if ((CELL *)B == YREG && ASP != (CELL *)B) {
         /* as Luis says, the predicate that did the try C might
          * have left some data on the stack. We should preserve
          * it, unless the builtin also did cut */
@@ -399,18 +412,19 @@
       ENV = B_YREG->cp_env;
       HR = PROTECT_FROZEN_H(B);
 #ifdef DEPTH_LIMIT
-      DEPTH =B->cp_depth;
+      DEPTH = B->cp_depth;
 #endif
       HBREG = HR;
       restore_args(PREG->y_u.OtapFs.s);
       ENDCACHE_Y();
 
       LOCAL_PrologMode |= UserCCallMode;
-      SET_ASP(YREG, E_CB*sizeof(CELL));
+      SET_ASP(YREG, E_CB * sizeof(CELL));
       saveregs();
       save_machine_regs();
-      SREG = (CELL *) YAP_ExecuteNext(PREG->y_u.OtapFs.p, (CPredicate)(PREG->y_u.OtapFs.f));
-      EX = NULL;
+      SREG = (CELL *)YAP_ExecuteNext(PREG->y_u.OtapFs.p,
+                                     (CPredicate)(PREG->y_u.OtapFs.f));
+      Yap_ResetException( worker_id);
       restore_machine_regs();
       setregs();
       LOCAL_PrologMode &= ~UserCCallMode;
@@ -418,11 +432,11 @@
         /* Removes the cut functions from the stack
            without executing them because we have fail
            and not cuted the predicate*/
-        while(POP_CHOICE_POINT(B))
+        while (POP_CHOICE_POINT(B))
           cut_c_pop();
         FAIL();
       }
-      if ((CELL *) B == YREG && ASP != (CELL *) B) {
+      if ((CELL *)B == YREG && ASP != (CELL *)B) {
         /* as Luis says, the predicate that did the try C might
          * have left some data on the stack. We should preserve
          * it, unless the builtin also did cut */
@@ -436,16 +450,16 @@
       ENDBOp();
 
       BOp(cut_userc, OtapFs);
-      /*This is a phantom instruction. This is not executed by the WAM*/
+/*This is a phantom instruction. This is not executed by the WAM*/
 #ifdef DEBUG
       /*If WAM executes this instruction, probably there's an error
         when we put this instruction, cut_userc, after retry_userc*/
-      printf ("ERROR: Should not print this message FILE: absmi.c %d\n",__LINE__);
+      printf("ERROR: Should not print this message FILE: absmi.c %d\n",
+             __LINE__);
 #endif /*DEBUG*/
       CACHE_A1();
       JMPNext();
       ENDBOp();
-
 
       /************************************************************************\
        *    support instructions                                             *
@@ -454,10 +468,10 @@
       BOp(lock_pred, e);
       {
         PredEntry *ap = PredFromDefCode(PREG);
-        PELOCK(10,ap);
+        PELOCK(10, ap);
         PP = ap;
         if (!ap->cs.p_code.NOfClauses) {
-          UNLOCKPE(11,ap);
+          UNLOCKPE(11, ap);
           FAIL();
         }
         /*
@@ -467,10 +481,11 @@
         if (ap->cs.p_code.NOfClauses > 1 &&
             !(ap->PredFlags & IndexedPredFlag)) {
           /* update ASP before calling IPred */
-          SET_ASP(YREG, E_CB*sizeof(CELL));
+          SET_ASP(YREG, E_CB * sizeof(CELL));
           saveregs();
           Yap_IPred(ap, 0, CP);
-          /* IPred can generate errors, it thus must get rid of the lock itself */
+          /* IPred can generate errors, it thus must get rid of the lock itself
+           */
           setregs();
           CACHE_A1();
           /* for profiler */
@@ -490,12 +505,12 @@
           we must take extra care here
         */
         if (!PP) {
-          PELOCK(11,ap);
+          PELOCK(11, ap);
         }
         if (ap->OpcodeOfPred != INDEX_OPCODE) {
           /* someone was here before we were */
           if (!PP) {
-            UNLOCKPE(11,ap);
+            UNLOCKPE(11, ap);
           }
           PREG = ap->CodeOfPred;
           /* for profiler */
@@ -504,7 +519,7 @@
         }
 #endif
         /* update ASP before calling IPred */
-        SET_ASP(YREG, E_CB*sizeof(CELL));
+        SET_ASP(YREG, E_CB * sizeof(CELL));
         saveregs();
         Yap_IPred(ap, 0, CP);
         /* IPred can generate errors, it thus must get rid of the lock itself */
@@ -516,8 +531,7 @@
 #if defined(YAPOR) || defined(THREADS)
         if (!PP)
 #endif
-          UNLOCKPE(14,ap);
-
+          UNLOCKPE(14, ap);
       }
       JMPNext();
       ENDBOp();
@@ -541,15 +555,15 @@
         yamop *pt0;
 
         /* update ASP before calling IPred */
-        SET_ASP(YREG, E_CB*sizeof(CELL));
+        SET_ASP(YREG, E_CB * sizeof(CELL));
 #if defined(YAPOR) || defined(THREADS)
         if (!PP) {
-          PELOCK(12,pe);
+          PELOCK(12, pe);
         }
         if (!same_lu_block(PREG_ADDR, PREG)) {
           PREG = *PREG_ADDR;
           if (!PP) {
-            UNLOCKPE(15,pe);
+            UNLOCKPE(15, pe);
           }
           JMPNext();
         }
@@ -567,7 +581,7 @@
         PREG = pt0;
 #if defined(YAPOR) || defined(THREADS)
         if (!PP) {
-          UNLOCKPE(12,pe);
+          UNLOCKPE(12, pe);
         }
 #endif
         JMPNext();
@@ -580,37 +594,37 @@
         yamop *pt0;
 
         /* update ASP before calling IPred */
-        SET_ASP(YREG, E_CB*sizeof(CELL));
+        SET_ASP(YREG, E_CB * sizeof(CELL));
 #if defined(YAPOR) || defined(THREADS)
         if (PP == NULL) {
-          PELOCK(13,pe);
+          PELOCK(13, pe);
         }
         if (!same_lu_block(PREG_ADDR, PREG)) {
           PREG = *PREG_ADDR;
           if (!PP) {
-            UNLOCKPE(16,pe);
+            UNLOCKPE(16, pe);
           }
           JMPNext();
-	}
+        }
 #endif
-	saveregs();
-	pt0 = Yap_ExpandIndex(pe, 0);
-	/* restart index */
-	setregs();
-	PREG = pt0;
+        saveregs();
+        pt0 = Yap_ExpandIndex(pe, 0);
+        /* restart index */
+        setregs();
+        PREG = pt0;
 #if defined(YAPOR) || defined(THREADS)
-	if (!PP) {
-	  UNLOCKPE(18,pe);
-	}
+        if (!PP) {
+          UNLOCKPE(18, pe);
+        }
 #endif
-	JMPNext();
+        JMPNext();
       }
       ENDBOp();
 
       BOp(undef_p, e);
       /* save S for module name */
       saveregs();
-      undef_goal( PASS_REGS1 );
+      undef_goal(PASS_REGS1);
       setregs();
       /* for profiler */
       CACHE_A1();
@@ -619,10 +633,8 @@
 
       BOp(spy_pred, e);
       saveregs();
-      spy_goal( PASS_REGS1 );
+      spy_goal(PASS_REGS1);
       setregs();
       CACHE_A1();
       JMPNext();
       ENDBOp();
-
-

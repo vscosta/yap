@@ -183,6 +183,21 @@ inline static bool get_signal(yap_signals sig USES_REGS) {
 #endif
 }
 
+bool Yap_DisableInterrupts(int wid)
+{
+  LOCAL_InterruptsDisabled = true;
+  YAPEnterCriticalSection();
+  return true;
+}
+
+bool Yap_EnableInterrupts(int wid)
+{
+  LOCAL_InterruptsDisabled = false;
+  YAPLeaveCriticalSection();
+  return true;
+}
+
+
 /**
   Function called to handle delayed interrupts.
  */

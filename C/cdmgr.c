@@ -20,9 +20,9 @@ static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 
 #include "Yap.h"
 #include "clause.h"
-#include "yapio.h"
 #include "eval.h"
 #include "tracer.h"
+#include "yapio.h"
 #ifdef YAPOR
 #include "or.macros.h"
 #endif /* YAPOR */
@@ -32,9 +32,9 @@ static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #if HAVE_STRING_H
 #include <string.h>
 #endif
+#include <assert.h>
 #include <heapgc.h>
 #include <iopreds.h>
-#include <assert.h>
 
 static void retract_all(PredEntry *, int);
 static void add_first_static(PredEntry *, yamop *, int);
@@ -63,7 +63,6 @@ static Int p_optimizer_on(USES_REGS1);
 static Int p_optimizer_off(USES_REGS1);
 static Int p_is_dynamic(USES_REGS1);
 static Int p_kill_dynamic(USES_REGS1);
-static Int p_compile_mode(USES_REGS1);
 static Int p_is_profiled(USES_REGS1);
 static Int p_profile_info(USES_REGS1);
 static Int p_profile_reset(USES_REGS1);
@@ -1936,7 +1935,6 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
   Term t1 = Deref(ARG2);
   Term mod = Deref(ARG4);
   yamop *code_adr;
-  int mode;
 
   if (IsVarTerm(t1) || !IsAtomicTerm(t1))
     return false;
@@ -2712,18 +2710,6 @@ static Int p_optimizer_off(USES_REGS1) { /* '$optimizer_off'		 */
   return (TRUE);
 }
 
-static Int p_compile_mode(USES_REGS1) { /* $compile_mode(Old,New)	 */
-  Term t2, t3 = MkIntTerm(compile_mode);
-  if (!Yap_unify_constant(ARG1, t3))
-    return (FALSE);
-  t2 = Deref(ARG2);
-
-  if (IsVarTerm(t2) || !IsIntTerm(t2))
-    return (FALSE);
-  compile_mode = IntOfTerm(t2) & 1;
-  return (TRUE);
-}
-
 static Int p_is_profiled(USES_REGS1) {
   Term t = Deref(ARG1);
   char *s;
@@ -2908,7 +2894,6 @@ static Int p_clean_up_dead_clauses(USES_REGS1) {
 }
 
 void Yap_HidePred(PredEntry *pe) {
-  Prop p0 = AbsPredProp(pe);
 
   pe->PredFlags |= (HiddenPredFlag | NoSpyPredFlag | NoTracePredFlag);
 }

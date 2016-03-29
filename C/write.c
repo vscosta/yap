@@ -19,14 +19,14 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
-#include <stdlib.h>
-#include <math.h>
 #include "Yap.h"
-#include "Yatom.h"
 #include "YapHeap.h"
 #include "YapText.h"
-#include "yapio.h"
+#include "Yatom.h"
 #include "clause.h"
+#include "yapio.h"
+#include <math.h>
+#include <stdlib.h>
 #if COROUTINING
 #include "attvar.h"
 #endif
@@ -88,21 +88,21 @@ static bool callPortray(Term t, struct DB_TERM **old_EXp, int sno USES_REGS) {
   PredEntry *pe;
   Int b0 = LCL0 - (CELL *)B;
 
-  EX = NULL;
+  *old_EXp = Yap_RefToException();
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   if ((pe = RepPredProp(Yap_GetPredPropByFunc(FunctorPortray, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, &t, true PASS_REGS)) {
     choiceptr B0 = (choiceptr)(LCL0 - b0);
-    if (EX && !*old_EXp)
-      *old_EXp = EX;
+    if (Yap_HasException() && !*old_EXp)
+      *old_EXp = Yap_RefToException();
     Yap_fail_all(B0 PASS_REGS);
     LOCK(GLOBAL_Stream[sno].streamlock);
     return true;
   }
   LOCK(GLOBAL_Stream[sno].streamlock);
-  if (EX && !*old_EXp)
-    *old_EXp = EX;
+  if (Yap_HasException() && !*old_EXp)
+    *old_EXp = Yap_RefToException();
   return false;
 }
 
@@ -472,9 +472,7 @@ static wtype
 AtomIsSymbols(unsigned char *s) /* Is this atom just formed by symbols ? */
 {
   int ch;
-  if ( Yap_chtype[(int)s[0]] == SL &&
-       s[1] == '\0'
-       )
+  if (Yap_chtype[(int)s[0]] == SL && s[1] == '\0')
     return (separator);
   while ((ch = *s++) != '\0') {
     if (Yap_chtype[ch] != SY)
@@ -738,8 +736,8 @@ static CELL *restore_from_write(struct rewind_term *rwt,
   CELL *ptr;
 
   if (wglb->Keep_terms) {
-    ptr = Yap_GetPtrFromSlot(rwt->u_sd.s.ptr );
-    Yap_RecoverSlots(2, rwt->u_sd.s.old );
+    ptr = Yap_GetPtrFromSlot(rwt->u_sd.s.ptr);
+    Yap_RecoverSlots(2, rwt->u_sd.s.old);
     //      printf("leak=%d %d\n", LOCALCurSlot,rwt->u_sd.s.old) ;
   } else {
     ptr = rwt->u_sd.d.ptr;
@@ -875,9 +873,9 @@ static void write_list(Term t, int direction, int depth,
     }
     restore_from_write(&nrwt, wglb);
   } else if (ti != MkAtomTerm(AtomNil)) {
-      if (lastw == symbol || lastw == separator) {
-        wrputc(' ', wglb->stream);
-      }
+    if (lastw == symbol || lastw == separator) {
+      wrputc(' ', wglb->stream);
+    }
     wrputc('|', wglb->stream);
     lastw = separator;
     writeTerm(from_pointer(RepPair(t) + 1, &nrwt, wglb), 999, depth, FALSE,
@@ -901,8 +899,8 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
     putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
     return;
   }
-  DBTerm *oEX = EX;
-  EX = NULL;
+  DBTerm *ex;
+  Yap_ResetException(worker_id);
   t = Deref(t);
   if (IsVarTerm(t)) {
     write_var((CELL *)t, wglb, &nrwt);
@@ -924,12 +922,12 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
                 FALSE, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
       wrclose_bracket(wglb, TRUE);
-      EX = oEX;
       return;
     }
     if (wglb->Use_portray)
-      if (callPortray(t, &EX, wglb->stream - GLOBAL_Stream PASS_REGS)) {
-        EX = oEX;
+      if (callPortray(t, &ex, wglb->stream - GLOBAL_Stream PASS_REGS)) {
+        Yap_CopyException(ex);
+        Yap_RaiseException();
         return;
       }
     if (trueGlobalPrologFlag(WRITE_STRINGS_FLAG) && IsCodesTerm(t)) {
@@ -950,19 +948,19 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
 
     if (IsExtensionFunctor(functor)) {
       switch ((CELL)functor) {
-      case (CELL) FunctorDouble:
+      case (CELL)FunctorDouble:
         wrputf(FloatOfTerm(t), wglb);
         return;
-      case (CELL) FunctorString:
+      case (CELL)FunctorString:
         write_string(UStringOfTerm(t), wglb);
         return;
-      case (CELL) FunctorAttVar:
+      case (CELL)FunctorAttVar:
         write_var(RepAppl(t) + 1, wglb, &nrwt);
         return;
-      case (CELL) FunctorDBRef:
+      case (CELL)FunctorDBRef:
         wrputref(RefOfTerm(t), wglb->Quote_illegal, wglb);
         return;
-      case (CELL) FunctorLongInt:
+      case (CELL)FunctorLongInt:
         wrputn(LongIntOfTerm(t), wglb);
         return;
       /* case (CELL)FunctorBigInt: */
@@ -1002,8 +1000,9 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
     }
 #endif
     if (wglb->Use_portray) {
-      if (callPortray(t, &EX, wglb->stream - GLOBAL_Stream PASS_REGS)) {
-        EX = oEX;
+      if (callPortray(t, &ex, wglb->stream - GLOBAL_Stream PASS_REGS)) {
+        Yap_CopyException(ex);
+        Yap_RaiseException();
         return;
       }
     }
@@ -1133,17 +1132,14 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       if (op > p) {
         wrclose_bracket(wglb, TRUE);
       }
-    } else if ( functor == FunctorDollarVar) {
+    } else if (functor == FunctorDollarVar) {
       Term ti = ArgOfTerm(1, t);
       if (lastw == alphanum) {
         wrputc(' ', wglb->stream);
       }
-      if (wglb->Handle_vars &&
-          !IsVarTerm(ti) &&
-          (IsIntTerm(ti) ||
-           IsCodesTerm(ti) ||
-           IsAtomTerm(ti) ||
-           IsStringTerm(ti) )) {
+      if (wglb->Handle_vars && !IsVarTerm(ti) &&
+          (IsIntTerm(ti) || IsCodesTerm(ti) || IsAtomTerm(ti) ||
+           IsStringTerm(ti))) {
         if (IsIntTerm(ti)) {
           Int k = IntOfTerm(ti);
           if (k == -1) {
@@ -1177,8 +1173,8 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
     } else if (!wglb->Ignore_ops && functor == FunctorBraces) {
       wrputc('{', wglb->stream);
       lastw = separator;
-      writeTerm(from_pointer(RepAppl(t) + 1, &nrwt, wglb), GLOBAL_MaxPriority, depth + 1,
-                FALSE, wglb, &nrwt);
+      writeTerm(from_pointer(RepAppl(t) + 1, &nrwt, wglb), GLOBAL_MaxPriority,
+                depth + 1, FALSE, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
       wrputc('}', wglb->stream);
       lastw = separator;
@@ -1222,7 +1218,6 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       wrclose_bracket(wglb, TRUE);
     }
   }
-  EX = oEX;
 }
 
 void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
@@ -1292,7 +1287,7 @@ char *Yap_TermToString(Term t, char *s, size_t sz, size_t *length,
   s = Yap_MemExportStreamPtr(sno);
   Yap_CloseStream(sno);
   LOCAL_c_output_stream = old_output_stream;
-  if (EX == 0)
-    return s;
-  return NULL;
+  if (Yap_HasException())
+    return NULL;
+  return s;
 }

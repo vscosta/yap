@@ -19,8 +19,8 @@ static char SccsId[] = "%W% %G%";
 #endif
 
 #include "Yap.h"
-#include "Yatom.h"
 #include "YapHeap.h"
+#include "Yatom.h"
 
 static Int current_module(USES_REGS1);
 static Int current_module1(USES_REGS1);
@@ -36,28 +36,27 @@ static ModEntry *FetchModuleEntry(Atom at);
  * @param ae module name.
  *
  * @return a new module structure
- *//**               */
-static ModEntry *
-initMod( AtomEntry *toname, AtomEntry *ae) {
-    CACHE_REGS
-    ModEntry *n, *parent;
+ */ /**               */
+static ModEntry *initMod(AtomEntry *toname, AtomEntry *ae) {
+  CACHE_REGS
+  ModEntry *n, *parent;
 
-    if (toname == NULL)
-      parent = NULL;
-    else {
-      parent = FetchModuleEntry( toname );
-    }
-    n = (ModEntry *)Yap_AllocAtomSpace(sizeof(*n));
-    INIT_RWLOCK(n->ModRWLock);
-    n->KindOfPE = ModProperty;
-    n->PredForME = NULL;
-    n->NextME = CurrentModules;
-    CurrentModules = n;
-    n->AtomOfME = ae;
-    n->OwnerFile = Yap_ConsultingFile( PASS_REGS1);
-    AddPropToAtom(ae, (PropEntry *)n);
-    Yap_setModuleFlags(n, parent);
-    return n;
+  if (toname == NULL)
+    parent = NULL;
+  else {
+    parent = FetchModuleEntry(toname);
+  }
+  n = (ModEntry *)Yap_AllocAtomSpace(sizeof(*n));
+  INIT_RWLOCK(n->ModRWLock);
+  n->KindOfPE = ModProperty;
+  n->PredForME = NULL;
+  n->NextME = CurrentModules;
+  CurrentModules = n;
+  n->AtomOfME = ae;
+  n->OwnerFile = Yap_ConsultingFile(PASS_REGS1);
+  AddPropToAtom(ae, (PropEntry *)n);
+  Yap_setModuleFlags(n, parent);
+  return n;
 }
 
 /**
@@ -67,8 +66,7 @@ initMod( AtomEntry *toname, AtomEntry *ae) {
  *
  * @return module descriptorxs
  */
- static ModEntry *GetModuleEntry(Atom at USES_REGS)
-{
+static ModEntry *GetModuleEntry(Atom at USES_REGS) {
   Prop p0;
   AtomEntry *ae = RepAtom(at);
 
@@ -84,12 +82,12 @@ initMod( AtomEntry *toname, AtomEntry *ae) {
   }
   READ_UNLOCK(ae->ARWLock);
 
-  return initMod( ( CurrentModule == PROLOG_MODULE ? NULL : AtomOfTerm( CurrentModule ) ), at );
+  return initMod(
+      (CurrentModule == PROLOG_MODULE ? NULL : AtomOfTerm(CurrentModule)), at);
 }
 
 /** get  entry for ap/arity; assumes one is there.              */
- static ModEntry *FetchModuleEntry(Atom at)
-{
+static ModEntry *FetchModuleEntry(Atom at) {
   Prop p0;
   AtomEntry *ae = RepAtom(at);
 
@@ -119,18 +117,17 @@ Term Yap_getUnknownModule(ModEntry *m) {
   }
 }
 
-bool Yap_getUnknown ( Term mod) {
-  ModEntry *m = LookupModule( mod );
-  return Yap_getUnknownModule( m );
+bool Yap_getUnknown(Term mod) {
+  ModEntry *m = LookupModule(mod);
+  return Yap_getUnknownModule(m);
 }
 
-
- bool Yap_CharacterEscapes(Term mt) {
-   CACHE_REGS
-   if (mt == PROLOG_MODULE) mt = TermProlog;
+bool Yap_CharacterEscapes(Term mt) {
+  CACHE_REGS
+  if (mt == PROLOG_MODULE)
+    mt = TermProlog;
   return GetModuleEntry(AtomOfTerm(mt) PASS_REGS)->flags & M_CHARESCAPE;
 }
-
 
 #define ByteAdr(X) ((char *)&(X))
 Term Yap_Module_Name(PredEntry *ap) {
@@ -150,14 +147,12 @@ Term Yap_Module_Name(PredEntry *ap) {
   else {
     return ap->ModuleOfPred;
   }
-
 }
 
 static ModEntry *LookupSystemModule(Term a) {
   CACHE_REGS
   Atom at;
   ModEntry *me;
-
 
   /* prolog module */
   if (a == 0) {
@@ -168,10 +163,9 @@ static ModEntry *LookupSystemModule(Term a) {
   if (!me)
     return NULL;
   me->flags |= M_SYSTEM;
-  me->OwnerFile = Yap_ConsultingFile( PASS_REGS1 );
+  me->OwnerFile = Yap_ConsultingFile(PASS_REGS1);
   return me;
 }
-
 
 static ModEntry *LookupModule(Term a) {
   CACHE_REGS
@@ -189,9 +183,7 @@ static ModEntry *LookupModule(Term a) {
 
 bool Yap_isSystemModule(Term a) {
   ModEntry *me = LookupModule(a);
-  return
-    me != NULL &&
-    me->flags & M_SYSTEM;
+  return me != NULL && me->flags & M_SYSTEM;
 }
 
 Term Yap_Module(Term tmod) {
@@ -204,7 +196,6 @@ ModEntry *Yap_GetModuleEntry(Term mod) {
   if (!(me = LookupModule(mod)))
     return NULL;
   return me;
-
 }
 
 Term Yap_GetModuleFromEntry(ModEntry *me) {
@@ -270,7 +261,6 @@ static Int current_module1(USES_REGS1) { /* $current_module(Old)
   return Yap_unify_constant(ARG1, TermProlog);
 }
 
-
 static Int cont_current_module(USES_REGS1) {
   ModEntry *imod = AddressOfTerm(EXTRA_CBACK_ARG(1, 1)), *next;
   Term t = MkAtomTerm(imod->AtomOfME);
@@ -313,7 +303,7 @@ static Int cont_ground_module(USES_REGS1) {
 }
 
 static Int init_ground_module(USES_REGS1) {
-    /* current_module(?ModuleName)		 */
+  /* current_module(?ModuleName)		 */
   Term t1 = Deref(ARG1), tmod = CurrentModule, t3;
   if (tmod == PROLOG_MODULE) {
     tmod = TermProlog;
@@ -334,11 +324,10 @@ static Int init_ground_module(USES_REGS1) {
     }
     cut_fail();
   }
-  if (!Yap_unify(ARG2, tmod) ||
-      !Yap_unify(ARG3, t3) ) {
-          cut_fail();
-      }
-      // make sure we keep the binding
+  if (!Yap_unify(ARG2, tmod) || !Yap_unify(ARG3, t3)) {
+    cut_fail();
+  }
+  // make sure we keep the binding
   B->cp_tr = TR;
   B->cp_h = HR;
   EXTRA_CBACK_ARG(3, 1) = MkAddressTerm(CurrentModules);
@@ -352,33 +341,31 @@ static Int init_ground_module(USES_REGS1) {
  *
  * @return
  */
-static Int is_system_module( USES_REGS1 )
-{
+static Int is_system_module(USES_REGS1) {
   Term t;
-  if (IsVarTerm(t = Deref (ARG1))) {
+  if (IsVarTerm(t = Deref(ARG1))) {
     return false;
   }
   if (!IsAtomTerm(t)) {
     Yap_Error(TYPE_ERROR_ATOM, t, "load_files/2");
     return false;
   }
-  return Yap_isSystemModule( t );
+  return Yap_isSystemModule(t);
 }
 
-static Int new_system_module( USES_REGS1 )
-{
+static Int new_system_module(USES_REGS1) {
   ModEntry *me;
   Term t;
-  if (IsVarTerm(t = Deref (ARG1))) {
-    Yap_Error( INSTANTIATION_ERROR, t, NULL);
+  if (IsVarTerm(t = Deref(ARG1))) {
+    Yap_Error(INSTANTIATION_ERROR, t, NULL);
     return false;
   }
   if (!IsAtomTerm(t)) {
     Yap_Error(TYPE_ERROR_ATOM, t, NULL);
     return false;
   }
-  if ((me = LookupSystemModule( t ) ))
-      me->OwnerFile = Yap_ConsultingFile( PASS_REGS1);
+  if ((me = LookupSystemModule(t)))
+    me->OwnerFile = Yap_ConsultingFile(PASS_REGS1);
   return me != NULL;
 }
 
@@ -477,7 +464,7 @@ static Int source_module(USES_REGS1) {
 
 Term Yap_StripModule(Term t, Term *modp) {
   CACHE_REGS
- Term tmod;
+  Term tmod;
 
   if (modp)
     tmod = *modp;
