@@ -892,7 +892,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
             ts = Yap_MkApplTerm(FunctorGFormatAt, 2, ta);
             res = Yap_execute_goal(ts, 0, CurrentModule, true);
             args = Yap_GetFromSlot(sl);
-            if (EX)
+            if (Yap_HasException())
               goto ex_handler;
             if (!res)
               return FALSE;
@@ -914,12 +914,9 @@ static Int doformat(volatile Term otail, volatile Term oargs,
             args = Yap_GetFromSlot(sl);
             Yap_CloseSlots(sl);
           }
-          if (EX != 0L) {
-            Term ball;
+          if (Yap_HasException()) {
 
           ex_handler:
-            ball = Yap_PopTermFromDB(EX);
-            EX = NULL;
             if (tnum <= 8)
               targs = NULL;
             if (IsAtomTerm(tail)) {
@@ -929,8 +926,8 @@ static Int doformat(volatile Term otail, volatile Term oargs,
               GLOBAL_Stream[sno].u.mem_string.error_handler = old_handler;
             }
             format_clean_up(sno, (char *)fstr, targs);
-            Yap_JumpToEnv(ball);
-            return FALSE;
+            Yap_RaiseException();
+            return false;
           }
           break;
         case 'q':

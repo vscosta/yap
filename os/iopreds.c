@@ -1577,7 +1577,6 @@ int PlGetc(int sno) {
           return -1;
         } else {
           LOCK(GLOBAL_Stream[sno].streamlock);
-          return sno;
         }
       } else if (IsApplTerm(arg) && FunctorOfTerm(arg) == FunctorStream) {
         arg = ArgOfTerm(1, arg);
@@ -1587,24 +1586,26 @@ int PlGetc(int sno) {
       }
       if (sno < 0) {
         Yap_Error(DOMAIN_ERROR_STREAM_OR_ALIAS, arg, msg);
-        return (-1);
+        return -1;
       }
       if (GLOBAL_Stream[sno].status & Free_Stream_f) {
         PlIOError__(file, f, line, EXISTENCE_ERROR_STREAM, arg, msg);
-        return (-1);
+        return -1;
       }
       LOCK(GLOBAL_Stream[sno].streamlock);
       if ((GLOBAL_Stream[sno].status & Input_Stream_f) &&
           !(kind & Input_Stream_f)) {
         UNLOCK(GLOBAL_Stream[sno].streamlock);
         PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
+        return -1;
       }
       if ((GLOBAL_Stream[sno].status & (Append_Stream_f | Output_Stream_f)) &&
           !(kind & Output_Stream_f)) {
         UNLOCK(GLOBAL_Stream[sno].streamlock);
         PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_STREAM, arg, msg);
+        return -1;
       }
-      return (sno);
+      return sno;
     }
 
     int Yap_CheckStream__(const char *file, const char *f, int line, Term arg,
@@ -1618,13 +1619,13 @@ int PlGetc(int sno) {
       if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
         return -1;
       if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
+        UNLOCK(GLOBAL_Stream[sno].streamlock);
         if (kind == Input_Stream_f)
           PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg,
                       msg);
         else
           PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg,
                       msg);
-        UNLOCK(GLOBAL_Stream[sno].streamlock);
         return -1;
       }
       return sno;

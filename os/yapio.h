@@ -163,7 +163,7 @@ INLINE_ONLY inline EXTERN Term MkCharTerm(Int c);
 INLINE_ONLY inline EXTERN Term MkCharTerm(Int c) {
   wchar_t cs[2];
   if (c < 0)
-    return MkAtomTerm(AtomEof);
+    return TermEof;
   cs[0] = c;
   cs[1] = '\0';
   return MkAtomTerm(Yap_LookupMaybeWideAtom(cs));

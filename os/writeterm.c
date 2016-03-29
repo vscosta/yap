@@ -145,12 +145,7 @@ int beam_write ( USES_REGS1 )
   Yap_StartSlots();
   Yap_plwrite (ARG1, GLOBAL_Stream+LOCAL_c_output_stream, 0, 0, GLOBAL_MaxPriority);
   Yap_CloseSlots();
-  if (EX != 0L) {
-    Term ball = Yap_PopTermFromDB(EX);
-    EX = 0L;
-    Yap_JumpToEnv(ball);
-    return(FALSE);
-  }
+  Yap_RaiseException();
   return (TRUE);
 }
 #endif
@@ -324,13 +319,8 @@ write_term2 ( USES_REGS1 )
   write_term( output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
-  if (EX != 0L) {
-    Term ball = Yap_PopTermFromDB(EX);
-    EX = NULL;
-    Yap_JumpToEnv(ball);
-    return(FALSE);
-  }
-  return (TRUE);
+  Yap_RaiseException();
+ return (TRUE);
 }
 
 
@@ -355,12 +345,7 @@ write_term3 ( USES_REGS1 )
   write_term( output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
-  if (EX != 0L) {
-    Term ball = Yap_PopTermFromDB(EX);
-    EX = NULL;
-    Yap_JumpToEnv(ball);
-    return(FALSE);
-  }
+  Yap_RaiseException();
   return (TRUE);
 }
 
@@ -391,12 +376,7 @@ write2 ( USES_REGS1 )
   write_term( output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
-  if (EX != 0L) {
-    Term ball = Yap_PopTermFromDB(EX);
-    EX = NULL;
-    Yap_JumpToEnv(ball);
-    return(FALSE);
-  }
+  Yap_RaiseException();
   return (TRUE);
 }
 
@@ -421,12 +401,7 @@ write1 ( USES_REGS1 )
   write_term( output_stream, ARG1, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
-  if (EX != 0L) {
-    Term ball = Yap_PopTermFromDB(EX);
-    EX = NULL;
-    Yap_JumpToEnv(ball);
-    return(FALSE);
-  }
+  Yap_RaiseException();
   return (TRUE);
 }
 
@@ -453,12 +428,7 @@ write_canonical1 ( USES_REGS1 )
   write_term( output_stream, ARG1, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
-  if (EX != 0L) {
-    Term ball = Yap_PopTermFromDB(EX);
-    EX = NULL;
-    Yap_JumpToEnv(ball);
-    return(FALSE);
-  }
+  Yap_RaiseException();
   return (TRUE);
 }
 
@@ -485,12 +455,7 @@ write_canonical ( USES_REGS1 )
   write_term( output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
-  if (EX != 0L) {
-    Term ball = Yap_PopTermFromDB(EX);
-    EX = NULL;
-    Yap_JumpToEnv(ball);
-    return(FALSE);
-  }
+  Yap_RaiseException();
   return (TRUE);
 }
 
@@ -517,12 +482,7 @@ writeq1 ( USES_REGS1 )
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
 
   Yap_CloseSlots( mySlots );
-  if (EX != 0L) {
-    Term ball = Yap_PopTermFromDB(EX);
-    EX = NULL;
-    Yap_JumpToEnv(ball);
-    return(FALSE);
-  }
+  Yap_RaiseException();
   return (TRUE);
 }
 
@@ -550,12 +510,7 @@ writeq ( USES_REGS1 )
   write_term( output_stream,  ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
-  if (EX != 0L) {
-    Term ball = Yap_PopTermFromDB(EX);
-    EX = NULL;
-    Yap_JumpToEnv(ball);
-    return(FALSE);
-  }
+  Yap_RaiseException();
   return (TRUE);
 }
 
@@ -583,12 +538,7 @@ print1 ( USES_REGS1 )
   write_term( output_stream,  ARG1, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
-  if (EX != 0L) {
-    Term ball = Yap_PopTermFromDB(EX);
-    EX = NULL;
-    Yap_JumpToEnv(ball);
-    return(FALSE);
-  }
+  Yap_RaiseException();
   return (TRUE);
 }
 
@@ -616,13 +566,8 @@ print ( USES_REGS1 )
   write_term( output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
-  if (EX != 0L) {
-    Term ball = Yap_PopTermFromDB(EX);
-    EX = NULL;
-    Yap_JumpToEnv(ball);
-    return(FALSE);
-  }
-  return (TRUE);
+  Yap_RaiseException();
+   return (TRUE);
 }
 
 static Int
@@ -648,12 +593,7 @@ writeln1 ( USES_REGS1 )
   write_term( output_stream, ARG1, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
-  if (EX != 0L) {
-    Term ball = Yap_PopTermFromDB(EX);
-    EX = NULL;
-    Yap_JumpToEnv(ball);
-    return(FALSE);
-  }
+  Yap_RaiseException();
   return (TRUE);
 }
 
@@ -681,12 +621,7 @@ writeln ( USES_REGS1 )
   write_term( output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseSlots( mySlots );
-  if (EX != 0L) {
-    Term ball = Yap_PopTermFromDB(EX);
-    EX = NULL;
-    Yap_JumpToEnv(ball);
-    return(FALSE);
-  }
+  Yap_RaiseException();
   return (TRUE);
 }
 
