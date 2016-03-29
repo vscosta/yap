@@ -31,10 +31,10 @@ static blob_type_t unregistered_blob_atom =
 
 char * Yap_blob_to_string(AtomEntry *ref, const char *s0, size_t sz)
 {
-    int rc;
+  // int rc;
     char *s = (char *)s0;
     
-    blob_type_t *type = RepBlobProp(ref->PropsOfAE)->blob_type;
+  // blob_type_t *type = RepBlobProp(ref->PropsOfAE)->blob_type;
 #if HAVE_FMEMOPEN
     if (type->write) {
         FILE *f = fmemopen( s, sz, "w");
