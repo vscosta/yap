@@ -209,6 +209,21 @@ static Int dopeek_byte(int sno) {
   return ch;
 }
 
+bool store_code(int ch, Term t USES_REGS)
+{
+  Term t2 = Deref(t);
+  bool rc = Yap_unify_constant(t2, MkIntegerTerm(ch));
+  if (!rc && !IsVarTerm(t2)) {
+    if (!IsIntegerTerm(t2)) {
+      Yap_Error( TYPE_ERROR_INTEGER, t, "in output argument");
+    } else if (IntegerOfTerm(t2) < 0){
+      Yap_Error( REPRESENTATION_ERROR_IN_CHARACTER_CODE, t, "in output argument");
+    }
+  }
+  return rc;
+}
+
+
 /** @pred  at_end_of_stream(+ _S_) is iso
 
 Succeed if the stream  _S_ has stream position end-of-stream or
@@ -289,7 +304,7 @@ static Int get(USES_REGS1) { /* '$get'(Stream,-N)                     */
   while ((ch = GLOBAL_Stream[sno].stream_wgetc(sno)) <= 32 && ch >= 0)
     ;
   UNLOCK(GLOBAL_Stream[sno].streamlock);
-  return (Yap_unify_constant(ARG2, MkIntegerTerm(ch)));
+  return store_code(ch, ARG2 PASS_REGS);
 }
 
 /** @pred  get_char(+ _S_,- _C_) is iso
@@ -304,11 +319,18 @@ static Int get_char(USES_REGS1) { /* '$get'(Stream,-N)                     */
   //  Int status;
 
   if (sno < 0)
-    return FALSE;
+    return false;
   // status = GLOBAL_Stream[sno].status;
   ch = GLOBAL_Stream[sno].stream_wgetc(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);
-  return (Yap_unify_constant(ARG2, MkCharTerm(ch)));
+  Term t2 = Deref(ARG2);
+  bool rc = Yap_unify_constant(t2, MkCharTerm(ch));
+  if (!rc) {
+    if (!IsAtomTerm(t2)) {
+      Yap_Error( TYPE_ERROR_IN_CHARACTER, ARG2, "in input argument");
+    }
+  }
+  return rc;
 }
 
 /** @pred  get_code(+ _S_,- _C_) is iso
@@ -329,7 +351,7 @@ static Int get_code(USES_REGS1) { /* get0(Stream,-N)                    */
   // status = GLOBAL_Stream[sno].status;
   out = GLOBAL_Stream[sno].stream_wgetc(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);
-  return (Yap_unify_constant(ARG2, MkIntegerTerm(out)));
+  return store_code(out, ARG2 PASS_REGS);
 }
 
 /** @pred  get(- _C_)
@@ -350,10 +372,15 @@ static Int get_1(USES_REGS1) { /* get_code1(Stream,-N)                     */
 
   LOCK(GLOBAL_Stream[sno].streamlock);
   // status = GLOBAL_Stream[sno].status;
+  if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
+      PlIOError(PERMISSION_ERROR_INPUT_BINARY_STREAM, TermUserIn, "while getting code");
+     return false;
+  }
   while ((ch = GLOBAL_Stream[sno].stream_wgetc(sno)) <= 32 && ch >= 0)
     ;
   UNLOCK(GLOBAL_Stream[sno].streamlock);
-  return (Yap_unify_constant(ARG2, MkIntegerTerm(ch)));
+  return store_code(ch, ARG1 PASS_REGS);
 }
 
 /** @pred  get_code(- _C_) is iso
@@ -372,9 +399,14 @@ static Int getcode_1(USES_REGS1) { /* get0(Stream,-N)                    */
 
   // status = GLOBAL_Stream[sno].status;
   LOCK(GLOBAL_Stream[sno].streamlock);
+  if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
+    PlIOError(PERMISSION_ERROR_INPUT_BINARY_STREAM, TermUserIn, "while getting code");
+    return false;
+  }
   out = GLOBAL_Stream[sno].stream_wgetc(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);
-  return (Yap_unify_constant(ARG1, MkIntegerTerm(out)));
+  return store_code(out, ARG1 PASS_REGS);
 }
 
 /** @pred  get_char(- _C_) is iso
@@ -389,13 +421,25 @@ current stream and unify its atom representation with  _C_.
 static Int getchar_1(USES_REGS1) { /* get0(Stream,-N)                    */
   int sno = LOCAL_c_input_stream;
   // Int status;
-  Int out;
+  Int ch;
 
   LOCK(GLOBAL_Stream[sno].streamlock);
   // status = GLOBAL_Stream[sno].status;
-  out = GLOBAL_Stream[sno].stream_wgetc(sno);
+  ch = GLOBAL_Stream[sno].stream_wgetc(sno);
+  if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
+    PlIOError(PERMISSION_ERROR_INPUT_BINARY_STREAM, TermUserIn, "while getting code");
+    return false;
+  }
   UNLOCK(GLOBAL_Stream[sno].streamlock);
-  return (Yap_unify_constant(ARG1, MkCharTerm(out)));
+  bool rc = Yap_unify_constant(ARG1, MkCharTerm(ch));
+  if (!rc) {
+    Term t2 = Deref(ARG1);
+    if (!IsAtomTerm(t2)) {
+      Yap_Error( TYPE_ERROR_IN_CHARACTER, ARG1, "in input argument");
+    }
+  }
+  return rc;
 }
 
 static Int get0_line_codes(USES_REGS1) { /* '$get0'(Stream,-N) */
