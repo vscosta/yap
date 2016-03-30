@@ -1166,7 +1166,7 @@ static Int
       Yap_CheckStream(ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f,
                       "set_stream_position/2");
   if (sno < 0) {
-    return (FALSE);
+    return false;
   }
   tin = Deref(ARG2);
   if (IsVarTerm(tin)) {
