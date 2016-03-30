@@ -406,6 +406,8 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   fe->enc = GLOBAL_Stream[inp_stream].encoding;
   xarg *args = Yap_ArgListToVector(opts, read_defs, READ_END);
   if (args == NULL) {
+    if (LOCAL_Error_TYPE == DOMAIN_ERROR_GENERIC_ARGUMENT)
+      LOCAL_Error_TYPE = DOMAIN_ERROR_READ_OPTION;
     return NULL;
   }
 
@@ -869,7 +871,6 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
     if (ParserErrorStyle == TermError) {
       LOCAL_ErrorMessage = NULL;
       LOCAL_Error_TYPE = SYNTAX_ERROR;
-      Yap_Error(SYNTAX_ERROR, terr, LOCAL_ErrorMessage);
       return YAP_PARSING_FINISHED;
     // dec-10
     } else if (Yap_PrintWarning(terr)) {
@@ -953,6 +954,9 @@ Term Yap_read_term(int inp_stream, Term opts, int nargs) {
         fe.t = 0;
         break;
       }
+      if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
+        Yap_Error(LOCAL_Error_TYPE, ARG1,  LOCAL_ErrorMessage);
+      }
 #if EMACS
       first_char = tokstart->TokPos;
 #endif /* EMACS */
@@ -1020,6 +1024,8 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re,
 
   xarg *args = Yap_ArgListToVector(opts, read_clause_defs, READ_END);
   if (args == NULL) {
+    if (LOCAL_Error_TYPE == DOMAIN_ERROR_GENERIC_ARGUMENT)
+      LOCAL_Error_TYPE = DOMAIN_ERROR_READ_OPTION;
     return NULL;
   }
   if (args[READ_CLAUSE_MODULE].used) {
