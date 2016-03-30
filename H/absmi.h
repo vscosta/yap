@@ -2092,7 +2092,7 @@ cufail:
 
 #endif
 
-#if defined(IN_ABSMI_C) || defined(IN_INLINES_C) || defined(IN_TRACED_ABSMI_C)
+#if /* defined(IN_ABSMI_C) ||*/ defined(IN_INLINES_C) /*|| defined(IN_TRACED_ABSMI_C) */
 
 static int iequ_complex(register CELL *pt0, register CELL *pt0_end,
                         register CELL *pt1) {
