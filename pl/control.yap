@@ -263,10 +263,10 @@ This is similar to <tt>call_cleanup/1</tt> with an additional
 
 */
 call_cleanup(Goal, Cleanup) :-
-	'$setup_call_catcher_cleanup'(true, Goal, Catcher, Cleanup).
+	setup_call_catcher_cleanup(true, Goal, Catcher, Cleanup).
 
 call_cleanup(Goal, Catcher, Cleanup) :-
-	'$setup_call_catcher_cleanup'(true, Goal, Catcher, Cleanup).
+	setup_call_catcher_cleanup(true, Goal, Catcher, Cleanup).
 
 /** @pred setup_call_cleanup(: _Setup_,: _Goal_, : _CleanUpGoal_)
 
@@ -283,10 +283,7 @@ most uses,  _Setup_ will perform temporary side-effects required by
 */
 
 setup_call_cleanup(Setup,Goal, Cleanup) :-
-	'$setup_call_catcher_cleanup'(Setup, Goal, Catcher, Cleanup).
-
-setup_call_catcher_cleanup(Setup,Goal, Catcher, Cleanup) :-
-	'$setup_call_catcher_cleanup'(Setup, Goal, Catcher, Cleanup).
+	setup_call_catcher_cleanup(Setup, Goal, _Catcher, Cleanup).
 
 /** @pred  call_with_args(+ _Name_,...,? _Ai_,...)
 
@@ -649,4 +646,3 @@ prolog_current_frame(Env) :-
 /**
 @}
 */
-
