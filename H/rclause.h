@@ -255,8 +255,10 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _jump:
     case _jump_if_var:
     case _move_back:
+#if INLINE_BIG_COMPARISONS
     case _p_dif:
     case _p_eq:
+#endif
     case _retry2:
     case _retry3:
     case _retry4:

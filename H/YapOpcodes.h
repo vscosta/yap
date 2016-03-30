@@ -313,8 +313,10 @@
   OPCODE(call_bfunc_xy              ,plxys),
   OPCODE(call_bfunc_yy              ,plyys),
   OPCODE(p_equal                    ,e),
+#if INLINE_BIG_COMPARISONS
   OPCODE(p_dif                      ,l),
   OPCODE(p_eq                       ,l),
+#endif
   OPCODE(p_arg_vv                   ,xxx),
   OPCODE(p_arg_cv                   ,xxn),
   OPCODE(p_arg_y_vv                 ,yxx),
