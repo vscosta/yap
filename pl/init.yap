@@ -106,7 +106,7 @@ otherwise.
 	'$continue_static_clause'(A,B,C,D,E).
 '$do_static_clause'(_,_,_,_,_).
 
-\:- '$all_current_modules'(M), yap_flag(M:unknown, error) ; true.
+:- '$all_current_modules'(M), yap_flag(M:unknown, error) ; true.
 
 
 :- bootstrap('arith.yap').
@@ -222,7 +222,7 @@ sub-goal  _NG_ will replace  _G_ and will be processed in the same
 :- dynamic user:goal_expansion/3.
 
 :- multifile user:goal_expansion/2.
-        
+
 :- dynamic user:goal_expansion/2.
 
 :- multifile system:goal_expansion/2.
