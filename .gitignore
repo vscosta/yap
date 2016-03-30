@@ -16,6 +16,7 @@ tags
 TGSautom4te.cache
 cscope.*
 GPATH
+m32
 GRTAGS
 GTAGS
 tmtags*
@@ -149,5 +150,7 @@ yap-6.3.workspace
 yap-6.3.geany
 YAP.project
 CBlocks
+yPQ	
 *.tmp
 YAP.sublime*
+yap32/CMakeCache.txt

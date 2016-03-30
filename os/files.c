@@ -290,7 +290,7 @@ static Int time_file(USES_REGS1) {
 
     snprintf(s, 64, "%I64d", (long long int)n);
     mpz_init_set_str(&rop, s, 10);
-   rc = Yap_MkBigNumTerm((void *)&rop) PASS_REGS);
+   rc = Yap_MkBigIntTerm((void *)&rop) PASS_REGS);
 #else
     rc = MkIntegerTerm(ft.dwHighDateTime);
 #endif

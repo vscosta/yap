@@ -19,7 +19,7 @@
 
 @file eval.h
 
-    @defgroup arithmetic Arithmetic in YAP 
+    @defgroup arithmetic Arithmetic in YAP
 
 @ingroup builtins
 
@@ -27,7 +27,8 @@
 
   + See @ref arithmetic_cmps for the arithmetic comparisons supported in YAP
 
-  + See @ref arithmetic_operators for what arithmetic operations are supported in YAP
+  + See @ref arithmetic_operators for what arithmetic operations are supported
+in YAP
 
     YAP supports several different numeric types:
 <ul>
@@ -88,11 +89,14 @@ exceptions:
    @exception "type_error(float( V ), Call)" if must be float
 
    @exception "domain_error(out_of_range( V ), Call)" if argument invalid
-   @exception "domain_error(not_less_than_zero( V ), Call)" if argument must be positive or zero
+   @exception "domain_error(not_less_than_zero( V ), Call)" if argument must be
+positive or zero
 
-   @exception "evaluation_error(undefined( V ), Call)" result is not defined (nan)
-   @exception "evaluation_error(overflow( V ), Call)" result is arithmetic overflow
-   
+   @exception "evaluation_error(undefined( V ), Call)" result is not defined
+(nan)
+   @exception "evaluation_error(overflow( V ), Call)" result is arithmetic
+overflow
+
     @tableofcontents
 
 @secreflist
@@ -132,64 +136,68 @@ exceptions:
 #include <string.h>
 #endif
 
-
 #ifdef LONG_MAX
-#define Int_MAX  LONG_MAX
+#define Int_MAX LONG_MAX
 #else
-#define Int_MAX  ((Int)((~((CELL)0))>>1))
+#define Int_MAX ((Int)((~((CELL)0)) >> 1))
 #endif
 #ifdef LONG_MIN
-#define Int_MIN  LONG_MIN
+#define Int_MIN LONG_MIN
 #else
-#define Int_MIN  (-Int_MAX-(CELL)1)
+#define Int_MIN (-Int_MAX - (CELL)1)
 #endif
 
-#define  PLMAXTAGGEDINT (MAX_ABS_INT-((CELL)1))
-#define  PLMINTAGGEDINT (-MAX_ABS_INT)
+#define PLMAXTAGGEDINT (MAX_ABS_INT - ((CELL)1))
+#define PLMINTAGGEDINT (-MAX_ABS_INT)
 
 #define PLMAXINT Int_MAX
 #define PLMININT Int_MIN
 
 #ifndef INFINITY
-#define INFINITY (1.0/0.0)
+#define INFINITY (1.0 / 0.0)
 #endif
 
 #ifndef NAN
-#define NAN      (0.0/0.0)
+#define NAN (0.0 / 0.0)
 #endif
 
 /**
  * @addtogroup arithmetic_operators
- * @enum arith0_op constant operators 
+ * @enum arith0_op constant operators
  * @brief specifies the available unary arithmetic operators
 */
 typedef enum {
   /** pi [ISO]
 
-     An approximation to the value of <em>pi</em>, that is, the ratio of a circle's circumference to its diameter.
-   * 
+     An approximation to the value of <em>pi</em>, that is, the ratio of a
+   circle's circumference to its diameter.
+   *
    */
   op_pi,
   /** e
 
-     Euler's number, the base of the natural logarithms (approximately 2.718281828).
-   * 
+     Euler's number, the base of the natural logarithms (approximately
+   2.718281828).
+   *
    */
   op_e,
   /** epsilon
 
-     The difference between the float `1.0` and the next largest floating point number.
-   * 
+     The difference between the float `1.0` and the next largest floating point
+   number.
+   *
    */
   op_epsilon,
   /** inf
 
-     Infinity according to the IEEE Floating-Point standard. Note that evaluating this term will generate a domain error in the `iso` language mode. Also note that
+     Infinity according to the IEEE Floating-Point standard. Note that
+   evaluating this term will generate a domain error in the `iso` language mode.
+   Also note that
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
    *  ?- +inf =:= -inf.
    * false.
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   * 
+   *
    */
   op_inf,
   op_nan,
@@ -206,35 +214,36 @@ typedef enum {
 
 /**
  * @addtogroup arithmetic_operators
- * @enum arith1_op unary operators 
+ * @enum arith1_op unary operators
  * @brief specifies the available unary arithmetic operators
  */
 typedef enum {
   /** \+ _X_: the value of _X_ .
-   * 
+   *
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
    *  X =:= +X.
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    */
   op_uplus,
   /**  \- _X_: the complement of _X_ .
-   * 
+   *
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
    *  0-X =:= -X.
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    */
   op_uminus,
   /** \\ _X_, The bitwise negation of _X_ .
-   * 
+   *
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
    *  \X /\ X =:= 0.
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    *
-   * Note that the number of bits of an integer is at least the size in bits of a Prolog term cell.
+   * Note that the number of bits of an integer is at least the size in bits of
+   * a Prolog term cell.
    */
   op_unot,
   /** exp( _X_ ), natural exponentiation of _X_ .
-   * 
+   *
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
    *  X = 0.0, abs(1.0 - exp( _X_ )) < 0.0001
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -250,11 +259,12 @@ typedef enum {
    */
   op_log,
   /** log10( _X_ ) [ISO]
-	*
+        *
     * Decimal logarithm.
     *
     *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
-    *   ?- between(1, 10, I), Delta is log10(I*10) + log10(1/(I*10)), format('0 == ~3g~n',[Delta]), fail.
+    *   ?- between(1, 10, I), Delta is log10(I*10) + log10(1/(I*10)), format('0
+   * == ~3g~n',[Delta]), fail.
     *   0 == 0
     *   0 == 0
     *   0 == 0
@@ -305,7 +315,7 @@ typedef enum {
 
 /**
  * @addtogroup arithmetic_operators
- * @enum arith2_op binary operators 
+ * @enum arith2_op binary operators
  * @brief specifies the available unary arithmetic operators
  */
 typedef enum {
@@ -336,62 +346,69 @@ typedef enum {
   op_rdiv
 } arith2_op;
 
-yap_error_number
-Yap_MathException__(USES_REGS1);
-Functor     EvalArg(Term);
+yap_error_number Yap_MathException__(USES_REGS1);
+Functor EvalArg(Term);
 
 /* Needed to handle numbers:
-   	these two macros are fundamental in the integer/float conversions */
+        these two macros are fundamental in the integer/float conversions */
 
 #ifdef C_PROLOG
-#define FlIsInt(X)	( (X) == (Int)(X) && IntInBnd((X)) )
+#define FlIsInt(X) ((X) == (Int)(X) && IntInBnd((X)))
 #else
-#define FlIsInt(X)	( FALSE )
+#define FlIsInt(X) (FALSE)
 #endif
-
-
 
 #ifdef M_WILLIAMS
-#define MkEvalFl(X)	MkFloatTerm(X)
+#define MkEvalFl(X) MkFloatTerm(X)
 #else
-#define MkEvalFl(X)	( FlIsInt(X) ? MkIntTerm((Int)(X)) : MkFloatTerm(X) )
+#define MkEvalFl(X) (FlIsInt(X) ? MkIntTerm((Int)(X)) : MkFloatTerm(X))
 #endif
-
 
 /* Macros used by some of the eval functions */
-#define REvalInt(I)	{ eval_int = (I); return(FInt); }
-#define REvalFl(F)	{ eval_flt = (F); return(FFloat); }
-#define REvalError()	{ return(FError); }
+#define REvalInt(I)                                                            \
+  {                                                                            \
+    eval_int = (I);                                                            \
+    return (FInt);                                                             \
+  }
+#define REvalFl(F)                                                             \
+  {                                                                            \
+    eval_flt = (F);                                                            \
+    return (FFloat);                                                           \
+  }
+#define REvalError()                                                           \
+  { return (FError); }
 
 /* this macro, dependent on the particular implementation
-	is used to interface the arguments into the C libraries */
-#ifdef	MPW
-#define FL(X)		((extended)(X))
+        is used to interface the arguments into the C libraries */
+#ifdef MPW
+#define FL(X) ((extended)(X))
 #else
-#define FL(X)		((double)(X))
+#define FL(X) ((double)(X))
 #endif
 
-void	Yap_InitConstExps(void);
-void	Yap_InitUnaryExps(void);
-void	Yap_InitBinaryExps(void);
+void Yap_InitConstExps(void);
+void Yap_InitUnaryExps(void);
+void Yap_InitBinaryExps(void);
 
-int	Yap_ReInitConstExps(void);
-int	Yap_ReInitUnaryExps(void);
-int	Yap_ReInitBinaryExps(void);
+int Yap_ReInitConstExps(void);
+int Yap_ReInitUnaryExps(void);
+int Yap_ReInitBinaryExps(void);
 
-Term	Yap_eval_atom(Int);
-Term	Yap_eval_unary(Int,Term);
-Term	Yap_eval_binary(Int,Term,Term);
+Term Yap_eval_atom(Int);
+Term Yap_eval_unary(Int, Term);
+Term Yap_eval_binary(Int, Term, Term);
 
-Term	Yap_InnerEval__(Term USES_REGS);
+Term Yap_InnerEval__(Term USES_REGS);
 
+#define Yap_EvalError(id, t, ...)                                              \
+  Yap_EvalError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
+yamop *Yap_EvalError__(const char *, const char *, int, yap_error_number, Term,
+                       ...);
 
-
-#define Yap_EvalError( id, t, ...) Yap_EvalError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
-yamop  *Yap_EvalError__(const char *, const char *, int, yap_error_number,Term, ...);
-
-#define Yap_ArithError( id, t, ...) Yap_ArithError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
-Int Yap_ArithError__(const char *, const char *, int, yap_error_number,Term, ...);
+#define Yap_ArithError(id, t, ...)                                             \
+  Yap_ArithError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
+Int Yap_ArithError__(const char *, const char *, int, yap_error_number, Term,
+                     ...);
 
 #include "inline-only.h"
 
@@ -403,55 +420,49 @@ Int Yap_ArithError__(const char *, const char *, int, yap_error_number,Term, ...
 
 INLINE_ONLY inline EXTERN Term Yap_Eval__(Term t USES_REGS);
 
-INLINE_ONLY inline EXTERN Term
-Yap_Eval__(Term t USES_REGS)
-{
-  if (t == 0L || ( !IsVarTerm(t) && IsNumTerm(t) ))
+INLINE_ONLY inline EXTERN Term Yap_Eval__(Term t USES_REGS) {
+  if (t == 0L || (!IsVarTerm(t) && IsNumTerm(t)))
     return t;
   return Yap_InnerEval(t);
 }
 
-inline static void
-Yap_ClearExs(void)
-{
-  feclearexcept(FE_ALL_EXCEPT);
-}
+inline static void Yap_ClearExs(void) { feclearexcept(FE_ALL_EXCEPT); }
 
-inline static   yap_error_number 
-Yap_FoundArithError__(USES_REGS1)
-{ 
+inline static yap_error_number Yap_FoundArithError__(USES_REGS1) {
   if (LOCAL_Error_TYPE != YAP_NO_ERROR)
     return LOCAL_Error_TYPE;
-  if (trueGlobalPrologFlag( ARITHMETIC_EXCEPTIONS_FLAG ) ) // test support for exception
+  if (trueGlobalPrologFlag(
+          ARITHMETIC_EXCEPTIONS_FLAG)) // test support for exception
     return Yap_MathException();
   return YAP_NO_ERROR;
 }
 
 static inline Term takeIndicator(Term t) {
   Term ts[2];
-  if (IsAtomTerm(t)) { ts[0] = t; ts[1] = MkIntTerm(0); }
-  else if (IsPairTerm(t)) { ts[0] = TermNil; ts[1] = MkIntTerm(2); }
-  else {
+  if (IsAtomTerm(t)) {
+    ts[0] = t;
+    ts[1] = MkIntTerm(0);
+  } else if (IsPairTerm(t)) {
+    ts[0] = TermNil;
+    ts[1] = MkIntTerm(2);
+  } else {
     CACHE_REGS
     ts[0] = MkAtomTerm(NameOfFunctor(FunctorOfTerm(t)));
     ts[1] = MkIntegerTerm(ArityOfFunctor(FunctorOfTerm(t)));
   }
-  return Yap_MkApplTerm( FunctorSlash, 2, ts );
+  return Yap_MkApplTerm(FunctorSlash, 2, ts);
 }
 
 Atom Yap_NameOfUnaryOp(int i);
 Atom Yap_NameOfBinaryOp(int i);
 
+#define RINT(v) return (MkIntegerTerm(v))
+#define RFLOAT(v) return (MkFloatTerm(v))
+#define RBIG(v) return (Yap_MkBigIntTerm(v))
+#define RERROR() return (0L)
 
-#define RINT(v)       return(MkIntegerTerm(v))
-#define RFLOAT(v)     return(MkFloatTerm(v))
-#define RBIG(v)       return(Yap_MkBigIntTerm(v))
-#define RERROR()      return(0L)
-
-static inline blob_type
-ETypeOfTerm(Term t)
-{
-  if (IsIntTerm(t)) 
+static inline blob_type ETypeOfTerm(Term t) {
+  if (IsIntTerm(t))
     return long_int_e;
   if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
@@ -469,106 +480,105 @@ ETypeOfTerm(Term t)
 #if USE_GMP
 char *Yap_mpz_to_string(MP_INT *b, char *s, size_t sz, int base);
 
-Term  Yap_gmq_rdiv_int_int(Int, Int);
-Term  Yap_gmq_rdiv_int_big(Int, Term);
-Term  Yap_gmq_rdiv_big_int(Term, Int);
-Term  Yap_gmq_rdiv_big_big(Term, Term);
+Term Yap_gmq_rdiv_int_int(Int, Int);
+Term Yap_gmq_rdiv_int_big(Int, Term);
+Term Yap_gmq_rdiv_big_int(Term, Int);
+Term Yap_gmq_rdiv_big_big(Term, Term);
 
-Term  Yap_gmp_add_ints(Int, Int);
-Term  Yap_gmp_sub_ints(Int, Int);
-Term  Yap_gmp_mul_ints(Int, Int);
-Term  Yap_gmp_sll_ints(Int, Int);
-Term  Yap_gmp_add_int_big(Int, Term);
-Term  Yap_gmp_sub_int_big(Int, Term);
-Term  Yap_gmp_sub_big_int(Term, Int);
-Term  Yap_gmp_mul_int_big(Int, Term);
-Term  Yap_gmp_div_int_big(Int, Term);
-Term  Yap_gmp_div_big_int(Term, Int);
-Term  Yap_gmp_div2_big_int(Term, Int);
-Term  Yap_gmp_fdiv_int_big(Int, Term);
-Term  Yap_gmp_fdiv_big_int(Term, Int);
-Term  Yap_gmp_and_int_big(Int, Term);
-Term  Yap_gmp_ior_int_big(Int, Term);
-Term  Yap_gmp_xor_int_big(Int, Term);
-Term  Yap_gmp_sll_big_int(Term, Int);
-Term  Yap_gmp_add_big_big(Term, Term);
-Term  Yap_gmp_sub_big_big(Term, Term);
-Term  Yap_gmp_mul_big_big(Term, Term);
-Term  Yap_gmp_div_big_big(Term, Term);
-Term  Yap_gmp_div2_big_big(Term, Term);
-Term  Yap_gmp_fdiv_big_big(Term, Term);
-Term  Yap_gmp_and_big_big(Term, Term);
-Term  Yap_gmp_ior_big_big(Term, Term);
-Term  Yap_gmp_xor_big_big(Term, Term);
-Term  Yap_gmp_mod_big_big(Term, Term);
-Term  Yap_gmp_mod_big_int(Term, Int);
-Term  Yap_gmp_mod_int_big(Int, Term);
-Term  Yap_gmp_rem_big_big(Term, Term);
-Term  Yap_gmp_rem_big_int(Term, Int);
-Term  Yap_gmp_rem_int_big(Int, Term);
-Term  Yap_gmp_exp_int_int(Int,Int);
-Term  Yap_gmp_exp_int_big(Int,Term);
-Term  Yap_gmp_exp_big_int(Term,Int);
-Term  Yap_gmp_exp_big_big(Term,Term);
-Term  Yap_gmp_gcd_int_big(Int,Term);
-Term  Yap_gmp_gcd_big_big(Term,Term);
+Term Yap_gmp_add_ints(Int, Int);
+Term Yap_gmp_sub_ints(Int, Int);
+Term Yap_gmp_mul_ints(Int, Int);
+Term Yap_gmp_sll_ints(Int, Int);
+Term Yap_gmp_add_int_big(Int, Term);
+Term Yap_gmp_sub_int_big(Int, Term);
+Term Yap_gmp_sub_big_int(Term, Int);
+Term Yap_gmp_mul_int_big(Int, Term);
+Term Yap_gmp_div_int_big(Int, Term);
+Term Yap_gmp_div_big_int(Term, Int);
+Term Yap_gmp_div2_big_int(Term, Int);
+Term Yap_gmp_fdiv_int_big(Int, Term);
+Term Yap_gmp_fdiv_big_int(Term, Int);
+Term Yap_gmp_and_int_big(Int, Term);
+Term Yap_gmp_ior_int_big(Int, Term);
+Term Yap_gmp_xor_int_big(Int, Term);
+Term Yap_gmp_sll_big_int(Term, Int);
+Term Yap_gmp_add_big_big(Term, Term);
+Term Yap_gmp_sub_big_big(Term, Term);
+Term Yap_gmp_mul_big_big(Term, Term);
+Term Yap_gmp_div_big_big(Term, Term);
+Term Yap_gmp_div2_big_big(Term, Term);
+Term Yap_gmp_fdiv_big_big(Term, Term);
+Term Yap_gmp_and_big_big(Term, Term);
+Term Yap_gmp_ior_big_big(Term, Term);
+Term Yap_gmp_xor_big_big(Term, Term);
+Term Yap_gmp_mod_big_big(Term, Term);
+Term Yap_gmp_mod_big_int(Term, Int);
+Term Yap_gmp_mod_int_big(Int, Term);
+Term Yap_gmp_rem_big_big(Term, Term);
+Term Yap_gmp_rem_big_int(Term, Int);
+Term Yap_gmp_rem_int_big(Int, Term);
+Term Yap_gmp_exp_int_int(Int, Int);
+Term Yap_gmp_exp_int_big(Int, Term);
+Term Yap_gmp_exp_big_int(Term, Int);
+Term Yap_gmp_exp_big_big(Term, Term);
+Term Yap_gmp_gcd_int_big(Int, Term);
+Term Yap_gmp_gcd_big_big(Term, Term);
 
-Term  Yap_gmp_big_from_64bits(YAP_LONG_LONG);
+Term Yap_gmp_big_from_64bits(YAP_LONG_LONG);
 
-Term  Yap_gmp_float_to_big(Float);
-Term  Yap_gmp_float_to_rational(Float);
-Term  Yap_gmp_float_rationalize(Float);
+Term Yap_gmp_float_to_big(Float);
+Term Yap_gmp_float_to_rational(Float);
+Term Yap_gmp_float_rationalize(Float);
 Float Yap_gmp_to_float(Term);
-Term  Yap_gmp_add_float_big(Float, Term);
-Term  Yap_gmp_sub_float_big(Float, Term);
-Term  Yap_gmp_sub_big_float(Term, Float);
-Term  Yap_gmp_mul_float_big(Float, Term);
-Term  Yap_gmp_fdiv_float_big(Float, Term);
-Term  Yap_gmp_fdiv_big_float(Term, Float);
+Term Yap_gmp_add_float_big(Float, Term);
+Term Yap_gmp_sub_float_big(Float, Term);
+Term Yap_gmp_sub_big_float(Term, Float);
+Term Yap_gmp_mul_float_big(Float, Term);
+Term Yap_gmp_fdiv_float_big(Float, Term);
+Term Yap_gmp_fdiv_big_float(Term, Float);
 
-int   Yap_gmp_cmp_big_int(Term, Int);
+int Yap_gmp_cmp_big_int(Term, Int);
 #define Yap_gmp_cmp_int_big(I, T) (-Yap_gmp_cmp_big_int(T, I))
-int   Yap_gmp_cmp_big_float(Term, Float);
+int Yap_gmp_cmp_big_float(Term, Float);
 #define Yap_gmp_cmp_float_big(D, T) (-Yap_gmp_cmp_big_float(T, D))
-int   Yap_gmp_cmp_big_big(Term, Term);
+int Yap_gmp_cmp_big_big(Term, Term);
 
-int   Yap_gmp_tcmp_big_int(Term, Int);
+int Yap_gmp_tcmp_big_int(Term, Int);
 #define Yap_gmp_tcmp_int_big(I, T) (-Yap_gmp_tcmp_big_int(T, I))
-int   Yap_gmp_tcmp_big_float(Term, Float);
+int Yap_gmp_tcmp_big_float(Term, Float);
 #define Yap_gmp_tcmp_float_big(D, T) (-Yap_gmp_tcmp_big_float(T, D))
-int   Yap_gmp_tcmp_big_big(Term, Term);
+int Yap_gmp_tcmp_big_big(Term, Term);
 
-Term  Yap_gmp_neg_int(Int);
-Term  Yap_gmp_abs_big(Term);
-Term  Yap_gmp_neg_big(Term);
-Term  Yap_gmp_unot_big(Term);
-Term  Yap_gmp_floor(Term);
-Term  Yap_gmp_ceiling(Term);
-Term  Yap_gmp_round(Term);
-Term  Yap_gmp_trunc(Term);
-Term  Yap_gmp_float_fractional_part(Term);
-Term  Yap_gmp_float_integer_part(Term);
-Term  Yap_gmp_sign(Term);
-Term  Yap_gmp_lsb(Term);
-Term  Yap_gmp_msb(Term);
-Term  Yap_gmp_popcount(Term);
+Term Yap_gmp_neg_int(Int);
+Term Yap_gmp_abs_big(Term);
+Term Yap_gmp_neg_big(Term);
+Term Yap_gmp_unot_big(Term);
+Term Yap_gmp_floor(Term);
+Term Yap_gmp_ceiling(Term);
+Term Yap_gmp_round(Term);
+Term Yap_gmp_trunc(Term);
+Term Yap_gmp_float_fractional_part(Term);
+Term Yap_gmp_float_integer_part(Term);
+Term Yap_gmp_sign(Term);
+Term Yap_gmp_lsb(Term);
+Term Yap_gmp_msb(Term);
+Term Yap_gmp_popcount(Term);
 
-char *  Yap_gmp_to_string(Term, char *, size_t, int);
-size_t  Yap_gmp_to_size(Term, int);
+char *Yap_gmp_to_string(Term, char *, size_t, int);
+size_t Yap_gmp_to_size(Term, int);
 
-int   Yap_term_to_existing_big(Term, MP_INT *);
-int   Yap_term_to_existing_rat(Term, MP_RAT *); 
+int Yap_term_to_existing_big(Term, MP_INT *);
+int Yap_term_to_existing_rat(Term, MP_RAT *);
 
-void  Yap_gmp_set_bit(Int i, Term t);
+void Yap_gmp_set_bit(Int i, Term t);
 #endif
 
-#define Yap_Mk64IntegerTerm(i) __Yap_Mk64IntegerTerm((i) PASS_REGS)
+#define Yap_Mk64IntegerTerm(i) __Yap_Mk64IntegerTerm((i)PASS_REGS)
 
 INLINE_ONLY inline EXTERN Term __Yap_Mk64IntegerTerm(YAP_LONG_LONG USES_REGS);
 
 INLINE_ONLY inline EXTERN Term
-__Yap_Mk64IntegerTerm(YAP_LONG_LONG i USES_REGS)
-{
+__Yap_Mk64IntegerTerm(YAP_LONG_LONG i USES_REGS) {
   if (i <= Int_MAX && i >= Int_MIN) {
     return MkIntegerTerm((Int)i);
   } else {
@@ -580,52 +590,51 @@ __Yap_Mk64IntegerTerm(YAP_LONG_LONG i USES_REGS)
   }
 }
 
-
-#if __clang__ && FALSE  /* not in OSX yet */
-#define DO_ADD() if (__builtin_sadd_overflow( i1, i2, & z ) ) { goto overflow; }
+#if __clang__ && FALSE /* not in OSX yet */
+#define DO_ADD()                                                               \
+  if (__builtin_sadd_overflow(i1, i2, &z)) {                                   \
+    goto overflow;                                                             \
+  }
 #endif
 
-inline static Term
-add_int(Int i, Int j USES_REGS)
-{
+inline static Term add_int(Int i, Int j USES_REGS) {
 #if USE_GMP
-  UInt w = (UInt)i+(UInt)j;
+  UInt w = (UInt)i + (UInt)j;
   if (i > 0) {
-    if (j > 0 && (Int)w < 0) goto overflow;
+    if (j > 0 && (Int)w < 0)
+      goto overflow;
   } else {
-    if (j < 0 && (Int)w > 0) goto overflow;
+    if (j < 0 && (Int)w > 0)
+      goto overflow;
   }
-  RINT( (Int)w);
-  /* Integer overflow, we need to use big integers */
- overflow:
-    return Yap_gmp_add_ints(i, j);
+  RINT((Int)w);
+/* Integer overflow, we need to use big integers */
+overflow:
+  return Yap_gmp_add_ints(i, j);
 #else
-    RINT(i+j);
+  RINT(i + j);
 #endif
 }
 
 /* calculate the most significant bit for an integer */
-Int
-Yap_msb(Int inp USES_REGS);
+Int Yap_msb(Int inp USES_REGS);
 
-static inline Term
-p_plus(Term t1, Term t2 USES_REGS) {
+static inline Term p_plus(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       /* two integers */
-      return add_int(IntegerOfTerm(t1),IntegerOfTerm(t2) PASS_REGS);
-    case double_e:
-      {
-	/* integer, double */
-	Float fl1 = (Float)IntegerOfTerm(t1);
-	Float fl2 = FloatOfTerm(t2);
-	RFLOAT(fl1+fl2);
-      }
+      return add_int(IntegerOfTerm(t1), IntegerOfTerm(t2) PASS_REGS);
+    case double_e: {
+      /* integer, double */
+      Float fl1 = (Float)IntegerOfTerm(t1);
+      Float fl2 = FloatOfTerm(t2);
+      RFLOAT(fl1 + fl2);
+    }
     case big_int_e:
 #ifdef USE_GMP
-      return(Yap_gmp_add_int_big(IntegerOfTerm(t1), t2));
+      return (Yap_gmp_add_int_big(IntegerOfTerm(t1), t2));
 #endif
     default:
       RERROR();
@@ -634,12 +643,12 @@ p_plus(Term t1, Term t2 USES_REGS) {
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       /* float * integer */
-      RFLOAT(FloatOfTerm(t1)+IntegerOfTerm(t2));
+      RFLOAT(FloatOfTerm(t1) + IntegerOfTerm(t2));
     case double_e:
-      RFLOAT(FloatOfTerm(t1)+FloatOfTerm(t2));
+      RFLOAT(FloatOfTerm(t1) + FloatOfTerm(t2));
     case big_int_e:
 #ifdef USE_GMP
-      return Yap_gmp_add_float_big(FloatOfTerm(t1),t2);
+      return Yap_gmp_add_float_big(FloatOfTerm(t1), t2);
 #endif
     default:
       RERROR();
@@ -653,7 +662,7 @@ p_plus(Term t1, Term t2 USES_REGS) {
       /* two bignums */
       return Yap_gmp_add_big_big(t1, t2);
     case double_e:
-      return Yap_gmp_add_float_big(FloatOfTerm(t2),t1);
+      return Yap_gmp_add_float_big(FloatOfTerm(t2), t1);
     default:
       RERROR();
     }
@@ -677,11 +686,11 @@ p_plus(Term t1, Term t2 USES_REGS) {
 #endif
 
 #ifndef INFINITY
-#define INFINITY (1.0/0.0)
+#define INFINITY (1.0 / 0.0)
 #endif
 
 #ifndef NAN
-#define NAN      (0.0/0.0)
+#define NAN (0.0 / 0.0)
 #endif
 
 /* copied from SWI-Prolog */

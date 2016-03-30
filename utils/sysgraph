@@ -15,6 +15,7 @@
 
 :- use_module(library(analysis/graphs)).
 :- use_module(library(analysis/load)).
+:- use_module(library(analysis/undefs)).
 
 :- initialization(main).
 

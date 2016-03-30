@@ -328,7 +328,7 @@ pl_interface(F, Mod, Lev) :-
 	catch( open(PF, read, S, [script(true)]) , _, fail ),
 	repeat,
 	nb_getval( current_module, MR ),
- 	catch( read_clause( S, T, [module( MR ),term_position(Pos),comment(Comment)] ), Throw, loop_error( MR:Throw)),
+ 	catch( read_clause( S, T, [module( MR ),term_position(Pos),comments(Comment)] ), Throw, loop_error( S, MR:Throw)),
 
 	( T == end_of_file
 	->
@@ -382,7 +382,7 @@ get_interface( T, F, M0 , _Lev) :-
         NT = term_expansion( _, _ )
     ),
     !,
-    catch(directive(NT, F, M), Error, loop_error(Error)).
+    catch(directive(NT, F, M), Error, loop_error(c_file,Error)).
 get_interface( ( M:H :- _B), F, _M , _Lev) :-
     !,
 	functor( H, N, A),
@@ -519,7 +519,7 @@ get_directive( record( Records ), F, M , _Lev) :-
     handle_record( Records, F, M).
 get_directive( set_prolog_flag(dollar_as_lower_case,On), F, M , _Lev) :-
     !,
-    catch(directive(set_prolog_flag(dollar_as_lower_case,M:On), F), Msg, loop_error(585, Msg) ).
+    catch(directive(set_prolog_flag(dollar_as_lower_case,M:On), F), Msg, loop_error(c_file, Msg) ).
 
 % support SWI package record
 handle_record( (Records1, Records2), F, M ) :-
@@ -665,7 +665,7 @@ pl_source(F, F0, Mod, Lev) :-
 	repeat,
 	nb_getval( current_module, MR ),
 	%( sub_atom(F,_,_,_,'examples/matrix.yap') ->  spy get_interf ; nospyall ),
-	catch( read_clause( S, T, [module( MR ),term_position(Pos)] ), Throw, loop_error( Throw)),
+	catch( read_clause( S, T, [module( MR ),term_position(Pos)] ), Throw, loop_error( S, Throw)),
 	(
 	 T == end_of_file
 	->

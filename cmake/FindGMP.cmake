@@ -9,7 +9,7 @@
 # GMP_LIBRARIES_DIR - the directory the library we link with is found in.
 
 find_path(GMP_INCLUDE_DIRS NAMES gmp.h
-          PATHS "$ENV{PROGRAMFILES}/mpir/include"
+          PATHS  "${GMP_DIR}/include" "${GMP_DIR}" "$ENV{PROGRAMFILES}/mpir/include"
           DOC "The gmp include directory"
 )
 
@@ -30,12 +30,20 @@ if(MVC)
   )
 else(MVC)
   find_library(GMP_LIBRARIES  NAMES gmp
-                PATHS "{CMAKE_INSTALL_PREFIX}/lib"
+                PATHS "${GMP_DIR}/lib"
+                DOC "The GMP library"
+  )
+  find_library(GMP_LIBRARIES  NAMES gmp
+                PATHS "${GMP_DIR}"
+                DOC "The GMP library"
+  )
+  find_library(GMP_LIBRARIES  NAMES gmp
+                PATHS "${CMAKE_INSTALL_PREFIX}/lib"
                 DOC "The GMP library"
   )
   if(WIN32)
    find_library(GMP_LIBRARY_DLL NAMES gmp
-				PATHS "{CMAKE_INSTALL_PREFIX}/bin"
+				PATHS "${CMAKE_INSTALL_PREFIX}/bin" "${GMP_DIR}/bin" "${GMP_DIR}"
 				DOC "The GMP library DLL"
    )
   endif()

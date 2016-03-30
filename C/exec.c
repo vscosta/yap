@@ -978,7 +978,6 @@ static Int setup_call_cleanup(USES_REGS1) {
   yamop *oCP = CP, *oP = P;
   bool rc;
 
-
   Yap_DisableInterrupts(worker_id);
   rc = Yap_RunTopGoal(Setup, false);
   Yap_EnableInterrupts(worker_id);
@@ -1451,7 +1450,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
   if (!Yap_has_a_signal())
     CalculateStackGap(PASS_REGS1);
   LOCAL_CBorder = OldBorder;
- return out;
+  return out;
 }
 
 void Yap_PrepGoal(UInt arity, CELL *pt, choiceptr saved_b USES_REGS) {
@@ -1982,53 +1981,53 @@ bool is_cleanup_cp(choiceptr cp_b) {
 
 static Int JumpToEnv() {
   choiceptr handler = B, oh = NULL;
-  /* just keep the thrown object away, we don't need to care about it
+  /* just keep the throwm object away, we don't need to care about it
    */
   /* careful, previous step may have caused a stack shift,
      so get pointers here     */
   /* find the first choicepoint that may be a catch */
-  //DBTerm *dbt = Yap_RefToException();
-   while (handler &&
-         Yap_PredForChoicePt(handler, NULL) != PredDollarCatch) {
-     while (POP_CHOICE_POINT(handler)) {
+  // DBTerm *dbt = Yap_RefToException();
+  while (handler && Yap_PredForChoicePt(handler, NULL) != PredDollarCatch) {
+    while (POP_CHOICE_POINT(handler)) {
       POP_FAIL_EXECUTE(handler);
     }
-   /* we are already doing a catch */
+    /* we are already doing a catch */
     /* make sure we prune C-choicepoints */
-    if (handler->cp_ap == NOCODE && handler >= (choiceptr)(LCL0 - LOCAL_CBorder)) {
-     break;
-     }
-     oh = handler;
-     handler = handler->cp_b;
+    if (handler->cp_ap == NOCODE &&
+        handler >= (choiceptr)(LCL0 - LOCAL_CBorder)) {
+      break;
+    }
+    oh = handler;
+    handler = handler->cp_b;
   }
   if (LOCAL_PrologMode & AsyncIntMode) {
     Yap_signal(YAP_FAIL_SIGNAL);
   }
   POP_FAIL(handler);
   B = handler;
-  //Yap_CopyException(ref);
-   if (Yap_PredForChoicePt(B, NULL) == PredDollarCatch) {
+  // Yap_CopyException(ref);
+  if (Yap_PredForChoicePt(B, NULL) == PredDollarCatch) {
     /* can recover Heap thanks to copy term :-( */
-  /* B->cp_h = H; */
-  /* I could backtrack here, but it is easier to leave the unwinding
-     to the emulator */
-  // handler->cp_h = HR;
-  /* try to recover space */
-  /* can only do that when we recover space */
-  /* first, backtrack */
-  /* so that I recover memory execute op_fail */
-  // now put the ball in place
-  //Yap_CopyException(dbt);
-  Term t = Yap_GetException();
+    /* B->cp_h = H; */
+    /* I could backtrack here, but it is easier to leave the unwinding
+       to the emulator */
+    // handler->cp_h = HR;
+    /* try to recover space */
+    /* can only do that when we recover space */
+    /* first, backtrack */
+    /* so that I recover memory execute op_fail */
+    // now put the ball in place
+    // Yap_CopyException(dbt);
+    Term t = Yap_GetException();
     if (t == 0) {
       return false;
     }
-   t = Yap_MkApplTerm(FunctorThrow, 1, &t);
+    t = Yap_MkApplTerm(FunctorThrow, 1, &t);
     B->cp_h = HR;
     HB = HR;
     Yap_unify(t, B->cp_a2);
     B->cp_tr = TR;
-  } 
+  }
   P = FAILCODE;
   return true;
 }
@@ -2048,7 +2047,7 @@ static Int jump_env(USES_REGS1) {
   Term t = Deref(ARG1);
   Yap_PutException(t);
   bool out = JumpToEnv(PASS_REGS1);
-  if (P == FAILCODE && B->cp_ap == NOCODE && LCL0-(CELL*)B > LOCAL_CBorder) {
+  if (P == FAILCODE && B->cp_ap == NOCODE && LCL0 - (CELL *)B > LOCAL_CBorder) {
     // we're failing up to the top layer
     LOCAL_Error_TYPE = THROW_EVENT;
   }

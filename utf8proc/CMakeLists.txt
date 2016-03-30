@@ -1,5 +1,9 @@
 cmake_minimum_required (VERSION 2.8)
 
+if(POLICY CMP0042)
+  cmake_policy(SET CMP0042 NEW)
+endif(POLICY CMP0042)
+
 include (utils.cmake)
 
 disallow_intree_builds()
@@ -19,6 +23,9 @@ if (NOT MSVC)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -std=c99 -pedantic -Wall")
 endif ()
 
+SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${my_cxx_flags}" )
+SET( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${my_cxx_flags}" )
+
 add_library (utf8proc
   utf8proc.c
   utf8proc.h
@@ -32,10 +39,10 @@ set_target_properties (utf8proc PROPERTIES
 
   set( CMAKE_REQUIRED_INCLUDES  . ${CMAKE_REQUIRED_INCLUDES} )
 
-  
+
   set ( YAP_YAPUTF8LIB $<TARGET_FILE_NAME:utf8proc> )
 
-  
+
 install(TARGETS  utf8proc
   LIBRARY DESTINATION ${libdir}
   ARCHIVE DESTINATION ${libdir})

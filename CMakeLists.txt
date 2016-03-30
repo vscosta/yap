@@ -16,12 +16,11 @@ include(disallow)
 
 disallow_intree_builds()
 
-
-
 # set(CMAKE_BUILD_TYPE  Debug)
 
 set (MACOSX_RPATH ON)
 if(POLICY CMP0042)
+  cmake_policy(SET CMP0042 NEW)
 endif(POLICY CMP0042)
 if(POLICY CMP0043)
 cmake_policy(SET CMP0043 NEW)
@@ -118,8 +117,8 @@ add_library(libYap
   ${WINDLLS}
     $<TARGET_OBJECTS:libYAPOs>
   $<TARGET_OBJECTS:libOPTYap>
-  $<TARGET_OBJECTS:myddas>  
-  $<TARGET_OBJECTS:libswi>  
+  $<TARGET_OBJECTS:myddas>
+  $<TARGET_OBJECTS:libswi>
 )
 
 set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
@@ -523,7 +522,7 @@ target_link_libraries(libYap
 
 if(WIN32)
   if(MSVC)
-      set(MSVC_RUNTIME "dynamic")  
+      set(MSVC_RUNTIME "dynamic")
   ENDIF(MSVC)
   target_link_libraries(libYap  wsock32 ws2_32 Shlwapi)
 endif()

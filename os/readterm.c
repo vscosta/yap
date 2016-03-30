@@ -1022,7 +1022,7 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re,
                               int inp_stream) {
     CACHE_REGS
 
-  xarg *args = Yap_ArgListToVector(opts, read_clause_defs, READ_END);
+  xarg *args = Yap_ArgListToVector(opts, read_clause_defs, READ_CLAUSE_END);
   if (args == NULL) {
     if (LOCAL_Error_TYPE == DOMAIN_ERROR_GENERIC_ARGUMENT)
       LOCAL_Error_TYPE = DOMAIN_ERROR_READ_OPTION;

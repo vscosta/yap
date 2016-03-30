@@ -7,6 +7,28 @@ set(SO_MAJOR 1)
 set(SO_MINOR 0)
 set(SO_PATCH 0)
 
+find_package (CUDD)
+macro_log_feature (CUDD_FOUND "CUDD"
+"Use CUDD Library"
+"http://vlsi.colorado.edu/~fabio/CUDD/" FALSE)
+IF (CUDD_FOUND)
+#  CUDD_FOUND       - system has Cudd
+#  CUDD_LIBRARIES   - Link these to use Cudd
+#  CUDD_INCLUDE_DIR - Include directory for using Cudd
+
+INCLUDE_DIRECTORIES(
+${CUDD_INCLUDE_DIR}
+${CMAKE_CURRENT_BINARY_DIR}
+)
+
+check_include_files( util.h HAVE_UTIL_H )
+check_include_files( cudd/util.h HAVE_CUDD_UTIL_H )
+check_include_files( cudd.h HAVE_CUDD_H )
+check_include_files( "stdio.h;cudd/cudd.h" HAVE_CUDD_CUDD_H )
+check_include_files( cuddInt.h HAVE_CUDDINT_H )
+check_include_files( "stdio.h;cudd/cudd.h;cudd/cuddInt.h" HAVE_CUDD_CUDDINT_H )
+
+
 set( CPLINT_SOURCES
   cplint.h
   cplint_yap.c
@@ -127,8 +149,6 @@ examples/win.uni
     ${CUDD_INCLUDE_DIR_EXPORTS}
     ${CMAKE_CURRENT_BINARY_DIR}/../bdd
     )
-
-IF (CUDD_FOUND_EXPORT)
 
   add_library (bddem  SHARED
     ${BDDEM_SOURCES}

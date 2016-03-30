@@ -4447,18 +4447,18 @@ static bool pred_flag_clause(Functor f, Term mod, const char *name,
   s[1] = MkIntegerTerm(val);
 #elif USE_GMP
   {
-    char s[64];
+    char text[64];
     MP_INT rop;
 
 #ifdef _WIN32
-    snprintf(s, 64, "%I64d", (long long int)val);
+    snprintf(text, 64, "%I64d", (long long int)val);
 #elif HAVE_SNPRINTF
-    snprintf(s, 64, "%lld", (long long int)val);
+    snprintf(text, 64, "%lld", (long long int)val);
 #else
-    sprintf(s, "%lld", (long long int)val);
+    sprintf(text, "%lld", (long long int)val);
 #endif
-    mpz_init_set_str(&rop, s, 10);
-    s[1] = Yap_MkBigNumTerm((void *)&rop);
+    mpz_init_set_str(&rop, text, 10);
+    s[1] = Yap_MkBigIntTerm((void *)&rop);
   }
 #endif
   tn = Yap_MkApplTerm(f, 2, s);
