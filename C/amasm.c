@@ -1418,15 +1418,17 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
     case _equal:
       op = _p_equal;
       break;
+#if INLINE_BIG_COMPARISONS
     case _dif:
       op = _p_dif;
-      is_test = TRUE;
+      is_test = true;
       break;
     case _eq:
       op = _p_eq;
-      is_test = TRUE;
+      is_test = true;
       break;
-    case _functor:
+#endif
+      case _functor:
       code_p = check_alloc(clinfo, code_p, pass_no, cip);
       op = _p_functor;
       break;

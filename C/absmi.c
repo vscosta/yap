@@ -628,7 +628,7 @@ static int interrupt_deallocate(USES_REGS1) {
   /*
      don't do a creep here; also, if our instruction is followed by
      a execute_c, just wait a bit more */
-  if (Yap_only_has_signal(YAP_CREEP_SIGNAL) ||
+  if (Yap_only_has_signals(YAP_CREEP_SIGNAL, YAP_WAKEUP_SIGNAL) ||
       /* keep on going if there is something else */
       (P->opc != Yap_opcode(_procceed) && P->opc != Yap_opcode(_cut_e))) {
     execute_dealloc(PASS_REGS1);
@@ -655,7 +655,10 @@ static int interrupt_deallocate(USES_REGS1) {
       } else {
         pe = RepPredProp(Yap_GetPredPropByAtom(AtomTrue, 0));
       }
-      return interrupt_handler(pe PASS_REGS);
+      // deallocate moves P one step forward.
+      bool rc = interrupt_handler(pe PASS_REGS);
+      P = NEXTOP(P,p);
+      return rc;
     }
     if (!Yap_locked_gc(0, ENV, YESCODE)) {
       Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage);

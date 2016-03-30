@@ -1120,8 +1120,13 @@ Yap_InitInlines(void)
   Yap_InitAsmPred("compound", 1, _compound, p_compound, SafePredFlag);
   Yap_InitAsmPred("float", 1, _float, p_float, SafePredFlag);
   Yap_InitAsmPred("=", 2, _equal, p_equal, SafePredFlag);
-  Yap_InitAsmPred("\\=", 2, _dif, p_dif, SafePredFlag);
-  Yap_InitAsmPred("==", 2, _eq, p_eq, SafePredFlag);
+#if INLINE_BIG_COMPARISONS
+  Yap_InitAsmPred("\\=", 2, _dif, p_dif, SafePredFlag|TestPredFlag);
+  Yap_InitAsmPred("==", 2, _eq, p_eq, SafePredFlag|TestPredFlag);
+#else
+  Yap_InitCPred("\\=", 2, p_dif, SafePredFlag);
+  Yap_InitCPred("==", 2, p_eq, SafePredFlag);
+#endif
   Yap_InitAsmPred("arg", 3, _arg, p_arg, SafePredFlag);
   Yap_InitAsmPred("functor", 3, _functor, p_functor, 0);
   Yap_InitAsmPred("$label_ctl", 2, _p_label_ctl, p_erroneous_call, SafePredFlag);

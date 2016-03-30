@@ -1982,7 +1982,7 @@ bool is_cleanup_cp(choiceptr cp_b) {
 
 static Int JumpToEnv() {
   choiceptr handler = B, oh = NULL;
-  /* just keep the throwm object away, we don't need to care about it
+  /* just keep the thrown object away, we don't need to care about it
    */
   /* careful, previous step may have caused a stack shift,
      so get pointers here     */

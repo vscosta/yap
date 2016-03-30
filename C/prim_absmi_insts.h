@@ -2045,6 +2045,7 @@
       GONext();
       ENDOp();
 
+#if INLINE_BIG_COMPARISONS
       Op(p_dif, l);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
@@ -2168,6 +2169,12 @@
       ENDOp();
 
       Op(p_eq, l);
+#ifdef COROUTINING
+      CACHE_Y_AS_ENV(YREG);
+      check_stack(NoStackEq, HR);
+      ENDCACHE_Y_AS_ENV();
+    do_eq:
+#endif
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
         low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorSame,0)),XREGS+1);
@@ -2334,7 +2341,15 @@
       ENDP(pt0);
 
       ENDD(d0);
+#ifdef COROUTINING
+      /* Problem: have I got an environment or not? */
+    NoStackEq:
+      PROCESS_INT(interrupt_eq, do_eq);
+#endif
+
       ENDOp();
+#endif /* INLINE_BIG_COMPARISONS */
+
 
       Op(p_arg_vv, xxx);
 #ifdef LOW_LEVEL_TRACER
