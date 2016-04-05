@@ -1,13 +1,13 @@
-#include <string.h>
-#include <stdlib.h>
 #include "Yap.h"
 #include "cut_c.h"
+#include <stdlib.h>
+#include <string.h>
 
 #include "myddas.h"
 #include "myddas_util.h"
 
 /* Type: MYSQL->1 ODBC->2*/
-Short myddas_util_connection_type(void *con) {
+int myddas_util_connection_type(void *con) {
 
   MYDDAS_UTIL_CONNECTION con_node = myddas_util_search_connection(con);
 
@@ -157,7 +157,7 @@ void myddas_util_set_total_multi_queries_number(MYDDAS_UTIL_CONNECTION con,
   con->total_number_queries = number;
 }
 
-#ifdef MYDDAS_MYSQL
+#if defined(MYDDAS_MYSQL) && 0
 /* Auxilary function to table_write*/
 static void n_print(Int n, char c) {
   for (; n > 0; n--)

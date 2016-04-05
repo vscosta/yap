@@ -19,7 +19,9 @@ if (PostgreSQL_FOUND)
 #  PostgreSQL_LIBRARY_DIRS  - Link directories for PostgreSQL libraries
 #  PostgreSQL_LIBRARIES     - The PostgreSQL libraries.
   add_library (Yappostgres SHARED ${YAPPOSTGRES_SOURCES})
-  add_definitions (-DMYDDAS_POSTGRES=1)
+  set (MYDDAS_FLAGS ${MYDDAS_FLAGS} -DMYDDAS_POSTGRES=1 PARENT_SCOPE)
+    set_property( DIRECTORY .. APPEND PROPERTY COMPILE_DEFINITIONS  MYDDAS_POSTGRES=1 )
+
   target_link_libraries(Yappostgres libYap   ${PostgreSQL_LIBRARIES})
   include_directories (${PostgreSQL_INCLUDE_DIRS} ..)
   set_target_properties (Yappostgres PROPERTIES
@@ -35,4 +37,3 @@ if (PostgreSQL_FOUND)
 else()
   add_definitions (-DMYDDAS_PostgreSQL=0)
 endif (PostgreSQL_FOUND)
-

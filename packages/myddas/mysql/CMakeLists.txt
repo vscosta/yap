@@ -20,7 +20,8 @@ macro_log_feature (MYSQL_FOUND "MySQL"
     #  MYSQL_INCLUDE_DIR - where to find mysql.h, etc.
     #  MYSQL_LIBRARIES   - List of libraries when using MySQL.
     #  MYSQL_FOUND       - True if MySQL found.
-add_definitions (-DMYDDAS_MYSQL=1)
+    set (MYDDAS_FLAGS ${MYDDAS_FLAGS} -DMYDDAS_MYSQL=1 PARENT_SCOPE)
+    set_property( DIRECTORY .. APPEND PROPERTY COMPILE_DEFINITIONS  MYDDAS_MYSQL=1 )
 add_library (Yapmysql SHARED ${YAPMYSQL_SOURCES})
 target_link_libraries(Yapmysql ${MYSQL_LIBRARIES} libYap)
 include_directories (${MYSQL_INCLUDE_DIR} ..)

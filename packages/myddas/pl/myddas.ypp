@@ -17,12 +17,6 @@
 
 #if USE_MYDDAS
 
-#ifndef __ANDROID__
-:- load_foreign_files([myddas], [], init_myddas).
-/* Initialize MYDDAS GLOBAL STRUCTURES */
-:- .
-#endif
-
 #ifdef DEBUG
 :- yap_flag(single_var_warnings,on).
 #endif

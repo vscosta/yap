@@ -17,7 +17,8 @@ if (ODBC_FOUND)
   # ODBC_INCLUDE_DIRECTORIES, where to find sql.h
   # ODBC_LIBRARIES, the libraries to link against to use ODBC
   # ODBC_FOUND.  If false, you cannot build anything that requires Odbc.
-add_definitions (-DMYDDAS_ODBC=1)
+  set (MYDDAS_FLAGS ${MYDDAS_FLAGS} -DMYDDAS_ODBC=1 PARENT_SCOPE)
+    set_property( DIRECTORY .. APPEND PROPERTY COMPILE_DEFINITIONS  MYDDAS_ODBC=1 )
 add_library (Yapodbc SHARED ${YAPODBC_SOURCES})
 target_link_libraries(Yapodbc libYap ${ODBC_LIBRARIES})
 include_directories (${ODBC_INCLUDE_DIRECTORIES} ..)
