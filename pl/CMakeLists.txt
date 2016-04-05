@@ -32,7 +32,7 @@ set(PL_SOURCES
 	modules.yap
 	os.yap
 	preddecls.yap
-        preddyns.yap   
+        preddyns.yap
 	preds.yap
 	profile.yap
 	protect.yap
@@ -55,7 +55,8 @@ set(PL_SOURCES
 	../os/edio.yap
   )
 
-add_custom_target (${YAP_STARTUP} ALL SOURCES ${PL_SOURCES} ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
+if (NOT ANDROID)
+add_custom_target (${YAP_STARTUP} ALL SOURCES ${PL_SOURCES} WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 
 # Create a startup.yss on the top directory.
 add_custom_command (TARGET ${YAP_STARTUP}
@@ -65,10 +66,13 @@ add_custom_command (TARGET ${YAP_STARTUP}
   DEPENDS yap-bin  ${PL_SOURCES}
   )
 
-install (FILES ${PL_SOURCES}
-  DESTINATION ${libpl}/boot
-  )
 
 install (FILES ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
   DESTINATION ${dlls}
+  )
+
+endif()
+
+install (FILES ${PL_SOURCES}
+  DESTINATION ${libpl}/pl
   )
