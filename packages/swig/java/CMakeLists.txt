@@ -1,23 +1,7 @@
 
 
-macro_optional_find_package(Java ON)
+if (JNI_FOUND)
 
-#find_package(Java)
-find_package(Java COMPONENTS Runtime Development)
-find_package(JNI)
- 
-macro_log_feature (Java_FOUND "Java"
-    "Use Java System"
-    "http://www.java.org" FALSE)
-macro_optional_find_package(JNI ON)
-    macro_log_feature (JNI_FOUND "JNI"
-    "Use Java Native Interface"
-    "http://www.java.org" FALSE)
-
-
-if (Java_FOUND AND JNI_FOUND)
-
-    include ( UseJava  )
     include ( UseSWIG  )
 
 
@@ -53,9 +37,9 @@ if (Java_FOUND AND JNI_FOUND)
 	   )
 
 	add_dependencies(Native Yap++ )
-	 
+
     SWIG_LINK_LIBRARIES (Native Yap++ )
-      
+
 
    set(CMAKE_JNI_TARGET 1)
     ADD_JAR( NativeJar
@@ -81,7 +65,7 @@ if (Java_FOUND AND JNI_FOUND)
      ENTRY_POINT JavaYAP
      INCLUDE_JARS NativeJar )
    SET(CMAKE_JAVA_COMPILE_FLAGS "-source" "1.8" "-target" "1.8")
-install(    TARGETS Native  
+install(    TARGETS Native
     RUNTIME DESTINATION ${bindir}
     ARCHIVE  DESTINATION ${libdir}
     LIBRARY  DESTINATION ${libdir}
@@ -92,4 +76,4 @@ install_jar(JavaYAP ${libpl})
 
 
 
- Endif (Java_FOUND AND JNI_FOUND)
+ Endif (  JNI_FOUND)
