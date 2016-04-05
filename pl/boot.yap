@@ -1360,6 +1360,12 @@ not(G) :-    \+ '$execute'(G).
 '$check_callable'(_,_).
 
 
+'$bootstrap' :-
+    bootstrap('init.yap').
+    module(user),
+    '$live'.
+
+
 bootstrap(F) :-
 %	'$open'(F, '$csult', Stream, 0, 0, F),
 %	'$file_name'(Stream,File),

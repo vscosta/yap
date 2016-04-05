@@ -1,4 +1,3 @@
-package pt.up.fc.dcc.yap;
 
 /**** using sqlite
 For example,the following:
@@ -25,6 +24,9 @@ The SQLiteStatement.simpleQueryForBlobFileDescriptor() API is not available. The
 
 ****/
 
+import pt.up.fc.dcc.Yap.*;
+
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
@@ -45,12 +47,14 @@ import org.sqlite.database.sqlite.SQLiteOpenHelper;
 
 import org.sqlite.database.SQLException;
 import org.sqlite.database.DatabaseErrorHandler;
+
 class DoNotDeleteErrorHandler implements DatabaseErrorHandler {
     private static final String TAG = "DoNotDeleteErrorHandler";
     public void onCorruption(SQLiteDatabase dbObj) {
         Log.e(TAG, "Corruption reported by sqlite on database: " + dbObj.getPath());
     }
 }
+
 public class JavaYap extends Activity
 {
     TextView outputText = null;
@@ -242,8 +246,7 @@ public class JavaYap extends Activity
         System.loadLibrary("android");
         System.loadLibrary("log");
         System.loadLibrary("gmp");
-        System.loadLibrary("sqliteX");
-        System.loadLibrary("example");
+        System.loadLibrary("YapDroid");
     }
 
     private static native void load(AssetManager mgr);

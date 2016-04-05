@@ -185,19 +185,18 @@
 \******************************************************************************/
 
 /* modified by Fabrizio Riguzzi in 2009 for dealing with multivalued variables
-instead of variables or their negation, the script can contain equations of the 
+instead of variables or their negation, the script can contain equations of the
 form
 variable=value
 */
 
-
+#include "config.h"
+#include "cudd_config.h"
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 #include <time.h>
-#include "config.h"
-#include "cudd_config.h"
 #if HAVE_UTIL_H
 #include <util.h>
 #endif
@@ -218,26 +217,27 @@ variable=value
 #endif
 #include "general.h"
 
-#define IsHigh(manager, node)  HIGH(manager) == node
-#define IsLow(manager, node)   LOW(manager) == node
-#define HIGH(manager)          Cudd_ReadOne(manager)
-#define LOW(manager)           Cudd_Not(Cudd_ReadOne(manager))
-#define NOT(node)              Cudd_Not(node)
-#define GetIndex(node)         Cudd_NodeReadIndex(node)
-#define GetMVar(manager, index, value, varmap) equality(manager,index,value,varmap)//Cudd_bddIthVar(manager, index)
+#define IsHigh(manager, node) HIGH(manager) == node
+#define IsLow(manager, node) LOW(manager) == node
+#define HIGH(manager) Cudd_ReadOne(manager)
+#define LOW(manager) Cudd_Not(Cudd_ReadOne(manager))
+#define NOT(node) Cudd_Not(node)
+#define GetIndex(node) Cudd_NodeReadIndex(node)
+#define GetMVar(manager, index, value, varmap)                                 \
+  equality(manager, index, value, varmap) // Cudd_bddIthVar(manager, index)
 #define GetVar(manager, index) Cudd_bddIthVar(manager, index)
-#define NewVar(manager)        Cudd_bddNewVar(manager)
-#define KillBDD(manager)       Cudd_Quit(manager)
-#define GetVarCount(manager)   Cudd_ReadSize(manager)
-#define DEBUGON                _debug = 1
-#define DEBUGOFF               _debug = 0
-#define RAPIDLOADON            _RapidLoad = 1
-#define RAPIDLOADOFF           _RapidLoad = 0
-#define SETMAXBUFSIZE(size)    _maxbufsize = size
-#define BDDFILE_ERROR          -1
-#define BDDFILE_OTHER          0
-#define BDDFILE_SCRIPT         1
-#define BDDFILE_NODEDUMP       2
+#define NewVar(manager) Cudd_bddNewVar(manager)
+#define KillBDD(manager) Cudd_Quit(manager)
+#define GetVarCount(manager) Cudd_ReadSize(manager)
+#define DEBUGON _debug = 1
+#define DEBUGOFF _debug = 0
+#define RAPIDLOADON _RapidLoad = 1
+#define RAPIDLOADOFF _RapidLoad = 0
+#define SETMAXBUFSIZE(size) _maxbufsize = size
+#define BDDFILE_ERROR -1
+#define BDDFILE_OTHER 0
+#define BDDFILE_SCRIPT 1
+#define BDDFILE_NODEDUMP 2
 
 extern int _RapidLoad;
 extern int _debug;
@@ -253,11 +253,10 @@ typedef struct _bddfileheader {
   int filetype;
 } bddfileheader;
 
-typedef struct
-  {
-int nVal,nBit,init;
-double * probabilities;
-int  * booleanVars;
+typedef struct {
+  int nVal, nBit, init;
+  double *probabilities;
+  int *booleanVars;
 } variable;
 
 typedef struct _namedvars {
@@ -268,10 +267,9 @@ typedef struct _namedvars {
   double *dvalue;
   int *ivalue;
   void **dynvalue;
-  variable * mvars;
-  int * bVar2mVar;
+  variable *mvars;
+  int *bVar2mVar;
 } namedvars;
-
 
 typedef struct _hisnode {
   DdNode *key;
@@ -296,27 +294,31 @@ typedef struct _nodeline {
 
 /* Initialization */
 
-DdManager* simpleBDDinit(int varcnt);
+DdManager *simpleBDDinit(int varcnt);
 
 /* BDD Generation */
 
-DdNode* D_BDDAnd(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
-DdNode* D_BDDNand(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
-DdNode* D_BDDOr(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
-DdNode* D_BDDNor(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
-DdNode* D_BDDXor(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
-DdNode* D_BDDXnor(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
+DdNode *D_BDDAnd(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
+DdNode *D_BDDNand(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
+DdNode *D_BDDOr(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
+DdNode *D_BDDNor(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
+DdNode *D_BDDXor(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
+DdNode *D_BDDXnor(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
 
-DdNode* FileGenerateBDD(DdManager *manager, namedvars varmap, bddfileheader fileheader);
-DdNode* OnlineGenerateBDD(DdManager *manager, namedvars *varmap);
-DdNode* LineParser(DdManager *manager, namedvars varmap, DdNode **inter, int maxinter, char *function, int iline);
-DdNode* OnlineLineParser(DdManager *manager, namedvars *varmap, DdNode **inter, int maxinter, char *function, int iline);
-DdNode* BDD_Operator(DdManager *manager, DdNode *bdd1, DdNode *bdd2, char Operator, int inegoper);
+DdNode *FileGenerateBDD(DdManager *manager, namedvars varmap,
+                        bddfileheader fileheader);
+DdNode *OnlineGenerateBDD(DdManager *manager, namedvars *varmap);
+DdNode *LineParser(DdManager *manager, namedvars varmap, DdNode **inter,
+                   int maxinter, char *function, int iline);
+DdNode *OnlineLineParser(DdManager *manager, namedvars *varmap, DdNode **inter,
+                         int maxinter, char *function, int iline);
+DdNode *BDD_Operator(DdManager *manager, DdNode *bdd1, DdNode *bdd2,
+                     char Operator, int inegoper);
 int getInterBDD(char *function);
-char* getFileName(const char *function);
+char *getFileName(const char *function);
 int GetParam(char *inputline, int iParam);
 int LoadVariableData(namedvars varmap, char *filename);
-int LoadMultiVariableData(DdManager * mgr,namedvars varmap, char *filename);
+int LoadMultiVariableData(DdManager *mgr, namedvars varmap, char *filename);
 
 /* Named variables */
 
@@ -325,48 +327,61 @@ namedvars InitNamedMultiVars(int varcnt, int varstart, int bvarcnt);
 void EnlargeNamedVars(namedvars *varmap, int newvarcnt);
 int AddNamedVarAt(namedvars varmap, const char *varname, int index);
 int AddNamedVar(namedvars varmap, const char *varname);
-int AddNamedMultiVar(DdManager *mgr,namedvars varmap, const char *varnamei, int *value);
-void SetNamedVarValuesAt(namedvars varmap, int index, double dvalue, int ivalue, void *dynvalue);
-int SetNamedVarValues(namedvars varmap, const char *varname, double dvalue, int ivalue, void *dynvalue);
+int AddNamedMultiVar(DdManager *mgr, namedvars varmap, const char *varnamei,
+                     int *value);
+void SetNamedVarValuesAt(namedvars varmap, int index, double dvalue, int ivalue,
+                         void *dynvalue);
+int SetNamedVarValues(namedvars varmap, const char *varname, double dvalue,
+                      int ivalue, void *dynvalue);
 int GetNamedVarIndex(const namedvars varmap, const char *varname);
 int RepairVarcnt(namedvars *varmap);
-char* GetNodeVarName(DdManager *manager, namedvars varmap, DdNode *node);
-char* GetNodeVarNameDisp(DdManager *manager, namedvars varmap, DdNode *node);
+char *GetNodeVarName(DdManager *manager, namedvars varmap, DdNode *node);
+char *GetNodeVarNameDisp(DdManager *manager, namedvars varmap, DdNode *node);
 int all_loaded(namedvars varmap, int disp);
 
 /* Traversal */
 
-DdNode* HighNodeOf(DdManager *manager, DdNode *node);
-DdNode* LowNodeOf(DdManager *manager, DdNode *node);
+DdNode *HighNodeOf(DdManager *manager, DdNode *node);
+DdNode *LowNodeOf(DdManager *manager, DdNode *node);
 
 /* Traversal - History */
 
-hisqueue* InitHistory(int varcnt);
+hisqueue *InitHistory(int varcnt);
 void ReInitHistory(hisqueue *HisQueue, int varcnt);
-void AddNode(hisqueue *HisQueue, int varstart, DdNode *node, double dvalue, int ivalue, void *dynvalue);
-hisnode* GetNode(hisqueue *HisQueue, int varstart, DdNode *node);
+void AddNode(hisqueue *HisQueue, int varstart, DdNode *node, double dvalue,
+             int ivalue, void *dynvalue);
+hisnode *GetNode(hisqueue *HisQueue, int varstart, DdNode *node);
 int GetNodeIndex(hisqueue *HisQueue, int varstart, DdNode *node);
-void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, DdNode *bdd);
+void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue,
+                    DdNode *bdd);
 
 /* Save-load */
 
 bddfileheader ReadFileHeader(char *filename);
 int CheckFileVersion(const char *version);
 
-DdNode * LoadNodeDump(DdManager *manager, namedvars varmap, FILE *inputfile);
-DdNode * LoadNodeRec(DdManager *manager, namedvars varmap, hisqueue *Nodes, FILE *inputfile, nodeline current);
-DdNode * GetIfExists(DdManager *manager, namedvars varmap, hisqueue *Nodes, char *varname, int nodenum);
+DdNode *LoadNodeDump(DdManager *manager, namedvars varmap, FILE *inputfile);
+DdNode *LoadNodeRec(DdManager *manager, namedvars varmap, hisqueue *Nodes,
+                    FILE *inputfile, nodeline current);
+DdNode *GetIfExists(DdManager *manager, namedvars varmap, hisqueue *Nodes,
+                    char *varname, int nodenum);
 
-int SaveNodeDump(DdManager *manager, namedvars varmap, DdNode *bdd, char *filename);
-void SaveExpand(DdManager *manager, namedvars varmap, hisqueue *Nodes, DdNode *Current, FILE *outputfile);
+int SaveNodeDump(DdManager *manager, namedvars varmap, DdNode *bdd,
+                 char *filename);
+void SaveExpand(DdManager *manager, namedvars varmap, hisqueue *Nodes,
+                DdNode *Current, FILE *outputfile);
 void ExpandNodes(hisqueue *Nodes, int index, int nodenum);
 
 /* Export */
 
 int simpleBDDtoDot(DdManager *manager, DdNode *bdd, char *filename);
-int simpleNamedBDDtoDot(DdManager *manager, namedvars varmap, DdNode *bdd, char *filename);
+int simpleNamedBDDtoDot(DdManager *manager, namedvars varmap, DdNode *bdd,
+                        char *filename);
 
-DdNode * equality(DdManager *mgr,int varIndex,int value,namedvars varmap);
-hisnode* GetNodei1(int *bVar2mVar,hisqueue *HisQueue, int varstart, DdNode *node);
-void AddNode1(int *bVar2mVar, hisqueue *HisQueue, int varstart, DdNode *node, double dvalue, int ivalue, void *dynvalue);
-hisnode* GetNode1(int *bVar2mVar,hisqueue *HisQueue, int varstart, DdNode *node);
+DdNode *equality(DdManager *mgr, int varIndex, int value, namedvars varmap);
+hisnode *GetNodei1(int *bVar2mVar, hisqueue *HisQueue, int varstart,
+                   DdNode *node);
+void AddNode1(int *bVar2mVar, hisqueue *HisQueue, int varstart, DdNode *node,
+              double dvalue, int ivalue, void *dynvalue);
+hisnode *GetNode1(int *bVar2mVar, hisqueue *HisQueue, int varstart,
+                  DdNode *node);
