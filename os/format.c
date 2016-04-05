@@ -233,10 +233,10 @@ output is directed to the stream used by format/2.
 */
 
 #include "Yap.h"
-#include "Yatom.h"
 #include "YapHeap.h"
-#include "yapio.h"
 #include "YapText.h"
+#include "Yatom.h"
+#include "yapio.h"
 #include <stdlib.h>
 #if HAVE_UNISTD_H
 #include <unistd.h>
@@ -257,8 +257,8 @@ output is directed to the stream used by format/2.
 #define S_ISDIR(x) (((x)&_S_IFDIR) == _S_IFDIR)
 #endif
 #endif
-#include "iopreds.h"
 #include "eval.h"
+#include "iopreds.h"
 
 #define FORMAT_MAX_SIZE 1024
 
@@ -618,7 +618,8 @@ static Int doformat(volatile Term otail, volatile Term oargs,
           goto do_type_atom_error;
         yhandle_t sl = Yap_StartSlots();
         // stream is already locked.
-        Yap_plwrite(t, GLOBAL_Stream + sno, 0, Handle_vars_f | To_heap_f, GLOBAL_MaxPriority);
+        Yap_plwrite(t, GLOBAL_Stream + sno, 0, Handle_vars_f | To_heap_f,
+                    GLOBAL_MaxPriority);
         Yap_CloseSlots(sl);
         break;
       case 'c': {
@@ -810,8 +811,8 @@ static Int doformat(volatile Term otail, volatile Term oargs,
             char *pt, *res;
 
             tmpbase = tmp1;
-            while (!(res = Yap_gmp_to_string(t, tmpbase, TMP_STRING_SIZE,
-                                             radix))) {
+            while (!(
+                res = Yap_gmp_to_string(t, tmpbase, TMP_STRING_SIZE, radix))) {
               if (tmpbase == tmp1) {
                 tmpbase = NULL;
               } else {
@@ -871,7 +872,8 @@ static Int doformat(volatile Term otail, volatile Term oargs,
           t = targs[targ++];
           yhandle_t sl = Yap_StartSlots();
           Yap_plwrite(t, GLOBAL_Stream + sno, 0,
-                      Quote_illegal_f | Ignore_ops_f | To_heap_f, GLOBAL_MaxPriority);
+                      Quote_illegal_f | Ignore_ops_f | To_heap_f,
+                      GLOBAL_MaxPriority);
           Yap_CloseSlots(sl);
           break;
         case '@':
@@ -910,7 +912,8 @@ static Int doformat(volatile Term otail, volatile Term oargs,
           {
             Int sl = Yap_InitSlot(args);
             Yap_plwrite(t, GLOBAL_Stream + sno, 0,
-                        Handle_vars_f | Use_portray_f | To_heap_f, GLOBAL_MaxPriority);
+                        Handle_vars_f | Use_portray_f | To_heap_f,
+                        GLOBAL_MaxPriority);
             args = Yap_GetFromSlot(sl);
             Yap_CloseSlots(sl);
           }
@@ -936,7 +939,8 @@ static Int doformat(volatile Term otail, volatile Term oargs,
           t = targs[targ++];
           yhandle_t sl0 = Yap_StartSlots();
           Yap_plwrite(t, GLOBAL_Stream + sno, 0,
-                      Handle_vars_f | Quote_illegal_f | To_heap_f, GLOBAL_MaxPriority);
+                      Handle_vars_f | Quote_illegal_f | To_heap_f,
+                      GLOBAL_MaxPriority);
           Yap_CloseSlots(sl0);
           break;
         case 'w':
@@ -1022,8 +1026,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
           else
             finfo.pad_entries[finfo.padders].filler = fptr[-2];
           finfo.padders++;
-        }
-          break;
+        } break;
         do_instantiation_error:
           LOCAL_Error_TYPE = INSTANTIATION_ERROR;
           goto do_default_error;

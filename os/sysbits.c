@@ -635,6 +635,7 @@ static Term
     do_glob(const char *spec, bool glob_vs_wordexp) {
   CACHE_REGS
   char u[YAP_FILENAME_MAX + 1];
+  char *espec = u;
   if (spec == NULL) {
     return TermNil;
   }
@@ -642,7 +643,6 @@ static Term
   {
     WIN32_FIND_DATA find;
     HANDLE hFind;
-    const char *espec;
     CELL *dest;
     Term tf;
 
@@ -673,7 +673,6 @@ static Term
     return tf;
   }
 #elif HAVE_WORDEXP || HAVE_GLOB
-  char *espec = u;
   strncpy(espec, spec, sizeof(u));
   /* Expand the string for the program to run.  */
   size_t pathcount;

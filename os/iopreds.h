@@ -18,9 +18,9 @@ static char SccsId[] = "%W% %G%";
 #define HAVE_SOCKET 1
 #endif
 
-#include <stdlib.h>
-#include "Yap.h"
 #include "Atoms.h"
+#include "Yap.h"
+#include <stdlib.h>
 
 /*
  * This file defines main data-structure for stream management,
@@ -206,12 +206,17 @@ typedef struct stream_desc {
 #if defined(YAPOR) || defined(THREADS)
   lockvar streamlock; /* protect stream access */
 #endif
-  int (*stream_putc)(int, int); /** function the stream uses for writing a single octet */
-  int (*stream_wputc)(int, int); /** function the stream uses for writing a character */
-  int (*stream_getc)(int);      /** function the stream uses for reading an octet. */
-  int (*stream_wgetc)(int);  /** function the stream uses for reading a character. */
+  int (*stream_putc)(
+      int, int); /** function the stream uses for writing a single octet */
+  int (*stream_wputc)(
+      int, wchar_t); /** function the stream uses for writing a character */
+  int (*stream_getc)(int); /** function the stream uses for reading an octet. */
+  int (*stream_wgetc)(
+      int); /** function the stream uses for reading a character. */
 
-  int (*stream_wgetc_for_read)(int);  /* function the stream uses for parser. It may be different       from above if the ISO  character conversion is on */ 
+  int (*stream_wgetc_for_read)(
+      int); /* function the stream uses for parser. It may be different
+               from above if the ISO  character conversion is on */
   encoding_t encoding; /** current encoding for stream */
 } StreamDesc;
 
@@ -270,7 +275,7 @@ void Yap_ConsolePipeOps(StreamDesc *st);
 void Yap_SocketOps(StreamDesc *st);
 void Yap_ConsoleSocketOps(StreamDesc *st);
 bool Yap_ReadlineOps(StreamDesc *st);
-int  Yap_OpenBufWriteStream(USES_REGS1);
+int Yap_OpenBufWriteStream(USES_REGS1);
 void Yap_ConsoleOps(StreamDesc *s, bool recursive);
 
 void Yap_InitRandomPreds(void);
