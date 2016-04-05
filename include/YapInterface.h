@@ -54,23 +54,23 @@ q
 #undef __BEGIN_DECLS
 #undef __END_DECLS
 #ifdef __cplusplus
-# define __BEGIN_DECLS extern "C" {
-# define __END_DECLS }
+#define __BEGIN_DECLS extern "C" {
+#define __END_DECLS }
 #else
-# define __BEGIN_DECLS /* empty */
-# define __END_DECLS /* empty */
-#endif /* _cplusplus */
+#define __BEGIN_DECLS /* empty */
+#define __END_DECLS   /* empty */
+#endif                /* _cplusplus */
 
 __BEGIN_DECLS
 
-/** 
- * X_API macro 
+/**
+ * X_API macro
  *
  * brif
- * 
- * @param _WIN32 
- * 
- * @return 
+ *
+ * @param _WIN32
+ *
+ * @return
  */
 #if defined(_WIN32)
 #if YAP_H
@@ -84,7 +84,15 @@ __BEGIN_DECLS
 
 #ifndef Int_FORMAT
 
-#if _WIN64
+#if HAVE_INTTYPES_H
+
+#include <inttypes.h>
+
+#define Int_FORMAT "%" PRIdPTR
+#define Int_ANYFORMAT "%" PRIiPTR
+#define UInt_FORMAT "%" PRIuPTR
+
+#elif _WIN64
 #define Int_FORMAT "%I64d"
 #define Int_ANYFORMAT "%I64i"
 #define UInt_FORMAT "%I64u"
@@ -148,7 +156,8 @@ installation path you should use:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       gcc -mno-cygwin  -I "c:/Yap/include" -c my_process.c
-      gcc -mno-cygwin "c:/Yap/bin/yap.dll" --shared -o my_process.dll my_process.o
+      gcc -mno-cygwin "c:/Yap/bin/yap.dll" --shared -o my_process.dll
+my_process.o
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Under WIN32 in a pure CYGWIN environment, using the standard
 installation path, you should use:
@@ -417,10 +426,13 @@ names
 
 </li>
 </ul>
-The function [YAP_LookupAtom](@ref YAP_LookupAtom) looks up an atom in the standard hash
-table. The function [YAP_FullLookupAtom](@ref YAP_FullLookupAtom) will also search if the
+The function [YAP_LookupAtom](@ref YAP_LookupAtom) looks up an atom in the
+standard hash
+table. The function [YAP_FullLookupAtom](@ref YAP_FullLookupAtom) will also
+search if the
 atom had been "hidden": this is useful for system maintenance from C
-code. The functor [YAP_AtomName](@ref YAP_AtomName) returns a pointer to the string
+code. The functor [YAP_AtomName](@ref YAP_AtomName) returns a pointer to the
+string
 for the atom.
 
 The following primitives handle constructing atoms from strings with
@@ -510,7 +522,8 @@ The following primitives were designed to manipulate compound terms and
 functors
 
 <ul>
- <li>YAP_Term     YAP_MkApplTerm(YAP_Functor  _f_, unsigned long int  _n_, YAP_Term[]  _args_)
+ <li>YAP_Term     YAP_MkApplTerm(YAP_Functor  _f_, unsigned long int  _n_,
+YAP_Term[]  _args_)
 
 </li>
  <li>YAP_Term     YAP_MkNewApplTerm(YAP_Functor  _f_, int  _n_)
@@ -530,16 +543,19 @@ The [YAP_MkApplTerm() function constructs a new term, with functor
  _f_ (of arity  _n_), and using an array  _args_ of  _n_
 terms with  _n_ equal to the arity of the
 functor. YAP_MkNewApplTerm() builds up a compound term whose
-arguments are unbound variables. [YAP_ArgOfTerm](@ref YAP_ArgOfTerm) gives an argument
+arguments are unbound variables. [YAP_ArgOfTerm](@ref YAP_ArgOfTerm) gives an
+argument
 to a compound term. `argno` should be greater or equal to 1 and
-less or equal to the arity of the functor.  [YAP_ArgsOfTerm](@ref YAP_ArgsOfTerm)
+less or equal to the arity of the functor.  [YAP_ArgsOfTerm](@ref
+YAP_ArgsOfTerm)
 returns a pointer to an array of arguments.
 
 Notice that the compound term constructors can call the garbage
 collector if there is not enough space in the global stack.
 
 YAP allows one to manipulate the functors of compound term. The function
-[YAP_FunctorOfTerm](@ref YAP_FunctorOfTerm) allows one to obtain a variable of type
+[YAP_FunctorOfTerm](@ref YAP_FunctorOfTerm) allows one to obtain a variable of
+type
 `YAP_Functor` with the functor to a term. The following functions
 then allow one to construct functors, and to obtain their name and arity.
 
@@ -593,7 +609,8 @@ The YAP C-interface now includes an utility routine to copy a string
 represented as a list of a character codes to a previously allocated buffer
 
 <ul>
- <li>int YAP_StringToBuffer(YAP_Term  _String_, char \* _buf_, unsigned int  _bufsize_)
+ <li>int YAP_StringToBuffer(YAP_Term  _String_, char \* _buf_, unsigned int
+_bufsize_)
 
 </li>
 </ul>
@@ -679,7 +696,8 @@ The next routine can be used to ask space from the Prolog data-base:
 The routine returns a pointer to a buffer allocated from the code area,
 or `NULL` if sufficient space was not available.
 
-The space allocated with [YAP_AllocSpaceFromYAP](@ref YAP_AllocSpaceFromYAP) can be released
+The space allocated with [YAP_AllocSpaceFromYAP](@ref YAP_AllocSpaceFromYAP) can
+be released
 back to YAP by using:
 
 <ul>
@@ -735,7 +753,8 @@ routine receives as arguments a file descriptor, the true file name as a
 string, an atom with the user name, and a set of flags:
 
 <ul>
- <li>void      YAP_OpenStream(void \* _FD_, char \* _name_, YAP_Term  _t_, int  _flags_)
+ <li>void      YAP_OpenStream(void \* _FD_, char \* _name_, YAP_Term  _t_, int
+_flags_)
 
 </li>
 </ul>
@@ -832,7 +851,8 @@ The second function computes a hash function for a term, as in
 `term_hash/4`.
 
 <ul>
- <li>YAP_Int    YAP_TermHash(YAP_Term t, YAP_Int range, YAP_Int depth, int  ignore_variables));
+ <li>YAP_Int    YAP_TermHash(YAP_Term t, YAP_Int range, YAP_Int depth, int
+ignore_variables));
 
 </li>
 </ul>
@@ -958,10 +978,12 @@ a solution was found.
 Notice that you cannot create new slots if an YAP_ExnterGoal goal is open.
 
 </li>
- <li>`YAP_Bool` YAP_RetryGoal(`YAP_dogoalinfo \*`  _infop_) @anchor YAP_RetryGoal
+ <li>`YAP_Bool` YAP_RetryGoal(`YAP_dogoalinfo \*`  _infop_) @anchor
+YAP_RetryGoal
 
 
-Backtrack to a query created by [YAP_EnterGoal](@ref YAP_EnterGoal). The query is
+Backtrack to a query created by [YAP_EnterGoal](@ref YAP_EnterGoal). The query
+is
 given by the handle  _infop_. Returns whether a new solution could
 be be found.
 
@@ -1064,7 +1086,8 @@ collector, the second does the same for the atom garbage collector.`
 </li>
  <li>`void \*` YAP_ExternalDataInStackFromTerm(`YAP_Term t`)
 </li>
- <li>`YAP_Bool` YAP_IsExternalDataInStackTerm(`YAP_Term t`) @anchor YAP_AllocExternalDataInStack
+ <li>`YAP_Bool` YAP_IsExternalDataInStackTerm(`YAP_Term t`) @anchor
+YAP_AllocExternalDataInStack
 
 
 The next routines allow one to store external data in the Prolog
@@ -1079,7 +1102,8 @@ so it should not be used to store Prolog terms. On the other hand, it
 may be useful to store arrays in a compact way, or pointers to external objects.
 
 </li>
- <li>`int` YAP_HaltRegisterHook(`YAP_halt_hook f, void \*closure`) @anchor YAP_HaltRegisterHook
+ <li>`int` YAP_HaltRegisterHook(`YAP_halt_hook f, void \*closure`) @anchor
+YAP_HaltRegisterHook
 
 
 Register the function  _f_ to be called if YAP is halted. The
@@ -1091,7 +1115,8 @@ the closure argument  _closure_.
 </li>
  <li>`int` YAP_Argv(`char \*\*\*argvp`) @anchor YAP_Argv
 
-Return the number of arguments to YAP and instantiate argvp to point to the list of such arguments.
+Return the number of arguments to YAP and instantiate argvp to point to the list
+of such arguments.
 
 </li>
 </ul>
@@ -1115,7 +1140,8 @@ non-zero value otherwise. The predicate should be declared to
 YAP, in the initialization routine, with a call to
 
 <ul>
- <li>void YAP_UserCPredicate(char \* _name_, YAP_Bool \* _fn_(), unsigned long int  _arity_);
+ <li>void YAP_UserCPredicate(char \* _name_, YAP_Bool \* _fn_(), unsigned long
+int  _arity_);
 where  _name_ is a string with the name of the predicate,  _init_,
  _cont_,  _cut_ are the C functions used to start, continue and
 when pruning the execution of the predicate,  _arity_ is the
@@ -1143,14 +1169,18 @@ described above.
 The interface works as follows:
 
 <ul>
- <li>void YAP_UserBackCutCPredicate(char \* _name_, int \* _init_(), int \* _cont_(), int \* _cut_(), unsigned long int  _arity_, unsigned int  _sizeof_) @anchor YAP_UserBackCutCPredicate
+ <li>void YAP_UserBackCutCPredicate(char \* _name_, int \* _init_(), int \*
+_cont_(), int \* _cut_(), unsigned long int  _arity_, unsigned int  _sizeof_)
+@anchor YAP_UserBackCutCPredicate
 
 describes a new predicate where  _name_ is the name of the predicate,
  _init_,  _cont_, and  _cut_ are the C functions that implement
 the predicate and  _arity_ is the predicate's arity.
 
 </li>
- <li>void YAP_UserBackCPredicate(char \* _name_, int \* _init_(), int \* _cont_(), unsigned long int  _arity_, unsigned int  _sizeof_) @anchor YAP_UserBackCPredicate
+ <li>void YAP_UserBackCPredicate(char \* _name_, int \* _init_(), int \*
+_cont_(), unsigned long int  _arity_, unsigned int  _sizeof_) @anchor
+YAP_UserBackCPredicate
 
 describes a new predicate where  _name_ is the name of the predicate,
  _init_, and  _cont_ are the C functions that implement the
@@ -1165,7 +1195,8 @@ predicate and  _arity_ is the predicate's arity.
 
 
 </li>
- <li>void YAP_PRESERVED_DATA_CUT( _ptr_,  _type_); @anchor YAP_PRESERVED_DATA_CUT
+ <li>void YAP_PRESERVED_DATA_CUT( _ptr_,  _type_); @anchor
+YAP_PRESERVED_DATA_CUT
 
 
 </li>
@@ -1223,10 +1254,12 @@ static int start_n100(void)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The routine starts by getting the dereference value of the argument.
-The call to [YAP_PRESERVE_DATA](@ref YAP_PRESERVE_DATA) is used to initialize the memory
+The call to [YAP_PRESERVE_DATA](@ref YAP_PRESERVE_DATA) is used to initialize
+the memory
 which will hold the information to be preserved across
 backtracking. The first argument is the variable we shall use, and the
-second its type. Note that we can only use [YAP_PRESERVE_DATA](@ref YAP_PRESERVE_DATA)
+second its type. Note that we can only use [YAP_PRESERVE_DATA](@ref
+YAP_PRESERVE_DATA)
 once, so often we will want the variable to be a structure. This data
 is visible to the garbage collector, so it should consist of Prolog
 terms, as in the example. It is also correct to store pointers to
@@ -1240,11 +1273,14 @@ required to provide the next solution, and exits by calling
 
 If the argument was not a variable, the routine then checks if it was an
 integer, and if so, if its value is positive and less than 100. In that
-case it exits, denoting success, with [YAP_cut_succeed](@ref YAP_cut_succeed), or
+case it exits, denoting success, with [YAP_cut_succeed](@ref YAP_cut_succeed),
+or
 otherwise exits with [YAP_cut_fail](@ref YAP_cut_fail) denoting failure.
 
-The reason for using for using the functions [YAP_cut_succeed](@ref YAP_cut_succeed) and
-[YAP_cut_fail](@ref YAP_cut_fail) instead of just returning a non-zero value in the
+The reason for using for using the functions [YAP_cut_succeed](@ref
+YAP_cut_succeed) and
+[YAP_cut_fail](@ref YAP_cut_fail) instead of just returning a non-zero value in
+the
 first case, and zero in the second case, is that otherwise, if
 backtracking occurred later, the routine `continue_n100` would be
 called to provide additional solutions.
@@ -1272,10 +1308,12 @@ static int continue_n100(void)
 }
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Note that again the macro [YAP_PRESERVED_DATA](@ref YAP_PRESERVED_DATA) is used at the
+Note that again the macro [YAP_PRESERVED_DATA](@ref YAP_PRESERVED_DATA) is used
+at the
 beginning of the function to access the data preserved from the previous
 solution.  Then it checks if the last solution was found and in that
-case exits with [YAP_cut_succeed](@ref YAP_cut_succeed) in order to cut any further
+case exits with [YAP_cut_succeed](@ref YAP_cut_succeed) in order to cut any
+further
 backtracking.  If this is not the last solution then we save the value
 for the next solution in the data structure and exit normally with 1
 denoting success. Note also that in any of the two cases we use the
@@ -1315,11 +1353,13 @@ static int cut_n100(void)
 {
   YAP_PRESERVED_DATA_CUT(n100_data,n100_data_type*);
 
-  fprintf("n100 cut with counter %ld\n", YAP_IntOfTerm(n100_data->next_solution));
+  fprintf("n100 cut with counter %ld\n",
+YAP_IntOfTerm(n100_data->next_solution));
   return TRUE;
 }
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Notice that we have to use [YAP_PRESERVED_DATA_CUT](@ref YAP_PRESERVED_DATA_CUT): this is
+Notice that we have to use [YAP_PRESERVED_DATA_CUT](@ref
+YAP_PRESERVED_DATA_CUT): this is
 because the Prolog engine is at a different state during cut.
 
 If no work is required at cut, we can use:
@@ -1414,8 +1454,8 @@ The next program shows how to use this system. We assume the saved
 program contains two facts for the procedure <tt>b</tt>:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#include <stdio.h>
 #include "YAP/YAPInterface.h"
+#include <stdio.h>
 
 int
 main(int argc, char *argv[]) {
@@ -1457,14 +1497,16 @@ Predicate _pred_ is an exo-predicate that needs _sz_ bytes of
 contiguous storage. If _uid_ is non-null associate user-defined
 code with _pred_.
 
-    + YAP_AssertTuples(`YAP_PredEntryPtr` pred, `const YAP_Term *`  _Facts_, `size_t` nb)
+    + YAP_AssertTuples(`YAP_PredEntryPtr` pred, `const YAP_Term *`  _Facts_,
+`size_t` nb)
 Add the array of _nb_ Prolog term `Facts` to the table
 `Predicate`.
 
     + `int` YAP_ContinueGoal(`void`)
 Continue execution from the point where it stopped.
 
-    + `void` YAP_Error(`int`  _ID_,`YAP_Term`  _Cause_,`char \*`  _error_description_)
+    + `void` YAP_Error(`int`  _ID_,`YAP_Term`  _Cause_,`char \*`
+_error_description_)
 Generate an YAP System Error with description given by the string
  _error_description_.  _ID_ is the error ID, if known, or
 `0`.  _Cause_ is the term that caused the crash.
@@ -1539,7 +1581,8 @@ characters. The term is written according to a mask of the following
 flags in the `flag` argument: `YAP_WRITE_QUOTED`,
 `YAP_WRITE_HANDLE_VARS`, `YAP_WRITE_USE_PORTRAY`,  and `YAP_WRITE_IGNORE_OPS`.
 
-    + `int` YAP_WriteBuffer(`YAP_Term`  _t_, `char \*`  _buff_, `size_t`  _size_, `int`  _flags_)
+    + `int` YAP_WriteBuffer(`YAP_Term`  _t_, `char \*`  _buff_, `size_t`
+_size_, `int`  _flags_)
 Write a YAP_Term  _t_ to buffer  _buff_ with size
  _size_. The term is written
 according to a mask of the following flags in the `flag`
@@ -1547,12 +1590,14 @@ argument: `YAP_WRITE_QUOTED`, `YAP_WRITE_HANDLE_VARS`,
 `YAP_WRITE_USE_PORTRAY`, and `YAP_WRITE_IGNORE_OPS`. The
 function will fail if it does not have enough space in the buffer.
 
-    + `char \*` YAP_WriteDynamicBuffer(`YAP_Term`  _t_, `char \*`  _buff_, `size_t`  _size_, `size_t`  _\*lengthp_, `size_t`  _\*encodingp_, `int`  _flags_)
+    + `char \*` YAP_WriteDynamicBuffer(`YAP_Term`  _t_, `char \*`  _buff_,
+`size_t`  _size_, `size_t`  _\*lengthp_, `size_t`  _\*encodingp_, `int` _flags_)
 Write a YAP_Term  _t_ to buffer  _buff_ with size
  _size_. The code will allocate an extra buffer if  _buff_ is
 `NULL` or if `buffer` does not have enough room. The
 variable `lengthp` is assigned the size of the resulting buffer,
-and `encodingp` will receive the type of encoding (currently only `PL_ENC_ISO_LATIN_1` and `PL_ENC_WCHAR` are supported)
+and `encodingp` will receive the type of encoding (currently only
+`PL_ENC_ISO_LATIN_1` and `PL_ENC_WCHAR` are supported)
 
     + `void` YAP_InitConsult(`int`  _mode_, `char \*`  _filename_)
 Enter consult mode on file  _filename_. This mode maintains a few
@@ -1594,26 +1639,26 @@ the future we plan to split this library into several smaller libraries
 
 /* Primitive Functions */
 
-#define YAP_Deref(t)  (t)
+#define YAP_Deref(t) (t)
 
 X_API
 extern YAP_Term YAP_A(int);
-#define YAP_ARG1	YAP_A(1)
-#define YAP_ARG2	YAP_A(2)
-#define YAP_ARG3	YAP_A(3)
-#define YAP_ARG4	YAP_A(4)
-#define YAP_ARG5	YAP_A(5)
-#define YAP_ARG6	YAP_A(6)
-#define YAP_ARG7	YAP_A(7)
-#define YAP_ARG8	YAP_A(8)
-#define YAP_ARG9	YAP_A(9)
-#define YAP_ARG10	YAP_A(10)
-#define YAP_ARG11	YAP_A(11)
-#define YAP_ARG12	YAP_A(12)
-#define YAP_ARG13	YAP_A(13)
-#define YAP_ARG14	YAP_A(14)
-#define YAP_ARG15	YAP_A(15)
-#define YAP_ARG16	YAP_A(16)
+#define YAP_ARG1 YAP_A(1)
+#define YAP_ARG2 YAP_A(2)
+#define YAP_ARG3 YAP_A(3)
+#define YAP_ARG4 YAP_A(4)
+#define YAP_ARG5 YAP_A(5)
+#define YAP_ARG6 YAP_A(6)
+#define YAP_ARG7 YAP_A(7)
+#define YAP_ARG8 YAP_A(8)
+#define YAP_ARG9 YAP_A(9)
+#define YAP_ARG10 YAP_A(10)
+#define YAP_ARG11 YAP_A(11)
+#define YAP_ARG12 YAP_A(12)
+#define YAP_ARG13 YAP_A(13)
+#define YAP_ARG14 YAP_A(14)
+#define YAP_ARG15 YAP_A(15)
+#define YAP_ARG16 YAP_A(16)
 
 /*  YAP_Bool IsVarTerm(YAP_Term) */
 extern X_API YAP_Bool YAP_IsVarTerm(YAP_Term);
@@ -1705,9 +1750,9 @@ extern X_API const char *YAP_AtomName(YAP_Atom a);
 extern X_API const wchar_t *YAP_WideAtomName(YAP_Atom a);
 
 /*    YAP_Term  MkPairTerm(YAP_Term Head, YAP_Term Tail) */
-extern X_API YAP_Term YAP_MkPairTerm(YAP_Term,YAP_Term);
+extern X_API YAP_Term YAP_MkPairTerm(YAP_Term, YAP_Term);
 
-extern X_API YAP_Term YAP_MkListFromTerms(YAP_Term *,YAP_Int);
+extern X_API YAP_Term YAP_MkListFromTerms(YAP_Term *, YAP_Int);
 
 /*    YAP_Term  MkNewPairTerm(void) */
 extern X_API YAP_Term YAP_MkNewPairTerm(void);
@@ -1726,9 +1771,10 @@ extern X_API YAP_Term YAP_TermNil(void);
 
 extern X_API int YAP_IsTermNil(YAP_Term);
 
-extern X_API YAP_Term YAP_MkApplTerm(YAP_Functor functor, YAP_UInt arity,YAP_Term args[]);
+extern X_API YAP_Term YAP_MkApplTerm(YAP_Functor functor, YAP_UInt arity,
+                                     YAP_Term args[]);
 
-extern X_API YAP_Term YAP_MkNewApplTerm( YAP_Functor f, YAP_UInt arity);
+extern X_API YAP_Term YAP_MkNewApplTerm(YAP_Functor f, YAP_UInt arity);
 
 extern X_API YAP_Functor YAP_FunctorOfTerm(YAP_Term t);
 
@@ -1748,28 +1794,35 @@ extern X_API void *YAP_ExtraSpaceCut(void);
 
 #define YAP_PRESERVE_DATA(ptr, type) (ptr = (type *)YAP_ExtraSpace())
 #define YAP_PRESERVED_DATA(ptr, type) (ptr = (type *)YAP_ExtraSpace())
-#define YAP_PRESERVED_DATA_CUT(ptr,type) (ptr = (type *)YAP_ExtraSpaceCut())
+#define YAP_PRESERVED_DATA_CUT(ptr, type) (ptr = (type *)YAP_ExtraSpaceCut())
 
 extern X_API YAP_Bool YAP_Unify(YAP_Term t1, YAP_Term t2);
 
 /*  void UserCPredicate(const char *name, int *fn(), int arity) */
-extern X_API void YAP_UserCPredicate(const char *, YAP_UserCPred, YAP_Arity arity);
+extern X_API void YAP_UserCPredicate(const char *, YAP_UserCPred,
+                                     YAP_Arity arity);
 
-/*  void UserCPredicateWithArgs(const char *name, int *fn(), unsigned int arity) */
-extern X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, YAP_Arity, YAP_Term);
+/*  void UserCPredicateWithArgs(const char *name, int *fn(), unsigned int arity)
+ */
+extern X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred,
+                                             YAP_Arity, YAP_Term);
 
 /*  void UserBackCPredicate(const char *name, int *init(), int *cont(), int
     arity, int extra) */
-extern X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred, YAP_Arity, YAP_Arity);
+extern X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred,
+                                         YAP_UserCPred, YAP_Arity, YAP_Arity);
 
 /*   YAP_Int      YAP_ListLength(YAP_Term t) */
 extern X_API YAP_Int YAP_ListLength(YAP_Term);
 
 extern X_API size_t YAP_UTF8_TextLength(YAP_Term t);
 
-/*  void UserBackCPredicate(char *name, int *init(), int *cont(), int *cut(), int
+/*  void UserBackCPredicate(char *name, int *init(), int *cont(), int *cut(),
+   int
     arity, int extra) */
-extern X_API void YAP_UserBackCutCPredicate(const char *, YAP_UserCPred, YAP_UserCPred, YAP_UserCPred, YAP_Arity, YAP_Arity);
+extern X_API void YAP_UserBackCutCPredicate(const char *, YAP_UserCPred,
+                                            YAP_UserCPred, YAP_UserCPred,
+                                            YAP_Arity, YAP_Arity);
 
 /*  void CallProlog(YAP_Term t) */
 extern X_API YAP_Int YAP_CallProlog(YAP_Term t);
@@ -1777,15 +1830,23 @@ extern X_API YAP_Int YAP_CallProlog(YAP_Term t);
 /*  void cut_fail(void) */
 extern X_API void YAP_cut_up(void);
 
-#define YAP_cut_succeed() do { YAP_cut_up(); return TRUE; } while(0)
+#define YAP_cut_succeed()                                                      \
+  do {                                                                         \
+    YAP_cut_up();                                                              \
+    return TRUE;                                                               \
+  } while (0)
 
-#define YAP_cut_fail() do { YAP_cut_up(); return FALSE; } while(0)
+#define YAP_cut_fail()                                                         \
+  do {                                                                         \
+    YAP_cut_up();                                                              \
+    return FALSE;                                                              \
+  } while (0)
 
 /*  void *AllocSpaceFromYAP_(int) */
 extern X_API void *YAP_AllocSpaceFromYap(size_t);
 
 /*  void *ReallocSpaceFromYAP_(void*,int) */
-extern X_API void *YAP_ReallocSpaceFromYap(void*,size_t);
+extern X_API void *YAP_ReallocSpaceFromYap(void *, size_t);
 
 /*  void FreeSpaceFromYAP_(void *) */
 extern X_API void YAP_FreeSpaceFromYap(void *);
@@ -1793,7 +1854,7 @@ extern X_API void YAP_FreeSpaceFromYap(void *);
 /*  int YAP_RunGoal(YAP_Term) */
 extern X_API YAP_Int YAP_RunGoal(YAP_Term);
 
-//extern X_API YAP_Int YAP_RunPredicate(YAP_PredEntryPtr, YAP_Term *);
+// extern X_API YAP_Int YAP_RunPredicate(YAP_PredEntryPtr, YAP_Term *);
 
 /*  int YAP_RunGoalOnce(YAP_Term) */
 extern X_API YAP_Int YAP_RunGoalOnce(YAP_Term);
@@ -1807,7 +1868,6 @@ extern X_API YAP_Bool YAP_ShutdownGoal(int);
 /*  int YAP_ContinueGoal(void) */
 extern X_API YAP_Bool YAP_ContinueGoal(void);
 
-
 /*  void YAP_PruneGoal(void) */
 extern X_API void YAP_PruneGoal(YAP_dogoalinfo *);
 
@@ -1817,13 +1877,15 @@ extern X_API YAP_PredEntryPtr YAP_FunctorToPred(YAP_Functor);
 /*  int YAP_AtomToPred(struct pred_entry *, YAP_Term *) */
 extern X_API YAP_PredEntryPtr YAP_AtomToPred(YAP_Atom);
 
-extern X_API YAP_PredEntryPtr YAP_FunctorToPredInModule(YAP_Functor, YAP_Module);
+extern X_API YAP_PredEntryPtr YAP_FunctorToPredInModule(YAP_Functor,
+                                                        YAP_Module);
 
 /*  int YAP_AtomToPred(struct pred_entry *, YAP_Term *) */
 extern X_API YAP_PredEntryPtr YAP_AtomToPredInModule(YAP_Atom, YAP_Module);
 
 /*  int YAP_EnterGoal(void) */
-extern X_API YAP_Bool YAP_EnterGoal(YAP_PredEntryPtr, YAP_handle_t, YAP_dogoalinfo *);
+extern X_API YAP_Bool YAP_EnterGoal(YAP_PredEntryPtr, YAP_handle_t,
+                                    YAP_dogoalinfo *);
 
 /*  int YAP_RetryGoal(void) */
 extern X_API YAP_Bool YAP_RetryGoal(YAP_dogoalinfo *);
@@ -1841,9 +1903,11 @@ extern X_API int YAP_Reset(yap_reset_t reset);
 
 extern X_API void YAP_Error(int myerrno, YAP_Term t, const char *buf, ...);
 
-extern X_API int YAP_WriteBuffer(YAP_Term,char *,size_t,int);
+extern X_API int YAP_WriteBuffer(YAP_Term, char *, size_t, int);
 
-extern X_API char* YAP_WriteDynamicBuffer(YAP_Term t,char *buf,size_t sze, size_t *lengthp, YAP_encoding_t *encp, int flags);
+extern X_API char *YAP_WriteDynamicBuffer(YAP_Term t, char *buf, size_t sze,
+                                          size_t *lengthp, YAP_encoding_t *encp,
+                                          int flags);
 
 /*  void YAP_Term(YAP_Term) */
 extern X_API YAP_Term YAP_CopyTerm(YAP_Term);
@@ -1851,9 +1915,10 @@ extern X_API YAP_Term YAP_CopyTerm(YAP_Term);
 /*  char *YAP_CompileClause(YAP_Term) */
 extern X_API char *YAP_CompileClause(YAP_Term);
 
-extern X_API int YAP_NewExo( YAP_PredEntryPtr ap, size_t data, void *user_di);
+extern X_API int YAP_NewExo(YAP_PredEntryPtr ap, size_t data, void *user_di);
 
-extern X_API int YAP_AssertTuples( YAP_PredEntryPtr pred, const YAP_Term *ts, size_t offset, size_t sz);
+extern X_API int YAP_AssertTuples(YAP_PredEntryPtr pred, const YAP_Term *ts,
+                                  size_t offset, size_t sz);
 
 /*  int YAP_Init(YAP_init_args *) */
 extern X_API YAP_Int YAP_Init(YAP_init_args *);
@@ -1862,25 +1927,29 @@ extern X_API YAP_Int YAP_Init(YAP_init_args *);
 extern X_API YAP_Int YAP_FastInit(char saved_state[]);
 
 #ifndef _PL_STREAM_H
-// if we don't know what a stream is, just don't assume nothing about the pointer
+// if we don't know what a stream is, just don't assume nothing about the
+// pointer
 #define IOSTREAM void
 #endif /* FPL_STREAM_H */
 
 /// read a Prolog term from an operating system stream $s$.
 extern X_API YAP_Term YAP_Read(FILE *s);
 
-/// read a Prolog term from a Prolog opened stream $s$. Check YAP_OpenStream() for how to open 
+/// read a Prolog term from a Prolog opened stream $s$. Check YAP_OpenStream()
+/// for how to open
 /// Prolog streams in `C`.
 extern X_API YAP_Term YAP_ReadFromStream(int s);
 
-/// read a Prolog clause from a Prolog opened stream $s$. Similar to YAP_ReadFromStream() but takes /// default options from read_clause/3.
+/// read a Prolog clause from a Prolog opened stream $s$. Similar to
+/// YAP_ReadFromStream() but takes /// default options from read_clause/3.
 extern X_API YAP_Term YAP_ReadFromStream(int s);
 
-extern X_API void YAP_Write(YAP_Term t,FILE *s,int);
+extern X_API void YAP_Write(YAP_Term t, FILE *s, int);
 
-extern X_API  FILE * YAP_TermToStream(YAP_Term t);
+extern X_API FILE *YAP_TermToStream(YAP_Term t);
 
-extern X_API int YAP_InitConsult(int mode, const char *filename, int *previous_sno);
+extern X_API int YAP_InitConsult(int mode, const char *filename,
+                                 int *previous_sno);
 
 extern X_API void YAP_EndConsult(int s, int *previous_sno);
 
@@ -1893,13 +1962,13 @@ extern X_API void YAP_PutValue(YAP_Atom, YAP_Term);
 extern X_API YAP_Term YAP_GetValue(YAP_Atom);
 
 extern X_API YAP_Term YAP_FloatsToList(YAP_Float *, size_t);
-extern X_API YAP_Int  YAP_ListToFloats(YAP_Term, YAP_Float *, size_t);
+extern X_API YAP_Int YAP_ListToFloats(YAP_Term, YAP_Float *, size_t);
 
 extern X_API YAP_Term YAP_IntsToList(YAP_Int *, size_t);
-extern X_API YAP_Int  YAP_ListToInts(YAP_Term, YAP_Int *, size_t);
+extern X_API YAP_Int YAP_ListToInts(YAP_Term, YAP_Int *, size_t);
 
 /*  int StringToBuffer(YAP_Term,char *,unsigned int) */
-extern X_API char *YAP_StringToBuffer(YAP_Term,char *,unsigned int);
+extern X_API char *YAP_StringToBuffer(YAP_Term, char *, unsigned int);
 
 extern X_API YAP_Term YAP_BufferToString(const char *s);
 
@@ -1918,29 +1987,31 @@ extern X_API YAP_Term YAP_WideBufferToAtomList(const wchar_t *s);
 
 extern X_API YAP_Term YAP_NWideBufferToAtomList(const wchar_t *s, size_t len);
 
-extern X_API YAP_Term YAP_NWideBufferToAtomDiffList(const wchar_t *s, YAP_Term t0, size_t len);
+extern X_API YAP_Term YAP_NWideBufferToAtomDiffList(const wchar_t *s,
+                                                    YAP_Term t0, size_t len);
 
 extern X_API YAP_Term YAP_BufferToDiffList(const char *s, YAP_Term t0);
 
-extern X_API YAP_Term YAP_NBufferToDiffList(const char *s, YAP_Term t0, size_t len);
+extern X_API YAP_Term YAP_NBufferToDiffList(const char *s, YAP_Term t0,
+                                            size_t len);
 
 extern X_API YAP_Term YAP_WideBufferToDiffList(const wchar_t *s, YAP_Term t0);
 
-extern X_API YAP_Term YAP_NWideBufferToDiffList(const wchar_t *s, YAP_Term t0, size_t len);
+extern X_API YAP_Term YAP_NWideBufferToDiffList(const wchar_t *s, YAP_Term t0,
+                                                size_t len);
 
-extern X_API YAP_Term YAP_ReadBuffer(const char *s,YAP_Term *tp);
+extern X_API YAP_Term YAP_ReadBuffer(const char *s, YAP_Term *tp);
 
-extern X_API int YAP_InitSocks(const char *host,long port);
+extern X_API int YAP_InitSocks(const char *host, long port);
 
-#ifdef  SFUNC
+#ifdef SFUNC
 
-#define SFArity  0
+#define SFArity 0
 extern X_API YAP_Term *ArgsOfSFTerm();
 
 extern X_API YAP_Term MkSFTerm();
 
 #endif /* SFUNC */
-
 
 extern X_API void YAP_SetOutputMessage(void);
 
@@ -1984,48 +2055,49 @@ extern X_API void YAP_Throw(YAP_Term);
 extern X_API void YAP_AsyncThrow(YAP_Term);
 
 /*  int  YAP_LookupModule()  */
-#define YAP_LookupModule(T)  (T)
+#define YAP_LookupModule(T) (T)
 
 #define YAP_ModuleName(mod) (mod)
 
 /*  int  YAP_Halt()  */
-extern X_API void  YAP_Halt(int);
+extern X_API void YAP_Halt(int);
 
 /*  int  YAP_TopOfLocalStack()  */
-extern X_API YAP_Term  *YAP_TopOfLocalStack(void);
+extern X_API YAP_Term *YAP_TopOfLocalStack(void);
 
 /*  int  YAP_Predicate()  */
-extern X_API void  *YAP_Predicate(YAP_Atom,YAP_Arity,YAP_Term);
+extern X_API void *YAP_Predicate(YAP_Atom, YAP_Arity, YAP_Term);
 
 /*  int  YAP_Predicate()  */
-extern X_API void  YAP_PredicateInfo(void *,YAP_Atom *,YAP_Arity*,YAP_Module*);
+extern X_API void YAP_PredicateInfo(void *, YAP_Atom *, YAP_Arity *,
+                                    YAP_Module *);
 
 /*  int  YAP_CurrentModule()  */
-extern X_API YAP_Module  YAP_CurrentModule(void);
+extern X_API YAP_Module YAP_CurrentModule(void);
 
 /*  int  YAP_SetCurrentModule()  */
-extern X_API YAP_Module  YAP_SetCurrentModule(YAP_Module);
+extern X_API YAP_Module YAP_SetCurrentModule(YAP_Module);
 
 /*  int  YAP_CreateModule()  */
-extern X_API YAP_Module  YAP_CreateModule(YAP_Atom);
+extern X_API YAP_Module YAP_CreateModule(YAP_Atom);
 
 /*  int  YAP_StripModule()  */
-extern X_API YAP_Term  YAP_StripModule(YAP_Term, YAP_Module *);
+extern X_API YAP_Term YAP_StripModule(YAP_Term, YAP_Module *);
 
 /*  int  YAP_AtomGetHold(YAP_Atom)  */
-extern X_API int  YAP_AtomGetHold(YAP_Atom);
+extern X_API int YAP_AtomGetHold(YAP_Atom);
 
 /*  int  YAP_AtomReleaseHold(YAP_Atom)  */
-extern X_API int  YAP_AtomReleaseHold(YAP_Atom);
+extern X_API int YAP_AtomReleaseHold(YAP_Atom);
 
 /*  void  YAP_AtomReleaseHold(YAP_Atom)  */
-extern X_API YAP_agc_hook  YAP_AGCRegisterHook(YAP_agc_hook hook);
+extern X_API YAP_agc_hook YAP_AGCRegisterHook(YAP_agc_hook hook);
 
 /*  void  YAP_AtomReleaseHold(YAP_Atom)  */
-extern X_API int  YAP_HaltRegisterHook(YAP_halt_hook, void *);
+extern X_API int YAP_HaltRegisterHook(YAP_halt_hook, void *);
 
 /*  char *YAP_cwd(void)  */
-extern X_API char *  YAP_cwd(void);
+extern X_API char *YAP_cwd(void);
 
 /* thread stuff */
 extern X_API int YAP_ThreadSelf(void);
@@ -2036,43 +2108,43 @@ extern X_API int YAP_ThreadDestroyEngine(int);
 
 /* blob stuff */
 extern X_API YAP_Term YAP_MkBlobTerm(unsigned int);
-extern X_API void    *YAP_BlobOfTerm(YAP_Term);
+extern X_API void *YAP_BlobOfTerm(YAP_Term);
 
 /*  term comparison */
-extern X_API int  YAP_CompareTerms(YAP_Term, YAP_Term);
+extern X_API int YAP_CompareTerms(YAP_Term, YAP_Term);
 
 /*  list construction */
-extern X_API YAP_Term     YAP_OpenList(int);
-extern X_API YAP_Term     YAP_ExtendList(YAP_Term, YAP_Term);
-extern X_API int          YAP_CloseList(YAP_Term, YAP_Term);
+extern X_API YAP_Term YAP_OpenList(int);
+extern X_API YAP_Term YAP_ExtendList(YAP_Term, YAP_Term);
+extern X_API int YAP_CloseList(YAP_Term, YAP_Term);
 
 /*  attributed variables */
-extern X_API int	YAP_IsAttVar(YAP_Term);
-extern X_API YAP_Term	YAP_AttsOfVar(YAP_Term);
+extern X_API int YAP_IsAttVar(YAP_Term);
+extern X_API YAP_Term YAP_AttsOfVar(YAP_Term);
 
 /*  stream info */
-extern X_API void      *YAP_FileDescriptorFromStream(YAP_Term);
-extern X_API int        YAP_FileNoFromStream(YAP_Term);
+extern X_API void *YAP_FileDescriptorFromStream(YAP_Term);
+extern X_API int YAP_FileNoFromStream(YAP_Term);
 
 /*  store and recover terms */
-extern X_API void      *YAP_Record(YAP_Term);
-extern X_API YAP_Term   YAP_Recorded(void *);
-extern X_API int        YAP_Erase(void *);
+extern X_API void *YAP_Record(YAP_Term);
+extern X_API YAP_Term YAP_Recorded(void *);
+extern X_API int YAP_Erase(void *);
 
 /*  term utilities */
-extern X_API int        YAP_Variant(YAP_Term,YAP_Term);
-extern X_API YAP_Int    YAP_NumberVars(YAP_Term,YAP_Int);
-extern X_API YAP_Term   YAP_UnNumberVars(YAP_Term);
-extern X_API int        YAP_IsNumberedVariable(YAP_Term);
-extern X_API int        YAP_Unifiable(YAP_Term,YAP_Term);
-extern X_API int        YAP_ExactlyEqual(YAP_Term,YAP_Term);
-extern X_API YAP_Int    YAP_TermHash(YAP_Term, YAP_Int, YAP_Int, int);
+extern X_API int YAP_Variant(YAP_Term, YAP_Term);
+extern X_API YAP_Int YAP_NumberVars(YAP_Term, YAP_Int);
+extern X_API YAP_Term YAP_UnNumberVars(YAP_Term);
+extern X_API int YAP_IsNumberedVariable(YAP_Term);
+extern X_API int YAP_Unifiable(YAP_Term, YAP_Term);
+extern X_API int YAP_ExactlyEqual(YAP_Term, YAP_Term);
+extern X_API YAP_Int YAP_TermHash(YAP_Term, YAP_Int, YAP_Int, int);
 
-extern X_API void       YAP_signal(int);
+extern X_API void YAP_signal(int);
 
 /*  stack expansion control */
-extern X_API YAP_Term   YAP_GetYAPFlag(YAP_Term flag);
-extern X_API int        YAP_SetYAPFlag(YAP_Term flag, YAP_Term set);
+extern X_API YAP_Term YAP_GetYAPFlag(YAP_Term flag);
+extern X_API int YAP_SetYAPFlag(YAP_Term flag, YAP_Term set);
 
 /*    void  *YAP_GlobalBase(Term)  */
 extern X_API YAP_Int YAP_VarSlotToNumber(YAP_Int);
@@ -2087,7 +2159,7 @@ extern X_API YAP_Int YAP_NumberOfClausesForPredicate(YAP_PredEntryPtr);
 extern X_API int YAP_MaxOpPriority(YAP_Atom, YAP_Term);
 
 /*    int  YAP_OpInfo(Atom, Term, int, int *, int *)  */
-extern X_API int  YAP_OpInfo(YAP_Atom, YAP_Term, int, int *, int *);
+extern X_API int YAP_OpInfo(YAP_Atom, YAP_Term, int, int *, int *);
 
 extern X_API YAP_Bool YAP_IsExternalDataInStackTerm(YAP_Term);
 
@@ -2097,7 +2169,8 @@ extern X_API void *YAP_ExternalDataInStackFromTerm(YAP_Term t);
 
 extern X_API YAP_Bool YAP_IsExternalDataInStackTerm(YAP_Term t);
 
-extern X_API YAP_opaque_tag_t YAP_NewOpaqueType(struct YAP_opaque_handler_struct *f);
+extern X_API YAP_opaque_tag_t
+YAP_NewOpaqueType(struct YAP_opaque_handler_struct *f);
 
 extern X_API YAP_Bool YAP_IsOpaqueObjectTerm(YAP_Term t, YAP_opaque_tag_t tag);
 
@@ -2107,50 +2180,51 @@ extern X_API void *YAP_OpaqueObjectFromTerm(YAP_Term t);
 
 extern X_API YAP_CELL *YAP_HeapStoreOpaqueTerm(YAP_Term t);
 
-extern X_API int  YAP_Argv(char ***);
+extern X_API int YAP_Argv(char ***);
 
 extern X_API YAP_tag_t YAP_TagOfTerm(YAP_Term);
 
-extern X_API size_t     YAP_ExportTerm(YAP_Term, char *, size_t);
+extern X_API size_t YAP_ExportTerm(YAP_Term, char *, size_t);
 
-extern X_API size_t   YAP_SizeOfExportedTerm(char *);
+extern X_API size_t YAP_SizeOfExportedTerm(char *);
 
-extern X_API YAP_Term     YAP_ImportTerm(char *);
+extern X_API YAP_Term YAP_ImportTerm(char *);
 
-extern X_API int      YAP_RequiresExtraStack(size_t);
+extern X_API int YAP_RequiresExtraStack(size_t);
 
-/** 
+/**
  * YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
- * 
- * @param [in] argc the number of arguments to YAP 
- * @param [in] argv the array of arguments to YAP 
- * @param [in,out] argc the array with processed settings YAP 
- * 
- * @return 
- *//*
- * proccess command line arguments: valid switches are:
- *  -b    boot file
- *  -l    load file
- *  -L    load file, followed by exit.
- *  -s    stack area size (K)
- *  -h    heap area size
- *  -a    aux stack size
- *  -e    emacs_mode -m  
- *  -DVar=Value  
- *  reserved memory for alloc IF DEBUG 
- *  -P    only in development versions
- */
- extern X_API int YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap);
+ *
+ * @param [in] argc the number of arguments to YAP
+ * @param [in] argv the array of arguments to YAP
+ * @param [in,out] argc the array with processed settings YAP
+ *
+ * @return
+ */ /*
+   * proccess command line arguments: valid switches are:
+   *  -b    boot file
+   *  -l    load file
+   *  -L    load file, followed by exit.
+   *  -s    stack area size (K)
+   *  -h    heap area size
+   *  -a    aux stack size
+   *  -e    emacs_mode -m
+   *  -DVar=Value
+   *  reserved memory for alloc IF DEBUG
+   *  -P    only in development versions
+   */
+extern X_API int YAP_parse_yap_arguments(int argc, char *argv[],
+                                         YAP_init_args *iap);
 
-extern X_API YAP_Int      YAP_AtomToInt(YAP_Atom At);
+extern X_API YAP_Int YAP_AtomToInt(YAP_Atom At);
 
-extern X_API YAP_Atom     YAP_IntToAtom(YAP_Int i);
+extern X_API YAP_Atom YAP_IntToAtom(YAP_Int i);
 
-extern X_API YAP_Int      YAP_FunctorToInt(YAP_Functor At);
+extern X_API YAP_Int YAP_FunctorToInt(YAP_Functor At);
 
-extern X_API YAP_Functor     YAP_IntToFunctor(YAP_Int i);
+extern X_API YAP_Functor YAP_IntToFunctor(YAP_Int i);
 
-#define YAP_InitCPred(N,A,F)  YAP_UserCPredicate(N,F,A)
+#define YAP_InitCPred(N, A, F) YAP_UserCPredicate(N, F, A)
 
 __END_DECLS
 

@@ -404,6 +404,7 @@ int Yap_signal_index(const char *);
 void Yap_SetTextFile(char *);
 #endif
 #if __ANDROID__
+#include <android/asset_manager.h>
 extern AAssetManager *Yap_assetManager;
 
 extern void *Yap_openAssetFile(const char *path);
