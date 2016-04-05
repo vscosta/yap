@@ -16,18 +16,18 @@
 *************************************************************************/
 /* static char SccsId[] = "X 4.3.3"; */
 
-#include "config.h"
 #include "Yap.h"
 #include "YapHeap.h"
 #include "YapInterface.h"
+#include "config.h"
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #if HAVE_STDINT_H
 #include <stdint.h>
 #endif
-#include <stdlib.h>
 #include <stddef.h>
+#include <stdlib.h>
 #ifdef _MSC_VER /* Microsoft's Visual C++ Compiler */
 #ifdef HAVE_UNISTD_H
 #undef HAVE_UNISTD_H
@@ -171,7 +171,7 @@ X_API int YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap) {
   iap->MaxTrailSize = 0;
   iap->YapLibDir = NULL;
   iap->YapPrologBootFile = NULL;
-  iap->YapPrologInitFile = NULL;
+  iap->YapPrologInitGoal = NULL;
   iap->YapPrologRCFile = NULL;
   iap->YapPrologGoal = NULL;
   iap->YapPrologTopLevelGoal = NULL;
