@@ -25,7 +25,6 @@
 
 #define C_INTERFACE_C 1
 
-
 #include "Yap.h"
 #include "attvar.h"
 #include "clause.h"
@@ -1066,9 +1065,9 @@ Int YAP_Execute(PredEntry *pe, CPredicate exec_code) {
     complete_fail(((choiceptr)(LCL0 - OASP)), FALSE PASS_REGS);
   // CurrentModule = omod;
   if (!ret) {
-      Yap_RaiseException();
-    }
-   return ret;
+    Yap_RaiseException();
+  }
+  return ret;
 }
 
 #define FRG_REDO_MASK 0x00000003L
@@ -1119,7 +1118,7 @@ Int YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code) {
     Yap_CloseSlots(CurSlot);
     if (!ret) {
       Yap_RaiseException();
-     }
+    }
     return ret;
   }
 }
@@ -1127,7 +1126,7 @@ Int YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code) {
 Int YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code,
                      struct cut_c_str *top) {
   CACHE_REGS
-  Int oB = LCL0-(CELL*)B;
+  Int oB = LCL0 - (CELL *)B;
   Int val;
   /* for slots to work */
   yhandle_t CurSlot = Yap_StartSlots();
@@ -1135,7 +1134,6 @@ Int YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code,
   while (B < (choiceptr)top) {
     oB = LCL0 - (CELL *)B;
     B = B->cp_b;
-
   }
   PP = pe;
   if (pe->PredFlags & (SWIEnvPredFlag | CArgsPredFlag)) {
@@ -1216,8 +1214,8 @@ Int YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code) {
     Int ret = (exec_code)(PASS_REGS1);
     Yap_CloseSlots(CurSlot);
     if (!ret) {
-        Yap_RaiseException();
-   }
+      Yap_RaiseException();
+    }
     return ret;
   }
 }
@@ -2000,9 +1998,9 @@ X_API bool YAP_GoalHasException(Term *t) {
   CACHE_REGS
   BACKUP_MACHINE_REGS();
   if (t)
-  *t = Yap_PeekException();
+    *t = Yap_PeekException();
   return Yap_PeekException();
- }
+}
 
 X_API void YAP_ClearExceptions(void) {
   CACHE_REGS
@@ -2178,9 +2176,6 @@ X_API char *YAP_CompileClause(Term t) {
 
 static int yap_lineno = 0;
 
-static char InitFile[] = "init.yap";
-static char BootFile[] = "boot.yap";
-
 /* do initial boot by consulting the file boot.yap */
 static void do_bootfile(char *bootfilename USES_REGS) {
   Term t;
@@ -2205,7 +2200,7 @@ static void do_bootfile(char *bootfilename USES_REGS) {
     YAP_Reset(YAP_FULL_RESET);
     Yap_StartSlots();
     t = YAP_ReadClauseFromStream(bootfile);
-    //Yap_DebugPlWriteln(t);
+    // Yap_DebugPlWriteln(t);
     if (t == 0) {
       fprintf(stderr,
               "[ SYNTAX ERROR: while parsing bootfile %s at line %d ]\n",
@@ -2266,10 +2261,12 @@ static void construct_init_file(char *boot_file, char *BootFile) {
    that wants to control Yap */
 
 #define BOOT_FROM_SAVED_STATE TRUE
+static char BootFile[] = "boot.yap";
+static char InitFile[] = "init.yap";
 
 Int YAP_Init(YAP_init_args *yap_init) {
   int restore_result;
-  int do_bootstrap = (yap_init->YapPrologBootFile != NULL);
+  bool do_bootstrap = (yap_init->YapPrologBootFile != NULL);
   CELL Trail = 0, Stack = 0, Heap = 0, Atts = 0;
   char boot_file[YAP_FILENAME_MAX + 1];
   static int initialized = FALSE;
@@ -2296,7 +2293,7 @@ Int YAP_Init(YAP_init_args *yap_init) {
 
 #else
   if (yap_init->SavedState) {
-    fprintf(stderr, "[ WARNING: threaded YAP will ignore saved state %s ]\n",
+    fprintf(stderr, "[ WARNING: YAP will ignore saved state %s ]\n",
             yap_init->SavedState);
     yap_init->SavedState = NULL;
   }
@@ -2332,6 +2329,7 @@ Int YAP_Init(YAP_init_args *yap_init) {
   } else {
     Heap = yap_init->HeapSize;
   }
+
   Yap_InitWorkspace(Heap, Stack, Trail, Atts, yap_init->MaxTableSpaceSize,
                     yap_init->NumberWorkers, yap_init->SchedulerLoop,
                     yap_init->DelayedReleaseLoad);
@@ -2511,8 +2509,13 @@ Int Yap_InitDefaults(YAP_init_args *init_args, char saved_state[]) {
   init_args->MaxGlobalSize = 0;
   init_args->MaxTrailSize = 0;
   init_args->YapLibDir = NULL;
+#if __ANDROID__
+  init_args->YapPrologBootFile = "pl/boot.yap";
+  init_args->YapPrologInitGoal = "bootstrap";
+#else
   init_args->YapPrologBootFile = NULL;
-  init_args->YapPrologInitFile = NULL;
+  init_args->YapPrologInitGoal = NULL;
+#endif
   init_args->YapPrologRCFile = NULL;
   init_args->YapPrologGoal = NULL;
   init_args->YapPrologTopLevelGoal = NULL;
