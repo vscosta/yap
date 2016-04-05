@@ -128,6 +128,7 @@ packages/cplint/L
 
 packages/CLPBN/horus/hcli
 tmp
+Eclipse
 packages/bdd/simplecudd/problogbdd
 trace
 packages/bdd/cudd_config.h
@@ -139,6 +140,7 @@ Release
 Build
 xcode
 Threads
+android
 mxe
 caret
 codelite
@@ -153,4 +155,11 @@ CBlocks
 yPQ	
 *.tmp
 YAP.sublime*
-yap32/CMakeCache.txt
+yap32
+Eclipse
+
+yap-6.3.tags
+
+yap.prj
+
+yap.VITORs-MBP.vsc.pui
