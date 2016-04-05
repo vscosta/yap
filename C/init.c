@@ -1351,13 +1351,12 @@ void Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts,
 #endif /* YAPOR || TABLING */
 
   Yap_AttsSize = Atts;
-  Yap_InitTime(0);
-/* InitAbsmi must be done before InitCodes */
+  /* InitAbsmi must be done before InitCodes */
 /* This must be done before initializing predicates */
 #ifdef MPW
-  Yap_InitAbsmi(REGS, FunctorList);
+      Yap_InitAbsmi(REGS, FunctorList);
 #else
-  Yap_InitAbsmi();
+      Yap_InitAbsmi();
 #endif
   InitCodes();
   InitOps();
