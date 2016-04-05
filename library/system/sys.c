@@ -304,9 +304,9 @@ list_directory(void)
 #else
 #if __ANDROID__
  {
-    extern AAssetManager *assetManager;
+    extern AAssetManager *Yap_assetManager;
      const char *dirName = buf+strlen("/assets/");
-     AAssetManager* mgr = assetManager;
+     AAssetManager* mgr = Yap_assetManager;
     AAssetDir	 *de;
     const char* dp;
 
