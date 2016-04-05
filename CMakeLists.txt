@@ -6,11 +6,13 @@
 
 project(YAP)
 
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.0)
 
 # where we have most scripts
 # set path to additional CMake modules
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(disallow)
 
@@ -82,6 +84,21 @@ include (MacroOptionalFindPackage)
 include (MacroLogFeature)
 include(GetGitRevisionDescription)
 
+#cross-compilation support
+# Search packages for host system instead of packages for target system
+# in case of cross compilation these macro should be defined by toolchain file
+if(NOT COMMAND find_host_package)
+  macro(find_host_package)
+    find_package(${ARGN})
+  endmacro()
+endif()
+if(NOT COMMAND find_host_program)
+  macro(find_host_program)
+    find_program(${ARGN})
+  endmacro()
+endif()
+
+
 # Test signal handler return type (mimics AC_TYPE_SIGNAL)
 include(TestSignalType) #check if this is really needed as c89 defines this as void
 
@@ -96,6 +113,16 @@ endif()
 get_git_head_revision(GIT_HEAD GIT_SHA1)
 git_describe(GIT_DESCRIBE)
 
+if (ANDROID)
+  set (ANDROIDDLLS "android" "log")
+  set (ANDROID_ANT ant)
+  set (ANDROID_SDK_TOOL $ENV{ANDROID_SDK}/tools/android)
+else()
+  set(YAP_STARTUP startup.yss)
+endif()
+
+  include(java)
+
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   cmake_policy( SET CMP0042 NEW)
   #cmake_policy( NO_POLICY_SCOPE )
@@ -108,6 +135,19 @@ set (BUILD_SHARED_LIBS ON)
 include (Sources)
 
 
+if (ANDROID)
+set(YAP_MODULES
+    $<TARGET_OBJECTS:Yapsqlite3>
+    $<TARGET_OBJECTS:Yap++>
+    $<TARGET_OBJECTS:utf8proc>
+)
+set(CMAKE_INSTALL_PREFIX
+${CMAKE_BINARY_DIR}/packages/swig/android/assets)
+else()
+  set( UTF8PROC_DL utf8proc)
+endif()
+
+
 add_library(libYap
   ${ENGINE_SOURCES}
   ${C_INTERFACE_SOURCES}
@@ -115,11 +155,13 @@ add_library(libYap
   ${OPTYAP_SOURCES}
   ${HEADERS}
   ${WINDLLS}
-    $<TARGET_OBJECTS:libYAPOs>
+  $<TARGET_OBJECTS:libYAPOs>
   $<TARGET_OBJECTS:libOPTYap>
   $<TARGET_OBJECTS:myddas>
   $<TARGET_OBJECTS:libswi>
+  ${YAP_MODULES}
 )
+
 
 set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
 
@@ -128,7 +170,8 @@ set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
   include (Config)
 
 IF (NOT MSVC)
-  target_link_libraries(libYap m)
+  target_link_libraries(libYap m  ${ANDROIDDLLS}
+  )
 ENDIF (NOT MSVC)
 
 set_target_properties(libYap
@@ -166,7 +209,6 @@ set(YAP_INCLUDEDIR "${includedir}")
 set(YAP_ROOTDIR "${prefix}")
 
 set(YAP_YAPLIB libYap${CMAKE_SHARED_LIBRARY_SUFFIX})
-set(YAP_STARTUP startup.yss)
 string(TIMESTAMP YAP_TIMESTAMP)
 string( SUBSTRING ${CMAKE_SHARED_LIBRARY_SUFFIX} 1 -1 SO_EXT )
 #
@@ -295,7 +337,7 @@ macro_log_feature (GMP_FOUND
 if (GMP_FOUND)
 # GMP_FOUND         - true if GMP/MPIR was found
 # GMP_INCLUDE_DIRS  - include search path
-# GMP_LIBARIES      - libraries to link with
+# GMP_LIBRARIES      - libraries to link with
 # GMP_LIBARY_DLL    - library DLL to install. Only available on WIN32.
 # GMP_LIBRARIES_DIR - the directory the library we link with is found in.
   include_directories (${GMP_INCLUDE_DIRS})
@@ -406,8 +448,6 @@ add_subDIRECTORY (packages/python)
 
 add_subDIRECTORY (packages/jpl)
 
-add_subDIRECTORY (packages/swig)
-
 add_subDIRECTORY (packages/bdd)
 
 add_subDIRECTORY (packages/ProbLog)
@@ -467,6 +507,10 @@ option (WITH_PRISM
   "use PRISM system in YAP" ON)
 #TODO:
 
+#must be last
+add_subDIRECTORY (packages/swig)
+
+
 option (WITH_YAP_DLL
   "compile YAP as a DLL" ON)
 #TODO:
@@ -514,7 +558,7 @@ endif()
 
 
 target_link_libraries(libYap
-  utf8proc
+  ${UTF8PROC_DL}
   ${GMP_LIBRARIES}
   ${READLINE_LIBS}
   ${CMAKE_DL_LIBS}
@@ -540,8 +584,6 @@ CMAKE_DEPENDENT_OPTION (WITH_SYSTEM_MMAP "Use MMAP for shared memory allocation"
 CMAKE_DEPENDENT_OPTION (WITH_SYSTEM_SHM "Use SHM for shared memory allocation" ON
   "NOT WITH_YAPOR_THOR; NOT WITH_SYSTEM_MMAP" OFF )
 
-macro_optional_find_package (MPI OFF)
-
   add_subDIRECTORY(library/lammpi)
 
   if (MPI_C_FOUND)
@@ -566,7 +608,9 @@ macro_optional_find_package (MPI OFF)
 
  ##   add_subDIRECTORY(utils)
 
-add_custom_target (main ALL DEPENDS ${YAP_STARTUP} ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
+if (NOT ANDROID)
+  add_custom_target (main ALL DEPENDS ${YAP_STARTUP} ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
+endif()
 #
 # include subdirectories configuration
 ## after we have all functionality in
