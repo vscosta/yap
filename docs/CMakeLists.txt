@@ -27,7 +27,7 @@ yap.md
 
 # add a target to generate API documentation with Doxygen
 
-find_package(Doxygen)
+find_host_package(Doxygen)
 option(WITH_DOCS "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
 
