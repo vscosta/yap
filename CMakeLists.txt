@@ -135,17 +135,15 @@ set (BUILD_SHARED_LIBS ON)
 include (Sources)
 
 
-if (ANDROID)
+if (YAP_SINGLE_FILE)
 set(YAP_MODULES
     $<TARGET_OBJECTS:Yapsqlite3>
     $<TARGET_OBJECTS:Yap++>
     $<TARGET_OBJECTS:utf8proc>
 )
-set(CMAKE_INSTALL_PREFIX
-${CMAKE_BINARY_DIR}/packages/swig/android/assets)
-else()
+else(YAP_SINGLE_FILE)
   set( UTF8PROC_DL utf8proc)
-endif()
+endif(YAP_SINGLE_FILE)
 
 
 add_library(libYap
@@ -185,6 +183,20 @@ set(CMAKE_TOP_BINARY_DIR ${CMAKE_BINARY_DIR})
 set(YAP_PL_SRCDIR ${CMAKE_SOURCE_DIR}/pl)
 
 # Compatibility vars with autotols
+if (ANDROID)
+set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/packages/swig/android)
+set ( prefix "${CMAKE_INSTALL_PREFIX}")
+set ( exec_prefix "${prefix}")
+set ( libdir "${exec_prefix}/libs/${ANDROID_ABI}")
+set ( dlls "${libdir}")
+set ( includedir "${prefix}/assets/include")
+set ( datarootdir "${prefix}/assets/share")
+set ( libpl  "${datarootdir}/Yap")
+set ( datadir "${datarootdir}")
+set ( mandir "${datarootdir}/assets/man")
+set ( bindir "${exec_prefix}/bin")
+set ( docdir "${exec_prefix}/share/doc/Yap")
+else()
 set ( prefix "${CMAKE_INSTALL_PREFIX}")
 set ( exec_prefix "${prefix}")
 set ( libdir "${exec_prefix}/lib")
@@ -196,6 +208,7 @@ set ( datadir "${datarootdir}")
 set ( mandir "${datarootdir}/man")
 set ( bindir "${exec_prefix}/bin")
 set ( docdir "${exec_prefix}/share/doc/Yap")
+endif()
 
 set(YAP_ROOTDIR ${prefix})
 

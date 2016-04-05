@@ -33,9 +33,9 @@ set (SQLITE3_FOUND ON PARENT_SCOPE)
   set (MYDDAS_FLAGS ${MYDDAS_FLAGS} -DMYDDAS_SQLITE3=1 PARENT_SCOPE)
   set_property( DIRECTORY .. APPEND PROPERTY COMPILE_DEFINITIONS  MYDDAS_SQLITE3=1 )
 
-  if (ANDROID)
+  if (YAP_SINGLE_FILE)
   add_library (Yapsqlite3 OBJECT   ${YAPSQLITE3_SOURCES}  ${YAPSQLITE3_ANDROID_SOURCES})
-  else()
+  else(YAP_SINGLE_FILE)
   add_library (Yapsqlite3 SHARED ${YAPSQLITE3_SOURCES})
   target_link_libraries(Yapsqlite3 libYap)
   set_target_properties (Yapsqlite3 PROPERTIES
@@ -47,4 +47,4 @@ set (SQLITE3_FOUND ON PARENT_SCOPE)
     LIBRARY DESTINATION ${libdir}
      ARCHIVE DESTINATION ${libdir}
   )
-endif()
+endif(YAP_SINGLE_FILE)

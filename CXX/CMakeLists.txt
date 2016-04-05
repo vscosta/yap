@@ -15,14 +15,10 @@ set (CXX_SOURCES
 )
 
 
-if (ANDROID)
-add_library (Yap++ OBJECT
-    ${CXX_SOURCES}
-    )
-else()
-add_library (Yap++ SHARED
-    ${CXX_SOURCES}
-    )
+if (YAP_SINGLE_FILE)
+add_library (Yap++ OBJECT ${CXX_SOURCES} )
+else(YAP_SINGLE_FILE)
+add_library (Yap++ SHARED ${CXX_SOURCES} )
 
 target_link_libraries(Yap++ ${CMAKE_DL_LIBS} libYap)
 
@@ -30,7 +26,7 @@ install(TARGETS  Yap++
   LIBRARY DESTINATION ${libdir}
   ARCHIVE DESTINATION ${libdir}
   )
-endif()
+endif(YAP_SINGLE_FILE)
 
 include_directories (H include ${CMAKE_BINARY_DIR} ${GMP_INCLUDE_DIR})
 

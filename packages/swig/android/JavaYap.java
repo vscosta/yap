@@ -246,6 +246,10 @@ public class JavaYap extends Activity
         System.loadLibrary("android");
         System.loadLibrary("log");
         System.loadLibrary("gmp");
+        System.loadLibrary("sqlite3");
+        System.loadLibrary("utf8proc");
+        System.loadLibrary("Yap");
+        System.loadLibrary("Yap++");
         System.loadLibrary("YapDroid");
     }
 

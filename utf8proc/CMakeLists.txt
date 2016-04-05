@@ -26,12 +26,12 @@ endif ()
 SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${my_cxx_flags}" )
 SET( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${my_cxx_flags}" )
 
-if (ANDROID)
+if (YAP_SINGLE_FILE)
   add_library (utf8proc OBJECT
     utf8proc.c
     utf8proc.h
   )
-else(ANDROID)
+else(YAP_SINGLE_FILE)
 add_library (utf8proc SHARED
   utf8proc.c
   utf8proc.h
@@ -42,7 +42,7 @@ install(TARGETS  utf8proc
   LIBRARY DESTINATION ${libdir}
   ARCHIVE DESTINATION ${libdir})
 
-endif(ANDROID)
+endif(YAP_SINGLE_FILE)
 
 set_target_properties (utf8proc PROPERTIES
   POSITION_INDEPENDENT_CODE ON
