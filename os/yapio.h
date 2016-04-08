@@ -135,7 +135,7 @@ int Yap_open_buf_write_stream(char *nbuf, size_t nchars, encoding_t *encp,
 Term Yap_ReadFromAtom(Atom a, Term opts);
 FILE *Yap_GetInputStream(Term t, const char *m);
 FILE *Yap_GetOutputStream(Term t, const char *m);
-char *Yap_guessFileName(int f, int sno, char *nameb, size_t max);
+char *Yap_guessFileName(FILE *f, int sno, char *nameb, size_t max);
 void Yap_plwrite(Term t, struct stream_desc *mywrite, int max_depth, int flags,
                  int priority);
 
