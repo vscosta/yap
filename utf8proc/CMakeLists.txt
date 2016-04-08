@@ -38,6 +38,22 @@ add_library (utf8proc SHARED
 )
 
 
+# copy DLL to yap main bin dir so that we can use yap
+# during compilation
+if (WIN32)
+
+ADD_CUSTOM_target( setupUTF8)
+
+	SET (UTFPATH $<TARGET_FILE:utf8proc>)
+
+add_custom_command(TARGET setupUTF8 POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy ${UTFPATH}  ${CMAKE_BINARY_DIR}
+)
+
+ADD_DEPENDENCIES(libYap	setupUTF8)
+
+endif(WIN32)
+
 install(TARGETS  utf8proc
   LIBRARY DESTINATION ${libdir}
   ARCHIVE DESTINATION ${libdir})
