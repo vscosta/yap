@@ -93,6 +93,7 @@ static char SccsId[] = "%W% %G%";
 
 #if _MSC_VER || defined(__MINGW32__)
 #define SYSTEM_STAT _stat
+//#include <winbase.h>
 #else
 #define SYSTEM_STAT stat
 #endif
@@ -246,7 +247,20 @@ has_reposition(int sno,
   }
 }
 
-char *Yap_guessFileName(int f, int sno, char *nameb, size_t max) {
+char *Yap_guessFileName(FILE* file, int sno, char *nameb, size_t max) {
+	if (!nameb) {
+		nameb = malloc(max(256, max));
+	}
+	if (!file) {
+	  strcpy(nameb, "memory buffer");
+	  return nameb;
+	}
+	int f = fileno(file);
+	if (f < 0) {
+	  strcpy(nameb, "???");
+	  return nameb;
+	}
+	
 #if __linux__
   char path[256];
   if (snprintf(path, 255, "/proc/self/fd/%d", f) && readlink(path, nameb, max))
@@ -255,15 +269,15 @@ char *Yap_guessFileName(int f, int sno, char *nameb, size_t max) {
   if (fcntl(f, F_GETPATH, nameb) != -1) {
     return nameb;
   }
-#elif __WIN32_
-  FILE_NAME_INFO *fni = (FILE_NAME_INFO *)malloc(sizeof(FILE_NAME_INFO) +
-                                                 sizeof(WCHAR) * MAXPATHLEN);
-  HANDLE handle = (HANDLE)_get_osfhandle(f);
-  if (GetFileInformationByHandleEx(handle, FileNameInfo, &fni, max)) {
+#else
+  TCHAR path[MAX_PATH+1];
+  if (!GetFullPathName(path, MAX_PATH, path, NULL))
+      return NULL;
+  else {
     int i;
     char *ptr = nameb;
-    for (i = 0; i < fni->FileNameLength; i++)
-      *ptr = _PL__utf8_put_char(ptr, fni->FileName[i]);
+    for (i = 0; i < strlen(path); i++)
+      ptr +=  put_utf8(ptr, path[i]);
     *ptr = '\0';
     return nameb;
   }
