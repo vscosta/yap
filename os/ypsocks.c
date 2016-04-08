@@ -68,7 +68,10 @@
 #include <sys/param.h>
 #endif
 #endif
-
+#ifdef _WIN32
+//#include <ws2tcpip.h>
+typedef int socklen_t;
+#endif
 /* make sure we can compile in any platform */
 #ifndef AF_UNSPEC
 #define AF_UNSPEC 0
