@@ -191,23 +191,6 @@ static bool is_file_errors(Term t) {
   return false;
 }
 
-void Yap_DefaultStreamOps(StreamDesc *st) {
-  CACHE_REGS
-  st->stream_wputc = put_wchar;
-  st->stream_wgetc = get_wchar;
-  if (st->status & (Promptable_Stream_f)) {
-    st->stream_wgetc = get_wchar;
-    Yap_ConsoleOps(st, true);
-  } else if (st->encoding == LOCAL_encoding) {
-    st->stream_wgetc = get_wchar_from_file;
-  } else
-    st->stream_wgetc = get_wchar_from_FILE;
-  if (GLOBAL_CharConversionTable != NULL)
-    st->stream_wgetc_for_read = ISOWGetc;
-  else
-    st->stream_wgetc_for_read = st->stream_wgetc;
-}
-
 static void unix_upd_stream_info(StreamDesc *s) {
   if (s->status & InMemory_Stream_f) {
     s->status |= Seekable_Stream_f;
@@ -268,36 +251,39 @@ static void unix_upd_stream_info(StreamDesc *s) {
   s->status |= Seekable_Stream_f;
 }
 
+
+
+void Yap_DefaultStreamOps(StreamDesc *st) {
+  CACHE_REGS
+  st->stream_wputc = put_wchar;
+  st->stream_wgetc = get_wchar;
+    st->stream_putc = FilePutc;
+    st->stream_getc = PlGetc;
+  if (st->status & (Promptable_Stream_f)) {
+    st->stream_wgetc = get_wchar;
+    Yap_ConsoleOps(st, false);
+  } else if (st->encoding == LOCAL_encoding) {
+    st->stream_wgetc = get_wchar_from_file;
+  } else
+    st->stream_wgetc = get_wchar_from_FILE;
+  if (GLOBAL_CharConversionTable != NULL)
+    st->stream_wgetc_for_read = ISOWGetc;
+  else
+    st->stream_wgetc_for_read = st->stream_wgetc;
+  if (st->status & Pipe_Stream_f) {
+    Yap_PipeOps(st);
+  } else if (st->status & InMemory_Stream_f) {
+    Yap_MemOps(st);
+  } else if (st->status & Tty_Stream_f) {
+    Yap_ConsoleOps(st, false);
+  } else {
+    unix_upd_stream_info(st);
+  }
+}
+
 static void InitFileIO(StreamDesc *s) {
   CACHE_REGS
-  if (s->status & Socket_Stream_f) {
-    /* Console is a socket and socket will prompt */
-    Yap_ConsoleSocketOps(s);
-    s->stream_wputc = put_wchar;
-  } else if (s->status & Pipe_Stream_f) {
-    /* Console is a socket and socket will prompt */
-    Yap_ConsolePipeOps(s);
-    s->stream_wputc = put_wchar;
-  } else if (s->status & InMemory_Stream_f) {
-    Yap_MemOps(s);
-    s->stream_wputc = put_wchar;
-  } else {
-    /* check if our console is promptable: may be tty or pipe */
-    if (s->status & (Promptable_Stream_f)) {
-      Yap_ConsoleOps(s, false);
-    } else {
-      /* we are reading from a file, no need to check for prompts */
-      s->stream_putc = FilePutc;
-      s->stream_wputc = put_wchar;
-      s->stream_getc = PlGetc;
-      if (s->encoding == LOCAL_encoding)
-        s->stream_wgetc = get_wchar_from_file;
-      else
-        s->stream_wgetc = get_wchar_from_FILE;
-    }
-  }
-  s->stream_wputc = put_wchar;
-  s->stream_wgetc = get_wchar;
+    Yap_DefaultStreamOps(s);
 }
 
 static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file) {
@@ -326,10 +312,10 @@ static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file) {
     break;
   }
   s->user_name = MkAtomTerm(s->name);
-  Yap_DefaultStreamOps(s);
 #if LIGHT
   s->status |= Tty_Stream_f | Promptable_Stream_f;
 #endif
+  Yap_DefaultStreamOps(s);
 #if HAVE_SETBUF
   if (s->status & Tty_Stream_f && sno == 0) {
     /* make sure input is unbuffered if it comes from stdin, this
@@ -567,28 +553,7 @@ int ResetEOF(StreamDesc *s) {
     if (feof(s->file))
       clearerr(s->file);
 /* reset our function for reading input */
-#if HAVE_SOCKET
-    if (s->status & Socket_Stream_f) {
-      if (s->status & Promptable_Stream_f)
-        Yap_ConsoleSocketOps(s);
-      else
-        Yap_SocketOps(s);
-      s->stream_wputc = put_wchar;
-    } else
-#endif
-        if (s->status & Pipe_Stream_f) {
-      if (s->status & Promptable_Stream_f)
-        Yap_ConsolePipeOps(s);
-      else
-        Yap_PipeOps(s);
-    } else if (s->status & InMemory_Stream_f) {
-      Yap_MemOps(s);
-    } else if (s->status & Promptable_Stream_f) {
-      Yap_ConsoleOps(s, false);
-    } else {
-      s->stream_getc = PlGetc;
-      Yap_DefaultStreamOps(s);
-    }
+    Yap_DefaultStreamOps(s);
     /* next, reset our own error indicator */
     s->status &= ~Eof_Stream_f;
     /* try reading again */
@@ -609,7 +574,7 @@ static int EOFWGetc(int sno) {
     return EOF;
   }
   if (ResetEOF(s)) {
-    Yap_ConsoleOps(s, false);
+    Yap_DefaultStreamOps(s);
     return (s->stream_wgetc(sno));
   }
   return EOF;
@@ -625,7 +590,7 @@ static int EOFGetc(int sno) {
     return EOF;
   }
   if (ResetEOF(s)) {
-    Yap_ConsoleOps(s, false);
+    Yap_DefaultStreamOps(s);
     return s->stream_getc(sno);
   }
   return EOF;
@@ -1087,25 +1052,14 @@ bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
 
   if (name == NULL) {
     char buf[YAP_FILENAME_MAX + 1];
-    name = Yap_guessFileName(fileno(fd), sno, buf, YAP_FILENAME_MAX);
+    name = Yap_guessFileName(fd, sno, buf, YAP_FILENAME_MAX);
     if (name)
       st->name = Yap_LookupAtom(name);
   }
   st->user_name = file_name;
   st->file = fd;
   st->linepos = 0;
-  if (flags & Pipe_Stream_f) {
-    Yap_PipeOps(st);
-    Yap_DefaultStreamOps(st);
-  } else if (flags & Tty_Stream_f) {
-    Yap_ConsoleOps(st, false);
-    Yap_DefaultStreamOps(st);
-  } else {
-    st->stream_putc = FilePutc;
-    st->stream_getc = PlGetc;
-    unix_upd_stream_info(st);
-    Yap_DefaultStreamOps(st);
-  }
+  Yap_DefaultStreamOps(st);
   return true;
 }
 
@@ -1646,15 +1600,7 @@ static Int always_prompt_user(USES_REGS1) {
   StreamDesc *s = GLOBAL_Stream + StdInStream;
 
   s->status |= Promptable_Stream_f;
-#if USE_SOCKET
-  if (s->status & Socket_Stream_f) {
-    Yap_ConsoleSocketOps(s);
-  } else
-#endif
-      if (s->status & Pipe_Stream_f) {
-    Yap_ConsolePipeOps(s);
-  } else
-    Yap_ConsoleOps(s, false);
+  Yap_DefaultStreamOps(s);
   return (TRUE);
 }
 

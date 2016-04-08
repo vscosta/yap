@@ -165,6 +165,32 @@ typedef int (*GetsFunc)(int, UInt, char *);
 #include <sys/socket.h>
 #endif
 
+#if __APPLE__
+#include "fmemopen.h"
+#define HAVE_FMEMOPEN 1
+#define HAVE_OPEN_MEMSTREAM 1
+FILE *open_memstream(char **buf, size_t *len);
+#endif
+
+#if __ANDROID__
+#undef HAVE_FMEMOPEN
+#undef HAVE_OPEN_MEMSTREAM
+#endif
+
+#if HAVE_FMEMOPEN
+#define MAY_READ 1
+#endif
+
+#if HAVE_OPEN_MEMSTREAM
+#define MAY_READ 1
+#define MAY_WRITE 1
+#endif
+
+#if _WIN32
+#undef MAY_WRITE
+#undef MAY_READ
+#endif
+
 typedef struct mem_desc {
   char *buf;    /* where the file is being read from/written to */
   int src;      /* where the space comes from, 0 code space, 1 malloc */

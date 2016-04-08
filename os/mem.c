@@ -23,56 +23,7 @@ static char SccsId[] = "%W% %G%";
  *
  */
 
-#include "Yap.h"
-#include "YapHeap.h"
-#include "Yatom.h"
-#include "yapio.h"
-#include <stdlib.h>
-#if HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#if HAVE_STDARG_H
-#include <stdarg.h>
-#endif
-#ifdef _WIN32
-#if HAVE_IO_H
-/* Windows */
-#include <io.h>
-#endif
-#if HAVE_SOCKET
-#include <winsock2.h>
-#endif
-#include <windows.h>
-#ifndef S_ISDIR
-#define S_ISDIR(x) (((x)&_S_IFDIR) == _S_IFDIR)
-#endif
-#endif
-#include "iopreds.h"
-#if __APPLE__
-#include "fmemopen.h"
-#define HAVE_FMEMOPEN 1
-#define HAVE_OPEN_MEMSTREAM 1
-FILE *open_memstream(char **buf, size_t *len);
-#endif
-
-#if __ANDROID__
-#undef HAVE_FMEMOPEN
-#undef HAVE_OPEN_MEMSTREAM
-#endif
-
-#if HAVE_FMEMOPEN
-#define MAY_READ 1
-#endif
-
-#if HAVE_OPEN_MEMSTREAM
-#define MAY_READ 1
-#define MAY_WRITE 1
-#endif
-
-#if _WIN32
-#undef MAY_WRITE
-#undef MAY_READ
-#endif
+#include "sysbits.h"
 
 #if !MAY_READ
 static int MemGetc(int);
@@ -196,7 +147,7 @@ int Yap_open_buf_read_stream(const char *nbuf, size_t nchars, encoding_t *encp,
   st->u.mem_string.error_handler = NULL;
   st->u.mem_string.src = src;
 #endif
-  Yap_MemOps(st);
+  Yap_DefaultStreamOps(st);
   UNLOCK(st->streamlock);
   return sno;
 }
@@ -287,7 +238,6 @@ int Yap_open_buf_write_stream(char *buf, size_t nchars, encoding_t *encp,
   st->u.mem_string.buf = st->nbuf;
   st->u.mem_string.max_size = nchars;
 #endif
-  Yap_MemOps(st);
   UNLOCK(st->streamlock);
   return sno;
 }
