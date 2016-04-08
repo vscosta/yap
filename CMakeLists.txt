@@ -351,7 +351,7 @@ if (GMP_FOUND)
 # GMP_FOUND         - true if GMP/MPIR was found
 # GMP_INCLUDE_DIRS  - include search path
 # GMP_LIBRARIES      - libraries to link with
-# GMP_LIBARY_DLL    - library DLL to install. Only available on WIN32.
+# GMP_LIBRARY_DLL    - library DLL to install. Only available on WIN32.
 # GMP_LIBRARIES_DIR - the directory the library we link with is found in.
   include_directories (${GMP_INCLUDE_DIRS})
     #add_executable(test ${SOURCES})
@@ -359,6 +359,10 @@ if (GMP_FOUND)
     #config.h needs this (TODO: change in code latter)
     set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${GMP_INCLUDE_DIRS} )
     #set( CMAKE_REQUIRED_LIBRARIES  ${GMP_LIBRARIES} ${CMAKE_REQUIRED_LIBRARIES} )
+IF (MSVC)
+file(COPY ${GMP_LIBRARY_DLL} DESTINATION ${CMAKE_BINARY_DIR} )
+ENDIF(MSVC)
+
   endif (GMP_FOUND)
 
 macro_optional_find_package (Threads OFF)
@@ -578,11 +582,14 @@ target_link_libraries(libYap
   )
 
 if(WIN32)
+
   if(MSVC)
       set(MSVC_RUNTIME "dynamic")
   ENDIF(MSVC)
+
   target_link_libraries(libYap  wsock32 ws2_32 Shlwapi)
-endif()
+
+endif(WIN32)
 
 add_executable (yap-bin ${CONSOLE_SOURCES})
 
