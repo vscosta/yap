@@ -142,6 +142,7 @@ xcode
 Threads
 droid
 mxe
+msys2
 caret
 codelite
 configure
@@ -163,3 +164,4 @@ yap-6.3.tags
 yap.prj
 
 yap.VITORs-MBP.vsc.pui
+vc
