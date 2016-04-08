@@ -2025,7 +2025,8 @@ X_API int YAP_InitConsult(int mode, const char *filename, int *osnop) {
   f = fopen(full, "r");
   if (!f)
     return -1;
-  else
+  else if (full != filename  && full != LOCAL_FileNameBuf &&
+	   full != LOCAL_FileNameBuf2)
     free((char *)full);
   sno = Yap_OpenStream(f, NULL, TermNil, Input_Stream_f);
   *osnop = Yap_CheckAlias(AtomLoopStream);
