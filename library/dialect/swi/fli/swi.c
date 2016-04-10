@@ -3174,7 +3174,7 @@ atom_generator(const char *prefix, char **hit, int state)
     CACHE_REGS
   struct scan_atoms *index;
   Atom            catom;
-  Int            i;
+  UInt            i;
 
   if ( !state )
   { index = (struct scan_atoms *)malloc(sizeof(struct scan_atoms));

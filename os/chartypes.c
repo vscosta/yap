@@ -118,7 +118,7 @@ static enc_map_t ematches[] = {
   {"CP-1252", ENC_ISO_LATIN1},
   {"C", ENC_ISO_ASCII},
   #ifdef _WIN32
-  {NULL, ENC_UTF16_LE}
+  {NULL, ENC_ISO_ASCII}
   #else
   {NULL, ENC_ISO_UTF8}
   #endif
@@ -127,16 +127,11 @@ static enc_map_t ematches[] = {
 static encoding_t enc_os_default( encoding_t rc)\
 {
   // by default, return UTF-8
-  // except in _WIN32
-  // note that we match the C locale to UTF8/16, as all Unix maachines will work on UNICODE.
+  // note that we match the C locale to UTF8/16, as all Unix machines will work on UNICODE.
+ // WIN32 we will rely on BOM
 
   if (rc == ENC_ISO_ASCII) {
-#ifdef _WIN32
-      return ENC_UTF16_BE;
-#else
-      return ENC_ISO_UTF8;
-#endif
-    }
+      return ENC_ISO_UTF8;    }
   return rc;
 }
 

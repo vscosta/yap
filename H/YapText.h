@@ -269,7 +269,7 @@ inline static int cmpn_utf8(const utf8proc_uint8_t *pt1,
 #define LEAD_OFFSET ((uint32_t)0xD800 - (uint32_t)(0x10000 >> 10))
 #define SURROGATE_OFFSET ( (uint32_t)0x10000 - (uint32_t)(0xD800 << 10) - (uint32_t)0xDC00 )
 
-const char *Yap_tokRep(TokEntry *tokptr);
+const char *Yap_tokRep(TokEntry *tokptr, encoding_t enc);
 
 // standard strings
 
@@ -1433,3 +1433,6 @@ static inline Term Yap_SubtractTailString(Term t1, Term th USES_REGS) {
 }
 
 #endif // ≈YAP_TEXT_H
+
+const char *Yap_TextTermToText(Term t, char *buf, size_t len, encoding_t enc);
+Term Yap_MkTextTerm(const char *s, encoding_t e, Term tguide);

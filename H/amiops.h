@@ -294,7 +294,7 @@ extern void	Yap_WakeUp(CELL *v);
 #define Bind_NonAtt(A,D)       { *(A) = (D); TRAIL(A,D);	 }
 #define Bind_Global_NonAtt(A,D)       { *(A) = (D); TRAIL_GLOBAL(A,D); }
 #define Bind_and_Trail(A,D)       { *(A) = (D); DO_TRAIL(A, D); }
-#define Bind(A,D) YapBind(A,D)
+// #define Bind(A,D) YapBind(A,D) conflicts with Windows headers
 
 #define MaBind(VP,D)    { MATRAIL((VP),*(VP),(D)); *(VP) = (D); }
 

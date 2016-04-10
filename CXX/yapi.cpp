@@ -8,13 +8,13 @@ extern "C" {
 #include "YapInterface.h"
 #include "blobs.h"
 
-char *Yap_TermToString(Term t, char *s, size_t sz, size_t *length,
+X_API char *Yap_TermToString(Term t, char *s, size_t sz, size_t *length,
                        encoding_t *encodingp, int flags);
 
-void YAP_UserCPredicate(const char *, YAP_UserCPred, YAP_Arity arity);
-void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, YAP_Arity,
+X_API void YAP_UserCPredicate(const char *, YAP_UserCPred, YAP_Arity arity);
+X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, YAP_Arity,
                                 YAP_Term);
-void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred,
+X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred,
                             YAP_Arity, YAP_Arity);
 }
 
@@ -595,7 +595,12 @@ YAPEngine::YAPEngine(char *savedState, size_t stackSize, size_t trailSize,
   init_args.YapPrologBootFile = bootFile;
   init_args.YapPrologGoal = goal;
   init_args.YapPrologTopLevelGoal = topLevel;
-  init_args.HaltAfterConsult = script;
+  init_args.HaltAfter
+	  
+	  
+	  
+	  
+	  = script;
   init_args.FastBoot = fastBoot;
   yerror = YAPError();
   delYAPCallback();

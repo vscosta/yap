@@ -428,7 +428,8 @@ static char *PrologPath(const char *Y, char *X) { return (char *)Y; }
 
 static bool ChDir(const char *path) {
   bool rc = false;
-  const char *qpath = Yap_AbsoluteFile(path, true);
+  char qp[FILENAME_MAX + 1];
+  const char *qpath = Yap_AbsoluteFile(path, qp, true);
 
 #ifdef __ANDROID__
   if (GLOBAL_AssetsWD) {
@@ -462,6 +463,8 @@ static bool ChDir(const char *path) {
 #else
   rc = (chdir(qpath) == 0);
 #endif
+  if (qpath != qp && qpath != LOCAL_FileNameBuf &&
+	  qpath != LOCAL_FileNameBuf2)
   free((char *)qpath);
   return rc;
 }
@@ -494,8 +497,9 @@ const char *DirName(const char *X) {
 }
 #endif
 
-static const char *myrealpath(const char *path) {
-  char *out = LOCAL_FileNameBuf;
+static const char *myrealpath(const char *path, char *out) {
+  if (!out)
+    out = LOCAL_FileNameBuf;
 #if _WIN32 || defined(__MINGW32__)
   DWORD retval = 0;
 
@@ -576,18 +580,22 @@ static const char *expandVars(const char *spec, char *u) {
  *
  * @return tmp, or NULL, in malloced memory
  */
-const char *Yap_AbsoluteFile(const char *spec, bool ok) {
+const char *Yap_AbsoluteFile(const char *spec, char *rc0, bool ok) {
   const char *p;
-  const char *rc;
-  rc = PlExpandVars(spec, NULL, NULL);
+  char *rc;
+  rc = PlExpandVars(spec, NULL, rc0);
   if (!rc)
     rc = spec;
-  if ((p = myrealpath(rc))) {
-    return p;
+  if ((p = myrealpath(rc, rc0))) {
+	  if (rc != rc0 && rc != spec && rc != p)
+		  freeBuffer(rc);
+	  return p;
   } else {
+	if (rc != rc0 && rc != spec)
+	  freeBuffer(rc);
     return NULL;
   }
-  freeBuffer(rc);
+  
 }
 
 /**
@@ -614,7 +622,7 @@ const char *Yap_AbsoluteFileInBuffer(const char *spec, char *out, size_t sz,
     rc = spec;
   }
 
-  if ((p = myrealpath(rc))) {
+  if ((p = myrealpath(rc, NULL))) {
     if (!out) {
       out = LOCAL_FileNameBuf;
       sz = YAP_FILENAME_MAX - 1;
@@ -802,7 +810,7 @@ static Int prolog_realpath(USES_REGS1) {
   } else {
     return false;
   }
-  const char *rc = myrealpath(cmd);
+  const char *rc = myrealpath(cmd, NULL);
   if (!rc) {
     PlIOError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, strerror(errno));
     return false;
@@ -950,14 +958,14 @@ static Int absolute_file_system_path(USES_REGS1) {
   const char *fp;
   bool rc;
   char s[MAXPATHLEN + 1];
-  const char *text = Yap_TextTermToText(t, s, MAXPATHLEN);
+  const char *text = Yap_TextTermToText(t, s, MAXPATHLEN, LOCAL_encoding);
 
   if (text == NULL) {
     return false;
   }
-  if (!(fp = Yap_AbsoluteFile(RepAtom(AtomOfTerm(t))->StrOfAE, true)))
+  if (!(fp = Yap_AbsoluteFile(RepAtom(AtomOfTerm(t))->StrOfAE, NULL, true)))
     return false;
-  rc = Yap_unify(Yap_MkTextTerm(fp, t), ARG2);
+  rc = Yap_unify(Yap_MkTextTerm(fp, LOCAL_encoding, t), ARG2);
   if (fp != s)
     freeBuffer((void *)fp);
   return rc;
@@ -1410,13 +1418,13 @@ static Int p_expand_file_name(USES_REGS1) {
     Yap_Error(INSTANTIATION_ERROR, t, "argument to true_file_name unbound");
     return FALSE;
   }
-  text = Yap_TextTermToText(t, NULL, 0);
+  text = Yap_TextTermToText(t, NULL, 0, LOCAL_encoding);
   if (!text)
     return false;
   if (!(text2 = PlExpandVars(text, NULL, NULL)))
     return false;
   freeBuffer(text);
-  bool rc = Yap_unify(ARG2, Yap_MkTextTerm(text2, t));
+  bool rc = Yap_unify(ARG2, Yap_MkTextTerm(text2, LOCAL_encoding,  t));
   freeBuffer(text2);
   return rc;
 }
@@ -1993,12 +2001,13 @@ static wchar_t *WideStringFromAtom(Atom KeyAt USES_REGS) {
 
     k = (wchar_t *)Yap_AllocCodeSpace(sz);
     while (k == NULL) {
-      if (!Yap_growheap(FALSE, sz, NULL)) {
+      if (!Yap_growheap(false, sz, NULL)) {
         Yap_Error(RESOURCE_ERROR_HEAP, MkIntegerTerm(sz),
                   "generating key in win_registry_get_value/3");
-        return FALSE;
+        return false;
       }
-    }
+	  k = (wchar_t *)Yap_AllocCodeSpace(sz);
+	}
     kptr = k;
     while ((*kptr++ = *chp++))
       ;

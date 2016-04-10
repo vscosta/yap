@@ -192,7 +192,7 @@ INLINE_ONLY inline EXTERN void ensure_slots(int N USES_REGS) {
                                        (inc + LOCAL_NHandles) * sizeof(CELL));
     LOCAL_NHandles += inc;
     if (!LOCAL_HandleBase) {
-      unsigned long int kneeds = ((inc + LOCAL_NHandles) * sizeof(CELL)) / 1024;
+      size_t kneeds = ((inc + LOCAL_NHandles) * sizeof(CELL)) / 1024;
       Yap_Error(
           SYSTEM_ERROR_INTERNAL, 0 /* TermNil */,
           "Out of memory for the term handles (term_t) aka slots, l needed",

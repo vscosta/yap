@@ -8,81 +8,7 @@
 *									 *
 **************************************************************************
 *									 *
-* $Id: sys.c,v 1.36 2008-07-11 17:02:09 vsc Exp $									 *
-* mods:		$Log: not supported by cvs2svn $
-* mods:		Revision 1.35  2008/05/23 13:16:13  vsc
-* mods:		fix sys.c for win32
-* mods:		
-* mods:		Revision 1.34  2008/05/22 23:25:21  vsc
-* mods:		add tmp_file/2
-* mods:		
-* mods:		Revision 1.33  2007/10/05 18:24:30  vsc
-* mods:		fix garbage collector and fix LeaveGoal
-* mods:		
-* mods:		Revision 1.32  2007/05/07 12:11:39  vsc
-* mods:		fix mktime fix
-* mods:		
-* mods:		Revision 1.31  2007/05/07 11:21:29  vsc
-* mods:		mktime needs to know if daylight time savings are on
-* mods:		(obs from Bernd Gutmann).
-* mods:		
-* mods:		Revision 1.30  2007/05/02 11:16:43  vsc
-* mods:		small fixes to sys.c
-* mods:		
-* mods:		Revision 1.29  2006/10/10 14:08:17  vsc
-* mods:		small fixes on threaded implementation.
-* mods:		
-* mods:		Revision 1.28  2006/05/25 16:28:28  vsc
-* mods:		include thread_sleep functionality.
-* mods:		
-* mods:		Revision 1.27  2006/05/17 18:38:11  vsc
-* mods:		make system library use true file name
-* mods:		
-* mods:		Revision 1.26  2006/04/25 03:23:40  vsc
-* mods:		fix ! in debugger (execute_clause)
-* mods:		improve system/1 and execute/1
-* mods:		
-* mods:		Revision 1.25  2006/01/17 14:10:42  vsc
-* mods:		YENV may be an HW register (breaks some tabling code)
-* mods:		All YAAM instructions are now brackedted, so Op introduced an { and EndOp introduces an }. This is because Ricardo assumes that.
-* mods:		Fix attvars when COROUTING is undefined.
-* mods:		
-* mods:		Revision 1.24  2006/01/08 23:01:48  vsc
-* mods:		*** empty log message ***
-* mods:		
-* mods:		Revision 1.23  2005/10/21 16:09:03  vsc
-* mods:		SWI compatible module only operators
-* mods:		
-* mods:		Revision 1.22  2005/03/10 18:04:01  rslopes
-* mods:		update YAP_Error arguments
-* mods:		to be able to compile on Windows...
-* mods:		
-* mods:		Revision 1.21  2004/08/11 16:14:54  vsc
-* mods:		whole lot of fixes:
-* mods:		  - memory leak in indexing
-* mods:		  - memory management in WIN32 now supports holes
-* mods:		  - extend Yap interface, more support for SWI-Interface
-* mods:		  - new predicate mktime in system
-* mods:		  - buffer console I/O in WIN32
-* mods:		
-* mods:		Revision 1.20  2004/07/23 19:02:09  vsc
-* mods:		misc fixes
-* mods:		
-* mods:		Revision 1.19  2004/07/23 03:37:17  vsc
-* mods:		fix heap overflow in YAP_LookupAtom
-* mods:		
-* mods:		Revision 1.18  2004/01/26 12:51:33  vsc
-* mods:		should be datime/1 not date/1
-* mods:		
-* mods:		Revision 1.17  2004/01/26 12:41:06  vsc
-* mods:		bug fixes
-* mods:		
-* mods:		Revision 1.16  2003/01/27 15:55:40  vsc
-* mods:		use CVS Id
-* mods:		
-* mods:		Revision 1.15  2003/01/27 15:54:10  vsc
-* mods:		fix header
-* mods:									 *
+									 *
 * comments:	regular expression interpreter                           *
 *									 *
 *************************************************************************/
@@ -134,6 +60,7 @@
 #if defined(__MINGW32__) || _MSC_VER
 #include <windows.h>
 #include <process.h>
+#include <io.h>
 #endif
 #ifdef __MINGW32__
 #ifdef HAVE_ENVIRON

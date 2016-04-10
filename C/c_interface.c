@@ -2012,6 +2012,7 @@ X_API int YAP_InitConsult(int mode, const char *filename, int *osnop) {
   CACHE_REGS
   FILE *f;
   int sno;
+  char full[FILENAME_MAX]
   BACKUP_MACHINE_REGS();
 
   if (mode == YAP_BOOT_MODE) {
@@ -2019,15 +2020,16 @@ X_API int YAP_InitConsult(int mode, const char *filename, int *osnop) {
   }
   bool consulted = (mode == YAP_CONSULT_MODE);
   Yap_init_consult(consulted, filename);
-  const char *full = Yap_AbsoluteFile(filename, true);
-  if (!full)
+  const char *fl = Yap_AbsoluteFile(filename, full, true);
+  if (!fl)
     return -1;
-  f = fopen(full, "r");
+  f = fopen(fl, "r");
   if (!f)
     return -1;
-  else if (full != filename  && full != LOCAL_FileNameBuf &&
-	   full != LOCAL_FileNameBuf2)
-    free((char *)full);
+  else if (fl != filename  && fl !=  full &&
+	   fl != LOCAL_FileNameBuf &&
+	   fl != LOCAL_FileNameBuf2)
+    free(fl);
   sno = Yap_OpenStream(f, NULL, TermNil, Input_Stream_f);
   *osnop = Yap_CheckAlias(AtomLoopStream);
   if (!Yap_AddAlias(AtomLoopStream, sno)) {
@@ -2036,14 +2038,15 @@ X_API int YAP_InitConsult(int mode, const char *filename, int *osnop) {
   }
   GLOBAL_Stream[sno].name = Yap_LookupAtom(filename);
   GLOBAL_Stream[sno].user_name = MkAtomTerm(Yap_LookupAtom(filename));
+  GLOBAL_Stream[sno].encoding = ENC_ISO_LATIN1;
   RECOVER_MACHINE_REGS();
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return sno;
 }
 
 X_API FILE *YAP_TermToStream(Term t) {
-  FILE *s;
   BACKUP_MACHINE_REGS();
+  FILE *s;
 
   if (IsVarTerm(t) || !IsAtomTerm(t))
     return NULL;

@@ -423,12 +423,10 @@ double Yap_random(void);
 char *Yap_RegistryGetString(char *);
 void Yap_WinError(char *);
 #endif
-const char *Yap_TextTermToText(Term t, char *buf, size_t len);
-Term Yap_MkTextTerm(const char *s, Term tguide );
 
 typedef enum { YAP_STD, YAP_SAVED_STATE, YAP_OBJ, YAP_PL, YAP_QLY } file_type_t;
 
-const char *Yap_AbsoluteFile(const char *spec, bool ok);
+const char *Yap_AbsoluteFile(const char *spec, char *obuf, bool ok);
 const char *Yap_AbsoluteFileInBuffer(const char *spec, char *outp, size_t sz, bool ok);
 const char *Yap_findFile(const char *isource, const char *idef, const char *root,
                       char *result, bool access, file_type_t ftype,

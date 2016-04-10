@@ -345,7 +345,8 @@ static inline Term getBackQuotesFlag(void) {
   return GLOBAL_Flags[BACKQUOTED_STRING_FLAG].at;
 }
 
-static inline int indexingMode(void) { return GLOBAL_Flags[INDEX_FLAG].at; }
+static inline Term
+indexingMode(void) { return GLOBAL_Flags[INDEX_FLAG].at; }
 
 static inline const char *floatFormat(void) {
   return RepAtom(AtomOfTerm(GLOBAL_Flags[FLOAT_FORMAT_FLAG].at))->rep.uStrOfAE;

@@ -63,16 +63,7 @@ else(MSVC)
 
 get_filename_component(GMP_LIBRARIES_DIR "${GMP_LIBRARIES}" PATH CACHE)
 
-if (WIN32)
-
-find_library(GMP_LIBRARY_DLL NAMES gmp
-                PATHS  
-			${GMP_LIBRARIES_DIR}/../bin
-			${GMP_LIBRARIES_DIR}
- )
-endif(WIN32)
-
-find_file(GMP_INCLUDE_DIRS
+find_path(GMP_INCLUDE_DIRS
         NAMES gmp.h
         PATHS
 			${GMP_LIBRARIES_DIR}/../include
@@ -85,7 +76,7 @@ endif(MSVC)
 # handle the QUIET and REQUIRED arguments and set GMP_FOUND to TRUE if
 # all listed variables are true
 include(FindPackageHandleStandardArgs)
-if(WIN32)
+if(MSVC)
   find_package_handle_standard_args(GMP DEFAULT_MSG GMP_LIBRARIES GMP_LIBRARIES_DIR GMP_LIBRARY_DLL GMP_INCLUDE_DIRS)
 mark_as_advanced(GMP_LIBRARY_DLL)
 else()

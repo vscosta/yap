@@ -192,7 +192,7 @@ static int check_alarm_fail_int(int CONT USES_REGS) {
 
 static int stack_overflow(PredEntry *pe, CELL *env, yamop *cp,
                           arity_t nargs USES_REGS) {
-  if ((Int)(Unsigned(YREG) - Unsigned(HR)) < StackGap(PASS_REGS1) ||
+  if (Unsigned(YREG) - Unsigned(HR) < StackGap(PASS_REGS1) ||
       Yap_get_signal(YAP_STOVF_SIGNAL)) {
     S = (CELL *)pe;
     if (!Yap_locked_gc(nargs, env, cp)) {

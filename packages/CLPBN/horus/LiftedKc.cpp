@@ -406,7 +406,7 @@ LeafNode::weight() const
       // ancester that is not set. This can only
       // happen when calculating the weights
       // for the edge labels in graphviz
-      return 0.0 / 0.0;
+      return nan(NULL);
     }
   }
   double weight = clause_->literals()[0].isPositive()

@@ -114,7 +114,7 @@ int Yap_growtrail_in_parser(tr_fr_ptr *, TokEntry **, VarEntry **);
 
 bool Yap_IsAbsolutePath(const char *p);
 Atom Yap_TemporaryFile(const char *prefix, int *fd);
-const char *Yap_AbsoluteFile(const char *spec, bool expand);
+const char *Yap_AbsoluteFile(const char *spec, char *obuf, bool expand);
 
 typedef enum mem_buf_source {
   MEM_BUF_CODE = 1,
@@ -124,7 +124,7 @@ typedef enum mem_buf_source {
 
 char *Yap_MemStreamBuf(int sno);
 
-extern Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp,
+extern X_API Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp,
                              int prio, Term *bindings_p);
 extern Term Yap_StringToNumberTerm(char *s, encoding_t *encp);
 int Yap_FormatFloat(Float f, char **s, size_t sz);

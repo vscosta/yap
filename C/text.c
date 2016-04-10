@@ -1442,18 +1442,26 @@ er.
  * @return the buffer, or NULL in case of failure. If so, Yap_Error may be called.
  */
 const char *
-Yap_TextTermToText(Term t, char *buf, size_t len)
-{ CACHE_REGS
-  seq_tv_t inp, out;
-  encoding_t enc = LOCAL_encoding;
-  
-  inp.val.t = t;
-  if (IsAtomTerm(t))
-    inp.type = YAP_STRING_ATOM;
-  else if (IsStringTerm(t))
-    inp.type = YAP_STRING_STRING;
-  else if (IsPairTerm(t) )
-    inp.type = (YAP_STRING_CODES|YAP_STRING_ATOMS);
+Yap_TextTermToText(Term t, char *buf, size_t len, encoding_t enc)
+{
+	CACHE_REGS
+		seq_tv_t inp, out;
+
+	inp.val.t = t;
+	if (IsAtomTerm(t)) {
+		inp.type = YAP_STRING_ATOM;
+		if (IsWideAtom(AtomOfTerm(t)))
+			inp.enc = ENC_WCHAR;
+		else
+			inp.enc = ENC_ISO_LATIN1;
+	}
+	else if (IsStringTerm(t)) {
+		inp.type = YAP_STRING_STRING;
+		inp.enc = ENC_ISO_UTF8;
+} 
+else if (IsPairTerm(t)) {
+	  inp.type = (YAP_STRING_CODES | YAP_STRING_ATOMS);
+  } 
   else {
     Yap_Error(TYPE_ERROR_TEXT, t,  NULL);
     return false;
@@ -1479,15 +1487,14 @@ Yap_TextTermToText(Term t, char *buf, size_t len)
  * 
  * @return the term
  */
-Term Yap_MkTextTerm(const char *s,
-                                            Term tguide ) {
+Term Yap_MkTextTerm(const char *s, encoding_t enc,  Term tguide ) {
 CACHE_REGS
   if (IsAtomTerm(tguide))
     return MkAtomTerm(Yap_LookupAtom(s));
  if (IsStringTerm(tguide))
     return MkStringTerm(s);
  if (IsPairTerm(tguide) && IsAtomTerm(HeadOfTerm(tguide))) {
-   return Yap_CharsToListOfAtoms( s, LOCAL_encoding  PASS_REGS );
+   return Yap_CharsToListOfAtoms( s, enc  PASS_REGS );
  }
- return Yap_CharsToListOfCodes( s, LOCAL_encoding  PASS_REGS );
+ return Yap_CharsToListOfCodes( s, enc  PASS_REGS );
 }

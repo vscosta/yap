@@ -1226,7 +1226,7 @@ Term Yap_scan_num(StreamDesc *inp) {
     return l;                                                                  \
   }
 
-const char *Yap_tokRep(TokEntry *tokptr) {
+const char *Yap_tokRep(TokEntry *tokptr, encoding_t encoding) {
   CACHE_REGS
   Term info = tokptr->TokInfo;
   char *b, *buf = LOCAL_FileNameBuf2;
@@ -1242,7 +1242,7 @@ const char *Yap_tokRep(TokEntry *tokptr) {
     }
     return  RepAtom((Atom)info)->StrOfAE;
   case Number_tok:
-    if ((b = Yap_TermToString(info, buf, sze, &length, &LOCAL_encoding,
+    if ((b = Yap_TermToString(info, buf, sze, &length, &encoding,
                               flags)) != buf) {
       return NULL;
     }
@@ -2054,7 +2054,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
     }
 #if DEBUG
     if (GLOBAL_Option[2])
-      fprintf(stderr, "[Token %d %s]", Ord(kind), Yap_tokRep(t));
+      fprintf(stderr, "[Token %d %s]", Ord(kind), Yap_tokRep(t, inp_stream->encoding));
 #endif
     if (LOCAL_ErrorMessage) {
       /* insert an error token to inform the system of what happened */

@@ -260,12 +260,17 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
     st->stream_putc = FilePutc;
     st->stream_getc = PlGetc;
   if (st->status & (Promptable_Stream_f)) {
-    st->stream_wgetc = get_wchar;
-    Yap_ConsoleOps(st, false);
-  } else if (st->encoding == LOCAL_encoding) {
-    st->stream_wgetc = get_wchar_from_file;
-  } else
-    st->stream_wgetc = get_wchar_from_FILE;
+     Yap_ConsoleOps(st);
+  }
+#ifndef _WIN32 
+  else if (st->file != NULL) {
+	  if (st->encoding == LOCAL_encoding) {
+		  st->stream_wgetc = get_wchar_from_file;
+	  }
+	  else
+		  st->stream_wgetc = get_wchar_from_FILE;
+  }
+#endif
   if (GLOBAL_CharConversionTable != NULL)
     st->stream_wgetc_for_read = ISOWGetc;
   else
@@ -275,7 +280,7 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
   } else if (st->status & InMemory_Stream_f) {
     Yap_MemOps(st);
   } else if (st->status & Tty_Stream_f) {
-    Yap_ConsoleOps(st, false);
+    Yap_ConsoleOps(st);
   } else {
     unix_upd_stream_info(st);
   }
@@ -1129,6 +1134,7 @@ do_open(Term file_name, Term t2,
   StreamDesc *st;
   bool avoid_bom = false, needs_bom = false;
   const char *fname;
+  char fbuf[FILENAME_MAX];
   stream_flags_t flags;
   FILE *fd;
   const char *s_encoding;
@@ -1217,7 +1223,7 @@ do_open(Term file_name, Term t2,
                  : false) ||
             trueGlobalPrologFlag(OPEN_EXPANDS_FILENAME_FLAG);
   // expand file name?
-  fname = Yap_AbsoluteFile(fname, ok);
+  fname = Yap_AbsoluteFile(fname, fbuf, ok);
   if (fname) {
     st->name = Yap_LookupAtom(fname);
   } else {
@@ -1270,6 +1276,7 @@ do_open(Term file_name, Term t2,
   if ((fd = fopen(fname, io_mode)) == NULL ||
       (!(flags & Binary_Stream_f) && binary_file(fname))) {
     strncpy(LOCAL_FileNameBuf, fname, MAXPATHLEN);
+	if (fname != fbuf && fname != LOCAL_FileNameBuf && fname != LOCAL_FileNameBuf2)
     free((void *)fname);
     fname = LOCAL_FileNameBuf;
     UNLOCK(st->streamlock);

@@ -1237,6 +1237,7 @@ static Int p_hostname_address(USES_REGS1) {
       Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
                 "hostname_address/2 (gethostbyname)");
 #endif
+	  return false;
     }
     memcpy((char *)&adr, (char *)he->h_addr_list[0], (size_t)he->h_length);
     out = MkAtomTerm(Yap_LookupAtom(inet_ntoa(adr)));

@@ -75,7 +75,7 @@
         GONext()
 
 #define copy_aux_stack()                                                \
-        { int size = 3 + heap_arity + subs_arity + vars_arity;          \
+        { arity_t  size = 3 + heap_arity + subs_arity + vars_arity;          \
           TOP_STACK -= size;                                            \
           memcpy(TOP_STACK, aux_stack, size * sizeof(CELL *));          \
           aux_stack = TOP_STACK;                                        \
@@ -251,7 +251,7 @@
           TOP_STACK[HEAP_ARITY_ENTRY] = func_arity;                     \
 	}                                                               \
         *HR = (CELL) func;                                               \
-        { int i;                                                        \
+        { arity_t  i;                                                        \
           for (i = 1; i <= func_arity; i++)	       	                \
             TOP_STACK[HEAP_ENTRY(i)] = (CELL) (HR + i);                  \
 	}                                                               \
@@ -273,7 +273,7 @@
         Bind_Global(HR, AbsAppl(HR + 2));                                 \
         HR += 2;                                                         \
         *HR = (CELL) func;                                               \
-        { int i;                                                        \
+        { arity_t  i;                                                        \
           for (i = 1; i <= func_arity; i++)		                \
             TOP_STACK[HEAP_ENTRY(i)] = (CELL) (HR + i);                  \
 	}                                                               \
@@ -288,7 +288,7 @@
 
 #define aux_stack_var_instr()					        \
         if (heap_arity) {                                               \
-          int i;                                                        \
+          arity_t  i;                                                        \
           CELL var = aux_stack[HEAP_ENTRY(1)];                          \
           RESET_VARIABLE(var);                                          \
           TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity - 1;                 \
@@ -309,7 +309,7 @@
 
 #define aux_stack_var_in_pair_instr()                                   \
         if (heap_arity) {                                               \
-	  int i;                                                        \
+	  arity_t  i;                                                        \
           Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(HR));   \
           TOP_STACK = &aux_stack[-1];                                   \
           TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity;                     \
@@ -411,9 +411,9 @@
   PBOp(trie_do_var, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     aux_stack_var_instr();
   ENDPBOp();
@@ -422,9 +422,9 @@
   PBOp(trie_trust_var, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     pop_trie_node();
     aux_stack_var_instr();
@@ -434,9 +434,9 @@
   PBOp(trie_try_var, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     store_trie_node(TrNode_next(node));
     aux_stack_var_instr();
@@ -446,9 +446,9 @@
   PBOp(trie_retry_var, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     restore_trie_node(TrNode_next(node));
     aux_stack_var_instr();
@@ -459,9 +459,9 @@
 #ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     aux_stack_var_in_pair_instr();
 #else
@@ -474,9 +474,9 @@
 #ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     pop_trie_node();
     aux_stack_var_in_pair_instr();
@@ -490,9 +490,9 @@
 #ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     store_trie_node(TrNode_next(node));
     aux_stack_var_in_pair_instr();
@@ -506,9 +506,9 @@
 #ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     restore_trie_node(TrNode_next(node));
     aux_stack_var_in_pair_instr();
@@ -521,10 +521,10 @@
   PBOp(trie_do_val, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
-    int var_index = VarIndexOfTableTerm(TrNode_entry(node));
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    int       var_index = VarIndexOfTableTerm(TrNode_entry(node));
 
     aux_stack_val_instr();
   ENDPBOp();
@@ -533,10 +533,10 @@
   PBOp(trie_trust_val, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
-    int var_index = VarIndexOfTableTerm(TrNode_entry(node));
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    int      var_index = VarIndexOfTableTerm(TrNode_entry(node));
 
     pop_trie_node();
     aux_stack_val_instr();
@@ -546,10 +546,10 @@
   PBOp(trie_try_val, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
-    int var_index = VarIndexOfTableTerm(TrNode_entry(node));
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    int        var_index = VarIndexOfTableTerm(TrNode_entry(node));
 
     store_trie_node(TrNode_next(node));
     aux_stack_val_instr();
@@ -559,10 +559,10 @@
   PBOp(trie_retry_val, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
-    int var_index = VarIndexOfTableTerm(TrNode_entry(node));
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    int        var_index = VarIndexOfTableTerm(TrNode_entry(node));
 
     restore_trie_node(TrNode_next(node));
     aux_stack_val_instr();
@@ -573,10 +573,10 @@
 #ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
-    int var_index = VarIndexOfTableTerm(TrNode_entry(node));
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    int        var_index = VarIndexOfTableTerm(TrNode_entry(node));
 
     aux_stack_val_in_pair_instr();
 #else
@@ -589,10 +589,10 @@
 #ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
-    int var_index = VarIndexOfTableTerm(TrNode_entry(node));
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    int        var_index = VarIndexOfTableTerm(TrNode_entry(node));
 
     pop_trie_node();
     aux_stack_val_in_pair_instr();
@@ -606,10 +606,10 @@
 #ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
-    int var_index = VarIndexOfTableTerm(TrNode_entry(node));
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    int        var_index = VarIndexOfTableTerm(TrNode_entry(node));
 
     store_trie_node(TrNode_next(node));
     aux_stack_val_in_pair_instr();
@@ -623,10 +623,10 @@
 #ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
-    int var_index = VarIndexOfTableTerm(TrNode_entry(node));
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    int        var_index = VarIndexOfTableTerm(TrNode_entry(node));
 
     restore_trie_node(TrNode_next(node));
     aux_stack_val_in_pair_instr();
@@ -639,9 +639,9 @@
   PBOp(trie_do_atom, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Term t = TrNode_entry(node);
 
     aux_stack_term_instr();
@@ -651,9 +651,9 @@
   PBOp(trie_trust_atom, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Term t = TrNode_entry(node);
 
     pop_trie_node();
@@ -664,9 +664,9 @@
   PBOp(trie_try_atom, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Term t = TrNode_entry(node);
 
     store_trie_node(TrNode_next(node));
@@ -677,9 +677,9 @@
   PBOp(trie_retry_atom, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Term t = TrNode_entry(node);
 
     restore_trie_node(TrNode_next(node));
@@ -691,9 +691,9 @@
 #ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     aux_stack_term_in_pair_instr();
 #else
@@ -706,9 +706,9 @@
 #ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     pop_trie_node();
     aux_stack_term_in_pair_instr();
@@ -722,9 +722,9 @@
 #ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     store_trie_node(TrNode_next(node));
     aux_stack_term_in_pair_instr();
@@ -738,9 +738,9 @@
 #ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     restore_trie_node(TrNode_next(node));
     aux_stack_term_in_pair_instr();
@@ -760,9 +760,9 @@
   PBOp(trie_trust_null, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     pop_trie_node();
     aux_stack_null_instr();
@@ -772,9 +772,9 @@
   PBOp(trie_try_null, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     store_trie_node(TrNode_next(node));
     aux_stack_null_instr();
@@ -784,9 +784,9 @@
   PBOp(trie_retry_null, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     restore_trie_node(TrNode_next(node));
     aux_stack_null_instr();
@@ -797,9 +797,9 @@
 #ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     aux_stack_new_pair_instr();
 #else
@@ -812,9 +812,9 @@
 #ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     pop_trie_node();
     aux_stack_new_pair_instr();
@@ -828,9 +828,9 @@
 #ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     store_trie_node(TrNode_next(node));
     aux_stack_new_pair_instr();
@@ -844,9 +844,9 @@
 #ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     restore_trie_node(TrNode_next(node));
     aux_stack_new_pair_instr();
@@ -859,9 +859,9 @@
   PBOp(trie_do_pair, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     aux_stack_pair_instr();
   ENDPBOp();
@@ -870,9 +870,9 @@
   PBOp(trie_trust_pair, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     pop_trie_node();
     aux_stack_pair_instr();
@@ -882,9 +882,9 @@
   PBOp(trie_try_pair, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     store_trie_node(TrNode_next(node));
     aux_stack_pair_instr();
@@ -894,9 +894,9 @@
   PBOp(trie_retry_pair, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     restore_trie_node(TrNode_next(node));
     aux_stack_pair_instr();
@@ -906,11 +906,11 @@
   PBOp(trie_do_appl, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Functor func = (Functor) RepAppl(TrNode_entry(node));
-    int func_arity = ArityOfFunctor(func);
+    arity_t  func_arity = ArityOfFunctor(func);
 
     aux_stack_appl_instr();
   ENDPBOp();
@@ -919,11 +919,11 @@
   PBOp(trie_trust_appl, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Functor func = (Functor) RepAppl(TrNode_entry(node));
-    int func_arity = ArityOfFunctor(func);
+    arity_t  func_arity = ArityOfFunctor(func);
 
     pop_trie_node();
     aux_stack_appl_instr();
@@ -933,11 +933,11 @@
   PBOp(trie_try_appl, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+	arity_t heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+	arity_t vars_arity = aux_stack[VARS_ARITY_ENTRY];
+	arity_t subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Functor func = (Functor) RepAppl(TrNode_entry(node));
-    int func_arity = ArityOfFunctor(func);
+    arity_t  func_arity = ArityOfFunctor(func);
 
     store_trie_node(TrNode_next(node));
     aux_stack_appl_instr();
@@ -947,11 +947,11 @@
   PBOp(trie_retry_appl, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+	arity_t vars_arity = aux_stack[VARS_ARITY_ENTRY];
+	arity_t subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Functor func = (Functor) RepAppl(TrNode_entry(node));
-    int func_arity = ArityOfFunctor(func);
+    arity_t  func_arity = ArityOfFunctor(func);
 
     restore_trie_node(TrNode_next(node));
     aux_stack_appl_instr();
@@ -962,11 +962,11 @@
 #ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+	arity_t heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+	arity_t vars_arity = aux_stack[VARS_ARITY_ENTRY];
+	arity_t subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Functor func = (Functor) RepAppl(TrNode_entry(node));
-    int func_arity = ArityOfFunctor(func);
+    arity_t  func_arity = ArityOfFunctor(func);
 
     aux_stack_appl_in_pair_instr();
 #else
@@ -979,11 +979,11 @@
 #ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+	arity_t heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Functor func = (Functor) RepAppl(TrNode_entry(node));
-    int func_arity = ArityOfFunctor(func);
+    arity_t  func_arity = ArityOfFunctor(func);
 
     pop_trie_node();
     aux_stack_appl_in_pair_instr();
@@ -997,11 +997,11 @@
 #ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Functor func = (Functor) RepAppl(TrNode_entry(node));
-    int func_arity = ArityOfFunctor(func);
+    arity_t  func_arity = ArityOfFunctor(func);
 
     store_trie_node(TrNode_next(node));
     aux_stack_appl_in_pair_instr();
@@ -1015,11 +1015,11 @@
 #ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Functor func = (Functor) RepAppl(TrNode_entry(node));
-    int func_arity = ArityOfFunctor(func);
+    arity_t  func_arity = ArityOfFunctor(func);
 
     restore_trie_node(TrNode_next(node));
     aux_stack_appl_in_pair_instr();
@@ -1032,7 +1032,7 @@
   PBOp(trie_do_extension, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
 
     aux_stack_extension_instr();
   ENDPBOp();
@@ -1041,9 +1041,9 @@
   PBOp(trie_trust_extension, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     pop_trie_node();
     aux_stack_extension_instr();
@@ -1053,9 +1053,9 @@
   PBOp(trie_try_extension, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     store_trie_node(TrNode_next(node));
     aux_stack_extension_instr();
@@ -1065,9 +1065,9 @@
   PBOp(trie_retry_extension, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     restore_trie_node(TrNode_next(node));
     aux_stack_extension_instr();
@@ -1077,9 +1077,9 @@
   PBOp(trie_do_double, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     volatile union {
       Float dbl;
       Term ts[SIZEOF_DOUBLE/SIZEOF_INT_P];
@@ -1120,9 +1120,9 @@
   PBOp(trie_do_longint, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Term t = MkLongIntTerm(aux_stack[HEAP_ENTRY(1)]);
 
     heap_arity -= 2;
@@ -1150,9 +1150,9 @@
   PBOp(trie_do_bigint, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Term t = AbsAppl((CELL*)aux_stack[HEAP_ENTRY(1)]);
 
     heap_arity -= 2;
@@ -1181,9 +1181,9 @@
   PBOp(trie_do_gterm, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = 0;
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = 0;
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     TOP_STACK = exec_substitution((gt_node_ptr)TrNode_entry(node), aux_stack);
     next_instruction(subs_arity - 1 , node);
@@ -1193,9 +1193,9 @@
   PBOp(trie_trust_gterm, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = 0;
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = 0;
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     pop_trie_node();
     TOP_STACK = exec_substitution((gt_node_ptr)TrNode_entry(node), aux_stack);
@@ -1206,9 +1206,9 @@
   PBOp(trie_try_gterm, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
-    int heap_arity = 0;
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = 0;
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     store_trie_node(TrNode_next(node));
     TOP_STACK = exec_substitution((gt_node_ptr)TrNode_entry(node), aux_stack);
@@ -1219,9 +1219,9 @@
   PBOp(trie_retry_gterm, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
-    int heap_arity = 0;
-    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
-    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    arity_t  heap_arity = 0;
+    arity_t  vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    arity_t  subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     restore_trie_node(TrNode_next(node));
     TOP_STACK = exec_substitution((gt_node_ptr)TrNode_entry(node), aux_stack);

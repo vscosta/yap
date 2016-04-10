@@ -1798,7 +1798,6 @@ extern X_API void *YAP_ExtraSpaceCut(void);
 
 extern X_API YAP_Bool YAP_Unify(YAP_Term t1, YAP_Term t2);
 
-/*  void UserCPredicate(const char *name, int *fn(), int arity) */
 extern X_API void YAP_UserCPredicate(const char *, YAP_UserCPred,
                                      YAP_Arity arity);
 

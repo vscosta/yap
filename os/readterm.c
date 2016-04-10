@@ -68,7 +68,7 @@ static char SccsId[] = "%W% %G%";
 #endif
 #ifdef _WIN32
 #if HAVE_IO_H
-/* Windows */
+/* priows */
 #include <io.h>
 #endif
 #endif
@@ -802,8 +802,9 @@ static parser_state_t scan(REnv *re, FEnv *fe, int inp_stream) {
     return YAP_PARSING;
   }
   if (LOCAL_tokptr->Tok == eot_tok && LOCAL_tokptr->TokInfo == TermNl) {
-    char *out = malloc(strlen("Empty clause" + 1));
-    strcpy(out, "Empty clause");
+	  size_t len = strlen("Empty clause");
+    char *out = malloc(len + 1);
+    strncpy(out, "Empty clause",len);
     LOCAL_ErrorMessage = out;
     LOCAL_Error_TYPE = SYNTAX_ERROR;
     LOCAL_Error_Term = TermEof;
@@ -885,10 +886,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
 static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
     CACHE_REGS
   TokEntry *tokstart = LOCAL_tokptr;
-  encoding_t e = LOCAL_encoding;
-  LOCAL_encoding = fe->enc;
-  fe->t = Yap_Parse(re->prio, fe->cmod);
-  LOCAL_encoding = e;
+  fe->t = Yap_Parse(re->prio, fe->enc, fe->cmod);
   fe->toklast = LOCAL_tokptr;
   LOCAL_tokptr = tokstart;
   TR = (tr_fr_ptr)tokstart;
@@ -1260,14 +1258,17 @@ static Int style_checker(USES_REGS1) {
   return TRUE;
 }
 
-Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp, int prio,
+X_API Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp, int prio,
                       Term *bindings) {
     CACHE_REGS
   Term bvar = MkVarTerm(), ctl;
   yhandle_t sl;
 
   if (bindings) {
+	  Term enc = MkAtomTerm(Yap_LookupAtom(enc_name(*encp)));
+	  Term encc = Yap_MkApplTerm(Yap_MkFunctor(AtomEncoding, 1), 1, &enc);
     ctl = Yap_MkApplTerm(Yap_MkFunctor(AtomVariableNames, 1), 1, &bvar);
+	ctl = MkPairTerm(ctl, MkPairTerm(encc, TermNil));
     sl = Yap_PushHandle(bvar);
   } else {
     ctl = TermNil;

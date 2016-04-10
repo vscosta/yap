@@ -237,22 +237,22 @@ INLINE_ONLY inline EXTERN Prop AbsWideAtomProp(WideAtomEntry *p) {
 
 #define WideAtomProperty ((PropFlags)0xfff8)
 
-INLINE_ONLY inline EXTERN PropFlags IsWideAtomProperty(int);
+INLINE_ONLY inline EXTERN bool IsWideAtomProperty(PropFlags);
 
-INLINE_ONLY inline EXTERN PropFlags IsWideAtomProperty(int flags) {
-  return (PropFlags)((flags == WideAtomProperty));
+INLINE_ONLY inline EXTERN bool IsWideAtomProperty(PropFlags flags) {
+  return (flags == WideAtomProperty);
 }
 
-INLINE_ONLY inline EXTERN int IsWideAtom(Atom);
+INLINE_ONLY inline EXTERN bool IsWideAtom(Atom);
 
-INLINE_ONLY inline EXTERN int IsWideAtom(Atom at) {
-  return RepAtom(at)->PropsOfAE &&
+INLINE_ONLY inline EXTERN bool IsWideAtom(Atom at) {
+  return RepAtom(at)->PropsOfAE != NIL &&
          IsWideAtomProperty(RepWideAtomProp(RepAtom(at)->PropsOfAE)->KindOfPE);
 }
 
 /*	Module property 						*/
 typedef struct mod_entry {
-  Prop NextOfPE;                /* used to chain properties            */
+  Prop NextOfPE;                /** chain of atom properties            */
   PropFlags KindOfPE;           /* kind of property                    */
   struct pred_entry *PredForME; /* index in module table               */
   Atom AtomOfME;                /* module's name	                */
@@ -296,10 +296,10 @@ INLINE_ONLY inline EXTERN Prop AbsModProp(ModEntry *p) { return (Prop)(p); }
 
 #define ModProperty ((PropFlags)0xfffa)
 
-INLINE_ONLY inline EXTERN PropFlags IsModProperty(int);
+INLINE_ONLY inline EXTERN bool IsModProperty(int);
 
-INLINE_ONLY inline EXTERN PropFlags IsModProperty(int flags) {
-  return (PropFlags)((flags == ModProperty));
+INLINE_ONLY inline EXTERN bool IsModProperty(int flags) {
+  return flags == ModProperty;
 }
 
 /* Flags on module.  Most of these flags are copied to the read context
@@ -369,10 +369,10 @@ INLINE_ONLY inline EXTERN Prop AbsOpProp(OpEntry *p) { return (Prop)(p); }
 #endif
 #define OpProperty ((PropFlags)0xffff)
 
-INLINE_ONLY inline EXTERN PropFlags IsOpProperty(int);
+INLINE_ONLY inline EXTERN bool IsOpProperty(PropFlags);
 
-INLINE_ONLY inline EXTERN PropFlags IsOpProperty(int flags) {
-  return (PropFlags)((flags == OpProperty));
+INLINE_ONLY inline EXTERN bool IsOpProperty(PropFlags flags) {
+  return flags == OpProperty;
 }
 
 typedef enum { INFIX_OP = 0, POSFIX_OP = 1, PREFIX_OP = 2 } op_type;
@@ -1025,10 +1025,10 @@ static inline TranslationEntry *Yap_GetTranslationProp(Atom at, arity_t arity) {
   return p;
 }
 
-INLINE_ONLY inline EXTERN PropFlags IsTranslationProperty(int);
+INLINE_ONLY inline EXTERN bool IsTranslationProperty(PropFlags);
 
-INLINE_ONLY inline EXTERN PropFlags IsTranslationProperty(int flags) {
-  return (PropFlags)((flags == TranslationProperty));
+INLINE_ONLY inline EXTERN bool IsTranslationProperty(PropFlags flags) {
+  return flags == TranslationProperty;
 }
 
 /*** handle named mutexes */
@@ -1087,9 +1087,9 @@ static inline void *Yap_GetMutexFromProp(Atom at) {
   return p->Mutex;
 }
 
-INLINE_ONLY inline EXTERN PropFlags IsMutexProperty(int);
+INLINE_ONLY inline EXTERN bool IsMutexProperty(PropFlags);
 
-INLINE_ONLY inline EXTERN PropFlags IsMutexProperty(int flags) {
+INLINE_ONLY inline EXTERN bool IsMutexProperty(PropFlags flags) {
   return (PropFlags)((flags == MutexProperty));
 }
 
@@ -1205,16 +1205,16 @@ INLINE_ONLY inline EXTERN Prop AbsStaticArrayProp(StaticArrayEntry *p) {
 #endif
 #define ArrayProperty ((PropFlags)0xfff7)
 
-INLINE_ONLY inline EXTERN int ArrayIsDynamic(ArrayEntry *);
+INLINE_ONLY inline EXTERN bool ArrayIsDynamic(ArrayEntry *);
 
-INLINE_ONLY inline EXTERN int ArrayIsDynamic(ArrayEntry *are) {
-  return (int)(((are)->TypeOfAE & DYNAMIC_ARRAY));
+INLINE_ONLY inline EXTERN bool ArrayIsDynamic(ArrayEntry *are) {
+  return ((are)->TypeOfAE & DYNAMIC_ARRAY) != 0;
 }
 
-INLINE_ONLY inline EXTERN PropFlags IsArrayProperty(int);
+INLINE_ONLY inline EXTERN bool IsArrayProperty(PropFlags);
 
-INLINE_ONLY inline EXTERN PropFlags IsArrayProperty(int flags) {
-  return (PropFlags)((flags == ArrayProperty));
+INLINE_ONLY inline EXTERN bool IsArrayProperty(PropFlags flags) {
+  return flags == ArrayProperty;
 }
 
 /*	SWI Blob property 						*/
@@ -1256,23 +1256,23 @@ INLINE_ONLY inline EXTERN Prop AbsBlobProp(YAP_BlobPropEntry *p) {
 
 #define BlobProperty ((PropFlags)0xfffe)
 
-INLINE_ONLY inline EXTERN PropFlags IsBlobProperty(int);
+INLINE_ONLY inline EXTERN bool IsBlobProperty(PropFlags);
 
-INLINE_ONLY inline EXTERN PropFlags IsBlobProperty(int flags) {
-  return (PropFlags)((flags == BlobProperty));
+INLINE_ONLY inline EXTERN bool  IsBlobProperty(PropFlags flags) {
+  return flags == BlobProperty;
 }
 
-INLINE_ONLY inline EXTERN int IsBlob(Atom);
+INLINE_ONLY inline EXTERN bool IsBlob(Atom);
 
-INLINE_ONLY inline EXTERN int IsBlob(Atom at) {
-  return RepAtom(at)->PropsOfAE &&
+INLINE_ONLY inline EXTERN bool IsBlob(Atom at) {
+  return RepAtom(at)->PropsOfAE != NIL &&
          IsBlobProperty(RepBlobProp(RepAtom(at)->PropsOfAE)->KindOfPE);
 }
 
-INLINE_ONLY inline EXTERN PropFlags IsValProperty(int);
+INLINE_ONLY inline EXTERN bool IsValProperty(PropFlags);
 
-INLINE_ONLY inline EXTERN PropFlags IsValProperty(int flags) {
-  return (PropFlags)((flags == ValProperty));
+INLINE_ONLY inline EXTERN bool IsValProperty(PropFlags flags) {
+  return flags == ValProperty;
 }
 
 /*		flag property entry structure				*/
@@ -1318,10 +1318,11 @@ INLINE_ONLY inline EXTERN Prop AbsFlagProp(FlagEntry *p) { return (Prop)(p); }
 #endif
 #define FlagProperty ((PropFlags)0xfff9)
 
-INLINE_ONLY inline EXTERN PropFlags IsFlagProperty(int);
+INLINE_ONLY inline EXTERN bool IsFlagProperty(PropFlags);
 
-INLINE_ONLY inline EXTERN PropFlags IsFlagProperty(int flags) {
-  return (PropFlags)((flags == FlagProperty));
+INLINE_ONLY inline EXTERN bool IsFlagProperty(PropFlags flags) {
+	return flags == FlagProperty;
+
 }
 
 /* Proto types */

@@ -12,7 +12,7 @@
       Op(cut, s);
 #ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
-      check_stack(NoStackCut, HR);
+	  check_stack(NoStackCut, HR);
       ENDCACHE_Y_AS_ENV();
     do_cut:
 #endif

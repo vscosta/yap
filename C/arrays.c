@@ -742,8 +742,7 @@ CreateStaticArray(AtomEntry *ae, size_t dim, static_array_types type, CODEADDR s
   p->ArrayType = type;
   p->TypeOfAE = STATIC_ARRAY;
   if (start_addr == NULL) {
-    Int i;
-
+	  size_t i;
     AllocateStaticArraySpace(p, type, NULL, dim PASS_REGS);
     if (p->ValueOfVE.ints == NULL) {
       WRITE_UNLOCK(p->ArRWLock);

@@ -175,7 +175,7 @@ ENDIF (NOT MSVC)
 set_target_properties(libYap
   PROPERTIES VERSION ${YAP_FULL_VERSION}
   SOVERSION ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}
-  OUTPUT_NAME Yap
+  OUTPUT_NAME libYap
   )
 
 
@@ -442,8 +442,10 @@ add_subDIRECTORY (os)
 #bootstrap and saved state
 add_subDIRECTORY (pl)
 
+IF (NOT MSVC)
 #C++ interface
 add_subDIRECTORY (CXX)
+ENDIF(NOT MSVC)
 
 ADD_SUBDIRECTORY(library)
 ADD_SUBDIRECTORY(swi/library)
@@ -471,6 +473,7 @@ add_subDIRECTORY (packages/ProbLog)
 
 add_subDIRECTORY (packages/swi-minisat2)
 
+IF (NOT MSVC)
 OPTION (WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages"  ON)
 
 OPTION (WITH_CPLINT " Enable the cplint probabilistic language"  ON)
@@ -484,6 +487,7 @@ ENDIF()
 IF (WITH_CPLINT)
 add_subDIRECTORY (packages/cplint)
 ENDIF()
+ENDIF(NOT MSVC)
 
 add_subDIRECTORY (packages/raptor)
 

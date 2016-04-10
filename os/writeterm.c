@@ -170,7 +170,7 @@ bind_variable_names(Term  t USES_REGS)
     t2 = ArgOfTerm(2, tl);
     tv = Yap_MkApplTerm(FunctorDollarVar, 1, &t1);
     if (IsVarTerm(t2)) {
-      Bind(VarOfTerm(t2), tv);
+      YapBind(VarOfTerm(t2), tv);
     }
     t = TailOfTerm(t);
   }

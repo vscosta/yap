@@ -152,7 +152,7 @@ typedef struct read_data_t {
 } read_data, *ReadData;
 
 Term Yap_read_term(int inp_stream, Term opts, int nargs);
-Term Yap_Parse(UInt prio, Term cmod);
+Term Yap_Parse(UInt prio, encoding_t enc, Term cmod);
 
 void init_read_data(ReadData _PL_rd, struct stream_desc *s);
 
@@ -274,7 +274,7 @@ static inline StreamDesc *Yap_GetStreamHandle(Term t) {
 void Yap_InitStdStreams(void);
 Term Yap_StreamPosition(int);
 
-static inline int GetCurInpPos(StreamDesc *inp_stream) {
+static inline Int GetCurInpPos(StreamDesc *inp_stream) {
   return (inp_stream->linecount);
 }
 
@@ -302,7 +302,7 @@ void Yap_SocketOps(StreamDesc *st);
 void Yap_ConsoleSocketOps(StreamDesc *st);
 bool Yap_ReadlineOps(StreamDesc *st);
 int Yap_OpenBufWriteStream(USES_REGS1);
-void Yap_ConsoleOps(StreamDesc *s, bool recursive);
+void Yap_ConsoleOps(StreamDesc *s);
 
 void Yap_InitRandomPreds(void);
 void Yap_InitSignalPreds(void);

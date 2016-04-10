@@ -1254,8 +1254,9 @@ static bool setInitialValue(bool bootstrap, flag_func f, const char *s,
     if (bootstrap) {
       return false;
     }
-    CACHE_REGS
-    t0 = Yap_StringToTerm(s, strlen(s) + 1, &LOCAL_encoding, GLOBAL_MaxPriority,
+	CACHE_REGS
+	encoding_t	encoding = ENC_ISO_UTF8;
+    t0 = Yap_StringToTerm(s, strlen(s) + 1, &encoding, GLOBAL_MaxPriority,
                           NULL);
     if (!t0)
       return false;
@@ -1541,7 +1542,7 @@ void Yap_InitFlags(bool bootstrap) {
     }
     GLOBAL_flagCount++;
     f++;
-  }
+  }		
   LOCAL_flagCount = 0;
   int nflags = sizeof(local_flags_setup) / sizeof(flag_info);
   if (bootstrap)
@@ -1552,7 +1553,7 @@ void Yap_InitFlags(bool bootstrap) {
     bool itf = setInitialValue(bootstrap, f->def, f->init,
                                LOCAL_Flags + LOCAL_flagCount);
     //    Term itf = Yap_StringToTerm(f->init, strlen(f->init)+1,
-    //    LOCAL_encoding, GLOBAL_MaxPriority, &tp);
+    //    EBC_ISO_UTF8, GLOBAL_MaxPriority, &tp);
     if (itf) {
       initFlag(f, LOCAL_flagCount, false);
     }

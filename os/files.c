@@ -62,7 +62,7 @@ loop:
       return false;
     }
     char *pts = strrchr(f, '/');
-#if WIN32_ssss
+#if WIN32_
     char *pts1 = strrchr(f, '\\');
     if (pts11 > pts)
       pts = pts1;
@@ -467,7 +467,7 @@ static Int is_absolute_file_name(USES_REGS1) { /* file_base_name(Stream,N) */
     Yap_Error(INSTANTIATION_ERROR, t, "file_base_name/2");
     return FALSE;
   }
-  const char *buf = Yap_TextTermToText(t, NULL, 0);
+  const char *buf = Yap_TextTermToText(t, NULL, 0, LOCAL_encoding);
   if (buf) {
     return Yap_IsAbsolutePath(buf);
   } else {

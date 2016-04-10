@@ -79,11 +79,10 @@ static Int is_same_tty2(USES_REGS1) { /* 'prompt(Atom)                 */
   return out;
 }
 
-void Yap_ConsoleOps(StreamDesc *s, bool recursive) {
-  if (!recursive)
-    Yap_DefaultStreamOps(s);
+void Yap_ConsoleOps(StreamDesc *s) {
   /* the putc routine only has to check it is putting out a newline */
   s->stream_putc = ConsolePutc;
+  s->stream_getc = ConsoleGetc;
 #if USE_READLINE
   /* if a tty have a special routine to call readline */
   if ((s->status & Readline_Stream_f) && trueGlobalPrologFlag(READLINE_FLAG)) {
@@ -91,7 +90,6 @@ void Yap_ConsoleOps(StreamDesc *s, bool recursive) {
       return;
   }
 #endif
-  s->stream_getc = ConsoleGetc;
 }
 
 /* static */

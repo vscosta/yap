@@ -13,6 +13,8 @@
  *
  */
 
+#include "config.h"
+
 #if _WIN32 || defined(__MINGW32__)
 #if !defined(MINGW_HAS_SECURE_API)
 #define MINGW_HAS_SECURE_API 1
@@ -24,6 +26,7 @@
 #include "YapHeap.h"
 #include "yapio.h"
 #include "eval.h"
+#include "YapText.h"
 #if _WIN32 || defined(__MINGW32__)
 #include <winsock2.h>
 /* Windows */

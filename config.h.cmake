@@ -1996,7 +1996,7 @@ calls it, or to nothing if 'inline' is not supported under any name.  */
 #endif
 
 #ifndef MAXPATHLEN
-#ifdef PATH_MAX
+#if defined(PATH_MAX)
 #define MAXPATHLEN PATH_MAX
 #else
 #define MAXPATHLEN 1024

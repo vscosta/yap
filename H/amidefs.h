@@ -1036,7 +1036,7 @@ CELL *ENV_Parent(CELL *env)
 }
 
 static inline
-UInt ENV_Size(yamop *cp)
+Int ENV_Size(yamop *cp)
 {
   return (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->y_u.Osbpp.s);
 }
