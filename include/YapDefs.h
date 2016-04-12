@@ -240,9 +240,9 @@ typedef struct yap_boot_params {
   /* if NON-NULL, a path to extend file-search-path   */
   char *YapPrologAddPath;
   /* if previous NON-NULL and TRUE, halt after consulting that file  */
-  int HaltAfterConsult;
+  bool HaltAfterConsult;
   /* ignore .yaprc, .prolog.ini, etc. files.  */
-  int FastBoot;
+  bool FastBoot;
   /* the next field only interest YAPTAB */
   /* if NON-0, maximum size for Table Space */
   unsigned long int MaxTableSpaceSize;

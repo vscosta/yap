@@ -43,7 +43,7 @@ public:
   inline YAPQuery(const char *s): YAPPredicate(s, t, names)
   {
     vnames = YAPListTerm( names );
-       
+
     initQuery( t );
   };
 
@@ -58,6 +58,9 @@ public:
   /// ask for the next solution of the current query
   /// same call for every solution
   bool next();
+  /// does this query have open choice-points?
+  /// or is it deterministic?
+  bool deterministic();
   /// represent the top-goal
   const char *text();
   /// remove alternatives in the current search space, and finish the current query

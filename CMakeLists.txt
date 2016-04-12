@@ -123,7 +123,15 @@ endif()
 
   include(java)
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+set(WITH_PYTHON YES CACHE FILEPATH "Try to use Python (currently Python 3)")
+
+if (WITH_PYTHON)
+  include(python)
+endif()
+
+
+if (
+)
   cmake_policy( SET CMP0042 NEW)
   #cmake_policy( NO_POLICY_SCOPE )
 endif()

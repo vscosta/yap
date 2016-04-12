@@ -146,6 +146,7 @@ int main(int argc, char **argv)
       YAP_RunGoalOnce(t_goal);
     }
   }
+
   YAP_Reset(YAP_FULL_RESET);
   /* End preprocessor code */
 

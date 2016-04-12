@@ -9,13 +9,13 @@ extern "C" {
 #include "blobs.h"
 
 X_API char *Yap_TermToString(Term t, char *s, size_t sz, size_t *length,
-                       encoding_t *encodingp, int flags);
+                             encoding_t *encodingp, int flags);
 
 X_API void YAP_UserCPredicate(const char *, YAP_UserCPred, YAP_Arity arity);
 X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, YAP_Arity,
-                                YAP_Term);
+                                      YAP_Term);
 X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred,
-                            YAP_Arity, YAP_Arity);
+                                  YAP_Arity, YAP_Arity);
 }
 
 YAPAtomTerm::YAPAtomTerm(char *s) { // build string
@@ -445,17 +445,12 @@ YAPQuery::YAPQuery(YAPPredicate p, YAPTerm ts[]) : YAPPredicate(p.ap) {
 YAPListTerm YAPQuery::namedVars() {
   CACHE_REGS
   Term o = vnames.term();
-  Yap_DebugPlWrite(o);
-  printf("<<<<<<<<<<<<<<<<-------------------------\n");
   return o; // should be o
 }
 
 bool YAPQuery::next() {
   CACHE_REGS
   int result;
-
-  Yap_DebugPlWrite(vnames.term());
-  fprintf(stderr, "++++++++++++++\n");
 
   BACKUP_MACHINE_REGS();
   if (q_open != 1)
@@ -464,17 +459,15 @@ bool YAPQuery::next() {
     return false;
   // don't forget, on success these guys must create slots
   if (this->q_state == 0) {
-    fprintf(stderr, "+++++ ap=%p +++++++++\n", ap);
-    Yap_DebugPlWrite(Yap_GetFromSlot(q_g));
-    fprintf(stderr, "+++++ ap +++++++++\n");
     result = (bool)YAP_EnterGoal((YAP_PredEntryPtr)ap, q_g, &q_h);
-    Yap_DebugPlWrite(Yap_GetFromSlot(q_g));
-    fprintf(stderr, "+++++ ap=%d +++++++++\n", result);
   } else {
     LOCAL_AllowRestart = q_open;
     result = (bool)YAP_RetryGoal(&q_h);
   }
   q_state = 1;
+  if (Yap_GetException()) {
+    throw(YAPError(SYSTEM_ERROR_INTERNAL));
+  }
   if (!result) {
     YAP_LeaveGoal(FALSE, &q_h);
     q_open = 0;
@@ -492,6 +485,17 @@ void YAPQuery::cut() {
   YAP_LeaveGoal(FALSE, &q_h);
   q_open = 0;
   LOCAL_execution = this;
+  RECOVER_MACHINE_REGS();
+}
+
+bool YAPQuery::deterministic() {
+  CACHE_REGS
+
+  BACKUP_MACHINE_REGS();
+  if (q_open != 1 || q_state == 0)
+    return false;
+  choiceptr myB = (choiceptr)(LCL0 - q_h.b);
+  return (B >= myB);
   RECOVER_MACHINE_REGS();
 }
 
@@ -595,12 +599,7 @@ YAPEngine::YAPEngine(char *savedState, size_t stackSize, size_t trailSize,
   init_args.YapPrologBootFile = bootFile;
   init_args.YapPrologGoal = goal;
   init_args.YapPrologTopLevelGoal = topLevel;
-  init_args.HaltAfter
-	  
-	  
-	  
-	  
-	  = script;
+  init_args.HaltAfterConsult = script;
   init_args.FastBoot = fastBoot;
   yerror = YAPError();
   delYAPCallback();

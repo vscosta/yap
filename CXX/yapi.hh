@@ -1,7 +1,7 @@
 
 #define YAP_CPP_INTERFACE 1
 
-
+#include <gmpxx.h>
 
 //! @{
 
@@ -23,9 +23,7 @@
 #include <string>
 
 // Bad export from Python
-#ifdef HAVE_STAT
-#undef HAVE_STAT
-#endif
+
 #include <config.h>
 
 extern "C" {

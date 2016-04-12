@@ -31,15 +31,15 @@ ENDIF(MSVC)
     set_source_files_properties(${outfile} PROPERTIES GENERATED TRUE)
 endfunction()
 
-
-Add_custom_target (plmyddas ALL DEPENDS ${MYDDAS_YPP} ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
-
 foreach(file ${MYDDAS_YPP})
    cpp_compile( MYDDAS_YAP ${file})
     #message("outfiles=${MYDDAS_YAP}\n")
   endforeach()
 
 
+
+  Add_custom_target (plmyddas ALL DEPENDS ${MYDDAS_YPP} ${MYDDAS_YAP} ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
+
 install(FILES ${MYDDAS_YAP}
   DESTINATION ${libpl}
-)	
+)

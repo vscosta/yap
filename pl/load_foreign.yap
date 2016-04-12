@@ -41,7 +41,7 @@ specifying the object files to load,  _Libs_ is a list (possibly
 empty) of libraries to be passed to the unix loader (`ld`) and
 InitRoutine is the name of the C routine (to be called after the files
 are loaded) to perform the necessary declarations to YAP of the
-predicates defined in the files. 
+predicates defined in the files.
 
 YAP will search for  _ObjectFiles_ in the current directory first. If
 it cannot find them it will search for the files using the environment
@@ -59,7 +59,7 @@ load_foreign_files(Objs,Libs,Entry) :-
     '$check_objs_for_load_foreign_files'(Objs,NewObjs,load_foreign_files(Objs,Libs,Entry)),
     '$check_libs_for_load_foreign_files'(Libs,NewLibs,load_foreign_files(Objs,Libs,Entry)),
     '$check_entry_for_load_foreign_files'(Entry,load_foreign_files(Objs,Libs,Entry)),
-    ( 
+    (
 	recordzifnot( '$foreign', M:'$foreign'(Objs,Libs,Entry), _)
 	->
 	'$load_foreign_files'(NewObjs,NewLibs,Entry),
@@ -71,9 +71,9 @@ load_foreign_files(Objs,Libs,Entry) :-
 	    true
         )
 	;
-	true 
+	true
    ),
-   !. 
+   !.
 
 /** @pred load_absolute_foreign_files( _Files_, _Libs_, _InitRoutine_)
 
@@ -82,7 +82,7 @@ Loads object files produced by the C compiler. It is useful when no search shoul
 */
 load_absolute_foreign_files(Objs,Libs,Entry) :-
     source_module(M),
-    ( 
+    (
 	recordzifnot( '$foreign', M:'$foreign'(Objs,Libs,Entry), _)
 	->
 	'$load_foreign_files'(Objs,Libs,Entry),
@@ -94,7 +94,7 @@ load_absolute_foreign_files(Objs,Libs,Entry) :-
 	    true
         )
 	;
-	true 
+	true
    ),
    !.
 
@@ -176,7 +176,7 @@ On errors, an exception `shared_object`( _Action_,
  _Message_) is raised.  _Message_ is the return value from
 dlerror().
 
- 
+
 */
 open_shared_object(File, Handle) :-
 	open_shared_object(File, [], Handle).
@@ -185,15 +185,15 @@ open_shared_object(File, Handle) :-
 
 As `open_shared_object/2`, but allows for additional flags to
 be passed.  _Options_ is a list of atoms. `now` implies the
-symbols are 
+symbols are
 resolved immediately rather than lazily (default). `global` implies
 symbols of the loaded object are visible while loading other shared
 objects (by default they are local). Note that these flags may not
 be supported by your operating system. Check the documentation of
 `dlopen()` or equivalent on your operating system. Unsupported
-flags  are silently ignored. 
+flags  are silently ignored.
 
- 
+
 */
 open_shared_object(File, Opts, Handle) :-
 	'$open_shared_opts'(Opts, open_shared_object(File, Opts, Handle), OptsI),
@@ -209,7 +209,7 @@ open_shared_object(File, Opts, Handle) :-
 	'$open_shared_opts'(Opts, G, V0),
 	'$open_shared_opt'(Opt, G, OptV),
 	V0 is V \/ OptV.
-	
+
 '$open_shared_opt'(Opt, G, _) :-
 	var(Opt), !,
 	'$do_error'(instantiation_error,G).
@@ -217,7 +217,7 @@ open_shared_object(File, Opts, Handle) :-
 '$open_shared_opt'(global, __, 2) :- !.
 '$open_shared_opt'(Opt, Goal, _) :-
 	'$do_error'(domain_error(open_shared_object_option,Opt),Goal).
-	
+
 /** @pred call_shared_object_function(+ _Handle_, + _Function_)
 
 Call the named function in the loaded shared library. The function is
@@ -233,3 +233,11 @@ call_shared_object_function( Handle, Function) :-
     ignore( recordzifnot( '$foreign', M:'$swi_foreign'( Handle, Function ), _) ).
 %% @}
 
+/** @pred $slave is det
+
+Called at boot-time when Prolog is run from another language (eg, Java, Python, Android)
+*/
+
+'$slave' :-
+    getenv( '__PYVENV_LAUNCHER__', _ ),
+    use_module( library(python) ).

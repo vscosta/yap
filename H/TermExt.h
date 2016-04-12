@@ -337,9 +337,7 @@ INLINE_ONLY inline EXTERN int IsStringTerm(Term t) {
 
 #include <stdio.h>
 
-#if defined(__cplusplus)
-#include <gmpxx.h>
-#elif !defined(__GMP_H__)
+#if !defined(__cplusplus)
 #include <gmp.h>
 #endif
 

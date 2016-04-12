@@ -136,7 +136,7 @@ static int copy_to_dictionary(PyObject *dict, term_t targ, term_t taux) {
       if (lhs == NULL) {
         return FALSE;
       }
-     if (!PL_get_arg(2, targ, tright)) {
+      if (!PL_get_arg(2, targ, tright)) {
         return FALSE;
       }
       rhs = term_to_python(tright);
@@ -438,8 +438,8 @@ static PyObject *bip_sum(term_t t) {
       return NULL;
     }
     Py_INCREF(result);
-  }
 #endif
+  }
 
 #ifndef SLOW_SUM
 /* Fast addition by keeping temporary sums in C instead of new Python objects.
@@ -521,14 +521,17 @@ to the more general routine.
       if (PyInt_CheckExact(item)) {
         PyFPE_START_PROTECT("add", Py_DECREF(item); Py_DECREF(iter); return 0)
             f_result += (double)PyInt_AS_LONG(item);
+        PyFPE_END_PROTECT(f_result) Py_DECREF(item);
+        continue;
+      }
 #else
       if (PyLong_CheckExact(item)) {
         PyFPE_START_PROTECT("add", Py_DECREF(item); Py_DECREF(iter); return 0)
             f_result += PyLong_AsDouble(item);
-#endif
         PyFPE_END_PROTECT(f_result) Py_DECREF(item);
         continue;
       }
+#endif
       result = PyFloat_FromDouble(f_result);
       temp = PyNumber_Add(result, item);
       Py_DECREF(result);
@@ -539,8 +542,8 @@ to the more general routine.
         return NULL;
       }
     }
-  }
 #endif
+  }
 
   for (;;) {
     item = PyIter_Next(iter);
@@ -667,7 +670,7 @@ static PyObject *bip_range(term_t t) {
 #if PY_MAJOR_VERSION < 3
     PyObject *w = PyInt_FromLong(ilow);
 #else
-      PyObject *w = PyLong_FromLong(ilow);
+    PyObject *w = PyLong_FromLong(ilow);
 #endif
     if (w == NULL) {
       Py_DECREF(v);
@@ -762,7 +765,7 @@ static PyObject *term_to_python(term_t t) {
 #if PY_MAJOR_VERSION < 3
     return PyInt_FromLong(j);
 #else
-      return PyLong_FromLong(j);
+    return PyLong_FromLong(j);
 #endif
   }
   case PL_FLOAT: {
@@ -996,7 +999,7 @@ static PyObject *term_to_python(term_t t) {
 #if PY_MAJOR_VERSION < 3
         return PyNumber_Divide(lhs, rhs);
 #else
-          return PyNumber_TrueDivide(lhs, rhs);
+        return PyNumber_TrueDivide(lhs, rhs);
 #endif
       } else if (fun == FUNCTOR_sqbrackets2) {
         //
@@ -1360,9 +1363,9 @@ static foreign_t python_to_term(PyObject *pVal, term_t t) {
     wchar_t *ptr = malloc(sizeof(wchar_t) * sz);
     sz = PyUnicode_AsWideChar((PyUnicodeObject *)pVal, ptr, sz - 1);
 #else
-      Py_ssize_t sz = PyUnicode_GetLength(pVal) + 1;
-      wchar_t *ptr = malloc(sizeof(wchar_t) * sz);
-      sz = PyUnicode_AsWideChar(pVal, ptr, sz);
+    Py_ssize_t sz = PyUnicode_GetLength(pVal) + 1;
+    wchar_t *ptr = malloc(sizeof(wchar_t) * sz);
+    sz = PyUnicode_AsWideChar(pVal, ptr, sz);
 #endif
     tmp_atom = PL_new_atom_wchars(sz, ptr);
     free(ptr);
@@ -1430,24 +1433,22 @@ static foreign_t python_to_term(PyObject *pVal, term_t t) {
     PL_cons_functor(to, FUNCTOR_curly1, to);
     return PL_unify(t, to);
   } else {
-    char *s;
     PyObject *pValR = PyObject_Repr(pVal);
     if (pValR == NULL)
       return address_to_term(pVal, t);
-#if PY_MAJOR_VERSION < 3
     Py_ssize_t sz = PyUnicode_GetSize(pValR) + 1;
+#if PY_MAJOR_VERSION < 3
     s = malloc(sizeof(char) * sz);
     PyObject *us = PyUnicode_EncodeUTF8((const Py_UNICODE *)pValR, sz, NULL);
-    free(s);
     PyString_AsStringAndSize(us, &s, &sz);
+    foreign_t rc = repr_term(s, sz, t);
+    free(s);
+    return rc;
 #else
-      Py_ssize_t sz = PyUnicode_GetLength(pVal) + 1;
-      s = malloc(sizeof(char) * sz);
-      PyObject *obj = PyUnicode_AsUTF8Char(pVal, ptr, sz);
-      PyString_AsStringAndSize(obj, &s, &sz);
-#endif
-
+    // new interface
+    char *s = PyUnicode_AsUTF8AndSize(pVal, &sz);
     return repr_term(s, sz, t);
+#endif
   }
 }
 
@@ -1485,15 +1486,14 @@ static int python_import(term_t mname, term_t mod) {
     strcat(str, ".");
     strcat(str, s2);
     s = str;
-  } else if (!PL_get_nchars(mname, &len, &s, 
-			    CVT_ALL | CVT_EXCEPTION)) {
+  } else if (!PL_get_nchars(mname, &len, &s, CVT_ALL | CVT_EXCEPTION)) {
     return FALSE;
   }
 #if PY_MAJOR_VERSION < 3
   pName = PyString_FromString(s);
 #else
-printf("Module=%s\n",s);
-    pName = PyUnicode_FromString(s);
+  printf("Module=%s\n", s);
+  pName = PyUnicode_FromString(s);
 #endif
   if (pName == NULL) {
     return FALSE;
@@ -1527,7 +1527,7 @@ static foreign_t python_f(term_t tmod, term_t fname, term_t tf) {
 #if PY_MAJOR_VERSION < 3
     pName = PyString_FromString(s);
 #else
-      pName = PyUnicode_FromString(s);
+    pName = PyUnicode_FromString(s);
 #endif
     if (pName == NULL) {
       return FALSE;
@@ -1544,7 +1544,7 @@ static foreign_t python_f(term_t tmod, term_t fname, term_t tf) {
   if (pF == NULL || !PyCallable_Check(pF)) {
     return FALSE;
   }
-printf("Module=%s ok\n",s);
+  printf("Module=%s ok\n", s);
   return python_to_ptr(pF, tf);
 }
 
@@ -1598,7 +1598,11 @@ static foreign_t python_index(term_t tobj, term_t tindex, term_t val) {
   i = term_to_python(tindex);
   if (i == NULL)
     return false;
+#if PY_MAJOR_VERSION < 3
   f = PyObject_CallMethodObjArgs(o, PyString_FromString("getitem"), i);
+#else
+  f = PyObject_CallMethodObjArgs(o, PyUnicode_FromString("getitem"), i);
+#endif
   return python_to_ptr(f, val);
 }
 
@@ -1611,81 +1615,78 @@ static foreign_t python_is(term_t tobj, term_t tf) {
 
   return python_to_ptr(o, tf);
 }
-    
-    static foreign_t python_assign_item(term_t parent, term_t indx, term_t tobj) {
-      PyObject *pF, *pI;
-      
-      PyObject *p;
-      
-      // get Scope ...
-      pI = term_to_python(indx);
-      // got Scope.Exp
-      // get Scope ...
-      p = term_to_python(parent);
-      // Exp
-      // get Scope ...
-      pF = term_to_python(parent);
-      // Exp
-      if (!pI || !p) {
-        return false;
-      } else if (PyObject_SetItem(p, pI,pF)) {
-        PyErr_Print();
-        return FALSE;
-      }
-      Py_DecRef(pI);
-      Py_DecRef(p);
-      
-      return true;
-    }
-    
-    static foreign_t python_item(term_t parent, term_t indx, term_t tobj) {
-      PyObject *pF, *pI;
-      
-      PyObject *p;
-      
-      // get Scope ...
-      pI = term_to_python(indx);
-      // got Scope.Exp
-      // get Scope ...
-      p = term_to_python(parent);
-      // Exp
-      if (!pI || !p) {
-        return false;
-      } else if ((pF =PyObject_GetItem(p, pI)) == NULL) {
-        PyErr_Print();
-        return FALSE;
-      }
-      Py_DecRef(pI);
-      Py_DecRef(p);
-      
-      return address_to_term(pF, tobj);
-    }
-    
-    
-    static foreign_t python_slice(term_t parent, term_t indx, term_t tobj) {
-      PyObject *pF, *pI;
-      
-      PyObject *p;
-      
-      // get Scope ...
-      pI = term_to_python(indx);
-      // got Scope.Exp
-      // get Scope ...
-      p = term_to_python(parent);
-      // Exp
-      if (!pI || !p) {
-        return false;
-      } else if ((pF =PySequence_GetSlice(p, 0, 0)) == NULL) {
-        PyErr_Print();
-        return FALSE;
-      }
-      Py_DecRef(pI);
-      Py_DecRef(p);
-      
-      return address_to_term(pF, tobj);
-    }
-    
-    
+
+static foreign_t python_assign_item(term_t parent, term_t indx, term_t tobj) {
+  PyObject *pF, *pI;
+
+  PyObject *p;
+
+  // get Scope ...
+  pI = term_to_python(indx);
+  // got Scope.Exp
+  // get Scope ...
+  p = term_to_python(parent);
+  // Exp
+  // get Scope ...
+  pF = term_to_python(parent);
+  // Exp
+  if (!pI || !p) {
+    return false;
+  } else if (PyObject_SetItem(p, pI, pF)) {
+    PyErr_Print();
+    return FALSE;
+  }
+  Py_DecRef(pI);
+  Py_DecRef(p);
+
+  return true;
+}
+
+static foreign_t python_item(term_t parent, term_t indx, term_t tobj) {
+  PyObject *pF, *pI;
+
+  PyObject *p;
+
+  // get Scope ...
+  pI = term_to_python(indx);
+  // got Scope.Exp
+  // get Scope ...
+  p = term_to_python(parent);
+  // Exp
+  if (!pI || !p) {
+    return false;
+  } else if ((pF = PyObject_GetItem(p, pI)) == NULL) {
+    PyErr_Print();
+    return FALSE;
+  }
+  Py_DecRef(pI);
+  Py_DecRef(p);
+
+  return address_to_term(pF, tobj);
+}
+
+static foreign_t python_slice(term_t parent, term_t indx, term_t tobj) {
+  PyObject *pF, *pI;
+
+  PyObject *p;
+
+  // get Scope ...
+  pI = term_to_python(indx);
+  // got Scope.Exp
+  // get Scope ...
+  p = term_to_python(parent);
+  // Exp
+  if (!pI || !p) {
+    return false;
+  } else if ((pF = PySequence_GetSlice(p, 0, 0)) == NULL) {
+    PyErr_Print();
+    return FALSE;
+  }
+  Py_DecRef(pI);
+  Py_DecRef(p);
+
+  return address_to_term(pF, tobj);
+}
 
 static foreign_t python_apply(term_t tin, term_t targs, term_t keywds,
                               term_t tf) {
@@ -1819,7 +1820,7 @@ static foreign_t python_builtin_eval(term_t caller, term_t dict, term_t out) {
       return false;
     }
   }
-  pOut = PyObject_CallObject((PyObject *)&PyFile_Type, pArgs);
+  pOut = PyObject_CallObject(pI, pArgs);
   Py_DECREF(pArgs);
   Py_DECREF(pI);
   if (pOut == NULL) {
@@ -1978,7 +1979,7 @@ static foreign_t array_to_python_list(term_t addr, term_t type, term_t szt,
     }
   }
   if (PL_is_variable(py)) {
-    return python_to_ptr( list, py);
+    return python_to_ptr(list, py);
   }
   return assign_to_symbol(py, list);
 }
@@ -2010,7 +2011,11 @@ static foreign_t array_to_python_tuple(term_t addr, term_t type, term_t szt,
     int32_t *v = (int32_t *)src;
     PyObject *x;
     for (i = 0; i < sz; i++) {
+#if PY_MAJOR_VERSION < 3
       x = PyInt_FromLong(v[i]);
+#else
+      x = PyLong_FromLong(v[i]);
+#endif
       if (PyTuple_SetItem(list, i, x)) {
         PyErr_Print();
         return FALSE;
@@ -2065,8 +2070,15 @@ static foreign_t python_run_file(term_t file) {
   char si[256];
   s = si;
   if (PL_get_nchars(file, &len, &s, CVT_ALL | CVT_EXCEPTION)) {
+#if PY_MAJOR_VERSION < 3
     PyObject *PyFileObject = PyFile_FromString(si, "r");
     PyRun_SimpleFileEx(PyFile_AsFile(PyFileObject), "test.py", 1);
+#else
+    FILE *f = fopen(s, "r");
+    if (f == NULL)
+      return false;
+    PyRun_SimpleFileEx(f, s, 1);
+#endif
     return TRUE;
   }
   return false;
@@ -2095,7 +2107,12 @@ static foreign_t python_run_script(term_t cmd, term_t fun) {
       (s = sf) != NULL &&
       PL_get_nchars(fun, &len1, &s, CVT_ALL | CVT_EXCEPTION)) {
 
+#if PY_MAJOR_VERSION < 3
     pName = PyString_FromString("rbm");
+#else
+    // asssumes UTF-8
+    pName = PyUnicode_FromString("rbm");
+#endif
     /* Error checking of pName left out */
 
     pModule = PyImport_Import(pName);
@@ -2108,7 +2125,6 @@ static foreign_t python_run_script(term_t cmd, term_t fun) {
       if (pFunc && PyCallable_Check(pFunc)) {
         pValue = PyObject_CallObject(pFunc, pArgs);
         if (pValue != NULL) {
-          printf("Result of call: %ld\n", PyInt_AsLong(pValue));
           Py_DECREF(pValue);
         } else {
           Py_DECREF(pFunc);
@@ -2143,7 +2159,12 @@ static foreign_t init_python(void) {
   char **argv;
   term_t t = PL_new_term_ref();
   YAP_Argv(&argv);
+#if PY_MAJOR_VERSION < 3
   Py_SetProgramName(argv[0]);
+#else
+  wchar_t *buf = Py_DecodeLocale(argv[0], NULL);
+  Py_SetProgramName(buf);
+#endif
   Py_Initialize();
   py_Main = PyImport_AddModule("__main__");
   py_Builtin = PyImport_AddModule("__builtin__");
@@ -2227,6 +2248,3 @@ install_t install_libpython(void) {
   PL_register_foreign("python_builtin_eval", 3, python_builtin_eval, 0);
   PL_register_foreign("python_builtin", 1, python_builtin, 0);
 }
-
-
-  

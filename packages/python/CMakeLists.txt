@@ -10,11 +10,6 @@ set (PYTHON_SOURCES
 #set(  PYTHON_LIBRARY /usr/local/opt/python/Frameworks/Python.framework/Versions/Current/lib/libpython2.7.dylib) #             - path to the python library
 #set(  PYTHON_INCLUDE_DIR /usr/local/opt/python/Frameworks/Python.framework/Versions/Current/include/python2.7 )  #      - path to where Python.h is found
 
-  macro_optional_find_package(PythonInterp ON)
-  macro_optional_find_package (PythonLibs ON)
-  macro_log_feature (PYTHONLIBS_FOUND "Python"
-    "Use Python System"
-    "http://www.python.org" FALSE)
 
 if (PYTHONLIBS_FOUND)         #   PYTHONLIBS_FOUND           - have the Python libs been found
   #   PYTHON_LIBRARIES           - path to the python library
@@ -45,7 +40,7 @@ if (PYTHONLIBS_FOUND)         #   PYTHONLIBS_FOUND           - have the Python l
   add_library (libpython SHARED ${PYTHON_SOURCES})
 
   target_link_libraries(libpython libYap ${PYTHON_LIBRARIES})
-  
+
 
   set_target_properties (libpython PROPERTIES PREFIX "")
 

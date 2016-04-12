@@ -1,9 +1,13 @@
+#ifndef __unix__
+#define X_API
+#endif
+
 #ifndef YAPT_HH
 #define YAPT_HH 1
 
 class YAPAtomTerm;
 
-extern "C" Term X_API YAP_ReadBuffer(const char *s, Term *tp);
+extern "C" X_API Term  YAP_ReadBuffer(const char *s, Term *tp);
 
 /**
  * @brief Generic Prolog Term
