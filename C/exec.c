@@ -1781,7 +1781,6 @@ restart_runtopgoal:
 
 #if !USE_SYSTEM_MALLOC
   if (LOCAL_TrailTop - HeapTop < 2048) {
-    LOCAL_PrologMode = BootMode;
     Yap_Error(RESOURCE_ERROR_TRAIL, TermNil,
               "unable to boot because of too little Trail space");
   }
@@ -1994,7 +1993,8 @@ static Int JumpToEnv() {
     /* we are already doing a catch */
     /* make sure we prune C-choicepoints */
     if (handler->cp_ap == NOCODE &&
-        handler >= (choiceptr)(LCL0 - LOCAL_CBorder)) {
+        (handler >= (choiceptr)(LCL0 - LOCAL_CBorder) ||
+         handler->cp_b == NULL)) {
       break;
     }
     oh = handler;
@@ -2047,7 +2047,8 @@ static Int jump_env(USES_REGS1) {
   Term t = Deref(ARG1);
   Yap_PutException(t);
   bool out = JumpToEnv(PASS_REGS1);
-  if (P == FAILCODE && B->cp_ap == NOCODE && LCL0 - (CELL *)B > LOCAL_CBorder) {
+  if (B != NULL && P == FAILCODE && B->cp_ap == NOCODE &&
+      LCL0 - (CELL *)B > LOCAL_CBorder) {
     // we're failing up to the top layer
     LOCAL_Error_TYPE = THROW_EVENT;
   }

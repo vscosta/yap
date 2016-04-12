@@ -2,7 +2,7 @@
 find_host_package (SWIG)
 macro_log_feature (SWIG_FOUND "Swig"
   "Use SWIG Documentation System "
-  "http://www.swig.org" FALSE)
+"http://www.swig.org" ON)
 
 if (SWIG_FOUND)
   #

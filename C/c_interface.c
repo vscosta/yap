@@ -1,4 +1,3 @@
-
 /************************************************************************* *
  *	 YAP Prolog 							 *
  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
@@ -2012,8 +2011,7 @@ X_API int YAP_InitConsult(int mode, const char *filename, int *osnop) {
   CACHE_REGS
   FILE *f;
   int sno;
-  char full[FILENAME_MAX]
-  BACKUP_MACHINE_REGS();
+  char full[FILENAME_MAX] BACKUP_MACHINE_REGS();
 
   if (mode == YAP_BOOT_MODE) {
     mode = YAP_CONSULT_MODE;
@@ -2026,10 +2024,9 @@ X_API int YAP_InitConsult(int mode, const char *filename, int *osnop) {
   f = fopen(fl, "r");
   if (!f)
     return -1;
-  else if (fl != filename  && fl !=  full &&
-	   fl != LOCAL_FileNameBuf &&
-	   fl != LOCAL_FileNameBuf2)
-    free(fl);
+  else if (fl != filename && fl != full && fl != LOCAL_FileNameBuf &&
+           fl != LOCAL_FileNameBuf2)
+    free((void *)fl);
   sno = Yap_OpenStream(f, NULL, TermNil, Input_Stream_f);
   *osnop = Yap_CheckAlias(AtomLoopStream);
   if (!Yap_AddAlias(AtomLoopStream, sno)) {
@@ -2455,8 +2452,10 @@ Int YAP_Init(YAP_init_args *yap_init) {
     }
     if (Atts && Atts * 1024 > 2048 * sizeof(CELL))
       Yap_AttsSize = Atts * 1024;
-    else
+    else {
       Yap_AttsSize = 2048 * sizeof(CELL);
+    }
+    LOCAL_PrologMode &= ~BootMode;
     if (restore_result == DO_ONLY_CODE) {
       /* first, initialize the saved state */
       Term t_goal = MkAtomTerm(AtomInitProlog);
