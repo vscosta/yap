@@ -21,11 +21,6 @@
 #include "fmemopen.h"
 #endif
 
-#if __ANDROID__
-#undef HAVE_FMEMOPEN
-#undef HAVE_OPEN_MEMSTREAM
-#endif
-
 #include "blobs.h"
 
 static blob_type_t unregistered_blob_atom = {
@@ -35,8 +30,8 @@ char *Yap_blob_to_string(AtomEntry *ref, const char *s0, size_t sz) {
   // int rc;
   char *s = (char *)s0;
 
-// blob_type_t *type = RepBlobProp(ref->PropsOfAE)->blob_type;
-#if HAVE_FMEMOPEN && !__ANDROID__
+#if HAVE_FMEMOPEN
+  blob_type_t *type = RepBlobProp(ref->PropsOfAE)->blob_type;
   if (type->write) {
     FILE *f = fmemopen(s, sz, "w");
     if (f == NULL) {
@@ -44,7 +39,7 @@ char *Yap_blob_to_string(AtomEntry *ref, const char *s0, size_t sz) {
       return NULL;
     }
     Atom at = AbsAtom(ref);
-    rc = type->write(f, at, 0);
+    int rc = type->write(f, at, 0);
     if (rc < 0) {
       Yap_Error(EVALUATION_ERROR_UNDEFINED, MkAtomTerm(at),
                 "failure in user-defined blob to string code");
