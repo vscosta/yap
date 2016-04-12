@@ -22,18 +22,18 @@
 //#undef _POSIX_
 #endif
 #include "Yap.h"
-#include "Yatom.h"
 #include "YapHeap.h"
-#include "yapio.h"
-#include "eval.h"
 #include "YapText.h"
+#include "Yatom.h"
+#include "eval.h"
+#include "yapio.h"
 #if _WIN32 || defined(__MINGW32__)
 #include <winsock2.h>
 /* Windows */
+#include "Shlwapi.h"
+#include <direct.h>
 #include <io.h>
 #include <windows.h>
-#include <direct.h>
-#include "Shlwapi.h"
 #endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -45,13 +45,12 @@
 
 #if HAVE_SYS_PARAM_H
 #include <sys/param.h>
-#endif 
-
+#endif
 
 #ifdef FENV_H
 #include <fenv.h>
 #endif
-#define S_ISDIR(x) (((x)&_S_IFDIR)==_S_IFDIR)
+#define S_ISDIR(x) (((x)&_S_IFDIR) == _S_IFDIR)
 #if HAVE_STDARG_H
 #include <stdarg.h>
 #endif
@@ -67,7 +66,7 @@
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
-#if HAVE_SYS_SELECT_H && !_MSC_VER && !defined(__MINGW32__) 
+#if HAVE_SYS_SELECT_H && !_MSC_VER && !defined(__MINGW32__)
 #include <sys/select.h>
 #endif
 #if HAVE_STRING_H
@@ -89,10 +88,10 @@
 #include <fcntl.h>
 #endif
 #if !HAVE_STRNCAT
-#define strncat(X,Y,Z) strcat(X,Y)
+#define strncat(X, Y, Z) strcat(X, Y)
 #endif
 #if !HAVE_STRNCPY
-#define strncpy(X,Y,Z) strcpy(X,Y)
+#define strncpy(X, Y, Z) strcpy(X, Y)
 #endif
 #include "iopreds.h"
 
@@ -102,7 +101,7 @@
 
 #endif
 #ifdef MPW
-#define signal	sigset
+#define signal sigset
 #endif
 
 /* windows.h does not like absmi.h, this
@@ -133,7 +132,7 @@
 #if HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
-#if  _MSC_VER || defined(__MINGW32__)
+#if _MSC_VER || defined(__MINGW32__)
 #endif
 /* CYGWIN seems to include this automatically */
 #if HAVE_FENV_H && !defined(__CYGWIN__)
@@ -152,10 +151,7 @@
 #include <readline/readline.h>
 #endif
 
-void Yap_InitRandom (void);
-void Yap_InitTime (int wid);
-void Yap_InitOSSignals (int wid);
+void Yap_InitRandom(void);
+void Yap_InitTime(int wid);
+void Yap_InitOSSignals(int wid);
 void Yap_InitWTime(void);
-
-
-

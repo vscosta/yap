@@ -171,26 +171,26 @@ loop:
 
 static Int access_path(USES_REGS1) {
   Term tname = Deref(ARG1);
-  char *file_name;
 
   if (IsVarTerm(tname)) {
     Yap_Error(INSTANTIATION_ERROR, tname, "access");
-    return FALSE;
+    return false;
   } else if (!IsAtomTerm(tname)) {
     Yap_Error(TYPE_ERROR_ATOM, tname, "access");
-    return FALSE;
+    return false;
   } else {
 #if HAVE_STAT
     struct SYSTEM_STAT ss;
+    char *file_name;
 
     file_name = RepAtom(AtomOfTerm(tname))->StrOfAE;
     if (SYSTEM_STAT(file_name, &ss) != 0) {
       /* ignore errors while checking a file */
-      return FALSE;
+      return true;
     }
-    return TRUE;
+    return true;
 #else
-    return FALSE;
+    return false;
 #endif
   }
 }

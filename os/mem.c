@@ -217,10 +217,6 @@ int Yap_open_buf_write_stream(char *buf, size_t nchars, encoding_t *encp,
     buf = malloc(nchars);
     st->status |= FreeOnClose_Stream_f;
   }
-  st->nbuf = buf;
-  if (!st->nbuf) {
-    return -1;
-  }
   st->nsize = nchars;
   st->linepos = 0;
   st->charcount = 0;
@@ -231,9 +227,17 @@ int Yap_open_buf_write_stream(char *buf, size_t nchars, encoding_t *encp,
     st->encoding = LOCAL_encoding;
   Yap_DefaultStreamOps(st);
 #if MAY_WRITE
-  st->file = open_memstream(&st->nbuf, &st->nsize);
-  st->status |= Seekable_Stream_f;
+#if HAVE_FMEMOPEN
+  st->file = fmemopen((void *)buf, nchars, "w");
 #else
+  st->file = open_memstream(buf, &st->nsize);
+  st->status |= Seekable_Stream_f;
+#endif
+  st->nsize = nchars;
+  st->nbuf = buf;
+  if (!st->nbuf) {
+    return -1;
+  }
   st->u.mem_string.pos = 0;
   st->u.mem_string.buf = st->nbuf;
   st->u.mem_string.max_size = nchars;

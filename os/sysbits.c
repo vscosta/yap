@@ -463,9 +463,8 @@ static bool ChDir(const char *path) {
 #else
   rc = (chdir(qpath) == 0);
 #endif
-  if (qpath != qp && qpath != LOCAL_FileNameBuf &&
-	  qpath != LOCAL_FileNameBuf2)
-  free((char *)qpath);
+  if (qpath != qp && qpath != LOCAL_FileNameBuf && qpath != LOCAL_FileNameBuf2)
+    free((char *)qpath);
   return rc;
 }
 #if _WIN32 || defined(__MINGW32__)
@@ -582,20 +581,19 @@ static const char *expandVars(const char *spec, char *u) {
  */
 const char *Yap_AbsoluteFile(const char *spec, char *rc0, bool ok) {
   const char *p;
-  char *rc;
+  const char *rc;
   rc = PlExpandVars(spec, NULL, rc0);
   if (!rc)
     rc = spec;
   if ((p = myrealpath(rc, rc0))) {
-	  if (rc != rc0 && rc != spec && rc != p)
-		  freeBuffer(rc);
-	  return p;
+    if (rc != rc0 && rc != spec && rc != p)
+      freeBuffer(rc);
+    return p;
   } else {
-	if (rc != rc0 && rc != spec)
-	  freeBuffer(rc);
+    if (rc != rc0 && rc != spec)
+      freeBuffer(rc);
     return NULL;
   }
-  
 }
 
 /**
@@ -1424,7 +1422,7 @@ static Int p_expand_file_name(USES_REGS1) {
   if (!(text2 = PlExpandVars(text, NULL, NULL)))
     return false;
   freeBuffer(text);
-  bool rc = Yap_unify(ARG2, Yap_MkTextTerm(text2, LOCAL_encoding,  t));
+  bool rc = Yap_unify(ARG2, Yap_MkTextTerm(text2, LOCAL_encoding, t));
   freeBuffer(text2);
   return rc;
 }
@@ -2006,8 +2004,8 @@ static wchar_t *WideStringFromAtom(Atom KeyAt USES_REGS) {
                   "generating key in win_registry_get_value/3");
         return false;
       }
-	  k = (wchar_t *)Yap_AllocCodeSpace(sz);
-	}
+      k = (wchar_t *)Yap_AllocCodeSpace(sz);
+    }
     kptr = k;
     while ((*kptr++ = *chp++))
       ;

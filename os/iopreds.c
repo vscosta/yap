@@ -233,9 +233,9 @@ static void unix_upd_stream_info(StreamDesc *s) {
     filedes = fileno(s->file);
     if (isatty(filedes)) {
 #if HAVE_TTYNAME
-      char *ttys = ttyname_r(filedes, LOCAL_FileNameBuf, YAP_FILENAME_MAX - 1);
-      if (ttys == NULL)
-        s->name = AtomTty;
+      int rc = ttyname_r(filedes, LOCAL_FileNameBuf, YAP_FILENAME_MAX - 1);
+      if (rc == 0)
+        s->name = Yap_LookupAtom(LOCAL_FileNameBuf);
       else
         s->name = AtomTtys;
 #else
@@ -251,24 +251,21 @@ static void unix_upd_stream_info(StreamDesc *s) {
   s->status |= Seekable_Stream_f;
 }
 
-
-
 void Yap_DefaultStreamOps(StreamDesc *st) {
   CACHE_REGS
   st->stream_wputc = put_wchar;
   st->stream_wgetc = get_wchar;
-    st->stream_putc = FilePutc;
-    st->stream_getc = PlGetc;
+  st->stream_putc = FilePutc;
+  st->stream_getc = PlGetc;
   if (st->status & (Promptable_Stream_f)) {
-     Yap_ConsoleOps(st);
+    Yap_ConsoleOps(st);
   }
-#ifndef _WIN32 
+#ifndef _WIN32
   else if (st->file != NULL) {
-	  if (st->encoding == LOCAL_encoding) {
-		  st->stream_wgetc = get_wchar_from_file;
-	  }
-	  else
-		  st->stream_wgetc = get_wchar_from_FILE;
+    if (st->encoding == LOCAL_encoding) {
+      st->stream_wgetc = get_wchar_from_file;
+    } else
+      st->stream_wgetc = get_wchar_from_FILE;
   }
 #endif
   if (GLOBAL_CharConversionTable != NULL)
@@ -288,7 +285,7 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
 
 static void InitFileIO(StreamDesc *s) {
   CACHE_REGS
-    Yap_DefaultStreamOps(s);
+  Yap_DefaultStreamOps(s);
 }
 
 static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file) {
@@ -557,7 +554,7 @@ int ResetEOF(StreamDesc *s) {
     /* reset the eof indicator on file */
     if (feof(s->file))
       clearerr(s->file);
-/* reset our function for reading input */
+    /* reset our function for reading input */
     Yap_DefaultStreamOps(s);
     /* next, reset our own error indicator */
     s->status &= ~Eof_Stream_f;
@@ -1276,8 +1273,9 @@ do_open(Term file_name, Term t2,
   if ((fd = fopen(fname, io_mode)) == NULL ||
       (!(flags & Binary_Stream_f) && binary_file(fname))) {
     strncpy(LOCAL_FileNameBuf, fname, MAXPATHLEN);
-	if (fname != fbuf && fname != LOCAL_FileNameBuf && fname != LOCAL_FileNameBuf2)
-    free((void *)fname);
+    if (fname != fbuf && fname != LOCAL_FileNameBuf &&
+        fname != LOCAL_FileNameBuf2)
+      free((void *)fname);
     fname = LOCAL_FileNameBuf;
     UNLOCK(st->streamlock);
     if (errno == ENOENT)
