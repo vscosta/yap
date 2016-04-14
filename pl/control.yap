@@ -263,7 +263,7 @@ This is similar to <tt>call_cleanup/1</tt> with an additional
 
 */
 call_cleanup(Goal, Cleanup) :-
-	setup_call_catcher_cleanup(true, Goal, Catcher, Cleanup).
+	setup_call_catcher_cleanup(true, Goal, _Catcher, Cleanup).
 
 call_cleanup(Goal, Catcher, Cleanup) :-
 	setup_call_catcher_cleanup(true, Goal, Catcher, Cleanup).
@@ -617,7 +617,7 @@ halt :-
 
 /** @pred  halt(+  _I_) is iso
 
-Halts Prolog, and exits to the calling application returning the code
+Halts Prolog, and exits to 1the calling application returning the code
 given by the integer  _I_.
 
 */

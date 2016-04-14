@@ -1438,11 +1438,11 @@ static foreign_t python_to_term(PyObject *pVal, term_t t) {
       return address_to_term(pVal, t);
     Py_ssize_t sz = PyUnicode_GetSize(pValR) + 1;
 #if PY_MAJOR_VERSION < 3
-    s = malloc(sizeof(char) * sz);
+    char *s = malloc(sizeof(char) * sz);
     PyObject *us = PyUnicode_EncodeUTF8((const Py_UNICODE *)pValR, sz, NULL);
     PyString_AsStringAndSize(us, &s, &sz);
     foreign_t rc = repr_term(s, sz, t);
-    free(s);
+    free((void *)s);
     return rc;
 #else
     // new interface
@@ -2150,9 +2150,8 @@ static foreign_t python_run_script(term_t cmd, term_t fun) {
   return false;
 }
 
-static foreign_t python_builtin(out) {
+static foreign_t python_builtin(term_t out) {
   return address_to_term(py_Builtin, out);
-  return true;
 }
 
 static foreign_t init_python(void) {

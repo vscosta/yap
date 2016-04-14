@@ -70,7 +70,7 @@ attr_unify_hook(DelayList, _) :-
 	wake_delays(DelayList).
 	
 wake_delays([]).
-wake_delays(Delay.List) :-
+wake_delays([Delay|List]) :-
 	wake_delay(Delay),
 	wake_delays(List).
 

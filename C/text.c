@@ -814,7 +814,6 @@ write_buffer( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng 
 	if (out->type & (YAP_STRING_WITH_BUFFER|YAP_STRING_MALLOC) ) {
 	 char *s = s0;
 	 size_t n = strlen( s )+1;
-	 memcpy( out->val.c, s0, n*sizeof(wchar_t));
    	 out->val.c[n] = '\0';
 	 sz_end = n+1;
 	} else {

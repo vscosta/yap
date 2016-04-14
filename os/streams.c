@@ -890,42 +890,7 @@ void Yap_CloseStreams(int loud) {
   for (sno = 3; sno < MaxStreams; ++sno) {
     if (GLOBAL_Stream[sno].status & Free_Stream_f)
       continue;
-    if ((GLOBAL_Stream[sno].status & Popen_Stream_f)) {
-#if _MSC_VER
-
-      _pclose(GLOBAL_Stream[sno].file);
-#else
-      pclose(GLOBAL_Stream[sno].file);
-#endif
-    }
-    if (GLOBAL_Stream[sno].status & (Pipe_Stream_f | Socket_Stream_f))
-      close(GLOBAL_Stream[sno].u.pipe.fd);
-#if USE_SOCKET
-    else if (GLOBAL_Stream[sno].status & (Socket_Stream_f)) {
-      Yap_CloseSocket(GLOBAL_Stream[sno].u.socket.fd,
-                      GLOBAL_Stream[sno].u.socket.flags,
-                      GLOBAL_Stream[sno].u.socket.domain);
-    }
-#endif
-    else if (GLOBAL_Stream[sno].status & InMemory_Stream_f) {
-      if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_CODE) {
-        Yap_FreeAtomSpace(GLOBAL_Stream[sno].u.mem_string.buf);
-      } else if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_MALLOC) {
-        free(GLOBAL_Stream[sno].u.mem_string.buf);
-      }
-    } else if (!(GLOBAL_Stream[sno].status & Null_Stream_f)) {
-      fclose(GLOBAL_Stream[sno].file);
-    } else {
-      if (loud)
-        fprintf(Yap_stderr, "%% YAP Error: while closing stream: %s\n",
-                RepAtom(GLOBAL_Stream[sno].name)->StrOfAE);
-    }
-    if (LOCAL_c_input_stream == sno) {
-      LOCAL_c_input_stream = StdInStream;
-    } else if (LOCAL_c_output_stream == sno) {
-      LOCAL_c_output_stream = StdOutStream;
-    }
-    GLOBAL_Stream[sno].status = Free_Stream_f;
+    CloseStream( sno );
   }
 }
 
@@ -947,10 +912,16 @@ static void CloseStream(int sno) {
     close(GLOBAL_Stream[sno].u.pipe.fd);
   } else if (GLOBAL_Stream[sno].status & (InMemory_Stream_f)) {
     Yap_CloseMemoryStream(sno);
-    if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_CODE)
-      Yap_FreeAtomSpace(GLOBAL_Stream[sno].u.mem_string.buf);
-    else if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_MALLOC) {
-      free(GLOBAL_Stream[sno].u.mem_string.buf);
+    if (GLOBAL_Stream[sno].file == NULL) {
+      char *s = GLOBAL_Stream[sno].u.mem_string.buf;
+      if (s == LOCAL_FileNameBuf ||
+	  s == LOCAL_FileNameBuf2)
+	return;
+      if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_CODE)
+	Yap_FreeAtomSpace(s);
+      else if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_MALLOC) {
+	free(s);
+      }
     }
   }
   GLOBAL_Stream[sno].status = Free_Stream_f;

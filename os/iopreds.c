@@ -261,8 +261,8 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
     Yap_ConsoleOps(st);
   }
 #ifndef _WIN32
-  else if (st->file != NULL) {
-    if (st->encoding == LOCAL_encoding) {
+  else if (st->file != NULL && 0 && !(st->status &  InMemory_Stream_f)) {
+    if (st->encoding == Yap_SystemEncoding()) {
       st->stream_wgetc = get_wchar_from_file;
     } else
       st->stream_wgetc = get_wchar_from_FILE;
@@ -1137,7 +1137,6 @@ do_open(Term file_name, Term t2,
   const char *s_encoding;
   encoding_t encoding;
   Term tenc;
-
   // original file name
   if (IsVarTerm(file_name)) {
     Yap_Error(INSTANTIATION_ERROR, file_name, "open/3");

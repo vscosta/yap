@@ -43,6 +43,7 @@ typedef enum {
 
 /// read the current environment, as set by the user or as Initial
 encoding_t Yap_DefaultEncoding(void);
+encoding_t Yap_SystemEncoding(void);
 void Yap_SetDefaultEncoding(encoding_t new_encoding);
 
 #if HAVE_XLOCALE_H

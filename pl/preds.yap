@@ -762,12 +762,12 @@ compile_predicates(Ps) :-
 	'$compile_predicate'(P, M, Call).
 '$compile_predicate'(Na/Ar, Mod, _Call) :-
 	functor(G, Na, Ar),
-	findall((G.B),clause(Mod:G,B),Cls),
+	findall([G|B],clause(Mod:G,B),Cls),
 	abolish(Mod:Na,Ar),
 	'$add_all'(Cls, Mod).
 
 '$add_all'([], _).
-'$add_all'((G.B).Cls, Mod) :-
+'$add_all'([[G|B]|Cls], Mod) :-
 	assert_static(Mod:(G:-B)),
 	'$add_all'(Cls, Mod).
 

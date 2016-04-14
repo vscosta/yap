@@ -330,7 +330,7 @@ alarm(Number, Goal, Left) :-
 	USecs is integer((Number-Secs)*1000000) mod 1000000,
 	on_signal(sig_alarm, _, Goal),
 	'$alarm'(Secs, USecs, Left, _).
-alarm([Interval|USecs], Goal, Left.LUSecs) :-
+alarm([Interval|USecs], Goal, [Left|LUSecs]) :-
 	on_signal(sig_alarm, _, Goal),
 	'$alarm'(Interval, USecs, Left, LUSecs).
 

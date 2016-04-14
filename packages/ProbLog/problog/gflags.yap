@@ -187,7 +187,7 @@
 % free-of-charge patent license to make, have made, use, offer to sell,
 % sell, import and otherwise transfer the Package with respect to any
 % patent claims licensable by the Copyright Holder that are necessarily
-% infringed by the Package. If you institute patent litigation
+% infringed by the Pack<age. If you institute patent litigation
 % (including a cross-claim or counterclaim) against any party alleging
 % that the Package constitutes direct or contributory patent
 % infringement, then this Artistic License to you shall terminate on the
@@ -429,7 +429,7 @@ flag_validate_integer(Value):-
 
 flag_validate_directory.
 flag_validate_directory(Value):-
-  atomic(Value),
+    atomic(Value),
   catch(file_exists(Value), _, fail),
   file_property(Value, type(directory)), !.
 flag_validate_directory(Value):-

@@ -84,8 +84,6 @@ Grammar related built-in predicates:
         {}/3,
         ('|')/4], ['$do_error'/2]).
 
-:- use_module( library( expand_macros ) ).
-
 % :- meta_predicate ^(?,0,?).
 % ^(Xs, Goal, Xs) :- call(Goal).
 
@@ -285,10 +283,6 @@ prolog:'\\+'(A, S0, S) :-
 
 :- dynamic system:goal_expansion/2.
 
-:- dynamic prolog:'$goal_expansion_allowed'/0.
-
-prolog:'$goal_expansion_allowed'.
-
 '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal) :-
     catch(prolog:'$translate_rule'(
           (pseudo_nt --> Mod:NT), Rule),
@@ -323,7 +317,6 @@ do_c_built_in('C'(A,B,C), _, _, (A=[B|C])) :- !.
 
 do_c_built_in(phrase(NT,Xs0, Xs),Mod, _, NewGoal) :- 
     nonvar(NT), nonvar(Mod), !,
-    '$goal_expansion_allowed',
     '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal).
     
 do_c_built_in(phrase(NT,Xs),Mod,_,NewGoal) :-

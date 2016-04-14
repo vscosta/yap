@@ -218,7 +218,7 @@ considered.
 	'$assert_list'(Clauses, Context, Module, VL, Pos).
 
 '$assert_list'([], _Context, _Module, _VL, _Pos).
-'$assert_list'(Clause.Clauses, Context, Module, VL, Pos) :-
+'$assert_list'([Clause|Clauses], Context, Module, VL, Pos) :-
 	'$command'(Clause, VL, Pos, Context),
 	'$assert_list'(Clauses, Context, Module, VL, Pos).
 

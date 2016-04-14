@@ -521,6 +521,10 @@ be lost.
     current_prolog_flag( debug, false),
     !,
     '$execute_nonstop'(G,M).
+'$spycall'(once(G), M, _, _) :-
+ 	 CP is '$last_choice_pt',
+	 '$debugger_input',
+	once('$do_spy'(G, M, CP, spy)).
 '$spycall'(G, M, _, _) :-
 	'__NB_getval__'('$debug_jump',true, fail),
 	!,
@@ -1033,13 +1037,15 @@ be lost.
 	'$debugger_skip_loop_spy2'(CPs,CPs1).
 '$debugger_skip_loop_spy2'(CPs,CPs).
 
-'$debugger_expand_meta_call'( G, M, G1 ) :-
-    '$expand_meta_call'( G, M, G0 ),
+'$debugger_expand_meta_call'( G, VL, G2 ) :-
+    '$expand_meta_call'( G, VL, G0 ),
+    '$yap_strip_module'( G0, M, G1 ),
     (
 	'$is_system_predicate'(G0,M) ->
-	    '$debugger_process_meta_arguments'(G0, M, G1)
+	    '$debugger_process_meta_arguments'(G1, M, G2)
+	    ,writeln(d:G2)
      ;
-     G1 = G0
+     G1 = G2
     ).
 
 '$debugger_process_meta_arguments'(G, M, G1) :-

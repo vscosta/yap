@@ -521,14 +521,17 @@ static const char *myrealpath(const char *path, char *out) {
     if (errno == ENOENT || errno == EACCES) {
       char base[YAP_FILENAME_MAX];
       strncpy(base, path, YAP_FILENAME_MAX - 1);
-      rc = realpath(dirname((char *)path), NULL);
+      rc = realpath(dirname(base), NULL);
 
       if (rc) {
         const char *b = basename(base);
         size_t e = strlen(rc);
         size_t bs = strlen(b);
 
-        rc = realloc(rc, e + bs + 2);
+	if (rc != out &&
+	  rc != base) {
+	  rc = realloc(rc, e + bs + 2);
+	}
 #if _WIN32
         if (rc[e - 1] != '\\' && rc[e - 1] != '/') {
           rc[e] = '\\';
@@ -797,7 +800,7 @@ static Term
  *
  * @return
  */
-static Int prolog_realpath(USES_REGS1) {
+static Int real_path(USES_REGS1) {
   Term t1 = Deref(ARG1);
   const char *cmd;
 
@@ -2145,7 +2148,7 @@ void Yap_InitSysPreds(void) {
   Yap_InitCPred("prolog_to_os_filename", 2, prolog_to_os_filename,
                 SyncPredFlag);
   Yap_InitCPred("absolute_file_system_path", 2, absolute_file_system_path, 0);
-  Yap_InitCPred("real_path", 2, prolog_realpath, 0);
+  Yap_InitCPred("real_path", 2, real_path, 0);
   Yap_InitCPred("true_file_name", 2, true_file_name, SyncPredFlag);
   Yap_InitCPred("true_file_name", 3, true_file_name3, SyncPredFlag);
 #ifdef _WIN32

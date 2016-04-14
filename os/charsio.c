@@ -113,7 +113,7 @@ Int Yap_peek(int sno) {
   }
 #endif
   /* buffer the character */
-  if (s->encoding == LOCAL_encoding) {
+  if (s->encoding == Yap_SystemEncoding() && 0) {
     ch = fgetwc(s->file);
     ungetwc(ch, s->file);
     return ch;
@@ -122,7 +122,7 @@ Int Yap_peek(int sno) {
     olinecount = s->linecount;
     olinepos = s->linepos;
     ch = s->stream_wgetc(sno);
-    if (ch == EOFCHAR) {
+  if (ch == EOFCHAR) {
       s->stream_getc = EOFPeek;
       s->stream_wgetc = EOFWPeek;
       s->status |= Push_Eof_Stream_f;
@@ -136,7 +136,7 @@ Int Yap_peek(int sno) {
     unsigned char cs[8];
     size_t n = put_utf8(cs, ch);
     while (n--) {
-      ungetc(cs[n - 1], s->file);
+      ungetc(cs[n], s->file);
     }
   } else if (s->encoding == ENC_UTF16_BE) {
     /* do the ungetc as if a write .. */

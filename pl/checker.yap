@@ -11,54 +11,7 @@
 * File:		checker.yap						 *
 * comments:	style checker for Prolog				 *
 *									 *
-* Last rev:     $Date: 2008-03-31 22:56:22 $,$Author: vsc $						 *
-* $Log: not supported by cvs2svn $
-* Revision 1.23  2007/11/26 23:43:09  vsc
-* fixes to support threads and assert correctly, even if inefficiently.
-*
-* Revision 1.22  2006/11/17 12:10:46  vsc
-* style_checker was failing on DCGs
-*
-* Revision 1.21  2006/03/24 16:26:31  vsc
-* code review
-*
-* Revision 1.20  2005/11/05 23:56:10  vsc
-* should have meta-predicate definitions for calls,
-*   multifile and discontiguous.
-* have discontiguous as a builtin, not just as a
-*   declaration.
-*
-* Revision 1.19  2005/10/28 17:38:50  vsc
-* sveral updates
-*
-* Revision 1.18  2005/04/20 20:06:11  vsc
-* try to improve error handling and warnings from within consults.
-*
-* Revision 1.17  2005/04/20 04:08:20  vsc
-* fix warnings
-*
-* Revision 1.16  2005/01/13 05:47:27  vsc
-* lgamma broke arithmetic optimisation
-* integer_y has type y
-* pass original source to checker (and maybe even use option in parser)
-* use warning mechanism for checker messages.
-*
-* Revision 1.15  2004/06/29 19:12:01  vsc
-* fix checker messages
-*
-* Revision 1.14  2004/06/29 19:04:46  vsc
-* fix multithreaded version
-* include new version of Ricardo's profiler
-* new predicat atomic_concat
-* allow multithreaded-debugging
-* small fixes
-*
-* Revision 1.13  2004/03/19 11:35:42  vsc
-* trim_trail for default machine
-* be more aggressive about try-retry-trust chains.
-*    - handle cases where block starts with a wait
-*    - don't use _killed instructions, just let the thing rot by itself.
-*                                                                  *
+* Last rev:     $Date: 2008-03-31 22:56:22 $,$Author: vsc $		 *
 *									 *
 *************************************************************************/
 

@@ -558,21 +558,6 @@ file_property(File, Type, Size, Date, Permissions, LinkName) :-
 	handle_system_internal(Error, off, file_property(File)).
 
   
-file_exists(File, Permissions) :-
-	var(File), !,
-	throw(error(instantiation_error,file_exists(File, Permissions))).
-file_exists(File, Permissions) :-
-	\+ atom(File), !,
-	throw(error(type_error(atom,File),file_exists(File, Permissions))).
-file_exists(IFile, Permissions) :-
-	true_file_name(IFile, File),
-	file_property(File, _Type, _Size, _Date, FPermissions, _, Error),
-	var(Error),
-	process_permissions(Permissions, Perms),
-	FPermissions /\ Perms =:= Perms.
-
-process_permissions(Number, Number) :- integer(Number).
-
 %
 % environment manipulation.
 %

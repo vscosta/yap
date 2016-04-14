@@ -353,7 +353,8 @@ do_learning_intern(Iterations,Epsilon) :-
 
 	format_learning(1,'~nIteration ~d of ~d~n',[CurrentIteration,EndIteration]),
 	logger_set_variable(iteration,CurrentIteration),
-
+	leash(none),
+%	trace,
 	write_probabilities_file,
 
 	once(llh_testset),
@@ -410,14 +411,14 @@ init_learning :-
 	learning_initialized,
 	!.
 init_learning :-
-	convert_filename_to_problog_path('simplecudd_lfi', Path),
+	convert_filename_to_problog_path('problogbdd_lfi', Path),
 	(
 	 file_exists(Path)
 	->
 	 true;
 	 (
 	  problog_path(PD),
-	  format(user_error, 'WARNING: Can not find file: simplecudd_lfi. Please place file in problog path: ~q~n',[PD]),
+	  format(user_error, 'WARNING: Can not find file: problogbdd_lfi. Please place file in problog path: ~q~n',[PD]),
 	  fail
 	 )
 	),
@@ -457,7 +458,7 @@ init_learning :-
 	format_learning(3,'~q training example(s)~n',[TrainingExampleCount]),
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% Create arrays for probabilties and counting tables
+	% Create arrays for probabilities and counting tables
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	once(initialize_fact_probabilities),
 	problog:probclause_id(N),
@@ -471,7 +472,6 @@ init_learning :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% build BDD script for every example
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 	once(init_queries),
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -613,10 +613,11 @@ init_queries :-
 	format_learning(2,'Build BDDs for examples~n',[]),
 	forall(user:example(Training_ID),
 	       (
-		format_learning(3,'training example ~q: ',[Training_ID]),
+		   format_learning(3,'training example ~q: ',[Training_ID]),
 		init_one_query(Training_ID,training)
 	       )
 	      ),
+		   writeln(Training_ID),
 
 	forall(
 	       (
@@ -885,7 +886,7 @@ update_query(QueryID,ClusterID ,Method,Command,PID,Output_File_Name) :-
 	create_bdd_output_file_name(QueryID,ClusterID,Iteration,Output_File_Name),
 	create_bdd_file_name(QueryID,ClusterID,BDD_File_Name),
 
-	convert_filename_to_problog_path('simplecudd_lfi',Absolute_Name),
+	convert_filename_to_problog_path('problogbdd_lfi',Absolute_Name),
 
 	atomic_concat([Absolute_Name,
 		       ' -i "', Input_File_Name, '"',

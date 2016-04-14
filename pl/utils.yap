@@ -73,7 +73,7 @@ a postfix operator.
 
 '$check_top_op'(_, _, [], _) :- !.
 '$check_top_op'(P, T, [Op|NV], G) :- !,
-	'$check_ops'(P, T, Op.NV, G).
+	'$check_ops'(P, T, [Op|NV], G).
 '$check_top_op'(P, T, V, G) :-
 	atom(V), !,
 	'$check_op_name'(P, T, V, G).

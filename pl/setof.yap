@@ -298,7 +298,7 @@ Note that all/3 will fail if no answers are found.
 all(T, G same X,S) :- !, all(T same X,G,Sx), '$$produce'(Sx,S,X).
 all(T,G,S) :-
 	'$init_db_queue'(Ref),
-	( '$catch'(Error,'$clean_findall'(Ref,Error),_),
+	( catch(G, Error,'$clean_findall'(Ref,Error) ),
 	  '$execute'(G),
 	  '$db_enqueue'(Ref, T),
 	  fail

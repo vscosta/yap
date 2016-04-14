@@ -1361,7 +1361,7 @@ not(G) :-    \+ '$execute'(G).
 
 
 '$bootstrap' :-
-    bootstrap('init.yap').
+    bootstrap('pl/init.yap'),
     module(user),
     '$live'.
 
@@ -1575,7 +1575,7 @@ catch(G, C, A) :-
 	'$catch'(M:G,_,[C|A]).
 
 '$catch'(MG,_,_) :-
-'$$save_by'(CP0),
+	'$$save_by'(CP0),
 	'$execute'(MG),
 	'$$save_by'(CP1),
     % remove catch

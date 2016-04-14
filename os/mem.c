@@ -130,10 +130,10 @@ int Yap_open_buf_read_stream(const char *nbuf, size_t nchars, encoding_t *encp,
     encoding = LOCAL_encoding;
 #if MAY_READ
   // like any file stream.
-  f = fmemopen((void *)nbuf, nchars, "r");
+  st->file = f = fmemopen((void *)nbuf, nchars, "r");
   flags = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
 #else
-  f = NULL;
+  sT->file =  f = NULL;
   flags = Input_Stream_f | InMemory_Stream_f;
 #endif
   Yap_initStream(sno, f, NULL, TermNil, encoding, flags, AtomRead);
@@ -369,7 +369,8 @@ bool Yap_CloseMemoryStream(int sno) {
   } else {
 #if MAY_READ
     fclose(GLOBAL_Stream[sno].file);
-    Yap_FreeAtomSpace(GLOBAL_Stream[sno].nbuf);
+    if (GLOBAL_Stream[sno].status & FreeOnClose_Stream_f)
+      free(GLOBAL_Stream[sno].nbuf);
 #else
     if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_CODE)
       Yap_FreeAtomSpace(GLOBAL_Stream[sno].u.mem_string.buf);

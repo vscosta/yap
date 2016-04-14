@@ -59,6 +59,9 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_WCTYPE_H
 #include <wctype.h>
 #endif
+#if HAVE_LOCALE_H
+#include <locale.h>
+#endif
 #ifdef _WIN32
 #if HAVE_IO_H
 /* Windows */
@@ -135,29 +138,40 @@ static encoding_t enc_os_default( encoding_t rc)\
   return rc;
 }
 
-static encoding_t DefaultEncoding(void) {
-  int i = 0;
-  while (encvs[i]) {
-      char *v = getenv(encvs[i]);
+encoding_t Yap_SystemEncoding(void) {
+  int i = -1;
+  while (i == -1 || encvs[i]) {
+    char *v;
+    if ( i == -1 ) {
+      if ((v = setlocale(LC_CTYPE, NULL)) == NULL ||
+	  !strcmp(v,"C")) {
+	if ((v = getenv("LC_CTYPE")))
+	  setlocale(LC_CTYPE, v);
+	else if ((v = getenv("LANG")))
+	  setlocale(LC_CTYPE, v);
+      }
+    } else {
+	v = getenv(encvs[i]);
+    }
       if (v) {
           int j = 0;
-          size_t sz = strlen(v);
           const char *coding;
           while ((coding = ematches[j].s) != NULL) {
-              size_t sz2 = strlen(coding);
-              if (sz2 > sz) {
-                  j++;
-                  continue;
-                }
-              if (!strcmp(coding+(sz-sz2), v) ) {
-                  return enc_os_default(ematches[j].e);
+	    char *v1;
+	    if ((v1 = strstr(v, coding)) &&
+		strlen(v1) == strlen(coding)) {
+                  return ematches[j].e;
                 }
               j++;
             }
         }
       i++;
     }
-  return enc_os_default(ENC_ISO_ASCII);
+  return ENC_ISO_ASCII;
+}
+
+static encoding_t DefaultEncoding(void) {
+  return enc_os_default(Yap_SystemEncoding());
 }
 
 encoding_t Yap_DefaultEncoding(void) {

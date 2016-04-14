@@ -730,7 +730,7 @@ update_query(QueryID,Symbol,What_To_Update) :-
 	  problog_flag(sigmoid_slope,Slope),
 	  problog_dir(PD),
 	  ((What_To_Update=all;query_is_similar(_,QueryID)) -> Method='g' ; Method='l'),
-      convert_filename_to_problog_path('simplecudd', Simplecudd),
+      convert_filename_to_problog_path('problogbdd', Simplecudd),
 	  atomic_concat([Simplecudd,
 			 ' -i "', Probabilities_File, '"',
 			 ' -l "', Query_Directory,'/query_',QueryID, '"',
