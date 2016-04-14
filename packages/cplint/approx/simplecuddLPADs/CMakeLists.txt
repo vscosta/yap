@@ -15,12 +15,12 @@ set_target_properties (LPADbdd PROPERTIES
   )
 
 target_link_libraries(LPADbdd
-  ${CUDD_LIBRARIES_EXPORT}    
+  ${CUDD_LIBRARIES}    
   libYap    
  )
 
   INCLUDE_DIRECTORIES( 
-    ${CUDD_INCLUDE_DIR_EXPORT}
+    ${CUDD_INCLUDE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     )
  

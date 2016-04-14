@@ -1,149 +1,131 @@
-SET( CMAKE_FIND_FRAMEWORK LAST)
-SET( CMAKE_FIND_APPBUNDLE LAST)
-
  
 # Be sure to also update these in Makefile!
 set(SO_MAJOR 1)
 set(SO_MINOR 0)
 set(SO_PATCH 0)
 
-find_package (CUDD)
-macro_log_feature (CUDD_FOUND "CUDD"
-"Use CUDD Library"
-"http://vlsi.colorado.edu/~fabio/CUDD/" FALSE)
 IF (CUDD_FOUND)
-#  CUDD_FOUND       - system has Cudd
-#  CUDD_LIBRARIES   - Link these to use Cudd
-#  CUDD_INCLUDE_DIR - Include directory for using Cudd
 
-INCLUDE_DIRECTORIES(
-${CUDD_INCLUDE_DIR}
-${CMAKE_CURRENT_BINARY_DIR}
-)
+  INCLUDE_DIRECTORIES(
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CUDD_INCLUDE_DIR}
+    )
 
-check_include_files( util.h HAVE_UTIL_H )
-check_include_files( cudd/util.h HAVE_CUDD_UTIL_H )
-check_include_files( cudd.h HAVE_CUDD_H )
-check_include_files( "stdio.h;cudd/cudd.h" HAVE_CUDD_CUDD_H )
-check_include_files( cuddInt.h HAVE_CUDDINT_H )
-check_include_files( "stdio.h;cudd/cudd.h;cudd/cuddInt.h" HAVE_CUDD_CUDDINT_H )
-
-
-set( CPLINT_SOURCES
-  cplint.h
-  cplint_yap.c
-  cplint_Prob.c )
-
-set( BDDEM_SOURCES
-  slipcase/bddem.c
+  set( CPLINT_SOURCES
     cplint.h
-)
+    cplint_yap.c
+    cplint_Prob.c )
 
-set (CPLINT_PROGRAMS
-	lpadvel.pl
-	lpadclpbn.pl
-	lpadsld.pl
-	lpad.pl
-	cpl.pl
-	approx/bestfirst.pl
-	approx/bestk.pl
-	approx/deepdyn.pl
-	approx/deepit.pl
-	approx/exact.pl
-	approx/exact_mem.pl
-	approx/montecarlo.pl
-	approx/params.pl
-	approx/parsing.pl
-	approx/utility.pl
-	approx/tptree_lpad.pl
-	)
+  set( BDDEM_SOURCES
+    slipcase/bddem.c
+    cplint.h
+    )
 
-set (CPLINT_SEMANTICS_PROGRAMS
-  semlpadsld.pl
-  semlpad.pl
-  semcpl.pl
-  slg.pl
-  )
+  set (CPLINT_PROGRAMS
+    lpadvel.pl
+    lpadclpbn.pl
+    lpadsld.pl
+    lpad.pl
+    cpl.pl
+    approx/bestfirst.pl
+    approx/bestk.pl
+    approx/deepdyn.pl
+    approx/deepit.pl
+    approx/exact.pl
+    approx/exact_mem.pl
+    approx/montecarlo.pl
+    approx/params.pl
+    approx/parsing.pl
+    approx/utility.pl
+    approx/tptree_lpad.pl
+    )
 
-set (CPLINT_LEARNING_PROGRAMS
-  em/em.pl
-  em/inference.pl
-  lemur/dv_lemur.pl
-  lemur/inference_lemur.pl
-  lemur/lemur.pl
-  lemur/revise_lemur.pl
-  lemur/slipcover_lemur.pl
-  rib/inference_ib.pl
-  rib/rib.pl
-  slipcase/inference_sl.pl
-  slipcase/revise.pl
-  slipcase/slipcase.pl
-  slipcover/revise_sl.pl
-  slipcover/slipcover.pl
-  )
+  set (CPLINT_SEMANTICS_PROGRAMS
+    semlpadsld.pl
+    semlpad.pl
+    semcpl.pl
+    slg.pl
+    )
 
-set (CPLINT_TEST_PROGRAMS
-  testcpl.pl
-testlpad.pl
-testlpadclpbn.pl
-testlpadsld_gbfalse.pl
-testlpadsld_gbtrue.pl
-testlpadsldit.pl
-testlpadslditc.pl
-testlpadslditr.pl
-testlpadvel.pl
-testsemcpl.pl
-testsemlpad.pl
-testsemlpadsld.pl
-  )
+  set (CPLINT_LEARNING_PROGRAMS
+    em/em.pl
+    em/inference.pl
+    lemur/dv_lemur.pl
+    lemur/inference_lemur.pl
+    lemur/lemur.pl
+    lemur/revise_lemur.pl
+    lemur/slipcover_lemur.pl
+    rib/inference_ib.pl
+    rib/rib.pl
+    slipcase/inference_sl.pl
+    slipcase/revise.pl
+    slipcase/slipcase.pl
+    slipcover/revise_sl.pl
+    slipcover/slipcover.pl
+    )
+  
+  set (CPLINT_TEST_PROGRAMS
+    testcpl.pl
+    testlpad.pl
+    testlpadclpbn.pl
+    testlpadsld_gbfalse.pl
+    testlpadsld_gbtrue.pl
+    testlpadsldit.pl
+    testlpadslditc.pl
+    testlpadslditr.pl
+    testlpadvel.pl
+    testsemcpl.pl
+    testsemlpad.pl
+    testsemlpadsld.pl
+    )
 
-set (CPLINT_EXAMPLE_PROGRAMS
-examples/alarm.cpl
-examples/coin.cpl
-examples/coin.uni
-examples/coin2.cpl
-examples/coin2.uni
-examples/dice.cpl
-examples/dice.uni
-examples/ex.cpl
-examples/ex.uni
-examples/exapprox.cpl
-examples/exapprox.uni
-examples/exist.cpl
-examples/exist.uni
-examples/exist1.cpl
-examples/exist1.uni
-examples/exrange.cpl
-examples/exrange.uni
-examples/female.cpl
-examples/hiv.cpl
-examples/hiv.uni
-examples/invalid.cpl
-examples/invalid.uni
-examples/light.cpl
-examples/light.uni
-examples/mendel.cpl
-examples/mendel.uni
-examples/mendels.cpl
-examples/mendels.uni
-examples/paper_ref.cpl
-examples/paper_ref_not.cpl
-examples/paper_ref_simple.cpl
-examples/school.cpl
-examples/school_simple.cpl
-examples/school_simple.uni
-examples/student.cpl
-examples/student.uni
-examples/threesideddice.cpl
-examples/threesideddice.uni
-examples/throws.cpl
-examples/throws.uni
-examples/trigger.cpl
-examples/trigger.uni
-examples/twosideddice.cpl
-examples/win.cpl
-examples/win.uni
-  )
+  set (CPLINT_EXAMPLE_PROGRAMS
+    examples/alarm.cpl
+    examples/coin.cpl
+    examples/coin.uni
+    examples/coin2.cpl
+    examples/coin2.uni
+    examples/dice.cpl
+    examples/dice.uni
+    examples/ex.cpl
+    examples/ex.uni
+    examples/exapprox.cpl
+    examples/exapprox.uni
+    examples/exist.cpl
+    examples/exist.uni
+    examples/exist1.cpl
+    examples/exist1.uni
+    examples/exrange.cpl
+    examples/exrange.uni
+    examples/female.cpl
+    examples/hiv.cpl
+    examples/hiv.uni
+    examples/invalid.cpl
+    examples/invalid.uni
+    examples/light.cpl
+    examples/light.uni
+    examples/mendel.cpl
+    examples/mendel.uni
+    examples/mendels.cpl
+    examples/mendels.uni
+    examples/paper_ref.cpl
+    examples/paper_ref_not.cpl
+    examples/paper_ref_simple.cpl
+    examples/school.cpl
+    examples/school_simple.cpl
+    examples/school_simple.uni
+    examples/student.cpl
+    examples/student.uni
+    examples/threesideddice.cpl
+    examples/threesideddice.uni
+    examples/throws.cpl
+    examples/throws.uni
+    examples/trigger.cpl
+    examples/trigger.uni
+    examples/twosideddice.cpl
+    examples/win.cpl
+    examples/win.uni
+    )
 
   INCLUDE_DIRECTORIES(
     ${CUDD_INCLUDE_DIR_EXPORTS}
@@ -155,7 +137,7 @@ examples/win.uni
     )
 
   TARGET_LINK_LIBRARIES(bddem
-    ${CUDD_LIBRARIES_EXPORT}
+    ${CUDD_LIBRARIES}
     libYap
     )
 
@@ -181,7 +163,6 @@ examples/win.uni
  TARGET_LINK_LIBRARIES(cplint
       ${CUDD_LIBRARIES} 
       libYap
-      bddem
       )
 
     add_subDIRECTORY ( approx/simplecuddLPADs )

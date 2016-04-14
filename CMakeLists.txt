@@ -121,7 +121,17 @@ else()
   set(YAP_STARTUP startup.yss)
 endif()
 
+set(WITH_CUDD YES CACHE FILEPATH "Try to use Cudd (currently Cudd 3)")
+
+if (WITH_CUDD)
+  include(cudd)
+endif(WITH_CUDD)
+
+set(WITH_JAVA YES CACHE FILEPATH "Try to use Java (currently Java 6,7,8)")
+
+if (WITH_JAVA)
   include(java)
+endif(WITH_JAVA)
 
 set(WITH_PYTHON YES CACHE FILEPATH "Try to use Python (currently Python 3)")
 
