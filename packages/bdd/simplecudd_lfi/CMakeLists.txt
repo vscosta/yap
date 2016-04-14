@@ -14,7 +14,7 @@ add_executable (Problogbdd-Lfi
   ${SRC})
 
 set_target_properties (Problogbdd-Lfi PROPERTIES
-  OUTPUT_NAME simplecudd_lfi
+  OUTPUT_NAME problogbdd_lfi
   )
 
 target_link_libraries(Problogbdd-Lfi

@@ -183,8 +183,14 @@ ENDIF (NOT MSVC)
 set_target_properties(libYap
   PROPERTIES VERSION ${YAP_FULL_VERSION}
   SOVERSION ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}
-  OUTPUT_NAME libYap
+  OUTPUT_NAME Yap
   )
+
+if (ANDROID)
+  set_target_properties(libYap
+    PROPERTIES OUTPUT_NAME libayap
+    )
+endif (ANDROID)
 
 
 set(CMAKE_TOP_BINARY_DIR ${CMAKE_BINARY_DIR})

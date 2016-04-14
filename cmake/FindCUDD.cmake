@@ -14,10 +14,10 @@ if (NOT CUDD_ROOT)
   set(CUDD_ROOT "" CACHE PATH "Root of Cudd compiled source tree.")
 endif()
 
-
+set (CUDD_FOUND NO CACHE "system Has CUDD" PARENT_SCOPE)
 
 if (NOT CUDD_ROOT)
-  set(CUDD_ROOT "" CACHE PATH "Root of Cudd compiled source tree.")
+  set(CUDD_ROOT "" CACHE PATH "Root of Cudd compiled source tree."  PARENT_SCOPE)
 endif()
 
 # Check if we have cached results in case the last round was successful.
@@ -34,6 +34,8 @@ if ( NOT( CUDD_INCLUDE_DIR AND CUDD_LIBRARIES ) OR NOT CUDD_FOUND )
     $ENV{CUDD_ROOT}
     /usr/local/yap/include
     /usr/local/Yap/include
+    /usr/local/cudd/include
+    /usr/lib/cudd/include
     ~/Library/Frameworks
     /Library/Frameworks
     /usr/local/include
@@ -46,31 +48,10 @@ if ( NOT( CUDD_INCLUDE_DIR AND CUDD_LIBRARIES ) OR NOT CUDD_FOUND )
     NO_DEFAULT_PATHS
     
     )
+  
+mark_as_advanced (CUDD_INCLUDE_DIR)
 
-  find_path(CUDD_INT_INCLUDE_DIR
-    NAMES cuddInt.h
-     NAMES cuddInt.h cudd/cuddInt.h
-    $ENV{CUDD_ROOT}/include
-    $ENV{CUDD_ROOT}
-    /usr/local/yap/include
-    /usr/local/Yap/include
-    ~/Library/Frameworks
-    /Library/Frameworks
-    /usr/local/include
-    /usr/include/
-    /sw/include        # Fink
-    /opt/local/include # MacPorts
-    /opt/csw/include   # Blastwave
-    /opt/include
-    /usr/freeware/include
-    NO_DEFAULT_PATHS
-    )
-
-set (CUDD_INCLUDE_DIR ${CUDD_INCLUDE_DIR} ${CUDD_INT_INCLUDE_DIR})
-
-mark_as_advanced (CUDD_INCLUDE_DIR CUDD_INT_INCLUDE_DIR)
-
-if (ENV{CUDD_ROOT}) 
+if ($ENV{CUDD_ROOT}) 
   set (CUDD_LIB_SEARCH_PATH 
     $ENV{CUDD_ROOT}/lib
     $ENV{CUDD_ROOT}/lib64
@@ -78,9 +59,9 @@ if (ENV{CUDD_ROOT})
     $ENV{CUDD_ROOT}
     $ENV{CUDD_ROOT}/cudd
  )
-  endif()
+endif ($ENV{CUDD_ROOT}) 
 
-if (CUDD_ROOT) 
+if (${CUDD_ROOT}) 
   set (CUDD_LIB_SEARCH_PATH 
     ${CUDD_ROOT}/lib
     ${CUDD_ROOT}/lib64
@@ -89,27 +70,32 @@ if (CUDD_ROOT)
     ${CUDD_ROOT}/cudd
  )
  endif()
+
+
  
 set (CUDD_LIB_SEARCH_PATH 
     ${CUDD_LIB_SEARCH_PATH}
      /usr/local/lib/cudd
-    /usr/local/lib64/cudd
+    /usr/local/cudd/lib
     /usr/lib/cudd
+    /usr/lib/cudd/lib
     /usr/lib64/cudd
     /usr/freeware/lib64 )
-    
-  find_library(CUDD_CUDD_LIBRARY
+
+  find_library(CUDD_LIBRARIES
     NAMES cudd
     PATHS
     ${CUDD_LIB_SEARCH_PATH}
     )
     
-find_library(CUDD_DDMP_LIBRARY
-    NAMES ddmp
+ IF (NOT EXISTS ${CUDD_INCLUDE_DIR}/epdInt.h )
+
+find_library(CUDD_DDDMP_LIBRARY
+    NAMES dddmp
     PATHS
     ${CUDD_LIB_SEARCH_PATH}
     )
-    
+
 find_library(CUDD_EPD_LIBRARY
     NAMES  epd
     PATHS
@@ -144,20 +130,17 @@ find_library(CUDD_EPD_LIBRARY
     PATHS
       ${CUDD_LIB_SEARCH_PATH}
     )
-    
-    
 
-mark_as_advanced (CUDD_CUDD_LIBRARY CUDD_DDDMP_LIBRARY CUDD_EPD_LIBRARY
-  CUDD_ST_LIBRARY CUDD_UTIL_LIBRARY CUDD_MTR_LIBRARY)
 
 set(CUDD_LIBRARIES 
-  ${CUDD_CUDD_LIBRARY} ${CUDD_ST_LIBRARY} ${CUDD_UTIL_LIBRARY}
+  ${CUDD_LIBRARIES} ${CUDD_ST_LIBRARY} ${CUDD_UTIL_LIBRARY}
   ${CUDD_MTR_LIBRARY}  ${CUDD_EPD_LIBRARY} ${CUDD_DDDMP_LIBRARY} )
-mark_as_advanced (CUDD_LIBRARIES)
 
-if ( CUDD_CUDD_LIBRARY AND CUDD_INCLUDE_DIR )
-    set( CUDD_FOUND ON )
-  endif ()
+endif()
+
+if ( CUDD_LIBRARIES AND CUDD_INCLUDE_DIR )
+    set( CUDD_FOUND ON CACHE CACHE "system Has CUDD" FORCE)
+endif()
 
 mark_as_advanced (CUDD_FOUND)
  

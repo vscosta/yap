@@ -36,12 +36,12 @@ IF (CUDD_FOUND)
     ${CMAKE_CURRENT_BINARY_DIR}
     )
 
-  check_include_files( util.h HAVE_UTIL_H )
-  check_include_files( cudd/util.h HAVE_CUDD_UTIL_H )
-  check_include_files( cudd.h HAVE_CUDD_H )
-  check_include_files( "stdio.h;cudd/cudd.h" HAVE_CUDD_CUDD_H )
-  check_include_files( cuddInt.h HAVE_CUDDINT_H )
-  check_include_files( "stdio.h;cudd/cudd.h;cudd/cuddInt.h" HAVE_CUDD_CUDDINT_H )
+  check_include_files( "stdio.h;cuddInt.h" HAVE_CUDDINT_H )
+   check_include_files( "stdio.h;cudd/cuddInt.h" HAVE_CUDD_CUDDINT_H )
+  check_include_files( "stdio.h;dddmpInt.h" HAVE_DDDMPINT_H )
+   check_include_files( "stdio.h;dddmp/dddmpInt.h" HAVE_DDDMP_DDDMPINT_H )
+  check_include_files( "stdio.h;cuddObj.hh" HAVE_CUDDOBJ_HH )
+   check_include_files( "stdio.h;cudd/cuddObj.hh" HAVE_CUDD_CUDDOBJ_HH )
 
   configure_file ("${PROJECT_SOURCE_DIR}/cudd_config.h.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/cudd_config.h" )
