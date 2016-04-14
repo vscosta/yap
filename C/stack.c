@@ -1004,6 +1004,12 @@ static Term all_cps(choiceptr b_ptr USES_REGS) {
       bp[1] = AbsPair(HR);
     }
     b_ptr = b_ptr->cp_b;
+    if (!IsVarTerm((CELL)b_ptr) ||
+	(CELL*)b_ptr < HR ||
+	(CELL*)b_ptr > LCL0) {
+      //Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,  "choice-point chain corrupted at %p!!!\n", b_ptr);
+      break;
+    }
   }
   bp[1] = TermNil;
   return tf;

@@ -314,6 +314,8 @@ be lost.
 	!, '$$cut_by'(CP).
 '$do_spy'('$cut_by'(M), _, _, _) :-
 	!, '$$cut_by'(M).
+'$do_spy'('$$cut_by'(M), _, _, _) :-
+	!, '$$cut_by'(M).
 '$do_spy'(true, _, _, _) :- !.
 %'$do_spy'(fail, _, _, _) :- !, fail.
 '$do_spy'(M:G, _, CP, CalledFromDebugger) :- !,
@@ -521,10 +523,6 @@ be lost.
     current_prolog_flag( debug, false),
     !,
     '$execute_nonstop'(G,M).
-'$spycall'(once(G), M, _, _) :-
- 	 CP is '$last_choice_pt',
-	 '$debugger_input',
-	once('$do_spy'(G, M, CP, spy)).
 '$spycall'(G, M, _, _) :-
 	'__NB_getval__'('$debug_jump',true, fail),
 	!,
@@ -535,19 +533,22 @@ be lost.
 	G = G1
 	),
 	'$execute_nonstop'(G1,M).
-'$spycall'(G, M, _, _) :-
+'$spycall'(G, M, CalledFromDebugger, InRedo) :-
 	 '$is_metapredicate'(G, M),
 	 '$debugger_expand_meta_call'(M:G, [], G10),
 	 G10 \== M:G,
- 	 CP is '$last_choice_pt',
+	 !,
 	 '$debugger_input',
 	 G10 = NM:NG,
-	'$do_spy'(NG, NM, CP, spy).
-'$spycall'(G, M, _, _) :-
+	 '$spycall_f'(NG, NM, CalledFromDebugger, InRedo).
+'$spycall'(G, M, CalledFromDebugger, InRedo) :-
+	 '$spycall_f'(G, M, CalledFromDebugger, InRedo).
+
+'$spycall_f'(G, M, _, _) :-
 	( '$is_system_predicate'(G,M) ; '$tabled_predicate'(G,M) ),
 	!,
 	'$continue_debugging_goal'(yes, '$execute_nonstop'(G,M)).
-'$spycall'(G, M, CalledFromDebugger, InRedo) :-
+'$spycall_f'(G, M, CalledFromDebugger, InRedo) :-
 	'$spycall_expanded'(G, M, CalledFromDebugger, InRedo).
 
 '$spycall_expanded'(G, M, CalledFromDebugger, InRedo) :-
@@ -1037,13 +1038,12 @@ be lost.
 	'$debugger_skip_loop_spy2'(CPs,CPs1).
 '$debugger_skip_loop_spy2'(CPs,CPs).
 
-'$debugger_expand_meta_call'( G, VL, G2 ) :-
+'$debugger_expand_meta_call'( G, VL, M:G2 ) :-
     '$expand_meta_call'( G, VL, G0 ),
     '$yap_strip_module'( G0, M, G1 ),
     (
 	'$is_system_predicate'(G0,M) ->
 	    '$debugger_process_meta_arguments'(G1, M, G2)
-	    ,writeln(d:G2)
      ;
      G1 = G2
     ).
