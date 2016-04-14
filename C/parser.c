@@ -367,7 +367,7 @@ Term Yap_Variables(VarEntry *p, Term l) {
   return Variables(p, l PASS_REGS);
 }
 
-static int IsPrefixOp(Atom op, int *pptr, int *rpptr, encoding_t enc, Term cmod USES_REGS) {
+static int IsPrefixOp(Atom op, int *pptr, int *rpptr, Term cmod USES_REGS) {
   int p;
 
   OpEntry *opp = Yap_GetOpProp(op, PREFIX_OP, cmod PASS_REGS);
@@ -391,10 +391,10 @@ static int IsPrefixOp(Atom op, int *pptr, int *rpptr, encoding_t enc, Term cmod 
 
 int Yap_IsPrefixOp(Atom op, int *pptr, int *rpptr) {
   CACHE_REGS
-  return IsPrefixOp(op, pptr, rpptr, LOCAL_encoding, CurrentModule PASS_REGS);
+  return IsPrefixOp(op, pptr, rpptr, CurrentModule PASS_REGS);
 }
 
-static int IsInfixOp(Atom op, int *pptr, int *lpptr, int *rpptr, encoding_t enc, Term cmod USES_REGS) {
+static int IsInfixOp(Atom op, int *pptr, int *lpptr, int *rpptr, Term cmod USES_REGS) {
   int p;
 
   OpEntry *opp = Yap_GetOpProp(op, INFIX_OP, cmod PASS_REGS);
@@ -420,10 +420,10 @@ static int IsInfixOp(Atom op, int *pptr, int *lpptr, int *rpptr, encoding_t enc,
 
 int Yap_IsInfixOp(Atom op, int *pptr, int *lpptr, int *rpptr) {
   CACHE_REGS
-  return IsInfixOp(op, pptr, lpptr, rpptr, CurrentModule, LOCAL_encoding PASS_REGS);
+  return IsInfixOp(op, pptr, lpptr, rpptr, CurrentModule PASS_REGS);
 }
 
-static int IsPosfixOp(Atom op, int *pptr, int *lpptr, encoding_t enc, Term cmod USES_REGS) {
+static int IsPosfixOp(Atom op, int *pptr, int *lpptr, Term cmod USES_REGS) {
   int p;
 
   OpEntry *opp = Yap_GetOpProp(op, POSFIX_OP, cmod PASS_REGS);
@@ -447,7 +447,7 @@ static int IsPosfixOp(Atom op, int *pptr, int *lpptr, encoding_t enc, Term cmod 
 
 int Yap_IsPosfixOp(Atom op, int *pptr, int *lpptr) {
   CACHE_REGS
-  return IsPosfixOp(op, pptr, lpptr, CurrentModule, LOCAL_encoding PASS_REGS);
+  return IsPosfixOp(op, pptr, lpptr, CurrentModule PASS_REGS);
 }
 
 inline static void GNextToken(USES_REGS1) {
@@ -686,7 +686,7 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc, Term cmod USE
     }
     if ((LOCAL_tokptr->Tok != Ord(Ponctuation_tok) ||
          Unsigned(LOCAL_tokptr->TokInfo) != 'l') &&
-        IsPrefixOp((Atom)t, &opprio, &oprprio, enc, cmod PASS_REGS)) {
+        IsPrefixOp((Atom)t, &opprio, &oprprio, cmod PASS_REGS)) {
       if (LOCAL_tokptr->Tok == Name_tok) {
         Atom at = (Atom)LOCAL_tokptr->TokInfo;
 #ifndef _MSC_VER
@@ -954,7 +954,7 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc, Term cmod USE
     if (LOCAL_tokptr->Tok == Ord(Name_tok) &&
         Yap_HasOp((Atom)(LOCAL_tokptr->TokInfo))) {
       Atom save_opinfo = opinfo = (Atom)(LOCAL_tokptr->TokInfo);
-      if (IsInfixOp(save_opinfo, &opprio, &oplprio, &oprprio, enc, cmod PASS_REGS) &&
+      if (IsInfixOp(save_opinfo, &opprio, &oplprio, &oprprio, cmod PASS_REGS) &&
           opprio <= prio && oplprio >= curprio) {
         /* try parsing as infix operator */
         Volatile int oldprio = curprio;
@@ -979,7 +979,7 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc, Term cmod USE
             opinfo = save_opinfo; continue;, opinfo = save_opinfo;
             curprio = oldprio;)
       }
-      if (IsPosfixOp(opinfo, &opprio, &oplprio, enc, cmod PASS_REGS) && opprio <= prio &&
+      if (IsPosfixOp(opinfo, &opprio, &oplprio, cmod PASS_REGS) && opprio <= prio &&
           oplprio >= curprio) {
         /* parse as posfix operator */
         Functor func = Yap_MkFunctor((Atom)LOCAL_tokptr->TokInfo, 1);
@@ -1015,7 +1015,7 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc, Term cmod USE
         curprio = 1000;
         continue;
       } else if (Unsigned(LOCAL_tokptr->TokInfo) == '|' &&
-                 IsInfixOp(AtomVBar, &opprio, &oplprio, &oprprio, enc, cmod PASS_REGS) &&
+                 IsInfixOp(AtomVBar, &opprio, &oplprio, &oprprio, cmod PASS_REGS) &&
                  opprio <= prio && oplprio >= curprio) {
         Volatile Term args[2];
         NextToken;
@@ -1030,14 +1030,14 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc, Term cmod USE
         curprio = opprio;
         continue;
       } else if (Unsigned(LOCAL_tokptr->TokInfo) == '(' &&
-                 IsPosfixOp(AtomEmptyBrackets, &opprio, &oplprio, enc, cmod PASS_REGS) &&
+                 IsPosfixOp(AtomEmptyBrackets, &opprio, &oplprio, cmod PASS_REGS) &&
                  opprio <= prio && oplprio >= curprio) {
         t = ParseArgs(AtomEmptyBrackets, ')', FailBuff, t, enc, cmod PASS_REGS);
         curprio = opprio;
         continue;
       } else if (Unsigned(LOCAL_tokptr->TokInfo) == '[' &&
                  IsPosfixOp(AtomEmptySquareBrackets, &opprio,
-                            &oplprio, enc, cmod PASS_REGS) &&
+                            &oplprio, cmod PASS_REGS) &&
                  opprio <= prio && oplprio >= curprio) {
         t = ParseArgs(AtomEmptySquareBrackets, ']', FailBuff, t, enc, cmod PASS_REGS);
         t = MakeAccessor(t, FunctorEmptySquareBrackets PASS_REGS);
@@ -1045,7 +1045,7 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc, Term cmod USE
         continue;
       } else if (Unsigned(LOCAL_tokptr->TokInfo) == '{' &&
                  IsPosfixOp(AtomEmptyCurlyBrackets, &opprio,
-                            &oplprio, enc, cmod PASS_REGS) &&
+                            &oplprio, cmod PASS_REGS) &&
                  opprio <= prio && oplprio >= curprio) {
         t = ParseArgs(AtomEmptyCurlyBrackets, '}', FailBuff, t, enc, cmod PASS_REGS);
         t = MakeAccessor(t, FunctorEmptyCurlyBrackets PASS_REGS);
