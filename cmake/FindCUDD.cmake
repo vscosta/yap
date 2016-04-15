@@ -10,21 +10,12 @@
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 
-if (NOT CUDD_ROOT)
-  set(CUDD_ROOT "" CACHE PATH "Root of Cudd compiled source tree.")
-endif()
-
-set (CUDD_FOUND NO CACHE "system Has CUDD" PARENT_SCOPE)
-
-if (NOT CUDD_ROOT)
-  set(CUDD_ROOT "" CACHE PATH "Root of Cudd compiled source tree."  PARENT_SCOPE)
+if (NOT DEFINED CUDD_ROOT)
+  set(CUDD_ROOT $ENV{CUDD_ROOT})
 endif()
 
 # Check if we have cached results in case the last round was successful.
-if ( NOT( CUDD_INCLUDE_DIR AND CUDD_LIBRARIES ) OR NOT CUDD_FOUND )
 
-  set( CUDD_LDFLAGS )
-  
   find_package(PkgConfig)
 
   
@@ -49,17 +40,7 @@ if ( NOT( CUDD_INCLUDE_DIR AND CUDD_LIBRARIES ) OR NOT CUDD_FOUND )
     
     )
   
-mark_as_advanced (CUDD_INCLUDE_DIR)
-
-if ($ENV{CUDD_ROOT}) 
-  set (CUDD_LIB_SEARCH_PATH 
-    $ENV{CUDD_ROOT}/lib
-    $ENV{CUDD_ROOT}/lib64
-    $ENV{CUDD_ROOT}/lib-dbg
-    $ENV{CUDD_ROOT}
-    $ENV{CUDD_ROOT}/cudd
- )
-endif ($ENV{CUDD_ROOT}) 
+ 
 
 if (${CUDD_ROOT}) 
   set (CUDD_LIB_SEARCH_PATH 
@@ -136,12 +117,9 @@ set(CUDD_LIBRARIES
   ${CUDD_LIBRARIES} ${CUDD_ST_LIBRARY} ${CUDD_UTIL_LIBRARY}
   ${CUDD_MTR_LIBRARY}  ${CUDD_EPD_LIBRARY} ${CUDD_DDDMP_LIBRARY} )
 
-endif()
-
-if ( CUDD_LIBRARIES AND CUDD_INCLUDE_DIR )
-    set( CUDD_FOUND ON CACHE CACHE "system Has CUDD" FORCE)
-endif()
+endif () # Check for cudd 2.
 
 mark_as_advanced (CUDD_FOUND)
- 
-endif () # Check for cached values
+
+find_package_handle_standard_args(R DEFAULT_MSG CUDD_LIBRARIES CUDD_INCLUDE_DIR )
+
