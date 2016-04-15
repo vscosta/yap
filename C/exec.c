@@ -965,7 +965,7 @@ static Int protect_stack(USES_REGS1) {
   return true;
 }
 
-static Int setup_call_cleanup(USES_REGS1) {
+static Int setup_call_catcher_cleanup(USES_REGS1) {
   Term Setup = Deref(ARG1);
   Term cmod = CurrentModule;
   Int oENV = LCL0 - ENV;
@@ -2268,7 +2268,7 @@ void Yap_InitExecFs(void) {
   Yap_InitCPred("_user_expand_goal", 2, _user_expand_goal, 0);
   Yap_InitCPred("$do_term_expansion", 2, do_term_expansion, 0);
   Yap_InitCPred("$get_exception", 1, get_exception, 0);
-  Yap_InitCPred("$setup_call_catcher_cleanup", 4, setup_call_cleanup, 0);
+  Yap_InitCPred("setup_call_catcher_cleanup", 4, setup_call_catcher_cleanup, 0);
   Yap_InitCPredBackCut("$protect_stack", 4, 0, protect_stack,
                        protect_stack_from_retry, protect_stack_from_cut, 0);
 }
