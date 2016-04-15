@@ -291,7 +291,7 @@ Read-only flag telling the maximum arity of a functor. Takes the value
              "256", NULL),
     YAP_FLAG(OCCURS_CHECK_FLAG, "occurs_check", true, booleanFlag, "false", NULL),
     YAP_FLAG(OPEN_EXPANDS_FILENAME_FLAG, "open_expands_filename", true, booleanFlag,
-             "true", NULL), /**< `open_expands_filename `
+             "false", NULL), /**< `open_expands_filename `
 
 If `true` the open/3 builtin performs filename-expansion
 before opening a file (SICStus Prolog like). If `false` it does not

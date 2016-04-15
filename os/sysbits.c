@@ -7,7 +7,6 @@
  * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
  *									 *
  **************************************************************************
- *				PrologPathProkoh
  *									 *
  * File:		sysbits.c *
  * Last rev:	4/03/88							 *
@@ -519,12 +518,13 @@ static const char *myrealpath(const char *path, char *out) {
     }
     // rc = NULL;
     if (errno == ENOENT || errno == EACCES) {
-      char base[YAP_FILENAME_MAX];
+      char base[YAP_FILENAME_MAX+1];
       strncpy(base, path, YAP_FILENAME_MAX - 1);
       rc = realpath(dirname(base), NULL);
 
       if (rc) {
-        const char *b = basename(base);
+	// base may haave been destroyed
+        const char *b = basename(path);
         size_t e = strlen(rc);
         size_t bs = strlen(b);
 
@@ -585,6 +585,11 @@ static const char *expandVars(const char *spec, char *u) {
 const char *Yap_AbsoluteFile(const char *spec, char *rc0, bool ok) {
   const char *p;
   const char *rc;
+  if (!ok) {
+    if (!rc0)
+      rc0 = malloc(strlen(spec)+1);
+    return strcpy(rc0, spec);
+  }
   rc = PlExpandVars(spec, NULL, rc0);
   if (!rc)
     rc = spec;

@@ -129,6 +129,7 @@ simultaneously opened streams is 17.
 
 */
 told :- current_output(Stream),
+        flush_output(Stream),
         !,
 	set_output(user),
 	close(Stream).
