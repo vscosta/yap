@@ -4,11 +4,11 @@
  * @file   edio.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Wed Jan 20 01:07:02 2016
- * 
+ *
  * @brief  Input/Output according to the DEC-10 Prolog. PLease consider using the ISO
  * standard predicates for new code.
- * 
- * 
+ *
+ *
 */
 
 
@@ -76,7 +76,8 @@ If  _S_ is a currently opened stream for output, it becomes the
 current output stream. If  _S_ is an atom it is taken to be a
 filename.  If there is no output stream currently associated with it,
 then it is opened for output, and the new output stream created becomes
-the current output stream. If it is not possible to open the file, an
+the current output stream. Existing files are clobbered, use append/1 to extend a file.
+ If it is not possible to open the file, an
 error occurs.  If there is a single opened output stream currently
 associated with the file, then it becomes the current output stream; if
 there are more than one in that condition, one of them is chosen.
@@ -103,8 +104,46 @@ tell(Stream) :-
 	current_stream(_,write,Stream), !,
 	set_output(Stream).
 tell(F) :-
-	open(F,append,Stream),
+	open(F,write,Stream),
 	set_output(Stream).
+
+  /** @pred  append(+ _S_)
+
+
+  If  _S_ is a currently opened stream for output, it becomes the
+  current output stream. If  _S_ is an atom it is taken to be a
+  filename.  If there is no output stream currently associated with it,
+  then it is opened for output in *append* mode, that is, by adding new data to the end of the file.
+  The new output stream created becomes
+  the current output stream. If it is not possible to open the file, an
+  error occurs.  If there is a single opened output stream currently
+  associated with the file, then it becomes the current output stream; if
+  there are more than one in that condition, one of them is chosen.
+
+  Whenever  _S_ is a stream not currently opened for output, an error
+  may be reported, depending on the state of the file_errors flag. The
+  predicate just fails, if  _S_ is neither a stream nor an atom.
+
+
+  */
+  tell(user) :- !, set_output(user_output).
+  tell(F) :- var(F), !,
+  	'$do_error'(instantiation_error,tell(F)).
+  tell(F) :-
+  	current_output(Stream),
+  	stream_property(Stream,file_name(F)),
+  	!.
+  tell(F) :-
+  	current_stream(_,write,Stream),
+  	'$user_file_name'(Stream, F),  !,
+  	set_output(Stream).
+  tell(Stream) :-
+  	'$stream'(Stream),
+  	current_stream(_,write,Stream), !,
+  	set_output(Stream).
+  tell(F) :-
+  	open(F,write,Stream),
+  	set_output(Stream).
 
 /** @pred  telling(- _S_)
 
@@ -129,8 +168,6 @@ simultaneously opened streams is 17.
 
 */
 told :- current_output(Stream),
-        flush_output(Stream),
         !,
-	set_output(user),
+	set_output(user_output),
 	close(Stream).
-
