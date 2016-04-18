@@ -451,4 +451,7 @@ extern FILE *Yap_stdout;
 extern FILE *Yap_stderr;
 
 char *Yap_MemExportStreamPtr(int sno);
+
+bool Yap_Exists(const char *f);
+
 #endif

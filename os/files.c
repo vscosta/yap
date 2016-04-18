@@ -270,10 +270,14 @@ static Int time_file(USES_REGS1) {
     HANDLE hdl;
     Term rc;
 
-    if ((hdl = CreateFile(n, 0, 0, NULL, OPEN_EXISTING, 0, 0)) == 0)
+    if ((hdl = CreateFile(n, 0, 0, NULL, OPEN_EXISTING, 0, 0)) == 0) {
+      Yap_WinError("in time_file");
       return false;
-    if (GetFileTime(hdl, NULL, NULL, &ft))
+    }
+    if (GetFileTime(hdl, NULL, NULL, &ft) == 0) {
+      Yap_WinError("in time_file");
       return false;
+    }
     // Convert the last-write time to local time.
     // FileTimeToSystemTime(&ftWrite, &stUTC);
     // SystemTimeToTzSpecificLocalTime(NULL, &stUTC, &stLocal);
@@ -548,9 +552,11 @@ static Int file_directory_name(USES_REGS1) { /* file_directory_name(Stream,N) */
 #else
     char s[YAP_FILENAME_MAX + 1];
     Int i = strlen(c);
-    while (i && !Yap_dir_separator((int)c[--i]))
-      ;
-    strncpy(s, c, i);
+    strncpy(s, c, YAP_FILENAME_MAX);
+    while (--i) {
+      if (Yap_dir_separator((int)c[i]))
+	break;
+    }
     s[i] = '\0';
 #endif
     return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(s)));

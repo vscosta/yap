@@ -1,6 +1,3 @@
-#ifndef __unix__
-#define X_API
-#endif
 
 #ifndef YAPT_HH
 #define YAPT_HH 1

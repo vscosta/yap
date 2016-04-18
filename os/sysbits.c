@@ -183,16 +183,16 @@ static bool is_directory(const char *FileName) {
 #endif
 }
 
-/// has_access just calls access
-/// it uses F_OK, R_OK and friend
-static bool has_access(const char *FileName, int mode) {
-#ifdef __ANDROID__
-  if (Yap_isAsset(FileName)) {
-    return Yap_AccessAsset(FileName, mode);
+bool Yap_Exists(const char *f) {
+#if _WIN32
+  if (_access(f, 0) == 0)
+    return true;
+  if (errno == EINVAL) {
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "bad flags to access");
   }
-#endif
-#if HAVE_ACCESS
-  if (access(FileName, mode) == 0)
+  return false;
+#elif HAVE_ACCESS
+  if (access(FileName, F_OK) == 0)
     return true;
   if (errno == EINVAL) {
     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "bad flags to access");
@@ -202,14 +202,6 @@ static bool has_access(const char *FileName, int mode) {
   Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
             "access not available in this configuration");
   return false;
-#endif
-}
-
-static bool exists(const char *f) {
-#if _MSC_VER
-  return has_access(f, 00);
-#else
-  return has_access(f, F_OK);
 #endif
 }
 
@@ -358,7 +350,7 @@ static const char *PlExpandVars(const char *source, const char *root,
   return result;
 }
 
-#if _WIN32 || defined(__MINGW32__)
+#if _WIN32
 // straightforward conversion from Unix style to WIN style
 // check cygwin path.cc for possible improvements
 static char *unix2win(const char *source, char *target, int max) {
@@ -454,9 +446,11 @@ static bool ChDir(const char *path) {
     GLOBAL_AssetsWD = NULL;
   }
 #endif
-#if _WIN32 || defined(__MINGW32__)
-
-  if ((rc = (SetCurrentDirectory(qpath) != 0)) == 0) {
+#if _WIN32
+  rc = true;
+  if (qpath != NULL &&
+      qpath[0] &&
+      (rc = (SetCurrentDirectory(qpath) != 0)) == 0) {
     Yap_WinError("SetCurrentDirectory failed");
   }
 #else
@@ -466,44 +460,15 @@ static bool ChDir(const char *path) {
     free((char *)qpath);
   return rc;
 }
-#if _WIN32 || defined(__MINGW32__)
-char *BaseName(const char *X) {
-  char *qpath = unix2win(X, NULL, YAP_FILENAME_MAX);
-  char base[YAP_FILENAME_MAX], ext[YAP_FILENAME_MAX];
-  _splitpath(qpath, NULL, NULL, base, ext);
-  strcpy(qpath, base);
-  strcat(qpath, ext);
-  return qpath;
-}
-
-const char *DirName(const char *X) {
-  char dir[YAP_FILENAME_MAX];
-  char drive[YAP_FILENAME_MAX];
-  char *o = unix2win(X, NULL, YAP_FILENAME_MAX);
-  int err;
-  if (!o)
-    return NULL;
-  if ((err = _splitpath_s(o, drive, YAP_FILENAME_MAX - 1, dir,
-                          YAP_FILENAME_MAX - 1, NULL, 0, NULL, 0)) != 0) {
-    FileError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil,
-              "could not perform _splitpath %s: %s", X, strerror(errno));
-    return NULL;
-  }
-  strncpy(o, drive, YAP_FILENAME_MAX - 1);
-  strncat(o, dir, YAP_FILENAME_MAX - 1);
-  return o;
-}
-#endif
 
 static const char *myrealpath(const char *path, char *out) {
   if (!out)
     out = LOCAL_FileNameBuf;
-#if _WIN32 || defined(__MINGW32__)
+#if _WIN32
   DWORD retval = 0;
 
   // notice that the file does not need to exist
   retval = GetFullPathName(path, YAP_FILENAME_MAX, out, NULL);
-
   if (retval == 0) {
     Yap_WinError("Generating a full path name for a file");
     return NULL;
@@ -583,101 +548,80 @@ static const char *expandVars(const char *spec, char *u) {
  * @return tmp, or NULL, in malloced memory
  */
 const char *Yap_AbsoluteFile(const char *spec, char *rc0, bool ok) {
-  const char *p;
   const char *rc;
-  if (!ok) {
-    if (!rc0)
-      rc0 = malloc(strlen(spec)+1);
-    return strcpy(rc0, spec);
-  }
-  rc = PlExpandVars(spec, NULL, rc0);
-  if (!rc)
-    rc = spec;
-  if ((p = myrealpath(rc, rc0))) {
-    if (rc != rc0 && rc != spec && rc != p)
-      freeBuffer(rc);
-    return p;
-  } else {
-    if (rc != rc0 && rc != spec)
-      freeBuffer(rc);
+  const char *spec1;
+  const char *spec2;
+  char rc1[YAP_FILENAME_MAX+1];
+
+  /// spec gothe original spec;
+  /// rc0 may be an outout buffer
+  /// rc1 the internal buffer
+  ///
+  /// PlExpandVars
+  
+
+#if _WIN32
+  char rc2[YAP_FILENAME_MAX];
+  if (( rc = unix2win(spec, rc2, YAP_FILENAME_MAX)) == NULL) {
     return NULL;
   }
-}
-
-/**
- * generate absolute path and stores path in an user given buffer. If
- * NULL, uses a temporary buffer that must be quickly released.
- *
- * if ok first expand variable names and do globbing
- *
- * @param[in]  spec the file path, including `~` and `$`.
- * @param[in]  ok where to process `~` and `$`.
- *
- * @return tmp, or NULL, in malloced memory
- */
-const char *Yap_AbsoluteFileInBuffer(const char *spec, char *out, size_t sz,
-                                     bool ok) {
-  CACHE_REGS
-  const char *p;
-  const char *rc;
+  spec1 = rc;
+#else
+  spec1 = spec;
+#endif
+  /// spec gothe original spec;
+  /// rc1 the internal buffer
   if (ok) {
-    rc = expandVars(spec, LOCAL_FileNameBuf);
-    if (!rc)
-      return spec;
+    const char *q = PlExpandVars(spec1, NULL, rc1);
+    if (!q)
+      spec2 = spec1;
+    else
+      spec2 = q;
   } else {
-    rc = spec;
+    spec2 = spec1;
   }
-
-  if ((p = myrealpath(rc, NULL))) {
-    if (!out) {
-      out = LOCAL_FileNameBuf;
-      sz = YAP_FILENAME_MAX - 1;
-    }
-    if (p != out) {
-      strncpy(out, p, sz);
-      freeBuffer(p);
-      return out;
-    } else {
-      return NULL;
-    }
-  }
-  return NULL;
+  rc = myrealpath(spec2, rc0);
+  return rc;
 }
 
 static Term
-    /* Expand the string for the program to run.  */
-    do_glob(const char *spec, bool glob_vs_wordexp) {
+/* Expand the string for the program to run.  */
+do_glob(const char *spec, bool glob_vs_wordexp) {
   CACHE_REGS
   char u[YAP_FILENAME_MAX + 1];
-  char *espec = u;
+  const char *espec = u;
   if (spec == NULL) {
     return TermNil;
   }
-#if _WIN32 || defined(__MINGW32__)
+#if _WIN32
   {
     WIN32_FIND_DATA find;
     HANDLE hFind;
     CELL *dest;
     Term tf;
+    char drive[_MAX_DRIVE];
+    char dir[_MAX_DIR];
+    char fname[_MAX_FNAME];
+    char ext[_MAX_EXT];
+
+    _splitpath( spec, drive, dir, fname, ext );
+    _makepath( u, drive, dir, fname, ext );
 
     // first pass, remove Unix style stuff
-    if (unix2win(espec, u, YAP_FILENAME_MAX) == NULL)
-      return TermNil;
-    espec = (const char *)u;
-
-    hFind = FindFirstFile(espec, &find);
-
+    hFind = FindFirstFile(u, &find);
     if (hFind == INVALID_HANDLE_VALUE) {
       return TermNil;
     } else {
       tf = AbsPair(HR);
-      HR[0] = MkAtomTerm(Yap_LookupAtom(find.cFileName));
+      _makepath( u, drive, dir, find.cFileName, NULL );
+      HR[0] = MkAtomTerm(Yap_LookupAtom(u));
       HR[1] = TermNil;
       dest = HR + 1;
       HR += 2;
       while (FindNextFile(hFind, &find)) {
         *dest = AbsPair(HR);
-        HR[0] = MkAtomTerm(Yap_LookupAtom(find.cFileName));
+	_makepath( u, drive, dir, find.cFileName, NULL );
+	HR[0] = MkAtomTerm(Yap_LookupAtom(u));
         HR[1] = TermNil;
         dest = HR + 1;
         HR += 2;
@@ -687,7 +631,7 @@ static Term
     return tf;
   }
 #elif HAVE_WORDEXP || HAVE_GLOB
-  strncpy(espec, spec, sizeof(u));
+  strncpy(u, spec, sizeof(u));
   /* Expand the string for the program to run.  */
   size_t pathcount;
 #if HAVE_GLOB
@@ -807,7 +751,8 @@ static Term
  */
 static Int real_path(USES_REGS1) {
   Term t1 = Deref(ARG1);
-  const char *cmd;
+  const char *cmd, *rc0;
+  char *rc;
 
   if (IsAtomTerm(t1)) {
     cmd = RepAtom(AtomOfTerm(t1))->StrOfAE;
@@ -816,14 +761,20 @@ static Int real_path(USES_REGS1) {
   } else {
     return false;
   }
-  const char *rc = myrealpath(cmd, NULL);
-  if (!rc) {
-    PlIOError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, strerror(errno));
+#if _WIN32
+  char cmd2[YAP_FILENAME_MAX+1];
+  
+  if (( rc = unix2win(cmd, cmd2, YAP_FILENAME_MAX)) == NULL) {
     return false;
   }
-  bool r = Yap_unify(MkAtomTerm(Yap_LookupAtom(rc)), ARG2);
-  freeBuffer((char *)rc);
-  return r;
+  cmd = rc;
+#endif
+  
+  rc0 = myrealpath(cmd, NULL);
+  if (!rc0) {
+    PlIOError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, NULL);
+  }
+  return Yap_unify(MkAtomTerm(Yap_LookupAtom(rc0)), ARG2);
 }
 
 #define EXPAND_FILENAME_DEFS()                                                 \
@@ -864,6 +815,18 @@ static Term do_expand_file_name(Term t1, Term opts USES_REGS) {
     Yap_Error(TYPE_ERROR_ATOM, t1, NULL);
     return TermNil;
   }
+#if _WIN32
+  {
+    char *rc;
+    char cmd2[YAP_FILENAME_MAX+1];
+  
+    if (( rc = unix2win(spec, cmd2, YAP_FILENAME_MAX)) == NULL) {
+      return false;
+    }
+    spec = rc;
+  }
+#endif
+  
   args = Yap_ArgListToVector(opts, expand_filename_defs, EXPAND_FILENAME_END);
   if (args == NULL) {
     return TermNil;
@@ -903,7 +866,10 @@ static Term do_expand_file_name(Term t1, Term opts USES_REGS) {
   }
 
   if (!use_system_expansion) {
-    return MkPairTerm(MkAtomTerm(Yap_LookupAtom(expandVars(spec, NULL))),
+    const char *o = expandVars(spec, NULL);
+    if (!o)
+      return false;
+    return MkPairTerm(MkAtomTerm(Yap_LookupAtom(o)),
                       TermNil);
   }
   tf = do_glob(spec, true);
@@ -1251,6 +1217,7 @@ const char *Yap_getcwd(const char *cwd, size_t cwdlen) {
 static Int working_directory(USES_REGS1) {
   char dir[YAP_FILENAME_MAX + 1];
   Term t1 = Deref(ARG1), t2;
+
   if (!IsVarTerm(t1) && !IsAtomTerm(t1)) {
     Yap_Error(TYPE_ERROR_ATOM, t1, "working_directory");
   }
@@ -1264,8 +1231,9 @@ static Int working_directory(USES_REGS1) {
   if (!IsAtomTerm(t2)) {
     Yap_Error(TYPE_ERROR_ATOM, t2, "working_directory");
   }
-  ChDir(RepAtom(AtomOfTerm(t2))->StrOfAE);
-  return true;
+  if (t2 == TermEmptyAtom || t2 == TermDot)
+    return true;
+  return ChDir(RepAtom(AtomOfTerm(t2))->StrOfAE);
 }
 
 /** Yap_findFile(): tries to locate a file, no expansion should be performed/
@@ -1389,7 +1357,7 @@ const char *Yap_findFile(const char *isource, const char *idef,
 
     // expand names in case you have
     // to add a prefix
-    if (!access || exists(work))
+    if (!access || Yap_Exists(work))
       return work; // done
   }
   return NULL;
@@ -1401,18 +1369,23 @@ const char *Yap_locateFile(const char *source, char *result, bool in_lib) {
 
 static Int true_file_name(USES_REGS1) {
   Term t = Deref(ARG1);
+  const char *s;
 
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "argument to true_file_name unbound");
     return FALSE;
   }
-  if (!IsAtomTerm(t)) {
+  if (IsAtomTerm(t)) {
+    s = RepAtom(AtomOfTerm(t))->StrOfAE;
+  } else if (IsStringTerm(t)) {
+    s = StringOfTerm(t);
+  } else {
     Yap_Error(TYPE_ERROR_ATOM, t, "argument to true_file_name");
     return FALSE;
   }
-  if (!Yap_AbsoluteFileInBuffer(RepAtom(AtomOfTerm(t))->StrOfAE,
-                                LOCAL_FileNameBuf, YAP_FILENAME_MAX - 1, true))
-    return FALSE;
+  if (!Yap_AbsoluteFile(s,
+                                LOCAL_FileNameBuf, true))
+    return true;
   return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
 }
 

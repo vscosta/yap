@@ -586,7 +586,7 @@ static void initFlag(flag_info *f, int fnum, bool global) {
 static bool executable(Term inp) {
   CACHE_REGS
     if (GLOBAL_argv && GLOBAL_argv[0]) {
-      if (!Yap_AbsoluteFileInBuffer(GLOBAL_argv[0], LOCAL_FileNameBuf, YAP_FILENAME_MAX - 1,true))
+      if (!Yap_AbsoluteFile(GLOBAL_argv[0], LOCAL_FileNameBuf,true))
 	return false;
     } else
     strncpy(LOCAL_FileNameBuf, Yap_FindExecutable(), YAP_FILENAME_MAX - 1);

@@ -251,7 +251,7 @@ X_API YAP_Bool YAP_IsAtomTerm(Term t) { return (IsAtomTerm(t)); }
 X_API YAP_Bool YAP_IsPairTerm(Term t) { return (IsPairTerm(t)); }
 
 X_API YAP_Bool YAP_IsApplTerm(Term t) {
-  return (IsApplTerm(t) && !IsExtensionFunctor(FunctorOfTerm(t)));
+  return IsApplTerm(t) && !IsExtensionFunctor(FunctorOfTerm(t));
 }
 
 X_API YAP_Bool YAP_IsCompoundTerm(Term t) {
@@ -1901,8 +1901,8 @@ X_API Int YAP_RunGoalOnce(Term t) {
 
 X_API bool YAP_RestartGoal(void) {
   CACHE_REGS
-  bool out;
   BACKUP_MACHINE_REGS();
+  bool out;
   if (LOCAL_AllowRestart) {
     P = (yamop *)FAILCODE;
     LOCAL_PrologMode = UserMode;
@@ -2009,7 +2009,7 @@ X_API void YAP_ClearExceptions(void) {
 
 X_API int YAP_InitConsult(int mode, const char *filename, int *osnop) {
   CACHE_REGS
-  FILE *f;
+    FILE *f;
   int sno;
   char full[FILENAME_MAX] BACKUP_MACHINE_REGS();
 
@@ -2241,21 +2241,37 @@ static void do_bootfile(char *bootfilename USES_REGS) {
 #endif
 }
 
-static void construct_init_file(char *boot_file, char *BootFile) {
-/* trust YAPSHAREDIR over YAP_PL_SRCDIR, and notice that the code is /
+/* trust YAPSHAREDIR over YAP_PL_SRCDIR, and notice that the code is
  * dependent. */
+static bool construct_init_file(char *boot_file, char *BootFile)
+{
 #if HAVE_GETENV
   if (getenv("YAPSHAREDIR")) {
     strncpy(boot_file, getenv("YAPSHAREDIR"), 256);
     strncat(boot_file, "/pl/", 255);
-  } else {
-#endif
-    strncpy(boot_file, YAP_PL_SRCDIR, 256);
-    strncat(boot_file, "/", 255);
-#if HAVE_GETENV
+    if (Yap_Exists( boot_file ) ) {
+      return true;
+    }
   }
 #endif
+#if __ANDROID__
+  strncpy(boot_file, "/assets/share/pl/", 256);
+  if (Yap_Exists( boot_file ) ) {
+    return true;
+  }
+#endif
+  strncpy(boot_file, YAP_SHAREDIR "/pl/" , 256);
   strncat(boot_file, BootFile, 255);
+  if (Yap_Exists( boot_file ) ) {
+    return true;
+  }
+
+  strncpy(boot_file, YAP_PL_SRCDIR "/", 256);
+  strncat(boot_file, BootFile, 255);
+  if (Yap_Exists( boot_file ) ) {
+    return true;
+  }
+  return false;
 }
 
 /* this routine is supposed to be called from an external program
@@ -2353,25 +2369,22 @@ Int YAP_Init(YAP_init_args *yap_init) {
     Yap_ExecutionMode = yap_init->ExecutionMode;
     if (do_bootstrap) {
       restore_result = YAP_BOOT_FROM_PROLOG;
-    } else if (BOOT_FROM_SAVED_STATE) {
-      restore_result = Yap_Restore(yap_init->SavedState, yap_init->YapLibDir);
-      if (restore_result == FAIL_RESTORE) {
-        yap_init->ErrorNo = LOCAL_Error_TYPE;
-        yap_init->ErrorCause = LOCAL_ErrorMessage;
-        /* shouldn't RECOVER_MACHINE_REGS();  be here ??? */
-        return YAP_BOOT_ERROR;
-      }
-    } else {
-      restore_result = YAP_BOOT_FROM_PROLOG;
-    }
-    if (BOOT_FROM_SAVED_STATE && !do_bootstrap) {
+    } else { // try always to boot from the saved state.
+     if (restore_result != YAP_BOOT_FROM_PROLOG) {
       if (!Yap_SavedInfo(yap_init->SavedState, yap_init->YapLibDir, &Trail,
                          &Stack, &Heap)) {
+	restore_result = YAP_BOOT_FROM_PROLOG;
         yap_init->ErrorNo = LOCAL_Error_TYPE;
         yap_init->ErrorCause = LOCAL_ErrorMessage;
         return YAP_BOOT_ERROR;
       }
     }
+     restore_result = Yap_Restore(yap_init->SavedState, yap_init->YapLibDir);
+      if (restore_result == FAIL_RESTORE) {
+	restore_result = YAP_BOOT_FROM_PROLOG;
+      }
+    }
+ 
     GLOBAL_FAST_BOOT_FLAG = yap_init->FastBoot;
 #if defined(YAPOR) || defined(TABLING)
     Yap_init_root_frames();
@@ -2444,17 +2457,8 @@ Int YAP_Init(YAP_init_args *yap_init) {
   if (yap_init->QuietMode) {
     setVerbosity(TermSilent);
   }
-  if (BOOT_FROM_SAVED_STATE && !do_bootstrap) {
-    if (restore_result == FAIL_RESTORE) {
-      yap_init->ErrorNo = LOCAL_Error_TYPE;
-      yap_init->ErrorCause = LOCAL_ErrorMessage;
-      return YAP_BOOT_ERROR;
-    }
-    if (Atts && Atts * 1024 > 2048 * sizeof(CELL))
-      Yap_AttsSize = Atts * 1024;
-    else {
-      Yap_AttsSize = 2048 * sizeof(CELL);
-    }
+  if (restore_result == DO_EVERYTHING ||
+      restore_result == DO_ONLY_CODE) {
     LOCAL_PrologMode &= ~BootMode;
     if (restore_result == DO_ONLY_CODE) {
       /* first, initialize the saved state */
@@ -2465,38 +2469,37 @@ Int YAP_Init(YAP_init_args *yap_init) {
       CurrentModule = LOCAL_SourceModule = USER_MODULE;
       return YAP_BOOT_FROM_SAVED_STACKS;
     }
-  } else {
-
-    /* read the bootfile */
-    if (!do_bootstrap) {
-      construct_init_file(boot_file, BootFile);
-      yap_init->YapPrologBootFile = boot_file;
-    }
-    do_bootfile(yap_init->YapPrologBootFile ? yap_init->YapPrologBootFile
-                                            : BootFile PASS_REGS);
-    /* initialize the top-level */
-    if (!do_bootstrap) {
-      char init_file[256];
-      Atom atfile;
-      Functor fgoal;
-      YAP_Term goal, as[2];
-      construct_init_file(init_file, InitFile);
-      /* consult init file */
-      atfile = Yap_LookupAtom(init_file);
-      as[0] = MkAtomTerm(atfile);
-      fgoal = Yap_MkFunctor(Yap_FullLookupAtom("$silent_bootstrap"), 1);
-      goal = Yap_MkApplTerm(fgoal, 1, as);
-      /* launch consult */
-      YAP_RunGoalOnce(goal);
-      /* set default module to user */
-      as[0] = MkAtomTerm(AtomUser);
-      fgoal = Yap_MkFunctor(Yap_LookupAtom("module"), 1);
-      goal = Yap_MkApplTerm(fgoal, 1, as);
-      YAP_RunGoalOnce(goal);
-    }
-    Yap_PutValue(Yap_FullLookupAtom("$live"),
-                 MkAtomTerm(Yap_FullLookupAtom("$true")));
   }
+  /* read the bootfile */
+  if (!do_bootstrap) {
+    construct_init_file(boot_file, BootFile);
+    yap_init->YapPrologBootFile = boot_file;
+  }
+  do_bootfile(yap_init->YapPrologBootFile ? yap_init->YapPrologBootFile
+                                            : BootFile PASS_REGS);
+  /* initialize the top-level */
+  if (!do_bootstrap) {
+    char init_file[256];
+    Atom atfile;
+    Functor fgoal;
+    YAP_Term goal, as[2];
+    if (!construct_init_file(init_file, InitFile))
+      Yap_exit(1);
+    /* consult init file */
+    atfile = Yap_LookupAtom(init_file);
+    as[0] = MkAtomTerm(atfile);
+    fgoal = Yap_MkFunctor(Yap_FullLookupAtom("$silent_bootstrap"), 1);
+    goal = Yap_MkApplTerm(fgoal, 1, as);
+    /* launch consult */
+    YAP_RunGoalOnce(goal);
+    /* set default module to user */
+    as[0] = MkAtomTerm(AtomUser);
+    fgoal = Yap_MkFunctor(Yap_LookupAtom("module"), 1);
+    goal = Yap_MkApplTerm(fgoal, 1, as);
+    YAP_RunGoalOnce(goal);
+  }
+  Yap_PutValue(Yap_FullLookupAtom("$live"),
+	       MkAtomTerm(Yap_FullLookupAtom("$true")));
   return YAP_BOOT_FROM_PROLOG;
 }
 
@@ -2513,7 +2516,7 @@ Int Yap_InitDefaults(YAP_init_args *init_args, char saved_state[]) {
   init_args->MaxTrailSize = 0;
   init_args->YapLibDir = NULL;
 #if __ANDROID__
-  init_args->YapPrologBootFile = "pl/boot.yap";
+  init_args->YapPrologBootFile = "boot.yap";
   init_args->YapPrologInitGoal = "bootstrap";
 #else
   init_args->YapPrologBootFile = NULL;

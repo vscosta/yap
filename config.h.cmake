@@ -1904,7 +1904,7 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 #endif
 
 #ifndef YAP_PL_SRCDIR
-#define YAP_PL_SRCDIR "${PROJECT_SOURCE_DIR}/pl}"
+#define YAP_PL_SRCDIR "${PROJECT_SOURCE_DIR}/pl"
 #endif
 
 #ifndef YAP_SHAREDIR

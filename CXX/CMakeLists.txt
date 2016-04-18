@@ -15,9 +15,9 @@ set (CXX_SOURCES
 )
 
 
-if (YAP_SINGLE_FILE)
+if (YAP_SINGLE_FILE OR WIN32)
 add_library (Yap++ OBJECT ${CXX_SOURCES} )
-else(YAP_SINGLE_FILE)
+else(YAP_SINGLE_FILE OR WIN32)
 add_library (Yap++ SHARED ${CXX_SOURCES} )
 
 target_link_libraries(Yap++ ${CMAKE_DL_LIBS} libYap)
@@ -26,7 +26,7 @@ install(TARGETS  Yap++
   LIBRARY DESTINATION ${libdir}
   ARCHIVE DESTINATION ${libdir}
   )
-endif(YAP_SINGLE_FILE)
+endif(YAP_SINGLE_FILE OR WIN32)
 
 include_directories (H include ${CMAKE_BINARY_DIR} ${GMP_INCLUDE_DIR})
 

@@ -95,13 +95,18 @@ void Yap_ConsoleOps(StreamDesc *s) {
 /* static */
 static int ConsolePutc(int sno, int ch) {
   StreamDesc *s = &GLOBAL_Stream[sno];
-#if MAC || _MSC_VER || defined(__MINGW32__)
   if (ch == 10) {
+#if MAC || _WIN32
+    fputs("\n", s->file);
+#else
     putc('\n', s->file);
+#endif
     LOCAL_newline = true;
   } else
-#endif
     putc(ch, s->file);
+#if MAC || _WIN32
+  fflush( NULL );
+#endif
   console_count_output_char(ch, s);
   return ((int)ch);
 }
@@ -133,6 +138,7 @@ restart:
 #endif
   LOCAL_PrologMode |= ConsoleGetcMode;
   ch = fgetc(s->file);
+  printf("got %d\n", ch);
 #if HAVE_SIGINTERRUPT
   siginterrupt(SIGINT, FALSE);
 #endif

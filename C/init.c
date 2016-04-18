@@ -413,7 +413,11 @@ static void InitDebug(void) {
   if (Yap_output_msg) {
     char ch;
 
-#if HAVE_ISATTY
+#if _WIN32
+    if (!_isatty( _fileno( stdin ) )) {
+      return;
+    }
+#elif HAVE_ISATTY
     if (!isatty(0)) {
       return;
     }
@@ -423,9 +427,11 @@ static void InitDebug(void) {
     fprintf(stderr, "a getch\t\tb token\t\tc Lookup\td LookupVar\ti Index\n");
     fprintf(stderr, "e SetOp\t\tf compile\tg icode\t\th boot\t\tl log\n");
     fprintf(stderr, "m Machine\t p parser\n");
-    while ((ch = putchar(getchar())) != '\n')
+    while ((ch = putchar(getchar())) != '\n' && ch != '\r') {
       if (ch >= 'a' && ch <= 'z')
         GLOBAL_Option[ch - 'a' + 1] = 1;
+      GLOBAL_Option[ch - 'a' + 1] = 1;
+    }
     if (GLOBAL_Option['l' - 96]) {
       GLOBAL_logfile = fopen(LOGFILE, "w");
       if (GLOBAL_logfile == NULL) {
