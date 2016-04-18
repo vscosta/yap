@@ -44,6 +44,10 @@
  * of code.
  */
 
+#include "config.h"
+
+#ifndef HAVE_REGEXEC
+
 #ifdef SNAMES
 #define	matcher	smatcher
 #define	fast	sfast
@@ -1090,3 +1094,5 @@ int ch;
 #undef	print
 #undef	at
 #undef	match
+
+#endif

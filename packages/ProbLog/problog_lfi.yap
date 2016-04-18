@@ -353,8 +353,6 @@ do_learning_intern(Iterations,Epsilon) :-
 
 	format_learning(1,'~nIteration ~d of ~d~n',[CurrentIteration,EndIteration]),
 	logger_set_variable(iteration,CurrentIteration),
-	leash(none),
-%	trace,
 	write_probabilities_file,
 
 	once(llh_testset),

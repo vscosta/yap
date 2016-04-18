@@ -124,7 +124,21 @@ endif()
 set(WITH_CUDD YES CACHE FILEPATH "Try to use Cudd (currently Cudd 3)")
 
 if (WITH_CUDD)
-  include(cudd)
+#detect cudd setup, as it is shared between different installations.
+
+find_package(CUDD)
+#  CUDD_FOUND       - system has CUDD 
+#  CUDD_LIBRARIES   - Link these to use CUDD
+#  CUDD_INCLUDE_DIR - Include directory for using CUDD
+#
+
+    set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${CUDD_INCLUDE_DIR} )
+
+  check_include_files( cudd.h HAVE_CUDD_H )
+check_include_files( "stdio.h;cudd/cudd.h" HAVE_CUDD_CUDD_H )
+check_include_files( cuddInt.h HAVE_CUDDINT_H )
+check_include_files( "stdio.h;cudd/cudd.h;cudd/cuddInt.h" HAVE_CUDD_CUDDINT_H )
+
 endif(WITH_CUDD)
 
 set(WITH_JAVA YES CACHE FILEPATH "Try to use Java (currently Java 6,7,8)")

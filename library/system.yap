@@ -557,7 +557,7 @@ file_property(File, Type, Size, Date, Permissions, LinkName) :-
 	file_property(File, Type, Size, Date, Permissions, LinkName, Error),
 	handle_system_internal(Error, off, file_property(File)).
 
-  
+
 %
 % environment manipulation.
 %
@@ -681,7 +681,7 @@ shell :-
 	exec_command(FullCommand, 0, 1, 2, PID, Error),
 	handle_system_internal(Error, off, G),
 	wait(PID, _Status, Error, Id),
-	handle_system_internal(Error, Id, off, G).
+	handle_system_internal(Error, got(FullCommand, Id), off, G).
 
 shell(Command) :-
 	G = shell(Command),

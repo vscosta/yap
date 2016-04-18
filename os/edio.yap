@@ -76,7 +76,7 @@ If  _S_ is a currently opened stream for output, it becomes the
 current output stream. If  _S_ is an atom it is taken to be a
 filename.  If there is no output stream currently associated with it,
 then it is opened for output, and the new output stream created becomes
-the current output stream. Existing files are clobbered, use append/1 to extend a file.
+the current output stream. Existing files are clobbered, use append/1 to ext  end a file.
  If it is not possible to open the file, an
 error occurs.  If there is a single opened output stream currently
 associated with the file, then it becomes the current output stream; if

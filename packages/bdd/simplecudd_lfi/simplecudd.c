@@ -856,9 +856,8 @@ int my_index_calc(int varstart, DdNode *node) {
 }
 void AddNode(hisqueue *HisQueue, int varstart, DdNode *node, double dvalue,
              int ivalue, void *dynvalue) {
-  //  int index = GetIndex(node) - varstart;
-  //  fprintf(stderr,"----- node added: %p <-> %i <->
-  //  %e\n",node,GetIndex(node),dvalue);
+  //int index = GetIndex(node) - varstart;
+  //fprintf(stderr,"----- node added: %p <-> %i <-> %e\n",node,GetIndex(node),dvalue);
   int index = my_index_calc(varstart, node);
   HisQueue[index].thenode = (hisnode *)realloc(
       HisQueue[index].thenode,
@@ -876,8 +875,8 @@ hisnode *GetNode(hisqueue *HisQueue, int varstart, DdNode *node) {
   //  int index = GetIndex(node) - varstart;
   int index = -1;
   index = my_index_calc(varstart, node);
-  //  fprintf(stderr,"----- node retuned: %p <-> %i <-> %i
-  //  \n",node,GetIndex(node),index);
+  //    fprintf(stderr,"----- node retuned: %p <-> %i <-> %i
+  // \n",node,GetIndex(node),index);
   // TODO: this must be check think not initialzied. Null check fails?
   //  if (Cudd_IsConstant(node) ){
   //    fprintf(stderr,"----- node retuned: %p <-> %i \n",node,GetIndex(node));

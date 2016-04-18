@@ -841,7 +841,7 @@ plwait(void)
     if (WIFEXITED( status ) ) {
       return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(WEXITSTATUS(status)) );
     } else if (WIFSIGNALED( status )) {
-      return YAP_Unify(YAP_ARG3, YAP_MkAtomTerm(YAP_LookupAtom("signal")) ) &&
+      return YAP_Unify(YAP_ARG3, YAP_MkAtomTerm(YAP_LookupAtom("signalled")) ) &&
 	YAP_Unify(YAP_ARG4, YAP_MkIntTerm( WTERMSIG(status)) );
     } else /* WIFSTOPPED(status) */ {
       return YAP_Unify(YAP_ARG3, YAP_MkAtomTerm(YAP_LookupAtom("stopped")) ) &&

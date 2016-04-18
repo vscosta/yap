@@ -72,20 +72,14 @@ long _stksize = 32000;
 static void do_top_goal(YAP_Term Goal) { YAP_RunGoalOnce(Goal); }
 
 static int init_standard_system(int argc, char *argv[], YAP_init_args *iap) {
-  int BootMode;
+  int
 
-  BootMode = YAP_parse_yap_arguments(argc, argv, iap);
+      Mode;
+
+  int BootMode = YAP_parse_yap_arguments(argc, argv, iap);
 
   /* init memory */
-  if (BootMode == YAP_BOOT_FROM_PROLOG ||
-      BootMode == YAP_FULL_BOOT_FROM_PROLOG) {
-    int NewBootMode = YAP_Init(iap);
-    if (NewBootMode != YAP_BOOT_FROM_PROLOG &&
-        BootMode != YAP_FULL_BOOT_FROM_PROLOG)
-      BootMode = NewBootMode;
-  } else {
-    BootMode = YAP_Init(iap);
-  }
+  BootMode = YAP_Init(iap);
   if (iap->ErrorNo) {
     /* boot failed */
     YAP_Error(iap->ErrorNo, 0L, iap->ErrorCause);
