@@ -1,7 +1,4 @@
 
-add_library (regexp SHARED regexp.c)
-
-if( NOT HAVE_REGEX_H )
   set ( REGEX_SOURCES
     cclass.h
     cname.h
@@ -10,10 +7,14 @@ if( NOT HAVE_REGEX_H )
     yapregex.h
     engine.c
     regcomp.c
+    regerror.c
+    regexec.c
+    regfree.c
     )
-endif( NOT HAVE_REGEX_H )
 
-target_link_libraries(regexp libYap ${REGEX_SOURCES})
+add_library (regexp SHARED regexp.c  ${REGEX_SOURCES})
+
+target_link_libraries(regexp libYap)
 
 set_target_properties (regexp PROPERTIES PREFIX "")
 

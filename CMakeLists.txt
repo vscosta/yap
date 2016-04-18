@@ -160,6 +160,12 @@ set(YAP_MODULES
     $<TARGET_OBJECTS:utf8proc>
 )
 else(YAP_SINGLE_FILE)
+  if (WIN32)
+  set(YAP_MODULES
+    $<TARGET_OBJECTS:Yap++>
+    ${YAP_MODULES}
+    )
+  endif(  )
   set( UTF8PROC_DL utf8proc)
 endif(YAP_SINGLE_FILE)
 
@@ -466,10 +472,8 @@ add_subDIRECTORY (os)
 #bootstrap and saved state
 add_subDIRECTORY (pl)
 
-IF (NOT MSVC)
 #C++ interface
 add_subDIRECTORY (CXX)
-ENDIF(NOT MSVC)
 
 ADD_SUBDIRECTORY(library)
 ADD_SUBDIRECTORY(swi/library)
@@ -542,7 +546,7 @@ option (WITH_DOCS
 
 #TODO: use cmake target builds
 # option (USE_DEBUGYAP
-#   "enable C-debugging for YAP" OFF)
+#   "enable C-debugging for YAP" OFF)e
 
 #TODO: use cmake arch/compiler
 # option (USE_CYGWIN
