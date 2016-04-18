@@ -24,10 +24,6 @@
 
 #define C_INTERFACE_C 1
 
-#include "Yap.h"
-#include "attvar.h"
-#include "clause.h"
-#include "yapio.h"
 #include <stdlib.h>
 #if HAVE_UNISTD_H
 #include <unistd.h>
@@ -40,11 +36,15 @@
 #if _MSC_VER || defined(__MINGW32__)
 #include <windows.h>
 #endif
-#include "iopreds.h"
 // we cannot consult YapInterface.h, that conflicts with what we declare, though
 // it shouldn't
+
+#include "Yap.h"
 #include "YapInterface.h"
 #include "YapText.h"
+#include "attvar.h"
+#include "clause.h"
+#include "yapio.h"
 #ifdef TABLING
 #include "tab.macros.h"
 #endif /* TABLING */
@@ -56,6 +56,7 @@
 #if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
+#include "iopreds.h"
 
 typedef void *atom_t;
 typedef void *functor_t;
@@ -2009,7 +2010,7 @@ X_API void YAP_ClearExceptions(void) {
 
 X_API int YAP_InitConsult(int mode, const char *filename, int *osnop) {
   CACHE_REGS
-    FILE *f;
+  FILE *f;
   int sno;
   char full[FILENAME_MAX] BACKUP_MACHINE_REGS();
 
@@ -2243,32 +2244,31 @@ static void do_bootfile(char *bootfilename USES_REGS) {
 
 /* trust YAPSHAREDIR over YAP_PL_SRCDIR, and notice that the code is
  * dependent. */
-static bool construct_init_file(char *boot_file, char *BootFile)
-{
+static bool construct_init_file(char *boot_file, char *BootFile) {
 #if HAVE_GETENV
   if (getenv("YAPSHAREDIR")) {
     strncpy(boot_file, getenv("YAPSHAREDIR"), 256);
     strncat(boot_file, "/pl/", 255);
-    if (Yap_Exists( boot_file ) ) {
+    if (Yap_Exists(boot_file)) {
       return true;
     }
   }
 #endif
 #if __ANDROID__
   strncpy(boot_file, "/assets/share/pl/", 256);
-  if (Yap_Exists( boot_file ) ) {
+  if (Yap_Exists(boot_file)) {
     return true;
   }
 #endif
-  strncpy(boot_file, YAP_SHAREDIR "/pl/" , 256);
+  strncpy(boot_file, YAP_SHAREDIR "/pl/", 256);
   strncat(boot_file, BootFile, 255);
-  if (Yap_Exists( boot_file ) ) {
+  if (Yap_Exists(boot_file)) {
     return true;
   }
 
   strncpy(boot_file, YAP_PL_SRCDIR "/", 256);
   strncat(boot_file, BootFile, 255);
-  if (Yap_Exists( boot_file ) ) {
+  if (Yap_Exists(boot_file)) {
     return true;
   }
   return false;
@@ -2370,21 +2370,21 @@ Int YAP_Init(YAP_init_args *yap_init) {
     if (do_bootstrap) {
       restore_result = YAP_BOOT_FROM_PROLOG;
     } else { // try always to boot from the saved state.
-     if (restore_result != YAP_BOOT_FROM_PROLOG) {
-      if (!Yap_SavedInfo(yap_init->SavedState, yap_init->YapLibDir, &Trail,
-                         &Stack, &Heap)) {
-	restore_result = YAP_BOOT_FROM_PROLOG;
-        yap_init->ErrorNo = LOCAL_Error_TYPE;
-        yap_init->ErrorCause = LOCAL_ErrorMessage;
-        return YAP_BOOT_ERROR;
+      if (restore_result != YAP_BOOT_FROM_PROLOG) {
+        if (!Yap_SavedInfo(yap_init->SavedState, yap_init->YapLibDir, &Trail,
+                           &Stack, &Heap)) {
+          restore_result = YAP_BOOT_FROM_PROLOG;
+          yap_init->ErrorNo = LOCAL_Error_TYPE;
+          yap_init->ErrorCause = LOCAL_ErrorMessage;
+          return YAP_BOOT_ERROR;
+        }
       }
-    }
-     restore_result = Yap_Restore(yap_init->SavedState, yap_init->YapLibDir);
+      restore_result = Yap_Restore(yap_init->SavedState, yap_init->YapLibDir);
       if (restore_result == FAIL_RESTORE) {
-	restore_result = YAP_BOOT_FROM_PROLOG;
+        restore_result = YAP_BOOT_FROM_PROLOG;
       }
     }
- 
+
     GLOBAL_FAST_BOOT_FLAG = yap_init->FastBoot;
 #if defined(YAPOR) || defined(TABLING)
     Yap_init_root_frames();
@@ -2457,8 +2457,7 @@ Int YAP_Init(YAP_init_args *yap_init) {
   if (yap_init->QuietMode) {
     setVerbosity(TermSilent);
   }
-  if (restore_result == DO_EVERYTHING ||
-      restore_result == DO_ONLY_CODE) {
+  if (restore_result == DO_EVERYTHING || restore_result == DO_ONLY_CODE) {
     LOCAL_PrologMode &= ~BootMode;
     if (restore_result == DO_ONLY_CODE) {
       /* first, initialize the saved state */
@@ -2476,7 +2475,7 @@ Int YAP_Init(YAP_init_args *yap_init) {
     yap_init->YapPrologBootFile = boot_file;
   }
   do_bootfile(yap_init->YapPrologBootFile ? yap_init->YapPrologBootFile
-                                            : BootFile PASS_REGS);
+                                          : BootFile PASS_REGS);
   /* initialize the top-level */
   if (!do_bootstrap) {
     char init_file[256];
@@ -2499,7 +2498,7 @@ Int YAP_Init(YAP_init_args *yap_init) {
     YAP_RunGoalOnce(goal);
   }
   Yap_PutValue(Yap_FullLookupAtom("$live"),
-	       MkAtomTerm(Yap_FullLookupAtom("$true")));
+               MkAtomTerm(Yap_FullLookupAtom("$true")));
   return YAP_BOOT_FROM_PROLOG;
 }
 

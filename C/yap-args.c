@@ -64,7 +64,8 @@
 #define DEFAULT_SCHEDULERLOOP 10
 #define DEFAULT_DELAYEDRELEASELOAD 3
 
-static void print_usage(void) {
+    static void
+    print_usage(void) {
   fprintf(stderr, "\n[ Valid switches for command line arguments: ]\n");
   fprintf(stderr, "  -?   Shows this screen\n");
   fprintf(stderr, "  -b   Boot file \n");
