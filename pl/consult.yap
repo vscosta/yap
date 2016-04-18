@@ -680,7 +680,7 @@ db_files(Fs) :-
 	'$lf_opt'(consult, TOpts, Reconsult0),
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$loaded'(File, UserFile, SourceModule, ParentF, Line, Reconsult0, Reconsult, Dir, Opts),
+ 	'$loaded'(File, UserFile, SourceModule, ParentF, Line, Reconsult0, Reconsult, Dir, Opts),
         working_directory(OldD, Dir),
 	H0 is heapused, '$cputime'(T0,_),
 	current_prolog_flag(generate_debug_info, GenerateDebug),

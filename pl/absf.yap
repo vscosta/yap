@@ -188,7 +188,7 @@ absolute_file_name(File0,File) :-
     (
      % look for solutions
          '$find_in_path'(File, Opts,TrueFileName),
-         (     (First == first -> ! ; nb_setarg(1, HasSol, yes) ),
+        (     (First == first -> ! ; nb_setarg(1, HasSol, yes) ),
 	           set_prolog_flag( fileerrors, PreviousFileErrors ),
 	           set_prolog_flag( open_expands_filename, OldF),
 	           set_prolog_flag( verbose_file_search, PreviousVerbose ),
@@ -402,8 +402,8 @@ absolute_file_name(File0,File) :-
 
 
 '$dir' --> { current_prolog_flag(windows, true) },
-	   !,
-	   "\\".
+	   "\\",
+	   !.
 '$dir' --> "/".
 
 '$dir'('/') --> !.
@@ -441,26 +441,26 @@ absolute_file_name(File0,File) :-
 
 '$absf_trace'(Msg, Args ) -->
     { current_prolog_flag( verbose_file_search, true ) },
-    !,
-    { print_message( informational, absolute_file_path( Msg, Args ) ) }.
+    { print_message( informational, absolute_file_path( Msg, Args ) ) },
+    !.
 '$absf_trace'(_Msg, _Args ) --> [].
 
 '$absf_trace'(Msg, Args ) :-
     current_prolog_flag( verbose_file_search, true ),
-    !,
-    print_message( informational, absolute_file_path( Msg, Args ) ).
+    print_message( informational, absolute_file_path( Msg, Args ) ),
+    !.
 '$absf_trace'(_Msg, _Args ).
 
 '$absf_trace'( File ) :-
 	current_prolog_flag( verbose_file_search, true ),
-	!,
-	print_message( informational, absolute_file_path( File ) ).
+	print_message( informational, absolute_file_path( File ) ),
+	!.
 '$absf_trace'( _File ).
 
 '$absf_trace_options'(Args ) :-
 	current_prolog_flag( verbose_file_search, true ),
-	!,
-	print_message( informational, arguments( Args ) ).
+	print_message( informational, arguments( Args ) ),
+	!.
 '$absf_trace_options'( _Args ).
 
 /** @pred prolog_file_name( +File, -PrologFileaNme)

@@ -69,6 +69,8 @@ handling in YAP:
 
 */
 
+
+
 :- module(system('$messages'),
 	  [system_message/4,
 	   prefix/6,

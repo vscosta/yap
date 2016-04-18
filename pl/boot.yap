@@ -1361,10 +1361,19 @@ not(G) :-    \+ '$execute'(G).
 
 
 '$bootstrap' :-
-    bootstrap('pl/init.yap'),
+    bootstrap('init.yap'),
     module(user),
     '$live'.
 
+
+'$silent_bootstrap'(F) :-
+    yap_flag(verbose, _, silent),
+    yap_flag(verbose_load, _, silent),
+    bootstrap( F ),
+    yap_flag(verbose, _, normal),
+    yap_flag(verbose_load, _, normal),
+    '$live'.
+    
 
 bootstrap(F) :-
 %	'$open'(F, '$csult', Stream, 0, 0, F),
