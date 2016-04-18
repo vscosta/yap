@@ -393,8 +393,10 @@ int Yap_FormatFloat(Float f, char **s, size_t sz) {
       *s, sz, &GLOBAL_Stream[LOCAL_c_output_stream].encoding, 0);
   if (sno < 0)
     return FALSE;
+  wglb.lw = separator;
   wglb.stream = GLOBAL_Stream + sno;
   wrputf(f, &wglb);
+  wrputc('\0', wglb.stream);
   so = Yap_MemExportStreamPtr(sno);
   Yap_CloseStream(sno);
   *s = so;
