@@ -487,9 +487,12 @@ extern int64_t Yap_AssetSize(const char *name);
 #define MaxHash 3333
 #define MaxWideHash (MaxHash / 10 + 1)
 
-#define FAIL_RESTORE 0
-#define DO_EVERYTHING 1
-#define DO_ONLY_CODE 2
+typedef enum e_restore_t {
+  FAIL_RESTORE = 0,
+  DO_EVERYTHING =  1,
+  DO_ONLY_CODE = 2,
+  YAP_BOOT_FROM_PROLOG = 4
+} restore_t;
 
 /*************************************************************************************************
                                    common instructions codes
