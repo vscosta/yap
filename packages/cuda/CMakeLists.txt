@@ -54,10 +54,27 @@ if (CUDA_FOUND)
   macro_optional_find_package (Thrust ON)
 
   set (CUDA_SOURCES
-    lista.cu
-    memory.cu
-    cuda.c
+CC_CSSTree.cu
+bpreds.cu
+dbio.cu
+lista.cu
+memory.cu
+selectproyect.cu
+treeb.cu
+union2.cu
     )
+
+  set (CXX_SOURCES
+bpredscpu.cpp
+joincpu.cpp
+selectproyectcpu.cpp
+unioncpu2.cpp
+)
+
+  set (C_SOURCES
+creator2.c
+cuda.c
+)
 
   set (PL_SOURCES
     cuda.yap

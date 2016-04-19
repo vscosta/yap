@@ -23,7 +23,7 @@ CC=@CC@
 NVCC=@NVCC@
 CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include  @CUDA_CPPFLAGS@
 NVCCFLAGS=@CUDA_CPPFLAGS@ -I$(srcdir) -I../.. -I$(srcdir)/../../include
-CUDA_LDFLAGS=@CUDA_LDFLAGS@
+LDFLAGS=@LDFLAGS@
 #
 #
 # You shouldn't need to change what follows.
@@ -39,7 +39,7 @@ SO=@SO@
 CWD=$(PWD)
 #
 
-CUDA_PROLOG= \
+BDD_PROLOG= \
 	$(srcdir)/cuda.yap
 
 OBJS=cuda.o memory.o lista.o
@@ -62,16 +62,11 @@ memory.o: $(srcdir)/memory.cu $(srcdir)/pred.h
 @DO_SECOND_LD@cuda.@SO@: $(OBJS)
 @DO_SECOND_LD@	@CUDA_SHLIB_LD@ $(CUDA_LDFLAGS) -o cuda.@SO@ $(OBJS)
 
-install: all install-examples
+install: all
 	mkdir -p $(DESTDIR)$(SHAREDIR)
-	for h in $(CUDA_PROLOG); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
+	for h in $(BDD_PROLOG); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 
-install-examples:
-
 clean:
-	rm -f *.o *~ $(OBJS) *.BAK
-
-distclean: clean
-	rm -f $(SOBJS) Makefile
+	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
 

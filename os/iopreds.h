@@ -45,6 +45,10 @@ extern int Yap_CheckStream__(const char *, const char *, int, Term, int,
   Yap_CheckTextStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
 extern int Yap_CheckTextStream__(const char *, const char *, int, Term, int,
                                  const char *);
+#define Yap_CheckBinaryStream(arg, kind, msg)                                    \
+  Yap_CheckBinaryStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
+extern int Yap_CheckBinaryStream__(const char *, const char *, int, Term, int,
+                                 const char *);
 
 extern bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
                            encoding_t encoding, stream_flags_t flags,

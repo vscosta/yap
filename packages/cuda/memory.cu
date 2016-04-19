@@ -5,63 +5,101 @@
 #include <thrust/device_vector.h>
 #include "lista.h"
 #include "memory.h"
+#include "pred.h"
 
 #define MAX_REC 200
-#define HALF_REC (MAX_REC / 2)
 #define MAX_FIX_POINTS 100
 
-unsigned int avmem;
 memnode temp_storage[MAX_REC];
+/*List used to store information (address, size, etc.) about facts and rule results loaded in the GPU*/
 list<memnode> GPUmem;
+/*List used to store information about rule results offloaded from the GPU to the CPU*/
 list<memnode> CPUmem;
 
+/*Auxiliary function to sort rule list*/
+bool comparer(const rulenode &r1, const rulenode &r2)
+{
+	return (r1.name > r2.name); 
+}
+
+/*Used in search functions to compare iterations*/
 bool compareiteration(const memnode &r1, const memnode &r2)
 {
 	return (r1.iteration < r2.iteration); 
 }
 
+/*Used in search functions to compare names*/
 bool comparename(const memnode &r1, const memnode &r2)
 {
 	return (r1.name > r2.name); 
 }
 
-void calcular_mem(int dev)
-{
-	cudaDeviceProp p;
-	cudaGetDeviceProperties(&p, dev);
-	avmem = p.totalGlobalMem;
-	temp_storage[0].dev_address = NULL;
-	temp_storage[0].size = 0;
-	temp_storage[HALF_REC].dev_address = NULL;
-	temp_storage[HALF_REC].size = 0;
-
-	//cout << "Initial memory available " << avmem << endl;
-}
-
+/*Linear search of 'name' fact*/
 template<class InputIterator>
 InputIterator buscarhecho(InputIterator first, InputIterator last, int name)
 {
 	while(first!=last) 
 	{
-		if(first->name == name) return first;
+		if(first->name == name && first->isrule == 0) return first;
 			++first;
 	}
 	return last;
 }
 
-list<memnode>::iterator buscarpornombre(int name, int itr, int *totalrows, int *gpunum)
+/*Finds all results of rule 'name' in iteration 'itr' in both CPU and GPU memory. Every result found is removed from its respective list*/
+list<memnode>::iterator buscarpornombre(int name, int itr, int *totalrows, int *gpunum, int *cpunum)
 {
-	int x = 1, sum = 0;
+	int x = 0, sum = 0;
 	memnode temp;
-
-	temp.name = name;
+	list<memnode>::iterator i;
 	temp.iteration = itr;
 	pair<list<memnode>::iterator, list<memnode>::iterator> rec = equal_range(GPUmem.begin(), GPUmem.end(), temp, compareiteration);
+
 	while(rec.first != rec.second)
-	{		
-		
-		//cout << "itr = " << itr << " rec.first = " << rec.first->name << endl;	
-		
+	{
+		if(rec.first->name == name && rec.first->isrule == 1)
+		{
+			temp_storage[x] = *rec.first;
+			rec.first = GPUmem.erase(rec.first);
+			sum += temp_storage[x].rows;
+			x++;
+		}	
+		else
+			rec.first++;
+	}
+	*gpunum = x;
+	temp.name = name;
+	temp.isrule = 1;
+	i = GPUmem.insert(rec.first, temp);
+	rec = equal_range(CPUmem.begin(), CPUmem.end(), temp, compareiteration);
+
+	while(rec.first != rec.second)
+	{				
+		if(rec.first->name == name && rec.first->isrule == 1)
+		{
+			temp_storage[x] = *rec.first;
+			rec.first = CPUmem.erase(rec.first);
+			sum += temp_storage[x].rows;
+			x++;
+		}	
+		else
+			rec.first++;
+	}
+	*totalrows = sum;
+	*cpunum = x;
+	return i;
+}
+
+list<memnode>::iterator buscarpornombrecpu(int name, int itr, int *totalrows, int *gpunum, int *cpunum)
+{
+	int x = 0, sum = 0;
+	memnode temp;
+	list<memnode>::iterator i;
+	temp.iteration = itr;
+	pair<list<memnode>::iterator, list<memnode>::iterator> rec = equal_range(GPUmem.begin(), GPUmem.end(), temp, compareiteration);
+
+	while(rec.first != rec.second)
+	{				
 		if(rec.first->name == name)
 		{
 			temp_storage[x] = *rec.first;
@@ -72,25 +110,14 @@ list<memnode>::iterator buscarpornombre(int name, int itr, int *totalrows, int *
 		else
 			rec.first++;
 	}
-	//if(x > 1)
-	rec.first = GPUmem.insert(rec.first, temp);
-	*totalrows = sum;
+
 	*gpunum = x;
-	return rec.first;
-}
-
-int buscarpornombrecpu(int name, int itr, int *totalrows)
-{
-	int x = HALF_REC + 1, sum = 0;
-	memnode temp;
-	temp.iteration = itr;
-	pair<list<memnode>::iterator, list<memnode>::iterator> rec = equal_range(CPUmem.begin(), CPUmem.end(), temp, compareiteration);
-
-	/*if(rec.first != rec.second)
-		cout << "bscnomcpu = " << rec.first->name << " " << rec.first->iteration << endl;*/
+	temp.name = name;
+	temp.isrule = 1;
+	rec = equal_range(CPUmem.begin(), CPUmem.end(), temp, compareiteration);
 
 	while(rec.first != rec.second)
-	{
+	{				
 		if(rec.first->name == name)
 		{
 			temp_storage[x] = *rec.first;
@@ -101,18 +128,24 @@ int buscarpornombrecpu(int name, int itr, int *totalrows)
 		else
 			rec.first++;
 	}
-	*totalrows += sum;
-	return x;
+	i = CPUmem.insert(rec.first, temp);
+	*totalrows = sum;
+	*cpunum = x;
+	return i;
 }
 
+/*Removes the least recently used memory block from GPU memory, sending it to CPU memory if it's a rule result. 
+If there are no used memory blocks in the GPU and we still don't have enough memory, the program exits with error*/
 void limpiar(const char s[], size_t sz)
 {
 	list<memnode>::iterator ini;
 	memnode temp;
+	size_t free, total;
 
 	if(GPUmem.size() == 0)
 	{
-		cerr << s << ": not enough GPU memory: have " << avmem << ", need " << sz << " bytes." << endl;
+		cudaMemGetInfo(&free,&total);
+		cerr << s << ": not enough GPU memory: have " << free << " of " << total << ", need " << sz << " bytes." << endl;
 		exit(1);
 	}		
 
@@ -122,80 +155,32 @@ void limpiar(const char s[], size_t sz)
 		temp = *ini;
 		temp.dev_address = (int *)malloc(ini->size);
 		cudaMemcpyAsync(temp.dev_address, ini->dev_address, temp.size, cudaMemcpyDeviceToHost);
-		CPUmem.push_back(temp);
+		list<memnode>::iterator pos = lower_bound(CPUmem.begin(), CPUmem.end(), temp, compareiteration);
+		CPUmem.insert(pos, temp);
 	}
-	liberar(ini->dev_address, ini->size);
+	cudaFree(ini->dev_address);
 	GPUmem.erase(ini);
 }
 
-void limpiartodo(int *p1, int *p2)
+/*Allocs 'size' amount of bytes in GPU memory. If not enough memory is available, removes least recently used memory blocks until 
+enough space is available*/
+void reservar(int **ptr, size_t size)
 {
-	list<memnode>::iterator ini;
-	memnode temp;
-	int cont = 0;
-	if(p1 != NULL)
-		cont++;	
-	if(p2 != NULL)
-		cont++;
-	ini = GPUmem.begin();
-
-	/*cout << "ANTES" << endl;
-	mostrar_memoria();
-	mostrar_memcpu();
-	cout << "FIN ANTES" << endl;*/
-	//cout << "mem = " << GPUmem.size() << " " << avmem << endl;
-
-	while(GPUmem.size() > cont)
-	{
-		if(ini->dev_address == p1 || ini->dev_address == p2)
-		{
-			ini++;
-			continue;
-		}
-		if(ini->isrule)
-		{
-			temp = *ini; 
-			temp.dev_address = (int *)malloc(ini->size);
-			cudaMemcpy(temp.dev_address, ini->dev_address, temp.size, cudaMemcpyDeviceToHost);
-			CPUmem.push_back(temp);
-		}
-		liberar(ini->dev_address, temp.size);
-		ini = GPUmem.erase(ini);
-	}
-
-	/*cout << "DESPUES" << endl;
-	mostrar_memoria();
-	mostrar_memcpu();
-	cout << "FIN DESPUES" << endl;*/
-	//cout << "memfinal = " << GPUmem.size() << " " << avmem << endl;
-
-}
-
-void liberar(int *ptr, int size)
-{
-	//cout << "L " << avmem << " " << size; 
-
-	cudaFree(ptr);
-#ifdef DEBUG_MEM
-	cerr << "- " << ptr << " " << size << endl;
-#endif
-	avmem += size;
-	
-	//cout << " " << avmem << endl;
-}
-
-void reservar(int **ptr, int size)
-{
-  //size_t free, total;
-  //cudaMemGetInfo(      &free, &total	 );
-  //	cerr << "? " << free << " " << size << endl;
+	size_t free, total;
 
         if (size == 0) { 
                 *ptr = NULL; 
                 return;
         }
-	while(avmem < size)
+
+	cudaMemGetInfo(&free, &total);
+	while(free < size)
+	{
+		cout << "Se limpio memoria " << free << " " << total << endl;
 		limpiar("not enough memory", size);
+		cudaMemGetInfo(&free, &total);
+	}
+
 	while(cudaMalloc(ptr, size) == cudaErrorMemoryAllocation)
 		limpiar("Error in memory allocation", size);
 	if (! *ptr ) {
@@ -205,11 +190,9 @@ void reservar(int **ptr, int size)
 	  cerr << "Exiting CUDA...." << endl;
 	  exit(1);
 	}
-	avmem -= size;
-
-	// cout << " " << avmem << endl;
 }
 
+/*Creates a new entry in the GPU memory list*/
 void registrar(int name, int num_columns, int *ptr, int rows, int itr, int rule)
 {
 	memnode temp;
@@ -222,6 +205,19 @@ void registrar(int name, int num_columns, int *ptr, int rows, int itr, int rule)
 	GPUmem.push_back(temp);
 }
 
+void registrarcpu(int name, int num_columns, int *ptr, int rows, int itr, int rule)
+{
+	memnode temp;
+	temp.name = name;
+	temp.dev_address = ptr;
+	temp.rows = rows;
+	temp.size = rows * num_columns * sizeof(int);
+	temp.iteration = itr;
+	temp.isrule = rule;
+	CPUmem.push_back(temp);
+}
+
+/*Updates the information of an element in a list*/
 template<class InputIterator>
 void actualizar(int num_columns, int *ptr, int rows, InputIterator i)
 {
@@ -230,6 +226,7 @@ void actualizar(int num_columns, int *ptr, int rows, InputIterator i)
 	i->size = rows * num_columns * sizeof(int);
 }
 
+/*Count the total number of rows generated by rule 'name' in iteration 'iter'*/
 int numrows(int name, int itr)
 {
 	int sum = 0;
@@ -252,16 +249,17 @@ int numrows(int name, int itr)
 	return sum;
 }
 
-
 	extern "C" void * YAP_IntToAtom(int);
 	extern  "C" char * YAP_AtomName(void *);
 
-
+/*Loads facts or rule results in GPU memory. If a fact is already in GPU memory, its pointer is simply returned. Otherwise, 
+memory is reserved and the fact is loaded. Rule results are loaded based on the current iteration 'itr' and both GPU and 
+CPU memories are searched for all instances of said results. The instances are combined into a single one in GPU memory.*/
 int cargar(int name, int num_rows, int num_columns, int is_fact, int *address_host_table, int **ptr, int itr)
 {
 	int numgpu, numcpu, totalrows = 0;
 	int *temp, x;
-	int size, itrant;
+	int size, itrant, inc = 0;
 	list<memnode>::iterator i;
 	memnode fact;
 
@@ -279,9 +277,6 @@ int cargar(int name, int num_rows, int num_columns, int is_fact, int *address_ho
 		}
 		size = num_rows * num_columns * sizeof(int);
 		reservar(&temp, size);
-#ifdef DEBUG_MEM
-		cerr << "+ " << temp << " temp  " << size << endl;
-#endif
 		cudaMemcpyAsync(temp, address_host_table, size, cudaMemcpyHostToDevice);
 		registrar(name, num_columns, temp, num_rows, itr, 0);
 		*ptr = temp;
@@ -290,28 +285,25 @@ int cargar(int name, int num_rows, int num_columns, int is_fact, int *address_ho
 	if(itr > 0)
 	{
 		itrant = itr - 1;
-		i = buscarpornombre(name, itrant, &totalrows, &numgpu);
-		numcpu = buscarpornombrecpu(name, itrant, &totalrows);
-
-		if((numgpu == 2) && (numcpu == (HALF_REC + 1)))
+		i = buscarpornombre(name, itrant, &totalrows, &numgpu, &numcpu);
+		if((numgpu == 1) && (numcpu == 1))
 		{
-			actualizar(num_columns, temp_storage[1].dev_address, temp_storage[1].rows, i);
-			*ptr = temp_storage[1].dev_address;
-			return temp_storage[1].rows;
+			actualizar(num_columns, temp_storage[0].dev_address, temp_storage[0].rows, i);
+			*ptr = temp_storage[0].dev_address;
+			return temp_storage[0].rows;
 		}
 		size = totalrows * num_columns * sizeof(int);
 		reservar(&temp, size);
-#ifdef DEBUG_MEM
-		cerr << "+ " << temp << " temp 2  " << size << endl;
-#endif
-		for(x = 1; x < numgpu; x++)
+		for(x = 0; x < numgpu; x++)
 		{
-			cudaMemcpyAsync(temp + temp_storage[x-1].size, temp_storage[x].dev_address, temp_storage[x].size, cudaMemcpyDeviceToDevice);
-			liberar(temp_storage[x].dev_address, temp_storage[x].size);
+			cudaMemcpyAsync(temp + inc, temp_storage[x].dev_address, temp_storage[x].size, cudaMemcpyDeviceToDevice);
+			inc += temp_storage[x].size / sizeof(int);
+			cudaFree(temp_storage[x].dev_address);
 		}
-		for(x = HALF_REC + 1; x < numcpu; x++)
+		for(; x < numcpu; x++)
 		{
-			cudaMemcpyAsync(temp + temp_storage[x-1].size, temp_storage[x].dev_address, temp_storage[x].size, cudaMemcpyHostToDevice);
+			cudaMemcpyAsync(temp + inc, temp_storage[x].dev_address, temp_storage[x].size, cudaMemcpyHostToDevice);
+			inc += temp_storage[x].size / sizeof(int);
 			free(temp_storage[x].dev_address);
 		}
 		actualizar(num_columns, temp, totalrows, i);
@@ -321,9 +313,54 @@ int cargar(int name, int num_rows, int num_columns, int is_fact, int *address_ho
 	return 0;
 }
 
+int cargarcpu(int name, int num_rows, int num_columns, int is_fact, int *address_host_table, int **ptr, int itr)
+{
+	int numgpu, numcpu, totalrows = 0;
+	int *temp, x;
+	int size, itrant, inc = 0;
+	list<memnode>::iterator i;
+
+	if(is_fact)
+	{
+		*ptr = address_host_table;
+		return num_rows;
+	}
+	if(itr > 0)
+	{
+		itrant = itr - 1;
+		i = buscarpornombrecpu(name, itrant, &totalrows, &numgpu, &numcpu);
+
+		if((numgpu == 0) && (numcpu == 1))
+		{
+			actualizar(num_columns, temp_storage[0].dev_address, temp_storage[0].rows, i);
+			*ptr = temp_storage[0].dev_address;
+			return temp_storage[0].rows;
+		}
+		size = totalrows * num_columns * sizeof(int);
+		temp = (int *)malloc(size);
+		for(x = 0; x < numgpu; x++)
+		{
+			cudaMemcpyAsync(temp + inc, temp_storage[x].dev_address, temp_storage[x].size, cudaMemcpyDeviceToHost);
+			inc += temp_storage[x].size / sizeof(int);
+			cudaFree(temp_storage[x].dev_address);
+		}
+		for(; x < numcpu; x++)
+		{
+			memcpy(temp + inc, temp_storage[x].dev_address, temp_storage[x].size);
+			inc += temp_storage[x].size / sizeof(int);
+			free(temp_storage[x].dev_address);
+		}
+		actualizar(num_columns, temp, totalrows, i);
+		*ptr = temp;
+		return totalrows;
+	}
+	return 0;
+}
+
+/*Loads all results of rule 'name' from both GPU and CPU memories into the GPU*/
 int cargafinal(int name, int cols, int **ptr)
 {
-	int *temp, *ini, cont = 0;
+	int *temp, *ini, cont = 0, numg = 0, numc = 0;
 	memnode bus;
 	bus.name = name;
 	GPUmem.sort(comparename);
@@ -335,6 +372,7 @@ int cargafinal(int name, int cols, int **ptr)
 	while(pos != endg && pos->name == name)
 	{
 		cont += pos->rows;
+		numg++;
 		pos++;
 	}
 	pos = lower_bound(CPUmem.begin(), endc, bus, comparename);
@@ -342,15 +380,41 @@ int cargafinal(int name, int cols, int **ptr)
 	while(pos != endc && pos->name == name)
 	{
 		cont += pos->rows;
+		numc++;
 		pos++;
 	}
-	
-	reservar(&temp, cont * cols * sizeof(int));
-#ifdef DEBUG_MEM
-	cerr << "+ " << temp << " temp 3 " << cont * cols * sizeof(int) << endl;
-#endif
-	ini = temp;	
 
+	if(numg == 0 && numc == 0)
+		return 0;
+	if(numg == 1 && numc == 0) 
+	{
+		pos = gpu;
+		*ptr = pos->dev_address;
+		cont = pos->rows;
+		GPUmem.erase(pos);
+		#ifdef TUFFY
+		return -cont;
+		#else
+		return cont;
+		#endif
+	}
+	if(numg == 0 && numc == 1)
+	{
+		pos = cpu;
+		cont = pos->rows;
+		#ifdef TUFFY
+		reservar(&temp, pos->size);
+		cudaMemcpy(temp, pos->dev_address, pos->size, cudaMemcpyHostToDevice);
+		*ptr = temp;
+		#else
+		*ptr = pos->dev_address;
+		#endif
+		CPUmem.erase(pos);
+		return -cont;
+	}
+
+	reservar(&temp, cont * cols * sizeof(int));
+	ini = temp;
 	pos = gpu;
 	while(pos != endg && pos->name == name)
 	{
@@ -365,23 +429,13 @@ int cargafinal(int name, int cols, int **ptr)
 		temp += pos->size / sizeof(int);
 		pos++;
 	}
-
-	/*int x, y;
-	int *hop1 = (int *)malloc(cont * cols * sizeof(int));
-	cudaMemcpy(hop1, ini, cont * cols * sizeof(int), cudaMemcpyDeviceToHost);
-	cout << "select finala" << endl;
-	for(x = 0; x < cont; x++)
-	{
-		for(y = 0; y < cols; y++)
-			cout << hop1[x * cols + y] << " ";
-		cout << endl;
-	}
-	cout << "select finala" << endl;*/
-
 	*ptr = ini;
 	return cont;
 }
 
+/*Compares the results of the current iteration against the results of older iterations. 
+Used to avoid infinite computations when the result is not a single fixed-point, but an 
+orbit of points.*/
 bool generadas(int name, int filas, int cols, int itr)
 {
 	int r1, r2, x, fin;
@@ -401,46 +455,26 @@ bool generadas(int name, int filas, int cols, int itr)
 			thrust::device_ptr<int> pt2 = thrust::device_pointer_cast(dop2);
 			r1 = cargar(name, filas, cols, 0, NULL, &dop1, itr - x + 1);
 			thrust::device_ptr<int> pt1 = thrust::device_pointer_cast(dop1);
-
-			/*int y;
-			int *a = (int *)malloc(r1 * cols * sizeof(int));
-			cudaMemcpy(a, dop1, r1 * cols * sizeof(int), cudaMemcpyDeviceToHost);
-			for(x = 0; x < r1; x++)
-			{
-				for(y = 0; y < cols; y++)
-					cout << a[x * cols + y] << " ";
-			}
-			cout << endl;
-			cudaMemcpy(a, dop2, r1 * cols * sizeof(int), cudaMemcpyDeviceToHost);
-			for(x = 0; x < r1; x++)
-			{
-				for(y = 0; y < cols; y++)
-					cout << a[x * cols + y] << " ";
-			}
-			cout << endl;
-			free(a);*/
-
 			if(thrust::equal(pt1, pt1 + r1, pt2) == true)
 				return true;
 		}
 	}
-
 	return false;
 }
 
 void mostrar_memoria()
 {
-	int x;
+	unsigned int x;
 	list<memnode>::iterator i = GPUmem.begin();
 	cout << "Memoria inicio GPU" << endl;
 	for(x = 0; x < GPUmem.size(); x++, i++)
-		cout << i->name << " " << i->iteration << " " << i->size << endl;
+		cout << i->name << " " << i->iteration << " " << i->isrule << " " << i->rows << " " << i->size << endl;
 	cout << "Memoria fin GPU" << endl;
 }
 
 void mostrar_memcpu()
 {
-	int x;
+	unsigned int x;
 	list<memnode>::iterator i = CPUmem.begin();
 	cout << "Memoria inicio CPU" << endl;
 	for(x = 0; x < CPUmem.size(); x++, i++)
@@ -448,53 +482,7 @@ void mostrar_memcpu()
 	cout << "Memoria fin CPU" << endl;
 }
 
-void resultados(vector<rulenode>::iterator first, vector<rulenode>::iterator last)
-{
-	GPUmem.sort(comparename);
-	CPUmem.sort(comparename);
-	list<memnode>::iterator gpu = GPUmem.begin();
-	list<memnode>::iterator cpu = CPUmem.begin();
-	int x, y, of, cols;
-	int *temp, cont = 0;
-	while(first != last)
-	{
-		while(first->name == gpu->name)
-		{
-			temp = (int *)malloc(gpu->size);
-			cudaMemcpy(temp, gpu->dev_address, gpu->size, cudaMemcpyDeviceToHost);
-			cols = gpu->size / (gpu->rows * sizeof(int));
-			cont += gpu->rows;
-			for(x = 0, of = 0; x < gpu->rows; x++)
-			{
-				for(y = 0; y < cols; y++, of++)
-					cout << temp[of] << " ";
-				cout << endl;
-			}
-			cudaFree(gpu->dev_address);
-#ifdef DEBUG_MEM
-			cerr << "- " << gpu->dev_address << " gpu->dev_address" << endl;
-#endif
-			free(temp);
-			gpu++;
-		}
-		while(first->name == cpu->name)
-		{
-			cols = cpu->size / (cpu->rows * sizeof(int));
-			cont += cpu->rows;
-			for(x = 0, of = 0; x < cpu->rows; x++)
-			{
-				for(y = 0; y < cols; y++, of++)
-					cout << cpu->dev_address[of] << " ";
-				cout << endl;
-			}
-			free(cpu->dev_address);
-			cpu++;
-		}
-		first++;
-	}
-	cout << cont << endl;
-}
-
+/*Clear all rule results from both GPU and CPU memory*/
 void clear_memory()
 {
 	list<memnode>::iterator ini;
@@ -503,15 +491,13 @@ void clear_memory()
 	fin = GPUmem.end();
 	while(ini != fin)
 	{
-	  if (ini->isrule) {
-	    cudaFree(ini->dev_address);
-#ifdef DEBUG_MEM
-	    cerr << "- " << ini->dev_address << " ini->dev_address" << endl;
-#endif
-	    ini = GPUmem.erase(ini);
-	  } else {
-	    ini++;
-	  }
+		if(ini->isrule)
+		{
+			cudaFree(ini->dev_address);
+			ini = GPUmem.erase(ini);
+		}
+		else
+			ini++;
 	}
 	ini = CPUmem.begin();
 	fin = CPUmem.end();
@@ -521,4 +507,69 @@ void clear_memory()
 		ini++;
 	}
 	CPUmem.clear();
+}
+
+/*Clear everything from both GPU and CPU memory*/
+void clear_memory_all()
+{
+	list<memnode>::iterator ini;
+	list<memnode>::iterator fin;
+       	ini = GPUmem.begin();
+	fin = GPUmem.end();
+	while(ini != fin)
+	{
+		cudaFree(ini->dev_address);
+		ini++;
+	}
+	GPUmem.clear();
+	ini = CPUmem.begin();
+	fin = CPUmem.end();
+	while(ini != fin)
+	{
+		free(ini->dev_address);
+		ini++;
+	}
+	CPUmem.clear();
+}
+
+/*Remove all instances of fact 'name' from both CPU and GPU memories*/
+void liberar(int name)
+{
+	list<memnode>::iterator i;
+	memnode fact;
+	i = buscarhecho(GPUmem.begin(), GPUmem.end(), name);
+	if(i != GPUmem.end())
+	{
+		fact = *i;
+		GPUmem.erase(i);
+		cudaFree(fact.dev_address);
+	}
+	i = buscarhecho(CPUmem.begin(), CPUmem.end(), name);
+	if(i != CPUmem.end())
+	{
+		fact = *i;
+		CPUmem.erase(i);
+		free(fact.dev_address);
+	}
+}
+
+/*Add all rows in 'dop1' to the fact 'name' by creating a new array capable of holding both.*/
+void sumar(int name, int *dop1, int cols, int rows)
+{
+	list<memnode>::iterator i;
+	memnode fact;
+	i = buscarhecho(GPUmem.begin(), GPUmem.end(), name);
+	int *res, newrows, offset;
+	if(i != GPUmem.end())
+	{
+		fact = *i;
+		newrows = rows + fact.rows;
+		reservar(&res, newrows * cols * sizeof(int));
+		offset = fact.rows * cols;
+		cudaMemcpyAsync(res, fact.dev_address, offset * sizeof(int), cudaMemcpyDeviceToDevice);
+		GPUmem.erase(i);
+		registrar(name, cols, res, newrows, 0, 0);
+		cudaMemcpyAsync(res + offset, dop1, rows * cols * sizeof(int), cudaMemcpyDeviceToDevice);
+		cudaFree(fact.dev_address);
+	}
 }

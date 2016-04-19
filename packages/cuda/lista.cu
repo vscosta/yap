@@ -7,97 +7,111 @@ extern "C" {
 #include "pred.h"
 }
 #include "selectproyect.cu"
+#include "selectproyectcpu.cpp"
 #include "treeb.cu"
-#include "union2.cu"
-#include "bpreds.cu"
+#include "joincpu.cpp"
+#include "union2.h"
+#include "unioncpu2.cpp"
+#include "bpreds.h"
+#include "bpredscpu.cpp"
+#include "dbio.h"
 
-#define MAXVALS 200
+#define MAXVALS 2000
 
 #if TIMER
 statinfo cuda_stats;
 #endif
 
+/*Auxiliary function to sort fact list*/
 bool compare(const gpunode &r1, const gpunode &r2)
 {
 	return (r1.name > r2.name); 
 }
 
-bool comparecompleted(const compnode &r1, const compnode &r2)
+/*Creates and stores the rule nodes in the rule list*/ 
+void meter(vector<rulenode> *rules, predicate **p, int size)
 {
-	return (r1.name > r2.name); 
-}
-
-bool comparef(const gpunode &r1, const gpunode &r2)
-{
-	return (r1.is_fact > r2.is_fact); 
-}
-
-bool comparer(const rulenode &r1, const rulenode &r2)
-{
-	return (r1.name > r2.name); 
-}
-
-template<class InputIterator>
-InputIterator buscar(InputIterator inicio, InputIterator rul_str, InputIterator fin, int name)
-{
-	vector<gpunode>::iterator i;
-	gpunode temp;
-	temp.name = name;
-	i = lower_bound(inicio, rul_str, temp, compare);
-	if (i != rul_str && i->name == name)
-        	return i;
-	i = lower_bound(rul_str, fin, temp, compare);
-	if (i != rul_str && i->name == name)
-        	return i;
-	return fin;
-}
-
-void buscarreglas(vector<gpunode> *facts, vector<rulenode> *rules)
-{
-	vector<gpunode>::iterator first = facts->begin();
+	int x;
 	rulenode temp;
-	while(first != facts->end())
+	for(x = 0; x < size; x++)
 	{
-		if(!first->is_fact)
-		{
-			temp.name = first->name;
-			temp.num_rows = first->num_rows;
-			temp.address_host_table = first->address_host_table;
-			rules->push_back(temp);
-			first = facts->erase(first);
-		}
-		else
-			first++;
+		temp.name = (*p[x]).name;
+		temp.num_rows = (*p[x]).num_rows;
+		temp.address_host_table = (*p[x]).address_host_table;
+		temp.negatives = (*p[x]).negatives;
+		temp.rulename = (*p[x]).predname;
+		rules->push_back(temp);
 	}
 }
 
+/*Find the first predicate that has a certain variable val*/
+int closestpred(int *arr, int size, int val)
+{
+	int x;
+	for(x = 1; x < size; x++)
+	{
+		if(arr[x] > val)
+			break;
+	}
+	return x - 2;
+}
+
+/*template<class InputIterator>
+void checkjoins(InputIterator rules, InputIterator end)
+{
+			x = 1;
+			while(rules->rule_name[x] < 0)
+				x++;
+			pos = rules->rule_names[x] + 1;
+
+			for(y = x + 1; y < total; y++)
+			{
+				bs = rules->address_host_table[pos];
+				pos2 = rules->rule_names[x+1] + 1;
+				while((bs2 = rules->address_host_table[pos2]) > 0)
+				{
+					if(bs == bs2)
+					{
+						flag = 1;
+						break;
+					}
+					pos2++;
+				}
+			}
+}*/
+
+/*Move comparison predicates based on their variables. They are moved 
+after the first normal predicate that has one (in case of variable vs constant comparison)
+or both (variable vs variable) variables found in the comparison. */
 template<class InputIterator>
 void movebpreds(InputIterator rules, InputIterator end)
 {
-	int x, subs, total, cont, cont2, pos;
-	int *move, *rest;
+	int x, y, subs, total, pos, fin;
+	int cont, cont2, cont3;
+	int p1 = -1, p2 = -1;
+	int move[MAXVALS], move2[MAXVALS], rest[MAXVALS];
+	
 	while(rules != end)
 	{
-		if(rules->num_bpreds.x > 0)
+		total = rules->num_rows - 1;
+		cont = total * sizeof(int2);
+		rules->preds = (int **)malloc(total * sizeof(int *));
+		rules->numpreds = (int2 *)malloc(cont);
+		memset(rules->numpreds, 0x0, cont);
+	
+		if(rules->totalpreds > 0)
 		{
+			cont2 = MAXVALS * sizeof(int);
+			for(x = 0; x < total; x++)
+				rules->preds[x] = (int *)malloc(cont2);
 
-			total = rules->num_rows+rules->num_bpreds.x;
-
-			/*cout << "ANTES" << endl;
-			for(x = 0; x < rules->rule_names[total]; x++)
-				cout << rules->address_host_table[x] << " ";
-			cout << "FINANTES" << endl;*/
-
-			move = (int *)malloc(sizeof(int) * rules->num_bpreds.x * 4);
-			rest = (int *)malloc(sizeof(int) * rules->rule_names[total]);
+			total = rules->num_rows + rules->totalpreds;
 			cont = 0;
 			cont2 = 0;
+			cont3 = 0;
 			for(x = 0; x < total; x++)
 			{
 				subs = rules->rule_names[x+1] - rules->rule_names[x];
-				
-				//cout << subs << " ";
-				
 				if(rules->address_host_table[rules->rule_names[x]] > 0)
 				{
 					memcpy(rest + cont, rules->address_host_table + rules->rule_names[x], subs * sizeof(int));
@@ -105,17 +119,22 @@ void movebpreds(InputIterator rules, InputIterator end)
 				}
 				else
 				{
-					memcpy(move + cont2, rules->address_host_table + rules->rule_names[x], subs * sizeof(int));
-					cont2 += subs;
+					pos = rules->rule_names[x] + 1;
+					subs--;
+					if(rules->address_host_table[pos] > 0 && rules->address_host_table[pos+1] > 0)
+					{
+						memcpy(move2 + cont3, rules->address_host_table + rules->rule_names[x], subs * sizeof(int));
+						cont3 += subs;
+					}
+					else
+					{
+						memcpy(move + cont2, rules->address_host_table + rules->rule_names[x], subs * sizeof(int));
+						cont2 += subs;
+					}
 				}
 			}
+			memcpy(rules->address_host_table, rest, cont * sizeof(int));
 
-			/*cout << "REST" << endl;
-			for(x = 0; x < cont; x++)
-				cout << rest[x] << " ";
-			cout << "RESTFIN" << endl;*/
-
-			memcpy(rest + cont, move, cont2 * sizeof(int));
 			pos = 1;
 			for(x = 1; x <= total; x++)
 			{
@@ -124,20 +143,99 @@ void movebpreds(InputIterator rules, InputIterator end)
 				pos++;
 				rules->rule_names[x] = pos;
 			}
-			memcpy(rules->address_host_table, rest, sizeof(int) * rules->rule_names[total]);
-			free(move);
-			free(rest);
 
-			/*cout << "DESPUES" << endl;
-			for(x = 0; x < rules->rule_names[total]; x++)
-				cout << rules->address_host_table[x] << " ";
-			cout << "FINDESPUES" << endl;*/
+			pos = 1;
+			total = 3 * sizeof(int);
+			fin = cont2 / 3;
+			cont2 = 0;
+			for(x = 0; x < fin; x++)
+			{
+				subs = move[pos];
+				if(subs > 0)
+				{
+					for(y = rules->rule_names[1] + 1; y < rules->rule_names[rules->num_rows]; y++)
+					{
+						if(rules->address_host_table[y] == subs)
+						{
+							p1 = y;
+							break;
+						}
+					}
+				}
+				else
+				{
+					pos++;
+					subs = move[pos];
+					for(y = rules->rule_names[1] + 1; y < rules->rule_names[rules->num_rows]; y++)
+					{
+						if(rules->address_host_table[y] == subs)
+						{
+							p1 = y;
+							break;
+						}
+					}
+				}
+				pos += 2;
+				cont = closestpred(rules->rule_names, rules->num_rows, p1);
 
+				memcpy(rules->preds[cont] + rules->numpreds[cont].x, move + cont2, total);
+				rules->numpreds[cont].x += 3;
+				cont2 += 3;
+			}
+
+			pos = 1;
+			fin = cont3 / 3;
+			cont3 = 0;
+			for(x = 0; x < fin; x++)
+			{
+				subs = move2[pos];
+				for(y = rules->rule_names[1] + 1; y < rules->rule_names[rules->num_rows]; y++)
+				{
+					if(rules->address_host_table[y] == subs)
+					{
+						p1 = y;
+						break;
+					}
+				}
+				pos++;
+				subs = move2[pos];
+				for(y = rules->rule_names[1] + 1; y < rules->rule_names[rules->num_rows]; y++)
+				{
+					if(rules->address_host_table[y] == subs)
+					{
+						p2 = y;
+						break;
+					}
+				}
+				pos += 2;
+				cont = closestpred(rules->rule_names, rules->num_rows, p1);
+				cont2 = closestpred(rules->rule_names, rules->num_rows, p2);
+				if(cont == cont2)
+				{
+					memcpy(rules->preds[cont] + rules->numpreds[cont].x, move2 + cont3, total);
+					rules->numpreds[cont].x += 3;
+				}
+				else
+				{
+					if(cont > cont2)
+					{
+						memcpy(rules->preds[cont] + rules->numpreds[cont].x + rules->numpreds[cont].y, move2 + cont3, total);
+						rules->numpreds[cont].y += 3;
+					}
+					else
+					{
+						memcpy(rules->preds[cont2] + rules->numpreds[cont2].x + rules->numpreds[cont2].y, move2 + cont3, total);
+						rules->numpreds[cont2].y += 3;
+					}
+				}
+				cont3 += 3;
+			}
 		}
 		rules++;
 	}
 }
 
+/*Mark the location of predicate names in each rule*/
 template<class InputIterator>
 void nombres(InputIterator rules, InputIterator end)
 {
@@ -147,22 +245,23 @@ void nombres(InputIterator rules, InputIterator end)
 		pos = 1;
 		rules->rule_names = (int *)malloc(sizeof(int) * (rules->num_rows + 1));
 		rules->rule_names[0] = 0;
-		rules->num_bpreds.x = 0;
+		rules->totalpreds = 0;
 		for(x = 1; x <= rules->num_rows; x++)
 		{
 			while(rules->address_host_table[pos] != 0)
 				pos++;
 			pos++;
 			rules->rule_names[x] = pos;
-			if(rules->address_host_table[pos] < 0 && x < rules->num_rows)
-				rules->num_bpreds.x++;
+			if(x < rules->num_rows && rules->address_host_table[pos] < 0)
+				rules->totalpreds++;
 		}
 		rules->num_columns = rules->rule_names[1] - 2;
-		rules->num_rows -= rules->num_bpreds.x; /*quita los builtin del total*/
+		rules->num_rows -= rules->totalpreds; /*quita los builtin del total*/
 		rules++;
 	}
 }
 
+/*Determine if a predicate refers to a fact or a rule*/
 template<class InputIterator, class RulesIterator>
 void referencias(InputIterator facts, InputIterator fend, RulesIterator rules, RulesIterator end)
 {
@@ -178,24 +277,30 @@ void referencias(InputIterator facts, InputIterator fend, RulesIterator rules, R
 		for(x = 1; x < actual->num_rows; x++)
 		{
 			temp = actual->address_host_table[actual->rule_names[x]];
-			if(temp < 0) /*puede ser reemplazado una vez que se reacomoden las reglas*/
-				continue;
 			if(temp == actual->name)
-				actual->referencias[x-1] = actual - rules;
-			else
 			{
 				n1.name = temp;
 				res1 = lower_bound(facts, fend, n1, compare);
 				if (res1 != fend && res1->name == temp)
-				{
+				{			
 					actual->referencias[x-1] = -(res1 - facts) - 1;
 					cont++;
 				}
 				else
-				{
-					n2.name = temp;
-					res2 = lower_bound(rules, end, n2, comparer);
+					actual->referencias[x-1] = actual - rules;
+			}			
+			else
+			{
+				n2.name = temp;
+				res2 = lower_bound(rules, end, n2, comparer);
+				if(res2 != end && res2->name == temp)
 					actual->referencias[x-1] = res2 - rules;
+				else
+				{
+					n1.name = temp;
+					res1 = lower_bound(facts, fend, n1, compare);
+					actual->referencias[x-1] = -(res1 - facts) - 1;
+					cont++;
 				}
 			}
 		}
@@ -208,6 +313,7 @@ void referencias(InputIterator facts, InputIterator fend, RulesIterator rules, R
 	}
 }
 
+/*Creates an array for each selections found in a predicate for all rules*/
 template<class InputIterator>
 void seleccion(InputIterator actual, InputIterator end)
 {
@@ -257,9 +363,9 @@ int notin(int bus, int *array, int size)
 	return 1;
 }
 
-int2 columnsproject(int *first, int tam, int *rule, int ini, int fin, int sini, int sfin, int **res, int **newrule)
+int2 columnsproject(int *first, int tam, int *rule, int ini, int fin, int sini, int sfin, int **res, int **newrule, int **preds, int2 *nump, int pact, int ptot)
 {
-	int x, y, temp;
+	int x, y, z, temp, size;
 	int pv[MAXVALS], pv2[MAXVALS];
 	int2 ret = make_int2(0, 0);
 	for(x = 0; x < tam; x++)
@@ -294,6 +400,28 @@ int2 columnsproject(int *first, int tam, int *rule, int ini, int fin, int sini, 
 				break;
 			}
 		}
+		if(y != fin)
+			continue;
+		for(y = pact; y < ptot; y++)
+		{
+			size = nump[y].x + nump[y].y;
+			for(z = 1; z < size; z+=3)
+			{
+				if((temp == preds[y][z] || temp == preds[y][z+1]) && temp > 0)
+				{
+					if(notin(temp, pv, ret.y))
+					{
+						pv[ret.y] = temp;
+						pv2[ret.y] = x;
+						ret.y++;
+					}
+					break;
+				}
+			}
+			if(z != size)
+				break;
+		}
+
 	}
 	ret.x = ret.y;
 	for(x = sini; x < sfin; x++)
@@ -328,7 +456,27 @@ int2 columnsproject(int *first, int tam, int *rule, int ini, int fin, int sini, 
 				break;
 			}
 		}
+		for(y = pact; y < ptot; y++)
+		{
+			size = nump[y].x + nump[y].y;
+			for(z = 1; z < size; z+=3)
+			{
+				if((temp == preds[y][z] || temp == preds[y][z+1]) && temp > 0)
+				{
+					if(notin(temp, pv, ret.y))
+					{
+						pv[ret.y] = temp;
+						pv2[ret.y] = x - sini;
+						ret.y++;
+					}
+					break;
+				}
+			}
+			if(z != size)
+				break;
+		}
 	}
+
 	temp = ret.y * sizeof(int);
 	free(*newrule);
 	*newrule = (int *)malloc(temp);
@@ -338,6 +486,7 @@ int2 columnsproject(int *first, int tam, int *rule, int ini, int fin, int sini, 
 	return ret;
 }
 
+/*Determines all possible joins between two adjacent predicates*/
 int wherejoin(int *tmprule, int tmplen, int *rule, int tam2, int **res)
 {
 	int x, y, temp;
@@ -364,74 +513,53 @@ int wherejoin(int *tmprule, int tmplen, int *rule, int tam2, int **res)
 	return cont;
 }
 
-int builtinpredicates(int *tmprule, int tmplen, int *rule, int ini, int fin, int **res)
+template<class InputIterator>
+void builtinmark(InputIterator actual, InputIterator end)
 {
-	int x, y, temp;
-	int cont = 0, cont2 = 0;
-	int joins[MAXVALS];
-	
-	for(x = ini; x < fin; x++)
+	int x, y, z;
+	int ini, fin, bus;
+
+	while(actual != end)
 	{
-		joins[cont] = rule[x];
-		cont++;
-		x++;
-		if(rule[x] < 0)
+		for(x = 0; x < (actual->num_rows - 1); x++)
 		{
-			joins[cont] = rule[x];
-			cont++;
-			x++;
-		}
-		for(y = 0; y < tmplen; y++)
-		{
-			if(tmprule[y] == rule[x])
+			ini = actual->rule_names[x+1] + 1;
+			fin = actual->rule_names[x+2] - 1;
+
+			for(y = 1; y < actual->numpreds[x].x; y += 2)
 			{
-				joins[cont] = y;
-				cont++;
-				x++;
-				break;
+				bus = actual->preds[x][y];
+				if(bus > 0)
+				{
+					for(z = ini; z < fin; z++)
+					{
+						if(actual->address_host_table[z] == bus)
+						{
+							actual->preds[x][y] = z - ini;
+							break;
+						}
+					}
+				}
+				y++;
+				bus = actual->preds[x][y];
+				if(bus > 0)
+				{
+					for(z = ini; z < fin; z++)
+					{
+						if(actual->address_host_table[z] == bus)
+						{
+							actual->preds[x][y] = z - ini;
+							break;
+						}
+					}
+				}
 			}
 		}
-		if(rule[x] == 0)
-			continue;
-		if(rule[x] < 0)
-		{
-			joins[cont] = rule[x];
-			cont++;
-			x++;
-			continue;
-		}
-		for(y = 0; y < tmplen; y++)
-		{
-			if(tmprule[y] == rule[x])
-			{
-				joins[cont] = y;
-				cont++;
-				x++;
-				break;
-			}
-		}
+		actual++;
 	}
-	x = 1;
-	while(rule[x] != 0)
-	{
-		for(y = 0; y < tmplen; y++)
-		{
-			if(rule[x] == tmprule[y])
-			{
-				joins[cont] = y;
-				cont++;
-				cont2++;
-				break;
-			}
-		}
-		x++;
-	}
-	temp = cont * sizeof(int);
-	*res = (int *)malloc(temp);
-	memcpy(*res, joins, temp);
-	return cont2;
 }
 
+/*Creates arrays for each predicate with the positions of join and projection columns*/
 template<class InputIterator>
 void proyeccion(InputIterator actual, InputIterator end)
 {
@@ -448,7 +576,7 @@ void proyeccion(InputIterator actual, InputIterator end)
 			ini = actual->rule_names[1] + 1;
 			fin = actual->rule_names[2] - 1;
 
-			if(actual->numsel[0] == 0 && actual->numselfj[0] == 0 && actual->num_columns == (fin - ini))
+			if(actual->numsel[0] == 0 && actual->numselfj[0] == 0 && actual->num_columns == (fin - ini) && actual->numpreds[0].x == 0)
 			{
 				for(x = 1, y = actual->num_columns + 3; x <= actual->num_columns; x++, y++)
 				{
@@ -464,6 +592,7 @@ void proyeccion(InputIterator actual, InputIterator end)
 					continue;
 				}
 			}
+
 			actual->project = (int **)malloc(sizeof(int *));
 			pos.x = 0;
 			for(x = 1; x <= actual->num_columns; x++)
@@ -478,7 +607,8 @@ void proyeccion(InputIterator actual, InputIterator end)
 						break;
 					}
 				}
-			}
+			}			
+
 			temp = pos.x * sizeof(int);
 			actual->project[0] = (int *)malloc(temp);
 			memcpy(actual->project[0], fjoin, temp);
@@ -493,7 +623,7 @@ void proyeccion(InputIterator actual, InputIterator end)
 		actual->wherejoin = (int **)malloc(malptr);
 		actual->numjoin = (int *)malloc(numjoins * sizeof(int));
 		ini = actual->rule_names[1] + 1;
-		total = actual->num_rows + actual->num_bpreds.x;
+		total = actual->num_rows + actual->totalpreds;
 		fin = actual->rule_names[total] - 1;
 		pos.y = actual->rule_names[2] - actual->rule_names[1] - 2;
 		temp = pos.y * sizeof(int);
@@ -507,66 +637,53 @@ void proyeccion(InputIterator actual, InputIterator end)
 			temp = wherejoin(pv, pos.y, actual->address_host_table + rulestart, ruleend - rulestart, &res);
 			actual->wherejoin[y] = res;
 			actual->numjoin[y] = temp;
-			pos = columnsproject(pv, pos.y, actual->address_host_table, ini, fin, rulestart, ruleend, &res, &pv);
+			pos = columnsproject(pv, pos.y, actual->address_host_table, ini, fin, rulestart, ruleend, &res, &pv, actual->preds, actual->numpreds, y + 2, actual->num_rows);
 			actual->project[y] = res;
 			actual->projpos[y] = pos;
 		}
 
 		rulestart = actual->rule_names[actual->num_rows-1] + 1;
 		ruleend = actual->rule_names[actual->num_rows] - 1; 
-
 		temp = wherejoin(pv, pos.y, actual->address_host_table + rulestart, ruleend - rulestart, &res);
 		actual->wherejoin[y] = res;
 		actual->numjoin[y] = temp;
 		numjoins--;
-		
-		if(actual->num_bpreds.x > 0)
+
+		pos.x = 0;
+		for(x = 1; x <= actual->num_columns; x++)
 		{
-			pos = columnsproject(pv, pos.y, actual->address_host_table, ini, fin, rulestart, ruleend, &res, &pv);
-			actual->project[numjoins] = res;
-			actual->projpos[numjoins] = pos;
-			actual->num_bpreds.y = pos.y; /*para guardar el tamanio de la union final*/
-			actual->num_bpreds.z = builtinpredicates(pv, pos.y, actual->address_host_table, ruleend + 1, actual->rule_names[total] - 1, &res);
-			actual->builtin = res;
-		}
-		else
-		{
-			pos.x = 0;
-			for(x = 1; x <= actual->num_columns; x++)
+			temp = actual->address_host_table[x];
+			for(y = 0; y < pos.y; y++)
 			{
-				temp = actual->address_host_table[x];
-				for(y = 0; y < pos.y; y++)
+				if(temp == pv[y])
 				{
-					if(temp == pv[y])
-					{
-						fjoin[pos.x] = y + 1;
-						pos.x++;
-						break;
-					}
-				}
-				if(y != pos.y)
-					continue;
-				for(y = rulestart; y < ruleend; y++)
-				{
-					if(temp == actual->address_host_table[y])
-					{
-						fjoin[pos.x] = -(y - rulestart + 1);
-						pos.x++;
-						break;
-					}
+					fjoin[pos.x] = y + 1;
+					pos.x++;
+					break;
 				}
 			}
-
-			temp = pos.x * sizeof(int);	
-			actual->project[numjoins] = (int *)malloc(temp);
-			memcpy(actual->project[numjoins], fjoin, temp);
-			pos.y = pos.x;
-			actual->projpos[numjoins] = pos;
+			if(y != pos.y)
+				continue;
+			for(y = rulestart; y < ruleend; y++)
+			{
+				if(temp == actual->address_host_table[y])
+				{
+					fjoin[pos.x] = -(y - rulestart + 1);
+					pos.x++;
+					break;
+				}
+			}
 		}
+		temp = pos.x * sizeof(int);	
+		actual->project[numjoins] = (int *)malloc(temp);
+		memcpy(actual->project[numjoins], fjoin, temp);
+		pos.y = pos.x;
+		actual->projpos[numjoins] = pos;
 		actual++;
 	}
 }
 
+/*Creates an array for each predicate for all rules where selfjoin positions are stored*/
 template<class InputIterator>
 void selfjoin(InputIterator actual, InputIterator end)
 {
@@ -623,64 +740,6 @@ void selfjoin(InputIterator actual, InputIterator end)
 		}
 		actual++;
 	}
-}
-
-template<class InputIterator>
-int linears(InputIterator first, InputIterator last, int name)
-{
-	while(first != last) 
-	{
-    		if(first->name == name) 
-			return 0;
-    		first++;
-  	}
-  	return 1;
-}
-
-template<class InputIterator>
-void tempointer(InputIterator rules, InputIterator end, vector<rulenode>::iterator aux)
-{
-	while(rules != end)
-	{
-		rules->temp = &(*aux);
-		rules++;
-		aux++;
-	}
-}
-
-void cargareglas(vector<rulenode> *rules, int name, list<rulenode> *res) /*This is the function to create the rule queue based on the query*/
-{
-	rulenode searched;
-	vector<rulenode>::iterator ini = rules->begin(), fin = rules->end(), actual;
-	list<rulenode>::iterator start;
-	unsigned int numrules;
-	int x, pos;
-	searched.name = name;
-	actual = lower_bound(ini, fin, searched, comparer);
-	if(actual == fin)
-		return;
-	while(actual != fin && actual->name == name)
-	{
-		res->push_back(*actual);
-		actual++;
-	}
-	numrules = rules->size();
-	start = res->begin();
-	while(res->size() < numrules && start != res->end())
-	{
-		for(x = 0; x < start->num_rows - 1; x++)
-		{
-			pos = start->referencias[x];
-			if(pos > -1)
-			{
-				searched = rules->at(pos);
-				if(linears(res->begin(), res->end(), searched.name))
-					res->push_back(searched);
-			}
-		}
-		start++;
-	}
-	res->sort(comparer);
 }
 
 void consulta(int *query, int qsize, int qname, rulenode *res)
@@ -762,33 +821,69 @@ void consulta(int *query, int qsize, int qname, rulenode *res)
 	}
 }
 
-template<class InputIterator>
-void completitud(InputIterator actual, InputIterator end, vector<compnode> *rulcomp)
+/*Discards finished rules based on their predicates. Rules with only facts finish after one iteration. Rules with other rules as predicates finish when at least one of the rules finishes.*/
+void discardRules(list<rulenode> *reglas, int itr)
 {
-	vector<compnode>::iterator bus;
-	compnode searched;
-	while(actual != end)
+	list<rulenode>::iterator begin = reglas->begin();
+	list<rulenode>::iterator end = reglas->end();
+	list<rulenode>::iterator busqueda, rul_act = begin;
+	int x, num_refs, tipo;
+	rulenode completed;
+	while(rul_act != end)
 	{
-		searched.name = actual->name;
-		bus = lower_bound(rulcomp->begin(), rulcomp->end(), searched, comparecompleted);
-		if(bus == rulcomp->end() || bus->name != searched.name)
+		if(rul_act->gen_act == -1 || rul_act->gen_ant == -1)
 		{
-			searched.numrules = 1;
-			searched.reduce = 0;
-			rulcomp->push_back(searched);
+			rul_act++;
+			continue;
 		}
-		else
-			bus->numrules++;
-		actual++;
+		if(rul_act->gen_act == 0)
+		{
+			rul_act->gen_act = -1;
+			rul_act++;
+			continue;
+		}
+		num_refs = rul_act->num_rows - 1;
+		for(x = 0; x < num_refs; x++)
+		{
+			tipo = rul_act->referencias[x];
+			if(tipo < 0)
+				continue;
+			completed.name = rul_act->address_host_table[rul_act->rule_names[x+1]];
+			if(!binary_search(begin, end, completed, comparer))
+			{
+				rul_act->gen_act = -1;
+				break;
+			}
+
+			tipo = rul_act->name;
+			if(generadas(tipo, rul_act->num_rows, rul_act->num_columns, itr))
+			{
+				rul_act->gen_act = -1;
+				busqueda = rul_act;
+				busqueda++;
+				while(busqueda != end && busqueda->name == tipo)
+				{
+					busqueda->gen_act = -1;
+					busqueda++;
+				}
+			}
+			break;
+		}
+		if(x == num_refs)
+			rul_act->gen_act = -1;
+		rul_act++;
 	}
-	bus = rulcomp->begin();
-	while(bus != rulcomp->end())
+	rul_act = begin;
+	while(rul_act != end)
 	{
-		bus->reset = bus->numrules;
-		bus++;
+		if(rul_act->gen_act == -1)
+			rul_act = reglas->erase(rul_act);
+		else
+			rul_act++;
 	}
 }
 
+/*Display information about each rule*/
 template<class InputIterator>
 void mostrarcontenido(InputIterator actual, InputIterator end)
 {
@@ -821,6 +916,7 @@ void mostrarcontenido(InputIterator actual, InputIterator end)
 				cout << actual->selfjoin[y][z] << " ";
 			cout << endl;
 		}
+		num--;
 		cout << "project = " << endl;
 		for(y = 0; y < num; y++)
 		{	
@@ -829,7 +925,6 @@ void mostrarcontenido(InputIterator actual, InputIterator end)
 				cout << actual->project[y][z] << " ";
 			cout << endl;
 		}
-		num--;
 		cout << "wherejoin = " << endl;
 		for(y = 0; y < num; y++)
 		{	
@@ -841,18 +936,6 @@ void mostrarcontenido(InputIterator actual, InputIterator end)
 		actual++;
 	}	
 	cout << "AUX FIN" << endl;
-}
-
-void mostrareglas(list<rulenode> aux)
-{
-	list<rulenode>::iterator actual = aux.begin();
-	cout << "Rules to eval = ";
-	while(actual != aux.end())
-	{
-		cout << actual->name << " ";
-		actual++;
-	}
-	cout << endl;
 }
 
 extern "C"
@@ -879,72 +962,69 @@ extern "C"
 #endif
 }
 
+vector<gpunode> L;
+
 extern "C"
-int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, predicate *inpquery, int **result)
+int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, int *inpquery, int **result, char *names, int finalDR)
 {
-	vector<gpunode> L;
-	int showr = 0; /*1 show results; 0 don't show results*/
-	int x, y;
-	int qsize, *query, qname;
+	cudaSetDevice(0);
+	vector<rulenode> rules;
+	int x;
 
 #if TIMER
 	cuda_stats.calls++;
 #endif
+
+	#ifdef ROCKIT
+	if(finalDR)
+		ninpf *= -1;
+	else //this else makes the 'for' conditional
+	#else
+	L.clear();
+	#endif
 	for(x = 0; x < ninpf; x++)
 		L.push_back(*inpfacts[x]);
-	for(x = 0; x < ninpr; x++)
-		L.push_back(*inprules[x]);
+	meter(&rules, inprules, ninpr);
 
-	/*cout << "NAMES" << endl;
-	for(x = 0; x < (ninpf+ninpr); x++)
-		cout << L[x].name << endl;
-	cout << "NAMESEND" << endl;*/
+	#ifdef TUFFY
+	PGconn *conn = NULL;
+	postgresRead(&conn, &L, inpquery, names, finalDR);
+	#endif
+	#ifdef ROCKIT
+	MYSQL *con = NULL;
+	mysqlRead(&con, inpquery, &L, ninpf, names, finalDR);
+	#endif
 
-	qname = inpquery->name;
-	query = inpquery->address_host_table;
-	qsize = inpquery->num_columns;
-
-	/*cout << qname << " " << qsize << endl;
-	for(x = 0; x < q->symbols_num; x++)
-		cout << q->symbols_id[x] << " ";
-	cout << endl;*/
-
-	vector<gpunode>::iterator i;
-	i = L.begin();
-
-	calcular_mem(0);
-	int res_rows, rows1, rows2;
+	int res_rows = 0, rows1, rows2;
 	int tipo;
 	int *dop1, *dop2, *res;
 	
-	vector<rulenode> rules;
 	vector<rulenode>::iterator rul_str, fin;
-	buscarreglas(&L, &rules);
 	sort(L.begin(), L.end(), compare);
 	sort(rules.begin(), rules.end(), comparer);
 	rul_str = rules.begin();
 	fin = rules.end();
 
 	nombres(rul_str, fin); /*preprocessing*/
-	//movebpreds(rul_str, fin);
+	movebpreds(rul_str, fin);
 	referencias(L.begin(), L.end(), rul_str, fin);
 	seleccion(rul_str, fin);
 	selfjoin(rul_str, fin);
 	proyeccion(rul_str, fin);
-	
+	builtinmark(rul_str, fin);
 	//mostrarcontenido(rul_str, fin);
 
-	list<rulenode> reglas;
 	list<rulenode>::iterator rul_act, busqueda;
-	rulenode completed;
-	cargareglas(&rules, qname, &reglas);
+	list<rulenode> reglas(rul_str, fin);
+	
+	//cargareglas(&rules, qname, &reglas);
 	//mostrareglas(reglas);
 
 	gpunode tmpfact;
 	rulenode tmprule;
 	int name1, filas1, cols1, isfact1, name2, filas2, cols2, isfact2;
-	int *table1, *table2, *hres;
-	int num_refs, itr = 0;
+	int *table1, *table2;
+	int num_refs, itr = 0, genflag = 0;
 	vector<gpunode>::iterator qposf;
 	vector<rulenode>::iterator qposr;
 
@@ -963,7 +1043,10 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 		while(rul_act != reglas.end()) /*Here's the loop that evaluates each rule*/
 		{
 			tipo = rul_act->referencias[0];
-			if(tipo)
+
+			//cout << "tipo top = " << tipo << endl;
+
+			if(tipo < 0)
 			{
 				tmpfact = L.at(-tipo - 1);
 				name1 = tmpfact.name;
@@ -982,13 +1065,14 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 				table1 = NULL;
 			}
 
+			//cout << "inicio " << rul_act->name << endl << "name1 = " << name1 << " filas1 = " << filas1 << " cols1 = " << cols1 << " isfact1 = " << isfact1 << endl;
+
 			rows1 = cargar(name1, filas1, cols1, isfact1, table1, &dop1, itr);
 
-			// cout << "rows1 = " << rows1  << endl;
+			//cout << "rows1 = " << rows1 << endl;
 
 			if(rows1 == 0)
 			{
-				//rul_act->gen_ant = rul_act->gen_act;
 				rul_act->gen_act = 0;
 				rul_act++;
 				continue;
@@ -1000,40 +1084,43 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 				{
 					num_refs = rows1 * cols1 * sizeof(int);
 					reservar(&res, num_refs);
-#ifdef DEBUG_MEM
-					cerr << "+ " << res << " Res  " << num_refs << endl;
-#endif
 					cudaMemcpyAsync(res, dop1, num_refs, cudaMemcpyDeviceToDevice);
 					registrar(rul_act->name, cols1, res, rows1, itr, 1);
+					genflag = 1;
 					rul_act->gen_ant = rul_act->gen_act;
 					rul_act->gen_act = rows1;
+
+					if(isfact1)
+					{
+						tmprule.name = name1;
+						qposr = lower_bound(rul_str, fin, tmprule, comparer);
+						if (qposr != fin && qposr->name == name1)
+							rul_act->referencias[0] =  qposr - rul_str;
+					}
 				}
 				else
 				{
+					res_rows = selectproyect(dop1, rows1, cols1, rul_act->num_columns, rul_act->select[0], rul_act->numsel[0], rul_act->selfjoin[0], rul_act->numselfj[0], rul_act->preds[0], rul_act->numpreds[0].x, rul_act->project[0], &res, finalDR);
 
-					/*int x, y;
-					int *hop1 = (int *)malloc(cols1 * rows1 * sizeof(int));
-					cudaMemcpy(hop1, dop1, cols1 * rows1 * sizeof(int), cudaMemcpyDeviceToHost);
-					for(x = 0; x < rows1; x++)
-					{
-						for(y = 0; y < cols1; y++)
-							cout << hop1[x * cols1 + y] << " ";
-						cout << endl;
-					}
-					free(hop1);*/
+					//cout << "name = " << rul_act->name << " res_rows = " << res_rows << endl; 
 
-					res_rows = selectproyect(dop1, rows1, cols1, rul_act->num_columns, rul_act->select[0], rul_act->numsel[0], rul_act->selfjoin[0], rul_act->numselfj[0], rul_act->project[0], &res);
 					if(res_rows > 0)
 					{
 						registrar(rul_act->name, rul_act->num_columns, res, res_rows, itr, 1);
+						genflag = 1;
 						rul_act->gen_ant = rul_act->gen_act;
 						rul_act->gen_act = res_rows;
+						
+						if(isfact1)
+						{
+							tmprule.name = name1;
+							qposr = lower_bound(rul_str, fin, tmprule, comparer);
+							if (qposr != fin && qposr->name == name1)
+								rul_act->referencias[0] =  qposr - rul_str;
+						}
 					}
 					else
-					{
-						//rul_act->gen_ant = rul_act->gen_act;
 						rul_act->gen_act = 0;
-					}
 				}
 				rul_act++;
 				continue;
@@ -1059,24 +1146,48 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 				table2 = NULL;
 			}
 
+			//cout << "name2 = " << name2 << " filas2 = " << filas2 << " cols2 = " << cols2 << " isfact2 = " << isfact2 << " itr = " << itr << endl;
+
 			rows2 = cargar(name2, filas2, cols2, isfact2, table2, &dop2, itr);
 			
 			//cout << "rows2 = " << rows2 << endl;
-	
-			if(rows2 == 0)
-			{
-				//rul_act->gen_ant = rul_act->gen_act;
-				rul_act->gen_act = 0;
-				rul_act++;
-				continue;
-			}
 
 			res = NULL;
-			res_rows = join(dop1, dop2, rows1, rows2, cols1, cols2, rul_act, 0, 1, &res);
-	
+			if(rows2 == 0)
+			{
+				if(rul_act->negatives[2])
+				{
+					if(rul_act->num_rows == 3)
+						project(dop1, rows1, cols1, rul_act->num_columns, rul_act->project[0], &res, 1);
+					else
+						project(dop1, rows1, cols1, rul_act->projpos[0].x, rul_act->project[0], &res, 0);
+					res_rows = rows1;
+				}
+				else
+				{
+					rul_act->gen_act = 0;
+					rul_act++;
+					continue;
+				}
+			}
+			else
+			{
+				#ifdef ROCKIT
+				if(rul_act->numjoin[0] == 0)
+				{
+					juntar(dop1, dop2, rows1, rows2, cols1, cols2, rul_act->project[0], rul_act->num_columns, &res);
+					registrar(rul_act->name, rul_act->num_columns, res, rows1 * rows2, itr, 1);
+					rul_act++;
+					continue;
+				}
+				#endif
+				res_rows = join(dop1, dop2, rows1, rows2, cols1, cols2, rul_act, 0, 1, &res, finalDR);
+			}
+
+			//cout << "res_rows = " << res_rows << " num_refs = " << rul_act->num_rows << " numcols = " << rul_act->projpos[0].y << endl;
+
 			if(res_rows == 0)
 			{
-				//rul_act->gen_ant = rul_act->gen_act;
 				rul_act->gen_act = 0;
 				rul_act++;
 				continue;
@@ -1085,27 +1196,6 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 			num_refs = rul_act->num_rows - 1;
 			for(x = 2; x < num_refs; x++)
 			{
-			  if (rul_act->address_host_table[x] < 0) {
-					#ifdef TIMER
-					cudaEvent_t start3, stop3;
-					cudaEventCreate(&start3);
-					cudaEventCreate(&stop3);
-					cudaEventRecord(start3, 0);
-					#endif					
-				
-					res_rows = bpreds(res, res_rows, rul_act->projpos[x-2].y, rul_act->builtin, rul_act->num_bpreds, &res);
-
-					#ifdef TIMER
-					cudaEventRecord(stop3, 0);
-					cudaEventSynchronize(stop3);
-					cudaEventElapsedTime(&time, start3, stop3);
-					cudaEventDestroy(start3);
-					cudaEventDestroy(stop3);
-					//cout << "Predicados = " << time << endl;
-					cuda_stats.pred_time += time;
-					#endif
-			    continue;
-			  }
 				tipo = rul_act->referencias[x];
 				if(tipo < 0)
 				{
@@ -1126,47 +1216,40 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 					table2 = NULL;
 				}
 
+				//cout << "name2 = " << name2 << " filas2 = " << filas2 << " cols2 = " << cols2 << " isfact2 = " << isfact2 << " itr = " << itr << endl;
+
 				rows2 = cargar(name2, filas2, cols2, isfact2, table2, &dop2, itr);
 
-				//out << "rows = " << x << " " << rows2 << endl;
-
-				if(rows2 == 0)
-					break;
-				cout << x << ": join = " << res_rows << "/" <<  rul_act->projpos[x-2].y << " " << rows2 << "/" << cols2 << endl;
-				res_rows = join(res, dop2, res_rows, rows2, rul_act->projpos[x-2].y, cols2, rul_act, x-1, 0, &res);
-				if(res_rows == 0)
-					break;
+				//cout << "rows = " << x << " " << rows2 << endl;
 				
-				cout << x << ": resrows before = " << res_rows << " cols = " <<  rul_act->projpos[x-1].y << endl;
-				if (x < num_refs-1 && res_rows > 32) {
-				  
-#ifdef TIMER
-				  cudaEvent_t start2, stop2;
-				  cudaEventCreate(&start2);
-				  cudaEventCreate(&stop2);
-				  cudaEventRecord(start2, 0);
-#endif
-
-				  res_rows = unir(res, res_rows, rul_act->projpos[x-1].y); /*Duplicate Elimination*/
-#ifdef TIMER
-				  cudaEventRecord(stop2, 0);
-				  cudaEventSynchronize(stop2);
-				  cudaEventElapsedTime(&time, start2, stop2);
-				  cudaEventDestroy(start2);
-				  cudaEventDestroy(stop2);
-				  //cout << "Union = " << time << endl;
-				  cuda_stats.union_time += time;
-#endif					
-	
-				  cout << "resrows after = " << res_rows << endl;
+				if(rows2 == 0)
+				{
+					if(rul_act->negatives[x+1])
+					{
+						if(x == rul_act->num_rows - 2)
+							project(res, res_rows, rul_act->projpos[x-2].y, rul_act->num_columns, rul_act->project[x-1], &res, 1);
+						else
+							project(res, res_rows, rul_act->projpos[x-2].y, rul_act->projpos[x-1].x, rul_act->project[x-1], &res, 0);
+						continue;
+					}
+					break;
 				}
 
-			}
+				res_rows = join(res, dop2, res_rows, rows2, rul_act->projpos[x-2].y, cols2, rul_act, x-1, 0, &res, finalDR);
 
+				//cout << "resrows = " << res_rows << endl;
+				
+			}
+#ifdef ROCKIT
+			if(x == num_refs)
+				registrar(rul_act->name, rul_act->num_columns, res, res_rows, itr, 1);
+			rul_act++;
+		}
+		reglas.clear();
+	}
+#else
 			if(x == num_refs)
 			{
-				//cout << "antes de unir = " << res_rows << endl;
-
 				#ifdef TIMER
 				cudaEvent_t start2, stop2;
 				cudaEventCreate(&start2);
@@ -1174,7 +1257,10 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 				cudaEventRecord(start2, 0);
 				#endif
 
-				res_rows = unir(res, res_rows, rul_act->num_columns); /*Duplicate Elimination*/
+				//cout << rul_act->name << " res_rows = " << res_rows << endl;
+
+				if(finalDR)
+					res_rows = unir(res, res_rows, rul_act->num_columns, &res, 0);
 
 				#ifdef TIMER
 				cudaEventRecord(stop2, 0);
@@ -1188,149 +1274,49 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 	
 				//cout << "despues de unir = " << res_rows << endl;
 
-				registrar(rul_act->name, rul_act->num_columns, res, res_rows, itr, 1);	
+				registrar(rul_act->name, rul_act->num_columns, res, res_rows, itr, 1);
+				genflag = 1;
 				rul_act->gen_ant = rul_act->gen_act;
 				rul_act->gen_act = res_rows;
+
+				for(x = 0; x < num_refs; x++)
+				{
+					if(rul_act->referencias[x] < 0)
+					{
+						tmprule.name = rul_act->address_host_table[rul_act->rule_names[x+1]];
+						qposr = lower_bound(rul_str, fin, tmprule, comparer);
+						if (qposr != fin && qposr->name == tmprule.name)
+							rul_act->referencias[x] =  qposr - rul_str;
+					}
+				}
 			}
 			else
-			{
-				//rul_act->gen_ant = rul_act->gen_act;
 				rul_act->gen_act = 0;
-			}
 			rul_act++;
 		}
+		if(genflag != 1)
+			break;
+		else
+			genflag = 0;
+		discardRules(&reglas, itr);
 
-		rul_act = reglas.begin();
-
-		/*while(rul_act != reglas.end())
-		{
-			cout << rul_act->gen_act << " " << rul_act->gen_ant << endl;
-			rul_act++;
-		}
-		return 0;*/
-
-		//cout << rul_act->gen_act << " " << rul_act->gen_ant << endl;
-
-		while(rul_act != reglas.end()) /*Here's the loop that discards finished rules*/
-		{
-			if(rul_act->gen_act == -1 || rul_act->gen_ant == -1) //&& rul_act->gen_act == 0))
-			{
-				rul_act++;
-				continue;
-			}
-			if(rul_act->gen_act == 0)
-			{
-				rul_act->gen_act = -1;
-				rul_act++;
-				continue;
-			}
-			num_refs = rul_act->num_rows - 1;
-			for(x = 0; x < num_refs; x++)
-			{
-				tipo = rul_act->referencias[x];
-				if(tipo < 0)
-					continue;
-				completed.name = rul_act->address_host_table[rul_act->rule_names[x+1]];
-				if(!binary_search(reglas.begin(), reglas.end(), completed, comparer))
-				{
-					rul_act->gen_act = -1;
-					break;
-				}
-
-				//cout << rul_act->gen_act << " " << rul_act->gen_ant << endl;			
-
-				/*if(rul_act->gen_act == rul_act->gen_ant)
-				{			
-					tipo = rul_act->name;
-					busqueda = rul_act;
-					busqueda++;
-					while(busqueda != reglas.end() && busqueda->name == tipo)
-					{
-						if(busqueda->gen_act != busqueda->gen_ant)
-							break;
-						busqueda++;
-					}
-					if(busqueda != reglas.end() && busqueda->name == tipo)
-						break;*/
-				tipo = rul_act->name;
-				if(generadas(tipo, rul_act->num_rows, rul_act->num_columns, itr))
-				{
-					rul_act->gen_act = -1;
-					busqueda = rul_act;
-					busqueda++;
-					while(busqueda != reglas.end() && busqueda->name == tipo)
-					{
-						busqueda->gen_act = -1;
-						busqueda++;
-					}
-				}
-				break;
-			}
-			if(x == num_refs)
-				rul_act->gen_act = -1;
-			rul_act++;
-		}
-		rul_act = reglas.begin();
-		while(rul_act != reglas.end())
-		{
-			if(rul_act->gen_act == -1)
-				rul_act = reglas.erase(rul_act);
-			else
-				rul_act++;
-		}
-		
-		//cout << "ITR = " << itr << endl;
+		//cout << "itr " << itr << endl;
 
 		itr++;
 	}
-
-	tmprule.name = qname;
-	qposr = lower_bound(rul_str, fin, tmprule, comparer);
-	if(qposr != fin && qposr->name == qname) 
-	{
-		cols1 = qposr->num_columns;
-		rows1 = cargafinal(qname, cols1, &dop1);
-	}
-	else
-	{
-		tmpfact.name = qname;
-		qposf = lower_bound(L.begin(), L.end(), tmpfact, compare);
-		cols1 = qposf->num_columns;
-		rows1 =  cargar(qname, qposf->num_rows, cols1, 1, qposf->address_host_table, &dop1, 0);
-	}
-
-	if(rows1 > 0) /*Query consideration*/
-	{
-		consulta(query + 1, qsize, qname, &tmprule);
-		if(tmprule.numsel[0] == 0 && tmprule.numselfj[0] == 0)
-		{
-			res = dop1;
-			res_rows = rows1;
-		}
-		else
-		{		
-			res_rows = selectproyect(dop1, rows1, cols1, tmprule.num_columns, tmprule.select[0], tmprule.numsel[0], tmprule.selfjoin[0], tmprule.numselfj[0], tmprule.project[0], &res);
-			if(qposr != fin && qposr->name == qname) {
-				cudaFree(dop1);
-#ifdef DEBUG_MEM
-				cerr << "- " << dop1 << " dop1" << endl;
 #endif
-			}
-		}
 
-		cols1 = tmprule.num_columns;
-		tipo = res_rows * cols1 * sizeof(int);
-		hres = (int *)malloc(tipo);
-		cudaMemcpy(hres, res, tipo, cudaMemcpyDeviceToHost);
-		if(res_rows > 0 /*&& tmprule.numsel[0] != 0 && tmprule.numselfj[0] != 0 */) {
-			cudaFree(res);
-#ifdef DEBUG_MEM
-			cerr << "- " << res << " res" << endl;
-#endif
-		}
-	}
-	else
-		res_rows = 0;
+	#ifdef DATALOG
+	datalogWrite(inpquery[0], rul_str, fin, finalDR, result);
+	#else
+	res_rows = 0;
+	#endif
+	#ifdef TUFFY
+	postgresWrite(inpquery, ninpf, rul_str, fin, &L, conn, finalDR);
+	#endif
+	#ifdef ROCKIT
+	mysqlWrite(rul_str, fin, &L, con);
+	#endif
 
 #if TIMER
 	cudaEventRecord(stop, 0);
@@ -1343,44 +1329,9 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 	  cuda_stats.min_time = time;
 	cudaEventDestroy(start);
 	cudaEventDestroy(stop);
+	Cuda_Statistics();
 #endif
-
-	if(showr == 1)
-	{
-		for(x = 0; x < res_rows; x++)
-		{
-			cols2 = x * cols1 + cols1;
-			for(y = x * cols1; y < cols2; y++)
-				cout << hres[y] << " ";
-			cout << endl;
-		}
-	}
-	//free(hres);
-
-	//cout << "Elapsed = " << time << endl;
-	//cout << "Size = " << res_rows << endl;
-	//cout << "Iterations = " << itr << endl;
-
-	clear_memory();
-	*result = hres;
 
 	return res_rows;
 }
 
-	/*gpunode k;
-	k.name = 666;
-	L.push_back(k);
-	k.name = 777;
-	L.push_back(k);
-	int a = 666;
-	vector<gpunode>::iterator i;
-   	for(i=L.begin(); i != L.end(); ++i)
-		cout << i->name << " ";
-	i = buscar(L.begin(), L.end(), a);
-	cout << endl << i->name;
-	int *pred = (int *)malloc(sizeof(int) * 4);
-	pred[0] = 2;
-	pred[3] = 6;
-	Cuda_newPred(888, 2, 2, pred, &L);
-	for(i=L.begin(); i != L.end(); ++i)
-		cout << i->name << " ";*/

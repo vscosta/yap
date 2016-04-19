@@ -474,6 +474,8 @@
 
 #define LOCAL_search_atoms LOCAL->search_atoms_
 #define REMOTE_search_atoms(wid) REMOTE(wid)->search_atoms_
+#define LOCAL_SearchPreds LOCAL->SearchPreds_
+#define REMOTE_SearchPreds(wid) REMOTE(wid)->SearchPreds_
 
 #define LOCAL_CurSlot LOCAL->CurSlot_
 #define REMOTE_CurSlot(wid) REMOTE(wid)->CurSlot_

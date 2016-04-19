@@ -2,10 +2,11 @@
 		 cuda_inline/2,
 		 cuda_rule/2,
 		 cuda_erase/1,
-		 cuda_eval/2,
+		 cuda_eval/3,
 		 cuda_coverage/4,
 		 cuda_statistics/0,
-		 cuda_count/2]).
+		 cuda_count/2,
+		 cuda_query/1]).
 
 tell_warning :-
 	print_message(warning,functionality(cuda)).
@@ -40,7 +41,7 @@ count_answers(G, N) :-
 
 cuda_rule((Head :- Body) , IdRules) :-
 	body_to_list( Body, L, [], 1, N),
-	functor(Head, _Na, Ar),
+	functor(Head, Na, Ar),
 	load_rule( N, Ar, [Head|L], IdRules ).
 
 
@@ -54,3 +55,5 @@ body_to_list( B, NL, L, N0, N) :-
 body_to_list( B, [B|L], L, N0, N) :-
 	N is N0+1.
 
+cuda_query(Call) :-
+	cuda_init_query(Call).

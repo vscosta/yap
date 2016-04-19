@@ -390,7 +390,9 @@ write1 ( USES_REGS1 )
   if (output_stream == -1) output_stream = 1;
   xarg * args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
   if (args == NULL) {
-    if (LOCAL_Error_TYPE)
+   if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
+      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
+     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
     return false;
   }
@@ -415,6 +417,8 @@ write_canonical1 ( USES_REGS1 )
   if (output_stream == -1) output_stream = 1;
   xarg * args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
   if (args == NULL) {
+    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
+      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
     return false;
@@ -440,6 +444,8 @@ write_canonical ( USES_REGS1 )
      we cannot make recursive Prolog calls */
   xarg * args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
   if (args == NULL) {
+    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
+      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
     return false;
@@ -467,7 +473,9 @@ writeq1 ( USES_REGS1 )
      we cannot make recursive Prolog calls */
   xarg *args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
   if (args == NULL) {
-    if (LOCAL_Error_TYPE)
+     if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
+      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
+   if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
     return false;
   }
@@ -495,6 +503,8 @@ writeq ( USES_REGS1 )
      we cannot make recursive Prolog calls */
   xarg *args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
   if (args == NULL) {
+    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
+      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
     return false;
@@ -523,7 +533,9 @@ print1 ( USES_REGS1 )
      we cannot make recursive Prolog calls */
   xarg *args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
   if (args == NULL) {
-    if (LOCAL_Error_TYPE)
+   if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
+      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
+     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
     return false;
   }
@@ -551,7 +563,9 @@ print ( USES_REGS1 )
      we cannot make recursive Prolog calls */
   xarg *args = Yap_ArgListToVector ( TermNil, write_defs, WRITE_END  );
   if (args == NULL) {
-    if (LOCAL_Error_TYPE)
+   if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
+      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
+     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
     return false;
   }

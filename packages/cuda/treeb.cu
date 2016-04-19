@@ -5,10 +5,9 @@
 #include <thrust/gather.h>
 #include <thrust/scan.h>
 #include <iostream>
-#include <cstdarg>
 #include <cstdio>
 #include "lista.h"
-//#include "scanImpl.cu"
+#include "bpreds.h"
 
 #define WARP_SIZE		32
 #define TREE_NODE_SIZE		WARP_SIZE
@@ -48,6 +47,17 @@ typedef struct {
 	IDirectoryNode* dir;
 	unsigned int nDirNodes;
 } CUDA_CSSTree;
+
+struct to_neg
+{
+	__host__ __device__
+	bool operator()(const int &r1)
+	{
+		if(r1 < 0)
+			return 1;
+		return 0;
+	}
+};
 
 __host__ __device__ unsigned int uintCeilingLog(unsigned int base, unsigned int num)
 {
@@ -206,6 +216,7 @@ __global__ void gSearchTree(IDataNode* data, int nDataNodes, IDirectoryNode* dir
 	}
 }
 
+/*Counts the number of times a row in 'S' is to be joined to a row in 'R'.*/
 __global__ void gIndexJoin(int *R, int *S, int g_locations[], int sLen, int g_ResNums[])
 {
 	int s_cur = blockIdx.x * blockDim.x + threadIdx.x;
@@ -215,7 +226,7 @@ __global__ void gIndexJoin(int *R, int *S, int g_locations[], int sLen, int g_Re
 		int count = 1;
 		int r_cur = g_locations[s_cur];
 		int s_key;
-		if(r_cur >= 0) /*&& r_cur < rLen) Tal vez la segunda parte no sea necesaria*/
+		if(r_cur >= 0)
 		{
 			s_key = S[s_cur];
 			r_cur++;
@@ -226,15 +237,58 @@ __global__ void gIndexJoin(int *R, int *S, int g_locations[], int sLen, int g_Re
 			}
 			g_ResNums[s_cur] = count;
 		}
-		
 	}
 }
 
+/*Corrects 'gSearchTree' results when dealing with a negative multijoin. Uses the values found in 'g_locations' which indicate, for each row in 'R', if its going
+to be joined (positive number) or not (-1). Works by checking the additional columns to be joined (i.e. all except the two used by 'gSearchTree') and changing to -1 
+in 'g_locations' those rows that have equal values in the checked columns.*/
+__global__ void gIndexMultiJoinNegative(int *R, int *S, int g_locations[], int rLen, int *p1, int *p2, int of1, int of2, int *mloc, int *sloc, int *muljoin, int wj)
+{
+	extern __shared__ int shared[];
+	int r_cur = blockIdx.x * blockDim.x + threadIdx.x;
+	int posr, poss, x;
+
+	if(threadIdx.x < wj)
+		shared[threadIdx.x] = muljoin[threadIdx.x];
+	__syncthreads();
+
+	if(r_cur < rLen) 
+	{
+		int s_cur = g_locations[r_cur];
+		int r_key;
+		if(s_cur >= 0)
+		{
+			r_key = R[r_cur];
+			if(mloc == NULL)
+				posr = r_cur * of1;
+			else
+				posr = mloc[r_cur] * of1;
+			while(r_key == S[s_cur])
+			{
+				poss = sloc[s_cur] * of2;
+				for(x = 0; x < wj; x += 2)
+				{
+					if(p1[posr + shared[x]] != p2[poss + shared[x+1]])
+						break;
+				}
+				if(x >= wj)
+					return;
+				s_cur++;
+			}
+			g_locations[r_cur] = -1;
+		}
+	}
+}
+
+/*Corrects 'gSearchTree' results when dealing with a multijoin. Uses the values found in 'g_locations' which indicate, for each row in 'S', if its going
+to be joined (positive number) or not (-1). Works by checking the additional columns to be joined (i.e. all except the two used by 'gSearchTree') and counting the number of 
+times a row in 'S' is to be joined to its corresponding row in 'R', storing the new result in 'g_locations'.*/
 __global__ void gIndexMultiJoin(int *R, int *S, int g_locations[], int sLen, int g_ResNums[], int *p1, int *p2, int of1, int of2, int *mloc, int *sloc, int *muljoin, int wj)
 {
 	extern __shared__ int shared[];
 	int s_cur = blockIdx.x * blockDim.x + threadIdx.x;
-	int posr, poss, x, y, ini;
+	int posr, poss, x;
 
 	if(threadIdx.x < wj)
 		shared[threadIdx.x] = muljoin[threadIdx.x];
@@ -242,42 +296,36 @@ __global__ void gIndexMultiJoin(int *R, int *S, int g_locations[], int sLen, int
 
 	if(s_cur < sLen) 
 	{
-		int count = 1;
+		int count = 0;
 		int r_cur = g_locations[s_cur];
 		int s_key;
-		if(r_cur >= 0) /*&& r_cur < rLen) Tal vez la segunda parte no sea necesaria*/
+		if(r_cur >= 0)
 		{
-			s_key = S[s_cur];				
-			r_cur++;
-			while(s_key == R[r_cur]) 
-			{
-				count++;
-				r_cur++;
-			}
+			s_key = S[s_cur];
 			if(sloc == NULL)
 				poss = s_cur * of2;
 			else
 				poss = sloc[s_cur] * of2;
-			ini = r_cur - count;	
-			for(y = ini; y < r_cur; y++)
+			while(s_key == R[r_cur]) 
 			{
-				posr = mloc[y] * of1;
+				posr = mloc[r_cur] * of1;
 				for(x = 0; x < wj; x += 2)
 				{
 					if(p1[posr + shared[x]] != p2[poss + shared[x+1]])
-					{
-						count--;
 						break;
-					}
 				}
+				if(x >= wj)
+					count++;
+				r_cur++;
 			}
 			if(count > 0)
 				g_ResNums[s_cur] = count;
 		}
-		
 	}
 }
 
+/*Writes the result of the join and projects the necessary columns as defined by 'rule'. The difference between this function and 'gJoinWithWrite' is the comparison of the additional join
+columns.*/
 __global__ void multiJoinWithWrite(int g_locations[], int sLen, int g_PrefixSums[], int g_joinResultBuffers[], int *p1, int *p2, int of1, int of2, int *rule, int halfrul, int lenrul, int *mloc, int *sloc, int wj)
 {
 	extern __shared__ int shared[];
@@ -306,7 +354,7 @@ __global__ void multiJoinWithWrite(int g_locations[], int sLen, int g_PrefixSums
 			for(x = num1; x < num2; x++, r_cur++)
 			{
 				pos = mloc[r_cur] * of1;
-				for(y = 0; y < wj; y += 2)
+				for(y = 0; y < wj; y += 2) /*Additional comparison*/
 				{
 					tmp1 = p1[pos + extjoins[y]];
 					tmp2 = p2[poss + extjoins[y+1]];
@@ -328,6 +376,8 @@ __global__ void multiJoinWithWrite(int g_locations[], int sLen, int g_PrefixSums
 	}
 }
 
+/*Writes the result of the join and projects the necessary columns as defined by 'rule'. The difference between this function and 'gJoinWithWrite2' is the comparison of the additional join
+columns.*/
 __global__ void multiJoinWithWrite2(int g_locations[], int sLen, int g_PrefixSums[], int g_joinResultBuffers[], int *p1, int *p2, int of1, int of2, int *rule, int cols, int *mloc, int *sloc, int wj)
 {
 	extern __shared__ int shared[];
@@ -353,7 +403,7 @@ __global__ void multiJoinWithWrite2(int g_locations[], int sLen, int g_PrefixSum
 			for(x = num1; x < num2; x++, r_cur++)
 			{
 				pos = mloc[r_cur] * of1 - 1;
-				for(y = 0; y < wj; y += 2)
+				for(y = 0; y < wj; y += 2) /*Additional comparison*/
 				{
 					if(p1[pos + extjoins[y] + 1] != p2[pos2 + extjoins[y+1] + 1])
 						break;
@@ -377,6 +427,65 @@ __global__ void multiJoinWithWrite2(int g_locations[], int sLen, int g_PrefixSum
 	}
 }
 
+/*Writes the result of the join and projects the necessary columns as defined by 'rule'. The difference between this function and 'gJoinWithWrite2' is that only the columns in the positve
+predicate are projected.*/
+__global__ void gJoinWithWriteNegative(int g_locations[], int rLen, int g_joinResultBuffers[], int *p1, int of1, int *rule, int halfrul, int *mloc)
+{
+	extern __shared__ int shared[];
+	int r_cur = blockIdx.x * blockDim.x + threadIdx.x;
+	int posr;
+
+	if(threadIdx.x < halfrul)
+		shared[threadIdx.x] = rule[threadIdx.x];
+	__syncthreads();
+
+	if(r_cur < rLen)
+	{
+		posr = g_locations[r_cur];
+		if(g_locations[r_cur+1] != posr)
+		{
+			int y, pos;
+			if(mloc == NULL)	
+				pos = r_cur * of1;
+			else
+				pos = mloc[r_cur] * of1;
+			posr *= halfrul;
+			for(y = 0; y < halfrul; y++)
+				g_joinResultBuffers[posr + y] = p1[pos + shared[y]];
+		}
+	}
+}
+
+/*Writes the result of the join and projects the necessary columns as defined by 'rule'. The difference between this function and 'gJoinWithWrite' is that only the columns in the positve
+predicate are projected.*/
+__global__ void gJoinWithWriteNegative2(int g_locations[], int rLen, int g_joinResultBuffers[], int *p1, int of1, int *rule, int cols, int *mloc)
+{
+	extern __shared__ int shared[];
+	int r_cur = blockIdx.x * blockDim.x + threadIdx.x;
+	int posr;
+
+	if(threadIdx.x < cols)
+		shared[threadIdx.x] = rule[threadIdx.x];
+	__syncthreads();
+
+	if(r_cur < rLen)
+	{
+		posr = g_locations[r_cur];
+		if(g_locations[r_cur+1] != posr)
+		{
+			int y, pos;
+			if(mloc == NULL)
+				pos = r_cur * of1 - 1;
+			else
+				pos = mloc[r_cur] * of1 - 1;
+			posr *= cols;
+			for(y = 0; y < cols; y++)
+				g_joinResultBuffers[posr + y] = p1[pos + shared[y]];
+		}
+	}
+}
+
+/*Writes the result of the join and projects the necessary columns as defined by 'rule'.*/
 __global__ void gJoinWithWrite(int g_locations[], int sLen, int g_PrefixSums[], int g_joinResultBuffers[], int *p1, int *p2, int of1, int of2, int *rule, int halfrul, int lenrul, int *mloc, int *sloc)
 {
 	extern __shared__ int shared[];
@@ -411,6 +520,8 @@ __global__ void gJoinWithWrite(int g_locations[], int sLen, int g_PrefixSums[], 
 	}
 }
 
+/*Writes the result of the join and projects the necessary columns as defined by 'rule'. This version is used when performing the final join of the rule and its only difference is the 
+projection, which is performed based on the variables in the head of the rule.*/
 __global__ void gJoinWithWrite2(int g_locations[], int sLen, int g_PrefixSums[], int g_joinResultBuffers[], int *p1, int *p2, int of1, int of2, int *rule, int cols, int *mloc, int *sloc)
 {
 	extern __shared__ int shared[];
@@ -449,67 +560,23 @@ __global__ void gJoinWithWrite2(int g_locations[], int sLen, int g_PrefixSums[],
 	}
 }
 
-int compare2 (const void * a, const void * b)
-{
-  return ( ((int2*)a)->y - ((int2*)b)->y );
-}
-
-/*void generateSort(Record *R, int maxmax, int rLen, int seed)
-{
-	int i=0;
-	const int offset=(1<<15)-1;
-	srand(seed);
-	for(i=0;i<rLen;i++)
-	{
-		R[i].y=((((rand()& offset)<<15)+(rand()&1))+(rand()<<1)+(rand()&1))%maxmax;
-		
-	}
-	qsort(R,rLen,sizeof(Record),compare);
-	for(i=0;i<rLen;i++)
-	R[i].x=i;
-
-}
-
-void generateRand(Record *R, int maxmax, int rLen, int seed)
-{
-	int i=0;
-	const int offset=(1<<15)-1;
-	srand(seed);
-	for(i=0;i<rLen;i++)
-	{
-		R[i].y=((((rand()& offset)<<15)+(rand()&1))+(rand()<<1)+(rand()&1))%maxmax;
-		//R[i].x=i+1;
-		R[i].x=i;
-	}
-}*/
-
+/*Load part of column 'wj' of 'p' in 'R'. Which values are loaded is defined by the prefix sum results in 'pos'.*/
 __global__ void llenar(int *p, int *R, int len, int of, int wj, int *pos, int *ids)
 {
 	int id = blockIdx.x * blockDim.x + threadIdx.x;
 	int cond;
 	if(id < len)
 	{
-		cond = pos[id+1];
-		if(pos[id] != cond && cond > 0)
+		cond = pos[id];
+		if(pos[id+1] != cond)
 		{
-			R[cond-1] = p[id * of + wj];
-			ids[cond-1] = id;
+			R[cond] = p[id * of + wj];
+			ids[cond] = id;
 		}
 	}
 }
 
-__global__ void llenar2(int *p, int *R, int len, int of, int wj, int *pos)
-{
-	int id = blockIdx.x * blockDim.x + threadIdx.x;
-	int cond;
-	if(id < len)
-	{
-		cond = pos[id+1];
-		if(pos[id] != cond && cond > 0)
-			R[cond-1] = p[id * of + wj];
-	}
-}
-
+/*Load an entire column from 'p' into 'R'.*/
 __global__ void llenarnosel(int *p, int *R, int len, int of, int wj)
 {
 	int id = blockIdx.x * blockDim.x + threadIdx.x;
@@ -517,240 +584,125 @@ __global__ void llenarnosel(int *p, int *R, int len, int of, int wj)
 		R[id] = p[id * of + wj];
 }
 
-/*__global__ smalljoinc(int *p1, int *p2, int rLen, int sLen, int2 wj, int *r)
+__global__ void projectfinal(int *res, int rows, int cols, int *rule, int *out)
 {
+	extern __shared__ int shared[];
 	int id = blockIdx.x * blockDim.x + threadIdx.x;
-	if(id < rlen)
+
+	if(threadIdx.x < cols)
+		shared[threadIdx.x] = rule[threadIdx.x];
+	__syncthreads();
+	
+	if(id < rows)
 	{
-		int comp = p1[id * of1 + wj.x];
-		int x, cnt = 0;
-		for(x = 0; x < sLen; x++)
-		{
-			if(comp == p2[x * of2 ])
-				cnt++;
-		}
-		r[id] = cnt;
+		id *= cols;
+		for(int y = 0; y < cols; y++)
+			out[id + y] = res[id + shared[y]];
 	}
 }
 
-__global__ smalljoinw(int *p1, int *p2, int wj, int *r)
+void project(int *res, int resrows, int numcols1, int numcols2, int *proj, int **ret, int type)
 {
+	int z, *dcons, *d_Rout;
+	int numthreads = 1024;
+	//numthreads = 32;
+	int blockllen = resrows / numthreads + 1;
+	int sizepro = numcols2 * sizeof(int);
+	reservar(&dcons, sizepro);
+	if(type)
+	{
+		int *pt = (int *)malloc(sizepro);
+		for(z = 0; z < numcols2; z++)
+			pt[z] = proj[z] - 1;
+		cudaMemcpy(dcons, pt, sizepro, cudaMemcpyHostToDevice); 
+		//cudaDeviceSynchronize(); //Small cudaMemcpys are asynchronous, uncomment this line if the pointer is being liberated before it is copied.
+		free(pt);
+	}
+	else
+		cudaMemcpy(dcons, proj, sizepro, cudaMemcpyHostToDevice);
+	reservar(&d_Rout, resrows * sizepro);
+	projectfinal<<<blockllen, numthreads, sizepro>>>(res, resrows, numcols1, dcons, d_Rout);
+	cudaFree(dcons);
+	cudaFree(*ret);
+	*ret = d_Rout;
+}
+
+__global__ void projectadd(int *dop1, int *dop2, int rows1, int rows2, int cols1, int cols2, int *dhead, int hsize, int *res)
+{
+	extern __shared__ int shared[];
 	int id = blockIdx.x * blockDim.x + threadIdx.x;
-	if(id < rlen)
+	int pos2, posr, x, y, cond;
+	if(threadIdx.x < hsize)
+		shared[threadIdx.x] = dhead[threadIdx.x];
+	__syncthreads();
+	if(id < rows2)
 	{
-		int comp = p1[id];
-		int x;
-		for(x = 0; x < sLen; x++)
+		posr = id * hsize * rows1;
+		pos2 = id * cols2 - 1;
+		for(x = 0; x < rows1; x++)
 		{
-			if(comp == p2[x])
-				cnt++;
-		}
-		r[id] = cnt;
-	}
-}*/
-
-int buscarunion(int *tmprule, int tmplen, int *rule, int pos2, int tam2, int *joins)
-{
-	int x, y;
-	int cont = 0;
-	for(x = 0; x < tmplen; x++)
-	{
-		for(y = pos2; y < (pos2 + tam2); y++)
-		{
-			if(tmprule[x] == rule[y])
+			for(y = 0; y < hsize; y++)
 			{
-				joins[cont] = x;
-				cont++;
-				joins[cont] = y - pos2;
-				cont++;
+				cond = shared[y];
+				if(cond > 0)
+					res[posr + y] = dop1[cond-1];
+				else
+					res[posr + y] = dop2[pos2 - cond];
 			}
-		}
-	}
-	return cont;
-}
-
-int not_in(int *rule, int len, int bus)
-{
-	int x;
-	for(x = 0; x < len; x++)
-	{
-		if(rule[x] == bus)
-			return 0;
-	}
-	return 1;
-}
-
-int posiciones(int ini, int of1, int *firstpart, int *hpos, int *hcons, int *rule, int *temprule, int *tmprulpos, int *lenrul, int pos2, int of2, int posf)
-{
-	int cont = 0, x, y;
-	for(y = ini; y < of1; y++)
-	{
-		if(firstpart[y] < 0)
-		{
-			hpos[cont] = y - ini;
-			hcons[cont] = -firstpart[y];
-			cont++;
-		}
-		else
-		{
-			x = 1;
-			while(rule[x] != 0)
-			{
-				if(firstpart[y] == rule[x])
-				{
-					if(not_in(temprule, *lenrul, firstpart[y]))
-					{
-						temprule[*lenrul] = firstpart[y];
-						tmprulpos[*lenrul] = y - ini;
-						*lenrul = *lenrul + 1;
-					}
-					break;
-				}
-				x++;
-			}
-			if(rule[x] != 0)
-				continue;
-			for(x = (pos2 + of2 + 1); x < posf; x++)
-			{
-				if(rule[x] == 0)
-				{
-					x++;
-					continue;
-				}
-				if(firstpart[y] == rule[x])
-				{
-					if(not_in(temprule, *lenrul, firstpart[y]))
-					{
-						temprule[*lenrul] = firstpart[y];
-						tmprulpos[*lenrul] = y - ini;
-						*lenrul = *lenrul + 1;
-					}
-					break;
-				}
-			}
-		}
-	}	
-	return cont;
-}
-
-void join_final(int cols, int of1, int of2, int *rule, int *firstpart, int *secondpart, int *tmprulpos)
-{
-	int x, y;
-	for(y = 0; y < cols; y++)
-	{
-		for(x = 0; x < of1; x++)
-		{
-			if(rule[y] == firstpart[x])
-			{
-				tmprulpos[y] = x + 1;
-				break;
-			}
-		}
-		if(x != of1)
-			continue;
-		for(x = 0; x < of2; x++)
-		{
-			if(rule[y] == secondpart[x])
-			{
-				tmprulpos[y] = -x - 1;
-				break;
-			}
+			posr += hsize;
 		}
 	}
 }
 
-int select_pos(int of1, int *firstpart, int *hpos, int *hcons)
+void juntar(int *dop1, int *dop2, int rows1, int rows2, int cols1, int cols2, int *proj, int pcols, int **ret)
 {
-	int cont = 0, y;
-	for(y = 0; y < of1; y++)
-	{
-		if(firstpart[y] < 0)
-		{
-			hpos[cont] = y;
-			hcons[cont] = -firstpart[y];
-			cont++;
-		}
-	}
-	return cont;
+	int sizepro, *dcons, *d_Rout;
+	int numthreads = 1024;
+	//numthreads = 32;
+	int blockllen = rows2 / numthreads + 1;
+	sizepro = pcols * sizeof(int);
+	reservar(&dcons, sizepro);
+	cudaMemcpy(dcons, proj, sizepro, cudaMemcpyHostToDevice);
+	reservar(&d_Rout, rows1 * rows2 * sizepro);
+	projectadd<<<blockllen, numthreads, sizepro>>>(dop1, dop2, rows1, rows2, cols1, cols2, dcons, pcols, d_Rout);
+	cudaFree(dcons);
+	*ret = d_Rout;
 }
 
-int checkquery(int *hpos, int *hcons, int cont, int *pred, int of1, int *rule, int *query, int cols)
-{
-	int x, y;
-	if(rule[0] != query[0])
-		return cont;
-	for(x = 1; x <= cols; x++)
-	{
-		if(query[x] < 0)
-		{
-			for(y = 0; y < of1; y++)
-			{
-				if(pred[y] == rule[x])
-				{
-					hpos[cont] = y;
-					hcons[cont] = -query[x];
-					cont++;
-				}
-			}
-		}
-	}
-	return cont;
-}
-
-int maximo(int count, ...)
-{
-	va_list ap;
-    	int j, temp, mx = 0;
-    	va_start(ap, count);
-
-	for(j = 0; j < count; j++)
-	{
-		temp = va_arg(ap, int);
-		if(temp > mx)
-			mx = temp;
-	}
-
-    	va_end(ap);
-    	return mx;
-}
-
-template <typename KeyVector, typename PermutationVector, typename TempVector>
-void update_permutation(KeyVector& keys, PermutationVector& permutation, TempVector& temporary, int rows)
-{
-    // permute the keys with the current reordering
-	thrust::gather(permutation, permutation + rows, keys, temporary);
-
-    // stable_sort the permuted keys and update the permutation
-	thrust::stable_sort_by_key(temporary, temporary + rows, permutation);
-}
-
-
-template <typename KeyVector, typename PermutationVector, typename TempVector>
-void apply_permutation(KeyVector& keys, PermutationVector& permutation, TempVector& temporary, int rows)
-{
-    // permute the keys
-    thrust::gather(permutation, permutation + rows, temporary, keys);
-}
-
-int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>::iterator rule, int pos, int bothops, int **ret)
+/*Joins two predicates. Starts by performing all preliminary operations (selections, selfjoins, comparisons) on both predicates. Then a column pair is used to construct 
+a CSS-Tree and that tree is searched for join positions. The positions are used in a prefix sum and its result allows us to write the result. Multijoins and negative 
+predicates follow roughly the same process, but use different kernels.*/
+int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>::iterator rule, int pos, int bothops, int **ret, int ANDlogic)
 {
 	int pos2 = pos + 1;
-	int *sel1, nsel1;
+	int *sel1 = NULL, nsel1 = 0;
 	int *sel2 = rule->select[pos2];
 	int nsel2 = rule->numsel[pos2];
 	int *proj = rule->project[pos];
 	int2 projp = rule->projpos[pos];
-	int *sjoin1, nsj1;
+	int *sjoin1 = NULL, nsj1 = 0;
 	int *sjoin2 = rule->selfjoin[pos2];
 	int nsj2 = rule->numselfj[pos2];
+	int *pred1 = NULL;
+	int2 npred1 = make_int2(0,0);
+	int *pred2 = rule->preds[pos2];
+	int2 npred2 = rule->numpreds[pos2];
+	int npred2tot = npred2.x + npred2.y;
 	int *wherej = rule->wherejoin[pos];
 	int numj = rule->numjoin[pos];
+	int negative = rule->negatives[pos2+1];
 	int flag;
+
+	#ifdef ROCKIT
+		ANDlogic = 0;
+	#endif
+	if(negative)
+		ANDlogic = 1;
+
 #if TIMER
 	cuda_stats.joins++;
 #endif
 
-	int porLiberar = rLen * of1 * sizeof(int);
 	int size, sizet, sizet2;
 	if(bothops)
 	{
@@ -758,41 +710,36 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 		nsel1 = rule->numsel[pos];
 		sjoin1 = rule->selfjoin[pos];
 		nsj1 = rule->numselfj[pos];
-		sizet = maximo(7, of1, of2, nsel1, nsel2, projp.y + numj - 2, nsj1, nsj2) * sizeof(int);
+		pred1 = rule->preds[pos];
+		npred1 = rule->numpreds[pos];
+		sizet = maximo(10, of1, of2, nsel1, nsel2, projp.y + numj - 2, nsj1, nsj2, numj, npred1.x, npred2tot) * sizeof(int);
 	}
 	else
-		sizet = maximo(6, of1, of2, nsel2, projp.y + numj - 2, nsj2, numj) * sizeof(int);
+		sizet = maximo(7, of1, of2, nsel2, projp.y + numj - 2, nsj2, numj, npred2tot) * sizeof(int);
 	
-	int *dcons, *temp;
+	int *dcons, *temp, *temp2 = NULL;
 	int *d_R, *d_S;
 	int blockllen, numthreads;
 	
-	//int por_liberar = rLen * sizeof(int);
 	int extraspace = TREE_NODE_SIZE - rLen % TREE_NODE_SIZE;
 	int m32rLen = rLen + extraspace;
-	if(m32rLen > sLen)
+	int extraspaceS = TREE_NODE_SIZE - sLen % TREE_NODE_SIZE;
+	int m32sLen = sLen + extraspaceS;
+	if(m32rLen > m32sLen)
 		sizet2 = (m32rLen + 1) * sizeof(int);
 	else
-		sizet2 = (sLen + 1) * sizeof(int);
-
-	/*hcons = (int *)malloc(sizet);
-	hpos = (int *)malloc(sizet);
-	int dconsize = sizet * 2;*/
+		sizet2 = (m32sLen + 1) * sizeof(int);
 
 	reservar(&dcons, sizet);
-#ifdef DEBUG_MEM
-	cerr << "+ " << dcons << " dcons tree  " << sizet << endl;
-#endif
 	reservar(&temp, sizet2);
-#ifdef DEBUG_MEM
-	cerr << "+ " << temp << " temp tree " << sizet2 << endl;
-#endif
 	thrust::device_ptr<int> res = thrust::device_pointer_cast(temp);
 
 	numthreads = 1024;
+	//numthreads = 32;
 	blockllen = sLen / numthreads + 1;
-	int memSizeS, newLen;
+	int memSizeS, newLen = 0;
 	int *posR = NULL, *posS = NULL;
+	int sizem32S = 0, sizextra;
 
 	#ifdef TIMER
 	//cout << "INICIO" << endl;
@@ -803,24 +750,38 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	cudaEventRecord(start, 0);
 	#endif
 
-	//cout << "sLen y rLen = " << sLen << " " << rLen << endl;
-
-	if(nsel2 > 0)
+	if(npred2.x > 0 || npred2.y > 0 || nsel2 > 0 || nsj2 > 0)
 	{
-		size = nsel2 * sizeof(int);
 		newLen = sLen + 1;
 		cudaMemsetAsync(temp, 0, newLen * sizeof(int));
-		cudaMemcpy(dcons, sel2, size, cudaMemcpyHostToDevice);
-		marcar<<<blockllen, numthreads, size>>>(p2, sLen, of2, dcons, nsel2, temp + 1);
+	}
 
-		/*int y;
-		int *htemp = (int *)malloc(newLen * sizeof(int));
-		cout << "temp =" << endl;
-		cudaMemcpy(htemp, temp, newLen * sizeof(int), cudaMemcpyDeviceToHost);
-		for(y = 0; y < newLen; y++)
-			cout << htemp[y] << " ";
-		cout << endl;
-		free(htemp);*/
+	if(npred2.x > 0 || npred2.y > 0)
+	{
+		size = npred2tot * sizeof(int);
+		cudaMemcpy(dcons, pred2, size, cudaMemcpyHostToDevice);
+
+		if(npred2.y > 0) /*Fix case when a(X,Y),b(Y,Z),Z > Y*/
+		{
+			reservar(&temp2, sizet2);
+			cudaMemsetAsync(temp2, 0, newLen * sizeof(int));
+			//res = thrust::device_pointer_cast(temp2);
+			bpreds<<<blockllen, numthreads, size>>>(p1, p2, sLen, of1, of2, dcons, npred2tot, npred2.x, temp + 1, temp2 + 1);
+		}
+		else
+		{
+			if(negative)
+				bpreds<<<blockllen, numthreads, size>>>(p1, p2, sLen, of1, of2, dcons, npred2tot, npred2.x, temp + 1, NULL);
+			else
+				bpredsOR<<<blockllen, numthreads, size>>>(p1, p2, sLen, of1, of2, dcons, npred2tot, npred2.x, temp + 1, NULL);
+		}
+
+		if(nsel2 > 0)
+		{
+			size = nsel2 * sizeof(int);
+			cudaMemcpy(dcons, sel2, size, cudaMemcpyHostToDevice);
+			marcar<<<blockllen, numthreads, size>>>(p2, sLen, of2, dcons, nsel2, temp + 1);
+		}
 
 		if(nsj2 > 0)
 		{
@@ -828,18 +789,42 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 			cudaMemcpy(dcons, sjoin2, size, cudaMemcpyHostToDevice);
 			samejoin<<<blockllen, numthreads, size>>>(p2, sLen, of2, dcons, nsj2, temp + 1);
 		}
+	}
+	else
+	{
+		if(nsel2 > 0)
+		{
+			size = nsel2 * sizeof(int);
+			cudaMemcpy(dcons, sel2, size, cudaMemcpyHostToDevice);
+			marcar2<<<blockllen, numthreads, size>>>(p2, sLen, of2, dcons, nsel2, temp + 1);
 
-		/*htemp = (int *)malloc(newLen * sizeof(int));
-		cout << "temp =" << endl;
-		cudaMemcpy(htemp, temp, newLen * sizeof(int), cudaMemcpyDeviceToHost);
-		for(y = 0; y < newLen; y++)
-			cout << res[y] << " ";
-		cout << endl;
-		free(htemp);*/
-
-		/*cout << "Despues de marcar" << endl;
-		cout << "newLen = " << newLen << endl;*/
-
+			if(nsj2 > 0)
+			{
+				size = nsj2 * sizeof(int);
+				cudaMemcpy(dcons, sjoin2, size, cudaMemcpyHostToDevice);
+				samejoin<<<blockllen, numthreads, size>>>(p2, sLen, of2, dcons, nsj2, temp + 1);
+			}
+		}
+		else
+		{
+			if(nsj2 > 0)
+			{
+				size = nsj2 * sizeof(int);
+				cudaMemcpy(dcons, sjoin2, size, cudaMemcpyHostToDevice);
+				samejoin2<<<blockllen, numthreads, size>>>(p2, sLen, of2, dcons, nsj2, temp + 1);	
+			}
+			else
+			{
+				sizem32S = m32sLen * sizeof(int);
+				reservar(&d_S, sizem32S);
+				cudaMemsetAsync(d_S + sLen, 0x7f, extraspaceS * sizeof(int));
+				llenarnosel<<<blockllen, numthreads>>>(p2, d_S, sLen, of2, wherej[1]);
+			}
+		}
+	}
+	
+	if(npred2.x > 0 || npred2.y > 0 || nsel2 > 0 || nsj2 > 0)
+	{
 		flag = 0;
 		while(flag != 1)
 		{
@@ -852,61 +837,27 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 			{
 				limpiar("inclusive scan in join", 0);
 			}				
-		}
-		//thrust::inclusive_scan(res + 1, res + newLen, res + 1);	
+		}	
 		newLen = res[sLen];
 	
-		if(newLen == 0)
+		if(newLen == 0) // && !negative) ARREGLAR
+		{
+			cudaFree(temp);
+			cudaFree(dcons);
 			return 0;
+		}
 
-		memSizeS = newLen * sizeof(int);
-		reservar(&d_S, memSizeS);
-#if DEBUG_MEM
-		cerr << "+ " << d_S << " d_S  " << memSizeS << endl;
-#endif
-		reservar(&posS, memSizeS);
-#if DEBUG_MEM
-		cerr << "+ " << posS << " posS  " << memSizeS << endl;
-#endif
+		extraspaceS = TREE_NODE_SIZE - newLen % TREE_NODE_SIZE;
+		sizextra = extraspaceS * sizeof(int);
+		m32sLen = newLen + extraspaceS;
+		sizem32S = m32sLen * sizeof(int);
+
+		reservar(&d_S, sizem32S);
+		reservar(&posS, sizem32S);
+		cudaMemsetAsync(d_S + newLen, 0x7f, sizextra);
+		cudaMemsetAsync(posS + newLen, 0x7f, sizextra);
 		llenar<<<blockllen, numthreads>>>(p2, d_S, sLen, of2, wherej[1], temp, posS);
 		sLen = newLen;
-	}
-	else
-	{
-		if(nsj2 > 0)
-		{
-			size = nsj2 * sizeof(int);
-			newLen = sLen + 1;
-			cudaMemsetAsync(temp, 0, newLen * sizeof(int));
-			cudaMemcpy(dcons, sjoin2, size, cudaMemcpyHostToDevice);
-			samejoin2<<<blockllen, numthreads, size>>>(p2, sLen, of2, dcons, nsj2, temp + 1);
-
-			thrust::inclusive_scan(res + 1, res + newLen, res + 1);
-			newLen = res[sLen];
-			if(newLen == 0)
-			  return 0;
-
-			memSizeS = newLen * sizeof(int);
-			reservar(&d_S, memSizeS);
-#ifdef DEBUG_MEM
-			cerr << "+ " << d_S << " d_S m " << memSizeS << endl;
-#endif
-			reservar(&posS, memSizeS);
-#ifdef DEBUG_MEM
-			cerr << "+ " << posS << " posS m " << memSizeS << endl;
-#endif
-			llenar<<<blockllen, numthreads>>>(p2, d_S, sLen, of2, wherej[1], temp, posS);
-			sLen = newLen;
-		}
-		else
-		{
-			memSizeS = sLen * sizeof(int);
-			reservar(&d_S, memSizeS);
-#ifdef DEBUG_MEM
-			cerr << "+ " << d_S << " d_S n " << memSizeS << endl;
-#endif
-			llenarnosel<<<blockllen, numthreads>>>(p2, d_S, sLen, of2, wherej[1]);
-		}
 	}
 
 	#ifdef TIMER
@@ -924,41 +875,122 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	#endif
 
 	blockllen = rLen / numthreads + 1;
-	int sizem32, sizextra;
+	int sizem32;
 	if(bothops)
 	{
-		if(nsel1 > 0)
+		if(temp2 != NULL)
 		{
-			size = nsel1 * sizeof(int);
+			cudaFree(temp);
+			temp = temp2;
+			res = thrust::device_pointer_cast(temp);
 			newLen = rLen + 1;
-			cudaMemsetAsync(temp, 0, newLen * sizeof(int));
-			cudaMemcpy(dcons, sel1, size, cudaMemcpyHostToDevice);
-			marcar<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, nsel1, temp + 1);
-
+			if(nsel1 > 0)
+			{
+				size = nsel1 * sizeof(int);
+				cudaMemcpy(dcons, sel1, size, cudaMemcpyHostToDevice);
+				marcar<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, nsel1, temp + 1);
+			}
 			if(nsj1 > 0)
 			{
 				size = nsj1 * sizeof(int);
 				cudaMemcpy(dcons, sjoin1, size, cudaMemcpyHostToDevice);
 				samejoin<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, nsj1, temp + 1);
 			}
+			if(npred1.x > 0)
+			{
+				size = npred1.x * sizeof(int);
+				cudaMemcpy(dcons, pred1, size, cudaMemcpyHostToDevice);
+				if(ANDlogic)
+					bpredsnormal<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, npred1.x, temp + 1);
+				else
+					bpredsorlogic<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, npred1.x, temp + 1);
+			}
+		}
+		else
+		{
+			if(npred1.x > 0 || nsel1 > 0 || nsj1 > 0)
+			{
+				newLen = rLen + 1;
+				cudaMemsetAsync(temp, 0, newLen * sizeof(int));
+			}
 
+			if(nsel1 > 0)
+			{
+				size = nsel1 * sizeof(int);
+				cudaMemcpy(dcons, sel1, size, cudaMemcpyHostToDevice);
+				marcar2<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, nsel1, temp + 1);
+
+				if(nsj1 > 0)
+				{
+					size = nsj1 * sizeof(int);
+					cudaMemcpy(dcons, sjoin1, size, cudaMemcpyHostToDevice);
+					samejoin<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, nsj1, temp + 1);
+				}
+
+				if(npred1.x > 0)
+				{
+					size = npred1.x * sizeof(int);
+					cudaMemcpy(dcons, pred1, size, cudaMemcpyHostToDevice);
+					if(ANDlogic)
+						bpredsnormal<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, npred1.x, temp + 1);
+					else
+						bpredsorlogic<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, npred1.x, temp + 1);		
+				}
+			}
+			else
+			{
+				if(nsj1 > 0)
+				{
+					size = nsj1 * sizeof(int);
+					cudaMemcpy(dcons, sjoin1, size, cudaMemcpyHostToDevice);
+					samejoin2<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, nsj1, temp + 1);
+
+					if(npred1.x > 0)
+					{
+						size = npred1.x * sizeof(int);
+						cudaMemcpy(dcons, pred1, size, cudaMemcpyHostToDevice);
+						if(ANDlogic)
+							bpredsnormal<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, npred1.x, temp + 1);
+						else
+							bpredsorlogic<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, npred1.x, temp + 1);
+					}
+				}
+				else
+				{
+					if(npred1.x > 0)
+					{
+						size = npred1.x * sizeof(int);
+						cudaMemcpy(dcons, pred1, size, cudaMemcpyHostToDevice);
+						if(ANDlogic)
+							bpredsnormal2<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, npred1.x, temp + 1);
+						else
+							bpredsorlogic2<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, npred1.x, temp + 1);	
+					}
+				}
+			}
+		}
+
+		if(temp2 != NULL || npred1.x > 0 || nsel1 > 0 || nsj1 > 0)
+		{
 			thrust::inclusive_scan(res + 1, res + newLen, res + 1);
 			newLen = res[rLen];
 			if(newLen == 0)
-				return 0;		
+			{
+				cudaFree(temp);
+				cudaFree(dcons);
+				cudaFree(d_S);
+				if(posS != NULL)
+					cudaFree(posS);
+				return 0;
+			}	
 
 			extraspace = TREE_NODE_SIZE - newLen % TREE_NODE_SIZE;
 			sizextra = extraspace * sizeof(int);
 			m32rLen = newLen + extraspace;
 			sizem32 = m32rLen * sizeof(int);
+
 			reservar(&d_R, sizem32);
-#ifdef DEBUG_MEM
-			cerr << "+ " << d_R << " d_R m " << sizem32 << endl;
-#endif
 			reservar(&posR, sizem32);
-#ifdef DEBUG_MEM
-			cerr << "+ " << posR << " posR m " << sizem32 << endl;
-#endif
 			cudaMemsetAsync(d_R + newLen, 0x7f, sizextra);
 			cudaMemsetAsync(posR + newLen, 0x7f, sizextra);
 			llenar<<<blockllen, numthreads>>>(p1, d_R, rLen, of1, wherej[0], temp, posR);
@@ -966,56 +998,16 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 		}
 		else
 		{
-			if(nsj1 > 0)
-			{
-				size = nsj1 * sizeof(int);
-				newLen = rLen + 1;
-				cudaMemsetAsync(temp, 0, newLen * sizeof(int));
-				cudaMemcpy(dcons, sjoin1, size, cudaMemcpyHostToDevice);
-				samejoin2<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, nsj1, temp + 1);
-
-				thrust::inclusive_scan(res + 1, res + newLen, res + 1);
-				newLen = res[rLen];
-				if(newLen == 0)
-					return 0;
-
-				extraspace = TREE_NODE_SIZE - newLen % TREE_NODE_SIZE;
-				sizextra = extraspace * sizeof(int);
-				m32rLen = newLen + extraspace;
-				sizem32 = m32rLen * sizeof(int);
-				reservar(&d_R, sizem32);
-#ifdef DEBUG_MEM
-				cerr << "+ " << d_R << " d_R n " << sizem32 << endl;
-#endif
-				reservar(&posR, sizem32);
-#ifdef DEBUG_MEM
-				cerr << "+ " << posR << " posR n " << sizem32 << endl;
-#endif
-				cudaMemsetAsync(d_R + newLen, 0x7f, sizextra);
-				cudaMemsetAsync(posR + newLen, 0x7f, sizextra);
-				llenar<<<blockllen, numthreads>>>(p1, d_R, rLen, of1, wherej[0], temp, posR);
-				rLen = newLen;
-			}
-			else
-			{
-				sizem32 = m32rLen * sizeof(int);
-				reservar(&d_R, sizem32);
-#ifdef DEBUG_MEM
-				cerr << "+ " << d_R << " d_R sizem32 " << sizem32 << endl;
-#endif
-				cudaMemsetAsync(d_R + rLen, 0x7f, extraspace * sizeof(int));
-				llenarnosel<<<blockllen, numthreads>>>(p1, d_R, rLen, of1, wherej[0]);
-			}
-			
+			sizem32 = m32rLen * sizeof(int);
+			reservar(&d_R, sizem32);
+			cudaMemsetAsync(d_R + rLen, 0x7f, extraspace * sizeof(int));
+			llenarnosel<<<blockllen, numthreads>>>(p1, d_R, rLen, of1, wherej[0]);
 		}
 	}
 	else
 	{
 		sizem32 = m32rLen * sizeof(int);
 		reservar(&d_R, sizem32);
-#ifdef DEBUG_MEM
-		cerr << "+ " << d_R << " d_R sz " << sizem32 << endl;
-#endif
 		cudaMemsetAsync(d_R + rLen, 0x7f, extraspace * sizeof(int));
 		llenarnosel<<<blockllen, numthreads>>>(p1, d_R, rLen, of1, wherej[0]);
 	}
@@ -1027,16 +1019,6 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	//cout << "Select2 = " << time << endl;
 	cuda_stats.select2_time += time;
 	#endif
-	
-	/*free(hcons);
-	free(hpos);
-
-	h_R = (int *)malloc(sizem32);
-	cudaMemcpy(h_R, d_S, memSizeS, cudaMemcpyDeviceToHost);
-	cout << "H_S " << "cont " << cont << " sLen " << sLen << endl;
-	for(x = 0; x < sLen; x++)
-		cout << h_R[x] << endl;
-	free(h_R);*/
 
 	#ifdef TIMER
 	cudaEventDestroy(start);
@@ -1046,31 +1028,58 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	cudaEventRecord(start, 0);
 	#endif
 
-	thrust::device_ptr<Record> dvp1 = thrust::device_pointer_cast(d_R);
+	thrust::device_ptr<Record> dvp1;
 	thrust::device_ptr<Record> permutation;
-	if(posR == NULL)
+	if(negative)
 	{
-		reservar(&posR, sizem32);
-#ifdef DEBUG_MEM
-		cerr << "+ " << posR << " posR m32 " << sizem32 << endl;
-#endif
-		permutation = thrust::device_pointer_cast(posR);
-		thrust::sequence(permutation, permutation + m32rLen);
+		dvp1 = thrust::device_pointer_cast(d_S);
+		if(posS == NULL)
+		{
+			reservar(&posS, sizem32S);
+			permutation = thrust::device_pointer_cast(posS);
+			thrust::sequence(permutation, permutation + m32sLen);
+		}
+		else
+			permutation = thrust::device_pointer_cast(posS);
+
+		flag = 0;
+		while(flag != 1)
+		{
+			try
+			{
+				thrust::stable_sort_by_key(dvp1, dvp1 + m32sLen, permutation);
+				flag = 1;
+			}
+			catch(std::bad_alloc &e)
+			{
+				limpiar("inclusive scan in join", 0);
+			}
+		}
 	}
 	else
-		permutation = thrust::device_pointer_cast(posR);
-
-	flag = 0;
-	while(flag != 1)
 	{
-		try
+		dvp1 = thrust::device_pointer_cast(d_R);
+		if(posR == NULL)
 		{
-			thrust::stable_sort_by_key(dvp1, dvp1 + m32rLen, permutation);
-			flag = 1;
+			reservar(&posR, sizem32);
+			permutation = thrust::device_pointer_cast(posR);
+			thrust::sequence(permutation, permutation + m32rLen);
 		}
-		catch(std::bad_alloc &e)
+		else
+			permutation = thrust::device_pointer_cast(posR);
+
+		flag = 0;
+		while(flag != 1)
 		{
-			limpiar("inclusive scan in join", 0);
+			try
+			{
+				thrust::stable_sort_by_key(dvp1, dvp1 + m32rLen, permutation);
+				flag = 1;
+			}
+			catch(std::bad_alloc &e)
+			{
+				limpiar("inclusive scan in join", 0);
+			}
 		}
 	}
 
@@ -1092,8 +1101,16 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	IDirectoryNode* d_dir;
 	unsigned int nDataNodes;
 
-	nDataNodes = uintCeilingDiv(rLen, TREE_NODE_SIZE);
-	d_data=(IDataNode *)d_R;
+	if(negative)
+	{
+		nDataNodes = uintCeilingDiv(sLen, TREE_NODE_SIZE);
+		d_data=(IDataNode *)d_S;
+	}
+	else
+	{
+		nDataNodes = uintCeilingDiv(rLen, TREE_NODE_SIZE);
+		d_data=(IDataNode *)d_R;
+	}
 
 	unsigned int lvlDir = uintCeilingLog(TREE_FANOUT, nDataNodes);
 	unsigned int nDirNodes = uintCeilingDiv(nDataNodes - 1, TREE_NODE_SIZE);
@@ -1108,113 +1125,145 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 
 	gCreateIndex <<<Dgc, Dbc>>> (d_data, d_dir, nDirNodes, tree_size, bottom_start, nNodesPerBlock);
 
-	/*int y;
-	IDirectoryNode *h_dir = (IDirectoryNode*)malloc(sizeof(IDirectoryNode) * nDirNodes);
-	cudaMemcpy(h_dir, d_dir, sizeof(IDirectoryNode) * nDirNodes, cudaMemcpyDeviceToHost);
-	for(x = 0; x < nDirNodes; x++)
-	{
-		for(y = 0; y < TREE_NODE_SIZE; y++)
-			printf("%d ", h_dir[x].keys[y]);
-		printf("\n");
-	}
-	free(h_dir);*/
-
 	int *d_locations;
-	reservar(&d_locations, memSizeS);
-#ifdef DEBUG_MEM
-	cerr << "+ " << d_locations << " d_locs n " << memSizeS << endl;
-#endif
-
+	int memSizeR;
+	unsigned int nSearchKeys;
+	if(negative)
+	{
+		memSizeR = (rLen + 1) * sizeof(int);
+		reservar(&d_locations, memSizeR);
+		cudaMemsetAsync(d_locations, 0, sizeof(int));
+		nSearchKeys = rLen;
+	}
+	else
+	{
+		memSizeS = sLen * sizeof(int);
+		reservar(&d_locations, memSizeS);
+		nSearchKeys = sLen;
+	}
 	dim3 Dbs(THRD_PER_BLCK_search, 1, 1);
 	dim3 Dgs(BLCK_PER_GRID_search, 1, 1);
-
-	unsigned int nSearchKeys = sLen;
 	unsigned int nKeysPerThread = uintCeilingDiv(nSearchKeys, THRD_PER_GRID_search);
-
-	gSearchTree <<<Dgs, Dbs>>> (d_data, nDataNodes, d_dir, nDirNodes, lvlDir, d_S, d_locations, nSearchKeys, nKeysPerThread, tree_size, bottom_start);
-	cudaMemsetAsync(temp, 0, memSizeS);
-
-	blockllen = sLen / numthreads + 1;
-	int muljoin = 0, muljoinsize = 0;
-	if(numj > 2)
+	if(negative)
 	{
-		muljoin = numj - 2;
-		muljoinsize = muljoin * sizeof(int);
-		cudaMemcpy(dcons, wherej + 2, muljoinsize, cudaMemcpyHostToDevice);
-		gIndexMultiJoin<<<blockllen, numthreads, muljoinsize>>> (d_R, d_S, d_locations, sLen, temp, p1, p2, of1, of2, posR, posS, dcons, muljoin);
+		gSearchTree <<<Dgs, Dbs>>> (d_data, nDataNodes, d_dir, nDirNodes, lvlDir, d_R, d_locations + 1, nSearchKeys, nKeysPerThread, tree_size, bottom_start);
+		cudaMemsetAsync(temp, 0, memSizeR);
 	}
 	else
-		gIndexJoin<<<blockllen, numthreads>>> (d_R, d_S, d_locations, sLen, temp);
-	liberar(d_R, sizem32);
-	liberar(d_S, memSizeS);
+	{
+		gSearchTree <<<Dgs, Dbs>>> (d_data, nDataNodes, d_dir, nDirNodes, lvlDir, d_S, d_locations, nSearchKeys, nKeysPerThread, tree_size, bottom_start);
+		cudaMemsetAsync(temp, 0, memSizeS);
+	}
 
-	int sum = res[sLen-1];
-	thrust::exclusive_scan(res, res + sLen, res);
-	sum += res[sLen-1];
-	if(sum == 0)
-		return 0;	
-	res[sLen] = sum;
-
+	int muljoin = 0, muljoinsize = 0, sum;
 	int *d_Rout;
 	int resSize, sizepro;
-	if(pos == (rule->num_rows - 3) && rule->num_bpreds.x == 0)
+	if(negative)
 	{
-		sizepro = rule->num_columns * sizeof(int);
-		cudaMemcpy(dcons, proj, sizepro, cudaMemcpyHostToDevice);
-		resSize = sum * sizepro;
-		reservar(&d_Rout, resSize);
-#ifdef DEBUG_MEM
-		cerr << "+ " << d_Rout << " d_Rout n " << resSize << endl;
-#endif
+		blockllen = rLen / numthreads + 1;
 		if(numj > 2)
 		{
-			cudaMemcpy(dcons + rule->num_columns, wherej + 2, muljoinsize, cudaMemcpyHostToDevice);
-			multiJoinWithWrite2<<<blockllen, numthreads, sizepro + muljoinsize>>> (d_locations, sLen, temp, d_Rout, p1, p2, of1, of2, dcons, rule->num_columns, posR, posS, muljoin);
+			muljoin = numj - 2;
+			muljoinsize = muljoin * sizeof(int);
+			cudaMemcpy(dcons, wherej + 2, muljoinsize, cudaMemcpyHostToDevice);
+			gIndexMultiJoinNegative<<<blockllen, numthreads, muljoinsize>>> (d_R, d_S, d_locations + 1, rLen, p1, p2, of1, of2, posR, posS, dcons, muljoin);
+		}
+
+		res = thrust::device_pointer_cast(d_locations);	
+		thrust::transform(res + 1, res + rLen + 1, res + 1, to_neg());
+		thrust::inclusive_scan(res + 1, res + rLen + 1, res + 1);
+		sum = res[rLen];
+
+		if(pos == (rule->num_rows - 3))
+		{
+			sizepro = rule->num_columns * sizeof(int);
+			cudaMemcpy(dcons, proj, sizepro, cudaMemcpyHostToDevice);
+			resSize = sum * sizepro;
+			reservar(&d_Rout, resSize);
+			gJoinWithWriteNegative2<<<blockllen, numthreads, sizepro>>> (d_locations, rLen, d_Rout, p1, of1, dcons, rule->num_columns, posR);
 		}
 		else
-			gJoinWithWrite2<<<blockllen, numthreads, sizepro>>> (d_locations, sLen, temp, d_Rout, p1, p2, of1, of2, dcons, rule->num_columns, posR, posS);
+		{	
+			sizepro = projp.x * sizeof(int);
+			cudaMemcpy(dcons, proj, sizepro, cudaMemcpyHostToDevice);
+			resSize = sum * sizepro;
+			reservar(&d_Rout, resSize);
+			gJoinWithWriteNegative<<<blockllen, numthreads, sizepro>>> (d_locations, rLen, d_Rout, p1, of1, dcons, projp.x, posR);
+		}
+		cudaFree(d_R);
+		cudaFree(d_S);
 	}
 	else
 	{
-		sizepro = projp.y * sizeof(int);
-		cudaMemcpy(dcons, proj, sizepro, cudaMemcpyHostToDevice);
-		resSize = sum * sizepro;
-		reservar(&d_Rout, resSize);
-#ifdef DEBUG_MEM
-		cerr << "+ " << d_Rout << " d_Rout 2 " << resSize << endl;
-#endif
+		blockllen = sLen / numthreads + 1;
 		if(numj > 2)
 		{
-			cudaMemcpy(dcons + projp.y, wherej + 2, muljoinsize, cudaMemcpyHostToDevice);
-			multiJoinWithWrite<<<blockllen, numthreads, sizepro + muljoinsize>>> (d_locations, sLen, temp, d_Rout, p1, p2, of1, of2, dcons, projp.x, projp.y, posR, posS, muljoin);
+			muljoin = numj - 2;
+			muljoinsize = muljoin * sizeof(int);
+			cudaMemcpy(dcons, wherej + 2, muljoinsize, cudaMemcpyHostToDevice);
+			gIndexMultiJoin<<<blockllen, numthreads, muljoinsize>>> (d_R, d_S, d_locations, sLen, temp, p1, p2, of1, of2, posR, posS, dcons, muljoin);
 		}
 		else
-			gJoinWithWrite<<<blockllen, numthreads, sizepro>>> (d_locations, sLen, temp, d_Rout, p1, p2, of1, of2, dcons, projp.x, projp.y, posR, posS);
+			gIndexJoin<<<blockllen, numthreads>>> (d_R, d_S, d_locations, sLen, temp);
+		cudaFree(d_R);
+		cudaFree(d_S);
+
+		sum = res[sLen-1];
+		thrust::exclusive_scan(res, res + sLen, res);
+		sum += res[sLen-1];
+		if(sum == 0)
+		{
+			cudaFree(dcons);
+			cudaFree(d_locations);
+			cudaFree(temp);
+			if(posS != NULL)
+				cudaFree(posS);
+			if(posR != NULL)
+				cudaFree(posR);
+			return 0;
+		}
+		res[sLen] = sum;
+
+		if(pos == (rule->num_rows - 3))
+		{
+			sizepro = rule->num_columns * sizeof(int);
+			cudaMemcpy(dcons, proj, sizepro, cudaMemcpyHostToDevice);
+			resSize = sum * sizepro;
+			reservar(&d_Rout, resSize);
+			if(numj > 2)
+			{
+				cudaMemcpy(dcons + rule->num_columns, wherej + 2, muljoinsize, cudaMemcpyHostToDevice);
+				multiJoinWithWrite2<<<blockllen, numthreads, sizepro + muljoinsize>>> (d_locations, sLen, temp, d_Rout, p1, p2, of1, of2, dcons, rule->num_columns, posR, posS, muljoin);
+			}
+			else
+				gJoinWithWrite2<<<blockllen, numthreads, sizepro>>> (d_locations, sLen, temp, d_Rout, p1, p2, of1, of2, dcons, rule->num_columns, posR, posS);
+		}
+		else
+		{
+			sizepro = projp.y * sizeof(int);
+			cudaMemcpy(dcons, proj, sizepro, cudaMemcpyHostToDevice);
+			resSize = sum * sizepro;
+			reservar(&d_Rout, resSize);
+			if(numj > 2)
+			{
+				cudaMemcpy(dcons + projp.y, wherej + 2, muljoinsize, cudaMemcpyHostToDevice);
+				multiJoinWithWrite<<<blockllen, numthreads, sizepro + muljoinsize>>> (d_locations, sLen, temp, d_Rout, p1, p2, of1, of2, dcons, projp.x, projp.y, posR, posS, muljoin);
+			}
+			else
+				gJoinWithWrite<<<blockllen, numthreads, sizepro>>> (d_locations, sLen, temp, d_Rout, p1, p2, of1, of2, dcons, projp.x, projp.y, posR, posS);
+		}
 	}
 
-	liberar(dcons, sizet);
-	liberar(d_locations, memSizeS);
-	liberar(temp, sizet2);
-	liberar(posR, sizem32);
+	cudaFree(dcons);
+	cudaFree(d_locations);
+	cudaFree(temp);
 	if(posS != NULL)
-		liberar(posS, memSizeS);
-	
-	/*if(posS != NULL)
-		liberar(posS, memSizeS);
-	liberar(dtmprulpos, sizerul);
-	if(*ret != NULL)
-		liberar(*ret, por_liberar);
-	free(tmprulpos);
-	if(final_cond != posf)
-	{
-		free(*newrule);
-		*newrule = (int *)malloc(sizerul);
-		memcpy(*newrule, temprule, sizerul);
-		*newrullen = lenrul;
-	}*/
+		cudaFree(posS);
+	if(posR != NULL)
+		cudaFree(posR);
 	
 	if(*ret != NULL)
-		liberar(*ret, porLiberar);
+		cudaFree(*ret);
 	*ret = d_Rout;
 
 	#ifdef TIMER

@@ -312,6 +312,7 @@ UInt				exo_arg					=0
 
 // atom completion
 struct scan_atoms*		search_atoms				void
+struct pred_entry*		SearchPreds				void
 
 // Slots
 yhandle_t				CurSlot					=0

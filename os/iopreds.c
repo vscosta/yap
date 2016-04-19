@@ -1576,6 +1576,24 @@ int Yap_CheckTextStream__(const char *file, const char *f, int line, Term arg,
   return sno;
 }
 
+int Yap_CheckBinaryStream__(const char *file, const char *f, int line, Term arg,
+                          int kind, const char *msg) {
+  int sno;
+  if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
+    return -1;
+  if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
+    if (kind == Input_Stream_f)
+      PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_TEXT_STREAM, arg,
+                  msg);
+    else
+      PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_TEXT_STREAM, arg,
+                  msg);
+    return -1;
+  }
+  return sno;
+}
+
 /* used from C-interface */
 int Yap_GetFreeStreamDForReading(void) {
   int sno = GetFreeStreamD();

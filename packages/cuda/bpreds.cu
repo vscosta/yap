@@ -1,4 +1,113 @@
-__global__ void predicates(int *dop1, int rows, int cols, int *cons, int numc, int *res)
+#include <thrust/device_vector.h>
+#include <thrust/scan.h>
+#include <cstdarg>
+#include "pred.h"
+
+/*Determines the maximum from a set of values*/
+int maximo(int count, ...)
+{
+	va_list ap;
+    	int j, temp, mx = 0;
+    	va_start(ap, count);
+
+	for(j = 0; j < count; j++)
+	{
+		temp = va_arg(ap, int);
+		if(temp > mx)
+			mx = temp;
+	}
+
+    	va_end(ap);
+    	return mx;
+}
+
+
+__global__ void bpreds(int *dop1, int *dop2, int rows, int of1, int of2, int *cons, int numc, int nx, int *res, int *res2)
+{
+ 	extern __shared__ int shared[];
+	int id = blockIdx.x * blockDim.x + threadIdx.x;
+	int x, rowact, rowact1, op1, op2;
+	if(threadIdx.x < numc)
+		shared[threadIdx.x] = cons[threadIdx.x];
+	__syncthreads();
+	if(id < rows)
+	{
+		rowact1 = id * of1;
+		rowact = id * of2;
+		for(x = nx; x < numc; x += 3)
+		{
+			op1 = shared[x+1];
+			if(op1 < 0)
+				op1 = dop1[rowact1 - op1 - 1];
+			else
+				op1 = dop2[rowact + op1];
+			op2 = shared[x+2];
+			if(op2 < 0)
+				op2 = dop1[rowact1 - op2 - 1];
+			else
+				op2 = dop2[rowact + op2];
+			switch(shared[x] - BPOFFSET)
+			{
+				case SBG_EQ: if(op1 != op2)
+						return;
+				break;
+				case SBG_GT: if(op1 <= op2)
+						return;
+				break;
+				case SBG_LT: if(op1 >= op2)
+						return;
+				break;
+				case SBG_GE: if(op1 < op2)
+						return;
+				break;
+				case SBG_LE: if(op1 > op2)
+						return;
+				break;
+				case SBG_DF: if(op1 == op2)
+						return;
+			}
+		}
+		if(res2 != NULL)
+			res2[id] = 1; 
+		for(x = 0; x < nx; x += 3)
+		{
+			op1 = shared[x+1];
+			if(op1 < 0)
+				op1 *= -1;
+			else
+				op1 = dop2[rowact + op1];
+			op2 = shared[x+2];
+			if(op2 < 0)
+				op2 *= -1;
+			else
+				op2 = dop2[rowact + op2];
+			switch(shared[x])
+			{
+				case SBG_EQ: if(op1 != op2)
+						return;
+				break;
+				case SBG_GT: if(op1 <= op2)
+						return;
+				break;
+				case SBG_LT: if(op1 >= op2)
+						return;
+				break;
+				case SBG_GE: if(op1 < op2)
+						return;
+				break;
+				case SBG_LE: if(op1 > op2)
+						return;
+				break;
+				case SBG_DF: if(op1 == op2)
+						return;
+			}
+		}
+		res[id] = 1;
+	}
+}
+
+/*Mark all rows that comply with the comparison predicates*/
+__global__ void bpredsnormal2(int *dop1, int rows, int of1, int *cons, int numc, int *res)
 {
  	extern __shared__ int shared[];
 	int id = blockIdx.x * blockDim.x + threadIdx.x;
@@ -8,7 +117,7 @@ __global__ void predicates(int *dop1, int rows, int cols, int *cons, int numc, i
 	__syncthreads();
 	if(id < rows)
 	{
-		rowact = id * cols;
+		rowact = id * of1; 
 		for(x = 0; x < numc; x += 3)
 		{
 			op1 = shared[x+1];
@@ -23,21 +132,21 @@ __global__ void predicates(int *dop1, int rows, int cols, int *cons, int numc, i
 				op2 = dop1[rowact + op2];
 			switch(shared[x])
 			{
-				case SBG_EQ:  if(op1 != op2)
+				case SBG_EQ: if(op1 != op2)
 						return;
-				  break;
+				break;
 				case SBG_GT: if(op1 <= op2)
 						return;
-				  break;
+				break;
 				case SBG_LT: if(op1 >= op2)
 						return;
-				  break;
+				break;
 				case SBG_GE: if(op1 < op2)
 						return;
-				  break;
+				break;
 				case SBG_LE: if(op1 > op2)
 						return;
-				  break;
+				break;
 				case SBG_DF: if(op1 == op2)
 						return;
 			}
@@ -46,98 +155,306 @@ __global__ void predicates(int *dop1, int rows, int cols, int *cons, int numc, i
 	}
 }
 
-int bpreds(int *dop1, int rows, int cols, int *bin, int3 numpreds, int **ret)
+/*Unmark all rows that do not comply with the comparison predicates*/
+__global__ void bpredsnormal(int *dop1, int rows, int of1, int *cons, int numc, int *res)
 {
-	int *temp;
-	int tmplen = rows + 1;
-	int size = tmplen * sizeof(int);
-	reservar(&temp, size);
-#ifdef DEBUG_MEM
-	 cerr << "+ " << temp << " temp bpreds " << size << endl;
-#endif
-	cudaMemset(temp, 0, size);
-
-#if TIMER
-	cuda_stats.builtins++;
-#endif
-	int *dhead;
-	int predn = numpreds.x * 3;
-	int spredn = predn * sizeof(int);
-	int sproj = numpreds.z * sizeof(int);
-	int hsize;
-	if(predn > numpreds.z)
-		hsize = spredn;
-	else
-		hsize = sproj;
-	reservar(&dhead, hsize);
-#ifdef DEBUG_MEM
-	cerr << "+ " << dhead << " dhead  " << hsize << endl;
-#endif
-	cudaMemcpy(dhead, bin, spredn, cudaMemcpyHostToDevice);
-
-	int blockllen = rows / 1024 + 1;
-	int numthreads = 1024;
-
-	/*int x;
-	cout << "arraypreds = ";
-	for(x = 0; x < predn; x++)
-		cout << bin[x] << " ";
-	cout << endl;
-	cout << "temptable = ";
-	for(x = 0; x < numpreds.z; x++)
-		cout << bin[x+predn] << " ";
-	cout << endl; 
-	int y;
-	int *hop1 = (int *)malloc(numpreds.y * rows * sizeof(int));
-	cudaMemcpy(hop1, dop1, numpreds.y * rows * sizeof(int), cudaMemcpyDeviceToHost);
-	for(x = 0; x < rows; x++)
+ 	extern __shared__ int shared[];
+	int id = blockIdx.x * blockDim.x + threadIdx.x;
+	int x, rowact, op1, op2;
+	if(threadIdx.x < numc)
+		shared[threadIdx.x] = cons[threadIdx.x];
+	__syncthreads();
+	if(id < rows)
 	{
-		for(y = 0; y < numpreds.y; y++)
-			cout << hop1[x * numpreds.y + y] << " ";
-		cout << endl;
+		if(res[id] == 0)
+			return;
+		rowact = id * of1; 
+		for(x = 0; x < numc; x += 3)
+		{
+			op1 = shared[x+1];
+			if(op1 < 0)
+				op1 *= -1;
+			else
+				op1 = dop1[rowact + op1];
+			op2 = shared[x+2];
+			if(op2 < 0)
+				op2 *= -1;
+			else
+				op2 = dop1[rowact + op2];
+			switch(shared[x])
+			{
+				case SBG_EQ: if(op1 != op2)
+					     {
+						res[id] = 0;
+						return;
+					     }
+				break;
+				case SBG_GT: if(op1 <= op2)
+					     {
+						res[id] = 0;
+						return;
+					     }
+				break;
+				case SBG_LT: if(op1 >= op2)
+					     {
+						res[id] = 0;
+						return;
+					     }
+				break;
+				case SBG_GE: if(op1 < op2)
+					     {
+						res[id] = 0;
+						return;
+					     }
+				break;
+				case SBG_LE: if(op1 > op2)
+					     {
+						res[id] = 0;
+						return;
+					     }
+				break;
+				case SBG_DF: if(op1 == op2)
+					     {
+						res[id] = 0;
+						return;
+					     }
+			}
+		}
 	}
-	free(hop1);*/
-
-	predicates<<<blockllen, numthreads, spredn>>>(dop1, rows, numpreds.y, dhead, predn, temp + 1);
-
-	/*int y;
-	int *hop1 = (int *)malloc((rows + 1) * sizeof(int));
-	cudaMemcpy(hop1, temp, (rows + 1) * sizeof(int), cudaMemcpyDeviceToHost);
-	for(x = 0; x < (rows + 1); x++)
-		cout << hop1[x] << " ";
-	cout << endl;
-	free(hop1);*/
-
-	thrust::device_ptr<int> res;
-	res = thrust::device_pointer_cast(temp);
-	thrust::inclusive_scan(res + 1, res + tmplen, res + 1);
-	int num = res[rows];
-	if(num == 0)
-		return 0;
-
-	int *fres;
-	reservar(&fres, num * sproj);
-#ifdef DEBUG_MEM
-	cerr << "+ " << fres << " fres  " << num * sproj << endl;
-#endif
-	cudaMemcpy(dhead, bin + predn, sproj, cudaMemcpyHostToDevice);
-	llenarproyectar<<<blockllen, numthreads, sproj>>>(dop1, rows, numpreds.y, temp, dhead, numpreds.z, fres);
-
-	/*int y;
-	int *hop1 = (int *)malloc(numpreds.z * num * sizeof(int));
-	cudaMemcpy(hop1, fres, numpreds.z * num * sizeof(int), cudaMemcpyDeviceToHost);
-	for(x = 0; x < num; x++)
-	{
-		for(y = 0; y < numpreds.z; y++)
-			cout << hop1[x * numpreds.z + y] << " ";
-		cout << endl;
-	}
-	free(hop1);*/
-
-	liberar(dhead, hsize);
-	liberar(temp, size);
-	liberar(dop1, rows * cols * sizeof(int));
-
-	*ret = fres;
-	return num;
 }
+
+__global__ void bpredsOR(int *dop1, int *dop2, int rows, int of1, int of2, int *cons, int numc, int nx, int *res, int *res2)
+{
+ 	extern __shared__ int shared[];
+	int id = blockIdx.x * blockDim.x + threadIdx.x;
+	int x, rowact, rowact1, op1, op2;
+	if(threadIdx.x < numc)
+		shared[threadIdx.x] = cons[threadIdx.x];
+	__syncthreads();
+	if(id < rows)
+	{
+		rowact1 = id * of1;
+		rowact = id * of2;
+		for(x = nx; x < numc; x += 3)
+		{
+			op1 = shared[x+1];
+			if(op1 < 0)
+				op1 = dop1[rowact1 - op1 - 1];
+			else
+				op1 = dop2[rowact + op1];
+			op2 = shared[x+2];
+			if(op2 < 0)
+				op2 = dop1[rowact1 - op2 - 1];
+			else
+				op2 = dop2[rowact + op2];
+			switch(shared[x] - BPOFFSET)
+			{
+				case SBG_EQ: if(op1 == op2)
+					     {
+						res2[id] = 1;
+						x = numc;
+					     }
+				break;
+				case SBG_GT: if(op1 > op2)
+					     {
+						res2[id] = 1;
+						x = numc;
+					     }
+				break;
+				case SBG_LT: if(op1 < op2)
+					     {
+						res2[id] = 1;
+						x = numc;
+					     }
+				break;
+				case SBG_GE: if(op1 >= op2)
+					     {
+						res2[id] = 1;
+						x = numc;
+					     }
+				break;
+				case SBG_LE: if(op1 <= op2)
+					     {
+						res2[id] = 1;
+						x = numc;
+					     }
+				break;
+				case SBG_DF: if(op1 != op2)
+					     {
+						res2[id] = 1;
+						x = numc;
+					     }
+			}
+		}
+		for(x = 0; x < nx; x += 3)
+		{
+			op1 = shared[x+1];
+			if(op1 < 0)
+				op1 *= -1;
+			else
+				op1 = dop2[rowact + op1];
+			op2 = shared[x+2];
+			if(op2 < 0)
+				op2 *= -1;
+			else
+				op2 = dop2[rowact + op2];
+			switch(shared[x])
+			{
+				case SBG_EQ: if(op1 == op2)
+					     {
+						res[id] = 1;
+						return;
+					     }
+				break;
+				case SBG_GT: if(op1 > op2)
+					     {
+						res[id] = 1;
+						return;
+					     }
+				break;
+				case SBG_LT: if(op1 < op2)
+					     {
+						res[id] = 1;
+						return;
+					     }
+				break;
+				case SBG_GE: if(op1 >= op2)
+					     {
+						res[id] = 1;
+						return;
+					     }
+				break;
+				case SBG_LE: if(op1 <= op2)
+					     {
+						res[id] = 1;
+						return;
+					     }
+				break;
+				case SBG_DF: if(op1 != op2)
+					     {
+						res[id] = 1;
+						return;
+					     }
+			}
+		}
+	}
+}
+
+/*Mark all rows that comply with the comparison predicates using disjunctions (i.e. a row is marked if it complies with at least one predicate)*/
+__global__ void bpredsorlogic2(int *dop1, int rows, int of1, int *cons, int numc, int *res)
+{
+ 	extern __shared__ int shared[];
+	int id = blockIdx.x * blockDim.x + threadIdx.x;
+	int x, rowact, op1, op2;
+	if(threadIdx.x < numc)
+		shared[threadIdx.x] = cons[threadIdx.x];
+	__syncthreads();
+	if(id < rows)
+	{
+		rowact = id * of1; 
+		for(x = 0; x < numc; x += 3)
+		{
+			op1 = shared[x+1];
+			if(op1 < 0)
+				op1 *= -1;
+			else
+				op1 = dop1[rowact + op1];
+			op2 = shared[x+2];
+			if(op2 < 0)
+				op2 *= -1;
+			else
+				op2 = dop1[rowact + op2];
+			switch(shared[x])
+			{
+				case SBG_EQ: if(op1 == op2)
+					     {
+						res[id] = 1;
+						return;
+					     }
+				break;
+				case SBG_GT: if(op1 > op2)
+					     {
+						res[id] = 1;
+						return;
+					     }
+				break;
+				case SBG_LT: if(op1 < op2)
+					     {
+						res[id] = 1;
+						return;
+					     }
+				break;
+				case SBG_GE: if(op1 >= op2)
+					     {
+						res[id] = 1;
+						return;
+					     }
+				break;
+				case SBG_LE: if(op1 <= op2)
+					     {
+						res[id] = 1;
+						return;
+					     }
+				break;
+				case SBG_DF: if(op1 != op2)
+					     {
+						res[id] = 1;
+						return;
+					     }
+			}
+		}
+		
+	}
+}
+
+/*Unmark all rows that do not comply with the comparison predicates using disjunctions (i.e. a row is unmarked only if it complies with none of the predicates)*/
+__global__ void bpredsorlogic(int *dop1, int rows, int of1, int *cons, int numc, int *res)
+{
+ 	extern __shared__ int shared[];
+	int id = blockIdx.x * blockDim.x + threadIdx.x;
+	int x, rowact, op1, op2;
+	if(threadIdx.x < numc)
+		shared[threadIdx.x] = cons[threadIdx.x];
+	__syncthreads();
+	if(id < rows)
+	{
+		if(res[id] == 0)
+			return;
+		rowact = id * of1; 
+		for(x = 0; x < numc; x += 3)
+		{
+			op1 = shared[x+1];
+			if(op1 < 0)
+				op1 *= -1;
+			else
+				op1 = dop1[rowact + op1];
+			op2 = shared[x+2];
+			if(op2 < 0)
+				op2 *= -1;
+			else
+				op2 = dop1[rowact + op2];
+			switch(shared[x])
+			{
+				case SBG_EQ: if(op1 == op2)
+						return;
+				break;
+				case SBG_GT: if(op1 > op2)
+						return;
+				break;
+				case SBG_LT: if(op1 < op2)
+						return;
+				break;
+				case SBG_GE: if(op1 >= op2)
+						return;
+				break;
+				case SBG_LE: if(op1 <= op2)
+						return;
+				break;
+				case SBG_DF: if(op1 != op2)
+						return;
+			}
+		}
+		res[id] = 0;
+	}
+}
+

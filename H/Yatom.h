@@ -659,6 +659,19 @@ INLINE_ONLY inline EXTERN PropFlags IsPredProperty(int flags) {
   return (PropFlags)((flags == PEProp));
 }
 
+INLINE_ONLY inline EXTERN Atom NameOfPred(PredEntry *pe);
+
+INLINE_ONLY inline EXTERN Atom NameOfPred(PredEntry *pe) {
+  if (pe->ModuleOfPred == IDB_MODULE) {
+    return NULL;
+  } else if (pe->ArityOfPE == 0) {
+    return (Atom)pe->FunctorOfPred;
+  } else {
+    Functor f = pe->FunctorOfPred;
+    return NameOfFunctor(f);
+  }
+}
+
 /* Flags for code or dbase entry */
 /* There are several flags for code and data base entries */
 typedef enum {
@@ -1258,7 +1271,7 @@ INLINE_ONLY inline EXTERN Prop AbsBlobProp(YAP_BlobPropEntry *p) {
 
 INLINE_ONLY inline EXTERN bool IsBlobProperty(PropFlags);
 
-INLINE_ONLY inline EXTERN bool  IsBlobProperty(PropFlags flags) {
+INLINE_ONLY inline EXTERN bool IsBlobProperty(PropFlags flags) {
   return flags == BlobProperty;
 }
 
@@ -1321,8 +1334,7 @@ INLINE_ONLY inline EXTERN Prop AbsFlagProp(FlagEntry *p) { return (Prop)(p); }
 INLINE_ONLY inline EXTERN bool IsFlagProperty(PropFlags);
 
 INLINE_ONLY inline EXTERN bool IsFlagProperty(PropFlags flags) {
-	return flags == FlagProperty;
-
+  return flags == FlagProperty;
 }
 
 /* Proto types */

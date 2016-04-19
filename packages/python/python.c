@@ -2158,12 +2158,14 @@ static foreign_t init_python(void) {
   char **argv;
   term_t t = PL_new_term_ref();
   YAP_Argv(&argv);
+  if (argv) {
 #if PY_MAJOR_VERSION < 3
-  Py_SetProgramName(argv[0]);
+    Py_SetProgramName(argv[0]);
 #else
-  wchar_t *buf = Py_DecodeLocale(argv[0], NULL);
-  Py_SetProgramName(buf);
+    wchar_t *buf = Py_DecodeLocale(argv[0], NULL);
+    Py_SetProgramName(buf);
 #endif
+  }
   Py_Initialize();
   py_Main = PyImport_AddModule("__main__");
   py_Builtin = PyImport_AddModule("__builtin__");

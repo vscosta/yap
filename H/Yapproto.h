@@ -1,4 +1,4 @@
-/*************************************************************************
+  /*************************************************************************
 *									 *
 *	 YAP Prolog 	%W% %G% 					 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
@@ -301,6 +301,7 @@ extern void Yap_DebugErrorPutc(int n);
 extern void Yap_DebugErrorPuts(const char *s);
 extern void Yap_DebugWriteIndicator(struct pred_entry *ap);
 void Yap_PlWriteToStream(Term, int, int);
+void Yap_CloseReadline(void);
 /* depth_lim.c */
 bool   Yap_InitReadline(Term t);
 void Yap_InitItDeepenPreds(void);

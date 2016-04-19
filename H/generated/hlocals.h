@@ -268,6 +268,7 @@ const char*  Error_Function_;
   UInt  exo_arg_;
 // atom completion
   struct scan_atoms*  search_atoms_;
+  struct pred_entry*  SearchPreds_;
 // Slots
   yhandle_t  CurSlot_;
   yhandle_t  NSlots_;

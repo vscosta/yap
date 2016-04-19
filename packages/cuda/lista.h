@@ -25,8 +25,11 @@ typedef struct auxiliar{
 	int *numselfj;
 	int **wherejoin;
 	int *numjoin;
-	int3 num_bpreds;
-	int *builtin;
+	int totalpreds;
+	int **preds;
+	int2 *numpreds;
+	int *negatives;
+	char *rulename;
 	int gen_act;
 	int gen_ant;
 }rulenode;

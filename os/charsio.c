@@ -470,20 +470,13 @@ code with  _C_.
 
 */
 static Int get_byte(USES_REGS1) { /* '$get_byte'(Stream,-N) */
-  int sno = Yap_CheckStream(ARG1, Input_Stream_f, "get_byte/2");
+  int sno = Yap_CheckBinaryStream(ARG1, Input_Stream_f, "get_byte/2");
   Int status;
   Term out;
 
   if (sno < 0)
     return (FALSE);
   status = GLOBAL_Stream[sno].status;
-  if (!(status & Binary_Stream_f)
-      //&& strictISOFlag()
-      ) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_STREAM, ARG1, "get_byte/2");
-    return (FALSE);
-  }
   out = MkIntTerm(GLOBAL_Stream[sno].stream_getc(sno));
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return Yap_unify_constant(ARG2, out);
@@ -812,16 +805,9 @@ static Int put_byte(USES_REGS1) { /* '$put_byte'(Stream,N)                 */
     Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "put_code/1");
     return FALSE;
   }
-  int sno = Yap_CheckStream(ARG1, Output_Stream_f, "put/2");
+  int sno = Yap_CheckBinaryStream(ARG1, Output_Stream_f, "put/2");
   if (sno < 0)
     return (FALSE);
-  if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)
-      // && strictISOFlag()
-      ) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, NULL);
-    return false;
-  }
   GLOBAL_Stream[sno].stream_putc(sno, ch);
   /*
    * if (!(GLOBAL_Stream[sno].status & Null_Stream_f))

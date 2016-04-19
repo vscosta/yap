@@ -269,6 +269,7 @@ static void InitWorker(int wid) {
 
 
 
+
   REMOTE_CurSlot(wid) = 0;
   REMOTE_NSlots(wid) = 0;
   REMOTE_SlotBase(wid) = InitHandles(wid);

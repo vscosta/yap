@@ -1438,5 +1438,6 @@ void Yap_exit(int value) {
     Yap_ShutdownLoadForeign();
   }
   Yap_CloseStreams(false);
+  Yap_CloseReadline();
   exit(value);
 }

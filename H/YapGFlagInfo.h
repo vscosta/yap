@@ -185,7 +185,7 @@ available in experimental implementations.
  */
     YAP_FLAG(FILE_NAME_VARIABLES_FLAG, "file_name_variables", true, booleanFlag,
              "true", NULL),
-    YAP_FLAG(FLOAT_FORMAT_FLAG, "float_format", true, isatom, "%15e",
+    YAP_FLAG(FLOAT_FORMAT_FLAG, "float_format", true, isatom, "%15f",
              NULL),                                    /**< + `float_format `
 
                                     C-library `printf()` format specification used by write/1 and
