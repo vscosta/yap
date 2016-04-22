@@ -44,9 +44,9 @@ static char SccsId[] = "%W% %G%";
  */
 
 #include "Yap.h"
-#include "Yatom.h"
 #include "YapHeap.h"
 #include "YapText.h"
+#include "Yatom.h"
 #include "yapio.h"
 #include <stdlib.h>
 #if HAVE_UNISTD_H
@@ -122,7 +122,7 @@ Int Yap_peek(int sno) {
     olinecount = s->linecount;
     olinepos = s->linepos;
     ch = s->stream_wgetc(sno);
-  if (ch == EOFCHAR) {
+    if (ch == EOFCHAR) {
       s->stream_getc = EOFPeek;
       s->stream_wgetc = EOFWPeek;
       s->status |= Push_Eof_Stream_f;
@@ -209,20 +209,19 @@ static Int dopeek_byte(int sno) {
   return ch;
 }
 
-bool store_code(int ch, Term t USES_REGS)
-{
+bool store_code(int ch, Term t USES_REGS) {
   Term t2 = Deref(t);
   bool rc = Yap_unify_constant(t2, MkIntegerTerm(ch));
   if (!rc && !IsVarTerm(t2)) {
     if (!IsIntegerTerm(t2)) {
-      Yap_Error( TYPE_ERROR_INTEGER, t, "in output argument");
-    } else if (IntegerOfTerm(t2) < 0){
-      Yap_Error( REPRESENTATION_ERROR_IN_CHARACTER_CODE, t, "in output argument");
+      Yap_Error(TYPE_ERROR_INTEGER, t, "in output argument");
+    } else if (IntegerOfTerm(t2) < 0) {
+      Yap_Error(REPRESENTATION_ERROR_IN_CHARACTER_CODE, t,
+                "in output argument");
     }
   }
   return rc;
 }
-
 
 /** @pred  at_end_of_stream(+ _S_) is iso
 
@@ -327,7 +326,7 @@ static Int get_char(USES_REGS1) { /* '$get'(Stream,-N)                     */
   bool rc = Yap_unify_constant(t2, MkCharTerm(ch));
   if (!rc) {
     if (!IsAtomTerm(t2)) {
-      Yap_Error( TYPE_ERROR_IN_CHARACTER, ARG2, "in input argument");
+      Yap_Error(TYPE_ERROR_IN_CHARACTER, ARG2, "in input argument");
     }
   }
   return rc;
@@ -374,8 +373,9 @@ static Int get_1(USES_REGS1) { /* get_code1(Stream,-N)                     */
   // status = GLOBAL_Stream[sno].status;
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-      PlIOError(PERMISSION_ERROR_INPUT_BINARY_STREAM, TermUserIn, "while getting code");
-     return false;
+    PlIOError(PERMISSION_ERROR_INPUT_BINARY_STREAM, TermUserIn,
+              "while getting code");
+    return false;
   }
   while ((ch = GLOBAL_Stream[sno].stream_wgetc(sno)) <= 32 && ch >= 0)
     ;
@@ -401,7 +401,8 @@ static Int getcode_1(USES_REGS1) { /* get0(Stream,-N)                    */
   LOCK(GLOBAL_Stream[sno].streamlock);
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    PlIOError(PERMISSION_ERROR_INPUT_BINARY_STREAM, TermUserIn, "while getting code");
+    PlIOError(PERMISSION_ERROR_INPUT_BINARY_STREAM, TermUserIn,
+              "while getting code");
     return false;
   }
   out = GLOBAL_Stream[sno].stream_wgetc(sno);
@@ -428,7 +429,8 @@ static Int getchar_1(USES_REGS1) { /* get0(Stream,-N)                    */
   ch = GLOBAL_Stream[sno].stream_wgetc(sno);
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    PlIOError(PERMISSION_ERROR_INPUT_BINARY_STREAM, TermUserIn, "while getting code");
+    PlIOError(PERMISSION_ERROR_INPUT_BINARY_STREAM, TermUserIn,
+              "while getting code");
     return false;
   }
   UNLOCK(GLOBAL_Stream[sno].streamlock);
@@ -436,7 +438,7 @@ static Int getchar_1(USES_REGS1) { /* get0(Stream,-N)                    */
   if (!rc) {
     Term t2 = Deref(ARG1);
     if (!IsAtomTerm(t2)) {
-      Yap_Error( TYPE_ERROR_IN_CHARACTER, ARG1, "in input argument");
+      Yap_Error(TYPE_ERROR_IN_CHARACTER, ARG1, "in input argument");
     }
   }
   return rc;
@@ -471,12 +473,10 @@ code with  _C_.
 */
 static Int get_byte(USES_REGS1) { /* '$get_byte'(Stream,-N) */
   int sno = Yap_CheckBinaryStream(ARG1, Input_Stream_f, "get_byte/2");
-  Int status;
   Term out;
 
   if (sno < 0)
     return (FALSE);
-  status = GLOBAL_Stream[sno].status;
   out = MkIntTerm(GLOBAL_Stream[sno].stream_getc(sno));
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return Yap_unify_constant(ARG2, out);
