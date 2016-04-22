@@ -72,9 +72,6 @@ long _stksize = 32000;
 static void do_top_goal(YAP_Term Goal) { YAP_RunGoalOnce(Goal); }
 
 static int init_standard_system(int argc, char *argv[], YAP_init_args *iap) {
-  int
-
-      Mode;
 
   int BootMode = YAP_parse_yap_arguments(argc, argv, iap);
 
