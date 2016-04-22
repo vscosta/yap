@@ -51,7 +51,7 @@ public:
   void setFlag(int flag) {q_flags |= flag; }
   /// reset flags for query execution, currently only for exception handling
   void resetFlag(int flag) {q_flags &= ~flag; }
-  ///`b  first query
+  /// first query
   ///
   /// actually implemented by calling the next();
   inline bool first() { return next(); }
@@ -69,6 +69,15 @@ public:
   void close();
   /// query variables.
   YAPListTerm namedVars();
+  ///simple YAP Query;
+  /// just calls YAP and reports success or failure, Useful when we just
+  /// want things done, eg YAPCommand("load_files(library(lists), )")
+  inline bool command()
+  {
+    bool rc = next();
+    close();
+    return rc;
+  };
 };
 
 // Java support
@@ -128,6 +137,11 @@ public:
   const char *currentDir( ) {
       char dir[1024];
       std::string s = Yap_getcwd(dir, 1024-1);
+      return s.c_str();
+  }
+  /// report YAP version as a string
+  const char *version( ) {
+      std::string s = Yap_version();
       return s.c_str();
   }
 };

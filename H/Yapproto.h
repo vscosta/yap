@@ -1,4 +1,4 @@
-  /*************************************************************************
+/*************************************************************************
 *									 *
 *	 YAP Prolog 	%W% %G% 					 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
@@ -18,7 +18,6 @@
 #else
 #define X_API
 #endif
-
 
 /* prototype file for Yap */
 
@@ -183,8 +182,10 @@ void Yap_RestartYap(int);
 void Yap_exit(int);
 bool Yap_Warning(const char *s, ...);
 bool Yap_PrintWarning(Term t);
-bool Yap_HandleError__(const char *file, const char *function, int lineno, const char *s, ...);
-#define Yap_HandleError(...) Yap_HandleError__(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__) 
+bool Yap_HandleError__(const char *file, const char *function, int lineno,
+                       const char *s, ...);
+#define Yap_HandleError(...)                                                   \
+  Yap_HandleError__(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
 int Yap_SWIHandleError(const char *, ...);
 void Yap_InitErrorPreds(void);
 
@@ -203,7 +204,7 @@ void Yap_trust_last(void);
 
 void Yap_PrepGoal(UInt, CELL *, choiceptr USES_REGS);
 bool Yap_execute_pred(struct pred_entry *ppe, CELL *pt,
-                     bool pass_exception USES_REGS);
+                      bool pass_exception USES_REGS);
 int Yap_dogc(int extra_args, Term *tp USES_REGS);
 Term Yap_PredicateIndicator(Term t, Term mod);
 bool Yap_Execute(Term t USES_REGS);
@@ -273,6 +274,7 @@ void Yap_InitWorkspace(UInt, UInt, UInt, UInt, UInt, int, int, int);
 bool Yap_AddCallToFli(struct pred_entry *pe, CPredicate call);
 bool Yap_AddRetryToFli(struct pred_entry *pe, CPredicate re);
 bool Yap_AddCutToFli(struct pred_entry *pe, CPredicate cut);
+const char *Yap_version(void);
 
 #ifdef YAPOR
 void Yap_init_yapor_workers(void);
@@ -303,7 +305,7 @@ extern void Yap_DebugWriteIndicator(struct pred_entry *ap);
 void Yap_PlWriteToStream(Term, int, int);
 void Yap_CloseReadline(void);
 /* depth_lim.c */
-bool   Yap_InitReadline(Term t);
+bool Yap_InitReadline(Term t);
 void Yap_InitItDeepenPreds(void);
 struct AliasDescS *Yap_InitStandardAliases(void);
 
@@ -428,10 +430,11 @@ void Yap_WinError(char *);
 typedef enum { YAP_STD, YAP_SAVED_STATE, YAP_OBJ, YAP_PL, YAP_QLY } file_type_t;
 
 const char *Yap_AbsoluteFile(const char *spec, char *obuf, bool ok);
-const char *Yap_AbsoluteFileInBuffer(const char *spec, char *outp, size_t sz, bool ok);
-const char *Yap_findFile(const char *isource, const char *idef, const char *root,
-                      char *result, bool access, file_type_t ftype,
-                      bool expand_root, bool in_lib);
+const char *Yap_AbsoluteFileInBuffer(const char *spec, char *outp, size_t sz,
+                                     bool ok);
+const char *Yap_findFile(const char *isource, const char *idef,
+                         const char *root, char *result, bool access,
+                         file_type_t ftype, bool expand_root, bool in_lib);
 /* threads.c */
 void Yap_InitThreadPreds(void);
 void Yap_InitFirstWorkerThreadHandle(void);
