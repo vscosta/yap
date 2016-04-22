@@ -86,7 +86,7 @@ mem_write (void *c, const char *buf, int n)
   if (cookie->eof < cookie->pos)
     memset (cbuf + cookie->eof, '\0', cookie->pos - cookie->eof);
   memcpy (cbuf + cookie->pos, buf, n);
-  cookie->pos = n;
+  cookie->pos += n;
   /* If the user has previously written beyond the current position,
      remember what the trailing NUL is overwriting.  Otherwise,
      extend the stream.  */
