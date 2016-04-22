@@ -1,7 +1,7 @@
 
 #include "sysbits.h"
 
-#if HAVE_SIGNAL
+#if HAVE_SIGNAL || __ANDROID__
 
 #ifdef MSH
 
@@ -881,7 +881,9 @@ void Yap_InitSignalPreds(void) {
   CACHE_REGS
   Term cm = CurrentModule;
 
+#ifndef __ANDROID__
   Yap_InitCPred("$fpe_error", 0, fpe_error, 0);
+#endif
   Yap_InitCPred("$alarm", 4, alarm4, SafePredFlag | SyncPredFlag);
   CurrentModule = HACKS_MODULE;
   Yap_InitCPred("virtual_alarm", 4, virtual_alarm, SafePredFlag | SyncPredFlag);
