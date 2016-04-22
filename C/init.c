@@ -414,7 +414,7 @@ static void InitDebug(void) {
     char ch;
 
 #if _WIN32
-    if (!_isatty( _fileno( stdin ) )) {
+    if (!_isatty(_fileno(stdin))) {
       return;
     }
 #elif HAVE_ISATTY
@@ -1280,6 +1280,11 @@ static void InitVersion(void) {
   Yap_PutValue(AtomVersionNumber, MkAtomTerm(Yap_LookupAtom(YAP_FULL_VERSION)));
 }
 
+const char *Yap_version(void) {
+  Term t = Yap_GetValue(AtomVersionNumber);
+  return RepAtom(AtomOfTerm(t))->StrOfAE;
+}
+
 void Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts,
                        UInt max_table_size, int n_workers, int sch_loop,
                        int delay_load) {
@@ -1357,12 +1362,12 @@ void Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts,
 #endif /* YAPOR || TABLING */
 
   Yap_AttsSize = Atts;
-  /* InitAbsmi must be done before InitCodes */
+/* InitAbsmi must be done before InitCodes */
 /* This must be done before initializing predicates */
 #ifdef MPW
-      Yap_InitAbsmi(REGS, FunctorList);
+  Yap_InitAbsmi(REGS, FunctorList);
 #else
-      Yap_InitAbsmi();
+  Yap_InitAbsmi();
 #endif
   InitCodes();
   InitOps();
