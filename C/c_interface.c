@@ -2116,32 +2116,33 @@ X_API Term YAP_CopyTerm(Term t) {
   return tn;
 }
 
-X_API int YAP_WriteBuffer(Term t, char *buf, size_t sze, int flags) {
+X_API char *YAP_WriteBuffer(Term t, char *buf, size_t sze, int flags) {
   CACHE_REGS
   size_t length;
   char *b;
 
   BACKUP_MACHINE_REGS();
-  if ((b = Yap_TermToString(t, buf, sze, &length, &LOCAL_encoding, flags)) !=
-      buf) {
-    if (b)
-      free(b);
+  if ((b = Yap_TermToString(t, &length, LOCAL_encoding, flags)) != buf) {
     RECOVER_MACHINE_REGS();
-    return FALSE;
+    return b;
   }
   RECOVER_MACHINE_REGS();
-  return TRUE;
+  return buf;
 }
 
-X_API char *YAP_WriteDynamicBuffer(YAP_Term t, char *buf, size_t sze,
-                                   size_t *lengthp, encoding_t *encp,
-                                   int flags) {
+/// write a a term to n user-provided buffer: make sure not tp
+/// overflow the buffer even if the text is much larger.
+X_API int YAP_WriteDynamicBuffer(YAP_Term t, char *buf, size_t sze,
+                                 size_t *lengthp, encoding_t enc, int flags) {
   char *b;
 
   BACKUP_MACHINE_REGS();
-  b = Yap_TermToString(t, buf, sze, lengthp, encp, flags);
+  b = Yap_TermToString(t, lengthp, enc, flags);
+  if (*lengthp >= sze)
+    *lengthp = sze;
+  strncpy(buf, b, sze);
   RECOVER_MACHINE_REGS();
-  return b;
+  return true;
 }
 
 X_API char *YAP_CompileClause(Term t) {

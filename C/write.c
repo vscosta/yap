@@ -164,7 +164,6 @@ static void protect_close_number(struct write_globs *wglb, int used_bracket) {
 
 static void wrputn(Int n,
                    struct write_globs *wglb) /* writes an integer	 */
-
 {
   wrf stream = wglb->stream;
   char s[256], *s1 = s; /* that should be enough for most integers */
@@ -389,8 +388,8 @@ int Yap_FormatFloat(Float f, char **s, size_t sz) {
   int sno;
   char *so;
 
-  sno = Yap_open_buf_write_stream(
-      *s, sz, &GLOBAL_Stream[LOCAL_c_output_stream].encoding, 0);
+  sno = Yap_open_buf_write_stream(GLOBAL_Stream[LOCAL_c_output_stream].encoding,
+                                  0);
   if (sno < 0)
     return FALSE;
   wglb.lw = separator;
@@ -1272,24 +1271,24 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   Yap_CloseSlots(sls);
 }
 
-char *Yap_TermToString(Term t, char *s, size_t sz, size_t *length,
-                       encoding_t *encp, int flags) {
+char *Yap_TermToString(Term t, size_t *lengthp, encoding_t enc, int flags) {
   CACHE_REGS
-  int sno = Yap_open_buf_write_stream(s, sz, encp, flags);
+  int sno = Yap_open_buf_write_stream(enc, flags);
   int old_output_stream = LOCAL_c_output_stream;
+  const char *sf;
 
   if (sno < 0)
     return NULL;
   LOCAL_c_output_stream = sno;
-  if (encp)
-    GLOBAL_Stream[sno].encoding = *encp;
+  if (enc)
+    GLOBAL_Stream[sno].encoding = enc;
   else
     GLOBAL_Stream[sno].encoding = LOCAL_encoding;
   Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, GLOBAL_MaxPriority);
-  s = Yap_MemExportStreamPtr(sno);
+  sf = Yap_MemExportStreamPtr(sno);
   Yap_CloseStream(sno);
   LOCAL_c_output_stream = old_output_stream;
   if (Yap_HasException())
     return NULL;
-  return s;
+  return (char *)sf;
 }

@@ -8,8 +8,8 @@ extern "C" {
 #include "YapInterface.h"
 #include "blobs.h"
 
-X_API char *Yap_TermToString(Term t, char *s, size_t sz, size_t *length,
-                             encoding_t *encodingp, int flags);
+X_API char *Yap_TermToString(Term t, size_t *length, encoding_t encodingp,
+                             int flags);
 
 X_API void YAP_UserCPredicate(const char *, YAP_UserCPred, YAP_Arity arity);
 X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, YAP_Arity,
@@ -297,14 +297,14 @@ intptr_t YAPTerm::hashTerm(size_t sz, size_t depth, bool variant) {
 
 const char *YAPTerm::text() {
   CACHE_REGS
-  size_t sze = 4096, length;
-  char *os = new char[4097];
+  size_t length;
   encoding_t enc = LOCAL_encoding;
+  char *os;
 
   BACKUP_MACHINE_REGS();
-  if (!(os = Yap_TermToString(Yap_GetFromSlot(t), os, sze, &length, &enc, 0))) {
+  if (!(os = Yap_TermToString(Yap_GetFromSlot(t), &length, enc, 0))) {
     RECOVER_MACHINE_REGS();
-    return (char *)NULL;
+    return nullptr;
   }
   RECOVER_MACHINE_REGS();
   return os;

@@ -404,11 +404,11 @@ writing, writing a BOM can be requested using the option
                                */
 
 #include "Yap.h"
-#include "Yatom.h"
 #include "YapHeap.h"
-#include "yapio.h"
+#include "Yatom.h"
 #include "alloc.h"
 #include "eval.h"
+#include "yapio.h"
 /* stuff we want to use in standard YAP code */
 #include "YapText.h"
 #if _MSC_VER || defined(__MINGW32__)
@@ -458,80 +458,62 @@ char_kind_t Yap_chtype0[NUMBER_OF_CHARS + 1] = {
     EF,
     /* nul soh stx etx eot enq ack bel  bs  ht  nl  vt  np  cr  so  si
            */
-    BS, BS, BS, BS, BS, BS, BS, BS, BS,
-    BS, BS, BS, BS, BS, BS, BS,
+    BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS,
 
     /* dle dc1 dc2 dc3 dc4 nak syn etb can  em sub esc  fs  gs  rs  us
            */
-    BS, BS, BS, BS, BS, BS, BS, BS, BS,
-    BS, BS, BS, BS, BS, BS, BS,
+    BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS,
 
     /* sp   !   "   #   $   %   &   '   (   )   *   +   ,   -   .   / */
-    BS, SL, DC, SY, SY, CC, SY, QT, BK,
-    BK, SY, SY, BK, SY, SY, SY,
+    BS, SL, DC, SY, SY, CC, SY, QT, BK, BK, SY, SY, BK, SY, SY, SY,
 
     /* 0   1   2   3   4   5   6   7   8   9   :   ;   <   =   >   ? */
-    NU, NU, NU, NU, NU, NU, NU, NU, NU,
-    NU, SY, SL, SY, SY, SY, SY,
+    NU, NU, NU, NU, NU, NU, NU, NU, NU, NU, SY, SL, SY, SY, SY, SY,
 
     /* @   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O */
-    SY, UC, UC, UC, UC, UC, UC, UC, UC,
-    UC, UC, UC, UC, UC, UC, UC,
+    SY, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC,
 
     /* P   Q   R   S   T   U   V   W   X   Y   Z   [   \   ]   ^   _ */
-    UC, UC, UC, UC, UC, UC, UC, UC, UC,
-    UC, UC, BK, SY, BK, SY, UL,
+    UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, BK, SY, BK, SY, UL,
 
     /* `   a   b   c   d   e   f   g   h   i   j   k   l   m   n   o */
-    SY, LC, LC, LC, LC, LC, LC, LC, LC,
-    LC, LC, LC, LC, LC, LC, LC,
+    SY, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC,
 
     /* p   q   r   s   t   u   v   w   x   y   z   {   |   }   ~ del */
-    LC, LC, LC, LC, LC, LC, LC, LC, LC,
-    LC, LC, BK, BK, BK, SY, BS,
+    LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, BK, BK, BK, SY, BS,
 
     /* 128 129 130 131 132 133 134 135 136 137 138 139 140 141 142 143
            */
-    BS, BS, BS, BS, BS, BS, BS, BS, BS,
-    BS, BS, BS, BS, BS, BS, BS,
+    BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS,
 
     /* 144 145    147 148 149 150 151 152 153 154 155 156 157 158 159
            */
-    BS, BS, BS, BS, BS, BS, BS, BS, BS,
-    BS, BS, BS, BS, BS, BS, BS,
+    BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS,
 
     /*     ¡   ¢   £   ¤   ¥   ¦   §   ¨   ©   ª   «   ¬   ­   ®   ¯ */
-    BS, SY, SY, SY, SY, SY, SY, SY, SY,
-    SY, LC, SY, SY, SY, SY, SY,
+    BS, SY, SY, SY, SY, SY, SY, SY, SY, SY, LC, SY, SY, SY, SY, SY,
 
     /* °   ±   ²   ³   ´   µ   ¶   ·   ¸   ¹   º   »   ¼   ½   ¾   ¿ */
-    SY, SY, LC, LC, SY, SY, SY, SY, SY,
-    LC, LC, SY, SY, SY, SY, SY,
+    SY, SY, LC, LC, SY, SY, SY, SY, SY, LC, LC, SY, SY, SY, SY, SY,
 
     /* À   Á   Â   Ã   Ä   Å   Æ   Ç   È   É   Ê   Ë   Ì   Í   Î   Ï */
-    UC, UC, UC, UC, UC, UC, UC, UC, UC,
-    UC, UC, UC, UC, UC, UC, UC,
+    UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC,
 
 /* Ð   Ñ   Ò   Ó   Ô   Õ   Ö   ×   Ø   Ù   Ú   Û   Ü   Ý   Þ   ß    */
 #ifdef vms
-    UC, UC, UC, UC, UC, UC, UC, UC, UC,
-    UC, UC, UC, UC, UC, UC, LC,
+    UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, LC,
 #else
-    UC, UC, UC, UC, UC, UC, UC, SY, UC,
-    UC, UC, UC, UC, UC, UC, LC,
+    UC, UC, UC, UC, UC, UC, UC, SY, UC, UC, UC, UC, UC, UC, UC, LC,
 #endif
     /* à   á   â   ã   ä   å   æ   ç   è   é   ê   ë   ì   í   î   ï */
-    LC, LC, LC, LC, LC, LC, LC, LC, LC,
-    LC, LC, LC, LC, LC, LC, LC,
+    LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC,
 
 /* ð   ñ   ò   ó   ô   õ   ö   ÷   ø   ù   ú   û   ü   cannot write the last
  * three because of lcc    */
 #ifdef vms
-    LC, LC, LC, LC, LC, LC, LC, LC, LC,
-    LC, LC, LC, LC, LC, LC, LC
+    LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC
 #else
-    LC, LC, LC, LC, LC, LC, LC, SY, LC,
-    LC, LC, LC, LC, LC, LC, LC
+    LC, LC, LC, LC, LC, LC, LC, SY, LC, LC, LC, LC, LC, LC, LC, LC
 #endif
 };
 
@@ -564,7 +546,8 @@ typedef struct scanner_extra_alloc {
 } ScannerExtraBlock;
 
 #define CodeSpaceError(t, p, l) CodeSpaceError__(t, p, l PASS_REGS)
-static TokEntry *CodeSpaceError__(TokEntry *t, TokEntry *p, TokEntry *l USES_REGS) {
+static TokEntry *CodeSpaceError__(TokEntry *t, TokEntry *p,
+                                  TokEntry *l USES_REGS) {
   LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
   LOCAL_ErrorMessage = "Code Space Overflow";
   if (t) {
@@ -587,7 +570,8 @@ static TokEntry *TrailSpaceError__(TokEntry *t, TokEntry *l USES_REGS) {
 }
 
 #define AuxSpaceError(p, l, msg) AuxSpaceError__(p, l, msg PASS_REGS)
-static TokEntry *AuxSpaceError__(TokEntry *p, TokEntry *l, const char *msg USES_REGS) {
+static TokEntry *AuxSpaceError__(TokEntry *p, TokEntry *l,
+                                 const char *msg USES_REGS) {
   /* huge atom or variable, we are in trouble */
   LOCAL_ErrorMessage = (char *)msg;
   LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
@@ -1136,7 +1120,8 @@ Term Yap_scan_num(StreamDesc *inp) {
   }
   TokEntry *tokptr = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
   tokptr->TokPos = GetCurInpPos(inp);
-  while((ch = getchr(inp)) == BS);
+  while ((ch = getchr(inp)) == BS)
+    ;
   if (ch == '-') {
     sign = -1;
     ch = getchr(inp);
@@ -1229,8 +1214,8 @@ Term Yap_scan_num(StreamDesc *inp) {
 const char *Yap_tokRep(TokEntry *tokptr, encoding_t encoding) {
   CACHE_REGS
   Term info = tokptr->TokInfo;
-  char *b, *buf = LOCAL_FileNameBuf2;
-  size_t length, sze = YAP_FILENAME_MAX - 1;
+  char *buf = LOCAL_FileNameBuf2;
+  size_t length;
   UInt flags = 0;
 
   switch (tokptr->Tok) {
@@ -1240,13 +1225,9 @@ const char *Yap_tokRep(TokEntry *tokptr, encoding_t encoding) {
       Term s = Yap_WCharsToString(wc PASS_REGS);
       return StringOfTerm(s);
     }
-    return  RepAtom((Atom)info)->StrOfAE;
+    return RepAtom((Atom)info)->StrOfAE;
   case Number_tok:
-    if ((b = Yap_TermToString(info, buf, sze, &length, &encoding,
-                              flags)) != buf) {
-      return NULL;
-    }
-    return buf;
+    return Yap_TermToString(info, &length, encoding, flags);
   case Var_tok: {
     VarEntry *varinfo = (VarEntry *)info;
     varinfo->VarAdr = TermNil;
@@ -1744,16 +1725,18 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
       } else
         ch = getchr(inp_stream);
       break;
-        case SY:
+    case SY:
       if (ch == '.' && (pch = Yap_peek(inp_stream - GLOBAL_Stream)) &&
           (chtype(pch) == BS || chtype(pch) == EF || pch == '%')) {
         t->Tok = Ord(kind = eot_tok);
         // consume...
-        ch = getchr(inp_stream); 
+        ch = getchr(inp_stream);
         if (chtype(ch) == EF) {
           mark_eof(inp_stream);
           t->TokInfo = TermEof;
         } else {
+          if (ch == '%')
+            continue;
           t->TokInfo = TermNewLine;
         }
         return l;
@@ -2054,7 +2037,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
     }
 #if DEBUG
     if (GLOBAL_Option[2])
-      fprintf(stderr, "[Token %d %s]", Ord(kind), Yap_tokRep(t, inp_stream->encoding));
+      fprintf(stderr, "[Token %d %s]", Ord(kind),
+              Yap_tokRep(t, inp_stream->encoding));
 #endif
     if (LOCAL_ErrorMessage) {
       /* insert an error token to inform the system of what happened */

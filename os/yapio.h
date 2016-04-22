@@ -79,8 +79,7 @@ int Yap_PlFGetchar(void);
 int Yap_GetCharForSIGINT(void);
 Int Yap_StreamToFileNo(Term);
 int Yap_OpenStream(FILE *, char *, Term, int);
-char *Yap_TermToString(Term t, char *s, size_t sz, size_t *length,
-                       encoding_t *encoding, int flags);
+char *Yap_TermToString(Term t, size_t *length, encoding_t encoding, int flags);
 char *Yap_HandleToString(yhandle_t l, size_t sz, size_t *length,
                          encoding_t *encoding, int flags);
 int Yap_GetFreeStreamD(void);
@@ -125,13 +124,11 @@ typedef enum mem_buf_source {
 char *Yap_MemStreamBuf(int sno);
 
 extern X_API Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp,
-                             int prio, Term *bindings_p);
+                                   int prio, Term *bindings_p);
 extern Term Yap_StringToNumberTerm(char *s, encoding_t *encp);
 int Yap_FormatFloat(Float f, char **s, size_t sz);
-int Yap_open_buf_read_stream(const char *nbuf, size_t nchars, encoding_t *encp,
-                             memBufSource src);
-int Yap_open_buf_write_stream(char *nbuf, size_t nchars, encoding_t *encp,
-                              memBufSource src);
+int Yap_open_buf_read_stream(const char *buf, size_t nchars, encoding_t *encp, memBufSource src);
+int Yap_open_buf_write_stream(encoding_t enc, memBufSource src);
 Term Yap_ReadFromAtom(Atom a, Term opts);
 FILE *Yap_GetInputStream(Term t, const char *m);
 FILE *Yap_GetOutputStream(Term t, const char *m);

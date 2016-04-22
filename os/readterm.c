@@ -1325,7 +1325,7 @@ static Int term_to_string(USES_REGS1) {
   const char *s;
   if (IsVarTerm(t2)) {
     size_t length;
-    s = Yap_TermToString(ARG1, NULL, 0, &length, NULL,
+    s = Yap_TermToString(ARG1, &length, LOCAL_encoding,
                          Quote_illegal_f | Handle_vars_f);
     if (!s || !MkStringTerm(s)) {
       Yap_Error(RESOURCE_ERROR_HEAP, t1,
@@ -1357,7 +1357,7 @@ static Int term_to_atom(USES_REGS1) {
   Atom at;
   if (IsVarTerm(t2)) {
     size_t length;
-    char *s = Yap_TermToString(Deref(ARG1), NULL, 0, &length, NULL,
+    char *s = Yap_TermToString(Deref(ARG1), &length, LOCAL_encoding,
                                Quote_illegal_f | Handle_vars_f);
     if (!s || !(at = Yap_LookupAtom(s))) {
       Yap_Error(RESOURCE_ERROR_HEAP, t2,
