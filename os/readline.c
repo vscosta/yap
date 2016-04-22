@@ -473,12 +473,6 @@ int Yap_ReadlineForSIGINT(void) {
   }
 }
 
-void Yap_CloseReadline(void) {
-#if USE_READLINE
-  write_history(history_file);
-#endif
-}
-
 static Int has_readline(USES_REGS1) {
 #if USE_READLINE
   return true;
@@ -501,3 +495,9 @@ bool Yap_InitReadline(Term enable) {
 
 void Yap_InitReadlinePreds(void) {}
 #endif
+
+void Yap_CloseReadline(void) {
+#if USE_READLINE
+  write_history(history_file);
+#endif
+}
