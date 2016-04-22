@@ -114,9 +114,16 @@ get_git_head_revision(GIT_HEAD GIT_SHA1)
 git_describe(GIT_DESCRIBE)
 
 if (ANDROID)
+  IF(DEFINED ENV{ANDROID_SDK})
+    set (ANDROID_SDK $ENV{ANDROID_SDK})
+ELSEIF( NOT DEFINED ANDROID_SDK)
+  message("ANDROID_SDK is not defined.  You must tell CMake where to find the SDK")
+  # exit early
+  return()
+ENDIF()
   set (ANDROIDDLLS "android" "log")
-  set (ANDROID_ANT ant)
-  set (ANDROID_SDK_TOOL $ENV{ANDROID_SDK}/tools/android)
+  set (ANDROID_ANT ${ANDROID_SDK}/tools/ant)
+  set (ANDROID_SDK_TOOL ${ANDROID_SDK}/tools/android)
 else()
   set(YAP_STARTUP startup.yss)
 endif()
@@ -127,7 +134,7 @@ if (WITH_CUDD)
 #detect cudd setup, as it is shared between different installations.
 
 find_package(CUDD)
-#  CUDD_FOUND       - system has CUDD 
+#  CUDD_FOUND       - system has CUDD
 #  CUDD_LIBRARIES   - Link these to use CUDD
 #  CUDD_INCLUDE_DIR - Include directory for using CUDD
 #
@@ -216,12 +223,6 @@ set_target_properties(libYap
   OUTPUT_NAME Yap
   )
 
-if (ANDROID)
-  set_target_properties(libYap
-    PROPERTIES OUTPUT_NAME libayap
-    )
-endif (ANDROID)
-
 
 set(CMAKE_TOP_BINARY_DIR ${CMAKE_BINARY_DIR})
 set(YAP_PL_SRCDIR ${CMAKE_SOURCE_DIR}/pl)
@@ -233,11 +234,11 @@ set ( prefix "${CMAKE_INSTALL_PREFIX}")
 set ( exec_prefix "${prefix}")
 set ( libdir "${exec_prefix}/libs/${ANDROID_ABI}")
 set ( dlls "${libdir}")
-set ( includedir "${prefix}/assets/include")
-set ( datarootdir "${prefix}/assets/share")
+set ( includedir "${prefix}/include")
+set ( datarootdir "${prefix}/share")
 set ( libpl  "${datarootdir}/Yap")
 set ( datadir "${datarootdir}")
-set ( mandir "${datarootdir}/assets/man")
+set ( mandir "${datarootdir}/man")
 set ( bindir "${exec_prefix}/bin")
 set ( docdir "${exec_prefix}/share/doc/Yap")
 else()
