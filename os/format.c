@@ -472,7 +472,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
   volatile void *old_handler;
   volatile int old_pos;
   format_info finfo;
-  unsigned char *bufp = NULL;
+  unsigned char *ubuf = NULL;
   Term fmod = CurrentModule;
   size_t sz;
 
@@ -1003,11 +1003,8 @@ static Int doformat(volatile Term otail, volatile Term oargs,
           int nsno;
 
           finfo.pad_entries[finfo.padders].len = sz;
-          finfo.pad_entries[finfo.padders].pad = (char *)bufp;
-          bufp = NULL;
-          sz = 0;
-          nsno = Yap_open_buf_write_stream((char *)bufp, sz,
-                                           &GLOBAL_Stream[sno].encoding, 0);
+          finfo.pad_entries[finfo.padders].pad = (char *)ubuf;
+          nsno = Yap_open_buf_write_stream(GLOBAL_Stream[sno].encoding, 0);
           if (osno) {
             GLOBAL_Stream[nsno].linepos = GLOBAL_Stream[sno].linepos;
             GLOBAL_Stream[nsno].linecount = GLOBAL_Stream[sno].linecount;
