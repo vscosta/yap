@@ -1730,13 +1730,13 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
           (chtype(pch) == BS || chtype(pch) == EF || pch == '%')) {
         t->Tok = Ord(kind = eot_tok);
         // consume...
+        if (ch == '%')
+          return l;
         ch = getchr(inp_stream);
         if (chtype(ch) == EF) {
           mark_eof(inp_stream);
           t->TokInfo = TermEof;
         } else {
-          if (ch == '%')
-            continue;
           t->TokInfo = TermNewLine;
         }
         return l;
@@ -1748,6 +1748,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
       if (och == '.') {
         if (chtype(ch) == BS || chtype(ch) == EF || ch == '%') {
           t->Tok = Ord(kind = eot_tok);
+          if (ch == '%')
+            return l;
           if (chtype(ch) == EF) {
             mark_eof(inp_stream);
             t->TokInfo = TermEof;
