@@ -21,22 +21,22 @@ file_filter_with_initialization(A,B,C,D,E) :-
 
 main :-
 	warning(Warning),
-	file_filter_with_initialization('misc/HEAPFIELDS','H/generated/hstruct.h',gen_struct,Warning,['hstruct.h','HEAPFIELDS']),
-	file_filter_with_initialization('misc/HEAPFIELDS','H/generated/dhstruct.h',gen_dstruct,Warning,['dhstruct.h','HEAPFIELDS']),
-	file_filter_with_initialization('misc/HEAPFIELDS','H/generated/h0struct.h',gen_0struct,Warning,['d0hstruct.h','HEAPFIELDS']),
-	file_filter_with_initialization('misc/HEAPFIELDS','H/generated/rhstruct.h',gen_hstruct,Warning,['rhstruct.h','HEAPFIELDS']),
-	file_filter_with_initialization('misc/HEAPFIELDS','H/generated/ihstruct.h',gen_init,Warning,['ihstruct.h','HEAPFIELDS']),
-	file_filter_with_initialization('misc/GLOBALS','H/generated/h0globals.h',gen_0struct,Warning,['hglobals.h','GLOBALS']),
-	file_filter_with_initialization('misc/GLOBALS','H/generated/hglobals.h',gen_struct,Warning,['hglobals.h','GLOBALS']),
-	file_filter_with_initialization('misc/GLOBALS','H/generated/dglobals.h',gen_dstruct,Warning,['dglobals.h','GLOBALS']),
-	file_filter_with_initialization('misc/GLOBALS','H/generated/iglobals.h',gen_init,Warning,['iglobals.h','GLOBALS']),
-%%	file_filter_with_initialization('misc/GLOBALS','H/generated/i0globals.h',gen_0init,Warning,['iglobals.h','GLOBALS']),
-	file_filter_with_initialization('misc/LOCALS','H/generated/hlocals.h',gen_struct,Warning,['hlocals.h','LOCALS']),
-	file_filter_with_initialization('misc/LOCALS','H/generated/dlocals.h',gen_dstruct,Warning,['dlocals.h','LOCALS']),
-	file_filter_with_initialization('misc/LOCALS','H/generated/rlocals.h',gen_hstruct,Warning,['rlocals.h','LOCALS']),
-	file_filter_with_initialization('misc/LOCALS','H/generated/ilocals.h',gen_init,Warning,['ilocals.h','LOCALS']).
+	file_filter_with_initialization('H/HEAPFIELDS','H/generated/hstruct.h',gen_struct,Warning,['hstruct.h','HEAPFIELDS']),
+	file_filter_with_initialization('H/HEAPFIELDS','H/generated/dhstruct.h',gen_dstruct,Warning,['dhstruct.h','HEAPFIELDS']),
+	file_filter_with_initialization('H/HEAPFIELDS','H/generated/h0struct.h',gen_0struct,Warning,['d0hstruct.h','HEAPFIELDS']),
+	file_filter_with_initialization('H/HEAPFIELDS','H/generated/rhstruct.h',gen_hstruct,Warning,['rhstruct.h','HEAPFIELDS']),
+	file_filter_with_initialization('H/HEAPFIELDS','H/generated/ihstruct.h',gen_init,Warning,['ihstruct.h','HEAPFIELDS']),
+	file_filter_with_initialization('H/GLOBALS','H/generated/h0globals.h',gen_0struct,Warning,['hglobals.h','GLOBALS']),
+	file_filter_with_initialization('H/GLOBALS','H/generated/hglobals.h',gen_struct,Warning,['hglobals.h','GLOBALS']),
+	file_filter_with_initialization('H/GLOBALS','H/generated/dglobals.h',gen_dstruct,Warning,['dglobals.h','GLOBALS']),
+	file_filter_with_initialization('H/GLOBALS','H/generated/iglobals.h',gen_init,Warning,['iglobals.h','GLOBALS']),
+%%	file_filter_with_initialization('H/GLOBALS','H/generated/i0globals.h',gen_0init,Warning,['iglobals.h','GLOBALS']),
+	file_filter_with_initialization('H/LOCALS','H/generated/hlocals.h',gen_struct,Warning,['hlocals.h','LOCALS']),
+	file_filter_with_initialization('H/LOCALS','H/generated/dlocals.h',gen_dstruct,Warning,['dlocals.h','LOCALS']),
+	file_filter_with_initialization('H/LOCALS','H/generated/rlocals.h',gen_hstruct,Warning,['rlocals.h','LOCALS']),
+	file_filter_with_initialization('H/LOCALS','H/generated/ilocals.h',gen_init,Warning,['ilocals.h','LOCALS']).
 
-warning('~n  /* This file, ~a, was generated automatically by \"yap -L misc/buildlocalglobal\"~n     please do not update, update misc/~a instead */~n~n').
+warning('~n  /* This file, ~a, was generated automatically by \"yap -L misc/buildlocalglobal\"~n     please do not update, update H/~a instead */~n~n').
 
 
 
@@ -121,19 +121,19 @@ gen_0struct(Inp,Out) :-
 	Inp = "ATOMS", !,
 	Out = "#include \"tatoms.h\"".
 gen_0struct(Inp,Out) :-
-	split(Inp,"	 ",["struct",Type, Field|L]), !,
+	split(Inp,"	 ",["struct",_Type, _Field|_L]), !,
     extract("struct", Inp, NInp),
     gen_0struct( NInp, NOut ),
     extract("EXTERNAL", NOut, IOut),
 	append("EXTERNAL    struct ", IOut, Out).
 gen_0struct(Inp,Out) :-
-	split(Inp,"	 ",["const",Type, Field|L]), !,
+	split(Inp,"	 ",["const",_Type, _Field|_L]), !,
     extract("const", Inp, NInp),
     gen_0struct( NInp, NOut ),
     extract("EXTERNAL", NOut, IOut),
 	append("EXTERNAL    const ", IOut, Out).
 gen_0struct(Inp,Out) :-
-	split(Inp,"	 ",["union",Type, Field|L]), !,
+	split(Inp,"	 ",["union",_Type, _Field|_L]), !,
     extract("union", Inp, NInp),
     gen_0struct( NInp, NOut ),
     extract("EXTERNAL", NOut, IOut),

@@ -13,9 +13,9 @@
 
 main :-
 	warning(Warning),
-	file_filter_with_init('misc/ATOMS','H/generated/tatoms.h',gen_fields, Warning, ['tatoms.h']),
-	file_filter_with_init('misc/ATOMS','H/generated/iatoms.h',gen_decl, Warning, ['iatoms.h']),
-	file_filter_with_init('misc/ATOMS','H/generated/ratoms.h',gen_rcov, Warning, ['ratoms.h']).
+	file_filter_with_init('H/ATOMS','H/generated/tatoms.h',gen_fields, Warning, ['tatoms.h']),
+	file_filter_with_init('H/ATOMS','H/generated/iatoms.h',gen_decl, Warning, ['iatoms.h']),
+	file_filter_with_init('H/ATOMS','H/generated/ratoms.h',gen_rcov, Warning, ['ratoms.h']).
 
 warning('~n  /* This file, ~a, was generated automatically by \"yap -L misc/buildatoms\"~n     {lease do not update, update misc/ATOMS instead */~n~n').
 

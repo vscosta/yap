@@ -1,6 +1,6 @@
 
   /* This file, rhstruct.h, was generated automatically by "yap -L misc/buildlocalglobal"
-     please do not update, update misc/HEAPFIELDS instead */
+     please do not update, update H/HEAPFIELDS instead */
 
 
 

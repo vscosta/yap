@@ -91,7 +91,7 @@ ATOMS
 Term		TermDollarU		MkAT AtomDollarU
 #endif
 Term		TermAnswer		MkAT AtomAnswer
-z
+
 //modules
 Term		USER_MODULE		MkAT AtomUser
 Term		IDB_MODULE		MkAT AtomIDB

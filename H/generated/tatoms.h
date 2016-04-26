@@ -63,7 +63,7 @@ Atom AtomChars; Term TermChars;
 Atom AtomCharset; Term TermCharset;
 Atom AtomChType; Term TermChType;
 Atom AtomCleanCall; Term TermCleanCall;
-Atom AtomColomn; Term TermColomn;
+Atom AtomColon; Term TermColon;
 Atom AtomCodeSpace; Term TermCodeSpace;
 Atom AtomCodes; Term TermCodes;
 Atom AtomCoInductive; Term TermCoInductive;
@@ -79,6 +79,7 @@ Atom AtomCputime; Term TermCputime;
 Atom AtomCreate; Term TermCreate;
 Atom AtomCreep; Term TermCreep;
 Atom AtomCryptAtoms; Term TermCryptAtoms;
+Atom AtomCurly; Term TermCurly;
 Atom AtomCsult; Term TermCsult;
 Atom AtomCurrentModule; Term TermCurrentModule;
 Atom AtomCut; Term TermCut;
@@ -178,6 +179,7 @@ Atom AtomHeapUsed; Term TermHeapUsed;
 Atom AtomHugeInt; Term TermHugeInt;
 Atom AtomIDB; Term TermIDB;
 Atom AtomIOMode; Term TermIOMode;
+Atom AtomI; Term TermI;
 Atom AtomId; Term TermId;
 Atom AtomIgnore; Term TermIgnore;
 Atom AtomInf; Term TermInf;
@@ -192,6 +194,7 @@ Atom AtomIntOverflow; Term TermIntOverflow;
 Atom AtomInteger; Term TermInteger;
 Atom AtomInternalCompilerError; Term TermInternalCompilerError;
 Atom AtomIs; Term TermIs;
+Atom AtomJ; Term TermJ;
 Atom AtomKey; Term TermKey;
 Atom AtomLDLibraryPath; Term TermLDLibraryPath;
 Atom AtomLONGINT; Term TermLONGINT;
@@ -250,6 +253,7 @@ Atom AtomNotLessThanZero; Term TermNotLessThanZero;
 Atom AtomNotNewline; Term TermNotNewline;
 Atom AtomNotZero; Term TermNotZero;
 Atom AtomNumber; Term TermNumber;
+Atom AtomObj; Term TermObj;
 Atom AtomOff; Term TermOff;
 Atom AtomOffline; Term TermOffline;
 Atom AtomOn; Term TermOn;
@@ -374,8 +378,8 @@ Atom AtomSystem; Term TermSystem;
 Atom AtomSystemError; Term TermSystemError;
 Atom AtomSystemLibraryDir; Term TermSystemLibraryDir;
 Atom AtomTerm; Term TermTerm;
-Atom AtomTerms; Term TermTerms;
 Atom AtomTermExpansion; Term TermTermExpansion;
+Atom AtomTerms; Term TermTerms;
 Atom AtomText; Term TermText;
 Atom AtomTextStream; Term TermTextStream;
 Atom AtomThread; Term TermThread;
@@ -468,6 +472,8 @@ Atom AtomZeroDivisor; Term TermZeroDivisor;
 
   Functor FunctorCodes1;
 
+  Functor FunctorColon;
+
   Functor FunctorComma;
 
   Functor FunctorCommentHook;
@@ -495,6 +501,8 @@ Atom AtomZeroDivisor; Term TermZeroDivisor;
   Functor FunctorDoLogUpdClauseErase;
 
   Functor FunctorDoStaticClause;
+
+  Functor FunctorDollar;
 
   Functor FunctorDollarVar;
 
@@ -578,9 +586,13 @@ Atom AtomZeroDivisor; Term TermZeroDivisor;
 
   Functor FunctorHat;
 
+  Functor FunctorI;
+
   Functor FunctorId;
 
   Functor FunctorIs;
+
+  Functor FunctorJ;
 
   Functor FunctorLastExecuteWithin;
 
@@ -607,6 +619,8 @@ Atom AtomZeroDivisor; Term TermZeroDivisor;
   Functor FunctorNBQueue;
 
   Functor FunctorNot;
+
+  Functor FunctorObj;
 
   Functor FunctorOr;
 

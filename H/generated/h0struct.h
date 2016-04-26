@@ -1,6 +1,6 @@
 
   /* This file, d0hstruct.h, was generated automatically by "yap -L misc/buildlocalglobal"
-     please do not update, update misc/HEAPFIELDS instead */
+     please do not update, update H/HEAPFIELDS instead */
 
 //
 // File defining fields in the Yap_heap_codes global structure

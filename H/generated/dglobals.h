@@ -1,6 +1,6 @@
 
   /* This file, dglobals.h, was generated automatically by "yap -L misc/buildlocalglobal"
-     please do not update, update misc/GLOBALS instead */
+     please do not update, update H/GLOBALS instead */
 
 
 
