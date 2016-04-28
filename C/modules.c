@@ -462,6 +462,30 @@ static Int source_module(USES_REGS1) {
   return Yap_unify(ARG1, LOCAL_SourceModule);
 }
 
+/**
+ * @pred $copy_operators(+ModSource, +ModTarget)
+ *
+ * Copy all operators in ModSource to ModTarget
+ *
+ *  : _Mod_ is the current read-in or source module.
+ */
+static Int copy_operators(USES_REGS1) {
+  ModEntry * me = LookupModule( Deref(ARG1) );
+  if (!me)  
+    return true;
+  ModEntry *she = LookupModule( Deref(ARG2) );
+  if (!she)  
+    return true;
+  OpEntry *op = me->OpForME;
+  while (op) {
+    if (!Yap_dup_op(op, she)) {
+      return false;
+    }
+    op = op->NextForME;
+  }
+  return true;
+}
+
 Term Yap_StripModule(Term t, Term *modp) {
   CACHE_REGS
   Term tmod;
@@ -513,7 +537,8 @@ void Yap_InitModulesC(void) {
   Yap_InitCPred("$yap_strip_module", 3, yap_strip_module,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("context_module", 1, context_module, 0);
-  Yap_InitCPred("$is_system_module", 1, is_system_module, SafePredFlag);
+  Yap_InitCPred("$is_system_module", 1, is_system_module, SafePredFlag);  
+  Yap_InitCPred("$copy_operators", 2, copy_operators, 0);  
   Yap_InitCPred("new_system_module", 1, new_system_module, SafePredFlag);
   Yap_InitCPredBack("$all_current_modules", 1, 1, init_current_module,
                     cont_current_module, SafePredFlag | SyncPredFlag);

@@ -1638,6 +1638,8 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
     tf = ArgOfTerm(1, t);
   else
     tf = t;
+  tf = Yap_YapStripModule(tf, &mod);
+  
   if (IsAtomTerm(tf)) {
     at = AtomOfTerm(tf);
     p = RepPredProp(PredPropByAtom(at, mod));
@@ -1796,11 +1798,6 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
   } else {
     tf = Yap_MkStaticRefTerm(ClauseCodeToStaticClause(cp), p);
   }
-  if (t4ref && *t4ref != TermNil) {
-    if (!Yap_unify(*t4ref, tf)) {
-      return false;
-    }
-  }
   if (mod == PROLOG_MODULE)
     mod = TermProlog;
   if (pflags & MultiFileFlag) {
@@ -1814,6 +1811,11 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
     tn = Yap_MkApplTerm(FunctorMultiFileClause, 5, t);
     Yap_Recordz(AtomMultiFile, tn);
   }
+  if (t4ref && *t4ref != TermNil) {  
+    if (!Yap_unify(*t4ref, tf)) {  
+      return false;  
+    }  
+  }  
   return true;
 }
 

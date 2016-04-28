@@ -304,6 +304,13 @@ If true, `open_shared_object/2` and friends are implemented,
 providing access to shared libraries (`.so` files) or to dynamic link
 libraries (`.DLL` files).
 */
+//YAP_FLAG(MODULE_INDEPENDENT_OPERATORS_FLAG, "module_independent_operators", true, booleanFlag,
+// "false", NULL),
+/**< `module_independent_operators `
+
+If `true` an operator declaration will be valid for every module in the program. This is for compatibility with old software that
+might expect module-independent operators.
+                           */
     YAP_FLAG(OPTIMISE_FLAG, "optimise", true, booleanFlag, "false", NULL),
     YAP_FLAG(OS_ARGV_FLAG, "os_argv", false, os_argv, "?-", NULL),
     YAP_FLAG(PID_FLAG, "pid", false, ro, "0", NULL),

@@ -128,7 +128,6 @@ else()
   set(YAP_STARTUP startup.yss)
 endif()
 
-set(WITH_CUDD YES CACHE FILEPATH "Try to use Cudd (currently Cudd 3)")
 
 if (WITH_CUDD)
 #detect cudd setup, as it is shared between different installations.
@@ -148,13 +147,13 @@ check_include_files( "stdio.h;cudd/cudd.h;cudd/cuddInt.h" HAVE_CUDD_CUDDINT_H )
 
 endif(WITH_CUDD)
 
-set(WITH_JAVA YES CACHE FILEPATH "Try to use Java (currently Java 6,7,8)")
+option(WITH_JAVA "Try to use Java (currently Java 6,7,8)" ON)
 
 if (WITH_JAVA)
   include(java)
 endif(WITH_JAVA)
 
-set(WITH_PYTHON YES CACHE FILEPATH "Try to use Python (currently Python 3)")
+option(WITH_PYTHON  "Try to use Python (currently Python 3)" ON)
 
 if (WITH_PYTHON)
   include(python)

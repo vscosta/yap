@@ -202,10 +202,17 @@ static int OpDec(int p, const char *type, Atom a, Term m) {
   AtomEntry *ae = RepAtom(a);
   OpEntry *info;
 
+#if defined(MODULE_INDEPENDENT_OPERATORS_FLAG)
+  if (booleanFlag(MODULE_INDEPENDENT_OPERATORS_FLAG)) {
+    m = PROLOG_MODULE;    
+} else
+#endif
+    {
   if (m == TermProlog)
     m = PROLOG_MODULE;
   else if (m == USER_MODULE)
-    m = PROLOG_MODULE;
+    m = PROLOG_MODULE;    
+  }
   for (i = 1; i <= 7; ++i)
     if (strcmp(type, optypes[i]) == 0)
       break;
@@ -223,9 +230,14 @@ static int OpDec(int p, const char *type, Atom a, Term m) {
   WRITE_LOCK(ae->ARWLock);
   info = Yap_GetOpPropForAModuleHavingALock(ae, m);
   if (EndOfPAEntr(info)) {
+    ModEntry *me;
     info = (OpEntry *)Yap_AllocAtomSpace(sizeof(OpEntry));
+    if (!info)
+      return false;
     info->KindOfPE = Ord(OpProperty);
-    info->OpModule = m;
+    info->NextForME = (me = Yap_GetModuleEntry(m))->OpForME;
+    me->OpForME = info;
+    info->OpModule = m;    
     info->OpName = a;
     // LOCK(OpListLock);
     info->OpNext = OpList;
@@ -246,7 +258,7 @@ static int OpDec(int p, const char *type, Atom a, Term m) {
       /* ISO dictates */
       WRITE_UNLOCK(info->OpRWLock);
       Yap_Error(PERMISSION_ERROR_CREATE_OPERATOR, MkAtomTerm(a), "op/3");
-      return FALSE;
+      return false;
     }
     info->Infix = p;
   } else if (i <= 5) {
@@ -256,14 +268,14 @@ static int OpDec(int p, const char *type, Atom a, Term m) {
       /* ISO dictates */
       WRITE_UNLOCK(info->OpRWLock);
       Yap_Error(PERMISSION_ERROR_CREATE_OPERATOR, MkAtomTerm(a), "op/3");
-      return FALSE;
+      return false;
     }
     info->Posfix = p;
   } else {
     info->Prefix = p;
   }
   WRITE_UNLOCK(info->OpRWLock);
-  return (TRUE);
+  return true;
 }
 
 int Yap_OpDec(int p, char *type, Atom a, Term m) {
@@ -277,6 +289,22 @@ static void SetOp(int p, int type, char *at, Term m) {
 #endif
   OpDec(p, optypes[type], Yap_LookupAtom(at), m);
 }
+
+bool Yap_dup_op(OpEntry  *op, ModEntry *she)
+{
+  AtomEntry *ae = RepAtom(op->OpName);
+  OpEntry *info = (OpEntry *)Yap_AllocAtomSpace(sizeof(OpEntry));
+  if (!info)
+    return false;
+  memcpy(info, op, sizeof(OpEntry));
+  info->NextForME =she->OpForME;
+  she->OpForME = info;
+  info->OpModule = MkAtomTerm(she->AtomOfME);
+  AddPropToAtom(ae, AbsOpProp(info));
+  INIT_RWLOCK(info->OpRWLock);
+  return true;
+}
+
 
 /* Gets the info about an operator in a prop */
 Atom Yap_GetOp(OpEntry *pp, int *prio, int fix) {

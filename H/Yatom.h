@@ -250,18 +250,22 @@ INLINE_ONLY inline EXTERN bool IsWideAtom(Atom at) {
          IsWideAtomProperty(RepWideAtomProp(RepAtom(at)->PropsOfAE)->KindOfPE);
 }
 
-/*	Module property 						*/
+/**	Module property: low-level data used to manage modes.
+
+	Includes lists of pedicates, operators and other well-defIned properties.
+ */
 typedef struct mod_entry {
   Prop NextOfPE;                /** chain of atom properties            */
-  PropFlags KindOfPE;           /* kind of property                    */
-  struct pred_entry *PredForME; /* index in module table               */
-  Atom AtomOfME;                /* module's name	                */
-  Atom OwnerFile;               /* module's owner file	                */
+  PropFlags KindOfPE;           /** kind of property                    */
+  struct pred_entry *PredForME; /** index in module table               */  
+  struct operator_entry *OpForME; /** index in operator table               */
+  Atom AtomOfME;                /** module's name	                */
+  Atom OwnerFile;               /** module's owner file	                */
 #if defined(YAPOR) || defined(THREADS)
-  rwlock_t ModRWLock; /* a read-write lock to protect the entry */
+  rwlock_t ModRWLock; /** a read-write lock to protect the entry */
 #endif
-  unsigned int flags;       /* Module local flags (from SWI compat) */
-  struct mod_entry *NextME; /* next module                         */
+  unsigned int flags;       /** Module local flags (from SWI compat) */
+  struct mod_entry *NextME; /** next module                         */
 } ModEntry;
 
 #if USE_OFFSETS_IN_PROPS
@@ -327,7 +331,7 @@ INLINE_ONLY inline EXTERN bool IsModProperty(int flags) {
   (UNKNOWN_ERROR | UNKNOWN_WARNING | UNKNOWN_FAIL | UNKNOWN_FAST_FAIL |        \
    UNKNOWN_ABORT | UNKNOWN_HALT)
 
-Term Yap_getUnknownModule(ModEntry *m);
+ Term Yap_getUnknownModule(ModEntry *m);
 void Yap_setModuleFlags(ModEntry *n, ModEntry *o);
 
 /*	    operator property entry structure				*/
@@ -340,7 +344,8 @@ typedef struct operator_entry {
   Atom OpName;                   /* atom name		        */
   Term OpModule;                 /* module of predicate          */
   struct operator_entry *OpNext; /* next in list of operators  */
-  BITS16 Prefix, Infix, Posfix;  /* precedences                  */
+  struct operator_entry *NextForME; /* next in list of module operators  */
+  BITS16 Prefix, Infix, Posfix;  /**o precedences                  */
 } OpEntry;
 #if USE_OFFSETS_IN_PROPS
 
@@ -382,9 +387,10 @@ OpEntry *Yap_GetOpProp(Atom, op_type, Term CACHE_TYPE);
 int Yap_IsPrefixOp(Atom, int *, int *);
 int Yap_IsOp(Atom);
 int Yap_IsInfixOp(Atom, int *, int *, int *);
-int Yap_IsPosfixOp(Atom, int *, int *);
-
-/* defines related to operator specifications				*/
+ int Yap_IsPosfixOp(Atom, int *, int *);
+ bool Yap_dup_op(OpEntry  *op, ModEntry *she);
+ 
+ /* defines related to operator specifications				*/
 #define MaskPrio 0x0fff
 #define DcrlpFlag 0x1000
 #define DcrrpFlag 0x2000

@@ -1060,6 +1060,25 @@ static Int init_current_atom_op(
   return cont_current_atom_op(PASS_REGS1);
 }
 
+static Int copy_local_ops (USES_REGS1) { /* current_op(-Precedence,-Type,-Atom)             */
+  Term tmodin = Deref(ARG1);  
+  Term t = Deref(ARG1);  
+  AtomEntry *ae;
+  OpEntry *ope;
+
+  if (IsVarTerm(t) || !IsAtomTerm(t)) {
+    Yap_Error(TYPE_ERROR_ATOM, t, "current_op/3");
+    cut_fail();
+  }
+  ae = RepAtom(AtomOfTerm(t));
+  if (EndOfPAEntr((ope = NextOp(RepOpProp(ae->PropsOfAE) PASS_REGS)))) {
+    cut_fail();
+  }
+  EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((Int)ope);
+  B->cp_h = HR;
+  return cont_current_atom_op(PASS_REGS1);
+}
+
 void Yap_show_statistics(void) {
   CACHE_REGS
   unsigned long int heap_space_taken;

@@ -1730,8 +1730,10 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
           (chtype(pch) == BS || chtype(pch) == EF || pch == '%')) {
         t->Tok = Ord(kind = eot_tok);
         // consume...
-        if (ch == '%')
+        if (pch == '%') {
+	  t->TokInfo = TermNewLine;
           return l;
+	}
         ch = getchr(inp_stream);
         if (chtype(ch) == EF) {
           mark_eof(inp_stream);
@@ -1748,12 +1750,14 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
       if (och == '.') {
         if (chtype(ch) == BS || chtype(ch) == EF || ch == '%') {
           t->Tok = Ord(kind = eot_tok);
-          if (ch == '%')
+          if (ch == '%') {
+            t->TokInfo = TermNewLine;
             return l;
+	  }
           if (chtype(ch) == EF) {
             mark_eof(inp_stream);
-            t->TokInfo = TermEof;
-          } else {
+	    t->TokInfo = TermEof;           
+	  } else {
             t->TokInfo = TermNewLine;
           }
           return l;
@@ -1802,7 +1806,11 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
     enter_symbol:
       if (och == '.' && (chtype(ch) == BS || chtype(ch) == EF || ch == '%')) {
         t->Tok = Ord(kind = eot_tok);
-        if (chtype(ch) == EF) {
+	if (ch == '%') {
+          t->TokInfo = TermNewLine;
+          return l;
+        }
+	if (chtype(ch) == EF) {
           mark_eof(inp_stream);
           t->TokInfo = TermEof;
         } else {
