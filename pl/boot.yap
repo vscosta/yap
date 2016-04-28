@@ -241,7 +241,7 @@ private(_).
 :- use_system_module( '$_preddecls', ['$dynamic'/2]).
 
 :- use_system_module( '$_preds', ['$assert_static'/5,
-        '$assertz_dynamic'/4,
+				  '$assertz_dynamic'/4,
         '$init_preds'/0,
         '$unknown_error'/1,
         '$unknown_warning'/1]).
@@ -1488,18 +1488,18 @@ bootstrap(F) :-
 '$precompile_term'(Term, ExpandedUser, Expanded) :-
 %format('[ ~w~n',[Term]),
 	'$expand_clause'(Term, ExpandedUser, ExpandedI),
-    !,
+	!,
 %format('      -> ~w~n',[Expanded0]),
 	(
 	 current_prolog_flag(strict_iso, true)      /* strict_iso on */
-    ->
+	->
 	 Expanded = ExpandedI,
 	 '$check_iso_strict_clause'(ExpandedUser)
-    ;
+	;
 	 '$expand_array_accesses_in_term'(ExpandedI,Expanded)
-    -> true
-    ;
-     Expanded = ExpandedI
+	-> true
+	;
+	 Expanded = ExpandedI
 	).
 '$precompile_term'(Term, Term, Term).
 
@@ -1523,10 +1523,10 @@ whenever the compilation of arithmetic expressions is in progress.
 */
 expand_term(Term,Expanded) :-
 	(
-     '$do_term_expansion'(Term,Expanded)
-    ->
-	  true
-    ;
+	 '$do_term_expansion'(Term,Expanded)
+	->
+	 true
+	;
 	  '$expand_term_grammar'(Term,Expanded)
 	).
 
