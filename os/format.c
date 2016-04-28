@@ -474,7 +474,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
   format_info finfo;
   unsigned char *ubuf = NULL;
   Term fmod = CurrentModule;
-  size_t sz;
+  size_t sz = 0;
 
   finfo.padders = 0;
   finfo.format_error = FALSE;
@@ -489,7 +489,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
       *HR++ = otail;
       if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
         Yap_Error(RESOURCE_ERROR_HEAP, otail, "format/2");
-        return FALSE;
+        return false;
       }
       oargs = HR[-2];
       otail = HR[-1];
@@ -515,7 +515,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
       if ((fr = copy_format_string(tail, fstr0, sz)) == fst_ok)
         break;
       if (fr == fst_error)
-        return FALSE;
+        return false;
       sz += 256;
       Yap_FreeCodeSpace(fstr0);
     } while (TRUE);
@@ -525,7 +525,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     fstr = fptr = StringOfTerm(tail);
   } else {
     Yap_Error(SYSTEM_ERROR_SAVED_STATE, tail, "format/2");
-    return FALSE;
+    return false;
   }
   if (IsVarTerm(args)) {
     Yap_Error(INSTANTIATION_ERROR, args, "format/2");
@@ -564,7 +564,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
       } else {
         break;
       }
-    } while (TRUE);
+    } while (true);
   } else if (args != TermNil) {
     tnum = 1;
     mytargs[0] = args;
