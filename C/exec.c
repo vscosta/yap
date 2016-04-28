@@ -1105,9 +1105,17 @@ static Int do_term_expansion(USES_REGS1) {
   Term g = Yap_YapStripModule(ARG1, &cmod);
   yhandle_t h1 = Yap_InitSlot(g), h2 = Yap_InitSlot(ARG2);
 
+  /* user:term_expansion(A,B) */
+  ARG1 = g;
+  if ((pe = RepPredProp(Yap_GetPredPropByFunc(FunctorTermExpansion, USER_MODULE))) &&
+      pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
+      Yap_execute_pred(pe, NULL, false PASS_REGS)) {
+    return complete_ge(true, omod, sl, creeping);
+  }
   /* CurMod:term_expansion(A,B) */
   ARG1 = g;
-  if ((pe = RepPredProp(Yap_GetPredPropByFunc(FunctorTermExpansion, cmod))) &&
+  if (cmod != USER_MODULE &&
+      (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorTermExpansion, cmod))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, NULL, false PASS_REGS)) {
     return complete_ge(true, omod, sl, creeping);

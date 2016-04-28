@@ -500,6 +500,7 @@ export_list(Module, List) :-
 	'$add_to_imports'(Tab, Module, ContextModule).
 
 '$do_import'(op(Prio,Assoc,Name), _Mod, ContextMod) :-
+	writeln(ContextMod:Name),
 	op(Prio,Assoc,ContextMod:Name).
 '$do_import'(N0/K0-N0/K0, Mod, Mod) :- !.
 '$do_import'(N0/K0-N0/K0, _Mod, prolog) :- !.
