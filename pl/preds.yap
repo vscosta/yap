@@ -652,6 +652,26 @@ system_predicate(P0) :-
                 system_predicate(P0))
     ).
 
+/** @pred  system_predicate( ?A, ?P )
+
+  Succeeds if _A_ is the name of the system predicate _P_. It can be used to test and to enumerate all system predicates.
+
+  YAP also supports the ISO standard built-in system_predicate/1, that
+  provides similar functionality and is compatible with most other Prolog
+  systems.
+  
+*/
+system_predicate(A, P0) :-
+	'$yap_strip_module'(P0, M, P),
+    (
+      nonvar(P)
+    ->
+     '$current_predicate'(A, M, P, system),
+     '$is_system_predicate'( P,  M)
+    ;
+     '$current_predicate'(A, M, P, system)
+    ).
+
 
 /**
   @pred  current_predicate( _F_) is iso
