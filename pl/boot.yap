@@ -7,7 +7,7 @@
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-2014	 *
 *									 *
 **************************************************************************
-*									Ptv *
+*								         *
 * File:		boot.yap						 *
 * Last rev:	8/2/88							 *
 * mods:									 *
@@ -253,6 +253,10 @@ private(_).
 
 
 
+'$early_print_message'(informational, _) :-
+	yap_flag( verbose, S),
+	S == silent,
+	!.
 '$early_print_message'(_, absolute_file_path(X, Y)) :- !,
 	format(user_error, X, Y), nl(user_error).
 '$early_print_message'(_, loading( C, F)) :- !,
@@ -417,10 +421,12 @@ true :- true.
     (
      current_prolog_flag(saved_program, false)	
     ->
-     current_prolog_flag(resource_database, RootPath),
+     prolog_flag(verbose, OldV, silent),
+     prolog_flag(resource_database, RootPath),
      file_directory_name( RootPath, Dir ),
      atom_concat( Dir, '/init.yap' , Init),
      bootstrap(Init),
+     set_prolog_flag(verbose, OldV),
      module( user ),
      '$make_saved_state'
     ;
@@ -1661,14 +1667,10 @@ log_event( String, Args ) :-
 
 '$early_print'( Lev, Msg ) :-
 	 ( '$undefined'(print_message(_,_),prolog) ->
-	    '$show'(Lev, Msg)
+	    '$early_print_message'(Lev, Msg)
 	 ;
 	    print_message(Lev, Msg)
 	 ).
-
-'$show'(_,Msg) :-
-	format(user_error, '~w~n', [Msg]).
-
 
 '$prompt' :-
 	current_prolog_flag(break_level, BreakLevel),
