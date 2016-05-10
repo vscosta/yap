@@ -884,12 +884,14 @@ stub to ensure everything os ok
 
 */
 
+prolog:print_message(Level, _Msg) :-
+	current_prolog_flag(verbose, silent),
+	Level \= error,
+	Level \= warning,
+	!.
 prolog:print_message(_, _Msg) :-
 	% first step at hook processi --ng
 	'$nb_getval'('$if_skip_mode',skip,fail),
-	!.
-prolog:print_message(informational, _Msg) :-
-	current_prolog_flag(verbose, silent),
 	!.
 prolog:print_message(banner, _Msg) :-
 	current_prolog_flag(verbose, silent),

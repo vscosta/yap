@@ -1383,11 +1383,9 @@ not(G) :-    \+ '$execute'(G).
 
 
 '$silent_bootstrap'(F) :-
-    yap_flag(verbose, _, silent),
-    yap_flag(verbose_load, _, silent),
+    yap_flag(verbose, Old, silent),
     bootstrap( F ),
-    yap_flag(verbose, _, normal),
-    yap_flag(verbose_load, _, normal),
+    yap_flag(verbose, _, Old),
     '$live'.
     
 

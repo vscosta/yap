@@ -129,6 +129,7 @@ else()
 endif()
 
 
+  option (WITH_CUDD "BDD CUDD package" ON)
 if (WITH_CUDD)
 #detect cudd setup, as it is shared between different installations.
 

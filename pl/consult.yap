@@ -260,7 +260,6 @@ load_files(Files,Opts) :-
 
 '$load_files'(Files, Opts, Call) :-
 	( '$nb_getval'('$lf_status', OldTOpts, fail), nonvar(OldTOpts) ->
-	  '$lf_opt'(silent, OldTOpts, OldVerbosity),
 	  '$lf_opt'(autoload, OldTOpts, OldAutoload)
 	;
 	   '$lf_option'(last_opt, LastOpt),
