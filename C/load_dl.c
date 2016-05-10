@@ -131,7 +131,7 @@ void *Yap_LoadForeignFile(char *file, int flags) {
   else
     dlflag |= RTLD_LOCAL;
 #endif
-  if (!Yap_locateFile(file, LOCAL_FileNameBuf, true)) {
+  if (!Yap_findFile(file, NULL, NULL, LOCAL_FileNameBuf, true, YAP_OBJ, true, true)) {
     /* use LD_LIBRARY_PATH */
     strncpy(LOCAL_FileNameBuf, file, YAP_FILENAME_MAX - 1);
     strncat(LOCAL_FileNameBuf, ".", YAP_FILENAME_MAX - 1);
@@ -177,8 +177,8 @@ static Int LoadForeign(StringList ofiles, StringList libs, char *proc_name,
   CACHE_REGS
 
   while (libs) {
-    if (!Yap_locateFile((char *)AtomName(libs->name), LOCAL_FileNameBuf,
-                        true)) {
+    const char *file = AtomName(libs->name);
+    if (!Yap_findFile(file, NULL, NULL, LOCAL_FileNameBuf, true, YAP_OBJ, true, true)) {
       /* use LD_LIBRARY_PATH */
       strncpy(LOCAL_FileNameBuf, (char *)AtomName(libs->name),
               YAP_FILENAME_MAX);
@@ -204,8 +204,8 @@ static Int LoadForeign(StringList ofiles, StringList libs, char *proc_name,
        other routines */
 
     /* dlopen wants to follow the LD_CONFIG_PATH */
-    if (!Yap_locateFile((char *)AtomName(ofiles->name), LOCAL_FileNameBuf,
-                        TRUE)) {
+    const char *file = AtomName(ofiles->name);
+    if (!Yap_findFile(file, NULL, NULL, LOCAL_FileNameBuf, true, YAP_OBJ, true, true)) {
       strcpy(LOCAL_ErrorSay,
              "%% Trying to open unexisting file in LoadForeign");
       return LOAD_FAILLED;

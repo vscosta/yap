@@ -1431,8 +1431,7 @@ static Int p_file_expansion(USES_REGS1) { /* '$file_expansion'(+File,-Name) */
     PlIOError(INSTANTIATION_ERROR, file_name, "absolute_file_name/3");
     return (FALSE);
   }
-  if (!Yap_locateFile(RepAtom(AtomOfTerm(file_name))->StrOfAE,
-                      LOCAL_FileNameBuf, false))
+  if (!Yap_findFile(RepAtom(AtomOfTerm(file_name))->StrOfAE, NULL, NULL, LOCAL_FileNameBuf, true, YAP_ANY_FILE, true, false))
     return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, file_name,
                       "absolute_file_name/3"));
   return (Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))));

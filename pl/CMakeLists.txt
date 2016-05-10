@@ -60,7 +60,7 @@ add_custom_target (${YAP_STARTUP} ALL SOURCES ${PL_SOURCES} WORKING_DIRECTORY ${
 
 # Create a startup.yss on the top directory.
 add_custom_command (TARGET ${YAP_STARTUP}
-  COMMAND yap-bin -b ${CMAKE_SOURCE_DIR}/pl/boot.yap -L ${CMAKE_SOURCE_DIR}/pl/init.yap -z qend_program
+  COMMAND yap-bin -B
   VERBATIM
   WORKING_DIRECTORY ${CMAKE_TOP_BINARY_DIR}
   DEPENDS yap-bin  ${PL_SOURCES}

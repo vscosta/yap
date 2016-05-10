@@ -82,7 +82,8 @@ LoadForeign(StringList ofiles, StringList libs,
   while (ofiles) {
     HINSTANCE handle;
 
-    if (Yap_locateFile(AtomName(ofiles->name), LOCAL_FileNameBuf, TRUE) &&
+    const char *file = AtomName(ofiles->name);
+    if (!Yap_findFile(file, NULL, NULL, LOCAL_FileNameBuf, true, YAP_OBJ, true, true) &&
 	(handle=LoadLibrary(LOCAL_FileNameBuf)) != 0)
       {
 	LOCAL_ErrorSay[0]=~'\0';

@@ -1947,7 +1947,7 @@ extern X_API void YAP_Write(YAP_Term t, FILE *s, int);
 
 extern X_API FILE *YAP_TermToStream(YAP_Term t);
 
-extern X_API int YAP_InitConsult(int mode, const char *filename,
+extern X_API int YAP_InitConsult(int mode, const char *filename, char *buf,
                                  int *previous_sno);
 
 extern X_API void YAP_EndConsult(int s, int *previous_sno);
@@ -2212,7 +2212,7 @@ extern X_API int YAP_RequiresExtraStack(size_t);
    *  reserved memory for alloc IF DEBUG
    *  -P    only in development versions
    */
-extern X_API int YAP_parse_yap_arguments(int argc, char *argv[],
+extern X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
                                          YAP_init_args *iap);
 
 extern X_API YAP_Int YAP_AtomToInt(YAP_Atom At);

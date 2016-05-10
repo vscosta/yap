@@ -25,16 +25,16 @@
   * @addtogroup Predicates_on_Atoms
   * @ingroup YAPChars
  *
-*/									 
+*/
 
-/** @pred  atom_concat(+ _As_,? _A_) 
+/** @pred  atom_concat(+ _As_,? _A_)
 
 
 The predicate holds when the first argument is a list of atoms, and the
 second unifies with the atom obtained by concatenating all the atoms in
 the first list.
 
- 
+
 */
 atom_concat(Xs,At) :-
 	( var(At) ->
@@ -75,8 +75,8 @@ atom_concat(Xs,At) :-
 	Follow is Next+Sz,
 	 '$process_atom_holes'(Unbound).
 
-	  
-/** @pred  atomic_list_concat(+ _As_,? _A_) 
+
+/** @pred  atomic_list_concat(+ _As_,? _A_)
 
 
 The predicate holds when the first argument is a list of atomic terms, and
@@ -84,11 +84,11 @@ the second unifies with the atom obtained by concatenating all the
 atomic terms in the first list. The first argument thus may contain
 atoms or numbers.
 
- 
+
 */
 atomic_list_concat(L,At) :-
 	atomic_concat(L, At).
-	
+
 /** @pred  atomic_list_concat(? _As_,+ _Separator_,? _A_)
 
 Creates an atom just like atomic_list_concat/2, but inserts
@@ -110,7 +110,7 @@ shown below.
 L = [gnu, gnat]
 ~~~~~
 
- 
+
 */
 atomic_list_concat(L, El, At) :-
 	var(El), !,
@@ -133,7 +133,7 @@ atomic_list_concat(L, El, At) :-
 '$add_els'([A,B|L],El,[A,El|NL]) :- !,
 	'$add_els'([B|L],El,NL).
 '$add_els'(L,_,L).
-	
+
 
 %
 % small compatibility hack
@@ -142,7 +142,7 @@ atomic_list_concat(L, El, At) :-
 	'$variables_in_term'(T,[],V10),
 	'$sort'(V10, V1),
 	'$non_singletons_in_term'(T,[],V20),
-	'$sort'(V20, V2),	
+	'$sort'(V20, V2),
 	'$subtract_lists_of_variables'(V2,V1,VL).
 
 '$subtract_lists_of_variables'([],VL,VL).
@@ -153,13 +153,13 @@ atomic_list_concat(L, El, At) :-
 '$subtract_lists_of_variables'([V1|VL1],[V2|VL2],[V2|VL]) :-
 	'$subtract_lists_of_variables'([V1|VL1],VL2,VL).
 
-/** @pred  current_atom( _A_) 
+/** @pred  current_atom( _A_)
 
 
 Checks whether  _A_ is a currently defined atom. It is used to find all
 currently defined atoms by backtracking.
 
- 
+
 */
 current_atom(A) :-				% check
 	atom(A), !.

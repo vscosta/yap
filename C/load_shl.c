@@ -61,7 +61,8 @@ LoadForeign( StringList ofiles, StringList libs,
     int valid_fname;
 
     /* shl_load wants to follow the LD_CONFIG_PATH */
-    valid_fname = Yap_locateFile( AtomName(ofiles->name), LOCAL_FileNameBuf, TRUE );
+    const char *file = AtomName(ofiles->name);
+    valid_fname = Yap_findFile(file, NULL, NULL, LOCAL_FileNameBuf, true, YAP_OBJ, true, true);
 
     if( !valid_fname ) {
       strcpy( LOCAL_ErrorSay, "%% Trying to open non-existing file in LoadForeign" );

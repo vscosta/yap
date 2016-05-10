@@ -415,28 +415,49 @@ true :- true.
     % simple trick to find out if this is we are booting from Prolog.
     % boot from a saved state
     (
-	  '$undefined'('$init_preds',prolog)
+     current_prolog_flag(saved_program, False),	
+     writeln(False),
+     current_prolog_flag(saved_program, false)	
+    ->
+     current_prolog_flag(resource_database, RootPath),
+     writeln(RootPath),
+     file_directory_name( RootPath, Dir ),
+     atom_concat( Dir, '/init.yap' , Init),
+     bootstrap(Init),
+     module( user ),
+     '$make_saved_state',
+     get_value('$consult_on_boot',X),
+     (
+      X \= []
+     ->
+      qsave_program( 'startup.yss'),
+      halt
+     ;
+      true
+     )
+    ;
+     '$init_state'
+    ),
+    '$db_clean_queues'(0),
+				% this must be executed from C-code.
+				%	'$startup_saved_state',
+    set_input(user_input),
+    set_output(user_output),
+    '$init_or_threads',
+    '$run_at_thread_start'.
+
+'$make_saved_state' :-
+	current_prolog_flag(os_argv, Args),
+	(
+	 member( Arg, Args ),
+	 atom_concat( '-B', _, Arg )
 	->
-	 get_value('$consult_on_boot',X),
-         (
-	  X \= []
-	  ->
-	  bootstrap(X),
-	  module( user ),
-	  qsave_program( 'startup.yss')
+	  qsave_program( 'startup.yss'),
+	  halt(0)
 	 ;
 	  true
-	 )
-	 ;
-	 '$init_state'
-        ),
-	'$db_clean_queues'(0),
-				% this must be executed from C-code.
-%	'$startup_saved_state',
-	set_input(user_input),
-	set_output(user_output),
-	'$init_or_threads',
-	'$run_at_thread_start'.
+	 ).
+
 
 '$init_globals' :-
 	% set_prolog_flag(break_level, 0),

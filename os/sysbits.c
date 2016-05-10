@@ -759,6 +759,7 @@ static Int real_path(USES_REGS1) {
   }
 #if _WIN32
   char cmd2[YAP_FILENAME_MAX + 1];
+  char *rc;
 
   if ((rc = unix2win(cmd, cmd2, YAP_FILENAME_MAX)) == NULL) {
     return false;
@@ -1150,20 +1151,20 @@ static Int p_dir_sp(USES_REGS1) {
   return Yap_unify_constant(ARG1, t) || Yap_unify_constant(ARG1, t2);
 }
 
-void Yap_InitPageSize(void) {
+size_t Yap_InitPageSize(void) {
 #ifdef _WIN32
   SYSTEM_INFO si;
   GetSystemInfo(&si);
-  Yap_page_size = si.dwPageSize;
+  return si.dwPageSize;
 #elif HAVE_UNISTD_H
 #if defined(__FreeBSD__) || defined(__DragonFly__)
-  Yap_page_size = getpagesize();
+  return getpagesize();
 #elif defined(_AIX)
-  Yap_page_size = sysconf(_SC_PAGE_SIZE);
+  return sysconf(_SC_PAGE_SIZE);
 #elif !defined(_SC_PAGESIZE)
-  Yap_page_size = getpagesize();
+  return getpagesize();
 #else
-  Yap_page_size = sysconf(_SC_PAGESIZE);
+  return sysconf(_SC_PAGESIZE);
 #endif
 #else
   bla bla
@@ -1247,7 +1248,7 @@ static Int working_directory(USES_REGS1) {
    */
 const char *Yap_findFile(const char *isource, const char *idef,
                          const char *iroot, char *result, bool access,
-                         file_type_t ftype, bool expand_root, bool in_lib) {
+                         YAP_file_type_t ftype, bool expand_root, bool in_lib) {
   char save_buffer[YAP_FILENAME_MAX + 1];
   const char *root, *source = isource;
   int rc = FAIL_RESTORE;
@@ -1261,40 +1262,47 @@ const char *Yap_findFile(const char *isource, const char *idef,
     switch (try ++) {
     case 0: // path or file name is given;
       root = iroot;
-      if (iroot || isource) {
+      if (!root && ftype == YAP_BOOT_PL) {
+	root = YAP_PL_SRCDIR;
+      }
+      if (idef || isource) {
         source = (isource ? isource : idef);
-      } else {
-        done = true;
       }
       break;
     case 1: // library directory is given in command line
       if (in_lib && ftype == YAP_SAVED_STATE) {
         root = iroot;
         source = (isource ? isource : idef);
-      } else
+      } else {
         done = true;
+      }
       break;
     case 2: // use environment variable YAPLIBDIR
 #if HAVE_GETENV
       if (in_lib) {
         if (ftype == YAP_SAVED_STATE || ftype == YAP_OBJ) {
-          root = getenv("YAPLIBDIR");
-        } else {
+	  root = getenv("YAPLIBDIR");
+        } else if (ftype == YAP_BOOT_PL) {
           root = getenv("YAPSHAREDIR");
+	  if (root == NULL) {
+	    continue;	    
+	  } else {
+	    strncpy(save_buffer, root, YAP_FILENAME_MAX);
+	    strncat(save_buffer, "/pl", YAP_FILENAME_MAX);
+	  }
         }
         source = (isource ? isource : idef);
       } else
-        done = true;
-      break;
-#else
-      done = true;
 #endif
+	done = true;
       break;
     case 3: // use compilation variable YAPLIBDIR
       if (in_lib) {
         source = (isource ? isource : idef);
-        if (ftype == YAP_PL || ftype == YAP_QLY) {
+        if (ftype == YAP_PL) {
           root = YAP_SHAREDIR;
+        } else if (ftype == YAP_BOOT_PL) {
+          root = YAP_SHAREDIR "/pl";
         } else {
           root = YAP_LIBDIR;
         }
@@ -1314,7 +1322,6 @@ const char *Yap_findFile(const char *isource, const char *idef,
       break;
 
     case 5: // search from the binary
-    {
 #ifndef __ANDROID__
       done = true;
       break;
@@ -1322,10 +1329,16 @@ const char *Yap_findFile(const char *isource, const char *idef,
       const char *pt = Yap_FindExecutable();
 
       if (pt) {
-        source =
-            (ftype == YAP_SAVED_STATE || ftype == YAP_OBJ ? "../../lib/Yap"
-                                                          : "../../share/Yap");
-        if (Yap_findFile(source, NULL, pt, save_buffer, access, ftype,
+	if (ftype == YAP_BOOT_PL) {
+	  root = "../../share/Yap/pl";
+	} else {
+	  root =
+            (ftype == YAP_SAVED_STATE
+	     || ftype == YAP_OBJ
+	     ? "../../lib/Yap"
+	     : "../../share/Yap");
+	}
+        if (Yap_findFile(source, NULL, root, save_buffer, access, ftype,
                          expand_root, in_lib))
           root = save_buffer;
         else
@@ -1334,7 +1347,7 @@ const char *Yap_findFile(const char *isource, const char *idef,
         done = true;
       }
       source = (isource ? isource : idef);
-    } break;
+      break;
     case 6: // default, try current directory
       if (!isource && ftype == YAP_SAVED_STATE)
         source = idef;
@@ -1352,14 +1365,11 @@ const char *Yap_findFile(const char *isource, const char *idef,
 
     // expand names in case you have
     // to add a prefix
-    if (!access || Yap_Exists(work))
+    if (!access || Yap_Exists(work)) {
       return work; // done
+    }
   }
   return NULL;
-}
-
-const char *Yap_locateFile(const char *source, char *result, bool in_lib) {
-  return Yap_findFile(source, NULL, NULL, result, true, YAP_PL, true, in_lib);
 }
 
 static Int true_file_name(USES_REGS1) {

@@ -166,6 +166,18 @@ typedef struct YAP_thread_attr_struct {
 #include <threads.h>
 #endif
 
+typedef enum { YAP_BIN = 0x0001,
+	       YAP_TEXT = 0x0002,
+	       YAP_SAVED_STATE = 0x0004,
+	       YAP_OBJ = 0x0008,
+	       YAP_PL = 0x0010,
+	       YAP_BOOT_PL = 0x0030,
+	       YAP_QLY = 0x0040,
+	       YAP_EXE = 0x0080
+} YAP_file_type_t;
+
+#define YAP_ANY_FILE (0x00ff)
+
 typedef enum {
   YAP_TAG_ATT = 0x1,
   YAP_TAG_UNBOUND = 0x2,
@@ -179,13 +191,13 @@ typedef enum {
   YAP_TAG_FLOAT = 0x200,
   YAP_TAG_OPAQUE = 0x400,
   YAP_TAG_APPL = 0x800,
-  YAP_TAG_DBREF = 0x1000
+    YAP_TAG_DBREF = 0x1000,
+    YAP_TAG_STRING = 0x2000,
+    YAP_TAG_ARRAY = 0x4000
 } YAP_tag_t;
 
 #define YAP_BOOT_FROM_SAVED_CODE 1
 #define YAP_BOOT_FROM_SAVED_STACKS 2
-#define YAP_FULL_BOOT_FROM_PROLOG 4
-#define YAP_BOOT_DONE_BEFOREHAND 8
 #define YAP_BOOT_ERROR -1
 
 #define YAP_WRITE_QUOTED 1
@@ -204,6 +216,8 @@ typedef enum {
 #define YAP_BOOT_MODE 2
 
 typedef struct yap_boot_params {
+  /* boot type as suggested by the user */
+  YAP_file_type_t initial_file_type;
   /* if NON-NULL, path where we can find the saved state */
   const char *SavedState;
   /* if NON-0, minimal size for Heap or Code Area */
@@ -219,25 +233,24 @@ typedef struct yap_boot_params {
   unsigned long int TrailSize;
   /* if NON-0, maximal size for Trail */
   unsigned long int MaxTrailSize;
-
   /* if NON-0, minimal size for AttributeVarStack */
   unsigned long int AttsSize;
   /* if NON-0, maximal size for AttributeVarStack */
   unsigned long int MaxAttsSize;
   /* if NON-NULL, value for YAPLIBDIR */
-  char *YapLibDir;
+  const char *YapLibDir;
   /* if NON-NULL, name for a Prolog file to use when booting  */
-  char *YapPrologBootFile;
+  const char *YapPrologBootFile;
   /* if NON-NULL, name for a Prolog file to use when initializing  */
-  char *YapPrologInitGoal;
+  const char *YapPrologInitGoal;
   /* if NON-NULL, name for a Prolog file to consult before entering top-level */
-  char *YapPrologRCFile;
+  const char *YapPrologRCFile;
   /* if NON-NULL, a goal to run before top-level  */
-  char *YapPrologGoal;
+  const char *YapPrologGoal;
   /* if NON-NULL, a goal to run as top-level  */
-  char *YapPrologTopLevelGoal;
+  const char *YapPrologTopLevelGoal;
   /* if NON-NULL, a path to extend file-search-path   */
-  char *YapPrologAddPath;
+  const char *YapPrologAddPath;
   /* if previous NON-NULL and TRUE, halt after consulting that file  */
   bool HaltAfterConsult;
   /* ignore .yaprc, .prolog.ini, etc. files.  */

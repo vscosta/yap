@@ -155,12 +155,14 @@ static int dump_runtime_variables(void) {
   return 1;
 }
 
-X_API int YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap) {
+X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap) {
   char *p;
-  int BootMode = YAP_BOOT_FROM_SAVED_CODE;
+  int BootMode = YAP_QLY;
   unsigned long int *ssize;
 
   iap->SavedState = NULL;
+  iap->initial_file_type = YAP_QLY;
+  
   iap->HeapSize = 0;
   iap->StackSize = 0;
   iap->TrailSize = 0;
@@ -178,7 +180,7 @@ X_API int YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap) {
   iap->YapPrologTopLevelGoal = NULL;
   iap->YapPrologAddPath = NULL;
   iap->HaltAfterConsult = FALSE;
-  iap->FastBoot = FALSE;
+  iap->FastBoot = false;
   iap->MaxTableSpaceSize = 0;
   iap->NumberWorkers = DEFAULT_NUMBERWORKERS;
   iap->SchedulerLoop = DEFAULT_SCHEDULERLOOP;
@@ -197,9 +199,26 @@ X_API int YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap) {
     if (*p == '-')
       switch (*++p) {
       case 'b':
-        BootMode = YAP_BOOT_FROM_PROLOG;
-        iap->YapPrologBootFile = *++argv;
-        argc--;
+        iap->initial_file_type = BootMode = YAP_PL;
+	if (p[1])
+	  iap->YapPrologBootFile = p+1;
+	else if (argv[1] && *argv[1] != '-') {
+	  iap->YapPrologBootFile = *++argv;
+	  argc--;
+	} else {
+	  iap->YapPrologBootFile = "boot.yap";
+	}
+        break;
+      case 'B':
+        iap->initial_file_type = BootMode = YAP_BOOT_PL;
+ 	if (p[1])
+	  iap->YapPrologBootFile = p+1;
+	else if (argv[1] && *argv[1] != '-') {
+	  iap->YapPrologBootFile = *++argv;
+	  argc--;
+	} else {
+	  iap->YapPrologBootFile = "boot.yap";
+	}
         break;
       case '?':
         print_usage();

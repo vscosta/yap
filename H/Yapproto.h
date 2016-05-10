@@ -355,16 +355,16 @@ void Yap_InitReadUtil(void);
 
 /* qly.c */
 void Yap_InitQLY(void);
-int Yap_Restore(const char *, char *);
+int Yap_Restore(const char *, const char *);
 void Yap_InitQLYR(void);
 
 /* range.c */
 void Yap_InitRange(void);
 
 /* save.c */
-int Yap_SavedInfo(const char *, char *, CELL *, CELL *, CELL *);
+int Yap_SavedInfo(const char *, const char *, CELL *, CELL *, CELL *);
 int Yap_SavedStateRestore(char *, char *);
-FILE *Yap_OpenRestore(const char *, char *);
+FILE *Yap_OpenRestore(const char *, const char *);
 void Yap_InitSavePreds(void);
 
 /* scanner.c */
@@ -396,7 +396,7 @@ void Yap_show_statistics(void);
 int Yap_IsOpMaxPrio(Atom);
 
 /* sysbits.c */
-void Yap_InitPageSize(void);
+size_t Yap_InitPageSize(void);
 bool Yap_set_fpu_exceptions(Term);
 UInt Yap_cputime(void);
 uint64_t Yap_walltime(void);
@@ -420,21 +420,18 @@ void Yap_InitSysbits(int wid);
 void Yap_InitSysPreds(void);
 void Yap_InitcTime(int);
 void Yap_InitTime(int);
-const char *Yap_locateFile(const char *, char *, bool);
 double Yap_random(void);
 #ifdef _WIN32
 char *Yap_RegistryGetString(char *);
 void Yap_WinError(char *);
 #endif
 
-typedef enum { YAP_STD, YAP_SAVED_STATE, YAP_OBJ, YAP_PL, YAP_QLY } file_type_t;
-
 const char *Yap_AbsoluteFile(const char *spec, char *obuf, bool ok);
 const char *Yap_AbsoluteFileInBuffer(const char *spec, char *outp, size_t sz,
                                      bool ok);
 const char *Yap_findFile(const char *isource, const char *idef,
                          const char *root, char *result, bool access,
-                         file_type_t ftype, bool expand_root, bool in_lib);
+                         YAP_file_type_t ftype, bool expand_root, bool in_lib);
 /* threads.c */
 void Yap_InitThreadPreds(void);
 void Yap_InitFirstWorkerThreadHandle(void);
