@@ -2371,6 +2371,7 @@ void Yap_InitAtomPreds(void) {
   Yap_InitCPred("get_string_code", 3, get_string_code3, 0);
   /* hiding and unhiding some predicates */
   Yap_InitCPred("hide_atom", 1, hide_atom, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("hide", 1, hide_atom, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("unhide_atom", 1, unhide_atom, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$hidden_atom", 1, hidden_atom,
                 HiddenPredFlag | SafePredFlag | SyncPredFlag);
