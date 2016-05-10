@@ -1464,7 +1464,7 @@ PredEntry *Yap_PredFromClause(Term t USES_REGS) {
 bool Yap_discontiguous(PredEntry *ap, Term mode USES_REGS) {
   register consult_obj *fp;
 
-  if (ap->PredFlags & (DiscontiguousPredFlag))
+  if (ap->PredFlags & (DiscontiguousPredFlag|MultiFileFlag))
     return false;
   if (mode != TermConsult && mode != TermReconsult)
     return false;
