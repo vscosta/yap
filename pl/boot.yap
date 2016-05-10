@@ -415,29 +415,18 @@ true :- true.
     % simple trick to find out if this is we are booting from Prolog.
     % boot from a saved state
     (
-     current_prolog_flag(saved_program, False),	
-     writeln(False),
      current_prolog_flag(saved_program, false)	
     ->
      current_prolog_flag(resource_database, RootPath),
-     writeln(RootPath),
      file_directory_name( RootPath, Dir ),
      atom_concat( Dir, '/init.yap' , Init),
      bootstrap(Init),
      module( user ),
-     '$make_saved_state',
-     get_value('$consult_on_boot',X),
-     (
-      X \= []
-     ->
-      qsave_program( 'startup.yss'),
-      halt
-     ;
-      true
-     )
+     '$make_saved_state'
     ;
-     '$init_state'
+     true
     ),
+    '$init_state',
     '$db_clean_queues'(0),
 				% this must be executed from C-code.
 				%	'$startup_saved_state',
