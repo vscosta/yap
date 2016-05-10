@@ -3631,7 +3631,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th,
      don't do this!! I might have stored a choice-point and changed ASP
      Yap_RecoverSlots(3);
   */
-  if (cl == NULL || !(pe->PredFlags & SourcePredFlag)) {
+  if (cl == NULL) {
     UNLOCKPE(45, pe);
     return false;
   }

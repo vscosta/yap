@@ -572,7 +572,7 @@ be lost.
 	*->
 	'$stop_creeping'(_),
     (
-	'$continue_debugging_goal'(yes, '$execute_clause'(G, M, R, CP))
+	'$creep'('$execute_clause'(G, M, R, CP), M)
      ;
      InRedo = true
     )
