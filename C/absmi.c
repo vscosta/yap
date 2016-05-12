@@ -888,10 +888,7 @@ static int interrupt_dexecute(USES_REGS1) {
 
 static void undef_goal(USES_REGS1) {
   PredEntry *pe = PredFromDefCode(P);
-  if (Yap_UnknownFlag(CurrentModule) == TermFail) {
-    P = FAILCODE;
-    return;
-  }
+
   BEGD(d0);
 /* avoid trouble with undefined dynamic procedures */
 /* I assume they were not locked beforehand */

@@ -273,13 +273,18 @@ private(_).
  '$handle_error'(_Action,_G0,_M0) :- fail.
 
 % cases where we cannot afford to ever fail.
-'$undefp'([_|print_message(Context, Msg)], true) :- !,
+'$undefp'([ImportingMod|G], _) :- !,
+	recorded('$import','$import'(ExportingModI,ImportingMod,G,G0I,_,_),_), !,
+ % writeln('$execute0'(G0I, ExportingModI)),
+	'$execute0'(G0I, ExportingModI).
+'$undefp'([_|print_message(Context, Msg)], _) :- !,
     '$early_print_message'(Context, Msg).
 % undef handler
 '$undefp'([M0|G0], Action) :-
     % make sure we do not loop on undefined predicates
     '$stop_creeping'(Current),
     yap_flag( unknown, Action, fail),
+    Action\=fail,
  %   yap_flag( debug, Debug, false),
     (
      '$undefp_search'(M0:G0, NM:NG),
@@ -419,7 +424,7 @@ true :- true.
     % simple trick to find out if this is we are booting from Prolog.
     % boot from a saved state
     (
-     current_prolog_flag(saved_program, false)	
+     current_prolog_flag(saved_program, false)
     ->
      prolog_flag(verbose, OldV, silent),
      prolog_flag(resource_database, RootPath),
@@ -1387,7 +1392,7 @@ not(G) :-    \+ '$execute'(G).
     bootstrap( F ),
     yap_flag(verbose, _, Old),
     '$live'.
-    
+
 
 bootstrap(F) :-
 %	'$open'(F, '$csult', Stream, 0, 0, F),

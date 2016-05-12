@@ -82,7 +82,7 @@ followed by the failure of that call.
 :- '$set_no_trace'('$handle_error'(_,_,_), prolog).
 
 /**
-Z * @pred '$undefp_expand'(+ M0:G0, -MG)
+ * @pred '$undefp_expand'(+ M0:G0, -MG)
  *
  * @param G0 input goal
  * @param M0 current module
