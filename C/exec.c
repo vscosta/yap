@@ -209,16 +209,18 @@ static Int save_env_b(USES_REGS1) {
   return true;
 }
 
+
 inline static bool do_execute(Term t, Term mod USES_REGS) {
   Term t0 = t;
-  /* first do predicate expansion, even before you process signals.
+  t = Yap_YapStripModule(t, &mod);
+   /* first do predicate expansion, even before you process signals.
      This way you don't get to spy goal_expansion(). */
   if (Yap_has_a_signal() && !LOCAL_InterruptsDisabled &&
       !(LOCAL_PrologMode & (AbortMode | InterruptMode | SystemMode))) {
     return EnterCreepMode(t, mod PASS_REGS);
   }
 restart_exec:
-  if (IsVarTerm(t)) {
+  if (IsVarTerm(t) || IsVarTerm(mod)) {
     return CallError(INSTANTIATION_ERROR, t0, mod PASS_REGS);
   } else if (IsApplTerm(t)) {
     register Functor f = FunctorOfTerm(t);
@@ -238,22 +240,7 @@ restart_exec:
     /* You thought we would be over by now */
     /* but no meta calls require special preprocessing */
     if (pen->PredFlags & MetaPredFlag) {
-      if (f == FunctorModule) {
-        Term tmod = ArgOfTerm(1, t);
-        if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
-          mod = tmod;
-          t = ArgOfTerm(2, t);
-          goto restart_exec;
-        } else {
-          if (IsVarTerm(tmod)) {
-            return CallError(INSTANTIATION_ERROR, t0, mod PASS_REGS);
-          } else {
-            return CallError(TYPE_ERROR_ATOM, t0, mod PASS_REGS);
-          }
-        }
-      } else {
-        return CallMetaCall(t, mod PASS_REGS);
-      }
+      return CallMetaCall(t, mod PASS_REGS);
     }
     /* now let us do what we wanted to do from the beginning !! */
     /* I cannot use the standard macro here because
@@ -1209,6 +1196,7 @@ static Int execute_nonstop(USES_REGS1) { /* '$execute_nonstop'(Goal,Mod)
   unsigned int arity;
   Prop pe;
 
+  t = Yap_YapStripModule(t, &mod);
 restart_exec:
   if (IsVarTerm(mod)) {
     mod = CurrentModule;
@@ -1229,20 +1217,6 @@ restart_exec:
 
     if (IsExtensionFunctor(f))
       return (FALSE);
-    if (f == FunctorModule) {
-      Term tmod = ArgOfTerm(1, t);
-      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
-        mod = tmod;
-        t = ArgOfTerm(2, t);
-        goto restart_exec;
-      } else {
-        if (IsVarTerm(tmod)) {
-          return CallError(INSTANTIATION_ERROR, t0, mod PASS_REGS);
-        } else {
-          return CallError(TYPE_ERROR_ATOM, t, mod PASS_REGS);
-        }
-      }
-    }
     pe = PredPropByFunc(f, mod);
     arity = ArityOfFunctor(f);
     if (arity > MaxTemps) {
