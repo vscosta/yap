@@ -48,152 +48,154 @@
 #define SYSTEM_OPTION_8 "tabling,"
 #endif
 
-static inline bool nat(Term inp) {
+static inline Term nat(Term inp) {
   if (IsVarTerm(inp)) {
     Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s",
               "bound");
-    return false;
+    return TermZERO;
   }
   if (IsIntTerm(inp)) {
     Int i = IntOfTerm(inp);
     if (i >= 0)
-      return true;
+      return inp;
     Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, inp,
               "set_prolog_flag: value must be %s", ">= 0");
-    return false;
+    return TermZERO;
   }
   Yap_Error(TYPE_ERROR_INTEGER, inp, "set_prolog_flag: value must be %s",
             "integer");
-  return false;
+  return TermZERO;
 }
 
-static inline bool at2n(Term inp) {
+static inline Term at2n(Term inp) {
   Yap_Error(PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag %s",
             "flag is read-only");
-  return false;
+  return TermZERO;
 }
 
-static inline bool isfloat(Term inp) {
+static inline Term isfloat(Term inp) {
   if (IsVarTerm(inp)) {
     Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s",
               "integer");
 
-    return false;
+    return TermZERO;
   }
   if (IsFloatTerm(inp)) {
-    return true;
+    return inp;
   }
   Yap_Error(TYPE_ERROR_FLOAT, inp, "set_prolog_flag: value must be %s",
             "floating-point");
-  return false;
+  return TermZERO;
 }
 
-static inline bool ro(Term inp);
+static inline Term ro(Term inp);
 
-static inline bool ro(Term inp) {
+static inline Term ro(Term inp) {
   if (IsVarTerm(inp)) {
     Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s",
               "bound");
-    return false;
+    return TermZERO;
   }
   Yap_Error(PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag %s",
             "flag is read-only");
-  return false;
+  return TermZERO;
 }
 
-INLINE_ONLY inline EXTERN bool aro(Term inp) {
+INLINE_ONLY inline EXTERN Term aro(Term inp) {
   if (IsVarTerm(inp)) {
     Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
               "value must be bound");
 
-    return false;
+    return TermZERO;
   }
   Yap_Error(PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag %s",
             "flag is read-only");
 
-  return false;
+  return TermZERO;
 }
 
-// INLINE_ONLY inline EXTERN bool booleanFlag( Term inp );
+// INLINE_ONLY inline EXTERN Term booleanFlag( Term inp );
 
-static inline bool booleanFlag(Term inp) {
-  if (inp == TermTrue || inp == TermFalse || inp == TermOn || inp == TermOff)
-    return true;
+static inline Term booleanFlag(Term inp) {
+  if (inp == TermTrue  || inp == TermOn )
+    return TermTrue;
+  if ( inp == TermFalse || inp == TermOff)
+    return TermFalse;
   if (IsVarTerm(inp)) {
     Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
               "value must be bound");
     ;
-    return false;
+    return TermZERO;
   }
   if (IsAtomTerm(inp)) {
     Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, inp,
               "set_prolog_flag in {true,false,on,off}");
-    return false;
+    return TermZERO;
   }
   Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag in {true,false,on,off");
-  return false;
+  return TermZERO;
 }
 
-static bool synerr(Term inp) {
+static Term synerr(Term inp) {
   if (inp == TermDec10 || inp == TermFail || inp == TermError ||
       inp == TermQuiet)
-    return true;
+    return inp;
 
   if (IsAtomTerm(inp)) {
     Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, inp,
               "set_prolog_flag in {dec10,error,fail,quiet}");
-    return false;
+    return TermZERO;
   }
   Yap_Error(TYPE_ERROR_ATOM, inp,
             "set_prolog_flag in {dec10,error,fail,quiet}");
-  return false;
+  return TermZERO;
 }
 
-static inline bool filler(Term inp) { return true; }
+static inline Term filler(Term inp) { return inp; }
 
-static inline bool list_filler(Term inp) {
+static inline Term list_filler(Term inp) {
   if (IsVarTerm(inp) ||
       IsPairTerm(inp) ||
       inp == TermNil)
-    return true;
+    return inp;
 
     Yap_Error(TYPE_ERROR_LIST, inp,
               "set_prolog_flag in {codes,string}");
       
-  return false; }
+  return TermZERO; }
 
-static bool bqs(Term inp) {
+static Term bqs(Term inp) {
   if (inp == TermCodes || inp == TermString || inp == TermSymbolChar)
-    return true;
+    return inp;
 
   if (IsAtomTerm(inp)) {
     Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, inp,
               "set_prolog_flag in {codes,string}");
-    return false;
+    return TermZERO;
   }
   Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag in {codes,string}");
-  return false;
+  return TermZERO;
 }
 
-// INLINE_ONLY inline EXTERN  bool isatom( Term inp );
+// INLINE_ONLY inline EXTERN  Term isatom( Term inp );
 
-static inline bool isatom(Term inp) {
+static inline Term isatom(Term inp) {
   if (IsVarTerm(inp)) {
     Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
               "value must be bound");
-    return false;
+    return TermZERO;
   }
   if (IsAtomTerm(inp))
-    return true;
+    return inp;
   Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
-  return false;
+  return TermZERO;
 }
 
-static inline bool options(Term inp) { return Yap_IsGroundTerm(inp); }
+static inline Term options(Term inp) { return  Yap_IsGroundTerm(inp) ? inp : TermZERO; }
 
-// INLINE_ONLY inline EXTERN  bool ok( Term inp );
+// INLINE_ONLY inline EXTERN  Term ok( Term inp );
 
-static inline bool ok(Term inp) { return true; }
+static inline Term ok(Term inp) { return inp; }
 
 // a pair, obtained from x(y) -> 1,2,y)
 typedef struct x_el {
@@ -219,7 +221,7 @@ typedef struct {
   bool writable;
   flag_func def;
   const char *init;
-  flag_func helper;
+  flag_helper_func helper;
 } flag_info;
 
 typedef struct {
@@ -320,7 +322,7 @@ static inline void setVerbosity(Term val) {
 }
 
 static inline bool setSyntaxErrorsFlag(Term val) {
-  if (!synerr(val))
+  if ((val = synerr(val)) == TermZERO)
     return false;
   CACHE_REGS
   LOCAL_Flags[SYNTAX_ERRORS_FLAG].at = val;

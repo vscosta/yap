@@ -1296,7 +1296,8 @@ INLINE_ONLY inline EXTERN bool IsValProperty(PropFlags flags) {
 
 /*		flag property entry structure				*/
 
-typedef bool (*flag_func)(Term);
+typedef Term (*flag_func)(Term);
+typedef bool (*flag_helper_func)(Term);
 
 typedef struct {
   Prop NextOfPE;      /* used to chain properties             */
@@ -1306,7 +1307,8 @@ typedef struct {
 #endif
   int FlagOfVE; /* (atomic) value associated with the atom */
   bool global, atomic, rw;
-  flag_func type, helper;
+  flag_func type;
+  flag_helper_func helper;
 } FlagEntry;
 #if USE_OFFSETS_IN_PROPS
 

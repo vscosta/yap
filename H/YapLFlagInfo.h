@@ -22,6 +22,19 @@
 
 YAP_FLAG(  AUTOLOAD_FLAG, "autoload", true, booleanFlag, "false" , NULL ),
 YAP_FLAG(  BREAK_LEVEL_FLAG, "break_level", true, nat, "0" , NULL ),
+YAP_FLAG(  CALL_COUNTING_FLAG, "call_counting", true, booleanFlag, "true" , NULL ), /**< `call_counting`
+                                                                                     
+                                                                                     Predicates compiled with this flag set maintain a counter on the numbers of proceduree calls and of retries. These counters are  decreasing counters, and they can be used as timers. Three counters are available:
+                                                                                     
+                                                                                     calls: number of predicate calls since execution started or since system was reset;
+                                                                                     retries: number of retries for predicates called since execution started or since counters were reset;
+                                                                                     calls_and_retries: count both on predicate calls and retries.
+                                                                                     These counters can be used to find out how many calls a certain goal takes to execute. They can also be force the computatiom yp
+                                                                                     stopping.
+                                                                               
+                                                                               If `on` `fileerrors` is `on`, if `off` (default)
+                                                                               `fileerrors` is disabled.
+                                                                               */
 YAP_FLAG(  ENCODING_FLAG, "encoding", true, isatom, "utf-8" , getenc ),
 YAP_FLAG(  FILEERRORS_FLAG, "fileerrors", true, booleanFlag, "true" , NULL ), /**< `fileerrors`
                                                                            
@@ -50,7 +63,7 @@ YAP_FLAG(  STACK_DUMP_ON_ERROR_FLAG, "stack_dump_on_error", true, booleanFlag, "
 `off`.
  */
 YAP_FLAG(  STREAM_TYPE_CHECK_FLAG, "stream_type_check", true, isatom, "loose" , NULL ),
-YAP_FLAG(  SYNTAX_ERRORS_FLAG, "syntax_errors", true, isatom, "error" , synerr ),	/**< `syntax_errors`
+YAP_FLAG(  SYNTAX_ERRORS_FLAG, "syntax_errors", true, synerr, "error" , NULL ),	/**< `syntax_errors`
 
     Control action to be taken after syntax errors while executing read/1,
 `read/2`, or `read_term/3`:

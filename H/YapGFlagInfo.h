@@ -83,7 +83,7 @@ running on an Apple machine.
  */
 #endif
     YAP_FLAG(ARCH_FLAG, "arch", false, isatom, YAP_ARCH, NULL),
-    YAP_FLAG(ARGV_FLAG, "argv", false, argv, "?-", NULL),
+    YAP_FLAG(ARGV_FLAG, "argv", false, argv, "@boot", NULL),
     YAP_FLAG(ARITHMETIC_EXCEPTIONS_FLAG, "arithmetic_exceptions", true, booleanFlag,
              "true", NULL),
     YAP_FLAG(BACKQUOTED_STRING_FLAG, "backquoted_string", true, isatom,
@@ -172,8 +172,8 @@ token is converted to a list of atoms, `chars`, to a list of integers,
 `codes`, or to a single atom, `atom`. If  _Value_ is bound, set to
 the corresponding behavior. The default value is `codes`. */
     YAP_FLAG(EDITOR_FLAG, "editor", true, isatom, "$EDITOR", NULL),
-    YAP_FLAG(EXECUTABLE_FLAG, "executable", false, isatom, "yap",
-             executable), /**< `executable `
+    YAP_FLAG(EXECUTABLE_FLAG, "executable", false, executable, "@boot",
+             NULL), /**< `executable `
 
 Read-only flag. It unifies with an atom that gives the
 original program path.
@@ -239,7 +239,7 @@ the root of the YAP installation, by default `/usr/local` in Unix or
 Return `configure` system information, including the machine-id
 for which YAP was compiled and Operating System information.
 */
-    YAP_FLAG(INDEX_FLAG, "index", true, isatom, "multi", indexer), /**< `index `
+    YAP_FLAG(INDEX_FLAG, "index", true, indexer, "multi", NULL), /**< `index `
 
     If `on` allow indexing (default), if `off` disable it, if
 `single` allow on first argument only.
@@ -312,8 +312,8 @@ If `true` an operator declaration will be valid for every module in the program.
 might expect module-independent operators.
                            */
     YAP_FLAG(OPTIMISE_FLAG, "optimise", true, booleanFlag, "false", NULL),
-    YAP_FLAG(OS_ARGV_FLAG, "os_argv", false, os_argv, "?-", NULL),
-    YAP_FLAG(PID_FLAG, "pid", false, ro, "0", NULL),
+    YAP_FLAG(OS_ARGV_FLAG, "os_argv", false, os_argv, "@boot", NULL),
+    YAP_FLAG(PID_FLAG, "pid", false, sys_pid, "@boot", NULL),
     YAP_FLAG(PIPE_FLAG, "pipe", true, booleanFlag, "true", NULL),
     YAP_FLAG(PROFILING_FLAG, "profiling", true, booleanFlag, "false",
              NULL), /**< `profiling `
@@ -405,8 +405,8 @@ YAP. Currently it informs whether the system supports `big_numbers`,
 `or-parallelism`, `rational_trees`, `readline`, `tabling`,
 `threads`, or the `wam_profiler`.
 */
-    YAP_FLAG(SYSTEM_THREAD_ID_FLAG, "system_thread_id", false, ro, "0",
-             sys_thread_id),
+    YAP_FLAG(SYSTEM_THREAD_ID_FLAG, "system_thread_id", false, sys_thread_id, "@boot",
+             NULL),
     YAP_FLAG(TABLING_MODE_FLAG, "tabling_mode", true, isatom, "[]",
              NULL), /**< `tabling_mode`
 
