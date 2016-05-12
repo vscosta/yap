@@ -263,61 +263,118 @@ output is directed to the stream used by format/2.
 #define FORMAT_MAX_SIZE 1024
 
 typedef struct {
-  Int len, start; /* tab point */
   Int filler;     /* character to dump */
-  char *pad;      /* ok, it's not standard english */
-} pads;
+  int  phys;      /* position in buffer */
+  int  log;      /* columnn as wide chsh */
+} gap_t;
 
 typedef struct format_status {
-  char *mem; // direct access to stream fields
   int format_error;
-  pads pad_entries[16];
-  int padders;
+  gap_t gap[16];
+  // number of octets
+  int phys_start;
+  // number of characters
+  int lstart;
+  int gapi;
 } format_info;
 
-static int fill(int sno, int n, wchar_t nch) {
-  int (*f_putc)(int, wchar_t);
-  f_putc = GLOBAL_Stream[sno].stream_wputc;
+static bool format_synch(int sno, int sno0, format_info *fg ) {
+  int (*f_putc)(int, int);
+  const char *s;
+  int n;
+  
+  f_putc = GLOBAL_Stream[sno0].stream_putc;
+#if MAY_WRITE
+  if (fflush(GLOBAL_Stream[sno].file) == 0) {
+    s = GLOBAL_Stream[sno].nbuf;
+    n = ftell(GLOBAL_Stream[sno].file);
+  } else
+    return false;
+#else
+  s = GLOBAL_Stream[sno].u.mem_string.buf;
+  n =  GLOBAL_Stream[sno].u.mem_string.pos;
+#endif
   while (n--)
-    f_putc(sno, nch);
-  return nch;
-}
-
-static int f_puts(int sno, char *s, int n) {
-  int (*f_putc)(int, wchar_t);
-  f_putc = GLOBAL_Stream[sno].stream_wputc;
-  while (n--)
-    f_putc(sno, *s++);
-  return *s;
+    f_putc(sno0, *s++);
+#if MAY_WRITE
+  rewind(GLOBAL_Stream[sno].file);
+#else
+  GLOBAL_Stream[sno].u.mem_string.pos = 0;
+#endif
+  GLOBAL_Stream[sno].linecount = 1;
+  GLOBAL_Stream[sno].linepos = 0;
+  GLOBAL_Stream[sno].charcount = 0;
+  fg->lstart = 0;
+  fg->phys_start=0;
+  fg->gapi=0;
+  return true;
 }
 
 // uses directly the buffer in the memory stream.
-static bool fill_pads(int sno, int nchars, format_info *fg USES_REGS) {
-  int nfillers, fill_space, lfill_space;
+static bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS) {
+  int nfillers, fill_space, lfill_space, nchars;
+  int (*f_putc)(int, int);
+  const char *buf;
+  int phys_end;
 
+  f_putc = GLOBAL_Stream[sno0].stream_putc;
+#if MAY_WRITE
+  if (fflush(GLOBAL_Stream[sno].file) == 0) {
+    buf = GLOBAL_Stream[sno].nbuf;
+    phys_end = ftell(GLOBAL_Stream[sno].file);
+  } else
+    return false;
+#else
+  buf = GLOBAL_Stream[sno].u.mem_string.buf;
+  phys_end =  GLOBAL_Stream[sno].u.mem_string.pos;
+#endif
+   if (fg->gapi == 0) {
+     fg->gap[0].phys = phys_end;
+     fg->gap[0].filler = ' ';
+     fg->gapi = 1;
+  } 
+  nchars = total - GLOBAL_Stream[sno].linepos;
   if (nchars < 0)
     nchars = 0; /* ignore */
-  nfillers = fg->padders;
-  if (fg->padders == 0) {
-    return fill(sno, nchars, ' ');
-  }
+  nfillers = fg->gapi;
   fill_space = nchars / nfillers;
   lfill_space = nchars % nfillers;
 
-  pads *padi = fg->pad_entries;
-
-  while (fg->padders--) {
-    if (!fg->padders)
-      fill_space += lfill_space;
-    // give remainder to last block.
-    fill(sno, fill_space, padi->filler);
-    if (padi->pad) {
-      f_puts(sno, (char *)padi->pad, padi->len);
-      free(padi->pad);
-      padi->pad = NULL;
+  int i = fg->phys_start;
+  gap_t *padi = fg->gap;
+  while (i < phys_end) {
+    if (i == padi->phys) {
+      int j;
+      for (j=0; j < fill_space; j++)
+	f_putc(sno0, padi->filler);
+      padi++;
+      /* last gap??*/
+      if (padi-fg->gap == fg->gapi) {
+	for (j=0; j < fill_space; j++)
+	  f_putc(sno0, padi->filler);
+      }
+      
     }
-    padi++;
+      f_putc(sno0,buf[i++]);
   }
+  // final gap
+  if (i == padi->phys) { 
+      int j;
+      for (j=0; j < fill_space+lfill_space; j++)
+	f_putc(sno0, padi->filler);
+    };
+    
+#if MAY_WRITE
+  rewind(GLOBAL_Stream[sno].file);
+#else
+  GLOBAL_Stream[sno].u.mem_string.pos = 0;
+#endif
+  GLOBAL_Stream[sno].linecount = 1;
+  GLOBAL_Stream[sno].linepos += nchars;
+  GLOBAL_Stream[sno].charcount = 0;
+  fg->phys_start=0;
+  fg->lstart = GLOBAL_Stream[sno].linepos;
+  fg->gapi=0;
   return true;
 }
 
@@ -425,7 +482,9 @@ static Int format_copy_args(Term args, Term *targs, Int tsz) {
 
 static void
 
-format_clean_up(int sno, const char *fstr, const Term *targs) {
+format_clean_up(int sno, int sno0, format_info *finf, const char *fstr, const Term *targs) {
+  format_synch( sno, sno0, finf);
+  Yap_CloseStream(sno);
   if (fstr) {
     Yap_FreeAtomSpace((void *)fstr);
   }
@@ -458,7 +517,7 @@ static wchar_t base_dig(Int dig, Int ch) {
 #define TMP_STRING_SIZE 1024
 
 static Int doformat(volatile Term otail, volatile Term oargs,
-                    int sno USES_REGS) {
+                    int sno0 USES_REGS) {
   char tmp1[TMP_STRING_SIZE], *tmpbase;
   int ch;
   Term mytargs[8], *targs;
@@ -467,18 +526,16 @@ static Int doformat(volatile Term otail, volatile Term oargs,
   Term args;
   Term tail;
   int (*f_putc)(int, wchar_t);
-  int osno = 0;
+  int sno = sno0;
   jmp_buf format_botch;
   volatile void *old_handler;
   volatile int old_pos;
   format_info finfo;
-  unsigned char *ubuf = NULL;
   Term fmod = CurrentModule;
-  size_t sz = 0;
 
-  finfo.padders = 0;
+
   finfo.format_error = FALSE;
-  if (GLOBAL_Stream[sno].status & InMemory_Stream_f) {
+  if (GLOBAL_Stream[sno0].status & InMemory_Stream_f) {
     old_handler = GLOBAL_Stream[sno].u.mem_string.error_handler;
     GLOBAL_Stream[sno].u.mem_string.error_handler = (void *)&format_botch;
     old_pos = GLOBAL_Stream[sno].u.mem_string.pos;
@@ -573,12 +630,20 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     tnum = 0;
     targs = mytargs;
   }
-  finfo.format_error = false;
 
+  // it starts here
+  finfo.format_error = false;
+  finfo.gapi = 0;
+  sno0 = sno;
+  sno = Yap_OpenBufWriteStream(PASS_REGS1);
+  finfo.format_error = false;
+  finfo.gapi = 0;
+  finfo.phys_start = 0;
+  finfo.lstart = 0;
   f_putc = GLOBAL_Stream[sno].stream_wputc;
   while ((ch = *fptr++)) {
     Term t = TermNil;
-    int has_repeats = FALSE;
+    int has_repeats = false;
     int repeats = 0;
 
     if (ch == '~') {
@@ -928,7 +993,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
             if (GLOBAL_Stream[sno].status & InMemory_Stream_f) {
               GLOBAL_Stream[sno].u.mem_string.error_handler = old_handler;
             }
-            format_clean_up(sno, (char *)fstr, targs);
+            format_clean_up(sno, sno0, &finfo, (char *)fstr, targs);
             Yap_RaiseException();
             return false;
           }
@@ -957,73 +1022,55 @@ static Int doformat(volatile Term otail, volatile Term oargs,
             goto do_consistency_error;
           f_putc(sno, (int)'~');
           break;
-        case 'n':
+        case 'n':	  
           if (!has_repeats)
             repeats = 1;
           while (repeats--) {
             f_putc(sno, (int)'\n');
           }
-          finfo.padders = 0;
+	  format_synch( sno, sno0, &finfo);
           break;
         case 'N':
           if (!has_repeats)
             has_repeats = 1;
           if (GLOBAL_Stream[sno].linepos != 0) {
-            f_putc(sno, '\n');
-            finfo.padders = 0;
+	    f_putc(sno, '\n');
+ 	    format_synch( sno, sno0, &finfo);
           }
           if (repeats > 1) {
             Int i;
             for (i = 1; i < repeats; i++)
               f_putc(sno, '\n');
-            finfo.padders = 0;
           }
+	  format_synch( sno, sno0, &finfo);
           break;
         /* padding */
         case '|':
-          if (osno) {
-            Yap_CloseStream(sno);
-            sno = osno;
-            osno = 0;
-          }
-          repeats -= GLOBAL_Stream[sno].linepos;
-          repeats = (repeats < 0 ? 0 : repeats);
-          fill_pads(sno, repeats, &finfo PASS_REGS);
+          fill_pads(sno, sno0, repeats, &finfo PASS_REGS);
           break;
         case '+':
-          if (osno) {
-            Yap_CloseStream(sno);
-            sno = osno;
-            osno = 0;
-          }
-          repeats = (repeats < 0 ? 0 : repeats);
-          fill_pads(sno, repeats, &finfo PASS_REGS);
+          fill_pads(sno, sno0, finfo.lstart+repeats, &finfo PASS_REGS);
           break;
         case 't': {
-          int nsno;
-
-          finfo.pad_entries[finfo.padders].len = sz;
-          finfo.pad_entries[finfo.padders].pad = (char *)ubuf;
-          nsno = Yap_open_buf_write_stream(GLOBAL_Stream[sno].encoding, 0);
-          if (osno) {
-            GLOBAL_Stream[nsno].linepos = GLOBAL_Stream[sno].linepos;
-            GLOBAL_Stream[nsno].linecount = GLOBAL_Stream[sno].linecount;
-            GLOBAL_Stream[nsno].charcount = GLOBAL_Stream[sno].charcount;
-            Yap_CloseStream(sno);
-          } else {
-            osno = sno;
-            GLOBAL_Stream[nsno].linepos = GLOBAL_Stream[sno].linepos;
-            GLOBAL_Stream[nsno].linecount = GLOBAL_Stream[sno].linecount;
-            GLOBAL_Stream[nsno].charcount = GLOBAL_Stream[sno].charcount;
+#if MAY_WRITE
+          if (fflush(GLOBAL_Stream[sno].file) == 0) {
+            finfo.gap[finfo.gapi].phys = 
+	      ftell(GLOBAL_Stream[sno].file);
           }
-          sno = nsno;
-          finfo.pad_entries[finfo.padders].start = GLOBAL_Stream[sno].linepos;
-          if (!has_repeats)
-            finfo.pad_entries[finfo.padders].filler = ' ';
+#else
+         finfo.gap[finfo.gapi].phys =
+	    GLOBAL_Stream[sno].u.mem_string.pos;
+#endif
+          finfo.gap[finfo.gapi].log = GLOBAL_Stream[sno].linepos;
+         if (has_repeats)
+            finfo.gap[finfo.gapi].filler = fptr[-2];
           else
-            finfo.pad_entries[finfo.padders].filler = fptr[-2];
-          finfo.padders++;
-        } break;
+	    finfo.gap[finfo.gapi].filler = ' ';
+          finfo.gapi++;
+        }
+	  break;
+
+	 
         do_instantiation_error:
           LOCAL_Error_TYPE = INSTANTIATION_ERROR;
           goto do_default_error;
@@ -1062,7 +1109,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
           if (GLOBAL_Stream[sno].status & InMemory_Stream_f) {
             GLOBAL_Stream[sno].u.mem_string.error_handler = old_handler;
           }
-          format_clean_up(sno, fstr, targs);
+          format_clean_up(sno, sno0, &finfo, fstr, targs);
           LOCAL_Error_TYPE = YAP_NO_ERROR;
           return FALSE;
         }
@@ -1070,16 +1117,13 @@ static Int doformat(volatile Term otail, volatile Term oargs,
         /* ok, now we should have a command */
       }
     } else {
+      if (ch == '\n') {
+	format_synch( sno, sno0, &finfo);
+      }
       f_putc(sno, ch);
     }
   }
-  if (finfo.padders) {
-    if (osno) {
-      Yap_CloseStream(sno);
-      sno = osno;
-    }
     //    fill_pads( sno, 0, &finfo);
-  }
   if (IsAtomTerm(tail) || IsStringTerm(tail)) {
     fstr = NULL;
   }
@@ -1088,13 +1132,12 @@ static Int doformat(volatile Term otail, volatile Term oargs,
   if (GLOBAL_Stream[sno].status & InMemory_Stream_f) {
     GLOBAL_Stream[sno].u.mem_string.error_handler = old_handler;
   }
-  format_clean_up(sno, fstr, targs);
+  format_clean_up(sno, sno0, &finfo, fstr, targs);
   return (TRUE);
 }
 
 /**
  * @pred  with_output_to(+ _Ouput_,: _Goal_)
-
 
 Run  _Goal_ as once/1, while characters written to the current
 output are sent to  _Output_. The predicate was introduced by SWI-Prolog.
