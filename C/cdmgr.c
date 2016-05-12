@@ -1464,9 +1464,10 @@ PredEntry *Yap_PredFromClause(Term t USES_REGS) {
 bool Yap_discontiguous(PredEntry *ap, Term mode USES_REGS) {
   register consult_obj *fp;
 
-  if (ap->PredFlags & (DiscontiguousPredFlag|MultiFileFlag))
+  if (ap->PredFlags & (DiscontiguousPredFlag | MultiFileFlag) ||
+      falseGlobalPrologFlag(DISCONTIGUOUS_WARNINGS_FLAG))
     return false;
-  if (mode != TermConsult && mode != TermReconsult)
+  if ((mode != TermConsult && mode != TermReconsult))
     return false;
   if (!LOCAL_ConsultSp) {
     return false;
@@ -1503,18 +1504,18 @@ static Int
   Term mod = Deref(ARG3);
 
   if (IsVarTerm(t))
-    return (FALSE);
+    return false;
   if (IsAtomTerm(t))
     at = AtomOfTerm(t);
   else
-    return (FALSE);
+    return false;
   t = Deref(ARG2);
   if (IsVarTerm(t))
-    return (FALSE);
+    return false;
   if (IsIntTerm(t))
     arity = IntOfTerm(t);
   else
-    return FALSE;
+    return false;
   if (arity == 0)
     pe = RepPredProp(PredPropByAtom(at, mod));
   else
@@ -1639,7 +1640,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
   else
     tf = t;
   tf = Yap_YapStripModule(tf, &mod);
-  
+
   if (IsAtomTerm(tf)) {
     at = AtomOfTerm(tf);
     p = RepPredProp(PredPropByAtom(at, mod));
@@ -1811,11 +1812,11 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
     tn = Yap_MkApplTerm(FunctorMultiFileClause, 5, t);
     Yap_Recordz(AtomMultiFile, tn);
   }
-  if (t4ref && *t4ref != TermNil) {  
-    if (!Yap_unify(*t4ref, tf)) {  
-      return false;  
-    }  
-  }  
+  if (t4ref && *t4ref != TermNil) {
+    if (!Yap_unify(*t4ref, tf)) {
+      return false;
+    }
+  }
   return true;
 }
 
