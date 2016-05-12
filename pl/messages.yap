@@ -883,7 +883,12 @@ confusing to YAP (who will process the error?). So we write this small
 stub to ensure everything os ok
 
 */
-
+prolog:print_message(Level, _Msg) :-
+	current_prolog_flag(verbose_load, silent),
+	stream_property(_Stream, alias(loop_stream) ),
+	Level \= error,
+	Level \= warning,
+	!.
 prolog:print_message(Level, _Msg) :-
 	current_prolog_flag(verbose, silent),
 	Level \= error,
