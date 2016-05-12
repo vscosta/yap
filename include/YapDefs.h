@@ -27,6 +27,12 @@
 /* The YAP main types */
 #include "YapTerm.h"
 
+/**
+  This term can never be constructed as a valid term, so it is
+  used as a "BAD" term
+*/
+#define TermZERO ((Term)0)
+
 #else
 
 #include "YapConfig.h"
