@@ -11,7 +11,7 @@
 BEGIN_ERROR_CLASSES()
 
 /// base case
-ECLASS(NO_ERROR, "no_error", 0)
+ECLASS(YAPC_NO_ERROR, "no_error", 0)
 /// bad domain, first argument often is the predicate.
 ECLASS(DOMAIN_ERROR, "domain_error", 2)
 /// bad arithmetic
@@ -43,7 +43,7 @@ BEGIN_ERRORS()
 
 /* ISO_ERRORS */
 
-E0(YAP_NO_ERROR, NO_ERROR) /// default state
+E0(YAP_NO_ERROR, YAPC_NO_ERROR) /// default state
 
 E(DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION, DOMAIN_ERROR,
   "absolute_file_name_option")
