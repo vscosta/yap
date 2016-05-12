@@ -1217,5 +1217,5 @@ void Yap_InitCharsio(void) {
   Yap_InitCPred("skip", 2, skip, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("skip1", 1, skip_1, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("tab", 2, tab, SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("tab1", 1, tab_1, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("tab", 1, tab_1, SafePredFlag | SyncPredFlag);
 }
