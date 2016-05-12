@@ -777,7 +777,7 @@ static Int cont_current_predicate(USES_REGS1) {
 
     if (IsNonVarTerm(t2)) {
       // module and functor known, should be easy
-      if (IsAtomTerm(t2)) {
+      if (IsAtomTerm(t3)) {
         if ((p = Yap_GetPredPropByAtom(AtomOfTerm(t3), t2)) &&
             valid_prop(p, task)) {
           cut_succeed();
@@ -1060,9 +1060,10 @@ static Int init_current_atom_op(
   return cont_current_atom_op(PASS_REGS1);
 }
 
-static Int copy_local_ops (USES_REGS1) { /* current_op(-Precedence,-Type,-Atom)             */
-  Term tmodin = Deref(ARG1);  
-  Term t = Deref(ARG1);  
+static Int
+    copy_local_ops(USES_REGS1) { /* current_op(-Precedence,-Type,-Atom) */
+  Term tmodin = Deref(ARG1);
+  Term t = Deref(ARG1);
   AtomEntry *ae;
   OpEntry *ope;
 
@@ -1338,7 +1339,8 @@ static Int p_statistics_lu_db_size(USES_REGS1) {
 
 static Int p_executable(USES_REGS1) {
   if (GLOBAL_argv && GLOBAL_argv[0])
-    Yap_findFile(GLOBAL_argv[0], NULL, NULL, LOCAL_FileNameBuf, true, YAP_EXE, true, true);
+    Yap_findFile(GLOBAL_argv[0], NULL, NULL, LOCAL_FileNameBuf, true, YAP_EXE,
+                 true, true);
   else
     strncpy(LOCAL_FileNameBuf, Yap_FindExecutable(), YAP_FILENAME_MAX - 1);
 
@@ -1434,9 +1436,8 @@ static Int p_break(USES_REGS1) {
   return FALSE;
 }
 
-
 void Yap_InitBackCPreds(void) {
-   Yap_InitCPredBack("$current_predicate", 4, 1, current_predicate,
+  Yap_InitCPredBack("$current_predicate", 4, 1, current_predicate,
                     cont_current_predicate, SafePredFlag | SyncPredFlag);
   Yap_InitCPredBack("$current_op", 5, 1, init_current_op, cont_current_op,
                     SafePredFlag | SyncPredFlag);
