@@ -140,55 +140,55 @@ static Term gethdir(Term t) {
   return MkAtomTerm(Yap_LookupAtom(s));
 }
 
-static bool issolutions(Term t) {
+static Term issolutions(Term t) {
   if (t == TermFirst || t == TermAll)
-    return true;
+    return t;
 
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "solutions in {first, all}.");
-    return false;
+    return TermZERO;
   }
   if (IsAtomTerm(t)) {
     Yap_Error(DOMAIN_ERROR_SOLUTIONS, t, "solutions in {first, all}");
-    return false;
+    return TermZERO;
   }
   Yap_Error(TYPE_ERROR_ATOM, t, "solutions in {first, all}}");
-  return false;
+  return TermZERO;
 }
 
-static bool is_file_type(Term t) {
+static Term is_file_type(Term t) {
   if (t == TermTxt || t == TermProlog || t == TermSource ||
       t == TermExecutable || t == TermQly || t == TermDirectory)
-    return true;
+    return t;
 
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t,
               "file_type in {txt,prolog,exe,directory...}");
-    return false;
+    return TermZERO;
   }
   if (IsAtomTerm(t)) {
     Yap_Error(DOMAIN_ERROR_FILE_TYPE, t,
               "file_type in {txt,prolog,exe,directory...}");
-    return false;
+    return TermZERO;
   }
   Yap_Error(TYPE_ERROR_ATOM, t, "file_type in {txt,prolog,exe,directory...}");
-  return false;
+  return TermZERO;
 }
 
-static bool is_file_errors(Term t) {
+static Term is_file_errors(Term t) {
   if (t == TermFail || t == TermError)
-    return true;
+    return t;
 
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "file_error in {fail,error}.");
-    return false;
+    return TermZERO;
   }
   if (IsAtomTerm(t)) {
     Yap_Error(DOMAIN_ERROR_FILE_ERRORS, t, "file_error in {fail,error}.");
-    return false;
+    return TermZERO;
   }
   Yap_Error(TYPE_ERROR_ATOM, t, "file_error in {fail,error}.");
-  return false;
+  return TermZERO;
 }
 
 static void unix_upd_stream_info(StreamDesc *s) {
