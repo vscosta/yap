@@ -409,6 +409,9 @@ static void IPred(PredEntry *ap, UInt NSlots, yamop *next_pc) {
     ap->PredFlags |= IndexedPredFlag;
   }
   if (ap->PredFlags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
+    if (ap->PredFlags &  ProfiledPredFlag) {
+      Yap_initProfiler(ap);
+    }
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
     ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
 #if defined(YAPOR) || defined(THREADS)
@@ -980,6 +983,9 @@ static void retract_all(PredEntry *p, int in_use) {
   p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
   if (trueGlobalPrologFlag(PROFILING_FLAG)) {
     p->PredFlags |= ProfiledPredFlag;
+     if (!Yap_initProfiler(p)) {
+      return;
+    }   
   } else
     p->PredFlags &= ~ProfiledPredFlag;
   if (CALL_COUNTING) {
@@ -1044,7 +1050,10 @@ static void add_first_static(PredEntry *p, yamop *cp, int spy_flag) {
   p->cs.p_code.NOfClauses = 1;
   if (trueGlobalPrologFlag(PROFILING_FLAG)) {
     p->PredFlags |= ProfiledPredFlag;
-    spy_flag = TRUE;
+      if (!Yap_initProfiler(p)) {
+      return;
+    }   
+   spy_flag = TRUE;
   } else {
     p->PredFlags &= ~ProfiledPredFlag;
   }
@@ -1072,6 +1081,9 @@ static void add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag) {
 
   if (trueGlobalPrologFlag(PROFILING_FLAG)) {
     p->PredFlags |= ProfiledPredFlag;
+    if (!Yap_initProfiler(p)) {
+      return;
+    }
     spy_flag = true;
   } else {
     p->PredFlags &= ~ProfiledPredFlag;

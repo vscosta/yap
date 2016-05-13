@@ -1413,9 +1413,9 @@ c_functor(Term Goal, Term mod, compiler_struct *cglobs)
       save_machine_regs();
       siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
     }
-    if (profiling)
+    if (profiling) {
       Yap_emit(enter_profiling_op, (CELL)RepPredProp(p0), Zero, &cglobs->cint);
-    else if (call_counting)
+    } else if (call_counting)
       Yap_emit(count_call_op, (CELL)RepPredProp(p0), Zero, &cglobs->cint);
     c_args(Goal, 0, cglobs);
     Yap_emit(safe_call_op, (CELL)p0 , Zero, &cglobs->cint);

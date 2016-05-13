@@ -112,7 +112,7 @@ Functor Yap_MkFunctor(Atom ap, arity_t arity) {
   WRITE_LOCK(ae->ARWLock);
   f = InlinedUnlockedMkFunctor(ae, arity);
   WRITE_UNLOCK(ae->ARWLock);
-  return (f);
+  return f;
 }
 
 /* vsc: We must guarantee that IsVarTerm(functor) returns true! */
@@ -818,6 +818,7 @@ Prop Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod) {
     p->ModuleOfPred = 0L;
   else
     p->ModuleOfPred = cur_mod;
+  p->StatisticsForPred = NULL;
   Yap_NewModulePred(cur_mod, p);
 
 #ifdef TABLING
@@ -887,6 +888,7 @@ Prop Yap_NewThreadPred(PredEntry *ap USES_REGS) {
     return NIL;
   }
   INIT_LOCK(p->PELock);
+  p->StatisticsForPred = NULL:
   p->KindOfPE = PEProp;
   p->ArityOfPE = ap->ArityOfPE;
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
@@ -941,6 +943,7 @@ Prop Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod) {
   INIT_LOCK(p->PELock);
   p->KindOfPE = PEProp;
   p->ArityOfPE = 0;
+  p->StatisticsForPred = NULL;
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
   p->cs.p_code.NOfClauses = 0;
   p->PredFlags = 0L;

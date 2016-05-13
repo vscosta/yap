@@ -1024,6 +1024,8 @@ static void spy_goal(USES_REGS1) {
   }
   /* standard profiler */
   if ((pe->PredFlags & ProfiledPredFlag)) {
+    if (!pe->StatisticsForPred)
+      Yap_initProfiler(pe);
     LOCK(pe->StatisticsForPred->lock);
     pe->StatisticsForPred->NOfEntries++;
     UNLOCK(pe->StatisticsForPred->lock);

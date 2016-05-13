@@ -2681,6 +2681,11 @@ static PredEntry *new_lu_int_key(Int key) {
   p->ArityOfPE = 3;
   p->OpcodeOfPred = Yap_opcode(_op_fail);
   p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = FAILCODE;
+  if (p->PredFlags & ProfiledPredFlag) {
+    if (!Yap_initProfiler(p)) {
+      return NULL;
+    }
+  }
   INT_LU_KEYS[hash_key] = p0;
   return p;
 }
@@ -2714,6 +2719,11 @@ static PredEntry *new_lu_entry(Term t) {
   if (CurrentModule == PROLOG_MODULE)
     pe->PredFlags |= StandardPredFlag;
   pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred = FAILCODE;
+  if (pe->PredFlags & ProfiledPredFlag) {
+    if (!Yap_initProfiler(pe)) {
+      return NULL;
+    }
+  }
   return pe;
 }
 
@@ -2738,7 +2748,8 @@ static DBProp find_entry(Term t) {
     at = AtomDot;
     arity = 2;
   }
-  return RepDBProp(FindDBProp(RepAtom(at), 0, arity, 0));
+  DBProp rc = RepDBProp(FindDBProp(RepAtom(at), 0, arity, 0));
+    return rc;
 }
 
 static PredEntry *find_lu_entry(Term t) {
@@ -3304,6 +3315,7 @@ static Int lu_recorded(PredEntry *pe USES_REGS) {
   }
   if (pe->PredFlags & ProfiledPredFlag) {
     LOCK(pe->StatisticsForPred->lock);
+
     pe->StatisticsForPred->NOfEntries++;
     UNLOCK(pe->StatisticsForPred->lock);
   }
@@ -4250,7 +4262,7 @@ static Int p_current_reference_counter(USES_REGS1) {
     Yap_Error(INSTANTIATION_ERROR, t1, "increase_reference_counter/1");
     return FALSE;
   }
-  if (!IsDBRefTerm(t1)) {
+                                if (!IsDBRefTerm(t1)) {
     Yap_Error(TYPE_ERROR_DBREF, t1, "increase_reference_counter");
     return FALSE;
   }
