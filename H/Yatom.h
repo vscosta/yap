@@ -494,6 +494,8 @@ don't forget to also add in qly.h
 */
 typedef uint64_t pred_flags_t;
 
+#define ProfiledPredFlag                                                       \
+  ((pred_flags_t)0x2000000000) /* pred is being profiled   */
 #define DiscontiguousPredFlag                                                  \
   ((pred_flags_t)0x1000000000) /* predicates whose clauses may be all-over     \
                                   the place.. */
@@ -544,8 +546,6 @@ typedef uint64_t pred_flags_t;
 #define TabledPredFlag ((pred_flags_t)0x00000040)   /* is tabled */
 #define SequentialPredFlag                                                     \
   ((pred_flags_t)0x00000020) /* may not create parallel choice points! */
-#define ProfiledPredFlag                                                       \
-  ((pred_flags_t)0x00000010) /* pred is being profiled   */
 #define BackCPredFlag                                                          \
   ((pred_flags_t)0x00000008) /*	Myddas Imported pred                           \
                                 */
@@ -677,6 +677,9 @@ INLINE_ONLY inline EXTERN Atom NameOfPred(PredEntry *pe) {
     return NameOfFunctor(f);
   }
 }
+
+ profile_data *
+   Yap_initProfiler(PredEntry *p);
 
 /* Flags for code or dbase entry */
 /* There are several flags for code and data base entries */
