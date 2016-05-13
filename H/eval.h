@@ -538,13 +538,13 @@ Term Yap_gmp_fdiv_float_big(Float, Term);
 Term Yap_gmp_fdiv_big_float(Term, Float);
 
 int Yap_gmp_cmp_big_int(Term, Int);
-#define Yap_gmp_cmp_int_big(I, T) (-Yap_gmp_cmp_big_int(T, I))
+int Yap_gmp_cmp_int_big(Int, Term);
 int Yap_gmp_cmp_big_float(Term, Float);
 #define Yap_gmp_cmp_float_big(D, T) (-Yap_gmp_cmp_big_float(T, D))
 int Yap_gmp_cmp_big_big(Term, Term);
 
 int Yap_gmp_tcmp_big_int(Term, Int);
-#define Yap_gmp_tcmp_int_big(I, T) (-Yap_gmp_tcmp_big_int(T, I))
+int Yap_gmp_tcmp_int_big(Int, Term);
 int Yap_gmp_tcmp_big_float(Term, Float);
 #define Yap_gmp_tcmp_float_big(D, T) (-Yap_gmp_tcmp_big_float(T, D))
 int Yap_gmp_tcmp_big_big(Term, Term);

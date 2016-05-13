@@ -1235,6 +1235,19 @@ Yap_gmp_cmp_big_int(Term t, Int i)
 }
 
 int 
+Yap_gmp_cmp_int_big(Int i, Term t)
+{
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    MP_INT *b = Yap_BigIntOfTerm(t);
+    return -mpz_cmp_si(b,i);
+  } else {
+    MP_RAT *b = Yap_BigRatOfTerm(t);
+    return -mpq_cmp_si(b,i,1);
+  }
+}
+
+int 
 Yap_gmp_cmp_big_float(Term t, Float d)
 {
   CELL *pt = RepAppl(t);
@@ -1301,6 +1314,18 @@ Yap_gmp_tcmp_big_int(Term t, Int i)
     return mpz_cmp_si(b,i);
   } else {
     return -1;
+  }
+}
+
+int 
+Yap_gmp_tcmp_int_big(Int i, Term t)
+{
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    MP_INT *b = Yap_BigIntOfTerm(t);
+    return -mpz_cmp_si(b,i);
+  } else {
+    return 1;
   }
 }
 
