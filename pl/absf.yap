@@ -169,7 +169,8 @@ absolute_file_name(File0,File) :-
                               expand(true)],F,G).
 
 '$absolute_file_name'(File,LOpts,TrueFileName, G) :-
-%   must_be_of_type( atom, File ),
+				%   must_be_of_type( atom, File ),
+	( var(File) -> instantiation_error(File) ; true),
 	abs_file_parameters(LOpts,Opts),
 	current_prolog_flag(open_expands_filename, OldF),
 	current_prolog_flag( fileerrors, PreviousFileErrors ),
