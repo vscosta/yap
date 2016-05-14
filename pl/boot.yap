@@ -1717,7 +1717,7 @@ log_event( String, Args ) :-
 	yap_flag(toplevel_prompt, P),
 	atomic_concat(LF, PF),
 	prompt1(PF),
-	prompt(_,'    '),
+	prompt(_,' |   '),
     '$ensure_prompting'.
 
 /**
