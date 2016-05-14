@@ -351,7 +351,7 @@ static bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS) {
       /* last gap??*/
       if (padi-fg->gap == fg->gapi) {
 	for (j=0; j < fill_space; j++)
-	  f_putc(sno0, padi->filler);
+	  f_putc(sno0, (padi-1)->filler);
       }
       
     }
