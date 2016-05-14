@@ -7,6 +7,7 @@ This package uses the library cudd, see http://vlsi.colorado.edu/~fabio/CUDD/
 for the relative license.
 
 */
+#include <stdio.h>
 #include "config.h"
 #include "cudd_config.h"
 #if HAVE_CUDD_CUDDINT_H
