@@ -1347,9 +1347,9 @@ static void expand_consult(void) {
   /* next, set up pointers correctly */
   new_cs += (LOCAL_ConsultSp - LOCAL_ConsultLow);
   /* put LOCAL_ConsultBase at same offset as before move */
-  LOCAL_ConsultBase = LOCAL_ConsultBase + (new_cs - LOCAL_ConsultSp);
-  /* new consult pointer */
-  LOCAL_ConsultSp = new_cs;
+  LOCAL_ConsultBase = new_cl + ((LOCAL_ConsultBase - LOCAL_ConsultLow)+InitialConsultCapacity);  
+/* new consult pointer */
+  LOCAL_ConsultSp = new_cl + ((LOCAL_ConsultSp - LOCAL_ConsultLow)+InitialConsultCapacity);  
   /* new end of memory */
   LOCAL_ConsultLow = new_cl;
 }
@@ -1389,9 +1389,9 @@ static int not_was_reconsulted(PredEntry *p, Term t, int mode) {
     //%s\n",NameOfFunctor(p->FunctorOfPred)->StrOfAE,p->src.OwnerFile->StrOfAE);
   }
   if (mode) {
-    if (LOCAL_ConsultSp == LOCAL_ConsultLow + 1) {
-      expand_consult();
-    }
+    if (LOCAL_ConsultSp <= LOCAL_ConsultLow + 6) {    
+      expand_consult();    
+    }    
     --LOCAL_ConsultSp;
     LOCAL_ConsultSp->p = p0;
     if (LOCAL_ConsultBase[1].mode &&
@@ -2000,6 +2000,9 @@ static void init_consult(int mode, const unsigned char *file) {
   CACHE_REGS
   if (!LOCAL_ConsultSp) {
     InitConsultStack();
+  }
+  if (LOCAL_ConsultSp >= LOCAL_ConsultLow + 6) {    
+    expand_consult();    
   }
   LOCAL_ConsultSp--;
   LOCAL_ConsultSp->filename = file;
