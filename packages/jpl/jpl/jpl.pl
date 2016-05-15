@@ -155,8 +155,6 @@ jpl_tidy_iref_type_cache( Iref) :-
 %
 %   finally, an attempt will be made to unify Result with the returned result
 
-:- stop_low_level_trace.
-
 jpl_call(X, Mspec, Params, R) :-
 	(   jpl_object_to_type(X, Type)         % the usual case (goal fails safely if X is var or rubbish)
 	->  Obj = X,
