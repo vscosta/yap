@@ -414,7 +414,7 @@ load_files(Files,Opts) :-
 	(
 	  atom(M)
 	->
-	  '$lf'(X, M, Call, TOpts)
+	 '$lf'(X, M, Call, TOpts)
 	  ;
 	  '$do_error'(type_error(atom,M),Call)
 	).
@@ -431,23 +431,23 @@ load_files(Files,Opts) :-
 	b_setval('$user_source_file', user_input),
 	'$do_lf'(Mod, user_input, user_input, user_input, TOpts).
 '$lf'(File, Mod, Call, TOpts) :-
-   '$lf_opt'(stream, TOpts, Stream),
-   b_setval('$user_source_file', File),
-    ( var(Stream) ->
+	'$lf_opt'(stream, TOpts, Stream),
+	b_setval('$user_source_file', File),
+	( var(Stream) ->
 	  /* need_to_open_file */
-      ( '$full_filename'(File, Y, Call) -> true ; '$do_error'(existence_error(source_sink,File),Call) ),
-( open(Y, read, Stream) -> true ; '$do_error'(permission_error(input,stream,Y),Call) )
+	  ( '$full_filename'(File, Y, Call) -> true ; '$do_error'(existence_error(source_sink,File),Call) ),
+	  ( open(Y, read, Stream) -> true ; '$do_error'(permission_error(input,stream,Y),Call) )
         ;
-	stream_property(Stream, file_name(Y))
-    ), !,
-    ( file_size(Stream, Pos) -> true ; Pos = 0),
-    '$set_lf_opt'('$source_pos', TOpts, Pos),
-    '$lf_opt'(reexport, TOpts, Reexport),
-    '$lf_opt'(if, TOpts, If),
-    ( var(If) -> If = true ; true ),
-    '$lf_opt'(imports, TOpts, Imports),
-    '$start_lf'(If, Mod, Stream, TOpts, File, Y, Reexport, Imports),
-    close(Stream).
+	  stream_property(Stream, file_name(Y))
+	), !,
+	( file_size(Stream, Pos) -> true ; Pos = 0),
+	'$set_lf_opt'('$source_pos', TOpts, Pos),
+	'$lf_opt'(reexport, TOpts, Reexport),
+	'$lf_opt'(if, TOpts, If),
+	( var(If) -> If = true ; true ),
+	'$lf_opt'(imports, TOpts, Imports),
+	'$start_lf'(If, Mod, Stream, TOpts, File, Y, Reexport, Imports),
+	close(Stream).
 
 
 '$start_lf'(not_loaded, Mod, _Stream, TOpts, UserFile, File, Reexport,Imports) :-
@@ -511,7 +511,7 @@ loaded, otherwise advertises the user about the existing name clashes
 are not public remain invisible.
 
 When the files are not module files, ensure_loaded/1 loads them
-if they have not been loaded before, and does nothing otherwise.
+  if they have not been loaded before, and does nothing otherwise.
 
  _F_ must be a list containing the names of the files to load.
 */
@@ -1386,8 +1386,7 @@ initialization(G0,OPT) :-
     expand_goal(G0, G),
    catch('$initialization'(G, OPT), Error, '$LoopError'( Error, consult ) ),
     fail.
-initialization(_G,_OPT) :-
-                stop_low_level_trace.
+initialization(_G,_OPT).
 
 '$initialization'(G,OPT) :-
     must_be_of_type(callable, G, initialization(G,OPT)),
