@@ -471,6 +471,7 @@ true :- true.
 	nb_setval('$endif',off),
  	nb_setval('$initialization_goals',off),
 	nb_setval('$included_file',[]),
+	nb_setval('$loop_streams',[]),
 	\+ '$undefined'('$init_preds',prolog),
 	'$init_preds',
 	fail.

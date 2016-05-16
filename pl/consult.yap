@@ -652,11 +652,19 @@ db_files(Fs) :-
 '$extract_minus'([-F|Fs], [F|MFs]) :-
 	'$extract_minus'(Fs, MFs).
 
+'$do_lf'(_ContextModule, Stream, _UserFile, _File, _TOpts) :-
+	stream_property(Stream, file_name(Y)),
+	b_getval('$loop_streams',Sts0),
+	lists:member(Stream0, Sts0),
+	stream_property(Stream0, file_name(Y)),
+	!.
 '$do_lf'(ContextModule, Stream, UserFile, File,  TOpts) :-
-    prompt1(': '), prompt(_,'     '),
+	prompt1(': '), prompt(_,'     '),
 	stream_property(OldStream, alias(loop_stream) ),
 	'$lf_opt'(encoding, TOpts, Encoding),
-    set_stream( Stream, [alias(loop_stream), encoding(Encoding)] ),
+	set_stream( Stream, [alias(loop_stream), encoding(Encoding)] ),
+	'$nb_getval'('$loop_streams',Sts0, Sts0=[]),
+	nb_setval('$loop_streams',[Stream|Sts0]),
  	'$lf_opt'('$context_module', TOpts, ContextModule),
 	'$lf_opt'(reexport, TOpts, Reexport),
 	'$lf_opt'(qcompile, TOpts, QCompiling),
@@ -704,6 +712,7 @@ db_files(Fs) :-
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	'$early_print'(informational, loaded(EndMsg, File, Mod, T, H)),
 	'$end_consult',
+	nb_setval('$loop_streams',Sts0),
 	'$q_do_save_file'(File, UserFile, TOpts ),
 	(
 	    Reconsult = reconsult ->
@@ -727,6 +736,7 @@ db_files(Fs) :-
 	'$exec_initialization_goals',
 	% format( 'O=~w~n', [Mod=UserFile] ),
 	!.
+
 
 '$q_do_save_file'(File, UserF, TOpts ) :-
     '$lf_opt'(qcompile, TOpts, QComp),
