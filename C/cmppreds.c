@@ -222,11 +222,11 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
 #ifdef USE_GMP
       else if (IsBigIntTerm(d0)) {
 	if (IsIntTerm(d1)) {
-	  out = Yap_gmp_tcmp_int_big(d0, IntOfTerm(d1));
+	  out = Yap_gmp_tcmp_big_int(d0, IntOfTerm(d1));
 	} else if (IsFloatTerm(d1)) {
 	  out = 1;
 	} else if (IsLongIntTerm(d1)) {
-	  out = Yap_gmp_tcmp_int_big(d0, LongIntOfTerm(d1));
+	  out = Yap_gmp_tcmp_big_int(d0, LongIntOfTerm(d1));
 	} else if (IsBigIntTerm(d1)) {
 	  out = Yap_gmp_tcmp_big_big(d0, d1);
 	} else if (IsRefTerm(d1))

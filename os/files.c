@@ -374,8 +374,10 @@ static Int access_file(USES_REGS1) {
   {
     int mode;
 
-    if (atmode == AtomExist)
-      mode = 00;
+    if (atmode == AtomExist)        
+      mode = 00;        
+    else if (atmode == AtomExists)        
+      mode = 00;        
     else if (atmode == AtomWrite)
       mode = 02;
     else if (atmode == AtomRead)
@@ -400,8 +402,10 @@ static Int access_file(USES_REGS1) {
   {
     int mode;
 
-    if (atmode == AtomExist)
-      mode = F_OK;
+    if (atmode == AtomExist)    
+      mode = F_OK;    
+    else if (atmode == AtomExists)    
+      mode = F_OK;    
     else if (atmode == AtomWrite)
       mode = W_OK;
     else if (atmode == AtomRead)

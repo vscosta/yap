@@ -1194,16 +1194,20 @@ do_open(Term file_name, Term t2,
   }
   /* done */
   sno = GetFreeStreamD();
-  if (sno < 0)
+  if (sno < 0) {
+    free(args);
     return PlIOError(RESOURCE_ERROR_MAX_STREAMS, TermNil, "open/3");
+  }
   st = &GLOBAL_Stream[sno];
   st->user_name = file_name;
   flags = s;
   // user requested encoding?
   if (args[OPEN_ALIAS].used) {
     Atom al = AtomOfTerm(args[OPEN_ALIAS].tvalue);
-    if (!Yap_AddAlias(al, sno))
+    if (!Yap_AddAlias(al, sno)) {
+      free(args);      
       return false;
+    }
   }
   if (args[OPEN_ENCODING].used) {
     tenc = args[OPEN_ENCODING].tvalue;
@@ -1277,10 +1281,11 @@ do_open(Term file_name, Term t2,
       free((void *)fname);
     fname = LOCAL_FileNameBuf;
     UNLOCK(st->streamlock);
-    if (errno == ENOENT)
+    if (errno == ENOENT) {
+      free(args);
       return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, file_name, "%s: %s", fname,
                         strerror(errno)));
-    else {
+    } else {
       return (PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, file_name, "%s: %s",
                         fname, strerror(errno)));
     }
@@ -1310,6 +1315,7 @@ do_open(Term file_name, Term t2,
   if (script)
     open_header(sno, open_mode);
 
+  free(args);
   UNLOCK(st->streamlock);
   {
     Term t = Yap_MkStream(sno);

@@ -132,6 +132,7 @@
   AtomExecuteWithin = Yap_FullLookupAtom("$execute_within"); TermExecuteWithin = MkAtomTerm(AtomExecuteWithin);
   AtomExecuteWoMod = Yap_FullLookupAtom("$execute_wo_mod"); TermExecuteWoMod = MkAtomTerm(AtomExecuteWoMod);
   AtomExist = Yap_LookupAtom("exist"); TermExist = MkAtomTerm(AtomExist);
+  AtomExists = Yap_LookupAtom("exists"); TermExists = MkAtomTerm(AtomExists);
   AtomExit = Yap_LookupAtom("exit"); TermExit = MkAtomTerm(AtomExit);
   AtomExistenceError = Yap_LookupAtom("existence_error"); TermExistenceError = MkAtomTerm(AtomExistenceError);
   AtomExoClause = Yap_FullLookupAtom("$exo_clause"); TermExoClause = MkAtomTerm(AtomExoClause);
@@ -377,6 +378,7 @@
   AtomSystem = Yap_LookupAtom("system"); TermSystem = MkAtomTerm(AtomSystem);
   AtomSystemError = Yap_LookupAtom("SYSTEM_ERROR_INTERNAL"); TermSystemError = MkAtomTerm(AtomSystemError);
   AtomSystemLibraryDir = Yap_LookupAtom("system_library_directory"); TermSystemLibraryDir = MkAtomTerm(AtomSystemLibraryDir);
+  AtomT = Yap_LookupAtom("t"); TermT = MkAtomTerm(AtomT);
   AtomTerm = Yap_LookupAtom("term"); TermTerm = MkAtomTerm(AtomTerm);
   AtomTermExpansion = Yap_LookupAtom("term_expansion"); TermTermExpansion = MkAtomTerm(AtomTermExpansion);
   AtomTerms = Yap_LookupAtom("terms"); TermTerms = MkAtomTerm(AtomTerms);
@@ -394,6 +396,7 @@
   AtomTrue = Yap_LookupAtom("true"); TermTrue = MkAtomTerm(AtomTrue);
   AtomTty = Yap_LookupAtom("tty"); TermTty = MkAtomTerm(AtomTty);
   AtomTtys = Yap_LookupAtom("ttys"); TermTtys = MkAtomTerm(AtomTtys);
+  AtomTuple = Yap_LookupAtom("tuple"); TermTuple = MkAtomTerm(AtomTuple);
   AtomTxt = Yap_LookupAtom("txt"); TermTxt = MkAtomTerm(AtomTxt);
   AtomTypeError = Yap_LookupAtom("type_error"); TermTypeError = MkAtomTerm(AtomTypeError);
   AtomUndefined = Yap_LookupAtom("undefined"); TermUndefined = MkAtomTerm(AtomUndefined);

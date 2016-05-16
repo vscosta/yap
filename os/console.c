@@ -138,7 +138,6 @@ restart:
 #endif
   LOCAL_PrologMode |= ConsoleGetcMode;
   ch = fgetc(s->file);
-  printf("got %d\n", ch);
 #if HAVE_SIGINTERRUPT
   siginterrupt(SIGINT, FALSE);
 #endif

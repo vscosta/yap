@@ -2,7 +2,7 @@
 *									 *
 *	 YAP Prolog 							 *
 *									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
@@ -201,7 +201,6 @@ compose_message(Term, Level) -->
 	caller( Term, Level ),
 	extra_info(  Term, Level ),
 	!,
-%	{ start_low_level_trace },
 	[nl,nl].
 compose_message(Term, Level) -->
 	{  Level == error -> true ; Level == warning },

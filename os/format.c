@@ -351,7 +351,7 @@ static bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS) {
       /* last gap??*/
       if (padi-fg->gap == fg->gapi) {
 	for (j=0; j < fill_space; j++)
-	  f_putc(sno0, padi->filler);
+	  f_putc(sno0, (padi-1)->filler);
       }
       
     }
@@ -483,8 +483,10 @@ static Int format_copy_args(Term args, Term *targs, Int tsz) {
 static void
 
 format_clean_up(int sno, int sno0, format_info *finf, const char *fstr, const Term *targs) {
-  format_synch( sno, sno0, finf);
-  Yap_CloseStream(sno);
+  if (sno > 0) {
+    format_synch( sno, sno0, finf);
+    Yap_CloseStream(sno);
+  }
   if (fstr) {
     Yap_FreeAtomSpace((void *)fstr);
   }
@@ -532,6 +534,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
   volatile int old_pos;
   format_info finfo;
   Term fmod = CurrentModule;
+  bool alloc_fstr = false;
 
 
   finfo.format_error = FALSE;
@@ -571,11 +574,16 @@ static Int doformat(volatile Term otail, volatile Term oargs,
       fstr = fptr = fstr0 = Yap_AllocAtomSpace(sz * sizeof(char));
       if ((fr = copy_format_string(tail, fstr0, sz)) == fst_ok)
         break;
-      if (fr == fst_error)
+      if (fr == fst_error) {
+        Yap_FreeCodeSpace(fstr0);      
+        fstr = NULL;        
         return false;
+      }
       sz += 256;
-      Yap_FreeCodeSpace(fstr0);
+      Yap_FreeCodeSpace(fstr0);      
+      fstr = NULL;      
     } while (TRUE);
+    alloc_fstr = true;
   } else if (IsAtomTerm(tail)) {
     fstr = fptr = RepAtom(AtomOfTerm(tail))->StrOfAE;
   } else if (IsStringTerm(tail)) {
@@ -613,7 +621,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
       if (tnum == FORMAT_COPY_ARGS_ERROR)
         return FALSE;
       else if (tnum == FORMAT_COPY_ARGS_OVERFLOW) {
-        if (mytargs != targs) {
+	if (mytargs != targs) {
           Yap_FreeCodeSpace((char *)targs);
         }
         tsz += 16;
@@ -635,12 +643,21 @@ static Int doformat(volatile Term otail, volatile Term oargs,
   finfo.format_error = false;
   finfo.gapi = 0;
   sno0 = sno;
-  sno = Yap_OpenBufWriteStream(PASS_REGS1);
   finfo.format_error = false;
   finfo.gapi = 0;
   finfo.phys_start = 0;
   finfo.lstart = 0;
   f_putc = GLOBAL_Stream[sno].stream_wputc;
+  sno = Yap_OpenBufWriteStream(PASS_REGS1);  
+  if (sno == -1) {
+    if (!alloc_fstr)    
+      fstr = NULL;    
+    if (mytargs == targs) {    
+      targs = NULL;    
+    }    
+    format_clean_up(sno, sno0, &finfo, (char *)fstr, targs);
+    return false;
+  }
   while ((ch = *fptr++)) {
     Term t = TermNil;
     int has_repeats = false;
@@ -961,8 +978,15 @@ static Int doformat(volatile Term otail, volatile Term oargs,
             args = Yap_GetFromSlot(sl);
             if (Yap_HasException())
               goto ex_handler;
-            if (!res)
+            if (!res) {
+	      if (!alloc_fstr)    
+                fstr = NULL;    
+	      if (mytargs == targs) {    
+                targs = NULL;    
+              }    
+	      format_clean_up(sno, sno0, &finfo, (char *)fstr, targs);
               return FALSE;
+	    }
             ts = Yap_GetFromSlot(sl2);
             Yap_CloseSlots(sl0);
             if (!format_print_str(sno, repeats, has_repeats, ts, f_putc)) {
@@ -993,7 +1017,12 @@ static Int doformat(volatile Term otail, volatile Term oargs,
             if (GLOBAL_Stream[sno].status & InMemory_Stream_f) {
               GLOBAL_Stream[sno].u.mem_string.error_handler = old_handler;
             }
-            format_clean_up(sno, sno0, &finfo, (char *)fstr, targs);
+	    if (!alloc_fstr)    
+              fstr = NULL;    
+	    if (mytargs == targs) {    
+              targs = NULL;    
+            }    
+	    format_clean_up(sno, sno0, &finfo, (char *)fstr, targs);
             Yap_RaiseException();
             return false;
           }
@@ -1109,7 +1138,12 @@ static Int doformat(volatile Term otail, volatile Term oargs,
           if (GLOBAL_Stream[sno].status & InMemory_Stream_f) {
             GLOBAL_Stream[sno].u.mem_string.error_handler = old_handler;
           }
-          format_clean_up(sno, sno0, &finfo, fstr, targs);
+	  if (!alloc_fstr)    
+            fstr = NULL;    
+	  if (mytargs == targs) {    
+            targs = NULL;    
+          }    
+	  format_clean_up(sno, sno0, &finfo, fstr, targs);
           LOCAL_Error_TYPE = YAP_NO_ERROR;
           return FALSE;
         }
@@ -1132,6 +1166,11 @@ static Int doformat(volatile Term otail, volatile Term oargs,
   if (GLOBAL_Stream[sno].status & InMemory_Stream_f) {
     GLOBAL_Stream[sno].u.mem_string.error_handler = old_handler;
   }
+  if (!alloc_fstr)    
+    fstr = NULL;    
+  if (mytargs == targs) {    
+    targs = NULL;    
+  }    
   format_clean_up(sno, sno0, &finfo, fstr, targs);
   return (TRUE);
 }

@@ -1341,6 +1341,7 @@ do_prolog_flag_property(Term tflag,
       Term modt = CurrentModule;
       tflag = Yap_YapStripModule(tflag, &modt);
     } else {
+      free(args);
       Yap_Error(TYPE_ERROR_ATOM, tflag, "yap_flag/2");
       return (FALSE);
     }
@@ -1397,6 +1398,7 @@ do_prolog_flag_property(Term tflag,
     }
   }
   // UNLOCK(GLOBAL_Prolog_Flag[sno].prolog_flaglock);
+  free(args);      
   return rc;
 }
 
@@ -1501,8 +1503,10 @@ static Int do_create_prolog_flag(USES_REGS1) {
   fv = GetFlagProp(AtomOfTerm(tflag));
   if (fv) {
     if (args[PROLOG_FLAG_PROPERTY_KEEP].used &&
-        args[PROLOG_FLAG_PROPERTY_KEEP].tvalue == TermTrue)
+        args[PROLOG_FLAG_PROPERTY_KEEP].tvalue == TermTrue) {
+      free(args);      
       return true;
+    }
   } else {
     newFlag(tflag, tval);
     fv = GetFlagProp(AtomOfTerm(tflag));
@@ -1530,6 +1534,7 @@ static Int do_create_prolog_flag(USES_REGS1) {
           fv->type = isground;
       } break;
       case PROLOG_FLAG_PROPERTY_SCOPE:
+	free(args);
         return false;
       case PROLOG_FLAG_PROPERTY_END:
         break;
@@ -1537,6 +1542,7 @@ static Int do_create_prolog_flag(USES_REGS1) {
     }
   }
   // UNLOCK(GLOBAL_Prolog_Flag[sno].prolog_flaglock);
+  free(args);
   return true;
 }
 

@@ -670,6 +670,7 @@ static Int cont_stream_property(USES_REGS1) { /* current_stream */
     // done
     det = (p == STREAM_PROPERTY_END);
   }
+  free( args );
   if (rc) {
     if (det)
       cut_succeed();
@@ -720,9 +721,11 @@ static Int stream_property(USES_REGS1) { /* Init current_stream */
     }
     if (do_stream_property(i, args PASS_REGS)) {
       UNLOCK(GLOBAL_Stream[i].streamlock);
+      free( args );      
       cut_succeed();
     } else {
       UNLOCK(GLOBAL_Stream[i].streamlock);
+      free( args );      
       cut_fail();
     }
   } else {
@@ -912,17 +915,6 @@ static void CloseStream(int sno) {
     close(GLOBAL_Stream[sno].u.pipe.fd);
   } else if (GLOBAL_Stream[sno].status & (InMemory_Stream_f)) {
     Yap_CloseMemoryStream(sno);
-    if (GLOBAL_Stream[sno].file == NULL) {
-      char *s = GLOBAL_Stream[sno].u.mem_string.buf;
-      if (s == LOCAL_FileNameBuf ||
-	  s == LOCAL_FileNameBuf2)
-	return;
-      if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_CODE)
-	Yap_FreeAtomSpace(s);
-      else if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_MALLOC) {
-	free(s);
-      }
-    }
   }
   GLOBAL_Stream[sno].status = Free_Stream_f;
   Yap_DeleteAliases(sno);
@@ -1026,7 +1018,7 @@ static Int set_output(USES_REGS1) { /* '$show_stream_position'(+Stream,Pos) */
 static Int p_user_file_name(USES_REGS1) {
   Term tout;
   int sno =
-      Yap_CheckStream(ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f,
+    Yap_CheckStream(ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f,
                       "user_file_name/2");
   if (sno < 0)
     return (FALSE);

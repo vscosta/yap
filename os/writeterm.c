@@ -290,11 +290,14 @@ static Int write_term2(USES_REGS1) {
   }
   yhandle_t mySlots = Yap_StartSlots();
   int output_stream = LOCAL_c_output_stream;
-  if (output_stream == -1)
+  if (output_stream == -1) {
+    free( args );        
     output_stream = 1;
+  }
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term(output_stream, ARG1, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
+  free( args );        
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -313,11 +316,14 @@ static Int write_term3(USES_REGS1) {
     return false;
   }
   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "write/2");
-  if (output_stream < 0)
+  if (output_stream < 0) {
+    free( args );        
     return false;
+  }
   yhandle_t mySlots = Yap_StartSlots();
   write_term(output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
+  free( args );        
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -346,6 +352,7 @@ static Int write2(USES_REGS1) {
   args[WRITE_NUMBERVARS].tvalue = TermTrue;
   write_term(output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
+  free( args );        
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -372,6 +379,7 @@ static Int write1(USES_REGS1) {
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term(output_stream, ARG1, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
+  free( args );    
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -400,6 +408,7 @@ static Int write_canonical1(USES_REGS1) {
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term(output_stream, ARG1, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
+  free( args );    
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -418,8 +427,10 @@ static Int write_canonical(USES_REGS1) {
     return false;
   }
   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "write/2");
-  if (output_stream < 0)
+  if (output_stream < 0) {
+    free( args );    
     return false;
+  }
   yhandle_t mySlots = Yap_StartSlots();
   args[WRITE_IGNORE_OPS].used = true;
   args[WRITE_IGNORE_OPS].tvalue = TermTrue;
@@ -427,6 +438,7 @@ static Int write_canonical(USES_REGS1) {
   args[WRITE_QUOTED].tvalue = TermTrue;
   write_term(output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
+  free( args );    
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -446,15 +458,17 @@ static Int writeq1(USES_REGS1) {
   }
   yhandle_t mySlots = Yap_StartSlots();
   int output_stream = LOCAL_c_output_stream;
-  if (output_stream == -1)
+  if (output_stream == -1) {
+    free( args );
     output_stream = 1;
+  }
   args[WRITE_NUMBERVARS].used = true;
   args[WRITE_NUMBERVARS].tvalue = TermTrue;
   args[WRITE_QUOTED].used = true;
   args[WRITE_QUOTED].tvalue = TermTrue;
   write_term(output_stream, ARG1, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-
+  free( args );
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -473,8 +487,10 @@ static Int writeq(USES_REGS1) {
     return false;
   }
   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "write/2");
-  if (output_stream < 0)
+  if (output_stream < 0) {
+    free( args );    
     return false;
+  }
   yhandle_t mySlots = Yap_StartSlots();
   args[WRITE_NUMBERVARS].used = true;
   args[WRITE_NUMBERVARS].tvalue = TermTrue;
@@ -482,6 +498,7 @@ static Int writeq(USES_REGS1) {
   args[WRITE_QUOTED].tvalue = TermTrue;
   write_term(output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
+  free( args );    
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -501,8 +518,10 @@ static Int print1(USES_REGS1) {
   }
   yhandle_t mySlots = Yap_StartSlots();
   int output_stream = LOCAL_c_output_stream;
-  if (output_stream == -1)
+  if (output_stream == -1) {
+    free( args );    
     output_stream = 1;
+  }
   args[WRITE_PORTRAY].used = true;
   args[WRITE_PORTRAY].tvalue = TermTrue;
   args[WRITE_NUMBERVARS].used = true;
@@ -510,6 +529,7 @@ static Int print1(USES_REGS1) {
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term(output_stream, ARG1, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
+  free( args );    
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -528,8 +548,10 @@ static Int print(USES_REGS1) {
     return false;
   }
   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "write/2");
-  if (output_stream < 0)
+  if (output_stream < 0) {
+    free( args );    
     return false;
+  }
   yhandle_t mySlots = Yap_StartSlots();
   args[WRITE_PORTRAY].used = true;
   args[WRITE_PORTRAY].tvalue = TermTrue;
@@ -537,6 +559,7 @@ static Int print(USES_REGS1) {
   args[WRITE_NUMBERVARS].tvalue = TermTrue;
   write_term(output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
+  free( args );    
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -563,6 +586,7 @@ static Int writeln1(USES_REGS1) {
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term(output_stream, ARG1, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
+  free( args );    
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -579,8 +603,10 @@ static Int writeln(USES_REGS1) {
     return false;
   }
   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "writeln/2");
-  if (output_stream < 0)
-    return false;
+  if (output_stream < 0) {
+    free( args );    
+return false;
+  }
   yhandle_t mySlots = Yap_StartSlots();
   args[WRITE_NL].used = true;
   args[WRITE_NL].tvalue = TermTrue;
@@ -588,6 +614,7 @@ static Int writeln(USES_REGS1) {
   args[WRITE_NUMBERVARS].tvalue = TermTrue;
   write_term(output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
+  free( args );    
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);

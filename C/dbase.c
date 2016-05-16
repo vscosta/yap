@@ -2503,7 +2503,8 @@ static Term GetDBTerm(DBTerm *DBSP, int src USES_REGS) {
     CalculateStackGap(PASS_REGS1);
     if (HR + NOf > ASP - EventFlag / sizeof(CELL)) {
       if (LOCAL_PrologMode & InErrorMode) {
-        if (HR + NOf > ASP)
+	LOCAL_PrologMode &= ~InErrorMode;       
+	if (HR + NOf > ASP)
           fprintf(stderr,
                   "\n\n [ FATAL ERROR: No Stack for Error Handling ]\n");
         Yap_exit(1);
@@ -2713,6 +2714,9 @@ static PredEntry *new_lu_entry(Term t) {
   pe->PredFlags |= LogUpdatePredFlag;
   if (IsAtomTerm(t)) {
     pe->PredFlags |= AtomDBPredFlag;
+    pe->FunctorOfPred = (Functor)AtomOfTerm(t);    
+  } else {
+    pe->FunctorOfPred = FunctorOfTerm(t);    
   }
   pe->ArityOfPE = 3;
   pe->OpcodeOfPred = Yap_opcode(_op_fail);

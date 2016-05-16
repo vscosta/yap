@@ -132,6 +132,7 @@
   AtomExecuteWithin = AtomAdjust(AtomExecuteWithin); TermExecuteWithin = MkAtomTerm(AtomExecuteWithin);
   AtomExecuteWoMod = AtomAdjust(AtomExecuteWoMod); TermExecuteWoMod = MkAtomTerm(AtomExecuteWoMod);
   AtomExist = AtomAdjust(AtomExist); TermExist = MkAtomTerm(AtomExist);
+  AtomExists = AtomAdjust(AtomExists); TermExists = MkAtomTerm(AtomExists);
   AtomExit = AtomAdjust(AtomExit); TermExit = MkAtomTerm(AtomExit);
   AtomExistenceError = AtomAdjust(AtomExistenceError); TermExistenceError = MkAtomTerm(AtomExistenceError);
   AtomExoClause = AtomAdjust(AtomExoClause); TermExoClause = MkAtomTerm(AtomExoClause);
@@ -377,6 +378,7 @@
   AtomSystem = AtomAdjust(AtomSystem); TermSystem = MkAtomTerm(AtomSystem);
   AtomSystemError = AtomAdjust(AtomSystemError); TermSystemError = MkAtomTerm(AtomSystemError);
   AtomSystemLibraryDir = AtomAdjust(AtomSystemLibraryDir); TermSystemLibraryDir = MkAtomTerm(AtomSystemLibraryDir);
+  AtomT = AtomAdjust(AtomT); TermT = MkAtomTerm(AtomT);
   AtomTerm = AtomAdjust(AtomTerm); TermTerm = MkAtomTerm(AtomTerm);
   AtomTermExpansion = AtomAdjust(AtomTermExpansion); TermTermExpansion = MkAtomTerm(AtomTermExpansion);
   AtomTerms = AtomAdjust(AtomTerms); TermTerms = MkAtomTerm(AtomTerms);
@@ -394,6 +396,7 @@
   AtomTrue = AtomAdjust(AtomTrue); TermTrue = MkAtomTerm(AtomTrue);
   AtomTty = AtomAdjust(AtomTty); TermTty = MkAtomTerm(AtomTty);
   AtomTtys = AtomAdjust(AtomTtys); TermTtys = MkAtomTerm(AtomTtys);
+  AtomTuple = AtomAdjust(AtomTuple); TermTuple = MkAtomTerm(AtomTuple);
   AtomTxt = AtomAdjust(AtomTxt); TermTxt = MkAtomTerm(AtomTxt);
   AtomTypeError = AtomAdjust(AtomTypeError); TermTypeError = MkAtomTerm(AtomTypeError);
   AtomUndefined = AtomAdjust(AtomUndefined); TermUndefined = MkAtomTerm(AtomUndefined);
