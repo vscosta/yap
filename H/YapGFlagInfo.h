@@ -156,7 +156,10 @@ debugger uses to write terms. If unbound, show the current options.
 
 If `true` (default `true`) YAP checks for definitions of the same predicate that
 are separated by clauses for other predicates. This may indicate that different
-procedures have the sam*e name.
+procedures have the same name.
+
+The declaration discontiguous/1 disables this warning for user-specified predicates.
+
       */
     YAP_FLAG(DOLLAR_AS_LOWER_CASE_FLAG, "dollar_as_lower_case", true, booleanFlag,
              "false", NULL), /**< `dollar_as_lower_case `

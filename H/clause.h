@@ -28,6 +28,7 @@ typedef union CONSULT_OBJ {
   int mode;
   Prop p;
   UInt c;
+  Term r;
 } consult_obj;
 
 /* Either we are assembling clauses or indexing code */

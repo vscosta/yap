@@ -1485,11 +1485,21 @@ bool Yap_discontiguous(PredEntry *ap, Term mode USES_REGS) {
     return false;
   }
   if (ap == LOCAL_LastAssertedPred)
-    return FALSE;
+    return false;
   if (ap->cs.p_code.NOfClauses) {
+    Term repeat = AbsPair((CELL *)AbsPredProp(ap));
     for (fp = LOCAL_ConsultSp; fp < LOCAL_ConsultBase; ++fp)
-      if (fp->p == AbsPredProp(ap))
+      if (fp->p == AbsPredProp(ap)) {
+	// detect repeated warnings
+	if (LOCAL_ConsultSp == LOCAL_ConsultLow + 1) {
+	  expand_consult();
+	}
+	--LOCAL_ConsultSp;
+	LOCAL_ConsultSp->r = repeat;
         return true;
+      } else  if (fp->r == repeat && ap->cs.p_code.NOfClauses > 4) {
+	return false;
+      }
   }
   return false;
 }
