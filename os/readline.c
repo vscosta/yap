@@ -458,6 +458,7 @@ int Yap_ReadlineForSIGINT(void) {
     ch = myrl_line[0];
     free((void *)myrl_line);
     myrl_line = NULL;
+    fflush(NULL);
     return ch;
   } else {
     myrl_line = (const unsigned char *)readline("Action (h for help): ");
@@ -468,6 +469,7 @@ int Yap_ReadlineForSIGINT(void) {
       ch = myrl_line[0];
       free((void *)myrl_line);
       myrl_line = NULL;
+      fflush(NULL);
       return ch;
     }
   }

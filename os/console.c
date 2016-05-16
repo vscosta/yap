@@ -235,6 +235,7 @@ int Yap_GetCharForSIGINT(void) {
       ;
   }
   LOCAL_newline = TRUE;
+  fflush(NULL);
   return ch;
 }
 
