@@ -847,6 +847,10 @@ be lost.
 '$continue_debugging'(zip, _) :- !.
 '$continue_debugging'(_, creep) :- !,
 	'$creep'.
+'$continue_debugging'(_, spy) :-
+	b_getval('$debug_jump',false),
+	!,
+	'$creep'.
 '$continue_debugging'(fail, _) :- !.
 '$continue_debugging'(_, _).
 
