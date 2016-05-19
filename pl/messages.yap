@@ -218,7 +218,7 @@ location(error(style_check(style_check(_,LN,FileName,_ ) ),_), _ , _) -->
 location( error(_,Term), Level, LC ) -->
 	{  source_location(F0, L),
 	   stream_property(_Stream, alias(loop_stream)) }, !,
-		 display_consulting( F0, Level, LC ),
+	display_consulting( F0, Level, LC ),
 	{ lists:memberchk([p|p(M,Na,Ar,_File,_FilePos)], Term ) },
 	[  '~a:~d:0 ~a in ~a:~q/~d:'-[F0, L,Level,M,Na,Ar] ].
 location( error(_,Term), Level, LC ) -->
@@ -912,6 +912,7 @@ prolog:print_message(Severity, Msg) :-
 	 !,
 	 format(user_error, 'uninstantiated message~n', [])
 	;
+	 '$pred_exists'(portray_message(_,_),user),
 	 user:portray_message(Severity, Msg)
 	),
 	!.

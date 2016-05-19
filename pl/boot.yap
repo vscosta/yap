@@ -273,7 +273,7 @@ private(_).
  '$handle_error'(_Action,_G0,_M0) :- fail.
 
 % cases where we cannot afford to ever fail.
-'$undefp'([ImportingMod|G], _) :- !,
+'$undefp'([ImportingMod|G], _) :-
 	recorded('$import','$import'(ExportingModI,ImportingMod,G,G0I,_,_),_), !,
  % writeln('$execute0'(G0I, ExportingModI)),
 	'$execute0'(G0I, ExportingModI).
@@ -659,7 +659,7 @@ number of steps.
  '$execute_commands'([],_,_,_,_) :- !.
  '$execute_commands'([C|Cs],VL,Pos,Con,Source) :- !,
 	 (
-	   '$system_catch'('$execute_command'(C,VL,Pos,Con,C),prolog,Error,'$LoopError'(Error, Con)),
+	   '$system_catch'('$execute_command'(C,VL,Pos,Con,Source),prolog,Error,'$LoopError'(Error, Con)),
 	   fail
 	 ;
 	   '$execute_commands'(Cs,VL,Pos,Con,Source)
@@ -691,12 +691,12 @@ number of steps.
  '$execute_command'((:-G),VL,Pos,Option,_) :-
 %          !,
 	 Option \= top, !,
-	 '$current_module'(M),
 	 % allow user expansion
-	 expand_term((:- M:G), O),
+	 expand_term((:- G), O),
 	 (
 	     O = (:- G1)
 	 ->
+	 '$current_module'(M),
 	   '$process_directive'(G1, Option, M, VL, Pos)
      ;
 	    '$execute_commands'(O,VL,Pos,Option,O)
