@@ -106,24 +106,20 @@ no
 */
 
 findall(Template, Generator, Answers) :-
-	( '$is_list_or_partial_list'(Answers) ->
-		true
-	;
-		'$do_error'(type_error(list,Answers), findall(Template, Generator, Answers))
-	),
-	'$findall'(Template, Generator, [], Answers).
+     must_be_of_type( list_or_partial_list, Answers ),
+     '$findall'(Template, Generator, [], Answers).
 
 
 % If some answers have already been found
-/** @pred  findall( _T_,+ _G_,+ _L_,- _L0_)
+/** @pred  findall( ?Key, +Goal, +InitialSolutions, -Solutions )
 
 Similar to findall/3, but appends all answers to list  _L0_.
 
 
 */
 findall(Template, Generator, Answers, SoFar) :-
-     must_be_of_type( list_or_partial_list, Template ),
-	'$findall'(Template, Generator, SoFar, Answers).
+     must_be_of_type( list_or_partial_list, Answers ),
+     '$findall'(Template, Generator, SoFar, Answers).
 
 % starts by calling the generator,
 % and recording the answers
