@@ -57,7 +57,6 @@ static char SccsId[] = "%W% %G%";
 #include <readline/readline.h>
 
 static int ReadlineGetc(int);
-static int ReadlinePutc(int, int);
 
 static const char *history_file;
 
@@ -257,7 +256,6 @@ bool Yap_ReadlinePrompt(StreamDesc *s) {
     s->stream_getc = ReadlineGetc;
     if (GLOBAL_Stream[0].status & Tty_Stream_f &&
         s->name == GLOBAL_Stream[0].name)
-      s->stream_putc = ReadlinePutc;
     return true;
   }
   return false;
@@ -265,9 +263,8 @@ bool Yap_ReadlinePrompt(StreamDesc *s) {
 
 bool Yap_ReadlineOps(StreamDesc *s) {
   if (s->status & Tty_Stream_f) {
-    if (GLOBAL_Stream[0].status & Tty_Stream_f &&
+    if (GLOBAL_Stream[0].status & (Input_Stream_f|Tty_Stream_f) &&
         is_same_tty(s->file, GLOBAL_Stream[0].file))
-      s->stream_putc = ReadlinePutc;
     s->stream_getc = ReadlineGetc;
     s->status |= Readline_Stream_f;
     return true;
@@ -296,17 +293,17 @@ static int prolog_complete(int ignore, int key) {
 
 bool Yap_InitReadline(Term enable) {
   // don't call readline within emacs
-  // if (getenv("ËMACS"))
-  //  return;
-  if (enable == TermFalse)
-    return true;
+ if (!(GLOBAL_Stream[StdInStream].status & Tty_Stream_f) ||
+     getenv("INSIDE_EMACS") ||
+     enable != TermTrue)
+    return false;
   GLOBAL_Stream[StdInStream].u.irl.buf = NULL;
   GLOBAL_Stream[StdInStream].u.irl.ptr = NULL;
   GLOBAL_Stream[StdInStream].status |= Readline_Stream_f;
 #if _WIN32
   rl_instream = stdin;
 #endif
-  rl_outstream = stderr;
+  // rl_outstream = stderr;
   using_history();
   const char *s = Yap_AbsoluteFile("~/.YAP.history", NULL, true);
   history_file = s;
@@ -316,28 +313,25 @@ bool Yap_InitReadline(Term enable) {
       fclose(f);
     }
   }
-  rl_readline_name = "Prolog";
+  rl_readline_name = "YAP Prolog";
   rl_attempted_completion_function = prolog_completion;
 #ifdef HAVE_RL_COMPLETION_FUNC_T
   rl_add_defun("prolog-complete", prolog_complete, '\t');
 #else
   rl_add_defun("prolog-complete", (void *)prolog_complete, '\t');
 #endif
+  // does not work
+  // rl_prep_terminal(1);
   return Yap_ReadlineOps(GLOBAL_Stream + StdInStream);
 }
 
-static bool getLine(int inp, int out) {
+static bool getLine(int inp) {
   CACHE_REGS
   rl_instream = GLOBAL_Stream[inp].file;
-  rl_outstream = GLOBAL_Stream[out].file;
-  const unsigned char *myrl_line;
+  const unsigned char *myrl_line = NULL;
   StreamDesc *s = GLOBAL_Stream + inp;
-
-  if (!(s->status & Tty_Stream_f))
-    return false;
-
+ 
   /* window of vulnerability opened */
-  fflush(NULL);
   LOCAL_PrologMode |= ConsoleGetcMode;
   if (LOCAL_newline) { // no output so far
     myrl_line = (unsigned char *)readline(LOCAL_Prompt);
@@ -366,24 +360,8 @@ static bool getLine(int inp, int out) {
     fflush(NULL);
   }
   s->u.irl.ptr = s->u.irl.buf = myrl_line;
+  myrl_line = NULL;
   return true;
-}
-
-static int ReadlinePutc(int sno, int ch) {
-  CACHE_REGS
-  StreamDesc *s = &GLOBAL_Stream[sno];
-#if MAC || _MSC_VER || defined(__MINGW32__)
-  if (ch == 10) {
-    putc('\n', s->file);
-  } else
-#endif
-    putc(ch, s->file);
-  console_count_output_char(ch, s);
-  if (ch == 10) {
-    Yap_ReadlineFlush(sno);
-    LOCAL_newline = true;
-  }
-  return ((int)ch);
 }
 
 /**
@@ -397,7 +375,7 @@ static int ReadlineGetc(int sno) {
   int ch;
   bool fetch = (s->u.irl.buf == NULL);
 
-  if (!fetch || getLine(sno, StdErrStream)) {
+  if (!fetch || getLine(sno)) {
     const unsigned char *ttyptr = s->u.irl.ptr++, *myrl_line = s->u.irl.buf;
     ch = *ttyptr;
     if (ch == '\0') {
@@ -431,7 +409,7 @@ Int Yap_ReadlinePeekChar(int sno) {
     }
     return ch;
   }
-  if (getLine(sno, StdErrStream)) {
+  if (getLine(sno)) {
     CACHE_REGS
     ch = s->u.irl.ptr[0];
     if (ch == '\0') {
@@ -490,9 +468,7 @@ void Yap_InitReadlinePreds(void) {
 
 #else
 bool Yap_InitReadline(Term enable) {
-  if (enable == TermTrue)
-    return true;
-  return false;
+  return enable == TermTrue && !getenv("INSIDE_EMACS");
 }
 
 void Yap_InitReadlinePreds(void) {}
