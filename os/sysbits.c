@@ -1263,7 +1263,7 @@ const char *Yap_findFile(const char *isource, const char *idef,
     case 0: // path or file name is given;
       root = iroot;
       if (!root && ftype == YAP_BOOT_PL) {
-	root = YAP_PL_SRCDIR;
+        root = YAP_PL_SRCDIR;
       }
       if (idef || isource) {
         source = (isource ? isource : idef);
@@ -1281,20 +1281,20 @@ const char *Yap_findFile(const char *isource, const char *idef,
 #if HAVE_GETENV
       if (in_lib) {
         if (ftype == YAP_SAVED_STATE || ftype == YAP_OBJ) {
-	  root = getenv("YAPLIBDIR");
+          root = getenv("YAPLIBDIR");
         } else if (ftype == YAP_BOOT_PL) {
           root = getenv("YAPSHAREDIR");
-	  if (root == NULL) {
-	    continue;	    
-	  } else {
-	    strncpy(save_buffer, root, YAP_FILENAME_MAX);
-	    strncat(save_buffer, "/pl", YAP_FILENAME_MAX);
-	  }
+          if (root == NULL) {
+            continue;
+          } else {
+            strncpy(save_buffer, root, YAP_FILENAME_MAX);
+            strncat(save_buffer, "/pl", YAP_FILENAME_MAX);
+          }
         }
         source = (isource ? isource : idef);
       } else
 #endif
-	done = true;
+        done = true;
       break;
     case 3: // use compilation variable YAPLIBDIR
       if (in_lib) {
@@ -1323,30 +1323,31 @@ const char *Yap_findFile(const char *isource, const char *idef,
 
     case 5: // search from the binary
 #ifndef __ANDROID__
+    {
       done = true;
-      break;
+    } break;
 #endif
-      const char *pt = Yap_FindExecutable();
+      {
+        const char *pt = Yap_FindExecutable();
 
-      if (pt) {
-	if (ftype == YAP_BOOT_PL) {
-	  root = "../../share/Yap/pl";
-	} else {
-	  root =
-            (ftype == YAP_SAVED_STATE
-	     || ftype == YAP_OBJ
-	     ? "../../lib/Yap"
-	     : "../../share/Yap");
-	}
-        if (Yap_findFile(source, NULL, root, save_buffer, access, ftype,
-                         expand_root, in_lib))
-          root = save_buffer;
-        else
+        if (pt) {
+          if (ftype == YAP_BOOT_PL) {
+            root = "../../share/Yap/pl";
+          } else {
+            root = (ftype == YAP_SAVED_STATE || ftype == YAP_OBJ
+                        ? "../../lib/Yap"
+                        : "../../share/Yap");
+          }
+          if (Yap_findFile(source, NULL, root, save_buffer, access, ftype,
+                           expand_root, in_lib))
+            root = save_buffer;
+          else
+            done = true;
+        } else {
           done = true;
-      } else {
-        done = true;
+        }
+        source = (isource ? isource : idef);
       }
-      source = (isource ? isource : idef);
       break;
     case 6: // default, try current directory
       if (!isource && ftype == YAP_SAVED_STATE)
