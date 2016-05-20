@@ -1472,5 +1472,7 @@ void Yap_exit(int value) {
   }
   Yap_CloseStreams(false);
   Yap_CloseReadline();
+#if USE_SYSTEM_MALLOC
+#endif
   exit(value);
 }

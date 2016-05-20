@@ -1416,6 +1416,9 @@ void *Yap_Concat_Text(int n, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
   lengv = (size_t *)malloc(n * sizeof(size_t));
   HEAP_ERROR(lengv, size_t);
   buf = concat(n, out, bufv, encv, lengv PASS_REGS);
+  free(bufv);
+  free(lengv);
+  free(encv);
   return buf;
 }
 
