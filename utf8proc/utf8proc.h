@@ -471,7 +471,7 @@ UTF8PROC_DLLEXPORT utf8proc_ssize_t utf8proc_decompose_char(
  * error, a negative error code is returned (@ref utf8proc_errmsg).
  *
  * If the number of written codepoints would be bigger than `bufsize`, the
- * required buffer size is returned, while the buffer will be overwritten with
+  * required buffer size is returned, while the buffer will be overwritten with
  * undefined data.
  */
 UTF8PROC_DLLEXPORT utf8proc_ssize_t utf8proc_decompose(

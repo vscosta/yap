@@ -140,135 +140,159 @@ Char is an uppercase version of Lower. Only true if Char is uppercase and Lower 
 :- discontiguous digit_weight/2, digit_weight/3.
 
 prolog:char_type( CH, TYPE) :-
-    ( var( CH ) ->  between(-1,+inf,CH) ),
-    prolog:char_type( CH, TYPE) .
-prolog:char_type( ALNUM, alnum) :-
+	(nonvar( CH )
+	->
+		true
+		;
+	arg(1,TYPE, A),
+	 atomic(A)
+	->
+	 true
+	;
+	 between(0,0x10FFFF,I),
+	 atom_codes(CH, [I])
+	 ),
+	 p_char_type( CH, TYPE).
+
+
+p_char_type( ALNUM, alnum) :-
     char_type_alnum( ALNUM ).
-prolog:char_type( ALPHA, alpha) :-
+p_char_type( ALPHA, alpha) :-
     char_type_alpha( ALPHA).
-prolog:char_type( CSYM, csym) :-
+p_char_type( CSYM, csym) :-
     char_type_csym( CSYM ).
-prolog:char_type( CSYMF, csymf) :-
+p_char_type( CSYMF, csymf) :-
     char_type_csymf( CSYMF).
-prolog:char_type( ASCII, ascii ) :-
+p_char_type( ASCII, ascii ) :-
     char_type_ascii( ASCII ).
-prolog:char_type( WHITE, white) :-
+p_char_type( WHITE, white) :-
     char_type_white( WHITE ).
-prolog:char_type( CNTRL , cntrl) :-
+p_char_type( CNTRL , cntrl) :-
     char_type_cntrl( CNTRL ).
-prolog:char_type( DIGIT , digit) :-
+p_char_type( DIGIT , digit) :-
     char_type_digit( DIGIT ).
-prolog:char_type(  DIGIT, digit(Weight) ) :-
+p_char_type(  DIGIT, digit(Weight) ) :-
     char_type_digit( DIGIT ),
     digit_weight( DIGIT, Weight ).
-prolog:char_type( XDIGIT, xdigit(Weight) ) :-
+p_char_type( XDIGIT, xdigit(Weight) ) :-
     char_type_digit( XDIGIT ),
      xdigit_weight( XDIGIT, Weight ).
-prolog:char_type( GRAPH , graph) :-
+p_char_type( GRAPH , graph) :-
     char_type_graph( GRAPH ).
-prolog:char_type( LOWER , lower) :-
+p_char_type( LOWER , lower) :-
     char_type_lower( LOWER ).
-prolog:char_type( LOWER, lower( Upper)) :-
+p_char_type( LOWER, lower( Upper)) :-
 	toupper( LOWER, Upper),
     char_type_lower( LOWER ).
-prolog:char_type( LOWER, to_lower( Upper)) :-
+p_char_type( LOWER, to_lower( Upper)) :-
 	toupper( LOWER, Upper).
-prolog:char_type( UPPER, upper  ) :-
+p_char_type( UPPER, upper  ) :-
      char_type_upper( UPPER ).
-prolog:char_type( UPPER , upper( Lower)) :-
+p_char_type( UPPER , upper( Lower)) :-
     char_type_upper( UPPER ),
     tolower( UPPER, Lower).
-prolog:char_type( UPPER, to_upper( Lower) ) :-
+p_char_type( UPPER, to_upper( Lower) ) :-
 	tolower( UPPER, Lower).
-prolog:char_type( PUNCT , punct) :-
+p_char_type( PUNCT , punct) :-
     char_type_punct( PUNCT ).
-prolog:char_type( SPACE , space) :-
+p_char_type( SPACE , space) :-
     char_type_space( SPACE ).
-prolog:char_type( END_OF_FILE , end_of_file) :-
+p_char_type( END_OF_FILE , end_of_file) :-
     char_type_end_of_file( END_OF_FILE ).
-prolog:char_type( END_OF_LINE , end_of_line) :-
+p_char_type( END_OF_LINE , end_of_line) :-
     char_type_end_of_line( END_OF_LINE ).
-prolog:char_type( NEWLINE , newline) :-
+p_char_type( NEWLINE , newline) :-
     char_type_newline( NEWLINE ).
-prolog:char_type( PERIOD , period) :-
+p_char_type( PERIOD , period) :-
     char_type_period( PERIOD ).
-prolog:char_type( QUOTE , quote) :-
+p_char_type( QUOTE , quote) :-
     char_type_quote( QUOTE ).
-prolog:char_type( Parent_Open, paren( PAREN_CLOSE) ) :-
+p_char_type( Parent_Open, paren( PAREN_CLOSE) ) :-
     paren_paren(Parent_Open, PAREN_CLOSE).
-prolog:char_type( PROLOG_VAR_START , prolog_var_start) :-
+p_char_type( PROLOG_VAR_START , prolog_var_start) :-
     char_type_prolog_var_start( PROLOG_VAR_START ).
-prolog:char_type( PROLOG_ATOM_START , prolog_atom_start) :-
+p_char_type( PROLOG_ATOM_START , prolog_atom_start) :-
     char_type_prolog_atom_start( PROLOG_ATOM_START ).
-prolog:char_type( PROLOG_IDENTIFIER_CONTINUE , prolog_identifier_continue) :-
+p_char_type( PROLOG_IDENTIFIER_CONTINUE , prolog_identifier_continue) :-
     char_type_prolog_identifier_continue( PROLOG_IDENTIFIER_CONTINUE ).
-prolog:char_type( PROLOG_PROLOG_SYMBOL , prolog_prolog_symbol) :-
+p_char_type( PROLOG_PROLOG_SYMBOL , prolog_prolog_symbol) :-
     char_type_prolog_prolog_symbol( PROLOG_PROLOG_SYMBOL ).
 
-prolog:code_type( CH, TYPE) :-
-	( var( CH ) ->  between(-1,+inf,CH) ),
-	prolog:code_type( CH, TYPE) .
-prolog:code_type( ALNUM, alnum) :-
+prolog:code_type(CH, TYPE) :-
+		(nonvar( CH )
+		->
+			true
+			;
+		arg(1,TYPE, A),
+		 atomic(A)
+		->
+		 true
+		;
+		 between(0,0x10FFFF,CH)
+		 ),
+		 p_code_type( CH, TYPE).
+		 
+p_code_type( ALNUM, alnum) :-
 	code_type_alnum( ALNUM ).
-prolog:code_type( ALPHA, alpha) :-
+p_code_type( ALPHA, alpha) :-
 	code_type_alpha( ALPHA).
-prolog:code_type( CSYM, csym) :-
+p_code_type( CSYM, csym) :-
 	code_type_csym( CSYM ).
-prolog:code_type( CSYMF, csymf) :-
+p_code_type( CSYMF, csymf) :-
 	code_type_csymf( CSYMF).
-prolog:code_type( ASCII, ascii ) :-
+p_code_type( ASCII, ascii ) :-
 	code_type_ascii( ASCII ).
-prolog:code_type( WHITE, white) :-
+p_code_type( WHITE, white) :-
 	code_type_white( WHITE ).
-prolog:code_type( CNTRL , cntrl) :-
+p_code_type( CNTRL , cntrl) :-
 	code_type_cntrl( CNTRL ).
-prolog:code_type( DIGIT , digit) :-
+p_code_type( DIGIT , digit) :-
 	code_type_digit( DIGIT ).
-prolog:code_type(  DIGIT, digit(Weight) ) :-
+p_code_type(  DIGIT, digit(Weight) ) :-
 	code_type_digit( DIGIT ),
 	digit_weight( DIGIT, Weight ).
-prolog:code_type( XDIGIT, xdigit(Weight) ) :-
+p_code_type( XDIGIT, xdigit(Weight) ) :-
 	code_type_digit( XDIGIT ),
 	xdigit_weight( XDIGIT, Weight ).
-prolog:code_type( GRAPH , graph) :-
+p_code_type( GRAPH , graph) :-
 	code_type_graph( GRAPH ).
-prolog:code_type( LOWER , lower) :-
+p_code_type( LOWER , lower) :-
 	code_type_lower( LOWER ).
-prolog:code_type( LOWER, lower( Upper)) :-
+p_code_type( LOWER, lower( Upper)) :-
 	toupper( LOWER, Upper),
 	code_type_lower( LOWER ).
-prolog:code_type( LOWER, to_lower( Upper)) :-
+p_code_type( LOWER, to_lower( Upper)) :-
 	toupper( LOWER, Upper).
-prolog:code_type( UPPER, upper  ) :-
+p_code_type( UPPER, upper  ) :-
 	code_type_upper( UPPER ).
-prolog:code_type( UPPER , upper( Lower)) :-
+p_code_type( UPPER , upper( Lower)) :-
 	tolower( UPPER, Lower).
-prolog:code_type( UPPER, to_upper( Lower) ) :-
+p_code_type( UPPER, to_upper( Lower) ) :-
 	tolower( UPPER, Lower),
 	char_type_upper( UPPER).
-prolog:code_type( PUNCT , punct) :-
+p_code_type( PUNCT , punct) :-
 	code_type_punct( PUNCT ).
-prolog:code_type( SPACE , space) :-
+p_code_type( SPACE , space) :-
 	code_type_space( SPACE ).
-prolog:code_type( END_OF_FILE , end_of_file) :-
+p_code_type( END_OF_FILE , end_of_file) :-
 	code_type_end_of_file( END_OF_FILE ).
-prolog:code_type( END_OF_LINE , end_of_line) :-
+p_code_type( END_OF_LINE , end_of_line) :-
 	code_type_end_of_line( END_OF_LINE ).
-prolog:code_type( NEWLINE , newline) :-
+p_code_type( NEWLINE , newline) :-
 	code_type_newline( NEWLINE ).
-prolog:code_type( PERIOD , period) :-
+p_code_type( PERIOD , period) :-
 	code_type_period( PERIOD ).
-prolog:code_type( QUOTE , quote) :-
+p_code_type( QUOTE , quote) :-
 	code_type_quote( QUOTE ).
-prolog:code_type( Parent_Open, paren( PAREN_CLOSE) ) :-
+p_code_type( Parent_Open, paren( PAREN_CLOSE) ) :-
 	paren_paren(Parent_Open, PAREN_CLOSE).
-prolog:code_type( PROLOG_VAR_START , prolog_var_start) :-
+p_code_type( PROLOG_VAR_START , prolog_var_start) :-
 	code_type_prolog_var_start( PROLOG_VAR_START ).
-prolog:code_type( PROLOG_ATOM_START , prolog_atom_start) :-
+p_code_type( PROLOG_ATOM_START , prolog_atom_start) :-
 	code_type_prolog_atom_start( PROLOG_ATOM_START ).
-prolog:code_type( PROLOG_IDENTIFIER_CONTINUE , prolog_identifier_continue) :-
+p_code_type( PROLOG_IDENTIFIER_CONTINUE , prolog_identifier_continue) :-
 	code_type_prolog_identifier_continue( PROLOG_IDENTIFIER_CONTINUE ).
-prolog:code_type( PROLOG_PROLOG_SYMBOL , prolog_prolog_symbol) :-
+p_code_type( PROLOG_PROLOG_SYMBOL , prolog_prolog_symbol) :-
 	code_type_prolog_prolog_symbol( PROLOG_PROLOG_SYMBOL ).
 
 

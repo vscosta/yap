@@ -29,8 +29,7 @@ static char SccsId[] = "%W% %G%";
 
 ///{@
 
-
-/// @addtogroup CharProps 
+/// @addtogroup CharProps
 /**
  * @defgroup CharIO Character-Based Input/Output
  * @ingroup  InputOutput
@@ -42,10 +41,10 @@ static char SccsId[] = "%W% %G%";
  */
 
 #include "Yap.h"
-#include "Yatom.h"
 #include "YapHeap.h"
-#include "yapio.h"
 #include "YapText.h"
+#include "Yatom.h"
+#include "yapio.h"
 #include <stdlib.h>
 #if HAVE_UNISTD_H
 #include <unistd.h>
@@ -75,14 +74,14 @@ static char SccsId[] = "%W% %G%";
 #define S_ISDIR(x) (((x)&_S_IFDIR) == _S_IFDIR)
 #endif
 #endif
-#include "iopreds.h"
 #include "eval.h"
+#include "iopreds.h"
 
 static Int p_change_type_of_char(USES_REGS1);
 
 Term Yap_StringToNumberTerm(char *s, encoding_t *encp) {
   CACHE_REGS
-      int sno;
+  int sno;
   Term t;
 
   sno = Yap_open_buf_read_stream(s, strlen(s), encp, MEM_BUF_USER);
@@ -92,14 +91,13 @@ Term Yap_StringToNumberTerm(char *s, encoding_t *encp) {
     GLOBAL_Stream[sno].encoding = *encp;
   else
     GLOBAL_Stream[sno].encoding = LOCAL_encoding;
-  #ifdef __ANDROID__
+#ifdef __ANDROID__
   while (*s && isblank(*s) && Yap_wide_chtype(*s) == BS)
-    s++
-    ;
-  #else
+    s++;
+#else
   while (*s && iswblank(*s++))
     ;
-  #endif
+#endif
   t = Yap_scan_num(GLOBAL_Stream + sno);
   if (LOCAL_Error_TYPE == SYNTAX_ERROR)
     LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -117,30 +115,31 @@ typedef struct enc_map {
 } enc_map_t;
 
 static enc_map_t ematches[] = {
-  {"UTF-8", ENC_ISO_UTF8},
-  {"utf8", ENC_ISO_UTF8},
-  {"UTF-16", ENC_UTF16_LE}, // ok, this is a very bad name
-  {"UCS-2", ENC_UTF16_LE},  // ok, this is probably gone by now
-  {"ISO-LATIN1", ENC_ISO_LATIN1},
-  {"ISO-8859-1", ENC_ISO_LATIN1},
-  {"Windows-1252", ENC_ISO_LATIN1}, // almost, but not quite
-  {"CP-1252", ENC_ISO_LATIN1},
-  {"C", ENC_ISO_ASCII},
-  #ifdef _WIN32
-  {NULL, ENC_ISO_ASCII}
-  #else
-  {NULL, ENC_ISO_UTF8}
-  #endif
+    {"UTF-8", ENC_ISO_UTF8},
+    {"utf8", ENC_ISO_UTF8},
+    {"UTF-16", ENC_UTF16_LE}, // ok, this is a very bad name
+    {"UCS-2", ENC_UTF16_LE},  // ok, this is probably gone by now
+    {"ISO-LATIN1", ENC_ISO_LATIN1},
+    {"ISO-8859-1", ENC_ISO_LATIN1},
+    {"Windows-1252", ENC_ISO_LATIN1}, // almost, but not quite
+    {"CP-1252", ENC_ISO_LATIN1},
+    {"C", ENC_ISO_ASCII},
+#ifdef _WIN32
+    {NULL, ENC_ISO_ASCII}
+#else
+    {NULL, ENC_ISO_UTF8}
+#endif
 };
 
-static encoding_t enc_os_default( encoding_t rc)\
-{
+static encoding_t enc_os_default(encoding_t rc) {
   // by default, return UTF-8
-  // note that we match the C locale to UTF8/16, as all Unix machines will work on UNICODE.
- // WIN32 we will rely on BOM
+  // note that we match the C locale to UTF8/16, as all Unix machines will work
+  // on UNICODE.
+  // WIN32 we will rely on BOM
 
   if (rc == ENC_ISO_ASCII) {
-      return ENC_ISO_UTF8;    }
+    return ENC_ISO_UTF8;
+  }
   return rc;
 }
 
@@ -148,31 +147,29 @@ encoding_t Yap_SystemEncoding(void) {
   int i = -1;
   while (i == -1 || encvs[i]) {
     char *v;
-    if ( i == -1 ) {
-      if ((v = setlocale(LC_CTYPE, NULL)) == NULL ||
-	  !strcmp(v,"C")) {
-	if ((v = getenv("LC_CTYPE")))
-	  setlocale(LC_CTYPE, v);
-	else if ((v = getenv("LANG")))
-	  setlocale(LC_CTYPE, v);
+    if (i == -1) {
+      if ((v = setlocale(LC_CTYPE, NULL)) == NULL || !strcmp(v, "C")) {
+        if ((v = getenv("LC_CTYPE")))
+          setlocale(LC_CTYPE, v);
+        else if ((v = getenv("LANG")))
+          setlocale(LC_CTYPE, v);
       }
     } else {
-	v = getenv(encvs[i]);
+      v = getenv(encvs[i]);
     }
-      if (v) {
-          int j = 0;
-          const char *coding;
-          while ((coding = ematches[j].s) != NULL) {
-	    char *v1;
-	    if ((v1 = strstr(v, coding)) &&
-		strlen(v1) == strlen(coding)) {
-                  return ematches[j].e;
-                }
-              j++;
-            }
+    if (v) {
+      int j = 0;
+      const char *coding;
+      while ((coding = ematches[j].s) != NULL) {
+        char *v1;
+        if ((v1 = strstr(v, coding)) && strlen(v1) == strlen(coding)) {
+          return ematches[j].e;
         }
-      i++;
+        j++;
+      }
     }
+    i++;
+  }
   return ENC_ISO_ASCII;
 }
 
@@ -182,12 +179,12 @@ static encoding_t DefaultEncoding(void) {
 
 encoding_t Yap_DefaultEncoding(void) {
   CACHE_REGS
-      return LOCAL_encoding;
+  return LOCAL_encoding;
 }
 
 void Yap_SetDefaultEncoding(encoding_t new_encoding) {
   CACHE_REGS
-      LOCAL_encoding = new_encoding;
+  LOCAL_encoding = new_encoding;
 }
 
 static Int get_default_encoding(USES_REGS1) {
@@ -202,9 +199,9 @@ static Int p_encoding(USES_REGS1) { /* '$encoding'(Stream,N) */
   if (sno < 0)
     return FALSE;
   if (IsVarTerm(t)) {
-      UNLOCK(GLOBAL_Stream[sno].streamlock);
-      return Yap_unify(ARG2, MkIntegerTerm(GLOBAL_Stream[sno].encoding));
-    }
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
+    return Yap_unify(ARG2, MkIntegerTerm(GLOBAL_Stream[sno].encoding));
+  }
   GLOBAL_Stream[sno].encoding = IntegerOfTerm(Deref(ARG2));
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return TRUE;
@@ -212,81 +209,81 @@ static Int p_encoding(USES_REGS1) { /* '$encoding'(Stream,N) */
 
 static int get_char(Term t) {
   if (IsVarTerm(t = Deref(t))) {
-      Yap_Error(INSTANTIATION_ERROR, t, NULL);
-      return 0;
-    }
+    Yap_Error(INSTANTIATION_ERROR, t, NULL);
+    return 0;
+  }
   if (!IsAtomTerm(t)) {
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, NULL);
+    return 0;
+  }
+  Atom at = AtomOfTerm(t);
+  if (IsWideAtom(at)) {
+    wchar_t *s0 = RepAtom(AtomOfTerm(t))->WStrOfAE;
+    if (s0[1] != '\0') {
       Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, NULL);
       return 0;
     }
-  Atom at = AtomOfTerm(t);
-  if (IsWideAtom(at)) {
-      wchar_t *s0 = RepAtom(AtomOfTerm(t))->WStrOfAE;
-      if (s0[1] != '\0') {
-          Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, NULL);
-          return 0;
-        }
-      return s0[0];
-    } else {
-      char *s0 = RepAtom(AtomOfTerm(t))->StrOfAE;
-      if (s0[1] != '\0') {
-          Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, NULL);
-          return 0;
-        }
-      return s0[0];
+    return s0[0];
+  } else {
+    char *s0 = RepAtom(AtomOfTerm(t))->StrOfAE;
+    if (s0[1] != '\0') {
+      Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, NULL);
+      return 0;
     }
+    return s0[0];
+  }
   return 0;
 }
 
 static int get_code(Term t) {
   if (IsVarTerm(t = Deref(t))) {
-      Yap_Error(INSTANTIATION_ERROR, t, NULL);
-      return 0;
-    }
+    Yap_Error(INSTANTIATION_ERROR, t, NULL);
+    return 0;
+  }
   if (!IsIntegerTerm(t)) {
-      Yap_Error(TYPE_ERROR_CHARACTER_CODE, t, NULL);
-      return 0;
-    }
+    Yap_Error(TYPE_ERROR_CHARACTER_CODE, t, NULL);
+    return 0;
+  }
   Int ch = IntegerOfTerm(t);
   if (ch < -1) {
-      Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE, t, NULL);
-      return 0;
-    }
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE, t, NULL);
+    return 0;
+  }
   return ch;
 }
 
 static int get_char_or_code(Term t, bool *is_char) {
   if (!IsAtomTerm(t)) {
-      if (!IsIntegerTerm(t)) {
-          Yap_Error(TYPE_ERROR_CHARACTER, t, NULL);
-          return 0;
-        }
-      Int ch = IntegerOfTerm(t);
-      if (ch < -1) {
-          Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE, t, NULL);
-          return 0;
-        }
-      *is_char = false;
-      return ch;
+    if (!IsIntegerTerm(t)) {
+      Yap_Error(TYPE_ERROR_CHARACTER, t, NULL);
+      return 0;
     }
+    Int ch = IntegerOfTerm(t);
+    if (ch < -1) {
+      Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE, t, NULL);
+      return 0;
+    }
+    *is_char = false;
+    return ch;
+  }
   Atom at = AtomOfTerm(t);
   if (IsWideAtom(at)) {
-      wchar_t *s0 = RepAtom(AtomOfTerm(t))->WStrOfAE;
-      if (s0[1] != '\0') {
-          Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, NULL);
-          return 0;
-        }
-      *is_char = true;
-      return s0[0];
-    } else {
-      char *s0 = RepAtom(AtomOfTerm(t))->StrOfAE;
-      if (s0[1] != '\0') {
-          Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, NULL);
-          return 0;
-        }
-      *is_char = true;
-      return s0[0];
+    wchar_t *s0 = RepAtom(AtomOfTerm(t))->WStrOfAE;
+    if (s0[1] != '\0') {
+      Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, NULL);
+      return 0;
     }
+    *is_char = true;
+    return s0[0];
+  } else {
+    char *s0 = RepAtom(AtomOfTerm(t))->StrOfAE;
+    if (s0[1] != '\0') {
+      Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, NULL);
+      return 0;
+    }
+    *is_char = true;
+    return s0[0];
+  }
   return 0;
 }
 
@@ -294,35 +291,33 @@ static Int toupper2(USES_REGS1) {
   bool is_char = false;
   Term t;
   if (!IsVarTerm(t = Deref(ARG1))) {
-      Int out = get_char_or_code(t, &is_char), uout;
-      if (out < 128)
-        uout = toupper(out);
+    Int out = get_char_or_code(t, &is_char), uout;
+    if (out < 128)
+      uout = toupper(out);
+    else
+      uout = utf8proc_toupper(out);
+    if (is_char)
+      return Yap_unify(ARG2, MkCharTerm(uout));
+    else
+      return Yap_unify(ARG2, MkIntegerTerm(uout));
+  } else if (!IsVarTerm(t = Deref(ARG2))) {
+    Int uout = get_char_or_code(t, &is_char), out;
+    char_kind_t charp = Yap_wide_chtype(uout);
+    if (charp == UC) {
+      if (uout < 128)
+        out = tolower(uout);
       else
-        uout = towupper(out);
-      if (is_char)
-        return Yap_unify(ARG2, MkCharTerm(uout));
-      else
-        return Yap_unify(ARG2, MkIntegerTerm(uout));
-    } else if (!IsVarTerm(t = Deref(ARG2))) {
-      Int uout = get_char_or_code(t, &is_char), out;
-      char_kind_t charp = Yap_wide_chtype(uout);
-      if (charp == UC) {
-          if (uout < 128)
-            out = tolower(uout);
-          else
-            out = towlower(uout);
-        } else if (charp == LC) {
-          return false;
-        } else {
-          out = uout;
-        }
-      if (is_char)
-        return Yap_unify(ARG2, MkCharTerm(out));
-      else
-        return Yap_unify(ARG2, MkIntegerTerm(out));
+        out = utf8proc_tolower(uout);
     } else {
-      Yap_Error(INSTANTIATION_ERROR, ARG1, NULL);
+      out = uout;
     }
+    if (is_char)
+      return Yap_unify(ARG1, MkCharTerm(out));
+    else
+      return Yap_unify(ARG1, MkIntegerTerm(out));
+  } else {
+    Yap_Error(INSTANTIATION_ERROR, ARG1, NULL);
+  }
   return false;
 }
 
@@ -330,41 +325,39 @@ static Int tolower2(USES_REGS1) {
   bool is_char = false;
   Term t;
   if (!IsVarTerm(t = Deref(ARG1))) {
-      bool is_char = false;
-      Int out = get_char_or_code(ARG1, &is_char), uout;
-      if (out < 128)
-        uout = tolower(out);
+    bool is_char = false;
+    Int out = get_char_or_code(ARG1, &is_char), uout;
+    if (out < 128)
+      uout = tolower(out);
+    else
+      uout = utf8proc_tolower(out);
+    if (is_char)
+      return Yap_unify(ARG2, MkCharTerm(uout));
+    else
+      return Yap_unify(ARG2, MkIntegerTerm(uout));
+  } else if (IsVarTerm(t = Deref(ARG2))) {
+    Int uout = get_char_or_code(t, &is_char), out;
+    char_kind_t charp = Yap_wide_chtype(uout);
+    if (charp == LC) {
+      if (uout < 128)
+        out = toupper(uout);
       else
-        uout = towlower(out);
-      if (is_char)
-        return Yap_unify(ARG2, MkCharTerm(uout));
-      else
-        return Yap_unify(ARG2, MkIntegerTerm(uout));
-    } else if (IsVarTerm(t = Deref(ARG2))) {
-      Int uout = get_char_or_code(t, &is_char), out;
-      char_kind_t charp = Yap_wide_chtype(uout);
-      if (charp == LC) {
-          if (uout < 128)
-            out = toupper(uout);
-          else
-            out = towupper(uout);
-        } else if (charp == UC) {
-          return false;
-        } else {
-          out = uout;
-        }
-      if (is_char)
-        return Yap_unify(ARG2, MkCharTerm(out));
-      else
-        return Yap_unify(ARG2, MkIntegerTerm(out));
+        out = utf8proc_toupper(uout);
     } else {
-      Yap_Error(INSTANTIATION_ERROR, ARG1, NULL);
+      out = uout;
     }
+    if (is_char)
+      return Yap_unify(ARG1, MkCharTerm(out));
+    else
+      return Yap_unify(ARG1, MkIntegerTerm(out));
+  } else {
+    Yap_Error(INSTANTIATION_ERROR, ARG1, NULL);
+  }
   return false;
 }
 
 static Int
-p_change_type_of_char(USES_REGS1) { /* change_type_of_char(+char,+type) */
+    p_change_type_of_char(USES_REGS1) { /* change_type_of_char(+char,+type) */
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
   if (!IsVarTerm(t1) && !IsIntegerTerm(t1))
@@ -407,9 +400,9 @@ static Int char_type_ascii(USES_REGS1) {
 static Int char_type_white(USES_REGS1) {
   int ch = get_char(ARG1);
   if (ch < 256) {
-      char_kind_t k = Yap_chtype[ch];
-      return k == BS;
-    }
+    char_kind_t k = Yap_chtype[ch];
+    return k == BS;
+  }
   utf8proc_category_t ct = utf8proc_category(ch);
   return ct == UTF8PROC_CATEGORY_ZS;
 }
@@ -457,18 +450,18 @@ static Int char_type_upper(USES_REGS1) {
 static Int char_type_punct(USES_REGS1) {
   int ch = get_char(ARG1);
   if (ch < 256) {
-      char_kind_t k = Yap_chtype[ch];
-      return k >= QT && k <= BK;
-    }
+    char_kind_t k = Yap_chtype[ch];
+    return k >= QT && k <= BK;
+  }
   return false;
 }
 
 static Int char_type_space(USES_REGS1) {
   int ch = get_char(ARG1);
   if (ch < 256) {
-      char_kind_t k = Yap_chtype[ch];
-      return k == BS;
-    }
+    char_kind_t k = Yap_chtype[ch];
+    return k == BS;
+  }
   utf8proc_category_t ct = utf8proc_category(ch);
   return (ct >= UTF8PROC_CATEGORY_ZS && ct <= UTF8PROC_CATEGORY_PO);
 }
@@ -481,8 +474,8 @@ static Int char_type_end_of_file(USES_REGS1) {
 static Int char_type_end_of_line(USES_REGS1) {
   Int ch = get_char(ARG1);
   if (ch < 256) {
-      return ch >= 10 && ch <= 13;
-    }
+    return ch >= 10 && ch <= 13;
+  }
   utf8proc_category_t ct = utf8proc_category(ch);
   return (ct >= UTF8PROC_CATEGORY_ZL && ct <= UTF8PROC_CATEGORY_ZP);
 }
@@ -490,8 +483,8 @@ static Int char_type_end_of_line(USES_REGS1) {
 static Int char_type_newline(USES_REGS1) {
   Int ch = get_char(ARG1);
   if (ch < 256) {
-      return ch == 10;
-    }
+    return ch == 10;
+  }
   return false;
 }
 
@@ -568,9 +561,9 @@ static Int code_type_ascii(USES_REGS1) {
 static Int code_type_white(USES_REGS1) {
   int ch = get_code(ARG1);
   if (ch < 256) {
-      char_kind_t k = Yap_chtype[ch];
-      return k == BS;
-    }
+    char_kind_t k = Yap_chtype[ch];
+    return k == BS;
+  }
   utf8proc_category_t ct = utf8proc_category(ch);
   return ct == UTF8PROC_CATEGORY_ZS;
 }
@@ -618,18 +611,18 @@ static Int code_type_upper(USES_REGS1) {
 static Int code_type_punct(USES_REGS1) {
   int ch = get_char(ARG1);
   if (ch < 256) {
-      char_kind_t k = Yap_chtype[ch];
-      return k >= QT && k <= BK;
-    }
+    char_kind_t k = Yap_chtype[ch];
+    return k >= QT && k <= BK;
+  }
   return false;
 }
 
 static Int code_type_space(USES_REGS1) {
   int ch = get_code(ARG1);
   if (ch < 256) {
-      char_kind_t k = Yap_chtype[ch];
-      return k == BS;
-    }
+    char_kind_t k = Yap_chtype[ch];
+    return k == BS;
+  }
   utf8proc_category_t ct = utf8proc_category(ch);
   return (ct >= UTF8PROC_CATEGORY_ZS && ct <= UTF8PROC_CATEGORY_PO);
 }
@@ -642,8 +635,8 @@ static Int code_type_end_of_file(USES_REGS1) {
 static Int code_type_end_of_line(USES_REGS1) {
   Int ch = get_code(ARG1);
   if (ch < 256) {
-      return ch >= 10 && ch <= 13;
-    }
+    return ch >= 10 && ch <= 13;
+  }
   utf8proc_category_t ct = utf8proc_category(ch);
   return (ct >= UTF8PROC_CATEGORY_ZL && ct <= UTF8PROC_CATEGORY_ZP);
 }
@@ -651,8 +644,8 @@ static Int code_type_end_of_line(USES_REGS1) {
 static Int code_type_newline(USES_REGS1) {
   Int ch = get_code(ARG1);
   if (ch < 256) {
-      return ch == 10;
-    }
+    return ch == 10;
+  }
   return false;
 }
 
@@ -701,11 +694,11 @@ int ISOWGetc(int sno) {
   int ch = GLOBAL_Stream[sno].stream_wgetc(sno);
   if (ch != EOF && GLOBAL_CharConversionTable != NULL) {
 
-      if (ch < NUMBER_OF_CHARS) {
-          /* only do this in ASCII */
-          return GLOBAL_CharConversionTable[ch];
-        }
+    if (ch < NUMBER_OF_CHARS) {
+      /* only do this in ASCII */
+      return GLOBAL_CharConversionTable[ch];
     }
+  }
   return ch;
 }
 
@@ -716,9 +709,9 @@ static Int p_force_char_conversion(USES_REGS1) {
   if (GLOBAL_CharConversionTable2 == NULL)
     return (TRUE);
   for (i = 0; i < MaxStreams; i++) {
-      if (!(GLOBAL_Stream[i].status & Free_Stream_f))
-        GLOBAL_Stream[i].stream_wgetc_for_read = ISOWGetc;
-    }
+    if (!(GLOBAL_Stream[i].status & Free_Stream_f))
+      GLOBAL_Stream[i].stream_wgetc_for_read = ISOWGetc;
+  }
   GLOBAL_CharConversionTable = GLOBAL_CharConversionTable2;
   return (TRUE);
 }
@@ -727,9 +720,9 @@ static Int p_disable_char_conversion(USES_REGS1) {
   int i;
 
   for (i = 0; i < MaxStreams; i++) {
-      if (!(GLOBAL_Stream[i].status & Free_Stream_f))
-        GLOBAL_Stream[i].stream_wgetc_for_read = GLOBAL_Stream[i].stream_wgetc;
-    }
+    if (!(GLOBAL_Stream[i].status & Free_Stream_f))
+      GLOBAL_Stream[i].stream_wgetc_for_read = GLOBAL_Stream[i].stream_wgetc;
+  }
   GLOBAL_CharConversionTable = NULL;
   return (TRUE);
 }
@@ -739,54 +732,54 @@ static Int char_conversion(USES_REGS1) {
   unsigned char *s0, *s1;
 
   if (IsVarTerm(t)) {
-      Yap_Error(INSTANTIATION_ERROR, t, "char_conversion/2");
-      return (FALSE);
-    }
+    Yap_Error(INSTANTIATION_ERROR, t, "char_conversion/2");
+    return (FALSE);
+  }
   if (!IsAtomTerm(t)) {
-      Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, "char_conversion/2");
-      return (FALSE);
-    }
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, "char_conversion/2");
+    return (FALSE);
+  }
   s0 = RepAtom(AtomOfTerm(t))->UStrOfAE;
   if (s0[1] != '\0') {
-      Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, "char_conversion/2");
-      return (FALSE);
-    }
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, "char_conversion/2");
+    return (FALSE);
+  }
   if (IsVarTerm(t1)) {
-      Yap_Error(INSTANTIATION_ERROR, t1, "char_conversion/2");
-      return (FALSE);
-    }
+    Yap_Error(INSTANTIATION_ERROR, t1, "char_conversion/2");
+    return (FALSE);
+  }
   if (!IsAtomTerm(t1)) {
-      Yap_Error(REPRESENTATION_ERROR_CHARACTER, t1, "char_conversion/2");
-      return (FALSE);
-    }
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t1, "char_conversion/2");
+    return (FALSE);
+  }
   s1 = RepAtom(AtomOfTerm(t1))->UStrOfAE;
   if (s1[1] != '\0') {
-      Yap_Error(REPRESENTATION_ERROR_CHARACTER, t1, "char_conversion/2");
-      return (FALSE);
-    }
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t1, "char_conversion/2");
+    return (FALSE);
+  }
   /* check if we do have a table for converting characters */
   if (GLOBAL_CharConversionTable2 == NULL) {
-      int i;
+    int i;
 
-      /* don't create a table if we don't need to */
-      if (s0[0] == s1[0])
-        return (TRUE);
-      GLOBAL_CharConversionTable2 =
-          Yap_AllocCodeSpace(NUMBER_OF_CHARS * sizeof(char));
-      while (GLOBAL_CharConversionTable2 == NULL) {
-          if (!Yap_growheap(FALSE, NUMBER_OF_CHARS * sizeof(char), NULL)) {
-              Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
-              return (FALSE);
-            }
-        }
-      if (trueGlobalPrologFlag(CHAR_CONVERSION_FLAG)) {
-          CACHE_REGS
-              if (p_force_char_conversion(PASS_REGS1) == FALSE)
-              return (FALSE);
-        }
-      for (i = 0; i < NUMBER_OF_CHARS; i++)
-        GLOBAL_CharConversionTable2[i] = i;
+    /* don't create a table if we don't need to */
+    if (s0[0] == s1[0])
+      return (TRUE);
+    GLOBAL_CharConversionTable2 =
+        Yap_AllocCodeSpace(NUMBER_OF_CHARS * sizeof(char));
+    while (GLOBAL_CharConversionTable2 == NULL) {
+      if (!Yap_growheap(FALSE, NUMBER_OF_CHARS * sizeof(char), NULL)) {
+        Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
+        return (FALSE);
+      }
     }
+    if (trueGlobalPrologFlag(CHAR_CONVERSION_FLAG)) {
+      CACHE_REGS
+      if (p_force_char_conversion(PASS_REGS1) == FALSE)
+        return (FALSE);
+    }
+    for (i = 0; i < NUMBER_OF_CHARS; i++)
+      GLOBAL_CharConversionTable2[i] = i;
+  }
   /* just add the new entry */
   GLOBAL_CharConversionTable2[(int)s0[0]] = s1[0];
   /* done */
@@ -798,43 +791,43 @@ static Int p_current_char_conversion(USES_REGS1) {
   unsigned char *s0, *s1;
 
   if (GLOBAL_CharConversionTable == NULL) {
-      return (FALSE);
-    }
+    return (FALSE);
+  }
   t = Deref(ARG1);
   if (IsVarTerm(t)) {
-      Yap_Error(INSTANTIATION_ERROR, t, "current_char_conversion/2");
-      return (FALSE);
-    }
+    Yap_Error(INSTANTIATION_ERROR, t, "current_char_conversion/2");
+    return (FALSE);
+  }
   if (!IsAtomTerm(t)) {
-      Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, "current_char_conversion/2");
-      return (FALSE);
-    }
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, "current_char_conversion/2");
+    return (FALSE);
+  }
   s0 = RepAtom(AtomOfTerm(t))->UStrOfAE;
   if (s0[1] != '\0') {
-      Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, "current_char_conversion/2");
-      return (FALSE);
-    }
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, "current_char_conversion/2");
+    return (FALSE);
+  }
   t1 = Deref(ARG2);
   if (IsVarTerm(t1)) {
-      char out[2];
-      if (GLOBAL_CharConversionTable[(int)s0[0]] == '\0')
-        return (FALSE);
-      out[0] = GLOBAL_CharConversionTable[(int)s0[0]];
-      out[1] = '\0';
-      return (Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(out))));
-    }
-  if (!IsAtomTerm(t1)) {
-      Yap_Error(REPRESENTATION_ERROR_CHARACTER, t1, "current_char_conversion/2");
+    char out[2];
+    if (GLOBAL_CharConversionTable[(int)s0[0]] == '\0')
       return (FALSE);
-    }
+    out[0] = GLOBAL_CharConversionTable[(int)s0[0]];
+    out[1] = '\0';
+    return (Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(out))));
+  }
+  if (!IsAtomTerm(t1)) {
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t1, "current_char_conversion/2");
+    return (FALSE);
+  }
   s1 = RepAtom(AtomOfTerm(t1))->UStrOfAE;
   if (s1[1] != '\0') {
-      Yap_Error(REPRESENTATION_ERROR_CHARACTER, t1, "current_char_conversion/2");
-      return (FALSE);
-    } else {
-      return (GLOBAL_CharConversionTable[(int)s0[0]] == '\0' &&
-          GLOBAL_CharConversionTable[(int)s0[0]] == s1[0]);
-    }
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t1, "current_char_conversion/2");
+    return (FALSE);
+  } else {
+    return (GLOBAL_CharConversionTable[(int)s0[0]] == '\0' &&
+            GLOBAL_CharConversionTable[(int)s0[0]] == s1[0]);
+  }
 }
 
 static Int p_all_char_conversions(USES_REGS1) {
@@ -842,28 +835,28 @@ static Int p_all_char_conversions(USES_REGS1) {
   int i;
 
   if (GLOBAL_CharConversionTable == NULL) {
-      return (FALSE);
-    }
+    return (FALSE);
+  }
   for (i = NUMBER_OF_CHARS; i > 0;) {
-      i--;
-      if (GLOBAL_CharConversionTable[i] != '\0') {
-          Term t1, t2;
-          char s[2];
-          s[1] = '\0';
-          s[0] = GLOBAL_CharConversionTable[i];
-          t1 = MkAtomTerm(Yap_LookupAtom(s));
-          out = MkPairTerm(t1, out);
-          s[0] = i;
-          t2 = MkAtomTerm(Yap_LookupAtom(s));
-          out = MkPairTerm(t2, out);
-        }
+    i--;
+    if (GLOBAL_CharConversionTable[i] != '\0') {
+      Term t1, t2;
+      char s[2];
+      s[1] = '\0';
+      s[0] = GLOBAL_CharConversionTable[i];
+      t1 = MkAtomTerm(Yap_LookupAtom(s));
+      out = MkPairTerm(t1, out);
+      s[0] = i;
+      t2 = MkAtomTerm(Yap_LookupAtom(s));
+      out = MkPairTerm(t2, out);
     }
+  }
   return (Yap_unify(ARG1, out));
 }
 
 void Yap_InitChtypes(void) {
   CACHE_REGS
-      LOCAL_encoding = DefaultEncoding();
+  LOCAL_encoding = DefaultEncoding();
   Yap_InitCPred("$change_type_of_char", 2, p_change_type_of_char,
                 SafePredFlag | SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("toupper", 2, toupper2, SafePredFlag);
