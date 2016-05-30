@@ -40,7 +40,7 @@ endif()
     
     )
   
- 
+ mark_as_advanced(CUDD_INCLUDE_DIR)
 
 if (${CUDD_ROOT}) 
   set (CUDD_LIB_SEARCH_PATH 
@@ -52,15 +52,16 @@ if (${CUDD_ROOT})
  )
  endif()
 
+ mark_as_advanced(CUDD_LIB_SEarcH_PATH on)
 
- 
+
 set (CUDD_LIB_SEARCH_PATH 
     ${CUDD_LIB_SEARCH_PATH}
      /usr/local/lib/cudd
     /usr/local/cudd/lib
     /usr/lib/cudd
     /usr/lib/cudd/lib
-    /usr/lib64/cudd
+    /usr/lib64/cudds
     /usr/freeware/lib64 )
 
   find_library(CUDD_LIBRARIES
@@ -113,9 +114,9 @@ find_library(CUDD_EPD_LIBRARY
     )
 
 
-set(CUDD_LIBRARIES 
+set(CUDD_LIBRARIES
   ${CUDD_LIBRARIES} ${CUDD_ST_LIBRARY} ${CUDD_UTIL_LIBRARY}
-  ${CUDD_MTR_LIBRARY}  ${CUDD_EPD_LIBRARY} ${CUDD_DDDMP_LIBRARY} PARENT_SCOPE )
+  ${CUDD_MTR_LIBRARY}  ${CUDD_EPD_LIBRARY} ${CUDD_DDDMP_LIBRARY} )
 
 endif () # Check for cudd 2.
 

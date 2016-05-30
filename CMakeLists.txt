@@ -6,7 +6,9 @@
 
 project(YAP)
 
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 2.8)
+
+set (ENV{ANDROID_NDK} "/Volumes/Transcend/vsc/AndroidSDK/ndk-bundle")
 
 # where we have most scripts
 # set path to additional CMake modules
@@ -114,22 +116,13 @@ get_git_head_revision(GIT_HEAD GIT_SHA1)
 git_describe(GIT_DESCRIBE)
 
 if (ANDROID)
-  IF(DEFINED ENV{ANDROID_SDK})
-    set (ANDROID_SDK $ENV{ANDROID_SDK})
-ELSEIF( NOT DEFINED ANDROID_SDK)
-  message("ANDROID_SDK is not defined.  You must tell CMake where to find the SDK")
-  # exit early
-  return()
-ENDIF()
-  set (ANDROIDDLLS "android" "log")
-  set (ANDROID_ANT ${ANDROID_SDK}/tools/ant)
-  set (ANDROID_SDK_TOOL ${ANDROID_SDK}/tools/android)
+    set (GMP_ROOT "${CMAKE_SOURCE_DIR}/../gmp/${ANDROID_ABI}")
 else()
   set(YAP_STARTUP startup.yss)
 endif()
 
 
-  option (WITH_CUDD "BDD CUDD package" ON)
+  option (WITH_CUDD "BDD CUDD package" NOT ${WITH_ANDROID})
 if (WITH_CUDD)
 #detect cudd setup, as it is shared between different installations.
 
@@ -138,26 +131,102 @@ find_package(CUDD)
 #  CUDD_LIBRARIES   - Link these to use CUDD
 #  CUDD_INCLUDE_DIR - Include directory for using CUDD
 #
-
+if (CUDD_FOUND)
     set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${CUDD_INCLUDE_DIR} )
 
   check_include_files( cudd.h HAVE_CUDD_H )
 check_include_files( "stdio.h;cudd/cudd.h" HAVE_CUDD_CUDD_H )
 check_include_files( cuddInt.h HAVE_CUDDINT_H )
 check_include_files( "stdio.h;cudd/cudd.h;cudd/cuddInt.h" HAVE_CUDD_CUDDINT_H )
+endif (CUDD_FOUND)
 
 endif(WITH_CUDD)
 
 option(WITH_JAVA "Try to use Java (currently Java 6,7,8)" ON)
 
 if (WITH_JAVA)
-  include(java)
+#detect java setup, as it is shared between different installations.
+
+find_package(Java 1.8 COMPONENTS Runtime Development)
+# find_package(Java COMPONENTS Development)
+# find_package(Java COMPONENTS Runtime)
+#find_package(JavaLibs)
+macro_log_feature (Java_Development_FOUND "Java"
+    "Use Java System"
+    "http://www.java.org" FALSE)
+
+if (Java_Development_FOUND)
+
+  find_package(JNI)
+
+  if (JNI_FOUND)
+
+  include(UseJava)
+
+  #
+  #   Java_JAVA_EXECUTABLE      = the full path to the Java runtime
+  #   Java_JAVAC_EXECUTABLE     = the full path to the Java compiler
+  #   Java_JAVAH_EXECUTABLE     = the full path to the Java header generator
+  #   Java_JAVADOC_EXECUTABLE   = the full path to the Java documention generator
+  #   Java_IDLJ_EXECUTABLE      = the full path to the Java idl compiler
+  #   Java_JAR_EXECUTABLE       = the full path to the Java archiver
+  #   Java_JARSIGNER_EXECUTABLE = the full path to the Java jar signer
+  #   Java_VERSION_STRING       = Version of java found, eg. 1.6.0_12
+  #   Java_VERSION_MAJOR        = The major version of the package found.
+  #   Java_VERSION_MINOR        = The minor version of the package found.
+  #   Java_VERSION_PATCH        = The patch version of the package found.
+  #   Java_VERSION_TWEAK        = The tweak version of the package found (after '_')
+  #   Java_VERSION              = This is set to: $major.$minor.$patch(.$tweak)
+  #
+  # The Java_ADDITIONAL_VERSIONS variable can be used to specify a list
+  # of version numbers that should be taken into account when searching
+  # for Java.  You need to set this variable before calling
+          # find_package(JavaLibs).
+  #
+  #macro_optional_find_package(JNI ON)
+  #   JNI_INCLUDE_DIRS      = the include dirs to use
+  #   JNI_LIBRARIES         = the libraries to use
+  #   JNI_FOUND             = TRUE if JNI headers and libraries were found.
+  #   JAVA_AWT_LIBRARY      = the path to the jawt library
+  #   JAVA_JVM_LIBRARY      = the path to the jvm library
+  #   JAVA_INCLUDE_PATH     = the include path to jni.h
+  #   JAVA_INCLUDE_PATH2    = the include path to jni_md.h
+  #   JAVA_AWT_INCLUDE_PATH = the include path to jawt.h
+endif (JNI_FOUND)
+
+
+endif (Java_Development_FOUND)
 endif(WITH_JAVA)
 
 option(WITH_PYTHON  "Try to use Python (currently Python 3)" ON)
 
 if (WITH_PYTHON)
-  include(python)
+
+
+#BREW install for Python3
+
+
+if (APPLE)
+foreach (i 3.6 3.5 3.4 3.3 3.2 3.1 3.0)
+  set (PYTHON_INCLUDE_DIRS /usr/local/Frameworks/Python.framework/Versions/${i}/Headers)
+  message("Trying Python ${i}")
+  if (EXISTS ${PYTHON_INCLUDE_DIRS})
+      set (PYTHON_EXECUTABLE /usr/local/bin/python${i} CACHE FILEPATH  "Path to a program" FORCE )
+    set (PYTHON_INCLUDE_DIR /usr/local/Frameworks/Python.framework/Versions/${i}/include/python${i}m
+    CACHE PATH "Path to a file." FORCE   )
+    set (PYTHON_LIBRARY /usr/local/Frameworks/Python.framework/Versions/${i}/lib/libpython${i}.dylib
+    CACHE FILEPATH  "Path to a library" FORCE )
+    break()
+  endif()
+endforeach()
+endif()
+
+find_package(PythonInterp)
+find_package(PythonLibs)
+
+ macro_log_feature (PYTHONLIBS_FOUND "Python"
+   "Use Python System"
+   "http://www.python.org" FALSE)
 endif()
 
 
@@ -213,8 +282,12 @@ set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
   include (Config)
 
 IF (NOT MSVC)
-  target_link_libraries(libYap m  ${ANDROIDDLLS}
+  IF (ANDROID)
+  target_link_libraries(libYap m android log )
+  ELSEIF (ANDROID)
+  target_link_libraries(libYap m  ${ANDROID_DLLS}
   )
+  ENDIF (ANDROID)
 ENDIF (NOT MSVC)
 
 set_target_properties(libYap
@@ -229,12 +302,11 @@ set(YAP_PL_SRCDIR ${CMAKE_SOURCE_DIR}/pl)
 
 # Compatibility vars with autotols
 if (ANDROID)
-set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/packages/swig/android)
-set ( prefix "${CMAKE_INSTALL_PREFIX}")
+set ( prefix "${CMAKE_SOURCE_DIR}/app/main")
 set ( exec_prefix "${prefix}")
-set ( libdir "${exec_prefix}/libs/${ANDROID_ABI}")
+set ( libdir "${exec_prefix}/lib/${ANDROID_ABI}")
 set ( dlls "${libdir}")
-set ( includedir "${prefix}/include")
+set ( includedir "${prefix}/src/include")
 set ( datarootdir "${prefix}/share")
 set ( libpl  "${datarootdir}/Yap")
 set ( datadir "${datarootdir}")
@@ -354,9 +426,6 @@ endif()
 endif()
 
 # set_property( DIRECTORY APPEND_STRING PROPERTY -fsanitize=memory;-fsanitize-memory-track-origins=2)
-
-message(STATUS "Running with CMAKE_C_FLAGS ${CMAKE_C_FLAGS}")
-
 if (HAVE_GCC)
   # replace instructions codes by the address of their code
   option (WITH_THREADED_CODE "threaded code" ON)
@@ -392,6 +461,7 @@ macro_log_feature (GMP_FOUND
   "GNU big integers and rationals"
   "http://gmplib.org")
   set(YAP_SYSTEM_OPTIONS "big_numbers " ${YAP_SYSTEM_OPTIONS})
+
 if (GMP_FOUND)
 # GMP_FOUND         - true if GMP/MPIR was found
 # GMP_INCLUDE_DIRS  - include search path
@@ -516,25 +586,31 @@ add_subDIRECTORY (packages/ProbLog)
 
 add_subDIRECTORY (packages/swi-minisat2)
 
-IF (NOT MSVC)
+add_subDIRECTORY (packages/raptor)
+
+add_subDIRECTORY (packages/xml)
+
+
+IF (NOT MSVC AND NOT ANDROID)
 OPTION (WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages"  ON)
 
-OPTION (WITH_CPLINT " Enable the cplint probabilistic language"  ON)
+OPTION (WITH_CPLINT " Enable the cplint probabilistic language"   ON)
 
 OPTION (WITH_HORUS " Enable the CLPBN and PFL probabilistic languages"  ON)
 
 IF (WITH_CLPBN)
 add_subDIRECTORY (packages/CLPBN)
-ENDIF()
+ENDIF(WITH_CLPBN)
 
 IF (WITH_CPLINT)
 add_subDIRECTORY (packages/cplint)
-ENDIF()
-ENDIF(NOT MSVC)
+ENDIF(WITH_CPLINT)
 
-add_subDIRECTORY (packages/raptor)
+ENDIF(NOT MSVC AND NOT ANDROID)
 
-add_subDIRECTORY (packages/xml)
+#must be last
+add_subDIRECTORY (packages/swig)
+
 
 # please install doxygen for prolog first
 # git clone http://www.github.com/vscosta/doxygen-yap
@@ -570,9 +646,6 @@ option (WITH_DOCS
 option (WITH_PRISM
   "use PRISM system in YAP" ON)
 #TODO:
-
-#must be last
-add_subDIRECTORY (packages/swig)
 
 
 option (WITH_YAP_DLL
@@ -694,14 +767,12 @@ configure_file ("${PROJECT_SOURCE_DIR}/config.h.cmake"
 # ADD_SUBDIRECTORY(console/terminal)
 
 
-install (
-    TARGETS yap-bin libYap
-    RUNTIME DESTINATION ${bindir}
-    ARCHIVE  DESTINATION ${libdir}
-    LIBRARY  DESTINATION ${libdir}
-  )
 
 
+if (ANDROID)
+file(INSTALL DESTINATION ${libdir} TYPE SHARED_LIBRARY FILES
+     ${GMP_LIBRARIES}   )
+endif(ANDROID)
 
 macro_display_feature_log()
 if(POLICY CMP0058)
