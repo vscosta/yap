@@ -471,22 +471,32 @@ static Int exists_directory(USES_REGS1) {
 static Int is_absolute_file_name(USES_REGS1) { /* file_base_name(Stream,N) */
   Term t = Deref(ARG1);
   Atom at;
+  bool rc;
+
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "file_base_name/2");
-    return FALSE;
+    return false;
   }
   const char *buf = Yap_TextTermToText(t, NULL, 0, LOCAL_encoding);
   if (buf) {
-    return Yap_IsAbsolutePath(buf);
+    rc = Yap_IsAbsolutePath(buf);
   } else {
     at = AtomOfTerm(t);
     if (IsWideAtom(at)) {
 #if _WIN32
-      return PathIsRelativeW(RepAtom(at)->WStrOfAE);
+      rc = PathIsRelativeW(RepAtom(at)->WStrOfAE);
 #else
-      return RepAtom(at)->WStrOfAE[0] == '/';
+      rc = RepAtom(at)->WStrOfAE[0] == '/';
 #endif
+    } else {
+#if _WIN32
+      rc = PathIsRelative(RepAtom(at)->StrOfAE);
+#else
+      rc = RepAtom(at)->StrOfAE[0] == '/';
+#endif      
     }
+    freeBuffer( buf );
+    return rc;
   }
   return false;
 }
