@@ -2,12 +2,39 @@
 % ProbLog extension to use an YAP BDD interface module, instead of simplecudd.
 %
 
-:- include(problog).
-
 :- use_module(library(trie_sp)).
 :- use_module(library(bdd)).
 :- use_module(library(bhash)).
 
+problog_exact_lbdd(Goal,Prob,Status) :-
+	problog_control(on, exact),
+	problog_low_lbdd(Goal,0,Prob,Status),
+	problog_control(off, exact).
+
+problog_low_lbdd(Goal, Threshold, _, _) :-
+	init_problog_low(Threshold),
+	problog_control(off, up),
+	timer_start(sld_time),
+	problog_call(Goal),
+	add_solution,
+	fail.
+problog_low_lbdd(_, _, Prob, ok) :-
+	timer_stop(sld_time,SLD_Time),
+	problog_var_set(sld_time, SLD_Time),
+	nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
+	tabled_trie_to_bdd(Trie_Completed_Proofs, BDD, MapList),
+	bind_maplist(MapList, BoundVars),
+	bdd_to_probability_sum_product(BDD, BoundVars, Prob),
+	(problog_flag(verbose, true)->
+	 problog_statistics
+	;
+	 true
+	),
+	delete_ptree(Trie_Completed_Proofs),
+	(problog_flag(retain_tables, true) -> retain_tabling; true),
+	clear_tabling.
+
+                                                                           
 problog_kbest_bdd(Goal, K, Prob, ok) :-
 	problog_kbest_to_bdd(Goal, K, BDD, MapList),
 	bind_maplist(MapList, BoundVars),

@@ -259,13 +259,9 @@ Last, when you configure YAP you need to add the options --with-cidd --enable-bd
 ## Running ProbLog
 
 
-To use ProbLog, the ProbLog module has to be loaded at the top of your Prolog programs. If you use SimpleCUDD, this is done with the following statement:
+To use ProbLog, the ProbLog module has to be loaded at the top of your Prolog programs. This is done with the following statement:
 ~~~~
 :- use_module(library(problog)).
-~~~~
-otherwise, if you prefer using YAP BDDs, use:
-~~~~
-:- use_module(library(problog_lbdd)).
 ~~~~
 
 
@@ -384,7 +380,7 @@ Starts the learning algorithm with N iterations.
  * @pred do_learning(+N, +Epsilon).
  *
 The output is created in the output subfolder of the current folder where YAP was started. There you will find the file log.dat which contains MSE on training and test set for every iteration, the timings, and some metrics on the gradient in CSV format. The files factprobs_N.pl contain the fact probabilities after the Nth iteration and the files predictions_N.pl contain the estimated probabilities for each training and test example - per default these file are generated every 5th iteration only.
-
+1
 Starts the learning algorithm. The learning will stop after N iterations or if the difference of the Mean Squared Error (MSE) between two iterations gets smaller than Epsilon - depending on what happens first.
 
 */
@@ -702,17 +698,18 @@ The possible values for this flag are any number greater than zero.
 %% @}
 
 :- module(problog, [problog_koptimal/3,
-						  problog_koptimal/4,
+ 		    problog_koptimal/4,
 						  problog_delta/5,
                     problog_threshold/5,
                     problog_low/4,
                     problog_kbest/4,
+                    problog_kbest_lbdd/4,
                     problog_kbest_save/6,
                     problog_max/3,
                     problog_kbest_explanations/3,
                     problog_exact/3,
-		    problog_fl_bdd/2,
-		    problog_kbest_bdd/4,
+                    problog_exact_lbdd/3,
+		    problog_kbest_lbdd/4,
                     problog_all_explanations/2,
                     problog_all_explanations_unsorted/2,
                     problog_exact_save/5,
@@ -905,7 +902,9 @@ The possible values for this flag are any number greater than zero.
 
 % directory where problogbdd executable is located
 % automatically set during loading -- assumes it is in same place as this file (problog.yap)
-:- getcwd(PD), set_problog_path(PD).
+:- getcwd(PD0),
+	atom_concat(PD0, '../../bin', PD),
+	set_problog_path(PD).
 
 
 
@@ -1038,7 +1037,7 @@ init_global_params :-
 % montecarlo: write log to this file
 %%%%%%%%%%%%
   problog_define_flag(mc_logfile,      problog_flag_validate_file, 'logfile for montecarlo', 'log.txt', mcmc, flags:working_file_handler),
-  check_existance('problogbdd').
+  check_existance('simplecudd').
 
 % parameter initialization to be called after returning to user's directory:
 :- initialization(init_global_params).
@@ -3673,7 +3672,6 @@ problog_infer_forest_supported :- problog_bdd_forest_supported.
 
 eval_bdd_forest(N,Probs,Status) :-
 	bdd_files(BDDFile,BDDParFile),
-	writeln(BDDFile),
 	problog_flag(bdd_time,BDDTime),
     (problog_flag(dynamic_reorder, true) ->
       ParamD = ''
@@ -4153,6 +4151,10 @@ signal_decision(ClauseID,GroundID) :-
 		true
 	).
 
+				%
+				% ProbLog in-memory inference
+				%
+:- include(problog_lbdd).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Term Expansion for user predicates
