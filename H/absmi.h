@@ -52,14 +52,6 @@
 #define SHADOW_REGS 1
 #define USE_PREFETCH 1
 #endif
-
-#ifdef mips
-#define SHADOW_P 1
-#define SHADOW_Y 1
-#define SHADOW_REGS 1
-#define USE_PREFETCH 1
-#endif
-
 #if defined(_POWER) || defined(__POWERPC__)
 #define SHADOW_P 1
 #define SHADOW_REGS 1
@@ -107,7 +99,7 @@ register struct yami *P1REG asm("bp"); /* can't use yamop before Yap.h */
 #define LIMITED_PREFETCH 1
 #endif /* __x86_64__ */
 
-#if defined(__arm__) || defined(__thumb__)
+#if defined(__arm__) || defined(__thumb__) || defined(mips) || defined(__mips64) || defined(__aarch64__)
 
 #define Y_IN_MEM 1
 #define S_IN_MEM 1
@@ -131,15 +123,6 @@ register struct yami *P1REG asm("bp"); /* can't use yamop before Yap.h */
 #define S_IN_MEM 1
 #define TR_IN_MEM 1
 #define HAVE_FEW_REGS 1
-#endif
-
-#ifdef mips
-#define SHADOW_P 1
-#define SHADOW_Y 1
-#define SHADOW_S 1
-#define SHADOW_CP 1
-#define SHADOW_HB 1
-#define USE_PREFETCH 1
 #endif
 
 #ifdef _HPUX_SOURCE
