@@ -458,4 +458,11 @@ char *Yap_MemExportStreamPtr(int sno);
 
 bool Yap_Exists(const char *f);
 
+static inline void freeBuffer(const void *ptr) {
+  CACHE_REGS
+  if (ptr == NULL || ptr == LOCAL_FileNameBuf || ptr == LOCAL_FileNameBuf2)
+    return;
+  free((void *)ptr);
+}
+
 #endif

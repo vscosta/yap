@@ -1,19 +1,19 @@
 /*************************************************************************
- *									 *
- *	 YAP Prolog 							 *
- *									 *
- *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
- *									 *
- * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
- *									 *
- **************************************************************************
- *									 *
- * File:		sysbits.c *
- * Last rev:	4/03/88							 *
- * mods: *
- * comments:	very much machine dependent routines			 *
- *									 *
- *************************************************************************/
+*									 *
+*	 YAP Prolog 							 *
+*									 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 *
+**************************************************************************
+*									 *
+* File:		sysbits.c *
+* Last rev:	4/03/88							 *
+* mods: *
+* comments:	very much machine dependent routines			 *
+*									 *
+*************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -51,12 +51,6 @@ static const char *expandVars(const char *spec, char *u);
 
 void exit(int);
 
-static void freeBuffer(const void *ptr) {
-  CACHE_REGS
-  if (ptr == NULL || ptr == LOCAL_FileNameBuf || ptr == LOCAL_FileNameBuf2)
-    return;
-  free((void *)ptr);
-}
 
 #ifdef _WIN32
 void Yap_WinError(char *yap_error) {
@@ -771,7 +765,9 @@ static Int real_path(USES_REGS1) {
   if (!rc0) {
     PlIOError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, NULL);
   }
-  return Yap_unify(MkAtomTerm(Yap_LookupAtom(rc0)), ARG2);
+  bool out = Yap_unify(MkAtomTerm(Yap_LookupAtom(rc0)), ARG2);
+  freeBuffer(rc0);
+  return out;
 }
 
 #define EXPAND_FILENAME_DEFS()                                                 \
@@ -797,7 +793,7 @@ static Term do_expand_file_name(Term t1, Term opts USES_REGS) {
   xarg *args;
   expand_filename_enum_choices_t i;
   bool use_system_expansion = true;
-  char *tmpe = NULL;
+  const char *tmpe = NULL;
   const char *spec;
   Term tf;
 
@@ -828,7 +824,7 @@ static Term do_expand_file_name(Term t1, Term opts USES_REGS) {
   if (args == NULL) {
     return TermNil;
   }
-  tmpe = malloc(YAP_FILENAME_MAX + 1);
+  tmpe = NULL;
 
   for (i = 0; i < EXPAND_FILENAME_END; i++) {
     if (args[i].used) {
@@ -836,11 +832,12 @@ static Term do_expand_file_name(Term t1, Term opts USES_REGS) {
       switch (i) {
       case EXPAND_FILENAME_PARAMETER_EXPANSION:
         if (t == TermProlog) {
-          const char *s = expandVars(spec, LOCAL_FileNameBuf);
-          if (s == NULL) {
+          tmpe = expandVars(spec, LOCAL_FileNameBuf);
+          if (tmpe == NULL) {
+            free(args);
             return TermNil;
           }
-          strcpy(tmpe, s);
+          spec = tmpe;
         } else if (t == TermTrue) {
           use_system_expansion = true;
         } else if (t == TermFalse) {
@@ -861,14 +858,28 @@ static Term do_expand_file_name(Term t1, Term opts USES_REGS) {
       }
     }
   }
-
+  free(args);
   if (!use_system_expansion) {
     const char *o = expandVars(spec, NULL);
     if (!o)
       return false;
-    return MkPairTerm(MkAtomTerm(Yap_LookupAtom(o)), TermNil);
+    tf = MkPairTerm(MkAtomTerm(Yap_LookupAtom(o)), TermNil);
+#if _WIN32
+    if (o != cmd2)
+#endif
+    {
+      freeBuffer(o);
+    }
+  } else {
+    tf = do_glob(spec, true);
   }
-  tf = do_glob(spec, true);
+  if (tmpe
+#if _WIN32
+      && tmpe != cmd2
+#endif
+      ) {
+    freeBuffer(tmpe);
+  }
   return tf;
 }
 
@@ -1391,7 +1402,9 @@ static Int true_file_name(USES_REGS1) {
   }
   if (!(s = Yap_AbsoluteFile(s, LOCAL_FileNameBuf, true)))
     return false;
-  return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(s)));
+  bool rc = Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(s)));
+  freeBuffer(s);
+  return rc;
 }
 
 static Int p_expand_file_name(USES_REGS1) {

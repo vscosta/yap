@@ -418,8 +418,10 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   if (fe->cmod == TermProlog)
     fe->cmod = PROLOG_MODULE;
   if (args[READ_BACKQUOTED_STRING].used) {
-    if (!setBackQuotesFlag(args[READ_BACKQUOTED_STRING].tvalue))
+    if (!setBackQuotesFlag(args[READ_BACKQUOTED_STRING].tvalue)) {
+      free(args);
       return false;
+    }
   }
   if (args[READ_QUASI_QUOTATIONS].used) {
     fe->qq = args[READ_QUASI_QUOTATIONS].tvalue;
@@ -651,6 +653,7 @@ static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
   else
     tp = 0L;
   Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+  free(fe->args);
 
   // trail must be ok by now.]
   if (fe->t) {
@@ -685,7 +688,7 @@ static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart) {
   else
     v_pos = 0L;
   Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
-
+  free(fe->args);
   // trail must be ok by now.]
   if (fe->t) {
     return (!v_vp || Yap_unify(v_vp, fe->vp)) &&

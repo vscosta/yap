@@ -639,7 +639,8 @@ static Int cont_stream_property(USES_REGS1) { /* current_stream */
   if (IsAtomTerm(args[STREAM_PROPERTY_ALIAS].tvalue)) {
     // one solution only
     i = Yap_CheckAlias(AtomOfTerm(args[STREAM_PROPERTY_ALIAS].tvalue));
-    UNLOCK(GLOBAL_Stream[i].streamlock);
+     free(args)
+   UNLOCK(GLOBAL_Stream[i].streamlock);
     if (i < 0 || !Yap_unify(ARG1, Yap_MkStream(i))) {
       cut_fail();
     }
@@ -648,7 +649,7 @@ static Int cont_stream_property(USES_REGS1) { /* current_stream */
   LOCK(GLOBAL_Stream[i].streamlock);
   rc = do_stream_property(i, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[i].streamlock);
-  if (IsVarTerm(t1)) {
+ if (IsVarTerm(t1)) {
     if (rc)
       rc = Yap_unify(ARG1, Yap_MkStream(i));
     if (p == STREAM_PROPERTY_END) {

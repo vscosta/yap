@@ -261,7 +261,7 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
     Yap_ConsoleOps(st);
   }
 #ifndef _WIN32
-  else if (st->file != NULL && 0 && !(st->status &  InMemory_Stream_f)) {
+  else if (st->file != NULL && 0 && !(st->status & InMemory_Stream_f)) {
     if (st->encoding == Yap_SystemEncoding()) {
       st->stream_wgetc = get_wchar_from_file;
     } else
@@ -1205,7 +1205,7 @@ do_open(Term file_name, Term t2,
   if (args[OPEN_ALIAS].used) {
     Atom al = AtomOfTerm(args[OPEN_ALIAS].tvalue);
     if (!Yap_AddAlias(al, sno)) {
-      free(args);      
+      free(args);
       return false;
     }
   }
@@ -1276,9 +1276,8 @@ do_open(Term file_name, Term t2,
   if ((fd = fopen(fname, io_mode)) == NULL ||
       (!(flags & Binary_Stream_f) && binary_file(fname))) {
     strncpy(LOCAL_FileNameBuf, fname, MAXPATHLEN);
-    if (fname != fbuf && fname != LOCAL_FileNameBuf &&
-        fname != LOCAL_FileNameBuf2)
-      free((void *)fname);
+    if (fname != fbuf)
+      freeBuffer((void *)fname);
     fname = LOCAL_FileNameBuf;
     UNLOCK(st->streamlock);
     if (errno == ENOENT) {
@@ -1314,6 +1313,8 @@ do_open(Term file_name, Term t2,
   Yap_DefaultStreamOps(st);
   if (script)
     open_header(sno, open_mode);
+  if (fname != fbuf)
+    freeBuffer(fname);
 
   free(args);
   UNLOCK(st->streamlock);
@@ -1437,7 +1438,8 @@ static Int p_file_expansion(USES_REGS1) { /* '$file_expansion'(+File,-Name) */
     PlIOError(INSTANTIATION_ERROR, file_name, "absolute_file_name/3");
     return (FALSE);
   }
-  if (!Yap_findFile(RepAtom(AtomOfTerm(file_name))->StrOfAE, NULL, NULL, LOCAL_FileNameBuf, true, YAP_ANY_FILE, true, false))
+  if (!Yap_findFile(RepAtom(AtomOfTerm(file_name))->StrOfAE, NULL, NULL,
+                    LOCAL_FileNameBuf, true, YAP_ANY_FILE, true, false))
     return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, file_name,
                       "absolute_file_name/3"));
   return (Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))));
@@ -1582,18 +1584,16 @@ int Yap_CheckTextStream__(const char *file, const char *f, int line, Term arg,
 }
 
 int Yap_CheckBinaryStream__(const char *file, const char *f, int line, Term arg,
-                          int kind, const char *msg) {
+                            int kind, const char *msg) {
   int sno;
   if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
     return -1;
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     if (kind == Input_Stream_f)
-      PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_TEXT_STREAM, arg,
-                  msg);
+      PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_TEXT_STREAM, arg, msg);
     else
-      PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_TEXT_STREAM, arg,
-                  msg);
+      PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_TEXT_STREAM, arg, msg);
     return -1;
   }
   return sno;
@@ -1822,7 +1822,6 @@ static Int get_abs_file_parameter(USES_REGS1) {
   Yap_Error(DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION, ARG1, NULL);
   return false;
 }
-
 void Yap_InitPlIO(void) {
   Int i;
 
