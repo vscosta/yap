@@ -72,6 +72,10 @@ static Int traced_absmi(void) { return Yap_traced_absmi(); }
 
 #endif
 
+#ifndef YREG
+#define YREG YENV
+#endif
+
 void **Yap_ABSMI_OPCODES;
 
 #ifdef PUSH_X

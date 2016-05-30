@@ -233,11 +233,15 @@ INLINE_ONLY inline EXTERN size_t strnlen(const char *s, size_t maxlen) {
 
 #if !defined(IN_SECOND_QUADRANT)
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) ||       \
-    defined(mips) || (__DragonFly__)
+    defined(mips) || defined(__mips64) || defined(__aarch64__) || (__DragonFly__)
 #if defined(YAPOR) && defined(__alpha)
 
 #define MMAP_ADDR 0x40000000
 #elif defined(mips)
+#define MMAP_ADDR 0x02000000
+#elif defined(__mips64)
+#define MMAP_ADDR 0x02000000
+#elif defined(__aarch64__)
 #define MMAP_ADDR 0x02000000
 #elif defined(__powerpc__)
 #define MMAP_ADDR 0x20000000
@@ -246,7 +250,7 @@ INLINE_ONLY inline EXTERN size_t strnlen(const char *s, size_t maxlen) {
 #endif /* YAPOR && __alpha */
 #elif __svr4__ || defined(__SVR4)
 #define MMAP_ADDR 0x02000000
-#endif /* __linux__ || __FreeBSD__ || __NetBSD__ || mips || __APPLE__ ||       \
+#endif /* __linux__ || __FreeBSD__ || __NetBSD__ || mips || __mips64 || __APPLE__ ||       \
           __DragonFly__ */
 #endif /* !IN_SECOND_QUADRANT */
 
@@ -318,9 +322,6 @@ typedef volatile int lockvar;
 #elif defined(sparc) || defined(__sparc)
 typedef volatile int lockvar;
 #include <locks_sparc.h>
-#elif defined(mips)
-typedef volatile int lockvar;
-#include <locks_mips.h>
 #elif defined(__alpha)
 typedef volatile int lockvar;
 #include <locks_alpha.h>
@@ -465,6 +466,7 @@ extern int Yap_output_msg;
 #endif
 
 #if __ANDROID__
+
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 #include <android/log.h>

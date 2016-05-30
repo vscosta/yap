@@ -54,10 +54,6 @@
 #undef  PUSH_X
 #endif
 
-#ifdef mips
-#undef  PUSH_REGS
-#undef  PUSH_X
-#endif
 
 /* force a cache of WAM regs for multi-threaded architectures! */
 #ifdef THREADS
@@ -321,80 +317,6 @@ INLINE_ONLY EXTERN inline void save_TR(void) {
 INLINE_ONLY EXTERN inline void restore_TR(void) {
   TR = Yap_REGS.TR_;
 }
-
-#elif defined(__GNUC__) && defined(mips)
-
-#define P               Yap_REGS.P_	/* prolog machine program counter */
-#define YENV            Yap_REGS.YENV_	/* current environment (may differ from ENV) */
-register CELL *HR asm ("$16");
-register CELL *HB asm ("$17");
-register choiceptr B asm ("$18");
-register yamop *CP asm ("$19");
-register CELL *S asm ("$20");
-register CELL CreepFlag asm ("$21");
-register tr_fr_ptr TR asm ("$22");
-
-INLINE_ONLY EXTERN inline void save_machine_regs(void) {
-  Yap_REGS.H_   = HR;
-  Yap_REGS.HB_ = HB;
-  Yap_REGS.B_   = B;
-  Yap_REGS.CP_  = CP;
-  Yap_REGS.CreepFlag_ = CreepFlag;
-  Yap_REGS.TR_  = TR;
-}
-
-INLINE_ONLY EXTERN inline void restore_machine_regs(void) {
-  HR = Yap_REGS.H_;
-  HB = Yap_REGS.HB_;
-  B = Yap_REGS.B_;
-  CP = Yap_REGS.CP_;
-  CreepFlag = Yap_REGS.CreepFlag_;
-  TR = Yap_REGS.TR_;
-}
-
-#define BACKUP_MACHINE_REGS()           \
-  CELL     *BK_H = HR;                   \
-  CELL     *BK_HB = HB;                 \
-  choiceptr BK_B = B;                   \
-  CELL      BK_CreepFlag = CreepFlag;   \
-  yamop    *BK_CP = CP;                 \
-  tr_fr_ptr BK_TR = TR;                 \
-  restore_machine_regs()
-
-#define RECOVER_MACHINE_REGS()          \
-  save_machine_regs();                  \
-  HR = BK_H;                             \
-  HB = BK_HB;                           \
-  B = BK_B;                             \
-  CreepFlag = BK_CreepFlag;             \
-  CP = BK_CP;                           \
-  TR = BK_TR
-
-INLINE_ONLY EXTERN inline void save_H(void) {
-  Yap_REGS.H_   = HR;
-}
-
-INLINE_ONLY EXTERN inline void restore_H(void) {
-  HR = Yap_REGS.H_;
-}
-
-#define BACKUP_H()  CELL *BK_H = HR; restore_H()
-
-#define RECOVER_H()  save_H(); HR = BK_H
-
-INLINE_ONLY EXTERN inline void save_B(void) {
-  Yap_REGS.B_ = B;
-}
-
-INLINE_ONLY EXTERN inline void restore_B(void) {
-  B = Yap_REGS.B_;
-}
-
-#define BACKUP_B()  choiceptr BK_B = B; restore_B()
-
-#define RECOVER_B()  save_B(); B = BK_B
-
-#define restore_TR()
 
 #elif defined(__GNUC__) && defined(hppa)
 
