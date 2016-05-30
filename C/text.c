@@ -392,6 +392,7 @@ void *Yap_readText(void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal,
   return NULL;
 }
 
+
 static Term write_strings(void *s0, seq_tv_t *out, encoding_t enc, int minimal,
                           size_t leng USES_REGS) {
   size_t min = 0, max = leng;
@@ -1006,7 +1007,7 @@ static Term string_to_term(void *s0, seq_tv_t *out, encoding_t enc, int minimal,
   return o;
 }
 
-int write_Text(void *inp, seq_tv_t *out, encoding_t enc, int minimal,
+bool write_Text(void *inp, seq_tv_t *out, encoding_t enc, int minimal,
                size_t leng USES_REGS) {
   /* we know what the term is */
   switch (out->type & YAP_TYPE_MASK) {
@@ -1054,18 +1055,129 @@ int write_Text(void *inp, seq_tv_t *out, encoding_t enc, int minimal,
         0L)
       return out->val.t != 0;
   }
-  return FALSE;
+  return false;
+}
+
+
+static size_t upcase(void *s0, seq_tv_t *out, encoding_t enc USES_REGS) {
+  size_t max = -1;
+
+
+  switch (enc) {
+    case ENC_ISO_UTF8: {
+      unsigned char *s = s0;
+      while (*s) {
+        // assumes the two code have always the same size;
+        utf8proc_int32_t chr;
+        get_utf8(s, -1, &chr);
+        chr = utf8proc_toupper(chr);
+        s += put_utf8(s, chr);
+      }
+      return true;
+    }
+
+    case ENC_ISO_LATIN1: {
+      unsigned char *s = s0;
+      utf8proc_int32_t chr;
+
+      while ((chr = *s)) {
+        // assumes the two code have always the same size;
+        chr = *s;
+        chr = utf8proc_toupper(chr);
+        *s++ = chr;
+      }
+      return true;
+    }
+
+    case ENC_WCHAR: {
+      wchar_t *s = s0;
+      utf8proc_int32_t chr;
+
+      while ((chr = *s)) {
+        // assumes the two code have always the same size;
+        chr = *s;
+        chr = utf8proc_toupper(chr);
+        *s++ = chr;
+      }
+      return true;
+    }
+    default:
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Unsupported Encoding ~s in %s",
+                enc_name(enc), __FUNCTION__);
+
+  }
+  return false;
+}
+
+static size_t downcase(void *s0, seq_tv_t *out, encoding_t enc USES_REGS) {
+  size_t max = -1;
+
+
+  switch (enc) {
+    case ENC_ISO_UTF8: {
+      unsigned char *s = s0;
+      while (*s) {
+        // assumes the two code have always the same size;
+        utf8proc_int32_t chr;
+        get_utf8(s, -1, &chr);
+        chr = utf8proc_tolower(chr);
+        s += put_utf8(s, chr);
+      }
+      return true;
+    }
+
+    case ENC_ISO_LATIN1: {
+      unsigned char *s = s0;
+      utf8proc_int32_t chr;
+
+      while ((chr = *s)) {
+        // assumes the two code have always the same size;
+        chr = *s;
+        chr = utf8proc_tolower(chr);
+        *s++ = chr;
+      }
+      return true;
+    }
+    case ENC_WCHAR: {
+      wchar_t *s = s0;
+      utf8proc_int32_t chr;
+
+      while ((chr = *s)) {
+        // assumes the two code have always the same size;
+        chr = *s;
+        chr = utf8proc_tolower(chr);
+        *s++ = chr;
+      }
+      return true;
+    }
+    default:
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Unsupported Encoding ~s in %s",
+                enc_name(enc), __FUNCTION__);
+
+  }
+  return false;
 }
 
 int Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
   encoding_t enc;
   int minimal = FALSE;
-  char *buf;
+            char *buf;
   size_t leng;
 
   buf = Yap_readText(NULL, inp, &enc, &minimal, &leng PASS_REGS);
   if (!buf)
     return 0L;
+  if (out->type & (YAP_STRING_UPCASE|YAP_STRING_DOWNCASE)) {
+    if (out->type & YAP_STRING_UPCASE) {
+      if (!upcase(buf, out, enc))
+        return false;
+    }
+    if (out->type & YAP_STRING_DOWNCASE) {
+      if (!downcase(buf, out, enc))
+        return false;
+    }
+  }
+
   return write_Text(buf, out, enc, minimal, leng PASS_REGS);
 }
 

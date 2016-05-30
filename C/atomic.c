@@ -1252,15 +1252,14 @@ error:
 
 static Int atom_length(USES_REGS1) {
   Term t1 = Deref(ARG1);
-  ;
   Term t2 = Deref(ARG2);
   size_t len;
 
   if (!Yap_IsGroundTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "atom_length/2");
+    Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
     return (FALSE);
   } else if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM, t1, "atom_length/2");
+    Yap_Error(TYPE_ERROR_ATOM, t1, "at first argument");
     return (FALSE);
   }
 
@@ -1291,21 +1290,18 @@ static Int atomic_length(USES_REGS1) {
   size_t len;
 
   if (!Yap_IsGroundTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "atomic_length/2");
-    return (FALSE);
-  } else if (!IsAtomicTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM, t1, "atomic_length/2");
+    Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
     return (FALSE);
   }
 
-  if (Yap_IsGroundTerm(t2)) {
+  if (IsNonVarTerm(t2)) {
+
 
     if (!IsIntegerTerm(t2)) {
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "atomic_length/2");
+      Yap_Error(TYPE_ERROR_INTEGER, t2, "atom_length/2");
       return (FALSE);
-    }
-    if ((Int)(len = IntegerOfTerm(t2)) < 0) {
-      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "atomic_length/2");
+    } else if ((Int)(len = IntegerOfTerm(t2)) < 0) {
+      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "atom_length/2");
       return (FALSE);
     }
   }
@@ -1346,6 +1342,271 @@ restart_aux:
     goto restart_aux;
   }
   return FALSE;
+}
+
+/** @pred downcase_text_to_atom(+Text, -Atom)
+ *
+ * Convert all upper case code-points in text _Text_ to  downcase. Unify the result as atom _Atom_ with the second argument.
+ *
+ */
+static Int downcase_text_to_atom(USES_REGS1) {
+  Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2);
+  size_t len;
+
+  if (!Yap_IsGroundTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
+    return false;
+  }
+
+  if (IsNonVarTerm(t2)) {
+    if (!IsAtomTerm(t2)) {
+      Yap_Error(TYPE_ERROR_ATOM, t2, "at second argument");
+      return (FALSE);
+    }
+  }
+  while (true) {
+    Atom at = Yap_AtomicToLowAtom(t1);
+    if (at == NULL) {
+      if (LOCAL_Error_TYPE && Yap_HandleError("downcase_text_to_atom/2"))
+        continue;
+      return false;
+    }
+    return Yap_unify(MkAtomTerm(at), t2);
+  }
+  return false;
+}
+
+/** @pred upcase_text_to_atom(+Text, -Atom)
+ *
+ * Convert all lower case code-points in text _Text_ to  up case. Unify the result as atom _Atom_ with the second argument.
+ *
+ */
+static Int upcase_text_to_atom(USES_REGS1) {
+  Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2);
+  size_t len;
+
+  if (!Yap_IsGroundTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
+    return false;
+  }
+
+  if (IsNonVarTerm(t2)) {
+    if (!IsAtomTerm(t2)) {
+      Yap_Error(TYPE_ERROR_ATOM, t2, "at second argument");
+      return (FALSE);
+    }
+  }
+  while (true) {
+    Atom at = Yap_AtomicToUpAtom(t1);
+    if (at == NULL) {
+      if (LOCAL_Error_TYPE && Yap_HandleError("upcase_text_to_atom/2"))
+        continue;
+      return false;
+    }
+    return Yap_unify(MkAtomTerm(at), t2);
+  }
+  return false;
+}
+
+/** @pred downcase_text_to_string(+Text, -String)
+ *
+ * Convert all upper case code-points in text _Text_ to  downcase. Unify the result as string _String_ with the second argument.
+ *
+ */
+static Int downcase_text_to_string(USES_REGS1) {
+  Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2);
+  size_t len;
+
+  if (!Yap_IsGroundTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
+    return false;
+  }
+
+  if (IsNonVarTerm(t2)) {
+    if (!IsStringTerm(t2)) {
+      Yap_Error(TYPE_ERROR_STRING, t2, "at second argument");
+      return (FALSE);
+    }
+  }
+  while (true) {
+    Term t = Yap_AtomicToLowString(t1);
+    if (t == TermZERO) {
+      if (LOCAL_Error_TYPE && Yap_HandleError("downcase_text_to_string/2"))
+        continue;
+      return false;
+    }
+    return Yap_unify(t, t2);
+  }
+  return false;
+}
+
+/** @pred upcase_text_to_string(+Text, -String)
+ *
+ * Convert all lower case code-points in text _Text_ to  up case. Unify the result as string _String_ with the second argument.
+ *
+ */
+static Int upcase_text_to_string(USES_REGS1) {
+  Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2);
+  size_t len;
+
+  if (!Yap_IsGroundTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
+    return false;
+  }
+
+  if (IsNonVarTerm(t2)) {
+    if (!IsStringTerm(t2)) {
+      Yap_Error(TYPE_ERROR_STRING, t2, "at second argument");
+      return (FALSE);
+    }
+  }
+  while (true) {
+    Term t = Yap_AtomicToUpString(t1);
+    if (t == TermZERO) {
+      if (LOCAL_Error_TYPE && Yap_HandleError("upcase_text_to_string/2"))
+        continue;
+      return false;
+    }
+    return Yap_unify(t, t2);
+  }
+  return false;
+}
+
+/** @pred downcase_text_to_codes(+Text, -Codes)
+ *
+ * Convert all upper case code-points in text _Text_ to  downcase. Unify the result as a sequence of codes _Codes_ with the second argument.
+ *
+ */
+static Int downcase_text_to_codes(USES_REGS1) {
+  Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2);
+  size_t len;
+
+  if (!Yap_IsGroundTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
+    return false;
+  }
+
+  if (IsNonVarTerm(t2)) {
+    if (!Yap_IsListTerm(t2)) {
+      Yap_Error(TYPE_ERROR_LIST, t2, "at second argument");
+      return false;
+    }
+  }
+  while (true) {
+    Term t = Yap_AtomicToLowListOfCodes(t1);
+    if (t == TermZERO) {
+      if (LOCAL_Error_TYPE && Yap_HandleError("downcase_text_to_codes/2"))
+        continue;
+      return false;
+    }
+    return Yap_unify(t, t2);
+  }
+  return false;
+}
+
+/** @pred upcase_text_to_codes(+Text, -Codes)
+ *
+ * Convert all lower case code-points in text _Text_ to  up case. Unify the result as a sequence of codes _Codes_ with the second argument.
+ *
+ */
+static Int upcase_text_to_codes(USES_REGS1) {
+  Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2);
+  size_t len;
+
+  if (!Yap_IsGroundTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
+    return false;
+  }
+
+  if (IsNonVarTerm(t2)) {
+    if (!Yap_IsListTerm(t2)) {
+      Yap_Error(TYPE_ERROR_LIST, t2, "at second argument");
+      return (FALSE);
+    }
+  }
+  while (true) {
+    Term t = Yap_AtomicToUpListOfCodes(t1);
+    if (t == TermZERO) {
+      if (LOCAL_Error_TYPE && Yap_HandleError("upcase_text_to_codes/2"))
+        continue;
+      return false;
+    }
+    return Yap_unify(t, t2);
+  }
+  return false;
+}
+
+
+/** @pred downcase_text_to_chars(+Text, -Chars)
+ *
+ * Convert all upper case code-points in text _Text_ to  downcase. Unify the result as a sequence of chars _Chars_ with the second argument.
+ *
+ */
+static Int downcase_text_to_chars(USES_REGS1) {
+  Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2);
+  size_t len;
+
+  if (!Yap_IsGroundTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
+    return false;
+  }
+
+  if (IsNonVarTerm(t2)) {
+    if (!Yap_IsListTerm(t2)) {
+      Yap_Error(TYPE_ERROR_LIST, t2, "at second argument");
+      return false;
+    }
+  }
+  while (true) {
+    Term t = Yap_AtomicToLowListOfAtoms(t1);
+    if (t == TermZERO) {
+      if (LOCAL_Error_TYPE && Yap_HandleError("downcase_text_to_to_chars/2"))
+        continue;
+      return false;
+    }
+    return Yap_unify(t, t2);
+  }
+  return false;
+}
+
+/** @pred upcase_text_to_chars(+Text, -Chars)
+ *
+ * Convert all lower case code-points in text _Text_ to  up case. Unify the result as a sequence of chars _Chars_ with the second argument.
+ *
+ */
+static Int upcase_text_to_chars(USES_REGS1) {
+  Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2);
+  size_t len;
+
+  if (!Yap_IsGroundTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
+    return false;
+  }
+
+  if (IsNonVarTerm(t2)) {
+    if (!Yap_IsListTerm(t2)) {
+      Yap_Error(TYPE_ERROR_LIST, t2, "at second argument");
+      return (FALSE);
+    }
+  }
+  while (true) {
+    Term t = Yap_AtomicToUpListOfAtoms(t1);
+    if (t == TermZERO) {
+      if (LOCAL_Error_TYPE && Yap_HandleError("upcase_text_to_chars/2"))
+        continue;
+      return false;
+    }
+    return Yap_unify(t, t2);
+  }
+  return false;
 }
 
 static int is_wide(wchar_t *s) {
@@ -2369,6 +2630,18 @@ void Yap_InitAtomPreds(void) {
   Yap_InitCPred("atomics_to_string", 2, atomics_to_string2, 0);
   Yap_InitCPred("atomics_to_string", 3, atomics_to_string3, 0);
   Yap_InitCPred("get_string_code", 3, get_string_code3, 0);
+
+  Yap_InitCPred("downcase_text_to_atom", 2, downcase_text_to_atom, 0);
+  Yap_InitCPred("downcase_atom", 2, downcase_text_to_atom, 0);
+  Yap_InitCPred("upcase_text_to_atom", 2, upcase_text_to_atom, 0);
+  Yap_InitCPred("upcase_atom", 2, upcase_text_to_atom, 0);
+  Yap_InitCPred("downcase_text_to_string", 2, downcase_text_to_string, 0);
+  Yap_InitCPred("upcase_text_to_string", 2, upcase_text_to_string, 0);
+  Yap_InitCPred("downcase_text_to_codes", 2, downcase_text_to_codes, 0);
+  Yap_InitCPred("upcase_text_to_codes", 2, upcase_text_to_codes, 0);
+  Yap_InitCPred("downcase_text_to_chars", 2, downcase_text_to_chars, 0);
+  Yap_InitCPred("upcase_text_to_chars", 2, upcase_text_to_chars, 0);
+
   /* hiding and unhiding some predicates */
   Yap_InitCPred("hide_atom", 1, hide_atom, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("hide", 1, hide_atom, SafePredFlag | SyncPredFlag);

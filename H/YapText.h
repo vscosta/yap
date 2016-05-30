@@ -296,7 +296,9 @@ typedef enum {
   YAP_STRING_WQ = 0x10000,          // output with write_quote
   YAP_STRING_WC = 0x20000,          // output with write_canonical
   YAP_STRING_WITH_BUFFER = 0x40000, // output on existing buffer
-  YAP_STRING_MALLOC = 0x80000       // output on malloced buffer
+  YAP_STRING_MALLOC = 0x80000,      // output on malloced buffer
+  YAP_STRING_UPCASE = 0x100000,      // output on malloced buffer
+  YAP_STRING_DOWNCASE = 0x200000       // output on malloced buffer
 } enum_seq_type_t;
 
 typedef UInt seq_type_t;
@@ -384,7 +386,7 @@ static inline seq_type_t mod_to_bqtype(Term mod USES_REGS) {
 
 extern void *Yap_readText(void *buf, seq_tv_t *inp, encoding_t *enc,
                           int *minimal, size_t *lengp USES_REGS);
-extern int write_Text(void *inp, seq_tv_t *out, encoding_t enc, int minimal,
+extern bool write_Text(void *inp, seq_tv_t *out, encoding_t enc, int minimal,
                       size_t leng USES_REGS);
 extern int Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS);
 extern void *Yap_Concat_Text(int n, seq_tv_t inp[], seq_tv_t *out USES_REGS);
@@ -392,6 +394,104 @@ extern void *Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
                              encoding_t encv[], seq_tv_t outv[] USES_REGS);
 
 // user friendly interface
+
+static inline Atom Yap_AtomicToLowAtom(Term t0 USES_REGS) {
+  seq_tv_t inp, out;
+  inp.val.t = t0;
+  inp.type = YAP_STRING_STRING | YAP_STRING_CODES | YAP_STRING_ATOMS |
+             YAP_STRING_ATOM | YAP_STRING_INT | YAP_STRING_FLOAT |
+             YAP_STRING_BIG | YAP_STRING_TERM;
+  out.type = YAP_STRING_ATOM|YAP_STRING_DOWNCASE;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.a;
+}
+
+static inline Atom Yap_AtomicToUpAtom(Term t0 USES_REGS) {
+  seq_tv_t inp, out;
+  inp.val.t = t0;
+  inp.type = YAP_STRING_STRING | YAP_STRING_CODES | YAP_STRING_ATOMS |
+             YAP_STRING_ATOM | YAP_STRING_INT | YAP_STRING_FLOAT |
+             YAP_STRING_BIG | YAP_STRING_TERM;
+  out.type = YAP_STRING_ATOM|YAP_STRING_UPCASE;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.a;
+}
+
+static inline Term Yap_AtomicToLowString(Term t0 USES_REGS) {
+  seq_tv_t inp, out;
+  inp.val.t = t0;
+  inp.type = YAP_STRING_STRING | YAP_STRING_CODES | YAP_STRING_ATOMS |
+             YAP_STRING_ATOM | YAP_STRING_INT | YAP_STRING_FLOAT |
+             YAP_STRING_BIG | YAP_STRING_TERM;
+  out.type = YAP_STRING_STRING|YAP_STRING_DOWNCASE;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.t;
+}
+
+static inline Term Yap_AtomicToUpString(Term t0 USES_REGS) {
+  seq_tv_t inp, out;
+  inp.val.t = t0;
+  inp.type = YAP_STRING_STRING | YAP_STRING_CODES | YAP_STRING_ATOMS |
+             YAP_STRING_ATOM | YAP_STRING_INT | YAP_STRING_FLOAT |
+             YAP_STRING_BIG | YAP_STRING_TERM;
+  out.type = YAP_STRING_STRING|YAP_STRING_UPCASE;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.t;
+}
+
+static inline Term Yap_AtomicToLowListOfCodes(Term t0 USES_REGS) {
+  seq_tv_t inp, out;
+  inp.val.t = t0;
+  inp.type = YAP_STRING_STRING | YAP_STRING_CODES | YAP_STRING_ATOMS |
+             YAP_STRING_ATOM | YAP_STRING_INT | YAP_STRING_FLOAT |
+             YAP_STRING_BIG | YAP_STRING_TERM;
+  out.type = YAP_STRING_CODES|YAP_STRING_DOWNCASE;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.t;
+}
+
+static inline Term Yap_AtomicToUpListOfCodes(Term t0 USES_REGS) {
+  seq_tv_t inp, out;
+  inp.val.t = t0;
+  inp.type = YAP_STRING_STRING | YAP_STRING_CODES | YAP_STRING_ATOMS |
+             YAP_STRING_ATOM | YAP_STRING_INT | YAP_STRING_FLOAT |
+             YAP_STRING_BIG | YAP_STRING_TERM;
+  out.type = YAP_STRING_CODES|YAP_STRING_UPCASE;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.t;
+}
+
+static inline Term Yap_AtomicToLowListOfAtoms(Term t0 USES_REGS) {
+  seq_tv_t inp, out;
+  inp.val.t = t0;
+  inp.type = YAP_STRING_STRING | YAP_STRING_CODES | YAP_STRING_ATOMS |
+             YAP_STRING_ATOM | YAP_STRING_INT | YAP_STRING_FLOAT |
+             YAP_STRING_BIG | YAP_STRING_TERM;
+  out.type = YAP_STRING_ATOMS|YAP_STRING_DOWNCASE;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.t;
+}
+
+static inline Term Yap_AtomicToUpListOfAtoms(Term t0 USES_REGS) {
+  seq_tv_t inp, out;
+  inp.val.t = t0;
+  inp.type = YAP_STRING_STRING | YAP_STRING_CODES | YAP_STRING_ATOMS |
+             YAP_STRING_ATOM | YAP_STRING_INT | YAP_STRING_FLOAT |
+             YAP_STRING_BIG | YAP_STRING_TERM;
+  out.type = YAP_STRING_ATOMS|YAP_STRING_UPCASE;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.t;
+}
+
+
 
 static inline size_t Yap_AtomicToLength(Term t0 USES_REGS) {
   seq_tv_t inp, out;
