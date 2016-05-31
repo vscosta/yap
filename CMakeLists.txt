@@ -274,6 +274,7 @@ add_library(libYap
   ${YAP_MODULES}
 )
 
+	
 
 set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
 
@@ -284,9 +285,8 @@ set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
 IF (NOT MSVC)
   IF (ANDROID)
   target_link_libraries(libYap m android log )
-  ELSEIF (ANDROID)
-  target_link_libraries(libYap m  ${ANDROID_DLLS}
-  )
+  ELSE (ANDROID)
+  target_link_libraries(libYap m)
   ENDIF (ANDROID)
 ENDIF (NOT MSVC)
 
@@ -302,9 +302,9 @@ set(YAP_PL_SRCDIR ${CMAKE_SOURCE_DIR}/pl)
 
 # Compatibility vars with autotols
 if (ANDROID)
-set ( prefix "${CMAKE_SOURCE_DIR}/app/main")
+set ( prefix "${CMAKE_SOURCE_DIR}/app/src/main")
 set ( exec_prefix "${prefix}")
-set ( libdir "${exec_prefix}/lib/${ANDROID_ABI}")
+set ( libdir "${exec_prefix}/jniLibs/${ANDROID_ABI}")
 set ( dlls "${libdir}")
 set ( includedir "${prefix}/src/include")
 set ( datarootdir "${prefix}/share")
@@ -711,9 +711,17 @@ if(WIN32)
 
 endif(WIN32)
 
-add_executable (yap-bin ${CONSOLE_SOURCES})
+if (NOT ANDROID)
+add_executable (yap-bin ${CONSOLE_SOURCES} yap)
 
 set_target_properties (yap-bin PROPERTIES OUTPUT_NAME yap)
+else()
+add_executable (yap-bin ${CONSOLE_SOURCES} yap)
+
+set_target_properties (yap-bin PROPERTIES OUTPUT_NAME yapi)
+
+
+endif()
 
 target_link_libraries(yap-bin libYap )
 
@@ -770,9 +778,15 @@ configure_file ("${PROJECT_SOURCE_DIR}/config.h.cmake"
 
 
 if (ANDROID)
-file(INSTALL DESTINATION ${libdir} TYPE SHARED_LIBRARY FILES
+INSTALL(FILES DESTINATION ${libdir} TYPE SHARED_LIBRARY FILES
      ${GMP_LIBRARIES}   )
 endif(ANDROID)
+
+   install(TARGETS  libYap yap-bin
+    RUNTIME DESTINATION ${bindir}
+    LIBRARY DESTINATION ${libdir}
+     ARCHIVE DESTINATION ${libdir}
+  )
 
 macro_display_feature_log()
 if(POLICY CMP0058)
