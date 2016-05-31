@@ -711,16 +711,11 @@ if(WIN32)
 
 endif(WIN32)
 
+add_executable (yap-bin ${CONSOLE_SOURCES})
 if (NOT ANDROID)
-add_executable (yap-bin ${CONSOLE_SOURCES} yap)
-
-set_target_properties (yap-bin PROPERTIES OUTPUT_NAME yap)
+   set_target_properties (yap-bin PROPERTIES OUTPUT_NAME yap)
 else()
-add_executable (yap-bin ${CONSOLE_SOURCES} yap)
-
-set_target_properties (yap-bin PROPERTIES OUTPUT_NAME yapi)
-
-
+	set_target_properties (yap-bin PROPERTIES OUTPUT_NAME yapi)
 endif()
 
 target_link_libraries(yap-bin libYap )
