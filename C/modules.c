@@ -405,7 +405,9 @@ restart:
       Term t1 = ArgOfTerm(1, t);
       tmod = t1;
       if (!IsVarTerm(tmod) && !IsAtomTerm(tmod)) {
-        return 0L;
+        if (modp)
+          *modp = tmod;
+        return t;
       }
       t = ArgOfTerm(2, t);
       goto restart;
@@ -423,7 +425,7 @@ static Int yap_strip_module(USES_REGS1) {
     tmod = TermProlog;
   }
   t1 = Yap_YapStripModule(t1, &tmod);
-  if (!t1) {
+  if (!t1 || (!IsVarTerm(tmod) && !IsAtomTerm(tmod))) {
     Yap_Error(TYPE_ERROR_CALLABLE, t1, "trying to obtain module");
     return FALSE;
   }
