@@ -115,14 +115,13 @@ endif()
 get_git_head_revision(GIT_HEAD GIT_SHA1)
 git_describe(GIT_DESCRIBE)
 
+
 if (ANDROID)
     set (GMP_ROOT "${CMAKE_SOURCE_DIR}/../gmp/${ANDROID_ABI}")
 else()
   set(YAP_STARTUP startup.yss)
-endif()
 
-
-  option (WITH_CUDD "BDD CUDD package" NOT ${WITH_ANDROID})
+  option (WITH_CUDD "BDD CUDD package" ON)
 if (WITH_CUDD)
 #detect cudd setup, as it is shared between different installations.
 
@@ -228,6 +227,9 @@ find_package(PythonLibs)
    "Use Python System"
    "http://www.python.org" FALSE)
 endif()
+
+
+    endif(ANDROID)
 
 
 if (
@@ -572,19 +574,6 @@ if (WITH_JIT)
   add_subDIRECTORY(JIT)
 endif (WITH_JIT)
 
-add_subDIRECTORY (packages/gecode)
-
-add_subDIRECTORY (packages/real)
-
-add_subDIRECTORY (packages/python)
-
-add_subDIRECTORY (packages/jpl)
-
-add_subDIRECTORY (packages/bdd)
-
-add_subDIRECTORY (packages/ProbLog)
-
-add_subDIRECTORY (packages/swi-minisat2)
 
 add_subDIRECTORY (packages/raptor)
 
@@ -627,6 +616,20 @@ option (WITH_DOCS
 # add_subDIRECTORY (packages/cuda)
 
 
+add_subDIRECTORY (packages/gecode)
+
+add_subDIRECTORY (packages/real)
+
+add_subDIRECTORY (packages/python)
+
+add_subDIRECTORY (packages/jpl)
+
+add_subDIRECTORY (packages/bdd)
+
+add_subDIRECTORY (packages/ProbLog)
+
+add_subDIRECTORY (packages/swi-minisat2)
+
 #todo: use cmake target builds
 # option (USE_MAXPERFORMANCE
 #   "try using the best flags for specific architecture" OFF)
@@ -665,7 +668,6 @@ CMAKE_DEPENDENT_OPTION (WITH_DL_MALLOC
 CMAKE_DEPENDENT_OPTION (WITH_YAP_MALLOC
   "use malloc to allocate memory" ON  "NOT WITH_SYSTEM_MALLOC;NOT WITH_DL_MALLOC" OFF)
 
-
 option(WITH_YAP_CONDOR
   "allow YAP to be used from condor" OFF)
 
@@ -685,6 +687,7 @@ endif()
 #   "use dlcompat library for dynamic loading on Mac OS X" OFF)
 
 # SHARED PACKAGES with SWI
+
 # swi packages have both Makefile.in which we will use and
 # Makefile.mak, we will use the later to identify this packages
 # while we keep both autotools amd cmake working side by side
@@ -711,14 +714,13 @@ if(WIN32)
 
 endif(WIN32)
 
-if (NOT ANDROID)
-add_executable (yap-bin ${CONSOLE_SOURCES} yap)
+add_executable (yap-bin ${CONSOLE_SOURCES})
 
-set_target_properties (yap-bin PROPERTIES OUTPUT_NAME yap)
-else()
-add_executable (yap-bin ${CONSOLE_SOURCES} yap)
+if (ANDROID)
 
 set_target_properties (yap-bin PROPERTIES OUTPUT_NAME yapi)
+else()
+set_target_properties (yap-bin PROPERTIES OUTPUT_NAME yap)
 
 
 endif()
@@ -778,8 +780,8 @@ configure_file ("${PROJECT_SOURCE_DIR}/config.h.cmake"
 
 
 if (ANDROID)
-INSTALL(FILES DESTINATION ${libdir} TYPE SHARED_LIBRARY FILES
-     ${GMP_LIBRARIES}   )
+INSTALL(FILES ${GMP_LIBRARIES} DESTINATION ${libdir}
+        )
 endif(ANDROID)
 
    install(TARGETS  libYap yap-bin
