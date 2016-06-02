@@ -302,7 +302,7 @@ term_expansion_intern_ad((Head<--Body), Module, Mode, [user:ad_intern((Head<--Bo
 	).
 
 term_expansion_intern_ad( (Head<--Body),_,_) :-
-	format(chars(Error), 'Error at compiling the annotated disjunction ~q<--Body.',[Head,Body]),
+	format(chars(Error), 'Error at compiling the annotated disjunction ~q<--~qb.',[Head,Body]),
 	print_message(error,Error),
 	fail.
 

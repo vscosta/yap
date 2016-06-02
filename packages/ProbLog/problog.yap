@@ -287,7 +287,7 @@ Instead of probabilities every fact has a t( ) prefix. The t stands for tunable 
 ~~~~
 t(0.5)::heads(_).
 ~~~~
-*/
+*
 
 /** @defgroup ProbLogPredicates ProbLog Predicates
 @ingroup ProbLog1
@@ -301,7 +301,6 @@ In the description of the arguments of functors the following notation will be u
 + an argument with no preceding symbol can be used in both ways
 
 @{
-*/
 
 /**
  * @pred problog_max(+G, -Prob, -FactsUsed)
@@ -900,10 +899,14 @@ The possible values for this flag are any number greater than zero.
 
 :- multifile(user:term_expansion/1).
 
-% directory where problogbdd executable is located
-% automatically set during loading -- assumes it is in same place as this file (problog.yap)
+% directory where simplecudd executable is located
+% automatically set during loading -- assumes it is in /usr/local/bin or same place where YAP has
+% been installed.)
 :- getcwd(PD0),
 	atom_concat(PD0, '../../bin', PD),
+	set_problog_path(PD).
+
+:- PD = '/usr/local/bin',
 	set_problog_path(PD).
 
 
@@ -949,7 +952,7 @@ The possible values for this flag are any number greater than zero.
 %%%%%%%%%%%%
 
 :- initialization((
-%	problog_define_flag(bdd_path,        problog_flag_validate_directory, 'problogbdd directory', '.',bdd),
+%	problog_define_flag(bdd_path,        problog_flag_validate_directory, 'simplecudd directory', '.',bdd),
 	problog_define_flag(bdd_time,        problog_flag_validate_posint, 'BDD computation timeout in seconds', 60, bdd),
 	problog_define_flag(save_bdd,        problog_flag_validate_boolean, 'save BDD files for (last) lower bound', false, bdd),
 	problog_define_flag(dynamic_reorder, problog_flag_validate_boolean, 'use dynamic re-ordering for BDD', true, bdd),

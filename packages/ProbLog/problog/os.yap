@@ -321,7 +321,7 @@ get_codes(_, LF, LF).
 %========================================================================
 
 
-check_existance(FileName):-
+check_existance(FileName):-  
 	convert_filename_to_problog_path(FileName, Path),
 	catch(file_exists(Path), _, fail), !.
 check_existance(FileName):-
@@ -334,5 +334,6 @@ path_grouping(PathSep) :-
 
 path_separator('\\') :-
         current_prolog_flag( windows, true ).
-	path_separator('/').
+path_separator('/').
+
 	

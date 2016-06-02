@@ -538,9 +538,9 @@ init_learning :-
 	format_learning(3,'~q training examples~n',[TrainingExampleCount]),
 
 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% set learning rate and alpha
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	(
 	 problog_flag(learning_rate,examples)
 	->
@@ -552,7 +552,9 @@ init_learning :-
 	 problog_flag(alpha,auto)
 	->
 	 (
-	  (user:example(_,_,P,_),P<1,P>0)
+	  user:example(_,_,P,_),
+	  P<1,
+	  P>0
 	 ->
 	  set_problog_flag(alpha,1.0);
 	  (
@@ -603,8 +605,7 @@ init_one_query(QueryID,Query,Type) :-
 
 	atomic_concat(['query_',QueryID],Filename1),
 	concat_path_with_filename(Query_Directory,Filename1,Filename),
-
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% if BDD file does not exist, call ProbLog
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	(
@@ -618,7 +619,7 @@ init_one_query(QueryID,Query,Type) :-
 	 )
 	),
     
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% check wether this BDD is similar to another BDD
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	(
@@ -728,9 +729,8 @@ update_query(QueryID,Symbol,What_To_Update) :-
 	 format_learning(4,'#',[]);
 	 (
 	  problog_flag(sigmoid_slope,Slope),
-	  problog_dir(PD),
 	  ((What_To_Update=all;query_is_similar(_,QueryID)) -> Method='g' ; Method='l'),
-      convert_filename_to_problog_path('problogbdd', Simplecudd),
+      convert_filename_to_problog_path('simplecudd', Simplecudd),
 	  atomic_concat([Simplecudd,
 			 ' -i "', Probabilities_File, '"',
 			 ' -l "', Query_Directory,'/query_',QueryID, '"',

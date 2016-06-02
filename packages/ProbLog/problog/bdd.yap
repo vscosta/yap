@@ -204,7 +204,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Prolog interface for problogbdd
+% Prolog interface for simplecudd
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :-use_module(library(system)).
@@ -212,14 +212,14 @@
 
 bdd_init(FDO, PID):-
   pid(MYPID),
-  convert_filename_to_problog_path('problogbdd', ProblogBDD),
-  atomic_concat([ProblogBDD, ' -o -pid ', MYPID], C),
+  convert_filename_to_problog_path('simplecudd', Simplecudd),
+  atomic_concat([Simplecudd, ' -o -pid ', MYPID], C),
   exec(C, [pipe(FDO), std, std], PID).
 
 bdd_init(FDO, FDI, PID):-
   pid(MYPID),
-  convert_filename_to_problog_path('problogbdd', ProblogBDD),
-  atomic_concat([ProblogBDD, ' -o -m o -pid ', MYPID], C),
+  convert_filename_to_problog_path('simplecudd', Simplecudd),
+  atomic_concat([Simplecudd, ' -o -m o -pid ', MYPID], C),
   exec(C, [pipe(FDO), pipe(FDI), std], PID).
 
 bdd_commit(FDO, LINE):-

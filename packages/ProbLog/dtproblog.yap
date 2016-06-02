@@ -698,7 +698,7 @@ bdd_optimization(N,EV,Decisions,Status) :-
     ;
       Param = ParamD
     ),
-    convert_filename_to_problog_path('problogbdd', ProblogBDD),
+    convert_filename_to_problog_path('simplecudd', ProblogBDD),
     problog_flag(bdd_result,ResultFileFlag),
     convert_filename_to_working_path(ResultFileFlag, ResultFile),
 	bdd_util_file(UtilFile),

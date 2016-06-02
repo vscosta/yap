@@ -409,14 +409,14 @@ init_learning :-
 	learning_initialized,
 	!.
 init_learning :-
-	convert_filename_to_problog_path('problogbdd_lfi', Path),
+	convert_filename_to_problog_path('simplecudd_lfi', Path),
 	(
 	 file_exists(Path)
 	->
 	 true;
 	 (
 	  problog_path(PD),
-	  format(user_error, 'WARNING: Can not find file: problogbdd_lfi. Please place file in problog path: ~q~n',[PD]),
+	  format(user_error, 'WARNING: Can not find file: simplecudd_lfi. Please place file in problog path: ~q~n',[PD]),
 	  fail
 	 )
 	),

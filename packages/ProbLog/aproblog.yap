@@ -269,8 +269,9 @@
 	problog_define_flag(compensate_unused,     problog_flag_validate_boolean, 'compensate non-neutral sum for unused facts', false, aproblog)	   
 )).
 
-% directory where problogbdd executable is located
+% directory where simplecudd executable is located
 % automatically set during loading -- assumes it is in same place as this file (problog.yap)
+%:- PD = /usr/local/bin, set_problog_path(PD).
 :- getcwd(PD), set_problog_path(PD).
 
 aproblog_flag(F,V) :-
