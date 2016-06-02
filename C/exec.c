@@ -1084,15 +1084,15 @@ static Int _user_expand_goal(USES_REGS1) {
 }
 
 static Int do_term_expansion(USES_REGS1) {
-  yhandle_t sl = Yap_StartSlots();
+ yhandle_t sl = Yap_StartSlots();
   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
   PredEntry *pe;
   Term cmod = CurrentModule, omod = cmod;
   Term mg_args[2];
   Term g = Yap_YapStripModule(ARG1, &cmod);
   yhandle_t h1 = Yap_InitSlot(g), h2 = Yap_InitSlot(ARG2);
-
   /* user:term_expansion(A,B) */
+
   ARG1 = g;
   if ((pe = RepPredProp(Yap_GetPredPropByFunc(FunctorTermExpansion, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
