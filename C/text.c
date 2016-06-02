@@ -834,14 +834,14 @@ size_t write_buffer(void *s0, seq_tv_t *out, encoding_t enc, int minimal,
     if (!minimal)
       sz *= 4;
     if (out->type & (YAP_STRING_MALLOC)) {
-      out->val.c = malloc(sz);
+      out->val.uc = malloc(sz);
     } else if (!(out->type & (YAP_STRING_WITH_BUFFER))) {
       if (ASP - (sz / sizeof(CELL) + 1) > HR + 1024) {
         out->val.c = Yap_PreAllocCodeSpace();
       }
     }
   } else {
-    out->val.c = s0;
+    out->val.uc = s0;
   }
   if (out->enc == ENC_ISO_UTF8) {
     switch (enc) {
@@ -849,17 +849,18 @@ size_t write_buffer(void *s0, seq_tv_t *out, encoding_t enc, int minimal,
       if (out->type & (YAP_STRING_WITH_BUFFER | YAP_STRING_MALLOC)) {
         char *s = s0;
         size_t n = strlen(s) + 1;
-        out->val.c[n] = '\0';
+        out->val.uc[n] = '\0';
         sz_end = n + 1;
       } else {
         sz_end = strlen(out->val.c) + 1;
       }
+
       break;
     case ENC_ISO_LATIN1: {
       unsigned char *s = s0, *lim = s + (max = strnlen(s0, max));
       unsigned char *cp = s, *buf0, *buf;
 
-      buf = buf0 = s0;
+      buf = buf0 = out->val.uc;
       if (!buf)
         return -1;
       while (*cp && cp < lim) {
