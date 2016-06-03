@@ -1192,7 +1192,7 @@ void Yap_InitCharsio(void) {
   Yap_InitCPred("put_char", 2, put_char, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("put_char1", 1, put_char_1, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("tab", 2, tab, SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("tab1", 1, tab_1, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("tab", 1, tab_1, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("nl", 0, nl_1, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("nl", 1, nl, SafePredFlag | SyncPredFlag);
 

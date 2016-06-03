@@ -1,7 +1,19 @@
 
 #include "sysbits.h"
 
-#if HAVE_SIGNAL || __ANDROID__
+#if HAVE_SIGINFO_H
+#include <siginfo.h>
+#endif
+#if HAVE_SYS_UCONTEXT_H
+#include <sys/ucontext.h>
+#endif
+
+#if HAVE_FPU_CONTROL_H
+#include <fpu_control.h>
+#endif
+
+
+#if HAVE_SIGNAL
 
 #ifdef MSH
 
@@ -24,7 +36,7 @@ static void HandleMatherr(int sig, void *sipv, void *uapv);
 #endif
 #define SIG_GC (SIG_PROLOG_OFFSET + 2)
 #ifdef THREADS
-#define SIG_THREAD_SIGNAL (SIG_PROLOG_OFFSET + 3)
+#define SIG_THREAD_SIGNAL (SIG_PROLOG_OFFSET + 3)b
 #endif
 #define SIG_FREECLAUSES (SIG_PROLOG_OFFSET + 4)
 #define SIG_PLABORT (SIG_PROLOG_OFFSET + 5)
@@ -178,13 +190,6 @@ int Yap_signal_index(const char *name) {
   return -1;
 }
 
-#if HAVE_SIGINFO_H
-#include <siginfo.h>
-#endif
-#if HAVE_SYS_UCONTEXT_H
-#include <sys/ucontext.h>
-#endif
-
 #if HAVE_SIGSEGV
 static void SearchForTrailFault(void *ptr, int sure) {
 
@@ -240,10 +245,6 @@ static void HandleSIGSEGV(int sig, void *sipv, void *uap) {
 #endif /* SIGSEGV */
 
 #if HAVE_SIGFPE
-
-#if HAVE_FPU_CONTROL_H
-#include <fpu_control.h>
-#endif
 
 /* by default Linux with glibc is IEEE compliant anyway..., but we will pretend
  * it is not. */
@@ -795,7 +796,6 @@ VaxFixFrame(dummy) {
 
 #if defined(_WIN32)
 
-#include <windows.h>
 
 int WINAPI win_yap(HANDLE, DWORD, LPVOID);
 
@@ -881,9 +881,7 @@ void Yap_InitSignalPreds(void) {
   CACHE_REGS
   Term cm = CurrentModule;
 
-#ifndef __ANDROID__
   Yap_InitCPred("$fpe_error", 0, fpe_error, 0);
-#endif
   Yap_InitCPred("$alarm", 4, alarm4, SafePredFlag | SyncPredFlag);
   CurrentModule = HACKS_MODULE;
   Yap_InitCPred("virtual_alarm", 4, virtual_alarm, SafePredFlag | SyncPredFlag);

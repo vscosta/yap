@@ -139,12 +139,6 @@ void Yap_plwrite(Term t, struct stream_desc *mywrite, int max_depth, int flags,
 int Yap_CheckSocketStream(Term stream, const char *error);
 void Yap_init_socks(char *host, long interface_port);
 
-#ifdef HAVE_ERRNO_H
-#include <errno.h>
-#else
-extern int errno;
-#endif
-
 uint64_t HashFunction(const unsigned char *);
 uint64_t WideHashFunction(wchar_t *);
 
