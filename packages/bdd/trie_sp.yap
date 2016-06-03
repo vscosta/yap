@@ -44,8 +44,13 @@ complex_to_andor([Els], Map0, MapF, V) :-
 
 complex_to_and(int(A1,[endlist]), Map0, MapF, V) :- !,
 	check(Map0, A1, V, MapF).
+complex_to_and(atom(A1,[endlist]), Map0, MapF, V) :- !,
+	check(Map0, A1, V, MapF).
 complex_to_and(functor(not,1,[int(A1,[endlist])]), Map0, MapF, not(V)) :- !,
 	check(Map0, A1, V, MapF).
+complex_to_and(atom(A1,Els), Map0, MapF, and(V,T2)) :-  !,
+	check(Map0, A1, V, MapI),
+	complex_to_andor(Els, MapI, MapF, T2).
 complex_to_and(int(A1,Els), Map0, MapF, and(V,T2)) :-  !,
 	check(Map0, A1, V, MapI),
 	complex_to_andor(Els, MapI, MapF, T2).
@@ -78,6 +83,8 @@ tabled_complex_to_andor([Els], Map0, MapF, Tab0, TabF, V) :-
 	tabled_complex_to_and(Els, Map0, MapF, Tab0, TabF, V).
 
 tabled_complex_to_and(int(A1,[endlist]), Map0, MapF, Tab, Tab, V) :- !,
+	check(Map0, A1, V, MapF).
+tabled_complex_to_and(atom(A1,[endlist]), Map0, MapF, Tab, Tab, V) :- !,
 	check(Map0, A1, V, MapF).
 tabled_complex_to_and(functor(not,1,[int(A1,[endlist])]), Map0, MapF, Tab, Tab, not(V)) :- !,
 	check(Map0, A1, V, MapF).

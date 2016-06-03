@@ -247,15 +247,23 @@
 :- dynamic(query_is_similar/2).
 :- dynamic(query_md5/3).
 
+% used to identify queries which have identical proofs
+:- dynamic(query_is_similar/2).
+:- dynamic(query_md5/3).
+
 :- multifile(user:example/4).
+:- multifile(user:problog_discard_example/1).
 user:example(A,B,C,=) :-
 	current_predicate(user:example/3),
-	user:example(A,B,C).
+	user:example(A,B,C),
+	\+  user:problog_discard_example(B).
 
 :- multifile(user:test_example/4).
 user:test_example(A,B,C,=) :-
 	current_predicate(user:test_example/3),
-	user:test_example(A,B,C).
+	user:test_example(A,B,C),
+	\+  user:problog_discard_example(B).
+
 
 
 %========================================================================
@@ -604,7 +612,7 @@ bdd_input_file(Filename) :-
 	concat_path_with_filename(Dir,'input.txt',Filename).
 
 init_one_query(QueryID,Query,Type) :-
-	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
+%	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% if BDD file does not exist, call ProbLog
@@ -614,18 +622,19 @@ init_one_query(QueryID,Query,Type) :-
 	->
 	 format_learning(3,' Reuse existing BDD ~q~n~n',[QueryID]);
 	 (
+	  b_setval(problog_required_keep_ground_ids,false),
 	  problog_flag(libbdd_init_method,(Query,Bdd,Call)),
 	  Bdd = bdd(Dir, Tree, MapList),
+%	  trace,
 	  once(Call),
 	  rb_new(H0),
 	  maplist_to_hash(MapList, H0, Hash),
-	%  writeln(Dir:Tree:MapList),
+	  Tree \= [],
+%	  writeln(Dir:Tree:MapList),
 	  tree_to_grad(Tree, Hash, [], Grad),
-%% %writeln(Call:Tree),
-	  recordz(QueryID,bdd(Dir, Grad, MapList),_)
+	 recordz(QueryID,bdd(Dir, Grad, MapList),_)
 	 )
 	),
-    
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% check wether this BDD is similar to another BDD
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -636,7 +645,7 @@ init_one_query(QueryID,Query,Type) :-
         ;
 	 true
 	),!.
-
+init_one_query(_QueryID,_Query,_Type).
 
 
 
