@@ -1,4 +1,4 @@
-%%% -*- Mode: Prolog; -*-
+1%%% -*- Mode: Prolog; -*-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -246,14 +246,17 @@
 :- dynamic(query_md5/3).
 
 :- multifile(user:example/4).
+:- multifile(user:problog_drop_example/1).
 user:example(A,B,C,=) :-
 	current_predicate(user:example/3),
-	user:example(A,B,C).
+	user:example(A,B,C),
+	\+  user:problog_drop_example(B).
 
 :- multifile(user:test_example/4).
 user:test_example(A,B,C,=) :-
 	current_predicate(user:test_example/3),
-	user:test_example(A,B,C).
+	user:test_example(A,B,C),
+	\+  user:problog_drop_example(B).
 
 
 %========================================================================
@@ -514,7 +517,7 @@ init_learning :-
 	->
 	 (
 	  format_learning(2,'Theory uses continuous facts.~nWill use problog_exact/3 as initalization method.~2n',[]),
-	  set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile)))
+	  set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog:problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile)))
 	 );
 	 true
 	),
@@ -524,7 +527,7 @@ init_learning :-
 	->
 	 (
 	  format_learning(2,'Theory uses tabling.~nWill use problog_exact/3 as initalization method.~2n',[]),
-	  set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile)))
+	  set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog:problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile)))
 	 );
 	 true
 	),
