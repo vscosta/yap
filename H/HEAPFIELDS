@@ -141,10 +141,10 @@ rwlock_t	PredHashRWLock		void
 
 /* Well-Known Predicates */
 struct pred_entry *CreepCode		MkPred AtomCreep 1 PROLOG_MODULE
-struct pred_entry *UndefCode		MkPred AtomUndefp 2 PROLOG_MODULE
+struct pred_entry *UndefCode		MkPred AtomUndefp0 2 PROLOG_MODULE
 struct pred_entry *SpyCode			MkPred AtomSpy 1 PROLOG_MODULE
-struct pred_entry *PredFail		MkPred AtomFail 0 PROLOG_MODULE
-struct pred_entry *PredTrue		MkPred AtomTrue 0 PROLOG_MODULE
+struct pred_entry *PredFail		    MkPred AtomFail 0 PROLOG_MODULE
+struct pred_entry *PredTrue		    MkPred AtomTrue 0 PROLOG_MODULE
 #ifdef COROUTINING
 struct pred_entry  *WakeUpCode		MkPred AtomWakeUpGoal 2 PROLOG_MODULE
 #endif

@@ -882,24 +882,6 @@ confusing to YAP (who will process the error?). So we write this small
 stub to ensure everything os ok
 
 */
-prolog:print_message(Level, _Msg) :-
-	current_prolog_flag(verbose_load, silent),
-	stream_property(_Stream, alias(loop_stream) ),
-	Level \= error,
-	Level \= warning,
-	!.
-prolog:print_message(Level, _Msg) :-
-	current_prolog_flag(verbose, silent),
-	Level \= error,
-	Level \= warning,
-	!.
-prolog:print_message(_, _Msg) :-
-	% first step at hook processi --ng
-	'$nb_getval'('$if_skip_mode',skip,fail),
-	!.
-prolog:print_message(banner, _Msg) :-
-	current_prolog_flag(verbose, silent),
-	!.
 prolog:print_message(Severity, Msg) :-
 	(
 	 var(Severity)
@@ -915,6 +897,20 @@ prolog:print_message(Severity, Msg) :-
 	 '$pred_exists'(portray_message(_,_),user),
 	 user:portray_message(Severity, Msg)
 	),
+	!.
+prolog:print_message(Level, _Msg) :-
+	current_prolog_flag(verbose_load, silent),
+	stream_property(_Stream, alias(loop_stream) ),
+	Level = informational,
+	!.
+prolog:print_message(Level, _Msg) :-
+	current_prolog_flag(verbose, silent),
+	Level \= error,
+	Level \= warning,
+	!.
+prolog:print_message(_, _Msg) :-
+	% first step at hook processi --ng
+	'$nb_getval'('$if_skip_mode',skip,fail),
 	!.
 prolog:print_message(force(_Severity), Msg) :- !,
 	print(user_error,Msg).
@@ -934,6 +930,40 @@ prolog:print_message(Severity, Term) :-
 prolog:print_message(Severity, _Term) :-
 	format('No handler for ~a message ~q,~n',[Severity, _Term]).
 
+
+% cases where we cannot afford to ever fail.
+'$undefp'([ImportingMod|G], _) :-
+	recorded('$import','$import'(ExportingModI,ImportingMod,G,G0I,_,_),_), !,
+ % writeln('$execute'(G0I, ExportingModI)),
+	'$execute0'(G0I, ExportingModI).
+% undef handler
+'$undefp'([M0|G0], Action) :-
+    % make sure we do not loop on undefined predicates
+    '$stop_creeping'(Current),
+    yap_flag( unknown, Action, fail),
+    Action\=fail,
+ %   yap_flag( debug, Debug, false),
+    (
+     '$undefp_search'(M0:G0, NM:NG),
+     ( M0 \== NM -> true  ; G0 \== NG ),
+     NG \= fail
+	->
+     yap_flag( unknown, _, Action),
+       %   yap_flag( debug, _, Debug),
+     (
+       Current == true
+      ->
+       % carry on signal processing
+       '$start_creep'([NM|NG], creep)
+     ;
+       '$execute0'(NG, NM)
+     )
+	;
+     yap_flag( unknown, _, Action),
+     '$handle_error'(Action,G0,M0)
+    ).
+
+:- '$undef_handler'('$undefp'(_,_), prolog).
 
 /**
   @}

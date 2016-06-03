@@ -426,7 +426,11 @@ INLINE_ONLY inline EXTERN Term Yap_Eval__(Term t USES_REGS) {
   return Yap_InnerEval(t);
 }
 
+#if HAVE_FECLEAREXCEPT
 inline static void Yap_ClearExs(void) { feclearexcept(FE_ALL_EXCEPT); }
+#else
+inline static void Yap_ClearExs(void) {  }
+#endif
 
 inline static yap_error_number Yap_FoundArithError__(USES_REGS1) {
   if (LOCAL_Error_TYPE != YAP_NO_ERROR)

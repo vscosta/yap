@@ -20,6 +20,9 @@
 #if HAVE_SIGNAL_H
 #include <signal.h>
 #endif
+#if HAVE_ERRNO_H
+#include <errno.h>
+#endif
 
 typedef enum
 {

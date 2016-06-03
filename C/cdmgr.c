@@ -1014,6 +1014,20 @@ bool Yap_unknown(Term t) {
   return false;
 }
 
+static Int
+undef_handler(USES_REGS1) { /* '$undef_handler'(+S,+Mod)	 */
+  PredEntry *pe;
+  Int out;
+
+  pe = get_pred(Deref(ARG1), Deref(ARG2), "undef_handler");
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  PELOCK(27, pe);
+  UndefCode = pe;
+  UNLOCKPE(44, pe);
+  return true;
+}
+
 static int source_pred(PredEntry *p, yamop *q) {
   if (p->PredFlags & (DynamicPredFlag | LogUpdatePredFlag))
     return FALSE;
@@ -4632,6 +4646,7 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$call_count_reset", 0, p_call_count_reset,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$set_pred_module", 2, p_set_pred_module, SafePredFlag);
+  Yap_InitCPred("$undef_handler", 2, undef_handler, SafePredFlag);
   Yap_InitCPred("$set_pred_owner", 2, p_set_pred_owner, SafePredFlag);
   Yap_InitCPred("$hide_predicate", 2, hide_predicate, SafePredFlag);
   Yap_InitCPred("$stash_predicate", 2, p_stash_predicate, SafePredFlag);
