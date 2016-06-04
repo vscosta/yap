@@ -266,27 +266,27 @@ private(_).
     !,
     format(user_error, '~a:~d:0: unprocessed ~a ~w ~n', [F0, L,Level,Msg]).
 '$early_print_message'(Level, Msg) :-
-	format(user_error, 'unprocessed ~a ~w ~n', [Level,Msg]).
+    format(user_error, 'unprocessed ~a ~w ~n', [Level,Msg]).
 
- '$handle_error'(_Action,_G0,_M0) :- fail.
+'$handle_error'(_Action,_G0,_M0) :- fail.
 
 % cases where we cannot afford to ever fail.
 '$undefp0'([ImportingMod|G], _) :-
-	recorded('$import','$import'(ExportingModI,ImportingMod,G,G0I,_,_),_), !,
- % writeln('$execute0'(G0I, ExportingModI)),
-	'$execute0'(G0I, ExportingModI).
-'$undefp0'([_|print_message(Context, Msg)], _) :- !,
+    recorded('$import','$import'(ExportingModI,ImportingMod,G,G0I,_,_),_), !,
+    % writeln('$execute0'(G0I, ExportingModI)),
+    '$execute0'(G0I, ExportingModI).
+'$undefp0'([_|print_message(Context, Msg)], _) :-
+    !,
     '$early_print_message'(Context, Msg).
 % undef handler
 '$undefp0'([M0|G0], Action) :-
     % make sure we do not loop on undefined predicates
-    yap_flag( unknown, Action, fail),
-    Action \= fail,
-     '$handle_error'(Action,G0,M0),
-     clause_location(Call, Caller),
-     source_module(M),
-	 strip_module(M:Goal,M1,NGoal),
-	throw(error(Error, [[g|g(M1:NGoal)],[p|Call],[e|Caller],[h|g(Head)]])).
+    yap_flag( unknown, Action, fail),	    
+    '$handle_error'(Action,G0,M0),
+    clause_location(Call, Caller),
+    source_module(M),
+    strip_module(M0:G0,M1,NGoal),
+    throw(error(evaluation(undefined,M0:G0), [[g|g(M1:NGoal)],[p|Call],[e|Caller],[h|g(M0:G0)]])).
 
 
 

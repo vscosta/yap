@@ -105,6 +105,34 @@ followed by the failure of that call.
     expand_goal(MG, FMG).
 
 
+% undef handler
+'$undefp'([M0|G0], Action) :-
+    % make sure we do not loop on undefined predicates
+    yap_flag( unknown, Action, fail),
+    '$stop_creeping'(Current),
+ %   yap_flag( debug, Debug, false),
+    (
+     '$undefp_search'(M0:G0, NM:NG),
+     ( M0 \== NM -> true  ; G0 \== NG ),
+     NG \= fail
+     ->
+	 yap_flag( unknown, _, Action),
+	 %   yap_flag( debug, _, Debug),
+	 (
+	     Current == true
+	  ->
+	      % carry on signal processing
+	      '$start_creep'([NM|NG], creep)
+	  ;
+	  '$execute0'(NG, NM)
+	 )
+     ;
+     yap_flag( unknown, _, Action),
+     '$handle_error'(Action,G0,M0)
+    ).
+
+:- '$undefp_handler'('$undefp'(_,_), prolog).
+
 /** @pred  unknown(- _O_,+ _N_)
 
 The unknown predicate, informs about what the user wants to be done

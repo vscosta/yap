@@ -931,40 +931,6 @@ prolog:print_message(Severity, _Term) :-
 	format('No handler for ~a message ~q,~n',[Severity, _Term]).
 
 
-% cases where we cannot afford to ever fail.
-'$undefp'([ImportingMod|G], _) :-
-	recorded('$import','$import'(ExportingModI,ImportingMod,G,G0I,_,_),_), !,
- % writeln('$execute'(G0I, ExportingModI)),
-	'$execute0'(G0I, ExportingModI).
-% undef handler
-'$undefp'([M0|G0], Action) :-
-    % make sure we do not loop on undefined predicates
-    '$stop_creeping'(Current),
-    yap_flag( unknown, Action, fail),
-    Action\=fail,
- %   yap_flag( debug, Debug, false),
-    (
-     '$undefp_search'(M0:G0, NM:NG),
-     ( M0 \== NM -> true  ; G0 \== NG ),
-     NG \= fail
-	->
-     yap_flag( unknown, _, Action),
-       %   yap_flag( debug, _, Debug),
-     (
-       Current == true
-      ->
-       % carry on signal processing
-       '$start_creep'([NM|NG], creep)
-     ;
-       '$execute0'(NG, NM)
-     )
-	;
-     yap_flag( unknown, _, Action),
-     '$handle_error'(Action,G0,M0)
-    ).
-
-:- '$undef_handler'('$undefp'(_,_), prolog).
-
 /**
   @}
 */
