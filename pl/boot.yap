@@ -284,7 +284,6 @@ private(_).
     yap_flag( unknown, Action, fail),	    
     '$handle_error'(Action,G0,M0),
     clause_location(Call, Caller),
-    source_module(M),
     strip_module(M0:G0,M1,NGoal),
     throw(error(evaluation(undefined,M0:G0), [[g|g(M1:NGoal)],[p|Call],[e|Caller],[h|g(M0:G0)]])).
 
@@ -1356,10 +1355,6 @@ bootstrap(F) :-
 	),
 	!,
 	close(Stream).
-
-% '$undefp'([M0|G0], Default) :-
-%    writeln(M0:G0),
-%    fail.
 
 
 '$loop'(Stream,exo) :-
