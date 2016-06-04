@@ -276,7 +276,7 @@ add_library(libYap
   ${YAP_MODULES}
 )
 
-	
+
 
 set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
 
@@ -303,8 +303,8 @@ set(CMAKE_TOP_BINARY_DIR ${CMAKE_BINARY_DIR})
 set(YAP_PL_SRCDIR ${CMAKE_SOURCE_DIR}/pl)
 
 # Compatibility vars with autotols
-if (ANDROID)
-set ( prefix "${CMAKE_SOURCE_DIR}/app/src/main")
+if (0)
+set ( prefix "${CMAKE_SOURCE_DIR}/android/app/build/generated")
 set ( exec_prefix "${prefix}")
 set ( libdir "${exec_prefix}/jniLibs/${ANDROID_ABI}")
 set ( dlls "${libdir}")
@@ -612,9 +612,7 @@ option (WITH_DOCS
 
  # add_subDIRECTORY (docs)
 
-
 # add_subDIRECTORY (packages/cuda)
-
 
 add_subDIRECTORY (packages/gecode)
 
