@@ -11,7 +11,7 @@
 * File:		boot.yap						 *
 * Last rev:	8/2/88							 *
 * mods:									 *
-* comments:	boot file for Prolog					 *
+* commen    ts:	boot file for Prolog					 *
 *									 *
 *************************************************************************/
 
@@ -251,8 +251,6 @@ private(_).
 :- use_system_module( '$_strict_iso', ['$check_iso_strict_clause'/1,
         '$iso_check_goal'/2]).
 
-
-
 '$early_print_message'(informational, _) :-
 	yap_flag( verbose, S),
 	S == silent,
@@ -273,89 +271,22 @@ private(_).
  '$handle_error'(_Action,_G0,_M0) :- fail.
 
 % cases where we cannot afford to ever fail.
-'$undefp'([ImportingMod|G], _) :-
+'$undefp0'([ImportingMod|G], _) :-
 	recorded('$import','$import'(ExportingModI,ImportingMod,G,G0I,_,_),_), !,
  % writeln('$execute0'(G0I, ExportingModI)),
 	'$execute0'(G0I, ExportingModI).
-'$undefp'([_|print_message(Context, Msg)], _) :- !,
+'$undefp0'([_|print_message(Context, Msg)], _) :- !,
     '$early_print_message'(Context, Msg).
 % undef handler
-'$undefp'([M0|G0], Action) :-
+'$undefp0'([M0|G0], Action) :-
     % make sure we do not loop on undefined predicates
-    '$stop_creeping'(Current),
     yap_flag( unknown, Action, fail),
-    Action\=fail,
- %   yap_flag( debug, Debug, false),
-    (
-     '$undefp_search'(M0:G0, NM:NG),
-     ( M0 \== NM -> true  ; G0 \== NG ),
-     NG \= fail
-	->
-     yap_flag( unknown, _, Action),
-       %   yap_flag( debug, _, Debug),
-     (
-       Current == true
-      ->
-       % carry on signal processing
-       '$start_creep'([NM|NG], creep)
-     ;
-       '$execute0'(NG, NM)
-     )
-	;
-     yap_flag( unknown, _, Action),
-     '$handle_error'(Action,G0,M0)
-    ).
-
-/*
-'$undefp'([M0|G0], Default) :-
-    G0 \= '$imported_predicate'(_,_,_,_),
-    G0 \= '$full_clause_optimisation'(_H, _M, _B0, _BF),
-    G0 \= '$expand_a_clause'(_,_,_,_),
-    G0 \= '$all_directives'(_),
-    format(user_error, 'ERROR:  undefined ~a:~q.~n', [M0, G0]), fail.
-*/
-'$prepare_goals'((A,B),(NA,NB),Any) :-
-	!,
-	'$prepare_goals'(A,NA,Any),
-	'$prepare_goals'(B,NB,Any).
-'$prepare_goals'((A;B),(NA;NB),Any) :-
-	!,
-	'$prepare_goals'(A,NA,Any),
-	'$prepare_goals'(B,NB,Any).
-'$prepare_goals'((A->B),(NA->NB),Any) :-
-	!,
-	'$prepare_goals'(A,NA,Any),
-	'$prepare_goals'(B,NB,Any).
-'$prepare_goals'((A*->B),(NA*->NB),Any) :-
-	!,
-	'$prepare_goals'(A,NA,Any),
-	'$prepare_goals'(B,NB,Any).
-'$prepare_goals'((\+ A),(\+ NA),Any) :-
-	!,
-	'$prepare_goals'(A,NA,Any).
-'$prepare_goals'('$do_error'(Error,Goal),
-               (clause_location(Call, Caller),
-               source_module(M),
-		strip_module(M:Goal,M1,NGoal),
-		throw(error(Error, [[g|g(M1:NGoal)],[p|Call],[e|Caller],[h|g(Head)]]))
-	       ),
-               true) :-
-	!,
-    '$head_and_body'(NGoal,Head,_Body).
-'$prepare_goals'(X is AOB,
-                 is(X, IOp, A, B ),
-		 true) :-
-	var(X),
-	functor(AOB, Op, 2),
-	arg(1, AOB, A),
-	arg(2, AOB, B),
-	!,
-	'$inbrary_op_as_integer'(Op,IOp).
-'$prepare_goals'((A,B),(A,B),_Any).
-
-'$prepare_clause'((H :- B), (H:-NB)) :-
-	'$prepare_goals'(B,NB,Any),
-	Any==true.
+    Action \= fail,
+     '$handle_error'(Action,G0,M0),
+     clause_location(Call, Caller),
+     source_module(M),
+	 strip_module(M:Goal,M1,NGoal),
+	throw(error(Error, [[g|g(M1:NGoal)],[p|Call],[e|Caller],[h|g(Head)]])).
 
 
 

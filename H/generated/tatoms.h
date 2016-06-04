@@ -401,6 +401,7 @@ Atom AtomTxt; Term TermTxt;
 Atom AtomTypeError; Term TermTypeError;
 Atom AtomUndefined; Term TermUndefined;
 Atom AtomUndefp; Term TermUndefp;
+Atom AtomUndefp0; Term TermUndefp0;
 Atom AtomUnderflow; Term TermUnderflow;
 Atom AtomUnificationStack; Term TermUnificationStack;
 Atom AtomUnique; Term TermUnique;

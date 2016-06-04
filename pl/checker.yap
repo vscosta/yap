@@ -76,70 +76,63 @@ The style_check/1 built-in is now deprecated. Please use
 
 style_check(V) :- var(V), !, fail.
 style_check(V) :-
-	style_check_(V), !.
-style_check(V) :-
-	\+atom(V), \+ list(V), V \= + _, V \= + _, !,
+	\+atom(V),
+	\+ is_list(V),
+	V \= + _,
+	V \= - _, !,
 	'$do_error'( type_error('+|-|?(Flag)', V), style_check(V) ).
 style_check(V) :-
-	\+atom(V), \+ list(V), V \= + _, V \= + _, !,
+	\+atom(V),
+	\+ is_list(V),
+	V \= + _,
+	V \= + _, !,
 	'$do_error'( domain_error(style_name, V), style_check(V) ).
 	
 
-style_check_(all) :-
-	'$style_checker'( [ singleton, discontiguous, multiple ] ).
-style_check_(single_var) :-
-	'$style_checker'( [ singleton ] ).
-style_check_(singleton) :-
-	'$style_checker'( [ singleton ] ).
-style_check_(+single_var) :-
-	'$style_checker'( [ singleton ] ).
-style_check_(+singleton) :-
-	'$style_checker'( [ singleton ] ).
-style_check_(-single_var) :-
-	'$style_checker'( [ -singleton ] ).
-style_check_(-singleton) :-
-	'$style_checker'( [ -singleton ] ).
-style_check_(discontiguous) :-
-	'$style_checker'( [ discontiguous ] ).
-style_check_(+discontiguous) :-
-	'$style_checker'( [ discontiguous ] ).
-style_check_(-discontiguous) :-
-	'$style_checker'( [ -discontiguous ] ).
-style_check_(multiple) :-
-	'$style_checker'( [  multiple ] ).
-style_check_(+multiple) :-
-	'$style_checker'( [  multiple ] ).
-style_check_(-multiple) :-
-	'$style_checker'( [  -multiple ] ).
-style_check_(no_effect) :-
-	'$style_checker'( [  no_effect ] ).
-style_check_(+no_effect) :-
-	'$style_checker'( [  no_effect ] ).
-style_check_(-no_effect) :-
-	'$style_checker'( [  -no_effect ] ).
-style_check_(var_branches) :-
+style_check(all) :-
+	style_check( [ singleton, discontiguous, multiple ] ).
+style_check(+X) :-
+	style_check(X).
+style_check(single_var) :-
+	style_check( singleton ).
+style_check(singleton) :-
+	yap_flag( single_var_warnings, true ).
+style_check(-single_var) :-
+	yap_flag( single_var_warnings, false ).
+style_check(-singleton) :-
+	yap_flag( single_var_warnings, false ).
+style_check(discontiguous) :-
+	yap_flag( discontiguous_warnings, true ).
+style_check(-discontiguous) :-
+	yap_flag( discontiguous_warnings, false ).
+style_check(multiple) :-
+	yap_flag( redefine_warnings, true ).
+style_check(-multiple) :-
+	yap_flag( redefine_warnings, false ).
+style_check(no_effect).
+style_check(+no_effect) .
+style_check(-no_effect).
+style_check(var_branches).
+style_check(+var_branches) :-
 	'$style_checker'( [  var_branches ] ).
-style_check_(+var_branches) :-
-	'$style_checker'( [  var_branches ] ).
-style_check_(-var_branches) :-
+style_check(-var_branches) :-
 	'$style_checker'( [  -var_branches ] ).
-style_check_(atom) :-
+style_check(atom).
+style_check(+atom) :-
 	'$style_checker'( [  atom ] ).
-style_check_(+atom) :-
-	'$style_checker'( [  atom ] ).
-style_check_(-atom) :-
+style_check(-atom) :-
 	'$style_checker'( [  -atom ] ).
-style_check_(charset) :-
+style_check(charset) :-
 	'$style_checker'( [  charset ] ).
-style_check_(+charset) :-
+style_check(+charset) :-
 	'$style_checker'( [  charset ] ).
-style_check_(-charset) :-
+style_check(-charset) :-
 	'$style_checker'( [  -charset ] ).
-style_check_('?'(Info) ) :-
+style_check('?'(Info) ) :-
 	L =  [ singleton, discontiguous, multiple ],
 	( lists:member(Style, L ) -> Info = +Style ; Info = -Style ).
-style_check_([]).
-style_check_([H|T]) :- style_check(H), style_check(T).
+style_check([]).
+style_check([H|T]) :- style_check(H), style_check(T).
 
 /** @pred no_style_check(+ _X_)
 

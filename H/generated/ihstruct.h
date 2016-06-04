@@ -129,7 +129,7 @@
 #endif
 
   CreepCode = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomCreep,1),PROLOG_MODULE));
-  UndefCode = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomUndefp,2),PROLOG_MODULE));
+  UndefCode = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomUndefp0,2),PROLOG_MODULE));
   SpyCode = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomSpy,1),PROLOG_MODULE));
   PredFail = RepPredProp(PredPropByAtom(AtomFail,PROLOG_MODULE));
   PredTrue = RepPredProp(PredPropByAtom(AtomTrue,PROLOG_MODULE));

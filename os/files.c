@@ -496,9 +496,8 @@ static Int is_absolute_file_name(USES_REGS1) { /* file_base_name(Stream,N) */
 #endif      
     }
     freeBuffer( buf );
-    return rc;
   }
-  return false;
+return rc;
 }
 
 static Int file_base_name(USES_REGS1) { /* file_base_name(Stream,N) */

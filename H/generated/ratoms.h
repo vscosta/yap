@@ -401,6 +401,7 @@
   AtomTypeError = AtomAdjust(AtomTypeError); TermTypeError = MkAtomTerm(AtomTypeError);
   AtomUndefined = AtomAdjust(AtomUndefined); TermUndefined = MkAtomTerm(AtomUndefined);
   AtomUndefp = AtomAdjust(AtomUndefp); TermUndefp = MkAtomTerm(AtomUndefp);
+  AtomUndefp0 = AtomAdjust(AtomUndefp0); TermUndefp0 = MkAtomTerm(AtomUndefp0);
   AtomUnderflow = AtomAdjust(AtomUnderflow); TermUnderflow = MkAtomTerm(AtomUnderflow);
   AtomUnificationStack = AtomAdjust(AtomUnificationStack); TermUnificationStack = MkAtomTerm(AtomUnificationStack);
   AtomUnique = AtomAdjust(AtomUnique); TermUnique = MkAtomTerm(AtomUnique);

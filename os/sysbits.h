@@ -27,6 +27,8 @@
 #include "Yatom.h"
 #include "eval.h"
 #include "yapio.h"
+
+// Win32 InputOutput Support
 #if _WIN32 || defined(__MINGW32__)
 #include <winsock2.h>
 /* Windows */
@@ -34,7 +36,12 @@
 #include <direct.h>
 #include <io.h>
 #include <windows.h>
+#ifndef S_ISDIR
+#define S_ISDIR(x) (((x)&_S_IFDIR)==_S_IFDIR)
 #endif
+#endif
+
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -43,14 +50,10 @@
 #endif
 #include <stdlib.h>
 
-#if HAVE_SYS_PARAM_H
+#if HAVE_SYS_PARAM_Hb
 #include <sys/param.h>
 #endif
 
-#ifdef FENV_H
-#include <fenv.h>
-#endif
-#define S_ISDIR(x) (((x)&_S_IFDIR) == _S_IFDIR)
 #if HAVE_STDARG_H
 #include <stdarg.h>
 #endif
@@ -96,10 +99,16 @@
 #include "iopreds.h"
 
 #if HAVE_SIGNAL_H
-
 #include <signal.h>
-
 #endif
+#ifdef HAVE_ERRNO_H
+#include <errno.h>
+#endif
+/* CYGWIN seems to include this automatically */
+#if HAVE_FENV_H // && !defined(__CYGWIN__)
+#include <fenv.h>
+#endif
+
 #ifdef MPW
 #define signal sigset
 #endif
@@ -131,12 +140,6 @@
 #endif
 #if HAVE_FCNTL_H
 #include <fcntl.h>
-#endif
-#if _MSC_VER || defined(__MINGW32__)
-#endif
-/* CYGWIN seems to include this automatically */
-#if HAVE_FENV_H && !defined(__CYGWIN__)
-#include <fenv.h>
 #endif
 #if HAVE_WORDEXP_H
 #include <wordexp.h>

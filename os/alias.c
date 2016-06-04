@@ -53,7 +53,7 @@ static char SccsId[] = "%W% %G%";
  *    It must always be interactive.
  */
 
-#include "Yap.h"
+#include "sysbits.h"
 #if HAVE_FCNTL_H
 /* for O_BINARY and O_TEXT in WIN32 */
 #include <fcntl.h>
@@ -98,25 +98,18 @@ static char SccsId[] = "%W% %G%";
 #include <signal.h>
 #endif
 #ifdef _WIN32
+// WIN32 API support
 #if HAVE_IO_H
 /* Windows */
 #include <io.h>
 #endif
 #endif
-#if !HAVE_STRNCAT
-#define strncat(X,Y,Z) strcat(X,Y)
-#endif
-#if !HAVE_STRNCPY
-#define strncpy(X,Y,Z) strcpy(X,Y)
-#endif
+
 #if _MSC_VER || defined(__MINGW32__)
 #if HAVE_SOCKET
 #include <winsock2.h>
 #endif
 #include <windows.h>
-#ifndef S_ISDIR
-#define S_ISDIR(x) (((x)&_S_IFDIR)==_S_IFDIR)
-#endif
 #endif
 #include "iopreds.h"
 

@@ -401,6 +401,7 @@
   AtomTypeError = Yap_LookupAtom("type_error"); TermTypeError = MkAtomTerm(AtomTypeError);
   AtomUndefined = Yap_LookupAtom("undefined"); TermUndefined = MkAtomTerm(AtomUndefined);
   AtomUndefp = Yap_FullLookupAtom("$undefp"); TermUndefp = MkAtomTerm(AtomUndefp);
+  AtomUndefp0 = Yap_FullLookupAtom("$undefp0"); TermUndefp0 = MkAtomTerm(AtomUndefp0);
   AtomUnderflow = Yap_LookupAtom("underflow"); TermUnderflow = MkAtomTerm(AtomUnderflow);
   AtomUnificationStack = Yap_LookupAtom("unification_stack"); TermUnificationStack = MkAtomTerm(AtomUnificationStack);
   AtomUnique = Yap_LookupAtom("unique"); TermUnique = MkAtomTerm(AtomUnique);

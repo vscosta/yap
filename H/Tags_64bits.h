@@ -1,10 +1,4 @@
 
-
-
-
-
-
-
 /*************************************************************************
 *									 *
 *	 YAP Prolog 	%W% %G% 					 *
@@ -42,18 +36,18 @@ property list
 
 */
 
-#define SHIFT_HIGH_TAG  62
+#define SHIFT_HIGH_TAG  61
 
 #define MKTAG(HI,LO)   ((((UInt) (HI))<<SHIFT_HIGH_TAG)|(LO))
 
-#define	TagBits	    /* 0x30000007L */ MKTAG(0x1,7)
+#define	TagBits	    /* 0x70000007L */ MKTAG(0x7,7)
 #define LowTagBits  /* 0x00000007L */ MKTAG(0x0,7)
-#define HighTagBits /* 0x70000000L */ MKTAG(0x1,0)
-#define	AdrHiBit    /* 0x08000000L */ (((UInt)1) << (SHIFT_HIGH_TAG-1))
-#define MaskPrim    /* 0x0ffffff8L */ ((((UInt)1) << (SHIFT_HIGH_TAG))-8)
+#define HighTagBits /* 0x70000000L */ MKTAG(0x7,0)
+#define	AdrHiBit    /* 0x08000000L */ (((UInt)1) << (SHIFT_HIGH_TAG-3))
+#define MaskPrim    /* 0x0ffffff8L */ (((((UInt)1) << (SHIFT_HIGH_TAG-3))-1)<<3)
 #define	NumberTag   /* 0x30000001L */ MKTAG(0x1,1)
 #define	AtomTag	    /* 0x10000001L */ MKTAG(0x0,1)
-#define MAX_ABS_INT /* 0xfe00000LL */ (((Int)1) << (63-(2+4)))
+#define MAX_ABS_INT /* 0xfe00000LL */ ((((Int)1) << (63-(3+3)))<<3)
 
 /* bits that should not be used by anyone but us */
 #define YAP_PROTECTED_MASK 0xe000000000000000L
