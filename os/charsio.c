@@ -668,16 +668,16 @@ Outputs  _N_ spaces to the current output stream.
 */
 static Int tab_1(USES_REGS1) { /* nl                      */
   int sno = LOCAL_c_output_stream;
-  Term t2;
+  Term t1;
   Int tabs, i;
-  if (IsVarTerm(t2 = Deref(ARG2))) {
-    Yap_Error(INSTANTIATION_ERROR, t2, "put_char/1");
+  if (IsVarTerm(t1 = Deref(ARG1))) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "first argument");
     return FALSE;
-  } else if (!IsIntegerTerm(t2)) {
-    Yap_Error(TYPE_ERROR_INTEGER, t2, "put_char/1");
+  } else if (!IsIntegerTerm(t1)) {
+    Yap_Error(TYPE_ERROR_INTEGER, t1, "first argument");
     return FALSE;
-  } else if ((tabs = IntegerOfTerm(t2)) < 0) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "tab/1");
+  } else if ((tabs = IntegerOfTerm(t1)) < 0) {
+    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t1, "first argument");
     return FALSE;
   }
 
