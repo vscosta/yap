@@ -63,11 +63,11 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS) {
       do {
         ch = st->stream_wgetc_for_read(sno);
         if (ch < 127) {
-          *pt++ = ch;
+
           if (ch < 0) {
-              ch = '\n';
-              pt[-1] = '\n';
-         }
+            break;
+          }
+          *pt++ = ch;
         } else {
             pt += get_utf8(pt, 4, &ch);
             if (pt + 4 == buf + buf_sz)
@@ -154,11 +154,10 @@ static Int read_line_to_string(USES_REGS1) {
       do {
          ch = st->stream_wgetc_for_read(sno);
         if (ch < 127) {
-          *pt++ = ch;
           if (ch < 0) {
-            ch = '\n';
-            pt[-1] = '\n';
+            break;
           }
+          *pt++ = ch;
         } else {
           pt += get_utf8(pt, 4, &ch);
           if (pt + 4 == buf + buf_sz)
