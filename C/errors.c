@@ -32,62 +32,6 @@
 #endif
 #include "Foreign.h"
 
-#if DEBUG
-void Yap_PrintPredName(PredEntry *ap) {
-  CACHE_REGS
-    Term tmod = ap->ModuleOfPred;
-  if (!tmod)
-    tmod = TermProlog;
-#if THREADS
-  Yap_DebugPlWrite(MkIntegerTerm(worker_id));
-  Yap_DebugPutc(stderr, ' ');
-#endif
-  Yap_DebugPutc(stderr, '>');
-  Yap_DebugPutc(stderr, '\t');
-  Yap_DebugPlWrite(tmod);
-  Yap_DebugPutc(stderr, ':');
-  if (ap->ModuleOfPred == IDB_MODULE) {
-    Term t = Deref(ARG1);
-    if (IsAtomTerm(t)) {
-      Yap_DebugPlWrite(t);
-    } else if (IsIntegerTerm(t)) {
-      Yap_DebugPlWrite(t);
-    } else {
-      Functor f = FunctorOfTerm(t);
-      Atom At = NameOfFunctor(f);
-      Yap_DebugPlWrite(MkAtomTerm(At));
-      Yap_DebugPutc(stderr, '/');
-      Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
-    }
-  } else {
-    if (ap->ArityOfPE == 0) {
-      Atom At = (Atom)ap->FunctorOfPred;
-      Yap_DebugPlWrite(MkAtomTerm(At));
-    } else {
-      Functor f = ap->FunctorOfPred;
-      Atom At = NameOfFunctor(f);
-      Yap_DebugPlWrite(MkAtomTerm(At));
-      Yap_DebugPutc(stderr, '/');
-      Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
-    }
-  }
-  char s[1024];
-  if (ap->PredFlags & StandardPredFlag)
-    fprintf(stderr, "S");
-  if (ap->PredFlags & CPredFlag)
-    fprintf(stderr, "C");
-  if (ap->PredFlags & UserCPredFlag)
-    fprintf(stderr, "U");
-  if (ap->PredFlags & SyncPredFlag)
-    fprintf(stderr, "Y");
-  if (ap->PredFlags & LogUpdatePredFlag)
-    fprintf(stderr, "Y");
-  if (ap->PredFlags & HiddenPredFlag)
-    fprintf(stderr, "H");
-  sprintf(s, "   %llx\n", ap->PredFlags);
-  Yap_DebugPuts(stderr, s);
-}
-#endif
 
 bool Yap_Warning(const char *s, ...) {
   CACHE_REGS
