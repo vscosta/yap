@@ -40,6 +40,24 @@ static Int prompt1(USES_REGS1);
 static int ConsoleGetc(int);
 static int ConsolePutc(int, int);
 
+
+
+bool Yap_DoPrompt(StreamDesc *s) {
+  if (s->status & Tty_Stream_f) {
+    if (GLOBAL_Stream[0].status & Tty_Stream_f &&
+        s->name == GLOBAL_Stream[0].name)
+      return true;
+    if (GLOBAL_Stream[1].status & Tty_Stream_f &&
+        s->name == GLOBAL_Stream[1].name)
+      return true;
+    if (GLOBAL_Stream[2].status & Tty_Stream_f &&
+        s->name == GLOBAL_Stream[2].name)
+      return true;
+  }
+  return false;
+}
+
+
 /* check if we read a newline or an EOF */
 int console_post_process_read_char(int ch, StreamDesc *s) {
   /* the character is also going to be output by the console handler */
@@ -121,11 +139,10 @@ static int ConsoleGetc(int sno) {
 restart:
   /* keep the prompt around, just in case, but don't actually
      show it in silent mode */
-  if (LOCAL_newline) {
+  if (Yap_DoPrompt(s)) {
     if (!silentMode()) {
       char *cptr = LOCAL_Prompt, ch;
-
-      /* use the default routine */
+    /* use the default routine */
       while ((ch = *cptr++) != '\0') {
         GLOBAL_Stream[StdErrStream].stream_putc(StdErrStream, ch);
       }
