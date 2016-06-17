@@ -1,19 +1,19 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog    @(#)amidefs.h	1.3 3/15/90
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		tracer.h						 *
-* Last rev:								 *
-* mods:									 *
-* comments:	definitions for low level tracer			 *
-*									 *
-*************************************************************************/
+  *									 *
+  *	 YAP Prolog    @(#)amidefs.h	1.3 3/15/90
+  *									 *
+  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+  *									 *
+  * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+  *									 *
+  **************************************************************************
+  *									 *
+  * File:		tracer.h *
+  * Last rev:								 *
+  * mods: *
+  * comments:	definitions for low level tracer			 *
+  *									 *
+  *************************************************************************/
 
 #include "Yap.h"
 
@@ -24,7 +24,7 @@
 #include "attvar.h"
 #include "clause.h"
 #include "tracer.h"
-#include "yapio.h"
+#include "iopreds.h"
 
 static void send_tracer_message(char *start, char *name, Int arity, char *mname,
                                 CELL *args) {
@@ -140,7 +140,7 @@ check_area(void)
 // PredEntry *old_p[10000];
 // Term old_x1[10000], old_x2[10000], old_x3[10000];
 
-// static CELL oldv;
+//static CELL oldv = 0;
 
 void low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args) {
   CACHE_REGS
@@ -151,25 +151,10 @@ void low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args) {
   vsc_count++;
 // if (HR < ASP ) return;
 // fif (vsc_count == 12534) jmp_deb( 2 );
-#if __ANDROID__ && 0
-  PredEntry *ap = pred;
-  if (pred && port == enter_pred) {
-    UInt flags = ap->PredFlags;
-    if (ap->ArityOfPE && ap->ModuleOfPred != IDB_MODULE)
-      __android_log_print(ANDROID_LOG_INFO, "YAP ", "   %s/%ld %lx\n",
-                          NameOfFunctor(ap->FunctorOfPred)->StrOfAE,
-                          ap->ArityOfPE, flags);
-    /*   printf("   %s/%ld %lx\n", NameOfFunctor(ap->FunctorOfPred)->StrOfAE,
-     * ap->ArityOfPE, flags); */
-    else if (ap->ModuleOfPred != IDB_MODULE)
-      __android_log_print(ANDROID_LOG_INFO, "YAP ", "   %s/%ld %lx\n",
-                          ((Atom)(ap->FunctorOfPred))->StrOfAE, ap->ArityOfPE,
-                          flags);
-    /*   printf("   %s/%ld %lx\n", ((Atom)(ap->FunctorOfPred))->StrOfAE,
-     * ap->ArityOfPE, flags); */
-    __android_log_print(ANDROID_LOG_INFO, "YAP ", " %x  ", ap->src.OwnerFile);
-  }
-  return;
+#if __ANDROID__
+
+  if (vsc_count == 1)
+    freopen("log", "w", stderr);
 #endif
 
   // if (!worker_id) return;
@@ -280,8 +265,9 @@ void low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args) {
   if (vsc_count == 173118LL)
     jmp_deb(1);
   if (!(vsc_count >= 287934LL && vsc_count <= 287939LL) &&
-      !(vsc_count >= 173100LL && vsc_count <= 173239LL) && vsc_count != -1)
+      !(vsc_count >= 173100LL && vsc_count <= 173239LL) && vsc_count != -1) {
     return;
+  }
   if (vsc_count == 51021) {
     printf("Here I go\n");
   }
