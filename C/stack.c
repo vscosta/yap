@@ -504,8 +504,11 @@ static Int find_code_in_clause(PredEntry *pp, yamop *codeptr, void **startp,
 
       cl = ClauseCodeToStaticClause(clcode);
       do {
-        if (IN_BLOCK(codeptr, cl, cl->ClSize)) {
-          if (startp)
+      if (cl == NULL)
+       return 0;
+         if (IN_BLOCK(codeptr, cl, cl->ClSize)) {
+          if
+ (startp)
             *startp = (CODEADDR)cl;
           if (endp)
             *endp = (CODEADDR)cl + cl->ClSize;
