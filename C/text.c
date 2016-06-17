@@ -1658,6 +1658,63 @@ const char *Yap_TextTermToText(Term t, char *buf, size_t len, encoding_t enc) {
 }
 
 /**
+ * Convert from a predicate structure to an UTF-8 string of the form
+ *
+ * module:name/arity.
+ *
+ * The result is in very volatile memory.
+ *
+ * @param s        the buffer
+ *
+ * @return the temporary string
+ */
+const char * Yap_PredIndicatorToUTF8String(PredEntry *ap) {
+  CACHE_REGS
+    char *s = LOCAL_FileNameBuf, *smax = s+YAP_FILENAME_MAX;
+  Atom at;
+  arity_t arity;
+  Functor f;
+     
+  Term tmod = ap->ModuleOfPred;
+  if (tmod) {
+    Yap_AtomToUTF8Text(AtomOfTerm(tmod), s);
+    s += strlen(s);
+    stpncpy(s, ":", smax-s);
+    s++;
+  } else {
+    s = stpncpy(s, "prolog:" , smax-s );
+  }
+  // follows the actual functor
+  if (ap->ModuleOfPred == IDB_MODULE) {
+    if (ap->PredFlags & NumberDBPredFlag) {
+      Int key = ap->src.IndxId;
+      snprintf( s, smax-s, "%" PRIdPTR  , key);
+      return LOCAL_FileNameBuf;
+    } else if (ap->PredFlags & AtomDBPredFlag) {
+      at = (Atom)(ap->FunctorOfPred);
+      if (!Yap_AtomToUTF8Text(at, s))
+	return NULL;
+   } else {
+      f = ap->FunctorOfPred;
+      at = NameOfFunctor(f);
+      arity = ArityOfFunctor(f);
+    }
+  } else {
+    arity = ap->ArityOfPE;
+    if (arity) {
+      at = NameOfFunctor( ap->FunctorOfPred );
+    } else {
+        at = (Atom)(ap->FunctorOfPred);
+    }
+  }
+  if (!Yap_AtomToUTF8Text(at, s))
+    return NULL;
+  s += strlen(s);
+  snprintf( s, smax-s, "/%" PRIdPTR, arity );
+  return LOCAL_FileNameBuf;
+}
+
+/**
  * Convert from a text buffer (8-bit) to a term that has the same type as
  * _Tguide_
  *
