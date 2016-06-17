@@ -1422,9 +1422,9 @@ void Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts,
   LOCAL_ThreadHandle.ssize = Stack;
 #endif
 #endif
-  GLOBAL_AllowGlobalExpansion = TRUE;
-  GLOBAL_AllowLocalExpansion = TRUE;
-  GLOBAL_AllowTrailExpansion = TRUE;
+  GLOBAL_AllowGlobalExpansion = true;
+  GLOBAL_AllowLocalExpansion = true;
+  GLOBAL_AllowTrailExpansion = true;
   Yap_InitExStacks(0, Trail, Stack);
   Yap_InitYaamRegs(0);
   InitStdPreds();
