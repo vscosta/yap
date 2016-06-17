@@ -1,20 +1,20 @@
 
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		write.c							 *
-* Last rev:								 *
-* mods:									 *
-* comments:	Writing a Prolog Term					 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		write.c							 *
+ * Last rev:								 *
+ * mods:									 *
+ * comments:	Writing a Prolog Term					 *
+ *									 *
+ *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -117,7 +117,7 @@ static void putAtom(Atom, int, struct write_globs *);
 static void writeTerm(Term, int, int, int, struct write_globs *,
                       struct rewind_term *);
 
-#define wrputc(WF, X)                                                          \
+#define wrputc(WF, X)							\
   (X)->stream_wputc(X - GLOBAL_Stream, WF) /* writes a character */
 
 /*
@@ -197,7 +197,7 @@ static void wrputws(wchar_t *s, wrf stream) /* writes a string	 */
 
 static char *ensure_space(size_t sz) {
   CACHE_REGS
-  char *s;
+    char *s;
 
   s = (char *)Yap_PreAllocCodeSpace();
   while (s + sz >= (char *)AuxSp) {
@@ -325,10 +325,10 @@ static void wrputf(Float f, struct write_globs *wglb) /* writes a float	 */
   int found_dot = FALSE;
   char *pt = s;
   int ch;
-/* always use C locale for writing numbers */
+  /* always use C locale for writing numbers */
 #if O_LOCALE
   const unsigned char *decimalpoint =
-      (unsigned char *)localeconv()->decimal_point;
+    (unsigned char *)localeconv()->decimal_point;
   size_t l1 = strlen((const char *)decimalpoint + 1);
 #else
   const unsigned char decimalpoint[2] = ".";
@@ -384,7 +384,7 @@ static void wrputf(Float f, struct write_globs *wglb) /* writes a float	 */
 
 int Yap_FormatFloat(Float f, char **s, size_t sz) {
   CACHE_REGS
-  struct write_globs wglb;
+    struct write_globs wglb;
   int sno;
   char *so;
 
@@ -484,12 +484,12 @@ AtomIsSymbols(unsigned char *s) /* Is this atom just formed by symbols ? */
 
 static void write_quoted(wchar_t ch, wchar_t quote, wrf stream) {
   CACHE_REGS
-  if (!(Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE)) {
-    wrputc(ch, stream);
-    if (ch == '\'')
-      wrputc('\'', stream); /* be careful about quotes */
-    return;
-  }
+    if (!(Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE)) {
+      wrputc(ch, stream);
+      if (ch == '\'')
+	wrputc('\'', stream); /* be careful about quotes */
+      return;
+    }
   if (!(ch < 0xff && chtype(ch) == BS) && ch != '\'' && ch != '\\' &&
       ch != '`') {
     wrputc(ch, stream);
@@ -605,7 +605,7 @@ static void putAtom(Atom atom, int Quote_illegal, struct write_globs *wglb) {
     return;
   }
   s = (unsigned char *)RepAtom(atom)->StrOfAE;
-/* #define CRYPT_FOR_STEVE 1*/
+  /* #define CRYPT_FOR_STEVE 1*/
 #ifdef CRYPT_FOR_STEVE
   if (Yap_GetValue(AtomCryptAtoms) != TermNil &&
       Yap_GetAProp(atom, OpProperty) == NIL) {
@@ -696,7 +696,7 @@ static void putUnquotedString(Term string, struct write_globs *wglb)
 static Term from_pointer(CELL *ptr0, struct rewind_term *rwt,
                          struct write_globs *wglb) {
   CACHE_REGS
-  Term t;
+    Term t;
   CELL *ptr = ptr0;
 
   while (IsVarTerm(*ptr) && !IsUnboundVar(ptr))
@@ -734,7 +734,7 @@ static Term from_pointer(CELL *ptr0, struct rewind_term *rwt,
 static CELL *restore_from_write(struct rewind_term *rwt,
                                 struct write_globs *wglb) {
   CACHE_REGS
-  CELL *ptr;
+    CELL *ptr;
 
   if (wglb->Keep_terms) {
     ptr = Yap_GetPtrFromSlot(rwt->u_sd.s.ptr);
@@ -751,9 +751,9 @@ static CELL *restore_from_write(struct rewind_term *rwt,
 static void write_var(CELL *t, struct write_globs *wglb,
                       struct rewind_term *rwt) {
   CACHE_REGS
-  if (lastw == alphanum) {
-    wrputc(' ', wglb->stream);
-  }
+    if (lastw == alphanum) {
+      wrputc(' ', wglb->stream);
+    }
   wrputc('_', wglb->stream);
   /* make sure we don't get no creepy spaces where they shouldn't be */
   lastw = separator;
@@ -794,19 +794,19 @@ static void write_var(CELL *t, struct write_globs *wglb,
 static Term check_infinite_loop(Term t, struct rewind_term *x,
                                 struct write_globs *wglb) {
   CACHE_REGS
-  if (wglb->Keep_terms) {
-    while (x) {
-      if (Yap_GetFromSlot(x->u_sd.s.old) == t)
-        return TermFoundVar;
-      x = x->parent;
+    if (wglb->Keep_terms) {
+      while (x) {
+	if (Yap_GetFromSlot(x->u_sd.s.old) == t)
+	  return TermFoundVar;
+	x = x->parent;
+      }
+    } else {
+      while (x) {
+	if (x->u_sd.d.old == t)
+	  return TermFoundVar;
+	x = x->parent;
+      }
     }
-  } else {
-    while (x) {
-      if (x->u_sd.d.old == t)
-        return TermFoundVar;
-      x = x->parent;
-    }
-  }
   return t;
 }
 
@@ -892,7 +892,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
 
 {
   CACHE_REGS
-  struct rewind_term nrwt;
+    struct rewind_term nrwt;
   nrwt.parent = rwt;
   nrwt.u_sd.s.ptr = 0;
 
@@ -964,7 +964,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       case (CELL)FunctorLongInt:
         wrputn(LongIntOfTerm(t), wglb);
         return;
-      /* case (CELL)FunctorBigInt: */
+	/* case (CELL)FunctorBigInt: */
       default:
         writebig(t, p, depth, rinfixarg, wglb, rwt);
         return;
@@ -1010,7 +1010,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
     if (!wglb->Ignore_ops && Arity == 1 && Yap_IsPrefixOp(atom, &op, &rp)) {
       Term tright = ArgOfTerm(1, t);
       int bracket_right = !IsVarTerm(tright) && IsAtomTerm(tright) &&
-                          Yap_IsOp(AtomOfTerm(tright));
+	Yap_IsOp(AtomOfTerm(tright));
       if (op > p) {
         wropen_bracket(wglb, TRUE);
       }
@@ -1048,7 +1048,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         offset = 1;
       }
       bracket_left =
-          !IsVarTerm(tleft) && IsAtomTerm(tleft) && Yap_IsOp(AtomOfTerm(tleft));
+	!IsVarTerm(tleft) && IsAtomTerm(tleft) && Yap_IsOp(AtomOfTerm(tleft));
       if (op > p) {
         /* avoid stuff such as \+ (a,b) being written as \+(a,b) */
         wropen_bracket(wglb, TRUE);
@@ -1091,9 +1091,9 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       Term tleft = ArgOfTerm(1, t);
       Term tright = ArgOfTerm(2, t);
       int bracket_left =
-          !IsVarTerm(tleft) && IsAtomTerm(tleft) && Yap_IsOp(AtomOfTerm(tleft));
+	!IsVarTerm(tleft) && IsAtomTerm(tleft) && Yap_IsOp(AtomOfTerm(tleft));
       int bracket_right = !IsVarTerm(tright) && IsAtomTerm(tright) &&
-                          Yap_IsOp(AtomOfTerm(tright));
+	Yap_IsOp(AtomOfTerm(tright));
 
       if (op > p) {
         /* avoid stuff such as \+ (a,b) being written as \+(a,b) */
@@ -1228,13 +1228,13 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
 /* write options			 */
 {
   CACHE_REGS
-  struct write_globs wglb;
+    struct write_globs wglb;
   struct rewind_term rwt;
   yhandle_t sls = Yap_CurrentSlot();
 
   if (!mywrite) {
     CACHE_REGS
-    wglb.stream = GLOBAL_Stream + LOCAL_c_error_stream;
+      wglb.stream = GLOBAL_Stream + LOCAL_c_error_stream;
   } else
     wglb.stream = mywrite;
   wglb.lw = start;
@@ -1273,8 +1273,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
 
 char *Yap_TermToString(Term t, size_t *lengthp, encoding_t enc, int flags) {
   CACHE_REGS
-  int sno = Yap_open_buf_write_stream(enc, flags);
-  int old_output_stream = LOCAL_c_output_stream;
+    int sno = Yap_open_buf_write_stream(enc, flags);
   const char *sf;
 
   if (sno < 0)
@@ -1285,9 +1284,9 @@ char *Yap_TermToString(Term t, size_t *lengthp, encoding_t enc, int flags) {
   else
     GLOBAL_Stream[sno].encoding = LOCAL_encoding;
   Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, GLOBAL_MaxPriority);
+
   sf = Yap_MemExportStreamPtr(sno);
   Yap_CloseStream(sno);
-  LOCAL_c_output_stream = old_output_stream;
   if (Yap_HasException())
     return NULL;
   return (char *)sf;
