@@ -255,11 +255,6 @@ const char*  Error_Function_;
   UInt  ImportDBRefHashTableSize_;
   UInt  ImportDBRefHashTableNum_;
   yamop  *ImportFAILCODE_;
-#if __ANDROID__
-// current virtual directory.
-  struct AAssetManager*  assetManager_;
-  char*  InAssetDir_;
-#endif
 // exo indexing
   UInt  ibnds_[256];
   struct index_t*  exo_it_;
@@ -271,6 +266,7 @@ const char*  Error_Function_;
   struct pred_entry*  SearchPreds_;
 // Slots
   yhandle_t  CurSlot_;
+  yhandle_t  FrozenHandles_;
   yhandle_t  NSlots_;
   CELL*  SlotBase_;
 // Mutexes

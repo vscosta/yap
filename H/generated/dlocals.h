@@ -453,13 +453,6 @@
 #define REMOTE_ImportDBRefHashTableNum(wid) REMOTE(wid)->ImportDBRefHashTableNum_
 #define LOCAL_ImportFAILCODE LOCAL->ImportFAILCODE_
 #define REMOTE_ImportFAILCODE(wid) REMOTE(wid)->ImportFAILCODE_
-#if __ANDROID__
-
-#define LOCAL_assetManager LOCAL->assetManager_
-#define REMOTE_assetManager(wid) REMOTE(wid)->assetManager_
-#define LOCAL_InAssetDir LOCAL->InAssetDir_
-#define REMOTE_InAssetDir(wid) REMOTE(wid)->InAssetDir_
-#endif
 
 #define LOCAL_ibnds LOCAL->ibnds_
 #define REMOTE_ibnds(wid) REMOTE(wid)->ibnds_
@@ -479,6 +472,8 @@
 
 #define LOCAL_CurSlot LOCAL->CurSlot_
 #define REMOTE_CurSlot(wid) REMOTE(wid)->CurSlot_
+#define LOCAL_FrozenHandles LOCAL->FrozenHandles_
+#define REMOTE_FrozenHandles(wid) REMOTE(wid)->FrozenHandles_
 #define LOCAL_NSlots LOCAL->NSlots_
 #define REMOTE_NSlots(wid) REMOTE(wid)->NSlots_
 #define LOCAL_SlotBase LOCAL->SlotBase_

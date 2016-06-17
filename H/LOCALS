@@ -11,6 +11,7 @@ bool				sockets_io				=false
 bool				within_print_message	=false
 
 //
+
 // Used by the prompts to check if they are after a newline, and then a
 // prompt should be output, or if we are in the middle of a line.
 //
@@ -215,8 +216,8 @@ wchar_t*			CommentsBuff				void
 size_t				CommentsBuffPos				void
 size_t				CommentsBuffLim				void
 sigjmp_buf         		RestartEnv				void
-char     			FileNameBuf[YAP_FILENAME_MAX]		void
-char        			FileNameBuf2[YAP_FILENAME_MAX]		void
+char     			FileNameBuf[YAP_FILENAME_MAX+1]		void
+char        			FileNameBuf2[YAP_FILENAME_MAX+1]	void
 
 // Prolog State
 UInt				BreakLevel				=0
@@ -294,14 +295,6 @@ UInt				ImportDBRefHashTableSize		=0
 UInt				ImportDBRefHashTableNum			=0
 yamop			       *ImportFAILCODE				=NULL
 
-
-#if __ANDROID__
-// current virtual directory.
-struct AAssetManager* assetManager				=GLOBAL_assetManager
-char*				InAssetDir						=NULL
-#endif
-
-
 // exo indexing
 
 UInt				ibnds[256]				void
@@ -316,6 +309,7 @@ struct pred_entry*		SearchPreds				void
 
 // Slots
 yhandle_t				CurSlot					=0
+yhandle_t				FrozenHandles			=0
 yhandle_t				NSlots					=0
 CELL*				SlotBase					=InitHandles(wid)
 
