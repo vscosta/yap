@@ -211,7 +211,7 @@ following flags:
 load_files(Files,Opts) :-
 	'$load_files'(Files,Opts,load_files(Files,Opts)).
 
-'$lf_option'(autoload, 1, _).
+'$lf_option'(autoload, 1, false).
 '$lf_option'(derived_from, 2, false).
 '$lf_option'(encoding, 3, default).
 '$lf_option'(expand, 4, false).
@@ -287,7 +287,7 @@ load_files(Files,Opts) :-
 	  true
 	),
 	% make sure we can run consult
-	'$init_system',
+	'$init_consult',
 	'$lf'(Files, M0, Call, TOpts).
 
 '$check_files'(Files, Call) :-
