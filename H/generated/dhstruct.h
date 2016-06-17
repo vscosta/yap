@@ -30,11 +30,7 @@
 
 
 
-#define Yap_HoleSize Yap_heap_regs->Yap_HoleSize_
-#define Yap_av Yap_heap_regs->Yap_av_
 #if USE_DL_MALLOC
-#define void Yap_heap_regs->void_
-#define Yap_NOfMemoryHoles Yap_heap_regs->Yap_NOfMemoryHoles_
 #if defined(YAPOR) || defined(THREADS)
 #define DLMallocLock Yap_heap_regs->DLMallocLock_
 #endif
@@ -52,7 +48,7 @@
 #define HeapLim Yap_heap_regs->HeapLim_
 #define FreeBlocks Yap_heap_regs->FreeBlocks_
 #if defined(YAPOR) || defined(THREADS)
-#define FreeBlocksLock Yap_heap_regs->FreeBlocksLock_
+#define fFreeBlocksLock Yap_heap_regs->FreeBlocksLock_
 #define HeapUsedLock Yap_heap_regs->HeapUsedLock_
 #define HeapTopLock Yap_heap_regs->HeapTopLock_
 #define HeapTopOwner Yap_heap_regs->HeapTopOwner_

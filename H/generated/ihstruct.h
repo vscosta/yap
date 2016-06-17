@@ -30,11 +30,7 @@
 
 
 
-
-
 #if USE_DL_MALLOC
-
-
 #if defined(YAPOR) || defined(THREADS)
   INIT_LOCK(DLMallocLock);
 #endif

@@ -38,12 +38,6 @@ UInt				SizeOfOverflow				=0
 UInt				AGcThreshold				=10000
 Agc_hook			AGCHook					=NULL
 
-#if __ANDROID__
-// no need to perform initialization, it is done before we start the Prolog engine.
-struct AAssetManager*		assetManager				=NULL
-char*				AssetsWD				=NULL
-#endif
-
 /* multi-thread support */
 #if THREADS
 /* number of threads and processes in system */
@@ -173,5 +167,6 @@ struct    AliasDescS*		FileAliases				=Yap_InitStandardAliases()
 int				NOfFileAliases				void
 int				SzOfFileAliases				void
 
+struct vfs*			VFS					=Yap_InitAssetManager()
 
 END_GLOBAL_DATA

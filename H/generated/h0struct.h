@@ -31,9 +31,9 @@
 
 /* memory management */
 EXTERNAL  UInt  Yap_HoleSize;
-EXTERNAL    struct malloc_state  *Yap_av;
 #if USE_DL_MALLOC
-EXTERNAL    struct Yap_MemoryHoles[MAX_DLMALLOC_HOLES]  void;
+EXTERNAL    struct malloc_state  *Yap_av;
+EXTERNAL    struct memory_hole  Yap_MemoryHoles[MAX_DLMALLOC_HOLES];
 EXTERNAL  UInt  Yap_NOfMemoryHoles;
 #if defined(YAPOR) || defined(THREADS)
 EXTERNAL  lockvar  DLMallocLock;

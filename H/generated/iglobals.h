@@ -36,11 +36,6 @@ static void InitGlobal(void) {
 
   GLOBAL_AGcThreshold = 10000;
   GLOBAL_AGCHook = NULL;
-#if __ANDROID__
-
-  GLOBAL_assetManager = NULL;
-  GLOBAL_AssetsWD = NULL;
-#endif
 
 #if THREADS
 
@@ -145,4 +140,5 @@ static void InitGlobal(void) {
   GLOBAL_FileAliases = Yap_InitStandardAliases();
 
 
+  GLOBAL_VFS = Yap_InitAssetManager();
 }

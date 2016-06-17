@@ -36,11 +36,6 @@ typedef struct global_data {
 // amount of space recovered in all garbage collections
   UInt  AGcThreshold_;
   Agc_hook  AGCHook_;
-#if __ANDROID__
-// no need to perform initialization, it is done before we start the Prolog engine.
-  struct AAssetManager*  assetManager_;
-  char*  AssetsWD_;
-#endif
 /* multi-thread support */
 #if THREADS
 /* number of threads and processes in system */
@@ -145,4 +140,5 @@ const char*  RestoreFile_;
   struct AliasDescS*  FileAliases_;
   int  NOfFileAliases_;
   int  SzOfFileAliases_;
+  struct vfs*  VFS_;
 } w_shared;
