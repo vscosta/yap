@@ -62,35 +62,58 @@ static char SccsId[] = "%W% %G%";
 
 #define MASK 0x968e00
 #if USE_SYSTEM_MALLOC
-#if 0
-inline static void * my_malloc(size_t sz)
+
+#if 1
+
+#undef free
+#undef malloc
+#undef realloc
+
+int write_malloc=0;
+
+void * my_malloc(size_t sz)
 {
   void *p;
+
   p =  malloc(sz);
   //    Yap_DebugPuts(stderr,"gof\n");
+  if (sz > 500 & write_malloc++ > 0)
+  __android_log_print(ANDROID_LOG_ERROR,  "YAPDroid ", "+ %d %p", write_malloc, p);
   return p;
 }
-inline static void my_free(void *p)
+
+void * my_realloc(void *ptr, size_t sz)
 {
-  printf("f %p\n",p);
+  void *p;
+
+  p =  realloc(ptr, sz);
+  //    Yap_DebugPuts(stderr,"gof\n");
+  if (sz > 500 & write_malloc++ > 0)
+  __android_log_print(ANDROID_LOG_ERROR,  "YAPDroid ", "* %d %p", write_malloc, p);
+  return p;
+}
+
+
+
+void my_free(void *p)
+{
+  //printf("f %p\n",p);
+   if (write_malloc && write_malloc++ > 0)
+   __android_log_print(ANDROID_LOG_ERROR,  "YAPDroid ", "- %d %p", write_malloc, p);
+
   free(p);
-  if (((CELL)p & 0xffffff00) ==  MASK) jmp_deb(1);
   //    Yap_DebugPuts(stderr,"gof\n");
 }
-#else
-#define my_malloc(sz) malloc(sz)
-#define my_free(ptr)  free(ptr)
-
 
 #endif
-#define my_realloc(ptr, sz, osz, safe) realloc(ptr, sz)
-#define my_realloc0(ptr, sz) realloc(ptr, sz)
-#else
+
+#else // USE_SYSTEM_MALLOC
+
 #define my_malloc(sz) Yap_dlmalloc(sz)
-#define my_realloc0(ptr, sz) Yap_dlrealloc(ptr, sz)
+#define my_realloc(ptr, sz) Yap_dlrealloc(ptr, sz)
 #define my_free(sz) Yap_dlfree(sz)
 
-static char *my_realloc(char *ptr, UInt sz, UInt osz, int safe) {
+static char *my_reallocl(char *ptr, UInt sz, UInt osz, int safe) {
   char *nptr;
 
 restart:
@@ -185,7 +208,7 @@ static inline char *call_realloc(char *p, size_t size) {
   tmalloc -= *(CELL *)p;
 #endif
   LOCAL_PrologMode |= MallocMode;
-  out = (char *)my_realloc0(p, size);
+  out = (char *)my_realloc(p, size);
 #if INSTRUMENT_MALLOC
   *(CELL *)out = size - sizeof(CELL);
   out += sizeof(CELL);
@@ -322,7 +345,7 @@ ADDR Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip, int safe) {
   tmalloc += sz;
 #endif
   if (!(ptr =
-            my_realloc(LOCAL_ScratchPad.ptr, sz, LOCAL_ScratchPad.sz, safe))) {
+	my_realloc(LOCAL_ScratchPad.ptr, sz))) {
     LOCAL_PrologMode &= ~MallocMode;
 #if USE_DL_MALLOC
     UNLOCK(DLMallocLock);
@@ -614,7 +637,7 @@ GetBlock(unsigned long int n) { /* get free block with size at least n */
   return (b);
 }
 
-static char *AllocHeap(unsigned long int size) {
+static char *AllocHeap(size_t size) {
   BlockHeader *b, *n;
   YAP_SEG_SIZE *sp;
   UInt align, extra;
@@ -1379,6 +1402,7 @@ static int ExtendWorkSpace(Int s) {
     LOCAL_PrologMode = OldPrologMode;
     return FALSE;
   }
+#if MBIT
   if ((CELL)ptr & MBIT) {
     LOCAL_ErrorMessage = LOCAL_ErrorSay;
     snprintf5(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
@@ -1386,6 +1410,7 @@ static int ExtendWorkSpace(Int s) {
     LOCAL_PrologMode = OldPrologMode;
     return FALSE;
   }
+#endif
   LOCAL_PrologMode = OldPrologMode;
   return TRUE;
 }
