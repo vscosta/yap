@@ -323,24 +323,15 @@ true :- true.
 '$init_system' :-
     set_value('$yap_inited', true),
     % do catch as early as possible
-    (
-     current_prolog_flag(halt_after_consult, false),
-     current_prolog_flag(verbose, normal)
+    ( 
      % \+ '$uncaught_throw'
+      current_prolog_flag(halt_after_consult, false),
+     current_prolog_flag(verbose, normal)
     ->
      '$version'
     ;
      true
     ),
-%	'$init_preds', % needs to be done before library_directory
-%	(
-%	 retractall(user:library_directory(_)),
-%	 '$system_library_directories'(D),
-%	 assertz(user:library_directory(D)),
-%	 fail
-%	;
-%	 true
-%	),
     current_prolog_flag(file_name_variables, OldF),
     set_prolog_flag(file_name_variables, true),
     '$init_consult',
@@ -353,21 +344,32 @@ true :- true.
     set_prolog_flag(debug, false),
     % simple trick to find out if this is we are booting from Prolog.
     % boot from a saved state
-    (
-     current_prolog_flag(saved_program, false)
+    ( 
+      current_prolog_flag(saved_program, false)
     ->
-     prolog_flag(verbose, OldV, silent),
-     prolog_flag(resource_database, RootPath),
-     file_directory_name( RootPath, Dir ),
-     atom_concat( Dir, '/init.yap' , Init),
-     bootstrap(Init),
-     set_prolog_flag(verbose, OldV),
-     module( user ),
-     '$make_saved_state'
+      prolog_flag(verbose, OldV, silent),
+      prolog_flag(resource_database, RootPath),
+      file_directory_name( RootPath, Dir ),
+      atom_concat( Dir, '/init.yap' , Init),
+      (
+       % is lib_dir set?
+       system_library( LibDir )
+      ->
+       true
+      ;
+       % get it from boot.yap
+       atom_concat( LibDir, '/pl' , Dir),
+       system_library(LibDir)
+      ),
+      bootstrap(Init),
+      set_prolog_flag(verbose, OldV),
+      module( user ),
+      '$make_saved_state'
     ;
-     true
+      % use saved state
+
+      '$init_state'
     ),
-    '$init_state',
     '$db_clean_queues'(0),
 				% this must be executed from C-code.
 				%	'$startup_saved_state',
@@ -378,8 +380,8 @@ true :- true.
 
 '$make_saved_state' :-
 	current_prolog_flag(os_argv, Args),
-	(
-	 member( Arg, Args ),
+      (
+	 lists:member( Arg, Args ),
 	 atom_concat( '-B', _, Arg )
 	->
 	  qsave_program( 'startup.yss'),
@@ -626,10 +628,11 @@ number of steps.
 	 (
 	     O = (:- G1)
 	 ->
-	 '$current_module'(M),
+	  '$current_module'(M),
+	  
 	   '$process_directive'(G1, Option, M, VL, Pos)
      ;
-	    '$execute_commands'(O,VL,Pos,Option,O)
+	    '$execute_commands'(G1,VL,Pos,Option,O)
 	 ).
  '$execute_command'((?-G), VL, Pos, Option, Source) :-
 	 Option \= top,
@@ -1310,19 +1313,6 @@ not(G) :-    \+ '$execute'(G).
 '$check_callable'(R,G) :- db_reference(R), !,
 	'$do_error'(type_error(callable,R),G).
 '$check_callable'(_,_).
-
-
-'$bootstrap' :-
-    bootstrap('init.yap'),
-    module(user),
-    '$live'.
-
-
-'$silent_bootstrap'(F) :-
-    yap_flag(verbose, Old, silent),
-    bootstrap( F ),
-    yap_flag(verbose, _, Old),
-    '$live'.
 
 
 bootstrap(F) :-
