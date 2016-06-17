@@ -176,7 +176,7 @@ void Yap_InitDBPreds(void);
 
 /* errors.c */
 #if DEBUG
-void Yap_PrintPredName(struct pred_entry *ap);
+const char *Yap_PrintPredName(struct pred_entry *ap);
 #endif
 void Yap_RestartYap(int);
 void Yap_exit(int);
@@ -308,6 +308,7 @@ void Yap_CloseReadline(void);
 bool Yap_InitReadline(Term t);
 void Yap_InitItDeepenPreds(void);
 struct AliasDescS *Yap_InitStandardAliases(void);
+struct vfs *Yap_InitAssetManager(void);
 
 /* load_foreign.c */
 void Yap_InitLoadForeign(void);
@@ -355,7 +356,7 @@ void Yap_InitReadUtil(void);
 
 /* qly.c */
 void Yap_InitQLY(void);
-int Yap_Restore(const char *, const char *);
+YAP_file_type_t Yap_Restore(const char *, const char *);
 void Yap_InitQLYR(void);
 
 /* range.c */

@@ -28,11 +28,11 @@
 START_HEAP
 
 /* memory management */
-UInt		Yap_HoleSize		void    void
-struct malloc_state *Yap_av			void void
+UInt		Yap_HoleSize		
 #if USE_DL_MALLOC
-struct Yap_MemoryHoles[MAX_DLMALLOC_HOLES]  void void
-UInt		Yap_NOfMemoryHoles	void void
+struct malloc_state *Yap_av		
+struct memory_hole Yap_MemoryHoles[MAX_DLMALLOC_HOLES]	
+UInt		Yap_NOfMemoryHoles	
 #if defined(YAPOR) || defined(THREADS)
 lockvar         DLMallocLock		MkLock
 #endif

@@ -1320,6 +1320,34 @@ static inline Term Yap_StringToNumber(Term t0 USES_REGS) {
   return out.val.t;
 }
 
+
+static inline Atom Yap_TextToAtom(Term t0 USES_REGS) {
+  seq_tv_t inp, out;
+
+  inp.val.t = t0;
+  inp.type = YAP_STRING_ATOM | YAP_STRING_STRING | YAP_STRING_CODES  | YAP_STRING_ATOMS_CODES;
+  out.val.uc = NULL;
+  out.type = YAP_STRING_ATOM;
+
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.a;
+}
+
+static inline Term Yap_TextToString(Term t0 USES_REGS) {
+  seq_tv_t inp, out;
+
+  inp.val.t = t0;
+  inp.type = YAP_STRING_ATOM | YAP_STRING_STRING | YAP_STRING_CODES | YAP_STRING_ATOMS_CODES;
+  out.val.uc = NULL;
+  out.type = YAP_STRING_STRING;
+
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.t;
+}
+
+
 static inline Term Yap_UTF8ToString(const char *s USES_REGS) {
   return MkStringTerm(s);
 }
