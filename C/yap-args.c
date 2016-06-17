@@ -45,25 +45,6 @@
 #include <direct.h>
 #endif
 
-#if (DefTrailSpace < MinTrailSpace)
-#undef DefTrailSpace
-#define DefTrailSpace MinTrailSpace
-#endif
-
-#if (DefStackSpace < MinStackSpace)
-#undef DefStackSpace
-#define DefStackSpace MinStackSpace
-#endif
-
-#if (DefHeapSpace < MinHeapSpace)
-#undef DefHeapSpace
-#define DefHeapSpace MinHeapSpace
-#endif
-
-#define DEFAULT_NUMBERWORKERS 1
-#define DEFAULT_SCHEDULERLOOP 10
-#define DEFAULT_DELAYEDRELEASELOAD 3
-
     static void
     print_usage(void) {
   fprintf(stderr, "\n[ Valid switches for command line arguments: ]\n");
@@ -155,51 +136,33 @@ static int dump_runtime_variables(void) {
   return 1;
 }
 
-X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap) {
-  char *p;
-  int BootMode = YAP_QLY;
-  unsigned long int *ssize;
-
+  YAP_file_type_t Yap_InitDefaults(YAP_init_args *iap, char saved_state[], int argc, char *argv[]) {
+    bzero( iap, sizeof( YAP_init_args ) );
+#if __ANDROID__
+  iap->boot_file_type = YAP_BOOT_PL;
   iap->SavedState = NULL;
-  iap->initial_file_type = YAP_QLY;
-  
-  iap->HeapSize = 0;
-  iap->StackSize = 0;
-  iap->TrailSize = 0;
-  iap->AttsSize = 0;
-  iap->MaxAttsSize = 0;
-  iap->MaxHeapSize = 0;
-  iap->MaxStackSize = 0;
-  iap->MaxGlobalSize = 0;
-  iap->MaxTrailSize = 0;
-  iap->YapLibDir = NULL;
-  iap->YapPrologBootFile = NULL;
-  iap->YapPrologInitGoal = NULL;
-  iap->YapPrologRCFile = NULL;
-  iap->YapPrologGoal = NULL;
-  iap->YapPrologTopLevelGoal = NULL;
-  iap->YapPrologAddPath = NULL;
-  iap->HaltAfterConsult = FALSE;
-  iap->FastBoot = false;
-  iap->MaxTableSpaceSize = 0;
-  iap->NumberWorkers = DEFAULT_NUMBERWORKERS;
-  iap->SchedulerLoop = DEFAULT_SCHEDULERLOOP;
-  iap->DelayedReleaseLoad = DEFAULT_DELAYEDRELEASELOAD;
-  iap->PrologShouldHandleInterrupts = TRUE;
-  iap->ExecutionMode = YAPC_INTERPRETED;
+#else
+  iap->boot_file_type = YAP_QLY;
+  iap->SavedState = saved_state;
+#endif
   iap->Argc = argc;
   iap->Argv = argv;
-  iap->def_c = 0;
-  iap->ErrorNo = 0;
-  iap->ErrorCause = NULL;
-  iap->QuietMode = FALSE;
+  return iap->boot_file_type;
+}
 
+
+
+X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap) {
+  char *p;
+  size_t *ssize;
+
+  Yap_InitDefaults( iap, NULL, argc, argv);
   while (--argc > 0) {
     p = *++argv;
     if (*p == '-')
       switch (*++p) {
       case 'b':
-        iap->initial_file_type = BootMode = YAP_PL;
+        iap->boot_file_type = YAP_PL;
 	if (p[1])
 	  iap->YapPrologBootFile = p+1;
 	else if (argv[1] && *argv[1] != '-') {
@@ -210,7 +173,7 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_a
 	}
         break;
       case 'B':
-        iap->initial_file_type = BootMode = YAP_BOOT_PL;
+        iap->boot_file_type = YAP_BOOT_PL;
  	if (p[1])
 	  iap->YapPrologBootFile = p+1;
 	else if (argv[1] && *argv[1] != '-') {
@@ -577,6 +540,5 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_a
       iap->SavedState = p;
     }
   }
-  //___androidlog_print(ANDROID_LOG_INFO, "YAP ", "boot mode %d", BootMode);
-  return BootMode;
+  return iap->boot_file_type;
 }
