@@ -475,16 +475,17 @@ clean_atoms(void)
 static void
 atom_gc(USES_REGS1)
 {
-  int		gc_verbose = Yap_is_gc_verbose();
-  int           gc_trace = 0;
+  bool		gc_verbose = Yap_is_gc_verbose();
+  bool          gc_trace = false;
   
 
   UInt		time_start, agc_time;
 #if  defined(YAPOR) || defined(THREADS)
   return;
 #endif
+  
   if (Yap_GetValue(AtomGcTrace) != TermNil)
-    gc_trace = 1;
+    gc_trace = true;
 
   GLOBAL_agc_calls++;
   GLOBAL_agc_collected = 0;
@@ -544,31 +545,10 @@ p_inform_agc(USES_REGS1)
     Yap_unify(ts, ARG3);
 }
 
-static Int
-p_agc_threshold(USES_REGS1)
-{
-  Term t = Deref(ARG1);
-  if (IsVarTerm(t)) {
-    return Yap_unify(ARG1, MkIntegerTerm(GLOBAL_AGcThreshold));
-  } else if (!IsIntegerTerm(t)) {
-    Yap_Error(TYPE_ERROR_INTEGER,t,"prolog_flag/2 agc_margin");
-    return FALSE;
-  } else {
-    Int i = IntegerOfTerm(t);
-    if (i<0) {
-      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,t,"prolog_flag/2 agc_margin");
-      return FALSE;
-    } else {
-      GLOBAL_AGcThreshold = i;
-      return TRUE;
-    }
-  }
-}
 
 void 
 Yap_init_agc(void)
 {
   Yap_InitCPred("$atom_gc", 0, p_atom_gc, 0);
   Yap_InitCPred("$inform_agc", 3, p_inform_agc, 0);
-  Yap_InitCPred("$agc_threshold", 1, p_agc_threshold, SafePredFlag);
 }
