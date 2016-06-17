@@ -25,6 +25,7 @@
 #define INIT_FLAGS 1
 
 #include "Yap.h"
+#include "iopreds.h"
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1593,6 +1594,11 @@ void Yap_InitFlags(bool bootstrap) {
     LOCAL_flagCount++;
     f++;
   }
+  // fix readline gettong set so early
+  if (GLOBAL_Stream[StdInStream].status & Readline_Stream_f) {
+    setBooleanGlobalPrologFlag(READLINE_FLAG, true);
+  }
+    
   if (!bootstrap) {
     Yap_InitCPredBack("current_prolog_flag", 2, 1, current_prolog_flag,
                       cont_yap_flag, 0);
