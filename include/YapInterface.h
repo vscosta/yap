@@ -1920,10 +1920,11 @@ extern X_API int YAP_AssertTuples(YAP_PredEntryPtr pred, const YAP_Term *ts,
                                   size_t offset, size_t sz);
 
 /*  int YAP_Init(YAP_init_args *) */
-extern X_API YAP_Int YAP_Init(YAP_init_args *);
+extern X_API YAP_file_type_t YAP_Init(YAP_init_args *);
 
 /*  int YAP_FastInit(const char *) */
-extern X_API YAP_Int YAP_FastInit(char saved_state[]);
+extern X_API YAP_file_type_t YAP_FastInit(char saved_state[], int argc,
+                                          char *argv[]);
 
 #ifndef _PL_STREAM_H
 // if we don't know what a stream is, just don't assume nothing about the
@@ -2181,6 +2182,8 @@ extern X_API YAP_CELL *YAP_HeapStoreOpaqueTerm(YAP_Term t);
 
 extern X_API int YAP_Argv(char ***);
 
+extern X_API bool YAP_DelayInit(YAP_ModInit_t f, const char s[]);
+
 extern X_API YAP_tag_t YAP_TagOfTerm(YAP_Term);
 
 extern X_API size_t YAP_ExportTerm(YAP_Term, char *, size_t);
@@ -2213,7 +2216,7 @@ extern X_API int YAP_RequiresExtraStack(size_t);
    *  -P    only in development versions
    */
 extern X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
-                                         YAP_init_args *iap);
+                                                     YAP_init_args *iap);
 
 extern X_API YAP_Int YAP_AtomToInt(YAP_Atom At);
 

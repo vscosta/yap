@@ -1,5 +1,3 @@
-
-
 ///
 /// @file YapErrors.h
 ///
