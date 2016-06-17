@@ -25,7 +25,7 @@ endif (HAVE_LIBCRYPT)
 
 target_link_libraries(sys libYap)
 if (ANDROID)
-target_link_libraries(sys android gmp)
+target_link_libraries(sys android)
 endif()
 
 set_target_properties (sys PROPERTIES  PREFIX "")

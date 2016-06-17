@@ -30,6 +30,7 @@ set(PL_SOURCES
         messages.yap
         meta.yap
 	modules.yap
+	newmod.yap
 	os.yap
 	preddecls.yap
         preddyns.yap
@@ -51,16 +52,14 @@ set(PL_SOURCES
 	swi.yap
 	yapor.yap
 	yio.yap
-	../os/chartypes.yap
-	../os/edio.yap
   )
 
 if (NOT ANDROID)
-add_custom_target (${YAP_STARTUP} ALL SOURCES ${PL_SOURCES} WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
+add_custom_target (${YAP_STARTUP} ALL SOURCES ${PL_SOURCES} 	${YAPOS_PL_SOURCES}  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 
 # Create a startup.yss on the top directory.
 add_custom_command (TARGET ${YAP_STARTUP}
-  COMMAND yap-bin -B
+  COMMAND yap-bin -B 
   VERBATIM
   WORKING_DIRECTORY ${CMAKE_TOP_BINARY_DIR}
   DEPENDS yap-bin  ${PL_SOURCES}

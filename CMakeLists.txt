@@ -261,7 +261,6 @@ else(YAP_SINGLE_FILE)
   set( UTF8PROC_DL utf8proc)
 endif(YAP_SINGLE_FILE)
 
-
 add_library(libYap
   ${ENGINE_SOURCES}
   ${C_INTERFACE_SOURCES}
@@ -303,18 +302,19 @@ set(CMAKE_TOP_BINARY_DIR ${CMAKE_BINARY_DIR})
 set(YAP_PL_SRCDIR ${CMAKE_SOURCE_DIR}/pl)
 
 # Compatibility vars with autotols
-if (0)
-set ( prefix "${CMAKE_SOURCE_DIR}/android/app/build/generated")
+if (ANDROID)
+set ( prefix ${CMAKE_SOURCE_DIR}/YAPDroid/app/src/main/)
 set ( exec_prefix "${prefix}")
-set ( libdir "${exec_prefix}/jniLibs/${ANDROID_ABI}")
-set ( dlls "${libdir}")
-set ( includedir "${prefix}/src/include")
+set ( libdir "${exec_prefix}/jniLibs/x86")
+set ( dlls "${exec_prefix}/jniLibs/x86")
+set ( includedir "${prefix}/include")
 set ( datarootdir "${prefix}/share")
-set ( libpl  "${datarootdir}/Yap")
+set ( libpl  "${prefix}/assets/Yap")
 set ( datadir "${datarootdir}")
 set ( mandir "${datarootdir}/man")
 set ( bindir "${exec_prefix}/bin")
 set ( docdir "${exec_prefix}/share/doc/Yap")
+
 else()
 set ( prefix "${CMAKE_INSTALL_PREFIX}")
 set ( exec_prefix "${prefix}")
@@ -372,7 +372,7 @@ ENDIF("${isSystemDir}" STREQUAL "-1")
 
 #
 set ( MIN_STACKSPACE 1024*SIZEOF_INT_P )
-set ( MIN_HEAPSPACE 2*1024*SIZEOF_INT_P )
+set ( MIN_HEAPSPACE 32*1024*SIZEOF_INT_P )
 set ( MIN_TRAILSPACE 512*SIZEOF_INT_P )
 set ( DEF_STACKSPACE 0 )
 set ( DEF_HEAPSPACE 0 )
@@ -432,7 +432,7 @@ if (HAVE_GCC)
   # replace instructions codes by the address of their code
   option (WITH_THREADED_CODE "threaded code" ON)
   if (WITH_THREADED_CODE)
-    set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  THREADED_CODE=1;USE_SYSTEM_MALLOC=1)
+    set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  THREADED_CODE=1)
   endif (WITH_THREADED_CODE)
 endif (HAVE_GCC)
 
@@ -472,15 +472,16 @@ if (GMP_FOUND)
 # GMP_LIBRARIES_DIR - the directory the library we link with is found in.
   include_directories (${GMP_INCLUDE_DIRS})
     #add_executable(test ${SOURCES})
-    target_link_libraries(libYap ${GMP_LIBRARIES})
+add_library(libGMP SHARED IMPORTED GLOBAL)
+set_target_properties(libGMP PROPERTIES IMPORTED_LOCATION ${GMP_LIBRARIES})
     #config.h needs this (TODO: change in code latter)
     set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${GMP_INCLUDE_DIRS} )
-    #set( CMAKE_REQUIRED_LIBRARIES  ${GMP_LIBRARIES} ${CMAKE_REQUIRED_LIBRARIES} )
-IF (MSVC)
-file(COPY ${GMP_LIBRARY_DLL} DESTINATION ${CMAKE_BINARY_DIR} )
-ENDIF(MSVC)
+    if(ANDROID)
+file(COPY ${GMP_LIBRARIES} DESTINATION ${CMAKE_SOURCE_DIR}/YAPDroid/app/build/intermediates/cmake/debug/lib/${ANDROID_ABI})
+ENDIF()
 
-  endif (GMP_FOUND)
+
+endif (GMP_FOUND)
 
 macro_optional_find_package (Threads OFF)
 macro_log_feature (THREADS_FOUND "Threads Support"
@@ -659,12 +660,20 @@ option (WITH_YAP_STATIC
 
 # modern systems do this.
 set ( MALLOC_T "void *" )
-CMAKE_DEPENDENT_OPTION (WITH_SYSTEM_MALLOC
-  "use malloc to allocate memory" ON  "NOT WITH_COPY_OR_PARALELISM" OFF)
-CMAKE_DEPENDENT_OPTION (WITH_DL_MALLOC
-  "use malloc to allocate memory" ON  "NOT WITH_SYSTEM_MALLOC" OFF)
-CMAKE_DEPENDENT_OPTION (WITH_YAP_MALLOC
-  "use malloc to allocate memory" ON  "NOT WITH_SYSTEM_MALLOC;NOT WITH_DL_MALLOC" OFF)
+OPTION (WITH_SYSTEM_MALLOC
+  "use malloc to allocate memory" ON )
+OPTION (WITH_DL_MALLOC
+  "use malloc to allocate memory" OFF )
+OPTION (WITH_YAP_MALLOC
+  "use malloc to allocate memory" OFF )
+
+if (WITH_SYSTEM_MALLOC)
+    set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  USE_SYSTEM_MALLOC=1)
+elseif (WITH_DL_MALLOC)
+    set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  USE_DL_MALLOC=1)
+elseif (WITH_YAP_MALLOC)
+    set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  USE_YAP_MALLOC=1)
+endif ()    
 
 option(WITH_YAP_CONDOR
   "allow YAP to be used from condor" OFF)
@@ -697,9 +706,9 @@ endif()
 
 target_link_libraries(libYap
   ${UTF8PROC_DL}
-  ${GMP_LIBRARIES}
   ${READLINE_LIBS}
   ${CMAKE_DL_LIBS}
+  ${GMP_LIBRARIES}
   )
 
 if(WIN32)
@@ -724,7 +733,6 @@ set_target_properties (yap-bin PROPERTIES OUTPUT_NAME yap)
 endif()
 
 target_link_libraries(yap-bin libYap )
-
 
 CMAKE_DEPENDENT_OPTION (WITH_SYSTEM_MMAP "Use MMAP for shared memory allocation" ON
   "NOT WITH_YAPOR_THOR" OFF)
@@ -756,9 +764,6 @@ CMAKE_DEPENDENT_OPTION (WITH_SYSTEM_SHM "Use SHM for shared memory allocation" O
 
  ##   add_subDIRECTORY(utils)
 
-if (NOT ANDROID)
-  add_custom_target (main ALL DEPENDS ${YAP_STARTUP} ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
-endif()
 #
 # include subdirectories configuration
 ## after we have all functionality in

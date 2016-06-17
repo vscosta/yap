@@ -15,6 +15,14 @@
 
 #include "config.h"
 #include "YapInterface.h"
+#if __ANDROID__
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
+#include <android/log.h>
+#include <jni.h>
+#endif
+#include "YapStreams.h"
+#include "VFS.h"
 #include "crypto/md5.h"
 #include <stdlib.h>
 #if HAVE_UNISTD_H
@@ -230,10 +238,9 @@ list_directory(void)
   _findclose( hFile );
 #else
 #if __ANDROID__
- {
-    extern AAssetManager *Yap_assetManager;
+  {
      const char *dirName = buf+strlen("/assets/");
-     AAssetManager* mgr = Yap_assetManager;
+   AAssetManager *mgr = GLOBAL_VFS->priv[0].mgr;
     AAssetDir	 *de;
     const char* dp;
 
