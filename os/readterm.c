@@ -904,7 +904,7 @@ static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
  *
  * @arg inp_stream: where we read from
  * @arg: opts, a list with options
- * @arg: if call∫ed from read_term, arity
+ * @arg: if called from read_term, arity
  *  called from read_clause, -arity
  *
  * @return the term or 0 in case of error.
@@ -978,7 +978,7 @@ static Int
 static Int read_term(
     USES_REGS1) { /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
   int inp_stream;
-  Int out;
+  Term out;
 
   /* needs to change LOCAL_output_stream for write */
 
@@ -1089,7 +1089,7 @@ static Int read_clause2(USES_REGS1) {
   rc = Yap_read_term(LOCAL_c_input_stream, Deref(ARG2), -2);
   Term tf = Yap_GetFromSlot(h);
   Yap_RecoverSlots(1, h);
-  return rc && Yap_unify(tf, rc);
+ return rc && Yap_unify(tf, rc);
 }
 
 /**
@@ -1116,7 +1116,7 @@ static Int read_clause2(USES_REGS1) {
 static Int read_clause(
     USES_REGS1) { /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
   int inp_stream;
-  Int out;
+  Term out;
   Term t3 = Deref(ARG3);
   yhandle_t h = Yap_InitSlot(ARG2);
   /* needs to change LOCAL_output_stream for write */
@@ -1124,6 +1124,16 @@ static Int read_clause(
   if (inp_stream < 0)
     return false;
   out = Yap_read_term(inp_stream, t3, -3);
+#if COMMENTED
+  if (LOCAL_SourceFileLineno==707) {
+    char *s; size_t length;
+
+  s= Yap_TermToString(out, &length, LOCAL_encoding, 0);
+  __android_log_print(ANDROID_LOG_INFO,  "YAPDroid ", "at %d %s",LOCAL_SourceFileLineno,
+		      s);
+		      Yap_do_low_level_trace=1;
+  }
+#endif
   UNLOCK(GLOBAL_Stream[inp_stream].streamlock);
   Term tf = Yap_GetFromSlot(h);
   Yap_RecoverSlots(1, h);

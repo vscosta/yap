@@ -112,6 +112,11 @@ Int Yap_peek(int sno) {
     return ch;
   }
 #endif
+#if !MAY_READ
+    if (s->status & InMemory_Stream_f ) {
+      return Yap_MemPeekc( sno );
+    }
+#endif
   /* buffer the character */
   if (s->encoding == Yap_SystemEncoding() && 0) {
     ch = fgetwc(s->file);
@@ -659,12 +664,9 @@ static Int put_char(USES_REGS1) { /* '$put'(Stream,N)                      */
   return (TRUE);
 }
 
-/** @pred  tab_1(+ _N_)
-
+/** @pred  tab(+ _N_)
 
 Outputs  _N_ spaces to the current output stream.
-
-
 */
 static Int tab_1(USES_REGS1) { /* nl                      */
   int sno = LOCAL_c_output_stream;
@@ -684,7 +686,7 @@ static Int tab_1(USES_REGS1) { /* nl                      */
   LOCK(GLOBAL_Stream[sno].streamlock);
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "nl/0");
+    Yap_Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "user_output");
     return (FALSE);
   }
 

@@ -1,6 +1,7 @@
 
 set (YAPOS_SOURCES
   alias.c
+  assets.c
   charsio.c
   chartypes.c
   console.c
@@ -31,8 +32,13 @@ set (YAPOS_HEADERS
   fmemopen.h
   yapio.h
   sysbits.h
+  VFS.h
   )
 
+set (YAPOS_PL_SOURCES
+    edio.yap
+    chartypes.yap
+)
 
 include_directories (../H ../include ../OPTYap .  ${GMP_INCLUDE_DIR} ${PROJECT_BINARY_DIR})
 
@@ -87,7 +93,7 @@ endif (READLINE)
 
 set (POSITION_INDEPENDENT_CODE TRUE)
 
-add_library (libYAPOs  OBJECT
+add_library (libYAPOs OBJECT
   ${YAPOS_SOURCES}
   )
 
@@ -108,3 +114,7 @@ configure_file ("${PROJECT_SOURCE_DIR}/os/YapIOConfig.h.cmake"
 
 
 #set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${GMP_LIBRARIES} )
+
+install (FILES ${YAPOS_PL_SOURCES}
+  DESTINATION ${libpl}/os
+  )

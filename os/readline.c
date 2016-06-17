@@ -251,16 +251,6 @@ void Yap_ReadlineFlush(int sno) {
   }
 }
 
-bool Yap_ReadlinePrompt(StreamDesc *s) {
-  if (s->status & Tty_Stream_f) {
-    s->stream_getc = ReadlineGetc;
-    if (GLOBAL_Stream[0].status & Tty_Stream_f &&
-        s->name == GLOBAL_Stream[0].name)
-    return true;
-  }
-  return false;
-}
-
 bool Yap_ReadlineOps(StreamDesc *s) {
   if (s->status & Tty_Stream_f) {
     if (GLOBAL_Stream[0].status & (Input_Stream_f|Tty_Stream_f) &&
@@ -295,8 +285,11 @@ bool Yap_InitReadline(Term enable) {
   // don't call readline within emacs
  if (!(GLOBAL_Stream[StdInStream].status & Tty_Stream_f) ||
      getenv("INSIDE_EMACS") ||
-     enable != TermTrue)
-    return false;
+     enable != TermTrue) {
+   if (GLOBAL_Flags)
+     setBooleanGlobalPrologFlag(READLINE_FLAG, false);
+  return false;
+ }
   GLOBAL_Stream[StdInStream].u.irl.buf = NULL;
   GLOBAL_Stream[StdInStream].u.irl.ptr = NULL;
   GLOBAL_Stream[StdInStream].status |= Readline_Stream_f;
@@ -322,6 +315,8 @@ bool Yap_InitReadline(Term enable) {
 #endif
   // does not work
   // rl_prep_terminal(1);
+  if (GLOBAL_Flags)
+   setBooleanGlobalPrologFlag(READLINE_FLAG, true);
   return Yap_ReadlineOps(GLOBAL_Stream + StdInStream);
 }
 
@@ -333,8 +328,9 @@ static bool getLine(int inp) {
  
   /* window of vulnerability opened */
   LOCAL_PrologMode |= ConsoleGetcMode;
-  if (LOCAL_newline) { // no output so far
+  if (Yap_DoPrompt(s)) { // no output so far
     myrl_line = (unsigned char *)readline(LOCAL_Prompt);
+    s->stream_getc = ReadlineGetc;
   } else {
     myrl_line = (unsigned char *)readline(NULL);
   }
