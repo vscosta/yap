@@ -7,7 +7,21 @@
  class YAPPredicate;
  class YAPEngine;
 
+
 #ifdef SWIGPYTHON
+%typemap(out) YAPTerm {
+  return term_to_python( $1.handle() );
+}
+%typemap(out) YAPListTerm {
+  return term_to_python( $1.handle() );
+}
+%typemap(out) YAPAtomTerm {
+  return term_to_python( $1.handle() );
+}
+%typemap(out) YAPIntegerTerm {
+  return term_to_python( $1.handle() );
+}
+
 %exception YAPPredicate {
    try {
       $action
@@ -17,6 +31,7 @@
    }
 }
 #endif
+
 
 %exception query {
     try {
