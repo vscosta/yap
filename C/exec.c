@@ -1553,7 +1553,7 @@ void Yap_fail_all(choiceptr bb USES_REGS) {
   P = saved_p;
 }
 
-bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
+bool Yap_execute_pred( PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
   yamop *saved_p, *saved_cp;
   yamop *CodeAdr;
   bool out;
@@ -2085,7 +2085,6 @@ void Yap_InitYaamRegs(int myworker_id) {
     HR = RepAppl(REMOTE_GlobalArena(myworker_id));
   }
   REMOTE_GlobalArena(myworker_id) = TermNil;
-  Yap_AllocateDefaultArena(128 * 1024, 2, myworker_id);
   Yap_InitPreAllocCodeSpace(myworker_id);
 #ifdef FROZEN_STACKS
   H_FZ = HR;
@@ -2117,8 +2116,18 @@ void Yap_InitYaamRegs(int myworker_id) {
   PP = NULL;
   PREG_ADDR = NULL;
 #endif
+  Yap_AllocateDefaultArena(128 * 1024, 2, myworker_id);
   cut_c_initialize(myworker_id);
   Yap_PrepGoal(0, NULL, NULL PASS_REGS);
+#ifdef FROZEN_STACKS
+  H_FZ = HR;
+#ifdef YAPOR_SBA
+  BSEG =
+#endif /* YAPOR_SBA */
+      BBREG = B_FZ = (choiceptr)REMOTE_LocalBase(myworker_id);
+  TR = TR_FZ = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);
+#endif /* FROZEN_STACKS */
+  CalculateStackGap(PASS_REGS1);
 #ifdef TABLING
   /* ensure that LOCAL_top_dep_fr is always valid */
   if (REMOTE_top_dep_fr(myworker_id))
