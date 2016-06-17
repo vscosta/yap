@@ -172,14 +172,16 @@ typedef struct YAP_thread_attr_struct {
 #include <threads.h>
 #endif
 
-typedef enum { YAP_BIN = 0x0001,
-	       YAP_TEXT = 0x0002,
-	       YAP_SAVED_STATE = 0x0004,
-	       YAP_OBJ = 0x0008,
-	       YAP_PL = 0x0010,
-	       YAP_BOOT_PL = 0x0030,
-	       YAP_QLY = 0x0040,
-	       YAP_EXE = 0x0080
+typedef enum {
+  YAP_BIN = 0x0001,
+  YAP_TEXT = 0x0002,
+  YAP_SAVED_STATE = 0x0004,
+  YAP_OBJ = 0x0008,
+  YAP_PL = 0x0010,
+  YAP_BOOT_PL = 0x0030,
+  YAP_QLY = 0x0040,
+  YAP_EXE = 0x0080,
+  YAP_FOUND_BOOT_ERROR = 0x0100
 } YAP_file_type_t;
 
 #define YAP_ANY_FILE (0x00ff)
@@ -197,9 +199,9 @@ typedef enum {
   YAP_TAG_FLOAT = 0x200,
   YAP_TAG_OPAQUE = 0x400,
   YAP_TAG_APPL = 0x800,
-    YAP_TAG_DBREF = 0x1000,
-    YAP_TAG_STRING = 0x2000,
-    YAP_TAG_ARRAY = 0x4000
+  YAP_TAG_DBREF = 0x1000,
+  YAP_TAG_STRING = 0x2000,
+  YAP_TAG_ARRAY = 0x4000
 } YAP_tag_t;
 
 #define YAP_BOOT_FROM_SAVED_CODE 1
@@ -223,26 +225,26 @@ typedef enum {
 
 typedef struct yap_boot_params {
   /* boot type as suggested by the user */
-  YAP_file_type_t initial_file_type;
+  YAP_file_type_t boot_file_type;
   /* if NON-NULL, path where we can find the saved state */
   const char *SavedState;
   /* if NON-0, minimal size for Heap or Code Area */
-  unsigned long int HeapSize;
+  size_t HeapSize;
   /* if NON-0, maximal size for Heap or Code Area */
-  unsigned long int MaxHeapSize;
+  size_t MaxHeapSize;
   /* if NON-0, minimal size for Local+Global Stack */
-  unsigned long int StackSize;
+  size_t StackSize;
   /* if NON-0, maximal size for Local+Global Stack */
-  unsigned long int MaxStackSize;
-  unsigned long int MaxGlobalSize;
+  size_t MaxStackSize;
+  size_t MaxGlobalSize;
   /* if NON-0, minimal size for Trail */
-  unsigned long int TrailSize;
+  size_t TrailSize;
   /* if NON-0, maximal size for Trail */
-  unsigned long int MaxTrailSize;
+  size_t MaxTrailSize;
   /* if NON-0, minimal size for AttributeVarStack */
-  unsigned long int AttsSize;
+  size_t AttsSize;
   /* if NON-0, maximal size for AttributeVarStack */
-  unsigned long int MaxAttsSize;
+  size_t MaxAttsSize;
   /* if NON-NULL, value for YAPLIBDIR */
   const char *YapLibDir;
   /* if NON-NULL, name for a Prolog file to use when booting  */
@@ -263,7 +265,7 @@ typedef struct yap_boot_params {
   bool FastBoot;
   /* the next field only interest YAPTAB */
   /* if NON-0, maximum size for Table Space */
-  unsigned long int MaxTableSpaceSize;
+  size_t MaxTableSpaceSize;
   /* the next three fields only interest YAPOR, but we keep them so that
      users don't need to recompile DLL in order to use YAPOR */
   /* if NON-0, number of workers we want to have (default=1) */
@@ -307,7 +309,8 @@ typedef struct yap_boot_params {
 } YAP_init_args;
 
 #ifdef YAP_H
-Int Yap_InitDefaults(YAP_init_args *init_args, char saved_state[]);
+YAP_file_type_t Yap_InitDefaults(YAP_init_args *init_args, char saved_state[],
+                                 int Argc, char *Argv[]);
 #endif
 
 /* this should be opaque to the user */
@@ -413,5 +416,12 @@ typedef enum yap_enum_reset_t {
   YAP_FULL_RESET = 1,
   YAP_RESET_FROM_RESTORE = 3
 } yap_reset_t;
+
+typedef void (*YAP_ModInit_t)(void);
+
+typedef struct {
+  YAP_ModInit_t f;
+  const char *s;
+} YAP_delaymodule_t;
 
 #endif /* _YAPDEFS_H */
