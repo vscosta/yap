@@ -1062,7 +1062,7 @@ static Int qload_program(USES_REGS1) {
   return true;
 }
 
-int Yap_Restore(const char *s, const char *lib_dir) {
+YAP_file_type_t Yap_Restore(const char *s, const char *lib_dir) {
   CACHE_REGS
 
   FILE *stream = Yap_OpenRestore(s, lib_dir);
@@ -1070,13 +1070,13 @@ int Yap_Restore(const char *s, const char *lib_dir) {
     return -1;
   GLOBAL_RestoreFile = s;
   if (do_header(stream) == NIL)
-    return FALSE;
+    return YAP_BOOT_PL;
   read_module(stream);
   setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, true);
   fclose(stream);
   GLOBAL_RestoreFile = NULL;
   LOCAL_SourceModule = CurrentModule = USER_MODULE;
-  return DO_ONLY_CODE;
+  return YAP_QLY;
 }
 
 void Yap_InitQLYR(void) {
