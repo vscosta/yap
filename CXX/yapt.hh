@@ -14,6 +14,7 @@ class YAPTerm {
   friend class YAPModule;
   friend class YAPModuleProp;
   friend class YAPApplTerm;
+  friend class YAPListTerm;
 protected:
   yhandle_t t; /// handle to term, equivalent to term_t
   void mk(Term t0); /// internal method to convert from term to handle
@@ -74,6 +75,9 @@ public:
 
   /// return a string with a textual representation of the term
   virtual const char *text();
+
+  /// return a handle to the term
+  inline yhandle_t handle() { return t; };
 };
 
 /**
@@ -205,12 +209,11 @@ public:
   ///
   /// @param[in] the term
   YAPListTerm(Term t0) { mk(t0); /* else type_error */ }
-  /*  /// Create a list term out of an array of terms.
+  /// Create a list term out of an array of terms.
  ///
  /// @param[in] the array of terms
  /// @param[in] the length of the array
  YAPListTerm(YAPTerm ts[], size_t n);
-  */
   //      YAPListTerm( vector<YAPTerm> v );
   /// Return the number of elements in a list term.
   size_t length() { Term *tailp; Term t1 = gt(); return Yap_SkipList(&t1, &tailp); }

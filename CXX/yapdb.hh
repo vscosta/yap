@@ -122,12 +122,12 @@ protected:
     BACKUP_MACHINE_REGS();
     Term *outp;
     
-  out = Yap_StringToTerm(s, strlen(s)+1, &LOCAL_encoding, 1200, &names ) ;
-  //extern char *s0;
+    out = Yap_StringToTerm(s, strlen(s)+1, &LOCAL_encoding, 1200, &names ) ;
+    //extern char *s0;
     //fprintf(stderr,"ap=%p arity=%d text=%s", ap, ap->ArityOfPE, s);
-  //  Yap_DebugPlWrite(out);
-      //  delete [] ns;
-if (out == 0L)
+    //  Yap_DebugPlWrite(out);
+    //  delete [] ns;
+    if (out == 0L)
       throw YAPError(SYNTAX_ERROR);
     ap = getPred( out, outp);
     RECOVER_MACHINE_REGS();

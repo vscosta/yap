@@ -1,10 +1,11 @@
 
+
 #define YAP_CPP_INTERFACE 1
 
 #include <gmpxx.h>
 
-//! @{
 
+//! @{
 /**
  *
  *   @defgroup yap-cplus-interface An object oriented interface for YAP.
@@ -65,6 +66,11 @@ extern "C" {
 // taken from yap_structs.h
 #include "iopreds.h"
 
+#ifdef SWIGPYTHON
+extern  PyObject *term_to_python(yhandle_t t);
+
+#endif
+  
 X_API void YAP_UserCPredicate(const char *, YAP_UserCPred, YAP_Arity arity);
 
 /*  void UserCPredicateWithArgs(const char *name, int *fn(), unsigned int arity) */
@@ -76,6 +82,7 @@ X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, YAP_Arity, YA
 
 X_API Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp, int prio, Term *bindings_p);
 
+  
 }
 
 class YAPEngine;

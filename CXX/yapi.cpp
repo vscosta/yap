@@ -5,6 +5,10 @@
 
 extern "C" {
 
+#if __ANDROID__
+#include "android/log.h"
+#endif
+
 #include "YapInterface.h"
 #include "blobs.h"
 
@@ -340,11 +344,31 @@ YAPTerm::YAPTerm(intptr_t i) {
 
 YAPTerm YAPListTerm::car() {
   Term to = gt();
-  { LOG("to=%lx", to); }
   if (IsPairTerm(to))
     return YAPTerm(HeadOfTerm(to));
   else
     throw YAPError(TYPE_ERROR_LIST);
+}
+YAPListTerm::YAPListTerm(YAPTerm ts[], size_t n) {
+  CACHE_REGS
+  Term t;
+  BACKUP_H();
+  if (n == 0)
+    t = TermNil;
+  while (HR+n*2 > ASP-1024) {
+    RECOVER_H();
+    if (!Yap_dogc(0, NULL PASS_REGS)) {
+      t = TermNil;
+    }
+    BACKUP_H();
+  }
+  t = AbsPair(HR);
+  for (int i = 0; i < n; i ++ ) {
+    HR[2*i] = ts[i].gt();
+    HR[2*i+1] = AbsPair(HR+(2*i+2));
+  }
+    
+  
 }
 
 YAPVarTerm::YAPVarTerm() {
@@ -352,7 +376,7 @@ YAPVarTerm::YAPVarTerm() {
   mk(MkVarTerm());
 }
 
-char *YAPAtom::getName(void) {
+const char *YAPAtom::getName(void) {
   if (IsWideAtom(a)) {
     // return an UTF-8 version
     size_t sz = 512;
@@ -379,14 +403,16 @@ char *YAPAtom::getName(void) {
 
 void YAPQuery::initOpenQ() {
   CACHE_REGS
-  oq = LOCAL_execution;
-  LOCAL_execution = this;
-  q_open = 1;
+    //oq = LOCAL_execution;
+  //  LOCAL_execution = this;
+  q_open = true;
   q_state = 0;
   q_flags = true; // PL_Q_PASS_EXCEPTION;
 
   q_p = P;
   q_cp = CP;
+  // make sure this is safe
+  q_handles =  Yap_StartSlots();
 }
 
 int YAPError::get() { return errNo; }
@@ -403,6 +429,18 @@ void YAPQuery::initQuery(Term t) {
   } else {
     q_g = 0;
   }
+  q_pe = ap;
+  initOpenQ();
+  RECOVER_MACHINE_REGS();
+}
+
+void YAPQuery::initQuery(YAPAtom at) {
+  CACHE_REGS
+  BACKUP_MACHINE_REGS();
+  PredEntry *ap = RepPredProp(PredPropByAtom(at.a, Yap_CurrentModule()));
+  goal = YAPAtomTerm(at);
+  q_g = 0;
+  q_pe = ap;
   initOpenQ();
   RECOVER_MACHINE_REGS();
 }
@@ -444,8 +482,8 @@ YAPQuery::YAPQuery(YAPPredicate p, YAPTerm ts[]) : YAPPredicate(p.ap) {
 
 YAPListTerm YAPQuery::namedVars() {
   CACHE_REGS
-  Term o = vnames.term();
-  return o; // should be o
+   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "vnames %s %d", vnames.text(), LOCAL_CurSlot);
+  return vnames; // should be o
 }
 
 bool YAPQuery::next() {
@@ -453,24 +491,35 @@ bool YAPQuery::next() {
   int result;
 
   BACKUP_MACHINE_REGS();
-  if (q_open != 1)
+  if (!q_open )
     return false;
   if (setjmp(q_env))
     return false;
   // don't forget, on success these guys must create slots
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
+
   if (this->q_state == 0) {
     result = (bool)YAP_EnterGoal((YAP_PredEntryPtr)ap, q_g, &q_h);
+
   } else {
     LOCAL_AllowRestart = q_open;
     result = (bool)YAP_RetryGoal(&q_h);
   }
+   if (result)
+       __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "vnames  %d %s %d", q_state, vnames.text(), LOCAL_CurSlot);
+          else
+                    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "fail");
   q_state = 1;
   if (Yap_GetException()) {
     throw(YAPError(SYSTEM_ERROR_INTERNAL));
   }
+          __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "out  %d", result);
+
   if (!result) {
     YAP_LeaveGoal(FALSE, &q_h);
     q_open = 0;
+  } else {
+    q_handles = Yap_StartSlots();
   }
   RECOVER_MACHINE_REGS();
   return result;
@@ -480,11 +529,11 @@ void YAPQuery::cut() {
   CACHE_REGS
 
   BACKUP_MACHINE_REGS();
-  if (q_open != 1 || q_state == 0)
+  if (!q_open  || q_state == 0)
     return;
   YAP_LeaveGoal(FALSE, &q_h);
   q_open = 0;
-  LOCAL_execution = this;
+  // LOCAL_execution = this;
   RECOVER_MACHINE_REGS();
 }
 
@@ -492,7 +541,7 @@ bool YAPQuery::deterministic() {
   CACHE_REGS
 
   BACKUP_MACHINE_REGS();
-  if (q_open != 1 || q_state == 0)
+  if (!q_open  || q_state == 0)
     return false;
   choiceptr myB = (choiceptr)(LCL0 - q_h.b);
   return (B >= myB);
@@ -511,7 +560,7 @@ void YAPQuery::close() {
   }
   YAP_LeaveGoal(FALSE, &q_h);
   q_open = 0;
-  LOCAL_execution = this;
+  //LOCAL_execution = this;
   RECOVER_MACHINE_REGS();
 }
 
@@ -563,33 +612,56 @@ void Yap_displayWithJava(int c) {
   }
 }
 
-extern "C" void Java_pt_up_fc_dcc_yap_JavaYap_load(JNIEnv *env0, jobject obj,
-                                                   jobject mgr);
-
-extern "C" void Java_pt_up_fc_dcc_yap_JavaYap_load(JNIEnv *env0, jobject obj,
-                                                   jobject asset_manager) {
-  AAssetManager *mgr = AAssetManager_fromJava(Yap_jenv, asset_manager);
-  if (mgr == NULL) {
-    LOG("we're doomed, mgr = 0; bip bip bip");
-  } else {
-    Yap_assetManager = mgr;
-  }
-}
-
 #endif
 
-YAPEngine::YAPEngine(char *savedState, size_t stackSize, size_t trailSize,
-                     size_t maxStackSize, size_t maxTrailSize, char *libDir,
-                     char *bootFile, char *goal, char *topLevel, bool script,
-                     bool fastBoot,
-                     YAPCallback *cb)
-    : _callback(0) { // a single engine can be active
+void  YAPEngine::doInit(YAP_file_type_t BootMode)
+{
+   if ((BootMode = YAP_Init(&init_args)) == YAP_FOUND_BOOT_ERROR) {
+    throw(YAPError(SYSTEM_ERROR_INTERNAL));
+    }
+    /* Begin preprocessor code */
+    /* live */
+   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "$init_system");
 #if __ANDROID__
   Yap_AndroidBufp = (char *)malloc(Yap_AndroidMax = 4096);
   Yap_AndroidBufp[0] = '\0';
   Yap_AndroidSz = 0;
 #endif
-  memset((void *)&init_args, 0, sizeof(init_args));
+   yerror = YAPError();
+
+   YAPQuery initq = YAPQuery( YAPAtom( "$init_system" ) );
+    if (initq.next()) {
+      initq.cut();
+    } else {
+// should throw exception
+    }
+}
+
+YAPEngine::YAPEngine(char *savedState, char *bootFile,
+                     size_t stackSize, size_t trailSize,
+                     size_t maxStackSize, size_t maxTrailSize, char *libDir,
+                     char *goal, char *topLevel, bool script,
+                     bool fastBoot,
+                     YAPCallback *cb)
+    : _callback(0) { // a single engine can be active
+
+      YAP_file_type_t BootMode;
+      int Argc = 1;
+      char **Argv;
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "YAP %s ", bootFile);
+
+  //delYAPCallback()b
+  //if (cb)
+  //  setYAPCallback(cb);
+  curren = this;
+   {
+    size_t l1 = 2 * sizeof(char *);
+    if (!(Argv = (char **)malloc(l1)))
+      return;
+    Argv[0] = "yap";
+    Argv[1] = NULL;
+   }
+  BootMode = Yap_InitDefaults( &init_args, NULL, Argc, Argv);
   init_args.SavedState = savedState;
   init_args.StackSize = stackSize;
   init_args.TrailSize = trailSize;
@@ -601,13 +673,22 @@ YAPEngine::YAPEngine(char *savedState, size_t stackSize, size_t trailSize,
   init_args.YapPrologTopLevelGoal = topLevel;
   init_args.HaltAfterConsult = script;
   init_args.FastBoot = fastBoot;
-  yerror = YAPError();
-  delYAPCallback();
-  if (cb)
-    setYAPCallback(cb);
+  doInit(BootMode);
+}
+
+
+
+YAPEngine::YAPEngine(int argc, char *argv[],
+                     YAPCallback *cb)
+  : _callback(0){ // a single engine can be active
+
+  YAP_file_type_t BootMode;
+  BootMode = YAP_parse_yap_arguments(argc, argv, &init_args);
+  //delYAPCallback()b
+  //if (cb)
+  //  setYAPCallback(cb);
   curren = this;
-  if (YAP_Init(&init_args) == YAP_BOOT_ERROR)
-    throw(YAPError(SYSTEM_ERROR_INTERNAL));
+  doInit( BootMode );
 }
 
 YAPPredicate::YAPPredicate(YAPAtom at) {
@@ -642,6 +723,7 @@ PredEntry *YAPPredicate::getPred(Term &t, Term *&outp) {
     ts[0] = t;
     ts[1] = m;
     t = Yap_MkApplTerm(FunctorCsult, 2, ts);
+    outp = RepAppl(t)+1;
   }
   Functor f = FunctorOfTerm(t);
   if (IsExtensionFunctor(f)) {

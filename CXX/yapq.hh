@@ -11,7 +11,16 @@
  * interface to a YAP Query;
  * uses an SWI-like status info internally.
  */
-class YAPQuery: public YAPPredicate, public open_query_struct {
+class YAPQuery: public YAPPredicate {
+  bool q_open;
+  int q_state;
+  YAP_handle_t q_g, q_handles;
+  struct pred_entry *q_pe;
+  struct yami *q_p, *q_cp;
+  jmp_buf q_env;
+  int q_flags;
+  YAP_dogoalinfo q_h;
+  YAPQuery  *oq;
   YAPListTerm vnames;
   YAPTerm goal;
   Term names;
@@ -19,6 +28,7 @@ class YAPQuery: public YAPPredicate, public open_query_struct {
 
   void  initOpenQ();
   void initQuery( Term t );
+  void initQuery( YAPAtom at );
   void initQuery( YAPTerm ts[], arity_t arity  );
 public:
   /// main constructor, uses a predicate and an array of terms
@@ -42,9 +52,20 @@ public:
   /// goal.
   inline YAPQuery(const char *s): YAPPredicate(s, t, names)
   {
-    vnames = YAPListTerm( names );
+        __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %d", LOCAL_CurSlot);
 
+    vnames = YAPListTerm( names );
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", vnames.text());
     initQuery( t );
+  };
+  /// string constructor with just an atom
+  ///
+  /// It is given an atom, and a Prolog term that should be a callable
+  /// goal, say `main`, `init`, `live`.
+  inline YAPQuery(YAPAtom goal): YAPPredicate( goal )
+  {
+    vnames = YAPListTerm( TermNil );
+    initQuery( goal );
   };
 
   /// set flags for query execution, currently only for exception handling
@@ -102,19 +123,25 @@ private:
   YAPCallback *_callback;
   YAP_init_args init_args;
   YAPError yerror;
+  void doInit(YAP_file_type_t BootMode);
 public:
+  /// construct a new engine; may use a variable number of arguments
   YAPEngine(char *savedState = (char *)NULL,
+  char *bootFile = (char *)NULL,
             size_t stackSize = 0,
             size_t trailSize = 0,
             size_t maxStackSize = 0,
             size_t maxTrailSize = 0,
             char *libDir = (char *)NULL,
-            char *bootFile = (char *)NULL,
             char *goal = (char *)NULL,
             char *topLevel = (char *)NULL,
             bool script = FALSE,
             bool fastBoot = FALSE,
             YAPCallback *callback=(YAPCallback *)NULL);  /// construct a new engine, including aaccess to callbacks
+  /// construct a new engine using argc/argv list of arguments
+   YAPEngine(int argc,
+	    char *argv[],
+            YAPCallback *callback=(YAPCallback *)NULL);
       /// kill engine
   ~YAPEngine() { delYAPCallback(); }
   /// remove current callback
@@ -133,7 +160,7 @@ public:
   };
   /// current module for the engine
   YAPModule currentModule( ) { return YAPModule( ) ; }
-  /// current directory for the engine
+   /// current directory for the engine
   const char *currentDir( ) {
       char dir[1024];
       std::string s = Yap_getcwd(dir, 1024-1);

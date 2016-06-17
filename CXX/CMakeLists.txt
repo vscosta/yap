@@ -16,7 +16,7 @@ set (CXX_SOURCES
 
 
 if (YAP_SINGLE_FILE OR WIN32)
-add_library (Yap++ OBJECT ${CXX_SOURCES} )
+add_library (Yap++ OBJECT ${CXX_SOURCES}  )
 else(YAP_SINGLE_FILE OR WIN32)
 add_library (Yap++ SHARED ${CXX_SOURCES} )
 
