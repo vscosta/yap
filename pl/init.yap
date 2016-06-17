@@ -42,7 +42,7 @@
 
 :- use_system_module( '$_boot', ['$cut_by'/1]).
 
-% :- start_low_level_trace.
+%:- start_low_level_trace.
 
 % This is the YAP init file
 % should be consulted first step after booting
@@ -110,8 +110,6 @@ otherwise.
 
 :- '$all_current_modules'(M), yap_flag(M:unknown, error) ; true.
 
-
-
 :- compile_expressions.
 
 :- bootstrap('bootlists.yap').
@@ -126,13 +124,10 @@ otherwise.
 :- bootstrap('os.yap').
 :- bootstrap('grammar.yap').
 :- bootstrap('absf.yap').
-
 %:-set_prolog_flag(gc_trace, verbose).
 %:- set_prolog_flag( verbose_file_search, true ).
 
 :- dynamic prolog:'$parent_module'/2.
-
-
 
 :- [
     'directives.yap',
@@ -351,8 +346,6 @@ If this hook predicate succeeds it must instantiate the  _Action_ argument to th
 
 
 :- yap_flag(user:unknown,error).
-
-:- stream_property(user_input, tty(true)) -> set_prolog_flag(readline, true) ; true.
 
 /*
 :- if(predicate_property(run_tests, static)).
