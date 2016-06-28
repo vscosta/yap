@@ -15,11 +15,11 @@ extern "C" {
 X_API char *Yap_TermToString(Term t, size_t *length, encoding_t encodingp,
                              int flags);
 
-X_API void YAP_UserCPredicate(const char *, YAP_UserCPred, YAP_Arity arity);
-X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, YAP_Arity,
+X_API void YAP_UserCPredicate(const char *, YAP_UserCPred, arity_t arity);
+X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, arity_t,
                                       YAP_Term);
 X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred,
-                                  YAP_Arity, YAP_Arity);
+                                  arity_t, arity_t);
 }
 
 YAPAtomTerm::YAPAtomTerm(char *s) { // build string
@@ -156,26 +156,61 @@ YAPStringTerm::YAPStringTerm(wchar_t *s, size_t len)
 
 YAPApplTerm::YAPApplTerm(YAPFunctor f, YAPTerm ts[]) : YAPTerm() {
   BACKUP_H();
-  UInt arity = ArityOfFunctor(f.f);
-  mk(Yap_MkApplTerm(f.f, arity, (Term *)ts));
+  arity_t arity = ArityOfFunctor(f.f);
+  Term *tt = new Term[arity];
+  for (int i = 0; i < arity; i++)
+    tt[i] = ts[i].term();
+  mk(Yap_MkApplTerm(f.f, arity, tt));
+  delete[] tt;
   RECOVER_H();
 }
 
 YAPApplTerm::YAPApplTerm(YAPFunctor f) : YAPTerm() {
   BACKUP_H();
-  UInt arity = ArityOfFunctor(f.f);
+  arity_t arity = ArityOfFunctor(f.f);
   mk(Yap_MkNewApplTerm(f.f, arity));
   RECOVER_H();
 }
 
-YAPTerm YAPApplTerm::getArg(int arg) {
-  BACKUP_H();
-  YAPTerm to = YAPTerm(ArgOfTerm(arg, gt()));
-  RECOVER_H();
-  return to;
+YAPFunctor YAPApplTerm::getFunctor() { return YAPFunctor(FunctorOfTerm(gt())); }
+
+static YAPTerm tmp;
+
+YAPTerm &YAPTerm::operator[](arity_t i) {
+  BACKUP_MACHINE_REGS();
+  Term t0 = gt();
+  Term tf = 0;
+  if (IsApplTerm(t0)) {
+    Functor f = FunctorOfTerm(t0);
+    if (IsExtensionFunctor(f))
+      return *new YAPTerm();
+    tf = ArgOfTerm(i + 1, t0);
+  } else if (IsPairTerm(t0)) {
+    if (i==0)
+      tf = HeadOfTerm(t0);
+    else if (i==1)
+      tf =  TailOfTerm(t0);
+  }
+  RECOVER_MACHINE_REGS();
+  return * new  YAPTerm(tf);
 }
 
-YAPFunctor YAPApplTerm::getFunctor() { return YAPFunctor(FunctorOfTerm(gt())); }
+YAPTerm &YAPListTerm::operator[](arity_t i) {
+  BACKUP_MACHINE_REGS();
+  Term t0 = gt();
+  Term tf = 0;
+  while (IsPairTerm(t0)) {
+    if (i==0) {
+      tf = HeadOfTerm(t0);
+      break;
+    } else {
+      t0 = TailOfTerm(t0);
+      i--;
+    }
+  }
+  RECOVER_MACHINE_REGS();
+  return * new YAPTerm(tf);
+}
 
 YAPPairTerm::YAPPairTerm(YAPTerm th, YAPTerm tl) : YAPTerm() {
   CACHE_REGS
@@ -239,17 +274,36 @@ YAP_tag_t YAPTerm::tag() {
 }
 
 YAPTerm YAPTerm::deepCopy() {
-  Term tn;
+  yhandle_t tn;
   BACKUP_MACHINE_REGS();
 
   tn = Yap_CopyTerm(gt());
 
   RECOVER_MACHINE_REGS();
-  return new YAPTerm(tn);
+  return *new YAPTerm(tn);
+}
+
+YAPListTerm YAPListTerm::dup() {
+  yhandle_t tn;
+  BACKUP_MACHINE_REGS();
+
+  tn = Yap_CopyTerm(gt());
+
+  RECOVER_MACHINE_REGS();
+  return *new YAPListTerm(tn);
+}
+
+intptr_t YAPTerm::numberVars(intptr_t i0, bool skip_singletons) {
+  BACKUP_MACHINE_REGS();
+
+  intptr_t i = Yap_NumberVars(gt(), i0, skip_singletons);
+
+  RECOVER_MACHINE_REGS();
+  return i;
 }
 
 bool YAPTerm::exactlyEqual(YAPTerm t1) {
-  int out;
+  bool out;
   BACKUP_MACHINE_REGS();
 
   out = Yap_eq(gt(), t1.term());
@@ -259,7 +313,7 @@ bool YAPTerm::exactlyEqual(YAPTerm t1) {
 }
 
 bool YAPTerm::unify(YAPTerm t1) {
-  int out;
+  intptr_t out;
   BACKUP_MACHINE_REGS();
 
   out = Yap_unify(gt(), t1.term());
@@ -269,7 +323,7 @@ bool YAPTerm::unify(YAPTerm t1) {
 }
 
 bool YAPTerm::unifiable(YAPTerm t1) {
-  int out;
+  intptr_t out;
   BACKUP_MACHINE_REGS();
 
   out = Yap_Unifiable(gt(), t1.term());
@@ -279,7 +333,7 @@ bool YAPTerm::unifiable(YAPTerm t1) {
 }
 
 bool YAPTerm::variant(YAPTerm t1) {
-  int out;
+  intptr_t out;
   BACKUP_MACHINE_REGS();
 
   out = Yap_Variant(gt(), t1.term());
@@ -306,7 +360,7 @@ const char *YAPTerm::text() {
   char *os;
 
   BACKUP_MACHINE_REGS();
-  if (!(os = Yap_TermToString(Yap_GetFromSlot(t), &length, enc, 0))) {
+  if (!(os = Yap_TermToString(Yap_GetFromSlot(t), &length, enc, Handle_vars_f))) {
     RECOVER_MACHINE_REGS();
     return nullptr;
   }
@@ -349,13 +403,14 @@ YAPTerm YAPListTerm::car() {
   else
     throw YAPError(TYPE_ERROR_LIST);
 }
-YAPListTerm::YAPListTerm(YAPTerm ts[], size_t n) {
+
+YAPListTerm::YAPListTerm(YAPTerm ts[], arity_t n) {
   CACHE_REGS
   Term t;
   BACKUP_H();
   if (n == 0)
     t = TermNil;
-  while (HR+n*2 > ASP-1024) {
+  while (HR + n * 2 > ASP - 1024) {
     RECOVER_H();
     if (!Yap_dogc(0, NULL PASS_REGS)) {
       t = TermNil;
@@ -363,12 +418,10 @@ YAPListTerm::YAPListTerm(YAPTerm ts[], size_t n) {
     BACKUP_H();
   }
   t = AbsPair(HR);
-  for (int i = 0; i < n; i ++ ) {
-    HR[2*i] = ts[i].gt();
-    HR[2*i+1] = AbsPair(HR+(2*i+2));
+  for (intptr_t i = 0; i < n; i++) {
+    HR[2 * i] = ts[i].gt();
+    HR[2 * i + 1] = AbsPair(HR + (2 * i + 2));
   }
-    
-  
 }
 
 YAPVarTerm::YAPVarTerm() {
@@ -403,7 +456,7 @@ const char *YAPAtom::getName(void) {
 
 void YAPQuery::initOpenQ() {
   CACHE_REGS
-    //oq = LOCAL_execution;
+  // oq = LOCAL_execution;
   //  LOCAL_execution = this;
   q_open = true;
   q_state = 0;
@@ -412,7 +465,7 @@ void YAPQuery::initOpenQ() {
   q_p = P;
   q_cp = CP;
   // make sure this is safe
-  q_handles =  Yap_StartSlots();
+  q_handles = Yap_StartSlots();
 }
 
 int YAPError::get() { return errNo; }
@@ -482,42 +535,53 @@ YAPQuery::YAPQuery(YAPPredicate p, YAPTerm ts[]) : YAPPredicate(p.ap) {
 
 YAPListTerm YAPQuery::namedVars() {
   CACHE_REGS
-   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "vnames %s %d", vnames.text(), LOCAL_CurSlot);
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "vnames %s %d",
+                      vnames.text(), LOCAL_CurSlot);
   return vnames; // should be o
+}
+
+YAPListTerm YAPQuery::namedVarsCopy() {
+  CACHE_REGS
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "vnames %s %d",
+                      vnames.text(), LOCAL_CurSlot);
+  return YAPListTerm(YAP_CopyTerm(vnames.term())); // should be o
 }
 
 bool YAPQuery::next() {
   CACHE_REGS
-  int result;
+  bool result;
 
   BACKUP_MACHINE_REGS();
-  if (!q_open )
+  if (!q_open)
     return false;
   if (setjmp(q_env))
     return false;
-  // don't forget, on success these guys must create slots
+  // don't forget, on success these guys may create slots
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
 
-  if (this->q_state == 0) {
+  if (q_state == 0) {
     result = (bool)YAP_EnterGoal((YAP_PredEntryPtr)ap, q_g, &q_h);
 
   } else {
     LOCAL_AllowRestart = q_open;
     result = (bool)YAP_RetryGoal(&q_h);
   }
-   if (result)
-       __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "vnames  %d %s %d", q_state, vnames.text(), LOCAL_CurSlot);
-          else
-                    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "fail");
+  {
+    if (result)
+      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "vnames  %d %s %d",
+                        q_state, vnames.text(), LOCAL_CurSlot);
+    else
+      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "fail");
+  }
   q_state = 1;
   if (Yap_GetException()) {
     throw(YAPError(SYSTEM_ERROR_INTERNAL));
   }
-          __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "out  %d", result);
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "out  %d", result);
 
   if (!result) {
     YAP_LeaveGoal(FALSE, &q_h);
-    q_open = 0;
+    q_open = false;
   } else {
     q_handles = Yap_StartSlots();
   }
@@ -529,7 +593,7 @@ void YAPQuery::cut() {
   CACHE_REGS
 
   BACKUP_MACHINE_REGS();
-  if (!q_open  || q_state == 0)
+  if (!q_open || q_state == 0)
     return;
   YAP_LeaveGoal(FALSE, &q_h);
   q_open = 0;
@@ -541,12 +605,16 @@ bool YAPQuery::deterministic() {
   CACHE_REGS
 
   BACKUP_MACHINE_REGS();
-  if (!q_open  || q_state == 0)
+  if (!q_open || q_state == 0)
     return false;
   choiceptr myB = (choiceptr)(LCL0 - q_h.b);
   return (B >= myB);
   RECOVER_MACHINE_REGS();
 }
+
+YAPTerm YAPQuery::getTerm(yhandle_t t) { return YAPTerm(t); }
+
+YAPTerm YAPQuery::getTerm(int t) { return YAPTerm((yhandle_t)t); }
 
 void YAPQuery::close() {
   CACHE_REGS
@@ -560,7 +628,7 @@ void YAPQuery::close() {
   }
   YAP_LeaveGoal(FALSE, &q_h);
   q_open = 0;
-  //LOCAL_execution = this;
+  // LOCAL_execution = this;
   RECOVER_MACHINE_REGS();
 }
 
@@ -614,54 +682,52 @@ void Yap_displayWithJava(int c) {
 
 #endif
 
-void  YAPEngine::doInit(YAP_file_type_t BootMode)
-{
-   if ((BootMode = YAP_Init(&init_args)) == YAP_FOUND_BOOT_ERROR) {
+void YAPEngine::doInit(YAP_file_type_t BootMode) {
+  if ((BootMode = YAP_Init(&init_args)) == YAP_FOUND_BOOT_ERROR) {
     throw(YAPError(SYSTEM_ERROR_INTERNAL));
-    }
-    /* Begin preprocessor code */
-    /* live */
-   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "$init_system");
+  }
+  /* Begin preprocessor code */
+  /* live */
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "$init_system");
 #if __ANDROID__
   Yap_AndroidBufp = (char *)malloc(Yap_AndroidMax = 4096);
   Yap_AndroidBufp[0] = '\0';
   Yap_AndroidSz = 0;
 #endif
-   yerror = YAPError();
+  yerror = YAPError();
 
-   YAPQuery initq = YAPQuery( YAPAtom( "$init_system" ) );
-    if (initq.next()) {
-      initq.cut();
-    } else {
-// should throw exception
-    }
+  YAPQuery initq = YAPQuery(YAPAtom("$init_system"));
+  if (initq.next()) {
+    initq.cut();
+  } else {
+    // should throw exception
+  }
 }
 
-YAPEngine::YAPEngine(char *savedState, char *bootFile,
-                     size_t stackSize, size_t trailSize,
-                     size_t maxStackSize, size_t maxTrailSize, char *libDir,
-                     char *goal, char *topLevel, bool script,
+YAPEngine::YAPEngine(char *savedState, char *bootFile, size_t stackSize,
+                     size_t trailSize, size_t maxStackSize, size_t maxTrailSize,
+                     char *libDir, char *goal, char *topLevel, bool script,
                      bool fastBoot,
                      YAPCallback *cb)
     : _callback(0) { // a single engine can be active
 
-      YAP_file_type_t BootMode;
-      int Argc = 1;
-      char **Argv;
+  YAP_file_type_t BootMode;
+  int Argc = 1;
+  char **Argv;
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "YAP %s ", bootFile);
 
-  //delYAPCallback()b
-  //if (cb)
+  // delYAPCallback()b
+  // if (cb)
   //  setYAPCallback(cb);
   curren = this;
-   {
+  {
     size_t l1 = 2 * sizeof(char *);
     if (!(Argv = (char **)malloc(l1)))
       return;
     Argv[0] = "yap";
     Argv[1] = NULL;
-   }
-  BootMode = Yap_InitDefaults( &init_args, NULL, Argc, Argv);
+  }
+  BootMode = Yap_InitDefaults(&init_args, NULL, Argc, Argv);
   init_args.SavedState = savedState;
   init_args.StackSize = stackSize;
   init_args.TrailSize = trailSize;
@@ -676,19 +742,17 @@ YAPEngine::YAPEngine(char *savedState, char *bootFile,
   doInit(BootMode);
 }
 
-
-
 YAPEngine::YAPEngine(int argc, char *argv[],
                      YAPCallback *cb)
-  : _callback(0){ // a single engine can be active
+    : _callback(0) { // a single engine can be active
 
   YAP_file_type_t BootMode;
   BootMode = YAP_parse_yap_arguments(argc, argv, &init_args);
-  //delYAPCallback()b
-  //if (cb)
+  // delYAPCallback()b
+  // if (cb)
   //  setYAPCallback(cb);
   curren = this;
-  doInit( BootMode );
+  doInit(BootMode);
 }
 
 YAPPredicate::YAPPredicate(YAPAtom at) {
@@ -723,7 +787,7 @@ PredEntry *YAPPredicate::getPred(Term &t, Term *&outp) {
     ts[0] = t;
     ts[1] = m;
     t = Yap_MkApplTerm(FunctorCsult, 2, ts);
-    outp = RepAppl(t)+1;
+    outp = RepAppl(t) + 1;
   }
   Functor f = FunctorOfTerm(t);
   if (IsExtensionFunctor(f)) {

@@ -463,7 +463,7 @@ p_cyclic( USES_REGS1 )
   return rational_tree(t);
 }
 
-int Yap_IsAcyclicTerm(Term t)
+bool Yap_IsAcyclicTerm(Term t)
 {
   return !rational_tree(t);
 }

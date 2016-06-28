@@ -392,7 +392,6 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
     where = TermNil;
     LOCAL_PrologMode &= ~AbortMode;
     LOCAL_CurrentError = type;
-    LOCAL_PrologMode |= InErrorMode;
     /* make sure failure will be seen at next port */
     // no need to lock & unlock
     if (LOCAL_PrologMode & AsyncIntMode)

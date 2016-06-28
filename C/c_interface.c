@@ -2258,7 +2258,7 @@ X_API bool YAP_DelayInit(YAP_ModInit_t f, const char s[]) {
 }
 
 static void start_modules(void) {
-  Term cm = CurrentModule;
+         Term cm = CurrentModule;
   for (size_t i = 0; i < n_mdelays; i++) {
     CurrentModule = MkAtomTerm(YAP_LookupAtom(m_delays[i].s));
     m_delays[i].f();

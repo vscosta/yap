@@ -1,4 +1,8 @@
 
+
+#ifndef _YAPDB_H
+#define _YAPDB_H
+
 #define YAP_CPP_DB_INTERFACE 1
 
 //! @{
@@ -16,6 +20,7 @@
  */
 
 class YAPTerm;
+class YAPAtomTerm;
 
 class YAPError;
 
@@ -66,23 +71,32 @@ public:
     /// Constructor: receives Prolog functor and casts it to YAPFunctor
     ///
     /// Notice that this is designed for internal use only.
-      YAPFunctor( Functor ff)  { f = ff; }
+      inline YAPFunctor( Functor ff)  { f = ff; }
     public:
-      ~YAPFunctor( )  {  };
+    /// Constructor: receives name as an atom, plus arity
+    ///
+    /// This is the default method, and the most popular
+      YAPFunctor( YAPAtom at, uintptr_t arity)  { f = Yap_MkFunctor( at.a, arity ); }
+
     /// Constructor: receives name as a string plus arity
     ///
-    /// Notice that this is designed for ISO-LATIN-1 right now
-      YAPFunctor( char * s, arity_t arity)  { f = Yap_MkFunctor( Yap_LookupAtom( s ), arity ); }
+  /// Notice that this is designed for ISO-LATIN-1 right now
+        /// Note: Python confuses the 3 constructors,
+     /// use YAPFunctorFromString
+      inline YAPFunctor(  const char * s, uintptr_t arity, bool isutf8=true)
+        { f = Yap_MkFunctor(
+                    Yap_LookupAtom( s ), arity ); }
     /// Constructor: receives name as a  wide string plus arity
     ///
     /// Notice that this is designed for UNICODE right now
-      YAPFunctor( wchar_t * s, arity_t arity) { f = Yap_MkFunctor( Yap_LookupWideAtom( s ), arity ) ; }
-    /// Constructor: receives name as an atom, plus arity
     ///
-    /// This is the default method, and the most popi;at
-      YAPFunctor( YAPAtom at, arity_t arity)  { f = Yap_MkFunctor( at.a, arity ); }
-
-    /// Getter: extract name of functor as an atom
+    /// Note: Python confuses the 3 constructors,
+      /// use YAPFunctorFromWideString
+      inline YAPFunctor( const wchar_t * s, uintptr_t arity) {
+	f = Yap_MkFunctor(
+                Yap_LookupWideAtom( s ), arity ) ; }
+       ~YAPFunctor( )  {  };
+   /// Getter: extract name of functor as an atom
     ///
     /// this is for external usage.
     YAPAtom name(void) {
@@ -92,7 +106,7 @@ public:
     /// Getter: extract arity of functor as an unsigned integer
     ///
     /// this is for external usage.
-      arity_t arity(void) {
+      uintptr_t arity(void) {
 	return ArityOfFunctor( f );
       }
 
@@ -121,7 +135,7 @@ protected:
     CACHE_REGS
     BACKUP_MACHINE_REGS();
     Term *outp;
-    
+
     out = Yap_StringToTerm(s, strlen(s)+1, &LOCAL_encoding, 1200, &names ) ;
     //extern char *s0;
     //fprintf(stderr,"ap=%p arity=%d text=%s", ap, ap->ArityOfPE, s);
@@ -179,7 +193,7 @@ public:
 
   /// Mod:Name/Arity constructor for predicates.
   ///
-  inline YAPPredicate(YAPAtom at, arity_t arity, YAPModule mod) {
+  inline YAPPredicate(YAPAtom at, uintptr_t arity, YAPModule mod) {
     if (arity) {
       Functor f = Yap_MkFunctor(at.a, arity);
       ap = RepPredProp(PredPropByFunc(f,mod.t()));
@@ -190,7 +204,7 @@ public:
 
   /// Atom/Arity constructor for predicates.
   ///
-  YAPPredicate(YAPAtom at, arity_t arity);
+  YAPPredicate(YAPAtom at, uintptr_t arity);
 
 
   /// module of a predicate
@@ -215,7 +229,7 @@ public:
   /// arity of predicate
   ///
   /// we return a positive number.
-  arity_t getArity() { return ap->ArityOfPE; }
+  uintptr_t getArity() { return ap->ArityOfPE; }
 };
 
 /**
@@ -226,7 +240,7 @@ public:
 class YAPPrologPredicate: public YAPPredicate {
 public:
   YAPPrologPredicate(YAPAtom name,
-		     arity_t arity,
+		     uintptr_t arity,
 		     YAPModule module = YAPModule(),
 		     bool tabled = false,
 		     bool logical_updates = false,
@@ -256,7 +270,7 @@ class YAPFLIP: public YAPPredicate {
 public:
   YAPFLIP(CPredicate call,
 	  YAPAtom name,
-	  arity_t arity,
+	  uintptr_t arity,
 	  YAPModule module = YAPModule(),
 	  CPredicate retry = 0,
 	  CPredicate cut = 0,
@@ -277,7 +291,7 @@ public:
 
   };
   YAPFLIP(const char *name,
-	  arity_t arity,
+	  uintptr_t  arity,
           YAPModule module = YAPModule(),
 	  bool backtrackable = false
 	  ) : YAPPredicate( YAPAtom(name), arity, module) {
@@ -299,3 +313,5 @@ public:
   }
 
 };
+
+#endif

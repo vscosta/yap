@@ -372,8 +372,8 @@ be lost.
 '$loop_spy'(GoalNumber, G, Module, CalledFromDebugger) :-
 	'$current_choice_point'(CP),
 	'$system_catch'('$loop_spy2'(GoalNumber, G, Module, CalledFromDebugger, CP),
-		    Module, error(Event,Context),
-		    '$loop_spy_event'(error(Event,Context), GoalNumber, G, Module, CalledFromDebugger)).
+		    Module, Error,
+		    '$loop_spy_event'(Error, GoalNumber, G, Module, CalledFromDebugger)).
 
 % handle weird things happening in the debugger.
 '$loop_spy_event'('$pass'(Event), _, _, _, _) :- !,
@@ -736,7 +736,7 @@ be lost.
 	fail.
 '$action'(0'A,_,_,_,_,_) :- !,			% 'b		break
 	'$skipeol'(0'A),
-	'$hacks':'$stack_dump',
+	'$stack_dump',
 	fail.
 '$action'(0'c,_,_,_,_,on) :- !,			% 'c		creep
 	'$skipeol'(0'c),

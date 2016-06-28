@@ -2950,7 +2950,7 @@ static Int ground_complex_term(register CELL *pt0, register CELL *pt0_end USES_R
   return -1;
 }
  
-int Yap_IsGroundTerm(Term t)
+bool Yap_IsGroundTerm(Term t)
 {
   CACHE_REGS
   while (TRUE) {
@@ -2963,7 +2963,7 @@ int Yap_IsGroundTerm(Term t)
     } else if (IsPairTerm(t)) {
       if ((out =ground_complex_term(RepPair(t)-1,
 				    RepPair(t)+1 PASS_REGS)) >= 0) {
-	return out;
+	return out != 0;
       }
     } else {
       Functor fun = FunctorOfTerm(t);
@@ -2973,14 +2973,14 @@ int Yap_IsGroundTerm(Term t)
       else if ((out = ground_complex_term(RepAppl(t),
 					     RepAppl(t)+
 					     ArityOfFunctor(fun) PASS_REGS)) >= 0) {
-	     return out;
+	     return out != 0;
       }
     }
     if (out < 0) {
       *HR++ = t;
       if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
 	Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, ARG1, "overflow in ground");
-	return FALSE;
+	return false;
       }      
       t = *--HR;
     }
@@ -3916,19 +3916,19 @@ static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
   return FALSE;
 }
 
-static int
+static bool
 is_variant(Term t1, Term t2, int parity USES_REGS)
 {  
   int out;
 
   if (t1 == t2)
-    return (TRUE);
+    return true;
   if (IsVarTerm(t1)) {
     if (IsVarTerm(t2))
-      return(TRUE);
-    return(FALSE);
+      return true;
+    return false;
   } else if (IsVarTerm(t2))
-    return(FALSE);
+    return false;
   if (IsAtomOrIntTerm(t1)) {
     return(t1 == t2);
   }
@@ -3938,12 +3938,12 @@ is_variant(Term t1, Term t2, int parity USES_REGS)
 			    RepPair(t1)+1,
 			    RepPair(t2)-1 PASS_REGS);
       if (out < 0) goto error;
-      return out;
+      return out != 0;
     }
-    else return (FALSE);
+    else return false;
   }
   if (!IsApplTerm(t2)) {
-    return FALSE;
+    return false;
   } else {
     Functor f1 = FunctorOfTerm(t1);
 
@@ -3955,7 +3955,7 @@ is_variant(Term t1, Term t2, int parity USES_REGS)
 			  RepAppl(t1)+ArityOfFunctor(f1),
 			  RepAppl(t2) PASS_REGS);
     if (out < 0) goto error;
-    return out;
+    return out != 0;
   }
  error:
   if (out == -1) {
@@ -3965,10 +3965,10 @@ is_variant(Term t1, Term t2, int parity USES_REGS)
     }
     return is_variant(t1, t2, parity PASS_REGS);
   }
-  return FALSE;
+  return false;
 }
 
-int
+bool
 Yap_Variant(Term t1, Term t2) 
 {
   CACHE_REGS
@@ -4558,7 +4558,7 @@ camacho_dum( USES_REGS1 )
 
 #endif /* DEBUG */
 
-int
+bool
 Yap_IsListTerm(Term t)
 {
   Term *tailp;
@@ -4776,7 +4776,8 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
 }
 
 Int 
-Yap_NumberVars( Term inp, Int numbv, int handle_singles )	/* numbervariables in term t	 */
+Yap_NumberVars( Term inp, Int numbv, bool handle_singles )	/*
+ * numbervariables in term t	 */
 {
   CACHE_REGS
   Int out;

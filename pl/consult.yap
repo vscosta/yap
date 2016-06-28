@@ -1,4 +1,4 @@
-/*************************************************************************
+vv/*************************************************************************
 *									 *
   *	 YAP Prolog  							 *
 *									 *
@@ -697,6 +697,7 @@ db_files(Fs) :-
 	    StartMsg = consulting,
 	    EndMsg = consulted
 	),
+	current_prolog_flag(verbose_load, VerboseLoad),
 	'$early_print'(informational, loading(StartMsg, UserFile)),
 	'$lf_opt'(skip_unix_header , TOpts, SkipUnixHeader),
 	( SkipUnixHeader == true
@@ -709,6 +710,7 @@ db_files(Fs) :-
 	'$lf_opt'(imports, TOpts, Imports),
 	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
 	'$current_module'(Mod, SourceModule),
+	set_prolog_flag(verbose_load, VerboseLoad),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	'$early_print'(informational, loaded(EndMsg, File, Mod, T, H)),
 	'$end_consult',

@@ -90,7 +90,13 @@ public:
   void close();
   /// query variables.
   YAPListTerm namedVars();
-  ///simple YAP Query;
+    /// query variables, but copied out
+    YAPListTerm namedVarsCopy();
+    /// convert a ref to a binding.
+    YAPTerm getTerm(yhandle_t t);
+    /// convert a ref to a binding.
+    YAPTerm getTerm(int t);
+    ///simple YAP Query;
   /// just calls YAP and reports success or failure, Useful when we just
   /// want things done, eg YAPCommand("load_files(library(lists), )")
   inline bool command()
@@ -158,19 +164,22 @@ public:
   YAPQuery *query( const char *s ) {
     return new YAPQuery( s );
   };
-  /// current module for the engine
-  YAPModule currentModule( ) { return YAPModule( ) ; }
+    /// current module for the engine
+    YAPModule currentModule( ) { return YAPModule( ) ; }
+    /// given a handle, fetch a term from the engine
+    inline YAPTerm getTerm( yhandle_t h) { return YAPTerm( h ) ; }
    /// current directory for the engine
   const char *currentDir( ) {
       char dir[1024];
       std::string s = Yap_getcwd(dir, 1024-1);
       return s.c_str();
-  }
+  };
   /// report YAP version as a string
   const char *version( ) {
       std::string s = Yap_version();
       return s.c_str();
-  }
+  };
+
 };
 
 #endif /* YAPQ_HH */

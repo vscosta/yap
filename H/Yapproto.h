@@ -465,19 +465,19 @@ void Yap_InitUserBacks(void);
 
 /* utilpreds.c */
 Term Yap_CopyTerm(Term);
-int Yap_Variant(Term, Term);
+bool Yap_Variant(Term, Term);
 size_t Yap_ExportTerm(Term, char *, size_t, UInt);
 size_t Yap_SizeOfExportedTerm(char *);
 Term Yap_ImportTerm(char *);
-int Yap_IsListTerm(Term);
+bool Yap_IsListTerm(Term);
 bool Yap_IsListOrPartialListTerm(Term);
 Term Yap_CopyTermNoShare(Term);
 int Yap_SizeGroundTerm(Term, int);
-int Yap_IsGroundTerm(Term);
-int Yap_IsAcyclicTerm(Term);
+bool Yap_IsGroundTerm(Term);
+bool Yap_IsAcyclicTerm(Term);
 void Yap_InitUtilCPreds(void);
 Int Yap_TermHash(Term, Int, Int, int);
-Int Yap_NumberVars(Term, Int, int);
+Int Yap_NumberVars(Term, Int, bool);
 Term Yap_TermVariables(Term t, UInt arity USES_REGS);
 Term Yap_UnNumberTerm(Term, int);
 Int Yap_SkipList(Term *, Term **);

@@ -773,6 +773,7 @@ static inline Term Yap_WCharsToDiffListOfCodes(const wchar_t *s,
   out.dif = tail;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
+
   return out.val.t;
 }
 
