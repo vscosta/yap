@@ -11,7 +11,7 @@ kernel_json = {
     "argv": [sys.executable,
 	     "-m", "yap_kernel",
 	     "-f", "{connection_file}"],
-    "display_name": "MetaKernel YAP %i" % (3 if PY3 else 2),
+    "display_name": " YAP-6.3" ,
     "language": "prolog",
     "name": "yap_kernel",
 }
@@ -19,7 +19,7 @@ kernel_json = {
 class install_with_kernelspec(install):
     def run(self):
         install.run(self)
-        from IPython.kernel.kernelspec import install_kernel_spec
+        from jupyter_client.kernelspec import install_kernel_spec
         from IPython.utils.tempdir import TemporaryDirectory
         with TemporaryDirectory() as td:
             os.chmod(td, 0o755) # Starts off as 700, not user readable
@@ -51,8 +51,8 @@ setup(name='yap_kernel',
       classifiers = [
           'Framework :: IPython',
           'License :: OSI Approved :: BSD License',
+          'Programming Language :: YAP :: 6.3',
           'Programming Language :: Python :: 3',
-          'Programming Language :: Python :: 2',
           'Topic :: System :: Shells',
       ]
 )
