@@ -324,11 +324,11 @@ int joincpu(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenod
 	}
 
 	#ifdef TIMER
-	cudaEvent_t start, stop;
+	hipEvent_t start, stop;
 	float time;
-	cudaEventCreate(&start);
-	cudaEventCreate(&stop);
-	cudaEventRecord(start, 0);
+	hipEventCreate(&start);
+	hipEventCreate(&stop);
+	hipEventRecord(start, 0);
 	#endif
 
 	if(nsel1 > 0 || nsj1 > 0)
@@ -359,16 +359,16 @@ int joincpu(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenod
 	}
 
 	#ifdef TIMER
-	cudaEventRecord(stop, 0);
-	cudaEventSynchronize(stop);
-	cudaEventElapsedTime(&time, start, stop);
+	hipEventRecord(stop, 0);
+	hipEventSynchronize(stop);
+	hipEventElapsedTime(&time, start, stop);
 	cuda_stats.select1_time += time;
 
-	cudaEventDestroy(start);
-	cudaEventDestroy(stop);
-	cudaEventCreate(&start);
-	cudaEventCreate(&stop);
-	cudaEventRecord(start, 0);
+	hipEventDestroy(start);
+	hipEventDestroy(stop);
+	hipEventCreate(&start);
+	hipEventCreate(&stop);
+	hipEventRecord(start, 0);
 	#endif
 
 	if(nsel2 > 0 || nsj2 > 0)
@@ -381,16 +381,16 @@ int joincpu(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenod
 		Snl = sLen;
 
 	#ifdef TIMER
-	cudaEventRecord(stop, 0);
-	cudaEventSynchronize(stop);
-	cudaEventElapsedTime(&time, start, stop);
+	hipEventRecord(stop, 0);
+	hipEventSynchronize(stop);
+	hipEventElapsedTime(&time, start, stop);
 	cuda_stats.select2_time += time;
 
-	cudaEventDestroy(start);
-	cudaEventDestroy(stop);
-	cudaEventCreate(&start);
-	cudaEventCreate(&stop);
-	cudaEventRecord(start, 0);
+	hipEventDestroy(start);
+	hipEventDestroy(stop);
+	hipEventCreate(&start);
+	hipEventCreate(&stop);
+	hipEventRecord(start, 0);
 	#endif
 
 	//cout << "antes" << endl;
@@ -406,16 +406,16 @@ int joincpu(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenod
 	thrust::stable_sort_by_key(thrust::omp::par, Rres, Rres + Rnl, permutation);
 
 	#ifdef TIMER
-	cudaEventRecord(stop, 0);
-	cudaEventSynchronize(stop);
-	cudaEventElapsedTime(&time, start, stop);
+	hipEventRecord(stop, 0);
+	hipEventSynchronize(stop);
+	hipEventElapsedTime(&time, start, stop);
 	cuda_stats.sort_time += time;
 	
-	cudaEventDestroy(start);
-	cudaEventDestroy(stop);
-	cudaEventCreate(&start);
-	cudaEventCreate(&stop);
-	cudaEventRecord(start, 0);
+	hipEventDestroy(start);
+	hipEventDestroy(stop);
+	hipEventCreate(&start);
+	hipEventCreate(&stop);
+	hipEventRecord(start, 0);
 	#endif
 
 	/*cout << "despues" << endl;
@@ -482,9 +482,9 @@ int joincpu(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenod
 	*ret = fres;
 
 	#ifdef TIMER
-	cudaEventRecord(stop, 0);
-	cudaEventSynchronize(stop);
-	cudaEventElapsedTime(&time, start, stop);
+	hipEventRecord(stop, 0);
+	hipEventSynchronize(stop);
+	hipEventElapsedTime(&time, start, stop);
 	cuda_stats.join_time += time;
 	#endif
 

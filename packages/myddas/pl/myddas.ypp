@@ -15,7 +15,12 @@
   *									 *
   *************************************************************************/
 
-#if USE_MYDDAS
+#if 1 //USE_MYDDAS
+
+:- load_foreign_files([myddas], [], init_myddas).
+
+/* Initialize MYDDAS GLOBAL STRUCTURES */
+:- c_db_initialize_myddas.
 
 #ifdef DEBUG
 :- yap_flag(single_var_warnings,on).
@@ -800,8 +805,6 @@
 				       ]).
 
 #ifdef MYDDAS_MYSQL
-:- load_foreign_files([], [], init_mysql).
-
 :- use_module(myddas_mysql,[
 			    db_my_result_set/1,
 			    db_datalog_describe/1,
@@ -867,7 +870,7 @@
 				% db_open/4
 				%
 
-#if MYDDAS_DECLARATIONS
+#if 1 // MYDDAS_DECLARATIONS
 :- db_open(Protocol) extra_arguments
 db=Db,
 port=Port,

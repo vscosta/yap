@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 #ifndef _BPREDS_H_
 #define _BPREDS_H_
 

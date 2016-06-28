@@ -23,12 +23,11 @@ Android/jni/sqlite/nativehelper/jni.h
 #sqlite3 is now in the system
 
 set (SQLITE3_FOUND ON PARENT_SCOPE)
-  macro_log_feature (SQLITE3_FOUND "Sqlite3"
-      "Sqlite3 Data-Base "
-  "http://www.sqlite3ql.org" FALSE)
+  message (
+      "   * Sqlite3 Data-Base (http://www.sqlite3ql.org) is distributed with
+      MYDDAS" )
 
-
-  include_directories (${SQLITE3_INCLUDE_DIRECTORIES}  .. . Android/jni/sqlite Android/jni/sqlite/nativehelper)
+  include_directories (  .. . Android/jni/sqlite Android/jni/sqlite/nativehelper)
 
   set (MYDDAS_FLAGS ${MYDDAS_FLAGS} -DMYDDAS_SQLITE3=1 PARENT_SCOPE)
   set_property( DIRECTORY .. APPEND PROPERTY COMPILE_DEFINITIONS  MYDDAS_SQLITE3=1 )

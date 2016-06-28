@@ -967,7 +967,7 @@ vector<gpunode> L;
 extern "C"
 int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, int *inpquery, int **result, char *names, int finalDR)
 {
-	cudaSetDevice(0);
+	hipSetDevice(0);
 	vector<rulenode> rules;
 	int x;
 
@@ -1029,11 +1029,11 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 	vector<rulenode>::iterator qposr;
 
 #if TIMER
-	cudaEvent_t start, stop;
+	hipEvent_t start, stop;
 	float time;
-	cudaEventCreate(&start);
-	cudaEventCreate(&stop);
-	cudaEventRecord(start, 0);
+	hipEventCreate(&start);
+	hipEventCreate(&stop);
+	hipEventRecord(start, 0);
 #endif
 
 	while(reglas.size()) /*Here's the main loop*/
@@ -1084,7 +1084,7 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 				{
 					num_refs = rows1 * cols1 * sizeof(int);
 					reservar(&res, num_refs);
-					cudaMemcpyAsync(res, dop1, num_refs, cudaMemcpyDeviceToDevice);
+					hipMemcpyAsync(res, dop1, num_refs, hipMemcpyDeviceToDevice);
 					registrar(rul_act->name, cols1, res, rows1, itr, 1);
 					genflag = 1;
 					rul_act->gen_ant = rul_act->gen_act;
@@ -1251,10 +1251,10 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 			if(x == num_refs)
 			{
 				#ifdef TIMER
-				cudaEvent_t start2, stop2;
-				cudaEventCreate(&start2);
-				cudaEventCreate(&stop2);
-				cudaEventRecord(start2, 0);
+				hipEvent_t start2, stop2;
+				hipEventCreate(&start2);
+				hipEventCreate(&stop2);
+				hipEventRecord(start2, 0);
 				#endif
 
 				//cout << rul_act->name << " res_rows = " << res_rows << endl;
@@ -1263,11 +1263,11 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 					res_rows = unir(res, res_rows, rul_act->num_columns, &res, 0);
 
 				#ifdef TIMER
-				cudaEventRecord(stop2, 0);
-				cudaEventSynchronize(stop2);
-				cudaEventElapsedTime(&time, start2, stop2);
-				cudaEventDestroy(start2);
-				cudaEventDestroy(stop2);
+				hipEventRecord(stop2, 0);
+				hipEventSynchronize(stop2);
+				hipEventElapsedTime(&time, start2, stop2);
+				hipEventDestroy(start2);
+				hipEventDestroy(stop2);
 				//cout << "Union = " << time << endl;
 				cuda_stats.union_time += time;
 				#endif					
@@ -1319,16 +1319,16 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 	#endif
 
 #if TIMER
-	cudaEventRecord(stop, 0);
-	cudaEventSynchronize(stop);
-	cudaEventElapsedTime(&time, start, stop);
+	hipEventRecord(stop, 0);
+	hipEventSynchronize(stop);
+	hipEventElapsedTime(&time, start, stop);
 	cuda_stats.total_time += time;
 	if (time > cuda_stats.max_time) 
 	  cuda_stats.max_time = time;
 	if (time < cuda_stats.min_time || cuda_stats.calls == 1) 
 	  cuda_stats.min_time = time;
-	cudaEventDestroy(start);
-	cudaEventDestroy(stop);
+	hipEventDestroy(start);
+	hipEventDestroy(stop);
 	Cuda_Statistics();
 #endif
 

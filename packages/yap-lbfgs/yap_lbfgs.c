@@ -78,14 +78,11 @@ static lbfgsfloatval_t evaluate(
 
   a1 = YAP_ArgOfTerm(1,call);
   if (YAP_IsFloatTerm(a1)) {
-      YAP_ShutdownGoal( TRUE );
       return (lbfgsfloatval_t) YAP_FloatOfTerm(a1);
   } else if (YAP_IsIntTerm(a1)) {
-    YAP_ShutdownGoal( TRUE );
     return (lbfgsfloatval_t) YAP_IntOfTerm(a1);
   }
 
-  YAP_ShutdownGoal( TRUE );
   fprintf(stderr, "ERROR: The evaluate call back function did not return a number as first argument.\n");
   return 0;
 }

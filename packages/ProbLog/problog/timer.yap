@@ -240,7 +240,6 @@ timer_stop(Name,Duration) :-
 	->
 	 statistics(walltime,[StopTime,_]),
 	 Duration is StopTime-StartTime;
-
 	 throw(timer_not_started(timer_stop(Name,Duration)))
 	).
 
