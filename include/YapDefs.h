@@ -116,7 +116,7 @@ typedef uintptr_t YAP_CELL;
 
 typedef YAP_CELL YAP_Term;
 
-typedef YAP_CELL YAP_Arity;
+typedef size_t YAP_Arity;
 
 typedef YAP_Term YAP_Module;
 
@@ -124,16 +124,9 @@ typedef struct FunctorEntry *YAP_Functor;
 
 typedef struct AtomEntry *YAP_Atom;
 
-#if _WIN64
-typedef long long int YAP_Int;
+typedef intptr_t YAP_Int;
 
-typedef unsigned long long int YAP_UInt;
-
-#else
-typedef long int YAP_Int;
-
-typedef unsigned long int YAP_UInt;
-#endif
+typedef uintptr_t YAP_UInt;
 
 typedef double YAP_Float;
 
@@ -417,7 +410,7 @@ typedef enum yap_enum_reset_t {
   YAP_RESET_FROM_RESTORE = 3
 } yap_reset_t;
 
-typedef void (*YAP_ModInit_t)(void);
+typedef bool (*YAP_ModInit_t)(void);
 
 typedef struct {
   YAP_ModInit_t f;
