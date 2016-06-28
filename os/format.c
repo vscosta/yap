@@ -269,7 +269,6 @@ typedef struct {
 } gap_t;
 
 typedef struct format_status {
-  int format_error;
   gap_t gap[16];
   // number of octets
   int phys_start;
@@ -537,7 +536,6 @@ static Int doformat(volatile Term otail, volatile Term oargs,
   bool alloc_fstr = false;
 
 
-  finfo.format_error = FALSE;
   if (GLOBAL_Stream[sno0].status & InMemory_Stream_f) {
     old_handler = GLOBAL_Stream[sno].u.mem_string.error_handler;
     GLOBAL_Stream[sno].u.mem_string.error_handler = (void *)&format_botch;
@@ -640,10 +638,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
   }
 
   // it starts here
-  finfo.format_error = false;
-  finfo.gapi = 0;
   sno0 = sno;
-  finfo.format_error = false;
   finfo.gapi = 0;
   finfo.phys_start = 0;
   finfo.lstart = 0;
@@ -1133,7 +1128,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
             ta[1] = oargs;
             Yap_Error(LOCAL_Error_TYPE,
                       Yap_MkApplTerm(Yap_MkFunctor(AtomFormat, 2), 2, ta),
-                      "format/2");
+                      "arguments to format");
           }
           if (GLOBAL_Stream[sno].status & InMemory_Stream_f) {
             GLOBAL_Stream[sno].u.mem_string.error_handler = old_handler;
