@@ -8,7 +8,7 @@
 *									 *
 **************************************************************************
 *									 *
-* File:		sockets.c *
+* File:		mem.c *
 * Last rev:	5/2/88							 *
 * mods:									 *
 * comments:	Input/Output C implemented predicates			 *
@@ -43,6 +43,22 @@ static int MemGetc(int sno) {
   }
   return ch;
 }
+
+/* peek from memory */
+int Yap_MemPeekc(int sno) {
+  StreamDesc *s = &GLOBAL_Stream[sno];
+  Int ch;
+  int spos;
+
+  spos = s->u.mem_string.pos;
+  if (spos == s->u.mem_string.max_size) {
+    return -1;
+  } else {
+    ch = s->u.mem_string.buf[spos];
+  }
+  return ch;
+}
+
 #endif
 
 #if !MAY_WRITE
@@ -58,34 +74,14 @@ static int MemPutc(int sno, int ch) {
 #endif
   s->u.mem_string.buf[s->u.mem_string.pos++] = ch;
   if (s->u.mem_string.pos >= s->u.mem_string.max_size - 8) {
-    int old_src = s->u.mem_string.src, new_src;
+    int new_src;
 
     /* oops, we have reached an overflow */
     Int new_max_size = s->u.mem_string.max_size + Yap_page_size;
     char *newbuf;
-
-    if (old_src == MEM_BUF_CODE &&
-        (newbuf = Yap_AllocAtomSpace(new_max_size * sizeof(char))) != NULL) {
-      new_src = MEM_BUF_CODE;
-#if HAVE_MEMMOVE
-      memmove((void *)newbuf, (void *)s->u.mem_string.buf,
-              (size_t)((s->u.mem_string.pos) * sizeof(char)));
-#else
-      {
-        Int n = s->u.mem_string.pos;
-        char *to = newbuf;
-        char *from = s->u.mem_string.buf;
-        while (n-- >= 0) {
-          *to++ = *from++;
-        }
-      }
-#endif
-      Yap_FreeAtomSpace(s->u.mem_string.buf);
-#if !HAVE_SYSTEM_MALLOC
-    } else if ((newbuf = (ADDR)realloc(s->u.mem_string.buf,
-                                       new_max_size * sizeof(char))) != NULL) {
+    if ((newbuf = (ADDR)realloc(s->u.mem_string.buf,
+                                new_max_size * sizeof(char))) != NULL) {
       new_src = MEM_BUF_MALLOC;
-#endif
     } else {
       if (GLOBAL_Stream[sno].u.mem_string.error_handler) {
         CACHE_REGS
@@ -98,8 +94,6 @@ static int MemPutc(int sno, int ch) {
       }
       return -1;
     }
-    if (old_src == MEM_BUF_CODE) {
-    }
     s->u.mem_string.buf = newbuf;
     s->u.mem_string.max_size = new_max_size;
     s->u.mem_string.src = new_src;
@@ -109,6 +103,34 @@ static int MemPutc(int sno, int ch) {
 }
 
 #endif
+
+bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf, size_t nchars) {
+  FILE *f;
+  stream_flags_t flags;
+
+#if MAY_READ
+  // like any file stream.
+  st->file = f = fmemopen((void *)buf, nchars, "r");
+  flags = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
+#else
+  st->file = f = NULL;
+  flags = Input_Stream_f | InMemory_Stream_f;
+#endif
+  Yap_initStream(st - GLOBAL_Stream, f, NULL, TermNil, LOCAL_encoding, flags,
+                 AtomRead);
+// like any file stream.
+#if !MAY_READ
+  /* currently these streams are not seekable */
+  st->status = Input_Stream_f | InMemory_Stream_f;
+  st->u.mem_string.pos = 0;
+  st->u.mem_string.buf = (char *)buf;
+  st->u.mem_string.max_size = nchars;
+  st->u.mem_string.error_handler = NULL;
+// st->u.mem_string.src = src; check new assets coode
+#endif
+  Yap_DefaultStreamOps(st);
+  return true;
+}
 
 int Yap_open_buf_read_stream(const char *buf, size_t nchars, encoding_t *encp,
                              memBufSource src) {
@@ -130,7 +152,7 @@ int Yap_open_buf_read_stream(const char *buf, size_t nchars, encoding_t *encp,
     encoding = LOCAL_encoding;
 #if MAY_READ
   // like any file stream.
-  st->file = f = fmemopen((void *)buf, nchars, "r");
+  f = st->file = fmemopen((void *)buf, nchars, "r");
   flags = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
 #else
   st->file = f = NULL;
@@ -153,50 +175,22 @@ int Yap_open_buf_read_stream(const char *buf, size_t nchars, encoding_t *encp,
 }
 
 static Int
-    open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
+open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
 {
   Term t, ti;
   int sno;
-  Int sl = 0, nchars = 0;
-  char *buf;
+  char buf0[YAP_FILENAME_MAX + 1];
+  const char *buf;
 
   ti = Deref(ARG1);
-  while (ti != TermNil) {
-    if (IsVarTerm(ti)) {
-      Yap_Error(INSTANTIATION_ERROR, ti, "open_mem_read_stream");
-      return (FALSE);
-    } else if (!IsPairTerm(ti)) {
-      Yap_Error(TYPE_ERROR_LIST, ti, "open_mem_read_stream");
-      return (FALSE);
-    } else {
-      sl++;
-      ti = TailOfTerm(ti);
-    }
+  buf = Yap_TextTermToText(ti, buf0, 0, LOCAL_encoding);
+  if (!buf) {
+    return false;
   }
-  while ((buf = (char *)Yap_AllocAtomSpace((sl + 1) * sizeof(char))) == NULL) {
-    if (!Yap_growheap(FALSE, (sl + 1) * sizeof(char), NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
-      return (FALSE);
-    }
-  }
-  ti = Deref(ARG1);
-  while (ti != TermNil) {
-    Term ts = HeadOfTerm(ti);
-
-    if (IsVarTerm(ts)) {
-      Yap_Error(INSTANTIATION_ERROR, ARG1, "open_mem_read_stream");
-      return (FALSE);
-    } else if (!IsIntTerm(ts)) {
-      Yap_Error(TYPE_ERROR_INTEGER, ARG1, "open_mem_read_stream");
-      return (FALSE);
-    }
-    buf[nchars++] = IntOfTerm(ts);
-    ti = TailOfTerm(ti);
-  }
-  buf[nchars] = '\0';
-  sno = Yap_open_buf_read_stream(buf, nchars, &LOCAL_encoding, MEM_BUF_CODE);
+  sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
+                                 MEM_BUF_MALLOC);
   t = Yap_MkStream(sno);
-  return (Yap_unify(ARG2, t));
+  return Yap_unify(ARG2, t);
 }
 
 // open a buffer for writing, currently just ignores buf and nchars.
@@ -219,6 +213,7 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
 #if MAY_WRITE
 #if HAVE_OPEN_MEMSTREAM
   st->file = open_memstream(&st->nbuf, &st->nsize);
+  setbuf(st->file, NULL);
   st->status |= Seekable_Stream_f;
 #else
   st->file = fmemopen((void *)buf, nchars, "w");
@@ -229,10 +224,10 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
   }
 #endif
 #else
-  char buf[YAP_FILENAME_MAX + 1];
-  st->nbuf = buf;
-  st->u.mem_string.buf = buf;
-  st->u.mem_string.max_size = YAP_FILENAME_MAX;
+  st->nbuf = st->u.mem_string.buf = malloc(PLGETC_BUF_SIZE);
+  st->u.mem_string.src = 1;
+  st->u.mem_string.max_size = PLGETC_BUF_SIZE - 1;
+  st->u.mem_string.pos = 0;
 #endif
   UNLOCK(st->streamlock);
   return sno;
@@ -245,7 +240,7 @@ int Yap_OpenBufWriteStream(USES_REGS1) {
 }
 
 static Int
-    open_mem_write_stream(USES_REGS1) /* $open_mem_write_stream(-Stream) */
+open_mem_write_stream(USES_REGS1) /* $open_mem_write_stream(-Stream) */
 {
   Term t;
   int sno;
@@ -255,6 +250,7 @@ static Int
     return (PlIOError(SYSTEM_ERROR_INTERNAL, TermNil,
                       "new stream not available for open_mem_read_stream/1"));
   t = Yap_MkStream(sno);
+  GLOBAL_Stream[sno].status |= InMemory_Stream_f;
   return (Yap_unify(ARG1, t));
 }
 
@@ -270,11 +266,14 @@ char *Yap_MemExportStreamPtr(int sno) {
 #if MAY_WRITE
   char *s;
   if (fflush(GLOBAL_Stream[sno].file) == 0) {
+    fseek(GLOBAL_Stream[sno].file, 0, SEEK_END);
     s = GLOBAL_Stream[sno].nbuf;
     return s;
   }
   return NULL;
 #else
+  GLOBAL_Stream[sno].u.mem_string.buf[GLOBAL_Stream[sno].u.mem_string.pos] =
+      '\0';
   return GLOBAL_Stream[sno].u.mem_string.buf;
 #endif
 }
@@ -294,8 +293,8 @@ restart:
   HI = HR;
 #if MAY_WRITE
   if (fflush(GLOBAL_Stream[sno].file) == 0) {
+    i = fseek(GLOBAL_Stream[sno].file, 0, SEEK_END);
     ptr = GLOBAL_Stream[sno].nbuf;
-    i = fseek(GLOBAL_Stream[sno].file, SEEK_END, 0);
   }
 #else
   ptr = GLOBAL_Stream[sno].u.mem_string.buf;
@@ -337,16 +336,14 @@ void Yap_MemOps(StreamDesc *st) {
 }
 
 bool Yap_CloseMemoryStream(int sno) {
-  if (!(GLOBAL_Stream[sno].status & Output_Stream_f)) {
+  if ((GLOBAL_Stream[sno].status & Output_Stream_f)) {
 #if MAY_WRITE
     fflush(GLOBAL_Stream[sno].file);
     fclose(GLOBAL_Stream[sno].file);
     if (GLOBAL_Stream[sno].status & FreeOnClose_Stream_f)
       free(GLOBAL_Stream[sno].nbuf);
 #else
-    if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_CODE)
-      Yap_FreeAtomSpace(GLOBAL_Stream[sno].u.mem_string.buf);
-    else if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_MALLOC) {
+    if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_MALLOC) {
       free(GLOBAL_Stream[sno].u.mem_string.buf);
     }
 #endif
@@ -356,9 +353,7 @@ bool Yap_CloseMemoryStream(int sno) {
     if (GLOBAL_Stream[sno].status & FreeOnClose_Stream_f)
       free(GLOBAL_Stream[sno].nbuf);
 #else
-    if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_CODE)
-      Yap_FreeAtomSpace(GLOBAL_Stream[sno].u.mem_string.buf);
-    else if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_MALLOC) {
+    if (GLOBAL_Stream[sno].u.mem_string.src == MEM_BUF_MALLOC) {
       free(GLOBAL_Stream[sno].u.mem_string.buf);
     }
 #endif
@@ -368,12 +363,9 @@ bool Yap_CloseMemoryStream(int sno) {
 
 void Yap_InitMems(void) {
   CACHE_REGS
-  Term cm = CurrentModule;
-  CurrentModule = CHARSIO_MODULE;
   Yap_InitCPred("open_mem_read_stream", 2, open_mem_read_stream, SyncPredFlag);
   Yap_InitCPred("open_mem_write_stream", 1, open_mem_write_stream,
                 SyncPredFlag);
   Yap_InitCPred("peek_mem_write_stream", 3, peek_mem_write_stream,
                 SyncPredFlag);
-  CurrentModule = cm;
 }
