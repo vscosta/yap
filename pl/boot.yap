@@ -171,10 +171,10 @@ list, since backtracking could not "pass through" the cut.
 
 */
 
-system_module(_Mod, _SysExps, _Decls) :- ! .
+system_module(_Mod, _SysExps, _Decls).
 %    new_system_module(Mod).
 
-use_system_module(_init, _SysExps) :- !.
+use_system_module(_init, _SysExps).
 
 private(_).
 
@@ -251,6 +251,9 @@ private(_).
 :- use_system_module( '$_strict_iso', ['$check_iso_strict_clause'/1,
         '$iso_check_goal'/2]).
 
+'$early_print_message'(Level, Msg) :-
+	'$pred_exists'(print_message(_,_), prolog), !,
+	print_message( Level, Msg).
 '$early_print_message'(informational, _) :-
 	yap_flag( verbose, S),
 	S == silent,
@@ -258,41 +261,55 @@ private(_).
 '$early_print_message'(_, absolute_file_path(X, Y)) :- !,
 	format(user_error, X, Y), nl(user_error).
 '$early_print_message'(_, loading( C, F)) :- !,
-    format(user_error, '~*|% ~a ~w...~n', [2,C,F]).
+    (yap_flag( verbose_load , silent ) -> true;
+    format(user_error, '~*|% ~a ~w...~n', [2,C,F]) ).
 '$early_print_message'(_, loaded(F,C,M,T,H)) :- !,
-    format(user_error, '~*|% ~a:~w ~a ~d bytes in ~d seconds...~n', [2, M, F ,C, H, T]).
+    (yap_flag( verbose_load , silent ) -> true;
+    format(user_error, '~*|% ~a:~w ~a ~d bytes in ~d seconds...~n', [2, M, F ,C, H, T]) ).
 '$early_print_message'(Level, Msg) :-
     source_location(F0, L),
     !,
     format(user_error, '~a:~d:0: unprocessed ~a ~w ~n', [F0, L,Level,Msg]).
 '$early_print_message'(Level, Msg) :-
-	format(user_error, 'unprocessed ~a ~w ~n', [Level,Msg]).
+    format(user_error, 'unprocessed ~a ~w ~n', [Level,Msg]).
 
- '$handle_error'(_Action,_G0,_M0) :- fail.
-
-% cases where we cannot afford to ever fail.
-'$undefp0'([ImportingMod|G], _) :-
-	recorded('$import','$import'(ExportingModI,ImportingMod,G,G0I,_,_),_), !,
- % writeln('$execute0'(G0I, ExportingModI)),
-	'$execute0'(G0I, ExportingModI).
-'$undefp0'([_|print_message(Context, Msg)], _) :- !,
+'$bootstrap_predicate'('$expand_a_clause'(_,_,_,_), _M, _) :- !,
+   fail.
+'$bootstrap_predicate'('$imported_predicate'(_,_,_,_), _M, _) :- !,
+  fail.
+'$bootstrap_predicate'('$all_directives'(_), _M, _) :- !,
+   fail.
+ '$bootstrap_predicate'('$LoopError'( Error, _), _M, _) :- !,
+   source_location(F0, L),
+   format('~a:~d:0: error in bootstrap:~n     ~w~n', [F0,L,Error]),
+    fail.
+'$bootstrap_predicate'(delayed_goals(_, _, _ ), _M, _) :- !,
+  fail.
+'$bootstrap_predicate'(sort(L, S), _M, _) :- !,
+  '$sort'(L, S).
+'$bootstrap_predicate'(print_message(Context, Msg), _M, _) :- !,
     '$early_print_message'(Context, Msg).
-% undef handler
-'$undefp0'([M0|G0], Action) :-
+'$bootstrap_predicate'(meta_predicate(G), M, _) :- !,
+    strip_module(M:G, M1, G1),
+    '$meta_predicate'(M1:G1).
+'$bootstrap_predicate'(G, ImportingMod, _) :-
+    recorded('$import','$import'(ExportingModI,ImportingMod,G,G0I,_,_),_), !,
+    % writeln('$execute0'(G0I, ExportingModI)),
+    '$execute0'(G0I, ExportingModI).
+    % undef handler
+'$bootstrap_predicate'(G0, M0, Action) :-
     % make sure we do not loop on undefined predicates
     yap_flag( unknown, Action, fail),
-    Action \= fail,
-     '$handle_error'(Action,G0,M0),
-     clause_location(Call, Caller),
-     source_module(M),
-	 strip_module(M:Goal,M1,NGoal),
-	throw(error(Error, [[g|g(M1:NGoal)],[p|Call],[e|Caller],[h|g(Head)]])).
-
-
-
+    clause_location(Call, Caller),
+    format(user_error,'undefined directive ~w', [M0:G0]),
+    strip_module(M0:G0,M1,NGoal),
+    throw(error(evaluation(undefined,M0:G0),
+       [[g|g(M1:NGoal)],[p|Call],[e|Caller],[h|g(M0:G0)]])).
 %
 %
 %
+'$undefp0'([M|G], Action) :-
+  '$bootstrap_predicate'(G, M, Action).
 
 /** @pred true is iso
 Succeed.
@@ -325,23 +342,14 @@ true :- true.
     set_value('$yap_inited', true),
     % do catch as early as possible
     (
-     current_prolog_flag(halt_after_consult, false),
-     current_prolog_flag(verbose, normal)
      % \+ '$uncaught_throw'
+      current_prolog_flag(halt_after_consult, false),
+     current_prolog_flag(verbose, normal)
     ->
      '$version'
     ;
      true
     ),
-%	'$init_preds', % needs to be done before library_directory
-%	(
-%	 retractall(user:library_directory(_)),
-%	 '$system_library_directories'(D),
-%	 assertz(user:library_directory(D)),
-%	 fail
-%	;
-%	 true
-%	),
     current_prolog_flag(file_name_variables, OldF),
     set_prolog_flag(file_name_variables, true),
     '$init_consult',
@@ -355,20 +363,31 @@ true :- true.
     % simple trick to find out if this is we are booting from Prolog.
     % boot from a saved state
     (
-     current_prolog_flag(saved_program, false)
+      current_prolog_flag(saved_program, false)
     ->
-     prolog_flag(verbose, OldV, silent),
-     prolog_flag(resource_database, RootPath),
-     file_directory_name( RootPath, Dir ),
-     atom_concat( Dir, '/init.yap' , Init),
-     bootstrap(Init),
-     set_prolog_flag(verbose, OldV),
-     module( user ),
-     '$make_saved_state'
+      prolog_flag(verbose, OldV, silent),
+      prolog_flag(resource_database, RootPath),
+      file_directory_name( RootPath, Dir ),
+      atom_concat( Dir, '/init.yap' , Init),
+      (
+       % is lib_dir set?
+       system_library( LibDir )
+      ->
+       true
+      ;
+       % get it from boot.yap
+       atom_concat( LibDir, '/pl' , Dir),
+       system_library(LibDir)
+      ),
+      bootstrap(Init),
+      set_prolog_flag(verbose, OldV),
+      module( user ),
+      '$make_saved_state'
     ;
-     true
+      % use saved state
+
+      '$init_state'
     ),
-    '$init_state',
     '$db_clean_queues'(0),
 				% this must be executed from C-code.
 				%	'$startup_saved_state',
@@ -379,8 +398,8 @@ true :- true.
 
 '$make_saved_state' :-
 	current_prolog_flag(os_argv, Args),
-	(
-	 member( Arg, Args ),
+      (
+	 lists:member( Arg, Args ),
 	 atom_concat( '-B', _, Arg )
 	->
 	  qsave_program( 'startup.yss'),
@@ -441,10 +460,10 @@ true :- true.
 /* main execution loop							*/
 '$read_toplevel'(Goal, Bindings) :-
 	'$prompt',
-	'$system_catch'(read_term(user_input,
-				  Goal,
-				  [variable_names(Bindings), syntax_errors(dec10)]),
-			prolog, E, '$handle_toplevel_error'( E) ).
+	catch(read_term(user_input,
+			Goal,
+			[variable_names(Bindings), syntax_errors(dec10)]),
+			 E, '$handle_toplevel_error'( E) ).
 
 '$handle_toplevel_error'( syntax_error(_)) :-
 	!,
@@ -627,10 +646,11 @@ number of steps.
 	 (
 	     O = (:- G1)
 	 ->
-	 '$current_module'(M),
+	  '$current_module'(M),
+
 	   '$process_directive'(G1, Option, M, VL, Pos)
      ;
-	    '$execute_commands'(O,VL,Pos,Option,O)
+	    '$execute_commands'(G1,VL,Pos,Option,O)
 	 ).
  '$execute_command'((?-G), VL, Pos, Option, Source) :-
 	 Option \= top,
@@ -660,8 +680,13 @@ number of steps.
  %
  % default case
  %
- '$process_directive'(Gs, Mode, M, VL, Pos) :-
-	 '$all_directives'(Gs), !,
+ '$process_directive'(Gs, _Mode, M, _VL, _Pos) :-
+	 '$undefined'('$all_directives'(Gs),prolog),
+   !,
+   '$execute'(M:Gs).
+
+'$process_directive'(Gs, Mode, M, VL, Pos) :-
+  '$all_directives'(Gs), !,
 	 '$exec_directives'(Gs, Mode, M, VL, Pos).
 
  %
@@ -675,15 +700,7 @@ number of steps.
  % but YAP and SICStus does.
  %
  '$process_directive'(G, Mode, M, VL, Pos) :-
-     ( '$undefined'('$save_directive'(G, Mode, M, VL, Pos),prolog) ->
-	   true
-	 ;
-	  '$save_directive'(G, Mode, M, VL, Pos)
-	 ->
-	   true
-	 ;
-	   true
-     ),
+    '$save_directive'(G, Mode, M, VL, Pos),
      (
       '$execute'(M:G)
       ->
@@ -741,7 +758,7 @@ number of steps.
     recorded('$import','$import'(NM,Mod,NH,H,_,_),RI),
 %    NM \= Mod,
     functor(NH,N,Ar),
-    '$early_print'(warning,redefine_imported(Mod,NM,Mod:N/Ar)),
+    print_message(warning,redefine_imported(Mod,NM,Mod:N/Ar)),
     erase(RI),
     fail.
 '$init_pred'(H, Mod, Where ) :-
@@ -844,7 +861,7 @@ number of steps.
     ).
 
 '$out_neg_answer' :-
-	'$early_print'( help, false),
+	print_message( help, false),
 	 fail.
 
 
@@ -891,11 +908,11 @@ number of steps.
     ->
         '$add_nl_outside_console',
 		(
-         '$undefined'('$early_print'(_,_),prolog)
+         '$undefined'(print_message(_,_),prolog)
         ->
          format(user_error,'yes~n', [])
         ;
-         '$early_print'(help,yes)
+         print_message(help,yes)
 		)
 	;
 	    C== 13
@@ -1313,22 +1330,10 @@ not(G) :-    \+ '$execute'(G).
 '$check_callable'(_,_).
 
 
-'$bootstrap' :-
-    bootstrap('init.yap'),
-    module(user),
-    '$live'.
-
-
-'$silent_bootstrap'(F) :-
-    yap_flag(verbose, Old, silent),
-    bootstrap( F ),
-    yap_flag(verbose, _, Old),
-    '$live'.
-
-
 bootstrap(F) :-
-%	'$open'(F, '$csult', Stream, 0, 0, F),
+  %	'$open'(F, '$csult', Stream, 0, 0, F),
 %	'$file_name'(Stream,File),
+    yap_flag(verbose_load, Old, silent),
 	open(F, read, Stream),
 	stream_property(Stream, [file_name(File)]),
 	'$start_consult'(consult, File, LC),
@@ -1342,8 +1347,8 @@ bootstrap(F) :-
 	  H0 is heapused, '$cputime'(T0,_),
 	 format(user_error, '~*|% consulting ~w...~n', [LC,F])
 	),
-	'$loop'(Stream,consult),
-	working_directory(_, OldD),
+	'$boot_loop'(Stream,consult),
+ 	working_directory(_, OldD),
 	'$current_module'(_, prolog),
 	'$end_consult',
 	(
@@ -1355,11 +1360,8 @@ bootstrap(F) :-
 	  format(user_error, '~*|% ~w consulted ~w bytes in ~d msecs~n', [LC,F,H,T])
 	),
 	!,
+    yap_flag(verbose_load, _, Old),
 	close(Stream).
-
-% '$undefp'([M0|G0], Default) :-
-%    writeln(M0:G0),
-%    fail.
 
 
 '$loop'(Stream,exo) :-
@@ -1389,6 +1391,52 @@ bootstrap(F) :-
 			         user:'$LoopError'(Error, Status)
                    ),
 	!.
+
+'$boot_loop'(Stream,Where) :-
+	repeat,
+	'$current_module'( OldModule, OldModule ),
+	read_clause(Stream, Command, [module(OldModule), syntax_errors(dec10),variable_names(_Vars), term_position(_Pos)]),
+	(Command == end_of_file
+  ->
+    !
+	;
+   Command = (:- Goal) ->
+     '$system_catch'('$boot_execute'(Goal),   prolog, Error,
+        user:'$LoopError'(Error, consult) ),
+    fail
+   ;
+Command = (H --> B) ->
+     '$system_catch'('$boot_dcg'(H,B, Where),   prolog, Error,
+        user:'$LoopError'(Error, consult) ),
+
+  fail
+ ;
+     '$system_catch'('$boot_clause'( Command, Where ),  prolog, Error,
+        user:'$LoopError'(Error, consult) ),
+
+  fail
+ ).
+
+ '$boot_execute'( Goal ) :-
+    '$execute'( Goal ),
+    !.
+ '$boot_execute'( Goal ) :-
+    format(user_error, ':- ~w failed.~n', [Goal]).
+
+'$boot_dcg'( H, B, Where ) :-
+  '$translate_rule'((H --> B), (NH :- NB) ),
+  '$$compile'((NH :- NB), Where, ( H --> B), _R),
+  !.
+'$boot_dcg'( H, B, _ ) :-
+  format(user_error, ' ~w --> ~w failed.~n', [H,B]).
+
+'$boot_clause'( Command, Where ) :-
+  '$$compile'(Command, Where, Command, _R),
+  !.
+'$boot_clause'( Command, _ ) :-
+  format(user_error, ' ~w failed.~n', [Command]).
+
+
 
 '$enter_command'(Stream, Mod, Status) :-
     prompt1(': '), prompt(_,'     '),
@@ -1455,7 +1503,7 @@ bootstrap(F) :-
 '$precompile_term'(Term, Term, Term).
 
 '$expand_clause'(InputCl, C1, CO) :-
-    source_module(SM),
+  source_module(SM),
     '$yap_strip_module'(SM:InputCl, M, ICl),
     '$expand_a_clause'( M:ICl, SM, C1, CO),
     !.
@@ -1519,7 +1567,7 @@ is responsible to capture uncaught exceptions.
 
 */
 catch(G, C, A) :-
-	'$catch'(G,_,[C|A]).
+	'$catch'(G,C,A).
 
 % makes sure we have an environment.
 '$true'.
@@ -1532,24 +1580,44 @@ catch(G, C, A) :-
 %
 '$system_catch'(G, M, C, A) :-
 	% check current trail
-	'$catch'(M:G,_,[C|A]).
+	'$catch'(M:G,C,A).
 
 '$catch'(MG,_,_) :-
 	'$$save_by'(CP0),
 	'$execute'(MG),
 	'$$save_by'(CP1),
     % remove catch
-	(CP0 == CP1 -> !; true ).
-'$catch'(_,C0,[C|A]) :-
-    nonvar(C0),
-    C0 = throw(Ball),
-    ( catch_ball( Ball, C)
-        ->
-      '$execute'(A)
-      ;
-      throw(Ball)
-    ).
+	(
+    CP0 == CP1
+     ->
+     !
+   ;
+     true
+  ).
+'$catch'(_,C,A) :-
+  nonvar(C),
+  '$run_catch'(A, C).
 
+% variable throws are user-handled.
+'$run_catch'(G,E) :-
+  E = '$VAR'(_),
+      !,
+    	call(G ).
+'$run_catch'('$Error'(E),E) :-
+        !,
+        	'$LoopError'(E, top ).
+'$run_catch'('$LoopError'(E, Where),E) :-
+      !,
+      '$LoopError'(E, Where).
+'$run_catch'('$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger),E) :-
+      !,
+      '$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger).
+'$run_catch'(_Signal,E) :-
+      functor( E, N, _),
+      '$hidden_atom'(N), !,
+      throw(E).
+'$run_catch'(E, _Signal) :-
+    call(E).
 
 %
 % throw has to be *exactly* after system catch!
@@ -1563,25 +1631,8 @@ a matching catch/3, or until reaching top-level.
 
 */
 throw(Ball) :-
-	( var(Ball) ->
-	    '$do_error'(instantiation_error,throw(Ball))
-	;
 	% get current jump point
-	    '$jump_env_and_store_ball'(Ball)
-	).
-
-catch_ball(Abort, _) :-
-    Abort == '$abort', !, fail.
-% system defined throws should be ignored by user, unless the
-% user is hacking away.
-catch_ball(Ball, V) :-
-	var(V),
-	nonvar(Ball),
-	Ball = error(Type,_), % internal error ??
-	functor(Type, Name, _),
-	atom_codes(Name, [0'$|_]), %'0
-	!, fail.
-catch_ball(C, C).
+	    '$jump_env_and_store_ball'(Ball).
 
 '$run_toplevel_hooks' :-
 	current_prolog_flag(break_level, 0 ),
@@ -1599,13 +1650,6 @@ catch_ball(C, C).
 log_event( String, Args ) :-
 	format( atom( M ), String, Args),
 	log_event( M ).
-
-'$early_print'( Lev, Msg ) :-
-	 ( '$undefined'(print_message(_,_),prolog) ->
-	    '$early_print_message'(Lev, Msg)
-	 ;
-	    print_message(Lev, Msg)
-	 ).
 
 '$prompt' :-
 	current_prolog_flag(break_level, BreakLevel),
