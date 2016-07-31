@@ -242,3 +242,56 @@ user_defined_directive(Dir,Action) :-
 	fail.
 '$thread_initialization'(M:D) :-
 	'$initialization'(M:D).
+
+%
+ % This command is very different depending on the language mode we are in.
+ %
+ % ISO only wants directives in files
+ % SICStus accepts everything in files
+ % YAP accepts everything everywhere
+ %
+ '$process_directive'(G, top, M, VL, Pos) :-
+	 current_prolog_flag(language_mode, yap), !,      /* strict_iso on */
+	 '$process_directive'(G, consult, M, VL, Pos).
+ '$process_directive'(G, top, _, _, _) :-
+     !,
+	 '$do_error'(context_error((:- G),clause),query).
+ %
+ % allow modules
+ %
+ '$process_directive'(M:G, Mode, _, VL, Pos) :- !,
+	 '$process_directive'(G, Mode, M, VL, Pos).
+ %
+ % default case
+ %
+ '$process_directive'(Gs, Mode, M, VL, Pos) :-
+	 '$all_directives'(Gs), !,
+	 '$exec_directives'(Gs, Mode, M, VL, Pos).
+
+ %
+ % ISO does not allow goals (use initialization).
+ %
+'$process_directive'(D, _, M, _VL, _Pos) :-
+	current_prolog_flag(language_mode, iso),
+    !, % ISO Prolog mode, go in and do it,
+	'$do_error'(context_error((:- M:D),query),directive).
+ %
+ % but YAP and SICStus does.
+ %
+ '$process_directive'(G, Mode, M, VL, Pos) :-
+     ( '$undefined'('$save_directive'(G, Mode, M, VL, Pos),prolog) ->
+	   true
+	 ;
+	  '$save_directive'(G, Mode, M, VL, Pos)
+	 ->
+	   true
+	 ;
+	   true
+     ),
+     (
+      '$execute'(M:G)
+      ->
+      true
+     ;
+      format(user_error,':- ~w:~w failed.~n',[M,G])
+     ).
