@@ -8,15 +8,27 @@
 *									 *
 **************************************************************************
 *									 *
-									 *
+                                                                         *
 * comments:	regular expression interpreter                           *
 *									 *
 *************************************************************************/
 
-#include "config.h"
 #include "YapInterface.h"
-#include "crypto/md5.h"
+#include "config.h"
+
 #include <stdlib.h>
+
+#if __ANDROID__
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
+#include <android/log.h>
+#include <jni.h>
+#endif
+#include "YapStreams.h"
+
+#include "VFS.h"
+
+#include "crypto/md5.h"
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -58,9 +70,9 @@
 #include <direct.h>
 #endif
 #if defined(__MINGW32__) || _MSC_VER
-#include <windows.h>
-#include <process.h>
 #include <io.h>
+#include <process.h>
+#include <windows.h>
 #endif
 #ifdef __MINGW32__
 #ifdef HAVE_ENVIRON
@@ -76,23 +88,18 @@
 void init_sys(void);
 
 #if defined(__MINGW32__) || _MSC_VER
-static YAP_Term
-WinError(void)
-{
+static YAP_Term WinError(void) {
   char msg[256];
   /* Error, we could not read time */
-    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-		  NULL, GetLastError(), 
-		  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, 256,
-		  NULL);
-    return(YAP_MkAtomTerm(YAP_LookupAtom(msg)));
+  FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                msg, 256, NULL);
+  return (YAP_MkAtomTerm(YAP_LookupAtom(msg)));
 }
 #endif
 
 /* Return time in a structure */
-static YAP_Bool
-sysmktime(void)
-{
+static YAP_Bool sysmktime(void) {
 
 #if defined(__MINGW32__) || _MSC_VER
   SYSTEMTIME stime, stime0;
@@ -112,17 +119,20 @@ sysmktime(void)
   stime0.wMinute = 0;
   stime0.wSecond = 0;
   stime0.wMilliseconds = 0;
-  if (!SystemTimeToFileTime(&stime,&ftime)) {
+  if (!SystemTimeToFileTime(&stime, &ftime)) {
     return YAP_Unify(YAP_ARG8, YAP_MkIntTerm(errno));
   }
-  if (!SystemTimeToFileTime(&stime0,&ftime0)) {
+  if (!SystemTimeToFileTime(&stime0, &ftime0)) {
     return YAP_Unify(YAP_ARG8, YAP_MkIntTerm(errno));
   }
 #if __GNUC__
   {
-    unsigned long long f1 = (((unsigned long long)ftime.dwHighDateTime)<<32)+(unsigned long long)ftime.dwLowDateTime;
-    unsigned long long f0 = (((unsigned long long)ftime0.dwHighDateTime)<<32)+(unsigned long long)ftime0.dwLowDateTime;
-    return YAP_Unify(YAP_ARG7,YAP_MkIntTerm((long int)((f1-f0)/10000000)));
+    unsigned long long f1 = (((unsigned long long)ftime.dwHighDateTime) << 32) +
+                            (unsigned long long)ftime.dwLowDateTime;
+    unsigned long long f0 =
+        (((unsigned long long)ftime0.dwHighDateTime) << 32) +
+        (unsigned long long)ftime0.dwLowDateTime;
+    return YAP_Unify(YAP_ARG7, YAP_MkIntTerm((long int)((f1 - f0) / 10000000)));
   }
 #else
   return FALSE;
@@ -131,9 +141,9 @@ sysmktime(void)
 #ifdef HAVE_MKTIME
   struct tm loc;
   time_t tim;
-   
-  loc.tm_year = YAP_IntOfTerm(YAP_ARG1)-1900;
-  loc.tm_mon = YAP_IntOfTerm(YAP_ARG2)-1;
+
+  loc.tm_year = YAP_IntOfTerm(YAP_ARG1) - 1900;
+  loc.tm_mon = YAP_IntOfTerm(YAP_ARG2) - 1;
   loc.tm_mday = YAP_IntOfTerm(YAP_ARG3);
   loc.tm_hour = YAP_IntOfTerm(YAP_ARG4);
   loc.tm_min = YAP_IntOfTerm(YAP_ARG5);
@@ -143,7 +153,7 @@ sysmktime(void)
   if ((tim = mktime(&loc)) == (time_t)-1) {
     return YAP_Unify(YAP_ARG8, YAP_MkIntTerm(errno));
   }
-  return YAP_Unify(YAP_ARG7,YAP_MkIntTerm(tim));
+  return YAP_Unify(YAP_ARG7, YAP_MkIntTerm(tim));
 #else
   oops
 #endif /* HAVE_MKTIME */
@@ -151,9 +161,7 @@ sysmktime(void)
 }
 
 /* Return time in a structure */
-static YAP_Bool
-datime(void)
-{
+static YAP_Bool datime(void) {
   YAP_Term tf, out[6];
 #if defined(__MINGW32__) || _MSC_VER
   SYSTEMTIME stime;
@@ -165,40 +173,38 @@ datime(void)
   out[4] = YAP_MkIntTerm(stime.wMinute);
   out[5] = YAP_MkIntTerm(stime.wSecond);
 #elif HAVE_TIME
-  time_t  tp;
+  time_t tp;
 
   if ((tp = time(NULL)) == -1) {
-     return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(errno)));    
+    return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(errno)));
   }
 #ifdef HAVE_LOCALTIME
- {
-   struct tm *loc = localtime(&tp);
-   if (loc == NULL) {
-     return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(errno)));    
-   }
-   out[0] = YAP_MkIntTerm(1900+loc->tm_year);
-   out[1] = YAP_MkIntTerm(1+loc->tm_mon);
-   out[2] = YAP_MkIntTerm(loc->tm_mday);
-   out[3] = YAP_MkIntTerm(loc->tm_hour);
-   out[4] = YAP_MkIntTerm(loc->tm_min);
-   out[5] = YAP_MkIntTerm(loc->tm_sec);
- }
+  {
+    struct tm *loc = localtime(&tp);
+    if (loc == NULL) {
+      return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(errno)));
+    }
+    out[0] = YAP_MkIntTerm(1900 + loc->tm_year);
+    out[1] = YAP_MkIntTerm(1 + loc->tm_mon);
+    out[2] = YAP_MkIntTerm(loc->tm_mday);
+    out[3] = YAP_MkIntTerm(loc->tm_hour);
+    out[4] = YAP_MkIntTerm(loc->tm_min);
+    out[5] = YAP_MkIntTerm(loc->tm_sec);
+  }
 #else
   oops
 #endif /* HAVE_LOCALTIME */
 #else
   oops
 #endif /* HAVE_TIME */
-  tf = YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom("datime"),6), 6, out);
+  tf = YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom("datime"), 6), 6, out);
   return YAP_Unify(YAP_ARG1, tf);
 }
 
 #define BUF_SIZE 1024
 
 /* Return a list of files for a directory */
-static YAP_Bool
-list_directory(void)
-{
+static YAP_Bool list_directory(void) {
   YAP_Term tf = YAP_MkAtomTerm(YAP_LookupAtom("[]"));
   long sl = YAP_InitSlot(tf);
 
@@ -220,72 +226,68 @@ list_directory(void)
   strcat(bs, "/*");
 #endif
   if ((hFile = _findfirst(bs, &c_file)) == -1L) {
-    return(YAP_Unify(YAP_ARG2,tf));
+    return (YAP_Unify(YAP_ARG2, tf));
   }
-  YAP_PutInSlot(sl, YAP_MkPairTerm(YAP_MkAtomTerm(YAP_LookupAtom(c_file.name)), YAP_GetFromSlot(sl)));
-  while (_findnext( hFile, &c_file) == 0) {
+  YAP_PutInSlot(sl, YAP_MkPairTerm(YAP_MkAtomTerm(YAP_LookupAtom(c_file.name)),
+                                   YAP_GetFromSlot(sl)));
+  while (_findnext(hFile, &c_file) == 0) {
     YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(c_file.name));
-    YAP_PutInSlot(sl,YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
+    YAP_PutInSlot(sl, YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
   }
-  _findclose( hFile );
+  _findclose(hFile);
 #else
 #if __ANDROID__
- {
-    extern AAssetManager *Yap_assetManager;
-     const char *dirName = buf+strlen("/assets/");
-     AAssetManager* mgr = Yap_assetManager;
-    AAssetDir	 *de;
-    const char* dp;
+  {
+    const char *dirName = buf + strlen("/assets/");
+    AAssetManager *mgr = GLOBAL_VFS->priv[0].mgr;
+    AAssetDir *de;
+    const char *dp;
 
-   if ((de = AAssetManager_openDir(mgr, dirName)) == NULL) {
-     return(YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
-   }
-   while (( dp = AAssetDir_getNextFileName(de))) {
-     YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(dp));
-     YAP_PutInSlot(sl,YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
-   }
-   AAssetDir_close(de);
- }
+    if ((de = AAssetManager_openDir(mgr, dirName)) == NULL) {
+      return (YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
+    }
+    while ((dp = AAssetDir_getNextFileName(de))) {
+      YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(dp));
+      YAP_PutInSlot(sl, YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
+    }
+    AAssetDir_close(de);
+  }
 #endif
 #if HAVE_OPENDIR
- {
-   DIR *de;
-   struct dirent *dp;
+  {
+    DIR *de;
+    struct dirent *dp;
 
-   if ((de = opendir(buf)) == NULL) {
-     return(YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
-   }
-   while ((dp = readdir(de))) {
-     YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(dp->d_name));
-     YAP_PutInSlot(sl,YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
-   }
-   closedir(de);
- }
+    if ((de = opendir(buf)) == NULL) {
+      return (YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
+    }
+    while ((dp = readdir(de))) {
+      YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(dp->d_name));
+      YAP_PutInSlot(sl, YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
+    }
+    closedir(de);
+  }
 #endif /* HAVE_OPENDIR */
 #endif
   tf = YAP_GetFromSlot(sl);
   return YAP_Unify(YAP_ARG2, tf);
 }
 
-static YAP_Bool
-p_unlink(void)
-{
+static YAP_Bool p_unlink(void) {
   char *fd = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
 #if defined(__MINGW32__) || _MSC_VER
   if (_unlink(fd) == -1)
 #else
   if (unlink(fd) == -1)
 #endif
-    {
-      /* return an error number */
-      return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(errno)));
-    }
-  return(TRUE);
+  {
+    /* return an error number */
+    return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(errno)));
+  }
+  return (TRUE);
 }
 
-static YAP_Bool
-p_rmdir(void)
-{
+static YAP_Bool p_rmdir(void) {
   char *fd = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
 #if defined(__MINGW32__) || _MSC_VER
   if (_rmdir(fd) == -1) {
@@ -293,82 +295,76 @@ p_rmdir(void)
   if (rmdir(fd) == -1) {
 #endif
     /* return an error number */
-    return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(errno)));
+    return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(errno)));
   }
-  return(TRUE);
+  return (TRUE);
 }
 
-static YAP_Bool
-rename_file(void)
-{
+static YAP_Bool rename_file(void) {
   char *s1 = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
   char *s2 = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG2));
 #if HAVE_RENAME
   if (rename(s1, s2) == -1) {
     /* return an error number */
-    return(YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
+    return (YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
   }
 #endif
-  return(TRUE);
+  return (TRUE);
 }
 
-static YAP_Bool
-dir_separator(void)
-{
-  return(YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom("/"))));
+static YAP_Bool dir_separator(void) {
+  return (YAP_Unify(YAP_ARG1, YAP_MkAtomTerm(YAP_LookupAtom("/"))));
 }
 
-static YAP_Bool
-file_property(void)
-{
+static YAP_Bool file_property(void) {
   const char *fd;
-#if HAVE_LSTAT 
+#if HAVE_LSTAT
   struct stat buf;
 
   fd = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
   if (lstat(fd, &buf) == -1) {
     /* return an error number */
-    return(YAP_Unify(YAP_ARG7, YAP_MkIntTerm(errno)));
+    return (YAP_Unify(YAP_ARG7, YAP_MkIntTerm(errno)));
   }
   if (S_ISREG(buf.st_mode)) {
     if (!(YAP_Unify(YAP_ARG2, YAP_MkAtomTerm(YAP_LookupAtom("regular"))) &&
-	  YAP_Unify(YAP_ARG6, YAP_MkIntTerm(0))))
-      return(FALSE);
+          YAP_Unify(YAP_ARG6, YAP_MkIntTerm(0))))
+      return (FALSE);
   } else if (S_ISDIR(buf.st_mode)) {
     if (!(YAP_Unify(YAP_ARG2, YAP_MkAtomTerm(YAP_LookupAtom("directory"))) &&
-	  YAP_Unify(YAP_ARG6, YAP_MkIntTerm(0))))
-      return(FALSE);
+          YAP_Unify(YAP_ARG6, YAP_MkIntTerm(0))))
+      return (FALSE);
   } else if (S_ISFIFO(buf.st_mode)) {
     if (!(YAP_Unify(YAP_ARG2, YAP_MkAtomTerm(YAP_LookupAtom("fifo"))) &&
-	  YAP_Unify(YAP_ARG6, YAP_MkIntTerm(0))))
-      return(FALSE);
+          YAP_Unify(YAP_ARG6, YAP_MkIntTerm(0))))
+      return (FALSE);
   } else if (S_ISLNK(buf.st_mode)) {
     if (!YAP_Unify(YAP_ARG2, YAP_MkAtomTerm(YAP_LookupAtom("symlink"))))
-      return(FALSE);
+      return (FALSE);
 #if HAVE_READLINK
     {
       char tmp[256];
       int n;
-      if ((n = readlink(fd,tmp,256)) == -1) {
-	return(YAP_Unify(YAP_ARG7, YAP_MkIntTerm(errno)));
+      if ((n = readlink(fd, tmp, 256)) == -1) {
+        return (YAP_Unify(YAP_ARG7, YAP_MkIntTerm(errno)));
       }
       tmp[n] = '\0';
-      if(!YAP_Unify(YAP_ARG6,YAP_MkAtomTerm(YAP_LookupAtom(tmp)))) {
-	return(FALSE);
+      if (!YAP_Unify(YAP_ARG6, YAP_MkAtomTerm(YAP_LookupAtom(tmp)))) {
+        return (FALSE);
       }
     }
 #else
     if (!YAP_Unify(YAP_ARG6, YAP_MkIntTerm(0)))
-      return(FALSE);
-#endif    
+      return (FALSE);
+#endif
   } else if (S_ISSOCK(buf.st_mode)) {
     if (!(YAP_Unify(YAP_ARG2, YAP_MkAtomTerm(YAP_LookupAtom("socket"))) &&
-	  YAP_Unify(YAP_ARG6, YAP_MkIntTerm(0))))
-      return(FALSE);
+          YAP_Unify(YAP_ARG6, YAP_MkIntTerm(0))))
+      return (FALSE);
   } else {
     if (!(YAP_Unify(YAP_ARG2, YAP_MkAtomTerm(YAP_LookupAtom("unknown"))) &&
-	  YAP_Unify(YAP_ARG6, YAP_MkIntTerm(0))))
-      return(FALSE);
+          YAP_Unify(YAP_ARG6, YAP_MkIntTerm(0))))
+      return (FALSE);
   }
 #elif defined(__MINGW32__) || _MSC_VER
   /* for some weird reason _stat did not work with mingw32 */
@@ -377,31 +373,27 @@ file_property(void)
   fd = YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
   if (_stat(fd, &buf) != 0) {
     /* return an error number */
-    return(YAP_Unify(YAP_ARG7, YAP_MkIntTerm(errno)));
+    return (YAP_Unify(YAP_ARG7, YAP_MkIntTerm(errno)));
   }
   if (buf.st_mode & S_IFREG) {
     if (!YAP_Unify(YAP_ARG2, YAP_MkAtomTerm(YAP_LookupAtom("regular"))))
-      return(FALSE);
+      return (FALSE);
   } else if (buf.st_mode & S_IFDIR) {
     if (!YAP_Unify(YAP_ARG2, YAP_MkAtomTerm(YAP_LookupAtom("directory"))))
-      return(FALSE);
+      return (FALSE);
   } else {
     if (!YAP_Unify(YAP_ARG2, YAP_MkAtomTerm(YAP_LookupAtom("unknown"))))
-      return(FALSE);
+      return (FALSE);
   }
 #endif
-  return (
-	  YAP_Unify(YAP_ARG3, YAP_MkIntTerm(buf.st_size)) &&
-	  YAP_Unify(YAP_ARG4, YAP_MkIntTerm(buf.st_mtime)) &&
-	  YAP_Unify(YAP_ARG5, YAP_MkIntTerm(buf.st_mode))
-	  );
+  return (YAP_Unify(YAP_ARG3, YAP_MkIntTerm(buf.st_size)) &&
+          YAP_Unify(YAP_ARG4, YAP_MkIntTerm(buf.st_mtime)) &&
+          YAP_Unify(YAP_ARG5, YAP_MkIntTerm(buf.st_mode)));
 }
 
 /* temporary files */
 
-static YAP_Bool
-p_mktemp(void)
-{
+static YAP_Bool p_mktemp(void) {
 #if HAVE_MKSTEMP || HAVE_MKTEMP || defined(__MINGW32__) || _MSC_VER
   char *s, tmp[BUF_SIZE];
   s = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
@@ -413,144 +405,131 @@ p_mktemp(void)
 #if defined(__MINGW32__) || _MSC_VER
   if ((s = _mktemp(tmp)) == NULL) {
     /* return an error number */
-    return(YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
+    return (YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
   }
-  return(YAP_Unify(YAP_ARG2,YAP_MkAtomTerm(YAP_LookupAtom(s))));
+  return (YAP_Unify(YAP_ARG2, YAP_MkAtomTerm(YAP_LookupAtom(s))));
 #elif HAVE_MKSTEMP
   strcpy(tmp, "/tmp/YAP_tmpXXXXXXXX");
-  if(mkstemp(tmp) == -1) {
+  if (mkstemp(tmp) == -1) {
     /* return an error number */
-    return(YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
+    return (YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
   }
-  return YAP_Unify(YAP_ARG2,YAP_MkAtomTerm(YAP_LookupAtom(tmp)));
+  return YAP_Unify(YAP_ARG2, YAP_MkAtomTerm(YAP_LookupAtom(tmp)));
 #else
   if ((s = mktemp(tmp)) == NULL) {
     /* return an error number */
-    return(YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
+    return (YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
   }
-  return YAP_Unify(YAP_ARG2,YAP_MkAtomTerm(YAP_LookupAtom(s)));
+  return YAP_Unify(YAP_ARG2, YAP_MkAtomTerm(YAP_LookupAtom(s)));
 #endif
 #else
   return FALSE;
 #endif
-  return(TRUE); 
+  return (TRUE);
 }
 
-static YAP_Bool
-p_tmpnam(void)
-{
+static YAP_Bool p_tmpnam(void) {
 #if HAVE_MKSTEMP
   char s[21];
   strcpy(s, "/tmp/YAP_tmpXXXXXXXX");
-  if(mkstemp(s) == -1)
+  if (mkstemp(s) == -1)
     return FALSE;
-  return YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom(s)));
+  return YAP_Unify(YAP_ARG1, YAP_MkAtomTerm(YAP_LookupAtom(s)));
 #elif HAVE_MKTEMP
   char *s;
   if (!(s = mktemp("/tmp/YAP_tmpXXXXXXXX")))
     return FALSE;
-  return YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom(s)));
+  return YAP_Unify(YAP_ARG1, YAP_MkAtomTerm(YAP_LookupAtom(s)));
 #elif HAVE_TMPNAM
   char buf[L_tmpnam], *s;
   if (!(s = tmpnam(buf)))
     return FALSE;
-  return YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom(s)));
+  return YAP_Unify(YAP_ARG1, YAP_MkAtomTerm(YAP_LookupAtom(s)));
 #else
   return FALSE;
 #endif
 }
 
-static YAP_Bool
-p_tmpdir(void)
-{
+static YAP_Bool p_tmpdir(void) {
 #if defined(__MINGW32__) || _MSC_VER
   char buf[512];
   DWORD out = GetTempPath(512, buf);
   if (!out) {
-    return(YAP_Unify(YAP_ARG2, WinError()));
+    return (YAP_Unify(YAP_ARG2, WinError()));
   }
   if (out > 511) {
-    char *nbuf = malloc(out+1);
+    char *nbuf = malloc(out + 1);
     if (!nbuf)
-      return YAP_Unify(YAP_ARG2, YAP_MkAtomTerm(YAP_LookupAtom("no malloc memory")));
+      return YAP_Unify(YAP_ARG2,
+                       YAP_MkAtomTerm(YAP_LookupAtom("no malloc memory")));
     out = GetTempPath(512, nbuf);
     if (!out) {
       return YAP_Unify(YAP_ARG2, WinError());
     }
-    return  YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom(nbuf)));
+    return YAP_Unify(YAP_ARG1, YAP_MkAtomTerm(YAP_LookupAtom(nbuf)));
   }
-  return  YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom(buf)));
+  return YAP_Unify(YAP_ARG1, YAP_MkAtomTerm(YAP_LookupAtom(buf)));
 #else
   char *s;
   if ((s = getenv("TMPDIR")))
-    return  YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom(s)));
+    return YAP_Unify(YAP_ARG1, YAP_MkAtomTerm(YAP_LookupAtom(s)));
 #ifdef P_tmpdir
-  return  YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom(P_tmpdir)));
+  return YAP_Unify(YAP_ARG1, YAP_MkAtomTerm(YAP_LookupAtom(P_tmpdir)));
 #endif
-  return  YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom("/tmp")));
+  return YAP_Unify(YAP_ARG1, YAP_MkAtomTerm(YAP_LookupAtom("/tmp")));
 #endif
 }
 
 /* return YAP's environment */
-static YAP_Bool
-p_environ(void)
-{
+static YAP_Bool p_environ(void) {
 #if HAVE_ENVIRON && 0
 #if HAVE__NSGETENVIRON
-  char ** ptr = _NSGetEnviron();
+  char **ptr = _NSGetEnviron();
 #elif defined(__MINGW32__) || _MSC_VER
   extern char **_environ;
-  char ** ptr = _environ;
+  char **ptr = _environ;
 #else
   extern char **environ;
-  char ** ptr = environ;
+  char **ptr = environ;
 #endif
   YAP_Term t1 = YAP_ARG1;
   long int i;
 
   i = YAP_IntOfTerm(t1);
   if (ptr[i] == NULL)
-    return(FALSE);
+    return (FALSE);
   else {
     YAP_Term t = YAP_BufferToString(ptr[i]);
-    return(YAP_Unify(t, YAP_ARG2));
+    return (YAP_Unify(t, YAP_ARG2));
   }
 #else
-  YAP_Error(0, 0L, "environ not available in this configuration" );
-  return(FALSE);
+  YAP_Error(0, 0L, "environ not available in this configuration");
+  return (FALSE);
 #endif
 }
 
 #if defined(__MINGW32__) || _MSC_VER
-static HANDLE
-get_handle(YAP_Term ti, DWORD fd)
-{
+static HANDLE get_handle(YAP_Term ti, DWORD fd) {
   if (YAP_IsAtomTerm(ti)) {
     HANDLE out;
     SECURITY_ATTRIBUTES satt;
-    
+
     satt.nLength = sizeof(satt);
     satt.lpSecurityDescriptor = NULL;
     satt.bInheritHandle = TRUE;
-    out = CreateFile("NUL",
-			    GENERIC_READ|GENERIC_WRITE,
-			    FILE_SHARE_READ|FILE_SHARE_WRITE,
-			    &satt,
-			    OPEN_EXISTING,
-			    0,
-			    NULL);
-    return(out);
+    out = CreateFile("NUL", GENERIC_READ | GENERIC_WRITE,
+                     FILE_SHARE_READ | FILE_SHARE_WRITE, &satt, OPEN_EXISTING,
+                     0, NULL);
+    return (out);
   } else {
     if (YAP_IsIntTerm(ti)) {
-      return(GetStdHandle(fd));
+      return (GetStdHandle(fd));
     } else
-      return((HANDLE)YAP_StreamToFileNo(ti));
+      return ((HANDLE)_get_osfhandle(YAP_StreamToFileNo(ti)));
   }
 }
 
-static void
-close_handle(YAP_Term ti, HANDLE h)
-{
+static void close_handle(YAP_Term ti, HANDLE h) {
   if (YAP_IsAtomTerm(ti)) {
     CloseHandle(h);
   }
@@ -559,9 +538,7 @@ close_handle(YAP_Term ti, HANDLE h)
 #endif
 
 /* execute a command as a detached process */
-static YAP_Bool
-execute_command(void)
-{
+static YAP_Bool execute_command(void) {
   YAP_Term ti = YAP_ARG2, to = YAP_ARG3, te = YAP_ARG4;
   int res;
   YAP_Term AtomNull = YAP_MkAtomTerm(YAP_LookupAtom("null"));
@@ -573,18 +550,18 @@ execute_command(void)
   PROCESS_INFORMATION ProcessInformation;
   inpf = get_handle(ti, STD_INPUT_HANDLE);
   if (inpf == INVALID_HANDLE_VALUE) {
-    return(YAP_Unify(YAP_ARG6, WinError()));
+    return (YAP_Unify(YAP_ARG6, WinError()));
   }
   outf = get_handle(to, STD_OUTPUT_HANDLE);
   if (outf == INVALID_HANDLE_VALUE) {
     close_handle(ti, inpf);
-    return(YAP_Unify(YAP_ARG6, WinError()));
+    return (YAP_Unify(YAP_ARG6, WinError()));
   }
   errf = get_handle(te, STD_OUTPUT_HANDLE);
   if (errf == INVALID_HANDLE_VALUE) {
     close_handle(ti, inpf);
     close_handle(to, outf);
-    return(YAP_Unify(YAP_ARG6, WinError()));
+    return (YAP_Unify(YAP_ARG6, WinError()));
   }
   if (!YAP_IsIntTerm(ti) && !YAP_IsIntTerm(to) && !YAP_IsIntTerm(te)) {
     /* we do not keep a current stream */
@@ -593,7 +570,7 @@ execute_command(void)
   StartupInfo.cb = sizeof(STARTUPINFO);
   StartupInfo.lpReserved = NULL;
   StartupInfo.lpDesktop = NULL; /* inherit */
-  StartupInfo.lpTitle = NULL; /* we do not create a new console window */
+  StartupInfo.lpTitle = NULL;   /* we do not create a new console window */
   StartupInfo.dwFlags = STARTF_USESTDHANDLES;
   StartupInfo.cbReserved2 = 0;
   StartupInfo.lpReserved2 = NULL;
@@ -601,27 +578,20 @@ execute_command(void)
   StartupInfo.hStdOutput = outf;
   StartupInfo.hStdError = errf;
   /* got stdin, stdout and error as I like it */
-  if (CreateProcess(NULL,
-		    (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1)),
-		    NULL,
-		    NULL,
-		    TRUE,
-		    CreationFlags,
-		    NULL,
-		    NULL,
-		    &StartupInfo,
-		    &ProcessInformation) == FALSE) {
+  if (CreateProcess(NULL, (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1)), NULL,
+                    NULL, TRUE, CreationFlags, NULL, NULL, &StartupInfo,
+                    &ProcessInformation) == FALSE) {
     close_handle(ti, inpf);
     close_handle(to, outf);
     close_handle(te, errf);
-    return(YAP_Unify(YAP_ARG6, WinError()));
+    return (YAP_Unify(YAP_ARG6, WinError()));
   }
   close_handle(ti, inpf);
   close_handle(to, outf);
   close_handle(te, errf);
   res = ProcessInformation.dwProcessId;
-  return(YAP_Unify(YAP_ARG5,YAP_MkIntTerm(res)));  
-#else /* UNIX CODE */
+  return (YAP_Unify(YAP_ARG5, YAP_MkIntTerm(res)));
+#else  /* UNIX CODE */
   int inpf, outf, errf;
   /* process input first */
   if (ti == AtomNull) {
@@ -639,7 +609,7 @@ execute_command(void)
   }
   if (inpf < 0) {
     /* return an error number */
-    return(YAP_Unify(YAP_ARG6, YAP_MkIntTerm(errno)));
+    return (YAP_Unify(YAP_ARG6, YAP_MkIntTerm(errno)));
   }
   /* then output stream */
   if (to == AtomNull) {
@@ -657,8 +627,9 @@ execute_command(void)
   }
   if (outf < 0) {
     /* return an error number */
-    if (inpf != 0) close(inpf);
-    return(YAP_Unify(YAP_ARG6, YAP_MkIntTerm(errno)));
+    if (inpf != 0)
+      close(inpf);
+    return (YAP_Unify(YAP_ARG6, YAP_MkIntTerm(errno)));
   }
   /* then error stream */
   if (te == AtomNull) {
@@ -676,19 +647,24 @@ execute_command(void)
   }
   if (errf < 0) {
     /* return an error number */
-    if (inpf != 0) close(inpf);
-    if (outf != 1) close(outf);
-    return(YAP_Unify(YAP_ARG6, YAP_MkIntTerm(errno)));
+    if (inpf != 0)
+      close(inpf);
+    if (outf != 1)
+      close(outf);
+    return (YAP_Unify(YAP_ARG6, YAP_MkIntTerm(errno)));
   }
   YAP_FlushAllStreams();
   /* we are now ready to fork */
   if ((res = fork()) < 0) {
     /* close streams we don't need */
-    if (inpf != 0) close(inpf);
-    if (outf != 1) close(outf);
-    if (errf != 2) close(errf);
+    if (inpf != 0)
+      close(inpf);
+    if (outf != 1)
+      close(outf);
+    if (errf != 2)
+      close(errf);
     /* return an error number */
-    return(YAP_Unify(YAP_ARG6, YAP_MkIntTerm(errno)));
+    return (YAP_Unify(YAP_ARG6, YAP_MkIntTerm(errno)));
   } else if (res == 0) {
     char *argv[4];
 
@@ -698,19 +674,19 @@ execute_command(void)
     if (inpf != 0) {
       close(0);
       if (dup(inpf) != 0)
-	exit(1);
+        exit(1);
       close(inpf);
     }
     if (outf != 1) {
-      close(1);      
+      close(1);
       if (dup(outf) != 1)
-      exit(1);
+        exit(1);
       close(outf);
     }
     if (errf != 2) {
       close(2);
       if (dup(errf) != 2)
-	exit(2);
+        exit(2);
       close(errf);
     }
     argv[0] = "sh";
@@ -721,47 +697,45 @@ execute_command(void)
     exit(127);
     /* we have the streams where we want them, just want to execute now */
   } else {
-    if (inpf != 0) close(inpf);
-    if (outf != 1) close(outf);
-    if (errf != 2) close(errf);
-    return(YAP_Unify(YAP_ARG5,YAP_MkIntTerm(res)));
+    if (inpf != 0)
+      close(inpf);
+    if (outf != 1)
+      close(outf);
+    if (errf != 2)
+      close(errf);
+    return (YAP_Unify(YAP_ARG5, YAP_MkIntTerm(res)));
   }
 #endif /* UNIX code */
 }
 
 /* execute a command as a detached process */
-static YAP_Bool
-do_system(void)
-{
+static YAP_Bool do_system(void) {
   char *command = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
 #if HAVE_SYSTEM
   int sys = system(command);
   if (sys < 0) {
-    return YAP_Unify(YAP_ARG3,YAP_MkIntTerm(errno));
+    return YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno));
   }
   return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(sys));
 #else
-  YAP_Error(0,0L,"system not available in this configuration, trying %s", command);
+  YAP_Error(0, 0L, "system not available in this configuration, trying %s",
+            command);
   return FALSE;
 #endif
 }
 
-
-
 /* execute a command as a detached process */
-static YAP_Bool
-do_shell(void)
-{
+static YAP_Bool do_shell(void) {
 #if defined(__MINGW32__) || _MSC_VER
-  YAP_Error(0,0L,"system not available in this configuration");
-  return(FALSE);
+  YAP_Error(0, 0L, "system not available in this configuration");
+  return (FALSE);
 #elif HAVE_SYSTEM
   char *buf = YAP_AllocSpaceFromYap(BUF_SIZE);
   int sys;
 
   if (buf == NULL) {
-    YAP_Error(0,0L,"No Temporary Space for Shell");
-    return(FALSE);
+    YAP_Error(0, 0L, "No Temporary Space for Shell");
+    return (FALSE);
   }
 #if HAVE_STRNCPY
   strncpy(buf, YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1)), BUF_SIZE);
@@ -778,7 +752,7 @@ do_shell(void)
   sys = system(buf);
   YAP_FreeSpaceFromYap(buf);
   if (sys < 0) {
-    return YAP_Unify(YAP_ARG5,YAP_MkIntTerm(errno));
+    return YAP_Unify(YAP_ARG5, YAP_MkIntTerm(errno));
   }
   return YAP_Unify(YAP_ARG4, YAP_MkIntTerm(sys));
 #else
@@ -786,20 +760,20 @@ do_shell(void)
   int t;
   int sys;
 
-  cptr[0]= (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
-  cptr[1]= (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG2));
-  cptr[2]= (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG3));
-  cptr[3]= NULL;
+  cptr[0] = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
+  cptr[1] = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG2));
+  cptr[2] = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG3));
+  cptr[3] = NULL;
   t = fork();
   if (t < 0) {
-    return YAP_Unify(YAP_ARG5,YAP_MkIntTerm(errno));
+    return YAP_Unify(YAP_ARG5, YAP_MkIntTerm(errno));
   } else if (t == 0) {
-    t = execvp(cptr[0],cptr);
+    t = execvp(cptr[0], cptr);
     return t;
   } else {
     t = wait(&sys);
     if (t < 0) {
-      return YAP_Unify(YAP_ARG5,YAP_MkIntTerm(errno));
+      return YAP_Unify(YAP_ARG5, YAP_MkIntTerm(errno));
     }
   }
   return YAP_Unify(YAP_ARG4, YAP_MkIntTerm(sys));
@@ -807,24 +781,22 @@ do_shell(void)
 }
 
 /* execute a command as a detached process */
-static YAP_Bool
-plwait(void)
-{
+static YAP_Bool plwait(void) {
   long int pid = YAP_IntOfTerm(YAP_ARG1);
 #if defined(__MINGW32__) || _MSC_VER
-  HANDLE proc = OpenProcess(STANDARD_RIGHTS_REQUIRED|SYNCHRONIZE, FALSE, pid);
+  HANDLE proc = OpenProcess(STANDARD_RIGHTS_REQUIRED | SYNCHRONIZE, FALSE, pid);
   DWORD ExitCode;
   if (proc == NULL) {
-    return(YAP_Unify(YAP_ARG3, WinError()));
+    return (YAP_Unify(YAP_ARG3, WinError()));
   }
   if (WaitForSingleObject(proc, INFINITE) == WAIT_FAILED) {
-    return(YAP_Unify(YAP_ARG3, WinError()));
+    return (YAP_Unify(YAP_ARG3, WinError()));
   }
   if (GetExitCodeProcess(proc, &ExitCode) == 0) {
-    return(YAP_Unify(YAP_ARG4, WinError()));
+    return (YAP_Unify(YAP_ARG4, WinError()));
   }
   CloseHandle(proc);
-  return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(ExitCode)));
+  return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(ExitCode)));
 #else
   do {
     int status;
@@ -832,46 +804,44 @@ plwait(void)
     /* check for interruptions */
     if (waitpid(pid, &status, 0) == -1) {
       if (errno) {
-	if (errno == EINTR) {
-	  continue;
-	}
-	return YAP_Unify( YAP_ARG3, YAP_MkIntTerm(errno));
+        if (errno == EINTR) {
+          continue;
+        }
+        return YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno));
       }
     }
-    if (WIFEXITED( status ) ) {
-      return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(WEXITSTATUS(status)) );
-    } else if (WIFSIGNALED( status )) {
-      return YAP_Unify(YAP_ARG3, YAP_MkAtomTerm(YAP_LookupAtom("signalled")) ) &&
-	YAP_Unify(YAP_ARG4, YAP_MkIntTerm( WTERMSIG(status)) );
+    if (WIFEXITED(status)) {
+      return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(WEXITSTATUS(status)));
+    } else if (WIFSIGNALED(status)) {
+      return YAP_Unify(YAP_ARG3, YAP_MkAtomTerm(YAP_LookupAtom("signalled"))) &&
+             YAP_Unify(YAP_ARG4, YAP_MkIntTerm(WTERMSIG(status)));
     } else /* WIFSTOPPED(status) */ {
-      return YAP_Unify(YAP_ARG3, YAP_MkAtomTerm(YAP_LookupAtom("stopped")) ) &&
-	YAP_Unify(YAP_ARG4, YAP_MkIntTerm( WSTOPSIG(status) ) );
+      return YAP_Unify(YAP_ARG3, YAP_MkAtomTerm(YAP_LookupAtom("stopped"))) &&
+             YAP_Unify(YAP_ARG4, YAP_MkIntTerm(WSTOPSIG(status)));
     }
-  } while(TRUE);
+  } while (TRUE);
 #endif
 }
 
-static YAP_Bool
-p_sleep(void)
-{
+static YAP_Bool p_sleep(void) {
   YAP_Term ts = YAP_ARG1;
 #if defined(__MINGW32__) || _MSC_VER
   {
-    unsigned long int secs = 0, usecs = 0,  msecs, out;
+    unsigned long int secs = 0, usecs = 0, msecs, out;
     if (YAP_IsIntTerm(ts)) {
       secs = YAP_IntOfTerm(ts);
-    }  else if (YAP_IsFloatTerm(ts)) {
+    } else if (YAP_IsFloatTerm(ts)) {
       double tfl = YAP_FloatOfTerm(ts);
-    if (tfl > 1.0)
-      secs = tfl;
-    else
-      usecs = tfl*1000000;
+      if (tfl > 1.0)
+        secs = tfl;
+      else
+        usecs = tfl * 1000000;
     }
-    msecs = secs*1000 + usecs/1000;
+    msecs = secs * 1000 + usecs / 1000;
     Sleep(msecs);
     /* no errors possible */
     out = 0;
-    return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
+    return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
   }
 #elif HAVE_NANOSLEEP
   {
@@ -880,186 +850,170 @@ p_sleep(void)
 
     if (YAP_IsFloatTerm(ts)) {
       double tfl = YAP_FloatOfTerm(ts);
-     
-      req.tv_nsec = (tfl-floor(tfl))*1000000000;
+
+      req.tv_nsec = (tfl - floor(tfl)) * 1000000000;
       req.tv_sec = rint(tfl);
     } else {
       req.tv_nsec = 0;
       req.tv_sec = YAP_IntOfTerm(ts);
     }
     out = nanosleep(&req, NULL);
-    return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
+    return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
   }
 #elif HAVE_USLEEP
   {
     useconds_t usecs;
     if (YAP_IsFloatTerm(ts)) {
       double tfl = YAP_FloatOfTerm(ts);
-     
-      usecs = rint(tfl*1000000);
+
+      usecs = rint(tfl * 1000000);
     } else {
-      usecs = YAP_IntOfTerm(ts)*1000000;
+      usecs = YAP_IntOfTerm(ts) * 1000000;
     }
     out = usleep(usecs);
-    return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
+    return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
   }
 #elif HAVE_SLEEP
   {
-    unsigned int  secs, out;
+    unsigned int secs, out;
     if (YAP_IsFloatTerm(ts)) {
       secs = rint(YAP_FloatOfTerm(ts));
     } else {
       secs = YAP_IntOfTerm(ts);
     }
     out = sleep(secs);
-    return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
+    return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
   }
 #else
-  YAP_Error(0,0L,"sleep not available in this configuration");
+  YAP_Error(0, 0L, "sleep not available in this configuration");
   return FALSE:
 #endif
 }
 
 /* host info */
 
-static YAP_Bool
-host_name(void)
-{
+static YAP_Bool host_name(void) {
 #if defined(__MINGW32__) || _MSC_VER
-  char name[MAX_COMPUTERNAME_LENGTH+1];
-  DWORD nSize = MAX_COMPUTERNAME_LENGTH+1;
+  char name[MAX_COMPUTERNAME_LENGTH + 1];
+  DWORD nSize = MAX_COMPUTERNAME_LENGTH + 1;
   if (GetComputerName(name, &nSize) == 0) {
-    return(YAP_Unify(YAP_ARG2, WinError()));
+    return (YAP_Unify(YAP_ARG2, WinError()));
   }
 #else
 #if HAVE_GETHOSTNAME
   char name[256];
   if (gethostname(name, 256) == -1) {
     /* return an error number */
-    return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(errno)));
+    return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(errno)));
   }
 #endif
 #endif /* defined(__MINGW32__) || _MSC_VER */
-  return(YAP_Unify(YAP_ARG1, YAP_MkAtomTerm(YAP_LookupAtom(name))));
+  return (YAP_Unify(YAP_ARG1, YAP_MkAtomTerm(YAP_LookupAtom(name))));
 }
 
-static YAP_Bool
-host_id(void)
-{
+static YAP_Bool host_id(void) {
 #if HAVE_GETHOSTID
-  return(YAP_Unify(YAP_ARG1, YAP_MkIntTerm(gethostid())));
+  return (YAP_Unify(YAP_ARG1, YAP_MkIntTerm(gethostid())));
 #else
-  return(YAP_Unify(YAP_ARG1, YAP_MkIntTerm(0)));
+  return (YAP_Unify(YAP_ARG1, YAP_MkIntTerm(0)));
 #endif
 }
 
-static YAP_Bool
-pid(void)
-{
+static YAP_Bool pid(void) {
 #if defined(__MINGW32__) || _MSC_VER
-  return(YAP_Unify(YAP_ARG1, YAP_MkIntTerm(_getpid())));
+  return (YAP_Unify(YAP_ARG1, YAP_MkIntTerm(_getpid())));
 #else
-  return(YAP_Unify(YAP_ARG1, YAP_MkIntTerm(getpid())));
+  return (YAP_Unify(YAP_ARG1, YAP_MkIntTerm(getpid())));
 #endif
 }
 
-static YAP_Bool
-win(void)
-{
+static YAP_Bool win(void) {
 #if defined(__MINGW32__) || _MSC_VER
-  return(TRUE);
+  return (TRUE);
 #else
-  return(FALSE);
+  return (FALSE);
 #endif
 }
 
-static YAP_Bool
-p_kill(void)
-{
+static YAP_Bool p_kill(void) {
 #if defined(__MINGW32__) || _MSC_VER
   /* Windows does not support cross-process signals, so we shall do the
      SICStus thing and assume that a signal to a process will
      always kill it */
-  HANDLE proc = OpenProcess(STANDARD_RIGHTS_REQUIRED|PROCESS_TERMINATE, FALSE, YAP_IntOfTerm(YAP_ARG1));
+  HANDLE proc = OpenProcess(STANDARD_RIGHTS_REQUIRED | PROCESS_TERMINATE, FALSE,
+                            YAP_IntOfTerm(YAP_ARG1));
   if (proc == NULL) {
-    return(YAP_Unify(YAP_ARG3, WinError()));
+    return (YAP_Unify(YAP_ARG3, WinError()));
   }
   if (TerminateProcess(proc, -1) == 0) {
-    return(YAP_Unify(YAP_ARG3, WinError()));
+    return (YAP_Unify(YAP_ARG3, WinError()));
   }
   CloseHandle(proc);
 #else
   if (kill(YAP_IntOfTerm(YAP_ARG1), YAP_IntOfTerm(YAP_ARG2)) < 0) {
     /* return an error number */
-    return(YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
+    return (YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
   }
 #endif /* defined(__MINGW32__) || _MSC_VER */
-  return(TRUE); 
+  return (TRUE);
 }
 
 #if HAVE_OPENSSL_RIPEMD_H
- #include <openssl/ripemd.h>
+#include <openssl/ripemd.h>
 #endif
- 
+
 /** md5( +Text, -Key, -Remaining keyq
- * encode text using OpenSSL 
+ * encode text using OpenSSL
  *
  * arg Text is a List of ASCII codes
  * arg2 and 3: difference list with the character codes for the
  * digest.
- * 
+ *
  * @return whether ARG1's md5 unifies with the difference liat.
  */
- static YAP_Bool
-   md5(void)
- {
-   unsigned char buf[64];
-   md5_state_t pms;
-   const char *s;
-   size_t len = -1;
-   
-   if ( ! (s = YAP_StringToBuffer( YAP_ARG1 , NULL, len )) ||
-	s[0] == 0)
-     return false;
+static YAP_Bool md5(void) {
+  unsigned char buf[64];
+  md5_state_t pms;
+  const char *s;
+  size_t len = -1;
 
-   md5_init( & pms );
-   md5_append( & pms, (const unsigned char *)s, strlen(s));
-   md5_finish( & pms, buf );
-   //free((void *)s);
-   YAP_Term t = YAP_ARG3;
-   int i = 16;
-   while (i > 0)
-     {
-       int top, bop;
-       i--;
-       top = buf[i]>>4;
-       if (top > 9)
-	 top = (top-10)+'a';
-       else
-	 top = top+'0';
-       bop = buf[i] & 15;
-       if (bop > 9)
-	 bop = (bop-10)+'a';
-       else
-	 bop = bop+'0';
-       t = YAP_MkPairTerm(YAP_MkIntTerm(top),
-			  YAP_MkPairTerm( YAP_MkIntTerm( bop ), t ));
-     }
-   return YAP_Unify( YAP_ARG2,t );
- }
+  if (!(s = YAP_StringToBuffer(YAP_ARG1, NULL, len)) || s[0] == 0)
+    return false;
 
-static YAP_Bool
-error_message(void)
-{
+  md5_init(&pms);
+  md5_append(&pms, (const unsigned char *)s, strlen(s));
+  md5_finish(&pms, buf);
+  // free((void *)s);
+  YAP_Term t = YAP_ARG3;
+  int i = 16;
+  while (i > 0) {
+    int top, bop;
+    i--;
+    top = buf[i] >> 4;
+    if (top > 9)
+      top = (top - 10) + 'a';
+    else
+      top = top + '0';
+    bop = buf[i] & 15;
+    if (bop > 9)
+      bop = (bop - 10) + 'a';
+    else
+      bop = bop + '0';
+    t = YAP_MkPairTerm(YAP_MkIntTerm(top),
+                       YAP_MkPairTerm(YAP_MkIntTerm(bop), t));
+  }
+  return YAP_Unify(YAP_ARG2, t);
+}
+
+static YAP_Bool error_message(void) {
 #if HAVE_STRERROR
-  return YAP_Unify(YAP_ARG2,YAP_MkAtomTerm(YAP_LookupAtom(strerror(YAP_IntOfTerm(YAP_ARG1)))));
+  return YAP_Unify(YAP_ARG2, YAP_MkAtomTerm(YAP_LookupAtom(
+                                 strerror(YAP_IntOfTerm(YAP_ARG1)))));
 #else
-  return YAP_Unify(YAP_ARG2,YAP_ARG1);
+  return YAP_Unify(YAP_ARG2, YAP_ARG1);
 #endif
 }
- void
-init_sys(void)
-{
+void init_sys(void) {
 #if HAVE_MKTIME
   tzset();
 #endif
@@ -1086,7 +1040,7 @@ init_sys(void)
   YAP_UserCPredicate("sleep", p_sleep, 2);
   YAP_UserCPredicate("error_message", error_message, 2);
   YAP_UserCPredicate("win", win, 0);
-  YAP_UserCPredicate("md5", md5, 3);  
+  YAP_UserCPredicate("md5", md5, 3);
 }
 
 #ifdef _WIN32
@@ -1095,20 +1049,17 @@ init_sys(void)
 
 int WINAPI win_sys(HANDLE, DWORD, LPVOID);
 
-int WINAPI win_sys(HANDLE hinst, DWORD reason, LPVOID reserved)
-{
-  switch (reason) 
-    {
-    case DLL_PROCESS_ATTACH:
-      break;
-    case DLL_PROCESS_DETACH:
-      break;
-    case DLL_THREAD_ATTACH:
-      break;
-    case DLL_THREAD_DETACH:
-      break;
-    }
+int WINAPI win_sys(HANDLE hinst, DWORD reason, LPVOID reserved) {
+  switch (reason) {
+  case DLL_PROCESS_ATTACH:
+    break;
+  case DLL_PROCESS_DETACH:
+    break;
+  case DLL_THREAD_ATTACH:
+    break;
+  case DLL_THREAD_DETACH:
+    break;
+  }
   return 1;
 }
 #endif
-                                                                                                                                                                                       
