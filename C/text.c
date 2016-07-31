@@ -392,7 +392,6 @@ void *Yap_readText(void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal,
   return NULL;
 }
 
-
 static Term write_strings(void *s0, seq_tv_t *out, encoding_t enc, int minimal,
                           size_t leng USES_REGS) {
   size_t min = 0, max = leng;
@@ -1009,7 +1008,7 @@ static Term string_to_term(void *s0, seq_tv_t *out, encoding_t enc, int minimal,
 }
 
 bool write_Text(void *inp, seq_tv_t *out, encoding_t enc, int minimal,
-               size_t leng USES_REGS) {
+                size_t leng USES_REGS) {
   /* we know what the term is */
   switch (out->type & YAP_TYPE_MASK) {
   case YAP_STRING_STRING:
@@ -1059,53 +1058,50 @@ bool write_Text(void *inp, seq_tv_t *out, encoding_t enc, int minimal,
   return false;
 }
 
-
 static size_t upcase(void *s0, seq_tv_t *out, encoding_t enc USES_REGS) {
   size_t max = -1;
 
-
   switch (enc) {
-    case ENC_ISO_UTF8: {
-      unsigned char *s = s0;
-      while (*s) {
-        // assumes the two code have always the same size;
-        utf8proc_int32_t chr;
-        get_utf8(s, -1, &chr);
-        chr = utf8proc_toupper(chr);
-        s += put_utf8(s, chr);
-      }
-      return true;
-    }
-
-    case ENC_ISO_LATIN1: {
-      unsigned char *s = s0;
+  case ENC_ISO_UTF8: {
+    unsigned char *s = s0;
+    while (*s) {
+      // assumes the two code have always the same size;
       utf8proc_int32_t chr;
-
-      while ((chr = *s)) {
-        // assumes the two code have always the same size;
-        chr = *s;
-        chr = utf8proc_toupper(chr);
-        *s++ = chr;
-      }
-      return true;
+      get_utf8(s, -1, &chr);
+      chr = utf8proc_toupper(chr);
+      s += put_utf8(s, chr);
     }
+    return true;
+  }
 
-    case ENC_WCHAR: {
-      wchar_t *s = s0;
-      utf8proc_int32_t chr;
+  case ENC_ISO_LATIN1: {
+    unsigned char *s = s0;
+    utf8proc_int32_t chr;
 
-      while ((chr = *s)) {
-        // assumes the two code have always the same size;
-        chr = *s;
-        chr = utf8proc_toupper(chr);
-        *s++ = chr;
-      }
-      return true;
+    while ((chr = *s)) {
+      // assumes the two code have always the same size;
+      chr = *s;
+      chr = utf8proc_toupper(chr);
+      *s++ = chr;
     }
-    default:
-      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Unsupported Encoding ~s in %s",
-                enc_name(enc), __FUNCTION__);
+    return true;
+  }
 
+  case ENC_WCHAR: {
+    wchar_t *s = s0;
+    utf8proc_int32_t chr;
+
+    while ((chr = *s)) {
+      // assumes the two code have always the same size;
+      chr = *s;
+      chr = utf8proc_toupper(chr);
+      *s++ = chr;
+    }
+    return true;
+  }
+  default:
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Unsupported Encoding ~s in %s",
+              enc_name(enc), __FUNCTION__);
   }
   return false;
 }
@@ -1113,48 +1109,46 @@ static size_t upcase(void *s0, seq_tv_t *out, encoding_t enc USES_REGS) {
 static size_t downcase(void *s0, seq_tv_t *out, encoding_t enc USES_REGS) {
   size_t max = -1;
 
-
   switch (enc) {
-    case ENC_ISO_UTF8: {
-      unsigned char *s = s0;
-      while (*s) {
-        // assumes the two code have always the same size;
-        utf8proc_int32_t chr;
-        get_utf8(s, -1, &chr);
-        chr = utf8proc_tolower(chr);
-        s += put_utf8(s, chr);
-      }
-      return true;
-    }
-
-    case ENC_ISO_LATIN1: {
-      unsigned char *s = s0;
+  case ENC_ISO_UTF8: {
+    unsigned char *s = s0;
+    while (*s) {
+      // assumes the two code have always the same size;
       utf8proc_int32_t chr;
-
-      while ((chr = *s)) {
-        // assumes the two code have always the same size;
-        chr = *s;
-        chr = utf8proc_tolower(chr);
-        *s++ = chr;
-      }
-      return true;
+      get_utf8(s, -1, &chr);
+      chr = utf8proc_tolower(chr);
+      s += put_utf8(s, chr);
     }
-    case ENC_WCHAR: {
-      wchar_t *s = s0;
-      utf8proc_int32_t chr;
+    return true;
+  }
 
-      while ((chr = *s)) {
-        // assumes the two code have always the same size;
-        chr = *s;
-        chr = utf8proc_tolower(chr);
-        *s++ = chr;
-      }
-      return true;
+  case ENC_ISO_LATIN1: {
+    unsigned char *s = s0;
+    utf8proc_int32_t chr;
+
+    while ((chr = *s)) {
+      // assumes the two code have always the same size;
+      chr = *s;
+      chr = utf8proc_tolower(chr);
+      *s++ = chr;
     }
-    default:
-      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Unsupported Encoding ~s in %s",
-                enc_name(enc), __FUNCTION__);
+    return true;
+  }
+  case ENC_WCHAR: {
+    wchar_t *s = s0;
+    utf8proc_int32_t chr;
 
+    while ((chr = *s)) {
+      // assumes the two code have always the same size;
+      chr = *s;
+      chr = utf8proc_tolower(chr);
+      *s++ = chr;
+    }
+    return true;
+  }
+  default:
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Unsupported Encoding ~s in %s",
+              enc_name(enc), __FUNCTION__);
   }
   return false;
 }
@@ -1162,13 +1156,13 @@ static size_t downcase(void *s0, seq_tv_t *out, encoding_t enc USES_REGS) {
 int Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
   encoding_t enc;
   int minimal = FALSE;
-            char *buf;
+  char *buf;
   size_t leng;
 
   buf = Yap_readText(NULL, inp, &enc, &minimal, &leng PASS_REGS);
   if (!buf)
     return 0L;
-  if (out->type & (YAP_STRING_UPCASE|YAP_STRING_DOWNCASE)) {
+  if (out->type & (YAP_STRING_UPCASE | YAP_STRING_DOWNCASE)) {
     if (out->type & YAP_STRING_UPCASE) {
       if (!upcase(buf, out, enc))
         return false;
@@ -1435,14 +1429,14 @@ static void *slice(size_t min, size_t max, void *buf, seq_tv_t *out,
         nbuf += put_utf8(nbuf, chr);
       }
     } else if (enc == ENC_ISO_LATIN1) {
-      unsigned char *ptr = (unsigned char *)buf + min;
+      const unsigned char *ptr = (const unsigned char *)buf + min;
       utf8proc_int32_t chr;
       while (min++ < max) {
         chr = *ptr++;
         nbuf += put_utf8(nbuf, chr);
       }
     } else {
-      unsigned char *ptr = skip_utf8(buf, min);
+      const unsigned char *ptr = skip_utf8(buf, min);
       utf8proc_int32_t chr;
       if (!ptr)
         return NULL;
@@ -1483,7 +1477,7 @@ static void *slice(size_t min, size_t max, void *buf, seq_tv_t *out,
     } else {
       /*  atom */
       wchar_t *nbuf = (wchar_t *)HR;
-      unsigned char *ptr = skip_utf8((unsigned char *)buf, min);
+      const unsigned char *ptr = skip_utf8(buf, min);
       utf8proc_int32_t chr;
 
       LOCAL_ERROR(MkAtomTerm(Yap_LookupAtom(buf)), max - min);
@@ -1655,6 +1649,74 @@ const char *Yap_TextTermToText(Term t, char *buf, size_t len, encoding_t enc) {
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return NULL;
   return out.val.c;
+}
+
+/**
+ * Convert from a predicate structure to an UTF-8 string of the form
+ *
+ * module:name/arity.
+ *
+ * The result is in very volatile memory.
+ *
+ * @param s        the buffer
+ *
+ * @return the temporary string
+ */
+const char *Yap_PredIndicatorToUTF8String(PredEntry *ap) {
+  CACHE_REGS
+  char *s = LOCAL_FileNameBuf, *smax = s + YAP_FILENAME_MAX;
+  Atom at;
+  arity_t arity;
+  Functor f;
+
+  Term tmod = ap->ModuleOfPred;
+  if (tmod) {
+    Yap_AtomToUTF8Text(AtomOfTerm(tmod), s);
+    s += strlen(s);
+    if (smax -s > 1)
+    strcpy(s, ":");
+    else
+    {
+        return NULL;
+    }
+    s++;
+  } else {
+      if (smax -s > strlen("prolog:") ) {
+    s = strcpy(s, "prolog:");
+      }
+      else
+    {
+        return NULL;
+    }
+  }
+  // follows the actual functor
+  if (ap->ModuleOfPred == IDB_MODULE) {
+    if (ap->PredFlags & NumberDBPredFlag) {
+      Int key = ap->src.IndxId;
+      snprintf(s, smax - s, "%" PRIdPTR, key);
+      return LOCAL_FileNameBuf;
+    } else if (ap->PredFlags & AtomDBPredFlag) {
+      at = (Atom)(ap->FunctorOfPred);
+      if (!Yap_AtomToUTF8Text(at, s))
+        return NULL;
+    } else {
+      f = ap->FunctorOfPred;
+      at = NameOfFunctor(f);
+      arity = ArityOfFunctor(f);
+    }
+  } else {
+    arity = ap->ArityOfPE;
+    if (arity) {
+      at = NameOfFunctor(ap->FunctorOfPred);
+    } else {
+      at = (Atom)(ap->FunctorOfPred);
+    }
+  }
+  if (!Yap_AtomToUTF8Text(at, s))
+    return NULL;
+  s += strlen(s);
+  snprintf(s, smax - s, "/%" PRIdPTR, arity);
+  return LOCAL_FileNameBuf;
 }
 
 /**
