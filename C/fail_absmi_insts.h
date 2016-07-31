@@ -211,7 +211,7 @@
 	  } else
 #endif
 	    /* normal variable */
-	    RESET_VARIABLE(d1);
+		    RESET_VARIABLE(d1);
 	  goto failloop;
 	}
 	/* pointer to code space */
