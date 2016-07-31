@@ -57,8 +57,6 @@ static Int p_endconsult(USES_REGS1);
 static Int p_undefined(USES_REGS1);
 static Int p_new_multifile(USES_REGS1);
 static Int p_is_multifile(USES_REGS1);
-static Int p_new_multifile(USES_REGS1);
-static Int p_is_multifile(USES_REGS1);
 static Int p_optimizer_on(USES_REGS1);
 static Int p_optimizer_off(USES_REGS1);
 static Int p_is_dynamic(USES_REGS1);
@@ -140,6 +138,44 @@ restart:
       goto restart;
     }
     return RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
+  } else
+    return NULL;
+}
+
+/** Look for a predicate with same functor as t,
+     create a new one of it cannot find it.
+ */
+static PredEntry *new_pred(Term t, Term tmod, char *pname) {
+  Term t0 = t;
+
+restart:
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR, t0, pname);
+    return NULL;
+  } else if (IsAtomTerm(t)) {
+    return RepPredProp(PredPropByAtom(AtomOfTerm(t), tmod));
+  } else if (IsIntegerTerm(t) && tmod == IDB_MODULE) {
+    return Yap_FindLUIntKey(IntegerOfTerm(t));
+  } else if (IsApplTerm(t)) {
+    Functor fun = FunctorOfTerm(t);
+    if (IsExtensionFunctor(fun)) {
+      Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), pname);
+      return NULL;
+    }
+    if (fun == FunctorModule) {
+      Term tmod = ArgOfTerm(1, t);
+      if (IsVarTerm(tmod)) {
+        Yap_Error(INSTANTIATION_ERROR, t0, pname);
+        return NULL;
+      }
+      if (!IsAtomTerm(tmod)) {
+        Yap_Error(TYPE_ERROR_ATOM, t0, pname);
+        return NULL;
+      }
+      t = ArgOfTerm(2, t);
+      goto restart;
+    }
+    return RepPredProp(PredPropByFunc(fun, tmod));
   } else
     return NULL;
 }
@@ -409,7 +445,7 @@ static void IPred(PredEntry *ap, UInt NSlots, yamop *next_pc) {
     ap->PredFlags |= IndexedPredFlag;
   }
   if (ap->PredFlags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
-    if (ap->PredFlags &  ProfiledPredFlag) {
+    if (ap->PredFlags & ProfiledPredFlag) {
       Yap_initProfiler(ap);
     }
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
@@ -983,9 +1019,9 @@ static void retract_all(PredEntry *p, int in_use) {
   p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
   if (trueGlobalPrologFlag(PROFILING_FLAG)) {
     p->PredFlags |= ProfiledPredFlag;
-     if (!Yap_initProfiler(p)) {
+    if (!Yap_initProfiler(p)) {
       return;
-    }   
+    }
   } else
     p->PredFlags &= ~ProfiledPredFlag;
   if (CALL_COUNTING) {
@@ -1012,20 +1048,6 @@ bool Yap_unknown(Term t) {
   }
 
   return false;
-}
-
-static Int
-undef_handler(USES_REGS1) { /* '$undef_handler'(+S,+Mod)	 */
-  PredEntry *pe;
-  Int out;
-
-  pe = get_pred(Deref(ARG1), Deref(ARG2), "undef_handler");
-  if (EndOfPAEntr(pe))
-    return FALSE;
-  PELOCK(27, pe);
-  UndefCode = pe;
-  UNLOCKPE(44, pe);
-  return true;
 }
 
 static int source_pred(PredEntry *p, yamop *q) {
@@ -1064,10 +1086,10 @@ static void add_first_static(PredEntry *p, yamop *cp, int spy_flag) {
   p->cs.p_code.NOfClauses = 1;
   if (trueGlobalPrologFlag(PROFILING_FLAG)) {
     p->PredFlags |= ProfiledPredFlag;
-      if (!Yap_initProfiler(p)) {
+    if (!Yap_initProfiler(p)) {
       return;
-    }   
-   spy_flag = TRUE;
+    }
+    spy_flag = TRUE;
   } else {
     p->PredFlags &= ~ProfiledPredFlag;
   }
@@ -1361,9 +1383,11 @@ static void expand_consult(void) {
   /* next, set up pointers correctly */
   new_cs += (LOCAL_ConsultSp - LOCAL_ConsultLow);
   /* put LOCAL_ConsultBase at same offset as before move */
-  LOCAL_ConsultBase = new_cl + ((LOCAL_ConsultBase - LOCAL_ConsultLow)+InitialConsultCapacity);  
-/* new consult pointer */
-  LOCAL_ConsultSp = new_cl + ((LOCAL_ConsultSp - LOCAL_ConsultLow)+InitialConsultCapacity);  
+  LOCAL_ConsultBase = new_cl + ((LOCAL_ConsultBase - LOCAL_ConsultLow) +
+                                InitialConsultCapacity);
+  /* new consult pointer */
+  LOCAL_ConsultSp =
+      new_cl + ((LOCAL_ConsultSp - LOCAL_ConsultLow) + InitialConsultCapacity);
   /* new end of memory */
   LOCAL_ConsultLow = new_cl;
 }
@@ -1403,12 +1427,13 @@ static int not_was_reconsulted(PredEntry *p, Term t, int mode) {
     //%s\n",NameOfFunctor(p->FunctorOfPred)->StrOfAE,p->src.OwnerFile->StrOfAE);
   }
   if (mode) {
-    if (LOCAL_ConsultSp <= LOCAL_ConsultLow + 6) {    
-      expand_consult();    
-    }    
+    if (LOCAL_ConsultSp <= LOCAL_ConsultLow + 6) {
+      expand_consult();
+    }
     --LOCAL_ConsultSp;
     LOCAL_ConsultSp->p = p0;
-    if (LOCAL_ConsultBase[1].mode &&
+    if (LOCAL_ConsultBase != LOCAL_ConsultLow + LOCAL_ConsultCapacity &&
+        LOCAL_ConsultBase[1].mode &&
         !(p->PredFlags & MultiFileFlag)) /* we are in reconsult mode */ {
       retract_all(p, Yap_static_in_use(p, TRUE));
     }
@@ -1504,15 +1529,15 @@ bool Yap_discontiguous(PredEntry *ap, Term mode USES_REGS) {
     Term repeat = AbsPair((CELL *)AbsPredProp(ap));
     for (fp = LOCAL_ConsultSp; fp < LOCAL_ConsultBase; ++fp)
       if (fp->p == AbsPredProp(ap)) {
-	// detect repeated warnings
-	if (LOCAL_ConsultSp == LOCAL_ConsultLow + 1) {
-	  expand_consult();
-	}
-	--LOCAL_ConsultSp;
-	LOCAL_ConsultSp->r = repeat;
+        // detect repeated warnings
+        if (LOCAL_ConsultSp == LOCAL_ConsultLow + 1) {
+          expand_consult();
+        }
+        --LOCAL_ConsultSp;
+        LOCAL_ConsultSp->r = repeat;
         return true;
-      } else  if (fp->r == repeat && ap->cs.p_code.NOfClauses > 4) {
-	return false;
+      } else if (fp->r == repeat && ap->cs.p_code.NOfClauses > 4) {
+        return false;
       }
   }
   return false;
@@ -1560,8 +1585,10 @@ static Int
   pe->PredFlags |= DiscontiguousPredFlag;
   /* mutifile-predicates are weird, they do not seat really on the default
    * module */
-  if (pe->ModuleOfPred == PROLOG_MODULE)
-    pe->ModuleOfPred = TermProlog;
+  if (pe->cs.p_code.NOfClauses == 0) {
+    pe->CodeOfPred = pe->cs.p_code.TrueCodeOfPred = FAILCODE;
+    pe->OpcodeOfPred = FAIL_OPCODE;
+  }
   UNLOCKPE(43, pe);
   return (TRUE);
 }
@@ -1835,6 +1862,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
   } else {
     tf = Yap_MkStaticRefTerm(ClauseCodeToStaticClause(cp), p);
   }
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "add %s/%ld %p", RepAtom(at)->StrOfAE, Arity);
   if (mod == PROLOG_MODULE)
     mod = TermProlog;
   if (pflags & MultiFileFlag) {
@@ -2025,8 +2053,8 @@ static void init_consult(int mode, const unsigned char *file) {
   if (!LOCAL_ConsultSp) {
     InitConsultStack();
   }
-  if (LOCAL_ConsultSp >= LOCAL_ConsultLow + 6) {    
-    expand_consult();    
+  if (LOCAL_ConsultSp >= LOCAL_ConsultLow + 6) {
+    expand_consult();
   }
   LOCAL_ConsultSp--;
   LOCAL_ConsultSp->filename = file;
@@ -2410,13 +2438,15 @@ static Int p_new_multifile(USES_REGS1) { /* '$new_multifile'(+N,+Ar,+Mod)  */
   pe->PredFlags |= MultiFileFlag;
   /* mutifile-predicates are weird, they do not seat really on the default
    * module */
-  if (pe->ModuleOfPred == PROLOG_MODULE)
-    pe->ModuleOfPred = TermProlog;
   if (!(pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag))) {
     /* static */
     pe->PredFlags |= (SourcePredFlag | CompiledPredFlag);
   }
   pe->src.OwnerFile = Yap_ConsultingFile(PASS_REGS1);
+  if (pe->cs.p_code.NOfClauses == 0) {
+    pe->CodeOfPred = pe->cs.p_code.TrueCodeOfPred = FAILCODE;
+    pe->OpcodeOfPred = FAIL_OPCODE;
+  }
   UNLOCKPE(43, pe);
   return true;
 }
@@ -2592,19 +2622,48 @@ static Int p_set_owner_file(USES_REGS1) { /* '$owner_file'(+P,M,F)	 */
   return TRUE;
 }
 
-static Int p_mk_d(USES_REGS1) { /* '$is_dynamic'(+P)	 */
+static Int p_mk_d(USES_REGS1) { /* '$make_dynamic'(+P)	 */
   PredEntry *pe;
+  Atom at;
+  arity_t arity;
 
-  pe = get_pred(Deref(ARG1), Deref(ARG2), "$is_source");
+  pe = new_pred(Deref(ARG1), Deref(ARG2), "dynamic");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(30, pe);
+  arity = pe->ArityOfPE;
+  if (arity == 0)
+    at = (Atom)pe->FunctorOfPred;
+  else
+    at = NameOfFunctor(pe->FunctorOfPred);
+
+  if (pe->PredFlags &
+      (UserCPredFlag | CArgsPredFlag | NumberDBPredFlag | AtomDBPredFlag |
+       TestPredFlag | AsmPredFlag | CPredFlag | BinaryPredFlag)) {
+    UNLOCKPE(30, pe);
+    addcl_permission_error(RepAtom(at), arity, FALSE);
+    return false;
+  }
+  if (pe->PredFlags & LogUpdatePredFlag) {
+    UNLOCKPE(26, pe);
+    return true;
+  }
+  if (pe->PredFlags & DynamicPredFlag) {
+    UNLOCKPE(26, pe);
+    return true;
+  }
+  if (pe->cs.p_code.NOfClauses != 0) {
+    UNLOCKPE(26, pe);
+    addcl_permission_error(RepAtom(at), arity, FALSE);
+    return false;
+  }
   if (pe->OpcodeOfPred == UNDEF_OPCODE) {
     pe->OpcodeOfPred = FAIL_OPCODE;
   }
   pe->src.OwnerFile = Yap_ConsultingFile(PASS_REGS1);
+  pe->PredFlags |= LogUpdatePredFlag;
   UNLOCKPE(50, pe);
-  return TRUE;
+  return true;
 }
 
 static Int p_is_dynamic(USES_REGS1) { /* '$is_dynamic'(+P)	 */
@@ -2691,6 +2750,26 @@ static Int p_set_pred_owner(USES_REGS1) { /* '$set_pred_module'(+P,+File)
   pe->src.OwnerFile = AtomOfTerm(a2);
   UNLOCKPE(56, pe);
   return (TRUE);
+}
+
+/**
+ * Set handler for undefined predicates.
+ */
+
+static Int undefp_handler(USES_REGS1) { /* '$undefp_handler'(P,Mod)	 */
+  PredEntry *pe;
+
+  pe = get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
+  if (EndOfPAEntr(pe))
+    return false;
+  PELOCK(59, pe);
+  if (pe->OpcodeOfPred == UNDEF_OPCODE) {
+    UNLOCKPE(59, pe);
+    return false;
+  }
+  UndefCode = pe;
+  UNLOCKPE(59, pe);
+  return true;
 }
 
 static Int p_undefined(USES_REGS1) { /* '$undefined'(P,Mod)	 */
@@ -4609,6 +4688,8 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$number_of_clauses", 3, p_number_of_clauses,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$undefined", 2, p_undefined, SafePredFlag | TestPredFlag);
+  Yap_InitCPred("$undefp_handler", 2, undefp_handler,
+                SafePredFlag | TestPredFlag);
   Yap_InitCPred("$optimizer_on", 0, p_optimizer_on,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$clean_up_dead_clauses", 0, p_clean_up_dead_clauses,
@@ -4646,7 +4727,6 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$call_count_reset", 0, p_call_count_reset,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$set_pred_module", 2, p_set_pred_module, SafePredFlag);
-  Yap_InitCPred("$undef_handler", 2, undef_handler, SafePredFlag);
   Yap_InitCPred("$set_pred_owner", 2, p_set_pred_owner, SafePredFlag);
   Yap_InitCPred("$hide_predicate", 2, hide_predicate, SafePredFlag);
   Yap_InitCPred("$stash_predicate", 2, p_stash_predicate, SafePredFlag);
