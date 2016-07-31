@@ -1,6 +1,10 @@
+
+option(WITH_JAVA "Try to use Java (currently Java 6,7,8)" ON)
+
+if (WITH_JAVA)
 #detect java setup, as it is shared between different installations.
 
-find_package(Java COMPONENTS Runtime Development)
+find_package(Java 1.8 COMPONENTS Runtime Development)
 # find_package(Java COMPONENTS Development)
 # find_package(Java COMPONENTS Runtime)
 #find_package(JavaLibs)
@@ -34,7 +38,7 @@ if (Java_Development_FOUND)
   # The Java_ADDITIONAL_VERSIONS variable can be used to specify a list
   # of version numbers that should be taken into account when searching
   # for Java.  You need to set this variable before calling
-  # find_package(JavaLibs).
+          # find_package(JavaLibs).
   #
   #macro_optional_find_package(JNI ON)
   #   JNI_INCLUDE_DIRS      = the include dirs to use
@@ -49,3 +53,5 @@ endif (JNI_FOUND)
 
 
 endif (Java_Development_FOUND)
+endif(WITH_JAVA)
+
