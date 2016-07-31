@@ -1,6 +1,7 @@
 
 #include "sysbits.h"
 
+
 #if HAVE_SIGINFO_H
 #include <siginfo.h>
 #endif
@@ -12,123 +13,107 @@
 #include <fpu_control.h>
 #endif
 
+#define SIG_PROLOG_OFFSET	32	/* Start of Prolog signals */
 
-#if HAVE_SIGNAL
 
-#ifdef MSH
-
-#define SIGFPE SIGDIV
-
+#define SIG_EXCEPTION	  (SIG_PROLOG_OFFSET+0)
+#ifdef O_ATOMGC
+#define SIG_ATOM_GC	  (SIG_PROLOG_OFFSET+1)
 #endif
-
-static void HandleMatherr(int sig, void *sipv, void *uapv);
-
-#define PLSIG_PREPARED 0x01 /* signal is prepared */
-#define PLSIG_THROW 0x02    /* throw signal(num, name) */
-#define PLSIG_SYNC 0x04     /* call synchronously */
-#define PLSIG_NOFRAME 0x08  /* Do not create a Prolog frame */
-
-#define SIG_PROLOG_OFFSET 32 /* Start of Prolog signals */
-
-#define SIG_EXCEPTION (SIG_PROLOG_OFFSET + 0)
-#ifdef ATOMGC
-#define SIG_ATOM_GC (SIG_PROLOG_OFFSET + 1)
+#define SIG_GC		  (SIG_PROLOG_OFFSET+2)
+#ifdef O_PLMT
+#define SIG_THREAD_SIGNAL (SIG_PROLOG_OFFSET+3)
 #endif
-#define SIG_GC (SIG_PROLOG_OFFSET + 2)
-#ifdef THREADS
-#define SIG_THREAD_SIGNAL (SIG_PROLOG_OFFSET + 3)b
-#endif
-#define SIG_FREECLAUSES (SIG_PROLOG_OFFSET + 4)
-#define SIG_PLABORT (SIG_PROLOG_OFFSET + 5)
+#define SIG_FREECLAUSES	  (SIG_PROLOG_OFFSET+4)
+#define SIG_PLABORT	  (SIG_PROLOG_OFFSET+5)
 
-static struct signame {
-  int sig;
+static struct signame
+{ int 	      sig;
   const char *name;
-  int flags;
-} signames[] = {
+  int	      flags;
+} signames[] =
+{
 #ifdef SIGHUP
-    {SIGHUP, "hup", 0},
+  { SIGHUP,	"hup",    0},
 #endif
-    {SIGINT, "int", 0},
+  { SIGINT,	"int",    0},
 #ifdef SIGQUIT
-    {SIGQUIT, "quit", 0},
+  { SIGQUIT,	"quit",   0},
 #endif
-    {SIGILL, "ill", 0},
-    {SIGABRT, "abrt", 0},
-#if HAVE_SIGFPE
-    {SIGFPE, "fpe", PLSIG_THROW},
-#endif
+  { SIGILL,	"ill",    0},
+  { SIGABRT,	"abrt",   0},
+  { SIGFPE,	"fpe",    0},
 #ifdef SIGKILL
-    {SIGKILL, "kill", 0},
+  { SIGKILL,	"kill",   0},
 #endif
-    {SIGSEGV, "segv", 0},
+  { SIGSEGV,	"segv",   0},
 #ifdef SIGPIPE
-    {SIGPIPE, "pipe", 0},
+  { SIGPIPE,	"pipe",   0},
 #endif
 #ifdef SIGALRM
-    {SIGALRM, "alrm", PLSIG_THROW},
+  { SIGALRM,	"alrm",   0},
 #endif
-    {SIGTERM, "term", 0},
+  { SIGTERM,	"term",   0},
 #ifdef SIGUSR1
-    {SIGUSR1, "usr1", 0},
+  { SIGUSR1,	"usr1",   0},
 #endif
 #ifdef SIGUSR2
-    {SIGUSR2, "usr2", 0},
+  { SIGUSR2,	"usr2",   0},
 #endif
 #ifdef SIGCHLD
-    {SIGCHLD, "chld", 0},
+  { SIGCHLD,	"chld",   0},
 #endif
 #ifdef SIGCONT
-    {SIGCONT, "cont", 0},
+  { SIGCONT,	"cont",   0},
 #endif
 #ifdef SIGSTOP
-    {SIGSTOP, "stop", 0},
+  { SIGSTOP,	"stop",   0},
 #endif
 #ifdef SIGTSTP
-    {SIGTSTP, "tstp", 0},
+  { SIGTSTP,	"tstp",   0},
 #endif
 #ifdef SIGTTIN
-    {SIGTTIN, "ttin", 0},
+  { SIGTTIN,	"ttin",   0},
 #endif
 #ifdef SIGTTOU
-    {SIGTTOU, "ttou", 0},
+  { SIGTTOU,	"ttou",   0},
 #endif
 #ifdef SIGTRAP
-    {SIGTRAP, "trap", 0},
+  { SIGTRAP,	"trap",   0},
 #endif
 #ifdef SIGBUS
-    {SIGBUS, "bus", 0},
+  { SIGBUS,	"bus",    0},
 #endif
 #ifdef SIGSTKFLT
-    {SIGSTKFLT, "stkflt", 0},
+  { SIGSTKFLT,	"stkflt", 0},
 #endif
 #ifdef SIGURG
-    {SIGURG, "urg", 0},
+  { SIGURG,	"urg",    0},
 #endif
 #ifdef SIGIO
-    {SIGIO, "io", 0},
+  { SIGIO,	"io",     0},
 #endif
 #ifdef SIGPOLL
-    {SIGPOLL, "poll", 0},
+  { SIGPOLL,	"poll",   0},
 #endif
 #ifdef SIGXCPU
-    {SIGXCPU, "xcpu", PLSIG_THROW},
+  { SIGXCPU,	"xcpu",   0},
 #endif
 #ifdef SIGXFSZ
-    {SIGXFSZ, "xfsz", PLSIG_THROW},
+  { SIGXFSZ,	"xfsz",   0},
 #endif
 #ifdef SIGVTALRM
-    {SIGVTALRM, "vtalrm", PLSIG_THROW},
+  { SIGVTALRM,	"vtalrm", 0},
 #endif
 #ifdef SIGPROF
-    {SIGPROF, "prof", 0},
+  { SIGPROF,	"prof",   0},
 #endif
 #ifdef SIGPWR
-    {SIGPWR, "pwr", 0},
+  { SIGPWR,	"pwr",    0},
 #endif
-    {SIG_EXCEPTION, "prolog:exception", 0},
+  { SIG_EXCEPTION,     "prolog:exception",     0 },
 #ifdef SIG_ATOM_GC
-    {SIG_ATOM_GC, "prolog:atom_gc", 0},
+  { SIG_ATOM_GC,   "prolog:atom_gc",       0 },
 #endif
     {SIG_GC, "prolog:gc", 0},
 #ifdef SIG_THREAD_SIGNAL
@@ -137,7 +122,6 @@ static struct signame {
 
     {-1, NULL, 0}};
 
-typedef void (*signal_handler_t)(int, void *, void *);
 
 #if HAVE_SIGACTION
 static void my_signal_info(int sig, void *handler) {
@@ -161,14 +145,29 @@ static void my_signal(int sig, void *handler) {
 
 #else
 
-static void my_signal(int sig, void *handler) { signal(sig, handler); }
+static void my_signal(int sig, void *handler) {
+  #if HAVE_SIGNAL
+  signal(sig, handler);
+#endif
+}
 
 static void my_signal_info(int sig, void *handler) {
+  #if HAVE_SIGNAL
   if (signal(sig, (void *)handler) == SIG_ERR)
     exit(1);
+#endif
 }
 
 #endif
+
+
+static void HandleMatherr(int sig, void *sipv, void *uapv) {
+  CACHE_REGS
+  LOCAL_matherror = Yap_MathException();
+  /* reset the registers so that we don't have trash in abstract machine */
+  Yap_external_signal(worker_id, YAP_FPE_SIGNAL);
+}
+
 
 /* SWI emulation */
 int Yap_signal_index(const char *name) {
@@ -243,8 +242,6 @@ static void HandleSIGSEGV(int sig, void *sipv, void *uap) {
   SearchForTrailFault(ptr, sure);
 }
 #endif /* SIGSEGV */
-
-#if HAVE_SIGFPE
 
 /* by default Linux with glibc is IEEE compliant anyway..., but we will pretend
  * it is not. */
@@ -321,99 +318,11 @@ static bool set_fpu_exceptions(Term flag) {
   return true;
 }
 
-bool Yap_set_fpu_exceptions(Term flag) { return set_fpu_exceptions(flag); }
 
-yap_error_number Yap_MathException__(USES_REGS1) {
-#if HAVE_FETESTEXCEPT
-  int raised;
+#if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__)
 
-  // #pragma STDC FENV_ACCESS ON
-  if ((raised = fetestexcept(FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW))) {
 
-    feclearexcept(FE_ALL_EXCEPT);
-    if (raised & FE_OVERFLOW) {
-      return EVALUATION_ERROR_FLOAT_OVERFLOW;
-    } else if (raised & FE_DIVBYZERO) {
-      return EVALUATION_ERROR_ZERO_DIVISOR;
-    } else if (raised & FE_UNDERFLOW) {
-      return EVALUATION_ERROR_FLOAT_UNDERFLOW;
-      //} else if (raised & (FE_INVALID|FE_INEXACT)) {
-      //    return  EVALUATION_ERROR_UNDEFINED;
-    } else {
-      return EVALUATION_ERROR_UNDEFINED;
-    }
-  }
-#elif _WIN32
-  unsigned int raised;
-  int err;
-
-  // Show original FP control word and do calculation.
-  err = _controlfp_s(&raised, 0, 0);
-  if (err) {
-    return EVALUATION_ERROR_UNDEFINED;
-  }
-  if (raised) {
-    feclearexcept(FE_ALL_EXCEPT);
-    if (raised & FE_OVERFLOW) {
-      return EVALUATION_ERROR_FLOAT_OVERFLOW;
-    } else if (raised & FE_DIVBYZERO) {
-      return EVALUATION_ERROR_ZERO_DIVISOR;
-    } else if (raised & FE_UNDERFLOW) {
-      return EVALUATION_ERROR_FLOAT_UNDERFLOW;
-      //} else if (raised & (FE_INVALID|FE_INEXACT)) {
-      //    return  EVALUATION_ERROR_UNDEFINED;
-    } else {
-      return EVALUATION_ERROR_UNDEFINED;
-    }
-  }
-#elif (defined(__svr4__) || defined(__SVR4))
-  switch (sip->si_code) {
-  case FPE_INTDIV:
-    return EVALUATION_ERROR_ZERO_DIVISOR;
-    break;
-  case FPE_INTOVF:
-    return EVALUATION_ERROR_INT_OVERFLOW;
-    break;
-  case FPE_FLTDIV:
-    return EVALUATION_ERROR_ZERO_DIVISOR;
-    break;
-  case FPE_FLTOVF:
-    return EVALUATION_ERROR_FLOAT_OVERFLOW;
-    break;
-  case FPE_FLTUND:
-    return EVALUATION_ERROR_FLOAT_UNDERFLOW;
-    break;
-  case FPE_FLTRES:
-  case FPE_FLTINV:
-  case FPE_FLTSUB:
-  default:
-    return EVALUATION_ERROR_UNDEFINED;
-  }
-  set_fpu_exceptions(0);
-#endif
-
-  return LOCAL_matherror;
-}
-
-static Int fpe_error(USES_REGS1) {
-  Yap_Error(LOCAL_matherror, LOCAL_mathtt, LOCAL_mathstring);
-  LOCAL_matherror = YAP_NO_ERROR;
-  LOCAL_mathtt = TermNil;
-  LOCAL_mathstring = NULL;
-  return FALSE;
-}
-
-static void HandleMatherr(int sig, void *sipv, void *uapv) {
-  CACHE_REGS
-  LOCAL_matherror = Yap_MathException();
-  /* reset the registers so that we don't have trash in abstract machine */
-  Yap_external_signal(worker_id, YAP_FPE_SIGNAL);
-}
-
-#endif /* SIGFPE */
-
-#if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__) && !defined(LIGHT)
-static RETSIGTYPE ReceiveSignal(int s, void *x, void *y) {
+static void * ReceiveSignal(int s, void *x, void *y) {
   CACHE_REGS
   LOCAL_PrologMode |= InterruptMode;
   my_signal(s, ReceiveSignal);
@@ -503,40 +412,6 @@ static BOOL WINAPI MSCHandleSignal(DWORD dwCtrlType) {
 }
 #endif
 
-/* SIGINT can cause problems, if caught before full initialization */
-void Yap_InitOSSignals(int wid) {
-  if (GLOBAL_PrologShouldHandleInterrupts) {
-#if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__) && !defined(LIGHT)
-    my_signal(SIGQUIT, ReceiveSignal);
-    my_signal(SIGKILL, ReceiveSignal);
-    my_signal(SIGUSR1, ReceiveSignal);
-    my_signal(SIGUSR2, ReceiveSignal);
-    my_signal(SIGHUP, ReceiveSignal);
-    my_signal(SIGALRM, ReceiveSignal);
-    my_signal(SIGVTALRM, ReceiveSignal);
-#endif
-#ifdef SIGPIPE
-    my_signal(SIGPIPE, ReceiveSignal);
-#endif
-#if _MSC_VER || defined(__MINGW32__)
-    signal(SIGINT, SIG_IGN);
-    SetConsoleCtrlHandler(MSCHandleSignal, TRUE);
-#else
-    my_signal(SIGINT, ReceiveSignal);
-#endif
-#ifdef HAVE_SIGFPE
-    my_signal(SIGFPE, HandleMatherr);
-#endif
-#if HAVE_SIGSEGV
-    my_signal_info(SIGSEGV, HandleSIGSEGV);
-#endif
-#ifdef YAPOR_COW
-    signal(SIGCHLD, SIG_IGN); /* avoid ghosts */
-#endif
-  }
-}
-
-#endif /* HAVE_SIGNAL */
 
 /* wrapper for alarm system call */
 #if _MSC_VER || defined(__MINGW32__)
@@ -876,6 +751,126 @@ void rw_lock_voodoo(void) {
 #endif /* sparc */
 
 #endif /* YAPOR || THREADS */
+
+yap_error_number Yap_MathException__(USES_REGS1) {
+#if HAVE_FETESTEXCEPT
+  int raised;
+
+  // #pragma STDC FENV_ACCESS ON
+  if ((raised = fetestexcept(FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW))) {
+
+    feclearexcept(FE_ALL_EXCEPT);
+    if (raised & FE_OVERFLOW) {
+      return EVALUATION_ERROR_FLOAT_OVERFLOW;
+    } else if (raised & FE_DIVBYZERO) {
+      return EVALUATION_ERROR_ZERO_DIVISOR;
+    } else if (raised & FE_UNDERFLOW) {
+      return EVALUATION_ERROR_FLOAT_UNDERFLOW;
+      //} else if (raised & (FE_INVALID|FE_INEXACT)) {
+      //    return  EVALUATION_ERROR_UNDEFINED;
+    } else {
+      return EVALUATION_ERROR_UNDEFINED;
+    }
+  }
+#elif _WIN32
+  unsigned int raised;
+  int err;
+
+  // Show original FP control word and do calculation.
+  err = _controlfp_s(&raised, 0, 0);
+  if (err) {
+    return EVALUATION_ERROR_UNDEFINED;
+  }
+  if (raised) {
+    feclearexcept(FE_ALL_EXCEPT);
+    if (raised & FE_OVERFLOW) {
+      return EVALUATION_ERROR_FLOAT_OVERFLOW;
+    } else if (raised & FE_DIVBYZERO) {
+      return EVALUATION_ERROR_ZERO_DIVISOR;
+    } else if (raised & FE_UNDERFLOW) {
+      return EVALUATION_ERROR_FLOAT_UNDERFLOW;
+      //} else if (raised & (FE_INVALID|FE_INEXACT)) {
+      //    return  EVALUATION_ERROR_UNDEFINED;
+    } else {
+      return EVALUATION_ERROR_UNDEFINED;
+    }
+  }
+#elif (defined(__svr4__) || defined(__SVR4))
+  switch (sip->si_code) {
+  case FPE_INTDIV:
+    return EVALUATION_ERROR_ZERO_DIVISOR;
+    break;
+  case FPE_INTOVF:
+    return EVALUATION_ERROR_INT_OVERFLOW;
+    break;
+  case FPE_FLTDIV:
+    return EVALUATION_ERROR_ZERO_DIVISOR;
+    break;
+  case FPE_FLTOVF:
+    return EVALUATION_ERROR_FLOAT_OVERFLOW;
+    break;
+  case FPE_FLTUND:
+    return EVALUATION_ERROR_FLOAT_UNDERFLOW;
+    break;
+  case FPE_FLTRES:
+  case FPE_FLTINV:
+  case FPE_FLTSUB:
+  default:
+    return EVALUATION_ERROR_UNDEFINED;
+  }
+  set_fpu_exceptions(0);
+#endif
+
+  return LOCAL_matherror;
+}
+
+static Int fpe_error(USES_REGS1) {
+  Yap_Error(LOCAL_matherror, LOCAL_mathtt, LOCAL_mathstring);
+  LOCAL_matherror = YAP_NO_ERROR;
+  LOCAL_mathtt = TermNil;
+  LOCAL_mathstring = NULL;
+  return FALSE;
+}
+
+/* SIGINT can cause problems, if caught before full initialization */
+void Yap_InitOSSignals(int wid) {
+  if (GLOBAL_PrologShouldHandleInterrupts) {
+#if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__) && !defined(LIGHT)
+    my_signal(SIGQUIT, ReceiveSignal);
+    my_signal(SIGKILL, ReceiveSignal);
+    my_signal(SIGUSR1, ReceiveSignal);
+    my_signal(SIGUSR2, ReceiveSignal);
+    my_signal(SIGHUP, ReceiveSignal);
+    my_signal(SIGALRM, ReceiveSignal);
+    my_signal(SIGVTALRM, ReceiveSignal);
+#endif
+#ifdef SIGPIPE
+    my_signal(SIGPIPE, ReceiveSignal);
+#endif
+#if _MSC_VER || defined(__MINGW32__)
+    signal(SIGINT, SIG_IGN);
+    SetConsoleCtrlHandler(MSCHandleSignal, TRUE);
+#else
+    my_signal(SIGINT, ReceiveSignal);
+#endif
+#ifdef HAVE_SIGFPE
+    my_signal(SIGFPE, HandleMatherr);
+#endif
+#if HAVE_SIGSEGV
+    my_signal_info(SIGSEGV, HandleSIGSEGV);
+#endif
+#ifdef YAPOR_COW
+    signal(SIGCHLD, SIG_IGN); /* avoid ghosts */
+#endif
+  }
+}
+
+
+bool Yap_set_fpu_exceptions(Term flag) {
+  return set_fpu_exceptions(flag);
+}
+
+
 
 void Yap_InitSignalPreds(void) {
   CACHE_REGS
