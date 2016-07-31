@@ -43,48 +43,83 @@ name with the `:/2` operator.
 
 **/
 '$module_dec'(system(N, Ss), Ps) :- !,
-	new_system_module(N),
+		new_system_module(N),
     '$mk_system_predicates'( Ss , N ),
     '$module_dec'(N, Ps).
 '$module_dec'(system(N), Ps) :- !,
-	new_system_module(N),
+		new_system_module(N),
 %    '$mk_system_predicates'( Ps , N ),
     '$module_dec'(N, Ps).
-'$module_dec'(N, Ps) :-	
-    source_location(F,_Line),	
-    '$nb_getval'( '$user_source_file', F0 , fail),
-	'$add_module_on_file'(N, F, F0, Ps),
-	'$current_module'(_,N).
+'$module_dec'(N, Ps) :-
+   source_location(F,Line),
+  '$nb_getval'( '$user_source_file', F0 , fail),
+	'$add_module_on_file'(N, F, Line,F0, Ps),
+	'$current_module'(_M0,N).
 
 '$mk_system_predicates'( Ps, _N ) :-
     lists:member(Name/A , Ps),
-    functor(P,Name,A),
-    '$new_system_predicate'(P, prolog),
+    '$new_system_predicate'(Name, A, prolog),
     fail.
 '$mk_system_predicates'( _Ps, _N ).
 
+/*
+declare_module(Mod) -->
+	arguments(file(+file:F),
+		  line(+integer:L),
+		  parent(+module:P),
+		  type(+module_type:T),
+		  exports(+list(exports):E),
+
+		  Props, P0) -> true ; Props = P0),
+	( deleteline(L), P0, P1) -> true ; P0 == P1),
+	( delete(parent(P), P1, P2) -> true ; P1 == P2),
+	( delete(line(L), P2, P3) -> true ; P3 == P4),
+	( delete(file(F), Props, P0) -> true ; Props = P0),
+	( delete(file(F), Props, P0) -> true ; Props = P0),
+	( delete(file(F), Props, P0) -> true ; Props = P0),
+	de
+*/
 '$module'(_,N,P) :-
 	'$module_dec'(N,P).
 
-    '$add_module_on_file'(DonorMod, DonorF, SourceF, Exports) :-
-        recorded('$module','$module'(OtherF, DonorMod, _, _, _),R),
+/** set_module_property( +Mod, +Prop)
+
+   Set a property for a module. Currently this includes:
+     - base module, a module from where we automatically import all definitions, see add_import_module/2.
+	 - the export list
+	 - module class is currently ignored.
+*/
+set_module_property(Mod, base(Base)) :-
+	must_be_of_type( module, Mod),
+	add_import_module(Mod, Base, start).
+set_module_property(Mod, exports(Exports)) :-
+	must_be_of_type( module, Mod),
+	'$add_module_on_file'(Mod, user_input, 1, '/dev/null', Exports).
+set_module_property(Mod, exports(Exports, File, Line)) :-
+	must_be_of_type( module, Mod),
+	'$add_module_on_file'(Mod, File, Line, '/dev/null', Exports).
+set_module_property(Mod, class(Class)) :-
+	must_be_of_type( module, Mod),
+	must_be_of_type( atom, Class).
+
+    '$add_module_on_file'(DonorMod, DonorF, _LineF, SourceF, Exports) :-
+        recorded('$module','$module'(OtherF, DonorMod, _, _, _, _),R),
         % the module has been found, are we reconsulting?
         (
     	DonorF \= OtherF
         ->
             '$do_error'(permission_error(module,redefined,DonorMod, OtherF, DonorF),module(DonorMod,Exports))
         ;
-          recorded('$module','$module'(DonorF,DonorMod, SourceF,  _, _), R),
+          recorded('$module','$module'(DonorF,DonorMod, SourceF,  _, _, _), R),
           erase( R ),
           fail
         ).
-    '$add_module_on_file'(DonorM, DonorF, SourceF, Exports) :-
+    '$add_module_on_file'(DonorM, DonorF, Line, SourceF, Exports) :-
         '$current_module'( HostM ),
-        ( recorded('$module','$module'( HostF, HostM, _, _, _),_) -> true ; HostF = user_input ),
+        ( recorded('$module','$module'( HostF, HostM, _, _, _, _),_) -> true ; HostF = user_input ),
         % first build the initial export table
         '$convert_for_export'(all, Exports, DonorM, HostM, TranslationTab, AllExports0, load_files),
         sort( AllExports0, AllExports ),
-        ( source_location(_, Line) -> true ; Line = 0 ),
         '$add_to_imports'(TranslationTab, DonorM, DonorM), % insert ops, at least for now
         % last, export everything to the host: if the loading crashed you didn't actually do
         % no evil.
