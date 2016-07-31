@@ -48,17 +48,33 @@ complex_to_and(atom(A1,[endlist]), Map0, MapF, V) :- !,
 	check(Map0, A1, V, MapF).
 complex_to_and(functor(not,1,[int(A1,[endlist])]), Map0, MapF, not(V)) :- !,
 	check(Map0, A1, V, MapF).
-complex_to_and(atom(A1,Els), Map0, MapF, and(V,T2)) :-  !,
+complex_to_and(functor(not,1,[atom(A1,[endlist])]), Map0, MapF, not(V)) :- !,
+	check(Map0, A1, V, MapF).
+complex_to_and(int(A1,Els), Map0, MapF, and(V,T2)) :-  !,
 	check(Map0, A1, V, MapI),
 	complex_to_andor(Els, MapI, MapF, T2).
-complex_to_and(int(A1,Els), Map0, MapF, and(V,T2)) :-  !,
+complex_to_and(atom(A1,Els), Map0, MapF, and(V,T2)) :-  !,
 	check(Map0, A1, V, MapI),
 	complex_to_andor(Els, MapI, MapF, T2).
 complex_to_and(functor(not,1,[int(A1,Els)]), Map0, MapF, and(not(V),T2)) :- !,
 	check(Map0, A1, V, MapI),
 	complex_to_andor(Els, MapI, MapF, T2).
+complex_to_and(functor(not,1,[atom(A1,Els)]), Map0, MapF, and(not(V),T2)) :- !,
+	check(Map0, A1, V, MapI),
+	complex_to_andor(Els, MapI, MapF, T2).
 % HASH TABLE, it can be an OR or an AND.
 complex_to_and(functor(not,1,[int(A1,Els)|More]), Map0, MapF, or(NOTV1,O2)) :- 
+	check(Map0, A1, V, MapI),
+	(Els == [endlist]
+	->
+	  NOTV1 = not(V),
+	  MapI = MapI2
+	;
+	  complex_to_andor(Els, MapI, MapI2, T2),
+	  NOTV1 = and(not(V), T2)
+	),
+	complex_to_and(functor(not,1,More), MapI2, MapF, O2).
+complex_to_and(functor(not,1,[atom(A1,Els)|More]), Map0, MapF, or(NOTV1,O2)) :- 
 	check(Map0, A1, V, MapI),
 	(Els == [endlist]
 	->
@@ -88,6 +104,8 @@ tabled_complex_to_and(atom(A1,[endlist]), Map0, MapF, Tab, Tab, V) :- !,
 	check(Map0, A1, V, MapF).
 tabled_complex_to_and(functor(not,1,[int(A1,[endlist])]), Map0, MapF, Tab, Tab, not(V)) :- !,
 	check(Map0, A1, V, MapF).
+tabled_complex_to_and(functor(not,1,[atom(A1,[endlist])]), Map0, MapF, Tab, Tab, not(V)) :- !,
+	check(Map0, A1, V, MapF).
 tabled_complex_to_and(T, Map, Map, Tab, Tab, V) :- 
 	rb_lookup(T, V, Tab), !,
 	increment_ref_count(V).
@@ -97,8 +115,20 @@ tabled_complex_to_and(IN, Map0, MapF, Tab0, TabF, OUT) :-
 	rb_insert(Tab0, IN, OUT, TabI),
 	OUT = and(0, _, V, T2),
 	tabled_complex_to_andor(Els, MapI, MapF, TabI, TabF, T2).
+tabled_complex_to_and(IN, Map0, MapF, Tab0, TabF, OUT) :- 
+	IN = atom(A1,Els), !,
+	check(Map0, A1, V, MapI),
+	rb_insert(Tab0, IN, OUT, TabI),
+	OUT = and(0, _, V, T2),
+	tabled_complex_to_andor(Els, MapI, MapF, TabI, TabF, T2).
 tabled_complex_to_and(IN, Map0, MapF, Tab0, TabF, OUT) :-
 	IN = functor(not,1,[int(A1,Els)]), !,
+	check(Map0, A1, V, MapI),
+	rb_insert(Tab0, IN, OUT, TabI),
+	OUT = and(0, _, not(V), T2),
+	tabled_complex_to_andor(Els, MapI, MapF, TabI, TabF, T2).
+tabled_complex_to_and(IN, Map0, MapF, Tab0, TabF, OUT) :-
+	IN = functor(not,1,[atom(A1,Els)]), !,
 	check(Map0, A1, V, MapI),
 	rb_insert(Tab0, IN, OUT, TabI),
 	OUT = and(0, _, not(V), T2),
