@@ -74,7 +74,7 @@ asserted before being defined.
 */
 dynamic(X) :-
 	current_prolog_flag(language, yap), !,
-        '$current_module'(M),
+  '$current_module'(M),
 	'$dynamic'(X, M).
 dynamic(X) :-
 	'$do_error'(context_error(dynamic(X),declaration),query).
@@ -88,42 +88,12 @@ dynamic(X) :-
 '$dynamic'([], _) :- !.
 '$dynamic'([H|L], M) :- !, '$dynamic'(H, M), '$dynamic'(L, M).
 '$dynamic'((A,B),M) :- !, '$dynamic'(A,M), '$dynamic'(B,M).
-'$dynamic'(X,M) :-
-	'$dynamic2'(X,M).
-
-'$dynamic2'(X, Mod) :- '$log_upd'(Stat), Stat\=0, !,
-	'$logical_updatable'(X, Mod).
-'$dynamic2'(A//N1, Mod) :-
-	integer(N1),
-	N is N1+2,
-	'$dynamic2'(A/N, Mod).
-'$dynamic2'(A/N, Mod) :-
-	integer(N), atom(A), !,
-	functor(T,A,N), '$predicate_flags'(T,Mod,F,F),
-	% LogUpd,BinaryTest,Safe,C,Dynamic,Compiled,Standard,Asm,
-	( F/\ 0x19D1FA80 =:= 0, '$undefined'(T,Mod) -> NF is F \/ 0x00002000, '$predicate_flags'(T, Mod, F, NF), '$mk_d'(T,Mod);
-	    F /\ 0x00002000 =:= 0x00002000 -> '$mk_d'(T,Mod);                     % dynamic
-	    F /\ 0x08000000 =:= 0x08000000 -> '$mk_d'(T,Mod) ;      % LU
-	    F /\ 0x00000400 =:= 0x00000400, '$undefined'(T,Mod) -> F1 is F /\ \(0x400), N1F is F1 \/ 0x00002000, NF is N1F /\ \(0x00400000), '$predicate_flags'(T,Mod,F,NF), '$mk_d'(T,Mod);
-	    '$do_error'(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N))
-	).
-'$dynamic2'(X,Mod) :-
-	'$do_pi_error'(type_error(callable,X),dynamic(Mod:X)).
-
-'$logical_updatable'(A//N,Mod) :- integer(N), !,
+'$dynamic'(A//N,Mod) :- integer(N), !,
 	N1 is N+2,
-	'$logical_updatable'(A/N1,Mod).
-'$logical_updatable'(A/N,Mod) :- integer(N), atom(A), !,
-	functor(T,A,N), '$predicate_flags'(T,Mod,F,F),
-	(
-	    F/\ 0x19D1FA80 =:= 0, '$undefined'(T,Mod) -> NF is F \/ 0x08000400, '$predicate_flags'(T,Mod,F,NF), '$mk_d'(T,Mod);
-	    F /\ 0x08000000 =:= 0x08000000 -> '$mk_d'(T,Mod) ;      % LU
-	    F /\ 0x00002000 =:= 0x00002000 -> '$mk_d'(T,Mod);      % dynamic
-	    F /\ 0x00000400 =:= 0x00000400 , '$undefined'(T,Mod) -> N1F is F \/ 0x08000000, NF is N1F /\ \(0x00400000), '$predicate_flags'(T,Mod,F,NF), '$mk_d'(T,Mod);
-	    '$do_error'(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N))
-	).
-'$logical_updatable'(X,Mod) :-
-	'$do_error'(type_error(callable,X),dynamic(Mod:X)).
+	'$dynamic'(A/N1,Mod).
+'$dynamic'(A/N,Mod) :-
+  functor(G, A, N),
+  '$mk_d'(G,Mod).
 
 /** @pred public(  _P_ ) is iso
 
