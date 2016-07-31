@@ -73,10 +73,12 @@ static void do_top_goal(YAP_Term Goal) { YAP_RunGoalOnce(Goal); }
 
 static int init_standard_system(int argc, char *argv[], YAP_init_args *iap) {
 
-  YAP_file_type_t BootMode = YAP_parse_yap_arguments(argc, argv, iap);
+  YAP_file_type_t BootMode;
+
+  BootMode = YAP_parse_yap_arguments(argc, argv, iap);
 
   /* init memory */
-  iap->initial_file_type =
+  iap->boot_file_type =
     BootMode = YAP_Init(iap);
   if (iap->ErrorNo) {
     /* boot failed */
@@ -93,7 +95,7 @@ static void exec_top_level(int BootMode, YAP_init_args *iap) {
     /* continue executing from the frozen stacks */
     YAP_ContinueGoal();
   }
-    livegoal = YAP_FullLookupAtom("$live");
+  livegoal = YAP_FullLookupAtom("$live");
   /* the top-level is now ready */
 
   /* read it before case someone, that is, Ashwin, hides
