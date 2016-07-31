@@ -148,7 +148,8 @@ IF (CUDD_FOUND)
 
   install(TARGETS  bddem
     LIBRARY DESTINATION ${dlls}
-    )
+      ARCHIVE DESTINATION ${dlls}
+  )
 
   
   add_library (cplint SHARED
