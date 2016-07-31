@@ -84,25 +84,38 @@ __BEGIN_DECLS
 
 #ifndef Int_FORMAT
 
-#if HAVE_INTTYPES_H
-
-#include <inttypes.h>
-
+#ifdef PRIdPTR
 #define Int_FORMAT "%" PRIdPTR
-#define Int_ANYFORMAT "%" PRIiPTR
-#define UInt_FORMAT "%" PRIuPTR
-
 #elif _WIN64
 #define Int_FORMAT "%I64d"
-#define Int_ANYFORMAT "%I64i"
-#define UInt_FORMAT "%I64u"
+#elif _WIN32
+#define Int_FORMAT "%I32d"
 #else
 #define Int_FORMAT "%ld"
+#endif
+
+#ifdef PRIiPTR
+#define Int_ANYFORMAT "%" PRIiPTR
+#elif _WIN64
+#define Int_ANYFORMAT "%I64i"
+#elif _WIN32
+#define Int_ANYFORMAT "%I32i"
+#else
 #define Int_ANYFORMAT "%li"
+#endif
+
+#ifdef PRIuPTR
+#define UInt_FORMAT "%" PRIuPTR
+#elif _WIN64
+#define UInt_FORMAT "%I64ud"
+#elif _WIN32
+#define UInt_FORMAT "%I32ud"
+#else
 #define UInt_FORMAT "%lu"
 #endif
 
-#endif /* portable form of formatted output for Prolog terms */
+/* portable form of formatted output for Prolog terms */
+#endif
 
 /**
 
@@ -1920,10 +1933,11 @@ extern X_API int YAP_AssertTuples(YAP_PredEntryPtr pred, const YAP_Term *ts,
                                   size_t offset, size_t sz);
 
 /*  int YAP_Init(YAP_init_args *) */
-extern X_API YAP_Int YAP_Init(YAP_init_args *);
+extern X_API YAP_file_type_t YAP_Init(YAP_init_args *);
 
 /*  int YAP_FastInit(const char *) */
-extern X_API YAP_Int YAP_FastInit(char saved_state[]);
+extern X_API YAP_file_type_t YAP_FastInit(char saved_state[], int argc,
+                                          char *argv[]);
 
 #ifndef _PL_STREAM_H
 // if we don't know what a stream is, just don't assume nothing about the
@@ -2181,6 +2195,8 @@ extern X_API YAP_CELL *YAP_HeapStoreOpaqueTerm(YAP_Term t);
 
 extern X_API int YAP_Argv(char ***);
 
+extern X_API bool YAP_DelayInit(YAP_ModInit_t f, const char s[]);
+
 extern X_API YAP_tag_t YAP_TagOfTerm(YAP_Term);
 
 extern X_API size_t YAP_ExportTerm(YAP_Term, char *, size_t);
@@ -2213,7 +2229,7 @@ extern X_API int YAP_RequiresExtraStack(size_t);
    *  -P    only in development versions
    */
 extern X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
-                                         YAP_init_args *iap);
+                                                     YAP_init_args *iap);
 
 extern X_API YAP_Int YAP_AtomToInt(YAP_Atom At);
 

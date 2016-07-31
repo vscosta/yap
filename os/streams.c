@@ -29,11 +29,11 @@ static char SccsId[] = "%W% %G%";
 /* for O_BINARY and O_TEXT in WIN32 */
 #include <fcntl.h>
 #endif
-#include "Yatom.h"
 #include "YapHeap.h"
-#include "yapio.h"
-#include "eval.h"
 #include "YapText.h"
+#include "Yatom.h"
+#include "eval.h"
+#include "yapio.h"
 #include <stdlib.h>
 #if HAVE_STDARG_H
 #include <stdarg.h>
@@ -222,7 +222,7 @@ static Int
 has_bom(int sno, Term t2 USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage) */
   bool rc = GLOBAL_Stream[sno].status & HAS_BOM_f;
   if (!IsVarTerm(t2) && !booleanFlag(t2)) {
-   //   Yap_Error( DOMAIN_ERROR_BOOLEAN, t2, " stream_property/2");
+    //   Yap_Error( DOMAIN_ERROR_BOOLEAN, t2, " stream_property/2");
     return false;
   }
   if (rc) {
@@ -247,20 +247,20 @@ has_reposition(int sno,
   }
 }
 
-char *Yap_guessFileName(FILE* file, int sno, char *nameb, size_t max) {
-	if (!nameb) {
-		nameb = malloc(max(256, max));
-	}
-	if (!file) {
-	  strcpy(nameb, "memory buffer");
-	  return nameb;
-	}
-	int f = fileno(file);
-	if (f < 0) {
-	  strcpy(nameb, "???");
-	  return nameb;
-	}
-	
+char *Yap_guessFileName(FILE *file, int sno, char *nameb, size_t max) {
+  if (!nameb) {
+    nameb = malloc(max(256, max));
+  }
+  if (!file) {
+    strcpy(nameb, "memory buffer");
+    return nameb;
+  }
+  int f = fileno(file);
+  if (f < 0) {
+    strcpy(nameb, "???");
+    return nameb;
+  }
+
 #if __linux__
   char path[256];
   if (snprintf(path, 255, "/proc/self/fd/%d", f) && readlink(path, nameb, max))
@@ -270,14 +270,14 @@ char *Yap_guessFileName(FILE* file, int sno, char *nameb, size_t max) {
     return nameb;
   }
 #else
-  TCHAR path[MAX_PATH+1];
+  TCHAR path[MAX_PATH + 1];
   if (!GetFullPathName(path, MAX_PATH, path, NULL))
-      return NULL;
+    return NULL;
   else {
     int i;
-    char *ptr = nameb;
+    unsigned char *ptr = nameb;
     for (i = 0; i < strlen(path); i++)
-      ptr +=  put_utf8(ptr, path[i]);
+      ptr += put_utf8(ptr, path[i]);
     *ptr = '\0';
     return nameb;
   }
@@ -472,8 +472,8 @@ eof_action(int sno,
 }
 
 #define STREAM_PROPERTY_DEFS()                                                 \
-  PAR("alias", filler, STREAM_PROPERTY_ALIAS),                                 \
-      PAR("bom", filler, STREAM_PROPERTY_BOM),                                 \
+  PAR("alias", filler, STREAM_PROPERTY_ALIAS)                                  \
+  , PAR("bom", filler, STREAM_PROPERTY_BOM),                                   \
       PAR("close_on_abort", filler, STREAM_PROPERTY_CLOSE_ON_ABORT),           \
       PAR("encoding", filler, STREAM_PROPERTY_ENCODING),                       \
       PAR("end_of_stream", filler, STREAM_PROPERTY_END_OF_STREAM),             \
@@ -639,8 +639,7 @@ static Int cont_stream_property(USES_REGS1) { /* current_stream */
   if (IsAtomTerm(args[STREAM_PROPERTY_ALIAS].tvalue)) {
     // one solution only
     i = Yap_CheckAlias(AtomOfTerm(args[STREAM_PROPERTY_ALIAS].tvalue));
-     free(args)
-   UNLOCK(GLOBAL_Stream[i].streamlock);
+    free(args) UNLOCK(GLOBAL_Stream[i].streamlock);
     if (i < 0 || !Yap_unify(ARG1, Yap_MkStream(i))) {
       cut_fail();
     }
@@ -649,7 +648,7 @@ static Int cont_stream_property(USES_REGS1) { /* current_stream */
   LOCK(GLOBAL_Stream[i].streamlock);
   rc = do_stream_property(i, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[i].streamlock);
- if (IsVarTerm(t1)) {
+  if (IsVarTerm(t1)) {
     if (rc)
       rc = Yap_unify(ARG1, Yap_MkStream(i));
     if (p == STREAM_PROPERTY_END) {
@@ -671,7 +670,7 @@ static Int cont_stream_property(USES_REGS1) { /* current_stream */
     // done
     det = (p == STREAM_PROPERTY_END);
   }
-  free( args );
+  free(args);
   if (rc) {
     if (det)
       cut_succeed();
@@ -722,11 +721,11 @@ static Int stream_property(USES_REGS1) { /* Init current_stream */
     }
     if (do_stream_property(i, args PASS_REGS)) {
       UNLOCK(GLOBAL_Stream[i].streamlock);
-      free( args );      
+      free(args);
       cut_succeed();
     } else {
       UNLOCK(GLOBAL_Stream[i].streamlock);
-      free( args );      
+      free(args);
       cut_fail();
     }
   } else {
@@ -735,8 +734,8 @@ static Int stream_property(USES_REGS1) { /* Init current_stream */
 }
 
 #define SET_STREAM_DEFS()                                                      \
-  PAR("alias", isatom, SET_STREAM_ALIAS),                                      \
-      PAR("buffer", booleanFlag, SET_STREAM_BUFFER),                           \
+  PAR("alias", isatom, SET_STREAM_ALIAS)                                       \
+  , PAR("buffer", booleanFlag, SET_STREAM_BUFFER),                             \
       PAR("buffer_size", nat, SET_STREAM_BUFFER_SIZE),                         \
       PAR("close_on_abort", booleanFlag, SET_STREAM_CLOSE_ON_ABORT),           \
       PAR("encoding", isatom, SET_STREAM_ENCODING),                            \
@@ -894,7 +893,7 @@ void Yap_CloseStreams(int loud) {
   for (sno = 3; sno < MaxStreams; ++sno) {
     if (GLOBAL_Stream[sno].status & Free_Stream_f)
       continue;
-    CloseStream( sno );
+    CloseStream(sno);
   }
 }
 
@@ -1019,7 +1018,7 @@ static Int set_output(USES_REGS1) { /* '$show_stream_position'(+Stream,Pos) */
 static Int p_user_file_name(USES_REGS1) {
   Term tout;
   int sno =
-    Yap_CheckStream(ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f,
+      Yap_CheckStream(ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f,
                       "user_file_name/2");
   if (sno < 0)
     return (FALSE);
@@ -1405,7 +1404,7 @@ FILE *Yap_FileDescriptorFromStream(Term t) {
 void
 
 Yap_InitBackIO (
-    
+
     void)
 {
   Yap_InitCPredBack("stream_property", 2, 2, stream_property,

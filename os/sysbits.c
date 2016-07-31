@@ -34,6 +34,14 @@ static void FileError(yap_error_number type, Term where, const char *format,
   }
 }
 
+/// Allocate a temporary buffer
+static char *getFileNameBuffer(void) {
+
+  return Yap_AllocAtomSpace(YAP_FILENAME_MAX);
+}
+
+static void freeFileNameBuffer(char *s) { Yap_FreeCodeSpace(s); }
+
 static Int p_sh(USES_REGS1);
 static Int p_shell(USES_REGS1);
 static Int p_system(USES_REGS1);
@@ -51,7 +59,6 @@ static const char *expandVars(const char *spec, char *u);
 
 void exit(int);
 
-
 #ifdef _WIN32
 void Yap_WinError(char *yap_error) {
   char msg[256];
@@ -66,97 +73,14 @@ void Yap_WinError(char *yap_error) {
 #define is_valid_env_char(C)                                                   \
   (((C) >= 'a' && (C) <= 'z') || ((C) >= 'A' && (C) <= 'Z') || (C) == '_')
 
-#if __ANDROID__
-
-AAssetManager *Yap_assetManager;
-
-void *Yap_openAssetFile(const char *path) {
-  const char *p = path + 8;
-  AAsset *asset = AAssetManager_open(Yap_assetManager, p, AASSET_MODE_UNKNOWN);
-  return asset;
-}
-
-bool Yap_isAsset(const char *path) {
-  if (Yap_assetManager == NULL)
-    return false;
-  return path[0] == '/' && path[1] == 'a' && path[2] == 's' && path[3] == 's' &&
-         path[4] == 'e' && path[5] == 't' && path[6] == 's' &&
-         (path[7] == '/' || path[7] == '\0');
-}
-
-bool Yap_AccessAsset(const char *name, int mode) {
-  AAssetManager *mgr = Yap_assetManager;
-  const char *bufp = name + 7;
-
-  if (bufp[0] == '/')
-    bufp++;
-  if ((mode & W_OK) == W_OK) {
-    return false;
-  }
-  // directory works if file exists
-  AAssetDir *assetDir = AAssetManager_openDir(mgr, bufp);
-  if (assetDir) {
-    AAssetDir_close(assetDir);
-    return true;
-  }
-  return false;
-}
-
-bool Yap_AssetIsFile(const char *name) {
-  AAssetManager *mgr = Yap_assetManager;
-  const char *bufp = name + 7;
-  if (bufp[0] == '/')
-    bufp++;
-  // check if file is a directory.
-  AAsset *asset = AAssetManager_open(mgr, bufp, AASSET_MODE_UNKNOWN);
-  if (!asset)
-    return false;
-  AAsset_close(asset);
-  return true;
-}
-
-bool Yap_AssetIsDir(const char *name) {
-  AAssetManager *mgr = Yap_assetManager;
-  const char *bufp = name + 7;
-  if (bufp[0] == '/')
-    bufp++;
-  // check if file is a directory.
-  AAssetDir *assetDir = AAssetManager_openDir(mgr, bufp);
-  if (!assetDir) {
-    return false;
-  }
-  AAssetDir_close(assetDir);
-  AAsset *asset = AAssetManager_open(mgr, bufp, AASSET_MODE_UNKNOWN);
-  if (!asset)
-    return true;
-  AAsset_close(asset);
-  return false;
-}
-
-int64_t Yap_AssetSize(const char *name) {
-  AAssetManager *mgr = Yap_assetManager;
-  const char *bufp = name + 7;
-  if (bufp[0] == '/')
-    bufp++;
-  AAsset *asset = AAssetManager_open(mgr, bufp, AASSET_MODE_UNKNOWN);
-  if (!asset)
-    return -1;
-  off64_t len = AAsset_getLength64(asset);
-  AAsset_close(asset);
-  return len;
-}
-#endif
-
 /// is_directory: verifies whether an expanded file name
 /// points at a readable directory
 static bool is_directory(const char *FileName) {
-#ifdef __ANDROID__
-  if (Yap_isAsset(FileName)) {
-    return Yap_AssetIsDir(FileName);
+
+  VFS_t *vfs;
+  if ((vfs = vfs_owner(FileName))) {
+    return vfs->isdir(vfs, FileName);
   }
-
-#endif
-
 #ifdef __WINDOWS__
   DWORD dwAtts = GetFileAttributes(FileName);
   if (dwAtts == INVALID_FILE_ATTRIBUTES)
@@ -178,6 +102,11 @@ static bool is_directory(const char *FileName) {
 }
 
 bool Yap_Exists(const char *f) {
+  VFS_t *vfs;
+
+  if ((vfs = vfs_owner(f))) {
+    return vfs->exists(vfs, f);
+  }
 #if _WIN32
   if (_access(f, 0) == 0)
     return true;
@@ -333,9 +262,10 @@ static const char *PlExpandVars(const char *source, const char *root,
                 "path too long");
       return NULL;
     }
-    if (root) {
+    if (root && !Yap_IsAbsolutePath(source)) {
       strncpy(result, root, YAP_FILENAME_MAX);
-      strncat(result, "/", YAP_FILENAME_MAX);
+      if (root[strlen(root) - 1] != '/')
+        strncat(result, "/", YAP_FILENAME_MAX);
       strncat(result, source, YAP_FILENAME_MAX);
     } else {
       strncpy(result, source, strlen(src) + 1);
@@ -416,30 +346,10 @@ static bool ChDir(const char *path) {
   char qp[FILENAME_MAX + 1];
   const char *qpath = Yap_AbsoluteFile(path, qp, true);
 
-#ifdef __ANDROID__
-  if (GLOBAL_AssetsWD) {
-    freeBuffer(GLOBAL_AssetsWD);
-    GLOBAL_AssetsWD = NULL;
+  VFS_t *v;
+  if ((v = vfs_owner(path))) {
+    return v->chdir(v, path);
   }
-  if (Yap_isAsset(qpath)) {
-    AAssetManager *mgr = Yap_assetManager;
-
-    const char *ptr = qpath + 8;
-    AAssetDir *d;
-    if (ptr[0] == '/')
-      ptr++;
-    d = AAssetManager_openDir(mgr, ptr);
-    if (d) {
-      GLOBAL_AssetsWD = malloc(strlen(qpath) + 1);
-      strcpy(GLOBAL_AssetsWD, qpath);
-      AAssetDir_close(d);
-      return true;
-    }
-    return false;
-  } else {
-    GLOBAL_AssetsWD = NULL;
-  }
-#endif
 #if _WIN32
   rc = true;
   if (qpath != NULL && qpath[0] &&
@@ -449,7 +359,8 @@ static bool ChDir(const char *path) {
 #else
   rc = (chdir(qpath) == 0);
 #endif
-  if (qpath != qp && qpath != LOCAL_FileNameBuf && qpath != LOCAL_FileNameBuf2)
+  if (qpath != qp && qpath != path && qpath != LOCAL_FileNameBuf &&
+      qpath != LOCAL_FileNameBuf2)
     free((char *)qpath);
   return rc;
 }
@@ -579,12 +490,11 @@ static Term
     /* Expand the string for the program to run.  */
     do_glob(const char *spec, bool glob_vs_wordexp) {
   CACHE_REGS
-  char u[YAP_FILENAME_MAX + 1];
-  const char *espec = u;
   if (spec == NULL) {
     return TermNil;
   }
 #if _WIN32
+  char u[YAP_FILENAME_MAX + 1];
   {
     WIN32_FIND_DATA find;
     HANDLE hFind;
@@ -622,6 +532,8 @@ static Term
     return tf;
   }
 #elif HAVE_WORDEXP || HAVE_GLOB
+  char u[YAP_FILENAME_MAX + 1];
+  const char *espec = u;
   strncpy(u, spec, sizeof(u));
   /* Expand the string for the program to run.  */
   size_t pathcount;
@@ -723,7 +635,7 @@ static Term
   return tf;
 #else
   // just use basic
-  return MkPairTerm(MkAtomTerm(Yap_LookupAtom(espec)), TermNil);
+  return MkPairTerm(MkAtomTerm(Yap_LookupAtom(spec)), TermNil);
 #endif
 }
 
@@ -809,15 +721,13 @@ static Term do_expand_file_name(Term t1, Term opts USES_REGS) {
     return TermNil;
   }
 #if _WIN32
-  {
-    char *rc;
-    char cmd2[YAP_FILENAME_MAX + 1];
+  char *rc;
+  char cmd2[YAP_FILENAME_MAX + 1];
 
-    if ((rc = unix2win(spec, cmd2, YAP_FILENAME_MAX)) == NULL) {
-      return false;
-    }
-    spec = rc;
+  if ((rc = unix2win(spec, cmd2, YAP_FILENAME_MAX)) == NULL) {
+    return false;
   }
+  spec = rc;
 #endif
 
   args = Yap_ArgListToVector(opts, expand_filename_defs, EXPAND_FILENAME_END);
@@ -1143,7 +1053,21 @@ static Int libraries_directories(USES_REGS1) {
 }
 
 static Int system_library(USES_REGS1) {
+#if __ANDROID__
+  static Term dir = 0;
+  Term t;
+  if (IsVarTerm(t = Deref(ARG1))) {
+    if (dir == 0)
+      return false;
+    return Yap_unify(dir, ARG1);
+  }
+  if (!IsAtomTerm(t))
+    return false;
+  dir = t;
+  return true;
+#else
   return initSysPath(ARG1, MkVarTerm(), false, true);
+#endif
 }
 
 static Int commons_library(USES_REGS1) {
@@ -1212,11 +1136,6 @@ const char *Yap_getcwd(const char *cwd, size_t cwdlen) {
     return NULL;
   }
   return (char *)cwd;
-#elif __ANDROID__
-  if (GLOBAL_AssetsWD) {
-    return strncpy((char *)cwd, (const char *)GLOBAL_AssetsWD, cwdlen);
-  }
-
 #endif
   return getcwd((char *)cwd, cwdlen);
 }
@@ -1247,7 +1166,7 @@ static Int working_directory(USES_REGS1) {
    *
    *
    * @param isource the proper file
-   * @param idef the default name fo rthe file, ie, startup.yss
+   * @param idef the default name fothe file, ie, startup.yss
    * @param root the prefix
    * @param result the output
    * @param access verify whether the file has access permission
@@ -1260,24 +1179,32 @@ static Int working_directory(USES_REGS1) {
 const char *Yap_findFile(const char *isource, const char *idef,
                          const char *iroot, char *result, bool access,
                          YAP_file_type_t ftype, bool expand_root, bool in_lib) {
-  char save_buffer[YAP_FILENAME_MAX + 1];
+
+  char *save_buffer = NULL;
   const char *root, *source = isource;
   int rc = FAIL_RESTORE;
   int try
     = 0;
-
+  bool abspath = false;
+  //__android_log_print(ANDROID_LOG_ERROR,  "YAPDroid " __FUNCTION__,
+  // "try=%d %s %s", try, isource, iroot) ; }
   while (rc == FAIL_RESTORE) {
+    // means we failed this iteration
     bool done = false;
-    // { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__,
-    // "try=%d %s %s", try, isource, iroot) ; }
+    // { CACHE_REGS
     switch (try ++) {
     case 0: // path or file name is given;
       root = iroot;
-      if (!root && ftype == YAP_BOOT_PL) {
-        root = YAP_PL_SRCDIR;
-      }
       if (idef || isource) {
         source = (isource ? isource : idef);
+      }
+      if (source) {
+        if (source[0] == '/') {
+          abspath = true;
+        }
+      }
+      if (!abspath && !root && ftype == YAP_BOOT_PL) {
+        root = YAP_PL_SRCDIR;
       }
       break;
     case 1: // library directory is given in command line
@@ -1294,10 +1221,12 @@ const char *Yap_findFile(const char *isource, const char *idef,
         if (ftype == YAP_SAVED_STATE || ftype == YAP_OBJ) {
           root = getenv("YAPLIBDIR");
         } else if (ftype == YAP_BOOT_PL) {
-          root = getenv("YAPSHAREDIR");
+          root = getenv("YAPSHAREDIR"
+                        "/pl");
           if (root == NULL) {
             continue;
           } else {
+            save_buffer = getFileNameBuffer();
             strncpy(save_buffer, root, YAP_FILENAME_MAX);
             strncat(save_buffer, "/pl", YAP_FILENAME_MAX);
           }
@@ -1343,12 +1272,22 @@ const char *Yap_findFile(const char *isource, const char *idef,
 
         if (pt) {
           if (ftype == YAP_BOOT_PL) {
-            root = "../../share/Yap/pl";
+#if __ANDROID__
+            root = "../../../files/Yap/pl";
+#else
+          root = "../../share/Yap/pl";
+#endif
           } else {
             root = (ftype == YAP_SAVED_STATE || ftype == YAP_OBJ
                         ? "../../lib/Yap"
                         : "../../share/Yap");
           }
+          if (root == iroot) {
+            done = true;
+            continue;
+          }
+          if (!save_buffer)
+            save_buffer = getFileNameBuffer();
           if (Yap_findFile(source, NULL, root, save_buffer, access, ftype,
                            expand_root, in_lib))
             root = save_buffer;
@@ -1366,6 +1305,9 @@ const char *Yap_findFile(const char *isource, const char *idef,
       root = NULL;
       break;
     default:
+      if (save_buffer)
+        freeFileNameBuffer(save_buffer);
+
       return false;
     }
 
@@ -1375,11 +1317,15 @@ const char *Yap_findFile(const char *isource, const char *idef,
     //    "root= %s %s ", root, source) ; }
     const char *work = PlExpandVars(source, root, result);
 
+    if (save_buffer)
+      freeFileNameBuffer(save_buffer);
+
     // expand names in case you have
     // to add a prefix
     if (!access || Yap_Exists(work)) {
       return work; // done
-    }
+    } else if (abspath)
+      return NULL;
   }
   return NULL;
 }
@@ -1749,7 +1695,7 @@ static Int p_getenv(USES_REGS1) {
 static Int p_putenv(USES_REGS1) {
 #if HAVE_PUTENV
   Term t1 = Deref(ARG1), t2 = Deref(ARG2);
-  char *s, *s2, *p0, *p;
+  char *s = "", *s2 = "", *p0, *p;
 
   if (IsVarTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "first arg to putenv/2");
