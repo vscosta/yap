@@ -1389,3 +1389,37 @@ int Yap_AtomDecreaseHold(Atom at) {
   WRITE_UNLOCK(ae->ARWLock);
   return TRUE;
 }
+
+const char *IndicatorOfPred(PredEntry *pe) {
+  const char *mods;
+  Atom at;
+  arity_t arity;
+  if (pe->ModuleOfPred == IDB_MODULE) {
+    mods = "idb";
+    if (pe->PredFlags & NumberDBPredFlag) {
+      snprintf(LOCAL_FileNameBuf, YAP_FILENAME_MAX, "idb:" UInt_FORMAT,
+               (Int)(pe->FunctorOfPred));
+      return LOCAL_FileNameBuf;
+    } else if (pe->PredFlags & AtomDBPredFlag) {
+      at = (Atom)pe->FunctorOfPred;
+      arity = 0;
+    } else {
+      at = NameOfFunctor(pe->FunctorOfPred);
+      arity = ArityOfFunctor(pe->FunctorOfPred);
+    }
+  } else {
+    if (pe->ModuleOfPred == 0)
+      mods = "prolog";
+    else
+      mods = RepAtom(AtomOfTerm(pe->ModuleOfPred))->StrOfAE;
+    arity = pe->ArityOfPE;
+    if (arity == 0) {
+      at = (Atom)pe->FunctorOfPred;
+    } else {
+      at = NameOfFunctor(pe->FunctorOfPred);
+    }
+  }
+  snprintf(LOCAL_FileNameBuf, YAP_FILENAME_MAX, "%s:%s/" UInt_FORMAT, mods,
+           RepAtom(at)->StrOfAE, arity);
+  return LOCAL_FileNameBuf;
+}
