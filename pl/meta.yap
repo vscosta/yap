@@ -31,7 +31,10 @@ meta_predicate declaration
 
 :- dynamic prolog:'$meta_predicate'/4.
 
-:- multifile prolog:'$meta_predicate'/4, '$inline'/2.
+:- multifile prolog:'$meta_predicate'/4,
+      '$inline'/2,
+      '$full_clause_optimisation'/4.
+
 
 '$meta_predicate'(M:P) :-
 	var(P),
@@ -425,7 +428,7 @@ o:p(B) :- n:g, X is 2+3, call(B).
 	recorded('$import','$import'(NM,Mod,NH,H,_,_),R),
 	NM \= Mod,
 	functor(NH,N,Ar),
-	'$early_print'(warning,redefine_imported(Mod,NM,N/Ar)),
+	print_message(warning,redefine_imported(Mod,NM,N/Ar)),
 	erase(R),
 	fail.
 '$not_imported'(_, _).
