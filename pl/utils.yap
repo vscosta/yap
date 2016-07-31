@@ -32,7 +32,7 @@
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
 
-/** @pred op(+ _P_,+ _T_,+ _A_) is iso 
+/** @pred op(+ _P_,+ _T_,+ _A_) is iso
 
 
 Defines the operator  _A_ or the list of operators  _A_ with type
@@ -45,7 +45,7 @@ type, this operator will be discarded. Also, `,` may not be defined
 as an operator, and it is not allowed to have the same for an infix and
 a postfix operator.
 
- 
+
 */
  op(P,T,V) :-
 	 '$check_op'(P,T,V,op(P,T,V)),
@@ -112,7 +112,7 @@ a postfix operator.
 	 '$check_module_for_op'(Op, G, NOp),
 	 '$check_op_name'(P, T, NOp, G),
 	 '$check_ops'(P, T, NV, G)
-	).	
+	).
 '$check_ops'(_P, _T, Ops, G) :-
 	'$do_error'(type_error(list,Ops),G).
 
@@ -156,13 +156,13 @@ a postfix operator.
 	strip_module(A,M,N),
 	'$opdec'(P,T,N,M).
 
-/** @pred current_op( _P_, _T_, _F_) is iso 
+/** @pred current_op( _P_, _T_, _F_) is iso
 
 
 Defines the relation:  _P_ is a currently defined  operator of type
  _T_ and precedence  _P_.
 
- 
+
 */
 current_op(X,Y,V) :- var(V), !,
 	'$current_module'(M),
@@ -255,65 +255,29 @@ prolog :-
 
 %%% current ....
 
-/** @pred  recordaifnot(+ _K_, _T_,- _R_) 
-
-
-If a term equal to  _T_ up to variable renaming is stored under key
- _K_ fail. Otherwise, make term  _T_ the first record under key
- _K_ and unify  _R_ with its reference.
-
- 
-*/
-recordaifnot(K,T,R) :-
-	recorded(K,T,R), % force non-det binding to R.
-	'$still_variant'(R,T),
-	!,
-	fail.
-recordaifnot(K,T,R) :-
-	recorda(K,T,R).
-
-/** @pred  recordzifnot(+ _K_, _T_,- _R_) 
-
-
-If a term equal to  _T_ up to variable renaming is stored under key
- _K_ fail. Otherwise, make term  _T_ the first record under key
- _K_ and unify  _R_ with its reference.
-
-This predicate is YAP specific.
-
- 
-*/
-recordzifnot(K,T,R) :-
-	recorded(K,T,R),
-	'$still_variant'(R,T),
-	!,
-	fail.
-recordzifnot(K,T,R) :-
-	recordz(K,T,R).
-
-/** @pred  callable( _T_) is iso 
+/** @pred  callable( _T_) is iso
 
 
 Checks whether  _T_ is a callable term, that is, an atom or a
 compound term.
 
- 
+
 */
 callable(A) :-
 	( var(A) -> fail ; number(A) -> fail ; true ).
 
-/** @pred  simple( _T_) 
+/** @pred  simple( _T_)
 
 
 Checks whether  _T_ is unbound, an atom, or a number.
 
- 
+
 */
 simple(V) :- var(V), !.
 simple(A) :- atom(A), !.
 simple(N) :- number(N).
 
-/** @pred  nth_instance(? _Key_,? _Index_,? _R_) 
+/** @pred  nth_instance(? _Key_,? _Index_,? _R_)
 
 
 Fetches the  _Index_nth entry in the internal database under the key
@@ -322,7 +286,7 @@ Fetches the  _Index_nth entry in the internal database under the key
 the reference  _R_ must be given, and YAP will find
 the matching key and index.
 
- 
+
 */
 nth_instance(Key,Index,Ref) :-
 	nonvar(Key), var(Index), var(Ref), !,
@@ -339,7 +303,7 @@ Fetches the  _Index_nth entry in the internal database under the key
 the reference  _R_ must be given, and YAP will find
 the matching key and index.
 
- 
+
 */
 nth_instance(Key,Index,T,Ref) :-
 	nonvar(Key), var(Index), var(Ref), !,
@@ -349,21 +313,21 @@ nth_instance(Key,Index,T,Ref) :-
 	'$nth_instance'(Key,Index,Ref),
 	instance(Ref,T).
 
-/** @pred  nb_current(? _Name_, ? _Value_)  
-
-
-Enumerate all defined variables with their value. The order of
-enumeration is undefined. 
-
- 
-*/
-/** @pred nb_current(? _Name_,? _Value_) 
+/** @pred  nb_current(? _Name_, ? _Value_)
 
 
 Enumerate all defined variables with their value. The order of
 enumeration is undefined.
 
- 
+
+*/
+/** @pred nb_current(? _Name_,? _Value_)
+
+
+Enumerate all defined variables with their value. The order of
+enumeration is undefined.
+
+
 */
 nb_current(GlobalVariable, Val) :-
 	'$nb_current'(GlobalVariable),
@@ -389,14 +353,25 @@ nb_current(GlobalVariable, Val) :-
 	).
 
 
-/** @pred  subsumes_term(? _Subsumer_, ? _Subsumed_) 
+/** @pred  subsumes_term(? _Subsumer_, ? _Subsumed_)
 
 
 
 Succeed if  _Submuser_ subsumes  _Subsuned_ but does not bind any
 variable in  _Subsumer_.
 
- 
+
 */
 subsumes_term(A,B) :-
 	\+ \+ terms:subsumes(A,B).
+
+term_string( T, S, Opts) :-
+    var( T ),
+    !,
+    memory_file:open_mem_read_stream( S, Stream ),
+    read_term( Stream, T, Opts ),
+    close( Stream ).
+    term_string( T, S, _Opts) :-
+        format(string(S), '~q.~n', [T]).
+
+
