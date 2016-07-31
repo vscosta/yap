@@ -11,20 +11,21 @@ Compiling YAP {#CompilingYAP}
 
 To compile YAP it should be sufficient to:
 
-2 create a directory, say `Build` and `cd` to the directory (`cd Build`).
+0: Install a version of `cmake` 3.0 or above, if you don't have it, and add it to your path, you can find it here: https://cmake.org/
+	* OSX: Create a symbolic link to the command line executables in
+      /usr/local/bin (which should be on your path) with `sudo ln -s /Applications/CMake.app/Contents/bin/* /usr/local/bin/`
 
-  obs: avoid compiling YAP in the src directory, some packages do not allow for that.
+1: Create a directory, say `Build` and `cd` to the directory (`cd Build`).
+	* Avoid compiling YAP in the src directory, some packages do not allow for that.
 
-1 run `cmake`, ideally using a cmake above 3.0.
+2: Run `cmake ../` from within `Build` (or equivalent)
 
-2 `make`.
+3: Run `make` from within `Build` (or equivalent)
 
-3 If the compilation succeeds, try `./yap`.
+4: If the compilation succeeds, try `./yap`.  This is your executable. 
 
-4  If you feel satisfied with the result, do `make install`.
-
-5 In most systems you will need to be superuser in order to do
-    `make install` and `make info` on the standard directories.
+5: If you feel satisfied with the result, do `make install`.
+	* In most systems you will need to be superuser in order to do `make install` and `make info` on the standard directories.
 
 Tuning the Functionality of YAP
 -------------------------------
@@ -117,7 +118,7 @@ brew install cudd
  are using.
 
  7. There may be conflict between  original OSX and the brew packages (eg, `openssl`, `python`, and `sqlite3`. If you prefer leaning on brew:
- ~~~~~
+~~~~~
 cmake -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl ..
 ~~~~~
 
