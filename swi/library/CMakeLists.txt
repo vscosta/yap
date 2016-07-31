@@ -6,6 +6,7 @@ set (LIBRARY_PL
   date.pl
   debug.pl
   edit.pl
+  error.pl
   main.pl
   menu.pl
   nb_set.pl
@@ -13,6 +14,7 @@ set (LIBRARY_PL
   operators.pl
   option.pl
   pairs.pl
+  plunit.pl
   predicate_options.pl
   predopts.pl
   prolog_clause.pl
@@ -26,6 +28,7 @@ set (LIBRARY_PL
   settings.pl
   shlib.pl
   thread_pool.pl
+  unix.pl
   url.pl
   utf8.pl
   win_menu.pl
@@ -38,7 +41,3 @@ set (LIBRARY_PL
 install(FILES ${LIBRARY_PL}
   DESTINATION ${libpl}
   )
-
-
-
-

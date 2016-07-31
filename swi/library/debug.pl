@@ -52,15 +52,15 @@
 
 /*:- use_module(library(prolog_stack)).*/ % We use the autoloader if needed
 
-:- if(current_prolog_flag(dialect, yap)).
+%:- if(current_prolog_flag(dialect, yap)).
 
 :- use_module(library(hacks), [stack_dump/1]).
 
-% this is as good as I can do. 
+% this is as good as I can do.
 backtrace(N) :-
 	stack_dump(N).
 
-:- endif.
+%:- endif.
 
 %:- set_prolog_flag(generate_debug_info, false).
 
@@ -258,7 +258,7 @@ print_debug(Topic, _To, Format, Args) :-
 	prolog:debug_print_hook(Topic, Format, Args), !.
 print_debug(_, [], _, _) :- !.
 print_debug(Topic, To, Format, Args) :-
-	phrase('$messages':translate_message(debug(Format, Args)), Lines),
+	phrase('$messages':translate_message(debug(Format, Args), warning), Lines),
 	(   member(T, To),
 	    debug_output(T, Stream),
 	    print_message_lines(Stream, kind(debug(Topic)), Lines),
