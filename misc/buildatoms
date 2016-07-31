@@ -23,20 +23,13 @@ gen_fields(Inp,Out) :-
 	split_unquoted(Inp," 	",["A",Atom,_,_]), !,
     ( Atom = [C|_], code_type(C, alpha), Atom \= "Trail"
     ->
-        append(["Atom Atom",Atom,"; Term Term",Atom,";"], Out)
+        append(["EXTERNAL Atom Atom",Atom,"; EXTERNAL Term Term",Atom,";"], Out)
     ;
-    	append(["Atom Atom",Atom,";"], Out)
+    	append(["EXTERNAL Atom Atom",Atom,";"], Out)
     ).
-%gen_fields(Inp,Out) :-
-%	split_unquoted(Inp," 	",["A",Atom,_]), !,
-%	append(["  Atom Atom_",Atom,"_;\n#define Atom_",Atom," Yap_heap_regs->Atom_",Atom,"_"],Out).
 gen_fields(Inp,Out) :-
 	split_unquoted(Inp," 	",["F",Name,_,_]), !,
-	append(["  Functor Functor",Name,";\n"],Out).
-%	append(["  Functor Functor",Name,"_;\n#define Functor",Name," Yap_heap_regs->Functor",Name,"_"],Out).
-%gen_fields(Inp,Out) :-
-%	split_unquoted(Inp,"  	",["F",Name,Arity]), !,
-%	append(["  Functor Functor_",Name,Arity,"_;\n#define Functor_",Name,Arity," Yap_heap_regs->Functor_",Name,Arity,"_"],Out).
+	append(["EXTERNAL  Functor Functor",Name,";\n"],Out).
 
 gen_rcov(Inp,Out) :-
 	split_unquoted(Inp,"	 ",["A",Atom,_,_]), !,
