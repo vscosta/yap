@@ -360,6 +360,10 @@ read_sig.
 :- '$set_no_trace'('$execute_nonstop'(_,_), prolog).
 :- '$set_no_trace'('$execute_clause'(_,_,_,_), prolog).
 :- '$set_no_trace'('$restore_regs'(_,_), prolog).
-:- '$set_no_trace'('$expand_meta_call'(_,_,_), prolog).
+:- '$set_no_trace'('$undefp0'(_,_), prolog).
+:- '$set_no_trace'('$Error'(_), prolog).
+:- '$set_no_trace'('$LoopError'(_,_), prolog).
+:- '$set_no_trace'('$TraceError'(_,_,_,_,_), prolog).
+:- '$set_no_trace'('$run_catch'(_,_), prolog).
 
 %%! @}
