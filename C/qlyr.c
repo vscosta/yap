@@ -910,7 +910,15 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
       }
       return;
     }
-    Yap_Abolish(pp);
+    if (pp->cs.p_code.NOfClauses) {
+      StaticClause *cl;
+      cl = ClauseCodeToStaticClause(pp->cs.p_code.FirstClause);
+      do {
+        StaticClause *ncl = cl->ClNext;
+        Yap_EraseStaticClause(cl, pp, CurrentModule);
+        cl = ncl;
+      } while (cl != NULL);
+    }
     for (i = 0; i < nclauses; i++) {
       char *base = (void *)read_UInt(stream);
       UInt size = read_UInt(stream);
@@ -1062,7 +1070,7 @@ static Int qload_program(USES_REGS1) {
   return true;
 }
 
-int Yap_Restore(const char *s, const char *lib_dir) {
+YAP_file_type_t Yap_Restore(const char *s, const char *lib_dir) {
   CACHE_REGS
 
   FILE *stream = Yap_OpenRestore(s, lib_dir);
@@ -1070,13 +1078,13 @@ int Yap_Restore(const char *s, const char *lib_dir) {
     return -1;
   GLOBAL_RestoreFile = s;
   if (do_header(stream) == NIL)
-    return FALSE;
+    return YAP_BOOT_PL;
   read_module(stream);
   setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, true);
   fclose(stream);
   GLOBAL_RestoreFile = NULL;
   LOCAL_SourceModule = CurrentModule = USER_MODULE;
-  return DO_ONLY_CODE;
+  return YAP_QLY;
 }
 
 void Yap_InitQLYR(void) {
@@ -1086,7 +1094,7 @@ void Yap_InitQLYR(void) {
                 SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$qload_program", 1, qload_program,
                 SyncPredFlag | HiddenPredFlag);
-    Yap_InitCPred("$q_header", 2, get_header, SyncPredFlag | HiddenPredFlag);
+  Yap_InitCPred("$q_header", 2, get_header, SyncPredFlag | HiddenPredFlag);
   if (FALSE) {
     restore_codes();
   }
