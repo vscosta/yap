@@ -49,7 +49,7 @@ Errors are terms of the form:
 
 :- use_system_module( '$messages', [file_location/2,
         generate_message/3,
-        translate_message/3]).
+        translate_message/4]).
 
 
 /**
@@ -58,12 +58,12 @@ Errors are terms of the form:
  * Generate a system error _Error_, informing the possible cause _Cause_.
  *
  */
-system_error(Type,Goal) :- 
+system_error(Type,Goal) :-
     '$do_error'(Type,Goal).
 
 
 '$do_error'(Type,Goal) :-
-%        format('~w~n', [Type]),    
+%        format('~w~n', [Type]),
 	ancestor_location(Call, Caller),
 	throw(error(Type, [
 	       [g|g(Goal)],
@@ -79,9 +79,9 @@ system_error(Type,Goal) :-
  * ~~~~~~~~~~
  * ~~~~~~~~~~
  *
- * 
+ *
  */
-system_error(Type,Goal,Culprit) :- 
+system_error(Type,Goal,Culprit) :-
  %        format('~w~n', [Type]),
 	ancestor_location(Call, Caller),
 	throw(error(Type, [
@@ -109,14 +109,29 @@ system_error(Type,Goal,Culprit) :-
 	flush_output,
 	fail.
 
-'$process_error'('$abort', top) :- !,
-	print_message(informational,abort(user)).
-'$process_error'('$abort', _) :- !,
-	throw('$abort').
-'$process_error'(abort, top) :- !,
-	print_message(informational,abort(user)).
-'$process_error'(abort, _) :- !,
-	throw(abort).
+'$process_error'('$forward'(Msg), _) :-
+  !,
+  throw( '$forward'(Msg) ).
+'$process_error'('$abort', Level) :-
+   !,
+'$process_error'(abort, Level).
+'$process_error'(abort, Level) :-
+  !,
+  (
+   Level \== top
+   ->
+   throw( abort )
+  ;
+   current_prolog_flag(break_level, 0)
+  ->
+  print_message(informational,abort(user)),
+  fail
+  ;
+  current_prolog_flag(break_level, I0),
+  I is I0-1,
+  current_prolog_flag(break_level, I),
+  throw(abort)
+  ).
 '$process_error'(error(thread_cancel(_Id), _G),top) :- !.
 '$process_error'(error(thread_cancel(Id), G), _) :- !,
 	throw(error(thread_cancel(Id), G)).
