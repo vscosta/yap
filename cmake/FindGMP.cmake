@@ -9,6 +9,7 @@
 # GMP_LIBRARIES_DIR - the directory the library we link with is found in.
 
 if (ANDROID)
+set( GMP_ROOT ${CMAKE_SOURCE_DIR}/../gmp/${ANDROID_ABI} )
   set (GMP_FOUND ON)
   set (GMP_INCLUDE_DIRS ${GMP_ROOT})
   set (GMP_LIBRARIES ${GMP_ROOT}/libgmp.so)
@@ -82,8 +83,6 @@ get_filename_component(GMP_LIBRARIES_DIR "${GMP_LIBRARIES}" PATH CACHE)
 
 endif(MSVC)
 endif(ANDROID)
-
-message("${GMP_ROOT} ${GMP_INCLUDE_DIRS} ${GMP_LIBRARIES} ${GMP_LIBRARIES_DIR}")
 
 # handle the QUIET and REQUIRED arguments and set GMP_FOUND to TRUE if
 # all listed variables are true
