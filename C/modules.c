@@ -6,7 +6,7 @@
 *									 *
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
-**************************************************************************
+***************************************************************   f***********
 *									 *
  File:		modules.c						 *
 * Last rev:								 *
@@ -386,9 +386,12 @@ Term Yap_YapStripModule(Term t, Term *modp) {
   CACHE_REGS
   Term tmod;
 
-  if (modp)
+  if (modp) {
     tmod = *modp;
-  else {
+    if (tmod == PROLOG_MODULE) {
+      *modp = tmod = TermProlog;
+    }
+  } else {
     tmod = CurrentModule;
     if (tmod == PROLOG_MODULE) {
       tmod = TermProlog;
@@ -465,18 +468,45 @@ static Int source_module(USES_REGS1) {
 }
 
 /**
- * @pred $copy_operators(+ModSource, +ModTarget)
+ * @pred source_module(-Mod)
+ *
+ * @param Mod is the current text source module.
+ *
+ *  : _Mod_ is the current read-in or source module.
+*/
+static Int current_source_module(USES_REGS1) {
+  Term t;
+  if (LOCAL_SourceModule == PROLOG_MODULE) {
+    LOCAL_SourceModule = TermProlog;
+  }
+  if (!Yap_unify(ARG1, LOCAL_SourceModule)) {
+    return false;
+  };
+  if (IsVarTerm(t = Deref(ARG2))) {
+    Yap_Error(INSTANTIATION_ERROR, t, NULL);
+    return false;
+  }
+  if (!IsAtomTerm(t)) {
+    Yap_Error(TYPE_ERROR_ATOM, t, NULL);
+    return false;
+  }
+  LOCAL_SourceModule = t;
+  return true;
+}
+
+/**
+ * @pred $copy_operators(+Mode, +ModTarget)
  *
  * Copy all operators in ModSource to ModTarget
  *
  *  : _Mod_ is the current read-in or source module.
  */
 static Int copy_operators(USES_REGS1) {
-  ModEntry * me = LookupModule( Deref(ARG1) );
-  if (!me)  
+  ModEntry *me = LookupModule(Deref(ARG1));
+  if (!me)
     return true;
-  ModEntry *she = LookupModule( Deref(ARG2) );
-  if (!she)  
+  ModEntry *she = LookupModule(Deref(ARG2));
+  if (!she)
     return true;
   OpEntry *op = me->OpForME;
   while (op) {
@@ -536,11 +566,13 @@ void Yap_InitModulesC(void) {
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("strip_module", 3, strip_module, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("source_module", 1, source_module, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("current_source_module", 2, current_source_module,
+                SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$yap_strip_module", 3, yap_strip_module,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("context_module", 1, context_module, 0);
-  Yap_InitCPred("$is_system_module", 1, is_system_module, SafePredFlag);  
-  Yap_InitCPred("$copy_operators", 2, copy_operators, 0);  
+  Yap_InitCPred("$is_system_module", 1, is_system_module, SafePredFlag);
+  Yap_InitCPred("$copy_operators", 2, copy_operators, 0);
   Yap_InitCPred("new_system_module", 1, new_system_module, SafePredFlag);
   Yap_InitCPredBack("$all_current_modules", 1, 1, init_current_module,
                     cont_current_module, SafePredFlag | SyncPredFlag);
