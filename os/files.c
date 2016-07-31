@@ -294,7 +294,7 @@ static Int time_file(USES_REGS1) {
 
     snprintf(s, 64, "%I64d", (long long int)n);
     mpz_init_set_str(&rop, s, 10);
-   rc = Yap_MkBigIntTerm((void *)&rop) PASS_REGS);
+    rc = Yap_MkBigIntTerm((void *)&rop PASS_REGS);
 #else
     rc = MkIntegerTerm(ft.dwHighDateTime);
 #endif
@@ -374,10 +374,10 @@ static Int access_file(USES_REGS1) {
   {
     int mode;
 
-    if (atmode == AtomExist)        
-      mode = 00;        
-    else if (atmode == AtomExists)        
-      mode = 00;        
+    if (atmode == AtomExist)
+      mode = 00;
+    else if (atmode == AtomExists)
+      mode = 00;
     else if (atmode == AtomWrite)
       mode = 02;
     else if (atmode == AtomRead)
@@ -402,10 +402,10 @@ static Int access_file(USES_REGS1) {
   {
     int mode;
 
-    if (atmode == AtomExist)    
-      mode = F_OK;    
-    else if (atmode == AtomExists)    
-      mode = F_OK;    
+    if (atmode == AtomExist)
+      mode = F_OK;
+    else if (atmode == AtomExists)
+      mode = F_OK;
     else if (atmode == AtomWrite)
       mode = W_OK;
     else if (atmode == AtomRead)
@@ -493,11 +493,11 @@ static Int is_absolute_file_name(USES_REGS1) { /* file_base_name(Stream,N) */
       rc = PathIsRelative(RepAtom(at)->StrOfAE);
 #else
       rc = RepAtom(at)->StrOfAE[0] == '/';
-#endif      
+#endif
     }
-    freeBuffer( buf );
+    freeBuffer(buf);
   }
-return rc;
+  return rc;
 }
 
 static Int file_base_name(USES_REGS1) { /* file_base_name(Stream,N) */
@@ -568,7 +568,7 @@ static Int file_directory_name(USES_REGS1) { /* file_directory_name(Stream,N) */
     strncpy(s, c, YAP_FILENAME_MAX);
     while (--i) {
       if (Yap_dir_separator((int)c[i]))
-	break;
+        break;
     }
     s[i] = '\0';
 #endif
