@@ -34,7 +34,7 @@ static void  CleanCode(PredEntry * USES_REGS);
 static void
 GrowAtomTable(void) {
   CACHE_REGS
-  UInt size = LOCAL_ExportAtomHashTableSize; 
+  UInt size = LOCAL_ExportAtomHashTableSize;
   export_atom_hash_entry_t *p, *newt, *oldt = LOCAL_ExportAtomHashChain;
   UInt new_size = size + (size > 1024 ? size : 1024);
   UInt i;
@@ -49,7 +49,7 @@ GrowAtomTable(void) {
     export_atom_hash_entry_t *newp;
     CELL hash;
     const unsigned char *apt;
-    
+
 
     if (!a) continue;
     apt = RepAtom(a)->UStrOfAE;
@@ -87,7 +87,7 @@ LookupAtom(Atom at)
   }
   a->val = at;
   LOCAL_ExportAtomHashTableNum++;
-  if (LOCAL_ExportAtomHashTableNum > 
+  if (LOCAL_ExportAtomHashTableNum >
       LOCAL_ExportAtomHashTableSize/2
       ) {
     GrowAtomTable();
@@ -100,7 +100,7 @@ LookupAtom(Atom at)
 static void
 GrowFunctorTable(void) {
   CACHE_REGS
-  UInt size = LOCAL_ExportFunctorHashTableSize; 
+  UInt size = LOCAL_ExportFunctorHashTableSize;
   export_functor_hash_entry_t *p, *newt, *oldt = LOCAL_ExportFunctorHashChain;
   UInt new_size = size + (size > 1024 ? size : 1024);
   UInt i;
@@ -155,7 +155,7 @@ LookupFunctor(Functor fun)
   f->name = name;
   f->arity = arity;
   LOCAL_ExportFunctorHashTableNum++;
-  if (LOCAL_ExportFunctorHashTableNum > 
+  if (LOCAL_ExportFunctorHashTableNum >
       LOCAL_ExportFunctorHashTableSize/2
       ) {
     GrowFunctorTable();
@@ -168,7 +168,7 @@ LookupFunctor(Functor fun)
 static void
 GrowPredTable(void) {
   CACHE_REGS
-  UInt size = LOCAL_ExportPredEntryHashTableSize; 
+  UInt size = LOCAL_ExportPredEntryHashTableSize;
   export_pred_entry_hash_entry_t *p, *newt, *oldt = LOCAL_ExportPredEntryHashChain;
   UInt new_size = size + (size > 1024 ? size : 1024);
   UInt i;
@@ -248,7 +248,7 @@ LookupPredEntry(PredEntry *pe)
   }
   LookupAtom(p->module);
   LOCAL_ExportPredEntryHashTableNum++;
-  if (LOCAL_ExportPredEntryHashTableNum > 
+  if (LOCAL_ExportPredEntryHashTableNum >
       LOCAL_ExportPredEntryHashTableSize/2
       ) {
     GrowPredTable();
@@ -262,7 +262,7 @@ LookupPredEntry(PredEntry *pe)
 static void
 GrowDBRefTable(void) {
   CACHE_REGS
-  UInt size = LOCAL_ExportDBRefHashTableSize; 
+  UInt size = LOCAL_ExportDBRefHashTableSize;
   export_dbref_hash_entry_t *p, *newt, *oldt = LOCAL_ExportDBRefHashChain;
   UInt new_size = size + (size > 1024 ? size : 1024);
   UInt i;
@@ -315,7 +315,7 @@ LookupDBRef(DBRef ref)
   a->sz = ((LogUpdClause *)ref)->ClSize;
   a->refs = 1;
   LOCAL_ExportDBRefHashTableNum++;
-  if (LOCAL_ExportDBRefHashTableNum > 
+  if (LOCAL_ExportDBRefHashTableNum >
       LOCAL_ExportDBRefHashTableSize/2
       ) {
     GrowDBRefTable();
@@ -380,7 +380,7 @@ static inline Term
 AtomTermAdjust(Term t)
 {
   LookupAtom(AtomOfTerm(t));
-  return t;  
+  return t;
 }
 
 static inline Term
@@ -405,20 +405,20 @@ TermToGlobalOrAtomAdjust(Term t)
 
 #define CharP(X) ((char *)(X))
 
-#define REINIT_LOCK(P) 
-#define REINIT_RWLOCK(P) 
+#define REINIT_LOCK(P)
+#define REINIT_RWLOCK(P)
 #define BlobTypeAdjust(P) (P)
 #define NoAGCAtomAdjust(P) (P)
-#define OrArgAdjust(P) 
-#define TabEntryAdjust(P) 
+#define OrArgAdjust(P)
+#define TabEntryAdjust(P)
 #define IntegerAdjust(D)  (D)
 #define AddrAdjust(P) (P)
 #define MFileAdjust(P) (P)
 #define CodeVarAdjust(P) (P)
 #define ConstantAdjust(P) (P)
 #define ArityAdjust(P) (P)
-#define DoubleInCodeAdjust(P) 
-#define IntegerInCodeAdjust(P) 
+#define DoubleInCodeAdjust(P)
+#define IntegerInCodeAdjust(P)
 #define OpcodeAdjust(P) (P)
 
 static inline Term
@@ -713,7 +713,7 @@ clean_pred(PredEntry *pp USES_REGS) {
   } else {
     CleanClauses(pp->cs.p_code.FirstClause, pp->cs.p_code.LastClause, pp PASS_REGS);
   }
-  return TRUE;
+  return true;
 }
 
 static size_t
@@ -978,4 +978,3 @@ void Yap_InitQLY(void)
     restore_codes();
   }
 }
-
