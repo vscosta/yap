@@ -170,9 +170,10 @@ INLINE_ONLY inline EXTERN Term MkVarTerm__(USES_REGS1) {
   return (Term)((*HR = 0, HR++));
 }
 
-INLINE_ONLY inline EXTERN int IsUnboundVar(Term *);
+INLINE_ONLY inline EXTERN bool IsUnboundVar(Term *);
 
-INLINE_ONLY inline EXTERN int IsUnboundVar(Term *t) { return (int)(*(t) == 0); }
+INLINE_ONLY inline EXTERN bool IsUnboundVar(Term *t) { return (int)(*(t) ==
+0); }
 
 #else
 
@@ -184,10 +185,10 @@ INLINE_ONLY inline EXTERN Term MkVarTerm__(USES_REGS1) {
   return (Term)((*HR = (CELL)HR, HR++));
 }
 
-INLINE_ONLY inline EXTERN int IsUnboundVar(Term *);
+INLINE_ONLY inline EXTERN bool IsUnboundVar(Term *);
 
-INLINE_ONLY inline EXTERN int IsUnboundVar(Term *t) {
-  return (int)(*(t) == (Term)(t));
+INLINE_ONLY inline EXTERN bool IsUnboundVar(Term *t) {
+  return *(t) == (Term)(t);
 }
 
 #endif
@@ -234,10 +235,10 @@ INLINE_ONLY inline EXTERN Atom AtomOfTerm(Term t) {
 
 #endif
 
-INLINE_ONLY inline EXTERN int IsAtomTerm(Term);
+INLINE_ONLY inline EXTERN bool IsAtomTerm(Term);
 
-INLINE_ONLY inline EXTERN int IsAtomTerm(Term t) {
-  return (int)(CHKTAG((t), AtomTag));
+INLINE_ONLY inline EXTERN bool IsAtomTerm(Term t) {
+  return CHKTAG((t), AtomTag);
 }
 
 INLINE_ONLY inline EXTERN Term MkIntTerm(Int);
@@ -257,10 +258,10 @@ INLINE_ONLY inline EXTERN Term MkIntConstant(Int n) {
   return (Term)(NONTAGGED(NumberTag, (n)));
 }
 
-INLINE_ONLY inline EXTERN int IsIntTerm(Term);
+INLINE_ONLY inline EXTERN bool IsIntTerm(Term);
 
-INLINE_ONLY inline EXTERN int IsIntTerm(Term t) {
-  return (int)(CHKTAG((t), NumberTag));
+INLINE_ONLY inline EXTERN bool IsIntTerm(Term t) {
+  return CHKTAG((t), NumberTag);
 }
 
 INLINE_ONLY EXTERN inline Term MkPairTerm__(Term head, Term tail USES_REGS);
@@ -312,9 +313,9 @@ INLINE_ONLY inline EXTERN Term __MkIntegerTerm(Int n USES_REGS) {
 }
 #endif
 
-INLINE_ONLY inline EXTERN int IsIntegerTerm(Term);
+INLINE_ONLY inline EXTERN bool IsIntegerTerm(Term);
 
-INLINE_ONLY inline EXTERN int IsIntegerTerm(Term t) {
+INLINE_ONLY inline EXTERN bool IsIntegerTerm(Term t) {
   return (int)(IsIntTerm(t) || IsLongIntTerm(t));
 }
 

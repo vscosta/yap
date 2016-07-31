@@ -61,7 +61,7 @@ typedef struct memory_hole {
   ADDR start;
   ADDR end;
 } memory_hole_type;
-#endif
+#endif // USE_DL_MALLOC
 
 typedef struct swi_reverse_hash {
   ADDR key;
@@ -154,7 +154,15 @@ typedef struct thandle {
 /*******************
   this is the data base: everything here should be possible to restore
 ********************/
+#if __INIT_C__
+#define EXTERNAL
+#else
+#define EXTERNAL extern
+#endif
+
+
 #if YAPOR
+
 typedef struct various_codes {
   /* memory allocation and management */
   special_functors funcs;
@@ -172,15 +180,11 @@ typedef struct various_codes {
   /* memory allocation and management */
   special_functors funcs;
 
-  #include "tatoms.h"
 
 } all_heap_codes;
 
-#if __INIT_C__
-#define EXTERNAL
-#else
-#define EXTERNAL extern
-#endif
+#include "tatoms.h"
+
 
 #include "h0struct.h"
 

@@ -1,3 +1,4 @@
+
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -16,8 +17,8 @@
 *									 *
 *************************************************************************/
 
-#define EXPORT_ATOM_TABLE_SIZE (16*4096)
-#define EXPORT_FUNCTOR_TABLE_SIZE (16*4096)
+#define EXPORT_ATOM_TABLE_SIZE (16 * 4096)
+#define EXPORT_FUNCTOR_TABLE_SIZE (16 * 4096)
 #define EXPORT_OPCODE_TABLE_SIZE (4096)
 #define EXPORT_PRED_ENTRY_TABLE_SIZE (128)
 #define EXPORT_DBREF_TABLE_SIZE (128)
@@ -29,7 +30,7 @@ typedef struct export_atom_hash_entry_struct {
 typedef struct import_atom_hash_entry_struct {
   Atom oval;
   Atom val;
-  struct  import_atom_hash_entry_struct *next;
+  struct import_atom_hash_entry_struct *next;
 } import_atom_hash_entry_t;
 
 typedef struct export_functor_hash_entry_struct {
@@ -41,14 +42,14 @@ typedef struct export_functor_hash_entry_struct {
 typedef struct import_functor_hash_entry_struct {
   Functor val;
   Functor oval;
-  struct  import_functor_hash_entry_struct *next;
+  struct import_functor_hash_entry_struct *next;
 } import_functor_hash_entry_t;
 
 typedef struct import_opcode_hash_entry_struct {
   OPCODE val;
   int id;
   OPCODE oval;
-  struct  import_opcode_hash_entry_struct *next;
+  struct import_opcode_hash_entry_struct *next;
 } import_opcode_hash_entry_t;
 
 typedef struct export_pred_entry_hash_entry_struct {
@@ -64,7 +65,7 @@ typedef struct export_pred_entry_hash_entry_struct {
 typedef struct import_pred_entry_hash_entry_struct {
   PredEntry *val;
   PredEntry *oval;
-  struct  import_pred_entry_hash_entry_struct *next;
+  struct import_pred_entry_hash_entry_struct *next;
 } import_pred_entry_hash_entry_t;
 
 typedef struct export_dbref_hash_entry_struct {
@@ -77,7 +78,7 @@ typedef struct import_dbref_hash_entry_struct {
   DBRef val;
   DBRef oval;
   int count;
-  struct  import_dbref_hash_entry_struct *next;
+  struct import_dbref_hash_entry_struct *next;
 } import_dbref_hash_entry_t;
 
 typedef enum {
@@ -101,15 +102,30 @@ typedef enum {
   QLY_ATOM_BLOB = 17
 } qlf_tag_t;
 
-#define STATIC_PRED_FLAGS (SourcePredFlag|DynamicPredFlag|LogUpdatePredFlag|CompiledPredFlag|MultiFileFlag|TabledPredFlag|MegaClausePredFlag|CountPredFlag|ProfiledPredFlag|ThreadLocalPredFlag|AtomDBPredFlag|ModuleTransparentPredFlag|NumberDBPredFlag|MetaPredFlag|SyncPredFlag|BackCPredFlag)
-#define EXTRA_PRED_FLAGS (QuasiQuotationPredFlag|NoTracePredFlag|NoSpyPredFlag)
+#define STATIC_PRED_FLAGS                                                      \
+  (SourcePredFlag | DynamicPredFlag | LogUpdatePredFlag | CompiledPredFlag |   \
+   MultiFileFlag | TabledPredFlag | MegaClausePredFlag | CountPredFlag |       \
+   ProfiledPredFlag | ThreadLocalPredFlag | AtomDBPredFlag |                   \
+   ModuleTransparentPredFlag | NumberDBPredFlag | MetaPredFlag |               \
+   SyncPredFlag | BackCPredFlag)
+#define EXTRA_PRED_FLAGS                                                       \
+  (QuasiQuotationPredFlag | NoTracePredFlag | NoSpyPredFlag)
 
-#define SYSTEM_PRED_FLAGS (BackCPredFlag|UserCPredFlag|CArgsPredFlag|AsmPredFlag|CPredFlag|BinaryPredFlag)
+#define SYSTEM_PRED_FLAGS                                                      \
+  (BackCPredFlag | UserCPredFlag | CArgsPredFlag | AsmPredFlag | CPredFlag |   \
+   BinaryPredFlag)
 
-#define CHECK(F) { size_t r = (F); if (!r) return r; }
-#define RCHECK(F)  if(!(F)) { QLYR_ERROR(MISMATCH); return; }
+#define CHECK(F)                                                               \
+  {                                                                            \
+    size_t r = (F);                                                            \
+    if (!r)                                                                    \
+      return r;                                                                \
+  }
+#define RCHECK(F)                                                              \
+  if (!(F)) {                                                                  \
+    QLYR_ERROR(MISMATCH);                                                      \
+    return;                                                                    \
+  }
 
 #define AllocTempSpace() (HR)
-#define EnoughTempSpace(sz) ((ASP-HR)*sizeof(CELL) > sz)
-
-
+#define EnoughTempSpace(sz) ((ASP - HR) * sizeof(CELL) > sz)

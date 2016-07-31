@@ -17,16 +17,16 @@
 #include "YapTermConfig.h"
 #include "config.h"
 
+typedef void *Functor;
+typedef void *Atom;
+
+#endif
+
 #if HAVE_STDINT_H
 #include <stdint.h>
 #endif
 #if HAVE_INTTYPES_H
 #include <inttypes.h>
-#endif
-
-typedef void *Functor;
-typedef void *Atom;
-
 #endif
 
 #define ALIGN_BY_TYPE(X, TYPE)                                                 \
@@ -43,85 +43,61 @@ typedef void *Atom;
 /* defines integer  types Int and UInt (unsigned) with the same size as a ptr
 ** and integer types Short and UShort with half the size of a ptr */
 
-#if HAVE_INTTYPES_H
-#include <inttypes.h>
+#if defined(PRIdPTR)
 #define Int_FORMAT "%" PRIdPTR
-#define UInt_ANYFORMAT "%" PRIuPTR
+#define Int_ANYFORMAT "%" PRIuPTR
 #define UInt_FORMAT "%" PRIuPTR
+#define Int_F PRIdPTR
+#define Int_ANYF PRIuPTR
+#define UInt_F PRIuPTR
 
 typedef intptr_t Int;
 typedef uintptr_t UInt;
 
-#elif SIZEOF_INT_P == 4
+#elif defined(_WIN64)
 
-#if SIZEOF_LONGINT == 4
+typedef int64_t Int;
+typedef uint64_t UInt;
+#define Int_FORMAT "%I64d"
+#define UInt_FORMAT "%I64u"
+#define Int_F "I64d"
+#define UInt_F "I64u"
 
+#elif defined(_WIN32)
+
+typedef int32_t Int;
+typedef uint32_t UInt;
+#define Int_FORMAT "%I32d"
+#define UInt_FORMAT "%I32u"
+#define Int_F "I32d"
+#define UInt_F "I32u"
+
+#elif SIZEOF_LONGINT == SIZEOF_INT_P
+
+typedef long int Int;
+typedef unsigned long int UInt;
+#define Int_FORMAT "%ld"
+#define UInt_FORMAT "%uld"
+#define Int_F "ld"
+#define UInt_F "uld"
+
+#elif SIZEOF_INT == SIZEOF_INT_P
+
+typedef int Int;
+typedef unsigned int UInt;
 #define Int_FORMAT "%l"
 #define UInt_FORMAT "%ul"
+#define Int_F "l"
+#define UInt_F "ul"
 
-#elif SIZEOF_LONG_INT == 4
-/*   typedef long int Int;*/
-/*  typedef unsigned long int UInt;  */
-
-#if _WIN32 || __ANDROID__
-#define Int_FORMAT "%d"
-#define UInt_FORMAT "%u"
-#else
-#define Int_FORMAT "%ld"
-#define UInt_FORMAT "%lu"
-#endif
 #else
 #error Yap require integer types of the same size as a pointer
 #endif
 
-#if SIZEOF_SHORT_INT == 2
 /*   */ typedef short int Short;
 /*   */ typedef unsigned short int UShort;
 
-#else
-#error Yap requires integer types half the size of a pointer
-#endif
-
-#elif SIZEOF_INT_P == 8
-
-#if SIZEOF_INT == 8
-
-#define Int_FORMAT "%d"
-#define UInt_FORMAT "%u"
-
-#elif SIZEOF_LONG_INT == 8
-
-#define Int_FORMAT "%ld"
-#define UInt_FORMAT "%lu"
-
-#elif SIZEOF_LONG_LONG_INT == 8
-
-#define Int_FORMAT "%I64d"
-#define UInt_FORMAT "%I64u"
-
-#else
-#error Yap requires integer types of the same size as a pointer
-#endif
-
-#if SIZEOF_SHORT_INT == 4
-/*   */ typedef short int Short;
-/*   */ typedef unsigned short int UShort;
-
-#elif SIZEOF_INT == 4
-/*   */ typedef int Short;
-/*   */ typedef unsigned int UShort;
-
-#else
-#error Yap requires integer types half the size of a pointer
-#endif
-
-#else
-
-#error Yap requires pointers of size 4 or 8
-
-#endif
-
-typedef uintptr_t CELL;
+typedef UInt CELL;
 
 typedef uint16_t BITS16;
 typedef int16_t SBITS16;
@@ -135,9 +111,9 @@ typedef uint32_t BITS32;
                                         type casting macros
 *************************************************************************************************/
 
-typedef uintptr_t Term;
+typedef UInt Term;
 
-typedef intptr_t yhandle_t;
+typedef Int yhandle_t;
 
 typedef double Float;
 

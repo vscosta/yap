@@ -33,7 +33,7 @@ Set or read system properties for  _Param_:
 YAP_FLAG(ADDRESS_BITS_FLAG, "address_bits", false, nat, BITNESS,
          NULL), /** `address_bits`
                Number of address bits in the machine, either 64 or 32 bits */
-    YAP_FLAG(AGC_MARGIN_FLAG, "agc_margin", true, nat, "10000",
+ YAP_FLAG(AGC_MARGIN_FLAG, "agc_margin", true, nat, "10000",
              agc_threshold), /**`agc_margin `
 
 An integer: if this amount of atoms has been created since the last
@@ -234,7 +234,7 @@ source mode is disabled.
     YAP_FLAG(HOME_FLAG, "home", false, isatom, YAP_ROOTDIR, NULL), /**< home `
 
 the root of the YAP installation, by default `/usr/local` in Unix or
-`c:\Yap` in Windows system. Can only be set at configure tien
+`c:\Yap` in Windows system. Can only be set at configure time
  */
     YAP_FLAG(HOST_TYPE_FLAG, "host_type", false, isatom, HOST_ALIAS,
              NULL), /**< host_type `
@@ -337,7 +337,8 @@ only if the query contains variables. The alternative, default in SWI-Prolog is
 goal succeeded while leaving choicepoints. */
     YAP_FLAG(QUASI_QUOTATIONS_FLAG, "quasi_quotations", true, booleanFlag, "true",
              NULL),
-    YAP_FLAG(READLINE_FLAG, "readline", true, booleanFlag, "false", Yap_InitReadline), /**< `readline(boolean, changeable)`
+  YAP_FLAG(READLINE_FLAG, "readline", true, booleanFlag,  "false" , Yap_InitReadline), /**< `readline(boolean, changeable)`
+  }
 
 enable the use of the readline library for console interactions, true by default if readline was found. */
     YAP_FLAG(REPORT_ERROR_FLAG, "report_error", true, booleanFlag, "true", NULL),

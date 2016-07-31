@@ -67,22 +67,22 @@
 
 #include "inline-only.h"
 
-INLINE_ONLY int IsVarTerm (Term);
+INLINE_ONLY bool IsVarTerm (Term);
 
-INLINE_ONLY int
+INLINE_ONLY bool
 IsVarTerm (Term t)
 {
-  return (int) (Signed (t) >= 0);
+  return Signed (t) >= 0;
 }
 
 
 
-INLINE_ONLY int IsNonVarTerm (Term);
+INLINE_ONLY bool IsNonVarTerm (Term);
 
-INLINE_ONLY int
+INLINE_ONLY bool
 IsNonVarTerm (Term t)
 {
-  return (int) (Signed (t) < 0);
+  return Signed (t) < 0;
 }
 
 
@@ -107,12 +107,12 @@ AbsPair (Term * p)
 
 
 
-INLINE_ONLY Int IsPairTerm (Term);
+INLINE_ONLY bool IsPairTerm (Term);
 
-INLINE_ONLY Int
+INLINE_ONLY bool
 IsPairTerm (Term t)
 {
-  return (Int) (BitOn (PairBit, (t)));
+  return BitOn (PairBit, (t));
 }
 
 
@@ -137,22 +137,22 @@ AbsAppl (Term * p)
 
 
 
-INLINE_ONLY Int IsApplTerm (Term);
+INLINE_ONLY bool IsApplTerm (Term);
 
-INLINE_ONLY Int
+INLINE_ONLY bool
 IsApplTerm (Term t)
 {
-  return (Int) (BitOn (ApplBit, (t)));
+  return BitOn (ApplBit, (t));
 }
 
 
 
-INLINE_ONLY Int IsAtomOrIntTerm (Term);
+INLINE_ONLY bool IsAtomOrIntTerm (Term);
 
-INLINE_ONLY Int
+INLINE_ONLY bool
 IsAtomOrIntTerm (Term t)
 {
-  return (Int) (!(Unsigned (t) & CompBits));
+  return !(Unsigned (t) & CompBits);
 }
 
 

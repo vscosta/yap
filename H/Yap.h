@@ -17,6 +17,9 @@
 
 #define YAP_H 1
 
+#define USE_MYDDAS 1
+#define USE_MYDDAS_SQLITE3 1
+
 #if defined(YAPOR)
 // #error Do not explicitly define YAPOR
 #endif /* YAPOR */
@@ -256,6 +259,11 @@ INLINE_ONLY inline EXTERN size_t strnlen(const char *s, size_t maxlen) {
 
 /* #define RANDOMIZE_START_ADDRESS 1 */
 
+
+
+extern size_t Yap_page_size;
+
+
 #ifdef USE_SYSTEM_MALLOC
 #define HEAP_INIT_BASE 0L
 #define AtomBase NULL
@@ -480,6 +488,11 @@ extern bool Yap_AccessAsset(const char *name, int mode);
 extern bool Yap_AssetIsFile(const char *name);
 extern bool Yap_AssetIsDir(const char *name);
 extern int64_t Yap_AssetSize(const char *name);
+
+#else
+
+#define __android_log_print(...)
+
 #endif
 
 /*************************************************************************************************
