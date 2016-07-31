@@ -12,26 +12,42 @@ SET(CMAKE_SWIG_FLAGS "")
 
 SET_SOURCE_FILES_PROPERTIES(../yap.i PROPERTIES CPLUSPLUS ON)
 SET_SOURCE_FILES_PROPERTIES(../yap.i PROPERTIES SWIG_FLAGS "-includeall")
+
+configure_file ("setup.py.cmake"  "setup.py" )
+
+
+#SET( CMAKE_SWIG_OUTDIR "yap" )
+
+
 SWIG_ADD_MODULE(yap python ../yap.i)
-SWIG_LINK_LIBRARIES(yap ${PYTHON_LIBRARIES} Yap++ libYap)
+SWIG_LINK_LIBRARIES(yap ${PYTHON_LIBRARIES} Yap++ libYap libpython)
 set_target_properties ( ${SWIG_MODULE_yap_REAL_NAME} PROPERTIES NO_SONAME ON )
 
-   execute_process ( COMMAND ${PYTHON_EXECUTABLE} -c "from distutils import sysconfig; print( sysconfig.get_python_lib( plat_specific=True, prefix='${CMAKE_INSTALL_PREFIX}' ) )"
-                     OUTPUT_VARIABLE _ABS_PYTHON_MODULE_PATH
-                     OUTPUT_STRIP_TRAILING_WHITESPACE )
+   # execute_process ( COMMAND ${PYTHON_EXECUTABLE} -c "from distutils import sysconfig; print( sysconfig.get_python_lib( plat_specific=True, prefix='${CMAKE_INSTALL_PREFIX}' ) )"
+   #                   OUTPUT_VARIABLE _ABS_PYTHON_MODULE_PATH
+   #                   OUTPUT_STRIP_TRAILING_WHITESPACE )
+   # get_filename_component ( _ABS_PYTHON_MODULE_PATH ${_ABS_PYTHON_MODULE_PATH} ABSOLUTE )
+   # file ( RELATIVE_PATH _REL_PYTHON_MODULE_PATH ${CMAKE_INSTALL_PREFIX} ${_ABS_PYTHON_MODULE_PATH} )
 
-   get_filename_component ( _ABS_PYTHON_MODULE_PATH ${_ABS_PYTHON_MODULE_PATH} ABSOLUTE )
-   file ( RELATIVE_PATH _REL_PYTHON_MODULE_PATH ${CMAKE_INSTALL_PREFIX} ${_ABS_PYTHON_MODULE_PATH} )
+   # set ( PYTHON_MODULE_PATH
+   #       ${_REL_PYTHON_MODULE_PATH}
+   #     )
 
-   set ( PYTHON_MODULE_PATH
-         ${_REL_PYTHON_MODULE_PATH}
-       )
+set(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
 
-   INSTALL ( FILES ${CMAKE_CURRENT_BINARY_DIR}/_yap.so DESTINATION ${PYTHON_MODULE_PATH} )
-   INSTALL ( FILES ${CMAKE_CURRENT_BINARY_DIR}/yap.py DESTINATION ${PYTHON_MODULE_PATH} )
-   INSTALL ( FILES ${CMAKE_CURRENT_SOURCE_DIR}/yapex.py DESTINATION ${PYTHON_MODULE_PATH} )
+add_custom_target ( py2yap ALL
+        COMMAND ${PYTHON_EXECUTABLE} setup.py build -f
+        DEPENDS yap.py  )
 
-   if ( DOCUMENTATION AND DOXYGEN_FOUND )
+install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} install -f
+   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
+
+#   INSTALL ( FILES ${CMAKE_CURRENT_BINARY_DIR}/yap/_yap.so DESTINATION ${PYTHON_MODULE_PATH} )
+#   INSTALL ( FILES ${CMAKE_CURRENT_BINARY_DIR}/yap/yap.py DESTINATION ${PYTHON_MODULE_PATH} )
+#   INSTALL ( FILES ${CMAKE_CURRENT_SOURCE_DIR}/yap/yapex.py DESTINATION ${PYTHON_MODULE_PATH} )
+
+
+if ( DOCUMENTATION AND DOXYGEN_FOUND )
 
        set(CMAKE_SWIG_FLAGS -DDOXYGEN=${DOXYGEN_FOUND})
 
@@ -45,7 +61,7 @@ set_target_properties ( ${SWIG_MODULE_yap_REAL_NAME} PROPERTIES NO_SONAME ON )
 
        # generate .i from doxygen .xml
        add_custom_command ( OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ftdi1_doc.i
-           COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py -n
+               COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py -n
                ${CMAKE_BINARY_DIR}/doc/xml/ftdi_8c.xml
                ${CMAKE_CURRENT_BINARY_DIR}/ftdi1_doc.i
            DEPENDS ${CMAKE_BINARY_DIR}/doc/xml/ftdi_8c.xml
