@@ -425,6 +425,7 @@
   AtomWarning = Yap_LookupAtom("warning"); TermWarning = MkAtomTerm(AtomWarning);
   AtomWhen = Yap_FullLookupAtom("$when"); TermWhen = MkAtomTerm(AtomWhen);
   AtomWrite = Yap_LookupAtom("write"); TermWrite = MkAtomTerm(AtomWrite);
+  AtomWriteTerm = Yap_LookupAtom("write_term"); TermWriteTerm = MkAtomTerm(AtomWriteTerm);
   AtomXml = Yap_LookupAtom("xml"); TermXml = MkAtomTerm(AtomXml);
   AtomYapHacks = Yap_LookupAtom("yap_hacks"); TermYapHacks = MkAtomTerm(AtomYapHacks);
   AtomZeroDivisor = Yap_LookupAtom("zero_divisor"); TermZeroDivisor = MkAtomTerm(AtomZeroDivisor);
@@ -564,4 +565,5 @@
   FunctorUMinus = Yap_MkFunctor(AtomMinus,1);
   FunctorUPlus = Yap_MkFunctor(AtomPlus,1);
   FunctorVBar = Yap_MkFunctor(AtomVBar,2);
+  FunctorWriteTerm = Yap_MkFunctor(AtomWriteTerm,2);
   FunctorHiddenVar = Yap_MkFunctor(AtomHiddenVar,1);

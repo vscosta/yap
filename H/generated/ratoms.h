@@ -425,6 +425,7 @@
   AtomWarning = AtomAdjust(AtomWarning); TermWarning = MkAtomTerm(AtomWarning);
   AtomWhen = AtomAdjust(AtomWhen); TermWhen = MkAtomTerm(AtomWhen);
   AtomWrite = AtomAdjust(AtomWrite); TermWrite = MkAtomTerm(AtomWrite);
+  AtomWriteTerm = AtomAdjust(AtomWriteTerm); TermWriteTerm = MkAtomTerm(AtomWriteTerm);
   AtomXml = AtomAdjust(AtomXml); TermXml = MkAtomTerm(AtomXml);
   AtomYapHacks = AtomAdjust(AtomYapHacks); TermYapHacks = MkAtomTerm(AtomYapHacks);
   AtomZeroDivisor = AtomAdjust(AtomZeroDivisor); TermZeroDivisor = MkAtomTerm(AtomZeroDivisor);
@@ -564,4 +565,5 @@
   FunctorUMinus = FuncAdjust(FunctorUMinus);
   FunctorUPlus = FuncAdjust(FunctorUPlus);
   FunctorVBar = FuncAdjust(FunctorVBar);
+  FunctorWriteTerm = FuncAdjust(FunctorWriteTerm);
   FunctorHiddenVar = FuncAdjust(FunctorHiddenVar);

@@ -430,6 +430,7 @@ A	WakeUpGoal		F	"$wake_up_goal"
 A	Warning			N	"warning"
 A	When			F	"$when"
 A	Write			N	"write"
+A	WriteTerm		N	"write_term"
 A	Xml			N	"xml"
 A	YapHacks		N	"yap_hacks"
 A	ZeroDivisor		N	"zero_divisor"
@@ -569,4 +570,5 @@ F	TypeError		TypeError	2
 F	UMinus			Minus		1
 F	UPlus			Plus		1
 F	VBar			VBar		2
+F	WriteTerm		WriteTerm	2
 F	HiddenVar		HiddenVar	1
