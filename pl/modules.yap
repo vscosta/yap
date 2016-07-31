@@ -588,15 +588,16 @@ set_base_module(ExportingModule) :-
 set_base_module(ExportingModule) :-
 	atom(ExportingModule), !,
 	'$current_module'(Mod),
-	retractall(prolg:'$parent_module'(Mod,_)),
+	retractall(prolog:'$parent_module'(Mod,_)),
 	asserta(prolog:'$parent_module'(Mod,ExportingModule)).
 set_base_module(ExportingModule) :-
 	'$do_error'(type_error(atom,ExportingModule),set_base_module(ExportingModule)).
 
 /**
-   @pred  import_module( +ImportingModule, +ExportingModule ) is det
-All exported predicates from _ExportingModule_ are automatically available to the
- source  module _ImportModule_.
+ *  @pred  import_module( +ImportingModule, +ExportingModule ) is det
+ *  All exported predicates from _ExportingModule_
+ * are automatically available to the
+ * source  module _ImportModule_.
 
 This innovation was introduced by SWI-Prolog. By default, modules only
 inherit from `prolog` and `user`. This extension allows predicates in
@@ -692,7 +693,7 @@ Reports the following properties of _Module_:
    operator symbols exported or re-exported by this module.
 
 */
-module_property(Mod, Prop) :- 
+module_property(Mod, Prop) :-
     var(Mod),
     !,
 	recorded('$module','$module'(_,Mod,_,_Es,_),_),
@@ -727,7 +728,7 @@ module_property(Mod, exports(Es)) :-
 
 '$library_module'(M1) :-
 	recorded('$module','$module'(_, M1, library(_), _MyExports,_Line),_).
-    
+
 ls_imports :-
 	recorded('$import','$import'(M0,M,G0,G,_N,_K),_R),
 	numbervars(G0+G, 0, _),
