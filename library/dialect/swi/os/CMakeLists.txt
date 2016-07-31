@@ -51,7 +51,7 @@ add_subdirectory (libtai)
 # ugh
 set (POSITION_INDEPENDENT_CODE TRUE)
 
-add_library (libswi_os  SHARED
+add_component (libswi_os 
   ${LIBSWI_OS_SOURCES}
   $<TARGET_OBJECTS:libyaptai>
   )

@@ -62,19 +62,17 @@ set (LIBRARY_PL
   block_diagram.yap
   )
 
-add_subdirectory(clp)
-add_subdirectory(dialect)
-add_subdirectory(matlab)
-add_subdirectory(matrix)
-add_subdirectory(random)
-add_subdirectory(regex)
-add_subdirectory(rltree)
-add_subdirectory(system)
-add_subdirectory(tries)
-add_subdirectory(ytest)
-
-add_custom_target (library SOURCES ${LIBRARY_PL} ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
-
+MY_add_subdirectory(dialect)
+MY_add_subdirectory(clp)
+MY_add_subdirectory(matlab)
+MY_add_subdirectory(matrix)
+MY_add_subdirectory(random)
+MY_add_subdirectory(regex)
+MY_add_subdirectory(rltree)
+MY_add_subdirectory(system)
+MY_add_subdirectory(tries)
+MY_add_subdirectory(ytest)
+MY_add_custom_target (library SOURCES ${LIBRARY_PL} ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 
 install(FILES ${LIBRARY_PL}
   DESTINATION ${libpl}

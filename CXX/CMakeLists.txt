@@ -5,28 +5,22 @@ set(SO_MINOR 0)
 set(SO_PATCH 0)
 
 set (CXX_SOURCES
-    yapa.hh
-    yapdb.hh
     yapi.cpp
-    yapi.hh
-    yapie.hh
-    yapq.hh
-    yapt.hh
 )
 
+list(APPEND LIBYAP_SOURCES ${CXX_SOURCES} PARENT_SCOPE)
 
-if (YAP_SINGLE_FILE OR WIN32)
-add_library (Yap++ OBJECT ${CXX_SOURCES} )
-else(YAP_SINGLE_FILE OR WIN32)
-add_library (Yap++ SHARED ${CXX_SOURCES} )
+add_external (Yap++ ${CXX_SOURCES} )
+if (ANDROID)
+else()
+MY_target_link_libraries(Yap++ ${CMAKE_DL_LIBS} libYap)
+endif()
 
-target_link_libraries(Yap++ ${CMAKE_DL_LIBS} libYap)
-
-install(TARGETS  Yap++
+MY_install(TARGETS  Yap++
   LIBRARY DESTINATION ${libdir}
   ARCHIVE DESTINATION ${libdir}
   )
-endif(YAP_SINGLE_FILE OR WIN32)
+
 
 include_directories (H include ${CMAKE_BINARY_DIR} ${GMP_INCLUDE_DIR})
 

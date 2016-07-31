@@ -102,6 +102,7 @@ set(C_INTERFACE_SOURCES
   C/clause_list.c
   )
 
+list(APPEND LIBYAP_SOURCES ${C_INTERFACE_SOURCES} ${ENGINE_SOURCES})
 
   set (HEADERS
   	H/Atoms.h

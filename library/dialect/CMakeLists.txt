@@ -5,8 +5,6 @@ set (DIALECTS_PL
   swi.yap
   )
 
-add_subdirectory(swi)
-
 add_custom_target( dialects
 DEPENDS visited
 SOURCES ${DIALECTS_PL} )
