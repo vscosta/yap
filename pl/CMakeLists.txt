@@ -6,6 +6,7 @@ set(PL_SOURCES
 	attributes.yap
 	atoms.yap
 	boot.yap
+    bootutils.yap
 	callcount.yap
 	checker.yap
 	consult.yap
@@ -30,6 +31,7 @@ set(PL_SOURCES
         messages.yap
         meta.yap
 	modules.yap
+	newmod.yap
 	os.yap
 	preddecls.yap
         preddyns.yap
@@ -51,12 +53,11 @@ set(PL_SOURCES
 	swi.yap
 	yapor.yap
 	yio.yap
-	../os/chartypes.yap
-	../os/edio.yap
   )
 
 if (NOT ANDROID)
-add_custom_target (${YAP_STARTUP} ALL SOURCES ${PL_SOURCES} WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
+
+add_custom_target (${YAP_STARTUP} ALL SOURCES ${PL_SOURCES} 	${YAPOS_PL_SOURCES}  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 
 # Create a startup.yss on the top directory.
 add_custom_command (TARGET ${YAP_STARTUP}
@@ -71,7 +72,9 @@ install (FILES ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
   DESTINATION ${dlls}
   )
 
-endif()
+
+endif (NOT ANDROID)
+
 
 install (FILES ${PL_SOURCES}
   DESTINATION ${libpl}/pl
