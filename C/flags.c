@@ -25,6 +25,7 @@
 #define INIT_FLAGS 1
 
 #include "Yap.h"
+#include "iopreds.h"
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -578,14 +579,8 @@ static void initFlag(flag_info *f, int fnum, bool global) {
 }
 
 static Term executable(Term inp) {
-  CACHE_REGS
-  if (GLOBAL_argv && GLOBAL_argv[0]) {
-    if (!Yap_AbsoluteFile(GLOBAL_argv[0], LOCAL_FileNameBuf, true))
-      return false;
-  } else
-    strncpy(LOCAL_FileNameBuf, Yap_FindExecutable(), YAP_FILENAME_MAX - 1);
 
-  return MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf));
+  return MkAtomTerm(Yap_LookupAtom(Yap_FindExecutable()));
 }
 
 static Term sys_thread_id(Term inp) {
@@ -1593,6 +1588,11 @@ void Yap_InitFlags(bool bootstrap) {
     LOCAL_flagCount++;
     f++;
   }
+  // fix readline gettong set so early
+  if (GLOBAL_Stream[StdInStream].status & Readline_Stream_f) {
+    setBooleanGlobalPrologFlag(READLINE_FLAG, true);
+  }
+    
   if (!bootstrap) {
     Yap_InitCPredBack("current_prolog_flag", 2, 1, current_prolog_flag,
                       cont_yap_flag, 0);
