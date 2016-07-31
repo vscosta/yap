@@ -20,6 +20,8 @@
 :- use_system_module( terms, [new_variables_in_term/3,
         variables_within_term/3]).
 
+:- multifile '$full_clause_optimisation'/4.
+
 
 '$add_extra_safe'('$plus'(_,_,V)) --> !, [V].
 '$add_extra_safe'('$minus'(_,_,V)) --> !, [V].
@@ -51,7 +53,7 @@
 	'$vmember'(V,LV0),
          OO = (V=NV,'$safe'(NV),NO),
 	'$gen_equals'(Commons,NCommons, LV0, O, NO).
-'$gen_equals'([V|Commons],[NV|NCommons], LV0, O, OO) :- 
+'$gen_equals'([V|Commons],[NV|NCommons], LV0, O, OO) :-
          OO = (V=NV,NO),
 	'$gen_equals'(Commons,NCommons, LV0, O, NO).
 
@@ -75,7 +77,7 @@
 
 '$localise_disj_vars'((B;B2), M, (NB ; NB2), LV, LV0, LEqs) :- !,
 	'$localise_vars'(B, M, NB, LV, LV0, LEqs),
-	'$localise_disj_vars'(B2, M, NB2, LV, LV0, LEqs).	
+	'$localise_disj_vars'(B2, M, NB2, LV, LV0, LEqs).
 '$localise_disj_vars'(B2, M, NB, LV, LV0, LEqs) :-
 	'$localise_vars'(B2, M, NB, LV, LV0, LEqs).
 
