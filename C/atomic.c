@@ -932,11 +932,11 @@ restart_aux:
         }
         cut_fail();
       }
-      ns = skip_utf8((unsigned char *)s, indx);
+      ns = skip_utf8(s, indx);
       if (ns == NULL) {
         cut_fail(); // silently fail?
       }
-      get_utf8((unsigned char *)ns, -1, &chr);
+      get_utf8(ns, -1, &chr);
       if (chr == '\0')
         cut_fail();
       if (Yap_unify(ARG3, MkIntegerTerm(chr)))
@@ -978,21 +978,22 @@ restart_aux:
       LOCAL_Error_TYPE = TYPE_ERROR_INTEGER;
       LOCAL_Error_Term = t1;
     } else {
-      unsigned char *ns = (unsigned char *)s;
+      const unsigned char *ns = s;
       utf8proc_int32_t chr;
       Int indx = IntegerOfTerm(t1);
+
       if (indx <= 0) {
         if (indx < 0) {
           LOCAL_Error_TYPE = DOMAIN_ERROR_NOT_LESS_THAN_ZERO;
           LOCAL_Error_Term = t1;
         } else {
-          return FALSE;
+          return false;
         }
       } else {
         indx -= 1;
-        ns = skip_utf8((unsigned char *)s, indx);
+        ns = skip_utf8(ns, indx);
         if (ns == NULL) {
-          return FALSE;
+          return false;
         } else {
           get_utf8(ns, -1, &chr);
           if (chr != '\0')
@@ -1296,7 +1297,6 @@ static Int atomic_length(USES_REGS1) {
 
   if (IsNonVarTerm(t2)) {
 
-
     if (!IsIntegerTerm(t2)) {
       Yap_Error(TYPE_ERROR_INTEGER, t2, "atom_length/2");
       return (FALSE);
@@ -1346,13 +1346,13 @@ restart_aux:
 
 /** @pred downcase_text_to_atom(+Text, -Atom)
  *
- * Convert all upper case code-points in text _Text_ to  downcase. Unify the result as atom _Atom_ with the second argument.
+ * Convert all upper case code-points in text _Text_ to  downcase. Unify the
+ * result as atom _Atom_ with the second argument.
  *
  */
 static Int downcase_text_to_atom(USES_REGS1) {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
-  size_t len;
 
   if (!Yap_IsGroundTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
@@ -1379,13 +1379,13 @@ static Int downcase_text_to_atom(USES_REGS1) {
 
 /** @pred upcase_text_to_atom(+Text, -Atom)
  *
- * Convert all lower case code-points in text _Text_ to  up case. Unify the result as atom _Atom_ with the second argument.
+ * Convert all lower case code-points in text _Text_ to  up case. Unify the
+ * result as atom _Atom_ with the second argument.
  *
  */
 static Int upcase_text_to_atom(USES_REGS1) {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
-  size_t len;
 
   if (!Yap_IsGroundTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
@@ -1412,7 +1412,8 @@ static Int upcase_text_to_atom(USES_REGS1) {
 
 /** @pred downcase_text_to_string(+Text, -String)
  *
- * Convert all upper case code-points in text _Text_ to  downcase. Unify the result as string _String_ with the second argument.
+ * Convert all upper case code-points in text _Text_ to  downcase. Unify the
+ * result as string _String_ with the second argument.
  *
  */
 static Int downcase_text_to_string(USES_REGS1) {
@@ -1445,7 +1446,8 @@ static Int downcase_text_to_string(USES_REGS1) {
 
 /** @pred upcase_text_to_string(+Text, -String)
  *
- * Convert all lower case code-points in text _Text_ to  up case. Unify the result as string _String_ with the second argument.
+ * Convert all lower case code-points in text _Text_ to  up case. Unify the
+ * result as string _String_ with the second argument.
  *
  */
 static Int upcase_text_to_string(USES_REGS1) {
@@ -1478,7 +1480,8 @@ static Int upcase_text_to_string(USES_REGS1) {
 
 /** @pred downcase_text_to_codes(+Text, -Codes)
  *
- * Convert all upper case code-points in text _Text_ to  downcase. Unify the result as a sequence of codes _Codes_ with the second argument.
+ * Convert all upper case code-points in text _Text_ to  downcase. Unify the
+ * result as a sequence of codes _Codes_ with the second argument.
  *
  */
 static Int downcase_text_to_codes(USES_REGS1) {
@@ -1511,7 +1514,8 @@ static Int downcase_text_to_codes(USES_REGS1) {
 
 /** @pred upcase_text_to_codes(+Text, -Codes)
  *
- * Convert all lower case code-points in text _Text_ to  up case. Unify the result as a sequence of codes _Codes_ with the second argument.
+ * Convert all lower case code-points in text _Text_ to  up case. Unify the
+ * result as a sequence of codes _Codes_ with the second argument.
  *
  */
 static Int upcase_text_to_codes(USES_REGS1) {
@@ -1542,10 +1546,10 @@ static Int upcase_text_to_codes(USES_REGS1) {
   return false;
 }
 
-
 /** @pred downcase_text_to_chars(+Text, -Chars)
  *
- * Convert all upper case code-points in text _Text_ to  downcase. Unify the result as a sequence of chars _Chars_ with the second argument.
+ * Convert all upper case code-points in text _Text_ to  downcase. Unify the
+ * result as a sequence of chars _Chars_ with the second argument.
  *
  */
 static Int downcase_text_to_chars(USES_REGS1) {
@@ -1578,7 +1582,8 @@ static Int downcase_text_to_chars(USES_REGS1) {
 
 /** @pred upcase_text_to_chars(+Text, -Chars)
  *
- * Convert all lower case code-points in text _Text_ to  up case. Unify the result as a sequence of chars _Chars_ with the second argument.
+ * Convert all lower case code-points in text _Text_ to  up case. Unify the
+ * result as a sequence of chars _Chars_ with the second argument.
  *
  */
 static Int upcase_text_to_chars(USES_REGS1) {
