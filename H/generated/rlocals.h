@@ -255,11 +255,7 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
-#if __ANDROID__
 
-
-
-#endif
 
 
 

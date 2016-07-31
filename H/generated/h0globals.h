@@ -36,11 +36,6 @@ EXTERNAL  UInt  GLOBAL_SizeOfOverflow;
 // amount of space recovered in all garbage collections
 EXTERNAL  UInt  GLOBAL_AGcThreshold;
 EXTERNAL  Agc_hook  GLOBAL_AGCHook;
-#if __ANDROID__
-// no need to perform initialization, it is done before we start the Prolog engine.
-EXTERNAL    struct AAssetManager*  GLOBAL_assetManager;
-EXTERNAL  char*  GLOBAL_AssetsWD;
-#endif
 /* multi-thread support */
 #if THREADS
 /* number of threads and processes in system */
@@ -145,4 +140,5 @@ EXTERNAL  int  GLOBAL_MaxPriority;
 EXTERNAL    struct AliasDescS*  GLOBAL_FileAliases;
 EXTERNAL  int  GLOBAL_NOfFileAliases;
 EXTERNAL  int  GLOBAL_SzOfFileAliases;
+EXTERNAL    struct vfs*  GLOBAL_VFS;
 

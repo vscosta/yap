@@ -36,11 +36,6 @@
 
 #define GLOBAL_AGcThreshold Yap_global->AGcThreshold_
 #define GLOBAL_AGCHook Yap_global->AGCHook_
-#if __ANDROID__
-
-#define GLOBAL_assetManager Yap_global->assetManager_
-#define GLOBAL_AssetsWD Yap_global->AssetsWD_
-#endif
 
 #if THREADS
 
@@ -145,4 +140,5 @@
 #define GLOBAL_FileAliases Yap_global->FileAliases_
 #define GLOBAL_NOfFileAliases Yap_global->NOfFileAliases_
 #define GLOBAL_SzOfFileAliases Yap_global->SzOfFileAliases_
+#define GLOBAL_VFS Yap_global->VFS_
 

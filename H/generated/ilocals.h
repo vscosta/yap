@@ -255,11 +255,6 @@ static void InitWorker(int wid) {
   REMOTE_ImportDBRefHashTableSize(wid) = 0;
   REMOTE_ImportDBRefHashTableNum(wid) = 0;
   REMOTE_ImportFAILCODE(wid) = NULL;
-#if __ANDROID__
-
-  REMOTE_assetManager(wid) = GLOBAL_assetManager;
-  REMOTE_InAssetDir(wid) = NULL;
-#endif
 
 
   REMOTE_exo_it(wid) = NULL;
@@ -271,6 +266,7 @@ static void InitWorker(int wid) {
 
 
   REMOTE_CurSlot(wid) = 0;
+  REMOTE_FrozenHandles(wid) = 0;
   REMOTE_NSlots(wid) = 0;
   REMOTE_SlotBase(wid) = InitHandles(wid);
 

@@ -31,9 +31,9 @@
 
 /* memory management */
   UInt  Yap_HoleSize_;
-  struct malloc_state  *Yap_av_;
 #if USE_DL_MALLOC
-  struct Yap_MemoryHoles[MAX_DLMALLOC_HOLES]  void_;
+  struct malloc_state  *Yap_av_;
+  struct memory_hole  Yap_MemoryHoles[MAX_DLMALLOC_HOLES]_;
   UInt  Yap_NOfMemoryHoles_;
 #if defined(YAPOR) || defined(THREADS)
   lockvar  DLMallocLock_;
