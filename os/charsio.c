@@ -112,6 +112,11 @@ Int Yap_peek(int sno) {
     return ch;
   }
 #endif
+#if !MAY_READ
+    if (s->status & InMemory_Stream_f ) {
+      return Yap_MemPeekc( sno );
+    }
+#endif
   /* buffer the character */
   if (s->encoding == Yap_SystemEncoding() && 0) {
     ch = fgetwc(s->file);
@@ -659,32 +664,29 @@ static Int put_char(USES_REGS1) { /* '$put'(Stream,N)                      */
   return (TRUE);
 }
 
-/** @pred  tab_1(+ _N_)
-
+/** @pred  tab(+ _N_)
 
 Outputs  _N_ spaces to the current output stream.
-
-
 */
 static Int tab_1(USES_REGS1) { /* nl                      */
   int sno = LOCAL_c_output_stream;
-  Term t2;
+  Term t1;
   Int tabs, i;
-  if (IsVarTerm(t2 = Deref(ARG2))) {
-    Yap_Error(INSTANTIATION_ERROR, t2, "put_char/1");
+  if (IsVarTerm(t1 = Deref(ARG1))) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "first argument");
     return FALSE;
-  } else if (!IsIntegerTerm(t2)) {
-    Yap_Error(TYPE_ERROR_INTEGER, t2, "put_char/1");
+  } else if (!IsIntegerTerm(t1)) {
+    Yap_Error(TYPE_ERROR_INTEGER, t1, "first argument");
     return FALSE;
-  } else if ((tabs = IntegerOfTerm(t2)) < 0) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "tab/1");
+  } else if ((tabs = IntegerOfTerm(t1)) < 0) {
+    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t1, "first argument");
     return FALSE;
   }
 
   LOCK(GLOBAL_Stream[sno].streamlock);
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "nl/0");
+    Yap_Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "user_output");
     return (FALSE);
   }
 

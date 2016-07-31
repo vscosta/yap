@@ -98,8 +98,8 @@ static char SccsId[] = "%W% %G%";
 #endif
 #endif
 #include "iopreds.h"
-
-#define GETW get_wchar_from_FILE
+//#define GETW get_wchar_from_FILE
+//#endif
 #define GETC() fgetwc(st->file)
 #include "getw.h"
 
@@ -262,10 +262,7 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
   }
 #ifndef _WIN32
   else if (st->file != NULL && 0 && !(st->status & InMemory_Stream_f)) {
-    if (st->encoding == Yap_SystemEncoding()) {
-      st->stream_wgetc = get_wchar_from_file;
-    } else
-      st->stream_wgetc = get_wchar_from_FILE;
+    st->stream_wgetc = get_wchar_from_file;
   }
 #endif
   if (GLOBAL_CharConversionTable != NULL)
@@ -353,6 +350,13 @@ static void InitStdStreams(void) {
   GLOBAL_Stream[StdInStream].name = Yap_LookupAtom("user_input");
   GLOBAL_Stream[StdOutStream].name = Yap_LookupAtom("user_output");
   GLOBAL_Stream[StdErrStream].name = Yap_LookupAtom("user_error");
+#if USE_READLINE
+  if (GLOBAL_Stream[StdInStream].status & Tty_Stream_f &&
+      GLOBAL_Stream[StdOutStream].status & Tty_Stream_f &&
+      GLOBAL_Stream[StdErrStream].status & Tty_Stream_f) {
+    Yap_InitReadline(TermTrue);
+  }
+#endif
   LOCAL_c_input_stream = StdInStream;
   LOCAL_c_output_stream = StdOutStream;
   LOCAL_c_error_stream = StdErrStream;
@@ -639,7 +643,8 @@ int post_process_weof(StreamDesc *s) {
 }
 
 /**
- * caled after EOF found a peek, it just calls console_post_process to conclude
+ * caled after EOF found a peek, it just calls console_post_process to
+ *conclude
  *the job.
  *
  * @param sno
@@ -655,7 +660,6 @@ int EOFWPeek(int sno) { return EOFWGetc(sno); }
  post_process_read_char, something to think about */
 int PlGetc(int sno) {
   StreamDesc *s = &GLOBAL_Stream[sno];
-
   return fgetc(s->file);
 }
 
@@ -1294,9 +1298,8 @@ do_open(Term file_name, Term t2,
     Yap_SetTextFile(RepAtom(AtomOfTerm(file_name))->StrOfAE);
   }
 #endif
+  //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s", fname);
   flags &= ~(Free_Stream_f);
-  if (!Yap_initStream(sno, fd, fname, file_name, encoding, flags, open_mode))
-    return false;
   if (!Yap_initStream(sno, fd, fname, file_name, encoding, flags, open_mode))
     return false;
   if (open_mode == AtomWrite) {

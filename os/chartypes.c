@@ -79,7 +79,7 @@ static char SccsId[] = "%W% %G%";
 
 static Int p_change_type_of_char(USES_REGS1);
 
-Term Yap_StringToNumberTerm(char *s, encoding_t *encp) {
+Term Yap_StringToNumberTerm(const    char *s, encoding_t *encp) {
   CACHE_REGS
   int sno;
   Term t;

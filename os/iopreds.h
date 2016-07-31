@@ -6,28 +6,13 @@
  * comments:	Input/Output C implemented predicates			 *
  *									 *
  *************************************************************************/
-#ifdef SCCS
-static char SccsId[] = "%W% %G%";
-#endif
 
 #ifndef IOPREDS_H
 #define IOPREDS_H 1
 
-#if _WIN32
-#define USE_SOCKET 1
-#define HAVE_SOCKET 1
-#endif
-
 #include "Atoms.h"
 #include "Yap.h"
 #include <stdlib.h>
-
-/*
- * This file defines main data-structure for stream management,
- *
- */
-
-extern size_t Yap_page_size;
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 
@@ -37,6 +22,19 @@ extern size_t Yap_page_size;
 
 #include <wchar.h>
 
+#include "YapStreams.h"
+
+static inline bool IsStreamTerm(Term t) {
+  return !IsVarTerm(t) &&
+         (IsAtomTerm(t) ||
+          (IsApplTerm(t) && (FunctorOfTerm(t) == FunctorStream)));
+}
+
+extern bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
+                           encoding_t encoding, stream_flags_t flags,
+                           Atom open_mode);
+
+#
 #define Yap_CheckStream(arg, kind, msg)                                        \
   Yap_CheckStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
 extern int Yap_CheckStream__(const char *, const char *, int, Term, int,
@@ -45,32 +43,30 @@ extern int Yap_CheckStream__(const char *, const char *, int, Term, int,
   Yap_CheckTextStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
 extern int Yap_CheckTextStream__(const char *, const char *, int, Term, int,
                                  const char *);
-#define Yap_CheckBinaryStream(arg, kind, msg)                                    \
+
+#define Yap_CheckBinaryStream(arg, kind, msg)                                  \
   Yap_CheckBinaryStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
 extern int Yap_CheckBinaryStream__(const char *, const char *, int, Term, int,
-                                 const char *);
+                                   const char *);
 
-extern bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
-                           encoding_t encoding, stream_flags_t flags,
-                           Atom open_mode);
+static inline StreamDesc *Yap_GetStreamHandle(Term t) {
+  int sno = Yap_CheckStream(t, 0, "stream search");
+  if (sno < 0)
+    return NULL;
+  return GLOBAL_Stream + sno;
+}
+
+#include "VFS.h"
+
+/*
+ * This file defines main data-structure for stream management,
+ *
+ */
+
+extern size_t Yap_page_size;
 
 #if HAVE_SOCKET
 extern int Yap_sockets_io;
-
-/****************** defines for sockets *********************************/
-
-typedef enum { /* in YAP, sockets may be in one of 4 possible status */
-               new_socket,
-               server_socket,
-               client_socket,
-               server_session_socket,
-               closed_socket
-} socket_info;
-
-typedef enum { /* we accept two domains for the moment, IPV6 may follow */
-               af_inet, /* IPV4 */
-               af_unix  /* or AF_FILE */
-} socket_domain;
 
 extern Term Yap_InitSocketStream(int, socket_info, socket_domain);
 extern int Yap_CheckSocketStream(Term, const char *);
@@ -83,197 +79,12 @@ Int Yap_CloseSocket(int, socket_info, socket_domain);
 
 #endif /* USE_SOCKET */
 
-/************ SWI compatible support for unicode representations  ************/
-typedef struct yap_io_position {
-  int64_t byteno;       /* byte-position in file */
-  int64_t charno;       /* character position in file */
-  long int lineno;      /* lineno in file */
-  long int linepos;     /* position in line */
-  intptr_t reserved[2]; /* future extensions */
-} yapIOPOS;
+extern Term Yap_read_term(int inp_stream, Term opts, int nargs);
+extern Term Yap_Parse(UInt prio, encoding_t enc, Term cmod);
 
-#ifndef _PL_STREAM_H
-typedef struct {
-  Atom file;         /* current source file */
-  yapIOPOS position; /* Line, line pos, char and byte */
-} yapSourceLocation;
-#endif
-
-#define RD_MAGIC 0xefebe128
-
-typedef struct vlist_struct_t {
-  struct VARSTRUCT *ve;
-  struct vlist_struct_t *next;
-} vlist_t;
-
-typedef struct qq_struct_t {
-  unsigned char *text;
-  yapIOPOS start, mid, end;
-  vlist_t *vlist;
-  struct qq_struct_t *next;
-} qq_t;
-
-typedef struct read_data_t {
-  unsigned char *here;        /* current character */
-  unsigned char *base;        /* base of clause */
-  unsigned char *end;         /* end of the clause */
-  unsigned char *token_start; /* start of most recent read token */
-
-  int magic; /* RD_MAGIC */
-  struct stream_desc *stream;
-  FILE *f;       /* file. of known */
-  Term position; /* Line, line pos, char and byte */
-  void *posp;    /* position pointer */
-  size_t posi;   /* position number */
-
-  Term subtpos;                    /* Report Subterm positions */
-  bool cycles;                     /* Re-establish cycles */
-  yapSourceLocation start_of_term; /* Position of start of term */
-  struct mod_entry *module;        /* Current source module */
-  unsigned int flags;              /* Module syntax flags */
-  int styleCheck;                  /* style-checking mask */
-  bool backquoted_string;          /* Read `hello` as string */
-
-  int *char_conversion_table; /* active conversion table */
-
-  Atom on_error;     /* Handling of syntax errors */
-  int has_exception; /* exception is raised */
-
-  Term exception; /* raised exception */
-  Term variables; /* report variables */
-  Term singles;   /* Report singleton variables */
-  Term varnames;  /* Report variables+names */
-  int strictness; /* Strictness level */
-
-#ifdef O_QUASIQUOTATIONS
-  Term quasi_quotations; /* User option quasi_quotations(QQ) */
-  Term qq;               /* Quasi quoted list */
-  Term qq_tail;          /* Tail of the quoted stuff */
-#endif
-
-  Term comments; /* Report comments */
-
-} read_data, *ReadData;
-
-Term Yap_read_term(int inp_stream, Term opts, int nargs);
-Term Yap_Parse(UInt prio, encoding_t enc, Term cmod);
-
-void init_read_data(ReadData _PL_rd, struct stream_desc *s);
+extern void init_read_data(ReadData _PL_rd, struct stream_desc *s);
 
 typedef int (*GetsFunc)(int, UInt, char *);
-
-#if HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-#if HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-
-#if __APPLE__
-#include "fmemopen.h"
-#define HAVE_FMEMOPEN 1
-#define HAVE_OPEN_MEMSTREAM 1
-FILE *open_memstream(char **buf, size_t *len);
-#endif
-
-#if __ANDROID__
-#undef HAVE_FMEMOPEN
-#undef HAVE_OPEN_MEMSTREAM
-#endif
-
-#if HAVE_FMEMOPEN
-#define MAY_READ 1
-#endif
-
-#if HAVE_OPEN_MEMSTREAM
-#define MAY_READ 1
-#define MAY_WRITE 1
-#endif
-
-#if _WIN32
-#undef MAY_WRITE
-#undef MAY_READ
-#endif
-
-typedef struct mem_desc {
-  char *buf;    /* where the file is being read from/written to */
-  int src;      /* where the space comes from, 0 code space, 1 malloc */
-  Int max_size; /* maximum buffer size (may be changed dynamically) */
-  UInt pos;     /* cursor */
-  volatile void *error_handler;
-} memHandle;
-
-typedef struct stream_desc {
-  Atom name;
-  Term user_name;
-  FILE *file;
-  // useful in memory streams
-  char *nbuf;
-  size_t nsize;
-  union {
-    struct {
-#define PLGETC_BUF_SIZE 4096
-      unsigned char *buf, *ptr;
-      int left;
-    } file;
-    memHandle mem_string;
-    struct {
-      int fd;
-    } pipe;
-#if HAVE_SOCKET
-    struct {
-      socket_domain domain;
-      socket_info flags;
-      int fd;
-    } socket;
-#endif
-    struct {
-      const unsigned char *buf, *ptr;
-    } irl;
-  } u;
-  Int charcount, linecount, linepos;
-  stream_flags_t status;
-#if defined(YAPOR) || defined(THREADS)
-  lockvar streamlock; /* protect stream access */
-#endif
-  int (*stream_putc)(
-      int, int); /** function the stream uses for writing a single octet */
-  int (*stream_wputc)(
-      int, wchar_t); /** function the stream uses for writing a character */
-  int (*stream_getc)(int); /** function the stream uses for reading an octet. */
-  int (*stream_wgetc)(
-      int); /** function the stream uses for reading a character. */
-
-  int (*stream_wgetc_for_read)(
-      int); /* function the stream uses for parser. It may be different
-               from above if the ISO  character conversion is on */
-  encoding_t encoding; /** current encoding for stream */
-} StreamDesc;
-
-static inline bool IsStreamTerm(Term t) {
-  return !IsVarTerm(t) &&
-         (IsAtomTerm(t) ||
-          (IsApplTerm(t) && (FunctorOfTerm(t) == FunctorStream)));
-}
-
-static inline StreamDesc *Yap_GetStreamHandle(Term t) {
-  int sno = Yap_CheckStream(t, 0, "stream search");
-  if (sno < 0)
-    return NULL;
-  return GLOBAL_Stream + sno;
-}
-
-#define YAP_ERROR NIL
-
-#define MaxStreams 64
-
-#define EXPAND_FILENAME 0x000080
-
-#define StdInStream 0
-#define StdOutStream 1
-#define StdErrStream 2
-
-#define ALIASES_BLOCK_SIZE 8
 
 void Yap_InitStdStreams(void);
 Term Yap_StreamPosition(int);
@@ -285,28 +96,29 @@ static inline Int GetCurInpPos(StreamDesc *inp_stream) {
 #define PlIOError(type, culprit, ...)                                          \
   PlIOError__(__FILE__, __FUNCTION__, __LINE__, type, culprit, __VA_ARGS__)
 
-Int PlIOError__(const char *, const char *, int, yap_error_number, Term, ...);
+extern Int PlIOError__(const char *, const char *, int, yap_error_number, Term, ...);
 
-int GetFreeStreamD(void);
-Term Yap_MkStream(int n);
+extern int GetFreeStreamD(void);
+extern  Term Yap_MkStream(int n);
 
-bool Yap_PrintWarning(Term twarning);
+extern bool Yap_PrintWarning(Term twarning);
 
-void Yap_plwrite(Term, struct stream_desc *, int, int, int);
-void Yap_WriteAtom(struct stream_desc *s, Atom atom);
+extern void Yap_plwrite(Term, struct stream_desc *, int, int, int);
+extern void Yap_WriteAtom(struct stream_desc *s, Atom atom);
+extern bool Yap_WriteTerm( int output_stream, Term t, Term opts USES_REGS);
 
-Term Yap_scan_num(struct stream_desc *);
+extern Term Yap_scan_num(struct stream_desc *);
 
-void Yap_DefaultStreamOps(StreamDesc *st);
-void Yap_PipeOps(StreamDesc *st);
-void Yap_MemOps(StreamDesc *st);
-bool Yap_CloseMemoryStream(int sno);
-void Yap_ConsolePipeOps(StreamDesc *st);
-void Yap_SocketOps(StreamDesc *st);
-void Yap_ConsoleSocketOps(StreamDesc *st);
-bool Yap_ReadlineOps(StreamDesc *st);
-int Yap_OpenBufWriteStream(USES_REGS1);
-void Yap_ConsoleOps(StreamDesc *s);
+extern void Yap_DefaultStreamOps(StreamDesc *st);
+extern void Yap_PipeOps(StreamDesc *st);
+extern void Yap_MemOps(StreamDesc *st);
+extern bool Yap_CloseMemoryStream(int sno);
+extern void Yap_ConsolePipeOps(StreamDesc *st);
+extern void Yap_SocketOps(StreamDesc *st);
+extern void Yap_ConsoleSocketOps(StreamDesc *st);
+extern bool Yap_ReadlineOps(StreamDesc *st);
+extern int Yap_OpenBufWriteStream(USES_REGS1);
+extern void Yap_ConsoleOps(StreamDesc *s);
 
 void Yap_InitRandomPreds(void);
 void Yap_InitSignalPreds(void);
@@ -332,9 +144,10 @@ void Yap_socketStream(StreamDesc *s);
 void Yap_ReadlineFlush(int sno);
 Int Yap_ReadlinePeekChar(int sno);
 int Yap_ReadlineForSIGINT(void);
-bool Yap_ReadlinePrompt(StreamDesc *s);
+bool Yap_DoPrompt(StreamDesc *s);
 
 Int Yap_peek(int sno);
+int Yap_MemPeekc(int sno);
 
 Term Yap_syntax_error(TokEntry *tokptr, int sno);
 
@@ -464,5 +277,9 @@ static inline void freeBuffer(const void *ptr) {
     return;
   free((void *)ptr);
 }
+
+/** VFS handling */
+
+VFS_t *Yap_InitAssetManager(void);
 
 #endif
