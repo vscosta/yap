@@ -358,8 +358,10 @@ X_API int PL_get_name_arity(term_t ts, atom_t *name, int *arity) {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts);
   if (IsAtomTerm(t)) {
-    *name = AtomToSWIAtom(AtomOfTerm(t));
-    *arity = 0;
+    if (name)
+      *name = AtomToSWIAtom(AtomOfTerm(t));
+    if (arity)
+      *arity = 0;
     return 1;
   }
   if (YAP_IsApplTerm(t)) {
@@ -367,13 +369,17 @@ X_API int PL_get_name_arity(term_t ts, atom_t *name, int *arity) {
     if (IsExtensionFunctor(f)) {
       return 0;
     }
-    *name = AtomToSWIAtom(NameOfFunctor(f));
-    *arity = ArityOfFunctor(f);
+    if (name)
+      *name = AtomToSWIAtom(NameOfFunctor(f));
+    if (arity)
+      *arity = ArityOfFunctor(f);
     return 1;
   }
   if (YAP_IsPairTerm(t)) {
-    *name = AtomToSWIAtom(AtomDot);
-    *arity = 2;
+    if (name)
+      *name = AtomToSWIAtom(AtomDot);
+    if (arity)
+      *arity = 2;
     return 1;
   }
   return 0;
@@ -2163,8 +2169,8 @@ X_API int PL_initialise(int myargc, char **myargv) {
 
   GLOBAL_PL_Argc = myargc;
   GLOBAL_PL_Argv = myargv;
-  GLOBAL_InitialisedFromPL = TRUE;
-  int rc = YAP_Init(&init_args) != YAP_BOOT_ERROR;
+  GLOBAL_InitialisedFromPL = true;
+  YAP_file_type_t rc = YAP_Init(&init_args) != YAP_FOUND_BOOT_ERROR;
   ATOM_nil = YAP_SWIAtomFromAtom(AtomNil);
   return rc;
 }
