@@ -143,7 +143,7 @@ Term Yap_PredicateIndicator(Term t, Term mod) {
   CACHE_REGS
   // generate predicate indicator in this case
   Term ti[2];
-  t = Yap_StripModule(t, &mod);
+  t = Yap_YapStripModule(t, &mod);
   if (IsApplTerm(t) && !IsExtensionFunctor(FunctorOfTerm(t))) {
     ti[0] = MkAtomTerm(NameOfFunctor(FunctorOfTerm(t)));
     ti[1] = MkIntegerTerm(ArityOfFunctor(FunctorOfTerm(t)));
@@ -168,7 +168,7 @@ static bool CallError(yap_error_number err, Term t, Term mod USES_REGS) {
     return (CallMetaCall(t, mod PASS_REGS));
   } else {
     if (err == TYPE_ERROR_CALLABLE) {
-      t = Yap_StripModule(t, &mod);
+      t = Yap_YapStripModule(t, &mod);
     }
     Yap_Error(err, t, "call/1");
     return false;
@@ -209,12 +209,11 @@ static Int save_env_b(USES_REGS1) {
   return true;
 }
 
-
 inline static bool do_execute(Term t, Term mod USES_REGS) {
   Term t0 = t;
   t = Yap_YapStripModule(t, &mod);
-   /* first do predicate expansion, even before you process signals.
-     This way you don't get to spy goal_expansion(). */
+  /* first do predicate expansion, even before you process signals.
+    This way you don't get to spy goal_expansion(). */
   if (Yap_has_a_signal() && !LOCAL_InterruptsDisabled &&
       !(LOCAL_PrologMode & (AbortMode | InterruptMode | SystemMode))) {
     return EnterCreepMode(t, mod PASS_REGS);
@@ -964,22 +963,26 @@ static Int setup_call_catcher_cleanup(USES_REGS1) {
   yhandle_t h4 = Yap_InitHandle(ARG4);
   yamop *oCP = CP, *oP = P;
   bool rc;
+  execution_port port;
 
   Yap_DisableInterrupts(worker_id);
   rc = Yap_RunTopGoal(Setup, false);
   Yap_EnableInterrupts(worker_id);
+
   if (Yap_RaiseException()) {
     return false;
   }
   if (!rc) {
     complete_inner_computation(B0);
     // We'll pass it through
+
     return false;
   } else {
     prune_inner_computation(B0);
   }
   // at this point starts actual goal execution....
   cmod = CurrentModule;
+
   rc = Yap_RunTopGoal(Yap_GetFromSlot(h2), false);
   complete_inner_computation(B);
   t4 = Yap_GetFromSlot(h4);
@@ -987,7 +990,6 @@ static Int setup_call_catcher_cleanup(USES_REGS1) {
   // make sure that t3 point to our nice cell.
   Yap_CloseSlots(hl);
 
-  execution_port port;
   if (rc) {
     // ignore empty choice
     while (B->cp_ap->opc == FAIL_OPCODE)
@@ -1014,8 +1016,9 @@ static Int setup_call_catcher_cleanup(USES_REGS1) {
     CP = oCP;
     ENV = LCL0 - oENV;
   }
-  if (Yap_RaiseException())
+  if (Yap_RaiseException()) {
     return false;
+  }
   return rc;
 }
 
@@ -1084,7 +1087,7 @@ static Int _user_expand_goal(USES_REGS1) {
 }
 
 static Int do_term_expansion(USES_REGS1) {
- yhandle_t sl = Yap_StartSlots();
+  yhandle_t sl = Yap_StartSlots();
   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
   PredEntry *pe;
   Term cmod = CurrentModule, omod = cmod;
@@ -1094,7 +1097,8 @@ static Int do_term_expansion(USES_REGS1) {
   /* user:term_expansion(A,B) */
 
   ARG1 = g;
-  if ((pe = RepPredProp(Yap_GetPredPropByFunc(FunctorTermExpansion, USER_MODULE))) &&
+  if ((pe = RepPredProp(
+           Yap_GetPredPropByFunc(FunctorTermExpansion, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, NULL, false PASS_REGS)) {
     return complete_ge(true, omod, sl, creeping);
@@ -1266,39 +1270,9 @@ restart_exec:
   }
 }
 
-static Term slice_module_for_call_with_args(Term tin, Term *modp, int arity) {
-  if (IsVarTerm(tin)) {
-    Yap_Error(INSTANTIATION_ERROR, tin, "call_with_args/%d", arity);
-    return 0L;
-  }
-  while (IsApplTerm(tin)) {
-    Functor f = FunctorOfTerm(tin);
-    Term newmod;
-    if (f != FunctorModule) {
-      Yap_Error(TYPE_ERROR_ATOM, tin, "call_with_args/%d", arity);
-      return 0L;
-    }
-    newmod = ArgOfTerm(1, tin);
-    if (IsVarTerm(newmod)) {
-      Yap_Error(INSTANTIATION_ERROR, tin, "call_with_args/%d", arity);
-      return 0L;
-    } else if (!IsAtomTerm(newmod)) {
-      Yap_Error(TYPE_ERROR_ATOM, newmod, "call_with_args/%d", arity);
-      return 0L;
-    }
-    *modp = newmod;
-    tin = ArgOfTerm(2, tin);
-  }
-  if (!IsAtomTerm(tin)) {
-    Yap_Error(TYPE_ERROR_ATOM, tin, "call_with_args/%d", arity);
-    return 0L;
-  }
-  return tin;
-}
-
 static Int execute_0(USES_REGS1) { /* '$execute_0'(Goal)	 */
   Term mod = CurrentModule;
-  Term t = slice_module_for_call_with_args(Deref(ARG1), &mod, 0);
+  Term t = Yap_YapStripModule(Deref(ARG1), &mod);
   if (t == 0)
     return false;
   return do_execute(t, mod PASS_REGS);
@@ -1308,7 +1282,7 @@ static bool call_with_args(int i USES_REGS) {
   Term mod = CurrentModule, t;
   int j;
 
-  t = slice_module_for_call_with_args(Deref(ARG1), &mod, i);
+  t = Yap_YapStripModule(Deref(ARG1), &mod);
   if (t == 0)
     return false;
   for (j = 0; j < i; j++)
@@ -1702,10 +1676,11 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
   PredEntry *ppe;
   CELL *pt;
   UInt arity;
-  Term mod = CurrentModule;
+  Term tmod = CurrentModule;
   Term goal_out = 0;
   LOCAL_PrologMode |= TopGoalMode;
 
+  t = Yap_YapStripModule(t, &tmod);
 restart_runtopgoal:
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "call/1");
@@ -1714,7 +1689,7 @@ restart_runtopgoal:
   } else if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);
     pt = NULL;
-    pe = PredPropByAtom(a, CurrentModule);
+    pe = Yap_GetPredPropByAtom(a, tmod);
     arity = 0;
   } else if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
@@ -1724,38 +1699,37 @@ restart_runtopgoal:
       LOCAL_PrologMode &= ~TopGoalMode;
       return (FALSE);
     }
-    if (f == FunctorModule) {
-      Term tmod = ArgOfTerm(1, t);
-      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
-        mod = tmod;
-        t = ArgOfTerm(2, t);
-        goto restart_runtopgoal;
-      } else {
-        if (IsVarTerm(tmod)) {
-          Yap_Error(INSTANTIATION_ERROR, t, "call/1");
-        } else {
-          Yap_Error(TYPE_ERROR_ATOM, t, "call/1");
-        }
-        LOCAL_PrologMode &= ~TopGoalMode;
-        return FALSE;
-      }
-    }
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
        might skip a svar */
-    pe = PredPropByFunc(f, mod);
+    pe = Yap_GetPredPropByFunc(f, tmod);
     pt = RepAppl(t) + 1;
     arity = ArityOfFunctor(f);
   } else {
-    Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, mod), "call/1");
+    Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), "call/1");
     LOCAL_PrologMode &= ~TopGoalMode;
     return (FALSE);
   }
   ppe = RepPredProp(pe);
-  if (pe == NIL) {
-    /* we must always start the emulator with Prolog code */
-    LOCAL_PrologMode &= ~TopGoalMode;
-    return FALSE;
+  if (pe == NIL || ppe->cs.p_code.TrueCodeOfPred->opc == UNDEF_OPCODE) {
+    pe = AbsPredProp(ppe = UndefCode);
+    pt = HR;
+    HR[0] = MkPairTerm(tmod, t);
+    HR[1] = MkAtomTerm(Yap_LookupAtom("top"));
+    arity = 2;
+    HR += 2;
+  } else if (ppe->PredFlags & MetaPredFlag) {
+    // we're in a meta-call, rake care about modules
+    //
+    Term ts[2];
+    ts[0] = tmod;
+    ts[1] = t;
+    Functor f = Yap_MkFunctor(Yap_LookupAtom("call"), 1);
+
+    pt = &t;
+    t = Yap_MkApplTerm(FunctorModule, 2, ts);
+    pe = Yap_GetPredPropByFunc(f, tmod);
+    arity = 1;
   }
   PELOCK(82, ppe);
   CodeAdr = ppe->CodeOfPred;
@@ -2003,8 +1977,9 @@ static Int JumpToEnv() {
     Term t = Yap_GetException();
     if (t == 0) {
       return false;
+    } else if (IsVarTerm(t)) {
+      t = Yap_MkApplTerm(FunctorGVar, 1, &t);
     }
-    t = Yap_MkApplTerm(FunctorThrow, 1, &t);
     B->cp_h = HR;
     HB = HR;
     Yap_unify(t, B->cp_a2);
@@ -2085,7 +2060,6 @@ void Yap_InitYaamRegs(int myworker_id) {
     HR = RepAppl(REMOTE_GlobalArena(myworker_id));
   }
   REMOTE_GlobalArena(myworker_id) = TermNil;
-  Yap_AllocateDefaultArena(128 * 1024, 2, myworker_id);
   Yap_InitPreAllocCodeSpace(myworker_id);
 #ifdef FROZEN_STACKS
   H_FZ = HR;
@@ -2117,8 +2091,18 @@ void Yap_InitYaamRegs(int myworker_id) {
   PP = NULL;
   PREG_ADDR = NULL;
 #endif
+  Yap_AllocateDefaultArena(128 * 1024, 2, myworker_id);
   cut_c_initialize(myworker_id);
   Yap_PrepGoal(0, NULL, NULL PASS_REGS);
+#ifdef FROZEN_STACKS
+  H_FZ = HR;
+#ifdef YAPOR_SBA
+  BSEG =
+#endif /* YAPOR_SBA */
+      BBREG = B_FZ = (choiceptr)REMOTE_LocalBase(myworker_id);
+  TR = TR_FZ = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);
+#endif /* FROZEN_STACKS */
+  CalculateStackGap(PASS_REGS1);
 #ifdef TABLING
   /* ensure that LOCAL_top_dep_fr is always valid */
   if (REMOTE_top_dep_fr(myworker_id))
