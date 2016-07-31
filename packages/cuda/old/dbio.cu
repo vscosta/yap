@@ -27,8 +27,8 @@ void datalogWrite(int query, vector<rulenode>::iterator rul_str, vector<rulenode
 				res_rows = unir(dop1, res_rows, cols1, &dop1, 0);
 			tipo = res_rows * cols1 * sizeof(int);
 			hres = (int *)malloc(tipo);
-			hipMemcpy(hres, dop1, tipo, hipMemcpyDeviceToHost);
-			hipFree(dop1);
+			cudaMemcpy(hres, dop1, tipo, cudaMemcpyDeviceToHost);
+			cudaFree(dop1);
 			*result = hres;
 		}
 		else
@@ -39,13 +39,13 @@ void datalogWrite(int query, vector<rulenode>::iterator rul_str, vector<rulenode
 				int *dop2;
 				tipo = res_rows * cols1 * sizeof(int);
 				reservar(&dop2, tipo); 
-				hipMemcpy(dop2, dop1, tipo, hipMemcpyHostToDevice);
+				cudaMemcpy(dop2, dop1, tipo, cudaMemcpyHostToDevice);
 				free(dop1);
 				res_rows = unir(dop2, res_rows, cols1, &dop2, 0);
 				tipo = res_rows * cols1 * sizeof(int);
 				hres = (int *)malloc(tipo);
-				hipMemcpy(hres, dop2, tipo, hipMemcpyDeviceToHost);
-				hipFree(dop2);
+				cudaMemcpy(hres, dop2, tipo, cudaMemcpyDeviceToHost);
+				cudaFree(dop2);
 				*result = hres;
 			}
 			else
@@ -315,8 +315,8 @@ void postgresWrite(int *inpquery, int ninpf, vector<rulenode>::iterator rul_str,
 
 				tipo = res_rows * cols1 * sizeof(int);
 				hres = (int *)malloc(tipo);
-				hipMemcpy(hres, dop1, tipo, hipMemcpyDeviceToHost);
-				hipFree(dop1);
+				cudaMemcpy(hres, dop1, tipo, cudaMemcpyDeviceToHost);
+				cudaFree(dop1);
 				w = z + 1;
 
 				strtok(qposr->rulename, "_");
@@ -353,8 +353,8 @@ void postgresWrite(int *inpquery, int ninpf, vector<rulenode>::iterator rul_str,
 			res_rows = abs(res_rows);
 			tipo = res_rows * cols1 * sizeof(int);
 			hres = (int *)malloc(tipo);
-			hipMemcpy(hres, dop1, tipo, hipMemcpyDeviceToHost);
-			hipFree(dop1);
+			cudaMemcpy(hres, dop1, tipo, cudaMemcpyDeviceToHost);
+			cudaFree(dop1);
 
 			char file[] = "/dev/shm/buffer.csv";
 			FILE *fp;
@@ -554,7 +554,7 @@ void mysqlWrite(vector<rulenode>::iterator rul_str, vector<rulenode>::iterator f
 			sign = tmpfact.predname;
 			tipo = res_rows * cols1 * sizeof(int);
 			hres = (int *)malloc(tipo);
-			hipMemcpy(hres, dop1, tipo, hipMemcpyDeviceToHost);
+			cudaMemcpy(hres, dop1, tipo, cudaMemcpyDeviceToHost);
 			if(sign[0] == 'f' && sign[1] >= '0' && sign[1] <= '9')
 				sumar(tmpfact.name, dop1, cols1, res_rows);
 		}

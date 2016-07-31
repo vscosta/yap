@@ -179,3 +179,5 @@ packages/myddas/hh
 packages/myddas/DaysInHospital_Y3.csv
 
 packages/myddas/agile.csv
+
+*.pyc

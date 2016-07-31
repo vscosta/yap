@@ -1,4 +1,3 @@
-#include "hip/hip_runtime.h"
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
 #include <thrust/sequence.h>
@@ -161,11 +160,11 @@ __device__ int firstMatchingKeyInDataNode2(Record records[], IKeyType key)
 
 __global__ void gCreateIndex(IDataNode data[], IDirectoryNode dir[], int dirSize, int tree_size, int bottom_start, int nNodesPerBlock)
 {
-        int startIdx = hipBlockIdx_x * nNodesPerBlock;
+        int startIdx = blockIdx.x * nNodesPerBlock;
         int endIdx = startIdx + nNodesPerBlock;
         if(endIdx > dirSize)
                 endIdx = dirSize;
-        int keyIdx = hipThreadIdx_x;
+        int keyIdx = threadIdx.x;
 
         // Proceed only when in internal nodes
         for(int nodeIdx = startIdx; nodeIdx < endIdx; nodeIdx++)
@@ -192,11 +191,11 @@ __global__ void gSearchTree(IDataNode* data, int nDataNodes, IDirectoryNode* dir
 {
 	// Bringing the root node (visited by every tuple) to the faster shared memory
 	__shared__ IKeyType RootNodeKeys[TREE_NODE_SIZE];
-	RootNodeKeys[hipThreadIdx_x] = dir->keys[hipThreadIdx_x];
+	RootNodeKeys[threadIdx.x] = dir->keys[threadIdx.x];
 
 	__syncthreads();
 
-	int OverallThreadIdx = hipBlockIdx_x * THRD_PER_BLCK_search + hipThreadIdx_x;
+	int OverallThreadIdx = blockIdx.x * THRD_PER_BLCK_search + threadIdx.x;
 
 	for(int keyIdx = OverallThreadIdx; keyIdx < nSearchKeys; keyIdx += THRD_PER_GRID_search)
 	{
@@ -220,7 +219,7 @@ __global__ void gSearchTree(IDataNode* data, int nDataNodes, IDirectoryNode* dir
 /*Counts the number of times a row in 'S' is to be joined to a row in 'R'.*/
 __global__ void gIndexJoin(int *R, int *S, int g_locations[], int sLen, int g_ResNums[])
 {
-	int s_cur = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
+	int s_cur = blockIdx.x * blockDim.x + threadIdx.x;
 
 	if(s_cur < sLen) 
 	{
@@ -247,11 +246,11 @@ in 'g_locations' those rows that have equal values in the checked columns.*/
 __global__ void gIndexMultiJoinNegative(int *R, int *S, int g_locations[], int rLen, int *p1, int *p2, int of1, int of2, int *mloc, int *sloc, int *muljoin, int wj)
 {
 	extern __shared__ int shared[];
-	int r_cur = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
+	int r_cur = blockIdx.x * blockDim.x + threadIdx.x;
 	int posr, poss, x;
 
-	if(hipThreadIdx_x < wj)
-		shared[hipThreadIdx_x] = muljoin[hipThreadIdx_x];
+	if(threadIdx.x < wj)
+		shared[threadIdx.x] = muljoin[threadIdx.x];
 	__syncthreads();
 
 	if(r_cur < rLen) 
@@ -288,11 +287,11 @@ times a row in 'S' is to be joined to its corresponding row in 'R', storing the 
 __global__ void gIndexMultiJoin(int *R, int *S, int g_locations[], int sLen, int g_ResNums[], int *p1, int *p2, int of1, int of2, int *mloc, int *sloc, int *muljoin, int wj)
 {
 	extern __shared__ int shared[];
-	int s_cur = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
+	int s_cur = blockIdx.x * blockDim.x + threadIdx.x;
 	int posr, poss, x;
 
-	if(hipThreadIdx_x < wj)
-		shared[hipThreadIdx_x] = muljoin[hipThreadIdx_x];
+	if(threadIdx.x < wj)
+		shared[threadIdx.x] = muljoin[threadIdx.x];
 	__syncthreads();
 
 	if(s_cur < sLen) 
@@ -331,10 +330,10 @@ __global__ void multiJoinWithWrite(int g_locations[], int sLen, int g_PrefixSums
 {
 	extern __shared__ int shared[];
 	int *extjoins = &shared[lenrul];
-	int s_cur = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
+	int s_cur = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if(hipThreadIdx_x < (lenrul + wj))
-		shared[hipThreadIdx_x] = rule[hipThreadIdx_x];
+	if(threadIdx.x < (lenrul + wj))
+		shared[threadIdx.x] = rule[threadIdx.x];
 	__syncthreads();
 
 	if(s_cur < sLen)
@@ -383,10 +382,10 @@ __global__ void multiJoinWithWrite2(int g_locations[], int sLen, int g_PrefixSum
 {
 	extern __shared__ int shared[];
 	int *extjoins = &shared[cols];
-	int s_cur = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
+	int s_cur = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if(hipThreadIdx_x < (cols + wj))
-		shared[hipThreadIdx_x] = rule[hipThreadIdx_x];
+	if(threadIdx.x < (cols + wj))
+		shared[threadIdx.x] = rule[threadIdx.x];
 	__syncthreads();
 
 	if(s_cur < sLen)
@@ -433,11 +432,11 @@ predicate are projected.*/
 __global__ void gJoinWithWriteNegative(int g_locations[], int rLen, int g_joinResultBuffers[], int *p1, int of1, int *rule, int halfrul, int *mloc)
 {
 	extern __shared__ int shared[];
-	int r_cur = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
+	int r_cur = blockIdx.x * blockDim.x + threadIdx.x;
 	int posr;
 
-	if(hipThreadIdx_x < halfrul)
-		shared[hipThreadIdx_x] = rule[hipThreadIdx_x];
+	if(threadIdx.x < halfrul)
+		shared[threadIdx.x] = rule[threadIdx.x];
 	__syncthreads();
 
 	if(r_cur < rLen)
@@ -462,11 +461,11 @@ predicate are projected.*/
 __global__ void gJoinWithWriteNegative2(int g_locations[], int rLen, int g_joinResultBuffers[], int *p1, int of1, int *rule, int cols, int *mloc)
 {
 	extern __shared__ int shared[];
-	int r_cur = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
+	int r_cur = blockIdx.x * blockDim.x + threadIdx.x;
 	int posr;
 
-	if(hipThreadIdx_x < cols)
-		shared[hipThreadIdx_x] = rule[hipThreadIdx_x];
+	if(threadIdx.x < cols)
+		shared[threadIdx.x] = rule[threadIdx.x];
 	__syncthreads();
 
 	if(r_cur < rLen)
@@ -490,10 +489,10 @@ __global__ void gJoinWithWriteNegative2(int g_locations[], int rLen, int g_joinR
 __global__ void gJoinWithWrite(int g_locations[], int sLen, int g_PrefixSums[], int g_joinResultBuffers[], int *p1, int *p2, int of1, int of2, int *rule, int halfrul, int lenrul, int *mloc, int *sloc)
 {
 	extern __shared__ int shared[];
-	int s_cur = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
+	int s_cur = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if(hipThreadIdx_x < lenrul)
-		shared[hipThreadIdx_x] = rule[hipThreadIdx_x];
+	if(threadIdx.x < lenrul)
+		shared[threadIdx.x] = rule[threadIdx.x];
 	__syncthreads();
 
 	if(s_cur < sLen)
@@ -526,10 +525,10 @@ projection, which is performed based on the variables in the head of the rule.*/
 __global__ void gJoinWithWrite2(int g_locations[], int sLen, int g_PrefixSums[], int g_joinResultBuffers[], int *p1, int *p2, int of1, int of2, int *rule, int cols, int *mloc, int *sloc)
 {
 	extern __shared__ int shared[];
-	int s_cur = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
+	int s_cur = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if(hipThreadIdx_x < cols)
-		shared[hipThreadIdx_x] = rule[hipThreadIdx_x];
+	if(threadIdx.x < cols)
+		shared[threadIdx.x] = rule[threadIdx.x];
 	__syncthreads();
 
 	if(s_cur < sLen)
@@ -564,7 +563,7 @@ __global__ void gJoinWithWrite2(int g_locations[], int sLen, int g_PrefixSums[],
 /*Load part of column 'wj' of 'p' in 'R'. Which values are loaded is defined by the prefix sum results in 'pos'.*/
 __global__ void llenar(int *p, int *R, int len, int of, int wj, int *pos, int *ids)
 {
-	int id = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
+	int id = blockIdx.x * blockDim.x + threadIdx.x;
 	int cond;
 	if(id < len)
 	{
@@ -580,7 +579,7 @@ __global__ void llenar(int *p, int *R, int len, int of, int wj, int *pos, int *i
 /*Load an entire column from 'p' into 'R'.*/
 __global__ void llenarnosel(int *p, int *R, int len, int of, int wj)
 {
-	int id = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
+	int id = blockIdx.x * blockDim.x + threadIdx.x;
 	if(id < len)
 		R[id] = p[id * of + wj];
 }
@@ -588,10 +587,10 @@ __global__ void llenarnosel(int *p, int *R, int len, int of, int wj)
 __global__ void projectfinal(int *res, int rows, int cols, int *rule, int *out)
 {
 	extern __shared__ int shared[];
-	int id = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
+	int id = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if(hipThreadIdx_x < cols)
-		shared[hipThreadIdx_x] = rule[hipThreadIdx_x];
+	if(threadIdx.x < cols)
+		shared[threadIdx.x] = rule[threadIdx.x];
 	__syncthreads();
 	
 	if(id < rows)
@@ -615,26 +614,26 @@ void project(int *res, int resrows, int numcols1, int numcols2, int *proj, int *
 		int *pt = (int *)malloc(sizepro);
 		for(z = 0; z < numcols2; z++)
 			pt[z] = proj[z] - 1;
-		hipMemcpy(dcons, pt, sizepro, hipMemcpyHostToDevice); 
-		//hipDeviceSynchronize(); //Small cudaMemcpys are asynchronous, uncomment this line if the pointer is being liberated before it is copied.
+		cudaMemcpy(dcons, pt, sizepro, cudaMemcpyHostToDevice); 
+		//cudaDeviceSynchronize(); //Small cudaMemcpys are asynchronous, uncomment this line if the pointer is being liberated before it is copied.
 		free(pt);
 	}
 	else
-		hipMemcpy(dcons, proj, sizepro, hipMemcpyHostToDevice);
+		cudaMemcpy(dcons, proj, sizepro, cudaMemcpyHostToDevice);
 	reservar(&d_Rout, resrows * sizepro);
-	hipLaunchKernel(HIP_KERNEL_NAME(projectfinal), dim3(blockllen), dim3(numthreads), sizepro, 0, res, resrows, numcols1, dcons, d_Rout);
-	hipFree(dcons);
-	hipFree(*ret);
+	projectfinal<<<blockllen, numthreads, sizepro>>>(res, resrows, numcols1, dcons, d_Rout);
+	cudaFree(dcons);
+	cudaFree(*ret);
 	*ret = d_Rout;
 }
 
 __global__ void projectadd(int *dop1, int *dop2, int rows1, int rows2, int cols1, int cols2, int *dhead, int hsize, int *res)
 {
 	extern __shared__ int shared[];
-	int id = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
+	int id = blockIdx.x * blockDim.x + threadIdx.x;
 	int pos2, posr, x, y, cond;
-	if(hipThreadIdx_x < hsize)
-		shared[hipThreadIdx_x] = dhead[hipThreadIdx_x];
+	if(threadIdx.x < hsize)
+		shared[threadIdx.x] = dhead[threadIdx.x];
 	__syncthreads();
 	if(id < rows2)
 	{
@@ -663,10 +662,10 @@ void juntar(int *dop1, int *dop2, int rows1, int rows2, int cols1, int cols2, in
 	int blockllen = rows2 / numthreads + 1;
 	sizepro = pcols * sizeof(int);
 	reservar(&dcons, sizepro);
-	hipMemcpy(dcons, proj, sizepro, hipMemcpyHostToDevice);
+	cudaMemcpy(dcons, proj, sizepro, cudaMemcpyHostToDevice);
 	reservar(&d_Rout, rows1 * rows2 * sizepro);
-	hipLaunchKernel(HIP_KERNEL_NAME(projectadd), dim3(blockllen), dim3(numthreads), sizepro, 0, dop1, dop2, rows1, rows2, cols1, cols2, dcons, pcols, d_Rout);
-	hipFree(dcons);
+	projectadd<<<blockllen, numthreads, sizepro>>>(dop1, dop2, rows1, rows2, cols1, cols2, dcons, pcols, d_Rout);
+	cudaFree(dcons);
 	*ret = d_Rout;
 }
 
@@ -744,51 +743,51 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 
 	#ifdef TIMER
 	//cout << "INICIO" << endl;
-	hipEvent_t start, stop;
+	cudaEvent_t start, stop;
 	float time;
-	hipEventCreate(&start);
-	hipEventCreate(&stop);
-	hipEventRecord(start, 0);
+	cudaEventCreate(&start);
+	cudaEventCreate(&stop);
+	cudaEventRecord(start, 0);
 	#endif
 
 	if(npred2.x > 0 || npred2.y > 0 || nsel2 > 0 || nsj2 > 0)
 	{
 		newLen = sLen + 1;
-		hipMemsetAsync(temp, 0, newLen * sizeof(int));
+		cudaMemsetAsync(temp, 0, newLen * sizeof(int));
 	}
 
 	if(npred2.x > 0 || npred2.y > 0)
 	{
 		size = npred2tot * sizeof(int);
-		hipMemcpy(dcons, pred2, size, hipMemcpyHostToDevice);
+		cudaMemcpy(dcons, pred2, size, cudaMemcpyHostToDevice);
 
 		if(npred2.y > 0) /*Fix case when a(X,Y),b(Y,Z),Z > Y*/
 		{
 			reservar(&temp2, sizet2);
-			hipMemsetAsync(temp2, 0, newLen * sizeof(int));
+			cudaMemsetAsync(temp2, 0, newLen * sizeof(int));
 			//res = thrust::device_pointer_cast(temp2);
-			hipLaunchKernel(HIP_KERNEL_NAME(bpreds), dim3(blockllen), dim3(numthreads), size, 0, p1, p2, sLen, of1, of2, dcons, npred2tot, npred2.x, temp + 1, temp2 + 1);
+			bpreds<<<blockllen, numthreads, size>>>(p1, p2, sLen, of1, of2, dcons, npred2tot, npred2.x, temp + 1, temp2 + 1);
 		}
 		else
 		{
 			if(negative)
-				hipLaunchKernel(HIP_KERNEL_NAME(bpreds), dim3(blockllen), dim3(numthreads), size, 0, p1, p2, sLen, of1, of2, dcons, npred2tot, npred2.x, temp + 1, NULL);
+				bpreds<<<blockllen, numthreads, size>>>(p1, p2, sLen, of1, of2, dcons, npred2tot, npred2.x, temp + 1, NULL);
 			else
-				hipLaunchKernel(HIP_KERNEL_NAME(bpredsOR), dim3(blockllen), dim3(numthreads), size, 0, p1, p2, sLen, of1, of2, dcons, npred2tot, npred2.x, temp + 1, NULL);
+				bpredsOR<<<blockllen, numthreads, size>>>(p1, p2, sLen, of1, of2, dcons, npred2tot, npred2.x, temp + 1, NULL);
 		}
 
 		if(nsel2 > 0)
 		{
 			size = nsel2 * sizeof(int);
-			hipMemcpy(dcons, sel2, size, hipMemcpyHostToDevice);
-			hipLaunchKernel(HIP_KERNEL_NAME(marcar), dim3(blockllen), dim3(numthreads), size, 0, p2, sLen, of2, dcons, nsel2, temp + 1);
+			cudaMemcpy(dcons, sel2, size, cudaMemcpyHostToDevice);
+			marcar<<<blockllen, numthreads, size>>>(p2, sLen, of2, dcons, nsel2, temp + 1);
 		}
 
 		if(nsj2 > 0)
 		{
 			size = nsj2 * sizeof(int);
-			hipMemcpy(dcons, sjoin2, size, hipMemcpyHostToDevice);
-			hipLaunchKernel(HIP_KERNEL_NAME(samejoin), dim3(blockllen), dim3(numthreads), size, 0, p2, sLen, of2, dcons, nsj2, temp + 1);
+			cudaMemcpy(dcons, sjoin2, size, cudaMemcpyHostToDevice);
+			samejoin<<<blockllen, numthreads, size>>>(p2, sLen, of2, dcons, nsj2, temp + 1);
 		}
 	}
 	else
@@ -796,14 +795,14 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 		if(nsel2 > 0)
 		{
 			size = nsel2 * sizeof(int);
-			hipMemcpy(dcons, sel2, size, hipMemcpyHostToDevice);
-			hipLaunchKernel(HIP_KERNEL_NAME(marcar2), dim3(blockllen), dim3(numthreads), size, 0, p2, sLen, of2, dcons, nsel2, temp + 1);
+			cudaMemcpy(dcons, sel2, size, cudaMemcpyHostToDevice);
+			marcar2<<<blockllen, numthreads, size>>>(p2, sLen, of2, dcons, nsel2, temp + 1);
 
 			if(nsj2 > 0)
 			{
 				size = nsj2 * sizeof(int);
-				hipMemcpy(dcons, sjoin2, size, hipMemcpyHostToDevice);
-				hipLaunchKernel(HIP_KERNEL_NAME(samejoin), dim3(blockllen), dim3(numthreads), size, 0, p2, sLen, of2, dcons, nsj2, temp + 1);
+				cudaMemcpy(dcons, sjoin2, size, cudaMemcpyHostToDevice);
+				samejoin<<<blockllen, numthreads, size>>>(p2, sLen, of2, dcons, nsj2, temp + 1);
 			}
 		}
 		else
@@ -811,15 +810,15 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 			if(nsj2 > 0)
 			{
 				size = nsj2 * sizeof(int);
-				hipMemcpy(dcons, sjoin2, size, hipMemcpyHostToDevice);
-				hipLaunchKernel(HIP_KERNEL_NAME(samejoin2), dim3(blockllen), dim3(numthreads), size, 0, p2, sLen, of2, dcons, nsj2, temp + 1);	
+				cudaMemcpy(dcons, sjoin2, size, cudaMemcpyHostToDevice);
+				samejoin2<<<blockllen, numthreads, size>>>(p2, sLen, of2, dcons, nsj2, temp + 1);	
 			}
 			else
 			{
 				sizem32S = m32sLen * sizeof(int);
 				reservar(&d_S, sizem32S);
-				hipMemsetAsync(d_S + sLen, 0x7f, extraspaceS * sizeof(int));
-				hipLaunchKernel(HIP_KERNEL_NAME(llenarnosel), dim3(blockllen), dim3(numthreads), 0, 0, p2, d_S, sLen, of2, wherej[1]);
+				cudaMemsetAsync(d_S + sLen, 0x7f, extraspaceS * sizeof(int));
+				llenarnosel<<<blockllen, numthreads>>>(p2, d_S, sLen, of2, wherej[1]);
 			}
 		}
 	}
@@ -843,8 +842,8 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	
 		if(newLen == 0) // && !negative) ARREGLAR
 		{
-			hipFree(temp);
-			hipFree(dcons);
+			cudaFree(temp);
+			cudaFree(dcons);
 			return 0;
 		}
 
@@ -855,24 +854,24 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 
 		reservar(&d_S, sizem32S);
 		reservar(&posS, sizem32S);
-		hipMemsetAsync(d_S + newLen, 0x7f, sizextra);
-		hipMemsetAsync(posS + newLen, 0x7f, sizextra);
-		hipLaunchKernel(HIP_KERNEL_NAME(llenar), dim3(blockllen), dim3(numthreads), 0, 0, p2, d_S, sLen, of2, wherej[1], temp, posS);
+		cudaMemsetAsync(d_S + newLen, 0x7f, sizextra);
+		cudaMemsetAsync(posS + newLen, 0x7f, sizextra);
+		llenar<<<blockllen, numthreads>>>(p2, d_S, sLen, of2, wherej[1], temp, posS);
 		sLen = newLen;
 	}
 
 	#ifdef TIMER
-	hipEventRecord(stop, 0);
-	hipEventSynchronize(stop);
-	hipEventElapsedTime(&time, start, stop);
+	cudaEventRecord(stop, 0);
+	cudaEventSynchronize(stop);
+	cudaEventElapsedTime(&time, start, stop);
 	//cout << "Select1 = " << time << endl;
 	cuda_stats.select1_time += time;
 
-	hipEventDestroy(start);
-	hipEventDestroy(stop);
-	hipEventCreate(&start);
-	hipEventCreate(&stop);
-	hipEventRecord(start, 0);
+	cudaEventDestroy(start);
+	cudaEventDestroy(stop);
+	cudaEventCreate(&start);
+	cudaEventCreate(&stop);
+	cudaEventRecord(start, 0);
 	#endif
 
 	blockllen = rLen / numthreads + 1;
@@ -881,30 +880,30 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	{
 		if(temp2 != NULL)
 		{
-			hipFree(temp);
+			cudaFree(temp);
 			temp = temp2;
 			res = thrust::device_pointer_cast(temp);
 			newLen = rLen + 1;
 			if(nsel1 > 0)
 			{
 				size = nsel1 * sizeof(int);
-				hipMemcpy(dcons, sel1, size, hipMemcpyHostToDevice);
-				hipLaunchKernel(HIP_KERNEL_NAME(marcar), dim3(blockllen), dim3(numthreads), size, 0, p1, rLen, of1, dcons, nsel1, temp + 1);
+				cudaMemcpy(dcons, sel1, size, cudaMemcpyHostToDevice);
+				marcar<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, nsel1, temp + 1);
 			}
 			if(nsj1 > 0)
 			{
 				size = nsj1 * sizeof(int);
-				hipMemcpy(dcons, sjoin1, size, hipMemcpyHostToDevice);
-				hipLaunchKernel(HIP_KERNEL_NAME(samejoin), dim3(blockllen), dim3(numthreads), size, 0, p1, rLen, of1, dcons, nsj1, temp + 1);
+				cudaMemcpy(dcons, sjoin1, size, cudaMemcpyHostToDevice);
+				samejoin<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, nsj1, temp + 1);
 			}
 			if(npred1.x > 0)
 			{
 				size = npred1.x * sizeof(int);
-				hipMemcpy(dcons, pred1, size, hipMemcpyHostToDevice);
+				cudaMemcpy(dcons, pred1, size, cudaMemcpyHostToDevice);
 				if(ANDlogic)
-					hipLaunchKernel(HIP_KERNEL_NAME(bpredsnormal), dim3(blockllen), dim3(numthreads), size, 0, p1, rLen, of1, dcons, npred1.x, temp + 1);
+					bpredsnormal<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, npred1.x, temp + 1);
 				else
-					hipLaunchKernel(HIP_KERNEL_NAME(bpredsorlogic), dim3(blockllen), dim3(numthreads), size, 0, p1, rLen, of1, dcons, npred1.x, temp + 1);
+					bpredsorlogic<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, npred1.x, temp + 1);
 			}
 		}
 		else
@@ -912,30 +911,30 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 			if(npred1.x > 0 || nsel1 > 0 || nsj1 > 0)
 			{
 				newLen = rLen + 1;
-				hipMemsetAsync(temp, 0, newLen * sizeof(int));
+				cudaMemsetAsync(temp, 0, newLen * sizeof(int));
 			}
 
 			if(nsel1 > 0)
 			{
 				size = nsel1 * sizeof(int);
-				hipMemcpy(dcons, sel1, size, hipMemcpyHostToDevice);
-				hipLaunchKernel(HIP_KERNEL_NAME(marcar2), dim3(blockllen), dim3(numthreads), size, 0, p1, rLen, of1, dcons, nsel1, temp + 1);
+				cudaMemcpy(dcons, sel1, size, cudaMemcpyHostToDevice);
+				marcar2<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, nsel1, temp + 1);
 
 				if(nsj1 > 0)
 				{
 					size = nsj1 * sizeof(int);
-					hipMemcpy(dcons, sjoin1, size, hipMemcpyHostToDevice);
-					hipLaunchKernel(HIP_KERNEL_NAME(samejoin), dim3(blockllen), dim3(numthreads), size, 0, p1, rLen, of1, dcons, nsj1, temp + 1);
+					cudaMemcpy(dcons, sjoin1, size, cudaMemcpyHostToDevice);
+					samejoin<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, nsj1, temp + 1);
 				}
 
 				if(npred1.x > 0)
 				{
 					size = npred1.x * sizeof(int);
-					hipMemcpy(dcons, pred1, size, hipMemcpyHostToDevice);
+					cudaMemcpy(dcons, pred1, size, cudaMemcpyHostToDevice);
 					if(ANDlogic)
-						hipLaunchKernel(HIP_KERNEL_NAME(bpredsnormal), dim3(blockllen), dim3(numthreads), size, 0, p1, rLen, of1, dcons, npred1.x, temp + 1);
+						bpredsnormal<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, npred1.x, temp + 1);
 					else
-						hipLaunchKernel(HIP_KERNEL_NAME(bpredsorlogic), dim3(blockllen), dim3(numthreads), size, 0, p1, rLen, of1, dcons, npred1.x, temp + 1);		
+						bpredsorlogic<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, npred1.x, temp + 1);		
 				}
 			}
 			else
@@ -943,17 +942,17 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 				if(nsj1 > 0)
 				{
 					size = nsj1 * sizeof(int);
-					hipMemcpy(dcons, sjoin1, size, hipMemcpyHostToDevice);
-					hipLaunchKernel(HIP_KERNEL_NAME(samejoin2), dim3(blockllen), dim3(numthreads), size, 0, p1, rLen, of1, dcons, nsj1, temp + 1);
+					cudaMemcpy(dcons, sjoin1, size, cudaMemcpyHostToDevice);
+					samejoin2<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, nsj1, temp + 1);
 
 					if(npred1.x > 0)
 					{
 						size = npred1.x * sizeof(int);
-						hipMemcpy(dcons, pred1, size, hipMemcpyHostToDevice);
+						cudaMemcpy(dcons, pred1, size, cudaMemcpyHostToDevice);
 						if(ANDlogic)
-							hipLaunchKernel(HIP_KERNEL_NAME(bpredsnormal), dim3(blockllen), dim3(numthreads), size, 0, p1, rLen, of1, dcons, npred1.x, temp + 1);
+							bpredsnormal<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, npred1.x, temp + 1);
 						else
-							hipLaunchKernel(HIP_KERNEL_NAME(bpredsorlogic), dim3(blockllen), dim3(numthreads), size, 0, p1, rLen, of1, dcons, npred1.x, temp + 1);
+							bpredsorlogic<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, npred1.x, temp + 1);
 					}
 				}
 				else
@@ -961,11 +960,11 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 					if(npred1.x > 0)
 					{
 						size = npred1.x * sizeof(int);
-						hipMemcpy(dcons, pred1, size, hipMemcpyHostToDevice);
+						cudaMemcpy(dcons, pred1, size, cudaMemcpyHostToDevice);
 						if(ANDlogic)
-							hipLaunchKernel(HIP_KERNEL_NAME(bpredsnormal2), dim3(blockllen), dim3(numthreads), size, 0, p1, rLen, of1, dcons, npred1.x, temp + 1);
+							bpredsnormal2<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, npred1.x, temp + 1);
 						else
-							hipLaunchKernel(HIP_KERNEL_NAME(bpredsorlogic2), dim3(blockllen), dim3(numthreads), size, 0, p1, rLen, of1, dcons, npred1.x, temp + 1);	
+							bpredsorlogic2<<<blockllen, numthreads, size>>>(p1, rLen, of1, dcons, npred1.x, temp + 1);	
 					}
 				}
 			}
@@ -977,11 +976,11 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 			newLen = res[rLen];
 			if(newLen == 0)
 			{
-				hipFree(temp);
-				hipFree(dcons);
-				hipFree(d_S);
+				cudaFree(temp);
+				cudaFree(dcons);
+				cudaFree(d_S);
 				if(posS != NULL)
-					hipFree(posS);
+					cudaFree(posS);
 				return 0;
 			}	
 
@@ -992,41 +991,41 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 
 			reservar(&d_R, sizem32);
 			reservar(&posR, sizem32);
-			hipMemsetAsync(d_R + newLen, 0x7f, sizextra);
-			hipMemsetAsync(posR + newLen, 0x7f, sizextra);
-			hipLaunchKernel(HIP_KERNEL_NAME(llenar), dim3(blockllen), dim3(numthreads), 0, 0, p1, d_R, rLen, of1, wherej[0], temp, posR);
+			cudaMemsetAsync(d_R + newLen, 0x7f, sizextra);
+			cudaMemsetAsync(posR + newLen, 0x7f, sizextra);
+			llenar<<<blockllen, numthreads>>>(p1, d_R, rLen, of1, wherej[0], temp, posR);
 			rLen = newLen;
 		}
 		else
 		{
 			sizem32 = m32rLen * sizeof(int);
 			reservar(&d_R, sizem32);
-			hipMemsetAsync(d_R + rLen, 0x7f, extraspace * sizeof(int));
-			hipLaunchKernel(HIP_KERNEL_NAME(llenarnosel), dim3(blockllen), dim3(numthreads), 0, 0, p1, d_R, rLen, of1, wherej[0]);
+			cudaMemsetAsync(d_R + rLen, 0x7f, extraspace * sizeof(int));
+			llenarnosel<<<blockllen, numthreads>>>(p1, d_R, rLen, of1, wherej[0]);
 		}
 	}
 	else
 	{
 		sizem32 = m32rLen * sizeof(int);
 		reservar(&d_R, sizem32);
-		hipMemsetAsync(d_R + rLen, 0x7f, extraspace * sizeof(int));
-		hipLaunchKernel(HIP_KERNEL_NAME(llenarnosel), dim3(blockllen), dim3(numthreads), 0, 0, p1, d_R, rLen, of1, wherej[0]);
+		cudaMemsetAsync(d_R + rLen, 0x7f, extraspace * sizeof(int));
+		llenarnosel<<<blockllen, numthreads>>>(p1, d_R, rLen, of1, wherej[0]);
 	}
 
 	#ifdef TIMER
-	hipEventRecord(stop, 0);
-	hipEventSynchronize(stop);
-	hipEventElapsedTime(&time, start, stop);
+	cudaEventRecord(stop, 0);
+	cudaEventSynchronize(stop);
+	cudaEventElapsedTime(&time, start, stop);
 	//cout << "Select2 = " << time << endl;
 	cuda_stats.select2_time += time;
 	#endif
 
 	#ifdef TIMER
-	hipEventDestroy(start);
-	hipEventDestroy(stop);
-	hipEventCreate(&start);
-	hipEventCreate(&stop);
-	hipEventRecord(start, 0);
+	cudaEventDestroy(start);
+	cudaEventDestroy(stop);
+	cudaEventCreate(&start);
+	cudaEventCreate(&stop);
+	cudaEventRecord(start, 0);
 	#endif
 
 	thrust::device_ptr<Record> dvp1;
@@ -1085,17 +1084,17 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	}
 
 	#ifdef TIMER
-	hipEventRecord(stop, 0);
-	hipEventSynchronize(stop);
-	hipEventElapsedTime(&time, start, stop);
+	cudaEventRecord(stop, 0);
+	cudaEventSynchronize(stop);
+	cudaEventElapsedTime(&time, start, stop);
 	//cout << "Sort = " << time << endl;
 	cuda_stats.sort_time += time;
 	
-	hipEventDestroy(start);
-	hipEventDestroy(stop);
-	hipEventCreate(&start);
-	hipEventCreate(&stop);
-	hipEventRecord(start, 0);
+	cudaEventDestroy(start);
+	cudaEventDestroy(stop);
+	cudaEventCreate(&start);
+	cudaEventCreate(&stop);
+	cudaEventRecord(start, 0);
 	#endif
 
 	IDataNode* d_data;
@@ -1124,7 +1123,7 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	dim3 Dbc(THRD_PER_BLCK_create, 1, 1);
 	dim3 Dgc(BLCK_PER_GRID_create, 1, 1);
 
-	hipLaunchKernel(HIP_KERNEL_NAME(gCreateIndex), dim3(Dgc), dim3(Dbc), 0, 0, d_data, d_dir, nDirNodes, tree_size, bottom_start, nNodesPerBlock);
+	gCreateIndex <<<Dgc, Dbc>>> (d_data, d_dir, nDirNodes, tree_size, bottom_start, nNodesPerBlock);
 
 	int *d_locations;
 	int memSizeR;
@@ -1133,7 +1132,7 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	{
 		memSizeR = (rLen + 1) * sizeof(int);
 		reservar(&d_locations, memSizeR);
-		hipMemsetAsync(d_locations, 0, sizeof(int));
+		cudaMemsetAsync(d_locations, 0, sizeof(int));
 		nSearchKeys = rLen;
 	}
 	else
@@ -1147,13 +1146,13 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	unsigned int nKeysPerThread = uintCeilingDiv(nSearchKeys, THRD_PER_GRID_search);
 	if(negative)
 	{
-		hipLaunchKernel(HIP_KERNEL_NAME(gSearchTree), dim3(Dgs), dim3(Dbs), 0, 0, d_data, nDataNodes, d_dir, nDirNodes, lvlDir, d_R, d_locations + 1, nSearchKeys, nKeysPerThread, tree_size, bottom_start);
-		hipMemsetAsync(temp, 0, memSizeR);
+		gSearchTree <<<Dgs, Dbs>>> (d_data, nDataNodes, d_dir, nDirNodes, lvlDir, d_R, d_locations + 1, nSearchKeys, nKeysPerThread, tree_size, bottom_start);
+		cudaMemsetAsync(temp, 0, memSizeR);
 	}
 	else
 	{
-		hipLaunchKernel(HIP_KERNEL_NAME(gSearchTree), dim3(Dgs), dim3(Dbs), 0, 0, d_data, nDataNodes, d_dir, nDirNodes, lvlDir, d_S, d_locations, nSearchKeys, nKeysPerThread, tree_size, bottom_start);
-		hipMemsetAsync(temp, 0, memSizeS);
+		gSearchTree <<<Dgs, Dbs>>> (d_data, nDataNodes, d_dir, nDirNodes, lvlDir, d_S, d_locations, nSearchKeys, nKeysPerThread, tree_size, bottom_start);
+		cudaMemsetAsync(temp, 0, memSizeS);
 	}
 
 	int muljoin = 0, muljoinsize = 0, sum;
@@ -1166,8 +1165,8 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 		{
 			muljoin = numj - 2;
 			muljoinsize = muljoin * sizeof(int);
-			hipMemcpy(dcons, wherej + 2, muljoinsize, hipMemcpyHostToDevice);
-			hipLaunchKernel(HIP_KERNEL_NAME(gIndexMultiJoinNegative), dim3(blockllen), dim3(numthreads), muljoinsize, 0, d_R, d_S, d_locations + 1, rLen, p1, p2, of1, of2, posR, posS, dcons, muljoin);
+			cudaMemcpy(dcons, wherej + 2, muljoinsize, cudaMemcpyHostToDevice);
+			gIndexMultiJoinNegative<<<blockllen, numthreads, muljoinsize>>> (d_R, d_S, d_locations + 1, rLen, p1, p2, of1, of2, posR, posS, dcons, muljoin);
 		}
 
 		res = thrust::device_pointer_cast(d_locations);	
@@ -1178,21 +1177,21 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 		if(pos == (rule->num_rows - 3))
 		{
 			sizepro = rule->num_columns * sizeof(int);
-			hipMemcpy(dcons, proj, sizepro, hipMemcpyHostToDevice);
+			cudaMemcpy(dcons, proj, sizepro, cudaMemcpyHostToDevice);
 			resSize = sum * sizepro;
 			reservar(&d_Rout, resSize);
-			hipLaunchKernel(HIP_KERNEL_NAME(gJoinWithWriteNegative2), dim3(blockllen), dim3(numthreads), sizepro, 0, d_locations, rLen, d_Rout, p1, of1, dcons, rule->num_columns, posR);
+			gJoinWithWriteNegative2<<<blockllen, numthreads, sizepro>>> (d_locations, rLen, d_Rout, p1, of1, dcons, rule->num_columns, posR);
 		}
 		else
 		{	
 			sizepro = projp.x * sizeof(int);
-			hipMemcpy(dcons, proj, sizepro, hipMemcpyHostToDevice);
+			cudaMemcpy(dcons, proj, sizepro, cudaMemcpyHostToDevice);
 			resSize = sum * sizepro;
 			reservar(&d_Rout, resSize);
-			hipLaunchKernel(HIP_KERNEL_NAME(gJoinWithWriteNegative), dim3(blockllen), dim3(numthreads), sizepro, 0, d_locations, rLen, d_Rout, p1, of1, dcons, projp.x, posR);
+			gJoinWithWriteNegative<<<blockllen, numthreads, sizepro>>> (d_locations, rLen, d_Rout, p1, of1, dcons, projp.x, posR);
 		}
-		hipFree(d_R);
-		hipFree(d_S);
+		cudaFree(d_R);
+		cudaFree(d_S);
 	}
 	else
 	{
@@ -1201,26 +1200,26 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 		{
 			muljoin = numj - 2;
 			muljoinsize = muljoin * sizeof(int);
-			hipMemcpy(dcons, wherej + 2, muljoinsize, hipMemcpyHostToDevice);
-			hipLaunchKernel(HIP_KERNEL_NAME(gIndexMultiJoin), dim3(blockllen), dim3(numthreads), muljoinsize, 0, d_R, d_S, d_locations, sLen, temp, p1, p2, of1, of2, posR, posS, dcons, muljoin);
+			cudaMemcpy(dcons, wherej + 2, muljoinsize, cudaMemcpyHostToDevice);
+			gIndexMultiJoin<<<blockllen, numthreads, muljoinsize>>> (d_R, d_S, d_locations, sLen, temp, p1, p2, of1, of2, posR, posS, dcons, muljoin);
 		}
 		else
-			hipLaunchKernel(HIP_KERNEL_NAME(gIndexJoin), dim3(blockllen), dim3(numthreads), 0, 0, d_R, d_S, d_locations, sLen, temp);
-		hipFree(d_R);
-		hipFree(d_S);
+			gIndexJoin<<<blockllen, numthreads>>> (d_R, d_S, d_locations, sLen, temp);
+		cudaFree(d_R);
+		cudaFree(d_S);
 
 		sum = res[sLen-1];
 		thrust::exclusive_scan(res, res + sLen, res);
 		sum += res[sLen-1];
 		if(sum == 0)
 		{
-			hipFree(dcons);
-			hipFree(d_locations);
-			hipFree(temp);
+			cudaFree(dcons);
+			cudaFree(d_locations);
+			cudaFree(temp);
 			if(posS != NULL)
-				hipFree(posS);
+				cudaFree(posS);
 			if(posR != NULL)
-				hipFree(posR);
+				cudaFree(posR);
 			return 0;
 		}
 		res[sLen] = sum;
@@ -1228,49 +1227,49 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 		if(pos == (rule->num_rows - 3))
 		{
 			sizepro = rule->num_columns * sizeof(int);
-			hipMemcpy(dcons, proj, sizepro, hipMemcpyHostToDevice);
+			cudaMemcpy(dcons, proj, sizepro, cudaMemcpyHostToDevice);
 			resSize = sum * sizepro;
 			reservar(&d_Rout, resSize);
 			if(numj > 2)
 			{
-				hipMemcpy(dcons + rule->num_columns, wherej + 2, muljoinsize, hipMemcpyHostToDevice);
-				hipLaunchKernel(HIP_KERNEL_NAME(multiJoinWithWrite2), dim3(blockllen), dim3(numthreads), sizepro + muljoinsize, 0, d_locations, sLen, temp, d_Rout, p1, p2, of1, of2, dcons, rule->num_columns, posR, posS, muljoin);
+				cudaMemcpy(dcons + rule->num_columns, wherej + 2, muljoinsize, cudaMemcpyHostToDevice);
+				multiJoinWithWrite2<<<blockllen, numthreads, sizepro + muljoinsize>>> (d_locations, sLen, temp, d_Rout, p1, p2, of1, of2, dcons, rule->num_columns, posR, posS, muljoin);
 			}
 			else
-				hipLaunchKernel(HIP_KERNEL_NAME(gJoinWithWrite2), dim3(blockllen), dim3(numthreads), sizepro, 0, d_locations, sLen, temp, d_Rout, p1, p2, of1, of2, dcons, rule->num_columns, posR, posS);
+				gJoinWithWrite2<<<blockllen, numthreads, sizepro>>> (d_locations, sLen, temp, d_Rout, p1, p2, of1, of2, dcons, rule->num_columns, posR, posS);
 		}
 		else
 		{
 			sizepro = projp.y * sizeof(int);
-			hipMemcpy(dcons, proj, sizepro, hipMemcpyHostToDevice);
+			cudaMemcpy(dcons, proj, sizepro, cudaMemcpyHostToDevice);
 			resSize = sum * sizepro;
 			reservar(&d_Rout, resSize);
 			if(numj > 2)
 			{
-				hipMemcpy(dcons + projp.y, wherej + 2, muljoinsize, hipMemcpyHostToDevice);
-				hipLaunchKernel(HIP_KERNEL_NAME(multiJoinWithWrite), dim3(blockllen), dim3(numthreads), sizepro + muljoinsize, 0, d_locations, sLen, temp, d_Rout, p1, p2, of1, of2, dcons, projp.x, projp.y, posR, posS, muljoin);
+				cudaMemcpy(dcons + projp.y, wherej + 2, muljoinsize, cudaMemcpyHostToDevice);
+				multiJoinWithWrite<<<blockllen, numthreads, sizepro + muljoinsize>>> (d_locations, sLen, temp, d_Rout, p1, p2, of1, of2, dcons, projp.x, projp.y, posR, posS, muljoin);
 			}
 			else
-				hipLaunchKernel(HIP_KERNEL_NAME(gJoinWithWrite), dim3(blockllen), dim3(numthreads), sizepro, 0, d_locations, sLen, temp, d_Rout, p1, p2, of1, of2, dcons, projp.x, projp.y, posR, posS);
+				gJoinWithWrite<<<blockllen, numthreads, sizepro>>> (d_locations, sLen, temp, d_Rout, p1, p2, of1, of2, dcons, projp.x, projp.y, posR, posS);
 		}
 	}
 
-	hipFree(dcons);
-	hipFree(d_locations);
-	hipFree(temp);
+	cudaFree(dcons);
+	cudaFree(d_locations);
+	cudaFree(temp);
 	if(posS != NULL)
-		hipFree(posS);
+		cudaFree(posS);
 	if(posR != NULL)
-		hipFree(posR);
+		cudaFree(posR);
 	
 	if(*ret != NULL)
-		hipFree(*ret);
+		cudaFree(*ret);
 	*ret = d_Rout;
 
 	#ifdef TIMER
-	hipEventRecord(stop, 0);
-	hipEventSynchronize(stop);
-	hipEventElapsedTime(&time, start, stop);
+	cudaEventRecord(stop, 0);
+	cudaEventSynchronize(stop);
+	cudaEventElapsedTime(&time, start, stop);
 	//cout << "Join = " << time << endl;
 	//cout << "FIN" << endl;
 	cuda_stats.join_time += time;

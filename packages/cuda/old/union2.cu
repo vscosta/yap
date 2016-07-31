@@ -87,8 +87,8 @@ int unir(int *res, int rows, int tipo, int **ret, int final)
 			{
 				size = nrows * tipo * sizeof(int);
 				reservar(&nres, size);
-				hipMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);
-				hipFree(*ret);
+				cudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);
+				cudaFree(*ret);
 				*ret = nres;
 			}
 			return nrows;
@@ -122,8 +122,8 @@ int unir(int *res, int rows, int tipo, int **ret, int final)
 			{
 				size = nrows * tipo * sizeof(int);
 				reservar(&nres, size);
-				hipMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);
-				hipFree(*ret);
+				cudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);
+				cudaFree(*ret);
 				*ret = nres;
 			}
 			return nrows;
@@ -157,8 +157,8 @@ int unir(int *res, int rows, int tipo, int **ret, int final)
 			{
 				size = nrows * tipo * sizeof(int);
 				reservar(&nres, size);
-				hipMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);
-				hipFree(*ret);
+				cudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);
+				cudaFree(*ret);
 				*ret = nres;
 			}
 			return nrows;
@@ -192,8 +192,8 @@ int unir(int *res, int rows, int tipo, int **ret, int final)
 			{
 				size = nrows * tipo * sizeof(int);
 				reservar(&nres, size);
-				hipMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);
-				hipFree(*ret);
+				cudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);
+				cudaFree(*ret);
 				*ret = nres;
 			}
 			return nrows;
@@ -227,8 +227,8 @@ int unir(int *res, int rows, int tipo, int **ret, int final)
 			{
 				size = nrows * tipo * sizeof(int);
 				reservar(&nres, size);
-				hipMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);
-				hipFree(*ret);
+				cudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);
+				cudaFree(*ret);
 				*ret = nres;
 			}
 			return nrows;
@@ -262,8 +262,8 @@ int unir(int *res, int rows, int tipo, int **ret, int final)
 			{
 				size = nrows * tipo * sizeof(int);
 				reservar(&nres, size);
-				hipMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);
-				hipFree(*ret);
+				cudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);
+				cudaFree(*ret);
 				*ret = nres;
 			}
 			return nrows;
@@ -297,8 +297,8 @@ int unir(int *res, int rows, int tipo, int **ret, int final)
 			{
 				size = nrows * tipo * sizeof(int);
 				reservar(&nres, size);
-				hipMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);
-				hipFree(*ret);
+				cudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);
+				cudaFree(*ret);
 				*ret = nres;
 			}
 			return nrows;
@@ -332,8 +332,8 @@ int unir(int *res, int rows, int tipo, int **ret, int final)
 			{
 				size = nrows * tipo * sizeof(int);
 				reservar(&nres, size);
-				hipMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);
-				hipFree(*ret);
+				cudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);
+				cudaFree(*ret);
 				*ret = nres;
 			}
 			return nrows;
@@ -367,8 +367,8 @@ int unir(int *res, int rows, int tipo, int **ret, int final)
 			{
 				size = nrows * tipo * sizeof(int);
 				reservar(&nres, size);
-				hipMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);
-				hipFree(*ret);
+				cudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);
+				cudaFree(*ret);
 				*ret = nres;
 			}
 			return nrows;
@@ -402,8 +402,8 @@ int unir(int *res, int rows, int tipo, int **ret, int final)
 			{
 				size = nrows * tipo * sizeof(int);
 				reservar(&nres, size);
-				hipMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);
-				hipFree(*ret);
+				cudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);
+				cudaFree(*ret);
 				*ret = nres;
 			}
 			return nrows;
@@ -437,8 +437,8 @@ int unir(int *res, int rows, int tipo, int **ret, int final)
 			{
 				size = nrows * tipo * sizeof(int);
 				reservar(&nres, size);
-				hipMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);
-				hipFree(*ret);
+				cudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);
+				cudaFree(*ret);
 				*ret = nres;
 			}
 			return nrows;
@@ -472,8 +472,8 @@ int unir(int *res, int rows, int tipo, int **ret, int final)
 			{
 				size = nrows * tipo * sizeof(int);
 				reservar(&nres, size);
-				hipMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);
-				hipFree(*ret);
+				cudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);
+				cudaFree(*ret);
 				*ret = nres;
 			}
 			return nrows;
@@ -507,8 +507,8 @@ int unir(int *res, int rows, int tipo, int **ret, int final)
 			{
 				size = nrows * tipo * sizeof(int);
 				reservar(&nres, size);
-				hipMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);
-				hipFree(*ret);
+				cudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);
+				cudaFree(*ret);
 				*ret = nres;
 			}
 			return nrows;
@@ -542,8 +542,8 @@ int unir(int *res, int rows, int tipo, int **ret, int final)
 			{
 				size = nrows * tipo * sizeof(int);
 				reservar(&nres, size);
-				hipMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);
-				hipFree(*ret);
+				cudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);
+				cudaFree(*ret);
 				*ret = nres;
 			}
 			return nrows;
@@ -577,8 +577,8 @@ int unir(int *res, int rows, int tipo, int **ret, int final)
 			{
 				size = nrows * tipo * sizeof(int);
 				reservar(&nres, size);
-				hipMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);
-				hipFree(*ret);
+				cudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);
+				cudaFree(*ret);
 				*ret = nres;
 			}
 			return nrows;
@@ -612,8 +612,8 @@ int unir(int *res, int rows, int tipo, int **ret, int final)
 			{
 				size = nrows * tipo * sizeof(int);
 				reservar(&nres, size);
-				hipMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);
-				hipFree(*ret);
+				cudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);
+				cudaFree(*ret);
 				*ret = nres;
 			}
 			return nrows;
@@ -647,8 +647,8 @@ int unir(int *res, int rows, int tipo, int **ret, int final)
 			{
 				size = nrows * tipo * sizeof(int);
 				reservar(&nres, size);
-				hipMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);
-				hipFree(*ret);
+				cudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);
+				cudaFree(*ret);
 				*ret = nres;
 			}
 			return nrows;
@@ -682,8 +682,8 @@ int unir(int *res, int rows, int tipo, int **ret, int final)
 			{
 				size = nrows * tipo * sizeof(int);
 				reservar(&nres, size);
-				hipMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);
-				hipFree(*ret);
+				cudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);
+				cudaFree(*ret);
 				*ret = nres;
 			}
 			return nrows;
@@ -717,8 +717,8 @@ int unir(int *res, int rows, int tipo, int **ret, int final)
 			{
 				size = nrows * tipo * sizeof(int);
 				reservar(&nres, size);
-				hipMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);
-				hipFree(*ret);
+				cudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);
+				cudaFree(*ret);
 				*ret = nres;
 			}
 			return nrows;
@@ -752,8 +752,8 @@ int unir(int *res, int rows, int tipo, int **ret, int final)
 			{
 				size = nrows * tipo * sizeof(int);
 				reservar(&nres, size);
-				hipMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);
-				hipFree(*ret);
+				cudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);
+				cudaFree(*ret);
 				*ret = nres;
 			}
 			return nrows;

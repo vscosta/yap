@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 	fprintf(cuda, "\t\t\t{\n");
 	fprintf(cuda, "\t\t\t\tsize = nrows * tipo * sizeof(int);\n");
 	fprintf(cuda, "\t\t\t\treservar(&nres, size);\n");
-	fprintf(cuda, "\t\t\t\tcudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);\n");
+	fprintf(cuda, "\t\t\t\tcudaMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);\n");
 	fprintf(cuda, "\t\t\t\tcudaFree(*ret);\n");
 	fprintf(cuda, "\t\t\t\t*ret = nres;\n");
 	fprintf(cuda, "\t\t\t}\n");
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 		fprintf(cuda, "\t\t\t{\n");
 		fprintf(cuda, "\t\t\t\tsize = nrows * tipo * sizeof(int);\n");
 		fprintf(cuda, "\t\t\t\treservar(&nres, size);\n");
-		fprintf(cuda, "\t\t\t\tcudaMemcpyAsync(nres, res, size, cudaMemcpyDeviceToDevice);\n");
+		fprintf(cuda, "\t\t\t\tcudaMemcpyAsync(nres, res, size, hipMemcpyDeviceToDevice);\n");
 		fprintf(cuda, "\t\t\t\tcudaFree(*ret);\n");
 		fprintf(cuda, "\t\t\t\t*ret = nres;\n");
 		fprintf(cuda, "\t\t\t}\n");

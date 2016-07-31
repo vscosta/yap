@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 #include <thrust/device_vector.h>
 #include <thrust/scan.h>
 #include <cstdarg>
@@ -25,10 +26,10 @@ int maximo(int count, ...)
 __global__ void bpreds(int *dop1, int *dop2, int rows, int of1, int of2, int *cons, int numc, int nx, int *res, int *res2)
 {
  	extern __shared__ int shared[];
-	int id = blockIdx.x * blockDim.x + threadIdx.x;
+	int id = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
 	int x, rowact, rowact1, op1, op2;
-	if(threadIdx.x < numc)
-		shared[threadIdx.x] = cons[threadIdx.x];
+	if(hipThreadIdx_x < numc)
+		shared[hipThreadIdx_x] = cons[hipThreadIdx_x];
 	__syncthreads();
 	if(id < rows)
 	{
@@ -110,10 +111,10 @@ __global__ void bpreds(int *dop1, int *dop2, int rows, int of1, int of2, int *co
 __global__ void bpredsnormal2(int *dop1, int rows, int of1, int *cons, int numc, int *res)
 {
  	extern __shared__ int shared[];
-	int id = blockIdx.x * blockDim.x + threadIdx.x;
+	int id = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
 	int x, rowact, op1, op2;
-	if(threadIdx.x < numc)
-		shared[threadIdx.x] = cons[threadIdx.x];
+	if(hipThreadIdx_x < numc)
+		shared[hipThreadIdx_x] = cons[hipThreadIdx_x];
 	__syncthreads();
 	if(id < rows)
 	{
@@ -159,10 +160,10 @@ __global__ void bpredsnormal2(int *dop1, int rows, int of1, int *cons, int numc,
 __global__ void bpredsnormal(int *dop1, int rows, int of1, int *cons, int numc, int *res)
 {
  	extern __shared__ int shared[];
-	int id = blockIdx.x * blockDim.x + threadIdx.x;
+	int id = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
 	int x, rowact, op1, op2;
-	if(threadIdx.x < numc)
-		shared[threadIdx.x] = cons[threadIdx.x];
+	if(hipThreadIdx_x < numc)
+		shared[hipThreadIdx_x] = cons[hipThreadIdx_x];
 	__syncthreads();
 	if(id < rows)
 	{
@@ -226,10 +227,10 @@ __global__ void bpredsnormal(int *dop1, int rows, int of1, int *cons, int numc, 
 __global__ void bpredsOR(int *dop1, int *dop2, int rows, int of1, int of2, int *cons, int numc, int nx, int *res, int *res2)
 {
  	extern __shared__ int shared[];
-	int id = blockIdx.x * blockDim.x + threadIdx.x;
+	int id = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
 	int x, rowact, rowact1, op1, op2;
-	if(threadIdx.x < numc)
-		shared[threadIdx.x] = cons[threadIdx.x];
+	if(hipThreadIdx_x < numc)
+		shared[hipThreadIdx_x] = cons[hipThreadIdx_x];
 	__syncthreads();
 	if(id < rows)
 	{
@@ -344,10 +345,10 @@ __global__ void bpredsOR(int *dop1, int *dop2, int rows, int of1, int of2, int *
 __global__ void bpredsorlogic2(int *dop1, int rows, int of1, int *cons, int numc, int *res)
 {
  	extern __shared__ int shared[];
-	int id = blockIdx.x * blockDim.x + threadIdx.x;
+	int id = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
 	int x, rowact, op1, op2;
-	if(threadIdx.x < numc)
-		shared[threadIdx.x] = cons[threadIdx.x];
+	if(hipThreadIdx_x < numc)
+		shared[hipThreadIdx_x] = cons[hipThreadIdx_x];
 	__syncthreads();
 	if(id < rows)
 	{
@@ -411,10 +412,10 @@ __global__ void bpredsorlogic2(int *dop1, int rows, int of1, int *cons, int numc
 __global__ void bpredsorlogic(int *dop1, int rows, int of1, int *cons, int numc, int *res)
 {
  	extern __shared__ int shared[];
-	int id = blockIdx.x * blockDim.x + threadIdx.x;
+	int id = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
 	int x, rowact, op1, op2;
-	if(threadIdx.x < numc)
-		shared[threadIdx.x] = cons[threadIdx.x];
+	if(hipThreadIdx_x < numc)
+		shared[hipThreadIdx_x] = cons[hipThreadIdx_x];
 	__syncthreads();
 	if(id < rows)
 	{

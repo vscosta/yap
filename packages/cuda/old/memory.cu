@@ -144,7 +144,7 @@ void limpiar(const char s[], size_t sz)
 
 	if(GPUmem.size() == 0)
 	{
-		hipMemGetInfo(&free,&total);
+		cudaMemGetInfo(&free,&total);
 		cerr << s << ": not enough GPU memory: have " << free << " of " << total << ", need " << sz << " bytes." << endl;
 		exit(1);
 	}		
@@ -154,11 +154,11 @@ void limpiar(const char s[], size_t sz)
 	{	
 		temp = *ini;
 		temp.dev_address = (int *)malloc(ini->size);
-		hipMemcpyAsync(temp.dev_address, ini->dev_address, temp.size, hipMemcpyDeviceToHost);
+		cudaMemcpyAsync(temp.dev_address, ini->dev_address, temp.size, cudaMemcpyDeviceToHost);
 		list<memnode>::iterator pos = lower_bound(CPUmem.begin(), CPUmem.end(), temp, compareiteration);
 		CPUmem.insert(pos, temp);
 	}
-	hipFree(ini->dev_address);
+	cudaFree(ini->dev_address);
 	GPUmem.erase(ini);
 }
 
@@ -173,19 +173,19 @@ void reservar(int **ptr, size_t size)
                 return;
         }
 
-	hipMemGetInfo(&free, &total);
+	cudaMemGetInfo(&free, &total);
 	while(free < size)
 	{
 		cout << "Se limpio memoria " << free << " " << total << endl;
 		limpiar("not enough memory", size);
-		hipMemGetInfo(&free, &total);
+		cudaMemGetInfo(&free, &total);
 	}
 
-	while(hipMalloc(ptr, size) == hipErrorMemoryAllocation)
+	while(cudaMalloc(ptr, size) == cudaErrorMemoryAllocation)
 		limpiar("Error in memory allocation", size);
 	if (! *ptr ) {
 	  size_t free, total;
-	  hipMemGetInfo(      &free, &total	 );
+	  cudaMemGetInfo(      &free, &total	 );
 	  cerr << "Could not allocate " << size << " bytes, only " << free << " avaliable from total of " << total << " !!!" << endl;
 	  cerr << "Exiting CUDA...." << endl;
 	  exit(1);
@@ -277,7 +277,7 @@ int cargar(int name, int num_rows, int num_columns, int is_fact, int *address_ho
 		}
 		size = num_rows * num_columns * sizeof(int);
 		reservar(&temp, size);
-		hipMemcpyAsync(temp, address_host_table, size, hipMemcpyHostToDevice);
+		cudaMemcpyAsync(temp, address_host_table, size, cudaMemcpyHostToDevice);
 		registrar(name, num_columns, temp, num_rows, itr, 0);
 		*ptr = temp;
 		return num_rows;
@@ -296,13 +296,13 @@ int cargar(int name, int num_rows, int num_columns, int is_fact, int *address_ho
 		reservar(&temp, size);
 		for(x = 0; x < numgpu; x++)
 		{
-			hipMemcpyAsync(temp + inc, temp_storage[x].dev_address, temp_storage[x].size, hipMemcpyDeviceToDevice);
+			cudaMemcpyAsync(temp + inc, temp_storage[x].dev_address, temp_storage[x].size, cudaMemcpyDeviceToDevice);
 			inc += temp_storage[x].size / sizeof(int);
-			hipFree(temp_storage[x].dev_address);
+			cudaFree(temp_storage[x].dev_address);
 		}
 		for(; x < numcpu; x++)
 		{
-			hipMemcpyAsync(temp + inc, temp_storage[x].dev_address, temp_storage[x].size, hipMemcpyHostToDevice);
+			cudaMemcpyAsync(temp + inc, temp_storage[x].dev_address, temp_storage[x].size, cudaMemcpyHostToDevice);
 			inc += temp_storage[x].size / sizeof(int);
 			free(temp_storage[x].dev_address);
 		}
@@ -340,9 +340,9 @@ int cargarcpu(int name, int num_rows, int num_columns, int is_fact, int *address
 		temp = (int *)malloc(size);
 		for(x = 0; x < numgpu; x++)
 		{
-			hipMemcpyAsync(temp + inc, temp_storage[x].dev_address, temp_storage[x].size, hipMemcpyDeviceToHost);
+			cudaMemcpyAsync(temp + inc, temp_storage[x].dev_address, temp_storage[x].size, cudaMemcpyDeviceToHost);
 			inc += temp_storage[x].size / sizeof(int);
-			hipFree(temp_storage[x].dev_address);
+			cudaFree(temp_storage[x].dev_address);
 		}
 		for(; x < numcpu; x++)
 		{
@@ -404,7 +404,7 @@ int cargafinal(int name, int cols, int **ptr)
 		cont = pos->rows;
 		#ifdef TUFFY
 		reservar(&temp, pos->size);
-		hipMemcpy(temp, pos->dev_address, pos->size, hipMemcpyHostToDevice);
+		cudaMemcpy(temp, pos->dev_address, pos->size, cudaMemcpyHostToDevice);
 		*ptr = temp;
 		#else
 		*ptr = pos->dev_address;
@@ -418,14 +418,14 @@ int cargafinal(int name, int cols, int **ptr)
 	pos = gpu;
 	while(pos != endg && pos->name == name)
 	{
-		hipMemcpy(temp, pos->dev_address, pos->size, hipMemcpyDeviceToDevice);
+		cudaMemcpy(temp, pos->dev_address, pos->size, cudaMemcpyDeviceToDevice);
 		temp += pos->size / sizeof(int);
 		pos++;
 	}
 	pos = cpu;
 	while(pos != endc && pos->name == name)
 	{
-		hipMemcpy(temp, pos->dev_address, pos->size, hipMemcpyHostToDevice);
+		cudaMemcpy(temp, pos->dev_address, pos->size, cudaMemcpyHostToDevice);
 		temp += pos->size / sizeof(int);
 		pos++;
 	}
@@ -493,7 +493,7 @@ void clear_memory()
 	{
 		if(ini->isrule)
 		{
-			hipFree(ini->dev_address);
+			cudaFree(ini->dev_address);
 			ini = GPUmem.erase(ini);
 		}
 		else
@@ -518,7 +518,7 @@ void clear_memory_all()
 	fin = GPUmem.end();
 	while(ini != fin)
 	{
-		hipFree(ini->dev_address);
+		cudaFree(ini->dev_address);
 		ini++;
 	}
 	GPUmem.clear();
@@ -542,7 +542,7 @@ void liberar(int name)
 	{
 		fact = *i;
 		GPUmem.erase(i);
-		hipFree(fact.dev_address);
+		cudaFree(fact.dev_address);
 	}
 	i = buscarhecho(CPUmem.begin(), CPUmem.end(), name);
 	if(i != CPUmem.end())
@@ -566,10 +566,10 @@ void sumar(int name, int *dop1, int cols, int rows)
 		newrows = rows + fact.rows;
 		reservar(&res, newrows * cols * sizeof(int));
 		offset = fact.rows * cols;
-		hipMemcpyAsync(res, fact.dev_address, offset * sizeof(int), hipMemcpyDeviceToDevice);
+		cudaMemcpyAsync(res, fact.dev_address, offset * sizeof(int), cudaMemcpyDeviceToDevice);
 		GPUmem.erase(i);
 		registrar(name, cols, res, newrows, 0, 0);
-		hipMemcpyAsync(res + offset, dop1, rows * cols * sizeof(int), hipMemcpyDeviceToDevice);
-		hipFree(fact.dev_address);
+		cudaMemcpyAsync(res + offset, dop1, rows * cols * sizeof(int), cudaMemcpyDeviceToDevice);
+		cudaFree(fact.dev_address);
 	}
 }

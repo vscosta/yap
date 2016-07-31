@@ -1,4 +1,3 @@
-#include "hip/hip_runtime.h"
 #include <thrust/device_vector.h>
 #include <thrust/scan.h>
 #include <stdlib.h>
@@ -9,10 +8,10 @@
 __global__ void marcar2(int *dop1, int rows, int cols, int *cons, int numc, int *res)
 {
  	extern __shared__ int shared[];
-	int id = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
+	int id = blockIdx.x * blockDim.x + threadIdx.x;
 	int x, rowact, posact;
-	if(hipThreadIdx_x < numc)
-		shared[hipThreadIdx_x] = cons[hipThreadIdx_x];
+	if(threadIdx.x < numc)
+		shared[threadIdx.x] = cons[threadIdx.x];
 	__syncthreads();
 	if(id < rows)
 	{
@@ -31,10 +30,10 @@ we unmark any rows that do not comply with the selections*/
 __global__ void marcar(int *dop1, int rows, int cols, int *cons, int numc, int *res)
 {
 	extern __shared__ int shared[];
-	int id = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
+	int id = blockIdx.x * blockDim.x + threadIdx.x;
 	int x, rowact, posact;
-	if(hipThreadIdx_x < numc)
-		shared[hipThreadIdx_x] = cons[hipThreadIdx_x];
+	if(threadIdx.x < numc)
+		shared[threadIdx.x] = cons[threadIdx.x];
 	__syncthreads();
 	if(id < rows)
 	{
@@ -57,10 +56,10 @@ __global__ void marcar(int *dop1, int rows, int cols, int *cons, int numc, int *
 __global__ void samejoin(int *dop1, int rows, int cols, int *dhead, int cont, int *res)
 {
 	extern __shared__ int shared[];
-	int id = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
+	int id = blockIdx.x * blockDim.x + threadIdx.x;
 	int temp, temp2, pos, x, y;
-	if(hipThreadIdx_x < cont)
-		shared[hipThreadIdx_x] = dhead[hipThreadIdx_x];
+	if(threadIdx.x < cont)
+		shared[threadIdx.x] = dhead[threadIdx.x];
 	__syncthreads();
 	if(id < rows)
 	{	
@@ -91,10 +90,10 @@ __global__ void samejoin(int *dop1, int rows, int cols, int *dhead, int cont, in
 __global__ void samejoin2(int *dop1, int rows, int cols, int *dhead, int cont, int *res)
 {
 	extern __shared__ int shared[];
-	int id = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
+	int id = blockIdx.x * blockDim.x + threadIdx.x;
 	int temp, temp2, pos, x, y;
-	if(hipThreadIdx_x < cont)
-		shared[hipThreadIdx_x] = dhead[hipThreadIdx_x];
+	if(threadIdx.x < cont)
+		shared[threadIdx.x] = dhead[threadIdx.x];
 	__syncthreads();
 	if(id < rows)
 	{	
@@ -121,10 +120,10 @@ __global__ void samejoin2(int *dop1, int rows, int cols, int *dhead, int cont, i
 __global__ void proyectar(int *dop1, int rows, int cols, int *dhead, int hsize, int *res)
 {
 	extern __shared__ int shared[];
-	int id = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
+	int id = blockIdx.x * blockDim.x + threadIdx.x;
 	int pos, posr, x;
-	if(hipThreadIdx_x < hsize)
-		shared[hipThreadIdx_x] = dhead[hipThreadIdx_x];
+	if(threadIdx.x < hsize)
+		shared[threadIdx.x] = dhead[threadIdx.x];
 	__syncthreads();
 	if(id < rows)
 	{	
@@ -140,10 +139,10 @@ selections, selfjoins, etc.). The array 'temp' holds the result of the prefix su
 __global__ void llenarproyectar(int *dop1, int rows, int cols, int *temp, int *dhead, int hsize, int *res)
 {
 	extern __shared__ int shared[];
-	int id = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
+	int id = blockIdx.x * blockDim.x + threadIdx.x;
 	int pos, posr, x;
-	if(hipThreadIdx_x < hsize)
-		shared[hipThreadIdx_x] = dhead[hipThreadIdx_x];
+	if(threadIdx.x < hsize)
+		shared[threadIdx.x] = dhead[threadIdx.x];
 	__syncthreads();
 	if(id < rows)
 	{		
@@ -185,27 +184,27 @@ int selectproyect(int *dop1, int rows, int cols, int head_size, int *select, int
 		tmplen = rows + 1;
 		size2 = tmplen * sizeof(int);
 		reservar(&temp, size2);
-		hipMemset(temp, 0, size2);
+		cudaMemset(temp, 0, size2);
 		size = numselect * sizeof(int);
-		hipMemcpy(dhead, select, size, hipMemcpyHostToDevice);
+		cudaMemcpy(dhead, select, size, cudaMemcpyHostToDevice);
 
-		hipLaunchKernel(HIP_KERNEL_NAME(marcar2), dim3(blockllen), dim3(numthreads), size, 0, dop1, rows, cols, dhead, numselect, temp + 1);
+		marcar2<<<blockllen, numthreads, size>>>(dop1, rows, cols, dhead, numselect, temp + 1);
 		
 		if(numselfj > 0)
 		{
 			size = numselfj * sizeof(int);
-			hipMemcpy(dhead, selfjoin, size, hipMemcpyHostToDevice);
-			hipLaunchKernel(HIP_KERNEL_NAME(samejoin), dim3(blockllen), dim3(numthreads), size, 0, dop1, rows, cols, dhead, numselfj, temp + 1);
+			cudaMemcpy(dhead, selfjoin, size, cudaMemcpyHostToDevice);
+			samejoin<<<blockllen, numthreads, size>>>(dop1, rows, cols, dhead, numselfj, temp + 1);
 		}
 
 		if(numpreds > 0)
 		{
 			size = numpreds * sizeof(int);
-			hipMemcpy(dhead, preds, size, hipMemcpyHostToDevice);
+			cudaMemcpy(dhead, preds, size, cudaMemcpyHostToDevice);
 			if(ANDlogic)
-				hipLaunchKernel(HIP_KERNEL_NAME(bpredsnormal), dim3(blockllen), dim3(numthreads), size, 0, dop1, rows, cols, dhead, numpreds, temp + 1);
+				bpredsnormal<<<blockllen, numthreads, size>>>(dop1, rows, cols, dhead, numpreds, temp + 1);
 			else
-				hipLaunchKernel(HIP_KERNEL_NAME(bpredsorlogic), dim3(blockllen), dim3(numthreads), size, 0, dop1, rows, cols, dhead, numpreds, temp + 1);
+				bpredsorlogic<<<blockllen, numthreads, size>>>(dop1, rows, cols, dhead, numpreds, temp + 1);
 		}
 
 		res = thrust::device_pointer_cast(temp);
@@ -216,10 +215,10 @@ int selectproyect(int *dop1, int rows, int cols, int head_size, int *select, int
 
 		size = head_size * sizeof(int);
 		reservar(&fres, num * size);
-		hipMemcpy(dhead, project, size, hipMemcpyHostToDevice);
-		hipLaunchKernel(HIP_KERNEL_NAME(llenarproyectar), dim3(blockllen), dim3(numthreads), size, 0, dop1, rows, cols, temp, dhead, head_size, fres);
-		hipFree(dhead);
-		hipFree(temp);
+		cudaMemcpy(dhead, project, size, cudaMemcpyHostToDevice);
+		llenarproyectar<<<blockllen, numthreads, size>>>(dop1, rows, cols, temp, dhead, head_size, fres);
+		cudaFree(dhead);
+		cudaFree(temp);
 		*ret = fres;
 		return num;
 	}
@@ -230,19 +229,19 @@ int selectproyect(int *dop1, int rows, int cols, int head_size, int *select, int
 			tmplen = rows + 1;
 			size2 = tmplen * sizeof(int);
 			reservar(&temp, size2);
-			hipMemset(temp, 0, size2);
+			cudaMemset(temp, 0, size2);
 			size = numselfj * sizeof(int);
-			hipMemcpy(dhead, selfjoin, size, hipMemcpyHostToDevice);
-			hipLaunchKernel(HIP_KERNEL_NAME(samejoin2), dim3(blockllen), dim3(numthreads), size, 0, dop1, rows, cols, dhead, numselfj, temp + 1);
+			cudaMemcpy(dhead, selfjoin, size, cudaMemcpyHostToDevice);
+			samejoin2<<<blockllen, numthreads, size>>>(dop1, rows, cols, dhead, numselfj, temp + 1);
 
 			if(numpreds > 0)
 			{
 				size = numpreds * sizeof(int);
-				hipMemcpy(dhead, preds, size, hipMemcpyHostToDevice);
+				cudaMemcpy(dhead, preds, size, cudaMemcpyHostToDevice);
 				if(ANDlogic)
-					hipLaunchKernel(HIP_KERNEL_NAME(bpredsnormal), dim3(blockllen), dim3(numthreads), size, 0, dop1, rows, cols, dhead, numpreds, temp + 1);
+					bpredsnormal<<<blockllen, numthreads, size>>>(dop1, rows, cols, dhead, numpreds, temp + 1);
 				else
-					hipLaunchKernel(HIP_KERNEL_NAME(bpredsorlogic), dim3(blockllen), dim3(numthreads), size, 0, dop1, rows, cols, dhead, numpreds, temp + 1);
+					bpredsorlogic<<<blockllen, numthreads, size>>>(dop1, rows, cols, dhead, numpreds, temp + 1);
 
 			}
 
@@ -254,10 +253,10 @@ int selectproyect(int *dop1, int rows, int cols, int head_size, int *select, int
 
 			size = head_size * sizeof(int);
 			reservar(&fres, num * size);
-			hipMemcpy(dhead, project, size, hipMemcpyHostToDevice);
-			hipLaunchKernel(HIP_KERNEL_NAME(llenarproyectar), dim3(blockllen), dim3(numthreads), size, 0, dop1, rows, cols, temp, dhead, head_size, fres);
-			hipFree(dhead);
-			hipFree(temp);
+			cudaMemcpy(dhead, project, size, cudaMemcpyHostToDevice);
+			llenarproyectar<<<blockllen, numthreads, size>>>(dop1, rows, cols, temp, dhead, head_size, fres);
+			cudaFree(dhead);
+			cudaFree(temp);
 			*ret = fres;
 			return num;
 		}
@@ -268,14 +267,14 @@ int selectproyect(int *dop1, int rows, int cols, int head_size, int *select, int
 				tmplen = rows + 1;
 				size2 = tmplen * sizeof(int);
 				reservar(&temp, size2);
-				hipMemset(temp, 0, size2);		
+				cudaMemset(temp, 0, size2);		
 				size = numpreds * sizeof(int);
-				hipMemcpy(dhead, preds, size, hipMemcpyHostToDevice);
+				cudaMemcpy(dhead, preds, size, cudaMemcpyHostToDevice);
 
 				if(ANDlogic)
-					hipLaunchKernel(HIP_KERNEL_NAME(bpredsnormal2), dim3(blockllen), dim3(numthreads), size, 0, dop1, rows, cols, dhead, numpreds, temp + 1);					
+					bpredsnormal2<<<blockllen, numthreads, size>>>(dop1, rows, cols, dhead, numpreds, temp + 1);					
 				else
-					hipLaunchKernel(HIP_KERNEL_NAME(bpredsorlogic2), dim3(blockllen), dim3(numthreads), size, 0, dop1, rows, cols, dhead, numpreds, temp + 1);
+					bpredsorlogic2<<<blockllen, numthreads, size>>>(dop1, rows, cols, dhead, numpreds, temp + 1);
 				res = thrust::device_pointer_cast(temp);
 				thrust::inclusive_scan(res + 1, res + tmplen, res + 1);
 				num = res[rows];
@@ -285,10 +284,10 @@ int selectproyect(int *dop1, int rows, int cols, int head_size, int *select, int
 
 				size = head_size * sizeof(int);
 				reservar(&fres, num * size);
-				hipMemcpy(dhead, project, size, hipMemcpyHostToDevice);
-				hipLaunchKernel(HIP_KERNEL_NAME(llenarproyectar), dim3(blockllen), dim3(numthreads), size, 0, dop1, rows, cols, temp, dhead, head_size, fres);
-				hipFree(dhead);
-				hipFree(temp);
+				cudaMemcpy(dhead, project, size, cudaMemcpyHostToDevice);
+				llenarproyectar<<<blockllen, numthreads, size>>>(dop1, rows, cols, temp, dhead, head_size, fres);
+				cudaFree(dhead);
+				cudaFree(temp);
 				*ret = fres;
 				return num;
 			}
@@ -296,9 +295,9 @@ int selectproyect(int *dop1, int rows, int cols, int head_size, int *select, int
 			{
 				size = head_size * sizeof(int);
 				reservar(&fres, rows * size);
-				hipMemcpy(dhead, project, size, hipMemcpyHostToDevice);
-				hipLaunchKernel(HIP_KERNEL_NAME(proyectar), dim3(blockllen), dim3(numthreads), size, 0, dop1, rows, cols, dhead, head_size, fres);
-				hipFree(dhead);
+				cudaMemcpy(dhead, project, size, cudaMemcpyHostToDevice);
+				proyectar<<<blockllen, numthreads, size>>>(dop1, rows, cols, dhead, head_size, fres);
+				cudaFree(dhead);
 				*ret = fres;
 				return rows;
 			}
