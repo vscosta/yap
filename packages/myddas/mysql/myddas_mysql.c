@@ -736,3 +736,31 @@ void Yap_InitBackMYDDAS_MySQLPreds(void)
 }
 
 #endif
+
+void init_mysql( void )
+{
+    Yap_InitMYDDAS_MySQLPreds();
+    Yap_InitBackMYDDAS_MySQLPreds();
+}
+
+
+#ifdef _WIN32
+
+#include <windows.h>
+
+int WINAPI win_mysql(HANDLE hinst, DWORD reason, LPVOID reserved);
+
+int WINAPI win_mysql(HANDLE hinst, DWORD reason, LPVOID reserved) {
+  switch (reason) {
+  case DLL_PROCESS_ATTACH:
+    break;
+  case DLL_PROCESS_DETACH:
+    break;
+  case DLL_THREAD_ATTACH:
+    break;
+  case DLL_THREAD_DETACH:
+    break;
+  }
+  return 1;
+}
+#endif

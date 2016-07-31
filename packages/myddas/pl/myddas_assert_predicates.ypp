@@ -55,11 +55,34 @@
 			    db_my_result_set/1
 			    ]).
 
-
 :- use_module(myddas_sqlite3,[
-			      sqlite3_result_set/1
+			      sqlite3_result_set/1,
+			      c_sqlite3_change_database/2,
+			      c_sqlite3_connect/4,
+			      c_sqlite3_disconnect/1,
+			      c_sqlite3_get_attributes_types/3,
+			      c_sqlite3_get_database/2,
+			      c_sqlite3_get_fields_properties/3,
+			      c_sqlite3_get_next_result_set/3,
+			      c_sqlite3_query/5,
+			      c_sqlite3_number_of_fields/3,
+			      c_sqlite3_row/3
+                           ]).
+:- use_module(myddas_odbc,[
+			      odbc_result_set/1,
+			      c_odbc_change_database/2,
+			      c_odbc_connect/4,
+			      c_odbc_disconnect/1,
+			      c_odbc_get_attributes_types/3,
+			      c_odbc_get_database/2,
+			      c_odbc_get_fields_properties/3,
+			      c_odbc_get_next_result_set/3,
+			      c_odbc_query/5,
+			      c_odbc_number_of_fields/3,
+			      c_odbc_row/3
                            ]).
 
+:- meta_predicate db_import(+,+,:), db_import(+,:).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_import/3
@@ -67,11 +90,11 @@
 %
 db_import(RelationName,PredName):-
 	db_import(myddas,RelationName,PredName).
-db_import(Connection,RelationName,PredName) :-
-	'$error_checks'(db_import(Connection,RelationName,PredName)),
+db_import(Connection,RelationName,PredName0) :-
+	'$error_checks'(db_import(Connection,RelationName,PredName0)),
         get_value(Connection,Con),      
 	table_arity( Con, ConType, RelationName, Arity ),
-	db_module(Module),
+	strip_module(PredName0, Module, PredName),
 	not c_db_check_if_exists_pred(PredName,Arity,Module),
 
 	R=..[relation,PredName,Arity,RelationName],
@@ -244,7 +267,7 @@ table_arity( Con, ConType, RelationName, Arity ) :-
 	  c_postgres_number_of_fields(RelationName,Con,Arity)
 	;
         ConType == odbc ->
-          c_db_odbc_number_of_fields(RelationName,Con,Arity)
+          c_odbc_number_of_fields(RelationName,Con,Arity)
         ;
 	  c_sqlite3_number_of_fields(RelationName,Con,Arity))
 	.
@@ -257,7 +280,7 @@ table_attributes( postgres, Con, RelationName, TypesList ) :-
         c_postgres_get_attributes_types(RelationName,Con,TypesList).
 
 table_attributes( odbc, Con, RelationName, TypesList ) :-
-	c_db_odbc_get_attributes_types(RelationName,Con,TypesList).
+	c_odbc_get_attributes_types(RelationName,Con,TypesList).
 
 table_attributes( sqlite3, Con, RelationName, TypesList ) :-
   c_sqlite3_get_attributes_types(RelationName,Con,TypesList).
@@ -299,11 +322,11 @@ table_access_predicate( odbc, Con, Arity, P, LA, M,
                         ( P :- M:('$copy_term_nv'(P,[],G,_),
 				  translate(G,G,Code),
 				  queries_atom(Code,FinalSQL),
-				  c_db_odbc_result_set(Mode),
+				  c_odbc_result_set(Mode),
 				  '$write_or_not'(FinalSQL),
-				  c_db_odbc_query(FinalSQL,ResultSet,Con,Mode,_),
+				  c_odbc_query(FinalSQL,ResultSet,Con,Mode,_),
 				  !,
-				  c_db_odbc_row(ResultSet,Arity,LA)
+				  c_odbc_row(ResultSet,Arity,LA)
 				 ) )).
 
 table_insert( mysql, Con, RelationName, TypesList, Predicate, LA,
@@ -328,7 +351,7 @@ table_insert( sqlite3, Con, RelationName, TypesList, Predicate, LA,
 	      ( Predicate :- myddas_assert_predicates:
 	      ( '$get_values_for_insert'(TypesList,LA,ValuesList),
 		'$make_atom'(['INSERT INTO `',RelationName,'` VALUES ('|ValuesList],SQL),
-		db_my_result_set(Mode),
+		sqlite3_result_set(Mode),
 		'$write_or_not'(SQL),
 		c_sqlite3_query(SQL,_,Con,Mode,_)))
 	    ).
@@ -374,9 +397,9 @@ table_view( odbc, Con, CopyView, CopyGoal, Arity, LA, M,
 	      length(BindList, Arity ),
               queries_atom(Code,FinalSQL),
               '$write_or_not'(FinalSQL),
-              c_db_odbc_query(FinalSQL,ResultSet,Arity,BindList,Con),
+              c_odbc_query(FinalSQL,ResultSet,Arity,BindList,Con),
 	      !,
-	    c_db_my_row(ResultSet,Arity,LA) ))).
+	    c_odbc_row(ResultSet,Arity,LA) ))).
 
 table_view( sqlite3, Con, CopyView, CopyGoal, Arity, LA, M,
           ( CopyView :-
@@ -387,4 +410,4 @@ table_view( sqlite3, Con, CopyView, CopyGoal, Arity, LA, M,
               '$write_or_not'(FinalSQL),
               c_sqlite3_query(FinalSQL,ResultSet,Con,_,_),
               !,
-              c_db_my_row(ResultSet,Arity,LA) ))).
+              c_sqlite3_row(ResultSet,Arity,LA) ))).

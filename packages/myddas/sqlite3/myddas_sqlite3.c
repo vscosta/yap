@@ -60,7 +60,6 @@ static Int null_id = 0;
 typedef struct result_set {
   sqlite3_stmt *stmt;
   sqlite3 *db;
-  char **res_set;
   int nrows;
   int length;
 } resultSet;
@@ -298,13 +297,12 @@ static Int c_sqlite3_query(USES_REGS1) {
   start = myddas_stat_init_query(db);
   #endif
 
+
+  // printf("Query %s\n", sql);
   /* Send query to server and process it */
-  if (strcmp(mode, "store_result") != 0) {
     // Leave data for extraction
-    printf(" SQL 0: %s\n", sql);
     CALL_SQLITE(prepare_v2(db, sql, -1, &stmt, NULL));
     rs->stmt = stmt;
-    rs->res_set = NULL;
     rs->nrows = -1;
     rs->length = sqlite3_column_count(stmt);
     if (!Yap_unify(arg_arity, MkIntegerTerm(rs->length))) {
@@ -313,44 +311,10 @@ static Int c_sqlite3_query(USES_REGS1) {
     }
     if (!Yap_unify(arg_result_set, MkAddressTerm(rs))) {
       free(rs);
-      return FALSE;
+      return false;
     }
     return true;
-  } else {
-    // construct an intermediate table, res_set
-    char **res_set;
-    char *msg;
-    int nrows;
 
-    CALL_SQLITE(get_table(db, sql, &res_set, &nrows, &length, &msg));
-
-    // end = myddas_stat_end_query( start );
-    if (res_set == NULL) {
-#ifdef DEBUG
-      printf("Empty Query!\n");
-#endif
-      return TRUE;
-    }
-    // INSERT statements don't return any res_set
-    if (nrows == 0) {
-      return TRUE;
-    }
-    if (!Yap_unify(arg_arity, MkIntegerTerm(nrows))) {
-      free(rs);
-      sqlite3_free_table(res_set);
-      return FALSE;
-    }
-    rs->stmt = NULL;
-    rs->res_set = res_set;
-    rs->nrows = nrows;
-    rs->length = length;
-    if (!Yap_unify(arg_result_set, MkAddressTerm(rs))) {
-      free(rs);
-      sqlite3_free_table(res_set);
-      return FALSE;
-    }
-  }
-  return TRUE;
 }
 
 static Int c_sqlite3_number_of_fields(USES_REGS1) {
@@ -367,7 +331,6 @@ static Int c_sqlite3_number_of_fields(USES_REGS1) {
   sprintf(sql, "SELECT * FROM `%s`", relation);
 
   /* executar a query SQL */
-  printf(" SQL 1: %s\n", sql);
   CALL_SQLITE(prepare_v2(db, sql, -1, &stmt, NULL));
 
   int fields = sqlite3_column_count(stmt);
@@ -395,7 +358,6 @@ static Int c_sqlite3_get_attributes_types(USES_REGS1) {
   sprintf(sql, "SELECT * FROM `%s`", relation);
 
   /* executar a query SQL */
-  printf(" SQL 3: %s\n", sql);
   CALL_SQLITE(prepare_v2(db, sql, -1, &stmt, NULL));
 
   int fields = sqlite3_column_count(stmt);
@@ -534,7 +496,6 @@ static Int c_sqlite3_get_next_result_set(USES_REGS1) {
     if (!rs)
       return FALSE;
     rs->stmt = stmt;
-    rs->res_set = NULL;
     rs->nrows = -1;
     rs->length = sqlite3_column_count(stmt);
     rs->db = db;
@@ -603,33 +564,7 @@ static Int c_sqlite3_row(USES_REGS1) {
   list = arg_list_args;
   arity = IntegerOfTerm(arg_arity);
   sqlite3 *db = res_set->db;
-  if (res_set->stmt == NULL) {
-    CACHE_REGS
-    Int indx = IntegerOfTerm(EXTRA_CBACK_ARG(3, 2));
-    Int rc = true;
-// data needs to be copied to Prolog
-// row by row
-#ifdef MYDDAS_STATS
-    MYDDAS_STATS_TIME diff;
 
-    MYDDAS_STATS_INITIALIZE_TIME_STRUCT(diff, time_copy);
-#endif
-    while (indx / arity < res_set->nrows) {
-      for (i = 0; i < arity; i++) {
-        /* Ts -> List */
-        const char *field = res_set->res_set[indx++];
-        head = HeadOfTerm(list);
-        list = TailOfTerm(list);
-        rc = (rc && Yap_unify(head, cvt(field)));
-      }
-      if (rc)
-        return rc;
-    }
-#ifdef MYDDAS_STATS
-    myddas_stat_transfer_query(diff);
-#endif
-    cut_fail();
-  }
   // busy-waiting
   int res;
   while ((res = sqlite3_step(res_set->stmt)) == SQLITE_BUSY)
@@ -724,4 +659,32 @@ void Yap_InitBackMYDDAS_SQLITE3Preds(void);
 void Yap_InitMYDDAS_SQLITE3Preds(void) {}
 void Yap_InitBackMYDDAS_SQLITE3Preds(void) {}
 
+#endif
+
+void init_sqlite3( void )
+{
+    Yap_InitMYDDAS_SQLITE3Preds();
+    Yap_InitBackMYDDAS_SQLITE3Preds();
+}
+
+
+#ifdef _WIN32
+
+#include <windows.h>
+
+int WINAPI win_sqlite3(HANDLE hinst, DWORD reason, LPVOID reserved);
+
+int WINAPI win_sqlite3(HANDLE hinst, DWORD reason, LPVOID reserved) {
+  switch (reason) {
+  case DLL_PROCESS_ATTACH:
+    break;
+  case DLL_PROCESS_DETACH:
+    break;
+  case DLL_THREAD_ATTACH:
+    break;
+  case DLL_THREAD_DETACH:
+    break;
+  }
+  return 1;
+}
 #endif

@@ -900,3 +900,31 @@ void Yap_InitBackMYDDAS_PGPreds(void)
 }
 
 #endif
+
+void init_pg( void )
+{
+    Yap_InitMYDDAS_PGPreds();
+    Yap_InitBackMYDDAS_PGPreds();
+}
+
+
+#ifdef _WIN32
+
+#include <windows.h>
+
+int WINAPI win_pg(HANDLE hinst, DWORD reason, LPVOID reserved);
+
+int WINAPI win_pg(HANDLE hinst, DWORD reason, LPVOID reserved) {
+  switch (reason) {
+  case DLL_PROCESS_ATTACH:
+    break;
+  case DLL_PROCESS_DETACH:
+    break;
+  case DLL_THREAD_ATTACH:
+    break;
+  case DLL_THREAD_DETACH:
+    break;
+  }
+  return 1;
+}
+#endif

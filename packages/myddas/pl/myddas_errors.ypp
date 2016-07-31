@@ -138,9 +138,11 @@
 	Pred =.. [_|_],
 	DbGoal =.. [_|_].
 	%'$check_list_on_list'(PredArgs,DbGoalArgs).
-'$error_checks'(db_import(Connection,RelationName,PredName)) :- !,
+'$error_checks'(db_import(Connection,RelationName,PredName0)) :- !,
         atom(Connection),
+	strip_module(PredName0, Module, PredName),
         atom(RelationName),
+	atom(Module),
 	atom(PredName).
 '$error_checks'(db_get_attributes_types(Connection,RelationName,_)) :- !,
         atom(Connection),

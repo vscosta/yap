@@ -15,7 +15,6 @@
 *									 *
 *************************************************************************/
 #include "Yap.h"
-
 #ifdef USE_MYDDAS
 
 #include "Yatom.h"
@@ -26,7 +25,7 @@
 #include "myddas_statistics.h"
 #endif
 
-void init_myddas(void);
+extern void init_myddas(void);
 
 static Int c_db_initialize_myddas(USES_REGS1);
 static Int c_db_connection_type(USES_REGS1);
@@ -95,8 +94,13 @@ void Yap_InitBackMYDDAS_SharedPreds(void) {
                     c_db_connection_continue, 0);
 }
 
+static bool myddas_initialised;
+
 /* Initialize all of the MYDDAS global structures */
 static Int c_db_initialize_myddas(USES_REGS1) {
+    if (!myddas_initialised) {
+        init_myddas();
+    }
   Yap_REGS.MYDDAS_GLOBAL_POINTER = myddas_init_initialize_myddas();
 #ifdef MYDDAS_STATS
   Yap_REGS.MYDDAS_GLOBAL_POINTER =
@@ -675,6 +679,9 @@ void Yap_MYDDAS_delete_all_myddas_structs(void) {
 
 void init_myddas(void) {
   CACHE_REGS
+  if (myddas_initialised)
+    return;
+  myddas_initialised = TRUE;
 #if defined MYDDAS_ODBC
   Yap_InitBackMYDDAS_ODBCPreds();
 #endif

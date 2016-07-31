@@ -166,3 +166,16 @@ yap.prj
 
 yap.VITORs-MBP.vsc.pui
 vc
+packages/myddas/pl/myddas_odbc.yap
+
+packages/myddas/pl/myddas_postgres.yap
+
+packages/myddas/pl/myddas_sqlite3.ypp
+
+packages/myddas/pl/#myddas_postgres.ypp#
+
+packages/myddas/hh
+
+packages/myddas/DaysInHospital_Y3.csv
+
+packages/myddas/agile.csv

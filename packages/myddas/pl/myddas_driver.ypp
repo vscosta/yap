@@ -1,0 +1,249 @@
+/*************************************************************************
+*									 *
+*	 YAP Prolog 							 *
+*									 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 *
+**************************************************************************
+*									 *
+* File:		myddas_mysql.yap					 *
+* Last rev:								 *
+* mods:									 *
+* comments:	MySQL Predicates                 			 *
+*									 *
+*************************************************************************/
+#ifdef sqlite3
+#undef sqlite3
+#define DBMS(x) sqlite3_##x
+#define c_DBMS(x) c_sqlite3_##x
+#define NAME() 'Yapsqlite3'
+#define MODULE() myddas_sqlite3
+#define INIT() init_sqlite3
+#elif defined( odbc )
+#undef odbc
+#define DBMS(x) odbc_##x
+#define c_DBMS(x) c_odbc_##x
+#define NAME() 'Yapodbc'
+#define MODULE() myddas_odbc
+#define INIT() init_odbc
+#elif defined( postgres )
+#undef postgres 
+#define DBMS(x) postgres_##x
+#define c_DBMS(x) c_postgres_##x
+#define NAME() 'Yappostgres'
+#define MODULE() myddas_postgres
+#define INIT() init_odbc
+#endif
+
+#if defined(DBMS)
+
+:- module(MODULE(),[
+			  DBMS(result_set)/1,
+			  DBMS(datalog_describe)/1,
+			  DBMS(datalog_describe)/2,
+			  DBMS(describe)/3,
+			  DBMS(describe)/2,
+			  DBMS(datalog_show_tables)/1,
+			  DBMS(datalog_show_tables)/0,
+			  DBMS(show_tables)/2,
+			  DBMS(show_tables)/1,
+			  DBMS(show_database)/2,
+			  DBMS(show_databases)/2,
+			  DBMS(show_databases)/1,
+			  DBMS(change_database)/2,
+			  DBMS(call_procedure)/4,
+			  DBMS(call_procedure)/3,
+			  c_DBMS(change_database)/2,
+			  c_DBMS(connect)/4,
+			  c_DBMS(disconnect)/1,
+			  c_DBMS(get_attributes_types)/3,
+			  c_DBMS(get_database)/2,
+			  c_DBMS(get_fields_properties)/3,
+			  c_DBMS(get_next_result_set)/3,
+			  c_DBMS(query)/5,
+			  c_DBMS(number_of_fields)/3,
+			  c_DBMS(row)/3
+			 ]).
+
+:- use_module(myddas,[
+		      db_sql/3
+		     ]).
+
+:- use_module(myddas_errors,[
+			     '$error_checks'/1
+			    ]).
+
+:- use_module(myddas_util_predicates,[
+				      '$get_value'/2,
+				      '$make_atom'/2,
+				      '$make_atom_args'/2,
+				      '$make_a_list'/2,
+				      '$write_or_not'/1
+				     ]).
+:- load_foreign_files( [NAME()], [], INIT()).
+
+%--------------------------------------------------------
+% Public Predicates
+%--------------------------------------------------------
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DBMS(result_set)/1
+%
+%
+DBMS(result_set)(X):-
+	var(X),!,
+	get_value(DBMS(result_set),X).
+DBMS(result_set)(use_result):-
+	set_value(DBMS(result_set),use_result).
+DBMS(result_set)(store_result):- 
+	set_value(DBMS(result_set),store_result).
+%default value
+:- DBMS(result_set)(use_result).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DBMS(describe)/2
+%
+%
+DBMS(datalog_describe)(Relation):-
+	DBMS(datalog_describe)(myddas,Relation).
+DBMS(datalog_describe)(Connection,Relation) :-
+	'$error_checks'(DBMS(datalog_describe)(Relation,Connection)),
+	'$get_value'(Connection,Conn),
+	'$make_atom'(['DESCRIBE ',Relation],SQL),
+	DBMS(result_set)(Mode),
+	c_DBMS(query)(SQL,ResultSet,Conn,Mode,_),
+	c_DBMS(table_write)(ResultSet).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DBMS(describe)/3
+% DBMS(describe)/2
+% gives the results of the DESCRIBE statement
+% by backtracking
+DBMS(describe)(Relation,TableInfo) :-
+	DBMS(describe)(myddas,Relation,TableInfo).
+DBMS(describe)(Connection,Relation,tableinfo(A1,A2,A3,A4,A5,A6)) :-
+	'$error_checks'(DBMS(describe)(Relation,Connection,_)),
+	'$get_value'(Connection,Conn),
+	'$make_atom'(['DESCRIBE ',Relation],SQL),
+	DBMS(result_set)(Mode),
+	'$write_or_not'(SQL),
+	c_DBMS(query)(SQL,ResultSet,Conn,Mode,_),
+	!,
+	c_DBMS(row)(ResultSet,6,[A1,A2,A3,A4,A5,A6]).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DBMS(datalog_show_tables)/1
+%
+%
+DBMS(datalog_show_tables):-
+	DBMS(datalog_show_tables)(myddas).
+DBMS(datalog_show_tables)(Connection) :-
+	'$error_checks'(DBMS(show_tables)(Connection)),
+	'$get_value'(Connection,Conn),
+	DBMS(result_set)(Mode),
+	'$write_or_not'('.tables'),
+	c_DBMS(query)('.tables',ResultSet,Conn,Mode,_),
+	c_DBMS(table_write)(ResultSet).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DBMS(show_tables)/2
+% DBMS(show_tables)/1
+% gives the results of the SHOW TABLES statement
+% by backtracking
+DBMS(show_tables)(Table) :-
+	DBMS(show_tables)(myddas,Table).
+DBMS(show_tables)(Connection,table(Table)) :-
+	'$error_checks'(DBMS(show_tables)(Connection)),
+	'$get_value'(Connection,Conn),
+	DBMS(result_set)(Mode),
+	'$write_or_not'('.tables'),
+	c_DBMS(query)('.tables',ResultSet,Conn,Mode,_),
+	!,c_DBMS(row)(ResultSet,1,[Table]).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DBMS(show_database)/2
+% 
+%
+DBMS(show_database)(Connection,Database) :-
+	'$error_checks'(DBMS(show_database)(Connection,Database)),
+	'$get_value'(Connection,Con),
+	c_DBMS(get_database)(Con,Database).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DBMS(show_databases)/2
+% 
+%
+DBMS(show_databases)(Connection,database(Databases)) :-
+	%'$error_checks'(DBMS(show_databases)(Connection,Database)),
+	'$get_value'(Connection,Conn),
+	DBMS(result_set)(Mode),
+	'$write_or_not'('SHOW DATABASES'),
+	c_DBMS(query)('SHOW DATABASES',ResultSet,Conn,Mode,_),
+	!,c_DBMS(row)(ResultSet,1,[Databases]).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DBMS(show_databases)/1
+% TODO Error Checks
+%
+DBMS(show_databases)(Connection) :-
+	'$error_checks'(DBMS(show_databases)(Connection)),
+	'$get_value'(Connection,Conn),
+	DBMS(result_set)(Mode),
+	'$write_or_not'('SHOW DATABASES'),
+	c_DBMS(query)('SHOW DATABASES',ResultSet,Conn,Mode,_),
+	c_DBMS(table_write)(ResultSet).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DBMS(change_database)/2
+% 
+%
+DBMS(change_database)(Connection,Database) :-
+	'$error_checks'(DBMS(change_database)(Connection,Database)),
+	'$get_value'(Connection,Con),
+	'$make_atom'(['USE ',Database],SQL),
+	'$write_or_not'(SQL),
+	c_DBMS(change_database)(Con,Database).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DBMS(call_procedure)/4
+% DBMS(call_procedure)/3
+% DBMS(call_procedure)(+,+,+,?)				
+% Only support in MySQL 5.0 an above
+% Called procedure must return results via MySQL result set
+DBMS(call_procedure)(Procedure,Args,Result) :-
+	DBMS(call_procedure)(myddas,Procedure,Args,Result).
+DBMS(call_procedure)(Connection,Procedure,Args,LA) :-
+	'$error_checks'(DBMS(call_procedure)(Connection,Procedure,Args,LA)),
+	'$make_atom_args'(Args,ArgsSQL),
+	'$make_atom'(['CALL ',Procedure,'(',ArgsSQL,')'],SQL),
+	DBMS(sql)(Connection,SQL,LA).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+#endif /* MYDDAS_DBMS */

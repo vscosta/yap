@@ -801,5 +801,38 @@ void Yap_InitBackMYDDAS_ODBCPreds(void) {
   Yap_InitCPredBackCut("c_db_odbc_row", 3, sizeof(Int), c_db_odbc_row,
                        c_db_odbc_row, c_db_odbc_row_cut, 0);
 }
+#else
 
-#endif /*MYDDAS_ODBC*/
+void Yap_InitMYDDAS_ODBCPreds(void) {}
+void Yap_InitBackMYDDAS_ODBCPreds(void) {}
+
+#endif
+
+void init_odbc( void )
+{
+    Yap_InitMYDDAS_ODBCPreds();
+    Yap_InitBackMYDDAS_ODBCPreds();
+}
+
+
+#ifdef _WIN32
+
+#include <windows.h>
+
+int WINAPI win_odbc(HANDLE hinst, DWORD reason, LPVOID reserved);
+
+int WINAPI win_odbc(HANDLE hinst, DWORD reason, LPVOID reserved) {
+  switch (reason) {
+  case DLL_PROCESS_ATTACH:
+    break;
+  case DLL_PROCESS_DETACH:
+    break;
+  case DLL_THREAD_ATTACH:
+    break;
+  case DLL_THREAD_DETACH:
+    break;
+  }
+  return 1;
+}
+#endif
+/*MYDDAS_ODBC*/

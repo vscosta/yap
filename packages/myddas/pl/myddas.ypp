@@ -17,6 +17,11 @@
 
 #if USE_MYDDAS
 
+//:- load_foreign_files([myddas], [], init_myddas).
+
+/* Initialize MYDDAS GLOBAL STRUCTURES */
+:- c_db_initialize_myddas.
+
 #ifdef DEBUG
 :- yap_flag(single_var_warnings,on).
 #endif
@@ -24,6 +29,8 @@
 :- module(myddas,[
 		  db_open/5,
 		  db_open/4,
+		  db_open/1,
+		  db_open/0,
 		  db_close/1,
 		  db_close/0,
 
@@ -800,8 +807,6 @@
 				       ]).
 
 #ifdef MYDDAS_MYSQL
-:- load_foreign_files([], [], init_mysql).
-
 :- use_module(myddas_mysql,[
 			    db_my_result_set/1,
 			    db_datalog_describe/1,
@@ -824,6 +829,18 @@
 			    db_sql_mode/2
 			   ]).
 #endif /* MYDDAS_MYSQL */
+#ifdef MYDDAS_SQLITE3
+:- use_module(myddas_sqlite3,[
+				% myddas_mysql.ypp
+		 c_sqlite3_connect/4,
+         c_sqlite3_disconnect/1,
+         c_sqlite3_query/5,
+         sqlite3_result_set/1,
+         c_sqlite3_number_of_fields/3
+			    
+]).
+#endif /* MYDDAS_MYSQL */
+
 
 :- use_module(myddas_util_predicates,[
 				      '$prolog2sql'/3,
@@ -858,7 +875,6 @@
 		     append/3
 		    ]).
 
-:- use_module(library(parameters)).
 
 
 
@@ -867,7 +883,10 @@
 				% db_open/4
 				%
 
-#if MYDDAS_DECLARATIONS
+#if 0 // MYDDAS_DECLARATIONS
+
+:- use_module(library(parameters)).
+
 :- db_open(Protocol) extra_arguments
 db=Db,
 port=Port,
@@ -955,13 +974,13 @@ i_integer(X) =:= integer(X) \/ i_var(X) \/ err(integer(X)),
 list( Protocol ) .
 
 /*
-  c_db_c_db_odbc_connect_connect ==> c_db_odbc_connect,
+  c_db_c_odbc_connect_connect ==> c_odbc_connect,
 	c_db_my_connect ==> c_db_connect,
 	c_c_postgres_connect_connect ==> c_postgres_connect,
 	c_sqlite3_connect ==> sqlite3.
 */
 
-	%c_db_odbc_connect ==> i_atom( Password ) * i_atom( User ) *
+	%c_odbc_connect ==> i_atom( Password ) * i_atom( User ) *
 
 
 
@@ -982,7 +1001,7 @@ Protocol = odbc
 %  i_atom(Db) *
 % i_atom(Socket)
 
-( c^c_db_odbc_connect(ODBCEntry,User,Password,Handle)  ==
+( c^c_odbc_connect(ODBCEntry,User,Password,Handle)  ==
  (Protocol = odbc)*
 -(Protocol = mysql) *
  -(Protocol = sqlite3)*
@@ -994,7 +1013,7 @@ Protocol = odbc
  -(Protocol = odbc)*
 -(Protocol = mysql) *
 -(Protocol = sqlite3)*
- (Protocol = posgrtgres) ),
+ (Protocol = posgres) ),
 
 % t_internet_host(Host)*
 % i_atom(User) *
@@ -1018,7 +1037,7 @@ Protocol = odbc
 /*
 integer(Handle) ==
 c^c_db_my_connect(Host,User,Password,Db,Port,Socket,Handle)  +
-c^c_db_odbc_connect(ODBCEntry,User,Password,Handle) +
+c^c_odbc_connect(ODBCEntry,User,Password,Handle) +
 c^c_postgres_connect(Host/Db/Port/Socket,User,Password, Handle) +
 c^c_sqlite3_connect(File,User,Password,Handle).
 */
@@ -1026,24 +1045,55 @@ db_open(Protocol) :- true.
 
 #else
 
-db_open:-
-	db_open(myddas).
 
-db_open(Protocol) :-
-	'$error_checks'(db_open(Protocol)),
-	get_value(Protocol,Con),
-	c_db_connection_type(Con,ConType),
-	( ConType == mysql ->
-	  c_db_my_disconnect(Con)
-	;ConType == postgres ->
-	  c_postgres_disconnect(Con)
-	;ConType == sqlite3 ->
-	  c_sqlite3_disconnect(Con)
-	;
-	  c_db_odbc_disconnect(Con)
-	),
-	set_value(Protocol,[]). % "deletes" atom
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% db_open/5
+% db_open/4
+%
+db_open(Interface,HostDb,User,Password):-
+	db_open(Interface,myddas,HostDb,User,Password).
+
+#ifdef MYDDAS_MYSQL
+db_open(mysql,Connection,Host/Db/Port/Socket,User,Password) :- !,
+	'$error_checks'(db_open(mysql,Connection,Host/Db/Port/Socket,User,Password)),
+	c_db_my_connect(Host,User,Password,Db,Port,Socket,Con),
+	set_value(Connection,Con).
+db_open(mysql,Connection,Host/Db/Port,User,Password) :-
+	integer(Port),!,
+	db_open(mysql,Connection,Host/Db/Port/_,User,Password).  % Var to be NULL, the  default socket
+db_open(mysql,Connection,Host/Db/Socket,User,Password) :- !,
+	db_open(mysql,Connection,Host/Db/0/Socket,User,Password). % 0 is default port
+db_open(mysql,Connection,Host/Db,User,Password) :-
+	db_open(mysql,Connection,Host/Db/0/_,User,Password).  % 0 is default port and Var to be NULL, the default socket
+#endif
+
+#ifdef MYDDAS_POSTGRES
+db_open(postgres,Connection,Host/Db/Port/Socket,User,Password) :- !,
+	'$error_checks'(db_open(postgres,Connection,Host/Db/Port/Socket,User,Password)),
+	c_db_my_connect(Host,User,Password,Db,Port,Socket,Con),
+	set_value(Connection,Con).
+db_open(postgres,Connection,Host/Db/Port,User,Password) :-
+	integer(Port),!,
+	db_open(postgres,Connection,Host/Db/Port/_,User,Password).  % Var to be NULL, the  default socket
+db_open(postgres,Connection,Host/Db/Socket,User,Password) :- !,
+	db_open(postgres,Connection,Host/Db/0/Socket,User,Password). % 0 is default port
+db_open(postgres,Connection,Host/Db,User,Password) :-
+	db_open(postgres,Connection,Host/Db/0/_,User,Password).  % 0 is default port and Var to be NULL, the default socket
+#endif
+
+#ifdef MYDDAS_ODBC
+db_open(odbc,Connection,ODBCEntry,User,Password) :-
+	'$error_checks'(db_open(odbc,Connection,ODBCEntry,User,Password)),
+	c_odbc_connect(ODBCEntry,User,Password,Con),
+	set_value(Connection,Con).
+#endif
+#ifdef MYDDAS_SQLITE3
+db_open(sqlite3,Connection,File,User,Password) :- 
+	'$error_checks'(db_open(sqlite3,Connection,File,User,Password)),
+	c_sqlite3_connect(File,User,Password,Con),
+	set_value(Connection,Con).
+#endif
 #endif
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1070,7 +1120,7 @@ db_close(Protocol) :-
 	;ConType == sqlite3 ->
 	  c_sqlite3_disconnect(Con)
 	;
-	  c_db_odbc_disconnect(Con)
+	  c_odbc_disconnect(Con)
 	),
 	set_value(Protocol,[]). % "deletes" atom
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1176,15 +1226,15 @@ db_sql(Connection,SQL,LA):-
 	  sqlite3_result_set(Mode),
 	  c_sqlite3_query(SQL,ResultSet,Con,Mode,Arity)
 	;
-	  c_db_odbc_number_of_fields_in_query(SQL,Con,Arity)
+	  c_odbc_number_of_fields_in_query(SQL,Con,Arity)
 	),
 	'$make_a_list'(Arity,LA),
 	( ConType == mysql ->
 	  !,c_db_my_row(ResultSet,Arity,LA)
 	;
 	  '$make_a_list'(Arity,BindList),
-	  c_db_odbc_query(SQL,ResultSet,Arity,BindList,Con),!,
-	  c_db_odbc_row(ResultSet,BindList,LA)
+	  c_odbc_query(SQL,ResultSet,Arity,BindList,Con),!,
+	  c_odbc_row(ResultSet,BindList,LA)
 	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1212,6 +1262,18 @@ db_prolog_select(Connection,LA,DbGoal):-
 	  db_my_result_set(Mode),
 	  c_db_my_query(SQL,ResultSet,Con,Mode,_),
 	  !,c_db_my_row(ResultSet,Arity,LA)
+	; ConType == postgres ->
+	  postgres_result_set(Mode),
+	  c_postgres_query(SQL,ResultSet,Con,Mode,_),
+	  !,c_postgres_row(ResultSet,Arity,LA)
+	; ConType == odbc ->
+	  odbc_result_set(Mode),
+	  c_odbc_query(SQL,ResultSet,Con,Mode,_),
+	  !,c_odbc_row(ResultSet,Arity,LA)
+	; ConType == sqlite3 ->
+	  sqlite3_result_set(Mode),
+	  c_sqlite3_query(SQL,ResultSet,Con,Mode,_),
+	  !,c_sqlite3_row(ResultSet,Arity,LA)
 	;
 	  true
 	).
@@ -1233,6 +1295,18 @@ db_prolog_select_multi(Connection,DbGoalsList,ListOfResults) :-
 	( ConType == mysql ->
 	  db_my_result_set(Mode),
 	  c_db_my_query(SQL,ResultSet,Con,Mode,_)
+	;
+	  ConType == postgres ->
+	  postgres_result_set(Mode),
+	  c_postgres_query(SQL,ResultSet,Con,Mode,_)
+	;
+	  ConType == mysql ->
+	  sqlite3_result_set(Mode),
+	  c_sqlite3_query(SQL,ResultSet,Con,Mode,_)
+	;
+	  ConType == mysql ->
+	  odbc_result_set(Mode),
+	  c_odbc_query(SQL,ResultSet,Con,Mode,_)
 	;
 	  true
 	),
@@ -1285,7 +1359,7 @@ db_assert(Connection,PredName):-
 	  sqlite3_result_set(Mode),
 	  c_sqlite3_query(SQL,_,Con,Mode,_)
 	;
-	  c_db_odbc_query(SQL,_,_,_,Con)
+	  c_odbc_query(SQL,_,_,_,Con)
 	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1314,7 +1388,7 @@ db_create_table(Connection,TableName,FieldsInf):-
 	  sqlite3_result_set(Mode),
 	  c_sqlite3_query(FinalSQL,_,Con,Mode,_)
 	;
-	  c_db_odbc_query(FinalSQL,_,_,_,Con)
+	  c_odbc_query(FinalSQL,_,_,_,Con)
 	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1344,7 +1418,7 @@ db_export_view(Connection,TableViewName,SQLorDbGoal,FieldsInf):-
 	  db_my_result_set(Mode),
 	  c_db_my_query(FinalSQL,_,Con,Mode,_)
 	;
-	  c_db_odbc_query(FinalSQL,_,_,_,Con)
+	  c_odbc_query(FinalSQL,_,_,_,Con)
 	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1377,10 +1451,24 @@ db_update(Connection,WherePred-SetPred):-
 	append(SetCondition,WhereCondition,Conditions),
 	'$make_atom'(['UPDATE `',TableName,'` '|Conditions],SQL),
 	'$write_or_not'(SQL),
+	get_value(Connection,Con),
+	c_db_connection_type(Con,ConType),
+	( ConType == mysql ->
 	db_my_result_set(Mode),
-	c_db_my_query(SQL,_,Conn,Mode,_).
-
-
+	  c_db_my_query(SQL,_,Conn,Mode,_)
+	;	  
+	  ConType == mysql ->
+	postgres_result_set(Mode),
+	  c_postgres_query(SQL,_,Conn,Mode,_)
+	;
+	ConType == sqlite3 ->
+	sqlite3_result_set(Mode),
+	  c_sqlite3_query(SQL,_,Conn,Mode,_)
+	;
+	  ConType == odbc ->
+	odbc_result_set(Mode),
+	  c_odbc_query(SQL,_,Conn,Mode,_)
+	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 				% db_get_attributes_types/3
 				% db_get_attributes_types/2
@@ -1394,7 +1482,14 @@ db_get_attributes_types(Connection,RelationName,TypesList) :-
 	( ConType == mysql ->
 	  c_db_my_number_of_fields(RelationName,Con,Arity)
 	;
-	  c_db_odbc_number_of_fields(RelationName,Con,Arity)
+	  ConType == postgres ->
+	  c_postgres_number_of_fields(RelationName,Con,Arity)
+	;
+	  ConType == sqlite3 ->
+	  c_sqlite3_number_of_fields(RelationName,Con,Arity)
+	;
+	  ConType == odbc ->
+	  c_odbc_number_of_fields(RelationName,Con,Arity)
 	),
 	Size is 2*Arity,
 	'$make_a_list'(Size,TypesList),
@@ -1402,7 +1497,8 @@ db_get_attributes_types(Connection,RelationName,TypesList) :-
 	( ConType == mysql ->
 	  c_db_my_get_attributes_types(RelationName,Con,TypesList)
 	;
-	  c_db_odbc_get_attributes_types(RelationName,Con,TypesList)
+	  ConType == odbc ->
+	  c_odbc_get_attributes_types(RelationName,Con,TypesList)
 	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1424,7 +1520,7 @@ db_number_of_fields(Connection,RelationName,Arity) :-
 	;ConType == sqlite3 ->
 	  c_sqlite3_number_of_fields(RelationName,Con,Arity)
 	;
-	  c_db_odbc_number_of_fields(RelationName,Con,Arity)
+	  c_odbc_number_of_fields(RelationName,Con,Arity)
 	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

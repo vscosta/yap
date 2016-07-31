@@ -17,21 +17,24 @@ if (ODBC_FOUND)
   # ODBC_INCLUDE_DIRECTORIES, where to find sql.h
   # ODBC_LIBRARIES, the libraries to link against to use ODBC
   # ODBC_FOUND.  If false, you cannot build anything that requires Odbc.
-  set (MYDDAS_FLAGS ${MYDDAS_FLAGS} -DMYDDAS_ODBC=1 PARENT_SCOPE)
-    set_property( DIRECTORY .. APPEND PROPERTY COMPILE_DEFINITIONS  MYDDAS_ODBC=1 )
 add_library (Yapodbc SHARED ${YAPODBC_SOURCES})
 target_link_libraries(Yapodbc libYap ${ODBC_LIBRARIES})
 include_directories (${ODBC_INCLUDE_DIRECTORIES} ..)
 
 set_target_properties (Yapodbc PROPERTIES
   POSITION_INDEPENDENT_CODE ON
-  VERSION "${SO_MAJOR}.${SO_MINOR}.${SO_PATCH}"
-  SOVERSION ${SO_MAJOR}
+      PREFIX ""
   )
 
-   install(TARGETS  Yapodbc
-    LIBRARY DESTINATION ${libdir}
-    ARCHIVE DESTINATION ${libdir}
+  list (APPEND MYDDAS_FLAGS -DMYDDAS_ODBC=1)
+  set (MYDDAS_FLAGS ${MYDDAS_FLAGS} ON PARENT_SCOPE)
+  set_property(GLOBAL APPEND PROPERTY COMPILE_DEFINITIONS
+          -DMYDDAS_ODBC=1)
+
+
+  install(TARGETS  Yapodbc
+    LIBRARY DESTINATION ${dlls}
+    ARCHIVE DESTINATION ${dlls}
     )
 
 else()
