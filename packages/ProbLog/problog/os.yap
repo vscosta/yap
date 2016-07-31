@@ -237,11 +237,15 @@
 %========================================================================
 
 set_problog_path( _Path):-
-	retractall(problog_path(_)),    
+	retractall(problog_path(_)),
+	current_prolog_flag( executable, YAP ),
+	file_directory_name(YAP, P1),
+	current_prolog_flag( home, ROOT ),
+	atom_concat(ROOT, '/bin', P2),
 	getenv('PATH',Dirs),
 	path_grouping( PathSep ),
 	atomic_list_concat( LPaths, PathSep, Dirs),    
-	set_problog_paths( LPaths ),
+	set_problog_paths( [P1,P2| LPaths] ),
 	fail.
 
 
