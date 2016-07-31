@@ -44,6 +44,12 @@ endif()
 
 if (${CUDD_ROOT}) 
   set (CUDD_LIB_SEARCH_PATH 
+    $ENV{CUDD_ROOT}/lib
+    $ENV{CUDD_ROOT}/lib64
+    $ENV{CUDD_ROOT}/lib-dbg
+    $ENV{CUDD_ROOT}
+    ${CUDD_ROOT}/cudd
+    /usr/lib
     ${CUDD_ROOT}/lib
     ${CUDD_ROOT}/lib64
     ${CUDD_ROOT}/lib-dbg
@@ -52,12 +58,14 @@ if (${CUDD_ROOT})
  )
  endif()
 
- mark_as_advanced(CUDD_LIB_SEarcH_PATH on)
+ mark_as_advanced(CUDD_LIB_SEARCH_PATH on)
 
 
 set (CUDD_LIB_SEARCH_PATH 
     ${CUDD_LIB_SEARCH_PATH}
-     /usr/local/lib/cudd
+    /usr/lib64
+    /usr/lib
+    /usr/local/lib/cudd
     /usr/local/cudd/lib
     /usr/lib/cudd
     /usr/lib/cudd/lib
@@ -92,7 +100,7 @@ find_library(CUDD_EPD_LIBRARY
 
   
   find_library(CUDD_UTIL_LIBRARY
-    NAMES util 
+    NAMES cuddutil util 
     
     PATHS
      ${CUDD_LIB_SEARCH_PATH}
@@ -101,12 +109,6 @@ find_library(CUDD_EPD_LIBRARY
     NO_CMAKE_SYSTEM_PATH
     )
  
-   find_library(CUDD_UTIL_LIBRARY
-    NAMES cuddutil 
-    PATHS
-     ${CUDD_LIB_SEARCH_PATH}
-     )
-
   find_library(CUDD_MTR_LIBRARY
     NAMES  mtr
     PATHS
