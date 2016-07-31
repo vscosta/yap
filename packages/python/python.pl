@@ -372,7 +372,6 @@ python_lhs((Exp1,Exp2), O) :- !,
 python_lhs(F, F).
 
 start_python :-
-	init_python,
 	python_main_module(MRef),
 	assert(python_mref_cache('__main__', MRef)),
 	python_command('import sys'),
@@ -426,6 +425,5 @@ python_assign_field(C1.E, Obj) :-
 	python_eval_term(C1, O1),
 	python_assign_field(O1, E, Obj ).	
 
-:- initialization( use_foreign_library(foreign(libpython)), now ).
+:- initialization( use_foreign_library(foreign(libpython), init_python), now ).
 
-:- initialization(start_python ).

@@ -2,7 +2,10 @@
 #CHECK: PythonLibs
 
 set (PYTHON_SOURCES
-  python.c)
+  python.c pl2py.c pybips.c py2pl.c pl2pl.c pypreds.c )
+
+set (PYTHON_HEADERS
+  python.h)
 
 #try to use Brew first
 #set ( PYTHON_LIBRARY /Anaconda/lib/libpython2.7.dylib )
@@ -39,8 +42,15 @@ if (PYTHONLIBS_FOUND)         #   PYTHONLIBS_FOUND           - have the Python l
 
   add_library (libpython SHARED ${PYTHON_SOURCES})
 
+ configure_file ("setup.py.cmake"  "setup.py" )
+
   target_link_libraries(libpython libYap ${PYTHON_LIBRARIES})
 
+set(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
+
+add_custom_target ( YAPex ALL
+        COMMAND ${PYTHON_EXECUTABLE} setup.py build -f
+        DEPENDS yapex.py  )
 
   set_target_properties (libpython PROPERTIES PREFIX "")
 
@@ -55,5 +65,7 @@ if (PYTHONLIBS_FOUND)         #   PYTHONLIBS_FOUND           - have the Python l
     DESTINATION ${libpl}
     )
 
+install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} install -f
+   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
 
 endif (PYTHONLIBS_FOUND)
