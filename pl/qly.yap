@@ -252,6 +252,9 @@ qend_program :-
 	).
 
 '$do_init_state' :-
+  '$undefp_handler'('$undefp'(_,_), prolog),
+  fail.
+'$do_init_state' :-
 	set_value('$user_module',user),
 	'$protect',
 	fail.
