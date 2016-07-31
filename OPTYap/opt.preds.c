@@ -17,8 +17,8 @@
 
 #include "Yap.h"
 #if defined(YAPOR) || defined(TABLING)
-#include "Yatom.h"
 #include "YapHeap.h"
+#include "Yatom.h"
 #ifdef YAPOR
 #if HAVE_STRING_H
 #include <string.h>
@@ -158,7 +158,7 @@ struct page_statistics {
   BYTES += PgEnt_bytes_in_use(STATS);                                          \
   PAGES += PgEnt_pages_in_use(STATS)
 #define SHOW_PAGE_STATS_MSG(STR_NAME)                                          \
-  "  " STR_NAME "   %10ld bytes (%ld pages and %ld structs in use)\n"
+  "  " STR_NAME "   %10" Int_F " bytes (%ld pages and %ld structs in use)\n"
 #define SHOW_PAGE_STATS_ARGS(STATS, STR_TYPE)                                  \
   PgEnt_strs_in_use(STATS) * sizeof(STR_TYPE), PgEnt_pages_in_use(STATS),      \
       PgEnt_strs_in_use(STATS)
@@ -170,7 +170,7 @@ struct page_statistics {
 #define INCREMENT_AUX_STATS(STATS, BYTES, PAGES)                               \
   BYTES += PgEnt_bytes_in_use(STATS)
 #define SHOW_PAGE_STATS_MSG(STR_NAME)                                          \
-  "  " STR_NAME "   %10ld bytes (%ld structs in use)\n"
+  "  %s %10" Int_F "s bytes (%ld structs in use)\n", STR_NAME
 #define SHOW_PAGE_STATS_ARGS(STATS, STR_TYPE)                                  \
   PgEnt_strs_in_use(STATS) * sizeof(STR_TYPE), PgEnt_strs_in_use(STATS)
 #endif /* USE_PAGES_MALLOC */
