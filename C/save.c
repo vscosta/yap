@@ -1039,7 +1039,7 @@ restore_heap_regs( USES_REGS1 )
     HeapTop = AddrAdjust(HeapTop);
     *((YAP_SEG_SIZE *) HeapTop) = InUseFlag;
   }
-  HeapMax = HeapUsed = OldHeapUsed;
+  // HeapMax = HeapUsed = OldHeapUsed;
   HeapLim = LOCAL_GlobalBase;
 }
 
