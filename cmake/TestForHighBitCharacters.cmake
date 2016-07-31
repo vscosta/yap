@@ -25,7 +25,7 @@ if(NOT DEFINED CMAKE_HIGH_BIT_CHARACTERS)
    )
   try_compile(CMAKE_HIGH_BIT_CHARACTERS  
     ${CMAKE_BINARY_DIR}
-    ${CMAKE_SOURCE_DIR}/cmake/TestForHighBitCharacters.c
+    ${CMAKE_CURRENT_LIST_DIR}/TestForHighBitCharacters.c
     OUTPUT_VARIABLE OUTPUT)
   if(CMAKE_HIGH_BIT_CHARACTERS)
     message(STATUS "High-bit characters - work")
