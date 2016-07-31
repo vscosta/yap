@@ -10,7 +10,7 @@
 *									 *
 * File:		atts.yap						 *
 * Last rev:	8/2/88							 *
-* mods:									 *
+* mods:									 *  
 * comments:	attribute support for Prolog				 *
 *									 *
 *************************************************************************/
@@ -25,7 +25,7 @@
 
 :- module('$attributes', [
 			  delayed_goals/4
-			  ]).
+			  ], []).
 
 :- use_system_module( '$_boot', ['$undefp'/1]).
 
