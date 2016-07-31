@@ -94,7 +94,7 @@ Translates a message-term into a string object. Primarily intended for SWI-Prolo
 
  */
 prolog:message_to_string(Event, Message) :-
-	translate_message(Event, Message, []).
+	translate_message(Event, warning, Message, []).
 
 
 %%	@pred compose_message(+Term, +Level, +Lines, -Lines0) is det
@@ -103,7 +103,9 @@ prolog:message_to_string(Event, Message) :-
 %	The first is used for errors and warnings that can be related
 %	to source-location.  Note that syntax errors have their own
 %	source-location and should therefore not be handled this way.
-compose_message( Term, _Level ) -->
+compose_message( Term, Level ) -->
+	['   ~w:'- [Level]
+	],
 	prolog:message(Term), !.
 compose_message( query(_QueryResult,_), _Level) -->
 	[].
@@ -893,6 +895,10 @@ prolog:print_message(Severity, Msg) :-
 	->
 	 !,
 	 format(user_error, 'uninstantiated message~n', [])
+ ;
+	 Severity == silent
+ ->
+	 true
 	;
 	 '$pred_exists'(portray_message(_,_),user),
 	 user:portray_message(Severity, Msg)
@@ -909,12 +915,24 @@ prolog:print_message(Level, _Msg) :-
 	Level \= warning,
 	!.
 prolog:print_message(_, _Msg) :-
-	% first step at hook processi --ng
+	% first step at hook processing
 	'$nb_getval'('$if_skip_mode',skip,fail),
 	!.
 prolog:print_message(force(_Severity), Msg) :- !,
 	print(user_error,Msg).
 % This predicate has more hooks than a pirate ship!
+prolog:print_message(Severity, Term) :-
+	prolog:message( Term,Lines0, [ end(Id)]),
+	Lines = [begin(Severity, Id)| Lines0],
+	(
+	 user:message_hook(Term, Severity, Lines)
+	->
+	 true
+	;
+	 prefix( Severity, Prefix ),
+	 prolog:print_message_lines(user_error, Prefix, Lines)
+	),
+	!.
 prolog:print_message(Severity, Term) :-
 	translate_message( Term, Severity, Lines0, [ end(Id)]),
 	Lines = [begin(Severity, Id)| Lines0],
@@ -930,40 +948,6 @@ prolog:print_message(Severity, Term) :-
 prolog:print_message(Severity, _Term) :-
 	format('No handler for ~a message ~q,~n',[Severity, _Term]).
 
-
-% cases where we cannot afford to ever fail.
-'$undefp'([ImportingMod|G], _) :-
-	recorded('$import','$import'(ExportingModI,ImportingMod,G,G0I,_,_),_), !,
- % writeln('$execute'(G0I, ExportingModI)),
-	'$execute0'(G0I, ExportingModI).
-% undef handler
-'$undefp'([M0|G0], Action) :-
-    % make sure we do not loop on undefined predicates
-    '$stop_creeping'(Current),
-    yap_flag( unknown, Action, fail),
-    Action\=fail,
- %   yap_flag( debug, Debug, false),
-    (
-     '$undefp_search'(M0:G0, NM:NG),
-     ( M0 \== NM -> true  ; G0 \== NG ),
-     NG \= fail
-	->
-     yap_flag( unknown, _, Action),
-       %   yap_flag( debug, _, Debug),
-     (
-       Current == true
-      ->
-       % carry on signal processing
-       '$start_creep'([NM|NG], creep)
-     ;
-       '$execute0'(NG, NM)
-     )
-	;
-     yap_flag( unknown, _, Action),
-     '$handle_error'(Action,G0,M0)
-    ).
-
-:- '$undef_handler'('$undefp'(_,_), prolog).
 
 /**
   @}
