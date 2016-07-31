@@ -1,6 +1,7 @@
 
 #cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 
+if (CMAKE_MAJOR_VERSION GREATER 2)
   set ( HORUS_SOURCES
 	BayesBall.cpp
 	BayesBallGraph.cpp
@@ -71,3 +72,4 @@
     LIBRARY DESTINATION ${dlls}
     ARCHIVE DESTINATION ${dlls}
     )
+endif()
