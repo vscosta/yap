@@ -87,7 +87,7 @@ style_check(V) :-
 	V \= + _,
 	V \= + _, !,
 	'$do_error'( domain_error(style_name, V), style_check(V) ).
-	
+
 
 style_check(all) :-
 	style_check( [ singleton, discontiguous, multiple ] ).
@@ -139,7 +139,7 @@ style_check([H|T]) :- style_check(H), style_check(T).
 Turns off style checking according to the attribute specified by
  _X_, which have the same meaning as in style_check/1.
 
-The no_style_check/1 built-in is now deprecated. Please use 
+The no_style_check/1 built-in is now deprecated. Please use
 `set_prolog_flag/1` instead.
 
 **/
@@ -166,7 +166,7 @@ separated by clauses from other procedures.
 
 */
 
-
+discontiguous(P) :- '$discontiguous'(P).
 
 /*
 @}
