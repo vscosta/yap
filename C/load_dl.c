@@ -70,21 +70,13 @@ char *Yap_FindExecutable(void) {
   // Solaris
   return getexecname();
 #elif __APPLE__
-  char path[1024];
-  char *buf;
+  char *buf = malloc(YAP_FILENAME_MAX);
 
-  uint32_t size = sizeof(path);
-  if (!_NSGetExecutablePath(path, &size)) {
-    size_t sz = strlen(path);
-    buf = malloc(sz + 1);
-    strncpy(buf, path, sz);
+  uint32_t size;
+  if (!_NSGetExecutablePath(buf, &size)) {
+    buf = realloc(buf, size + 1);
     return buf;
-  } else {
-    char *rc = malloc(size + 1);
-    if (_NSGetExecutablePath(rc, &size) == 0)
-      return "yap";
-    return rc;
-  }
+  }     return "yap";
 #elif defined(__linux__)
   enum { BUFFERSIZE = 1024 };
   char *buf = malloc(BUFFERSIZE);
