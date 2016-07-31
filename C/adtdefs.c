@@ -27,23 +27,23 @@ static char SccsId[] = "%W% %G%";
 
 #include "Yap.h"
 #include "Yatom.h"
-#include "yapio.h"
 #include "clause.h"
+#include "yapio.h"
 #include <stdio.h>
 #include <wchar.h>
 #if HAVE_STRING_Hq
 #include <string.h>
 #endif
 
- uint64_t HashFunction(const unsigned char *CHP) {
+uint64_t HashFunction(const unsigned char *CHP) {
   /* djb2 */
   uint64_t hash = 5381;
   uint64_t c;
 
-  while ((c = (uint64_t)(*CHP++)) != '\0') {
+  while ((c = *CHP++) != '\0') {
     /* hash = ((hash << 5) + hash) + c; hash * 33 + c */
     hash = hash * (uint64_t)33 + c;
- }
+  }
   return hash;
   /*
   UInt OUT=0, i = 1;
@@ -63,7 +63,6 @@ uint64_t WideHashFunction(wchar_t *CHP) {
   return hash;
 }
 
-
 /* this routine must be run at least having a read lock on ae */
 static Prop
 GetFunctorProp(AtomEntry *ae,
@@ -78,8 +77,7 @@ GetFunctorProp(AtomEntry *ae,
 }
 
 /* vsc: We must guarantee that IsVarTerm(functor) returns true! */
-static inline Functor InlinedUnlockedMkFunctor(AtomEntry *ae,
-                                               arity_t arity) {
+static inline Functor InlinedUnlockedMkFunctor(AtomEntry *ae, arity_t arity) {
   FunctorEntry *p;
   Prop p0;
 
@@ -174,7 +172,7 @@ static Atom
 LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
   uint64_t hash;
   const unsigned char *p;
-  Atom a, na;
+  Atom a, na = NIL;
   AtomEntry *ae;
   size_t sz = AtomHashTableSize;
 
@@ -182,7 +180,7 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
   p = atom;
 
   hash = HashFunction(p);
-  hash = hash % sz ;
+  hash = hash % sz;
 
   /* we'll start by holding a read lock in order to avoid contention */
   READ_LOCK(HashChain[hash].AERWLock);
@@ -346,7 +344,7 @@ Atom Yap_LookupMaybeWideAtomWithLength(
     ptr0 = (wchar_t *)Yap_AllocCodeSpace(sizeof(wchar_t) * (len0 + 2));
     if (!ptr0)
       return NIL;
-    memcpy(ptr0, atom, (len0+1) * sizeof(wchar_t));
+    memcpy(ptr0, atom, (len0 + 1) * sizeof(wchar_t));
     ptr0[len0] = '\0';
     at = LookupWideAtom(ptr0);
     Yap_FreeCodeSpace((char *)ptr0);
@@ -566,10 +564,8 @@ Yap_OpPropForModule(Atom a,
 }
 
 OpEntry *
-Yap_GetOpProp(Atom a,
-              op_type type,
-              Term cmod
-                  USES_REGS) { /* look property list of atom a for kind  */
+Yap_GetOpProp(Atom a, op_type type,
+              Term cmod USES_REGS) { /* look property list of atom a for kind */
   AtomEntry *ae = RepAtom(a);
   PropEntry *pp;
   OpEntry *oinfo = NULL;
@@ -801,7 +797,7 @@ Prop Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod) {
     p->ModuleOfPred = 0L;
   } else
     p->ModuleOfPred = cur_mod;
-// TRUE_FUNC_WRITE_LOCK(fe);
+  // TRUE_FUNC_WRITE_LOCK(fe);
   INIT_LOCK(p->PELock);
   p->KindOfPE = PEProp;
   p->ArityOfPE = fe->ArityOfFE;
@@ -888,8 +884,7 @@ Prop Yap_NewThreadPred(PredEntry *ap USES_REGS) {
     return NIL;
   }
   INIT_LOCK(p->PELock);
-  p->StatisticsForPred = NULL:
-  p->KindOfPE = PEProp;
+  p->StatisticsForPred = NULL : p->KindOfPE = PEProp;
   p->ArityOfPE = ap->ArityOfPE;
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
   p->cs.p_code.NOfClauses = 0;

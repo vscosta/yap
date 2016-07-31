@@ -93,6 +93,10 @@ arrays. Memory mapped arrays are limited by available space in the file
 system and in the virtual memory space.
 
 The following predicates manipulate arrays:
+
+
+
+
 */
 
 #include "Yap.h"
@@ -100,6 +104,11 @@ The following predicates manipulate arrays:
 #include "clause.h"
 #include "eval.h"
 #include "heapgc.h"
+#if HAVE_ERRNO_H
+#include <errno.h>
+#else
+extern int errno;
+#endif
 #if HAVE_STRING_H
 #include <string.h>
 #endif

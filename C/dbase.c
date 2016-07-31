@@ -97,10 +97,10 @@ stored in the  i.d.b.
 */
 
 #include "Yap.h"
-#include "clause.h"
-#include "yapio.h"
 #include "attvar.h"
+#include "clause.h"
 #include "heapgc.h"
+#include "yapio.h"
 #if HAVE_STRING_H
 #include <string.h>
 #endif
@@ -712,15 +712,22 @@ loop:
       f = (Functor)(*ap2);
       if (IsExtensionFunctor(f)) {
         switch ((CELL)f) {
-        case (CELL) FunctorDBRef: {
+        case (CELL)FunctorDBRef: {
           DBRef dbentry;
-          /* store now the correct entry */
+
           dbentry = DBRefOfTerm(d0);
           *StoPoint++ = d0;
           dbg->lr--;
           if (dbentry->Flags & LogUpdMask) {
             LogUpdClause *cl = (LogUpdClause *)dbentry;
-
+/* store now the correct entry */
+#if DEBUG
+            if (GLOBAL_Option['i' - 'a' + 1]) {
+              Yap_DebugPlWriteln(d0);
+              fprintf(stderr, "+%p@%p %s\n", cl, cl->ClPred,
+                      IndicatorOfPred(cl->ClPred));
+            }
+#endif
             cl->ClRefCount++;
           } else {
             dbentry->NOfRefsTo++;
@@ -731,14 +738,14 @@ loop:
           ++pt0;
           continue;
         }
-        case (CELL) FunctorLongInt:
+        case (CELL)FunctorLongInt:
           CheckDBOverflow(3);
           *StoPoint++ = AbsAppl(CodeMax);
           CodeMax = copy_long_int(CodeMax, ap2);
           ++pt0;
           continue;
 #ifdef USE_GMP
-        case (CELL) FunctorBigInt:
+        case (CELL)FunctorBigInt:
           CheckDBOverflow(3 + Yap_SizeOfBigInt(d0));
           /* first thing, store a link to the list before we move on */
           *StoPoint++ = AbsAppl(CodeMax);
@@ -746,7 +753,7 @@ loop:
           ++pt0;
           continue;
 #endif
-        case (CELL) FunctorString: {
+        case (CELL)FunctorString: {
           CELL *st = CodeMax;
 
           CheckDBOverflow(3 + ap2[1]);
@@ -756,7 +763,7 @@ loop:
           ++pt0;
           continue;
         }
-        case (CELL) FunctorDouble: {
+        case (CELL)FunctorDouble: {
           CELL *st = CodeMax;
 
           CheckDBOverflow(4);
@@ -1340,7 +1347,7 @@ static DBRef CreateDBRefForAtom(Term Tm, DBProp p, int InFlag,
   UInt sz = DBLength(NIL);
 
   flag = DBAtomic;
-  if (InFlag &MkIfNot && (dbg->found_one = check_if_cons(p->First, Tm)))
+  if (InFlag & MkIfNot && (dbg->found_one = check_if_cons(p->First, Tm)))
     return dbg->found_one;
   pp = AllocDBSpace(sz);
   if (pp == NIL) {
@@ -1368,7 +1375,7 @@ static DBRef CreateDBRefForVar(Term Tm, DBProp p, int InFlag,
   Register DBRef pp;
   UInt sz = DBLength(NULL);
 
-  if (InFlag &MkIfNot && (dbg->found_one = check_if_var(p->First)))
+  if (InFlag & MkIfNot && (dbg->found_one = check_if_var(p->First)))
     return dbg->found_one;
   pp = AllocDBSpace(sz);
   if (pp == NULL) {
@@ -1499,17 +1506,17 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
       fun = FunctorOfTerm(Tm);
       if (IsExtensionFunctor(fun)) {
         switch ((CELL)fun) {
-        case (CELL) FunctorDouble:
+        case (CELL)FunctorDouble:
           ntp = copy_double(ntp0, RepAppl(Tm));
           break;
-        case (CELL) FunctorString:
+        case (CELL)FunctorString:
           ntp = copy_string(ntp0, RepAppl(Tm));
           break;
-        case (CELL) FunctorDBRef:
+        case (CELL)FunctorDBRef:
           Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
           return CreateDBWithDBRef(Tm, p, dbg);
 #ifdef USE_GMP
-        case (CELL) FunctorBigInt:
+        case (CELL)FunctorBigInt:
           ntp = copy_big_int(ntp0, RepAppl(Tm));
           break;
 #endif
@@ -2503,8 +2510,8 @@ static Term GetDBTerm(DBTerm *DBSP, int src USES_REGS) {
     CalculateStackGap(PASS_REGS1);
     if (HR + NOf > ASP - EventFlag / sizeof(CELL)) {
       if (LOCAL_PrologMode & InErrorMode) {
-	LOCAL_PrologMode &= ~InErrorMode;       
-	if (HR + NOf > ASP)
+        LOCAL_PrologMode &= ~InErrorMode;
+        if (HR + NOf > ASP)
           fprintf(stderr,
                   "\n\n [ FATAL ERROR: No Stack for Error Handling ]\n");
         Yap_exit(1);
@@ -2714,9 +2721,9 @@ static PredEntry *new_lu_entry(Term t) {
   pe->PredFlags |= LogUpdatePredFlag;
   if (IsAtomTerm(t)) {
     pe->PredFlags |= AtomDBPredFlag;
-    pe->FunctorOfPred = (Functor)AtomOfTerm(t);    
+    pe->FunctorOfPred = (Functor)AtomOfTerm(t);
   } else {
-    pe->FunctorOfPred = FunctorOfTerm(t);    
+    pe->FunctorOfPred = FunctorOfTerm(t);
   }
   pe->ArityOfPE = 3;
   pe->OpcodeOfPred = Yap_opcode(_op_fail);
@@ -2753,7 +2760,7 @@ static DBProp find_entry(Term t) {
     arity = 2;
   }
   DBProp rc = RepDBProp(FindDBProp(RepAtom(at), 0, arity, 0));
-    return rc;
+  return rc;
 }
 
 static PredEntry *find_lu_entry(Term t) {
@@ -3971,7 +3978,7 @@ static void EraseLogUpdCl(LogUpdClause *clau) {
         }
       }
       clau->ClTimeEnd = ap->TimeStampOfPred;
-      Yap_RemoveClauseFromIndex(ap, clau->ClCode);
+        Yap_RemoveClauseFromIndex(ap, clau->ClCode);
       /* release the extra reference */
     }
     clau->ClRefCount--;
@@ -4266,7 +4273,7 @@ static Int p_current_reference_counter(USES_REGS1) {
     Yap_Error(INSTANTIATION_ERROR, t1, "increase_reference_counter/1");
     return FALSE;
   }
-                                if (!IsDBRefTerm(t1)) {
+  if (!IsDBRefTerm(t1)) {
     Yap_Error(TYPE_ERROR_DBREF, t1, "increase_reference_counter");
     return FALSE;
   }
