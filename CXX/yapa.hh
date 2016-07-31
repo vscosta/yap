@@ -47,12 +47,14 @@ enum PropTag {
  *
  */
 class YAPAtom {
+  friend class YAPEngine;
   friend class YAPModuleProp;
   friend class YAPPredicate;
   friend class YAPFunctor;
   friend class YAPAtomTerm;
   friend class YAProp;
   friend class YAPModule;
+  friend class YAPQuery;
   Atom a;
   /// construct new YAPAtom from Atom
   YAPAtom( Atom at ) { a = at; }
@@ -66,8 +68,10 @@ YAPAtom( const char * s, size_t len) { a = Yap_LookupAtomWithLength( s, len ); }
   /// construct new YAPAtom from max-length wide string
   YAPAtom( const wchar_t * s, size_t len) { a = Yap_LookupMaybeWideAtomWithLength( s, len ); }
   /// get name of atom
-  char *getName(void);
-  /// get prop of type 
+  const char *getName(void);
+  ///  get name of  (other way)
+       inline const char *text(void)  { return getName(); } ;
+       /// get prop of type
   Prop getProp( PropTag tag ) { return Yap_GetAProp( a , (PropFlags)tag ); }  
 };
 
