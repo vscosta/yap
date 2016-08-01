@@ -956,7 +956,9 @@ static void RestoreBallTerm(int wid) {
   }
 }
 
+#if defined(THREADS) || defined(YAPOR)
 #include "rglobals.h"
+#endif
 
 #include "rlocals.h"
 
