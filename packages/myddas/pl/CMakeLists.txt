@@ -20,7 +20,6 @@ function(cpp_compile output filename)
     get_filename_component(base ${filename} NAME_WE)
     set(base_abs ${CMAKE_CURRENT_BINARY_DIR}/${base})
     set(outfile ${base_abs}.yap)
-    message(${outfile})
      set(${output} ${${output}} ${outfile} PARENT_SCOPE)
             IF (MSVC)
         add_custom_command(
@@ -39,8 +38,6 @@ endfunction()
 function(cpp_driver output dbms filename)
   set(outfile ${CMAKE_CURRENT_BINARY_DIR}/myddas_${dbms}.yap)
     set(${output} ${${output}} ${outfile} PARENT_SCOPE)
-    message(${outfile})
-
                    IF (MSVC)
 		    add_custom_command(
                 OUTPUT ${outfile}

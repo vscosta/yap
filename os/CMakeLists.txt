@@ -67,9 +67,13 @@ include(CheckFunctionExists)
 include(CheckSymbolExists)
 include(CheckVariableExists)
 
- option (READLINE  "GNU readline console" ON)
+ option (WITH_READLINE  "GNU readline console" ON)
 
- if (READLINE)
+ if (WIN32)
+   set (WITH_READLINE OFF)
+   endif (WIN32)
+ 
+ if (WITH_READLINE)
   macro_optional_find_package (Readline ON)
   macro_log_feature (READLINE_FOUND "libreadline"
     "Readline line editing library"
@@ -84,10 +88,8 @@ include(CheckVariableExists)
   # also defined, but not for general use are
   # READLINE_readline_LIBRARY, where to find the READLINE library.
   # READLINE_ncurses_LIBRARY, where to find the ncurses library [might not be defined]
-
   include_directories (BEFORE ${READLINE_INCLUDE_DIR})
-  set_property( TARGET libYap APPEND PROPERTY  LINK_LIBRARIES ${READLINE_LIBRARIES} )
-list( APPEND CMAKE_REQUIRED_LIBRARIES ${READLINE_LIBRARIES} )
+  list( APPEND CMAKE_REQUIRED_LIBRARIES ${READLINE_LIBRARIES} )
  check_include_files( "stdio.h;readline/readline.h" HAVE_READLINE_READLINE_H )
   check_include_files( "stdio.h;readline/history.h"  HAVE_READLINE_HISTORY_H )
  if (HAVE_READLINE_READLINE_H)
@@ -113,9 +115,7 @@ list( APPEND CMAKE_REQUIRED_LIBRARIES ${READLINE_LIBRARIES} )
      endif()
 endif (READLINE_FOUND)
 
-
-
   set( READLINE_LIBS ${READLINE_LIBRARIES} PARENT_SCOPE)
 
-endif (READLINE)
+endif (WITH_READLINE)
 

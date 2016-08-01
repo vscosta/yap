@@ -33,9 +33,9 @@ include(Prelims NO_POLICY_SCOPE)
 
 include(Sources NO_POLICY_SCOPE)
 
-
 include(Model NO_POLICY_SCOPE)
 
+include_directories ( utf8proc packages/myddas packages/myddas/sqlite3 packages/myddas/sqlite3/Android/jni/sqlite/nativehelper packages/myddas/sqlite3/Android/jni/sqlite/ )
 add_definitions(-DUSE_MYDDAS=1 -DMYDDAS_SQLITE3=1)
 
 if (MYSQL_FOUND)
@@ -75,6 +75,11 @@ else ()
 
 endif ()
 
+if (WIN32)
+  list (APPEND YLIBS    $<TARGET_OBJECTS:Yap++>)
+
+  endif()
+
 add_library( # Sets the name of the library.
         libYap
 
@@ -84,20 +89,18 @@ add_library( # Sets the name of the library.
         ${ENGINE_SOURCES}
         ${C_INTERFACE_SOURCES}
         ${STATIC_SOURCES}
-        ${HEADERS}
-        ${WINDLLS}
-        ${YLIBS}
         ${ALL_SOURCES}
+        ${YLIBS}
+        ${WINDLLS}
         )
 
-include(libYap)
+include(libYap NO_POLICY_SCOPE)
 
-if (USE_GMP)
-    target_link_libraries(libYap ${READLINE_LIBRARIES})
-endif (USE_GMP)
+
 if (USE_READLINE)
-    target_link_libraries(libYap libGMP)
+    target_link_libraries(libYap ${READLINE_LIBRARIES})
 endif (USE_READLINE)
+
 
 if (ANDROID)
 
@@ -108,5 +111,6 @@ set_target_properties(libYap
         PROPERTIES OUTPUT_NAME Yap
         )
 
-include(Config)
-MY_include(Packages)
+
+    include(Config NO_POLICY_SCOPE)
+MY_include(Packages NO_POLICY_SCOPE)

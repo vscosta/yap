@@ -84,3 +84,10 @@ ELSE(READLINE_FOUND)
     MESSAGE(SYSTEM_ERROR_FATAL "Could not find readline -- please give some paths to CMake")
   ENDIF(READLINE_FIND_REQUIRED)
 ENDIF(READLINE_FOUND)
+
+find_package_handle_standard_args(Readline READLINE_INCLUDE_DIR READLINE_LIBRARIES  READLINE_readline_LIBRARY READLINE_ncurses_LIBRARY)
+
+
+MARK_AS_ADVANCED(
+  READLINE_FOUND
+  )

@@ -10,16 +10,19 @@ set (CXX_SOURCES
 
 list(APPEND LIBYAP_SOURCES ${CXX_SOURCES} PARENT_SCOPE)
 
-add_external (Yap++ ${CXX_SOURCES} )
-if (ANDROID)
+
+if (ANDROID OR WIN32)
+add_component (Yap++ ${CXX_SOURCES} )
 else()
+add_external (Yap++ ${CXX_SOURCES} )
 MY_target_link_libraries(Yap++ ${CMAKE_DL_LIBS} libYap)
-endif()
 
 MY_install(TARGETS  Yap++
   LIBRARY DESTINATION ${libdir}
   ARCHIVE DESTINATION ${libdir}
   )
+endif()
+
 
 
 include_directories (H include ${CMAKE_BINARY_DIR} ${GMP_INCLUDE_DIR})

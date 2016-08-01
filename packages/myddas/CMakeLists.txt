@@ -35,6 +35,7 @@ set_property(GLOBAL
         COMPILE_DEFINITIONS
         -DUSE_MYDDAS=1)
 
+include_directories(. sqlite3)
 add_subdirectory(sqlite3)
 
 MY_add_subdirectory(mysql)

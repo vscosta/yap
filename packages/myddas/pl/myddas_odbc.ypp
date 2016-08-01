@@ -1,0 +1,226 @@
+%/*************************************************************************
+*									 *
+*	 YAP Prolog 							 *
+*									 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 *
+**************************************************************************
+*									 *
+* File:		myddas_mysql.yap					 *
+* Last rev:								 *
+* mods:									 *
+* comments:	MySQL Predicates                 			 *
+*									 *
+*************************************************************************/
+#ifdef MYDDAS_SQLITE3
+
+:- module(myddas_sqlite3,[
+			  sqlite3_result_set/1,
+			  sqlite3_datalog_describe/1,
+			  sqlite3_datalog_describe/2,
+			  sqlite3_describe/3,
+			  sqlite3_describe/2,
+			  sqlite3_datalog_show_tables/1,
+			  sqlite3_datalog_show_tables/0,
+			  sqlite3_show_tables/2,
+			  sqlite3_show_tables/1,
+			  sqlite3_show_database/2,
+			  sqlite3_show_databases/2,
+			  sqlite3_show_databases/1,
+			  sqlite3_change_database/2,
+			  sqlite3_call_procedure/4,
+			  sqlite3_call_procedure/3,
+			  c_sqlite3_change_database/2,
+			  c_sqlite3_connect/4,
+			  c_sqlite3_disconnect/1,
+			  c_sqlite3_get_attributes_types/3,
+			  c_sqlite3_get_database/2,
+			  c_sqlite3_get_fields_properties/3,
+			  c_sqlite3_get_next_result_set/3,
+			  c_sqlite3_query/5,
+			  c_sqlite3_number_of_fields/3,
+			  c_sqlite3_row/3
+			 ]).
+
+:- use_module(myddas,[
+		      db_sql/3
+		     ]).
+
+:- use_module(myddas_errors,[
+			     '$error_checks'/1
+			    ]).
+
+:- use_module(myddas_util_predicates,[
+				      '$get_value'/2,
+				      '$make_atom'/2,
+				      '$make_atom_args'/2,
+				      '$make_a_list'/2,
+				      '$write_or_not'/1
+				     ]).
+:- load_foreign_files( ['Yapsqlite3'], [], init_sqlite3).
+
+%--------------------------------------------------------
+% Public Predicates
+%--------------------------------------------------------
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% sqlite3_result_set/1
+%
+%
+sqlite3_result_set(X):-
+	var(X),!,
+	get_value(sqlite3_result_set,X).
+sqlite3_result_set(use_result):-
+	set_value(sqlite3_result_set,use_result).
+sqlite3_result_set(store_result):- 
+	set_value(sqlite3_result_set,store_result).
+%default value
+:- sqlite3_result_set(use_result).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% sqlite3_describe/2
+%
+%
+sqlite3_datalog_describe(Relation):-
+	sqlite3_datalog_describe(myddas,Relation).
+sqlite3_datalog_describe(Connection,Relation) :-
+	'$error_checks'(sqlite3_datalog_describe(Relation,Connection)),
+	'$get_value'(Connection,Conn),
+	'$make_atom'(['DESCRIBE ',Relation],SQL),
+	sqlite3_result_set(Mode),
+	c_sqlite3_query(SQL,ResultSet,Conn,Mode,_),
+	c_sqlite3_table_write(ResultSet).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% sqlite3_describe/3
+% sqlite3_describe/2
+% gives the results of the DESCRIBE statement
+% by backtracking
+sqlite3_describe(Relation,TableInfo) :-
+	sqlite3_describe(myddas,Relation,TableInfo).
+sqlite3_describe(Connection,Relation,tableinfo(A1,A2,A3,A4,A5,A6)) :-
+	'$error_checks'(sqlite3_describe(Relation,Connection,_)),
+	'$get_value'(Connection,Conn),
+	'$make_atom'(['DESCRIBE ',Relation],SQL),
+	sqlite3_result_set(Mode),
+	'$write_or_not'(SQL),
+	c_sqlite3_query(SQL,ResultSet,Conn,Mode,_),
+	!,
+	c_sqlite3_row(ResultSet,6,[A1,A2,A3,A4,A5,A6]).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% sqlite3_datalog_show_tables/1
+%
+%
+sqlite3_datalog_show_tables:-
+	sqlite3_datalog_show_tables(myddas).
+sqlite3_datalog_show_tables(Connection) :-
+	'$error_checks'(sqlite3_show_tables(Connection)),
+	'$get_value'(Connection,Conn),
+	sqlite3_result_set(Mode),
+	'$write_or_not'('.tables'),
+	c_sqlite3_query('.tables',ResultSet,Conn,Mode,_),
+	c_sqlite3_table_write(ResultSet).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% sqlite3_show_tables/2
+% sqlite3_show_tables/1
+% gives the results of the SHOW TABLES statement
+% by backtracking
+sqlite3_show_tables(Table) :-
+	sqlite3_show_tables(myddas,Table).
+sqlite3_show_tables(Connection,table(Table)) :-
+	'$error_checks'(sqlite3_show_tables(Connection)),
+	'$get_value'(Connection,Conn),
+	sqlite3_result_set(Mode),
+	'$write_or_not'('.tables'),
+	c_sqlite3_query('.tables',ResultSet,Conn,Mode,_),
+	!,c_sqlite3_row(ResultSet,1,[Table]).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% sqlite3_show_database/2
+% 
+%
+sqlite3_show_database(Connection,Database) :-
+	'$error_checks'(sqlite3_show_database(Connection,Database)),
+	'$get_value'(Connection,Con),
+	c_sqlite3_get_database(Con,Database).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% sqlite3_show_databases/2
+% 
+%
+sqlite3_show_databases(Connection,database(Databases)) :-
+	%'$error_checks'(sqlite3_show_databases(Connection,Database)),
+	'$get_value'(Connection,Conn),
+	sqlite3_result_set(Mode),
+	'$write_or_not'('SHOW DATABASES'),
+	c_sqlite3_query('SHOW DATABASES',ResultSet,Conn,Mode,_),
+	!,c_sqlite3_row(ResultSet,1,[Databases]).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% sqlite3_show_databases/1
+% TODO Error Checks
+%
+sqlite3_show_databases(Connection) :-
+	'$error_checks'(sqlite3_show_databases(Connection)),
+	'$get_value'(Connection,Conn),
+	sqlite3_result_set(Mode),
+	'$write_or_not'('SHOW DATABASES'),
+	c_sqlite3_query('SHOW DATABASES',ResultSet,Conn,Mode,_),
+	c_sqlite3_table_write(ResultSet).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% sqlite3_change_database/2
+% 
+%
+sqlite3_change_database(Connection,Database) :-
+	'$error_checks'(sqlite3_change_database(Connection,Database)),
+	'$get_value'(Connection,Con),
+	'$make_atom'(['USE ',Database],SQL),
+	'$write_or_not'(SQL),
+	c_sqlite3_change_database(Con,Database).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% sqlite3_call_procedure/4
+% sqlite3_call_procedure/3
+% sqlite3_call_procedure(+,+,+,?)				
+% Only support in MySQL 5.0 an above
+% Called procedure must return results via MySQL result set
+sqlite3_call_procedure(Procedure,Args,Result) :-
+	sqlite3_call_procedure(myddas,Procedure,Args,Result).
+sqlite3_call_procedure(Connection,Procedure,Args,LA) :-
+	'$error_checks'(sqlite3_call_procedure(Connection,Procedure,Args,LA)),
+	'$make_atom_args'(Args,ArgsSQL),
+	'$make_atom'(['CALL ',Procedure,'(',ArgsSQL,')'],SQL),
+	sqlite3_sql(Connection,SQL,LA).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+#endif /* MYDDAS_SQLITE3 */

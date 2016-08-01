@@ -75,11 +75,9 @@ if (GMP_FOUND)
 # GMP_INCLUDE_DIRS  - include search path
 # GMP_LIBRARIES      - libraries to link with
 # GMP_LIBRARY_    #add_executable(test ${SOURCES})
-add_library(libGMP SHARED IMPORTED GLOBAL)
-set_target_properties(libGMP PROPERTIES IMPORTED_LOCATION ${GMP_LIBRARIES})
     #config.h needs this (TODO: change in code latter)
     include_directories( ${GMP_INCLUDE_DIRS} )
-target_link_libraries(libYap libGMP)
+    target_link_libraries(libYap ${GMP_LIBRARIES} )
 endif (GMP_FOUND)
 
 include( Threads )
@@ -94,14 +92,18 @@ list(APPEND YAP_SYSTEM_OPTIONS "thread support")
 #utf-8 is not an option
 # we use the nice UTF-8 package
 #available at the Julia project
-include_directories ( utf8proc )
-MY_ADD_SUBDIRECTORY ( utf8proc )
 
 MY_ADD_SUBDIRECTORY ( os )
 MY_ADD_SUBDIRECTORY ( OPTYap )
 MY_ADD_SUBDIRECTORY ( packages/myddas )
+MY_ADD_SUBDIRECTORY ( utf8proc )
 MY_ADD_SUBDIRECTORY ( library/dialect/swi/fli )
 MY_ADD_SUBDIRECTORY ( CXX )
+
+if (READLINE_LIBS)
+  target_link_libraries(libYap ${READLINE_LIBS} )
+endif (READLINE_LIBS)
+
 
 #bootstrap and saved state
 add_subDIRECTORY ( pl  )

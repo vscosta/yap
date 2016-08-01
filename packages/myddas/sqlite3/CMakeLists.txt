@@ -22,12 +22,13 @@ set (SQLITE3_FOUND ON CACHE PRIVATE "")
       "   * Sqlite3 Data-Base (http://www.sqlite3ql.org) is distributed with
       MYDDAS" )
 
-  include_directories (  .. . Android/jni/sqlite Android/jni/sqlite/nativehelper)
-
-list (APPEND MYDDAS_FLAGS -DMYDDAS_SQLITE3=1)
+ list (APPEND MYDDAS_FLAGS -DMYDDAS_SQLITE3=1)
 set (MYDDAS_FLAGS ${MYDDAS_FLAGS} ON PARENT_SCOPE)
 set_property(GLOBAL APPEND PROPERTY COMPILE_DEFINITIONS
         -DMYDDAS_SQLITE3=1)
+
+       include_directories (  ${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/Android/jni/sqlite ${CMAKE_CURRENT_SOURCE_DIR}/Android/jni/sqlite/nativehelper)
+
 
 if (ANDROID)
   add_external (Yapsqlite3   ${YAPSQLITE3_SOURCES}  ${YAPSQLITE3_ANDROID_SOURCES})
