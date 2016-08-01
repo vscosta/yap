@@ -1210,10 +1210,11 @@ static Int with_output_to(USES_REGS1) {
       (f == FunctorAtom || f == FunctorString || f == FunctorCodes1 ||
        f == FunctorCodes || f == FunctorChars1 || f == FunctorChars)) {
     output_stream = Yap_OpenBufWriteStream(PASS_REGS1);
-    mem_stream = true;
+    my_mem_stream = true;
   } else {
     /* needs to change LOCAL_c_output_stream for write */
     output_stream = Yap_CheckStream(ARG1, Output_Stream_f, "format/3");
+    my_mem_stream = false;
   }
   if (output_stream == -1) {
     return false;
