@@ -19,10 +19,10 @@ static char SccsId[] = "%W% %G%";
 
 #endif
 
-#include "Yap.h"
-#include "Yatom.h"
-#include "YapHeap.h"
 #include "alloc.h"
+#include "Yap.h"
+#include "YapHeap.h"
+#include "Yatom.h"
 #include "yapio.h"
 #if HAVE_STRING_H
 #include <string.h>
@@ -45,8 +45,8 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #if __simplescalar__
 #ifdef USE_SYSTEM_MMAP
@@ -69,37 +69,35 @@ static char SccsId[] = "%W% %G%";
 #undef malloc
 #undef realloc
 
-int write_malloc=0;
+int write_malloc = 0;
 
-void * my_malloc(size_t sz)
-{
+void *my_malloc(size_t sz) {
   void *p;
 
-  p =  malloc(sz);
+  p = malloc(sz);
   //    Yap_DebugPuts(stderr,"gof\n");
-  if (sz > 500 & write_malloc++ > 0)
-  __android_log_print(ANDROID_LOG_ERROR,  "YAPDroid ", "+ %d %p", write_malloc, p);
+  if (sz > 500 && write_malloc++ > 0)
+    __android_log_print(ANDROID_LOG_ERROR, "YAPDroid ", "+ %d %p", write_malloc,
+                        p);
   return p;
 }
 
-void * my_realloc(void *ptr, size_t sz)
-{
+void *my_realloc(void *ptr, size_t sz) {
   void *p;
 
-  p =  realloc(ptr, sz);
+  p = realloc(ptr, sz);
   //    Yap_DebugPuts(stderr,"gof\n");
-  if (sz > 500 & write_malloc++ > 0)
-  __android_log_print(ANDROID_LOG_ERROR,  "YAPDroid ", "* %d %p", write_malloc, p);
+  if (sz > 500 && write_malloc++ > 0)
+    __android_log_print(ANDROID_LOG_ERROR, "YAPDroid ", "* %d %p", write_malloc,
+                        p);
   return p;
 }
 
-
-
-void my_free(void *p)
-{
-  //printf("f %p\n",p);
-   if (write_malloc && write_malloc++ > 0)
-   __android_log_print(ANDROID_LOG_ERROR,  "YAPDroid ", "- %d %p", write_malloc, p);
+void my_free(void *p) {
+  // printf("f %p\n",p);
+  if (write_malloc && write_malloc++ > 0)
+    __android_log_print(ANDROID_LOG_ERROR, "YAPDroid ", "- %d %p", write_malloc,
+                        p);
 
   free(p);
   //    Yap_DebugPuts(stderr,"gof\n");
@@ -344,8 +342,7 @@ ADDR Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip, int safe) {
   tmalloc -= LOCAL_ScratchPad.sz;
   tmalloc += sz;
 #endif
-  if (!(ptr =
-	my_realloc(LOCAL_ScratchPad.ptr, sz))) {
+  if (!(ptr = my_realloc(LOCAL_ScratchPad.ptr, sz))) {
     LOCAL_PrologMode &= ~MallocMode;
 #if USE_DL_MALLOC
     UNLOCK(DLMallocLock);
@@ -1086,8 +1083,7 @@ static MALLOC_T mmap_extension(Int s, MALLOC_T base, int fixed_allocation) {
       MAP_PRIVATE
 #if !defined(__linux)
           /* use  MAP_FIXED, otherwise God knows where you will be placed */
-          |
-          fixed_allocation
+          | fixed_allocation
 #endif
       ,
       fd, 0);
