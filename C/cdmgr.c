@@ -1697,6 +1697,9 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
     mode = asserta;
   } else if (tmode == TermAssertzStatic) {
     mode = assertz;
+  } else {
+    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, tmode,
+              "compilation mode used to assert") return false;
   }
   if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorAssert)
     tf = ArgOfTerm(1, t);
@@ -1862,7 +1865,8 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
   } else {
     tf = Yap_MkStaticRefTerm(ClauseCodeToStaticClause(cp), p);
   }
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "add %s/%ld %p", RepAtom(at)->StrOfAE, Arity);
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "add %s/%ld %p",
+                      RepAtom(at)->StrOfAE, Arity);
   if (mod == PROLOG_MODULE)
     mod = TermProlog;
   if (pflags & MultiFileFlag) {
