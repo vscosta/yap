@@ -325,8 +325,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
     va_list ap;
   CELL nt[3];
   Functor fun;
-  bool serious;
-  Term tf, error_t, comment;
+  bool  error_t, comment;
   char *format;
   char s[MAXPATHLEN];
 
@@ -343,8 +342,8 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
     where = TermNil;
   }
   // first, obtain current location
-  sprintf(LOCAL_FileNameBuf, "%s:%d in C-function %s ", file, lineno, function);
-  tf = MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf));
+  // sprintf(LOCAL_FileNameBuf, "%s:%d in C-function %s ", file, lineno, function);
+  //  tf = MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf));
 #if DEBUG_STRICT
   if (Yap_heap_regs && !(LOCAL_PrologMode & BootMode))
     fprintf(stderr, "***** Processing Error %d (%lx,%x) %s***\n", type,
@@ -434,7 +433,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   switch (type) {
   case SYSTEM_ERROR_INTERNAL: {
     fprintf(stderr, "%% Internal YAP Error: %s exiting....\n", tmpbuf);
-    serious = TRUE;
+    //    serious = true;
     if (LOCAL_PrologMode & BootMode) {
       fprintf(stderr, "%% YAP crashed while booting %s\n", tmpbuf);
     } else {
@@ -450,7 +449,6 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
       fprintf(stderr, "Execution stack:\n");
       for (i = 0; i < frames; ++i) {
 	fprintf(stderr, "       %s\n", strs[i]);
-
       }
       free(strs);
 #endif
@@ -467,7 +465,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   case ABORT_EVENT:
     nt[0] = MkAtomTerm(AtomDAbort);
     fun = FunctorDollarVar;
-    serious = TRUE;
+    //    serious = true;
     break;
   case CALL_COUNTER_UNDERFLOW_EVENT:
     /* Do a long jump */
