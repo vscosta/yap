@@ -1,3 +1,7 @@
+#ifndef MYDDAS_TYPES_H
+
+#define MYDDAS_TYPES_H 1
+
 /* MYDDAS TYPES */
 /* sizeof(MyddasPointer) Equal to the size of a integer on the given architecture */
 /* sizeof(MyddasInt32) = 4 (Always) */
@@ -111,3 +115,4 @@
  }
 #endif
 
+#endif
