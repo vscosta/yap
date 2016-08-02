@@ -18,6 +18,7 @@
 	    existence_error/2,		% +Type, +Term
 	    permission_error/3,		% +Action, +Type, +Term
             must_be_instantiated/1,        % +Term
+            must_bind_to_type/2,        % +Type, ?Term
 	    instantiation_error/1,	% +Term
 	    representation_error/1, 	% +Reason
 	    is_of_type/2		% +Type, +Term
@@ -139,6 +140,12 @@ must_be_of_type(Type, X, _Comment) :-
 	;   is_not(Type, X)
 	).
 
+must_bind_to_type(Type, X) :-
+	(   may_bind_to_type(Type, X), writeln(X)
+	->  true
+	;   is_not(Type, X)
+	).
+
 %%	@predicate is_not(+Type, @Term)
 %
 %	Throws appropriate error. It is _known_ that Term is not of type
@@ -236,6 +243,64 @@ has_type(rational, X)	  :- rational(X).
 has_type(string, X)	  :- string(X).
 has_type(stream, X)	  :- is_stream(X).
 has_type(list(Type), X)	  :- is_list(X), element_types(X, Type).
+
+%%	may_bind_to_type(+Type, @Term) is semidet.
+%
+%	True if _Term_ or term _Term\theta_ satisfies _Type_.
+
+may_bind_to_type(_, X ) :- var(X), !.
+may_bind_to_type(impossible, _) :-	instantiation_error(_).
+may_bind_to_type(any, _).
+may_bind_to_type(atom, X)	  :- atom(X).
+may_bind_to_type(atomic, X)	  :- atomic(X).
+may_bind_to_type(between(L,U), X) :- (   integer(L)
+			     ->  integer(X), between(L,U,X)
+			     ;   number(X), X >= L, X =< U
+			     ).
+may_bind_to_type(boolean, X) 	  :- (X==true;X==false), !.
+may_bind_to_type(callable, X)	  :- callable(X).
+may_bind_to_type(chars,	X)	  :- chars(X).
+may_bind_to_type(codes,	X)	  :- codes(X).
+may_bind_to_type(text, X)	  :- text(X).
+may_bind_to_type(compound, X)	  :- compound(X).
+may_bind_to_type(constant, X)	  :- atomic(X).
+may_bind_to_type(float, X)	  :- float(X).
+may_bind_to_type(ground, X)	  :- ground(X).
+may_bind_to_type(integer, X)	  :- integer(X).
+may_bind_to_type(nonneg, X)	  :- integer(X), X >= 0.
+may_bind_to_type(positive_integer, X)	  :- integer(X), X > 0.
+may_bind_to_type(negative_integer, X)	  :- integer(X), X < 0.
+may_bind_to_type(predicate_indicator, X)  :-
+	(
+	 X = M:PI
+	->
+	 may_bind_to_type( atom, M),
+	 may_bind_to_type(predicate_indicator, PI)
+	;
+	 X = N/A
+	->
+	 may_bind_to_type( atom, N),
+	 may_bind_to_type(integer, A)
+	;
+	 X = N//A
+	->
+	 may_bind_to_type( atom, N),
+	 may_bind_to_type(integer, A)
+	).
+
+
+may_bind_to_type(nonvar, _X).
+may_bind_to_type(number, X)	  :- number(X).
+may_bind_to_type(oneof(L), X)	  :- ground(X), lists:memberchk(X, L).
+may_bind_to_type(proper_list, X)  :- is_list(X).
+may_bind_to_type(list, X)  	  :- is_list(X).
+may_bind_to_type(list_or_partial_list, X)  :- is_list_or_partial_list(X).
+may_bind_to_type(symbol, X)	  :- atom(X).
+may_bind_to_type(var, X)	  :- var(X).
+may_bind_to_type(rational, X)	  :- rational(X).
+may_bind_to_type(string, X)	  :- string(X).
+may_bind_to_type(stream, X)	  :- is_stream(X).
+may_bind_to_type(list(Type), X)	  :- is_list(X), element_types(X, Type).
 
 chars(0) :- !, fail.
 chars([]).

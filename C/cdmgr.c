@@ -138,8 +138,10 @@ restart:
       goto restart;
     }
     return RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
-  } else
-    return NULL;
+  } else {
+    Yap_Error(TYPE_ERROR_CALLABLE, t0, pname);
+  }
+  return NULL;
 }
 
 /** Look for a predicate with same functor as t,

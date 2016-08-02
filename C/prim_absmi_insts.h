@@ -2390,6 +2390,9 @@
         pt0 = RepAppl(d1);
         d1 = *pt0;
         if (IsExtensionFunctor((Functor) d1)) {
+          saveregs();
+          Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+          setregs();
           FAIL();
         }
         if ((Int)d0 <= 0 ||
@@ -2427,12 +2430,9 @@
         ENDP(pt0);
       }
       else {
-        /*
-          don't complain here for SWI Prolog compatibility
           saveregs();
           Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
           setregs();
-        */
         FAIL();
       }
 
@@ -2481,6 +2481,9 @@
         pt0 = RepAppl(d1);
         d1 = *pt0;
         if (IsExtensionFunctor((Functor) d1)) {
+          saveregs();
+          Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+          setregs();
           FAIL();
         }
         if ((Int)d0 <= 0 ||
@@ -2518,12 +2521,9 @@
         ENDP(pt0);
       }
       else {
-        /*
-          keep SWI Prolog compatibility, just fail on trying to obtain an argument of a compound term.
-          saveregs();
-          Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
-          setregs();
-        */
+	saveregs();
+	Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+	setregs();
         FAIL();
       }
 
@@ -2579,6 +2579,9 @@
         pt0 = RepAppl(d1);
         d1 = *pt0;
         if (IsExtensionFunctor((Functor) d1)) {
+	saveregs();
+	Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+	setregs();
           FAIL();
         }
         if ((Int)d0 <= 0 ||
@@ -2622,12 +2625,9 @@
         ENDP(pt0);
       }
       else {
-        /*
-          don't complain here for SWI Prolog compatibility
           saveregs();
           Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
           setregs();
-        */
         FAIL();
       }
 
@@ -2677,7 +2677,10 @@
         pt0 = RepAppl(d1);
         d1 = *pt0;
         if (IsExtensionFunctor((Functor) d1)) {
-          FAIL();
+           saveregs();
+          Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+          setregs();
+         FAIL();
         }
         if ((Int)d0 <= 0 ||
             (Int)d0 > ArityOfFunctor((Functor) d1)) {
@@ -2720,12 +2723,9 @@
         ENDP(pt0);
       }
       else {
-        /*
-          don't complain here for SWI Prolog compatibility
           saveregs();
           Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
           setregs();
-        */
         FAIL();
       }
 

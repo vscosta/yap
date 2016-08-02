@@ -674,7 +674,7 @@ system_predicate(A, P0) :-
 
 
 /**
-  @pred  current_predicate( _F_) is iso
+  @pred  current_predicate( F ) is iso
 
   True if _F_ is the predicate indicator for a currently defined user or
   library predicate.The indicator  _F_ is of the form _Mod_:_Na_/_Ar_ or _Na/Ar_,
@@ -683,32 +683,34 @@ system_predicate(A, P0) :-
 */
 current_predicate(F0) :-
 	'$yap_strip_module'(F0, M, F),
-  '$c_i_predicate'( F, M ).
+	must_bind_to_type( predicate_indicator, F ),
+	'$c_i_predicate'( F, M ).
 
 '$c_i_predicate'( A/N, M ) :-
-  !,
-	( nonvar(A), nonvar(N) ->
-   functor(S, A, N),
+	!,
+	(
+	 ground(A/N)
+	->
+	 atom(A), integer(N),
+	 functor(S, A, N),
 	 current_predicate(A, M:S)
 	;
-    current_predicate(A, M:S),
-    functor(S, A, N)
-  ).
+	 current_predicate(A, M:S),
+	 functor(S, A, N)
+	 ).
 '$c_i_predicate'( A//N, M ) :-
-  !,
-	( nonvar(A), nonvar(N) ->
-   N2 is N+2,
-   functor(S, A, N2),
+	(
+	 ground(A)
+	->
+	 atom(A), integer(N),
+	 N2 is N+2,
+	 functor(S, A, N2),
 	 current_predicate(A, M:S)
 	;
-    current_predicate(A, M:S),
-    functor(S, A, N2),
-    N is N-2
-  ).
-'$c_i_predicate'( F, M ) :-
-    '$do_error'(type_error(predicate_indicator,F),
-                current_predicate(M:F)).
-
+	 current_predicate(A, M:S),
+	 functor(S, A, N2),
+	 N is N2-2
+	).
 
 '$imported_predicate'(A, G, ImportingMod, G, Flags) :-
 	'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod),
