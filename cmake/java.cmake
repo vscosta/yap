@@ -4,7 +4,7 @@ option(WITH_JAVA "Try to use Java (currently Java 6,7,8)" ON)
 if (WITH_JAVA)
 #detect java setup, as it is shared between different installations.
 
-find_package(Java 1.8 COMPONENTS Runtime Development)
+find_package(Java 1.5 COMPONENTS Runtime Development)
 # find_package(Java COMPONENTS Development)
 # find_package(Java COMPONENTS Runtime)
 #find_package(JavaLibs)
