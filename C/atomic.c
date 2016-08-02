@@ -1419,7 +1419,6 @@ static Int upcase_text_to_atom(USES_REGS1) {
 static Int downcase_text_to_string(USES_REGS1) {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
-  size_t len;
 
   if (!Yap_IsGroundTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
@@ -1453,7 +1452,6 @@ static Int downcase_text_to_string(USES_REGS1) {
 static Int upcase_text_to_string(USES_REGS1) {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
-  size_t len;
 
   if (!Yap_IsGroundTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
@@ -1487,7 +1485,6 @@ static Int upcase_text_to_string(USES_REGS1) {
 static Int downcase_text_to_codes(USES_REGS1) {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
-  size_t len;
 
   if (!Yap_IsGroundTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
@@ -1521,7 +1518,6 @@ static Int downcase_text_to_codes(USES_REGS1) {
 static Int upcase_text_to_codes(USES_REGS1) {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
-  size_t len;
 
   if (!Yap_IsGroundTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
@@ -1555,7 +1551,6 @@ static Int upcase_text_to_codes(USES_REGS1) {
 static Int downcase_text_to_chars(USES_REGS1) {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
-  size_t len;
 
   if (!Yap_IsGroundTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
@@ -1589,7 +1584,6 @@ static Int downcase_text_to_chars(USES_REGS1) {
 static Int upcase_text_to_chars(USES_REGS1) {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
-  size_t len;
 
   if (!Yap_IsGroundTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
