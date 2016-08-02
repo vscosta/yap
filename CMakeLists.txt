@@ -35,7 +35,10 @@ include(Sources NO_POLICY_SCOPE)
 
 include(Model NO_POLICY_SCOPE)
 
-include_directories ( utf8proc packages/myddas packages/myddas/sqlite3 packages/myddas/sqlite3/Android/jni/sqlite/nativehelper packages/myddas/sqlite3/Android/jni/sqlite/ )
+include_directories ( utf8proc packages/myddas packages/myddas/sqlite3 )
+if (ANDROID)
+  include_directories (  packages/myddas/sqlite3/Android/jni/sqlite/nativehelper packages/myddas/sqlite3/Android/jni/sqlite )
+endif (ANDROID)
 add_definitions(-DUSE_MYDDAS=1 -DMYDDAS_SQLITE3=1)
 
 if (MYSQL_FOUND)

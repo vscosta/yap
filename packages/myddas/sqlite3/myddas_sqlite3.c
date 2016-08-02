@@ -275,11 +275,10 @@ static Int c_sqlite3_query(USES_REGS1) {
   Term arg_sql_query = Deref(ARG1);
   Term arg_result_set = Deref(ARG2);
   Term arg_db = Deref(ARG3);
-  Term arg_mode = Deref(ARG4);
+  // Term arg_mode = Deref(ARG4); // ignored by SQLite3
   Term arg_arity = Deref(ARG5);
 
   const char *sql = AtomName(AtomOfTerm(arg_sql_query));
-  const char *mode = AtomName(AtomOfTerm(arg_mode));
   sqlite3 *db = AddressOfTerm(arg_db);
   sqlite3_stmt *stmt;
 
@@ -287,7 +286,6 @@ static Int c_sqlite3_query(USES_REGS1) {
   MYDDAS_STATS_TIME start, end;
   #endif
   
-  int length = strlen(sql);
   struct result_set *rs = malloc(sizeof(struct result_set));
   if (!rs)
     return FALSE;
@@ -527,12 +525,6 @@ static Int c_sqlite3_row_cut(USES_REGS1) {
   CALL_SQLITE(finalize(res_set->stmt));
   free(res_set);
   return TRUE;
-}
-
-#define cvt(s) cvt__(s PASS_REGS)
-
-static Term cvt__(const char *s USES_REGS) {
-  return Yap_CharsToTDQ(s, CurrentModule, LOCAL_encoding PASS_REGS);
 }
 
 /* db_row: ResultSet x Arity_ListOfArgs x ListOfArgs -> */

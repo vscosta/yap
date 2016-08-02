@@ -5,6 +5,7 @@ set( YAPSQLITE3_SOURCES
   sqlite3.h
  )
 
+if (ANDROID)
 set( YAPSQLITE3_ANDROID_SOURCES
 Android/jni/sqlite/JNIHelp.cpp
 Android/jni/sqlite/JniConstants.cpp
@@ -13,7 +14,12 @@ Android/jni/sqlite/android_database_SQLiteCommon.h
 Android/jni/sqlite/android_database_SQLiteConnection.cpp
 Android/jni/sqlite/android_database_SQLiteDebug.cpp
 Android/jni/sqlite/android_database_SQLiteGlobal.cpp
- )
+)
+set( YAPSQLITE3_ANDROID_DIRS
+  Android/jni/sqlite
+  Android/jni/sqlite/nativehelper
+  )
+endif (ANDROID)
 
 #sqlite3 is now in the system
 
@@ -27,15 +33,12 @@ set (MYDDAS_FLAGS ${MYDDAS_FLAGS} ON PARENT_SCOPE)
 set_property(GLOBAL APPEND PROPERTY COMPILE_DEFINITIONS
         -DMYDDAS_SQLITE3=1)
 
-       include_directories (  ${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/Android/jni/sqlite ${CMAKE_CURRENT_SOURCE_DIR}/Android/jni/sqlite/nativehelper)
+       include_directories (  ${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_SOURCE_DIR} ${YAPSQLITE3_ANDROID_DIRS})
 
 
-if (ANDROID)
-  add_external (Yapsqlite3   ${YAPSQLITE3_SOURCES}  ${YAPSQLITE3_ANDROID_SOURCES})
-  else()
-  add_component (Yapsqlite3   ${YAPSQLITE3_SOURCES} )
-
-  #xtarget_link_libraries(Yapsqlite3 libYap)
+  add_component (Yapsqlite3   ${YAPSQLITE3_SOURCES}  ${YAPSQLITE3_ANDROID_SOURCES})
+  if (NOT ANDROID)
+  #target_link_libraries(Yapsqlite3 libYap)
   set_target_properties (Yapsqlite3 PROPERTIES
   PREFIX ""
   )

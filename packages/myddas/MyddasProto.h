@@ -10,6 +10,7 @@ extern MYDDAS_UTIL_CONNECTION
 extern MYDDAS_UTIL_PREDICATE myddas_init_initialize_predicate(const char *, int,
  const char *,
  MYDDAS_UTIL_PREDICATE);
+extern int myddas_util_connection_type(void *con);
 
 #ifdef MYDDAS_STATS
 /* myddas_statistics.c */
