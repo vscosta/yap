@@ -19,8 +19,10 @@ static char SccsId[] = "%W% %G%";
 
 #endif
 
-#include "alloc.h"
 #include "Yap.h"
+
+
+#include "alloc.h"
 #include "YapHeap.h"
 #include "Yatom.h"
 #include "yapio.h"
