@@ -257,7 +257,7 @@ static bool write_term(int output_stream, Term t, xarg *args USES_REGS) {
   }
   if (args[WRITE_BRACE_TERMS].used &&
       args[WRITE_BRACE_TERMS].tvalue == TermFalse) {
-    flags |= No_Brace_f;
+    flags |= No_Brace_Terms_f;
   }
   if (args[WRITE_FULLSTOP].used && args[WRITE_FULLSTOP].tvalue == TermTrue) {
     flags |= Fullstop_f;

@@ -10,6 +10,8 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
+
+
 #ifndef YAPSTREAMS_H
 #define YAPSTREAMS_H 1
 
@@ -19,6 +21,7 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
+
 
 #define YAP_ERROR NIL
 
@@ -37,6 +40,7 @@ static char SccsId[] = "%W% %G%";
 #define HAVE_SOCKET 1
 #endif
 
+
 //#include "Atoms.h"
 //#include "Yap.h"
 #include <stdlib.h>
@@ -54,6 +58,7 @@ static char SccsId[] = "%W% %G%";
 
 #include <wchar.h>
 
+
 /************ SWI compatible support for unicode representations  ************/
 typedef struct yap_io_position {
   int64_t byteno;       /* byte-position in file */
@@ -65,7 +70,7 @@ typedef struct yap_io_position {
 
 #ifndef _PL_STREAM_H
 typedef struct {
-  YAP_Atom file;     /* current source file */
+  YAP_Atom file;         /* current source file */
   yapIOPOS position; /* Line, line pos, char and byte */
 } yapSourceLocation;
 #endif
@@ -92,12 +97,12 @@ typedef struct read_data_t {
 
   int magic; /* RD_MAGIC */
   struct stream_desc *stream;
-  FILE *f;           /* file. of known */
+  FILE *f;       /* file. of known */
   YAP_Term position; /* Line, line pos, char and byte */
-  void *posp;        /* position pointer */
-  size_t posi;       /* position number */
+  void *posp;    /* position pointer */
+  size_t posi;   /* position number */
 
-  YAP_Term subtpos;                /* Report Subterm positions */
+  YAP_Term subtpos;                    /* Report Subterm positions */
   bool cycles;                     /* Re-establish cycles */
   yapSourceLocation start_of_term; /* Position of start of term */
   struct mod_entry *module;        /* Current source module */
@@ -107,14 +112,14 @@ typedef struct read_data_t {
 
   int *char_conversion_table; /* active conversion table */
 
-  YAP_Atom on_error; /* Handling of syntax errors */
+  YAP_Atom on_error;     /* Handling of syntax errors */
   int has_exception; /* exception is raised */
 
   YAP_Term exception; /* raised exception */
   YAP_Term variables; /* report variables */
   YAP_Term singles;   /* Report singleton variables */
   YAP_Term varnames;  /* Report variables+names */
-  int strictness;     /* Strictness level */
+  int strictness; /* Strictness level */
 
 #ifdef O_QUASIQUOTATIONS
   YAP_Term quasi_quotations; /* User option quasi_quotations(QQ) */
@@ -125,6 +130,7 @@ typedef struct read_data_t {
   YAP_Term comments; /* Report comments */
 
 } read_data, *ReadData;
+
 
 #if __APPLE__
 #include "fmemopen.h"
@@ -154,27 +160,25 @@ FILE *open_memstream(char **buf, size_t *len);
 #endif
 
 typedef struct mem_desc {
-  char *buf;       /* where the file is being read from/written to */
-  int src;         /* where the space comes from, 0 code space, 1 malloc */
-  size_t max_size; /* maximum buffer size (may be changed dynamically) */
-  size_t
-
-      pos; /* cursor */
+  char *buf;    /* where the file is being read from/written to */
+  int src;      /* where the space comes from, 0 code space, 1 malloc */
+  YAP_Int max_size; /* maximum buffer size (may be changed dynamically) */
+  YAP_UInt pos;     /* cursor */
   volatile void *error_handler;
 } memHandle;
 
 #if HAVE_SOCKET
 typedef enum { /* in YAP, sockets may be in one of 4 possible status */
-               new_socket,
-               server_socket,
-               client_socket,
-               server_session_socket,
-               closed_socket
+            new_socket,
+    server_socket,
+    client_socket,
+    server_session_socket,
+    closed_socket
 } socket_info;
 
 typedef enum { /* we accept two domains for the moment, IPV6 may follow */
-               af_inet, /* IPV4 */
-               af_unix  /* or AF_FILE */
+            af_inet, /* IPV4 */
+            af_unix  /* or AF_FILE */
 } socket_domain;
 
 #endif
@@ -192,7 +196,7 @@ typedef enum { /* we accept two domains for the moment, IPV6 may follow */
 #define AttVar_Portray_f 0x400
 #define Blob_Portray_f 0x800
 #define No_Escapes_f 0x1000
-#define No_Brace_f 0x2000
+#define No_Brace_Terms_f 0x2000
 #define Fullstop_f 0x4000
 #define New_Line_f 0x8000
 
@@ -225,7 +229,7 @@ typedef struct stream_desc {
     } irl;
   } u;
 
-  int64_t charcount, linecount, linepos;
+  YAP_Int charcount, linecount, linepos;
   stream_flags_t status;
 #if defined(YAPOR) || defined(THREADS)
   lockvar streamlock; /* protect stream access */
@@ -244,5 +248,38 @@ typedef struct stream_desc {
                from above if the ISO  character conversion is on */
   encoding_t encoding; /** current encoding for stream */
 } StreamDesc;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #endif

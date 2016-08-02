@@ -218,7 +218,6 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
       !(LOCAL_PrologMode & (AbortMode | InterruptMode | SystemMode))) {
     return EnterCreepMode(t, mod PASS_REGS);
   }
-restart_exec:
   if (IsVarTerm(t) || IsVarTerm(mod)) {
     return CallError(INSTANTIATION_ERROR, t0, mod PASS_REGS);
   } else if (IsApplTerm(t)) {
@@ -1195,13 +1194,12 @@ restart_exec:
 
 static Int execute_nonstop(USES_REGS1) { /* '$execute_nonstop'(Goal,Mod)
                                           */
-  Term t = Deref(ARG1), t0 = t;
+  Term t = Deref(ARG1);
   Term mod = Deref(ARG2);
   unsigned int arity;
   Prop pe;
 
   t = Yap_YapStripModule(t, &mod);
-restart_exec:
   if (IsVarTerm(mod)) {
     mod = CurrentModule;
   } else if (!IsAtomTerm(mod)) {
@@ -1458,9 +1456,10 @@ static bool do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS) {
   bool out;
 
   Yap_PrepGoal(arity, pt, saved_b PASS_REGS);
+  CACHE_A1();
   P = (yamop *)CodeAdr;
-  S = CellPtr(RepPredProp(
-      PredPropByFunc(Yap_MkFunctor(AtomCall, 1), 0))); /* A1 mishaps */
+  //  S = CellPtr(RepPredProp(
+  //    PredPropByFunc(Yap_MkFunctor(AtomCall, 1), 0))); /* A1 mishaps */
 
   out = exec_absmi(top, YAP_EXEC_ABSMI PASS_REGS);
   if (top)
@@ -1681,7 +1680,6 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
   LOCAL_PrologMode |= TopGoalMode;
 
   t = Yap_YapStripModule(t, &tmod);
-restart_runtopgoal:
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "call/1");
     LOCAL_PrologMode &= ~TopGoalMode;
@@ -1729,6 +1727,7 @@ restart_runtopgoal:
     pt = &t;
     t = Yap_MkApplTerm(FunctorModule, 2, ts);
     pe = Yap_GetPredPropByFunc(f, tmod);
+    ppe = RepPredProp(pe);
     arity = 1;
   }
   PELOCK(82, ppe);
@@ -2002,6 +2001,10 @@ bool Yap_JumpToEnv(Term t) {
 /* This does very nasty stuff!!!!! */
 static Int jump_env(USES_REGS1) {
   Term t = Deref(ARG1);
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR, t, "throw ball must be bound");
+    return false;
+  }
   Yap_PutException(t);
   bool out = JumpToEnv(PASS_REGS1);
   if (B != NULL && P == FAILCODE && B->cp_ap == NOCODE &&
