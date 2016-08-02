@@ -207,7 +207,7 @@
 :- module(ad_converter,[term_expansion_intern_ad/4,
 			op(1149, yfx, <-- ),
 			op( 550, yfx, :: )
-		       ]).
+		       ]).	ƒcrete
 
 % general yap modules
 :- use_module(library(lists),[member/2,append/3]).
@@ -302,7 +302,7 @@ term_expansion_intern_ad((Head<--Body), Module, Mode, [user:ad_intern((Head<--Bo
 	).
 
 term_expansion_intern_ad( (Head<--Body),_,_) :-
-	format(chars(Error), 'Error at compiling the annotated disjunction ~q<--~qb.',[Head,Body]),
+	format(chars(Error), 'Error at compiling the annotated disjunction ~q<--~m.',[Head,Body]),
 	print_message(error,Error),
 	fail.
 

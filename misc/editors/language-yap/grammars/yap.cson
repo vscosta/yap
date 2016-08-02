@@ -1,0 +1,617 @@
+comment: "This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain"
+fileTypes: [
+  "yap"
+  "yss"
+  "prolog"
+  "pl"
+  "pro"
+]
+firstLineMatch: "^(#!/.*\\byap|\\%.*prolog.*)"
+foldingStartMarker: "^(([a-z]\\w*|\\'\\$\\w\\')\\(|\\s*\\(|\\s*\\/\\*)"
+foldingStopMarker: "(\\)|\\.|\\*\\/)\\s*$"
+name: "YAP-Prolog"
+patterns: [
+  {
+    include: "#comments"
+  }
+  {
+    begin: "^(:-)\\s*(([a-z]\\w*:)?([a-z]\\w*|\\'\\$\\w*\\'))(?=(\\(|\\s))"
+    beginCaptures:
+      "1":
+        name: "keyword.control.directive.begin.prolog"
+      "2":
+        name: "entity.directivesss.prolog"
+    end: "(\\.)(\\s|$)"
+    endCaptures:
+      "2":
+        name: "keyword.control.directive.end.prolog"
+    name: "meta.directive.prolog"
+    patterns: [
+      {
+        include: "#functor"
+      }
+      {
+        include: "#atom"
+      }
+      {
+        include: "#variable"
+      }
+      {
+        include: "#constants"
+      }
+      {
+        match: "."
+      }
+    ]
+  }
+  {
+    begin: "^\\s*(([a-z]\\w*)(:))?([a-z]\\w*|\\'\\$\\w*\\')\\("
+    beginCaptures:
+      "0":
+        name: "meta.clause.prolog.head"
+      "2":
+        name: "entity.name.module.clause.prolog"
+      "3":
+        name: "keyword.control.module.prolog"
+      "4":
+        name: "entity.name.predicate.prolog"
+    end: "((\\.)(\\s|$))"
+    endCaptures:
+      "2":
+        name: "keyword.control.clause.end.prolog"
+    name: "meta.clause.prolog"
+    patterns: [
+      {
+        include: "#clause_head_arguments"
+      }
+      {
+        include: "#clause_body"
+      }
+    ]
+  }
+  {
+    begin: "^\\s*(([a-z]\\w*)(:))?([a-z]\\w*|\\'\\$\\w*\\')\\s*"
+    beginCaptures:
+      "0":
+        name: "meta.clause.prolog.head"
+      "2":
+        name: "entity.name.module.clause.prolog"
+      "3":
+        name: "keyword.control.module.prolog"
+      "4":
+        name: "entity.name.predicate.prolog"
+    end: "((\\.)(\\s|$))"
+    endCaptures:
+      "2":
+        name: "keyword.control.clause.end.prolog"
+    name: "meta.clause.prolog"
+    patterns: [
+      {
+        include: "#clause_body"
+      }
+    ]
+  }
+]
+repository:
+  args:
+    name: "meta.term.arguments"
+    patterns: [
+      {
+        include: "#term"
+      }
+      {
+        match: "\\,"
+      }
+    ]
+  atom:
+    patterns: [
+      {
+        match: "\\[\\]"
+        name: "constant.other.atom.emptylist.prolog"
+      }
+      {
+        match: "\\b[a-z]\\w*\\b"
+        name: "support.atom.simple.prolog"
+      }
+      {
+        begin: "(?<!\\w)\\'"
+        beginCaptures:
+          "0":
+            name: "string.quoted.single.prolog"
+        end: "\\'"
+        endCaptures:
+          "0":
+            name: "string.quoted.single.prolog"
+        name: "string.quoted.single.prolog"
+        patterns: [
+          {
+            match: "\\\\[abcfnrstv\\'\\\"\\`\\\\]"
+            name: "constant.character.escape.prolog"
+          }
+          {
+            match: "\\\\(x\\h{2}|u\\h{4}|U\\h{8})"
+            name: "constant.character.single_u.prolog"
+          }
+          {
+            match: "\\'\\'"
+            name: "constant.character.single_qu.prolog"
+          }
+          {
+            match: "(.)"
+            name: "string.quoted.single.prolog"
+          }
+        ]
+      }
+    ]
+  base_call:
+    name: "meta.call.prolog"
+    patterns: [
+      {
+        match: "!"
+        name: "keyword.control.clause.cut.prolog"
+      }
+      {
+        include: "#bracketed_call"
+      }
+      {
+        include: "#cbracketed_call"
+      }
+      {
+        include: "#builtin_call"
+      }
+      {
+        include: "#user_call"
+      }
+      {
+        include: "#term"
+      }
+      {
+        match: "\\s"
+      }
+    ]
+  "block-comment":
+    begin: "/\\*"
+    beginCaptures:
+      "0":
+        name: "punctuation.definition.comment.block.begin.prolog"
+    comment: "Block comment"
+    end: "\\*/"
+    endCaptures:
+      "0":
+        name: "punctuation.definition.comment.block.end.prolog"
+    name: "comment.block.prolog"
+    patterns: [
+      {
+        match: "."
+      }
+    ]
+  bracketed_call:
+    begin: "\\s*(\\()\\s*"
+    beginCaptures:
+      "0":
+        name: "keyword.control.clause.block.start.prolog"
+    end: "\\s*(\\))\\s*"
+    endCaptures:
+      "1":
+        name: "keyword.control.clause.block.end.prolog"
+    name: "meta.call.brackets.prolog"
+    patterns: [
+      {
+        include: "#conj"
+      }
+      {
+        include: "#disj"
+      }
+      {
+        include: "#base_call"
+      }
+    ]
+  builtin_call:
+    begin: "(asserta|atomic_list_concat|char_type|compile_expressions|compile |create_prolog_flag|current_module|current_op|del_attrs|depth_bound_call |dule|exo_files|export_list|foreign_directory|garbage_collect_atoms|garbage_collect |get_attrs|hread_signal|ignore|incore|initialization|int_message|message_to_string |module_property|msort|mutex_unlock_all|no_style_check|nospy|notrace |ortray_clause|otherwise|predsort|prolog_initialization|qend_program|qsave_file |recordaifnot|set_base_module|sformat|source_file|split_path_file|stream_position |system_error|system_module|t_head|table_statistics|tabling_mode|tabling_statistics |thread_defaults|thread_local|thread_set_defaults|thread_statistics|unix |use_system_module|user_defined_directive|version|get_attrs|C|abolish_all_tables |abolish_frozen_choice_points|abolish_module|abolish_table|abolish|abort |absolute_file_name|absolute_file_system_path|access_file|access|acyclic_term |add_import_module|add_to_array_element|add_to_path|alarm|all|always_prompt_user |arena_size|arg|array_element|array|assert_static|asserta_static|asserta |assertz_static|assertz|assert|at_end_of_line|at_end_of_stream_0|at_end_of_stream |at_halt|atom_chars|atom_codes|atom_concat|atom_length|atom_number|atom_string |atom_to_term|atomic_concat|atomic_length|atomic_list_concat|atomics_to_string |atomic|atom|attvar|b_getval|b_setval|bagof|bb_delete|bb_get|bb_put |bb_update|between|bootstrap|break|call_cleanup|call_count_data|call_count_reset |call_count|call_residue_vars|call_residue|call_shared_object_function |call_with_args|callable|call|catch_ball|catch|cd|cfile_search_path |char_code|char_conversion|char_type|clause_property|clause|close_shared_object |close_static_array|close|code_type|commons_directory|commons_library |compare|compile_expressions|compile_predicates|compile|compound|consult_depth |consult|context_module|copy_term_nat|copy_term|create_mutable|create_prolog_flag |creep_allowed|current_atom|current_char_conversion|current_host|current_input |current_key|current_line_number|current_module|current_mutex|current_op |current_output|current_predicate|current_prolog_flag|current_reference_count |current_stream|current_thread|db_files|db_reference|debugging|debug |decrease_reference_count|del_attrs|del_attr|delete_import_module|depth_bound_call |dif|discontiguous|display|do_c_built_in|do_c_built_metacall|do_not_compile_expressions |dump_active_goals|dum|duplicate_term|dynamic_predicate|dynamic_update_array |dynamic|eamconsult|eamtrans|end_of_file|ensure_loaded|eraseall|erased |erase|exists_directory|exists_file|exists_source|exists|exo_files|expand_exprs |expand_expr|expand_file_name|expand_goal|expand_term|expects_dialect |export_list|export_resource|export|extend|fail|false|file_base_name |file_directory_name|file_exists|file_name_extension|file_search_path|file_size |fileerrors|findall|float|flush_output|forall|foreign_directory|format |freeze_choice_point|freeze|frozen|functor|garbage_collect_atoms|garbage_collect |gc|get0|get_attr|get_byte|get_char|get_code|get_depth_limit|get_mutable |get_string_code|get_value|getcwd|getenv|get|global_trie_statistics|ground |grow_heap|grow_stack|halt|heap_space_info|hide_atom|hide_predicate|hostname_address |hread_get_message|if|ignore|import_module|incore|increase_reference_count |init_random_state|initialization|instance_property|instance|integer|is_absolute_file_name |is_list|is_mutable|is_tabled|isinf|isnan|is|key_erased_statistics|key_statistics |keysort|leash|length|libraries_directories|line_count|listing|load_absolute_foreign_files |load_db|load_files|load_foreign_files|log_event|logsum|ls_imports|ls |make_directory|make_library_index|make|message_queue_create|message_queue_destroy |message_queue_property|message_to_string|mmapped_array|module_property |module_state|module|msort|multifile|must_be_of_type|mutex_create|mutex_property |mutex_unlock_all|name|nb_create|nb_current|nb_delete|nb_getval|nb_linkarg |nb_linkval|nb_set_bit|nb_set_shared_arg|nb_set_shared_val|nb_setarg|nb_setval |new_system_module|nl|no_source|no_style_check|nodebug|nofileeleerrors |nogc|nonvar|nospyall|nospy|notrace|not|nth_clause|nth_instance|number_atom |number_chars|number_codes|number_string|numbervars|number|on_exception |on_signal|once|opaque|open_pipe_stream|open_shared_object|open|opt_statistics |op|or_statistics|otherwise|parallel_findall|parallel_findfirst|parallel_once |parallel|path|peek_byte|peek_char|peek_code|peek|phrase|plus|portray_clause |predicate_erased_statistics|predicate_property|predicate_statistics|predmerge |predsort|primitive|print_message_lines|print_message|print|private|profalt |profend|profile_data|profile_reset|profinit|profoff|profon|prolog_current_frame |prolog_file_name|prolog_file_type|prolog_flag_property|prolog_flag|prolog_initialization |prolog_load_context|prolog_to_os_filename|prolog|prompt1|prompt|put_attrs |put_attr|put_byte|put_char1|put_char|put_code|putenv|put|pwd|qend_program |qload_file|qload_module|qpack_clean_up_to_disjunction|qsave_file|qsave_module |qsave_program|raise_exception|rational_term_to_tree|rational|read_clause |read_sig|read_term_from_atomic|read_term_from_atom|read_term_from_string |read_term|read|real_path|reconsult|recorda_at|recordaifnot|recorda |recorded|recordz_at|recordzifnot|recordz|release_random_state|remove_from_path |rename|repeat|reset_static_array|reset_total_choicepoints|resize_static_array |restore|retractall|retract|rmdir|same_file|save_program|seeing|seen |see|set_base_module|set_input|set_output|set_prolog_flag|set_random_state |set_stream_position|set_stream|set_value|setarg|setenv|setof|setup_call_catcher_cleanup |setup_call_cleanup|sformat|show_all_local_tables|show_all_tables|show_global_trieshow_tabled_predicates |show_global_trie|show_low_level_trace|show_tabled_predicates|show_table |showprofres|sh|simple|skip1|skip|socket_accept|socket_bind|socket_close |socket_connect|socket_listen|socket|sort2|sort|source_file_property |source_file|source_location|source_mode|source_module|source|split_path_file |spy|srandom|start_low_level_trace|stash_predicate|static_array_location |static_array_properties|static_array_to_term|static_array|statistics|stop_low_level_trace |stream_position_data|stream_position|stream_property|stream_select|string_chars |string_codes|string_code|string_concat|string_length|string_number|string_to_atomic |string_to_atom|string_to_list|string|strip_module|style_check|sub_atom |sub_string|subsumes_term|succ|sys_debug|system_error|system_library |system_module|system_predicate|system|t_body|t_head|t_hgoal|t_hlist |t_tidy|tab1|table_statistics|table|tabling_mode|tabling_statistics|tab |telling|tell|term_attvars|term_factorized|term_to_atom|term_to_string |term_variables|thread_at_exit|thread_cancel|thread_create|thread_defaults |thread_default|thread_detach|thread_exit|thread_get_message|thread_join |thread_local|thread_peek_message|thread_property|thread_self|thread_send_message |thread_set_defaults|thread_set_default|thread_signal|thread_sleep|thread_statistics |threads|throw|time_file64|time_file|time|told|tolower|total_choicepoints |total_erased|toupper|trace|true_file_name|true|thread_peek_message |ttyget0|ttyget|ttynl|ttyput|ttyskip|udi|unhide_atom|unify_with_occurs_check |unix|unknown|unload_file|unload_module|unnumbervars|update_array|update_mutable |use_module|use_system_module|user_defined_directive|var|version|volatile |wake_choice_point|when|with_mutex|with_output_to|working_directory|write_canonical |write_depth|write_term|writeln|writeq|write|yap_flag)(\\()"
+    beginCaptures:
+      "1":
+        name: "support.function.prolog"
+    end: "(\\))"
+    name: "meta.call.builtin.prolog"
+    patterns: [
+      {
+        include: "#args"
+      }
+    ]
+  cbracketed_call:
+    begin: "\\s*(\\{)\\s*"
+    beginCaptures:
+      "0":
+        name: "keyword.control.clause.block.start.prolog"
+    end: "\\s*(\\})\\s*"
+    endCaptures:
+      "0":
+        name: "keyword.control.clause.block.end.prolog"
+    name: "meta.call.curly_brackets.prolog"
+    patterns: [
+      {
+        include: "#conj"
+      }
+      {
+        include: "#disj"
+      }
+      {
+        include: "#base_call"
+      }
+    ]
+  clause_body:
+    begin: "(:-|-->)"
+    beginCaptures:
+      "1":
+        name: "keyword.control.clause.neck.prolog"
+    end: "(?=((\\.)(\\s|$)))"
+    name: "meta.clause.prolog.body"
+    patterns: [
+      {
+        include: "#conj"
+      }
+      {
+        include: "#conj"
+      }
+      {
+        include: "#base_call"
+      }
+    ]
+  clause_head_arguments:
+    begin: "(?<=\\()"
+    end: "(\\))\\s*(?=(:-|-->|\\.))"
+    name: "meta.clause.prolog.head"
+    patterns: [
+      {
+        include: "#args"
+      }
+    ]
+  comments:
+    comment: "All comment types"
+    patterns: [
+      {
+        include: "#documentation-comment"
+      }
+      {
+        include: "#block-comment"
+      }
+      {
+        include: "#in-line-comment"
+      }
+      {
+        include: "#in-line-documentation"
+      }
+    ]
+  conj:
+    begin: "\\,"
+    beginCaptures:
+      "0":
+        name: "keyword.control.and.prolog"
+    end: "(?=(\\,|\\)|\\}|\\]|\\.))"
+    name: "meta.clause.body.conjunction"
+    patterns: [
+      {
+        include: "#disj"
+      }
+      {
+        include: "#conj"
+      }
+      {
+        include: "#base_call"
+      }
+    ]
+  constants:
+    patterns: [
+      {
+        match: "0\\'(.)"
+        name: "constant.character.code.prolog"
+      }
+      {
+        match: "0x\\h+0x"
+        name: "constant.numeric.hexa.prolog"
+      }
+      {
+        match: "0[0-7]+"
+        name: "constant.numeric.octal.prolog"
+      }
+      {
+        match: "[+-]?\\d+"
+        name: "constant.numeric.integer.prolog"
+      }
+      {
+        match: "([0-9_]+)(\\.([0-9]+))?([eE][+\\-]?([0-9]+))?"
+        name: "constant.numeric.floating-point.prolog"
+      }
+      {
+        begin: "\\\""
+        beginCaptures:
+          "0":
+            name: "string.quoted.double.prolog"
+        end: "\\\""
+        endCaptures:
+          "0":
+            name: "string.quoted.double.prolog"
+        name: "string.quoted.double.prolog"
+        patterns: [
+          {
+            match: "\\\\[abcfnrstv\\'\\\"\\`\\\\]"
+            name: "constant.character.doubleescape.prolog"
+          }
+          {
+            match: "\\\\(x\\h{2}|u\\h{4}|U\\h{8})"
+            name: "constant.character.double_code.prolog"
+          }
+          {
+            match: "\\\"\\\""
+            name: "constant.character.double_qu.prolog"
+          }
+          {
+            match: "(.)"
+            name: "string.quoted.double.prolog"
+          }
+        ]
+      }
+      {
+        begin: "\\`"
+        beginCaptures:
+          "0":
+            name: "string.quoted.back.prolog"
+        end: "\\`"
+        endCaptures:
+          "0":
+            name: "string.quoted.back.prolog"
+        name: "string.quoted.back.prolog"
+        patterns: [
+          {
+            match: "\\\\[abcfnrstv\\'\\\"\\`\\\\]"
+            name: "constant.character.backescape.prolog"
+          }
+          {
+            match: "\\\\(x\\h{2}|u\\h{4}|U\\h{8})"
+            name: "constant.character.back_code.prolog"
+          }
+          {
+            match: "\\`\\`"
+            name: "constant.character.back_qu.prolog"
+          }
+          {
+            match: "(.)"
+            name: "string.quoted.back.prolog"
+          }
+        ]
+      }
+    ]
+  crlbrackets:
+    begin: "(\\{)"
+    end: "(\\})"
+    name: "curly.brackets"
+    patterns: [
+      {
+        include: "#comments"
+      }
+      {
+        match: "\\s*\\,\\s*"
+      }
+      {
+        include: "#term"
+      }
+    ]
+  disj:
+    begin: "((\\;)|(->))"
+    beginCaptures:
+      "2":
+        name: "keyword.control.or.prolog"
+      "3":
+        name: "keyword.control.if.prolog"
+    end: "\\s*(?=(\\,|\\;|\\.|\\)|\\}|\\|\\.\\]))"
+    name: "meta.clause.disjunction"
+    patterns: [
+      {
+        include: "#disj"
+      }
+      {
+        include: "#base_call"
+      }
+    ]
+  "documentation-comment":
+    begin: "/\\*[*!]\\s"
+    beginCaptures:
+      "0":
+        name: "punctuation.definition.comment.block.documentation.begin.prolog"
+    comment: "Documentation comment"
+    end: "\\*/"
+    endCaptures:
+      "0":
+        name: "punctuation.definition.comment.block.documentation.end.prolog"
+    name: "comment.block.documentation.prolog"
+    patterns: [
+      {
+        include: "#dox"
+      }
+      {
+        include: "pred"
+      }
+      {
+        match: "."
+      }
+    ]
+  dox:
+    patterns: [
+      {
+        captures:
+          "1":
+            name: "keyword.language.doxygen.prolog"
+          "2":
+            name: "string.unquoted.file.prolog"
+        match: "(@file)(.*$)"
+      }
+      {
+        captures:
+          "1":
+            name: "keyword.language.doxygen.prolog"
+          "2":
+            name: "variable.label.group.prolog"
+        match: "(@ingroup)(.*$)"
+      }
+      {
+        captures:
+          "1":
+            name: "keyword.language.doxygen.prolog"
+          "2":
+            name: "variable.label.group.prolog"
+          "3":
+            name: "string.text.group.prolog"
+        match: "(@defgroup)\\s+(\\w+)\\s+(.*$)"
+      }
+      {
+        captures:
+          "1":
+            name: "keyword.language.doxygen.prolog"
+          "2":
+            name: "string.unquoted.text.prolog"
+        match: "(@pred)(.*$)"
+      }
+      {
+        captures:
+          "1":
+            name: "keyword.language.doxygen.prolog"
+        match: "(@\\w+\\b|\\\\w*)"
+      }
+    ]
+  eot:
+    captures:
+      "1":
+        name: "keyword.control.eot.prolog"
+    match: "(\\.\\s*(\\s|$))"
+  functor:
+    captures:
+      "1":
+        name: "constant.functor.prolog"
+      "2":
+        name: "constant.functor.name.prolog"
+      "3":
+        name: "constant.functor.arity.prolog"
+    match: "(([a-z]\\w*|\\'\\$\\w*\\')/\\d+)"
+  "in-line-comment":
+    captures:
+      "1":
+        name: "punctuation.definition.comment.line.double-slash.prolog"
+    comment: "In-line comment"
+    match: "\\%.*"
+    name: "comment.line.percentage.prolog"
+  "in-line-documentation":
+    captures:
+      "1":
+        name: "punctuation.definition.comment.line.percent.prolog"
+    comment: "In-line comment"
+    match: "\\%\\%\\s.*"
+    name: "comment.line.percentage.documentation.prolog"
+    patterns: [
+      {
+        include: "#dox"
+      }
+      {
+        match: "."
+      }
+    ]
+  op_infix:
+    match: "(same|\\^|\\*\\*|rem|mod|\\>\\>| \\<\\<|\\/\\/|\\/|\\*|xor|div|rdiv|\\#| ><|\\\\\\/|\\/\\\\|\\\\-|\\\\+|:|as|>=|=<| >|<|=\\\\=|=:=|\\\\=@=|=@=|@>=|@=<|@>|@<| \\\\==|==|=\\.\\.|is|\\\\=|=|->|\\;|\\,|\\||-->|\\?-)"
+    name: "keyword.control.op.infix.prolog"
+  op_prefix:
+    match: "(spy|nospy|block|\\\\|\\-|\\+|not|\\\\\\+|uncutable| table|discontiguous|module_transparent|meta_predicate|multifile| public|mode|volatile|initialization|thread_local| dynamic|\\?-|\\?-)"
+    name: "keyword.control.op.prefix.prolog"
+  protected_term:
+    begin: "\\b"
+    beginCaptures:
+      "1":
+        name: "meta.term.prolog"
+    end: "\\b"
+    name: "meta.call.user.prolog"
+    patterns: [
+      {
+        include: "#term"
+      }
+    ]
+  "shebang-line":
+    captures:
+      "1":
+        name: "punctuation.definition.comment.line.shebang.prolog"
+    comment: "Shebang line"
+    match: "^(#!).*$"
+    name: "comment.line.shebang.prolog"
+  sqrbrackets:
+    begin: "(\\[)"
+    end: "(\\])"
+    name: "sqr.brackets"
+    patterns: [
+      {
+        include: "#comments"
+      }
+      {
+        match: "\\s*(\\,|\\|)\\s*"
+      }
+      {
+        include: "#term"
+      }
+    ]
+  term:
+    name: "meta.term.prolog"
+    patterns: [
+      {
+        include: "#comments"
+      }
+      {
+        include: "#op_infix"
+      }
+      {
+        include: "#op_prefix"
+      }
+      {
+        include: "#atom"
+      }
+      {
+        include: "#variable"
+      }
+      {
+        include: "#constants"
+      }
+      {
+        include: "#brackets"
+      }
+      {
+        include: "#sqrbrackets"
+      }
+      {
+        include: "#crlbrackets"
+      }
+      {
+        match: "\\s"
+      }
+    ]
+  user_call:
+    begin: "([a-z]]w*:)?([a-z]\\w*|\\'\\$\\w*\\')(\\()"
+    beginCaptures:
+      "1":
+        name: "meta.term.prolog"
+    end: "\\s*(\\))\\s*"
+    name: "meta.call.user.prolog"
+    patterns: [
+      {
+        include: "#comments"
+      }
+      {
+        include: "#args"
+      }
+    ]
+  variable:
+    patterns: [
+      {
+        match: "(?<![a-zA-Z0-9_])[A-Z][a-zA-Z0-9_]*"
+        name: "variable.parameter.uppercase.prolog"
+      }
+      {
+        match: "(?<!\\w)_\\w*"
+        name: "variable.parameter.anonymous.prolog"
+      }
+    ]
+scopeName: "source.prolog"

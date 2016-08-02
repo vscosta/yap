@@ -1,0 +1,2 @@
+   * GNU libgmp (in some cases MPIR - GNU big integers and rationals
+   * libreadline - Readline line editing library

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>name</key>
+	<string>Miscellaneous</string>
+	<key>scope</key>
+	<string>source.prolog</string>
+	<key>settings</key>
+	<dict>
+		<key>disableIndentCorrections</key>
+		<true/>
+		<key>highlightPairs</key>
+		<array>
+			<array>
+				<string>[</string>
+				<string>]</string>
+			</array>
+			<array>
+				<string>(</string>
+				<string>)</string>
+			</array>
+		</array>
+		<key>increaseIndentPattern</key>
+		<string>():-\s*$\(						\s$</string>
+		<key>indentOnPaste</key>
+		<string>simple</string>
+		<key>shellVariables</key>
+		<array>
+			<dict>
+				<key>name</key>
+				<string>TM_COMMENT_START</string>
+				<key>value</key>
+				<string>% </string>
+			</dict>
+			<dict>
+				<key>name</key>
+				<string>TM_COMMENT_START_2</string>
+				<key>value</key>
+				<string>/*</string>
+			</dict>
+			<dict>
+				<key>name</key>
+				<string>TM_COMMENT_END_2</string>
+				<key>value</key>
+				<string>*/</string>
+			</dict>
+		</array>
+		<key>smartTypingPairs</key>
+		<array>
+			<array>
+				<string>[</string>
+				<string>]</string>
+			</array>
+			<array>
+				<string>(</string>
+				<string>)</string>
+			</array>
+		</array>
+	</dict>
+	<key>uuid</key>
+	<string>487758CF-13E2-413E-8A12-224771481FE9</string>
+</dict>
+</plist>

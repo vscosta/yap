@@ -1,0 +1,358 @@
+% ICD: it does not take into account missing values
+%
+% utility to translate from CSV style files to Prolog facts.
+%
+% assumes key is first argument.
+%
+% call as yap csv2pl -- prefix < Inp.csv > Out
+%
+% ICD: yap -l csv2pl_v3 -- --modes in.csv out 
+% alternatively you can call yap and invoke: main(['--modes','in.csv',out]).
+% this will generate three files: out.facts, out.modes and out.txt
+% out.facts contains all prolog facts for the csv table
+% out.modes contains all modes to run with aleph (change as appropriate)
+% out.txt contains basic data description (counters)
+
+:- source.
+
+:- style_check(all).
+
+:- yap_flag(unknown, error).
+
+:- yap_flag(write_strings, on).
+
+:- use_module(library(readutil),
+	      [read_line_to_codes/2]).
+
+:- use_module(library(lineutils),
+	      [split/3]).
+
+:- use_module(library(system),
+	      [mktime/2]).
+
+:- ensure_loaded(order_by). % order predicate values
+
+:- ensure_loaded(daynumber).
+
+:- initialization(main).
+
+:- dynamic output_modes/0.
+
+main :-
+	unix(argv(Args)),
+%        write(Args),
+	main(Args).
+
+main(['--modes'|R]) :- !,
+	assert(output_modes),
+	main(R).
+%ICD: changed here to write in two different files
+% also added counters
+main([F,O]) :-
+	open(F, read, S),
+        atom_concat(O,'.modes',W1),
+        atom_concat(O,'.facts',W2),
+	open(W1, write, WModes),
+	open(W2, write, WFacts),
+	do(S, WModes, WFacts), 
+        close(WModes), close(WFacts),
+	close(S),
+        write('WILL START COUNTING'), nl,
+        count(O).
+/*
+main([F]) :-
+	unix(argv([F])), !,
+	open(F, read, S),
+	W = user_output,
+	do(S, W),
+	close(S).
+main([]) :-	
+	S = user_input,
+	W = user_output,
+	do(S, W).
+*/
+do(S, WModes, WFacts) :-
+	get_titles(S, WModes, Titles),
+	get_lines(S, WFacts, Titles).
+
+get_titles(S, W, Titles) :-
+	read_line_to_codes(S,Line),
+	split(Line, ",", OTitles),
+	list_of_titles(OTitles, Titles),
+%	format('~q~n~q~n',[OTitles,Titles]),
+	output_modes(Titles, W).
+
+%ICD: changed here to use the Key name
+%output_modes(_Key.Titles, W) :-
+output_modes([Key|Titles], W) :-
+	format('~q~n',[[Key|Titles]]),
+	output_modes, !,
+	send_determinations(Titles, W),
+%	format(W, ':- modeh(*,upgrade(+key)).~n',[]),
+	format(W, ':- modeh(*,upgrade(+~q)).~n',[Key]),
+%	send_modes(Titles, W).
+	send_modes(Titles, Key, W).
+
+send_determinations([], W) :-
+	nl(W).
+send_determinations([T|Titles], W) :-
+	format(W, ':- determination(upgrade/1,~q/2).~n',[T]),
+	send_determinations(Titles, W).
+
+%ICD: changed to use the key name
+send_modes([], _, W) :-
+	nl(W).
+send_modes([T|Titles], Key, W) :-
+	format(W, ':- modeb(*,~q(+~q,-~q)).~n',[T,Key,T]),
+	format(W, ':- modeb(*,~q(+~q,#~q)).~n',[T,Key,T]),
+	send_modes(Titles, Key, W).
+
+list_of_titles([],[]).
+list_of_titles([S|Ss], [A|As]) :-
+%	atom(A, S), % ICD: convert first letter to lowercase, remove plics
+        S = [H|T], char_type(LowH,to_lower(H)), atom_codes(A,[LowH|T]),
+	list_of_titles(Ss, As).
+
+continue_list(Titles) -->
+	",", !,
+	list_of_titles(Titles).
+continue_list([]) --> [].
+
+
+get_lines(S, W, Titles) :-
+	read_line_to_codes(S, Line),
+        write(Line), nl, % ICD
+	add_line(Line, S, W, Titles).
+
+add_line(end_of_file, _, _, _) :- !.
+add_line(Line, S, W, Titles) :-
+	get_data(Titles, W, Line, []), !,
+%	write('Parsed correctly'), nl,
+	get_lines(S, W, Titles).
+
+get_data([_|Titles], W, S1, S) :-
+	get_field(N, S1,S2),
+%	write(S1), nl, write(N), nl, write(S2), nl,
+	get_more_data(Titles, W, N, S2, S).
+
+get_more_data([Field|L], W, Key, L, L) :- !,
+	add_as_empty([Field|L], W, Key).
+get_more_data([Field|L], W, Key) -->
+%	{write([Field|L]), nl},
+	",", !,
+	get_field(N),
+%	{ write(N), write('--'), nl },
+	{ output_field(W, Field, Key, N) },
+	get_more_data(L, W, Key).
+get_more_data([], _, _) --> [].
+
+get_field(N) -->
+	"\"", time(N), "\"", !.
+get_field(N) -->
+	time(N), !.
+get_field(N) -->
+	timeHours(N), !.
+get_field(N) -->
+	atom(N), !.
+get_field(N) -->
+	number(N), !.
+get_field(?) -->
+	empty, !.
+get_field(A) -->
+	any(S),
+	{atom_codes(A, S) }.
+
+any([], [0',|L],  [0',|L]) :- !.
+any([], [],  []) :- !.
+any([C|Cs]) --> [C], any(Cs).
+	
+time(N) -->
+	natural(Year),
+	"-",
+%	"/",
+	month(Month),
+	"-",
+%	"/",
+	natural(Day),
+	{ %writeln(Day:Month:Year), 
+          cvt_to_n(Day, Month, Year, N) }.
+
+timeHours(H:M:S) -->
+	natural(H),
+	{format('~q~n',[H])},
+	":",
+	natural(M),
+	":",
+	natural(S).
+
+cvt_to_n(D, M, Y0, N) :-
+	Y0 =< 10,
+	!,
+	Y is 2000+Y0,
+	days(Y,M,D,N).
+cvt_to_n(D, M, Y0, N) :-
+	Y0 > 10,
+	Y0 < 100,
+	!,
+	Y is 1900+Y0,
+	days(Y,M,D,N).
+cvt_to_n(D, M, Y, N) :-
+	days(Y,M,D,N).
+	
+number(N) -->
+	"-", !,
+	pos_number(N1),
+	{ N is -N1 }.
+number(N) -->
+	"+", !,
+	pos_number(N1),
+	{ N is -N1 }.
+number(N) -->
+	pos_number(N).
+
+pos_number(N) -->
+	natural(L, L0),
+	do_float(L0),
+	{ number_codes(N,L) }.
+
+do_float([0'e|L0]) -->
+	"e", !,
+	integer(L0, []).
+do_float([0'E|L0]) -->
+	"E", !,
+	integer(L0, []).
+do_float([0'.|L0]) -->
+	".", !,
+	natural(L0, []).
+do_float([]) -->
+	[].
+
+natural(N) -->
+	natural(L, []),
+	{ number_codes(N, L) }.
+
+natural([C|L], L0) -->
+	[C],
+	{ C >= 0'0, C =< 0'9 }, !,
+	more_naturals(L, L0).
+
+more_naturals([C|L], L0) -->
+	[C],
+	{ C >= 0'0, C =< 0'9 }, !,
+	more_naturals(L, L0).
+more_naturals(L0, L0) --> [].
+
+integer(L,L0) -->
+	"+", !,
+	natural(L, L0).
+integer([0'-|L],L0) -->
+	"-", !,
+	natural(L, L0).
+integer(L,L0) -->
+	natural(L, L0).
+
+atom(T) -->
+	"\"",
+	quoted(Name),
+	{ atom_codes(T, Name) }.
+
+quoted([0'"|Name]) --> "\"\"", !, %"
+	quoted(Name).
+quoted([]) --> "\"", !.
+quoted([C|Name]) --> [C],
+	quoted(Name).
+
+empty([0',|L],  [0',|L]).
+empty([],  []).
+
+month(1) --> "Jan", !.
+month(2) --> "Feb", !.
+month(3) --> "Mar", !.
+month(4) --> "Apr", !.
+month(5) --> "May", !.
+month(6) --> "Jun", !.
+month(7) --> "Jul", !.
+month(8) --> "Aug", !.
+month(9) --> "Sep", !.
+month(10) --> "Oct", !.
+month(11) --> "Nov", !.
+month(12) --> "Dec", !.
+month(I) --> natural(I).
+
+add_as_empty([], _, _).
+add_as_empty([Field|L], W, Key) :-
+	output_field(W, Field, Key, ?),
+	add_as_empty(L, W, Key).
+
+% ICD: changed
+%output_field(_W, _Field, _Key, ?) :- !.
+%	format(W,'~q(~q,~q).~n',[Field,Key,N]).
+%output_field(W, Field, Key, N) :-
+%	format(W,'~q(~q,~q).~n',[Field,Key,N]).
+% ICD: included counters for Field/Value
+output_field(W, Field, Key, ?) :- !,
+	format(W,'~q(~q,~q).~n',[Field,Key,?]),
+        counting(Field,missing).
+/*
+output_field(W, Field, Key, N) :-
+        not atom(N), !,
+	format(W,'~q(~q,~q).~n',[Field,Key,N]),
+        counting(Field,N).
+output_field(W, Field, Key, N) :-
+% convert first letter of predicate value N to lower case if it is uppercase
+        atom_chars(N,[Char|Chars]), 
+        char_type(Char,upper),
+        atom_codes(Char,Code),
+        char_type(LowChar,to_lower(Code)), atom_chars(A,[LowChar|Chars]),
+	format(W,'~q(~q,~q).~n',[Field,Key,A]),
+        counting(Field,A), !.
+*/
+output_field(W, Field, Key, N) :-
+	format(W,'~q(~q,~q).~n',[Field,Key,N]),
+        counting(Field,N).
+
+% ICD: include counters
+counting(Field,Value) :-
+        retract(counter(Field,Value,C)),
+        C1 is C + 1,
+        assertz(counter(Field,Value,C1)), !.
+counting(Field,Value) :-
+        assertz(counter(Field,Value,1)).
+
+% when it ends
+count(FileDescription) :-
+write('WILL START COUNTING'), nl,
+        atom_concat(FileDescription,'.txt',File),
+        tell(File),
+%        listing(counter),
+        counter(Field,_Value,_C),
+        once(counter(Field,_Value,_C)),
+%        format('**** WILL WRITE ALL VALUES FOR FIELD: ~q~n',[Field]),
+        mydisplay(Field),
+%        format('**** WROTE ALL VALUES FOR FIELD: ~q~n',[Field]),
+        fail.
+count(_) :- told.
+
+/*
+mydisplay(Field) :-
+        write(Field), nl,
+        counter(Field,Value,C),
+        tab(4),
+        format('~q: ~q~n',[Value,C]),
+        fail.
+mydisplay(Field) :-
+%        format('**** REMOVING ALL FIELD: ~q~n',[Field]),
+        retractall(counter(Field,_,_)).
+*/
+% other solution
+mydisplay(Field) :-
+        write(Field), nl,
+        order_by(counter/3, 2),
+        forall(counter(Field,Value,C), 
+               (tab(4), format('~q: ~q~n',[Value,C]))
+        ),
+        retractall(counter(Field,_,_)). %,
+%        format('REMOVED ALL FIELD: ~q~n',[Field]). %,
+%        listing(counter).
+        
+

@@ -1527,7 +1527,7 @@ void Yap_fail_all(choiceptr bb USES_REGS) {
   P = saved_p;
 }
 
-bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
+bool Yap_execute_pred( PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
   yamop *saved_p, *saved_cp;
   yamop *CodeAdr;
   bool out;

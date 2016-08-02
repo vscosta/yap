@@ -1,0 +1,60 @@
+
+include (Sources)
+
+#
+include_directories (H  H/generated include os OPTYap utf8proc JIT/HPP)
+include_directories (BEFORE ${CMAKE_BINARY_DIR})
+
+
+#utf-8 is not an option
+# we use the nice UTF-8 package
+#available at the Julia project
+include_directories ( utf8proc )
+ADD_SUBDIRECTORY ( utf8proc )
+
+find_package (GMP)
+macro_log_feature (GMP_FOUND
+  "GNU libgmp (in some cases MPIR"
+  "GNU big integers and rationals"
+  "http://gmplib.org")
+  set(YAP_SYSTEM_OPTIONS "big_numbers " ${YAP_SYSTEM_OPTIONS})
+
+if (GMP_FOUND)
+# GMP_FOUND         - true if GMP/MPIR was found
+# GMP_INCLUDE_DIRS  - include search path
+# GMP_LIBRARIES      - libraries to link with
+# GMP_LIBRARY_DLL    - library DLL to install. Only available on WIN32.
+# GMP_LIBRARIES_DIR - the directory the library we link with is found in.
+  include_directories (${GMP_INCLUDE_DIRS})
+    #add_executable(test ${SOURCES})
+add_library(libGMP SHARED IMPORTED GLOBAL)
+set_target_properties(libGMP PROPERTIES IMPORTED_LOCATION ${GMP_LIBRARIES})
+    #config.h needs this (TODO: change in code latter)
+    set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${GMP_INCLUDE_DIRS} )
+
+endif (GMP_FOUND)
+
+
+include( Threads )
+#
+# include OS and I/o stuff
+#
+# convenience libraries
+# OPTYap exports important flags
+#
+add_subDIRECTORY (OPTYap)
+
+add_subDIRECTORY (packages/myddas)
+
+
+add_subDIRECTORY (os)
+
+#bootstrap and saved state
+add_subDIRECTORY (pl)
+
+#C++ interface
+add_subDIRECTORY (CXX)
+
+ADD_SUBDIRECTORY(swi/library)
+
+ADD_SUBDIRECTORY(library)

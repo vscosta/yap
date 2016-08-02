@@ -1,0 +1,18 @@
+:- determination(upgrade/1,date/2).
+:- determination(upgrade/1,time/2).
+:- determination(upgrade/1,value_Carbs/2).
+:- determination(upgrade/1,value_Glucose/2).
+:- determination(upgrade/1,value_Insulin/2).
+
+:- modeh(*,upgrade(+iD)).
+:- modeb(*,date(+iD,-date)).
+:- modeb(*,date(+iD,#date)).
+:- modeb(*,time(+iD,-time)).
+:- modeb(*,time(+iD,#time)).
+:- modeb(*,value_Carbs(+iD,-value_Carbs)).
+:- modeb(*,value_Carbs(+iD,#value_Carbs)).
+:- modeb(*,value_Glucose(+iD,-value_Glucose)).
+:- modeb(*,value_Glucose(+iD,#value_Glucose)).
+:- modeb(*,value_Insulin(+iD,-value_Insulin)).
+:- modeb(*,value_Insulin(+iD,#value_Insulin)).
+

@@ -176,6 +176,7 @@ extern "C" {
   or other mallocs available that do this.
 */
 
+#define DEBUG_DLMALLOC 1
 #if DEBUG_DLMALLOC
 #include <assert.h>
 #else
