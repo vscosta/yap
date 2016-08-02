@@ -1699,7 +1699,8 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
     mode = assertz;
   } else {
     Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, tmode,
-              "compilation mode used to assert") return false;
+              "compilation mode used to assert");
+    return false;
   }
   if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorAssert)
     tf = ArgOfTerm(1, t);
