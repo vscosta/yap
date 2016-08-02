@@ -169,6 +169,5 @@ file_search_path(path, C) :-
 	lists:member(C, B)
     ).
 
-:- module(prolog).
 
 %% @}

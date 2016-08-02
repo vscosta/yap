@@ -289,6 +289,10 @@ private(_).
   '$sort'(L, S).
 '$bootstrap_predicate'(print_message(Context, Msg), _M, _) :- !,
     '$early_print_message'(Context, Msg).
+'$bootstrap_predicate'(print_message(Context, Msg), _M, _) :- !,
+    '$early_print_message'(Context, Msg).
+'$bootstrap_predicate'(prolog_file_type(A,B), _, prolog_file_type(A,prolog)) :- !.
+'$bootstrap_predicate'(file_search_path(_A,B), _, _ ) :- !, fail.
 '$bootstrap_predicate'(meta_predicate(G), M, _) :- !,
     strip_module(M:G, M1, G1),
     '$meta_predicate'(M1:G1).
@@ -367,20 +371,10 @@ true :- true.
     ->
       prolog_flag(verbose, OldV, silent),
       prolog_flag(resource_database, RootPath),
-      file_directory_name( RootPath, Dir ),
+	file_directory_name( RootPath, Dir ),
       atom_concat( Dir, '/init.yap' , Init),
-      (
-       % is lib_dir set?
-       system_library( LibDir )
-      ->
-       true
-      ;
-       % get it from boot.yap
-       atom_concat( LibDir, '/pl' , Dir),
-       system_library(LibDir)
-      ),
-      bootstrap(Init),
-      set_prolog_flag(verbose, OldV),
+       bootstrap(Init),
+   %   set_prolog_flag(verbose, OldV),
       module( user ),
       '$make_saved_state'
     ;
@@ -1333,7 +1327,7 @@ not(G) :-    \+ '$execute'(G).
 bootstrap(F) :-
   %	'$open'(F, '$csult', Stream, 0, 0, F),
 %	'$file_name'(Stream,File),
-    yap_flag(verbose_load, Old, silent),
+%    yap_flag(verbose_load, Old, silent),
 	open(F, read, Stream),
 	stream_property(Stream, [file_name(File)]),
 	'$start_consult'(consult, File, LC),

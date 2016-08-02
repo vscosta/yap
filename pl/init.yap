@@ -126,7 +126,6 @@ otherwise.
 :- bootstrap('directives.yap').
 :- bootstrap('absf.yap').
 
-
 :- dynamic prolog:'$parent_module'/2.
 
 :- [
