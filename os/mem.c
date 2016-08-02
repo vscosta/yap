@@ -213,7 +213,7 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
 #if MAY_WRITE
 #if HAVE_OPEN_MEMSTREAM
   st->file = open_memstream(&st->nbuf, &st->nsize);
-  setbuf(st->file, NULL);
+  // setbuf(st->file, NULL);
   st->status |= Seekable_Stream_f;
 #else
   st->file = fmemopen((void *)buf, nchars, "w");
