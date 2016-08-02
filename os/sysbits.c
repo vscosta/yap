@@ -1181,7 +1181,7 @@ const char *Yap_findFile(const char *isource, const char *idef,
                          YAP_file_type_t ftype, bool expand_root, bool in_lib) {
 
   char *save_buffer = NULL;
-  const char *root, *source = isource;
+  const char *root = iroot, *source = isource;
   int rc = FAIL_RESTORE;
   int try
     = 0;

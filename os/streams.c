@@ -248,11 +248,12 @@ has_reposition(int sno,
 }
 
 char *Yap_guessFileName(FILE *file, int sno, char *nameb, size_t max) {
+  size_t maxs = max(255, max);
   if (!nameb) {
-    nameb = malloc(max(256, max));
+    nameb = malloc(maxs + 1);
   }
   if (!file) {
-    strcpy(nameb, "memory buffer");
+    strncpy(nameb, "memory buffer", maxs);
     return nameb;
   }
   int f = fileno(file);
@@ -275,7 +276,7 @@ char *Yap_guessFileName(FILE *file, int sno, char *nameb, size_t max) {
     return NULL;
   else {
     int i;
-    unsigned char *ptr = nameb;
+    unsigned char *ptr = (unsigned char *)nameb;
     for (i = 0; i < strlen(path); i++)
       ptr += put_utf8(ptr, path[i]);
     *ptr = '\0';

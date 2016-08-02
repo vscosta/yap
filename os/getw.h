@@ -2,9 +2,9 @@
 /// compose a wide char from a sequence of getchars
 ///  this is a slow lane routine, called if no specialised code
 ///  isavailable.
-static int GETW(int sno) {
+extern int get_wchar(int sno) {
   StreamDesc *st = GLOBAL_Stream + sno;
-  int ch = GETC();
+  int ch = st->stream_getc(sno);
 
   if (ch == -1)
     return post_process_weof(st);
@@ -31,7 +31,7 @@ static int GETW(int sno) {
     buf[0] = ch;
     int n = 1;
     while ((out = mbrtowc(&wch, buf, 1, &(mbstate))) != 1) {
-      int ch = buf[0] = GETC();
+      int ch = buf[0] = st->stream_getc(sno);
       n++;
       if (ch == -1)
         return post_process_weof(st);
@@ -49,7 +49,7 @@ static int GETW(int sno) {
     // if ((ch - 0xc2) > (0xf4-0xc2)) return UTF8PROC_ERROR_INVALIDUTF8;
     if (ch < 0xe0) { // 2-byte sequence
                      // Must have valid continuation character
-      int c1 = buf[0] = GETC();
+      int c1 = buf[0] = st->stream_getc(sno);
       if (c1 == -1)
         return post_process_weof(st);
       // if (!utf_cont(*str)) return UTF8PROC_ERROR_INVALIDUTF8;
@@ -62,22 +62,22 @@ static int GETW(int sno) {
       // Check for surrogate chars
       // if (ch == 0xed && *str > 0x9f)
       //    return UTF8PROC_ERROR_INVALIDUTF8;
-      int c1 = GETC();
+      int c1 = st->stream_getc(sno);
       if (c1 == -1)
         return post_process_weof(st);
-      int c2 = GETC();
+      int c2 = st->stream_getc(sno);
       if (c2 == -1)
         return post_process_weof(st);
       wch = ((ch & 0xf) << 12) | ((c1 & 0x3f) << 6) | (c2 & 0x3f);
       return post_process_read_wchar(wch, 3, st);
     } else {
-      int c1 = GETC();
+      int c1 = st->stream_getc(sno);
       if (c1 == -1)
         return post_process_weof(st);
-      int c2 = GETC();
+      int c2 = st->stream_getc(sno);
       if (c2 == -1)
         return post_process_weof(st);
-      int c3 = GETC();
+      int c3 = st->stream_getc(sno);
       if (c3 == -1)
         return post_process_weof(st);
       wch = ((ch & 7) << 18) | ((c1 & 0x3f) << 12) | ((c2 & 0x3f) << 6) |
@@ -89,15 +89,15 @@ static int GETW(int sno) {
                      // little-endian: start with big shot
     {
       int wch;
-      int c1 = GETC();
+      int c1 = st->stream_getc(sno);
       if (c1 == -1)
         return post_process_weof(st);
       wch = (c1 << 8) + ch;
       if (wch >= 0xd800 && wch < 0xdc00) {
-        int c2 = GETC();
+        int c2 = st->stream_getc(sno);
         if (c2 == -1)
           return post_process_weof(st);
-        int c3 = GETC();
+        int c3 = st->stream_getc(sno);
         if (c3 == -1)
           return post_process_weof(st);
         wch = wch + (((c3 << 8) + c2) << wch) + SURROGATE_OFFSET;
@@ -110,15 +110,15 @@ static int GETW(int sno) {
                      // little-endian: start with big shot
     {
       int wch;
-      int c1 = GETC();
+      int c1 = st->stream_getc(sno);
       if (c1 == -1)
         return post_process_weof(st);
       wch = (c1) + (ch << 8);
       if (wch >= 0xd800 && wch < 0xdc00) {
-        int c3 = GETC();
+        int c3 = st->stream_getc(sno);
         if (c3 == -1)
           return post_process_weof(st);
-        int c2 = GETC();
+        int c2 = st->stream_getc(sno);
         if (c2 == -1)
           return post_process_weof(st);
         wch = (((c3 << 8) + c2) << 10) + wch + SURROGATE_OFFSET;
@@ -131,7 +131,7 @@ static int GETW(int sno) {
                     // little-endian: start with big shot
     {
       int wch;
-      int c1 = GETC();
+      int c1 = st->stream_getc(sno);
       if (c1 == -1)
         return post_process_weof(st);
       wch = (c1) + (ch << 8);
@@ -142,7 +142,7 @@ static int GETW(int sno) {
                     // little-endian: start with big shot
     {
       int wch;
-      int c1 = GETC();
+      int c1 = st->stream_getc(sno);
       if (c1 == -1)
         return post_process_weof(st);
       wch = (c1 << 8) + ch;
@@ -155,19 +155,19 @@ static int GETW(int sno) {
     {
       int wch = ch;
       {
-        int c1 = GETC();
+        int c1 = st->stream_getc(sno);
         if (c1 == -1)
           return post_process_weof(st);
         wch = wch + c1;
       }
       {
-        int c1 = GETC();
+        int c1 = st->stream_getc(sno);
         if (c1 == -1)
           return post_process_weof(st);
         wch = (wch << 8) + c1;
       }
       {
-        int c1 = GETC();
+        int c1 = st->stream_getc(sno);
         if (c1 == -1)
           return post_process_weof(st);
         wch = (wch << 8) + c1;
@@ -179,19 +179,19 @@ static int GETW(int sno) {
     {
       int wch = ch;
       {
-        int c1 = GETC();
+        int c1 = st->stream_getc(sno);
         if (c1 == -1)
           return post_process_weof(st);
         wch += c1 << 8;
       }
       {
-        int c1 = GETC();
+        int c1 = st->stream_getc(sno);
         if (c1 == -1)
           return post_process_weof(st);
         wch += c1 << 16;
       }
       {
-        int c1 = GETC();
+        int c1 = st->stream_getc(sno);
         if (c1 == -1)
           return post_process_weof(st);
         wch += c1 << 24;
@@ -202,5 +202,59 @@ static int GETW(int sno) {
     Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, MkIntTerm(st->encoding),
               "Bad Encoding\n");
     return -1;
+  }
+}
+
+extern int get_wchar_UTF8(int sno) {
+  StreamDesc *st = GLOBAL_Stream + sno;
+  int ch = st->stream_getc(sno);
+
+  if (ch == -1)
+    return post_process_weof(st);
+  else {
+    int wch;
+    unsigned char buf[8];
+
+    if (ch < 0x80) {
+      return post_process_read_wchar(ch, 1, st);
+    }
+    // if ((ch - 0xc2) > (0xf4-0xc2)) return UTF8PROC_ERROR_INVALIDUTF8;
+    if (ch < 0xe0) { // 2-byte sequence
+                     // Must have valid continuation character
+      int c1 = buf[0] = st->stream_getc(sno);
+      if (c1 == -1)
+        return post_process_weof(st);
+      // if (!utf_cont(*str)) return UTF8PROC_ERROR_INVALIDUTF8;
+      wch = ((ch & 0x1f) << 6) | (c1 & 0x3f);
+      return post_process_read_wchar(wch, 2, st);
+    }
+    if (ch < 0xf0) { // 3-byte sequence
+      // if ((str + 1 >= end) || !utf_cont(*str) || !utf_cont(str[1]))
+      //   return UTF8PROC_ERROR_INVALIDUTF8;
+      // Check for surrogate chars
+      // if (ch == 0xed && *str > 0x9f)
+      //    return UTF8PROC_ERROR_INVALIDUTF8;
+      int c1 = st->stream_getc(sno);
+      if (c1 == -1)
+        return post_process_weof(st);
+      int c2 = st->stream_getc(sno);
+      if (c2 == -1)
+        return post_process_weof(st);
+      wch = ((ch & 0xf) << 12) | ((c1 & 0x3f) << 6) | (c2 & 0x3f);
+      return post_process_read_wchar(wch, 3, st);
+    } else {
+      int c1 = st->stream_getc(sno);
+      if (c1 == -1)
+        return post_process_weof(st);
+      int c2 = st->stream_getc(sno);
+      if (c2 == -1)
+        return post_process_weof(st);
+      int c3 = st->stream_getc(sno);
+      if (c3 == -1)
+        return post_process_weof(st);
+      wch = ((ch & 7) << 18) | ((c1 & 0x3f) << 12) | ((c2 & 0x3f) << 6) |
+            (c3 & 0x3f);
+      return post_process_read_wchar(wch, 4, st);
+    }
   }
 }

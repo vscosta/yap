@@ -982,23 +982,22 @@ static Int doformat(volatile Term otail, volatile Term oargs,
             goto do_format_control_sequence_error;
           t = targs[targ++];
           yhandle_t slf = Yap_StartSlots();
-          Yap_plwrite(t, GLOBAL_Stream + sno, 0,
-                      Handle_vars_f | To_heap_f,
+          Yap_plwrite(t, GLOBAL_Stream + sno, 0, Handle_vars_f | To_heap_f,
                       GLOBAL_MaxPriority);
-         Yap_CloseSlots(slf);
+          Yap_CloseSlots(slf);
           break;
         case 'W':
           if (targ > tnum - 2 || has_repeats)
             goto do_format_control_sequence_error;
-            targ -= 2;
-            {
-         yhandle_t slf = Yap_StartSlots();
-         if (!Yap_WriteTerm( sno, targs[1], targs[0] PASS_REGS)) {
+          targ -= 2;
+          {
+            yhandle_t slf = Yap_StartSlots();
+            if (!Yap_WriteTerm(sno, targs[1], targs[0] PASS_REGS)) {
+              Yap_CloseSlots(slf);
+              goto do_default_error;
+            };
             Yap_CloseSlots(slf);
-             goto do_default_error;
-         };
-            Yap_CloseSlots(slf);
-           }
+          }
           break;
         case '~':
           if (has_repeats)
@@ -1200,7 +1199,7 @@ static Int with_output_to(USES_REGS1) {
   Term tin = Deref(ARG1);
   Functor f;
   bool out;
-  bool mem_stream = false;
+  bool my_mem_stream;
   yhandle_t hdl = Yap_PushHandle(tin);
   if (IsVarTerm(tin)) {
     Yap_Error(INSTANTIATION_ERROR, tin, "with_output_to/3");
@@ -1215,6 +1214,7 @@ static Int with_output_to(USES_REGS1) {
     /* needs to change LOCAL_c_output_stream for write */
     output_stream = Yap_CheckStream(ARG1, Output_Stream_f, "format/3");
     my_mem_stream = false;
+    f = NIL;
   }
   if (output_stream == -1) {
     return false;
@@ -1223,7 +1223,7 @@ static Int with_output_to(USES_REGS1) {
   out = Yap_Execute(Deref(ARG2) PASS_REGS);
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   LOCAL_c_output_stream = old_out;
-  if (mem_stream) {
+  if (my_mem_stream) {
     Term tat;
     Term inp = Yap_GetFromHandle(hdl);
     if (out) {

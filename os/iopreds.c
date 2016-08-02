@@ -97,16 +97,9 @@ static char SccsId[] = "%W% %G%";
 #define S_ISDIR(x) (((x)&_S_IFDIR) == _S_IFDIR)
 #endif
 #endif
-#include "iopreds.h"
-//#define GETW get_wchar_from_FILE
-//#endif
-#define GETC() fgetwc(st->file)
-#include "getw.h"
 
-#undef GETW
-#undef GETC
-#define GETW get_wchar
-#define GETC() st->stream_getc(sno)
+#include "iopreds.h"
+
 #include "getw.h"
 
 static int get_wchar_from_file(int);
@@ -254,7 +247,7 @@ static void unix_upd_stream_info(StreamDesc *s) {
 void Yap_DefaultStreamOps(StreamDesc *st) {
   CACHE_REGS
   st->stream_wputc = put_wchar;
-  st->stream_wgetc = get_wchar;
+  st->stream_wgetc = get_wchar_UTF8;
   st->stream_putc = FilePutc;
   st->stream_getc = PlGetc;
   if (st->status & (Promptable_Stream_f)) {
@@ -664,10 +657,9 @@ int PlGetc(int sno) {
 }
 
 // layered version
-static int get_wchar__(int sno) { return fgetwc(GLOBAL_Stream[sno].file); }
-
-static int get_wchar_from_file(int sno) {
-  return post_process_read_wchar(get_wchar__(sno), 1, GLOBAL_Stream + sno);
+static inline int get_wchar_from_file(int sno) {
+  return post_process_read_wchar(fgetwc(GLOBAL_Stream[sno].file), 1,
+                                 GLOBAL_Stream + sno);
 }
 
 #ifndef MB_LEN_MAX
