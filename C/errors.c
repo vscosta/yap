@@ -325,7 +325,8 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
     va_list ap;
   CELL nt[3];
   Functor fun;
-  bool  error_t, comment;
+  Term  error_t;
+  Term comment;
   char *format;
   char s[MAXPATHLEN];
 
