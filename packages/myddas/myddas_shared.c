@@ -618,7 +618,7 @@ static Int c_db_stats(USES_REGS1) {
 #endif
 
 /* Memory management */
-#ifdef DEBUG
+#ifdef DEBUG_MYDDAS_MEM
   MyddasULInt nr;
   MYDDAS_MEMORY_MALLOC_NR(nr);
   printf("Number of times malloc was called in MYDDAS: %lu \n", nr);
