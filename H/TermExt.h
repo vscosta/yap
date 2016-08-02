@@ -25,7 +25,10 @@
 #define SF_STORE ((special_functors *)HEAP_INIT_BASE)
 #endif
 
-#if defined(USE_OFFSETS)
+
+#if 1
+extern Atom AtomFoundVar, AtomFreeTerm, AtomNil, AtomDot;
+#elif defined(USE_OFFSETS)
 #define AtomFoundVar ((Atom)(&(((special_functors *)(NULL))->AtFoundVar)))
 #define AtomFreeTerm ((Atom)(&(((special_functors *)(NULL))->AtFreeTerm)))
 #define AtomNil ((Atom)(&(((special_functors *)(NULL))->AtNil)))

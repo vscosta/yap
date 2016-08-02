@@ -72,7 +72,7 @@ typedef uint32_t UInt;
 #define Int_F "I32d"
 #define UInt_F "I32u"
 
-#elif SIZEOF_LONGINT == SIZEOF_INT_P
+#elif SIZEOF_LONG_INT == SIZEOF_INT_P
 
 typedef long int Int;
 typedef unsigned long int UInt;
