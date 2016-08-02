@@ -1078,7 +1078,7 @@ static void InitAtoms(void) {
     HashChain[i].Entry = NIL;
   }
   NOfAtoms = 0;
-#if OLD_STYLE_INITIAL_ATOMS
+#if 0 && OLD_STYLE_INITIAL_ATOMS
   Yap_LookupAtomWithAddress("**", (AtomEntry *)&(SF_STORE->AtFoundVar));
   Yap_ReleaseAtom(AtomFoundVar);
   Yap_LookupAtomWithAddress("?", (AtomEntry *)&(SF_STORE->AtFreeTerm));
@@ -1086,12 +1086,12 @@ static void InitAtoms(void) {
   Yap_LookupAtomWithAddress("[]", (AtomEntry *)&(SF_STORE->AtNil));
   Yap_LookupAtomWithAddress(".", (AtomEntry *)&(SF_STORE->AtDot));
 #else
-  SF_STORE->AtFoundVar = Yap_LookupAtom("**");
+  AtomFoundVar = Yap_LookupAtom("**");
   Yap_ReleaseAtom(AtomFoundVar);
-  SF_STORE->AtFreeTerm = Yap_LookupAtom("?");
+  AtomFreeTerm = Yap_LookupAtom("?");
   Yap_ReleaseAtom(AtomFreeTerm);
-  SF_STORE->AtNil = Yap_LookupAtom("[]");
-  SF_STORE->AtDot = Yap_LookupAtom(".");
+  AtomNil = Yap_LookupAtom("[]");
+  AtomDot = Yap_LookupAtom(".");
 #endif
 }
 

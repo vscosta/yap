@@ -183,6 +183,8 @@ typedef struct various_codes {
 
 } all_heap_codes;
 
+Atom AtomFoundVar, AtomFreeTerm, AtomNil, AtomDot;
+
 #include "tatoms.h"
 
 
@@ -262,12 +264,12 @@ INLINE_ONLY inline EXTERN Term Yap_CurrentModule__(USES_REGS1) {
 #define InitialConsultCapacity 1024
 
 #if (defined(USE_SYSTEM_MALLOC) && HAVE_MALLINFO) || USE_DL_MALLOC
-UInt Yap_givemallinfo(void);
+extern UInt Yap_givemallinfo(void);
 #endif
 
-ADDR Yap_ExpandPreAllocCodeSpace(UInt, void *, int);
+extern ADDR Yap_ExpandPreAllocCodeSpace(UInt, void *, int);
 #define Yap_ReleasePreAllocCodeSpace(x)
-ADDR Yap_InitPreAllocCodeSpace(int);
+extern ADDR Yap_InitPreAllocCodeSpace(int);
 
 #include "inline-only.h"
 INLINE_ONLY EXTERN inline ADDR Yap_PreAllocCodeSpace(void);
