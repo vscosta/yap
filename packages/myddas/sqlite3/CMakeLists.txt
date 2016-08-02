@@ -40,6 +40,7 @@ set_property(GLOBAL APPEND PROPERTY COMPILE_DEFINITIONS
   if (NOT ANDROID)
   #target_link_libraries(Yapsqlite3 libYap)
   set_target_properties (Yapsqlite3 PROPERTIES
+        POSITION_INDEPENDENT_CODE ON
   PREFIX ""
   )
 

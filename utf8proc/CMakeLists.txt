@@ -25,15 +25,17 @@ add_definitions (
   -DUTF8PROC_EXPORTS
 )
 
+
 #if (NOT MSVC)
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -std=c99 -pedantic -Wall")
 #endif ()
 ##SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${my_cxx_flags}" )
 #SET( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${my_cxx_flags}" )
 
+set_target_properties( utf8proc PROPERTIES   POSITION_INDEPENDENT_CODE ON
+        )
 
   set( CMAKE_REQUIRED_INCLUDES  . ${CMAKE_REQUIRED_INCLUDES} )
 
 
-  set ( YAP_YAPUTF8LIB $<TARGET_FILE_NAME:utf8proc> )
 

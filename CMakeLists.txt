@@ -6,7 +6,10 @@
 # library. You should either keep the default value or only pass a
 # value of 3.4.0 or lower.
 
-cmake_minimum_required(VERSION 3.4.1)
+project( YAP )
+
+cmake_minimum_required(VERSION 2.8)
+
 set(
         CMAKE_MODULE_PATH
         "${CMAKE_SOURCE_DIR}"
@@ -104,10 +107,11 @@ if (USE_READLINE)
     target_link_libraries(libYap ${READLINE_LIBRARIES})
 endif (USE_READLINE)
 
+    target_link_libraries(libYap m pthread)
 
 if (ANDROID)
 
-    target_link_libraries(libYap m android log)
+    target_link_libraries(libYap android log)
 endif ()
 
 set_target_properties(libYap

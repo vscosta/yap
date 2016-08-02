@@ -10,6 +10,7 @@ set (TARGET sys)
 endif()
 
 
+if (NOT ANDROID)
 #
 # this will support getting better cryptographic support,
 # but right now Open SSL is not supported enough.
@@ -25,6 +26,8 @@ if (OPENSSL_FOUND)
   check_include_file( "openssl/ripemd.h" HAVE_OPENSSL_RIPEMD_H )
   check_include_file( "openssl/md5.h" HAVE_OPENSSL_MD5_H )
 endif (OPENSSL_FOUND)
+
+endif()
 
 check_library_exists( crypt crypt "" HAVE_LIBCRYPT )
 if (HAVE_LIBCRYPT)
