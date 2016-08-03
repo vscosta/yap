@@ -57,6 +57,10 @@ static char SccsId[] = "%W% %G%";
 #include <string.h>
 #endif
 
+#ifdef YAPOR
+Atom AtomFoundVar, AtomFreeTerm, AtomNil, AtomDot;
+#endif // !YAPOR
+
 int Yap_output_msg = FALSE;
 
 #if DEBUG

@@ -183,10 +183,8 @@ typedef struct various_codes {
 
 } all_heap_codes;
 
-Atom AtomFoundVar, AtomFreeTerm, AtomNil, AtomDot;
 
 #include "tatoms.h"
-
 
 #include "h0struct.h"
 
