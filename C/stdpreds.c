@@ -1060,6 +1060,7 @@ static Int init_current_atom_op(
   return cont_current_atom_op(PASS_REGS1);
 }
 
+#if 0
 static Int
     copy_local_ops(USES_REGS1) { /* current_op(-Precedence,-Type,-Atom) */
   Term tmodin = Deref(ARG1);
@@ -1079,6 +1080,7 @@ static Int
   B->cp_h = HR;
   return cont_current_atom_op(PASS_REGS1);
 }
+#endif
 
 void Yap_show_statistics(void) {
   CACHE_REGS
@@ -1112,7 +1114,7 @@ void Yap_show_statistics(void) {
                               (Unsigned(TR) - Unsigned(LOCAL_TrailBase))));
   fprintf(stderr, "Runtime: %lds.\n", (unsigned long int)(runtime(PASS_REGS1)));
   fprintf(stderr, "Cputime: %lds.\n", (unsigned long int)(Yap_cputime()));
-  fprintf(stderr, "Walltime: %llu.\n", Yap_walltime() / 1000);
+  fprintf(stderr, "Walltime: %lu.\n", Yap_walltime() / 1000);
 }
 
 static Int p_statistics_heap_max(USES_REGS1) {
@@ -1603,9 +1605,9 @@ void Yap_InitCPreds(void) {
     while (*p)
       (*(*p++))();
   }
-  #if USE_MYDDAS
-   init_myddas();
-  #endif
+#if USE_MYDDAS
+  init_myddas();
+#endif
 #if CAMACHO
   {
     extern void InitForeignPreds(void);
