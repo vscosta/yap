@@ -28,7 +28,7 @@ public:
   /// YAPTerm
   // do nothing constructor
   YAPTerm() { t = 0; }
-  YAPTerm(intptr_t i);
+  YAPTerm(yhandle_t i) { t= i; };
   /// pointer to term
   YAPTerm(void *ptr);
   /// parse string s and construct a term.

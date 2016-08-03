@@ -392,10 +392,6 @@ YAPTerm::YAPTerm(void *ptr) {
   mk(MkIntegerTerm((Int)ptr));
 }
 
-YAPTerm::YAPTerm(intptr_t i) {
-  CACHE_REGS Term tn = MkIntegerTerm(i);
-  mk(tn);
-}
 
 YAPTerm YAPListTerm::car() {
   Term to = gt();
