@@ -469,7 +469,6 @@ load_files(Files,Opts) :-
     open( F, read, Stream , [type(binary)] ),
 	(
 	 '$q_header'( Stream, Type ),
-     writeln(File:Type),
 	 Type == file
 	->
 	 !
