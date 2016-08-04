@@ -679,6 +679,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
       case 'G': {
         Float fl;
         char *ptr;
+        char fmt[32];
 
         if (targ > tnum - 1)
           goto do_format_control_sequence_error;
@@ -698,11 +699,11 @@ static Int doformat(volatile Term otail, volatile Term oargs,
         }
         if (!has_repeats)
           repeats = 6;
-        tmp1[0] = '%';
-        tmp1[1] = '.';
-        ptr = tmp1 + 2;
+        fmt[0] = '%';
+        fmt[1] = '.';
+        ptr = fmt + 2;
 #if HAVE_SNPRINTF
-        snprintf(ptr, 256 - 5, "%d", repeats);
+        snprintf(ptr, 31 - 5, "%d", repeats);
 #else
         sprintf(ptr, "%d", repeats);
 #endif
@@ -711,19 +712,14 @@ static Int doformat(volatile Term otail, volatile Term oargs,
         ptr[0] = ch;
         ptr[1] = '\0';
         {
-          char *tmp2;
-          if (!(tmp2 = Yap_AllocCodeSpace(repeats + 10))) {
-            goto do_type_int_error;
-          }
+          unsigned char *uptr = (unsigned char *)tmp1;
 #if HAVE_SNPRINTF
-          snprintf(tmp2, repeats + 10, tmp1, fl);
+          snprintf(tmp1, repeats + 10, fmt, fl);
 #else
-          sprintf(tmp2, tmp1, fl);
+          sprintf(tmp1, fmt, fl);
 #endif
-          ptr = tmp2;
-          while ((fptr += get_utf8(fptr, -1, &ch)) && ch != 0)
+          while ((uptr += get_utf8(uptr, -1, &ch)) && ch != 0)
             f_putc(sno, ch);
-          Yap_FreeCodeSpace(tmp2);
         }
         break;
       case 'd':
