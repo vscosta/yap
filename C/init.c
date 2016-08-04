@@ -57,7 +57,7 @@ static char SccsId[] = "%W% %G%";
 #include <string.h>
 #endif
 
-#ifdef YAPOR
+#ifndef YAPOR
 Atom AtomFoundVar, AtomFreeTerm, AtomNil, AtomDot;
 #endif // !YAPOR
 
@@ -208,14 +208,14 @@ static int OpDec(int p, const char *type, Atom a, Term m) {
 
 #if defined(MODULE_INDEPENDENT_OPERATORS_FLAG)
   if (booleanFlag(MODULE_INDEPENDENT_OPERATORS_FLAG)) {
-    m = PROLOG_MODULE;    
-} else
-#endif
-    {
-  if (m == TermProlog)
     m = PROLOG_MODULE;
-  else if (m == USER_MODULE)
-    m = PROLOG_MODULE;    
+  } else
+#endif
+  {
+    if (m == TermProlog)
+      m = PROLOG_MODULE;
+    else if (m == USER_MODULE)
+      m = PROLOG_MODULE;
   }
   for (i = 1; i <= 7; ++i)
     if (strcmp(type, optypes[i]) == 0)
@@ -241,7 +241,7 @@ static int OpDec(int p, const char *type, Atom a, Term m) {
     info->KindOfPE = Ord(OpProperty);
     info->NextForME = (me = Yap_GetModuleEntry(m))->OpForME;
     me->OpForME = info;
-    info->OpModule = m;    
+    info->OpModule = m;
     info->OpName = a;
     // LOCK(OpListLock);
     info->OpNext = OpList;
@@ -294,21 +294,19 @@ static void SetOp(int p, int type, char *at, Term m) {
   OpDec(p, optypes[type], Yap_LookupAtom(at), m);
 }
 
-bool Yap_dup_op(OpEntry  *op, ModEntry *she)
-{
+bool Yap_dup_op(OpEntry *op, ModEntry *she) {
   AtomEntry *ae = RepAtom(op->OpName);
   OpEntry *info = (OpEntry *)Yap_AllocAtomSpace(sizeof(OpEntry));
   if (!info)
     return false;
   memcpy(info, op, sizeof(OpEntry));
-  info->NextForME =she->OpForME;
+  info->NextForME = she->OpForME;
   she->OpForME = info;
   info->OpModule = MkAtomTerm(she->AtomOfME);
   AddPropToAtom(ae, AbsOpProp(info));
   INIT_RWLOCK(info->OpRWLock);
   return true;
 }
-
 
 /* Gets the info about an operator in a prop */
 Atom Yap_GetOp(OpEntry *pp, int *prio, int fix) {
