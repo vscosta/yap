@@ -107,7 +107,6 @@ if (USE_READLINE)
     target_link_libraries(libYap ${READLINE_LIBRARIES})
 endif (USE_READLINE)
 
-    target_link_libraries(libYap m pthread)
 
 if (ANDROID)
 
