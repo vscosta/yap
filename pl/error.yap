@@ -141,7 +141,7 @@ must_be_of_type(Type, X, _Comment) :-
 	).
 
 must_bind_to_type(Type, X) :-
-	(   may_bind_to_type(Type, X), writeln(X)
+	(   may_bind_to_type(Type, X)
 	->  true
 	;   is_not(Type, X)
 	).
