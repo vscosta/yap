@@ -29,7 +29,7 @@
 
 */
 
-/** @pred  listing 
+/** @pred  listing
 
 
 Lists in the current output stream all the clauses for which source code
@@ -37,7 +37,7 @@ is available (these include all clauses for dynamic predicates and
 clauses for static predicates compiled when source mode was `on`).
 
 - listing/0 lists in the current module
- 
+
 - listing/1 receives a generalization of the predicate indicator:
 
     + `listing(_)` will list the whole sources.
@@ -63,8 +63,8 @@ listing :-
     Mod \= prolog,
     Mod \= system,
     \+ '$hidden_atom'( Mod ),
-    '$current_predicate'(_,Mod,Pred, user),
-    '$undefined'(Pred, prolog), % skip predicates exported from prolog.
+    current_predicate( Name, Mod:Pred ),
+    \+ '$undefined'(Pred, Mod), % skip predicates exported from prolog.
     functor(Pred,Name,Arity),
     '$listing'(Name,Arity,Mod,Stream),
     fail.
@@ -74,7 +74,7 @@ listing.
 
 Lists predicate  _P_ if its source code is available.
 
- 
+
 */
 listing(MV) :-
     current_output(Stream),
@@ -86,11 +86,11 @@ listing(Stream, MV) :-
 listing(_Stream, []) :- !.
 listing(Stream, [MV|MVs]) :- !,
     listing(Stream,  MV),
-    listing(Stream, MVs).	    
+    listing(Stream, MVs).
 
 '$mlisting'(Stream, MV, M) :-
-    ( var(MV) -> 
-	  MV = NA, 
+    ( var(MV) ->
+	  MV = NA,
 	  '$do_listing'(Stream, M, NA)
 	 ;
       atom(MV) ->
@@ -108,7 +108,9 @@ listing(Stream, [MV|MVs]) :- !,
     ).
 
 '$do_listing'(Stream, M, Name/Arity) :-
-    ( current_predicate(M:Name/Arity),
+    ( current_predicate(Name, M:Pred),
+      functor( Pred, Name, Arity),
+      \+ '$undefined'(Pred, M),
       '$listing'(Name,Arity,M,Stream),
       fail
    ;
@@ -139,10 +141,10 @@ listing(Stream, [MV|MVs]) :- !,
           !
         ).
 '$list_clauses'(Stream, M, Pred) :-
-    ( '$is_dynamic'(Pred, M) -> true ; '$is_log_updatable'(Pred, M) ), 
+    ( '$is_dynamic'(Pred, M) -> true ; '$is_log_updatable'(Pred, M) ),
     functor( Pred, N, Ar ),
     '$current_module'(Mod),
-    ( 
+    (
 	M == Mod
     ->
       format( Stream, ':- dynamic ~q/~d.~n', [N,Ar])
@@ -151,10 +153,10 @@ listing(Stream, [MV|MVs]) :- !,
      ),
      fail.
 '$list_clauses'(Stream, M, Pred) :-
-    '$is_thread_local'(Pred, M), 
+    '$is_thread_local'(Pred, M),
     functor( Pred, N, Ar ),
     '$current_module'(Mod),
-    ( 
+    (
 	M == Mod
     ->
       format( Stream, ':- thread_local ~q/~d.~n', [N,Ar])
@@ -163,10 +165,10 @@ listing(Stream, [MV|MVs]) :- !,
      ),
      fail.
 '$list_clauses'(Stream, M, Pred) :-
-    '$is_multifile'(Pred, M), 
+    '$is_multifile'(Pred, M),
     functor( Pred, N, Ar ),
     '$current_module'(Mod),
-    ( 
+    (
 	M == Mod
     ->
       format( Stream, ':- multifile ~q/~d.~n', [N,Ar])
@@ -175,11 +177,11 @@ listing(Stream, [MV|MVs]) :- !,
      ),
      fail.
 '$list_clauses'(Stream, M, Pred) :-
-   '$is_metapredicate'(Pred, M), 
+   '$is_metapredicate'(Pred, M),
     functor( Pred, Name, Arity ),
     prolog:'$meta_predicate'(Name,M,Arity,PredDef),
     '$current_module'(Mod),
-    ( 
+    (
 	M == Mod
     ->
       format( Stream, ':- ~q.~n', [PredDef])
@@ -210,10 +212,10 @@ portray_clause(Stream, Clause) :-
 	fail.
 portray_clause(_, _).
 
-/** @pred  portray_clause(+ _C_) 
+/** @pred  portray_clause(+ _C_)
 
 Write clause  _C_ as if written by listing/0.
- 
+
 */
 portray_clause(Clause) :-
         current_output(Stream),
@@ -292,9 +294,9 @@ portray_clause(Clause) :-
 	'$write_disj'(S,I0,I,'|',Stream).
 '$write_disj'(S,_,I,C,Stream) :-
 	'$write_body'(S,I,C,Stream).
-	
 
-'$beforelit'('(',_,Stream) :- 
+
+'$beforelit'('(',_,Stream) :-
     !,
     format(Stream,' ',[]).
 '$beforelit'(_,I,Stream) :- format(Stream,'~n~*c',[I,0' ]).
