@@ -243,14 +243,14 @@ For installing and running ProbLog, the following are required:
 ### Download
 To install ProbLog1, it is first necessary to download SimpleCUDD or CUDD. YAP Prolog also needs to be downloaded if it is not already installed on the machine
 
-For downloading SimpleCUDD, go to: 
+For downloading SimpleCUDD, go to:
 + http://www.cs.kuleuven.be/$sim$theo/tools/SimpleCUDD.tar.gz
 
 You can also use the CUDD interface package in YAP. You will need to
 
 1. If a Fedora user, CUDD is just available.
 
-2. If a Mac user, there is a ports package.  
+2. If a Mac user, there is a ports package.
 
 3. Otherwise, you can obtain the version at . This version compiles under WIN32.
 
@@ -279,7 +279,7 @@ A probabilistic fact is encoded in ProbLog by preceding a predicate with a proba
 ~~~~
 0.5::heads(_).
 ~~~~
-encodes the fact that there's 50% chance of getting heads when tossing an unbiassed coin. 
+encodes the fact that there's 50% chance of getting heads when tossing an unbiassed coin.
 
 ### Encoding Parameter Learning Facts
 
@@ -357,7 +357,7 @@ This predicate returns the lower bound of the probability of achieving the goal 
  *
 This predicate specifies an example. Every example has as input a unique identifier (N), a query (Q) and a probability (Prob) associated with it.
 
-Instead of queries, you can also give proofs as training example. They are encoded as the conjunction of the probabilistic facts used in the proof. 
+Instead of queries, you can also give proofs as training example. They are encoded as the conjunction of the probabilistic facts used in the proof.
 */
 
 /**
@@ -365,7 +365,7 @@ Instead of queries, you can also give proofs as training example. They are encod
  *
 This predicate specifies a test example. Every test example has as input a unique identifier (N), a query (Q) and a probability (Prob) associated with it.
 
-Test examples are ignored during learning but are used afterwards to check the performance of the model. The ID namespace is shared between the test examples and the training examples and you may only reuse an ID if the queries are identical. 
+Test examples are ignored during learning but are used afterwards to check the performance of the model. The ID namespace is shared between the test examples and the training examples and you may only reuse an ID if the queries are identical.
 */
 
 /**
@@ -410,13 +410,13 @@ This predicate gives the value of the flag with the specified name. The supporte
 
 + use_db_trie
 
-    Flag telling whether to use the builtin trie to trie transformation. 
-The possible values for this flag are true or false. 
+    Flag telling whether to use the builtin trie to trie transformation.
+The possible values for this flag are true or false.
 
 + db_trie_opt_lvl
 
     Sets the optimization level for the trie to trie transformation
-The possible values for this flag are any integer 
+The possible values for this flag are any integer
 
 + compare_opt_lvl
 
@@ -425,8 +425,8 @@ The possible values for this flag are true or false.
 
 + db_min_prefix
 
-    Sets the minimum size of the prefix for dbtrie to optimize. 
-The possible values for this flag are any integer 
+    Sets the minimum size of the prefix for dbtrie to optimize.
+The possible values for this flag are any integer
 
 + use_naive_trie
 
@@ -625,7 +625,7 @@ The possible values for this flag are any valid path name.
 
 + verbosity_level
 
-    Flag telling how much output shall be given. 
+    Flag telling how much output shall be given.
 The possible values for this flag are an integer between 0 and 5 (0=nothing, 5=all).
 
 + reuse_initialized_bdds
@@ -646,12 +646,12 @@ The possible values for this flag are true or false.
 + init_method
 
     Flag setting the ProbLog predicate to search proofs.
-The possible values for this flag are of the form: (+Query,-P,+BDDFile,+ProbFile,+Call). For example: A,B,C,D,problog_kbest_save(A,100,B,E,C,D) 
+The possible values for this flag are of the form: (+Query,-P,+BDDFile,+ProbFile,+Call). For example: A,B,C,D,problog_kbest_save(A,100,B,E,C,D)
 
 + probability_initializer
 
     Flag setting the ProbLog predicate to initialize probabilities.
-The possible values for this flag are of the form: (+FactID,-P,+Call). For example: A,B,random_probability(A,B) 
+The possible values for this flag are of the form: (+FactID,-P,+Call). For example: A,B,random_probability(A,B)
 
 + log_frequency
 
@@ -660,7 +660,7 @@ The possible values for this flag are any integer greater than zero.
 
 + alpha
 
-    Flag setting the weight of negative examples. 
+    Flag setting the weight of negative examples.
 The possible values for this flag are number or "auto" (auto=n_p/n_n).
 
 + slope
@@ -890,7 +890,7 @@ The possible values for this flag are any number greater than zero.
 :- dynamic current_prob/1.
 :- dynamic possible_proof/2.
 :- dynamic impossible_proof/1.
-	
+
 :- table conditional_prob/4.
 
 % ProbLog files declare prob. facts as P::G
@@ -1068,7 +1068,8 @@ reset_control :-
 	problog_control(off,mc),
 	problog_control(off,limit),
 %   problog_control(off,exact),
-	problog_control(off,remember).
+	problog_control(off,remember),
+    nb_setval(problog_steps, 1).
 
 :- initialization(reset_control).
 
@@ -1105,12 +1106,14 @@ generate_atoms(N, A):-
 % converts annotated disjunctions
 term_expansion_intern((Head<--Body), Module, C):-
 	term_expansion_intern_ad((Head<--Body), Module,inference, C).
-
 % converts ?:: prefix to ? :: infix, as handled by other clause
 term_expansion_intern((Annotation::Fact), Module, ExpandedClause) :-
 	Annotation == ( '?' ),
 	term_expansion_intern(((?) :: Fact :- true), Module, ExpandedClause).
-
+term_expansion_intern((Annotation::Head; Alternatives), Module, C):-
+    is_alternatives( Alternatives ),
+    !,
+	term_expansion_intern_ad(((Annotation::Head; Alternatives)<--true), Module,inference, C).
 
 % handles decision clauses
 term_expansion_intern((Annotation :: Head :- Body), Module, problog:ExpandedClause) :-
@@ -1191,7 +1194,7 @@ term_expansion_intern(Head :: Goal,Module,problog:ProbFact) :-
 	length(Args,Arity),
 	atomic_concat([problogcontinuous_,Name],ProblogName),
 	probclause_id(ID),
-	
+
 	% is it a tunable fact?
 	(
 	 (number(Mu),number(Sigma))
@@ -1218,7 +1221,7 @@ term_expansion_intern(Head :: Goal,Module,problog:ProbFact) :-
 
 
 
-	
+
 
 % handles probabilistic facts
 term_expansion_intern(P :: Goal,Module,problog:ProbFact) :-
@@ -1286,7 +1289,7 @@ sample_initial_value_for_tunable_fact(Goal,LogP) :-
 	  ->
 	   P=P1;
 	   P=0.5
-	  )	  
+	  )
 	 );
 	 (
 	  number(Initializer)
@@ -1294,7 +1297,7 @@ sample_initial_value_for_tunable_fact(Goal,LogP) :-
 	  P=Initializer
          ;
 	  atom(Initializer)
-         -> 
+         ->
           call(user:Initializer,Goal,P)
          ;
 	  throw(unkown_probability_initializer(Initializer))
@@ -1303,6 +1306,14 @@ sample_initial_value_for_tunable_fact(Goal,LogP) :-
 
 	LogP is log(P).
 
+is_alternatives( Var ) :-
+	var( Var ),
+	!,
+	fail.
+is_alternatives( _Prob::_Alt ).
+is_alternatives( ( A1 ; As ) ) :-
+	is_alternatives( A1 ),
+	is_alternatives( As ).
 
 
 %
@@ -1428,7 +1439,7 @@ problog_retractall(Goal) :-
 	retractall(problog:ProbLogGoal).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -1477,7 +1488,7 @@ non_ground_fact_grounding_id(Goal,ID) :-
 	  assertz(grounding_is_known(Goal,ID))
 	  )
 	).
-non_ground_fact_grounding_id(Goal,_) :-	
+non_ground_fact_grounding_id(Goal,_) :-
 	format(user_error,'The current program uses non-ground facts.~n', []),
 	format(user_error,'If you query those, you may only query fully-grounded versions of the fact.~n',[]),
 	format(user_error,'Within the current proof, you queried for ~q which is not ground.~2n', [Goal]),
@@ -1512,15 +1523,15 @@ prove_problog_fact(ClauseID,GroundID,Prob) :-
   (problog_control(check,find_decisions) ->
     signal_decision(ClauseID,GroundID)
   ;
-    (Prob = ('?') ->
+    (Prob == ('?') ->
       add_to_proof(GroundID,0) % 0 is log(1)!
     ;
       % Checks needed for LeDTProbLog
-      (Prob = always ->
+      (Prob == always ->
         % Always true, do not add to trie
         true
       ;
-        (Prob = never ->
+        (Prob == never ->
           % Always false, do not add to trie
           fail
         ;
@@ -1865,13 +1876,13 @@ add_to_proof(ID, LogProb) :-
 	b_getval(problog_probability, CurrentLogProb),
 	nb_getval(problog_threshold, CurrentThreshold),
 	b_getval(problog_current_proof, IDs),
-	
+
 	% check whether negation of this fact is already used in proof
 	\+ open_end_memberchk(not(ID),IDs),
-	
+
 	(  % check whether this fact is already used in proof
 	   open_end_memberchk(ID, IDs)
-	->	
+	->
 	   true;
 	   (
 	    open_end_add(ID, IDs, NIDs),
@@ -1907,7 +1918,7 @@ add_to_proof_negated(ID, LogProb) :-
 
 	% check whether unnegated fact is already used in proof
 	\+ open_end_memberchk(ID, IDs),
-	
+
 	( % check wether negation of this fact is already used in proof
 	 open_end_memberchk(not(ID), IDs)
 	->
@@ -2040,7 +2051,7 @@ init_problog(Threshold) :-
 	reset_control,
 	LT is log(Threshold),
 	b_setval(problog_probability, 0.0),
-	b_setval(problog_current_proof, []),
+	nb_setval(problog_current_proof, []),
 	nb_setval(problog_threshold, LT),
 	problog_flag(maxsteps,MaxS),
 	init_tabling,
@@ -2063,6 +2074,9 @@ init_problog(Threshold) :-
 	timer_reset(bdd_gen_time_dec),
 	timer_reset(sld_time),
 	timer_reset(build_tree_low).
+
+% :- initialization( ( init_problog(0.0),
+%                      reset_control ) ).
 
 % idea: proofs that are refinements of known proof can be pruned as they don't add probability mass
 % note that current ptree implementation doesn't provide the check as there's no efficient method known so far...
@@ -2309,7 +2323,7 @@ eval_dnf(OriTrie1, Prob, Status) :-
 
       delete_ptree(DBTrie),
       timer_stop(script_gen_time_builtin,Script_Gen_Time_Builtin),
-  
+
       problog_var_set(bdd_script_time(Builtin), Script_Gen_Time_Builtin),
 
       timer_start(bdd_gen_time_builtin),
@@ -2418,7 +2432,7 @@ execute_bdd_tool(BDDFile, BDDParFile, Prob, Status):-
   ;
     Param = ParamD
   ),
-  convert_filename_to_problog_path('problogbdd', ProblogBDD),
+  convert_filename_to_problog_path('simplecudd', ProblogBDD),
   convert_filename_to_working_path(ResultFileFlag, ResultFile),
   atomic_concat([ProblogBDD, Param,' -l ', BDDFile, ' -i ', BDDParFile, ' -m p -t ', BDDTime, ' > ', ResultFile], Command),
   shell(Command, Return),
@@ -2473,7 +2487,7 @@ add_solution :-
 	 Cont_IDs == []
 	->
 	 Continuous=[];
-	 ( 
+	 (
 	   proof_id(ProofID),
 	   collect_all_intervals(Cont_IDs,ProofID,AllIntervals),
 	   (
@@ -2600,7 +2614,11 @@ compute_bounds(LP, UP, Status) :-
 % same as problog_threshold/5, but lower bound only (no stopped derivations stored)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+problog_low(Goal/Cond, Threshold, _, _) :-
+    !,
+    problog_low((Cond,Goal), Threshold, P1, Status)
+    problog_low( Cond, Threshold, P2, Status)
+    P is P1/P2.
 problog_low(Goal, Threshold, _, _) :-
 	init_problog_low(Threshold),
 	problog_control(off, up),
@@ -2920,7 +2938,7 @@ problog_kbest_explanations(Goal, K, Explanations) :-
 	problog_control(off,up),
 	problog_kbest_id(Goal, K),
 	retract(current_kbest(_,ListFound,_NumFound)),
-	to_external_format_with_reverse(ListFound,Explanations).	
+	to_external_format_with_reverse(ListFound,Explanations).
 
 problog_real_kbest(Goal, K, Prob, Status) :-
 	problog_flag(first_threshold,InitT),
@@ -3383,14 +3401,14 @@ initialise_optimal_proof([Proof-MaxAdded|Rest],Theta) :-
 	OptAdded is Popt - Pcurr,
 	(MaxAdded > OptAdded ->
 		calculate_added_prob(Proof, P,ok),
-		
+
 		%update the maximal added probability
 		retractall(possible_proof(Proof,_)),
 		AddedP is P - Pcurr,
 		(AddedP > Theta ->
 			%the proof can still add something
 			assert(possible_proof(Proof,AddedP)),
-		
+
 			%Check whether to change the optimal proof
 			(P > Popt ->
 				retractall(optimal_proof(_,_)),
@@ -3485,7 +3503,7 @@ calculate_added_prob([UsedFact|UsedProof],[],Conditions,P,S) :-
 	convert_filename_to_working_path('save_params', ParFile),
 	negate(UsedFact,NegatedFact),
 	conditional_prob(SONodeDumpFile,ParFile,[NegatedFact|Conditions],Pcond,Scond),
-	( Srec = ok -> 
+	( Srec = ok ->
 		( Scond = ok ->
 			S = ok,
 			get_fact_probability(UsedFact,Pfact),
@@ -3510,7 +3528,7 @@ bubblesort(List,Sorted):-
  swap(List,List1),!,
  bubblesort(List1,Sorted).
 bubblesort(Sorted,Sorted).
- 
+
 swap([X,Y|Rest], [Y,X|Rest]):- bigger(X,Y).
 swap([Z|Rest],[Z|Rest1]):- swap(Rest,Rest1).
 
@@ -3542,7 +3560,7 @@ bigger(X,Y) :-
 	X > IDY.
 bigger(X,Y) :-
 	X > Y.
-	
+
 round_added_prob(P,RoundedP) :-
 	P < 1,
 	Pnew is P*10,
@@ -3564,7 +3582,7 @@ remove_used_facts([Fact|Rest],Used,New) :-
 		Used = [Fact|RecUsed],
 		New = RecNew
 	;
-		
+
 		Used = RecUsed,
 		New = [Fact|RecNew]
 	).
@@ -3614,7 +3632,7 @@ change_par_file(ParFile,[not(ID)|Rest],ChangedParFile) :-
 	open(ChangedParFile,'append',S),
 	tell(S),
 	format('@x~w\n0\n',[ID]),
-	told. 
+	told.
 
 % Copies a file
 copy_file(From,To) :-
@@ -3688,7 +3706,7 @@ eval_bdd_forest(N,Probs,Status) :-
     ;
       Param = ParamD
     ),
-    convert_filename_to_problog_path('problogbdd', ProblogBDD),
+    convert_filename_to_problog_path('simplecudd', ProblogBDD),
     problog_flag(bdd_result,ResultFileFlag),
     convert_filename_to_working_path(ResultFileFlag, ResultFile),
     atomic_concat([ProblogBDD, Param,' -l ', BDDFile, ' -i ', BDDParFile, ' -m p -t ', BDDTime, ' > ', ResultFile], Command),
@@ -4133,7 +4151,7 @@ required(Feature) :-
 	Val == required.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 format_if_verbose(H,T,L) :-
@@ -4170,4 +4188,3 @@ user:term_expansion(Term,ExpandedTerm) :-
 	problog:term_expansion_intern(Term,Mod,ExpandedTerm).
 
 %% @}
-

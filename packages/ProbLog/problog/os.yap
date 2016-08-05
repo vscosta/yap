@@ -244,15 +244,15 @@ set_problog_path( _Path):-
 	atom_concat(ROOT, '/bin', P2),
 	getenv('PATH',Dirs),
 	path_grouping( PathSep ),
-	atomic_list_concat( LPaths, PathSep, Dirs),    
+	atomic_list_concat( LPaths, PathSep, Dirs),
 	set_problog_paths( [P1,P2| LPaths] ),
 	fail.
 
 
 set_problog_path(Path):-
 	path_separator( S ),
-	sub_atom(Path, _, 1, 0, S), !,     
-        sub_atom(Path, _, _, 1, Path0),     
+	sub_atom(Path, _, 1, 0, S), !,
+        sub_atom(Path, _, _, 1, Path0),
 	asserta(problog_path(Path0)).
 set_problog_path(Path):-
         asserta(problog_path(Path)).
@@ -309,7 +309,8 @@ calc_md5_intern(Filename,MD5) :-
 
 file_to_codes( F, Codes, LF ) :-
 	open(F, read, S),
-	get_codes( S, Codes, LF).
+	get_codes( S, Codes, LF),
+	close(S).
 
 get_codes(S, [C|L], LF) :-
 	get_code(S, C),
@@ -319,13 +320,13 @@ get_codes(S, [C|L], LF) :-
 get_codes(_, LF, LF).
 
 %========================================================================
-%= 
-%= 
-%= 
+%=
+%=
+%=
 %========================================================================
 
 
-check_existance(FileName):-  
+check_existance(FileName):-
 	convert_filename_to_problog_path(FileName, Path),
 	catch(file_exists(Path), _, fail), !.
 check_existance(FileName):-
@@ -339,5 +340,3 @@ path_grouping(PathSep) :-
 path_separator('\\') :-
         current_prolog_flag( windows, true ).
 path_separator('/').
-
-	

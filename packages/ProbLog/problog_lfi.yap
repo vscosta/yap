@@ -615,7 +615,6 @@ init_queries :-
 		init_one_query(Training_ID,training)
 	       )
 	      ),
-		   writeln(Training_ID),
 
 	forall(
 	       (
@@ -884,7 +883,7 @@ update_query(QueryID,ClusterID ,Method,Command,PID,Output_File_Name) :-
 	create_bdd_output_file_name(QueryID,ClusterID,Iteration,Output_File_Name),
 	create_bdd_file_name(QueryID,ClusterID,BDD_File_Name),
 
-	convert_filename_to_problog_path('problogbdd_lfi',Absolute_Name),
+	convert_filename_to_problog_path('simplecudd_lfi',Absolute_Name),
 
 	atomic_concat([Absolute_Name,
 		       ' -i "', Input_File_Name, '"',

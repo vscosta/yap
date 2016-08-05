@@ -4,7 +4,7 @@
 %
 %  $Date: 2011-11-28 14:41:26 +0100 (Mon, 28 Nov 2011) $
 %  $Revision: 6764 $
-%                                                              
+%
 %  Main author of this file:
 %  Bernd Gutmann
 %
@@ -61,7 +61,7 @@ grounder_reachable_atom(Atom) :-
 %= The predicate always succeeds exactly once
 %=
 %= This is basically a vanilla meta-interpreter, that follows all
-%= paths in the SLD tree and records which atoms can be reached 
+%= paths in the SLD tree and records which atoms can be reached
 %= while proving A.
 %= the only "speciality" is that the negation of a probilistic
 %= fact always succeeds
@@ -72,13 +72,12 @@ grounder_reachable_atom(Atom) :-
 
 grounder_compute_reachable_atoms(A,ID,Success) :-
 	bb_put(dep_proven,false),
-	
+
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	( % go over all proofs for A in interpretation ID
       tabled_meta_interpreter(A,ID),
-      writeln(A),
 	 bb_put(dep_proven,true),
-	  
+
 	 fail; % go to next proof
 	 true
 	),
@@ -144,12 +143,10 @@ tabled_meta_interpreter(Atom,ID) :-
 	% hence we need to be carefull not to ignore any path in the SLD tree
 	%
 	% we can ignore probabilistic facts and only look for myclauses
-	% since in ProbLog the requirement is that non-ground facts have to be 
+	% since in ProbLog the requirement is that non-ground facts have to be
 	% ground at query time
 	current_predicate(user:myclause/3),
 	user:myclause(ID,Atom,Body),
-    writeln(Atom:Body),
-
 	tabled_meta_interpreter(Body,ID),
 
 	% check whether Atom got grounded now,
@@ -188,7 +185,7 @@ tabled_meta_interpreter(Atom,ID) :-
 
 tabled_meta_interpreter_aux_ground_atom(Atom,_ID) :-
 	probabilistic_fact(_, Atom, _),
-	!.  
+	!.
         % probabilistic facts and background knowledge must not have
         % an atom in common. hence we can savely put that cut above.
 tabled_meta_interpreter_aux_ground_atom(Atom,ID) :-
@@ -236,9 +233,9 @@ grounder_ground_term_with_reachable_atoms(X,'$atom'(X)) :-
 %=   X is
 %=   ID is
 %=
-%= 
-%= 
-%= 
+%=
+%=
+%=
 %========================================================================
 
 
@@ -250,6 +247,3 @@ grounder_completion_for_atom(Head,InterpretationID,'$atom'(Head)<=>Disjunction) 
 		      ),Bodies),
 	Bodies\==[],
 	list_to_disjunction(Bodies,Disjunction).
-
-
-
