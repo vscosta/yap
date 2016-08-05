@@ -596,7 +596,8 @@ static Int doformat(volatile Term otail, volatile Term oargs,
   finfo.lstart = 0;
   if (true || !(GLOBAL_Stream[sno].status & InMemory_Stream_f))
     sno = Yap_OpenBufWriteStream(PASS_REGS1);
-
+  if (sno < 0)
+    return false;
   f_putc = GLOBAL_Stream[sno0].stream_wputc;
   if (sno == -1) {
     if (!alloc_fstr)
