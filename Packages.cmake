@@ -7,11 +7,6 @@ include (python NO-POLICY-SCOPE)
 include (java NO-POLICY-SCOPE)
 
 
-if (POLICY CMP0042
-)
-  cmake_policy( SET CMP0042 NEW)
-  #cmake_policy( NO_POLICY_SCOPE )
-endif()
 
 if (NOT WIN32)
 set (BUILD_SHARED_LIBS ON)

@@ -3,6 +3,9 @@
 
 include (MacroLogFeature)
 
+if (POLICY CMP0042)
+  cmake_policy( SET CMP0042 NEW)
+endif()
 
 if (ANDROID)
  macro ( MY_add_custom_target)
