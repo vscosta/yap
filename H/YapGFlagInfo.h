@@ -30,10 +30,10 @@ Set or read system properties for  _Param_:
 /// `address_bits`
 ///
 ///  Number of address bits in the machine, either 64 or 32 bits.
-YAP_FLAG(ADDRESS_BITS_FLAG, "address_bits", false, nat, BITNESS,
-         NULL), /** `address_bits`
-               Number of address bits in the machine, either 64 or 32 bits */
- YAP_FLAG(AGC_MARGIN_FLAG, "agc_margin", true, nat, "10000",
+YAP_FLAG(ADDRESS_BITS_FLAG, "address_bits", false, nat, BITNESS, NULL)
+, /** `address_bits`
+ Number of address bits in the machine, either 64 or 32 bits */
+    YAP_FLAG(AGC_MARGIN_FLAG, "agc_margin", true, nat, "10000",
              agc_threshold), /**`agc_margin `
 
 An integer: if this amount of atoms has been created since the last
@@ -47,7 +47,8 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
                        predicates. */
 
     /* YAP_FLAG(  ALLOW_VARIABLE_NAME_AS_FUNCTOR_FLAG,
-       "allow_variable_name_as_functor", true, booleanFlag, "false" , NULL ), /\**<
+       "allow_variable_name_as_functor", true, booleanFlag, "false" , NULL ),
+       /\**<
        `allow_variable_name_as_functor` */
 
     /* 														     allow
@@ -76,16 +77,17 @@ It is `true` by default, but it is disabled by packages like CLP(BN) and
 ProbLog.
 */
 #if __APPLE__
-    YAP_FLAG(APPLE_FLAG, "apple", false, booleanFlag, "true", NULL), /**< `apple`
+    YAP_FLAG(APPLE_FLAG, "apple", false, booleanFlag, "true",
+             NULL), /**< `apple`
 
-    Read-only booleanFlag flag that unifies with `true` if YAP is
+Read-only booleanFlag flag that unifies with `true` if YAP is
 running on an Apple machine.
- */
+*/
 #endif
     YAP_FLAG(ARCH_FLAG, "arch", false, isatom, YAP_ARCH, NULL),
     YAP_FLAG(ARGV_FLAG, "argv", false, argv, "@boot", NULL),
-    YAP_FLAG(ARITHMETIC_EXCEPTIONS_FLAG, "arithmetic_exceptions", true, booleanFlag,
-             "true", NULL),
+    YAP_FLAG(ARITHMETIC_EXCEPTIONS_FLAG, "arithmetic_exceptions", true,
+             booleanFlag, "true", NULL),
     YAP_FLAG(BACKQUOTED_STRING_FLAG, "backquoted_string", true, isatom,
              "string", ), /**>
 If  _Value_ is unbound, tell whether a double quoted list of characters
@@ -105,19 +107,19 @@ on whether YAP uses the GMP library or not.
     YAP_FLAG(C_LDFLAGS_FLAG, "c_ldflags", false, isatom, C_LDFLAGS, NULL),
     YAP_FLAG(C_LIBPLSO_FLAG, "c_libplso", false, isatom, C_LIBPLSO, NULL),
     YAP_FLAG(C_LIBS_FLAG, "c_libs", false, isatom, C_LIBS, NULL),
-    YAP_FLAG(CHAR_CONVERSION_FLAG, "char_conversion", true, booleanFlag, "false",
-             NULL), /**< `char_conversion is iso`
+    YAP_FLAG(CHAR_CONVERSION_FLAG, "char_conversion", true, booleanFlag,
+             "false", NULL), /**< `char_conversion is iso`
 
-Writable flag telling whether a character conversion table is used when
-reading terms. The default value for this flag is `off` except in
-`sicstus` and `iso` language modes, where it is `on`.
-*/
-    YAP_FLAG(CHARACTER_ESCAPES_FLAG, "character_escapes", true, booleanFlag, "true",
-             NULL), /**< `character_escapes is iso `
+         Writable flag telling whether a character conversion table is used when
+         reading terms. The default value for this flag is `off` except in
+         `sicstus` and `iso` language modes, where it is `on`.
+         */
+    YAP_FLAG(CHARACTER_ESCAPES_FLAG, "character_escapes", true, booleanFlag,
+             "true", NULL), /**< `character_escapes is iso `
 
-Writable flag telling whether a character escapes are enables,
-`true`, or disabled, `false`. The default value for this flag is
-`true`. */
+        Writable flag telling whether a character escapes are enables,
+        `true`, or disabled, `false`. The default value for this flag is
+        `true`. */
     YAP_FLAG(COLON_SETS_CALLING_CONTEXT_FLAG, "colon_sets_calling_context",
              true, booleanFlag, "true", NULL),
     YAP_FLAG(COMPILED_AT_FLAG, "compiled_at", false, isatom, YAP_COMPILED_AT,
@@ -144,8 +146,8 @@ it is bound to `false` disable debugging.
 If bound, set the argument to the `write_term/3` options the
 debugger uses to write terms. If unbound, show the current options.
 */
-    YAP_FLAG(DEBUGGER_SHOW_CONTEXT_FLAG, "debugger_show_context", true, booleanFlag,
-             "false", NULL),
+    YAP_FLAG(DEBUGGER_SHOW_CONTEXT_FLAG, "debugger_show_context", true,
+             booleanFlag, "false", NULL),
     YAP_FLAG(DIALECT_FLAG, "dialect", false, ro, "yap",
              NULL), /**< `dialect `
 
@@ -158,11 +160,13 @@ If `true` (default `true`) YAP checks for definitions of the same predicate that
 are separated by clauses for other predicates. This may indicate that different
 procedures have the same name.
 
-The declaration discontiguous/1 disables this warning for user-specified predicates.
+The declaration discontiguous/1 disables this warning for user-specified
+predicates.
 
       */
-    YAP_FLAG(DOLLAR_AS_LOWER_CASE_FLAG, "dollar_as_lower_case", true, booleanFlag,
-             "false", NULL), /**< `dollar_as_lower_case `
+    YAP_FLAG(DOLLAR_AS_LOWER_CASE_FLAG, "dollar_as_lower_case", true,
+             booleanFlag, "false",
+             NULL), /**< `dollar_as_lower_case `
 
 If `off` (default)  consider the character `$` a control character, if
 `on` consider `$` a lower case character.
@@ -188,16 +192,16 @@ available in experimental implementations.
  */
     YAP_FLAG(FILE_NAME_VARIABLES_FLAG, "file_name_variables", true, booleanFlag,
              "true", NULL),
-    YAP_FLAG(FLOAT_FORMAT_FLAG, "float_format", true, isatom, "%15f",
-             NULL),                                    /**< + `float_format `
+    YAP_FLAG(FLOAT_FORMAT_FLAG, "float_format", true, isatom, "%.16g",
+             NULL), /**< + `float_format `
 
-                                    C-library `printf()` format specification used by write/1 and
-                                    friends to determine how floating point numbers are printed. The
-                                    default is `%.15g`. The specified value is passed to `printf()`
-                                    without further checking. For example, if you want less digits
-                                    printed, `%g` will print all floats using 6 digits instead of the
-                                    default 15.
-                                    */
+ C-library `printf()` format specification used by write/1 and
+ friends to determine how floating point numbers are printed. The
+ default is `%.15g`. The specified value is passed to `printf()`
+ without further checking. For example, if you want less digits
+ printed, `%g` will print all floats using 6 digits instead of the
+ default 15.
+ */
     YAP_FLAG(GC_FLAG, "gc", true, booleanFlag, "on", NULL), /**< `gc`
 
   If `on` allow garbage collection (default), if `off` disable it.
@@ -219,15 +223,15 @@ collection and stack shifts. Last, if `very_verbose` give detailed
 information on data-structures found during the garbage collection
 process, namely, on choice-points.
 */
-    YAP_FLAG(GENERATE_DEBUGGING_INFO_FLAG, "generate_debug_info", true, booleanFlag,
-             "true", NULL), /**< `generate_debug_info `
+    YAP_FLAG(GENERATE_DEBUGGING_INFO_FLAG, "generate_debug_info", true,
+             booleanFlag, "true", NULL), /**< `generate_debug_info `
 
-If `true` (default) generate debugging information for
-procedures, including source mode. If `false` predicates no
-information is generated, although debugging is still possible, and
-source mode is disabled.
+             If `true` (default) generate debugging information for
+             procedures, including source mode. If `false` predicates no
+             information is generated, although debugging is still possible, and
+             source mode is disabled.
 
-*/
+             */
     YAP_FLAG(GMP_VERSION_FLAG, "gmp_version", false, isatom, "4.8.12", NULL),
     YAP_FLAG(HALT_AFTER_CONSULT_FLAG, "halt_after_consult", false, booleanFlag,
              "false", NULL),
@@ -292,14 +296,15 @@ Read-only flag telling the maximum arity of a functor. Takes the value
              "INT_MIN", NULL),
     YAP_FLAG(N_OF_INTEGER_KEYS_IN_DB_FLAG, "n_of_integer_keys_in_db", false, ro,
              "256", NULL),
-    YAP_FLAG(OCCURS_CHECK_FLAG, "occurs_check", true, booleanFlag, "false", NULL),
-    YAP_FLAG(OPEN_EXPANDS_FILENAME_FLAG, "open_expands_filename", true, booleanFlag,
-             "false", NULL), /**< `open_expands_filename `
+    YAP_FLAG(OCCURS_CHECK_FLAG, "occurs_check", true, booleanFlag, "false",
+             NULL),
+    YAP_FLAG(OPEN_EXPANDS_FILENAME_FLAG, "open_expands_filename", true,
+             booleanFlag, "false", NULL), /**< `open_expands_filename `
 
-If `true` the open/3 builtin performs filename-expansion
-before opening a file (SICStus Prolog like). If `false` it does not
-(SWI-Prolog like).
-*/
+             If `true` the open/3 builtin performs filename-expansion
+             before opening a file (SICStus Prolog like). If `false` it does not
+             (SWI-Prolog like).
+             */
     YAP_FLAG(OPEN_SHARED_OBJECT_FLAG, "open_shared_object", true, booleanFlag,
              "true", NULL), /**< `open_shared_object `
 
@@ -307,13 +312,15 @@ If true, `open_shared_object/2` and friends are implemented,
 providing access to shared libraries (`.so` files) or to dynamic link
 libraries (`.DLL` files).
 */
-//YAP_FLAG(MODULE_INDEPENDENT_OPERATORS_FLAG, "module_independent_operators", true, booleanFlag,
-// "false", NULL),
-/**< `module_independent_operators `
+    // YAP_FLAG(MODULE_INDEPENDENT_OPERATORS_FLAG,
+    // "module_independent_operators", true, booleanFlag,
+    // "false", NULL),
+    /**< `module_independent_operators `
 
-If `true` an operator declaration will be valid for every module in the program. This is for compatibility with old software that
-might expect module-independent operators.
-                           */
+    If `true` an operator declaration will be valid for every module in the
+    program. This is for compatibility with old software that
+    might expect module-independent operators.
+                               */
     YAP_FLAG(OPTIMISE_FLAG, "optimise", true, booleanFlag, "false", NULL),
     YAP_FLAG(OS_ARGV_FLAG, "os_argv", false, os_argv, "@boot", NULL),
     YAP_FLAG(PID_FLAG, "pid", false, sys_pid, "@boot", NULL),
@@ -335,22 +342,29 @@ toplevel. Default is <tt>groundness</tt>, YAP prompts for alternatives if and
 only if the query contains variables. The alternative, default in SWI-Prolog is
 <tt>determinism</tt> which implies the system prompts for alternatives if the
 goal succeeded while leaving choicepoints. */
-    YAP_FLAG(QUASI_QUOTATIONS_FLAG, "quasi_quotations", true, booleanFlag, "true",
-             NULL),
-  YAP_FLAG(READLINE_FLAG, "readline", true, booleanFlag,  "false" , Yap_InitReadline), /**< `readline(boolean, changeable)`
-  }
+    YAP_FLAG(QUASI_QUOTATIONS_FLAG, "quasi_quotations", true, booleanFlag,
+             "true", NULL),
+    YAP_FLAG(READLINE_FLAG, "readline", true, booleanFlag, "false",
+             Yap_InitReadline), /**< `readline(boolean, changeable)`
+}
 
-enable the use of the readline library for console interactions, true by default if readline was found. */
-    YAP_FLAG(REPORT_ERROR_FLAG, "report_error", true, booleanFlag, "true", NULL),
-    YAP_FLAG(RESOURCE_DATABASE_FLAG, "resource_database", false, isatom, "boot.yap", NULL),
-/**<`resource_database`
-    Name of the resource file (saved-state or Prolog file) used to construct the YAP
-run-time environment.
-*/
-    YAP_FLAG(SAVED_PROGRAM_FLAG, "saved_program", false, booleanFlag, "false", NULL),
-/**<`saved_program`
-    if `true` YAP booted from a `yss` file, usually `startup.yss'. If `false`, YAP booted from a Prolog file, by default `boot.yap`.
-*/
+enable the use of the readline library for console interactions, true by default
+if readline was found. */
+    YAP_FLAG(REPORT_ERROR_FLAG, "report_error", true, booleanFlag, "true",
+             NULL),
+    YAP_FLAG(RESOURCE_DATABASE_FLAG, "resource_database", false, isatom,
+             "boot.yap", NULL),
+    /**<`resource_database`
+        Name of the resource file (saved-state or Prolog file) used to construct
+    the YAP
+    run-time environment.
+    */
+    YAP_FLAG(SAVED_PROGRAM_FLAG, "saved_program", false, booleanFlag, "false",
+             NULL),
+    /**<`saved_program`
+        if `true` YAP booted from a `yss` file, usually `startup.yss'. If
+       `false`, YAP booted from a Prolog file, by default `boot.yap`.
+    */
     YAP_FLAG(SHARED_OBJECT_EXTENSION_FLAG, "shared_object_extension", false,
              isatom, SO_EXT, NULL), /**< `shared_object_extension `
 
@@ -364,18 +378,19 @@ objects.
 
 */
     YAP_FLAG(SIGNALS_FLAG, "signals", true, booleanFlag, "true",
-             NULL),                                               /**< `signals`
+             NULL), /**< `signals`
 
-                                                                   If `true` (default) YAP handles  Signals such as `^C`
-                                                                   (`SIGINT`).
+                     If `true` (default) YAP handles  Signals such as `^C`
+                     (`SIGINT`).
 
-                                                                   */
-    YAP_FLAG(SOURCE_FLAG, "source", true, booleanFlag, "true", NULL), /**< `source`
+                     */
+    YAP_FLAG(SOURCE_FLAG, "source", true, booleanFlag, "true",
+             NULL), /**< `source`
 
 If `true` maintain the source for all clauses. Notice that this is trivially
 supported for facts, and always supported for dynamic code.
 
- */
+*/
     YAP_FLAG(STRICT_ISO_FLAG, "strict_iso", true, booleanFlag, "false",
              NULL), /**< `strict_iso `
 
@@ -409,8 +424,8 @@ YAP. Currently it informs whether the system supports `big_numbers`,
 `or-parallelism`, `rational_trees`, `readline`, `tabling`,
 `threads`, or the `wam_profiler`.
 */
-    YAP_FLAG(SYSTEM_THREAD_ID_FLAG, "system_thread_id", false, sys_thread_id, "@boot",
-             NULL),
+    YAP_FLAG(SYSTEM_THREAD_ID_FLAG, "system_thread_id", false, sys_thread_id,
+             "@boot", NULL),
     YAP_FLAG(TABLING_MODE_FLAG, "tabling_mode", true, isatom, "[]",
              NULL), /**< `tabling_mode`
 
@@ -481,8 +496,8 @@ disable printing these messages. It is `normal` by default except if
 YAP is booted with the `-q` or `-L` flag.
 
 */
-    YAP_FLAG(VERBOSE_AUTOLOAD_FLAG, "verbose_autoload", true, booleanFlag, "false",
-             NULL),
+    YAP_FLAG(VERBOSE_AUTOLOAD_FLAG, "verbose_autoload", true, booleanFlag,
+             "false", NULL),
     YAP_FLAG(VERBOSE_FILE_SEARCH_FLAG, "verbose_file_search", true, booleanFlag,
              "false", NULL), /**< `verbose_file_search `
 
