@@ -600,10 +600,12 @@ Defines the relation:  _P_ is a currently defined predicate whose name is the at
 */
 current_predicate(A,T0) :-
 	'$yap_strip_module'(T0, M, T),
+	(nonvar(T) -> functor(T, A, _) ; true ),
 	(
 	 '$current_predicate'(A,M, T, user)
     ;
-	 '$imported_predicate'(A, T, M, T1, M1),
+	 '$imported_predicate'(T, M, T1, M1),
+	 functor(T1, A, _),
 	 \+ '$is_system_predicate'(T1,M1)
     ).
 
@@ -711,12 +713,6 @@ current_predicate(F0) :-
 	 functor(S, A, N2),
 	 N is N2-2
 	).
-
-'$imported_predicate'(A, G, ImportingMod, G, Flags) :-
-	'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod),
-	'$pred_exists'(G0, ExportingMod),
-	'$predicate_flags'(G0, ExportingMod, Flags, Flags),
-  functor(G, A, _Arity).
 
 /** @pred  current_key(? _A_,? _K_)
 
