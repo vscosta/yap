@@ -937,6 +937,7 @@ void Yap_CloseStream(int sno) { CloseStream(sno); }
 void Yap_ReleaseStream(int sno) {
   CACHE_REGS
   GLOBAL_Stream[sno].status = Free_Stream_f;
+  GLOBAL_Stream[sno].user_name = 0;
   Yap_DeleteAliases(sno);
   if (LOCAL_c_input_stream == sno) {
     LOCAL_c_input_stream = StdInStream;
