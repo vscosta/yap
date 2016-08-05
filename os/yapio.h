@@ -47,79 +47,79 @@ typedef struct AliasDescS {
 #define ParserAuxSp LOCAL_ScannerStack
 
 /* routines in parser.c */
-VarEntry *Yap_LookupVar(const char *);
-Term Yap_VarNames(VarEntry *, Term);
-Term Yap_Variables(VarEntry *, Term);
-Term Yap_Singletons(VarEntry *, Term);
+extern VarEntry *Yap_LookupVar(const char *);
+extern Term Yap_VarNames(VarEntry *, Term);
+extern Term Yap_Variables(VarEntry *, Term);
+extern Term Yap_Singletons(VarEntry *, Term);
 
 /* routines in scanner.c */
-TokEntry *Yap_tokenizer(struct stream_desc *, bool, Term *d);
-void Yap_clean_tokenizer(TokEntry *, VarEntry *, VarEntry *);
-char *Yap_AllocScannerMemory(unsigned int);
+extern TokEntry *Yap_tokenizer(struct stream_desc *, bool, Term *d);
+extern void Yap_clean_tokenizer(TokEntry *, VarEntry *, VarEntry *);
+extern char *Yap_AllocScannerMemory(unsigned int);
 
 /* routines in iopreds.c */
-FILE *Yap_FileDescriptorFromStream(Term);
-Int Yap_FirstLineInParse(void);
-int Yap_CheckIOStream(Term, char *);
+extern FILE *Yap_FileDescriptorFromStream(Term);
+extern Int Yap_FirstLineInParse(void);
+extern int Yap_CheckIOStream(Term, char *);
 #if defined(YAPOR) || defined(THREADS)
-void Yap_LockStream(void *);
-void Yap_UnLockStream(void *);
+extern void Yap_LockStream(void *);
+extern void Yap_UnLockStream(void *);
 #else
 #define Yap_LockStream(X)
 #define Yap_UnLockStream(X)
 #endif
-Int Yap_GetStreamFd(int);
-void Yap_CloseStreams(int);
-void Yap_FlushStreams(void);
-void Yap_ReleaseStream(int);
-void Yap_CloseStream(int);
-int Yap_PlGetchar(void);
-int Yap_PlGetWchar(void);
-int Yap_PlFGetchar(void);
-int Yap_GetCharForSIGINT(void);
-Int Yap_StreamToFileNo(Term);
-int Yap_OpenStream(FILE *, char *, Term, int);
-char *Yap_TermToString(Term t, size_t *length, encoding_t encoding, int flags);
-char *Yap_HandleToString(yhandle_t l, size_t sz, size_t *length,
-                         encoding_t *encoding, int flags);
-int Yap_GetFreeStreamD(void);
-int Yap_GetFreeStreamDForReading(void);
+extern Int Yap_GetStreamFd(int);
+extern void Yap_CloseStreams(int);
+extern void Yap_FlushStreams(void);
+extern void Yap_ReleaseStream(int);
+extern int Yap_PlGetchar(void);
+extern int Yap_PlGetWchar(void);
+extern int Yap_PlFGetchar(void);
+extern int Yap_GetCharForSIGINT(void);
+extern Int Yap_StreamToFileNo(Term);
+extern int Yap_OpenStream(FILE *, char *, Term, int);
+extern char *Yap_TermToString(Term t, size_t *length, encoding_t encoding,
+                              int flags);
+extern char *Yap_HandleToString(yhandle_t l, size_t sz, size_t *length,
+                                encoding_t *encoding, int flags);
+extern int Yap_GetFreeStreamD(void);
+extern int Yap_GetFreeStreamDForReading(void);
 
-Term Yap_WStringToList(wchar_t *);
-Term Yap_WStringToListOfAtoms(wchar_t *);
-Atom Yap_LookupWideAtom(const wchar_t *);
+extern Term Yap_WStringToList(wchar_t *);
+extern Term Yap_WStringToListOfAtoms(wchar_t *);
+extern Atom Yap_LookupWideAtom(const wchar_t *);
 
 /* grow.c */
-int Yap_growheap_in_parser(tr_fr_ptr *, TokEntry **, VarEntry **);
-int Yap_growstack_in_parser(tr_fr_ptr *, TokEntry **, VarEntry **);
-int Yap_growtrail_in_parser(tr_fr_ptr *, TokEntry **, VarEntry **);
+extern int Yap_growheap_in_parser(tr_fr_ptr *, TokEntry **, VarEntry **);
+extern int Yap_growstack_in_parser(tr_fr_ptr *, TokEntry **, VarEntry **);
+extern int Yap_growtrail_in_parser(tr_fr_ptr *, TokEntry **, VarEntry **);
 
-bool Yap_IsAbsolutePath(const char *p);
-Atom Yap_TemporaryFile(const char *prefix, int *fd);
-const char *Yap_AbsoluteFile(const char *spec, char *obuf, bool expand);
+extern bool Yap_IsAbsolutePath(const char *p);
+extern Atom Yap_TemporaryFile(const char *prefix, int *fd);
+extern const char *Yap_AbsoluteFile(const char *spec, char *obuf, bool expand);
 
 typedef enum mem_buf_source {
   MEM_BUF_MALLOC = 1,
   MEM_BUF_USER = 2
 } memBufSource;
 
-char *Yap_MemStreamBuf(int sno);
+extern char *Yap_MemStreamBuf(int sno);
 
-extern X_API Term Yap_StringToTerm(const  char *s, size_t len, encoding_t *encp,
+extern X_API Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp,
                                    int prio, Term *bindings_p);
-extern Term Yap_StringToNumberTerm(const  char *s, encoding_t *encp);
+extern Term Yap_StringToNumberTerm(const char *s, encoding_t *encp);
 extern int Yap_FormatFloat(Float f, char **s, size_t sz);
-extern int Yap_open_buf_read_stream(const char *buf, size_t nchars, encoding_t *encp,
-                             memBufSource src);
+extern int Yap_open_buf_read_stream(const char *buf, size_t nchars,
+                                    encoding_t *encp, memBufSource src);
 extern bool Yap_set_stream_to_buf(struct stream_desc *st, const char *buf,
-                           size_t nchars);
+                                  size_t nchars);
 extern int Yap_open_buf_write_stream(encoding_t enc, memBufSource src);
 extern Term Yap_AtomToTerm(Atom a, Term opts);
 extern FILE *Yap_GetInputStream(Term t, const char *m);
 extern FILE *Yap_GetOutputStream(Term t, const char *m);
 extern char *Yap_guessFileName(FILE *f, int sno, char *nameb, size_t max);
-extern void Yap_plwrite(Term t, struct stream_desc *mywrite, int max_depth, int flags,
-                 int priority);
+extern void Yap_plwrite(Term t, struct stream_desc *mywrite, int max_depth,
+                        int flags, int priority);
 
 extern int Yap_CheckSocketStream(Term stream, const char *error);
 extern void Yap_init_socks(char *host, long interface_port);
@@ -147,6 +147,5 @@ INLINE_ONLY inline EXTERN Term MkCharTerm(Int c) {
 
 /// UT when yap started
 extern uint64_t Yap_StartOfWTimes;
-
 
 #endif
