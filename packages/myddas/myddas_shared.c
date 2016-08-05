@@ -98,9 +98,9 @@ static bool myddas_initialised;
 
 /* Initialize all of the MYDDAS global structures */
 static Int c_db_initialize_myddas(USES_REGS1) {
-    if (!myddas_initialised) {
-        init_myddas();
-    }
+  if (!myddas_initialised) {
+    init_myddas();
+  }
   Yap_REGS.MYDDAS_GLOBAL_POINTER = myddas_init_initialize_myddas();
 #ifdef MYDDAS_STATS
   Yap_REGS.MYDDAS_GLOBAL_POINTER =
@@ -661,7 +661,7 @@ void Yap_MYDDAS_delete_all_myddas_structs(void) {
 
   MYDDAS_FREE(global, struct myddas_global);
 
-#ifdef DEBUG
+#if defined(DEBUG) && 0
   MyddasULInt nr;
   MYDDAS_MEMORY_MALLOC_NR(nr);
   printf("Number of times malloc was called in MYDDAS: " UInt_FORMAT " \n",
