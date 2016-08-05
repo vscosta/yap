@@ -631,15 +631,15 @@ static Int
 }
 
 static bool valid_prop(Prop p, Term task) {
-  if ((RepPredProp(p)->PredFlags & HiddenPredFlag) ||
-      (RepPredProp(p)->OpcodeOfPred == UNDEF_OPCODE)) {
+  PredEntry *pe = RepPredProp(p);
+  if ((pe->PredFlags & HiddenPredFlag) || (pe->OpcodeOfPred == UNDEF_OPCODE)) {
     return false;
   }
   if (task == TermSystem || task == TermProlog) {
-    return RepPredProp(p)->PredFlags & StandardPredFlag;
+    return pe->PredFlags & StandardPredFlag;
   }
   if (task == TermUser) {
-    return !(RepPredProp(p)->PredFlags & StandardPredFlag);
+    return !(pe->PredFlags & StandardPredFlag);
   }
   if (IsVarTerm(task)) {
     return true;
@@ -860,7 +860,10 @@ static Int cont_current_predicate(USES_REGS1) {
         Yap_Error(TYPE_ERROR_ATOM, t2, "module name");
       }
       ModEntry *m = Yap_GetModuleEntry(t2);
-      pp = firstModulePred(m->PredForME, task);
+      pp = m->PredForME;
+      while (pp && !valid_prop(AbsPredProp(pp), task)) {
+        pp = pp->NextPredOfModule;
+      }
       if (!pp) {
         /* try Prolog Module */
         cut_fail();
