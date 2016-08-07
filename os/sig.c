@@ -322,7 +322,7 @@ static bool set_fpu_exceptions(Term flag) {
 #if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__)
 
 
-static void * ReceiveSignal(int s, void *x, void *y) {
+static void ReceiveSignal(int s, void *x, void *y) {
   CACHE_REGS
   LOCAL_PrologMode |= InterruptMode;
   my_signal(s, ReceiveSignal);
