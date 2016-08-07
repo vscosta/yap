@@ -389,7 +389,7 @@ extern void *Yap_readText(void *buf, seq_tv_t *inp, encoding_t *enc,
                           int *minimal, size_t *lengp USES_REGS);
 extern bool write_Text(void *inp, seq_tv_t *out, encoding_t enc, int minimal,
                        size_t leng USES_REGS);
-extern int Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS);
+extern bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS);
 extern void *Yap_Concat_Text(int n, seq_tv_t inp[], seq_tv_t *out USES_REGS);
 extern void *Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
                              encoding_t encv[], seq_tv_t outv[] USES_REGS);
