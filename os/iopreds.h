@@ -86,8 +86,9 @@ extern void init_read_data(ReadData _PL_rd, struct stream_desc *s);
 
 typedef int (*GetsFunc)(int, UInt, char *);
 
-void Yap_InitStdStreams(void);
-Term Yap_StreamPosition(int);
+extern void Yap_InitStdStreams(void);
+extern Term Yap_StreamPosition(int);
+extern void Yap_CloseStream(int sno);
 
 static inline Int GetCurInpPos(StreamDesc *inp_stream) {
   return (inp_stream->linecount);
@@ -273,7 +274,7 @@ bool Yap_Exists(const char *f);
 
 static inline void freeBuffer(const void *ptr) {
   CACHE_REGS
-  if (ptr == NULL || ptr == LOCAL_FileNameBuf || ptr == LOCAL_FileNameBuf2)
+  if (ptr == NULL || ptr == LOCAL_FileNameBuf || ptr == LOCAL_FileNameBuf2 || ptr == AuxBase)
     return;
   free((void *)ptr);
 }
