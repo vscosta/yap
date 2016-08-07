@@ -2075,8 +2075,8 @@ init_problog(Threshold) :-
 	timer_reset(sld_time),
 	timer_reset(build_tree_low).
 
-% :- initialization( ( init_problog(0.0),
-%                      reset_control ) ).
+ :- initialization( ( init_problog(0.0),
+                      reset_control ) ).
 
 % idea: proofs that are refinements of known proof can be pruned as they don't add probability mass
 % note that current ptree implementation doesn't provide the check as there's no efficient method known so far...
