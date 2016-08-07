@@ -826,8 +826,8 @@ size_t write_buffer(void *s0, seq_tv_t *out, encoding_t enc, int minimal,
     size_t sz;
     if (enc != ENC_WCHAR)
       sz = strlen((char *)s0) + 1;
-    else
-      sz = wcslen((wchar_t *)s0) + 1;
+        else
+        sz = wcslen((wchar_t *)s0) + 1;
     if (sz < min)
       sz = min;
     if (!minimal)
@@ -839,18 +839,18 @@ size_t write_buffer(void *s0, seq_tv_t *out, encoding_t enc, int minimal,
         out->val.c = Yap_PreAllocCodeSpace();
       }
     }
-  } else {
-    out->val.uc = s0;
-  }
+  } 
   if (out->enc == ENC_ISO_UTF8) {
     switch (enc) {
     case ENC_ISO_UTF8:
       if (out->type & (YAP_STRING_WITH_BUFFER | YAP_STRING_MALLOC)) {
         char *s = s0;
         size_t n = strlen(s) + 1;
+        strcpy(out->val.c, s);
         out->val.uc[n] = '\0';
         sz_end = n + 1;
       } else {
+          out->val.c = s0;
         sz_end = strlen(out->val.c) + 1;
       }
 
@@ -912,6 +912,7 @@ size_t write_buffer(void *s0, seq_tv_t *out, encoding_t enc, int minimal,
         sz_end = (n + 1) * sizeof(wchar_t);
       } else {
         sz_end = strlen(out->val.c) + 1;
+                  out->val.c = s0;
       }
       break;
     case ENC_ISO_UTF8: {
@@ -1059,7 +1060,6 @@ bool write_Text(void *inp, seq_tv_t *out, encoding_t enc, int minimal,
 }
 
 static size_t upcase(void *s0, seq_tv_t *out, encoding_t enc USES_REGS) {
-  size_t max = -1;
 
   switch (enc) {
   case ENC_ISO_UTF8: {
@@ -1107,7 +1107,6 @@ static size_t upcase(void *s0, seq_tv_t *out, encoding_t enc USES_REGS) {
 }
 
 static size_t downcase(void *s0, seq_tv_t *out, encoding_t enc USES_REGS) {
-  size_t max = -1;
 
   switch (enc) {
   case ENC_ISO_UTF8: {
@@ -1153,15 +1152,43 @@ static size_t downcase(void *s0, seq_tv_t *out, encoding_t enc USES_REGS) {
   return false;
 }
 
-int Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
+bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
   encoding_t enc;
   int minimal = FALSE;
   char *buf;
   size_t leng;
+  bool new_malloc = false;
 
   buf = Yap_readText(NULL, inp, &enc, &minimal, &leng PASS_REGS);
-  if (!buf)
+  if (!buf) {
     return 0L;
+  } else {
+    if (out->type & (YAP_STRING_MALLOC) && !(inp->type & (YAP_STRING_MALLOC))) {
+        size_t sz, len;
+        char *nbuf;
+
+        if (enc == ENC_WCHAR) {
+            sz = sizeof(wchar_t)*((len = wcslen((wchar_t*)buf))+1);
+        } else if ( out->enc == ENC_WCHAR) {
+            sz = sizeof(wchar_t)*((len = strlen(buf))+1);
+        } else if (inp->enc == ENC_ISO_LATIN1) {
+            sz = 2 * (len = strlen(buf))+1;
+        } else {
+            sz = (len = strlen(buf))+1;
+        }
+        nbuf = malloc(sz);
+          if (!buf) {
+    return 0L;
+          }
+        new_malloc = true;
+        if (enc == ENC_WCHAR) {
+            wcscpy((wchar_t*)nbuf, (wchar_t*)buf);
+        } else {
+            strcpy(nbuf, buf);
+        }
+        buf = nbuf;
+    }
+  } 
   if (out->type & (YAP_STRING_UPCASE | YAP_STRING_DOWNCASE)) {
     if (out->type & YAP_STRING_UPCASE) {
       if (!upcase(buf, out, enc))
@@ -1173,7 +1200,11 @@ int Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
     }
   }
 
-  return write_Text(buf, out, enc, minimal, leng PASS_REGS);
+  bool rc = write_Text(buf, out, enc, minimal, leng PASS_REGS);
+  if (new_malloc && out->val.c != buf) {
+    free( buf );
+  }
+    return rc; 
 }
 
 static void *compute_end(void *s0, encoding_t enc) {
@@ -1641,10 +1672,6 @@ const char *Yap_TextTermToText(Term t, char *buf, size_t len, encoding_t enc) {
   }
   out.enc = enc;
   out.type = YAP_STRING_CHARS;
-  if (!buf) {
-    inp.type |= YAP_STRING_MALLOC;
-    out.type |= YAP_STRING_MALLOC;
-  }
   out.val.c = buf;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return NULL;
