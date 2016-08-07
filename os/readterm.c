@@ -1154,7 +1154,6 @@ static Int read_clause(
     s = Yap_TermToString(out, &length, LOCAL_encoding, 0);
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", "at %d %s",
                         LOCAL_SourceFileLineno, s);
-    Yap_do_low_level_trace = 1;
   }
 #endif
   UNLOCK(GLOBAL_Stream[inp_stream].streamlock);
@@ -1364,7 +1363,7 @@ Term Yap_AtomToTerm(Atom a, Term opts) {
   }
 
   rval = Yap_read_term(sno, opts, 3);
-  Yap_CloseStream(sno);
+ Yap_CloseStream(sno);
   return rval;
 }
 
