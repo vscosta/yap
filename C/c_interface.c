@@ -92,7 +92,6 @@ X_API int YAP_Reset(yap_reset_t mode);
 #define BOOT_FROM_SAVED_STATE true
 #endif
 static char BootFile[] = "boot.yap";
-static char InitFile[] = "init.yap";
 
 /**
 @defgroup slotInterface Term Handles or Slots
@@ -1624,7 +1623,7 @@ X_API PredEntry *YAP_AtomToPredInModule(Atom at, Term mod) {
 
 static int run_emulator(USES_REGS1) {
   int out;
-Yap_do_low_level_trace=1;
+
   LOCAL_PrologMode &= ~(UserCCallMode | CCallMode);
   out = Yap_absmi(0);
   LOCAL_PrologMode |= UserCCallMode;
@@ -1839,6 +1838,7 @@ X_API Int YAP_RunGoalOnce(Term t) {
   Yap_InitYaamRegs(0);
   CSlot = Yap_StartSlots();
   LOCAL_PrologMode = UserMode;
+
   //  Yap_heap_regs->yap_do_low_level_trace=true;
   out = Yap_RunTopGoal(t, true);
   LOCAL_PrologMode = oldPrologMode;
@@ -2258,8 +2258,8 @@ X_API bool YAP_DelayInit(YAP_ModInit_t f, const char s[]) {
 }
 
 static void start_modules(void) {
-         Term cm = CurrentModule;
-         size_t i;
+  Term cm = CurrentModule;
+  size_t i;
   for (i = 0; i < n_mdelays; i++) {
     CurrentModule = MkAtomTerm(YAP_LookupAtom(m_delays[i].s));
     m_delays[i].f();
@@ -2461,6 +2461,7 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
     LOCAL_PrologMode &= ~BootMode;
     CurrentModule = LOCAL_SourceModule = USER_MODULE;
     setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, true);
+    rc = YAP_QLY;
   } else {
     if (!yap_init->YapPrologBootFile)
       yap_init->YapPrologBootFile = BootFile;
