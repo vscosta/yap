@@ -203,6 +203,7 @@ X_API int PL_get_nchars(term_t l, size_t *lengthp, char **s, unsigned flags) {
   inp.val.t = Yap_GetFromSlot(l);
   inp.type = cvtFlags(flags);
   out.type = YAP_STRING_CHARS;
+  out.val.c = *s;
   if (flags & (REP_UTF8 | REP_MB)) {
     out.enc = ENC_ISO_UTF8;
   } else {
@@ -210,11 +211,13 @@ X_API int PL_get_nchars(term_t l, size_t *lengthp, char **s, unsigned flags) {
   }
   if (flags & BUF_MALLOC)
     out.type |= YAP_STRING_MALLOC;
+  if (lengthp) {
+    out.type |= YAP_STRING_NCHARS;
+    out.max = *lengthp;
+  }
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return false;
   *s = out.val.c;
-  if (lengthp)
-    *lengthp = out.sz;
   return true;
 }
 
@@ -231,11 +234,15 @@ int PL_get_wchars(term_t l, size_t *lengthp, wchar_t **s, unsigned flags) {
   out.type = YAP_STRING_WCHARS;
   if (flags & BUF_MALLOC)
     out.type |= YAP_STRING_MALLOC;
+  if (lengthp) {
+    out.type |= YAP_STRING_NCHARS;
+    out.max = *lengthp;
+  }
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return false;
   *s = out.val.w;
-  if (lengthp)
-    *lengthp = out.sz;
+  if (lengthp && (out.type & YAP_STRING_NCHARS))
+    *lengthp = out.max;
   return true;
 }
 
@@ -245,14 +252,10 @@ X_API int PL_unify_chars(term_t l, int flags, size_t length, const char *s) {
 
   if (flags & REP_UTF8) {
     inp.val.c0 = s;
+    inp.type = YAP_STRING_CHARS|ENC_ISO_LATIN1;
     if (length != (size_t)-1) {
-      inp.sz = length;
-      inp.type = YAP_STRING_CHARS | YAP_STRING_NCHARS;
-      inp.enc = ENC_ISO_UTF8;
-    } else {
-      inp.type = YAP_STRING_CHARS;
-      inp.enc = ENC_ISO_LATIN1;
-    }
+      inp.type |= YAP_STRING_NCHARS;
+      }
   }
   if (flags & PL_ATOM) {
     out.type = YAP_STRING_ATOM;
