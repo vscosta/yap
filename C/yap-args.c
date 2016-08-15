@@ -359,7 +359,6 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
         break;
 #ifdef DEBUG
       case 'P':
-        YAP_SetOutputMessage();
         if (p[1] != '\0') {
           while (p[1] != '\0') {
             int ch = p[1];
@@ -367,7 +366,11 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
               ch += ('a' - 'A');
             if (ch >= 'a' && ch <= 'z')
               GLOBAL_Option[ch - 96] = 1;
+            p++;
           }
+        } else {
+            YAP_SetOutputMessage();
+
         }
         break;
 #endif
