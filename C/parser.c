@@ -744,65 +744,9 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc, Term cmod USE
     break;
 
   case String_tok: /* build list on the heap */
-  {
-    Volatile char *p = (char *)LOCAL_tokptr->TokInfo;
-    // we may be operating under a syntax error
-    yap_error_number oerr = LOCAL_Error_TYPE;
-    LOCAL_Error_TYPE = YAP_NO_ERROR;
-    t = Yap_CharsToTDQ(p, cmod, enc PASS_REGS);
-    if (!t) {
-      syntax_msg("line %d: could not convert \"%s\"",LOCAL_tokptr->TokPos, (char *)LOCAL_tokptr->TokInfo);
-      FAIL;
-    }
-    LOCAL_Error_TYPE = oerr;
-    NextToken;
-  } break;
-
-  case WString_tok: /* build list on the heap */
-  {
-    Volatile wchar_t *p = (wchar_t *)LOCAL_tokptr->TokInfo;
-    // we may be operating under a syntax error
-    yap_error_number oerr = LOCAL_Error_TYPE;
-    LOCAL_Error_TYPE = YAP_NO_ERROR;
-    t = Yap_WCharsToTDQ(p, cmod PASS_REGS);
-    if (!t) {
-      syntax_msg("line %d: could not convert \'%S\'",LOCAL_tokptr->TokPos, (wchar_t *)LOCAL_tokptr->TokInfo);
-      FAIL;
-    }
-     LOCAL_Error_TYPE = oerr;
-   NextToken;
-  } break;
-
-  case BQString_tok: /* build list on the heap */
-  {
-    Volatile char *p = (char *)LOCAL_tokptr->TokInfo;
-    // we may be operating under a syntax error
-    yap_error_number oerr = LOCAL_Error_TYPE;
-    LOCAL_Error_TYPE = YAP_NO_ERROR;
-
-    t = Yap_CharsToTBQ(p, cmod,  LOCAL_encoding PASS_REGS);
-    if (!t) {
-      syntax_msg("line %d: could not convert \'%s\"",LOCAL_tokptr->TokPos, (char *)LOCAL_tokptr->TokInfo);
-      FAIL;
-    }
-    LOCAL_Error_TYPE = oerr;
-    NextToken;
-  } break;
-
-  case WBQString_tok: /* build list on the heap */
-  {
-    Volatile wchar_t *p = (wchar_t *)LOCAL_tokptr->TokInfo;
-    t = Yap_WCharsToTBQ(p, cmod PASS_REGS);
-    // we may be operating under a syntax error
-    yap_error_number oerr = LOCAL_Error_TYPE;
-    LOCAL_Error_TYPE = YAP_NO_ERROR;
-    if (!t) {
-      syntax_msg("line %d: could not convert \"%S\"",LOCAL_tokptr->TokPos, (wchar_t *)LOCAL_tokptr->TokInfo);
-      FAIL;
-    }
-    LOCAL_Error_TYPE = oerr;
-    NextToken;
-  } break;
+      t = LOCAL_tokptr->TokInfo;
+          NextToken;
+          break;
 
   case Var_tok:
     varinfo = (VarEntry *)(LOCAL_tokptr->TokInfo);

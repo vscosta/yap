@@ -1306,7 +1306,6 @@ X_API Term YAP_NBufferToString(const char *s, size_t len) {
   inp.val.c0 = s;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_CODES | YAP_STRING_NCHARS | YAP_STRING_TRUNC;
-  out.sz = len;
   out.max = len;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -1344,7 +1343,6 @@ X_API Term YAP_NWideBufferToString(const wchar_t *s, size_t len) {
   inp.val.w0 = s;
   inp.type = YAP_STRING_WCHARS;
   out.type = YAP_STRING_CODES | YAP_STRING_NCHARS | YAP_STRING_TRUNC;
-  out.sz = len;
   out.max = len;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -1427,7 +1425,6 @@ X_API Term YAP_NBufferToAtomList(const char *s, size_t len) {
   inp.val.c0 = s;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_ATOMS | YAP_STRING_NCHARS | YAP_STRING_TRUNC;
-  out.sz = len;
   out.max = len;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -1465,7 +1462,6 @@ X_API Term YAP_NWideBufferToAtomList(const wchar_t *s, size_t len) {
   inp.val.w0 = s;
   inp.type = YAP_STRING_WCHARS;
   out.type = YAP_STRING_ATOMS | YAP_STRING_NCHARS | YAP_STRING_TRUNC;
-  out.sz = len;
   out.max = len;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -1487,7 +1483,6 @@ X_API Term YAP_NWideBufferToAtomDiffList(const wchar_t *s, Term t0,
   inp.type = YAP_STRING_WCHARS;
   out.type =
       YAP_STRING_ATOMS | YAP_STRING_NCHARS | YAP_STRING_TRUNC | YAP_STRING_DIFF;
-  out.sz = len;
   out.max = len;
   out.dif = t0;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -1528,7 +1523,6 @@ X_API Term YAP_NBufferToDiffList(const char *s, Term t0, size_t len) {
   inp.type = YAP_STRING_CHARS;
   out.type =
       YAP_STRING_CODES | YAP_STRING_NCHARS | YAP_STRING_TRUNC | YAP_STRING_DIFF;
-  out.sz = len;
   out.max = len;
   out.dif = t0;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -1569,7 +1563,6 @@ X_API Term YAP_NWideBufferToDiffList(const wchar_t *s, Term t0, size_t len) {
   inp.type = YAP_STRING_WCHARS;
   out.type =
       YAP_STRING_CODES | YAP_STRING_NCHARS | YAP_STRING_TRUNC | YAP_STRING_DIFF;
-  out.sz = len;
   out.max = len;
   out.dif = t0;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))

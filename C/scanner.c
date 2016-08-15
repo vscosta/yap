@@ -575,7 +575,7 @@ static TokEntry *AuxSpaceError__(TokEntry *p, TokEntry *l,
   /* huge atom or variable, we are in trouble */
   LOCAL_ErrorMessage = (char *)msg;
   LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
-  Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+  Yap_ReleasePreAllocCodeSpace((COBEADDR)TokImage);
   if (p) {
     p->Tok = eot_tok;
     p->TokInfo = TermOutOfAuxspaceError;
@@ -584,12 +584,13 @@ static TokEntry *AuxSpaceError__(TokEntry *p, TokEntry *l,
   return l;
 }
 
-static void InitScannerMemory(void) {
+static void * InitScannerMemory(void) {
   CACHE_REGS
   LOCAL_ErrorMessage = NULL;
   LOCAL_Error_Size = 0;
-  LOCAL_ScannerStack = (char *)TR;
   LOCAL_ScannerExtraBlocks = NULL;
+  LOCAL_ScannerStack = (char *)TR;
+  return (char *)TR;
 }
 
 static char *AllocScannerMemory(unsigned int size) {
@@ -1624,6 +1625,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
           LOCAL_ErrorMessage = "layout character \n inside quotes";
           break;
         }
+
         if (ch == quote) {
           ch = getchrq(inp_stream);
           if (ch != quote)
@@ -1661,55 +1663,49 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
       } else {
         *charp = '\0';
       }
-      if (quote == '"' || quote == '`') {
-        if (wcharp) {
-          mp = AllocScannerMemory(sizeof(wchar_t) * (len + 1));
-        } else {
-          mp = AllocScannerMemory(len + 1);
-        }
-        if (mp == NULL) {
-          LOCAL_ErrorMessage =
-              "not enough heap space to read in string or quoted atom";
+            if (quote == '"' ) {
+                if (wcharp) {
+                    t->TokInfo = Yap_WCharsToTDQ((wchar_t *)TokImage,
+                                                 CurrentModule
+                                                PASS_REGS);
+                } else {
+                    t->TokInfo = Yap_CharsToTDQ(TokImage, CurrentModule, LOCAL_encoding
+                                                 PASS_REGS);
+                }
+                if (!(t->TokInfo)) {
+                    return CodeSpaceError(t, p, l);
+                }
+                Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+                t->Tok = Ord(kind = String_tok);
+            } else if (quote == '`') {
+                if (wcharp) {
+                    t->TokInfo = Yap_WCharsToTBQ((wchar_t *)TokImage,
+                                                 CurrentModule PASS_REGS);
+                } else {
+                    t->TokInfo = Yap_CharsToTBQ(TokImage, CurrentModule,
+                                                 LOCAL_encoding
+                                                 PASS_REGS);
+                }
+                if (!(t->TokInfo)) {
+                    return CodeSpaceError(t, p, l);
+                }
+                Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+                t->Tok = Ord(kind = String_tok);
+     } else {
+          if (wcharp) {
+              t->TokInfo = Unsigned(Yap_LookupWideAtom((wchar_t *)TokImage));
+          } else {
+              t->TokInfo = Unsigned(Yap_LookupAtom(TokImage));
+          }
+          if (!(t->TokInfo)) {
+              return CodeSpaceError(t, p, l);
+          }
           Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
-          t->Tok = Ord(kind = eot_tok);
-          t->TokInfo = TermOutOfHeapError;
-          return l;
-        }
-        if (wcharp) {
-          wcscpy((wchar_t *)mp, (wchar_t *)TokImage);
-        } else {
-          strcpy(mp, TokImage);
-        }
-        t->TokInfo = Unsigned(mp);
-        Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
-        if (quote == '"') {
-          if (wcharp) {
-            t->Tok = Ord(kind = WString_tok);
-          } else {
-            t->Tok = Ord(kind = String_tok);
-          }
-        } else {
-          if (wcharp) {
-            t->Tok = Ord(kind = WBQString_tok);
-          } else {
-            t->Tok = Ord(kind = BQString_tok);
-          }
-        }
-      } else {
-        if (wcharp) {
-          t->TokInfo = Unsigned(Yap_LookupWideAtom((wchar_t *)TokImage));
-        } else {
-          t->TokInfo = Unsigned(Yap_LookupAtom(TokImage));
-        }
-        if (!(t->TokInfo)) {
-          return CodeSpaceError(t, p, l);
-        }
-        Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
-        t->Tok = Ord(kind = Name_tok);
-        if (ch == '(')
-          solo_flag = false;
+          t->Tok = Ord(kind = Name_tok);
+          if (ch == '(')
+              solo_flag = false;
       }
-      break;
+            break;
 
     case BS:
       if (ch == '\0') {
@@ -2046,9 +2042,12 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
       t->TokInfo = TermEof;
     }
 #if DEBUG
-    if (GLOBAL_Option[2])
-      fprintf(stderr, "[Token %d %s]", Ord(kind),
-              Yap_tokRep(t, inp_stream->encoding));
+    if (GLOBAL_Option[2]) {
+      static int n;
+      if (n == 975) jmp_deb(2);
+      fprintf(stderr, "[Token %d %s %d]", Ord(kind),
+              Yap_tokRep(t, inp_stream->encoding),n++);
+    }
 #endif
     if (LOCAL_ErrorMessage) {
       /* insert an error token to inform the system of what happened */
@@ -2069,10 +2068,12 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
   return (l);
 }
 
+int vsc_count;
+
 void Yap_clean_tokenizer(TokEntry *tokstart, VarEntry *vartable,
                          VarEntry *anonvartable) {
   CACHE_REGS
-  struct scanner_extra_alloc *ptr = LOCAL_ScannerExtraBlocks;
+    struct scanner_extra_alloc *ptr = LOCAL_ScannerExtraBlocks;
   while (ptr) {
     struct scanner_extra_alloc *next = ptr->next;
     free(ptr);
@@ -2085,6 +2086,7 @@ void Yap_clean_tokenizer(TokEntry *tokstart, VarEntry *vartable,
     free(LOCAL_CommentsBuff);
     LOCAL_CommentsBuff = NULL;
   }
+  LOCAL_ScannerStack = NULL;
   LOCAL_CommentsBuffLim = 0;
 }
 
