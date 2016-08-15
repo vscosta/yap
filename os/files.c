@@ -76,14 +76,14 @@ loop:
         return Yap_unify(ARG1, ARG3) && Yap_unify(ARG2, MkStringTerm(""));
       }
       tmp = malloc((ss - f) + 1);
-      strncpy(tmp, f, (ss)-f);
+      int i;
+      for (i=0;i < (ss - f); i++) tmp[i] = ss[i];
+      tmp[i] = '\0';
       if (!Yap_unify(ARG1, MkStringTerm(tmp))) {
-        if (tmp != f)
-          free(tmp);
+	free(tmp);
         return false;
       }
-      if (tmp != f)
-        free(tmp);
+      free(tmp);
       // without and with dot
       if (!Yap_unify(ARG2, MkStringTerm(ss + 1)))
         return Yap_unify(ARG2, MkStringTerm(ss));
@@ -95,8 +95,10 @@ loop:
                Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom("")));
       }
       tmp = malloc((ss - f) + 1);
-      strncpy(tmp, f, (ss)-f);
-      if (!Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom(tmp)))) {
+    int i;
+      for (i=0;i < (ss - f); i++) tmp[i] = ss[i];
+      tmp[i] = '\0';
+        if (!Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom(tmp)))) {
         if (tmp != f)
           free(tmp);
         return false;
