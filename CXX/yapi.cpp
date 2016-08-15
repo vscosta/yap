@@ -45,7 +45,6 @@ YAPAtomTerm::YAPAtomTerm(char *s, size_t len) { // build string
   inp.val.c = s;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_ATOM | YAP_STRING_NCHARS | YAP_STRING_TRUNC;
-  out.sz = len;
   out.max = len;
   if (Yap_CVT_Text(&inp, &out PASS_REGS))
     mk(MkAtomTerm(out.val.a));
@@ -77,7 +76,6 @@ YAPAtomTerm::YAPAtomTerm(wchar_t *s, size_t len) : YAPTerm() { // build string
   inp.val.w = s;
   inp.type = YAP_STRING_WCHARS;
   out.type = YAP_STRING_ATOM | YAP_STRING_NCHARS | YAP_STRING_TRUNC;
-  out.sz = len;
   out.max = len;
   if (Yap_CVT_Text(&inp, &out PASS_REGS))
     mk(MkAtomTerm(out.val.a));
@@ -110,7 +108,6 @@ YAPStringTerm::YAPStringTerm(char *s, size_t len) { // build string
   inp.val.c = s;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_STRING | YAP_STRING_NCHARS | YAP_STRING_TRUNC;
-  out.sz = len;
   out.max = len;
   if (Yap_CVT_Text(&inp, &out PASS_REGS))
     mk(out.val.t);
@@ -145,7 +142,6 @@ YAPStringTerm::YAPStringTerm(wchar_t *s, size_t len)
   inp.val.w = s;
   inp.type = YAP_STRING_WCHARS;
   out.type = YAP_STRING_STRING | YAP_STRING_NCHARS | YAP_STRING_TRUNC;
-  out.sz = len;
   out.max = len;
   if (Yap_CVT_Text(&inp, &out PASS_REGS))
     mk(out.val.t);
@@ -392,7 +388,6 @@ YAPTerm::YAPTerm(void *ptr) {
   mk(MkIntegerTerm((Int)ptr));
 }
 
-
 YAPTerm YAPListTerm::car() {
   Term to = gt();
   if (IsPairTerm(to))
@@ -550,8 +545,9 @@ bool YAPQuery::next() {
   BACKUP_MACHINE_REGS();
   if (!q_open)
     return false;
-  if (setjmp(q_env))
+  if (setjmp(q_env)) {
     return false;
+  }
   // don't forget, on success these guys may create slots
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
 
@@ -571,7 +567,7 @@ bool YAPQuery::next() {
   }
   q_state = 1;
   if (Yap_GetException()) {
-    throw(YAPError(SYSTEM_ERROR_INTERNAL));
+    return false;
   }
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "out  %d", result);
 
