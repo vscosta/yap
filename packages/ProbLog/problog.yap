@@ -1119,7 +1119,7 @@ term_expansion_intern((Annotation::Head; Alternatives), Module, C):-
 term_expansion_intern((Annotation :: Head :- Body), Module, problog:ExpandedClause) :-
 	(
 	 Annotation == ('?') ->
-     % It's a decision with a body
+				% It's a decision with a body
 	 (decision_fact(_,Head) ->
 	  throw(error('New decision unifies with already defined decision!', (Head))) ; true
 	 ),
@@ -2616,8 +2616,8 @@ compute_bounds(LP, UP, Status) :-
 
 problog_low(Goal/Cond, Threshold, _, _) :-
     !,
-    problog_low((Cond,Goal), Threshold, P1, Status)
-    problog_low( Cond, Threshold, P2, Status)
+    problog_low((Cond,Goal), Threshold, P1, Status),
+    problog_low( Cond, Threshold, P2, Status),
     P is P1/P2.
 problog_low(Goal, Threshold, _, _) :-
 	init_problog_low(Threshold),
