@@ -454,13 +454,16 @@ int Yap_DebugPuts(FILE *s, const char *sch) {
 void Yap_DebugErrorPuts(const char *s) { Yap_DebugPuts(stderr, s); }
 
 void Yap_DebugPlWrite(Term t) {
-  if (t != 0)
+  if (t==0)
+    fprintf(stderr,"NULL");
     Yap_plwrite(t, GLOBAL_Stream + 2, 0, 0, GLOBAL_MaxPriority);
 }
 
 void Yap_DebugPlWriteln(Term t) {
   CACHE_REGS
-  Yap_plwrite(t, NULL, 15, 0, GLOBAL_MaxPriority);
+  if (t==0)
+    fprintf(stderr,"NULL");
+    Yap_plwrite(t, NULL, 15, 0, GLOBAL_MaxPriority);
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, '.');
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, 10);
 }
@@ -613,6 +616,14 @@ int post_process_read_wchar(int ch, size_t n, StreamDesc *s) {
   if (ch == EOF) {
     return post_process_weof(s);
   }
+  #if DEBUG
+  if (GLOBAL_Option[1]) {
+    static int v;
+      fprintf(stderr, "%d %C\n", v, ch);
+      if (v == 4992) jmp_deb();
+      v++;
+    }
+#endif
   s->charcount += n;
   s->linepos += n;
   if (ch == '\n') {
