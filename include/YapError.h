@@ -122,7 +122,7 @@ Yap_ensure_atom__( const char *fu, const char *fi, int line, Term in )
     return NULL;                                                               \
   }
 
-#define HEAP_TERM_ERROR(a, TYPE)                                               \
+#define HEAP_TERM_ERROR(a, TYPE, n)                                            \
   if (a == NIL) {                                                              \
     LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;                                    \
     LOCAL_Error_Term = t;                                                      \
