@@ -1,19 +1,19 @@
 /*************************************************************************
- *									 *
- *	 YAP Prolog 							 *
- *									 *
- *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
- *									 *
- * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
- *									 *
- **************************************************************************
- *									 *
- * File:		charcodes.c *
- * Last rev:	5/2/88							 *
- * mods: *
- * comments:	Character codes and character conversion		 *
- *									 *
- *************************************************************************/
+  *									 *
+  *	 YAP Prolog 							 *
+  *									 *
+  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+  *									 *
+  * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+  *									 *
+  **************************************************************************
+  *									 *
+  * File:		charcodes.c *
+  * Last rev:	5/2/88							 *
+  * mods: *
+  * comments:	Character codes and character conversion		 *
+  *									 *
+  *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -401,6 +401,7 @@ static int format_print_str(Int sno, Int size, Int has_size, Term args,
     while (*pt && (!has_size || size > 0)) {
       utf8proc_int32_t ch;
       pt += get_utf8(pt, -1, &ch);
+      f_putc(sno, ch);
     }
   } else {
     while (!has_size || size > 0) {
@@ -508,6 +509,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
   format_info finfo;
   Term fmod = CurrentModule;
   bool alloc_fstr = false;
+    LOCAL_Error_TYPE = YAP_NO_ERROR;
 
   if (GLOBAL_Stream[sno0].status & InMemory_Stream_f) {
     old_handler = GLOBAL_Stream[sno].u.mem_string.error_handler;
@@ -533,7 +535,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
   args = oargs;
   tail = otail;
   targ = 0;
-  if (IsVarTerm(tail)) {
+    if (IsVarTerm(tail)) {
     Yap_Error(INSTANTIATION_ERROR, tail, "format/2");
     return (FALSE);
   } else if ((fptr = Yap_TextToUTF8Buffer(tail))) {
@@ -596,10 +598,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
   finfo.lstart = 0;
   if (true || !(GLOBAL_Stream[sno].status & InMemory_Stream_f))
     sno = Yap_OpenBufWriteStream(PASS_REGS1);
-  if (sno < 0)
-    return false;
-  f_putc = GLOBAL_Stream[sno0].stream_wputc;
-  if (sno == -1) {
+  if (sno < 0) {
     if (!alloc_fstr)
       fstr = NULL;
     if (mytargs == targs) {
@@ -608,6 +607,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     format_clean_up(sno, sno0, &finfo, fstr, targs);
     return false;
   }
+  f_putc = GLOBAL_Stream[sno0].stream_wputc;
   while ((fptr += get_utf8(fptr, -1, &ch)) && ch) {
     Term t = TermNil;
     int has_repeats = false;
