@@ -1119,10 +1119,9 @@ Term Yap_scan_num(StreamDesc *inp) {
     LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
     return 0;
   }
+  while (iswblank(   ch = getchr(inp) ));
   TokEntry *tokptr = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
   tokptr->TokPos = GetCurInpPos(inp);
-  while ((ch = getchr(inp)) == BS)
-    ;
   if (ch == '-') {
     sign = -1;
     ch = getchr(inp);
@@ -1133,7 +1132,7 @@ Term Yap_scan_num(StreamDesc *inp) {
     cherr = '\0';
     if (ASP - HR < 1024) {
       Yap_clean_tokenizer(old_tr, NULL, NULL);
-      LOCAL_ErrorMessage = "Stack Overflow";
+       LOCAL_ErrorMessage = "Stack Overflow";
       LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
       return 0;
     }

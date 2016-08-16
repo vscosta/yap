@@ -41,7 +41,11 @@ void *buf__, *cur__;
     void *ov__ = TR, *ocur__ = LOCAL_ScannerStack; \
     if (!LOCAL_ScannerStack) LOCAL_ScannerStack = (char *)TR
 
-#define protect_stack(s)
+#define mark_stack() \
+void *otr__ = TR; void * ost__ = LOCAL_ScannerStack; TR =(tr_fr_ptr)LOCAL_ScannerStack
+
+#define restore_stack() \
+        TR = otr__;  LOCAL_ScannerStack = ost__
 
 #define export_buf(s) {}
 
@@ -672,15 +676,19 @@ static size_t write_length(const unsigned char *s0, seq_tv_t *out,
 static Term write_number( unsigned char *s, seq_tv_t *out, int size
                          USES_REGS) {
     Term t;
+    mark_stack();
     t = Yap_StringToNumberTerm((char *)s, &out->enc);
+    restore_stack();
     return t;
 }
 
 static Term string_to_term(void *s, seq_tv_t *out, size_t leng USES_REGS) {
     Term o;
+    mark_stack();
     o = out->val.t =
                      Yap_StringToTerm(s, strlen(s) + 1, &out->enc,
                                       GLOBAL_MaxPriority, NULL);
+    restore_stack();
     return o;
 }
 

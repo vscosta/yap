@@ -94,9 +94,6 @@ Term Yap_StringToNumberTerm(const    char *s, encoding_t *encp) {
 #ifdef __ANDROID__
   while (*s && isblank(*s) && Yap_wide_chtype(*s) == BS)
     s++;
-#else
-  while (*s && iswblank(*s++))
-    ;
 #endif
   t = Yap_scan_num(GLOBAL_Stream + sno);
   if (LOCAL_Error_TYPE == SYNTAX_ERROR)
