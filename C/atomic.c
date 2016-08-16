@@ -634,7 +634,8 @@ restart_aux:
   i = IntOfTerm(EXTRA_CBACK_ARG(3, 1));
   max = IntOfTerm(EXTRA_CBACK_ARG(3, 2));
   EXTRA_CBACK_ARG(3, 1) = MkIntTerm(i + 1);
-  if (!Yap_SpliceAtom(t3, ats, i, max PASS_REGS)) {
+  if (!Yap_SpliceAtom(t3, ats, i, max PASS_REGS) && LOCAL_Error_TYPE ==
+                                                            YAP_NO_ERROR) {
     cut_fail();
   } else {
     if (i < max)
@@ -650,7 +651,7 @@ restart_aux:
     if (Yap_HandleError("atom_concat/3")) {
       goto restart_aux;
     } else {
-      return FALSE;
+      return false;
     }
   }
   cut_fail();
@@ -672,17 +673,14 @@ restart_aux:
     ot = ARG2;
   } else if (Yap_IsGroundTerm(t2) && Yap_IsGroundTerm(t3)) {
     at = Yap_SubtractTailAtom(Deref(ARG3), t2 PASS_REGS);
-    ot = ARG1;
+         ot = ARG1;
   } else if (Yap_IsGroundTerm(t3)) {
     EXTRA_CBACK_ARG(3, 1) = MkIntTerm(0);
     EXTRA_CBACK_ARG(3, 2) = MkIntTerm(Yap_AtomToLength(t3 PASS_REGS));
     return cont_atom_concat3(PASS_REGS1);
   } else {
-    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-    LOCAL_Error_Term = t1;
-    Yap_Error(INSTANTIATION_ERROR, IsVarTerm(t1) ? t1 : t2,
-              "got atom_concat(X,atom,Z) or atom_concat(,atom,Y,Z)");
-    return false;
+      LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+      LOCAL_Error_Term = t1;
   }
   if (at) {
     if (Yap_unify(ot, MkAtomTerm(at)))

@@ -1594,7 +1594,7 @@ int Yap_CheckBinaryStream__(const char *file, const char *f, int line, Term arg,
   int sno;
   if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
     return -1;
-  if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
+  if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     if (kind == Input_Stream_f)
       PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_TEXT_STREAM, arg, msg);

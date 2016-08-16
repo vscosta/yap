@@ -1045,7 +1045,7 @@ static Int peek_byte(USES_REGS1) { /* at_end_of_stream */
 
   if (sno < 0)
     return (FALSE);
-  if (false && !(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
+  if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek_byte/2");
     return (FALSE);
@@ -1087,7 +1087,7 @@ static Int peek_byte_1(USES_REGS1) { /* at_end_of_stream */
 #endif
   }
   UNLOCK(GLOBAL_Stream[sno].streamlock);
-  return (Yap_unify_constant(ARG2, MkIntTerm(ch)));
+  return (Yap_unify_constant(ARG1, MkIntTerm(ch)));
 }
 
 /** @pred  peek_char(+_S_, - _C_) is iso
