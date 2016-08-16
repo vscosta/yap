@@ -18,6 +18,8 @@
 	   blank/3,
 	   split/2,
 	   split/3,
+	   split/4,
+	   split/5,
        split_unquoted/3,
 	   fields/2,
 	   fields/3,
@@ -27,6 +29,7 @@
 	   file_filter/3,
        file_select/2,
 		file_filter_with_initialization/5,
+		file_filter_with_start_end/5,
 		file_filter_with_initialization/5 as file_filter_with_init,
 	   process/2
 	  ]).
@@ -49,6 +52,7 @@ available by loading the
 	filter(+,+,2),
 	file_filter(+,+,2),
 	file_filter_with_initialization(+,+,2,+,:),
+	file_filter_with_start_end(+,+,2,2,2),
 	process(+,1).
 
 :- use_module(library(lists),
@@ -188,28 +192,73 @@ split_at_blank(SplitCodes, More) -->
 	split_at_blank(SplitCodes, More).
 split_at_blank(SplitCodes, [[C|New]| More]) -->
 	[C], !,
-	split(SplitCodes, New, More).
+	split_(SplitCodes, New, More).
 split_at_blank(_, []) --> [].
 
-split(SplitCodes, [], More) -->
+split_(SplitCodes, [], More) -->
 	[C],
 	{ member(C, SplitCodes) }, !,
 	split_at_blank(SplitCodes, More).
-split(SplitCodes, [C|New], Set) -->
+split_(SplitCodes, [C|New], Set) -->
 	[C], !,
-	split(SplitCodes, New, Set).
-split(_, [], []) --> [].
+	split_(SplitCodes, New, Set).
+split_(_, [], []) --> [].
 
-/** @pred split_unquoted(+ _Line_,+ _Separators_,- _Split_)
+
+split(Text, SplitCodes, DoubleQs, SingleQs, Strings) :-
+	split_element(SplitCodes, DoubleQs, SingleQs, Strings, Text, []).
+
+split_element(SplitCodes,  DoubleQs, SingleQs, Strings) -->
+    [C],
+    !,
+    split_element(SplitCodes,  DoubleQs, SingleQs, Strings, C).
+split_element(_SplitCodes,  _DoubleQs, _SingleQs, []) --> !.
+split_element(_SplitCodes,  _DoubleQs, _SingleQs, [[]]) --> [].
+
+split_element(SplitCodes,  DoubleQs, SingleQs, Strings, C) -->
+	{ member( C, SingleQs ) },
+	!,
+	 [C2],
+	{ Strings = [[C2|String]|More] },
+	split_element(SplitCodes,  DoubleQs, SingleQs, [String| More]).
+split_element(SplitCodes,  DoubleQs, SingleQs, [[]|Strings], C) -->
+	{ member( C, SplitCodes ) },
+	!,
+	split_element(SplitCodes,  DoubleQs, SingleQs, Strings).
+split_element(SplitCodes,  DoubleQs, SingleQs, Strings, C) -->
+	{ member( C, DoubleQs ) } ,
+	!,
+	split_within(SplitCodes,  C-DoubleQs, SingleQs, Strings).
+split_element(SplitCodes,  DoubleQs, SingleQs, [[C|String]|Strings], C) -->
+	split_element(SplitCodes,  DoubleQs, SingleQs, [String|Strings]). 
+
+split_within(SplitCodes,  DoubleQs, SingleQs, Strings) -->
+    [C],
+    split_within(SplitCodes,  DoubleQs, SingleQs, Strings, C).
+
+split_within(SplitCodes,  DoubleQs, SingleQs, Strings, C) -->
+	{ member( C, SingleQs ) },
+	!,
+	 [C2],
+	{ Strings = [[C2|String]|More] },
+	split_within(SplitCodes,  DoubleQs, SingleQs, [String| More]).
+split_within(SplitCodes,  DoubleQs, C-SingleQs, Strings, C) -->
+	!,
+	split_element(SplitCodes,  DoubleQs, SingleQs, Strings).
+split_within(SplitCodes,  DoubleQs, SingleQs, [[C|String]|Strings], C) -->
+	split_within(SplitCodes,  DoubleQs, SingleQs, [String|Strings]). 
+
+
+/** @pred split_quoted(+ _Line_,+ _Separators_, GroupQuotes, SingleQuotes, - _Split_)
 
 
 
 Unify  _Words_ with a set of strings obtained from  _Line_ by
-using the character codes in  _Separators_ as separators, but treat text within double quotes as a single unit. As an
+using the character codes in  _Separators_ as separators, but treat text within  quotes as a single unit. As an
 example, consider:
 
 ~~~~~{.prolog}
-?- split("Hello * I \"am free\""," *",S).
+?- split_quoted("Hello * I \"am free\""," *",S).
 
 S = ["Hello","I","am free"] ?
 
@@ -217,31 +266,6 @@ no
 ~~~~~
 
 */
-split_unquoted(String, SplitCodes, Strings) :-
-	split_unquoted_at_blank(SplitCodes, Strings, String, []).
-
-split_unquoted_at_blank(SplitCodes, [[0'"|New]|More]) --> %0'"
-    "\"",
-    split_quoted(New, More),
-    split_unquoted_at_blank(SplitCodes, More).
-split_unquoted_at_blank(SplitCodes, More) -->
-	[C],
-	{ member(C, SplitCodes) }, !,
-	split_unquoted_at_blank(SplitCodes, More).
-split_unquoted_at_blank(SplitCodes, [[C|New]| More]) -->
-	[C], !,
-	split_unquoted(SplitCodes, New, More).
-split_unquoted_at_blank(_, []) --> [].
-
-split_unquoted(SplitCodes, [], More) -->
-	[C],
-	{ member(C, SplitCodes) }, !,
-	split_unquoted_at_blank(SplitCodes, More).
-split_unquoted(SplitCodes, [C|New], Set) -->
-	[C], !,
-	split_unquoted(SplitCodes, New, Set).
-split_unquoted(_, [], []) --> [].
-
 split_quoted( [0'"], _More) --> %0'"
     "\"".
 split_quoted( [0'\\ ,C|New], More) --> 
@@ -398,6 +422,23 @@ file_filter_with_initialization(Inp, Out, Command, FormatString, Parameters) :-
 	open(Out, write, StreamOut, [alias(filter_output)]),
 	format(StreamOut, FormatString, Parameters),
 	filter(StreamInp, StreamOut, Command),
+	close(StreamInp),
+	close(StreamOut).
+
+
+/** @pred file_filter_with_start_end(+ FileIn, + FileOut, + Goal, + StartGoal,   + EndGoal)
+
+Same as file_filter/3, but before starting the filter execute
+_StartGoal_,  and call _ENdGoal_ as an epilog.
+
+The input stream are always accessible through `filter_output` and `filter_input`.
+*/
+file_filter_with_start_end(Inp, Out, Command, StartGoal, EndGoal) :-
+	open(Inp, read, StreamInp, [alias(filter_input)]),
+	open(Out, write, StreamOut, [alias(filter_output)]),
+	call( StartGoal, StreamInp, StreamOut ),
+	filter(StreamInp, StreamOut, Command),
+	call( EndGoal, StreamInp, StreamOut ),
 	close(StreamInp),
 	close(StreamOut).
 
