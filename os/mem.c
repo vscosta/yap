@@ -204,8 +204,7 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
   if (sno < 0)
     return -1;
   st = GLOBAL_Stream + sno;
-  st->status = Output_Stream_f | InMemory_Stream_f;
-  st->linepos = 0;
+  st->status = Output_Stream_f | InMemory_Stream_f | FreeOnClose_Stream_f;
   st->charcount = 0;
   st->linecount = 1;
   st->encoding = enc;
@@ -225,6 +224,7 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
 #endif
 #else
   st->nbuf = st->u.mem_string.buf = malloc(PLGETC_BUF_SIZE);
+  st->u.mem_string.src == MEM_BUF_MALLOC;
   st->u.mem_string.src = 1;
   st->u.mem_string.max_size = PLGETC_BUF_SIZE - 1;
   st->u.mem_string.pos = 0;
