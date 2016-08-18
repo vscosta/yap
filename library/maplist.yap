@@ -17,6 +17,7 @@
     checklist/2,
   checknodes/2,
   convlist/3,
+  convlist/4,
   foldl/4,
   foldl/5,
   foldl/6,
@@ -128,6 +129,7 @@ triple. See the example above.
 	maplist(3,+,+,-),
 	maplist(4,+,+,+,-),
 	convlist(2,+,-),
+	convlist(3,?,?,?),
 	mapnodes(2,+,-),
 	mapnodes_list(2,+,-),
 	checknodes(1,+),
@@ -333,6 +335,29 @@ maplist(Pred, [A1|L1], [A2|L2], [A3|L3], [A4|L4]) :-
   A combination of maplist/3 and selectlist/3: creates  _ListOut_ by
   applying the predicate  _Pred_ to all list elements on which
   _Pred_ succeeds.
+
+  ROK: convlist(Rewrite, OldList, NewList)
+  is a sort of hybrid of maplist/3 and sublist/3.
+  Each element of NewList is the image under Rewrite of some
+  element of OldList, and order is preserved, but elements of
+  OldList on which Rewrite is undefined (fails) are not represented.
+  Thus if foo(X,Y) :- integer(X), Y is X+1.
+  then convlist(foo, [1,a,0,joe(99),101], [2,1,102]).
+*/
+convlist(_, [], []).
+convlist(Pred, [Old|Olds], NewList) :-
+	call(Pred, Old, New),
+	!,
+	NewList = [New|News],
+	convlist(Pred, Olds, News).
+convlist(Pred, [_|Olds], News) :-
+	convlist(Pred, Olds, News).
+
+/**
+  convlist(: Pred, ? ListIn, ?ExtraList, ? ListOut) @anchor convlist
+
+  A combination of maplist/4 and selectlist/3: _ListIn_, _ListExtra_,
+  and _ListOut_ are the sublists so that the predicate _Pred_ succeeds.
 
   ROK: convlist(Rewrite, OldList, NewList)
   is a sort of hybrid of maplist/3 and sublist/3.
@@ -953,6 +978,29 @@ goal_expansion(convlist(Meta, ListIn, ListOut), Mod:Goal) :-
 	append_args(HeadPrefix, [[In|Ins], Outs], RecursionHead),
 	append_args(Pred, [In, Out], Apply),
 	append_args(HeadPrefix, [Ins, NOuts], RecursiveCall),
+	compile_aux([
+		     Base,
+		     (RecursionHead :-
+		         (Apply -> Outs = [Out|NOuts]; Outs = NOuts),
+			 RecursiveCall)
+		    ], Mod).
+
+goal_expansion(convlist(Meta, ListIn, ListExtra, ListOut), Mod:Goal) :-
+	goal_expansion_allowed,
+	callable(Meta),
+	prolog_load_context(module, Mod),
+	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
+	% the new goal
+	pred_name(convlist, 4, Proto, GoalName),
+	append(MetaVars, [ListIn, ListExtra, ListOut], GoalArgs),
+	Goal =.. [GoalName|GoalArgs],
+	% the new predicate declaration
+	HeadPrefix =.. [GoalName|PredVars],
+	append_args(HeadPrefix, [[], [], []], Base),
+	append_args(HeadPrefix, [[In|Ins], [Extra|Extras], Outs], RecursionHead),
+	append_args(Pred, [In, Extra, Out], Apply),
+	append_args(HeadPrefix, [Ins, Extras, NOuts], RecursiveCall),
 	compile_aux([
 		     Base,
 		     (RecursionHead :-

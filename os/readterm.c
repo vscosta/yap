@@ -110,11 +110,11 @@ static void clean_vars(VarEntry *p) {
 #ifdef O_QUASIQUOTATIONS
 /** '$qq_open'(+QQRange, -Stream) is det.
 
-    Opens a quasi-quoted memory range.
+Opens a quasi-quoted memory range.
 
-    @arg QQRange is a term '$quasi_quotation'(ReadData, Start, Length)
-    @arg Stream  is a UTF-8 encoded string, whose position indication
-    reflects the location in the real file.
+@arg QQRange is a term '$quasi_quotation'(ReadData, Start, Length)
+@arg Stream  is a UTF-8 encoded string, whose position indication
+reflects the location in the real file.
 */
 
 static Int qq_open(USES_REGS1) {
@@ -183,7 +183,7 @@ static int parse_quasi_quotations(ReadData _PL_rd ARG_LD) {
 
 #define READ_DEFS()							\
   PAR("comments", list_filler, READ_COMMENTS)				\
-  , PAR("module", isatom, READ_MODULE), PAR("priority", nat, READ_PRIORITY), \
+    , PAR("module", isatom, READ_MODULE), PAR("priority", nat, READ_PRIORITY), \
     PAR("quasi_quotations", filler, READ_QUASI_QUOTATIONS),		\
     PAR("term_position", filler, READ_TERM_POSITION),			\
     PAR("syntax_errors", isatom, READ_SYNTAX_ERRORS),			\
@@ -345,7 +345,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod) {
       }
     }
     if (tok->TokNext) {
-    tok = tok->TokNext;
+      tok = tok->TokNext;
     } else {
       endline = MkIntegerTerm(tok->TokPos);
       tok = NULL;
@@ -1017,7 +1017,7 @@ static Int read_term(
 
 #define READ_CLAUSE_DEFS()					\
   PAR("comments", list_filler, READ_CLAUSE_COMMENTS)		\
-  , PAR("module", isatom, READ_CLAUSE_MODULE),			\
+    , PAR("module", isatom, READ_CLAUSE_MODULE),		\
     PAR("variable_names", filler, READ_CLAUSE_VARIABLE_NAMES),	\
     PAR("variables", filler, READ_CLAUSE_VARIABLES),		\
     PAR("term_position", filler, READ_CLAUSE_TERM_POSITION),	\
@@ -1208,12 +1208,12 @@ static Int read2(
 
 /** @pred  read(- _T_) is iso
 
-    Reads the next term from the current input stream, and unifies it with
-    _T_. The term must be followed by a dot (`.`) and any blank-character
-    as previously defined. The syntax of the term must match the current
-    declarations for operators (see op). If the end-of-stream is reached,
-    _T_ is unified with the atom `end_of_file`. Further reads from of
-    the same stream may cause an error failure (see open/3).
+Reads the next term from the current input stream, and unifies it with
+_T_. The term must be followed by a dot (`.`) and any blank-character
+as previously defined. The syntax of the term must match the current
+declarations for operators (see op). If the end-of-stream is reached,
+_T_ is unified with the atom `end_of_file`. Further reads from of
+the same stream may cause an error failure (see open/3).
 
 */
 static Int read1(
@@ -1224,8 +1224,8 @@ static Int read1(
 
 /**  @pred fileerrors
 
-     Switches on the file_errors flag so that in certain error conditions
-     Input/Output predicates will produce an appropriated message and abort.
+Switches on the file_errors flag so that in certain error conditions
+Input/Output predicates will produce an appropriated message and abort.
 
 */
 static Int fileerrors(USES_REGS1) {
@@ -1296,6 +1296,13 @@ X_API Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp,
     Term bvar = MkVarTerm(), ctl;
   yhandle_t sl;
 
+  if (len == 0) {
+    Term rval = TermEof;
+    if (rval && bindings) {
+      *bindings = TermNil;
+    }
+    return rval;
+  }
   if (bindings) {
     ctl = Yap_MkApplTerm(Yap_MkFunctor(AtomVariableNames, 1), 1, &bvar);
     sl = Yap_PushHandle(bvar);
@@ -1363,7 +1370,7 @@ Term Yap_AtomToTerm(Atom a, Term opts) {
   }
 
   rval = Yap_read_term(sno, opts, 3);
- Yap_CloseStream(sno);
+  Yap_CloseStream(sno);
   return rval;
 }
 

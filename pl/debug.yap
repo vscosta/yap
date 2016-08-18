@@ -276,6 +276,36 @@ be lost.
 	'$debugger_input',
 	'$do_spy'(G, Mod, CP, spy).
 
+'$spy'([Mod|G], A1) :- 
+	G =.. L,
+	lists:append( L, [A1], NL),
+	NG =.. NL,
+	'$spy'([Mod|NG]).
+
+'$spy'([Mod|G], A1, A2) :- 
+	G =.. L,
+	lists:append( L, [A1, A2], NL),
+	NG =.. NL,
+	'$spy'([Mod|NG]).
+
+'$spy'([Mod|G], A1, A2, A3) :- 
+	G =.. L,
+	lists:append( L, [A1, A2, A3], NL),
+	NG =.. NL,
+	'$spy'([Mod|NG]).
+
+'$spy'([Mod|G], A1, A2, A3, A4) :- 
+	G =.. L,
+	lists:append( L, [A1, A2, A3, A4], NL),
+	NG =.. NL,
+	'$spy'([Mod|NG]).
+
+'$spy'([Mod|G], A1, A2, A3, A4, A5) :- 
+	G =.. L,
+	lists:append( L, [A1, A2, A3, A4, A5], NL),
+	NG =.. NL,
+	'$spy'([Mod|NG]).
+
 /**
   * @pred debugger_input.
   * name of stream used for debugging,

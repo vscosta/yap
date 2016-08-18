@@ -225,6 +225,7 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
 #endif
 #else
   st->nbuf = st->u.mem_string.buf = malloc(PLGETC_BUF_SIZE);
+  st->u.mem_string.src == MEM_BUF_MALLOC;
   st->u.mem_string.src = 1;
   st->u.mem_string.max_size = PLGETC_BUF_SIZE - 1;
   st->u.mem_string.pos = 0;
