@@ -128,9 +128,10 @@ if (HAVE_LIBANDROID)
     set(EXTRALIBS ${EXTRALIBS} android)
 endif (HAVE_LIBANDROID)
 
-check_library_exists(m main "" HAVE_LIBM)
+find_library(HAVE_LIBM m)
 if (HAVE_LIBM)
-    set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} m)
+    target_link_libraries(libYap m)
+    set(EXTRALIBS ${EXTRALIBS} m)
 endif (HAVE_LIBM)
 
 check_library_exists(dl dlopen "" HAVE_LIBDL)
@@ -207,10 +208,11 @@ endif (HAVE_LIBLOG)
 # endif (HAVE_LIBSOCKET)
 
 
-check_library_exists(upthread main "" HAVE_LIBPTHREAD)
+find_library(HAVE_LIBPTHREAD pthread)
 if (HAVE_LIBPTHREAD)
-    set(										EXTRALIBS ${EXTRALIBS} pthread)
-endif (HAVE_LIBPTHREAD)
+    target_link_libraries(libYap pthread)
+    set(EXTRALIBS ${EXTRALIBS} pthread)
+  endif (HAVE_LIBPTHREAD)
 
 
 check_library_exists(unicode main "" HAVE_LIBUNICODE)
