@@ -68,4 +68,6 @@ add_custom_target ( YAPex ALL
 install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} install -f
    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
 
+add_subdirectory(yap_kernel)
+
 endif (PYTHONLIBS_FOUND)

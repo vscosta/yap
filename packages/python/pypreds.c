@@ -594,7 +594,6 @@ static foreign_t python_run_script(term_t cmd, term_t fun) {
       Py_DECREF(pModule);
     } else {
       PyErr_Print();
-      fprintf(stderr, "Failed to load \"%s\"\n", s);
       return false;
     }
     return true;
@@ -620,33 +619,35 @@ static foreign_t python_export(term_t t, term_t pl) {
 }
 
 static int python_import(term_t mname, term_t mod) {
-  char *s;
-  size_t len;
   PyObject *pName, *pModule;
+  term_t arg = PL_new_term_ref();
+  char s0[MAXPATHLEN], *s = s0;
 
-  if (PL_is_list(mname)) {
-    char *s2;
-    char str[256];
-    term_t arg = PL_new_term_ref();
-    if (!PL_get_arg(1, mname, arg) || !PL_get_atom_chars(arg, &s) ||
-        !PL_get_arg(2, mname, mname) || !PL_get_arg(1, mname, arg) ||
-        !PL_get_atom_chars(arg, &s2))
-      return FALSE;
-    strcpy(str, s);
-    strcat(str, ".");
-    strcat(str, s2);
-    s = str;
-  } else if (!PL_get_nchars(mname, &len, &s, CVT_ALL | CVT_EXCEPTION)) {
-    return FALSE;
+  while (true) {
+    size_t len;
+
+    len = (MAXPATHLEN - 1) - (s - s0);
+    if (PL_is_pair(mname)) {
+      char *sa;
+      if (!PL_get_arg(1, mname, arg) || !PL_get_atom_chars(arg, &sa) ||
+          !PL_get_arg(2, mname, mname))
+        return false;
+      s = stpcpy(s, sa);
+      *s++ = '.';
+    } else if (!PL_get_nchars(mname, &len, &s,
+                              CVT_ALL | CVT_EXCEPTION | ENC_ISO_UTF8)) {
+      return false;
+    } else {
+      break;
+    }
   }
 #if PY_MAJOR_VERSION < 3
-  pName = PyString_FromString(s);
+  pName = PyString_FromString(s0);
 #else
-  printf("Module=%s\n", s);
-  pName = PyUnicode_FromString(s);
+  pName = PyUnicode_FromString(s0);
 #endif
   if (pName == NULL) {
-    return FALSE;
+    return false;
   }
   pModule = PyImport_Import(pName);
   Py_DECREF(pName);

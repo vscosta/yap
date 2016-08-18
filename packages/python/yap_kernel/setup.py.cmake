@@ -41,7 +41,7 @@ if svem_flag in sys.argv:
 
 setup(name='yap_kernel',
       version='0.0.1',
-      package_dir = {'': '${CMAKE_SOURCE_DIR}/packages/python'  },
+      package_dir = {'': '${CMAKE_SOURCE_DIR}/packages/python/yap_kernel'  },
       description='A simple YAP kernel for Jupyter/IPython',
       long_description="A simple YAP kernel for Jupyter/IPython, based on MetaKernel",
       url="https://github.com/vscosta/yap-6.3",

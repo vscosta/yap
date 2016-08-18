@@ -1,7 +1,10 @@
 import yap
+import sys
 
 # this class is not being used
 # we rely on namedtuples instead.
+
+
 class T(tuple):
 
     """Represents a non-interned Prolog atom"""

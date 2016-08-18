@@ -7,6 +7,7 @@
 #undef HAVE_STATa
 #endif
 #include <assert.h>
+#define EXTRA_MESSSAGES 1
 
 //@{
 

@@ -501,7 +501,8 @@ static long get_len_of_range(long lo, long hi, long step) {
   return n;
 }
 
-static PyStructSequence_Field pnull[] = {
+#if PY_MAJOR_VERSION >= 3
+ static PyStructSequence_Field pnull[] = {
         {"A1", NULL},  {"A2", NULL},  {"A3", NULL},  {"A4", NULL},
         {"A5", NULL},  {"A6", NULL},  {"A7", NULL},  {"A8", NULL},
         {"A9", NULL},  {"A9", NULL},  {"A10", NULL}, {"A11", NULL},
@@ -687,6 +688,8 @@ term_t tleft = PL_new_term_ref();
 
     return o;
 }
+
+#endif
 
 static PyObject *bip_range(term_t t) {
   long ilow = 0, ihigh = 0, istep = 1;
@@ -948,12 +951,12 @@ PyObject *compound_to_pytree(term_t t, functor_t fun) {
       // this should never happen
       return term_to_python( t, false);
   } else {
-      const char *s;
+#if PY_MAJOR_VERSION >= 3
+    const char *s;
       if (!(s = PL_atom_chars(name)))
           return NULL;
       return term_to_nametuple(s, arity, t);
-  }
-#if 0
+#else
         PyObject *c, *o1;
     o = PyTuple_New(arity);
     tleft = PL_new_term_ref();
@@ -974,6 +977,7 @@ PyObject *compound_to_pytree(term_t t, functor_t fun) {
     PyTuple_SET_ITEM(o1, 1, o);
     return o1;
 #endif
+  }
 }
 
 PyObject *compound_to_pyeval(term_t t, functor_t fun) {

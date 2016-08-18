@@ -29,8 +29,8 @@
 	   python/2,
 	   (:=)/2,
 	   (:=)/1,
-	   (<-)/2,
-	   (<-)/1,
+	%   (<-)/2,
+	%   (<-)/1,
 	   op(100,fy,$),
 	   op(950,fy,:=),
 	   op(950,yfx,:=),
@@ -110,6 +110,7 @@ Data types are
 :- use_module(library(charsio)).
 :- dynamic python_mref_cache/2, python_obj_cache/2.
 
+:= import( F ) :- python_import(F).
 := F :- python(F,_).
 
 V := F :- var(V), !, python(F,V0),
@@ -131,12 +132,12 @@ A := F :-
 	python_exports(V0,V).
 
 python_exports(V0, V0) :-
-	var(V0), !. 
+	var(V0), !.
 python_exports(V0, V0) :-
-	atomic(V0), !. 
+	atomic(V0), !.
 python_exports('__obj__'(T0), T) :-
 	!,
-	python_export('__obj__'(T0), T). 
+	python_export('__obj__'(T0), T).
 python_exports(V0, VF) :-
 	V0 =.. [F|L],
 	maplist(python_exports, L, LF),
@@ -423,7 +424,6 @@ python_assign_field(C1.E, Obj) :-
 	atom(E),
 	!,
 	python_eval_term(C1, O1),
-	python_assign_field(O1, E, Obj ).	
+	python_assign_field(O1, E, Obj ).
 
 :- initialization( use_foreign_library(foreign(libpython), init_python), now ).
-

@@ -50,6 +50,7 @@ class MetaKernelyap(MetaKernel):
             self.engine = yap.YAPEngine()
             self.q = None
             self.engine.query("load_files(library(python), [])").command()
+            self.engine.query("load_files(library(jupyter), [])").command()
             banner = "YAP {0} Kernel".format(self.engine.version())
             self.olines = banner
         finally:
@@ -66,13 +67,13 @@ class MetaKernelyap(MetaKernel):
         if not self.q:
             self.q = self.engine.query(s)
         if self.q.next():
-            vs = self.q.namedVarsCopy()
+            myvs = self.q.namedVarsCopy()
             wrote = False
-            if vs:
+            if myvs:
                 i = 0
-                for eq in vs:
-                    name = eq[0]
-                    bind = eq[1]
+                for peq in myvs:
+                    name = peq[0]
+                    bind = peq[1]
                     if bind.isVar():
                         var = yap.YAPAtom('$VAR')
                         f = yap.YAPFunctor(var, 1)
@@ -119,7 +120,7 @@ class MetaKernelyap(MetaKernel):
                     self.ask = False
                     self.doReset = False
                     break
-                else: 
+                else:
                     line = line.rstrip()
                     if line:
                         nlines += line + "\n"
@@ -138,7 +139,7 @@ class MetaKernelyap(MetaKernel):
                     self.doReset = False
                 else:
                     self.ask = False
-                    self.doReset = False  
+                    self.doReset = False
             self.query_prolog( nlines )
             while not self.ask and self.q:
                 self.query_prolog( nlines )
@@ -158,7 +159,9 @@ class MetaKernelyap(MetaKernel):
             raise
 
     def do_complete(self, code, cursor_pos):
-        eprint( code, " -- ", str(cursor_pos) )
+        print(code)
+        print(cursor_pos)
+        eprint( code, " -- ", str(cursor_pos ) )
         # code = code[:cursor_pos]
         # default = {'matches': [], 'cursor_start': 0,
         #            'cursor_end': cursor_pos, 'metadata': dict(),
@@ -177,7 +180,8 @@ class MetaKernelyap(MetaKernel):
 
         # if token[0] == '$':
         #     # complete variables
-        #     cmd = 'compgen -A arrayvar -A export -A variable %s' % token[1:] # strip leading $
+        #     cmd = 'compgen -A arrayvar -A export \
+        #     -A variable %s' % token[1:] # strip leading $
         #     output = self.bashwrapper.run_command(cmd).rstrip()
         #     completions = set(output.split())
         #     # append matches including leading $
@@ -187,7 +191,7 @@ class MetaKernelyap(MetaKernel):
         #     cmd = 'compgen -cdfa %s' % token
         #     output = self.bashwrapper.run_command(cmd).rstrip()
         #     matches.extend(output.split())
-            
+
         # if not matches:
         #     return default
         # matches = [m for m in matches if m.startswith(token)]
@@ -195,9 +199,6 @@ class MetaKernelyap(MetaKernel):
         # return {'matches': sorted(matches), 'cursor_start': start,
         #         'cursor_end': cursor_pos, 'metadata': dict(),
         #         'status': 'ok'}
-
-
-
 
     def repr(self, data):
         return repr(data)
