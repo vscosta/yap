@@ -204,7 +204,7 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
   if (sno < 0)
     return -1;
   st = GLOBAL_Stream + sno;
-  st->status = Output_Stream_f | InMemory_Stream_f;
+  st->status = Output_Stream_f | InMemory_Stream_f|FreeOnClose_Stream_f;
   st->linepos = 0;
   st->charcount = 0;
   st->linecount = 1;
@@ -281,7 +281,8 @@ char *Yap_MemExportStreamPtr(int sno) {
 static Int peek_mem_write_stream(
     USES_REGS1) { /* '$peek_mem_write_stream'(+GLOBAL_Stream,?S0,?S) */
   Int sno =
-      Yap_CheckStream(ARG1, (Output_Stream_f | InMemory_Stream_f), "close/2");
+      Yap_CheckStream(ARG1, (Output_Stream_f |
+              InMemory_Stream_f), "close/2");
   Int i;
   Term tf = ARG2;
   CELL *HI;
