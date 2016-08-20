@@ -92,14 +92,14 @@ pc_code(-1,_PP,Name,Arity,Mod, '~a:~q/~d' - [Mod,Name,Arity]) --> !,
 	{ functor(S, Name,Arity),
 	nth_clause(Mod:S,1,Ref),
 	clause_property(Ref, file(File)),
-	clause_property(Ref, line_count(Line)) },		       
+	clause_property(Ref, line_count(Line)) },
 	[ '~a:~d:0, ' - [File,Line] ].
 pc_code(Cl,Name,Arity,Mod, 'clause ~d for ~a:~q/~d'-[Cl,Mod,Name,Arity]) -->
 	{ Cl > 0 },
 	{ functor(S, Name,Arity),
 	nth_clause(Mod:S,Cl,Ref),
 	clause_property(Ref, file(File)),
-	clause_property(Ref, line_count(Line)) },		       
+	clause_property(Ref, line_count(Line)) },
 	[ '~a:~d:0, ' - [File,Line] ].
 
 display_stack_info(_,_,0,_) --> !.
@@ -138,7 +138,7 @@ show_cp(CP, Continuation) -->
 	  { scratch_goal(Name,Arity,Mod,Caller) },
 	  [ '0x~16r~t*~16+ ~d~16+ ~q ~n'-
 		[Addr, ClNo, Caller] ]
-	  
+
 	    ;
 	  [ '0x~16r~t *~16+~a ~d~16+ ~q:' -
 		[Addr, Continuation, ClNo, Mod]]
@@ -217,8 +217,8 @@ beautify_hidden_goal('$catch'(G,Exc,Handler),prolog) -->
 	[catch(G, Exc, Handler)].
 beautify_hidden_goal('$execute_command'(Query,V,P,Option,Source),prolog) -->
 	[toplevel_query(Query, V, P, Option, Source)].
-beautify_hidden_goal('$process_directive'(Gs,_,Mod),prolog) -->
-	[(:- Mod:Gs)].
+beautify_hidden_goal('$process_directive'(Gs,_Mode,_VL),prolog) -->
+	[(:- Gs)].
 beautify_hidden_goal('$loop'(Stream,Option),prolog) -->
 	[execute_load_file(Stream, consult=Option)].
 beautify_hidden_goal('$load_files'(Files,Opts,?),prolog) -->
@@ -253,6 +253,3 @@ beautify_hidden_goal('$current_predicate'(Na,M,S,_),prolog) -->
 	[current_predicate(Na,M:S)].
 beautify_hidden_goal('$list_clauses'(Stream,M,Pred),prolog) -->
 	[listing(Stream,M:Pred)].
-
-
-

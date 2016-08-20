@@ -116,12 +116,8 @@
     '$exec_directives'(G1, Mode, M, VL, Pos),
     '$exec_directives'(G2, Mode, M, VL, Pos).
 '$exec_directives'(G, Mode, M, VL, Pos) :-
-    '$save_directive'(G, Mode, M, VL, Pos),
     '$exec_directive'(G, Mode, M, VL, Pos).
 
-'$save_directive'(G, Mode, M, VL, Pos) :-
-	prolog_load_context(file, FileName), !,
-	recordz('$directive', directive(FileName,M:G, Mode, VL, Pos),_).
 
 '$exec_directive'(multifile(D), _, M, _, _) :-
 	'$system_catch'('$multifile'(D, M), M,
@@ -129,7 +125,6 @@
 	      user:'$LoopError'(Error, top)).
 '$exec_directive'(discontiguous(D), _, M, _, _) :-
 	'$discontiguous'(D,M).
-
 /** @pred initialization
 
 Execute the goals defined by initialization/1. Only the first answer is
@@ -253,15 +248,10 @@ user_defined_directive(Dir,Action) :-
  '$process_directive'(G, top, M, VL, Pos) :-
 	 current_prolog_flag(language_mode, yap), !,      /* strict_iso on */
 	 '$process_directive'(G, consult, M, VL, Pos).
- '$process_directive'(G, top, _, _, _) :-
+ '$process_directive'(G, top, M, _, _) :-
      !,
-	 '$do_error'(context_error((:- G),clause),query).
- %
- % allow modules
- %
- '$process_directive'(M:G, Mode, _, VL, Pos) :- !,
-	 '$process_directive'(G, Mode, M, VL, Pos).
- %
+	 '$do_error'(context_error((:-M:G),clause),query).
+  %
  % default case
  %
  '$process_directive'(Gs, Mode, M, VL, Pos) :-
@@ -276,22 +266,10 @@ user_defined_directive(Dir,Action) :-
     !, % ISO Prolog mode, go in and do it,
 	'$do_error'(context_error((:- M:D),query),directive).
  %
- % but YAP and SICStus does.
+ % but YAP and SICStus do.
  %
- '$process_directive'(G, Mode, M, VL, Pos) :-
-     ( '$undefined'('$save_directive'(G, Mode, M, VL, Pos),prolog) ->
-	   true
-	 ;
-	  '$save_directive'(G, Mode, M, VL, Pos)
-	 ->
-	   true
-	 ;
-	   true
-     ),
-     (
-      '$execute'(M:G)
-      ->
-      true
-     ;
-      format(user_error,':- ~w:~w failed.~n',[M,G])
-     ).
+ '$process_directive'(G, _Mode, M, _VL, _Pos) :-
+      '$execute'(M:G),
+      !.
+  '$process_directive'(G, _Mode, M, _VL, _Pos) :-
+      format(user_error,':- ~w:~w failed.~n',[M,G]).

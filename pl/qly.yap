@@ -769,27 +769,27 @@ qload_file( F0 ) :-
     fail.
 '$qload_file'(_S, _SourceModule, _File, FilePl, F0, _ImportList, _TOpts) :-
     b_setval('$user_source_file', F0 ),
-    '$process_directives'( FilePl ),
+    '$ql_process_directives'( FilePl ),
     fail.
 '$qload_file'(_S, SourceModule, _File,  FilePl, _F0, ImportList, TOpts) :-
     '$import_to_current_module'(FilePl, SourceModule, ImportList, _, TOpts).
 
-'$process_directives'( FilePl ) :-
+'$ql_process_directives'( FilePl ) :-
     user:'$file_property'( '$lf_loaded'( FilePl, M, Reconsult, UserFile, OldF, Line, Opts) ),
     recorda('$lf_loaded','$lf_loaded'( FilePl, M, Reconsult, UserFile, OldF, Line, Opts), _),
     fail.
-'$process_directives'( _FilePl ) :-
+'$ql_process_directives'( _FilePl ) :-
     user:'$file_property'( multifile( List ) ),
     lists:member( Clause, List ),
     assert( Clause ),
     fail.
-'$process_directives'( FilePl ) :-
+'$ql_process_directives'( FilePl ) :-
     user:'$file_property'( directive( MG, _Mode,  VL, Pos  ) ),
     '$set_source'( FilePl, Pos ),
-    strip_module(MG, M, G),
+    '$yap_strip_module'(MG, M, G),
     '$process_directive'(G, reconsult, M, VL, Pos),
     fail.
-'$process_directives'( _FilePl ) :-
+'$ql_process_directives'( _FilePl ) :-
     abolish(user:'$file_property'/1).
 
 %% @}

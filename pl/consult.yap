@@ -735,7 +735,6 @@ db_files(Fs) :-
 	nb_setval('$qcompile', ContextQCompiling),
 	( LC == 0 -> prompt(_,'   |: ') ; true),
 	'$exec_initialization_goals',
-	% format( 'O=~w~n', [Mod=UserFile] ),
 	!.
 
 
@@ -1157,9 +1156,9 @@ unload_file( F0 ) :-
     erase(R),
     fail.
 '$unload_file'( FileName, _F0 ) :-
-    recorded('$mf','$mf_clause'(FileName,_Name,_Arity,_Module,ClauseRef), R),
+    recorded('$mf','$mf_clause'(FileName,_Name,_Arity, Module,ClauseRef), R),
     erase(R),
-    '$erase_clause'(ClauseRef),
+    '$erase_clause'(ClauseRef, Module),
     fail.
 '$unload_file'( FileName, _F0 ) :-
     recorded('$multifile_dynamic'(_,_,_), '$mf'(_Na,_A,_M,FileName,R), R1),

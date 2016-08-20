@@ -277,8 +277,8 @@ private(_).
    fail.
 '$bootstrap_predicate'('$imported_predicate'(_,_,_,_), _M, _) :- !,
   fail.
-'$bootstrap_predicate'('$all_directives'(_), _M, _) :- !,
-   fail.
+'$bootstrap_predicate'('$process_directive'(Gs, _Mode, M, _VL, _Pos) , _M, _) :- !,
+    '$execute'( M:Gs ).
  '$bootstrap_predicate'('$LoopError'( Error, _), _M, _) :- !,
    source_location(F0, L),
    format('~a:~d:0: error in bootstrap:~n     ~w~n', [F0,L,Error]),
@@ -343,7 +343,7 @@ true :- true.
 '$init_system' :-
     get_value('$yap_inited', true), !.
 '$init_system' :-
-    set_value('$yap_inited', true),
+    % start_low_level_trace,
     % do catch as early as possible
     (
      % \+ '$uncaught_throw'
@@ -390,7 +390,8 @@ true :- true.
     set_input(user_input),
     set_output(user_output),
     '$init_or_threads',
-    '$run_at_thread_start'.
+    '$run_at_thread_start',
+    set_value('$yap_inited', true).
 
 '$make_saved_state' :-
 	current_prolog_flag(os_argv, Args),
@@ -642,9 +643,8 @@ number of steps.
 	 (
 	     O = (:- G1)
 	 ->
-	  '$current_module'(M),
-
-	   '$process_directive'(G1, Option, M, VL, Pos)
+	  '$yap_strip_module'(G1, M, G2),
+	   '$process_directive'(G2, Option, M, VL, Pos)
      ;
 	    '$execute_commands'(G1,VL,Pos,Option,O)
 	 ).
@@ -655,56 +655,7 @@ number of steps.
  '$execute_command'(G, VL, Pos, Option, Source) :-
 	 '$continue_with_command'(Option, VL, Pos, G, Source).
 
- %
- % This command is very different depending on the language mode we are in.
- %
- % ISO only wants directives in files
- % SICStus accepts everything in files
- % YAP accepts everything everywhere
- %
- '$process_directive'(G, top, M, VL, Pos) :-
-	 current_prolog_flag(language_mode, yap), !,      /* strict_iso on */
-	 '$process_directive'(G, consult, M, VL, Pos).
- '$process_directive'(G, top, _, _, _) :-
-     !,
-	 '$do_error'(context_error((:- G),clause),query).
- %
- % allow modules
- %
- '$process_directive'(M:G, Mode, _, VL, Pos) :- !,
-	 '$process_directive'(G, Mode, M, VL, Pos).
- %
- % default case
- %
- '$process_directive'(Gs, _Mode, M, _VL, _Pos) :-
-	 '$undefined'('$all_directives'(Gs),prolog),
-   !,
-   '$execute'(M:Gs).
-
-'$process_directive'(Gs, Mode, M, VL, Pos) :-
-  '$all_directives'(Gs), !,
-	 '$exec_directives'(Gs, Mode, M, VL, Pos).
-
- %
- % ISO does not allow goals (use initialization).
- %
-'$process_directive'(D, _, M, _VL, _Pos) :-
-	current_prolog_flag(language_mode, iso),
-    !, % ISO Prolog mode, go in and do it,
-	'$do_error'(context_error((:- M:D),query),directive).
- %
- % but YAP and SICStus does.
- %
- '$process_directive'(G, Mode, M, VL, Pos) :-
-    '$save_directive'(G, Mode, M, VL, Pos),
-     (
-      '$execute'(M:G)
-      ->
-      true
-     ;
-      format(user_error,':- ~w:~w failed.~n',[M,G])
-     ).
-
+ 
 '$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :-
     !,
 	'$continue_with_command'(Where,V,'$stream_position'(C,L,A1,A2,A3),G,Source).
@@ -1379,8 +1330,7 @@ bootstrap(F) :-
 	prolog_flag(agc_margin,_,Old),
 	!.
 '$loop'(Stream,Status) :-
- %   start_low_level_trace,
-	repeat,
+ 	repeat,
   '$current_module'( OldModule, OldModule ),
 	'$system_catch'( '$enter_command'(Stream,OldModule,Status),
                      OldModule, Error,
