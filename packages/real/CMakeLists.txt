@@ -1,5 +1,5 @@
 
-PROJECT ( YAP_REAL C )
+# PROJECT ( YAP_REAL C )
 
 macro_optional_find_package (R ON)
 
@@ -15,13 +15,13 @@ if (R_FOUND)
 )
 
 include_directories (
-      ${R_INCLUDE_DIR}
       ${CMAKE_CURRENT_BINARY_DIR}
+      ${R_INCLUDE_DIR}
       )
 
     set (CMAKE_REQUIRED_INCLUDES
-        ${R_INCLUDE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}
+        ${R_INCLUDE_DIR}
     )
 
 

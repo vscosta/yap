@@ -1,7 +1,7 @@
 #include "rconfig.h"
-#include <SWI-Prolog.h>
 #if HAVE_R_H || !defined(_YAP_NOT_INSTALLED_)
-#if HAVE_REMBEDDED_H
+#include <SWI-Prolog.h>
+#if HAVE_R_EMBEDDED_H
 #include <Rembedded.h>
 #endif
 #include <R.h>
