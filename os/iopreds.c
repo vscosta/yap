@@ -620,7 +620,6 @@ int post_process_read_wchar(int ch, size_t n, StreamDesc *s) {
   if (GLOBAL_Option[1]) {
     static int v;
       fprintf(stderr, "%d %C\n", v, ch);
-      if (v == 4992) jmp_deb();
       v++;
     }
 #endif
