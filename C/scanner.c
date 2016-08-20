@@ -2043,7 +2043,6 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
 #if DEBUG
     if (GLOBAL_Option[2]) {
       static int n;
-      if (n == 975) jmp_deb(2);
       fprintf(stderr, "[Token %d %s %d]", Ord(kind),
               Yap_tokRep(t, inp_stream->encoding),n++);
     }
