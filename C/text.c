@@ -51,7 +51,7 @@ void *otr__ = TR; void * ost__ = LOCAL_ScannerStack; TR =(tr_fr_ptr)LOCAL_Scanne
 
 #define unprotect_stack(s) \
     TR = ov__, LOCAL_ScannerStack = ocur__
-      //LOCAL_ScannerStack = ov__, TR = ot__
+//LOCAL_ScannerStack = ov__, TR = ot__
 
 
 static bool alloc_ovfl(size_t sz) {
@@ -428,7 +428,7 @@ unsigned char *Yap_readText(seq_tv_t *inp, size_t *lengp) {
     }
     if (inp->type & YAP_STRING_WCHARS) {
 //printf("%S\n",inp->val.w);
-return wchar2utf8(inp, lengp);
+        return wchar2utf8(inp, lengp);
     }
     return NULL;
 }
@@ -578,7 +578,7 @@ static Atom write_atom(void *s0, seq_tv_t *out, size_t leng USES_REGS) {
         utf8proc_int32_t chr;
         while (*s && get_utf8(s, -1, &chr) == 1) s++;
         if (*s == '\0')
-            return out->val.a = Yap_LookupAtom((char*)s0);
+            return out->val.a = Yap_LookupAtom((char *) s0);
         s = s0;
         size_t l = strlen(s0);
         wchar_t *wbuf = Malloc(sizeof(wchar_t) * ((l + 1))), *wptr = wbuf;
@@ -593,11 +593,11 @@ static Atom write_atom(void *s0, seq_tv_t *out, size_t leng USES_REGS) {
                 continue;
             }
             s++;
-              *wptr++ = chr;
+            *wptr++ = chr;
         }
         *wptr++ = '\0';
 
-            at = Yap_LookupMaybeWideAtom(wbuf);
+        at = Yap_LookupMaybeWideAtom(wbuf);
         out->val.a = at;
         return at;
     }
@@ -620,7 +620,7 @@ size_t write_buffer(unsigned char *s0, seq_tv_t *out, size_t leng USES_REGS) {
         unsigned char *buf = out->val.uc;
         if (!buf)
             return -1;
-        while (*cp ) {
+        while (*cp) {
             utf8proc_int32_t chr;
             int off = get_utf8(cp, -1, &chr);
             if (off <= 0)
@@ -673,11 +673,11 @@ static size_t write_length(const unsigned char *s0, seq_tv_t *out,
     return leng;
 }
 
-static Term write_number( unsigned char *s, seq_tv_t *out, int size
+static Term write_number(unsigned char *s, seq_tv_t *out, int size
                          USES_REGS) {
     Term t;
     mark_stack();
-    t = Yap_StringToNumberTerm((char *)s, &out->enc);
+    t = Yap_StringToNumberTerm((char *) s, &out->enc);
     restore_stack();
     return t;
 }
@@ -686,8 +686,8 @@ static Term string_to_term(void *s, seq_tv_t *out, size_t leng USES_REGS) {
     Term o;
     mark_stack();
     o = out->val.t =
-                     Yap_StringToTerm(s, strlen(s) + 1, &out->enc,
-                                      GLOBAL_MaxPriority, NULL);
+            Yap_StringToTerm(s, strlen(s) + 1, &out->enc,
+                             GLOBAL_MaxPriority, NULL);
     restore_stack();
     return o;
 }
@@ -699,28 +699,26 @@ bool write_Text(unsigned char *inp, seq_tv_t *out, size_t leng USES_REGS) {
             return out->val.t != 0;
     }
     if (out->type &
-            (YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG)) {
-            if (
-                    (out->val.t = write_number(inp, out, leng PASS_REGS)) !=
-                    0L) {
-                //Yap_DebugPlWriteln(out->val.t);
+        (YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG)) {
+        if (
+                (out->val.t = write_number(inp, out, leng PASS_REGS)) !=
+                0L) {
+            //Yap_DebugPlWriteln(out->val.t);
 
-                return true;
-            }
+            return true;
+        }
 
         if (!(out->type & YAP_STRING_ATOM))
-                return false;
+            return false;
+    }
+    if (out->type & (YAP_STRING_ATOM)) {
+        if (
+                write_atom(inp, out, leng PASS_REGS) != NIL) {
+            Atom at = out->val.a;
+            //Yap_DebugPlWriteln(out->val.t);
+            return at != NIL;
         }
-        if (out->type & (YAP_STRING_ATOM)) {
-            if (
-                    write_atom(inp, out, leng PASS_REGS) != NIL) {
-                Atom at = out->val.a;
-                if (at != NIL)
-                    out->val.t = MkAtomTerm(at);
-                //Yap_DebugPlWriteln(out->val.t);
-                return at != NIL;
-            }
-        }
+    }
 
     switch (out->type & YAP_TYPE_MASK) {
         case YAP_STRING_CHARS: {
@@ -837,7 +835,7 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
         }
     }
 
-rc = write_Text(buf, out, leng PASS_REGS);
+    rc = write_Text(buf, out, leng PASS_REGS);
     unprotect_stack(out);
     /*    fprintf(stderr, " -> ");
         if (!rc) fprintf(stderr, "NULL");
@@ -906,7 +904,7 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
     unsigned char *buf;
     size_t leng;
     int i;
-     init_alloc(__LINE__);
+    init_alloc(__LINE__);
     bufv = Malloc(tot * sizeof(unsigned char *));
     if (!bufv) {
         unprotect_stack(NULL);
@@ -933,7 +931,7 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
                      seq_tv_t outv[] USES_REGS) {
     unsigned char *buf;
     size_t l;
-     init_alloc(__LINE__);
+    init_alloc(__LINE__);
     inp->type |= YAP_STRING_IN_TMP;
     buf = Yap_readText(inp, &l PASS_REGS);
     if (!buf) {
@@ -964,7 +962,7 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
                     unprotect_stack(NULL);
                     return false;
                 }
-                unprotect_stack((outv+1));
+                unprotect_stack((outv + 1));
                 return rc;
             } else /* if (outv[1].val.t) */ {
                 buf1 = Yap_readText(outv + 1, &l1 PASS_REGS);
@@ -981,7 +979,7 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
                 }
                 buf0 = slice(0, l0, buf PASS_REGS);
                 bool rc = write_Text(buf0, outv, l0 PASS_REGS);
-                unprotect_stack((rc ? NULL : outv+0));
+                unprotect_stack((rc ? NULL : outv + 0));
                 return rc;
             }
         }
@@ -991,9 +989,9 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
         if (i == 0)
             next = 0;
         else
-            next = cuts[i-1];
+            next = cuts[i - 1];
         void *bufi = slice(next, cuts[i], buf PASS_REGS);
-        if (!write_Text(bufi, outv + i, cuts[i]-next PASS_REGS)) {
+        if (!write_Text(bufi, outv + i, cuts[i] - next PASS_REGS)) {
             unprotect_stack(NULL);
             return false;
         }
