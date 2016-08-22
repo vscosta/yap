@@ -10,7 +10,7 @@ project( YAP )
 
 cmake_minimum_required(VERSION 2.8)
 
-cmake_policy(VERSION 3.4)
+# cmake_policy(VERSION 3.4)
 
 
 set(
