@@ -623,9 +623,12 @@ size_t write_buffer(unsigned char *s0, seq_tv_t *out, size_t leng USES_REGS) {
         while (*cp) {
             utf8proc_int32_t chr;
             int off = get_utf8(cp, -1, &chr);
-            if (off <= 0)
-                off =
-                *buf++ = chr;
+            if (off <= 0 || chr > 255)
+	      return -1;
+	    if (off == max)
+	      break;
+	    cp += off;
+	    *buf++ = chr;
         }
         if (max >= min)
             *buf++ = '\0';
@@ -715,6 +718,8 @@ bool write_Text(unsigned char *inp, seq_tv_t *out, size_t leng USES_REGS) {
         if (
                 write_atom(inp, out, leng PASS_REGS) != NIL) {
             Atom at = out->val.a;
+	    if (at && ( out->type & YAP_STRING_OUTPUT_TERM))
+	      out->val.t = MkAtomTerm(at);
             //Yap_DebugPlWriteln(out->val.t);
             return at != NIL;
         }
