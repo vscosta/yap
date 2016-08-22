@@ -10,6 +10,9 @@ project( YAP )
 
 cmake_minimum_required(VERSION 2.8)
 
+cmake_policy(VERSION 3.4)
+
+
 set(
         CMAKE_MODULE_PATH
         "${CMAKE_SOURCE_DIR}"
@@ -103,6 +106,8 @@ add_library( # Sets the name of the library.
 include(libYap NO_POLICY_SCOPE)
 
 
+target_link_libraries(libYap m pthread)
+
 if (USE_READLINE)
     target_link_libraries(libYap ${READLINE_LIBRARIES})
 endif (USE_READLINE)
@@ -111,6 +116,7 @@ endif (USE_READLINE)
 if (ANDROID)
 
     target_link_libraries(libYap android log)
+
 endif ()
 
 set_target_properties(libYap

@@ -56,7 +56,6 @@ static foreign_t python_f(term_t tmod, term_t fname, term_t tf) {
   if (pF == NULL || !PyCallable_Check(pF)) {
     return FALSE;
   }
-  printf("Module=%s ok\n", s);
   return python_to_ptr(pF, tf);
 }
 
