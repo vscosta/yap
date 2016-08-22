@@ -674,7 +674,9 @@ if (PyDict_Contains(py_F2P, key)) {
 }
 o = PyStructSequence_New(typp);
 term_t tleft = PL_new_term_ref();
-    for (int i = 0; i < arity; i++) {
+ int i;
+
+    for (i = 0; i < arity; i++) {
   PyObject *pArg;
   if (!PL_get_arg(i + 1, t, tleft))
     return NULL;
