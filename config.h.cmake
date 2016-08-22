@@ -1994,11 +1994,21 @@ calls it, or to nothing if 'inline' is not supported under any name.  */
 #endif
 #endif
 
+#if YAPOR
+#ifndef  USE_DL_MALLOC
+#define USE_DL_MALLOC 1
+#endif
+#else
+/* use the OS malloc or some other external library to implement the data-base
+*/
+#ifndef USE_SYSTEM_MALLOC
+#define USE_SYSTEM_MALLOC ${WITH_SYSTEM_MALLOC}
+#endif
+#endif
+
+
 //#define DEBUG_MALLOC 1
 #if DEBUG_MALLOC
-#if HAVE_MALLOC_H
-#include <malloc.h>
-#endif
 #define malloc(sz) my_malloc(sz)
 #define realloc(pt, sz) my_realloc(pt,sz)
 #define free(pt) my_free(pt)

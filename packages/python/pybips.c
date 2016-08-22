@@ -951,13 +951,15 @@ PyObject *compound_to_pytree(term_t t, functor_t fun) {
       // this should never happen
       return term_to_python( t, false);
   } else {
-#if PY_MAJOR_VERSION >= 3
     const char *s;
       if (!(s = PL_atom_chars(name)))
           return NULL;
+#if PY_MAJOR_VERSION >= 3
       return term_to_nametuple(s, arity, t);
 #else
-        PyObject *c, *o1;
+      term_t tleft;
+      int i;
+      PyObject *c, *o1;
     o = PyTuple_New(arity);
     tleft = PL_new_term_ref();
     for (i = 0; i < arity; i++) {

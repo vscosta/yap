@@ -12,7 +12,7 @@ add_library (libpython SHARED ${PYTHON_SOURCES})
 set (PYTHON_HEADERS
   python.h)
 
-# configure_file ("setup.py.cmake"  "setup.py" )
+configure_file ("setup.py.cmake"  "setup.py" )
 
   target_link_libraries(libpython libYap ${PYTHON_LIBRARIES})
 
@@ -38,6 +38,12 @@ add_custom_target ( YAPex ALL
 install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} install -f
    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
 
+find_python_module( jupyter )
+
+if (PY_JUPYTER)
+
 add_subdirectory(yap_kernel)
+
+endif()
 
 endif (PYTHONLIBS_FOUND)
