@@ -110,7 +110,10 @@ Data types are
 :- use_module(library(charsio)).
 :- dynamic python_mref_cache/2, python_obj_cache/2.
 
-:= import( F ) :- python_import(F).
+:= (P1,P2) :- !,
+	:= P1,
+	:= P2.
+:= import( F ) :- !, python_import(F).
 := F :- python(F,_).
 
 V := F :- var(V), !, python(F,V0),

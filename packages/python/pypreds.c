@@ -634,7 +634,7 @@ static int python_import(term_t mname, term_t mod) {
       s = stpcpy(s, sa);
       *s++ = '.';
     } else if (!PL_get_nchars(mname, &len, &s,
-                              CVT_ALL | CVT_EXCEPTION | ENC_ISO_UTF8)) {
+                              CVT_ALL | CVT_EXCEPTION | REP_UTF8)) {
       return false;
     } else {
       break;

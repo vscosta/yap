@@ -338,6 +338,11 @@ unsigned char *Yap_readText(seq_tv_t *inp, size_t *lengp) {
             return latin2utf8(inp, lengp);
         }
     }
+     if (IsStringTerm(inp->val.t) && inp->type & YAP_STRING_STRING) {
+        // this is a term, extract to a buffer, and representation is wide
+        //Yap_DebugPlWriteln(inp->val.t);
+       return UStringOfTerm(inp->val.t);
+      }
     if (((inp->type & (YAP_STRING_CODES | YAP_STRING_ATOMS)) ==
          (YAP_STRING_CODES | YAP_STRING_ATOMS)) && IsPairTerm(inp->val.t)) {
         //Yap_DebugPlWriteln(inp->val.t);
