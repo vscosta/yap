@@ -106,8 +106,6 @@ add_library( # Sets the name of the library.
 include(libYap NO_POLICY_SCOPE)
 
 
-target_link_libraries(libYap m pthread)
-
 if (USE_READLINE)
     target_link_libraries(libYap ${READLINE_LIBRARIES})
 endif (USE_READLINE)

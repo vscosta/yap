@@ -1119,7 +1119,11 @@ Term Yap_scan_num(StreamDesc *inp) {
     LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
     return 0;
   }
+#if HAVE_ISWBLANK
   while (iswblank(   ch = getchr(inp) ));
+#else
+  while (isspace(   ch = getchr(inp) ));
+#endif
   TokEntry *tokptr = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
   tokptr->TokPos = GetCurInpPos(inp);
   if (ch == '-') {

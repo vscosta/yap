@@ -9,4 +9,3 @@ main :-
 	    Plt.ylabel(`some numbers`),
 	    Plt.show()
 	   ).
-
