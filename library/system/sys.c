@@ -316,9 +316,9 @@ static YAP_Bool rename_file(void) {
  static YAP_Bool read_link(void) {
   char *s1 = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
 #if HAVE_READLINK
-  char buf[PATH_MAX + 1];
+  char buf[MAXPATHLEN + 1];
 
-  if (readlink(s1, buf, PATH_MAX) < 0)
+  if (readlink(s1, buf, MAXPATHLEN) < 0)
     return false;
   
   
