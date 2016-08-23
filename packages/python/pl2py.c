@@ -73,7 +73,7 @@ PyObject *term_to_python(term_t t, bool eval) {
     return o;
   } break;
   case PL_STRING: {
-    char *s;
+    char *s = NULL;
     if (!PL_get_chars(t, &s,
                       REP_UTF8 | CVT_ATOM | CVT_STRING | BUF_DISCARDABLE)) {
       return NULL;

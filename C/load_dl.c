@@ -123,13 +123,7 @@ void *Yap_LoadForeignFile(char *file, int flags) {
   else
     dlflag |= RTLD_LOCAL;
 #endif
-  if (!Yap_findFile(file, NULL, NULL, LOCAL_FileNameBuf, true, YAP_OBJ, true, true)) {
-    /* use LD_LIBRARY_PATH */
-    strncpy(LOCAL_FileNameBuf, file, YAP_FILENAME_MAX - 1);
-    strncat(LOCAL_FileNameBuf, ".", YAP_FILENAME_MAX - 1);
-    strncat(LOCAL_FileNameBuf, "SO_EXT", YAP_FILENAME_MAX - 1);
-  }
-  out = (void *)dlopen(LOCAL_FileNameBuf, flags);
+  out = (void *)dlopen(file, dlflag);
   if (out == NULL) {
     const char *m_os = dlerror();
     if (m_os) {
