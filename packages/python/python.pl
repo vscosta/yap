@@ -429,4 +429,4 @@ python_assign_field(C1.E, Obj) :-
 	python_eval_term(C1, O1),
 	python_assign_field(O1, E, Obj ).
 
-:- initialization( use_foreign_library(foreign(libpython), init_python), now ).
+:- initialization( use_foreign_library(foreign(libpYAPPython), init_python), now ).
