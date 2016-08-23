@@ -581,6 +581,11 @@ function. */
 #cmakedefine HAVE_ISNAN ${HAVE_ISNAN}
 #endif
 
+/* Define to 1 if you have the `isnan' function. */
+#ifndef HAVE_ISWBLANK
+#cmakedefine HAVE_ISWBLANK ${HAVE_ISWBLANK}
+#endif
+
 /* Define to 1 if you have the <Judy.h> header file. */
 #ifndef HAVE_JUDY_H
 #cmakedefine HAVE_JUDY_H ${HAVE_JUDY_H}

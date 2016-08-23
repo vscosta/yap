@@ -888,7 +888,8 @@ static unsigned char *concat(int n, unsigned char *sv[] USES_REGS) {
     buf = Malloc(room + 1);
     buf0 = (unsigned char *) buf;
     for (i = 0; i < n; i++) {
-        buf = stpcpy(buf, (char *) sv[i]);
+        buf = strcpy(buf, (char *) sv[i]);
+        buf += strlen( sv[i] );
     }
     return buf0;
 }
