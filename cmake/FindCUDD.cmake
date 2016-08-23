@@ -10,19 +10,10 @@
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 
-if (NOT DEFINED CUDD_ROOT)
-  set(CUDD_ROOT $ENV{CUDD_ROOT})
-endif()
+SET( CUDD_FOUND "NO" )
 
-# Check if we have cached results in case the last round was successful.
-
-  find_package(PkgConfig)
-
-  
-  find_path(CUDD_INCLUDE_DIR
-    NAMES cudd.h cudd/cudd.h
-    $ENV{CUDD_ROOT}/include
-    $ENV{CUDD_ROOT}
+set (CUDD_INCLUDE_SEARCH_PATH 
+    ${CMAKE_INSTALL_PREFIX}/include
     /usr/local/yap/include
     /usr/local/Yap/include
     /usr/local/cudd/include
@@ -36,55 +27,70 @@ endif()
     /opt/csw/include   # Blastwave
     /opt/include
     /usr/freeware/include
-    NO_DEFAULT_PATHS
-    
-    )
-  
- mark_as_advanced(CUDD_INCLUDE_DIR)
-
-if (${CUDD_ROOT}) 
-  set (CUDD_LIB_SEARCH_PATH 
-    $ENV{CUDD_ROOT}/lib
-    $ENV{CUDD_ROOT}/lib64
-    $ENV{CUDD_ROOT}/lib-dbg
-    $ENV{CUDD_ROOT}
-    ${CUDD_ROOT}/cudd
-    /usr/lib
-    ${CUDD_ROOT}/lib
-    ${CUDD_ROOT}/lib64
-    ${CUDD_ROOT}/lib-dbg
-    ${CUDD_ROOT}
-    ${CUDD_ROOT}/cudd
  )
- endif()
 
- mark_as_advanced(CUDD_LIB_SEARCH_PATH on)
 
 
 set (CUDD_LIB_SEARCH_PATH 
-    ${CUDD_LIB_SEARCH_PATH}
-    /usr/lib64
+    ${CMAKE_INSTALL_PREFIX}/lib
     /usr/lib
     /usr/local/lib/cudd
     /usr/local/cudd/lib
     /usr/lib/cudd
     /usr/lib/cudd/lib
-    /usr/lib64/cudds
-    /usr/freeware/lib64 )
+    /usr/freeware/lib )
+
+if ($ENV{CUDD_ROOT}) 
+  list (APPEND CUDD_LIB_SEARCH_PATH 
+    $ENV{CUDD_ROOT}/lib
+    $ENV{CUDD_ROOT}/lib-dbg
+    $ENV{CUDD_ROOT} )
+
+  list (APPEND CUDD_INCLUDE_SEARCH_PATH 
+    $ENV{CUDD_ROOT}/include )
+endif()
+
+if (${CUDD_ROOT}) 
+  list (APPEND CUDD_LIB_SEARCH_PATH 
+    ${CUDD_ROOT}/lib
+    ${CUDD_ROOT}/lib-dbg
+    ${CUDD_ROOT} )
+  list (APPEND CUDD_INCLUDE_SEARCH_PATH 
+    ${CUDD_ROOT}/include )
+endif()
+
+# Check if we have cached results in case the last round was successful.
+
+  find_package(PkgConfig)
+  
+  find_path(CUDD_INCLUDE_DIR
+    NAMES cudd.h cudd/cudd.h
+    ${CUDD_INCLUDE_SEARCH_PATH}
+    )
+  
+ mark_as_advanced(CUDD_INCLUDE_DIR)
+
+if (CUDD_INCLUDE_DIR)
 
   find_library(CUDD_LIBRARIES
     NAMES cudd
     PATHS
     ${CUDD_LIB_SEARCH_PATH}
     )
-    
- IF (NOT EXISTS ${CUDD_INCLUDE_DIR}/epdInt.h )
 
+    if (CUDD_LIBRARIES)
+    
+    SET( CUDD_FOUND "YES" )
+ 
 find_library(CUDD_DDDMP_LIBRARY
     NAMES dddmp
     PATHS
     ${CUDD_LIB_SEARCH_PATH}
     )
+
+if (CUDD_DDMP_LIBRARY)
+   list( APPEND CUDD_LIBRARIES ${CUDD_DDMP_LIBRARY} )
+endif()
 
 find_library(CUDD_EPD_LIBRARY
     NAMES  epd
@@ -92,44 +98,53 @@ find_library(CUDD_EPD_LIBRARY
      ${CUDD_LIB_SEARCH_PATH}
     )
 
+if (CUDD_EPD_LIBRARY)
+   list( APPEND CUDD_LIBRARIES ${CUDD_EPD_LIBRARY} )
+endif()
+
   find_library(CUDD_ST_LIBRARY
-    NAMES cuddst st
+    NAMES cuddst 
     PATHS
      ${CUDD_LIB_SEARCH_PATH}
    )
 
+if (CUDD_ST_LIBRARY)
+   list( APPEND CUDD_LIBRARIES ${CUDD_ST_LIBRARY} )
+endif()
+
+
   
   find_library(CUDD_UTIL_LIBRARY
-    NAMES cuddutil util 
+    NAMES cuddutil  
     
     PATHS
      ${CUDD_LIB_SEARCH_PATH}
-    NO_DEFAULT_PATHS
-    NO_SYSTEM_ENVIRONMENT_PATH
-    NO_CMAKE_SYSTEM_PATH
     )
  
+if (CUDD_UTIL_LIBRARY)
+   list( APPEND CUDD_LIBRARIES ${CUDD_ST_LIBRARY} )
+endif()
+
   find_library(CUDD_MTR_LIBRARY
     NAMES  mtr
     PATHS
       ${CUDD_LIB_SEARCH_PATH}
     )
 
+if (CUDD_MTR_LIBRARY)
+   list( APPEND CUDD_LIBRARIES ${CUDD_MTR_LIBRARY} )
+endif()
 
-set(CUDD_LIBRARIES
-  ${CUDD_LIBRARIES} ${CUDD_ST_LIBRARY} ${CUDD_UTIL_LIBRARY}
-  ${CUDD_MTR_LIBRARY}  ${CUDD_EPD_LIBRARY} ${CUDD_DDDMP_LIBRARY} )
+endif()
 
-endif () # Check for cudd 2.
+endif()
+
+ mark_as_advanced(CUDD_LIBRARIES)
 
 
-SET( CUDD_FOUND "NO" )
-IF(CUDD_INCLUDE_DIR AND CUDD_LIBRARIES)
-    SET( CUDD_FOUND "YES" )
-ENDIF()
 
 mark_as_advanced (CUDD_FOUND)
 
 
-find_package_handle_standard_args(R DEFAULT_MSG CUDD_LIBRARIES CUDD_INCLUDE_DIR )
+find_package_handle_standard_args(CUDD DEFAULT_MSG CUDD_LIBRARIES CUDD_INCLUDE_DIR )
 

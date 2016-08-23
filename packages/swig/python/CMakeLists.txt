@@ -12,10 +12,11 @@ if (PYTHONLIBS_FOUND)
 
   INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/CXX)
 
-  SET(CMAKE_SWIG_FLAGS "")
+  SET(CMAKE_SWIG_FLAGS "-py3")
 
   SET_SOURCE_FILES_PROPERTIES(../yap.i PROPERTIES CPLUSPLUS ON)
   SET_SOURCE_FILES_PROPERTIES(../yap.i PROPERTIES SWIG_FLAGS "-includeall")
+  SET_SOURCE_FILES_PROPERTIES(../yap.i PROPERTY SWIG_MODULE_NAME libPy2YAP )
 
   configure_file ("setup.py.cmake"  "setup.py" )
 
@@ -23,9 +24,11 @@ if (PYTHONLIBS_FOUND)
   #SET( CMAKE_SWIG_OUTDIR "yap" )
 
 
-  SWIG_ADD_MODULE(yap python ../yap.i)
-  SWIG_LINK_LIBRARIES(yap ${PYTHON_LIBRARIES} Yap++ libYap libpython)
-  set_target_properties ( ${SWIG_MODULE_yap_REAL_NAME} PROPERTIES NO_SONAME ON )
+#  SWIG_ADD_MODULE(Py2YAP python ../yap.i )
+#  SWIG_LINK_LIBRARIES(Py2YAP ${PYTHON_LIBRARIES} Yap++ libYap YAPPython)
+#  set_target_properties ( ${SWIG_MODULE_Py2YAP_REAL_NAME} PROPERTIES
+#  NO_SONAME ON )
+
 
   # execute_process ( COMMAND ${PYTHON_EXECUTABLE} -c "from distutils import sysconfig; print( sysconfig.get_python_lib( plat_specific=True, prefix='${CMAKE_INSTALL_PREFIX}' ) )"
   #                   OUTPUT_VARIABLE _ABS_PYTHON_MODULE_PATH
@@ -33,15 +36,15 @@ if (PYTHONLIBS_FOUND)
   # get_filename_component ( _ABS_PYTHON_MODULE_PATH ${_ABS_PYTHON_MODULE_PATH} ABSOLUTE )
   # file ( RELATIVE_PATH _REL_PYTHON_MOULE_PATH ${CMAKE_INSTALL_PREFIX} ${_ABS_PYTHON_MODULE_PATH} )
 
-    set ( PYTHON_MODULE_PATH
-      ${_REL_PYTHON_MODULE_PATH}
-      )
+#    set ( PYTHON_MODULE_PATH
+#      ${_REL_PYTHON_MODULE_PATH}
+#      )
 
     set(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
 
     add_custom_target ( py2yap ALL
       COMMAND ${PYTHON_EXECUTABLE} setup.py bdist
-      DEPENDS yap.py  )
+      DEPENDS ../yap.i YAPPython  )
 
     
     install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} install 
@@ -76,6 +79,11 @@ if (PYTHONLIBS_FOUND)
 
     endif ()
 
+
+  install(TARGETS ${SWIG_MODULE_Py2YAP_REAL_NAME} 
+    LIBRARY DESTINATION ${dlls}
+     ARCHIVE DESTINATION ${dlls}
+   )
 
   #   add_subdirectory ( examples )
 else ()

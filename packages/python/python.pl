@@ -110,7 +110,10 @@ Data types are
 :- use_module(library(charsio)).
 :- dynamic python_mref_cache/2, python_obj_cache/2.
 
-:= import( F ) :- python_import(F).
+:= (P1,P2) :- !,
+	:= P1,
+	:= P2.
+:= import( F ) :- !, python_import(F).
 := F :- python(F,_).
 
 V := F :- var(V), !, python(F,V0),
@@ -426,4 +429,6 @@ python_assign_field(C1.E, Obj) :-
 	python_eval_term(C1, O1),
 	python_assign_field(O1, E, Obj ).
 
-:- initialization( use_foreign_library(foreign(libpython), init_python), now ).
+%:- initialization( load_foreign_files([libYAPPython], [], init_python), now ).
+
+:- initialization( load_foreign_library(foreign(libYAPPython), init_python), now ).
