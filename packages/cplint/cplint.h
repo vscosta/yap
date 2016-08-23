@@ -12,7 +12,7 @@ for the relative license.
 #include "cudd_config.h"
 #if HAVE_CUDD_CUDDINT_H
 #include "cudd/cuddInt.h"
-#else
+#elif HAVE_CUDDINT_H
 #include "cuddInt.h"
 #endif
 #include "YapInterface.h"

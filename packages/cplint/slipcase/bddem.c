@@ -15,10 +15,10 @@ for the relative license.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if HAVE_CUDD_CUDDINT_H
-#include <cudd/cuddInt.h>
-#elif HAVE_CUDDINT_H
-#include "cuddInt.h"
+#if HAVE_CUDD_CUDD_H
+#include <cudd/cudd.h>
+#elif HAVE_CUDD_H
+#include "cudd.h"
 #endif
 #include "YapInterface.h"
 #define LOGZERO log(0.000001)

@@ -4,7 +4,7 @@ import os
 import platform
 
 if platform.system() == 'Darwin':
-    my_extra_link_args = ['-Wl,-rpath','${dlls}']
+    my_extra_link_args = ['-Wl,-rpath','-Wl,${dlls}']
 else:
     my_extra_link_args = []
                            
@@ -23,6 +23,7 @@ setup(
 					extra_link_args=my_extra_link_args,
 					libraries=['Yap++','Yap','YAPPython'],
                              include_dirs=['../../..',
+                                         '${GMP_INCLUDE_DIRS}',
                                          '${CMAKE_SOURCE_DIR}/H',
                                          '${CMAKE_SOURCE_DIR}/H/generated',
                                          '${CMAKE_SOURCE_DIR}/OPTYap',

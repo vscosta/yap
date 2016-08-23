@@ -15,9 +15,9 @@ IF (NOT YAP_FOUND)
 ENDIF (NOT YAP_FOUND)
 
 macro_optional_find_package (LibXml2 ON)
-macro_log_feature (LIBXML2_FOUND "RAPTOR"
+macro_log_feature (LIBXML2_FOUND "LIBXML2"
   "Use XML2 Library"
-  "http://www.r.org" FALSE)
+  "http://www.xmlsoft.org" FALSE)
 IF (LIBXML2_FOUND)
   #   LIBXML2_FOUND - System has LibXml2
 #   LIBXML2_INCLUDE_DIR - The LibXml2 include directory
@@ -76,7 +76,7 @@ ENDIF (LIBXML2_FOUND)
 macro_optional_find_package (RAPTOR ON)
 macro_log_feature (RAPTOR_FOUND "RAPTOR"
   "Use RAPTOR Library"
-  "http://www.r.org" FALSE)
+  "http://www.librdf.org" FALSE)
 IF (RAPTOR_FOUND)
   #  RAPTOR_FOUND       - system has Raptor
   #  RAPTOR_LIBRARIES   - Link these to use Raptor

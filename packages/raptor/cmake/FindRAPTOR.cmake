@@ -45,6 +45,7 @@ if ( NOT( RAPTOR_INCLUDE_DIR AND RAPTOR_LIBRARIES ) OR NOT RAPTOR_FOUND )
       NAMES raptor2.h raptor2/raptor2.h raptor.h raptor/raptor.h
 	    PATHS $ENV{RAPTOR_DIR}/include
 	          $ENV{RAPTOR_DIR}
+		  ${CMAKE_INSTALL_PREFIX}/include
 	          ~/Library/Frameworks
 	          /Library/Frameworks
 	          /usr/local/include
@@ -64,6 +65,7 @@ if ( NOT( RAPTOR_INCLUDE_DIR AND RAPTOR_LIBRARIES ) OR NOT RAPTOR_FOUND )
 	    PATHS $ENV{RAPTOR_DIR}/lib
 	          $ENV{RAPTOR_DIR}/lib-dbg
 	          $ENV{RAPTOR_DIR}
+		  ${CMAKE_INSTALL_PREFIX}/lib
 	          ~/Library/Frameworks
 	          /Library/Frameworks
 	          /usr/local/lib

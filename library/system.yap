@@ -45,6 +45,7 @@
 				     mktemp/2,
 	make_directory/1,
 	popen/3,
+     read_link/3,
      rename_file/2,
 	shell/0,
 	shell/1,
@@ -316,6 +317,14 @@ The WIN32 implementation of popen/3 relies on exec/3.
 
 Create file  _OldFile_ to  _NewFile_. This predicate uses the
 `C` built-in function `rename`.
+
+
+*/
+/** @pred read_link(+ SymbolicLink, -Link, -NewPath)
+
+
+Follow a _SymbolicLink_, and obtain the actual _Link_ and the target _newPath_). This predicate uses the
+`C` built-in function `readlink` and is not yet operational in WIN32.
 
 
 */
@@ -797,3 +806,8 @@ tmpdir(TmpDir):-
 path_separator('\\'):-
   win, !.
 path_separator('/').
+
+read_link(P,D,F) :-
+	read_link(P, D),
+	absolute_file_name(D, [], F).
+
