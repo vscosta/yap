@@ -66,6 +66,7 @@
 :- use_module(library(charsio)).
 :- use_module(library(readutil)).
 :- use_module(library(debug)).
+:- use_module(library(system)).
 
 :- dynamic( real:r_started/1 ).
 

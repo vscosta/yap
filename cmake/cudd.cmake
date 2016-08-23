@@ -18,10 +18,10 @@ if (CUDD_FOUND)
 
     set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${CUDD_INCLUDE_DIR} )
 
-check_include_files( cudd.h HAVE_CUDD_H )
+check_include_files( "stdio.h;cudd.h" HAVE_CUDD_H )
 check_include_files( "stdio.h;cudd/cudd.h" HAVE_CUDD_CUDD_H )
-check_include_files( cuddInt.h HAVE_CUDDINT_H )
-check_include_files( "stdio.h;cudd/cudd.h;cudd/cuddInt.h" HAVE_CUDD_CUDDINT_H )
+check_include_files( "cuddInt.h"  HAVE_CUDDINT_H )
+check_include_files( "cudd/cuddInt.h" HAVE_CUDD_CUDDINT_H )
 endif (CUDD_FOUND)
 
 endif(WITH_CUDD)

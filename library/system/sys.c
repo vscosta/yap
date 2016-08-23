@@ -312,6 +312,27 @@ static YAP_Bool rename_file(void) {
   return (TRUE);
 }
 
+
+ static YAP_Bool read_link(void) {
+  char *s1 = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
+#if HAVE_READLINK
+  char buf[PATH_MAX + 1];
+
+  if (readlink(s1, buf, PATH_MAX) < 0)
+    return false;
+  
+  
+    /* return an error number */
+  if (!YAP_Unify(YAP_ARG2, YAP_MkAtomTerm(YAP_LookupAtom(buf)))) {
+      return false;
+  }
+#endif
+# if _WIN32
+  return false;
+#endif
+  return true;
+}
+
 static YAP_Bool dir_separator(void) {
   return (YAP_Unify(YAP_ARG1, YAP_MkAtomTerm(YAP_LookupAtom("/"))));
 }
@@ -1038,6 +1059,7 @@ void init_sys(void) {
   YAP_UserCPredicate("tmpdir", p_tmpdir, 2);
   YAP_UserCPredicate("rename_file", rename_file, 3);
   YAP_UserCPredicate("sleep", p_sleep, 2);
+  YAP_UserCPredicate("read_link", read_link, 2);
   YAP_UserCPredicate("error_message", error_message, 2);
   YAP_UserCPredicate("win", win, 0);
   YAP_UserCPredicate("md5", md5, 3);
