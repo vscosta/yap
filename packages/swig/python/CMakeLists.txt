@@ -44,7 +44,7 @@ if (PYTHONLIBS_FOUND)
 
     add_custom_target ( py2yap ALL
       COMMAND ${PYTHON_EXECUTABLE} setup.py bdist
-      DEPENDS ../yap.py YAPPython  )
+      DEPENDS ../yap.i YAPPython  )
 
     
     install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} install 
