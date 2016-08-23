@@ -633,6 +633,7 @@ static int python_import(term_t mname, term_t mod) {
         return false;
       s = stpcpy(s, sa);
       *s++ = '.';
+      s[0] = '\0';
     } else if (!PL_get_nchars(mname, &len, &s,
                               CVT_ALL | CVT_EXCEPTION | REP_UTF8)) {
       return false;
