@@ -104,6 +104,7 @@ static Int SkipListCodes(unsigned char **bufp, Term *l, Term **tailp,
     *bufp = st = st0;
 
     if (*l == TermNil) {
+      st[0] = '\0';
         return 0;
     }
     if (IsPairTerm(*l)) {
@@ -311,7 +312,7 @@ unsigned char *Yap_readText(seq_tv_t *inp, size_t *lengp) {
             } else if (!IsStringTerm(inp->val.t) &&
                        inp->type == YAP_STRING_STRING) {
                 LOCAL_Error_TYPE = TYPE_ERROR_STRING;
-            } else if (!IsPairTerm(inp->val.t) && !IsStringTerm(inp->val.t) &&
+            } else if (!IsPairOrNilTerm(inp->val.t) && !IsStringTerm(inp->val.t) &&
                        inp->type ==
                        (YAP_STRING_ATOMS_CODES | YAP_STRING_STRING)) {
                 LOCAL_Error_TYPE = TYPE_ERROR_LIST;
@@ -344,20 +345,20 @@ unsigned char *Yap_readText(seq_tv_t *inp, size_t *lengp) {
        return UStringOfTerm(inp->val.t);
       }
     if (((inp->type & (YAP_STRING_CODES | YAP_STRING_ATOMS)) ==
-         (YAP_STRING_CODES | YAP_STRING_ATOMS)) && IsPairTerm(inp->val.t)) {
+         (YAP_STRING_CODES | YAP_STRING_ATOMS)) && IsPairOrNilTerm(inp->val.t)) {
         //Yap_DebugPlWriteln(inp->val.t);
         return inp->val.uc =
                        Yap_ListToBuffer(s0, inp->val.t, inp, &wide, lengp
                                         PASS_REGS);
         // this is a term, extract to a sfer, and representation is wide
     }
-    if (inp->type & YAP_STRING_CODES && IsPairTerm(inp->val.t)) {
+    if (inp->type & YAP_STRING_CODES && IsPairOrNilTerm(inp->val.t)) {
         //Yap_DebugPlWriteln(inp->val.t);
         return inp->val.uc = Yap_ListOfCodesToBuffer(s0, inp->val.t, inp, &wide,
                                                      lengp PASS_REGS);
         // this is a term, extract to a sfer, and representation is wide
     }
-    if (inp->type & YAP_STRING_ATOMS && IsPairTerm(inp->val.t)) {
+    if (inp->type & YAP_STRING_ATOMS && IsPairOrNilTerm(inp->val.t)) {
         //Yap_DebugPlWriteln(inp->val.t);
         return inp->val.uc = Yap_ListOfAtomsToBuffer(s0, inp->val.t, inp, &wide,
                                                      lengp PASS_REGS);
@@ -1031,7 +1032,7 @@ const char *Yap_TextTermToText(Term t, char *buf, size_t len, encoding_t enc) {
     CACHE_REGS
     seq_tv_t inp, out;
     inp.val.t = t;
-    if (IsAtomTerm(t)) {
+    if (IsAtomTerm(t) && t != TermNil) {
         inp.type = YAP_STRING_ATOM;
         if (IsWideAtom(AtomOfTerm(t)))
             inp.enc = ENC_WCHAR;
@@ -1040,7 +1041,7 @@ const char *Yap_TextTermToText(Term t, char *buf, size_t len, encoding_t enc) {
     } else if (IsStringTerm(t)) {
         inp.type = YAP_STRING_STRING;
         inp.enc = ENC_ISO_UTF8;
-    } else if (IsPairTerm(t)) {
+    } else if (IsPairOrNilTerm(t)) {
         inp.type = (YAP_STRING_CODES | YAP_STRING_ATOMS);
     } else {
         Yap_Error(TYPE_ERROR_TEXT, t, NULL);
