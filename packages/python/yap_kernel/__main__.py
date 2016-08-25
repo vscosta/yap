@@ -1,6 +1,9 @@
-try:
-    from ipykernel.kernelapp import IPKernelApp
-except ImportError:
-    from IPython.kernel.zmq.kernelapp import IPKernelApp
-from .kernel import YAPKernel
-IPKernelApp.launch_instance(kernel_class=YAPKernel)
+import sys
+
+
+import ipdb; ipdb.set_trace()
+
+
+if __name__ == '__main__':
+    from yap_kernel import kernelapp as app
+    app.launch_new_instance()
