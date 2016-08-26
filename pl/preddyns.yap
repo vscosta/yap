@@ -64,7 +64,7 @@ declared dynamic.
 
 */
 asserta(Clause, Ref) :-
-    '$assert'(Clause, first, Ref).
+    '$assert'(Clause, asserta, Ref).
 
 /** @pred  assertz(+ _C_,- _R_)
 
@@ -77,7 +77,7 @@ declared dynamic.
 
 */
 assertz(Clause, Ref) :-
-    '$assert'(Clause, last, Ref).
+    '$assert'(Clause, assertz, Ref).
 
 /** @pred  assert(+ _C_,- _R_)
 
@@ -90,14 +90,14 @@ declared dynamic.
 
 */
 assert(Clause, Ref) :-
-    '$assert'(Clause, last, Ref).
+    '$assert'(Clause, assertz, Ref).
 
 
 '$assertz_dynamic'(X, C, C0, Mod) :-
     (X/\4)=:=0,
     !,
     '$head_and_body'(C,H,B),
-    '$assertat_d'(last,H,B,C0,Mod,_).
+    '$assertat_d'(assertz,H,B,C0,Mod,_).
 '$assertz_dynamic'(X,C,C0,Mod) :-
 	'$head_and_body'(C,H,B),
 	functor(H,N,A),
@@ -110,7 +110,7 @@ assert(Clause, Ref) :-
     ;
      true
 	),
-	'$assertat_d'(last,H,B,C0,Mod,_).
+	'$assertat_d'(assertz,H,B,C0,Mod,_).
 
 
 '$remove_all_d_clauses'(H,M) :-
@@ -129,8 +129,8 @@ assert(Clause, Ref) :-
 	fail.
 '$erase_all_mf_dynamic'(_,_,_).
 
-'$assertat_d'(first,Head,Body,C0,Mod,R) :- !,
-	'$compile_dynamic'((Head:-Body), first, C0, Mod, CR),
+'$assertat_d'(asserta,Head,Body,C0,Mod,R) :- !,
+	'$compile_dynamic'((Head:-Body), asserta, C0, Mod, CR),
     ( get_value('$abol',true)
     ->
       '$predicate_flags'(Head,Mod,Fl,Fl),
@@ -147,8 +147,8 @@ assert(Clause, Ref) :-
 	;
       true
 	).
-'$assertat_d'(last,Head,Body,C0,Mod,R) :-
-	'$compile_dynamic'((Head:-Body), last, C0, Mod, CR),
+'$assertat_d'(assertz,Head,Body,C0,Mod,R) :-
+	'$compile_dynamic'((Head:-Body), assertz, C0, Mod, CR),
     ( get_value('$abol',true)
     ->
       '$predicate_flags'(Head,Mod,Fl,Fl),
