@@ -3640,6 +3640,7 @@ static yamop **expand_index(struct intermediates *cint) {
       if (s_reg[-1] != (CELL)FunctorDBREF) {
         ipc = alt;
         alt = NULL;
+	break;
       }
       t = AbsAppl(s_reg - 1);
       sp[-1].extra = t;
@@ -3647,9 +3648,10 @@ static yamop **expand_index(struct intermediates *cint) {
       ipc = NEXTOP(ipc, e);
       break;
     case _index_blob:
-      if (s_reg[-1] != (CELL)FunctorBigInt) {
+      if (s_reg[-1] != (CELL)FunctorDouble) {
         ipc = alt;
         alt = NULL;
+	break;
       }
       t = Yap_DoubleP_key(s_reg);
       sp[-1].extra = AbsAppl(s_reg - 1);
@@ -3660,6 +3662,7 @@ static yamop **expand_index(struct intermediates *cint) {
       if (s_reg[-1] != (CELL)FunctorLongInt) {
         ipc = alt;
         alt = NULL;
+	break;
       }
       t = Yap_IntP_key(s_reg);
       sp[-1].extra = AbsAppl(s_reg - 1);
@@ -6583,14 +6586,16 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
     case _index_dbref:
       if (s_reg[-1] != (CELL)FunctorDBREF) {
         ipc = FAILCODE;
+	break;
       }
       t = AbsAppl(s_reg - 1);
       blob_term = FALSE;
       ipc = NEXTOP(ipc, e);
       break;
     case _index_blob:
-      if (s_reg[-1] != (CELL)FunctorBigInt) {
+      if (s_reg[-1] != (CELL)FunctorDouble) {
         ipc = FAILCODE;
+	break;
       }
       t = Yap_DoubleP_key(s_reg);
       blob_term = TRUE;
@@ -6599,6 +6604,7 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
     case _index_long:
       if (s_reg[-1] != (CELL)FunctorLongInt) {
         ipc = FAILCODE;
+	break;
       }
       t = Yap_IntP_key(s_reg);
       blob_term = TRUE;
