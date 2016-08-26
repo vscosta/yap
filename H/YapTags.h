@@ -350,4 +350,14 @@ INLINE_ONLY inline EXTERN void *AddressOfTerm(Term t) {
   return (void *)(IsIntTerm(t) ? IntOfTerm(t) : LongIntOfTerm(t));
 }
 
+
+INLINE_ONLY inline EXTERN Int IsPairTermOrNil (Term);
+
+INLINE_ONLY inline EXTERN Int
+IsPairOrNilTerm (Term t)
+{
+  return IsPairTerm(t) || t == TermNil;
+}
+
+
 #endif

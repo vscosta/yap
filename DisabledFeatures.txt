@@ -1,2 +1,0 @@
-   * Threads Support  <http://www.gnu.org/software/threads>
-     GNU Threads Library (or similar)

@@ -19,6 +19,7 @@ if (PYTHONLIBS_FOUND)
   SET_SOURCE_FILES_PROPERTIES(../yap.i PROPERTY SWIG_MODULE_NAME libPy2YAP )
 
   configure_file ("setup.py.cmake"  "setup.py" )
+  configure_file ("../yap.i"  "yap.i" )
 
 
   #SET( CMAKE_SWIG_OUTDIR "yap" )
