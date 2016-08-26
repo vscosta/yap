@@ -5,18 +5,8 @@ from ipykernel.ipkernel import IPythonKernel
 import sys
 import signal
 import yap
-
-import logging
-
-logger = logging.getLogger()
-handler = logging.StreamHandler()
-formatter = logging.Formatter(
-        '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-logger.setLevel(logging.DEBUG)
-
-logger.debug('often makes a very good meal of %s', 'visiting tourists')
+#import ipdb
+#ipdb,set_trace()
 
 kernel_json = {
     "argv": [sys.executable,
@@ -50,12 +40,7 @@ class YAPKernel(IPythonKernel):
         'file_extension': '.yap',
     }
 
-
-    def __init__(self, **kwargs):
-        super(YAPKernel, self).__init__( **kwargs)
-        _start_yap( **kwargs )
-
-    def _start_yap(self, **kwargs):
+    def init_yap(self, **kwargs):
         # Signal handlers are inherited by forked processes, and we can't easily
         # reset it from the subprocess. Since kernelapp ignores SIGINT except in
         # message handlers, we need to temporarily reset the SIGINT handler here
@@ -71,11 +56,16 @@ class YAPKernel(IPythonKernel):
         finally:
              signal.signal(signal.SIGINT, sig)
 
+    def __init__(self, **kwargs):
+        super(YAPKernel, self).__init__( **kwargs)
+        self.init_yap( **kwargs )
+        self.shell.run_cell = self.yap_run_cell
+
     def get_usage(self):
         return "This is the YAP kernel."
 
 
-    def run_cell(self, s, store_history=False, silent=False, shell_futures=True):
+    def yap_run_cell(self, s, store_history=False, silent=False, shell_futures=True):
 
         if not self.q:
             self.q = self.engine.query(s)
