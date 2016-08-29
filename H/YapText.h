@@ -176,12 +176,11 @@ inline static utf8proc_ssize_t strlen_utf8(const utf8proc_uint8_t *pt) {
     if (b == 0)
       return rc;
     else if (b > 0) {
-        pt += l;
-        rc += l;
+      pt += l;
+      rc += l;
     } else {
-        pt++;
+      pt++;
     }
-
   }
   return rc;
 }
@@ -303,9 +302,9 @@ typedef enum {
   YAP_STRING_WITH_BUFFER = 0x40000, // output on existing buffer
   YAP_STRING_MALLOC = 0x80000,      // output on malloced buffer
   YAP_STRING_UPCASE = 0x100000,     // output on malloced buffer
-  YAP_STRING_DOWNCASE = 0x200000,    // output on malloced buffer
-  YAP_STRING_IN_TMP = 0x400000,    // temporary space has been allocated
-  YAP_STRING_OUTPUT_TERM = 0x800000    // when we're not sure
+  YAP_STRING_DOWNCASE = 0x200000,   // output on malloced buffer
+  YAP_STRING_IN_TMP = 0x400000,     // temporary space has been allocated
+  YAP_STRING_OUTPUT_TERM = 0x800000 // when we're not sure
 } enum_seq_type_t;
 
 typedef UInt seq_type_t;
@@ -365,7 +364,7 @@ static inline seq_type_t mod_to_type(Term mod USES_REGS) {
   // see pl-incl.h
   unsigned int flags = Yap_GetModuleEntry(mod)->flags;
   if (flags & DBLQ_ATOM) {
-    return YAP_STRING_ATOM|YAP_STRING_OUTPUT_TERM;
+    return YAP_STRING_ATOM | YAP_STRING_OUTPUT_TERM;
   } else if (flags & DBLQ_STRING) {
     return YAP_STRING_STRING;
   } else if (flags & DBLQ_CHARS) {
@@ -380,7 +379,7 @@ static inline seq_type_t mod_to_bqtype(Term mod USES_REGS) {
   // see pl-incl.h
   unsigned int flags = Yap_GetModuleEntry(mod)->flags;
   if (flags & BCKQ_ATOM) {
-    return YAP_STRING_ATOM|YAP_STRING_OUTPUT_TERM;
+    return YAP_STRING_ATOM | YAP_STRING_OUTPUT_TERM;
   } else if (flags & BCKQ_STRING) {
     return YAP_STRING_STRING;
   } else if (flags & BCKQ_CHARS) {
@@ -391,14 +390,13 @@ static inline seq_type_t mod_to_bqtype(Term mod USES_REGS) {
 
 // the routines
 
-extern unsigned char *Yap_readText(seq_tv_t *inp, size_t *lengp
-                                   USES_REGS);
+extern unsigned char *Yap_readText(seq_tv_t *inp, size_t *lengp USES_REGS);
 extern bool write_Text(unsigned char *inp, seq_tv_t *out,
                        size_t leng USES_REGS);
 extern bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS);
 extern bool Yap_Concat_Text(int n, seq_tv_t inp[], seq_tv_t *out USES_REGS);
 extern bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
-                             seq_tv_t outv[] USES_REGS);
+                            seq_tv_t outv[] USES_REGS);
 
 // user friendly interface
 
@@ -738,7 +736,6 @@ static inline Atom Yap_UTF8ToAtom(const unsigned char *s USES_REGS) {
   return out.val.a;
 }
 
-
 static inline Term Yap_CharsToDiffListOfCodes(const char *s, Term tail,
                                               encoding_t enc USES_REGS) {
   seq_tv_t inp, out;
@@ -930,7 +927,7 @@ static inline Term Yap_ListToAtomic(Term t0 USES_REGS) {
   inp.type = YAP_STRING_STRING | YAP_STRING_ATOMS_CODES | YAP_STRING_TERM;
   out.val.uc = NULL;
   out.type = YAP_STRING_ATOM | YAP_STRING_INT | YAP_STRING_FLOAT |
-             YAP_STRING_BIG |YAP_STRING_OUTPUT_TERM;
+             YAP_STRING_BIG | YAP_STRING_OUTPUT_TERM;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   return out.val.t;
@@ -1083,7 +1080,6 @@ static inline Term Yap_NCharsToTBQ(const char *s, size_t len, encoding_t enc,
   inp.type = YAP_STRING_CHARS | YAP_STRING_NCHARS;
   inp.enc = enc;
 
-
   out.type = mod_to_bqtype(mod PASS_REGS);
   out.max = len;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -1215,8 +1211,8 @@ static inline size_t Yap_StringToAtomic(Term t0 USES_REGS) {
   seq_tv_t inp, out;
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING;
-  out.type = YAP_STRING_ATOM | YAP_STRING_INT | YAP_STRING_FLOAT |
-             YAP_STRING_BIG ;
+  out.type =
+      YAP_STRING_ATOM | YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG;
   out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -1322,6 +1318,17 @@ static inline Term Yap_TextToString(Term t0 USES_REGS) {
   return out.val.t;
 }
 
+static inline void Yap_OverwriteUTF8BufferToLowCase(void *buf USES_REGS) {
+  unsigned char *s = (unsigned char *)buf;
+  while (*s) {
+    // assumes the two code have always the same size;
+    utf8proc_int32_t chr;
+    get_utf8(s, -1, &chr);
+    chr = utf8proc_tolower(chr);
+    s += put_utf8(s, chr);
+  }
+}
+
 static inline const unsigned char *Yap_TextToUTF8Buffer(Term t0 USES_REGS) {
   seq_tv_t inp, out;
 
@@ -1344,7 +1351,7 @@ static inline Term Yap_UTF8ToString(const char *s USES_REGS) {
 static inline Term Yap_WCharsToListOfCodes(const wchar_t *s USES_REGS) {
   seq_tv_t inp, out;
   inp.val.w0 = s;
- inp.type = YAP_STRING_WCHARS;
+  inp.type = YAP_STRING_WCHARS;
   out.val.uc = NULL;
   out.type = YAP_STRING_CODES;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -1456,8 +1463,7 @@ static inline Atom Yap_SubtractHeadAtom(Term t1, Term th USES_REGS) {
   outv[0].val.t = th;
   outv[1].type = YAP_STRING_ATOM;
   outv[1].val.t = 0;
-  if (!Yap_Splice_Text(2, (size_t *)NULL, &inp,
-                       outv PASS_REGS))
+  if (!Yap_Splice_Text(2, (size_t *)NULL, &inp, outv PASS_REGS))
     return (Atom)NULL;
   return outv[1].val.a;
 }
@@ -1470,8 +1476,7 @@ static inline Atom Yap_SubtractTailAtom(Term t1, Term th USES_REGS) {
   outv[0].val.t = 0;
   outv[1].type = YAP_STRING_ATOM;
   outv[1].val.t = th;
-  if (!Yap_Splice_Text(2, (size_t *)NULL, &inp,
-                       outv PASS_REGS))
+  if (!Yap_Splice_Text(2, (size_t *)NULL, &inp, outv PASS_REGS))
     return (Atom)NULL;
   return outv[0].val.a;
 }
@@ -1501,8 +1506,7 @@ static inline Term Yap_SubtractHeadString(Term t1, Term th USES_REGS) {
   outv[0].val.t = th;
   outv[1].type = YAP_STRING_STRING;
   outv[1].val.t = 0;
-  if (!Yap_Splice_Text(2, (size_t *)NULL, &inp,
-                       outv PASS_REGS))
+  if (!Yap_Splice_Text(2, (size_t *)NULL, &inp, outv PASS_REGS))
     return 0L;
   return outv[1].val.t;
 }
@@ -1515,8 +1519,7 @@ static inline Term Yap_SubtractTailString(Term t1, Term th USES_REGS) {
   outv[0].val.t = 0;
   outv[1].type = YAP_STRING_STRING;
   outv[1].val.t = th;
-  if (!Yap_Splice_Text(2, (size_t *)NULL, &inp,
-                       outv PASS_REGS))
+  if (!Yap_Splice_Text(2, (size_t *)NULL, &inp, outv PASS_REGS))
     return 0L;
   return outv[0].val.t;
 }
