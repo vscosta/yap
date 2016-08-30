@@ -37,7 +37,12 @@ set (LIBRARY_PL
   )
 
 
+  if (ANDROID)
+      file(INSTALL ${LIBRARY_PL}  DESTINATION ${libpl})
+  else()
 
 install(FILES ${LIBRARY_PL}
   DESTINATION ${libpl}
   )
+
+  endif()

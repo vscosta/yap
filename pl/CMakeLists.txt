@@ -1,4 +1,4 @@
-set(PL_SOURCES
+	set(PL_SOURCES
 	absf.yap
 	arith.yap
 	arithpreds.yap
@@ -55,8 +55,11 @@ set(PL_SOURCES
 	yio.yap
   )
 
-if (NOT ANDROID)
+if (ANDROID)
+message("${libpl}")
+	file(INSTALL ${PL_SOURCES}  DESTINATION ${libpl}/pl)
 
+else()
 add_custom_target (${YAP_STARTUP} ALL SOURCES ${PL_SOURCES} 	${YAPOS_PL_SOURCES}  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 
 # Create a startup.yss on the top directory.
@@ -73,7 +76,7 @@ install (FILES ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
   )
 
 
-endif (NOT ANDROID)
+endif (ANDROID)
 
 
 install (FILES ${PL_SOURCES}

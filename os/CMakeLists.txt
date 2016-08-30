@@ -58,9 +58,12 @@ set (YAPOS_HEADERS
       chartypes.yap
   )
 
+  if (ANDROID)
+      file(INSTALL ${YAPOS_PL_SOURCES}  DESTINATION ${libpl}/os)
+else()
     install (FILES ${YAPOS_PL_SOURCES}
     DESTINATION ${libpl}/os )
-
+endif()
 
 
 include(CheckFunctionExists)
@@ -72,7 +75,7 @@ include(CheckVariableExists)
  if (WIN32)
    set (WITH_READLINE OFF)
    endif (WIN32)
- 
+
  if (WITH_READLINE)
   macro_optional_find_package (Readline ON)
   macro_log_feature (READLINE_FOUND "libreadline"
@@ -118,4 +121,3 @@ endif (READLINE_FOUND)
   set( READLINE_LIBS ${READLINE_LIBRARIES} PARENT_SCOPE)
 
 endif (WITH_READLINE)
-
