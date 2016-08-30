@@ -704,13 +704,6 @@ restart_aux:
   cut_fail();
 }
 
-#define CastToAtom(x) CastToAtom__(x PASS_REGS)
-
-static Term CastToAtom__(Term t USES_REGS) {
-  if (IsAtomTerm(t))
-    return t;
-  return MkAtomTerm(Yap_AtomicToAtom(t PASS_REGS));
-}
 
 #define CastToNumeric(x) CastToNumeric__(x PASS_REGS)
 
