@@ -553,17 +553,15 @@ bool YAPQuery::next() {
 
   if (q_state == 0) {
     result = (bool)YAP_EnterGoal((YAP_PredEntryPtr)ap, q_g, &q_h);
-
   } else {
     LOCAL_AllowRestart = q_open;
     result = (bool)YAP_RetryGoal(&q_h);
   }
-  {
-    if (result)
-      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "vnames  %d %s %d",
+  if (result) {
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "vnames  %d %s %d",
                           q_state, vnames.text(), LOCAL_CurSlot);
-    else
-      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "fail");
+  } else {
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "fail");
   }
   q_state = 1;
   if (Yap_GetException()) {
@@ -573,6 +571,7 @@ bool YAPQuery::next() {
 
   if (!result) {
     YAP_LeaveGoal(FALSE, &q_h);
+    Yap_CloseHandles(q_handles);
     q_open = false;
   } else {
     q_handles = Yap_StartSlots();
@@ -618,6 +617,7 @@ void YAPQuery::close() {
   }
   YAP_LeaveGoal(FALSE, &q_h);
   q_open = 0;
+  Yap_CloseHandles(q_handles);
   // LOCAL_execution = this;
   RECOVER_MACHINE_REGS();
 }
