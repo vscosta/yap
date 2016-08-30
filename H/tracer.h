@@ -27,10 +27,19 @@ typedef enum {
   retry_table_loader
 } yap_low_level_port;
 
-void	low_level_trace(yap_low_level_port, PredEntry *, CELL *);
-void	Yap_InitLowLevelTrace(void);
-void	toggle_low_level_trace(void);
-
+#ifdef saveregs
+#define low_level_trace(Port, pred, args)                                      \
+  {                                                                            \
+    saveregs();                                                                \
+    low_level_trace__(Port, pred, args);                                       \
+    setregs();                                                                 \
+  }
+#else
+#define low_level_trace(Port, pred, args) low_level_trace__(Port, pred, args)
 #endif
 
+void low_level_trace__(yap_low_level_port, PredEntry *, CELL *);
+void Yap_InitLowLevelTrace(void);
+void toggle_low_level_trace(void);
 
+#endif
