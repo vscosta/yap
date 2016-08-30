@@ -68,8 +68,11 @@ static Int file_name_extension(USES_REGS1) {
     char *ss = strrchr(f, '.');
     if (pts > ss) {
       ss = f + strlen(f);
-    } else
+    } else if (ss == NULL) {
+      ss = "";
+    } else {
       ss++;
+    }
     if (IsVarTerm(t2)) {
       Term t = Yap_MkTextTerm(ss, ENC_ISO_UTF8, t3);
       Yap_unify(t2, t);
@@ -86,7 +89,7 @@ static Int file_name_extension(USES_REGS1) {
         return false;
       }
     }
-    if (f[0] && ss[0] != '.') {
+    if (f[0] && ss[0] && ss[0] != '.') {
       ss[-1] = '\0';
     }
     if (IsVarTerm(t1)) {
