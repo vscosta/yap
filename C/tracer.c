@@ -50,27 +50,32 @@ static char *send_tracer_message(char *start, char *name, Int arity,
     }
     if (args) {
       for (i = 0; i < arity; i++) {
-        if (i > 0) {
-          s += snprintf(s, top - s, ",");
+        size_t length = top - (s + 4);
+	if ((ssize_t)length < 16) {
+	  s[0] = '\0';
+	  return s;
+	}
+       if (i > 0) {
+	  *s++ = ',';
         }
-        size_t length = top - (s + 2);
-        const char *sn = Yap_TermToString(args[i], &length, LOCAL_encoding,
+         const char *sn = Yap_TermToString(args[i], NULL, LOCAL_encoding,
                                           Quote_illegal_f | Handle_vars_f);
-        if (sn != s) {
+        size_t sz;
+	if (sn != s) {
           if (sn == NULL) {
-            strcpy(s, "<* error *>");
-          } else {
-            strcpy(s, sn);
-          }
+	    sn = "<* error *>";
+	  }
+	  strlcpy(s, sn, top - (s + 3));
         }
-        s += strlen(s);
+	sz = strlen(s);
+        s += sz;
       }
       if (arity) {
         *s++ = ')';
       }
     }
   }
-  *s++ = '\n';
+  s[0] = '\0';
   return s;
 }
 
@@ -410,8 +415,10 @@ void low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   }
   UNLOCK(Yap_low_level_trace_lock);
 #if __ANDROID__
-  __android_log_print(ANDROID_LOG_DEBUG, "YAPDroid", "%s", buf);
+  __android_log_print(ANDROID_LOG_DEBUG, "YAPDroid", "%s\n", buf);
 #else
+  *b++ = '\n';
+  *b++ = '\0';
   fputs(buf, stderr);
 #endif
 }
