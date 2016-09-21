@@ -1,3 +1,4 @@
+
 import yap
 import sys
 
@@ -50,8 +51,8 @@ def query_prolog(engine, s):
                 ask = False
             else:
                 break
-    print("No (more) answers")
-    q.close()
+        print("No (more) answers")
+        q.close()
     return
 
 
@@ -75,8 +76,9 @@ def live():
         except:
             print("Unexpected error:", sys.exc_info()[0])
             raise
-
+    engine.close()
 #
 # initialize engine
 # engine = yap.YAPEngine();
 # engine = yap.YAPEngine(yap.YAPParams());
+live()

@@ -23,7 +23,7 @@ def eprint(*args, **kwargs):
 
 
 class YAPKernel(IPythonKernel):
-    implementation = 'MetaKernel YAP'
+    implementation = 'YAP Kernel'
     implementation_version = '1.0'
     language = 'text'
     language_version = '0.1'
@@ -88,7 +88,8 @@ class YAPKernel(IPythonKernel):
                     else:
                         i = bind.numberVars(i, True)
                         print(name.text() + " = " + bind.text())
-            print("yes")
+            else:
+                print("yes")
             if self.q.deterministic():
                 self.closeq()
             return
