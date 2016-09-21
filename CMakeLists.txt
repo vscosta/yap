@@ -69,8 +69,7 @@ if (ANDROID)
 
   #
 set (SWIG_SOURCES ${CMAKE_SOURCE_DIR}/packages/swig/yap.i)
-set (SWIG_CXX ${CMAKE_BINARY_DIR}/packages/swig/android/yap.cpp)
-list (APPEND ENGINE_SOURCES ${SWIG_CXX})
+set (SWIG_CXX ${CMAKE_BINARY_DIR}/yap_swig.cpp)
 find_host_package (SWIG)
 macro_log_feature (SWIG_FOUND "Swig"
   "Use SWIG Language Interface "
@@ -78,7 +77,7 @@ macro_log_feature (SWIG_FOUND "Swig"
 
 
     add_custom_command (OUTPUT ${SWIG_CXX}
-        COMMAND ${SWIG_EXECUTABLE} -java  -package pt.up.yap.lib -outdir ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/../../../../../generated/src/java -c++ -addextern  -I${CMAKE_SOURCE_DIR}/CXX  -o ${SWIG_CXX}
+        COMMAND ${SWIG_EXECUTABLE} -c++ -java  -package pt.up.yap.lib -outdir ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/../../../../../src/generated/java  -I${CMAKE_SOURCE_DIR}/CXX  -o ${SWIG_CXX}
  ${SWIG_SOURCES}
       )
 
@@ -86,7 +85,6 @@ macro_log_feature (SWIG_FOUND "Swig"
     ADD_SUBDIRECTORY(OPTYap)
     ADD_SUBDIRECTORY(packages/myddas)
     ADD_SUBDIRECTORY(library/random)
-    ADD_SUBDIRECTORY(packages/swig)
     ADD_SUBDIRECTORY(library/system)
     ADD_SUBDIRECTORY(utf8proc)
     ADD_SUBDIRECTORY(CXX)
@@ -116,6 +114,7 @@ add_library( # Sets the name of the library.
         SHARED
 
         ${ENGINE_SOURCES}
+        ${SWIG_CXX}
         ${C_INTERFACE_SOURCES}
         ${STATIC_SOURCES}
         ${ALL_SOURCES}
