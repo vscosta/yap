@@ -234,22 +234,23 @@ static Int CloseMmappedArray(StaticArrayEntry *pp, void *area USES_REGS) {
   }
   if (ptr == NULL) {
 #if !defined(USE_SYSTEM_MALLOC)
-    Yap_Error(SYSTEM_ERROR_INTERNAL, ARG1,
-              "close_mmapped_array (array chain incoherent)", strerror(errno));
+    Yap_FullError(SYSTEM_ERROR_INTERNAL, ARG1,
+                  "close_mmapped_array (array chain incoherent)",
+                  strerror(errno));
 #endif
     return FALSE;
   }
   if (munmap(ptr->start, ptr->size) == -1) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, ARG1, "close_mmapped_array (munmap: %s)",
-              strerror(errno));
+    Yap_FullError(SYSTEM_ERROR_INTERNAL, ARG1,
+                  "close_mmapped_array (munmap: %s)", strerror(errno));
     return (FALSE);
   }
   optr->next = ptr->next;
   pp->ValueOfVE.ints = NULL;
   pp->ArrayEArity = 0;
   if (close(ptr->fd) < 0) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, ARG1, "close_mmapped_array (close: %s)",
-              strerror(errno));
+    Yap_FullError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1,
+                  "close_mmapped_array (close: %s)", strerror(errno));
     return (FALSE);
   }
   Yap_FreeAtomSpace((char *)ptr);
@@ -271,30 +272,31 @@ static void ResizeMmappedArray(StaticArrayEntry *pp, Int dim,
      and last we initialize again
   */
   if (munmap(ptr->start, ptr->size) == -1) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, ARG1, "resize_mmapped_array (munmap: %s)",
-              strerror(errno));
+    Yap_FullError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1,
+                  "resize_mmapped_array (munmap: %s)", strerror(errno));
     return;
   }
   total_size = (ptr->size / ptr->items) * dim;
   if (ftruncate(ptr->fd, total_size) < 0) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, ARG1,
-              "resize_mmapped_array (ftruncate: %s)", strerror(errno));
+    Yap_FullError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1,
+                  "resize_mmapped_array (ftruncate: %s)", strerror(errno));
     return;
   }
   if (lseek(ptr->fd, total_size - 1, SEEK_SET) < 0) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, ARG1, "resize_mmapped_array (lseek: %s)",
-              strerror(errno));
+    Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1,
+              "resize_mmapped_array (lseek: %s)", strerror(errno));
     return;
   }
   if (write(ptr->fd, "", 1) < 0) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, ARG1, "resize_mmapped_array (write: %s)",
-              strerror(errno));
+    Yap_FullError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1,
+                  "resize_mmapped_array (write: %s)", strerror(errno));
     return;
   }
   if ((ptr->start = (void *)mmap(0, (size_t)total_size, PROT_READ | PROT_WRITE,
                                  MAP_SHARED, ptr->fd, 0)) == (void *)-1) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, ARG1, "resize_mmapped_array (mmap: %s)",
-              strerror(errno));
+    Yap_FullError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1,
+                  "resize_mmapped_array (mmap: %s)", ___LINE__, __FUNCTION__,
+                  -__FILE__, strerror(errno));
     return;
   }
   ptr->size = total_size;
@@ -309,25 +311,15 @@ static Term GetTermFromArray(DBTerm *ref USES_REGS) {
     Term TRef;
 
     while ((TRef = Yap_FetchTermFromDB(ref)) == 0L) {
-      if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
-        LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_growglobal(NULL)) {
-          Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
-                    LOCAL_ErrorMessage);
-          return TermNil;
-        }
-      } else {
-        LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_gcl(LOCAL_Error_Size, 3, ENV, Yap_gcP())) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-          return TermNil;
-        }
+      if (!Yap_gcl(LOCAL_Error_Size, 3, ENV, Yap_gcP())) {
+        Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+        return 0;
       }
     }
     return TRef;
   } else {
-    P = (yamop *)FAILCODE;
-    return TermNil;
+    Yap_Error(DOMAIN_ERROR_NOT_ZERO, ARG1, "Null reference.");
+    return 0;
   }
 }
 
@@ -355,8 +347,8 @@ static Term GetNBTerm(live_term *ar, Int indx USES_REGS) {
       livet = termt;
     } else {
       DBTerm *ref = (DBTerm *)RepAppl(termt);
-      if ((livet = GetTermFromArray(ref PASS_REGS)) == TermNil) {
-        return TermNil;
+      if ((livet = GetTermFromArray(ref PASS_REGS)) == 0) {
+        return 0;
       }
     }
     YapBind(&(ar[indx].tlive), livet);
@@ -391,10 +383,13 @@ static Term AccessNamedArray(Atom a, Int indx USES_REGS) {
     if (ArrayIsDynamic(pp)) {
       Term out;
       READ_LOCK(pp->ArRWLock);
-      if (IsVarTerm(pp->ValueOfVE) || pp->ArrayEArity <= indx || indx < 0) {
+      if (IsVarTerm(pp->ValueOfVE)) {
         READ_UNLOCK(pp->ArRWLock);
-        P = (yamop *)FAILCODE;
-        return (MkAtomTerm(AtomFoundVar));
+        Yap_Error(INSTANTIATION_ERROR, ARG1, "unbound static array", indx);
+      }
+      if (pp->ArrayEArity <= indx || indx < 0) {
+        READ_UNLOCK(pp->ArRWLock);
+        Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW, ARG1, "bad index %ld", indx);
       }
       out = RepAppl(pp->ValueOfVE)[indx + 1];
       READ_UNLOCK(pp->ArRWLock);
@@ -404,11 +399,7 @@ static Term AccessNamedArray(Atom a, Int indx USES_REGS) {
 
       READ_LOCK(ptr->ArRWLock);
       if (pp->ArrayEArity <= indx || indx < 0) {
-        /*	Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW, MkIntegerTerm(indx),
-         * "access_array");*/
-        READ_UNLOCK(ptr->ArRWLock);
-        P = (yamop *)FAILCODE;
-        return (MkAtomTerm(AtomFoundVar));
+        Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW, ARG1, "bad index %ld", indx);
       }
       switch (ptr->ArrayType) {
 
@@ -489,9 +480,9 @@ static Term AccessNamedArray(Atom a, Int indx USES_REGS) {
       case array_of_nb_terms: {
         /* The object is now in use */
         Term out = GetNBTerm(ptr->ValueOfVE.lterms, indx PASS_REGS);
-
         READ_UNLOCK(ptr->ArRWLock);
-        return out;
+        if (out == 0)
+          return TermNil;
       }
       case array_of_terms: {
         /* The object is now in use */
@@ -1654,7 +1645,6 @@ static Int array_references(USES_REGS1) {
 }
 
 /** @pred  update_array(+ _Name_, + _Index_, ? _Value_)
-
 
 Attribute value  _Value_ to  _Name_[ _Index_]. Type
 restrictions must be respected for static arrays. This operation is
