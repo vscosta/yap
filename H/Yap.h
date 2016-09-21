@@ -236,7 +236,8 @@ INLINE_ONLY inline EXTERN size_t strnlen(const char *s, size_t maxlen) {
 
 #if !defined(IN_SECOND_QUADRANT)
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) ||       \
-    defined(mips) || defined(__mips64) || defined(__aarch64__) || (__DragonFly__)
+    defined(mips) || defined(__mips64) || defined(__aarch64__) ||              \
+    (__DragonFly__)
 #if defined(YAPOR) && defined(__alpha)
 
 #define MMAP_ADDR 0x40000000
@@ -253,16 +254,14 @@ INLINE_ONLY inline EXTERN size_t strnlen(const char *s, size_t maxlen) {
 #endif /* YAPOR && __alpha */
 #elif __svr4__ || defined(__SVR4)
 #define MMAP_ADDR 0x02000000
-#endif /* __linux__ || __FreeBSD__ || __NetBSD__ || mips || __mips64 || __APPLE__ ||       \
+#endif /* __linux__ || __FreeBSD__ || __NetBSD__ || mips || __mips64 ||        \
+          __APPLE__ ||                                                         \
           __DragonFly__ */
 #endif /* !IN_SECOND_QUADRANT */
 
 /* #define RANDOMIZE_START_ADDRESS 1 */
 
-
-
 extern size_t Yap_page_size;
-
 
 #ifdef USE_SYSTEM_MALLOC
 #define HEAP_INIT_BASE 0L
@@ -463,8 +462,6 @@ extern ADDR Yap_HeapBase;
 /* This is ok for Linux, should be ok for everyone */
 #define YAP_FILENAME_MAX 1024
 
-#define MAX_ERROR_MSG_SIZE YAP_FILENAME_MAX
-
 /*************************************************************************************************
                                     Debugging Support
 *************************************************************************************************/
@@ -504,7 +501,7 @@ extern int64_t Yap_AssetSize(const char *name);
 
 typedef enum e_restore_t {
   FAIL_RESTORE = 0,
-  DO_EVERYTHING =  1,
+  DO_EVERYTHING = 1,
   DO_ONLY_CODE = 2,
   YAP_BOOT_FROM_PROLOG = 4
 } restore_t;
