@@ -185,15 +185,17 @@
 \******************************************************************************/
 
 /* modified by Fabrizio Riguzzi in 2009 for dealing with multivalued variables:
-instead of variables or their negation, the script can contain equations of the 
+instead of variables or their negation, the script can contain equations of the
 form
 variable=value
-Multivalued variables are translated to binary variables by means of a log 
+Multivalued variables are translated to binary variables by means of a log
 encodimg
 */
 
-
 #include "simplecudd.h"
+#if HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 #include <signal.h>
 #include <time.h>
 
@@ -226,13 +228,11 @@ typedef struct _extmanager {
   namedvars varmap;
 } extmanager;
 
-
-double ProbBool(extmanager MyManager, DdNode *node, int bits, int nBit,int posBVar,variable v, int comp);
-double Prob(extmanager MyManager, DdNode *node,  int comp);
-int correctPosition(int index,variable v,int posBVar);
-double ret_prob(extmanager MyManager, DdNode * bdd);
-
-
+double ProbBool(extmanager MyManager, DdNode *node, int bits, int nBit,
+                int posBVar, variable v, int comp);
+double Prob(extmanager MyManager, DdNode *node, int comp);
+int correctPosition(int index, variable v, int posBVar);
+double ret_prob(extmanager MyManager, DdNode *bdd);
 
 int argtype(const char *arg);
 void printhelp(int argc, char **arg);
@@ -247,13 +247,14 @@ double sigmoid(double x, double slope);
 void myexpand(extmanager MyManager, DdNode *Current);
 double CalcProbability(extmanager MyManager, DdNode *Current);
 double CalcProbabilitySigmoid(extmanager MyManager, DdNode *Current);
-gradientpair CalcGradient(extmanager MyManager, DdNode *Current, int TargetVar, char *TargetPattern);
+gradientpair CalcGradient(extmanager MyManager, DdNode *Current, int TargetVar,
+                          char *TargetPattern);
 int patterncalculated(char *pattern, extmanager MyManager, int loc);
-char * extractpattern(char *thestr);
+char *extractpattern(char *thestr);
 
 int main(int argc, char **arg) {
   clock_t start, endc, endt;
-    double elapsedc,elapsedt;
+  double elapsedc, elapsedt;
 
   extmanager MyManager;
   DdNode *bdd;
@@ -268,7 +269,8 @@ int main(int argc, char **arg) {
   if (params.errorcnt > 0) {
     printhelp(argc, arg);
     for (i = 0; i < params.errorcnt; i++) {
-      fprintf(stderr, "Error: not known or error at parameter %s.\n", arg[params.error[i]]);
+      fprintf(stderr, "Error: not known or error at parameter %s.\n",
+              arg[params.error[i]]);
     }
     return -1;
   }
@@ -279,13 +281,17 @@ int main(int argc, char **arg) {
     return -1;
   }
 
-  if (params.method != 0 && arg[params.method][0] != 'g' && arg[params.method][0] != 'p' && arg[params.method][0] != 'o'  && arg[params.method][0] != 'l') {
+  if (params.method != 0 && arg[params.method][0] != 'g' &&
+      arg[params.method][0] != 'p' && arg[params.method][0] != 'o' &&
+      arg[params.method][0] != 'l') {
     printhelp(argc, arg);
-    fprintf(stderr, "Error: you must choose a calculation method beetween [p]robability, [g]radient, [l]ine search, [o]nline.\n");
+    fprintf(stderr, "Error: you must choose a calculation method beetween "
+                    "[p]robability, [g]radient, [l]ine search, [o]nline.\n");
     return -1;
   }
 
-  if (params.debug) DEBUGON;
+  if (params.debug)
+    DEBUGON;
   RAPIDLOADON;
   SETMAXBUFSIZE(params.maxbufsize);
 #ifndef _WIN32
@@ -307,42 +313,48 @@ int main(int argc, char **arg) {
     ivarcnt = GetVarCount(MyManager.manager);
   } else {
     fileheader = ReadFileHeader(arg[params.loadfile]);
-    switch(fileheader.filetype) {
-      case BDDFILE_SCRIPT:
-        if (params.inputfile == -1) {
-          printhelp(argc, arg);
-          fprintf(stderr, "Error: an input file is necessary for this type of loading file.\n");
-          return -1;
-        }
-        MyManager.manager = simpleBDDinit(fileheader.varcnt);
-        MyManager.t = HIGH(MyManager.manager);
-        MyManager.f = LOW(MyManager.manager);
-        MyManager.varmap = InitNamedMultiVars(fileheader.varcnt, fileheader.varstart,fileheader.bvarcnt);
-	if (LoadMultiVariableData(MyManager.manager,MyManager.varmap, arg[params.inputfile]) == -1) return -1;
-	start = clock();
-        bdd = FileGenerateBDD(MyManager.manager, MyManager.varmap, fileheader);
- 	endc=clock();
-	elapsedc = ((double) (endc - start)) / CLOCKS_PER_SEC;
-	printf("elapsed_construction(%lf).\n",elapsedc);
-        ivarcnt = fileheader.varcnt;
-        break;
-      case BDDFILE_NODEDUMP:
-        if (params.inputfile == -1) {
-          printhelp(argc, arg);
-          fprintf(stderr, "Error: an input file is necessary for this type of loading file.\n");
-          return -1;
-        }
-        MyManager.manager = simpleBDDinit(fileheader.varcnt);
-        MyManager.t = HIGH(MyManager.manager);
-        MyManager.f = LOW(MyManager.manager);
-        MyManager.varmap = InitNamedVars(fileheader.varcnt, fileheader.varstart);
-        bdd = LoadNodeDump(MyManager.manager, MyManager.varmap, fileheader.inputfile);
-        ivarcnt = fileheader.varcnt;
-        break;
-      default:
-        fprintf(stderr, "Error: not a valid file format to load.\n");
+    switch (fileheader.filetype) {
+    case BDDFILE_SCRIPT:
+      if (params.inputfile == -1) {
+        printhelp(argc, arg);
+        fprintf(stderr, "Error: an input file is necessary for this type of "
+                        "loading file.\n");
         return -1;
-        break;
+      }
+      MyManager.manager = simpleBDDinit(fileheader.varcnt);
+      MyManager.t = HIGH(MyManager.manager);
+      MyManager.f = LOW(MyManager.manager);
+      MyManager.varmap = InitNamedMultiVars(
+          fileheader.varcnt, fileheader.varstart, fileheader.bvarcnt);
+      if (LoadMultiVariableData(MyManager.manager, MyManager.varmap,
+                                arg[params.inputfile]) == -1)
+        return -1;
+      start = clock();
+      bdd = FileGenerateBDD(MyManager.manager, MyManager.varmap, fileheader);
+      endc = clock();
+      elapsedc = ((double)(endc - start)) / CLOCKS_PER_SEC;
+      printf("elapsed_construction(%lf).\n", elapsedc);
+      ivarcnt = fileheader.varcnt;
+      break;
+    case BDDFILE_NODEDUMP:
+      if (params.inputfile == -1) {
+        printhelp(argc, arg);
+        fprintf(stderr, "Error: an input file is necessary for this type of "
+                        "loading file.\n");
+        return -1;
+      }
+      MyManager.manager = simpleBDDinit(fileheader.varcnt);
+      MyManager.t = HIGH(MyManager.manager);
+      MyManager.f = LOW(MyManager.manager);
+      MyManager.varmap = InitNamedVars(fileheader.varcnt, fileheader.varstart);
+      bdd = LoadNodeDump(MyManager.manager, MyManager.varmap,
+                         fileheader.inputfile);
+      ivarcnt = fileheader.varcnt;
+      break;
+    default:
+      fprintf(stderr, "Error: not a valid file format to load.\n");
+      return -1;
+      break;
     }
   }
 #ifndef _WIN32
@@ -355,129 +367,180 @@ int main(int argc, char **arg) {
     code = 0;
     /*
     if (params.inputfile != -1) {
-      if (LoadVariableData(MyManager.varmap, arg[params.inputfile]) == -1) return -1;
+      if (LoadVariableData(MyManager.varmap, arg[params.inputfile]) == -1)
+    return -1;
       if (!all_loaded(MyManager.varmap, 1)) return -1;
     }*/
     MyManager.his = InitHistory(ivarcnt);
     if (params.method != 0) {
-      switch(arg[params.method][0]) {
-        case 'g':
-          for (i = 0; i < MyManager.varmap.varcnt; i++) {
-            if (MyManager.varmap.vars[i] != NULL) {
-              varpattern = extractpattern(MyManager.varmap.vars[i]);
-              if ((varpattern == NULL) || (!patterncalculated(varpattern, MyManager, i))) {
-                tvalue = CalcGradient(MyManager, bdd, i + MyManager.varmap.varstart, varpattern);
-                probability = tvalue.probability;
-                double factor = sigmoid(MyManager.varmap.dvalue[i], params.sigmoid_slope) * (1 - sigmoid(MyManager.varmap.dvalue[i], params.sigmoid_slope)) * params.sigmoid_slope;
-                if (varpattern == NULL) {
-                  printf("query_gradient(%s,%s,%1.12f).\n", arg[params.queryid], MyManager.varmap.vars[i], tvalue.gradient * factor);
-                } else {
-                  varpattern[strlen(varpattern) - 2] = '\0';
-                  printf("query_gradient(%s,%s,%1.12f).\n", arg[params.queryid], varpattern, tvalue.gradient * factor);
-                }
-                ReInitHistory(MyManager.his, MyManager.varmap.varcnt);
+      switch (arg[params.method][0]) {
+      case 'g':
+        for (i = 0; i < MyManager.varmap.varcnt; i++) {
+          if (MyManager.varmap.vars[i] != NULL) {
+            varpattern = extractpattern(MyManager.varmap.vars[i]);
+            if ((varpattern == NULL) ||
+                (!patterncalculated(varpattern, MyManager, i))) {
+              tvalue = CalcGradient(MyManager, bdd,
+                                    i + MyManager.varmap.varstart, varpattern);
+              probability = tvalue.probability;
+              double factor =
+                  sigmoid(MyManager.varmap.dvalue[i], params.sigmoid_slope) *
+                  (1 -
+                   sigmoid(MyManager.varmap.dvalue[i], params.sigmoid_slope)) *
+                  params.sigmoid_slope;
+              if (varpattern == NULL) {
+                printf("query_gradient(%s,%s,%1.12f).\n", arg[params.queryid],
+                       MyManager.varmap.vars[i], tvalue.gradient * factor);
+              } else {
+                varpattern[strlen(varpattern) - 2] = '\0';
+                printf("query_gradient(%s,%s,%1.12f).\n", arg[params.queryid],
+                       varpattern, tvalue.gradient * factor);
               }
-              if (varpattern != NULL) free(varpattern);
-            } else {
-              fprintf(stderr, "Error: no variable name given for parameter.\n");
+              ReInitHistory(MyManager.his, MyManager.varmap.varcnt);
             }
+            if (varpattern != NULL)
+              free(varpattern);
+          } else {
+            fprintf(stderr, "Error: no variable name given for parameter.\n");
           }
-          if (probability < 0.0) {
-            // no nodes, so we have to calculate probability ourself
-            tvalue = CalcGradient(MyManager, bdd, 0 + MyManager.varmap.varstart, NULL);
-            probability = tvalue.probability;
-          }
-          printf("query_probability(%s,%1.12f).\n", arg[params.queryid], probability);
-          break;
-       case 'l':
-          tvalue = CalcGradient(MyManager, bdd, 0 + MyManager.varmap.varstart, NULL);
+        }
+        if (probability < 0.0) {
+          // no nodes, so we have to calculate probability ourself
+          tvalue =
+              CalcGradient(MyManager, bdd, 0 + MyManager.varmap.varstart, NULL);
           probability = tvalue.probability;
-          printf("query_probability(%s,%1.12f).\n", arg[params.queryid], probability);
-          break;
-        case 'p':
-          printf("probability(%1.12f).\n", CalcProbability(MyManager, bdd));
-          break;
-        case 'o':
-          onlinetraverse(MyManager.manager, MyManager.varmap, MyManager.his, bdd);
-          break;
-        default:
-          myexpand(MyManager, bdd);
-          break;
+        }
+        printf("query_probability(%s,%1.12f).\n", arg[params.queryid],
+               probability);
+        break;
+      case 'l':
+        tvalue =
+            CalcGradient(MyManager, bdd, 0 + MyManager.varmap.varstart, NULL);
+        probability = tvalue.probability;
+        printf("query_probability(%s,%1.12f).\n", arg[params.queryid],
+               probability);
+        break;
+      case 'p':
+        printf("probability(%1.12f).\n", CalcProbability(MyManager, bdd));
+        break;
+      case 'o':
+        onlinetraverse(MyManager.manager, MyManager.varmap, MyManager.his, bdd);
+        break;
+      default:
+        myexpand(MyManager, bdd);
+        break;
       }
     } else {
-        start=clock();
-    //	simpleNamedBDDtoDot(MyManager.manager, MyManager.varmap, bdd, "bdd.dot");
-          printf("probability(%1.12f).\n", ret_prob(MyManager, bdd));
-	endt=clock();
-	elapsedt = ((double) (endt - start)) / CLOCKS_PER_SEC;
-	printf("elapsed_traversing(%lf).\n",elapsedt);
-//      myexpand(MyManager, bdd);
+      start = clock();
+      //	simpleNamedBDDtoDot(MyManager.manager, MyManager.varmap, bdd,
+      //"bdd.dot");
+      printf("probability(%1.12f).\n", ret_prob(MyManager, bdd));
+      endt = clock();
+      elapsedt = ((double)(endt - start)) / CLOCKS_PER_SEC;
+      printf("elapsed_traversing(%lf).\n", elapsedt);
+      //      myexpand(MyManager, bdd);
     }
-    if (params.savedfile > -1) SaveNodeDump(MyManager.manager, MyManager.varmap, bdd, arg[params.savedfile]);
-    if (params.exportfile > -1) simpleNamedBDDtoDot(MyManager.manager, MyManager.varmap, bdd, arg[params.exportfile]);
+    if (params.savedfile > -1)
+      SaveNodeDump(MyManager.manager, MyManager.varmap, bdd,
+                   arg[params.savedfile]);
+    if (params.exportfile > -1)
+      simpleNamedBDDtoDot(MyManager.manager, MyManager.varmap, bdd,
+                          arg[params.exportfile]);
     ReInitHistory(MyManager.his, MyManager.varmap.varcnt);
     free(MyManager.his);
   }
   if (MyManager.manager != NULL) {
     KillBDD(MyManager.manager);
-exit(code);
+    exit(code);
     free(MyManager.varmap.dvalue);
     free(MyManager.varmap.ivalue);
     free(MyManager.varmap.dynvalue);
-    for (i = 0; i < MyManager.varmap.varcnt; i++)
-    {
+    for (i = 0; i < MyManager.varmap.varcnt; i++) {
       free(MyManager.varmap.vars[i]);
-	free(MyManager.varmap.mvars[i].probabilities);
-	free(MyManager.varmap.mvars[i].booleanVars);
-    }  
+      free(MyManager.varmap.mvars[i].probabilities);
+      free(MyManager.varmap.mvars[i].booleanVars);
+    }
     free(MyManager.varmap.vars);
     free(MyManager.varmap.mvars);
     free(MyManager.varmap.bVar2mVar);
   }
-  if (params.error != NULL) free(params.error);
+  if (params.error != NULL)
+    free(params.error);
 
   return code;
-
 }
 
 /* Shell Parameters handling */
 
 int argtype(const char *arg) {
-  if (strcmp(arg, "-l") == 0 || strcmp(arg, "--load") == 0) return 0;
-  if (strcmp(arg, "-e") == 0 || strcmp(arg, "--export") == 0) return 2;
-  if (strcmp(arg, "-m") == 0 || strcmp(arg, "--method") == 0) return 3;
-  if (strcmp(arg, "-i") == 0 || strcmp(arg, "--input") == 0) return 4;
-  if (strcmp(arg, "-h") == 0 || strcmp(arg, "--help") == 0) return 5;
-  if (strcmp(arg, "-d") == 0 || strcmp(arg, "--debug") == 0) return 6;
-  if (strcmp(arg, "-id") == 0 || strcmp(arg, "--queryid") == 0) return 7;
-  if (strcmp(arg, "-t") == 0 || strcmp(arg, "--timeout") == 0) return 8;
-  if (strcmp(arg, "-sd") == 0 || strcmp(arg, "--savedump") == 0) return 9;
-  if (strcmp(arg, "-sl") == 0 || strcmp(arg, "--slope") == 0) return 10;
-  if (strcmp(arg, "-o") == 0 || strcmp(arg, "--online") == 0) return 11;
-  if (strcmp(arg, "-bs") == 0 || strcmp(arg, "--bufsize") == 0) return 12;
-  if (strcmp(arg, "-pid") == 0 || strcmp(arg, "--pid") == 0) return 13;
+  if (strcmp(arg, "-l") == 0 || strcmp(arg, "--load") == 0)
+    return 0;
+  if (strcmp(arg, "-e") == 0 || strcmp(arg, "--export") == 0)
+    return 2;
+  if (strcmp(arg, "-m") == 0 || strcmp(arg, "--method") == 0)
+    return 3;
+  if (strcmp(arg, "-i") == 0 || strcmp(arg, "--input") == 0)
+    return 4;
+  if (strcmp(arg, "-h") == 0 || strcmp(arg, "--help") == 0)
+    return 5;
+  if (strcmp(arg, "-d") == 0 || strcmp(arg, "--debug") == 0)
+    return 6;
+  if (strcmp(arg, "-id") == 0 || strcmp(arg, "--queryid") == 0)
+    return 7;
+  if (strcmp(arg, "-t") == 0 || strcmp(arg, "--timeout") == 0)
+    return 8;
+  if (strcmp(arg, "-sd") == 0 || strcmp(arg, "--savedump") == 0)
+    return 9;
+  if (strcmp(arg, "-sl") == 0 || strcmp(arg, "--slope") == 0)
+    return 10;
+  if (strcmp(arg, "-o") == 0 || strcmp(arg, "--online") == 0)
+    return 11;
+  if (strcmp(arg, "-bs") == 0 || strcmp(arg, "--bufsize") == 0)
+    return 12;
+  if (strcmp(arg, "-pid") == 0 || strcmp(arg, "--pid") == 0)
+    return 13;
   return -1;
 }
 
 void printhelp(int argc, char **arg) {
-  fprintf(stderr, "\nUsage: %s -l [filename] -i [filename] -o (-s(d) [filename] -e [filename] -m [method] -id [queryid] -sl [double]) (-t [seconds] -d -h)\n", arg[0]);
+  fprintf(stderr, "\nUsage: %s -l [filename] -i [filename] -o (-s(d) "
+                  "[filename] -e [filename] -m [method] -id [queryid] -sl "
+                  "[double]) (-t [seconds] -d -h)\n",
+          arg[0]);
   fprintf(stderr, "Generates and traverses a BDD\nMandatory parameters:\n");
-  fprintf(stderr, "\t-l [filename]\t->\tfilename to load supports two formats:\n\t\t\t\t\t\t1. script with generation instructions\n\t\t\t\t\t\t2. node dump saved file\n");
-  fprintf(stderr, "\t-i [filename]\t->\tfilename to input problem specifics (mandatory with file formats 1, 2)\n");
-  fprintf(stderr, "\t-o\t\t->\tgenerates the BDD in online mode instead from a file can be used instead of -l\n");
+  fprintf(stderr, "\t-l [filename]\t->\tfilename to load supports two "
+                  "formats:\n\t\t\t\t\t\t1. script with generation "
+                  "instructions\n\t\t\t\t\t\t2. node dump saved file\n");
+  fprintf(stderr, "\t-i [filename]\t->\tfilename to input problem specifics "
+                  "(mandatory with file formats 1, 2)\n");
+  fprintf(stderr, "\t-o\t\t->\tgenerates the BDD in online mode instead from a "
+                  "file can be used instead of -l\n");
   fprintf(stderr, "Optional parameters:\n");
-  fprintf(stderr, "\t-sd [filename]\t->\tfilename to save generated BDD in node dump format (fast loading, traverse valid only)\n");
-  fprintf(stderr, "\t-e [filename]\t->\tfilename to export generated BDD in dot format\n");
-  fprintf(stderr, "\t-m [method]\t->\tthe calculation method to be used: none(default), [p]robability, [g]radient, [o]nline\n");
-  fprintf(stderr, "\t-id [queryid]\t->\tthe queries identity name (used by gradient) default: %s\n", arg[0]);
-  fprintf(stderr, "\t-sl [double]\t->\tthe sigmoid slope (used by gradient) default: 1.0\n");
+  fprintf(stderr, "\t-sd [filename]\t->\tfilename to save generated BDD in "
+                  "node dump format (fast loading, traverse valid only)\n");
+  fprintf(
+      stderr,
+      "\t-e [filename]\t->\tfilename to export generated BDD in dot format\n");
+  fprintf(stderr, "\t-m [method]\t->\tthe calculation method to be used: "
+                  "none(default), [p]robability, [g]radient, [o]nline\n");
+  fprintf(stderr, "\t-id [queryid]\t->\tthe queries identity name (used by "
+                  "gradient) default: %s\n",
+          arg[0]);
+  fprintf(stderr, "\t-sl [double]\t->\tthe sigmoid slope (used by gradient) "
+                  "default: 1.0\n");
   fprintf(stderr, "Extra parameters:\n");
-  fprintf(stderr, "\t-t [seconds]\t->\tthe seconds (int) for BDD generation timeout default 0 = no timeout\n");
-  fprintf(stderr, "\t-pid [pid]\t->\ta process id (int) to check for termination default 0 = no process to check works only under POSIX OS\n");
-  fprintf(stderr, "\t-bs [bytes]\t->\tthe bytes (int) to use as a maximum buffer size to read files default 0 = no max\n");
-  fprintf(stderr, "\t-d\t\t->\tRun in debug mode (gives extra messages in stderr)\n");
+  fprintf(stderr, "\t-t [seconds]\t->\tthe seconds (int) for BDD generation "
+                  "timeout default 0 = no timeout\n");
+  fprintf(stderr, "\t-pid [pid]\t->\ta process id (int) to check for "
+                  "termination default 0 = no process to check works only "
+                  "under POSIX OS\n");
+  fprintf(stderr, "\t-bs [bytes]\t->\tthe bytes (int) to use as a maximum "
+                  "buffer size to read files default 0 = no max\n");
+  fprintf(stderr,
+          "\t-d\t\t->\tRun in debug mode (gives extra messages in stderr)\n");
   fprintf(stderr, "\t-h\t\t->\tHelp (displays this message)\n\n");
-  fprintf(stderr, "Example: %s -l testbdd -i input.txt -m g -id testbdd\n", arg[0]);
+  fprintf(stderr, "Example: %s -l testbdd -i input.txt -m g -id testbdd\n",
+          arg[0]);
 }
 
 parameters loadparam(int argc, char **arg) {
@@ -496,113 +559,113 @@ parameters loadparam(int argc, char **arg) {
   params.online = 0;
   params.maxbufsize = 0;
   params.ppid = NULL;
-  params.error = (int *) malloc(argc * sizeof(int));
+  params.error = (int *)malloc(argc * sizeof(int));
   for (i = 1; i < argc; i++) {
-    switch(argtype(arg[i])) {
-      case 0:
-        if (argc > i + 1) {
-          i++;
-          params.loadfile = i;
-        } else {
-          params.error[params.errorcnt] = i;
-          params.errorcnt++;
-        }
-        break;
-      case 2:
-        if (argc > i + 1) {
-          i++;
-          params.exportfile = i;
-        } else {
-          params.error[params.errorcnt] = i;
-          params.errorcnt++;
-        }
-        break;
-      case 3:
-        if (argc > i + 1) {
-          i++;
-          params.method = i;
-        } else {
-          params.error[params.errorcnt] = i;
-          params.errorcnt++;
-        }
-        break;
-      case 4:
-        if (argc > i + 1) {
-          i++;
-          params.inputfile = i;
-        } else {
-          params.error[params.errorcnt] = i;
-          params.errorcnt++;
-        }
-        break;
-      case 5:
-        printhelp(argc, arg);
-        break;
-      case 6:
-        params.debug = 1;
-        break;
-      case 7:
-        if (argc > i + 1) {
-          i++;
-          params.queryid = i;
-        } else {
-          params.error[params.errorcnt] = i;
-          params.errorcnt++;
-        }
-        break;
-      case 8:
-        if ((argc > i + 1) && (IsPosNumber(arg[i + 1]))) {
-          i++;
-          params.timeout = atoi(arg[i]);
-        } else {
-          params.error[params.errorcnt] = i;
-          params.errorcnt++;
-        }
-        break;
-      case 9:
-        if (argc > i + 1) {
-          i++;
-          params.savedfile = i;
-        } else {
-          params.error[params.errorcnt] = i;
-          params.errorcnt++;
-        }
-        break;
-      case 10:
-        if ((argc > i + 1) && (IsRealNumber(arg[i + 1]))) {
-          i++;
-          params.sigmoid_slope = atof(arg[i]);
-        } else {
-          params.error[params.errorcnt] = i;
-          params.errorcnt++;
-        }
-        break;
-      case 11:
-        params.online = 1;
-        break;
-      case 12:
-        if ((argc > i + 1) && (IsPosNumber(arg[i + 1]))) {
-          i++;
-          params.maxbufsize = atoi(arg[i]);
-        } else {
-          params.error[params.errorcnt] = i;
-          params.errorcnt++;
-        }
-        break;
-      case 13:
-        if ((argc > i + 1) && (IsPosNumber(arg[i + 1]))) {
-          i++;
-          params.ppid = (char *) malloc(sizeof(char) * (strlen(arg[i]) + 1));
-          strcpy(params.ppid, arg[i]);
-        } else {
-          params.error[params.errorcnt] = i;
-          params.errorcnt++;
-        }
-        break;
-      default:
+    switch (argtype(arg[i])) {
+    case 0:
+      if (argc > i + 1) {
+        i++;
+        params.loadfile = i;
+      } else {
         params.error[params.errorcnt] = i;
         params.errorcnt++;
-        break;
+      }
+      break;
+    case 2:
+      if (argc > i + 1) {
+        i++;
+        params.exportfile = i;
+      } else {
+        params.error[params.errorcnt] = i;
+        params.errorcnt++;
+      }
+      break;
+    case 3:
+      if (argc > i + 1) {
+        i++;
+        params.method = i;
+      } else {
+        params.error[params.errorcnt] = i;
+        params.errorcnt++;
+      }
+      break;
+    case 4:
+      if (argc > i + 1) {
+        i++;
+        params.inputfile = i;
+      } else {
+        params.error[params.errorcnt] = i;
+        params.errorcnt++;
+      }
+      break;
+    case 5:
+      printhelp(argc, arg);
+      break;
+    case 6:
+      params.debug = 1;
+      break;
+    case 7:
+      if (argc > i + 1) {
+        i++;
+        params.queryid = i;
+      } else {
+        params.error[params.errorcnt] = i;
+        params.errorcnt++;
+      }
+      break;
+    case 8:
+      if ((argc > i + 1) && (IsPosNumber(arg[i + 1]))) {
+        i++;
+        params.timeout = atoi(arg[i]);
+      } else {
+        params.error[params.errorcnt] = i;
+        params.errorcnt++;
+      }
+      break;
+    case 9:
+      if (argc > i + 1) {
+        i++;
+        params.savedfile = i;
+      } else {
+        params.error[params.errorcnt] = i;
+        params.errorcnt++;
+      }
+      break;
+    case 10:
+      if ((argc > i + 1) && (IsRealNumber(arg[i + 1]))) {
+        i++;
+        params.sigmoid_slope = atof(arg[i]);
+      } else {
+        params.error[params.errorcnt] = i;
+        params.errorcnt++;
+      }
+      break;
+    case 11:
+      params.online = 1;
+      break;
+    case 12:
+      if ((argc > i + 1) && (IsPosNumber(arg[i + 1]))) {
+        i++;
+        params.maxbufsize = atoi(arg[i]);
+      } else {
+        params.error[params.errorcnt] = i;
+        params.errorcnt++;
+      }
+      break;
+    case 13:
+      if ((argc > i + 1) && (IsPosNumber(arg[i + 1]))) {
+        i++;
+        params.ppid = (char *)malloc(sizeof(char) * (strlen(arg[i]) + 1));
+        strcpy(params.ppid, arg[i]);
+      } else {
+        params.error[params.errorcnt] = i;
+        params.errorcnt++;
+      }
+      break;
+    default:
+      params.error[params.errorcnt] = i;
+      params.errorcnt++;
+      break;
     }
   }
   return params;
@@ -624,9 +687,12 @@ void pidhandler(int num) {
       exit(-1);
     }
   }
-  s = (char *) malloc(sizeof(char) * (19 + strlen(params.ppid)));
-  strcpy(s, "ps "); strcat(s, params.ppid); strcat(s, " >/dev/null");
-  if (system(s) != 0) exit(4);
+  s = (char *)malloc(sizeof(char) * (19 + strlen(params.ppid)));
+  strcpy(s, "ps ");
+  strcat(s, params.ppid);
+  strcat(s, " >/dev/null");
+  if (system(s) != 0)
+    exit(4);
 #ifndef _WIN32
   signal(SIGALRM, pidhandler);
   alarm(5);
@@ -634,15 +700,11 @@ void pidhandler(int num) {
   free(s);
 }
 
-void termhandler(int num) {
-  exit(3);
-}
+void termhandler(int num) { exit(3); }
 
 /* General Functions */
 
-double sigmoid(double x, double slope) {
-  return 1 / (1 + exp(-x * slope));
-}
+double sigmoid(double x, double slope) { return 1 / (1 + exp(-x * slope)); }
 
 /* Debugging traverse function */
 
@@ -653,7 +715,8 @@ void myexpand(extmanager MyManager, DdNode *Current) {
   curnode = GetNodeVarNameDisp(MyManager.manager, MyManager.varmap, Current);
   printf("%s\n", curnode);
   if ((Current != MyManager.t) && (Current != MyManager.f) &&
-      ((Found = GetNode(MyManager.his, MyManager.varmap.varstart, Current)) == NULL)) {
+      ((Found = GetNode(MyManager.his, MyManager.varmap.varstart, Current)) ==
+       NULL)) {
     l = LowNodeOf(MyManager.manager, Current);
     h = HighNodeOf(MyManager.manager, Current);
     printf("l(%s)->", curnode);
@@ -675,16 +738,23 @@ double CalcProbability(extmanager MyManager, DdNode *Current) {
     curnode = GetNodeVarNameDisp(MyManager.manager, MyManager.varmap, Current);
     fprintf(stderr, "%s\n", curnode);
   }
-  if (Current == MyManager.t) return 1.0;
-  if (Current == MyManager.f) return 0.0;
-  if ((Found = GetNode(MyManager.his, MyManager.varmap.varstart, Current)) != NULL) return Found->dvalue;
+  if (Current == MyManager.t)
+    return 1.0;
+  if (Current == MyManager.f)
+    return 0.0;
+  if ((Found = GetNode(MyManager.his, MyManager.varmap.varstart, Current)) !=
+      NULL)
+    return Found->dvalue;
   l = LowNodeOf(MyManager.manager, Current);
   h = HighNodeOf(MyManager.manager, Current);
-  if (params.debug) fprintf(stderr, "l(%s)->", curnode);
+  if (params.debug)
+    fprintf(stderr, "l(%s)->", curnode);
   lvalue = CalcProbability(MyManager, l);
-  if (params.debug) fprintf(stderr, "h(%s)->", curnode);
+  if (params.debug)
+    fprintf(stderr, "h(%s)->", curnode);
   hvalue = CalcProbability(MyManager, h);
-  tvalue = MyManager.varmap.dvalue[GetIndex(Current) - MyManager.varmap.varstart];
+  tvalue =
+      MyManager.varmap.dvalue[GetIndex(Current) - MyManager.varmap.varstart];
   tvalue = tvalue * hvalue + lvalue * (1.0 - tvalue);
   AddNode(MyManager.his, MyManager.varmap.varstart, Current, tvalue, 0, NULL);
   return tvalue;
@@ -692,7 +762,8 @@ double CalcProbability(extmanager MyManager, DdNode *Current) {
 
 /* Bernds Algorithm */
 
-gradientpair CalcGradient(extmanager MyManager, DdNode *Current, int TargetVar, char *TargetPattern) {
+gradientpair CalcGradient(extmanager MyManager, DdNode *Current, int TargetVar,
+                          char *TargetPattern) {
   DdNode *h, *l;
   hisnode *Found;
   char *curnode;
@@ -713,37 +784,48 @@ gradientpair CalcGradient(extmanager MyManager, DdNode *Current, int TargetVar, 
     tvalue.gradient = 0.0;
     return tvalue;
   }
-  if ((Found = GetNode(MyManager.his, MyManager.varmap.varstart, Current)) != NULL) {
+  if ((Found = GetNode(MyManager.his, MyManager.varmap.varstart, Current)) !=
+      NULL) {
     tvalue.probability = Found->dvalue;
-    tvalue.gradient = *((double *) Found->dynvalue);
+    tvalue.gradient = *((double *)Found->dynvalue);
     return tvalue;
   }
   l = LowNodeOf(MyManager.manager, Current);
   h = HighNodeOf(MyManager.manager, Current);
-  if (params.debug) fprintf(stderr, "l(%s)->", curnode);
+  if (params.debug)
+    fprintf(stderr, "l(%s)->", curnode);
   lvalue = CalcGradient(MyManager, l, TargetVar, TargetPattern);
-  if (params.debug) fprintf(stderr, "h(%s)->", curnode);
+  if (params.debug)
+    fprintf(stderr, "h(%s)->", curnode);
   hvalue = CalcGradient(MyManager, h, TargetVar, TargetPattern);
-  this_probability = sigmoid(MyManager.varmap.dvalue[GetIndex(Current) - MyManager.varmap.varstart], params.sigmoid_slope);
-  tvalue.probability = this_probability * hvalue.probability + (1 - this_probability) * lvalue.probability;
-  tvalue.gradient = this_probability * hvalue.gradient + (1 - this_probability) * lvalue.gradient;
+  this_probability = sigmoid(
+      MyManager.varmap.dvalue[GetIndex(Current) - MyManager.varmap.varstart],
+      params.sigmoid_slope);
+  tvalue.probability = this_probability * hvalue.probability +
+                       (1 - this_probability) * lvalue.probability;
+  tvalue.gradient = this_probability * hvalue.gradient +
+                    (1 - this_probability) * lvalue.gradient;
   if ((GetIndex(Current) == TargetVar) ||
-      ((TargetPattern != NULL) && patternmatch(TargetPattern, MyManager.varmap.vars[GetIndex(Current)]))) {
+      ((TargetPattern != NULL) &&
+       patternmatch(TargetPattern, MyManager.varmap.vars[GetIndex(Current)]))) {
     tvalue.gradient += hvalue.probability - lvalue.probability;
   }
-  gradient = (double *) malloc(sizeof(double));
+  gradient = (double *)malloc(sizeof(double));
   *gradient = tvalue.gradient;
-  AddNode(MyManager.his, MyManager.varmap.varstart, Current, tvalue.probability, 0, gradient);
+  AddNode(MyManager.his, MyManager.varmap.varstart, Current, tvalue.probability,
+          0, gradient);
   return tvalue;
 }
 
-char * extractpattern(char *thestr) {
+char *extractpattern(char *thestr) {
   char *p;
   int i = 0, sl = strlen(thestr);
-  while((thestr[i] != '_') && (i < sl)) i++;
-  if (i == sl) return NULL;
+  while ((thestr[i] != '_') && (i < sl))
+    i++;
+  if (i == sl)
+    return NULL;
   i++;
-  p = (char *) malloc(sizeof(char) * (i + 2));
+  p = (char *)malloc(sizeof(char) * (i + 2));
   strncpy(p, thestr, i);
   p[i] = '*';
   p[i + 1] = '\0';
@@ -752,121 +834,105 @@ char * extractpattern(char *thestr) {
 
 int patterncalculated(char *pattern, extmanager MyManager, int loc) {
   int i;
-  if (pattern == NULL) return 0;
+  if (pattern == NULL)
+    return 0;
   for (i = loc - 1; i > -1; i--)
-    if (patternmatch(pattern, MyManager.varmap.vars[i])) return 1;
+    if (patternmatch(pattern, MyManager.varmap.vars[i]))
+      return 1;
   return 0;
 }
 
-double Prob(extmanager MyManager, DdNode *node,  int comp)
+double Prob(extmanager MyManager, DdNode *node, int comp)
 /* compute the probability of the expression rooted at node
 nodes is used to store nodes for which the probability has alread been computed
 so that it is not recomputed
  */
 {
-  int mVarIndex,nBit,index;
+  int mVarIndex, nBit, index;
   variable v;
   hisnode *Found;
   double res;
   double value;
 
+  if (Cudd_IsConstant(node)) {
+    value = Cudd_V(node);
+    if (comp) {
+      return 0.0;
+    } else {
+      return 1.0;
+    }
+  } else {
+    Found = GetNode1(MyManager.varmap.bVar2mVar, MyManager.his,
+                     MyManager.varmap.varstart, node);
 
-  if (Cudd_IsConstant(node))
-  {
-    value=Cudd_V(node);
-    if (comp)
-	{
-	return 0.0;
-	}
-	else
-	{
-	return 1.0;
-	}
+    if (Found != NULL) {
+      return Found->dvalue;
+    } else {
+      index = Cudd_NodeReadIndex(node);
+      mVarIndex = MyManager.varmap.bVar2mVar[index];
+      v = MyManager.varmap.mvars[mVarIndex];
+      nBit = v.nBit;
+      res = ProbBool(MyManager, node, 0, nBit, 0, v, comp);
+      AddNode1(MyManager.varmap.bVar2mVar, MyManager.his,
+               MyManager.varmap.varstart, node, res, 0, NULL);
+      return res;
+    }
   }
-  else
-{
-	Found = GetNode1(MyManager.varmap.bVar2mVar,MyManager.his, MyManager.varmap.varstart, node);
-	
-	if (Found!=NULL)
-	{
-		return Found->dvalue;
-	}
-	else
-  	{
-		index=Cudd_NodeReadIndex(node);
-		mVarIndex=MyManager.varmap.bVar2mVar[index];
-		v=MyManager.varmap.mvars[mVarIndex];
-    		nBit=v.nBit;
-    		res=ProbBool(MyManager,node,0,nBit,0,v,comp);
-		AddNode1(MyManager.varmap.bVar2mVar,MyManager.his, MyManager.varmap.varstart, node, res, 0, NULL);
-    		return res;
-  	}
-}
 }
 
-double ProbBool(extmanager MyManager, DdNode *node, int bits, int nBit,int posBVar,variable v, int comp)
+double ProbBool(extmanager MyManager, DdNode *node, int bits, int nBit,
+                int posBVar, variable v, int comp)
 /* explores a group of binary variables making up the multivalued variable v */
 {
-  DdNode *T,*F;
-  double p,res;
-  double * probs;
+  DdNode *T, *F;
+  double p, res;
+  double *probs;
   int index;
-  probs=v.probabilities;
-  if (nBit==0)
-  {
-    if (bits>=v.nVal)
-	{
-	return 0.0;
-	}
-    else
-    {
-      p=probs[bits];
-      res=p*Prob(MyManager,node,comp);
+  probs = v.probabilities;
+  if (nBit == 0) {
+    if (bits >= v.nVal) {
+      return 0.0;
+    } else {
+      p = probs[bits];
+      res = p * Prob(MyManager, node, comp);
       return res;
     }
-  }
-  else
-  {
-    index=Cudd_NodeReadIndex(node);
-     if (correctPosition(index,v,posBVar))
-    {
+  } else {
+    index = Cudd_NodeReadIndex(node);
+    if (correctPosition(index, v, posBVar)) {
       T = Cudd_T(node);
       F = Cudd_E(node);
-      bits=bits<<1;
-      res=ProbBool(MyManager,T,bits+1,nBit-1,posBVar+1,v,comp);
-      comp=(!comp && Cudd_IsComplement(F)) || (comp && !Cudd_IsComplement(F));
-res=res+ 
-        ProbBool(MyManager,F,bits,nBit-1,posBVar+1,v,comp);
+      bits = bits << 1;
+      res = ProbBool(MyManager, T, bits + 1, nBit - 1, posBVar + 1, v, comp);
+      comp = (!comp && Cudd_IsComplement(F)) || (comp && !Cudd_IsComplement(F));
+      res = res + ProbBool(MyManager, F, bits, nBit - 1, posBVar + 1, v, comp);
       return res;
-    }
-    else
-    {
-      bits=bits<<1;
-      res=ProbBool(MyManager,node,bits+1,nBit-1,posBVar+1,v,comp);
-      res=res+ 
-        ProbBool(MyManager,node,bits,nBit-1,posBVar+1,v,comp);
-return res;
+    } else {
+      bits = bits << 1;
+      res = ProbBool(MyManager, node, bits + 1, nBit - 1, posBVar + 1, v, comp);
+      res =
+          res + ProbBool(MyManager, node, bits, nBit - 1, posBVar + 1, v, comp);
+      return res;
     }
   }
 }
 
-int correctPosition(int index,variable v,int posBVar)
-/* returns 1 is the boolean variable with index posBVar is in the correct position 
+int correctPosition(int index, variable v, int posBVar)
+/* returns 1 is the boolean variable with index posBVar is in the correct
+position
 currently explored by ProbBool */
 {
   int bvar;
-  bvar=v.booleanVars[posBVar];
+  bvar = v.booleanVars[posBVar];
 
-return(bvar==index);
+  return (bvar == index);
 }
 
-double ret_prob(extmanager MyManager, DdNode * bdd)
-{
-	double prob;
-	/* dividend is a global variable used by my_hash 
-	   it is equal to an unsigned int with binary representation 11..1 */ 
-	prob=Prob(MyManager,bdd,Cudd_IsComplement(bdd));
+double ret_prob(extmanager MyManager, DdNode *bdd) {
+  double prob;
+  /* dividend is a global variable used by my_hash
+     it is equal to an unsigned int with binary representation 11..1 */
+  prob = Prob(MyManager, bdd, Cudd_IsComplement(bdd));
 
-	return prob;
-
+  return prob;
 }

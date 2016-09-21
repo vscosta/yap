@@ -256,7 +256,7 @@ typedef struct _bddfileheader {
 typedef struct {
   int nVal, nBit, init;
   double *probabilities;
-  int *booleanVars;
+  DdNode **booleanVars;
 } variable;
 
 typedef struct _namedvars {
@@ -357,7 +357,7 @@ void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue,
 
 /* Save-load */
 
-bddfileheader ReadFileHeader(char *filename);
+bddfileheader ReadFileHeader(const char *filename);
 int CheckFileVersion(const char *version);
 
 DdNode *LoadNodeDump(DdManager *manager, namedvars varmap, FILE *inputfile);
@@ -367,16 +367,16 @@ DdNode *GetIfExists(DdManager *manager, namedvars varmap, hisqueue *Nodes,
                     char *varname, int nodenum);
 
 int SaveNodeDump(DdManager *manager, namedvars varmap, DdNode *bdd,
-                 char *filename);
+                 const char *filename);
 void SaveExpand(DdManager *manager, namedvars varmap, hisqueue *Nodes,
                 DdNode *Current, FILE *outputfile);
 void ExpandNodes(hisqueue *Nodes, int index, int nodenum);
 
 /* Export */
 
-int simpleBDDtoDot(DdManager *manager, DdNode *bdd, char *filename);
+int simpleBDDtoDot(DdManager *manager, DdNode *bdd, const char *filename);
 int simpleNamedBDDtoDot(DdManager *manager, namedvars varmap, DdNode *bdd,
-                        char *filename);
+                        const char *filename);
 
 DdNode *equality(DdManager *mgr, int varIndex, int value, namedvars varmap);
 hisnode *GetNodei1(int *bVar2mVar, hisqueue *HisQueue, int varstart,
