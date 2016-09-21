@@ -33,10 +33,6 @@
 #if BP_FREE
       P1REG = PCBACKUP;
 #endif
-      if (LOCAL_Error_TYPE == THROW_EVENT) {
-        LOCAL_Error_TYPE = YAP_NO_ERROR;
-        return 1;
-      }
       return 0;
       ENDBOp();
 
