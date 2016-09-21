@@ -1408,7 +1408,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
   DBRef *TmpRefBase = (DBRef *)LOCAL_TrailTop;
   CELL *CodeAbs; /* how much code did we find	 */
   int vars_found = FALSE;
-
+  yap_error_number oerr = LOCAL_Error_TYPE;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
 
   if (p == NULL) {
@@ -1418,6 +1418,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
 #endif
         DBRef out = (DBRef)CreateDBTermForVar(extra_size, dbg);
         *pstat = TRUE;
+        LOCAL_Error_TYPE = oerr;
         return out;
 #ifdef COROUTINING
       }
@@ -1425,6 +1426,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
     } else if (IsAtomOrIntTerm(Tm)) {
       DBRef out = (DBRef)CreateDBTermForAtom(Tm, extra_size, dbg);
       *pstat = FALSE;
+      LOCAL_Error_TYPE = oerr;
       return out;
     }
   } else {
@@ -1434,8 +1436,10 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
 #endif
             ) {
       *pstat = TRUE;
+      LOCAL_Error_TYPE = oerr;
       return CreateDBRefForVar(Tm, p, InFlag, dbg);
     } else if (IsAtomOrIntTerm(Tm)) {
+      LOCAL_Error_TYPE = oerr;
       return CreateDBRefForAtom(Tm, p, InFlag, dbg);
     }
   }
@@ -1463,6 +1467,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
       LOCAL_Error_Size = (UInt)(extra_size + sizeof(ppt0));
       LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
       Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
+      LOCAL_Error_TYPE = oerr;
       return NULL;
     }
     ntp0 = ppt0->Contents;
@@ -1470,6 +1475,8 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
       LOCAL_Error_Size = 0;
       LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
       Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
+      LOCAL_Error_TYPE = oerr;
+
       return NULL;
     }
     dbg->lr = dbg->LinkAr = (link_entry *)TR;
@@ -1481,6 +1488,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
                      &attachments, &vars_found, dbg);
       if (ntp == NULL) {
         Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
+        LOCAL_Error_TYPE = oerr;
         return NULL;
       }
     } else
@@ -1495,6 +1503,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
                      &vars_found, dbg);
       if (ntp == NULL) {
         Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
+        LOCAL_Error_TYPE = oerr;
         return NULL;
       }
     } else {
@@ -1535,6 +1544,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
                        &vars_found, dbg);
         if (ntp == NULL) {
           Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
+          LOCAL_Error_TYPE = oerr;
           return NULL;
         }
       }
@@ -1542,6 +1552,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
     CodeAbs = (CELL *)((CELL)ntp - (CELL)ntp0);
     if (LOCAL_Error_TYPE) {
       Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
+      LOCAL_Error_TYPE = oerr;
       return NULL; /* Error Situation */
     }
     NOfCells = ntp - ntp0; /* End Of Code Info */
@@ -1560,11 +1571,13 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
         LOCAL_Error_Size = (UInt)DBLength(CodeAbs);
         LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
         Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
+        LOCAL_Error_TYPE = oerr;
         return NULL;
       }
       if ((InFlag & MkIfNot) &&
           (dbg->found_one = check_if_wvars(p->First, NOfCells, ntp0))) {
         Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
+        LOCAL_Error_TYPE = oerr;
         return dbg->found_one;
       }
     } else {
@@ -1572,6 +1585,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
       if ((InFlag & MkIfNot) &&
           (dbg->found_one = check_if_nvars(p->First, NOfCells, ntp0, dbg))) {
         Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
+        LOCAL_Error_TYPE = oerr;
         return dbg->found_one;
       }
     }
@@ -1581,6 +1595,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
         LOCAL_Error_Size = (UInt)DBLength(CodeAbs);
         LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
         Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
+        LOCAL_Error_TYPE = oerr;
         return NULL;
       }
       flag |= DBWithRefs;
@@ -1588,6 +1603,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
 #if SIZEOF_LINK_ENTRY == 2
     if (Unsigned(CodeAbs) >= 0x40000) {
       Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
+      LOCAL_Error_TYPE = oerr;
       return generate_dberror_msg(SYSTEM_ERROR_INTERNAL, 0,
                                   "trying to store term larger than 256KB");
     }
@@ -1598,6 +1614,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
       ppt = (DBTerm *)(ptr + extra_size);
       if (ptr == NULL) {
         Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
+        LOCAL_Error_TYPE = oerr;
         return generate_dberror_msg(RESOURCE_ERROR_HEAP, sz,
                                     "heap crashed against stacks");
       }
@@ -1609,6 +1626,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
       pp = AllocDBSpace(sz);
       if (pp == NULL) {
         Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
+        LOCAL_Error_TYPE = oerr;
         return generate_dberror_msg(RESOURCE_ERROR_HEAP, sz,
                                     "heap crashed against stacks");
       }
@@ -1682,6 +1700,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
       ppt->DBRefs = NULL;
     }
     Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
+    LOCAL_Error_TYPE = oerr;
     return pp;
   }
 }
@@ -3978,7 +3997,7 @@ static void EraseLogUpdCl(LogUpdClause *clau) {
         }
       }
       clau->ClTimeEnd = ap->TimeStampOfPred;
-        Yap_RemoveClauseFromIndex(ap, clau->ClCode);
+      Yap_RemoveClauseFromIndex(ap, clau->ClCode);
       /* release the extra reference */
     }
     clau->ClRefCount--;
