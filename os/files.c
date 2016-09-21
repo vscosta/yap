@@ -306,6 +306,29 @@ static Int file_size(USES_REGS1) {
   return false;
 }
 
+static Int lines_in_file(USES_REGS1) {
+  Int sno = Yap_CheckStream(ARG1, (Input_Stream_f | Output_Stream_f),
+                            "lines_in_file/2");
+  if (sno < 0)
+    return (FALSE);
+  if (GLOBAL_Stream[sno].status & Seekable_Stream_f &&
+      !(GLOBAL_Stream[sno].status &
+        (InMemory_Stream_f | Socket_Stream_f | Pipe_Stream_f))) {
+    FILE *f = GLOBAL_Stream[sno].file;
+    size_t count = 0;
+    int ch;
+#if __ANDROID__
+#define getw getc
+#endif
+    while ((ch = getw(f)) >= 0) {
+      if (ch == '\n')
+        count++;
+    }
+    return Yap_unify(ARG3, MkIntegerTerm(count));
+  }
+  return false;
+}
+
 static Int access_file(USES_REGS1) {
   Term tname = Deref(ARG1);
   Term tmode = Deref(ARG2);
@@ -618,6 +641,8 @@ void Yap_InitFiles(void) {
                 SafePredFlag);
   Yap_InitCPred("same_file", 2, same_file, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$access_file", 2, access_file, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$lines_in_file", 2, lines_in_file,
+                SafePredFlag | SyncPredFlag);
   Yap_InitCPred("access", 1, access_path, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("exists_directory", 1, exists_directory,
                 SafePredFlag | SyncPredFlag);
