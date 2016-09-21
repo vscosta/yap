@@ -17,7 +17,6 @@ class YAPQuery : public YAPPredicate {
   bool q_open;
   int q_state;
   yhandle_t q_g, q_handles;
-  struct pred_entry *q_pe;
   struct yami *q_p, *q_cp;
   jmp_buf q_env;
   int q_flags;
@@ -25,13 +24,10 @@ class YAPQuery : public YAPPredicate {
   YAPQuery *oq;
   YAPListTerm vnames;
   YAPTerm goal;
-  Term names;
-  Term t;
+  // temporaries
+  Term tgoal, names;
 
-  void initOpenQ();
-  void initQuery(Term t);
-  void initQuery(YAPAtom at);
-  void initQuery(YAPTerm ts[], arity_t arity);
+  void openQuery();
 
 public:
   /// main constructor, uses a predicate and an array of terms
@@ -56,21 +52,24 @@ public:
   /// It is given a string, calls the parser and obtains a Prolog term that
   /// should be a callable
   /// goal.
-  inline YAPQuery(const char *s) : YAPPredicate(s, t, names) {
+  inline YAPQuery(const char *s): YAPPredicate(s, tgoal, names)  {
+  BACKUP_H();
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %d",
                         LOCAL_CurSlot);
-
+    goal = YAPTerm(tgoal);
     vnames = YAPListTerm(names);
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", vnames.text());
-    initQuery(t);
+    openQuery();
+    RECOVER_H();
   };
   /// string constructor with just an atom
   ///
   /// It is given an atom, and a Prolog term that should be a callable
   /// goal, say `main`, `init`, `live`.
-  inline YAPQuery(YAPAtom goal) : YAPPredicate(goal) {
-    vnames = YAPListTerm(TermNil);
-    initQuery(goal);
+  inline YAPQuery(YAPAtom g) : YAPPredicate( g ) {
+    goal = YAPAtomTerm( g );
+       vnames = YAPListTerm(names);
+       openQuery();
   };
 
   /// set flags for query execution, currently only for exception handling
@@ -164,8 +163,13 @@ public:
     if (_callback)
       _callback->run(s);
   }
+  /// stop yap
+   void close() {
+    Yap_exit(0);
+  }
+
   /// execute the callback with a text argument.
-  YAPError hasError() { return yerror.get(); }
+  bool hasError() { return LOCAL_Error_TYPE != YAP_NO_ERROR; }
   /// build a query on the engine
   YAPQuery *query(const char *s) { return new YAPQuery(s); };
   /// current module for the engine
@@ -173,6 +177,8 @@ public:
   /// given a handle, fetch a term from the engine
   inline YAPTerm getTerm(yhandle_t h) { return YAPTerm(h); }
   /// current directory for the engine
+  bool call(YAPPredicate ap, YAPTerm ts[]);
+
   const char *currentDir() {
     char dir[1024];
     std::string s = Yap_getcwd(dir, 1024 - 1);

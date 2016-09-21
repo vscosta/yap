@@ -4,6 +4,7 @@
 
 extern "C" Term YAP_ReadBuffer(const char *s, Term *tp);
 
+class YAPError;
 /**
  * @brief Generic Prolog Term
  */
@@ -27,8 +28,8 @@ public:
   } /// private method to convert from Term (internal YAP representation) to
   /// YAPTerm
   // do nothing constructor
-  YAPTerm() { t = 0; }
-  YAPTerm(yhandle_t i) { t= i; };
+  YAPTerm() { mk(MkVarTerm()); }
+  YAPTerm(yhandle_t i) { t = i; };
   /// pointer to term
   YAPTerm(void *ptr);
   /// parse string s and construct a term.
@@ -36,6 +37,8 @@ public:
     Term tp;
     mk(YAP_ReadBuffer(s, &tp));
   }
+  /// parse string s and construct a term.
+  YAPTerm(YAPFunctor f, YAPTerm ts[]);
   /// extract the tag of a term, after dereferencing.
   YAP_tag_t tag();
   /// copy the term ( term copy )
@@ -76,7 +79,7 @@ public:
   virtual bool isList() { return Yap_IsListTerm(gt()); }     /// term is a list
 
   /// extract the argument i of the term, where i in 1...arity
-  inline YAPTerm getArg(arity_t i) {
+  virtual YAPTerm getArg(arity_t i) {
     BACKUP_MACHINE_REGS();
     Term t0 = gt();
     YAPTerm tf;
@@ -155,9 +158,10 @@ class YAPApplTerm : public YAPTerm {
 public:
   ~YAPApplTerm() {}
   YAPApplTerm(YAPFunctor f, YAPTerm ts[]);
+  YAPApplTerm(const char *s, std::vector<YAPTerm> ts);
   YAPApplTerm(YAPFunctor f);
   YAPFunctor getFunctor();
-  inline YAPTerm getArg(arity_t i) {
+  YAPTerm getArg(arity_t i) {
     BACKUP_MACHINE_REGS();
     Term t0 = gt();
     YAPTerm tf;
@@ -254,7 +258,8 @@ public:
     else if (to == TermNil)
       return YAPListTerm();
     /* error */
-    throw YAPError(TYPE_ERROR_LIST);
+    Yap_Error(TYPE_ERROR_LIST, t, 0);
+    throw YAPError();
   }
   /// copy a list.
   ///
@@ -303,7 +308,7 @@ public:
   // Constructor: receives an atom;
   YAPAtomTerm(YAPAtom a) : YAPTerm() { mk(MkAtomTerm(a.a)); }
   // Constructor: receives a sequence of ISO-LATIN1 codes;
-  YAPAtomTerm(char *s);
+  YAPAtomTerm(char s[]);
   // Constructor: receives a sequence of up to n ISO-LATIN1 codes;
   YAPAtomTerm(char *s, size_t len);
   // Constructor: receives a sequence of wchar_ts, whatever they may be;
