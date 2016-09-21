@@ -209,6 +209,66 @@ static Int save_env_b(USES_REGS1) {
   return true;
 }
 
+/** Look for a predicate with same functor as t,
+     create a new one of it cannot find it.
+ */
+static PredEntry *new_pred(Term t, Term tmod, char *pname) {
+  Term t0 = t;
+
+restart:
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR, t0, pname);
+    return NULL;
+  } else if (IsAtomTerm(t)) {
+    return RepPredProp(PredPropByAtom(AtomOfTerm(t), tmod));
+  } else if (IsIntegerTerm(t) && tmod == IDB_MODULE) {
+    return Yap_FindLUIntKey(IntegerOfTerm(t));
+  } else if (IsApplTerm(t)) {
+    Functor fun = FunctorOfTerm(t);
+    if (IsExtensionFunctor(fun)) {
+      Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), pname);
+      return NULL;
+    }
+    if (fun == FunctorModule) {
+      Term tmod = ArgOfTerm(1, t);
+      if (IsVarTerm(tmod)) {
+        Yap_Error(INSTANTIATION_ERROR, t0, pname);
+        return NULL;
+      }
+      if (!IsAtomTerm(tmod)) {
+        Yap_Error(TYPE_ERROR_ATOM, t0, pname);
+        return NULL;
+      }
+      t = ArgOfTerm(2, t);
+      goto restart;
+    }
+    return RepPredProp(PredPropByFunc(fun, tmod));
+  } else
+    return NULL;
+}
+
+static bool CommaCall(Term t, Term mod) {
+  PredEntry *pen;
+  arity_t i;
+  if (IsVarTerm(t) || (pen = new_pred(t, mod, "_,_")))
+    return false;
+  for (i = 0; i < pen->ArityOfPE; i++) {
+    YENV[-EnvSizeInCells - i] = XREGS[i + 1];
+  }
+  YENV[E_CB] = (CELL)B;
+  YENV[E_CP] = (CELL)P;
+  YENV[E_E] = (CELL)ENV;
+  YENV[E_DEPTH] = DEPTH;
+
+  ASP = YENV - (EnvSizeInCells + i);
+  ENV = YENV;
+  YENV = ASP;
+  if ((P = pen->MetaEntryOfPred) == NULL) {
+    P = Yap_InitCommaContinuation(pen);
+  }
+  return P == NULL;
+}
+
 inline static bool do_execute(Term t, Term mod USES_REGS) {
   Term t0 = t;
   t = Yap_YapStripModule(t, &mod);
@@ -220,14 +280,28 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
   }
   if (IsVarTerm(t) || IsVarTerm(mod)) {
     return CallError(INSTANTIATION_ERROR, t0, mod PASS_REGS);
-  } else if (IsApplTerm(t)) {
+  }
+  if (IsApplTerm(t)) {
     register Functor f = FunctorOfTerm(t);
     register CELL *pt;
     PredEntry *pen;
     unsigned int i, arity;
 
     f = FunctorOfTerm(t);
-    if (IsExtensionFunctor(f)) {
+    if (f == FunctorComma && false) {
+      Term t2 = ArgOfTerm(2, t);
+      if (IsVarTerm(t2))
+        return CallMetaCall(t, mod PASS_REGS);
+      if (!CommaCall(t2, mod))
+        return CallMetaCall(t, mod PASS_REGS);
+      Term t1 = ArgOfTerm(1, t);
+
+      t = t1;
+      pen = new_pred(t, mod, "_,_");
+      if (pen == NULL || (arity = pen->ArityOfPE) == 0) {
+        return do_execute(t, mod);
+      }
+    } else if (IsExtensionFunctor(f)) {
       return CallError(TYPE_ERROR_CALLABLE, t, mod PASS_REGS);
     }
     arity = ArityOfFunctor(f);
@@ -237,9 +311,6 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
     pen = RepPredProp(PredPropByFunc(f, mod));
     /* You thought we would be over by now */
     /* but no meta calls require special preprocessing */
-    if (pen->PredFlags & MetaPredFlag) {
-      return CallMetaCall(t, mod PASS_REGS);
-    }
     /* now let us do what we wanted to do from the beginning !! */
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
@@ -249,7 +320,7 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
 #if YAPOR_SBA
       Term d0 = *pt++;
       if (d0 == 0)
-        ` XREGS[i] = (CELL)(pt - 1);
+        XREGS[i] = (CELL)(pt - 1);
       else
         XREGS[i] = d0;
 #else
@@ -257,8 +328,9 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
       XREGS[i] = *pt++;
 #endif
     }
-    return (CallPredicate(pen, B, pen->CodeOfPred PASS_REGS));
-  } else if (IsAtomTerm(t)) {
+    return CallPredicate(pen, B, pen->CodeOfPred PASS_REGS);
+  }
+  if (IsAtomTerm(t)) {
     PredEntry *pe;
     Atom a = AtomOfTerm(t);
 
@@ -271,12 +343,8 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
     /* call may not define new system predicates!! */
     pe = RepPredProp(PredPropByAtom(a, mod));
     return (CallPredicate(pe, B, pe->CodeOfPred PASS_REGS));
-  } else if (IsIntTerm(t)) {
-    return CallError(TYPE_ERROR_CALLABLE, t, mod PASS_REGS);
-  } else {
-    /* Is Pair Term */
-    return (CallMetaCall(t, mod PASS_REGS));
   }
+  return CallMetaCall(t, mod PASS_REGS);
 }
 
 static Term copy_execn_to_heap(Functor f, CELL *pt, unsigned int n,
@@ -1133,6 +1201,7 @@ static Int execute0(USES_REGS1) { /* '$execute0'(Goal,Mod)	 */
   if (Yap_has_a_signal() && !LOCAL_InterruptsDisabled) {
     return EnterCreepMode(t, mod PASS_REGS);
   }
+  t = Yap_YapStripModule(t, &mod);
 restart_exec:
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, ARG3, "call/1");
@@ -1407,7 +1476,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
   return out;
 }
 
-void Yap_PrepGoal(UInt arity, CELL *pt, choiceptr saved_b USES_REGS) {
+void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS) {
   /* create an initial pseudo environment so that when garbage
      collection is going up in the environment chain it doesn't get
      confused */
@@ -1526,7 +1595,7 @@ void Yap_fail_all(choiceptr bb USES_REGS) {
   P = saved_p;
 }
 
-bool Yap_execute_pred( PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
+bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
   yamop *saved_p, *saved_cp;
   yamop *CodeAdr;
   bool out;
@@ -2004,13 +2073,18 @@ static Int jump_env(USES_REGS1) {
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "throw ball must be bound");
     return false;
+  } else if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
+    Yap_find_prolog_culprit(PASS_REGS1);
+    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+  } else {
+    LOCAL_Error_TYPE = THROW_EVENT;
   }
+  LOCAL_ActiveError.prologPredName = NULL;
   Yap_PutException(t);
   bool out = JumpToEnv(PASS_REGS1);
   if (B != NULL && P == FAILCODE && B->cp_ap == NOCODE &&
       LCL0 - (CELL *)B > LOCAL_CBorder) {
     // we're failing up to the top layer
-    LOCAL_Error_TYPE = THROW_EVENT;
   }
   return out;
 }
