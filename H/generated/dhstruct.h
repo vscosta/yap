@@ -48,7 +48,7 @@
 #define HeapLim Yap_heap_regs->HeapLim_
 #define FreeBlocks Yap_heap_regs->FreeBlocks_
 #if defined(YAPOR) || defined(THREADS)
-#define fFreeBlocksLock Yap_heap_regs->FreeBlocksLock_
+#define FreeBlocksLock Yap_heap_regs->FreeBlocksLock_
 #define HeapUsedLock Yap_heap_regs->HeapUsedLock_
 #define HeapTopLock Yap_heap_regs->HeapTopLock_
 #define HeapTopOwner Yap_heap_regs->HeapTopOwner_

@@ -76,8 +76,6 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
-  RestoreBallTerm(wid);
-
 
 
 
@@ -160,8 +158,6 @@ static void RestoreWorker(int wid USES_REGS) {
 #if LOW_LEVEL_TRACER
 
 #endif
-
-
 
 
 

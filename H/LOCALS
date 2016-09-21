@@ -86,8 +86,6 @@ char*			ScannerStack				=NULL
 struct    scanner_extra_alloc*	 ScannerExtraBlocks			=NULL
 
 /// worker control information
-/// pointer to an exception term, from throw
-struct DB_TERM*			BallTerm				=NULL 		RestoreBallTerm(wid)
 /// stack limit after which the stack is managed by C-code.
 Int				CBorder				=0
 
@@ -198,12 +196,12 @@ ADDR				TrailBase				void
 ADDR				TrailTop				void
 char*				ErrorMessage				void
 Term				Error_Term				void
-yap_error_number		Error_TYPE				void
-const char*             	Error_File				void
-const char*            		Error_Function				void
-int             		Error_Lineno				void
-size_t             		Error_Size				void
-char				ErrorSay[MAX_ERROR_MSG_SIZE]		void
+
+/** error handling info, designed to be easy to pass to the foreign world */
+struct yap_error_descriptor	ActiveError		void
+/// pointer to an exception term, from throw
+struct DB_TERM*			BallTerm				=NULL
+
 jmp_buf 			IOBotch					void
 TokEntry*			tokptr					void
 TokEntry*			toktide					void
@@ -307,7 +305,7 @@ UInt				exo_arg					=0
 struct scan_atoms*		search_atoms				void
 struct pred_entry*		SearchPreds				void
 
-// Slots
+/// Slots Status
 yhandle_t				CurSlot					=0
 yhandle_t				FrozenHandles			=0
 yhandle_t				NSlots					=0

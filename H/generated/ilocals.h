@@ -76,8 +76,6 @@ static void InitWorker(int wid) {
   REMOTE_ScannerExtraBlocks(wid) = NULL;
 
 
-  REMOTE_BallTerm(wid) = NULL;
-
   REMOTE_CBorder(wid) = 0;
 
   REMOTE_MaxActiveSignals(wid) = 64L;
@@ -171,9 +169,7 @@ static void InitWorker(int wid) {
 
 
 
-
-
-
+  REMOTE_BallTerm(wid) = NULL;
 
 
 
