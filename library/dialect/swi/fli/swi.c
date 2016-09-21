@@ -32,11 +32,14 @@ Moyle.  All rights reserved.
 #include <Yatom.h>
 #include <eval.h>
 
+#include "swi.h"
 #include <YapHeap.h>
+
+#include <YapHandles.h>
+
 #include <YapText.h>
 #include <yapio.h>
 
-#include "swi.h"
 #if HAVE_MATH_H
 #include <math.h>
 #endif
@@ -254,10 +257,10 @@ X_API int PL_unify_chars(term_t l, int flags, size_t length, const char *s) {
 
   if (flags & REP_UTF8) {
     inp.val.c0 = s;
-    inp.type = YAP_STRING_CHARS|ENC_ISO_LATIN1;
+    inp.type = YAP_STRING_CHARS | ENC_ISO_LATIN1;
     if (length != (size_t)-1) {
       inp.type |= YAP_STRING_NCHARS;
-      }
+    }
   }
   if (flags & PL_ATOM) {
     out.type = YAP_STRING_ATOM;
@@ -1976,7 +1979,8 @@ X_API int PL_is_pair(term_t ts) {
 
 X_API int PL_skip_list(term_t list, term_t tail, size_t *len) {
   CACHE_REGS
-  Term *l = Yap_AddressFromSlot(list);
+  Term t0 = Yap_GetFromSlot(list);
+  Term *l = &t0;
   Term *t;
   intptr_t length;
 
@@ -2412,14 +2416,15 @@ X_API int PL_next_solution(qid_t qi) {
     return 0;
   // don't forget, on success these guys must create slots
   if (qi->q_state == 0) {
-    result = YAP_EnterGoal((YAP_PredEntryPtr)qi->q_pe, qi->q_g, &qi->q_h);
+    result = YAP_EnterGoal((YAP_PredEntryPtr)qi->q_pe,
+                           Yap_GetPtrFromHandle(qi->q_g), &qi->q_h);
   } else {
     LOCAL_AllowRestart = qi->q_open;
     result = YAP_RetryGoal(&qi->q_h);
   }
   qi->q_state = 1;
   if (result == 0) {
-    YAP_LeaveGoal(FALSE, &qi->q_h);
+    YAP_LeaveGoal(false, &qi->q_h);
     qi->q_open = 0;
   }
   return result;
@@ -2430,7 +2435,7 @@ X_API void PL_cut_query(qid_t qi) {
 
   if (qi->q_open != 1 || qi->q_state == 0)
     return;
-  YAP_LeaveGoal(FALSE, &qi->q_h);
+  YAP_LeaveGoal(false, &qi->q_h);
   qi->q_open = 0;
   LOCAL_execution = qi->oq;
   Yap_FreeCodeSpace((char *)qi);
