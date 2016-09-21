@@ -16,7 +16,6 @@
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
-
 #endif
 
 #define ADTDEFS_C
@@ -810,7 +809,8 @@ Prop Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod) {
   p->cs.p_code.ExpandCode = EXPAND_OP_CODE;
   p->TimeStampOfPred = 0L;
   p->LastCallOfPred = LUCALL_ASSERT;
-  if (cur_mod == TermProlog)
+   p->MetaEntryOfPred = NULL;
+ if (cur_mod == TermProlog)
     p->ModuleOfPred = 0L;
   else
     p->ModuleOfPred = cur_mod;
@@ -892,6 +892,7 @@ Prop Yap_NewThreadPred(PredEntry *ap USES_REGS) {
 #if SIZEOF_INT_P == 4
   p->ExtraPredFlags = 0L;
 #endif
+  p->MetaEntryOfPred = NULL;
   p->src.OwnerFile = ap->src.OwnerFile;
   p->OpcodeOfPred = FAIL_OPCODE;
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
@@ -946,7 +947,8 @@ Prop Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod) {
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->cs.p_code.ExpandCode = EXPAND_OP_CODE;
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
-  if (cur_mod == TermProlog)
+   p->MetaEntryOfPred = NULL;
+ if (cur_mod == TermProlog)
     p->ModuleOfPred = 0;
   else
     p->ModuleOfPred = cur_mod;
