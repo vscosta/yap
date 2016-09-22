@@ -68,7 +68,7 @@ public:
   /// goal, say `main`, `init`, `live`.
   inline YAPQuery(YAPAtom g) : YAPPredicate( g ) {
     goal = YAPAtomTerm( g );
-       vnames = YAPListTerm(names);
+       vnames = YAPListTerm();
        openQuery();
   };
 
