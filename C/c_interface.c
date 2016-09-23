@@ -1623,7 +1623,7 @@ static int run_emulator(USES_REGS1) {
   return out;
 }
 
-X_API bool YAP_EnterGoal(PredEntry *pe, yhandle_t ptr, YAP_dogoalinfo *dgi) {
+X_API bool YAP_EnterGoal(PredEntry *pe, CELL *ptr, YAP_dogoalinfo *dgi) {
   CACHE_REGS
   bool out;
 
@@ -1634,7 +1634,7 @@ X_API bool YAP_EnterGoal(PredEntry *pe, yhandle_t ptr, YAP_dogoalinfo *dgi) {
   dgi->CurSlot = LOCAL_CurSlot;
   // ensure our current ENV receives current P.
 
-  Yap_PrepGoal(pe->ArityOfPE, Yap_AddressFromSlot(ptr), B PASS_REGS);
+  Yap_PrepGoal(pe->ArityOfPE, nullptr, B PASS_REGS);
   P = pe->CodeOfPred;
   // __android_log_print(ANDROID_LOG_INFO, "YAP ", "ap=%p %d %x %x args=%x,%x
   // slot=%d", pe, pe->CodeOfPred->opc, FAILCODE, Deref(ARG1), Deref(ARG2),
@@ -1679,7 +1679,7 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   return out;
 }
 
-X_API bool YAP_LeaveGoal(int backtrack, YAP_dogoalinfo *dgi) {
+X_API bool YAP_LeaveGoal(bool backtrack, YAP_dogoalinfo *dgi) {
   CACHE_REGS
   choiceptr myB;
 

@@ -2011,6 +2011,9 @@ calls it, or to nothing if 'inline' is not supported under any name.  */
 #endif
 #endif
 
+#ifndef HAVE_STRLCPY
+#define strlcpy(X,Y,Z) strcpy(X,Y)
+#endif
 
 //#define DEBUG_MALLOC 1
 #if DEBUG_MALLOC

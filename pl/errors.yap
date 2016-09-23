@@ -107,6 +107,7 @@ system_error(Type,Goal,Culprit) :-
 	fail.
 '$LoopError'(_, _) :-
 	flush_output,
+    '$close_error',
 	fail.
 
 '$process_error'('$forward'(Msg), _) :-
@@ -114,7 +115,6 @@ system_error(Type,Goal,Culprit) :-
   throw( '$forward'(Msg) ).
 '$process_error'('$abort', Level) :-
    !,
-'$process_error'(abort, Level).
 '$process_error'(abort, Level) :-
   !,
   (

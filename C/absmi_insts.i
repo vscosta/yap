@@ -1101,19 +1101,10 @@
 #if defined(YAPOR) || defined(THREADS)
 	  PP = NULL;
 #endif
-	  if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
-	    LOCAL_Error_TYPE = YAP_NO_ERROR;
-	    if (!Yap_growglobal(NULL)) {
-	      Yap_NilError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, LOCAL_ErrorMessage);
-	      FAIL();
-	    }
-	  } else {
-	    LOCAL_Error_TYPE = YAP_NO_ERROR;
 	    if (!Yap_gc(3, ENV, CP)) {
 	      Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage);
 	      FAIL();
 	    }
-	  }
 #if defined(YAPOR) || defined(THREADS)
 	  PELOCK(5,ClauseCodeToLogUpdClause(PREG)->ClPred);
 	  PP = ClauseCodeToLogUpdClause(PREG)->ClPred;
@@ -8171,7 +8162,7 @@
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	    Yap_PreProcessedError(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  }
@@ -8216,7 +8207,7 @@
 	    setregs();
 	    if (d0 == 0L) {
 	      saveregs();
-	      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	      Yap_PreprocessedError()
 	      setregs();
 	      FAIL();
 	    }
@@ -8257,7 +8248,7 @@
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	    Yap_PreprocessedError()
 	    setregs();
 	    FAIL();
 	  }
@@ -8305,7 +8296,7 @@
 	    setregs();
 	    if (d0 == 0L) {
 	      saveregs();
-	      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	      Yap_PreprocessedError()
 	      setregs();
 	      FAIL();
 	    }
@@ -8349,7 +8340,7 @@
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	    Yap_PreprocessedError()
 	    setregs();
 	    FAIL();
 	  }
@@ -8394,7 +8385,7 @@
 	    setregs();
 	    if (d0 == 0L) {
 	      saveregs();
-	      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	      Yap_PreprocessedError()
 	      setregs();
 	      FAIL();
 	    }
@@ -8435,7 +8426,7 @@
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	    Yap_PreprocessedError()
 	    setregs();
 	    FAIL();
 	  }
@@ -8483,7 +8474,7 @@
 	    setregs();
 	    if (d0 == 0L) {
 	      saveregs();
-	      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	      Yap_PreprocessedError()
 	      setregs();
 	      FAIL();
 	    }
@@ -8527,7 +8518,7 @@
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	    Yap_PreprocessedError()
 	    setregs();
 	    FAIL();
 	  }
@@ -8572,7 +8563,7 @@
 	    setregs();
 	    if (d0 == 0L) {
 	      saveregs();
-	      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	      Yap_PreprocessedError()
 	      setregs();
 	      FAIL();
 	    }
@@ -8613,7 +8604,7 @@
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	    Yap_PreprocessedError()
 	    setregs();
 	    FAIL();
 	  }
@@ -8661,7 +8652,7 @@
 	    setregs();
 	    if (d0 == 0L) {
 	      saveregs();
-	      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	      Yap_PreprocessedError()
 	      setregs();
 	      FAIL();
 	    }
@@ -8712,7 +8703,7 @@
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	    Yap_PreprocessedError()
 	    setregs();
 	    FAIL();
 	  }
@@ -8757,7 +8748,7 @@
 	    setregs();
 	    if (d0 == 0L) {
 	      saveregs();
-	      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	      Yap_PreprocessedError()
 	      setregs();
 	      FAIL();
 	    }
@@ -8800,7 +8791,7 @@
 	    d0 = p_div(MkIntegerTerm(d1),Yap_Eval(d0) PASS_REGS);
 	    if (d0 == 0L) {
 	      saveregs();
-	      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	      Yap_PreprocessedError()
 	      setregs();
 	      FAIL();
 	    }
@@ -8848,7 +8839,7 @@
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	    Yap_PreprocessedError()
 	    setregs();
 	    FAIL();
 	  }
@@ -8896,7 +8887,7 @@
 	    setregs();
 	    if (d0 == 0L) {
 	      saveregs();
-	      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	      Yap_PreprocessedError()
 	      setregs();
 	      FAIL();
 	    }
@@ -8943,7 +8934,7 @@
 	    setregs();
 	    if (d0 == 0L) {
 	      saveregs();
-	      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	      Yap_PreprocessedError()
 	      setregs();
 	      FAIL();
 	    }
@@ -8988,7 +8979,7 @@
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	    Yap_PreprocessedError()
 	    setregs();
 	    FAIL();
 	  }
@@ -9033,7 +9024,7 @@
 	    setregs();
 	    if (d0 == 0L) {
 	      saveregs();
-	      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	      Yap_PreprocessedError()
 	      setregs();
 	      FAIL();
 	    }
@@ -9074,7 +9065,7 @@
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	    Yap_PreprocessedError()
 	    setregs();
 	    FAIL();
 	  }
@@ -9122,7 +9113,7 @@
 	    setregs();
 	    if (d0 == 0L) {
 	      saveregs();
-	      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	      Yap_PreprocessedError()
 	      setregs();
 	      FAIL();
 	    }
@@ -9167,7 +9158,7 @@
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	    Yap_PreprocessedError()
 	    setregs();
 	    FAIL();
 	  }
@@ -9211,7 +9202,7 @@
 	    d0 = p_or(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	    if (d0 == 0L) {
 	      saveregs();
-	      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	      Yap_PreprocessedError()
 	      setregs();
 	      FAIL();
 	    }
@@ -9252,7 +9243,7 @@
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	    Yap_PreprocessedError()
 	    setregs();
 	    FAIL();
 	  }
@@ -9300,7 +9291,7 @@
 	    setregs();
 	    if (d0 == 0L) {
 	      saveregs();
-	      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	      Yap_PreprocessedError()
 	      setregs();
 	      FAIL();
 	    }
@@ -9349,7 +9340,7 @@
 	}
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	  Yap_PreprocessedError()
 	  setregs();
 	  FAIL();
 	}
@@ -9395,7 +9386,7 @@
 	}
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	  Yap_PreprocessedError()
 	  setregs();
 	  FAIL();
 	}
@@ -9436,7 +9427,7 @@
 	}
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	  Yap_PreprocessedError()
 	  setregs();
 	  FAIL();
 	}
@@ -9480,7 +9471,7 @@
 	}
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	  Yap_PreprocessedError()
 	  setregs();
 	  FAIL();
 	}
@@ -9529,7 +9520,7 @@
 	}
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	  Yap_PreprocessedError()
 	  setregs();
 	  FAIL();
 	}
@@ -9574,7 +9565,7 @@
 	}
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	  Yap_PreprocessedError()
 	  setregs();
 	  FAIL();
 	}
@@ -9621,7 +9612,7 @@
 	}
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	  Yap_PreprocessedError()
 	  setregs();
 	  FAIL();
 	}
@@ -9665,7 +9656,7 @@
 	    setregs();
 	    if (d0 == 0L) {
 	      saveregs();
-	      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	      Yap_PreprocessedError()
 	      setregs();
 	      FAIL();
 	    }
@@ -9708,7 +9699,7 @@
 	}
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	  Yap_PreprocessedError()
 	  setregs();
 	  FAIL();
 	}
@@ -9753,7 +9744,7 @@
 	BEGP(pt0);
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	  Yap_PreprocessedError()
 	  setregs();
 	  FAIL();
 	}
@@ -9799,7 +9790,7 @@
 	    setregs();
 	    if (d0 == 0L) {
 	      saveregs();
-	      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	      Yap_PreprocessedError()
 	      setregs();
 	      FAIL();
 	    }
@@ -9844,7 +9835,7 @@
 	}
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+	  Yap_PreprocessedError()
 	  setregs();
 	  FAIL();
 	}

@@ -117,9 +117,9 @@ INLINE_ONLY inline EXTERN Term aro(Term inp) {
 // INLINE_ONLY inline EXTERN Term booleanFlag( Term inp );
 
 static inline Term booleanFlag(Term inp) {
-  if (inp == TermTrue  || inp == TermOn )
+  if (inp == TermTrue || inp == TermOn)
     return TermTrue;
-  if ( inp == TermFalse || inp == TermOff)
+  if (inp == TermFalse || inp == TermOff)
     return TermFalse;
   if (IsVarTerm(inp)) {
     Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
@@ -154,15 +154,13 @@ static Term synerr(Term inp) {
 static inline Term filler(Term inp) { return inp; }
 
 static inline Term list_filler(Term inp) {
-  if (IsVarTerm(inp) ||
-      IsPairTerm(inp) ||
-      inp == TermNil)
+  if (IsVarTerm(inp) || IsPairTerm(inp) || inp == TermNil)
     return inp;
 
-    Yap_Error(TYPE_ERROR_LIST, inp,
-              "set_prolog_flag in {codes,string}");
-      
-  return TermZERO; }
+  Yap_Error(TYPE_ERROR_LIST, inp, "set_prolog_flag in {codes,string}");
+
+  return TermZERO;
+}
 
 static Term bqs(Term inp) {
   if (inp == TermCodes || inp == TermString || inp == TermSymbolChar)
@@ -191,7 +189,9 @@ static inline Term isatom(Term inp) {
   return TermZERO;
 }
 
-static inline Term options(Term inp) { return  Yap_IsGroundTerm(inp) ? inp : TermZERO; }
+static inline Term options(Term inp) {
+  return Yap_IsGroundTerm(inp) ? inp : TermZERO;
+}
 
 // INLINE_ONLY inline EXTERN  Term ok( Term inp );
 
@@ -347,8 +347,7 @@ static inline Term getBackQuotesFlag(void) {
   return GLOBAL_Flags[BACKQUOTED_STRING_FLAG].at;
 }
 
-static inline Term
-indexingMode(void) { return GLOBAL_Flags[INDEX_FLAG].at; }
+static inline Term indexingMode(void) { return GLOBAL_Flags[INDEX_FLAG].at; }
 
 static inline const char *floatFormat(void) {
   return RepAtom(AtomOfTerm(GLOBAL_Flags[FLOAT_FORMAT_FLAG].at))->rep.uStrOfAE;
@@ -358,9 +357,7 @@ static inline size_t indexingDepth(void) {
   return IntOfTerm(GLOBAL_Flags[INDEX_SUB_TERM_SEARCH_DEPTH_FLAG].at);
 }
 
-static inline Term gcTrace(void) {
-  return GLOBAL_Flags[GC_TRACE_FLAG].at;
-}
+static inline Term gcTrace(void) { return GLOBAL_Flags[GC_TRACE_FLAG].at; }
 
 Term Yap_UnknownFlag(Term mod);
 

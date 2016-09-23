@@ -7,7 +7,7 @@ macro_log_feature (SWIG_FOUND "Swig"
 if (SWIG_FOUND)
   #
   #   SWIG_FOUND - set to true if SWIG is found
-  #   SWIG_DIR - the directory where swig is installed
+  #   SWIG_DIR - t      he directory where swig is installed
   #   SWIG_EXECUTABLE - the path to the swig executable
   #   SWIG_VERSION   - the version number of the swig executable
   #

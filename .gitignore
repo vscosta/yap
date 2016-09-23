@@ -181,3 +181,25 @@ packages/myddas/DaysInHospital_Y3.csv
 packages/myddas/agile.csv
 
 *.pyc
+
+*.cmake#
+
+*.tex
+
+*.c#
+
+packages/swig/yap_wrap.cxx
+
+packages/swig/yap_wrap.h
+
+packages/swig/yap_wrap.cpp
+
+packages/swig/yap.py
+
+*.ipynb
+
+packages/python/yap_kernel/x/__init__.py
+
+packages/python/yap_kernel/x/__main__.py
+
+*.gch

@@ -48,6 +48,7 @@ add_component(myddas
         ${MYDDAS_UTIL_SOURCES}
         ${MYDDAS_HEADERS}
         )
+
 MY_add_dependencies(myddas plmyddas)
 add_subdirectory(pl)
 

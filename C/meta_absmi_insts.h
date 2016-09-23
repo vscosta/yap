@@ -23,7 +23,7 @@
 	/* original goal */
 	d0 = ENV_YREG[-EnvSizeInCells-1];
 	/* predicate we had used */
-	pen = RepPredProp((Prop)IntegerOfTerm(ENV_YREG[-EnvSizeInCells-2]));
+	pen = RepPredProp(AddressOfTerm(ENV_YREG[-EnvSizeInCells-2]));
 	/* current module at the time */
 	mod = ENV_YREG[-EnvSizeInCells-3];
 	/* set YREG */

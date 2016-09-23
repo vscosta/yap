@@ -12,13 +12,17 @@ set(MYDDAS_DRIVERS
         myddas_driver.ypp
         )
 
-
+if (ANDROID)
+    set (PREFIX ${libpl} )
+else()
+    set (PREFIX ${CMAKE_CURRENT_BINARY_DIR} )
+endif()
 
 get_property(MYDDAS_FLAGS GLOBAL PROPERTY COMPILE_DEFINITIONS)
 
 function(cpp_compile output filename)
     get_filename_component(base ${filename} NAME_WE)
-    set(base_abs ${CMAKE_CURRENT_BINARY_DIR}/${base})
+    set(base_abs ${PREFIX}/${base})
     set(outfile ${base_abs}.yap)
      set(${output} ${${output}} ${outfile} PARENT_SCOPE)
             IF (MSVC)
@@ -61,9 +65,9 @@ foreach (driver ${MYDDAS_DBMS})
     cpp_driver(MYDDAS_YAP ${driver} myddas_driver.ypp)
 endforeach ()
 
-MY_add_custom_target(plmyddas ALL DEPENDS  ${MYDDAS_YAP}
+add_custom_target(plmyddas ALL DEPENDS  ${MYDDAS_YAP}
 
-         ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
+         )
 
 MY_install(FILES ${MYDDAS_YAP}
      DESTINATION ${libpl}

@@ -133,9 +133,6 @@
 #define REMOTE_ScannerExtraBlocks(wid) REMOTE(wid)->ScannerExtraBlocks_
 
 
-#define LOCAL_BallTerm LOCAL->BallTerm_
-#define REMOTE_BallTerm(wid) REMOTE(wid)->BallTerm_
-
 #define LOCAL_CBorder LOCAL->CBorder_
 #define REMOTE_CBorder(wid) REMOTE(wid)->CBorder_
 
@@ -295,18 +292,12 @@
 #define REMOTE_ErrorMessage(wid) REMOTE(wid)->ErrorMessage_
 #define LOCAL_Error_Term LOCAL->Error_Term_
 #define REMOTE_Error_Term(wid) REMOTE(wid)->Error_Term_
-#define LOCAL_Error_TYPE LOCAL->Error_TYPE_
-#define REMOTE_Error_TYPE(wid) REMOTE(wid)->Error_TYPE_
-#define LOCAL_Error_File LOCAL->Error_File_
-#define REMOTE_Error_File(wid) REMOTE(wid)->Error_File_
-#define LOCAL_Error_Function LOCAL->Error_Function_
-#define REMOTE_Error_Function(wid) REMOTE(wid)->Error_Function_
-#define LOCAL_Error_Lineno LOCAL->Error_Lineno_
-#define REMOTE_Error_Lineno(wid) REMOTE(wid)->Error_Lineno_
-#define LOCAL_Error_Size LOCAL->Error_Size_
-#define REMOTE_Error_Size(wid) REMOTE(wid)->Error_Size_
-#define LOCAL_ErrorSay LOCAL->ErrorSay_
-#define REMOTE_ErrorSay(wid) REMOTE(wid)->ErrorSay_
+
+#define LOCAL_ActiveError LOCAL->ActiveError_
+#define REMOTE_ActiveError(wid) REMOTE(wid)->ActiveError_
+
+#define LOCAL_BallTerm LOCAL->BallTerm_
+#define REMOTE_BallTerm(wid) REMOTE(wid)->BallTerm_
 #define LOCAL_IOBotch LOCAL->IOBotch_
 #define REMOTE_IOBotch(wid) REMOTE(wid)->IOBotch_
 #define LOCAL_tokptr LOCAL->tokptr_

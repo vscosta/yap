@@ -18,8 +18,6 @@ set(
         "${CMAKE_SOURCE_DIR}"
         "${CMAKE_SOURCE_DIR}/cmake")
 
-set(LIBYAP_SOURCES ../../externalNativeBuild/swig/yapj.cpp)
-
 include(CheckIncludeFiles)
 include(CheckLibraryExists)
 include(CheckSymbolExists)
@@ -29,6 +27,7 @@ include(MacroOptionalAddSubdirectory)
 include(MacroOptionalFindPackage)
 include(MacroLogFeature)
 include(FindPackageHandleStandardArgs)
+include (GNUInstallDirs)
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds it for you.
@@ -61,7 +60,26 @@ if (MYSQL_POSTGRES)
 
 if (ANDROID)
 
-    set(ALL_SOURCES ../../externalNativeBuild/swig/yapj.cpp)
+  #
+  #   SWIG_FOUND - set to true if SWIG is found
+  #   SWIG_DIR - t      he directory where swig is installed
+  #   SWIG_EXECUTABLE - the path to the swig executable
+  #   SWIG_VERSION   - the version number of the swig executable
+  #
+
+  #
+set (SWIG_SOURCES ${CMAKE_SOURCE_DIR}/packages/swig/yap.i)
+set (SWIG_CXX ${CMAKE_BINARY_DIR}/yap_swig.cpp)
+find_host_package (SWIG)
+macro_log_feature (SWIG_FOUND "Swig"
+  "Use SWIG Language Interface "
+"http://www.swig.org" ON)
+
+
+    add_custom_command (OUTPUT ${SWIG_CXX}
+        COMMAND ${SWIG_EXECUTABLE} -c++ -java  -package pt.up.yap.lib -outdir ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/../../../../../src/generated/java  -I${CMAKE_SOURCE_DIR}/CXX  -o ${SWIG_CXX}
+ ${SWIG_SOURCES}
+      )
 
     ADD_SUBDIRECTORY(os)
     ADD_SUBDIRECTORY(OPTYap)
@@ -96,6 +114,7 @@ add_library( # Sets the name of the library.
         SHARED
 
         ${ENGINE_SOURCES}
+        ${SWIG_CXX}
         ${C_INTERFACE_SOURCES}
         ${STATIC_SOURCES}
         ${ALL_SOURCES}
@@ -112,6 +131,7 @@ endif (USE_READLINE)
 
 
 if (ANDROID)
+    add_dependencies(libYap plmyddas)
 
     target_link_libraries(libYap android log)
 

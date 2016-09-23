@@ -287,7 +287,7 @@ DdNode *D_BDDXnor(DdManager *manager, DdNode *bdd1, DdNode *bdd2) {
 
 /* file manipulation */
 
-bddfileheader ReadFileHeader(char *filename) {
+bddfileheader ReadFileHeader(const char *filename) {
   bddfileheader temp;
   char *header;
   temp.inputfile = NULL;
@@ -362,7 +362,7 @@ int CheckFileVersion(const char *version) {
   return -1;
 }
 
-int simpleBDDtoDot(DdManager *manager, DdNode *bdd, char *filename) {
+int simpleBDDtoDot(DdManager *manager, DdNode *bdd, const char *filename) {
   DdNode *f[1];
   int ret;
   FILE *fd;
@@ -378,7 +378,7 @@ int simpleBDDtoDot(DdManager *manager, DdNode *bdd, char *filename) {
 }
 
 int simpleNamedBDDtoDot(DdManager *manager, namedvars varmap, DdNode *bdd,
-                        char *filename) {
+                        const char *filename) {
   DdNode *f[1];
   int ret;
   FILE *fd;
@@ -388,13 +388,14 @@ int simpleNamedBDDtoDot(DdManager *manager, namedvars varmap, DdNode *bdd,
     perror(filename);
     return -1;
   }
-  ret = Cudd_DumpDot(manager, 1, f, varmap.vars, NULL, fd);
+  const char *vs = varmap.vars;
+  ret = Cudd_DumpDot(manager, 1, f, vs, NULL, fd);
   fclose(fd);
   return ret;
 }
 
 int SaveNodeDump(DdManager *manager, namedvars varmap, DdNode *bdd,
-                 char *filename) {
+                 const char *filename) {
   hisqueue *Nodes;
   FILE *outputfile;
   int i;

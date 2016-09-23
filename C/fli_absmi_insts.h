@@ -134,7 +134,7 @@
           CPredicate f = PREG->y_u.pp.p->cs.f_code;
           yamop *oldPREG = PREG;
           saveregs();
-          d0 = (f)(PASS_REGS1);
+          d0 = f(PASS_REGS1);
           setregs();
 #ifdef SHADOW_S
           SREG = Yap_REGS.S_;

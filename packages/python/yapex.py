@@ -1,3 +1,4 @@
+
 import yap
 import sys
 
@@ -19,10 +20,19 @@ class T(tuple):
         return str(self.name) + str(self.tuple)
 
 
+
 def query_prolog(engine, s):
+
+    def answer( q ):
+        try:
+            return q.next()
+        except Exception as e:
+            print( e.args[1] )
+            return False
+    
     q = engine.query(s)
     ask = True
-    while q.next():
+    while answer(q):
         vs = q.namedVarsCopy()
         if vs:
             i = 0
@@ -50,8 +60,8 @@ def query_prolog(engine, s):
                 ask = False
             else:
                 break
-    print("No (more) answers")
-    q.close()
+        print("No (more) answers")
+        q.close()
     return
 
 
@@ -75,8 +85,9 @@ def live():
         except:
             print("Unexpected error:", sys.exc_info()[0])
             raise
-
+    engine.close()
 #
 # initialize engine
 # engine = yap.YAPEngine();
 # engine = yap.YAPEngine(yap.YAPParams());
+live()

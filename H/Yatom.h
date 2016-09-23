@@ -620,7 +620,8 @@ typedef struct pred_entry {
 #ifdef BEAM
   struct Predicates *beamTable;
 #endif
-  Term ModuleOfPred; /* module for this definition           */
+  struct yami *MetaEntryOfPred; /* allow direct access from meta-calls */
+  Term ModuleOfPred;            /* module for this definition           */
   UInt TimeStampOfPred;
   timestamp_type LastCallOfPred;
   /* This must be at an odd number of cells, otherwise it

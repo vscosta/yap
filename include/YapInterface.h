@@ -1896,14 +1896,14 @@ extern X_API YAP_PredEntryPtr YAP_FunctorToPredInModule(YAP_Functor,
 extern X_API YAP_PredEntryPtr YAP_AtomToPredInModule(YAP_Atom, YAP_Module);
 
 /*  int YAP_EnterGoal(void) */
-extern X_API YAP_Bool YAP_EnterGoal(YAP_PredEntryPtr, YAP_handle_t,
+extern X_API YAP_Bool YAP_EnterGoal(YAP_PredEntryPtr, YAP_Term *,
                                     YAP_dogoalinfo *);
 
 /*  int YAP_RetryGoal(void) */
 extern X_API YAP_Bool YAP_RetryGoal(YAP_dogoalinfo *);
 
 /*  int YAP_LeaveGoal(void) */
-extern X_API YAP_Bool YAP_LeaveGoal(int, YAP_dogoalinfo *);
+extern X_API YAP_Bool YAP_LeaveGoal(bool, YAP_dogoalinfo *);
 
 /*  int YAP_GoalHasException(YAP_Term *) */
 extern X_API YAP_Bool YAP_GoalHasException(YAP_Term *);

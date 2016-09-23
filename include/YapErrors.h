@@ -1,7 +1,6 @@
 ///
 /// @file YapErrors.h
-///
-/// @adddtogroup YapError
+/// /// @adddtogroup YapError
 ///
 /// The file  YapErrors.h contains a list with all the error classes known
 /// internally to the YAP system.
@@ -149,6 +148,7 @@ E(SYSTEM_ERROR_JIT_NOT_AVAILABLE, SYSTEM_ERROR_CLASS, "jit_not_available")
 E(SYSTEM_ERROR_OPERATING_SYSTEM, SYSTEM_ERROR_CLASS, "operating_system_error")
 E(SYSTEM_ERROR_SAVED_STATE, SYSTEM_ERROR_CLASS, "saved_state_error")
 
+E(ERROR_EVENT, EVENT, "error")
 E(ABORT_EVENT, EVENT, "abort")
 E(THROW_EVENT, EVENT, "throw")
 E(CALL_COUNTER_UNDERFLOW_EVENT, EVENT, "call_counter_underflow")

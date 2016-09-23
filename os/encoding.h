@@ -19,6 +19,8 @@
 
 #define ENCODING_H 1
 
+#include "YapError.h"
+
 typedef enum {
   ENC_OCTET = 0,          /// binary files
   ENC_ISO_LATIN1 = 1,     /// US+West Europe
@@ -29,8 +31,8 @@ typedef enum {
   ENC_UTF16_LE = 32,      /// People who made the same mistake
   ENC_ISO_UTF32_BE = 64,  /// nobody
   ENC_ISO_UTF32_LE = 128, /// yes, nobody
-  ENC_UCS2_BE = 256,  /// nobody
-  ENC_UCS2_LE = 512, /// yes, nobody
+  ENC_UCS2_BE = 256,      /// nobody
+  ENC_UCS2_LE = 512,      /// yes, nobody
 } encoding_t;
 
 #if WORDS_BIGENDIAN
@@ -48,15 +50,15 @@ void Yap_SetDefaultEncoding(encoding_t new_encoding);
 
 #if HAVE_XLOCALE_H
 typedef enum {
-  SEQ_ENC_OCTET,           /// binary files
-  SEQ_ENC_ISO_LATIN1,      /// US+West Europe
-  SEQ_ENC_ISO_ASCII,       /// US only
-  SEQ_ENC_ISO_ANSI,        /// Who cares
-  SEQ_ENC_ISO_UTF8,        /// Most everyone nowadays
-  SEQ_ENC_UTF16_BE,        /// People who made a mistake
-  SEQ_ENC_UTF16_LE,        /// People who made the same mistake
+  SEQ_ENC_OCTET,        /// binary files
+  SEQ_ENC_ISO_LATIN1,   /// US+West Europe
+  SEQ_ENC_ISO_ASCII,    /// US only
+  SEQ_ENC_ISO_ANSI,     /// Who cares
+  SEQ_ENC_ISO_UTF8,     /// Most everyone nowadays
+  SEQ_ENC_UTF16_BE,     /// People who made a mistake
+  SEQ_ENC_UTF16_LE,     /// People who made the same mistake
   SEQ_ENC_ISO_UTF32_BE, /// nobody
-  SEQ_ENC_ISO_UTF32_LE     /// yes, nobody
+  SEQ_ENC_ISO_UTF32_LE  /// yes, nobody
 } seq_encoding_t;
 
 /// convert from unary to binary representation.
@@ -134,7 +136,7 @@ static inline encoding_t enc_id(const char *s, encoding_t enc_bom) {
     if (!strcmp(s, "utf16_be"))
       return ENC_UTF16_BE;
     if (!strcmp(s, "UTF-16")) {
-       if (enc_bom == ENC_UTF16_LE)
+      if (enc_bom == ENC_UTF16_LE)
         return ENC_UTF16_LE;
       return ENC_UTF16_BE;
     }
@@ -174,7 +176,7 @@ static inline encoding_t enc_id(const char *s, encoding_t enc_bom) {
     if (!strcmp(s, "unicode_le"))
       return ENC_UCS2_LE;
     if (!strcmp(s, "UCS-2")) {
-       if (enc_bom == ENC_UTF16_LE)
+      if (enc_bom == ENC_UTF16_LE)
         return ENC_UCS2_LE;
       return ENC_UCS2_BE;
     }
@@ -183,12 +185,10 @@ static inline encoding_t enc_id(const char *s, encoding_t enc_bom) {
     if (!strcmp(s, "UCS-2BE"))
       return ENC_UCS2_BE;
     if (!strcmp(s, "default")) {
-        if (enc_bom != ENC_OCTET)
-          return enc_bom;
-        return Yap_DefaultEncoding();
-    }
-    else {
-      Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, MkAtomTerm(Yap_LookupAtom(s)), "bad encoding %s", s);
+      if (enc_bom != ENC_OCTET)
+        return enc_bom;
+      return Yap_DefaultEncoding();
+    } else {
       return Yap_DefaultEncoding();
     }
   }

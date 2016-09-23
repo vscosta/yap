@@ -32,33 +32,31 @@ static char SccsId[] = "%W% %G%";
 #define SYSTEM_STAT stat
 #endif
 
+bool Yap_GetFileName(Term t, char *buf, size_t len, encoding_t enc) {
+  while (IsApplTerm(t) && FunctorOfTerm(t) == FunctorSlash) {
+    if (!Yap_GetFileName(ArgOfTerm(1, t), buf, len, enc))
+      return false;
+    size_t szl = strlen(buf);
+    buf += szl;
+    *buf++ = '/';
+    t = ArgOfTerm(2, t);
+    len -= (szl + 1);
+  }
+  return Yap_TextTermToText(t, buf, len, enc);
+}
+
 static Int file_name_extension(USES_REGS1) {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
   Term t3 = Deref(ARG3);
-  bool use_string = false;
-loop:
+  char f[YAP_FILENAME_MAX + 1];
+#if __APPLE__ || _WIN32
+  bool lowcase = true;
+#endif
+
   if (!IsVarTerm((t3))) {
-    const char *f;
-    if (IsAtomTerm(t3)) {
-      f = AtomName(AtomOfTerm(t3));
-    } else if (IsStringTerm(t3)) {
-      f = StringOfTerm(t3);
-      use_string = true;
-    } else if (IsApplTerm(t3) && FunctorOfTerm(t3) == FunctorSlash) {
-      // descend a compound term of the form a/b.
-      Term tn1 = MkVarTerm(), tf1;
-      Term ts[2];
-      ts[0] = ArgOfTerm(1, t3);
-      ts[1] = tn1;
-      tf1 = Yap_MkApplTerm(FunctorSlash, 2, ts);
-      if (!Yap_unify(ARG1, tf1)) {
-        return false;
-      }
-      t3 = ArgOfTerm(2, t3);
-      goto loop;
-    } else {
-      Yap_Error(TYPE_ERROR_ATOMIC, t3, "file_name_extension/3");
+    char *f2;
+    if (!Yap_GetFileName(t3, f, YAP_FILENAME_MAX, ENC_ISO_UTF8)) {
       return false;
     }
     char *pts = strrchr(f, '/');
@@ -68,106 +66,69 @@ loop:
       pts = pts1;
 #endif
     char *ss = strrchr(f, '.');
-    if (pts > ss)
-      ss = NULL;
-    if (use_string) {
-      char *tmp;
-      if (!ss) {
-        return Yap_unify(ARG1, ARG3) && Yap_unify(ARG2, MkStringTerm(""));
-      }
-      tmp = malloc((ss - f) + 1);
-      int i;
-      for (i=0;i < (ss - f); i++) tmp[i] = ss[i];
-      tmp[i] = '\0';
-      if (!Yap_unify(ARG1, MkStringTerm(tmp))) {
-	free(tmp);
-        return false;
-      }
-      free(tmp);
-      // without and with dot
-      if (!Yap_unify(ARG2, MkStringTerm(ss + 1)))
-        return Yap_unify(ARG2, MkStringTerm(ss));
-      return true;
+    if (pts > ss) {
+      ss = f + strlen(f);
+    } else if (ss == NULL) {
+      ss = "";
     } else {
-      char *tmp;
-      if (!ss) {
-        return Yap_unify(ARG1, ARG3) &&
-               Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom("")));
-      }
-      tmp = malloc((ss - f) + 1);
-    int i;
-      for (i=0;i < (ss - f); i++) tmp[i] = ss[i];
-      tmp[i] = '\0';
-        if (!Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom(tmp)))) {
-        if (tmp != f)
-          free(tmp);
-        return false;
-      }
-      if (tmp != f)
-        free(tmp);
-      // without and with dot
-      if (!Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(ss + 1))))
-        return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(ss)));
-      return true;
+      ss++;
     }
-  } else {
-    char s[MAXPATHLEN + 1];
-    const char *f1, *f2;
-  loop1:
-    if (IsVarTerm(t1)) {
-      Yap_Error(INSTANTIATION_ERROR, t1, "access");
-      return FALSE;
-    } else if (IsAtomTerm(t1)) {
-      f1 = AtomName(AtomOfTerm(t1));
-    } else if (IsStringTerm(t1)) {
-      f1 = StringOfTerm(t1);
-      use_string = true;
-    } else if (IsApplTerm(t1) && FunctorOfTerm(t1) == FunctorSlash) {
-      // descend a compound term of the form a/b.
-      Term tn1 = MkVarTerm(), tf1;
-      Term ts[2];
-
-      ts[0] = ArgOfTerm(1, t1);
-      ts[1] = tn1;
-      tf1 = Yap_MkApplTerm(FunctorSlash, 2, ts);
-      if (!Yap_unify(ARG3, tf1)) {
-        return false;
-      }
-      t1 = ArgOfTerm(2, t1);
-      goto loop1;
-    } else {
-      Yap_Error(TYPE_ERROR_ATOMIC, t1, "file_name_extension/3");
-      return false;
-    }
-
     if (IsVarTerm(t2)) {
-      Yap_Error(INSTANTIATION_ERROR, t2, "access");
-      return FALSE;
-    } else if (IsAtomTerm(t2)) {
-      f2 = AtomName(AtomOfTerm(t2));
-    } else if (IsStringTerm(t1)) {
-      f2 = StringOfTerm(t2);
-      use_string = true;
+      Term t = Yap_MkTextTerm(ss, ENC_ISO_UTF8, t3);
+      Yap_unify(t2, t);
     } else {
-      Yap_Error(TYPE_ERROR_ATOMIC, t2, "file_name_extension/3");
+      f2 = ss + (strlen(ss) + 1);
+      if (!Yap_TextTermToText(t2, f2, YAP_FILENAME_MAX - 1 - (f2 - f),
+                              ENC_ISO_UTF8))
+        return false;
+#if __APPLE__ || _WIN32
+      Yap_OverwriteUTF8BufferToLowCase(f2);
+      lowcase = true;
+#endif
+      if (strcmp(f2, ss) != 0 && (ss > f && strcmp(f2, ss - 1) != 0)) {
+        return false;
+      }
+    }
+    if (f[0] && ss[0] && ss[0] != '.') {
+      ss[-1] = '\0';
+    }
+    if (IsVarTerm(t1)) {
+      Term t = Yap_MkTextTerm(f, ENC_ISO_UTF8, t3);
+      Yap_unify(t1, t);
+    } else {
+      char f1[YAP_FILENAME_MAX + 1];
+#if __APPLE || _WIN32
+      Yap_OverwriteUTF8BufferToLowCase(f);
+#endif
+      if (!Yap_GetFileName(t2, f1, YAP_FILENAME_MAX, ENC_ISO_UTF8))
+        return false;
+#if __APPLE__ || _WIN32
+      if (!lowcase)
+        Yap_OverwriteUTF8BufferToLowCase(f2);
+#endif
+      if (strcmp(f1, f) != 0) {
+        return false;
+      }
+    }
+    return true;
+  } else {
+    char *f2;
+    if (!Yap_TextTermToText(t1, f, YAP_FILENAME_MAX - 2, ENC_ISO_UTF8)) {
       return false;
     }
-    if (f2[0] == '.') {
-      strncpy(s, f1, MAXPATHLEN);
-      strncat(s, f2, MAXPATHLEN);
-      if (use_string)
-        return Yap_unify_constant(ARG3, MkStringTerm(s));
-      else
-        return Yap_unify_constant(ARG3, MkAtomTerm(Yap_LookupAtom(s)));
-    } else {
-      strncpy(s, f1, MAXPATHLEN);
-      strncat(s, ".", MAXPATHLEN);
-      strncat(s, f2, MAXPATHLEN);
-      if (use_string)
-        return Yap_unify_constant(ARG3, MkStringTerm(s));
-      else
-        return Yap_unify_constant(ARG3, MkAtomTerm(Yap_LookupAtom(s)));
+    f2 = f + strlen(f);
+    if (!Yap_TextTermToText(t2, f2, YAP_FILENAME_MAX - 2 - (f2 - f),
+                            ENC_ISO_UTF8)) {
+      return false;
     }
+    if (f2[0] != '.') {
+      memmove(f2 + 1, f2, strlen(f2) + 1);
+      f2[0] = '.';
+    }
+    Term t = Yap_MkTextTerm(f, ENC_ISO_UTF8, t1);
+    if (!t)
+      return false;
+    return Yap_unify(t, t3);
   }
 }
 
@@ -342,6 +303,29 @@ static Int file_size(USES_REGS1) {
     return Yap_unify_constant(ARG2, MkIntegerTerm(file_stat.st_size));
   }
   UNLOCK(GLOBAL_Stream[sno].streamlock);
+  return false;
+}
+
+static Int lines_in_file(USES_REGS1) {
+  Int sno = Yap_CheckStream(ARG1, (Input_Stream_f | Output_Stream_f),
+                            "lines_in_file/2");
+  if (sno < 0)
+    return (FALSE);
+  if (GLOBAL_Stream[sno].status & Seekable_Stream_f &&
+      !(GLOBAL_Stream[sno].status &
+        (InMemory_Stream_f | Socket_Stream_f | Pipe_Stream_f))) {
+    FILE *f = GLOBAL_Stream[sno].file;
+    size_t count = 0;
+    int ch;
+#if __ANDROID__
+#define getw getc
+#endif
+    while ((ch = getw(f)) >= 0) {
+      if (ch == '\n')
+        count++;
+    }
+    return Yap_unify(ARG3, MkIntegerTerm(count));
+  }
   return false;
 }
 
@@ -657,6 +641,8 @@ void Yap_InitFiles(void) {
                 SafePredFlag);
   Yap_InitCPred("same_file", 2, same_file, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$access_file", 2, access_file, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$lines_in_file", 2, lines_in_file,
+                SafePredFlag | SyncPredFlag);
   Yap_InitCPred("access", 1, access_path, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("exists_directory", 1, exists_directory,
                 SafePredFlag | SyncPredFlag);

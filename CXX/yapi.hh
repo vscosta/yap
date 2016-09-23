@@ -3,7 +3,7 @@
 #define YAP_CPP_INTERFACE 1
 
 #include <gmpxx.h>
-
+#include <vector>
 
 //! @{
 /**
@@ -67,14 +67,13 @@ extern "C" {
 #include "iopreds.h"
 
 #ifdef SWIGPYTHON
-extern  PyObject *term_to_python(yhandle_t t, bool eval);
-extern  PyObject *deref_term_to_python(yhandle_t t);
+extern PyObject *term_to_python(yhandle_t t, bool eval);
+extern PyObject *deref_term_to_python(yhandle_t t);
 X_API bool init_python(void);
 
 extern PyObject *py_Main;
 
-extern inline PyObject *AtomToPy( const char *s)
-{
+extern inline PyObject *AtomToPy(const char *s) {
   if (strcmp(s, "true") == 0)
     return Py_True;
   if (strcmp(s, "false") == 0)
@@ -85,7 +84,7 @@ extern inline PyObject *AtomToPy( const char *s)
     return PyList_New(0);
   else if (strcmp(s, "{}") == 0)
     return PyDict_New();
-    /* return __main__,s */
+  /* return __main__,s */
   else if (PyObject_HasAttrString(py_Main, s)) {
     return PyObject_GetAttrString(py_Main, s);
   }
@@ -97,17 +96,18 @@ extern inline PyObject *AtomToPy( const char *s)
 
 X_API void YAP_UserCPredicate(const char *, YAP_UserCPred, YAP_Arity arity);
 
-/*  void UserCPredicateWithArgs(const char *name, int *fn(), unsigned int arity) */
-X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, YAP_Arity, YAP_Term);
+/*  void UserCPredicateWithArgs(const char *name, int *fn(), unsigned int arity)
+ */
+X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, YAP_Arity,
+                                      YAP_Term);
 
 /*  void UserBackCPredicate(const char *name, int *init(), int *cont(), int
      arity, int extra) */
- X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred, YAP_Arity, YAP_Arity);
+X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred,
+                                  YAP_Arity, YAP_Arity);
 
-X_API Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp, int prio, Term *bindings_p);
-
-
-
+X_API Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp,
+                            int prio, Term *bindings_p);
 }
 
 class YAPEngine;
