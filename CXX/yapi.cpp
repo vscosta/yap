@@ -1,6 +1,7 @@
 
 #define YAP_CPP_INTERFACE 1
 
+#include <string>
 #include "yapi.hh"
 
 extern "C" {
@@ -947,30 +948,38 @@ void *YAPPrologPredicate::retractClause(YAPTerm skeleton, bool all) {
 void *YAPPrologPredicate::clause(YAPTerm skeleton, YAPTerm &body) { return 0; }
 
 const char *YAPError::text() {
+  
+  char buf[256];
   std::string s = "";
-  if (LOCAL_ActiveError.prologPredLine) {
-    s += LOCAL_ActiveError.prologPredFile->StrOfAE;
-    s += ":";
-    s += LOCAL_ActiveError.prologPredLine;
-    s += ":0 error ";
-    s += Yap_errorClassName(getErrorClass());
-    s += ".";
-    s += Yap_errorName(getID());
-    s += " in ";
-    s += LOCAL_ActiveError.prologPredModule;
-    s += ":";
-    s += (LOCAL_ActiveError.prologPredName)->StrOfAE;
-    s += "/";
-    s += LOCAL_ActiveError.prologPredArity;
-    s += "\n";
-  }
   if (LOCAL_ActiveError.errorFunction) {
     s += LOCAL_ActiveError.errorFile;
     s += ":";
-    s += LOCAL_ActiveError.errorLine;
-    s += ":0 C-code for error.";
-    s += "\n";
+ sprintf(buf, "%ld", (long int)LOCAL_ActiveError.errorLine);
+ s += buf;
+    s += ":0 in C-code";
   }
+  if (LOCAL_ActiveError.prologPredLine) {
+    s += "\n" ;
+ s+=       LOCAL_ActiveError.prologPredFile->StrOfAE ;
+ s+=       ":" ;
+ sprintf(buf, "%ld", (long int)LOCAL_ActiveError.prologPredLine);
+ s+=   buf;   // std::to_string(LOCAL_ActiveError.prologPredLine) ;
+   // YAPIntegerTerm(LOCAL_ActiveError.prologPredLine).text();
+ s+=       ":0   " ;
+ s+=       LOCAL_ActiveError.prologPredModule ;
+ s+=       ":" ;
+ s+=       (LOCAL_ActiveError.prologPredName)->StrOfAE ;
+ s+=       "/" ;
+ sprintf(buf, "%ld", (long int)LOCAL_ActiveError.prologPredArity);
+ s+=       // std::to_string(LOCAL_ActiveError.prologPredArity);
+   buf;
+  }
+  s += " error ";
+  if (LOCAL_ActiveError.classAsText != nullptr)
+    s += LOCAL_ActiveError.classAsText->StrOfAE;
+    s += ".";
+    s += LOCAL_ActiveError.errorAsText->StrOfAE;
+    s += ".\n";
   if (LOCAL_ActiveError.errorTerm) {
     Term t = Yap_PopTermFromDB(LOCAL_ActiveError.errorTerm);
     if (t) {

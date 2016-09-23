@@ -178,6 +178,8 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
   typedef struct yap_error_descriptor {
     enum yap_error_status status;
     yap_error_class_number errorClass;
+    YAP_Atom errorAsText;
+    YAP_Atom classAsText;
     yap_error_number errorNo;
     YAP_Int errorLine;
     const char *errorFunction;
