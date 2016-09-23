@@ -51,7 +51,7 @@
 #define TRIE_PRINT_FLOAT2    2
 #define TRIE_PRINT_FLOAT_END 3
 
-#define BASE_AUXILIARY_TERM_STACK_SIZE 10000
+#define BASE_AUXILIARY_TERM_STACK_SIZE 100000
 
 
 
@@ -138,13 +138,13 @@ typedef struct trie_hash {
 #define MkTrieVar(INDEX)                   ((INDEX) << 4)
 #define TrieVarIndex(TERM)                 ((TERM) >> 4)
 
-#define BASE_HASH_BUCKETS        64
-#define MAX_NODES_PER_TRIE_LEVEL 8
+#define BASE_HASH_BUCKETS        256
+#define MAX_NODES_PER_TRIE_LEVEL 32
 #define MAX_NODES_PER_BUCKET     (MAX_NODES_PER_TRIE_LEVEL / 2)
 #define HASH_TERM(TERM, SEED)    (((TERM) >> 4) & (SEED))
 #define IS_HASH_NODE(NODE)       (TrHash_mark(NODE) == NULL)
 
-#define BASE_SAVE_MARK           1000  /* could lead to errors if the number of different variables in a term is greater than it */
+#define BASE_SAVE_MARK           10000  /* could lead to errors if the number of different variables in a term is greater than it */
 #define HASH_SAVE_MARK           ((YAP_Term) MkTrieVar(BASE_SAVE_MARK))
 #define ATOM_SAVE_MARK           ((YAP_Term) MkTrieVar(BASE_SAVE_MARK + 1))
 #define FUNCTOR_SAVE_MARK        ((YAP_Term) MkTrieVar(BASE_SAVE_MARK + 2))
@@ -165,7 +165,7 @@ typedef struct trie_hash {
 #define PUSH_DOWN(STACK, ITEM, STACK_TOP)                                \
         { if (STACK > STACK_TOP) {				         \
             fprintf(stderr, "**************************************\n"); \
-            fprintf(stderr, "  Tries core module: term stack full\n");   \
+            fprintf(stderr, "  Tries core module: term stack empty\n");   \
             fprintf(stderr, "**************************************\n"); \
           }                                                              \
           *STACK = (YAP_Term)(ITEM);                                     \

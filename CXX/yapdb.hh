@@ -136,7 +136,7 @@ protected:
   YAPPredicate(const char *s0, Term &out, Term &names) {
     CACHE_REGS
     BACKUP_MACHINE_REGS();
-    Term *outp;
+    Term *modp = NULL;;
 
     out = Yap_StringToTerm(s0, strlen(s0) + 1, &LOCAL_encoding, 1200, &names);
     // extern char *s0;
@@ -145,7 +145,7 @@ protected:
     //  delete [] ns;
     if (out == 0L)
       throw YAPError();
-    ap = getPred(out, outp);
+    ap = getPred(out, modp);
     RECOVER_MACHINE_REGS();
   }
 

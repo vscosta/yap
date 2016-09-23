@@ -7,6 +7,8 @@ class YAPTerm;
 
 /// take information on a Prolog error:
 class YAPError {
+  std::string name, errorClass, info;
+  int swigcode;
 
 public:
   /// error handling when receiving the error term

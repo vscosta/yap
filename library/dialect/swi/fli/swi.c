@@ -212,6 +212,10 @@ X_API int PL_get_nchars(term_t l, size_t *lengthp, char **s, unsigned flags) {
   } else {
     out.enc = ENC_ISO_LATIN1;
   }
+
+  if (flags & BUF_MALLOC)  {
+    out.type |= YAP_STRING_MALLOC;
+      }
   if (lengthp) {
     out.type |= YAP_STRING_NCHARS;
     out.max = *lengthp;
@@ -234,10 +238,7 @@ int PL_get_wchars(term_t l, size_t *lengthp, wchar_t **s, unsigned flags) {
   inp.type = cvtFlags(flags);
   out.type = YAP_STRING_WCHARS;
   if (flags & BUF_MALLOC) {
-    out.type |= YAP_STRING_MALLOC;
-    out.val.w = *s;
-  } else {
-    out.val.w = NULL;
+    out.type |= YAP_STRING_MALLOC; 
   }
   if (lengthp) {
     out.type |= YAP_STRING_NCHARS;

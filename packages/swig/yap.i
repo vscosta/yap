@@ -85,20 +85,23 @@ return *new YAPTerm();
 
 // Language independent exception handler
 
-%exception {
+%exception next {
   try {
     $action
-  } catch (YAPError e) {
+  } catch (YAPError &e) {
+    yap_error_number en = e.getID();
+    PyObject *pyerr = PyExc_RuntimeError;
+
+    LOCAL_Error_TYPE = YAP_NO_ERROR;
     switch (e.getErrorClass()) {
     case YAPC_NO_ERROR:
       break;
-    /// bad domain, "first argument often is the predicate.
+  /// bad domain, "first argument often is the predicate.
     case DOMAIN_ERROR: {
-      yap_error_number en = e.getID();
       switch (en) {
       case DOMAIN_ERROR_OUT_OF_RANGE:
       case DOMAIN_ERROR_NOT_LESS_THAN_ZERO:
-        PyErr_SetString(PyExc_IndexError, e.text());
+        pyerr = PyExc_IndexError;
         break;
       case DOMAIN_ERROR_CLOSE_OPTION:
       case DOMAIN_ERROR_ENCODING:
@@ -106,47 +109,45 @@ return *new YAPTerm();
       case DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION:
       case DOMAIN_ERROR_READ_OPTION:
       case DOMAIN_ERROR_SET_STREAM_OPTION:
-        PyErr_SetString(PyExc_KeyError, e.text());
+        pyerr = PyExc_KeyError;
         break;
       case DOMAIN_ERROR_FILE_ERRORS:
       case DOMAIN_ERROR_FILE_TYPE:
       case DOMAIN_ERROR_IO_MODE:
       case DOMAIN_ERROR_SOURCE_SINK:
       case DOMAIN_ERROR_STREAM_POSITION:
-        PyErr_SetString(PyExc_IOError, e.text());
+        pyerr = PyExc_IOError;
         break;
       default:
-        PyErr_SetString(PyExc_ValueError, e.text());
+        pyerr = PyExc_ValueError;
       }
     } break;
     /// bad arithmetic
     case EVALUATION_ERROR: {
-      yap_error_number en = e.getID();
       switch (en) {
       case EVALUATION_ERROR_FLOAT_OVERFLOW:
       case EVALUATION_ERROR_INT_OVERFLOW:
-        PyErr_SetString(PyExc_OverflowError, e.text());
+        pyerr = PyExc_OverflowError;
         break;
       case EVALUATION_ERROR_FLOAT_UNDERFLOW:
       case EVALUATION_ERROR_UNDERFLOW:
       case EVALUATION_ERROR_ZERO_DIVISOR:
-        PyErr_SetString(PyExc_ArithmeticError, e.text());
+        pyerr = PyExc_ArithmeticError;
         break;
       default:
-        PyErr_SetString(PyExc_RuntimeError, e.text());
+        pyerr = PyExc_RuntimeError;
       }
     } break;
     /// missing object (I/O mostly)
     case EXISTENCE_ERROR:
-      PyErr_SetString(PyExc_NotImplementedError, e.text());
+      pyerr = PyExc_NotImplementedError;
       break;
     /// should be bound
     case INSTANTIATION_ERROR_CLASS:
-      PyErr_SetString(PyExc_RuntimeError, e.text());
+      pyerr = PyExc_RuntimeError;
       break;
     /// bad access, I/O
     case PERMISSION_ERROR: {
-      yap_error_number en = e.getID();
       switch (en) {
       case PERMISSION_ERROR_INPUT_BINARY_STREAM:
       case PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM:
@@ -157,41 +158,42 @@ return *new YAPTerm();
       case PERMISSION_ERROR_REPOSITION_STREAM:
       case PERMISSION_ERROR_OUTPUT_STREAM:
       case PERMISSION_ERROR_OUTPUT_TEXT_STREAM:
-        PyErr_SetString(PyExc_OverflowError, e.text());
+        pyerr = PyExc_OverflowError;
         break;
       default:
-        PyErr_SetString(PyExc_RuntimeError, e.text());
+        pyerr = PyExc_RuntimeError;
       }
     } break;
     /// something that could not be represented into a type
     case REPRESENTATION_ERROR:
-      PyErr_SetString(PyExc_RuntimeError, e.text());
+      pyerr = PyExc_RuntimeError;
       break;
     /// not enough ....
     case RESOURCE_ERROR:
-      PyErr_SetString(PyExc_RuntimeError, e.text());
+      pyerr = PyExc_RuntimeError;
       break;
     /// bad text
     case SYNTAX_ERROR_CLASS:
-      PyErr_SetString(PyExc_SyntaxError, e.text());
+      pyerr = PyExc_SyntaxError;
       break;
     /// OS or internal
     case SYSTEM_ERROR_CLASS:
-      PyErr_SetString(PyExc_RuntimeError, e.text());
+      pyerr = PyExc_RuntimeError;
       break;
     /// bad typing
     case TYPE_ERROR:
-      PyErr_SetString(PyExc_TypeError, e.text());
+      pyerr = PyExc_TypeError;
       break;
     /// should be unbound
     case UNINSTANTIATION_ERROR_CLASS:
-      PyErr_SetString(PyExc_RuntimeError, e.text());
+      pyerr = PyExc_RuntimeError;
       break;
     /// escape hatch
     default:
       break;
     }
-  }
+    PyErr_SetString(pyerr, e.text());
+   }
 }
 
 #else
@@ -203,12 +205,13 @@ return *new YAPTerm();
   try {
     $action
   } catch (YAPError e) {
+yap_error_number en = e.getID();
+LOCAL_ERROR_Type = YAP_NO_ERROR;
     switch (e.getErrorClass()) {
     case YAPC_NO_ERROR:
       break;
     /// bad domain, "first argument often is the predicate.
     case DOMAIN_ERROR: {
-      yap_error_number en = e.getID();
       switch (en) {
       case DOMAIN_ERROR_OUT_OF_RANGE:
       case DOMAIN_ERROR_NOT_LESS_THAN_ZERO:
@@ -235,7 +238,6 @@ return *new YAPTerm();
     } break;
     /// bad arithmetic
     case EVALUATION_ERROR: {
-      yap_error_number en = e.getID();
       switch (en) {
       case EVALUATION_ERROR_FLOAT_OVERFLOW:
       case EVALUATION_ERROR_FLOAT_UNDERFLOW:
@@ -260,7 +262,6 @@ return *new YAPTerm();
       break;
     /// bad access, I/O
     case PERMISSION_ERROR: {
-      yap_error_number en = e.getID();
       switch (en) {
       case PERMISSION_ERROR_INPUT_BINARY_STREAM:
       case PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM:
