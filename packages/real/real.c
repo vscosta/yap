@@ -1,3 +1,4 @@
+
 #include "rconfig.h"
 #if HAVE_R_H || !defined(_YAP_NOT_INSTALLED_)
 #include <SWI-Prolog.h>
@@ -17,19 +18,22 @@
 
 bool R_isNull(SEXP sexp);
 
-#if 1 // DEBUG_MEMORY
-#define PROTECT_AND_COUNT(EXP) { PROTECT(EXP); nprotect++; printf("%d +%d\n",+ __LINE__,nprotect);  }
-#define Ureturn          printf("%d -%d\n", __LINE__,nprotect); unprotect(nprotect);  return
+#if  DEBUG_MEMORY
+#define PROTECT_AND_COUNT(EXP) { extern int R_PPStackTop; PROTECT(EXP); nprotect++; printf("%s:%d +%d=%d\n",__FUNCTION__, __LINE__,nprotect ,R_PPStackTop );  }
+#define Ureturn          { extern int R_PPStackTop; printf("%s:%d -%d=%d\n", __FUNCTION__,__LINE__,nprotect,R_PPStackTop-nprotect); } unprotect(nprotect);  return
 #else
 #define PROTECT_AND_COUNT(EXP) { PROTECT(EXP); nprotect++;   }
 #define Ureturn           unprotect(nprotect);  return
 #endif
 
+// #define PL_free(v)
+
 static inline SEXP
 protected_tryEval( SEXP expr, SEXP env, int *errp)
 {
-  SEXP o = R_tryEval( expr, env, errp);
-  return o ? o : expr;
+  SEXP o;
+  o = R_tryEval( expr, env, errp);
+  return o ? o :  expr;
 }
 
 static atom_t ATOM_break;
@@ -236,7 +240,6 @@ setListElement(term_t t, SEXP s_str, SEXP sexp)
   PROTECT_AND_COUNT(call_R = lang3(R_DollarSymbol, list, name_R));
   p = lang3(install("<-"), call_R, sexp);
   (void) protected_tryEval(p, R_GlobalEnv, &hadError);
-  UNPROTECT(nprotect);
   Ureturn TRUE;
 }
 
@@ -983,16 +986,16 @@ pl_to_func( term_t t, bool eval)
   
   // first evaluate arguments left to right
     a = PL_new_term_ref(), a1 =  PL_new_term_ref();
-  PROTECT_AND_COUNT( c_R = allocList(arity+1) );
-  call_R = c_R;
+    PROTECT_AND_COUNT( call_R = allocList(arity+1) );
+  c_R = call_R ;
   c_R = CDR(c_R);
  for (i=0; i< arity;i ++) {
     if ( !PL_get_arg( i+ 1, t, a) ) {
       REAL_Error("argument access", t);
-      return R_NilValue;
+      { Ureturn R_NilValue; }
     }
     if ( PL_is_functor(a, FUNCTOR_equal2) ) {
-      char *s;
+      char *s = NULL;
       if (!PL_get_arg(1, a, a1))
       { Ureturn FALSE; }
       if ( PL_is_pair( a1 ) ||
@@ -1115,7 +1118,6 @@ pl_to_defun( term_t t, SEXP *ansP)
     { Ureturn FALSE; }
   SET_BODY(clo_R, body_R);
   *ansP = clo_R;
-  UNPROTECT( nprotect );
   Ureturn TRUE;
 }
 
@@ -1173,7 +1175,8 @@ subset_to_sexp( term_t t, bool eval)
   }
   if ( PL_skip_list( a, b, &len ) != PL_LIST)
     { Ureturn R_NilValue; }
-  PROTECT_AND_COUNT(c_R = call_R = allocList(len+2));
+  PROTECT_AND_COUNT(call_R = allocList(len+2));
+  c_R = call_R;
   SETCAR(c_R, sin);
   SET_TYPEOF(c_R, LANGSXP);
   c_R = CDR(c_R);
@@ -1185,6 +1188,7 @@ subset_to_sexp( term_t t, bool eval)
   SEXP ans;
   if (eval) {
     PROTECT_AND_COUNT( res_R = protected_tryEval(call_R, R_GlobalEnv, &ierror) );
+    
     if (ierror)
       { Ureturn call_R; }
     ans = res_R;
@@ -1222,9 +1226,9 @@ set_subset_eval( SEXP symbol, term_t a, SEXP lhs_R, SEXP sexp)
   }
   PROTECT_AND_COUNT(call_R = LCONS(symbol, CONS(lhs_R,index_R)));
   SET_TYPEOF(call_R, LANGSXP);
-  p = lang3(install("<-"), call_R, sexp);
+  PROTECT_AND_COUNT( p = lang3(install("<-"), call_R, sexp) );
   (void) protected_tryEval(p, R_GlobalEnv, &hadError);
-  Ureturn hadError;
+  { Ureturn hadError; }
 }
 
 static int
@@ -1317,10 +1321,11 @@ static SEXP
   term_t tmp = PL_copy_term_ref( t );
   int rc;
 
+
   objtype = REAL_term_type(tmp, 0);
 
   if (objtype & PL_R_VECTOR) {
-    PROTECT(ans = list_to_sexp( t, objtype ) );
+    PROTECT_AND_COUNT(ans = list_to_sexp( t, objtype ) );
     rc = ( ans !=  R_NilValue ) ;
   } else
     switch(objtype)
@@ -1356,7 +1361,7 @@ static SEXP
       ///
       /// atoms can be evaluated
     case PL_R_SYMBOL:
-      { char *s;
+      { char *s = NULL;
 
 	if ((rc = PL_get_chars(t, &s, CVT_ATOM|CVT_STRING|BUF_DISCARDABLE|REP_UTF8)) )
 	    {
@@ -1741,7 +1746,7 @@ bind_sexp(term_t t, SEXP sexp)
       }
       	  break;
     case PL_R_SYMBOL:
-      { char *s;
+      { char *s = NULL;
 
 	  if ( PL_get_chars(t, &s, CVT_ATOM|CVT_STRING|BUF_DISCARDABLE|REP_UTF8) )
 	    {
@@ -1770,9 +1775,7 @@ bind_sexp(term_t t, SEXP sexp)
       assert(0);
     }
 
-  UNPROTECT(nprotect);
-
-  return TRUE;
+  {  Ureturn TRUE; }
 }
 
 /*
@@ -2067,21 +2070,18 @@ process_expression(const char * expression)
      {
      Sdprintf("Error: %d, in parsing R expression.\n", status );
      /* do not continue with protected_tryEval() */
-         UNPROTECT(nprotect);
          /* PL_unify_term(except, PL_FUNCTOR_CHARS, "r_expression_syntax_error", 2, PL_CHARS, expression, PL_R_INTEGER, status ); */
                   /*FIXME: return the expression too (as atom) */
                   /* PL_FUNCTOR_CHARS, "r_expression_syntax_error", 2, PL_CHARS, "atom", PL_TERM, to; */
          /* return PL_raise_exception(except); */
-         return NULL;
+         Ureturn NULL;
      }
 
   /* FIXME: Check status (nicos: it seems to be always 1 though? */
-  val = protected_tryEval(VECTOR_ELT(e, 0), R_GlobalEnv, &hadError);
-  UNPROTECT(nprotect);
-
+  PROTECT_AND_COUNT(val = protected_tryEval(VECTOR_ELT(e, 0), R_GlobalEnv, &hadError));
   if ( !hadError )
-    return val;
-  return NULL;
+    { Ureturn val; }
+  { Ureturn NULL; }
 }
 
 static foreign_t
@@ -2171,7 +2171,7 @@ send_c_vector(term_t tvec, term_t tout)
     if (!ans)
     { Ureturn FALSE; }
     for (i = 0; i < arity; i++) {
-      char *str;
+      char *str = NULL;
 
       _PL_get_arg(i+1, tvec, targ);
       if ( PL_get_chars(targ, &str, CVT_ALL|BUF_DISCARDABLE|REP_UTF8) )
@@ -2217,27 +2217,26 @@ rexpr_to_pl_term(term_t in, term_t out)
 static foreign_t
 robj_to_pl_term(term_t name, term_t out)
 { char *plname;
-
+  int nprotect = 0;
+  
   if ( PL_get_chars(name, &plname, CVT_ALL|BUF_DISCARDABLE|REP_UTF8) )
     { SEXP s;
-      int nprotect = 0;
       term_t tmp = PL_new_term_ref();
       int rc;
 
       PROTECT_AND_COUNT( s= findVar(install(plname), R_GlobalEnv) );
-      nprotect ++;
       if (s == R_UnboundValue ||
 	  TYPEOF(s)==SYMSXP)
-	return REAL_Error("r_variable", name);
+	{ Ureturn REAL_Error("r_variable", name); }
 
       rc = sexp_to_pl(tmp, s);
-      UNPROTECT(nprotect);
 
-      if ( rc )
-	return PL_unify(out, tmp);
+      if ( rc ) {
+	Ureturn PL_unify(out, tmp);
+      }
     }
 
-  return FALSE;
+  { Ureturn FALSE; }
 }
 
 static foreign_t
@@ -2256,12 +2255,11 @@ set_R_variable(term_t rvar, term_t value)
     }
   if (vname)
     PL_free(vname);
-  UNPROTECT( nprotect );
- return rc;
+ Ureturn rc;
 }
 
 static foreign_t
-execute_R_1(term_t value)
+execute_R_1(term_t value )
 { SEXP sexp;
   foreign_t rc = FALSE;
   int nprotect = 0;
@@ -2271,14 +2269,13 @@ execute_R_1(term_t value)
   PROTECT_AND_COUNT( sexp = term_to_sexp(value, TRUE) );
   rc = !Rf_isNull(sexp);
   if  (rc) {
-      sexp = protected_tryEval(sexp, R_GlobalEnv, &hadError);
+    PROTECT_AND_COUNT( sexp = protected_tryEval(sexp, R_GlobalEnv, &hadError) );
       if (hadError)
   {
-      UNPROTECT( nprotect );
-      return false;
+      Ureturn false;
   }	
-    }  UNPROTECT( nprotect );
-  return rc;
+    }
+  Ureturn rc;
 }
 
 static foreign_t
@@ -2287,21 +2284,19 @@ execute_R(term_t rvar, term_t value)
   foreign_t rc = FALSE;
   term_t t1 = PL_new_term_ref();
   int nprotect = 0;
-    PROTECT_AND_COUNT(R_GlobalEnv);
-
     PROTECT_AND_COUNT( sexp = term_to_sexp(value, true) );
     //PROTECT_AND_COUNT( sexp = protected_tryEval(sexp, R_GlobalEnv, &hadError) );
     if (sexp == R_UnboundValue || Rf_isNull(sexp))
     {
-      UNPROTECT( nprotect );
-      return false;
+      PL_reset_term_refs( t1 );
+      Ureturn false;
     } else {
-      int hadError;
+     int hadError = false;
       sexp = protected_tryEval(sexp, R_GlobalEnv, &hadError);
       if (hadError)
 	{
-	  UNPROTECT( nprotect );
-	  return false;
+	  PL_reset_term_refs( t1 );
+	  Ureturn false;
 	}	
     }
   if ( PL_is_ground( rvar ) ) {
@@ -2312,8 +2307,8 @@ execute_R(term_t rvar, term_t value)
     else
       rc = PL_unify( rvar, t1 );
   }
-  UNPROTECT( nprotect );
-  return rc;
+  PL_reset_term_refs( t1 );
+  Ureturn rc;
 }
 
 static foreign_t
@@ -2329,13 +2324,11 @@ is_R_variable(term_t t)
       CHARACTER_DATA(name)[0] = mkCharCE(s, CE_UTF8);
     }
   else {
-    UNPROTECT(nprotect);
-    return FALSE;
+   Ureturn FALSE;
   }
 
   PROTECT_AND_COUNT(o = findVar(install(CHAR(STRING_ELT(name, 0))), R_GlobalEnv));
-  UNPROTECT(nprotect);
-  return o != R_UnboundValue;
+  Ureturn o != R_UnboundValue;
 }
 
 #ifndef ATOM_dot
@@ -2393,3 +2386,4 @@ install_real(void)
 }
 
 #endif /* R_H */
+
