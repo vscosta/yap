@@ -27,6 +27,8 @@
 
 :- module( matrix,
 	   [(<==)/2, op(800, xfx, '<=='),
+	    (+=)/2, op(800, xfx, '+='),	
+	    (-=)/2, op(800, xfx, '-='),
 	    op(700, xfx, in),
 	    op(700, xfx, ins),
             op(450, xfx, ..), % should bind more tightly than \/
