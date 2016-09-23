@@ -96,7 +96,7 @@ return *new YAPTerm();
     switch (e.getErrorClass()) {
     case YAPC_NO_ERROR:
       break;
-    /// bad domain, "first argument often is the predicate.
+  /// bad domain, "first argument often is the predicate.
     case DOMAIN_ERROR: {
       switch (en) {
       case DOMAIN_ERROR_OUT_OF_RANGE:
@@ -193,8 +193,7 @@ return *new YAPTerm();
       break;
     }
     PyErr_SetString(pyerr, e.text());
-    return Py_False;
-  }
+   }
 }
 
 #else

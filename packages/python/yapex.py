@@ -24,11 +24,11 @@ class T(tuple):
 def query_prolog(engine, s):
 
     def answer( q ):
-#        try:
-        return q.next()
-#        except yap.YAPPythonException e:
-#            print e.text()
-#            return False
+        try:
+            return q.next()
+        except Exception as e:
+            print( e.args[1] )
+            return False
     
     q = engine.query(s)
     ask = True
