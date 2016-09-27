@@ -1,8 +1,8 @@
 
 #define YAP_CPP_INTERFACE 1
 
-#include <string>
 #include "yapi.hh"
+#include <string>
 
 extern "C" {
 
@@ -361,7 +361,7 @@ intptr_t YAPTerm::hashTerm(size_t sz, size_t depth, bool variant) {
 
 const char *YAPTerm::text() {
   CACHE_REGS
-  size_t length;
+  size_t length = 0;
   encoding_t enc = LOCAL_encoding;
   char *os;
 
@@ -372,7 +372,10 @@ const char *YAPTerm::text() {
     return 0;
   }
   RECOVER_MACHINE_REGS();
-  return os;
+  length = strlen(os) + 1;
+  char *sm = (char *)malloc(length + 1);
+  strcpy(sm, os);
+  return sm;
 }
 
 const char *YAPQuery::text() { return goal.text(); }
@@ -518,9 +521,8 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
   YAP_dogoalinfo q;
   Term terr;
   jmp_buf q_env;
-  std::vector<Term> vt(arity);
   for (arity_t i = 0; i < arity; i++)
-    vt[i] = ts[i].term();
+    XREGS[i + 1] = ts[i].term();
   q.CurSlot = Yap_StartSlots();
   q.p = P;
   q.cp = CP;
@@ -536,7 +538,55 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
   }
   // don't forget, on success these guys may create slots
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
-  result = (bool)YAP_EnterGoal(ap.asPred(), &vt[0], &q);
+  result = (bool)YAP_EnterGoal(ap.asPred(), nullptr, &q);
+  if ((terr = Yap_GetException())) {
+    YAP_LeaveGoal(false, &q);
+    throw YAPError();
+  }
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "out  %d", result);
+
+  if (!result) {
+    YAP_LeaveGoal(false, &q);
+  } else {
+    YAP_LeaveGoal(FALSE, &q);
+  }
+  RECOVER_MACHINE_REGS();
+  return result;
+}
+
+bool YAPEngine::call(YAPTerm Yt) {
+  CACHE_REGS
+  BACKUP_MACHINE_REGS();
+  Term t = Yt.term(), terr, tmod = CurrentModule, *ts = nullptr;
+  PredEntry *ap = Yap_get_pred(t, tmod, "C++");
+  arity_t arity = ap->ArityOfPE;
+  bool result;
+  YAP_dogoalinfo q;
+  jmp_buf q_env;
+
+  if (IsApplTerm(t)) {
+    ts = RepAppl(t) + 1;
+  } else {
+    ts = RepPair(t);
+  }
+  for (arity_t i = 0; i < arity; i++)
+    XREGS[i + 1] = ts[i];
+  q.CurSlot = Yap_StartSlots();
+  q.p = P;
+  q.cp = CP;
+  // make sure this is safe
+
+  if (setjmp(q_env)) {
+    if ((terr = Yap_PeekException())) {
+      YAP_LeaveGoal(false, &q);
+      Yap_CloseHandles(q.CurSlot);
+      throw YAPError();
+    }
+    return false;
+  }
+  // don't forget, on success these guys may create slots
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
+  result = (bool)YAP_EnterGoal(ap, nullptr, &q);
   if ((terr = Yap_GetException())) {
     YAP_LeaveGoal(false, &q);
     throw YAPError();
@@ -859,77 +909,22 @@ PredEntry *YAPPredicate::getPred(Term &t, Term *&outp) {
   return ap;
 }
 
-YAPPrologPredicate::YAPPrologPredicate(
-    YAPAtom name, arity_t arity, YAPModule mod, bool tabled,
-    bool logical_updates, bool is_thread_local, bool sourced,
-    bool discontiguous, bool multiFile, bool hidden, bool untraceable,
-    bool unspyable, bool meta, bool moduleTransparent, bool quasiQuotable,
-    size_t mega_clause)
-    : YAPPredicate(name, arity, mod) {
-  if (!ap)
-    return;
-  if (is_thread_local) {
-    if (ap->cs.p_code.NOfClauses || tabled)
-      return;
-    ap->PredFlags |= (ThreadLocalPredFlag | LogUpdatePredFlag);
-  } else if (logical_updates) {
-    if (ap->cs.p_code.NOfClauses || tabled)
-      return;
-    ap->PredFlags |= LogUpdatePredFlag;
-    ap->CodeOfPred = FAILCODE;
-    ap->OpcodeOfPred = FAILCODE->opc;
-  }
-  if (tabled) {
-    ap->PredFlags |= TabledPredFlag;
-    if (ap->cs.p_code.NOfClauses || tabled)
-      return;
-    ap->PredFlags |= TabledPredFlag;
-  }
-  if (sourced) {
-    ap->PredFlags |= SourcePredFlag;
-  }
-  if (discontiguous) {
-    ap->PredFlags |= DiscontiguousPredFlag;
-  }
-  if (multiFile) {
-    ap->PredFlags |= MultiFileFlag;
-  }
-  if (hidden) {
-    ap->PredFlags |= HiddenPredFlag;
-  }
-  if (untraceable) {
-    ap->PredFlags |= SourcePredFlag;
-  }
-  if (unspyable) {
-    ap->PredFlags |= NoSpyPredFlag;
-  }
-  if (meta) {
-    ap->PredFlags |= MetaPredFlag;
-  } else if (moduleTransparent) {
-    ap->PredFlags |= ModuleTransparentPredFlag;
-  }
-  if (quasiQuotable) {
-    ap->PredFlags |= QuasiQuotationPredFlag;
-  }
-  if (untraceable) {
-    ap->PredFlags |= SourcePredFlag;
-  }
-  if (hidden) {
-    ap->PredFlags |= SourcePredFlag;
-  }
-}
+YAPPrologPredicate::YAPPrologPredicate(YAPTerm t) : YAPPredicate(t) {}
 
-void *YAPPrologPredicate::assertClause(YAPTerm clause, bool last,
-                                       YAPTerm source) {
+void *YAPPrologPredicate::assertClause(YAPTerm cl, bool last, YAPTerm source) {
   CACHE_REGS
 
   RECOVER_MACHINE_REGS();
-  Term tt = clause.gt();
-  Term sourcet = source.gt();
+  Term tt = cl.gt();
+  Term sourcet;
+  Term ntt = cl.gt();
+  if (source.initialized())
+    sourcet = source.gt();
+  else
+    sourcet = TermZERO;
   yamop *codeaddr = Yap_cclause(tt, PP->ArityOfPE, Yap_CurrentModule(),
                                 sourcet); /* vsc: give the number of arguments
                                        to cclause in case there is overflow */
-  Term ntt = clause.gt();
   if (LOCAL_ErrorMessage) {
     RECOVER_MACHINE_REGS();
     return 0;
@@ -940,46 +935,45 @@ void *YAPPrologPredicate::assertClause(YAPTerm clause, bool last,
     RECOVER_MACHINE_REGS();
   }
   return tref;
-  return 0;
 }
+
 void *YAPPrologPredicate::retractClause(YAPTerm skeleton, bool all) {
   return 0;
 }
-void *YAPPrologPredicate::clause(YAPTerm skeleton, YAPTerm &body) { return 0; }
 
 const char *YAPError::text() {
-  
+
   char buf[256];
   std::string s = "";
   if (LOCAL_ActiveError.errorFunction) {
     s += LOCAL_ActiveError.errorFile;
     s += ":";
- sprintf(buf, "%ld", (long int)LOCAL_ActiveError.errorLine);
- s += buf;
+    sprintf(buf, "%ld", (long int)LOCAL_ActiveError.errorLine);
+    s += buf;
     s += ":0 in C-code";
   }
   if (LOCAL_ActiveError.prologPredLine) {
-    s += "\n" ;
- s+=       LOCAL_ActiveError.prologPredFile->StrOfAE ;
- s+=       ":" ;
- sprintf(buf, "%ld", (long int)LOCAL_ActiveError.prologPredLine);
- s+=   buf;   // std::to_string(LOCAL_ActiveError.prologPredLine) ;
-   // YAPIntegerTerm(LOCAL_ActiveError.prologPredLine).text();
- s+=       ":0   " ;
- s+=       LOCAL_ActiveError.prologPredModule ;
- s+=       ":" ;
- s+=       (LOCAL_ActiveError.prologPredName)->StrOfAE ;
- s+=       "/" ;
- sprintf(buf, "%ld", (long int)LOCAL_ActiveError.prologPredArity);
- s+=       // std::to_string(LOCAL_ActiveError.prologPredArity);
-   buf;
+    s += "\n";
+    s += LOCAL_ActiveError.prologPredFile->StrOfAE;
+    s += ":";
+    sprintf(buf, "%ld", (long int)LOCAL_ActiveError.prologPredLine);
+    s += buf; // std::to_string(LOCAL_ActiveError.prologPredLine) ;
+    // YAPIntegerTerm(LOCAL_ActiveError.prologPredLine).text();
+    s += ":0   ";
+    s += LOCAL_ActiveError.prologPredModule;
+    s += ":";
+    s += (LOCAL_ActiveError.prologPredName)->StrOfAE;
+    s += "/";
+    sprintf(buf, "%ld", (long int)LOCAL_ActiveError.prologPredArity);
+    s += // std::to_string(LOCAL_ActiveError.prologPredArity);
+        buf;
   }
   s += " error ";
   if (LOCAL_ActiveError.classAsText != nullptr)
     s += LOCAL_ActiveError.classAsText->StrOfAE;
-    s += ".";
-    s += LOCAL_ActiveError.errorAsText->StrOfAE;
-    s += ".\n";
+  s += ".";
+  s += LOCAL_ActiveError.errorAsText->StrOfAE;
+  s += ".\n";
   if (LOCAL_ActiveError.errorTerm) {
     Term t = Yap_PopTermFromDB(LOCAL_ActiveError.errorTerm);
     if (t) {

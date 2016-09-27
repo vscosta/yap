@@ -29,7 +29,7 @@ public:
   /// YAPTerm
   // do nothing constructor
   YAPTerm() { mk(MkVarTerm()); }
-  YAPTerm(yhandle_t i) { t = i; };
+  // YAPTerm(yhandle_t i) { t = i; };
   /// pointer to term
   YAPTerm(void *ptr);
   /// parse string s and construct a term.
@@ -37,6 +37,12 @@ public:
     Term tp;
     mk(YAP_ReadBuffer(s, &tp));
   }
+  /// construct a term out of an integer (if you know object type use
+  /// YAPIntegerTerm)
+  YAPTerm(long int num) { mk(MkIntegerTerm(num)); }
+  /// construct a term out of an integer (if you know object type use
+  /// YAPIntegerTerm)
+  YAPTerm(double num) { mk(MkFloatTerm(num)); }
   /// parse string s and construct a term.
   YAPTerm(YAPFunctor f, YAPTerm ts[]);
   /// extract the tag of a term, after dereferencing.
@@ -118,6 +124,9 @@ public:
 
   /// return a handle to the term
   inline yhandle_t handle() { return t; };
+
+  /// whether the term actually refers to a live object
+  inline bool initialized() { return t != 0; };
 };
 
 /**
@@ -125,8 +134,9 @@ public:
  */
 class YAPVarTerm : public YAPTerm {
   YAPVarTerm(Term t) {
-    if (IsVarTerm(t))
+    if (IsVarTerm(t)) {
       mk(t);
+    }
   }
 
 public:
@@ -217,7 +227,18 @@ public:
 class YAPIntegerTerm : public YAPNumberTerm {
 public:
   YAPIntegerTerm(intptr_t i);
-  intptr_t getInteger() { return IntegerOfTerm(gt()); }
+  intptr_t getInteger() { return IntegerOfTerm(gt()); };
+};
+
+/**
+  * @brief Floating Point Term
+  */
+
+class YAPFloatTerm : public YAPNumberTerm {
+public:
+  YAPFloatTerm(double dbl) { mk(MkFloatTerm(dbl)); };
+
+  double getFl() { return FloatOfTerm(gt()); };
 };
 
 class YAPListTerm : public YAPTerm {
@@ -330,5 +351,4 @@ public:
   // Getter: outputs the name as a sequence of ISO-LATIN1 codes;
   const char *text() { return (const char *)AtomOfTerm(gt())->StrOfAE; }
 };
-
 #endif /* YAPT_HH */

@@ -16,6 +16,7 @@ from tornado import ioloop
 import zmq
 from zmq.eventloop import ioloop as zmq_ioloop
 from zmq.eventloop.zmqstream import ZMQStream
+from ipykernel.zmqshell import ZMQInteractiveShell
 
 from IPython.core.application import (
     BaseIPythonApplication, base_flags, base_aliases, catch_config_error
@@ -42,7 +43,6 @@ from ipykernel.parentpoller import ParentPollerUnix, ParentPollerWindows
 from jupyter_client.session import (
     Session, session_flags, session_aliases,
 )
-from ipykernel.zmqshell import ZMQInteractiveShell
 
 #-----------------------------------------------------------------------------
 # Flags and Aliases
@@ -96,7 +96,7 @@ To read more about this, see https://github.com/ipython/ipython/issues/2049
 # Application class for starting an IPython Kernel
 #-----------------------------------------------------------------------------
 
-class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
+class YAPKernelApp(BaseIPythonApplication,  InteractiveShellApp,
         ConnectionFileMixin):
     name='YAP-kernel'
     aliases = Dict(kernel_aliases)
@@ -107,7 +107,7 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
                         klass='ipykernel.kernelbase.Kernel',
     help="""The Kernel subclass to be used.
 
-    This should allow easy re-use of the IPKernelApp entry point
+    This should allow easy re-use of the YAPKernelApp entry point
     to configure and launch kernels other than IPython's own.
     """).tag(config=True)
     kernel = Any()
@@ -117,7 +117,7 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
 
     subcommands = {
         'install': (
-            '.kernelspec.InstallYAPKernelSpecApp',
+            'yap_kernel.kernelspec.InstallYAPKernelSpecApp',
             'Install the YAP kernel'
         ),
     }
@@ -209,7 +209,7 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
         if not self.connection_file:
             self.connection_file = "kernel-%s.json"%os.getpid()
         try:
-            self.connection_file = filefind(self.connection_file, ['.', self.connection_dir])
+            self.connection_file = filefind(self.connection_file, ['.',self.connection_dir])
         except IOError:
             self.log.debug("Connection file not found: %s", self.connection_file)
             # This means I own it, and I'll create it in this directory:
@@ -382,7 +382,7 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
         if not os.environ.get('MPLBACKEND'):
             os.environ['MPLBACKEND'] = 'module://ipykernel.pylab.backend_inline'
 
-        # Provide a wrapper for :meth:`InteractiveShellApp.init_gui_pylab`
+        # Provide a wrapper for :meth:`YAPInteractiveShellApp.init_gui_pylab`
         # to ensure that any exception is printed straight to stderr.
         # Normally _showtraceback associates the reply with an execution,
         # which means frontends will never draw it, as this exception
@@ -478,7 +478,7 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
 launch_new_instance = YAPKernelApp.launch_instance
 
 def main():
-    """Run an IPKernel as an application"""
+    """Run an YAPKernel as an application"""
     app = YAPKernelApp.instance()
     app.initialize()
     app.start()

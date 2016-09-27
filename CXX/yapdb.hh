@@ -66,8 +66,8 @@ public:
  * @brief YAPFunctor represents Prolog functors Name/Arity
  */
 class YAPFunctor : public YAPProp {
-  friend class YAPApplTerm; 
-  friend class YAPTerm; 
+  friend class YAPApplTerm;
+  friend class YAPTerm;
   friend class YAPPredicate;
   friend class YAPQuery;
   Functor f;
@@ -136,7 +136,7 @@ protected:
   YAPPredicate(const char *s0, Term &out, Term &names) {
     CACHE_REGS
     BACKUP_MACHINE_REGS();
-    Term *modp = NULL;;
+    Term *modp = NULL;
 
     out = Yap_StringToTerm(s0, strlen(s0) + 1, &LOCAL_encoding, 1200, &names);
     // extern char *s0;
@@ -144,8 +144,9 @@ protected:
     //  Yap_DebugPlWrite(out);
     //  delete [] ns;
     if (out == 0L)
-      throw YAPError();
-    ap = getPred(out, modp);
+      ap = nullptr;
+    else
+      ap = getPred(out, modp);
     RECOVER_MACHINE_REGS();
   }
 
@@ -155,6 +156,15 @@ protected:
   inline YAPPredicate(Term t) {
     CELL *v = NULL;
     ap = getPred(t, v);
+  }
+
+  /// Term constructor for predicates
+  ///
+  /// It is just a call to getPred
+  inline YAPPredicate(YAPTerm t) {
+    Term *v = nullptr;
+    Term tt = t.term();
+    ap = getPred(tt, v);
   }
 
   /// Cast constructor for predicates,
@@ -171,7 +181,7 @@ public:
   YAPPredicate(YAPFunctor f) {
     CACHE_REGS
     ap = RepPredProp(PredPropByFunc(f.f, Yap_CurrentModule()));
-  };
+  }
 
   /// Functor constructor for predicates, is given a specific module.
   ///
@@ -228,6 +238,7 @@ public:
   ///
   /// we return a positive number.
   uintptr_t getArity() { return ap->ArityOfPE; }
+  arity_t arity() { return ap->ArityOfPE; }
 };
 
 /**
@@ -237,18 +248,16 @@ public:
  */
 class YAPPrologPredicate : public YAPPredicate {
 public:
-  YAPPrologPredicate(YAPAtom name, uintptr_t arity,
-                     YAPModule module = YAPModule(), bool tabled = false,
-                     bool logical_updates = false, bool local = false,
-                     bool sourced = true, bool discontiguous = false,
-                     bool multiFile = false, bool hidden = false,
-                     bool untraceable = false, bool unspyable = false,
-                     bool meta = false, bool sync = false,
-                     bool quasi_quotable = false, size_t mega_clause = 0);
+  YAPPrologPredicate(YAPTerm t);
+  /// add a new clause
   void *assertClause(YAPTerm clause, bool last = true,
-                     YAPTerm source = YAPTerm(TermNil));
+                     YAPTerm source = YAPTerm());
+  /// retract at least the first clause matching the predicate.
   void *retractClause(YAPTerm skeleton, bool all = false);
-  void *clause(YAPTerm skeleton, YAPTerm &body);
+  /// return the Nth clause (if source is available)
+  // YAPTerm clause(size_t index, YAPPredicate p) { return YAPTerm(); };
+  /// return the Nth clause (if source is available)
+  YAPTerm *nextClause() { return nullptr; };
 };
 
 /**

@@ -78,11 +78,11 @@ int assign_python(PyObject *root, term_t t, PyObject *e) {
           right = get_p_int(term_to_python(targ, true), PyObject_Size(lhs));
           if (!PySequence_Check(lhs))
             return -1;
-        PL_reset_term_refs(targ);
+          PL_reset_term_refs(targ);
           return PySequence_SetSlice(lhs, left, right, e);
         } else {
           rhs = term_to_python(trhs, true);
-        PL_reset_term_refs(targ);
+          PL_reset_term_refs(targ);
           return PyObject_SetItem(lhs, rhs, e);
         }
       }
@@ -253,4 +253,13 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
     return repr_term(s, sz, t);
 #endif
   }
+}
+
+X_API YAP_Term pythonToYAP(PyObject *pVal) {
+  term_t t = PL_new_term_ref();
+  if (!python_to_term(pVal, t))
+    return 0;
+  YAP_Term tt = YAP_GetFromSlot(t);
+  YAP_RecoverSlots(1, t);
+  return tt;
 }

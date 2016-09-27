@@ -70,6 +70,7 @@ extern "C" {
 extern PyObject *term_to_python(yhandle_t t, bool eval);
 extern PyObject *deref_term_to_python(yhandle_t t);
 X_API bool init_python(void);
+extern Term pythonToYAP(PyObject *p);
 
 extern PyObject *py_Main;
 

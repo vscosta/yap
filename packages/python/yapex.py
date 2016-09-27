@@ -20,16 +20,15 @@ class T(tuple):
         return str(self.name) + str(self.tuple)
 
 
-
 def query_prolog(engine, s):
 
-    def answer( q ):
+    def answer(q):
         try:
             return q.next()
         except Exception as e:
-            print( e.args[1] )
+            print(e.args[1])
             return False
-    
+
     q = engine.query(s)
     ask = True
     while answer(q):

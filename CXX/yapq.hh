@@ -52,10 +52,12 @@ public:
   /// It is given a string, calls the parser and obtains a Prolog term that
   /// should be a callable
   /// goal.
-  inline YAPQuery(const char *s): YAPPredicate(s, tgoal, names)  {
-  BACKUP_H();
+  inline YAPQuery(const char *s) : YAPPredicate(s, tgoal, names) {
+    BACKUP_H();
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %d",
                         LOCAL_CurSlot);
+    if (!ap)
+      return;
     goal = YAPTerm(tgoal);
     vnames = YAPListTerm(names);
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", vnames.text());
@@ -66,10 +68,10 @@ public:
   ///
   /// It is given an atom, and a Prolog term that should be a callable
   /// goal, say `main`, `init`, `live`.
-  inline YAPQuery(YAPAtom g) : YAPPredicate( g ) {
-    goal = YAPAtomTerm( g );
-       vnames = YAPListTerm();
-       openQuery();
+  inline YAPQuery(YAPAtom g) : YAPPredicate(g) {
+    goal = YAPAtomTerm(g);
+    vnames = YAPListTerm();
+    openQuery();
   };
 
   /// set flags for query execution, currently only for exception handling
@@ -164,9 +166,7 @@ public:
       _callback->run(s);
   }
   /// stop yap
-   void close() {
-    Yap_exit(0);
-  }
+  void close() { Yap_exit(0); }
 
   /// execute the callback with a text argument.
   bool hasError() { return LOCAL_Error_TYPE != YAP_NO_ERROR; }
@@ -178,6 +178,8 @@ public:
   inline YAPTerm getTerm(yhandle_t h) { return YAPTerm(h); }
   /// current directory for the engine
   bool call(YAPPredicate ap, YAPTerm ts[]);
+  /// current directory for the engine
+  bool call(YAPTerm t);
 
   const char *currentDir() {
     char dir[1024];

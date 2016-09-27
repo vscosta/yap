@@ -48,6 +48,7 @@ setup_args = dict(
     license         = 'BSD',
     platforms       = "Linux, Mac OS X, Windows",
     keywords        = ['Interactive', 'Interpreter', 'Shell', 'Web'],
+     data_files=[('share/Yap/js', ['${CMAKE_SOURCE_DIR}/misc/editors/prolog.js'])],
     classifiers     = [
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',

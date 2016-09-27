@@ -2,7 +2,7 @@
 %module(directors = "1") yap
 
 // Language independent exception handler
-%include exception.i 
+%include exception.i
 %include stdint.i
 
 %ignore *::operator[];
@@ -35,8 +35,17 @@ return *new YAPTerm();
 }
 }
 
+%typemap(in) YAPIntegerTerm {
+#if PY_MAJOR_VERSION < 3
+   $1 = YAPIntegerTerm(PyInt_AsLong($input));
+#else
+ $1 = YAPIntegerTerm(PyLong_AsLong($input));
+#endif
+}
+
+
 %typemap(out) YAPIntegerTerm {
-  Term t = $1.term();
+  Term t = $input.term();
   Int j = IntegerOfTerm(t);
 #if PY_MAJOR_VERSION < 3
   return PyInt_FromLong(j);
@@ -45,10 +54,15 @@ return *new YAPTerm();
 #endif
 }
 
+
+%typemap(in) YAPFloatTerm {
+   $1 = YAPFloatTerm( PyFloat_AsDouble($input) );
+}
+
 %typemap(out) YAPFloatTerm {
-  Term t = $1.term();
+  Term t = $1nput.term();
   Int double j = FloatOfTerm(t);
-  return PyFloat_FromDouble(j);
+  $1 = PyFloat_FromDouble(j);
 }
 
 // translate well-known names and existing
@@ -56,11 +70,59 @@ return *new YAPTerm();
 // Everthing else let wrapped.
 // as a term
 %typemap(out) YAPAtomTerm {
-  const char *s = RepAtom(AtomOfTerm($1.term()))->StrOfAE;
+  const char *s = RepAtom(AtomOfTerm($1nput.term()))->StrOfAE;
   PyObject *p;
   if ((p = AtomToPy(s))) {
-    return p;
+    $1 = p;
+  } else {
+      $1 = Py_None;
   }
+}
+
+// translate lists as Python Lists
+// Python symbols
+// Everthing else let wrapped.
+// as a termpc
+%typemap(in) YAPListTerm {
+    PyObject *p = $input;
+        Int len = PyTuple_Size(p);
+        if (len == 0) {
+            $1 =  YAPListTerm(TermNil);
+        } else {
+        t = AbsPair(HR);
+        for (Int i = 0; i < len; i++) {
+            HR += 2;
+            HR[-2] = pythonToYAP(PyTuple_GetItem(p, i));
+            HR[-1] = AbsPair(HR+2);
+        }
+        HR[-1] = TermNil;
+        $1 = YAPListTerm(t);
+       }
+   }
+
+%typemap(typecheck) YAPListTerm {
+    PyObject *it = $input;
+   $1 =  PyTuple_CheckExact(it);
+   }
+
+%typemap(in) YAPApplTerm {
+    char *o = Py_TYPE(p)->tp_name;
+    Int len = PyTuple_Size(p);
+
+    if (len == 0) {
+        $1 = nullptr;
+    } else {
+        Term t = MkNewApplTerm(Yap_MkFunctor(Yap_LookupAtom(o),len),len);
+        for (Int i = 0; i < len; i++) {
+            o[i] =  pythonToYAP(PyTuple_GetItem(p, i));
+        }
+        $1 = YAPApplTerm(t);
+    }
+}
+
+%typemap(typecheck) YAPApplTerm {
+ PyObject *p = $input;
+  $1 = (PyTuple_Check(p) && !PyTuple_CheckExact(p));
 }
 
 // translate lists as Python Lists
@@ -206,7 +268,7 @@ return *new YAPTerm();
     $action
   } catch (YAPError e) {
 yap_error_number en = e.getID();
-LOCAL_ERROR_Type = YAP_NO_ERROR;
+LOCAL_Error_TYPE = YAP_NO_ERROR;
     switch (e.getErrorClass()) {
     case YAPC_NO_ERROR:
       break;
