@@ -659,10 +659,8 @@ static PropEntry *followLinkedListOfProps(PropEntry *p, Term task) {
 }
 
 static PropEntry *getPredProp(PropEntry *p, Term task) {
-  PredEntry *pe;
   if (p == NIL)
     return NIL;
-  pe = RepPredProp(p);
   while (p != NIL) {
     if (p->KindOfPE == PEProp && valid_prop(p, task)) {
       return p;
@@ -1117,7 +1115,8 @@ void Yap_show_statistics(void) {
                               (Unsigned(TR) - Unsigned(LOCAL_TrailBase))));
   fprintf(stderr, "Runtime: %lds.\n", (unsigned long int)(runtime(PASS_REGS1)));
   fprintf(stderr, "Cputime: %lds.\n", (unsigned long int)(Yap_cputime()));
-  fprintf(stderr, "Walltime: "UInt_F".\n", (UInt)(Yap_walltime() / 1000));
+
+  fprintf(stderr, "Walltime: " UInt_F ".\n", (UInt)(Yap_walltime() / 1000));
 }
 
 static Int p_statistics_heap_max(USES_REGS1) {

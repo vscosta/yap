@@ -113,8 +113,6 @@ system_error(Type,Goal,Culprit) :-
 '$process_error'('$forward'(Msg), _) :-
   !,
   throw( '$forward'(Msg) ).
-'$process_error'('$abort', Level) :-
-   !,
 '$process_error'(abort, Level) :-
   !,
   (

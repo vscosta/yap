@@ -107,7 +107,7 @@ void Yap_ResetConsultStack(void) {
  * supportted for fast predicates
  */
 
-static PredEntry *get_pred(Term t, Term tmod, char *pname) {
+PredEntry *Yap_get_pred(Term t, Term tmod, const char *pname) {
   Term t0 = t;
 
 restart:
@@ -1549,7 +1549,7 @@ static Int p_is_discontiguous(USES_REGS1) { /* '$is_multifile'(+S,+Mod)	 */
   PredEntry *pe;
   Int out;
 
-  pe = get_pred(Deref(ARG1), Deref(ARG2), "discontiguous");
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "discontiguous");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(27, pe);
@@ -2212,7 +2212,7 @@ static Int p_sys_export(USES_REGS1) { /* '$set_spy'(+Fun,+M)	 */
 static Int p_is_no_trace(USES_REGS1) { /* '$undefined'(P,Mod)	 */
   PredEntry *pe;
 
-  pe = get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
   if (EndOfPAEntr(pe))
     return true;
   PELOCK(36, pe);
@@ -2227,7 +2227,7 @@ static Int p_is_no_trace(USES_REGS1) { /* '$undefined'(P,Mod)	 */
 static Int p_set_no_trace(USES_REGS1) { /* '$set_no_trace'(+Fun,+M)	 */
   PredEntry *pe;
 
-  pe = get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(36, pe);
@@ -2240,7 +2240,7 @@ int Yap_SetNoTrace(char *name, arity_t arity, Term tmod) {
   PredEntry *pe;
 
   if (arity == 0) {
-    pe = get_pred(MkAtomTerm(Yap_LookupAtom(name)), tmod, "no_trace");
+    pe = Yap_get_pred(MkAtomTerm(Yap_LookupAtom(name)), tmod, "no_trace");
   } else {
     pe = RepPredProp(
         PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(name), arity), tmod));
@@ -2462,7 +2462,7 @@ static Int p_is_multifile(USES_REGS1) { /* '$is_multifile'(+S,+Mod)	 */
   PredEntry *pe;
   bool out;
 
-  pe = get_pred(Deref(ARG1), Deref(ARG2), "$is_multifile");
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_multifile");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(27, pe);
@@ -2511,7 +2511,7 @@ static Int
   PredEntry *pe;
   bool out;
 
-  pe = get_pred(Deref(ARG1), Deref(ARG2), "system_predicate");
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "system_predicate");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(27, pe);
@@ -2524,7 +2524,7 @@ static Int p_is_thread_local(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   PredEntry *pe;
   bool out;
 
-  pe = get_pred(Deref(ARG1), Deref(ARG2), "$is_log_updatable");
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_log_updatable");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(27, pe);
@@ -2537,7 +2537,7 @@ static Int p_is_log_updatable(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   PredEntry *pe;
   bool out;
 
-  pe = get_pred(Deref(ARG1), Deref(ARG2), "$is_log_updatable");
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_log_updatable");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(27, pe);
@@ -2550,7 +2550,7 @@ static Int p_is_source(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   PredEntry *pe;
   bool out;
 
-  pe = get_pred(Deref(ARG1), Deref(ARG2), "$is_source");
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_source");
   if (EndOfPAEntr(pe))
     return false;
   PELOCK(28, pe);
@@ -2569,7 +2569,7 @@ static Int p_is_exo(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   bool out;
   MegaClause *mcl;
 
-  pe = get_pred(Deref(ARG1), Deref(ARG2), "$is_exo");
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_exo");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(28, pe);
@@ -2586,7 +2586,7 @@ static Int owner_file(USES_REGS1) { /* '$owner_file'(+P,M,F)	 */
   PredEntry *pe;
   Atom owner;
 
-  pe = get_pred(Deref(ARG1), Deref(ARG2), "$is_source");
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_source");
   if (EndOfPAEntr(pe))
     return false;
   PELOCK(29, pe);
@@ -2612,7 +2612,7 @@ static Int owner_file(USES_REGS1) { /* '$owner_file'(+P,M,F)	 */
 static Int p_set_owner_file(USES_REGS1) { /* '$owner_file'(+P,M,F)	 */
   PredEntry *pe;
 
-  pe = get_pred(Deref(ARG1), Deref(ARG2), "$is_source");
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_source");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(29, pe);
@@ -2677,7 +2677,7 @@ static Int p_is_dynamic(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   PredEntry *pe;
   bool out;
 
-  pe = get_pred(Deref(ARG1), Deref(ARG2), "$is_dynamic");
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_dynamic");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(31, pe);
@@ -2690,7 +2690,7 @@ static Int p_is_metapredicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
   PredEntry *pe;
   bool out;
 
-  pe = get_pred(Deref(ARG1), Deref(ARG2), "$is_meta");
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_meta");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(32, pe);
@@ -2703,7 +2703,7 @@ static Int p_pred_exists(USES_REGS1) { /* '$pred_exists'(+P,+M)	 */
   PredEntry *pe;
   bool out;
 
-  pe = get_pred(Deref(ARG1), Deref(ARG2), "$exists");
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$exists");
   if (EndOfPAEntr(pe))
     return false;
   PELOCK(34, pe);
@@ -2720,7 +2720,7 @@ static Int p_set_pred_module(USES_REGS1) { /* '$set_pred_module'(+P,+Mod)
                                               */
   PredEntry *pe;
 
-  pe = get_pred(Deref(ARG1), CurrentModule, "set_pred_module/1");
+  pe = Yap_get_pred(Deref(ARG1), CurrentModule, "set_pred_module/1");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(35, pe);
@@ -2734,7 +2734,7 @@ static Int p_set_pred_owner(USES_REGS1) { /* '$set_pred_module'(+P,+File)
   PredEntry *pe;
   Term a2 = Deref(ARG2);
 
-  pe = get_pred(Deref(ARG1), CurrentModule, "set_pred_module/1");
+  pe = Yap_get_pred(Deref(ARG1), CurrentModule, "set_pred_module/1");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(35, pe);
@@ -2766,7 +2766,7 @@ static Int p_set_pred_owner(USES_REGS1) { /* '$set_pred_module'(+P,+File)
 static Int undefp_handler(USES_REGS1) { /* '$undefp_handler'(P,Mod)	 */
   PredEntry *pe;
 
-  pe = get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
   if (EndOfPAEntr(pe))
     return false;
   PELOCK(59, pe);
@@ -2782,7 +2782,7 @@ static Int undefp_handler(USES_REGS1) { /* '$undefp_handler'(P,Mod)	 */
 static Int p_undefined(USES_REGS1) { /* '$undefined'(P,Mod)	 */
   PredEntry *pe;
 
-  pe = get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
   if (EndOfPAEntr(pe))
     return TRUE;
   PELOCK(36, pe);
@@ -2807,7 +2807,7 @@ static Int p_undefined(USES_REGS1) { /* '$undefined'(P,Mod)	 */
 static Int p_kill_dynamic(USES_REGS1) { /* '$kill_dynamic'(P,M)       */
   PredEntry *pe;
 
-  pe = get_pred(Deref(ARG1), Deref(ARG2), "kill_dynamic/1");
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "kill_dynamic/1");
   if (EndOfPAEntr(pe))
     return TRUE;
   PELOCK(37, pe);
@@ -3275,7 +3275,7 @@ static Int /* $hidden_predicate(P) */
   } else {
     new_cp = P;
   }
-  pe = get_pred(t1, Deref(ARG2), "clause/3");
+  pe = Yap_get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
   PELOCK(41, pe);
@@ -3425,7 +3425,7 @@ static Int /* $hidden_predicate(P) */
   } else {
     new_cp = P;
   }
-  pe = get_pred(t1, Deref(ARG2), "clause/3");
+  pe = Yap_get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
   PELOCK(43, pe);
@@ -3566,7 +3566,7 @@ static Int p_static_pred_statistics(USES_REGS1) {
   Int out;
   PredEntry *pe;
 
-  pe = get_pred(Deref(ARG1), Deref(ARG2), "predicate_statistics");
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "predicate_statistics");
   if (pe == NIL)
     return (FALSE);
   PELOCK(50, pe);
@@ -3590,7 +3590,7 @@ static Int p_predicate_erased_statistics(USES_REGS1) {
   Term tpred = ArgOfTerm(2, Deref(ARG1));
   Term tmod = ArgOfTerm(1, Deref(ARG1));
 
-  if (EndOfPAEntr(pe = get_pred(tpred, tmod, "predicate_erased_statistics")))
+  if (EndOfPAEntr(pe = Yap_get_pred(tpred, tmod, "predicate_erased_statistics")))
     return FALSE;
   while (cl) {
     if (cl->ClPred == pe) {
@@ -3885,7 +3885,7 @@ static Int /* $hidden_predicate(P) */
   } else {
     new_cp = P;
   }
-  pe = get_pred(t1, Deref(ARG2), "clause/3");
+  pe = Yap_get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return false;
   PELOCK(46, pe);
@@ -4320,7 +4320,7 @@ static Int p_nth_instance(USES_REGS1) {
         Yap_Error(DOMAIN_ERROR_NOT_ZERO, TCount, "nth_clause/3");
       return FALSE;
     }
-    pe = get_pred(Deref(ARG1), Deref(ARG2), "nth_clause/3");
+    pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "nth_clause/3");
     if (pe) {
       PELOCK(47, pe);
     }

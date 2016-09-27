@@ -2079,9 +2079,9 @@ static Int jump_env(USES_REGS1) {
     Yap_find_prolog_culprit(PASS_REGS1);
     LOCAL_Error_TYPE = ERROR_EVENT;
     t = ArgOfTerm(1, t);
-    if (IsApplTerm(t) && IsAtomTerm((t2 = ArgOfTerm(1,t))))  {
+    if (IsApplTerm(t) && IsAtomTerm((t2 = ArgOfTerm(1, t)))) {
       LOCAL_ActiveError.errorAsText = AtomOfTerm(t2);
-      LOCAL_ActiveError.classAsText = NameOfFunctor(t);
+      LOCAL_ActiveError.classAsText = NameOfFunctor(FunctorOfTerm(t));
     } else if (IsAtomTerm(t)) {
       LOCAL_ActiveError.errorAsText = AtomOfTerm(t);
       LOCAL_ActiveError.classAsText = NULL;
