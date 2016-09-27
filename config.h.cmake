@@ -1316,6 +1316,11 @@ signal. */
 #cmakedefine HAVE_STRING_H ${HAVE_STRING_H}
 #endif
 
+/* Define to 1 if you have the `strlcpy' function. */
+#ifndef HAVE_STRLCPY
+#cmakedefine HAVE_STRLCPY ${HAVE_STRLCPY}
+#endif
+
 /* Define to 1 if you have the `strlwr' function. */
 #ifndef HAVE_STRLWR
 #cmakedefine HAVE_STRLWR ${HAVE_STRLWR}

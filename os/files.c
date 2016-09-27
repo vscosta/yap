@@ -307,26 +307,23 @@ static Int file_size(USES_REGS1) {
 }
 
 static Int lines_in_file(USES_REGS1) {
-  Int sno = Yap_CheckStream(ARG1, (Input_Stream_f | Output_Stream_f),
-                            "lines_in_file/2");
+  Int sno = Yap_CheckStream(ARG1, (Input_Stream_f), "lines_in_file/2");
   if (sno < 0)
-    return (FALSE);
-  if (GLOBAL_Stream[sno].status & Seekable_Stream_f &&
-      !(GLOBAL_Stream[sno].status &
-        (InMemory_Stream_f | Socket_Stream_f | Pipe_Stream_f))) {
-    FILE *f = GLOBAL_Stream[sno].file;
-    size_t count = 0;
-    int ch;
+    return false;
+  FILE *f = GLOBAL_Stream[sno].file;
+  size_t count = 0;
+  int ch;
 #if __ANDROID__
 #define getw getc
 #endif
-    while ((ch = getw(f)) >= 0) {
-      if (ch == '\n')
-        count++;
+  if (!f)
+    return false;
+  while ((ch = getw(f)) >= 0) {
+    if (ch == '\n') {
+      count++;
     }
-    return Yap_unify(ARG3, MkIntegerTerm(count));
   }
-  return false;
+  return Yap_unify(ARG2, MkIntegerTerm(count));
 }
 
 static Int access_file(USES_REGS1) {
@@ -459,7 +456,7 @@ static Int is_absolute_file_name(USES_REGS1) { /* file_base_name(Stream,N) */
   Atom at;
   bool rc;
 
-  if (IsVarTerm(t)) {
+    if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "file_base_name/2");
     return false;
   }
