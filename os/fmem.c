@@ -30,44 +30,21 @@ static char SccsId[] = "%W% %G%";
 
 
 
- bool format_synch(int sno, int sno0, format_info *fg) {
-  int (*f_putc)(int, int);
+ int format_synch(int sno, int sno0, format_info *fg) {
   const char *s;
   int n;
-  if (sno == sno0) {
-#if MAY_WRITE
+  if (sno != sno0) {
     fflush(GLOBAL_Stream[sno].file);
-#endif
-    return true;
-  }
-  f_putc = GLOBAL_Stream[sno0].stream_putc;
-#if MAY_WRITE
-  if (fflush(GLOBAL_Stream[sno].file) == 0) {
-    s = GLOBAL_Stream[sno].nbuf;
     n = ftell(GLOBAL_Stream[sno].file);
+    s = GLOBAL_Stream[sno].nbuf;
     fwrite(s, n, 1, GLOBAL_Stream[sno0].file);
     rewind(GLOBAL_Stream[sno].file);
-    fflush(GLOBAL_Stream[sno0].file);
-  } else
-    return false;
-#else
-  s = GLOBAL_Stream[sno].u.mem_string.buf;
-  n = GLOBAL_Stream[sno].u.mem_string.pos;
-#endif
-#if MAY_WRITE
-#else
-  while (n--) {
-    f_putc(sno0, *s++);
+    fg->lstart = 0;
+    fg->phys_start = 0;
+    fg->gapi = 0;
   }
-  GLOBAL_Stream[sno].u.mem_string.pos = 0;
-#endif
-  GLOBAL_Stream[sno].linecount = 1;
-  GLOBAL_Stream[sno].linepos = 0;
-  GLOBAL_Stream[sno].charcount = 0;
-  fg->lstart = 0;
-  fg->phys_start = 0;
-  fg->gapi = 0;
-  return true;
+  fflush(GLOBAL_Stream[sno0].file);
+  return sno;
 }
 
  bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)

@@ -330,7 +330,7 @@ static void
 format_clean_up(int sno, int sno0, format_info *finf, const unsigned char *fstr,
                 const Term *targs) {
   if (sno != sno0) {
-    format_synch(sno, sno0, finf);
+    sno = format_synch(sno, sno0, finf);
     Yap_CloseStream(sno);
   }
   if (fstr) {
@@ -469,7 +469,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
   finfo.phys_start = 0;
   finfo.lstart = 0;
   if (true || !(GLOBAL_Stream[sno].status & InMemory_Stream_f))
-    sno = Yap_OpenBufWriteStream(PASS_REGS1);
+     sno = Yap_OpenBufWriteStream(PASS_REGS1);
   if (sno < 0) {
     if (!alloc_fstr)
       fstr = NULL;
@@ -479,7 +479,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     format_clean_up(sno, sno0, &finfo, fstr, targs);
     return false;
   }
-  f_putc = GLOBAL_Stream[sno0].stream_wputc;
+  f_putc = GLOBAL_Stream[sno].stream_wputc;
   while ((fptr += get_utf8(fptr, -1, &ch)) && ch) {
     Term t = TermNil;
     int has_repeats = false;
@@ -879,21 +879,21 @@ static Int doformat(volatile Term otail, volatile Term oargs,
           while (repeats--) {
             f_putc(sno, (int)'\n');
           }
-          format_synch(sno, sno0, &finfo);
+          sno = format_synch(sno, sno0, &finfo);
           break;
         case 'N':
           if (!has_repeats)
             has_repeats = 1;
           if (GLOBAL_Stream[sno].linepos != 0) {
             f_putc(sno, '\n');
-            format_synch(sno, sno0, &finfo);
+            sno = format_synch(sno, sno0, &finfo);
           }
           if (repeats > 1) {
             Int i;
             for (i = 1; i < repeats; i++)
               f_putc(sno, '\n');
           }
-          format_synch(sno, sno0, &finfo);
+          sno = format_synch(sno, sno0, &finfo);
           break;
         /* padding */
         case '|':
@@ -971,7 +971,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
       }
     } else {
       if (ch == '\n') {
-        format_synch(sno, sno0, &finfo);
+        sno = format_synch(sno, sno0, &finfo);
       }
       f_putc(sno, ch);
     }

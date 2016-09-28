@@ -21,5 +21,5 @@ typedef struct format_status {
 #define FORMAT_COPY_ARGS_ERROR -1
 #define FORMAT_COPY_ARGS_OVERFLOW -2
 
-extern bool format_synch(int sno, int sno0, format_info *fg);
+extern int format_synch(int sno, int sno0, format_info *fg);
 extern bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS);

@@ -31,12 +31,12 @@ static char SccsId[] = "%W% %G%";
 
 #include "format.h"
 
- bool format_synch(int sno, int sno0, format_info *fg) {
+int format_synch(int sno, int sno0, format_info *fg) {
   int (*f_putc)(int, int);
   const char *s;
   int n;
   if (sno == sno0) {
-    return true;
+    return sno;
   }
   f_putc = GLOBAL_Stream[sno0].stream_putc;
   s = GLOBAL_Stream[sno].u.mem_string.buf;
@@ -51,7 +51,7 @@ static char SccsId[] = "%W% %G%";
   fg->lstart = 0;
   fg->phys_start = 0;
   fg->gapi = 0;
-  return true;
+  return sno;
 }
 
 // uses directly the buffer in the memory stream.
