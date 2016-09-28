@@ -112,7 +112,7 @@ Int Yap_peek(int sno) {
     return ch;
   }
 #endif
-#if !MAY_READ
+#if !HAVE_FMEMOPEN
     if (s->status & InMemory_Stream_f ) {
       return Yap_MemPeekc( sno );
     }

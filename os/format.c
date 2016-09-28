@@ -265,133 +265,8 @@ output is directed to the stream used by format/2.
 
 #include "eval.h"
 #include "iopreds.h"
+#include "format.h"
 
-#define FORMAT_MAX_SIZE 1024
-
-typedef struct {
-  Int filler;
-  /* character to dump */
-  int phys;
-  /* position in buffer */
-  int log; /* columnn as wide chsh */
-} gap_t;
-
-typedef struct format_status {
-  gap_t gap[16];
-  // number of octets
-  int phys_start;
-  // number of characters
-  int lstart;
-  int gapi;
-} format_info;
-
-static bool format_synch(int sno, int sno0, format_info *fg) {
-  int (*f_putc)(int, int);
-  const char *s;
-  int n;
-  if (sno == sno0) {
-#if MAY_WRITE
-    fflush(GLOBAL_Stream[sno].file);
-#endif
-    return true;
-  }
-  f_putc = GLOBAL_Stream[sno0].stream_putc;
-#if MAY_WRITE
-  if (fflush(GLOBAL_Stream[sno].file) == 0) {
-    s = GLOBAL_Stream[sno].nbuf;
-    n = ftell(GLOBAL_Stream[sno].file);
-    fwrite(s, n, 1, GLOBAL_Stream[sno0].file);
-    rewind(GLOBAL_Stream[sno].file);
-    fflush(GLOBAL_Stream[sno0].file);
-  } else
-    return false;
-#else
-  s = GLOBAL_Stream[sno].u.mem_string.buf;
-  n = GLOBAL_Stream[sno].u.mem_string.pos;
-#endif
-#if MAY_WRITE
-#else
-  while (n--) {
-    f_putc(sno0, *s++);
-  }
-  GLOBAL_Stream[sno].u.mem_string.pos = 0;
-#endif
-  GLOBAL_Stream[sno].linecount = 1;
-  GLOBAL_Stream[sno].linepos = 0;
-  GLOBAL_Stream[sno].charcount = 0;
-  fg->lstart = 0;
-  fg->phys_start = 0;
-  fg->gapi = 0;
-  return true;
-}
-
-// uses directly the buffer in the memory stream.
-static bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS) {
-  int nfillers, fill_space, lfill_space, nchars;
-  int (*f_putc)(int, int);
-  const char *buf;
-  int phys_end;
-
-  f_putc = GLOBAL_Stream[sno0].stream_putc;
-#if MAY_WRITE
-  if (fflush(GLOBAL_Stream[sno].file) == 0) {
-    buf = GLOBAL_Stream[sno].nbuf;
-    phys_end = ftell(GLOBAL_Stream[sno].file);
-  } else
-    return false;
-#else
-  buf = GLOBAL_Stream[sno].u.mem_string.buf;
-  phys_end = GLOBAL_Stream[sno].u.mem_string.pos;
-#endif
-  if (fg->gapi == 0) {
-    fg->gap[0].phys = phys_end;
-    fg->gap[0].filler = ' ';
-    fg->gapi = 1;
-  }
-  nchars = total - GLOBAL_Stream[sno].linepos;
-  if (nchars < 0)
-    nchars = 0; /* ignore */
-  nfillers = fg->gapi;
-  fill_space = nchars / nfillers;
-  lfill_space = nchars % nfillers;
-
-  int i = fg->phys_start;
-  gap_t *padi = fg->gap;
-  while (i < phys_end) {
-    if (i == padi->phys) {
-      int j;
-      for (j = 0; j < fill_space; j++)
-        f_putc(sno0, padi->filler);
-      padi++;
-      /* last gap??*/
-      if (padi - fg->gap == fg->gapi) {
-        for (j = 0; j < fill_space; j++)
-          f_putc(sno0, (padi - 1)->filler);
-      }
-    }
-    f_putc(sno0, buf[i++]);
-  }
-  // final gap
-  if (i == padi->phys) {
-    int j;
-    for (j = 0; j < fill_space + lfill_space; j++)
-      f_putc(sno0, padi->filler);
-  };
-
-#if MAY_WRITE
-  rewind(GLOBAL_Stream[sno].file);
-  fflush(GLOBAL_Stream[sno0].file);
-#else
-  GLOBAL_Stream[sno].u.mem_string.pos = 0;
-#endif
-  GLOBAL_Stream[sno].linecount = 1;
-  GLOBAL_Stream[sno].linepos += nchars;
-  GLOBAL_Stream[sno].charcount = 0;
-  fg->phys_start = 0;
-  fg->lstart = GLOBAL_Stream[sno].linepos;
-  fg->gapi = 0;
-  return true;
-}
 
 static int format_print_str(Int sno, Int size, Int has_size, Term args,
                             int (*f_putc)(int, wchar_t)) {
@@ -429,9 +304,6 @@ static int format_print_str(Int sno, Int size, Int has_size, Term args,
   }
   return TRUE;
 }
-
-#define FORMAT_COPY_ARGS_ERROR -1
-#define FORMAT_COPY_ARGS_OVERFLOW -2
 
 static Int format_copy_args(Term args, Term *targs, Int tsz) {
   Int n = 0;

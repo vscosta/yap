@@ -6,6 +6,7 @@ set (YAPOS_SOURCES
   chartypes.c
   console.c
   files.c
+  fmem.c
   fmemopen.c
   format.c
   iopreds.c

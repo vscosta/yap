@@ -15,15 +15,6 @@ static char SccsId[] = "%W% %G%";
 #undef HAVE_OPEN_MEMSTREAM
 #endif
 
-#if HAVE_FMEMOPEN
-#define MAY_READ 1
-#endif
-
-#if HAVE_OPEN_MEMSTREAM
-#define MAY_READ 1
-#define MAY_WRITE 1
-#endif
-
 #if _WIN32
 #undef MAY_WRITE
 #undef MAY_READ
@@ -85,3 +76,4 @@ typedef struct stream_desc {
                from above if the ISO  character conversion is on */
   encoding_t encoding; /** current encoding for stream */
 } StreamDesc;
+
