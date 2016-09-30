@@ -214,6 +214,24 @@ public:
   ///
   YAPPredicate(YAPAtom at, uintptr_t arity);
 
+  /// char */module constructor for predicates.
+  ///
+  inline YAPPredicate(const char *at, uintptr_t arity) {
+    ap = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(at), arity), CurrentModule));
+  };
+
+  /// char */module constructor for predicates.
+  ///
+  inline YAPPredicate(const char *at, uintptr_t arity, YAPTerm mod) {
+    ap = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(at), arity), mod.t));
+  };
+
+  /// char */module constructor for predicates.
+  ///
+  inline YAPPredicate(const char *at, YAPTerm mod) {
+    ap = RepPredProp(PredPropByAtom(Yap_LookupAtom(at), mod.t));
+  }
+
   /// module of a predicate
   ///
   /// notice that modules are currently treated as atoms, this should change.
@@ -248,10 +266,13 @@ public:
  */
 class YAPPrologPredicate : public YAPPredicate {
 public:
-  YAPPrologPredicate(YAPTerm t);
+  YAPPrologPredicate(YAPTerm t) : YAPPredicate(t)  {};
+  YAPPrologPredicate(const char *s, arity_t arity): YAPPredicate(s, arity) {};
   /// add a new clause
   void *assertClause(YAPTerm clause, bool last = true,
                      YAPTerm source = YAPTerm());
+  /// add a new tuple
+  void *assertFact(YAPTerm *tuple, bool last = true);
   /// retract at least the first clause matching the predicate.
   void *retractClause(YAPTerm skeleton, bool all = false);
   /// return the Nth clause (if source is available)

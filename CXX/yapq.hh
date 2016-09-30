@@ -179,7 +179,7 @@ public:
   /// current directory for the engine
   bool call(YAPPredicate ap, YAPTerm ts[]);
   /// current directory for the engine
-  bool call(YAPTerm t);
+  bool goal(YAPTerm t);
 
   const char *currentDir() {
     char dir[1024];
@@ -191,6 +191,11 @@ public:
     std::string s = Yap_version();
     return s.c_str();
   };
+#ifdef SWIGPYTHON
+  inline void share(PyObject *arg) {
+    LOCAL_shared = arg;
+  };
+#endif
 };
 
 #endif /* YAPQ_HH */

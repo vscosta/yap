@@ -272,4 +272,5 @@ static void InitWorker(int wid) {
   REMOTE_MAX_SIZE(wid) = 1024L;
 
   REMOTE_LastWTime(wid) = 0;
+  REMOTE_shared(wid) = NULL;
 }

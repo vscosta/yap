@@ -3336,6 +3336,8 @@ X_API Int YAP_FunctorToInt(Functor f) {
 
 X_API Functor YAP_IntToFunctor(Int i) { return TR_Functors[i]; }
 
+X_API void *YAP_shared(void) { return LOCAL_shared; }
+
 void yap_init(void) {}
 
 #endif // C_INTERFACE_C
