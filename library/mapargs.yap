@@ -3,10 +3,10 @@
  * @author Lawrence Byrd + Richard A. O'Keefe, VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @author : E. Alphonse from code by Joachim Schimpf, Jan Wielemaker, Vitor Santos Costa
  * @date    4 August 1984 and Ken Johnson 11-8-87
- * 
+ *
  * @brief  Macros to apply a predicate to all sub-terms of a term.
- * 
- * 
+ *
+ *
 */
 
 
@@ -48,7 +48,7 @@
 	foldargs(4, +, ?, +, -),
 	foldargs(5, +, ?, ?, +, -),
 	foldargs(6, +, ?, ?, ?, +, -).
-	
+
 
 mapargs(Pred, TermIn) :-
     functor(TermIn, _F, N),
@@ -143,11 +143,11 @@ foldargs(Goal, S, V0, V) :-
 	foldargs_(Goal, S, V0, V, 0, Ar).
 
 foldargs_(Goal, S, V0, V, I, N) :-
-	( I == N -> true ;
+	( I == N ->  V0 = V ;
 	    I1 is I+1,
 	    arg(I1, S, A),
 	    call(Goal, A, V0, V1),
-	    foldargs_(Goal, S, V1, V, I, N) ).
+	    foldargs_(Goal, S, V1, V, I1, N) ).
 
 foldargs(Goal, S, O1, V0, V) :-
 	functor(S, N, Ar),
@@ -155,12 +155,12 @@ foldargs(Goal, S, O1, V0, V) :-
 	foldargs_(Goal, S, O1, V0, V, 0, Ar).
 
 foldargs_(Goal, S, O1,  V0, V, I, N) :-
-	( I == N -> true ;
+	( I == N ->  V0 = V ;
 	    I1 is I+1,
 	    arg(I1, S, A),
 	    arg(I1, O1, A1),
 	    call(Goal, A, A1, V0, V1),
-	    foldargs_(Goal, S, O1, V1, V, I, N) ).
+	    foldargs_(Goal, S, O1, V1, V, I1, N) ).
 
 foldargs(Goal, S, O1, O2, V0, V) :-
 	functor(S, N, Ar),
@@ -169,13 +169,13 @@ foldargs(Goal, S, O1, O2, V0, V) :-
 	foldargs_(Goal, S, O1, O2, V0, V, 0, Ar).
 
 foldargs_(Goal, S, O1, O2, V0, V, I, N) :-
-	( I == N -> true ;
+	( I == N -> V0 = V ;
 	    I1 is I+1,
 	    arg(I1, S, A),
 	    arg(I1, O1, A1),
 	    arg(I1, O2, A2),
 	    call(Goal, A, A1, A2, V0, V1),
-	    foldargs_(Goal, S, O1, O2, V1, V, I, N) ).
+	    foldargs_(Goal, S, O1, O2, V1, V, I1, N) ).
 
 foldargs(Goal, S, O1, O2, O3, V0, V) :-
 	functor(S, N, Ar),
@@ -185,14 +185,14 @@ foldargs(Goal, S, O1, O2, O3, V0, V) :-
 	foldargs_(Goal, S, O1, O2, O3, V0, V, 0, Ar).
 
 foldargs_(Goal, S, O1, O2, O3, V0, V, I, N) :-
-	( I == N -> true ;
+	( I == N ->  V0 = V ;
 	    I1 is I+1,
 	    arg(I1, S, A),
 	    arg(I1, O1, A1),
 	    arg(I1, O2, A2),
 	    arg(I1, O3, A3),
 	    call(Goal, A, A1, A2, A3, V0, V1),
-	    foldargs_(Goal, S, O1, O2, O3, V1, V, I, N) ).
+	    foldargs_(Goal, S, O1, O2, O3, V1, V, I1, N) ).
 
 
 goal_expansion(mapargs(Meta, In), (functor(In, _Name, Ar), Mod:Goal)) :-
@@ -382,4 +382,3 @@ goal_expansion(foldargs(Meta, In, Out1, Out2, Out3, Acc0, AccF), (functor(In, Na
 	compile_aux([
 		     (RecursionHead :- I == Ar -> VAcc0 = VAccF ; I1 is I+1, arg(I1, In, AIn), arg(I1, Out1, AOut1), arg(I1, Out2, AOut2), arg(I1, Out3, AOut3), Apply, RecursiveCall )
 		    ], Mod).
-
