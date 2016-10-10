@@ -462,28 +462,7 @@ YAPVarTerm::YAPVarTerm() {
 }
 
 const char *YAPAtom::getName(void) {
-  if (IsWideAtom(a)) {
-    // return an UTF-8 version
-    size_t sz = 512;
-    wchar_t *ptr = a->WStrOfAE;
-    utf8proc_int32_t ch = -1;
-    char *s = new char[sz], *op = s;
-    while (ch) {
-      ch = *ptr++;
-      op += put_utf8((unsigned char *)op, ch);
-    }
-    sz = strlen(s) + 1;
-    char *os = new char[sz];
-    memcpy(os, s, sz);
-    delete[] s;
-    return os;
-  } else if (IsBlob(a)) {
-    size_t sz = 1024;
-    char *s = new char[sz + 1];
-    return Yap_blob_to_string(RepAtom(a), s, sz);
-  } else {
-    return (char *)a->StrOfAE;
-  }
+  return Yap_AtomToUTF8Text( a, nullptr );
 }
 
 void YAPQuery::openQuery() {
@@ -554,7 +533,7 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
   return result;
 }
 
-bool YAPEngine::call(YAPTerm Yt) {
+bool YAPEngine::goal(YAPTerm Yt) {
   CACHE_REGS
   BACKUP_MACHINE_REGS();
   Term t = Yt.term(), terr, tmod = CurrentModule, *ts = nullptr;
@@ -676,8 +655,10 @@ bool YAPQuery::next() {
   }
   q_state = 1;
   if ((terr = Yap_GetException())) {
+    Yap_DebugPlWriteln(terr);
     YAP_LeaveGoal(false, &q_h);
     Yap_CloseHandles(q_handles);
+    q_open = false;
     throw YAPError();
   }
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "out  %d", result);
@@ -909,8 +890,6 @@ PredEntry *YAPPredicate::getPred(Term &t, Term *&outp) {
   return ap;
 }
 
-YAPPrologPredicate::YAPPrologPredicate(YAPTerm t) : YAPPredicate(t) {}
-
 void *YAPPrologPredicate::assertClause(YAPTerm cl, bool last, YAPTerm source) {
   CACHE_REGS
 
@@ -922,7 +901,7 @@ void *YAPPrologPredicate::assertClause(YAPTerm cl, bool last, YAPTerm source) {
     sourcet = source.gt();
   else
     sourcet = TermZERO;
-  yamop *codeaddr = Yap_cclause(tt, PP->ArityOfPE, Yap_CurrentModule(),
+  yamop *codeaddr = Yap_cclause(tt, ap->ArityOfPE, Yap_CurrentModule(),
                                 sourcet); /* vsc: give the number of arguments
                                        to cclause in case there is overflow */
   if (LOCAL_ErrorMessage) {
@@ -931,6 +910,29 @@ void *YAPPrologPredicate::assertClause(YAPTerm cl, bool last, YAPTerm source) {
   }
   Term *tref = &ntt;
   if (Yap_addclause(ntt, codeaddr, (last ? TermAssertz : TermAsserta),
+                    Yap_CurrentModule(), tref)) {
+    RECOVER_MACHINE_REGS();
+  }
+  return tref;
+}
+
+void *YAPPrologPredicate::assertFact(YAPTerm *cl, bool last) {
+  CACHE_REGS
+    arity_t i;
+  RECOVER_MACHINE_REGS();
+  Term tt = AbsAppl(HR);
+  *HR++ = (CELL)(ap->FunctorOfPred);
+  for (i = 0; i < ap->ArityOfPE; i++,cl++)
+       *HR++ = cl->gt();
+  yamop *codeaddr = Yap_cclause(tt, ap->ArityOfPE, Yap_CurrentModule(),
+                                tt); /* vsc: give the number of arguments
+                                       to cclause in case there is overflow */
+  if (LOCAL_ErrorMessage) {
+    RECOVER_MACHINE_REGS();
+    return 0;
+  }
+  Term *tref = &tt;
+  if (Yap_addclause(tt, codeaddr, (last ? TermAssertz : TermAsserta),
                     Yap_CurrentModule(), tref)) {
     RECOVER_MACHINE_REGS();
   }

@@ -1552,7 +1552,7 @@ mark_external_reference(CELL *ptr USES_REGS) {
 #endif     
     mark_variable(ptr PASS_REGS);
     POPSWAP_POINTER(old, ptr PASS_REGS);    
-  } else {
+  } else if (ptr < H0 || ptr >  (CELL*)LOCAL_TrailTop) {
     MARK(ptr);
     mark_code(ptr, next PASS_REGS);
   }

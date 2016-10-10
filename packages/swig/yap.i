@@ -14,11 +14,40 @@ class YAPEngine;
 
 #ifdef SWIGPYTHON
 
-%typemap(out) YAPTerm {
-  if ($1.handle() == 0) {
-    return NULL;
-  }
+%typemap(typecheck) YAPTerm*  {
+  $1 = PySequence_Check($input);
 }
+
+// Map a Python sequence into any sized C double array
+%typemap(in) YAPTerm*  {
+  int i;
+  if (!PySequence_Check($input)) {
+      PyErr_SetString(PyExc_TypeError,"Expecting a sequence");
+      $1 = nullptr;
+  } else {
+  int sz = PyObject_Length($input);
+  std::vector<YAPTerm> v(sz);
+  for (i =0; i < sz; i++) {
+      PyObject *o = PySequence_GetItem($input,i);
+      v[i] = YAPTerm(pythonToYAP(o));
+      Py_DECREF(o);
+  }
+  $1 = &v[0];
+}
+}
+
+%typemap(typecheck) YAPTerm  {
+ $1 = true;
+}
+
+
+
+%typemap(in) YAPTerm { $1 = YAPTerm(pythonToYAP($input)); }
+
+
+%typemap(out) YAPTerm  {$result = term_to_python($1.handle(), false);}
+
+
 %extend(out) YAPTerm{YAPTerm & __getitem__(size_t i){Term t0 = $self->term();
 
 if (IsApplTerm(t0)) {
@@ -30,120 +59,11 @@ if (IsApplTerm(t0)) {
     return *new YAPTerm(HeadOfTerm(t0));
   else if (i == 1)
     return *new YAPTerm(TailOfTerm(t0));
-}
-return *new YAPTerm();
-}
-}
-
-%typemap(in) YAPIntegerTerm {
-#if PY_MAJOR_VERSION < 3
-   $1 = YAPIntegerTerm(PyInt_AsLong($input));
-#else
- $1 = YAPIntegerTerm(PyLong_AsLong($input));
-#endif
-}
-
-
-%typemap(out) YAPIntegerTerm {
-  Term t = $input.term();
-  Int j = IntegerOfTerm(t);
-#if PY_MAJOR_VERSION < 3
-  return PyInt_FromLong(j);
-#else
-  return PyLong_FromLong(j);
-#endif
-}
-
-
-%typemap(in) YAPFloatTerm {
-   $1 = YAPFloatTerm( PyFloat_AsDouble($input) );
-}
-
-%typemap(out) YAPFloatTerm {
-  Term t = $1nput.term();
-  Int double j = FloatOfTerm(t);
-  $1 = PyFloat_FromDouble(j);
-}
-
-// translate well-known names and existing
-// Python symbols
-// Everthing else let wrapped.
-// as a term
-%typemap(out) YAPAtomTerm {
-  const char *s = RepAtom(AtomOfTerm($1nput.term()))->StrOfAE;
-  PyObject *p;
-  if ((p = AtomToPy(s))) {
-    $1 = p;
-  } else {
-      $1 = Py_None;
-  }
-}
-
-// translate lists as Python Lists
-// Python symbols
-// Everthing else let wrapped.
-// as a termpc
-%typemap(in) YAPListTerm {
-    PyObject *p = $input;
-        Int len = PyTuple_Size(p);
-        if (len == 0) {
-            $1 =  YAPListTerm(TermNil);
-        } else {
-        t = AbsPair(HR);
-        for (Int i = 0; i < len; i++) {
-            HR += 2;
-            HR[-2] = pythonToYAP(PyTuple_GetItem(p, i));
-            HR[-1] = AbsPair(HR+2);
-        }
-        HR[-1] = TermNil;
-        $1 = YAPListTerm(t);
-       }
+	}
    }
-
-%typemap(typecheck) YAPListTerm {
-    PyObject *it = $input;
-   $1 =  PyTuple_CheckExact(it);
-   }
-
-%typemap(in) YAPApplTerm {
-    char *o = Py_TYPE(p)->tp_name;
-    Int len = PyTuple_Size(p);
-
-    if (len == 0) {
-        $1 = nullptr;
-    } else {
-        Term t = MkNewApplTerm(Yap_MkFunctor(Yap_LookupAtom(o),len),len);
-        for (Int i = 0; i < len; i++) {
-            o[i] =  pythonToYAP(PyTuple_GetItem(p, i));
-        }
-        $1 = YAPApplTerm(t);
-    }
 }
 
-%typemap(typecheck) YAPApplTerm {
- PyObject *p = $input;
-  $1 = (PyTuple_Check(p) && !PyTuple_CheckExact(p));
-}
 
-// translate lists as Python Lists
-// Python symbols
-// Everthing else let wrapped.
-// as a term
-%typemap(out) YAPListTerm {
-  Term l = $1.term(), *end;
-  PyObject *list;
-  Int len = Yap_SkipList(&l, &end);
-  $result = list = PyList_New(len);
-  for (Int i = 0; i < len; i++) {
-    Term a = HeadOfTerm(l);
-    YAPTerm *argp1 = new YAPTerm(a);
-    PyObject *obj0 =
-        SWIG_NewPointerObj(SWIG_as_voidptr(argp1), SWIGTYPE_p_YAPTerm, 0 | 0);
-    l = TailOfTerm(l);
-    PyList_SetItem(list, i, obj0);
-  }
-  return list;
-}
 
 // Language independent exception handler
 

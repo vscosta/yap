@@ -322,5 +322,6 @@ size_t				MAX_SIZE				=1024L
 /* last call to walltime. */
 uint64_t			LastWTime				=0
 
+void*				shared					=NULL
 
 END_WORKER_LOCAL

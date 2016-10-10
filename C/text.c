@@ -370,7 +370,6 @@ unsigned char *Yap_readText(seq_tv_t *inp, size_t *lengp) {
       s = (char *)s0;
     else
       s = Malloc(0);
-    AUX_ERROR(inp->val.t, MaxTmp(PASS_REGS1), s, char);
     if (snprintf(s, MaxTmp(PASS_REGS1) - 1, Int_FORMAT,
                  IntegerOfTerm(inp->val.t)) < 0) {
       AUX_ERROR(inp->val.t, 2 * MaxTmp(PASS_REGS1), s, char);

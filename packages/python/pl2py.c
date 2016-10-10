@@ -49,7 +49,11 @@ PyObject *term_to_python(term_t t, bool eval) {
     else if (strcmp(s, "{}") == 0)
       o = PyDict_New();
     /* return __main__,s */
-    else if (PyObject_HasAttrString(py_Main, s)) {
+    else if ((o = PyRun_String(s, Py_single_input,
+			       PyEval_GetGlobals(), PyEval_GetLocals()))) {
+      Py_IncRef(o);
+      return o;
+    } else if (PyObject_HasAttrString(py_Main, s)) {
       o = PyObject_GetAttrString(py_Main, s);
     } else {
       o = PyUnicode_FromString(s);

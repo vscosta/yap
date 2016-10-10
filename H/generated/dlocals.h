@@ -481,4 +481,6 @@
 
 #define LOCAL_LastWTime LOCAL->LastWTime_
 #define REMOTE_LastWTime(wid) REMOTE(wid)->LastWTime_
+#define LOCAL_shared LOCAL->shared_
+#define REMOTE_shared(wid) REMOTE(wid)->shared_
 

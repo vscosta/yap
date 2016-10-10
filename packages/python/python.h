@@ -21,7 +21,7 @@
 typedef YAP_Arity arity_t;
 
 extern atom_t ATOM_true, ATOM_false, ATOM_colon, ATOM_dot, ATOM_none, ATOM_t,
-    ATOM_comma, ATOM_builtin, ATOM_V, ATOM_A;
+  ATOM_comma, ATOM_builtin, ATOM_V, ATOM_A, ATOM_self;
 
 extern functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1,
     FUNCTOR_bin1, FUNCTOR_brackets1, FUNCTOR_comma2, FUNCTOR_dir1,
@@ -36,6 +36,8 @@ extern PyObject *py_Main;
 extern PyObject *py_Builtin;
 extern PyObject *py_Yapex;
 extern PyObject *py_F2P;
+
+extern bool python_in_python;
 
 static inline Py_ssize_t get_p_int(PyObject *o, Py_ssize_t def) {
   if (o == NULL)

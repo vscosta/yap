@@ -934,7 +934,7 @@ PyObject *compound_to_pytree(term_t t, functor_t fun) {
     term_t tleft = PL_new_term_ref();
     PyObject *o = py_Main;
     while (fun == FUNCTOR_dot2) {
-      if (!PL_get_arg(1, t, tleft))
+                      if (!PL_get_arg(1, t, tleft))
         return FALSE;
       o = find_obj(o, tleft);
       if (!o)

@@ -1275,7 +1275,8 @@ char *Yap_TermToString(Term t, size_t *lengthp, encoding_t enc, int flags) {
   CACHE_REGS
     int sno = Yap_open_buf_write_stream(enc, flags);
   const char *sf;
-
+  DBTerm *e = LOCAL_BallTerm;
+  
   if (sno < 0)
     return NULL;
   LOCAL_c_output_stream = sno;
@@ -1286,8 +1287,11 @@ char *Yap_TermToString(Term t, size_t *lengthp, encoding_t enc, int flags) {
   Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, GLOBAL_MaxPriority);
 
   sf = Yap_MemExportStreamPtr(sno);
+  size_t len = strlen(sf);
+  char *new = malloc( len + 1 );
+  strcpy( new, sf );
   Yap_CloseStream(sno);
-  if (Yap_HasException())
-    return NULL;
-  return (char *)sf;
+  if (e)
+    LOCAL_BallTerm = e;
+  return new;
 }

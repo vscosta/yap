@@ -806,6 +806,7 @@ static inline char *Yap_AtomToUTF8Text(Atom at, const char *s USES_REGS) {
     out.val.c0 = s;
     out.type |= YAP_STRING_WITH_BUFFER;
   } else {
+    out.type |= YAP_STRING_MALLOC;
     out.val.c = NULL;
   }
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))

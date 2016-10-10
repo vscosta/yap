@@ -45,8 +45,11 @@ static foreign_t python_f(term_t tmod, term_t fname, term_t tf) {
       return FALSE;
     }
     pModule = PyImport_Import(pName);
-  } else if (!(pModule = term_to_python(tmod, true)))
+    PyErr_Clear();
+  } else if (!(pModule = term_to_python(tmod, true))) {
+    PyErr_Clear();
     return FALSE;
+  }
   if (!PL_get_nchars(fname, &len, &s, CVT_ALL | CVT_EXCEPTION)) {
     return FALSE;
   }
@@ -263,6 +266,7 @@ static foreign_t python_apply(term_t tin, term_t targs, term_t keywds,
   term_t targ = PL_new_term_ref();
 
   pF = term_to_python(tin, true);
+  PyErr_Clear();
   if (pF == NULL) {
     return false;
   }
@@ -567,6 +571,7 @@ static foreign_t python_run_script(term_t cmd, term_t fun) {
     /* Error checking of pName left out */
 
     pModule = PyImport_Import(pName);
+    PyErr_Clear();
     Py_DECREF(pName);
 
     if (pModule != NULL) {
@@ -617,6 +622,10 @@ static foreign_t python_export(term_t t, term_t pl) {
   return rc;
 }
 
+static foreign_t p_python_within_python(void) {
+  return python_in_python;
+}
+
 static int python_import(term_t mname, term_t mod) {
   PyObject *pName, *pModule;
   term_t arg = PL_new_term_ref();
@@ -650,6 +659,7 @@ static int python_import(term_t mname, term_t mod) {
     return false;
   }
   pModule = PyImport_Import(pName);
+  PyErr_Clear();
   Py_DECREF(pName);
   if (pModule == NULL) {
 #if EXTRA_MESSSAGES
@@ -689,4 +699,5 @@ install_t install_pypreds(void) {
   PL_register_foreign("python_main_module", 1, python_main_module, 0);
   PL_register_foreign("python_import", 2, python_import, 0);
   PL_register_foreign("python_access", 3, python_access, 0);
+  PL_register_foreign("python_within_python", 0, p_python_within_python, 0);
 }

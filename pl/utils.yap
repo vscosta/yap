@@ -251,7 +251,7 @@ current_op(X,Y,Z) :-
 
 
 prolog :-
-	'$live'.
+	live.
 
 %%% current ....
 

@@ -322,6 +322,9 @@ Succeeds once.
 */
 true :- true.
 
+live :-
+	'$live'.
+
 '$live' :-
 	'$init_system',
         '$do_live'.

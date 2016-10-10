@@ -4,7 +4,7 @@
 int assign_python(PyObject *root, term_t t, PyObject *e);
 
 atom_t ATOM_true, ATOM_false, ATOM_colon, ATOM_dot, ATOM_none, ATOM_t,
-    ATOM_comma, ATOM_builtin, ATOM_A, ATOM_V;
+  ATOM_comma, ATOM_builtin, ATOM_A, ATOM_V, ATOM_self;
 
 functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1,
     FUNCTOR_bin1, FUNCTOR_brackets1, FUNCTOR_comma2, FUNCTOR_dir1,
@@ -29,6 +29,8 @@ int assign_python(PyObject *root, term_t t, PyObject *e);
 PyObject *ActiveModules[32];
 int active_modules = 0;
 
+bool python_in_python;
+
 static void install_py_constants(void) {
   FUNCTOR_dot2 = PL_new_functor(PL_new_atom("."), 2);
   // FUNCTOR_equal2 = PL_new_functor(PL_new_atom("="), 2);
@@ -42,6 +44,7 @@ static void install_py_constants(void) {
   ATOM_false = PL_new_atom("false");
   ATOM_dot = PL_new_atom(".");
   ATOM_none = PL_new_atom("none");
+  ATOM_self = PL_new_atom("self");
   ATOM_t = PL_new_atom("t");
   FUNCTOR_abs1 = PL_new_functor(PL_new_atom("abs"), 1);
   FUNCTOR_all1 = PL_new_functor(PL_new_atom("all"), 1);
@@ -85,24 +88,28 @@ foreign_t end_python(void) {
 
 X_API bool init_python(void) {
   char **argv;
+  python_in_python = false;
   if (YAP_DelayInit(init_python, "python")) {
     // wait for YAP_Init
     return false;
   }
   term_t t = PL_new_term_ref();
-  YAP_Argv(&argv);
-  if (argv) {
+  if (!Py_IsInitialized()) {
+    python_in_python = true;
+    YAP_Argv(&argv);
+    if (argv) {
 #if PY_MAJOR_VERSION < 3
-    Py_SetProgramName(argv[0]);
+      Py_SetProgramName(argv[0]);
 #else
-    wchar_t *buf = Py_DecodeLocale(argv[0], NULL);
+      wchar_t *buf = Py_DecodeLocale(argv[0], NULL);
     Py_SetProgramName(buf);
 #endif
+    }
+    Py_Initialize();
   }
-  Py_Initialize();
   install_py_constants();
   PL_reset_term_refs(t);
   install_pypreds();
   install_pl2pl();
-  return true;
+  return !python_in_python;
 }
