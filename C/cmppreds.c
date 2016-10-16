@@ -117,12 +117,12 @@ cmp_atoms(Atom a1, Atom a2)
   }
 }
 
-static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
+static Int compare_complex(register CELL *pt0, register CELL *pt0_end, register
 		   CELL *pt1)
 {
   CACHE_REGS
   register CELL **to_visit = (CELL **)HR;
-  register int out = 0;
+  register Int out = 0;
 
  loop:
   while (pt0 < pt0_end) {
