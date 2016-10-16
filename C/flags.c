@@ -47,9 +47,13 @@ static Term sys_pid(Term inp);
 static bool mkprompt(Term inp);
 static Term synerr(Term inp);
 static Term indexer(Term inp);
+static Term stream(Term inp);
 static bool getenc(Term inp);
 static bool typein(Term inp);
 static bool dqf(Term t2);
+static bool set_error_stream( Term inp );
+static bool set_input_stream( Term inp );
+static bool set_output_stream( Term inp );
 
 static void newFlag(Term fl, Term val);
 static Int current_prolog_flag(USES_REGS1);
@@ -167,6 +171,41 @@ static Term isaccess(Term inp) {
             "set_prolog_flag access in {read_write,read_only}");
   return TermZERO;
 }
+
+static Term stream(Term inp) {
+  if ( IsVarTerm(inp) )
+    return inp;
+  return Yap_CheckStream( inp, Input_Stream_f | Output_Stream_f |
+			  Append_Stream_f | Socket_Stream_f, "yap_flag/3" ) >= 0;
+
+}
+
+static bool 
+set_error_stream( Term inp ) {
+  LOCAL_c_error_stream = Yap_CheckStream( inp, Output_Stream_f |
+			  Append_Stream_f | Socket_Stream_f, "yap_flag/3" );
+  if( IsVarTerm(inp) )
+    return Yap_unify( inp, Yap_StreamUserName(  LOCAL_c_error_stream ) );
+ return true;
+}
+
+static bool 
+set_input_stream( Term inp ) {
+  LOCAL_c_input_stream = Yap_CheckStream( inp, Input_Stream_f | Socket_Stream_f, "yap_flag/3" );
+  if( IsVarTerm(inp) )
+    return Yap_unify( inp, Yap_StreamUserName(  LOCAL_c_input_stream ) );
+  return true;
+}
+
+static bool 
+set_output_stream( Term inp ) {
+  LOCAL_c_output_stream = Yap_CheckStream( inp, Output_Stream_f |
+			  Append_Stream_f | Socket_Stream_f, "yap_flag/3" );
+  if( IsVarTerm(inp) )
+    return Yap_unify( inp, Yap_StreamUserName(  LOCAL_c_output_stream ) );
+  return true;
+}
+
 
 static Term isground(Term inp) {
   return Yap_IsGroundTerm(inp) ? inp : TermZERO;
@@ -1473,7 +1512,7 @@ static void newFlag(Term fl, Term val) {
   GLOBAL_flagCount++;
   f.name = (char *)RepAtom(AtomOfTerm(fl))->StrOfAE;
   f.writable = true;
-  f.helper = 0;
+  f.helper = NULL;
   f.def = ok;
   initFlag(&f, i, true);
   if (IsAtomOrIntTerm(val)) {
