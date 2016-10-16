@@ -1,5 +1,6 @@
 
 
+
 #define YAP_CPP_INTERFACE 1
 
 #include <gmpxx.h>
@@ -67,6 +68,7 @@ extern "C" {
 #include "iopreds.h"
 
 #ifdef SWIGPYTHON
+extern PyObject *yap_to_pythond(YAP_Term t, bool eval);
 extern PyObject *term_to_python(yhandle_t t, bool eval);
 extern PyObject *deref_term_to_python(yhandle_t t);
 X_API bool init_python(void);
@@ -93,6 +95,8 @@ extern inline PyObject *AtomToPy(const char *s) {
   return NULL;
 }
 
+X_API extern  PyObject *yap_to_python(YAP_Term t, bool eval);
+
 #endif
 
 X_API void YAP_UserCPredicate(const char *, YAP_UserCPred, YAP_Arity arity);
@@ -102,13 +106,9 @@ X_API void YAP_UserCPredicate(const char *, YAP_UserCPred, YAP_Arity arity);
 X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, YAP_Arity,
                                       YAP_Term);
 
-/*  void UserBackCPredicate(const char *name, int *init(), int *cont(), int
-     arity, int extra) */
-X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred,
-                                  YAP_Arity, YAP_Arity);
+X_API  void UserBackCPredicate(const char *name, int *init(), int *cont(), int
+     arity, int extra);
 
-X_API Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp,
-                            int prio, Term *bindings_p);
 }
 
 class YAPEngine;

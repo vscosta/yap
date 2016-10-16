@@ -25,4 +25,9 @@ find_package(PythonLibs)
 
  macro_log_feature (PYTHONLIBS_FOUND "Python"
    "Use Python System"
-   "http://www.python.org" FALSE)
+	   "http://www.python.org" FALSE)
+
+#include_directories( ${PYTHON_INCLUDE_DIRS} )
+
+set( CMAKE_REQUIRED_INCLUDES ${PYTHON_INCLUDE_DIRS}  ${CMAKE_REQUIRED_INCLUDES}	)
+check_include_file(Python.h HAVE_PYTHON_H)

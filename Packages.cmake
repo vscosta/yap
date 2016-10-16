@@ -2,10 +2,6 @@
 message(STATUS "Building YAP packages version ${YAP_VERSION}")
 
 
-include (cudd NO-POLICY-SCOPE)
-include (python NO-POLICY-SCOPE)
-include (java NO-POLICY-SCOPE)
-
 
 
 if (NOT WIN32)
@@ -154,7 +150,6 @@ target_link_libraries(yap-bin libYap )
          LIBRARY DESTINATION ${libdir}
           ARCHIVE DESTINATION ${libdir}
        )
-
 
 
 CMAKE_DEPENDENT_OPTION (WITH_SYSTEM_MMAP "Use MMAP for shared memory allocation" ON

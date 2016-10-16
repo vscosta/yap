@@ -175,34 +175,36 @@ static Term isaccess(Term inp) {
 static Term stream(Term inp) {
   if ( IsVarTerm(inp) )
     return inp;
-  return Yap_CheckStream( inp, Input_Stream_f | Output_Stream_f |
-			  Append_Stream_f | Socket_Stream_f, "yap_flag/3" ) >= 0;
+  if (Yap_CheckStream( inp, Input_Stream_f | Output_Stream_f |
+		       Append_Stream_f | Socket_Stream_f, "yap_flag/3" ) >= 0)
+    return inp;
+  return 0;
 
 }
 
 static bool 
 set_error_stream( Term inp ) {
-  LOCAL_c_error_stream = Yap_CheckStream( inp, Output_Stream_f |
-			  Append_Stream_f | Socket_Stream_f, "yap_flag/3" );
   if( IsVarTerm(inp) )
     return Yap_unify( inp, Yap_StreamUserName(  LOCAL_c_error_stream ) );
+  LOCAL_c_error_stream = Yap_CheckStream( inp, Output_Stream_f |
+			  Append_Stream_f | Socket_Stream_f, "yap_flag/3" );
  return true;
 }
 
 static bool 
 set_input_stream( Term inp ) {
-  LOCAL_c_input_stream = Yap_CheckStream( inp, Input_Stream_f | Socket_Stream_f, "yap_flag/3" );
   if( IsVarTerm(inp) )
     return Yap_unify( inp, Yap_StreamUserName(  LOCAL_c_input_stream ) );
+  LOCAL_c_input_stream = Yap_CheckStream( inp, Input_Stream_f | Socket_Stream_f, "yap_flag/3" );
   return true;
 }
 
 static bool 
 set_output_stream( Term inp ) {
-  LOCAL_c_output_stream = Yap_CheckStream( inp, Output_Stream_f |
-			  Append_Stream_f | Socket_Stream_f, "yap_flag/3" );
   if( IsVarTerm(inp) )
     return Yap_unify( inp, Yap_StreamUserName(  LOCAL_c_output_stream ) );
+  LOCAL_c_output_stream = Yap_CheckStream( inp, Output_Stream_f |
+			  Append_Stream_f | Socket_Stream_f, "yap_flag/3" );
   return true;
 }
 

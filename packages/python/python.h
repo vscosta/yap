@@ -94,6 +94,8 @@ static inline PyObject *atom_to_python_string(term_t t) {
 extern PyObject *compound_to_pyeval(term_t t, functor_t fun);
 extern PyObject *compound_to_pytree(term_t t, functor_t fun);
 
+
+extern PyObject *yap_to_python(YAP_Term t, bool eval);
 extern PyObject *term_to_python(term_t t, bool eval);
 extern foreign_t python_to_ptr(PyObject *pVal, term_t t);
 

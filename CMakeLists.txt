@@ -142,5 +142,5 @@ set_target_properties(libYap
         )
 
 
-    include(Config NO_POLICY_SCOPE)
 MY_include(Packages NO_POLICY_SCOPE)
+    include(Config NO_POLICY_SCOPE)

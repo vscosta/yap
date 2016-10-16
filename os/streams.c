@@ -1061,7 +1061,7 @@ static Int line_count(USES_REGS1) { /* '$current_line_number'(+Stream,-N) */
   return (Yap_unify_constant(ARG2, tout));
 }
 
-static Int p_line_position(USES_REGS1) { /* '$line_position'(+Stream,-N) */
+static Int line_position(USES_REGS1) { /* '$line_position'(+Stream,-N) */
   Term tout;
   int sno =
       Yap_CheckStream(ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f,
@@ -1084,7 +1084,7 @@ static Int p_line_position(USES_REGS1) { /* '$line_position'(+Stream,-N) */
   return (Yap_unify_constant(ARG2, tout));
 }
 
-static Int p_character_count(USES_REGS1) { /* '$character_count'(+Stream,-N) */
+static Int character_count(USES_REGS1) { /* '$character_count'(+Stream,-N) */
   Term tout;
   int sno =
       Yap_CheckStream(ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f,
@@ -1420,9 +1420,9 @@ void Yap_InitIOStreams(void) {
                 SafePredFlag | SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$check_stream", 1, p_check_if_stream,
                 SafePredFlag | SyncPredFlag | HiddenPredFlag | HiddenPredFlag);
-  Yap_InitCPred("$line_position", 2, p_line_position,
+  Yap_InitCPred("line_position", 2, line_position,
                 SafePredFlag | SyncPredFlag | HiddenPredFlag);
-  Yap_InitCPred("$character_count", 2, p_character_count,
+  Yap_InitCPred("character_count", 2, character_count,
                 SafePredFlag | SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$show_stream_flags", 2, p_show_stream_flags,
                 SafePredFlag | SyncPredFlag | HiddenPredFlag);

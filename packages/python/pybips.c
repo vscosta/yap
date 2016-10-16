@@ -651,7 +651,7 @@ term_to_nametuple( const char *s, int arity, term_t t) {
   PyTypeObject *typp;
     PyObject *o;
 PyObject *key = PyUnicode_FromString(s);
-if (PyDict_Contains(py_F2P, key)) {
+ if (py_F2P && PyDict_Contains(py_F2P, key)) {
   typp = (PyTypeObject*)PyDict_GetItem(py_F2P, key);
 } else {
 
@@ -670,7 +670,8 @@ if (PyDict_Contains(py_F2P, key)) {
   Py_INCREF(typp);
   //	typp->tp_flags |= Py_TPFLAGS_HEAPTYPE;
   PyModule_AddObject(py_Yapex, s, (PyObject *)typp);
-  PyDict_SetItem(py_F2P, key, (PyObject *)typp);
+  if (py_F2P)
+    PyDict_SetItem(py_F2P, key, (PyObject *)typp);
 }
 o = PyStructSequence_New(typp);
 term_t tleft = PL_new_term_ref();
@@ -1264,7 +1265,9 @@ PyObject *compound_to_pyeval(term_t t, functor_t fun) {
       /* pArg reference stolen here: */
       PyTuple_SetItem(pArgs, i, pArg);
     }
-    return PyObject_CallObject(o, pArgs);
+    PyObject *rc;
+    rc = PyObject_CallObject(o, pArgs);
+    return rc;
   } else {
     atom_t name;
     int len;
