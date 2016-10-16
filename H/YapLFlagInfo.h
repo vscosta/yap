@@ -83,7 +83,7 @@ which must be an atom. If unbound, unify the argument with the current
 working module.
 
  */
-YAP_FLAG(  USER_ERROR_FLAG, "user_error", true, isatom, "user_error" , NULL ), /**< `user_error1`
+  YAP_FLAG(  USER_ERROR_FLAG, "user_error", true, stream, "user_error" , set_error_stream ), /**< `user_error1`
 
     If the second argument is bound to a stream, set user_error to
 this stream. If the second argument is unbound, unify the argument with
@@ -114,5 +114,5 @@ prompts from the system were redirected to the stream
 automatically redirects the user_error alias to the original
 `stderr`.
  */
-YAP_FLAG(  USER_INPUT_FLAG, "user_input", true, isatom, "user_input" , NULL ),
-  YAP_FLAG(  USER_OUTPUT_FLAG, "user_output", true, isatom, "user_output" , NULL ),
+YAP_FLAG(  USER_INPUT_FLAG, "user_input", true, stream, "user_input" , set_input_stream ),
+  YAP_FLAG(  USER_OUTPUT_FLAG, "user_output", true, stream, "user_output" , set_output_stream ),

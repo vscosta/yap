@@ -135,6 +135,7 @@ private:
   YAP_init_args init_args;
   YAPError yerror;
   void doInit(YAP_file_type_t BootMode);
+  YAP_dogoalinfo q;
 
 public:
   /// construct a new engine; may use a variable number of arguments
@@ -179,7 +180,17 @@ public:
   /// current directory for the engine
   bool call(YAPPredicate ap, YAPTerm ts[]);
   /// current directory for the engine
-  bool goal(YAPTerm t);
+  bool goalt(YAPTerm t);
+  /// current directory for the engine
+  bool goal(Term t);
+#if SWIGPYTHON
+  bool unlockedGoal(Term t) {bool rc;Py_BEGIN_ALLOW_THREADS;  rc = goal(t);Py_END_ALLOW_THREADS;  return rc; }
+#endif
+  /// reset Prolog state
+  void reSet();
+  /// release: assune that there are no stack pointers, just release memory
+  // for last execution
+  void release();
 
   const char *currentDir() {
     char dir[1024];
@@ -191,11 +202,7 @@ public:
     std::string s = Yap_version();
     return s.c_str();
   };
-#ifdef SWIGPYTHON
-  inline void share(PyObject *arg) {
-    LOCAL_shared = arg;
-  };
-#endif
+  Term fun(Term t);
 };
 
 #endif /* YAPQ_HH */

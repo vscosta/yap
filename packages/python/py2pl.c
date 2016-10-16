@@ -254,7 +254,7 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
     return rc;
 #else
     // new interface
-    char *s = PyUnicode_AsUTF8AndSize(pVal, &sz);
+    char *s = PyUnicode_AsUTF8AndSize(pValR, &sz);
     return repr_term(s, sz, t);
 #endif
   }

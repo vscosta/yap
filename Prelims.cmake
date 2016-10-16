@@ -174,3 +174,8 @@ set(YAP_ROOTDIR "${prefix}")
 # include( Sources NO_POLICY_SCOPE )
 #
 # include( Model NO_POLICY_SCOPE  )
+
+include (cudd NO-POLICY-SCOPE)
+include (python NO-POLICY-SCOPE)
+include (java NO-POLICY-SCOPE)
+

@@ -32,7 +32,7 @@
 /** @pred  listing
 
 
-Lists in the current output stream all the clauses for which source code
+vxuLists in the current output stream all the clauses for which source code
 is available (these include all clauses for dynamic predicates and
 clauses for static predicates compiled when source mode was `on`).
 

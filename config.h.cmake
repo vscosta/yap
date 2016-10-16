@@ -1013,6 +1013,11 @@ function. */
 #cmakedefine HAVE_PWD_H ${HAVE_PWD_H}
 #endif
 
+/* Define to 1 if you have the <pwd.h> header file. */
+#ifndef HAVE_PYTHON_H
+#cmakedefine HAVE_PYTHON_H ${HAVE_PYTHON_H}
+#endif
+
 /* Define to 1 if you have the `rand' function. */
 #ifndef HAVE_RAND
 #cmakedefine HAVE_RAND ${HAVE_RAND}
@@ -1032,7 +1037,6 @@ function. */
 #ifndef HAVE_RAPTOR_H
 #cmakedefine HAVE_RAPTOR_H ${HAVE_RAPTOR_H}
 #endif
-
 
 /* Define to 1 if you have the `readlink' function. */
 #ifndef HAVE_READLINK

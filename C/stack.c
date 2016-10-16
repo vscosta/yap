@@ -779,19 +779,25 @@ static PredEntry *found_expand(yamop *pc, void **startp,
   return pp;
 }
 
-static PredEntry *found_ystop(yamop *pc, int clause_code, void **startp,
-                              void **endp, PredEntry *pp USES_REGS) {
+static PredEntry *found_ystop(yamop *pc, int clause_code, void **startp, void **endp, PredEntry *pp USES_REGS) {
   if (pc == YESCODE) {
     pp = RepPredProp(Yap_GetPredPropByAtom(AtomTrue, CurrentModule));
-    *startp = (CODEADDR)YESCODE;
-    *endp = (CODEADDR)YESCODE + (CELL)(NEXTOP((yamop *)NULL, e));
+    if (startp)
+      *startp = (CODEADDR)YESCODE;
+    if (endp)
+      *endp = (CODEADDR)YESCODE + (CELL)(NEXTOP((yamop *)NULL, e));
     return pp;
-  }
-  if (!pp) {
-    /* must be an index */
+ }                                                                                                 
+ if (!pp) {
+   yamop *o = PREVOP(pc,pp);
+   if (o->opc ==Yap_opcode(_execute_cpred)) {
+     pp = o->y_u.pp.p0;
+   } else {
+     /* must be an index */
     PredEntry **pep = (PredEntry **)pc->y_u.l.l;
     pp = pep[-1];
   }
+ }
   if (pp->PredFlags & LogUpdatePredFlag) {
     if (clause_code) {
       LogUpdClause *cl = ClauseCodeToLogUpdClause(pc->y_u.l.l);

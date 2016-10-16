@@ -15,7 +15,7 @@ set (PYTHON_HEADERS
 
   target_link_libraries(YAPPython libYap ${PYTHON_LIBRARIES})
 
-set(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
+  set(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
 
 add_custom_target ( YAPex ALL
         COMMAND ${PYTHON_EXECUTABLE} setup.py build -f

@@ -463,8 +463,14 @@ push_registers(Int num_regs, yamop *nextop USES_REGS)
     while (curslot < topslot) {
       // printf("%p <- %p\n", TR, topslot);
       ret = check_pr_trail(ret PASS_REGS);
-      TrailTerm(TR++) = *curslot++;
-    }
+      if (!IsVarTerm(*curslot) &&
+	  (
+	  (*curslot < (CELL)LOCAL_GlobalBase &&
+	   *curslot > (CELL)HR))) {
+	*curslot++ = TermNil;
+      }
+	TrailTerm(TR++) = (CELL)curslot++;
+      }
   }
   for (i = 1; i <= num_regs; i++) {
     ret = check_pr_trail(ret PASS_REGS);
@@ -573,6 +579,7 @@ pop_registers(Int num_regs, yamop *nextop USES_REGS)
     while (curslot < topslot) {
       *curslot++ = TrailTerm(ptr++);
     }
+    
   }
 
   for (i = 1; i <= num_regs; i++)
@@ -1193,7 +1200,7 @@ mark_variable(CELL_PTR current USES_REGS)
   char *local_bp = LOCAL_bp;
 
  begin:
-  if (UNMARKED_MARK(current,local_bp)) {
+  if (current == 0 || UNMARKED_MARK(current,local_bp)) {
     POP_CONTINUATION();
   }
   if (current >= H0 && current < HR) {

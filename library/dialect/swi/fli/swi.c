@@ -258,7 +258,7 @@ X_API int PL_unify_chars(term_t l, int flags, size_t length, const char *s) {
 
   if (flags & REP_UTF8) {
     inp.val.c0 = s;
-    inp.type = YAP_STRING_CHARS | ENC_ISO_LATIN1;
+    inp.type = YAP_STRING_CHARS | ENC_ISO_UTF8;
     if (length != (size_t)-1) {
       inp.type |= YAP_STRING_NCHARS;
     }

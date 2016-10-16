@@ -14,51 +14,49 @@ class YAPEngine;
 
 #ifdef SWIGPYTHON
 
-%typemap(typecheck) YAPTerm*  {
+%typemap(typecheck) Term*  {
   $1 = PySequence_Check($input);
 }
 
 // Map a Python sequence into any sized C double array
-%typemap(in) YAPTerm*  {
+%typemap(in) Term*  {
   int i;
   if (!PySequence_Check($input)) {
       PyErr_SetString(PyExc_TypeError,"Expecting a sequence");
       $1 = nullptr;
   } else {
   int sz = PyObject_Length($input);
-  std::vector<YAPTerm> v(sz);
+  std::vector<Term> v(sz);
   for (i =0; i < sz; i++) {
       PyObject *o = PySequence_GetItem($input,i);
-      v[i] = YAPTerm(pythonToYAP(o));
+      v[i] = Term(pythonToYAP(o));
       Py_DECREF(o);
-  }
+  }		
   $1 = &v[0];
 }
 }
 
-%typemap(typecheck) YAPTerm  {
+%typemap(typecheck) YPTerm  {
  $1 = true;
 }
 
+%typemap(in) Term { $1 = pythonToYAP($input); }
 
 
-%typemap(in) YAPTerm { $1 = YAPTerm(pythonToYAP($input)); }
+%typemap(out) Term { return $result = yap_to_python($1, false);}
 
-
-%typemap(out) YAPTerm  {$result = term_to_python($1.handle(), false);}
-
-
-%extend(out) YAPTerm{YAPTerm & __getitem__(size_t i){Term t0 = $self->term();
+ 
+%extend(out) Term{Term & __getitem__(size_t i){Term t0 = $self;
 
 if (IsApplTerm(t0)) {
   Functor f = FunctorOfTerm(t0);
   if (!IsExtensionFunctor(f))
-    return *new YAPTerm(ArgOfTerm(i + 1, t0));
+   return (ArgOfTerm(i + 1, t0);
 } else if (IsPairTerm(t0)) {
   if (i == 0)
-    return *new YAPTerm(HeadOfTerm(t0));
+    return HeadOfTerm(t0);
   else if (i == 1)
-    return *new YAPTerm(TailOfTerm(t0));
+    return TailOfTerm(t0);
 	}
    }
 }
