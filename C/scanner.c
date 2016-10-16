@@ -1267,6 +1267,8 @@ const char *Yap_tokRep(TokEntry *tokptr, encoding_t encoding) {
   case QuasiQuotes_tok:
   case WQuasiQuotes_tok:
     return "<QQ>";
+ default:
+   return "??";
   }
 }
 
