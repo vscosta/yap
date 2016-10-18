@@ -392,7 +392,7 @@ determination(student/1,hasposition/2).</code></pre>
 <li><p><code>verbosity</code> (values: integer in [1,3], default value: 1): level of verbosity of the algorithms</p></li>
 <li><p><code>beamsize</code> (values: integer, default value: 20, valid for SLIPCASE and SLIPCOVER): size of the beam</p></li>
 <li><p><code>mcts_beamsize</code> (values: integer, default value: 3, valid for LEMUR): size of the MCTS beam</p></li>
-<li><p><code>mcts_visits</code> (values: integer, default value: +inf, valid for LEMUR): maximum number of visits (Nicola controlla)</p></li>
+<li><p><code>mcts_visits</code> (values: integer, default value: +inf, valid for LEMUR): maximum number of visits</p></li>
 <li><p><code>megaex_bottom</code> (values: integer, default value: 1, valid for SLIPCOVER): number of mega-examples on which to build the bottom clauses</p></li>
 <li><p><code>initial_clauses_per_megaex</code> (values: integer, default value: 1, valid for SLIPCOVER): number of bottom clauses to build for each mega-example</p></li>
 <li><p><code>d</code> (values: integer, default value: 10000, valid for SLIPCOVER): number of saturation steps when building the bottom clause</p></li>
@@ -426,7 +426,7 @@ determination(student/1,hasposition/2).</code></pre>
 <pre><code>?:- use_module(library(&#39;cplint/lemur&#39;)).</code></pre>
 <p>and call</p>
 <pre><code>?:- &quot;mcts(stem,depth,c,iter,rules,covering)</code></pre>
-<p>where <code>depth</code> (integer) is the maximum number of random specialization steps in the default policy, <code>C</code> (real) is the value of the MCTS <span class="math inline"><em>C</em></span> constant, <code>iter</code> (integer) is the number of UCT rounds, <code>rules</code> (integer) is the maximum number of clauses to be learned and <code>covering</code> (Boolean) dentoes whether the search is peformed in the space of clauses (true) or theories (false) (Nicola controlla).</p>
+<p>where <code>depth</code> (integer) is the maximum number of random specialization steps in the default policy, <code>C</code> (real) is the value of the MCTS <span class="math inline"><em>C</em></span> constant, <code>iter</code> (integer) is the number of UCT rounds, <code>rules</code> (integer) is the maximum number of clauses to be learned and <code>covering</code> (Boolean) dentoes whether the search is peformed in the space of clauses (true) or theories (false).</p>
 <h2 id="testing">Testing</h2>
 <p>To test the theories learned, load <code>test.pl</code> with</p>
 <pre><code>?:- use_module(library(&#39;cplint/test&#39;)).</code></pre>
