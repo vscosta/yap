@@ -892,9 +892,9 @@ X_API atom_t PL_new_atom(const char *c) {
   Atom at;
   atom_t sat;
 
-  while ((at = Yap_CharsToAtom(c, ENC_ISO_LATIN1 PASS_REGS)) == 0L) {
+  while ((at = Yap_LookupAtom(c)) == 0L) {
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError("PL_new_atom"))
-      return FALSE;
+      return false;
   }
   Yap_AtomIncreaseHold(at);
   sat = AtomToSWIAtom(at);

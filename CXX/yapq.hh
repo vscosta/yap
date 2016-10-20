@@ -145,6 +145,7 @@ public:
       size_t maxTrailSize = 0, char *libDir = (char *)NULL,
       char *goal = (char *)NULL, char *topLevel = (char *)NULL,
       bool script = FALSE, bool fastBoot = FALSE,
+      bool embedded = true,
       YAPCallback *callback = (YAPCallback *)
           NULL); /// construct a new engine, including aaccess to callbacks
                  /// construct a new engine using argc/argv list of arguments
@@ -183,9 +184,6 @@ public:
   bool goalt(YAPTerm t);
   /// current directory for the engine
   bool goal(Term t);
-#if SWIGPYTHON
-  bool unlockedGoal(Term t) {bool rc;Py_BEGIN_ALLOW_THREADS;  rc = goal(t);Py_END_ALLOW_THREADS;  return rc; }
-#endif
   /// reset Prolog state
   void reSet();
   /// release: assune that there are no stack pointers, just release memory

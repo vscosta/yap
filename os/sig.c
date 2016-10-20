@@ -834,6 +834,9 @@ static Int fpe_error(USES_REGS1) {
 
 /* SIGINT can cause problems, if caught before full initialization */
 void Yap_InitOSSignals(int wid) {
+  if (Yap_embedded) {
+    return;
+  }
   if (GLOBAL_PrologShouldHandleInterrupts) {
 #if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__) && !defined(LIGHT)
     my_signal(SIGQUIT, ReceiveSignal);

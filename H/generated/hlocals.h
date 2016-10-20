@@ -184,6 +184,7 @@ typedef struct worker_local {
   sigjmp_buf  RestartEnv_;
   char  FileNameBuf_[YAP_FILENAME_MAX+1];
   char  FileNameBuf2_[YAP_FILENAME_MAX+1];
+  struct TextBuffer_manager*  TextBuffer_;
 // Prolog State
   UInt  BreakLevel_;
   Int  PrologMode_;

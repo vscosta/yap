@@ -850,4 +850,6 @@ inline static void LOG0(const char *f, int l, const char *fmt, ...) {
 
 #include "GitSHA1.h"
 
+extern bool  Yap_embedded, Yap_Server;
+
 #endif /* YAP_H */

@@ -872,6 +872,7 @@ YAPEngine::YAPEngine(char *savedState, char *bootFile, size_t stackSize,
                      size_t trailSize, size_t maxStackSize, size_t maxTrailSize,
                      char *libDir, char *goal, char *topLevel, bool script,
                      bool fastBoot,
+		     bool embedded,
                      YAPCallback *cb)
     : _callback(0) { // a single engine can be active
 
@@ -904,6 +905,7 @@ YAPEngine::YAPEngine(char *savedState, char *bootFile, size_t stackSize,
   init_args.YapPrologTopLevelGoal = topLevel;
   init_args.HaltAfterConsult = script;
   init_args.FastBoot = fastBoot;
+  init_args.Embedded = embedded;
   doInit(BootMode);
 }
 

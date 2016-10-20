@@ -31,6 +31,7 @@
 #include "../utf8proc/utf8proc.h"
 #include "Yap.h"
 
+
 /* Character types for tokenizer and write.c */
 
 /****************** character definition table **************************/

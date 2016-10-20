@@ -2260,6 +2260,9 @@ static void start_modules(void) {
   CurrentModule = cm;
 }
 
+/// whether Yap is under control of some other system
+bool Yap_embedded;
+
 /* this routine is supposed to be called from an external program
    that wants to control Yap */
 
@@ -2268,7 +2271,6 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
   bool do_bootstrap = (restore_result & YAP_CONSULT_MODE);
   CELL Trail = 0, Stack = 0, Heap = 0, Atts = 0;
   char boot_file[YAP_FILENAME_MAX + 1];
-
   Int rc;
   const char *yroot;
 
@@ -2277,6 +2279,7 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
     return YAP_FOUND_BOOT_ERROR;
   initialized = true;
 
+  Yap_embedded = yap_init->Embedded;
   Yap_page_size = Yap_InitPageSize(); /* init memory page size, required by
                                          later functions */
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
@@ -2285,7 +2288,7 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
   GLOBAL_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts;
   Yap_InitSysbits(0); /* init signal handling and time, required by later
                         functions */
-  GLOBAL_argv = yap_init->Argv;
+    GLOBAL_argv = yap_init->Argv;  
   GLOBAL_argc = yap_init->Argc;
   if (0 && ((YAP_QLY && yap_init->SavedState) ||
             (YAP_BOOT_PL && (yap_init->YapPrologBootFile)))) {
@@ -2346,9 +2349,10 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
   //
 
   CACHE_REGS
-  if (yap_init->QuietMode) {
-    setVerbosity(TermSilent);
-  }
+    if (Yap_embedded)
+      if (yap_init->QuietMode) {
+	setVerbosity(TermSilent);
+      }
   {
     if (yap_init->YapPrologRCFile != NULL) {
       /*

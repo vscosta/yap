@@ -35,46 +35,77 @@ inline static size_t min_size(size_t i, size_t j) { return (i < j ? i : j); }
 #define NAN (0.0 / 0.0)
 #endif
 
-void *buf__, *cur__;
+#define  MAX_PATHNAME 2048
 
-#define init_alloc(I)                                                          \
-  void *ov__ = TR, *ocur__ = LOCAL_ScannerStack;                               \
-  if (!LOCAL_ScannerStack)                                                     \
-  LOCAL_ScannerStack = (char *)TR
 
-#define mark_stack()                                                           \
-  void *otr__ = TR;                                                            \
-  void *ost__ = LOCAL_ScannerStack;                                            \
-  TR = (tr_fr_ptr)LOCAL_ScannerStack
+typedef struct TextBuffer_manager {
+  void *buf, *ptr;
+  size_t sz;
+  struct TextBuffer_manager *prev;
+  int lvl;
+} text_buffer_t;
 
-#define restore_stack()                                                        \
-  TR = otr__;                                                                  \
-  LOCAL_ScannerStack = ost__
+int lvl;
 
-#define export_buf(s)                                                          \
-  {}
-
-#define unprotect_stack(s) TR = ov__, LOCAL_ScannerStack = ocur__
-// LOCAL_ScannerStack = ov__, TR = ot__
-
-static bool alloc_ovfl(size_t sz) {
-  return (char *)+(sz + 4096) > (char *)LOCAL_TrailTop;
+/**
+ * TextBuffer is allocated as a chain of blocks, They area
+ * recovered at the end if the translation.
+ */
+INLINE_ONLY  inline int init_alloc(int line)  {
+  //  printf("l=%d\n",lvl);
+  if (lvl )
+    return;
+  while (LOCAL_TextBuffer->prev ) {
+    struct TextBuffer_manager *old = LOCAL_TextBuffer;
+    LOCAL_TextBuffer = LOCAL_TextBuffer->prev;
+    free(old);
+  }
+  LOCAL_TextBuffer->sz = (YAP_FILENAME_MAX + 1);
+  LOCAL_TextBuffer->buf = LOCAL_TextBuffer->ptr = (void *)(LOCAL_TextBuffer + 1 );
+  return lvl++;
 }
+ 
+INLINE_ONLY inline int mark_stack(void) { 
+return lvl; }
+
+INLINE_ONLY inline void restore_stack(int i ) {lvl = i;}		\
+INLINE_ONLY inline void unprotect_stack(int i) { 
+lvl = i;}
 
 static void *Malloc(size_t sz USES_REGS) {
   sz = ALIGN_BY_TYPE(sz, CELL);
-  if (alloc_ovfl(sz))
-    return NULL;
-  void *o = LOCAL_ScannerStack;
-  LOCAL_ScannerStack = (void *)((char *)LOCAL_ScannerStack + sz);
-  return o;
+  void *o = LOCAL_TextBuffer->ptr;
+  if ((char*)LOCAL_TextBuffer->ptr+sz>(char*)LOCAL_TextBuffer->buf + LOCAL_TextBuffer->sz) {
+    size_t nsz = max(sz*4/3,YAP_FILENAME_MAX + 1);
+    struct TextBuffer_manager *new = malloc(sizeof(struct TextBuffer_manager)+nsz);
+      new->prev = LOCAL_TextBuffer;
+      new->buf = (struct TextBuffer_manager *)new+1;
+      new->ptr = new->buf + sz;
+     new->sz = nsz;
+     LOCAL_TextBuffer= new;
+      return new->buf; 
+  } 
+  LOCAL_TextBuffer->ptr += sz;
+ return o;
 }
 
+ void *Yap_InitTextAllocator( void )
+{
+  struct TextBuffer_manager *new = malloc(sizeof(struct TextBuffer_manager)\
+					  +MAX_PATHNAME*2 );
+  new->prev = NULL;
+  new->ptr = new->buf = (struct TextBuffer_manager *)new+1;
+  new->sz = MAX_PATHNAME*2;
+  LOCAL_TextBuffer = new;
+  new->lvl = 0;
+  return  new;
+}
+
+
+
 static size_t MaxTmp(USES_REGS1) {
-  if (LOCAL_ScannerStack) {
-    return (char *)LOCAL_TrailTop - (char *)LOCAL_ScannerStack;
-  }
-  return 0;
+
+  return ((char*)LOCAL_TextBuffer->buf + LOCAL_TextBuffer->sz) - (char*)LOCAL_TextBuffer->ptr;
 }
 
 static Term Globalize(Term v USES_REGS) {
@@ -682,18 +713,18 @@ static size_t write_length(const unsigned char *s0, seq_tv_t *out,
 
 static Term write_number(unsigned char *s, seq_tv_t *out, int size USES_REGS) {
   Term t;
-  mark_stack();
+  int i = mark_stack();
   t = Yap_StringToNumberTerm((char *)s, &out->enc);
-  restore_stack();
+  restore_stack(i);
   return t;
 }
 
 static Term string_to_term(void *s, seq_tv_t *out, size_t leng USES_REGS) {
   Term o;
-  mark_stack();
+  int i = mark_stack();
   o = out->val.t =
       Yap_StringToTerm(s, strlen(s) + 1, &out->enc, GLOBAL_MaxPriority, NULL);
-  restore_stack();
+  restore_stack(i);
   return o;
 }
 
@@ -794,7 +825,7 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
   bool rc;
 
   size_t leng;
-  init_alloc(__LINE__);
+  int l = init_alloc(__LINE__);
   /*
   f//printf(stderr, "[ %d ", n++)    ;
   if (inp->type & (YAP_STRING_TERM|YAP_STRING_ATOM|YAP_STRING_ATOMS_CODES
@@ -819,26 +850,26 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
   }
 
   if (!buf) {
-    unprotect_stack(NULL);
+    unprotect_stack(0);
     return 0L;
   }
   if (out->type & (YAP_STRING_UPCASE | YAP_STRING_DOWNCASE)) {
     if (out->type & YAP_STRING_UPCASE) {
       if (!upcase(buf, out)) {
-        unprotect_stack(NULL);
+        unprotect_stack(0);
         return false;
       }
     }
     if (out->type & YAP_STRING_DOWNCASE) {
       if (!downcase(buf, out)) {
-        unprotect_stack(NULL);
+        unprotect_stack(0);
         return false;
       }
     }
   }
 
   rc = write_Text(buf, out, leng PASS_REGS);
-  unprotect_stack(out);
+  unprotect_stack(l);
   /*    fprintf(stderr, " -> ");
       if (!rc) fprintf(stderr, "NULL");
       else if (out->type &
@@ -908,10 +939,10 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
   unsigned char *buf;
   size_t leng;
   int i;
-  init_alloc(__LINE__);
+  int l =  init_alloc(__LINE__);
   bufv = Malloc(tot * sizeof(unsigned char *));
   if (!bufv) {
-    unprotect_stack(NULL);
+    unprotect_stack(0);
     return NULL;
   }
   for (i = 0; i < tot; i++) {
@@ -919,14 +950,14 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
     unsigned char *nbuf = Yap_readText(inp + i, &leng PASS_REGS);
 
     if (!nbuf) {
-      unprotect_stack(NULL);
+      unprotect_stack(0);
       return NULL;
     }
     bufv[i] = nbuf;
   }
   buf = concat(tot, bufv PASS_REGS);
   bool rc = write_Text(buf, out, leng PASS_REGS);
-  unprotect_stack(out);
+  unprotect_stack(l);
   return rc;
 }
 
@@ -934,12 +965,11 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
 bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
                      seq_tv_t outv[] USES_REGS) {
   unsigned char *buf;
-  size_t l;
-  init_alloc(__LINE__);
+  int l =  init_alloc(__LINE__);
   inp->type |= YAP_STRING_IN_TMP;
   buf = Yap_readText(inp, &l PASS_REGS);
   if (!buf) {
-    unprotect_stack(NULL);
+    unprotect_stack(0);
 
     return false;
   }
@@ -951,11 +981,11 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
       if (outv[0].val.t) {
         buf0 = Yap_readText(outv, &l0 PASS_REGS);
         if (!buf0) {
-          unprotect_stack(NULL);
+          unprotect_stack(0);
           return false;
         }
         if (cmp_Text(buf, buf0, l0) != 0) {
-          unprotect_stack(NULL);
+          unprotect_stack(0);
           return false;
         }
         l1 = l - l0;
@@ -963,26 +993,26 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
         buf1 = slice(l0, l, buf PASS_REGS);
         bool rc = write_Text(buf1, outv + 1, l1 PASS_REGS);
         if (!rc) {
-          unprotect_stack(NULL);
+          unprotect_stack(0);
           return false;
         }
-        unprotect_stack((outv + 1));
+        unprotect_stack(l);
         return rc;
       } else /* if (outv[1].val.t) */ {
         buf1 = Yap_readText(outv + 1, &l1 PASS_REGS);
         if (!buf1) {
-          unprotect_stack(NULL);
+          unprotect_stack(0);
           return false;
         }
         l0 = l - l1;
         if (cmp_Text(skip_utf8((const unsigned char *)buf, l0), buf1, l1) !=
             0) {
-          unprotect_stack(NULL);
+          unprotect_stack(0);
           return false;
         }
         buf0 = slice(0, l0, buf PASS_REGS);
         bool rc = write_Text(buf0, outv, l0 PASS_REGS);
-        unprotect_stack((rc ? NULL : outv + 0));
+        unprotect_stack((rc ? 0 : l + 0));
         return rc;
       }
     }
@@ -995,11 +1025,11 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
       next = cuts[i - 1];
     void *bufi = slice(next, cuts[i], buf PASS_REGS);
     if (!write_Text(bufi, outv + i, cuts[i] - next PASS_REGS)) {
-      unprotect_stack(NULL);
+      unprotect_stack(0);
       return false;
     }
   }
-  unprotect_stack(outv);
+  unprotect_stack(l);
 
   return true;
 }

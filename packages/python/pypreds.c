@@ -28,7 +28,7 @@ static foreign_t python_f(term_t tmod, term_t fname, term_t tf) {
   char *s;
   size_t len;
   PyObject *pF, *pModule;
-
+  
   /* if an atom, fetch again */
   if (PL_is_atom(tmod)) {
     PyObject *pName;
@@ -42,40 +42,59 @@ static foreign_t python_f(term_t tmod, term_t fname, term_t tf) {
     pName = PyUnicode_FromString(s);
 #endif
     if (pName == NULL) {
-      return FALSE;
+      {
+        return false;
+      }
     }
     pModule = PyImport_Import(pName);
     PyErr_Clear();
   } else if (!(pModule = term_to_python(tmod, true))) {
     PyErr_Clear();
-    return FALSE;
+    {
+      return false;
+    }
   }
   if (!PL_get_nchars(fname, &len, &s, CVT_ALL | CVT_EXCEPTION)) {
-    return FALSE;
+    {
+      return false;
+    }
   }
   pF = PyObject_GetAttrString(pModule, s);
   PyErr_Print();
   Py_DECREF(pModule);
   if (pF == NULL || !PyCallable_Check(pF)) {
-    return FALSE;
+    {
+      return false;
+    }
   }
-  return python_to_ptr(pF, tf);
+  {
+    foreign_t rc = python_to_ptr(pF, tf);
+    return rc;
+  }
 }
 
 static foreign_t python_o(term_t tmod, term_t fname, term_t tf) {
   char *s;
   size_t len;
   PyObject *pO, *pModule;
-
+  
   pModule = term_to_python(tmod, true);
   if (!PL_get_nchars(fname, &len, &s, CVT_ALL | CVT_EXCEPTION)) {
-    return FALSE;
+    {
+      return false;
+    }
   }
   pO = PyObject_GetAttrString(pModule, s);
   if (pO == NULL) {
-    return FALSE;
+    {
+      return false;
+    }
   }
-  return python_to_ptr(pO, tf);
+  {
+    foreign_t rc = python_to_ptr(pO, tf);
+    ;
+    return rc;
+  }
 }
 
 static foreign_t python_len(term_t tobj, term_t tf) {
@@ -83,8 +102,9 @@ static foreign_t python_len(term_t tobj, term_t tf) {
   PyObject *o;
 
   o = term_to_python(tobj, true);
-  if (o == NULL)
-    return FALSE;
+  if (o == NULL) {
+    return false;
+  }
   len = PyObject_Length(o);
   return PL_unify_int64(tf, len);
 }
@@ -94,40 +114,54 @@ static foreign_t python_dir(term_t tobj, term_t tf) {
   PyObject *o;
 
   o = term_to_python(tobj, true);
-  if (o == NULL)
-    return FALSE;
+  if (o == NULL) {
+    return false;
+  }
   dir = PyObject_Dir(o);
-  return python_to_ptr(dir, tf);
+  {
+    foreign_t rc = python_to_ptr(dir, tf);
+    ;
+    return rc;
+  }
 }
 
 static foreign_t python_index(term_t tobj, term_t tindex, term_t val) {
   PyObject *i;
   PyObject *o;
   PyObject *f;
+
   o = term_to_python(tobj, true);
-  if (o == NULL)
+  if (o == NULL) {
     return false;
-  if (!PySequence_Check(o))
-    return false;
+  }
+  if (!PySequence_Check(o)) {
+      return false;
+  }
   i = term_to_python(tindex, true);
-  if (i == NULL)
+  if (i == NULL) {
     return false;
+  }
 #if PY_MAJOR_VERSION < 3
   f = PyObject_CallMethodObjArgs(o, PyString_FromString("getitem"), i);
 #else
   f = PyObject_CallMethodObjArgs(o, PyUnicode_FromString("getitem"), i);
 #endif
-  return python_to_ptr(f, val);
+  {
+    foreign_t rc = python_to_ptr(f, val);
+    ;
+    return rc;
+  }
 }
 
 static foreign_t python_is(term_t tobj, term_t tf) {
   PyObject *o;
 
   o = term_to_python(tobj, true);
-  if (!o)
-    return FALSE;
-
-  return python_to_ptr(o, tf);
+  if (!o) {
+    return false;
+  }
+    foreign_t rc = python_to_ptr(o, tf);
+    return rc;
 }
 
 static foreign_t python_assign_item(term_t parent, term_t indx, term_t tobj) {
@@ -145,23 +179,31 @@ static foreign_t python_assign_item(term_t parent, term_t indx, term_t tobj) {
   pF = term_to_python(parent, true);
   // Exp
   if (!pI || !p) {
-    return false;
+    {
+      return false;
+    }
   } else if (PyObject_SetItem(p, pI, pF)) {
     PyErr_Print();
-    return FALSE;
+    {
+      return false;
+    }
   }
   Py_DecRef(pI);
   Py_DecRef(p);
 
-  return true;
+  {
+    return true;
+  }
 }
 
 /** assign a tuple to something:
 */
 static foreign_t python_assign_tuple(term_t t_lhs, term_t t_rhs) {
-  PyObject *e = term_to_python(t_rhs, true);
+  PyObject *e;
   Py_ssize_t sz;
   functor_t f;
+
+  e = term_to_python(t_rhs, true);
   if (!e || !PyTuple_Check(e)) {
     return -1;
   }
@@ -224,12 +266,18 @@ static foreign_t python_item(term_t parent, term_t indx, term_t tobj) {
     return false;
   } else if ((pF = PyObject_GetItem(p, pI)) == NULL) {
     PyErr_Print();
-    return FALSE;
+    {
+      return false;
+    }
   }
   Py_DecRef(pI);
   Py_DecRef(p);
 
-  return address_to_term(pF, tobj);
+  {
+    foreign_t rc;
+    rc =  address_to_term(pF, tobj);
+    return rc;
+  }
 }
 
 static foreign_t python_slice(term_t parent, term_t indx, term_t tobj) {
@@ -244,15 +292,23 @@ static foreign_t python_slice(term_t parent, term_t indx, term_t tobj) {
   p = term_to_python(parent, true);
   // Exp
   if (!pI || !p) {
-    return false;
+    {
+      return false;
+    }
   } else if ((pF = PySequence_GetSlice(p, 0, 0)) == NULL) {
     PyErr_Print();
-    return FALSE;
+    {
+      return false;
+    }
   }
   Py_DecRef(pI);
   Py_DecRef(p);
 
-  return address_to_term(pF, tobj);
+  {
+    foreign_t rc;
+    rc =  address_to_term(pF, tobj);
+    return rc;
+  }
 }
 
 static foreign_t python_apply(term_t tin, term_t targs, term_t keywds,
@@ -268,14 +324,18 @@ static foreign_t python_apply(term_t tin, term_t targs, term_t keywds,
   pF = term_to_python(tin, true);
   PyErr_Clear();
   if (pF == NULL) {
-    return false;
+    {
+      return false;
+    }
   }
   if (PL_is_atom(targs)) {
     pArgs = NULL;
   } else {
 
     if (!PL_get_name_arity(targs, &aname, &arity)) {
-      return FALSE;
+      {
+        return false;
+      }
     }
     if (arity == 1 && PL_get_arg(1, targs, targ) && PL_is_variable(targ)) {
       /* ignore (_) */
@@ -283,15 +343,18 @@ static foreign_t python_apply(term_t tin, term_t targs, term_t keywds,
     } else {
 
       pArgs = PyTuple_New(arity);
-      if (!pArgs)
-        return FALSE;
+      if (!pArgs) {
+        return false;
+      }
       for (i = 0; i < arity; i++) {
         PyObject *pArg;
-        if (!PL_get_arg(i + 1, targs, targ))
-          return FALSE;
+        if (!PL_get_arg(i + 1, targs, targ)) {
+          return false;
+        }
         pArg = term_to_python(targ, true);
-        if (pArg == NULL)
-          return FALSE;
+        if (pArg == NULL) {
+          return false;
+        }
         /* pArg reference stolen here: */
         PyTuple_SetItem(pArgs, i, pArg);
       }
@@ -319,13 +382,16 @@ static foreign_t python_apply(term_t tin, term_t targs, term_t keywds,
     }
   } else {
     PyErr_Print();
-    return FALSE;
+    {
+      return false;
+    }
   }
   if (pArgs)
     Py_DECREF(pArgs);
   Py_DECREF(pF);
-  if (pValue == NULL)
-    return FALSE;
+  if (pValue == NULL) {
+    return false;
+  }
   out = python_to_ptr(pValue, tf);
   return out;
 }
@@ -333,21 +399,23 @@ static foreign_t python_apply(term_t tin, term_t targs, term_t keywds,
 static foreign_t python_assign(term_t name, term_t exp) {
   PyObject *e = term_to_python(exp, true);
 
-  if (e == NULL)
-    return FALSE;
+  if (e == NULL) {
+    return false;
+  }
   return assign_python(py_Main, name, e) >= 0;
 }
 
 static foreign_t python_assign_field(term_t source, term_t name, term_t exp) {
   PyObject *e = term_to_python(exp, true), *root = term_to_python(source, true);
 
-  if (e == NULL)
-    return FALSE;
+  if (e == NULL) {
+    return false;
+  }
   return assign_python(root, name, e) >= 0;
 }
 
 static foreign_t python_builtin_eval(term_t caller, term_t dict, term_t out) {
-  PyObject *pI, *pArgs, *pOut;
+    PyObject *pI, *pArgs, *pOut;
   PyObject *env;
   atom_t name;
   char *s;
@@ -356,36 +424,47 @@ static foreign_t python_builtin_eval(term_t caller, term_t dict, term_t out) {
 
   if ((env = py_Builtin) == NULL) {
     // no point in  even trying
-    return false;
+    {
+      return false;
+    }
   }
   if (PL_get_name_arity(caller, &name, &arity)) {
-    if (!(s = PL_atom_chars(name)))
+    if (!(s = PL_atom_chars(name))) {
       return false;
+    }
     if ((pI = PyObject_GetAttrString(env, s)) == NULL) {
       PyErr_Print();
-      return false;
+      {
+        return false;
+      }
     }
   } else {
     // Prolog should make sure this never happens.
-    return false;
+    {
+      return false;
+    }
   }
   pArgs = PyTuple_New(arity);
   for (i = 0; i < arity; i++) {
     PyObject *pArg;
-    if (!PL_get_arg(i + 1, caller, targ))
-      return FALSE;
+    if (!PL_get_arg(i + 1, caller, targ)) {
+      return false;
+    }
     /* ignore (_) */
     if (i == 0 && PL_is_variable(targ)) {
       pArg = Py_None;
     } else {
       pArg = term_to_python(targ, true);
-      if (pArg == NULL)
-        return FALSE;
+      if (pArg == NULL) {
+        return false;
+      }
     }
     /* pArg reference stolen here: */
     if (PyTuple_SetItem(pArgs, i, pArg)) {
       PyErr_Print();
-      return false;
+      {
+        return false;
+      }
     }
   }
   pOut = PyObject_CallObject(pI, pArgs);
@@ -393,9 +472,15 @@ static foreign_t python_builtin_eval(term_t caller, term_t dict, term_t out) {
   Py_DECREF(pI);
   if (pOut == NULL) {
     PyErr_Print();
-    return false;
+    {
+      return false;
+    }
   }
-  return python_to_ptr(pOut, out);
+  {
+    foreign_t rc = python_to_ptr(pOut, out);
+    ;
+    return rc;
+  }
 }
 
 static foreign_t python_access(term_t obj, term_t f, term_t out) {
@@ -405,57 +490,76 @@ static foreign_t python_access(term_t obj, term_t f, term_t out) {
   int i, arity;
   term_t targ = PL_new_term_ref();
 
-  if (o == NULL)
-    return FALSE;
+  if (o == NULL) {
+    return false;
+  }
   if (PL_is_atom(f)) {
-    if (!PL_get_atom_chars(f, &s))
-      return FALSE;
+    if (!PL_get_atom_chars(f, &s)) {
+      return false;
+    }
     if ((pValue = PyObject_GetAttrString(o, s)) == NULL) {
       PyErr_Print();
-      return FALSE;
+      {
+        return false;
+      }
     }
-    return python_to_term(pValue, out);
+    {
+      return python_to_term(pValue, out);
+    }
   }
   if (!PL_get_name_arity(f, &name, &arity)) {
-    return FALSE;
+    {
+      return false;
+    }
   }
   /* follow chains of the form a.b.c.d.e() */
   while (name == ATOM_dot && arity == 2) {
     term_t tleft = PL_new_term_ref();
     PyObject *lhs;
 
-    if (!PL_get_arg(1, f, tleft))
-      return FALSE;
+    if (!PL_get_arg(1, f, tleft)) {
+      return false;
+    }
     lhs = term_to_python(tleft, true);
     if ((o = PyObject_GetAttr(o, lhs)) == NULL) {
       PyErr_Print();
-      return FALSE;
+      {
+        return false;
+      }
     }
-    if (!PL_get_arg(2, f, f))
-      return FALSE;
+    if (!PL_get_arg(2, f, f)) {
+      return false;
+    }
     if (!PL_get_name_arity(f, &name, &arity)) {
-      return FALSE;
+      {
+        return false;
+      }
     }
   }
   s = PL_atom_chars(name);
-  if (!s)
+  if (!s) {
     return false;
+  }
   if ((pF = PyObject_GetAttrString(o, s)) == NULL) {
     PyErr_Print();
-    return FALSE;
+    {
+      return false;
+    }
   }
   pArgs = PyTuple_New(arity);
   for (i = 0; i < arity; i++) {
     PyObject *pArg;
-    if (!PL_get_arg(i + 1, f, targ))
-      return FALSE;
+    if (!PL_get_arg(i + 1, f, targ)) {
+      return false;
+    }
     /* ignore (_) */
     if (i == 0 && PL_is_variable(targ)) {
       pArgs = Py_None;
     }
     pArg = term_to_python(targ, true);
-    if (pArg == NULL)
-      return FALSE;
+    if (pArg == NULL) {
+      return false;
+    }
     /* pArg reference stolen here: */
     PyTuple_SetItem(pArgs, i, pArg);
   }
@@ -463,9 +567,13 @@ static foreign_t python_access(term_t obj, term_t f, term_t out) {
   Py_DECREF(pArgs);
   Py_DECREF(pF);
   if (pValue == NULL) {
-    return FALSE;
+    {
+      return false;
+    }
   }
-  return python_to_term(pValue, out);
+  {
+    return python_to_term(pValue, out);
+  }
 }
 
 static foreign_t python_field(term_t parent, term_t att, term_t tobj) {
@@ -475,7 +583,9 @@ static foreign_t python_field(term_t parent, term_t att, term_t tobj) {
   int arity;
 
   if (!PL_get_name_arity(att, &name, &arity)) {
-    return false;
+    {
+      return false;
+    }
   } else {
     PyObject *p;
 
@@ -484,39 +594,61 @@ static foreign_t python_field(term_t parent, term_t att, term_t tobj) {
     p = term_to_python(parent, true);
     // Exp
     if (!PL_get_name_arity(att, &name, &arity)) {
-      return false;
+      {
+        return false;
+      }
     }
     s = PL_atom_chars(name);
     if (arity == 1 && !strcmp(s, "()")) {
-      if (!PL_get_arg(1, att, att))
+      if (!PL_get_arg(1, att, att)) {
         return false;
+      }
       if (!PL_get_name_arity(att, &name, &arity)) {
-        return false;
+        {
+          return false;
+        }
       }
       s = PL_atom_chars(name);
     }
     if (!s || !p) {
-      return false;
+      {
+        return false;
+      }
     } else if ((pF = PyObject_GetAttrString(p, s)) == NULL) {
       PyErr_Clear();
-      return FALSE;
+      {
+        return false;
+      }
     }
   }
-  return address_to_term(pF, tobj);
+  {
+    foreign_t rc;
+    rc = address_to_term(pF, tobj);
+    return rc;
+  }
 }
 
 static foreign_t python_main_module(term_t mod) {
-  return address_to_term(py_Main, mod);
+  {
+    foreign_t rc;
+    rc = address_to_term(py_Main, mod);
+    return rc;
+  }
 }
 
 static foreign_t python_function(term_t tobj) {
   PyObject *obj = term_to_python(tobj, true);
+    foreign_t rc = PyFunction_Check(obj);
 
-  return PyFunction_Check(obj);
+    return rc;
 }
 
 foreign_t python_builtin(term_t out) {
-  return address_to_term(py_Builtin, out);
+  {
+    foreign_t rc;
+      rc = address_to_term(py_Builtin, out);
+    return rc;
+  }
 }
 
 static foreign_t python_run_file(term_t file) {
@@ -530,24 +662,37 @@ static foreign_t python_run_file(term_t file) {
     PyRun_SimpleFileEx(PyFile_AsFile(PyFileObject), "test.py", 1);
 #else
     FILE *f = fopen(s, "r");
-    if (f == NULL)
+    if (f == NULL) {
       return false;
+    }
     PyRun_SimpleFileEx(f, s, 1);
 #endif
-    return TRUE;
+    {
+      {
+        return true;
+      }
+    }
   }
-  return false;
+  {
+    return false;
+  }
 }
+
+extern PyThreadState *YAP_save;
+
 
 static foreign_t python_run_command(term_t cmd) {
   char *s;
+  bool rc = false;
   size_t len;
   char si[256];
+
   s = si;
   if (PL_get_nchars(cmd, &len, &s, CVT_ALL | CVT_EXCEPTION)) {
     PyRun_SimpleString(s);
+    rc = true;
   }
-  return TRUE;
+   return rc;
 }
 
 static foreign_t python_run_script(term_t cmd, term_t fun) {
@@ -587,7 +732,9 @@ static foreign_t python_run_script(term_t cmd, term_t fun) {
           Py_DECREF(pModule);
           PyErr_Print();
           fprintf(stderr, "Call failed\n");
-          return false;
+          {
+            return false;
+          }
         }
       } else {
         if (PyErr_Occurred())
@@ -598,11 +745,17 @@ static foreign_t python_run_script(term_t cmd, term_t fun) {
       Py_DECREF(pModule);
     } else {
       PyErr_Print();
-      return false;
+      {
+        return false;
+      }
     }
-    return true;
+    {
+      return true;
+    }
   }
-  return false;
+  {
+    return false;
+  }
 }
 
 static foreign_t python_export(term_t t, term_t pl) {
@@ -611,10 +764,12 @@ static foreign_t python_export(term_t t, term_t pl) {
     void *ptr;
     term_t targ = PL_new_term_ref();
 
-    if (!PL_get_arg(1, t, targ))
+    if (!PL_get_arg(1, t, targ)) {
       return false;
-    if (!PL_get_pointer(targ, &ptr))
+    }
+    if (!PL_get_pointer(targ, &ptr)) {
       return false;
+    }
     Py_INCREF((PyObject *)ptr);
     /* return __main__,s */
     rc = python_to_term((PyObject *)ptr, pl);
@@ -622,9 +777,7 @@ static foreign_t python_export(term_t t, term_t pl) {
   return rc;
 }
 
-static foreign_t p_python_within_python(void) {
-  return python_in_python;
-}
+static foreign_t p_python_within_python(void) { return python_in_python; }
 
 static int python_import(term_t mname, term_t mod) {
   PyObject *pName, *pModule;
@@ -638,14 +791,17 @@ static int python_import(term_t mname, term_t mod) {
     if (PL_is_pair(mname)) {
       char *sa;
       if (!PL_get_arg(1, mname, arg) || !PL_get_atom_chars(arg, &sa) ||
-          !PL_get_arg(2, mname, mname))
+          !PL_get_arg(2, mname, mname)) {
         return false;
+      }
       s = stpcpy(s, sa);
       *s++ = '.';
       s[0] = '\0';
     } else if (!PL_get_nchars(mname, &len, &s,
                               CVT_ALL | CVT_EXCEPTION | REP_UTF8)) {
-      return false;
+      {
+        return false;
+      }
     } else {
       break;
     }
@@ -656,7 +812,9 @@ static int python_import(term_t mname, term_t mod) {
   pName = PyUnicode_FromString(s0);
 #endif
   if (pName == NULL) {
-    return false;
+    {
+      return false;
+    }
   }
   pModule = PyImport_Import(pName);
   PyErr_Clear();
@@ -667,11 +825,31 @@ static int python_import(term_t mname, term_t mod) {
       PyErr_Print();
     PyErr_Clear();
 #endif
-    return FALSE;
+    {
+      return false;
+    }
   }
   ActiveModules[active_modules++] = pModule;
-  return python_to_ptr(pModule, mod);
+  {    foreign_t rc = python_to_ptr(pModule, mod);
+    return rc;
+  }
 }
+
+ static PyThreadState *_saveP;
+
+static YAP_Int 
+  p_python_get_GIL(void)
+  {
+  PyEval_AcquireThread(_saveP);
+  return true;
+  }
+
+static YAP_Int 
+  p_python_release_GIL(void)
+  {
+    _saveP = PyEval_SaveThread();
+    return true;
+  }
 
 install_t install_pypreds(void) {
   PL_register_foreign("python_builtin_eval", 3, python_builtin_eval, 0);
@@ -699,5 +877,6 @@ install_t install_pypreds(void) {
   PL_register_foreign("python_main_module", 1, python_main_module, 0);
   PL_register_foreign("python_import", 2, python_import, 0);
   PL_register_foreign("python_access", 3, python_access, 0);
-  PL_register_foreign("python_within_python", 0, p_python_within_python, 0);
+  PL_register_foreign("release_GIL", 0, p_python_release_GIL, 0);
+  PL_register_foreign("acquire_GIL", 0, p_python_get_GIL, 0);
 }

@@ -184,6 +184,7 @@ static void InitWorker(int wid) {
 
 
 
+  REMOTE_TextBuffer(wid) = Yap_InitTextAllocator();
 
   REMOTE_BreakLevel(wid) = 0;
   REMOTE_PrologMode(wid) = BootMode;

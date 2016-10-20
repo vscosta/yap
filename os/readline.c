@@ -450,7 +450,10 @@ int Yap_ReadlineForSIGINT(void) {
 
 static Int has_readline(USES_REGS1) {
 #if USE_READLINE
+ if (!Yap_embedded) {
   return true;
+ }
+ return false;
 #else
   return false;
 #endif

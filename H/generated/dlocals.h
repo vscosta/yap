@@ -326,6 +326,8 @@
 #define REMOTE_FileNameBuf(wid) REMOTE(wid)->FileNameBuf_
 #define LOCAL_FileNameBuf2 LOCAL->FileNameBuf2_
 #define REMOTE_FileNameBuf2(wid) REMOTE(wid)->FileNameBuf2_
+#define LOCAL_TextBuffer LOCAL->TextBuffer_
+#define REMOTE_TextBuffer(wid) REMOTE(wid)->TextBuffer_
 
 #define LOCAL_BreakLevel LOCAL->BreakLevel_
 #define REMOTE_BreakLevel(wid) REMOTE(wid)->BreakLevel_

@@ -217,6 +217,8 @@ sigjmp_buf         		RestartEnv				void
 char     			FileNameBuf[YAP_FILENAME_MAX+1]		void
 char        			FileNameBuf2[YAP_FILENAME_MAX+1]	void
 
+struct TextBuffer_manager*	TextBuffer      =Yap_InitTextAllocator()
+
 // Prolog State
 UInt				BreakLevel				=0
 Int      			PrologMode 				=BootMode

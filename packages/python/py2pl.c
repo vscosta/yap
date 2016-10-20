@@ -185,9 +185,9 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
     Py_ssize_t i, sz = PyTuple_Size(pVal);
     functor_t f;
     const char *s;
-    if ((s = (Py_TYPE(pVal)->tp_name)))
+    if ((s = (Py_TYPE(pVal)->tp_name))) {
       f =  PL_new_functor(PL_new_atom(s), sz);
-    else
+    } else
       f = PL_new_functor(ATOM_t, sz);
     if (!PL_unify_functor(t, f))
       return FALSE;
