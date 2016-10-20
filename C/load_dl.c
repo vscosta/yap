@@ -127,7 +127,8 @@ void *Yap_LoadForeignFile(char *file, int flags) {
   if (out == NULL) {
     const char *m_os = dlerror();
     if (m_os) {
-      strncpy(LOCAL_ErrorSay, m_os, MAX_ERROR_MSG_SIZE - 1);
+      LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
+      strncpy(LOCAL_ErrorMessage, m_os, MAX_ERROR_MSG_SIZE - 1);
     } else {
       LOCAL_ErrorMessage = "dlopen failed";
     }
@@ -177,7 +178,8 @@ static Int LoadForeign(StringList ofiles, StringList libs, char *proc_name,
         NULL)
 #endif
     {
-      strcpy(LOCAL_ErrorSay, dlerror());
+      LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
+      strcpy(LOCAL_ErrorMessage, dlerror());
       return LOAD_FAILLED;
     }
     libs = libs->next;
@@ -192,7 +194,8 @@ static Int LoadForeign(StringList ofiles, StringList libs, char *proc_name,
     /* dlopen wants to follow the LD_CONFIG_PATH */
     const char *file = AtomName(ofiles->name);
     if (!Yap_findFile(file, NULL, NULL, LOCAL_FileNameBuf, true, YAP_OBJ, true, true)) {
-      strcpy(LOCAL_ErrorSay,
+      LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
+      strcpy(LOCAL_ErrorMessage,
              "%% Trying to open unexisting file in LoadForeign");
       return LOAD_FAILLED;
     }
@@ -217,7 +220,7 @@ static Int LoadForeign(StringList ofiles, StringList libs, char *proc_name,
   }
 
   if (!*init_proc) {
-    strcpy(LOCAL_ErrorSay, "Could not locate initialization routine");
+    LOCAL_ErrorMessage = "Could not locate initialization routine";
     return LOAD_FAILLED;
   }
 

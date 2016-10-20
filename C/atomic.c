@@ -527,18 +527,23 @@ static Int number_chars(USES_REGS1) {
 restart_aux:
   t1 = Deref(ARG1);
   if (IsNumTerm(t1)) {
-    Term tf;
-    tf = Yap_NumberToListOfAtoms(t1 PASS_REGS);
-    if (tf) {
-      LOCAL_Error_TYPE = YAP_NO_ERROR;
-      return Yap_unify(ARG2, tf);
+    Term t2 = Deref(ARG2);
+    if (IsVarTerm(t2)) {
+      t1 = Yap_NumberToListOfAtoms(t1 PASS_REGS);
+    }
+    if (t1) {
+      return Yap_unify(t1, t2);
+    } else {
+      t2 = Yap_ListToNumber(t2 PASS_REGS);
+      if (t2) {
+        return Yap_unify(t1, t2);
+      }
     }
   } else if (IsVarTerm(t1)) {
     /* ARG1 unbound */
     Term t = Deref(ARG2);
     Term tf = Yap_ListToNumber(t PASS_REGS);
     if (tf) {
-      LOCAL_Error_TYPE = YAP_NO_ERROR;
       return Yap_unify(ARG1, tf);
     }
   } else if (IsVarTerm(t1)) {
@@ -556,16 +561,25 @@ static Int number_atom(USES_REGS1) {
 restart_aux:
   t1 = Deref(ARG1);
   if (IsNumTerm(t1)) {
+    Term t2 = Deref(ARG2);
     Atom af;
     af = Yap_NumberToAtom(t1 PASS_REGS);
-    if (af)
-      return Yap_unify(ARG2, MkAtomTerm(af));
+    if (af) {
+      if (IsVarTerm(t2)) {
+
+        return Yap_unify(t1, t2);
+      } else {
+        t2 = Yap_AtomToNumber(t2 PASS_REGS);
+        if (t2) {
+          return Yap_unify(t1, t2);
+        }
+      }
+    }
   } else if (IsVarTerm(t1)) {
     /* ARG1 unbound */
     Term t = Deref(ARG2);
     Term tf = Yap_AtomToNumber(t PASS_REGS);
-    if (tf)
-      return Yap_unify(ARG1, tf);
+    return Yap_unify(ARG1, tf);
   } else if (IsVarTerm(t1)) {
     LOCAL_Error_TYPE = TYPE_ERROR_NUMBER;
   } /* error handling */
@@ -634,8 +648,8 @@ restart_aux:
   i = IntOfTerm(EXTRA_CBACK_ARG(3, 1));
   max = IntOfTerm(EXTRA_CBACK_ARG(3, 2));
   EXTRA_CBACK_ARG(3, 1) = MkIntTerm(i + 1);
-  if (!Yap_SpliceAtom(t3, ats, i, max PASS_REGS) && LOCAL_Error_TYPE ==
-                                                            YAP_NO_ERROR) {
+  if (!Yap_SpliceAtom(t3, ats, i, max PASS_REGS) &&
+      LOCAL_Error_TYPE == YAP_NO_ERROR) {
     cut_fail();
   } else {
     if (i < max)
@@ -666,9 +680,9 @@ restart_aux:
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
   t3 = Deref(ARG3);
-  g1 = Yap_IsGroundTerm(t1); 
-  g2 = Yap_IsGroundTerm(t2); 
-  g3 = Yap_IsGroundTerm(t3); 
+  g1 = Yap_IsGroundTerm(t1);
+  g2 = Yap_IsGroundTerm(t2);
+  g3 = Yap_IsGroundTerm(t3);
   if (g1 && g2) {
     at = Yap_ConcatAtoms(t1, t2 PASS_REGS);
     ot = ARG3;
@@ -677,15 +691,14 @@ restart_aux:
     ot = ARG2;
   } else if (g2 && g3) {
     at = Yap_SubtractTailAtom(t3, t2 PASS_REGS);
-         ot = ARG1;
+    ot = ARG1;
   } else if (g3) {
     EXTRA_CBACK_ARG(3, 1) = MkIntTerm(0);
     EXTRA_CBACK_ARG(3, 2) = MkIntTerm(Yap_AtomToLength(t3 PASS_REGS));
     return cont_atom_concat3(PASS_REGS1);
   } else {
-      LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-      LOCAL_Error_Term = t1;
-      at = NULL;
+    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+    at = NULL;
   }
   if (at) {
     if (Yap_unify(ot, MkAtomTerm(at)))
@@ -703,7 +716,6 @@ restart_aux:
   }
   cut_fail();
 }
-
 
 #define CastToNumeric(x) CastToNumeric__(x PASS_REGS)
 
@@ -754,9 +766,9 @@ restart_aux:
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
   t3 = Deref(ARG3);
-  g1 = Yap_IsGroundTerm(t1); 
-  g2 = Yap_IsGroundTerm(t2); 
-  g3 = Yap_IsGroundTerm(t3); 
+  g1 = Yap_IsGroundTerm(t1);
+  g2 = Yap_IsGroundTerm(t2);
+  g3 = Yap_IsGroundTerm(t3);
   if (g1 && g2) {
     at = Yap_ConcatAtomics(t1, t2 PASS_REGS);
     ot = ARG3;
@@ -765,15 +777,14 @@ restart_aux:
     ot = ARG2;
   } else if (g2 && g3) {
     at = Yap_SubtractTailAtom(t3, t2 PASS_REGS);
-         ot = ARG1;
+    ot = ARG1;
   } else if (g3) {
     EXTRA_CBACK_ARG(3, 1) = MkIntTerm(0);
     EXTRA_CBACK_ARG(3, 2) = MkIntTerm(Yap_AtomicToLength(t3 PASS_REGS));
     return cont_atomic_concat3(PASS_REGS1);
   } else {
-      LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-      LOCAL_Error_Term = t1;
-      at = NULL;
+    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+    at = NULL;
   }
   if (at) {
     if (Yap_unify(ot, MkAtomTerm(at)))
@@ -831,9 +842,9 @@ restart_aux:
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
   t3 = Deref(ARG3);
-  g1 = Yap_IsGroundTerm(t1); 
-  g2 = Yap_IsGroundTerm(t2); 
-  g3 = Yap_IsGroundTerm(t3); 
+  g1 = Yap_IsGroundTerm(t1);
+  g2 = Yap_IsGroundTerm(t2);
+  g3 = Yap_IsGroundTerm(t3);
   if (g1 && g2) {
     tf = Yap_ConcatStrings(t1, t2 PASS_REGS);
     ot = ARG3;
@@ -842,15 +853,14 @@ restart_aux:
     ot = ARG2;
   } else if (g2 && g3) {
     tf = Yap_SubtractTailString(t3, t2 PASS_REGS);
-         ot = ARG1;
+    ot = ARG1;
   } else if (g3) {
     EXTRA_CBACK_ARG(3, 1) = MkIntTerm(0);
     EXTRA_CBACK_ARG(3, 2) = MkIntTerm(Yap_StringToLength(t3 PASS_REGS));
     return cont_string_concat3(PASS_REGS1);
   } else {
-      LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-      LOCAL_Error_Term = t1;
-      at = NULL;
+    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+    at = NULL;
   }
   if (tf) {
     if (Yap_unify(ot, tf))
@@ -913,10 +923,8 @@ restart_aux:
   t2 = Deref(ARG2);
   if (IsVarTerm(t2)) {
     LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-    LOCAL_Error_Term = t2;
   } else if (!IsStringTerm(t2)) {
     LOCAL_Error_TYPE = TYPE_ERROR_STRING;
-    LOCAL_Error_Term = t2;
   } else {
     s = UStringOfTerm(t2);
     t1 = Deref(ARG1);
@@ -926,7 +934,6 @@ restart_aux:
       return cont_string_code3(PASS_REGS1);
     } else if (!IsIntegerTerm(t1)) {
       LOCAL_Error_TYPE = TYPE_ERROR_INTEGER;
-      LOCAL_Error_Term = t1;
     } else {
       const unsigned char *ns = s;
       utf8proc_int32_t chr;
@@ -934,7 +941,6 @@ restart_aux:
       if (indx <= 0) {
         if (indx < 0) {
           LOCAL_Error_TYPE = DOMAIN_ERROR_NOT_LESS_THAN_ZERO;
-          LOCAL_Error_Term = t1;
         }
         cut_fail();
       }
@@ -970,19 +976,16 @@ restart_aux:
   t2 = Deref(ARG2);
   if (IsVarTerm(t2)) {
     LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-    LOCAL_Error_Term = t2;
   } else if (!IsStringTerm(t2)) {
     LOCAL_Error_TYPE = TYPE_ERROR_STRING;
-    LOCAL_Error_Term = t2;
   } else {
     s = UStringOfTerm(t2);
     t1 = Deref(ARG1);
     if (IsVarTerm(t1)) {
       LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-      LOCAL_Error_Term = t1;
+
     } else if (!IsIntegerTerm(t1)) {
       LOCAL_Error_TYPE = TYPE_ERROR_INTEGER;
-      LOCAL_Error_Term = t1;
     } else {
       const unsigned char *ns = s;
       utf8proc_int32_t chr;
@@ -991,7 +994,6 @@ restart_aux:
       if (indx <= 0) {
         if (indx < 0) {
           LOCAL_Error_TYPE = DOMAIN_ERROR_NOT_LESS_THAN_ZERO;
-          LOCAL_Error_Term = t1;
         } else {
           return false;
         }
@@ -1813,7 +1815,6 @@ static Term build_new_atomic(int mask, wchar_t *wp, const unsigned char *p,
     src = skip_utf8((unsigned char *)src, min);
     const unsigned char *cp = src;
 
-    LOCAL_TERM_ERROR(t, 4 * (len + 1));
     buf = buf_from_tstring(HR);
     while (len) {
       utf8proc_int32_t chr;

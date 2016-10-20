@@ -74,16 +74,17 @@ bool Yap_Warning(const char *s, ...) {
   return rc;
 }
 void Yap_InitError(yap_error_number e, Term t, const char *msg) {
-  if (LOCAL_ActiveError.status) {
+  if (LOCAL_ActiveError->status) {
     Yap_exit(1);
   }
-  LOCAL_ActiveError.errorNo = e;
-  LOCAL_ActiveError.errorFile = NULL;
-  LOCAL_ActiveError.errorFunction = NULL;
-  LOCAL_ActiveError.errorLine = 0;
+  LOCAL_ActiveError->errorNo = e;
+  LOCAL_ActiveError->errorFile = NULL;
+  LOCAL_ActiveError->errorFunction = NULL;
+  LOCAL_ActiveError->errorLine = 0;
   if (msg) {
     LOCAL_Error_Size = strlen(msg);
-    strcpy(LOCAL_ActiveError.errorComment, msg);
+    LOCAL_ActiveError->errorMsg = malloc(LOCAL_Error_Size + 1);
+    strcpy(LOCAL_ActiveError->errorMsg, msg);
   } else {
     LOCAL_Error_Size = 0;
   }
@@ -158,7 +159,7 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
       return false;
     }
   default:
-    Yap_Error__(file, function, lineno, err, LOCAL_Error_Term, serr);
+    Yap_Error__(file, function, lineno, err, TermNil, serr);
     return false;
   }
 }
@@ -196,7 +197,7 @@ int Yap_SWIHandleError(const char *s, ...) {
       return FALSE;
     }
   default:
-    Yap_Error(err, LOCAL_Error_Term, serr);
+    Yap_Error(err, TermNil, serr);
     return (FALSE);
   }
 }
@@ -266,8 +267,8 @@ static char tmpbuf[YAP_BUF_SIZE];
     }
 
 #define END_ERROR_CLASSES()                                                    \
-  }        \
-  return TermNil;					\
+  }                                                                            \
+  return TermNil;                                                              \
   }
 
 #define BEGIN_ERRORS()                                                         \
@@ -292,10 +293,22 @@ static char tmpbuf[YAP_BUF_SIZE];
     return mkerrorct(B, ts);
 
 #define END_ERRORS()                                                           \
-  }      return TermNil;						\
+  }                                                                            \
+  return TermNil;                                                              \
   }
 
 #include "YapErrors.h"
+
+void Yap_pushErrorContext(yap_error_descriptor_t *new_error) {
+  new_error->top_error = LOCAL_ActiveError;
+  LOCAL_ActiveError = new_error;
+}
+
+yap_error_descriptor_t *Yap_popErrorContext(void) {
+  yap_error_descriptor_t *new_error = LOCAL_ActiveError;
+  LOCAL_ActiveError = LOCAL_ActiveError->top_error;
+  return new_error;
+}
 
 /**
  * @brief Yap_Error
@@ -343,17 +356,17 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
 
   /* disallow recursive error handling */
   if (LOCAL_PrologMode & InErrorMode) {
-    fprintf(stderr, "%% ERROR WITHIN ERROR %d: %s\n", LOCAL_CurrentError,
-            tmpbuf);
+    fprintf(stderr, "%% ERROR WITHIN ERROR %d: %s\n", LOCAL_Error_TYPE, tmpbuf);
     Yap_RestartYap(1);
   }
-  LOCAL_ActiveError.errorNo = type;
-  LOCAL_ActiveError.errorAsText = Yap_LookupAtom(Yap_errorName( type ));
-  LOCAL_ActiveError.errorClass = Yap_errorClass( type);
-  LOCAL_ActiveError.classAsText = Yap_LookupAtom(Yap_errorClassName( LOCAL_ActiveError.errorClass ));
-  LOCAL_ActiveError.errorLine = lineno;
-  LOCAL_ActiveError.errorFunction = function;
-  LOCAL_ActiveError.errorFile = file;
+  LOCAL_ActiveError->errorNo = type;
+  LOCAL_ActiveError->errorAsText = Yap_LookupAtom(Yap_errorName(type));
+  LOCAL_ActiveError->errorClass = Yap_errorClass(type);
+  LOCAL_ActiveError->classAsText =
+      Yap_LookupAtom(Yap_errorClassName(LOCAL_ActiveError->errorClass));
+  LOCAL_ActiveError->errorLine = lineno;
+  LOCAL_ActiveError->errorFunction = function;
+  LOCAL_ActiveError->errorFile = file;
   Yap_find_prolog_culprit(PASS_REGS1);
   LOCAL_PrologMode |= InErrorMode;
   Yap_ClearExs();
@@ -380,7 +393,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   }
   if (LOCAL_within_print_message) {
     /* error within error */
-    fprintf(stderr, "%% ERROR WITHIN WARNING %d: %s\n", LOCAL_CurrentError,
+    fprintf(stderr, "%% ERROR WITHIN WARNING %d: %s\n", LOCAL_Error_TYPE,
             tmpbuf);
     LOCAL_PrologMode &= ~InErrorMode;
     Yap_exit(1);
@@ -395,8 +408,8 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
 #endif
     // fprintf(stderr, "warning: ");
     comment = MkAtomTerm(Yap_LookupAtom(s));
-  } else if (LOCAL_ErrorSay && LOCAL_ErrorSay[0]) {
-    comment = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorSay));
+  } else if (LOCAL_ErrorMessage && LOCAL_ErrorMessage[0]) {
+    comment = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
   } else {
     comment = TermNil;
   }
@@ -410,7 +423,6 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   if (type == ABORT_EVENT || LOCAL_PrologMode & BootMode) {
     where = TermNil;
     LOCAL_PrologMode &= ~AbortMode;
-    LOCAL_CurrentError = type;
     LOCAL_PrologMode &= ~InErrorMode;
     /* make sure failure will be seen at next port */
     // no need to lock & unlock
@@ -426,7 +438,6 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
     }
     /* Exit Abort Mode, if we were there */
     LOCAL_PrologMode &= ~AbortMode;
-    LOCAL_CurrentError = type;
     LOCAL_PrologMode |= InErrorMode;
     if (!(where = Yap_CopyTerm(where))) {
       where = TermNil;
@@ -528,14 +539,11 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
 
     /* This is used by some complex procedures to detect there was an error */
     if (IsAtomTerm(nt[0])) {
-      strncpy(LOCAL_ErrorSay, (char *)RepAtom(AtomOfTerm(nt[0]))->StrOfAE,
+      strncpy(LOCAL_ErrorMessage, (char *)RepAtom(AtomOfTerm(nt[0]))->StrOfAE,
               MAX_ERROR_MSG_SIZE);
-      LOCAL_ErrorMessage = LOCAL_ErrorSay;
     } else {
-      strncpy(LOCAL_ErrorSay,
-              (char *)RepAtom(NameOfFunctor(FunctorOfTerm(nt[0])))->StrOfAE,
-              MAX_ERROR_MSG_SIZE);
-      LOCAL_ErrorMessage = LOCAL_ErrorSay;
+      LOCAL_ErrorMessage =
+          (char *)RepAtom(NameOfFunctor(FunctorOfTerm(nt[0])))->StrOfAE;
     }
     nt[1] = TermNil;
     switch (type) {

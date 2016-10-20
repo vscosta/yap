@@ -1192,8 +1192,7 @@ Term Yap_scan_num(StreamDesc *inp) {
       ef->TokNext = NULL;
       LOCAL_tokptr = tokptr;
       LOCAL_toktide = e;
-      LOCAL_ErrorMessage = NULL;
-      LOCAL_Error_Term = Yap_syntax_error(e, inp - GLOBAL_Stream);
+      LOCAL_ErrorMessage = Yap_syntax_error(e, inp - GLOBAL_Stream);
       LOCAL_Error_TYPE = SYNTAX_ERROR;
     }
   }

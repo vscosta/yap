@@ -336,19 +336,18 @@ static int recover_from_record_error(int nargs) {
     goto recover_record;
   case RESOURCE_ERROR_HEAP:
     if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP, LOCAL_Error_Term, LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
       return FALSE;
     }
     goto recover_record;
   case RESOURCE_ERROR_AUXILIARY_STACK:
     if (!Yap_ExpandPreAllocCodeSpace(LOCAL_Error_Size, NULL, TRUE)) {
-      Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, LOCAL_Error_Term,
-                LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, LOCAL_ErrorMessage);
       return FALSE;
     }
     goto recover_record;
   default:
-    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+    Yap_Error(LOCAL_Error_TYPE, TermNil, LOCAL_ErrorMessage);
     return FALSE;
   }
 recover_record:
@@ -1121,7 +1120,6 @@ static void sf_include(SFKeep *sfp, struct db_globs *dbg) SFKeep *sfp;
       j += 2;
     } else {
       LOCAL_Error_TYPE = TYPE_ERROR_DBTERM;
-      LOCAL_Error_Term = d0;
       LOCAL_ErrorMessage = "wrong term in SF";
       return (NULL);
     }
@@ -1242,7 +1240,6 @@ static DBRef generate_dberror_msg(int errnumb, UInt sz, char *msg) {
   CACHE_REGS
   LOCAL_Error_Size = sz;
   LOCAL_Error_TYPE = errnumb;
-  LOCAL_Error_Term = TermNil;
   LOCAL_ErrorMessage = msg;
   return NULL;
 }
@@ -2611,7 +2608,6 @@ static int resize_int_keys(UInt new_size) {
   if (new == NULL) {
     YAPLeaveCriticalSection();
     LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
-    LOCAL_Error_Term = TermNil;
     LOCAL_ErrorMessage = "could not allocate space";
     return FALSE;
   }
@@ -2693,7 +2689,6 @@ static PredEntry *new_lu_int_key(Int key) {
     if (INT_LU_KEYS == NULL) {
       CACHE_REGS
       LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
-      LOCAL_Error_Term = TermNil;
       LOCAL_ErrorMessage = "could not allocate space";
       return NULL;
     }
@@ -2825,7 +2820,6 @@ static DBProp FetchIntDBPropFromKey(Int key, int flag, int new,
     if (INT_KEYS == NULL) {
       CACHE_REGS
       LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
-      LOCAL_Error_Term = TermNil;
       LOCAL_ErrorMessage = "could not allocate space";
       return NULL;
     }

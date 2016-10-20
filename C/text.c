@@ -35,46 +35,17 @@ inline static size_t min_size(size_t i, size_t j) { return (i < j ? i : j); }
 #define NAN (0.0 / 0.0)
 #endif
 
-void *buf__, *cur__;
+#ifndef MAX_PATHHNAME
+#define MAX_PATHHNAME 1024
+#endif
 
-#define init_alloc(I)                                                          \
-  void *ov__ = TR, *ocur__ = LOCAL_ScannerStack;                               \
-  if (!LOCAL_ScannerStack)                                                     \
-  LOCAL_ScannerStack = (char *)TR
-
-#define mark_stack()                                                           \
-  void *otr__ = TR;                                                            \
-  void *ost__ = LOCAL_ScannerStack;                                            \
-  TR = (tr_fr_ptr)LOCAL_ScannerStack
-
-#define restore_stack()                                                        \
-  TR = otr__;                                                                  \
-  LOCAL_ScannerStack = ost__
-
-#define export_buf(s)                                                          \
-  {}
-
-#define unprotect_stack(s) TR = ov__, LOCAL_ScannerStack = ocur__
-// LOCAL_ScannerStack = ov__, TR = ot__
-
-static bool alloc_ovfl(size_t sz) {
-  return (char *)+(sz + 4096) > (char *)LOCAL_TrailTop;
-}
-
-static void *Malloc(size_t sz USES_REGS) {
-  sz = ALIGN_BY_TYPE(sz, CELL);
-  if (alloc_ovfl(sz))
-    return NULL;
-  void *o = LOCAL_ScannerStack;
-  LOCAL_ScannerStack = (void *)((char *)LOCAL_ScannerStack + sz);
-  return o;
-}
-
-static size_t MaxTmp(USES_REGS1) {
-  if (LOCAL_ScannerStack) {
-    return (char *)LOCAL_TrailTop - (char *)LOCAL_ScannerStack;
-  }
-  return 0;
+void
+Yap_InitTextAllocator( void )
+{
+      struct TextBuffer_manager *new = malloc(sizeof(struct TextBuffer_manager)+MAX_PATHHNAME*2 );
+      new->prev = NULL;
+      new->ptr = new->buf = (struct TextBuffer_manager *)new+1;
+      LOCAL_TextBuffer = new;
 }
 
 static Term Globalize(Term v USES_REGS) {
@@ -244,8 +215,6 @@ static unsigned char *to_buffer(unsigned char *buf, Term t, seq_tv_t *inp,
   unsigned char *bufc = buf;
   n = SkipListCodes(&bufc, &t, &r, atoms, widep, inp PASS_REGS);
   if (n < 0) {
-    LOCAL_Error_TYPE = -n;
-    LOCAL_Error_Term = *r;
     return NULL;
   }
   *lenp = n;
@@ -319,7 +288,6 @@ unsigned char *Yap_readText(seq_tv_t *inp, size_t *lengp) {
                                YAP_STRING_BIG)) == inp->type) {
         LOCAL_Error_TYPE = TYPE_ERROR_NUMBER;
       }
-      LOCAL_Error_Term = inp->val.t;
     }
   }
   if (LOCAL_Error_TYPE != YAP_NO_ERROR)
@@ -370,9 +338,9 @@ unsigned char *Yap_readText(seq_tv_t *inp, size_t *lengp) {
       s = (char *)s0;
     else
       s = Malloc(0);
-    if (snprintf(s, MaxTmp(PASS_REGS1) - 1, Int_FORMAT,
+    if (snprintf(s, MAX_PATHNAME - 1, Int_FORMAT,
                  IntegerOfTerm(inp->val.t)) < 0) {
-      AUX_ERROR(inp->val.t, 2 * MaxTmp(PASS_REGS1), s, char);
+      AUX_ERROR(inp->val.t, 2 * (MAX_PATHNAME), s, char);
     }
     *lengp = strlen(s);
     Malloc(*lengp);

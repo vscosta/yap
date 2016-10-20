@@ -8,7 +8,6 @@
     {
 #endif /* INDENT_CODE */
 
- 
       Op(p_plus_vv, xxx);
       BEGD(d0);
       BEGD(d1);
@@ -23,17 +22,10 @@
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
         d0 = MkIntegerTerm(IntOfTerm(d0) + IntOfTerm(d1));
-      }
-      else {
+      } else {
         saveregs();
         d0 = p_plus(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
         setregs();
-        if (d0 == 0L) {
-          saveregs();
-          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-          setregs();
-          FAIL();
-        }
       }
       XREG(PREG->y_u.xxx.x) = d0;
       PREG = NEXTOP(PREG, xxx);
@@ -41,17 +33,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, plus_vv_unk, plus_vv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is _+B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, plus_vv_nvar_unk, plus_vv_nvar_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A+B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -63,33 +51,23 @@
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, plus_vc_unk);
-    plus_vc_nvar:
-      {
-        Int d1 = PREG->y_u.xxn.c;
-        if (IsIntTerm(d0)) {
-          d0 = MkIntegerTerm(IntOfTerm(d0) + d1);
-        }
-        else {
-          saveregs();
-          d0 = p_plus(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
-          setregs();
-          if (d0 == 0L) {
-            saveregs();
-            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-            setregs();
-            FAIL();
-          }
-        }
+    plus_vc_nvar : {
+      Int d1 = PREG->y_u.xxn.c;
+      if (IsIntTerm(d0)) {
+        d0 = MkIntegerTerm(IntOfTerm(d0) + d1);
+      } else {
+        saveregs();
+        d0 = p_plus(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+        setregs();
       }
+    }
       XREG(PREG->y_u.xxn.x) = d0;
       PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, plus_vc_unk, plus_vc_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A + " Int_FORMAT, PREG->y_u.xxn.c);
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -109,38 +87,27 @@
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
         d0 = MkIntegerTerm(IntOfTerm(d0) + IntOfTerm(d1));
-      }
-      else {
+      } else {
         saveregs();
         d0 = p_plus(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
         setregs();
-        if (d0 == 0L) {
-          saveregs();
-          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-          setregs();
-          FAIL();
-        }
       }
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yxx.y;
       PREG = NEXTOP(PREG, yxx);
-      INITIALIZE_PERMVAR(pt0,d0);
+      INITIALIZE_PERMVAR(pt0, d0);
       ENDP(pt0);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, plus_y_vv_unk, plus_y_vv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A+B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, plus_y_vv_nvar_unk, plus_y_vv_nvar_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A+B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -152,36 +119,26 @@
       d0 = XREG(PREG->y_u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, plus_y_vc_unk);
-    plus_y_vc_nvar:
-      {
-        Int d1 = PREG->y_u.yxn.c;
-        if (IsIntTerm(d0)) {
-          d0 = MkIntegerTerm(IntOfTerm(d0) + d1);
-        }
-        else {
-          saveregs();
-          d0 = p_plus(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
-          setregs();
-          if (d0 == 0L) {
-            saveregs();
-            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-            setregs();
-            FAIL();
-          }
-        }
+    plus_y_vc_nvar : {
+      Int d1 = PREG->y_u.yxn.c;
+      if (IsIntTerm(d0)) {
+        d0 = MkIntegerTerm(IntOfTerm(d0) + d1);
+      } else {
+        saveregs();
+        d0 = p_plus(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+        setregs();
       }
+    }
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yxn.y;
       PREG = NEXTOP(PREG, yxn);
-      INITIALIZE_PERMVAR(pt0,d0);
+      INITIALIZE_PERMVAR(pt0, d0);
       ENDP(pt0);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, plus_y_vc_unk, plus_y_vc_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A + " Int_FORMAT, PREG->y_u.yxn.c);
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -201,17 +158,10 @@
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
         d0 = MkIntegerTerm(IntOfTerm(d0) - IntOfTerm(d1));
-      }
-      else {
+      } else {
         saveregs();
         d0 = p_minus(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
         setregs();
-        if (d0 == 0L) {
-          saveregs();
-          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-          setregs();
-          FAIL();
-        }
       }
       XREG(PREG->y_u.xxx.x) = d0;
       PREG = NEXTOP(PREG, xxx);
@@ -219,17 +169,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, minus_vv_unk, minus_vv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A-B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, minus_vv_nvar_unk, minus_vv_nvar_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A-B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -241,33 +187,23 @@
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, minus_cv_unk);
-    minus_cv_nvar:
-      {
-        Int d1 = PREG->y_u.xxn.c;
-        if (IsIntTerm(d0)) {
-          d0 = MkIntegerTerm(d1 - IntOfTerm(d0));
-        }
-        else {
-          saveregs();
-          d0 = p_minus(MkIntegerTerm(d1),Yap_Eval(d0) PASS_REGS);
-          setregs();
-          if (d0 == 0L) {
-            saveregs();
-            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-            setregs();
-            FAIL();
-          }
-        }
+    minus_cv_nvar : {
+      Int d1 = PREG->y_u.xxn.c;
+      if (IsIntTerm(d0)) {
+        d0 = MkIntegerTerm(d1 - IntOfTerm(d0));
+      } else {
+        saveregs();
+        d0 = p_minus(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
+        setregs();
       }
+    }
       XREG(PREG->y_u.xxn.x) = d0;
       PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, minus_cv_unk, minus_cv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "-A", PREG->y_u.xxn.c);
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -287,38 +223,27 @@
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
         d0 = MkIntegerTerm(IntOfTerm(d0) - IntOfTerm(d1));
-      }
-      else {
+      } else {
         saveregs();
         d0 = p_minus(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
         setregs();
-        if (d0 == 0L) {
-          saveregs();
-          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-          setregs();
-          FAIL();
-        }
       }
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yxx.y;
       PREG = NEXTOP(PREG, yxx);
-      INITIALIZE_PERMVAR(pt0,d0);
+      INITIALIZE_PERMVAR(pt0, d0);
       ENDP(pt0);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, minus_y_vv_unk, minus_y_vv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A-B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, minus_y_vv_nvar_unk, minus_y_vv_nvar_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A-B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -330,36 +255,26 @@
       d0 = XREG(PREG->y_u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, minus_y_cv_unk);
-    minus_y_cv_nvar:
-      {
-        Int d1 = PREG->y_u.yxn.c;
-        if (IsIntTerm(d0)) {
-          d0 = MkIntegerTerm(d1 - IntOfTerm(d0));
-        }
-        else {
-          saveregs();
-          d0 = p_minus(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
-          setregs();
-          if (d0 == 0L) {
-            saveregs();
-            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-            setregs();
-            FAIL();
-          }
-        }
+    minus_y_cv_nvar : {
+      Int d1 = PREG->y_u.yxn.c;
+      if (IsIntTerm(d0)) {
+        d0 = MkIntegerTerm(d1 - IntOfTerm(d0));
+      } else {
+        saveregs();
+        d0 = p_minus(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
+        setregs();
       }
+    }
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yxn.y;
       PREG = NEXTOP(PREG, yxn);
-      INITIALIZE_PERMVAR(pt0,d0);
+      INITIALIZE_PERMVAR(pt0, d0);
       ENDP(pt0);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, minus_y_cv_unk, minus_y_cv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "-A", PREG->y_u.yxn.c);
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -379,17 +294,9 @@
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
         d0 = times_int(IntOfTerm(d0), IntOfTerm(d1) PASS_REGS);
-      }
-      else {
+      } else {
         saveregs();
         d0 = p_times(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
-        setregs();
-        if (d0 == 0L) {
-          saveregs();
-          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-          setregs();
-          FAIL();
-        }
       }
       XREG(PREG->y_u.xxx.x) = d0;
       PREG = NEXTOP(PREG, xxx);
@@ -397,17 +304,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, times_vv_unk, times_vv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A*B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, times_vv_nvar_unk, times_vv_nvar_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A*B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -419,33 +322,23 @@
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, times_vc_unk);
-    times_vc_nvar:
-      {
-        Int d1 = PREG->y_u.xxn.c;
-        if (IsIntTerm(d0)) {
-          d0 = times_int(IntOfTerm(d0), d1 PASS_REGS);
-        }
-        else {
-          saveregs();
-          d0 = p_times(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
-          setregs();
-          if (d0 == 0L) {
-            saveregs();
-            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-            setregs();
-            FAIL();
-          }
-        }
+    times_vc_nvar : {
+      Int d1 = PREG->y_u.xxn.c;
+      if (IsIntTerm(d0)) {
+        d0 = times_int(IntOfTerm(d0), d1 PASS_REGS);
+      } else {
+        saveregs();
+        d0 = p_times(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+        setregs();
       }
+    }
       XREG(PREG->y_u.xxn.x) = d0;
       PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, times_vc_unk, times_vc_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A* " Int_FORMAT, PREG->y_u.xxn.c);
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -465,38 +358,27 @@
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
         d0 = times_int(IntOfTerm(d0), IntOfTerm(d1) PASS_REGS);
-      }
-      else {
+      } else {
         saveregs();
         d0 = p_times(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
         setregs();
-        if (d0 == 0L) {
-          saveregs();
-          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-          setregs();
-          FAIL();
-        }
       }
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yxx.y;
       PREG = NEXTOP(PREG, yxx);
-      INITIALIZE_PERMVAR(pt0,d0);
+      INITIALIZE_PERMVAR(pt0, d0);
       ENDP(pt0);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, times_y_vv_unk, times_y_vv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A*B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, times_y_vv_nvar_unk, times_y_vv_nvar_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A*B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -508,36 +390,26 @@
       d0 = XREG(PREG->y_u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, times_y_vc_unk);
-    times_y_vc_nvar:
-      {
-        Int d1 = PREG->y_u.yxn.c;
-        if (IsIntTerm(d0)) {
-          d0 = times_int(IntOfTerm(d0), d1 PASS_REGS);
-        }
-        else {
-          saveregs();
-          d0 = p_times(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
-          setregs();
-          if (d0 == 0L) {
-            saveregs();
-            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-            setregs();
-            FAIL();
-          }
-        }
+    times_y_vc_nvar : {
+      Int d1 = PREG->y_u.yxn.c;
+      if (IsIntTerm(d0)) {
+        d0 = times_int(IntOfTerm(d0), d1 PASS_REGS);
+      } else {
+        saveregs();
+        d0 = p_times(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+        setregs();
       }
+    }
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yxn.y;
       PREG = NEXTOP(PREG, yxn);
-      INITIALIZE_PERMVAR(pt0,d0);
+      INITIALIZE_PERMVAR(pt0, d0);
       ENDP(pt0);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, times_y_vc_unk, times_y_vc_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A* " Int_FORMAT, PREG->y_u.yxn.c);
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -558,23 +430,13 @@
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
         Int div = IntOfTerm(d1);
         if (div == 0) {
-          saveregs();
-          Yap_NilError(EVALUATION_ERROR_ZERO_DIVISOR,"// /2");
-          setregs();
-          FAIL();
+          Yap_AsmError(EVALUATION_ERROR_ZERO_DIVISOR);
         }
         d0 = MkIntTerm(IntOfTerm(d0) / div);
-      }
-      else {
+      } else {
         saveregs();
         d0 = p_div(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
         setregs();
-        if (d0 == 0L) {
-          saveregs();
-          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-          setregs();
-          FAIL();
-        }
       }
       XREG(PREG->y_u.xxx.x) = d0;
       PREG = NEXTOP(PREG, xxx);
@@ -582,17 +444,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, div_vv_unk, div_vv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, div_vv_nvar_unk, div_vv_nvar_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -604,33 +462,23 @@
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, div_vc_unk);
-    div_vc_nvar:
-      {
-        Int d1 = PREG->y_u.xxn.c;
-        if (IsIntTerm(d0)) {
-          d0 = MkIntTerm(IntOfTerm(d0) / d1);
-        }
-        else {
-          saveregs();
-          d0 = p_div(Yap_Eval(d0),MkIntegerTerm(d1) PASS_REGS);
-          setregs();
-          if (d0 == 0L) {
-            saveregs();
-            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-            setregs();
-            FAIL();
-          }
-        }
+    div_vc_nvar : {
+      Int d1 = PREG->y_u.xxn.c;
+      if (IsIntTerm(d0)) {
+        d0 = MkIntTerm(IntOfTerm(d0) / d1);
+      } else {
+        saveregs();
+        d0 = p_div(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+        setregs();
       }
+    }
       XREG(PREG->y_u.xxn.x) = d0;
       PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, div_vc_unk, div_vc_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -641,39 +489,27 @@
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, div_cv_unk);
-    div_cv_nvar:
-      {
-        Int d1 = PREG->y_u.xxn.c;
-        if (IsIntTerm(d0)) {
-          Int div = IntOfTerm(d0);
-          if (div == 0){
-            saveregs();
-            Yap_NilError(EVALUATION_ERROR_ZERO_DIVISOR,"// /2");
-            setregs();
-            FAIL();
-          }
-          d0 = MkIntegerTerm(d1 / div);
+    div_cv_nvar : {
+      Int d1 = PREG->y_u.xxn.c;
+      if (IsIntTerm(d0)) {
+        Int div = IntOfTerm(d0);
+        if (div == 0) {
+          Yap_AsmError(EVALUATION_ERROR_ZERO_DIVISOR);
+          FAIL();
         }
-        else {
-          saveregs();
-          d0 = p_div(MkIntegerTerm(d1),Yap_Eval(d0) PASS_REGS);
-          if (d0 == 0L) {
-            saveregs();
-            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-            setregs();
-            FAIL();
-          }
-        }
+        d0 = MkIntegerTerm(d1 / div);
+      } else {
+        saveregs();
+        d0 = p_div(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
       }
+    }
       XREG(PREG->y_u.xxn.x) = d0;
       PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, div_cv_unk, div_cv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "// A", PREG->y_u.xxn.c);
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -694,44 +530,31 @@
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
         Int div = IntOfTerm(d1);
         if (div == 0) {
-          saveregs();
-          Yap_NilError(EVALUATION_ERROR_ZERO_DIVISOR,"// /2");
-          setregs();
+          Yap_AsmError(EVALUATION_ERROR_ZERO_DIVISOR);
           FAIL();
         }
         d0 = MkIntTerm(IntOfTerm(d0) / div);
-      }
-      else {
+      } else {
         saveregs();
         d0 = p_div(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
         setregs();
-        if (d0 == 0L) {
-          saveregs();
-          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-          setregs();
-          FAIL();
-        }
       }
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yxx.y;
       PREG = NEXTOP(PREG, yxx);
-      INITIALIZE_PERMVAR(pt0,d0);
+      INITIALIZE_PERMVAR(pt0, d0);
       ENDP(pt0);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, div_y_vv_unk, div_y_vv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, div_y_vv_nvar_unk, div_y_vv_nvar_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -743,36 +566,26 @@
       d0 = XREG(PREG->y_u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, div_y_vc_unk);
-    div_y_vc_nvar:
-      {
-        Int d1 = PREG->y_u.yxn.c;
-        if (IsIntTerm(d0)) {
-          d0 = MkIntTerm(IntOfTerm(d0)/d1);
-        }
-        else {
-          saveregs();
-          d0 = p_div(Yap_Eval(d0),MkIntegerTerm(d1) PASS_REGS);
-          setregs();
-          if (d0 == 0L) {
-            saveregs();
-            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-            setregs();
-            FAIL();
-          }
-        }
+    div_y_vc_nvar : {
+      Int d1 = PREG->y_u.yxn.c;
+      if (IsIntTerm(d0)) {
+        d0 = MkIntTerm(IntOfTerm(d0) / d1);
+      } else {
+        saveregs();
+        d0 = p_div(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+        setregs();
       }
+    }
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yxn.y;
       PREG = NEXTOP(PREG, yxn);
-      INITIALIZE_PERMVAR(pt0,d0);
+      INITIALIZE_PERMVAR(pt0, d0);
       ENDP(pt0);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, div_y_vc_unk, div_y_vc_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -783,48 +596,35 @@
       d0 = XREG(PREG->y_u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, div_y_cv_unk);
-    div_y_cv_nvar:
-      {
-        Int d1 = PREG->y_u.yxn.c;
-        if (IsIntTerm(d0)) {
-          Int div = IntOfTerm(d0);
-          if (div == 0) {
-            saveregs();
-            Yap_NilError(EVALUATION_ERROR_ZERO_DIVISOR,"// /2");
-            setregs();
-            FAIL();
-          }
-          d0 = MkIntegerTerm(d1 / div);
+    div_y_cv_nvar : {
+      Int d1 = PREG->y_u.yxn.c;
+      if (IsIntTerm(d0)) {
+        Int div = IntOfTerm(d0);
+        if (div == 0) {
+          Yap_AsmError(EVALUATION_ERROR_ZERO_DIVISOR);
+          FAIL();
         }
-        else {
-          saveregs();
-          d0 = p_div(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
-          setregs();
-          if (d0 == 0L) {
-            saveregs();
-            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-            setregs();
-            FAIL();
-          }
-        }
+        d0 = MkIntegerTerm(d1 / div);
+      } else {
+        saveregs();
+        d0 = p_div(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
+        setregs();
       }
+    }
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yxn.y;
       PREG = NEXTOP(PREG, yxn);
-      INITIALIZE_PERMVAR(pt0,d0);
+      INITIALIZE_PERMVAR(pt0, d0);
       ENDP(pt0);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, div_y_cv_unk, div_y_cv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "// A", PREG->y_u.yxn.c);
-      setregs();
+      Yap_AbsmiError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
-
 
       Op(p_and_vv, xxx);
       BEGD(d0);
@@ -840,17 +640,10 @@
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
         d0 = MkIntegerTerm(IntOfTerm(d0) & IntOfTerm(d1));
-      }
-      else {
+      } else {
         saveregs();
         d0 = p_and(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
         setregs();
-        if (d0 == 0L) {
-          saveregs();
-          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-          setregs();
-          FAIL();
-        }
       }
       XREG(PREG->y_u.xxx.x) = d0;
       PREG = NEXTOP(PREG, xxx);
@@ -858,17 +651,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, and_vv_unk, and_vv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A/\\B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, and_vv_nvar_unk, and_vv_nvar_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A/\\B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -880,33 +669,23 @@
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, and_vc_unk);
-    and_vc_nvar:
-      {
-        Int d1 = PREG->y_u.xxn.c;
-        if (IsIntTerm(d0)) {
-          d0 = MkIntegerTerm(IntOfTerm(d0) & d1);
-        }
-        else {
-          saveregs();
-          d0 = p_and(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
-          setregs();
-          if (d0 == 0L) {
-            saveregs();
-            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-            setregs();
-            FAIL();
-          }
-        }
+    and_vc_nvar : {
+      Int d1 = PREG->y_u.xxn.c;
+      if (IsIntTerm(d0)) {
+        d0 = MkIntegerTerm(IntOfTerm(d0) & d1);
+      } else {
+        saveregs();
+        d0 = p_and(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+        setregs();
       }
+    }
       XREG(PREG->y_u.xxn.x) = d0;
       PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, and_vc_unk, and_vc_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A /\\ " Int_FORMAT , PREG->y_u.xxn.c);
-      setregs();
+      Yap_AbsmiError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -926,38 +705,27 @@
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
         d0 = MkIntegerTerm(IntOfTerm(d0) & IntOfTerm(d1));
-      }
-      else {
+      } else {
         saveregs();
         d0 = p_and(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
         setregs();
-        if (d0 == 0L) {
-          saveregs();
-          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-          setregs();
-          FAIL();
-        }
       }
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yxx.y;
       PREG = NEXTOP(PREG, yxx);
-      INITIALIZE_PERMVAR(pt0,d0);
+      INITIALIZE_PERMVAR(pt0, d0);
       ENDP(pt0);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, and_y_vv_unk, and_y_vv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A/\\B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, and_y_vv_nvar_unk, and_y_vv_nvar_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A/\\B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -969,41 +737,30 @@
       d0 = XREG(PREG->y_u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, and_y_vc_unk);
-    and_y_vc_nvar:
-      {
-        Int d1 = PREG->y_u.yxn.c;
-        if (IsIntTerm(d0)) {
-          d0 = MkIntegerTerm(IntOfTerm(d0) & d1);
-        }
-        else {
-          saveregs();
-          d0 = p_and(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
-          setregs();
-          if (d0 == 0L) {
-            saveregs();
-            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-            setregs();
-            FAIL();
-          }
-        }
+    and_y_vc_nvar : {
+      Int d1 = PREG->y_u.yxn.c;
+      if (IsIntTerm(d0)) {
+        d0 = MkIntegerTerm(IntOfTerm(d0) & d1);
+      } else {
+        saveregs();
+        d0 = p_and(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+        setregs();
       }
+    }
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yxn.y;
       PREG = NEXTOP(PREG, yxn);
-      INITIALIZE_PERMVAR(pt0,d0);
+      INITIALIZE_PERMVAR(pt0, d0);
       ENDP(pt0);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, and_y_vc_unk, and_y_vc_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A /\\ " Int_FORMAT , PREG->y_u.yxn.c);
-      setregs();
+      Yap_AbsmiError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
-
 
       Op(p_or_vv, xxx);
       BEGD(d0);
@@ -1019,17 +776,10 @@
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
         d0 = MkIntegerTerm(IntOfTerm(d0) | IntOfTerm(d1));
-      }
-      else {
+      } else {
         saveregs();
         d0 = p_or(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
         setregs();
-        if (d0 == 0L) {
-          saveregs();
-          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-          setregs();
-          FAIL();
-        }
       }
       XREG(PREG->y_u.xxx.x) = d0;
       PREG = NEXTOP(PREG, xxx);
@@ -1037,17 +787,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, or_vv_unk, or_vv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A\\/B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, or_vv_nvar_unk, or_vv_nvar_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A\\/B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -1059,32 +805,22 @@
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, or_vc_unk);
-    or_vc_nvar:
-      {
-        Int d1 = PREG->y_u.xxn.c;
-        if (IsIntTerm(d0)) {
-          d0 = MkIntegerTerm(IntOfTerm(d0) | d1);
-        }
-        else {
-          saveregs();
-          d0 = p_or(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
-          if (d0 == 0L) {
-            saveregs();
-            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-            setregs();
-            FAIL();
-          }
-        }
+    or_vc_nvar : {
+      Int d1 = PREG->y_u.xxn.c;
+      if (IsIntTerm(d0)) {
+        d0 = MkIntegerTerm(IntOfTerm(d0) | d1);
+      } else {
+        saveregs();
+        d0 = p_or(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
       }
+    }
       XREG(PREG->y_u.xxn.x) = d0;
       PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, or_vc_unk, or_vc_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A \\/ " Int_FORMAT , PREG->y_u.xxn.c);
-      setregs();
+      Yap_AbsmiError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -1104,38 +840,27 @@
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
         d0 = MkIntegerTerm(IntOfTerm(d0) | IntOfTerm(d1));
-      }
-      else {
+      } else {
         saveregs();
         d0 = p_or(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
         setregs();
-        if (d0 == 0L) {
-          saveregs();
-          Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-          setregs();
-          FAIL();
-        }
       }
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yxx.y;
       PREG = NEXTOP(PREG, yxx);
-      INITIALIZE_PERMVAR(pt0,d0);
+      INITIALIZE_PERMVAR(pt0, d0);
       ENDP(pt0);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, or_y_vv_unk, or_y_vv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A\\/B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, or_y_vv_nvar_unk, or_y_vv_nvar_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A\\/B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -1147,36 +872,26 @@
       d0 = XREG(PREG->y_u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, or_y_vc_unk);
-    or_y_vc_nvar:
-      {
-        Int d1 = PREG->y_u.yxn.c;
-        if (IsIntTerm(d0)) {
-          d0 = MkIntegerTerm(IntOfTerm(d0) | d1);
-        }
-        else {
-          saveregs();
-          d0 = p_or(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
-          setregs();
-          if (d0 == 0L) {
-            saveregs();
-            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-            setregs();
-            FAIL();
-          }
-        }
+    or_y_vc_nvar : {
+      Int d1 = PREG->y_u.yxn.c;
+      if (IsIntTerm(d0)) {
+        d0 = MkIntegerTerm(IntOfTerm(d0) | d1);
+      } else {
+        saveregs();
+        d0 = p_or(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+        setregs();
       }
+    }
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yxn.y;
       PREG = NEXTOP(PREG, yxn);
-      INITIALIZE_PERMVAR(pt0,d0);
+      INITIALIZE_PERMVAR(pt0, d0);
       ENDP(pt0);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, or_y_vc_unk, or_y_vc_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A \\/ " Int_FORMAT , PREG->y_u.yxn.c);
-      setregs();
+      Yap_AbsmiError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -1199,18 +914,11 @@
         if (i2 < 0)
           d0 = MkIntegerTerm(SLR(IntOfTerm(d0), -i2));
         else
-          d0 = do_sll(IntOfTerm(d0),i2 PASS_REGS);
-      }
-      else {
+          d0 = do_sll(IntOfTerm(d0), i2 PASS_REGS);
+      } else {
         saveregs();
         d0 = p_sll(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
         setregs();
-      }
-      if (d0 == 0L) {
-        saveregs();
-        Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-        setregs();
-        FAIL();
       }
       XREG(PREG->y_u.xxx.x) = d0;
       PREG = NEXTOP(PREG, xxx);
@@ -1218,17 +926,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_vv_unk, sll_vv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, sll_vv_nvar_unk, sll_vv_nvar_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -1240,33 +944,23 @@
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, sll_vc_unk);
-    sll_vc_nvar:
-      {
-        Int d1 = PREG->y_u.xxn.c;
-        if (IsIntTerm(d0)) {
-          d0 = do_sll(IntOfTerm(d0), (Int)d1 PASS_REGS);
-        }
-        else {
-          saveregs();
-          d0 = p_sll(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
-          setregs();
-        }
-      }
-      if (d0 == 0L) {
+    sll_vc_nvar : {
+      Int d1 = PREG->y_u.xxn.c;
+      if (IsIntTerm(d0)) {
+        d0 = do_sll(IntOfTerm(d0), (Int)d1 PASS_REGS);
+      } else {
         saveregs();
-        Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+        d0 = p_sll(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
         setregs();
-        FAIL();
       }
+    }
       XREG(PREG->y_u.xxn.x) = d0;
       PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_vc_unk, sll_vc_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -1277,37 +971,27 @@
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, sll_cv_unk);
-    sll_cv_nvar:
-      {
-        Int d1 = PREG->y_u.xxn.c;
-        if (IsIntTerm(d0)) {
-          Int i2 = IntOfTerm(d0);
-          if (i2 < 0)
-            d0 = MkIntegerTerm(SLR(d1, -i2));
-          else
-            d0 = do_sll(d1,i2 PASS_REGS);
-        }
-        else {
-          saveregs();
-          d0 = p_sll(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
-          setregs();
-        }
-      }
-      if (d0 == 0L) {
+    sll_cv_nvar : {
+      Int d1 = PREG->y_u.xxn.c;
+      if (IsIntTerm(d0)) {
+        Int i2 = IntOfTerm(d0);
+        if (i2 < 0)
+          d0 = MkIntegerTerm(SLR(d1, -i2));
+        else
+          d0 = do_sll(d1, i2 PASS_REGS);
+      } else {
         saveregs();
-        Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+        d0 = p_sll(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
         setregs();
-        FAIL();
       }
+    }
       XREG(PREG->y_u.xxn.x) = d0;
       PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_cv_unk, sll_cv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -1330,39 +1014,28 @@
         if (i2 < 0)
           d0 = MkIntegerTerm(SLR(IntOfTerm(d0), -i2));
         else
-          d0 = do_sll(IntOfTerm(d0),i2 PASS_REGS);
-      }
-      else {
+          d0 = do_sll(IntOfTerm(d0), i2 PASS_REGS);
+      } else {
         saveregs();
         d0 = p_sll(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
         setregs();
       }
-      if (d0 == 0L) {
-        saveregs();
-        Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-        setregs();
-        FAIL();
-      }
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yxx.y;
       PREG = NEXTOP(PREG, yxx);
-      INITIALIZE_PERMVAR(pt0,d0);
+      INITIALIZE_PERMVAR(pt0, d0);
       ENDP(pt0);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_y_vv_unk, sll_y_vv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, sll_y_vv_nvar_unk, sll_y_vv_nvar_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -1374,81 +1047,60 @@
       d0 = XREG(PREG->y_u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, sll_y_vc_unk);
-    sll_y_vc_nvar:
-      {
-        Int d1 = PREG->y_u.yxn.c;
-        if (IsIntTerm(d0)) {
-          d0 = do_sll(IntOfTerm(d0), Yap_Eval(d1) PASS_REGS);
-        }
-        else {
-          saveregs();
-          d0 = p_sll(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
-          setregs();
-        }
-      }
-      if (d0 == 0L) {
+    sll_y_vc_nvar : {
+      Int d1 = PREG->y_u.yxn.c;
+      if (IsIntTerm(d0)) {
+        d0 = do_sll(IntOfTerm(d0), Yap_Eval(d1) PASS_REGS);
+      } else {
         saveregs();
-        Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+        d0 = p_sll(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
         setregs();
-        FAIL();
       }
+    }
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yxn.y;
       PREG = NEXTOP(PREG, yxn);
-      INITIALIZE_PERMVAR(pt0,d0);
+      INITIALIZE_PERMVAR(pt0, d0);
       ENDP(pt0);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_y_vc_unk, sll_y_vc_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
-
 
       Op(p_sll_y_cv, yxn);
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, sll_y_cv_unk);
-    sll_y_cv_nvar:
-      {
-        Int d1 = PREG->y_u.yxn.c;
-        if (IsIntTerm(d0)) {
-          Int i2 = IntOfTerm(d0);
-          if (i2 < 0)
-            d0 = MkIntegerTerm(SLR(d1, -i2));
-          else
-            d0 = do_sll(d1,i2 PASS_REGS);
-        }
-        else {
-          saveregs();
-          d0 = p_sll(MkIntegerTerm(d1), Yap_Eval(0) PASS_REGS);
-          setregs();
-        }
-      }
-      if (d0 == 0L) {
+    sll_y_cv_nvar : {
+      Int d1 = PREG->y_u.yxn.c;
+      if (IsIntTerm(d0)) {
+        Int i2 = IntOfTerm(d0);
+        if (i2 < 0)
+          d0 = MkIntegerTerm(SLR(d1, -i2));
+        else
+          d0 = do_sll(d1, i2 PASS_REGS);
+      } else {
         saveregs();
-        Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+        d0 = p_sll(MkIntegerTerm(d1), Yap_Eval(0) PASS_REGS);
         setregs();
-        FAIL();
       }
+    }
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yxn.y;
       PREG = NEXTOP(PREG, yxn);
-      INITIALIZE_PERMVAR(pt0,d0);
+      INITIALIZE_PERMVAR(pt0, d0);
       ENDP(pt0);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_y_cv_unk, sll_y_cv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -1472,17 +1124,10 @@
           d0 = do_sll(IntOfTerm(d0), -i2 PASS_REGS);
         else
           d0 = MkIntTerm(SLR(IntOfTerm(d0), i2));
-      }
-      else {
+      } else {
         saveregs();
         d0 = p_slr(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
         setregs();
-      }
-      if (d0 == 0L) {
-        saveregs();
-        Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-        setregs();
-        FAIL();
       }
       XREG(PREG->y_u.xxx.x) = d0;
       PREG = NEXTOP(PREG, xxx);
@@ -1490,17 +1135,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_vv_unk, slr_vv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, slr_vv_nvar_unk, slr_vv_nvar_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -1512,33 +1153,23 @@
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, slr_vc_unk);
-    slr_vc_nvar:
-      {
-        Int d1 = PREG->y_u.xxn.c;
-        if (IsIntTerm(d0)) {
-          d0 = MkIntTerm(SLR(IntOfTerm(d0), d1));
-        }
-        else {
-          saveregs();
-          d0 = p_slr(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
-          setregs();
-          if (d0 == 0L) {
-            saveregs();
-            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-            setregs();
-            FAIL();
-          }
-        }
+    slr_vc_nvar : {
+      Int d1 = PREG->y_u.xxn.c;
+      if (IsIntTerm(d0)) {
+        d0 = MkIntTerm(SLR(IntOfTerm(d0), d1));
+      } else {
+        saveregs();
+        d0 = p_slr(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+        setregs();
       }
+    }
       XREG(PREG->y_u.xxn.x) = d0;
       PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_vc_unk, slr_vc_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -1549,37 +1180,27 @@
       d0 = XREG(PREG->y_u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, slr_cv_unk);
-    slr_cv_nvar:
-      {
-        Int d1 = PREG->y_u.xxn.c;
-        if (IsIntTerm(d0)) {
-          Int i2 = IntOfTerm(d0);
-          if (i2 < 0)
-            d0 = do_sll(d1, -i2 PASS_REGS);
-          else
-            d0 = MkIntegerTerm(SLR(d1, i2));
-        }
-        else {
-          saveregs();
-          d0 = p_slr(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
-          setregs();
-        }
-      }
-      if (d0 == 0L) {
+    slr_cv_nvar : {
+      Int d1 = PREG->y_u.xxn.c;
+      if (IsIntTerm(d0)) {
+        Int i2 = IntOfTerm(d0);
+        if (i2 < 0)
+          d0 = do_sll(d1, -i2 PASS_REGS);
+        else
+          d0 = MkIntegerTerm(SLR(d1, i2));
+      } else {
         saveregs();
-        Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+        d0 = p_slr(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
         setregs();
-        FAIL();
       }
+    }
       XREG(PREG->y_u.xxn.x) = d0;
       PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_cv_unk, slr_cv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -1603,38 +1224,27 @@
           d0 = do_sll(IntOfTerm(d0), -i2 PASS_REGS);
         else
           d0 = MkIntTerm(SLR(IntOfTerm(d0), i2));
-      }
-      else {
+      } else {
         saveregs();
         d0 = p_slr(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
         setregs();
       }
       BEGP(pt0);
-      if (d0 == 0L) {
-        saveregs();
-        Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-        setregs();
-        FAIL();
-      }
       pt0 = YREG + PREG->y_u.yxx.y;
       PREG = NEXTOP(PREG, yxx);
-      INITIALIZE_PERMVAR(pt0,d0);
+      INITIALIZE_PERMVAR(pt0, d0);
       ENDP(pt0);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_y_vv_unk, slr_y_vv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, slr_y_vv_nvar_unk, slr_y_vv_nvar_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -1646,36 +1256,26 @@
       d0 = XREG(PREG->y_u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, slr_y_vc_unk);
-    slr_y_vc_nvar:
-      {
-        Int d1 = PREG->y_u.yxn.c;
-        if (IsIntTerm(d0)) {
-          d0 = MkIntTerm(SLR(IntOfTerm(d0), d1));
-        }
-        else {
-          saveregs();
-          d0 = p_slr(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
-          setregs();
-          if (d0 == 0L) {
-            saveregs();
-            Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-            setregs();
-            FAIL();
-          }
-        }
+    slr_y_vc_nvar : {
+      Int d1 = PREG->y_u.yxn.c;
+      if (IsIntTerm(d0)) {
+        d0 = MkIntTerm(SLR(IntOfTerm(d0), d1));
+      } else {
+        saveregs();
+        d0 = p_slr(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+        setregs();
       }
+    }
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yxn.y;
       PREG = NEXTOP(PREG, yxn);
-      INITIALIZE_PERMVAR(pt0,d0);
+      INITIALIZE_PERMVAR(pt0, d0);
       ENDP(pt0);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_y_vc_unk, slr_y_vc_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
@@ -1685,40 +1285,34 @@
       d0 = XREG(PREG->y_u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, slr_y_cv_unk);
-    slr_y_cv_nvar:
-      {
-        Int d1 = PREG->y_u.yxn.c;
-        if (IsIntTerm(d0)) {
-          Int i2 = IntOfTerm(d0);
-          if (i2 < 0)
-            d0 = do_sll(d1, -i2 PASS_REGS);
-          else
-            d0 = MkIntegerTerm(SLR(d1, i2));
-        }
-        else {
-          saveregs();
-          d0 = p_slr(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
-          setregs();
-        }
-      }
-      if (d0 == 0L) {
+    slr_y_cv_nvar : {
+      Int d1 = PREG->y_u.yxn.c;
+      if (IsIntTerm(d0)) {
+        Int i2 = IntOfTerm(d0);
+        if (i2 < 0)
+          d0 = do_sll(d1, -i2 PASS_REGS);
+        else
+          d0 = MkIntegerTerm(SLR(d1, i2));
+      } else {
         saveregs();
-        Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+        d0 = p_slr(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
         setregs();
+      }
+    }
+      if (d0 == 0L) {
+        Yap_AsmError(LOCAL_Error_TYPE);
         FAIL();
       }
       BEGP(pt0);
       pt0 = YREG + PREG->y_u.yxn.y;
       PREG = NEXTOP(PREG, yxn);
-      INITIALIZE_PERMVAR(pt0,d0);
+      INITIALIZE_PERMVAR(pt0, d0);
       ENDP(pt0);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_y_cv_unk, slr_y_cv_nvar);
-      saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -1782,13 +1376,12 @@
           }
         }
       }
-    exec_bin_cmp_xx:
-      {
-        CmpPredicate f = PREG->y_u.plxxs.p->cs.d_code;
-        saveregs();
-        d0 = (CELL) (f) (d0,d1);
-        setregs();
-      }
+    exec_bin_cmp_xx : {
+      CmpPredicate f = PREG->y_u.plxxs.p->cs.d_code;
+      saveregs();
+      d0 = (CELL)(f)(d0, d1);
+      setregs();
+    }
       if (PREG == FAILCODE) {
         JMPNext();
       }
@@ -1857,13 +1450,12 @@
           }
         }
       }
-    exec_bin_cmp_yx:
-      {
-        CmpPredicate f = PREG->y_u.plxys.p->cs.d_code;
-        saveregs();
-        d0 = (CELL) (f) (d0,d1);
-        setregs();
-      }
+    exec_bin_cmp_yx : {
+      CmpPredicate f = PREG->y_u.plxys.p->cs.d_code;
+      saveregs();
+      d0 = (CELL)(f)(d0, d1);
+      setregs();
+    }
       if (!d0 || PREG == FAILCODE) {
         if (PREG != FAILCODE)
           PREG = PREG->y_u.plxys.f;
@@ -1930,13 +1522,12 @@
           }
         }
       }
-    exec_bin_cmp_xy:
-      {
-        CmpPredicate f = PREG->y_u.plxys.p->cs.d_code;
-        saveregs();
-        d0 = (CELL) (f) (d0,d1);
-        setregs();
-      }
+    exec_bin_cmp_xy : {
+      CmpPredicate f = PREG->y_u.plxys.p->cs.d_code;
+      saveregs();
+      d0 = (CELL)(f)(d0, d1);
+      setregs();
+    }
       if (!d0 || PREG == FAILCODE) {
         if (PREG != FAILCODE)
           PREG = PREG->y_u.plxys.f;
@@ -2006,13 +1597,12 @@
           }
         }
       }
-    exec_bin_cmp_yy:
-      {
-        CmpPredicate f = PREG->y_u.plyys.p->cs.d_code;
-        saveregs();
-        d0 = (CELL) (f) (d0,d1);
-        setregs();
-      }
+    exec_bin_cmp_yy : {
+      CmpPredicate f = PREG->y_u.plyys.p->cs.d_code;
+      saveregs();
+      d0 = (CELL)(f)(d0, d1);
+      setregs();
+    }
       if (!d0 || PREG == FAILCODE) {
         if (PREG != FAILCODE)
           PREG = PREG->y_u.plyys.f;
@@ -2049,8 +1639,10 @@
       Op(p_dif, l);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
-        low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorDiff,0)),XREGS+1);
-#endif  /* LOW_LEVEL_TRACE */
+        low_level_trace(enter_pred,
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorDiff, 0)),
+                        XREGS + 1);
+#endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
       BEGD(d1);
       d0 = ARG1;
@@ -2091,7 +1683,7 @@
          * be trailed
          */
         HBREG = HR;
-        B = (choiceptr) HR;
+        B = (choiceptr)HR;
         B->cp_h = HR;
         SET_BB(B);
         save_hb();
@@ -2117,8 +1709,8 @@
           if (IsVarTerm(d1)) {
 #if defined(YAPOR_SBA) && defined(YAPOR)
             /* clean up the trail when we backtrack */
-            if (Unsigned((Int)(d1)-(Int)(H_FZ)) >
-                Unsigned((Int)(B_FZ)-(Int)(H_FZ))) {
+            if (Unsigned((Int)(d1) - (Int)(H_FZ)) >
+                Unsigned((Int)(B_FZ) - (Int)(H_FZ))) {
               RESET_VARIABLE(STACK_TO_SBA(d1));
             } else
 #endif
@@ -2127,9 +1719,9 @@
 #ifdef MULTI_ASSIGNMENT_VARIABLES
           } else /* if (IsApplTerm(d1)) */ {
             CELL *pt = RepAppl(d1);
-            /* AbsAppl means */
-            /* multi-assignment variable */
-            /* so the next cell is the old value */
+/* AbsAppl means */
+/* multi-assignment variable */
+/* so the next cell is the old value */
 #ifdef FROZEN_STACKS
             pt[0] = TrailVal(--TR);
 #else
@@ -2177,8 +1769,10 @@
 #endif
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
-        low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorSame,0)),XREGS+1);
-#endif  /* LOW_LEVEL_TRACE */
+        low_level_trace(enter_pred,
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorSame, 0)),
+                        XREGS + 1);
+#endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
       BEGD(d1);
       d0 = ARG1;
@@ -2200,7 +1794,7 @@
         }
         BEGD(d2);
         always_save_pc();
-        d2 = iequ_complex(RepPair(d0)-1, RepPair(d0)+1,RepPair(d1)-1);
+        d2 = iequ_complex(RepPair(d0) - 1, RepPair(d0) + 1, RepPair(d1) - 1);
         if (d2 == false) {
           PREG = PREG->y_u.l.l;
           GONext();
@@ -2248,7 +1842,8 @@
               PREG = PREG->y_u.l.l;
               GONext();
             }
-            if (strcmp((char *)(RepAppl(d0)+2),(char *)(RepAppl(d1)+2)) == 0) {
+            if (strcmp((char *)(RepAppl(d0) + 2), (char *)(RepAppl(d1) + 2)) ==
+                0) {
               PREG = NEXTOP(PREG, l);
               GONext();
             }
@@ -2261,7 +1856,7 @@
               PREG = PREG->y_u.l.l;
               GONext();
             }
-            if (Yap_gmp_tcmp_big_big(d0,d1) == 0) {
+            if (Yap_gmp_tcmp_big_big(d0, d1) == 0) {
               PREG = NEXTOP(PREG, l);
               GONext();
             }
@@ -2291,7 +1886,8 @@
         }
         always_save_pc();
         BEGD(d2);
-        d2 = iequ_complex(RepAppl(d0), RepAppl(d0)+ArityOfFunctor(f0), RepAppl(d1));
+        d2 = iequ_complex(RepAppl(d0), RepAppl(d0) + ArityOfFunctor(f0),
+                          RepAppl(d1));
         if (d2 == false) {
           PREG = PREG->y_u.l.l;
           GONext();
@@ -2342,7 +1938,7 @@
 
       ENDD(d0);
 #ifdef COROUTINING
-      /* Problem: have I got an environment or not? */
+    /* Problem: have I got an environment or not? */
     NoStackEq:
       PROCESS_INT(interrupt_eq, do_eq);
 #endif
@@ -2350,16 +1946,16 @@
       ENDOp();
 #endif /* INLINE_BIG_COMPARISONS */
 
-
       Op(p_arg_vv, xxx);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
         HR[0] = XREG(PREG->y_u.xxx.x1);
         HR[1] = XREG(PREG->y_u.xxx.x2);
-        RESET_VARIABLE(HR+2);
-        low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),HR);
+        RESET_VARIABLE(HR + 2);
+        low_level_trace(enter_pred,
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorArg, 0)), HR);
       }
-#endif  /* LOW_LEVEL_TRACE */
+#endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxx.x1);
       deref_head(d0, arg_arg1_unk);
@@ -2370,11 +1966,9 @@
       else if (IsLongIntTerm(d0)) {
         d0 = LongIntOfTerm(d0);
       } else {
-        if (IsBigIntTerm( d0 ))
+        if (IsBigIntTerm(d0))
           FAIL();
-        saveregs();
-        Yap_Error(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
-        setregs();
+        Yap_AsmError(TYPE_ERROR_INTEGER);
         FAIL();
       }
 
@@ -2389,18 +1983,15 @@
         BEGP(pt0);
         pt0 = RepAppl(d1);
         d1 = *pt0;
-        if (IsExtensionFunctor((Functor) d1)) {
-          saveregs();
-          Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
-          setregs();
+        if (IsExtensionFunctor((Functor)d1)) {
+          Yap_AsmError(TYPE_ERROR_COMPOUND);
           FAIL();
         }
-        if ((Int)d0 <= 0 ||
-            (Int)d0 > ArityOfFunctor((Functor) d1)) {
+        if ((Int)d0 <= 0 || (Int)d0 > ArityOfFunctor((Functor)d1)) {
           /* don't complain here for Prolog compatibility
              if ((Int)d0 <= 0) {
              saveregs();
-             Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
+Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
              MkIntegerTerm(d0),"arg 1 of arg/3");
              setregs();
              }
@@ -2411,35 +2002,29 @@
         PREG = NEXTOP(PREG, xxx);
         GONext();
         ENDP(pt0);
-      }
-      else if (IsPairTerm(d1)) {
+      } else if (IsPairTerm(d1)) {
         BEGP(pt0);
         pt0 = RepPair(d1);
         if (d0 != 1 && d0 != 2) {
           if ((Int)d0 < 0) {
-            saveregs();
-            Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
-                      MkIntegerTerm(d0),"arg 1 of arg/3");
-            setregs();
+            Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO);
           }
           FAIL();
         }
-        XREG(PREG->y_u.xxx.x) = pt0[d0-1];
+        XREG(PREG->y_u.xxx.x) = pt0[d0 - 1];
         PREG = NEXTOP(PREG, xxx);
         GONext();
         ENDP(pt0);
-      }
-      else {
-          saveregs();
-          Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
-          setregs();
+      } else {
+        Yap_AsmError(TYPE_ERROR_COMPOUND);
         FAIL();
       }
 
       BEGP(pt0);
       deref_body(d1, pt0, arg_arg2_unk, arg_arg2_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
+      Yap_AsmError(INSTANTIATION_ERROR);
+      ;
       setregs();
       ENDP(pt0);
       FAIL();
@@ -2448,7 +2033,8 @@
       BEGP(pt0);
       deref_body(d0, pt0, arg_arg1_unk, arg_arg1_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, d0, "arg 1 of arg/3");;
+      Yap_AsmError(INSTANTIATION_ERROR);
+      ;
       setregs();
       ENDP(pt0);
       FAIL();
@@ -2460,13 +2046,14 @@
       if (Yap_do_low_level_trace) {
         CELL *Ho = HR;
         Term t = MkIntegerTerm(PREG->y_u.xxn.c);
-        HR[0] =  t;
+        HR[0] = t;
         HR[1] = XREG(PREG->y_u.xxn.xi);
-        RESET_VARIABLE(HR+2);
-        low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),HR);
+        RESET_VARIABLE(HR + 2);
+        low_level_trace(enter_pred,
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorArg, 0)), HR);
         HR = Ho;
       }
-#endif  /* LOW_LEVEL_TRACE */
+#endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
       d0 = PREG->y_u.xxn.c;
       /* d0 now got the argument we want */
@@ -2480,18 +2067,15 @@
         BEGP(pt0);
         pt0 = RepAppl(d1);
         d1 = *pt0;
-        if (IsExtensionFunctor((Functor) d1)) {
-          saveregs();
-          Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
-          setregs();
+        if (IsExtensionFunctor((Functor)d1)) {
+          Yap_AsmError(TYPE_ERROR_COMPOUND);
           FAIL();
         }
-        if ((Int)d0 <= 0 ||
-            (Int)d0 > ArityOfFunctor((Functor) d1)) {
+        if ((Int)d0 <= 0 || (Int)d0 > ArityOfFunctor((Functor)d1)) {
           /* don't complain here for Prolog compatibility
              if ((Int)d0 <= 0) {
              saveregs();
-             Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
+Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
              MkIntegerTerm(d0),"arg 1 of arg/3");
              setregs();
              }
@@ -2502,36 +2086,28 @@
         PREG = NEXTOP(PREG, xxn);
         GONext();
         ENDP(pt0);
-      }
-      else if (IsPairTerm(d1)) {
+      } else if (IsPairTerm(d1)) {
         BEGP(pt0);
         pt0 = RepPair(d1);
         if (d0 != 1 && d0 != 2) {
           if ((Int)d0 < 0) {
             saveregs();
-            Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
-                      MkIntegerTerm(d0),"arg 1 of arg/3");
-            setregs();
+            Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO);
           }
           FAIL();
         }
-        XREG(PREG->y_u.xxn.x) = pt0[d0-1];
+        XREG(PREG->y_u.xxn.x) = pt0[d0 - 1];
         PREG = NEXTOP(PREG, xxn);
         GONext();
         ENDP(pt0);
-      }
-      else {
-	saveregs();
-	Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
-	setregs();
+      } else {
+        Yap_AsmError(TYPE_ERROR_COMPOUND);
         FAIL();
       }
 
       BEGP(pt0);
       deref_body(d1, pt0, arg_arg2_vc_unk, arg_arg2_vc_nvar);
-      saveregs();
-      Yap_Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       ENDP(pt0);
       FAIL();
       ENDD(d1);
@@ -2545,10 +2121,11 @@
         HR[0] = XREG(PREG->y_u.yxx.x1);
         HR[1] = XREG(PREG->y_u.yxx.x2);
         HR[2] = YREG[PREG->y_u.yxx.y];
-        RESET_VARIABLE(HR+2);
-        low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),HR);
+        RESET_VARIABLE(HR + 2);
+        low_level_trace(enter_pred,
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorArg, 0)), HR);
       }
-#endif  /* LOW_LEVEL_TRACE */
+#endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxx.x1);
       deref_head(d0, arg_y_arg1_unk);
@@ -2559,11 +2136,9 @@
       else if (IsLongIntTerm(d0)) {
         d0 = LongIntOfTerm(d0);
       } else {
-        if (IsBigIntTerm( d0 ))
+        if (IsBigIntTerm(d0))
           FAIL();
-        saveregs();
-        Yap_Error(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
-        setregs();
+        Yap_AsmError(TYPE_ERROR_INTEGER);
         FAIL();
       }
 
@@ -2578,18 +2153,15 @@
         BEGP(pt0);
         pt0 = RepAppl(d1);
         d1 = *pt0;
-        if (IsExtensionFunctor((Functor) d1)) {
-	saveregs();
-	Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
-	setregs();
+        if (IsExtensionFunctor((Functor)d1)) {
+          Yap_AsmError(TYPE_ERROR_COMPOUND);
           FAIL();
         }
-        if ((Int)d0 <= 0 ||
-            (Int)d0 > ArityOfFunctor((Functor) d1)) {
+        if ((Int)d0 <= 0 || (Int)d0 > ArityOfFunctor((Functor)d1)) {
           /* don't complain here for Prolog compatibility
              if ((Int)d0 <= 0) {
              saveregs();
-             Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
+Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
              MkIntegerTerm(d0),"arg 1 of arg/3");
              saveregs();
              }
@@ -2599,52 +2171,42 @@
         BEGP(pt1);
         pt1 = YREG + PREG->y_u.yxx.y;
         PREG = NEXTOP(PREG, yxx);
-        INITIALIZE_PERMVAR(pt1,pt0[d0]);
+        INITIALIZE_PERMVAR(pt1, pt0[d0]);
         ENDP(pt1);
         GONext();
         ENDP(pt0);
-      }
-      else if (IsPairTerm(d1)) {
+      } else if (IsPairTerm(d1)) {
         BEGP(pt0);
         pt0 = RepPair(d1);
         if (d0 != 1 && d0 != 2) {
           if ((Int)d0 < 0) {
             saveregs();
-            Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
-                      MkIntegerTerm(d0),"arg 1 of arg/3");
-            setregs();
+            Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO);
           }
           FAIL();
         }
         BEGP(pt1);
         pt1 = YREG + PREG->y_u.yxx.y;
         PREG = NEXTOP(PREG, yxx);
-        INITIALIZE_PERMVAR(pt1,pt0[d0-1]);
+        INITIALIZE_PERMVAR(pt1, pt0[d0 - 1]);
         GONext();
         ENDP(pt1);
         ENDP(pt0);
-      }
-      else {
-          saveregs();
-          Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
-          setregs();
+      } else {
+        Yap_AsmError(TYPE_ERROR_COMPOUND);
         FAIL();
       }
 
       BEGP(pt0);
       deref_body(d1, pt0, arg_y_arg2_unk, arg_y_arg2_nvar);
-      saveregs();
-      Yap_Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       ENDP(pt0);
       FAIL();
       ENDD(d1);
 
       BEGP(pt0);
       deref_body(d0, pt0, arg_y_arg1_unk, arg_y_arg1_nvar);
-      saveregs();
-      Yap_Error(INSTANTIATION_ERROR, d0, "arg 1 of arg/3");;
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       ENDP(pt0);
       FAIL();
       ENDD(d0);
@@ -2655,14 +2217,15 @@
       if (Yap_do_low_level_trace) {
         CELL *Ho = HR;
         Term t = MkIntegerTerm(PREG->y_u.yxn.c);
-        HR[0] =  t;
+        HR[0] = t;
         HR[1] = XREG(PREG->y_u.yxn.xi);
         HR[2] = YREG[PREG->y_u.yxn.y];
-        RESET_VARIABLE(HR+2);
-        low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),HR);
+        RESET_VARIABLE(HR + 2);
+        low_level_trace(enter_pred,
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorArg, 0)), HR);
         HR = Ho;
       }
-#endif  /* LOW_LEVEL_TRACE */
+#endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
       d0 = PREG->y_u.yxn.c;
       /* d0 now got the argument we want */
@@ -2676,20 +2239,14 @@
         BEGP(pt0);
         pt0 = RepAppl(d1);
         d1 = *pt0;
-        if (IsExtensionFunctor((Functor) d1)) {
-           saveregs();
-          Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
-          setregs();
-         FAIL();
+        if (IsExtensionFunctor((Functor)d1)) {
+          Yap_AsmError(TYPE_ERROR_COMPOUND);
+          FAIL();
         }
-        if ((Int)d0 <= 0 ||
-            (Int)d0 > ArityOfFunctor((Functor) d1)) {
+        if ((Int)d0 <= 0 || (Int)d0 > ArityOfFunctor((Functor)d1)) {
           /* don't complain here for Prolog compatibility
              if ((Int)d0 <= 0) {
-             saveregs();
-             Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
-             MkIntegerTerm(d0),"arg 1 of arg/3");
-             setregs();
+Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
              }
           */
           FAIL();
@@ -2697,43 +2254,35 @@
         BEGP(pt1);
         pt1 = YREG + PREG->y_u.yxn.y;
         PREG = NEXTOP(PREG, yxn);
-        INITIALIZE_PERMVAR(pt1,pt0[d0]);
+        INITIALIZE_PERMVAR(pt1, pt0[d0]);
         ENDP(pt1);
         GONext();
         ENDP(pt0);
-      }
-      else if (IsPairTerm(d1)) {
+      } else if (IsPairTerm(d1)) {
         BEGP(pt0);
         pt0 = RepPair(d1);
         if (d0 != 1 && d0 != 2) {
           if ((Int)d0 < 0) {
             saveregs();
-            Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
-                      MkIntegerTerm(d0),"arg 1 of arg/3");
-            setregs();
+            Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO);
           }
           FAIL();
         }
         BEGP(pt1);
         pt1 = YREG + PREG->y_u.yxn.y;
         PREG = NEXTOP(PREG, yxn);
-        INITIALIZE_PERMVAR(pt1,pt0[d0-1]);
+        INITIALIZE_PERMVAR(pt1, pt0[d0 - 1]);
         ENDP(pt1);
         GONext();
         ENDP(pt0);
-      }
-      else {
-          saveregs();
-          Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
-          setregs();
+      } else {
+        Yap_AsmError(TYPE_ERROR_COMPOUND);
         FAIL();
       }
 
       BEGP(pt0);
       deref_body(d1, pt0, arg_y_arg2_vc_unk, arg_y_arg2_vc_nvar);
-      saveregs();
-      Yap_Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       ENDP(pt0);
       FAIL();
       ENDD(d1);
@@ -2742,17 +2291,19 @@
       ENDOp();
 
       Op(p_func2s_vv, xxx);
-      /* A1 is a variable */
+    /* A1 is a variable */
     restart_func2s:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
         RESET_VARIABLE(HR);
         HR[1] = XREG(PREG->y_u.xxx.x1);
         HR[2] = XREG(PREG->y_u.xxx.x2);
-        low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
+        low_level_trace(enter_pred,
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
+                        HR);
       }
-#endif  /* LOW_LEVEL_TRACE */
-        /* We have to build the structure */
+#endif /* LOW_LEVEL_TRACE */
+      /* We have to build the structure */
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxx.x1);
       deref_head(d0, func2s_unk);
@@ -2768,55 +2319,51 @@
       else {
         saveregs();
         if (IsBigIntTerm(d1)) {
-          Yap_Error(RESOURCE_ERROR_STACK, d1, "functor/3");
+            setregs();
+          Yap_AsmError(RESOURCE_ERROR_STACK);
         } else {
-          Yap_Error(TYPE_ERROR_INTEGER, d1, "functor/3");
+            setregs();
+          Yap_AsmError(TYPE_ERROR_INTEGER);
         }
-        setregs();
         FAIL();
       }
       if (!IsAtomicTerm(d0)) {
-        saveregs();
-        Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
-        setregs();
+        Yap_AsmError(TYPE_ERROR_ATOM);
         FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
       if (d0 == TermDot && d1 == 2) {
         RESET_VARIABLE(HR);
-        RESET_VARIABLE(HR+1);
+        RESET_VARIABLE(HR + 1);
         d0 = AbsPair(HR);
         HR += 2;
         /* else if arity is 0 just pass d0 through */
         /* Ding, ding, we made it */
         XREG(PREG->y_u.xxx.x) = d0;
-        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),Osbpp),l);
+        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx), Osbpp), l);
         GONext();
-      }
-      else if ((Int)d1 > 0) {
+      } else if ((Int)d1 > 0) {
         /* now let's build a compound term */
         if (!IsAtomTerm(d0)) {
-          saveregs();
-          Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
-          setregs();
+          Yap_AsmError(TYPE_ERROR_ATOM);
           FAIL();
         }
         BEGP(pt1);
         if (!IsAtomTerm(d0)) {
           FAIL();
-        }
-        else
-          d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
+        } else
+          d0 = (CELL)Yap_MkFunctor(AtomOfTerm(d0), (Int)d1);
         pt1 = HR;
         *pt1++ = d0;
         d0 = AbsAppl(HR);
-        if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
+        if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
           /* make sure we have something to show for our trouble */
           saveregs();
-          if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxx),Osbpp))) {
-            Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
-            setregs();
+          if (!Yap_gcl((1 + d1) * sizeof(CELL), 0, YREG,
+                       NEXTOP(NEXTOP(PREG, xxx), Osbpp))) {
+                           setregs();
+            Yap_AsmError(RESOURCE_ERROR_STACK);
             JMPNext();
           } else {
             setregs();
@@ -2833,24 +2380,19 @@
         /* else if arity is 0 just pass d0 through */
         /* Ding, ding, we made it */
         XREG(PREG->y_u.xxx.x) = d0;
-        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),Osbpp),l);
+        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx), Osbpp), l);
         GONext();
-      }     else if ((Int)d1  == 0) {
+      } else if ((Int)d1 == 0) {
         XREG(PREG->y_u.xxx.x) = d0;
-        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),Osbpp),l);
+        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx), Osbpp), l);
         GONext();
-      }     else {
-        saveregs();
-        Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
-        setregs();
-        FAIL();
+      } else {
+        Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO);
       }
 
       BEGP(pt1);
       deref_body(d1, pt1, func2s_unk2, func2s_nvar2);
-      saveregs();
-      Yap_Error(INSTANTIATION_ERROR, d1, "functor/3");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       ENDP(pt1);
       /* Oops, third argument was unbound */
       FAIL();
@@ -2858,9 +2400,7 @@
 
       BEGP(pt1);
       deref_body(d0, pt1, func2s_unk, func2s_nvar);
-      saveregs();
-      Yap_Error(INSTANTIATION_ERROR, d0, "functor/3");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -2868,16 +2408,18 @@
       ENDOp();
 
       Op(p_func2s_cv, xxc);
-      /* A1 is a variable */
+    /* A1 is a variable */
     restart_func2s_cv:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
         RESET_VARIABLE(HR);
         HR[1] = PREG->y_u.xxc.c;
         HR[2] = XREG(PREG->y_u.xxc.xi);
-        low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
+        low_level_trace(enter_pred,
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
+                        HR);
       }
-#endif  /* LOW_LEVEL_TRACE */
+#endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
       /* We have to build the structure */
       d0 = PREG->y_u.xxc.c;
@@ -2892,48 +2434,47 @@
       else {
         saveregs();
         if (IsBigIntTerm(d1)) {
-          Yap_Error(RESOURCE_ERROR_STACK, d1, "functor/3");
+            setregs();
+          Yap_AsmError(RESOURCE_ERROR_STACK);
         } else {
-          Yap_Error(TYPE_ERROR_INTEGER,d1,"functor/3");
+            setregs();
+          Yap_AsmError(TYPE_ERROR_INTEGER);
         }
-        setregs();
         FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
       if (d0 == TermDot && d1 == 2) {
         RESET_VARIABLE(HR);
-        RESET_VARIABLE(HR+1);
+        RESET_VARIABLE(HR + 1);
         d0 = AbsPair(HR);
         HR += 2;
         /* else if arity is 0 just pass d0 through */
         /* Ding, ding, we made it */
         XREG(PREG->y_u.xxc.x) = d0;
-        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),Osbpp),l);
+        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc), Osbpp), l);
         GONext();
       } else if ((Int)d1 > 0) {
         /* now let's build a compound term */
         if (!IsAtomTerm(d0)) {
-          saveregs();
-          Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
-          setregs();
+          Yap_AsmError(TYPE_ERROR_ATOM);
           FAIL();
         }
         BEGP(pt1);
         if (!IsAtomTerm(d0)) {
           FAIL();
-        }
-        else
-          d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
+        } else
+          d0 = (CELL)Yap_MkFunctor(AtomOfTerm(d0), (Int)d1);
         pt1 = HR;
         *pt1++ = d0;
         d0 = AbsAppl(HR);
-        if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
+        if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
           /* make sure we have something to show for our trouble */
           saveregs();
-          if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxc),Osbpp))) {
-            Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
-            setregs();
+          if (!Yap_gcl((1 + d1) * sizeof(CELL), 0, YREG,
+                       NEXTOP(NEXTOP(PREG, xxc), Osbpp))) {
+                           setregs();
+            Yap_AsmError(RESOURCE_ERROR_STACK);
             JMPNext();
           } else {
             setregs();
@@ -2950,24 +2491,19 @@
         /* else if arity is 0 just pass d0 through */
         /* Ding, ding, we made it */
         XREG(PREG->y_u.xxc.x) = d0;
-        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),Osbpp),l);
+        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc), Osbpp), l);
         GONext();
-      }     else if (d1  == 0) {
+      } else if (d1 == 0) {
         XREG(PREG->y_u.xxc.x) = d0;
-        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),Osbpp),l);
+        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc), Osbpp), l);
         GONext();
-      }     else {
-        saveregs();
-        Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
-        setregs();
-        FAIL();
+      } else {
+        Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO);
       }
 
       BEGP(pt1);
       deref_body(d1, pt1, func2s_unk2_cv, func2s_nvar2_cv);
-      saveregs();
-      Yap_Error(INSTANTIATION_ERROR, d1, "functor/3");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       ENDP(pt1);
       /* Oops, third argument was unbound */
       FAIL();
@@ -2976,7 +2512,7 @@
       ENDOp();
 
       Op(p_func2s_vc, xxn);
-      /* A1 is a variable */
+    /* A1 is a variable */
     restart_func2s_vc:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
@@ -2987,11 +2523,13 @@
         RESET_VARIABLE(HR);
         HR[1] = XREG(PREG->y_u.xxn.xi);
         HR[2] = ti;
-        low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
+        low_level_trace(enter_pred,
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
+                        HR);
         HR = hi;
       }
-#endif  /* LOW_LEVEL_TRACE */
-        /* We have to build the structure */
+#endif /* LOW_LEVEL_TRACE */
+      /* We have to build the structure */
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxn.xi);
       deref_head(d0, func2s_unk_vc);
@@ -2999,51 +2537,46 @@
       BEGD(d1);
       d1 = PREG->y_u.xxn.c;
       if (!IsAtomicTerm(d0)) {
-        saveregs();
-        Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
-        setregs();
+        Yap_AsmError(TYPE_ERROR_ATOM);
         FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
       if (d0 == TermDot && d1 == 2) {
         RESET_VARIABLE(HR);
-        RESET_VARIABLE(HR+1);
+        RESET_VARIABLE(HR + 1);
         d0 = AbsPair(HR);
         HR += 2;
         /* else if arity is 0 just pass d0 through */
         /* Ding, ding, we made it */
         XREG(PREG->y_u.xxn.x) = d0;
-        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),Osbpp),l);
+        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn), Osbpp), l);
         GONext();
       }
       /* now let's build a compound term */
       if (d1 == 0) {
         XREG(PREG->y_u.xxn.x) = d0;
-        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),Osbpp),l);
+        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn), Osbpp), l);
         GONext();
       }
       if (!IsAtomTerm(d0)) {
-        saveregs();
-        Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
-        setregs();
+        Yap_AsmError(TYPE_ERROR_ATOM);
         FAIL();
       }
       BEGP(pt1);
       if (!IsAtomTerm(d0)) {
         FAIL();
-      }
-      else
-        d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
+      } else
+        d0 = (CELL)Yap_MkFunctor(AtomOfTerm(d0), (Int)d1);
       pt1 = HR;
       *pt1++ = d0;
       d0 = AbsAppl(HR);
-      if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
+      if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
         /* make sure we have something to show for our trouble */
         saveregs();
-        if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,xxn),Osbpp))) {
-          Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
-          setregs();
+        if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG, xxn), Osbpp))) {
+            setregs();
+          Yap_AsmError(RESOURCE_ERROR_STACK);
           JMPNext();
         } else {
           setregs();
@@ -3061,14 +2594,12 @@
       /* else if arity is 0 just pass d0 through */
       /* Ding, ding, we made it */
       XREG(PREG->y_u.xxn.x) = d0;
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),Osbpp),l);
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn), Osbpp), l);
       GONext();
 
       BEGP(pt1);
       deref_body(d0, pt1, func2s_unk_vc, func2s_nvar_vc);
-      saveregs();
-      Yap_Error(INSTANTIATION_ERROR, d0, "functor/3");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -3076,17 +2607,19 @@
       ENDOp();
 
       Op(p_func2s_y_vv, yxx);
-      /* A1 is a variable */
+    /* A1 is a variable */
     restart_func2s_y:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
         RESET_VARIABLE(HR);
         HR[1] = XREG(PREG->y_u.yxx.x1);
         HR[2] = XREG(PREG->y_u.yxx.x2);
-        low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
+        low_level_trace(enter_pred,
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
+                        HR);
       }
-#endif  /* LOW_LEVEL_TRACE */
-        /* We have to build the structure */
+#endif /* LOW_LEVEL_TRACE */
+      /* We have to build the structure */
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxx.x1);
       deref_head(d0, func2s_y_unk);
@@ -3102,55 +2635,52 @@
       else {
         saveregs();
         if (IsBigIntTerm(d1)) {
-          Yap_Error(RESOURCE_ERROR_STACK, d1, "functor/3");
+            setregs();
+          Yap_AsmError(RESOURCE_ERROR_STACK);
         } else {
-          Yap_Error(TYPE_ERROR_INTEGER,d1,"functor/3");
+            setregs();
+          Yap_AsmError(TYPE_ERROR_INTEGER);
         }
-        setregs();
         FAIL();
       }
       if (!IsAtomicTerm(d0)) {
-        saveregs();
-        Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
-        setregs();
+        Yap_AsmError(TYPE_ERROR_ATOM);
         FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
       if (d0 == TermDot && d1 == 2) {
         RESET_VARIABLE(HR);
-        RESET_VARIABLE(HR+1);
+        RESET_VARIABLE(HR + 1);
         d0 = AbsPair(HR);
         HR += 2;
         BEGP(pt1);
         pt1 = YREG + PREG->y_u.yxx.y;
-        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),Osbpp),l);
-        INITIALIZE_PERMVAR(pt1,d0);
+        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx), Osbpp), l);
+        INITIALIZE_PERMVAR(pt1, d0);
         ENDP(pt1);
         GONext();
       } else if ((Int)d1 > 0) {
         /* now let's build a compound term */
         if (!IsAtomTerm(d0)) {
-          saveregs();
-          Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
-          setregs();
+          Yap_AsmError(TYPE_ERROR_ATOM);
           FAIL();
         }
         BEGP(pt1);
         if (!IsAtomTerm(d0)) {
           FAIL();
-        }
-        else
-          d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
+        } else
+          d0 = (CELL)Yap_MkFunctor(AtomOfTerm(d0), (Int)d1);
         pt1 = HR;
         *pt1++ = d0;
         d0 = AbsAppl(HR);
-        if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
+        if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
           /* make sure we have something to show for our trouble */
           saveregs();
-          if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxx),Osbpp))) {
-            Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
+          if (!Yap_gcl((1 + d1) * sizeof(CELL), 0, YREG,
+                       NEXTOP(NEXTOP(PREG, yxx), Osbpp))) {
             setregs();
+            Yap_AsmError(RESOURCE_ERROR_STACK);
             JMPNext();
           } else {
             setregs();
@@ -3168,29 +2698,24 @@
         /* Ding, ding, we made it */
         BEGP(pt1);
         pt1 = YREG + PREG->y_u.yxx.y;
-        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),Osbpp),l);
-        INITIALIZE_PERMVAR(pt1,d0);
+        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx), Osbpp), l);
+        INITIALIZE_PERMVAR(pt1, d0);
         ENDP(pt1);
         GONext();
-      }     else if (d1  == 0) {
+      } else if (d1 == 0) {
         BEGP(pt1);
         pt1 = YREG + PREG->y_u.yxx.y;
-        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),Osbpp),l);
-        INITIALIZE_PERMVAR(pt1,d0);
+        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx), Osbpp), l);
+        INITIALIZE_PERMVAR(pt1, d0);
         ENDP(pt1);
         GONext();
-      }     else {
-        saveregs();
-        Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
-        setregs();
-        FAIL();
+      } else {
+        Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO);
       }
 
       BEGP(pt1);
       deref_body(d1, pt1, func2s_y_unk2, func2s_y_nvar2);
-      saveregs();
-      Yap_Error(INSTANTIATION_ERROR, d1, "functor/3");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       ENDP(pt1);
       /* Oops, third argument was unbound */
       FAIL();
@@ -3198,9 +2723,7 @@
 
       BEGP(pt1);
       deref_body(d0, pt1, func2s_y_unk, func2s_y_nvar);
-      saveregs();
-      Yap_Error(INSTANTIATION_ERROR, d0, "functor/3");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -3208,17 +2731,19 @@
       ENDOp();
 
       Op(p_func2s_y_cv, yxc);
-      /* A1 is a variable */
+    /* A1 is a variable */
     restart_func2s_y_cv:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
         RESET_VARIABLE(HR);
         HR[1] = PREG->y_u.yxc.c;
         HR[2] = XREG(PREG->y_u.yxc.xi);
-        low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
+        low_level_trace(enter_pred,
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
+                        HR);
       }
-#endif  /* LOW_LEVEL_TRACE */
-        /* We have to build the structure */
+#endif /* LOW_LEVEL_TRACE */
+      /* We have to build the structure */
       BEGD(d0);
       d0 = PREG->y_u.yxc.c;
       /* we do, let's get the third argument */
@@ -3230,54 +2755,49 @@
       if (IsIntegerTerm(d1)) {
         d1 = IntegerOfTerm(d1);
       } else {
-        saveregs();
         if (IsBigIntTerm(d1)) {
-          Yap_Error(RESOURCE_ERROR_STACK, d1, "functor/3");
+          Yap_AsmError(RESOURCE_ERROR_STACK);
         } else {
-          Yap_Error(TYPE_ERROR_INTEGER,d1,"functor/3");
+          Yap_AsmError(TYPE_ERROR_INTEGER);
         }
-        setregs();
         FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
       if (d0 == TermDot && d1 == 2) {
         RESET_VARIABLE(HR);
-        RESET_VARIABLE(HR+1);
+        RESET_VARIABLE(HR + 1);
         d0 = AbsPair(HR);
         HR += 2;
         /* else if arity is 0 just pass d0 through */
         /* Ding, ding, we made it */
         BEGP(pt1);
         pt1 = YREG + PREG->y_u.yxc.y;
-        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),Osbpp),l);
-        INITIALIZE_PERMVAR(pt1,d0);
+        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc), Osbpp), l);
+        INITIALIZE_PERMVAR(pt1, d0);
         ENDP(pt1);
         GONext();
-      }
-      else if ((Int)d1 > 0) {
+      } else if ((Int)d1 > 0) {
         /* now let's build a compound term */
         if (!IsAtomTerm(d0)) {
-          saveregs();
-          Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
-          setregs();
+          Yap_AsmError(TYPE_ERROR_ATOM);
           FAIL();
         }
         if (!IsAtomTerm(d0)) {
           FAIL();
-        }
-        else
-          d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
+        } else
+          d0 = (CELL)Yap_MkFunctor(AtomOfTerm(d0), (Int)d1);
         BEGP(pt1);
         pt1 = HR;
         *pt1++ = d0;
         d0 = AbsAppl(HR);
-        if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
+        if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
           /* make sure we have something to show for our trouble */
           saveregs();
-          if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxc),Osbpp))) {
-            Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
+          if (!Yap_gcl((1 + d1) * sizeof(CELL), 0, YREG,
+                       NEXTOP(NEXTOP(PREG, yxc), Osbpp))) {
             setregs();
+            Yap_AsmError(RESOURCE_ERROR_STACK);
             JMPNext();
           } else {
             setregs();
@@ -3295,29 +2815,24 @@
         /* Ding, ding, we made it */
         BEGP(pt1);
         pt1 = YREG + PREG->y_u.yxc.y;
-        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),Osbpp),l);
-        INITIALIZE_PERMVAR(pt1,d0);
+        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc), Osbpp), l);
+        INITIALIZE_PERMVAR(pt1, d0);
         ENDP(pt1);
         GONext();
-      }     else if (d1  == 0) {
+      } else if (d1 == 0) {
         BEGP(pt1);
         pt1 = YREG + PREG->y_u.yxc.y;
-        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),Osbpp),l);
-        INITIALIZE_PERMVAR(pt1,d0);
+        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc), Osbpp), l);
+        INITIALIZE_PERMVAR(pt1, d0);
         ENDP(pt1);
         GONext();
-      }     else {
-        saveregs();
-        Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
-        setregs();
-        FAIL();
+      } else {
+        Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO);
       }
 
       BEGP(pt1);
       deref_body(d1, pt1, func2s_y_unk_cv, func2s_y_nvar_cv);
-      saveregs();
-      Yap_Error(INSTANTIATION_ERROR, d1, "functor/3");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       ENDP(pt1);
       /* Oops, third argument was unbound */
       FAIL();
@@ -3326,7 +2841,7 @@
       ENDOp();
 
       Op(p_func2s_y_vc, yxn);
-      /* A1 is a variable */
+    /* A1 is a variable */
     restart_func2s_y_vc:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
@@ -3337,11 +2852,13 @@
         RESET_VARIABLE(HR);
         HR[1] = XREG(PREG->y_u.yxn.xi);
         HR[2] = ti;
-        low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
+        low_level_trace(enter_pred,
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
+                        HR);
         HR = hi;
       }
-#endif  /* LOW_LEVEL_TRACE */
-        /* We have to build the structure */
+#endif /* LOW_LEVEL_TRACE */
+      /* We have to build the structure */
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxn.xi);
       deref_head(d0, func2s_y_unk_vc);
@@ -3349,63 +2866,57 @@
       BEGD(d1);
       d1 = PREG->y_u.yxn.c;
       if (!IsAtomicTerm(d0)) {
-        saveregs();
-        Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
-        setregs();
+        Yap_AsmError(TYPE_ERROR_ATOM);
         FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
       if (d0 == TermDot && d1 == 2) {
         RESET_VARIABLE(HR);
-        RESET_VARIABLE(HR+1);
+        RESET_VARIABLE(HR + 1);
         d0 = AbsPair(HR);
         HR += 2;
         /* else if arity is 0 just pass d0 through */
         /* Ding, ding, we made it */
         BEGP(pt1);
         pt1 = YREG + PREG->y_u.yxn.y;
-        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),Osbpp),l);
-        INITIALIZE_PERMVAR(pt1,d0);
+        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn), Osbpp), l);
+        INITIALIZE_PERMVAR(pt1, d0);
         ENDP(pt1);
         GONext();
       }
       if (d1 == 0) {
         BEGP(pt1);
         pt1 = YREG + PREG->y_u.yxn.y;
-        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),Osbpp),l);
-        INITIALIZE_PERMVAR(pt1,d0);
+        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn), Osbpp), l);
+        INITIALIZE_PERMVAR(pt1, d0);
         ENDP(pt1);
         GONext();
       }
       if (!IsAtomTerm(d0)) {
-        saveregs();
-        Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
-        setregs();
+        Yap_AsmError(TYPE_ERROR_ATOM);
         FAIL();
       }
       /* now let's build a compound term */
       if (!IsAtomTerm(d0)) {
-        saveregs();
-        Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
-        setregs();
+        Yap_AsmError(TYPE_ERROR_ATOM);
         FAIL();
       }
       BEGP(pt1);
       if (!IsAtomTerm(d0)) {
         FAIL();
-      }
-      else
-        d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
+      } else
+        d0 = (CELL)Yap_MkFunctor(AtomOfTerm(d0), (Int)d1);
       pt1 = HR;
       *pt1++ = d0;
       d0 = AbsAppl(HR);
-      if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
+      if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
         /* make sure we have something to show for our trouble */
         saveregs();
-        if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxn),Osbpp))) {
-          Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
-          setregs();
+        if (!Yap_gcl((1 + d1) * sizeof(CELL), 0, YREG,
+                     NEXTOP(NEXTOP(PREG, yxn), Osbpp))) {
+                         setregs();
+          Yap_AsmError(RESOURCE_ERROR_STACK);
           JMPNext();
         } else {
           setregs();
@@ -3423,17 +2934,15 @@
       /* Ding, ding, we made it */
       BEGP(pt1);
       pt1 = YREG + PREG->y_u.yxn.y;
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),Osbpp),l);
-      INITIALIZE_PERMVAR(pt1,d0);
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn), Osbpp), l);
+      INITIALIZE_PERMVAR(pt1, d0);
       ENDP(pt1);
       ENDD(d1);
       GONext();
 
       BEGP(pt1);
       deref_body(d0, pt1, func2s_y_unk_vc, func2s_y_nvar_vc);
-      saveregs();
-      Yap_Error(INSTANTIATION_ERROR, d0, "functor/3");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -3444,11 +2953,13 @@
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
         HR[0] = XREG(PREG->y_u.xxx.x);
-        RESET_VARIABLE(HR+1);
-        RESET_VARIABLE(HR+2);
-        low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
+        RESET_VARIABLE(HR + 1);
+        RESET_VARIABLE(HR + 2);
+        low_level_trace(enter_pred,
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
+                        HR);
       }
-#endif  /* LOW_LEVEL_TRACE */
+#endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxx.x);
       deref_head(d0, func2f_xx_unk);
@@ -3479,9 +2990,7 @@
 
       BEGP(pt1);
       deref_body(d0, pt1, func2f_xx_unk, func2f_xx_nvar);
-      saveregs();
-      Yap_Error(INSTANTIATION_ERROR, d0, "functor/3");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -3492,18 +3001,20 @@
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
         HR[0] = XREG(PREG->y_u.xxy.x);
-        RESET_VARIABLE(HR+1);
-        RESET_VARIABLE(HR+2);
-        low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
+        RESET_VARIABLE(HR + 1);
+        RESET_VARIABLE(HR + 2);
+        low_level_trace(enter_pred,
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
+                        HR);
       }
-#endif  /* LOW_LEVEL_TRACE */
+#endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxy.x);
       deref_head(d0, func2f_xy_unk);
     func2f_xy_nvar:
       if (IsApplTerm(d0)) {
         Functor d1 = FunctorOfTerm(d0);
-        CELL *pt0 = YREG+PREG->y_u.xxy.y2;
+        CELL *pt0 = YREG + PREG->y_u.xxy.y2;
         if (IsExtensionFunctor(d1)) {
           XREG(PREG->y_u.xxy.x1) = d0;
           PREG = NEXTOP(PREG, xxy);
@@ -3515,13 +3026,13 @@
         INITIALIZE_PERMVAR(pt0, MkIntegerTerm(ArityOfFunctor(d1)));
         GONext();
       } else if (IsPairTerm(d0)) {
-        CELL *pt0 = YREG+PREG->y_u.xxy.y2;
+        CELL *pt0 = YREG + PREG->y_u.xxy.y2;
         XREG(PREG->y_u.xxy.x1) = TermDot;
         PREG = NEXTOP(PREG, xxy);
         INITIALIZE_PERMVAR(pt0, MkIntTerm(2));
         GONext();
       } else {
-        CELL *pt0 = YREG+PREG->y_u.xxy.y2;
+        CELL *pt0 = YREG + PREG->y_u.xxy.y2;
         XREG(PREG->y_u.xxy.x1) = d0;
         PREG = NEXTOP(PREG, xxy);
         INITIALIZE_PERMVAR(pt0, MkIntTerm(0));
@@ -3530,9 +3041,7 @@
 
       BEGP(pt1);
       deref_body(d0, pt1, func2f_xy_unk, func2f_xy_nvar);
-      saveregs();
-      Yap_Error(INSTANTIATION_ERROR, d0, "functor/3");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -3543,18 +3052,20 @@
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
         HR[0] = XREG(PREG->y_u.yxx.x2);
-        RESET_VARIABLE(HR+1);
-        RESET_VARIABLE(HR+2);
-        low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
+        RESET_VARIABLE(HR + 1);
+        RESET_VARIABLE(HR + 2);
+        low_level_trace(enter_pred,
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
+                        HR);
       }
-#endif  /* LOW_LEVEL_TRACE */
+#endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxx.x2);
       deref_head(d0, func2f_yx_unk);
     func2f_yx_nvar:
       if (IsApplTerm(d0)) {
         Functor d1 = FunctorOfTerm(d0);
-        CELL *pt0 = YREG+PREG->y_u.yxx.y;
+        CELL *pt0 = YREG + PREG->y_u.yxx.y;
         if (IsExtensionFunctor(d1)) {
           XREG(PREG->y_u.yxx.x1) = MkIntTerm(0);
           PREG = NEXTOP(PREG, yxx);
@@ -3563,16 +3074,16 @@
         }
         XREG(PREG->y_u.yxx.x1) = MkIntegerTerm(ArityOfFunctor(d1));
         PREG = NEXTOP(PREG, yxx);
-        INITIALIZE_PERMVAR(pt0,  MkAtomTerm(NameOfFunctor(d1)));
+        INITIALIZE_PERMVAR(pt0, MkAtomTerm(NameOfFunctor(d1)));
         GONext();
       } else if (IsPairTerm(d0)) {
-        CELL *pt0 = YREG+PREG->y_u.yxx.y;
+        CELL *pt0 = YREG + PREG->y_u.yxx.y;
         XREG(PREG->y_u.yxx.x1) = MkIntTerm(2);
         PREG = NEXTOP(PREG, yxx);
-        INITIALIZE_PERMVAR(pt0 ,TermDot);
+        INITIALIZE_PERMVAR(pt0, TermDot);
         GONext();
       } else {
-        CELL *pt0 = YREG+PREG->y_u.yxx.y;
+        CELL *pt0 = YREG + PREG->y_u.yxx.y;
         XREG(PREG->y_u.yxx.x1) = MkIntTerm(0);
         PREG = NEXTOP(PREG, yxx);
         INITIALIZE_PERMVAR(pt0, d0);
@@ -3581,9 +3092,7 @@
 
       BEGP(pt1);
       deref_body(d0, pt1, func2f_yx_unk, func2f_yx_nvar);
-      saveregs();
-      Yap_Error(INSTANTIATION_ERROR, d0, "functor/3");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -3594,22 +3103,24 @@
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
         HR[0] = XREG(PREG->y_u.yyx.x);
-        RESET_VARIABLE(HR+1);
-        RESET_VARIABLE(HR+2);
-        low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
+        RESET_VARIABLE(HR + 1);
+        RESET_VARIABLE(HR + 2);
+        low_level_trace(enter_pred,
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
+                        HR);
       }
-#endif  /* LOW_LEVEL_TRACE */
+#endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
       d0 = XREG(PREG->y_u.yyx.x);
       deref_head(d0, func2f_yy_unk);
     func2f_yy_nvar:
       if (IsApplTerm(d0)) {
         Functor d1 = FunctorOfTerm(d0);
-        CELL *pt0 = YREG+PREG->y_u.yyx.y1;
-        CELL *pt1 = YREG+PREG->y_u.yyx.y2;
+        CELL *pt0 = YREG + PREG->y_u.yyx.y1;
+        CELL *pt1 = YREG + PREG->y_u.yyx.y2;
         if (IsExtensionFunctor(d1)) {
           PREG = NEXTOP(PREG, yyx);
-          INITIALIZE_PERMVAR(pt0,  d0);
+          INITIALIZE_PERMVAR(pt0, d0);
           INITIALIZE_PERMVAR(pt1, MkIntTerm(0));
           GONext();
         }
@@ -3618,15 +3129,15 @@
         INITIALIZE_PERMVAR(pt1, MkIntegerTerm(ArityOfFunctor(d1)));
         GONext();
       } else if (IsPairTerm(d0)) {
-        CELL *pt0 = YREG+PREG->y_u.yyx.y1;
-        CELL *pt1 = YREG+PREG->y_u.yyx.y2;
+        CELL *pt0 = YREG + PREG->y_u.yyx.y1;
+        CELL *pt1 = YREG + PREG->y_u.yyx.y2;
         PREG = NEXTOP(PREG, yyx);
         INITIALIZE_PERMVAR(pt0, TermDot);
         INITIALIZE_PERMVAR(pt1, MkIntTerm(2));
         GONext();
       } else {
-        CELL *pt0 = YREG+PREG->y_u.yyx.y1;
-        CELL *pt1 = YREG+PREG->y_u.yyx.y2;
+        CELL *pt0 = YREG + PREG->y_u.yyx.y1;
+        CELL *pt1 = YREG + PREG->y_u.yyx.y2;
         PREG = NEXTOP(PREG, yyx);
         INITIALIZE_PERMVAR(pt0, d0);
         INITIALIZE_PERMVAR(pt1, MkIntTerm(0));
@@ -3635,9 +3146,7 @@
 
       BEGP(pt1);
       deref_body(d0, pt1, func2f_yy_unk, func2f_yy_nvar);
-      saveregs();
-      Yap_Error(INSTANTIATION_ERROR, d0, "functor/3");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -3647,8 +3156,10 @@
       Op(p_functor, e);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
-        low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),XREGS+1);
-#endif  /* LOW_LEVEL_TRACE */
+        low_level_trace(enter_pred,
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
+                        XREGS + 1);
+#endif /* LOW_LEVEL_TRACE */
     restart_functor:
       BEGD(d0);
       d0 = ARG1;
@@ -3658,21 +3169,19 @@
       BEGD(d1);
       if (IsApplTerm(d0)) {
         d1 = *RepAppl(d0);
-        if (IsExtensionFunctor((Functor) d1)) {
-          if (d1 <= (CELL)FunctorDouble && d1 >= (CELL)FunctorLongInt ) {
+        if (IsExtensionFunctor((Functor)d1)) {
+          if (d1 <= (CELL)FunctorDouble && d1 >= (CELL)FunctorLongInt) {
             d1 = MkIntTerm(0);
           } else
             FAIL();
         } else {
-          d0 = MkAtomTerm(NameOfFunctor((Functor) d1));
-          d1 = MkIntTerm(ArityOfFunctor((Functor) d1));
+          d0 = MkAtomTerm(NameOfFunctor((Functor)d1));
+          d1 = MkIntTerm(ArityOfFunctor((Functor)d1));
         }
-      }
-      else if (IsPairTerm(d0)) {
+      } else if (IsPairTerm(d0)) {
         d0 = TermDot;
         d1 = MkIntTerm(2);
-      }
-      else {
+      } else {
         d1 = MkIntTerm(0);
       }
       /* d1 and d0 now have the two arguments */
@@ -3687,7 +3196,8 @@
         if (d0 != d1) {
           FAIL();
         }
-        /* I have to this here so that I don't have a jump to a closing bracket */
+        /* I have to this here so that I don't have a jump to a closing bracket
+         */
         d0 = arity;
         goto func_bind_x3;
 
@@ -3695,7 +3205,8 @@
         deref_body(d1, pt0, func_nvar_unk, func_nvar_nvar);
         /* A2 is a variable, go and bind it */
         YapBind(pt0, d0);
-        /* I have to this here so that I don't have a jump to a closing bracket */
+        /* I have to this here so that I don't have a jump to a closing bracket
+         */
         d0 = arity;
         ENDP(pt0);
       func_bind_x3:
@@ -3708,20 +3219,18 @@
           FAIL();
         }
         /* Done */
-        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),Osbmp),l);
+        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e), Osbmp), l);
         GONext();
 
         BEGP(pt0);
         deref_body(d1, pt0, func_nvar3_unk, func_nvar3_nvar);
         /* A3 is a variable, go and bind it */
-        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),Osbmp),l);
+        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e), Osbmp), l);
         YapBind(pt0, d0);
         /* Done */
         GONext();
 
-
         ENDP(pt0);
-
       }
       ENDD(d1);
 
@@ -3741,78 +3250,65 @@
       if (IsIntTerm(d1))
         d1 = IntOfTerm(d1);
       else {
-        saveregs();
-        Yap_Error(TYPE_ERROR_INTEGER,ARG3,"functor/3");
-        setregs();
+        Yap_AsmError(TYPE_ERROR_INTEGER);
         FAIL();
       }
       if (!IsAtomicTerm(d0)) {
-        saveregs();
-        Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
-        setregs();
+        Yap_AsmError(TYPE_ERROR_ATOM);
         FAIL();
-      }      /* We made it!!!!! we got in d0 the name, in d1 the arity and
-              * in pt0 the variable to bind it to. */
+      } /* We made it!!!!! we got in d0 the name, in d1 the arity and
+         * in pt0 the variable to bind it to. */
       if (d0 == TermDot && d1 == 2) {
         RESET_VARIABLE(HR);
-        RESET_VARIABLE(HR+1);
+        RESET_VARIABLE(HR + 1);
         d0 = AbsPair(HR);
         HR += 2;
-      }
-      else if ((Int)d1 > 0) {
+      } else if ((Int)d1 > 0) {
         /* now let's build a compound term */
-	if (!IsAtomTerm(d0)) {
-	  saveregs();
-	  Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
-	  setregs();
-	  FAIL();
-	}
-	BEGP(pt1);
-	if (!IsAtomTerm(d0)) {
-	  FAIL();
-	}
-	else
-	  d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
-	pt1 = HR;
-	*pt1++ = d0;
-	d0 = AbsAppl(HR);
-	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
-	  /* make sure we have something to show for our trouble */
-	  saveregs();
-	  if (!Yap_gcl((1+d1)*sizeof(CELL), 3, YREG, NEXTOP(NEXTOP(PREG,e),Osbmp))) {
-	    Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
-	    setregs();
-	    JMPNext();
-	  } else {
-	    setregs();
-	  }
-	  goto restart_functor;     /*  */
-	}
-	while ((Int)d1--) {
-	  RESET_VARIABLE(pt1);
-	  pt1++;
-	}
-	/* done building the term */
-	HR = pt1;
-	ENDP(pt1);
-      }     else if ((Int)d1  < 0) {
-	saveregs();
-	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
-	setregs();
-	FAIL();
+        if (!IsAtomTerm(d0)) {
+          Yap_AsmError(TYPE_ERROR_ATOM);
+          FAIL();
+        }
+        BEGP(pt1);
+        if (!IsAtomTerm(d0)) {
+          FAIL();
+        } else
+          d0 = (CELL)Yap_MkFunctor(AtomOfTerm(d0), (Int)d1);
+        pt1 = HR;
+        *pt1++ = d0;
+        d0 = AbsAppl(HR);
+        if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
+          /* make sure we have something to show for our trouble */
+          saveregs();
+          if (!Yap_gcl((1 + d1) * sizeof(CELL), 3, YREG,
+                       NEXTOP(NEXTOP(PREG, e), Osbmp))) {
+                           setregs();
+            Yap_AsmError(RESOURCE_ERROR_STACK);
+          } else {
+            setregs();
+          }
+          goto restart_functor; /*  */
+        }
+        while ((Int)d1--) {
+          RESET_VARIABLE(pt1);
+          pt1++;
+        }
+        /* done building the term */
+        HR = pt1;
+        ENDP(pt1);
+      } else if ((Int)d1 < 0) {
+        Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO);
+        FAIL();
       }
       /* else if arity is 0 just pass d0 through */
       /* Ding, ding, we made it */
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),Osbpp),l);
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e), Osbpp), l);
       YapBind(pt0, d0);
       GONext();
 
-
       BEGP(pt1);
       deref_body(d1, pt1, func_var_3unk, func_var_3nvar);
-      saveregs();
-      Yap_Error(INSTANTIATION_ERROR, d1, "functor/3");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       ENDP(pt1);
       /* Oops, third argument was unbound */
       FAIL();
@@ -3820,13 +3316,10 @@
 
       BEGP(pt1);
       deref_body(d0, pt1, func_var_2unk, func_var_2nvar);
-      saveregs();
-      Yap_Error(INSTANTIATION_ERROR, d0, "functor/3");
-      setregs();
+      Yap_AsmError(INSTANTIATION_ERROR);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
-

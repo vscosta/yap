@@ -15,23 +15,22 @@
 *									 *
 *************************************************************************/
 #ifdef SCCS
-static char     SccsId[] = "%W% %G%";
+static char SccsId[] = "%W% %G%";
 #endif
 
 //! @file eval.c
 
-//! @{   
+//! @{
 
 /**
    @defgroup arithmetic_preds Arithmetic Predicates
    @ingroup arithmetic
 
 */
-
-
 #include "Yap.h"
-#include "Yatom.h"
+
 #include "YapHeap.h"
+#include "Yatom.h"
 #include "eval.h"
 #if HAVE_STDARG_H
 #include <stdarg.h>
@@ -46,41 +45,39 @@ static char     SccsId[] = "%W% %G%";
 
 static Term Eval(Term t1 USES_REGS);
 
-static Term
-get_matrix_element(Term t1, Term t2 USES_REGS)
-{
+static Term get_matrix_element(Term t1, Term t2 USES_REGS) {
   if (!IsPairTerm(t2)) {
     if (t2 == MkAtomTerm(AtomLength)) {
       Int sz = 1;
       while (IsApplTerm(t1)) {
-	Functor f = FunctorOfTerm(t1);
-	if (NameOfFunctor(f) != AtomNil) {
-	  return MkIntegerTerm(sz);
-	}
-	sz *= ArityOfFunctor(f);
-	t1 = ArgOfTerm(1, t1);
+        Functor f = FunctorOfTerm(t1);
+        if (NameOfFunctor(f) != AtomNil) {
+          return MkIntegerTerm(sz);
+        }
+        sz *= ArityOfFunctor(f);
+        t1 = ArgOfTerm(1, t1);
       }
       return MkIntegerTerm(sz);
     }
     Yap_ArithError(TYPE_ERROR_EVALUABLE, t2, "X is Y^[A]");
-    return FALSE;      
+    return FALSE;
   }
   while (IsPairTerm(t2)) {
     Int indx;
     Term indxt = Eval(HeadOfTerm(t2) PASS_REGS);
     if (!IsIntegerTerm(indxt)) {
       Yap_ArithError(TYPE_ERROR_EVALUABLE, t2, "X is Y^[A]");
-      return FALSE;      
+      return FALSE;
     }
     indx = IntegerOfTerm(indxt);
     if (!IsApplTerm(t1)) {
       Yap_ArithError(TYPE_ERROR_EVALUABLE, t1, "X is Y^[A]");
-      return FALSE;      
+      return FALSE;
     } else {
       Functor f = FunctorOfTerm(t1);
       if (ArityOfFunctor(f) < indx) {
-	Yap_ArithError(TYPE_ERROR_EVALUABLE, t1, "X is Y^[A]");
-	return FALSE;      
+        Yap_ArithError(TYPE_ERROR_EVALUABLE, t1, "X is Y^[A]");
+        return FALSE;
       }
     }
     t1 = ArgOfTerm(indx, t1);
@@ -93,95 +90,90 @@ get_matrix_element(Term t1, Term t2 USES_REGS)
   return Eval(t1 PASS_REGS);
 }
 
-static Term
-Eval(Term t USES_REGS)
-{
+static Term Eval(Term t USES_REGS) {
 
   if (IsVarTerm(t)) {
-    return Yap_ArithError(INSTANTIATION_ERROR,t,"in arithmetic");
+    return Yap_ArithError(INSTANTIATION_ERROR, t, "in arithmetic");
   } else if (IsNumTerm(t)) {
     return t;
   } else if (IsAtomTerm(t)) {
     ExpEntry *p;
-    Atom name  = AtomOfTerm(t);
+    Atom name = AtomOfTerm(t);
 
     if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, 0)))) {
       return Yap_ArithError(TYPE_ERROR_EVALUABLE, takeIndicator(t),
-			    "atom %s in arithmetic expression",
-			    RepAtom(name)->StrOfAE);
+                            "atom %s in arithmetic expression",
+                            RepAtom(name)->StrOfAE);
     }
     return Yap_eval_atom(p->FOfEE);
   } else if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);
     if (fun == FunctorString) {
-      const char *s = (const  char*)StringOfTerm(t);
+      const char *s = (const char *)StringOfTerm(t);
       if (s[1] == '\0')
-	return MkIntegerTerm(s[0]);
+        return MkIntegerTerm(s[0]);
       return Yap_ArithError(TYPE_ERROR_EVALUABLE, t,
-			    "string in arithmetic expression");
+                            "string in arithmetic expression");
     } else if ((Atom)fun == AtomFoundVar) {
       return Yap_ArithError(TYPE_ERROR_EVALUABLE, TermNil,
-			    "cyclic term in arithmetic expression");
+                            "cyclic term in arithmetic expression");
     } else {
       Int n = ArityOfFunctor(fun);
-      Atom name  = NameOfFunctor(fun);
+      Atom name = NameOfFunctor(fun);
       ExpEntry *p;
       Term t1, t2;
-      
+
       if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, n)))) {
-		  return Yap_ArithError(TYPE_ERROR_EVALUABLE, takeIndicator(t),
-			      "functor %s/%d for arithmetic expression",
-			      RepAtom(name)->StrOfAE,n);
+        return Yap_ArithError(TYPE_ERROR_EVALUABLE, takeIndicator(t),
+                              "functor %s/%d for arithmetic expression",
+                              RepAtom(name)->StrOfAE, n);
       }
       if (p->FOfEE == op_power && p->ArityOfEE == 2) {
-	t2 = ArgOfTerm(2, t);
-	if (IsPairTerm(t2)) {
-	  return get_matrix_element(ArgOfTerm(1, t), t2 PASS_REGS);
-	}
+        t2 = ArgOfTerm(2, t);
+        if (IsPairTerm(t2)) {
+          return get_matrix_element(ArgOfTerm(1, t), t2 PASS_REGS);
+        }
       }
       *RepAppl(t) = (CELL)AtomFoundVar;
-      t1 = Eval(ArgOfTerm(1,t) PASS_REGS);
+      t1 = Eval(ArgOfTerm(1, t) PASS_REGS);
       if (t1 == 0L) {
-	*RepAppl(t) = (CELL)fun;
-	return FALSE;
+        *RepAppl(t) = (CELL)fun;
+        return FALSE;
       }
       if (n == 1) {
-	*RepAppl(t) = (CELL)fun;
-	return Yap_eval_unary(p->FOfEE, t1);
+        *RepAppl(t) = (CELL)fun;
+        return Yap_eval_unary(p->FOfEE, t1);
       }
-      t2 = Eval(ArgOfTerm(2,t) PASS_REGS);
+      t2 = Eval(ArgOfTerm(2, t) PASS_REGS);
       *RepAppl(t) = (CELL)fun;
       if (t2 == 0L)
-	return FALSE;
-      return Yap_eval_binary(p->FOfEE,t1,t2);
+        return FALSE;
+      return Yap_eval_binary(p->FOfEE, t1, t2);
     }
-  } /* else if (IsPairTerm(t)) */ {
+  } /* else if (IsPairTerm(t)) */
+  {
     if (TailOfTerm(t) != TermNil) {
       return Yap_ArithError(TYPE_ERROR_EVALUABLE, t,
-			    "string must contain a single character to be evaluated as an arithmetic expression");
+                            "string must contain a single character to be "
+                            "evaluated as an arithmetic expression");
     }
     return Eval(HeadOfTerm(t) PASS_REGS);
   }
 }
 
-Term
-Yap_InnerEval__(Term t USES_REGS)
-{
-  return Eval(t PASS_REGS);
-}
+Term Yap_InnerEval__(Term t USES_REGS) { return Eval(t PASS_REGS); }
 
 #ifdef BEAM
 Int BEAM_is(void);
 
-Int
-BEAM_is(void)
-{				/* X is Y	 */
+Int BEAM_is(void) { /* X is Y	 */
   union arith_ret res;
   blob_type bt;
 
   bt = Eval(Deref(XREGS[2]), &res);
-  if (bt==db_ref_e) return (NULL);
-  return (EvalToTerm(bt,&res));
+  if (bt == db_ref_e)
+    return (NULL);
+  return (EvalToTerm(bt, &res));
 }
 
 #endif
@@ -197,21 +189,20 @@ X is 2+3*4
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     succeeds with `X = 14`.
 
-    Consult @ref arithmetic_operators for the complete list of arithmetic_operators 
+    Consult @ref arithmetic_operators for the complete list of
+arithmetic_operators
 
 */
 
 /// @memberof is/2
-static Int
-p_is( USES_REGS1 )
-{				/* X is Y	 */
+static Int p_is(USES_REGS1) { /* X is Y	 */
   Term out;
   yap_error_number err;
 
   Term t = Deref(ARG2);
   if (IsVarTerm(t)) {
-    Yap_EvalError(INSTANTIATION_ERROR,t, "X is Y");
-    return(FALSE);
+    Yap_EvalError(INSTANTIATION_ERROR, t, "X is Y");
+    return (FALSE);
   }
   Yap_ClearExs();
   do {
@@ -221,15 +212,15 @@ p_is( USES_REGS1 )
     if (err == RESOURCE_ERROR_STACK) {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, CP)) {
-	Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
-	return FALSE;
+        Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
+        return FALSE;
       }
     } else {
-      Yap_EvalError(err, takeIndicator( ARG2 ), "X is Exp");
+      Yap_EvalError(err, takeIndicator(ARG2), "X is Exp");
       return FALSE;
     }
   } while (TRUE);
-  return Yap_unify_constant(ARG1,out);
+  return Yap_unify_constant(ARG1, out);
 }
 
 /**
@@ -239,20 +230,18 @@ p_is( USES_REGS1 )
 */
 
 /// @memberof isnan/1
-static Int
-p_isnan( USES_REGS1 )
-{				/* X isnan Y	 */
+static Int p_isnan(USES_REGS1) { /* X isnan Y	 */
   Term out = 0L;
-  
+
   while (!(out = Eval(Deref(ARG1) PASS_REGS))) {
     if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       if (!Yap_gcl(LOCAL_Error_Size, 1, ENV, CP)) {
-	Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
-	return FALSE;
+        Yap_EvalError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+        return FALSE;
       }
     } else {
-      Yap_EvalError(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+      Yap_EvalError(LOCAL_Error_TYPE, ARG1, LOCAL_ErrorMessage);
       return FALSE;
     }
   }
@@ -274,9 +263,7 @@ p_isnan( USES_REGS1 )
 */
 
 /// @memberof isnan/1
-static Int
-p_isinf( USES_REGS1 )
-{                               /* X is Y        */
+static Int p_isinf(USES_REGS1) { /* X is Y        */
   Term out = 0L;
 
   while (!(out = Eval(Deref(ARG1) PASS_REGS))) {
@@ -287,7 +274,7 @@ p_isinf( USES_REGS1 )
         return FALSE;
       }
     } else {
-      Yap_EvalError(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+      Yap_EvalError(LOCAL_Error_TYPE, ARG1, LOCAL_ErrorMessage);
       return FALSE;
     }
   }
@@ -312,14 +299,12 @@ True if  _Log1_ is the logarithm of the positive number  _A1_,
 */
 
 /// @memberof logsum/3
-static Int
-p_logsum( USES_REGS1 )
-{                               /* X is Y        */
+static Int p_logsum(USES_REGS1) { /* X is Y        */
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
   int done = FALSE;
   Float f1, f2;
-  
+
   while (!done) {
     if (IsFloatTerm(t1)) {
       f1 = FloatOfTerm(t1);
@@ -334,16 +319,16 @@ p_logsum( USES_REGS1 )
 #endif
     } else {
       while (!(t1 = Eval(t1 PASS_REGS))) {
-	if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
-	  LOCAL_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_gcl(LOCAL_Error_Size, 1, ENV, CP)) {
-	    Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
-	    return FALSE;
-	  }
-	} else {
-	  Yap_EvalError(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-	  return FALSE;
-	}
+        if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
+          LOCAL_Error_TYPE = YAP_NO_ERROR;
+          if (!Yap_gcl(LOCAL_Error_Size, 1, ENV, CP)) {
+            Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
+            return FALSE;
+          }
+        } else {
+          Yap_EvalError(LOCAL_Error_TYPE, ARG1, LOCAL_ErrorMessage);
+          return FALSE;
+        }
       }
     }
   }
@@ -362,88 +347,73 @@ p_logsum( USES_REGS1 )
 #endif
     } else {
       while (!(t2 = Eval(t2 PASS_REGS))) {
-	if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
-	  LOCAL_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, CP)) {
-	    Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
-	    return FALSE;
-	  }
-	} else {
-	  Yap_EvalError(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-	  return FALSE;
-	}
+        if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
+          LOCAL_Error_TYPE = YAP_NO_ERROR;
+          if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, CP)) {
+            Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
+            return FALSE;
+          }
+        } else {
+          Yap_EvalError(LOCAL_Error_TYPE, ARG1, LOCAL_ErrorMessage);
+          return FALSE;
+        }
       }
     }
   }
   if (f1 >= f2) {
-    Float fi = exp(f2-f1);
-    return Yap_unify(ARG3,MkFloatTerm(f1+log(1+fi)));
+    Float fi = exp(f2 - f1);
+    return Yap_unify(ARG3, MkFloatTerm(f1 + log(1 + fi)));
   } else {
-    Float fi = exp(f1-f2);
-    return Yap_unify(ARG3,MkFloatTerm(f2+log(1+fi)));
+    Float fi = exp(f1 - f2);
+    return Yap_unify(ARG3, MkFloatTerm(f2 + log(1 + fi)));
   }
 }
 
-
-Int
-Yap_ArithError__(const char *file, const char *function, int lineno, yap_error_number type, Term where,...)
-{
+Int Yap_ArithError__(const char *file, const char *function, int lineno,
+                     yap_error_number type, Term where, ...) {
   CACHE_REGS
   va_list ap;
   char *format;
-  
-  if (LOCAL_ArithError)
-    return 0L;
-  LOCAL_ArithError = TRUE;
+  char buf[MAX_ERROR_MSG_SIZE];
+
   LOCAL_Error_TYPE = type;
   LOCAL_Error_File = file;
   LOCAL_Error_Function = function;
   LOCAL_Error_Lineno = lineno;
-  LOCAL_Error_Term = where;
-  if (!LOCAL_ErrorMessage)
-    LOCAL_ErrorMessage = LOCAL_ErrorSay;
-  va_start (ap, where);
-  format = va_arg( ap, char *);
+  va_start(ap, where);
+  format = va_arg(ap, char *);
   if (format != NULL) {
-#if   HAVE_VSNPRINTF
-    (void) vsnprintf(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE, format, ap);
+#if HAVE_VSNPRINTF
+    (void)vsnprintf(buf, MAX_ERROR_MSG_SIZE, format, ap);
 #else
-    (void) vsprintf(LOCAL_ErrorMessage, format, ap);
+    (void)vsprintf(buf, format, ap);
 #endif
   } else {
-    LOCAL_ErrorMessage[0] = '\0';
+    buf[0] = '\0';
   }
-  va_end (ap);
+  va_end(ap);
   return 0L;
 }
 
-yamop *
-Yap_EvalError__(const char *file, const char *function, int lineno,yap_error_number type, Term where,...)
-{
+yamop *Yap_EvalError__(const char *file, const char *function, int lineno,
+                       yap_error_number type, Term where, ...) {
   CACHE_REGS
   va_list ap;
-   char *format;
+  char *format, buf[MAX_ERROR_MSG_SIZE];
 
-  if (LOCAL_ArithError) {
-      LOCAL_ArithError = YAP_NO_ERROR;
-    return Yap_Error__(file, function, lineno, LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-  }
-  
-  if (!LOCAL_ErrorMessage)
-    LOCAL_ErrorMessage = LOCAL_ErrorSay;
-  va_start (ap, where);
+  va_start(ap, where);
   format = va_arg(ap, char *);
   if (format != NULL) {
-#if   HAVE_VSNPRINTF
-    (void) vsnprintf(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE, format, ap);
+#if HAVE_VSNPRINTF
+    (void)vsnprintf(buf, MAX_ERROR_MSG_SIZE, format, ap);
 #else
-    (void) vsprintf(LOCAL_ErrorMessage, format, ap);
+    (void)vsprintf(buf, format, ap);
 #endif
   } else {
-    LOCAL_ErrorMessage[0] = '\0';
+    buf[0] = '\0';
   }
-  va_end (ap);
-  return Yap_Error__(file, function,  lineno, type, where, LOCAL_ErrorMessage);
+  va_end(ap);
+  return Yap_Error__(file, function, lineno, type, where, buf);
 }
 
 /**
@@ -461,11 +431,10 @@ Yap_EvalError__(const char *file, const char *function, int lineno,yap_error_num
 */
 
 /// @memberof between/3
-static Int cont_between( USES_REGS1 )
-{
-  Term t1 = EXTRA_CBACK_ARG(3,1);
-  Term t2 = EXTRA_CBACK_ARG(3,2);
-  
+static Int cont_between(USES_REGS1) {
+  Term t1 = EXTRA_CBACK_ARG(3, 1);
+  Term t2 = EXTRA_CBACK_ARG(3, 2);
+
   Yap_unify(ARG3, t1);
   if (IsIntegerTerm(t1)) {
     Int i1;
@@ -475,7 +444,7 @@ static Int cont_between( USES_REGS1 )
       cut_succeed();
     i1 = IntegerOfTerm(t1);
     tn = add_int(i1, 1 PASS_REGS);
-    EXTRA_CBACK_ARG(3,1) = tn;
+    EXTRA_CBACK_ARG(3, 1) = tn;
     HB = B->cp_h = HR;
     return TRUE;
   } else {
@@ -489,16 +458,14 @@ static Int cont_between( USES_REGS1 )
     t[0] = t1;
     t[1] = MkIntTerm(1);
     tn = Eval(Yap_MkApplTerm(FunctorPlus, 2, t) PASS_REGS);
-    EXTRA_CBACK_ARG(3,1) = tn;
+    EXTRA_CBACK_ARG(3, 1) = tn;
     HB = B->cp_h = HR;
     return TRUE;
   }
 }
 
 /// @memberof between/3
-static Int
-init_between( USES_REGS1 )
-{
+static Int init_between(USES_REGS1) {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
 
@@ -510,14 +477,11 @@ init_between( USES_REGS1 )
     Yap_EvalError(INSTANTIATION_ERROR, t1, "between/3");
     return FALSE;
   }
-  if (!IsIntegerTerm(t1) && 
-      !IsBigIntTerm(t1)) {
+  if (!IsIntegerTerm(t1) && !IsBigIntTerm(t1)) {
     Yap_EvalError(TYPE_ERROR_INTEGER, t1, "between/3");
     return FALSE;
   }
-  if (!IsIntegerTerm(t2) && 
-      !IsBigIntTerm(t2) &&
-      t2 != MkAtomTerm(AtomInf) &&
+  if (!IsIntegerTerm(t2) && !IsBigIntTerm(t2) && t2 != MkAtomTerm(AtomInf) &&
       t2 != MkAtomTerm(AtomInfinity)) {
     Yap_EvalError(TYPE_ERROR_INTEGER, t2, "between/3");
     return FALSE;
@@ -530,19 +494,20 @@ init_between( USES_REGS1 )
     t3 = Deref(ARG3);
     if (!IsVarTerm(t3)) {
       if (!IsIntegerTerm(t3)) {
-	if (!IsBigIntTerm(t3)) {
-	  Yap_EvalError(TYPE_ERROR_INTEGER, t3, "between/3");
-	  return FALSE;
-	}
-	cut_fail();
+        if (!IsBigIntTerm(t3)) {
+          Yap_EvalError(TYPE_ERROR_INTEGER, t3, "between/3");
+          return FALSE;
+        }
+        cut_fail();
       } else {
-	Int i3 = IntegerOfTerm(t3);
-	if (i3 >= i1 && i3 <= i2)
-	  cut_succeed();
-	cut_fail();
+        Int i3 = IntegerOfTerm(t3);
+        if (i3 >= i1 && i3 <= i2)
+          cut_succeed();
+        cut_fail();
       }
     }
-    if (i1 > i2) cut_fail();
+    if (i1 > i2)
+      cut_fail();
     if (i1 == i2) {
       Yap_unify(ARG3, t1);
       cut_succeed();
@@ -554,16 +519,16 @@ init_between( USES_REGS1 )
     t3 = Deref(ARG3);
     if (!IsVarTerm(t3)) {
       if (!IsIntegerTerm(t3)) {
-	if (!IsBigIntTerm(t3)) {
-	  Yap_EvalError(TYPE_ERROR_INTEGER, t3, "between/3");
-	  return FALSE;
-	}
-	cut_fail();
+        if (!IsBigIntTerm(t3)) {
+          Yap_EvalError(TYPE_ERROR_INTEGER, t3, "between/3");
+          return FALSE;
+        }
+        cut_fail();
       } else {
-	Int i3 = IntegerOfTerm(t3);
-	if (i3 >= i1)
-	  cut_succeed();
-	cut_fail();
+        Int i3 = IntegerOfTerm(t3);
+        if (i3 >= i1)
+          cut_succeed();
+        cut_fail();
       }
     }
   } else {
@@ -572,28 +537,28 @@ init_between( USES_REGS1 )
 
     if (!IsVarTerm(t3)) {
       if (!IsIntegerTerm(t3) && !IsBigIntTerm(t3)) {
-	Yap_EvalError(TYPE_ERROR_INTEGER, t3, "between/3");
-	return FALSE;
+        Yap_EvalError(TYPE_ERROR_INTEGER, t3, "between/3");
+        return FALSE;
       }
-      if (Yap_acmp(t3, t1 PASS_REGS) >= 0 && Yap_acmp(t2,t3 PASS_REGS) >= 0 && P != FAILCODE)
-	cut_succeed();
+      if (Yap_acmp(t3, t1 PASS_REGS) >= 0 && Yap_acmp(t2, t3 PASS_REGS) >= 0 &&
+          P != FAILCODE)
+        cut_succeed();
       cut_fail();
     }
     cmp = Yap_acmp(t1, t2 PASS_REGS);
-    if (cmp > 0) cut_fail();
+    if (cmp > 0)
+      cut_fail();
     if (cmp == 0) {
       Yap_unify(ARG3, t1);
       cut_succeed();
     }
   }
-  EXTRA_CBACK_ARG(3,1) = t1;
-  EXTRA_CBACK_ARG(3,2) = t2;
-  return cont_between( PASS_REGS1 );
+  EXTRA_CBACK_ARG(3, 1) = t1;
+  EXTRA_CBACK_ARG(3, 2) = t2;
+  return cont_between(PASS_REGS1);
 }
 
-void
-Yap_InitEval(void)
-{
+void Yap_InitEval(void) {
   /* here are the arithmetical predicates */
   Yap_InitConstExps();
   Yap_InitUnaryExps();

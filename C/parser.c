@@ -175,11 +175,10 @@ static void syntax_msg(const char *msg, ...) {
   va_list ap;
 
   if (LOCAL_toktide == LOCAL_tokptr) {
-    char out[YAP_FILENAME_MAX];
+    LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE+1);
     va_start(ap, msg);
-    vsnprintf(out, YAP_FILENAME_MAX - 1, msg, ap);
-    LOCAL_Error_Term = MkStringTerm( out );
-   LOCAL_Error_TYPE = SYNTAX_ERROR;
+    vsnprintf(LOCAL_ErrorMessage, YAP_FILENAME_MAX , msg, ap);
+    LOCAL_Error_TYPE = SYNTAX_ERROR;
     va_end(ap);
   }
 }

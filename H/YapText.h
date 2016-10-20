@@ -31,6 +31,48 @@
 #include "../utf8proc/utf8proc.h"
 #include "Yap.h"
 
+
+typedef struct TextBuffer_manager {
+  void *buf, *ptr;
+  size_t sz;
+  struct TextBuffer_manager *prev;
+} text_buffer_t;
+
+/**
+ * TextBuffer is allocated as a chain of blocks, They area
+ * recovered at the end if the translation.
+ */
+  inline void init_alloc(int line)  {
+  while (LOCAL_TextBuffer->prev ) {
+    struct TextBuffer_manager *old = LOCAL_TextBuffer;
+    LOCAL_TextBuffer = LOCAL_TextBuffer->prev;
+    free(old);
+  }
+  LOCAL_TextBuffer->sz = (YAP_FILENAME_MAX + 1);
+  LOCAL_TextBuffer->buf = LOCAL_TextBuffer->ptr = realloc(LOCAL_TextBuffer->ptr, YAP_FILENAME_MAX + 1 );
+}
+ 
+extern inline void mark_stack(void) {}
+
+extern inline void restore_stack(void ) {}                                                      \
+
+extern inline void unprotect_stack(void *ptr) {}                                                       \
+
+extern inline void *Malloc(size_t sz USES_REGS) {
+  sz = ALIGN_BY_TYPE(sz, CELL);
+  void *o = LOCAL_TextBuffer->ptr;
+  if ((char*)LOCAL_TextBuffer->ptr+sz>(char*)LOCAL_TextBuffer->buf + LOCAL_TextBuffer->sz) {
+      struct TextBuffer_manager *new = malloc(sizeof(struct TextBuffer_manager)+YAP_FILENAME_MAX + 1);
+      new->prev = LOCAL_TextBuffer;
+      new->buf = (struct TextBuffer_manager *)new+1;
+      new->ptr = new->buf + sz;
+      LOCAL_TextBuffer= new;
+      return new->buf; 
+  } 
+  LOCAL_TextBuffer->ptr += sz;
+ return o;
+}
+
 /* Character types for tokenizer and write.c */
 
 /****************** character definition table **************************/

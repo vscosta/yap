@@ -1074,40 +1074,40 @@ bool set_clause_info(yamop *codeptr, PredEntry *pp) {
   Term ts[2];
   void *begin;
   if (pp->ArityOfPE == 0) {
-    LOCAL_ActiveError.prologPredName = (Atom)pp->FunctorOfPred;
-    LOCAL_ActiveError.prologPredArity = 0;
+    LOCAL_ActiveError->prologPredName = (Atom)pp->FunctorOfPred;
+    LOCAL_ActiveError->prologPredArity = 0;
   } else {
-    LOCAL_ActiveError.prologPredName = NameOfFunctor(pp->FunctorOfPred);
-    LOCAL_ActiveError.prologPredArity = pp->ArityOfPE;
+    LOCAL_ActiveError->prologPredName = NameOfFunctor(pp->FunctorOfPred);
+    LOCAL_ActiveError->prologPredArity = pp->ArityOfPE;
   }
-  LOCAL_ActiveError.prologPredModule =
+  LOCAL_ActiveError->prologPredModule =
       (pp->ModuleOfPred ? pp->ModuleOfPred : TermProlog);
-  LOCAL_ActiveError.prologPredFile = pp->src.OwnerFile;
+  LOCAL_ActiveError->prologPredFile = pp->src.OwnerFile;
   if (codeptr->opc == UNDEF_OPCODE) {
-    LOCAL_ActiveError.prologPredFirstLine = 0;
-    LOCAL_ActiveError.prologPredLine = 0;
-    LOCAL_ActiveError.prologPredLastLine = 0;
+    LOCAL_ActiveError->prologPredFirstLine = 0;
+    LOCAL_ActiveError->prologPredLine = 0;
+    LOCAL_ActiveError->prologPredLastLine = 0;
     return true;
   } else if (pp->cs.p_code.NOfClauses) {
-    if ((LOCAL_ActiveError.prologPredCl =
+    if ((LOCAL_ActiveError->prologPredCl =
              find_code_in_clause(pp, codeptr, &begin, NULL)) <= 0) {
-      LOCAL_ActiveError.prologPredLine = 0;
+      LOCAL_ActiveError->prologPredLine = 0;
     } else {
-      LOCAL_ActiveError.prologPredLine = IntegerOfTerm(clause_loc(begin, pp));
+      LOCAL_ActiveError->prologPredLine = IntegerOfTerm(clause_loc(begin, pp));
     }
     if (pp->PredFlags & LogUpdatePredFlag) {
-      LOCAL_ActiveError.prologPredFirstLine = IntegerOfTerm(
+      LOCAL_ActiveError->prologPredFirstLine = IntegerOfTerm(
           ts[0] = clause_loc(
               ClauseCodeToLogUpdClause(pp->cs.p_code.FirstClause), pp));
-      LOCAL_ActiveError.prologPredLastLine = IntegerOfTerm(
+      LOCAL_ActiveError->prologPredLastLine = IntegerOfTerm(
           ts[1] = clause_loc(ClauseCodeToLogUpdClause(pp->cs.p_code.LastClause),
                              pp));
 
     } else {
-      LOCAL_ActiveError.prologPredFirstLine = IntegerOfTerm(
+      LOCAL_ActiveError->prologPredFirstLine = IntegerOfTerm(
           ts[0] = clause_loc(
               ClauseCodeToStaticClause(pp->cs.p_code.FirstClause), pp));
-      LOCAL_ActiveError.prologPredLastLine = IntegerOfTerm(
+      LOCAL_ActiveError->prologPredLastLine = IntegerOfTerm(
           ts[1] = clause_loc(ClauseCodeToStaticClause(pp->cs.p_code.LastClause),
                              pp));
     }

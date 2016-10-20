@@ -27,44 +27,19 @@
 
 :- dynamic dbloading/6, dbprocess/2.
 
-dbload_from_stream(R, M0, Type) :-
-	repeat,
-	read(R,T),
-	( T == end_of_file -> !, close_dbload(R, Type);
-	    dbload_count(T, M0),
-	    fail 
-	).
+dbload_from_stream(R, M0, rdf, term ) :-
+    '$lines_in_file'(R, Lines),
+	'$input_lines'(R, Type, Lines),
+	dbload_from_stream(R, M0, Type, Storage ) :-
+	    '$lines_in_file'(R, Lines),
+		'$input_lines'(R, Type, Lines),
 
-close_dbload(_R, exo) :-
-	retract(dbloading(Na,Arity,M,T,NaAr,_)),
-	nb_getval(NaAr,Size),
-	exo_db_get_space(T, M, Size, Handle),
-	assertz(dbloading(Na,Arity,M,T,NaAr,Handle)),
-	nb_setval(NaAr,0),
-	fail.
-close_dbload(R, exo) :-
-	seek(R, 0, bof, _),
-	exodb_add_facts(R, _M),
-	fail.
-close_dbload(_R, mega) :-
-	retract(dbloading(Na,Arity,M,T,NaAr,_)),
-	nb_getval(NaAr,Size),
-	dbload_get_space(T, M, Size, Handle),
-	assertz(dbloading(Na,Arity,M,T,NaAr,Handle)),
-	nb_setval(NaAr,0),
-	fail.
-close_dbload(R, mega) :-
-	seek(R, 0, bof, _),
-	dbload_add_facts(R, _M),
-	fail.
-close_dbload(_, _) :- 
-	retractall(dbloading(_Na,_Arity,_M,_T,_NaAr,_Handle)),
-	fail.
-close_dbload(_, _).
-
+'$input_lines'(R, csv, yeLines ) :-
+    '$process_lines'(R, Lines, Type ),
+	close(R).
 
 prolog:load_db(Fs) :-
-        '$current_module'(M0),	
+        '$current_module'(M0),
 	prolog_flag(agc_margin,Old,0),
 	dbload(Fs,M0,load_db(Fs)),
 	load_facts,
@@ -73,8 +48,8 @@ prolog:load_db(Fs) :-
 
 dbload(Fs, _, G) :-
 	var(Fs),
-	'$do_error'(instantiation_error,G).	
-dbload([], _, _) :- !.	
+	'$do_error'(instantiation_error,G).
+dbload([], _, _) :- !.
 dbload([F|Fs], M0, G) :- !,
 	dbload(F, M0, G),
 	dbload(Fs, M0, G).
@@ -99,7 +74,7 @@ check_dbload_stream(R, M0) :-
 	catch(read(R,T), _, fail),
 	( T = end_of_file -> !;
 	    dbload_count(T, M0),
-	    fail 
+	    fail
 	).
 
 dbload_count(T0, M0) :-
@@ -121,7 +96,7 @@ get_module(M1:T0,_,T,M) :- !,
 	get_module(T0, M1, T , M).
 get_module(T,M,T,M).
 
-	
+
 load_facts :-
 	!, % yap_flag(exo_compilation, on), !.
 	load_exofacts.
@@ -145,7 +120,7 @@ dbload_add_facts(R, M) :-
 	catch(read(R,T), _, fail),
 	( T = end_of_file -> !;
 	    dbload_add_fact(T, M),
-	    fail 
+	    fail
 	).
 
 dbload_add_fact(T0, M0) :-
@@ -182,7 +157,7 @@ protected_exodb_add_fact(R, M) :-
 	read(R,T),
 	( T == end_of_file -> !;
 	    exodb_add_fact(T, M),
-	    fail 
+	    fail
 	).
 
 exodb_add_fact(T0, M0) :-
@@ -199,4 +174,3 @@ clean_up :-
 	retractall(dbprocess(_,_)),
 	fail.
 clean_up.
-

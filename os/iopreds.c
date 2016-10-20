@@ -454,16 +454,16 @@ int Yap_DebugPuts(FILE *s, const char *sch) {
 void Yap_DebugErrorPuts(const char *s) { Yap_DebugPuts(stderr, s); }
 
 void Yap_DebugPlWrite(Term t) {
-  if (t==0)
-    fprintf(stderr,"NULL");
-    Yap_plwrite(t, GLOBAL_Stream + 2, 0, 0, GLOBAL_MaxPriority);
+  if (t == 0)
+    fprintf(stderr, "NULL");
+  Yap_plwrite(t, GLOBAL_Stream + 2, 0, 0, GLOBAL_MaxPriority);
 }
 
 void Yap_DebugPlWriteln(Term t) {
   CACHE_REGS
-  if (t==0)
-    fprintf(stderr,"NULL");
-    Yap_plwrite(t, NULL, 15, 0, GLOBAL_MaxPriority);
+  if (t == 0)
+    fprintf(stderr, "NULL");
+  Yap_plwrite(t, NULL, 15, 0, GLOBAL_MaxPriority);
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, '.');
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, 10);
 }
@@ -616,12 +616,12 @@ int post_process_read_wchar(int ch, size_t n, StreamDesc *s) {
   if (ch == EOF) {
     return post_process_weof(s);
   }
-  #if DEBUG
+#if DEBUG
   if (GLOBAL_Option[1]) {
     static int v;
-      fprintf(stderr, "%d %C\n", v, ch);
-      v++;
-    }
+    fprintf(stderr, "%d %C\n", v, ch);
+    v++;
+  }
 #endif
   s->charcount += n;
   s->linepos += n;
@@ -1193,8 +1193,7 @@ do_open(Term file_name, Term t2,
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
       if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
         LOCAL_Error_TYPE = DOMAIN_ERROR_OPEN_OPTION;
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term,
-                "option handling in open/3");
+      Yap_Error(LOCAL_Error_TYPE, tlist, "option handling in open/3");
     }
     return false;
   }
@@ -1700,7 +1699,7 @@ static Int close2(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
       if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
         LOCAL_Error_TYPE = DOMAIN_ERROR_CLOSE_OPTION;
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+      Yap_Error(LOCAL_Error_TYPE, tlist, NULL);
     }
     return false;
     return FALSE;
@@ -1762,7 +1761,7 @@ static Int abs_file_parameters(USES_REGS1) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
       if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
         LOCAL_Error_TYPE = DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION;
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+      Yap_Error(LOCAL_Error_TYPE, tlist, NULL);
     }
     return false;
   }

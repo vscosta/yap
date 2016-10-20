@@ -69,7 +69,6 @@ typedef struct worker_local {
   UInt  GlobalArenaOverflows_;
   Int  ArenaOverflows_;
   Int  DepthArenas_;
-  int  ArithError_;
   struct pred_entry*  LastAssertedPred_;
   struct pred_entry*  TmpPred_;
   char*  ScannerStack_;
@@ -164,12 +163,9 @@ typedef struct worker_local {
   ADDR  GlobalBase_;
   ADDR  TrailBase_;
   ADDR  TrailTop_;
-  char*  ErrorMessage_;
-  Term  Error_Term_;
-/** error handling info, designed to be easy to pass to the foreign world */
-  struct yap_error_descriptor  ActiveError_;
+/* error handling info, designed to be easy to pass to the foreign world */
+  yap_error_descriptor_t*  ActiveError_;
 /// pointer to an exception term, from throw
-  struct DB_TERM*  BallTerm_;
   jmp_buf  IOBotch_;
   TokEntry*  tokptr_;
   TokEntry*  toktide_;
@@ -184,6 +180,7 @@ typedef struct worker_local {
   sigjmp_buf  RestartEnv_;
   char  FileNameBuf_[YAP_FILENAME_MAX+1];
   char  FileNameBuf2_[YAP_FILENAME_MAX+1];
+  struct TextBuffer_manager*  TextBuffer_;
 // Prolog State
   UInt  BreakLevel_;
   Int  PrologMode_;
@@ -200,10 +197,8 @@ typedef struct worker_local {
 //dbase.c
   struct db_globs*  s_dbg_;
 //eval.c
-  yap_error_number  matherror_;
   Term  mathtt_;
   char*  mathstring_;
-  yap_error_number  CurrentError_;
 //grow.c
   int  heap_overflows_;
   Int  total_heap_overflow_time_;

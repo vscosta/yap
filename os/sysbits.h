@@ -37,10 +37,9 @@
 #include <io.h>
 #include <windows.h>
 #ifndef S_ISDIR
-#define S_ISDIR(x) (((x)&_S_IFDIR)==_S_IFDIR)
+#define S_ISDIR(x) (((x)&_S_IFDIR) == _S_IFDIR)
 #endif
 #endif
-
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>

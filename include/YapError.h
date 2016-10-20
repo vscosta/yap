@@ -76,7 +76,6 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
 #define JMP_LOCAL_ERROR(v, LAB)                                                \
   if (H + 2 * (v) > ASP - 1024) {                                              \
     LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;                                   \
-    LOCAL_Error_Term = t;                                                      \
     LOCAL_Error_Size = 2 * (v) * sizeof(CELL);                                 \
     goto LAB;                                                                  \
   }
@@ -84,7 +83,6 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
 #define LOCAL_ERROR(t, v)                                                      \
   if (HR + (v) > ASP - 1024) {                                                 \
     LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;                                   \
-    LOCAL_Error_Term = t;                                                      \
     LOCAL_Error_Size = 2 * (v) * sizeof(CELL);                                 \
     return NULL;                                                               \
   }
@@ -92,7 +90,6 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
 #define LOCAL_TERM_ERROR(t, v)                                                 \
   if (HR + (v) > ASP - 1024) {                                                 \
     LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;                                   \
-    LOCAL_Error_Term = t;                                                      \
     LOCAL_Error_Size = 2 * (v) * sizeof(CELL);                                 \
     return 0L;                                                                 \
   }
@@ -100,7 +97,6 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
 #define AUX_ERROR(t, n, s, TYPE)                                               \
   if (s + (n + 1) > (TYPE *)AuxSp) {                                           \
     LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;                         \
-    LOCAL_Error_Term = t;                                                      \
     LOCAL_Error_Size = n * sizeof(TYPE);                                       \
     return NULL;                                                               \
   }
@@ -108,7 +104,6 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
 #define AUX_TERM_ERROR(t, n, s, TYPE)                                          \
   if (s + (n + 1) > (TYPE *)AuxSp) {                                           \
     LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;                         \
-    LOCAL_Error_Term = t;                                                      \
     LOCAL_Error_Size = n * sizeof(TYPE);                                       \
     return 0L;                                                                 \
   }
@@ -116,7 +111,6 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
 #define JMP_AUX_ERROR(n, s, t, TYPE, LAB)                                      \
   if (s + (n + 1) > (TYPE *)AuxSp) {                                           \
     LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;                         \
-    LOCAL_Error_Term = t;                                                      \
     LOCAL_Error_Size = n * sizeof(TYPE);                                       \
     goto LAB;                                                                  \
   }
@@ -124,7 +118,6 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
 #define HEAP_ERROR(a, TYPE)                                                    \
   if (a == NIL) {                                                              \
     LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;                                    \
-    LOCAL_Error_Term = t;                                                      \
     LOCAL_Error_Size = n * sizeof(TYPE);                                       \
     return NULL;                                                               \
   }
@@ -132,7 +125,6 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
 #define HEAP_TERM_ERROR(a, TYPE, n)                                            \
   if (a == NIL) {                                                              \
     LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;                                    \
-    LOCAL_Error_Term = t;                                                      \
     LOCAL_Error_Size = n * sizeof(TYPE);                                       \
     return 0L;                                                                 \
   }
@@ -140,7 +132,6 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
 #define JMP_HEAP_ERROR(a, n, t, TYPE, LAB)                                     \
   if (a == NIL) {                                                              \
     LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;                                    \
-    LOCAL_Error_Term = t;                                                      \
     LOCAL_Error_Size = n * sizeof(TYPE);                                       \
     goto LAB;                                                                  \
   }
@@ -174,6 +165,21 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
     /// go back t
   } yap_error_stage_t;
 
+  /// a Prolo goal that caused a bug
+
+  typedef struct error_prolog_source {
+    YAP_Int prologPredCl;
+    YAP_UInt prologPredLine;
+    YAP_UInt prologPredFirstLine;
+    YAP_UInt prologPredLastLine;
+    YAP_Atom prologPredName;
+    YAP_UInt prologPredArity;
+    YAP_Term prologPredModule;
+    YAP_Atom prologPredFile;
+    struct DB_TERM *errorGoal;
+    struct error_prolog_source *errorParent;
+  } error_prolog_source_t;
+
   /// all we need to know about an error/throw
   typedef struct yap_error_descriptor {
     enum yap_error_status status;
@@ -184,6 +190,7 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
     YAP_Int errorLine;
     const char *errorFunction;
     const char *errorFile;
+    // struct error_prolog_source *errorSource;
     YAP_Int prologPredCl;
     YAP_UInt prologPredLine;
     YAP_UInt prologPredFirstLine;
@@ -192,22 +199,33 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
     YAP_UInt prologPredArity;
     YAP_Term prologPredModule;
     YAP_Atom prologPredFile;
+    YAP_UInt prologParserLine;
+    YAP_UInt prologParserFirstLine;
+    YAP_UInt prologParserLastLine;
+    YAP_Atom prologParserName;
+    YAP_Atom prologParserFile;
+    YAP_Bool prologConsulting;
     struct DB_TERM *errorTerm;
-    char errorComment[MAX_ERROR_MSG_SIZE];
+    char *errorMsg;
     size_t errorMsgLen;
+    struct yap_error_descriptor *top_error;
   } yap_error_descriptor_t;
 
 /// compatibility with existing code..
-#define LOCAL_Error_TYPE LOCAL_ActiveError.errorNo
-#define LOCAL_Error_File LOCAL_ActiveError.errorFile
-#define LOCAL_Error_Function LOCAL_ActiveError.errorFunction
-#define LOCAL_Error_Lineno LOCAL_ActiveError.errorLine
-#define LOCAL_Error_Size LOCAL_ActiveError.errorMsgLen
-#define LOCAL_ErrorSay LOCAL_ActiveError.errorComment
+#define LOCAL_Error_TYPE LOCAL_ActiveError->errorNo
+#define LOCAL_Error_File LOCAL_ActiveError->errorFile
+#define LOCAL_Error_Function LOCAL_ActiveError->errorFunction
+#define LOCAL_Error_Lineno LOCAL_ActiveError->errorLine
+#define LOCAL_Error_Size LOCAL_ActiveError->errorMsgLen
+#define LOCAL_BallTerm LOCAL_ActiveError->errorTerm
+#define LOCAL_ErrorMessage LOCAL_ActiveError->errorMsg
 
   extern bool Yap_find_prolog_culprit();
   extern yap_error_class_number Yap_errorClass(yap_error_number e);
   extern const char *Yap_errorName(yap_error_number e);
   extern const char *Yap_errorClassName(yap_error_class_number e);
+
+  extern void Yap_pushErrorContext(yap_error_descriptor_t * new_error);
+  extern yap_error_descriptor_t *Yap_popErrorContext(void);
 
 #endif

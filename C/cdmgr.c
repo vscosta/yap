@@ -1452,8 +1452,6 @@ static void addcl_permission_error(AtomEntry *ap, Int Arity, int in_use) {
   ti[0] = MkAtomTerm(AbsAtom(ap));
   ti[1] = MkIntegerTerm(Arity);
   t = Yap_MkApplTerm(FunctorSlash, 2, ti);
-  LOCAL_ErrorMessage = LOCAL_ErrorSay;
-  LOCAL_Error_Term = t;
   LOCAL_Error_TYPE = PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE;
   if (in_use) {
     if (Arity == 0)
@@ -2028,9 +2026,7 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
     YAPLeaveCriticalSection();
   }
   if (LOCAL_ErrorMessage) {
-    if (!LOCAL_Error_Term)
-      LOCAL_Error_Term = TermNil;
-    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
+    Yap_Error(LOCAL_Error_TYPE, ARG1, LOCAL_ErrorMessage);
     YAPLeaveCriticalSection();
     return false;
   }
@@ -3590,7 +3586,8 @@ static Int p_predicate_erased_statistics(USES_REGS1) {
   Term tpred = ArgOfTerm(2, Deref(ARG1));
   Term tmod = ArgOfTerm(1, Deref(ARG1));
 
-  if (EndOfPAEntr(pe = Yap_get_pred(tpred, tmod, "predicate_erased_statistics")))
+  if (EndOfPAEntr(pe =
+                      Yap_get_pred(tpred, tmod, "predicate_erased_statistics")))
     return FALSE;
   while (cl) {
     if (cl->ClPred == pe) {

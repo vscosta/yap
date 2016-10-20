@@ -1446,7 +1446,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       /* must be done here, otherwise siglongjmp will clobber all the
        * registers
        */
-      Yap_Error(LOCAL_matherror, TermNil, NULL);
+      Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
       /* reset the registers so that we don't have trash in abstract
        * machine */
       Yap_set_fpu_exceptions(
@@ -2080,16 +2080,16 @@ static Int jump_env(USES_REGS1) {
     LOCAL_Error_TYPE = ERROR_EVENT;
     t = ArgOfTerm(1, t);
     if (IsApplTerm(t) && IsAtomTerm((t2 = ArgOfTerm(1, t)))) {
-      LOCAL_ActiveError.errorAsText = AtomOfTerm(t2);
-      LOCAL_ActiveError.classAsText = NameOfFunctor(FunctorOfTerm(t));
+      LOCAL_ActiveError->errorAsText = AtomOfTerm(t2);
+      LOCAL_ActiveError->classAsText = NameOfFunctor(FunctorOfTerm(t));
     } else if (IsAtomTerm(t)) {
-      LOCAL_ActiveError.errorAsText = AtomOfTerm(t);
-      LOCAL_ActiveError.classAsText = NULL;
+      LOCAL_ActiveError->errorAsText = AtomOfTerm(t);
+      LOCAL_ActiveError->classAsText = NULL;
     }
   } else {
     LOCAL_Error_TYPE = THROW_EVENT;
   }
-  LOCAL_ActiveError.prologPredName = NULL;
+  LOCAL_ActiveError->prologPredName = NULL;
   Yap_PutException(t);
   bool out = JumpToEnv(PASS_REGS1);
   if (B != NULL && P == FAILCODE && B->cp_ap == NOCODE &&
@@ -2225,10 +2225,10 @@ bool Yap_PutException(Term t) {
 }
 
 bool Yap_ResetException(int wid) {
-  if (REMOTE_BallTerm(wid)) {
-    Yap_PopTermFromDB(REMOTE_BallTerm(wid));
+  if (REMOTE_ActiveError(wid)->errorTerm) {
+    Yap_PopTermFromDB(REMOTE_ActiveError(wid)->errorTerm);
   }
-  REMOTE_BallTerm(wid) = NULL;
+  REMOTE_ActiveError(wid)->errorTerm = NULL;
   return true;
 }
 

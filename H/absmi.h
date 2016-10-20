@@ -99,7 +99,8 @@ register struct yami *P1REG asm("bp"); /* can't use yamop before Yap.h */
 #define LIMITED_PREFETCH 1
 #endif /* __x86_64__ */
 
-#if defined(__arm__) || defined(__thumb__) || defined(mips) || defined(__mips64) || defined(__aarch64__)
+#if defined(__arm__) || defined(__thumb__) || defined(mips) ||                 \
+    defined(__mips64) || defined(__aarch64__)
 
 #define Y_IN_MEM 1
 #define S_IN_MEM 1
@@ -215,13 +216,13 @@ INLINE_ONLY inline EXTERN void restore_absmi_regs(REGSTORE *old_regs) {
 
 #define BEGP(TMP)                                                              \
   {                                                                            \
-  register CELL *TMP
+    register CELL *TMP
 
 #define ENDP(TMP) }
 
 #define BEGD(TMP)                                                              \
   {                                                                            \
-  register CELL TMP
+    register CELL TMP
 
 #define ENDD(TMP) }
 
@@ -229,7 +230,7 @@ INLINE_ONLY inline EXTERN void restore_absmi_regs(REGSTORE *old_regs) {
 
 #define BEGCHO(TMP)                                                            \
   {                                                                            \
-  register choiceptr TMP
+    register choiceptr TMP
 
 #define ENDCHO(TMP) }
 
@@ -242,7 +243,7 @@ INLINE_ONLY inline EXTERN void restore_absmi_regs(REGSTORE *old_regs) {
 
 #define CACHE_Y(A)                                                             \
   {                                                                            \
-  register CELL *S_YREG = ((CELL *)(A))
+    register CELL *S_YREG = ((CELL *)(A))
 
 #define ENDCACHE_Y()                                                           \
   YREG = S_YREG;                                                               \
@@ -258,7 +259,7 @@ INLINE_ONLY inline EXTERN void restore_absmi_regs(REGSTORE *old_regs) {
 
 #define CACHE_Y(A)                                                             \
   {                                                                            \
-  YREG = ((CELL *)(A))
+    YREG = ((CELL *)(A))
 
 #define ENDCACHE_Y() }
 
@@ -268,7 +269,7 @@ INLINE_ONLY inline EXTERN void restore_absmi_regs(REGSTORE *old_regs) {
 
 #define CACHE_Y_AS_ENV(A)                                                      \
   {                                                                            \
-  register CELL *ENV_YREG = (A)
+    register CELL *ENV_YREG = (A)
 
 #define FETCH_Y_FROM_ENV(A) ENV_YREG = (A)
 
@@ -292,7 +293,7 @@ INLINE_ONLY inline EXTERN void restore_absmi_regs(REGSTORE *old_regs) {
 
 #define CACHE_Y_AS_ENV(A)                                                      \
   {                                                                            \
-  YREG = (A)
+    YREG = (A)
 
 #define FETCH_Y_FROM_ENV(A) (A)
 
@@ -345,7 +346,7 @@ INLINE_ONLY inline EXTERN void restore_absmi_regs(REGSTORE *old_regs) {
 
 #define CACHE_TR(A)                                                            \
   {                                                                            \
-  register tr_fr_ptr S_TR = (A)
+    register tr_fr_ptr S_TR = (A)
 
 #define RESTORE_TR() TR = S_TR
 
@@ -467,7 +468,7 @@ INLINE_ONLY inline EXTERN void restore_absmi_regs(REGSTORE *old_regs) {
 #define ALWAYS_START_PREFETCH(TYPE)                                            \
   {                                                                            \
     register void *to_go;                                                      \
-  DO_PREFETCH(TYPE)
+    DO_PREFETCH(TYPE)
 
 #if YAP_JIT
 #define ALWAYS_LOOKAHEAD(WHAT)                                                 \
@@ -487,7 +488,7 @@ INLINE_ONLY inline EXTERN void restore_absmi_regs(REGSTORE *old_regs) {
 #define ALWAYS_START_PREFETCH_W(TYPE)                                          \
   {                                                                            \
     register void *to_go;                                                      \
-  DO_PREFETCH_W(TYPE)
+    DO_PREFETCH_W(TYPE)
 
 #else
 
@@ -909,14 +910,14 @@ INLINE_ONLY inline EXTERN void restore_absmi_regs(REGSTORE *old_regs) {
     (ExpEnv.config_struc.current_displacement)                                 \
         ? print_instruction(PREG, ON_PROFILED_INTERPRETER)                     \
         : print_instruction(PREG, ON_INTERPRETER);                             \
-  START_PREFETCH(Type)
+    START_PREFETCH(Type)
 
 #define OpW(Label, Type)                                                       \
   _##Label : {                                                                 \
     (ExpEnv.config_struc.current_displacement)                                 \
         ? print_instruction(PREG, ON_PROFILED_INTERPRETER)                     \
         : print_instruction(PREG, ON_INTERPRETER);                             \
-  START_PREFETCH_W(Type)
+    START_PREFETCH_W(Type)
 
 #define BOp(Label, Type)                                                       \
   _##Label : {                                                                 \
@@ -929,7 +930,7 @@ INLINE_ONLY inline EXTERN void restore_absmi_regs(REGSTORE *old_regs) {
     (ExpEnv.config_struc.current_displacement)                                 \
         ? print_instruction(PREG, ON_PROFILED_INTERPRETER)                     \
         : print_instruction(PREG, ON_INTERPRETER);                             \
-  INIT_PREFETCH()
+    INIT_PREFETCH()
 
 #define OpRW(Label, Type)                                                      \
   _##Label : {                                                                 \
@@ -942,12 +943,12 @@ INLINE_ONLY inline EXTERN void restore_absmi_regs(REGSTORE *old_regs) {
 #define Op(Label, Type)                                                        \
   _##Label : {                                                                 \
     print_instruction(PREG, ON_INTERPRETER);                                   \
-  START_PREFETCH(Type)
+    START_PREFETCH(Type)
 
 #define OpW(Label, Type)                                                       \
   _##Label : {                                                                 \
     print_instruction(PREG, ON_INTERPRETER);                                   \
-  START_PREFETCH_W(Type)
+    START_PREFETCH_W(Type)
 
 #define BOp(Label, Type)                                                       \
   _##Label : {                                                                 \
@@ -956,7 +957,7 @@ INLINE_ONLY inline EXTERN void restore_absmi_regs(REGSTORE *old_regs) {
 #define PBOp(Label, Type)                                                      \
   _##Label : {                                                                 \
     print_instruction(PREG, ON_INTERPRETER);                                   \
-  INIT_PREFETCH()
+    INIT_PREFETCH()
 
 #define OpRW(Label, Type)                                                      \
   _##Label : {                                                                 \
@@ -968,17 +969,17 @@ INLINE_ONLY inline EXTERN void restore_absmi_regs(REGSTORE *old_regs) {
 
 #define Op(Label, Type)                                                        \
   _##Label : {                                                                 \
-  START_PREFETCH(Type)
+    START_PREFETCH(Type)
 
 #define OpW(Label, Type)                                                       \
   _##Label : {                                                                 \
-  START_PREFETCH_W(Type)
+    START_PREFETCH_W(Type)
 
 #define BOp(Label, Type) _##Label : {
 
 #define PBOp(Label, Type)                                                      \
   _##Label : {                                                                 \
-  INIT_PREFETCH()
+    INIT_PREFETCH()
 
 #define OpRW(Label, Type) _##Label : {
 
@@ -1000,17 +1001,17 @@ INLINE_ONLY inline EXTERN void restore_absmi_regs(REGSTORE *old_regs) {
 
 #define Op(Label, Type)                                                        \
   case _##Label: {                                                             \
-  START_PREFETCH(Type)
+    START_PREFETCH(Type)
 
 #define OpW(Label, Type)                                                       \
   case _##Label: {                                                             \
-  START_PREFETCH_W(Type)
+    START_PREFETCH_W(Type)
 
 #define BOp(Label, Type) case _##Label: {
 
 #define PBOp(Label, Type)                                                      \
   case _##Label: {                                                             \
-  INIT_PREFETCH()
+    INIT_PREFETCH()
 
 #define OpRW(Label, Type) case _##Label: {
 
@@ -2075,7 +2076,8 @@ cufail:
 
 #endif
 
-#if /* defined(IN_ABSMI_C) ||*/ defined(IN_INLINES_C) /*|| defined(IN_TRACED_ABSMI_C) */
+#if /* defined(IN_ABSMI_C) ||*/ defined(                                       \
+    IN_INLINES_C) /*|| defined(IN_TRACED_ABSMI_C) */
 
 static int iequ_complex(register CELL *pt0, register CELL *pt0_end,
                         register CELL *pt1) {
@@ -2449,5 +2451,12 @@ extern yamop *headoftrace;
   JMPNext();                                                                   \
   ENDD(d0);
 #endif
+
+#define Yap_AsmError(e)                                                        \
+  {                                                                            \
+    saveregs();                                                                \
+    Yap_Error(e, 0, "");                                                       \
+    setregs();                                                                 \
+  }
 
 #endif // ABSMI_H

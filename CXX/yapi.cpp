@@ -612,12 +612,15 @@ Term YAPEngine::fun(Term t) {
   } else if (IsAtomTerm(t)) {
     name = AtomOfTerm(t);
     f = nullptr;
-  } else if (IsAtomTerm(t)) {
+  } else if (IsPairTerm(t)) {
     XREGS[1] = ts[0];
     XREGS[2] = ts[1];
     name = AtomDot;
     f = FunctorDot;
-  } 
+  } else {
+          Yap_Error(TYPE_ERROR_CALLABLE, t, 0);
+          return 0L;
+      }
  XREGS[arity+1] = MkVarTerm();
  arity ++;
  f = Yap_MkFunctor(name,arity);
@@ -1027,37 +1030,37 @@ const char *YAPError::text() {
 
   char buf[256];
   std::string s = "";
-  if (LOCAL_ActiveError.errorFunction) {
-    s += LOCAL_ActiveError.errorFile;
+  if (LOCAL_ActiveError->errorFunction) {
+    s += LOCAL_ActiveError->errorFile;
     s += ":";
-    sprintf(buf, "%ld", (long int)LOCAL_ActiveError.errorLine);
+    sprintf(buf, "%ld", (long int)LOCAL_ActiveError->errorLine);
     s += buf;
     s += ":0 in C-code";
   }
-  if (LOCAL_ActiveError.prologPredLine) {
+  if (LOCAL_ActiveError->prologPredLine) {
     s += "\n";
-    s += LOCAL_ActiveError.prologPredFile->StrOfAE;
+    s += LOCAL_ActiveError->prologPredFile->StrOfAE;
     s += ":";
-    sprintf(buf, "%ld", (long int)LOCAL_ActiveError.prologPredLine);
-    s += buf; // std::to_string(LOCAL_ActiveError.prologPredLine) ;
-    // YAPIntegerTerm(LOCAL_ActiveError.prologPredLine).text();
+    sprintf(buf, "%ld", (long int)LOCAL_ActiveError->prologPredLine);
+    s += buf; // std::to_string(LOCAL_ActiveError->prologPredLine) ;
+    // YAPIntegerTerm(LOCAL_ActiveError->prologPredLine).text();
     s += ":0   ";
-    s += LOCAL_ActiveError.prologPredModule;
+    s += LOCAL_ActiveError->prologPredModule;
     s += ":";
-    s += (LOCAL_ActiveError.prologPredName)->StrOfAE;
+    s += (LOCAL_ActiveError->prologPredName)->StrOfAE;
     s += "/";
-    sprintf(buf, "%ld", (long int)LOCAL_ActiveError.prologPredArity);
-    s += // std::to_string(LOCAL_ActiveError.prologPredArity);
+    sprintf(buf, "%ld", (long int)LOCAL_ActiveError->prologPredArity);
+    s += // std::to_string(LOCAL_ActiveError->prologPredArity);
         buf;
   }
   s += " error ";
-  if (LOCAL_ActiveError.classAsText != nullptr)
-    s += LOCAL_ActiveError.classAsText->StrOfAE;
+  if (LOCAL_ActiveError->classAsText != nullptr)
+    s += LOCAL_ActiveError->classAsText->StrOfAE;
   s += ".";
-  s += LOCAL_ActiveError.errorAsText->StrOfAE;
+  s += LOCAL_ActiveError->errorAsText->StrOfAE;
   s += ".\n";
-  if (LOCAL_ActiveError.errorTerm) {
-    Term t = Yap_PopTermFromDB(LOCAL_ActiveError.errorTerm);
+  if (LOCAL_ActiveError->errorTerm) {
+    Term t = Yap_PopTermFromDB(LOCAL_ActiveError->errorTerm);
     if (t) {
       s += "error term is: ";
       s += YAPTerm(t).text();

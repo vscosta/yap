@@ -1369,7 +1369,7 @@ do_prolog_flag_property(Term tflag,
   args = Yap_ArgList2ToVector(opts, prolog_flag_property_defs,
                               PROLOG_FLAG_PROPERTY_END);
   if (args == NULL) {
-    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+    Yap_Error(LOCAL_Error_TYPE, opts, NULL);
     return false;
   }
   if (!IsAtomTerm(tflag)) {
@@ -1533,7 +1533,7 @@ static Int do_create_prolog_flag(USES_REGS1) {
   args = Yap_ArgList2ToVector(opts, prolog_flag_property_defs,
                               PROLOG_FLAG_PROPERTY_END);
   if (args == NULL) {
-    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+    Yap_Error(LOCAL_Error_TYPE, opts, NULL);
     return false;
   }
   fv = GetFlagProp(AtomOfTerm(tflag));

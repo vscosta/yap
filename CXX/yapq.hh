@@ -183,9 +183,16 @@ public:
   bool goalt(YAPTerm t);
   /// current directory for the engine
   bool goal(Term t);
-#if SWIGPYTHON
-  bool unlockedGoal(Term t) {bool rc;Py_BEGIN_ALLOW_THREADS;  rc = goal(t);Py_END_ALLOW_THREADS;  return rc; }
+  bool unlockedGoal(Term t) {bool rc;
+#ifdef SWIGPYTHON
+  Py_BEGIN_ALLOW_THREADS;
 #endif
+  rc = goal(t);
+#ifdef SWIGPYTHON
+  Py_END_ALLOW_THREADS;
+#endif
+    return rc;
+    }
   /// reset Prolog state
   void reSet();
   /// release: assune that there are no stack pointers, just release memory
