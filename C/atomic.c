@@ -442,6 +442,7 @@ restart_aux:
 static Int atom_codes(USES_REGS1) {
   Term t1;
   t1 = Deref(ARG1);
+  LOCAL_Error_TYPE = 0;
 restart_aux:
   if (IsAtomTerm(t1)) {
     Term tf = Yap_AtomToListOfCodes(t1 PASS_REGS);
