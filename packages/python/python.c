@@ -93,7 +93,7 @@ X_API bool init_python(void) {
     // wait for YAP_Init
     return false;
   }
-  PyGILState_STATE gstate = PyGILState_Ensure();
+  //  PyGILState_STATE gstate = PyGILState_Ensure();
   term_t t = PL_new_term_ref();
   if (!Py_IsInitialized()) {
     python_in_python = true;
@@ -112,6 +112,6 @@ X_API bool init_python(void) {
   PL_reset_term_refs(t);
   install_pypreds();
   install_pl2pl();
-  PyGILState_Release(gstate);
+  //PyGILState_Release(gstate);
   return !python_in_python;
 }
