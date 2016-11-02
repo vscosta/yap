@@ -902,7 +902,8 @@ static void undef_goal(USES_REGS1) {
     PP = pe;
   }
 #endif
-  if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag)) {
+  if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) ||
+      pe == UndefCode) {
 #if defined(YAPOR) || defined(THREADS)
     UNLOCKPE(19, PP);
     PP = NULL;

@@ -9,6 +9,7 @@
 project( YAP )
 
 cmake_minimum_required(VERSION 2.8)
+include(CMakeToolsHelpers OPTIONAL)
 
 # cmake_policy(VERSION 3.4)
 

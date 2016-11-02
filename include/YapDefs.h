@@ -284,6 +284,8 @@ typedef struct yap_boot_params {
   int Argc;
   /* array of arguments as seen by Prolog */
   char **Argv;
+  /* embedded in some other system: no signals, readline, etc */
+  bool Embedded;
   /* QuietMode */
   int QuietMode;
 

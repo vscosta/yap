@@ -427,12 +427,7 @@ clean_atom_list(AtomHashEntry *HashPtr)
 	Yap_FreeCodeSpace((char *)b);
 	GLOBAL_agc_collected += sizeof(YAP_BlobPropEntry);
 	GLOBAL_agc_collected += sizeof(AtomEntry)+sizeof(size_t)+at->rep.blob->length;
-      } else if (IsWideAtom(atm)) {
-#ifdef DEBUG_RESTORE3
-	fprintf(stderr, "Purged %p:%S\n", at, at->WStrOfAE);
-#endif
-	GLOBAL_agc_collected += sizeof(AtomEntry)+wcslen(at->WStrOfAE);
-      } else {
+      }  else {
 #ifdef DEBUG_RESTORE3
 	fprintf(stderr, "Purged %p:%s patm=%p %p\n", at, at->StrOfAE, patm, at->NextOfAE);
 #endif
@@ -456,11 +451,6 @@ clean_atoms(void)
   AtomResetMark(AtomFoundVar);
   AtomResetMark(AtomFreeTerm);
   for (i = 0; i < AtomHashTableSize; ++i) {
-    clean_atom_list(HashPtr);
-    HashPtr++;
-  }
-  HashPtr = WideHashChain;
-  for (i = 0; i < WideAtomHashTableSize; ++i) {
     clean_atom_list(HashPtr);
     HashPtr++;
   }

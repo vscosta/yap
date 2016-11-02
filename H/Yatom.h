@@ -198,58 +198,6 @@ INLINE_ONLY inline EXTERN PropFlags IsGlobalProperty(int flags) {
   return (PropFlags)((flags == GlobalProperty));
 }
 
-/*	Wide Atom property 						*/
-typedef struct {
-  Prop NextOfPE;      /* used to chain properties             */
-  PropFlags KindOfPE; /* kind of property                     */
-  UInt SizeOfAtom;    /* index in module table                */
-} WideAtomEntry;
-
-#if USE_OFFSETS_IN_PROPS
-
-INLINE_ONLY inline EXTERN WideAtomEntry *RepWideAtomProp(Prop p);
-
-INLINE_ONLY inline EXTERN WideAtomEntry *RepWideAtomProp(Prop p) {
-  return (WideAtomEntry *)(AtomBase + Unsigned(p));
-}
-
-INLINE_ONLY inline EXTERN Prop AbsWideAtomProp(WideAtomEntry *p);
-
-INLINE_ONLY inline EXTERN Prop AbsWideAtomProp(WideAtomEntry *p) {
-  return (Prop)(Addr(p) - AtomBase);
-}
-
-#else
-
-INLINE_ONLY inline EXTERN WideAtomEntry *RepWideAtomProp(Prop p);
-
-INLINE_ONLY inline EXTERN WideAtomEntry *RepWideAtomProp(Prop p) {
-  return (WideAtomEntry *)(p);
-}
-
-INLINE_ONLY inline EXTERN Prop AbsWideAtomProp(WideAtomEntry *p);
-
-INLINE_ONLY inline EXTERN Prop AbsWideAtomProp(WideAtomEntry *p) {
-  return (Prop)(p);
-}
-
-#endif
-
-#define WideAtomProperty ((PropFlags)0xfff8)
-
-INLINE_ONLY inline EXTERN bool IsWideAtomProperty(PropFlags);
-
-INLINE_ONLY inline EXTERN bool IsWideAtomProperty(PropFlags flags) {
-  return (flags == WideAtomProperty);
-}
-
-INLINE_ONLY inline EXTERN bool IsWideAtom(Atom);
-
-INLINE_ONLY inline EXTERN bool IsWideAtom(Atom at) {
-  return RepAtom(at)->PropsOfAE != NIL &&
-         IsWideAtomProperty(RepWideAtomProp(RepAtom(at)->PropsOfAE)->KindOfPE);
-}
-
 /**	Module property: low-level data used to manage modes.
 
         Includes lists of pedicates, operators and other well-defIned
@@ -1609,15 +1557,8 @@ INLINE_ONLY EXTERN inline void AddPropToAtom(AtomEntry *, PropEntry *p);
 INLINE_ONLY EXTERN inline void AddPropToAtom(AtomEntry *ae, PropEntry *p) {
   /* old properties should be always last, and wide atom properties
      should always be first */
-  if (ae->PropsOfAE != NIL &&
-      RepProp(ae->PropsOfAE)->KindOfPE == WideAtomProperty) {
-    PropEntry *pp = RepProp(ae->PropsOfAE);
-    p->NextOfPE = pp->NextOfPE;
-    pp->NextOfPE = AbsProp(p);
-  } else {
     p->NextOfPE = ae->PropsOfAE;
     ae->PropsOfAE = AbsProp(p);
-  }
 }
 
 // auxiliary functions

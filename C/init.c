@@ -98,6 +98,8 @@ int Yap_Portray_delays = FALSE;
 #endif
 #endif
 
+void *YAP_save;
+
 /**
 
 @defgroup Operators Summary of YAP Predefined Operators

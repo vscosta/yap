@@ -1,0 +1,43 @@
+#!/usr/local/bin/python3.4
+import os, sys
+if 'LD_LIBRARY_PATH' not in os.environ:
+    os.environ['LD_LIBRARY_PATH'] = '/usr/local/lib'
+    try:
+        os.execv(sys.argv[0], sys.argv)
+    except Exception as exc:
+        print( 'Failed re-exec:', exc )
+        sys.exit(1)
+#
+# import yourmodule
+print( 'Success:', os.environ['LD_LIBRARY_PATH']
+# your program goes here
+
+import matplotlib
+matplotlib.use('Agg')
+
+
+#import sys, os
+sys.path = sys.path + [os.getcwd()]
+
+sys.druwid_root = os.path.abspath(os.path.dirname(__file__))
+
+
+import dru.druwid
+import dru.druplot
+from dru.shell import AlephShell
+
+cq = dru.druwid.ClauseQueue()
+
+learner = dru.druwid.Aleph( cq )
+
+#
+# initialize engine
+#
+def main():
+  if not learner:
+    print("Nothing to do, bye!")
+    exit(2)
+  AlephShell(learner).cmdloop()
+
+if __name__ == "__main__":
+  main()

@@ -24,6 +24,12 @@
   AtomAttributedModule = AtomAdjust(AtomAttributedModule); TermAttributedModule = MkAtomTerm(AtomAttributedModule);
   AtomDoubleArrow = AtomAdjust(AtomDoubleArrow); TermDoubleArrow = MkAtomTerm(AtomDoubleArrow);
   AtomAssert = AtomAdjust(AtomAssert); TermAssert = MkAtomTerm(AtomAssert);
+  AtomBeginBracket = AtomAdjust(AtomBeginBracket); TermBeginBracket = MkAtomTerm(AtomBeginBracket);
+  AtomEndBracket = AtomAdjust(AtomEndBracket); TermEndBracket = MkAtomTerm(AtomEndBracket);
+  AtomBeginSquareBracket = AtomAdjust(AtomBeginSquareBracket); TermBeginSquareBracket = MkAtomTerm(AtomBeginSquareBracket);
+  AtomEndSquareBracket = AtomAdjust(AtomEndSquareBracket); TermEndSquareBracket = MkAtomTerm(AtomEndSquareBracket);
+  AtomBeginCurlyBracket = AtomAdjust(AtomBeginCurlyBracket); TermBeginCurlyBracket = MkAtomTerm(AtomBeginCurlyBracket);
+  AtomEndCurlyBracket = AtomAdjust(AtomEndCurlyBracket); TermEndCurlyBracket = MkAtomTerm(AtomEndCurlyBracket);
   AtomEmptyBrackets = AtomAdjust(AtomEmptyBrackets); TermEmptyBrackets = MkAtomTerm(AtomEmptyBrackets);
   AtomEmptySquareBrackets = AtomAdjust(AtomEmptySquareBrackets); TermEmptySquareBrackets = MkAtomTerm(AtomEmptySquareBrackets);
   AtomEmptyCurlyBrackets = AtomAdjust(AtomEmptyCurlyBrackets); TermEmptyCurlyBrackets = MkAtomTerm(AtomEmptyCurlyBrackets);
@@ -63,6 +69,7 @@
   AtomCharset = AtomAdjust(AtomCharset); TermCharset = MkAtomTerm(AtomCharset);
   AtomChType = AtomAdjust(AtomChType); TermChType = MkAtomTerm(AtomChType);
   AtomCleanCall = AtomAdjust(AtomCleanCall); TermCleanCall = MkAtomTerm(AtomCleanCall);
+  AtomClose = AtomAdjust(AtomClose); TermClose = MkAtomTerm(AtomClose);
   AtomColon = AtomAdjust(AtomColon); TermColon = MkAtomTerm(AtomColon);
   AtomCodeSpace = AtomAdjust(AtomCodeSpace); TermCodeSpace = MkAtomTerm(AtomCodeSpace);
   AtomCodes = AtomAdjust(AtomCodes); TermCodes = MkAtomTerm(AtomCodes);
@@ -196,6 +203,7 @@
   AtomInternalCompilerError = AtomAdjust(AtomInternalCompilerError); TermInternalCompilerError = MkAtomTerm(AtomInternalCompilerError);
   AtomIs = AtomAdjust(AtomIs); TermIs = MkAtomTerm(AtomIs);
   AtomJ = AtomAdjust(AtomJ); TermJ = MkAtomTerm(AtomJ);
+  Atoml = AtomAdjust(Atoml); Terml = MkAtomTerm(Atoml);
   AtomKey = AtomAdjust(AtomKey); TermKey = MkAtomTerm(AtomKey);
   AtomLDLibraryPath = AtomAdjust(AtomLDLibraryPath); TermLDLibraryPath = MkAtomTerm(AtomLDLibraryPath);
   AtomLONGINT = AtomAdjust(AtomLONGINT); TermLONGINT = MkAtomTerm(AtomLONGINT);

@@ -137,12 +137,12 @@ INLINE_ONLY inline EXTERN Term MkCharTerm(Int c);
  * @return the term.
  */
 INLINE_ONLY inline EXTERN Term MkCharTerm(Int c) {
-  wchar_t cs[2];
+  unsigned char cs[10];
   if (c < 0)
     return TermEof;
-  cs[0] = c;
-  cs[1] = '\0';
-  return MkAtomTerm(Yap_LookupMaybeWideAtom(cs));
+  size_t n = put_utf8( cs, c );
+  cs[n] = '\0';
+  return MkAtomTerm(Yap_ULookupAtom(cs));
 }
 
 /// UT when yap started

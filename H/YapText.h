@@ -31,47 +31,18 @@
 #include "../utf8proc/utf8proc.h"
 #include "Yap.h"
 
+/// allocate a temporary text block
+///
+extern void *Malloc(size_t sz USES_REGS);
+extern void *Realloc(void *buf, size_t sz USES_REGS);
+extern void  Free(void *buf USES_REGS);
 
-typedef struct TextBuffer_manager {
-  void *buf, *ptr;
-  size_t sz;
-  struct TextBuffer_manager *prev;
-} text_buffer_t;
+extern int push_text_stack( USES_REGS1 );
+extern int pop_text_stack( int lvl USES_REGS );
 
-/**
- * TextBuffer is allocated as a chain of blocks, They area
- * recovered at the end if the translation.
- */
-  inline void init_alloc(int line)  {
-  while (LOCAL_TextBuffer->prev ) {
-    struct TextBuffer_manager *old = LOCAL_TextBuffer;
-    LOCAL_TextBuffer = LOCAL_TextBuffer->prev;
-    free(old);
-  }
-  LOCAL_TextBuffer->sz = (YAP_FILENAME_MAX + 1);
-  LOCAL_TextBuffer->buf = LOCAL_TextBuffer->ptr = realloc(LOCAL_TextBuffer->ptr, YAP_FILENAME_MAX + 1 );
-}
- 
-extern inline void mark_stack(void) {}
+#define min(x,y) (x<y ? x : y)
 
-extern inline void restore_stack(void ) {}                                                      \
-
-extern inline void unprotect_stack(void *ptr) {}                                                       \
-
-extern inline void *Malloc(size_t sz USES_REGS) {
-  sz = ALIGN_BY_TYPE(sz, CELL);
-  void *o = LOCAL_TextBuffer->ptr;
-  if ((char*)LOCAL_TextBuffer->ptr+sz>(char*)LOCAL_TextBuffer->buf + LOCAL_TextBuffer->sz) {
-      struct TextBuffer_manager *new = malloc(sizeof(struct TextBuffer_manager)+YAP_FILENAME_MAX + 1);
-      new->prev = LOCAL_TextBuffer;
-      new->buf = (struct TextBuffer_manager *)new+1;
-      new->ptr = new->buf + sz;
-      LOCAL_TextBuffer= new;
-      return new->buf; 
-  } 
-  LOCAL_TextBuffer->ptr += sz;
- return o;
-}
+#define MBYTE (1024*1024)
 
 /* Character types for tokenizer and write.c */
 
@@ -189,12 +160,12 @@ inline static utf8proc_ssize_t get_utf8(const utf8proc_uint8_t *ptr, size_t n,
 }
 
 inline static utf8proc_ssize_t put_utf8(utf8proc_uint8_t *ptr,
-                                        utf8proc_int32_t val) {
+utf8proc_int32_t val) {
   return utf8proc_encode_char(val, ptr);
 }
 
 inline static const utf8proc_uint8_t *skip_utf8(const utf8proc_uint8_t *pt,
-                                                utf8proc_ssize_t n) {
+utf8proc_ssize_t n) {
   utf8proc_ssize_t i;
   utf8proc_int32_t b;
   for (i = 0; i < n; i++) {
@@ -315,7 +286,7 @@ inline static int cmpn_utf8(const utf8proc_uint8_t *pt1,
 #define SURROGATE_OFFSET                                                       \
   ((uint32_t)0x10000 - (uint32_t)(0xD800 << 10) - (uint32_t)0xDC00)
 
-const char *Yap_tokRep(TokEntry *tokptr, encoding_t enc);
+const char *Yap_tokRep(void*tokptr, encoding_t enc);
 
 // standard strings
 

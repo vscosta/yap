@@ -24,6 +24,12 @@
   AtomAttributedModule = Yap_LookupAtom("attributes_module"); TermAttributedModule = MkAtomTerm(AtomAttributedModule);
   AtomDoubleArrow = Yap_LookupAtom("-->"); TermDoubleArrow = MkAtomTerm(AtomDoubleArrow);
   AtomAssert = Yap_LookupAtom(":-"); TermAssert = MkAtomTerm(AtomAssert);
+  AtomBeginBracket = Yap_LookupAtom("("); TermBeginBracket = MkAtomTerm(AtomBeginBracket);
+  AtomEndBracket = Yap_LookupAtom(")"); TermEndBracket = MkAtomTerm(AtomEndBracket);
+  AtomBeginSquareBracket = Yap_LookupAtom("["); TermBeginSquareBracket = MkAtomTerm(AtomBeginSquareBracket);
+  AtomEndSquareBracket = Yap_LookupAtom("]"); TermEndSquareBracket = MkAtomTerm(AtomEndSquareBracket);
+  AtomBeginCurlyBracket = Yap_LookupAtom("{"); TermBeginCurlyBracket = MkAtomTerm(AtomBeginCurlyBracket);
+  AtomEndCurlyBracket = Yap_LookupAtom("}"); TermEndCurlyBracket = MkAtomTerm(AtomEndCurlyBracket);
   AtomEmptyBrackets = Yap_LookupAtom("()"); TermEmptyBrackets = MkAtomTerm(AtomEmptyBrackets);
   AtomEmptySquareBrackets = Yap_LookupAtom("[]"); TermEmptySquareBrackets = MkAtomTerm(AtomEmptySquareBrackets);
   AtomEmptyCurlyBrackets = Yap_LookupAtom("{}"); TermEmptyCurlyBrackets = MkAtomTerm(AtomEmptyCurlyBrackets);
@@ -63,6 +69,7 @@
   AtomCharset = Yap_LookupAtom("charset"); TermCharset = MkAtomTerm(AtomCharset);
   AtomChType = Yap_FullLookupAtom("$char_type"); TermChType = MkAtomTerm(AtomChType);
   AtomCleanCall = Yap_FullLookupAtom("$clean_call"); TermCleanCall = MkAtomTerm(AtomCleanCall);
+  AtomClose = Yap_LookupAtom("close"); TermClose = MkAtomTerm(AtomClose);
   AtomColon = Yap_LookupAtom(":"); TermColon = MkAtomTerm(AtomColon);
   AtomCodeSpace = Yap_LookupAtom("code_space"); TermCodeSpace = MkAtomTerm(AtomCodeSpace);
   AtomCodes = Yap_LookupAtom("codes"); TermCodes = MkAtomTerm(AtomCodes);
@@ -196,6 +203,7 @@
   AtomInternalCompilerError = Yap_LookupAtom("internal_compiler_error"); TermInternalCompilerError = MkAtomTerm(AtomInternalCompilerError);
   AtomIs = Yap_LookupAtom("is"); TermIs = MkAtomTerm(AtomIs);
   AtomJ = Yap_LookupAtom("j"); TermJ = MkAtomTerm(AtomJ);
+  Atoml = Yap_LookupAtom("l"); Terml = MkAtomTerm(Atoml);
   AtomKey = Yap_LookupAtom("key"); TermKey = MkAtomTerm(AtomKey);
   AtomLDLibraryPath = Yap_LookupAtom("LD_LIBRARY_PATH"); TermLDLibraryPath = MkAtomTerm(AtomLDLibraryPath);
   AtomLONGINT = Yap_LookupAtom("LongInt"); TermLONGINT = MkAtomTerm(AtomLONGINT);

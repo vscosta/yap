@@ -87,11 +87,10 @@ static Int flush_all_streams(USES_REGS1);
  * @return the char .
  */
 INLINE_ONLY inline EXTERN Int CharOfAtom(Atom at) {
-  if (IsWideAtom(at)) {
-    return at->WStrOfAE[0];
-  } else {
-    return at->StrOfAE[0];
-  }
+  int32_t val;
+
+  get_utf8(at->UStrOfAE, 1, &val);
+  return val;
 }
 
 Int Yap_peek(int sno) {
@@ -113,9 +112,9 @@ Int Yap_peek(int sno) {
   }
 #endif
 #if !HAVE_FMEMOPEN
-    if (s->status & InMemory_Stream_f ) {
-      return Yap_MemPeekc( sno );
-    }
+  if (s->status & InMemory_Stream_f) {
+    return Yap_MemPeekc(sno);
+  }
 #endif
   /* buffer the character */
   if (s->encoding == Yap_SystemEncoding() && 0) {
@@ -1100,7 +1099,7 @@ atom with  _C_, while leaving the  stream position unaltered.
 static Int peek_char(USES_REGS1) {
   /* the next character is a EOF */
   int sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "peek/2");
-  wchar_t wsinp[2];
+  unsigned char sinp[10];
   Int ch;
 
   if (sno < 0)
@@ -1115,9 +1114,9 @@ static Int peek_char(USES_REGS1) {
     return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
   }
   UNLOCK(GLOBAL_Stream[sno].streamlock);
-  wsinp[1] = '\0';
-  wsinp[0] = ch;
-  return Yap_unify_constant(ARG2, MkAtomTerm(Yap_LookupMaybeWideAtom(wsinp)));
+  int off = put_utf8(sinp, ch);
+  sinp[off] = '\0';
+  return Yap_unify_constant(ARG2, MkAtomTerm(Yap_ULookupAtom(sinp)));
 }
 
 /** @pred  peek_char( - _C_) is iso
@@ -1130,7 +1129,7 @@ atom with  _C_, while leaving the  stream position unaltered.
 static Int peek_char_1(USES_REGS1) {
   /* the next character is a EOF */
   int sno = LOCAL_c_input_stream;
-  wchar_t wsinp[2];
+  unsigned char sinp[10];
   Int ch;
 
   LOCK(GLOBAL_Stream[sno].streamlock);
@@ -1140,9 +1139,9 @@ static Int peek_char_1(USES_REGS1) {
     // return false;
   }
   UNLOCK(GLOBAL_Stream[sno].streamlock);
-  wsinp[1] = '\0';
-  wsinp[0] = ch;
-  return Yap_unify_constant(ARG2, MkAtomTerm(Yap_LookupMaybeWideAtom(wsinp)));
+  int off = put_utf8(sinp, ch);
+  sinp[off] = '\0';
+  return Yap_unify_constant(ARG2, MkAtomTerm(Yap_ULookupAtom(sinp)));
 }
 
 /** @pred  peek(+ _S_, - _C_) is deprecated

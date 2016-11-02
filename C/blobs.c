@@ -212,16 +212,9 @@ bool YAP_get_blob(Term t, void **blob, size_t *len, blob_type_t **type) {
 void *YAP_blob_data(Atom x, size_t *len, blob_type_t **type) {
 
   if (!IsBlob(x)) {
-    if (IsWideAtom(x)) {
-      if (len)
-        *len = wcslen(x->WStrOfAE);
-      if (type)
 
-        *type = &unregistered_blob_atom;
-      return x->WStrOfAE;
-    }
     if (len)
-      *len = strlen((char *)x->StrOfAE);
+      *len = strlen_utf8(x->UStrOfAE);
     if (type)
       *type = &unregistered_blob_atom;
     return x->StrOfAE;

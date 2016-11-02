@@ -230,15 +230,15 @@ static Int char_code(USES_REGS1) {
         return (FALSE);
       }
       if (code > MAX_ISO_LATIN1) {
-        wchar_t wcodes[2];
+        unsigned char codes[10];
 
         if (code > CHARCODE_MAX) {
           Yap_Error(REPRESENTATION_ERROR_INT, t1, "char_code/2");
           return (FALSE);
         }
-        wcodes[0] = code;
-        wcodes[1] = '\0';
-        tout = MkAtomTerm(Yap_LookupWideAtom(wcodes));
+        size_t n =  put_utf8( codes, code);
+        codes[0] = code;
+        tout = MkAtomTerm(Yap_ULookupAtom(codes));
       } else {
         char codes[2];
 
@@ -254,25 +254,15 @@ static Int char_code(USES_REGS1) {
   } else {
     Atom at = AtomOfTerm(t0);
     Term tf;
-
-    if (IsWideAtom(at)) {
-      wchar_t *c = RepAtom(at)->WStrOfAE;
-
-      if (c[1] != '\0') {
-        Yap_Error(TYPE_ERROR_CHARACTER, t0, "char_code/2");
-        return FALSE;
-      }
-      tf = MkIntegerTerm(c[0]);
-    } else {
-      unsigned char *c = RepAtom(at)->UStrOfAE;
-
-      if (c[1] != '\0') {
-        Yap_Error(TYPE_ERROR_CHARACTER, t0, "char_code/2");
-        return FALSE;
-      }
-      tf = MkIntTerm((unsigned char)(c[0]));
+    unsigned char *c = RepAtom(at)->UStrOfAE;
+    int32_t v;
+    c += get_utf8(c, 1, &v);
+    if (c[0] != '\0') {
+      Yap_Error(TYPE_ERROR_CHARACTER, t0, "char_code/2");
+      return FALSE;
     }
-    return Yap_unify(ARG2, tf);
+    tf = MkIntTerm(v);
+      return Yap_unify(ARG2, tf);
   }
 }
 
@@ -1616,22 +1606,11 @@ static Int upcase_text_to_chars(USES_REGS1) {
   return false;
 }
 
-static int is_wide(wchar_t *s) {
-  wchar_t ch;
-
-  while ((ch = *s++)) {
-    if (ch > MAX_ISO_LATIN1)
-      return TRUE;
-  }
-  return FALSE;
-}
-
 /* split an atom into two sub-atoms */
 static Int atom_split(USES_REGS1) {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
   size_t len;
-  int i;
   Term to1, to2;
   Atom at;
 
@@ -1656,66 +1635,22 @@ static Int atom_split(USES_REGS1) {
     return (FALSE);
   }
   at = AtomOfTerm(t1);
-  if (IsWideAtom(at)) {
-    wchar_t *ws, *ws1 = (wchar_t *)HR;
-    unsigned char *s1 = (unsigned char *)HR;
-    size_t wlen;
-
-    ws = (wchar_t *)RepAtom(at)->StrOfAE;
-    wlen = wcslen(ws);
-    if (len > wlen)
-      return FALSE;
-    if (s1 + len > (unsigned char *)LCL0 - 1024)
-      Yap_Error(RESOURCE_ERROR_STACK, t1, "$atom_split/4");
-    for (i = 0; i < len; i++) {
-      if (ws[i] > MAX_ISO_LATIN1) {
-        break;
-      }
-      s1[i] = ws[i];
-    }
-    if (ws1[i] > MAX_ISO_LATIN1) {
-      /* first sequence is wide */
-      if (ws1 + len > (wchar_t *)ASP - 1024)
-        Yap_Error(RESOURCE_ERROR_STACK, t1, "$atom_split/4");
-      ws = (wchar_t *)RepAtom(at)->StrOfAE;
-      for (i = 0; i < len; i++) {
-        ws1[i] = ws[i];
-      }
-      ws1[len] = '\0';
-      to1 = MkAtomTerm(Yap_LookupWideAtom(ws1));
-      /* we don't know if the rest of the string is wide or not */
-      if (is_wide(ws + len)) {
-        to2 = MkAtomTerm(Yap_LookupWideAtom(ws + len));
-      } else {
-        char *s2 = (char *)HR;
-        if (s2 + (wlen - len) > (char *)ASP - 1024)
-          Yap_Error(RESOURCE_ERROR_STACK, t1, "$atom_split/4");
-        ws += len;
-        while ((*s2++ = *ws++))
-          ;
-        to2 = MkAtomTerm(Yap_LookupAtom((char *)HR));
-      }
-    } else {
-      s1[len] = '\0';
-      to1 = MkAtomTerm(Yap_ULookupAtom(s1));
-      /* second atom must be wide, if first wasn't */
-      to2 = MkAtomTerm(Yap_LookupWideAtom(ws + len));
-    }
-  } else {
-    unsigned char *s, *s1 = (unsigned char *)HR;
-
+ unsigned char *s, *s1, *s10;
     s = RepAtom(at)->UStrOfAE;
-    if (len > (Int)strlen((char *)s))
+    if (len > (Int)strlen_utf8(s))
       return (FALSE);
+    s1 = s10 = Malloc(len);
     if (s1 + len > (unsigned char *)ASP - 1024)
       Yap_Error(RESOURCE_ERROR_STACK, t1, "$atom_split/4");
-    for (i = 0; i < len; i++) {
-      s1[i] = s[i];
+    size_t j;
+    for (j = 0; j < len; j++) {
+        int32_t  val;
+        s += get_utf8(s,1,&val);
+      s1 += put_utf8(s,val);
     }
-    s1[len] = '\0';
-    to1 = MkAtomTerm(Yap_ULookupAtom(s1));
-    to2 = MkAtomTerm(Yap_ULookupAtom(s + len));
-  }
+    s1[0] = '\0';
+    to1 = MkAtomTerm(Yap_ULookupAtom(s10));
+    to2 = MkAtomTerm(Yap_ULookupAtom(s));
   return (Yap_unify_constant(ARG3, to1) && Yap_unify_constant(ARG4, to2));
 }
 
@@ -1769,50 +1704,17 @@ restart_aux:
 #define SUB_ATOM_HAS_SIZE 2
 #define SUB_ATOM_HAS_AFTER 4
 #define SUB_ATOM_HAS_VAL 8
-#define SUB_ATOM_HAS_WIDE 16
+#define SUB_ATOM_HAS_ATOM 16
 #define SUB_ATOM_HAS_UTF8 32
 
-static void *alloc_tmp_stack(size_t sz USES_REGS) {
-  void *pt = (void *)HR;
-  while (HR > ASP - (1044 + sz / sizeof(CELL))) {
-    if (!Yap_gc(5, ENV, gc_P(P, CP))) {
-      Yap_Error(RESOURCE_ERROR_STACK, TermNil, "sub_atom/5");
-      return (NULL);
-    }
-  }
-  return pt;
-}
 
 static Term build_new_atomic(int mask, wchar_t *wp, const unsigned char *p,
-                             size_t min, size_t len USES_REGS) {
-  Atom nat;
-  if (mask & SUB_ATOM_HAS_WIDE) {
-    wchar_t *src = wp + min;
-    wchar_t *d = alloc_tmp_stack((len + 1) * sizeof(wchar_t) PASS_REGS);
-    if (!d)
-      return NIL;
-
-    wcsncpy(d, src, len);
-    d[len] = '\0';
-    nat = Yap_LookupMaybeWideAtom(d);
-    if (nat)
-      return MkAtomTerm(nat);
-  } else if (!(mask & SUB_ATOM_HAS_UTF8)) {
-    const unsigned char *src = p + min;
-    unsigned char *d = alloc_tmp_stack((len + 1) * sizeof(char) PASS_REGS);
-    if (!d)
-      return NIL;
-
-    strncpy((char *)d, (char *)src, len);
-    d[len] = '\0';
-    nat = Yap_ULookupAtom(d);
-    if (nat)
-      return MkAtomTerm(nat);
-  } else {
+                             size_t minv, size_t len USES_REGS) {
+  {
     const unsigned char *src = p;
     unsigned char *buf;
     Term t = init_tstring(PASS_REGS1);
-    src = skip_utf8((unsigned char *)src, min);
+    src = skip_utf8((unsigned char *)src, minv);
     const unsigned char *cp = src;
 
     buf = buf_from_tstring(HR);
@@ -1823,6 +1725,8 @@ static Term build_new_atomic(int mask, wchar_t *wp, const unsigned char *p,
       len--;
     }
     *buf++ = '\0';
+if (mask &  SUB_ATOM_HAS_ATOM)
+    return MkAtomTerm( Yap_ULookupAtom(buf ) );
 
     close_tstring(buf PASS_REGS);
     return t;
@@ -1830,257 +1734,132 @@ static Term build_new_atomic(int mask, wchar_t *wp, const unsigned char *p,
   return 0L;
 }
 
-static Int wcsstrcmp(wchar_t *p, char *p2, size_t len) {
-  while (len--) {
-    Int d = *p++ - *p2++;
-    if (d)
-      return d;
-  }
-  return 0;
+
+static int check_sub_atom_at(int minv, Atom at, Atom nat, size_t len) {
+    const unsigned char *p1;
+    const unsigned char *p2 = RepAtom(nat)->UStrOfAE;
+    p1 = skip_utf8(RepAtom(at)->UStrOfAE, minv);
+    return cmpn_utf8(p1, p2, len) == 0;
 }
 
-static int check_sub_atom_at(int min, Atom at, Atom nat) {
-  if (IsWideAtom(nat)) {
-    wchar_t *p1, *p2;
-    wchar_t c1;
-    if (!IsWideAtom(at))
-      return FALSE;
-    p1 = RepAtom(at)->WStrOfAE + min;
-    p2 = RepAtom(nat)->WStrOfAE;
-    while ((c1 = *p1++) == *p2++ && c1)
-      ;
-    return c1 == 0;
-  } else {
-    if (IsWideAtom(at)) {
-      wchar_t *p1;
-      unsigned char *p2;
-      wchar_t c1;
-      p1 = RepAtom(at)->WStrOfAE + min;
-      p2 = RepAtom(nat)->UStrOfAE;
-      while ((c1 = *p1++) == *p2++ && c1)
-        ;
-      return c1 == 0;
-    } else {
-      unsigned char *p1, *p2;
-      char c1;
-      p1 = RepAtom(at)->UStrOfAE + min;
-      p2 = RepAtom(nat)->UStrOfAE;
-      while ((c1 = *p1++) == *p2++ && c1)
-        ;
-      return c1 == 0;
-    }
-  }
-}
-
-static int check_sub_string_at(int min, const unsigned char *p1,
+static int check_sub_string_at(int minv, const unsigned char *p1,
                                const unsigned char *p2, size_t len) {
-  p1 = skip_utf8((unsigned char *)p1, min);
+  p1 = skip_utf8((unsigned char *)p1, minv);
+    if (p1 == NULL || p2 == NULL)
+        return p1 == p2;
   return cmpn_utf8(p1, p2, len) == 0;
 }
 
-static int check_sub_atom_bef(int max, Atom at, Atom nat) {
-  if (IsWideAtom(nat)) {
-    wchar_t *p1, *p2;
-    wchar_t c1;
-
-    size_t len = wcslen(RepAtom(nat)->WStrOfAE);
-    int min = max - len;
-    if (min < 0)
-      return FALSE;
-    if (!IsWideAtom(at))
-      return FALSE;
-    p1 = RepAtom(at)->WStrOfAE + min;
-    p2 = RepAtom(nat)->WStrOfAE;
-    while ((c1 = *p1++) == *p2++ && c1)
-      ;
-    return c1 == 0;
-  } else {
-    size_t len = strlen((char *)RepAtom(nat)->StrOfAE);
-    int min = max - len;
-    if ((Int)(min - len) < 0)
-      return FALSE;
-    if (IsWideAtom(at)) {
-      wchar_t *p1;
-      unsigned char *p2;
-      wchar_t c1;
-      p1 = RepAtom(at)->WStrOfAE + min;
-      p2 = RepAtom(nat)->UStrOfAE;
-      while ((c1 = *p1++) == *p2++ && c1)
-        ;
-      return c1 == 0;
-    } else {
-      unsigned char *p1, *p2;
-      char c1;
-      p1 = RepAtom(at)->UStrOfAE + min;
-      p2 = RepAtom(nat)->UStrOfAE;
-      while ((c1 = *p1++) == *p2++ && c1)
-        ;
-      return c1 == 0;
-    }
-  }
-}
 
 static int check_sub_string_bef(int max, Term at, Term nat) {
-  size_t len = strlen_utf8(UStringOfTerm(nat));
-  int min = max - len;
-  const unsigned char *p1, *p2;
-  int c1;
+    size_t len = strlen_utf8(UStringOfTerm(nat));
+    int minv = max - len;
+    const unsigned char *p1, *p2;
+    int c1;
 
-  if ((Int)(min - len) < 0)
-    return FALSE;
+    if ((Int)(minv - len) < 0)
+        return FALSE;
 
-  p1 = skip_utf8((unsigned char *)UStringOfTerm(at), min);
-  p2 = UStringOfTerm(nat);
-  while ((c1 = *p1++) == *p2++ && c1)
-    ;
-  return c1 == 0;
+    p1 = skip_utf8((unsigned char *)UStringOfTerm(at), minv);
+    p2 = UStringOfTerm(nat);
+    while ((c1 = *p1++) == *p2++ && c1)
+        ;
+    return c1 == 0;
+}
+
+
+static int check_sub_atom_bef(int max, Atom at, Atom nat) {
+     const unsigned char *p1, *p2 = RepAtom(nat)->UStrOfAE;
+   size_t len = strlen_utf8(p2);
+    int minv = max - len;
+    int c1;
+
+    if ((Int)(minv - len) < 0)
+        return false;
+    p1 = skip_utf8(RepAtom(at)->UStrOfAE, minv);
+    while ((c1 = *p1++) == *p2++ && c1)
+        ;
+    return c1 == 0;
 }
 
 static Int cont_sub_atomic(USES_REGS1) {
-  Term tat1 = Deref(ARG1);
-  Atom at = NULL;
-  int mask;
-  size_t min, len, after, sz;
-  wchar_t *wp = NULL;
-  const unsigned char *p = NULL;
-  Term nat;
-  int sub_atom = TRUE;
+    Term tat1 = Deref(ARG1);
+    Term tat5 = Deref(ARG5);
+    int mask;
+    size_t minv, len, after, sz;
+    wchar_t *wp = NULL;
+    const unsigned char *p = NULL, *p5 = NULL;
+    Term nat;
+    int sub_atom = TRUE;
 
-  mask = IntegerOfTerm(EXTRA_CBACK_ARG(5, 1));
-  min = IntegerOfTerm(EXTRA_CBACK_ARG(5, 2));
-  len = IntegerOfTerm(EXTRA_CBACK_ARG(5, 3));
-  after = IntegerOfTerm(EXTRA_CBACK_ARG(5, 4));
-  sz = IntegerOfTerm(EXTRA_CBACK_ARG(5, 5));
+    mask = IntegerOfTerm(EXTRA_CBACK_ARG(5, 1));
+    minv = IntegerOfTerm(EXTRA_CBACK_ARG(5, 2));
+    len = IntegerOfTerm(EXTRA_CBACK_ARG(5, 3));
+    after = IntegerOfTerm(EXTRA_CBACK_ARG(5, 4));
+    sz = IntegerOfTerm(EXTRA_CBACK_ARG(5, 5));
 
-  if (mask & SUB_ATOM_HAS_UTF8) {
-    sub_atom = FALSE;
-    p = UStringOfTerm(tat1);
-  } else if (mask & SUB_ATOM_HAS_WIDE) {
-    at = AtomOfTerm(tat1);
-    wp = RepAtom(at)->WStrOfAE;
-  } else {
-    at = AtomOfTerm(tat1);
-    p = RepAtom(at)->UStrOfAE;
-  }
-  /* we can have one of two cases: A5 bound or unbound */
+    if (!IsVarTerm(tat1)) {
+        if (IsAtomTerm(tat1)) {
+            p = AtomOfTerm(tat1)->UStrOfAE;
+        } else {
+            p = UStringOfTerm(tat1);
+        }
+    }
+    if (!IsVarTerm(tat5)) {
+        if (IsAtomTerm(tat5)) {
+            p5 = AtomOfTerm(tat5)->UStrOfAE;
+        } else {
+            p5 = UStringOfTerm(tat5);
+        }
+    }
+    /* we can have one of two cases: A5 bound or unbound */
   if (mask & SUB_ATOM_HAS_VAL) {
     int found = FALSE;
     nat = Deref(ARG5);
-    if (mask & SUB_ATOM_HAS_WIDE) {
-      wp = RepAtom(at)->WStrOfAE;
-      if (IsWideAtom(AtomOfTerm(nat))) {
-        while (!found) {
-          if (wcsncmp(wp + min, AtomOfTerm(nat)->WStrOfAE, len) == 0) {
-            Yap_unify(ARG2, MkIntegerTerm(min));
-            Yap_unify(ARG3, MkIntegerTerm(len));
-            Yap_unify(ARG4, MkIntegerTerm(after));
-            found = TRUE;
-            /* found one, check if there is any left */
-            while (min <= sz - len) {
-              after--;
-              min++;
-              if (wcsncmp(wp + min, AtomOfTerm(nat)->WStrOfAE, len) == 0)
-                break;
-            }
-          } else {
-            if (min == sz - len)
-              break;
-            after--;
-            min++;
-          }
-        }
-      } else {
-        while (!found) {
-          if (wcsstrcmp(wp + min, (char *)AtomOfTerm(nat)->StrOfAE, len) == 0) {
-            Yap_unify(ARG2, MkIntegerTerm(min));
-            Yap_unify(ARG3, MkIntegerTerm(len));
-            Yap_unify(ARG4, MkIntegerTerm(after));
-            found = TRUE;
-            /* found one, check if there is any left */
-            while (min <= sz - len) {
-              after--;
-              min++;
-              if (wcsstrcmp(wp + min, (char *)AtomOfTerm(nat)->StrOfAE, len) ==
-                  0)
-                break;
-            }
-          } else {
-            if (min == sz - len)
-              break;
-            after--;
-            min++;
-          }
-        }
-      }
-    } else if (sub_atom) {
-      p = RepAtom(at)->UStrOfAE;
-      while (!found) {
-        if (strncmp((char *)p + min, (char *)AtomOfTerm(nat)->StrOfAE, len) ==
-            0) {
-          Yap_unify(ARG2, MkIntegerTerm(min));
-          Yap_unify(ARG3, MkIntegerTerm(len));
-          Yap_unify(ARG4, MkIntegerTerm(after));
-          found = TRUE;
-          /* found one, check if there is any left */
-          while (min <= sz - len) {
-            after--;
-            min++;
-            if (strncmp((char *)p + min, (char *)AtomOfTerm(nat)->StrOfAE,
-                        len) == 0)
-              break;
-          }
-        } else {
-          if (min == sz - len)
-            break;
-          after--;
-          min++;
-        }
-      }
-    } else {
-      const unsigned char *p = UStringOfTerm(Deref(ARG1)), *p1 = p;
-      const unsigned char *p5 = UStringOfTerm(Deref(ARG5));
+   {
+      const unsigned char *p1 = p;
 
       while (!found) {
-        p = skip_utf8((unsigned char *)p1, min);
+        p = skip_utf8(p1, minv);
         if (cmpn_utf8(p, p5, len) == 0) {
-          Yap_unify(ARG2, MkIntegerTerm(min));
+          Yap_unify(ARG2, MkIntegerTerm(minv));
           Yap_unify(ARG3, MkIntegerTerm(len));
           Yap_unify(ARG4, MkIntegerTerm(after));
           found = TRUE;
           /* found one, check if there is any left */
-          while (min <= sz - len) {
+          while (minv <= sz - len) {
             int chr;
             p += get_utf8((unsigned char *)p, -1, &chr);
             after--;
-            min++;
+            minv++;
             if (cmpn_utf8(p, UStringOfTerm(nat), len) == 0)
               break;
           }
         } else {
-          if (min == sz - len)
+          if (minv == sz - len)
             break;
           after--;
-          min++;
+          minv++;
         }
       }
     }
     if (found) {
-      if (min > sz - len)
+      if (minv > sz - len)
         cut_succeed();
     } else {
       cut_fail();
     }
   } else if (mask & SUB_ATOM_HAS_SIZE) {
-    nat = build_new_atomic(mask, wp, p, min, len PASS_REGS);
-    Yap_unify(ARG2, MkIntegerTerm(min));
+    nat = build_new_atomic(mask, wp, p, minv, len PASS_REGS);
+    Yap_unify(ARG2, MkIntegerTerm(minv));
     Yap_unify(ARG4, MkIntegerTerm(after));
     Yap_unify(ARG5, nat);
-    min++;
+    minv++;
     if (after-- == 0)
       cut_succeed();
   } else if (mask & SUB_ATOM_HAS_MIN) {
-    after = sz - (min + len);
-    nat = build_new_atomic(mask, wp, p, min, len PASS_REGS);
+    after = sz - (minv + len);
+    nat = build_new_atomic(mask, wp, p, minv, len PASS_REGS);
     Yap_unify(ARG3, MkIntegerTerm(len));
     Yap_unify(ARG4, MkIntegerTerm(after));
     Yap_unify(ARG5, nat);
@@ -2088,53 +1867,66 @@ static Int cont_sub_atomic(USES_REGS1) {
     if (after-- == 0)
       cut_succeed();
   } else if (mask & SUB_ATOM_HAS_AFTER) {
-    len = sz - (min + after);
-    nat = build_new_atomic(mask, wp, p, min, len PASS_REGS);
-    Yap_unify(ARG2, MkIntegerTerm(min));
+    len = sz - (minv + after);
+    nat = build_new_atomic(mask, wp, p, minv, len PASS_REGS);
+    Yap_unify(ARG2, MkIntegerTerm(minv));
     Yap_unify(ARG3, MkIntegerTerm(len));
     Yap_unify(ARG5, nat);
-    min++;
+    minv++;
     if (len-- == 0)
       cut_succeed();
   } else {
-    nat = build_new_atomic(mask, wp, p, min, len PASS_REGS);
-    Yap_unify(ARG2, MkIntegerTerm(min));
+    nat = build_new_atomic(mask, wp, p, minv, len PASS_REGS);
+    Yap_unify(ARG2, MkIntegerTerm(minv));
     Yap_unify(ARG3, MkIntegerTerm(len));
     Yap_unify(ARG4, MkIntegerTerm(after));
     Yap_unify(ARG5, nat);
     len++;
     if (after-- == 0) {
-      if (min == sz)
+      if (minv == sz)
         cut_succeed();
-      min++;
+      minv++;
       len = 0;
-      after = sz - min;
+      after = sz - minv;
     }
   }
   EXTRA_CBACK_ARG(5, 1) = MkIntegerTerm(mask);
-  EXTRA_CBACK_ARG(5, 2) = MkIntegerTerm(min);
+  EXTRA_CBACK_ARG(5, 2) = MkIntegerTerm(minv);
   EXTRA_CBACK_ARG(5, 3) = MkIntegerTerm(len);
   EXTRA_CBACK_ARG(5, 4) = MkIntegerTerm(after);
   EXTRA_CBACK_ARG(5, 5) = MkIntegerTerm(sz);
   return TRUE;
 }
 
-static Int sub_atomic(int sub_atom USES_REGS) {
+static Int sub_atomic(bool sub_atom USES_REGS) {
   Term tat1, tbef, tsize, tafter, tout;
-  int mask = 0;
-  size_t min, len, after, sz;
+  int mask = SUB_ATOM_HAS_UTF8;
+  size_t minv, len, after, sz;
   wchar_t *wp = NULL;
-  unsigned char *p = NULL;
+  const unsigned char *p = NULL;
   int bnds = 0;
   Term nat = 0L;
   Atom at = NULL;
 
-  tat1 = Deref(ARG1);
+    if (sub_atom)
+         mask |= SUB_ATOM_HAS_ATOM;
+
+
+    tat1 = Deref(ARG1);
+
+    if (!IsVarTerm(tat1)) {
+        if (IsAtomTerm(tat1)) {
+            p = AtomOfTerm(tat1)->UStrOfAE;
+        } else {
+            p = UStringOfTerm(tat1);
+        }
+    }
+
   EXTRA_CBACK_ARG(5, 3) = MkIntegerTerm(0);
   if (IsVarTerm(tat1)) {
-    Yap_Error(INSTANTIATION_ERROR, tat1, "sub_atom/5: first argument");
+    Yap_Error(INSTANTIATION_ERROR, tat1, "sub_atom/5: first variable\n");
     return FALSE;
-  } else if (sub_atom && !IsAtomTerm(tat1)) {
+  } else if (IsAtomTerm(tat1)) {
     Yap_Error(TYPE_ERROR_ATOM, tat1, "sub_atom/5");
     return FALSE;
   } else if (!sub_atom && !IsStringTerm(tat1)) {
@@ -2143,13 +1935,13 @@ static Int sub_atomic(int sub_atom USES_REGS) {
   }
   tbef = Deref(ARG2);
   if (IsVarTerm(tbef)) {
-    min = 0;
+    minv = 0;
   } else if (!IsIntegerTerm(tbef)) {
     Yap_Error(TYPE_ERROR_INTEGER, tbef, "sub_string/5");
     return FALSE;
   } else {
-    min = IntegerOfTerm(tbef);
-    if ((Int)min < 0) {
+    minv = IntegerOfTerm(tbef);
+    if ((Int)minv < 0) {
       Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, tbef, "sub_string/5");
       return FALSE;
     };
@@ -2193,10 +1985,7 @@ static Int sub_atomic(int sub_atom USES_REGS) {
         Atom oat;
         mask |= SUB_ATOM_HAS_VAL | SUB_ATOM_HAS_SIZE;
         oat = AtomOfTerm(tout);
-        if (IsWideAtom(oat))
-          len = wcslen(RepAtom(oat)->WStrOfAE);
-        else
-          len = strlen((const char *)RepAtom(oat)->StrOfAE);
+           len = strlen_utf8(RepAtom(oat)->UStrOfAE);
       }
     } else {
       if (!IsStringTerm(tout)) {
@@ -2211,41 +2000,30 @@ static Int sub_atomic(int sub_atom USES_REGS) {
       cut_fail();
     bnds += 2;
   }
-  if (sub_atom) {
-    at = AtomOfTerm(tat1);
-    if (IsWideAtom(at)) {
-      mask |= SUB_ATOM_HAS_WIDE;
-      wp = RepAtom(at)->WStrOfAE;
-      sz = wcslen(wp);
-    } else {
-      p = RepAtom(at)->UStrOfAE;
-      sz = strlen((const char *)p);
+    if (!IsVarTerm(tat1)) {
+        mask |= SUB_ATOM_HAS_UTF8;
+        sz = strlen_utf8(p);
     }
-  } else {
-    mask |= SUB_ATOM_HAS_UTF8;
-    p = (unsigned char *)StringOfTerm(tat1);
-    sz = strlen_utf8(p);
-  }
   /* the problem is deterministic if we have two cases */
   if (bnds > 1) {
     int out = FALSE;
 
     if ((mask & (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_SIZE)) ==
         (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_SIZE)) {
-      if (min + len > sz)
+      if (minv + len > sz)
         cut_fail();
-      if ((Int)(after = (sz - (min + len))) < 0)
+      if ((Int)(after = (sz - (minv + len))) < 0)
         cut_fail();
-      nat = build_new_atomic(mask, wp, p, min, len PASS_REGS);
+      nat = build_new_atomic(mask, wp, p, minv, len PASS_REGS);
       if (!nat)
         cut_fail();
       out = Yap_unify(ARG4, MkIntegerTerm(after)) && Yap_unify(ARG5, nat);
     } else if ((mask & (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_AFTER)) ==
                (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_AFTER)) {
-      if (sz < min + after)
+      if (sz < minv + after)
         cut_fail();
-      len = sz - (min + after);
-      nat = build_new_atomic(mask, wp, p, min, len PASS_REGS);
+      len = sz - (minv + after);
+      nat = build_new_atomic(mask, wp, p, minv, len PASS_REGS);
       if (!nat)
         cut_fail();
       out = Yap_unify(ARG3, MkIntegerTerm(len)) && Yap_unify(ARG5, nat);
@@ -2253,17 +2031,17 @@ static Int sub_atomic(int sub_atom USES_REGS) {
                (SUB_ATOM_HAS_SIZE | SUB_ATOM_HAS_AFTER)) {
       if (len + after > sz)
         cut_fail();
-      min = sz - (len + after);
-      nat = build_new_atomic(mask, wp, p, min, len PASS_REGS);
+      minv = sz - (len + after);
+      nat = build_new_atomic(mask, wp, p, minv, len PASS_REGS);
       if (!nat)
         cut_fail();
-      out = Yap_unify(ARG2, MkIntegerTerm(min)) && Yap_unify(ARG5, nat);
+      out = Yap_unify(ARG2, MkIntegerTerm(minv)) && Yap_unify(ARG5, nat);
     } else if ((mask & (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_VAL)) ==
                (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_VAL)) {
       if (sub_atom)
-        out = check_sub_atom_at(min, at, AtomOfTerm(nat));
+        out = check_sub_atom_at(minv, at, AtomOfTerm(nat), len);
       else
-        out = check_sub_string_at(min, p, UStringOfTerm(nat), len);
+        out = check_sub_string_at(minv, p, UStringOfTerm(nat), len);
     } else if ((mask & (SUB_ATOM_HAS_AFTER | SUB_ATOM_HAS_VAL)) ==
                (SUB_ATOM_HAS_AFTER | SUB_ATOM_HAS_VAL)) {
       if (sub_atom)
@@ -2276,14 +2054,9 @@ static Int sub_atomic(int sub_atom USES_REGS) {
         out = (strlen_utf8(UStringOfTerm(tout)) == len);
         if (!out)
           cut_fail();
-      } else if (IsWideAtom(AtomOfTerm(tout))) {
-        if (!(mask & SUB_ATOM_HAS_VAL)) {
-          cut_fail();
-        }
-        /* just check length, they may still be several occurrences :( */
-        out = (wcslen(RepAtom(AtomOfTerm(tout))->WStrOfAE) == len);
       } else {
-        out = (strlen((const char *)RepAtom(AtomOfTerm(tout))->StrOfAE) == len);
+        out = (strlen_utf8(RepAtom(AtomOfTerm(tout))->UStrOfAE)
+               == len);
         if (!out)
           cut_fail();
       }
@@ -2295,7 +2068,7 @@ static Int sub_atomic(int sub_atom USES_REGS) {
         cut_fail();
       } else {
         mask |= SUB_ATOM_HAS_SIZE;
-        min = 0;
+        minv = 0;
         after = sz - len;
         goto backtrackable;
       }
@@ -2305,15 +2078,15 @@ static Int sub_atomic(int sub_atom USES_REGS) {
     cut_fail();
   } else {
     if (!(mask & SUB_ATOM_HAS_MIN))
-      min = 0;
+      minv = 0;
     if (!(mask & SUB_ATOM_HAS_SIZE))
       len = 0;
     if (!(mask & SUB_ATOM_HAS_AFTER))
-      after = sz - (len + min);
+      after = sz - (len + minv);
   }
 backtrackable:
   EXTRA_CBACK_ARG(5, 1) = MkIntegerTerm(mask);
-  EXTRA_CBACK_ARG(5, 2) = MkIntegerTerm(min);
+  EXTRA_CBACK_ARG(5, 2) = MkIntegerTerm(minv);
   EXTRA_CBACK_ARG(5, 3) = MkIntegerTerm(len);
   EXTRA_CBACK_ARG(5, 4) = MkIntegerTerm(after);
   EXTRA_CBACK_ARG(5, 5) = MkIntegerTerm(sz);
@@ -2334,7 +2107,7 @@ are unbound, the built-in will backtrack through all possible
 sub-strings of  _A_.
 
  */
-static Int sub_atom(USES_REGS1) { return sub_atomic(TRUE PASS_REGS); }
+static Int sub_atom(USES_REGS1) { return sub_atomic(true PASS_REGS); }
 
 /** @pred  sub_string(+ _S_,? _Bef_, ? _Size_, ? _After_, ? _S_out_) is iso
 
@@ -2350,7 +2123,7 @@ are unbound, the built-in will generate all possible
 sub-strings of  _S_.
 
  */
-static Int sub_string(USES_REGS1) { return sub_atomic(FALSE PASS_REGS); }
+static Int sub_string(USES_REGS1) { return sub_atomic(false PASS_REGS); }
 
 static Int cont_current_atom(USES_REGS1) {
   Atom catom;
@@ -2428,89 +2201,10 @@ static Int current_atom(USES_REGS1) { /* current_atom(?Atom)		 */
   return (cont_current_atom(PASS_REGS1));
 }
 
-static Int cont_current_wide_atom(USES_REGS1) {
-  Atom catom;
-  Int i = IntOfTerm(EXTRA_CBACK_ARG(1, 2));
-  AtomEntry *ap; /* nasty hack for gcc on hpux */
-
-  /* protect current hash table line */
-  if (IsAtomTerm(EXTRA_CBACK_ARG(1, 1)))
-    catom = AtomOfTerm(EXTRA_CBACK_ARG(1, 1));
-  else
-    catom = NIL;
-  if (catom == NIL) {
-    i++;
-    /* move away from current hash table line */
-    while (i < WideAtomHashTableSize) {
-      READ_LOCK(WideHashChain[i].AERWLock);
-      catom = WideHashChain[i].Entry;
-      READ_UNLOCK(WideHashChain[i].AERWLock);
-      if (catom != NIL) {
-        break;
-      }
-      i++;
-    }
-    if (i == WideAtomHashTableSize) {
-      cut_fail();
-    }
-  }
-  ap = RepAtom(catom);
-  if (Yap_unify_constant(ARG1, MkAtomTerm(catom))) {
-    READ_LOCK(ap->ARWLock);
-    if (ap->NextOfAE == NIL) {
-      READ_UNLOCK(ap->ARWLock);
-      i++;
-      while (i < WideAtomHashTableSize) {
-        READ_LOCK(WideHashChain[i].AERWLock);
-        catom = WideHashChain[i].Entry;
-        READ_UNLOCK(WideHashChain[i].AERWLock);
-        if (catom != NIL) {
-          break;
-        }
-        i++;
-      }
-      if (i == WideAtomHashTableSize) {
-        cut_fail();
-      } else {
-        EXTRA_CBACK_ARG(1, 1) = MkAtomTerm(catom);
-      }
-    } else {
-      EXTRA_CBACK_ARG(1, 1) = MkAtomTerm(ap->NextOfAE);
-      READ_UNLOCK(ap->ARWLock);
-    }
-    EXTRA_CBACK_ARG(1, 2) = MkIntTerm(i);
-    return TRUE;
-  } else {
-    return FALSE;
-  }
-}
-
-static Int current_wide_atom(USES_REGS1) { /* current_atom(?Atom)
-                                              */
-  Term t1 = Deref(ARG1);
-  if (!IsVarTerm(t1)) {
-    if (IsAtomTerm(t1))
-      cut_succeed();
-    else
-      cut_fail();
-  }
-  READ_LOCK(WideHashChain[0].AERWLock);
-  if (WideHashChain[0].Entry != NIL) {
-    EXTRA_CBACK_ARG(1, 1) = MkAtomTerm(WideHashChain[0].Entry);
-  } else {
-    EXTRA_CBACK_ARG(1, 1) = MkIntTerm(0);
-  }
-  READ_UNLOCK(WideHashChain[0].AERWLock);
-  EXTRA_CBACK_ARG(1, 2) = MkIntTerm(0);
-  return (cont_current_wide_atom(PASS_REGS1));
-}
-
 void Yap_InitBackAtoms(void) {
   Yap_InitCPredBack("$current_atom", 1, 2, current_atom, cont_current_atom,
                     SafePredFlag | SyncPredFlag);
-  Yap_InitCPredBack("$current_wide_atom", 1, 2, current_wide_atom,
-                    cont_current_wide_atom, SafePredFlag | SyncPredFlag);
-  Yap_InitCPredBack("atom_concat", 3, 2, atom_concat3, cont_atom_concat3, 0);
+   Yap_InitCPredBack("atom_concat", 3, 2, atom_concat3, cont_atom_concat3, 0);
   Yap_InitCPredBack("atomic_concat", 3, 2, atomic_concat3, cont_atomic_concat3,
                     0);
   Yap_InitCPredBack("string_concat", 3, 2, string_concat3, cont_string_concat3,

@@ -215,7 +215,7 @@ static const param_t read_defs[] = {READ_DEFS()};
  * Implicit arguments:
  *    +
  */
-static  char * syntax_error(TokEntry *errtok, int sno, Term cmod) {
+static char *syntax_error(TokEntry *errtok, int sno, Term cmod) {
   CACHE_REGS
   Term info;
   Term startline, errline, endline;
@@ -364,7 +364,7 @@ static  char * syntax_error(TokEntry *errtok, int sno, Term cmod) {
   return NULL;
 }
 
- char * Yap_syntax_error(TokEntry *errtok, int sno) {
+char *Yap_syntax_error(TokEntry *errtok, int sno) {
   return syntax_error(errtok, sno, CurrentModule);
 }
 
@@ -870,14 +870,14 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     return YAP_PARSING_FINISHED;
   } else {
-    const char*s = syntax_error(fe->toklast, inp_stream, fe->cmod);
+    char *s = syntax_error(fe->toklast, inp_stream, fe->cmod);
     if (ParserErrorStyle == TermError) {
       LOCAL_ErrorMessage = s;
       LOCAL_Error_TYPE = SYNTAX_ERROR;
       return YAP_PARSING_FINISHED;
       // dec-10
     } else if (Yap_PrintWarning(MkStringTerm(s))) {
-        free(s);
+      free(s);
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       return YAP_SCANNING;
     }
@@ -923,13 +923,16 @@ Term Yap_read_term(int inp_stream, Term opts, int nargs) {
   int emacs_cares = FALSE;
 #endif
 
+  int lvl = push_text_stack();
   parser_state_t state = YAP_START_PARSING;
   while (true) {
     switch (state) {
     case YAP_START_PARSING:
       state = initParser(opts, &fe, &re, inp_stream, nargs);
-      if (state == YAP_PARSING_FINISHED)
+      if (state == YAP_PARSING_FINISHED) {
+        pop_text_stack(lvl);
         return 0;
+      }
       break;
     case YAP_SCANNING:
       state = scan(&re, &fe, inp_stream);
@@ -961,10 +964,12 @@ Term Yap_read_term(int inp_stream, Term opts, int nargs) {
 #if EMACS
       first_char = tokstart->TokPos;
 #endif /* EMACS */
+      pop_text_stack(lvl);
       return fe.t;
     }
     }
   }
+  pop_text_stack(lvl);
   return 0;
 }
 
@@ -1339,17 +1344,10 @@ static Int read_term_from_atom(USES_REGS1) {
 Term Yap_AtomToTerm(Atom a, Term opts) {
   Term rval;
   int sno;
-  if (IsWideAtom(a)) {
-    wchar_t *ws = a->WStrOfAE;
-    size_t len = wcslen(ws);
-    encoding_t enc = ENC_ISO_ANSI;
-    sno = Yap_open_buf_read_stream((char *)ws, len, &enc, MEM_BUF_USER);
-  } else {
-    char *s = a->StrOfAE;
-    size_t len = strlen(s);
-    encoding_t enc = ENC_ISO_LATIN1;
-    sno = Yap_open_buf_read_stream((char *)s, len, &enc, MEM_BUF_USER);
-  }
+  char *s = a->StrOfAE;
+  size_t len = strlen(s);
+  encoding_t enc = ENC_ISO_UTF8;
+  sno = Yap_open_buf_read_stream((char *)s, len, &enc, MEM_BUF_USER);
 
   rval = Yap_read_term(sno, opts, 3);
   Yap_CloseStream(sno);

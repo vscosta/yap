@@ -79,7 +79,7 @@ static char SccsId[] = "%W% %G%";
 
 static Int p_change_type_of_char(USES_REGS1);
 
-Term Yap_StringToNumberTerm(const    char *s, encoding_t *encp) {
+Term Yap_StringToNumberTerm(const char *s, encoding_t *encp) {
   CACHE_REGS
   int sno;
   Term t;
@@ -214,22 +214,15 @@ static int get_char(Term t) {
     return 0;
   }
   Atom at = AtomOfTerm(t);
-  if (IsWideAtom(at)) {
-    wchar_t *s0 = RepAtom(AtomOfTerm(t))->WStrOfAE;
-    if (s0[1] != '\0') {
-      Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, NULL);
-      return 0;
-    }
-    return s0[0];
-  } else {
-    char *s0 = RepAtom(AtomOfTerm(t))->StrOfAE;
-    if (s0[1] != '\0') {
-      Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, NULL);
-      return 0;
-    }
-    return s0[0];
+  unsigned char *s = RepAtom(at)->UStrOfAE;
+  utf8proc_int32_t c;
+  s += get_utf8(s, 1, &c);
+  return c;
+  if (s[0] != '\0') {
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, NULL);
+    return 0;
   }
-  return 0;
+  return c;
 }
 
 static int get_code(Term t) {
@@ -263,25 +256,15 @@ static int get_char_or_code(Term t, bool *is_char) {
     *is_char = false;
     return ch;
   }
-  Atom at = AtomOfTerm(t);
-  if (IsWideAtom(at)) {
-    wchar_t *s0 = RepAtom(AtomOfTerm(t))->WStrOfAE;
-    if (s0[1] != '\0') {
-      Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, NULL);
-      return 0;
-    }
-    *is_char = true;
-    return s0[0];
-  } else {
-    char *s0 = RepAtom(AtomOfTerm(t))->StrOfAE;
-    if (s0[1] != '\0') {
-      Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, NULL);
-      return 0;
-    }
-    *is_char = true;
-    return s0[0];
+  unsigned char *s0 = RepAtom(AtomOfTerm(t))->UStrOfAE;
+  int val;
+  s0 += get_utf8(s0, 1, &val);
+  if (s0[0] != '\0') {
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER, t, NULL);
+    return 0;
   }
-  return 0;
+  *is_char = true;
+  return val;
 }
 
 static Int toupper2(USES_REGS1) {

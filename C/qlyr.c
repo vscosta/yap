@@ -688,22 +688,7 @@ static void ReadHash(FILE *stream) {
     Atom at;
     qlf_tag_t tg = read_tag(stream);
 
-    if (tg == QLY_ATOM_WIDE) {
-      wchar_t *rep = (wchar_t *)AllocTempSpace();
-      UInt len;
-
-      len = read_UInt(stream);
-      if (!EnoughTempSpace(len))
-        QLYR_ERROR(OUT_OF_TEMP_SPACE);
-      read_bytes(stream, rep, (len + 1) * sizeof(wchar_t));
-      while (!(at = Yap_LookupWideAtom(rep))) {
-        if (!Yap_growheap(FALSE, 0, NULL)) {
-          exit(1);
-        }
-      }
-      if (at == NIL)
-        QLYR_ERROR(OUT_OF_ATOM_SPACE);
-    } else if (tg == QLY_ATOM) {
+  if (tg == QLY_ATOM) {
       char *rep = (char *)AllocTempSpace();
       UInt len;
 

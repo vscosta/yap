@@ -81,38 +81,7 @@ static Int a_gen_ge(Term, Term);
 #define rfloat(X) (X > 0.0 ? 1 : (X == 0.0 ? 0 : -1))
 
 static int cmp_atoms(Atom a1, Atom a2) {
-  if (IsWideAtom(a1)) {
-    if (IsWideAtom(a2)) {
-      return wcscmp((wchar_t *)RepAtom(a1)->StrOfAE,
-                    (wchar_t *)RepAtom(a2)->StrOfAE);
-    } else {
-      /* The standard does not seem to have nothing on this */
-      unsigned char *s1 = (unsigned char *)RepAtom(a1)->StrOfAE;
-      wchar_t *s2 = (wchar_t *)RepAtom(a2)->StrOfAE;
-
-      while (*s1 == *s2) {
-        if (!*s1)
-          return 0;
-        s1++;
-        s2++;
-      }
-      return *s1 - *s2;
-    }
-  } else if (IsWideAtom(a2)) {
-    /* The standard does not seem to have nothing on this */
-    wchar_t *s1 = (wchar_t *)RepAtom(a1)->StrOfAE;
-    unsigned char *s2 = (unsigned char *)RepAtom(a2)->StrOfAE;
-
-    while (*s1 == *s2) {
-      if (!*s1)
-        return 0;
-      s1++;
-      s2++;
-    }
-    return *s1 - *s2;
-  } else {
-    return strcmp((char *)RepAtom(a1)->StrOfAE, (char *)RepAtom(a2)->StrOfAE);
-  }
+    return strcmp(RepAtom(a1)->StrOfAE, RepAtom(a2)->StrOfAE);
 }
 
 static Int compare_complex(register CELL *pt0, register CELL *pt0_end,

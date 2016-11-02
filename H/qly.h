@@ -96,10 +96,9 @@ typedef enum {
   QLY_END_OPS = 11,
   QLY_START_PREDICATE = 12,
   QLY_END_PREDICATES = 13,
-  QLY_ATOM_WIDE = 14,
   QLY_FAILCODE = 15,
   QLY_ATOM = 16,
-  QLY_ATOM_BLOB = 17
+  QLY_ATOM_BLOB = 14
 } qlf_tag_t;
 
 #define STATIC_PRED_FLAGS                                                      \

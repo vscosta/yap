@@ -1,0 +1,43 @@
+The environment variable LOGTALKHOME should be defined first, pointing
+to your Logtalk installation directory!
+Trying the default locations for the Logtalk installation...
+... using Logtalk installation found at /Users/vsc/share/logtalk
+
+The environment variable LOGTALKUSER should be defined first, pointing
+to your Logtalk user directory!
+Trying the default location for the Logtalk user directory...
+
+
+
+Logtalk 3.6.3-rc9
+Copyright (c) 1998-2016 Paulo Moura
+
+% Default lint compilation flags: 
+%   unknown_predicates: warning, undefined_predicates: warning
+%   portability: silent, unknown_entities: warning
+%   missing_directives: warning, redefined_built_ins: silent
+%   singleton_variables: warning, underscore_variables: singletons
+% Default optional features compiler flags:
+%   complements: deny, dynamic_declarations: deny
+%   context_switching_calls: allow, events: deny
+% Other default compilation flags:
+%   report: on, scratch_directory: ./.lgt_tmp/
+%   source_data: on, code_prefix: $, hook: (none)
+%   optimize: off, debug: off, clean: on, reload: changed
+% Backend Prolog compiler flags:
+%   prolog_compiler: []
+%   prolog_loader:   [silent(true),compilation_mode(compact)]
+% Read-only compilation flags (backend Prolog compiler features):
+%   prolog_dialect: yap, modules: supported, threads: unsupported
+%   tabling: unsupported, coinduction: supported
+%   unicode: full, encoding_directive: full
+% 
+% No settings file found in the startup or Logtalk user directories.
+% Using default flag values set in the backend Prolog compiler adapter file.
+% 
+% For Logtalk help, use ?- {help(loader)}. or ?- logtalk_load(help(loader)).
+% 
+*****         Logtalk version: 3.6.3-rc9
+*****         Prolog version: 6.3.4
+% [ /Users/vsc/logtalk/library/tester_versions.lgt loaded ]
+% (0 warnings)

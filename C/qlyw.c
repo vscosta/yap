@@ -505,7 +505,6 @@ DBRefAdjust__ (DBRef dbt USES_REGS)
 
 #define rehash(oldcode, NOfE, KindOfEntries)
 
-#define RestoreSWIHash()
 
 static void RestoreFlags( UInt NFlags )
 {
@@ -584,15 +583,9 @@ SaveHash(FILE *stream)
     if (a->val) {
       Atom at = a->val;
       CHECK(save_UInt(stream, (UInt)at));
-      if (IsWideAtom(at)) {
-	CHECK(save_tag(stream, QLY_ATOM_WIDE));
-	CHECK(save_UInt(stream, wcslen(RepAtom(at)->WStrOfAE)));
-	CHECK(save_bytes(stream, at->WStrOfAE, (wcslen(at->WStrOfAE)+1)*sizeof(wchar_t)));
-      } else {
 	CHECK(save_tag(stream, QLY_ATOM));
 	CHECK(save_UInt(stream, strlen((char *)RepAtom(at)->StrOfAE)));
 	CHECK(save_bytes(stream, (char *)at->StrOfAE, (strlen((char *)at->StrOfAE)+1)*sizeof(char)));
-      }
     }
   }
   save_tag(stream, QLY_START_FUNCTORS);

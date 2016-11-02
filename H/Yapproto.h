@@ -35,9 +35,6 @@ extern struct operator_entry *
 extern Atom Yap_LookupAtom(const char *);
 extern Atom Yap_ULookupAtom(const unsigned char *);
 extern Atom Yap_LookupAtomWithLength(const char *, size_t);
-extern Atom Yap_LookupUTF8Atom(const unsigned char *);
-extern Atom Yap_LookupMaybeWideAtom(const wchar_t *);
-extern Atom Yap_LookupMaybeWideAtomWithLength(const wchar_t *, size_t);
 extern Atom Yap_FullLookupAtom(const char *);
 extern void Yap_LookupAtomWithAddress(const char *, struct AtomEntryStruct *);
 extern Prop Yap_NewPredPropByFunctor(struct FunctorEntryStruct *, Term);
@@ -446,6 +443,8 @@ extern intptr_t system_thread_id(void);
 #ifdef LOW_LEVEL_TRACER
 extern void Yap_InitLowLevelTrace(void);
 #endif
+
+extern void *Yap_InitTextAllocator( void );
 
 /* udi.c */
 extern void Yap_udi_init(void);

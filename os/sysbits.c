@@ -1790,15 +1790,13 @@ static Int p_log_event(USES_REGS1) {
     return FALSE;
   at = AtomOfTerm(in);
 #if DEBUG
-  if (IsWideAtom(at))
-    fprintf(stderr, "LOG %S\n", RepAtom(at)->WStrOfAE);
-  else if (IsBlob(at))
+  if (IsBlob(at))
     return FALSE;
   else
     fprintf(stderr, "LOG %s\n", RepAtom(at)->StrOfAE);
 #endif
-  if (IsWideAtom(at) || IsBlob(at))
-    return FALSE;
+  if (IsBlob(at))
+    return false;
   LOG(" %s ", RepAtom(at)->StrOfAE);
   return TRUE;
 }

@@ -1485,25 +1485,7 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
   PredEntry *p;
   Prop p0;
 
-  if (IsVarTerm(Goal)) {
-    Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
-  }
-  if (IsApplTerm(Goal) && FunctorOfTerm(Goal) == FunctorModule) {
-    Term M = ArgOfTerm(1, Goal);
-
-    if (IsVarTerm(M) || !IsAtomTerm(M)) {
-      CACHE_REGS
-      if (IsVarTerm(M)) {
-        LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-      } else {
-        LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
-      }
-      save_machine_regs();
-      siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
-    }
-    Goal = ArgOfTerm(2, Goal);
-    mod = M;
-  }
+  Goal = Yap_YapStripModule( Goal, &mod);
   if (IsVarTerm(Goal)) {
     Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
   } else if (IsNumTerm(Goal)) {

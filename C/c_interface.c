@@ -398,7 +398,16 @@ X_API Term YAP_MkAtomTerm(Atom n) {
 
 X_API Atom YAP_AtomOfTerm(Term t) { return (AtomOfTerm(t)); }
 
-X_API bool YAP_IsWideAtom(Atom a) { return IsWideAtom(a); }
+X_API bool YAP_IsWideAtom(Atom a) {
+    const unsigned char *s = RepAtom(a)->UStrOfAE;
+int32_t v;
+  while (*s) {
+    size_t n = get_utf8(s,1,&v);
+    if (n>1)
+      return true;
+  }
+  return false;
+}
 
 X_API const char *YAP_AtomName(Atom a) {
   const char *o;
@@ -407,7 +416,20 @@ X_API const char *YAP_AtomName(Atom a) {
   return (o);
 }
 
-X_API const wchar_t *YAP_WideAtomName(Atom a) { return RepAtom(a)->WStrOfAE; }
+X_API const wchar_t *YAP_WideAtomName(Atom a) {
+  int32_t v;
+  const unsigned char *s = RepAtom(a)->UStrOfAE;
+  size_t n = strlen_utf8( s );
+  wchar_t *dest = Malloc( (n+1)* sizeof(wchar_t)), *o = dest;
+  while (*s) {
+    size_t n = get_utf8(s,1,&v);
+      if (n==0)
+          return NULL;
+    *o++ = v;
+  }
+    o[0] = '\0';
+  return dest;
+}
 
 X_API Atom YAP_LookupAtom(const char *c) {
   CACHE_REGS
@@ -430,9 +452,10 @@ X_API Atom YAP_LookupAtom(const char *c) {
 X_API Atom YAP_LookupWideAtom(const wchar_t *c) {
   CACHE_REGS
   Atom a;
+    
 
   while (TRUE) {
-    a = Yap_LookupWideAtom((wchar_t *)c);
+      a = Yap_NWCharsToAtom(c, -1 USES_REGS);
     if (a == NIL || Yap_get_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_locked_growheap(FALSE, 0, NULL)) {
         Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "YAP failed to grow heap: %s",
@@ -467,15 +490,10 @@ X_API size_t YAP_AtomNameLength(Atom at) {
   if (IsBlob(at)) {
     return RepAtom(at)->rep.blob->length;
   }
-  if (IsWideAtom(at)) {
-    wchar_t *c = RepAtom(at)->WStrOfAE;
-
-    return wcslen(c);
-  } else {
     unsigned char *c = RepAtom(at)->UStrOfAE;
 
-    return strlen((char *)c);
-  }
+    return strlen_utf8(c);
+
 }
 
 X_API Term YAP_MkVarTerm(void) {
@@ -2260,6 +2278,9 @@ static void start_modules(void) {
   CurrentModule = cm;
 }
 
+/// whether Yap is under control of some other system
+bool Yap_embedded;
+
 /* this routine is supposed to be called from an external program
    that wants to control Yap */
 
@@ -2268,7 +2289,6 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
   bool do_bootstrap = (restore_result & YAP_CONSULT_MODE);
   CELL Trail = 0, Stack = 0, Heap = 0, Atts = 0;
   char boot_file[YAP_FILENAME_MAX + 1];
-
   Int rc;
   const char *yroot;
 
@@ -2277,6 +2297,7 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
     return YAP_FOUND_BOOT_ERROR;
   initialized = true;
 
+  Yap_embedded = yap_init->Embedded;
   Yap_page_size = Yap_InitPageSize(); /* init memory page size, required by
                                          later functions */
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
@@ -2285,7 +2306,7 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
   GLOBAL_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts;
   Yap_InitSysbits(0); /* init signal handling and time, required by later
                         functions */
-  GLOBAL_argv = yap_init->Argv;
+    GLOBAL_argv = yap_init->Argv;  
   GLOBAL_argc = yap_init->Argc;
   if (0 && ((YAP_QLY && yap_init->SavedState) ||
             (YAP_BOOT_PL && (yap_init->YapPrologBootFile)))) {
@@ -2346,9 +2367,10 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
   //
 
   CACHE_REGS
-  if (yap_init->QuietMode) {
-    setVerbosity(TermSilent);
-  }
+    if (Yap_embedded)
+      if (yap_init->QuietMode) {
+	setVerbosity(TermSilent);
+      }
   {
     if (yap_init->YapPrologRCFile != NULL) {
       /*
@@ -3186,10 +3208,10 @@ size_t YAP_UTF8_TextLength(Term t) {
       Term hd = HeadOfTerm(t);
       if (IsAtomTerm(hd)) {
         Atom at = AtomOfTerm(hd);
-        if (IsWideAtom(at))
-          c = RepAtom(at)->WStrOfAE[0];
-        else
-          c = RepAtom(at)->StrOfAE[0];
+          unsigned char *s = RepAtom(at)->UStrOfAE;
+          int32_t ch;
+          get_utf8(s, 1, &ch);
+          c = ch;
       } else if (IsIntegerTerm(hd)) {
         c = IntegerOfTerm(hd);
       } else {
@@ -3200,21 +3222,8 @@ size_t YAP_UTF8_TextLength(Term t) {
     }
   } else if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
-    if (IsWideAtom(at)) {
-      const wchar_t *s = RepAtom(at)->WStrOfAE;
-      int c;
-      while ((c = *s++)) {
-        sz += utf8proc_encode_char(c, dst);
-      }
-    } else {
-      const unsigned char *s = (const unsigned char *)RepAtom(at)->StrOfAE;
-      int c;
-
-      while ((c = *s++)) {
-        sz += utf8proc_encode_char(c, dst);
-      }
-    }
-  } else if (IsStringTerm(t)) {
+      sz = strlen(RepAtom(at)->StrOfAE);
+   } else if (IsStringTerm(t)) {
     sz = strlen(StringOfTerm(t));
   }
   return sz;

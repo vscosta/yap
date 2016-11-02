@@ -187,12 +187,6 @@ inline static void wrputs(char *s, StreamDesc *stream) {
     wrputc(c, stream);
 }
 
-static void wrputws(wchar_t *s, wrf stream) /* writes a string	 */
-{
-  while (*s)
-    wrputc(*s++, stream);
-}
-
 #ifdef USE_GMP
 
 static char *ensure_space(size_t sz) {
@@ -589,22 +583,7 @@ static void putAtom(Atom atom, int Quote_illegal, struct write_globs *wglb) {
     wrputblob(RepAtom(atom), Quote_illegal, wglb);
     return;
   }
-  if (IsWideAtom(atom)) {
-    wchar_t *ws = RepAtom(atom)->WStrOfAE;
-
-    if (Quote_illegal) {
-      wrputc('\'', stream);
-      while (*ws) {
-        wchar_t ch = *ws++;
-        write_quoted(ch, '\'', stream);
-      }
-      wrputc('\'', stream);
-    } else {
-      wrputws(ws, stream);
-    }
-    return;
-  }
-  s = (unsigned char *)RepAtom(atom)->StrOfAE;
+ s = RepAtom(atom)->UStrOfAE;
   /* #define CRYPT_FOR_STEVE 1*/
 #ifdef CRYPT_FOR_STEVE
   if (Yap_GetValue(AtomCryptAtoms) != TermNil &&
@@ -624,7 +603,8 @@ static void putAtom(Atom atom, int Quote_illegal, struct write_globs *wglb) {
   if (Quote_illegal && !legalAtom(s)) {
     wrputc('\'', stream);
     while (*s) {
-      wchar_t ch = *s++;
+      int32_t ch;
+      s += get_utf8(s, 1, &ch);
       write_quoted(ch, '\'', stream);
     }
     wrputc('\'', stream);

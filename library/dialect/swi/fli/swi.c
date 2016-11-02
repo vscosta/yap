@@ -213,9 +213,9 @@ X_API int PL_get_nchars(term_t l, size_t *lengthp, char **s, unsigned flags) {
     out.enc = ENC_ISO_LATIN1;
   }
 
-  if (flags & BUF_MALLOC)  {
+  if (flags & BUF_MALLOC) {
     out.type |= YAP_STRING_MALLOC;
-      }
+  }
   if (lengthp) {
     out.type |= YAP_STRING_NCHARS;
     out.max = *lengthp;
@@ -238,7 +238,7 @@ int PL_get_wchars(term_t l, size_t *lengthp, wchar_t **s, unsigned flags) {
   inp.type = cvtFlags(flags);
   out.type = YAP_STRING_WCHARS;
   if (flags & BUF_MALLOC) {
-    out.type |= YAP_STRING_MALLOC; 
+    out.type |= YAP_STRING_MALLOC;
   }
   if (lengthp) {
     out.type |= YAP_STRING_NCHARS;
@@ -286,8 +286,6 @@ X_API int PL_unify_chars(term_t l, int flags, size_t length, const char *s) {
 X_API char *PL_atom_chars(atom_t a) /* SAM check type */
 {
   Atom at = SWIAtomToAtom(a);
-  if (IsWideAtom(at))
-    return NULL;
   return RepAtom(at)->StrOfAE;
 }
 
@@ -625,7 +623,7 @@ X_API int PL_get_atom_chars(term_t ts, char **a) /* SAM check type */
 {
   CACHE_REGS
   Term t = Yap_GetFromSlot(ts);
-  if (!IsAtomTerm(t) || IsWideAtom(AtomOfTerm(t)))
+  if (!IsAtomTerm(t))
     return 0;
   *a = RepAtom(AtomOfTerm(t))->StrOfAE;
   return 1;
@@ -892,9 +890,9 @@ X_API atom_t PL_new_atom(const char *c) {
   Atom at;
   atom_t sat;
 
-  while ((at = Yap_CharsToAtom(c, ENC_ISO_LATIN1 PASS_REGS)) == 0L) {
+  while ((at = Yap_LookupAtom(c)) == 0L) {
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError("PL_new_atom"))
-      return FALSE;
+      return false;
   }
   Yap_AtomIncreaseHold(at);
   sat = AtomToSWIAtom(at);
@@ -931,10 +929,16 @@ X_API atom_t PL_new_atom_wchars(size_t len, const wchar_t *c) {
 
 X_API wchar_t *PL_atom_wchars(atom_t name, size_t *sp) {
   Atom at = SWIAtomToAtom(name);
-  if (!IsWideAtom(at))
-    return NULL;
-  *sp = wcslen(RepAtom(at)->WStrOfAE);
-  return RepAtom(at)->WStrOfAE;
+  const unsigned char *s = at->UStrOfAE;
+  size_t sz = *sp = strlen_utf8(s);
+  wchar_t *out = Malloc((sz + 1) * sizeof(wchar_t));
+  size_t i = 0;
+  for (; i < sz; i++) {
+    int32_t v;
+    s += get_utf8(s, 1, &v);
+    out[i] = v;
+  }
+  return out;
 }
 
 X_API functor_t PL_new_functor(atom_t name, int arity) {
