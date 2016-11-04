@@ -151,7 +151,7 @@ bool Yap_DoPrompt(StreamDesc *s);
 Int Yap_peek(int sno);
 int Yap_MemPeekc(int sno);
 
-char *Yap_syntax_error(TokEntry *tokptr, int sno);
+Term Yap_syntax_error(TokEntry *tokptr, int sno);
 
 int console_post_process_read_char(int, StreamDesc *);
 int console_post_process_eof(StreamDesc *);

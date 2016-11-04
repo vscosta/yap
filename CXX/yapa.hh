@@ -23,8 +23,6 @@ enum PropTag {
     MUTEX_TAG                 = MutexProperty, // 0xFFF6,
   /// A typed array, may be in-db or in-stack deped
     ARRAY_TAG                 = ArrayProperty, // 0xFFF7,    
-  /// atom does not fit ISO-LATIN-1
-    WIDE_TAG                  = WideAtomProperty, // 0xFFF8,
   /// module
     MODULE_TAG                = ModProperty, // 0xFFFA,
   /// the original SICStus blackboard
@@ -59,14 +57,12 @@ class YAPAtom {
   /// construct new YAPAtom from Atom
   YAPAtom( Atom at ) { a = at; }
 public:
-  /// construct new YAPAtom from string
+  /// construct new YAPAtom from UTF-8 string
   YAPAtom( const char * s) { a = Yap_LookupAtom( s ); }
   /// construct new YAPAtom from wide string
-YAPAtom( const wchar_t * s) { a = Yap_LookupMaybeWideAtom( s ); }
+  //YAPAtom( const wchar_t * s) { a = Yap_LookupMaybeWideAtom( s ); }
   /// construct new YAPAtom from max-length string
 YAPAtom( const char * s, size_t len) { a = Yap_LookupAtomWithLength( s, len ); }
-  /// construct new YAPAtom from max-length wide string
-  YAPAtom( const wchar_t * s, size_t len) { a = Yap_LookupMaybeWideAtomWithLength( s, len ); }
   /// get name of atom
   const char *getName(void);
   ///  get name of  (other way)

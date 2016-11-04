@@ -57,10 +57,15 @@ GetFunctorProp(AtomEntry *ae,
                arity_t arity) { /* look property list of atom a for kind */
   FunctorEntry *pp;
 
-  pp = RepFunctorProp(ae->PropsOfAE);
-  while (!EndOfPAEntr(pp) && (pp = RepFunctorProp(pp->NextOfPE)))
-    ;
-  return (AbsFunctorProp(pp));
+  PropEntry *p = RepFunctorProp(ae->PropsOfAE);
+  while (p != NIL) {
+    if (p->KindOfPE == FunctorProperty &&
+        RepFunctorProp(p)->ArityOfFE == arity) {
+      return p;
+    }
+    p = p->NextOfPE;
+  }
+  return NIL;
 }
 
 /* vsc: We must guarantee that IsVarTerm(functor) returns true! */
@@ -155,7 +160,6 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
 
   hash = HashFunction(p);
   hash = hash % sz;
-
   /* we'll start by holding a read lock in order to avoid contention */
   READ_LOCK(HashChain[hash].AERWLock);
   a = HashChain[hash].Entry;
@@ -199,6 +203,7 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
   if (NOfAtoms > 2 * AtomHashTableSize) {
     Yap_signal(YAP_CDOVF_SIGNAL);
   }
+
   return na;
 }
 

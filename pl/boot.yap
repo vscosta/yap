@@ -174,7 +174,7 @@ list, since backtracking could not "pass through" the cut.
 system_module(_Mod, _SysExps, _Decls).
 %    new_system_module(Mod).
 
-use_system_module(_init, _SysExps).
+use_system_module(Module, _SysExps).
 
 private(_).
 
@@ -250,6 +250,7 @@ private(_).
 
 :- use_system_module( '$_strict_iso', ['$check_iso_strict_clause'/1,
         '$iso_check_goal'/2]).
+
 
 '$early_print_message'(Level, Msg) :-
 	'$pred_exists'(print_message(_,_), prolog), !,
@@ -658,7 +659,7 @@ number of steps.
  '$execute_command'(G, VL, Pos, Option, Source) :-
 	 '$continue_with_command'(Option, VL, Pos, G, Source).
 
- 
+
 '$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :-
     !,
 	'$continue_with_command'(Where,V,'$stream_position'(C,L,A1,A2,A3),G,Source).
@@ -1648,6 +1649,3 @@ log_event( String, Args ) :-
 /**
   @}
 */
-
-
- 

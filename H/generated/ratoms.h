@@ -32,7 +32,6 @@
   AtomEndCurlyBracket = AtomAdjust(AtomEndCurlyBracket); TermEndCurlyBracket = MkAtomTerm(AtomEndCurlyBracket);
   AtomEmptyBrackets = AtomAdjust(AtomEmptyBrackets); TermEmptyBrackets = MkAtomTerm(AtomEmptyBrackets);
   AtomEmptySquareBrackets = AtomAdjust(AtomEmptySquareBrackets); TermEmptySquareBrackets = MkAtomTerm(AtomEmptySquareBrackets);
-  AtomEmptyCurlyBrackets = AtomAdjust(AtomEmptyCurlyBrackets); TermEmptyCurlyBrackets = MkAtomTerm(AtomEmptyCurlyBrackets);
   AtomAsserta = AtomAdjust(AtomAsserta); TermAsserta = MkAtomTerm(AtomAsserta);
   AtomAssertaStatic = AtomAdjust(AtomAssertaStatic); TermAssertaStatic = MkAtomTerm(AtomAssertaStatic);
   AtomAssertz = AtomAdjust(AtomAssertz); TermAssertz = MkAtomTerm(AtomAssertz);
@@ -493,7 +492,6 @@
   FunctorDot9 = FuncAdjust(FunctorDot9);
   FunctorDoubleSlash = FuncAdjust(FunctorDoubleSlash);
   FunctorEmptySquareBrackets = FuncAdjust(FunctorEmptySquareBrackets);
-  FunctorEmptyCurlyBrackets = FuncAdjust(FunctorEmptyCurlyBrackets);
   FunctorEq = FuncAdjust(FunctorEq);
   FunctorError = FuncAdjust(FunctorError);
   FunctorEvaluationError = FuncAdjust(FunctorEvaluationError);

@@ -2229,6 +2229,7 @@ bool Yap_ResetException(int wid) {
     Yap_PopTermFromDB(REMOTE_ActiveError(wid)->errorTerm);
   }
   REMOTE_ActiveError(wid)->errorTerm = NULL;
+  REMOTE_ActiveError(wid)->errorTerm = NULL;
   return true;
 }
 

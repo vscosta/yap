@@ -37,7 +37,6 @@ A       BeginCurlyBracket       N       "{"
 A       EndCurlyBracket         N       "}"
 A	EmptyBrackets	N	"()"
 A	EmptySquareBrackets	N	"[]"
-A	EmptyCurlyBrackets	N	"{}"
 A	Asserta			N	"asserta"
 A	AssertaStatic	N	"asserta_static"
 A	Assertz			N	"assertz"
@@ -498,7 +497,6 @@ F	Dot8			Dot		8
 F	Dot9			Dot		9
 F	DoubleSlash			DoubleSlash		2
 F	EmptySquareBrackets	EmptySquareBrackets	2
-F	EmptyCurlyBrackets	EmptyCurlyBrackets	2
 F	Eq			Eq		2
 F	Error			Error		2
 F	EvaluationError		EvaluationError	1

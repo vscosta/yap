@@ -310,6 +310,27 @@ yap_error_descriptor_t *Yap_popErrorContext(void) {
   return new_error;
 }
 
+void Yap_ThrowError__(const char *file, const char *function, int lineno,
+                   yap_error_number type, Term where, ...) {
+    va_list ap;
+    char tmpbuf[MAXPATHLEN];
+
+    va_start(ap, where);
+    char *format = va_arg(ap, char *);
+    if (format != NULL) {
+#if HAVE_VSNPRINTF
+        (void)vsnprintf(tmpbuf, MAXPATHLEN - 1, format, ap);
+#else
+        (void)vsprintf(tnpbuf, format, ap);
+#endif
+        // fprintf(stderr, "warning: ");
+Yap_Error__(file, function, lineno, type, where, tmpbuf);
+    } else {
+        Yap_Error__(file, function, lineno, type, where);
+    }
+    siglongjmp(LOCAL_RestartEnv, 2);
+}
+
 /**
  * @brief Yap_Error
  *   This function handles errors in the C code. Check errors.yap for the

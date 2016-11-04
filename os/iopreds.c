@@ -1869,7 +1869,7 @@ void Yap_InitIOPreds(void) {
   Yap_InitReadTPreds();
   Yap_InitFormat();
   Yap_InitRandomPreds();
- #if USE_READLINE
+#if USE_READLINE
   Yap_InitReadlinePreds();
 #endif
   Yap_InitSockets();

@@ -1080,10 +1080,8 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
       } else {
         char s[32];
 
-        LOCAL_Error_TYPE = TYPE_ERROR_NUMBER;
-
         Yap_bip_name(Op, s);
-        sprintf(LOCAL_ErrorMessage, "compiling %s/2 with output bound", s);
+        Yap_ThrowError( TYPE_ERROR_NUMBER, t2, "compiling %s/2 with output bound", s);
         save_machine_regs();
         siglongjmp(cglobs->cint.CompilerBotch, 1);
       }
@@ -1094,9 +1092,8 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
       if (IsNewVar(t2)) {
         char s[32];
 
-        LOCAL_Error_TYPE = INSTANTIATION_ERROR;
         Yap_bip_name(Op, s);
-        sprintf(LOCAL_ErrorMessage, "compiling %s/3", s);
+        Yap_ThrowError(INSTANTIATION_ERROR , t2, "compiling %s/3", s); 
         save_machine_regs();
         siglongjmp(cglobs->cint.CompilerBotch, 1);
       }
@@ -1107,10 +1104,7 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
 
         if (!IsIntegerTerm(t2)) {
           char s[32];
-
-          LOCAL_Error_TYPE = TYPE_ERROR_INTEGER;
-          Yap_bip_name(Op, s);
-          sprintf(LOCAL_ErrorMessage, "compiling functor/3");
+          Yap_ThrowError( TYPE_ERROR_INTEGER, t2, "compiling functor/3");
           save_machine_regs();
           siglongjmp(cglobs->cint.CompilerBotch, 1);
         }
@@ -1118,9 +1112,7 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
         if (i2 < 0) {
           char s[32];
 
-          LOCAL_Error_TYPE = DOMAIN_ERROR_NOT_LESS_THAN_ZERO;
-          Yap_bip_name(Op, s);
-          sprintf(LOCAL_ErrorMessage, "compiling functor/3");
+          Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO , t2, "compiling functor/3");
           save_machine_regs();
           siglongjmp(cglobs->cint.CompilerBotch, 1);
         }

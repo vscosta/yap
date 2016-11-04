@@ -32,7 +32,6 @@ EXTERNAL Atom AtomBeginCurlyBracket; EXTERNAL Term TermBeginCurlyBracket;
 EXTERNAL Atom AtomEndCurlyBracket; EXTERNAL Term TermEndCurlyBracket;
 EXTERNAL Atom AtomEmptyBrackets; EXTERNAL Term TermEmptyBrackets;
 EXTERNAL Atom AtomEmptySquareBrackets; EXTERNAL Term TermEmptySquareBrackets;
-EXTERNAL Atom AtomEmptyCurlyBrackets; EXTERNAL Term TermEmptyCurlyBrackets;
 EXTERNAL Atom AtomAsserta; EXTERNAL Term TermAsserta;
 EXTERNAL Atom AtomAssertaStatic; EXTERNAL Term TermAssertaStatic;
 EXTERNAL Atom AtomAssertz; EXTERNAL Term TermAssertz;
@@ -548,8 +547,6 @@ EXTERNAL  Functor FunctorDot9;
 EXTERNAL  Functor FunctorDoubleSlash;
 
 EXTERNAL  Functor FunctorEmptySquareBrackets;
-
-EXTERNAL  Functor FunctorEmptyCurlyBrackets;
 
 EXTERNAL  Functor FunctorEq;
 

@@ -524,7 +524,7 @@ and  _Patch_ is the patch number.
 */
     YAP_FLAG(VERSION_DATA_FLAG, "version_data", false, ro, YAP_TVERSION,
              NULL), /**<
-`version `  Read-only flag that returns an a compound term with the
+`version `  Read-only flag that returns a compound term with the
 current version of YAP. The term will have the name `yap` and arity 4, the first
 argument will be the
 major version, the second the minor version, the third the patch number, and the

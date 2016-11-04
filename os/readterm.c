@@ -95,7 +95,7 @@ static char SccsId[] = "%W% %G%";
 #define SYSTEM_STAT stat
 #endif
 
-static char *syntax_error(TokEntry *errtok, int sno, Term cmod);
+static Term syntax_error(TokEntry *errtok, int sno, Term cmod);
 
 static void clean_vars(VarEntry *p) {
   if (p == NULL)
@@ -215,7 +215,7 @@ static const param_t read_defs[] = {READ_DEFS()};
  * Implicit arguments:
  *    +
  */
-static char *syntax_error(TokEntry *errtok, int sno, Term cmod) {
+static Term syntax_error(TokEntry *errtok, int sno, Term cmod) {
   CACHE_REGS
   Term info;
   Term startline, errline, endline;
@@ -270,42 +270,21 @@ static char *syntax_error(TokEntry *errtok, int sno, Term cmod) {
       t0[0] = MkAtomTerm(Yap_LookupAtom("<QQ>"));
       ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomAtom, 1), 1, t0);
     } break;
-    case WQuasiQuotes_tok: {
-      Term t0[2];
-      t0[0] = MkAtomTerm(Yap_LookupAtom("<WideQQ>"));
-      ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomAtom, 1), 1, t0);
-    } break;
     case Number_tok:
-      ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomNumber, 1), 1, &(tok->TokInfo));
+      ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomNumber, 1), 1, &info);
       break;
     case Var_tok: {
       Term t[2];
       VarEntry *varinfo = (VarEntry *)info;
 
-      t[0] = MkIntTerm(0);
       t[1] = Yap_CharsToString(varinfo->VarRep, ENC_ISO_LATIN1 PASS_REGS);
       ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomGVar, 2), 2, t);
     } break;
     case String_tok: {
-      Term t0 = Yap_CharsToTDQ((char *)info, cmod, ENC_ISO_LATIN1 PASS_REGS);
-      if (!t0) {
-        return 0;
-      }
-      ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString, 1), 1, &t0);
-    } break;
-    case WString_tok: {
-      Term t0 = Yap_WCharsToTDQ((wchar_t *)info, cmod PASS_REGS);
-      if (!t0)
-        return 0;
-      ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString, 1), 1, &t0);
+      ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString, 1), 1, &info);
     } break;
     case BQString_tok: {
-      Term t0 = Yap_CharsToTBQ((char *)info, cmod, ENC_ISO_LATIN1 PASS_REGS);
-      ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString, 1), 1, &t0);
-    } break;
-    case WBQString_tok: {
-      Term t0 = Yap_WCharsToTBQ((wchar_t *)info, cmod PASS_REGS);
-      ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString, 1), 1, &t0);
+      ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString, 1), 1, &info);
     } break;
     case Error_tok: {
       ts[0] = MkAtomTerm(AtomError);
@@ -361,10 +340,10 @@ static char *syntax_error(TokEntry *errtok, int sno, Term cmod) {
     Yap_DebugPlWriteln(terr);
   }
 #endif
-  return NULL;
+  return terr;
 }
 
-char *Yap_syntax_error(TokEntry *errtok, int sno) {
+Term Yap_syntax_error(TokEntry *errtok, int sno) {
   return syntax_error(errtok, sno, CurrentModule);
 }
 
@@ -798,21 +777,28 @@ static parser_state_t scan(REnv *re, FEnv *fe, int inp_stream) {
   LOCAL_tokptr = LOCAL_toktide =
 
       Yap_tokenizer(GLOBAL_Stream + inp_stream, false, &fe->tpos);
-  if (LOCAL_ErrorMessage)
-    return YAP_SCANNING_ERROR;
-  if (LOCAL_tokptr->Tok != Ord(eot_tok)) {
-    // next step
-    return YAP_PARSING;
+#if DEBUG
+  if (GLOBAL_Option[2]) {
+    TokEntry *t = LOCAL_tokptr;
+    int n = 0;
+    while (t) {
+      fprintf(stderr, "[Token %d %s %d]", Ord(t->Tok),
+              Yap_tokRep(t, ENC_ISO_UTF8), n++);
+      t = t->TokNext;
+    }
   }
-  if (LOCAL_tokptr->Tok == eot_tok && LOCAL_tokptr->TokInfo == TermNl) {
-    size_t len = strlen("Empty clause");
-    char *out = malloc(len + 1);
-    strncpy(out, "Empty clause", len);
-    LOCAL_ErrorMessage = out;
-    LOCAL_Error_TYPE = SYNTAX_ERROR;
-    return YAP_PARSING_ERROR;
-  }
-  return scanEOF(fe, inp_stream);
+#endif
+if (LOCAL_ErrorMessage)
+  return YAP_SCANNING_ERROR;
+if (LOCAL_tokptr->Tok != Ord(eot_tok)) {
+  // next step
+  return YAP_PARSING;
+}
+if (LOCAL_tokptr->Tok == eot_tok && LOCAL_tokptr->TokInfo == TermNl) {
+  LOCAL_Error_TYPE = SYNTAX_ERROR;
+  return YAP_PARSING_ERROR;
+}
+return scanEOF(fe, inp_stream);
 }
 
 static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream) {
@@ -1282,13 +1268,15 @@ X_API Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp,
   CACHE_REGS
   Term bvar = MkVarTerm(), ctl;
   yhandle_t sl;
+    int lvl = push_text_stack();
 
   if (len == 0) {
     Term rval = TermEof;
     if (rval && bindings) {
       *bindings = TermNil;
     }
-    return rval;
+      pop_text_stack(lvl);
+      return rval;
   }
   if (bindings) {
     ctl = Yap_MkApplTerm(Yap_MkFunctor(AtomVariableNames, 1), 1, &bvar);
@@ -1307,6 +1295,7 @@ X_API Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp,
   if (rval && bindings) {
     *bindings = Yap_PopHandle(sl);
   }
+    pop_text_stack(lvl);
   return rval;
 }
 

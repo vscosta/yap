@@ -1202,7 +1202,8 @@ Term Yap_scan_num(StreamDesc *inp) {
       ef->TokNext = NULL;
       LOCAL_tokptr = tokptr;
       LOCAL_toktide = e;
-      LOCAL_ErrorMessage = Yap_syntax_error(e, inp - GLOBAL_Stream);
+      Yap_JumpToEnv(
+                   Yap_syntax_error(e, inp - GLOBAL_Stream) );
       LOCAL_Error_TYPE = SYNTAX_ERROR;
     }
   }
@@ -1237,21 +1238,18 @@ const char *Yap_tokRep(void *tokptre, encoding_t encoding) {
   case Ponctuation_tok:
   case String_tok:
   case BQString_tok:
-  case WString_tok:
-  case WBQString_tok: {
     return Yap_TermToString(info, &length, encoding, flags);
-  }
-  case Var_tok: {
+    case Var_tok:
+      {
     VarEntry *varinfo = (VarEntry *)info;
     varinfo->VarAdr = TermNil;
-    return varinfo->VarRep;
+    return RepAtom(varinfo->VarRep)->StrOfAE;
   }
   case Error_tok:
     return "<ERR>";
   case eot_tok:
     return "<EOT>";
   case QuasiQuotes_tok:
-  case WQuasiQuotes_tok:
     return "<QQ>";
   }
 }
@@ -1445,7 +1443,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
         }
         t->Tok = Ord(kind = Var_tok);
       }
-        
+
     } break;
 
     case NU: {
@@ -1923,7 +1921,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
           qq->end.byteno = fseek(inp_stream->file, 0, 0);
         } else {
           qq->end.byteno = inp_stream->charcount - 1;
-        }
+      }
         qq->end.lineno = inp_stream->linecount;
         qq->end.linepos = inp_stream->linepos - 1;
         qq->end.charno = inp_stream->charcount - 1;
@@ -1977,7 +1975,6 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
   return (l);
 }
 
-int vsc_count;
 
 void Yap_clean_tokenizer(TokEntry *tokstart, VarEntry *vartable,
                          VarEntry *anonvartable) {

@@ -52,19 +52,16 @@ typedef struct TextBuffer_manager {
 } text_buffer_t;
 
 int push_text_stack(USES_REGS1) {
-  printf("push   %d\n", LOCAL_TextBuffer->lvl);
   return LOCAL_TextBuffer->lvl++;
 }
 
 int pop_text_stack(int i) {
-  printf("pop %d\n", i);
   int lvl = LOCAL_TextBuffer->lvl;
   while (lvl > i) {
     struct mblock *p = LOCAL_TextBuffer->first[lvl];
     while (p) {
       struct mblock *np = p->next;
       free(p);
-        printf("----------> %p free\n", p);
       p = np;
     }
     LOCAL_TextBuffer->first[lvl] = NULL;
@@ -95,7 +92,6 @@ void *Malloc(size_t sz USES_REGS) {
   o->next = NULL;
   o->sz = sz;
   o->lvl = lvl;
-  printf("%p malloc %d\n", o, sz);
   return o + 1;
 }
 
@@ -115,7 +111,6 @@ void *Realloc(void *pt, size_t sz USES_REGS) {
   if (LOCAL_TextBuffer->last[lvl] == old) {
     LOCAL_TextBuffer->last[lvl] = o;
   }
-  printf("%p realloc %ld\n", o, sz);
   return o + 1;
 }
 
@@ -136,7 +131,6 @@ void Free(void *pt USES_REGS) {
     LOCAL_TextBuffer->last[lvl] = o->prev;
   }
   free(o);
-  printf("%p free\n", o);
 }
 
 void *Yap_InitTextAllocator(void) {
@@ -392,7 +386,7 @@ unsigned char *Yap_readText(seq_tv_t *inp, size_t *lengp) {
     // this is a term, extract to a buffer, and representation is wide
     // Yap_DebugPlWriteln(inp->val.t);
     Atom at = AtomOfTerm(inp->val.t);
-    inp->val.uc = at->UStrOfAE;
+    return at->UStrOfAE;
   }
   if (IsStringTerm(inp->val.t) && inp->type & YAP_STRING_STRING) {
     // this is a term, extract to a buffer, and representation is wide
@@ -636,7 +630,7 @@ static Term write_codes(void *s0, seq_tv_t *out, size_t leng USES_REGS) {
 static Atom write_atom(void *s0, seq_tv_t *out, size_t leng USES_REGS) {
   unsigned char *s = s0;
   int32_t ch;
-  if (strlen_utf8(s0) <= leng) {
+  if (!leng || strlen_utf8(s0) <= leng) {
     return Yap_LookupAtom(s0);
   } else {
     size_t n = get_utf8(s, 1, &ch);
@@ -729,15 +723,17 @@ static Term write_number(unsigned char *s, seq_tv_t *out, int size USES_REGS) {
 
 static Term string_to_term(void *s, seq_tv_t *out, size_t leng USES_REGS) {
   Term o;
-  int i = push_text_stack();
   o = out->val.t =
       Yap_StringToTerm(s, strlen(s) + 1, &out->enc, GLOBAL_MaxPriority, NULL);
-  pop_text_stack(i);
   return o;
 }
 
 bool write_Text(unsigned char *inp, seq_tv_t *out, size_t leng USES_REGS) {
   /* we know what the term is */
+  if (out->type == 0) {
+    return true;
+  }
+    
   if (out->type & YAP_STRING_TERM) {
     if ((out->val.t = string_to_term(inp, out, leng PASS_REGS)) != 0L)
       return out->val.t != 0;
@@ -753,7 +749,7 @@ bool write_Text(unsigned char *inp, seq_tv_t *out, size_t leng USES_REGS) {
       return false;
   }
   if (out->type & (YAP_STRING_ATOM)) {
-    if (write_atom(inp, out, leng PASS_REGS) != NIL) {
+    if ((out->val.a = write_atom(inp, out, leng PASS_REGS)) != NIL) {
       Atom at = out->val.a;
       if (at && (out->type & YAP_STRING_OUTPUT_TERM))
         out->val.t = MkAtomTerm(at);
@@ -797,7 +793,7 @@ bool write_Text(unsigned char *inp, seq_tv_t *out, size_t leng USES_REGS) {
     out->val.t = write_number(inp, out, leng PASS_REGS);
     // Yap_DebugPlWriteln(out->val.t);
     return out->val.t != 0;
-  default: {}
+  default: { return true ; }
   }
   return false;
 }
@@ -833,7 +829,6 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
   bool rc;
 
   size_t leng;
-  int l = push_text_stack(PASS_REGS1);
   /*
   f//printfmark(stderr, "[ %d ", n++)    ;
   if (inp->type & (YAP_STRING_TERM|YAP_STRING_ATOM|YAP_STRING_ATOMS_CODES
@@ -858,26 +853,22 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
   }
 
   if (!buf) {
-    pop_text_stack( l);
     return 0L;
   }
   if (out->type & (YAP_STRING_UPCASE | YAP_STRING_DOWNCASE)) {
     if (out->type & YAP_STRING_UPCASE) {
       if (!upcase(buf, out)) {
-        pop_text_stack( l);
         return false;
       }
     }
     if (out->type & YAP_STRING_DOWNCASE) {
       if (!downcase(buf, out)) {
-        pop_text_stack( l);
         return false;
       }
     }
   }
 
   rc = write_Text(buf, out, leng PASS_REGS);
-  pop_text_stack(l);
   /*    fprintf(stderr, " -> ");
       if (!rc) fprintf(stderr, "NULL");
       else if (out->type &
@@ -919,9 +910,7 @@ static unsigned char *concat(int n, unsigned char *sv[] USES_REGS) {
   buf = Malloc(room + 1);
   buf0 = (unsigned char *)buf;
   for (i = 0; i < n; i++) {
-    char *s = (char *)sv[i];
-    buf = strcpy(buf, s);
-    buf += strlen(s);
+    buf = stpcpy(buf, sv[i]);
   }
   return buf0;
 }
@@ -945,12 +934,11 @@ static void *slice(size_t min, size_t max, unsigned char *buf USES_REGS) {
 bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
   unsigned char **bufv;
   unsigned char *buf;
-  size_t leng;
   int i;
-  int l = push_text_stack(PASS_REGS1);
+  size_t leng;
+  
   bufv = Malloc(tot * sizeof(unsigned char *));
   if (!bufv) {
-    pop_text_stack( l);
     return NULL;
   }
   for (i = 0; i < tot; i++) {
@@ -958,14 +946,12 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
     unsigned char *nbuf = Yap_readText(inp + i, &leng PASS_REGS);
 
     if (!nbuf) {
-      pop_text_stack( l);
       return NULL;
     }
     bufv[i] = nbuf;
   }
   buf = concat(tot, bufv PASS_REGS);
-  bool rc = write_Text(buf, out, leng PASS_REGS);
-  pop_text_stack(l);
+  bool rc = write_Text(buf, out, 0 PASS_REGS);
   return rc;
 }
 
@@ -973,14 +959,11 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
 bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
                      seq_tv_t outv[] USES_REGS) {
   unsigned char *buf;
-  int lvl = push_text_stack(PASS_REGS1);
   size_t l;
 
   inp->type |= YAP_STRING_IN_TMP;
   buf = Yap_readText(inp, &l PASS_REGS);
   if (!buf) {
-    pop_text_stack( l);
-
     return false;
   }
   if (!cuts) {
@@ -991,11 +974,9 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
       if (outv[0].val.t) {
         buf0 = Yap_readText(outv, &l0 PASS_REGS);
         if (!buf0) {
-          pop_text_stack( l);
           return false;
         }
         if (cmp_Text(buf, buf0, l0) != 0) {
-          pop_text_stack( l);
           return false;
         }
         l1 = l - l0;
@@ -1003,26 +984,21 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
         buf1 = slice(l0, l, buf PASS_REGS);
         bool rc = write_Text(buf1, outv + 1, l1 PASS_REGS);
         if (!rc) {
-          pop_text_stack( l);
           return false;
         }
-        pop_text_stack(lvl);
         return rc;
       } else /* if (outv[1].val.t) */ {
         buf1 = Yap_readText(outv + 1, &l1 PASS_REGS);
         if (!buf1) {
-          pop_text_stack( l);
           return false;
         }
         l0 = l - l1;
         if (cmp_Text(skip_utf8((const unsigned char *)buf, l0), buf1, l1) !=
             0) {
-          pop_text_stack( l);
           return false;
         }
         buf0 = slice(0, l0, buf PASS_REGS);
         bool rc = write_Text(buf0, outv, l0 PASS_REGS);
-        pop_text_stack((rc ? 0 : lvl));
         return rc;
       }
     }
@@ -1033,14 +1009,14 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
       next = 0;
     else
       next = cuts[i - 1];
+    if (cuts[i] == 0)
+      break;
     void *bufi = slice(next, cuts[i], buf PASS_REGS);
     if (!write_Text(bufi, outv + i, cuts[i] - next PASS_REGS)) {
-      pop_text_stack( l);
       return false;
     }
   }
-  pop_text_stack(l);
-
+    
   return true;
 }
 

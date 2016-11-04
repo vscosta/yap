@@ -173,12 +173,15 @@ const char *Yap_tokRep(void *tokptr, encoding_t enc);
 static void syntax_msg(const char *msg, ...) {
   CACHE_REGS
   va_list ap;
-
-  if (LOCAL_toktide == LOCAL_tokptr) {
-    LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE + 1);
+  if (!LOCAL_ErrorMessage ||
+      (LOCAL_Error_TYPE == SYNTAX_ERROR &&
+       LOCAL_ActiveError->prologParserLine < LOCAL_tokptr->TokPos)) {
+    if (!LOCAL_ErrorMessage) {
+      LOCAL_ErrorMessage = malloc(1024 + 1);
+    }
+    LOCAL_ActiveError->prologParserLine = LOCAL_tokptr->TokPos;
     va_start(ap, msg);
-    vsnprintf(LOCAL_ErrorMessage, YAP_FILENAME_MAX, msg, ap);
-    LOCAL_Error_TYPE = SYNTAX_ERROR;
+    vsnprintf(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE, msg, ap);
     va_end(ap);
   }
 }
@@ -224,22 +227,18 @@ static void syntax_msg(const char *msg, ...) {
 
 #define FAIL siglongjmp(FailBuff->JmpBuff, 1)
 
-VarEntry *
-Yap_LookupVar(const  char *var) /* lookup variable in variables table
- * */
+VarEntry *Yap_LookupVar(const char *var) /* lookup variable in variables table
+          * */
 {
   CACHE_REGS
   VarEntry *p;
-    int32_t ch;
-    const unsigned char *v1 = var;
+  Atom vat = Yap_LookupAtom(var);
 
 #if DEBUG
   if (GLOBAL_Option[4])
     fprintf(stderr, "[LookupVar %s]", var);
 #endif
-   
-    v1 = v1 + get_utf8(v1, 1, &ch);
-  if (ch != '_' || v1[0] != '\0') {
+  if (var[0] != '_' || var[1] != '\0') {
     VarEntry **op = &LOCAL_VarTable;
     UInt hv;
 
@@ -249,7 +248,7 @@ Yap_LookupVar(const  char *var) /* lookup variable in variables table
       CELL hpv = p->hv;
       if (hv == hpv) {
         Int scmp;
-        if ((scmp = strcmp(var, p->VarRep)) == 0) {
+        if ((scmp = strcmp(var, RepAtom(p->VarRep)->StrOfAE)) == 0) {
           p->refs++;
           return (p);
         } else if (scmp < 0) {
@@ -267,22 +266,21 @@ Yap_LookupVar(const  char *var) /* lookup variable in variables table
         p = p->VarRight;
       }
     }
-    p = (VarEntry *)Yap_AllocScannerMemory(strlen(var) + 1+ sizeof(VarEntry));
+    p = (VarEntry *)Yap_AllocScannerMemory(sizeof(VarEntry));
     *op = p;
     p->VarLeft = p->VarRight = NULL;
     p->hv = hv;
     p->refs = 1L;
-    strcpy(p->VarRep, var);
+    p->VarRep = vat;
   } else {
     /* anon var */
-    p = (VarEntry *)Yap_AllocScannerMemory(sizeof(VarEntry) + 3);
+    p = (VarEntry *)Yap_AllocScannerMemory(sizeof(VarEntry));
     p->VarLeft = LOCAL_AnonVarTable;
     LOCAL_AnonVarTable = p;
     p->VarRight = NULL;
     p->refs = 0L;
     p->hv = 1L;
-    p->VarRep[0] = '_';
-    p->VarRep[1] = '\0';
+    p->VarRep = vat;
   }
   p->VarAdr = TermNil;
   return (p);
@@ -290,11 +288,11 @@ Yap_LookupVar(const  char *var) /* lookup variable in variables table
 
 static Term VarNames(VarEntry *p, Term l USES_REGS) {
   if (p != NULL) {
-    if (strcmp(p->VarRep, "_") != 0) {
+    if (strcmp(RepAtom(p->VarRep)->StrOfAE, "_") != 0) {
       Term t[2];
       Term o;
 
-      t[0] = MkAtomTerm(Yap_LookupAtom(p->VarRep));
+      t[0] = MkAtomTerm(p->VarRep);
       if (!IsVarTerm(p->VarAdr))
         p->VarAdr = MkVarTerm();
       t[1] = p->VarAdr;
@@ -321,11 +319,11 @@ Term Yap_VarNames(VarEntry *p, Term l) {
 
 static Term Singletons(VarEntry *p, Term l USES_REGS) {
   if (p != NULL) {
-    if (p->VarRep[0] != '_' && p->refs == 1) {
+    if (RepAtom(p->VarRep)->StrOfAE[0] != '_' && p->refs == 1) {
       Term t[2];
       Term o;
 
-      t[0] = MkAtomTerm(Yap_LookupAtom(p->VarRep));
+      t[0] = MkAtomTerm(p->VarRep);
       t[1] = p->VarAdr;
       o = Yap_MkApplTerm(FunctorEq, 2, t);
       o = MkPairTerm(o,
@@ -404,10 +402,10 @@ static int IsInfixOp(Atom op, int *pptr, int *lpptr, int *rpptr,
 
   OpEntry *opp = Yap_GetOpProp(op, INFIX_OP, cmod PASS_REGS);
   if (!opp)
-    return FALSE;
+    return false;
   if (opp->OpModule && opp->OpModule != cmod) {
     READ_UNLOCK(opp->OpRWLock);
-    return FALSE;
+    return false;
   }
   if ((p = opp->Infix) != 0) {
     READ_UNLOCK(opp->OpRWLock);
@@ -614,7 +612,8 @@ static Term ParseArgs(Atom a, Term close, JMPBUFF *FailBuff, Term arg1,
 }
 
 static Term MakeAccessor(Term t, Functor f USES_REGS) {
-  UInt arity = ArityOfFunctor(FunctorOfTerm(t)), i;
+    UInt arity = ArityOfFunctor(FunctorOfTerm(t));
+    int i;
   Term tf[2], tl = TermNil;
 
   tf[1] = ArgOfTerm(1, t);
@@ -791,7 +790,7 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
     case '{':
       NextToken;
       if (LOCAL_tokptr->Tok == Ponctuation_tok &&
-          (int)LOCAL_tokptr->TokInfo == TermEndSquareBracket) {
+          (int)LOCAL_tokptr->TokInfo == TermEndCurlyBracket) {
         t = MkAtomTerm(AtomBraces);
         NextToken;
         break;
@@ -803,7 +802,7 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
         syntax_msg("line %d: Stack Overflow", LOCAL_tokptr->TokPos);
         FAIL;
       }
-      checkfor(TermEndSquareBracket, FailBuff, enc PASS_REGS);
+      checkfor(TermEndCurlyBracket, FailBuff, enc PASS_REGS);
       break;
     default:
       syntax_msg("line %d: unexpected ponctuation signal %s",
@@ -905,15 +904,16 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
 
   /* main loop to parse infix and posfix operators starts here */
   while (true) {
+    Atom name;
     if (LOCAL_tokptr->Tok == Ord(Name_tok) &&
-        Yap_HasOp(AtomOfTerm(LOCAL_tokptr->TokInfo))) {
-      Atom save_opinfo = opinfo = AtomOfTerm(LOCAL_tokptr->TokInfo);
+        Yap_HasOp((name = AtomOfTerm(LOCAL_tokptr->TokInfo)))) {
+      Atom save_opinfo = opinfo = name;
       if (IsInfixOp(save_opinfo, &opprio, &oplprio, &oprprio, cmod PASS_REGS) &&
           opprio <= prio && oplprio >= curprio) {
         /* try parsing as infix operator */
         Volatile int oldprio = curprio;
         TRY3(
-            func = Yap_MkFunctor(AtomOfTerm(LOCAL_tokptr->TokInfo), 2);
+            func = Yap_MkFunctor(save_opinfo, 2);
             if (func == NULL) {
               syntax_msg("line %d: Heap Overflow", LOCAL_tokptr->TokPos);
               FAIL;
@@ -954,7 +954,7 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
       break;
     }
     if (LOCAL_tokptr->Tok == Ord(Ponctuation_tok)) {
-      if (LOCAL_tokptr->TokInfo == TermDot && prio >= 1000 && curprio <= 999) {
+      if (LOCAL_tokptr->TokInfo == TermComma && prio >= 1000 && curprio <= 999) {
         Volatile Term args[2];
         NextToken;
         args[0] = t;
@@ -1001,17 +1001,17 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
         curprio = opprio;
         continue;
       } else if (LOCAL_tokptr->TokInfo == TermBeginCurlyBracket &&
-                 IsPosfixOp(AtomEmptyCurlyBrackets, &opprio, &oplprio,
+                 IsPosfixOp(AtomBraces, &opprio, &oplprio,
                             cmod PASS_REGS) &&
                  opprio <= prio && oplprio >= curprio) {
-        t = ParseArgs(AtomEmptyCurlyBrackets, TermEndCurlyBracket, FailBuff, t,
+        t = ParseArgs(AtomBraces, TermEndCurlyBracket, FailBuff, t,
                       enc, cmod PASS_REGS);
-        t = MakeAccessor(t, FunctorEmptyCurlyBrackets PASS_REGS);
+        t = MakeAccessor(t, FunctorBraces PASS_REGS);
         curprio = opprio;
         continue;
       }
     }
-    if (LOCAL_tokptr->Tok <= Ord(WString_tok)) {
+    if (LOCAL_tokptr->Tok <= Ord(String_tok)) {
       syntax_msg("line %d: expected operator, got \'%s\'", LOCAL_tokptr->TokPos,
                  Yap_tokRep(LOCAL_tokptr, enc));
       FAIL;
@@ -1026,6 +1026,7 @@ Term Yap_Parse(UInt prio, encoding_t enc, Term cmod) {
   Volatile Term t;
   JMPBUFF FailBuff;
   yhandle_t sls = Yap_StartSlots();
+  LOCAL_toktide = LOCAL_tokptr;
 
   if (!sigsetjmp(FailBuff.JmpBuff, 0)) {
 
@@ -1042,22 +1043,19 @@ Term Yap_Parse(UInt prio, encoding_t enc, Term cmod) {
     }
 #endif
     Yap_CloseSlots(sls);
-    if (LOCAL_tokptr != NULL && LOCAL_tokptr->Tok != Ord(eot_tok)) {
-      LOCAL_Error_TYPE = SYNTAX_ERROR;
-      LOCAL_ErrorMessage = "term does not end on . ";
-      t = 0;
-    }
-    if (t != 0 && LOCAL_Error_TYPE == SYNTAX_ERROR) {
-      LOCAL_Error_TYPE = YAP_NO_ERROR;
-      LOCAL_ErrorMessage = NULL;
-    }
-    //    if (LOCAL_tokptr->Tok != Ord(eot_tok))
-    //  return (0L);
-    return t;
   }
-  Yap_CloseSlots(sls);
-
-  return (0);
+  if (LOCAL_tokptr != NULL && LOCAL_tokptr->Tok != Ord(eot_tok)) {
+      LOCAL_Error_TYPE = SYNTAX_ERROR;
+    LOCAL_ErrorMessage = "term does not end on . ";
+    t = 0;
+  }
+  if (t != 0 && LOCAL_Error_TYPE == SYNTAX_ERROR) {
+    LOCAL_Error_TYPE = YAP_NO_ERROR;
+    LOCAL_ErrorMessage = NULL;
+  }
+  //    if (LOCAL_tokptr->Tok != Ord(eot_tok))
+  //  return (0L);
+  return t;
 }
 
 //! @}

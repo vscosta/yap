@@ -63,6 +63,8 @@ static char SccsId[] = "%W% %G%";
 #endif
 #include <wchar.h>
 
+#include "YapError.h"
+
 static Int compare(Term, Term);
 static Int p_compare(USES_REGS1);
 static Int p_acomp(USES_REGS1);
@@ -378,9 +380,11 @@ inline static Int compare(Term t1, Term t2) /* compare terms t1 and t2	 */
         return 1;
       else {
         int out;
-        if (!(out = 2 - ArityOfFunctor(f)))
-          out = strcmp(".", (char *)RepAtom(NameOfFunctor(f))->StrOfAE);
-        return (out);
+        if (f != FunctorDot)
+          return strcmp(".", RepAtom(NameOfFunctor(f))->StrOfAE);
+        else {
+           return compare_complex(RepPair(t1) - 1, RepPair(t1) + 1, RepAppl(t2) );
+        }
       }
     }
     if (IsPairTerm(t2)) {
@@ -590,14 +594,12 @@ inline static Int flt_cmp(Float dif) {
   return dif = 0.0;
 }
 
-static inline Int a_cmp(Term t1, Term t2 USES_REGS) {
+static Int a_cmp(Term t1, Term t2 USES_REGS) {
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "=:=/2");
-    return FALSE;
+      Yap_ThrowError( INSTANTIATION_ERROR, t1, "while doing arithmetic comparison" );
   }
   if (IsVarTerm(t2)) {
-    Yap_Error(INSTANTIATION_ERROR, t2, "=:=/2");
-    return FALSE;
+      Yap_ThrowError( INSTANTIATION_ERROR, t1, "while doing arithmetic comparison" );
   }
   if (IsFloatTerm(t1) && IsFloatTerm(t2)) {
     return flt_cmp(FloatOfTerm(t1) - FloatOfTerm(t2));
@@ -620,8 +622,7 @@ static inline Int a_cmp(Term t1, Term t2 USES_REGS) {
       Float f2 = FloatOfTerm(t2);
 #if HAVE_ISNAN
       if (isnan(f2)) {
-        LOCAL_Error_TYPE = EVALUATION_ERROR_UNDEFINED;
-        LOCAL_ErrorMessage = "trying to evaluate nan";
+        Yap_ThrowError( EVALUATION_ERROR_UNDEFINED, t2, "trying to evaluate nan" );
       }
 #endif
       return flt_cmp(i1 - f2);
@@ -636,8 +637,7 @@ static inline Int a_cmp(Term t1, Term t2 USES_REGS) {
     Float f1 = FloatOfTerm(t1);
 #if HAVE_ISNAN
     if (isnan(f1)) {
-      LOCAL_Error_TYPE = EVALUATION_ERROR_UNDEFINED;
-      LOCAL_ErrorMessage = "trying to evaluate nan";
+        Yap_ThrowError( EVALUATION_ERROR_UNDEFINED, t1, "trying to evaluate nan" );
     }
 #endif
     t2 = Yap_Eval(t2);
@@ -653,9 +653,8 @@ static inline Int a_cmp(Term t1, Term t2 USES_REGS) {
       Float f2 = FloatOfTerm(t2);
 #if HAVE_ISNAN
       if (isnan(f2)) {
-        LOCAL_Error_TYPE = EVALUATION_ERROR_UNDEFINED;
-        LOCAL_ErrorMessage = "trying to evaluate nan";
-      }
+          Yap_ThrowError( EVALUATION_ERROR_UNDEFINED, t2, "trying to evaluate nan" );
+     }
 #endif
       return flt_cmp(f1 - f2);
 #ifdef USE_GMP
@@ -676,8 +675,7 @@ static inline Int a_cmp(Term t1, Term t2 USES_REGS) {
         Float f2 = FloatOfTerm(t2);
 #if HAVE_ISNAN
         if (isnan(f2)) {
-          LOCAL_Error_TYPE = EVALUATION_ERROR_UNDEFINED;
-          LOCAL_ErrorMessage = "trying to evaluate nan";
+            Yap_ThrowError( EVALUATION_ERROR_UNDEFINED, t2, "trying to evaluate nan" );
         }
 #endif
         return Yap_gmp_cmp_big_float(t1, f2);
@@ -744,7 +742,6 @@ static Int a_eq(Term t1, Term t2) {
     }
   }
   out = a_cmp(t1, t2 PASS_REGS);
-  Yap_Error(LOCAL_Error_TYPE, t1, LOCAL_ErrorMessage);
   return out == 0;
 }
 

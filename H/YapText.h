@@ -190,7 +190,7 @@ inline static utf8proc_ssize_t strlen_utf8(const utf8proc_uint8_t *pt) {
       return rc;
     else if (b > 0) {
       pt += l;
-      rc += l;
+      rc ++;
     } else {
       pt++;
     }
